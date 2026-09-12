@@ -12,6 +12,7 @@ func GetLatestRemoteBranch(repoPath string) string {
 	if err != nil {
 		return "—"
 	}
+
 	lines := strings.Split(strings.TrimSpace(string(out)), "\n")
 	for _, l := range lines {
 		l = strings.TrimSpace(l)
@@ -19,5 +20,6 @@ func GetLatestRemoteBranch(repoPath string) string {
 			return l
 		}
 	}
+
 	return "main" // fallback if nothing else found
 }

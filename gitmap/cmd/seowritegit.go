@@ -28,6 +28,7 @@ func gitCommitWithAuthor(title, description, authorName, authorEmail string) {
 		author := resolveAuthorFlag(authorName, authorEmail)
 		cmd = exec.Command("git", "commit", "-m", msg, "--author", author)
 	}
+
 	if !hasAuthor {
 		cmd = exec.Command("git", "commit", "-m", msg)
 	}
@@ -79,6 +80,7 @@ func appendToFile(path, text string) {
 
 		return
 	}
+
 	defer f.Close()
 
 	if _, writeErr := f.WriteString("\n" + text); writeErr != nil {

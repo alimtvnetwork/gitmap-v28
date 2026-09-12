@@ -17,8 +17,10 @@ func recordInPipelineSplitDb(p PipelineStatusPayload, runs []ghRunItem) {
 	pipeDb, err := pipelinedb.OpenPipelineSplitDb(p.Repo)
 	if err != nil {
 		fmt.Fprintf(os.Stderr, "  ⚠ Could not open pipeline split DB for %s: %v\n", p.Repo, err)
+
 		return
 	}
+
 	defer pipeDb.Close()
 
 	recordRunsToSplitDb(pipeDb, p, runs)
@@ -58,17 +60,21 @@ func recordSingleFailedRun(pipeDb *pipelinedb.PipelineSplitDb, repo string, r gh
 	if r.Conclusion != "failure" {
 		return
 	}
+
 	if pipeDb.HasErrorLog(r.DatabaseId) {
 		return
 	}
+
 	if isSkipDelayRequested() {
 		return
 	}
+
 	raw := queryFailedRunLogs(repo, r.DatabaseId)
 	clean := extractCleanErrorLines(raw)
 	if clean == "" {
 		return
 	}
+
 	persistSingleFailedRunLog(pipeDb, repo, r, clean, raw)
 }
 
@@ -90,8 +96,10 @@ func recordInMasterDB(p PipelineStatusPayload, runs []ghRunItem) {
 	db, err := openDB()
 	if err != nil {
 		fmt.Fprintf(os.Stderr, "  ⚠ Could not open master DB: %v\n", err)
+
 		return
 	}
+
 	defer db.Close()
 
 	insertMasterRuns(db, p, runs)
@@ -115,6 +123,7 @@ func insertSingleMasterRun(db *store.DB, p PipelineStatusPayload, r ghRunItem) {
 		EtaSeconds:   p.EtaSeconds,
 		URL:          r.Url,
 	}
+
 	if err := db.InsertOrUpdatePipelineRun(run); err != nil {
 		fmt.Fprintf(os.Stderr, "  ⚠ Could not record master pipeline run %d: %v\n", r.DatabaseId, err)
 	}

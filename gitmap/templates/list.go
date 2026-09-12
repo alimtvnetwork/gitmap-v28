@@ -23,6 +23,7 @@ func List() ([]Entry, error) {
 	if err := collectEmbed(merged); err != nil {
 		return nil, err
 	}
+
 	if err := collectUser(merged); err != nil {
 		return nil, err
 	}
@@ -31,6 +32,7 @@ func List() ([]Entry, error) {
 	for _, e := range merged {
 		out = append(out, e)
 	}
+
 	sort.Slice(out, func(i, j int) bool {
 		if out[i].Kind != out[j].Kind {
 			return kindRank(out[i].Kind) < kindRank(out[j].Kind)
@@ -62,13 +64,16 @@ func collectEmbed(out map[string]Entry) error {
 		if err != nil || d.IsDir() {
 			return err
 		}
+
 		if filepath.Base(p) == "README.md" {
 			return nil
 		}
+
 		kind, lang, ok := parseEmbedPath(p)
 		if !ok {
 			return nil
 		}
+
 		out[kind+"/"+lang] = Entry{Kind: kind, Lang: lang, Source: SourceEmbed, Path: p}
 
 		return nil
@@ -82,17 +87,21 @@ func collectUser(out map[string]Entry) error {
 	if err != nil {
 		return err
 	}
+
 	walkErr := fs.WalkDir(osDirFS(dir), ".", func(p string, d fs.DirEntry, err error) error {
 		if err != nil {
 			return nil // overlay dir may not exist; skip silently
 		}
+
 		if d.IsDir() || p == "." {
 			return nil
 		}
+
 		kind, lang, ok := parseRelTemplatePath(p)
 		if !ok {
 			return nil
 		}
+
 		out[kind+"/"+lang] = Entry{Kind: kind, Lang: lang, Source: SourceUser, Path: filepath.Join(dir, p)}
 
 		return nil
@@ -115,6 +124,7 @@ func parseRelTemplatePath(rel string) (string, string, bool) {
 	if len(parts) != 2 {
 		return "", "", false
 	}
+
 	kind := parts[0]
 	base := parts[1]
 	switch kind {

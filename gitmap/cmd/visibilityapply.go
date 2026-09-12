@@ -103,6 +103,7 @@ func verifyVisibilityOrExit(ctx visibilityContext, target string, verbose bool) 
 		fmt.Fprintf(os.Stderr, constants.ErrVisVerifyFailedFmt, current, target)
 		cliexit.HandleError(nil, constants.ExitVisVerifyFailed)
 	}
+
 	fmt.Printf(constants.MsgVisVerifyOK, current)
 }
 

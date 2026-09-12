@@ -17,6 +17,7 @@ const wordpressVHostTemplate = `server {
     location / {
         try_files $uri $uri/ /index.php?$args;
     }
+
     location ~ \.php$ {
         try_files $uri =404;
         fastcgi_split_path_info ^(.+\.php)(/.+)$;
@@ -31,6 +32,7 @@ const wordpressVHostTemplate = `server {
         fastcgi_temp_file_write_size 64k;
         fastcgi_intercept_errors on;
     }
+
     location = /wp-config.php { deny all; access_log off; log_not_found off; }
     location = /xmlrpc.php { deny all; access_log off; log_not_found off; }
     location ~* /wp-content/uploads/.*\.php$ { deny all; access_log off; log_not_found off; }
@@ -42,6 +44,7 @@ const wordpressVHostTemplate = `server {
         add_header Cache-Control "public, no-transform";
     }
 }
+
 `
 
 const laravelVHostTemplate = `server {
@@ -61,6 +64,7 @@ const laravelVHostTemplate = `server {
     location / {
         try_files $uri $uri/ /index.php?$query_string;
     }
+
     location = /favicon.ico { access_log off; log_not_found off; }
     location = /robots.txt  { access_log off; log_not_found off; }
     error_page 404 /index.php;
@@ -75,9 +79,11 @@ const laravelVHostTemplate = `server {
         fastcgi_buffers 16 16k;
         fastcgi_busy_buffers_size 64k;
     }
+
     location ~ /\.(?!well-known).* { deny all; access_log off; log_not_found off; }
     location ~ /\.env { deny all; return 404; }
 }
+
 `
 
 const phpVHostTemplate = `server {
@@ -97,6 +103,7 @@ const phpVHostTemplate = `server {
     location / {
         try_files $uri $uri/ /index.php?$args;
     }
+
     location ~ \.php$ {
         try_files $uri =404;
         fastcgi_split_path_info ^(.+\.php)(/.+)$;
@@ -108,6 +115,7 @@ const phpVHostTemplate = `server {
         fastcgi_buffer_size 32k;
         fastcgi_buffers 16 16k;
     }
+
     location ~ /\.(?!well-known).* { deny all; access_log off; log_not_found off; }
     location ~* \.(css|js|jpg|jpeg|gif|png|ico|svg|woff|woff2|ttf|eot)$ {
         expires 30d;
@@ -115,6 +123,7 @@ const phpVHostTemplate = `server {
         add_header Cache-Control "public, no-transform";
     }
 }
+
 `
 
 const staticVHostTemplate = `server {
@@ -133,6 +142,7 @@ const staticVHostTemplate = `server {
     location / {
         try_files $uri $uri/ =404;
     }
+
     location ~ /\.(?!well-known).* { deny all; access_log off; log_not_found off; }
     location ~* \.(css|js|jpg|jpeg|gif|png|ico|svg|woff|woff2|ttf|eot)$ {
         expires 30d;
@@ -140,4 +150,5 @@ const staticVHostTemplate = `server {
         add_header Cache-Control "public, no-transform";
     }
 }
+
 `

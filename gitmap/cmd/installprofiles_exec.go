@@ -13,6 +13,7 @@ func runInstallProfile(profileName string, opts installOptions) error {
 
 		return nil
 	}
+
 	installed := loadInstalledLookup()
 	if opts.Tree {
 		renderProfileTree(p, installed)
@@ -49,6 +50,7 @@ func executeProfileTools(p InstallProfile, opts installOptions) int {
 			successCount++
 			continue
 		}
+
 		installSingleProfileTool(stepNum, len(p.Tools), tool, opts)
 		successCount++
 	}

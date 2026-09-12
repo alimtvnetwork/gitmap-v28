@@ -28,5 +28,6 @@ func runSetSourceRepo() error {
 
 	saveRepoPathToDB(normalized)
 	fmt.Printf(constants.MsgSetSourceRepoDone, normalized)
+
 	return nil
 }

@@ -48,8 +48,10 @@ func cloneRepoToTemp() (string, error) {
 
 	if err := cloneCmd.Run(); err != nil {
 		_ = os.RemoveAll(tmpDir)
+
 		return "", err
 	}
+
 	return tmpDir, nil
 }
 
@@ -57,14 +59,19 @@ func copySingleScript(s scriptSource, targetDir string) bool {
 	data, err := os.ReadFile(s.src)
 	if err != nil {
 		fmt.Printf(constants.MsgScriptsSkip, s.name)
+
 		return false
 	}
+
 	dest := filepath.Join(targetDir, s.name)
 	if err := os.WriteFile(dest, data, constants.DirPermission); err != nil {
 		fmt.Fprintf(os.Stderr, constants.ErrScriptsCopy, s.name, err)
+
 		return false
 	}
+
 	fmt.Printf(constants.MsgScriptsCopied, s.name)
+
 	return true
 }
 
@@ -75,6 +82,7 @@ func copyScriptFiles(tmpDir, targetDir string) int {
 			copied++
 		}
 	}
+
 	return copied
 }
 
@@ -85,14 +93,17 @@ func runInstallScripts() error {
 	if err := os.MkdirAll(targetDir, constants.DirPermission); err != nil {
 		return apperror.NewSimple(constants.ErrScriptsMkdir, "E9000")
 	}
+
 	tmpDir, err := cloneRepoToTemp()
 	if err != nil {
 		return apperror.WrapSimple(err, "clone repo to temp")
 	}
+
 	defer os.RemoveAll(tmpDir)
 	copied := copyScriptFiles(tmpDir, targetDir)
 	fmt.Println()
 	fmt.Printf(constants.MsgScriptsDone, copied, targetDir)
+
 	return nil
 }
 
@@ -119,13 +130,16 @@ func scriptsCandidatePaths() []string {
 	if err == nil && evalErr == nil {
 		candidates = append(candidates, filepath.Join(filepath.Dir(resolved), constants.PowershellConfigFile))
 	}
+
 	if err == nil && evalErr != nil {
 		candidates = append(candidates, filepath.Join(filepath.Dir(exe), constants.PowershellConfigFile))
 	}
+
 	candidates = append(candidates,
 		filepath.Join("gitmap", constants.PowershellConfigFile),
 		constants.PowershellConfigFile,
 	)
+
 	return candidates
 }
 
@@ -134,10 +148,12 @@ func resolveDriveFromConfig(path string) string {
 	if err != nil {
 		return ""
 	}
+
 	var cfg scriptsConfig
 	if err := json.Unmarshal(data, &cfg); err != nil || cfg.DeployPath == "" {
 		return ""
 	}
+
 	return filepath.VolumeName(cfg.DeployPath)
 }
 

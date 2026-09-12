@@ -37,8 +37,10 @@ func runChangelogGen(args []string) error {
 
 	if !write {
 		printChangelogPreview(section)
+
 		return nil
 	}
+
 	return writeChangelogSection(section)
 }
 
@@ -83,5 +85,6 @@ func writeChangelogSection(section string) *apperror.AppError {
 	}
 
 	fmt.Printf(constants.MsgChangelogGenWritten, constants.ChangelogFile)
+
 	return nil
 }

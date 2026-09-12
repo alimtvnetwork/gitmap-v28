@@ -14,6 +14,7 @@ func TestScanDirDefaultMaxDepthFindsDeepRepos(t *testing.T) {
 	if err != nil {
 		t.Fatalf("ScanDir: %v", err)
 	}
+
 	if len(got) != 1 {
 		t.Fatalf("default depth cap of 16 should find deep repos, got %+v", got)
 	}
@@ -29,6 +30,7 @@ func TestScanDirDefaultDepthFindsRepoAtCap(t *testing.T) {
 	if err != nil {
 		t.Fatalf("ScanDir: %v", err)
 	}
+
 	if len(got) != 1 {
 		t.Fatalf("repo at cap depth should be discovered, got %+v", got)
 	}
@@ -46,6 +48,7 @@ func TestScanDirCustomMaxDepthOne(t *testing.T) {
 	if err != nil {
 		t.Fatalf("ScanDir: %v", err)
 	}
+
 	if len(got) != 1 {
 		t.Fatalf("MaxDepth=1 should hide depth-2 repos, got %+v", got)
 	}
@@ -62,6 +65,7 @@ func TestScanDirNegativeMaxDepthIsUnbounded(t *testing.T) {
 	if err != nil {
 		t.Fatalf("ScanDir: %v", err)
 	}
+
 	if len(got) != 1 {
 		t.Fatalf("MaxDepth<0 should be unbounded, got %+v", got)
 	}
@@ -80,6 +84,7 @@ func TestScanDirRepoStopsDescentWithinBudget(t *testing.T) {
 	if err != nil {
 		t.Fatalf("ScanDir: %v", err)
 	}
+
 	if len(got) != 1 {
 		t.Fatalf("nested repo under discovered repo must be hidden, got %+v", got)
 	}

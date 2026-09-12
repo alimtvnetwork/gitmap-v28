@@ -34,6 +34,7 @@ func TestProfileTitlePrefixAppliedToReplayedSubjects(t *testing.T) {
 	if res.ExitCode != 0 {
 		t.Fatalf("exit=%d, want 0\nstderr=%s", res.ExitCode, res.Stderr)
 	}
+
 	src.AssertHasSubject(t, "[demo] feat: add a")
 	src.AssertHasSubject(t, "[demo] fix: tweak b")
 }
@@ -59,6 +60,7 @@ func TestCliTitlePrefixOverridesProfileValue(t *testing.T) {
 	if res.ExitCode != 0 {
 		t.Fatalf("exit=%d, want 0\nstderr=%s", res.ExitCode, res.Stderr)
 	}
+
 	src.AssertHasSubject(t, "[cli] seed")
 	for _, c := range src.LogFirstParent(t) {
 		if strings.HasPrefix(c.Subject, "[profile] ") {
@@ -84,6 +86,7 @@ func TestMissingNamedProfileExitsWithProfileMissingCode(t *testing.T) {
 		t.Fatalf("exit=%d, want CommitInExitProfileMissing (%d)\nstderr=%s",
 			res.ExitCode, constants.CommitInExitProfileMissing, res.Stderr)
 	}
+
 	src.AssertCommitCount(t, 0)
 }
 

@@ -22,21 +22,26 @@ func TestAdd_CreatesManagedFile(t *testing.T) {
 	if err != nil {
 		t.Fatalf("Add: %v", err)
 	}
+
 	if res.Status != AddCreated {
 		t.Fatalf("status = %d, want AddCreated", res.Status)
 	}
+
 	want := filepath.Join(dir, "gitmap-watch.desktop")
 	if res.Path != want {
 		t.Fatalf("path = %s, want %s", res.Path, want)
 	}
+
 	body, err := os.ReadFile(res.Path)
 	if err != nil {
 		t.Fatalf("read back: %v", err)
 	}
+
 	s := string(body)
 	if !strings.Contains(s, constants.StartupMarkerKey+"="+constants.StartupMarkerVal) {
 		t.Errorf("body missing managed marker:\n%s", s)
 	}
+
 	if !strings.Contains(s, "Exec=/usr/local/bin/gitmap watch") {
 		t.Errorf("body missing Exec line:\n%s", s)
 	}
@@ -52,9 +57,11 @@ func TestAdd_RefusesNonManagedOverwrite(t *testing.T) {
 	if err != nil {
 		t.Fatalf("Add: %v", err)
 	}
+
 	if res.Status != AddRefused {
 		t.Fatalf("status = %d, want AddRefused", res.Status)
 	}
+
 	body, _ := os.ReadFile(target)
 	if !strings.Contains(string(body), "/evil") {
 		t.Errorf("third-party file body was modified:\n%s", body)
@@ -68,13 +75,16 @@ func TestAdd_ExistsWithoutForce(t *testing.T) {
 	if err != nil || first.Status != AddCreated {
 		t.Fatalf("first add: %v / %d", err, first.Status)
 	}
+
 	second, err := Add(AddOptions{Name: "watch", Exec: "/v2"})
 	if err != nil {
 		t.Fatalf("second add: %v", err)
 	}
+
 	if second.Status != AddExists {
 		t.Fatalf("status = %d, want AddExists", second.Status)
 	}
+
 	body, _ := os.ReadFile(second.Path)
 	if !strings.Contains(string(body), "Exec=/v1") {
 		t.Errorf("file overwritten without --force:\n%s", body)
@@ -88,13 +98,16 @@ func TestAdd_ForceOverwritesOurOwn(t *testing.T) {
 	if _, err := Add(AddOptions{Name: "watch", Exec: "/v1"}); err != nil {
 		t.Fatalf("first add: %v", err)
 	}
+
 	res, err := Add(AddOptions{Name: "watch", Exec: "/v2", Force: true})
 	if err != nil {
 		t.Fatalf("force add: %v", err)
 	}
+
 	if res.Status != AddOverwritten {
 		t.Fatalf("status = %d, want AddOverwritten", res.Status)
 	}
+
 	body, _ := os.ReadFile(res.Path)
 	if !strings.Contains(string(body), "Exec=/v2") {
 		t.Errorf("force did not replace body:\n%s", body)
@@ -111,6 +124,7 @@ func TestAdd_BadName(t *testing.T) {
 		if err != nil {
 			t.Fatalf("Add(%q): %v", name, err)
 		}
+
 		if res.Status != AddBadName {
 			t.Errorf("name=%q: status = %d, want AddBadName", name, res.Status)
 		}
@@ -128,6 +142,7 @@ func TestAdd_AutoCreatesDir(t *testing.T) {
 	if runtime.GOOS == "windows" {
 		t.Skip("autostart dir is file-based on Linux/macOS only; Windows uses registry/.lnk backends")
 	}
+
 	// Use the cross-platform $GITMAP_AUTOSTART_DIR override so the
 	// test exercises the same Add() code path on Linux and macOS
 	// without per-OS skips. The override is the explicit, documented
@@ -138,9 +153,11 @@ func TestAdd_AutoCreatesDir(t *testing.T) {
 	if err != nil {
 		t.Fatalf("Add: %v", err)
 	}
+
 	if res.Status != AddCreated {
 		t.Fatalf("status = %d, want AddCreated", res.Status)
 	}
+
 	if _, err := os.Stat(root); err != nil {
 		t.Errorf("autostart dir not created: %v", err)
 	}
@@ -155,6 +172,7 @@ func TestAdd_PrefixNotDoubled(t *testing.T) {
 	if err != nil {
 		t.Fatalf("Add: %v", err)
 	}
+
 	want := filepath.Join(dir, "gitmap-watch.desktop")
 	if res.Path != want {
 		t.Fatalf("path = %s, want %s (no double prefix)", res.Path, want)

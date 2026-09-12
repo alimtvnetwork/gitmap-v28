@@ -13,6 +13,7 @@ func New(errType errtype.Variation, message string, skipFrames ...int) *AppError
 	if len(skipFrames) > 0 {
 		skip += skipFrames[0]
 	}
+
 	return NewWithContext(errType, message, nil, skip-3) // pass relative skip
 }
 
@@ -26,6 +27,7 @@ func NewType(errType errtype.Variation, skipFrames ...int) *AppError {
 	if len(skipFrames) > 0 {
 		skip += skipFrames[0]
 	}
+
 	return New(errType, errType.Name(), skip-3)
 }
 

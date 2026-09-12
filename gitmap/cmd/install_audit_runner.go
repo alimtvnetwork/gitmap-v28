@@ -24,12 +24,10 @@ type commandExecutionResult struct {
 }
 
 func (r commandExecutionResult) IsFailed() bool {
-
 	return !r.IsSuccess
 }
 
 func (r commandExecutionResult) IsFail() bool {
-
 	return !r.IsSuccess
 }
 
@@ -53,9 +51,7 @@ func prepareAuditCmd(args []string, verbose bool) (*exec.Cmd, *bytes.Buffer, *by
 }
 
 func selectAuditWriter(buf io.Writer, out io.Writer, verbose bool) io.Writer {
-
 	if verbose {
-
 		return io.MultiWriter(out, buf)
 	}
 
@@ -66,7 +62,6 @@ func buildAuditResult(
 	args []string, stdoutBuf, stderrBuf *bytes.Buffer,
 	durationMs int64, runErr error,
 ) commandExecutionResult {
-
 	return commandExecutionResult{
 		CommandLine: strings.Join(args, " "),
 		Stdout:      stdoutBuf.String(),
@@ -79,16 +74,13 @@ func buildAuditResult(
 }
 
 func extractRunExitCode(err error) int {
-
 	if err == nil {
-
 		return 0
 	}
 
 	var exitErr *exec.ExitError
 
 	if errors.As(err, &exitErr) {
-
 		return exitErr.ExitCode()
 	}
 
@@ -102,7 +94,6 @@ func recordInstallExecution(
 	splitDB, err := store.OpenInstallationSplitDB()
 
 	if err != nil {
-
 		return
 	}
 
@@ -163,7 +154,6 @@ func buildInstallAppError(
 }
 
 func attachOutputContext(appErr *apperror.AppError, stdout, stderr string) {
-
 	if stdout != "" {
 		appErr.WithContext("stdout", strings.TrimSpace(stdout))
 	}
@@ -181,7 +171,6 @@ func runPhaseWithAudit(
 	recordInstallExecution(tool, manager, version, res, phaseName)
 
 	if res.IsSuccess {
-
 		return nil
 	}
 

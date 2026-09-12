@@ -18,6 +18,7 @@ func readBlobAtHead(t *testing.T, r *Repo, rel string) string {
 	if err != nil {
 		t.Fatalf("git show HEAD:%s: %v", rel, err)
 	}
+
 	// Git appends a trailing newline only if the blob has one; preserve.
 	return string(out)
 }

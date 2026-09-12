@@ -36,6 +36,7 @@ func parseGHOptFlags(name string, args []string) githubOptFlags {
 	if *exceptStr != "" {
 		excepts = strings.Split(*exceptStr, ",")
 	}
+
 	return githubOptFlags{Except: excepts, OnlyMissing: *missing, DryRun: *dryRun, Yes: *yes}
 }
 
@@ -44,16 +45,21 @@ func runGitHubDesktopOptimize(args []string) error {
 	records, err := loadStatusRecords(filepath.Join(".gitmap", "output", "gitmap.json"))
 	if err != nil {
 		fmt.Printf("%s No scan records found to optimize GitHub Desktop.\n", constants.ColorYellow+"ℹ"+constants.ColorReset)
+
 		return nil
 	}
+
 	duplicates := findDuplicateRepoRecords(records, opts.Except)
 	if opts.DryRun {
 		fmt.Printf("%s [dry-run] %d duplicate GitHub Desktop repo(s) found.\n",
 			constants.ColorYellow+"ℹ"+constants.ColorReset, len(duplicates))
+
 		return nil
 	}
+
 	fmt.Printf("%s Successfully optimized GitHub Desktop repositories. Total active: %d\n",
 		constants.ColorGreen+"✓"+constants.ColorReset, len(records)-len(duplicates))
+
 	return nil
 }
 
@@ -65,12 +71,15 @@ func findDuplicateRepoRecords(records []model.ScanRecord, exceptList []string) [
 		if isRecordExcepted(r, exceptList) {
 			continue
 		}
+
 		if seen[norm] {
 			dups = append(dups, r)
 			continue
 		}
+
 		seen[norm] = true
 	}
+
 	return dups
 }
 
@@ -80,13 +89,16 @@ func isRecordExcepted(r model.ScanRecord, exceptList []string) bool {
 		if ex == "" {
 			continue
 		}
+
 		if strings.EqualFold(r.RepoName, ex) || strings.EqualFold(r.AbsolutePath, ex) {
 			return true
 		}
+
 		if strings.Contains(strings.ToLower(r.AbsolutePath), strings.ToLower(ex)) {
 			return true
 		}
 	}
+
 	return false
 }
 
@@ -95,17 +107,22 @@ func runGitHubDesktopClear(args []string) error {
 	records, err := loadStatusRecords(filepath.Join(".gitmap", "output", "gitmap.json"))
 	if err != nil {
 		fmt.Println("No registered GitHub Desktop repositories found to clear.")
+
 		return nil
 	}
+
 	targets := selectGHClearTargets(records, opts.Except, opts.OnlyMissing)
 	if opts.DryRun {
 		fmt.Printf("%s [dry-run] %d repo(s) would be cleared from GitHub Desktop.\n",
 			constants.ColorYellow+"ℹ"+constants.ColorReset, len(targets))
+
 		return nil
 	}
+
 	cleared := clearGHDesktopTargets(targets)
 	fmt.Printf("%s Successfully cleared %d repo(s) from GitHub Desktop tracking.\n",
 		constants.ColorGreen+"✓"+constants.ColorReset, cleared)
+
 	return nil
 }
 
@@ -115,11 +132,14 @@ func selectGHClearTargets(records []model.ScanRecord, exceptList []string, onlyM
 		if isRecordExcepted(r, exceptList) {
 			continue
 		}
+
 		if onlyMissing && isPathExists(r.AbsolutePath) {
 			continue
 		}
+
 		targets = append(targets, r)
 	}
+
 	return targets
 }
 
@@ -130,10 +150,12 @@ func clearGHDesktopTargets(targets []model.ScanRecord) int {
 			count++
 		}
 	}
+
 	return count
 }
 
 func isPathExists(path string) bool {
 	_, err := os.Stat(path)
+
 	return err == nil
 }

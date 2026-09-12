@@ -71,6 +71,7 @@ func parseExportFlags(args []string, isAll bool) (*ExportInstallerFlags, error) 
 	if err := fs.Parse(flagArgs); err != nil {
 		appErr := apperror.Wrap(err, "parseExportFlags", map[string]any{"args": args})
 		appErr.Code = "E_INSTALLER_INVALID_FLAGS"
+
 		return nil, appErr
 	}
 
@@ -109,12 +110,14 @@ func separateFlagAndPositionalArgs(args []string) ([]string, []string) {
 			positional = append(positional, args[i])
 			continue
 		}
+
 		flagArgs = append(flagArgs, args[i])
 		if i+1 < len(args) && !strings.HasPrefix(args[i+1], "-") {
 			flagArgs = append(flagArgs, args[i+1])
 			i++
 		}
 	}
+
 	return flagArgs, positional
 }
 
@@ -122,6 +125,7 @@ func extractFirstPositional(positional []string) string {
 	if len(positional) == 0 {
 		return ""
 	}
+
 	return strings.TrimSpace(positional[0])
 }
 
@@ -139,6 +143,7 @@ func writeZipEntry(zw *zip.Writer, script model.InstallerScript) error {
 	}
 
 	_, errWrite := w.Write(data)
+
 	return errWrite
 }
 
@@ -146,10 +151,12 @@ func resolveExportScripts(db *store.DB, flags *ExportInstallerFlags) ([]model.In
 	if flags.ExportAll {
 		return db.ListInstallers()
 	}
+
 	item, err := db.GetInstallerBySlug(flags.Slug)
 	if err != nil {
 		return nil, err
 	}
+
 	return []model.InstallerScript{*item}, nil
 }
 
@@ -168,6 +175,7 @@ func executeExport(ctx context.Context, db *store.DB, flags *ExportInstallerFlag
 	if err := os.MkdirAll(filepath.Dir(flags.OutputPath), 0755); err != nil && filepath.Dir(flags.OutputPath) != "." {
 		appErr := apperror.Wrap(err, "executeExport", map[string]any{"path": flags.OutputPath})
 		appErr.Code = "E_INSTALLER_EXPORT_FAILED"
+
 		return appErr
 	}
 
@@ -175,8 +183,10 @@ func executeExport(ctx context.Context, db *store.DB, flags *ExportInstallerFlag
 	if errCreate != nil {
 		appErr := apperror.Wrap(errCreate, "executeExport", map[string]any{"path": flags.OutputPath})
 		appErr.Code = "E_INSTALLER_EXPORT_FAILED"
+
 		return appErr
 	}
+
 	defer outFile.Close()
 
 	zw := zip.NewWriter(outFile)
@@ -186,11 +196,13 @@ func executeExport(ctx context.Context, db *store.DB, flags *ExportInstallerFlag
 		if errWrite := writeZipEntry(zw, s); errWrite != nil {
 			appErr := apperror.Wrap(errWrite, "executeExport", map[string]any{"slug": s.Slug})
 			appErr.Code = "E_INSTALLER_EXPORT_FAILED"
+
 			return appErr
 		}
 	}
 
 	fmt.Printf("Exported %d installer script(s) to %s successfully.\n", len(scripts), flags.OutputPath)
+
 	return nil
 }
 
@@ -209,13 +221,16 @@ func runInstallerExport(cmd *cobra.Command, args []string, isAll bool) error {
 	if errDB != nil {
 		appErr := apperror.Wrap(errDB, "runInstallerExport", map[string]any{"action": "open_db"})
 		appErr.Code = "E_INSTALLER_DB_ERROR"
+
 		return appErr
 	}
+
 	defer db.Close()
 
 	if errMigrate := db.MigrateInstallers(); errMigrate != nil {
 		appErr := apperror.Wrap(errMigrate, "runInstallerExport", map[string]any{"action": "migrate_installers"})
 		appErr.Code = "E_INSTALLER_DB_ERROR"
+
 		return appErr
 	}
 

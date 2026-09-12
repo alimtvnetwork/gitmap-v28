@@ -54,8 +54,10 @@ func runCloneCommandPretty(url, dest string) error {
 	printClonePrettyHeader(url, dest)
 	if cloneDryRunFlag.Load() {
 		fmt.Println(constants.MsgCloneDryRunNoop)
+
 		return nil
 	}
+
 	stopSpinner := startCloneSpinnerForURL(url)
 	start := time.Now()
 	cmd := newCloneCommand(url, dest)
@@ -64,9 +66,12 @@ func runCloneCommandPretty(url, dest string) error {
 	elapsed := time.Since(start).Truncate(time.Millisecond)
 	if runErr != nil {
 		printClonePrettyFailure(url, dest, runErr, elapsed)
+
 		return runErr
 	}
+
 	fmt.Printf(constants.MsgClonePrettyOK, dest, elapsed)
+
 	return nil
 }
 
@@ -112,6 +117,7 @@ func printClonePrettyFailure(url, dest string, runErr error, elapsed time.Durati
 	if errors.As(runErr, &exitErr) {
 		code = exitErr.ExitCode()
 	}
+
 	cmdline := fmt.Sprintf("%s %s %s %s", constants.GitBin, constants.GitClone, url, dest)
 	fmt.Fprintf(os.Stderr, constants.MsgClonePrettyFail,
 		cmdline, code, runErr, elapsed, buildClonePrettyHints(url, dest))
@@ -125,15 +131,19 @@ func buildClonePrettyHints(url, dest string) string {
 		fmt.Sprintf("  • clean up: "+constants.ColorCyan+"rm -rf %q"+constants.ColorReset, dest),
 		"  • retry without replace:    " + constants.ColorCyan + "gitmap clone " + url + " --no-replace" + constants.ColorReset,
 	}
+
 	if strings.HasPrefix(strings.ToLower(url), "https://") {
 		hints = append(hints, "  • switch transport (SSH):   "+constants.ColorCyan+"gitmap clone "+url+" --ssh"+constants.ColorReset)
 	}
+
 	if strings.HasPrefix(strings.ToLower(url), "git@") ||
 		strings.HasPrefix(strings.ToLower(url), "ssh://") {
 		hints = append(hints, "  • switch transport (HTTPS): "+constants.ColorCyan+"gitmap clone "+url+" --https"+constants.ColorReset)
 		hints = append(hints, "  • accept new SSH host key: "+constants.ColorCyan+"gitmap clone "+url+" -y"+constants.ColorReset)
 	}
+
 	hints = append(hints,
 		"  • preview without cloning:  "+constants.ColorCyan+"gitmap clone "+url+" --dry-run"+constants.ColorReset)
+
 	return strings.Join(hints, "\n")
 }

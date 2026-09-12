@@ -41,12 +41,14 @@ func printUsageJSON(query string) {
 
 			continue
 		}
+
 		byGroup[r.Group] = len(doc.Groups)
 		doc.Groups = append(doc.Groups, helpJSONGroup{
 			Group: stripANSI(r.Group),
 			Lines: []string{line},
 		})
 	}
+
 	doc.Count = len(rows)
 
 	enc := json.NewEncoder(os.Stdout)
@@ -66,10 +68,12 @@ func stripANSI(s string) string {
 			for j < len(s) && s[j] != 'm' {
 				j++
 			}
+
 			i = j
 
 			continue
 		}
+
 		out.WriteByte(s[i])
 	}
 

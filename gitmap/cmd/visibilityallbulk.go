@@ -43,11 +43,13 @@ type bulkFlags struct {
 // runMakeAllPublic / runMakeAllPrivate are the dispatcher entry points.
 func runMakeAllPublic(args []string) error {
 	runMakeAllVisibility(constants.VisibilityPublic, constants.CmdMakeAllPublic, args, false)
+
 	return nil
 }
 
 func runMakeAllPrivate(args []string) error {
 	runMakeAllVisibility(constants.VisibilityPrivate, constants.CmdMakeAllPrivate, args, false)
+
 	return nil
 }
 
@@ -56,11 +58,13 @@ func runMakeAllPrivate(args []string) error {
 // commands.
 func runMakeAllPublicExceptLatest(args []string) error {
 	runMakeAllVisibility(constants.VisibilityPublic, constants.CmdMakeAllPublicExceptLatest, args, true)
+
 	return nil
 }
 
 func runMakeAllPrivateExceptLatest(args []string) error {
 	runMakeAllVisibility(constants.VisibilityPrivate, constants.CmdMakeAllPrivateExceptLatest, args, true)
+
 	return nil
 }
 
@@ -76,6 +80,7 @@ func runMakeAllVisibility(target, cmdName string, args []string, exceptLatestDef
 	if exceptLatestDefault {
 		flags.ExceptLatest = true
 	}
+
 	ctx := resolveOwnerOrExit(ownerArg)
 	mustEnsureProviderCLI(ctx.Provider, flags.Verbose)
 	mustEnsureProviderAuth(ctx.Provider, flags.Verbose)
@@ -93,6 +98,7 @@ func runMakeAllVisibility(target, cmdName string, args []string, exceptLatestDef
 		fmt.Fprint(os.Stdout, constants.MsgBulkExceptLatest)
 		matches, latestInvert = splitExceptLatest(matches, os.Stdout, inverted)
 	}
+
 	isEmptyMatch := len(matches) == 0
 	isEmptyInvert := len(latestInvert) == 0
 	isExceptEmpty := flags.ExceptLatest && isEmptyMatch && isEmptyInvert
@@ -100,6 +106,7 @@ func runMakeAllVisibility(target, cmdName string, args []string, exceptLatestDef
 		fmt.Fprint(os.Stderr, constants.MsgBulkNoMatches)
 		cliexit.HandleError(nil, constants.ExitVisOK)
 	}
+
 	combined := append(append([]visibility.MatchedRepo{}, matches...), latestInvert...)
 	audit := beginRunAudit(ctx, target, cmdName, patternsRaw, flags, ownerTotal, combined)
 
@@ -110,6 +117,7 @@ func runMakeAllVisibility(target, cmdName string, args []string, exceptLatestDef
 		fmt.Fprint(os.Stderr, constants.MsgBulkAborted)
 		cliexit.HandleError(nil, constants.ExitVisConfirmReq)
 	}
+
 	excludedCount := audit.markExcluded(combined, final)
 	mainFinal, invertFinal := partitionByName(final, latestInvert)
 
@@ -119,15 +127,18 @@ func runMakeAllVisibility(target, cmdName string, args []string, exceptLatestDef
 		c, s, f := applyBulkLoopParallel(ctx, target, mainFinal, flags, audit)
 		changed, skipped, failed = changed+c, skipped+s, failed+f
 	}
+
 	if len(invertFinal) > 0 {
 		fmt.Fprintf(os.Stdout, constants.MsgBulkInvertHeaderFmt, inverted, len(invertFinal), ctx.Owner)
 		c, s, f := applyBulkLoopParallel(ctx, inverted, invertFinal, flags, audit)
 		changed, skipped, failed = changed+c, skipped+s, failed+f
 	}
+
 	fmt.Fprintf(os.Stdout, constants.MsgBulkSummaryFmt, changed, skipped, failed, len(final))
 	exit := bulkExitCode(changed, failed)
 	audit.finalize(excludedCount, changed, skipped, failed, exit)
 	cliexit.HandleError(nil, exit)
+
 	return nil
 }
 
@@ -137,10 +148,12 @@ func partitionByName(final, invertSource []visibility.MatchedRepo) ([]visibility
 	if len(invertSource) == 0 {
 		return final, nil
 	}
+
 	isInvert := make(map[string]bool, len(invertSource))
 	for _, m := range invertSource {
 		isInvert[m.RepoName] = true
 	}
+
 	main := make([]visibility.MatchedRepo, 0, len(final))
 	inv := make([]visibility.MatchedRepo, 0, len(invertSource))
 	for _, m := range final {
@@ -175,6 +188,7 @@ func parseBulkArgs(args []string) (string, string, bulkFlags) {
 			if isValid && n > constants.MaxBulkParallelism {
 				n = constants.MaxBulkParallelism
 			}
+
 			if isValid {
 				flags.Parallel = n
 			}
@@ -219,6 +233,7 @@ func matchOrExitEmpty(
 	if len(matches) == 0 {
 		patterns, matches = fuzzyFallback(patterns, names)
 	}
+
 	fmt.Fprint(os.Stdout, renderMatchedTable(ctx.Owner, len(names), matches))
 	if len(matches) == 0 {
 		printNearMissHints(patterns, names)
@@ -237,9 +252,11 @@ func fuzzyFallback(patterns []visibility.Pattern, names []string) ([]visibility.
 	if len(extra) == 0 {
 		return patterns, nil
 	}
+
 	for _, p := range extra {
 		fmt.Fprintf(os.Stdout, constants.MsgBulkFuzzyAutoFixFmt, p.Raw)
 	}
+
 	merged := make([]visibility.Pattern, 0, len(patterns)+len(extra))
 	merged = append(merged, patterns...)
 	merged = append(merged, extra...)
@@ -255,6 +272,7 @@ func printNearMissHints(patterns []visibility.Pattern, names []string) {
 	if len(hints) == 0 {
 		return
 	}
+
 	fmt.Fprint(os.Stderr, constants.MsgBulkFuzzyHintHeader)
 	for _, h := range hints {
 		fmt.Fprintf(os.Stderr, "  - %s\n", h)
@@ -266,6 +284,7 @@ func confirmOrAbort(matches []visibility.MatchedRepo, yes bool) []visibility.Mat
 	if yes {
 		return matches
 	}
+
 	final, proceed := promptConfirmOrExclude(os.Stdin, os.Stdout, matches)
 	if !proceed {
 		return nil
@@ -279,6 +298,7 @@ func bulkExitCode(changed, failed int) int {
 	if failed == 0 {
 		return constants.ExitVisOK
 	}
+
 	if changed == 0 {
 		return constants.ExitVisAuthFailed
 	}

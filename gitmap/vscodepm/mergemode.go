@@ -110,6 +110,7 @@ func replaceTags(incoming []string) []string {
 		if _, dup := seen[t]; dup {
 			continue
 		}
+
 		seen[t] = struct{}{}
 		out = append(out, t)
 	}
@@ -132,9 +133,11 @@ func intersectTagsWithBrand(existing, incoming []string) []string {
 		if _, ok := incomingSet[t]; !ok {
 			continue
 		}
+
 		if _, dup := seen[t]; dup {
 			continue
 		}
+
 		seen[t] = struct{}{}
 		out = append(out, t)
 	}

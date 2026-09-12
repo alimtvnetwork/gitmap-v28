@@ -17,11 +17,13 @@ func setupInstallerLsTestDB(t *testing.T) *store.DB {
 	if err != nil {
 		t.Fatalf("failed to open test database: %v", err)
 	}
+
 	t.Cleanup(func() { db.Close() })
 
 	if errMigrate := db.MigrateInstallers(); errMigrate != nil {
 		t.Fatalf("failed to migrate installers: %v", errMigrate)
 	}
+
 	return db
 }
 
@@ -37,12 +39,14 @@ func TestInstallerLsCmd(t *testing.T) {
 		TargetOS: "win",
 		Version:  "v1.0.0",
 	}
+
 	script2 := &model.InstallerScript{
 		Name:     "Ubuntu App",
 		Slug:     "ubuntu-app",
 		TargetOS: "ubuntu",
 		Version:  "v1.0.0",
 	}
+
 	db.CreateInstaller(script1)
 	db.CreateInstaller(script2)
 
@@ -50,6 +54,7 @@ func TestInstallerLsCmd(t *testing.T) {
 	if errLs := executeInstallerLs(ctx, db, ""); errLs != nil {
 		t.Fatalf("executeInstallerLs failed: %v", errLs)
 	}
+
 	if errLsWin := executeInstallerLs(ctx, db, "win"); errLsWin != nil {
 		t.Fatalf("executeInstallerLs win failed: %v", errLsWin)
 	}

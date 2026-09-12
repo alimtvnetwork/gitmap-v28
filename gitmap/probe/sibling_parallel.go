@@ -33,16 +33,20 @@ func ProbeSiblingsParallel(start, span, workers int, urlFmt func(v int) string) 
 	if span < 1 {
 		return nil
 	}
+
 	if workers < 1 {
 		workers = 1
 	}
+
 	if workers > 32 {
 		workers = 32
 	}
+
 	jobs := make(chan int, span)
 	for v := start; v < start+span; v++ {
 		jobs <- v
 	}
+
 	close(jobs)
 
 	var (
@@ -63,9 +67,11 @@ func ProbeSiblingsParallel(start, span, workers int, urlFmt func(v int) string) 
 			}
 		}()
 	}
+
 	wg.Wait()
 	// Stable ascending order by version for deterministic callers.
 	sortHitsByVersion(out)
+
 	return out
 }
 

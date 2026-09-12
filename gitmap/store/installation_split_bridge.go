@@ -23,6 +23,7 @@ func MigrateInstalledToolsFromRoot(rootConn *sql.DB, splitDB *InstallationSplitD
 	if err != nil {
 		return nil
 	}
+
 	defer rows.Close()
 
 	return copyRowsToSplit(rows, splitDB)

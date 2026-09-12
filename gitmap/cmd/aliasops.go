@@ -27,6 +27,7 @@ func executeAliasSet(alias, slug string) error {
 
 		return apperror.WrapSimple(err, fmt.Sprintf(constants.ErrListDBFailed, err))
 	}
+
 	defer db.Close()
 
 	return resolveAndPersistAlias(db, alias, slug)
@@ -94,6 +95,7 @@ func executeAliasRemove(alias string) error {
 
 		return apperror.WrapSimple(err, fmt.Sprintf(constants.ErrListDBFailed, err))
 	}
+
 	defer db.Close()
 
 	if err := db.DeleteAlias(alias); err != nil {
@@ -115,6 +117,7 @@ func runAliasList() error {
 
 		return apperror.WrapSimple(err, fmt.Sprintf(constants.ErrListDBFailed, err))
 	}
+
 	defer db.Close()
 
 	aliases, err := db.ListAliasesWithRepo()
@@ -159,6 +162,7 @@ func executeAliasShow(alias string) error {
 	if err != nil {
 		return apperror.WrapSimple(err, constants.ErrListDBFailed)
 	}
+
 	defer db.Close()
 
 	resolved, err := db.ResolveAlias(alias)

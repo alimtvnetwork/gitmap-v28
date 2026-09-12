@@ -76,6 +76,7 @@ func (db *DB) ListRepos() ([]model.ScanRecord, error) {
 	if err != nil {
 		return nil, fmt.Errorf(constants.ErrDBQuery, err)
 	}
+
 	defer rows.Close()
 
 	return scanRows(rows)
@@ -87,6 +88,7 @@ func (db *DB) FindByID(id int64) ([]model.ScanRecord, error) {
 	if err != nil {
 		return nil, fmt.Errorf(constants.ErrDBQuery, err)
 	}
+
 	defer rows.Close()
 
 	return scanRows(rows)
@@ -97,6 +99,7 @@ func findBySlugRunner(runner sqlQueryer, slug string) ([]model.ScanRecord, error
 	if err != nil {
 		return nil, fmt.Errorf(constants.ErrDBQuery, err)
 	}
+
 	defer rows.Close()
 
 	return scanRows(rows)
@@ -113,6 +116,7 @@ func (db *DB) FindByPath(absPath string) ([]model.ScanRecord, error) {
 	if err != nil {
 		return nil, fmt.Errorf(constants.ErrDBQuery, err)
 	}
+
 	defer rows.Close()
 
 	return scanRows(rows)
@@ -130,6 +134,7 @@ func scanRows(rows interface {
 		if err != nil {
 			return nil, err
 		}
+
 		results = append(results, r)
 	}
 
@@ -154,6 +159,7 @@ func (db *DB) GetRepoSuggestions(partial string) ([]string, error) {
 	if err != nil {
 		return nil, err
 	}
+
 	defer rows.Close()
 
 	var matches []string
@@ -162,7 +168,9 @@ func (db *DB) GetRepoSuggestions(partial string) ([]string, error) {
 		if err := rows.Scan(&slug); err != nil {
 			return nil, err
 		}
+
 		matches = append(matches, slug)
 	}
+
 	return matches, nil
 }

@@ -10,5 +10,6 @@ import (
 func IsValidGitDir(dir string) bool {
 	gitPath := filepath.Join(dir, ".git")
 	info, err := os.Stat(gitPath)
+
 	return err == nil && (info.IsDir() || !info.IsDir())
 }

@@ -26,12 +26,15 @@ func TestFormatReport_JSON(t *testing.T) {
 	if err != nil {
 		t.Fatalf("FormatReport JSON failed: %v", err)
 	}
+
 	if !strings.Contains(out, `"macro": "test-report"`) {
 		t.Errorf("expected JSON to contain macro name, got: %s", out)
 	}
+
 	if !strings.Contains(out, `"logs"`) || !strings.Contains(out, `"line 1"`) {
 		t.Errorf("expected JSON to contain logs array, got: %s", out)
 	}
+
 	if !strings.Contains(out, `"status": "success"`) {
 		t.Errorf("expected status success in JSON, got: %s", out)
 	}
@@ -55,12 +58,15 @@ func TestFormatReport_YAML(t *testing.T) {
 	if err != nil {
 		t.Fatalf("FormatReport YAML failed: %v", err)
 	}
+
 	if !strings.Contains(out, "macro: test-yaml-report") {
 		t.Errorf("expected YAML to contain macro name, got: %s", out)
 	}
+
 	if !strings.Contains(out, "branch main up to date") {
 		t.Errorf("expected YAML to contain logs, got: %s", out)
 	}
+
 	if !strings.Contains(out, "status: success") {
 		t.Errorf("expected status in YAML, got: %s", out)
 	}
@@ -74,6 +80,7 @@ func TestSaveReportToFile(t *testing.T) {
 	if err != nil {
 		t.Fatalf("SaveReportToFile failed: %v", err)
 	}
+
 	if _, statErr := os.Stat(savedPath); statErr != nil {
 		t.Fatalf("target file was not created: %v", statErr)
 	}

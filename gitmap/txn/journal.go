@@ -59,6 +59,7 @@ func Begin(db *store.DB, m Meta) (*Journal, error) {
 		RepoSlug:       m.RepoSlug,
 		GitSha:         resolveGitSha(m.GitSha),
 	}
+
 	id, err := db.InsertTransaction(rec)
 	if err != nil {
 		return &Journal{db: db, meta: m}, err
@@ -75,6 +76,7 @@ func (j *Journal) Commit() error {
 	if j.id == 0 {
 		return nil
 	}
+
 	if err := j.db.MarkTransactionCommitted(j.id); err != nil {
 		return err
 	}
@@ -87,6 +89,7 @@ func (j *Journal) Abort() error {
 	if j.id == 0 {
 		return nil
 	}
+
 	_ = os.RemoveAll(j.txnRoot())
 
 	return j.db.MarkTransactionAborted(j.id)
@@ -98,6 +101,7 @@ func (j *Journal) pruneExcess() error {
 	if err != nil {
 		return err
 	}
+
 	for _, id := range dropped {
 		_ = os.RemoveAll(j.txnRootFor(id))
 	}

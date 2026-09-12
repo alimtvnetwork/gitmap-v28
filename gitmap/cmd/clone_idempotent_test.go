@@ -49,6 +49,7 @@ func TestRunClone_Idempotent(t *testing.T) {
 			if err := tc.setup(dir); err != nil {
 				t.Fatalf("setup: %v", err)
 			}
+
 			tc.assert(t, dir)
 		})
 	}
@@ -61,6 +62,7 @@ func setupExistingClonedFolder(dir string) error {
 	if err := os.MkdirAll(filepath.Join(target, ".git"), 0o755); err != nil {
 		return err
 	}
+
 	// A sentinel file to prove the replace path actually deletes the tree.
 	return os.WriteFile(filepath.Join(target, "sentinel.txt"), []byte("v1"), 0o644)
 }
@@ -75,6 +77,7 @@ func assertSkipPathStable(t *testing.T, dir string) {
 	if err != nil {
 		t.Fatalf("expected existing folder, got err: %v", err)
 	}
+
 	if !info.IsDir() {
 		t.Fatalf("expected directory at %s", target)
 	}
@@ -88,11 +91,13 @@ func assertUpsertPathStable(t *testing.T, dir string) {
 		"https://github.com/user/My-Repo.git",
 		"https://github.com/user/MY-REPO.git",
 	}
+
 	seen := map[string]struct{}{}
 	for _, u := range urls {
 		key := repoNameFromURL(u)
 		seen[normalizeKey(key)] = struct{}{}
 	}
+
 	if len(seen) != 1 {
 		t.Fatalf("expected one dedup key across %d urls, got %d", len(urls), len(seen))
 	}
@@ -111,9 +116,11 @@ func assertReplacePathStable(t *testing.T, dir string) {
 	if err := os.RemoveAll(target); err != nil {
 		t.Fatalf("RemoveAll: %v", err)
 	}
+
 	if _, err := os.Stat(target); !os.IsNotExist(err) {
 		t.Fatalf("expected target removed, got err: %v", err)
 	}
+
 	if _, err := os.Stat(filepath.Join(target, "sentinel.txt")); !os.IsNotExist(err) {
 		t.Fatalf("sentinel survived removal — replace path is leaky")
 	}
@@ -129,6 +136,7 @@ func normalizeKey(s string) string {
 		if c >= 'A' && c <= 'Z' {
 			c += 'a' - 'A'
 		}
+
 		out[i] = c
 	}
 

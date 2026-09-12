@@ -49,6 +49,7 @@ func TestDiffProfilesJSONContract_CanonicalRecord_KeyOrder(t *testing.T) {
 
 		return buf.Bytes(), err
 	}
+
 	assertGoldenBytesDeterministic(t, "diff_profiles_canonical.json", encode)
 	raw, _ := encode()
 	assertSchemaKeysFirstObject(t, raw, "diff-profiles")

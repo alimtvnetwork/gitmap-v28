@@ -65,9 +65,11 @@ func renderStartupListTable(w io.Writer, dir string, entries []startup.Entry) er
 
 		return nil
 	}
+
 	for _, e := range entries {
 		fmt.Fprintf(w, constants.MsgStartupListRow, e.Name, renderExec(e.Exec))
 	}
+
 	fmt.Fprintf(w, constants.MsgStartupListFooter, len(entries))
 
 	return nil
@@ -124,9 +126,9 @@ func encodeStartupListJSONIndent(w io.Writer, entries []startup.Entry, jsonInden
 // (e.g. --json-indent=tab) lands in exactly one place.
 func indentSpaces(n int) string {
 	if n <= 0 {
-
 		return ""
 	}
+
 	out := make([]byte, n)
 	for i := range out {
 		out[i] = ' '
@@ -172,15 +174,15 @@ func encodeStartupListCSV(w io.Writer, entries []startup.Entry) error {
 	// Pinned by gitmap/cmd/csvcrlf_contract_test.go.
 	cw.UseCRLF = true
 	if err := cw.Write([]string{"name", "path", "exec"}); err != nil {
-
 		return err
 	}
+
 	for _, e := range entries {
 		if err := cw.Write([]string{e.Name, e.Path, e.Exec}); err != nil {
-
 			return err
 		}
 	}
+
 	cw.Flush()
 
 	return cw.Error()
@@ -190,7 +192,6 @@ func encodeStartupListCSV(w io.Writer, entries []startup.Entry) error {
 // — falls back to a placeholder when the .desktop file omits Exec.
 func renderExec(exec string) string {
 	if len(exec) == 0 {
-
 		return "(no Exec line)"
 	}
 

@@ -25,6 +25,7 @@ func RunWorker() {
 		fmt.Fprintf(os.Stderr, ErrDownload, err)
 		os.Exit(1)
 	}
+
 	defer os.Remove(scriptPath)
 
 	fmt.Print(MsgRunningInstall)
@@ -47,6 +48,7 @@ func downloadInstaller(version string) (string, error) {
 	if err != nil {
 		return "", err
 	}
+
 	defer resp.Body.Close()
 
 	if resp.StatusCode != http.StatusOK {

@@ -24,6 +24,7 @@ func printPowerStatus(current, dbSetting power.Settings) {
 	} else {
 		fmt.Printf("  • Mode:            Standard timeouts\n")
 	}
+
 	if dbSetting.Source != "" {
 		fmt.Printf("  • SQLite Profile:  %s\n", dbSetting.Source)
 	}

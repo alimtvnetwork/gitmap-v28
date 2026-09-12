@@ -27,9 +27,12 @@ func runDBRepoDB(args []string) error {
 	printRepoDBHeader(len(rows))
 	if len(rows) == 0 {
 		printRepoDBEmpty()
+
 		return nil
 	}
+
 	printRepoDBTable(rows)
+
 	return nil
 }
 
@@ -39,14 +42,17 @@ func loadTrackedRepoMap() map[int64]string {
 	if err != nil {
 		return repoMap
 	}
+
 	defer mainDB.Close()
 	repos, err := mainDB.ListRepos()
 	if err != nil {
 		return repoMap
 	}
+
 	for _, r := range repos {
 		repoMap[r.ID] = r.Slug
 	}
+
 	return repoMap
 }
 
@@ -58,6 +64,7 @@ func buildRepoDBRows(splitDBs []DBFileInfo, repoMap map[int64]string) []repoDBRo
 		if s.RepoID > 0 && repoMap[s.RepoID] != "" {
 			status = "Tracked"
 		}
+
 		rows = append(rows, repoDBRow{
 			ID:        s.RepoID,
 			Slug:      s.RepoSlug,
@@ -77,6 +84,7 @@ func querySplitDBCounts(path string) (int, int) {
 	if err != nil {
 		return 0, 0
 	}
+
 	defer conn.Close()
 
 	fc := querySingleCount(conn, "SELECT COUNT(*) FROM RepoFile")
@@ -117,14 +125,17 @@ func printRepoDBTable(rows []repoDBRow) {
 		if r.ID > 0 {
 			idStr = fmt.Sprintf("%d", r.ID)
 		}
+
 		statusColor := constants.ColorGreen
 		if r.Status == "Orphaned" {
 			statusColor = constants.ColorYellow
 		}
+
 		fmt.Printf("  %-8s %-26s %-24s %-10s %-8d %-8d %s%-10s%s\n",
 			idStr, truncateStr(r.Slug, 25), truncateStr(r.DBFile, 23),
 			formatBytes(r.Size), r.FileCount, r.CacheRows,
 			statusColor, r.Status, constants.ColorReset)
 	}
+
 	fmt.Println()
 }

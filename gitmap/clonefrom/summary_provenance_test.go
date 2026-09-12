@@ -41,6 +41,7 @@ func TestProvenance_StagesAreKnown(t *testing.T) {
 		constants.ProvenanceStageMapper:    true,
 		constants.ProvenanceStageClonefrom: true,
 	}
+
 	for _, p := range constants.CloneFromReportProvenance {
 		if !allowed[p.Stage] {
 			t.Errorf("provenance entry %q references unknown stage %q",
@@ -54,6 +55,7 @@ func TestProvenance_RoundTripsInEnvelope(t *testing.T) {
 	if err := writeReportRowsJSON(&buf, canonicalReportResults()); err != nil {
 		t.Fatalf("writeReportRowsJSON: %v", err)
 	}
+
 	var env struct {
 		Provenance []struct {
 			Field string `json:"field"`
@@ -61,12 +63,15 @@ func TestProvenance_RoundTripsInEnvelope(t *testing.T) {
 		} `json:"provenance"`
 		Rows []map[string]any `json:"rows"`
 	}
+
 	if err := json.Unmarshal(buf.Bytes(), &env); err != nil {
 		t.Fatalf("decode envelope: %v\nraw: %s", err, buf.String())
 	}
+
 	if len(env.Rows) == 0 {
 		t.Fatal("canonical results produced no rows; cannot verify round-trip")
 	}
+
 	for _, p := range env.Provenance {
 		if _, exists := env.Rows[0][p.Field]; !exists {
 			t.Errorf("provenance.field %q has no matching key in rows[0] %v",
@@ -85,6 +90,7 @@ func jsonTagFieldNames(t reflect.Type) []string {
 		if tag == "" {
 			continue
 		}
+
 		out = append(out, tag)
 	}
 

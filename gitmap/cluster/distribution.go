@@ -86,6 +86,7 @@ func getActiveClients(registry *Registry) []Client {
 			active = append(active, Client{ID: node.ID})
 		}
 	}
+
 	return active
 }
 
@@ -93,10 +94,12 @@ func clientsChanged(old, new []Client) bool {
 	if len(old) != len(new) {
 		return true
 	}
+
 	for i := range old {
 		if old[i].ID != new[i].ID {
 			return true
 		}
 	}
+
 	return false
 }

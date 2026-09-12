@@ -36,6 +36,7 @@ func buildUbuntuBasicProfile() ProfileComposition {
 
 func buildUbuntuVscodeProfile() ProfileComposition {
 	baseProfile := buildUbuntuBasicProfile()
+
 	return ProfileComposition{
 		Name:        "ubuntu+vscode",
 		Alias:       "ub+code",
@@ -49,6 +50,7 @@ func buildUbuntuVscodeProfile() ProfileComposition {
 
 func buildUbuntuSmallDevProfile() ProfileComposition {
 	baseProfile := buildUbuntuVscodeProfile()
+
 	return ProfileComposition{
 		Name:        "ubuntu+small-dev",
 		Alias:       "ub+sdev",
@@ -63,6 +65,7 @@ func buildUbuntuSmallDevProfile() ProfileComposition {
 
 func buildUbuntuDevProfile() ProfileComposition {
 	baseProfile := buildUbuntuSmallDevProfile()
+
 	return ProfileComposition{
 		Name:        "ubuntu+dev",
 		Alias:       "ub+dev",
@@ -156,9 +159,11 @@ func profileToTreeNode(profile ProfileComposition) InstallerTreeNode {
 		Title:       profile.Name,
 		Description: profile.Description,
 	}
+
 	if profile.Base != nil {
 		rootNode.Children = append(rootNode.Children, profileToTreeNode(*profile.Base))
 	}
+
 	return appendToolNodes(rootNode, profile.Tools)
 }
 
@@ -169,6 +174,7 @@ func appendToolNodes(parent InstallerTreeNode, tools []ToolEntry) InstallerTreeN
 			Description: toolEntry.Description,
 		})
 	}
+
 	return parent
 }
 
@@ -181,8 +187,10 @@ func printProfileInstallSummary(slug string) {
 	profile, hasProfile := resolveProfileTree(slug)
 	if !hasProfile {
 		printInstallSummaryHeader(slug)
+
 		return
 	}
+
 	printInstallSummaryHeader(profile.Name)
 	printProfileTree(profile)
 }

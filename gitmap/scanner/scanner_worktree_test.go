@@ -17,6 +17,7 @@ func makeWorktreeRepo(t *testing.T, root, rel, gitdirTarget string) string {
 	if err := os.MkdirAll(full, 0o755); err != nil {
 		t.Fatalf("mkdir %s: %v", rel, err)
 	}
+
 	contents := []byte("gitdir: " + gitdirTarget + "\n")
 	if err := os.WriteFile(filepath.Join(full, constants.ExtGit), contents, 0o644); err != nil {
 		t.Fatalf("write .git file %s: %v", rel, err)
@@ -38,6 +39,7 @@ func TestScanDirDetectsWorktreeGitFile(t *testing.T) {
 	if err != nil {
 		t.Fatalf("ScanDir: %v", err)
 	}
+
 	if len(got) != 2 {
 		t.Fatalf("want 2 repos (dir + worktree), got %d: %+v", len(got), got)
 	}
@@ -53,6 +55,7 @@ func TestScanDirIgnoresNonGitdirFile(t *testing.T) {
 	if err := os.MkdirAll(dir, 0o755); err != nil {
 		t.Fatalf("mkdir: %v", err)
 	}
+
 	if err := os.WriteFile(filepath.Join(dir, constants.ExtGit),
 		[]byte("just some text, no prefix\n"), 0o644); err != nil {
 		t.Fatalf("write: %v", err)
@@ -62,6 +65,7 @@ func TestScanDirIgnoresNonGitdirFile(t *testing.T) {
 	if err != nil {
 		t.Fatalf("ScanDir: %v", err)
 	}
+
 	if len(got) != 0 {
 		t.Fatalf("want 0 repos (stray .git file should not count), got %+v", got)
 	}
@@ -82,6 +86,7 @@ func TestScanDirWorktreeStopsDescent(t *testing.T) {
 	if err != nil {
 		t.Fatalf("ScanDir: %v", err)
 	}
+
 	if len(got) != 1 {
 		t.Fatalf("want 1 repo (worktree only), got %d: %+v", len(got), got)
 	}

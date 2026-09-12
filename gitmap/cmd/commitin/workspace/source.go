@@ -42,20 +42,25 @@ func EnsureSource(rawSource string) (*SourceHandle, error) {
 	if isGitURL(rawSource) {
 		return resolveByClone(rawSource)
 	}
+
 	abs, err := filepath.Abs(rawSource)
 	if err != nil {
 		return nil, fmt.Errorf("absolutize source: %w", err)
 	}
+
 	info, statErr := os.Stat(abs)
 	if statErr == nil && info.IsDir() {
 		return resolveExistingDir(abs)
 	}
+
 	if statErr != nil && os.IsNotExist(statErr) {
 		return resolveMissingDir(abs)
 	}
+
 	if statErr != nil {
 		return nil, fmt.Errorf(constants.CommitInErrSourceMkdir, statErr)
 	}
+
 	return nil, fmt.Errorf("commit-in: source: %q is not a directory", abs)
 }
 
@@ -69,11 +74,13 @@ func isGitURL(s string) bool {
 		constants.CommitInUrlPrefixSsh,
 		constants.CommitInUrlPrefixGit,
 	}
+
 	for _, p := range prefixes {
 		if strings.HasPrefix(s, p) {
 			return true
 		}
 	}
+
 	return false
 }
 
@@ -83,10 +90,12 @@ func resolveByClone(url string) (*SourceHandle, error) {
 	if err != nil {
 		return nil, fmt.Errorf("getwd: %w", err)
 	}
+
 	target := filepath.Join(cwd, cloneBasename(url))
 	if err := runGitClone(url, target); err != nil {
 		return nil, fmt.Errorf(constants.CommitInErrSourceClone, err)
 	}
+
 	return &SourceHandle{Path: target, Kind: SourceKindCloned}, nil
 }
 
@@ -95,9 +104,11 @@ func resolveExistingDir(abs string) (*SourceHandle, error) {
 	if hasGitMetadata(abs) {
 		return &SourceHandle{Path: abs, Kind: SourceKindExistingRepo}, nil
 	}
+
 	if err := runGitInit(abs); err != nil {
 		return nil, fmt.Errorf(constants.CommitInErrSourceInit, err)
 	}
+
 	return &SourceHandle{Path: abs, Kind: SourceKindInitInPlace, IsFreshlyInit: true}, nil
 }
 
@@ -106,9 +117,11 @@ func resolveMissingDir(abs string) (*SourceHandle, error) {
 	if err := os.MkdirAll(abs, 0o755); err != nil {
 		return nil, fmt.Errorf(constants.CommitInErrSourceMkdir, err)
 	}
+
 	if err := runGitInit(abs); err != nil {
 		return nil, fmt.Errorf(constants.CommitInErrSourceInit, err)
 	}
+
 	return &SourceHandle{Path: abs, Kind: SourceKindCreatedAndInit, IsFreshlyInit: true}, nil
 }
 
@@ -118,8 +131,10 @@ func hasGitMetadata(dir string) bool {
 	if _, err := os.Stat(filepath.Join(dir, ".git")); err == nil {
 		return true
 	}
+
 	_, headErr := os.Stat(filepath.Join(dir, "HEAD"))
 	_, objErr := os.Stat(filepath.Join(dir, "objects"))
+
 	return headErr == nil && objErr == nil
 }
 
@@ -129,6 +144,7 @@ func cloneBasename(url string) string {
 	trimmed := strings.TrimSuffix(url, "/")
 	idx := strings.LastIndexAny(trimmed, "/:")
 	last := trimmed[idx+1:]
+
 	return strings.TrimSuffix(last, constants.CommitInUrlSuffixGit)
 }
 

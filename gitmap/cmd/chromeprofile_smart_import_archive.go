@@ -16,6 +16,7 @@ func discoverZipCandidates(zipPath string) ([]DiscoveredProfileCandidate, error)
 	if err != nil {
 		return nil, fmt.Errorf("open zip %s: %w", zipPath, err)
 	}
+
 	defer r.Close()
 
 	m := readZipManifest(r)
@@ -54,10 +55,12 @@ func countZipProfileBookmarks(r *zip.ReadCloser, profName string) int {
 		if f.Name != prefix {
 			continue
 		}
+
 		rc, err := f.Open()
 		if err != nil {
 			return 0
 		}
+
 		defer rc.Close()
 		raw, _ := io.ReadAll(rc)
 
@@ -133,10 +136,12 @@ func importZipSnapshotWithStepLogging(zipPath, explicitTarget string) error {
 		if explicitTarget != "" {
 			dstDir = explicitTarget
 		}
+
 		_ = registerImportedProfileToLocalState(dstDir, c.DisplayName, c.Email)
 	}
 
 	fmt.Printf("  \033[1;94m[Step 5/5]\033[0m Reconciling Chrome Local State...\n")
+
 	return nil
 }
 
@@ -185,9 +190,11 @@ func copyProfileDirectoryDiskFiles(srcDir, destDir string) {
 	for _, name := range []string{"Bookmarks", "Preferences"} {
 		copySingleProfileFile(filepath.Join(srcDir, name), filepath.Join(destDir, name))
 	}
+
 	for _, dbName := range constants.ChromeProfileSQLiteEntries {
 		copySingleProfileFile(filepath.Join(srcDir, dbName), filepath.Join(destDir, dbName))
 	}
+
 	copySingleProfileFile(filepath.Join(srcDir, "Cookies"), filepath.Join(destDir, "Cookies"))
 	copySingleProfileFile(filepath.Join(srcDir, "Network", "Cookies"), filepath.Join(destDir, "Network", "Cookies"))
 }

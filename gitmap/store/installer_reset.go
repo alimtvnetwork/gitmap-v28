@@ -45,6 +45,7 @@ func validateResetInput(db *DB, slug string, isAll bool) *apperror.AppError {
 			"all":  isAll,
 		})
 	}
+
 	if !isAll && slug == "" {
 		return apperror.New("ResetInstallers", "E_INSTALLER_INVALID_INPUT", map[string]any{
 			"error": "slug cannot be empty when all is false",

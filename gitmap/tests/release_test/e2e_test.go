@@ -116,12 +116,15 @@ func TestE2E_FullReleaseCycle(t *testing.T) {
 	if meta.Tag != "v5.0.0" {
 		t.Errorf("expected tag v5.0.0, got %s", meta.Tag)
 	}
+
 	if meta.Version != "5.0.0" {
 		t.Errorf("expected version 5.0.0, got %s", meta.Version)
 	}
+
 	if meta.Branch != branchName {
 		t.Errorf("expected branch %s, got %s", branchName, meta.Branch)
 	}
+
 	if len(meta.Commit) == 0 {
 		t.Error("commit SHA should be populated")
 	}
@@ -131,6 +134,7 @@ func TestE2E_FullReleaseCycle(t *testing.T) {
 	if err != nil {
 		t.Fatalf("ReadLatest: %v", err)
 	}
+
 	if latest.Tag != "v5.0.0" {
 		t.Errorf("expected latest tag v5.0.0, got %s", latest.Tag)
 	}
@@ -140,6 +144,7 @@ func TestE2E_FullReleaseCycle(t *testing.T) {
 	if err != nil {
 		t.Fatalf("CurrentBranchName: %v", err)
 	}
+
 	if strings.HasPrefix(current, "release/") {
 		t.Errorf("should be on original branch, got %s", current)
 	}
@@ -197,6 +202,7 @@ func TestE2E_DryRunNoSideEffects(t *testing.T) {
 	if release.BranchExists(branchName) {
 		t.Error("dry-run should not create a branch")
 	}
+
 	if release.TagExistsLocally("v3.0.0") {
 		t.Error("dry-run should not create a tag")
 	}
@@ -263,6 +269,7 @@ func TestE2E_SkipMetaNoFiles(t *testing.T) {
 	if !release.BranchExists(constants.ReleaseBranchPrefix + "v1.0.0") {
 		t.Error("branch should exist even with SkipMeta")
 	}
+
 	if !release.TagExistsLocally("v1.0.0") {
 		t.Error("tag should exist even with SkipMeta")
 	}

@@ -24,10 +24,13 @@ func isFixRepoSpanArg(a string) bool {
 	if strings.HasPrefix(s, "-") {
 		s = s[1:]
 	}
+
 	if s == "" {
 		return false
 	}
+
 	n, err := strconv.Atoi(s)
+
 	return err == nil && n > 0
 }
 
@@ -38,6 +41,7 @@ func normalizeFixRepoSpanArg(a string) string {
 	if strings.HasPrefix(a, "-") {
 		return a
 	}
+
 	return "-" + a
 }
 
@@ -62,6 +66,7 @@ func parseFixRepoArgs(args []string) (fixRepoOptions, error) {
 		if err != nil {
 			return out, err
 		}
+
 		i += consumed
 	}
 
@@ -80,47 +85,58 @@ func consumeOneFixRepoArg(args []string, i int, out *fixRepoOptions,
 
 		return 1, nil
 	}
+
 	if isFixRepoSpanArg(a) {
 		*modes = append(*modes, normalizeFixRepoSpanArg(a))
 
 		return 1, nil
 	}
+
 	if isFixRepoDryRunArg(a) {
 		out.isDryRun = true
 
 		return 1, nil
 	}
+
 	if isFixRepoVerboseArg(a) {
 		out.isVerbose = true
 
 		return 1, nil
 	}
+
 	if isFixRepoStrictArg(a) {
 		out.isStrict = true
 
 		return 1, nil
 	}
+
 	consumed, ok, err := consumeFixRepoRestrictArg(args, i, out)
 	if err != nil {
 		return 0, err
 	}
+
 	if ok {
 		return consumed, nil
 	}
+
 	consumed, ok, err = consumeFixRepoConfigArg(args, i, out)
 	if err != nil {
 		return 0, err
 	}
+
 	if ok {
 		return consumed, nil
 	}
+
 	consumed, ok, err = consumeFixRepoGofmtMaxArg(args, i, out)
 	if err != nil {
 		return 0, err
 	}
+
 	if ok {
 		return consumed, nil
 	}
+
 	*unknown = append(*unknown, a)
 
 	return 1, nil
@@ -132,9 +148,11 @@ func finalizeFixRepoOpts(out fixRepoOptions, modes, unknown []string) (fixRepoOp
 	if len(modes) > 1 {
 		return out, fmt.Errorf("multiple mode flags: %s", strings.Join(modes, " "))
 	}
+
 	if len(unknown) > 0 {
 		return out, fmt.Errorf("unknown flag(s): %s\n%s", strings.Join(unknown, " "), fixRepoFlagHint())
 	}
+
 	if len(modes) == 1 {
 		out.mode = modes[0]
 	}
@@ -149,6 +167,7 @@ func isFixRepoModeArg(a string) bool {
 			return true
 		}
 	}
+
 	low := strings.ToLower(a)
 
 	return low == "-all" || low == "--all"
@@ -198,11 +217,13 @@ func consumeFixRepoConfigArg(args []string, i int, out *fixRepoOptions) (int, bo
 	if matchBare && i+1 >= len(args) {
 		return 0, true, errors.New("--config requires a path")
 	}
+
 	if matchBare {
 		out.configPath = args[i+1]
 
 		return 2, true, nil
 	}
+
 	prefixLong := bareLong + "="
 	prefixShort := bareShort + "="
 	if strings.HasPrefix(low, prefixLong) {
@@ -210,6 +231,7 @@ func consumeFixRepoConfigArg(args []string, i int, out *fixRepoOptions) (int, bo
 
 		return 1, true, nil
 	}
+
 	if strings.HasPrefix(low, prefixShort) {
 		out.configPath = a[len(prefixShort):]
 
@@ -232,9 +254,11 @@ func consumeFixRepoRestrictArg(args []string, i int, out *fixRepoOptions) (int, 
 	if matchBare && i+1 >= len(args) {
 		return 0, true, fmt.Errorf("%s requires a value (no-version|nv)", a)
 	}
+
 	if matchBare {
 		return 2, true, applyRestrictValue(out, args[i+1])
 	}
+
 	for _, p := range []string{bareLong + "=", bareShort + "=", bareTiny + "="} {
 		if strings.HasPrefix(low, p) {
 			return 1, true, applyRestrictValue(out, a[len(p):])
@@ -272,9 +296,11 @@ func consumeFixRepoGofmtMaxArg(args []string, i int, out *fixRepoOptions) (int, 
 	if low == bare && i+1 >= len(args) {
 		return 0, true, fmt.Errorf("%s requires a positive integer", a)
 	}
+
 	if low == bare {
 		return 2, true, applyGofmtMaxCmdLen(out, args[i+1])
 	}
+
 	if strings.HasPrefix(low, prefix) {
 		return 1, true, applyGofmtMaxCmdLen(out, a[len(prefix):])
 	}
@@ -288,10 +314,12 @@ func applyGofmtMaxCmdLen(out *fixRepoOptions, v string) error {
 	if err != nil {
 		return fmt.Errorf("--%s: %q is not an integer", constants.FixRepoFlagGofmtMaxCmdLen, v)
 	}
+
 	if n < constants.FixRepoGofmtMinCmdLen {
 		return fmt.Errorf("--%s: %d below floor %d",
 			constants.FixRepoFlagGofmtMaxCmdLen, n, constants.FixRepoGofmtMinCmdLen)
 	}
+
 	out.gofmtMaxCmdLen = n
 
 	return nil

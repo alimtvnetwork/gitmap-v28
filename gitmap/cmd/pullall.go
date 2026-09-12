@@ -8,6 +8,7 @@ package cmd
 // `gitmap pull --all <forwarded flags>`.
 func runPullAll(args []string) error {
 	runPull(prependAll(args))
+
 	return nil
 }
 

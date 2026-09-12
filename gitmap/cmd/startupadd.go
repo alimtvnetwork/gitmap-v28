@@ -53,16 +53,19 @@ func runStartupAdd(args []string) error {
 		fmt.Fprintf(os.Stderr, "%v\n", err)
 		cliexit.HandleError(nil, 2)
 	}
+
 	exec, ok := resolveStartupAddExec(cfg.exec)
 	if !ok {
 		fmt.Fprintln(os.Stderr, constants.ErrStartupAddMissingExec)
 		cliexit.HandleError(nil, 2)
 	}
+
 	backend, err := startup.ParseBackend(cfg.backend)
 	if err != nil {
 		fmt.Fprintf(os.Stderr, "%v\n", err)
 		cliexit.HandleError(nil, 2)
 	}
+
 	res, err := startup.Add(startup.AddOptions{
 		Name: cfg.name, Exec: exec,
 		DisplayName: cfg.displayName, Comment: cfg.comment,
@@ -73,13 +76,16 @@ func runStartupAdd(args []string) error {
 	if err != nil {
 		return apperror.WrapSimple(err, "")
 	}
+
 	if cfg.output == constants.OutputJSON {
 		_ = emitStartupStatus(cfg.output, cfg.jsonIndent,
 			addResultToStatus(cfg.name, cfg.force, res))
 
 		return nil
 	}
+
 	printAddResult(cfg.name, res)
+
 	return nil
 }
 
@@ -126,12 +132,11 @@ func parseStartupAddFlags(args []string) startupAddFlags {
 // than letting startup.Add write a broken Exec= line.
 func resolveStartupAddExec(flagValue string) (string, bool) {
 	if flagValue != "" {
-
 		return flagValue, true
 	}
+
 	bin, err := os.Executable()
 	if err != nil || bin == "" {
-
 		return "", false
 	}
 

@@ -44,6 +44,7 @@ func printCloneNowTermBlockRow(index, total int, row clonenow.Row,
 		branch = detectRemoteHEAD(url)
 		source = remoteBranchSource(branch)
 	}
+
 	in := CloneTermBlockInput{
 		Index:        index,
 		Name:         pickCloneNowName(row, dest),
@@ -60,6 +61,7 @@ func printCloneNowTermBlockRow(index, total int, row clonenow.Row,
 		// -b flag — the documented v5.x verify-cmd-faithful drift.
 		CmdExtraArgsPre: cmdExtraArgsPreForRowBranch(row.Branch),
 	}
+
 	maybePrintCloneTermBlock(constants.OutputTerminal, in)
 	// Cross-check the printed cmd: against the executor's real argv
 	// (no-op unless --verify-cmd-faithful is on). Single source of
@@ -103,10 +105,12 @@ func printCloneFromTermBlockRow(index, total int, row clonefrom.Row,
 		branch = detectRemoteHEAD(row.URL)
 		source = remoteBranchSource(branch)
 	}
+
 	var post []string
 	if row.Depth > 0 {
 		post = []string{fmt.Sprintf(constants.CloneFromDepthFlagFmt, row.Depth)}
 	}
+
 	in := CloneTermBlockInput{
 		Index:            index,
 		Name:             dest,
@@ -119,6 +123,7 @@ func printCloneFromTermBlockRow(index, total int, row clonefrom.Row,
 		CmdExtraArgsPre:  cmdExtraArgsPreForRowBranch(row.Branch),
 		CmdExtraArgsPost: post,
 	}
+
 	maybePrintCloneTermBlock(constants.OutputTerminal, in)
 	// Cross-check displayed cmd: vs the executor's real argv. The
 	// argv builder is the SAME function execute.go calls, so any

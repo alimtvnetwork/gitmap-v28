@@ -28,6 +28,7 @@ func TestMarkdownIncludesHeaderAndSections(t *testing.T) {
 		"### Fixed",
 		"- crash on empty input",
 	}
+
 	for _, p := range wantParts {
 		if !strings.Contains(out, p) {
 			t.Fatalf("Markdown missing %q\n---\n%s", p, out)
@@ -44,6 +45,7 @@ func TestTypeScriptIsValidObjectFragment(t *testing.T) {
 		`"Added: new flag --foo"`,
 		`"Fixed: crash on empty input"`,
 	}
+
 	for _, p := range wantParts {
 		if !strings.Contains(out, p) {
 			t.Fatalf("TypeScript missing %q\n---\n%s", p, out)

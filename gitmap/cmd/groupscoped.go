@@ -18,6 +18,7 @@ func runActiveGroupPull() error {
 	for _, r := range records {
 		pullOneRepo(r)
 	}
+
 	return nil
 }
 
@@ -29,6 +30,7 @@ func runActiveGroupStatus() error {
 	printStatusBanner(len(records))
 	summary := printStatusTable(records)
 	printStatusSummary(summary)
+
 	return nil
 }
 
@@ -44,6 +46,7 @@ func runActiveGroupExec(args []string) error {
 	printExecBanner(args, len(records))
 	succeeded, failed, missing := execAllRepos(records, args)
 	printExecSummary(succeeded, failed, missing, len(records))
+
 	return nil
 }
 
@@ -54,6 +57,7 @@ func requireActiveGroup() string {
 		fmt.Fprintln(os.Stderr, apperror.WrapSimple(err, constants.ErrListDBFailed).Error())
 		cliexit.HandleError(nil, 1)
 	}
+
 	defer db.Close()
 
 	name := db.GetSetting(constants.SettingActiveGroup)

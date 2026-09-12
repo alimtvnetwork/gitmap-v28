@@ -35,7 +35,6 @@ func specialToolHandler(tool string) func(installOptions) {
 
 func specialLinuxHandler(tool string) func(installOptions) {
 	if runtime.GOOS != "linux" {
-
 		return nil
 	}
 
@@ -44,7 +43,6 @@ func specialLinuxHandler(tool string) func(installOptions) {
 
 func resolveLinuxToolHandler(tool string) func(installOptions) {
 	if h := resolveLinuxAppHandler(tool); h != nil {
-
 		return h
 	}
 
@@ -87,11 +85,10 @@ func resolveLinuxJsHandler(tool string) func(installOptions) {
 
 func specialAliasHandler(tool string) func(installOptions) {
 	if isCleanCodeAlias(tool) {
-
 		return func(installOptions) { runInstallCleanCode() }
 	}
-	if isBuildEssentialAlias(tool) {
 
+	if isBuildEssentialAlias(tool) {
 		return func(opts installOptions) { _ = runInstallBuildEssential(opts) }
 	}
 
@@ -100,15 +97,14 @@ func specialAliasHandler(tool string) func(installOptions) {
 
 func specialInstallHandler(tool string) func(installOptions) {
 	if h := specialAliasHandler(tool); h != nil {
-
 		return h
 	}
+
 	if h := specialLinuxHandler(tool); h != nil {
-
 		return h
 	}
-	if h := specialSyncHandler(tool); h != nil {
 
+	if h := specialSyncHandler(tool); h != nil {
 		return h
 	}
 

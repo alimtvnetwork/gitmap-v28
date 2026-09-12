@@ -26,10 +26,12 @@ func WriteCSV(w io.Writer, records []model.ScanRecord) error {
 	if err != nil {
 		return err
 	}
+
 	err = writeCSVRows(cw, records)
 	if err != nil {
 		return err
 	}
+
 	emitWriteSummary("csv", len(records), issueCount)
 
 	return nil
@@ -43,6 +45,7 @@ func writeCSVRows(cw *csv.Writer, records []model.ScanRecord) error {
 			return err
 		}
 	}
+
 	cw.Flush()
 
 	return cw.Error()
@@ -91,6 +94,7 @@ func parseCSVRows(rows [][]string) []model.ScanRecord {
 		if i == 0 {
 			continue // skip header
 		}
+
 		if len(row) >= 8 {
 			records = append(records, rowToRecord(row))
 		}
@@ -103,7 +107,6 @@ func parseCSVRows(rows [][]string) []model.ScanRecord {
 // count to keep each branch under the 15-line function budget.
 func rowToRecord(row []string) model.ScanRecord {
 	if len(row) >= 9 {
-
 		return rowToRecordWithSource(row)
 	}
 
@@ -119,11 +122,13 @@ func rowToRecordWithSource(row []string) model.ScanRecord {
 	if len(row) >= 10 {
 		depth, _ = strconv.Atoi(row[9])
 	}
+
 	repoID, discovered, transport := "", "", ""
 	if len(row) >= 12 {
 		repoID = row[10]
 		discovered = row[11]
 	}
+
 	if len(row) >= 13 {
 		transport = row[12]
 	}

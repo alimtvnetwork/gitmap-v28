@@ -16,6 +16,7 @@ func upsertSingleRepo(rec model.ScanRecord) *apperror.AppError {
 	if err != nil {
 		return apperror.WrapSimple(err, fmt.Sprintf(constants.MsgDBUpsertFailed, err))
 	}
+
 	defer db.Close()
 
 	if err := syncRepoRecord(db, rec); err != nil {
@@ -31,6 +32,7 @@ func syncRepoRecord(db *store.DB, rec model.ScanRecord) *apperror.AppError {
 	if err := db.Migrate(); err != nil {
 		return apperror.WrapSimple(err, fmt.Sprintf(constants.MsgDBUpsertFailed, err))
 	}
+
 	if err := db.UpsertRepos([]model.ScanRecord{rec}); err != nil {
 		return apperror.WrapSimple(err, fmt.Sprintf(constants.MsgDBUpsertFailed, err))
 	}
@@ -45,6 +47,7 @@ func registerAlias(name string, rec model.ScanRecord, force bool) *apperror.AppE
 	if err != nil {
 		return apperror.WrapSimple(err, fmt.Sprintf(constants.ErrListDBFailed, err))
 	}
+
 	defer db.Close()
 
 	repos, err := db.FindBySlug(rec.Slug)
@@ -100,6 +103,7 @@ func checkAliasConflict(db *store.DB, name string, rec model.ScanRecord, force b
 	if force {
 		return nil
 	}
+
 	existing, err := db.ResolveAlias(name)
 	if err == nil && existing.Slug != rec.Slug {
 		fmt.Fprintf(os.Stderr, constants.ErrAsAliasInUseFmt, name, existing.Slug)

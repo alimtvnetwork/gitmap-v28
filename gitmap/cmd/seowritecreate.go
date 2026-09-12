@@ -29,6 +29,7 @@ func createTemplateFile() error {
 	}
 
 	fmt.Printf(constants.MsgSEOCreated, constants.SEOTemplateOutputFile)
+
 	return nil
 }
 

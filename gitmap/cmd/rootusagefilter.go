@@ -15,12 +15,15 @@ func resolveFilterQuery() string {
 		if (a == constants.FlagFilter || a == constants.FlagFilterShort) && i+1 < len(args) {
 			return strings.TrimSpace(args[i+1])
 		}
+
 		if a == constants.FlagFilter || a == constants.FlagFilterShort {
 			return ""
 		}
+
 		if v, ok := strings.CutPrefix(a, constants.FlagFilter+"="); ok {
 			return strings.TrimSpace(v)
 		}
+
 		if v, ok := strings.CutPrefix(a, constants.FlagFilterShort+"="); ok {
 			return strings.TrimSpace(v)
 		}
@@ -61,6 +64,7 @@ func printFilterRecapBanner(hits []helpRow, query string) {
 	if len(hits) == 0 {
 		return
 	}
+
 	const cap = 10
 	bar := strings.Repeat("─", 12)
 	fmt.Println()
@@ -70,13 +74,16 @@ func printFilterRecapBanner(hits []helpRow, query string) {
 	if len(shown) > cap {
 		shown = shown[:cap]
 	}
+
 	for _, r := range shown {
 		fmt.Println(highlight(strings.TrimRight(r.Line, "\n"), query))
 	}
+
 	if len(hits) > cap {
 		fmt.Printf("  %s… +%d more (refine with a tighter --filter)%s\n",
 			constants.ColorDim, len(hits)-cap, constants.ColorReset)
 	}
+
 	fmt.Println()
 }
 
@@ -100,6 +107,7 @@ func renderFilteredGroups(hits []helpRow, query string) {
 		if _, seen := byGroup[r.Group]; !seen {
 			groupOrder = append(groupOrder, r.Group)
 		}
+
 		byGroup[r.Group] = append(byGroup[r.Group], highlight(r.Line, query))
 	}
 
@@ -111,6 +119,7 @@ func renderFilteredGroups(hits []helpRow, query string) {
 		for _, ln := range byGroup[g] {
 			fmt.Println(ln)
 		}
+
 		fmt.Println()
 	}
 }
@@ -121,6 +130,7 @@ func highlight(line, query string) string {
 	if len(query) == 0 {
 		return line
 	}
+
 	lowLine := strings.ToLower(line)
 	lowQ := strings.ToLower(query)
 	var out strings.Builder
@@ -132,6 +142,7 @@ func highlight(line, query string) string {
 
 			break
 		}
+
 		out.WriteString(line[idx : idx+hit])
 		out.WriteString(constants.ColorYellow)
 		out.WriteString(line[idx+hit : idx+hit+len(query)])

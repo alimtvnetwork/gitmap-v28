@@ -8,7 +8,6 @@ import (
 
 func resolveGlobalNpmCommand(pkg string) []string {
 	if isCommandAvailable("sudo") {
-
 		return []string{"sudo", "npm", "install", "-g", pkg}
 	}
 
@@ -17,9 +16,9 @@ func resolveGlobalNpmCommand(pkg string) []string {
 
 func tryInstallNpmGlobal(tool, pkg string, verbose bool) bool {
 	if !isCommandAvailable("npm") {
-
 		return false
 	}
+
 	cmd := resolveGlobalNpmCommand(pkg)
 	err := runPhaseWithAudit(tool, "npm", "latest", cmd, pkg+"-npm-install", verbose)
 
@@ -37,9 +36,9 @@ func printPnpmInstallPlan(tool string) {
 
 func isPnpmInstallPreempted(opts installOptions) bool {
 	if isInstalled := alreadyInstalled(opts.Tool); isInstalled {
-
 		return true
 	}
+
 	if opts.Manager == constants.PkgMgrBrew {
 		executeGenericInstall(opts)
 
@@ -51,9 +50,9 @@ func isPnpmInstallPreempted(opts installOptions) bool {
 
 func runInstallPnpmLinux(opts installOptions) error {
 	if isPnpmInstallPreempted(opts) {
-
 		return nil
 	}
+
 	printPnpmInstallPlan(opts.Tool)
 	if opts.DryRun {
 		fmt.Printf(constants.MsgInstallDryCmd, "sudo npm install -g pnpm")
@@ -67,9 +66,9 @@ func runInstallPnpmLinux(opts installOptions) error {
 func executePnpmLinuxInstall(opts installOptions) error {
 	err := runPnpmInstallPhase(opts)
 	if err != nil {
-
 		return err
 	}
+
 	postPnpmLinuxSetup()
 	verifyInstallation(opts.Tool)
 	recordInstallation(opts.Tool, "npm")
@@ -79,9 +78,9 @@ func executePnpmLinuxInstall(opts installOptions) error {
 
 func runPnpmInstallPhase(opts installOptions) error {
 	if isSuccess := tryInstallNpmGlobal(opts.Tool, "pnpm", opts.Verbose); isSuccess {
-
 		return nil
 	}
+
 	fmt.Printf("  Falling back to official standalone pnpm installer...\n")
 	curlCmd := []string{"sh", "-c", "curl -fsSL https://get.pnpm.io/install.sh | sh -"}
 
@@ -99,9 +98,9 @@ func printYarnInstallPlan(tool string) {
 
 func isYarnInstallPreempted(opts installOptions) bool {
 	if isInstalled := alreadyInstalled(opts.Tool); isInstalled {
-
 		return true
 	}
+
 	if opts.Manager == constants.PkgMgrBrew {
 		executeGenericInstall(opts)
 
@@ -113,9 +112,9 @@ func isYarnInstallPreempted(opts installOptions) bool {
 
 func runInstallYarnLinux(opts installOptions) error {
 	if isYarnInstallPreempted(opts) {
-
 		return nil
 	}
+
 	printYarnInstallPlan(opts.Tool)
 	if opts.DryRun {
 		fmt.Printf(constants.MsgInstallDryCmd, "sudo npm install -g yarn")
@@ -129,9 +128,9 @@ func runInstallYarnLinux(opts installOptions) error {
 func executeYarnLinuxInstall(opts installOptions) error {
 	err := runYarnInstallPhase(opts)
 	if err != nil {
-
 		return err
 	}
+
 	verifyInstallation(opts.Tool)
 	recordInstallation(opts.Tool, "npm")
 
@@ -140,9 +139,9 @@ func executeYarnLinuxInstall(opts installOptions) error {
 
 func runYarnInstallPhase(opts installOptions) error {
 	if isSuccess := tryInstallNpmGlobal(opts.Tool, "yarn", opts.Verbose); isSuccess {
-
 		return nil
 	}
+
 	fmt.Printf("  Falling back to corepack yarn installer...\n")
 	corepackCmd := []string{"sh", "-c", "corepack enable && corepack prepare yarn@stable --activate"}
 
@@ -160,9 +159,9 @@ func printBunInstallPlan(tool string) {
 
 func runInstallBunLinux(opts installOptions) error {
 	if isInstalled := alreadyInstalled(opts.Tool); isInstalled {
-
 		return nil
 	}
+
 	printBunInstallPlan(opts.Tool)
 	if opts.DryRun {
 		fmt.Printf(constants.MsgInstallDryCmd, "curl -fsSL https://bun.sh/install | bash")
@@ -177,9 +176,9 @@ func executeBunLinuxInstall(opts installOptions) error {
 	cmd := []string{"sh", "-c", "curl -fsSL https://bun.sh/install | bash"}
 	err := runPhaseWithAudit(opts.Tool, "curl", "latest", cmd, "bun-curl-install", opts.Verbose)
 	if err != nil {
-
 		return err
 	}
+
 	verifyInstallation(opts.Tool)
 	recordInstallation(opts.Tool, "curl")
 

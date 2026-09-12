@@ -43,6 +43,7 @@ func resolvePositionalDomain(posArgs []string, current string) string {
 	if hasCurrent {
 		return current
 	}
+
 	hasPos := len(posArgs) > 0
 	if hasPos {
 		return posArgs[0]
@@ -56,6 +57,7 @@ func resolvePositionalRoot(posArgs []string, current string) string {
 	if hasCurrent {
 		return current
 	}
+
 	hasPos := len(posArgs) > 1
 	if hasPos {
 		return posArgs[1]
@@ -71,6 +73,7 @@ func populateCreatePositional(fs *flag.FlagSet, h *createFlagsHolder) {
 	if h.root == "" && h.domain != "" {
 		h.root = detectDefaultDocumentRoot(h.domain)
 	}
+
 	h.rawType = detectDefaultSiteType(h.rawType)
 }
 
@@ -90,9 +93,11 @@ func parseVHostCreateFlags(args []string, h *createFlagsHolder) error {
 	if err == flag.ErrHelp {
 		cliexit.Exit(0)
 	}
+
 	if err != nil {
 		return apperror.WrapSimple(err, "flag.Parse")
 	}
+
 	populateCreatePositional(fs, h)
 
 	return validateDomainRequired(h.domain)
@@ -103,6 +108,7 @@ func buildCreateConfig(h createFlagsHolder) (VHostConfig, VHostOptions, error) {
 	if parseErr != nil {
 		return VHostConfig{}, VHostOptions{}, parseErr
 	}
+
 	cfg := VHostConfig{
 		SiteType:     st,
 		Domain:       h.domain,
@@ -112,6 +118,7 @@ func buildCreateConfig(h createFlagsHolder) (VHostConfig, VHostOptions, error) {
 		FastCGIPass:  h.fastcgi,
 		IsSslEnabled: h.isSsl,
 	}
+
 	opts := VHostOptions{
 		SitesAvailableDir: h.availDir,
 		SitesEnabledDir:   h.enabDir,
@@ -127,10 +134,12 @@ func executeVHostCreate(h createFlagsHolder) error {
 	if buildErr != nil {
 		return buildErr
 	}
+
 	targetPath, createErr := CreateVHost(cfg, opts)
 	if createErr != nil {
 		return createErr
 	}
+
 	_ = persistSiteRecord(cfg, targetPath, opts.IsDryRun)
 	fmt.Printf("%sVirtual host created for %s at %s%s\n", constants.ColorGreen, cfg.Domain, targetPath, constants.ColorReset)
 

@@ -29,9 +29,11 @@ func runDashboard(args []string) error {
 	if appErr != nil {
 		return appErr
 	}
+
 	if appErr := emitDashboardOutputs(outDir, data); appErr != nil {
 		return appErr
 	}
+
 	openDashboardIfRequested(outDir, openFlag)
 
 	return nil
@@ -50,9 +52,11 @@ func emitDashboardOutputs(outDir string, data model.DashboardData) *apperror.App
 	if appErr := writeDashboardJSON(outDir, data); appErr != nil {
 		return appErr
 	}
+
 	if appErr := writeDashboardHTML(outDir, data); appErr != nil {
 		return appErr
 	}
+
 	fmt.Printf(constants.MsgDashGenerated, outDir)
 
 	return nil
@@ -63,6 +67,7 @@ func writeDashboardJSON(outDir string, data model.DashboardData) *apperror.AppEr
 	if err != nil {
 		return apperror.WrapSimple(err, constants.ErrDashWriteJSON)
 	}
+
 	fmt.Printf(constants.MsgDashWriteJSON, dashboard.Summary(jsonPath),
 		data.Meta.TotalCommits, len(data.Authors))
 
@@ -74,6 +79,7 @@ func writeDashboardHTML(outDir string, data model.DashboardData) *apperror.AppEr
 	if err != nil {
 		return apperror.WrapSimple(err, constants.ErrDashWriteHTML)
 	}
+
 	fmt.Printf(constants.MsgDashWriteHTML, dashboard.Summary(htmlPath))
 
 	return nil

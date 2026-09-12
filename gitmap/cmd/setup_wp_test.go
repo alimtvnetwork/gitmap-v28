@@ -48,6 +48,7 @@ define( 'WP_DEBUG', false );
 	if err != nil {
 		t.Fatalf("GenerateWpConfigContent with sample failed: %v", err)
 	}
+
 	assertContains(t, out, "// Custom comment")
 	assertContains(t, out, "define( 'DB_NAME', 'prod_db' );")
 	assertContains(t, out, "// >>> gitmap:wp-salts >>>")
@@ -67,19 +68,24 @@ func TestParseWordPressFlags(t *testing.T) {
 		"--port=8080",
 		"--dry-run",
 	}
+
 	opts, err := parseWordPressFlags(args)
 	if err != nil {
 		t.Fatalf("parseWordPressFlags failed: %v", err)
 	}
+
 	if opts.TargetDir != "/tmp/site" {
 		t.Errorf("expected TargetDir /tmp/site, got %s", opts.TargetDir)
 	}
+
 	if opts.DBName != "my_db" || opts.DBUser != "my_user" {
 		t.Errorf("unexpected DB creds: %s, %s", opts.DBName, opts.DBUser)
 	}
+
 	if !opts.IsDebug || !opts.IsVHost || !opts.IsDryRun {
 		t.Error("expected boolean flags to be true")
 	}
+
 	if opts.Domain != "site.test" || opts.Port != 8080 {
 		t.Errorf("unexpected vhost opts: %s:%d", opts.Domain, opts.Port)
 	}
@@ -91,9 +97,11 @@ func TestParseWordPressFlagsPositional(t *testing.T) {
 	if err != nil {
 		t.Fatalf("parseWordPressFlags failed: %v", err)
 	}
+
 	if opts.TargetDir != "/var/www/mywp" {
 		t.Errorf("expected positional dir /var/www/mywp, got %s", opts.TargetDir)
 	}
+
 	if opts.DBName != "pos_db" {
 		t.Errorf("expected db pos_db, got %s", opts.DBName)
 	}
@@ -109,6 +117,7 @@ func TestSetupWordPressDryRun(t *testing.T) {
 	if err != nil {
 		t.Fatalf("SetupWordPress dry-run failed: %v", err)
 	}
+
 	wpConfig := filepath.Join(dir, "wp-config.php")
 	hasFile := fileExists(wpConfig)
 	if hasFile {
@@ -134,6 +143,7 @@ func TestSetupWordPressRealExecution(t *testing.T) {
 	if readErr != nil {
 		t.Fatalf("failed reading written wp-config.php: %v", readErr)
 	}
+
 	assertContains(t, string(content), "define( 'DB_NAME', 'real_wp' );")
 
 	vhostFile := filepath.Join(dir, "nginx-wp.test.conf")
@@ -141,6 +151,7 @@ func TestSetupWordPressRealExecution(t *testing.T) {
 	if vhostErr != nil {
 		t.Fatalf("failed reading written vhost file: %v", vhostErr)
 	}
+
 	assertContains(t, string(vhostContent), "server_name wp.test;")
 }
 
@@ -149,10 +160,12 @@ func TestResolveSetupTargetWordPress(t *testing.T) {
 	if !handled {
 		t.Error("expected 'wp' to be handled by resolveSetupTarget")
 	}
+
 	handledWp, _ := resolveSetupTarget("wordpress", []string{"--dry-run"})
 	if !handledWp {
 		t.Error("expected 'wordpress' to be handled by resolveSetupTarget")
 	}
+
 	handledUnknown, _ := resolveSetupTarget("unknown_cmd", []string{})
 	if handledUnknown {
 		t.Error("expected unknown_cmd not to be handled")

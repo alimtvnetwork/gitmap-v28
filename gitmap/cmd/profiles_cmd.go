@@ -15,8 +15,10 @@ func runProfiles(args []string) error {
 	if len(args) == 0 {
 		return runProfilesList(args)
 	}
+
 	sub := args[0]
 	rest := args[1:]
+
 	return routeProfilesSub(sub, rest)
 }
 
@@ -44,10 +46,13 @@ func runProfilesList(args []string) error {
 	if err != nil {
 		return apperror.WrapSimple(err, "load profiles:")
 	}
+
 	if hasArgFlag(args, "--json") {
 		return outputProfilesJSON(cfg)
 	}
+
 	printProfilesTable(cfg)
+
 	return nil
 }
 
@@ -56,7 +61,9 @@ func outputProfilesJSON(cfg model.GitProfileConfig) error {
 	if err != nil {
 		return apperror.WrapSimple(err, "marshal json:")
 	}
+
 	fmt.Println(string(data))
+
 	return nil
 }
 
@@ -69,6 +76,7 @@ func printProfilesTable(cfg model.GitProfileConfig) {
 	for i, p := range cfg.Profiles {
 		printProfileRow(i+1, p, cfg.Default)
 	}
+
 	fmt.Println("  --------------------------------------------------------------------------------")
 	fmt.Println("  Tip: Switch default with 'gitmap profiles set-default <1-N|name>'")
 	fmt.Println()
@@ -79,10 +87,12 @@ func printProfileRow(seq int, p model.GitProfile, defaultName string) {
 	if p.Name == defaultName || p.IsDefault {
 		defTag = "* (default)"
 	}
+
 	lastUsed := "-"
 	if !p.LastUsedAt.IsZero() {
 		lastUsed = p.LastUsedAt.Format("2006-01-02")
 	}
+
 	fmt.Printf("  [%d]  %-20s %-10s %-14s %-8s %-6d %s\n",
 		seq, p.Name, p.Provider, p.Type, defTag, p.UsageCount, lastUsed)
 }

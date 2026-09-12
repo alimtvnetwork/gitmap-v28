@@ -23,16 +23,20 @@ func TestParseFile_JSON(t *testing.T) {
 	if err != nil {
 		t.Fatalf("ParseFile: %v", err)
 	}
+
 	if plan.Format != "json" {
 		t.Errorf("format = %q, want json", plan.Format)
 	}
+
 	if len(plan.Rows) != 2 {
 		t.Fatalf("rows = %d, want 2", len(plan.Rows))
 	}
+
 	want0 := Row{URL: "https://github.com/a/b.git", Dest: "bb", Branch: "main", Depth: 1}
 	if plan.Rows[0] != want0 {
 		t.Errorf("row0 = %+v, want %+v", plan.Rows[0], want0)
 	}
+
 	if plan.Rows[1].URL != "git@github.com:c/d.git" {
 		t.Errorf("row1 URL = %q", plan.Rows[1].URL)
 	}
@@ -51,15 +55,19 @@ func TestParseFile_CSV(t *testing.T) {
 	if err != nil {
 		t.Fatalf("ParseFile: %v", err)
 	}
+
 	if len(plan.Rows) != 3 {
 		t.Fatalf("rows = %d, want 3", len(plan.Rows))
 	}
+
 	if plan.Rows[1].Dest != "my-d" {
 		t.Errorf("row1 dest = %q, want my-d", plan.Rows[1].Dest)
 	}
+
 	if plan.Rows[2].URL != "https://example.org/with,comma.git" {
 		t.Errorf("row2 URL = %q (quoted-comma not preserved)", plan.Rows[2].URL)
 	}
+
 	if plan.Rows[2].Depth != 5 {
 		t.Errorf("row2 depth = %d, want 5", plan.Rows[2].Depth)
 	}
@@ -74,6 +82,7 @@ func TestParseFile_RejectsBadURL(t *testing.T) {
 	if err == nil {
 		t.Fatal("expected error for bare owner/repo")
 	}
+
 	if !strings.Contains(err.Error(), "row 2") {
 		t.Errorf("error %q does not point at row 2", err.Error())
 	}
@@ -90,9 +99,11 @@ func TestParseFile_DedupMergesLaterFields(t *testing.T) {
 	if err != nil {
 		t.Fatalf("ParseFile: %v", err)
 	}
+
 	if len(plan.Rows) != 1 {
 		t.Fatalf("rows = %d, want 1 (deduped)", len(plan.Rows))
 	}
+
 	if plan.Rows[0].Branch != "main" || plan.Rows[0].Depth != 1 {
 		t.Errorf("merged row = %+v, want branch=main depth=1", plan.Rows[0])
 	}
@@ -107,6 +118,7 @@ func TestParseFile_MissingURLColumn(t *testing.T) {
 	if err == nil {
 		t.Fatal("expected error for missing url column")
 	}
+
 	if !strings.Contains(err.Error(), "url") {
 		t.Errorf("error %q does not mention url", err.Error())
 	}

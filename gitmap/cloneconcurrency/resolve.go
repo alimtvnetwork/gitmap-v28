@@ -31,6 +31,7 @@ func Resolve(n int) (int, bool) {
 	if n < 0 {
 		return 0, false
 	}
+
 	if n > 0 {
 		return n, true
 	}

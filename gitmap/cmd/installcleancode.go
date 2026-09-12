@@ -60,6 +60,7 @@ func runInstallCleanCode() error {
 	}
 
 	fmt.Print(constants.MsgCleanCodeDone)
+
 	return nil
 }
 
@@ -74,10 +75,12 @@ func resolvePowerShellBinaryWithLookPath(lookPath func(string) (string, error)) 
 	if lookPath == nil {
 		lookPath = exec.LookPath
 	}
+
 	candidates := []string{"pwsh", "powershell"}
 	if runtime.GOOS == "windows" {
 		candidates = []string{"powershell", "pwsh"}
 	}
+
 	for _, name := range candidates {
 		if path, err := lookPath(name); err == nil {
 			return path

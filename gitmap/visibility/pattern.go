@@ -38,6 +38,7 @@ func ParsePattern(raw string) (Pattern, error) {
 	if len(trimmed) == 0 {
 		return Pattern{}, fmt.Errorf("Error: empty pattern (operation: parse-pattern, reason: blank token)")
 	}
+
 	if trimmed == "*" {
 		return Pattern{}, fmt.Errorf("Error: bare '*' pattern is refused at %q (operation: parse-pattern, reason: would match every repo under the owner)", raw)
 	}
@@ -74,6 +75,7 @@ func (p Pattern) Matches(name string) bool {
 	if len(name) == 0 {
 		return false
 	}
+
 	if len(p.parts) == 0 {
 		return false
 	}
@@ -84,9 +86,11 @@ func (p Pattern) Matches(name string) bool {
 		if idx < 0 {
 			return false
 		}
+
 		if i == 0 && p.anchorL && idx > 0 {
 			return false
 		}
+
 		cursor += idx + len(part)
 	}
 
@@ -114,15 +118,18 @@ func ParsePatternList(raw string) ([]Pattern, error) {
 		if len(trimmed) == 0 {
 			return nil, fmt.Errorf("Error: empty pattern at token %d (operation: parse-pattern-list, reason: blank between commas)", i+1)
 		}
+
 		if seen[trimmed] {
 			continue
 		}
+
 		seen[trimmed] = true
 
 		pat, err := ParsePattern(trimmed)
 		if err != nil {
 			return nil, fmt.Errorf("Error: token %d %q: %w", i+1, trimmed, err)
 		}
+
 		out = append(out, pat)
 	}
 

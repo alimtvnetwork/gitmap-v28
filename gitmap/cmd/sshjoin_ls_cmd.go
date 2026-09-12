@@ -35,6 +35,7 @@ func printSJList(ctx context.Context, out io.Writer, max int) error {
 	if err != nil {
 		return apperror.New("printSJList", "E_INTERNAL_ERROR", map[string]any{"msg": "failed to open db", "err": err.Error()})
 	}
+
 	defer dbConn.Close()
 
 	hosts, err := store.ListHosts(ctx, dbConn.SQL())

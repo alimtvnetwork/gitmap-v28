@@ -45,6 +45,7 @@ func parseCGFlags(args []string) cgOptions {
 	if opts.Action == "repo" && len(argsAfterParse) > 1 {
 		return parseCGRepoAction(opts, argsAfterParse)
 	}
+
 	return parseCGGeneralAction(opts, argsAfterParse)
 }
 
@@ -53,6 +54,7 @@ func parseCGRepoAction(opts cgOptions, args []string) cgOptions {
 	if len(args) > 2 {
 		opts.Repos = args[2:]
 	}
+
 	return opts
 }
 
@@ -60,16 +62,22 @@ func parseCGGeneralAction(opts cgOptions, args []string) cgOptions {
 	if len(args) <= 1 {
 		return opts
 	}
+
 	if args[1] == "all" && len(args) > 2 {
 		opts.All = true
 		opts.Repos = args[2:]
+
 		return opts
 	}
+
 	if args[1] == "all" {
 		opts.All = true
+
 		return opts
 	}
+
 	opts.Repos = args[1:]
+
 	return opts
 }
 
@@ -79,6 +87,7 @@ func runCG(args []string) error {
 	repos := resolveCGRepos(opts)
 	if len(repos) == 0 {
 		fmt.Println("No repositories to process.")
+
 		return nil
 	}
 
@@ -103,6 +112,7 @@ func runCG(args []string) error {
 		fmt.Fprintf(os.Stderr, "Unknown action: %s\n", opts.Action)
 		cliexit.HandleError(nil, 1)
 	}
+
 	return nil
 }
 
@@ -115,6 +125,7 @@ func runCGUpdateAction(repos []string) {
 			fmt.Printf("Skipping %s (coding guidelines not installed, run `gitmap cg install` first)\n", r)
 		}
 	}
+
 	if len(toUpdate) > 0 {
 		executeCGWorkers(toUpdate)
 	}
@@ -139,13 +150,16 @@ func resolveAllCGRepos() []string {
 	db, err := store.OpenDefault()
 	if err != nil {
 		fmt.Fprintf(os.Stderr, "Failed to open DB: %v\n", err)
+
 		return []string{}
 	}
+
 	defer db.Close()
 
 	repos, err := db.ListRepos()
 	if err != nil {
 		fmt.Fprintf(os.Stderr, "Failed to list repos: %v\n", err)
+
 		return []string{}
 	}
 
@@ -153,6 +167,7 @@ func resolveAllCGRepos() []string {
 	for _, r := range repos {
 		targetRepos = append(targetRepos, r.AbsolutePath)
 	}
+
 	return targetRepos
 }
 
@@ -162,9 +177,11 @@ func resolveCurrentDirCGRepos() []string {
 	if info, errStat := os.Stat(gitDir); errStat == nil && (info.IsDir() || !info.IsDir()) {
 		return []string{cwd}
 	}
+
 	if childRepos, err := fsutil.DiscoverChildGitRepos(cwd); err == nil && len(childRepos) > 0 {
 		return childRepos
 	}
+
 	return []string{cwd}
 }
 
@@ -186,9 +203,11 @@ func applyCGExclusions(repos []string, excludeCSV string) []string {
 		if name == "" {
 			name = base[strings.LastIndex(base, "\\")+1:]
 		}
+
 		if !excludeMap[name] && !excludeMap[base] {
 			filtered = append(filtered, r)
 		}
 	}
+
 	return filtered
 }

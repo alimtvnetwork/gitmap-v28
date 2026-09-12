@@ -34,6 +34,7 @@ func runSf(args []string) error {
 		printSfUsage()
 		cliexit.HandleError(nil, 1)
 	}
+
 	return nil
 }
 
@@ -77,7 +78,9 @@ func runSfAdd(args []string) error {
 
 		return nil
 	}
+
 	fmt.Printf(constants.MsgSFAddedFmt, folder.AbsolutePath, folder.ID)
+
 	return nil
 }
 
@@ -102,6 +105,7 @@ func runSfList(_ []string) error {
 	for _, f := range folders {
 		printSfRow(db, f)
 	}
+
 	return nil
 }
 
@@ -124,6 +128,7 @@ func runSfRemove(args []string) error {
 	}
 
 	fmt.Printf(constants.MsgSFRemovedFmt, folder.AbsolutePath, folder.ID, detached)
+
 	return nil
 }
 
@@ -174,10 +179,12 @@ func printSfRow(db *store.DB, f model.ScanFolder) {
 	if err != nil {
 		count = -1
 	}
+
 	label := f.Label
 	if len(label) == 0 {
 		label = "(none)"
 	}
+
 	fmt.Printf(constants.MsgSFListRowFmt, f.ID, f.AbsolutePath, label, count, f.LastScannedAt)
 }
 
@@ -190,6 +197,7 @@ func openSfDB() *store.DB {
 		fmt.Fprintln(os.Stderr, err.Error())
 		cliexit.HandleError(nil, 1)
 	}
+
 	if err := db.Migrate(); err != nil {
 		fmt.Fprintln(os.Stderr, err.Error())
 		db.Close()

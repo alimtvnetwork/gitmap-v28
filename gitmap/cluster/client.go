@@ -26,6 +26,7 @@ func (c *NodeClient) dialTLS() (*rpc.Client, error) {
 	if err != nil {
 		return nil, err
 	}
+
 	return rpc.NewClient(conn), nil
 }
 
@@ -35,6 +36,7 @@ func (c *NodeClient) Handshake() error {
 	if err != nil {
 		return err
 	}
+
 	defer client.Close()
 
 	args := &HandshakeArgs{Token: c.token, ID: c.id}
@@ -52,9 +54,11 @@ func (c *NodeClient) Ping() error {
 	if err != nil {
 		return err
 	}
+
 	defer client.Close()
 
 	args := &PingArgs{ID: c.id}
 	var reply PingReply
+
 	return client.Call("Server.Ping", args, &reply)
 }

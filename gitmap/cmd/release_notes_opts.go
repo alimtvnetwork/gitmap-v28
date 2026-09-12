@@ -41,17 +41,22 @@ func applyReleaseNotesFlag(args []string, i int, opts *ReleaseNotesOpts) (int, b
 	if i+1 >= len(args) {
 		return i, false
 	}
+
 	switch args[i] {
 	case "--since":
 		opts.Since = args[i+1]
+
 		return i + 1, true
 	case "--since-tag":
 		opts.SinceTag = args[i+1]
+
 		return i + 1, true
 	case "--format":
 		opts.Format = args[i+1]
+
 		return i + 1, true
 	}
+
 	return i, false
 }
 
@@ -59,10 +64,13 @@ func applyReleaseNotesArg(args []string, i int, opts *ReleaseNotesOpts) (int, er
 	if nextI, matched := applyReleaseNotesFlag(args, i, opts); matched {
 		return nextI, nil
 	}
+
 	if strings.Contains(args[i], "..") {
 		opts.Range = args[i]
+
 		return i, nil
 	}
+
 	return i, fmt.Errorf("unknown arg %q", args[i])
 }
 
@@ -70,9 +78,11 @@ func validateReleaseNotesOpts(opts *ReleaseNotesOpts) error {
 	if opts.SinceTag != "" && opts.Range == "" {
 		opts.Range = opts.SinceTag + "..HEAD"
 	}
+
 	if opts.Range == "" && opts.Since == "" {
 		return fmt.Errorf("need <tagA>..<tagB>, --since, or --since-tag")
 	}
+
 	return nil
 }
 
@@ -84,8 +94,10 @@ func parseReleaseNotesArgs(args []string) (ReleaseNotesOpts, error) {
 		if err != nil {
 			return opts, err
 		}
+
 		i = nextI
 	}
+
 	return opts, validateReleaseNotesOpts(&opts)
 }
 
@@ -94,9 +106,11 @@ func buildGitLogArgs(opts ReleaseNotesOpts) []string {
 	if opts.Since != "" {
 		args = append(args, "--since="+opts.Since)
 	}
+
 	if opts.Range != "" {
 		args = append(args, opts.Range)
 	}
+
 	return args
 }
 
@@ -107,10 +121,12 @@ func gitLogForOpts(opts ReleaseNotesOpts) ([]string, error) {
 	if err != nil {
 		return nil, fmt.Errorf("git log: %w\n%s", err, out)
 	}
+
 	trimmed := strings.TrimSpace(string(out))
 	if trimmed == "" {
 		return nil, nil
 	}
+
 	return strings.Split(trimmed, "\n"), nil
 }
 
@@ -121,6 +137,7 @@ func groupCommits(lines []string) map[string][]string {
 		bucket := classifyCommit(ln)
 		groups[bucket] = append(groups[bucket], ln)
 	}
+
 	return groups
 }
 
@@ -142,6 +159,7 @@ func hasAnyPrefix(s string, prefixes []string) bool {
 			return true
 		}
 	}
+
 	return false
 }
 
@@ -152,6 +170,7 @@ func classifyCommit(line string) string {
 			return entry.category
 		}
 	}
+
 	return "Other"
 }
 
@@ -175,6 +194,7 @@ func releaseNotesHeader(opts ReleaseNotesOpts) string {
 	if scope == "" {
 		scope = "--since=" + opts.Since
 	}
+
 	return fmt.Sprintf("## Changes (%s)\n\n", scope)
 }
 
@@ -183,6 +203,7 @@ func renderFlat(lines []string) string {
 	for _, ln := range lines {
 		b.WriteString("- " + formatLine(ln) + "\n")
 	}
+
 	return b.String()
 }
 
@@ -191,7 +212,9 @@ func sortedGroupKeys(groups map[string][]string) []string {
 	for k := range groups {
 		keys = append(keys, k)
 	}
+
 	sort.Strings(keys)
+
 	return keys
 }
 
@@ -200,6 +223,7 @@ func renderGroupSection(b *strings.Builder, header string, items []string) {
 	for _, ln := range items {
 		b.WriteString("- " + formatLine(ln) + "\n")
 	}
+
 	b.WriteString("\n")
 }
 
@@ -209,6 +233,7 @@ func renderGrouped(lines []string) string {
 	for _, k := range sortedGroupKeys(groups) {
 		renderGroupSection(&b, k, groups[k])
 	}
+
 	return b.String()
 }
 
@@ -230,12 +255,14 @@ func buildJSONEntries(lines []string) []releaseNotesJSONEntry {
 		subj, sha := splitLine(ln)
 		entries = append(entries, releaseNotesJSONEntry{Group: classifyCommit(ln), Subject: subj, SHA: sha})
 	}
+
 	return entries
 }
 
 func renderJSON(opts ReleaseNotesOpts, lines []string) string {
 	out := releaseNotesJSONOutput{Range: opts.Range, Since: opts.Since, Entries: buildJSONEntries(lines)}
 	buf, _ := json.MarshalIndent(out, "", "  ")
+
 	return string(buf) + "\n"
 }
 
@@ -243,6 +270,7 @@ func splitLine(ln string) (string, string) {
 	if idx := strings.LastIndex(ln, "|"); idx >= 0 {
 		return ln[:idx], ln[idx+1:]
 	}
+
 	return ln, ""
 }
 
@@ -251,6 +279,7 @@ func formatLine(ln string) string {
 	if sha == "" {
 		return subj
 	}
+
 	return fmt.Sprintf("%s (%s)", subj, sha)
 }
 
@@ -266,14 +295,19 @@ func runReleaseNotesV2(args []string) error {
 	if err != nil {
 		handleReleaseNotesArgsError(err)
 	}
+
 	lines, err := gitLogForOpts(opts)
 	if err != nil {
 		return apperror.WrapSimple(err, "release-notes: ERROR")
 	}
+
 	if len(lines) == 0 {
 		fmt.Fprintln(os.Stderr, "release-notes: no commits in selected range")
+
 		return nil
 	}
+
 	fmt.Print(renderReleaseNotes(opts, lines))
+
 	return nil
 }

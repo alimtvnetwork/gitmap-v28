@@ -51,8 +51,10 @@ func writeSetupConfig(t *testing.T, dir string) string {
 	if err := os.MkdirAll(dir, constants.DirPermission); err != nil {
 		t.Fatal(err)
 	}
+
 	if err := os.WriteFile(path, []byte("{}"), constants.FilePermission); err != nil {
 		t.Fatal(err)
 	}
+
 	return path
 }

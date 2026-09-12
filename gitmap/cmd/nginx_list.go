@@ -11,6 +11,7 @@ func fetchDBSites() []store.SiteRecord {
 	if err != nil {
 		return nil
 	}
+
 	defer db.Close()
 
 	sites, err := db.ListSites()
@@ -26,6 +27,7 @@ func printDBSiteRow(s store.SiteRecord) {
 	if s.IsActive {
 		status = "enabled"
 	}
+
 	fmt.Printf("  %-25s %-12s %-6d %-10s %s\n", s.Domain, s.SiteType, s.ListenPort, status, s.DocumentRoot)
 }
 
@@ -35,6 +37,7 @@ func renderDBSitesTable(sites []store.SiteRecord) {
 	for _, s := range sites {
 		printDBSiteRow(s)
 	}
+
 	fmt.Printf("\n  Total: %d sites tracked in sites.db\n\n", len(sites))
 }
 

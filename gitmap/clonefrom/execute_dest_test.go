@@ -35,6 +35,7 @@ func TestExecute_CreatesMissingParentDirs(t *testing.T) {
 		t.Fatalf("status = %q, detail = %q (want ok)",
 			results[0].Status, results[0].Detail)
 	}
+
 	gitDir := filepath.Join(cwd, nested, ".git")
 	if _, err := os.Stat(gitDir); err != nil {
 		t.Errorf("expected .git dir at %s: %v", gitDir, err)
@@ -54,6 +55,7 @@ func TestExecute_MkdirParentFailureIsFailedRow(t *testing.T) {
 	if err := os.WriteFile(blocker, []byte("x"), 0o644); err != nil {
 		t.Fatalf("seed blocker: %v", err)
 	}
+
 	plan := Plan{Rows: []Row{{
 		URL:  "file:///does/not/matter.git",
 		Dest: filepath.Join("blocker", "child", "repo"),
@@ -64,6 +66,7 @@ func TestExecute_MkdirParentFailureIsFailedRow(t *testing.T) {
 	if results[0].Status != constants.CloneFromStatusFailed {
 		t.Fatalf("status = %q, want failed", results[0].Status)
 	}
+
 	if !strings.Contains(results[0].Detail, "mkdir parent") {
 		t.Errorf("detail = %q, want mkdir-parent diagnosis", results[0].Detail)
 	}

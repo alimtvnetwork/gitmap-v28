@@ -18,6 +18,7 @@ func chooseDocsExtractTarget(zipPath, binaryDir, docsDir string) string {
 	if err != nil {
 		return filepath.Join(docsDir, constants.HDDistDir)
 	}
+
 	defer r.Close()
 
 	prefix := constants.HDDocsDir + "/"
@@ -26,6 +27,7 @@ func chooseDocsExtractTarget(zipPath, binaryDir, docsDir string) string {
 		if name == "" || strings.HasPrefix(name, "__MACOSX/") {
 			continue
 		}
+
 		if !strings.HasPrefix(name, prefix) && name != constants.HDDocsDir {
 			return filepath.Join(docsDir, constants.HDDistDir)
 		}

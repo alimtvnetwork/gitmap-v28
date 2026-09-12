@@ -74,5 +74,6 @@ func (db *DB) migrateCommitIn() error {
 			return fmt.Errorf("commit-in migration failed: %w (statement: %s)", err, stmt)
 		}
 	}
+
 	return nil
 }

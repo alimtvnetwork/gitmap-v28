@@ -23,6 +23,7 @@ func runReleaseBranch(args []string) error {
 	if err != nil {
 		return apperror.WrapSimple(err, constants.ErrBareFmt)
 	}
+
 	return nil
 }
 

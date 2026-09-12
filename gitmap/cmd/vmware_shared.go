@@ -73,10 +73,12 @@ func ensureVMwareToolsInstalled() {
 	if _, err := exec.LookPath("vmhgfs-fuse"); err == nil {
 		return
 	}
+
 	fmt.Println("  ⚠ vmhgfs-fuse not found. Attempting to install open-vm-tools via apt...")
 	if _, err := exec.LookPath("apt-get"); err != nil {
 		return
 	}
+
 	cmd := exec.Command("sudo", "apt-get", "install", "-y", "open-vm-tools", "open-vm-tools-desktop")
 	cmd.Stdout = os.Stdout
 	cmd.Stderr = os.Stderr
@@ -114,6 +116,7 @@ func unmountIfMounted(mountPoint string) {
 	if !isMountActive(mountPoint) {
 		return
 	}
+
 	_ = exec.Command("fusermount", "-u", mountPoint).Run()
 	_ = exec.Command("sudo", "umount", "-l", mountPoint).Run()
 }
@@ -122,6 +125,7 @@ func ensureVMwareServiceRunning() {
 	if _, err := exec.LookPath("systemctl"); err != nil {
 		return
 	}
+
 	_ = exec.Command("sudo", "systemctl", "start", "open-vm-tools").Run()
 }
 
@@ -148,6 +152,7 @@ func getHostShares() []string {
 	if err != nil || len(out) == 0 {
 		return nil
 	}
+
 	lines := strings.Split(strings.TrimSpace(string(out)), "\n")
 	var shares []string
 	for _, l := range lines {
@@ -179,6 +184,7 @@ func formatVmwareMountError(out []byte, runErr error) string {
 	if errText == "" && runErr != nil {
 		errText = runErr.Error()
 	}
+
 	hasConnErr := strings.Contains(errText, "-107") || strings.Contains(errText, "cannot open connection")
 	hasShares := len(getHostShares()) > 0
 	if hasConnErr || !hasShares {
@@ -201,6 +207,7 @@ func mountHostShare(mountPoint string) error {
 	if err == nil {
 		return nil
 	}
+
 	if isFallbackMountSuccess(mountPoint) {
 		return nil
 	}
@@ -244,21 +251,25 @@ func runVmwareSharedEnable(args []string) error {
 	if err := ensureMountDirectory(defaultMountPoint); err != nil {
 		return err
 	}
+
 	fmt.Printf("  ✓ Verified mount point %s\n", defaultMountPoint)
 
 	if err := mountHostShare(defaultMountPoint); err != nil {
 		return err
 	}
+
 	fmt.Printf("  ✓ Mounted .host:/ at %s\n", defaultMountPoint)
 
 	if err := createDesktopSymlink(defaultMountPoint); err != nil {
 		return err
 	}
+
 	fmt.Printf("  ✓ Created Desktop/SharedDirectories symlink\n")
 
 	if err := ensureCrontabPersistence(); err != nil {
 		return err
 	}
+
 	fmt.Printf("  ✓ Registered @reboot crontab persistence\n")
 
 	return nil

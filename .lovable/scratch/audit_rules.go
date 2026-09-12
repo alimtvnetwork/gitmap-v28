@@ -40,6 +40,7 @@ func main() {
 		if err != nil {
 			return nil
 		}
+
 		content := string(contentBytes)
 		lines := strings.Split(content, "\n")
 
@@ -110,6 +111,7 @@ func writeTask(filename, title string, matches []string) {
 	if len(matches) > 50 {
 		matches = matches[:50]
 	}
+
 	content := fmt.Sprintf("# Subtask: %s\n\nFind and fix instances of %s.\n\n", title, strings.ToLower(title))
 	if len(matches) == 0 {
 		content += "No instances found.\n"

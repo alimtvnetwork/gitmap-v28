@@ -35,6 +35,7 @@ func (db *DB) ListVersionHistory(repoID int64) ([]model.RepoVersionHistoryRecord
 	if err != nil {
 		return nil, fmt.Errorf(constants.ErrDBVersionHistory, err)
 	}
+
 	defer rows.Close()
 
 	var results []model.RepoVersionHistoryRecord
@@ -46,6 +47,7 @@ func (db *DB) ListVersionHistory(repoID int64) ([]model.RepoVersionHistoryRecord
 		if scanErr != nil {
 			return nil, fmt.Errorf(constants.ErrDBVersionHistory, scanErr)
 		}
+
 		results = append(results, r)
 	}
 

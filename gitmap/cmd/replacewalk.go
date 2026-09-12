@@ -20,7 +20,9 @@ func repoRoot() string {
 	if err != nil {
 		cliexit.HandleError(err, 1)
 	}
+
 	clean := filepath.Clean(filepath.FromSlash(strings.TrimSpace(string(out))))
+
 	return clean
 }
 
@@ -38,6 +40,7 @@ func walkRepoFiles(root string, exts []string, caseInsensitive bool) ([]string, 
 
 		return visitReplaceEntry(root, path, d, exts, caseInsensitive, &out)
 	})
+
 	return out, err
 }
 
@@ -53,6 +56,7 @@ func handleDirReplaceWalk(root, path string, d fs.DirEntry) error {
 	if isExcludedDir(d.Name()) || isExcludedPrefix(root, path) {
 		return filepath.SkipDir
 	}
+
 	return nil
 }
 
@@ -65,13 +69,17 @@ func visitReplaceEntry(
 	if d.IsDir() {
 		return handleDirReplaceWalk(root, path, d)
 	}
+
 	if !matchesExtFilter(path, exts, caseInsensitive) {
 		return nil
 	}
+
 	if isBinaryFile(path) {
 		return nil
 	}
+
 	*out = append(*out, path)
+
 	return nil
 }
 
@@ -84,18 +92,22 @@ func matchesExtFilter(path string, exts []string, caseInsensitive bool) bool {
 	if len(exts) == 0 {
 		return true
 	}
+
 	got := filepath.Ext(path)
 	if got == "" {
 		return false
 	}
+
 	if caseInsensitive {
 		got = strings.ToLower(got)
 	}
+
 	for _, want := range exts {
 		if got == want {
 			return true
 		}
 	}
+
 	return false
 }
 
@@ -106,6 +118,7 @@ func isExcludedDir(name string) bool {
 			return true
 		}
 	}
+
 	return false
 }
 
@@ -118,12 +131,14 @@ func isExcludedPrefix(root, path string) bool {
 	if err != nil {
 		return false
 	}
+
 	rel = filepath.ToSlash(rel)
 	for _, p := range constants.ReplaceExcludedPrefixes {
 		if rel == p || strings.HasPrefix(rel, p+"/") {
 			return true
 		}
 	}
+
 	return false
 }
 
@@ -134,9 +149,11 @@ func isBinaryFile(path string) bool {
 	if err != nil {
 		return true
 	}
+
 	defer f.Close()
 
 	buf := make([]byte, constants.ReplaceBinarySniffBytes)
 	n, _ := f.Read(buf)
+
 	return bytes.IndexByte(buf[:n], 0) >= 0
 }

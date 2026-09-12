@@ -18,6 +18,7 @@ func runSSHConfig() error {
 
 		return nil
 	}
+
 	defer db.Close()
 
 	updateSSHConfig(db)
@@ -27,6 +28,7 @@ func runSSHConfig() error {
 		fmt.Fprint(os.Stdout, constants.MsgSSHConfigShow)
 		fmt.Println(block)
 	}
+
 	return nil
 }
 

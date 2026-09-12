@@ -97,6 +97,7 @@ func ParseLastFailuresFlag(args []string) (int, bool) {
 	if len(raw) == 0 {
 		return 0, false
 	}
+
 	val, err := strconv.Atoi(raw)
 	if err != nil || val <= 0 {
 		return 0, false

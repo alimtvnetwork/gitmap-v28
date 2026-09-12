@@ -38,6 +38,7 @@ func TestVSCodePMSyncDedupesGitmapBrandTag(t *testing.T) {
 	if runtime.GOOS == "windows" {
 		t.Skip("XDG path layout — windows path resolution covered elsewhere")
 	}
+
 	repoDir, restore := setupVSCodePMSyncFixtureWithTags(t,
 		[]string{"gitmap", "user"})
 	defer restore()
@@ -55,6 +56,7 @@ func TestVSCodePMSyncDedupesGitmapBrandTag(t *testing.T) {
 		t.Errorf("brand tag duplicated: got %d copies in %v, want exactly 1",
 			n, got[0].Tags)
 	}
+
 	if n := countTag(got[0].Tags, "user"); n != 1 {
 		t.Errorf("user tag duplicated: got %d copies in %v, want exactly 1",
 			n, got[0].Tags)
@@ -70,6 +72,7 @@ func TestVSCodePMSyncDedupesAcrossSources(t *testing.T) {
 	if runtime.GOOS == "windows" {
 		t.Skip("XDG path layout — windows path resolution covered elsewhere")
 	}
+
 	_, restore := setupVSCodePMSyncFixtureWithTags(t,
 		[]string{"user", "gitmap", "user"})
 	defer restore()
@@ -87,9 +90,11 @@ func TestVSCodePMSyncDedupesAcrossSources(t *testing.T) {
 				tag, c, got[0].Tags)
 		}
 	}
+
 	if !containsTag(got[0].Tags, "gitmap") {
 		t.Errorf("brand tag missing from dedup'd set: %v", got[0].Tags)
 	}
+
 	if !containsTag(got[0].Tags, "user") {
 		t.Errorf("user tag missing from dedup'd set: %v", got[0].Tags)
 	}
@@ -106,6 +111,7 @@ func TestVSCodePMSyncMissingFileIsNotAnError(t *testing.T) {
 	if runtime.GOOS == "windows" {
 		t.Skip("XDG path layout — windows path resolution covered elsewhere")
 	}
+
 	restore := setupVSCodePMSyncEmptyHome(t)
 	defer restore()
 
@@ -116,6 +122,7 @@ func TestVSCodePMSyncMissingFileIsNotAnError(t *testing.T) {
 	if err != nil {
 		t.Fatalf("ListEntries after missing-file run: %v", err)
 	}
+
 	if len(got) != 0 {
 		t.Errorf("expected 0 entries after missing-file run, got %d: %v",
 			len(got), got)
@@ -136,6 +143,7 @@ func TestVSCodePMSyncMalformedFileIsLeftUntouched(t *testing.T) {
 	if runtime.GOOS == "windows" {
 		t.Skip("XDG path layout — windows path resolution covered elsewhere")
 	}
+
 	path, restore := setupVSCodePMSyncMalformedFile(t)
 	defer restore()
 
@@ -150,6 +158,7 @@ func TestVSCodePMSyncMalformedFileIsLeftUntouched(t *testing.T) {
 	if err != nil {
 		t.Fatalf("read malformed file after run: %v", err)
 	}
+
 	if !bytes.Equal(before, after) {
 		t.Errorf("runner mutated malformed projects.json\nbefore: %q\nafter:  %q",
 			before, after)

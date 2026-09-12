@@ -30,8 +30,10 @@ func (dt *DirTracker) ProcessCd(cmdText string) bool {
 	if !isStandardCd && !isGitmapCd {
 		return false
 	}
+
 	target = strings.Trim(ExpandPathAndEnv(target), "\"'")
 	resolved := dt.resolveTarget(target, isGitmapCd)
+
 	return dt.applyDirIfValid(resolved)
 }
 
@@ -39,13 +41,16 @@ func (dt *DirTracker) applyDirIfValid(resolved string) bool {
 	if resolved == "" {
 		return false
 	}
+
 	info, err := os.Stat(resolved)
 	if err != nil || !info.IsDir() {
 		return false
 	}
+
 	dt.PrevDir = dt.CurrentDir
 	dt.CurrentDir = resolved
 	fmt.Printf("  ➜ 📁 Directory: %s%s%s\n", constants.ColorGreen, dt.CurrentDir, constants.ColorReset)
+
 	return true
 }
 
@@ -53,12 +58,15 @@ func (dt *DirTracker) resolveTarget(target string, isGitmapCd bool) string {
 	if isGitmapCd {
 		return dt.resolveGitmapTarget(target)
 	}
+
 	if target == "-" {
 		return dt.PrevDir
 	}
+
 	if filepath.IsAbs(target) {
 		return filepath.Clean(target)
 	}
+
 	return filepath.Clean(filepath.Join(dt.CurrentDir, target))
 }
 
@@ -67,6 +75,7 @@ func (dt *DirTracker) resolveGitmapTarget(target string) string {
 	if hasRepo {
 		return repoPath
 	}
+
 	return ""
 }
 
@@ -76,12 +85,15 @@ func parseDirectoryChange(cmdText string) (string, bool, bool) {
 	if len(parts) == 0 {
 		return "", false, false
 	}
+
 	if target, isCd := parseStandardCd(trimmed, parts); isCd {
 		return target, true, false
 	}
+
 	if target, isGitmapCd := parseGitmapCd(trimmed, parts); isGitmapCd {
 		return target, false, true
 	}
+
 	return "", false, false
 }
 
@@ -91,7 +103,9 @@ func parseStandardCd(trimmed string, parts []string) (string, bool) {
 	if !isCdCmd {
 		return "", false
 	}
+
 	target := strings.TrimSpace(trimmed[len(parts[0]):])
+
 	return target, true
 }
 
@@ -101,11 +115,14 @@ func parseGitmapCd(trimmed string, parts []string) (string, bool) {
 	if !isGitmapPrefix || len(parts) < 3 {
 		return "", false
 	}
+
 	lower1 := strings.ToLower(parts[1])
 	if lower1 != "cd" {
 		return "", false
 	}
+
 	target := strings.TrimSpace(trimmed[len(parts[0])+1+len(parts[1]):])
+
 	return target, true
 }
 
@@ -115,9 +132,11 @@ func resolveGitmapCD(repoName, currentDir string) (string, bool) {
 	if err == nil && info.IsDir() {
 		return filepath.Clean(candidate), true
 	}
+
 	if path, hasPath := queryDBForRepo(repoName); hasPath {
 		return path, true
 	}
+
 	return "", false
 }
 
@@ -126,10 +145,12 @@ func queryDBForRepo(repoName string) (string, bool) {
 	if err != nil {
 		return "", false
 	}
+
 	dbPath := filepath.Join(home, constants.GitMapDir, "gitmap.db")
 	if info, statErr := os.Stat(dbPath); statErr != nil || info.Size() == 0 {
 		return "", false
 	}
+
 	return queryOpenDBForRepo(repoName)
 }
 
@@ -138,12 +159,14 @@ func queryOpenDBForRepo(repoName string) (string, bool) {
 	if err != nil {
 		return "", false
 	}
+
 	defer db.Close()
 	cleanName := strings.TrimRight(repoName, "/\\")
 	repos, err := db.FindBySlug(strings.ToLower(cleanName))
 	if err == nil && len(repos) > 0 {
 		return repos[0].AbsolutePath, true
 	}
+
 	return findMatchingRepoInList(db, cleanName)
 }
 
@@ -152,6 +175,7 @@ func findMatchingRepoInList(db *store.DB, cleanName string) (string, bool) {
 	if listErr != nil {
 		return "", false
 	}
+
 	for _, r := range all {
 		isNameMatch := strings.EqualFold(r.RepoName, cleanName)
 		isBaseMatch := strings.EqualFold(filepath.Base(r.AbsolutePath), cleanName)
@@ -159,5 +183,6 @@ func findMatchingRepoInList(db *store.DB, cleanName string) (string, bool) {
 			return r.AbsolutePath, true
 		}
 	}
+
 	return "", false
 }

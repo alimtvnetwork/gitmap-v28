@@ -31,13 +31,14 @@ import (
 // machine-readable per-row results that follow.
 func printRecloneExecuteSummary(plan clonenow.Plan, cfg cloneNowFlags) {
 	if cfg.noSummary {
-
 		return
 	}
+
 	resolvedCwd := cfg.cwd
 	if resolvedCwd == "" {
 		resolvedCwd = "."
 	}
+
 	existing := collectExistingDests(plan, cfg.cwd)
 	printSummaryHeader(plan, cfg, resolvedCwd, len(existing))
 	printSummaryTree(plan)
@@ -60,18 +61,20 @@ func printSummaryHeader(plan clonenow.Plan, cfg cloneNowFlags, cwd string, exist
 func printSummaryTree(plan clonenow.Plan) {
 	paths := collectSortedDestPaths(plan)
 	if len(paths) == 0 {
-
 		return
 	}
+
 	fmt.Fprint(os.Stderr, constants.MsgCloneNowSummaryTreeTitle)
 	limit := constants.CloneNowSummaryTreeLimit
 	shown := len(paths)
 	if shown > limit {
 		shown = limit
 	}
+
 	for _, line := range buildTreeLines(paths[:shown]) {
 		fmt.Fprintf(os.Stderr, constants.MsgCloneNowSummaryTreeLineFmt, line)
 	}
+
 	if len(paths) > shown {
 		fmt.Fprintf(os.Stderr, constants.MsgCloneNowSummaryTreeTruncFmt,
 			len(paths)-shown)
@@ -86,11 +89,12 @@ func collectSortedDestPaths(plan clonenow.Plan) []string {
 	out := make([]string, 0, len(plan.Rows))
 	for _, r := range plan.Rows {
 		if r.RelativePath == "" {
-
 			continue
 		}
+
 		out = append(out, filepath.ToSlash(r.RelativePath))
 	}
+
 	sort.Strings(out)
 
 	return out
@@ -118,6 +122,7 @@ func buildTreeLines(paths []string) []string {
 		for i := shared; i < len(segs)-1; i++ {
 			lines = append(lines, indent(i)+segs[i]+"/")
 		}
+
 		lines = append(lines, indent(len(segs)-1)+segs[len(segs)-1])
 		prev = segs[:len(segs)-1]
 	}
@@ -133,9 +138,9 @@ func sharedPrefixLen(a, b []string) int {
 	if len(b) < n {
 		n = len(b)
 	}
+
 	for i := 0; i < n; i++ {
 		if a[i] != b[i] {
-
 			return i
 		}
 	}

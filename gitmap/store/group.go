@@ -23,6 +23,7 @@ func (db *DB) ListGroups() ([]model.Group, error) {
 	if err != nil {
 		return nil, fmt.Errorf(constants.ErrDBGroupQuery, err)
 	}
+
 	defer rows.Close()
 
 	return scanGroupRows(rows)
@@ -85,6 +86,7 @@ func (db *DB) ShowGroup(name string) ([]model.ScanRecord, error) {
 	if err != nil {
 		return nil, fmt.Errorf(constants.ErrDBQuery, err)
 	}
+
 	defer rows.Close()
 
 	return scanRows(rows)
@@ -129,6 +131,7 @@ func scanGroupRows(rows interface {
 		if err != nil {
 			return nil, err
 		}
+
 		results = append(results, g)
 	}
 

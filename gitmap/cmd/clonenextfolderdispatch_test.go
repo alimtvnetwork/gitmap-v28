@@ -72,6 +72,7 @@ func TestResolveCloneNextFolder(t *testing.T) {
 	if err := os.Mkdir(subdir, 0o755); err != nil {
 		t.Fatalf("setup: %v", err)
 	}
+
 	regularFile := filepath.Join(tmp, "not-a-dir")
 	if err := os.WriteFile(regularFile, []byte("x"), 0o600); err != nil {
 		t.Fatalf("setup: %v", err)
@@ -82,6 +83,7 @@ func TestResolveCloneNextFolder(t *testing.T) {
 		if err != nil {
 			t.Fatalf("unexpected err: %v", err)
 		}
+
 		if got != subdir {
 			t.Errorf("got %q, want %q", got, subdir)
 		}
@@ -96,6 +98,7 @@ func TestResolveCloneNextFolder(t *testing.T) {
 		if err != nil {
 			t.Fatalf("unexpected err: %v", err)
 		}
+
 		// macOS sometimes resolves /var → /private/var; compare suffixes.
 		if !strings.HasSuffix(got, "macro-ahk-v11") {
 			t.Errorf("got %q, want suffix macro-ahk-v11", got)
@@ -143,6 +146,7 @@ func TestExpandTildeUsedByResolver(t *testing.T) {
 	if err != nil {
 		t.Fatalf("unexpected err for ~: %v", err)
 	}
+
 	if strings.HasPrefix(got, "~") {
 		t.Errorf("got %q, want expanded path without tilde prefix", got)
 	}

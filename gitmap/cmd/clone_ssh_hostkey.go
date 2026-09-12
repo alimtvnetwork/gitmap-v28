@@ -12,6 +12,7 @@ func applyCloneAssumeYesEnv(isAssumeYes bool) {
 	if isNonAssumeYes {
 		return
 	}
+
 	cmd := withSSHAcceptNew(os.Getenv(constants.EnvGitSSHCommand))
 	if err := os.Setenv(constants.EnvGitSSHCommand, cmd); err != nil {
 		fmtCloneEnvError(err)
@@ -20,6 +21,7 @@ func applyCloneAssumeYesEnv(isAssumeYes bool) {
 
 func cloneEnvWithSSHAcceptNew() []string {
 	cmd := withSSHAcceptNew(os.Getenv(constants.EnvGitSSHCommand))
+
 	return envWithOverride(constants.EnvGitSSHCommand, cmd)
 }
 
@@ -30,8 +32,10 @@ func envWithOverride(key, value string) []string {
 		if strings.HasPrefix(entry, prefix) {
 			continue
 		}
+
 		out = append(out, entry)
 	}
+
 	return append(out, prefix+value)
 }
 
@@ -41,6 +45,7 @@ func withSSHAcceptNew(existing string) string {
 		return constants.SSHBin + " " + constants.SSHOptionFlag + " " +
 			constants.SSHStrictHostKeyAcceptNew
 	}
+
 	if strings.Contains(trimmed, constants.SSHStrictHostKeyChecking) {
 		return trimmed
 	}
@@ -51,6 +56,7 @@ func withSSHAcceptNew(existing string) string {
 
 func isSSHCloneURL(url string) bool {
 	lower := strings.ToLower(strings.TrimSpace(url))
+
 	return strings.HasPrefix(lower, constants.PrefixSSH) ||
 		strings.HasPrefix(lower, constants.PrefixSSHScheme)
 }

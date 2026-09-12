@@ -76,6 +76,7 @@ func (r *BackgroundRunner) SetFailureHook(hook func(model.ScanRecord, Result)) {
 	if r == nil {
 		return
 	}
+
 	r.onFailure = hook
 }
 
@@ -86,9 +87,11 @@ func (r *BackgroundRunner) SetCloneDepth(depth int) {
 	if r == nil {
 		return
 	}
+
 	if depth < 1 {
 		depth = 1
 	}
+
 	r.cloneDepth = depth
 }
 
@@ -116,12 +119,14 @@ func NewBackgroundRunner(
 	if workers < 1 {
 		return nil
 	}
+
 	r := &BackgroundRunner{
 		jobs:       make(chan model.ScanRecord, expectedJobs),
 		sink:       sink,
 		urlPick:    urlPick,
 		cloneDepth: constants.ProbeDefaultDepth,
 	}
+
 	r.wg.Add(workers)
 	for i := 0; i < workers; i++ {
 		go r.workerLoop()
@@ -139,12 +144,14 @@ func (r *BackgroundRunner) Start(record model.ScanRecord) {
 	if r == nil {
 		return
 	}
+
 	r.closeMu.Lock()
 	closed := r.closed
 	r.closeMu.Unlock()
 	if closed {
 		return
 	}
+
 	r.stats.mu.Lock()
 	r.stats.queued++
 	r.stats.mu.Unlock()
@@ -158,11 +165,13 @@ func (r *BackgroundRunner) Wait() Stats {
 	if r == nil {
 		return Stats{}
 	}
+
 	r.closeMu.Lock()
 	if !r.closed {
 		close(r.jobs)
 		r.closed = true
 	}
+
 	r.closeMu.Unlock()
 	r.wg.Wait()
 
@@ -180,6 +189,7 @@ func (r *BackgroundRunner) Stats() Stats {
 	if r == nil {
 		return Stats{}
 	}
+
 	r.stats.mu.Lock()
 	defer r.stats.mu.Unlock()
 
@@ -210,9 +220,11 @@ func (r *BackgroundRunner) workerLoop() {
 		if r.sink != nil {
 			r.sink(record, result)
 		}
+
 		if len(result.Error) > 0 && r.onFailure != nil {
 			r.onFailure(record, result)
 		}
+
 		r.tally(result)
 	}
 }
@@ -226,6 +238,7 @@ func (r *BackgroundRunner) probeOne(record model.ScanRecord) Result {
 	if r.urlPick != nil {
 		url = r.urlPick(record)
 	}
+
 	if url == "" {
 		return Result{Method: constants.ProbeMethodNone, Error: "empty clone url"}
 	}
@@ -243,10 +256,12 @@ func (r *BackgroundRunner) tally(result Result) {
 
 		return
 	}
+
 	if result.IsAvailable {
 		r.stats.available++
 
 		return
 	}
+
 	r.stats.unchanged++
 }

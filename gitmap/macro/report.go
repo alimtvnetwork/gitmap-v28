@@ -67,6 +67,7 @@ func FormatReport(r *ExecutionReport, isYAML bool) (string, error) {
 	if isYAML {
 		return formatYAMLReport(r)
 	}
+
 	return formatJSONReport(r)
 }
 
@@ -75,6 +76,7 @@ func formatYAMLReport(r *ExecutionReport) (string, error) {
 	if err != nil {
 		return "", err
 	}
+
 	return string(data), nil
 }
 
@@ -83,6 +85,7 @@ func formatJSONReport(r *ExecutionReport) (string, error) {
 	if err != nil {
 		return "", err
 	}
+
 	return string(data), nil
 }
 
@@ -92,13 +95,16 @@ func SaveReportToFile(filePath, content string) (string, error) {
 	if err != nil {
 		absPath = filePath
 	}
+
 	dir := filepath.Dir(absPath)
 	if mkErr := os.MkdirAll(dir, 0755); mkErr != nil {
 		return "", mkErr
 	}
+
 	if writeErr := os.WriteFile(absPath, []byte(content), 0644); writeErr != nil {
 		return "", writeErr
 	}
+
 	return absPath, nil
 }
 
@@ -109,12 +115,15 @@ func HandleReportOutput(r *ExecutionReport, opts ExecOptions) error {
 	if err != nil {
 		return fmt.Errorf("failed formatting report: %w", err)
 	}
+
 	if len(opts.FilePath) > 0 {
 		return writeReportAndNotify(r, opts.FilePath, content)
 	}
+
 	if opts.JSON || opts.YAML {
 		fmt.Println(content)
 	}
+
 	return nil
 }
 
@@ -122,7 +131,9 @@ func determineIsYAML(opts ExecOptions) bool {
 	if opts.YAML {
 		return true
 	}
+
 	lower := strings.ToLower(opts.FilePath)
+
 	return strings.HasSuffix(lower, ".yaml") || strings.HasSuffix(lower, ".yml")
 }
 
@@ -131,10 +142,12 @@ func writeReportAndNotify(r *ExecutionReport, filePath, content string) error {
 	if saveErr != nil {
 		return fmt.Errorf("failed saving report to %s: %w", filePath, saveErr)
 	}
+
 	r.OutputFile = savedPath
 	fmt.Println(content)
 	fmt.Printf("\n  %s✔ Macro execution report saved to:%s %s%s%s\n\n",
 		constants.ColorGreen, constants.ColorReset,
 		constants.ColorCyan, savedPath, constants.ColorReset)
+
 	return nil
 }

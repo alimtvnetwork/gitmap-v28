@@ -39,6 +39,7 @@ func ReadCGMetadata(repoPath string) (*CGMetadata, error) {
 		if !ok {
 			continue
 		}
+
 		var meta CGMetadata
 		if err := json.Unmarshal(rawMeta, &meta); err == nil {
 			return &meta, nil
@@ -56,6 +57,7 @@ func WriteCGMetadata(repoPath string, meta CGMetadata) error {
 	if data, errRead := os.ReadFile(vPath); errRead == nil {
 		_ = json.Unmarshal(data, &raw)
 	}
+
 	if raw == nil {
 		raw = make(map[string]any)
 	}
@@ -63,6 +65,7 @@ func WriteCGMetadata(repoPath string, meta CGMetadata) error {
 	if meta.InstalledAt == "" {
 		meta.InstalledAt = time.Now().UTC().Format(time.RFC3339)
 	}
+
 	if meta.Status == "" {
 		meta.Status = "active"
 	}

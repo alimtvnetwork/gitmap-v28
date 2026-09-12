@@ -41,16 +41,19 @@ func WriteReportJSON(results []Result) (string, error) {
 	if err := os.MkdirAll(dir, 0o755); err != nil {
 		return "", fmt.Errorf(constants.ErrCloneFromReportMkdir, dir, err)
 	}
+
 	name := fmt.Sprintf(constants.CloneFromReportJSONNameFmt, time.Now().Unix())
 	full := filepath.Join(dir, name)
 	f, err := os.Create(full)
 	if err != nil {
 		return "", fmt.Errorf(constants.ErrCloneFromReportCreate, full, err)
 	}
+
 	defer f.Close()
 	if err := writeReportRowsJSON(f, results); err != nil {
 		return "", err
 	}
+
 	abs, _ := filepath.Abs(full)
 
 	return abs, nil
@@ -74,9 +77,11 @@ func RenderSummaryTerminal(params TermSummaryParams) error {
 	if err := writeTermSummaryHead(params.Writer, params.Results); err != nil {
 		return err
 	}
+
 	if err := writeTermSummarySchemes(params.Writer, params.Results); err != nil {
 		return err
 	}
+
 	if err := writeTermSummaryStatus(params.Writer, params.Results); err != nil {
 		return err
 	}
@@ -91,6 +96,7 @@ func writeTermSummaryHead(w io.Writer, results []Result) error {
 	if _, err := io.WriteString(w, constants.CloneFromTermSummaryHeader); err != nil {
 		return err
 	}
+
 	_, err := fmt.Fprintf(w, constants.CloneFromTermSummaryFoundFmt, len(results))
 
 	return err
@@ -106,11 +112,13 @@ func writeTermSummarySchemes(w io.Writer, results []Result) error {
 	if _, err := io.WriteString(w, constants.CloneFromTermSummarySchemeHeader); err != nil {
 		return err
 	}
+
 	for _, scheme := range schemeOrder() {
 		count := tally[scheme]
 		if count == 0 {
 			continue
 		}
+
 		if _, err := fmt.Fprintf(w,
 			constants.CloneFromTermSummarySchemeRowFmt, scheme, count); err != nil {
 			return err
@@ -132,6 +140,7 @@ func writeTermSummaryStatus(w io.Writer, results []Result) error {
 		ok, skipped, failed, len(results)); err != nil {
 		return err
 	}
+
 	if _, err := io.WriteString(w, "  "); err != nil {
 		return err
 	}
@@ -145,11 +154,14 @@ func writeTermSummaryStatus(w io.Writer, results []Result) error {
 func writeTermSummaryReports(w io.Writer, csvPath, jsonPath string) error {
 	if len(csvPath) == 0 && len(jsonPath) == 0 {
 		_, err := io.WriteString(w, constants.CloneFromTermSummaryReportNone)
+
 		return err
 	}
+
 	if err := writeTermReportPath(w, "csv ", csvPath); err != nil {
 		return err
 	}
+
 	if err := writeTermReportPath(w, "json", jsonPath); err != nil {
 		return err
 	}
@@ -160,8 +172,10 @@ func writeTermSummaryReports(w io.Writer, csvPath, jsonPath string) error {
 func writeTermReportPath(w io.Writer, label, path string) error {
 	if len(path) > 0 {
 		_, err := fmt.Fprintf(w, constants.CloneFromTermSummaryReportFmt, label, path)
+
 		return err
 	}
+
 	return nil
 }
 

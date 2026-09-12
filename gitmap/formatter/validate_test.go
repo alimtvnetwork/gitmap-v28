@@ -94,6 +94,7 @@ func TestValidateRecords_TableDriven(t *testing.T) {
 			if len(got) != tc.wantIssueCnt {
 				t.Fatalf("got %d issues, want %d (issues=%v)", len(got), tc.wantIssueCnt, got)
 			}
+
 			if tc.wantIssueCnt > 0 && got[0].Field != tc.wantField {
 				t.Errorf("first issue Field = %q, want %q", got[0].Field, tc.wantField)
 			}
@@ -110,6 +111,7 @@ func TestValidationIssue_StringHasContext(t *testing.T) {
 		Field:    "RelativePath",
 		Reason:   "required field is empty",
 	}
+
 	out := issue.String()
 	for _, want := range []string{"row 3", "alpha", "RelativePath", "empty"} {
 		if !strings.Contains(out, want) {

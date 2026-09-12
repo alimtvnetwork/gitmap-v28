@@ -25,6 +25,7 @@ func (db *DB) SyncKnownSplitDatabases() error {
 	if err := db.syncInstallationDB(); err != nil {
 		return apperror.WrapSimple(err, "store.SyncKnownSplitDatabases.installation")
 	}
+
 	db.syncScheduleDBs()
 	db.syncPipelineDBs()
 
@@ -37,6 +38,7 @@ func (db *DB) syncInstallationDB() error {
 	if err == nil && instDB != nil {
 		_ = instDB.Close()
 	}
+
 	desc := "Dedicated system and developer tool installation split database"
 	entry := inspectSplitDBFile("installation", "default", path, desc)
 
@@ -49,6 +51,7 @@ func (db *DB) syncScheduleDBs() {
 	if err != nil {
 		return
 	}
+
 	for _, e := range entries {
 		db.syncSingleSchedule(schedDir, e)
 	}
@@ -58,6 +61,7 @@ func (db *DB) syncSingleSchedule(dir string, e os.DirEntry) {
 	if e.IsDir() || !strings.HasSuffix(e.Name(), ".db") {
 		return
 	}
+
 	slug := strings.TrimSuffix(e.Name(), ".db")
 	path := filepath.Join(dir, e.Name())
 	entry := inspectSplitDBFile("schedule", slug, path, "Schedule execution split database")
@@ -70,6 +74,7 @@ func (db *DB) syncPipelineDBs() {
 	if err != nil {
 		return
 	}
+
 	for _, e := range entries {
 		db.syncSinglePipeline(pipeDir, e)
 	}
@@ -79,6 +84,7 @@ func (db *DB) syncSinglePipeline(dir string, e os.DirEntry) {
 	if e.IsDir() || !strings.HasSuffix(e.Name(), ".db") {
 		return
 	}
+
 	name := strings.TrimSuffix(e.Name(), ".db")
 	slug := strings.TrimPrefix(name, "pipeline_")
 	path := filepath.Join(dir, e.Name())
@@ -95,6 +101,7 @@ func inspectSplitDBFile(dbType, dbKey, path, desc string) SplitDatabaseEntry {
 
 		return entry
 	}
+
 	entry.SizeBytes = info.Size()
 	inspectDBInternals(path, &entry)
 
@@ -122,6 +129,7 @@ func inspectDBInternals(path string, entry *SplitDatabaseEntry) {
 
 		return
 	}
+
 	defer conn.Close()
 
 	tables := getTableNames(conn)
@@ -135,6 +143,7 @@ func getTableNames(conn *sql.DB) []string {
 	if err != nil {
 		return nil
 	}
+
 	defer rows.Close()
 
 	return collectTableNames(rows)

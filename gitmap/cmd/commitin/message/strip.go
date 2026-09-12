@@ -13,6 +13,7 @@ func stripRules(msg string, rules []profile.MessageRule) string {
 	if len(rules) == 0 {
 		return strings.TrimRight(msg, " \t\n")
 	}
+
 	lines := strings.Split(msg, "\n")
 	kept := lines[:0]
 	for _, line := range lines {
@@ -20,6 +21,7 @@ func stripRules(msg string, rules []profile.MessageRule) string {
 			kept = append(kept, line)
 		}
 	}
+
 	return collapseBlankLines(kept)
 }
 
@@ -29,6 +31,7 @@ func lineMatches(line string, rules []profile.MessageRule) bool {
 			return true
 		}
 	}
+
 	return false
 }
 
@@ -41,6 +44,7 @@ func matchOne(line string, r profile.MessageRule) bool {
 	case constants.CommitInMessageRuleKindContains:
 		return strings.Contains(line, r.Value)
 	}
+
 	return false
 }
 
@@ -52,8 +56,10 @@ func collapseBlankLines(lines []string) string {
 		if isBlank && prevBlank {
 			continue
 		}
+
 		out = append(out, l)
 		prevBlank = isBlank
 	}
+
 	return strings.TrimRight(strings.Join(out, "\n"), " \t\n")
 }

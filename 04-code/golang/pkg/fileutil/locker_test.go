@@ -26,6 +26,7 @@ func TestLockerMechanisms(t *testing.T) {
 			}
 		}()
 	}
+
 	wg.Wait()
 
 	// Just ensuring it didn't panic or crash due to concurrent access

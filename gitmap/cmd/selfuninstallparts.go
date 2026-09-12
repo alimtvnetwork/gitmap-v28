@@ -18,6 +18,7 @@ func selfDeployDir() string {
 	if err != nil {
 		return ""
 	}
+
 	resolved, err := filepath.EvalSymlinks(self)
 	if err != nil {
 		resolved = self
@@ -42,17 +43,20 @@ func removeDeployArtifacts(dir string) {
 	if len(dir) == 0 {
 		return
 	}
+
 	entries, err := os.ReadDir(dir)
 	if err != nil {
 		fmt.Fprintf(os.Stderr, constants.MsgSelfUninstallSkipBin, err)
 
 		return
 	}
+
 	for _, e := range entries {
 		isNonGitmapArtifact := !isGitmapArtifact(e.Name())
 		if isNonGitmapArtifact {
 			continue
 		}
+
 		full := filepath.Join(dir, e.Name())
 		removePathBestEffort(full)
 	}
@@ -65,12 +69,15 @@ func isGitmapArtifact(name string) bool {
 	if lower == "gitmap" || lower == "gitmap.exe" {
 		return true
 	}
+
 	if strings.HasPrefix(lower, "gitmap-handoff-") {
 		return true
 	}
+
 	if strings.HasSuffix(lower, ".old") && strings.HasPrefix(lower, "gitmap") {
 		return true
 	}
+
 	if strings.HasPrefix(lower, "gitmap-completion") {
 		return true
 	}
@@ -84,6 +91,7 @@ func removeCompletionFiles(dir string) {
 	if len(dir) == 0 {
 		return
 	}
+
 	candidates := []string{"gitmap-completion.bash", "gitmap-completion.zsh", "gitmap-completion.fish"}
 	for _, c := range candidates {
 		removePathBestEffort(filepath.Join(dir, c))
@@ -97,26 +105,31 @@ func removePathBestEffort(path string) {
 	if os.IsNotExist(err) {
 		return
 	}
+
 	if err != nil {
 		fmt.Fprintf(os.Stderr, constants.ErrSelfUninstallRemove, path, err)
 
 		return
 	}
+
 	if info.IsDir() {
 		err = os.RemoveAll(path)
 	} else {
 		err = os.Remove(path)
 	}
+
 	if err != nil {
 		fmt.Fprintf(os.Stderr, constants.ErrSelfUninstallRemove, path, err)
 
 		return
 	}
+
 	if info.IsDir() {
 		fmt.Printf(constants.MsgSelfUninstallRemovedDir, path)
 
 		return
 	}
+
 	fmt.Printf(constants.MsgSelfUninstallRemovedBin, path)
 }
 
@@ -126,28 +139,33 @@ func removeProfileSnippet(profile string) {
 	if len(profile) == 0 {
 		return
 	}
+
 	data, err := os.ReadFile(profile)
 	if os.IsNotExist(err) {
 		fmt.Printf(constants.MsgSelfUninstallSnippetMiss, profile)
 
 		return
 	}
+
 	if err != nil {
 		fmt.Fprintf(os.Stderr, constants.ErrSelfUninstallSnippetRead, profile, err)
 
 		return
 	}
+
 	stripped, removed := stripMarkerBlock(string(data))
 	if !removed {
 		fmt.Printf(constants.MsgSelfUninstallSnippetMiss, profile)
 
 		return
 	}
+
 	if writeErr := os.WriteFile(profile, []byte(stripped), 0o644); writeErr != nil {
 		fmt.Fprintf(os.Stderr, constants.ErrSelfUninstallSnippetWrite, profile, writeErr)
 
 		return
 	}
+
 	fmt.Printf(constants.MsgSelfUninstallSnippetGone, profile)
 }
 
@@ -167,15 +185,18 @@ func removeCompletionFromProfile(profile string) {
 	if err != nil {
 		return
 	}
+
 	cleaned, changed := stripCompletionLines(string(data))
 	if !changed {
 		return
 	}
+
 	if err := os.WriteFile(profile, []byte(cleaned), 0o644); err != nil {
 		fmt.Fprintf(os.Stderr, "  ⚠ Could not clean completion line from %s: %v\n", profile, err)
 
 		return
 	}
+
 	fmt.Printf("  ✓ Removed completion source line from %s\n", profile)
 }
 
@@ -193,9 +214,11 @@ func stripCompletionLines(content string) (string, bool) {
 
 			continue
 		}
+
 		out.WriteString(line)
 		out.WriteString("\n")
 	}
+
 	result := out.String()
 	if !strings.HasSuffix(content, "\n") {
 		result = strings.TrimRight(result, "\n")
@@ -211,9 +234,11 @@ func isCompletionLine(line string) bool {
 	if trimmed == "# gitmap shell completion" {
 		return true
 	}
+
 	if strings.Contains(trimmed, "completions.ps1") && strings.HasPrefix(trimmed, ".") {
 		return true
 	}
+
 	if strings.Contains(trimmed, "gitmap-completion") && strings.HasPrefix(trimmed, "source") {
 		return true
 	}
@@ -229,6 +254,7 @@ func allProfilePaths() []string {
 	if err != nil {
 		return nil
 	}
+
 	if isWindows() {
 		docs := filepath.Join(home, "Documents")
 
@@ -264,16 +290,19 @@ func stripMarkerBlock(content string) (string, bool) {
 
 			continue
 		}
+
 		if skip && line == setup.MarkerClose() {
 			skip = false
 
 			continue
 		}
+
 		if !skip {
 			out.WriteString(line)
 			out.WriteString("\n")
 		}
 	}
+
 	if !strings.HasSuffix(content, "\n") {
 		return strings.TrimRight(out.String(), "\n"), removed
 	}
@@ -311,6 +340,7 @@ func resolveProfilesForShellMode(mode string) []string {
 			if len(p) == 0 || seen[p] {
 				continue
 			}
+
 			seen[p] = true
 			out = append(out, p)
 		}
@@ -329,9 +359,11 @@ func shellModeFamilies(mode string) []string {
 		constants.ShellModePwsh,
 		constants.ShellModeFish,
 	}
+
 	if mode == constants.ShellModeAuto || mode == constants.ShellModeBoth || len(mode) == 0 {
 		return allFamilies
 	}
+
 	if strings.Contains(mode, constants.ShellModeComboSep) {
 		return strings.Split(mode, constants.ShellModeComboSep)
 	}
@@ -347,6 +379,7 @@ func profilesForFamily(family string) []string {
 	if err != nil {
 		return nil
 	}
+
 	if isWindows() {
 		return windowsProfilesForFamily(home, family)
 	}
@@ -389,6 +422,7 @@ func windowsProfilesForFamily(home, family string) []string {
 	if family != constants.ShellModePwsh {
 		return nil
 	}
+
 	docs := filepath.Join(home, "Documents")
 
 	return []string{

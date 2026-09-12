@@ -23,6 +23,7 @@ func runPullParallel(
 	if parallel < 1 {
 		parallel = 1
 	}
+
 	if parallel > len(records) {
 		parallel = len(records)
 	}
@@ -37,6 +38,7 @@ func runPullParallel(
 	startPullWorkers(parallel, jobs, prog, &progMu, &wg, stopOnFail, &stopped)
 	dispatchPullJobs(records, jobs, &progMu, &stopped)
 	wg.Wait()
+
 	return nil
 }
 
@@ -61,8 +63,10 @@ func dispatchPullJobs(records []model.ScanRecord, jobs chan<- model.ScanRecord,
 		if halted {
 			break
 		}
+
 		jobs <- rec
 	}
+
 	close(jobs)
 }
 
@@ -86,6 +90,7 @@ func runOnePullJob(rec model.ScanRecord, prog *cloner.BatchProgress,
 		prog.BeginItem(rec.RepoName)
 		prog.Skip(rec.RepoName)
 		progMu.Unlock()
+
 		return nil
 	}
 
@@ -102,9 +107,11 @@ func runOnePullJob(rec model.ScanRecord, prog *cloner.BatchProgress,
 	if isUpToDate {
 		prog.UpToDate(rec.RepoName)
 	}
+
 	if isSucceed {
 		prog.Succeed(rec.RepoName)
 	}
+
 	if result.IsFailed() {
 		prog.FailWithError(rec.RepoName, result.Error)
 	}
@@ -113,6 +120,7 @@ func runOnePullJob(rec model.ScanRecord, prog *cloner.BatchProgress,
 	if isStopRequested {
 		*stopped = true
 	}
+
 	progMu.Unlock()
 
 	return nil

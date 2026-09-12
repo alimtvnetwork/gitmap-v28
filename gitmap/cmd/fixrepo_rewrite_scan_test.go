@@ -75,12 +75,14 @@ func TestScanUnguardedTokenHits(t *testing.T) {
 			wantCount: 0,
 		},
 	}
+
 	for _, tc := range cases {
 		t.Run(tc.name, func(t *testing.T) {
 			gotHits := ScanUnguardedTokenHits(tc.body, tc.token)
 			if !reflect.DeepEqual(gotHits, tc.wantHits) {
 				t.Errorf("hits = %v, want %v", gotHits, tc.wantHits)
 			}
+
 			if got := CountUnguardedTokenHits(tc.body, tc.token); got != tc.wantCount {
 				t.Errorf("count = %d, want %d", got, tc.wantCount)
 			}
@@ -108,6 +110,7 @@ func TestScannerMatchesRewriter(t *testing.T) {
 		t.Errorf("rewriter substituted %d, scanner counted %d (must agree)",
 			count, want)
 	}
+
 	// Derive the expected rewritten token from `current` rather than
 	// hard-coding a sibling literal. See mem://FIX-REPO DIGIT-CAPTURE GAP:
 	// any version-bearing expectation must be built from the same int the
@@ -117,6 +120,7 @@ func TestScannerMatchesRewriter(t *testing.T) {
 		t.Errorf("output has %d %s tokens, want %d",
 			strings.Count(out, wantToken), wantToken, want)
 	}
+
 	// guarded neighbor (acme-v10) must survive untouched
 	if !strings.Contains(out, "acme-v10") {
 		t.Errorf("guarded acme-v10 was rewritten: %q", out)

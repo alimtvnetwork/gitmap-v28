@@ -48,11 +48,14 @@ func (e *RepoFileFieldType) UnmarshalJSON(data []byte) error {
 	if err := json.Unmarshal(data, &s); err != nil {
 		return err
 	}
+
 	target := RepoFileFieldType(s)
 	if !repoFileValidMap[target] {
 		return fmt.Errorf("invalid %s enum: %s", "RepoFileFieldType", s)
 	}
+
 	*e = target
+
 	return nil
 }
 
@@ -62,6 +65,7 @@ func (e RepoFileFieldType) ToJSON() (string, *apperror.AppError) {
 	if err != nil {
 		return "", apperror.WrapSimple(err, "serialize field to json")
 	}
+
 	return string(b), nil
 }
 
@@ -71,11 +75,14 @@ func (e *RepoFileFieldType) FromJSON(s string) *apperror.AppError {
 	if err := json.Unmarshal([]byte(s), &str); err != nil {
 		return apperror.WrapSimple(err, "deserialize field from json")
 	}
+
 	target := RepoFileFieldType(str)
 	if !repoFileValidMap[target] {
 		return apperror.WrapSimple(fmt.Errorf("invalid %s enum: %s", "RepoFileFieldType", str), "validate field enum from json")
 	}
+
 	*e = target
+
 	return nil
 }
 
@@ -209,6 +216,7 @@ func (r repoFileDbRegistry) ToJSON() (string, *apperror.AppError) {
 	if err != nil {
 		return "", apperror.WrapSimple(err, "serialize registry to json")
 	}
+
 	return string(b), nil
 }
 

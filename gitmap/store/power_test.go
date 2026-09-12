@@ -15,6 +15,7 @@ func TestPowerProfileAndHistory_CRUD(t *testing.T) {
 	if err != nil {
 		t.Fatalf("OpenAt failed: %v", err)
 	}
+
 	defer db.Close()
 
 	if err := db.Migrate(); err != nil {
@@ -39,6 +40,7 @@ func TestPowerProfileAndHistory_CRUD(t *testing.T) {
 	if err != nil {
 		t.Fatalf("GetActivePowerSetting failed: %v", err)
 	}
+
 	if !active.IsNeverSleep || active.DisplayTimeoutMinutes != 0 {
 		t.Errorf("Unexpected active power setting: %+v", active)
 	}

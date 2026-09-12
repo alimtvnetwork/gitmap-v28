@@ -37,6 +37,7 @@ func ReadChangelog() ([]ChangelogEntry, error) {
 	if err != nil {
 		return nil, err
 	}
+
 	defer file.Close()
 
 	entries, err := parseChangelogStream(file)
@@ -71,6 +72,7 @@ func NormalizeVersion(version string) string {
 	if len(v) == 0 {
 		return ""
 	}
+
 	if strings.HasPrefix(v, "v") {
 		return v
 	}
@@ -94,6 +96,7 @@ func parseVersionHeader(header string) string {
 	if len(version) == 0 {
 		return ""
 	}
+
 	if strings.HasPrefix(version, "v") {
 		return version
 	}

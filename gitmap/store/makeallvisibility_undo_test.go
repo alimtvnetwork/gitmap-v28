@@ -22,6 +22,7 @@ func freshUndoDB(t *testing.T) *DB {
 	if err != nil {
 		t.Fatalf("OpenAt: %v", err)
 	}
+
 	t.Cleanup(func() { _ = db.Close() })
 	if err := db.Migrate(); err != nil {
 		t.Fatalf("Migrate: %v", err)
@@ -42,11 +43,13 @@ func seedRun(t *testing.T, db *DB, kind, owner string) int64 {
 	if err != nil {
 		t.Fatalf("InsertRun: %v", err)
 	}
+
 	ids, err := db.InsertMakeAllVisibilityPendingResults(runID,
 		[]model.MakeAllVisibilityResultRecord{{RepoName: "repo1", MatchedPattern: "*", StartedAt: "x"}})
 	if err != nil {
 		t.Fatalf("InsertPending: %v", err)
 	}
+
 	if err := db.UpdateMakeAllVisibilityResult(model.MakeAllVisibilityResultRecord{
 		ID: ids[0], Status: constants.ResultStatusOk,
 		PrevVisibility: constants.VisibilityPublic, NewVisibility: constants.VisibilityPrivate,
@@ -54,6 +57,7 @@ func seedRun(t *testing.T, db *DB, kind, owner string) int64 {
 	}); err != nil {
 		t.Fatalf("UpdateResult: %v", err)
 	}
+
 	if err := db.FinalizeMakeAllVisibilityRun(model.MakeAllVisibilityRunRecord{
 		ID: runID, OkCount: 1, ExitCode: 0, FinishedAt: "z",
 	}); err != nil {
@@ -71,6 +75,7 @@ func TestSelectLatestUndoableMakeAllVisibilityRunReturnsNewest(t *testing.T) {
 	if err != nil {
 		t.Fatalf("err: %v", err)
 	}
+
 	if got.ID != newest || got.Owner != "beta" || got.OkCount != 1 {
 		t.Fatalf("expected newest run (id=%d owner=beta okCount=1), got %+v", newest, got)
 	}
@@ -118,6 +123,7 @@ func TestSelectUndoableResultsForRunReturnsOkRows(t *testing.T) {
 	if err != nil || len(rows) != 1 {
 		t.Fatalf("expected 1 undoable row, got %d err=%v", len(rows), err)
 	}
+
 	r := rows[0]
 	if r.RepoName != "repo1" || r.PrevVisibility != constants.VisibilityPublic ||
 		r.NewVisibility != constants.VisibilityPrivate {

@@ -24,17 +24,21 @@ func TestEncodeDecodeRoundTrip(t *testing.T) {
 		WeakWords:      []string{"update"},
 		FunctionIntel:  FunctionIntel{IsEnabled: true, Languages: []string{"Go"}},
 	}
+
 	out, err := Encode(p)
 	if err != nil {
 		t.Fatalf("encode: %v", err)
 	}
+
 	if !strings.Contains(string(out), `"SchemaVersion": 1`) {
 		t.Fatalf("encoded missing SchemaVersion: %s", out)
 	}
+
 	got, err := Decode(out)
 	if err != nil {
 		t.Fatalf("decode: %v", err)
 	}
+
 	if got.Name != "Default" || got.Author.Email != "j@x.io" {
 		t.Fatalf("round-trip mismatch: %+v", got)
 	}
@@ -61,9 +65,11 @@ func TestSaveToDiskRefusesOverwrite(t *testing.T) {
 	if err := SaveToDisk(root, p, false); err != nil {
 		t.Fatalf("first save: %v", err)
 	}
+
 	if err := SaveToDisk(root, p, false); err == nil {
 		t.Fatal("expected refusal on second save")
 	}
+
 	if err := SaveToDisk(root, p, true); err != nil {
 		t.Fatalf("overwrite save: %v", err)
 	}
@@ -91,6 +97,7 @@ func TestSaveCreatesProfilesDir(t *testing.T) {
 	if err := SaveToDisk(root, p, false); err != nil {
 		t.Fatalf("save: %v", err)
 	}
+
 	if _, err := os.Stat(filepath.Join(root, ".gitmap", "commit-in", "profiles", "Auto.json")); err != nil {
 		t.Fatalf("profile not at expected path: %v", err)
 	}
@@ -104,9 +111,11 @@ func TestResolvePrecedence(t *testing.T) {
 	if r.ConflictMode != "ForceMerge" {
 		t.Fatalf("CLI should win, got %s", r.ConflictMode)
 	}
+
 	if r.TitlePrefix != "[p]" {
 		t.Fatalf("profile TitlePrefix should win, got %q", r.TitlePrefix)
 	}
+
 	if r.WeakWords[0] != "change" {
 		t.Fatalf("default weak words missing, got %v", r.WeakWords)
 	}

@@ -23,8 +23,10 @@ func runReleaseAliasPull(target string) error {
 	if err := cmd.Run(); err != nil {
 		fmt.Fprintf(os.Stderr, constants.ErrRAPullFailedFmt, target, err)
 		fmt.Fprintln(os.Stderr)
+
 		return apperror.NewSimple("fatal error", "E9000")
 	}
+
 	return nil
 }
 
@@ -48,6 +50,7 @@ func autoStashIfDirty(target, alias, version string) string {
 		fmt.Fprintf(os.Stderr, constants.ErrRAStashFailedFmt, target, err)
 		fmt.Fprintln(os.Stderr)
 		var empty string
+
 		return empty
 	}
 

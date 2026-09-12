@@ -25,6 +25,7 @@ func runPipelineAI(args []string) error {
 	if payload.IsRunning {
 		payload.NextAiCommand = fmt.Sprintf("gitmap pipeline-ai status -t %d", payload.EtaSeconds)
 	}
+
 	recordPipelineInDB(payload, runs)
 
 	return outputPipelineAIResult(payload, subArgs)
@@ -41,11 +42,14 @@ func parsePipelineAIDelay(args []string) (int, []string) {
 			i++
 			continue
 		}
+
 		subArgs = append(subArgs, args[i])
 	}
+
 	if delaySeconds < 20 {
 		delaySeconds = 20
 	}
+
 	return delaySeconds, subArgs
 }
 
@@ -54,6 +58,7 @@ func extractDelaySeconds(argVal string, defaultDelay int) int {
 	if err == nil && v >= 0 {
 		return v
 	}
+
 	return defaultDelay
 }
 
@@ -65,12 +70,15 @@ func isSkipDelayRequested() bool {
 	if os.Getenv("GITMAP_SKIP_DELAY") == "1" {
 		return true
 	}
+
 	if len(os.Getenv("CI")) > 0 {
 		return true
 	}
+
 	if len(os.Getenv("GITHUB_ACTIONS")) > 0 {
 		return true
 	}
+
 	return false
 }
 
@@ -78,6 +86,7 @@ func executePipelineAIDelay(delaySeconds int, subArgs []string) {
 	if delaySeconds <= 0 || isSkipDelayRequested() {
 		return
 	}
+
 	isJSON := hasArgFlag(subArgs, "--json")
 	msg := fmt.Sprintf("⏳ Auto-delaying %ds before checking pipeline status...\n", delaySeconds)
 	if isJSON {
@@ -85,6 +94,7 @@ func executePipelineAIDelay(delaySeconds int, subArgs []string) {
 	} else {
 		fmt.Print(msg)
 	}
+
 	time.Sleep(time.Duration(delaySeconds) * time.Second)
 }
 
@@ -93,7 +103,9 @@ func outputPipelineAIResult(payload PipelineStatusPayload, subArgs []string) err
 	if isJSON {
 		return printJSON(payload)
 	}
+
 	renderPipelineAIStatusTerminal(payload)
+
 	return nil
 }
 

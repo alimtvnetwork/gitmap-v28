@@ -44,6 +44,7 @@ func runSEOWrite(args []string) error {
 	}
 
 	executeSEOWrite(flags)
+
 	return nil
 }
 

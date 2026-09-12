@@ -61,6 +61,7 @@ func encodeLatestBranchJSON(
 	if err != nil {
 		return err
 	}
+
 	fields = append(fields, stablejson.Field{Key: lbKeyTop, Value: topRaw})
 
 	return stablejson.WriteObject(w, fields)

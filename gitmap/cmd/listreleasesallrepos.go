@@ -20,7 +20,9 @@ func runListReleasesAllRepos(asJSON bool, limit int) error {
 
 		return nil
 	}
+
 	printAllReposTerminal(records)
+
 	return nil
 }
 
@@ -31,6 +33,7 @@ func loadReleasesAcrossRepos() []store.ReleaseAcrossRepos {
 	if err != nil {
 		return nil
 	}
+
 	defer db.Close()
 
 	records, err := db.ListReleasesAcrossRepos()
@@ -72,6 +75,7 @@ func printAllReposRow(r store.ReleaseAcrossRepos) {
 	if r.IsLatest {
 		latest = constants.MsgYes
 	}
+
 	fmt.Printf(constants.MsgListReleasesAllReposRowFmt,
 		r.RepoSlug, r.Version, r.Tag, r.Branch, latest, r.Source, r.CreatedAt)
 }

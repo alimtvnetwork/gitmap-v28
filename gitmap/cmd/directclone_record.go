@@ -10,12 +10,16 @@ func populateDirectCloneURLs(rec *model.ScanRecord, url string) {
 	rec.Transport = transport.Classify(url)
 	if rec.Transport == constants.ScanTransportSSH {
 		populateSSHCloneURL(rec, url)
+
 		return
 	}
+
 	if rec.Transport == constants.ScanTransportHTTPS {
 		populateHTTPSCloneURL(rec, url)
+
 		return
 	}
+
 	rec.HTTPSUrl = url
 }
 

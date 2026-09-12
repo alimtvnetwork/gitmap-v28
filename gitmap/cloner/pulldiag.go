@@ -55,15 +55,19 @@ func collectDiagnosisHints(repoDir, output string) []string {
 	if hasUnlinkFailure(output) {
 		hints = append(hints, "file lock/read-only attribute blocked replacing old files")
 	}
+
 	if hasUnmergedFailure(output) {
 		hints = append(hints, "unresolved merge conflict detected; run 'gitmap fix-git' or 'git merge --abort'")
 	}
+
 	if hasUntrackedOverwriteFailure(output) {
 		hints = append(hints, "untracked files conflict with incoming commits; run 'gitmap fix-git' to backup & pull")
 	}
+
 	if hasPathLengthRisk(repoDir, output) {
 		hints = append(hints, "Windows path length risk detected; use a shorter base path like C:\\src")
 	}
+
 	if strings.Contains(strings.ToLower(repoDir), "onedrive") {
 		hints = append(hints, "repo is under a synced folder (OneDrive), which often locks files")
 	}
@@ -93,6 +97,7 @@ func hasPathLengthRisk(repoDir, output string) bool {
 	if runtime.GOOS != constants.OSWindows {
 		return false
 	}
+
 	for _, relativePath := range extractUnlinkPaths(output) {
 		fullPath := filepath.Join(repoDir, filepath.FromSlash(relativePath))
 		if len(fullPath) >= constants.WindowsPathWarnThreshold {
@@ -116,6 +121,7 @@ func collectRegexMatches(output string) []string {
 			matches = append(matches, m[1])
 		}
 	}
+
 	for _, m := range unlinkPromptRegex.FindAllStringSubmatch(output, -1) {
 		if len(m) > 1 {
 			matches = append(matches, m[1])
@@ -133,6 +139,7 @@ func deduplicateStrings(items []string) []string {
 		if isSeen {
 			continue
 		}
+
 		seen[item] = struct{}{}
 		unique = append(unique, item)
 	}

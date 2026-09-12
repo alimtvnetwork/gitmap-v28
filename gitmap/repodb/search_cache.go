@@ -38,6 +38,7 @@ func ScanSearchCache(row dbengine.RowScanner) (*SearchCache, error) {
 	item.ResultJson = dbengine.ScanString(raw_ResultJson)
 	item.CreatedAt = dbengine.ScanInt64(raw_CreatedAt)
 	item.UpdatedAt = dbengine.ScanInt64(raw_UpdatedAt)
+
 	return &item, nil
 }
 
@@ -54,6 +55,7 @@ func NewSearchCacheDbRepo(db *dbengine.DbWrapper) *SearchCacheDbRepo {
 		enums.SearchCacheTable,
 		ScanSearchCache,
 	)
+
 	return &SearchCacheDbRepo{
 		db:   db,
 		repo: repo,
@@ -102,12 +104,14 @@ func (r *SearchCacheDbRepo) Insert(ctx context.Context, item *SearchCache) dbeng
 	if item.SearchCacheId == 0 {
 		id = nil
 	}
+
 	return r.db.ExecRowsAffected(ctx, query, id, item.Query, item.Hits, item.ResultJson, item.CreatedAt, item.UpdatedAt)
 }
 
 // Update updates an existing SearchCache record identified by its primary key.
 func (r *SearchCacheDbRepo) Update(ctx context.Context, item *SearchCache) dbengine.RowsAffectedResult {
 	query := "UPDATE SearchCache SET Query = ?, Hits = ?, ResultJson = ?, CreatedAt = ?, UpdatedAt = ? WHERE SearchCacheId = ?;"
+
 	return r.db.ExecRowsAffected(ctx, query, item.Query, item.Hits, item.ResultJson, item.CreatedAt, item.UpdatedAt, item.SearchCacheId)
 }
 

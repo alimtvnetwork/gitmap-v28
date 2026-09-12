@@ -10,6 +10,7 @@ func TestParseAddLFSInstallFlagsDefaults(t *testing.T) {
 	if err != nil {
 		t.Fatalf("unexpected error: %v", err)
 	}
+
 	if got.dryRun {
 		t.Errorf("dryRun: want false by default, got true")
 	}
@@ -22,6 +23,7 @@ func TestParseAddLFSInstallFlagsDryRun(t *testing.T) {
 	if err != nil {
 		t.Fatalf("unexpected error: %v", err)
 	}
+
 	if !got.dryRun {
 		t.Errorf("dryRun: want true with --dry-run, got false")
 	}

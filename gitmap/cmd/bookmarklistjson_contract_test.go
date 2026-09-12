@@ -49,5 +49,6 @@ func TestBookmarkListJSONContract_CanonicalRow_KeyOrder(t *testing.T) {
 	if err := encodeBookmarkListJSON(&buf, records); err != nil {
 		t.Fatalf("encode: %v", err)
 	}
+
 	assertSchemaKeysFirstObject(t, buf.Bytes(), "bookmark-list")
 }

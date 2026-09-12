@@ -36,6 +36,7 @@ func runChromeProfileReconcile(args []string) error {
 
 	if reconciledCount == 0 {
 		fmt.Printf("\033[1;92m✓ All %d on-disk Chrome profile(s) are already synchronized in Local State.\033[0m\n\n", len(dirs))
+
 		return nil
 	}
 
@@ -44,6 +45,7 @@ func runChromeProfileReconcile(args []string) error {
 	}
 
 	fmt.Printf("\n\033[1;92m✓ Chrome Profile Reconciliation Complete:\033[0m %d profile(s) reconciled in Local State.\n\n", reconciledCount)
+
 	return nil
 }
 
@@ -52,6 +54,7 @@ func warnIfChromeRunningForReconcile() {
 	if err != nil || !isRunning {
 		return
 	}
+
 	fmt.Println("\n\033[1;93m⚠ Notice: Google Chrome is currently running.\033[0m")
 	fmt.Println("  Chrome holds Local State in memory and flushes periodically.")
 	fmt.Println("  For changes to persist permanently in the Profile Picker,")
@@ -63,10 +66,12 @@ func loadChromeLocalStateMap(path string) (map[string]any, error) {
 	if err != nil {
 		return nil, fmt.Errorf("read %s: %w", path, err)
 	}
+
 	var root map[string]any
 	if err := json.Unmarshal(raw, &root); err != nil {
 		return nil, fmt.Errorf("parse %s: %w", path, err)
 	}
+
 	return root, nil
 }
 
@@ -77,6 +82,7 @@ func reconcileOnDiskProfiles(dirs []string, infoCache map[string]any, profile ma
 			reconciledCount++
 		}
 	}
+
 	return reconciledCount
 }
 
@@ -85,6 +91,7 @@ func reconcileSingleProfileDir(dir string, infoCache map[string]any, profile map
 	if !exists {
 		return restoreUnlinkedProfileEntry(dir, infoCache, profile)
 	}
+
 	return ensureExistingProfileInOrder(dir, entry, infoCache, profile)
 }
 
@@ -105,7 +112,9 @@ func restoreUnlinkedProfileEntry(dir string, infoCache map[string]any, profile m
 	if emailStr == "" {
 		emailStr = "(none)"
 	}
+
 	fmt.Printf("  \033[1;92m+ Reconciled unlinked profile:\033[0m %-12s (display: %q, email: %s)\n", dir, name, emailStr)
+
 	return true
 }
 
@@ -118,10 +127,12 @@ func ensureExistingProfileInOrder(dir string, entry map[string]any, infoCache ma
 		infoCache[dir] = entry
 		changed = true
 	}
+
 	if !isProfileInOrder(profile, dir) {
 		appendChromeProfileToOrder(profile, dir)
 		changed = true
 	}
+
 	return changed
 }
 
@@ -130,11 +141,13 @@ func isProfileInOrder(profile map[string]any, dir string) bool {
 	if !ok {
 		return false
 	}
+
 	for _, v := range order {
 		if s, _ := v.(string); s == dir {
 			return true
 		}
 	}
+
 	return false
 }
 
@@ -152,6 +165,7 @@ func readProfilePreferencesMetadata(dirPath string) (string, string) {
 
 	displayName := extractPreferencesDisplayName(root)
 	email := extractEmailFromPreferences(raw)
+
 	return displayName, email
 }
 
@@ -160,6 +174,7 @@ func extractPreferencesDisplayName(root map[string]any) string {
 	if accountName != "" {
 		return accountName
 	}
+
 	return extractProfileBlockName(root)
 }
 
@@ -168,11 +183,14 @@ func extractAccountFullName(root map[string]any) string {
 	if !ok || len(accounts) == 0 {
 		return ""
 	}
+
 	acc, ok := accounts[0].(map[string]any)
 	if !ok {
 		return ""
 	}
+
 	fn, _ := acc["full_name"].(string)
+
 	return fn
 }
 
@@ -181,9 +199,11 @@ func extractProfileBlockName(root map[string]any) string {
 	if !ok {
 		return ""
 	}
+
 	name, _ := prof["name"].(string)
 	if name == "Person 1" {
 		return ""
 	}
+
 	return name
 }

@@ -75,6 +75,7 @@ func applyPrettyToken(
 		return render.PrettyOff
 	default:
 		*out = append(*out, arg)
+
 		return mode
 	}
 }
@@ -88,6 +89,7 @@ func splitPrettyToken(arg string) (token, value string, hasValue bool) {
 	if isMissingPrefix {
 		return arg, "", false
 	}
+
 	eq := strings.IndexByte(arg, '=')
 	hasEqual := eq >= 0
 	if hasEqual {
@@ -124,6 +126,7 @@ func resolvePositivePretty(
 	if isMissingValue {
 		return render.PrettyOn
 	}
+
 	switch strings.ToLower(value) {
 	case "1", "t", "true", "on", "yes", "y":
 		return render.PrettyOn
@@ -132,6 +135,7 @@ func resolvePositivePretty(
 	case "auto", "":
 		return render.PrettyAuto
 	}
+
 	*out = append(*out, original)
 
 	return current

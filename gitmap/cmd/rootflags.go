@@ -380,6 +380,7 @@ func buildCloneFlags(fs *flag.FlagSet, flagPtrs *cloneFlagPointers) CloneFlags {
 		Positional:    fs.Args(),
 		Output:        *flagPtrs.outputFlag,
 	}
+
 	populateCloneToggles(&cloneOpts, flagPtrs)
 	populateCloneExecutionFlags(&cloneOpts, flagPtrs)
 
@@ -412,6 +413,7 @@ func resolveCloneFolderName(fs *flag.FlagSet) string {
 	if fs.NArg() <= 1 {
 		return ""
 	}
+
 	secondArg := fs.Arg(1)
 	if isLikelyURL(secondArg) {
 		return ""

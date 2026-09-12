@@ -74,11 +74,14 @@ func HighlightQuotes(s string) string {
 			inQuote = processQuoteChar(&b, inQuote)
 			continue
 		}
+
 		b.WriteByte(s[i])
 	}
+
 	if inQuote { // unterminated quote: close the token defensively
 		b.WriteString(TokCyanClose)
 	}
+
 	return b.String()
 }
 
@@ -86,10 +89,13 @@ func processQuoteChar(b *strings.Builder, inQuote bool) bool {
 	if !inQuote {
 		b.WriteString(TokCyanOpen)
 		b.WriteByte('"')
+
 		return true
 	}
+
 	b.WriteByte('"')
 	b.WriteString(TokCyanClose)
+
 	return false
 }
 
@@ -117,6 +123,7 @@ func highlightFenceLine(line string) string {
 	if m := shellCommentRe.FindStringSubmatch(line); m != nil {
 		return m[1] + TokGreenOpen + m[2] + TokGreenClose
 	}
+
 	return highlightInline(line)
 }
 
@@ -130,5 +137,6 @@ func highlightInline(s string) string {
 	s = hdAliasRe.ReplaceAllStringFunc(s, func(m string) string {
 		return TokMagentaOpen + m + TokMagentaClose
 	})
+
 	return s
 }

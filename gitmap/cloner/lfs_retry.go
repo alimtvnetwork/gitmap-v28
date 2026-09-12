@@ -35,6 +35,7 @@ const LFSRetryNote = "lfs-skip-smudge-retry"
 // `git clone` matches the git-lfs smudge failure signature.
 func isLFSSmudgeFailure(out string) bool {
 	lower := strings.ToLower(out)
+
 	return strings.Contains(lower, "smudge filter lfs failed") ||
 		strings.Contains(lower, "git-lfs filter-process' failed") ||
 		strings.Contains(lower, "external filter 'git-lfs")
@@ -48,5 +49,6 @@ func retryCloneSkipSmudge(bin string, args []string, dest string) ([]byte, error
 	_ = os.RemoveAll(dest)
 	cmd := exec.Command(bin, args...)
 	cmd.Env = append(os.Environ(), LFSSkipSmudgeEnv)
+
 	return cmd.CombinedOutput()
 }

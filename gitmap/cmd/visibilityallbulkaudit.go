@@ -47,6 +47,7 @@ func beginRunAudit(ctx ownerContext, target, cmdName, patternsRaw string,
 
 		return audit
 	}
+
 	audit.db = db
 	audit.runID = insertRunRow(db, ctx, target, cmdName, patternsRaw, flags, ownerTotal, len(matches))
 	persistPendingResults(audit, matches)
@@ -71,6 +72,7 @@ func insertRunRow(db *store.DB, ctx ownerContext, target, cmdName, patternsRaw s
 		MatchedCount:     matchedCount,
 		StartedAt:        nowRFC3339(),
 	}
+
 	id, err := db.InsertMakeAllVisibilityRun(rec)
 	if err != nil {
 		fmt.Fprintf(os.Stderr, "make-all-*: %v\n", err)
@@ -87,6 +89,7 @@ func persistPendingResults(audit *runAudit, matches []visibility.MatchedRepo) {
 	if audit.db == nil || audit.runID == 0 {
 		return
 	}
+
 	rows := make([]model.MakeAllVisibilityResultRecord, 0, len(matches))
 	for _, m := range matches {
 		rows = append(rows, model.MakeAllVisibilityResultRecord{
@@ -94,12 +97,14 @@ func persistPendingResults(audit *runAudit, matches []visibility.MatchedRepo) {
 			Status: constants.ResultStatusPending, StartedAt: nowRFC3339(),
 		})
 	}
+
 	ids, err := audit.db.InsertMakeAllVisibilityPendingResults(audit.runID, rows)
 	if err != nil {
 		fmt.Fprintf(os.Stderr, "make-all-*: %v\n", err)
 
 		return
 	}
+
 	for i, m := range matches {
 		audit.resultIDs[m.RepoName] = ids[i]
 	}
@@ -111,19 +116,23 @@ func (a *runAudit) markExcluded(before, after []visibility.MatchedRepo) int {
 	if a.db == nil {
 		return 0
 	}
+
 	keep := make(map[string]bool, len(after))
 	for _, m := range after {
 		keep[m.RepoName] = true
 	}
+
 	ids := make([]int64, 0, len(before)-len(after))
 	for _, m := range before {
 		if keep[m.RepoName] {
 			continue
 		}
+
 		if id, ok := a.resultIDs[m.RepoName]; ok {
 			ids = append(ids, id)
 		}
 	}
+
 	if err := a.db.MarkMakeAllVisibilityResultsExcluded(ids, nowRFC3339()); err != nil {
 		fmt.Fprintf(os.Stderr, "make-all-*: %v\n", err)
 	}
@@ -144,10 +153,12 @@ func (a *runAudit) updateResult(
 	if a.db == nil {
 		return
 	}
+
 	id, ok := a.resultIDs[repoName]
 	if !ok {
 		return
 	}
+
 	rec := model.MakeAllVisibilityResultRecord{
 		ID: id, Status: statusForOutcome(st.outcome),
 		PrevVisibility: prev, NewVisibility: next,
@@ -155,6 +166,7 @@ func (a *runAudit) updateResult(
 		FinishedAt:     nowRFC3339(),
 		DurationMs:     time.Since(start).Milliseconds(),
 	}
+
 	if err := a.db.UpdateMakeAllVisibilityResult(rec); err != nil {
 		fmt.Fprintf(os.Stderr, "make-all-*: %v\n", err)
 	}
@@ -165,11 +177,13 @@ func (a *runAudit) finalize(excluded, ok, skipped, failed, exitCode int) {
 	if a.db == nil || a.runID == 0 {
 		return
 	}
+
 	rec := model.MakeAllVisibilityRunRecord{
 		ID: a.runID, ExcludedCount: excluded, OkCount: ok,
 		SkippedCount: skipped, FailedCount: failed, ExitCode: exitCode,
 		FinishedAt: nowRFC3339(),
 	}
+
 	if err := a.db.FinalizeMakeAllVisibilityRun(rec); err != nil {
 		fmt.Fprintf(os.Stderr, "make-all-*: %v\n", err)
 	}

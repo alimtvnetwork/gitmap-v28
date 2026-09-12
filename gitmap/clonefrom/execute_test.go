@@ -32,9 +32,11 @@ func TestExecute_HappyPath(t *testing.T) {
 	if len(results) != 1 {
 		t.Fatalf("results = %d, want 1", len(results))
 	}
+
 	if results[0].Status != constants.CloneFromStatusOK {
 		t.Fatalf("status = %q, want ok (detail=%q)", results[0].Status, results[0].Detail)
 	}
+
 	gitDir := filepath.Join(cwd, "out", ".git")
 	if _, err := os.Stat(gitDir); err != nil {
 		t.Errorf("expected .git dir at %s: %v", gitDir, err)
@@ -51,6 +53,7 @@ func TestExecute_SkipsNonEmptyDest(t *testing.T) {
 	if err := os.MkdirAll(dest, 0o755); err != nil {
 		t.Fatalf("mkdir: %v", err)
 	}
+
 	if err := os.WriteFile(filepath.Join(dest, "marker"), []byte("x"), 0o644); err != nil {
 		t.Fatalf("seed: %v", err)
 	}
@@ -61,6 +64,7 @@ func TestExecute_SkipsNonEmptyDest(t *testing.T) {
 	if results[0].Status != constants.CloneFromStatusSkipped {
 		t.Errorf("status = %q, want skipped", results[0].Status)
 	}
+
 	// Marker file should still be there — proof we didn't recurse-delete.
 	if _, err := os.Stat(filepath.Join(dest, "marker")); err != nil {
 		t.Errorf("marker file gone: %v", err)
@@ -82,9 +86,11 @@ func TestExecute_FailedRowFlagsExitCode(t *testing.T) {
 	if results[0].Status != constants.CloneFromStatusFailed {
 		t.Fatalf("status = %q, want failed", results[0].Status)
 	}
+
 	if len(results[0].Detail) == 0 {
 		t.Errorf("failed row has empty detail")
 	}
+
 	if len(results[0].Detail) > constants.CloneFromErrTrimLimit+3 { // +3 for "..."
 		t.Errorf("detail %d chars exceeds trim limit %d", len(results[0].Detail), constants.CloneFromErrTrimLimit)
 	}
@@ -100,14 +106,17 @@ func TestRenderSummary_TalliesAllStatuses(t *testing.T) {
 		{Status: constants.CloneFromStatusSkipped, Row: Row{URL: "c"}, Detail: "dest exists"},
 		{Status: constants.CloneFromStatusFailed, Row: Row{URL: "d"}, Detail: "boom"},
 	}
+
 	var buf bytes.Buffer
 	if err := RenderSummary(&buf, results, "/tmp/r.csv"); err != nil {
 		t.Fatalf("RenderSummary: %v", err)
 	}
+
 	out := buf.String()
 	if !strings.Contains(out, "2 ok, 1 skipped, 1 failed (4 total)") {
 		t.Errorf("tally line missing or wrong:\n%s", out)
 	}
+
 	if !strings.Contains(out, "report: /tmp/r.csv") {
 		t.Errorf("report path line missing")
 	}
@@ -140,6 +149,7 @@ func makeBareRepo(t *testing.T) string {
 	if err := os.WriteFile(filepath.Join(work, "README"), []byte("hi"), 0o644); err != nil {
 		t.Fatalf("seed file: %v", err)
 	}
+
 	runGit(t, work, "add", ".")
 	runGit(t, work, "commit", "-q", "-m", "init")
 	runGit(t, work, "clone", "--bare", "-q", work, bare)

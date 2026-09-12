@@ -29,6 +29,7 @@ type commitTransferSpec struct {
 func runCommitTransfer(spec commitTransferSpec, args []string) error {
 	checkHelp(spec.Name, args)
 	executeCommitTransfer(spec, args)
+
 	return nil
 }
 
@@ -43,12 +44,14 @@ func executeCommitTransfer(spec commitTransferSpec, args []string) {
 		fmt.Fprintf(os.Stderr, constants.MsgCTUsageFmt, spec.Name, spec.Name)
 		cliexit.HandleError(nil, 1)
 	}
+
 	if opts.Interleave && spec.Name != constants.CmdCommitBoth {
 		fmt.Fprintf(os.Stderr,
 			"%s --interleave is only valid for commit-both (got %s)\n",
 			opts.LogPrefix, spec.Name)
 		cliexit.HandleError(nil, 2)
 	}
+
 	cfg, _ := config.LoadFromFile(constants.DefaultConfigPath)
 	opts.Message.KeepUrl = cfg.CommitReplayKeepUrl
 	opts.Message.Templates = cfg.CommitReplayTemplates
@@ -57,6 +60,7 @@ func executeCommitTransfer(spec commitTransferSpec, args []string) {
 		fmt.Fprintf(os.Stderr, "%s endpoint resolve failed: %v\n", opts.LogPrefix, resolveErr)
 		cliexit.HandleError(nil, 1)
 	}
+
 	opts.Message.SourceDisplayName = pickSourceDisplayName(spec.Name, left, right, opts.Message.KeepUrl)
 	if err := dispatchDirection(spec.Name, left.WorkingDir, right.WorkingDir, opts); err != nil {
 		fmt.Fprintf(os.Stderr, "%s replay failed: %v\n", opts.LogPrefix, err)
@@ -93,9 +97,11 @@ func pickSourceDisplayName(name string, left, right movemerge.Endpoint, keepUrl 
 	if name == constants.CmdCommitLeft {
 		display = right.DisplayName
 	}
+
 	if keepUrl {
 		return display
 	}
+
 	return sanitizeURLBaseName(display)
 }
 
@@ -103,8 +109,10 @@ func sanitizeURLBaseName(base string) string {
 	if strings.Contains(base, "://") || strings.HasPrefix(base, "git@") {
 		parts := strings.Split(base, "/")
 		base = parts[len(parts)-1]
+
 		return strings.TrimSuffix(base, ".git")
 	}
+
 	return base
 }
 
@@ -128,6 +136,7 @@ func resolveCommitEndpoints(leftRaw, rightRaw string, _ committransfer.Options,
 	if err != nil {
 		return left, movemerge.Endpoint{}, err
 	}
+
 	resolvedRight := resolveEndpointString(rightRaw)
 	right, err := movemerge.ResolveEndpoint(resolvedRight, false, mmOpts)
 
@@ -150,6 +159,7 @@ func parseCommitTransferArgs(spec commitTransferSpec, args []string,
 			CommandName: spec.Name,
 		},
 	}
+
 	registerCommitTransferBools(fs, &opts)
 	registerCommitTransferStrings(fs, &opts)
 	fs.Parse(reorderFlagsBeforeArgs(args))
@@ -203,6 +213,7 @@ func registerCommitTransferStrings(fs *flag.FlagSet, opts *committransfer.Option
 	})
 	fs.Func(constants.FlagCTAppendFooter, constants.FlagDescCTAppendFooter, func(v string) error {
 		opts.Message.AppendFooters = append(opts.Message.AppendFooters, v)
+
 		return nil
 	})
 	fs.Func(constants.FlagCTDrop, constants.FlagDescCTDrop, func(v string) error {

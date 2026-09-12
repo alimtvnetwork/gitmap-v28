@@ -46,8 +46,10 @@ func runMacroUntilSuccess(args []string) error {
 	cfg := parseMacroRetryConfig(args)
 	if cfg.Target == "" {
 		fmt.Fprintf(os.Stderr, "Usage: gitmap macro run-until-succeed <macro-name|\"cmd\"> [--sleep <sec>] [--max-retries <N>] [--ai]\n")
+
 		return apperror.NewSimple("target macro or command string required", "E5003")
 	}
+
 	return executeRetryLoop(cfg)
 }
 
@@ -76,6 +78,7 @@ func parseMacroRetryConfig(args []string) macroRetryConfig {
 			cfg.Target = a
 		}
 	}
+
 	return cfg
 }
 
@@ -85,6 +88,7 @@ func matchFlagWithVal(arg string, names ...string) bool {
 			return true
 		}
 	}
+
 	return false
 }
 
@@ -92,12 +96,16 @@ func extractFlagValue(idx *int, args []string) string {
 	a := args[*idx]
 	if strings.Contains(a, "=") {
 		parts := strings.SplitN(a, "=", 2)
+
 		return parts[1]
 	}
+
 	if *idx+1 < len(args) {
 		*idx++
+
 		return args[*idx]
 	}
+
 	return ""
 }
 
@@ -105,9 +113,11 @@ func parseDurationArg(val string, fallback time.Duration) time.Duration {
 	if d, err := time.ParseDuration(val); err == nil {
 		return d
 	}
+
 	if sec, err := strconv.Atoi(val); err == nil {
 		return time.Duration(sec) * time.Second
 	}
+
 	return fallback
 }
 
@@ -119,12 +129,15 @@ func executeRetryLoop(cfg macroRetryConfig) error {
 		res := executeSingleAttempt(cfg.Target, attempt)
 		if res.IsSuccess {
 			printRetrySuccess(attempt, time.Since(startTime))
+
 			return nil
 		}
+
 		handleAttemptFailure(res, cfg, attempt)
 		if isRetryExhausted(attempt, cfg.MaxRetries, startTime, cfg.Timeout) {
 			return apperror.NewSimple(fmt.Sprintf("target %q failed after %d attempt(s)", cfg.Target, attempt), "E5004")
 		}
+
 		sleepNextDuration(cfg.Delay, cfg.Backoff, attempt)
 		attempt++
 	}
@@ -134,9 +147,11 @@ func isRetryExhausted(attempt, maxRetries int, start time.Time, timeout time.Dur
 	if maxRetries > 0 && attempt >= maxRetries {
 		return true
 	}
+
 	if timeout > 0 && time.Since(start) >= timeout {
 		return true
 	}
+
 	return false
 }
 
@@ -147,6 +162,7 @@ func executeSingleAttempt(target string, attempt int) macroRunResult {
 	if err == nil && loadedMacro != nil {
 		return runMacroDirect(loadedMacro, attempt, start)
 	}
+
 	return runShellCmdDirect(target, attempt, start)
 }
 
@@ -156,6 +172,7 @@ func runMacroDirect(m *macro.Macro, attempt int, start time.Time) macroRunResult
 	if execErr == nil {
 		return macroRunResult{Attempt: attempt, IsSuccess: true, Duration: dur}
 	}
+
 	return macroRunResult{
 		Attempt:   attempt,
 		IsSuccess: false,
@@ -172,6 +189,7 @@ func runShellCmdDirect(cmdStr string, attempt int, start time.Time) macroRunResu
 	} else {
 		cmd = exec.Command("sh", "-c", cmdStr)
 	}
+
 	var outBuf bytes.Buffer
 	cmd.Stdout = os.Stdout
 	cmd.Stderr = ioTeeAndBuffer(os.Stderr, &outBuf)
@@ -181,10 +199,12 @@ func runShellCmdDirect(cmdStr string, attempt int, start time.Time) macroRunResu
 	if err == nil {
 		return macroRunResult{Attempt: attempt, IsSuccess: true, Duration: dur, Output: outBuf.String()}
 	}
+
 	exitCode := 1
 	if exitErr, ok := err.(*exec.ExitError); ok {
 		exitCode = exitErr.ExitCode()
 	}
+
 	return macroRunResult{
 		Attempt:   attempt,
 		IsSuccess: false,
@@ -206,6 +226,7 @@ func handleAttemptFailure(res macroRunResult, cfg macroRetryConfig, attempt int)
 		_ = os.WriteFile(cfg.AIFilePath, []byte(aiReport), constants.FilePermission)
 		fmt.Printf("  \033[1;93m📝 AI Diagnostic saved to:\033[0m %s\n", cfg.AIFilePath)
 	}
+
 	if cfg.IsAI {
 		fmt.Printf("\n%s\n", aiReport)
 	}
@@ -213,6 +234,7 @@ func handleAttemptFailure(res macroRunResult, cfg macroRetryConfig, attempt int)
 
 func buildAIFailureReport(target string, attempt int, res macroRunResult) string {
 	cwd, _ := os.Getwd()
+
 	return fmt.Sprintf(`### 🤖 AI Failure Diagnostic Report
 - **Command / Macro**: %s
 - **Attempt**: #%d
@@ -242,6 +264,7 @@ func calculateBackoff(base time.Duration, strategy string, attempt int) time.Dur
 		if multiplier > 30 {
 			multiplier = 30
 		}
+
 		return time.Duration(float64(base) * multiplier)
 	default:
 		return base

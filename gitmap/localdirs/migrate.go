@@ -77,9 +77,11 @@ func mergeAndRemoveLegacy(oldDir, target string) {
 		if d.IsDir() {
 			mkErr = os.MkdirAll(dest, constants.DirPermission)
 		}
+
 		if d.IsDir() && mkErr != nil {
 			fmt.Fprintf(os.Stderr, "  ⚠ Could not create directory %s: %v\n", dest, mkErr)
 		}
+
 		if d.IsDir() {
 			return nil
 		}

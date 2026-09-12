@@ -32,13 +32,16 @@ func runVisibilityHistory(args []string) error {
 	if err != nil {
 		cliexit.Fail(constants.CmdVisibilityHistory, "load-runs", "", err, constants.ExitVisAuthFailed)
 	}
+
 	runs = applyHistoryFilters(runs, filters, time.Now())
 	if len(runs) == 0 {
 		fmt.Fprint(os.Stderr, constants.MsgVisHistoryEmpty)
 		cliexit.HandleError(nil, constants.ExitVisOK)
 	}
+
 	printHistory(runs)
 	cliexit.HandleError(nil, constants.ExitVisOK)
+
 	return nil
 }
 
@@ -52,6 +55,7 @@ func loadHistoryRuns(
 	if f.Kind == "" && f.Since == 0 {
 		return db.SelectRecentMakeAllVisibilityRuns(limit)
 	}
+
 	sinceISO := ""
 	if f.Since > 0 {
 		sinceISO = time.Now().Add(-f.Since).UTC().Format(time.RFC3339)
@@ -69,6 +73,7 @@ func parseHistoryLimit(args []string) int {
 		if args[i] != "--limit" {
 			continue
 		}
+
 		n, err := strconv.Atoi(args[i+1])
 		if err != nil || n <= 0 {
 			fmt.Fprintf(os.Stderr, constants.ErrUndoBadRunFlagFmt, args[i+1], err, "--limit must be positive integer")

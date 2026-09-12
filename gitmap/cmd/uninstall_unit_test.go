@@ -55,6 +55,7 @@ func TestBuildUninstallCommand(t *testing.T) {
 			if len(got) == 0 || got[0] != tc.head {
 				t.Fatalf("head: got %v, want first=%q", got, tc.head)
 			}
+
 			if !containsToken(got, tc.hasFlag) {
 				t.Fatalf("missing token %q in %v", tc.hasFlag, got)
 			}

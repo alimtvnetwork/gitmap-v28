@@ -14,6 +14,7 @@ func TestOwnerFromSlug(t *testing.T) {
 		"":                "",
 		"org/sub/project": "org",
 	}
+
 	for in, want := range cases {
 		if got := ownerFromSlug(in); got != want {
 			t.Fatalf("ownerFromSlug(%q)=%q want %q", in, got, want)

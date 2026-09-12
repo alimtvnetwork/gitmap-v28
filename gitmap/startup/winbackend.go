@@ -93,6 +93,7 @@ func resolveBackendForAdd(b BackendType) BackendType {
 	if b != BackendUnspecified {
 		return b
 	}
+
 	if runtime.GOOS == "windows" {
 		return BackendRegistry
 	}
@@ -154,14 +155,14 @@ func removeWindows(clean string, opts RemoveOptions) (RemoveResult, error) {
 		// future Backend addition forces a deliberate decision
 		// here instead of silently landing in the fallback.
 	}
+
 	res, err := removeWindowsRegistry(clean, opts)
 	if err != nil || res.Status != RemoveNoOp {
-
 		return res, err
 	}
+
 	res, err = removeWindowsRegistryHKLM(clean, opts)
 	if err != nil || res.Status != RemoveNoOp {
-
 		return res, err
 	}
 
@@ -176,19 +177,19 @@ func removeWindows(clean string, opts RemoveOptions) (RemoveResult, error) {
 func listWindows() ([]Entry, error) {
 	reg, err := listWindowsRegistry()
 	if err != nil {
-
 		return nil, err
 	}
+
 	regHKLM, err := listWindowsRegistryHKLM()
 	if err != nil {
-
 		return nil, err
 	}
+
 	folder, err := listWindowsStartupFolder()
 	if err != nil {
-
 		return nil, err
 	}
+
 	out := make([]Entry, 0, len(reg)+len(regHKLM)+len(folder))
 	out = append(out, reg...)
 	out = append(out, regHKLM...)

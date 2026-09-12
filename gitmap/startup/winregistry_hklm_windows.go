@@ -35,7 +35,6 @@ import (
 // user typed.
 func addWindowsRegistryHKLM(clean string, opts AddOptions) (AddResult, error) {
 	if err := requireWindowsAdminForHKLM(); err != nil {
-
 		return AddResult{}, err
 	}
 
@@ -60,6 +59,7 @@ func removeWindowsRegistryHKLM(clean string, opts RemoveOptions) (RemoveResult, 
 	if !exists {
 		return RemoveResult{Status: RemoveNoOp, DryRun: opts.DryRun}, nil
 	}
+
 	if !managed {
 		return RemoveResult{Status: RemoveRefused, Path: runValuePathFor(hiveLabelHKLM, valueName), DryRun: opts.DryRun}, nil
 	}
@@ -95,7 +95,6 @@ func listWindowsRegistryHKLM() ([]Entry, error) {
 // on disk.
 func requireWindowsAdminForHKLM() error {
 	if isProcessElevated() {
-
 		return nil
 	}
 
@@ -112,9 +111,9 @@ func isProcessElevated() bool {
 	var token windows.Token
 	if err := windows.OpenProcessToken(windows.CurrentProcess(),
 		windows.TOKEN_QUERY, &token); err != nil {
-
 		return false
 	}
+
 	defer token.Close()
 
 	var elevation uint32
@@ -123,7 +122,6 @@ func isProcessElevated() bool {
 		(*byte)(unsafe.Pointer(&elevation)), uint32(unsafe.Sizeof(elevation)),
 		&returned)
 	if err != nil {
-
 		return false
 	}
 
@@ -134,5 +132,6 @@ func checkHKLMElevation(isDryRun bool) error {
 	if isDryRun {
 		return nil
 	}
+
 	return requireWindowsAdminForHKLM()
 }

@@ -36,6 +36,7 @@ func (db *DB) ListHistory() ([]model.CommandHistoryRecord, error) {
 	if err != nil {
 		return nil, fmt.Errorf(constants.ErrHistoryQuery, err)
 	}
+
 	defer rows.Close()
 
 	return scanHistoryRows(rows)
@@ -47,6 +48,7 @@ func (db *DB) ListHistoryByCommand(command string) ([]model.CommandHistoryRecord
 	if err != nil {
 		return nil, fmt.Errorf(constants.ErrHistoryQuery, err)
 	}
+
 	defer rows.Close()
 
 	return scanHistoryRows(rows)
@@ -71,6 +73,7 @@ func scanHistoryRows(rows interface {
 		if err != nil {
 			return nil, err
 		}
+
 		results = append(results, r)
 	}
 

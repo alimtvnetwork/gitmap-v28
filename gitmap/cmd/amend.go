@@ -29,6 +29,7 @@ func runAmend(args []string) error {
 	flags := parseAmendFlags(args)
 	validateAmendFlags(flags)
 	executeAmend(flags)
+
 	return nil
 }
 
@@ -39,6 +40,7 @@ func parseAmendFlags(args []string) amendFlags {
 	fs := flag.NewFlagSet(constants.CmdAmend, flag.ExitOnError)
 	bindAmendFlags(fs, &f)
 	_ = fs.Parse(remaining)
+
 	return f
 }
 
@@ -55,10 +57,13 @@ func extractAmendSHA(args []string, f *amendFlags) []string {
 	if len(args) == 0 {
 		return args
 	}
+
 	if args[0] == "" || args[0][0] == '-' {
 		return args
 	}
+
 	f.commitHash = args[0]
+
 	return args[1:]
 }
 
@@ -76,10 +81,12 @@ func executeAmend(f amendFlags) *apperror.AppError {
 	if err := prepareAmendBranch(f.branch); err != nil {
 		return err
 	}
+
 	commits, err := requireAmendCommits(f)
 	if err != nil {
 		return err
 	}
+
 	prevName, prevEmail := detectPreviousAuthor(commits)
 	if f.dryRun {
 		handleAmendDryRun(f, commits, originalBranch, prevName, prevEmail)
@@ -143,6 +150,7 @@ func runAmendWorkflow(
 	if err := runFilterBranch(f, commits); err != nil {
 		return err
 	}
+
 	finishAmendWorkflow(f, commits, targetBranch, mode, prevName, prevEmail, originalBranch)
 
 	return nil
@@ -173,6 +181,7 @@ func printAmendSummary(commitCount int, auditPath string, forcePush bool) {
 
 		return
 	}
+
 	fmt.Print(constants.MsgAmendWarnPush)
 }
 
@@ -190,6 +199,7 @@ func resolveAmendMode(f amendFlags) string {
 	if f.commitHash == "" {
 		return constants.AmendModeAll
 	}
+
 	if f.commitHash == constants.GitHEAD {
 		return constants.AmendModeHead
 	}
@@ -202,10 +212,12 @@ func returnToBranch(f amendFlags, original string) {
 	if f.branch == "" {
 		return
 	}
+
 	current := getCurrentBranch()
 	if current == original {
 		return
 	}
+
 	fmt.Printf(constants.MsgAmendReturn, original)
 	if err := switchBranch(original); err != nil {
 		fmt.Fprintf(os.Stderr, "failed to return to branch %s: %v\n", original, err)

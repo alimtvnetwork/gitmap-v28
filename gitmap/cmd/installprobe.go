@@ -57,7 +57,6 @@ var toolProbeMap = map[string]toolProbeConfig{
 
 func resolveToolCandidates(tool string) ([]string, []string) {
 	if cfg, ok := toolProbeMap[tool]; ok {
-
 		return cfg.bins, cfg.args
 	}
 
@@ -66,7 +65,6 @@ func resolveToolCandidates(tool string) ([]string, []string) {
 
 func resolvePowerShellArgs(bin string, defaultArgs []string) []string {
 	if bin == "powershell" && !isBinaryInPath("pwsh") {
-
 		return []string{"-NoProfile", "-Command", "$PSVersionTable.PSVersion.ToString()"}
 	}
 
@@ -81,15 +79,15 @@ func probeCandidate(bin string, args []string) string {
 	if target == "" {
 		target = bin
 	}
+
 	cmd := exec.CommandContext(ctx, target, args...)
 	out, err := cmd.CombinedOutput()
 	if err != nil && len(out) == 0 {
-
 		return ""
 	}
+
 	outStr := string(out)
 	if strings.Contains(outStr, "Python was not found") || strings.Contains(outStr, "Microsoft Store") {
-
 		return ""
 	}
 
@@ -108,9 +106,9 @@ func probeGitLFSFallback() (string, string) {
 
 func probeSingleCandidate(bin string, defaultArgs []string) (string, bool) {
 	if !isBinaryInPath(bin) {
-
 		return "", false
 	}
+
 	args := resolvePowerShellArgs(bin, defaultArgs)
 	ver := probeCandidate(bin, args)
 
@@ -125,20 +123,21 @@ func resolveToolProbeCommand(tool string) (string, string) {
 		if !isPresent {
 			continue
 		}
+
 		if fallbackBin == "" {
 			fallbackBin = bin
 		}
-		if ver != "" {
 
+		if ver != "" {
 			return bin, ver
 		}
 	}
-	if tool == constants.ToolGitLFS {
 
+	if tool == constants.ToolGitLFS {
 		return probeGitLFSFallback()
 	}
-	if fallbackBin != "" {
 
+	if fallbackBin != "" {
 		return fallbackBin, "installed"
 	}
 
@@ -150,7 +149,6 @@ func parseVersionFromOutput(output string) string {
 	for _, line := range lines {
 		m := versionRegex.FindString(line)
 		if m != "" {
-
 			return m
 		}
 	}

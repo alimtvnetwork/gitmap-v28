@@ -42,6 +42,7 @@ func runClonePickExecute(plan clonepick.Plan, noVSCodeSync bool, replayId int64)
 
 	if result.Status == clonepick.StatusFailed {
 		maybeExitOnCmdFaithfulMismatch()
+
 		return apperror.NewSimple("fatal error", "E9000")
 	}
 
@@ -53,7 +54,9 @@ func runClonePickExecute(plan clonepick.Plan, noVSCodeSync bool, replayId int64)
 	if plan.DestDir != "." && plan.DestDir != "" {
 		WriteShellHandoff(result.Detail)
 	}
+
 	maybeExitOnCmdFaithfulMismatch()
+
 	return nil
 }
 
@@ -70,6 +73,7 @@ func announceClonePickPersistence(
 	if len(name) == 0 {
 		name = "(unnamed)"
 	}
+
 	switch {
 	case replayId > 0 && result.Status == clonepick.StatusOK:
 		fmt.Fprintf(os.Stderr, constants.MsgClonePickReplayed,
@@ -85,9 +89,11 @@ func touchAfterReplay(plan clonepick.Plan, db *store.DB, replayId int64) {
 	if plan.DryRun {
 		return
 	}
+
 	if db == nil {
 		return
 	}
+
 	err := clonepick.TouchAfterReplay(db, replayId, plan.DryRun)
 	if err != nil {
 		cliexit.Reportf(constants.CmdClonePick, "touch-replay",
@@ -103,13 +109,16 @@ func syncClonePickResultToVSCodePM(plan clonepick.Plan, result clonepick.Result,
 	if dest == "" {
 		dest = plan.DestDir
 	}
+
 	abs, err := filepath.Abs(dest)
 	if err != nil {
 		abs = dest
 	}
+
 	name := plan.Name
 	if name == "" {
 		name = filepath.Base(abs)
 	}
+
 	syncSingleClonedRepoToVSCodePM(abs, name, skip)
 }

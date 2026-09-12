@@ -10,6 +10,7 @@ func UpdateRootPath(oldPath, newPath, newName string) error {
 	if err != nil {
 		return err
 	}
+
 	return UpdateRootPathAt(path, oldPath, newPath, newName)
 }
 
@@ -19,20 +20,25 @@ func UpdateRootPathAt(projectsFile, oldPath, newPath, newName string) error {
 	if err != nil {
 		return err
 	}
+
 	found := false
 	for i := range entries {
 		if !pathsEqual(entries[i].RootPath, oldPath) {
 			continue
 		}
+
 		entries[i].RootPath = newPath
 		if len(newName) > 0 {
 			entries[i].Name = newName
 		}
+
 		found = true
 		break
 	}
+
 	if !found {
 		return fmt.Errorf("project not found with rootPath %s", oldPath)
 	}
+
 	return writeEntriesAtomic(projectsFile, entries)
 }

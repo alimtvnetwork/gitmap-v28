@@ -39,10 +39,12 @@ func HasGitSubdir(root string) bool {
 	if err != nil {
 		return false
 	}
+
 	for _, entry := range entries {
 		if !entry.IsDir() {
 			continue
 		}
+
 		if IsGitRepo(filepath.Join(root, entry.Name())) {
 			return true
 		}

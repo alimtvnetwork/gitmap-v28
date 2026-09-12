@@ -55,6 +55,7 @@ func executeHistoryReset() *apperror.AppError {
 	if err != nil {
 		return apperror.WrapSimple(err, constants.ErrHistoryResetFailed)
 	}
+
 	defer db.Close()
 
 	err = db.ClearHistory()

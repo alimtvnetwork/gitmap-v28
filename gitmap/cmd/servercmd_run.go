@@ -41,6 +41,7 @@ func printServerCmdDryRun(opts serverCmdOptions, nodes []serverCmdNode) {
 		if n.IsServer {
 			role = "control-plane"
 		}
+
 		fmt.Printf("  • %s (%s, %s)\n", n.ID, n.IP, role)
 	}
 }
@@ -54,6 +55,7 @@ func resolveTargetNodes(target, exclude string) []serverCmdNode {
 		if excluded[n.ID] || excluded[n.IP] {
 			continue
 		}
+
 		if matchesTarget(n, target) {
 			filtered = append(filtered, n)
 		}

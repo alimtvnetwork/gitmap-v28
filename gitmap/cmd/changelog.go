@@ -25,11 +25,13 @@ func runChangelog(args []string) error {
 	if err := maybeOpenChangelog(openFile, latest, version); err != nil {
 		return err
 	}
+
 	if !latest && len(version) == 0 && openFile {
 		return nil
 	}
 
 	isPretty := render.Decide(mode, render.StdoutIsTerminal(), true)
+
 	return dispatchChangelogOutput(version, latest, limit, source, isPretty)
 }
 
@@ -37,6 +39,7 @@ func maybeOpenChangelog(openFile, latest bool, version string) *apperror.AppErro
 	if !openFile {
 		return nil
 	}
+
 	return handleChangelogOpen(latest, version)
 }
 
@@ -55,12 +58,15 @@ func handleChangelogOpen(latest bool, version string) *apperror.AppError {
 	if err != nil {
 		return apperror.WrapSimple(err, constants.ErrChangelogOpen)
 	}
+
 	if !latest && len(version) == 0 {
 		return nil
 	}
+
 	if !latest && len(version) == 0 {
 		return nil
 	}
+
 	return nil
 }
 
@@ -78,16 +84,22 @@ func dispatchChangelogOutput(
 	if err != nil {
 		return apperror.WrapSimple(err, constants.ErrChangelogRead)
 	}
+
 	entries = filterChangelogBySource(entries, source)
 	if latest {
 		printChangelogEntries(entries, 1, pretty)
+
 		return nil
 	}
+
 	if len(version) > 0 {
 		printSingleVersion(entries, version, pretty)
+
 		return nil
 	}
+
 	printChangelogEntries(entries, limit, pretty)
+
 	return nil
 }
 
@@ -115,6 +127,7 @@ func loadChangelogSourceMap() map[string]string {
 	if err != nil {
 		return map[string]string{}
 	}
+
 	defer db.Close()
 
 	releases, err := db.ListReleases()
@@ -139,9 +152,12 @@ func printSingleVersion(
 	entry, found := release.FindChangelogEntry(entries, version)
 	if !found {
 		fmt.Fprintf(os.Stderr, constants.ErrChangelogVersionNotFound, release.NormalizeVersion(version))
+
 		return apperror.NewSimple("fatal error", "E9000")
 	}
+
 	printChangelogEntry(entry, pretty)
+
 	return nil
 }
 
@@ -160,6 +176,7 @@ func parseChangelogFlags(args []string) (version string, latest bool, limit int,
 	if fs.NArg() > 0 {
 		version = fs.Arg(0)
 	}
+
 	if *limitFlag < 1 {
 		*limitFlag = 1
 	}
@@ -172,6 +189,7 @@ func printChangelogEntries(entries []release.ChangelogEntry, limit int, pretty b
 	if limit > len(entries) {
 		limit = len(entries)
 	}
+
 	for i := 0; i < limit; i++ {
 		printChangelogEntry(entries[i], pretty)
 	}
@@ -203,11 +221,13 @@ func runOpenCommand(path string) error {
 
 		return cmd.Run()
 	}
+
 	if runtime.GOOS == constants.OSDarwin {
 		cmd := exec.Command(constants.CmdOpen, path)
 
 		return cmd.Run()
 	}
+
 	cmd := exec.Command(constants.CmdXdgOpen, path)
 
 	return cmd.Run()

@@ -53,6 +53,7 @@ func TestConfigureSQLiteConn_PragmasAndPooling(t *testing.T) {
 	if err != nil {
 		t.Fatalf("failed to open sqlite test db: %v", err)
 	}
+
 	defer conn.Close()
 
 	if err := ConfigureSQLiteConn(conn); err != nil {
@@ -71,6 +72,7 @@ func TestConfigureSQLiteConn_ClosedDbError(t *testing.T) {
 	if err != nil {
 		t.Fatalf("failed to open sqlite: %v", err)
 	}
+
 	_ = conn.Close()
 
 	if err := ConfigureSQLiteConn(conn); err == nil {
@@ -86,6 +88,7 @@ func TestOpenSQLiteDB_Success(t *testing.T) {
 	if appErr != nil {
 		t.Fatalf("OpenSQLiteDB failed: %v", appErr)
 	}
+
 	defer conn.Close()
 
 	if maxOpen := conn.Stats().MaxOpenConnections; maxOpen != 1 {

@@ -22,6 +22,7 @@ func runAgyUndo() error {
 
 	if chosen == "" {
 		fmt.Printf("%s No Antigravity snapshots available to undo.\n", constants.ColorYellow+"ℹ"+constants.ColorReset)
+
 		return nil
 	}
 
@@ -39,6 +40,7 @@ func runAgyUndo() error {
 	}
 
 	fmt.Printf("%s Restored Antigravity projects from snapshot: %s\n", constants.ColorGreen+"✓"+constants.ColorReset, filepath.Base(chosen))
+
 	return nil
 }
 
@@ -51,6 +53,7 @@ func runAgyRedo() error {
 	chosen := pickLatestSnapshotWithTag(snapshots, "pre-undo")
 	if chosen == "" {
 		fmt.Printf("%s No Antigravity redo snapshots available.\n", constants.ColorYellow+"ℹ"+constants.ColorReset)
+
 		return nil
 	}
 
@@ -64,6 +67,7 @@ func runAgyRedo() error {
 	}
 
 	fmt.Printf("%s Redone Antigravity projects from snapshot: %s\n", constants.ColorGreen+"✓"+constants.ColorReset, filepath.Base(chosen))
+
 	return nil
 }
 

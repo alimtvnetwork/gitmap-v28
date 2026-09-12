@@ -24,7 +24,6 @@ var guiTools = map[string]bool{
 // isGUITool returns true for tools that open a GUI window on --version.
 func isGUITool(tool string) bool {
 	if isGUI := guiTools[tool]; isGUI {
-
 		return true
 	}
 
@@ -33,9 +32,9 @@ func isGUITool(tool string) bool {
 
 func verifyExeDirect(tool, exePath string) bool {
 	if exePath == "" {
-
 		return false
 	}
+
 	if _, err := os.Stat(exePath); err == nil {
 		fmt.Printf(constants.MsgInstallSuccess, tool)
 		fmt.Printf(constants.MsgInstallExeFound, exePath)
@@ -60,6 +59,7 @@ func verifyByVersion(tool string) {
 
 		return
 	}
+
 	bin := toolBinaryName(tool)
 	version := getInstalledVersion(bin)
 	if version == "" {
@@ -76,7 +76,6 @@ func verifyInstallation(tool string) {
 	fmt.Printf(constants.MsgInstallVerifying, tool)
 
 	if isVerified := verifyExeDirect(tool, expectedExePath(tool)); isVerified {
-
 		return
 	}
 
@@ -87,7 +86,6 @@ func verifyInstallation(tool string) {
 func verifyExePath(tool string) {
 	exePath := expectedExePath(tool)
 	if exePath == "" {
-
 		return
 	}
 
@@ -114,11 +112,10 @@ var windowsExeMap = map[string]string{
 // expectedExePath returns the expected binary path for a tool.
 func expectedExePath(tool string) string {
 	if runtime.GOOS != "windows" {
-
 		return ""
 	}
-	if path, isFound := windowsExeMap[tool]; isFound {
 
+	if path, isFound := windowsExeMap[tool]; isFound {
 		return path
 	}
 
@@ -128,11 +125,10 @@ func expectedExePath(tool string) string {
 func detectDirectExe(tool string) string {
 	exePath := expectedExePath(tool)
 	if exePath == "" {
-
 		return ""
 	}
-	if _, err := os.Stat(exePath); err == nil {
 
+	if _, err := os.Stat(exePath); err == nil {
 		return "installed (at " + exePath + ")"
 	}
 
@@ -142,11 +138,10 @@ func detectDirectExe(tool string) string {
 // detectInstalledVersion checks if a tool is already installed.
 func detectInstalledVersion(tool string) string {
 	if directPath := detectDirectExe(tool); directPath != "" {
-
 		return directPath
 	}
-	if isGUITool(tool) {
 
+	if isGUITool(tool) {
 		return ""
 	}
 
@@ -155,7 +150,6 @@ func detectInstalledVersion(tool string) string {
 
 func versionFlag(binary string) string {
 	if binary == "nginx" {
-
 		return "-v"
 	}
 
@@ -165,7 +159,6 @@ func versionFlag(binary string) string {
 func execVersion(path, flag string) string {
 	out, err := exec.Command(path, flag).CombinedOutput()
 	if err != nil {
-
 		return ""
 	}
 
@@ -176,7 +169,6 @@ func execVersion(path, flag string) string {
 func getInstalledVersion(binary string) string {
 	path := resolveToolBinaryPath(binary)
 	if path == "" {
-
 		return ""
 	}
 
@@ -215,7 +207,6 @@ var toolBinaryMap = map[string]string{
 // toolBinaryName maps tool names to their binary/executable names.
 func toolBinaryName(tool string) string {
 	if binary, isFound := toolBinaryMap[tool]; isFound {
-
 		return binary
 	}
 
@@ -225,11 +216,10 @@ func toolBinaryName(tool string) string {
 // runPostInstall executes post-install actions for specific tools.
 func runPostInstall(tool string) error {
 	if tool == constants.ToolGitLFS {
-
 		return runPostInstallGitLFS()
 	}
-	if tool == constants.ToolGit {
 
+	if tool == constants.ToolGit {
 		return runPostInstallGit()
 	}
 

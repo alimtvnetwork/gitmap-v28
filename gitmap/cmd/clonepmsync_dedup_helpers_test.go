@@ -70,6 +70,7 @@ func readProjectsJSONEntries(t *testing.T, path string) []map[string]any {
 	if err != nil && os.IsNotExist(err) {
 		return nil
 	}
+
 	if err != nil {
 		t.Fatalf("read %s: %v", path, err)
 	}

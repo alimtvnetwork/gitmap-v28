@@ -76,5 +76,6 @@ func TestTempReleaseListJSONContract_KeyOrder(t *testing.T) {
 	if err := encodeTempReleaseListJSON(&buf, releases); err != nil {
 		t.Fatalf("encode: %v", err)
 	}
+
 	assertSchemaKeysFirstObject(t, buf.Bytes(), "temp-release-list")
 }

@@ -15,6 +15,7 @@ func openTestDB(t *testing.T) *store.DB {
 	if err != nil {
 		t.Fatalf("failed to open test DB: %v", err)
 	}
+
 	if err := db.Migrate(); err != nil {
 		t.Fatalf("failed to migrate: %v", err)
 	}
@@ -160,6 +161,7 @@ func TestCompletePendingTask_MovesToCompleted(t *testing.T) {
 	if len(completed) != 1 {
 		t.Fatalf("expected 1 completed, got %d", len(completed))
 	}
+
 	if completed[0].OriginalTaskId != taskID {
 		t.Errorf("expected original ID %d, got %d", taskID, completed[0].OriginalTaskId)
 	}
@@ -208,6 +210,7 @@ func TestFailPendingTask_TaskRemainsPending(t *testing.T) {
 	if len(pending) != 1 {
 		t.Fatalf("expected 1 pending, got %d", len(pending))
 	}
+
 	if pending[0].ID != taskID {
 		t.Errorf("expected ID %d, got %d", taskID, pending[0].ID)
 	}
@@ -253,6 +256,7 @@ func TestPendingTask_FullLifecycle_FailThenComplete(t *testing.T) {
 	if len(completed) != 1 {
 		t.Fatalf("expected 1 completed, got %d", len(completed))
 	}
+
 	if completed[0].CommandArgs != "pull mylib --verbose" {
 		t.Errorf("expected cmdargs preserved, got %q", completed[0].CommandArgs)
 	}

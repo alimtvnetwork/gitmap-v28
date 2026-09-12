@@ -46,10 +46,12 @@ func TestDecideAutoFollowsEnvAndTTY(t *testing.T) {
 	if Decide(PrettyAuto, true, true) {
 		t.Fatal("PrettyAuto + GITMAP_NO_PRETTY must yield false even on a TTY")
 	}
+
 	_ = os.Unsetenv(EnvNoPretty)
 	if !Decide(PrettyAuto, true, true) {
 		t.Fatal("PrettyAuto + TTY + no env opt-out must yield true")
 	}
+
 	if Decide(PrettyAuto, false, true) {
 		t.Fatal("PrettyAuto + non-TTY must yield false")
 	}

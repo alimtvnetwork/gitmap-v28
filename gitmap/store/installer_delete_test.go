@@ -16,6 +16,7 @@ func TestDeleteInstallerStore(t *testing.T) {
 		TargetOS: "all",
 		Version:  "v1.0.0",
 	}
+
 	if err := db.CreateInstaller(script); err != nil {
 		t.Fatalf("CreateInstaller failed: %v", err)
 	}

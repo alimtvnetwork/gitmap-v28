@@ -32,6 +32,7 @@ func TestLFSCommonPatternsAreUnique(t *testing.T) {
 		if seen[p] {
 			t.Errorf("duplicate pattern in lfsCommonPatterns: %q", p)
 		}
+
 		seen[p] = true
 	}
 }

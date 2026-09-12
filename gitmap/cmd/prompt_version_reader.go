@@ -42,5 +42,6 @@ func ReadPromptArchitectMetadata(repoPath string) (model.PromptArchitectMetadata
 	if meta.Status == "" {
 		meta.Status = "active"
 	}
+
 	return meta, nil
 }

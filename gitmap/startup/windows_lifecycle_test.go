@@ -68,9 +68,11 @@ func TestWindowsLifecycle_RegistryFullSequence(t *testing.T) {
 	if err != nil {
 		t.Fatalf("first Add: %v", err)
 	}
+
 	if first.Status != AddCreated {
 		t.Fatalf("first Add status = %d, want AddCreated", first.Status)
 	}
+
 	assertRegistryListContains(t, valueName, originalExec)
 
 	// 2. Add (same name, no --force) → AddExists, value unchanged.
@@ -78,9 +80,11 @@ func TestWindowsLifecycle_RegistryFullSequence(t *testing.T) {
 	if err != nil {
 		t.Fatalf("idempotent Add: %v", err)
 	}
+
 	if idem.Status != AddExists {
 		t.Fatalf("idempotent Add status = %d, want AddExists", idem.Status)
 	}
+
 	assertRegistryListContains(t, valueName, originalExec)
 
 	// 3. Add (--force) → AddOverwritten, value updated to new exec.
@@ -89,9 +93,11 @@ func TestWindowsLifecycle_RegistryFullSequence(t *testing.T) {
 	if err != nil {
 		t.Fatalf("forced Add: %v", err)
 	}
+
 	if forced.Status != AddOverwritten {
 		t.Fatalf("forced Add status = %d, want AddOverwritten", forced.Status)
 	}
+
 	assertRegistryListContains(t, valueName, updatedExec)
 
 	// 4. Remove (managed) → RemoveDeleted, value gone from Run key.
@@ -99,9 +105,11 @@ func TestWindowsLifecycle_RegistryFullSequence(t *testing.T) {
 	if err != nil {
 		t.Fatalf("Remove: %v", err)
 	}
+
 	if rm.Status != RemoveDeleted {
 		t.Fatalf("Remove status = %d, want RemoveDeleted", rm.Status)
 	}
+
 	assertRegistryListMissing(t, valueName)
 
 	// 5. Remove (same name again) → RemoveNoOp. This is the
@@ -110,6 +118,7 @@ func TestWindowsLifecycle_RegistryFullSequence(t *testing.T) {
 	if err != nil {
 		t.Fatalf("second Remove: %v", err)
 	}
+
 	if rm2.Status != RemoveNoOp {
 		t.Fatalf("second Remove status = %d, want RemoveNoOp", rm2.Status)
 	}
@@ -123,6 +132,7 @@ func TestWindowsLifecycle_StartupFolderFullSequence(t *testing.T) {
 	if _, err := exec.LookPath("powershell.exe"); err != nil {
 		t.Skip("powershell.exe not on PATH; .lnk backend cannot be exercised")
 	}
+
 	dir := withIsolatedAppData(t)
 	name := uniqueName(t)
 	t.Cleanup(func() { cleanupRegistryEntry(t, name) })
@@ -138,12 +148,15 @@ func TestWindowsLifecycle_StartupFolderFullSequence(t *testing.T) {
 	if err != nil {
 		t.Fatalf("first Add: %v", err)
 	}
+
 	if first.Status != AddCreated {
 		t.Fatalf("first Add status = %d, want AddCreated", first.Status)
 	}
+
 	if _, err := os.Stat(lnkPath); err != nil {
 		t.Fatalf(".lnk not on disk after Add: %v", err)
 	}
+
 	assertStartupFolderListContains(t, name)
 
 	// 2. Add (idempotent) → AddExists, .lnk still present.
@@ -152,9 +165,11 @@ func TestWindowsLifecycle_StartupFolderFullSequence(t *testing.T) {
 	if err != nil {
 		t.Fatalf("idempotent Add: %v", err)
 	}
+
 	if idem.Status != AddExists {
 		t.Fatalf("idempotent Add status = %d, want AddExists", idem.Status)
 	}
+
 	if _, err := os.Stat(lnkPath); err != nil {
 		t.Fatalf(".lnk vanished after idempotent Add: %v", err)
 	}
@@ -165,9 +180,11 @@ func TestWindowsLifecycle_StartupFolderFullSequence(t *testing.T) {
 	if err != nil {
 		t.Fatalf("forced Add: %v", err)
 	}
+
 	if forced.Status != AddOverwritten {
 		t.Fatalf("forced Add status = %d, want AddOverwritten", forced.Status)
 	}
+
 	if _, err := os.Stat(lnkPath); err != nil {
 		t.Fatalf(".lnk missing after forced Add: %v", err)
 	}
@@ -177,9 +194,11 @@ func TestWindowsLifecycle_StartupFolderFullSequence(t *testing.T) {
 	if err != nil {
 		t.Fatalf("Remove: %v", err)
 	}
+
 	if rm.Status != RemoveDeleted {
 		t.Fatalf("Remove status = %d, want RemoveDeleted", rm.Status)
 	}
+
 	if _, err := os.Stat(lnkPath); !os.IsNotExist(err) {
 		t.Fatalf(".lnk still on disk after Remove: %v", err)
 	}
@@ -189,6 +208,7 @@ func TestWindowsLifecycle_StartupFolderFullSequence(t *testing.T) {
 	if err != nil {
 		t.Fatalf("second Remove: %v", err)
 	}
+
 	if rm2.Status != RemoveNoOp {
 		t.Fatalf("second Remove status = %d, want RemoveNoOp", rm2.Status)
 	}
@@ -208,6 +228,7 @@ func TestWindowsLifecycle_StartupFolderRefusesThirdParty(t *testing.T) {
 	if _, err := exec.LookPath("powershell.exe"); err != nil {
 		t.Skip("powershell.exe not on PATH; .lnk backend cannot be exercised")
 	}
+
 	dir := withIsolatedAppData(t)
 	name := uniqueName(t)
 	t.Cleanup(func() { cleanupRegistryEntry(t, name) })
@@ -224,13 +245,16 @@ func TestWindowsLifecycle_StartupFolderRefusesThirdParty(t *testing.T) {
 	if err != nil {
 		t.Fatalf("Add: %v", err)
 	}
+
 	if res.Status != AddRefused {
 		t.Fatalf("Add status = %d, want AddRefused", res.Status)
 	}
+
 	body, err := os.ReadFile(thirdParty)
 	if err != nil {
 		t.Fatalf("re-read third-party .lnk: %v", err)
 	}
+
 	if !bytes.Equal(body, original) {
 		t.Errorf("third-party .lnk modified: %q", body)
 	}
@@ -239,9 +263,11 @@ func TestWindowsLifecycle_StartupFolderRefusesThirdParty(t *testing.T) {
 	if err != nil {
 		t.Fatalf("Remove: %v", err)
 	}
+
 	if rm.Status != RemoveRefused {
 		t.Fatalf("Remove status = %d, want RemoveRefused", rm.Status)
 	}
+
 	if _, err := os.Stat(thirdParty); err != nil {
 		t.Fatalf("third-party .lnk deleted by Remove: %v", err)
 	}
@@ -257,6 +283,7 @@ func TestWindowsLifecycle_DualBackendListAggregation(t *testing.T) {
 	if _, err := exec.LookPath("powershell.exe"); err != nil {
 		t.Skip("powershell.exe not on PATH; .lnk backend cannot be exercised")
 	}
+
 	withIsolatedAppData(t)
 	regName := uniqueName(t) + "-reg"
 	folderName := uniqueName(t) + "-folder"
@@ -267,6 +294,7 @@ func TestWindowsLifecycle_DualBackendListAggregation(t *testing.T) {
 		Backend: BackendRegistry}); err != nil {
 		t.Fatalf("Add registry: %v", err)
 	}
+
 	if _, err := Add(AddOptions{Name: folderName,
 		Exec:    `C:\Windows\System32\notepad.exe`,
 		Backend: BackendStartupFolder}); err != nil {
@@ -285,14 +313,17 @@ func TestWindowsLifecycle_DualBackendListAggregation(t *testing.T) {
 		if e.Name == regWant {
 			sawReg = true
 		}
+
 		if e.Name == folderWant {
 			sawFolder = true
 		}
 	}
+
 	if !sawReg {
 		t.Errorf("registry entry %q missing from cross-backend List: %#v",
 			regWant, entries)
 	}
+
 	if !sawFolder {
 		t.Errorf("startup-folder entry %q missing from cross-backend List: %#v",
 			folderWant, entries)
@@ -309,15 +340,19 @@ func assertRegistryListContains(t *testing.T, valueName, exec string) {
 	if err != nil {
 		t.Fatalf("listWindowsRegistry: %v", err)
 	}
+
 	for _, e := range entries {
 		if e.Name != valueName {
 			continue
 		}
+
 		if e.Exec != exec {
 			t.Errorf("entry %q exec = %q, want %q", valueName, e.Exec, exec)
 		}
+
 		return
 	}
+
 	t.Errorf("entry %q not in registry list: %#v", valueName, entries)
 }
 
@@ -329,6 +364,7 @@ func assertRegistryListMissing(t *testing.T, valueName string) {
 	if err != nil {
 		t.Fatalf("listWindowsRegistry: %v", err)
 	}
+
 	for _, e := range entries {
 		if e.Name == valueName {
 			t.Errorf("entry %q still in registry list after Remove", valueName)
@@ -347,11 +383,13 @@ func assertStartupFolderListContains(t *testing.T, name string) {
 	if err != nil {
 		t.Fatalf("listWindowsStartupFolder: %v", err)
 	}
+
 	want := constants.StartupWinValuePrefix + name
 	for _, e := range entries {
 		if e.Name == want {
 			return
 		}
 	}
+
 	t.Errorf("entry %q not in startup-folder list: %#v", want, entries)
 }

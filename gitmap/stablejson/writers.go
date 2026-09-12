@@ -22,12 +22,14 @@ func writeArrayPretty(w io.Writer, buf *bytes.Buffer, items [][]Field, indent st
 		if err := writeObject(buf, obj, indent); err != nil {
 			return err
 		}
+
 		if i < len(items)-1 {
 			buf.WriteString(",\n")
 		} else {
 			buf.WriteString("\n")
 		}
 	}
+
 	buf.WriteString("]\n")
 	_, err := w.Write(buf.Bytes())
 
@@ -45,10 +47,12 @@ func writeArrayMinified(w io.Writer, buf *bytes.Buffer, items [][]Field) error {
 		if i > 0 {
 			buf.WriteByte(',')
 		}
+
 		if err := writeCompactObject(buf, obj); err != nil {
 			return err
 		}
 	}
+
 	buf.WriteString("]\n")
 	_, err := w.Write(buf.Bytes())
 
@@ -67,10 +71,12 @@ func writeCompactObject(buf *bytes.Buffer, fields []Field) error {
 		if i > 0 {
 			buf.WriteByte(',')
 		}
+
 		if err := writeKeyValue(buf, f, ""); err != nil {
 			return err
 		}
 	}
+
 	buf.WriteByte('}')
 
 	return nil
@@ -91,11 +97,14 @@ func writeObject(buf *bytes.Buffer, fields []Field, indent string) error {
 		if err := writeKeyValue(buf, f, " "); err != nil {
 			return err
 		}
+
 		if i < len(fields)-1 {
 			buf.WriteByte(',')
 		}
+
 		buf.WriteByte('\n')
 	}
+
 	buf.WriteString(outer + "}")
 
 	return nil
@@ -111,6 +120,7 @@ func writeKeyValue(buf *bytes.Buffer, f Field, colonSpace string) error {
 	if err != nil {
 		return fmt.Errorf("stablejson: encode key %q: %w", f.Key, err)
 	}
+
 	buf.Write(keyBytes)
 	buf.WriteByte(':')
 	buf.WriteString(colonSpace)
@@ -118,6 +128,7 @@ func writeKeyValue(buf *bytes.Buffer, f Field, colonSpace string) error {
 	if err != nil {
 		return fmt.Errorf("stablejson: encode value for key %q: %w", f.Key, err)
 	}
+
 	buf.Write(valBytes)
 
 	return nil

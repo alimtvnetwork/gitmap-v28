@@ -54,7 +54,6 @@ var chocoTestCases = []pkgTestCase{
 }
 
 func getChocoTestCases() []pkgTestCase {
-
 	return chocoTestCases
 }
 
@@ -99,7 +98,6 @@ var wingetTestCases = []pkgTestCase{
 }
 
 func getWingetTestCases() []pkgTestCase {
-
 	return wingetTestCases
 }
 
@@ -146,7 +144,6 @@ var aptTestCases = []pkgTestCase{
 }
 
 func getAptTestCases() []pkgTestCase {
-
 	return aptTestCases
 }
 
@@ -191,7 +188,6 @@ var brewTestCases = []pkgTestCase{
 }
 
 func getBrewTestCases() []pkgTestCase {
-
 	return brewTestCases
 }
 
@@ -218,7 +214,6 @@ var snapTestCases = []pkgTestCase{
 }
 
 func getSnapTestCases() []pkgTestCase {
-
 	return snapTestCases
 }
 
@@ -244,12 +239,15 @@ func TestSpecificPackageMappingsParity(t *testing.T) {
 	if constants.AptPkgOBS != "obs-studio" {
 		t.Errorf("expected AptPkgOBS 'obs-studio', got %q", constants.AptPkgOBS)
 	}
+
 	if constants.SnapPkgOBS != "obs-studio" {
 		t.Errorf("expected SnapPkgOBS 'obs-studio', got %q", constants.SnapPkgOBS)
 	}
+
 	if constants.AptPkgDbeaver != "dbeaver-ce" {
 		t.Errorf("expected AptPkgDbeaver 'dbeaver-ce', got %q", constants.AptPkgDbeaver)
 	}
+
 	if constants.SnapPkgDbeaver != "dbeaver-ce" {
 		t.Errorf("expected SnapPkgDbeaver 'dbeaver-ce', got %q", constants.SnapPkgDbeaver)
 	}

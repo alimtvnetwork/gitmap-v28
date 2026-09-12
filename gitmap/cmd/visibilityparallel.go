@@ -34,6 +34,7 @@ func applyBulkLoopParallel(
 	if workers <= 1 {
 		return applyBulkLoopSeq(ctx, target, matches, flags.Verbose, audit)
 	}
+
 	fmt.Fprintf(os.Stdout, constants.MsgBulkParallelFmt, workers)
 
 	total := len(matches)
@@ -41,10 +42,12 @@ func applyBulkLoopParallel(
 		i int
 		m visibility.MatchedRepo
 	}
+
 	jobs := make(chan job, total)
 	for i, m := range matches {
 		jobs <- job{i: i, m: m}
 	}
+
 	close(jobs)
 
 	var (
@@ -72,10 +75,12 @@ func applyBulkLoopParallel(
 				default:
 					failed++
 				}
+
 				mu.Unlock()
 			}
 		}()
 	}
+
 	wg.Wait()
 
 	return changed, skipped, failed

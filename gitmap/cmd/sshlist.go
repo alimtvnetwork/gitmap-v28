@@ -17,6 +17,7 @@ func runSSHList(args ...string) error {
 	if err != nil {
 		return apperror.WrapSimple(err, constants.ErrSSHQuery)
 	}
+
 	defer db.Close()
 
 	keys, err := db.ListSSHKeys()
@@ -50,6 +51,7 @@ func runSSHList(args ...string) error {
 
 		fmt.Fprintf(os.Stdout, constants.MsgSSHListRow, k.Name, k.PrivatePath, k.Fingerprint, created)
 	}
+
 	return nil
 }
 

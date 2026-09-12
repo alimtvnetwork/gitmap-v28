@@ -45,6 +45,7 @@ func (db *DB) SavePowerProfile(profile string, s power.Settings, isActive bool) 
 	if err := EnsurePowerTables(db.conn); err != nil {
 		return err
 	}
+
 	if err := db.maybeDeactivateProfiles(isActive); err != nil {
 		return err
 	}
@@ -74,6 +75,7 @@ func (db *DB) insertPowerProfile(profile string, s power.Settings, isActive bool
 	if isActive {
 		activeInt = 1
 	}
+
 	now := time.Now().UTC().Format(time.RFC3339)
 	neverInt, lockInt := boolToInt(s.IsNeverSleep), boolToInt(s.IsLockDisabled)
 	_, err := db.conn.Exec(sqlInsertPowerProfile, profile, s.Platform,
@@ -163,6 +165,7 @@ func (db *DB) ListPowerHistory(limit int) ([]PowerHistoryRecord, error) {
 	if err != nil {
 		return nil, apperror.WrapSimple(err, "store.listPowerHistory")
 	}
+
 	defer rows.Close()
 
 	return scanPowerHistoryRows(rows)
@@ -178,6 +181,7 @@ func scanPowerHistoryRows(rows *sql.Rows) ([]PowerHistoryRecord, error) {
 		if err != nil {
 			return nil, apperror.WrapSimple(err, "store.scanPowerHistory")
 		}
+
 		r.IsNeverSleep = neverInt == 1
 		records = append(records, r)
 	}

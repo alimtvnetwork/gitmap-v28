@@ -78,6 +78,7 @@ func runCloneFrom(args []string) error {
 
 		return nil
 	}
+
 	setCmdFaithfulVerify(cfg.verifyCmdFaithful)
 	setCmdFaithfulExitOnMismatch(cfg.verifyCmdFaithfulExitOnMismatch)
 	setCmdPrintArgv(cfg.printCloneArgv)
@@ -85,6 +86,7 @@ func runCloneFrom(args []string) error {
 	if err != nil {
 		return apperror.WrapSimple(err, "parse-manifest cfg.file")
 	}
+
 	applyCheckoutDefault(&plan, cfg.checkout)
 	if !cfg.execute {
 		runCloneFromDry(plan, cfg)
@@ -92,7 +94,9 @@ func runCloneFrom(args []string) error {
 
 		return nil
 	}
+
 	runCloneFromExecute(plan, cfg)
+
 	return nil
 }
 
@@ -116,6 +120,7 @@ func runCloneFromDry(plan clonefrom.Plan, cfg cloneFromFlags) error {
 	if err := render(os.Stdout, plan); err != nil {
 		return apperror.WrapSimple(err, "render-dry-run cfg.file")
 	}
+
 	return nil
 }
 
@@ -140,6 +145,7 @@ func runCloneFromExecute(plan clonefrom.Plan, cfg cloneFromFlags) error {
 	if cfg.quiet {
 		progress = io.Discard
 	}
+
 	// `--output terminal`: stream one standardized RepoTermBlock per
 	// row via ExecuteWithHooks's BeforeRow callback — printed
 	// IMMEDIATELY before that row's `git clone` shells out. This
@@ -152,6 +158,7 @@ func runCloneFromExecute(plan clonefrom.Plan, cfg cloneFromFlags) error {
 	if cfg.output == constants.OutputTerminal {
 		hook = printCloneFromTermBlockRow
 	}
+
 	// Dispatch sequential vs parallel on the resolved worker count.
 	// 0=auto becomes NumCPU at parse time, so any value reaching
 	// here is >=1. The concurrent runner short-circuits to
@@ -166,18 +173,22 @@ func runCloneFromExecute(plan clonefrom.Plan, cfg cloneFromFlags) error {
 			BeforeRow: hook,
 			Workers:   cfg.maxConcurrency,
 		}
+
 		results = clonefrom.ExecuteWithHooksConcurrent(concurrentParams)
 	} else {
 		results = clonefrom.ExecuteWithHooks(plan, "", progress, hook)
 	}
+
 	csvPath, jsonPath := writeCloneFromReports(results, cfg)
 	syncCloneFromResultsToVSCodePM(results, cfg.noVSCodeSync)
 	errRender := renderSummary(cfg.output, results, csvPath, jsonPath)
 	if errRender != nil {
 		cliexit.Reportf(constants.CmdCloneFrom, "render-summary", csvPath, errRender)
 	}
+
 	maybeExitOnCmdFaithfulMismatch()
 	cliexit.HandleError(nil, cloneFromExitCode(results))
+
 	return nil
 }
 
@@ -190,7 +201,6 @@ func runCloneFromExecute(plan clonefrom.Plan, cfg cloneFromFlags) error {
 func cloneFromExitCode(results []clonefrom.Result) int {
 	for _, r := range results {
 		if r.Status == constants.CloneFromStatusFailed {
-
 			return 1
 		}
 	}
@@ -207,13 +217,16 @@ func syncCloneFromResultsToVSCodePM(results []clonefrom.Result, skip bool) {
 		if r.Status != constants.CloneFromStatusOK {
 			continue
 		}
+
 		abs, err := filepath.Abs(r.Dest)
 		if err != nil {
 			abs = r.Dest
 		}
+
 		name := filepath.Base(abs)
 		pairs = append(pairs, buildClonePMPair(abs, name))
 	}
+
 	syncClonedReposToVSCodePM(pairs, skip)
 }
 
@@ -226,5 +239,6 @@ func renderSummary(output string, results []clonefrom.Result, csvPath, jsonPath 
 			JsonPath: jsonPath,
 		})
 	}
+
 	return clonefrom.RenderSummary(os.Stdout, results, csvPath)
 }

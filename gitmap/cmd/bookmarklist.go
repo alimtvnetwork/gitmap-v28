@@ -16,6 +16,7 @@ func runBookmarkList(args []string) error {
 	if err != nil {
 		return apperror.WrapSimple(err, "constants.ErrBookmarkQuery+")
 	}
+
 	defer db.Close()
 
 	records, err := db.ListBookmarks()
@@ -30,6 +31,7 @@ func runBookmarkList(args []string) error {
 	}
 
 	printBookmarkTerminal(records)
+
 	return nil
 }
 
@@ -69,10 +71,12 @@ func printBookmarkJSON(records []model.BookmarkRecord) {
 func runBookmarkDelete(args []string) error {
 	if len(args) < 1 {
 		fmt.Fprint(os.Stderr, constants.ErrBookmarkDelUsage)
+
 		return apperror.NewSimple("fatal error", "E9000")
 	}
 
 	name := args[0]
+
 	return deleteBookmarkFromDB(name)
 }
 
@@ -82,6 +86,7 @@ func deleteBookmarkFromDB(name string) *apperror.AppError {
 	if err != nil {
 		return apperror.WrapSimple(err, constants.ErrBookmarkDelete)
 	}
+
 	defer db.Close()
 
 	_, findErr := db.FindBookmarkByName(name)
@@ -95,5 +100,6 @@ func deleteBookmarkFromDB(name string) *apperror.AppError {
 	}
 
 	fmt.Printf(constants.MsgBookmarkDeleted, name)
+
 	return nil
 }

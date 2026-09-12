@@ -29,6 +29,7 @@ func TestClassifyTransport_Buckets(t *testing.T) {
 		{"   ", constants.ScanTransportOther},
 		{"   https://example.com/o/r.git  ", constants.ScanTransportHTTPS},
 	}
+
 	for _, tc := range cases {
 		if got := classifyTransport(tc.url); got != tc.want {
 			t.Errorf("classifyTransport(%q) = %q, want %q",
@@ -53,6 +54,7 @@ func TestClassifyTransport_MatchesClonefromTally(t *testing.T) {
 		"",
 		"not-a-url",
 	}
+
 	for _, u := range urls {
 		mine := classifyTransport(u)
 		theirs := tallyBucketFor(u)

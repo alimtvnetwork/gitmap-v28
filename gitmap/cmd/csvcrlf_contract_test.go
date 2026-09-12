@@ -39,12 +39,14 @@ func TestCSVCRLF_StartupList(t *testing.T) {
 			{Name: "gitmap-b", Path: "/p/b.desktop", Exec: "/bin/b --flag"},
 		}},
 	}
+
 	for _, tc := range cases {
 		t.Run(tc.name, func(t *testing.T) {
 			var buf bytes.Buffer
 			if err := encodeStartupListCSV(&buf, tc.entries); err != nil {
 				t.Fatalf("encode: %v", err)
 			}
+
 			assertCSVCommaCRLF(t, buf.Bytes())
 		})
 	}
@@ -63,10 +65,12 @@ func TestCSVCRLF_LatestBranch(t *testing.T) {
 			Subject:    "Initial commit",
 		},
 	}
+
 	var buf bytes.Buffer
 	if err := encodeLatestBranchCSV(&buf, items, "origin", 1); err != nil {
 		t.Fatalf("encode: %v", err)
 	}
+
 	assertCSVCommaCRLF(t, buf.Bytes())
 }
 
@@ -88,13 +92,16 @@ func assertCSVCommaCRLF(t *testing.T, got []byte) {
 	if !strings.Contains(s, "\r\n") {
 		t.Fatalf("expected CRLF line endings, got none in: %q", s)
 	}
+
 	if hasBareLF(s) {
 		t.Fatalf("found bare LF (not preceded by CR) — encoding/csv UseCRLF likely off: %q", s)
 	}
+
 	header, _, ok := strings.Cut(s, "\r\n")
 	if !ok {
 		t.Fatalf("output missing CRLF-terminated header: %q", s)
 	}
+
 	if !strings.Contains(header, ",") {
 		t.Fatalf("expected comma separator in header, got: %q", header)
 	}
@@ -108,6 +115,7 @@ func hasBareLF(s string) bool {
 		if s[i] != '\n' {
 			continue
 		}
+
 		if i == 0 || s[i-1] != '\r' {
 			return true
 		}

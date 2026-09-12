@@ -17,6 +17,7 @@ func mustResolveForTest(t *testing.T, kind string, langs ...string) []templates.
 		if err != nil {
 			t.Fatalf("Resolve(%s,%s): %v", kind, lang, err)
 		}
+
 		out = append(out, r)
 	}
 

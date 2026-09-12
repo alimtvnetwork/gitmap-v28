@@ -81,6 +81,7 @@ func executeAgySettingsExport(outPath string) error {
 	}
 
 	fmt.Printf("%s Exported Antigravity settings to %s\n", constants.ColorGreen+"✓"+constants.ColorReset, outPath)
+
 	return nil
 }
 
@@ -109,6 +110,7 @@ func executeAgySettingsImport(inPath string) error {
 	}
 
 	fmt.Printf("%s Successfully imported Antigravity settings from %s\n", constants.ColorGreen+"✓"+constants.ColorReset, inPath)
+
 	return nil
 }
 

@@ -31,10 +31,12 @@ func TestBuildInterleavedStreamSortsByAuthorDate(t *testing.T) {
 	if len(stream) != len(wantOrder) {
 		t.Fatalf("expected %d steps; got %d", len(wantOrder), len(stream))
 	}
+
 	for i, step := range stream {
 		if step.Commit.ShortSHA != wantOrder[i] {
 			t.Errorf("step %d: want SHA %s; got %s", i, wantOrder[i], step.Commit.ShortSHA)
 		}
+
 		if step.Direction != wantDirs[i] {
 			t.Errorf("step %d: want dir %s; got %s", i, wantDirs[i], step.Direction)
 		}

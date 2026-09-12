@@ -18,6 +18,7 @@ func runHasAnyUpdates(args []string) error {
 	isNonInsideGitRepo := !isInsideGitRepo()
 	if isNonInsideGitRepo {
 		fmt.Fprint(os.Stderr, constants.ErrHAUNotRepo)
+
 		return apperror.NewSimple("fatal error", "E9000")
 	}
 
@@ -32,6 +33,7 @@ func runHasAnyUpdates(args []string) error {
 	}
 
 	hauPrintResult(ahead, behind)
+
 	return nil
 }
 

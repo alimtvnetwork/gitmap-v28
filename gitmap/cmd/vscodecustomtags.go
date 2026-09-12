@@ -41,6 +41,7 @@ func stripVSCodeTagFlags(args []string) []string {
 
 			continue
 		}
+
 		add = append(add, valuesAdd...)
 		skip = append(skip, valuesSkip...)
 		marker = append(marker, valuesMarker...)
@@ -65,6 +66,7 @@ func matchTagFlag(args []string, i int) (consumed int, add, skip, marker []strin
 		if !hit {
 			continue
 		}
+
 		values := splitCommaList(value)
 		switch name {
 		case constants.FlagVSCodeTag:
@@ -75,6 +77,7 @@ func matchTagFlag(args []string, i int) (consumed int, add, skip, marker []strin
 			return took, nil, nil, values
 		}
 	}
+
 	_ = tok
 
 	return 0, nil, nil, nil
@@ -90,9 +93,11 @@ func matchSingleTagFlag(args []string, i int, name string) (hit bool, value stri
 		if tok == prefix && i+1 >= len(args) {
 			return true, "", 1
 		}
+
 		if tok == prefix {
 			return true, args[i+1], 2
 		}
+
 		if strings.HasPrefix(tok, prefix+"=") {
 			return true, strings.TrimPrefix(tok, prefix+"="), 1
 		}
@@ -115,6 +120,7 @@ func splitCommaList(raw string) []string {
 	if raw == "" {
 		return nil
 	}
+
 	parts := strings.Split(raw, ",")
 	out := make([]string, 0, len(parts))
 	for _, p := range parts {
@@ -148,5 +154,6 @@ func persistTagEnv(name string, values []string) {
 
 		return
 	}
+
 	os.Setenv(name, strings.Join(values, constants.EnvVSCodeTagSeparator))
 }

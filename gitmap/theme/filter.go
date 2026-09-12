@@ -30,10 +30,12 @@ func Filter(p []byte, mode ModeType) []byte {
 			out.Write(p[i:])
 			break
 		}
+
 		out.Write(p[i:start])
 		if mode == ModeStandard {
 			out.WriteString(downgrade(string(p[start : end+1])))
 		}
+
 		i = end + 1
 	}
 
@@ -48,10 +50,12 @@ func nextSGR(p []byte, off int) (start, end int, ok bool) {
 		if p[i] != esc || p[i+1] != '[' {
 			continue
 		}
+
 		for j := i + 2; j < len(p); j++ {
 			if p[j] == sgrEnd {
 				return i, j, true
 			}
+
 			if !isSGRParam(p[j]) {
 				break
 			}

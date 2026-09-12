@@ -18,6 +18,7 @@ func computeOneStatus(rec model.ScanRecord, s *statusSummary) statusRow {
 	}
 
 	s.Missing++
+
 	return statusRow{
 		Missing:  true,
 		RepoName: rec.RepoName,
@@ -46,6 +47,7 @@ func formatStateIcon(dirty bool, s *statusSummary) string {
 
 		return constants.ColorYellow + constants.StatusIconDirty + constants.ColorReset
 	}
+
 	s.Clean++
 
 	return constants.ColorGreen + constants.StatusIconClean + constants.ColorReset
@@ -70,6 +72,7 @@ func formatSyncSingle(ahead, behind int, s *statusSummary) string {
 
 		return fmt.Sprintf("%s"+constants.StatusSyncUpFmt+"%s", constants.ColorCyan, ahead, constants.ColorReset)
 	}
+
 	if behind > 0 {
 		s.Behind++
 
@@ -107,9 +110,11 @@ func buildFileCountParts(rs gitutil.RepoStatus) string {
 	if rs.Staged > 0 {
 		parts = append(parts, fmt.Sprintf("%s"+constants.StatusStagedFmt+"%s", constants.ColorGreen, rs.Staged, constants.ColorReset))
 	}
+
 	if rs.Modified > 0 {
 		parts = append(parts, fmt.Sprintf("%s"+constants.StatusModifiedFmt+"%s", constants.ColorYellow, rs.Modified, constants.ColorReset))
 	}
+
 	if rs.Untracked > 0 {
 		parts = append(parts, fmt.Sprintf("%s"+constants.StatusUntrackedFmt+"%s", constants.ColorDim, rs.Untracked, constants.ColorReset))
 	}

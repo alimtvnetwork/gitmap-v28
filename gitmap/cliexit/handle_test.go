@@ -29,12 +29,15 @@ func TestWriteAppErrorReport_FormatsCompleteDiagnostics(t *testing.T) {
 	if !strings.Contains(rendered, "[E3001:NOT_FOUND]") {
 		t.Errorf("missing code or type in output: %s", rendered)
 	}
+
 	if !strings.Contains(rendered, "creator: cfgloader") {
 		t.Errorf("missing creator attribution: %s", rendered)
 	}
+
 	if !strings.Contains(rendered, "path:/etc/gitmap.json") && !strings.Contains(rendered, "path: /etc/gitmap.json") {
 		t.Errorf("missing context path: %s", rendered)
 	}
+
 	if !strings.Contains(rendered, "file not accessible") {
 		t.Errorf("missing underlying cause: %s", rendered)
 	}
@@ -119,6 +122,7 @@ func TestFailWith_InvokesExitFunc(t *testing.T) {
 		Op:      "testop",
 		Err:     errors.New("test err"),
 	}
+
 	FailWith(ctx, OutputHuman, 5)
 	if capturedCode != 5 {
 		t.Fatalf("expected exit code 5, got %d", capturedCode)

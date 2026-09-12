@@ -105,6 +105,7 @@ func TestBrowserSelection(t *testing.T) {
 	if len(sel) != 1 {
 		t.Fatalf("expected 1 selected, got %d", len(sel))
 	}
+
 	if sel[0].Slug != "alpha" {
 		t.Fatalf("expected alpha selected, got %s", sel[0].Slug)
 	}
@@ -149,6 +150,7 @@ func TestBrowserSearch(t *testing.T) {
 	if len(b.filtered) != 1 {
 		t.Fatalf("expected 1 match for 'alp', got %d", len(b.filtered))
 	}
+
 	if b.filtered[0].Slug != "alpha" {
 		t.Fatalf("expected alpha, got %s", b.filtered[0].Slug)
 	}

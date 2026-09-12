@@ -56,6 +56,7 @@ func GetSSHConnections(ctx context.Context, db *sql.DB) ([]SSHConnection, *apper
 	if err != nil {
 		return nil, apperror.WrapSimple(err, "GetSSHConnections.Query")
 	}
+
 	defer rows.Close()
 
 	return scanSSHConnectionRows(rows)
@@ -68,8 +69,10 @@ func scanSSHConnectionRows(rows *sql.Rows) ([]SSHConnection, *apperror.AppError)
 		if err := rows.Scan(&c.Alias, &c.IPAddress, &c.Username, &c.EncryptedPassword, &c.KeyPath, &c.OS, &c.CreatedAt); err != nil {
 			return nil, apperror.WrapSimple(err, "scanSSHConnectionRows.Scan")
 		}
+
 		conns = append(conns, c)
 	}
+
 	if err := rows.Err(); err != nil {
 		return nil, apperror.WrapSimple(err, "scanSSHConnectionRows.Rows")
 	}

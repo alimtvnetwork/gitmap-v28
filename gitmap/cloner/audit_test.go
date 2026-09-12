@@ -34,12 +34,14 @@ func TestPlanCloneAudit_ClassifiesEveryRecordType(t *testing.T) {
 			RepoName: "no-url", RelativePath: "no-url",
 		},
 	}
+
 	source := writeJSONManifest(t, records)
 
 	report, err := PlanCloneAudit(source, target)
 	if err != nil {
 		t.Fatalf("PlanCloneAudit: %v", err)
 	}
+
 	if len(report.Entries) != 3 {
 		t.Fatalf("entries = %d, want 3", len(report.Entries))
 	}
@@ -50,6 +52,7 @@ func TestPlanCloneAudit_ClassifiesEveryRecordType(t *testing.T) {
 			t.Errorf("entry[%d].Action = %q, want %q", i, got, w)
 		}
 	}
+
 	if report.Counts[AuditActionClone] != 1 ||
 		report.Counts[AuditActionConflict] != 1 ||
 		report.Counts[AuditActionInvalid] != 1 {
@@ -75,6 +78,7 @@ func TestPlanCloneAudit_PullsExistingRepo(t *testing.T) {
 	if err != nil {
 		t.Fatalf("PlanCloneAudit: %v", err)
 	}
+
 	if got := report.Entries[0].Action; got != AuditActionPull {
 		t.Fatalf("Action = %q, want %q", got, AuditActionPull)
 	}
@@ -89,10 +93,12 @@ func TestBuildAuditCommand_BranchOptIn(t *testing.T) {
 	if !strings.Contains(withBranch, "-b main https://x/r.git /d") {
 		t.Errorf("withBranch = %q, missing branch flag form", withBranch)
 	}
+
 	noBranch := buildAuditCommand("https://x/r.git", "/d", cloneStrategy{})
 	if strings.Contains(noBranch, "-b ") {
 		t.Errorf("noBranch = %q, must not contain -b", noBranch)
 	}
+
 	if !strings.Contains(noBranch, "https://x/r.git /d") {
 		t.Errorf("noBranch = %q, missing url+dest", noBranch)
 	}
@@ -112,10 +118,12 @@ func TestCloneAuditReport_PrintFormatsRows(t *testing.T) {
 		},
 		Counts: map[AuditActionType]int{AuditActionClone: 1, AuditActionInvalid: 1},
 	}
+
 	var buf bytes.Buffer
 	if err := report.Print(&buf); err != nil {
 		t.Fatalf("Print: %v", err)
 	}
+
 	out := buf.String()
 	wantSubs := []string{
 		"clone audit:", "manifest.json", "records=2",
@@ -123,6 +131,7 @@ func TestCloneAuditReport_PrintFormatsRows(t *testing.T) {
 		"! invalid bad",
 		"+clone=1", "!invalid=1",
 	}
+
 	for _, s := range wantSubs {
 		if !strings.Contains(out, s) {
 			t.Errorf("output missing %q\nfull:\n%s", s, out)
@@ -140,6 +149,7 @@ func TestActionMarker_StableMapping(t *testing.T) {
 		AuditActionInvalid:  "!",
 		AuditActionConflict: "?",
 	}
+
 	for action, want := range cases {
 		if got := actionMarker(action); got != want {
 			t.Errorf("actionMarker(%q) = %q, want %q", action, got, want)
@@ -164,8 +174,10 @@ func writeJSONManifest(t *testing.T, records []model.ScanRecord) string {
 	if err != nil {
 		t.Fatalf("marshal: %v", err)
 	}
+
 	if err := os.WriteFile(path, data, 0o644); err != nil {
 		t.Fatalf("write: %v", err)
 	}
+
 	return path
 }

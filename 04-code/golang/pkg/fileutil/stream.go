@@ -15,6 +15,7 @@ func StreamJSON[T any](path string, handler func(T) *appfault.AppError) result.W
 	if fRes.HasError() {
 		return result.WrapFailure[bool](fRes.Fault())
 	}
+
 	f := fRes.Data()
 	defer f.Close()
 
@@ -25,6 +26,7 @@ func StreamJSON[T any](path string, handler func(T) *appfault.AppError) result.W
 	if err != nil {
 		return result.WrapFailure[bool](appfault.Wrap(errtype.Serialization, err, "failed to read JSON array start in: "+path))
 	}
+
 	if delim, ok := t.(json.Delim); !ok || delim != '[' {
 		return result.WrapFailureWithId[bool](errtype.Serialization, "StreamJSON requires the root element to be a JSON array")
 	}

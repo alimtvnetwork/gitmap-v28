@@ -29,9 +29,11 @@ func runRepoDB(args []string) error {
 		return handleRepoDBOptimize(args[1:])
 	case "help", "-h", "--help":
 		printRepoDBHelp()
+
 		return nil
 	default:
 		printRepoDBHelp()
+
 		return fmt.Errorf("unknown repo db subcommand: %s", sub)
 	}
 }

@@ -75,8 +75,10 @@ func assertWriterDeterministicOn(t fataler, label string, writer WriterFn) {
 	if err != nil {
 		t.Fatalf("goldenguard: writer %q failed during determinism check: %v",
 			label, err)
+
 		return
 	}
+
 	assertAllRunsEqualOn(t, label, runs)
 }
 
@@ -91,8 +93,10 @@ func collectWriterRuns(writer WriterFn) ([][]byte, error) {
 		if err != nil {
 			return nil, fmt.Errorf("run %d/%d: %w", i+1, determinismRunCount, err)
 		}
+
 		out = append(out, b)
 	}
+
 	return out, nil
 }
 
@@ -116,9 +120,11 @@ func assertAllRunsEqualOn(t fataler, label string, runs [][]byte) {
 		if bytes.Equal(runs[0], runs[i]) {
 			continue
 		}
+
 		t.Fatalf(nonDeterministicWriterMsgFmt,
 			label, i+1, len(runs[0]), len(runs[i]),
 			snippet(runs[0]), i+1, snippet(runs[i]))
+
 		return
 	}
 }
@@ -130,6 +136,7 @@ func snippet(b []byte) string {
 	if len(b) > determinismMaxDiffBytes {
 		return fmt.Sprintf("%q… (truncated)", b[:determinismMaxDiffBytes])
 	}
+
 	return fmt.Sprintf("%q", b)
 }
 
@@ -144,6 +151,8 @@ func AllowUpdateAfterDeterminism(t *testing.T, trigger bool, label string, write
 	if !trigger {
 		return false
 	}
+
 	AssertWriterDeterministic(t, label, writer)
+
 	return AllowUpdate(t, trigger)
 }

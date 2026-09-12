@@ -14,6 +14,7 @@ func TestRunRefGenerator(t *testing.T) {
 	if err != nil {
 		t.Fatalf("Failed to open memory db: %v", err)
 	}
+
 	defer db.Close()
 
 	_, err = db.Exec(`CREATE TABLE ClusterRun (
@@ -33,6 +34,7 @@ func TestRunRefGenerator(t *testing.T) {
 	if err != nil && (strings.Contains(err.Error(), "cgo") || strings.Contains(err.Error(), "CGO_ENABLED")) {
 		t.Skip("Skipping test due to CGO requirement for sqlite3")
 	}
+
 	if err != nil {
 		t.Fatalf("Failed to create table: %v", err)
 	}

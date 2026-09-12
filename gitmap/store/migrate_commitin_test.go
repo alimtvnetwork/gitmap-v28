@@ -18,10 +18,12 @@ func openTempDB(t *testing.T) *DB {
 	if err != nil {
 		t.Fatalf("openDBAt: %v", err)
 	}
+
 	t.Cleanup(func() { _ = db.Close() })
 	if err := db.Migrate(); err != nil {
 		t.Fatalf("Migrate: %v", err)
 	}
+
 	return db
 }
 
@@ -43,6 +45,7 @@ func TestCommitInMigrationCreatesAllTables(t *testing.T) {
 		// Migration 007 — tag replay map (spec §09).
 		"CommitInReplayMap", "TagReplayOutcome",
 	}
+
 	for _, name := range wantTables {
 		if !db.tableExists(name) {
 			t.Errorf("commit-in: table %q is missing after Migrate()", name)
@@ -70,6 +73,7 @@ func TestCommitInMigrationSeedsEnumMirrors(t *testing.T) {
 		{"ConflictMode", []string{"ForceMerge", "Prompt"}},
 		{"TagReplayOutcome", []string{"AlreadyExists", "Created", "CreatedDryRun", "Failed", "Skipped"}},
 	}
+
 	for _, tc := range cases {
 		got := selectNames(t, db, tc.table)
 		if !equalSorted(got, tc.want) {
@@ -88,6 +92,7 @@ func TestCommitInMigrationIsIdempotent(t *testing.T) {
 	if err := db.migrateCommitIn(); err != nil {
 		t.Fatalf("second migrateCommitIn: %v", err)
 	}
+
 	after := selectNames(t, db, "RunStatus")
 	if !equalSorted(before, after) {
 		t.Errorf("commit-in migration is not idempotent:\n  before: %v\n  after : %v",
@@ -103,6 +108,7 @@ func selectNames(t *testing.T, db *DB, table string) []string {
 	if err != nil {
 		t.Fatalf("SELECT Name FROM %s: %v", table, err)
 	}
+
 	defer rows.Close()
 	var out []string
 	for rows.Next() {
@@ -110,9 +116,12 @@ func selectNames(t *testing.T, db *DB, table string) []string {
 		if err := rows.Scan(&name); err != nil {
 			t.Fatalf("scan %s: %v", table, err)
 		}
+
 		out = append(out, name)
 	}
+
 	sort.Strings(out)
+
 	return out
 }
 
@@ -120,10 +129,12 @@ func equalSorted(a, b []string) bool {
 	if len(a) != len(b) {
 		return false
 	}
+
 	for i := range a {
 		if a[i] != b[i] {
 			return false
 		}
 	}
+
 	return true
 }

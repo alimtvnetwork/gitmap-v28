@@ -31,6 +31,7 @@ func detectRemoteHEAD(url string) string {
 	if len(strings.TrimSpace(url)) == 0 {
 		return ""
 	}
+
 	ctx, cancel := context.WithTimeout(
 		context.Background(), constants.CloneTermDetectTimeout)
 	defer cancel()
@@ -59,6 +60,7 @@ func parseSymrefHEAD(raw string) string {
 		if !strings.HasPrefix(line, "ref:") {
 			continue
 		}
+
 		fields := strings.Fields(line)
 		if len(fields) < 2 {
 			return ""

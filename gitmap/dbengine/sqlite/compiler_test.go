@@ -10,9 +10,11 @@ func TestCompiler_Basics(t *testing.T) {
 	if c.Dialect() != "sqlite" {
 		t.Errorf("expected sqlite dialect, got %s", c.Dialect())
 	}
+
 	if c.Placeholder(1) != "?" {
 		t.Errorf("expected ?, got %s", c.Placeholder(1))
 	}
+
 	if c.QuoteIdentifier("User") != "\"User\"" {
 		t.Errorf("expected \"User\", got %s", c.QuoteIdentifier("User"))
 	}
@@ -24,9 +26,11 @@ func TestCompiler_Pagination(t *testing.T) {
 	if c.CompilePagination(0, 0) != "" {
 		t.Errorf("expected empty pagination for 0,0, got %s", c.CompilePagination(0, 0))
 	}
+
 	if c.CompilePagination(10, 0) != "LIMIT 10" {
 		t.Errorf("expected LIMIT 10, got %s", c.CompilePagination(10, 0))
 	}
+
 	if c.CompilePagination(10, 20) != "LIMIT 10 OFFSET 20" {
 		t.Errorf("expected LIMIT 10 OFFSET 20, got %s", c.CompilePagination(10, 20))
 	}

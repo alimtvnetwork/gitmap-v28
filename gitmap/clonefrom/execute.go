@@ -122,11 +122,13 @@ func runRowLifecycle(params RowLifecycleParams) Result {
 	if isFailed {
 		return makeFailedResult(FailedResultParams{Row: params.Row, Dest: params.Dest, Detail: detail, Start: params.Start})
 	}
+
 	coDetail, coOK := runPostCloneCheckout(params.Row, params.Dest, params.Cwd)
 	isCheckoutFailed := !coOK
 	if isCheckoutFailed {
 		return makeFailedResult(FailedResultParams{Row: params.Row, Dest: params.Dest, Detail: coDetail, Start: params.Start})
 	}
+
 	return Result{Row: params.Row, Dest: params.Dest, Status: constants.CloneFromStatusOK,
 		Detail: "", Duration: time.Since(params.Start)}
 }
@@ -137,6 +139,7 @@ func prepareAndClone(params PrepareCloneParams) (string, bool) {
 	if isParentFailed {
 		return detail, false
 	}
+
 	return runGitClone(params.Row, params.Dest, params.Cwd)
 }
 
@@ -159,6 +162,7 @@ func runGitClone(r Row, dest, cwd string) (string, bool) {
 	if isSuccess {
 		return "", true
 	}
+
 	return handleGitCloneError(dest, string(out), err)
 }
 
@@ -166,6 +170,7 @@ func execGitClone(r Row, dest, cwd string) ([]byte, error) {
 	args := buildGitArgs(r, dest)
 	cmd := exec.Command(constants.GitBin, args...)
 	cmd.Dir = cwd
+
 	return cmd.CombinedOutput()
 }
 
@@ -181,6 +186,7 @@ func handleGitCloneError(dest, outputStr string, err error) (string, bool) {
 
 		return tryLfsAutoFix(fixParams)
 	}
+
 	return trimGitError(outputStr, err), false
 }
 
@@ -199,6 +205,7 @@ func tryLfsAutoFix(params LfsFixParams) (string, bool) {
 	if isDeclined {
 		return trimGitError(params.OutputStr, params.OriginalErr), false
 	}
+
 	return applyLfsFix(params)
 }
 
@@ -208,6 +215,7 @@ func applyLfsFix(params LfsFixParams) (string, bool) {
 	if isFixFailed {
 		return trimGitError(params.OutputStr+"\n[LFS Fix Failed: "+fixErr.Error()+"]", params.OriginalErr), false
 	}
+
 	return "", true
 }
 
@@ -216,11 +224,13 @@ func resolveCwd(cwd string) string {
 	if hasCwd {
 		return cwd
 	}
+
 	wd, err := os.Getwd()
 	isSuccess := err == nil
 	if isSuccess {
 		return wd
 	}
+
 	return ""
 }
 
@@ -231,6 +241,7 @@ func buildGitArgs(r Row, dest string) []string {
 	args = appendBranchArg(args, r.Branch)
 	args = appendDepthArg(args, r.Depth)
 	args = appendCheckoutArg(args, r)
+
 	return append(args, r.URL, dest)
 }
 
@@ -239,6 +250,7 @@ func appendBranchArg(args []string, branch string) []string {
 	if hasBranch {
 		return append(args, constants.GitBranchFlag, branch)
 	}
+
 	return args
 }
 
@@ -247,6 +259,7 @@ func appendDepthArg(args []string, depth int) []string {
 	if hasDepth {
 		return append(args, fmt.Sprintf(constants.CloneFromDepthFlagFmt, depth))
 	}
+
 	return args
 }
 
@@ -255,6 +268,7 @@ func appendCheckoutArg(args []string, r Row) []string {
 	if isSkipCheckout {
 		return append(args, constants.CloneFromNoCheckoutFlag)
 	}
+
 	return args
 }
 
@@ -266,6 +280,7 @@ func trimGitError(stderr string, err error) string {
 	if isExceedingLimit {
 		return last[:constants.CloneFromErrTrimLimit] + "..."
 	}
+
 	return last
 }
 
@@ -276,11 +291,13 @@ func extractLastStderrLine(stderr string, err error) string {
 	if hasNewline {
 		last = strings.TrimSpace(stderr)[idx+1:]
 	}
+
 	last = strings.TrimSpace(last)
 	isEmpty := len(last) == 0
 	if isEmpty {
 		return err.Error()
 	}
+
 	return last
 }
 
@@ -290,5 +307,6 @@ func writeProgress(w io.Writer, n, total int, res Result) {
 	if isNilWriter {
 		return
 	}
+
 	fmt.Fprintf(w, "  [%d/%d] %-7s %s\n", n, total, res.Status, res.Row.URL)
 }

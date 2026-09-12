@@ -25,15 +25,19 @@ func runInstallCtxLinux() error {
 		managers++
 		ok += len(flat)
 	}
+
 	if installDolphin(flat, exe) {
 		managers++
 		ok += len(flat)
 	}
+
 	if installThunar(flat, exe) {
 		managers++
 		ok += len(flat)
 	}
+
 	fmt.Printf(constants.MsgCtxLinuxInstallDone, ok, managers)
+
 	return nil
 }
 
@@ -48,11 +52,13 @@ func runUninstallCtxLinux() error {
 
 		return nil
 	}
+
 	ok := 0
 	ok += rmDirCtx(filepath.Join(home, constants.CtxLinuxNautilusRel))
 	ok += rmFileCtx(filepath.Join(home, constants.CtxLinuxDolphinRel, constants.CtxLinuxDolphinFile))
 	ok += stripThunarBlock(filepath.Join(home, constants.CtxLinuxThunarRel))
 	fmt.Printf(constants.MsgCtxLinuxUninstallDone, ok)
+
 	return nil
 }
 
@@ -64,12 +70,14 @@ func installNautilus(flat []flatCtxEntry, exe string) bool {
 	if err != nil {
 		return false
 	}
+
 	dir := filepath.Join(home, constants.CtxLinuxNautilusRel)
 	if err := os.MkdirAll(dir, 0o755); err != nil {
 		fmt.Fprintf(os.Stderr, constants.MsgCtxFsWriteFail, dir, err)
 
 		return false
 	}
+
 	for _, e := range flat {
 		path := filepath.Join(dir, e.Label)
 		if err := os.WriteFile(path, []byte(linuxShellScript(e, exe)), 0o755); err != nil {
@@ -87,12 +95,14 @@ func installDolphin(flat []flatCtxEntry, exe string) bool {
 	if err != nil {
 		return false
 	}
+
 	dir := filepath.Join(home, constants.CtxLinuxDolphinRel)
 	if err := os.MkdirAll(dir, 0o755); err != nil {
 		fmt.Fprintf(os.Stderr, constants.MsgCtxFsWriteFail, dir, err)
 
 		return false
 	}
+
 	path := filepath.Join(dir, constants.CtxLinuxDolphinFile)
 	body := dolphinDesktop(flat, exe)
 	if err := os.WriteFile(path, []byte(body), 0o644); err != nil {
@@ -112,6 +122,7 @@ func linuxShellScript(e flatCtxEntry, exe string) string {
 	if e.Exe != "" {
 		target = e.Exe
 	}
+
 	cd := `D="${1:-$PWD}"; cd "$D" || exit 1`
 	guard := extendedGuard(e)
 	echoSh := ctxExplainPrefixSh(target, e.Args)
@@ -135,6 +146,7 @@ func extendedGuard(e flatCtxEntry) string {
 	if !e.Extended {
 		return ""
 	}
+
 	msg := fmt.Sprintf("Run %s on every tracked repo? This is a power-user batch action.", e.Label)
 
 	return fmt.Sprintf(`{ zenity --question --text=%q 2>/dev/null || kdialog --yesno %q 2>/dev/null || xmessage -buttons Cancel:1,Run:0 %q 2>/dev/null; } || exit 0
@@ -164,10 +176,12 @@ func dolphinExec(e flatCtxEntry, exe string) string {
 	if e.Exe != "" {
 		target = e.Exe
 	}
+
 	guard := strings.TrimRight(extendedGuard(e), "\n")
 	if guard != "" {
 		guard += " && "
 	}
+
 	echoSh := ctxExplainPrefixSh(target, e.Args)
 	announce := ctxExplainAnnounce(target, e.Args)
 	switch e.Mode {

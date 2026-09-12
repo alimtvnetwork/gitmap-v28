@@ -59,6 +59,7 @@ func TestParsePowercfgSettingIndex(t *testing.T) {
 	if err != nil {
 		t.Fatalf("ParsePowercfgSettingIndex failed: %v", err)
 	}
+
 	if sec != 300 {
 		t.Errorf("Expected 300 seconds, got %d", sec)
 	}
@@ -72,9 +73,11 @@ func TestParsePowercfgSettingIndex(t *testing.T) {
 	if err != nil {
 		t.Fatalf("ParsePowercfgSettingIndex failed: %v", err)
 	}
+
 	if secZero != 0 {
 		t.Errorf("Expected 0 seconds, got %d", secZero)
 	}
+
 	if ConvertSecondsToMinutes(secZero) != 0 {
 		t.Errorf("Expected 0 minutes, got %d", ConvertSecondsToMinutes(secZero))
 	}
@@ -124,12 +127,15 @@ func TestMockRunner_DriverInteraction(t *testing.T) {
 		if strings.Contains(cmdLine, "SUB_VIDEO") {
 			return []byte("GUID Alias: VIDEOIDLE\nCurrent AC Power Setting Index: 0x00000000\n"), nil
 		}
+
 		if strings.Contains(cmdLine, "SUB_SLEEP") {
 			return []byte("GUID Alias: STANDBYIDLE\nCurrent AC Power Setting Index: 0x00000000\n"), nil
 		}
+
 		if strings.Contains(cmdLine, "pmset") {
 			return []byte("displaysleep 0\nsleep 0\n"), nil
 		}
+
 		if strings.Contains(cmdLine, "gsettings") {
 			return []byte("uint32 0\n"), nil
 		}

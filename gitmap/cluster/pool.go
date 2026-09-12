@@ -55,6 +55,7 @@ func RunPool(
 	for _, node := range nodes {
 		workCh <- node
 	}
+
 	close(workCh)
 
 	var wg sync.WaitGroup
@@ -70,6 +71,7 @@ func RunPool(
 		if isCancelled {
 			sk = totalNodes - (s + f)
 		}
+
 		if dbConn != nil {
 			now := time.Now()
 			_ = db.UpdateClusterRun(ctx, dbConn, runId, &now, &totalNodes, &s, &f, &sk)
@@ -110,10 +112,12 @@ func RunPool(
 			for _, sc := range subCmds {
 				cmdParts = append(cmdParts, sc.Kind.String())
 			}
+
 			displayCmd := strings.Join(cmdParts, " ")
 			if len(subCmds) == 1 {
 				displayCmd = subCmds[0].RawArg
 			}
+
 			if len(subCmds) == 1 && displayCmd == "" {
 				displayCmd = subCmds[0].Kind.String()
 			}
@@ -146,6 +150,7 @@ func RunPool(
 				if dbConn != nil {
 					id, dbErr = db.InsertClusterExecResult(ctx, dbConn, res)
 				}
+
 				if dbConn != nil && dbErr == nil {
 					res.ClusterExecResultId = id
 				}
@@ -154,6 +159,7 @@ func RunPool(
 				if verbose && res.Stdout != nil && *res.Stdout != "" {
 					lines = strings.Split(*res.Stdout, "\n")
 				}
+
 				for _, line := range lines {
 					if line != "" {
 						pterm.Info.Printf("%s %s\n", nodeLabel, line)
@@ -173,6 +179,7 @@ func RunPool(
 			if allOk && lastRes.DurationMs != nil {
 				durMs = *lastRes.DurationMs
 			}
+
 			exitCode := 1
 			if !allOk && lastRes.ExitCode != nil {
 				exitCode = *lastRes.ExitCode
@@ -182,12 +189,15 @@ func RunPool(
 			if isSkp {
 				skipped++
 			}
+
 			if isSucc {
 				succeeded++
 			}
+
 			if isFail {
 				failed++
 			}
+
 			mu.Unlock()
 		}
 	}
@@ -202,6 +212,7 @@ func RunPool(
 	if ctx.Err() == nil {
 		finishClusterPool(&multi, isMultiActive, updateCounts, runId, totalNodes, succeeded, failed, skipped)
 	}
+
 	close(resultCh)
 }
 
@@ -216,37 +227,48 @@ func reportNodeExecutionResult(
 ) (bool, bool, bool) {
 	if ctxErr != nil {
 		reportNodeSkipped(spinner, nodeLabel)
+
 		return true, false, false
 	}
+
 	if allOk {
 		reportNodeSuccess(spinner, nodeLabel, displayCmd, durMs)
+
 		return false, true, false
 	}
+
 	reportNodeFailure(spinner, nodeLabel, displayCmd, exitCode)
+
 	return false, false, true
 }
 
 func reportNodeSkipped(spinner *pterm.SpinnerPrinter, nodeLabel string) {
 	if spinner != nil {
 		spinner.Warning(fmt.Sprintf("%s Skipped", nodeLabel))
+
 		return
 	}
+
 	pterm.Warning.Printf("%s Skipped\n", nodeLabel)
 }
 
 func reportNodeSuccess(spinner *pterm.SpinnerPrinter, nodeLabel, displayCmd string, durMs int) {
 	if spinner != nil {
 		spinner.Success(fmt.Sprintf("%s %s (%dms, exit 0)", nodeLabel, displayCmd, durMs))
+
 		return
 	}
+
 	pterm.Success.Printf("%s %s (%dms, exit 0)\n", nodeLabel, displayCmd, durMs)
 }
 
 func reportNodeFailure(spinner *pterm.SpinnerPrinter, nodeLabel, displayCmd string, exitCode int) {
 	if spinner != nil {
 		spinner.Fail(fmt.Sprintf("%s %s (exit %d)", nodeLabel, displayCmd, exitCode))
+
 		return
 	}
+
 	pterm.Error.Printf("%s %s (exit %d)\n", nodeLabel, displayCmd, exitCode)
 }
 
@@ -259,6 +281,7 @@ func finishClusterPool(
 	if isMultiActive {
 		multi.Stop()
 	}
+
 	fmt.Printf("\n┌ Cluster Run RUN-%d ─────────────────┐\n", runId)
 	fmt.Printf("│ Nodes: %d  OK: %d  Failed: %d  Skipped: %d │\n", totalNodes, succeeded, failed, skipped)
 	fmt.Println("└────────────────────────────────────────┘")

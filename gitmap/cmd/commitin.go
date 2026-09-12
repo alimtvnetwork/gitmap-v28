@@ -25,7 +25,9 @@ func runCommitIn(args []string) error {
 		fmt.Fprintf(os.Stderr, constants.CommitInErrBadArgs, perr.Message)
 		cliexit.HandleError(nil, constants.CommitInExitBadArgs)
 	}
+
 	exitCode := orchestrator.Run(raw, os.Stdout, os.Stderr)
 	cliexit.HandleError(nil, exitCode)
+
 	return nil
 }

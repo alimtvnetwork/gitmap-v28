@@ -17,6 +17,7 @@ func validateConflictMode(value string) *ParseError {
 		constants.CommitInConflictModePrompt:
 		return nil
 	}
+
 	return newBadArgs(constants.CommitInErrConflictMode, value)
 }
 
@@ -26,6 +27,7 @@ func validateFunctionIntelToggle(value string) *ParseError {
 	case "", constants.CommitInFunctionIntelOn, constants.CommitInFunctionIntelOff:
 		return nil
 	}
+
 	return newBadArgs(constants.CommitInErrFunctionIntelArg, value)
 }
 
@@ -35,12 +37,14 @@ func validateLanguages(values []string) *ParseError {
 	if len(values) == 0 {
 		return nil
 	}
+
 	known := languageSet()
 	for _, v := range values {
 		if !known[v] {
 			return newBadArgs(constants.CommitInErrUnknownLanguage, v)
 		}
 	}
+
 	return nil
 }
 
@@ -51,6 +55,7 @@ func languageSet() map[string]bool {
 	for _, l := range AllLanguages() {
 		out[l.String()] = true
 	}
+
 	return out
 }
 
@@ -61,6 +66,7 @@ func validateAuthorPair(name, email string) *ParseError {
 	if hasName == hasEmail {
 		return nil
 	}
+
 	return newBadArgs("%s", constants.CommitInErrAuthorPair)
 }
 
@@ -70,6 +76,7 @@ func parseMessageRules(values []string) ([]MessageRuleArg, *ParseError) {
 	if len(values) == 0 {
 		return nil, nil
 	}
+
 	known := messageRuleKindSet()
 	out := make([]MessageRuleArg, 0, len(values))
 	for _, raw := range values {
@@ -77,8 +84,10 @@ func parseMessageRules(values []string) ([]MessageRuleArg, *ParseError) {
 		if !ok || !known[kind] || value == "" {
 			return nil, newBadArgs(constants.CommitInErrMessageRuleShape, raw)
 		}
+
 		out = append(out, MessageRuleArg{Kind: kind, Value: value})
 	}
+
 	return out, nil
 }
 
@@ -87,6 +96,7 @@ func messageRuleKindSet() map[string]bool {
 	for _, k := range AllMessageRuleKinds() {
 		out[k.String()] = true
 	}
+
 	return out
 }
 
@@ -96,9 +106,11 @@ func requireSourceAndInputs(source string, inputs []string, keyword string) *Par
 	if source == "" {
 		return newBadArgs("%s", "missing <source>")
 	}
+
 	if len(inputs) == 0 && keyword == "" {
 		return newBadArgs("%s", "missing <inputs...>")
 	}
+
 	return nil
 }
 
@@ -107,6 +119,7 @@ func rejectMixedKeyword(keyword string, explicitInputs []string) *ParseError {
 	if keyword == "" || len(explicitInputs) == 0 {
 		return nil
 	}
+
 	return &ParseError{
 		ExitCode: constants.CommitInExitBadArgs,
 		Message:  fmt.Sprintf(constants.CommitInErrInputMixedKeyword, keyword),

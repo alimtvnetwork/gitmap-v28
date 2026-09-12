@@ -33,6 +33,7 @@ func runReleasePending(args []string) error {
 	if err != nil {
 		return apperror.WrapSimple(err, constants.ErrBareFmt)
 	}
+
 	return nil
 }
 
@@ -56,9 +57,11 @@ func rejectVersionArgOnPending(args []string) {
 		if strings.HasPrefix(a, "-") {
 			continue
 		}
+
 		if !versionLikeArgPattern.MatchString(a) {
 			continue
 		}
+
 		fmt.Fprintf(os.Stderr,
 			"  ✗ gitmap release-pending (rp) takes no version argument (got %q).\n"+
 				"    It releases EVERY pending branch + orphan metadata file — not a specific version.\n\n"+

@@ -79,6 +79,7 @@ func RenderRepoTermBlock(w io.Writer, b RepoTermBlock) error {
 	if _, err := io.WriteString(w, header); err != nil {
 		return err
 	}
+
 	body := buildBlockBody(b)
 	_, err := io.WriteString(w, body)
 
@@ -125,6 +126,7 @@ func blockHTTPSUrl(b RepoTermBlock) string {
 	if len(strings.TrimSpace(b.HTTPSUrl)) > 0 {
 		return b.HTTPSUrl
 	}
+
 	if inferTransport(b.OriginalURL) == constants.ScanTransportHTTPS {
 		return b.OriginalURL
 	}
@@ -136,6 +138,7 @@ func blockSSHUrl(b RepoTermBlock) string {
 	if len(strings.TrimSpace(b.SSHUrl)) > 0 {
 		return b.SSHUrl
 	}
+
 	if inferTransport(b.OriginalURL) == constants.ScanTransportSSH {
 		return b.OriginalURL
 	}
@@ -148,6 +151,7 @@ func inferTransport(url string) string {
 	if strings.HasPrefix(trimmed, constants.PrefixSSH) || strings.HasPrefix(trimmed, constants.CommitInUrlPrefixSsh) {
 		return constants.ScanTransportSSH
 	}
+
 	if strings.HasPrefix(trimmed, constants.PrefixHTTPS) {
 		return constants.ScanTransportHTTPS
 	}
@@ -163,6 +167,7 @@ func formatBranch(branch, source string) string {
 	if len(branch) == 0 {
 		return fieldUnknown
 	}
+
 	if len(source) == 0 {
 		return branch
 	}

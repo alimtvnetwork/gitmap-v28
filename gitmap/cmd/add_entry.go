@@ -11,5 +11,6 @@ func runAdd(args []string) error {
 	if err := add.Run(args); err != nil {
 		return apperror.WrapSimple(err, "Error:")
 	}
+
 	return nil
 }

@@ -21,6 +21,7 @@ func TestPrependBothInsertsAtTopWithoutLosingExisting(t *testing.T) {
 	if err := os.WriteFile(mdPath, []byte(mdSeed), 0o644); err != nil {
 		t.Fatal(err)
 	}
+
 	if err := os.WriteFile(tsPath, []byte(tsSeed), 0o644); err != nil {
 		t.Fatal(err)
 	}
@@ -43,6 +44,7 @@ func TestPrependBothInsertsAtTopWithoutLosingExisting(t *testing.T) {
 	if !strings.Contains(string(mdOut), "## v3.92.0") || !strings.Contains(string(mdOut), "## v3.91.0") {
 		t.Fatalf("Markdown lost an entry:\n%s", mdOut)
 	}
+
 	if strings.Index(string(mdOut), "v3.92.0") > strings.Index(string(mdOut), "v3.91.0") {
 		t.Fatalf("v3.92.0 must appear before v3.91.0:\n%s", mdOut)
 	}
@@ -50,6 +52,7 @@ func TestPrependBothInsertsAtTopWithoutLosingExisting(t *testing.T) {
 	if !strings.Contains(string(tsOut), `version: "v3.92.0"`) || !strings.Contains(string(tsOut), `version: "v3.91.0"`) {
 		t.Fatalf("TypeScript lost an entry:\n%s", tsOut)
 	}
+
 	if strings.Index(string(tsOut), "v3.92.0") > strings.Index(string(tsOut), "v3.91.0") {
 		t.Fatalf("v3.92.0 must appear before v3.91.0:\n%s", tsOut)
 	}

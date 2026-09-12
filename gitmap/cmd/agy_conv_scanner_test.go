@@ -17,6 +17,7 @@ func TestReadSingleConvDB(t *testing.T) {
 	if err != nil {
 		t.Fatalf("OpenSQLiteDB failed: %v", err)
 	}
+
 	defer conn.Close()
 
 	initTestConvTables(t, conn)
@@ -42,9 +43,11 @@ func assertConvInfoValues(t *testing.T, info AgyConvInfo, wantID string, wantSte
 	if info.ID != wantID {
 		t.Errorf("ID mismatch: got %q, want %q", info.ID, wantID)
 	}
+
 	if info.StepCount != wantSteps {
 		t.Errorf("StepCount mismatch: got %d, want %d", info.StepCount, wantSteps)
 	}
+
 	if info.UserSteps != wantUserSteps {
 		t.Errorf("UserSteps mismatch: got %d, want %d", info.UserSteps, wantUserSteps)
 	}

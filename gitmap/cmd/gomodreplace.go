@@ -86,15 +86,19 @@ func findFilesWithPath(oldPath string, exts []string) []string {
 		if err != nil {
 			return nil
 		}
+
 		if info.IsDir() && isGoModExcludedDir(info.Name()) {
 			return filepath.SkipDir
 		}
+
 		if info.IsDir() {
 			return nil
 		}
+
 		if path == constants.GoModFile {
 			return nil
 		}
+
 		if matchesGoModExt(path, exts) && fileContains(path, oldPath) {
 			matches = append(matches, path)
 		}

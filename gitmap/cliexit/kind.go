@@ -134,6 +134,7 @@ func withKindExtra(ctx Context, kind KindType) Context {
 	for k, v := range ctx.Extras {
 		extras[k] = v
 	}
+
 	extras["kind"] = KindLabel(kind)
 	ctx.Extras = extras
 

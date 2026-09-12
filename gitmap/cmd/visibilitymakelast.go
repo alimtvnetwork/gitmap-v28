@@ -30,10 +30,13 @@ import (
 
 func runMakeLastPublic(args []string) error {
 	runMakeLast(constants.VisibilityPublic, constants.CmdMakeLastPublic, args)
+
 	return nil
 }
+
 func runMakeLastPrivate(args []string) error {
 	runMakeLast(constants.VisibilityPrivate, constants.CmdMakeLastPrivate, args)
+
 	return nil
 }
 
@@ -50,8 +53,10 @@ func runMakeLast(target, cmdName string, args []string) error {
 			nil,
 		)
 		cliexit.HandleError(err, constants.ExitVisBadFlag)
+
 		return nil
 	}
+
 	ownerArg, base, yes := parseMakeLastArgs(args)
 	ctx := resolveOwnerOrExit(ownerArg)
 	mustEnsureProviderCLI(ctx.Provider, false)
@@ -61,8 +66,10 @@ func runMakeLast(target, cmdName string, args []string) error {
 	if len(repoName) == 0 {
 		fmt.Fprintf(os.Stderr, constants.ErrMakeLastNoBaseFmt, base, ctx.Owner, ctx.Owner, base)
 		cliexit.HandleError(nil, constants.ExitVisOK)
+
 		return nil
 	}
+
 	if ver >= 0 {
 		fmt.Fprintf(os.Stdout, constants.MsgMakeLastResolvedFmt, base, repoName, ver, base)
 	}
@@ -78,6 +85,7 @@ func runMakeLast(target, cmdName string, args []string) error {
 			nil,
 		)
 		cliexit.HandleError(err, constants.ExitVisConfirmReq)
+
 		return nil
 	}
 
@@ -99,6 +107,7 @@ func runMakeLast(target, cmdName string, args []string) error {
 		)
 		cliexit.HandleError(err, code)
 	}
+
 	return nil
 }
 
@@ -119,18 +128,22 @@ func resolveMakeLastRepo(ctx ownerContext, base string) (string, int) {
 	if _, _, ok := visibility.ParseRepoNameMeta(base); ok {
 		return base, -1
 	}
+
 	if name, ver, ok := lookupIndexHighest(ctx.Provider, ctx.Owner, base); ok {
 		return name, ver
 	}
+
 	// Cache miss — force refresh then retry.
 	_, errCache := listOwnerReposCached(ctx.Provider, ctx.Owner, bulkFlags{CacheTTLSecs: 0, CacheTTLSet: true})
 	nameRefresh, verRefresh, okRefresh := "", -1, false
 	if errCache == nil {
 		nameRefresh, verRefresh, okRefresh = lookupIndexHighest(ctx.Provider, ctx.Owner, base)
 	}
+
 	if okRefresh {
 		return nameRefresh, verRefresh
 	}
+
 	// Fallback: scan names in memory (works even when the index
 	// table isn't writable for some reason).
 	names, errFallback := listOwnerReposCached(ctx.Provider, ctx.Owner, bulkFlags{})
@@ -138,6 +151,7 @@ func resolveMakeLastRepo(ctx ownerContext, base string) (string, int) {
 	if errFallback == nil {
 		nameFallback, verFallback, okFallback = visibility.HighestVersionedMatch(names, base)
 	}
+
 	if okFallback {
 		return nameFallback, verFallback
 	}

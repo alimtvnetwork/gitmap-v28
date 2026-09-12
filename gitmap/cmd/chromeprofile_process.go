@@ -13,9 +13,11 @@ func isChromeRunning(goos string) (bool, error) {
 	if goos == constants.OSWindows {
 		return isWindowsChromeRunning()
 	}
+
 	if goos == constants.OSDarwin {
 		return pgrepExact(constants.ChromeProcessMacName)
 	}
+
 	return isLinuxChromeRunning()
 }
 
@@ -27,6 +29,7 @@ func isWindowsChromeRunning() (bool, error) {
 	if err != nil {
 		return false, err
 	}
+
 	return strings.Contains(strings.ToLower(string(out)), constants.ChromeProcessWindowsImage), nil
 }
 
@@ -37,8 +40,10 @@ func isLinuxChromeRunning() (bool, error) {
 		if ok || err == nil {
 			return ok, nil
 		}
+
 		lastErr = err
 	}
+
 	return false, lastErr
 }
 
@@ -49,8 +54,10 @@ func pgrepExact(name string) (bool, error) {
 	if err != nil && errors.As(err, &exitErr) && exitErr.ExitCode() == 1 {
 		return false, nil
 	}
+
 	if err != nil {
 		return false, err
 	}
+
 	return true, nil
 }

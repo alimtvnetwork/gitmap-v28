@@ -26,6 +26,7 @@ func runTempReleaseRemove(args []string) error {
 			nil,
 		)
 		cliexit.HandleError(err, 1)
+
 		return nil
 	}
 
@@ -42,6 +43,7 @@ func runTempReleaseRemove(args []string) error {
 	}
 
 	removeTempReleaseSingle(args[0])
+
 	return nil
 }
 
@@ -73,8 +75,10 @@ func removeTempReleaseRange(from, to string) {
 			nil,
 		)
 		cliexit.HandleError(appErr, 1)
+
 		return
 	}
+
 	defer db.Close()
 	if err := db.Migrate(); err != nil {
 		fmt.Fprintf(os.Stderr, "  ⚠ DB migration failed: %v\n", err)
@@ -114,9 +118,11 @@ func collectRangeTargets(db *store.DB, from, to string) []string {
 		if r.Branch == fromBranch {
 			inRange = true
 		}
+
 		if inRange {
 			targets = append(targets, r.Branch)
 		}
+
 		if r.Branch == toBranch {
 			break
 		}
@@ -140,8 +146,10 @@ func removeTempReleaseAll() {
 			nil,
 		)
 		cliexit.HandleError(appErr, 1)
+
 		return
 	}
+
 	defer db.Close()
 	if err := db.Migrate(); err != nil {
 		fmt.Fprintf(os.Stderr, "  ⚠ DB migration failed: %v\n", err)
@@ -151,6 +159,7 @@ func removeTempReleaseAll() {
 	if listErr != nil {
 		fmt.Fprintf(os.Stderr, "  ⚠ Could not list temp releases: %v\n", listErr)
 	}
+
 	if len(releases) == 0 {
 		fmt.Print(constants.MsgTRNoneToRemove)
 
@@ -174,6 +183,7 @@ func removeTempReleaseAll() {
 	if err := db.DeleteAllTempReleases(); err != nil {
 		fmt.Fprintf(os.Stderr, "  ⚠ Could not delete all temp releases from DB: %v\n", err)
 	}
+
 	fmt.Printf(constants.MsgTRRemoved, len(branches))
 }
 
@@ -204,6 +214,7 @@ func removeBranches(branches []string) {
 	if len(branches) == 0 {
 		return
 	}
+
 	errRemote := release.DeleteRemoteBranches(branches)
 	if errRemote != nil {
 		fmt.Fprintf(os.Stderr, "  ⚠ Could not delete remote branches: %v\n", errRemote)

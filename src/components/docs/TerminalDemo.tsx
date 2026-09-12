@@ -79,6 +79,7 @@ const TerminalDemo = ({ title, lines, autoPlay = false }: TerminalDemoProps) => 
 
     if (isFinished) {
       setIsPlaying(false);
+
       return;
     }
 

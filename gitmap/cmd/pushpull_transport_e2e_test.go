@@ -14,6 +14,7 @@ func TestApplyTransportFlag_E2E(t *testing.T) {
 	if _, err := exec.LookPath("git"); err != nil {
 		t.Skip("git not on PATH")
 	}
+
 	tmp := t.TempDir()
 	bare := filepath.Join(tmp, "origin.git")
 	work := filepath.Join(tmp, "work")
@@ -29,9 +30,11 @@ func TestApplyTransportFlag_E2E(t *testing.T) {
 		if err != nil {
 			t.Fatalf("ApplyTransportFlag: %v", err)
 		}
+
 		if !changed {
 			t.Fatalf("expected changed=true; got false (old=%s new=%s)", oldURL, newURL)
 		}
+
 		want := "git@github.com:acme/widgets.git"
 		if got := readOrigin(t, work); got != want {
 			t.Fatalf("origin url = %q want %q", got, want)
@@ -43,9 +46,11 @@ func TestApplyTransportFlag_E2E(t *testing.T) {
 		if err != nil {
 			t.Fatalf("ApplyTransportFlag: %v", err)
 		}
+
 		if !changed {
 			t.Fatalf("expected changed=true")
 		}
+
 		want := "https://github.com/acme/widgets.git"
 		if got := readOrigin(t, work); got != want {
 			t.Fatalf("origin url = %q want %q", got, want)
@@ -59,6 +64,7 @@ func TestApplyTransportFlag_E2E(t *testing.T) {
 		if err != nil {
 			t.Fatalf("ApplyTransportFlag: %v", err)
 		}
+
 		if changed {
 			t.Fatalf("expected changed=false for idempotent call")
 		}
@@ -69,6 +75,7 @@ func TestApplyTransportFlag_E2E(t *testing.T) {
 		if err != nil {
 			t.Fatalf("ApplyTransportFlag: %v", err)
 		}
+
 		if !changed || !strings.HasPrefix(newURL, "git@") {
 			t.Fatalf("ssh did not win: changed=%v newURL=%s", changed, newURL)
 		}
@@ -80,6 +87,7 @@ func TestApplyTransportFlag_E2E(t *testing.T) {
 		if err != nil {
 			t.Fatalf("ApplyTransportFlag should fail-open, got err: %v", err)
 		}
+
 		if changed {
 			t.Fatalf("expected changed=false for unrecognized url")
 		}
@@ -104,12 +112,14 @@ func TestExtractTransportFlags(t *testing.T) {
 		{"short_ht_then_ref", []string{"--ht", "main"}, false, true, []string{"main"}},
 		{"both", []string{"--ssh", "--https"}, true, true, []string{}},
 	}
+
 	for _, tc := range cases {
 		t.Run(tc.name, func(t *testing.T) {
 			s, h, rest := extractTransportFlags(tc.in)
 			if s != tc.wantSSH || h != tc.wantHTTPS {
 				t.Fatalf("flags = (%v,%v), want (%v,%v)", s, h, tc.wantSSH, tc.wantHTTPS)
 			}
+
 			if strings.Join(rest, " ") != strings.Join(tc.wantRest, " ") {
 				t.Fatalf("rest = %v, want %v", rest, tc.wantRest)
 			}
@@ -133,5 +143,6 @@ func readOrigin(t *testing.T, dir string) string {
 	if err != nil {
 		t.Fatalf("read origin: %v", err)
 	}
+
 	return strings.TrimSpace(string(out))
 }

@@ -162,11 +162,14 @@ func countReportEntries(path string) int {
 		if data[i] != '\n' {
 			continue
 		}
+
 		if i > start {
 			count++
 		}
+
 		start = i + 1
 	}
+
 	if start < len(data) {
 		count++
 	}

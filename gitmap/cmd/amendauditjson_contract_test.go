@@ -52,6 +52,7 @@ func TestAmendAuditJSONContract_CanonicalRecord_KeyOrder(t *testing.T) {
 
 		return buf.Bytes(), err
 	}
+
 	assertGoldenBytesDeterministic(t, "amend_audit_canonical.json", encode)
 	raw, _ := encode()
 	assertSchemaKeysFirstObject(t, raw, "amend-audit")

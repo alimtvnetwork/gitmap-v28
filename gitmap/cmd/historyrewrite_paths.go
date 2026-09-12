@@ -15,9 +15,11 @@ func parseHistoryPaths(args []string) []string {
 			if seen[tok] {
 				continue
 			}
+
 			seen[tok] = true
 			out = append(out, tok)
 		}
 	}
+
 	return out
 }

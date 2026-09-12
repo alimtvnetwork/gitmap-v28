@@ -69,11 +69,13 @@ func executeIPCmd(ctx context.Context, skipLoopback bool, writer io.Writer) erro
 	if err != nil {
 		return apperror.New("executeIPCmd", "E_INTERNAL_ERROR", map[string]any{"err": err.Error()})
 	}
+
 	if skipLoopback && (ipStr == "127.0.0.1" || ipStr == "::1") {
 		return apperror.New("executeIPCmd", "E_INTERNAL_ERROR", map[string]any{"err": "only loopback found"})
 	}
 
 	fmt.Fprintln(writer, ipStr)
+
 	return nil
 }
 

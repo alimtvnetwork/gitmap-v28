@@ -23,6 +23,7 @@ func defaultGitRunner(repoDir, sub string, args ...string) (string, error) {
 	if err != nil {
 		return trimmed, fmt.Errorf("git %s: %w (%s)", sub, err, strings.TrimSpace(trimmed))
 	}
+
 	return trimmed, nil
 }
 
@@ -31,5 +32,6 @@ func defaultGitRunner(repoDir, sub string, args ...string) (string, error) {
 func SetGitRunnerForTest(fake func(repoDir, sub string, args ...string) (string, error)) func() {
 	prev := gitRunner
 	gitRunner = fake
+
 	return func() { gitRunner = prev }
 }

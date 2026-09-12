@@ -30,6 +30,7 @@ func TestFindZshBinary_Mock(t *testing.T) {
 
 		return "", exec.ErrNotFound
 	}
+
 	path, isFound := findZshBinary()
 	if !isFound || path != "/usr/bin/zsh" {
 		t.Fatalf("expected /usr/bin/zsh found, got path=%s, isFound=%v", path, isFound)
@@ -47,9 +48,11 @@ func TestFindZshBinary_NotFound(t *testing.T) {
 	lookPathFunc = func(file string) (string, error) {
 		return "", exec.ErrNotFound
 	}
+
 	statPathFunc = func(path string) (os.FileInfo, error) {
 		return nil, os.ErrNotExist
 	}
+
 	_, isFound := findZshBinary()
 	if isFound {
 		t.Fatal("expected zsh not found")
@@ -67,6 +70,7 @@ func TestIsOhMyZshInstalled_Mock(t *testing.T) {
 	userHomeDirFunc = func() (string, error) {
 		return "/home/mockuser", nil
 	}
+
 	statPathFunc = func(path string) (os.FileInfo, error) {
 		if strings.HasSuffix(path, ".oh-my-zsh") {
 			return mockDirInfo{name: ".oh-my-zsh"}, nil
@@ -74,6 +78,7 @@ func TestIsOhMyZshInstalled_Mock(t *testing.T) {
 
 		return nil, os.ErrNotExist
 	}
+
 	if !isOhMyZshInstalled() {
 		t.Fatal("expected isOhMyZshInstalled to return true")
 	}
@@ -92,9 +97,11 @@ func TestEnsureZshUbuntuStep_AlreadyInstalled(t *testing.T) {
 	lookPathFunc = func(file string) (string, error) {
 		return "/bin/zsh", nil
 	}
+
 	userHomeDirFunc = func() (string, error) {
 		return "/home/mockuser", nil
 	}
+
 	statPathFunc = func(path string) (os.FileInfo, error) {
 		return mockDirInfo{name: ".oh-my-zsh"}, nil
 	}
@@ -119,6 +126,7 @@ func TestEnsureZshUbuntuStep_SkipEnv(t *testing.T) {
 
 		return ""
 	}
+
 	ensureZshUbuntuStep(false, false)
 }
 
@@ -135,15 +143,18 @@ func TestConfigureZshTheme_AlreadyConfigured(t *testing.T) {
 	userHomeDirFunc = func() (string, error) {
 		return "/home/mockuser", nil
 	}
+
 	osReadFileHook = func(name string) ([]byte, error) {
 		return []byte(`ZSH_THEME="agnoster"`), nil
 	}
+
 	isWritten := false
 	osWriteFileHook = func(name string, data []byte, perm os.FileMode) error {
 		isWritten = true
 
 		return nil
 	}
+
 	configureZshTheme()
 	if isWritten {
 		t.Fatal("expected no write when theme is already agnoster")
@@ -163,15 +174,18 @@ func TestConfigureZshTheme_ReplaceRobbyrussell(t *testing.T) {
 	userHomeDirFunc = func() (string, error) {
 		return "/home/mockuser", nil
 	}
+
 	osReadFileHook = func(name string) ([]byte, error) {
 		return []byte(`ZSH_THEME="robbyrussell"`), nil
 	}
+
 	var writtenData string
 	osWriteFileHook = func(name string, data []byte, perm os.FileMode) error {
 		writtenData = string(data)
 
 		return nil
 	}
+
 	configureZshTheme()
 	if !strings.Contains(writtenData, `ZSH_THEME="agnoster"`) {
 		t.Fatalf("expected agnoster written, got %s", writtenData)
@@ -193,6 +207,7 @@ func TestIsStdinTerminal_Error(t *testing.T) {
 	stdinStatFunc = func() (os.FileInfo, error) {
 		return nil, errors.New("not a terminal")
 	}
+
 	if isStdinTerminal() {
 		t.Fatal("expected false on stdin stat error")
 	}

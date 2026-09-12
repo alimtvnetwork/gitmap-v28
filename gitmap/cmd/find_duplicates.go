@@ -30,15 +30,18 @@ func resolveDuplicatePlatform(platform string, args []string) string {
 	if platform != "" {
 		return strings.ToLower(strings.TrimSpace(platform))
 	}
+
 	if len(args) > 0 && !strings.HasPrefix(args[0], "-") {
 		return strings.ToLower(strings.TrimSpace(args[0]))
 	}
+
 	return "all"
 }
 
 func printUnknownDupPlatform(platform string) error {
 	fmt.Printf(constants.ColorRed+"Unknown platform '%s' for find-duplicates."+constants.ColorReset+"\n", platform)
 	fmt.Println("Available platforms: agy, vscode, chrome, git (or omit platform to check all)")
+
 	return nil
 }
 
@@ -52,5 +55,6 @@ func runFindDuplicatesAll() error {
 	_ = runFindDuplicatesVSCode()
 	_ = runFindDuplicatesChrome()
 	_ = runFindDuplicatesGit()
+
 	return nil
 }

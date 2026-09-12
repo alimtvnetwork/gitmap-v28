@@ -21,9 +21,11 @@ func tryCrossDirCloneNext(args []string) bool {
 	if len(positional) != 2 {
 		return false
 	}
+
 	if looksLikeVersion(positional[0]) {
 		return false
 	}
+
 	if !looksLikeVersion(positional[1]) {
 		return false
 	}
@@ -42,8 +44,10 @@ func performCrossDirCloneNext(target, alias, version string, originalArgs []stri
 	if err := os.Chdir(target); err != nil {
 		fmt.Fprintf(os.Stderr, constants.ErrRAChdirFailedFmt, target, err)
 		fmt.Fprintln(os.Stderr)
+
 		return
 	}
+
 	defer func() { _ = os.Chdir(originalDir) }()
 
 	fmt.Printf(constants.MsgCNXStartingFmt, alias, target, version)

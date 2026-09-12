@@ -19,6 +19,7 @@ func matchJava(line string) (string, bool) {
 	if m == nil {
 		return "", false
 	}
+
 	return m[1], true
 }
 

@@ -63,6 +63,7 @@ func RegisterFlusher(f func()) {
 	if f == nil {
 		return
 	}
+
 	flushMu.Lock()
 	flushers = append(flushers, f)
 	flushMu.Unlock()
@@ -113,6 +114,7 @@ func Reportf(command, op, subject string, err error) {
 		Subject: subject,
 		Err:     err,
 	}
+
 	writeReport(os.Stderr, params)
 }
 
@@ -149,6 +151,7 @@ func writeReport(w io.Writer, params ReportParams) {
 
 		return
 	}
+
 	fmt.Fprintln(w, formatLine(params))
 }
 

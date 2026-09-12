@@ -35,9 +35,11 @@ func DiscoverProfileCandidates(target string) ([]DiscoveredProfileCandidate, err
 	if err != nil {
 		return nil, err
 	}
+
 	if info.IsDir() {
 		return discoverDirCandidates(cleanTarget)
 	}
+
 	if strings.HasSuffix(strings.ToLower(cleanTarget), constants.ExtZIP) {
 		return discoverZipCandidates(cleanTarget)
 	}

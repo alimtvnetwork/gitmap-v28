@@ -33,12 +33,14 @@ func writePinManifest(sandbox string, paths []string,
 		if err != nil {
 			return "", err
 		}
+
 		entries = append(entries, pinManifestEntry{
 			Path:    p,
 			DataB64: base64.StdEncoding.EncodeToString(payloads[p]),
 			Blobs:   blobs,
 		})
 	}
+
 	return writeManifestFile(sandbox, entries)
 }
 
@@ -48,10 +50,12 @@ func writeManifestFile(sandbox string, entries []pinManifestEntry) (string, erro
 	if err != nil {
 		return "", err
 	}
+
 	manifest := filepath.Join(sandbox, "..", filepath.Base(sandbox)+".pin-manifest.json")
 	if err := os.WriteFile(manifest, data, 0o600); err != nil {
 		return "", err
 	}
+
 	return manifest, nil
 }
 
@@ -70,6 +74,7 @@ func historicalBlobsOf(sandbox, path string) ([]string, error) {
 	if err != nil {
 		return nil, fmt.Errorf("git log for %s: %w", path, err)
 	}
+
 	return parseBlobShasFromRawLog(string(out)), nil
 }
 
@@ -83,13 +88,16 @@ func parseBlobShasFromRawLog(raw string) []string {
 		if len(fields) < 4 {
 			continue
 		}
+
 		sha := fields[3]
 		if len(sha) != 40 || seen[sha] {
 			continue
 		}
+
 		seen[sha] = true
 		out = append(out, sha)
 	}
+
 	return out
 }
 
@@ -118,5 +126,6 @@ func buildPinCallbackPython(manifestPath string) string {
 		"if _hit is not None:\n" +
 		"    blob.data = _hit\n"
 	quoted := fmt.Sprintf("%q", manifestPath)
+
 	return strings.ReplaceAll(tmpl, "__MANIFEST__", quoted)
 }

@@ -108,6 +108,7 @@ func normalizeFlags(disp, sleep int) (int, int) {
 	if disp < 0 {
 		disp = 10
 	}
+
 	if sleep < 0 {
 		sleep = 30
 	}
@@ -120,6 +121,7 @@ func recordPowerTransition(action string, current power.Settings, disp, sleep in
 	if err != nil || db == nil {
 		return
 	}
+
 	defer db.Close()
 
 	_ = db.SavePowerProfile("previous", current, false)
@@ -130,6 +132,7 @@ func recordPowerTransition(action string, current power.Settings, disp, sleep in
 		IsNeverSleep:          isNever,
 		Source:                action,
 	}
+
 	_ = db.SavePowerProfile("current", newS, true)
 	_ = db.RecordPowerHistory(action, newS, fmt.Sprintf("Action=%s, display=%d, sleep=%d", action, disp, sleep))
 }
@@ -164,12 +167,14 @@ func loadPreviousOrDefault(def power.Settings) power.Settings {
 	if err != nil || db == nil {
 		return def
 	}
+
 	defer db.Close()
 
 	prev, err := db.GetPowerProfile("previous")
 	if err == nil {
 		def = prev
 	}
+
 	_ = db.RecordPowerHistory("reset", def, "Reset to previous configuration")
 
 	return def
@@ -180,6 +185,7 @@ func runPowerHistory(args []string) error {
 	if err != nil || db == nil {
 		return apperror.NewSimple("database unavailable for power history", "E_DB_UNAVAILABLE")
 	}
+
 	defer db.Close()
 
 	records, err := db.ListPowerHistory(30)

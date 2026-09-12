@@ -15,6 +15,7 @@ func setupTestSSHDB(t *testing.T) *sql.DB {
 	if err != nil {
 		t.Fatalf("failed to open in-memory db: %v", err)
 	}
+
 	initTestSSHTables(t, db)
 
 	return db
@@ -30,6 +31,7 @@ func initTestSSHTables(t *testing.T, db *sql.DB) {
 	if _, err := db.Exec(createHosts); err != nil {
 		t.Fatalf("failed to create ssh_hosts: %v", err)
 	}
+
 	if _, err := db.Exec(createHist); err != nil {
 		t.Fatalf("failed to create ssh_history: %v", err)
 	}
@@ -50,6 +52,7 @@ func TestExecuteSSHJoinAtomicity(t *testing.T) {
 	if err := runJoinTransaction(ctx, db, "my-server", hist); err != nil {
 		t.Fatalf("runJoinTransaction failed: %v", err)
 	}
+
 	assertJoinCounts(t, db, "host-1", 1, 1)
 }
 
@@ -58,9 +61,11 @@ func assertJoinCounts(t *testing.T, db *sql.DB, id string, wantHosts, wantHist i
 	if err := db.QueryRow("SELECT COUNT(*) FROM ssh_hosts WHERE id = ?", id).Scan(&hostCount); err != nil {
 		t.Fatalf("query ssh_hosts failed: %v", err)
 	}
+
 	if err := db.QueryRow("SELECT COUNT(*) FROM ssh_history WHERE id = ?", id).Scan(&histCount); err != nil {
 		t.Fatalf("query ssh_history failed: %v", err)
 	}
+
 	if hostCount != wantHosts || histCount != wantHist {
 		t.Errorf("counts mismatch: hosts=%d (want %d), hist=%d (want %d)", hostCount, wantHosts, histCount, wantHist)
 	}

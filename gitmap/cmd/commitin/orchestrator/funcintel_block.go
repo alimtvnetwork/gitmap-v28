@@ -22,15 +22,18 @@ func renderFunctionIntel(
 	if !fi.IsEnabled || len(files) == 0 {
 		return ""
 	}
+
 	enabled := funcintel.EnabledLanguages(fi.Languages)
 	if len(enabled) == 0 {
 		return ""
 	}
+
 	wanted := toSet(enabled)
 	changes := collectChanges(repoDir, c.Sha, files, wanted)
 	if len(changes) == 0 {
 		return ""
 	}
+
 	return funcintel.Render(changes)
 }
 
@@ -46,17 +49,21 @@ func collectChanges(
 		if lang == "" {
 			continue
 		}
+
 		if _, ok := wanted[lang]; !ok {
 			continue
 		}
+
 		out = append(out, buildChange(repoDir, sha, rel, lang))
 	}
+
 	return out
 }
 
 func buildChange(repoDir, sha, rel, lang string) funcintel.FileChange {
 	prev := readBlob(repoDir, sha+"^:"+rel)
 	curr := readBlob(repoDir, sha+":"+rel)
+
 	return funcintel.FileChange{
 		RelativePath:   rel,
 		Language:       lang,
@@ -74,6 +81,7 @@ func readBlob(repoDir, ref string) string {
 	if err != nil {
 		return ""
 	}
+
 	return strings.TrimRight(string(out), "\n")
 }
 
@@ -82,5 +90,6 @@ func toSet(in []string) map[string]struct{} {
 	for _, s := range in {
 		out[s] = struct{}{}
 	}
+
 	return out
 }

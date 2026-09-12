@@ -19,9 +19,11 @@ func TestBuildPinCallbackPythonUsesGlobalsCache(t *testing.T) {
 	if !strings.Contains(got, "getattr(builtins, '_gitmap_pin_lookup', None)") {
 		t.Fatalf("callback missing builtins cache lookup: %q", got)
 	}
+
 	if !strings.Contains(got, "setattr(builtins, '_gitmap_pin_lookup', _pin_lookup)") {
 		t.Fatalf("callback missing builtins cache store: %q", got)
 	}
+
 	if strings.Contains(got, "blob_callback") {
 		t.Fatalf("callback must not reference blob_callback: %q", got)
 	}
@@ -38,6 +40,7 @@ func TestBuildPinCallbackPythonExecutesWithoutFunctionSymbol(t *testing.T) {
 	if err != nil {
 		t.Fatalf("marshal manifest: %v", err)
 	}
+
 	if err := os.WriteFile(manifest, data, 0o600); err != nil {
 		t.Fatalf("write manifest: %v", err)
 	}
@@ -62,6 +65,7 @@ func TestBuildPinCallbackPythonExecutesWithoutFunctionSymbol(t *testing.T) {
 	if err := os.WriteFile(script, []byte(py), 0o600); err != nil {
 		t.Fatalf("write python script: %v", err)
 	}
+
 	pyBin := "python3"
 	_, err3 := exec.LookPath("python3")
 	_, errPy := exec.LookPath("python")
@@ -69,9 +73,11 @@ func TestBuildPinCallbackPythonExecutesWithoutFunctionSymbol(t *testing.T) {
 	if err3 != nil && errPy == nil {
 		pyBin = "python"
 	}
+
 	if err3 != nil && errPy != nil {
 		t.Skip("python not found on PATH; skipping python callback execution test")
 	}
+
 	cmd := exec.Command(pyBin, script)
 	out, err := cmd.CombinedOutput()
 	isStub := strings.Contains(string(out), "Python was not found")
@@ -79,6 +85,7 @@ func TestBuildPinCallbackPythonExecutesWithoutFunctionSymbol(t *testing.T) {
 	if err != nil && isStub {
 		t.Skip("python stub found but python is not installed; skipping")
 	}
+
 	if err != nil {
 		t.Fatalf("python callback execution failed: %v\n%s", err, string(out))
 	}
@@ -86,6 +93,7 @@ func TestBuildPinCallbackPythonExecutesWithoutFunctionSymbol(t *testing.T) {
 
 func reprForPython(s string) string {
 	b, _ := json.Marshal(s)
+
 	return string(b)
 }
 
@@ -98,6 +106,7 @@ func TestParseBlobShasFromRawLogRequiresFullSha(t *testing.T) {
 	if got := parseBlobShasFromRawLog(abbrev); len(got) != 0 {
 		t.Fatalf("abbreviated SHAs must be ignored, got %v", got)
 	}
+
 	full := ":100644 100644 " +
 		strings.Repeat("a", 40) + " " + strings.Repeat("b", 40) + " M\tX\n"
 	got := parseBlobShasFromRawLog(full)

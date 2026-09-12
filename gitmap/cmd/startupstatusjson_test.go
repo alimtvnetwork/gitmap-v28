@@ -32,19 +32,23 @@ func jsonKeyOrder(t *testing.T, body []byte) []string {
 	if tok, err := dec.Token(); err != nil || tok != json.Delim('[') {
 		t.Fatalf("expected leading [, got tok=%v err=%v", tok, err)
 	}
+
 	if tok, err := dec.Token(); err != nil || tok != json.Delim('{') {
 		t.Fatalf("expected leading {, got tok=%v err=%v", tok, err)
 	}
+
 	var keys []string
 	for dec.More() {
 		tok, err := dec.Token()
 		if err != nil {
 			t.Fatalf("token: %v", err)
 		}
+
 		key, ok := tok.(string)
 		if !ok {
 			t.Fatalf("expected key string, got %T %v", tok, tok)
 		}
+
 		keys = append(keys, key)
 		// Skip the value (single token for primitives — every
 		// startupStatus value is a string or bool today).
@@ -68,10 +72,12 @@ func TestStartupStatusJSON_AddCreatedKeyOrder(t *testing.T) {
 	if err := writeStartupStatusJSON(&buf, s, 2); err != nil {
 		t.Fatalf("emit: %v", err)
 	}
+
 	got := jsonKeyOrder(t, buf.Bytes())
 	if len(got) != len(expectedStartupStatusKeys) {
 		t.Fatalf("got %d keys, want %d: %v", len(got), len(expectedStartupStatusKeys), got)
 	}
+
 	for i, want := range expectedStartupStatusKeys {
 		if got[i] != want {
 			t.Errorf("key %d = %q, want %q (full: %v)", i, got[i], want, got)
@@ -97,6 +103,7 @@ func TestStartupStatusJSON_AddActionsAndOwners(t *testing.T) {
 		{startup.AddRefused, "/p", "refused", "third-party", "/p"},
 		{startup.AddBadName, "/ignored", "bad_name", "unknown", ""},
 	}
+
 	for _, tc := range cases {
 		t.Run(tc.wantAction, func(t *testing.T) {
 			s := addResultToStatus("watch", false, startup.AddResult{
@@ -130,6 +137,7 @@ func TestStartupStatusJSON_RemoveActionsAndOwners(t *testing.T) {
 		{startup.RemoveRefused, "/p", false, "refused", "third-party", "/p", false},
 		{startup.RemoveBadName, "", false, "bad_name", "unknown", "", false},
 	}
+
 	for _, tc := range cases {
 		t.Run(tc.wantAction, func(t *testing.T) {
 			s := removeResultToStatus("watch", startup.RemoveResult{
@@ -156,13 +164,16 @@ func TestStartupStatusJSON_MinifiedShape(t *testing.T) {
 	if err := writeStartupStatusJSON(&buf, s, 0); err != nil {
 		t.Fatalf("emit: %v", err)
 	}
+
 	got := buf.String()
 	if !strings.HasPrefix(got, `[{"command":"startup-remove"`) {
 		t.Errorf("missing minified array+object opener:\n%s", got)
 	}
+
 	if !strings.HasSuffix(got, "}]\n") {
 		t.Errorf("missing minified suffix:\n%s", got)
 	}
+
 	if strings.Contains(got, "\n  ") {
 		t.Errorf("minified output should not contain indented lines:\n%s", got)
 	}
@@ -186,6 +197,7 @@ func TestValidateStartupOutput_RejectsUnknownAndOutOfRange(t *testing.T) {
 		{"indent-too-large", "json", 9, true},
 		{"indent-negative", "json", -1, true},
 	}
+
 	for _, tc := range cases {
 		t.Run(tc.name, func(t *testing.T) {
 			err := validateStartupOutput("startup-add", tc.output, tc.indent)

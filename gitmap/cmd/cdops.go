@@ -82,6 +82,7 @@ func lookupCDRecords(name string) ([]model.ScanRecord, error) {
 
 		return nil, fmt.Errorf(constants.ErrListDBFailed, err)
 	}
+
 	defer db.Close()
 
 	return findCDRecords(db, name), nil
@@ -158,6 +159,7 @@ func runCDRepos(args []string) error {
 
 		return fmt.Errorf(constants.ErrListDBFailed, err)
 	}
+
 	defer db.Close()
 
 	records := loadCDReposList(db, groupFilter)

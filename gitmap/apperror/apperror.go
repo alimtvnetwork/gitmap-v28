@@ -30,6 +30,7 @@ func (e *AppError) Error() string {
 	if e == nil {
 		return ""
 	}
+
 	parts := make([]string, 0, 5)
 
 	if e.Code != "" || e.Type != "" {
@@ -70,6 +71,7 @@ func (e *AppError) Unwrap() error {
 	if e == nil {
 		return nil
 	}
+
 	return e.Cause
 }
 
@@ -78,6 +80,7 @@ func (e *AppError) WithContext(key string, val any) *AppError {
 	if e.Ctx == nil {
 		e.Ctx = make(map[string]any)
 	}
+
 	e.Ctx[key] = val
 
 	return e
@@ -106,6 +109,7 @@ func captureStackTrace(skip int) string {
 	if n == 0 {
 		return ""
 	}
+
 	frames := runtime.CallersFrames(pcs[:n])
 	var sb strings.Builder
 	for {
@@ -115,6 +119,7 @@ func captureStackTrace(skip int) string {
 			break
 		}
 	}
+
 	return sb.String()
 }
 
@@ -123,6 +128,7 @@ func appendStackFrame(sb *strings.Builder, frame runtime.Frame) {
 	if isRuntimeInternal {
 		return
 	}
+
 	shortFile := filepath.Base(frame.File)
 	parentDir := filepath.Base(filepath.Dir(frame.File))
 	fileLoc := fmt.Sprintf("%s/%s:%d", parentDir, shortFile, frame.Line)
@@ -285,6 +291,7 @@ func (e *AppError) HandleError() {
 	if e == nil {
 		return
 	}
+
 	// Proceed with error logging or handling logic here without CLI exit.
 	// For now, it gracefully proceeds forward as requested.
 }

@@ -31,6 +31,7 @@ func (j *Journal) RecordRename(from, to string) error {
 	if j.id == 0 {
 		return nil
 	}
+
 	rec := model.TransactionFileRecord{
 		TransactionID: j.id,
 		RelPath:       j.relTo(from),
@@ -47,10 +48,12 @@ func (j *Journal) snapshotFile(absPath, action string) error {
 	if j.id == 0 {
 		return nil
 	}
+
 	info, err := os.Stat(absPath)
 	if err != nil {
 		return fmt.Errorf("transaction snapshot stat %q: %w", absPath, err)
 	}
+
 	backup := j.backupPath(absPath)
 	sum, err := copyFileWithSha(absPath, backup)
 	if err != nil {
@@ -88,6 +91,7 @@ func (j *Journal) relTo(abs string) string {
 	if len(j.meta.Cwd) == 0 {
 		return filepath.Base(abs)
 	}
+
 	rel, err := filepath.Rel(j.meta.Cwd, abs)
 	if err != nil || strings.HasPrefix(rel, "..") {
 		return filepath.Base(abs)
@@ -110,10 +114,12 @@ func copyFileWithSha(src, dst string) (string, error) {
 	if err := os.MkdirAll(filepath.Dir(dst), 0o755); err != nil {
 		return "", fmt.Errorf("transaction backup mkdir: %w", err)
 	}
+
 	in, err := os.Open(src)
 	if err != nil {
 		return "", fmt.Errorf("transaction backup open src: %w", err)
 	}
+
 	defer in.Close()
 
 	return writeBackupAndHash(in, dst)
@@ -125,6 +131,7 @@ func writeBackupAndHash(in io.Reader, dst string) (string, error) {
 	if err != nil {
 		return "", fmt.Errorf("transaction backup create: %w", err)
 	}
+
 	defer out.Close()
 	h := sha256.New()
 	if _, err := io.Copy(io.MultiWriter(out, h), in); err != nil {

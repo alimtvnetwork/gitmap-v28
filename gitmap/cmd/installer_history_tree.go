@@ -16,6 +16,7 @@ func getInstallerTimestamp(scriptRecord model.InstallerScript) string {
 	if scriptRecord.UpdatedAt != "" {
 		return scriptRecord.UpdatedAt
 	}
+
 	return scriptRecord.CreatedAt
 }
 
@@ -26,6 +27,7 @@ func isScriptNewer(candidateRecord, currentRecord model.InstallerScript) bool {
 	if candidateTimestamp != currentTimestamp {
 		return candidateTimestamp > currentTimestamp
 	}
+
 	return candidateRecord.ID > currentRecord.ID
 }
 
@@ -35,9 +37,11 @@ func sortGroupedInstallers(latestBySlug map[string]model.InstallerScript, slugKe
 	for _, slugKey := range slugKeys {
 		sortedScripts = append(sortedScripts, latestBySlug[slugKey])
 	}
+
 	sort.Slice(sortedScripts, func(firstIndex, secondIndex int) bool {
 		return isScriptNewer(sortedScripts[firstIndex], sortedScripts[secondIndex])
 	})
+
 	return sortedScripts
 }
 
@@ -52,8 +56,10 @@ func updateLatestSlugRecord(
 	if !hasExisting {
 		*slugKeys = append(*slugKeys, slugKey)
 		latestMap[slugKey] = scriptRecord
+
 		return
 	}
+
 	if isScriptNewer(scriptRecord, existingRecord) {
 		latestMap[slugKey] = scriptRecord
 	}
@@ -66,6 +72,7 @@ func groupLatestInstallers(scriptList []model.InstallerScript) []model.Installer
 	for _, scriptRecord := range scriptList {
 		updateLatestSlugRecord(latestBySlug, &slugKeys, scriptRecord)
 	}
+
 	return sortGroupedInstallers(latestBySlug, slugKeys)
 }
 
@@ -75,6 +82,7 @@ func formatHistoryMetadata(scriptRecord model.InstallerScript) string {
 	if timestampText != "" {
 		return fmt.Sprintf("(%s, %s)", scriptRecord.TargetOS, timestampText)
 	}
+
 	return fmt.Sprintf("(%s)", scriptRecord.TargetOS)
 }
 
@@ -83,6 +91,7 @@ func getHistoryDescription(scriptRecord model.InstallerScript) string {
 	if scriptRecord.Description != "" {
 		return scriptRecord.Description
 	}
+
 	return "Installed component"
 }
 
@@ -108,8 +117,10 @@ func renderHistoryEntry(scriptRecord model.InstallerScript) {
 	profileRecord, hasProfile := resolveProfileTree(scriptRecord.Slug)
 	if hasProfile {
 		printProfileTree(profileRecord)
+
 		return
 	}
+
 	renderSingleHistoryTree(scriptRecord)
 }
 
@@ -124,6 +135,7 @@ func renderGroupedHistoryList(groupedScripts []model.InstallerScript) {
 		if scriptIndex > 0 {
 			printHistoryDivider()
 		}
+
 		renderHistoryEntry(scriptRecord)
 	}
 }
@@ -133,10 +145,13 @@ func printInstallerHistoryTree(dbInstance *store.DB) {
 	if dbInstance == nil {
 		return
 	}
+
 	scriptList, errList := dbInstance.ListInstallHistory()
 	if errList != nil || len(scriptList) == 0 {
 		fmt.Printf("  %sNo installer history records found.%s\n", constants.ColorDim, constants.ColorReset)
+
 		return
 	}
+
 	renderGroupedHistoryList(groupLatestInstallers(scriptList))
 }

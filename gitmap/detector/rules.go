@@ -22,18 +22,23 @@ func detectCpp(
 	if name == constants.IndicatorCMakeLists {
 		indicator = constants.IndicatorCMakeLists
 	}
+
 	if name == constants.IndicatorMesonBuild {
 		indicator = constants.IndicatorMesonBuild
 	}
+
 	if strings.HasSuffix(name, constants.ExtVcxproj) {
 		indicator = name
 	}
+
 	if len(indicator) == 0 {
 		return
 	}
+
 	if isDuplicate(dir, constants.ProjectKeyCpp, results) {
 		return
 	}
+
 	addResult(dir, repoPath, repoID, repoName, constants.ProjectTypeCppID,
 		constants.ProjectKeyCpp, filepath.Base(dir), indicator, results)
 }
@@ -53,6 +58,7 @@ func detectCsharpFile(
 
 		return
 	}
+
 	if strings.HasSuffix(name, constants.ExtCsproj) {
 		detectCsharpStandalone(name, dir, repoPath, repoID, repoName, slnDirs, results)
 	}
@@ -70,6 +76,7 @@ func detectCsharpSln(
 	if isDuplicate(dir, constants.ProjectKeyCsharp, results) {
 		return
 	}
+
 	projName := strings.TrimSuffix(name, constants.ExtSln)
 	result := buildBaseResult(dir, repoPath, repoID, repoName,
 		constants.ProjectTypeCsharpID, constants.ProjectKeyCsharp, projName, name)
@@ -91,9 +98,11 @@ func detectCsharpStandalone(
 	if isUnderSlnDir(dir, slnDirs) {
 		return
 	}
+
 	if isDuplicate(dir, constants.ProjectKeyCsharp, results) {
 		return
 	}
+
 	projName := strings.TrimSuffix(name, constants.ExtCsproj)
 	addResult(dir, repoPath, repoID, repoName, constants.ProjectTypeCsharpID,
 		constants.ProjectKeyCsharp, projName, name, results)

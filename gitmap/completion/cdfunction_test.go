@@ -26,9 +26,11 @@ func TestAppendCDFunctionWritesManagedWrappers(t *testing.T) {
 	if !strings.Contains(text, constants.CDFuncMarker) {
 		t.Fatal("expected managed wrapper marker to be written")
 	}
+
 	if !strings.Contains(text, "gitmap() {") {
 		t.Fatal("expected gitmap shell wrapper to be written")
 	}
+
 	if !strings.Contains(text, "gcd() {") {
 		t.Fatal("expected gcd shell wrapper to be written")
 	}
@@ -65,6 +67,7 @@ func TestAppendCDFunctionDoesNotSkipPathSnippetMarker(t *testing.T) {
 	if err := os.WriteFile(path, []byte(pathSnippet), 0o644); err != nil {
 		t.Fatalf("seed profile failed: %v", err)
 	}
+
 	if err := appendCDFunction(constants.CDFuncPowerShell, path); err != nil {
 		t.Fatalf("appendCDFunction failed: %v", err)
 	}
@@ -73,6 +76,7 @@ func TestAppendCDFunctionDoesNotSkipPathSnippetMarker(t *testing.T) {
 	if err != nil {
 		t.Fatalf("read profile failed: %v", err)
 	}
+
 	if countCDFunctionStartMarkers(string(data)) != 1 {
 		t.Fatal("expected command wrapper after legacy PATH snippet marker")
 	}
@@ -101,9 +105,11 @@ func TestAppendCDFunctionAppendsManagedWrapperAfterLegacyMarker(t *testing.T) {
 	if !strings.Contains(text, legacy) {
 		t.Fatal("expected legacy wrapper to remain for migration safety")
 	}
+
 	if !strings.Contains(text, constants.CDFuncMarker) {
 		t.Fatal("expected managed wrapper marker to be appended")
 	}
+
 	if countCDFunctionStartMarkers(text) != 1 {
 		t.Fatal("expected exactly one managed wrapper marker")
 	}
@@ -117,6 +123,7 @@ func TestAppendCDFunctionRewritesLegacyEndMarker(t *testing.T) {
 	if err := os.WriteFile(path, []byte(block), 0o644); err != nil {
 		t.Fatalf("seed profile failed: %v", err)
 	}
+
 	if err := appendCDFunction(constants.CDFuncPowerShell, path); err != nil {
 		t.Fatalf("appendCDFunction failed: %v", err)
 	}
@@ -125,10 +132,12 @@ func TestAppendCDFunctionRewritesLegacyEndMarker(t *testing.T) {
 	if err != nil {
 		t.Fatalf("read profile failed: %v", err)
 	}
+
 	text := string(data)
 	if strings.Contains(text, "'stale'") {
 		t.Fatal("expected stale wrapper to be replaced")
 	}
+
 	if !strings.Contains(text, constants.CDFuncMarkerEnd) {
 		t.Fatal("expected canonical installer-compatible end marker")
 	}
@@ -142,6 +151,7 @@ func TestAppendCDFunctionMovesManagedWrapperAfterStaleSnippet(t *testing.T) {
 	if err := os.WriteFile(path, []byte(seed), 0o644); err != nil {
 		t.Fatalf("seed profile failed: %v", err)
 	}
+
 	if err := appendCDFunction(constants.CDFuncPowerShell, path); err != nil {
 		t.Fatalf("appendCDFunction failed: %v", err)
 	}
@@ -150,6 +160,7 @@ func TestAppendCDFunctionMovesManagedWrapperAfterStaleSnippet(t *testing.T) {
 	if err != nil {
 		t.Fatalf("read profile failed: %v", err)
 	}
+
 	text := string(data)
 	if strings.LastIndex(text, constants.CDFuncMarker) < strings.LastIndex(text, "function gitmap { 'stale' }") {
 		t.Fatal("expected current command wrapper to load after stale wrapper")
@@ -191,6 +202,7 @@ func TestAppendCDFunctionsWritesToMultipleProfiles(t *testing.T) {
 		if err != nil {
 			t.Fatalf("read profile failed for %s: %v", path, err)
 		}
+
 		if !strings.Contains(string(data), constants.CDFuncMarker) {
 			t.Fatalf("expected managed wrapper marker in %s", path)
 		}
@@ -205,6 +217,7 @@ func TestRenderPowerShellCommandShimPinsInstalledExe(t *testing.T) {
 		constants.EnvGitmapCommandWrapper,
 		constants.EnvGitmapHandoffFile,
 	}
+
 	for _, want := range wants {
 		if !strings.Contains(got, want) {
 			t.Fatalf("shim missing %q\n%s", want, got)
@@ -223,5 +236,6 @@ func countCDFunctionStartMarkers(text string) int {
 			count++
 		}
 	}
+
 	return count
 }

@@ -18,6 +18,7 @@ func TestCopyEntryMissingSourceIsSilent(t *testing.T) {
 	if err != nil || n != 0 {
 		t.Fatalf("missing src: want (0,nil), got (%d,%v)", n, err)
 	}
+
 	if _, statErr := os.Stat(dst); !os.IsNotExist(statErr) {
 		t.Fatalf("dst should not be created for missing src, got %v", statErr)
 	}
@@ -28,11 +29,13 @@ func TestCopyEntryRegularFile(t *testing.T) {
 	if err := os.WriteFile(src, []byte("data"), 0o600); err != nil {
 		t.Fatal(err)
 	}
+
 	dst := filepath.Join(t.TempDir(), "nested", "Bookmarks")
 	n, err := copyEntry(src, dst)
 	if err != nil || n != 1 {
 		t.Fatalf("regular file: want (1,nil), got (%d,%v)", n, err)
 	}
+
 	got, _ := os.ReadFile(dst)
 	if string(got) != "data" {
 		t.Fatalf("dst content = %q", got)
@@ -50,6 +53,7 @@ func TestCopyDirNestedTreeCountsAllFiles(t *testing.T) {
 	if err != nil || n != 3 {
 		t.Fatalf("nested: want (3,nil), got (%d,%v)", n, err)
 	}
+
 	for _, rel := range []string{"a.txt", "sub/b.txt", "sub/deep/c.txt"} {
 		if _, err := os.Stat(filepath.Join(dst, filepath.FromSlash(rel))); err != nil {
 			t.Fatalf("missing %s: %v", rel, err)
@@ -64,6 +68,7 @@ func TestCopyDirEmptyDirectoryCreatesDestination(t *testing.T) {
 	if err != nil || n != 0 {
 		t.Fatalf("empty: want (0,nil), got (%d,%v)", n, err)
 	}
+
 	if info, statErr := os.Stat(dst); statErr != nil || !info.IsDir() {
 		t.Fatalf("dst dir not created: %v", statErr)
 	}
@@ -78,6 +83,7 @@ func TestCopyChromeProfileSkipsMissingEntries(t *testing.T) {
 	if err != nil {
 		t.Fatalf("err: %v", err)
 	}
+
 	if n != 2 {
 		t.Fatalf("count = %d, want 2", n)
 	}
@@ -103,6 +109,7 @@ func TestHandleChromeFileOpenErrorPropagatesNonLockErrors(t *testing.T) {
 	if !errors.As(err, &ce) {
 		t.Fatalf("want *chromeProfileCopyError, got %T", err)
 	}
+
 	if ce.Op != constants.ChromeProfileCopyOpRead || !errors.Is(ce.Err, cause) {
 		t.Fatalf("unexpected wrapped err: %+v", ce)
 	}
@@ -125,6 +132,7 @@ func TestIsChromeVolatileLockFileDetectsExactBasename(t *testing.T) {
 		"prefix-LOCK": false,
 		"LOCK/child":  false,
 	}
+
 	for in, want := range cases {
 		if got := isChromeVolatileLockFile(filepath.FromSlash(in)); got != want {
 			t.Errorf("%q: got %v want %v", in, got, want)
@@ -149,6 +157,7 @@ func mustWrite(t *testing.T, path, body string) {
 	if err := os.MkdirAll(filepath.Dir(path), 0o700); err != nil {
 		t.Fatal(err)
 	}
+
 	if err := os.WriteFile(path, []byte(body), 0o600); err != nil {
 		t.Fatal(err)
 	}

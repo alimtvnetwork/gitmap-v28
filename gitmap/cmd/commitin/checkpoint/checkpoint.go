@@ -54,6 +54,7 @@ func Open(stateDir, inputFingerprint string, runID int64) (*File, error) {
 	if err := os.MkdirAll(stateDir, 0o755); err != nil {
 		return nil, err
 	}
+
 	path := filepath.Join(stateDir, inputFingerprint+".json")
 	f := &File{path: path, done: map[string]struct{}{}, st: State{
 		Version: 1, Input: inputFingerprint, LastRunID: runID, UpdatedAt: time.Now(),
@@ -62,18 +63,24 @@ func Open(stateDir, inputFingerprint string, runID int64) (*File, error) {
 	if errors.Is(err, fs.ErrNotExist) {
 		return f, nil
 	}
+
 	if err != nil {
 		return nil, err
 	}
+
 	if jsonErr := json.Unmarshal(raw, &f.st); jsonErr != nil {
 		// Corrupted state file is not fatal — start fresh.
 		f.st = State{Version: 1, Input: inputFingerprint, LastRunID: runID}
+
 		return f, nil
 	}
+
 	for _, sha := range f.st.DoneShas {
 		f.done[sha] = struct{}{}
 	}
+
 	f.st.LastRunID = runID
+
 	return f, nil
 }
 
@@ -82,6 +89,7 @@ func (f *File) IsDone(sha string) bool {
 	f.mu.Lock()
 	defer f.mu.Unlock()
 	_, ok := f.done[sha]
+
 	return ok
 }
 
@@ -93,9 +101,11 @@ func (f *File) MarkDone(sha string) error {
 	if _, ok := f.done[sha]; ok {
 		return nil
 	}
+
 	f.done[sha] = struct{}{}
 	f.st.DoneShas = append(f.st.DoneShas, sha)
 	f.st.UpdatedAt = time.Now()
+
 	return f.flushLocked()
 }
 
@@ -104,9 +114,11 @@ func (f *File) flushLocked() error {
 	if err != nil {
 		return err
 	}
+
 	tmp := f.path + ".tmp"
 	if writeErr := os.WriteFile(tmp, raw, 0o644); writeErr != nil {
 		return writeErr
 	}
+
 	return os.Rename(tmp, f.path)
 }

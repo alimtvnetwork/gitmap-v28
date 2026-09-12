@@ -15,6 +15,7 @@ func executeSSHJoin(ctx context.Context, target string, history store.SSHHistory
 	if err != nil {
 		return apperror.New("executeSSHJoin", "E_INTERNAL_ERROR", map[string]any{"msg": "failed to open db", "err": err.Error()})
 	}
+
 	defer dbConn.Close()
 
 	return runJoinTransaction(ctx, dbConn.SQL(), target, history)

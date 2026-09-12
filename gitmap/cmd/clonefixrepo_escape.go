@@ -26,9 +26,11 @@ func escapeNestedGitRepo() {
 	if err != nil {
 		return
 	}
+
 	if !clonenext.IsGitRepo(cwd) {
 		return
 	}
+
 	origin := cwd
 	target := cwd
 	for hop := 0; hop < 32; hop++ {
@@ -36,17 +38,22 @@ func escapeNestedGitRepo() {
 		if parent == target {
 			break
 		}
+
 		target = parent
 		if !clonenext.IsGitRepo(target) {
 			break
 		}
 	}
+
 	if target == origin {
 		return
 	}
+
 	if chErr := os.Chdir(target); chErr != nil {
 		fmt.Fprintf(os.Stderr, constants.WarnCFREscapeChdir, target, chErr)
+
 		return
 	}
+
 	fmt.Fprintf(os.Stderr, constants.MsgCFREscapeNested, origin, target)
 }

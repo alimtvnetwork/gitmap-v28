@@ -16,13 +16,16 @@ func TestEmbeddedCorpusHeaders(t *testing.T) {
 		if err != nil || d.IsDir() {
 			return err
 		}
+
 		if filepath.Base(p) == "README.md" {
 			return nil
 		}
+
 		data, rErr := FS.ReadFile(p)
 		if rErr != nil {
 			t.Fatalf("read %s: %v", p, rErr)
 		}
+
 		assertHeader(t, p, data)
 
 		return nil
@@ -40,6 +43,7 @@ func assertHeader(t *testing.T, path string, data []byte) {
 		templateHeaderLang,
 		templateHeaderVersion,
 	}
+
 	seen := make(map[string]bool, len(required))
 
 	scanner := bufio.NewScanner(bytes.NewReader(data))
@@ -51,6 +55,7 @@ func assertHeader(t *testing.T, path string, data []byte) {
 			}
 		}
 	}
+
 	for _, prefix := range required {
 		if !seen[prefix] {
 			t.Errorf("%s: missing required header %q", path, prefix)
@@ -65,6 +70,7 @@ func TestSVGNotInLFSCommon(t *testing.T) {
 	if err != nil {
 		t.Fatalf("Resolve lfs/common: %v", err)
 	}
+
 	if bytes.Contains(r.Content, []byte("*.svg")) &&
 		bytes.Contains(r.Content, []byte("filter=lfs")) {
 		t.Fatal("lfs/common.gitattributes must not LFS-track *.svg (SVG is text)")

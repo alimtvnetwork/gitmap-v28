@@ -20,6 +20,7 @@ func main() {
 		if err != nil {
 			return err
 		}
+
 		if !strings.HasSuffix(path, ".go") || strings.Contains(path, "vendor") || strings.Contains(path, "node_modules") {
 			return nil
 		}
@@ -57,8 +58,10 @@ func main() {
 					}
 				}
 			}
+
 			return true
 		})
+
 		return nil
 	})
 

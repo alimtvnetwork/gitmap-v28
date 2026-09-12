@@ -39,6 +39,7 @@ func saveAliasCommand(ctx context.Context, ip string, alias string) error {
 	if err != nil {
 		return apperror.WrapSimple(err, "saveAliasCommand")
 	}
+
 	defer db.Close()
 
 	wrapper, appErr := dbengine.WrapDb(db.Conn(), dbengine.DbSQLite)
@@ -70,6 +71,7 @@ func executeSaveAliasTx(ctx context.Context, tx *dbengine.TxWrapper, ip, alias s
 		Username:  "",
 		CreatedAt: time.Now().UTC(),
 	}
+
 	if err := store.InsertSSHHost(ctx, host, tx.Tx()); err != nil {
 		return apperror.WrapSimple(err, "saveAliasCommand")
 	}

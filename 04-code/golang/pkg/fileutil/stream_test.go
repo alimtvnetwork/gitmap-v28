@@ -22,11 +22,13 @@ func TestStreamJSON(t *testing.T) {
 		{ID: 2, Name: "Bob"},
 		{ID: 3, Name: "Charlie"},
 	}
+
 	ExportJSON(path, users, FilePermStandard)
 
 	var count int
 	res := StreamJSON(path, func(u user) *appfault.AppError {
 		count++
+
 		return nil
 	})
 

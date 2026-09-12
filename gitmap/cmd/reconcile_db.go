@@ -16,6 +16,7 @@ func runPruneStaleDB(dir string, currentRecords []model.ScanRecord) error {
 
 		return nil
 	}
+
 	defer db.Close()
 	removed := pruneStaleRecords(db, dir, currentRecords)
 	fmt.Printf(" [pruned: "+constants.ColorGreen+"ok"+constants.ColorReset+" - removed %d stale entries]\n", removed)
@@ -28,6 +29,7 @@ func pruneStaleRecords(db *store.DB, dir string, currentRecords []model.ScanReco
 	for _, r := range currentRecords {
 		validPaths[r.AbsolutePath] = true
 	}
+
 	allRepos, err := db.ListRepos()
 	if err != nil {
 		fmt.Printf(" [failed: load repos]\n")
@@ -44,6 +46,7 @@ func deleteStaleEntries(db *store.DB, dir string, allRepos []model.ScanRecord, v
 		if !isSubPath(dir, repo.AbsolutePath) || validPaths[repo.AbsolutePath] {
 			continue
 		}
+
 		if _, err := db.DeleteByPath(repo.AbsolutePath); err == nil {
 			removed++
 		}

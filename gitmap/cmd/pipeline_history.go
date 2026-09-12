@@ -24,6 +24,7 @@ func tryParseNegativeOffset(arg string) (int, bool) {
 	if !strings.HasPrefix(arg, "-") || len(arg) <= 1 {
 		return 0, false
 	}
+
 	val, err := strconv.Atoi(arg)
 	if err != nil || val >= 0 {
 		return 0, false
@@ -36,6 +37,7 @@ func extractLastFailuresFlag(args []string) (int, bool) {
 	if val, hasVal := ParseLastFailuresFlag(args); hasVal {
 		return val, true
 	}
+
 	if hasArgFlag(args, "--last-failures") {
 		return 5, true
 	}
@@ -62,9 +64,11 @@ func formatStatusBadge(conclusion, status string) string {
 	if conclusion == "success" {
 		return constants.ColorGreen + "PASS" + constants.ColorReset
 	}
+
 	if conclusion == "failure" {
 		return constants.ColorRed + "FAIL" + constants.ColorReset
 	}
+
 	if status == "in_progress" || status == "queued" {
 		return constants.ColorYellow + "RUNNING" + constants.ColorReset
 	}
@@ -76,6 +80,7 @@ func normalizeNegativeOffset(offset int) int {
 	if offset < 0 {
 		offset = -offset
 	}
+
 	if offset > 0 {
 		return offset - 1
 	}
@@ -108,6 +113,7 @@ func RenderHistorySummaryTable(runs []ghRunItem) {
 	if len(runs) == 0 {
 		return
 	}
+
 	limitRuns := capHistoryRuns(runs, 5)
 	fmt.Printf("  %s● Recent Pipeline Execution History (Last %d Runs):%s\n",
 		constants.ColorCyan, len(limitRuns), constants.ColorReset)
@@ -115,6 +121,7 @@ func RenderHistorySummaryTable(runs []ghRunItem) {
 	for i, r := range limitRuns {
 		printHistoryTableRow(r, i+1)
 	}
+
 	fmt.Println()
 }
 
@@ -154,12 +161,15 @@ func printFailedJobItem(j FailedJobItem) {
 func renderFailedJobItems(jobs []FailedJobItem) {
 	if len(jobs) == 0 {
 		fmt.Println("    • No detailed failing steps could be parsed.")
+
 		return
 	}
+
 	fmt.Println("    • Failing Steps & Diagnostics:")
 	for _, j := range jobs {
 		printFailedJobItem(j)
 	}
+
 	fmt.Println()
 }
 
@@ -180,8 +190,10 @@ func renderPositionalRunTerminal(repo string, runs []ghRunItem, run ghRunItem, o
 	isFailure := run.Conclusion == "failure"
 	if isFailure {
 		renderFailingPositionalRun(repo, run, offset)
+
 		return
 	}
+
 	renderPassingPositionalRun(runs, run, offset)
 }
 
@@ -190,11 +202,14 @@ func InspectPositionalRun(repo string, runs []ghRunItem, offset int, isJSON bool
 	run, hasRun := resolveRunByOffset(runs, offset)
 	if !hasRun {
 		fmt.Printf("No pipeline run found at offset %d for %s.\n", offset, repo)
+
 		return nil
 	}
+
 	if isJSON {
 		return printJSON(run)
 	}
+
 	renderPositionalRunTerminal(repo, runs, run, offset)
 
 	return nil
@@ -203,8 +218,10 @@ func InspectPositionalRun(repo string, runs []ghRunItem, offset int, isJSON bool
 func renderCachedErrorsList(errors []pipelinedb.PipelineErrorRecord) {
 	if len(errors) == 0 {
 		fmt.Println("  │ Error: (No error diagnostic logs cached for this run)")
+
 		return
 	}
+
 	for _, e := range errors {
 		fmt.Printf("  │ Step:  %s\n", e.StepName)
 		fmt.Printf("  │ Error: %s%s%s\n", constants.ColorRed, e.ErrorText, constants.ColorReset)
@@ -228,8 +245,10 @@ func renderCachedFailuresTerminal(db *pipelinedb.PipelineSplitDb, repo string, r
 	if len(runs) == 0 {
 		fmt.Printf("\n  No cached pipeline failures found in SQLite for %s.\n", repo)
 		fmt.Printf("  Pipeline DB: %s\n\n", relDb)
+
 		return
 	}
+
 	fmt.Printf("\n  %s● Last %d Cached Pipeline Failure(s) from SQLite (%s):%s\n",
 		constants.ColorRed, len(runs), relDb, constants.ColorReset)
 	for i, r := range runs {
@@ -242,10 +261,12 @@ func fetchLastCachedFailures(repo string, count int) (*pipelinedb.PipelineSplitD
 	if err != nil {
 		return nil, nil, err
 	}
+
 	limit := resolveMaxSyncLimit(count)
 	runs, err := db.QueryLastFailedRuns(limit)
 	if err != nil {
 		_ = db.Close()
+
 		return nil, nil, err
 	}
 
@@ -258,10 +279,12 @@ func RenderLastCachedFailures(repo string, count int, isJSON bool) error {
 	if err != nil {
 		return err
 	}
+
 	defer db.Close()
 	if isJSON {
 		return printJSON(runs)
 	}
+
 	renderCachedFailuresTerminal(db, repo, runs)
 
 	return nil
@@ -274,8 +297,10 @@ func HandlePipelineHistoryErrors(args []string) (bool, error) {
 	offset, hasOffset := extractNegativeOffset(args)
 	if hasOffset {
 		runs := queryWorkflowRuns(repo)
+
 		return true, InspectPositionalRun(repo, runs, offset, isJSON)
 	}
+
 	count, hasLastFailures := extractLastFailuresFlag(args)
 	if hasLastFailures {
 		return true, RenderLastCachedFailures(repo, count, isJSON)

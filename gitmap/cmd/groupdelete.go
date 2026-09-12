@@ -12,6 +12,7 @@ func runGroupDelete(args []string) error {
 	if len(args) == 0 {
 		return apperror.NewSimple(constants.ErrGroupNameReq, "E9000")
 	}
+
 	name := args[0]
 	if appErr := executeGroupDelete(name); appErr != nil {
 		return appErr
@@ -26,12 +27,14 @@ func executeGroupDelete(name string) *apperror.AppError {
 	if err != nil {
 		return apperror.WrapSimple(err, constants.ErrListDBFailed)
 	}
+
 	defer db.Close()
 
 	err = db.DeleteGroup(name)
 	if err != nil {
 		return apperror.WrapSimple(err, constants.ErrBareFmt)
 	}
+
 	fmt.Printf(constants.MsgGroupDeleted, name)
 
 	return nil

@@ -10,7 +10,6 @@ import (
 func resolveWindowsConfigPath(subpath string) string {
 	appData := os.Getenv("APPDATA")
 	if appData != "" {
-
 		return filepath.Join(appData, filepath.FromSlash(subpath))
 	}
 
@@ -20,16 +19,15 @@ func resolveWindowsConfigPath(subpath string) string {
 // resolveOSConfigPath resolves cross-platform configuration directory.
 func resolveOSConfigPath(winSub, macSub, linuxSub string) string {
 	if runtime.GOOS == "windows" {
-
 		return resolveWindowsConfigPath(winSub)
 	}
+
 	home, err := os.UserHomeDir()
 	if err != nil {
-
 		return ""
 	}
-	if runtime.GOOS == "darwin" {
 
+	if runtime.GOOS == "darwin" {
 		return filepath.Join(home, "Library", "Application Support", filepath.FromSlash(macSub))
 	}
 
@@ -72,7 +70,6 @@ func resolveToolConfigDir(tool string) string {
 // resolveQBittorrentFileName returns .ini on Windows and .conf elsewhere.
 func resolveQBittorrentFileName() string {
 	if runtime.GOOS == "windows" {
-
 		return "qBittorrent.ini"
 	}
 
@@ -82,11 +79,10 @@ func resolveQBittorrentFileName() string {
 // resolveDefaultConfigFileNameForOS returns primary config file name for the OS.
 func resolveDefaultConfigFileNameForOS(tool string) string {
 	if tool == "qtorrent" {
-
 		return resolveQBittorrentFileName()
 	}
-	if tool == "utorrent" {
 
+	if tool == "utorrent" {
 		return "settings.dat"
 	}
 

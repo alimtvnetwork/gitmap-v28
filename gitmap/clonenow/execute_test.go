@@ -26,6 +26,7 @@ func TestPickURL_Modes(t *testing.T) {
 	if got := full.PickURL(constants.CloneNowModeHTTPS); got != full.HTTPSUrl {
 		t.Errorf("https mode: %q", got)
 	}
+
 	if got := full.PickURL(constants.CloneNowModeSSH); got != full.SSHUrl {
 		t.Errorf("ssh mode: %q", got)
 	}
@@ -35,11 +36,13 @@ func TestPickURL_Modes(t *testing.T) {
 	if got := httpsOnly.PickURL(constants.CloneNowModeSSH); got != httpsOnly.HTTPSUrl {
 		t.Errorf("ssh->https fallback: %q", got)
 	}
+
 	// Fallback: https requested but only ssh present.
 	sshOnly := Row{SSHUrl: "git@x:a.git"}
 	if got := sshOnly.PickURL(constants.CloneNowModeHTTPS); got != sshOnly.SSHUrl {
 		t.Errorf("https->ssh fallback: %q", got)
 	}
+
 	// No URLs at all -> empty (executor reports as failed).
 	if got := (Row{}).PickURL(constants.CloneNowModeHTTPS); got != "" {
 		t.Errorf("empty pick: %q", got)
@@ -56,15 +59,18 @@ func TestExecuteRow_NonRepoDestFails(t *testing.T) {
 	if err := os.MkdirAll(dest, 0o755); err != nil {
 		t.Fatalf("mkdir: %v", err)
 	}
+
 	if err := os.WriteFile(filepath.Join(dest, "marker"), []byte("x"), 0o644); err != nil {
 		t.Fatalf("write: %v", err)
 	}
+
 	row := Row{HTTPSUrl: "https://example.com/x.git", RelativePath: "existing"}
 	plan := Plan{Mode: constants.CloneNowModeHTTPS, OnExists: constants.CloneNowOnExistsSkip}
 	res := executeRow(row, plan, tmp)
 	if res.Status != constants.CloneNowStatusFailed {
 		t.Errorf("status = %q, want failed", res.Status)
 	}
+
 	if res.Detail != constants.MsgCloneNowNotARepo {
 		t.Errorf("detail = %q", res.Detail)
 	}
@@ -76,6 +82,7 @@ func TestExecuteRow_NoURLIsFailure(t *testing.T) {
 	if res.Status != constants.CloneNowStatusFailed {
 		t.Errorf("status = %q, want failed", res.Status)
 	}
+
 	if res.Detail != constants.MsgCloneNowNoURL {
 		t.Errorf("detail = %q", res.Detail)
 	}
@@ -88,10 +95,12 @@ func TestRender_DryRunBytes(t *testing.T) {
 			{RepoName: "a", SSHUrl: "git@x:a.git", RelativePath: "src/a", Branch: "main"},
 		},
 	}
+
 	var buf bytes.Buffer
 	if err := Render(&buf, plan); err != nil {
 		t.Fatalf("Render: %v", err)
 	}
+
 	got := buf.String()
 	for _, want := range []string{"git@x:a.git", "src/a", "main", "mode=ssh"} {
 		if !bytesContains(got, want) {
@@ -106,10 +115,12 @@ func TestRenderSummary_Tally(t *testing.T) {
 		{Status: constants.CloneNowStatusSkipped, URL: "u2", Dest: "d2", Detail: "dest exists"},
 		{Status: constants.CloneNowStatusFailed, URL: "u3", Dest: "d3", Detail: "boom"},
 	}
+
 	var buf bytes.Buffer
 	if err := RenderSummary(&buf, results); err != nil {
 		t.Fatalf("RenderSummary: %v", err)
 	}
+
 	got := buf.String()
 	for _, want := range []string{"1 ok", "1 skipped", "1 failed", "boom"} {
 		if !bytesContains(got, want) {

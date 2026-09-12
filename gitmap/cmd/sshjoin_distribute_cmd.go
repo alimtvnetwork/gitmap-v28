@@ -25,6 +25,7 @@ func executeDistributeKeys(args []string) error {
 	}
 
 	hosts := ParseMultiIPList(args[0])
+
 	return DistributeKeysToHosts(context.Background(), hosts, "root", 22)
 }
 

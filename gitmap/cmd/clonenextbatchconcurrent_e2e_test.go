@@ -29,12 +29,14 @@ func TestE2E_BatchConcurrency_DeterministicOrdering(t *testing.T) {
 	if len(results) != len(repos) {
 		t.Fatalf("results length %d != input %d", len(results), len(repos))
 	}
+
 	for i, r := range results {
 		if r.RepoPath != repos[i] {
 			t.Fatalf("ordering drift at index %d: got %s, want %s",
 				i, r.RepoPath, repos[i])
 		}
 	}
+
 	if atomic.LoadInt64(peak) < 2 {
 		t.Fatalf("pool never went parallel (peak inflight = %d) — test is invalid",
 			atomic.LoadInt64(peak))
@@ -77,6 +79,7 @@ func TestE2E_BatchConcurrency_ProgressCallbackFires(t *testing.T) {
 	if got := atomic.LoadInt64(&seenCount); int(got) != len(repos) {
 		t.Fatalf("callback fired %d times, want %d", got, len(repos))
 	}
+
 	if len(results) != len(repos) {
 		t.Fatalf("results length: got %d, want %d", len(results), len(repos))
 	}
@@ -116,8 +119,10 @@ func TestE2E_BatchConcurrency_CollectorReordersByInputIndex(t *testing.T) {
 		mu.Lock()
 		completionOrder = append(completionOrder, path)
 		mu.Unlock()
+
 		return batchRowResult{RepoPath: path, FromVersion: "v1", ToVersion: "v2"}
 	}
+
 	t.Cleanup(func() { processOneBatchRepoFn = original })
 
 	// workers == n guarantees every job starts immediately, so the
@@ -136,6 +141,7 @@ func indexFromRepoPath(path string) int {
 	if _, err := fmt.Sscanf(path, "/tmp/repo-%d", &idx); err != nil {
 		return 0
 	}
+
 	return idx
 }
 
@@ -149,6 +155,7 @@ func assertCompletionOrderRandomized(t *testing.T, completionOrder, repos []stri
 		t.Fatalf("completion order length %d != input %d",
 			len(completionOrder), len(repos))
 	}
+
 	matchesInputOrder := true
 	for i, p := range completionOrder {
 		if p != repos[i] {
@@ -156,6 +163,7 @@ func assertCompletionOrderRandomized(t *testing.T, completionOrder, repos []stri
 			break
 		}
 	}
+
 	if matchesInputOrder {
 		t.Fatalf("completion order matched input order — randomization stub failed, " +
 			"reorder-by-index assertion would be trivial")
@@ -170,6 +178,7 @@ func assertResultsMatchInputOrder(t *testing.T, results []batchRowResult, repos 
 	if len(results) != len(repos) {
 		t.Fatalf("results length %d != input %d", len(results), len(repos))
 	}
+
 	for i, r := range results {
 		if r.RepoPath != repos[i] {
 			t.Fatalf("collector failed to reorder: results[%d].RepoPath = %q, want %q",

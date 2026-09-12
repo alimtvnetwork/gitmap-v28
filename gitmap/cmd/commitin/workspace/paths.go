@@ -30,10 +30,12 @@ func EnsureWorkspace(sourceRoot string) (*Paths, error) {
 	if err != nil {
 		return nil, fmt.Errorf("absolutize source: %w", err)
 	}
+
 	p := buildPaths(abs)
 	if mkErr := makeDirs(p); mkErr != nil {
 		return nil, mkErr
 	}
+
 	return p, nil
 }
 
@@ -41,6 +43,7 @@ func EnsureWorkspace(sourceRoot string) (*Paths, error) {
 func buildPaths(sourceRoot string) *Paths {
 	gitmapRoot := filepath.Join(sourceRoot, constants.GitMapDir)
 	commitInRoot := filepath.Join(gitmapRoot, constants.CommitInDirRoot)
+
 	return &Paths{
 		SourceRoot:   sourceRoot,
 		GitmapRoot:   gitmapRoot,
@@ -60,5 +63,6 @@ func makeDirs(p *Paths) error {
 			return fmt.Errorf("mkdir %s: %w", dir, err)
 		}
 	}
+
 	return nil
 }

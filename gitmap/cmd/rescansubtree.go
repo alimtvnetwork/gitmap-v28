@@ -58,6 +58,7 @@ func runRescanSubtree(args []string) error {
 	fmt.Printf("  ▶ gitmap rescan-subtree — %s (max-depth=%s)\n",
 		abs, extractMaxDepthForLog(scanArgs))
 	runScan(scanArgs)
+
 	return nil
 }
 
@@ -78,15 +79,18 @@ func splitRescanSubtreeArgs(args []string) (string, []string, error) {
 			flags = append(flags, a)
 			continue
 		}
+
 		if len(a) > 0 && a[0] == '-' && i+1 < len(args) && !flagHasInlineValue(a) && !isLikelyBoolFlag(a) {
 			flags = append(flags, a)
 			skipNext = true
 			continue
 		}
+
 		if len(a) > 0 && a[0] == '-' {
 			flags = append(flags, a)
 			continue
 		}
+
 		positionals = append(positionals, a)
 	}
 
@@ -111,6 +115,7 @@ func flagHasInlineValue(token string) bool {
 			return true
 		}
 	}
+
 	return false
 }
 
@@ -130,6 +135,7 @@ func isLikelyBoolFlag(token string) bool {
 		"--no-probe-wait", "-no-probe-wait":
 		return true
 	}
+
 	return false
 }
 
@@ -142,6 +148,7 @@ func resolveRescanSubtreePath(path string) (string, error) {
 	if err != nil {
 		return "", fmt.Errorf("  Error: cannot resolve %q: %w", path, err)
 	}
+
 	info, err := os.Stat(abs)
 	if err != nil && os.IsNotExist(err) {
 		return "", fmt.Errorf(
@@ -149,13 +156,16 @@ func resolveRescanSubtreePath(path string) (string, error) {
 				"         Did you copy the absolutePath from a row that has since moved?",
 			abs)
 	}
+
 	if err != nil {
 		return "", fmt.Errorf("  Error: cannot stat %s: %w", abs, err)
 	}
+
 	if !info.IsDir() {
 		return "", fmt.Errorf(
 			"  Error: rescan-subtree target is not a directory: %s", abs)
 	}
+
 	return abs, nil
 }
 
@@ -173,7 +183,9 @@ func buildRescanSubtreeArgs(absDir string, forwardedFlags []string) []string {
 			"--"+constants.FlagScanMaxDepth,
 			strconv.Itoa(constants.RescanSubtreeDefaultMaxDepth))
 	}
+
 	out = append(out, absDir)
+
 	return out
 }
 
@@ -186,6 +198,7 @@ func containsMaxDepthFlag(flags []string) bool {
 		if f == "--"+want || f == "-"+want {
 			return true
 		}
+
 		// `--max-depth=8` / `-max-depth=8`
 		prefixDouble := "--" + want + "="
 		prefixSingle := "-" + want + "="
@@ -193,6 +206,7 @@ func containsMaxDepthFlag(flags []string) bool {
 			return true
 		}
 	}
+
 	return false
 }
 
@@ -203,11 +217,13 @@ func startsWith(s, prefix string) bool {
 	if len(s) < len(prefix) {
 		return false
 	}
+
 	for i := 0; i < len(prefix); i++ {
 		if s[i] != prefix[i] {
 			return false
 		}
 	}
+
 	return true
 }
 
@@ -227,15 +243,19 @@ func extractMaxDepthForLog(scanArgs []string) string {
 		if (a == "--"+want || a == "-"+want) && i+1 < len(scanArgs) {
 			return scanArgs[i+1]
 		}
+
 		if a == "--"+want || a == "-"+want {
 			return "auto"
 		}
+
 		if startsWith(a, prefixDouble) {
 			return a[len(prefixDouble):]
 		}
+
 		if startsWith(a, prefixSingle) {
 			return a[len(prefixSingle):]
 		}
 	}
+
 	return "auto"
 }

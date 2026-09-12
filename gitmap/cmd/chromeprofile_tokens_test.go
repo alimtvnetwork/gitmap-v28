@@ -21,6 +21,7 @@ func TestChromeTokensDoubleBase64Roundtrip(t *testing.T) {
 		if err != nil {
 			t.Fatalf("DecodeDoubleBase64 failed: %v", err)
 		}
+
 		if !bytes.Equal(original, decoded) {
 			t.Errorf("expected %q, got %q", original, decoded)
 		}
@@ -56,6 +57,7 @@ func TestChromeTokensCaesarByteShiftRoundtrip(t *testing.T) {
 		if err != nil {
 			t.Fatalf("DecodeCaesarByteShift failed: %v", err)
 		}
+
 		if !bytes.Equal(data, decoded) {
 			t.Errorf("shift %d: byte data mismatch", shift)
 		}
@@ -70,6 +72,7 @@ func TestChromeTokenVaultSQLiteRoundtrip(t *testing.T) {
 	if err != nil {
 		t.Fatalf("sql.Open failed: %v", err)
 	}
+
 	defer db.Close()
 
 	_, err = db.Exec("CREATE TABLE token_service (service VARCHAR PRIMARY KEY NOT NULL, encrypted_token BLOB NOT NULL)")
@@ -82,15 +85,18 @@ func TestChromeTokenVaultSQLiteRoundtrip(t *testing.T) {
 	if err != nil {
 		t.Fatalf("insert failed: %v", err)
 	}
+
 	db.Close()
 
 	vault, err := readChromeTokenService(tmpDir)
 	if err != nil {
 		t.Fatalf("readChromeTokenService failed: %v", err)
 	}
+
 	if vault == nil {
 		t.Fatalf("expected non-nil vault")
 	}
+
 	if vault.Count != 1 {
 		t.Errorf("expected count 1, got %d", vault.Count)
 	}
@@ -99,12 +105,15 @@ func TestChromeTokenVaultSQLiteRoundtrip(t *testing.T) {
 	if entry.Service != "AccountId-118122973631983074723" {
 		t.Errorf("unexpected service: %s", entry.Service)
 	}
+
 	if _, ok := entry.Variations["doubleBase64"]; !ok {
 		t.Errorf("missing doubleBase64 variation")
 	}
+
 	if _, ok := entry.Variations["caesarCipher"]; !ok {
 		t.Errorf("missing caesarCipher variation")
 	}
+
 	if _, ok := entry.Variations["caesarByteShift"]; !ok {
 		t.Errorf("missing caesarByteShift variation")
 	}
@@ -120,6 +129,7 @@ func TestChromeTokenVaultSQLiteRoundtrip(t *testing.T) {
 	if err != nil {
 		t.Fatalf("open dst db failed: %v", err)
 	}
+
 	defer dstDB.Close()
 
 	var restoredService string
@@ -128,6 +138,7 @@ func TestChromeTokenVaultSQLiteRoundtrip(t *testing.T) {
 	if err != nil {
 		t.Fatalf("query restored token failed: %v", err)
 	}
+
 	if !bytes.Equal(tokenData, restoredBytes) {
 		t.Errorf("restored token mismatch: expected %q, got %q", tokenData, restoredBytes)
 	}
@@ -140,6 +151,7 @@ func TestBuildExportFromDiskIncludesTokenVault(t *testing.T) {
 	if exp.TokenVault == nil {
 		t.Fatalf("expected TokenVault to be populated")
 	}
+
 	if exp.TokenVault.Count != 1 {
 		t.Errorf("expected 1 token in vault, got %d", exp.TokenVault.Count)
 	}
@@ -151,6 +163,7 @@ func initDummyTokenWebData(t *testing.T, dir string) {
 	if err != nil {
 		t.Fatalf("open db: %v", err)
 	}
+
 	defer db.Close()
 	_, _ = db.Exec("CREATE TABLE token_service (service VARCHAR PRIMARY KEY NOT NULL, encrypted_token BLOB NOT NULL)")
 	_, _ = db.Exec("INSERT INTO token_service (service, encrypted_token) VALUES (?, ?)", "service-1", []byte("secret-token"))

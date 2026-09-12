@@ -39,20 +39,21 @@ import (
 // failures (exit 1).
 func confirmCloneNowExistingDestsOrExit(plan clonenow.Plan, cfg cloneNowFlags) {
 	if cfg.assumeYes {
-
 		return
 	}
+
 	existing := collectExistingDests(plan, cfg.cwd)
 	if len(existing) == 0 {
-
 		return
 	}
+
 	printExistingDestsPreview(existing, plan.OnExists)
 	isNonStdinInteractive := !isStdinInteractive()
 	if isNonStdinInteractive {
 		fmt.Fprint(os.Stderr, constants.MsgCloneNowConfirmNonTTY)
 		cliexit.HandleError(nil, constants.CloneNowExitConfirmAborted)
 	}
+
 	if !readUserConfirmation() {
 		fmt.Fprint(os.Stderr, constants.MsgCloneNowConfirmAborted)
 		cliexit.HandleError(nil, constants.CloneNowExitConfirmAborted)
@@ -70,12 +71,13 @@ func collectExistingDests(plan clonenow.Plan, cwd string) []string {
 	if base == "" {
 		base = "."
 	}
+
 	out := make([]string, 0, len(plan.Rows))
 	for _, r := range plan.Rows {
 		if r.RelativePath == "" {
-
 			continue
 		}
+
 		cleaned := model.CleanRelativePath(r.RelativePath)
 		if destPathExists(filepath.Join(base, cleaned)) {
 			out = append(out, cleaned)
@@ -90,7 +92,6 @@ func collectExistingDests(plan clonenow.Plan, cwd string) []string {
 func destPathExists(p string) bool {
 	_, err := os.Stat(p)
 	if err == nil {
-
 		return true
 	}
 
@@ -108,9 +109,11 @@ func printExistingDestsPreview(existing []string, onExists string) {
 	if shown > limit {
 		shown = limit
 	}
+
 	for i := 0; i < shown; i++ {
 		fmt.Fprintf(os.Stderr, constants.MsgCloneNowConfirmBullet, existing[i])
 	}
+
 	if len(existing) > shown {
 		fmt.Fprintf(os.Stderr, constants.MsgCloneNowConfirmTruncated,
 			len(existing)-shown)
@@ -125,7 +128,6 @@ func printExistingDestsPreview(existing []string, onExists string) {
 func isStdinInteractive() bool {
 	info, err := os.Stdin.Stat()
 	if err != nil {
-
 		return false
 	}
 
@@ -142,9 +144,9 @@ func readUserConfirmation() bool {
 	reader := bufio.NewReader(os.Stdin)
 	line, err := reader.ReadString('\n')
 	if err != nil && line == "" {
-
 		return false
 	}
+
 	answer := strings.ToLower(strings.TrimSpace(line))
 
 	return answer == constants.CloneNowConfirmYes

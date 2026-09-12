@@ -40,16 +40,20 @@ func runAgyRemoveMissing() error {
 	if pathErr != nil {
 		return apperror.WrapSimple(pathErr, "path error")
 	}
+
 	projects, loadErr := loadAllAgyProjects(dirPath)
 	if loadErr != nil {
 		return apperror.WrapSimple(loadErr, "load projects")
 	}
+
 	missingProjects := findMissingAgyProjects(projects, agyRmMissingExcept)
 	if len(missingProjects) == 0 {
 		fmt.Printf("%s No missing Antigravity projects found to remove. All paths exist.\n",
 			constants.ColorGreen+"✓"+constants.ColorReset)
+
 		return nil
 	}
+
 	return executeRemoveMissing(dirPath, missingProjects, len(projects))
 }
 
@@ -60,11 +64,13 @@ func findMissingAgyProjects(projects []AgyProject, exceptStr string) []AgyProjec
 		if p.ID == "outside-of-project" || isAgyProjectExceptedWithTokens(p, tokens) {
 			continue
 		}
+
 		path := p.GetPath()
 		if path != "" && !checkDirExists(path) {
 			missing = append(missing, p)
 		}
 	}
+
 	return missing
 }
 
@@ -73,12 +79,16 @@ func executeRemoveMissing(dirPath string, targets []AgyProject, totalCount int) 
 	if agyRmMissingDryRun {
 		fmt.Printf("\n%s [dry-run] %d missing project(s) would be removed. Remaining active: %d\n",
 			constants.ColorYellow+"ℹ"+constants.ColorReset, len(targets), totalCount-len(targets))
+
 		return nil
 	}
+
 	if !agyRmMissingYes && !askMissingConfirmation(len(targets)) {
 		fmt.Println("Removal canceled. No changes made.")
+
 		return nil
 	}
+
 	return deleteMissingFiles(dirPath, targets, totalCount-len(targets))
 }
 
@@ -91,6 +101,7 @@ func printMissingPreview(targets []AgyProject) {
 		slug := filepath.Base(p.GetPath())
 		fmt.Printf("    %-12s %-22s %-20s %s\n", shortProjectId(p.ID), p.Name, slug, p.GetPath())
 	}
+
 	fmt.Printf("\n    %sTip: Exclude items using: --except \"<id, name, slug, or starts-with text>\"%s\n",
 		constants.ColorDim, constants.ColorReset)
 }
@@ -101,6 +112,7 @@ func askMissingConfirmation(count int) bool {
 	reader := bufio.NewReader(os.Stdin)
 	text, _ := reader.ReadString('\n')
 	text = strings.TrimSpace(strings.ToLower(text))
+
 	return text == "y" || text == "yes"
 }
 
@@ -112,7 +124,9 @@ func deleteMissingFiles(dirPath string, targets []AgyProject, remainingCount int
 			deleted++
 		}
 	}
+
 	fmt.Printf("\n%s Successfully removed %d missing Antigravity project(s). Remaining: %d\n",
 		constants.ColorGreen+"✓"+constants.ColorReset, deleted, remainingCount)
+
 	return nil
 }

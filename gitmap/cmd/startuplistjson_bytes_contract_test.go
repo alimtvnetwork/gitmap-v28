@@ -47,6 +47,7 @@ func TestStartupListJSONBytes_MultiEntry(t *testing.T) {
 		{Name: "gitmap-b", Path: "/p/b.desktop", Exec: "/bin/b --flag"},
 		{Name: "gitmap-c", Path: "/p/c.desktop", Exec: ""},
 	}
+
 	assertGoldenBytesDeterministic(t, "startup_list_multi.json", func() ([]byte, error) {
 		var buf bytes.Buffer
 		err := encodeStartupListJSON(&buf, entries)
@@ -86,6 +87,7 @@ func TestStartupListJSONBytes_SpecialChars(t *testing.T) {
 			Exec: "a\tb\nc\u0001d",
 		},
 	}
+
 	assertGoldenBytesDeterministic(t, "startup_list_special.json", func() ([]byte, error) {
 		var buf bytes.Buffer
 		err := encodeStartupListJSON(&buf, entries)

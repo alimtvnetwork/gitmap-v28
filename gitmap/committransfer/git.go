@@ -55,15 +55,18 @@ func revListReverse(dir, base, head string, includeMerges bool) ([]string, error
 	if !includeMerges {
 		args = append(args, "--no-merges")
 	}
+
 	rangeSpec := head
 	if base != "" {
 		rangeSpec = base + ".." + head
 	}
+
 	args = append(args, rangeSpec)
 	out, err := gitOut(dir, args...)
 	if err != nil {
 		return nil, err
 	}
+
 	if out == "" {
 		return nil, nil
 	}
@@ -82,12 +85,14 @@ func readCommit(dir, sha string) (subject, body, author, shortSHA string, when t
 
 		return
 	}
+
 	parts := strings.SplitN(out, "\x1f", 5)
 	if len(parts) != 5 {
 		err = apperror.Wrap(fmt.Errorf("unexpected output: %q", out), "git show", map[string]any{"sha": sha})
 
 		return
 	}
+
 	subject = parts[0]
 	body = strings.TrimSpace(parts[1])
 	author = parts[2]
@@ -164,6 +169,7 @@ func addAll(dir string) error {
 // non-zero (which means there ARE staged changes).
 func isWorkingTreeDirty(dir string) bool {
 	out, _ := gitOut(dir, "status", "--porcelain")
+
 	return strings.TrimSpace(out) != ""
 }
 

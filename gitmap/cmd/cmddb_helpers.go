@@ -60,6 +60,7 @@ func dedupeDirs(raw []string) []string {
 		if seen[clean] {
 			continue
 		}
+
 		seen[clean] = true
 		if isExistingDir(clean) {
 			out = append(out, clean)
@@ -79,9 +80,11 @@ func formatBytes(bytes int64) string {
 	if bytes < 1024 {
 		return fmt.Sprintf("%d B", bytes)
 	}
+
 	if bytes < 1024*1024 {
 		return fmt.Sprintf("%.1f KB", float64(bytes)/1024.0)
 	}
+
 	if bytes < 1024*1024*1024 {
 		return fmt.Sprintf("%.2f MB", float64(bytes)/(1024.0*1024.0))
 	}
@@ -96,6 +99,7 @@ func promptConfirm(msg string) (bool, error) {
 	if err != nil {
 		return false, err
 	}
+
 	ans := strings.ToLower(strings.TrimSpace(line))
 	hasConfirmed := ans == "y" || ans == "yes"
 
@@ -106,9 +110,11 @@ func confirmOrSkip(msg string, args []string) bool {
 	if hasConfirmFlag(args) {
 		return true
 	}
+
 	if !isInteractiveStdin() {
 		return false
 	}
+
 	hasConfirmed, err := promptConfirm(msg)
 
 	return err == nil && hasConfirmed
@@ -118,6 +124,7 @@ func isInteractiveStdin() bool {
 	if os.Getenv("CI") != "" || os.Getenv("GITMAP_NON_INTERACTIVE") == "1" {
 		return false
 	}
+
 	fi, err := os.Stdin.Stat()
 	if err != nil {
 		return false

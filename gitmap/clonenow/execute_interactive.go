@@ -21,6 +21,7 @@ func runInteractiveGitClone(cmd *exec.Cmd) (string, bool) {
 
 func isSSHCloneURL(url string) bool {
 	lower := strings.ToLower(strings.TrimSpace(url))
+
 	return strings.HasPrefix(lower, constants.PrefixSSH) ||
 		strings.HasPrefix(lower, constants.PrefixSSHScheme)
 }

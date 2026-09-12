@@ -48,12 +48,15 @@ func buildLogArgs(limit int, since string, noMerges bool) []string {
 	if limit > 0 {
 		args = append(args, "-n", strconv.Itoa(limit))
 	}
+
 	if len(since) > 0 {
 		args = append(args, "--since="+since)
 	}
+
 	if noMerges {
 		args = append(args, "--no-merges")
 	}
+
 	return args
 }
 
@@ -66,6 +69,7 @@ func queryTagDistance(repoPath, fromRef, toRef string) int {
 	}
 
 	count, _ := strconv.Atoi(strings.TrimSpace(out))
+
 	return count
 }
 

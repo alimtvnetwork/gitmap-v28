@@ -45,6 +45,7 @@ func encodeDatabaseExportJSON(w io.Writer, e model.DatabaseExport) error {
 		if err != nil {
 			return err
 		}
+
 		fields = append(fields, stablejson.Field{Key: entry.key, Value: raw})
 	}
 
@@ -77,6 +78,7 @@ func renderExportArrayRaw(slice any) (json.RawMessage, error) {
 	if isEmptyExportSlice(slice) {
 		return json.RawMessage("[]"), nil
 	}
+
 	var buf bytes.Buffer
 	enc := json.NewEncoder(&buf)
 	enc.SetIndent("  ", "  ")

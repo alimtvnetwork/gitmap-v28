@@ -20,6 +20,7 @@ func runAliasSuggest(args []string) error {
 	if err != nil {
 		return apperror.WrapSimple(err, constants.ErrListDBFailed)
 	}
+
 	defer db.Close()
 
 	repos, err := db.ListUnaliasedRepos()
@@ -36,6 +37,7 @@ func runAliasSuggest(args []string) error {
 	created := suggestAliases(db, repos, apply)
 	fmt.Printf(constants.MsgAliasSuggestDone, created)
 	printHints(aliasSuggestHints())
+
 	return nil
 }
 

@@ -162,6 +162,7 @@ func TestPipelineSyncResultCount(t *testing.T) {
 		DownloadedLogs: 2,
 		CachedErrors:   []uint64{1, 2, 3, 4},
 	}
+
 	cached := calculateAlreadyCachedCount(res)
 	if cached != 2 {
 		t.Fatalf("expected 2 cached, got %d", cached)
@@ -173,6 +174,7 @@ func TestPipelineDBOpenAndIndexes(t *testing.T) {
 	if err != nil {
 		t.Fatalf("failed to open test split db: %v", err)
 	}
+
 	defer db.Close()
 
 	if db.Path == "" {
@@ -185,6 +187,7 @@ func TestSyncAllRunsIntoDbIncremental(t *testing.T) {
 	if err != nil {
 		t.Fatalf("failed to open test split db: %v", err)
 	}
+
 	defer db.Close()
 
 	run := ghRunItem{

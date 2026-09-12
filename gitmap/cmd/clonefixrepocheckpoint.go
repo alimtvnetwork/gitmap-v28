@@ -37,13 +37,16 @@ func LoadCheckpoint(path string) (*CFRPCheckpoint, error) {
 	if os.IsNotExist(err) {
 		return nil, nil
 	}
+
 	if err != nil {
 		return nil, err
 	}
+
 	var cp CFRPCheckpoint
 	if err := json.Unmarshal(b, &cp); err != nil {
 		return nil, fmt.Errorf("checkpoint %s: %w", path, err)
 	}
+
 	return &cp, nil
 }
 
@@ -53,14 +56,17 @@ func SaveCheckpoint(path string, cp *CFRPCheckpoint) error {
 	if err := os.MkdirAll(filepath.Dir(path), 0o755); err != nil {
 		return err
 	}
+
 	tmp := path + ".tmp"
 	b, err := json.MarshalIndent(cp, "", "  ")
 	if err != nil {
 		return err
 	}
+
 	if err := os.WriteFile(tmp, b, 0o644); err != nil {
 		return err
 	}
+
 	return os.Rename(tmp, path)
 }
 
@@ -70,15 +76,18 @@ func FilterRemaining(cp *CFRPCheckpoint, all []string) []string {
 	if cp == nil || len(cp.Done) == 0 {
 		return all
 	}
+
 	done := make(map[string]struct{}, len(cp.Done))
 	for _, d := range cp.Done {
 		done[d] = struct{}{}
 	}
+
 	out := make([]string, 0, len(all))
 	for _, e := range all {
 		if _, ok := done[e]; !ok {
 			out = append(out, e)
 		}
 	}
+
 	return out
 }

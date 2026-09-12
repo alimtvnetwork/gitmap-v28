@@ -45,6 +45,7 @@ func Install() {
 		if activeMode == ModeBright {
 			return
 		}
+
 		os.Stdout = wrap(origStdout, activeMode)
 		os.Stderr = wrap(origStderr, activeMode)
 	})
@@ -91,6 +92,7 @@ func wrap(dst *os.File, mode ModeType) *os.File {
 		// Fall back to the original fd so output isn't lost.
 		return dst
 	}
+
 	done := make(chan struct{})
 	go func() {
 		forward(r, dst, mode)
@@ -113,6 +115,7 @@ func forward(r io.ReadCloser, dst io.Writer, mode ModeType) {
 		if n > 0 {
 			_, _ = dst.Write(Filter(buf[:n], mode))
 		}
+
 		if err != nil {
 			return
 		}
@@ -125,6 +128,7 @@ func detectTTY(f *os.File) bool {
 	if f == nil {
 		return false
 	}
+
 	info, err := f.Stat()
 	if err != nil {
 		return false

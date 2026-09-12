@@ -91,6 +91,7 @@ func mapCoreKey(jsonKey string) string {
 		"safecrlf":      "core.safecrlf",
 		"defaultBranch": "init.defaultBranch",
 	}
+
 	if mapped, ok := coreMap[jsonKey]; ok {
 		return mapped
 	}

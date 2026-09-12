@@ -30,6 +30,7 @@ func TestNormalizeWorkers(t *testing.T) {
 		{"over job count clamps down", 99, 5, 5},
 		{"empty job list keeps requested", 4, 0, 4},
 	}
+
 	for _, tc := range cases {
 		t.Run(tc.name, func(t *testing.T) {
 			t.Parallel()
@@ -78,10 +79,12 @@ func TestCloneAllPreservesNestedHierarchy(t *testing.T) {
 			if summary.Failed != 0 {
 				t.Fatalf("workers=%d: unexpected failures: %+v", workers, summary.Errors)
 			}
+
 			if summary.Succeeded != len(relPaths) {
 				t.Fatalf("workers=%d: succeeded=%d want=%d",
 					workers, summary.Succeeded, len(relPaths))
 			}
+
 			assertHierarchy(t, target, relPaths)
 		})
 	}

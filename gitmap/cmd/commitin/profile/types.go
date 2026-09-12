@@ -61,6 +61,7 @@ func (e *LoadError) Error() string {
 	if e.Cause == nil {
 		return e.Reason
 	}
+
 	return e.Reason + ": " + e.Cause.Error()
 }
 

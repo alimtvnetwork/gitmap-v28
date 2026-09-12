@@ -13,15 +13,19 @@ func TestParseMacroRetryConfig(t *testing.T) {
 	if cfg.Target != "my-macro" {
 		t.Errorf("expected target my-macro, got %s", cfg.Target)
 	}
+
 	if cfg.Delay != 3*time.Second {
 		t.Errorf("expected delay 3s, got %v", cfg.Delay)
 	}
+
 	if cfg.MaxRetries != 5 {
 		t.Errorf("expected max retries 5, got %d", cfg.MaxRetries)
 	}
+
 	if cfg.Backoff != "linear" {
 		t.Errorf("expected backoff linear, got %s", cfg.Backoff)
 	}
+
 	if !cfg.IsAI {
 		t.Errorf("expected IsAI to be true")
 	}
@@ -32,9 +36,11 @@ func TestCalculateBackoff(t *testing.T) {
 	if val := calculateBackoff(base, "fixed", 3); val != 2*time.Second {
 		t.Errorf("expected fixed 2s, got %v", val)
 	}
+
 	if val := calculateBackoff(base, "linear", 3); val != 6*time.Second {
 		t.Errorf("expected linear 6s, got %v", val)
 	}
+
 	if val := calculateBackoff(base, "exponential", 3); val != 8*time.Second {
 		t.Errorf("expected exponential 8s, got %v", val)
 	}

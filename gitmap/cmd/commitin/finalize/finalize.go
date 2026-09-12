@@ -26,6 +26,7 @@ func Outcome(c Counters) int {
 	if c.Failed == 0 {
 		return constants.CommitInExitOk
 	}
+
 	return constants.CommitInExitPartiallyFailed
 }
 
@@ -52,6 +53,7 @@ func CleanupTemp(tempRunDir string, keepTemp bool) {
 	if keepTemp || tempRunDir == "" {
 		return
 	}
+
 	if err := os.RemoveAll(tempRunDir); err != nil {
 		fmt.Fprintf(os.Stderr, "commit-in: cleanup: %v\n", err)
 	}

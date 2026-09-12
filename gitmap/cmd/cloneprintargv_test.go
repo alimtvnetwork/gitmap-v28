@@ -19,6 +19,7 @@ func TestPrintCloneArgv_Format(t *testing.T) {
 		"https://x/r.git", "r"}); err != nil {
 		t.Fatalf("print: %v", err)
 	}
+
 	want := strings.Join([]string{
 		"  argv[0]=git",
 		"  argv[1]=clone",
@@ -42,6 +43,7 @@ func TestPrintCloneArgv_EmptyNoOp(t *testing.T) {
 	if err := printCloneArgv(&buf, nil); err != nil {
 		t.Fatalf("print: %v", err)
 	}
+
 	if buf.Len() != 0 {
 		t.Fatalf("expected empty output, got %q", buf.String())
 	}
@@ -59,6 +61,7 @@ func TestRunCmdPrintArgv_GatedByFlag(t *testing.T) {
 	if cmdPrintArgvEnabled() {
 		t.Fatal("expected disabled after setCmdPrintArgv(false)")
 	}
+
 	setCmdPrintArgv(true)
 	if !cmdPrintArgvEnabled() {
 		t.Fatal("expected enabled after setCmdPrintArgv(true)")

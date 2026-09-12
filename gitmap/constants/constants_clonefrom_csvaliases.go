@@ -71,9 +71,11 @@ func normalizeHeader(s string) string {
 		if c == ' ' || c == '\t' || c == '_' || c == '-' {
 			continue
 		}
+
 		if c >= 'A' && c <= 'Z' {
 			c += 'a' - 'A'
 		}
+
 		out = append(out, c)
 	}
 

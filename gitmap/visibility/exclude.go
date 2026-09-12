@@ -41,6 +41,7 @@ func ParseExclusionList(raw string, totalCount int) ([]int, bool, error) {
 	if len(trimmed) == 0 || trimmed == ExcludeNone {
 		return []int{}, false, nil
 	}
+
 	if trimmed == ExcludeAll {
 		return nil, true, nil
 	}
@@ -71,9 +72,11 @@ func absorbExclusionToken(tok string, tokIdx, totalCount int, out map[int]bool) 
 	if err != nil {
 		return fmt.Errorf("Error: non-numeric exclusion token %q at position %d (operation: parse-exclusion, reason: %s)", tok, tokIdx, err.Error())
 	}
+
 	if err := checkExclusionBounds(n, totalCount, tok); err != nil {
 		return err
 	}
+
 	out[n] = true
 
 	return nil
@@ -87,15 +90,19 @@ func absorbExclusionRange(tok string, tokIdx, totalCount int, out map[int]bool) 
 	if errLo != nil || errHi != nil {
 		return fmt.Errorf("Error: malformed range %q at position %d (operation: parse-exclusion, reason: range bounds must be integers)", tok, tokIdx)
 	}
+
 	if hi < lo {
 		return fmt.Errorf("Error: descending range %q at position %d (operation: parse-exclusion, reason: hi < lo)", tok, tokIdx)
 	}
+
 	if err := checkExclusionBounds(lo, totalCount, tok); err != nil {
 		return err
 	}
+
 	if err := checkExclusionBounds(hi, totalCount, tok); err != nil {
 		return err
 	}
+
 	for n := lo; n <= hi; n++ {
 		out[n] = true
 	}
@@ -119,6 +126,7 @@ func sortedKeys(m map[int]bool) []int {
 	for k := range m {
 		keys = append(keys, k)
 	}
+
 	sort.Ints(keys)
 
 	return keys

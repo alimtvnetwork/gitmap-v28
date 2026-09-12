@@ -12,9 +12,11 @@ func TestParseBackend_RegistryHKLMRoundTrip(t *testing.T) {
 	if err != nil {
 		t.Fatalf("ParseBackend(registry-hklm) err = %v", err)
 	}
+
 	if b != BackendRegistryHKLM {
 		t.Fatalf("got enum %v, want BackendRegistryHKLM", b)
 	}
+
 	if got := b.String(); got != "registry-hklm" {
 		t.Errorf("String() = %q, want %q", got, "registry-hklm")
 	}

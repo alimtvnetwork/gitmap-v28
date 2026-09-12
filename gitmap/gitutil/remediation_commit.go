@@ -6,6 +6,7 @@ import "fmt"
 func GenerateCommitRecipe(repoPath string) RemediationRecipe {
 	p := CleanRepoPath(repoPath)
 	rawPath := CleanRepoPathRaw(repoPath)
+
 	return RemediationRecipe{
 		Title:       "Option 2 (Commit Work-In-Progress)",
 		Description: "Commit all modified and untracked files locally before pulling",

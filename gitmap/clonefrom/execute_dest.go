@@ -23,6 +23,7 @@ func resolveDest(r Row, cwd string) (string, string) {
 	if isEmptyDest {
 		dest = DeriveDest(r.URL)
 	}
+
 	absDest := dest
 	isRelativeDest := !filepath.IsAbs(absDest)
 	if isRelativeDest {
@@ -41,6 +42,7 @@ func prepareDestParent(absDest string) (string, bool) {
 	isMkdirFailed := err != nil
 	if isMkdirFailed {
 		fmt.Fprintf(os.Stderr, constants.ErrCloneFromMkdirParent, parent, err)
+
 		return fmt.Sprintf(constants.MsgCloneFromMkdirParentFailFmt, err), false
 	}
 
@@ -56,6 +58,7 @@ func isSkippable(absDest string) bool {
 	if isInvalidDir {
 		return false
 	}
+
 	entries, err := os.ReadDir(absDest)
 	isReadFailed := err != nil
 	if isReadFailed {

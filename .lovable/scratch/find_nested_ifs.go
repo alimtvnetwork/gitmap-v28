@@ -20,6 +20,7 @@ func main() {
 		if err != nil {
 			return err
 		}
+
 		if !strings.HasSuffix(path, ".go") || strings.Contains(path, "vendor") {
 			return nil
 		}
@@ -39,17 +40,21 @@ func main() {
 						pos := fset.Position(innerIfStmt.Pos())
 						fmt.Printf("%s:%d: Nested if statement found\n", pos.Filename, pos.Line)
 						// don't need to traverse further inside this nested if to find more, but we could
+
 						return false
 					}
+
 					// Traverse block statements
 					if _, ok := innerNode.(*ast.BlockStmt); ok {
 						return true
 					}
+
 					// Stop traversal for other nodes, wait actually, an if could be inside a for loop which is inside the if block.
 					// We should traverse down anything EXCEPT function declarations so we don't catch an if inside a closure defined inside an if.
 					if _, ok := innerNode.(*ast.FuncLit); ok {
 						return false
 					}
+
 					return true
 				})
 
@@ -63,19 +68,24 @@ func main() {
 							if innerIfStmt, innerOk := innerNode.(*ast.IfStmt); innerOk {
 								pos := fset.Position(innerIfStmt.Pos())
 								fmt.Printf("%s:%d: Nested if statement found (in else block)\n", pos.Filename, pos.Line)
+
 								return false
 							}
+
 							if _, ok := innerNode.(*ast.BlockStmt); ok {
 								return true
 							}
+
 							if _, ok := innerNode.(*ast.FuncLit); ok {
 								return false
 							}
+
 							return true
 						})
 					}
 				}
 			}
+
 			return true
 		})
 

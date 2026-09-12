@@ -98,5 +98,6 @@ func TestCloneFromReport_Golden_Quoting(t *testing.T) {
 	if err := writeReportRows(&buf, quotingEdgeCaseResults()); err != nil {
 		t.Fatalf("writeReportRows: %v", err)
 	}
+
 	assertReportGolden(t, "clonefrom_report_quoting.csv", buf.Bytes())
 }

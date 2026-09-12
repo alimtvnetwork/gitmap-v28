@@ -22,13 +22,16 @@ func runLowercase(args []string) error {
 	opts, dirs := parseLowercaseArgs(args)
 	if opts.Source == "" {
 		printLowercaseUsage()
+
 		return nil
 	}
+
 	opts.Except = appendDefaultIgnores(opts)
 	dirs = ensureDefaultDir(dirs)
 	for _, d := range dirs {
 		processLowercaseDir(d, opts)
 	}
+
 	return nil
 }
 
@@ -38,6 +41,7 @@ func parseLowercaseArgs(args []string) (lowercaseOptions, []string) {
 	for i := 0; i < len(args); i++ {
 		i = handleLowercaseArg(args, i, &opts, &dirs)
 	}
+
 	return opts, dirs
 }
 
@@ -45,15 +49,20 @@ func handleLowercaseArg(args []string, i int, opts *lowercaseOptions, dirs *[]st
 	arg := args[i]
 	if arg == "-except" && i+1 < len(args) {
 		opts.Except = parseExceptList(args[i+1])
+
 		return i + 1
 	}
+
 	if arg == "-ignore" && i+1 < len(args) {
 		opts.IgnoreDefault = (args[i+1] == "default")
+
 		return i + 1
 	}
+
 	if !strings.HasPrefix(arg, "-") {
 		assignPositional(arg, opts, dirs)
 	}
+
 	return i
 }
 
@@ -62,6 +71,7 @@ func parseExceptList(val string) []string {
 	for j := range parts {
 		parts[j] = strings.TrimSpace(parts[j])
 	}
+
 	return parts
 }
 
@@ -85,6 +95,7 @@ func appendDefaultIgnores(opts lowercaseOptions) []string {
 	if opts.IgnoreDefault {
 		return append(opts.Except, "node_modules/*", ".git/*")
 	}
+
 	return opts.Except
 }
 
@@ -92,6 +103,7 @@ func ensureDefaultDir(dirs []string) []string {
 	if len(dirs) == 0 {
 		return []string{"."}
 	}
+
 	return dirs
 }
 
@@ -101,6 +113,7 @@ func isLowercaseIgnored(path string, except []string) bool {
 			return true
 		}
 	}
+
 	return false
 }
 
@@ -109,7 +122,9 @@ func hasMatch(pattern, path string) bool {
 	if matched {
 		return true
 	}
+
 	matched, _ = filepath.Match(pattern, path)
+
 	return matched
 }
 
@@ -117,6 +132,7 @@ func runGitMv(src, dst string) bool {
 	cmd := exec.Command("git", "mv", src, dst)
 	cmd.Dir = filepath.Dir(src)
 	err := cmd.Run()
+
 	return err == nil
 }
 
@@ -125,6 +141,7 @@ func processLowercaseDir(dir string, opts lowercaseOptions) {
 	if err != nil {
 		return
 	}
+
 	absDir = normalizeWindowsPath(absDir)
 	filepath.Walk(absDir, buildWalkFunc(opts))
 }
@@ -134,12 +151,15 @@ func buildWalkFunc(opts lowercaseOptions) filepath.WalkFunc {
 		if err != nil {
 			return nil
 		}
+
 		if isLowercaseIgnored(path, opts.Except) {
 			return skipIfDir(info)
 		}
+
 		if !info.IsDir() {
 			renameIfMatch(path, opts)
 		}
+
 		return nil
 	}
 }
@@ -148,6 +168,7 @@ func skipIfDir(info os.FileInfo) error {
 	if info.IsDir() {
 		return filepath.SkipDir
 	}
+
 	return nil
 }
 
@@ -163,8 +184,10 @@ func renameIfMatch(path string, opts lowercaseOptions) {
 func executeRename(path, newPath, base, newBase string) {
 	if runGitMv(path, newPath) {
 		fmt.Printf("✅ git mv: %s -> %s\n", base, newBase)
+
 		return
 	}
+
 	if err := os.Rename(path, newPath); err == nil {
 		fmt.Printf("✅ os.rename: %s -> %s\n", base, newBase)
 	} else {
@@ -194,11 +217,14 @@ func runFixSeqFiles(args []string) error {
 	opts, dirs := parseFixSeqArgs(args)
 	if len(dirs) == 0 {
 		printFixSeqUsage()
+
 		return nil
 	}
+
 	for _, d := range dirs {
 		processFixSeqDir(d, opts)
 	}
+
 	return nil
 }
 
@@ -208,6 +234,7 @@ func parseFixSeqArgs(args []string) (fixSeqOpts, []string) {
 	for i := 0; i < len(args); i++ {
 		i = handleFixSeqArg(args, i, &opts, &dirs)
 	}
+
 	return opts, dirs
 }
 
@@ -222,10 +249,12 @@ func handleFixSeqArg(args []string, i int, opts *fixSeqOpts, dirs *[]string) int
 		opts.IsKeepOldOrder = true
 	case arg == "-pin" && i+1 < len(args):
 		parsePinMap(args[i+1], opts.PinMap)
+
 		return i + 1
 	case !strings.HasPrefix(arg, "-"):
 		*dirs = append(*dirs, arg)
 	}
+
 	return i
 }
 
@@ -249,11 +278,14 @@ func processFixSeqDir(dir string, opts fixSeqOpts) {
 	if err != nil {
 		return
 	}
+
 	entries, err := os.ReadDir(absDir)
 	if err != nil {
 		fmt.Printf("❌ Failed to read dir %s: %v\n", absDir, err)
+
 		return
 	}
+
 	parsedFiles := parseSeqFiles(entries, absDir)
 	sortParsedFiles(parsedFiles, opts)
 	applyNewSeqs(parsedFiles, opts)
@@ -265,6 +297,7 @@ func resolveNormPath(dir string) (string, error) {
 	if err != nil {
 		return "", err
 	}
+
 	return normalizeWindowsPath(absDir), nil
 }
 
@@ -276,6 +309,7 @@ func parseSeqFiles(entries []os.DirEntry, absDir string) []*seqFile {
 			parsedFiles = append(parsedFiles, sf)
 		}
 	}
+
 	return parsedFiles
 }
 
@@ -283,17 +317,21 @@ func buildSeqFile(entry os.DirEntry, absDir string, re *regexp.Regexp) *seqFile 
 	if entry.IsDir() {
 		return nil
 	}
+
 	info, err := entry.Info()
 	if err != nil {
 		return nil
 	}
+
 	sf := &seqFile{
 		OriginalPath: filepath.Join(absDir, entry.Name()),
 		Dir:          absDir,
 		BaseName:     entry.Name(),
 		Time:         info.ModTime().UnixNano(),
 	}
+
 	applyRegexExtract(sf, entry.Name(), re)
+
 	return sf
 }
 
@@ -323,6 +361,7 @@ func applyNewSeqs(files []*seqFile, opts fixSeqOpts) {
 	if opts.IsKeepOldOrder {
 		sortKeepOldOrder(unpinned)
 	}
+
 	usedSeqs := buildUsedSeqs(pinned)
 	assignUnpinnedSeqs(unpinned, usedSeqs)
 }
@@ -338,6 +377,7 @@ func partitionFiles(files []*seqFile, pinMap map[string]int) ([]*seqFile, []*seq
 			unpinned = append(unpinned, pf)
 		}
 	}
+
 	return pinned, unpinned
 }
 
@@ -346,6 +386,7 @@ func sortKeepOldOrder(unpinned []*seqFile) {
 		if unpinned[i].HasSeq && unpinned[j].HasSeq {
 			return unpinned[i].Seq < unpinned[j].Seq
 		}
+
 		return unpinned[i].HasSeq
 	})
 }
@@ -355,6 +396,7 @@ func buildUsedSeqs(pinned []*seqFile) map[int]bool {
 	for _, pf := range pinned {
 		used[pf.NewSeq] = true
 	}
+
 	return used
 }
 
@@ -364,6 +406,7 @@ func assignUnpinnedSeqs(unpinned []*seqFile, usedSeqs map[int]bool) {
 		for usedSeqs[currentSeq] {
 			currentSeq++
 		}
+
 		pf.NewSeq = currentSeq
 		usedSeqs[currentSeq] = true
 		currentSeq++
@@ -376,6 +419,7 @@ func renameSeqFiles(files []*seqFile) {
 	if maxSeq > 99 {
 		digits = len(strconv.Itoa(maxSeq))
 	}
+
 	for _, pf := range files {
 		format := fmt.Sprintf("%%0%dd-%%s", digits)
 		newName := fmt.Sprintf(format, pf.NewSeq, pf.Rest)
@@ -393,6 +437,7 @@ func findMaxSeq(files []*seqFile) int {
 			maxSeq = pf.NewSeq
 		}
 	}
+
 	return maxSeq
 }
 
@@ -400,5 +445,6 @@ func normalizeWindowsPath(path string) string {
 	if len(path) > 248 && !strings.HasPrefix(path, `\\?\`) {
 		return `\\?\` + path
 	}
+
 	return path
 }

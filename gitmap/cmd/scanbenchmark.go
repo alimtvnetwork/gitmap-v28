@@ -78,6 +78,7 @@ func (b *scanBenchmark) WriteLog(outputDir string) {
 
 		return
 	}
+
 	path := filepath.Join(outputDir, scanBenchmarkFile)
 	f, err := os.OpenFile(path, os.O_APPEND|os.O_CREATE|os.O_WRONLY, constants.FilePermission)
 	if err != nil {
@@ -85,6 +86,7 @@ func (b *scanBenchmark) WriteLog(outputDir string) {
 
 		return
 	}
+
 	defer f.Close()
 
 	b.writeBlock(f)
@@ -106,6 +108,7 @@ func (b *scanBenchmark) writeBlock(f *os.File) {
 	for _, p := range b.phases {
 		fmt.Fprintf(f, "  %-28s %10s\n", p.name, formatBenchDuration(p.duration))
 	}
+
 	fmt.Fprintf(f, "  %-28s %10s\n", "TOTAL", formatBenchDuration(total))
 	fmt.Fprintln(f)
 }
@@ -117,6 +120,7 @@ func formatBenchDuration(d time.Duration) string {
 	if d < time.Millisecond {
 		return fmt.Sprintf("%dµs", d.Microseconds())
 	}
+
 	if d < time.Second {
 		return fmt.Sprintf("%dms", d.Milliseconds())
 	}

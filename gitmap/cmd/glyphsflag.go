@@ -35,6 +35,7 @@ func stripGlyphsFlag(args []string) []string {
 
 			continue
 		}
+
 		chosen = val
 		i += consumed
 	}
@@ -58,12 +59,15 @@ func matchGlyphsArg(
 	if matchBare && i+1 < len(args) && glyphs.IsValidLabel(args[i+1]) {
 		return args[i+1], 2, true
 	}
+
 	if matchBare {
 		return "", 1, true
 	}
+
 	if v, ok := stripEqPrefix(a, long+"="); ok {
 		return v, 1, true
 	}
+
 	if v, ok := stripEqPrefix(a, short+"="); ok {
 		return v, 1, true
 	}
@@ -92,5 +96,6 @@ func applyGlyphsChoice(choice string) {
 		)
 		cliexit.HandleError(nil, 2)
 	}
+
 	os.Setenv(constants.EnvGlyphs, choice)
 }

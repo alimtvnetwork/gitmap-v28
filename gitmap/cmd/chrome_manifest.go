@@ -34,11 +34,13 @@ func buildChromeManifest(tarballPath string) ([]ChromeManifestEntry, error) {
 	if err != nil {
 		return nil, err
 	}
+
 	defer f.Close()
 	gz, err := gzip.NewReader(f)
 	if err != nil {
 		return nil, err
 	}
+
 	defer gz.Close()
 	tr := tar.NewReader(gz)
 	var out []ChromeManifestEntry
@@ -47,19 +49,26 @@ func buildChromeManifest(tarballPath string) ([]ChromeManifestEntry, error) {
 		if err == io.EOF {
 			break
 		}
+
 		if err != nil {
 			return nil, err
 		}
+
 		if hdr.FileInfo().IsDir() {
 			continue
 		}
+
 		h := sha256.New()
 		if _, err := io.Copy(h, tr); err != nil { //nolint:gosec
+
 			return nil, err
 		}
+
 		out = append(out, ChromeManifestEntry{Name: hdr.Name, SHA: hex.EncodeToString(h.Sum(nil))})
 	}
+
 	sort.Slice(out, func(i, j int) bool { return out[i].Name < out[j].Name })
+
 	return out, nil
 }
 
@@ -69,6 +78,7 @@ func encodeChromeManifest(entries []ChromeManifestEntry) string {
 	for _, e := range entries {
 		fmt.Fprintf(&b, "%s  %s\n", e.SHA, e.Name)
 	}
+
 	return b.String()
 }
 
@@ -82,13 +92,17 @@ func decodeChromeManifest(raw string) []ChromeManifestEntry {
 		if ln == "" || strings.HasPrefix(ln, "#") {
 			continue
 		}
+
 		parts := strings.SplitN(ln, "  ", 2)
 		if len(parts) != 2 {
 			continue
 		}
+
 		out = append(out, ChromeManifestEntry{SHA: parts[0], Name: parts[1]})
 	}
+
 	sort.Slice(out, func(i, j int) bool { return out[i].Name < out[j].Name })
+
 	return out
 }
 
@@ -105,15 +119,18 @@ func writeChromeManifestWithSource(tarballPath, sourcePath string) (string, erro
 	if err != nil {
 		return "", err
 	}
+
 	manifestPath := tarballPath + chromeManifestSuffix
 	var b strings.Builder
 	if sourcePath != "" {
 		fmt.Fprintf(&b, "# source: %s\n", filepath.ToSlash(sourcePath))
 	}
+
 	b.WriteString(encodeChromeManifest(entries))
 	if err := os.WriteFile(manifestPath, []byte(b.String()), 0o644); err != nil {
 		return "", err
 	}
+
 	return manifestPath, nil
 }
 
@@ -124,12 +141,14 @@ func readChromeManifestSource(tarballPath string) string {
 	if err != nil {
 		return ""
 	}
+
 	for _, ln := range strings.Split(string(raw), "\n") {
 		ln = strings.TrimSpace(ln)
 		if strings.HasPrefix(ln, "# source:") {
 			return strings.TrimSpace(strings.TrimPrefix(ln, "# source:"))
 		}
 	}
+
 	return ""
 }
 
@@ -143,25 +162,32 @@ func verifyChromeManifest(tarballPath string) (bool, []string, error) {
 	if err != nil {
 		return false, nil, fmt.Errorf("manifest missing (%s): %w", manifestPath, err)
 	}
+
 	want := decodeChromeManifest(string(raw))
 	got, err := buildChromeManifest(tarballPath)
 	if err != nil {
 		return false, nil, err
 	}
+
 	wantMap := map[string]string{}
 	for _, e := range want {
 		wantMap[e.Name] = e.SHA
 	}
+
 	var mismatches []string
 	for _, e := range got {
 		if wantMap[e.Name] != e.SHA {
 			mismatches = append(mismatches, e.Name)
 		}
+
 		delete(wantMap, e.Name)
 	}
+
 	for name := range wantMap {
 		mismatches = append(mismatches, name+" (missing from tarball)")
 	}
+
 	sort.Strings(mismatches)
+
 	return len(mismatches) == 0, mismatches, nil
 }

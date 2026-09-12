@@ -36,6 +36,7 @@ func InstallVersionJSON(repoPath string, cfg VersionInstallConfig, isDryRun bool
 	vPath := filepath.Join(repoPath, "version.json")
 	if isDryRun {
 		fmt.Printf("  [DRY-RUN] Would install version.json (v%s) in: %s\n", cfg.InitialVersion, repoPath)
+
 		return nil
 	}
 
@@ -51,6 +52,7 @@ func InstallVersionJSON(repoPath string, cfg VersionInstallConfig, isDryRun bool
 
 	writeVersioningDocsAndMemory(repoPath, cfg)
 	EnqueueVersioningDocs(repoPath, cfg)
+
 	return nil
 }
 
@@ -66,6 +68,7 @@ func buildInitialManifest(vPath string, initialVersion string) model.RepositoryV
 		Status:      "active",
 		Description: "Backend service inheriting root version",
 	}
+
 	manifest.Frontend = &model.ComponentVersion{
 		Version:     "inherit",
 		Status:      "active",
@@ -76,9 +79,11 @@ func buildInitialManifest(vPath string, initialVersion string) model.RepositoryV
 	if err == nil {
 		_ = json.Unmarshal(data, &manifest)
 	}
+
 	if manifest.Version == "" {
 		manifest.Version = initialVersion
 	}
+
 	return manifest
 }
 

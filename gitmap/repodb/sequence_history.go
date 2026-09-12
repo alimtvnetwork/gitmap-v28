@@ -32,6 +32,7 @@ func ScanSequenceHistory(row dbengine.RowScanner) (*SequenceHistory, error) {
 	item.Directory = dbengine.ScanString(raw_Directory)
 	item.OperationsJson = dbengine.ScanString(raw_OperationsJson)
 	item.CreatedAt = dbengine.ScanInt64(raw_CreatedAt)
+
 	return &item, nil
 }
 
@@ -48,6 +49,7 @@ func NewSequenceHistoryDbRepo(db *dbengine.DbWrapper) *SequenceHistoryDbRepo {
 		enums.SequenceHistoryTable,
 		ScanSequenceHistory,
 	)
+
 	return &SequenceHistoryDbRepo{
 		db:   db,
 		repo: repo,
@@ -96,12 +98,14 @@ func (r *SequenceHistoryDbRepo) Insert(ctx context.Context, item *SequenceHistor
 	if item.SequenceHistoryId == 0 {
 		id = nil
 	}
+
 	return r.db.ExecRowsAffected(ctx, query, id, item.Directory, item.OperationsJson, item.CreatedAt)
 }
 
 // Update updates an existing SequenceHistory record identified by its primary key.
 func (r *SequenceHistoryDbRepo) Update(ctx context.Context, item *SequenceHistory) dbengine.RowsAffectedResult {
 	query := "UPDATE SequenceHistory SET Directory = ?, OperationsJson = ?, CreatedAt = ? WHERE SequenceHistoryId = ?;"
+
 	return r.db.ExecRowsAffected(ctx, query, item.Directory, item.OperationsJson, item.CreatedAt, item.SequenceHistoryId)
 }
 

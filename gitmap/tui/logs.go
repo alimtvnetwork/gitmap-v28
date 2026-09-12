@@ -95,12 +95,15 @@ func matchesLogQuery(e model.CommandHistoryRecord, q string) bool {
 	if strings.Contains(strings.ToLower(e.Command), q) {
 		return true
 	}
+
 	if strings.Contains(strings.ToLower(e.Alias), q) {
 		return true
 	}
+
 	if strings.Contains(strings.ToLower(e.Args), q) {
 		return true
 	}
+
 	if strings.Contains(fmt.Sprintf("%d", e.ExitCode), q) {
 		return true
 	}
@@ -113,6 +116,7 @@ func (m logsModel) handleKey(msg tea.KeyMsg) logsModel {
 	if max < 0 && keys.search(msg) {
 		m.searching = true
 	}
+
 	if max < 0 {
 		return m
 	}

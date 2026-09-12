@@ -38,7 +38,6 @@ func bindAgyInstallFlags() {
 }
 
 func buildAgyInstallOptions() installOptions {
-
 	return installOptions{
 		DryRun:  agyInstallDryRun,
 		Yes:     agyInstallYes,
@@ -69,6 +68,7 @@ func dispatchAgyInstallTarget(target string, opts installOptions) error {
 		return runInstallAgyAll(opts)
 	default:
 		fmt.Printf("Unknown target '%s'. Installing Antigravity Manager (default)...\n", target)
+
 		return runInstallAgManagerWithOpts(opts)
 	}
 }
@@ -78,10 +78,13 @@ func runInstallAgyAll(opts installOptions) error {
 	if err := runInstallAgManagerWithOpts(opts); err != nil {
 		return err
 	}
+
 	fmt.Println("\n=== [2/3] Installing Antigravity Desktop IDE ===")
 	if err := runInstallAntigravityWithOpts(opts); err != nil {
 		return err
 	}
+
 	fmt.Println("\n=== [3/3] Installing Antigravity CLI ===")
+
 	return runInstallAgyWithOpts(opts)
 }

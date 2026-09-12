@@ -10,7 +10,6 @@ func runInstallGitHubDesktopLinux(opts installOptions) error {
 	isInstalled := alreadyInstalled(opts.Tool)
 
 	if isInstalled {
-
 		return nil
 	}
 
@@ -30,7 +29,6 @@ func executeGitHubDesktopAptPipeline(opts installOptions) error {
 	isDryRun := handleDryRunInstall(opts.DryRun, "apt", []string{"sudo", "apt", "install", "-y", "github-desktop"})
 
 	if isDryRun {
-
 		return nil
 	}
 
@@ -50,14 +48,12 @@ func executeGhdAptPhases(opts installOptions) error {
 	err1 := runGhdGpgKeyStep(opts)
 
 	if err1 != nil {
-
 		return err1
 	}
 
 	err2 := runGhdRepoStep(opts)
 
 	if err2 != nil {
-
 		return err2
 	}
 
@@ -86,7 +82,6 @@ func runInstallVSCodeLinux(opts installOptions) error {
 	isInstalled := alreadyInstalled(opts.Tool)
 
 	if isInstalled {
-
 		return nil
 	}
 
@@ -106,7 +101,6 @@ func executeVSCodeAptPipeline(opts installOptions) error {
 	isDryRun := handleDryRunInstall(opts.DryRun, "apt", []string{"sudo", "apt", "install", "-y", "code"})
 
 	if isDryRun {
-
 		return nil
 	}
 
@@ -126,21 +120,18 @@ func executeVSCodeAptPhases(opts installOptions) error {
 	err1 := runVSCodeGpgKeyStep(opts)
 
 	if err1 != nil {
-
 		return err1
 	}
 
 	err2 := runVSCodeRepoStep(opts)
 
 	if err2 != nil {
-
 		return err2
 	}
 
 	err3 := runVSCodeUpdateStep(opts)
 
 	if err3 != nil {
-
 		return err3
 	}
 
@@ -174,7 +165,6 @@ func runVSCodeInstallStep(opts installOptions) error {
 	err := runPhaseWithAudit(opts.Tool, "apt", "latest", cmd, "vscode-apt-install", opts.Verbose)
 
 	if err != nil {
-
 		return err
 	}
 

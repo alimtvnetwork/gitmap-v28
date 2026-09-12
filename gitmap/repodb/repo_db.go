@@ -38,6 +38,7 @@ func ResolveRepoDBPath(rootDbDir, absolutePath string, repoId int64) string {
 	if err := os.MkdirAll(repoSearchDir, 0755); err != nil {
 		return filepath.Join(rootDbDir, fmt.Sprintf("%s-%d.db", slug, repoId))
 	}
+
 	return filepath.Join(repoSearchDir, fmt.Sprintf("%s-%d.db", slug, repoId))
 }
 
@@ -151,6 +152,7 @@ func getRepoDBFileSize(path string) int64 {
 	if err != nil {
 		return 0
 	}
+
 	return info.Size()
 }
 
@@ -158,12 +160,15 @@ func runRepoOptimizePragmas(ctx context.Context, db *sql.DB) *apperror.AppError 
 	if _, err := db.ExecContext(ctx, "PRAGMA wal_checkpoint(TRUNCATE);"); err != nil {
 		return apperror.WrapSimple(err, "wal checkpoint repo db")
 	}
+
 	if _, err := db.ExecContext(ctx, "VACUUM;"); err != nil {
 		return apperror.WrapSimple(err, "vacuum repo db")
 	}
+
 	if _, err := db.ExecContext(ctx, "PRAGMA optimize;"); err != nil {
 		return apperror.WrapSimple(err, "optimize repo db")
 	}
+
 	return nil
 }
 
@@ -173,9 +178,11 @@ func OptimizeRepoDB(ctx context.Context, db *sql.DB, path string) (int64, error)
 	if err := runRepoOptimizePragmas(ctx, db); err != nil {
 		return 0, err
 	}
+
 	sizeAfter := getRepoDBFileSize(path)
 	if sizeBefore <= sizeAfter {
 		return 0, nil
 	}
+
 	return sizeBefore - sizeAfter, nil
 }

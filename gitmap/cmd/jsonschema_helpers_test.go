@@ -34,16 +34,20 @@ func findSchemaFile(t *testing.T, filename string) string {
 		if _, err := os.Stat(candidateApp); err == nil {
 			return candidateApp
 		}
+
 		candidateRoot := filepath.Join(dir, "spec", "08-json-schemas", filename)
 		if _, err := os.Stat(candidateRoot); err == nil {
 			return candidateRoot
 		}
+
 		parent := filepath.Dir(dir)
 		if parent == dir {
 			break
 		}
+
 		dir = parent
 	}
+
 	t.Fatalf("could not locate %s in spec/21-app/08-json-schemas or spec/08-json-schemas walking up from %s", filename, dir)
 
 	return ""
@@ -58,6 +62,7 @@ func loadSchemaFile(t *testing.T, filename string) map[string]any {
 	if err != nil {
 		t.Fatalf("read schema: %v", err)
 	}
+
 	var s map[string]any
 	if err := json.Unmarshal(raw, &s); err != nil {
 		t.Fatalf("parse schema: %v", err)
@@ -74,12 +79,14 @@ func stringSliceFromAny(v any) []string {
 	if !ok {
 		return nil
 	}
+
 	out := make([]string, 0, len(arr))
 	for _, e := range arr {
 		s, ok := e.(string)
 		if !ok {
 			return nil
 		}
+
 		out = append(out, s)
 	}
 

@@ -41,21 +41,26 @@ func ApplyCommit(p Plan, dryRun bool) (Result, error) {
 	if dryRun {
 		return Result{}, nil
 	}
+
 	if err := stageFiles(p); err != nil {
 		return Result{}, fmt.Errorf("replay: stage files: %w", err)
 	}
+
 	tree, err := writeTree(p.TargetRepoDir)
 	if err != nil {
 		return Result{}, fmt.Errorf("replay: write-tree: %w", err)
 	}
+
 	parent, _ := readHead(p.TargetRepoDir)
 	newSha, err := commitTree(p, tree, parent)
 	if err != nil {
 		return Result{}, fmt.Errorf("replay: commit-tree: %w", err)
 	}
+
 	if err := updateHead(p.TargetRepoDir, newSha); err != nil {
 		return Result{}, fmt.Errorf("replay: update-ref: %w", err)
 	}
+
 	return Result{NewSha: newSha}, nil
 }
 
@@ -68,6 +73,7 @@ func stageFiles(p Plan) error {
 			return fmt.Errorf("file %s: %w", rel, err)
 		}
 	}
+
 	return nil
 }
 
@@ -79,19 +85,23 @@ func copyOneFile(p Plan, rel string) error {
 	if err != nil {
 		return fmt.Errorf("cat-file: %w", err)
 	}
+
 	hash, err := hashObjectStdin(p.TargetRepoDir, blob)
 	if err != nil {
 		return fmt.Errorf("hash-object: %w", err)
 	}
+
 	if _, err := gitRunner(p.TargetRepoDir, "update-index", "--add", "--cacheinfo", "100644,"+hash+","+rel); err != nil {
 		return fmt.Errorf("update-index: %w", err)
 	}
+
 	return nil
 }
 
 // writeTree materializes the index as a tree object and returns its SHA.
 func writeTree(target string) (string, error) {
 	out, err := gitRunner(target, "write-tree")
+
 	return strings.TrimSpace(out), err
 }
 
@@ -102,6 +112,7 @@ func readHead(target string) (string, error) {
 	if err != nil {
 		return "", err
 	}
+
 	return strings.TrimSpace(out), nil
 }
 
@@ -112,10 +123,12 @@ func commitTree(p Plan, tree, parent string) (string, error) {
 	if parent != "" {
 		args = append(args, "-p", parent)
 	}
+
 	out, err := gitRunnerEnv(p.TargetRepoDir, commitEnv(p), args...)
 	if err != nil {
 		return "", err
 	}
+
 	return strings.TrimSpace(out), nil
 }
 
@@ -123,5 +136,6 @@ func commitTree(p Plan, tree, parent string) (string, error) {
 // detached HEAD; uses the symbolic ref dereference).
 func updateHead(target, newSha string) error {
 	_, err := gitRunner(target, "update-ref", "HEAD", newSha)
+
 	return err
 }

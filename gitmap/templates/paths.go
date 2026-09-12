@@ -26,6 +26,7 @@ func EnsureUserDir() (string, error) {
 	if err != nil {
 		return "", err
 	}
+
 	if mkErr := os.MkdirAll(dir, 0o755); mkErr != nil {
 		return "", fmt.Errorf(errTemplateMaterialize, dir, mkErr)
 	}

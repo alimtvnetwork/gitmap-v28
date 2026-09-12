@@ -15,9 +15,11 @@ func uploadToGitHub(v Version, assets []string, opts Options) {
 	if err != nil && len(assets) > 0 {
 		fmt.Fprint(os.Stderr, constants.ErrAssetNoToken)
 	}
+
 	if err != nil {
 		return
 	}
+
 	fmt.Printf(constants.MsgTokenFromSource, source)
 
 	owner, repo, err := ParseRemoteOrigin()
@@ -45,6 +47,7 @@ func uploadToGitHub(v Version, assets []string, opts Options) {
 		body = DetectChangelog()
 		body = AppendPinnedInstallSnippet(body, v.String())
 	}
+
 	ghRelease, err := CreateGitHubRelease(owner, repo, v.String(), name, body, token, opts.IsDraft)
 	if err != nil {
 		fmt.Fprintf(os.Stderr, "  ✗ GitHub release creation failed: %v\n", err)

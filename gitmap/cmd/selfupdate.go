@@ -30,21 +30,28 @@ func RunSelfUpdate(opts SelfUpdateOptions) int {
 	if opts.Client == nil {
 		opts.Client = &http.Client{Timeout: 10 * time.Second}
 	}
+
 	latest, err := fetchLatestReleaseTag(opts.Client)
 	if err != nil {
 		fmt.Fprintf(opts.Stdout, "self-update: could not reach release API: %v\n", err)
+
 		return 2
 	}
+
 	current := "v" + constants.Version
 	fmt.Fprintf(opts.Stdout, "current: %s\nlatest:  %s\n", current, latest)
 	if !opts.Force && !isNewer(latest, current) {
 		fmt.Fprintln(opts.Stdout, "already on the latest release.")
+
 		return 0
 	}
+
 	if opts.DryRun {
 		fmt.Fprintf(opts.Stdout, "[dry-run] would install %s via `gitmap self-install --version %s`\n", latest, latest)
+
 		return 0
 	}
+
 	return execSelfInstallTag(opts.Stdout, latest)
 }
 
@@ -56,19 +63,24 @@ func fetchLatestReleaseTag(c *http.Client) (string, error) {
 	if err != nil {
 		return "", err
 	}
+
 	defer resp.Body.Close()
 	if resp.StatusCode >= 300 {
 		return "", fmt.Errorf("github status %d", resp.StatusCode)
 	}
+
 	var body struct {
 		TagName string `json:"tag_name"`
 	}
+
 	if err := json.NewDecoder(resp.Body).Decode(&body); err != nil {
 		return "", err
 	}
+
 	if body.TagName == "" {
 		return "", fmt.Errorf("empty tag_name in release payload")
 	}
+
 	return body.TagName, nil
 }
 
@@ -78,9 +90,12 @@ func execSelfInstallTag(w io.Writer, tag string) int {
 	cmd.Stderr = w
 	if err := cmd.Run(); err != nil {
 		fmt.Fprintf(w, "self-install failed: %v\n", err)
+
 		return 1
 	}
+
 	fmt.Fprintf(w, "self-update: installed %s\n", tag)
+
 	return 0
 }
 
@@ -95,6 +110,7 @@ func isNewer(tagA, tagB string) bool {
 			return pa[i] > pb[i]
 		}
 	}
+
 	return false
 }
 
@@ -105,14 +121,18 @@ func splitSemverTriple(s string) [3]int {
 		if i >= 3 {
 			break
 		}
+
 		n := 0
 		for _, r := range p {
 			if r < '0' || r > '9' {
 				break
 			}
+
 			n = n*10 + int(r-'0')
 		}
+
 		out[i] = n
 	}
+
 	return out
 }

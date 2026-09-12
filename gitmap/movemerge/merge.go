@@ -14,20 +14,24 @@ func RunMerge(left, right Endpoint, dir DirectionType, opts Options) error {
 	if err := GuardEndpoints(left, right); err != nil {
 		return err
 	}
+
 	logf(opts.LogPrefix, "diffing trees ...")
 	entries, err := DiffTrees(left.WorkingDir, right.WorkingDir, opts)
 	if err != nil {
 		return err
 	}
+
 	resolver := NewResolver(effectivePolicy(dir, opts), os.Stdin, os.Stdout)
 	for _, e := range entries {
 		if applyErr := applyEntry(e, left, right, dir, resolver, opts); applyErr != nil {
 			return applyErr
 		}
 	}
+
 	if finErr := finalizeURLSides(left, right, dir, opts); finErr != nil {
 		return finErr
 	}
+
 	logf(opts.LogPrefix, "done")
 
 	return nil
@@ -38,9 +42,11 @@ func effectivePolicy(dir DirectionType, opts Options) PreferPolicyType {
 	if !opts.IsYes {
 		return PreferNone
 	}
+
 	if opts.Prefer != PreferNone {
 		return opts.Prefer
 	}
+
 	switch dir {
 	case DirBoth:
 		return PreferNewer
@@ -102,9 +108,11 @@ func applyConflict(
 	if err != nil {
 		return err
 	}
+
 	if choice == ChoiceQuit {
 		return fmt.Errorf("%s", constants.ErrMMQuit)
 	}
+
 	if choice == ChoiceSkip {
 		logIndent(opts.LogPrefix, "conflict %s -> skipped", e.RelPath)
 
@@ -119,12 +127,15 @@ func writeChoice(c ChoiceType, e DiffEntry, l, r Endpoint, dir DirectionType, op
 	switch {
 	case c == ChoiceLeft && (dir == DirBoth || dir == DirRightOnly):
 		logIndent(opts.LogPrefix, "conflict %s -> took LEFT", e.RelPath)
+
 		return copyOne(l.WorkingDir, r.WorkingDir, e.RelPath, e.Left.Info, opts)
 	case c == ChoiceRight && (dir == DirBoth || dir == DirLeftOnly):
 		logIndent(opts.LogPrefix, "conflict %s -> took RIGHT", e.RelPath)
+
 		return copyOne(r.WorkingDir, l.WorkingDir, e.RelPath, e.Right.Info, opts)
 	default:
 		logIndent(opts.LogPrefix, "conflict %s -> no-op (direction)", e.RelPath)
+
 		return nil
 	}
 }
@@ -136,6 +147,7 @@ func copyOne(srcDir, dstDir, rel string, info os.FileInfo, opts Options) error {
 
 		return nil
 	}
+
 	src := filepath.Join(srcDir, filepath.FromSlash(rel))
 	dst := filepath.Join(dstDir, filepath.FromSlash(rel))
 

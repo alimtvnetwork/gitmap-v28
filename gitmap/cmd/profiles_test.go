@@ -82,6 +82,7 @@ func TestApplyDefaultProfile(t *testing.T) {
 	for i := range cfg.Profiles {
 		cfg.Profiles[i].IsDefault = (cfg.Profiles[i].Name == target.Name)
 	}
+
 	cfg.Default = target.Name
 	cfg.Active = target.Name
 

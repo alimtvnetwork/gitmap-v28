@@ -13,6 +13,7 @@ func dispatchCommitTransfer(command string) (bool, error) {
 	if !ok {
 		return false, nil
 	}
+
 	runCommitTransfer(spec, os.Args[2:])
 
 	return true, nil

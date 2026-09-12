@@ -26,6 +26,7 @@ func TestChromeImportAllMultiProfileDirectoryWithManifest(t *testing.T) {
 			{Name: "Profile 2", DisplayName: "Alex", Email: "alex@gmail.com", ExtensionCount: 1},
 		},
 	}
+
 	mRaw, _ := json.MarshalIndent(manifest, "", "  ")
 	_ = os.WriteFile(filepath.Join(workDir, "manifest.json"), mRaw, 0644)
 
@@ -49,6 +50,7 @@ func TestChromeImportAllMultiProfileDirectoryWithManifest(t *testing.T) {
 	if !chromeProfilePathExists(filepath.Join(tempUserData, "Profile 1")) {
 		t.Errorf("expected Profile 1 to be imported")
 	}
+
 	if !chromeProfilePathExists(filepath.Join(tempUserData, "Profile 2")) {
 		t.Errorf("expected Profile 2 to be imported")
 	}
@@ -76,6 +78,7 @@ func TestChromeImportAllMultiProfileZip(t *testing.T) {
 			{Name: "Profile 2", DisplayName: "Alex", Email: "alex@gmail.com"},
 		},
 	}
+
 	mRaw, _ := json.Marshal(manifest)
 	mw, _ := zw.Create("manifest.json")
 	_, _ = mw.Write(mRaw)
@@ -101,6 +104,7 @@ func TestChromeImportAllMultiProfileZip(t *testing.T) {
 	if !chromeProfilePathExists(filepath.Join(tempUserData, "Profile 1")) {
 		t.Errorf("expected Profile 1 to be extracted and imported from zip")
 	}
+
 	if !chromeProfilePathExists(filepath.Join(tempUserData, "Profile 2")) {
 		t.Errorf("expected Profile 2 to be extracted and imported from zip")
 	}
@@ -133,6 +137,7 @@ func TestTopLevelImportAllPreflight(t *testing.T) {
 	if err := runImportAll([]string{"scan", workDir}); err != nil {
 		t.Errorf("gitmap import-all scan failed: %v", err)
 	}
+
 	if err := runImportAll([]string{"profile", workDir}); err != nil {
 		t.Errorf("gitmap import-all profile failed: %v", err)
 	}

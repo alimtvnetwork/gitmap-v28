@@ -14,6 +14,7 @@ func renderCommandAliasRow(line string) string {
 	if m == nil {
 		return line
 	}
+
 	tail := ""
 	if len(m) >= 5 {
 		tail = m[4]
@@ -75,6 +76,7 @@ func renderExamplePrompt(line string) string {
 	if m == nil {
 		return line
 	}
+
 	return "  " + constants.ColorDim + "$ " + constants.ColorReset +
 		constants.ColorGreen + "gitmap " + constants.ColorReset +
 		constants.ColorWhite + strings.TrimPrefix(m[2], "gitmap ") + constants.ColorReset

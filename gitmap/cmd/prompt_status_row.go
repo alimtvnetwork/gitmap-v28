@@ -15,6 +15,7 @@ func (l *PromptStatusTableLayout) PrintRow(repoPath string, meta model.PromptArc
 	if ver == "" {
 		ver = "-"
 	}
+
 	date := meta.InstalledAt
 	if date == "" {
 		date = "-"

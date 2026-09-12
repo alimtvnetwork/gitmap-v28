@@ -20,6 +20,7 @@ func hygieneWorkers() int {
 	if n < 2 {
 		return 2
 	}
+
 	if n > 8 {
 		return 8
 	}
@@ -35,12 +36,14 @@ func scanForReposParallel(root string) []string {
 	if err != nil {
 		return nil
 	}
+
 	candidates := make([]string, 0, len(entries))
 	for _, e := range entries {
 		if e.IsDir() {
 			candidates = append(candidates, filepath.Join(root, e.Name()))
 		}
 	}
+
 	jobs := make(chan string)
 	results := make(chan string, len(candidates))
 	var wg sync.WaitGroup
@@ -55,9 +58,11 @@ func scanForReposParallel(root string) []string {
 			}
 		}()
 	}
+
 	for _, c := range candidates {
 		jobs <- c
 	}
+
 	close(jobs)
 	wg.Wait()
 	close(results)
@@ -65,6 +70,7 @@ func scanForReposParallel(root string) []string {
 	for r := range results {
 		out = append(out, r)
 	}
+
 	sort.Strings(out)
 
 	return out
@@ -78,6 +84,7 @@ func mapReposParallel[T any](repos []string, fn func(string) (T, bool)) []T {
 		v  T
 		ok bool
 	}
+
 	jobs := make(chan int)
 	results := make(chan indexed, len(repos))
 	var wg sync.WaitGroup
@@ -91,9 +98,11 @@ func mapReposParallel[T any](repos []string, fn func(string) (T, bool)) []T {
 			}
 		}()
 	}
+
 	for i := range repos {
 		jobs <- i
 	}
+
 	close(jobs)
 	wg.Wait()
 	close(results)
@@ -103,6 +112,7 @@ func mapReposParallel[T any](repos []string, fn func(string) (T, bool)) []T {
 			buf = append(buf, r)
 		}
 	}
+
 	sort.Slice(buf, func(a, b int) bool { return buf[a].i < buf[b].i })
 	out := make([]T, 0, len(buf))
 	for _, b := range buf {
@@ -151,5 +161,6 @@ func emitCSV(header []string, rows [][]string) {
 	for _, r := range rows {
 		_ = w.Write(r)
 	}
+
 	w.Flush()
 }

@@ -38,6 +38,7 @@ func copyBackupArtifacts(destDir string) error {
 	if err := copyFolderIfExists(filepath.Join(dataDir, "pipeline_db"), filepath.Join(destDir, "pipeline_db")); err != nil {
 		return err
 	}
+
 	return copyFolderIfExists(filepath.Join(dataDir, "repo_search"), filepath.Join(destDir, "repo_search"))
 }
 
@@ -46,12 +47,15 @@ func copyFileIfExists(src, dst string) error {
 	if os.IsNotExist(err) {
 		return nil
 	}
+
 	if err != nil {
 		return apperror.WrapSimple(err, "read file:")
 	}
+
 	if writeErr := os.WriteFile(dst, data, 0644); writeErr != nil {
 		return apperror.WrapSimple(writeErr, "write file:")
 	}
+
 	return nil
 }
 
@@ -60,22 +64,27 @@ func copyFolderIfExists(srcDir, dstDir string) error {
 	if os.IsNotExist(err) {
 		return nil
 	}
+
 	if err != nil {
 		return apperror.WrapSimple(err, "read dir:")
 	}
+
 	if mkErr := os.MkdirAll(dstDir, 0755); mkErr != nil {
 		return apperror.WrapSimple(mkErr, "create dir:")
 	}
+
 	for _, e := range entries {
 		if e.IsDir() {
 			continue
 		}
+
 		s := filepath.Join(srcDir, e.Name())
 		d := filepath.Join(dstDir, e.Name())
 		if copyErr := copyFileIfExists(s, d); copyErr != nil {
 			return copyErr
 		}
 	}
+
 	return nil
 }
 
@@ -90,6 +99,7 @@ func writeSnapshotManifest(
 		Note:      note,
 		Files:     []string{"gitmap.db", "git_profiles.json", "pipeline_db", "repo_search"},
 	}
+
 	data, err := json.MarshalIndent(m, "", "  ")
 
 	if err != nil {
@@ -109,12 +119,16 @@ func runBackupCloudList(args []string) error {
 	entries, err := os.ReadDir(snapsDir)
 	if err != nil || len(entries) == 0 {
 		fmt.Println("\n  No cloud backup snapshots found.")
+
 		return nil
 	}
+
 	if hasArgFlag(args, "--json") {
 		return outputCloudSnapshotsJSON(entries)
 	}
+
 	printCloudSnapshotsTable(entries, snapsDir)
+
 	return nil
 }
 
@@ -125,8 +139,10 @@ func outputCloudSnapshotsJSON(entries []os.DirEntry) error {
 			list = append(list, e.Name())
 		}
 	}
+
 	data, _ := json.MarshalIndent(map[string]any{"snapshots": list}, "", "  ")
 	fmt.Println(string(data))
+
 	return nil
 }
 
@@ -143,6 +159,7 @@ func printCloudSnapshotsTable(entries []os.DirEntry, snapsDir string) {
 			idx++
 		}
 	}
+
 	fmt.Println("  --------------------------------------------------------------------------------")
 	fmt.Println()
 }
@@ -152,10 +169,12 @@ func readSnapshotNote(snapPath string) string {
 	if err != nil {
 		return "-"
 	}
+
 	var m SnapshotManifest
 	if json.Unmarshal(data, &m) == nil && m.Note != "" {
 		return m.Note
 	}
+
 	return "-"
 }
 
@@ -164,6 +183,7 @@ func formatDirDate(dirName string) string {
 	if len(parts) >= 4 {
 		return parts[1] + "-" + parts[2] + "-" + parts[3]
 	}
+
 	return "-"
 }
 
@@ -174,17 +194,22 @@ func runBackupCloudRestore(args []string) error {
 	if resolveErr != nil {
 		return resolveErr
 	}
+
 	if !confirmOrSkip("Restore snapshot '"+target+"'? This replaces local databases.", args) {
 		fmt.Println("  Restore aborted.")
+
 		return nil
 	}
+
 	src := filepath.Join(snapsDir, target)
 	dst := store.BinaryDataDir()
 	if restoreErr := copyBackupArtifactsToDir(src, dst); restoreErr != nil {
 		return restoreErr
 	}
+
 	fmt.Printf("  %s✓ Restored databases and profiles from: %s%s\n",
 		constants.ColorGreen, target, constants.ColorReset)
+
 	return nil
 }
 
@@ -193,12 +218,15 @@ func resolveSnapshotTarget(snapsDir string, args []string) (string, error) {
 	if err != nil || len(entries) == 0 {
 		return "", apperror.NewSimple("no snapshots available to restore", "E1080")
 	}
+
 	if len(args) > 0 && !strings.HasPrefix(args[0], "-") {
 		return pickSnapshotByNameOrIndex(entries, args[0])
 	}
+
 	if !isInteractiveStdin() {
 		return entries[len(entries)-1].Name(), nil // default to latest
 	}
+
 	return promptSnapshotSelection(entries)
 }
 
@@ -207,11 +235,13 @@ func pickSnapshotByNameOrIndex(entries []os.DirEntry, val string) (string, error
 	if err == nil && num >= 1 && num <= len(entries) {
 		return entries[num-1].Name(), nil
 	}
+
 	for _, e := range entries {
 		if e.Name() == val {
 			return e.Name(), nil
 		}
 	}
+
 	return "", apperror.NewSimple("snapshot not found: "+val, "E1081")
 }
 
@@ -220,12 +250,14 @@ func promptSnapshotSelection(entries []os.DirEntry) (string, error) {
 	for i, e := range entries {
 		fmt.Printf("  [%d] %s\n", i+1, e.Name())
 	}
+
 	fmt.Print("Choice: ")
 	reader := bufio.NewReader(os.Stdin)
 	line, err := reader.ReadString('\n')
 	if err != nil {
 		return "", apperror.WrapSimple(err, "read choice:")
 	}
+
 	return pickSnapshotByNameOrIndex(entries, strings.TrimSpace(line))
 }
 
@@ -243,6 +275,7 @@ func copyBackupArtifactsToDir(srcDir, dstDir string) error {
 	if err := copyFolderIfExists(filepath.Join(srcDir, "pipeline_db"), filepath.Join(dstDir, "pipeline_db")); err != nil {
 		return err
 	}
+
 	return copyFolderIfExists(filepath.Join(srcDir, "repo_search"), filepath.Join(dstDir, "repo_search"))
 }
 
@@ -250,19 +283,24 @@ func runBackupCloudRemove(args []string) error {
 	if len(args) == 0 {
 		return apperror.NewSimple("usage: gitmap backup rm <snapshot-id|1-N>", "E1082")
 	}
+
 	cloudDir := filepath.Join(store.BinaryDataDir(), "cloud-backup")
 	snapsDir := filepath.Join(cloudDir, "snapshots")
 	target, resolveErr := resolveSnapshotTarget(snapsDir, args)
 	if resolveErr != nil {
 		return resolveErr
 	}
+
 	if !confirmOrSkip("Delete cloud backup snapshot '"+target+"'?", args) {
 		fmt.Println("  Aborted.")
+
 		return nil
 	}
+
 	if rmErr := os.RemoveAll(filepath.Join(snapsDir, target)); rmErr != nil {
 		return apperror.WrapSimple(rmErr, "remove snapshot:")
 	}
+
 	cmdCommit := exec.Command("git", "commit", "-am", "backup: remove "+target)
 	cmdCommit.Dir = cloudDir
 	_ = cmdCommit.Run()
@@ -270,6 +308,7 @@ func runBackupCloudRemove(args []string) error {
 	cmdPush.Dir = cloudDir
 	_ = cmdPush.Run()
 	fmt.Printf("  %s✓ Removed snapshot: %s%s\n", constants.ColorGreen, target, constants.ColorReset)
+
 	return nil
 }
 
@@ -285,5 +324,6 @@ func runBackupCloudStatus(args []string) error {
 	fmt.Printf("  ● Active Profile:    %s (%s)\n", prof.Name, prof.Provider)
 	fmt.Printf("  ● Total Snapshots:   %d\n", len(entries))
 	fmt.Printf("  ● Local Cache Path:  %s\n\n", cloudDir)
+
 	return nil
 }

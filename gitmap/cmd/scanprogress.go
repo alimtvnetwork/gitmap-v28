@@ -90,6 +90,7 @@ func (r *scanProgressRenderer) renderFinalLocked() {
 		fmt.Fprint(os.Stderr, constants.ScanProgressClearLine)
 		r.dirty = false
 	}
+
 	fmt.Fprintf(os.Stderr,
 		constants.ScanProgressDoneFmt,
 		constants.ColorGreen, r.last.DirsWalked, r.last.ReposFound, constants.ColorReset,

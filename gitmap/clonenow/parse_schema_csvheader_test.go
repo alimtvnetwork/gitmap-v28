@@ -87,10 +87,12 @@ func TestParseFile_CSVHeader_TrulyUnknownStillFails(t *testing.T) {
 	if err == nil {
 		t.Fatal("ParseFile: want unknown-column error, got nil")
 	}
+
 	msg := err.Error()
 	if !strings.Contains(msg, "https_url") {
 		t.Errorf("error %q missing offending column name", msg)
 	}
+
 	if !strings.Contains(msg, "httpsUrl") {
 		t.Errorf("error %q missing known-column list", msg)
 	}

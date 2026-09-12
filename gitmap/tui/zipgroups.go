@@ -38,11 +38,13 @@ func (m zipGroupsModel) Update(msg tea.Msg) (zipGroupsModel, tea.Cmd) {
 		if m.cursor < len(m.groups)-1 {
 			m.cursor++
 		}
+
 		m.detail = ""
 	case keys.up(keyMsg):
 		if m.cursor > 0 {
 			m.cursor--
 		}
+
 		m.detail = ""
 	case keys.enter(keyMsg):
 		m.detail = m.loadDetail()
@@ -115,6 +117,7 @@ func (m zipGroupsModel) View() string {
 		} else {
 			b.WriteString(styleNormalRow.Render("  " + line))
 		}
+
 		b.WriteString("\n")
 	}
 

@@ -19,5 +19,6 @@ func IsInsideWorkDir(targetPath, workDirPath string) bool {
 	if err != nil {
 		return false
 	}
+
 	return !strings.HasPrefix(rel, "..") && rel != "."
 }

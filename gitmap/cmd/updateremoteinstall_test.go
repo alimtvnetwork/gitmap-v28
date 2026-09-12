@@ -19,6 +19,7 @@ func TestInstallerURLFor(t *testing.T) {
 	if !strings.HasPrefix(got, "https://raw.githubusercontent.com/") {
 		t.Errorf("expected raw.githubusercontent URL, got %q", got)
 	}
+
 	if !strings.Contains(got, "/"+slug+"/") {
 		t.Errorf("expected slug %q in URL path, got %q", slug, got)
 	}
@@ -27,6 +28,7 @@ func TestInstallerURLFor(t *testing.T) {
 	if runtime.GOOS == "windows" {
 		wantName = "install.ps1"
 	}
+
 	if !strings.HasSuffix(got, "/"+wantName) {
 		t.Errorf("expected suffix /%s, got %q", wantName, got)
 	}
@@ -44,6 +46,7 @@ func TestInstallerURLForVariesByPlatform(t *testing.T) {
 	if !hasSh && !hasPs {
 		t.Fatalf("URL must end with install.sh or install.ps1, got %q", got)
 	}
+
 	if hasSh && hasPs {
 		t.Fatalf("URL cannot end with both installers: %q", got)
 	}

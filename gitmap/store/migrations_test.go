@@ -131,6 +131,7 @@ func TestMigrationsDBMigrateInstallers(testingT *testing.T) {
 	if errOpen != nil {
 		testingT.Fatalf("failed to open db: %v", errOpen)
 	}
+
 	defer dbInstance.Close()
 
 	errMigrate := dbInstance.MigrateInstallers()
@@ -161,6 +162,7 @@ func TestMigrationsErrorHandling(testingT *testing.T) {
 	if !errors.As(errScripts, &appErrScripts) {
 		testingT.Fatalf("expected AppError, got %T", errScripts)
 	}
+
 	if appErrScripts.Code != "E_INSTALLER_SCRIPTS_MIGRATION_FAILED" {
 		testingT.Fatalf("expected E_INSTALLER_SCRIPTS_MIGRATION_FAILED, got %s", appErrScripts.Code)
 	}
@@ -174,6 +176,7 @@ func TestMigrationsErrorHandling(testingT *testing.T) {
 	if !errors.As(errVersions, &appErrVersions) {
 		testingT.Fatalf("expected AppError, got %T", errVersions)
 	}
+
 	if appErrVersions.Code != "E_INSTALLER_VERSIONS_MIGRATION_FAILED" {
 		testingT.Fatalf("expected E_INSTALLER_VERSIONS_MIGRATION_FAILED, got %s", appErrVersions.Code)
 	}

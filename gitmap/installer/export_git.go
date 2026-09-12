@@ -18,6 +18,7 @@ func (m *Manager) ExportToGitFolder(slug, folderPath, filename, commitMsg string
 	if errValidate := validateExportInputs(m, folderPath); errValidate != nil {
 		return errValidate
 	}
+
 	if errWrite := m.writeExportScriptFile(slug, folderPath, filename); errWrite != nil {
 		return errWrite
 	}
@@ -29,6 +30,7 @@ func validateExportInputs(m *Manager, folderPath string) error {
 	if m == nil || m.db == nil {
 		return apperror.New("ExportToGitFolder", "E_INSTALLER_INVALID_INPUT", map[string]any{"error": "manager or db is nil"})
 	}
+
 	if strings.TrimSpace(folderPath) == "" {
 		return apperror.New("ExportToGitFolder", "E_INSTALLER_INVALID_INPUT", map[string]any{"error": "folderPath is required"})
 	}
@@ -41,6 +43,7 @@ func (m *Manager) writeExportScriptFile(slug, folderPath, filename string) error
 	if errScripts != nil {
 		return errScripts
 	}
+
 	targetName := resolveExportTargetFilename(filename, slug)
 	targetFile := filepath.Join(folderPath, targetName)
 	data, errMarshal := json.MarshalIndent(scripts, "", "  ")
@@ -56,6 +59,7 @@ func commitIfGitRepo(folderPath, filename, slug, commitMsg string) error {
 	if _, errStat := os.Stat(gitDir); errStat != nil {
 		return nil
 	}
+
 	targetName := resolveExportTargetFilename(filename, slug)
 	msg := resolveExportCommitMsg(commitMsg, targetName)
 	cmdAdd := exec.Command("git", "-C", folderPath, "add", targetName)

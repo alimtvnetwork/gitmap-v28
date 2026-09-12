@@ -29,6 +29,7 @@ func TestCheckRemoteForUpdate_NoSuffix_NoUpdate(t *testing.T) {
 	if err != nil {
 		t.Fatalf("err = %v", err)
 	}
+
 	if got.UpdateNeeded {
 		t.Errorf("UpdateNeeded = true, want false (no -v<N> baseline)")
 	}
@@ -45,12 +46,15 @@ func TestCheckRemoteForUpdate_RemoteHigher_TriggersUpdate(t *testing.T) {
 	if err != nil {
 		t.Fatalf("err = %v", err)
 	}
+
 	if !got.UpdateNeeded {
 		t.Fatalf("UpdateNeeded = false, want true (remote v5 > local v3)")
 	}
+
 	if got.RemoteVersion != 5 {
 		t.Errorf("RemoteVersion = %d, want 5", got.RemoteVersion)
 	}
+
 	if got.TargetRepo != "acme/alpha-v5" {
 		t.Errorf("TargetRepo = %q, want acme/alpha-v5", got.TargetRepo)
 	}
@@ -67,6 +71,7 @@ func TestCheckRemoteForUpdate_RemoteSame_NoUpdate(t *testing.T) {
 	if err != nil {
 		t.Fatalf("err = %v", err)
 	}
+
 	if got.UpdateNeeded {
 		t.Errorf("UpdateNeeded = true, want false (remote == local)")
 	}
@@ -88,6 +93,7 @@ func TestCheckRemoteForUpdate_FailFastOnMiss(t *testing.T) {
 
 		return true, nil
 	}
+
 	parsed := ParseRepoName("alpha-v3")
 	got, err := checkRemoteForUpdateWith(RemoteProbeParams{
 		Owner:   "acme",
@@ -98,9 +104,11 @@ func TestCheckRemoteForUpdate_FailFastOnMiss(t *testing.T) {
 	if err != nil {
 		t.Fatalf("err = %v", err)
 	}
+
 	if got.RemoteVersion != 4 {
 		t.Errorf("RemoteVersion = %d, want 4", got.RemoteVersion)
 	}
+
 	if calls != 2 {
 		t.Errorf("probe called %d times, want 2 (fail-fast)", calls)
 	}
@@ -133,6 +141,7 @@ func TestCheckRemoteForUpdate_CeilingClamps(t *testing.T) {
 	if err != nil {
 		t.Fatalf("err = %v", err)
 	}
+
 	if got.RemoteVersion != 2 {
 		t.Errorf("RemoteVersion = %d, want 2 (ceiling cap)", got.RemoteVersion)
 	}

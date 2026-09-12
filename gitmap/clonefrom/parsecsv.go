@@ -26,6 +26,7 @@ func parseCSV(r io.Reader) ([]Row, error) {
 	if err != nil {
 		return nil, fmt.Errorf(constants.ErrCloneFromCSVHeader, err)
 	}
+
 	idx := indexCSVHeader(header)
 	if idx.url < 0 {
 		return nil, fmt.Errorf(constants.ErrCloneFromCSVNoURL)
@@ -47,14 +48,17 @@ func readCSVRows(cr *csv.Reader, idx csvIndex) ([]Row, error) {
 		if errors.Is(err, io.EOF) {
 			break
 		}
+
 		rowNum++
 		if err != nil {
 			return nil, fmt.Errorf(constants.ErrCloneFromCSVRow, rowNum, err)
 		}
+
 		row, col, err := csvRow(rec, idx)
 		if err != nil {
 			return nil, wrapCSVRowErr(rowNum, col, err)
 		}
+
 		out = append(out, row)
 	}
 
@@ -113,6 +117,7 @@ func csvRow(rec []string, idx csvIndex) (Row, string, error) {
 		Branch:   strings.TrimSpace(get(rec, idx.branch)),
 		Checkout: strings.ToLower(strings.TrimSpace(get(rec, idx.checkout))),
 	}
+
 	depthStr := strings.TrimSpace(get(rec, idx.depth))
 	row, col, err := applyDepth(row, depthStr)
 	if err != nil {
@@ -130,11 +135,14 @@ func applyDepth(row Row, depthStr string) (Row, string, error) {
 	if len(depthStr) == 0 {
 		return row, "", nil
 	}
+
 	d, err := strconv.Atoi(depthStr)
 	if err != nil {
 		return row, constants.CSVColumnDepth, fmt.Errorf(constants.ErrCloneFromBadDepth, depthStr)
 	}
+
 	row.Depth = d
+
 	return row, "", nil
 }
 

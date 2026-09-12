@@ -8,6 +8,7 @@ import (
 // CompileCreateView builds a CREATE VIEW IF NOT EXISTS statement.
 func (c *Compiler) CompileCreateView(name string, selectSql string) string {
 	cleanSql := strings.TrimRight(strings.TrimSpace(selectSql), ";")
+
 	return fmt.Sprintf("CREATE VIEW IF NOT EXISTS %s AS %s;", c.QuoteIdentifier(name), cleanSql)
 }
 
@@ -20,6 +21,7 @@ func (c *Compiler) CompileDropView(name string) string {
 func (c *Compiler) CompileAdHocCTE(viewName string, subQuery string, mainQuery string) string {
 	cleanSub := strings.TrimRight(strings.TrimSpace(subQuery), ";")
 	cleanMain := strings.TrimRight(strings.TrimSpace(mainQuery), ";")
+
 	return fmt.Sprintf("WITH %s AS (%s) %s;", c.QuoteIdentifier(viewName), cleanSub, cleanMain)
 }
 

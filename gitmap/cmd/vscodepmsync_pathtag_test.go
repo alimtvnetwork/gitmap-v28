@@ -39,6 +39,7 @@ func writeOverrideFixture(t *testing.T, seedTags []string) (string, string) {
 	if err != nil {
 		t.Fatalf("marshal seed: %v", err)
 	}
+
 	if err := os.WriteFile(overridePath, data, 0o644); err != nil {
 		t.Fatalf("write seed: %v", err)
 	}
@@ -55,6 +56,7 @@ func readOverrideFixture(t *testing.T, path string) []vscodepm.Entry {
 	if err != nil {
 		t.Fatalf("list at %s: %v", path, err)
 	}
+
 	return got
 }
 
@@ -66,6 +68,7 @@ func TestVSCodePMSyncProjectsJSONOverrideWritesToOverridePath(t *testing.T) {
 	if runtime.GOOS == "windows" {
 		t.Skip("XDG path layout — windows path resolution covered elsewhere")
 	}
+
 	overridePath, _ := writeOverrideFixture(t, []string{"user-only"})
 
 	runVSCodePMSync([]string{"--projects-json", overridePath})
@@ -74,10 +77,12 @@ func TestVSCodePMSyncProjectsJSONOverrideWritesToOverridePath(t *testing.T) {
 	if len(got) != 1 {
 		t.Fatalf("expected 1 entry, got %d", len(got))
 	}
+
 	// UNION default — user tag preserved, brand added by detector.
 	if !containsTag(got[0].Tags, "user-only") {
 		t.Errorf("override path did not preserve user tag: %v", got[0].Tags)
 	}
+
 	if !containsTag(got[0].Tags, "gitmap") {
 		t.Errorf("override path missing brand tag: %v", got[0].Tags)
 	}
@@ -92,6 +97,7 @@ func TestVSCodePMSyncTagOverrideReplacesDetectedSet(t *testing.T) {
 	if runtime.GOOS == "windows" {
 		t.Skip("XDG path layout — windows path resolution covered elsewhere")
 	}
+
 	overridePath, _ := writeOverrideFixture(t, []string{"old-tag", "gitmap"})
 
 	runVSCodePMSync([]string{
@@ -105,11 +111,13 @@ func TestVSCodePMSyncTagOverrideReplacesDetectedSet(t *testing.T) {
 	if len(got) != 1 {
 		t.Fatalf("expected 1 entry, got %d", len(got))
 	}
+
 	for _, want := range []string{"ruby", "python", "scratch"} {
 		if !containsTag(got[0].Tags, want) {
 			t.Errorf("--tag override missing %q in: %v", want, got[0].Tags)
 		}
 	}
+
 	for _, gone := range []string{"old-tag", "gitmap"} {
 		if containsTag(got[0].Tags, gone) {
 			t.Errorf("replace+--tag did not drop %q: %v", gone, got[0].Tags)
@@ -126,6 +134,7 @@ func TestVSCodePMSyncTagOverrideUnionKeepsExisting(t *testing.T) {
 	if runtime.GOOS == "windows" {
 		t.Skip("XDG path layout — windows path resolution covered elsewhere")
 	}
+
 	overridePath, _ := writeOverrideFixture(t, []string{"keep-me", "gitmap"})
 
 	runVSCodePMSync([]string{
@@ -137,6 +146,7 @@ func TestVSCodePMSyncTagOverrideUnionKeepsExisting(t *testing.T) {
 	if len(got) != 1 {
 		t.Fatalf("expected 1 entry, got %d", len(got))
 	}
+
 	for _, want := range []string{"keep-me", "gitmap", "added"} {
 		if !containsTag(got[0].Tags, want) {
 			t.Errorf("union with --tag missing %q in: %v", want, got[0].Tags)

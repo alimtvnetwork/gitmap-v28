@@ -41,6 +41,7 @@ func TestStartupListJSONL_EmptyEmitsNothing(t *testing.T) {
 	if err := encodeStartupListJSONL(&buf, nil); err != nil {
 		t.Fatalf("encode: %v", err)
 	}
+
 	if buf.Len() != 0 {
 		t.Fatalf("empty list must emit zero bytes, got %d: %q",
 			buf.Len(), buf.String())
@@ -54,10 +55,12 @@ func TestStartupListJSONL_SingleEntryByteExact(t *testing.T) {
 	entries := []startup.Entry{
 		{Name: "gitmap-a", Path: "/p/a.desktop", Exec: "/bin/a"},
 	}
+
 	var buf bytes.Buffer
 	if err := encodeStartupListJSONL(&buf, entries); err != nil {
 		t.Fatalf("encode: %v", err)
 	}
+
 	want := `{"name":"gitmap-a","path":"/p/a.desktop","exec":"/bin/a"}` + "\n"
 	if got := buf.String(); got != want {
 		t.Fatalf("byte mismatch\nwant: %q\ngot:  %q", want, got)
@@ -75,23 +78,28 @@ func TestStartupListJSONL_MultiEntryLineCount(t *testing.T) {
 		{Name: "gitmap-b", Path: "/p/b.desktop", Exec: "/bin/b --flag"},
 		{Name: "gitmap-c", Path: "/p/c.desktop", Exec: ""},
 	}
+
 	var buf bytes.Buffer
 	if err := encodeStartupListJSONL(&buf, entries); err != nil {
 		t.Fatalf("encode: %v", err)
 	}
+
 	if !bytes.HasSuffix(buf.Bytes(), []byte{'\n'}) {
 		t.Fatalf("output must end with newline: %q", buf.String())
 	}
+
 	lines := strings.Split(strings.TrimSuffix(buf.String(), "\n"), "\n")
 	if len(lines) != len(entries) {
 		t.Fatalf("want %d lines, got %d: %q",
 			len(entries), len(lines), buf.String())
 	}
+
 	for i, line := range lines {
 		var got map[string]any
 		if err := json.Unmarshal([]byte(line), &got); err != nil {
 			t.Fatalf("line %d not valid JSON: %v\nline: %q", i, err, line)
 		}
+
 		if got["name"] != entries[i].Name {
 			t.Fatalf("line %d name: want %q got %v",
 				i, entries[i].Name, got["name"])
@@ -108,10 +116,12 @@ func TestStartupListJSONL_KeyOrderStable(t *testing.T) {
 		{Name: "gitmap-a", Path: "/p/a.desktop", Exec: "/bin/a"},
 		{Name: "gitmap-b", Path: "/p/b.desktop", Exec: "/bin/b"},
 	}
+
 	var buf bytes.Buffer
 	if err := encodeStartupListJSONL(&buf, entries); err != nil {
 		t.Fatalf("encode: %v", err)
 	}
+
 	wantKeys := assertSchemaKeysSlice(t, "startup-list")
 	scanner := bufio.NewScanner(&buf)
 	lineNo := 0
@@ -119,9 +129,11 @@ func TestStartupListJSONL_KeyOrderStable(t *testing.T) {
 		assertJSONKeyOrder(t, lineNo, scanner.Bytes(), wantKeys)
 		lineNo++
 	}
+
 	if err := scanner.Err(); err != nil {
 		t.Fatalf("scan: %v", err)
 	}
+
 	if lineNo != len(entries) {
 		t.Fatalf("want %d lines, scanned %d", len(entries), lineNo)
 	}
@@ -136,15 +148,18 @@ func assertJSONKeyOrder(t *testing.T, lineNo int, line []byte, want []string) {
 	if _, err := dec.Token(); err != nil { // opening `{`
 		t.Fatalf("line %d: open: %v", lineNo, err)
 	}
+
 	for i, wantKey := range want {
 		tok, err := dec.Token()
 		if err != nil {
 			t.Fatalf("line %d: key %d: %v", lineNo, i, err)
 		}
+
 		if tok != wantKey {
 			t.Fatalf("line %d: key %d want %q got %v",
 				lineNo, i, wantKey, tok)
 		}
+
 		if _, err := dec.Token(); err != nil { // value
 			t.Fatalf("line %d: value %d: %v", lineNo, i, err)
 		}
@@ -159,13 +174,16 @@ func TestStartupListJSONL_SpecialCharsMatchJSON(t *testing.T) {
 	entries := []startup.Entry{
 		{Name: "gitmap-中文", Path: "/p/\"q\"\\b.desktop", Exec: "a\tb\nc\u0001d"},
 	}
+
 	var jsonlBuf, jsonBuf bytes.Buffer
 	if err := encodeStartupListJSONL(&jsonlBuf, entries); err != nil {
 		t.Fatalf("jsonl encode: %v", err)
 	}
+
 	if err := encodeStartupListJSON(&jsonBuf, entries); err != nil {
 		t.Fatalf("json encode: %v", err)
 	}
+
 	// Re-parse both and compare semantic content. We don't compare
 	// bytes (formatting differs by design) — we compare that the
 	// VALUES survive the round-trip identically in both encodings.
@@ -174,13 +192,16 @@ func TestStartupListJSONL_SpecialCharsMatchJSON(t *testing.T) {
 	if err := json.Unmarshal(jsonlLine, &fromJSONL); err != nil {
 		t.Fatalf("jsonl reparse: %v", err)
 	}
+
 	var fromJSON []map[string]any
 	if err := json.Unmarshal(jsonBuf.Bytes(), &fromJSON); err != nil {
 		t.Fatalf("json reparse: %v", err)
 	}
+
 	if len(fromJSON) != 1 {
 		t.Fatalf("want 1 json record, got %d", len(fromJSON))
 	}
+
 	for _, k := range assertSchemaKeysSlice(t, "startup-list") {
 		if fromJSONL[k] != fromJSON[0][k] {
 			t.Fatalf("key %q diverges: jsonl=%v json=%v",

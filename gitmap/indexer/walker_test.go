@@ -22,6 +22,7 @@ func createSchema(db *sql.DB) error {
 		UpdatedAt INTEGER NOT NULL
 	);`
 	_, err := db.Exec(schema)
+
 	return err
 }
 
@@ -30,10 +31,12 @@ func setupTestDB(t *testing.T) *sql.DB {
 	if err != nil {
 		t.Fatalf("open in-memory db: %v", err)
 	}
+
 	db.SetMaxOpenConns(1)
 	if err := createSchema(db); err != nil {
 		t.Fatalf("create table: %v", err)
 	}
+
 	return db
 }
 
@@ -54,11 +57,13 @@ func TestExcludedDirs(t *testing.T) {
 		".git", "node_modules", ".venv", "dist", "build", "bin",
 		"vendor", ".gemini", "coverage", "tmp", "__pycache__", ".turbo",
 	}
+
 	for _, dir := range targets {
 		if !isExcludedDir(dir) {
 			t.Errorf("expected directory %s to be excluded", dir)
 		}
 	}
+
 	if isExcludedDir("src") {
 		t.Errorf("src directory should not be excluded")
 	}
@@ -68,13 +73,16 @@ func writeTestFiles(t *testing.T, tmpDir string) {
 	if err := os.WriteFile(filepath.Join(tmpDir, "text.txt"), []byte("normal text file"), 0644); err != nil {
 		t.Fatalf("write text: %v", err)
 	}
+
 	if err := os.WriteFile(filepath.Join(tmpDir, "binary.bin"), []byte("null\x00byte\x00binary"), 0644); err != nil {
 		t.Fatalf("write bin: %v", err)
 	}
+
 	venvDir := filepath.Join(tmpDir, ".venv")
 	if err := os.MkdirAll(venvDir, 0755); err != nil {
 		t.Fatalf("mkdir venv: %v", err)
 	}
+
 	if err := os.WriteFile(filepath.Join(venvDir, "skipped.py"), []byte("skip me"), 0644); err != nil {
 		t.Fatalf("write skipped: %v", err)
 	}
@@ -85,10 +93,12 @@ func createTestTree(t *testing.T) string {
 	if err != nil {
 		t.Fatalf("mkdirtemp: %v", err)
 	}
+
 	t.Cleanup(func() {
 		_ = os.RemoveAll(tmpDir)
 	})
 	writeTestFiles(t, tmpDir)
+
 	return tmpDir
 }
 
@@ -99,9 +109,11 @@ func verifyBinaryFile(t *testing.T, db *sql.DB) {
 	if err := db.QueryRow(query).Scan(&isBig, &content); err != nil {
 		t.Fatalf("query binary file: %v", err)
 	}
+
 	if isBig != 1 {
 		t.Errorf("expected binary.bin to have IsBig=1, got %d", isBig)
 	}
+
 	if content != "" {
 		t.Errorf("expected binary.bin content to be empty, got %q", content)
 	}
@@ -112,9 +124,11 @@ func verifyIndexedFiles(t *testing.T, db *sql.DB) {
 	if err := db.QueryRow("SELECT COUNT(*) FROM RepoFile").Scan(&count); err != nil {
 		t.Fatalf("count files: %v", err)
 	}
+
 	if count != 2 {
 		t.Fatalf("expected 2 indexed files (text.txt, binary.bin), got %d", count)
 	}
+
 	verifyBinaryFile(t, db)
 }
 
@@ -128,6 +142,7 @@ func TestWalkerUpfrontBatchAndSniffer(t *testing.T) {
 	if err := w.Walk(ctx, 2); err != nil {
 		t.Fatalf("walk failed: %v", err)
 	}
+
 	verifyIndexedFiles(t, db)
 }
 
@@ -141,8 +156,10 @@ func TestWalkerDeltaSkip(t *testing.T) {
 	if err := w.Walk(ctx, 2); err != nil {
 		t.Fatalf("first walk failed: %v", err)
 	}
+
 	if err := w.Walk(ctx, 2); err != nil {
 		t.Fatalf("second walk failed: %v", err)
 	}
+
 	verifyIndexedFiles(t, db)
 }

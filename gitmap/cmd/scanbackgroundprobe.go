@@ -52,6 +52,7 @@ func startBackgroundProbe(
 
 		return nil
 	}
+
 	if migErr := db.Migrate(); migErr != nil {
 		fmt.Fprintln(os.Stderr, migErr.Error())
 		db.Close()
@@ -89,14 +90,18 @@ func resolveProbeWorkers(records []model.ScanRecord, opts ScanProbeOptions, quie
 	if opts.Disable || len(records) == 0 {
 		return 0
 	}
+
 	if opts.ConcurrencySet {
 		return opts.Concurrency
 	}
+
 	if len(records) >= constants.ScanProbeAutoTriggerCeiling && !quiet {
 		fmt.Printf(constants.MsgScanProbeSkippedAutoFmt,
 			len(records), constants.ScanProbeAutoTriggerCeiling)
+
 		return 0
 	}
+
 	if len(records) >= constants.ScanProbeAutoTriggerCeiling {
 		return 0
 	}
@@ -120,16 +125,21 @@ func drainBackgroundProbe(runner *probe.BackgroundRunner, opts ScanProbeOptions,
 	if runner == nil {
 		return
 	}
+
 	if opts.NoWait && !quiet {
 		fmt.Print(constants.MsgScanProbeDetached)
+
 		return
 	}
+
 	if opts.NoWait {
 		return
 	}
+
 	if !quiet {
 		fmt.Printf(constants.MsgScanProbeWaitingFmt, runner.Remaining())
 	}
+
 	stats := runner.Wait()
 	if !quiet {
 		fmt.Printf(constants.MsgScanProbeDoneFmt,

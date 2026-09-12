@@ -129,11 +129,13 @@ func checkActiveVsDeployed(activeVersion, deployedVersion, activePath, deployedP
 		fmt.Fprintf(os.Stderr, "  ⚠ Could not resolve absolute path for %s: %v\n", activePath, err1)
 		absActive = activePath
 	}
+
 	absDeployed, err2 := filepath.Abs(deployedPath)
 	if err2 != nil {
 		fmt.Fprintf(os.Stderr, "  ⚠ Could not resolve absolute path for %s: %v\n", deployedPath, err2)
 		absDeployed = deployedPath
 	}
+
 	if absActive == absDeployed {
 		return 0
 	}

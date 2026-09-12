@@ -55,6 +55,7 @@ func BuildRecordsWithOptions(repos []scanner.RepoInfo, opts BuildOptions) []mode
 		rec := buildOneRecord(repo, opts)
 		records = append(records, rec)
 	}
+
 	// Pin (RelativePath, HTTPSUrl, SSHUrl, AbsolutePath) order so
 	// terminal/CSV/JSON exports are byte-identical across runs even
 	// when the scanner ordering changes upstream. See sort.go.
@@ -70,6 +71,7 @@ func relativePathFor(repo scanner.RepoInfo, relRoot string) string {
 	if relRoot == "" {
 		return repo.RelativePath
 	}
+
 	rel, err := filepath.Rel(relRoot, repo.AbsolutePath)
 	if err != nil {
 		fmt.Fprintf(os.Stderr, constants.ErrScanRelativeRootNotAncestor,
@@ -77,6 +79,7 @@ func relativePathFor(repo scanner.RepoInfo, relRoot string) string {
 
 		return repo.RelativePath
 	}
+
 	if strings.HasPrefix(rel, "..") {
 		fmt.Fprintf(os.Stderr, constants.ErrScanRelativeRootNotAncestor,
 			relRoot, repo.AbsolutePath, rel)
@@ -148,6 +151,7 @@ func toHTTPS(raw string) string {
 	if strings.HasPrefix(raw, constants.PrefixHTTPS) {
 		return raw
 	}
+
 	if strings.HasPrefix(raw, constants.PrefixSSH) {
 		host, path := splitSSH(raw)
 
@@ -162,6 +166,7 @@ func toSSH(raw string) string {
 	if strings.HasPrefix(raw, constants.PrefixSSH) {
 		return raw
 	}
+
 	if !strings.HasPrefix(raw, constants.PrefixHTTPS) {
 		return raw
 	}
@@ -200,6 +205,7 @@ func extractRepoName(raw string) string {
 	if len(raw) == 0 {
 		return constants.UnknownRepoName
 	}
+
 	base := filepath.Base(raw)
 
 	return strings.TrimSuffix(base, constants.ExtGit)
@@ -229,6 +235,7 @@ func buildSlug(httpsURL, repoName string) string {
 	if len(httpsURL) == 0 {
 		return strings.ToLower(repoName)
 	}
+
 	base := filepath.Base(httpsURL)
 	trimmed := strings.TrimSuffix(base, constants.ExtGit)
 

@@ -19,6 +19,7 @@ func validateDiffMode(mode string) {
 		mode == constants.RegoldensDiffModeFull {
 		return
 	}
+
 	fmt.Fprintf(os.Stderr, constants.ErrRegoldensDiffMode+"\n", mode)
 	cliexit.HandleError(nil, 2)
 }

@@ -59,6 +59,7 @@ func cleanupRegistryEntry(t *testing.T, clean string) {
 		k.DeleteValue(valueName)
 		k.Close()
 	}
+
 	registry.DeleteKey(registry.CURRENT_USER,
 		constants.RegGitmapRegistrySub+`\`+clean)
 	registry.DeleteKey(registry.CURRENT_USER,
@@ -69,6 +70,7 @@ func cleanupRegistryEntry(t *testing.T, clean string) {
 // (or stale cleanups from a previous failed run) don't collide.
 func uniqueName(t *testing.T) string {
 	t.Helper()
+
 	return "test-" + filepath.Base(t.TempDir())
 }
 
@@ -83,23 +85,28 @@ func TestAddWindowsRegistry_RoundTrip(t *testing.T) {
 	if err != nil || res.Status != AddCreated {
 		t.Fatalf("Add: %v / status=%d", err, res.Status)
 	}
+
 	entries, err := listWindowsRegistry()
 	if err != nil {
 		t.Fatalf("List: %v", err)
 	}
+
 	found := false
 	for _, e := range entries {
 		if e.Name != constants.StartupWinValuePrefix+name {
 			continue
 		}
+
 		found = true
 		if e.Exec != `C:\gitmap.exe watch` {
 			t.Errorf("exec = %q, want %s", e.Exec, `C:\gitmap.exe watch`)
 		}
 	}
+
 	if !found {
 		t.Fatalf("List did not return the added entry: %#v", entries)
 	}
+
 	rm, err := RemoveWithOptions(name, RemoveOptions{})
 	if err != nil || rm.Status != RemoveDeleted {
 		t.Fatalf("Remove: %v / status=%d", err, rm.Status)
@@ -119,9 +126,11 @@ func TestAddWindowsRegistry_RefusesThirdParty(t *testing.T) {
 	if err != nil {
 		t.Fatalf("seed: %v", err)
 	}
+
 	if err := k.SetStringValue(valueName, `C:\evil.exe`); err != nil {
 		t.Fatalf("seed value: %v", err)
 	}
+
 	k.Close()
 
 	res, err := Add(AddOptions{Name: name, Exec: `C:\safe.exe`,
@@ -129,6 +138,7 @@ func TestAddWindowsRegistry_RefusesThirdParty(t *testing.T) {
 	if err != nil {
 		t.Fatalf("Add: %v", err)
 	}
+
 	if res.Status != AddRefused {
 		t.Fatalf("status = %d, want AddRefused", res.Status)
 	}
@@ -141,6 +151,7 @@ func TestRemoveWindowsRegistry_NoOp(t *testing.T) {
 	if err != nil {
 		t.Fatalf("Remove: %v", err)
 	}
+
 	if res.Status != RemoveNoOp {
 		t.Fatalf("status = %d, want RemoveNoOp", res.Status)
 	}
@@ -153,6 +164,7 @@ func TestAddWindowsStartupFolder_RoundTrip(t *testing.T) {
 	if _, err := exec.LookPath("powershell.exe"); err != nil {
 		t.Skip("powershell.exe not on PATH; skipping .lnk backend test")
 	}
+
 	withIsolatedAppData(t)
 	name := uniqueName(t)
 	t.Cleanup(func() { cleanupRegistryEntry(t, name) })
@@ -162,20 +174,25 @@ func TestAddWindowsStartupFolder_RoundTrip(t *testing.T) {
 	if err != nil || res.Status != AddCreated {
 		t.Fatalf("Add: %v / status=%d", err, res.Status)
 	}
+
 	if _, err := os.Stat(res.Path); err != nil {
 		t.Fatalf("lnk not on disk: %v", err)
 	}
+
 	entries, err := listWindowsStartupFolder()
 	if err != nil {
 		t.Fatalf("List: %v", err)
 	}
+
 	if len(entries) == 0 {
 		t.Fatalf("List returned zero entries")
 	}
+
 	rm, err := RemoveWithOptions(name, RemoveOptions{})
 	if err != nil || rm.Status != RemoveDeleted {
 		t.Fatalf("Remove: %v / status=%d", err, rm.Status)
 	}
+
 	if _, err := os.Stat(res.Path); !os.IsNotExist(err) {
 		t.Errorf("lnk still on disk after remove")
 	}

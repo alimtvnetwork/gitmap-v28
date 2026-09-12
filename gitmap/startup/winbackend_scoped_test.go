@@ -31,6 +31,7 @@ func TestRemoveWindows_BackendScopedRegistry(t *testing.T) {
 	if err != nil || res.Status != RemoveDeleted {
 		t.Fatalf("scoped Remove(registry): %v / status=%d", err, res.Status)
 	}
+
 	lnk := dir + "\\" + constants.StartupWinValuePrefix + name + constants.StartupLnkExt
 	if _, err := os.Stat(lnk); err != nil {
 		t.Errorf(".lnk was incorrectly deleted: %v", err)
@@ -50,12 +51,14 @@ func TestRemoveWindows_BackendScopedStartupFolder(t *testing.T) {
 	if err != nil || res.Status != RemoveDeleted {
 		t.Fatalf("scoped Remove(folder): %v / status=%d", err, res.Status)
 	}
+
 	entries, _ := listWindowsRegistry()
 	for _, e := range entries {
 		if e.Name == constants.StartupWinValuePrefix+name {
 			return // Registry entry survived as expected
 		}
 	}
+
 	t.Errorf("registry entry was incorrectly deleted")
 }
 
@@ -68,6 +71,7 @@ func addBoth(t *testing.T, name string) {
 		Backend: BackendRegistry}); err != nil {
 		t.Fatalf("Add registry: %v", err)
 	}
+
 	if _, err := Add(AddOptions{Name: name, Exec: `C:\gitmap.exe watch`,
 		Backend: BackendStartupFolder}); err != nil {
 		t.Fatalf("Add startup-folder: %v", err)

@@ -35,9 +35,11 @@ func parseFixLinkArgs(args []string) (FixLinkOptions, []string) {
 
 			continue
 		}
+
 		if applyFlagIfMatch(arg, &opts) {
 			continue
 		}
+
 		if !strings.HasPrefix(arg, "-") {
 			paths = append(paths, expandHome(arg))
 		}
@@ -81,6 +83,7 @@ func executeFixLinkRuns(paths []string, opts FixLinkOptions) ([]LinkResult, erro
 		if err != nil {
 			return nil, err
 		}
+
 		allResults = append(allResults, items...)
 	}
 

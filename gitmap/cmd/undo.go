@@ -49,12 +49,15 @@ func runUndo(args []string) error {
 		printUndoSnapshotList(baseDir, snapshots)
 		cliexit.HandleError(nil, constants.FixRepoExitOk)
 	}
+
 	chosen := pickUndoSnapshot(snapshots, opts.snapshot)
 	if chosen == "" {
 		fmt.Fprintf(os.Stderr, constants.UndoErrNoSnapshotFmt, baseDir)
 		cliexit.HandleError(nil, constants.FixRepoExitBadFlag)
 	}
+
 	restoreUndoSnapshot(filepath.Join(baseDir, chosen), identity.root, opts.isDryRun)
+
 	return nil
 }
 
@@ -89,12 +92,14 @@ func listUndoSnapshots(baseDir string) []string {
 	if err != nil {
 		return nil
 	}
+
 	out := make([]string, 0, len(entries))
 	for _, e := range entries {
 		if e.IsDir() {
 			out = append(out, e.Name())
 		}
 	}
+
 	sort.Sort(sort.Reverse(sort.StringSlice(out)))
 
 	return out
@@ -107,6 +112,7 @@ func printUndoSnapshotList(baseDir string, snapshots []string) {
 
 		return
 	}
+
 	fmt.Printf(constants.UndoMsgListHeaderFmt, baseDir, len(snapshots))
 	for i, ts := range snapshots {
 		count := countUndoFiles(filepath.Join(baseDir, ts))
@@ -114,6 +120,7 @@ func printUndoSnapshotList(baseDir string, snapshots []string) {
 		if i == 0 {
 			marker = "*" // latest
 		}
+
 		fmt.Printf(constants.UndoMsgListRowFmt, marker, ts, count)
 	}
 }
@@ -124,6 +131,7 @@ func pickUndoSnapshot(snapshots []string, explicit string) string {
 	if explicit != "" {
 		return findExplicitSnapshot(snapshots, explicit)
 	}
+
 	if len(snapshots) == 0 {
 		return ""
 	}
@@ -137,6 +145,7 @@ func findExplicitSnapshot(snapshots []string, explicit string) string {
 			return s
 		}
 	}
+
 	return ""
 }
 
@@ -147,10 +156,12 @@ func restoreUndoSnapshot(snapDir, repoRoot string, isDryRun bool) {
 	if !ok {
 		cliexit.HandleError(nil, constants.FixRepoExitBadConfig)
 	}
+
 	mode := constants.FixRepoModeWrite
 	if isDryRun {
 		mode = constants.FixRepoModeDryRun
 	}
+
 	fmt.Printf(constants.UndoMsgRestoreHeaderFmt, snapDir, len(manifest.Files), mode)
 	restored, failed := walkUndoRestore(snapDir, repoRoot, manifest.Files, isDryRun)
 	fmt.Printf(constants.UndoMsgRestoreSummaryFmt, restored, failed)
@@ -171,12 +182,14 @@ func walkUndoRestore(snapDir, repoRoot string, files []string, isDryRun bool) (i
 
 			continue
 		}
+
 		if err := copyFileForBackup(src, dst); err != nil {
 			fmt.Fprintf(os.Stderr, constants.UndoMsgRestoreErrFmt, rel, err)
 			failed++
 
 			continue
 		}
+
 		fmt.Printf(constants.UndoMsgRestoreRowFmt, "restored", rel)
 		restored++
 	}
@@ -193,6 +206,7 @@ func readUndoManifest(snapDir string) (fixRepoBackupManifest, bool) {
 
 		return fixRepoBackupManifest{}, false
 	}
+
 	var m fixRepoBackupManifest
 	if err := json.Unmarshal(body, &m); err != nil {
 		fmt.Fprintf(os.Stderr, constants.UndoErrManifestBadFmt, path, err)
@@ -221,11 +235,13 @@ func readUndoManifestQuiet(snapDir string) (fixRepoBackupManifest, bool) {
 	if err != nil {
 		return fixRepoBackupManifest{}, false
 	}
+
 	defer f.Close()
 	body, err := io.ReadAll(f)
 	if err != nil {
 		return fixRepoBackupManifest{}, false
 	}
+
 	var m fixRepoBackupManifest
 	if err := json.Unmarshal(body, &m); err != nil {
 		return fixRepoBackupManifest{}, false

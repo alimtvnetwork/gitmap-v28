@@ -77,28 +77,27 @@ func addWindowsRegistryAt(root registry.Key, hive, source string,
 	valueName := constants.StartupWinValuePrefix + clean
 	exists, managed, err := classifyRunValueAt(root, valueName, clean)
 	if err != nil {
-
 		return AddResult{}, err
 	}
-	if exists && !managed {
 
+	if exists && !managed {
 		return AddResult{Status: AddRefused, Path: runValuePathFor(hive, valueName)}, nil
 	}
-	if exists && managed && !opts.Force {
 
+	if exists && managed && !opts.Force {
 		return AddResult{Status: AddExists, Path: runValuePathFor(hive, valueName)}, nil
 	}
+
 	if err := writeTrackingSubkeyAt(root, constants.RegGitmapRegistrySub, clean,
 		opts.Exec, source, opts.WorkingDir); err != nil {
-
 		return AddResult{}, err
 	}
+
 	if err := writeRunValueAt(root, valueName, opts.Exec); err != nil {
-
 		return AddResult{}, err
 	}
-	if exists {
 
+	if exists {
 		return AddResult{Status: AddOverwritten, Path: runValuePathFor(hive, valueName)}, nil
 	}
 
@@ -125,18 +124,22 @@ func classifyRunValueAt(root registry.Key, valueName, clean string) (bool, bool,
 	if errors.Is(err, registry.ErrNotExist) {
 		return false, false, nil
 	}
+
 	if err != nil {
 		return false, false, fmt.Errorf(constants.ErrStartupRegistryOpen, constants.RegRunKeyPath, err)
 	}
+
 	defer k.Close()
 
 	_, _, err = k.GetStringValue(valueName)
 	if errors.Is(err, registry.ErrNotExist) {
 		return false, false, nil
 	}
+
 	if err != nil {
 		return false, false, fmt.Errorf(constants.ErrStartupRegistryRead, valueName, err)
 	}
+
 	hasTracking := trackingSubkeyExistsAt(root, constants.RegGitmapRegistrySub, clean)
 
 	return true, hasTracking, nil
@@ -158,9 +161,9 @@ func trackingSubkeyExistsAt(root registry.Key, parent, name string) bool {
 	full := parent + `\` + name
 	k, err := registry.OpenKey(root, full, registry.QUERY_VALUE)
 	if err != nil {
-
 		return false
 	}
+
 	k.Close()
 
 	return true
@@ -183,13 +186,12 @@ func writeRunValueAt(root registry.Key, valueName, exec string) error {
 	k, _, err := registry.CreateKey(root,
 		constants.RegRunKeyPath, registry.SET_VALUE)
 	if err != nil {
-
 		return fmt.Errorf(constants.ErrStartupRegistryOpen, constants.RegRunKeyPath, err)
 	}
+
 	defer k.Close()
 
 	if err := k.SetStringValue(valueName, exec); err != nil {
-
 		return fmt.Errorf(constants.ErrStartupRegistryWrite, valueName, err)
 	}
 
@@ -214,27 +216,28 @@ func writeTrackingSubkeyAt(root registry.Key, parent, name, exec, source, workin
 	full := parent + `\` + name
 	k, _, err := registry.CreateKey(root, full, registry.SET_VALUE)
 	if err != nil {
-
 		return fmt.Errorf(constants.ErrStartupRegistryOpen, full, err)
 	}
+
 	defer k.Close()
 
 	if err := k.SetStringValue(constants.RegTrackKeyExec, exec); err != nil {
-
 		return fmt.Errorf(constants.ErrStartupRegistryWrite, constants.RegTrackKeyExec, err)
 	}
+
 	if err := k.SetStringValue(constants.RegTrackKeyCreatedAt,
 		time.Now().UTC().Format(time.RFC3339)); err != nil {
-
 		return fmt.Errorf(constants.ErrStartupRegistryWrite, constants.RegTrackKeyCreatedAt, err)
 	}
-	if err := k.SetStringValue(constants.RegTrackKeySource, source); err != nil {
 
+	if err := k.SetStringValue(constants.RegTrackKeySource, source); err != nil {
 		return fmt.Errorf(constants.ErrStartupRegistryWrite, constants.RegTrackKeySource, err)
 	}
+
 	if workingDir == "" {
 		return nil
 	}
+
 	err = k.SetStringValue(constants.RegTrackKeyWorkingDir, workingDir)
 	if err != nil {
 		return fmt.Errorf(constants.ErrStartupRegistryWrite, constants.RegTrackKeyWorkingDir, err)

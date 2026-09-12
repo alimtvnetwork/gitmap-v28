@@ -81,5 +81,6 @@ func TestVersionHistoryJSONContract_KeyOrder(t *testing.T) {
 	if err := encodeVersionHistoryJSON(&buf, records); err != nil {
 		t.Fatalf("encode: %v", err)
 	}
+
 	assertSchemaKeysFirstObject(t, buf.Bytes(), "version-history")
 }

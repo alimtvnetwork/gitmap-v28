@@ -25,6 +25,7 @@ func readManifestProfilesFromDir(dir string) ([]DiscoveredProfileCandidate, bool
 		if !ok {
 			cand = buildFallbackCandidateFromManifest(pDir, p)
 		}
+
 		candidates = append(candidates, cand)
 	}
 

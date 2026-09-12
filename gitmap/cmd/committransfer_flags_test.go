@@ -25,6 +25,7 @@ func TestCommitTransferIncludeMergesDefault(t *testing.T) {
 		if len(positional) != 2 {
 			t.Fatalf("%s: expected 2 positional args, got %d", name, len(positional))
 		}
+
 		if !opts.IncludeMerges {
 			t.Errorf("%s: IncludeMerges = false, want true (v6.0.0 default)", name)
 		}

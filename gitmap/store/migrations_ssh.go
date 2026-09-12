@@ -13,6 +13,7 @@ func RegisterSSHHostMigration(db *sql.DB, version int, force bool) error {
 	if _, err := db.Exec(query); err != nil {
 		e := apperror.WrapSimple(err, "RegisterSSHHostMigration")
 		e.Code = "E_INTERNAL_ERROR"
+
 		return e
 	}
 

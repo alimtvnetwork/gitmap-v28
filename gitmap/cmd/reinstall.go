@@ -76,6 +76,7 @@ func resolveReinstallMode(override string) (string, bool) {
 			)
 			cliexit.HandleError(err, 1)
 		}
+
 		return constants.ReinstallModeRepo, false
 	case constants.ReinstallModeSelf:
 		return constants.ReinstallModeSelf, false
@@ -83,9 +84,11 @@ func resolveReinstallMode(override string) (string, bool) {
 		if len(constants.RepoPath) > 0 {
 			return constants.ReinstallModeRepo, true
 		}
+
 		return constants.ReinstallModeSelf, true
 	default:
 		cliexit.HandleError(apperror.NewSimple(constants.ErrReinstallUnknownMode, "E9000"), 1)
+
 		return "", false
 	}
 }
@@ -99,6 +102,7 @@ func announceReinstallMode(rawOverride, mode string, detected bool) {
 	} else {
 		fmt.Printf(constants.MsgReinstallModeForced, mode)
 	}
+
 	if mode == constants.ReinstallModeRepo {
 		fmt.Printf(constants.MsgReinstallRepoPath, constants.RepoPath)
 	}
@@ -122,6 +126,7 @@ func dispatchReinstall(mode string) {
 
 		return
 	}
+
 	executeReinstallSelf()
 }
 
@@ -132,6 +137,7 @@ func executeReinstallRepo() {
 	if _, err := os.Stat(scriptPath); err != nil {
 		cliexit.HandleError(apperror.NewSimple(constants.ErrReinstallScriptNotFound, "E9000"), 1)
 	}
+
 	fmt.Printf(constants.MsgReinstallRunningRepo, scriptName)
 	cmd := buildReinstallScriptCmd(scriptPath)
 	cmd.Stdout = os.Stdout
@@ -145,6 +151,7 @@ func executeReinstallRepo() {
 		fmt.Fprintf(os.Stderr, constants.ErrReinstallScriptFailed, scriptName, exitCode)
 		cliexit.HandleError(nil, exitCode)
 	}
+
 	if err != nil {
 		cliexit.HandleError(apperror.NewSimple(constants.ErrReinstallScriptFailed, "E9000"), 1)
 	}
@@ -155,8 +162,10 @@ func executeReinstallRepo() {
 func pickReinstallScriptPath() (string, string) {
 	if runtime.GOOS == constants.OSWindows {
 		name := "run.ps1"
+
 		return filepath.Join(constants.RepoPath, name), name
 	}
+
 	name := "run.sh"
 
 	return filepath.Join(constants.RepoPath, name), name

@@ -21,6 +21,7 @@ func TestMergeCreatesFileWhenMissing(t *testing.T) {
 	if err != nil {
 		t.Fatalf("Merge: %v", err)
 	}
+
 	if res.Outcome != MergeCreated || !res.Changed {
 		t.Fatalf("want created+changed, got outcome=%d changed=%v", res.Outcome, res.Changed)
 	}
@@ -44,12 +45,14 @@ func TestMergeIsIdempotentOnSecondRun(t *testing.T) {
 	if _, err := Merge(target, testTag, body); err != nil {
 		t.Fatalf("first Merge: %v", err)
 	}
+
 	first, _ := os.ReadFile(target)
 
 	res, err := Merge(target, testTag, body)
 	if err != nil {
 		t.Fatalf("second Merge: %v", err)
 	}
+
 	if res.Changed {
 		t.Fatalf("second run should be a no-op, got Changed=true")
 	}
@@ -71,6 +74,7 @@ func TestMergeUpdatesBlockInPlace(t *testing.T) {
 	if err := os.WriteFile(target, []byte(preamble), 0o644); err != nil {
 		t.Fatal(err)
 	}
+
 	if _, err := Merge(target, testTag, []byte("*.png filter=lfs\n")); err != nil {
 		t.Fatalf("first Merge: %v", err)
 	}
@@ -85,6 +89,7 @@ func TestMergeUpdatesBlockInPlace(t *testing.T) {
 	if err != nil {
 		t.Fatalf("second Merge: %v", err)
 	}
+
 	if res.Outcome != MergeUpdated || !res.Changed {
 		t.Fatalf("want updated+changed, got outcome=%d changed=%v", res.Outcome, res.Changed)
 	}
@@ -94,12 +99,15 @@ func TestMergeUpdatesBlockInPlace(t *testing.T) {
 	if !strings.Contains(s, "# my custom rules") {
 		t.Errorf("preamble lost:\n%s", s)
 	}
+
 	if !strings.Contains(s, "# user-managed footer") {
 		t.Errorf("postamble lost:\n%s", s)
 	}
+
 	if strings.Contains(s, "*.png") {
 		t.Errorf("old block body survived:\n%s", s)
 	}
+
 	if !strings.Contains(s, "*.jpg") {
 		t.Errorf("new block body missing:\n%s", s)
 	}
@@ -121,6 +129,7 @@ func TestMergeAppendsBlockToExistingFileWithoutMarkers(t *testing.T) {
 	if err != nil {
 		t.Fatalf("Merge: %v", err)
 	}
+
 	if res.Outcome != MergeInserted || !res.Changed {
 		t.Fatalf("want inserted+changed, got outcome=%d changed=%v", res.Outcome, res.Changed)
 	}
@@ -129,6 +138,7 @@ func TestMergeAppendsBlockToExistingFileWithoutMarkers(t *testing.T) {
 	if !bytes.HasPrefix(got, []byte(existing)) {
 		t.Fatalf("existing content not preserved at head:\n%s", got)
 	}
+
 	if !bytes.Contains(got, []byte("# >>> gitmap:lfs/common >>>")) {
 		t.Fatalf("marker missing:\n%s", got)
 	}

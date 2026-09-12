@@ -6,6 +6,7 @@ import "fmt"
 func GenerateStashRecipe(repoPath string) RemediationRecipe {
 	p := CleanRepoPath(repoPath)
 	rawPath := CleanRepoPathRaw(repoPath)
+
 	return RemediationRecipe{
 		Title:       "Option 1 (Stash & Re-apply)",
 		Description: "Temporarily save local changes (including untracked), pull latest remote commits, then re-apply",

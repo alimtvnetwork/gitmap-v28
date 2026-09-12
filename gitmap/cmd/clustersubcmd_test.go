@@ -35,8 +35,10 @@ func assertSubCmdResult(t *testing.T, tt subCmdTestCase) {
 	got, err := ParseSubCommands(tt.tokens)
 	if (err != nil) != tt.wantErr {
 		t.Errorf("ParseSubCommands() error = %v, wantErr %v", err, tt.wantErr)
+
 		return
 	}
+
 	if !tt.wantErr && !reflect.DeepEqual(got, tt.expected) {
 		t.Errorf("ParseSubCommands() = %v, expected %v", got, tt.expected)
 	}

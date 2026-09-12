@@ -23,12 +23,15 @@ func Classify(url string) string {
 	if strings.HasPrefix(trimmed, "ssh://") {
 		return constants.ScanTransportSSH
 	}
+
 	if strings.HasPrefix(trimmed, "https://") {
 		return constants.ScanTransportHTTPS
 	}
+
 	if IsSCPStyle(trimmed) {
 		return constants.ScanTransportSSH
 	}
+
 	return constants.ScanTransportOther
 }
 
@@ -38,10 +41,13 @@ func IsSCPStyle(url string) bool {
 	if strings.Contains(url, "://") {
 		return false
 	}
+
 	colon := strings.Index(url, ":")
 	if colon <= 0 {
 		return false
 	}
+
 	host := url[:colon]
+
 	return !strings.ContainsAny(host, "/\\")
 }

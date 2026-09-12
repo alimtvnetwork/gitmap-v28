@@ -48,6 +48,7 @@ func emitFindNext(rows []model.FindNextRow, jsonOut bool) error {
 	if jsonOut {
 		return emitFindNextJSON(rows)
 	}
+
 	emitFindNextText(rows)
 
 	return nil
@@ -79,5 +80,6 @@ func emitFindNextText(rows []model.FindNextRow) {
 		fmt.Printf(constants.MsgFindNextRowFmt,
 			r.Repo.Slug, r.NextVersionTag, r.Method, r.ProbedAt, r.Repo.AbsolutePath)
 	}
+
 	fmt.Print(constants.MsgFindNextDoneFmt)
 }

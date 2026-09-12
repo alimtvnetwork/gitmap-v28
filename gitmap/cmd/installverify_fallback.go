@@ -10,7 +10,6 @@ import (
 func homeDir() string {
 	home, err := os.UserHomeDir()
 	if err != nil {
-
 		return ""
 	}
 
@@ -19,16 +18,15 @@ func homeDir() string {
 
 func isExecutableCandidate(path string) bool {
 	if path == "" {
-
 		return false
 	}
+
 	info, err := os.Stat(path)
 	if err != nil || info.IsDir() {
-
 		return false
 	}
-	if runtime.GOOS == "windows" {
 
+	if runtime.GOOS == "windows" {
 		return true
 	}
 
@@ -37,9 +35,9 @@ func isExecutableCandidate(path string) bool {
 
 func ensureDirInPath(dir string) {
 	if dir == "" {
-
 		return
 	}
+
 	currentPath := os.Getenv("PATH")
 	sep := string(os.PathListSeparator)
 	os.Setenv("PATH", dir+sep+currentPath)
@@ -62,6 +60,7 @@ func buildFallbackCandidates(binary string) []string {
 	if home := homeDir(); home != "" {
 		list = append(list, buildUserHomeCandidates(home, binary)...)
 	}
+
 	list = append(list, filepath.Join("/usr", "local", "bin", binary))
 	if pnpmHome := os.Getenv("PNPM_HOME"); pnpmHome != "" {
 		list = append(list, filepath.Join(pnpmHome, binary))
@@ -86,7 +85,6 @@ func findBinaryInFallbackPaths(binary string) string {
 func resolveToolBinaryPath(binary string) string {
 	path, err := exec.LookPath(binary)
 	if err == nil {
-
 		return path
 	}
 

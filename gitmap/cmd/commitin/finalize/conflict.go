@@ -23,6 +23,7 @@ func Resolve(mode, sourceSha string, out io.Writer) ConflictDecisionType {
 	if mode == constants.CommitInConflictModeForceMerge {
 		return ConflictDecisionTakeTheirs
 	}
+
 	fmt.Fprintf(out, constants.CommitInErrConflictAborted, sourceSha)
 
 	return ConflictDecisionAbort

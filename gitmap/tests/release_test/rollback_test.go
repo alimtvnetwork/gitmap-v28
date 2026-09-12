@@ -103,6 +103,7 @@ func TestRollback_DeletesBranchAndTag(t *testing.T) {
 	if err != nil {
 		t.Fatalf("CreateBranch: %v", err)
 	}
+
 	err = release.CreateTag(tag, "Release "+tag)
 	if err != nil {
 		t.Fatalf("CreateTag: %v", err)
@@ -112,6 +113,7 @@ func TestRollback_DeletesBranchAndTag(t *testing.T) {
 	if !branchExists(t, branchName) {
 		t.Fatal("branch should exist before rollback")
 	}
+
 	if !tagExists(t, tag) {
 		t.Fatal("tag should exist before rollback")
 	}
@@ -123,6 +125,7 @@ func TestRollback_DeletesBranchAndTag(t *testing.T) {
 	if branchExists(t, branchName) {
 		t.Error("branch should be deleted after rollback")
 	}
+
 	if tagExists(t, tag) {
 		t.Error("tag should be deleted after rollback")
 	}
@@ -151,6 +154,7 @@ func TestRollback_BranchOnlyWhenTagEmpty(t *testing.T) {
 	if branchExists(t, branchName) {
 		t.Error("branch should be deleted after rollback")
 	}
+
 	if got := currentBranch(t); got != "main" {
 		t.Errorf("expected branch main, got %s", got)
 	}
@@ -188,10 +192,12 @@ func TestRollback_SwitchBackToOriginalBranch(t *testing.T) {
 	if err != nil {
 		t.Fatalf("CreateBranch: %v", err)
 	}
+
 	err = release.CheckoutBranch(branchName)
 	if err != nil {
 		t.Fatalf("CheckoutBranch: %v", err)
 	}
+
 	err = release.CreateTag(tag, "Release "+tag)
 	if err != nil {
 		t.Fatalf("CreateTag: %v", err)
@@ -207,9 +213,11 @@ func TestRollback_SwitchBackToOriginalBranch(t *testing.T) {
 	if got := currentBranch(t); got != "main" {
 		t.Errorf("expected branch main after rollback, got %s", got)
 	}
+
 	if branchExists(t, branchName) {
 		t.Error("branch should be deleted after rollback")
 	}
+
 	if tagExists(t, tag) {
 		t.Error("tag should be deleted after rollback")
 	}

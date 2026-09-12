@@ -24,6 +24,7 @@ func buildAuthors(commits []model.CommitInfo) []model.AuthorInfo {
 	for _, c := range commits {
 		processAuthorCommit(index, c)
 	}
+
 	return collectAuthors(index)
 }
 
@@ -34,8 +35,10 @@ func processAuthorCommit(index map[string]*authorAcc, c model.CommitInfo) {
 		acc.count++
 		acc.daySet[c.Date[:10]] = true
 		updateDateRange(acc, c.Date)
+
 		return
 	}
+
 	index[c.Email] = newAuthorAcc(c)
 }
 
@@ -64,7 +67,9 @@ func collectAuthors(index map[string]*authorAcc) []model.AuthorInfo {
 			ActiveDays:   len(acc.daySet),
 		})
 	}
+
 	sortAuthorsByCommits(authors)
+
 	return authors
 }
 
@@ -80,6 +85,7 @@ func updateDateRange(acc *authorAcc, date string) {
 	if date < acc.first {
 		acc.first = date
 	}
+
 	if date > acc.last {
 		acc.last = date
 	}
@@ -116,12 +122,15 @@ func weekSuffix(day string) string {
 	if d <= "07" {
 		return "-W1"
 	}
+
 	if d <= "14" {
 		return "-W2"
 	}
+
 	if d <= "21" {
 		return "-W3"
 	}
+
 	return "-W4"
 }
 
@@ -131,6 +140,7 @@ func buildTagMap(tags []model.TagInfo) map[string][]string {
 	for _, t := range tags {
 		tagMap[t.SHA] = append(tagMap[t.SHA], t.Name)
 	}
+
 	return tagMap
 }
 
@@ -139,6 +149,7 @@ func matchCommitTags(commit model.CommitInfo, tagMap map[string][]string) []stri
 	if matched := tagMap[commit.SHA]; len(matched) > 0 {
 		return matched
 	}
+
 	return tagMap[commit.ShortSHA]
 }
 
@@ -150,6 +161,7 @@ func attachTagsToCommits(commits []model.CommitInfo, tags []model.TagInfo) []mod
 			commits[i].Tags = matched
 		}
 	}
+
 	return commits
 }
 

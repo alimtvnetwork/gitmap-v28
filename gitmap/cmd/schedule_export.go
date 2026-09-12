@@ -37,11 +37,13 @@ func runScheduleExport(args []string) error {
 	if err != nil {
 		return err
 	}
+
 	defer db.Close()
 	bundles, err := collectExportBundles(db, opts)
 	if err != nil {
 		return err
 	}
+
 	return writeScheduleExportOutput(bundles, opts)
 }
 
@@ -68,8 +70,10 @@ func parseScheduleExportOpts(args []string) scheduleExportOpts {
 			opts.TargetName = a
 		}
 	}
+
 	inferScheduleExportFormatFromPath(&opts)
 	opts.IsAll = opts.TargetName == "" || opts.TargetName == "*" || opts.TargetName == "all" || opts.TargetName == "export-all" || opts.TargetName == "import-all"
+
 	return opts
 }
 
@@ -77,13 +81,16 @@ func inferScheduleExportFormatFromPath(opts *scheduleExportOpts) {
 	if opts.FilePath == "" {
 		return
 	}
+
 	ext := strings.ToLower(filepath.Ext(opts.FilePath))
 	if ext == ".yaml" || ext == ".yml" {
 		opts.Format = constants.OutputYAML
 	}
+
 	if ext == ".db" || ext == ".sqlite" || ext == ".sqlite3" {
 		opts.Format = "sqlite"
 	}
+
 	if ext == ".zip" {
 		opts.Format = "zip"
 	}
@@ -98,6 +105,7 @@ func parseExceptTokens(raw string) []string {
 			list = append(list, trimmed)
 		}
 	}
+
 	return list
 }
 
@@ -106,14 +114,17 @@ func collectExportBundles(db *store.DB, opts scheduleExportOpts) ([]scheduleExpo
 	if err != nil {
 		return nil, apperror.WrapSimple(err, "list schedules for export")
 	}
+
 	var bundles []scheduleExportBundle
 	for _, t := range tasks {
 		if isSkippableSchedule(t.Name, opts) {
 			continue
 		}
+
 		runs := fetchScheduleRunsSafe(t.Slug)
 		bundles = append(bundles, scheduleExportBundle{Task: t, Runs: runs})
 	}
+
 	if len(bundles) == 0 && !opts.IsAll {
 		return nil, apperror.NewSimple("schedule "+opts.TargetName+" not found", "E6010")
 	}
@@ -125,6 +136,7 @@ func isSkippableSchedule(name string, opts scheduleExportOpts) bool {
 	if !opts.IsAll && !strings.EqualFold(name, opts.TargetName) {
 		return true
 	}
+
 	for _, ex := range opts.ExceptList {
 		if strings.EqualFold(name, ex) {
 			return true
@@ -139,8 +151,10 @@ func fetchScheduleRunsSafe(slug string) []store.ScheduleRunRecord {
 	if err != nil {
 		return nil
 	}
+
 	defer splitDB.Close()
 	runs, _ := splitDB.GetRuns(1000)
+
 	return runs
 }
 
@@ -162,15 +176,20 @@ func writeScheduleExportJSON(bundles []scheduleExportBundle, filePath string) er
 	if err != nil {
 		return err
 	}
+
 	if filePath == "" {
 		fmt.Println(string(raw))
+
 		return nil
 	}
+
 	_ = os.MkdirAll(filepath.Dir(filePath), constants.DirPermission)
 	if err := os.WriteFile(filePath, raw, constants.FilePermission); err != nil {
 		return apperror.WrapSimple(err, "write json export")
 	}
+
 	printExportSuccessBanner(filePath, len(bundles), "JSON")
+
 	return nil
 }
 
@@ -179,15 +198,20 @@ func writeScheduleExportYAML(bundles []scheduleExportBundle, filePath string) er
 	if err != nil {
 		return err
 	}
+
 	if filePath == "" {
 		fmt.Println(string(raw))
+
 		return nil
 	}
+
 	_ = os.MkdirAll(filepath.Dir(filePath), constants.DirPermission)
 	if err := os.WriteFile(filePath, raw, constants.FilePermission); err != nil {
 		return apperror.WrapSimple(err, "write yaml export")
 	}
+
 	printExportSuccessBanner(filePath, len(bundles), "YAML")
+
 	return nil
 }
 
@@ -200,6 +224,7 @@ func writeScheduleExportSQLite(bundles []scheduleExportBundle, filePath string) 
 	if appErr != nil {
 		return apperror.WrapSimple(appErr, "create export sqlite db")
 	}
+
 	defer conn.Close()
 
 	if err := populateExportSQLite(conn, bundles); err != nil {
@@ -223,6 +248,7 @@ func populateExportSQLite(conn *sql.DB, bundles []scheduleExportBundle) error {
 	if _, err := conn.Exec(store.SQLCreateSchedulerTasksTable); err != nil {
 		return err
 	}
+
 	createLogTable := `CREATE TABLE IF NOT EXISTS schedule_logs (
 	    id INTEGER PRIMARY KEY AUTOINCREMENT,
 	    schedule_name TEXT,
@@ -241,6 +267,7 @@ func populateExportSQLite(conn *sql.DB, bundles []scheduleExportBundle) error {
 	if _, err := conn.Exec(createLogTable); err != nil {
 		return err
 	}
+
 	for _, b := range bundles {
 		if err := insertBundleIntoSQLite(conn, b); err != nil {
 			return err
@@ -264,6 +291,7 @@ func insertBundleIntoSQLite(conn *sql.DB, b scheduleExportBundle) error {
 		if r.IsSuccess {
 			isSuccessInt = 1
 		}
+
 		if _, err := conn.Exec(qRun, b.Task.Name, r.RunNumber, r.TriggerType, r.RunnerUser, r.StartedAt, r.FinishedAt, r.DurationMS, isSuccessInt, r.ExitCode, r.Output, r.ErrorMsg, r.CreatedAt); err != nil {
 			return err
 		}
@@ -276,14 +304,17 @@ func writeScheduleExportZIP(bundles []scheduleExportBundle, filePath string) err
 	if filePath == "" {
 		filePath = "schedules_export.zip"
 	}
+
 	_ = os.MkdirAll(filepath.Dir(filePath), constants.DirPermission)
 	outFile, err := os.Create(filePath)
 	if err != nil {
 		return apperror.WrapSimple(err, "create zip file")
 	}
+
 	defer outFile.Close()
 	zw := zip.NewWriter(outFile)
 	defer zw.Close()
+
 	return addBundlesToZIP(zw, bundles, filePath)
 }
 
@@ -295,7 +326,9 @@ func addBundlesToZIP(zw *zip.Writer, bundles []scheduleExportBundle, filePath st
 			_, _ = f.Write(raw)
 		}
 	}
+
 	printExportSuccessBanner(filePath, len(bundles), "ZIP")
+
 	return nil
 }
 

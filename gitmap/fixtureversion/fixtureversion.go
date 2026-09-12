@@ -80,6 +80,7 @@ func ParseMarker(body string) (Stamp, bool) {
 	if len(head) > 512 {
 		head = head[:512]
 	}
+
 	m := markerLineRe.FindStringSubmatch(head)
 	if m == nil {
 		return Stamp{}, false
@@ -99,6 +100,7 @@ func parseFields(payload string) (Stamp, bool) {
 		if !ok {
 			continue
 		}
+
 		switch key {
 		case "name":
 			out.Name = val
@@ -108,12 +110,14 @@ func parseFields(payload string) (Stamp, bool) {
 			if err != nil {
 				return Stamp{}, false
 			}
+
 			out.Generation = n
 		case "min-current":
 			n, err := strconv.Atoi(val)
 			if err != nil {
 				return Stamp{}, false
 			}
+
 			out.MinCurrent = n
 		case "for":
 			out.CreatedFor = val
@@ -121,6 +125,7 @@ func parseFields(payload string) (Stamp, bool) {
 			out.SHA = val
 		}
 	}
+
 	if !hasName {
 		return Stamp{}, false
 	}

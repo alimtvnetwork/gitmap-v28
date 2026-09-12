@@ -42,18 +42,24 @@ func emitGoldenDiffSummary(mode string) {
 	isNonGitWorkingTree := !isGitWorkingTree()
 	if isNonGitWorkingTree {
 		fmt.Fprint(os.Stderr, constants.MsgRegoldensDiffSkipped)
+
 		return
 	}
+
 	entries, err := collectGoldenDiffEntries()
 	if err != nil {
 		fmt.Fprintf(os.Stderr, "regoldens: diff summary failed: %v\n", err)
+
 		return
 	}
+
 	fmt.Fprintf(os.Stdout, constants.MsgRegoldensDiffHeader, mode)
 	if len(entries) == 0 {
 		fmt.Fprint(os.Stdout, constants.MsgRegoldensDiffNoChanges)
+
 		return
 	}
+
 	printGoldenDiffEntries(entries, mode)
 }
 
@@ -66,6 +72,7 @@ func isGitWorkingTree() bool {
 	if err != nil {
 		return false
 	}
+
 	return strings.TrimSpace(string(out)) == "true"
 }
 
@@ -77,10 +84,12 @@ func collectGoldenDiffEntries() ([]goldenDiffEntry, error) {
 	if err != nil {
 		return nil, fmt.Errorf("git status: %w", err)
 	}
+
 	numstat, err := readNumstatCounts()
 	if err != nil {
 		return nil, fmt.Errorf("git diff numstat: %w", err)
 	}
+
 	return mergeStatusAndNumstat(statuses, numstat), nil
 }
 
@@ -92,22 +101,26 @@ func readPorcelainStatuses() (map[string]goldenDiffEntry, error) {
 	if err != nil {
 		return nil, err
 	}
+
 	result := make(map[string]goldenDiffEntry)
 	for _, line := range strings.Split(out, "\n") {
 		if len(line) < 4 {
 			continue
 		}
+
 		path, from := splitPorcelainPath(line[3:])
 		isNonGoldenFixturePath := !isGoldenFixturePath(path)
 		if isNonGoldenFixturePath {
 			continue
 		}
+
 		result[path] = goldenDiffEntry{
 			status:      normalizePorcelainStatus(strings.TrimSpace(line[:2])),
 			path:        path,
 			renamedFrom: from,
 		}
 	}
+
 	return result, nil
 }
 
@@ -119,6 +132,7 @@ func splitPorcelainPath(raw string) (newPath, oldPath string) {
 	if idx := strings.Index(raw, " -> "); idx >= 0 {
 		return strings.TrimSpace(raw[idx+4:]), strings.TrimSpace(raw[:idx])
 	}
+
 	return strings.TrimSpace(raw), ""
 }
 
@@ -130,15 +144,19 @@ func normalizePorcelainStatus(code string) string {
 	if code == "??" {
 		return "A"
 	}
+
 	if strings.Contains(code, "D") {
 		return "D"
 	}
+
 	if strings.Contains(code, "R") {
 		return "R"
 	}
+
 	if strings.Contains(code, "A") {
 		return "A"
 	}
+
 	return "M"
 }
 
@@ -150,20 +168,24 @@ func readNumstatCounts() (map[string][2]int, error) {
 	if err != nil {
 		return nil, err
 	}
+
 	result := make(map[string][2]int)
 	for _, line := range strings.Split(out, "\n") {
 		fields := strings.Fields(line)
 		if len(fields) < 3 {
 			continue
 		}
+
 		isNonGoldenFixturePath := !isGoldenFixturePath(fields[2])
 		if isNonGoldenFixturePath {
 			continue
 		}
+
 		added, _ := strconv.Atoi(fields[0]) // "-" (binary) becomes 0
 		deleted, _ := strconv.Atoi(fields[1])
 		result[fields[2]] = [2]int{added, deleted}
 	}
+
 	return result, nil
 }
 
@@ -178,7 +200,9 @@ func mergeStatusAndNumstat(statuses map[string]goldenDiffEntry, counts map[strin
 		e.deleted = c[1]
 		entries = append(entries, e)
 	}
+
 	sortGoldenDiffEntries(entries)
+
 	return entries
 }
 
@@ -193,8 +217,10 @@ func runGitCapture(args ...string) (string, error) {
 	if err != nil && errors.As(err, &exitErr) {
 		return "", fmt.Errorf("%w: %s", err, strings.TrimSpace(stderr.String()))
 	}
+
 	if err != nil {
 		return "", err
 	}
+
 	return string(out), nil
 }

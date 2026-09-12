@@ -54,11 +54,13 @@ func runFixRepoGofmt(goFiles []string, opts fixRepoOptions) bool {
 	if opts.isDryRun {
 		return emitGofmtDryRunPreview(goFiles, opts)
 	}
+
 	if len(goFiles) == 0 {
 		fmt.Print(constants.FixRepoMsgGofmtNoneFmt)
 
 		return true
 	}
+
 	if _, err := exec.LookPath("gofmt"); err != nil {
 		fmt.Fprint(os.Stderr, constants.FixRepoErrGofmtMissing)
 
@@ -81,6 +83,7 @@ func emitGofmtDryRunPreview(goFiles []string, opts fixRepoOptions) bool {
 
 		return true
 	}
+
 	budget := effectiveGofmtBudget(opts)
 	paths := shortenGofmtPaths(goFiles)
 	batches := chunkPathsForGofmt(paths, budget)
@@ -91,12 +94,14 @@ func emitGofmtDryRunPreview(goFiles []string, opts fixRepoOptions) bool {
 		if budget > 0 {
 			pct = cmdLen * 100 / budget
 		}
+
 		tag := ""
 		if pct >= 100 {
 			tag = constants.FixRepoMsgGofmtDryOverTag
 		} else if pct >= constants.FixRepoGofmtNearLimitPct {
 			tag = constants.FixRepoMsgGofmtDryNearTag
 		}
+
 		fmt.Printf(constants.FixRepoMsgGofmtDryBatchFmt,
 			i+1, len(batches), len(batch), cmdLen, pct, tag)
 	}
@@ -126,6 +131,7 @@ func shortenGofmtPaths(paths []string) []string {
 	if err != nil {
 		return paths
 	}
+
 	out := make([]string, len(paths))
 	for i, p := range paths {
 		if rel, err := filepath.Rel(cwd, p); err == nil && !strings.HasPrefix(rel, "..") {
@@ -148,12 +154,14 @@ func invokeGofmt(goFiles []string, opts fixRepoOptions) bool {
 	if opts.isVerbose && len(batches) > 0 {
 		fmt.Printf(constants.FixRepoMsgGofmtVerbHeaderFmt, len(batches), len(goFiles), budget)
 	}
+
 	start := time.Now()
 	for i, batch := range batches {
 		if opts.isVerbose {
 			fmt.Printf(constants.FixRepoMsgGofmtVerbBatchStartFmt,
 				i+1, len(batches), len(batch), batchCmdLen(batch))
 		}
+
 		args := append([]string{"-w"}, batch...)
 		cmd := exec.Command("gofmt", args...)
 		out, err := cmd.CombinedOutput()
@@ -162,6 +170,7 @@ func invokeGofmt(goFiles []string, opts fixRepoOptions) bool {
 
 			return false
 		}
+
 		if opts.isVerbose {
 			elapsed := time.Since(start).Truncate(time.Millisecond)
 			done := i + 1
@@ -169,6 +178,7 @@ func invokeGofmt(goFiles []string, opts fixRepoOptions) bool {
 			fmt.Printf(constants.FixRepoMsgGofmtVerbBatchDoneFmt, elapsed, eta)
 		}
 	}
+
 	if len(batches) > 1 {
 		fmt.Printf(constants.FixRepoMsgGofmtBatchFmt, len(goFiles), len(batches))
 	} else {
@@ -188,9 +198,11 @@ func chunkPathsForGofmt(paths []string, budget int) [][]string {
 	if len(paths) == 0 {
 		return nil
 	}
+
 	if budget <= 0 {
 		budget = constants.FixRepoGofmtMaxCmdLen
 	}
+
 	var batches [][]string
 	var cur []string
 	curLen := 0
@@ -202,9 +214,11 @@ func chunkPathsForGofmt(paths []string, budget int) [][]string {
 			cur = nil
 			curLen = 0
 		}
+
 		cur = append(cur, p)
 		curLen += cost
 	}
+
 	if len(cur) > 0 {
 		batches = append(batches, cur)
 	}

@@ -39,6 +39,7 @@ func clearSingleSplitDB(path string) bool {
 	if err != nil {
 		return false
 	}
+
 	defer db.Close()
 
 	if err := repodb.ClearRepoDB(context.Background(), db); err != nil {

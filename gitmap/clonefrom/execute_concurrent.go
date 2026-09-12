@@ -45,6 +45,7 @@ func ExecuteWithHooksConcurrent(params ConcurrentExecutionParams) []Result {
 	if params.Workers <= 1 {
 		return ExecuteWithHooks(params.Plan, params.Cwd, params.Progress, params.BeforeRow)
 	}
+
 	params.Cwd = resolveCwd(params.Cwd)
 	out := make([]Result, len(params.Plan.Rows))
 	dispatchConcurrent(params.Plan, params.Cwd, params.BeforeRow, params.Workers, out)
@@ -63,6 +64,7 @@ func dispatchConcurrent(plan Plan, cwd string, beforeRow BeforeRowHook,
 	for i := 0; i < workers; i++ {
 		go runConcurrentWorker(jobs, cwd, out, &wg)
 	}
+
 	enqueueConcurrentJobs(plan, beforeRow, jobs)
 	close(jobs)
 	wg.Wait()
@@ -86,6 +88,7 @@ func enqueueConcurrentJobs(plan Plan, beforeRow BeforeRowHook,
 		if beforeRow != nil {
 			invokeBeforeRow(beforeRow, i, total, r)
 		}
+
 		jobs <- concurrentJob{idx: i, row: r}
 	}
 }
@@ -95,6 +98,7 @@ func invokeBeforeRow(hook BeforeRowHook, i, total int, r Row) {
 	if len(dest) == 0 {
 		dest = DeriveDest(r.URL)
 	}
+
 	hook(i+1, total, r, dest)
 }
 
@@ -104,6 +108,7 @@ func emitProgressInOrder(w io.Writer, out []Result) {
 	if w == nil {
 		return
 	}
+
 	total := len(out)
 	for i, res := range out {
 		writeProgress(w, i+1, total, res)

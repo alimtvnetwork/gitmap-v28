@@ -105,6 +105,7 @@ func LoadFile(path string) result.Result[Document] {
 		// every fresh install where the seed file does not yet exist.
 		appErr := apperror.WrapSimple(err, constants.ErrDownloaderConfigPathRequired).
 			WithContext("path", path)
+
 		return result.FailureResult[Document](appErr)
 	}
 
@@ -116,6 +117,7 @@ func Parse(raw []byte) result.Result[Document] {
 	var doc Document
 	if err := json.Unmarshal(raw, &doc); err != nil {
 		appErr := apperror.WrapSimple(err, constants.ErrDownloaderConfigInvalidJSON)
+
 		return result.FailureResult[Document](appErr)
 	}
 
@@ -142,18 +144,22 @@ func Validate(doc Document) *apperror.AppError {
 		return apperror.NewSimple("downloader-config", "E1000").
 			WithContext("error", fmt.Sprintf(constants.ErrDownloaderConfigMissingKey, "DownloaderConfig.PreferredDownloader"))
 	}
+
 	if dc.FallbackDownloader == "" {
 		return apperror.NewSimple("downloader-config", "E1000").
 			WithContext("error", fmt.Sprintf(constants.ErrDownloaderConfigMissingKey, "DownloaderConfig.FallbackDownloader"))
 	}
+
 	if dc.ParallelDownloads < 1 || dc.ParallelDownloads > 64 {
 		return apperror.NewSimple("downloader-config", "E1000").
 			WithContext("error", fmt.Sprintf(constants.ErrDownloaderConfigBadParallel, dc.ParallelDownloads))
 	}
+
 	if dc.SplitConnections < 1 || dc.SplitConnections > 64 {
 		return apperror.NewSimple("downloader-config", "E1000").
 			WithContext("error", fmt.Sprintf(constants.ErrDownloaderConfigBadSplits, dc.SplitConnections))
 	}
+
 	for k, v := range map[ConfigKey]string{
 		KeyDefaultSplitSize:   dc.DefaultSplitSize,
 		KeyLargeFileSplitSize: dc.LargeFileSplitSize,
@@ -177,8 +183,10 @@ func Marshal(doc Document) result.Result[[]byte] {
 	b, err := json.MarshalIndent(doc, "", constants.JSONIndent)
 	if err != nil {
 		appErr := apperror.WrapSimple(err, "downloaderconfig.Marshal")
+
 		return result.FailureResult[[]byte](appErr)
 	}
+
 	return result.SuccessResult(b)
 }
 
@@ -190,6 +198,7 @@ func SeedHash(doc Document) string {
 	if res.IsFailure() {
 		return ""
 	}
+
 	canon, _ := res.Unwrap()
 	sum := sha256.Sum256(canon)
 

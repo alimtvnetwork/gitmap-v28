@@ -72,6 +72,7 @@ func ResolveSourceRef(commit, branch string) (string, string, error) {
 	if len(commit) > 0 {
 		return resolveFromCommit(commit)
 	}
+
 	if len(branch) > 0 {
 		return resolveFromBranch(branch)
 	}
@@ -88,6 +89,7 @@ func resolveFromCommit(commit string) (string, string, error) {
 	if verbose.IsEnabled() {
 		verbose.Get().Log("source: using commit %s", commit)
 	}
+
 	return commit, constants.GitCommitPrefix + commit, nil
 }
 
@@ -110,6 +112,7 @@ func resolveFromHead() (string, string, error) {
 	branchName, err := CurrentBranchName()
 	if err != nil {
 		logDetachedHead()
+
 		return constants.GitHEAD, constants.GitHEAD, nil
 	}
 

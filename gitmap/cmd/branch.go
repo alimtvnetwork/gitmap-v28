@@ -23,8 +23,10 @@ import (
 func runBranch(args []string) *apperror.AppError {
 	if len(args) == 0 {
 		fmt.Fprint(os.Stderr, constants.ErrBranchMissingSubcommand)
+
 		return apperror.NewSimple("fatal error", "E9000")
 	}
+
 	sub, rest := args[0], args[1:]
 	switch sub {
 	case constants.CmdBranchSubDefault, constants.CmdBranchSubDefaultAlias:
@@ -32,6 +34,7 @@ func runBranch(args []string) *apperror.AppError {
 
 		return nil
 	}
+
 	return apperror.NewSimple(constants.ErrBranchUnknownSubcommand, "E9000")
 	// 	return nil
 }
@@ -54,16 +57,20 @@ func runBranchDefault(args []string) error {
 	checkHelp("branch", args)
 	if !gitutil.IsInsideWorkTree() {
 		fmt.Fprint(os.Stderr, constants.ErrBranchNotRepo)
+
 		return apperror.NewSimple("fatal error", "E9000")
 	}
+
 	target := gitutil.ResolveDefaultBranchName(".")
 	fmt.Printf(constants.MsgBranchDefaultSwitching, target)
 	out, err := gitutil.CheckoutBranch(".", target)
 	if len(out) > 0 {
 		fmt.Println(out)
 	}
+
 	if err != nil {
 		return apperror.WrapSimple(err, constants.ErrBranchDefaultFailed)
 	}
+
 	return nil
 }

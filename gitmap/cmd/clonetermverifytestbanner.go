@@ -36,9 +36,11 @@ func PrintCmdFaithfulReportForTest(w io.Writer, r CmdFaithfulReport) error {
 	if _, err := io.WriteString(w, constants.CmdFaithfulReportTestPrefix); err != nil {
 		return err
 	}
+
 	if err := PrintCmdFaithfulReport(w, r); err != nil {
 		return err
 	}
+
 	if _, err := io.WriteString(w, constants.CmdFaithfulReportTestSuffix); err != nil {
 		return err
 	}

@@ -29,6 +29,7 @@ func runVSCodeContextMenu() error {
 	}
 
 	runRegistryCommands("VS Code", regCommands)
+
 	return nil
 }
 
@@ -52,6 +53,7 @@ func runPwshContextMenu() error {
 	}
 
 	runRegistryCommands("PowerShell 7", regCommands)
+
 	return nil
 }
 
@@ -72,6 +74,7 @@ func runRegistryCommands(label string, commands [][]string) error {
 	}
 
 	fmt.Printf("  ✓ %s context menu entries added (%d/%d registry keys).\n", label, success, len(commands))
+
 	return nil
 }
 
@@ -123,5 +126,6 @@ func runAllDevTools(opts installOptions) error {
 	}
 
 	fmt.Printf("\n  ✅ All dev tools: %d installed, %d already present.\n", installed, skipped)
+
 	return nil
 }

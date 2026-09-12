@@ -321,9 +321,11 @@ func TestLazyRegex_CountAndGroups(t *testing.T) {
 	if !group.Has("word") {
 		t.Fatalf("expected group to have key 'word'")
 	}
+
 	if group.Get("word") != "alpha" {
 		t.Errorf("expected group word 'alpha', got '%s'", group.Get("word"))
 	}
+
 	if group.GetOrDefault("missing", "fallback") != "fallback" {
 		t.Errorf("expected fallback value for missing key")
 	}
@@ -332,12 +334,15 @@ func TestLazyRegex_CountAndGroups(t *testing.T) {
 	if all.Len() != 3 {
 		t.Fatalf("expected 3 group maps, got %d", all.Len())
 	}
+
 	if all.First().Get("word") != "alpha" {
 		t.Errorf("expected first group word 'alpha', got '%s'", all.First().Get("word"))
 	}
+
 	if all.At(1).Get("word") != "beta" {
 		t.Errorf("expected second group word 'beta', got '%s'", all.At(1).Get("word"))
 	}
+
 	if all.Last().Get("word") != "gamma" {
 		t.Errorf("expected last group word 'gamma', got '%s'", all.Last().Get("word"))
 	}
@@ -360,21 +365,27 @@ func TestLazyRegex_CompileBuilder(t *testing.T) {
 	if res.IsSuccess() {
 		t.Errorf("expected compilation to fail on invalid pattern")
 	}
+
 	if !res.IsFailed() {
 		t.Errorf("expected IsFailed to be true")
 	}
+
 	if !res.HasError() {
 		t.Errorf("expected HasError to be true")
 	}
+
 	if res.Value != nil {
 		t.Errorf("expected nil Regexp on failure")
 	}
+
 	if res.AppError == nil {
 		t.Fatalf("expected non-nil AppBuilder on invalid pattern")
 	}
+
 	if res.AppError == nil {
 		t.Fatalf("expected non-nil AppError on invalid pattern")
 	}
+
 	if res.AppError.Message() != "lazy regex compilation failed" {
 		t.Errorf("unexpected message: %s", res.AppError.Message())
 	}
@@ -384,9 +395,11 @@ func TestLazyRegex_CompileBuilder(t *testing.T) {
 	if !validRes.IsSuccess() {
 		t.Errorf("expected valid regex to succeed")
 	}
+
 	if validRes.HasError() {
 		t.Errorf("expected no error on valid regex")
 	}
+
 	if validRes.Value == nil {
 		t.Errorf("expected non-nil Regexp on success")
 	}
@@ -402,9 +415,11 @@ func TestGroupMap_Operations(t *testing.T) {
 	if gm.Len() != 2 {
 		t.Errorf("expected len 2, got %d", gm.Len())
 	}
+
 	if !gm.Has("key1") || !gm.HasKey("key2") {
 		t.Errorf("expected keys to exist")
 	}
+
 	if gm.Get("key1") != "val1" {
 		t.Errorf("expected val1, got %s", gm.Get("key1"))
 	}
@@ -419,6 +434,7 @@ func TestGroupMap_Operations(t *testing.T) {
 	if !gm.Has("key1") {
 		t.Errorf("original map should retain key1 after clone removal")
 	}
+
 	if clone.Has("key1") {
 		t.Errorf("clone should not have key1")
 	}
@@ -481,9 +497,11 @@ func TestGroupList_Operations(t *testing.T) {
 	if len(gl.KeyList()) == 0 {
 		t.Errorf("expected non-empty KeyList")
 	}
+
 	if gl.Size() != 2 || !gl.HasAnyItem() {
 		t.Errorf("expected Size 2 and HasAnyItem true")
 	}
+
 	if len(gl.AllItems()) != 2 {
 		t.Errorf("expected AllItems to return 2 items")
 	}
@@ -492,6 +510,7 @@ func TestGroupList_Operations(t *testing.T) {
 	if gl.Len() != 3 {
 		t.Errorf("expected 3 items after Append")
 	}
+
 	gl.RemoveAt(1)
 	if gl.Len() != 2 {
 		t.Errorf("expected 2 items after RemoveAt")
@@ -536,12 +555,15 @@ func TestLazyRegex_CheckExistingCompiledFirst(t *testing.T) {
 	if !gm.ContainsKey("id") || gm.Get("id") != "99" {
 		t.Errorf("expected GroupBy to extract id: 99")
 	}
+
 	if len(gm.KeyList()) != 1 || len(gm.ValueList()) != 1 {
 		t.Errorf("expected KeyList and ValueList to have length 1")
 	}
+
 	if gm.Size() != 1 || !gm.HasAnyItem() {
 		t.Errorf("expected Size 1 and HasAnyItem")
 	}
+
 	if len(gm.Items()) != 1 {
 		t.Errorf("expected Items() to return map of length 1")
 	}

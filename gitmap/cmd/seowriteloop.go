@@ -44,6 +44,7 @@ func runCommitLoop(flags seoWriteFlags, messages []commitMessage, minSec, maxSec
 
 	runRotation(flags, messages, pendingFiles, stop, &count, minSec, maxSec)
 	printDone(count, time.Since(start))
+
 	return nil
 }
 
@@ -69,6 +70,7 @@ func runRotation(
 	if flags.maxCommits > 0 && *count >= flags.maxCommits {
 		return nil
 	}
+
 	if len(msgs) <= *count && flags.maxCommits == 0 {
 		return nil
 	}
@@ -79,6 +81,7 @@ func runRotation(
 	}
 
 	rotateLoop(flags, msgs, rotateFile, stop, count, minSec, maxSec)
+
 	return nil
 }
 

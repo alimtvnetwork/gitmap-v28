@@ -42,6 +42,7 @@ func assertClusterScalars(t *testing.T, got ClusterFlags, tt clusterFlagTestCase
 	if got.ExceptClause != tt.wantExcept {
 		t.Errorf("ExceptClause = %v, want %v", got.ExceptClause, tt.wantExcept)
 	}
+
 	if got.AutoConfirm != tt.wantAuto || got.ForceLifecycle != tt.wantForce || got.NoPreflight != tt.wantNoPref {
 		t.Errorf("flags mismatch: auto=%v/%v, force=%v/%v, noPref=%v/%v",
 			got.AutoConfirm, tt.wantAuto, got.ForceLifecycle, tt.wantForce, got.NoPreflight, tt.wantNoPref)
@@ -52,9 +53,11 @@ func assertClusterSlices(t *testing.T, got ClusterFlags, pos []string, tt cluste
 	if (len(got.OnlyIPs) > 0 || len(tt.wantIPs) > 0) && !reflect.DeepEqual(got.OnlyIPs, tt.wantIPs) {
 		t.Errorf("OnlyIPs = %v, want %v", got.OnlyIPs, tt.wantIPs)
 	}
+
 	if (len(got.OnlyIDs) > 0 || len(tt.wantIDs) > 0) && !reflect.DeepEqual(got.OnlyIDs, tt.wantIDs) {
 		t.Errorf("OnlyIDs = %v, want %v", got.OnlyIDs, tt.wantIDs)
 	}
+
 	if (len(pos) > 0 || len(tt.wantPos) > 0) && !reflect.DeepEqual(pos, tt.wantPos) {
 		t.Errorf("pos = %v, want %v", pos, tt.wantPos)
 	}
@@ -65,8 +68,10 @@ func runClusterFlagTest(t *testing.T, tt clusterFlagTestCase) {
 		got, pos, err := ParseClusterFlags(tt.args)
 		if (err != nil) != tt.wantErr {
 			t.Errorf("ParseClusterFlags() error = %v, wantErr %v", err, tt.wantErr)
+
 			return
 		}
+
 		if !tt.wantErr {
 			assertClusterScalars(t, got, tt)
 			assertClusterSlices(t, got, pos, tt)

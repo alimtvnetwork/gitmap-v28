@@ -26,6 +26,7 @@ func (db *DB) SelectLatestUndoableMakeAllVisibilityRun() (model.MakeAllVisibilit
 	if errors.Is(err, sql.ErrNoRows) {
 		return model.MakeAllVisibilityRunRecord{}, nil
 	}
+
 	if err != nil {
 		return model.MakeAllVisibilityRunRecord{}, fmt.Errorf(constants.ErrUndoSelectRunFmt, err, err.Error())
 	}
@@ -41,6 +42,7 @@ func (db *DB) SelectUndoableResultsForRun(runID int64) ([]model.MakeAllVisibilit
 	if err != nil {
 		return nil, fmt.Errorf(constants.ErrUndoSelectResultsFmt, err, err.Error())
 	}
+
 	defer rows.Close()
 
 	return scanUndoableResults(rows)
@@ -55,8 +57,10 @@ func scanUndoableResults(rows *sql.Rows) ([]model.MakeAllVisibilityResultRecord,
 		if err := rows.Scan(&r.ID, &r.RepoName, &r.MatchedPattern, &r.PrevVisibility, &r.NewVisibility); err != nil {
 			return nil, fmt.Errorf(constants.ErrUndoSelectResultsFmt, err, err.Error())
 		}
+
 		out = append(out, r)
 	}
+
 	if err := rows.Err(); err != nil {
 		return nil, fmt.Errorf(constants.ErrUndoSelectResultsFmt, err, err.Error())
 	}
@@ -87,6 +91,7 @@ func scanRunRow(row *sql.Row) (model.MakeAllVisibilityRunRecord, error) {
 	if errors.Is(err, sql.ErrNoRows) {
 		return model.MakeAllVisibilityRunRecord{}, nil
 	}
+
 	if err != nil {
 		return model.MakeAllVisibilityRunRecord{}, fmt.Errorf(constants.ErrUndoSelectRunFmt, err, err.Error())
 	}

@@ -55,6 +55,7 @@ func runAddLFSInstall(args []string) *apperror.AppError {
 		fmt.Fprintln(os.Stderr, "    Run this command from the root of a repo (where .git/ lives).")
 		cliexit.HandleError(nil, 1)
 	}
+
 	if !lfsAvailable() {
 		fmt.Fprintln(os.Stderr, "  ✗ Git LFS is not installed or not on PATH.")
 		fmt.Fprintln(os.Stderr, "    Install it from https://git-lfs.com and re-run.")
@@ -93,6 +94,7 @@ func runAddLFSInstall(args []string) *apperror.AppError {
 	}
 
 	printAddLFSInstallSummary(res)
+
 	return nil
 }
 
@@ -135,12 +137,14 @@ func printAddLFSInstallBanner(dryRun bool, source templates.SourceType, path str
 	if source == templates.SourceUser {
 		src = "user"
 	}
+
 	fmt.Printf("  template source: %s%s%s (%s)\n",
 		constants.ColorDim, src, constants.ColorReset, path)
 	if dryRun {
 		fmt.Printf("  %s[dry-run]%s no files will be modified\n",
 			constants.ColorYellow, constants.ColorReset)
 	}
+
 	fmt.Println()
 }
 
@@ -155,6 +159,7 @@ func printAddLFSInstallDryRun(target string, body []byte) {
 	if len(body) == 0 || body[len(body)-1] != '\n' {
 		fmt.Println()
 	}
+
 	fmt.Printf("# <<< gitmap:%s <<<\n", addLFSInstallTag)
 	fmt.Println()
 }
@@ -168,6 +173,7 @@ func printAddLFSInstallSummary(res templates.MergeResult) {
 		verb = "unchanged"
 		color = constants.ColorDim
 	}
+
 	fmt.Printf("  %s%s%s %s (block: %s)\n",
 		color, verb, constants.ColorReset, res.Path, res.BlockTag)
 
@@ -178,6 +184,7 @@ func printAddLFSInstallSummary(res templates.MergeResult) {
 		fmt.Println("    git add .gitattributes")
 		fmt.Println("    git commit -m \"chore: install Git LFS + track common binaries via gitmap template\"")
 	}
+
 	fmt.Println()
 }
 

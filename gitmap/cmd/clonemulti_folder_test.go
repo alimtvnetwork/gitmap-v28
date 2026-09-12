@@ -20,6 +20,7 @@ func TestResolveCloneFolderPreservesVersionSuffix(t *testing.T) {
 		{"explicit folder wins", "wp-onboarding-v13", "custom", "custom"},
 		{"explicit folder over plain", "scripts-fixer", "other", "other"},
 	}
+
 	for _, tc := range cases {
 		t.Run(tc.name, func(t *testing.T) {
 			if got := resolveCloneFolder(tc.repoName, tc.folder); got != tc.want {
@@ -40,6 +41,7 @@ func TestRepoNameFromURLKeepsVersionSuffix(t *testing.T) {
 		{"git@github.com:owner/wp-onboarding-v13.git", "wp-onboarding-v13"},
 		{"https://github.com/owner/scripts-fixer", "scripts-fixer"},
 	}
+
 	for _, tc := range cases {
 		got := resolveCloneFolder(repoNameFromURL(tc.url), "")
 		if got != tc.want {

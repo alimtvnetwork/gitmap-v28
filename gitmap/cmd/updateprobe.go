@@ -35,21 +35,25 @@ func resolveLatestRepoSlug(httpClient *http.Client) (string, string, error) {
 
 	if slug, ok := probeSiblings(httpClient, base, currentN, constants.UpdateProbeMaxSiblings); ok {
 		fmt.Printf(constants.MsgUpdateProbeResolve, slug, constants.UpdateProbeSourceSibling)
+
 		return slug, constants.UpdateProbeSourceSibling, nil
 	}
 
 	currentSlug := constants.UpdateCurrentRepoSlug
 	if releaseFallbackOK(httpClient, currentSlug) {
 		fmt.Printf(constants.MsgUpdateProbeResolve, currentSlug, constants.UpdateProbeSourceRelease)
+
 		return currentSlug, constants.UpdateProbeSourceRelease, nil
 	}
 
 	if mainFallbackOK(httpClient, currentSlug) {
 		fmt.Printf(constants.MsgUpdateProbeResolve, currentSlug, constants.UpdateProbeSourceMain)
+
 		return currentSlug, constants.UpdateProbeSourceMain, nil
 	}
 
 	fmt.Fprint(os.Stderr, constants.ErrUpdateProbeNoResolve)
+
 	return "", "", fmt.Errorf("no resolution")
 }
 
@@ -59,10 +63,12 @@ func parseCurrentRepoSlug(slug string) (string, int, error) {
 	if m == nil {
 		return "", 0, fmt.Errorf(constants.ErrUpdateProbeParseSlug, slug, fmt.Errorf("no match"))
 	}
+
 	n, err := strconv.Atoi(m[2])
 	if err != nil {
 		return "", 0, fmt.Errorf(constants.ErrUpdateProbeParseSlug, slug, err)
 	}
+
 	return m[1], n, nil
 }
 
@@ -80,6 +86,7 @@ func probeSiblings(httpClient *http.Client, base string, current, maxN int) (str
 			results[offset-1] = probeOne(httpClient, base, current+offset, offset)
 		}(i)
 	}
+
 	wg.Wait()
 
 	return pickMaxHit(results, base)
@@ -94,6 +101,7 @@ func probeOne(httpClient *http.Client, base string, n, offset int) probeResult {
 	if hit {
 		fmt.Printf(constants.MsgUpdateProbeHit, slug, status)
 	}
+
 	return probeResult{Offset: offset, Slug: slug, Status: status, IsHit: hit}
 }
 
@@ -104,6 +112,7 @@ func pickMaxHit(results []probeResult, _ string) (string, bool) {
 			return results[i].Slug, true
 		}
 	}
+
 	return "", false
 }
 
@@ -116,11 +125,14 @@ func headStatus(httpClient *http.Client, url string) int {
 	if err != nil {
 		return 0
 	}
+
 	resp, err := httpClient.Do(req)
 	if err != nil {
 		return 0
 	}
+
 	defer resp.Body.Close()
+
 	return resp.StatusCode
 }
 
@@ -128,6 +140,7 @@ func headStatus(httpClient *http.Client, url string) int {
 func releaseFallbackOK(httpClient *http.Client, slug string) bool {
 	url := fmt.Sprintf(constants.UpdateReleasesAPITmpl, constants.UpdateRepoOwner, slug)
 	status := headStatus(httpClient, url)
+
 	return status >= 200 && status < 300
 }
 
@@ -135,6 +148,7 @@ func releaseFallbackOK(httpClient *http.Client, slug string) bool {
 func mainFallbackOK(httpClient *http.Client, slug string) bool {
 	url := fmt.Sprintf(constants.UpdateRepoHEADTmpl, constants.UpdateRepoOwner, slug)
 	status := headStatus(httpClient, url)
+
 	return status >= 200 && status < 300
 }
 

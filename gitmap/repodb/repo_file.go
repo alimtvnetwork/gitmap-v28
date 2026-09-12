@@ -44,6 +44,7 @@ func ScanRepoFile(row dbengine.RowScanner) (*RepoFile, error) {
 	item.WriteTime = dbengine.ScanInt64(raw_WriteTime)
 	item.CreatedAt = dbengine.ScanInt64(raw_CreatedAt)
 	item.UpdatedAt = dbengine.ScanInt64(raw_UpdatedAt)
+
 	return &item, nil
 }
 
@@ -60,6 +61,7 @@ func NewRepoFileDbRepo(db *dbengine.DbWrapper) *RepoFileDbRepo {
 		enums.RepoFileTable,
 		ScanRepoFile,
 	)
+
 	return &RepoFileDbRepo{
 		db:   db,
 		repo: repo,
@@ -108,12 +110,14 @@ func (r *RepoFileDbRepo) Insert(ctx context.Context, item *RepoFile) dbengine.Ro
 	if item.RepoFileId == 0 {
 		id = nil
 	}
+
 	return r.db.ExecRowsAffected(ctx, query, id, item.RelativePath, item.AbsolutePath, item.Content, item.IsBig, item.WriteTime, item.CreatedAt, item.UpdatedAt)
 }
 
 // Update updates an existing RepoFile record identified by its primary key.
 func (r *RepoFileDbRepo) Update(ctx context.Context, item *RepoFile) dbengine.RowsAffectedResult {
 	query := "UPDATE RepoFile SET RelativePath = ?, AbsolutePath = ?, Content = ?, IsBig = ?, WriteTime = ?, CreatedAt = ?, UpdatedAt = ? WHERE RepoFileId = ?;"
+
 	return r.db.ExecRowsAffected(ctx, query, item.RelativePath, item.AbsolutePath, item.Content, item.IsBig, item.WriteTime, item.CreatedAt, item.UpdatedAt, item.RepoFileId)
 }
 

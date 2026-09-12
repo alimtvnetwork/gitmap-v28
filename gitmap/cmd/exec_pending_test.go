@@ -23,12 +23,15 @@ func TestExecPending_EnqueueCreatesTask(t *testing.T) {
 	if err != nil {
 		t.Fatalf("expected task in pending table: %v", err)
 	}
+
 	if rec.TaskTypeName != constants.TaskTypeExec {
 		t.Errorf("expected type %q, got %q", constants.TaskTypeExec, rec.TaskTypeName)
 	}
+
 	if rec.TargetPath != "/work" {
 		t.Errorf("expected target /work, got %q", rec.TargetPath)
 	}
+
 	if rec.CommandArgs != "exec fetch --prune" {
 		t.Errorf("expected cmdArgs 'exec fetch --prune', got %q", rec.CommandArgs)
 	}
@@ -95,9 +98,11 @@ func TestExecPending_CompleteMovesToCompleted(t *testing.T) {
 	if len(completed) != 1 {
 		t.Fatalf("expected 1 completed, got %d", len(completed))
 	}
+
 	if completed[0].OriginalTaskId != taskID {
 		t.Errorf("expected original ID %d, got %d", taskID, completed[0].OriginalTaskId)
 	}
+
 	if completed[0].CommandArgs != "exec fetch --prune" {
 		t.Errorf("expected cmdArgs preserved, got %q", completed[0].CommandArgs)
 	}
@@ -133,6 +138,7 @@ func TestExecPending_FailKeepsTaskPending(t *testing.T) {
 	if len(pending) != 1 {
 		t.Fatalf("expected 1 pending, got %d", len(pending))
 	}
+
 	if pending[0].ID != taskID {
 		t.Errorf("expected ID %d, got %d", taskID, pending[0].ID)
 	}
@@ -165,6 +171,7 @@ func TestExecPending_FullLifecycle_FailThenComplete(t *testing.T) {
 	if len(completed) != 1 {
 		t.Fatalf("expected 1 completed, got %d", len(completed))
 	}
+
 	if completed[0].CommandArgs != "exec fetch --all --prune" {
 		t.Errorf("expected cmdArgs preserved, got %q", completed[0].CommandArgs)
 	}

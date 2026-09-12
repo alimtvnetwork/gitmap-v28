@@ -19,9 +19,11 @@ func runRepoCommand(args []string) error {
 		return runRepoDB(args[1:])
 	case "help", "-h", "--help":
 		printRepoHelp()
+
 		return nil
 	default:
 		printRepoHelp()
+
 		return fmt.Errorf("unknown repo subcommand: %s", subcmd)
 	}
 }

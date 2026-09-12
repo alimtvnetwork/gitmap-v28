@@ -77,6 +77,7 @@ func ListClusterNodes(ctx context.Context, db *sql.DB) ([]ClusterNode, *apperror
 	if err != nil {
 		return nil, apperror.WrapSimple(err, "ListClusterNodes.Query")
 	}
+
 	defer rows.Close()
 
 	return scanClusterNodeRows(rows)
@@ -93,8 +94,10 @@ func scanClusterNodeRows(rows *sql.Rows) ([]ClusterNode, *apperror.AppError) {
 		if err != nil {
 			return nil, apperror.WrapSimple(err, "scanClusterNodeRows.Scan")
 		}
+
 		nodes = append(nodes, n)
 	}
+
 	if err := rows.Err(); err != nil {
 		return nil, apperror.WrapSimple(err, "scanClusterNodeRows.Rows")
 	}
@@ -115,6 +118,7 @@ func GetClusterNode(ctx context.Context, db *sql.DB, id string) (ClusterNode, *a
 			apperror.ErrorTypeNotFound, apperror.SeverityError, map[string]any{"id": id},
 		)
 	}
+
 	if err != nil {
 		return ClusterNode{}, apperror.WrapSimple(err, "GetClusterNode.Scan")
 	}
@@ -148,6 +152,7 @@ func DeleteClusterRunsBefore(ctx context.Context, db *sql.DB, before time.Time) 
 	if err != nil {
 		return 0, apperror.WrapSimple(err, "DeleteClusterRunsBefore.Exec")
 	}
+
 	affected, errRows := res.RowsAffected()
 	if errRows != nil {
 		return 0, apperror.WrapSimple(errRows, "DeleteClusterRunsBefore.RowsAffected")
@@ -161,6 +166,7 @@ func GetClusterStats(ctx context.Context, db *sql.DB) (ClusterStats, *apperror.A
 	if countErr := queryClusterCounts(ctx, db, &stats); countErr != nil {
 		return stats, countErr
 	}
+
 	if aggErr := queryClusterAggregates(ctx, db, &stats); aggErr != nil {
 		return stats, aggErr
 	}
@@ -173,6 +179,7 @@ func queryClusterCounts(ctx context.Context, db *sql.DB, stats *ClusterStats) *a
 	if err != nil {
 		return apperror.WrapSimple(err, "GetClusterStats.TotalRuns")
 	}
+
 	err = db.QueryRowContext(ctx, `SELECT COUNT(*) FROM ClusterExecResult`).Scan(&stats.TotalCommands)
 	if err != nil {
 		return apperror.WrapSimple(err, "GetClusterStats.TotalCommands")
@@ -186,10 +193,12 @@ func queryClusterAggregates(ctx context.Context, db *sql.DB, stats *ClusterStats
 	if err != nil && err != sql.ErrNoRows {
 		return apperror.WrapSimple(err, "GetClusterStats.SuccessCommands")
 	}
+
 	err = db.QueryRowContext(ctx, `SELECT NodeId FROM ClusterExecResult GROUP BY NodeId ORDER BY COUNT(*) DESC LIMIT 1`).Scan(&stats.MostTargetedNode)
 	if err != nil && err != sql.ErrNoRows {
 		return apperror.WrapSimple(err, "GetClusterStats.MostTargetedNode")
 	}
+
 	err = db.QueryRowContext(ctx, `SELECT SubCommand FROM ClusterExecResult GROUP BY SubCommand ORDER BY COUNT(*) DESC LIMIT 1`).Scan(&stats.MostUsedSubCmd)
 	if err != nil && err != sql.ErrNoRows {
 		return apperror.WrapSimple(err, "GetClusterStats.MostUsedSubCmd")

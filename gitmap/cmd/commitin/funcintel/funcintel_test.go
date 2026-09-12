@@ -16,6 +16,7 @@ func TestLanguageForPath(t *testing.T) {
 		"a.unknown":  "",
 		"NoExt":      "",
 	}
+
 	for path, want := range cases {
 		if got := LanguageForPath(path); got != want {
 			t.Errorf("LanguageForPath(%q)=%q want %q", path, got, want)
@@ -63,6 +64,7 @@ func TestRenderOutputFormat(t *testing.T) {
 		{RelativePath: "src/a.ts", Language: constants.CommitInLanguageTypeScript, NewSource: "export function useX() {}\n"},
 		{RelativePath: "README.md", Language: "", NewlyAddedFile: true},
 	}
+
 	got := Render(changes)
 	want := "- README.md\n- src/a.ts\n  - added: useX\n- src/z.go\n  - added: A, B"
 	if got != want {

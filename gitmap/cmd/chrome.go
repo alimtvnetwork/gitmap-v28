@@ -13,22 +13,29 @@ import (
 func runChrome(args []string) error {
 	if len(args) == 0 || isHelpFlag(args[0]) {
 		printChromeRichUsage()
+
 		return nil
 	}
+
 	if args[0] == "profile" || args[0] == "profiles" {
 		args = args[1:]
 	}
+
 	if len(args) == 0 || isHelpFlag(args[0]) {
 		printChromeRichUsage()
+
 		return nil
 	}
+
 	sub, tail := args[0], args[1:]
 	if isHandled := dispatchChromeSubcommand(sub, tail); isHandled {
 		return nil
 	}
+
 	fmt.Fprintf(os.Stderr, "chrome: ERROR unknown subcommand %q\n", sub)
 	printChromeUsage()
 	cliexit.HandleError(nil, 2)
+
 	return nil
 }
 
@@ -40,12 +47,15 @@ func dispatchChromeSubcommand(sub string, tail []string) bool {
 	if handleChromeLaunchOps(sub, tail) || handleChromeExtensionOps(sub, tail) {
 		return true
 	}
+
 	if handleChromeFlagAndResetOps(sub, tail) || handleChromeInstallOps(sub, tail) {
 		return true
 	}
+
 	if handleChromeProfileOps(sub, tail) || handleChromeBatchOps(sub, tail) {
 		return true
 	}
+
 	return handleChromeArchiveOps(sub, tail)
 }
 
@@ -53,11 +63,14 @@ func handleChromeLaunchOps(sub string, tail []string) bool {
 	switch sub {
 	case constants.SubCmdChromeOpen, constants.SubCmdChromeOpenAlias, constants.SubCmdChromeOpenAlias2:
 		_ = runChromeOpen(tail)
+
 		return true
 	case constants.SubCmdChromeObserve, constants.SubCmdChromeObserveAlias, constants.SubCmdChromeObserveAlias2, constants.SubCmdChromeObserveAlias3:
 		_ = runChromeObserve(tail)
+
 		return true
 	}
+
 	return false
 }
 
@@ -65,20 +78,26 @@ func handleChromeExtensionOps(sub string, tail []string) bool {
 	switch sub {
 	case constants.SubCmdChromeExtensions, constants.SubCmdChromeExtensionsAlias, constants.SubCmdChromeExtensionsAlias2:
 		_ = runChromeExtensions(tail)
+
 		return true
 	case constants.SubCmdChromeExtInstall, constants.SubCmdChromeExtInstallAlias, constants.SubCmdChromeExtInstallAlias2:
 		_ = runChromeExtensionInstall(tail)
+
 		return true
 	case constants.SubCmdChromeExtEnable, constants.SubCmdChromeExtEnableAlias, constants.SubCmdChromeExtEnableAlias2:
 		_ = runChromeExtensionEnable(tail)
+
 		return true
 	case constants.SubCmdChromeExtDisable, constants.SubCmdChromeExtDisableAlias, constants.SubCmdChromeExtDisableAlias2:
 		_ = runChromeExtensionDisable(tail)
+
 		return true
 	case constants.SubCmdChromeExtDisableAll, constants.SubCmdChromeExtDisableAllAlias:
 		_ = runChromeExtensionDisableAll(tail)
+
 		return true
 	}
+
 	return false
 }
 
@@ -86,11 +105,14 @@ func handleChromeFlagAndResetOps(sub string, tail []string) bool {
 	switch sub {
 	case constants.SubCmdChromeFlags, constants.SubCmdChromeFlagsAlias:
 		_ = runChromeFlags(tail)
+
 		return true
 	case constants.SubCmdChromeReset, constants.SubCmdChromeResetAlias:
 		_ = runChromeReset(tail)
+
 		return true
 	}
+
 	return false
 }
 
@@ -117,6 +139,7 @@ func hasDryRunFlag(args []string) bool {
 			return true
 		}
 	}
+
 	return false
 }
 
@@ -124,52 +147,68 @@ func handleChromeProfileOps(sub string, tail []string) bool {
 	switch sub {
 	case constants.SubCmdChromeCopy, constants.SubCmdChromeCopyAlias, constants.SubCmdChromeCopyAlias2:
 		_ = runChromeProfileCopy(tail)
+
 		return true
 	case constants.SubCmdChromeExport, constants.SubCmdChromeExportAlias, constants.SubCmdChromeExportAlias2:
 		_ = runChromeProfileExport(tail)
+
 		return true
 	case constants.SubCmdChromeImport, constants.SubCmdChromeImportAlias, constants.SubCmdChromeImportAlias2:
 		_ = runChromeProfileImport(tail)
+
 		return true
 	case constants.SubCmdChromeImportCheck, constants.SubCmdChromeImportCheckAlias, constants.SubCmdChromeImportCheckAlias2:
 		_ = runChromeProfileImportCheck(tail)
+
 		return true
 	case constants.SubCmdChromeList, constants.SubCmdChromeListAlias, constants.SubCmdChromeListAlias2, constants.SubCmdChromeListAlias3:
 		_ = runChromeProfileList(tail)
+
 		return true
 	case constants.SubCmdChromeDelete, constants.SubCmdChromeDeleteAlias, constants.SubCmdChromeDeleteAlias2, constants.SubCmdChromeDeleteAlias3, "clear":
 		_ = runChromeProfileClear(tail)
+
 		return true
 	case "optimize-projects", "optimize", "--repeat-fix", "-r", "dedupe":
 		_ = runChromeProfileOptimize(tail)
+
 		return true
 	case "find-duplicates", "duplicates", "dups", "find-dups":
 		_ = runFindDuplicates("chrome", tail)
+
 		return true
 	case constants.SubCmdChromeMerge, constants.SubCmdChromeMergeAlias:
 		_ = runChromeProfileMerge(tail)
+
 		return true
 	case constants.SubCmdChromeReconcile, constants.SubCmdChromeReconcileAlias, constants.SubCmdChromeReconcileAlias2, constants.SubCmdChromeReconcileAlias3:
 		_ = runChromeProfileReconcile(tail)
+
 		return true
 	case "undo":
 		profile := "Default"
 		if len(tail) > 0 {
 			profile = tail[0]
 		}
+
 		_ = runChromeProfileUndo(profile)
+
 		return true
 	case "redo":
 		profile := "Default"
 		if len(tail) > 0 {
 			profile = tail[0]
 		}
+
 		_ = runChromeProfileRedo(profile)
+
 		return true
 	case "group", "grp", "groups":
 		_ = runChromeGroupDispatch(tail)
+
 		return true
 	}
+
 	return false
 }
 
@@ -177,14 +216,18 @@ func handleChromeBatchOps(sub string, tail []string) bool {
 	switch sub {
 	case constants.SubCmdChromeCopyAll, constants.SubCmdChromeCopyAllAlias, constants.SubCmdChromeCopyAllAlias2, constants.SubCmdChromeCopyAllAlias3:
 		_ = runChromeCopyAll(tail)
+
 		return true
 	case constants.SubCmdChromeExportAll, constants.SubCmdChromeExportAllAlias, constants.SubCmdChromeExportAllAlias2, constants.SubCmdChromeExportAllAlias3:
 		_ = runChromeExportAll(tail)
+
 		return true
 	case constants.SubCmdChromeImportAll, constants.SubCmdChromeImportAllAlias, constants.SubCmdChromeImportAllAlias2, constants.SubCmdChromeImportAllAlias3:
 		_ = runChromeImportAll(tail)
+
 		return true
 	}
+
 	return false
 }
 
@@ -192,20 +235,26 @@ func handleChromeArchiveOps(sub string, tail []string) bool {
 	switch sub {
 	case constants.SubCmdChromeBackup:
 		runChromeBackup(tail)
+
 		return true
 	case constants.SubCmdChromeRestore:
 		runChromeRestore(tail)
+
 		return true
 	case constants.SubCmdChromeDiff:
 		runChromeDiff(tail)
+
 		return true
 	case constants.SubCmdChromeExportBookmrk, constants.SubCmdChromeBookmarks:
 		runChromeExportBookmarks(tail)
+
 		return true
 	case constants.SubCmdChromeWhich:
 		runChromeWhich(tail)
+
 		return true
 	}
+
 	return false
 }
 

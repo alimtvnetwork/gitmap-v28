@@ -43,8 +43,10 @@ func TestAssertWriterDeterministic_DriftingWriter_Fails(t *testing.T) {
 	var counter int32
 	writer := func() ([]byte, error) {
 		n := atomic.AddInt32(&counter, 1)
+
 		return []byte{byte(n)}, nil
 	}
+
 	assertWriterDeterministicOn(fake, "drifting", writer)
 	if !fake.fataled {
 		t.Fatalf("drifting writer must trigger a determinism failure")
@@ -66,6 +68,7 @@ func TestAssertWriterDeterministic_FailureMessageMentionsLabel(t *testing.T) {
 	writer := func() ([]byte, error) {
 		return []byte{byte(atomic.AddInt32(&counter, 1))}, nil
 	}
+
 	assertWriterDeterministicOn(fake, "my-writer", writer)
 	if !fake.fataled || !containsString(fake.msg, "my-writer") {
 		t.Fatalf("failure message must include the writer label; got: %q", fake.msg)
@@ -76,11 +79,14 @@ func TestAllowUpdateAfterDeterminism_TriggerOff_NeverInvokesWriter(t *testing.T)
 	var calls int32
 	writer := func() ([]byte, error) {
 		atomic.AddInt32(&calls, 1)
+
 		return []byte("x"), nil
 	}
+
 	if AllowUpdateAfterDeterminism(t, false, "off", writer) {
 		t.Fatalf("trigger=false must return false")
 	}
+
 	if got := atomic.LoadInt32(&calls); got != 0 {
 		t.Fatalf("writer must not run when trigger=false; got %d calls", got)
 	}
@@ -107,5 +113,6 @@ func indexOf(s, sub string) int {
 			return i
 		}
 	}
+
 	return -1
 }

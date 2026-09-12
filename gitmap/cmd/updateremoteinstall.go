@@ -29,14 +29,18 @@ func runUpdateRemoteInstall() bool {
 	if err != nil {
 		return false
 	}
+
 	if hasFlag(constants.FlagProbeOnly) {
 		fmt.Printf(constants.MsgUpdateProbeOnly, slug, source)
+
 		return true
 	}
+
 	currentVersion := constants.Version
 	targetVersion := fetchRemoteTargetVersion(slug)
 	url := installerURLFor(slug)
 	fmt.Printf(constants.MsgUpdateRemoteFetch, url)
+
 	return executeRemoteUpdateWorkflow(url, currentVersion, targetVersion)
 }
 
@@ -44,14 +48,18 @@ func executeRemoteUpdateWorkflow(url, currentVersion, targetVersion string) bool
 	scriptPath, err := downloadRemoteInstaller(url)
 	if err != nil {
 		fmt.Fprintf(os.Stderr, constants.ErrUpdateRemoteDownload, err)
+
 		return false
 	}
+
 	defer os.Remove(scriptPath)
 	announceRemoteUpdate(currentVersion, targetVersion, scriptPath)
 	if errRun := runRemoteInstaller(scriptPath); errRun != nil {
 		handleRemoteInstallerError(errRun)
+
 		return false
 	}
+
 	finishRemoteUpdate(currentVersion, targetVersion, url)
 
 	return true
@@ -73,6 +81,7 @@ func printPostUpdateIdentity() {
 	if runtime.GOOS == "windows" {
 		binName += ".exe"
 	}
+
 	binPath := filepath.Join(installDir, binName)
 	if executeInstalledBinaryIdentity(binPath) {
 		return
@@ -85,6 +94,7 @@ func executeInstalledBinaryIdentity(binPath string) bool {
 	if _, err := os.Stat(binPath); err != nil {
 		return false
 	}
+
 	cmd := exec.Command(binPath, "binary")
 	cmd.Stdout = os.Stdout
 	cmd.Stderr = os.Stderr
@@ -105,8 +115,10 @@ func handleRemoteInstallerError(errRun error) {
 			map[string]any{"exitCode": exitErr.ExitCode()},
 		)
 		cliexit.HandleError(appErr, exitErr.ExitCode())
+
 		return
 	}
+
 	fmt.Fprintf(os.Stderr, constants.ErrUpdateRemoteRun, errRun)
 }
 
@@ -116,6 +128,7 @@ func fetchRemoteTargetVersion(slug string) string {
 	if len(ghVer) > 0 && ghVer != "unknown" {
 		return ghVer
 	}
+
 	return fetchVersionJSON(slug)
 }
 
@@ -126,13 +139,17 @@ func fetchGitHubLatestReleaseVersion(slug string) string {
 	if reqErr != nil {
 		return ""
 	}
+
 	req.Header.Set("User-Agent", "gitmap-updater")
 	resp, err := client.Do(req)
 	if err != nil || resp.StatusCode != http.StatusOK {
 		closeResponse(resp)
+
 		return ""
 	}
+
 	defer resp.Body.Close()
+
 	return decodeReleaseTagName(resp.Body)
 }
 
@@ -147,13 +164,16 @@ func decodeReleaseTagName(body io.Reader) string {
 		TagName string `json:"tag_name"`
 		Name    string `json:"name"`
 	}
+
 	if err := json.NewDecoder(body).Decode(&releaseData); err != nil {
 		return ""
 	}
+
 	tag := strings.TrimPrefix(releaseData.TagName, "v")
 	if len(tag) > 0 {
 		return tag
 	}
+
 	return strings.TrimPrefix(releaseData.Name, "v")
 }
 
@@ -163,9 +183,12 @@ func fetchVersionJSON(slug string) string {
 	resp, err := client.Get(url)
 	if err != nil || resp.StatusCode != http.StatusOK {
 		closeResponse(resp)
+
 		return "unknown"
 	}
+
 	defer resp.Body.Close()
+
 	return decodeVersionFromMap(resp.Body)
 }
 
@@ -174,12 +197,15 @@ func decodeVersionFromMap(body io.Reader) string {
 	if err := json.NewDecoder(body).Decode(&rawMap); err != nil {
 		return "unknown"
 	}
+
 	if v, ok := rawMap["Version"].(string); ok && len(v) > 0 {
 		return v
 	}
+
 	if v, ok := rawMap["version"].(string); ok && len(v) > 0 {
 		return v
 	}
+
 	return "unknown"
 }
 
@@ -187,8 +213,10 @@ func decodeVersionFromMap(body io.Reader) string {
 func resolveTargetSlug() (string, string, error) {
 	if hasFlag(constants.FlagNoProbe) {
 		fmt.Printf(constants.MsgUpdateProbeSkipped, constants.UpdateCurrentRepoSlug)
+
 		return constants.UpdateCurrentRepoSlug, constants.UpdateProbeSourceMain, nil
 	}
+
 	return resolveLatestRepoSlug(newProbeClient())
 }
 
@@ -198,6 +226,7 @@ func installerURLFor(slug string) string {
 	if runtime.GOOS == "windows" {
 		name = constants.UpdateInstallerNamePwsh
 	}
+
 	return fmt.Sprintf(constants.UpdateRawInstallerTmpl,
 		constants.UpdateRepoOwner, slug, name)
 }
@@ -208,10 +237,12 @@ func downloadRemoteInstaller(url string) (string, error) {
 	if err != nil {
 		return "", err
 	}
+
 	defer resp.Body.Close()
 	if resp.StatusCode != http.StatusOK {
 		return "", fmt.Errorf("HTTP %d from %s", resp.StatusCode, url)
 	}
+
 	return writeInstallerTempFile(resp.Body)
 }
 
@@ -220,22 +251,28 @@ func writeInstallerTempFile(body io.Reader) (string, error) {
 	if runtime.GOOS == "windows" {
 		ext = ".ps1"
 	}
+
 	tmp, err := os.CreateTemp("", "gitmap-update-*"+ext)
 	if err != nil {
 		return "", err
 	}
+
 	if runtime.GOOS == "windows" {
 		_, _ = tmp.Write([]byte{0xEF, 0xBB, 0xBF})
 	}
+
 	if _, copyErr := io.Copy(tmp, body); copyErr != nil {
 		tmp.Close()
 		os.Remove(tmp.Name())
+
 		return "", copyErr
 	}
+
 	tmp.Close()
 	if runtime.GOOS != "windows" {
 		_ = os.Chmod(tmp.Name(), 0o755)
 	}
+
 	return tmp.Name(), nil
 }
 
@@ -245,6 +282,7 @@ func resolveCurrentInstallDir() string {
 	if err != nil {
 		return ""
 	}
+
 	realPath, errEval := filepath.EvalSymlinks(selfPath)
 	if errEval == nil {
 		selfPath = realPath
@@ -267,6 +305,7 @@ func buildRemoteWindowsInstallerCmd(scriptPath, installDir string) *exec.Cmd {
 		"-NoProfile", "-NoLogo",
 		"-File", scriptPath,
 	}
+
 	if len(installDir) > 0 {
 		args = append(args, "-InstallDir", installDir)
 	}

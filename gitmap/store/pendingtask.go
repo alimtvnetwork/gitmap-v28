@@ -66,6 +66,7 @@ func (db *DB) ListPendingTasks() ([]model.PendingTaskRecord, error) {
 	if err != nil {
 		return nil, fmt.Errorf(constants.ErrPendingTaskQuery, err)
 	}
+
 	defer rows.Close()
 
 	return scanPendingTaskRows(rows)
@@ -159,6 +160,7 @@ func (db *DB) ListCompletedTasks() ([]model.CompletedTaskRecord, error) {
 	if err != nil {
 		return nil, fmt.Errorf(constants.ErrPendingTaskQuery, err)
 	}
+
 	defer rows.Close()
 
 	return scanCompletedTaskRows(rows)
@@ -174,6 +176,7 @@ func (db *DB) DeletePendingTask(id int64) error {
 	if err != nil {
 		return fmt.Errorf(constants.ErrPendingTaskComplete, err)
 	}
+
 	rows, _ := result.RowsAffected()
 	if rows == 0 {
 		return fmt.Errorf(constants.ErrPendingTaskNotFound, id)

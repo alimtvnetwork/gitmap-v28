@@ -27,6 +27,7 @@ import (
 // truth that could drift from git's actual behavior.
 func validateRow(r Row) error {
 	_, err := validateRowWithColumn(r)
+
 	return err
 }
 
@@ -38,15 +39,19 @@ func validateRowWithColumn(r Row) (string, error) {
 	if len(r.URL) == 0 {
 		return constants.CSVColumnURL, fmt.Errorf(constants.ErrCloneFromEmptyURL)
 	}
+
 	if !looksLikeGitURL(r.URL) {
 		return constants.CSVColumnURL, fmt.Errorf(constants.ErrCloneFromBadURL, r.URL)
 	}
+
 	if r.Depth < 0 {
 		return constants.CSVColumnDepth, fmt.Errorf(constants.ErrCloneFromNegDepth, r.Depth)
 	}
+
 	if len(r.Branch) > 0 && !isValidBranchName(r.Branch) {
 		return constants.CSVColumnBranch, fmt.Errorf(constants.ErrCloneFromBadBranch, r.Branch)
 	}
+
 	if !isValidCheckout(r.Checkout) {
 		return constants.CSVColumnCheckout, fmt.Errorf(constants.ErrCloneFromBadCheckout, r.Checkout)
 	}
@@ -65,6 +70,7 @@ func isValidBranchName(s string) bool {
 	if strings.HasPrefix(s, "-") {
 		return false
 	}
+
 	for _, r := range s {
 		if r <= 0x20 || r == 0x7f {
 			return false
@@ -103,7 +109,6 @@ func isValidCheckout(v string) bool {
 // "owner/repo" or a copy-pasted markdown link.
 func looksLikeGitURL(s string) bool {
 	if hasGitScheme(s) {
-
 		return true
 	}
 
@@ -116,7 +121,6 @@ func hasGitScheme(s string) bool {
 	prefixes := []string{"https://", "http://", "ssh://", "git://", "file://"}
 	for _, p := range prefixes {
 		if strings.HasPrefix(s, p) {
-
 			return true
 		}
 	}
@@ -132,13 +136,12 @@ func hasGitScheme(s string) bool {
 func looksLikeSCP(s string) bool {
 	colon := strings.Index(s, ":")
 	if colon <= 0 {
-
 		return false
 	}
+
 	host := s[:colon]
 	path := s[colon+1:]
 	if strings.ContainsAny(host, "/\\") {
-
 		return false
 	}
 
@@ -160,6 +163,7 @@ func dedupRows(rows []Row) []Row {
 			out[i] = mergeRows(out[i], r)
 			continue
 		}
+
 		seen[key] = len(out)
 		out = append(out, r)
 	}
@@ -175,9 +179,11 @@ func mergeRows(first, later Row) Row {
 	if len(later.Branch) > 0 {
 		out.Branch = later.Branch
 	}
+
 	if later.Depth > 0 {
 		out.Depth = later.Depth
 	}
+
 	if len(later.Checkout) > 0 {
 		out.Checkout = later.Checkout
 	}

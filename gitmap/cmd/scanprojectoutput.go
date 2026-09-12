@@ -65,6 +65,7 @@ func writeProjectJSON(results []detector.DetectionResult, outputDir, filename st
 
 		return
 	}
+
 	defer file.Close()
 	encoder := json.NewEncoder(file)
 	encoder.SetIndent("", "  ")
@@ -73,6 +74,7 @@ func writeProjectJSON(results []detector.DetectionResult, outputDir, filename st
 
 		return
 	}
+
 	fmt.Printf(constants.MsgProjectJSONWritten, filename, len(records))
 }
 
@@ -93,6 +95,7 @@ func buildSingleRecord(r detector.DetectionResult) interface{} {
 			detector.DetectionResult
 		}{r}
 	}
+
 	if r.Csharp != nil {
 		return struct {
 			detector.DetectionResult

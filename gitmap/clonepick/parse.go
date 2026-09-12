@@ -39,6 +39,7 @@ func ParseArgs(rawURL, rawPaths string, flags Flags) (Plan, error) {
 	if err := validateMode(flags.Mode); err != nil {
 		return plan, err
 	}
+
 	if err := validateDepth(flags.Depth); err != nil {
 		return plan, err
 	}
@@ -47,6 +48,7 @@ func ParseArgs(rawURL, rawPaths string, flags Flags) (Plan, error) {
 	if err != nil {
 		return plan, err
 	}
+
 	plan.RepoUrl = url
 	plan.RepoCanonicalId = gitutil.CanonicalRepoID(url)
 
@@ -54,6 +56,7 @@ func ParseArgs(rawURL, rawPaths string, flags Flags) (Plan, error) {
 	if err != nil {
 		return plan, err
 	}
+
 	plan.Paths = paths
 
 	// Auto-disable cone mode when the path list contains glob chars
@@ -135,9 +138,11 @@ func resolveURL(raw, mode string) (string, error) {
 	if len(s) == 0 {
 		return "", fmt.Errorf("%s", constants.MsgClonePickMissingURL)
 	}
+
 	if strings.Contains(s, "://") || strings.HasPrefix(s, "git@") {
 		return s, nil
 	}
+
 	// Shorthand: owner/repo OR host/owner/repo.
 	parts := strings.Split(s, "/")
 	switch len(parts) {
@@ -171,9 +176,11 @@ func normalisePaths(raw string, askMode bool) ([]string, error) {
 	if len(strings.TrimSpace(raw)) == 0 && askMode {
 		return nil, nil
 	}
+
 	if len(strings.TrimSpace(raw)) == 0 {
 		return nil, fmt.Errorf("%s", constants.MsgClonePickMissingPaths)
 	}
+
 	seen := make(map[string]struct{})
 	out := make([]string, 0, 4)
 	for _, p := range strings.Split(raw, ",") {
@@ -181,12 +188,15 @@ func normalisePaths(raw string, askMode bool) ([]string, error) {
 		if err != nil {
 			return nil, err
 		}
+
 		if _, dup := seen[clean]; dup {
 			continue
 		}
+
 		seen[clean] = struct{}{}
 		out = append(out, clean)
 	}
+
 	sort.Strings(out)
 
 	return out, nil
@@ -200,14 +210,17 @@ func cleanPath(raw string) (string, error) {
 	if len(p) == 0 {
 		return "", fmt.Errorf("%s", constants.MsgClonePickPathEmpty)
 	}
+
 	if filepath.IsAbs(p) || strings.HasPrefix(p, "/") {
 		return "", fmt.Errorf(constants.MsgClonePickPathAbsolute, p)
 	}
+
 	p = strings.TrimPrefix(p, "./")
 	p = strings.TrimSuffix(p, "/")
 	if strings.Contains(p, "..") {
 		return "", fmt.Errorf(constants.MsgClonePickPathTraversal, p)
 	}
+
 	if len(p) > constants.ClonePickPathMaxBytes {
 		return "", fmt.Errorf(constants.MsgClonePickPathTooLong, p)
 	}
@@ -223,10 +236,12 @@ func hasGlobOrFile(paths []string) bool {
 		if strings.ContainsAny(p, "*?[") {
 			return true
 		}
+
 		base := p
 		if i := strings.LastIndex(p, "/"); i >= 0 {
 			base = p[i+1:]
 		}
+
 		if strings.Contains(base, ".") {
 			return true
 		}

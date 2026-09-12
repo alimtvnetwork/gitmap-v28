@@ -31,6 +31,7 @@ func executeAllAction(item *RemediationItem, action string) {
 	if isInvalidIndex {
 		return
 	}
+
 	err := executeFixRecipe(item, item.Recipes[idx])
 	if err != nil {
 		fmt.Printf("Warning: fix action failed on %s: %v\n", item.RepoName, err)
@@ -41,12 +42,14 @@ func handlePromptAction(item *RemediationItem, action string) string {
 	if action == "skip" {
 		return ""
 	}
+
 	if strings.HasPrefix(action, "all-") {
 		allAction := strings.TrimPrefix(action, "all-")
 		executeAllAction(item, allAction)
 
 		return allAction
 	}
+
 	executeAllAction(item, action)
 
 	return ""
@@ -69,6 +72,7 @@ func printOverflowNote(totalCount, maxShowCount int) {
 	if totalCount <= maxShowCount {
 		return
 	}
+
 	dimStyle := lipgloss.NewStyle().Foreground(lipgloss.Color("#6272a4"))
 	remainingCount := totalCount - maxShowCount
 	fmt.Printf("    %s\n", dimStyle.Render(fmt.Sprintf("... and %d more files", remainingCount)))
@@ -81,9 +85,11 @@ func renderDirtyFileList(files []string) {
 	if displayCount > maxShowCount {
 		displayCount = maxShowCount
 	}
+
 	for i := 0; i < displayCount; i++ {
 		fmt.Printf("    • %s\n", fileStyle.Render(files[i]))
 	}
+
 	printOverflowNote(len(files), maxShowCount)
 }
 
@@ -92,6 +98,7 @@ func printRepoDirtyFiles(item *RemediationItem) {
 	if len(files) == 0 {
 		return
 	}
+
 	renderDirtyFileList(files)
 }
 
@@ -100,6 +107,7 @@ func resolvePromptChoice(choice string) (string, bool) {
 	if isQuit {
 		return "", true
 	}
+
 	action, hasAction := promptChoiceMap[choice]
 	if hasAction {
 		return action, false
@@ -129,6 +137,7 @@ func processPromptStep(reader *bufio.Reader, idx, total int, item *RemediationIt
 
 		return applyAll, false
 	}
+
 	action, shouldQuit := promptSingleRepo(reader, idx, total, item)
 	if shouldQuit {
 		return "", true
@@ -145,6 +154,7 @@ func runInteractiveRemediation(items []RemediationItem) error {
 		if shouldQuit {
 			return nil
 		}
+
 		applyAllAction = nextAction
 	}
 

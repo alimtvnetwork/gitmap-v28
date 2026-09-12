@@ -15,18 +15,22 @@ func RecordRewritten(db *sql.DB, runID, sourceCommitID int64, r RewrittenRow) (i
 	if err != nil {
 		return 0, fmt.Errorf("runlog: lookup outcome %q: %w", r.Outcome, err)
 	}
+
 	rewrittenID, err := insertRewritten(db, runID, sourceCommitID, outcomeID, r)
 	if err != nil {
 		return 0, err
 	}
+
 	shouldInsertShaMap := r.Outcome == constants.CommitInOutcomeCreated && r.NewSha != ""
 	if !shouldInsertShaMap {
 		return rewrittenID, nil
 	}
+
 	err = insertShaMap(db, r.SourceSha, rewrittenID)
 	if err != nil {
 		return rewrittenID, err
 	}
+
 	return rewrittenID, nil
 }
 
@@ -43,9 +47,11 @@ func RecordSkip(
 	if err != nil {
 		return fmt.Errorf("runlog: lookup skip reason %q: %w", reason, err)
 	}
+
 	if _, err := db.Exec(sqlInsertSkipLog, runID, sourceCommitID, reasonID, previousRewrittenID); err != nil {
 		return fmt.Errorf("runlog: insert SkipLog: %w", err)
 	}
+
 	return nil
 }
 
@@ -62,6 +68,7 @@ func insertRewritten(
 	if r.NewSha != "" {
 		newSha = r.NewSha
 	}
+
 	res, err := db.Exec(sqlInsertRewritten,
 		runID, sourceCommitID, newSha, r.FinalMessage,
 		r.AuthorName, r.AuthorEmail,
@@ -70,6 +77,7 @@ func insertRewritten(
 	if err != nil {
 		return 0, fmt.Errorf("runlog: insert RewrittenCommit: %w", err)
 	}
+
 	return res.LastInsertId()
 }
 
@@ -78,6 +86,7 @@ func insertShaMap(db *sql.DB, sourceSha string, rewrittenID int64) error {
 	if _, err := db.Exec(sqlInsertShaMap, sourceSha, rewrittenID); err != nil {
 		return fmt.Errorf("runlog: insert ShaMap %s: %w", sourceSha, err)
 	}
+
 	return nil
 }
 

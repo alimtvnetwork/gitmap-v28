@@ -7,7 +7,7 @@ const __dirname = path.dirname(__filename);
 const rootDir = path.resolve(__dirname, '..');
 
 const IGNORE_DIRS = new Set([
-  'node_modules', '.git', 'dist', 'build', 'tmp', '.ci-out', '.github', 'release-artifacts', 'reports'
+  'node_modules', '.git', 'dist', 'build', 'tmp', '.tmp', '.ci-out', '.github', 'release-artifacts', 'reports'
 ]);
 
 function getFiles(dir, exts, fileList = []) {

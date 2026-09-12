@@ -39,10 +39,12 @@ func extractPmsetLineValue(line, key string) (int, bool) {
 	if !strings.HasPrefix(trimmed, key) {
 		return 0, false
 	}
+
 	fields := strings.Fields(trimmed)
 	if len(fields) < 2 || fields[0] != key {
 		return 0, false
 	}
+
 	val, err := strconv.Atoi(fields[1])
 	if err != nil {
 		return 0, false

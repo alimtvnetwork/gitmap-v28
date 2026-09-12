@@ -38,16 +38,19 @@ func TestVerifyCmdFaithful_Match(t *testing.T) {
 		OriginalURL: "https://x/r.git", TargetURL: "https://x/r.git",
 		Dest: "r", CmdBranch: "main",
 	}
+
 	executorArgv := []string{"clone", "-b", "main", "https://x/r.git", "r"}
 	r := VerifyCmdFaithful(in, executorArgv)
 	if r.HasMismatch() {
 		t.Fatalf("expected match, got %d mismatches:\n%+v",
 			len(r.Mismatches), r.Mismatches)
 	}
+
 	var buf bytes.Buffer
 	if err := PrintCmdFaithfulReport(&buf, r); err != nil {
 		t.Fatalf("print: %v", err)
 	}
+
 	if buf.Len() != 0 {
 		t.Fatalf("expected empty report on match, got:\n%s", buf.String())
 	}
@@ -61,6 +64,7 @@ func TestVerifyCmdFaithful_BranchDrift(t *testing.T) {
 		OriginalURL: "https://x/r.git", TargetURL: "https://x/r.git",
 		Dest: "r", CmdBranch: "main",
 	}
+
 	executorArgv := []string{"clone", "-b", "main", "--depth=1",
 		"https://x/r.git", "r"}
 	r := VerifyCmdFaithful(in, executorArgv)
@@ -68,6 +72,7 @@ func TestVerifyCmdFaithful_BranchDrift(t *testing.T) {
 		t.Fatalf("expected drift, got match. displayed=%q executed=%q",
 			r.Displayed, r.Executed)
 	}
+
 	// Position-wise diff: an inserted token shifts every subsequent
 	// position, so we expect at least one "missing-in-displayed"
 	// trailing entry (the last executor token has no displayed
@@ -75,16 +80,19 @@ func TestVerifyCmdFaithful_BranchDrift(t *testing.T) {
 	if !strings.Contains(r.Executed, "--depth=1") {
 		t.Fatalf("executed should contain --depth=1, got %q", r.Executed)
 	}
+
 	var sawMissingInDisplayed bool
 	for _, m := range r.Mismatches {
 		if m.Reason == "missing-in-displayed" {
 			sawMissingInDisplayed = true
 		}
 	}
+
 	if !sawMissingInDisplayed {
 		t.Fatalf("expected ≥1 missing-in-displayed entry, got %+v",
 			r.Mismatches)
 	}
+
 	var buf bytes.Buffer
 	// Use the test-wrapping printer so the captured output is bounded
 	// by the "--- expected mismatch ---" banner — keeps go test logs
@@ -92,6 +100,7 @@ func TestVerifyCmdFaithful_BranchDrift(t *testing.T) {
 	if err := PrintCmdFaithfulReportForTest(&buf, r); err != nil {
 		t.Fatalf("print: %v", err)
 	}
+
 	out := buf.String()
 	for _, want := range []string{
 		"--- expected mismatch", "[FAIL]", "verify-cmd-faithful: repo",
@@ -114,11 +123,13 @@ func TestVerifyCmdFaithful_WrongBranch(t *testing.T) {
 		OriginalURL: "https://x/r.git", TargetURL: "https://x/r.git",
 		Dest: "r", CmdBranch: "main",
 	}
+
 	executorArgv := []string{"clone", "-b", "develop", "https://x/r.git", "r"}
 	r := VerifyCmdFaithful(in, executorArgv)
 	if !r.HasMismatch() {
 		t.Fatal("expected drift on branch-name mismatch")
 	}
+
 	if r.Mismatches[0].Reason != "differs" {
 		t.Fatalf("expected reason=differs, got %+v", r.Mismatches[0])
 	}

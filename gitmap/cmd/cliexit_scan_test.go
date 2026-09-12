@@ -58,12 +58,15 @@ func runScanExitTestCase(t *testing.T, tc scanExitTestCase) error {
 	if tc.name == "failure_missing_dir" {
 		skipOnWindowsSubprocess(t)
 	}
+
 	t.Parallel()
 	code, stdout, stderr := runGitmap(t, tc.args(t), "")
 	if code != tc.wantCode {
 		t.Fatalf("exit=%d want=%d\nstdout=%s\nstderr=%s", code, tc.wantCode, stdout, stderr)
 	}
+
 	assertScanExitOutput(t, stdout, stderr, tc)
+
 	return nil
 }
 

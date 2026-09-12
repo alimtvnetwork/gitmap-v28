@@ -100,6 +100,7 @@ func parseCloneNextFlags(args []string) CloneNextFlags {
 	if fs.NArg() > 0 {
 		out.VersionArg = fs.Arg(0)
 	}
+
 	return out
 }
 
@@ -108,6 +109,7 @@ func resolveCloneNextConcurrency(maxConc int) int {
 	if !ok {
 		return 1
 	}
+
 	return resolvedConc
 }
 
@@ -159,7 +161,9 @@ func buildCloneNextFlags(p *cloneNextPointers, maxConcurrency int) CloneNextFlag
 		Force:          *p.forceFlag,
 		MaxConcurrency: maxConcurrency,
 	}
+
 	populateCloneNextOptionalFlags(&out, p)
+
 	return out
 }
 

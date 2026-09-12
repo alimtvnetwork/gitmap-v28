@@ -23,6 +23,7 @@ func DistributeKeysToHosts(ctx context.Context, hosts []string, user string, por
 	if user == "" {
 		user = "root"
 	}
+
 	if port <= 0 {
 		port = 22
 	}
@@ -33,6 +34,7 @@ func DistributeKeysToHosts(ctx context.Context, hosts []string, user string, por
 			fmt.Printf("⚠️ Failed to parse host %s: %v\n", host, errParse)
 			continue
 		}
+
 		if errAppend := appendKeyRemote(ctx, pubKey, *target); errAppend != nil {
 			fmt.Printf("✗ Failed key append to %s: %v\n", target.String(), errAppend)
 		} else {

@@ -34,10 +34,12 @@ func seedSkippableRows(t *testing.T, dir string, n int) []Row {
 		if err := os.MkdirAll(dest, 0o755); err != nil {
 			t.Fatalf("mkdir %s: %v", dest, err)
 		}
+
 		marker := filepath.Join(dest, ".keep")
 		if err := os.WriteFile(marker, []byte("x"), 0o644); err != nil {
 			t.Fatalf("write %s: %v", marker, err)
 		}
+
 		rows[i] = Row{URL: "https://example.invalid/" + padIdx(i) + ".git", Dest: padIdx(i)}
 	}
 
@@ -57,6 +59,7 @@ func TestExecuteWithHooksConcurrent_FallbackBelowTwoWorkers(t *testing.T) {
 	if len(res) != 1 {
 		t.Fatalf("len(res)=%d, want 1", len(res))
 	}
+
 	if res[0].Status != constants.CloneFromStatusSkipped {
 		t.Errorf("status=%q, want %q (pre-populated dest must skip)",
 			res[0].Status, constants.CloneFromStatusSkipped)
@@ -76,6 +79,7 @@ func TestExecuteWithHooksConcurrent_PreservesInputOrder(t *testing.T) {
 	if len(res) != len(rows) {
 		t.Fatalf("len(res)=%d, want %d", len(res), len(rows))
 	}
+
 	for i, r := range res {
 		if r.Row.URL != rows[i].URL {
 			t.Errorf("res[%d].URL=%q, want %q (order drift)",
@@ -99,6 +103,7 @@ func TestExecuteWithHooksConcurrent_HookOrderAndCount(t *testing.T) {
 			t.Errorf("hook total=%d, want %d", total, len(rows))
 		}
 	}
+
 	_ = ExecuteWithHooksConcurrent(ConcurrentExecutionParams{
 		Plan:      plan,
 		Cwd:       dir,
@@ -109,6 +114,7 @@ func TestExecuteWithHooksConcurrent_HookOrderAndCount(t *testing.T) {
 	if len(seen) != len(rows) {
 		t.Fatalf("hook fired %d times, want %d", len(seen), len(rows))
 	}
+
 	for i, r := range rows {
 		if seen[i] != r.URL {
 			t.Errorf("hook[%d]=%q, want %q (input order required)",

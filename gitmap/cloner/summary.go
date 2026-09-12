@@ -42,6 +42,7 @@ func pickURL(rec model.ScanRecord) string {
 	if rec.Transport == "ssh" && len(rec.SSHUrl) > 0 {
 		return rec.SSHUrl
 	}
+
 	if len(rec.HTTPSUrl) > 0 {
 		return rec.HTTPSUrl
 	}
@@ -57,6 +58,7 @@ func updateSummary(s model.CloneSummary, r model.CloneResult) model.CloneSummary
 
 		return s
 	}
+
 	s.Failed++
 	s.Errors = append(s.Errors, r)
 

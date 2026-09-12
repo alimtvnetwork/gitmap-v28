@@ -15,6 +15,7 @@ func runVmwareInstall(args []string) error {
 	if isDryRun {
 		return simulateVmwareInstall()
 	}
+
 	if !isLinuxOS() {
 		return newUnsupportedOSError()
 	}
@@ -49,6 +50,7 @@ func executeVmwareInstall() error {
 	if err := runAptInstallPackages("open-vm-tools", "open-vm-tools-desktop"); err != nil {
 		return err
 	}
+
 	enableVMwareService()
 	printInstallCompletion()
 
@@ -59,6 +61,7 @@ func runAptInstallPackages(pkgs ...string) error {
 	if _, err := exec.LookPath("apt-get"); err != nil {
 		return apperror.NewWithDetails("cmd.vmware.install", "E4003", "apt-get package manager not found on system", "cmd.vmware", apperror.ErrorTypeExecution, apperror.SeverityError, nil)
 	}
+
 	args := append([]string{"apt-get", "install", "-y"}, pkgs...)
 	cmd := exec.Command("sudo", args...)
 	cmd.Stdout = os.Stdout
@@ -74,6 +77,7 @@ func enableVMwareService() {
 	if _, err := exec.LookPath("systemctl"); err != nil {
 		return
 	}
+
 	_ = exec.Command("sudo", "systemctl", "enable", "--now", "open-vm-tools").Run()
 }
 

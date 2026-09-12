@@ -5,7 +5,6 @@ import (
 )
 
 func getSpecializedWorkstationProfiles() []InstallProfile {
-
 	return []InstallProfile{
 		buildTerminalProfile(),
 		buildWebDevProfile(),
@@ -18,7 +17,6 @@ func getSpecializedWorkstationProfiles() []InstallProfile {
 }
 
 func buildTerminalProfile() InstallProfile {
-
 	return InstallProfile{
 		Name:        "terminal",
 		Title:       "Terminal essentials workstation",
@@ -33,7 +31,6 @@ func buildTerminalProfile() InstallProfile {
 }
 
 func buildWebDevProfile() InstallProfile {
-
 	return InstallProfile{
 		Name:        "web-dev",
 		Title:       "Web developer workstation",
@@ -47,7 +44,6 @@ func buildWebDevProfile() InstallProfile {
 }
 
 func buildDevopsProfile() InstallProfile {
-
 	return InstallProfile{
 		Name:        "devops",
 		Title:       "DevOps and infrastructure workstation",
@@ -58,7 +54,6 @@ func buildDevopsProfile() InstallProfile {
 }
 
 func buildUbuntuProfile() InstallProfile {
-
 	return InstallProfile{
 		Name:        "ubuntu",
 		Title:       "Ubuntu developer workstation",
@@ -74,7 +69,6 @@ func buildUbuntuProfile() InstallProfile {
 }
 
 func buildAIProfile() InstallProfile {
-
 	return InstallProfile{
 		Name:        "ai",
 		Title:       "AI / ML workstation",
@@ -88,7 +82,6 @@ func buildAIProfile() InstallProfile {
 }
 
 func buildBackendProfile() InstallProfile {
-
 	return InstallProfile{
 		Name:        "backend",
 		Title:       "Backend developer workstation",
@@ -104,7 +97,6 @@ func buildBackendProfile() InstallProfile {
 }
 
 func buildFullstackProfile() InstallProfile {
-
 	return InstallProfile{
 		Name:        "fullstack",
 		Title:       "Full-stack web workstation",

@@ -13,6 +13,7 @@ func runDb(args []string) error {
 	if len(args) == 0 {
 		return runDBLs(nil)
 	}
+
 	sub := strings.ToLower(strings.TrimSpace(args[0]))
 
 	return routeDbSubcommand(sub, args[1:])

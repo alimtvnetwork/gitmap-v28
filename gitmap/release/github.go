@@ -20,12 +20,14 @@ func CollectAssets(assetsPath string) []string {
 	info, err := os.Stat(assetsPath)
 	if err != nil {
 		logAssetsPathNotFound(assetsPath)
+
 		return nil
 	}
 
 	if info.IsDir() {
 		files := collectDirFiles(assetsPath)
 		logCollectedDirFiles(assetsPath, files)
+
 		return files
 	}
 
@@ -46,6 +48,7 @@ func logCollectedDirFiles(assetsPath string, files []string) {
 	if !verbose.IsEnabled() {
 		return
 	}
+
 	verbose.Get().Log("assets: collected %d file(s) from directory %s", len(files), assetsPath)
 	for _, f := range files {
 		verbose.Get().Log("assets: %s", filepath.Base(f))
@@ -67,6 +70,7 @@ func collectDirFiles(dir string) []string {
 		if statErr != nil || info.IsDir() {
 			continue
 		}
+
 		files = append(files, path)
 	}
 

@@ -43,6 +43,7 @@ func writeChromeExport(srcProfile, name, outPath string) (int, error) {
 		Email:         email,
 		ExportedAt:    time.Now().UTC().Format(time.RFC3339),
 	}
+
 	exp.Bookmarks = readOptionalJSON(filepath.Join(srcProfile, "Bookmarks"))
 	exp.Preferences = readOptionalJSON(filepath.Join(srcProfile, "Preferences"))
 	exp.ExtensionIDs = listExtensionIDs(filepath.Join(srcProfile, "Extensions"))
@@ -52,12 +53,15 @@ func writeChromeExport(srcProfile, name, outPath string) (int, error) {
 	if err != nil {
 		return 0, fmt.Errorf("marshal export: %w", err)
 	}
+
 	if err := os.MkdirAll(filepath.Dir(outPath), constants.DirPermission); err != nil {
 		return 0, fmt.Errorf("mkdir %s: %w", filepath.Dir(outPath), err)
 	}
+
 	if err := os.WriteFile(outPath, raw, constants.FilePermission); err != nil {
 		return 0, fmt.Errorf("write %s: %w", outPath, err)
 	}
+
 	return len(raw), nil
 }
 
@@ -68,18 +72,23 @@ func applyChromeExport(exp *chromeExport, dstProfile string) error {
 	if err := os.MkdirAll(dstProfile, constants.DirPermission); err != nil {
 		return fmt.Errorf("mkdir %s: %w", dstProfile, err)
 	}
+
 	if err := writeOptional(filepath.Join(dstProfile, "Bookmarks"), exp.Bookmarks); err != nil {
 		return err
 	}
+
 	if err := writeOptional(filepath.Join(dstProfile, "Preferences"), exp.Preferences); err != nil {
 		return err
 	}
+
 	_ = patchImportedChromeProfilePreferences(dstProfile, exp.DisplayName)
 	if err := writePendingExtensions(dstProfile, exp.ExtensionIDs); err != nil {
 		return err
 	}
+
 	_ = restoreChromeTokenService(dstProfile, exp.TokenVault)
 	registerImportedProfileLocalState(exp, dstProfile)
+
 	return nil
 }
 
@@ -87,8 +96,10 @@ func writePendingExtensions(dstProfile string, ids []string) error {
 	if len(ids) == 0 {
 		return nil
 	}
+
 	hint := filepath.Join(dstProfile, "gitmap-pending-extensions.txt")
 	merged := mergePendingExtensions(hint, ids)
+
 	return os.WriteFile(hint, []byte(joinLines(merged)), constants.FilePermission)
 }
 
@@ -103,6 +114,7 @@ func registerImportedProfileLocalState(exp *chromeExport, dstProfile string) {
 	if exp.DisplayName == "" {
 		return
 	}
+
 	dstDir := filepath.Base(dstProfile)
 	_ = registerChromeProfileInLocalState(exp.Name, dstDir, exp.DisplayName)
 }
@@ -119,6 +131,7 @@ func mergePendingExtensions(hintPath string, newIDs []string) []string {
 			out = append(out, trimmed)
 		}
 	}
+
 	return out
 }
 
@@ -127,6 +140,7 @@ func appendExistingExtensions(hintPath string, seen map[string]bool, out *[]stri
 	if err != nil {
 		return
 	}
+
 	for _, line := range strings.Split(string(raw), "\n") {
 		trimmed := strings.TrimSpace(line)
 		shouldAppend := trimmed != "" && !seen[trimmed]
@@ -143,9 +157,11 @@ func readOptionalJSON(path string) json.RawMessage {
 	if err != nil {
 		return nil
 	}
+
 	if !json.Valid(raw) {
 		return nil
 	}
+
 	return json.RawMessage(raw)
 }
 
@@ -154,6 +170,7 @@ func writeOptional(path string, payload json.RawMessage) error {
 	if len(payload) == 0 {
 		return nil
 	}
+
 	return os.WriteFile(path, payload, constants.FilePermission)
 }
 
@@ -164,12 +181,14 @@ func listExtensionIDs(extDir string) []string {
 	if err != nil {
 		return nil
 	}
+
 	ids := make([]string, 0, len(entries))
 	for _, e := range entries {
 		if e.IsDir() {
 			ids = append(ids, e.Name())
 		}
 	}
+
 	return ids
 }
 
@@ -179,5 +198,6 @@ func joinLines(items []string) string {
 	for _, it := range items {
 		out += it + "\n"
 	}
+
 	return out
 }

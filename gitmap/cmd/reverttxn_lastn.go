@@ -31,12 +31,15 @@ func runRevertLastN(raw string, force bool) error {
 
 		return nil
 	}
+
 	if !force && !confirmRevertLastN(rows) {
 		fmt.Print(constants.MsgTxnAbortedByUser)
 
 		return nil
 	}
+
 	revertManyOrExit(rows, force)
+
 	return nil
 }
 
@@ -61,11 +64,13 @@ func loadLastCommittedTxns(want int) []model.TransactionRecord {
 	if err != nil {
 		cliexit.HandleError(err, 1)
 	}
+
 	out := make([]model.TransactionRecord, 0, want)
 	for _, r := range all {
 		if r.Status != constants.TxnStatusCommitted {
 			continue
 		}
+
 		out = append(out, r)
 		if len(out) == want {
 			break
@@ -82,6 +87,7 @@ func confirmRevertLastN(rows []model.TransactionRecord) bool {
 		fmt.Printf(constants.MsgTxnLastNRow, r.ID, r.Kind,
 			time.Unix(r.CreatedAt, 0).Format(time.RFC3339), r.ReverseSummary)
 	}
+
 	fmt.Print(constants.MsgTxnConfirmPrompt)
 	scanner := bufio.NewScanner(os.Stdin)
 	if !scanner.Scan() {
@@ -111,7 +117,9 @@ func revertManyOrExit(rows []model.TransactionRecord, force bool) {
 			)
 			cliexit.HandleError(appErr, 1)
 		}
+
 		fmt.Printf(constants.MsgTxnReverted, r.ID, r.Kind)
 	}
+
 	fmt.Printf(constants.MsgTxnLastNDone, len(rows))
 }

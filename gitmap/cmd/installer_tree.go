@@ -32,8 +32,10 @@ func printInstallerTree(root InstallerTreeNode, prefix string, isLast bool) {
 			constants.ColorWhite, root.Title, constants.ColorReset,
 			constants.ColorDim, root.Description, constants.ColorReset)
 		printInstallerChildren(root, "  ")
+
 		return
 	}
+
 	printInstallerChildren(root, prefix)
 }
 
@@ -54,6 +56,7 @@ func renderInstallerChild(childNode InstallerTreeNode, prefix string, isChildLas
 		connector = constants.TreeCorner
 		nextPrefix = prefix + constants.TreeSpace
 	}
+
 	fmt.Printf("%s%s%s%s %s%s%s %s%s%s\n",
 		prefix, constants.ColorCyan, connector, constants.ColorReset,
 		constants.ColorWhite, childNode.Title, constants.ColorReset,

@@ -20,6 +20,7 @@ func setupSSHTestDB(t *testing.T) *sql.DB {
 	if err != nil {
 		t.Fatalf("failed to run migration: %v", err)
 	}
+
 	return db
 }
 
@@ -58,6 +59,7 @@ func TestInsertSSHHost(t *testing.T) {
 	if err != nil {
 		t.Fatalf("failed to query count: %v", err)
 	}
+
 	if count != 1 {
 		t.Errorf("expected 1 record, got %d", count)
 	}
@@ -68,6 +70,7 @@ func TestInsertSSHHost(t *testing.T) {
 	if err == nil {
 		t.Fatal("expected error on duplicate insert, got nil")
 	}
+
 	tx2.Rollback()
 
 	appErr, ok := err.(*apperror.AppError)
@@ -104,6 +107,7 @@ func TestGetHostByAlias(t *testing.T) {
 	if err != nil {
 		t.Fatalf("GetHostByAlias failed: %v", err)
 	}
+
 	if found.ID != "host-2" {
 		t.Errorf("expected ID host-2, got %s", found.ID)
 	}
@@ -170,6 +174,7 @@ func TestSSHRepoIntegration(t *testing.T) {
 	if err != nil {
 		t.Fatalf("failed to open memory db: %v", err)
 	}
+
 	defer db.Close()
 
 	ctx := context.Background()
@@ -225,6 +230,7 @@ func TestSSHRepoIntegration(t *testing.T) {
 	if err != nil {
 		t.Fatalf("failed to query host count: %v", err)
 	}
+
 	if hostCount != 1 {
 		t.Errorf("expected 1 host record, got %d", hostCount)
 	}
@@ -234,6 +240,7 @@ func TestSSHRepoIntegration(t *testing.T) {
 	if err != nil {
 		t.Fatalf("failed to query hist count: %v", err)
 	}
+
 	if histCount != 1 {
 		t.Errorf("expected 1 hist record, got %d", histCount)
 	}

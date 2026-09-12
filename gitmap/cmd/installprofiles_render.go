@@ -17,13 +17,14 @@ var (
 func printInstallProfilesSection(installed map[string]string) {
 	profiles := AllInstallProfiles()
 	if len(profiles) == 0 {
-
 		return
 	}
+
 	fmt.Println(catStyle.Render("Installation Profiles"))
 	for _, p := range profiles {
 		printSingleProfileRow(p, installed)
 	}
+
 	printProfileUsageExamples()
 }
 
@@ -57,7 +58,6 @@ func countProfileInstalledTools(p InstallProfile, installed map[string]string) i
 
 func formatProfileDot(count, total int) string {
 	if count == total {
-
 		return installedDot
 	}
 
@@ -65,6 +65,5 @@ func formatProfileDot(count, total int) string {
 }
 
 func formatProfileProgress(count, total int) string {
-
 	return fmt.Sprintf("[%d/%d tools]", count, total)
 }

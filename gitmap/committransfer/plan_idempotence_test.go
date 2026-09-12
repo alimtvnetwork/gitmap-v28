@@ -73,9 +73,11 @@ func TestPlanIdempotenceBeyond200Commits(t *testing.T) {
 	if err != nil {
 		t.Fatalf("BuildPlan: %v", err)
 	}
+
 	if len(plan.Commits) != 1 {
 		t.Fatalf("plan.Commits = %d, want 1", len(plan.Commits))
 	}
+
 	if got := plan.Commits[0].SkipCause; got != "already-replayed" {
 		t.Errorf("SkipCause = %q, want %q (idempotence broke; legacy 200-cap regression)",
 			got, "already-replayed")
@@ -92,9 +94,11 @@ func mustCommitCountAt(t *testing.T, dir, path, body, msg, stamp string) {
 	if err := os.WriteFile(full, []byte(body), 0o644); err != nil {
 		t.Fatalf("write %s: %v", full, err)
 	}
+
 	if out, err := exec.Command("git", "-C", dir, "add", path).CombinedOutput(); err != nil {
 		t.Fatalf("git add %s: %v\n%s", path, err, out)
 	}
+
 	cmd := exec.Command("git", "-C", dir, "commit", "-m", msg)
 	cmd.Env = append(os.Environ(),
 		"GIT_AUTHOR_DATE="+stamp,

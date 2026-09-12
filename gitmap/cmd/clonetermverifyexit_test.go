@@ -52,6 +52,7 @@ func fixtureMismatchInput() (CloneTermBlockInput, []string) {
 		CmdBranch:   "main",
 		Dest:        "scripts-fixer",
 	}
+
 	executorArgv := []string{"clone", "-b", "develop",
 		"https://example.com/scripts-fixer.git", "scripts-fixer"}
 

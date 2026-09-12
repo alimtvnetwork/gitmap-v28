@@ -11,5 +11,6 @@ func runFolder(args []string) error {
 	if err := folder.Run(args); err != nil {
 		return apperror.WrapSimple(err, "Error:")
 	}
+
 	return nil
 }

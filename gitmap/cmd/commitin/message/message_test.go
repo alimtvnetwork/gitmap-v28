@@ -17,6 +17,7 @@ func TestStripRulesRemovesAndCollapses(t *testing.T) {
 	if strings.Contains(got, "Signed-off-by") {
 		t.Fatalf("rule not applied: %q", got)
 	}
+
 	if strings.Contains(got, "\n\n\n") {
 		t.Fatalf("blank lines not collapsed: %q", got)
 	}
@@ -31,6 +32,7 @@ func TestWeakWordMatching(t *testing.T) {
 		"":                   false,
 		"UPDATE the thing":   true,
 	}
+
 	for in, want := range cases {
 		if got := matchesWeak(in, weak); got != want {
 			t.Errorf("matchesWeak(%q) = %v, want %v", in, got, want)
@@ -44,10 +46,12 @@ func TestOverrideOnlyFiresWhenWeak(t *testing.T) {
 		OverrideOnlyWeak: true,
 		WeakWords:        []string{"update"},
 	}
+
 	weakIn := Inputs{OriginalMessage: "Update foo", Resolved: res, PickIndex: fixedPick}
 	if got := Build(weakIn).Message; got != "Refine implementation" {
 		t.Fatalf("weak override missed: %q", got)
 	}
+
 	strongIn := Inputs{OriginalMessage: "Refactor foo", Resolved: res, PickIndex: fixedPick}
 	if got := Build(strongIn).Message; got != "Refactor foo" {
 		t.Fatalf("strong should not override: %q", got)
@@ -61,6 +65,7 @@ func TestTitleAffixOnlyTouchesFirstLine(t *testing.T) {
 	if lines[0] != "[x] title <-" {
 		t.Fatalf("title affix wrong: %q", lines[0])
 	}
+
 	if lines[1] != "body1" || lines[2] != "body2" {
 		t.Fatalf("body mutated: %v", lines)
 	}
@@ -71,6 +76,7 @@ func TestBodyAffixWraps(t *testing.T) {
 		MessagePrefix: []string{"chore:"},
 		MessageSuffix: []string{"--end--"},
 	}
+
 	out := Build(Inputs{OriginalMessage: "title", Resolved: res, PickIndex: fixedPick}).Message
 	if !strings.HasPrefix(out, "chore:\n") || !strings.HasSuffix(out, "\n--end--") {
 		t.Fatalf("body affix wrong: %q", out)
@@ -105,6 +111,7 @@ func TestPipelineOrderStripBeforeOverride(t *testing.T) {
 		OverrideOnlyWeak: true,
 		WeakWords:        []string{"update"},
 	}
+
 	out := Build(Inputs{OriginalMessage: "Update foo\nReal body", Resolved: res, PickIndex: fixedPick}).Message
 	if out == "Refined" {
 		t.Fatalf("override fired after strip removed weak title")

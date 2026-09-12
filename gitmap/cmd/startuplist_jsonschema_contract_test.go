@@ -87,11 +87,13 @@ func TestStartupListSchema_PropertyOrderMatchesEncoder(t *testing.T) {
 	if len(want) == 0 {
 		t.Fatalf("schema item has no propertyOrder array")
 	}
+
 	entries := []startup.Entry{{Name: "n", Path: "p", Exec: "e"}}
 	var buf bytes.Buffer
 	if err := encodeStartupListJSON(&buf, entries); err != nil {
 		t.Fatalf("encode: %v", err)
 	}
+
 	got := extractFirstObjectKeyOrder(t, buf.Bytes())
 	if !equalStringSlices(got, want) {
 		t.Fatalf("emitted key order = %v, schema propertyOrder = %v", got, want)
@@ -107,6 +109,7 @@ func TestStartupListSchema_EmptyEncodesAsArray(t *testing.T) {
 	if err := encodeStartupListJSON(&buf, nil); err != nil {
 		t.Fatalf("encode: %v", err)
 	}
+
 	trimmed := bytes.TrimSpace(buf.Bytes())
 	if !bytes.Equal(trimmed, []byte("[]")) {
 		t.Fatalf("empty encoded as %q, want []", trimmed)

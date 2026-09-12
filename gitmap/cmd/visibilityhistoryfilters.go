@@ -34,6 +34,7 @@ func parseHistoryFilters(args []string, now time.Time) historyFilters {
 			}
 		}
 	}
+
 	_ = now // accepted for symmetry with applyHistoryFilters
 
 	return f
@@ -49,22 +50,26 @@ func applyHistoryFilters(
 	if f.Kind == "" && f.Since == 0 {
 		return runs
 	}
+
 	cutoff := now.Add(-f.Since)
 	out := make([]model.MakeAllVisibilityRunRecord, 0, len(runs))
 	for _, r := range runs {
 		if f.Kind != "" && r.CommandKind != f.Kind {
 			continue
 		}
+
 		var ts time.Time
 		var err error
 		hasSinceFilter := f.Since > 0
 		if hasSinceFilter {
 			ts, err = time.Parse(time.RFC3339, r.StartedAt)
 		}
+
 		isBeforeCutoff := err != nil || ts.Before(cutoff)
 		if hasSinceFilter && isBeforeCutoff {
 			continue
 		}
+
 		out = append(out, r)
 	}
 

@@ -21,11 +21,13 @@ func dispatchLatestOutput(
 
 		return
 	}
+
 	if cfg.format == constants.OutputCSV {
 		printLatestCSV(items, result.selectedRemote, cfg.top)
 
 		return
 	}
+
 	printLatestTerminal(result, items, cfg.top)
 }
 
@@ -45,6 +47,7 @@ func printLatestTerminal(result latestBranchResult, items []gitutil.RemoteBranch
 	if top > 0 {
 		printTerminalTopTable(items, result.selectedRemote, top)
 	}
+
 	fmt.Println()
 }
 

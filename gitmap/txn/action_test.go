@@ -22,6 +22,7 @@ func TestRevertActionsEditFileRestoresBytes(t *testing.T) {
 	if err := j.RecordEditFile(target); err != nil {
 		t.Fatalf("RecordEditFile: %v", err)
 	}
+
 	mustWriteFile(t, target, []byte(`{"k":"MUTATED"}`))
 	if err := j.Commit(); err != nil {
 		t.Fatalf("Commit: %v", err)
@@ -30,6 +31,7 @@ func TestRevertActionsEditFileRestoresBytes(t *testing.T) {
 	if err := RevertActions(db, j.ID()); err != nil {
 		t.Fatalf("RevertActions: %v", err)
 	}
+
 	got, _ := os.ReadFile(target)
 	if !bytes.Equal(got, original) {
 		t.Fatalf("revert restored %q, want %q", got, original)
@@ -54,6 +56,7 @@ func TestRevertActionsRenamePathRestoresLocation(t *testing.T) {
 	if err := j.RecordRenamePath(from, to); err != nil {
 		t.Fatalf("RecordRenamePath: %v", err)
 	}
+
 	if err := j.Commit(); err != nil {
 		t.Fatalf("Commit: %v", err)
 	}
@@ -61,9 +64,11 @@ func TestRevertActionsRenamePathRestoresLocation(t *testing.T) {
 	if err := RevertActions(db, j.ID()); err != nil {
 		t.Fatalf("RevertActions: %v", err)
 	}
+
 	if _, err := os.Stat(from); err != nil {
 		t.Fatalf("expected %q to exist after revert: %v", from, err)
 	}
+
 	if _, err := os.Stat(to); !os.IsNotExist(err) {
 		t.Fatalf("expected %q to be gone after revert, stat err=%v", to, err)
 	}
@@ -83,6 +88,7 @@ func TestRevertActionsIsIdempotent(t *testing.T) {
 	if err := j.RecordEditFile(target); err != nil {
 		t.Fatalf("RecordEditFile: %v", err)
 	}
+
 	mustWriteFile(t, target, []byte("v2"))
 	if err := j.Commit(); err != nil {
 		t.Fatalf("Commit: %v", err)
@@ -91,10 +97,12 @@ func TestRevertActionsIsIdempotent(t *testing.T) {
 	if err := RevertActions(db, j.ID()); err != nil {
 		t.Fatalf("RevertActions #1: %v", err)
 	}
+
 	mustWriteFile(t, target, []byte("v3-after-revert"))
 	if err := RevertActions(db, j.ID()); err != nil {
 		t.Fatalf("RevertActions #2 should no-op: %v", err)
 	}
+
 	got, _ := os.ReadFile(target)
 	if string(got) != "v3-after-revert" {
 		t.Fatalf("idempotent revert clobbered live state: got %q", got)
@@ -118,13 +126,16 @@ func TestRevertActionsMultiStepReversesInSeqDescOrder(t *testing.T) {
 	if err := os.Rename(from, to); err != nil {
 		t.Fatalf("setup rename: %v", err)
 	}
+
 	j := mustBegin(t, db, cwd)
 	if err := j.RecordRenamePath(from, to); err != nil {
 		t.Fatalf("RecordRenamePath: %v", err)
 	}
+
 	if err := j.RecordEditFile(to); err != nil {
 		t.Fatalf("RecordEditFile: %v", err)
 	}
+
 	mustWriteFile(t, to, []byte("MUTATED"))
 	if err := j.Commit(); err != nil {
 		t.Fatalf("Commit: %v", err)
@@ -133,10 +144,12 @@ func TestRevertActionsMultiStepReversesInSeqDescOrder(t *testing.T) {
 	if err := RevertActions(db, j.ID()); err != nil {
 		t.Fatalf("RevertActions: %v", err)
 	}
+
 	got, err := os.ReadFile(from)
 	if err != nil {
 		t.Fatalf("expected %q to exist after multi-step revert: %v", from, err)
 	}
+
 	if string(got) != "ORIGINAL" {
 		t.Fatalf("multi-step revert restored %q, want %q", got, "ORIGINAL")
 	}

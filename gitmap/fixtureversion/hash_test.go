@@ -12,6 +12,7 @@ func TestBodyHashExcludingMarkerStripsMarker(t *testing.T) {
 	if len(got) != 64 {
 		t.Fatalf("expected 64 hex chars, got %d (%q)", len(got), got)
 	}
+
 	// Same body without the marker line must hash identically.
 	noMarker := "body bytes follow\n"
 	if got != BodyHashExcludingMarker(noMarker) {
@@ -25,6 +26,7 @@ func TestBodyHashIsStableAcrossMarkerEdits(t *testing.T) {
 	if !ok {
 		t.Fatalf("BumpStampInBody returned ok=false")
 	}
+
 	second := BodyHashExcludingMarker(bumped)
 	if first != second {
 		t.Fatalf("hash changed after marker-only edit:\n  first=%s\n second=%s", first, second)
@@ -50,6 +52,7 @@ func TestHashMatchesDetectsDrift(t *testing.T) {
 	if !HashMatches(hashSampleBody, correct) {
 		t.Errorf("HashMatches with correct sha returned false")
 	}
+
 	if HashMatches(hashSampleBody+"trailing edit\n", correct) {
 		t.Errorf("HashMatches did not detect trailing-edit drift")
 	}
@@ -68,6 +71,7 @@ func TestRewriteOrAppendSHAReplacesExisting(t *testing.T) {
 	if !strings.Contains(out, "sha=newhashvalue") {
 		t.Fatalf("sha= field not replaced:\n%s", out)
 	}
+
 	if strings.Contains(out, "oldhashvalue") {
 		t.Fatalf("old sha= value still present:\n%s", out)
 	}
@@ -80,6 +84,7 @@ func TestValidateBodyDetectsDrift(t *testing.T) {
 	if err == nil {
 		t.Fatalf("expected hash-mismatch error, got nil")
 	}
+
 	if !strings.Contains(err.Error(), "body hash mismatch") {
 		t.Fatalf("error message missing 'body hash mismatch':\n%v", err)
 	}
@@ -109,6 +114,7 @@ func TestStampMarkerRoundTripsSHA(t *testing.T) {
 	if !ok {
 		t.Fatalf("ParseMarker returned ok=false")
 	}
+
 	if out.SHA != in.SHA {
 		t.Errorf("SHA not round-tripped: got %q, want %q", out.SHA, in.SHA)
 	}

@@ -66,9 +66,11 @@ func dispatchNginxSubcommand(sub string, rest []string) error {
 	if isHandled, err := dispatchNginxVHostSubcommand(sub, rest); isHandled {
 		return err
 	}
+
 	if sub == "status" || sub == "st" {
 		return runNginxStatus()
 	}
+
 	if isHandled, err := dispatchNginxOpsSubcommand(sub, rest); isHandled {
 		return err
 	}
@@ -103,6 +105,7 @@ func runNginxStatus() error {
 	if err != nil {
 		return printNginxNotFound()
 	}
+
 	printNginxDetails(path)
 
 	return nil
@@ -114,6 +117,7 @@ func printNginxDetails(path string) {
 	if version != "" {
 		fmt.Printf("  Version: %s\n", version)
 	}
+
 	testOut, testErr := executeNginxTest()
 	isTestOk := testErr == nil
 	fmt.Printf("  Config Test: valid=%t (%s)\n", isTestOk, strings.TrimSpace(testOut))

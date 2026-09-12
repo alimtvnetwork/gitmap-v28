@@ -36,16 +36,20 @@ func TestPreRelease_ParseAndString(t *testing.T) {
 			t.Errorf("Parse(%q) error: %v", tc.input, err)
 			continue
 		}
+
 		if v.Major != tc.major || v.Minor != tc.minor || v.Patch != tc.patch {
 			t.Errorf("Parse(%q) = %d.%d.%d, want %d.%d.%d",
 				tc.input, v.Major, v.Minor, v.Patch, tc.major, tc.minor, tc.patch)
 		}
+
 		if v.PreRelease != tc.preRelease {
 			t.Errorf("Parse(%q).PreRelease = %q, want %q", tc.input, v.PreRelease, tc.preRelease)
 		}
+
 		if !v.IsPreRelease() {
 			t.Errorf("Parse(%q).IsPreRelease() should be true", tc.input)
 		}
+
 		if v.String() != tc.str {
 			t.Errorf("Parse(%q).String() = %q, want %q", tc.input, v.String(), tc.str)
 		}
@@ -61,6 +65,7 @@ func TestPreRelease_StableGreaterThanPreRelease(t *testing.T) {
 	if !stable.GreaterThan(rc) {
 		t.Error("stable v1.0.0 should be greater than v1.0.0-rc.1")
 	}
+
 	if rc.GreaterThan(stable) {
 		t.Error("v1.0.0-rc.1 should NOT be greater than stable v1.0.0")
 	}
@@ -77,6 +82,7 @@ func TestPreRelease_MetadataPreservesPreRelease(t *testing.T) {
 		Tag:     "v1.0.0-rc.1",
 		Branch:  "release/v1.0.0-rc.1",
 	}
+
 	if err := release.WriteReleaseMeta(meta); err != nil {
 		t.Fatalf("WriteReleaseMeta: %v", err)
 	}
@@ -91,9 +97,11 @@ func TestPreRelease_MetadataPreservesPreRelease(t *testing.T) {
 	if err := json.Unmarshal(data, &got); err != nil {
 		t.Fatalf("unmarshal: %v", err)
 	}
+
 	if got.Version != "1.0.0-rc.1" {
 		t.Errorf("version = %q, want %q", got.Version, "1.0.0-rc.1")
 	}
+
 	if got.Tag != "v1.0.0-rc.1" {
 		t.Errorf("tag = %q, want %q", got.Tag, "v1.0.0-rc.1")
 	}
@@ -121,9 +129,11 @@ func TestBump_AllLevels(t *testing.T) {
 			t.Errorf("Bump(%s) error: %v", tc.level, err)
 			continue
 		}
+
 		if result.String() != tc.expected {
 			t.Errorf("Bump(%s) = %s, want %s", tc.level, result.String(), tc.expected)
 		}
+
 		if result.IsPreRelease() {
 			t.Errorf("Bump(%s) should not produce a pre-release", tc.level)
 		}
@@ -148,9 +158,11 @@ func TestBump_FromPreRelease(t *testing.T) {
 	if err != nil {
 		t.Fatalf("Bump patch: %v", err)
 	}
+
 	if patched.String() != "v1.0.1" {
 		t.Errorf("patch bump from pre-release = %s, want v1.0.1", patched.String())
 	}
+
 	if patched.IsPreRelease() {
 		t.Error("patch bump should strip pre-release suffix")
 	}
@@ -159,6 +171,7 @@ func TestBump_FromPreRelease(t *testing.T) {
 	if err != nil {
 		t.Fatalf("Bump minor: %v", err)
 	}
+
 	if minor.String() != "v1.1.0" {
 		t.Errorf("minor bump from pre-release = %s, want v1.1.0", minor.String())
 	}
@@ -204,6 +217,7 @@ func TestParse_PartialVersions(t *testing.T) {
 			t.Errorf("Parse(%q) error: %v", tc.input, err)
 			continue
 		}
+
 		if v.String() != tc.expected {
 			t.Errorf("Parse(%q).String() = %q, want %q", tc.input, v.String(), tc.expected)
 		}
@@ -282,6 +296,7 @@ func TestMultiRelease_SequentialVersions(t *testing.T) {
 	if err != nil {
 		t.Fatalf("ReadLatest: %v", err)
 	}
+
 	if latest.Tag != "v1.2.0" {
 		t.Errorf("latest tag = %s, want v1.2.0", latest.Tag)
 	}
@@ -329,6 +344,7 @@ func TestMultiRelease_OutOfOrderMetadata(t *testing.T) {
 			Version: ver[1:], // strip v
 			Tag:     ver,
 		}
+
 		if err := release.WriteReleaseMeta(meta); err != nil {
 			t.Fatalf("WriteReleaseMeta(%s): %v", ver, err)
 		}
@@ -384,6 +400,7 @@ func TestMultiRelease_PreReleaseToStable(t *testing.T) {
 	if _, err := os.Stat(rcPath); os.IsNotExist(err) {
 		t.Error("v3.0.0-rc.1.json should exist")
 	}
+
 	if _, err := os.Stat(stablePath); os.IsNotExist(err) {
 		t.Error("v3.0.0.json should exist")
 	}
@@ -393,6 +410,7 @@ func TestMultiRelease_PreReleaseToStable(t *testing.T) {
 	if err != nil {
 		t.Fatalf("ReadLatest: %v", err)
 	}
+
 	if latest.Tag != "v3.0.0" {
 		t.Errorf("latest = %s, want v3.0.0", latest.Tag)
 	}

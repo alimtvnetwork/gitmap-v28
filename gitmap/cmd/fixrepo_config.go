@@ -42,15 +42,18 @@ func loadFixRepoConfig(explicit, repoRoot string) {
 		fmt.Fprintf(os.Stderr, constants.FixRepoErrBadConfigFmt, err.Error())
 		cliexit.HandleError(nil, constants.FixRepoExitBadConfig)
 	}
+
 	fixRepoActiveIgnore = fixRepoIgnore{}
 	if resolved == "" {
 		return
 	}
+
 	cfg, err := readFixRepoConfig(resolved)
 	if err != nil {
 		fmt.Fprintf(os.Stderr, constants.FixRepoErrBadConfigFmt, err.Error())
 		cliexit.HandleError(nil, constants.FixRepoExitBadConfig)
 	}
+
 	fixRepoActiveIgnore = compileFixRepoIgnore(cfg)
 }
 
@@ -85,6 +88,7 @@ func readFixRepoConfig(path string) (fixRepoConfig, error) {
 	if err != nil {
 		return fixRepoConfig{}, err
 	}
+
 	var cfg fixRepoConfig
 	if err := json.Unmarshal(raw, &cfg); err != nil {
 		return fixRepoConfig{}, err
@@ -101,10 +105,12 @@ func compileFixRepoIgnore(cfg fixRepoConfig) fixRepoIgnore {
 			out.dirs = append(out.dirs, strings.Trim(d, "/\\"))
 		}
 	}
+
 	for _, p := range cfg.IgnorePatterns {
 		if p == "" {
 			continue
 		}
+
 		re, err := regexp.Compile(globToRegex(p))
 		if err == nil {
 			out.patterns = append(out.patterns, re)
@@ -124,6 +130,7 @@ func isFixRepoIgnoredPath(relPath string) bool {
 			return true
 		}
 	}
+
 	for _, re := range fixRepoActiveIgnore.patterns {
 		if re.MatchString(norm) {
 			return true
@@ -142,6 +149,7 @@ func globToRegex(pattern string) string {
 	for i := 0; i < len(pattern); i++ {
 		i = appendGlobChar(&b, pattern, i)
 	}
+
 	b.WriteByte('$')
 
 	return b.String()
@@ -157,19 +165,23 @@ func appendGlobChar(b *strings.Builder, pattern string, i int) int {
 
 		return i + 1
 	}
+
 	if ch == '*' {
 		b.WriteString("[^/]*")
 
 		return i
 	}
+
 	if ch == '?' {
 		b.WriteString("[^/]")
 
 		return i
 	}
+
 	if strings.ContainsRune(`.+()[]{}^$|\`, rune(ch)) {
 		b.WriteByte('\\')
 	}
+
 	b.WriteByte(ch)
 
 	return i

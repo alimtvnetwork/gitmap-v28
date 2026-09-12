@@ -6,6 +6,7 @@ import "fmt"
 func GenerateDiscardRecipe(repoPath string) RemediationRecipe {
 	p := CleanRepoPath(repoPath)
 	rawPath := CleanRepoPathRaw(repoPath)
+
 	return RemediationRecipe{
 		Title:       "Option 3 (Discard Local Changes)",
 		Description: "Permanently discard local modifications and untracked files to match remote",

@@ -44,6 +44,7 @@ func TestVisibilityRoundTripStoreLayer(t *testing.T) {
 	if err != nil || len(rows) != 3 {
 		t.Fatalf("recent: got %d err=%v", len(rows), err)
 	}
+
 	if rows[0].ID != redoID || rows[1].ID != undoID || rows[2].ID != pubID {
 		t.Fatalf("ordering: got %d,%d,%d want %d,%d,%d",
 			rows[0].ID, rows[1].ID, rows[2].ID, redoID, undoID, pubID)

@@ -34,6 +34,7 @@ func TestPromptModeOnClobberAbortsRun(t *testing.T) {
 		t.Fatalf("exit=%d, want CommitInExitConflictAborted (%d)\nstderr=%s",
 			res.ExitCode, constants.CommitInExitConflictAborted, res.Stderr)
 	}
+
 	if got := len(src.LogFirstParent(t)); got != startCount {
 		t.Fatalf("dst gained %d commits during aborted run", got-startCount)
 	}
@@ -61,12 +62,14 @@ func TestForceMergeOnClobberOverwritesAndContinues(t *testing.T) {
 		t.Fatalf("exit=%d, want 0\nstderr=%s\nstdout=%s",
 			res.ExitCode, res.Stderr, res.Stdout)
 	}
+
 	src.AssertCommitCount(t, 2)
 	src.AssertHasSubject(t, "force-merge-me")
 	// Audit log: stdout must mention the force-merge clobber.
 	if !strings.Contains(res.Stdout, "force-merge clobbering") {
 		t.Errorf("stdout missing force-merge clobber audit line\nstdout=%s", res.Stdout)
 	}
+
 	// Final blob at a.txt must be the INPUT side.
 	got := readBlobAtHead(t, src, "a.txt")
 	if got != "INPUT-version\n" {
@@ -86,6 +89,7 @@ func TestSecondConcurrentRunFailsWithLockBusy(t *testing.T) {
 	if isNonLinux {
 		t.Skip("PID-1-always-alive trick is Linux-specific")
 	}
+
 	src := NewRepo(t, "src")
 	input := NewRepo(t, "input")
 	input.Commit("a.txt", "1\n", "seed", time.Date(2024, 1, 1, 0, 0, 0, 0, time.UTC))
@@ -95,9 +99,11 @@ func TestSecondConcurrentRunFailsWithLockBusy(t *testing.T) {
 	if err != nil {
 		t.Fatalf("ensure workspace: %v", err)
 	}
+
 	if err := os.WriteFile(paths.LockFile, []byte("1"), 0o644); err != nil {
 		t.Fatalf("plant lock: %v", err)
 	}
+
 	defer os.Remove(paths.LockFile)
 
 	res := Run(t, NewRawArgs(src.Path, input.Path))

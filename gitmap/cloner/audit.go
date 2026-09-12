@@ -71,6 +71,7 @@ func PlanCloneAudit(sourcePath, targetDir string) (*CloneAuditReport, error) {
 		Target: targetDir,
 		Counts: make(map[AuditActionType]int),
 	}
+
 	for _, rec := range records {
 		entry := planOne(rec, targetDir, cache)
 		report.Entries = append(report.Entries, entry)
@@ -129,18 +130,24 @@ func classifyDest(params ClassifyDestParams) AuditEntry {
 	base := params.Base
 	if !pathExists(params.Dest) {
 		base.Action = AuditActionClone
+
 		return base
 	}
+
 	if !IsGitRepo(params.Dest) {
 		base.Action = AuditActionConflict
 		base.Reason = "target path exists but is not a git repository"
+
 		return base
 	}
+
 	if params.Cache != nil && params.Cache.IsUpToDate(params.Rec, params.Dest) {
 		base.Action = AuditActionCached
 		base.Reason = "clone-cache fingerprint matches local HEAD"
+
 		return base
 	}
+
 	base.Action = AuditActionPull
 
 	return base
@@ -167,6 +174,7 @@ func (r *CloneAuditReport) Print(w io.Writer) error {
 	if _, err := fmt.Fprintf(w, constants.MsgCloneAuditHeader, r.Source, r.Target, len(r.Entries)); err != nil {
 		return err
 	}
+
 	for _, e := range r.Entries {
 		if err := printEntry(w, e); err != nil {
 			return err
@@ -183,9 +191,11 @@ func printEntry(w io.Writer, e AuditEntry) error {
 	if err != nil {
 		return err
 	}
+
 	if len(e.Command) == 0 {
 		return nil
 	}
+
 	_, err = fmt.Fprintf(w, constants.MsgCloneAuditCmd, e.Command)
 
 	return err

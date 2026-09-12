@@ -6,6 +6,7 @@ func RemoveEntry(targetPath string) error {
 	if err != nil {
 		return err
 	}
+
 	return RemoveEntryAt(path, targetPath)
 }
 
@@ -15,14 +16,17 @@ func RemoveEntryAt(projectsFile, targetPath string) error {
 	if err != nil {
 		return err
 	}
+
 	var remaining []Entry
 	for _, e := range entries {
 		if !pathsEqual(e.RootPath, targetPath) {
 			remaining = append(remaining, e)
 		}
 	}
+
 	if len(remaining) == len(entries) {
 		return nil
 	}
+
 	return writeEntriesAtomic(projectsFile, remaining)
 }

@@ -18,6 +18,7 @@ func OptimizeProjects(exceptList []string, dryRun bool) (OptimizeSummary, error)
 	if err != nil {
 		return OptimizeSummary{}, err
 	}
+
 	return OptimizeProjectsAt(path, exceptList, dryRun)
 }
 
@@ -27,6 +28,7 @@ func OptimizeProjectsAt(filePath string, exceptList []string, dryRun bool) (Opti
 	if err != nil {
 		return OptimizeSummary{}, err
 	}
+
 	deduped, removed := deduplicateEntries(entries, exceptList)
 	if isWriteEnabled(dryRun, removed) {
 		return commitOptimizedEntries(filePath, deduped, removed)
@@ -43,6 +45,7 @@ func commitOptimizedEntries(filePath string, deduped []Entry, removed int) (Opti
 	if err := writeEntriesAtomic(filePath, deduped); err != nil {
 		return OptimizeSummary{}, err
 	}
+
 	return OptimizeSummary{Removed: removed, Remaining: len(deduped)}, nil
 }
 
@@ -58,27 +61,32 @@ func deduplicateEntries(entries []Entry, exceptList []string) ([]Entry, int) {
 			removed++
 			continue
 		}
+
 		seen[key] = len(deduped)
 		deduped = append(deduped, e)
 	}
+
 	return deduped, removed
 }
 
 func mergeExistingEntry(primary Entry, dup Entry) Entry {
 	primary.Paths = unionPaths(primary.Paths, dup.Paths)
 	primary.Tags = unionPaths(primary.Tags, dup.Tags)
+
 	return primary
 }
 
 // ClearProjects removes entries while preserving those in exceptList.
 func ClearProjects(exceptList []string, onlyMissing, dryRun bool) (OptimizeSummary, error) {
 	summary, _, err := ClearProjectsWithTargets(exceptList, onlyMissing, dryRun)
+
 	return summary, err
 }
 
 // ClearProjectsAt cleans entries from a specific projects.json file.
 func ClearProjectsAt(filePath string, exceptList []string, onlyMissing, dryRun bool) (OptimizeSummary, error) {
 	summary, _, err := ClearProjectsWithTargetsAt(filePath, exceptList, onlyMissing, dryRun)
+
 	return summary, err
 }
 
@@ -88,6 +96,7 @@ func ClearProjectsWithTargets(exceptList []string, onlyMissing, dryRun bool) (Op
 	if err != nil {
 		return OptimizeSummary{}, nil, err
 	}
+
 	return ClearProjectsWithTargetsAt(path, exceptList, onlyMissing, dryRun)
 }
 
@@ -97,10 +106,12 @@ func ClearProjectsWithTargetsAt(filePath string, exceptList []string, onlyMissin
 	if err != nil {
 		return OptimizeSummary{}, nil, err
 	}
+
 	targets, remaining := GetClearTargets(entries, exceptList, onlyMissing)
 	if err := maybeWriteRemaining(filePath, remaining, len(targets), dryRun); err != nil {
 		return OptimizeSummary{}, nil, err
 	}
+
 	return OptimizeSummary{Removed: len(targets), Remaining: len(remaining)}, targets, nil
 }
 
@@ -108,6 +119,7 @@ func maybeWriteRemaining(filePath string, remaining []Entry, targetCount int, dr
 	if dryRun || targetCount == 0 {
 		return nil
 	}
+
 	return writeEntriesAtomic(filePath, remaining)
 }
 
@@ -120,12 +132,15 @@ func GetClearTargets(entries []Entry, exceptList []string, onlyMissing bool) ([]
 			remaining = append(remaining, e)
 			continue
 		}
+
 		if onlyMissing && dirExists(e.RootPath) {
 			remaining = append(remaining, e)
 			continue
 		}
+
 		targets = append(targets, e)
 	}
+
 	return targets, remaining
 }
 
@@ -142,16 +157,20 @@ func isEntryExcepted(e Entry, exceptList []string, index int) bool {
 		if ex == "" {
 			continue
 		}
+
 		if ex == idStr || ex == idPad || ex == lowName || ex == lowSlug || ex == lowPath {
 			return true
 		}
+
 		if strings.HasPrefix(lowName, ex) || strings.HasPrefix(lowSlug, ex) {
 			return true
 		}
+
 		if matchesPathException(lowPath, ex) {
 			return true
 		}
 	}
+
 	return false
 }
 
@@ -159,6 +178,8 @@ func matchesPathException(lowPath, ex string) bool {
 	if !strings.Contains(ex, "/") && !strings.Contains(ex, "\\") {
 		return false
 	}
+
 	cleanEx := strings.ToLower(filepath.Clean(ex))
+
 	return lowPath == cleanEx || strings.HasSuffix(lowPath, cleanEx)
 }

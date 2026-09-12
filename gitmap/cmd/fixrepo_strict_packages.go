@@ -35,18 +35,22 @@ func derivePackagesFromGoFiles(repoRoot string, goFiles []string) []string {
 	if len(goFiles) == 0 {
 		return nil
 	}
+
 	seen := make(map[string]struct{}, len(goFiles))
 	for _, full := range goFiles {
 		pattern, ok := goFileToPackagePattern(repoRoot, full)
 		if !ok {
 			continue
 		}
+
 		seen[pattern] = struct{}{}
 	}
+
 	out := make([]string, 0, len(seen))
 	for p := range seen {
 		out = append(out, p)
 	}
+
 	sort.Strings(out)
 
 	return out
@@ -65,10 +69,12 @@ func goFileToPackagePattern(repoRoot, fullPath string) (string, bool) {
 	if err != nil {
 		return "", false
 	}
+
 	rel = filepath.ToSlash(rel)
 	if strings.HasPrefix(rel, "../") || rel == ".." {
 		return "", false
 	}
+
 	dir := filepath.ToSlash(filepath.Dir(rel))
 	if dir == "." || dir == "" {
 		return ".", true

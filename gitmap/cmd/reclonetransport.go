@@ -39,35 +39,46 @@ func coerceURLToStoredTransport(url string) string {
 	if url == "" {
 		return url
 	}
+
 	db, err := store.OpenDefault()
 	if err != nil {
 		fmt.Fprintf(os.Stderr, "warning: reclone-transport: store open failed: %v\n", err)
+
 		return url
 	}
+
 	defer func() { _ = db.Close() }()
 
 	stored, err := db.LookupRepoIdentifiedTransport(url)
 	if err != nil {
 		fmt.Fprintf(os.Stderr, "warning: reclone-transport: lookup failed for %s: %v\n", url, err)
+
 		return url
 	}
+
 	if stored == "" {
 		return url
 	}
+
 	current := store.ClassifyURLTransport(url)
 	if current == stored {
 		return url
 	}
+
 	outSSH, okSSH := ConvertURLToSSH(url)
 	if stored == store.RepoTransportSSH && okSSH && outSSH != url {
 		fmt.Fprintf(os.Stderr, "↪ reclone-transport: stored=ssh, coercing %s → %s\n", url, outSSH)
+
 		return outSSH
 	}
+
 	outHTTPS, okHTTPS := ConvertURLToHTTPS(url)
 	if stored == store.RepoTransportHTTPS && okHTTPS && outHTTPS != url {
 		fmt.Fprintf(os.Stderr, "↪ reclone-transport: stored=https, coercing %s → %s\n", url, outHTTPS)
+
 		return outHTTPS
 	}
+
 	return url
 }
 
@@ -79,22 +90,28 @@ func persistRecloneTransport(url string) {
 	if url == "" {
 		return
 	}
+
 	transport := store.ClassifyURLTransport(url)
 	if transport == "" {
 		return
 	}
+
 	db, err := store.OpenDefault()
 	if err != nil {
 		fmt.Fprintf(os.Stderr, "warning: reclone-transport: store open failed: %v\n", err)
+
 		return
 	}
+
 	defer func() { _ = db.Close() }()
 
 	rows, err := db.SetRepoIdentifiedTransport(url, transport)
 	if err != nil {
 		fmt.Fprintf(os.Stderr, "warning: reclone-transport: persist failed for %s: %v\n", url, err)
+
 		return
 	}
+
 	now := time.Now().UTC().Format(time.RFC3339)
 	rec := model.CommandHistoryRecord{
 		Command:    "reclone-transport",
@@ -105,6 +122,7 @@ func persistRecloneTransport(url string) {
 		Summary:    fmt.Sprintf("persisted transport=%s rows=%d", transport, rows),
 		RepoCount:  int(rows),
 	}
+
 	if _, herr := db.InsertHistory(rec); herr != nil {
 		fmt.Fprintf(os.Stderr, "warning: reclone-transport: history insert failed: %v\n", herr)
 	}

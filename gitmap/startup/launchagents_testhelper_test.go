@@ -23,6 +23,7 @@ func withFakeLaunchAgentsDir(t *testing.T) string {
 	if runtime.GOOS != "darwin" {
 		t.Skip("plist tests are macOS-only; add_test.go covers Linux")
 	}
+
 	root := t.TempDir()
 	t.Setenv("HOME", root)
 	dir := filepath.Join(root, "Library", "LaunchAgents")

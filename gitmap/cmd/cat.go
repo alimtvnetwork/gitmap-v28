@@ -16,11 +16,13 @@ func runCat(args []string) error {
 	if err != nil {
 		return apperror.WrapSimple(err, "Error opening file:")
 	}
+
 	defer file.Close()
 
 	_, err = io.Copy(os.Stdout, file)
 	if err != nil {
 		return apperror.WrapSimple(err, "Error reading file:")
 	}
+
 	return nil
 }

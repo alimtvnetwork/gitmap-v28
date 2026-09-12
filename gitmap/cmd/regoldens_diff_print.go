@@ -20,6 +20,7 @@ func sortGoldenDiffEntries(entries []goldenDiffEntry) {
 		if entries[i].status != entries[j].status {
 			return goldenDiffStatusRank(entries[i].status) < goldenDiffStatusRank(entries[j].status)
 		}
+
 		return entries[i].path < entries[j].path
 	})
 }
@@ -37,6 +38,7 @@ func goldenDiffStatusRank(status string) int {
 	case "D":
 		return 3
 	}
+
 	return 4
 }
 
@@ -49,6 +51,7 @@ func printGoldenDiffEntries(entries []goldenDiffEntry, mode string) {
 		printOneDiffEntry(e, mode)
 		totals.accumulate(e)
 	}
+
 	fmt.Fprintf(os.Stdout, constants.MsgRegoldensDiffTotals,
 		totals.count, totals.added, totals.modified, totals.renamed,
 		totals.deleted, totals.linesAdded, totals.linesDeleted)
@@ -59,8 +62,10 @@ func printGoldenDiffEntries(entries []goldenDiffEntry, mode string) {
 func printOneDiffEntry(e goldenDiffEntry, mode string) {
 	if mode == constants.RegoldensDiffModeShort {
 		fmt.Fprintf(os.Stdout, constants.MsgRegoldensDiffLineShort, e.status, e.path)
+
 		return
 	}
+
 	fmt.Fprintf(os.Stdout, constants.MsgRegoldensDiffLineFull,
 		e.status, e.path, e.added, e.deleted)
 	if e.status == "R" && e.renamedFrom != "" {
@@ -92,6 +97,7 @@ func (t *goldenDiffTotals) accumulate(e goldenDiffEntry) {
 	default:
 		t.modified++
 	}
+
 	t.linesAdded += e.added
 	t.linesDeleted += e.deleted
 }

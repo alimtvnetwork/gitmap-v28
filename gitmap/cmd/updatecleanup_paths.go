@@ -118,6 +118,7 @@ func deriveDeployAppDir(selfPath string) string {
 	if len(selfDir) == 0 {
 		return ""
 	}
+
 	base := filepath.Base(selfDir)
 	if base == constants.GitMapCliSubdir || base == constants.GitMapSubdir {
 		return selfDir
@@ -145,9 +146,11 @@ func resolveBuildOutputDir(repoPath, buildOutput string) string {
 	if len(repoPath) == 0 {
 		return ""
 	}
+
 	if len(buildOutput) == 0 {
 		buildOutput = constants.DefaultBuildOutput
 	}
+
 	// Treat both OS-native absolute paths AND POSIX-style leading "/"
 	// as absolute. On Windows filepath.IsAbs("/custom/bin") returns
 	// false (Windows wants a drive letter), but tests + config files
@@ -168,6 +171,7 @@ func buildCleanupPatterns(dirs []string, glob string) []string {
 		if len(dir) == 0 {
 			continue
 		}
+
 		patterns = append(patterns, filepath.Join(dir, glob))
 	}
 
@@ -229,9 +233,12 @@ func isAbsolutePath(path string) bool {
 	if filepath.IsAbs(path) {
 		return true
 	}
+
 	if len(path) == 0 {
 		return false
 	}
+
 	first := path[0]
+
 	return first == '/' || first == '\\'
 }

@@ -38,6 +38,7 @@ func (db *DB) MostRecentClone() (RecentClone, bool, error) {
 	if errors.Is(err, sql.ErrNoRows) {
 		return RecentClone{}, false, nil
 	}
+
 	if err != nil {
 		return RecentClone{}, false, fmt.Errorf(constants.ErrDBQuery, err)
 	}

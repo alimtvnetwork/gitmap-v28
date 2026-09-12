@@ -22,13 +22,16 @@ func makeRepo(t *testing.T, dir string, uniqueBody bool) {
 	if err := os.MkdirAll(dir, 0o755); err != nil {
 		t.Fatalf("mkdir: %v", err)
 	}
+
 	body := "shared\n"
 	if uniqueBody {
 		body = "unique-" + filepath.Base(dir) + "\n"
 	}
+
 	if err := os.WriteFile(filepath.Join(dir, "README.md"), []byte(body), 0o644); err != nil {
 		t.Fatalf("write: %v", err)
 	}
+
 	run := func(args ...string) {
 		cmd := exec.Command("git", append([]string{"-C", dir}, args...)...)
 		cmd.Env = append(os.Environ(),
@@ -39,6 +42,7 @@ func makeRepo(t *testing.T, dir string, uniqueBody bool) {
 			t.Fatalf("git %v: %v\n%s", args, err, out)
 		}
 	}
+
 	run("init", "-q", "-b", "main")
 	run("add", ".")
 	run("commit", "-q", "-m", "init")
@@ -65,26 +69,32 @@ func TestHygieneIntegrationScansAndProbes(t *testing.T) {
 	if err := os.MkdirAll(filepath.Join(root, "not-a-repo"), 0o755); err != nil {
 		t.Fatalf("mkdir: %v", err)
 	}
+
 	repos := scanForReposParallel(root)
 	if len(repos) != 2 {
 		t.Fatalf("scanForReposParallel got %d repos, want 2: %v", len(repos), repos)
 	}
+
 	for _, r := range repos {
 		if _, ok := lastCommitTime(r); !ok {
 			t.Fatalf("lastCommitTime(%s) failed", r)
 		}
+
 		if sz := dirSize(filepath.Join(r, ".git")); sz <= 0 {
 			t.Fatalf("dirSize(%s) = %d, want > 0", r, sz)
 		}
 	}
+
 	groups := map[string][]string{}
 	for _, r := range repos {
 		sha, ok := headTreeSHA(r)
 		if !ok {
 			t.Fatalf("headTreeSHA(%s) failed", r)
 		}
+
 		groups[sha] = append(groups[sha], r)
 	}
+
 	dupes := filterDuplicateGroups(groups)
 	if len(dupes) != 1 {
 		t.Fatalf("expected 1 duplicate group, got %d", len(dupes))
@@ -102,10 +112,12 @@ func TestHygieneIntegrationOrphanProbe(t *testing.T) {
 	if out, err := cmd.CombinedOutput(); err != nil {
 		t.Fatalf("remote add: %v\n%s", err, out)
 	}
+
 	u, ok := originURL(a)
 	if !ok || u != "git@github.com:owner/repo.git" {
 		t.Fatalf("originURL = %q ok=%v", u, ok)
 	}
+
 	if got := gitURLToHTTPS(u); got != "https://github.com/owner/repo" {
 		t.Fatalf("gitURLToHTTPS = %q", got)
 	}
@@ -119,12 +131,14 @@ func TestParseHygieneFormat(t *testing.T) {
 		"json":  hygieneFormatJSON,
 		"csv":   hygieneFormatCSV,
 	}
+
 	for in, want := range cases {
 		got, err := parseHygieneFormat(in)
 		if err != nil || got != want {
 			t.Fatalf("parseHygieneFormat(%q) = %q,%v want %q", in, got, err, want)
 		}
 	}
+
 	if _, err := parseHygieneFormat("xml"); err == nil {
 		t.Fatalf("expected error for invalid format")
 	}
@@ -136,11 +150,13 @@ func TestEmitJSONAndCSV(t *testing.T) {
 	type row struct {
 		Path string `json:"path"`
 	}
+
 	withStdout(t, func() { emitJSON([]row{{Path: "a"}, {Path: "b"}}) }, func(buf []byte) {
 		var got []row
 		if err := json.Unmarshal(buf, &got); err != nil {
 			t.Fatalf("json: %v\n%s", err, buf)
 		}
+
 		if len(got) != 2 || got[0].Path != "a" {
 			t.Fatalf("unexpected json: %+v", got)
 		}
@@ -151,6 +167,7 @@ func TestEmitJSONAndCSV(t *testing.T) {
 		if err != nil {
 			t.Fatalf("csv: %v", err)
 		}
+
 		if len(recs) != 3 || recs[0][0] != "path" || recs[2][0] != "b" {
 			t.Fatalf("unexpected csv: %v", recs)
 		}

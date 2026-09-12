@@ -28,6 +28,7 @@ func initSearchDB(db *sql.DB) error {
 		UpdatedAt INTEGER NOT NULL
 	);`
 	_, err := db.Exec(schema)
+
 	return err
 }
 
@@ -36,10 +37,12 @@ func setupSearchTestDB(t *testing.T) *sql.DB {
 	if err != nil {
 		t.Fatalf("open sqlite: %v", err)
 	}
+
 	db.SetMaxOpenConns(1)
 	if err := initSearchDB(db); err != nil {
 		t.Fatalf("init schema: %v", err)
 	}
+
 	return db
 }
 
@@ -69,9 +72,11 @@ func TestSearchRepoDBExact(t *testing.T) {
 	if err != nil || len(results) != 1 {
 		t.Fatalf("search exact failed: %v", err)
 	}
+
 	if results[0].MatchedText != "gitmap" {
 		t.Errorf("expected matched text 'gitmap', got %q", results[0].MatchedText)
 	}
+
 	verifyCachedResult(t, ctx, db)
 }
 
@@ -85,6 +90,7 @@ func TestSearchRepoDBRegex(t *testing.T) {
 	if err != nil {
 		t.Fatalf("search regex failed: %v", err)
 	}
+
 	if len(results) != 1 {
 		t.Fatalf("expected 1 regex result, got %d", len(results))
 	}
@@ -96,10 +102,12 @@ func TestApplyLimit(t *testing.T) {
 		{MatchedText: "2"},
 		{MatchedText: "3"},
 	}
+
 	limited := applyLimit(items, 2)
 	if len(limited) != 2 {
 		t.Errorf("expected 2 items, got %d", len(limited))
 	}
+
 	all := applyLimit(items, 0)
 	if len(all) != 3 {
 		t.Errorf("expected 3 items, got %d", len(all))

@@ -20,6 +20,7 @@ func TestFormatHandoffLogLineIncludesStableFields(t *testing.T) {
 		`path=C:\bin\gitmap.exe.old`,
 		`err="Access is denied"`,
 	}
+
 	for _, want := range wantParts {
 		if !strings.Contains(line, want) {
 			t.Fatalf("log line missing %q\n%s", want, line)
@@ -57,6 +58,7 @@ func TestBuildCleanupChildEnvForwardsDelayAndJSONPath(t *testing.T) {
 		constants.EnvDebugWindows + "=1",
 		constants.EnvDebugWindowsJSON + `=C:\tmp\trace.jsonl`,
 	}
+
 	for _, want := range wantParts {
 		if !strings.Contains(env, want) {
 			t.Fatalf("cleanup child env missing %q\n%s", want, env)

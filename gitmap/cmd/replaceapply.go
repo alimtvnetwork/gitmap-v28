@@ -34,9 +34,11 @@ func scanReplacements(files []string, pairs []replacePair) ([]replaceHit, int) {
 		if !ok {
 			continue
 		}
+
 		hits = append(hits, hit)
 		total += hit.count
 	}
+
 	return hits, total
 }
 
@@ -46,20 +48,25 @@ func scanOneFile(path string, pairs []replacePair) (replaceHit, bool) {
 	data, err := os.ReadFile(path)
 	if err != nil {
 		fmt.Fprintf(os.Stderr, constants.ErrReplaceWrite, path, err)
+
 		return replaceHit{}, false
 	}
+
 	count := 0
 	for _, p := range pairs {
 		c := bytes.Count(data, []byte(p.old))
 		if c == 0 {
 			continue
 		}
+
 		count += c
 		data = bytes.ReplaceAll(data, []byte(p.old), []byte(p.new))
 	}
+
 	if count == 0 {
 		return replaceHit{}, false
 	}
+
 	return replaceHit{path: path, count: count, updated: data}, true
 }
 
@@ -71,9 +78,11 @@ func applyHits(hits []replaceHit) (int, int) {
 			fmt.Fprintf(os.Stderr, constants.ErrReplaceWrite, h.path, err)
 			continue
 		}
+
 		files++
 		total += h.count
 	}
+
 	return files, total
 }
 
@@ -84,18 +93,24 @@ func atomicWrite(path string, data []byte) error {
 	if err != nil {
 		return err
 	}
+
 	tmpName := tmp.Name()
 	if _, err := tmp.Write(data); err != nil {
 		tmp.Close()
 		os.Remove(tmpName)
+
 		return err
 	}
+
 	if err := tmp.Sync(); err != nil {
 		tmp.Close()
 		os.Remove(tmpName)
+
 		return err
 	}
+
 	tmp.Close()
+
 	return os.Rename(tmpName, path)
 }
 
@@ -105,6 +120,7 @@ func printHits(hits []replaceHit, pair replacePair, quiet bool) {
 	if quiet {
 		return
 	}
+
 	for _, h := range hits {
 		fmt.Printf(constants.MsgReplaceFileMatch, h.path, h.count, pair.old, pair.new)
 	}
@@ -116,6 +132,8 @@ func confirmYes() bool {
 	if _, err := fmt.Scanln(&ans); err != nil {
 		return false
 	}
+
 	ans = strings.TrimSpace(ans)
+
 	return ans == "y" || ans == "Y"
 }

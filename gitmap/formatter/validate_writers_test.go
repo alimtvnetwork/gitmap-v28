@@ -65,12 +65,14 @@ func TestWriteJSON_NoWarningsOnCleanInput(t *testing.T) {
 	if err := WriteJSON(&out, records); err != nil {
 		t.Fatalf("WriteJSON: %v", err)
 	}
+
 	// Validation warnings must be absent, but the post-write summary
 	// is always emitted (issue count = 0 here).
 	sinkStr := sink.String()
 	if strings.Contains(sinkStr, "gitmap: validation:") {
 		t.Errorf("expected no validation warnings, got: %q", sinkStr)
 	}
+
 	wantSummary := "gitmap: json: wrote 1 record(s), 0 validation issue(s)"
 	if !strings.Contains(sinkStr, wantSummary) {
 		t.Errorf("sink missing summary line %q, got: %q", wantSummary, sinkStr)
@@ -93,6 +95,7 @@ func TestWriteCSV_SummaryReportsCounts(t *testing.T) {
 	if err := WriteCSV(&out, records); err != nil {
 		t.Fatalf("WriteCSV: %v", err)
 	}
+
 	want := "gitmap: csv: wrote 2 record(s), 2 validation issue(s)"
 	if !strings.Contains(sink.String(), want) {
 		t.Errorf("sink missing summary %q, got: %q", want, sink.String())
@@ -107,8 +110,10 @@ func assertSinkAndOutput(t *testing.T, sink, out *bytes.Buffer, badName, mustHav
 	if !strings.Contains(sinkStr, "gitmap: validation:") {
 		t.Errorf("sink missing validation prefix: %q", sinkStr)
 	}
+
 	if !strings.Contains(out.String(), mustHave) {
 		t.Errorf("output missing expected payload %q in: %q", mustHave, out.String())
 	}
+
 	_ = badName // reserved for future per-bad-row assertions
 }

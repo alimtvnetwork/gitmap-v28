@@ -69,10 +69,12 @@ func executePendingClear(db *store.DB, candidates []pendingClearCandidate, dryRu
 
 		return
 	}
+
 	if !yes && !confirmPendingClear(len(candidates)) {
 		fmt.Print(constants.MsgPendingClearAborted)
 		cliexit.HandleError(apperror.NewSimple("fatal", "E9000"), 1)
 	}
+
 	deleted := deletePendingClearCandidates(db, candidates)
 	fmt.Printf(constants.MsgPendingClearDone, deleted, len(candidates))
 }
@@ -87,6 +89,7 @@ func processPendingClear(db *store.DB, tasks []model.PendingTaskRecord,
 
 		return
 	}
+
 	printPendingClearCandidates(candidates)
 	executePendingClear(db, candidates, dryRun, yes)
 }
@@ -100,6 +103,7 @@ func runPendingClear(args []string) error {
 
 	tasks := mustListPendingTasks(db)
 	processPendingClear(db, tasks, mode, idMatch, dryRun, yes)
+
 	return nil
 }
 
@@ -110,6 +114,7 @@ func parsePendingClearID(a string) (int64, error) {
 	if isError && strings.HasPrefix(a, "-") {
 		return 0, fmt.Errorf(constants.ErrPendingClearUnknownMode, a)
 	}
+
 	if isError {
 		return 0, fmt.Errorf(constants.ErrPendingClearBadID, a)
 	}
@@ -123,6 +128,7 @@ func applyPendingClearIDArg(a string, mode *string, idMatch *int64) error {
 	if err != nil {
 		return err
 	}
+
 	*mode = "id"
 	*idMatch = id
 
@@ -133,10 +139,13 @@ func applyPendingClearIDArg(a string, mode *string, idMatch *int64) error {
 func applyPendingClearFlag(a string, dryRun, yes *bool) bool {
 	if a == "--dry-run" {
 		*dryRun = true
+
 		return true
 	}
+
 	if a == "--yes" || a == "-y" {
 		*yes = true
+
 		return true
 	}
 
@@ -148,8 +157,10 @@ func applyPendingClearArg(a string, mode *string, dryRun, yes *bool, idMatch *in
 	if applyPendingClearFlag(a, dryRun, yes) {
 		return nil
 	}
+
 	if a == "orphans" || a == "illegal" || a == "all" {
 		*mode = a
+
 		return nil
 	}
 
@@ -183,6 +194,7 @@ func selectClearCandidates(tasks []model.PendingTaskRecord,
 		if !keep {
 			continue
 		}
+
 		out = append(out, pendingClearCandidate{task: t, reason: reason})
 	}
 
@@ -194,6 +206,7 @@ func classifyIllegalTask(path string) (string, bool) {
 	if isURLShapedTarget(path) {
 		return constants.MsgPendingClearReasonURL, true
 	}
+
 	if hasIllegalPathChar(path) {
 		return constants.MsgPendingClearReasonChar, true
 	}
@@ -226,9 +239,11 @@ func classifyPendingClearTask(t model.PendingTaskRecord,
 	if mode == "all" {
 		return constants.MsgPendingClearReasonAll, true
 	}
+
 	if mode == "id" {
 		return classifyIDTask(t.ID, idMatch)
 	}
+
 	if mode == "illegal" {
 		return classifyIllegalTask(t.TargetPath)
 	}
@@ -255,6 +270,7 @@ func isURLShapedTarget(path string) bool {
 	if len(path) == 0 {
 		return false
 	}
+
 	lower := strings.ToLower(path)
 	if strings.Contains(lower, "://") || hasSchemePrefix(lower) {
 		return true
@@ -270,10 +286,12 @@ func hasIllegalPathChar(path string) bool {
 	if len(path) == 0 {
 		return false
 	}
+
 	rest := path
 	if len(path) > 2 && path[1] == ':' {
 		rest = path[2:]
 	}
+
 	if strings.ContainsAny(rest, `:?*<>|"`) {
 		return true
 	}
@@ -288,11 +306,13 @@ func isOrphanTarget(path string) bool {
 	if len(path) == 0 {
 		return false
 	}
+
 	abs, err := filepath.Abs(path)
 	if err != nil {
 		// Can't even resolve — treat as orphan; user can drop it.
 		return true
 	}
+
 	_, statErr := os.Stat(abs)
 
 	return os.IsNotExist(statErr)
@@ -314,6 +334,7 @@ func deleteSinglePendingClearCandidate(db *store.DB, c pendingClearCandidate) bo
 
 		return false
 	}
+
 	fmt.Printf(constants.MsgPendingClearDeleted, c.task.ID, c.task.TaskTypeName)
 
 	return true

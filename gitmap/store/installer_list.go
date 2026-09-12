@@ -19,8 +19,10 @@ func (db *DB) ListInstallers() ([]model.InstallerScript, error) {
 	if errQuery != nil {
 		appErr := apperror.WrapSimple(errQuery, "ListInstallers")
 		appErr.Code = "E_INSTALLER_LIST_FAILED"
+
 		return nil, appErr
 	}
+
 	defer rows.Close()
 
 	var scripts []model.InstallerScript
@@ -33,14 +35,17 @@ func (db *DB) ListInstallers() ([]model.InstallerScript, error) {
 		); errScan != nil {
 			appErr := apperror.WrapSimple(errScan, "ListInstallers")
 			appErr.Code = "E_INSTALLER_LIST_FAILED"
+
 			return nil, appErr
 		}
+
 		scripts = append(scripts, script)
 	}
 
 	if errRows := rows.Err(); errRows != nil {
 		appErr := apperror.WrapSimple(errRows, "ListInstallers")
 		appErr.Code = "E_INSTALLER_LIST_FAILED"
+
 		return nil, appErr
 	}
 

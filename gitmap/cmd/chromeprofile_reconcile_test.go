@@ -28,6 +28,7 @@ func TestChromeProfileReconcileUnlinkedProfile(t *testing.T) {
 			"profiles_order": []any{"Default"},
 		},
 	}
+
 	rawLS, _ := json.Marshal(localStateData)
 	if err := os.WriteFile(localStatePath, rawLS, 0644); err != nil {
 		t.Fatal(err)
@@ -41,6 +42,7 @@ func TestChromeProfileReconcileUnlinkedProfile(t *testing.T) {
 	if err := os.MkdirAll(profile5Dir, 0755); err != nil {
 		t.Fatal(err)
 	}
+
 	prefsContent := `{
 		"account_info": [
 			{
@@ -66,6 +68,7 @@ func TestChromeProfileReconcileUnlinkedProfile(t *testing.T) {
 	if err != nil {
 		t.Fatal(err)
 	}
+
 	var root map[string]any
 	if err := json.Unmarshal(updatedRaw, &root); err != nil {
 		t.Fatal(err)
@@ -82,9 +85,11 @@ func TestChromeProfileReconcileUnlinkedProfile(t *testing.T) {
 	if p5Entry["name"] != "Erfan Office" {
 		t.Errorf("expected name 'Erfan Office', got %v", p5Entry["name"])
 	}
+
 	if p5Entry["user_name"] != "erfan.office.n@gmail.com" {
 		t.Errorf("expected user_name 'erfan.office.n@gmail.com', got %v", p5Entry["user_name"])
 	}
+
 	if p5Entry["avatar_icon"] != "chrome://theme/IDR_PROFILE_AVATAR_26" {
 		t.Errorf("expected default avatar_icon, got %v", p5Entry["avatar_icon"])
 	}

@@ -32,15 +32,19 @@ func probeConfigPaths() DoctorCheck {
 			if err != nil {
 				return false, err.Error()
 			}
+
 			dir := filepath.Join(wd, ".gitmap")
 			if err := os.MkdirAll(dir, 0o755); err != nil {
 				return false, "cannot create " + dir + ": " + err.Error()
 			}
+
 			probe := filepath.Join(dir, ".doctor-probe")
 			if err := os.WriteFile(probe, []byte("ok"), 0o644); err != nil {
 				return false, "not writable: " + dir
 			}
+
 			_ = os.Remove(probe)
+
 			return true, "writable: " + dir
 		},
 	}
@@ -58,6 +62,7 @@ func probeGitHubToken() DoctorCheck {
 					return true, k + " set (" + maskToken(v) + ")"
 				}
 			}
+
 			return false, "no GITHUB_TOKEN / GH_TOKEN in environment"
 		},
 	}
@@ -79,10 +84,12 @@ func probeGitHubAPI() DoctorCheck {
 					fails = append(fails, ep.Name+" "+msg)
 				}
 			}
+
 			summary := fmt.Sprintf("%d/%d reachable", len(oks), len(doctorGitHubEndpoints))
 			if len(fails) > 0 {
 				return false, summary + "; failures: " + joinSemi(fails)
 			}
+
 			return true, summary + "; " + joinSemi(oks)
 		},
 	}
@@ -93,17 +100,21 @@ func probeGitHubEndpoint(client *http.Client, url, token string) (bool, string) 
 	if err != nil {
 		return false, err.Error()
 	}
+
 	if token != "" {
 		req.Header.Set("Authorization", "Bearer "+token)
 	}
+
 	resp, err := client.Do(req)
 	if err != nil {
 		return false, err.Error()
 	}
+
 	defer resp.Body.Close()
 	if resp.StatusCode >= 500 {
 		return false, resp.Status
 	}
+
 	return true, "(" + resp.Status + ")"
 }
 
@@ -113,8 +124,10 @@ func joinSemi(parts []string) string {
 		if i > 0 {
 			out += "; "
 		}
+
 		out += p
 	}
+
 	return out
 }
 
@@ -124,6 +137,7 @@ func firstEnv(keys ...string) string {
 			return v
 		}
 	}
+
 	return ""
 }
 
@@ -131,5 +145,6 @@ func maskToken(t string) string {
 	if len(t) <= 8 {
 		return "****"
 	}
+
 	return t[:4] + "…" + t[len(t)-4:]
 }

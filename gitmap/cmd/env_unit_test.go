@@ -21,6 +21,7 @@ func TestEnvNamePatternValidates(t *testing.T) {
 		{"FOO=BAR", false},
 		{"", false},
 	}
+
 	for _, c := range cases {
 		got := envNamePattern.MatchString(c.name)
 		if got != c.ok {
@@ -35,10 +36,12 @@ func TestUpsertEnvVariableInsertsAndUpdates(t *testing.T) {
 	if len(reg.Variables) != 1 || reg.Variables[0].Value != "1" {
 		t.Fatalf("insert failed: %+v", reg.Variables)
 	}
+
 	reg = upsertEnvVariable(reg, "FOO", "2")
 	if len(reg.Variables) != 1 || reg.Variables[0].Value != "2" {
 		t.Fatalf("update failed: %+v", reg.Variables)
 	}
+
 	reg = upsertEnvVariable(reg, "BAR", "x")
 	if len(reg.Variables) != 2 {
 		t.Fatalf("second insert failed: %+v", reg.Variables)
@@ -55,6 +58,7 @@ func TestRemoveEnvVariableDropsMatch(t *testing.T) {
 	if len(out.Variables) != 2 {
 		t.Fatalf("len = %d, want 2", len(out.Variables))
 	}
+
 	for _, v := range out.Variables {
 		if v.Name == "B" {
 			t.Errorf("B should have been removed: %+v", out.Variables)
@@ -78,6 +82,7 @@ func TestRemoveEnvPathDropsMatch(t *testing.T) {
 	if len(out.Paths) != 2 {
 		t.Fatalf("len = %d, want 2", len(out.Paths))
 	}
+
 	for _, p := range out.Paths {
 		if p.Path == `C:\b` {
 			t.Errorf("path should have been removed: %+v", out.Paths)

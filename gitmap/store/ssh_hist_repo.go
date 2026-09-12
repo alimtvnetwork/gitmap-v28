@@ -20,6 +20,7 @@ func LogSSHJoin(ctx context.Context, h SSHHistory, db *sql.DB) error {
 			Ctx:   map[string]any{"id": h.ID, "host_ip": h.HostIP},
 		}
 	}
+
 	return nil
 }
 
@@ -36,6 +37,7 @@ func ListSSHHistory(ctx context.Context, limit int, offset int, db *sql.DB) ([]S
 			Ctx:   map[string]any{"limit": limit, "offset": offset},
 		}
 	}
+
 	defer rows.Close()
 
 	var result []SSHHistory
@@ -49,6 +51,7 @@ func ListSSHHistory(ctx context.Context, limit int, offset int, db *sql.DB) ([]S
 				Ctx:   nil,
 			}
 		}
+
 		result = append(result, h)
 	}
 

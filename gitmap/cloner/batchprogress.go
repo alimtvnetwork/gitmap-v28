@@ -39,9 +39,11 @@ func NewBatchProgress(total int, operation string, isQuiet bool) *BatchProgress 
 		quiet:     isQuiet,
 		operation: operation,
 	}
+
 	if !isQuiet {
 		initBatchProgressUI(p, total, operation)
 	}
+
 	return p
 }
 
@@ -60,6 +62,7 @@ func (p *BatchProgress) SetStopOnFail(v bool) {
 func (p *BatchProgress) Stopped() bool {
 	p.mu.Lock()
 	defer p.mu.Unlock()
+
 	return p.stopped
 }
 
@@ -121,6 +124,7 @@ func (p *BatchProgress) FailWithError(name, errMsg string) {
 	if p.stopOnFail {
 		p.stopped = true
 	}
+
 	if p.quiet {
 		return
 	}
@@ -170,6 +174,7 @@ func (p *BatchProgress) Skipped() int { p.mu.Lock(); defer p.mu.Unlock(); return
 func (p *BatchProgress) Failures() []FailureRecord {
 	p.mu.Lock()
 	defer p.mu.Unlock()
+
 	return p.failures
 }
 
@@ -177,5 +182,6 @@ func (p *BatchProgress) Failures() []FailureRecord {
 func (p *BatchProgress) HasFailures() bool {
 	p.mu.Lock()
 	defer p.mu.Unlock()
+
 	return len(p.failures) > 0
 }

@@ -77,6 +77,7 @@ func (it *LazyRegexp) Compile() result.Result[*regexp.Regexp] {
 	if err != nil {
 		appErr := apperror.WrapSimple(err, "lazyregex.Compile").
 			WithContext("pattern", it.expression)
+
 		return result.FailureResult[*regexp.Regexp](appErr)
 	}
 
@@ -132,6 +133,7 @@ func (it *LazyRegexp) compiledRegex() (*regexp.Regexp, error) {
 	}
 
 	res := it.Compile()
+
 	return res.Value, res.AppError
 }
 
@@ -201,6 +203,7 @@ func (it *LazyRegexp) Count(s string) int {
 	}
 
 	matches := re.FindAllString(s, -1)
+
 	return len(matches)
 }
 
@@ -226,6 +229,7 @@ func (it *LazyRegexp) GroupBy(s string) GroupMap {
 		if name == "" || i >= len(match) {
 			continue
 		}
+
 		res[name] = match[i]
 	}
 
@@ -261,8 +265,10 @@ func (it *LazyRegexp) FindAllGroups(s string) GroupList {
 			if name == "" || i >= len(match) {
 				continue
 			}
+
 			groupMap[name] = match[i]
 		}
+
 		results = append(results, groupMap)
 	}
 

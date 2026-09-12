@@ -39,6 +39,7 @@ func splitExceptLatest(
 		idx int
 		ver int
 	}
+
 	peaks := map[string]peak{}
 	counts := map[string]int{}
 	for i, m := range in {
@@ -46,6 +47,7 @@ func splitExceptLatest(
 		if !ok {
 			continue
 		}
+
 		counts[base]++
 		if cur, seen := peaks[base]; !seen || ver > cur.ver {
 			peaks[base] = peak{idx: i, ver: ver}
@@ -57,6 +59,7 @@ func splitExceptLatest(
 		if counts[base] < 2 {
 			continue
 		}
+
 		pick[p.idx] = p.ver
 	}
 
@@ -69,6 +72,7 @@ func splitExceptLatest(
 
 			continue
 		}
+
 		rest = append(rest, m)
 	}
 
@@ -82,6 +86,7 @@ func parseVersionedName(name string) (string, int, bool) {
 	if m == nil {
 		return "", 0, false
 	}
+
 	v, err := strconv.Atoi(m[2])
 	if err != nil {
 		return "", 0, false

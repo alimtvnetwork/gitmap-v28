@@ -20,6 +20,7 @@ func TestPrintPlanNoticeV6(t *testing.T) {
 		MergeExcluded: 0,
 		IncludeMerges: true,
 	}
+
 	PrintPlan(&buf, planTrue, "[test]")
 	out := buf.String()
 	if strings.Contains(out, "merge commits") {
@@ -33,12 +34,14 @@ func TestPrintPlanNoticeV6(t *testing.T) {
 		MergeExcluded: 2,
 		IncludeMerges: false,
 	}
+
 	PrintPlan(&buf, planFalse, "[test]")
 	out = buf.String()
 	want := "note: 2 merge commits excluded by --no-include-merges"
 	if !strings.Contains(out, want) {
 		t.Errorf("IncludeMerges=false with excluded merges should emit %q; got:\n%s", want, out)
 	}
+
 	// Ensure the OLD advisory message is gone
 	if strings.Contains(out, "pass --include-merges") {
 		t.Errorf("old advisory message should not appear in v6; got:\n%s", out)

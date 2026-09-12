@@ -16,6 +16,7 @@ func TestCGVersion(t *testing.T) {
 		Version: "v24.0.0",
 		Status:  "active",
 	}
+
 	if err := WriteCGMetadata(tempDir, meta); err != nil {
 		t.Fatalf("WriteCGMetadata failed: %v", err)
 	}

@@ -103,6 +103,7 @@ func readEntries(path string) ([]Entry, error) {
 	if err != nil && errors.Is(err, os.ErrNotExist) {
 		return []Entry{}, nil
 	}
+
 	if err != nil {
 		return nil, fmt.Errorf(constants.ErrVSCodePMReadFailed, path, err)
 	}

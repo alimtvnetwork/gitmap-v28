@@ -49,9 +49,11 @@ func formatFileSummary(untracked, modified, staged int) string {
 	if staged > 0 {
 		parts += fmt.Sprintf("%dS ", staged)
 	}
+
 	if modified > 0 {
 		parts += fmt.Sprintf("%dM ", modified)
 	}
+
 	if untracked > 0 {
 		parts += fmt.Sprintf("%dU ", untracked)
 	}
@@ -77,9 +79,11 @@ func dashSummary(entries []statusEntry) string {
 		case "error":
 			errCount++
 		}
+
 		if e.Behind > 0 {
 			behind++
 		}
+
 		if e.Stash > 0 {
 			stash++
 		}

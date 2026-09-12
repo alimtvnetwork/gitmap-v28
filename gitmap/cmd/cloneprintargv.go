@@ -73,6 +73,7 @@ func printCloneArgv(w io.Writer, executorArgv []string) error {
 	if len(executorArgv) == 0 {
 		return nil
 	}
+
 	full := append([]string{constants.GitBin}, executorArgv...)
 	for i, tok := range full {
 		if _, err := fmt.Fprintf(w, "  argv[%d]=%s\n", i, tok); err != nil {
@@ -94,10 +95,12 @@ func runCmdPrintArgv(executorArgv []string) error {
 	if !cmdPrintArgvEnabled() {
 		return nil
 	}
+
 	if err := printCloneArgv(os.Stderr, executorArgv); err != nil {
 		_, _ = os.Stderr.WriteString(
 			"  Warning: --print-clone-argv: failed to write dump: " +
 				err.Error() + "\n")
 	}
+
 	return nil
 }

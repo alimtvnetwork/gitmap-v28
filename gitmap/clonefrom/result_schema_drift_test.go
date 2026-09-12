@@ -108,6 +108,7 @@ func checkStructFields(t *testing.T, name string, typ reflect.Type,
 			"(remove from reported/exempt list, the field is gone)",
 			name, missing)
 	}
+
 	if surplus := diffSorted(got, want); len(surplus) > 0 {
 		t.Errorf("%s: new field(s) %v not declared in the report-"+
 			"schema test. Add each to either reportedFields (if "+
@@ -127,6 +128,7 @@ func exportedFieldNames(typ reflect.Type) []string {
 			out = append(out, f.Name)
 		}
 	}
+
 	sort.Strings(out)
 
 	return out
@@ -140,13 +142,16 @@ func unionSet(a, b []string) []string {
 	for _, s := range a {
 		seen[s] = true
 	}
+
 	for _, s := range b {
 		seen[s] = true
 	}
+
 	out := make([]string, 0, len(seen))
 	for k := range seen {
 		out = append(out, k)
 	}
+
 	sort.Strings(out)
 
 	return out
@@ -159,6 +164,7 @@ func diffSorted(want, got []string) []string {
 	for _, s := range got {
 		have[s] = true
 	}
+
 	out := make([]string, 0)
 	for _, s := range want {
 		if !have[s] {
@@ -185,6 +191,7 @@ func TestResult_ReportFieldTypesMatch(t *testing.T) {
 		Detail:   "x",
 		Duration: time.Second,
 	}
+
 	// Compile-time field-existence checks: any rename / removal
 	// of these field selectors fails `go build ./clonefrom/...`
 	// before this test ever runs. Keep one selector per reported

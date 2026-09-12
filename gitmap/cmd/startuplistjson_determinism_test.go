@@ -66,6 +66,7 @@ func TestStartupListJSON_DeterministicAcrossRuns(t *testing.T) {
 			},
 		},
 	}
+
 	for _, fx := range fixtures {
 		t.Run(fx.name, func(t *testing.T) {
 			assertEncoderDeterministic(t, fx.entries)
@@ -116,6 +117,7 @@ func encodeOnceIndent(t *testing.T, entries []startup.Entry, indent int) []byte 
 	if err := encodeStartupListJSONIndent(&buf, entries, indent); err != nil {
 		t.Fatalf("encode (indent=%d): %v", indent, err)
 	}
+
 	return buf.Bytes()
 }
 
@@ -128,6 +130,7 @@ func assertBytesEqualOrDiff(t *testing.T, label string, first, second []byte) {
 	if bytes.Equal(first, second) {
 		return
 	}
+
 	t.Fatalf("%s: byte drift between runs\n--- run 1 (%d bytes)\n%s--- run 2 (%d bytes)\n%s",
 		label, len(first), first, len(second), second)
 }

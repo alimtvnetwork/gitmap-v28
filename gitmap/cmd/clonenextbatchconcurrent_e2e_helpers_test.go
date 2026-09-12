@@ -25,6 +25,7 @@ import (
 // guard against accidental serialization.
 func stubProcessor(concurrentSeen *int64) func(string) batchRowResult {
 	var inflight int64
+
 	return func(path string) batchRowResult {
 		now := atomic.AddInt64(&inflight, 1)
 		for {
@@ -33,6 +34,7 @@ func stubProcessor(concurrentSeen *int64) func(string) batchRowResult {
 				break
 			}
 		}
+
 		base := filepath.Base(path)
 		last := base[len(base)-1] - '0'
 		time.Sleep(time.Duration(last%5+1) * time.Millisecond)
@@ -72,6 +74,7 @@ func installStubProcessor(t *testing.T) *int64 {
 	t.Cleanup(func() {
 		processOneBatchRepoFn = original
 	})
+
 	return &peak
 }
 
@@ -82,5 +85,6 @@ func makeRepoPaths(n int) []string {
 	for i := 0; i < n; i++ {
 		out[i] = fmt.Sprintf("/tmp/repo-%d", i)
 	}
+
 	return out
 }

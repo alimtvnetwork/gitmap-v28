@@ -33,9 +33,11 @@ func detectAllProjects(records []model.ScanRecord) []detector.DetectionResult {
 		wg.Add(1)
 		go detectionWorker(jobs, resultsCh, &wg)
 	}
+
 	for _, rec := range records {
 		jobs <- rec
 	}
+
 	close(jobs)
 	wg.Wait()
 	close(resultsCh)
@@ -83,13 +85,16 @@ func resolveDetectionWorkers(repoCount int) int {
 	if repoCount <= 1 {
 		return 1
 	}
+
 	n := runtime.NumCPU()
 	if n < 1 {
 		n = 1
 	}
+
 	if n > detectionWorkerCap {
 		n = detectionWorkerCap
 	}
+
 	if n > repoCount {
 		n = repoCount
 	}
@@ -106,12 +111,14 @@ func upsertProjectsToDB(
 	if len(results) == 0 {
 		return
 	}
+
 	db, err := store.OpenDefault()
 	if err != nil {
 		fmt.Fprintf(os.Stderr, constants.ErrProjectUpsert, err)
 
 		return
 	}
+
 	defer db.Close()
 
 	if err := db.Migrate(); err != nil {
@@ -119,6 +126,7 @@ func upsertProjectsToDB(
 
 		return
 	}
+
 	upsertProjectRecords(db, results, records)
 }
 
@@ -138,14 +146,17 @@ func upsertProjectRecords(
 
 			continue
 		}
+
 		if err := resolveDetectedProjectID(db, r); err != nil {
 			fmt.Fprintf(os.Stderr, constants.ErrProjectUpsert, err)
 
 			continue
 		}
+
 		count++
 		upsertProjectMetadata(db, *r)
 	}
+
 	cleanStaleProjects(db, repoIDs, results)
 	fmt.Printf(constants.MsgProjectUpsertDone, count)
 }
@@ -160,6 +171,7 @@ func resolveDetectedProjectID(db *store.DB, r *detector.DetectionResult) error {
 	if err != nil {
 		return err
 	}
+
 	r.Project.ID = id
 
 	return nil
@@ -170,6 +182,7 @@ func upsertProjectMetadata(db *store.DB, r detector.DetectionResult) {
 	if r.GoMeta != nil {
 		upsertGoProjectMeta(db, r)
 	}
+
 	if r.Csharp != nil {
 		upsertCsharpProjectMeta(db, r)
 	}

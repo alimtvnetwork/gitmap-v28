@@ -13,6 +13,7 @@ func TestIsDirectURL_HTTPS(t *testing.T) {
 		{"https://gitlab.com/org/project.git", true},
 		{"HTTPS://GITHUB.COM/USER/REPO.git", true},
 	}
+
 	for _, tc := range cases {
 		if got := isDirectURL(tc.input); got != tc.want {
 			t.Errorf("isDirectURL(%q) = %v, want %v", tc.input, got, tc.want)
@@ -29,6 +30,7 @@ func TestIsDirectURL_HTTP(t *testing.T) {
 		{"http://github.com/user/repo.git", true},
 		{"HTTP://EXAMPLE.COM/repo.git", true},
 	}
+
 	for _, tc := range cases {
 		if got := isDirectURL(tc.input); got != tc.want {
 			t.Errorf("isDirectURL(%q) = %v, want %v", tc.input, got, tc.want)
@@ -45,6 +47,7 @@ func TestIsDirectURL_SSH(t *testing.T) {
 		{"git@github.com:user/repo.git", true},
 		{"git@gitlab.com:org/project.git", true},
 	}
+
 	for _, tc := range cases {
 		if got := isDirectURL(tc.input); got != tc.want {
 			t.Errorf("isDirectURL(%q) = %v, want %v", tc.input, got, tc.want)
@@ -68,6 +71,7 @@ func TestIsDirectURL_NonURL(t *testing.T) {
 		{"/home/user/repos.txt", false},
 		{"", false},
 	}
+
 	for _, tc := range cases {
 		if got := isDirectURL(tc.input); got != tc.want {
 			t.Errorf("isDirectURL(%q) = %v, want %v", tc.input, got, tc.want)
@@ -86,6 +90,7 @@ func TestRepoNameFromURL_HTTPS(t *testing.T) {
 		{"https://github.com/user/repo", "repo"},
 		{"https://gitlab.com/org/sub/project.git", "project"},
 	}
+
 	for _, tc := range cases {
 		if got := repoNameFromURL(tc.input); got != tc.want {
 			t.Errorf("repoNameFromURL(%q) = %q, want %q", tc.input, got, tc.want)
@@ -103,6 +108,7 @@ func TestRepoNameFromURL_SSH(t *testing.T) {
 		{"git@github.com:org/project.git", "project"},
 		{"git@gitlab.com:group/sub/repo.git", "repo"},
 	}
+
 	for _, tc := range cases {
 		if got := repoNameFromURL(tc.input); got != tc.want {
 			t.Errorf("repoNameFromURL(%q) = %q, want %q", tc.input, got, tc.want)
@@ -121,6 +127,7 @@ func TestRepoNameFromURL_EdgeCases(t *testing.T) {
 		{"my-repo", "my-repo"},
 		{"", ""},
 	}
+
 	for _, tc := range cases {
 		if got := repoNameFromURL(tc.input); got != tc.want {
 			t.Errorf("repoNameFromURL(%q) = %q, want %q", tc.input, got, tc.want)
@@ -146,11 +153,13 @@ func TestRepoNameFromURL_TrailingSlash(t *testing.T) {
 		{"git@github.com:owner/repo/", "repo"},
 		{"ssh://git@github.com/owner/repo/", "repo"},
 	}
+
 	for _, tc := range cases {
 		got := repoNameFromURL(tc.input)
 		if got != tc.want {
 			t.Errorf("repoNameFromURL(%q) = %q, want %q (regression: trailing slash collapses basename)", tc.input, got, tc.want)
 		}
+
 		if got == "" {
 			t.Errorf("repoNameFromURL(%q) returned empty — would target CWD and trigger replace flow", tc.input)
 		}

@@ -40,6 +40,7 @@ func isAuditableCommand(command string) bool {
 	if command == constants.CmdVersion || command == constants.CmdVersionAlias {
 		return false
 	}
+
 	if command == constants.CmdReset || command == constants.CmdDBReset || command == "db-reset" {
 		return false
 	}
@@ -64,6 +65,7 @@ func recordAuditStart(command string, args []string) (int64, time.Time, bool) {
 	if err != nil {
 		return 0, start, false
 	}
+
 	defer db.Close()
 
 	id, insertErr := db.InsertHistory(record)
@@ -92,6 +94,7 @@ func recordAuditEnd(id int64, start time.Time, exitCode int, summary string, rep
 	if err != nil {
 		return
 	}
+
 	defer db.Close()
 
 	if err := db.UpdateHistory(record); err != nil {
@@ -140,6 +143,7 @@ func joinStrings(s []string) string {
 		if i > 0 {
 			result += " "
 		}
+
 		result += v
 	}
 

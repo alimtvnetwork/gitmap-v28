@@ -47,9 +47,11 @@ func toColumnName(col any) string {
 	if s, ok := col.(string); ok {
 		return s
 	}
+
 	if str, ok := col.(fmt.Stringer); ok {
 		return str.String()
 	}
+
 	return fmt.Sprintf("%v", col)
 }
 
@@ -70,9 +72,11 @@ func newJoinBuilder[T any, F ~string](parent *QueryBuilder[T, F], joinType, tabl
 		joinType:    joinType,
 		targetTable: table,
 	}
+
 	if parent.err != nil {
 		jb.err = parent.err
 	}
+
 	return jb
 }
 
@@ -81,9 +85,11 @@ func (j *JoinBuilder[T, F]) Select(fields ...any) *JoinBuilder[T, F] {
 	if j.err != nil {
 		return j
 	}
+
 	for _, f := range fields {
 		j.projectedFields = append(j.projectedFields, toColumnName(f))
 	}
+
 	return j
 }
 
@@ -92,11 +98,13 @@ func (j *JoinBuilder[T, F]) And(column any, op SqlOperator, val any) *JoinBuilde
 	if j.err != nil {
 		return j
 	}
+
 	colName := toColumnName(column)
 	compiler := j.parent.repo.db.Compiler()
 	quotedCol := j.parent.qualifyColumn(compiler, j.targetTable, colName)
 	j.extraConditions = append(j.extraConditions, fmt.Sprintf("%s %s ?", quotedCol, op.String()))
 	j.extraArgs = append(j.extraArgs, val)
+
 	return j
 }
 
@@ -105,7 +113,9 @@ func (j *JoinBuilder[T, F]) AndRaw(condition string) *JoinBuilder[T, F] {
 	if j.err != nil {
 		return j
 	}
+
 	j.extraConditions = append(j.extraConditions, condition)
+
 	return j
 }
 
@@ -113,8 +123,10 @@ func (j *JoinBuilder[T, F]) AndRaw(condition string) *JoinBuilder[T, F] {
 func (j *JoinBuilder[T, F]) On(condition string) *QueryBuilder[T, F] {
 	if j.err != nil {
 		j.parent.err = j.err
+
 		return j.parent
 	}
+
 	j.parent.joins = append(j.parent.joins, joinClause{
 		joinType:        j.joinType,
 		table:           j.targetTable,
@@ -123,6 +135,7 @@ func (j *JoinBuilder[T, F]) On(condition string) *QueryBuilder[T, F] {
 		extraConditions: j.extraConditions,
 		extraArgs:       j.extraArgs,
 	})
+
 	return j.parent
 }
 
@@ -131,14 +144,17 @@ func (j *JoinBuilder[T, F]) On(condition string) *QueryBuilder[T, F] {
 func (j *JoinBuilder[T, F]) OnField(mainCol any, op SqlOperator, joinCol any) *QueryBuilder[T, F] {
 	if j.err != nil {
 		j.parent.err = j.err
+
 		return j.parent
 	}
+
 	firstCol := toColumnName(mainCol)
 	secondCol := toColumnName(joinCol)
 	compiler := j.parent.repo.db.Compiler()
 	quotedFirst := j.parent.qualifyColumn(compiler, j.parent.repo.tableName, firstCol)
 	quotedSecond := j.parent.qualifyColumn(compiler, j.targetTable, secondCol)
 	baseOn := fmt.Sprintf("%s %s %s", quotedFirst, op.String(), quotedSecond)
+
 	return j.On(baseOn)
 }
 
@@ -173,6 +189,7 @@ func (b *QueryBuilder[T, F]) SetError(err *apperror.AppError) *QueryBuilder[T, F
 	if b.err == nil {
 		b.err = err
 	}
+
 	return b
 }
 
@@ -186,9 +203,11 @@ func (b *QueryBuilder[T, F]) Select(fields ...F) *QueryBuilder[T, F] {
 	if b.err != nil {
 		return b
 	}
+
 	for _, f := range fields {
 		b.selectedFields = append(b.selectedFields, string(f))
 	}
+
 	return b
 }
 
@@ -197,7 +216,9 @@ func (b *QueryBuilder[T, F]) SelectRaw(fields ...string) *QueryBuilder[T, F] {
 	if b.err != nil {
 		return b
 	}
+
 	b.selectedFields = append(b.selectedFields, fields...)
+
 	return b
 }
 
@@ -236,16 +257,19 @@ func (b *QueryBuilder[T, F]) JoinOn(table any, on string, projectedFields ...any
 	if b.err != nil {
 		return b
 	}
+
 	proj := make([]string, 0, len(projectedFields))
 	for _, pf := range projectedFields {
 		proj = append(proj, toColumnName(pf))
 	}
+
 	b.joins = append(b.joins, joinClause{
 		joinType:        "INNER JOIN",
 		table:           toColumnName(table),
 		on:              on,
 		projectedFields: proj,
 	})
+
 	return b
 }
 
@@ -259,16 +283,19 @@ func (b *QueryBuilder[T, F]) LeftJoinOn(table any, on string, projectedFields ..
 	if b.err != nil {
 		return b
 	}
+
 	proj := make([]string, 0, len(projectedFields))
 	for _, pf := range projectedFields {
 		proj = append(proj, toColumnName(pf))
 	}
+
 	b.joins = append(b.joins, joinClause{
 		joinType:        "LEFT JOIN",
 		table:           toColumnName(table),
 		on:              on,
 		projectedFields: proj,
 	})
+
 	return b
 }
 
@@ -277,12 +304,14 @@ func (b *QueryBuilder[T, F]) Where(field F, op string, val any) *QueryBuilder[T,
 	if b.err != nil {
 		return b
 	}
+
 	b.wheres = append(b.wheres, whereClause{
 		clauseType: whereOp,
 		field:      string(field),
 		op:         op,
 		val:        val,
 	})
+
 	return b
 }
 
@@ -303,6 +332,7 @@ func (b *QueryBuilder[T, F]) Locate(field F, substring string) *QueryBuilder[T, 
 		field:      string(field),
 		val:        substring,
 	})
+
 	return b
 }
 
@@ -312,12 +342,14 @@ func (b *QueryBuilder[T, F]) InnerWhere(firstTableField F, op SqlOperator, secon
 	if b.err != nil {
 		return b
 	}
+
 	b.wheres = append(b.wheres, whereClause{
 		clauseType: whereColumnOp,
 		field:      string(firstTableField),
 		op:         op.String(),
 		targetCol:  toColumnName(secondTableField),
 	})
+
 	return b
 }
 
@@ -326,9 +358,11 @@ func (b *QueryBuilder[T, F]) GroupBy(fields ...F) *QueryBuilder[T, F] {
 	if b.err != nil {
 		return b
 	}
+
 	for _, f := range fields {
 		b.groupByFields = append(b.groupByFields, string(f))
 	}
+
 	return b
 }
 
@@ -337,7 +371,9 @@ func (b *QueryBuilder[T, F]) GroupByRaw(fields ...string) *QueryBuilder[T, F] {
 	if b.err != nil {
 		return b
 	}
+
 	b.groupByFields = append(b.groupByFields, fields...)
+
 	return b
 }
 
@@ -346,11 +382,13 @@ func (b *QueryBuilder[T, F]) Having(field F, op SqlOperator, val any) *QueryBuil
 	if b.err != nil {
 		return b
 	}
+
 	b.havings = append(b.havings, havingClause{
 		field: string(field),
 		op:    op,
 		val:   val,
 	})
+
 	return b
 }
 
@@ -359,10 +397,12 @@ func (b *QueryBuilder[T, F]) HavingRaw(condition string) *QueryBuilder[T, F] {
 	if b.err != nil {
 		return b
 	}
+
 	b.havings = append(b.havings, havingClause{
 		isRaw:   true,
 		rawCond: condition,
 	})
+
 	return b
 }
 
@@ -371,11 +411,13 @@ func (b *QueryBuilder[T, F]) HavingCount(op SqlOperator, count int64) *QueryBuil
 	if b.err != nil {
 		return b
 	}
+
 	b.havings = append(b.havings, havingClause{
 		isCount: true,
 		op:      op,
 		val:     count,
 	})
+
 	return b
 }
 
@@ -384,8 +426,10 @@ func (b *QueryBuilder[T, F]) WithView(viewName string, subQuery string) *QueryBu
 	if b.err != nil {
 		return b
 	}
+
 	b.cteName = viewName
 	b.cteSql = subQuery
+
 	return b
 }
 
@@ -394,8 +438,10 @@ func (b *QueryBuilder[T, F]) OrderBy(field F, dir string) *QueryBuilder[T, F] {
 	if b.err != nil {
 		return b
 	}
+
 	b.orderByField = string(field)
 	b.orderDir = strings.ToUpper(strings.TrimSpace(dir))
+
 	return b
 }
 
@@ -409,7 +455,9 @@ func (b *QueryBuilder[T, F]) Limit(limit int) *QueryBuilder[T, F] {
 	if b.err != nil {
 		return b
 	}
+
 	b.limit = limit
+
 	return b
 }
 
@@ -418,7 +466,9 @@ func (b *QueryBuilder[T, F]) Offset(offset int) *QueryBuilder[T, F] {
 	if b.err != nil {
 		return b
 	}
+
 	b.offset = offset
+
 	return b
 }
 
@@ -444,28 +494,33 @@ func (b *QueryBuilder[T, F]) Signature() string {
 		sb.WriteString(":")
 		sb.WriteString(strings.Join(j.extraConditions, ","))
 	}
+
 	for _, w := range b.wheres {
 		sb.WriteString("|w:")
 		sb.WriteString(fmt.Sprintf("%d:%s:%s:%s", w.clauseType, w.field, w.op, w.targetCol))
 	}
+
 	sb.WriteString("|grp:")
 	sb.WriteString(strings.Join(b.groupByFields, ","))
 	for _, h := range b.havings {
 		sb.WriteString("|h:")
 		sb.WriteString(fmt.Sprintf("%s:%s:%v", h.field, h.op.String(), h.val))
 	}
+
 	sb.WriteString("|ord:")
 	sb.WriteString(b.orderByField)
 	sb.WriteString(":")
 	sb.WriteString(b.orderDir)
 	sb.WriteString("|lim:")
 	sb.WriteString(fmt.Sprintf("%d:%d", b.limit, b.offset))
+
 	return sb.String()
 }
 
 // QueryHash computes a deterministic SHA-256 hex string for the query structure.
 func (b *QueryBuilder[T, F]) QueryHash() string {
 	viewSql := b.BuildSelectForView()
+
 	return ComputeSqlHash(viewSql)
 }
 
@@ -480,6 +535,7 @@ func (b *QueryBuilder[T, F]) Compile() CompiledQueryResult {
 	if cachedSql, found := GlobalQueryCache.Get(cacheKey); found {
 		_, args := b.BuildSelect()
 		hash := ComputeSqlHash(cachedSql)
+
 		return SuccessCompiledQuery(CompiledQuery{
 			SQL:       cachedSql,
 			Args:      args,
@@ -490,6 +546,7 @@ func (b *QueryBuilder[T, F]) Compile() CompiledQueryResult {
 	sqlStr, args := b.BuildSelect()
 	GlobalQueryCache.Put(cacheKey, sqlStr)
 	hash := ComputeSqlHash(sqlStr)
+
 	return SuccessCompiledQuery(CompiledQuery{
 		SQL:       sqlStr,
 		Args:      args,
@@ -503,7 +560,9 @@ func (b *QueryBuilder[T, F]) CompileRaw() (string, []any) {
 	if res.IsFailed() {
 		return "", nil
 	}
+
 	cq := res.Value
+
 	return cq.SQL, cq.Args
 }
 
@@ -519,6 +578,7 @@ func (b *QueryBuilder[T, F]) CreateViewOrUseView(ctx context.Context, viewName s
 	if b.err != nil {
 		return FailureBool(b.err)
 	}
+
 	vc, isViewCreator := b.repo.db.(ViewCreator)
 	if !isViewCreator {
 		return FailureBool(apperror.WrapSimple(errors.New("executor does not support view creation"), "create view"))
@@ -588,6 +648,7 @@ func (b *QueryBuilder[T, F]) BuildSelect() (string, []any) {
 	}
 
 	fullSql := strings.Join(sqlParts, " ") + ";"
+
 	return fullSql, args
 }
 
@@ -666,6 +727,7 @@ func (b *QueryBuilder[T, F]) BuildCount() (string, []any) {
 	}
 
 	fullSql := strings.Join(sqlParts, " ") + ";"
+
 	return fullSql, args
 }
 
@@ -687,6 +749,7 @@ func (b *QueryBuilder[T, F]) BuildDelete() (string, []any) {
 	}
 
 	fullSql := strings.Join(sqlParts, " ") + ";"
+
 	return fullSql, args
 }
 
@@ -694,7 +757,9 @@ func (b *QueryBuilder[T, F]) buildCtePrefix(compiler DialectCompiler) string {
 	if len(b.cteName) == 0 || len(b.cteSql) == 0 {
 		return ""
 	}
+
 	cleanSub := strings.TrimRight(strings.TrimSpace(b.cteSql), ";")
+
 	return fmt.Sprintf("WITH %s AS (%s) ", compiler.QuoteIdentifier(b.cteName), cleanSub)
 }
 
@@ -708,10 +773,12 @@ func (b *QueryBuilder[T, F]) buildProjectionList(compiler DialectCompiler) strin
 			cols = append(cols, compiler.QuoteIdentifier(parts[0])+"."+compiler.QuoteIdentifier(parts[1]))
 			continue
 		}
+
 		if len(b.joins) > 0 {
 			cols = append(cols, quotedMain+"."+compiler.QuoteIdentifier(f))
 			continue
 		}
+
 		cols = append(cols, compiler.QuoteIdentifier(f))
 	}
 
@@ -723,6 +790,7 @@ func (b *QueryBuilder[T, F]) buildProjectionList(compiler DialectCompiler) strin
 				cols = append(cols, compiler.QuoteIdentifier(parts[0])+"."+compiler.QuoteIdentifier(parts[1]))
 				continue
 			}
+
 			cols = append(cols, quotedJoin+"."+compiler.QuoteIdentifier(pf))
 		}
 	}
@@ -730,6 +798,7 @@ func (b *QueryBuilder[T, F]) buildProjectionList(compiler DialectCompiler) strin
 	if len(cols) == 0 {
 		return "*"
 	}
+
 	return strings.Join(cols, ", ")
 }
 
@@ -753,6 +822,7 @@ func (b *QueryBuilder[T, F]) buildJoins(compiler DialectCompiler, paramIdx *int)
 				conditions = append(conditions, strings.Replace(cond, "?", placeholder, 1))
 				args = append(args, j.extraArgs[i])
 			}
+
 			onCondition = fmt.Sprintf("%s AND %s", onCondition, strings.Join(conditions, " AND "))
 		}
 
@@ -778,6 +848,7 @@ func (b *QueryBuilder[T, F]) buildJoinsForView(compiler DialectCompiler) string 
 				lit := formatSqlLiteral(j.extraArgs[i])
 				conditions = append(conditions, strings.Replace(cond, "?", lit, 1))
 			}
+
 			onCondition = fmt.Sprintf("%s AND %s", onCondition, strings.Join(conditions, " AND "))
 		}
 
@@ -790,11 +861,14 @@ func (b *QueryBuilder[T, F]) buildJoinsForView(compiler DialectCompiler) string 
 func (b *QueryBuilder[T, F]) qualifyColumn(compiler DialectCompiler, defaultTable, col string) string {
 	if strings.Contains(col, ".") {
 		parts := strings.SplitN(col, ".", 2)
+
 		return compiler.QuoteIdentifier(parts[0]) + "." + compiler.QuoteIdentifier(parts[1])
 	}
+
 	if len(defaultTable) > 0 {
 		return compiler.QuoteIdentifier(defaultTable) + "." + compiler.QuoteIdentifier(col)
 	}
+
 	return compiler.QuoteIdentifier(col)
 }
 
@@ -934,6 +1008,7 @@ func formatSqlLiteral(val any) string {
 	if val == nil {
 		return "NULL"
 	}
+
 	switch v := val.(type) {
 	case string:
 		return "'" + strings.ReplaceAll(v, "'", "''") + "'"
@@ -941,6 +1016,7 @@ func formatSqlLiteral(val any) string {
 		if v {
 			return "1"
 		}
+
 		return "0"
 	case int, int8, int16, int32, int64, uint, uint8, uint16, uint32, uint64, float32, float64:
 		return fmt.Sprintf("%v", v)
@@ -955,11 +1031,13 @@ func (b *QueryBuilder[T, F]) buildOrderBy(compiler DialectCompiler) string {
 	if len(b.orderByField) == 0 {
 		return ""
 	}
+
 	quotedField := b.qualifyColumn(compiler, b.repo.tableName, b.orderByField)
 	dir := b.orderDir
 	if dir != "DESC" {
 		dir = "ASC"
 	}
+
 	return fmt.Sprintf("ORDER BY %s %s", quotedField, dir)
 }
 
@@ -968,6 +1046,7 @@ func (b *QueryBuilder[T, F]) First(ctx context.Context) EntityResult[T] {
 	if b.err != nil {
 		return FailureEntity[T](b.err)
 	}
+
 	b.limit = 1
 	sqlStr, args := b.BuildSelect()
 
@@ -989,12 +1068,14 @@ func (b *QueryBuilder[T, F]) FindAll(ctx context.Context) ListResult[T] {
 	if b.err != nil {
 		return FailureList[T](b.err)
 	}
+
 	sqlStr, args := b.BuildSelect()
 
 	rows, appErr := b.repo.db.Query(ctx, sqlStr, args...)
 	if appErr != nil {
 		return FailureList[T](appErr)
 	}
+
 	defer rows.Close()
 
 	var items []T
@@ -1003,6 +1084,7 @@ func (b *QueryBuilder[T, F]) FindAll(ctx context.Context) ListResult[T] {
 		if scanErr != nil {
 			return FailureList[T](apperror.WrapSimple(scanErr, "scan row "+b.repo.tableName))
 		}
+
 		items = append(items, *item)
 	}
 
@@ -1014,6 +1096,7 @@ func (b *QueryBuilder[T, F]) Count(ctx context.Context) Int64Result {
 	if b.err != nil {
 		return FailureInt64(b.err)
 	}
+
 	sqlStr, args := b.BuildCount()
 
 	row, appErr := b.repo.db.QueryRow(ctx, sqlStr, args...)
@@ -1035,6 +1118,7 @@ func (b *QueryBuilder[T, F]) Delete(ctx context.Context) RowsAffectedResult {
 	if b.err != nil {
 		return FailureRowsAffected(b.err)
 	}
+
 	sqlStr, args := b.BuildDelete()
 	res, appErr := b.repo.db.Exec(ctx, sqlStr, args...)
 	if appErr != nil {
@@ -1053,9 +1137,11 @@ func (b *QueryBuilder[T, F]) Delete(ctx context.Context) RowsAffectedResult {
 func SelectTable(db SqlExecutor, tableName string, fields ...string) *QueryBuilder[map[string]any, string] {
 	repo := NewRepository[map[string]any, string](db, tableName, func(row RowScanner) (*map[string]any, error) {
 		res := make(map[string]any)
+
 		return &res, nil
 	})
 	qb := NewQueryBuilder(repo)
 	qb.SelectRaw(fields...)
+
 	return qb
 }

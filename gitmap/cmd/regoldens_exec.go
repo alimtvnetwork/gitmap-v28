@@ -24,12 +24,14 @@ func executeRegoldens(cfg regoldensFlags) {
 	if cfg.determinism {
 		runDeterminismPrecheck(cfg)
 	}
+
 	pass1Code := runRegoldensPassCapture(cfg, true, constants.MsgRegoldensPass1Header)
 	maybeEmitDiffSummary(cfg)
 	exitOnPass1Failure(cfg, pass1Code)
 	if handleSkipVerify(cfg) {
 		return
 	}
+
 	runPass2AndAnnounce(cfg)
 }
 
@@ -38,6 +40,7 @@ func executeRegoldens(cfg regoldensFlags) {
 // work (diff summary) runs whether the pass succeeded or failed.
 func runRegoldensPassCapture(cfg regoldensFlags, withGate bool, header string) int {
 	fmt.Fprint(os.Stderr, header)
+
 	return runGoTestPass(cfg, withGate)
 }
 
@@ -58,11 +61,13 @@ func exitOnPass1Failure(cfg regoldensFlags, code int) {
 	if code == 0 {
 		return
 	}
+
 	fmt.Fprintf(os.Stderr, constants.ErrRegoldensPass1Failed, code)
 	fmt.Fprintln(os.Stderr)
 	if cfg.hasDiff() {
 		fmt.Fprintf(os.Stderr, constants.MsgRegoldensPass2NotRun, code)
 	}
+
 	cliexit.HandleError(apperror.NewSimple("fatal error", "E9000"), 1)
 }
 
@@ -74,12 +79,15 @@ func handleSkipVerify(cfg regoldensFlags) bool {
 	if !cfg.skipVerify {
 		return false
 	}
+
 	fmt.Fprint(os.Stderr, constants.MsgRegoldensSkipVerify)
 	if cfg.hasDiff() {
 		fmt.Fprint(os.Stderr, constants.MsgRegoldensPass2NotRunSkip)
 	}
+
 	fmt.Fprintf(os.Stdout, constants.MsgRegoldensSuccessNoVeri,
 		cfg.pattern, cfg.pkg)
+
 	return true
 }
 
@@ -95,7 +103,9 @@ func runPass2AndAnnounce(cfg regoldensFlags) error {
 	if cfg.hasDiff() {
 		fmt.Fprint(os.Stderr, constants.MsgRegoldensPass2Ran)
 	}
+
 	fmt.Fprintf(os.Stdout, constants.MsgRegoldensSuccess,
 		cfg.pattern, cfg.pkg)
+
 	return nil
 }

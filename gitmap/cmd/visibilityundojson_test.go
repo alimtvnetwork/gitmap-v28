@@ -13,14 +13,17 @@ func TestRenderUndoJSONShapeStable(t *testing.T) {
 		Provider: constants.ProviderGitHub, Owner: "acme",
 		Matched: 3, Changed: 2, Skipped: 1, Failed: 0, ExitCode: 0,
 	}
+
 	got, err := renderUndoJSON(s)
 	if err != nil {
 		t.Fatalf("render: %v", err)
 	}
+
 	var round undoJSONSummary
 	if err := json.Unmarshal(got, &round); err != nil {
 		t.Fatalf("round-trip: %v / %s", err, got)
 	}
+
 	if round != s {
 		t.Fatalf("round-trip diff:\n got %+v\nwant %+v", round, s)
 	}
@@ -31,6 +34,7 @@ func TestRenderUndoJSONZeroValuesEmitted(t *testing.T) {
 	if err != nil {
 		t.Fatalf("render: %v", err)
 	}
+
 	for _, key := range []string{
 		`"runId":0`, `"sourceRunId":0`, `"matched":0`, `"changed":0`,
 		`"skipped":0`, `"failed":0`, `"exitCode":0`,

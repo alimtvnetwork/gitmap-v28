@@ -14,6 +14,7 @@ func TestUpdateRootPathAndRemoveEntry(t *testing.T) {
 		{Name: "my-app", RootPath: `D:\work\my-app`, Paths: []string{}, Tags: []string{}, Enabled: true},
 		{Name: "second-app", RootPath: `D:\work\second-app`, Paths: []string{}, Tags: []string{}, Enabled: true},
 	}
+
 	if err := writeEntriesAtomic(pJson, initial); err != nil {
 		t.Fatalf("write initial failed: %v", err)
 	}
@@ -27,6 +28,7 @@ func TestUpdateRootPathAndRemoveEntry(t *testing.T) {
 	if err != nil {
 		t.Fatalf("readEntries failed: %v", err)
 	}
+
 	if len(entries) != 2 || entries[0].RootPath != `D:\work\new-home\my-app` || entries[0].Name != "my-app-new" {
 		t.Fatalf("Update failed: %+v", entries)
 	}
@@ -35,13 +37,16 @@ func TestUpdateRootPathAndRemoveEntry(t *testing.T) {
 	if err := RemoveEntryAt(pJson, `D:/work/second-app`); err != nil {
 		t.Fatalf("RemoveEntryAt failed: %v", err)
 	}
+
 	entries, err = readEntries(pJson)
 	if err != nil {
 		t.Fatalf("readEntries after remove failed: %v", err)
 	}
+
 	if len(entries) != 1 || entries[0].Name != "my-app-new" {
 		t.Fatalf("Remove failed: %+v", entries)
 	}
+
 	_ = os.Remove(pJson)
 }
 
@@ -57,6 +62,7 @@ func TestPathsEqualCrossPlatformSlashes(t *testing.T) {
 		{`/home/user/repo/`, `/home/user/repo`, true},
 		{`D:\work\my-app`, `D:\work\second-app`, false},
 	}
+
 	for _, tc := range cases {
 		got := pathsEqual(tc.a, tc.b)
 		if got != tc.want {

@@ -47,14 +47,17 @@ func parseProbeArgs(args []string) (probeOptions, error) {
 		depth:   constants.ProbeDefaultDepth,
 		rest:    make([]string, 0, len(args)),
 	}
+
 	for i := 0; i < len(args); i++ {
 		next, consumed, err := applyProbeFlag(&opts, args, i)
 		if err != nil {
 			return opts, err
 		}
+
 		if !consumed {
 			opts.rest = append(opts.rest, args[i])
 		}
+
 		i = next
 	}
 
@@ -68,14 +71,18 @@ func applyProbeFlag(opts *probeOptions, args []string, i int) (int, bool, error)
 	a := args[i]
 	if a == constants.ProbeFlagJSON {
 		opts.jsonOut = true
+
 		return i, true, nil
 	}
+
 	if next, ok, err := applyOutputFlag(opts, args, i); ok || err != nil {
 		return next, true, err
 	}
+
 	if next, ok, err := applyWorkersFlag(opts, args, i); ok || err != nil {
 		return next, true, err
 	}
+
 	if next, ok, err := applyDepthFlag(opts, args, i); ok || err != nil {
 		return next, true, err
 	}
@@ -91,15 +98,18 @@ func applyOutputFlag(opts *probeOptions, args []string, i int) (int, bool, error
 	if !matchesFlag(args[i], constants.ProbeFlagOutput) {
 		return i, false, nil
 	}
+
 	val, next, err := readStringFlag(args, i)
 	if err != nil {
 		return i, true, err
 	}
+
 	if val != constants.OutputTerminal {
 		return i, true, fmt.Errorf(
 			"version probe: --output only supports %q, got %q",
 			constants.OutputTerminal, val)
 	}
+
 	opts.termOut = true
 
 	return next, true, nil
@@ -111,6 +121,7 @@ func readStringFlag(args []string, i int) (string, int, error) {
 	if eq := strings.IndexByte(args[i], '='); eq >= 0 {
 		return args[i][eq+1:], i, nil
 	}
+
 	if i+1 >= len(args) {
 		return "", i, fmt.Errorf("version probe: %s requires a value", args[i])
 	}
@@ -128,10 +139,12 @@ func applyWorkersFlag(opts *probeOptions, args []string, i int) (int, bool, erro
 	} else if !matchesFlag(a, constants.ProbeFlagProbeWorkers) {
 		return i, false, nil
 	}
+
 	n, next, err := readIntFlag(args, i, constants.ErrProbeWorkersMissing, constants.ErrProbeWorkersValue)
 	if err != nil {
 		return i, true, err
 	}
+
 	opts.workers = clampProbeWorkers(n)
 
 	return next, true, nil
@@ -144,10 +157,12 @@ func applyDepthFlag(opts *probeOptions, args []string, i int) (int, bool, error)
 	if !matchesFlag(args[i], constants.ProbeFlagDepth) {
 		return i, false, nil
 	}
+
 	n, next, err := readIntFlag(args, i, constants.ErrProbeDepthMissing, constants.ErrProbeDepthValue)
 	if err != nil {
 		return i, true, err
 	}
+
 	opts.depth = n
 
 	return next, true, nil
@@ -165,11 +180,14 @@ func matchesFlag(token, flag string) bool {
 func readIntFlag(args []string, i int, missingFmt, valueFmt string) (int, int, error) {
 	if eq := strings.IndexByte(args[i], '='); eq >= 0 {
 		n, err := parsePositiveInt(args[i][eq+1:], valueFmt)
+
 		return n, i, err
 	}
+
 	if i+1 >= len(args) {
 		return 0, i, errors.New(missingFmt)
 	}
+
 	n, err := parsePositiveInt(args[i+1], valueFmt)
 
 	return n, i + 1, err
@@ -191,6 +209,7 @@ func parsePositiveInt(s, errFmt string) (int, error) {
 func clampProbeWorkers(n int) int {
 	if n > constants.ProbeMaxWorkers {
 		fmt.Fprintf(os.Stderr, constants.MsgProbeWorkersClamped, n, constants.ProbeMaxWorkers)
+
 		return constants.ProbeMaxWorkers
 	}
 

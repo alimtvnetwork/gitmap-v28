@@ -84,10 +84,12 @@ func parseSegment(parts []string, idx int, name string) (int, error) {
 	if len(parts) <= idx {
 		return 0, nil
 	}
+
 	val, err := strconv.Atoi(parts[idx])
 	if err != nil {
 		return 0, fmt.Errorf("invalid %s version: %s", name, parts[idx])
 	}
+
 	return val, nil
 }
 
@@ -121,18 +123,23 @@ func (v Version) GreaterThan(other Version) bool {
 	if v.Major > other.Major {
 		return true
 	}
+
 	if v.Major < other.Major {
 		return false
 	}
+
 	if v.Minor > other.Minor {
 		return true
 	}
+
 	if v.Minor < other.Minor {
 		return false
 	}
+
 	if v.Patch > other.Patch {
 		return true
 	}
+
 	if v.Patch < other.Patch {
 		return false
 	}

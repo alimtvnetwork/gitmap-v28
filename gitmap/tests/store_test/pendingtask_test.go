@@ -18,6 +18,7 @@ func TestInsertPendingTask_ReturnsID(t *testing.T) {
 	if err != nil {
 		t.Fatalf("expected no error, got %v", err)
 	}
+
 	if id == 0 {
 		t.Error("expected non-zero task ID")
 	}
@@ -51,18 +52,23 @@ func TestFindPendingTaskByID_ReturnsCorrectFields(t *testing.T) {
 	if err != nil {
 		t.Fatalf("expected no error, got %v", err)
 	}
+
 	if rec.TargetPath != "/repos/app" {
 		t.Errorf("expected target /repos/app, got %s", rec.TargetPath)
 	}
+
 	if rec.WorkingDirectory != "/work" {
 		t.Errorf("expected workdir /work, got %s", rec.WorkingDirectory)
 	}
+
 	if rec.CommandArgs != "clone source.json /repos/app" {
 		t.Errorf("expected cmdargs, got %s", rec.CommandArgs)
 	}
+
 	if rec.TaskTypeName != constants.TaskTypeClone {
 		t.Errorf("expected type Clone, got %s", rec.TaskTypeName)
 	}
+
 	if rec.CreatedAt == "" {
 		t.Error("expected CreatedAt to be populated")
 	}
@@ -163,15 +169,19 @@ func TestCompleteTask_MovesToCompleted(t *testing.T) {
 	if err != nil {
 		t.Fatalf("failed to list completed: %v", err)
 	}
+
 	if len(completed) != 1 {
 		t.Fatalf("expected 1 completed task, got %d", len(completed))
 	}
+
 	if completed[0].OriginalTaskId != id {
 		t.Errorf("expected original ID %d, got %d", id, completed[0].OriginalTaskId)
 	}
+
 	if completed[0].TargetPath != "/repos/app" {
 		t.Errorf("expected target /repos/app, got %s", completed[0].TargetPath)
 	}
+
 	if completed[0].CommandArgs != "scan /repos/app" {
 		t.Errorf("expected cmdargs preserved, got %s", completed[0].CommandArgs)
 	}
@@ -233,9 +243,11 @@ func TestFailTask_TaskRemainsInPending(t *testing.T) {
 	if err != nil {
 		t.Fatalf("failed to list: %v", err)
 	}
+
 	if len(pending) != 1 {
 		t.Fatalf("expected 1 pending, got %d", len(pending))
 	}
+
 	if pending[0].ID != id {
 		t.Errorf("expected ID %d, got %d", id, pending[0].ID)
 	}
@@ -252,6 +264,7 @@ func TestListPendingTasks_Empty(t *testing.T) {
 	if err != nil {
 		t.Fatalf("expected no error, got %v", err)
 	}
+
 	if len(tasks) != 0 {
 		t.Errorf("expected 0 tasks, got %d", len(tasks))
 	}
@@ -271,6 +284,7 @@ func TestListPendingTasks_ReturnsAll(t *testing.T) {
 	if err != nil {
 		t.Fatalf("expected no error, got %v", err)
 	}
+
 	if len(tasks) != 2 {
 		t.Errorf("expected 2 tasks, got %d", len(tasks))
 	}
@@ -291,9 +305,11 @@ func TestListCompletedTasks_AfterComplete(t *testing.T) {
 	if err != nil {
 		t.Fatalf("expected no error, got %v", err)
 	}
+
 	if len(completed) != 1 {
 		t.Errorf("expected 1 completed, got %d", len(completed))
 	}
+
 	if completed[0].CompletedAt == "" {
 		t.Error("expected CompletedAt to be set")
 	}
@@ -316,6 +332,7 @@ func TestInsertPendingTask_PullType(t *testing.T) {
 	if rec.TaskTypeName != constants.TaskTypePull {
 		t.Errorf("expected type Pull, got %s", rec.TaskTypeName)
 	}
+
 	if rec.CommandArgs != "pull mylib --verbose" {
 		t.Errorf("expected cmdargs, got %s", rec.CommandArgs)
 	}
@@ -329,6 +346,7 @@ func scanTypeID(t *testing.T, db interface{ GetTaskTypeID(string) (int64, error)
 	if err != nil {
 		t.Fatalf("failed to get Scan type ID: %v", err)
 	}
+
 	return id
 }
 
@@ -338,6 +356,7 @@ func cloneTypeID(t *testing.T, db interface{ GetTaskTypeID(string) (int64, error
 	if err != nil {
 		t.Fatalf("failed to get Clone type ID: %v", err)
 	}
+
 	return id
 }
 
@@ -347,6 +366,7 @@ func deleteTypeID(t *testing.T, db interface{ GetTaskTypeID(string) (int64, erro
 	if err != nil {
 		t.Fatalf("failed to get Delete type ID: %v", err)
 	}
+
 	return id
 }
 
@@ -356,5 +376,6 @@ func pullTypeID(t *testing.T, db interface{ GetTaskTypeID(string) (int64, error)
 	if err != nil {
 		t.Fatalf("failed to get Pull type ID: %v", err)
 	}
+
 	return id
 }

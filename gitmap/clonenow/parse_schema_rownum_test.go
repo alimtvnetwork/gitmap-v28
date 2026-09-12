@@ -27,10 +27,12 @@ func TestParseFile_JSONRowNotObject(t *testing.T) {
 	if err == nil {
 		t.Fatal("ParseFile: want non-object-row error, got nil")
 	}
+
 	msg := err.Error()
 	if !strings.Contains(msg, "row 2") {
 		t.Errorf("error %q missing 'row 2' (1-based row number)", msg)
 	}
+
 	if !strings.Contains(msg, "string") {
 		t.Errorf("error %q missing observed JSON kind 'string'", msg)
 	}
@@ -49,6 +51,7 @@ func TestParseFile_JSONRowNumberSecondRow(t *testing.T) {
 	if err == nil {
 		t.Fatal("ParseFile: want missing-url error, got nil")
 	}
+
 	if !strings.Contains(err.Error(), "row 2") {
 		t.Errorf("error %q missing 'row 2'", err.Error())
 	}
@@ -69,6 +72,7 @@ func TestParseFile_CSVDataRowMissingURL(t *testing.T) {
 	if err == nil {
 		t.Fatal("ParseFile: want missing-url-row error, got nil")
 	}
+
 	msg := err.Error()
 	if !strings.Contains(msg, "data row 2") {
 		t.Errorf("error %q missing 'data row 2'", msg)
@@ -87,6 +91,7 @@ func TestParseFile_CSVDataRowMissingURLFirst(t *testing.T) {
 	if err == nil {
 		t.Fatal("ParseFile: want missing-url-row error, got nil")
 	}
+
 	if !strings.Contains(err.Error(), "data row 1") {
 		t.Errorf("error %q missing 'data row 1'", err.Error())
 	}

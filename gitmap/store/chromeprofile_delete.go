@@ -75,7 +75,9 @@ func (db *DB) ChromeProfileExists(name string) bool {
 	if err := db.EnsureChromeProfileTables(); err != nil {
 		return false
 	}
+
 	var id int64
+
 	return db.conn.QueryRow(sqlSelectChromeProfileId, name).Scan(&id) == nil
 }
 
@@ -86,6 +88,7 @@ func (db *DB) collectChromeArtifactPaths(name string) ([]string, error) {
 	if err != nil {
 		return nil, fmt.Errorf("query chrome-profile artifacts: %w", err)
 	}
+
 	defer rows.Close()
 	var out []string
 	for rows.Next() {
@@ -93,7 +96,9 @@ func (db *DB) collectChromeArtifactPaths(name string) ([]string, error) {
 		if err := rows.Scan(&p); err != nil {
 			return nil, fmt.Errorf("scan artifact: %w", err)
 		}
+
 		out = append(out, p)
 	}
+
 	return out, nil
 }

@@ -68,11 +68,13 @@ func (c *runContext) Cleanup() {
 	if c == nil {
 		return
 	}
+
 	finalize.CleanupTemp(c.TempDir, c.Raw.IsKeepTemp)
 	if c.DB != nil {
 		_ = c.DB.Close()
 		c.DB = nil
 	}
+
 	if c.Lock != nil {
 		c.Lock.Release()
 		c.Lock = nil

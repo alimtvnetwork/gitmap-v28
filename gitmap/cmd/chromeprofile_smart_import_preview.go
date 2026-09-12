@@ -35,6 +35,7 @@ func printCandidateRow(idx int, c DiscoveredProfileCandidate) {
 	if emailStr == "" {
 		emailStr = "(none)"
 	}
+
 	dispStr := c.DisplayName
 	if dispStr == "" {
 		dispStr = "(none)"

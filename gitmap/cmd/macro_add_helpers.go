@@ -46,6 +46,7 @@ func hasPrefixHelper(line string) bool {
 		"ls ", "dir ", ":ls ", ":dir ", "mkdir ", ":mkdir ", "gitmap mkdir ",
 		"exec ", ":exec ",
 	}
+
 	for _, p := range prefixes {
 		if strings.HasPrefix(strings.ToLower(line), p) {
 			return true
@@ -80,9 +81,11 @@ func handleDisplayOrExec(line string, state *interactiveSessionState) bool {
 	if isLsOrDirCmd(line) {
 		return handleLsOrDir(line, state)
 	}
+
 	if isPwdCmd(line) {
 		return handlePwdCmd(line)
 	}
+
 	if isExecCmd(line) {
 		return handleExecCmd(line, state)
 	}
@@ -94,9 +97,11 @@ func handleDirOrHelp(line string, state *interactiveSessionState) bool {
 	if isCdCmd(line) {
 		return handleCdCmd(line, state)
 	}
+
 	if isMkdirCmd(line) {
 		return handleMkdirHelper(line, state)
 	}
+
 	if isHelpCmd(line) {
 		printInteractiveHelp()
 
@@ -120,6 +125,7 @@ func handleExecCmd(line string, state *interactiveSessionState) bool {
 
 		return true
 	}
+
 	if low == "exec off" || low == ":exec off" {
 		state.isExecEnabled = false
 		fmt.Printf("  %s✓ Live command execution disabled.%s\n\n", constants.ColorYellow, constants.ColorReset)
@@ -136,6 +142,7 @@ func toggleLiveExec(state *interactiveSessionState) bool {
 	if !state.isExecEnabled {
 		statusText = "disabled"
 	}
+
 	fmt.Printf("  %s✓ Live command execution %s.%s\n\n", constants.ColorCyan, statusText, constants.ColorReset)
 
 	return true
@@ -214,6 +221,7 @@ func toggleMacroPwd() {
 	if !newState {
 		statusText = "disabled"
 	}
+
 	fmt.Printf("  %s✓ Macro PWD display %s.%s\n\n", constants.ColorCyan, statusText, constants.ColorReset)
 }
 
@@ -464,13 +472,16 @@ func executeInteractiveFind(pattern string) error {
 		if walkErr != nil || matchCount >= 30 {
 			return nil
 		}
+
 		if d.IsDir() && isIgnoredDir(d.Name()) {
 			return filepath.SkipDir
 		}
+
 		if isPatternMatched(d.Name(), pattern) {
 			matchCount++
 			printFindMatch(path, d.IsDir())
 		}
+
 		return nil
 	})
 
@@ -526,12 +537,15 @@ func executeInteractiveSearch(query string) error {
 		if walkErr != nil || matchCount >= 25 {
 			return nil
 		}
+
 		if d.IsDir() && isIgnoredDir(d.Name()) {
 			return filepath.SkipDir
 		}
+
 		if !d.IsDir() && isTextSearchTarget(d.Name()) {
 			searchFileLines(path, query, &matchCount, 25)
 		}
+
 		return nil
 	})
 
@@ -555,6 +569,7 @@ func searchFileLines(path string, query string, count *int, maxCount int) {
 	if err != nil {
 		return
 	}
+
 	defer file.Close()
 
 	scanner := bufio.NewScanner(file)
@@ -565,6 +580,7 @@ func searchFileLines(path string, query string, count *int, maxCount int) {
 			*count++
 			printSearchMatch(path, lineNum, strings.TrimSpace(lineText))
 		}
+
 		lineNum++
 	}
 }
@@ -574,6 +590,7 @@ func printSearchMatch(path string, lineNum int, snippet string) {
 	if len(snippet) > 80 {
 		snippet = snippet[:77] + "..."
 	}
+
 	fmt.Printf("  %s%s:%d:%s %s\n", constants.ColorCyan, relPath, lineNum, constants.ColorReset, snippet)
 }
 

@@ -33,6 +33,7 @@ func (c *Collector) WriteIfAny(binaryDir string) (string, error) {
 	if c == nil {
 		return "", nil
 	}
+
 	c.mu.Lock()
 	defer c.mu.Unlock()
 	if len(c.scanEnts) == 0 && len(c.cloneEnts) == 0 {
@@ -44,6 +45,7 @@ func (c *Collector) WriteIfAny(binaryDir string) (string, error) {
 	if err := os.MkdirAll(dir, 0o755); err != nil {
 		return "", fmt.Errorf("create report dir: %w", err)
 	}
+
 	path := filepath.Join(dir, fmt.Sprintf("%s%d.json", reportFilePrefix, time.Now().Unix()))
 
 	return path, writeJSONAtomic(path, payload)
@@ -77,9 +79,11 @@ func writeJSONAtomic(path string, payload fileShape) error {
 	if err != nil {
 		return fmt.Errorf("marshal report: %w", err)
 	}
+
 	if err := os.WriteFile(tmp, body, 0o644); err != nil {
 		return fmt.Errorf("write temp report: %w", err)
 	}
+
 	if err := os.Rename(tmp, path); err != nil {
 		_ = os.Remove(tmp)
 

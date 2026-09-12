@@ -17,13 +17,18 @@ func runImportExport(args []string) error {
 	hasArgs := len(args) > 0
 	if hasArgs && (args[0] == "import" || args[0] == "im") {
 		runImport(args[1:])
+
 		return nil
 	}
+
 	if hasArgs && (args[0] == "export" || args[0] == "ex") {
 		runExport(args[1:])
+
 		return nil
 	}
+
 	runExport(args)
+
 	return nil
 }
 
@@ -36,6 +41,7 @@ func runExport(args []string) error {
 	if err := writeExportFile(outFile, export); err != nil {
 		return err
 	}
+
 	printExportSummary(outFile, export)
 
 	return nil
@@ -57,6 +63,7 @@ func loadExportData() model.DatabaseExport {
 		fmt.Fprintln(os.Stderr, apperror.WrapSimple(err, constants.MsgExportFailed).Error())
 		cliexit.HandleError(nil, 1)
 	}
+
 	defer db.Close()
 
 	export, err := db.ExportAll()

@@ -24,10 +24,12 @@ func runHistory(args []string) error {
 
 	if jsonOut {
 		printHistoryJSON(records)
+
 		return nil
 	}
 
 	printHistoryTerminal(records, detail)
+
 	return nil
 }
 
@@ -50,12 +52,14 @@ func loadHistory(cmdFilter string) []model.CommandHistoryRecord {
 		fmt.Fprintf(os.Stderr, constants.ErrHistoryQuery+"\n", err)
 		cliexit.HandleError(nil, 1)
 	}
+
 	defer db.Close()
 
 	records, err := queryHistoryRecords(db, cmdFilter)
 	if err != nil {
 		handleHistoryError(err)
 	}
+
 	return records
 }
 
@@ -63,6 +67,7 @@ func queryHistoryRecords(db *store.DB, cmdFilter string) ([]model.CommandHistory
 	if cmdFilter != "" {
 		return db.ListHistoryByCommand(cmdFilter)
 	}
+
 	return db.ListHistory()
 }
 
@@ -72,6 +77,7 @@ func handleHistoryError(err error) {
 		fmt.Fprint(os.Stderr, constants.MsgLegacyProjectData)
 		cliexit.HandleError(nil, 1)
 	}
+
 	fmt.Fprintf(os.Stderr, constants.ErrHistoryQuery+"\n", err)
 	cliexit.HandleError(nil, 1)
 }
@@ -91,6 +97,7 @@ func applyHistoryLimit(records []model.CommandHistoryRecord, limit int) []model.
 func printHistoryTerminal(records []model.CommandHistoryRecord, detail string) {
 	if len(records) == 0 {
 		fmt.Print(constants.MsgHistoryEmpty)
+
 		return
 	}
 
@@ -98,6 +105,7 @@ func printHistoryTerminal(records []model.CommandHistoryRecord, detail string) {
 	for _, r := range records {
 		printHistoryRow(r, detail)
 	}
+
 	printHistoryRevertSection(records)
 }
 
@@ -144,12 +152,16 @@ func printHistoryRow(r model.CommandHistoryRecord, detail string) {
 	tok := formatHistoryRowTokens(r)
 	if detail == constants.DetailDetailed {
 		printDetailedHistoryRow(tok, r)
+
 		return
 	}
+
 	if detail == constants.DetailBasic {
 		fmt.Printf("%s %s %s\n", tok.cmd, tok.status, tok.last)
+
 		return
 	}
+
 	fmt.Printf("%s %s %s %s %s\n", tok.cmd, tok.flags, tok.status, tok.dur, tok.last)
 }
 
@@ -166,6 +178,7 @@ func colorizedStatus(code int) string {
 	if code == 0 {
 		return colorize(constants.ColorGreen, padRight("✓ "+constants.MsgHistoryStatusOK, 8))
 	}
+
 	return colorize(constants.ColorRed, padRight("✗ "+constants.MsgHistoryStatusFail, 8))
 }
 
@@ -191,6 +204,7 @@ func collectRevertRows(records []model.CommandHistoryRecord) []revertRow {
 			hints = append(hints, revertRow{idx: i + 1, command: r.Command, when: relativeHistoryTime(r), hint: h})
 		}
 	}
+
 	return hints
 }
 
@@ -203,6 +217,7 @@ func printHistoryRevertSection(records []model.CommandHistoryRecord) {
 	if len(hints) == 0 {
 		return
 	}
+
 	fmt.Println()
 	fmt.Println(colorize(constants.ColorMagenta, "Revert points"))
 	fmt.Println(colorize(constants.ColorDim, "  Run the suggested command to undo the referenced state."))
@@ -240,9 +255,11 @@ func revertHintFor(r model.CommandHistoryRecord) string {
 	if hint, ok := staticRevertHints[r.Command]; ok {
 		return hint
 	}
+
 	if r.Command == "reclone-transport" {
 		return recloneTransportHint(r)
 	}
+
 	return ""
 }
 
@@ -250,9 +267,11 @@ func recloneTransportHint(r model.CommandHistoryRecord) string {
 	if strings.Contains(r.Flags, "transport=ssh") {
 		return "gitmap cfr " + r.Args + " --https"
 	}
+
 	if strings.Contains(r.Flags, "transport=https") {
 		return "gitmap cfr " + r.Args + " --ssh"
 	}
+
 	return ""
 }
 
@@ -266,6 +285,7 @@ func relativeHistoryTime(r model.CommandHistoryRecord) string {
 			return humanizeDuration(time.Since(t)) + " ago"
 		}
 	}
+
 	return "—"
 }
 
@@ -276,12 +296,14 @@ func parseHistoryTime(s string) (time.Time, bool) {
 	if s == "" {
 		return time.Time{}, false
 	}
+
 	layouts := []string{time.RFC3339Nano, time.RFC3339, "2006-01-02 15:04:05", "2006-01-02T15:04:05"}
 	for _, l := range layouts {
 		if t, err := time.Parse(l, s); err == nil {
 			return t, true
 		}
 	}
+
 	return time.Time{}, false
 }
 
@@ -292,15 +314,19 @@ func humanizeDuration(d time.Duration) string {
 	if d < 0 {
 		d = 0
 	}
+
 	if d < time.Minute {
 		return fmt.Sprintf("%ds", int(d.Seconds()))
 	}
+
 	if d < time.Hour {
 		return fmt.Sprintf("%dm", int(d.Minutes()))
 	}
+
 	if d < 24*time.Hour {
 		return fmt.Sprintf("%dh", int(d.Hours()))
 	}
+
 	return fmt.Sprintf("%dd", int(d.Hours()/24))
 }
 
@@ -312,6 +338,7 @@ func padRight(s string, w int) string {
 	if len(s) >= w {
 		return s
 	}
+
 	return s + strings.Repeat(" ", w-len(s))
 }
 
@@ -319,9 +346,11 @@ func truncateHist(s string, w int) string {
 	if len(s) <= w {
 		return s
 	}
+
 	if w <= 1 {
 		return s[:w]
 	}
+
 	return s[:w-1] + "…"
 }
 
@@ -329,5 +358,6 @@ func colorize(color, s string) string {
 	if color == "" {
 		return s
 	}
+
 	return color + s + constants.ColorReset
 }

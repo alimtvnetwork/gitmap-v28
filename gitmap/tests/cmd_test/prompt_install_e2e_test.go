@@ -22,6 +22,7 @@ func TestPromptE2ESuite(t *testing.T) {
 		InstalledAt: "2026-08-26T17:30:00Z",
 		Status:      "active",
 	}
+
 	if err := cmd.WritePromptArchitectMetadata(tempDir, meta); err != nil {
 		t.Fatalf("WritePromptArchitectMetadata failed: %v", err)
 	}

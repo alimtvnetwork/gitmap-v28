@@ -63,6 +63,7 @@ func TestParseHistoryPathsNormalizesAllInputForms(t *testing.T) {
 			if len(got) == 0 && len(tc.want) == 0 {
 				return
 			}
+
 			if !reflect.DeepEqual(got, tc.want) {
 				t.Errorf("parseHistoryPaths(%#v) = %#v, want %#v", tc.args, got, tc.want)
 			}

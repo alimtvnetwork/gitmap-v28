@@ -57,6 +57,7 @@ func planScanReleaseTargets(repos []scanner.RepoInfo) []scanReleaseTarget {
 		if !ok {
 			continue
 		}
+
 		targets = append(targets, target)
 	}
 
@@ -90,9 +91,11 @@ func readRepoNextMinor(repoDir string) (release.Version, release.Version, bool) 
 	if err != nil {
 		return release.Version{}, release.Version{}, false
 	}
+
 	if err := os.Chdir(repoDir); err != nil {
 		return release.Version{}, release.Version{}, false
 	}
+
 	defer func() {
 		if err := os.Chdir(origDir); err != nil {
 			fmt.Fprintf(os.Stderr, "failed to restore original directory: %v\n", err)
@@ -137,6 +140,7 @@ func confirmScanReleasePlan(yes bool) bool {
 
 		return true
 	}
+
 	fmt.Print(constants.MsgReleaseScanPrompt)
 
 	return readYesNo()
@@ -165,11 +169,13 @@ func runOneScanRelease(t scanReleaseTarget) bool {
 
 		return false
 	}
+
 	if err := os.Chdir(t.AbsolutePath); err != nil {
 		fmt.Fprintf(os.Stderr, constants.MsgReleaseScanFail, t.RelativePath, err)
 
 		return false
 	}
+
 	defer func() {
 		if err := os.Chdir(origDir); err != nil {
 			fmt.Fprintf(os.Stderr, constants.MsgReleaseScanFail, t.RelativePath, err)
@@ -188,6 +194,7 @@ func invokeScanRelease(t scanReleaseTarget) bool {
 
 		return false
 	}
+
 	persistReleaseToDB()
 
 	return true

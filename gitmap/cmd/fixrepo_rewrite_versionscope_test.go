@@ -20,6 +20,7 @@ func TestApplyAllTargets_VersionScopeMatrix(t *testing.T) {
 		in      string
 		want    string
 	}
+
 	cases := []tc{
 		{
 			// current=1 is a no-op floor: nothing to bump to.
@@ -54,6 +55,7 @@ func TestApplyAllTargets_VersionScopeMatrix(t *testing.T) {
 			want:    "testpkg binary, otherpkg-v9, otherpkg-v9, otherpkg-v9",
 		},
 	}
+
 	for _, c := range cases {
 		t.Run(c.name, func(t *testing.T) {
 			got, _ := applyAllTargets(c.in, base, c.current, c.targets)

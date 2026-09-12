@@ -27,10 +27,12 @@ func FormatRelativeDbPath(fullPath string) string {
 	if len(fullPath) == 0 {
 		return "./.gitmap/pipeline_db/pipeline-default.db"
 	}
+
 	rel, err := filepath.Rel(resolveRepoRootDir(), fullPath)
 	if err != nil || len(rel) == 0 {
 		return filepath.ToSlash(fullPath)
 	}
+
 	slashRel := filepath.ToSlash(rel)
 	if !strings.HasPrefix(slashRel, ".") {
 		return "./" + slashRel
@@ -43,6 +45,7 @@ func resolveMaxSyncLimit(maxRuns int) int {
 	if maxRuns <= 0 {
 		return 20
 	}
+
 	if maxRuns > 20 {
 		return 20
 	}
@@ -84,6 +87,7 @@ func recordRunInSplitDb(db *pipelinedb.PipelineSplitDb, repo string, run ghRunIt
 	record := buildRunRecord(repo, run)
 	if err := db.RecordRun(record); err != nil {
 		fmt.Fprintf(os.Stderr, "  ⚠ Could not record pipeline run %d: %v\n", run.DatabaseId, err)
+
 		return err
 	}
 
@@ -121,6 +125,7 @@ func saveFallbackErrorLog(db *pipelinedb.PipelineSplitDb, repo string, run ghRun
 		RawLogs:      rawLogs,
 		CreatedAt:    run.UpdatedAt,
 	}
+
 	if err := db.RecordErrorLog(rec); err != nil {
 		fmt.Fprintf(os.Stderr, "  ⚠ Could not record fallback error log for run %d: %v\n", run.DatabaseId, err)
 	}
@@ -130,8 +135,10 @@ func saveJobsOrFallback(db *pipelinedb.PipelineSplitDb, repo string, run ghRunIt
 	hasJobs := len(jobs) > 0
 	if hasJobs {
 		saveParsedFailedJobs(db, repo, run, jobs, rawLogs)
+
 		return
 	}
+
 	saveFallbackErrorLog(db, repo, run, rawLogs)
 }
 
@@ -140,6 +147,7 @@ func fetchAndStoreRunErrorLog(db *pipelinedb.PipelineSplitDb, repo string, run g
 	if len(rawLogs) == 0 {
 		return
 	}
+
 	jobs := ParseFailedLogLines(rawLogs)
 	saveJobsOrFallback(db, repo, run, jobs, rawLogs)
 	res.DownloadedLogs++
@@ -151,8 +159,10 @@ func handleSyncFailureLog(db *pipelinedb.PipelineSplitDb, repo string, run ghRun
 	hasCached := cachedMap[run.DatabaseId] || db.HasErrorLog(run.DatabaseId)
 	if hasCached {
 		res.CachedErrors = append(res.CachedErrors, run.DatabaseId)
+
 		return
 	}
+
 	fetchAndStoreRunErrorLog(db, repo, run, res)
 }
 
@@ -160,6 +170,7 @@ func processSyncRun(db *pipelinedb.PipelineSplitDb, repo string, run ghRunItem, 
 	if err := recordRunInSplitDb(db, repo, run); err != nil {
 		return
 	}
+
 	res.NewRuns++
 	isFailure := run.Conclusion == "failure"
 	if isFailure {
@@ -172,6 +183,7 @@ func syncAllRunsIntoDb(db *pipelinedb.PipelineSplitDb, repo string, runs []ghRun
 	if err != nil {
 		fmt.Fprintf(os.Stderr, "  ⚠ Could not query cached error run ID map for %s: %v\n", repo, err)
 	}
+
 	for _, run := range runs {
 		processSyncRun(db, repo, run, cachedMap, res)
 	}
@@ -183,6 +195,7 @@ func SyncPipelineCache(repo string, maxRuns int) (*PipelineSyncResult, error) {
 	if err != nil {
 		return nil, err
 	}
+
 	defer db.Close()
 	limit := resolveMaxSyncLimit(maxRuns)
 	runs := queryWorkflowRunsLimit(repo, limit)
@@ -221,9 +234,11 @@ func HandlePipelineLastFailedLogs(args []string) error {
 	if err != nil {
 		return err
 	}
+
 	if isJSON {
 		return printJSON(res)
 	}
+
 	renderSyncResultTerminal(res)
 
 	return nil

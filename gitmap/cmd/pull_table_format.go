@@ -15,6 +15,7 @@ func stripBranchPrefix(branch string) string {
 		"fix/",
 		"dependabot/",
 	}
+
 	for _, prefix := range candidatePrefixes {
 		hasMatch := strings.HasPrefix(strings.ToLower(branch), prefix)
 		if hasMatch {
@@ -31,10 +32,12 @@ func middleTruncate(input string, maxLength int, endLength int) string {
 	if len(input) <= maxLength {
 		return input
 	}
+
 	minRequired := 3 + endLength + 1
 	if maxLength < minRequired {
 		return input[:maxLength]
 	}
+
 	startLength := maxLength - 3 - endLength
 	startPart := input[:startLength]
 	endPart := input[len(input)-endLength:]
@@ -47,6 +50,7 @@ func formatBranchName(branch string, maxLength int) string {
 	if len(branch) == 0 {
 		return ""
 	}
+
 	cleanedBranch := stripBranchPrefix(branch)
 	formattedBranch := middleTruncate(cleanedBranch, maxLength, 5)
 
@@ -57,6 +61,7 @@ func formatCombinedBranch(branch, latest string, maxLength int) string {
 	if len(branch) == 0 {
 		return ""
 	}
+
 	cleanedBranch := stripBranchPrefix(branch)
 	cleanedLatest := stripBranchPrefix(latest)
 
@@ -66,6 +71,7 @@ func formatCombinedBranch(branch, latest string, maxLength int) string {
 	}
 
 	combined := cleanedBranch + "→" + cleanedLatest
+
 	return middleTruncate(combined, maxLength, 4)
 }
 
@@ -73,6 +79,7 @@ func formatRepoName(repo string, maxLength int) string {
 	if len(repo) == 0 {
 		return ""
 	}
+
 	formattedRepo := middleTruncate(repo, maxLength, 5)
 
 	return formattedRepo

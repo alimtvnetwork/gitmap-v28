@@ -23,6 +23,7 @@ func TestParseReconcileArgs(t *testing.T) {
 		{[]string{"codelane"}, "codelane", "stash"},
 		{[]string{}, "", "stash"},
 	}
+
 	for _, tc := range cases {
 		repo, act := parseReconcileArgs(tc.args)
 		if repo != tc.wantRepo || act != tc.wantAction {
@@ -38,6 +39,7 @@ func TestFindRemediationItem(t *testing.T) {
 		{RepoName: "codelane", RepoPath: "/path/to/codelane"},
 		{RepoName: "xmind-gen", RepoPath: "/path/to/xmind-gen"},
 	}
+
 	assertFoundRepo(t, items, "codelane", "codelane")
 	assertFoundRepo(t, items, "atto-property", "atto-property")
 	assertFoundRepo(t, items, "1", "atto-property")
@@ -55,6 +57,7 @@ func assertFoundRepo(t *testing.T, items []RemediationItem, query, expectedName 
 	if found == nil {
 		t.Fatalf("expected item for query %q, got nil", query)
 	}
+
 	if found.RepoName != expectedName {
 		t.Fatalf("expected repo name %q, got %q", expectedName, found.RepoName)
 	}
@@ -68,6 +71,7 @@ func TestBatchRemediationSaveLoadRemove(t *testing.T) {
 		{RepoName: "repo-a", RepoPath: "/a", SummaryReason: "+1 modified"},
 		{RepoName: "repo-b", RepoPath: "/b", SummaryReason: "+2 untracked"},
 	}
+
 	if err := SaveRemediationState(items); err != nil {
 		t.Fatalf("save remediation state: %v", err)
 	}
@@ -95,6 +99,7 @@ func TestParseRecipeIndex(t *testing.T) {
 		{Title: "Opt 2"},
 		{Title: "Opt 3"},
 	}
+
 	testRecipeMap(t, recipes, map[string]int{
 		"1": 0, "stash": 0, "s": 0,
 		"2": 1, "wip": 1, "w": 1,
@@ -117,9 +122,11 @@ func TestIsReconcileAllRequested(t *testing.T) {
 	if !isReconcileAllRequested([]string{"--all"}) {
 		t.Errorf("expected true for --all")
 	}
+
 	if !isReconcileAllRequested([]string{"-a"}) {
 		t.Errorf("expected true for -a")
 	}
+
 	if isReconcileAllRequested([]string{"codelane"}) {
 		t.Errorf("expected false for codelane")
 	}
@@ -140,6 +147,7 @@ func TestReconcileWorkflowE2E(t *testing.T) {
 		SummaryReason: diag.SummaryReason,
 		Recipes:       recipes,
 	}
+
 	_ = SaveRemediationState([]RemediationItem{item})
 
 	err := runReconcileCmd([]string{"sample-repo", "discard"})
@@ -169,6 +177,7 @@ func initDummyGitRepoWithRemote(t *testing.T, baseDir string) string {
 	runCmdIn(repoDir, "git", "push", "origin", "HEAD")
 
 	_ = os.WriteFile(filepath.Join(repoDir, "untracked.txt"), []byte("dirty"), 0644)
+
 	return repoDir
 }
 
@@ -199,6 +208,7 @@ func TestResolvePromptChoice(t *testing.T) {
 		{"exit", "", true},
 		{"unknown", "stash", false},
 	}
+
 	for _, tc := range cases {
 		act, quit := resolvePromptChoice(tc.input)
 		if act != tc.wantAction || quit != tc.wantQuit {
@@ -212,6 +222,7 @@ func TestResolveDirtyFiles(t *testing.T) {
 	itemWithFiles := &RemediationItem{
 		Files: []string{"modified: main.go", "untracked: temp.txt"},
 	}
+
 	files := resolveDirtyFiles(itemWithFiles)
 	if len(files) != 2 || files[0] != "modified: main.go" {
 		t.Fatalf("expected 2 files preserved, got %v", files)
@@ -220,6 +231,7 @@ func TestResolveDirtyFiles(t *testing.T) {
 	itemEmpty := &RemediationItem{
 		Files: []string{},
 	}
+
 	emptyFiles := resolveDirtyFiles(itemEmpty)
 	if len(emptyFiles) != 0 {
 		t.Fatalf("expected 0 files for empty item, got %v", emptyFiles)

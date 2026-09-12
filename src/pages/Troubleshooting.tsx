@@ -115,11 +115,13 @@ function useTroubleshootingDeepLink(
 
     if (activeCategory !== CategoryFilterType.All && activeCategory !== targetIssue!.category) {
       setActiveCategory(CategoryFilterType.All);
+
       return;
     }
 
     if (filteredIssues.findIndex((issueItem) => issueItem.id === targetId) === -1) {
       setSearch("");
+
       return;
     }
 

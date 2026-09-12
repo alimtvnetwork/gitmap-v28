@@ -21,6 +21,8 @@ func runPromptStatus(targets []string) error {
 		meta, _ := ReadPromptArchitectMetadata(t)
 		layout.PrintRow(t, meta)
 	}
+
 	fmt.Println("  --------------------------------------------------------------------------------")
+
 	return nil
 }

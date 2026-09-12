@@ -35,10 +35,12 @@ func DiffTrees(leftDir, rightDir string, opts Options) ([]DiffEntry, error) {
 	if err != nil {
 		return nil, err
 	}
+
 	ri, err := IndexTree(rightDir, opts)
 	if err != nil {
 		return nil, err
 	}
+
 	keys := SortedKeys(li, ri)
 	out := make([]DiffEntry, 0, len(keys))
 	for _, rel := range keys {
@@ -46,6 +48,7 @@ func DiffTrees(leftDir, rightDir string, opts Options) ([]DiffEntry, error) {
 		if res.IsFailure() {
 			return nil, res.Err
 		}
+
 		entry := res.Value
 		out = append(out, entry)
 	}
@@ -69,6 +72,7 @@ func classifyOne(
 
 		return result.SuccessResult(entry)
 	}
+
 	if !lOK && rOK {
 		entry.Kind = DiffMissingLeft
 
@@ -86,15 +90,18 @@ func classifyBoth(entry DiffEntry, leftDir, rightDir string) result.Result[DiffE
 	if err != nil {
 		return result.FailureResult[DiffEntry](apperror.WrapSimple(err, "movemerge"))
 	}
+
 	rh, err := HashFile(rPath)
 	if err != nil {
 		return result.FailureResult[DiffEntry](apperror.WrapSimple(err, "movemerge"))
 	}
+
 	if lh == rh {
 		entry.Kind = DiffIdentical
 
 		return result.SuccessResult(entry)
 	}
+
 	entry.Kind = DiffConflict
 
 	return result.SuccessResult(entry)

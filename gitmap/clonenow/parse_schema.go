@@ -65,9 +65,11 @@ func validateCSVSchema(r io.Reader) error {
 	if err == io.EOF {
 		return fmt.Errorf(constants.ErrCloneNowEmptyCSV)
 	}
+
 	if err != nil {
 		return fmt.Errorf(constants.ErrCloneNowCSVRead, err)
 	}
+
 	if err := validateCSVHeader(header); err != nil {
 		return err
 	}
@@ -86,12 +88,13 @@ func validateCSVBody(cr *csv.Reader, header []string) error {
 	for dataRow := 1; ; dataRow++ {
 		rec, err := cr.Read()
 		if err == io.EOF {
-
 			return nil
 		}
+
 		if err != nil {
 			return fmt.Errorf(constants.ErrCloneNowCSVRowRead, dataRow, err)
 		}
+
 		if !rowHasURL(rec, urlIdxs) {
 			return fmt.Errorf(constants.ErrCloneNowCSVRowMissingURL, dataRow)
 		}
@@ -139,16 +142,18 @@ func validateCSVHeader(header []string) error {
 	for _, col := range header {
 		name := normalizeHeaderName(col)
 		if len(name) == 0 {
-
 			continue
 		}
+
 		if !knownScanFields[name] {
 			return fmt.Errorf(constants.ErrCloneNowUnknownCSVField, name, knownFieldList())
 		}
+
 		if name == "httpsUrl" || name == "sshUrl" {
 			hasURL = true
 		}
 	}
+
 	if !hasURL {
 		return fmt.Errorf(constants.ErrCloneNowCSVMissingURLCol)
 	}
@@ -180,6 +185,7 @@ func knownFieldList() string {
 	for k := range knownScanFields {
 		names = append(names, k)
 	}
+
 	sort.Strings(names)
 
 	return strings.Join(names, ", ")

@@ -18,6 +18,7 @@ func TestParseVersionFromCommit(t *testing.T) {
 		"v1.2.0":                                 "v1.2.0",
 		"release v1.2.3-rc.1":                    "v1.2.3-rc.1",
 	}
+
 	for msg, expected := range cases {
 		v, isFound := ParseVersionFromCommit(msg)
 		if !isFound || v != expected {
@@ -33,6 +34,7 @@ func TestParseVersionFromCommit_NotFound(t *testing.T) {
 		"feat: upgrade to v1.2.0 library",
 		"docs: mention v1.2.0 in readme",
 	}
+
 	for _, msg := range cases {
 		v, isFound := ParseVersionFromCommit(msg)
 		if isFound || v != "" {

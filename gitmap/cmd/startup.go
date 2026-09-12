@@ -40,15 +40,18 @@ func runStartupList(args []string) error {
 		fmt.Fprintf(os.Stderr, "%v\n", err)
 		cliexit.HandleError(nil, 2)
 	}
+
 	entries, err := startup.List()
 	if err != nil {
 		return apperror.WrapSimple(err, "")
 	}
+
 	entries = filterStartupList(entries, opts.backend, opts.name)
 	dir, _ := startup.AutostartDir()
 	if err := renderStartupList(opts.format, opts.jsonIndent, dir, entries); err != nil {
 		return apperror.WrapSimple(err, "")
 	}
+
 	return nil
 }
 
@@ -93,17 +96,17 @@ func parseStartupListFlags(args []string) (startupListOpts, error) {
 		constants.FlagDescStartupListName,
 	)
 	if err := fs.Parse(args); err != nil {
-
 		return startupListOpts{}, err
 	}
-	if *jsonIndent < 0 || *jsonIndent > constants.StartupListJSONIndentMax {
 
+	if *jsonIndent < 0 || *jsonIndent > constants.StartupListJSONIndentMax {
 		return startupListOpts{}, fmt.Errorf(constants.ErrStartupListBadJSONIndent, *jsonIndent)
 	}
-	if err := validateStartupListBackend(*backend); err != nil {
 
+	if err := validateStartupListBackend(*backend); err != nil {
 		return startupListOpts{}, err
 	}
+
 	switch *format {
 	case constants.StartupListFormatTable, constants.OutputTerminal,
 		constants.OutputJSON, constants.StartupListFormatJSONL,
@@ -151,28 +154,34 @@ func runStartupRemove(args []string) error {
 		fmt.Fprintln(os.Stderr, constants.ErrStartupRemoveUsage)
 		cliexit.HandleError(nil, 2)
 	}
+
 	if err := validateStartupOutput(constants.CmdStartupRemove, cfg.output, cfg.jsonIndent); err != nil {
 		fmt.Fprintf(os.Stderr, "%v\n", err)
 		cliexit.HandleError(nil, 2)
 	}
+
 	backend, err := startup.ParseBackend(cfg.backend)
 	if err != nil {
 		fmt.Fprintf(os.Stderr, "%v\n", err)
 		cliexit.HandleError(nil, 2)
 	}
+
 	res, err := startup.RemoveWithOptions(cfg.name, startup.RemoveOptions{
 		DryRun: cfg.dryRun, Backend: backend,
 	})
 	if err != nil {
 		return apperror.WrapSimple(err, "")
 	}
+
 	if cfg.output == constants.OutputJSON {
 		_ = emitStartupStatus(cfg.output, cfg.jsonIndent,
 			removeResultToStatus(cfg.name, res))
 
 		return nil
 	}
+
 	printRemoveResult(cfg.name, res)
+
 	return nil
 }
 
@@ -206,14 +215,14 @@ func parseStartupRemoveFlags(args []string) (startupRemoveFlags, error) {
 	fs.IntVar(&cfg.jsonIndent, constants.FlagStartupJSONIndent,
 		constants.StartupListJSONIndentDefault, constants.FlagDescStartupJSONIndent)
 	if err := fs.Parse(args); err != nil {
-
 		return startupRemoveFlags{}, err
 	}
+
 	rest := fs.Args()
 	if len(rest) != 1 {
-
 		return startupRemoveFlags{}, fmt.Errorf("expected 1 positional name, got %d", len(rest))
 	}
+
 	cfg.name = rest[0]
 
 	return cfg, nil
@@ -230,8 +239,8 @@ func validateStartupOutput(cmd, output string, jsonIndent int) error {
 
 		return fmt.Errorf(constants.ErrStartupBadOutput, cmd, output)
 	}
-	if jsonIndent < 0 || jsonIndent > constants.StartupListJSONIndentMax {
 
+	if jsonIndent < 0 || jsonIndent > constants.StartupListJSONIndentMax {
 		return fmt.Errorf(constants.ErrStartupListBadJSONIndent, jsonIndent)
 	}
 
@@ -250,6 +259,7 @@ func printRemoveResult(name string, res startup.RemoveResult) {
 
 		return
 	}
+
 	switch res.Status {
 	case startup.RemoveDeleted:
 		fmt.Printf(constants.MsgStartupRemoveOK, res.Path)

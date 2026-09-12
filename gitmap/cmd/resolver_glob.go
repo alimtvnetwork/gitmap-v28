@@ -16,6 +16,7 @@ func resolveByGlob(pat string, all []model.ScanRecord) []model.ScanRecord {
 			out = append(out, r)
 		}
 	}
+
 	return out
 }
 
@@ -25,5 +26,6 @@ func isGlob(s string) bool {
 
 func globHit(pat, name string) bool {
 	ok, err := filepath.Match(pat, name)
+
 	return err == nil && ok
 }

@@ -15,10 +15,12 @@ func runCreate(args []string) error {
 	if len(args) == 0 && !isInteractiveStdin() {
 		return apperror.NewSimple("usage: gitmap create [repo] <name> [flags]", "E1076")
 	}
+
 	subArgs, resolveErr := resolveCreateArgs(args)
 	if resolveErr != nil {
 		return resolveErr
 	}
+
 	return executeCreateRepo(subArgs)
 }
 
@@ -27,10 +29,12 @@ func resolveCreateArgs(args []string) ([]string, error) {
 	if len(subArgs) > 0 {
 		return subArgs, nil
 	}
+
 	name, promptErr := promptRepoName()
 	if promptErr != nil {
 		return nil, promptErr
 	}
+
 	return []string{name}, nil
 }
 
@@ -38,6 +42,7 @@ func normalizeCreateArgs(args []string) []string {
 	if len(args) > 0 && args[0] == "repo" {
 		return args[1:]
 	}
+
 	return args
 }
 
@@ -49,9 +54,11 @@ func promptRepoName() (string, error) {
 	if err != nil {
 		return "", apperror.WrapSimple(err, "read repo name:")
 	}
+
 	name := strings.TrimSpace(line)
 	if len(name) == 0 {
 		return "", apperror.NewSimple("repository name cannot be empty", "E1077")
 	}
+
 	return name, nil
 }

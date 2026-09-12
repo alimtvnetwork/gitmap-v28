@@ -125,11 +125,13 @@ func syncClonedReposToVSCodePM(pairs []vscodepm.Pair, skip bool) {
 
 		return
 	}
+
 	if isVSCodeSyncDisabled() {
 		fmt.Print(constants.MsgVSCodePMSyncDisabled)
 
 		return
 	}
+
 	executeVSCodePMSync(pairs)
 }
 
@@ -137,12 +139,14 @@ func executeVSCodePMSync(pairs []vscodepm.Pair) {
 	if len(pairs) == 0 {
 		return
 	}
+
 	summary, err := vscodepm.Sync(pairs)
 	if err != nil {
 		reportVSCodePMSoftError(err)
 
 		return
 	}
+
 	fmt.Printf(constants.MsgVSCodePMSyncSummary,
 		summary.Added, summary.Updated, summary.Unchanged, summary.Total)
 }

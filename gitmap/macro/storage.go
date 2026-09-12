@@ -16,10 +16,12 @@ func getMacroDir() (string, error) {
 	if err != nil {
 		return "", err
 	}
+
 	dir := filepath.Join(home, constants.GitMapDir, "macros")
 	if err := os.MkdirAll(dir, 0755); err != nil {
 		return "", err
 	}
+
 	return dir, nil
 }
 
@@ -29,6 +31,7 @@ func SaveMacro(m *Macro) error {
 	if err != nil {
 		return err
 	}
+
 	m.UpdatedAt = time.Now()
 	m.TotalSteps = len(m.Steps)
 	path := filepath.Join(dir, m.Name+".json")
@@ -36,6 +39,7 @@ func SaveMacro(m *Macro) error {
 	if err != nil {
 		return err
 	}
+
 	return os.WriteFile(path, data, 0644)
 }
 
@@ -45,15 +49,18 @@ func LoadMacro(name string) (*Macro, error) {
 	if err != nil {
 		return nil, err
 	}
+
 	path := filepath.Join(dir, strings.TrimSuffix(name, ".json")+".json")
 	data, err := os.ReadFile(path)
 	if err != nil {
 		return nil, fmt.Errorf("macro %q not found: %w", name, err)
 	}
+
 	var m Macro
 	if err := json.Unmarshal(data, &m); err != nil {
 		return nil, err
 	}
+
 	return &m, nil
 }
 
@@ -63,21 +70,25 @@ func ListMacros() ([]Macro, error) {
 	if err != nil {
 		return nil, err
 	}
+
 	entries, err := os.ReadDir(dir)
 	if err != nil {
 		return nil, err
 	}
+
 	var out []Macro
 	for _, e := range entries {
 		if !strings.HasSuffix(e.Name(), ".json") {
 			continue
 		}
+
 		name := strings.TrimSuffix(e.Name(), ".json")
 		m, err := LoadMacro(name)
 		if err == nil && m != nil {
 			out = append(out, *m)
 		}
 	}
+
 	return out, nil
 }
 

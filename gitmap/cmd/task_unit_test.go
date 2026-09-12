@@ -14,6 +14,7 @@ func TestIsGitignoreCommentClassifies(t *testing.T) {
 		{"*.log", false},
 		{"src/foo.go", false},
 	}
+
 	for _, c := range cases {
 		got := isGitignoreComment(c.line)
 		if got != c.want {
@@ -29,6 +30,7 @@ func TestParseGitignoreLinesStripsCommentsAndBlanks(t *testing.T) {
 	if len(got) != len(want) {
 		t.Fatalf("len = %d, want %d (%v)", len(got), len(want), got)
 	}
+
 	for i := range got {
 		if got[i] != want[i] {
 			t.Errorf("[%d] = %q, want %q", i, got[i], want[i])
@@ -53,6 +55,7 @@ func TestMatchGlobBasename(t *testing.T) {
 		{"src/main.go", "main.go", true},
 		{"src/main.go", "[invalid", false}, // bad pattern -> false
 	}
+
 	for _, c := range cases {
 		got := matchGitignoreGlob(c.path, c.pattern)
 		if got != c.want {
@@ -74,6 +77,7 @@ func TestMatchesPatternDirOnlyVsFile(t *testing.T) {
 		{"file-pattern matches file", "app.log", false, "*.log", true},
 		{"file-pattern matches dir basename", "logs", true, "*.log", false},
 	}
+
 	for _, c := range cases {
 		got := matchesPattern(c.relPath, c.isDir, c.pattern)
 		if got != c.want {
@@ -87,6 +91,7 @@ func TestIsIgnoredEmptyPatternsShortCircuit(t *testing.T) {
 	if isIgnored("anything", false, nil) {
 		t.Error("nil patterns should not match")
 	}
+
 	if isIgnored("anything", true, []string{}) {
 		t.Error("empty patterns should not match")
 	}
@@ -98,10 +103,12 @@ func TestIsIgnoredAnyMatchWins(t *testing.T) {
 	if isLogNotIgnored {
 		t.Error("expected debug.log to be ignored")
 	}
+
 	isDirNotIgnored := !isIgnored("node_modules", true, patterns)
 	if isDirNotIgnored {
 		t.Error("expected node_modules dir to be ignored")
 	}
+
 	if isIgnored("src/main.go", false, patterns) {
 		t.Error("src/main.go should not be ignored")
 	}

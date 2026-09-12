@@ -22,11 +22,13 @@ func SaveSelection(p Persister, plan Plan) (int64, error) {
 	if plan.DryRun {
 		return 0, nil
 	}
+
 	if p == nil {
 		// Persister optional -- when the cmd layer can't open the DB
 		// we still want the clone to succeed; just log "not saved".
 		return 0, nil
 	}
+
 	id, err := p.SaveClonePickSelection(plan)
 	if err != nil {
 		return 0, fmt.Errorf("clone-pick: save selection: %w", err)

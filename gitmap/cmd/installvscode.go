@@ -13,6 +13,7 @@ import (
 func runVSCodeSettingsOnly() error {
 	fmt.Println("  Syncing VS Code settings (settings-only mode)...")
 	syncVSCodeSettings()
+
 	return nil
 }
 
@@ -43,10 +44,13 @@ func syncVSCodeSettings() {
 		_ = os.MkdirAll(sourcePath, 0o755)
 		fmt.Printf("  Info: Created VS Code settings source folder at %s.\n", sourcePath)
 		fmt.Printf("  Place your settings.json and keybindings.json there, then run this command again to sync them.\n")
+
 		return
 	}
+
 	if err != nil {
 		fmt.Fprintf(os.Stderr, "  Error reading settings source: %v\n", err)
+
 		return
 	}
 

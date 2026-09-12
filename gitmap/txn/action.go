@@ -42,13 +42,16 @@ func (j *Journal) RecordEditFile(absPath string) error {
 	if j.id == 0 {
 		return nil
 	}
+
 	if err := j.SnapshotEdit(absPath); err != nil {
 		return err
 	}
+
 	backupRef, err := j.lastFileRowID()
 	if err != nil {
 		return err
 	}
+
 	fwd, _ := json.Marshal(EditFilePayload{AbsPath: absPath})
 	rev, _ := json.Marshal(EditFilePayload{AbsPath: absPath})
 
@@ -60,6 +63,7 @@ func (j *Journal) RecordRenamePath(from, to string) error {
 	if j.id == 0 {
 		return nil
 	}
+
 	fwd, _ := json.Marshal(RenamePathPayload{From: from, To: to})
 	rev, _ := json.Marshal(RenamePathPayload{From: to, To: from})
 
@@ -72,6 +76,7 @@ func (j *Journal) appendAction(kind, fwd, rev string, backupRef int64) error {
 	if err != nil {
 		return err
 	}
+
 	_, err = j.db.InsertTransactionAction(model.TransactionActionRecord{
 		TransactionID: j.id,
 		Seq:           seq,
@@ -91,6 +96,7 @@ func (j *Journal) lastFileRowID() (int64, error) {
 	if err != nil {
 		return 0, err
 	}
+
 	if len(files) == 0 {
 		return 0, nil
 	}
@@ -106,9 +112,11 @@ func RevertActions(db *store.DB, txnID int64) error {
 	if err != nil {
 		return wrapNotFound(txnID, err)
 	}
+
 	if err := assertCommitted(row); err != nil {
 		return err
 	}
+
 	actions, err := db.ListTransactionActionsReverse(txnID)
 	if err != nil {
 		return err
@@ -123,9 +131,11 @@ func applyAllActionReverses(db *store.DB, actions []model.TransactionActionRecor
 		if a.RevertedAt != 0 {
 			continue // idempotent: already reverted
 		}
+
 		if err := dispatchActionReverse(db, a); err != nil {
 			return err
 		}
+
 		if err := db.MarkTransactionActionReverted(a.ID); err != nil {
 			return err
 		}
@@ -152,6 +162,7 @@ func reverseEditFileAction(db *store.DB, a model.TransactionActionRecord) error 
 	if err != nil {
 		return err
 	}
+
 	for _, f := range files {
 		if f.ID == a.BackupRef {
 			return reverseRestore(f, RevertOptions{})
@@ -167,6 +178,7 @@ func reverseRenamePathAction(a model.TransactionActionRecord) error {
 	if err := json.Unmarshal([]byte(a.ReverseJSON), &p); err != nil {
 		return fmt.Errorf(constants.ErrActionPayloadDecode, a.ID, err)
 	}
+
 	if _, err := os.Stat(p.From); err != nil {
 		return fmt.Errorf(constants.ErrActionLiveConflict, a.ID, a.Kind)
 	}

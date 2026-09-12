@@ -33,6 +33,7 @@ func RunPickerKeep(plan Plan) ([]string, string, error) {
 	if err != nil {
 		return nil, "", err
 	}
+
 	model := newPickerModel(all, plan.Paths)
 	prog := tea.NewProgram(model)
 	final, runErr := prog.Run()
@@ -41,6 +42,7 @@ func RunPickerKeep(plan Plan) ([]string, string, error) {
 
 		return nil, "", fmt.Errorf("clone-pick: picker run: %w", runErr)
 	}
+
 	finished, _ := final.(pickerModel)
 	if finished.isCanceled {
 		os.RemoveAll(tmp)

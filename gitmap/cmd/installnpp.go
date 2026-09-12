@@ -24,6 +24,7 @@ func resolveNppInstallName(tool string) string {
 func runNppSettingsOnly() error {
 	fmt.Print(constants.MsgInstallNppSkipBin)
 	runNppSettings()
+
 	return nil
 }
 
@@ -44,6 +45,7 @@ func runNppSettings() error {
 	}
 
 	extractNppSettingsZip(target)
+
 	return nil
 }
 
@@ -98,6 +100,7 @@ func resolveSettingsPath(subpaths ...string) string {
 		if absErr != nil {
 			abs = candidate
 		}
+
 		if _, statErr := os.Stat(candidate); statErr == nil {
 			fmt.Printf("  -> Resolved path: %s\n", abs)
 

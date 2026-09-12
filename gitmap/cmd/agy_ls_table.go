@@ -42,12 +42,15 @@ func (c *agyTableContext) addRow(r agyTableRow) {
 	if l := len(r.Name); l > c.MaxProject {
 		c.MaxProject = l
 	}
+
 	if l := len(r.ID); l > c.MaxID {
 		c.MaxID = l
 	}
+
 	if l := len(r.Branch); l > c.MaxBranch {
 		c.MaxBranch = l
 	}
+
 	if l := len(r.Updated); l > c.MaxUpdated {
 		c.MaxUpdated = l
 	}
@@ -85,6 +88,7 @@ func printAgyTableRow(c *agyTableContext, r agyTableRow, index int) {
 	if r.Branch == "—" {
 		branchColor = constants.ColorDim
 	}
+
 	projectCol := fmt.Sprintf("%s%-*s%s", color, c.MaxProject, r.Name, constants.ColorReset)
 	idCol := fmt.Sprintf("%s%-*s%s", constants.ColorDim, c.MaxID, r.ID, constants.ColorReset)
 	branchCol := fmt.Sprintf("%s%-*s%s", branchColor, c.MaxBranch, r.Branch, constants.ColorReset)
@@ -105,9 +109,11 @@ func formatAgyStatus(status string, isMissing bool, width int) string {
 	if isMissing {
 		return fmt.Sprintf("%s%-*s%s", constants.ColorRed, width, "✖   missing", constants.ColorReset)
 	}
+
 	if status == "global" {
 		return fmt.Sprintf("%s%-*s%s", constants.ColorDim, width, "—   global", constants.ColorReset)
 	}
+
 	return fmt.Sprintf("%s%-*s%s", constants.ColorGreen, width, "✔   active", constants.ColorReset)
 }
 
@@ -121,6 +127,7 @@ func printAgySummary(total, active, missing int) {
 	if missing > 0 {
 		printAgyMissingTips()
 	}
+
 	fmt.Println()
 }
 

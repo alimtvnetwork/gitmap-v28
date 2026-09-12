@@ -28,6 +28,7 @@ func TestWatchJSONSchema_TopLevelShape(t *testing.T) {
 	if root["type"] != "object" {
 		t.Fatalf("top-level type = %v, want object", root["type"])
 	}
+
 	got := stringSliceFromAny(root["required"])
 	sort.Strings(got)
 	if !equalStringSlices(got, watchTopLevelRequiredKeys) {
@@ -49,6 +50,7 @@ func TestWatchJSONSchema_EncoderMatchesSchema(t *testing.T) {
 	if err := encodeWatchJSON(&buf, nil, watchSummary{}, "2025-01-01T12:00:00Z"); err != nil {
 		t.Fatalf("encode: %v", err)
 	}
+
 	gotKeys := readFirstObjectKeys(t, buf.Bytes())
 	for _, key := range gotKeys {
 		if _, allowed := props[key]; !allowed {

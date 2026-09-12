@@ -67,6 +67,7 @@ func ResolveLatestVersion() (Version, error) {
 	if isParsed && isVerbose {
 		verbose.Get().Log("version: baseline from latest.json: %s", v.String())
 	}
+
 	if isParsed {
 		return v, nil
 	}
@@ -101,6 +102,7 @@ func checkDuplicate(v Version) error {
 	if isRelease && !tagExists && !branchExists {
 		return handleOrphanedMeta(v)
 	}
+
 	if isRelease {
 		return fmt.Errorf(constants.ErrReleaseAlreadyExists, v.String(), v.String())
 	}

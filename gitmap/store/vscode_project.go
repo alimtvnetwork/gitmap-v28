@@ -28,6 +28,7 @@ func (db *DB) ListVSCodeProjects() ([]model.VSCodeProject, error) {
 	if err != nil {
 		return nil, fmt.Errorf(constants.ErrVSCodePMList, err)
 	}
+
 	defer rows.Close()
 
 	return scanVSCodeProjectRows(rows)
@@ -93,6 +94,7 @@ func scanOneVSCodeProjectRow(row interface{ Scan(dest ...any) error }) (model.VS
 	if errors.Is(err, sql.ErrNoRows) {
 		return model.VSCodeProject{}, sql.ErrNoRows
 	}
+
 	if err != nil {
 		return model.VSCodeProject{}, fmt.Errorf(constants.ErrVSCodePMList, err)
 	}
@@ -121,6 +123,7 @@ func scanOneVSCodeProject(row interface{ Scan(dest ...any) error }) (model.VSCod
 	if decodeErr != nil {
 		return p, decodeErr
 	}
+
 	p.Paths = paths
 
 	return p, nil

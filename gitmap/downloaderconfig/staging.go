@@ -76,12 +76,14 @@ func copyAndRemoveFile(src, dst string) error {
 	if err != nil {
 		return apperror.WrapSimple(err, "downloaderconfig.copyAndRemoveFile.openSrc")
 	}
+
 	defer srcFile.Close()
 
 	dstFile, err := os.OpenFile(dst, os.O_CREATE|os.O_WRONLY|os.O_TRUNC, filePermissionMode)
 	if err != nil {
 		return apperror.WrapSimple(err, "downloaderconfig.copyAndRemoveFile.openDst")
 	}
+
 	defer dstFile.Close()
 
 	if err := copyFileContents(srcFile, dstFile); err != nil {

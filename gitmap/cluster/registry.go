@@ -83,6 +83,7 @@ func (r *Registry) GetNodes() []Node {
 	for _, node := range r.nodes {
 		snapshot = append(snapshot, *node)
 	}
+
 	return snapshot
 }
 

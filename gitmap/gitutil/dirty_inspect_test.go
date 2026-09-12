@@ -26,15 +26,19 @@ func TestParseDirtyLineClassifications(t *testing.T) {
 		if diag.UntrackedCount != tc.wantUntracked {
 			t.Errorf("line %q UntrackedCount = %d, want %d", tc.line, diag.UntrackedCount, tc.wantUntracked)
 		}
+
 		if diag.ModifiedCount != tc.wantModified {
 			t.Errorf("line %q ModifiedCount = %d, want %d", tc.line, diag.ModifiedCount, tc.wantModified)
 		}
+
 		if diag.DeletedCount != tc.wantDeleted {
 			t.Errorf("line %q DeletedCount = %d, want %d", tc.line, diag.DeletedCount, tc.wantDeleted)
 		}
+
 		if diag.StagedCount != tc.wantStaged {
 			t.Errorf("line %q StagedCount = %d, want %d", tc.line, diag.StagedCount, tc.wantStaged)
 		}
+
 		if len(diag.AllFiles) != 1 || diag.AllFiles[0] != tc.wantPrefix+tc.line[3:] {
 			t.Errorf("line %q AllFiles = %v, want prefix %q", tc.line, diag.AllFiles, tc.wantPrefix)
 		}
@@ -48,6 +52,7 @@ func TestBuildSummaryReason(t *testing.T) {
 		UntrackedCount: 1,
 		DeletedCount:   1,
 	}
+
 	reason := buildSummaryReason(&diag)
 	expected := "+1 staged, +2 modified, +1 untracked, -1 deleted"
 	if reason != expected {

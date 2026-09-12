@@ -38,6 +38,7 @@ func BuildFromResolved(args BuildArgs) *Profile {
 			Languages: cloneStrings(r.FunctionIntel.Languages),
 		},
 	}
+
 	return p
 }
 
@@ -45,8 +46,10 @@ func cloneStrings(in []string) []string {
 	if len(in) == 0 {
 		return nil
 	}
+
 	out := make([]string, len(in))
 	copy(out, in)
+
 	return out
 }
 
@@ -54,8 +57,10 @@ func cloneExclusions(in []Exclusion) []Exclusion {
 	if len(in) == 0 {
 		return nil
 	}
+
 	out := make([]Exclusion, len(in))
 	copy(out, in)
+
 	return out
 }
 
@@ -63,7 +68,9 @@ func cloneMessageRules(in []MessageRule) []MessageRule {
 	if len(in) == 0 {
 		return nil
 	}
+
 	out := make([]MessageRule, len(in))
 	copy(out, in)
+
 	return out
 }

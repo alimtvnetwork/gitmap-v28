@@ -36,6 +36,7 @@ func TestEffectiveCheckout_DefaultsToAuto(t *testing.T) {
 		t.Fatalf("EffectiveCheckout(empty) = %q, want %q",
 			got, constants.CloneFromCheckoutAuto)
 	}
+
 	if got := EffectiveCheckout(Row{Checkout: "force"}); got != "force" {
 		t.Fatalf("EffectiveCheckout(force) = %q, want force", got)
 	}
@@ -60,6 +61,7 @@ func TestBuildGitArgs_NoCheckoutOnlyForSkipMode(t *testing.T) {
 		{"skip", Row{URL: "https://x/y.git",
 			Checkout: constants.CloneFromCheckoutSkip}, true},
 	}
+
 	for _, tc := range cases {
 		t.Run(tc.name, func(t *testing.T) {
 			args := buildGitArgs(tc.row, "out")
@@ -91,9 +93,11 @@ func TestExecute_SkipCheckout_NoWorkingTree(t *testing.T) {
 		t.Fatalf("status = %q, want ok (detail=%q)",
 			results[0].Status, results[0].Detail)
 	}
+
 	if _, err := os.Stat(filepath.Join(cwd, "out", ".git")); err != nil {
 		t.Errorf("expected .git dir: %v", err)
 	}
+
 	if _, err := os.Stat(filepath.Join(cwd, "out", "README")); err == nil {
 		t.Errorf("README present despite --no-checkout — working " +
 			"tree was materialized")
@@ -123,6 +127,7 @@ func TestExecute_ForceCheckout_BranchMissingFails(t *testing.T) {
 		// clone itself (would fail at clone-time with a different
 		// error). We mutate after-the-fact via a second helper row.
 	}
+
 	// To exercise the post-clone hook we need Branch set so the
 	// hook fires. We rely on the fact that the bare repo only has
 	// HEAD's default branch (master/main depending on git config)
@@ -139,6 +144,7 @@ func TestExecute_ForceCheckout_BranchMissingFails(t *testing.T) {
 	if err := runRawGit(t, cwd, cloneArgs...); err != nil {
 		t.Fatalf("seed clone: %v", err)
 	}
+
 	detail, ok := runPostCloneCheckout(
 		Row{Branch: "nope-xyz", Checkout: constants.CloneFromCheckoutForce},
 		"manual", cwd,
@@ -146,6 +152,7 @@ func TestExecute_ForceCheckout_BranchMissingFails(t *testing.T) {
 	if ok {
 		t.Fatalf("runPostCloneCheckout succeeded, want failure")
 	}
+
 	wantPrefix := strings.Split(constants.MsgCloneFromBranchMissingFmt, ":")[0]
 	if !strings.HasPrefix(detail, wantPrefix) {
 		t.Errorf("detail = %q, want prefix %q", detail, wantPrefix)
@@ -166,6 +173,7 @@ func TestPostCloneCheckout_NoBranchIsNoOp(t *testing.T) {
 	if !ok {
 		t.Fatalf("ok=false, want true (no-op for empty branch)")
 	}
+
 	if len(detail) != 0 {
 		t.Errorf("detail = %q, want empty", detail)
 	}
@@ -193,6 +201,7 @@ func TestValidateRow_RejectsBadCheckout(t *testing.T) {
 	if err == nil {
 		t.Fatalf("validateRow accepted bogus checkout")
 	}
+
 	if !strings.Contains(err.Error(), "bogus") {
 		t.Errorf("error %q does not mention bad value", err.Error())
 	}

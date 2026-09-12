@@ -23,6 +23,7 @@ func tableInfo(t *testing.T, db *DB, table string) []columnInfo {
 	if err != nil {
 		t.Fatalf("PRAGMA table_info(%s): %v", table, err)
 	}
+
 	defer rows.Close()
 	var out []columnInfo
 	for rows.Next() {
@@ -33,9 +34,12 @@ func tableInfo(t *testing.T, db *DB, table string) []columnInfo {
 		if err := rows.Scan(&cid, &ci.Name, &ci.Type, &ci.NotNull, &ci.Default, &ci.IsPK); err != nil {
 			t.Fatalf("scan: %v", err)
 		}
+
 		out = append(out, ci)
 	}
+
 	sort.Slice(out, func(i, j int) bool { return out[i].Name < out[j].Name })
+
 	return out
 }
 
@@ -61,19 +65,23 @@ func TestCommitInReplayMapHasAllSpecColumns(t *testing.T) {
 		"TagReplayOutcomeId":    {"INTEGER", 1},
 		"CreatedAt":             {"DATETIME", 1},
 	}
+
 	got := tableInfo(t, db, "CommitInReplayMap")
 	if len(got) != len(want) {
 		t.Fatalf("CommitInReplayMap col count = %d, want %d (got: %+v)", len(got), len(want), got)
 	}
+
 	for _, ci := range got {
 		w, ok := want[ci.Name]
 		if !ok {
 			t.Errorf("unexpected column %q", ci.Name)
 			continue
 		}
+
 		if !strings.EqualFold(ci.Type, w.Type) {
 			t.Errorf("col %s: type=%q, want %q", ci.Name, ci.Type, w.Type)
 		}
+
 		if ci.NotNull != w.NotNull {
 			t.Errorf("col %s: NotNull=%d, want %d", ci.Name, ci.NotNull, w.NotNull)
 		}
@@ -88,6 +96,7 @@ func TestCommitInReplayMapForeignKeysPointAtSpecTargets(t *testing.T) {
 	if err != nil {
 		t.Fatalf("PRAGMA foreign_key_list: %v", err)
 	}
+
 	defer rows.Close()
 	got := map[string]string{} // from-col -> to-table
 	for rows.Next() {
@@ -98,13 +107,16 @@ func TestCommitInReplayMapForeignKeysPointAtSpecTargets(t *testing.T) {
 		if err := rows.Scan(&id, &seq, &table, &fromCol, &toCol, &onUpdate, &onDel, &mtch); err != nil {
 			t.Fatalf("scan: %v", err)
 		}
+
 		got[fromCol] = table
 	}
+
 	want := map[string]string{
 		"CommitInRunId":      "CommitInRun",
 		"RewrittenCommitId":  "RewrittenCommit",
 		"TagReplayOutcomeId": "TagReplayOutcome",
 	}
+
 	for col, table := range want {
 		if got[col] != table {
 			t.Errorf("FK %s -> %q, want %q", col, got[col], table)
@@ -122,11 +134,13 @@ func TestCommitInReplayMapIndexesAreCreated(t *testing.T) {
 		"IX_CommitInReplayMap_MirroredReleaseBranch",
 		"IX_CommitInReplayMap_SourceTagName",
 	}
+
 	rows, err := db.conn.Query(
 		`SELECT name FROM sqlite_master WHERE type='index' AND tbl_name='CommitInReplayMap' ORDER BY name`)
 	if err != nil {
 		t.Fatalf("query: %v", err)
 	}
+
 	defer rows.Close()
 	var got []string
 	for rows.Next() {
@@ -134,11 +148,14 @@ func TestCommitInReplayMapIndexesAreCreated(t *testing.T) {
 		if err := rows.Scan(&n); err != nil {
 			t.Fatalf("scan: %v", err)
 		}
+
 		if strings.HasPrefix(n, "sqlite_autoindex") {
 			continue // skip implicit UNIQUE indexes
 		}
+
 		got = append(got, n)
 	}
+
 	if !equalSorted(got, want) {
 		t.Errorf("indexes:\n  got:  %v\n  want: %v", got, want)
 	}
@@ -158,6 +175,7 @@ func TestCommitInReplayMapUniqueOnRunPlusTagName(t *testing.T) {
 	if _, err := db.conn.Exec(insert, 1, 1, "v1.0.0", "tag-1", "src-1", 1); err != nil {
 		t.Fatalf("first insert: %v", err)
 	}
+
 	if _, err := db.conn.Exec(insert, 1, 1, "v1.0.0", "tag-1", "src-1", 1); err == nil {
 		t.Fatal("expected UNIQUE (CommitInRunId, SourceTagName) violation")
 	}
@@ -181,9 +199,11 @@ func TestCommitInReplayMapTaggedVersusNonTaggedCommits(t *testing.T) {
 		`SELECT COUNT(*) FROM CommitInReplayMap WHERE CommitInRunId=1`).Scan(&n); err != nil {
 		t.Fatalf("count: %v", err)
 	}
+
 	if n != 2 {
 		t.Errorf("expected 2 rows for tagged commits, got %d", n)
 	}
+
 	// Distribution check.
 	verCount := scanInt(t, db,
 		`SELECT COUNT(*) FROM CommitInReplayMap WHERE IsVersionTag=1 AND CommitInRunId=1`)
@@ -201,6 +221,7 @@ func TestCommitInReplayMapForeignKeysAreEnforced(t *testing.T) {
 	if _, err := db.conn.Exec("PRAGMA foreign_keys = ON"); err != nil {
 		t.Fatalf("enable FK: %v", err)
 	}
+
 	_, err := db.conn.Exec(`INSERT INTO CommitInReplayMap
 		(CommitInRunId, RewrittenCommitId, SourceTagName, SourceTagSha,
 		 SourceCommitSha, IsVersionTag, TagReplayOutcomeId)

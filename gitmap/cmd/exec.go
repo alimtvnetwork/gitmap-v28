@@ -29,6 +29,7 @@ func runExec(args []string) error {
 	if wdErr != nil {
 		fmt.Fprintf(os.Stderr, "  ⚠ Could not determine working directory: %v\n", wdErr)
 	}
+
 	cmdArgs := buildCommandArgs(append([]string{"exec"}, os.Args[2:]...))
 	taskID, taskDB := createPendingTask(constants.TaskTypeExec, workDir, workDir, "exec", cmdArgs)
 
@@ -49,6 +50,7 @@ func runExec(args []string) error {
 
 	completePendingTask(taskDB, taskID)
 	closeTaskDB(taskDB)
+
 	return nil
 }
 
@@ -63,6 +65,7 @@ func execAllReposTracked(
 		if prog.Stopped() {
 			break
 		}
+
 		prog.BeginItem(rec.RepoName)
 		s, f, m := execOneRepoTracked(rec, gitArgs, prog)
 		succeeded += s
@@ -116,6 +119,7 @@ func execOneRepo(rec model.ScanRecord, gitArgs []string) (int, int, int) {
 	if err == nil && execInRepo(rec, gitArgs) {
 		return 1, 0, 0
 	}
+
 	if err == nil {
 		return 0, 1, 0
 	}
@@ -148,9 +152,11 @@ func loadExecByScope(groupName string, all bool) []model.ScanRecord {
 			AbsolutePath: GetAliasPath(),
 		}}
 	}
+
 	if len(groupName) > 0 {
 		return loadRecordsByGroup(groupName)
 	}
+
 	if all {
 		return loadAllRecordsDB()
 	}
@@ -176,6 +182,7 @@ func loadExecRecords(path string) ([]model.ScanRecord, error) {
 	if err != nil {
 		return nil, err
 	}
+
 	var records []model.ScanRecord
 	err = json.Unmarshal(data, &records)
 

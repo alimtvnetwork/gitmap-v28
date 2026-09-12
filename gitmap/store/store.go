@@ -389,6 +389,7 @@ func (db *DB) migrateZipGroupItemPaths() {
 	if !db.tableExists("ZipGroupItems") {
 		return
 	}
+
 	db.addColumnIfNotExists(constants.SQLMigrateZGIRepoPath)
 	db.addColumnIfNotExists(constants.SQLMigrateZGIRelativePath)
 	db.addColumnIfNotExists(constants.SQLMigrateZGIFullPath)
@@ -429,6 +430,7 @@ func (db *DB) migratePendingTaskColumns() {
 		db.addColumnIfNotExists(constants.SQLMigratePendingWorkDir)
 		db.addColumnIfNotExists(constants.SQLMigratePendingCmdArgs)
 	}
+
 	if db.tableExists("CompletedTask") {
 		db.addColumnIfNotExists(constants.SQLMigrateCompletedWorkDir)
 		db.addColumnIfNotExists(constants.SQLMigrateCompletedCmdArgs)
@@ -522,6 +524,7 @@ func (db *DB) Conn() *sql.DB {
 func ensureDir(dir string) error {
 	return os.MkdirAll(dir, constants.DirPermission)
 }
+
 func (db *DB) SQL() *sql.DB {
 	return db.conn
 }
@@ -540,5 +543,6 @@ func lockDBIfNotMem(dbDir string, isMem bool) error {
 	if isMem {
 		return nil
 	}
+
 	return acquireLock(dbDir)
 }

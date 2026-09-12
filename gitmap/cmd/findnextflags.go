@@ -34,6 +34,7 @@ func parseFindNextFlags(args []string) (int64, bool, error) {
 		if err != nil {
 			return 0, false, err
 		}
+
 		scanFolderID, jsonOut = nextID, nextJSON
 		i += consumed
 	}
@@ -50,6 +51,7 @@ func classifyFindNextToken(tok string, args []string, i int,
 	if eq := strings.IndexByte(tok, '='); eq > 0 {
 		return classifyEqualsForm(tok[:eq], tok[eq+1:], curID, curJSON)
 	}
+
 	switch tok {
 	case constants.FindNextFlagJSON:
 		return 0, curID, true, nil
@@ -87,6 +89,7 @@ func classifyScanFolderSpaceForm(args []string, i int, curJSON bool) (int, int64
 		return 0, 0, false, fmt.Errorf(constants.ErrFindNextMissingValueFmt,
 			constants.FindNextFlagScanFolder)
 	}
+
 	raw := args[i+1]
 	v, err := strconv.ParseInt(raw, 10, 64)
 	if err != nil {
@@ -105,6 +108,7 @@ func unknownOrPositional(tok string) error {
 	if !strings.HasPrefix(tok, "--") {
 		return fmt.Errorf(constants.ErrFindNextUnexpectedArgFmt, tok)
 	}
+
 	if guess, ok := suggestFindNextFlag(tok); ok {
 		return fmt.Errorf(constants.ErrFindNextUnknownFlagSuggestFmt, tok, guess)
 	}
@@ -126,6 +130,7 @@ func suggestFindNextFlag(tok string) (string, bool) {
 			best, bestDist = known, d
 		}
 	}
+
 	if bestDist <= 2 {
 		return best, true
 	}
@@ -143,9 +148,11 @@ func levenshtein(a, b string) int {
 		rows[i] = make([]int, len(br)+1)
 		rows[i][0] = i
 	}
+
 	for j := range rows[0] {
 		rows[0][j] = j
 	}
+
 	fillLevenshteinMatrix(rows, ar, br)
 
 	return rows[len(ar)][len(br)]
@@ -160,6 +167,7 @@ func fillLevenshteinMatrix(rows [][]int, ar, br []rune) {
 			if ar[i-1] == br[j-1] {
 				cost = 0
 			}
+
 			rows[i][j] = minInt3(
 				rows[i-1][j]+1,
 				rows[i][j-1]+1,
@@ -176,6 +184,7 @@ func minInt3(a, b, c int) int {
 	if b < m {
 		m = b
 	}
+
 	if c < m {
 		m = c
 	}

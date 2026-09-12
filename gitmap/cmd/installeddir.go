@@ -30,5 +30,6 @@ func runInstalledDir() error {
 	fmt.Printf("\n  📂 Installed directory\n\n")
 	fmt.Printf("  Binary:    %s\n", absPath)
 	fmt.Printf("  Directory: %s\n\n", dir)
+
 	return nil
 }

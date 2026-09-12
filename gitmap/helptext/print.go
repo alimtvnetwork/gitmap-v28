@@ -42,6 +42,7 @@ func PrintWithMode(command string, mode render.PrettyModeType) {
 			map[string]any{"command": command},
 		)
 		cliexit.HandleError(appErr, 1)
+
 		return
 	}
 
@@ -73,8 +74,10 @@ func PrintRaw(command string) {
 			map[string]any{"command": command},
 		)
 		cliexit.HandleError(appErr, 1)
+
 		return
 	}
+
 	fmt.Print(string(data))
 }
 
@@ -108,11 +111,13 @@ func ReadRaw(command string) ([]byte, error) {
 	if err == nil {
 		return data, nil
 	}
+
 	low := strings.ToLower(command)
 	data, err = files.ReadFile(low + ".md")
 	if err == nil {
 		return data, nil
 	}
+
 	dashed := strings.ReplaceAll(low, " ", "-")
 
 	return files.ReadFile(dashed + ".md")

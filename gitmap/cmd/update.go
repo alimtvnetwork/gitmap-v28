@@ -32,13 +32,16 @@ func runUpdate() error {
 	if !hasFlag(constants.FlagSourceRebuild) && runUpdateRemoteInstall() {
 		return nil
 	}
+
 	if !hasFlag(constants.FlagSourceRebuild) {
 		fmt.Fprint(os.Stderr, constants.MsgUpdateRemoteFallback)
 	}
+
 	repoPath, err := resolveRepoPath()
 	if err != nil {
 		return err
 	}
+
 	report := resolveReportErrors()
 	report.announce()
 
@@ -55,12 +58,14 @@ func runUpdate() error {
 			nil,
 		)
 		cliexit.HandleError(appErr, 1)
+
 		return nil
 	}
 
 	copyPath := createHandoffCopy(selfPath)
 	fmt.Printf(constants.MsgUpdateActive, selfPath, copyPath)
 	launchHandoff(copyPath, repoPath, report)
+
 	return nil
 }
 
@@ -74,18 +79,21 @@ func resolveRepoPath() (string, error) {
 	} {
 		if len(path) > 0 {
 			saveRepoPathToDB(path)
+
 			return path, nil
 		}
 	}
 
 	if prompted := promptRepoPath(); len(prompted) > 0 {
 		saveRepoPathToDB(prompted)
+
 		return prompted, nil
 	}
 
 	// Try to fall back to gitmap-updater for release-based update
 	if tryUpdaterFallback() {
 		cliexit.HandleError(nil, 0)
+
 		return "", nil
 	}
 
@@ -119,6 +127,7 @@ func tryUpdaterFallback() bool {
 		)
 		cliexit.HandleError(appErr, exitErr.ExitCode())
 	}
+
 	if errRun != nil {
 		return false
 	}
@@ -179,6 +188,7 @@ func launchHandoff(copyPath, repoPath string, report reportErrorsConfig) {
 	if hasFlag(constants.FlagVerbose) {
 		copyArgs = append(copyArgs, constants.FlagVerbose)
 	}
+
 	if isDebugWindowsRequested() {
 		copyArgs = append(copyArgs, constants.FlagDebugWindows)
 	}
@@ -194,6 +204,7 @@ func launchHandoff(copyPath, repoPath string, report reportErrorsConfig) {
 	if isDebugWindowsRequested() {
 		env = append(env, constants.EnvDebugWindows+"=1")
 	}
+
 	cmd.Env = env
 	dumpDebugWindowsHeader("phase-2 handoff (active → copy)")
 	dumpDebugWindowsHandoff("phase-2-copy", copyPath,
@@ -249,6 +260,7 @@ func runUpdateRunner() error {
 	if err != nil {
 		return err
 	}
+
 	report := resolveReportErrors()
 
 	currentVersion := constants.Version
@@ -263,6 +275,7 @@ func runUpdateRunner() error {
 	report.summarize()
 	printUpdateSummary(currentVersion, targetVersion, repoPath)
 	scheduleDeployedCleanupHandoff()
+
 	return nil
 }
 
@@ -283,11 +296,14 @@ func initRunnerVerbose() {
 	if !hasFlag(constants.FlagVerbose) {
 		return
 	}
+
 	log, err := verbose.Init()
 	if err != nil {
 		fmt.Fprintf(os.Stderr, constants.WarnVerboseLogFailed, err)
+
 		return
 	}
+
 	defer log.Close()
 	log.Log(constants.UpdateRunnerLogStart, constants.RepoPath)
 }
@@ -309,12 +325,14 @@ func copyFile(src, dst string) error {
 	if err != nil {
 		return err
 	}
+
 	defer in.Close()
 
 	out, err := os.Create(dst)
 	if err != nil {
 		return err
 	}
+
 	defer out.Close()
 
 	_, err = io.Copy(out, in)
@@ -328,20 +346,25 @@ func readTargetVersion(repoPath string) string {
 	data, err := os.ReadFile(versionPath)
 	if err != nil {
 		fmt.Fprintf(os.Stderr, constants.ErrUpdateVersionRead, versionPath, err)
+
 		return "unknown"
 	}
 
 	var rawMap map[string]interface{}
 	if err := json.Unmarshal(data, &rawMap); err != nil {
 		fmt.Fprintf(os.Stderr, constants.ErrUpdateVersionRead, versionPath, err)
+
 		return "unknown"
 	}
+
 	if v, ok := rawMap["Version"].(string); ok && len(v) > 0 {
 		return v
 	}
+
 	if v, ok := rawMap["version"].(string); ok && len(v) > 0 {
 		return v
 	}
+
 	return "unknown"
 }
 
@@ -371,5 +394,6 @@ func getLastTwoNotes(notes []string) []string {
 	if count > 2 {
 		return notes[count-2:]
 	}
+
 	return notes
 }

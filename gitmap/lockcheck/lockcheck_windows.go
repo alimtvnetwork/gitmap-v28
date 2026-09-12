@@ -31,6 +31,7 @@ func findViaHandle(dirPath string) ([]LockingProcess, error) {
 	if err != nil {
 		handlePath, err = exec.LookPath("handle64.exe")
 	}
+
 	if err != nil {
 		return nil, fmt.Errorf("handle.exe not found")
 	}
@@ -112,14 +113,17 @@ func parseWMIOutput(output string) []LockingProcess {
 		if line == "" {
 			continue
 		}
+
 		parts := strings.SplitN(line, "|", 2)
 		if len(parts) != 2 {
 			continue
 		}
+
 		pid, err := strconv.Atoi(parts[0])
 		if err != nil || seen[pid] {
 			continue
 		}
+
 		seen[pid] = true
 		procs = append(procs, LockingProcess{PID: pid, Name: parts[1]})
 	}
@@ -131,5 +135,6 @@ func parseWMIOutput(output string) []LockingProcess {
 func KillProcess(pid int) error {
 	cmd := exec.Command("taskkill", "/F", "/PID", strconv.Itoa(pid))
 	cmd.SysProcAttr = &syscall.SysProcAttr{HideWindow: true}
+
 	return cmd.Run()
 }

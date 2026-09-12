@@ -79,6 +79,7 @@ func reportProvenanceItem() map[string]any {
 		constants.ProvenanceStageMapper,
 		constants.ProvenanceStageClonefrom,
 	}
+
 	props := orderedProps(
 		kv("field", strSchema("Row-level field name (matches a key under rows[].).")),
 		kv("stage", enumSchema("Pipeline stage that populates the field.", stages)),
@@ -127,6 +128,7 @@ func buildInputItemSchema() map[string]any {
 	for _, fieldName := range clonenow.KnownScanFields() {
 		itemProps = append(itemProps, kv(fieldName, scanFieldSchema(fieldName)))
 	}
+
 	desc := "One scan record. At least one of httpsUrl / sshUrl must be present " +
 		"(enforced by anyOf, not by required, so either field alone satisfies it)."
 	item := objectSchema(orderedProps(itemProps...), nil, desc)

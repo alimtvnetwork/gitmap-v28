@@ -19,6 +19,7 @@ func ReadText(path string) result.Wrap[string] {
 	if fRes.HasError() {
 		return result.WrapFailure[string](fRes.Fault())
 	}
+
 	f := fRes.Data()
 	defer f.Close()
 
@@ -36,6 +37,7 @@ func ReadLines(path string) result.Wrap[[]string] {
 	if fRes.HasError() {
 		return result.WrapFailure[[]string](fRes.Fault())
 	}
+
 	f := fRes.Data()
 	defer f.Close()
 
@@ -59,6 +61,7 @@ func ReadJSON[T any](path string) result.Wrap[T] {
 	if fRes.HasError() {
 		return result.WrapFailure[T](fRes.Fault())
 	}
+
 	f := fRes.Data()
 	defer f.Close()
 
@@ -77,6 +80,7 @@ func ReadYAML[T any](path string) result.Wrap[T] {
 	if fRes.HasError() {
 		return result.WrapFailure[T](fRes.Fault())
 	}
+
 	f := fRes.Data()
 	defer f.Close()
 

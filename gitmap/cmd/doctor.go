@@ -41,11 +41,15 @@ func RunDoctor(w io.Writer) int {
 			failed++
 		}
 	}
+
 	if failed > 0 {
 		fmt.Fprintf(w, "\n%d check(s) failed. Fix recipes printed above.\n", failed)
+
 		return 1
 	}
+
 	fmt.Fprintln(w, "\nAll systems nominal.")
+
 	return 0
 }
 
@@ -73,6 +77,7 @@ func probeBinary(name, bin, arg, hint string) DoctorCheck {
 			if err != nil {
 				return false, err.Error()
 			}
+
 			return true, firstDoctorLine(string(out))
 		},
 	}
@@ -87,6 +92,7 @@ func probeChrome() DoctorCheck {
 			if !ok {
 				return false, "chrome binary not found on this OS"
 			}
+
 			return true, path
 		},
 	}
@@ -100,6 +106,7 @@ func probePATH() DoctorCheck {
 			if _, err := exec.LookPath("gitmap"); err != nil {
 				return false, "gitmap not on PATH"
 			}
+
 			return true, "gitmap on PATH"
 		},
 	}
@@ -126,6 +133,7 @@ func probeDisk() DoctorCheck {
 			if err != nil {
 				return false, err.Error()
 			}
+
 			return true, "writable: " + wd
 		},
 	}
@@ -138,6 +146,7 @@ func locateChromeBinary() (string, bool) {
 			return c, true
 		}
 	}
+
 	return "", false
 }
 
@@ -160,6 +169,7 @@ func emitDoctorLine(w io.Writer, c DoctorCheck, ok bool, detail string) {
 	if !ok {
 		mark = "[fail]"
 	}
+
 	fmt.Fprintf(w, "%s %-8s %s\n", mark, c.Name, detail)
 	if !ok && c.FixHint != "" {
 		fmt.Fprintf(w, "       fix: %s\n", c.FixHint)
@@ -172,5 +182,6 @@ func firstDoctorLine(s string) string {
 			return s[:i]
 		}
 	}
+
 	return s
 }

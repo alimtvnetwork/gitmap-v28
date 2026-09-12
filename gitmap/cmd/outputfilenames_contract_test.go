@@ -52,11 +52,13 @@ func TestScanOutputFilenames_Contract(t *testing.T) {
 		{"direct-clone-ssh", constants.DefaultDirectCloneSSHScript, "direct-clone-ssh.ps1", ".ps1"},
 		{"desktop", constants.DefaultDesktopScript, "register-desktop.ps1", ".ps1"},
 	}
+
 	for _, tc := range cases {
 		t.Run(tc.label, func(t *testing.T) {
 			if tc.got != tc.wantName {
 				t.Fatalf("basename drift: got %q, want %q", tc.got, tc.wantName)
 			}
+
 			if filepath.Ext(tc.got) != tc.wantExt {
 				t.Fatalf("extension drift on %s: got %q, want %q",
 					tc.got, filepath.Ext(tc.got), tc.wantExt)
@@ -75,9 +77,11 @@ func TestCloneShorthand_Contract(t *testing.T) {
 	if constants.ShorthandJSON != "json" {
 		t.Fatalf("ShorthandJSON drift: %q", constants.ShorthandJSON)
 	}
+
 	if constants.ShorthandCSV != "csv" {
 		t.Fatalf("ShorthandCSV drift: %q", constants.ShorthandCSV)
 	}
+
 	if constants.ShorthandText != "text" {
 		t.Fatalf("ShorthandText drift: %q", constants.ShorthandText)
 	}
@@ -93,9 +97,11 @@ func TestCloneShorthand_Contract(t *testing.T) {
 	if gotJSON != wantJSON {
 		t.Fatalf("clone json shorthand drift: got %q, want %q", gotJSON, wantJSON)
 	}
+
 	if gotCSV != wantCSV {
 		t.Fatalf("clone csv shorthand drift: got %q, want %q", gotCSV, wantCSV)
 	}
+
 	if gotText != wantText {
 		t.Fatalf("clone text shorthand drift: got %q, want %q", gotText, wantText)
 	}
@@ -117,6 +123,7 @@ func TestResolveOutFile_Precedence(t *testing.T) {
 		{"empty-uses-default-json", "", "outdir", "gitmap.json", filepath.Join("outdir", "gitmap.json")},
 		{"override-keeps-extension", "report.tsv", "outdir", "gitmap.csv", "report.tsv"},
 	}
+
 	for _, tc := range cases {
 		t.Run(tc.label, func(t *testing.T) {
 			got := resolveOutFile(tc.outFile, tc.outputDir, tc.defaultName)
@@ -147,29 +154,35 @@ func TestCloneFromReportName_Contract(t *testing.T) {
 	if err != nil {
 		t.Fatalf("WriteReport: %v", err)
 	}
+
 	base := filepath.Base(abs)
 	if !reCloneFromReport.MatchString(base) {
 		t.Fatalf("report basename %q does not match %q", base, reCloneFromReport)
 	}
+
 	if filepath.Ext(base) != ".csv" {
 		t.Fatalf("report extension drift: got %q, want %q", filepath.Ext(base), ".csv")
 	}
+
 	// Parent directory must be `.gitmap` (no `output/` nesting —
 	// that would change the documented path users grep for).
 	parent := filepath.Base(filepath.Dir(abs))
 	if parent != ".gitmap" {
 		t.Fatalf("report parent dir drift: got %q, want %q", parent, ".gitmap")
 	}
+
 	// Sanity: timestamp inside the name falls within [before,after].
 	tsStr := strings.TrimSuffix(strings.TrimPrefix(base, "clone-from-report-"), ".csv")
 	if len(tsStr) == 0 {
 		t.Fatalf("missing timestamp in %q", base)
 	}
+
 	// Convert via time math: regex already proved digits-only.
 	var ts int64
 	for _, c := range tsStr {
 		ts = ts*10 + int64(c-'0')
 	}
+
 	if ts < before || ts > after {
 		t.Fatalf("timestamp %d outside [%d,%d]", ts, before, after)
 	}
@@ -196,17 +209,21 @@ func TestErrorsReportName_Contract(t *testing.T) {
 	if err != nil {
 		t.Fatalf("WriteIfAny: %v", err)
 	}
+
 	if abs == "" {
 		t.Fatalf("expected a path, got empty (failure was registered)")
 	}
+
 	base := filepath.Base(abs)
 	if !reErrorsReport.MatchString(base) {
 		t.Fatalf("errors report basename %q does not match %q", base, reErrorsReport)
 	}
+
 	if filepath.Ext(base) != ".json" {
 		t.Fatalf("errors report extension drift: got %q, want %q",
 			filepath.Ext(base), ".json")
 	}
+
 	wantParent := filepath.Join(dir, ".gitmap", "reports")
 	if filepath.Dir(abs) != wantParent {
 		t.Fatalf("errors report dir drift: got %q, want %q",

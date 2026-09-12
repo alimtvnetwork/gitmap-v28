@@ -39,6 +39,7 @@ func TestCollectZipGroupNames_Merged(t *testing.T) {
 		ZipGroups:  []string{"docs", "scripts"},
 		BundleName: "bundle.zip",
 	}
+
 	got := collectZipGroupNames(opts)
 	want := []string{"docs", "scripts", "bundle.zip"}
 
@@ -52,6 +53,7 @@ func TestCollectZipGroupNames_EmptyBundleName(t *testing.T) {
 		ZipGroups:  []string{"assets"},
 		BundleName: "",
 	}
+
 	got := collectZipGroupNames(opts)
 	want := []string{"assets"}
 

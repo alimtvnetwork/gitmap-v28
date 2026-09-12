@@ -36,5 +36,6 @@ func (m *RepositoryVersionManifest) ResolveVersion(component string) string {
 	if comp != nil && comp.Version != "" && comp.Version != "inherit" {
 		return comp.Version
 	}
+
 	return m.Version
 }

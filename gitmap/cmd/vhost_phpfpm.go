@@ -28,10 +28,12 @@ func findSocketInDir(pattern string) string {
 	if hasError {
 		return ""
 	}
+
 	hasMatches := len(matches) > 0
 	if !hasMatches {
 		return ""
 	}
+
 	sorted := sortSocketsDesc(matches)
 
 	return sorted[0]
@@ -55,6 +57,7 @@ func probeTCPPort(address string, timeout time.Duration) bool {
 	if hasError {
 		return false
 	}
+
 	if conn != nil {
 		conn.Close()
 	}
@@ -69,6 +72,7 @@ func DiscoverFastCGIPassWithPatterns(patterns []string) string {
 	if hasSock {
 		return "unix:" + sock
 	}
+
 	isListening := probeTCPPort("127.0.0.1:9000", 200*time.Millisecond)
 	if isListening {
 		return "127.0.0.1:9000"

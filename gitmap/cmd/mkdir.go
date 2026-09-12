@@ -33,6 +33,7 @@ func runMkdir(args []string) error {
 
 func resolveMkdirAbsPath(pathArg string) (string, error) {
 	expanded := expandTilde(pathArg)
+
 	return filepath.Abs(expanded)
 }
 
@@ -40,6 +41,7 @@ func createTargetDirectory(absPath string, createParents, createFiles bool) erro
 	if createFiles {
 		return touchFile(absPath, createParents)
 	}
+
 	return makeDir(absPath, createParents)
 }
 
@@ -47,6 +49,7 @@ func makeDir(absPath string, createParents bool) error {
 	if !createParents {
 		return makeDirSingle(absPath)
 	}
+
 	return makeDirDeep(absPath)
 }
 
@@ -54,7 +57,9 @@ func makeDirSingle(absPath string) error {
 	if err := os.Mkdir(absPath, 0755); err != nil {
 		return err
 	}
+
 	fmt.Printf("  %s✓%s [DIR] Created: %s\n", constants.ColorGreen, constants.ColorReset, absPath)
+
 	return nil
 }
 
@@ -62,7 +67,9 @@ func makeDirDeep(absPath string) error {
 	if err := os.MkdirAll(absPath, 0755); err != nil {
 		return err
 	}
+
 	fmt.Printf("  %s✓%s [DIR] Created deeply: %s\n", constants.ColorGreen, constants.ColorReset, absPath)
+
 	return nil
 }
 
@@ -70,12 +77,15 @@ func touchFile(absPath string, createParents bool) error {
 	if err := touchFilePrepareParent(absPath, createParents); err != nil {
 		return err
 	}
+
 	f, err := os.OpenFile(absPath, os.O_CREATE|os.O_APPEND, 0644)
 	if err != nil {
 		return err
 	}
+
 	_ = f.Close()
 	fmt.Printf("  %s✓%s [FILE] Touched/Created: %s\n", constants.ColorGreen, constants.ColorReset, absPath)
+
 	return nil
 }
 
@@ -83,11 +93,14 @@ func touchFilePrepareParent(absPath string, createParents bool) error {
 	if !createParents {
 		return nil
 	}
+
 	parent := filepath.Dir(absPath)
 	if err := os.MkdirAll(parent, 0755); err != nil {
 		return err
 	}
+
 	fmt.Printf("  %s✓%s [DIR] Ensured parent: %s\n", constants.ColorGreen, constants.ColorReset, parent)
+
 	return nil
 }
 
@@ -105,5 +118,6 @@ func parseMkdirArgs(args []string) (bool, bool, string) {
 			pathArg = arg
 		}
 	}
+
 	return createParents, createFiles, pathArg
 }

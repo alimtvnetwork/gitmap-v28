@@ -37,7 +37,9 @@ func parseSJFlags(args []string) sjOptions {
 	if len(argsAfterParse) > 0 && (argsAfterParse[0] == "ls" || argsAfterParse[0] == "list") {
 		opts.List = true
 	}
+
 	opts.Args = argsAfterParse
+
 	return opts
 }
 
@@ -47,18 +49,24 @@ func runSSHJoinLegacy(args []string) error {
 
 	if opts.List {
 		runSSHJoinLs()
+
 		return nil
 	}
+
 	if opts.ImportFile != "" {
 		runSSHJoinImport(opts.ImportFile)
+
 		return nil
 	}
+
 	if opts.ExportFile != "" {
 		runSSHJoinExport(opts.ExportFile)
+
 		return nil
 	}
 
 	runSSHJoinInteractive(opts.Args)
+
 	return nil
 }
 
@@ -67,13 +75,16 @@ func runSSHJoinLs() error {
 	dbConn, err := store.OpenDefault()
 	if err != nil {
 		fmt.Printf("Failed to open DB: %v\n", err)
+
 		return nil
 	}
+
 	defer dbConn.Close()
 
 	conns, connErr := db.GetSSHConnections(dbConn.Context(), dbConn.SQL())
 	if connErr != nil {
 		fmt.Printf("Failed to get connections: %v\n", connErr)
+
 		return nil
 	}
 
@@ -81,6 +92,7 @@ func runSSHJoinLs() error {
 	for _, c := range conns {
 		fmt.Printf("  Alias: %-15s IP: %-15s User: %-10s OS: %-8s\n", c.Alias, c.IPAddress, c.Username, c.OS)
 	}
+
 	return nil
 }
 
@@ -101,6 +113,7 @@ func runSSHJoinInteractive(args []string) error {
 	if password == "" {
 		keyPath = promptInput(reader, "SSH Key Path")
 	}
+
 	osType := promptInput(reader, "OS (windows/unix)")
 
 	encPass, ok := maybeEncryptPassword(password)
@@ -109,6 +122,7 @@ func runSSHJoinInteractive(args []string) error {
 	}
 
 	saveSSHConnection(alias, ip, user, encPass, keyPath, osType)
+
 	return nil
 }
 
@@ -117,11 +131,14 @@ func maybeEncryptPassword(password string) (string, bool) {
 	if password == "" {
 		return "", true
 	}
+
 	encPass, err := crypto.Encrypt([]byte(password), getEncryptionKey())
 	if err != nil {
 		fmt.Printf("Encryption failed: %v\n", err)
+
 		return "", false
 	}
+
 	return encPass, true
 }
 
@@ -129,6 +146,7 @@ func maybeEncryptPassword(password string) (string, bool) {
 func promptInput(reader *bufio.Reader, prompt string) string {
 	fmt.Printf("%s: ", prompt)
 	input, _ := reader.ReadString('\n')
+
 	return strings.TrimSpace(input)
 }
 
@@ -137,8 +155,10 @@ func saveSSHConnection(alias, ip, user, encPass, keyPath, osType string) {
 	dbConn, err := store.OpenDefault()
 	if err != nil {
 		fmt.Printf("Failed to open DB: %v\n", err)
+
 		return
 	}
+
 	defer dbConn.Close()
 
 	conn := db.SSHConnection{
@@ -153,8 +173,10 @@ func saveSSHConnection(alias, ip, user, encPass, keyPath, osType string) {
 
 	if err := db.InsertOrUpdateSSHConnection(dbConn.Context(), dbConn.SQL(), conn); err != nil {
 		fmt.Printf("Failed to save connection: %v\n", err)
+
 		return
 	}
+
 	fmt.Printf("Successfully joined %s (%s)\n", alias, ip)
 }
 
@@ -163,20 +185,24 @@ func runSSHJoinImport(file string) error {
 	data, err := os.ReadFile(file)
 	if err != nil {
 		fmt.Printf("Read file error: %v\n", err)
+
 		return nil
 	}
 
 	var conns []db.SSHConnection
 	if err := json.Unmarshal(data, &conns); err != nil {
 		fmt.Printf("JSON unmarshal error: %v\n", err)
+
 		return nil
 	}
 
 	dbConn, err := store.OpenDefault()
 	if err != nil {
 		fmt.Printf("Failed to open DB: %v\n", err)
+
 		return nil
 	}
+
 	defer dbConn.Close()
 
 	for _, c := range conns {
@@ -186,6 +212,7 @@ func runSSHJoinImport(file string) error {
 			fmt.Printf("Imported %s\n", c.Alias)
 		}
 	}
+
 	return nil
 }
 
@@ -194,26 +221,33 @@ func runSSHJoinExport(file string) error {
 	dbConn, err := store.OpenDefault()
 	if err != nil {
 		fmt.Printf("Failed to open DB: %v\n", err)
+
 		return nil
 	}
+
 	defer dbConn.Close()
 
 	conns, connErr := db.GetSSHConnections(dbConn.Context(), dbConn.SQL())
 	if connErr != nil {
 		fmt.Printf("Failed to get connections: %v\n", connErr)
+
 		return nil
 	}
 
 	data, err := json.MarshalIndent(conns, "", "  ")
 	if err != nil {
 		fmt.Printf("JSON marshal error: %v\n", err)
+
 		return nil
 	}
 
 	if err := os.WriteFile(file, data, 0600); err != nil {
 		fmt.Printf("Write file error: %v\n", err)
+
 		return nil
 	}
+
 	fmt.Printf("Exported %d connections to %s\n", len(conns), file)
+
 	return nil
 }

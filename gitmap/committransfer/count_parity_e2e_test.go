@@ -36,19 +36,24 @@ func TestCountParityMainline_RunRight(t *testing.T) {
 	if err != nil {
 		t.Fatalf("BuildPlan: %v", err)
 	}
+
 	if got := len(plan.Commits); got != 5 {
 		t.Fatalf("plan.Commits = %d, want 5", got)
 	}
+
 	if plan.MergeExcluded != 0 {
 		t.Errorf("plan.MergeExcluded = %d, want 0", plan.MergeExcluded)
 	}
+
 	res, err := Replay(plan, Options{Yes: true, NoPush: true, LogPrefix: "[t]"})
 	if err != nil {
 		t.Fatalf("Replay: %v", err)
 	}
+
 	if res.Replayed != 5 {
 		t.Errorf("res.Replayed = %d, want 5", res.Replayed)
 	}
+
 	assertReconcile(t, plan, res)
 	if got := countCommits(t, target); got != 5 {
 		t.Errorf("target commit count = %d, want 5", got)
@@ -80,14 +85,17 @@ func TestCountParityMergeExcluded(t *testing.T) {
 	if err != nil {
 		t.Fatalf("BuildPlan: %v", err)
 	}
+
 	if plan.MergeExcluded < 1 {
 		t.Errorf("plan.MergeExcluded = %d, want >= 1 (the --no-ff merge)",
 			plan.MergeExcluded)
 	}
+
 	res, err := Replay(plan, Options{Yes: true, NoPush: true, LogPrefix: "[t]"})
 	if err != nil {
 		t.Fatalf("Replay: %v", err)
 	}
+
 	assertReconcile(t, plan, res)
 }
 
@@ -112,6 +120,7 @@ func mustInitCountRepo(t *testing.T, dir string) string {
 	if err := os.MkdirAll(dir, 0o755); err != nil {
 		t.Fatalf("mkdir %s: %v", dir, err)
 	}
+
 	gitInDir(t, dir, "init", "-b", "main")
 	gitInDir(t, dir, "config", "user.email", "e2e@gitmap.test")
 	gitInDir(t, dir, "config", "user.name", "E2E Bot")
@@ -129,6 +138,7 @@ func mustCommitCount(t *testing.T, dir, path, body, msg string) {
 	if err := os.WriteFile(full, []byte(body), 0o644); err != nil {
 		t.Fatalf("write %s: %v", full, err)
 	}
+
 	gitInDir(t, dir, "add", path)
 	stamp := time.Now().UTC().Format(time.RFC3339)
 	cmd := exec.Command("git", "-C", dir, "commit", "-m", msg)
@@ -158,6 +168,7 @@ func countCommits(t *testing.T, dir string) int {
 	if err != nil {
 		t.Fatalf("rev-list --count: %v", err)
 	}
+
 	var n int
 	if _, perr := fmt.Sscanf(strings.TrimSpace(string(out)), "%d", &n); perr != nil {
 		t.Fatalf("parse rev-list count %q: %v", out, perr)

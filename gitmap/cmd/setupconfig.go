@@ -55,6 +55,7 @@ func mustLoadSetupConfig(configPath string) setup.GitSetupConfig {
 	fmt.Fprintf(os.Stderr, "  WARN  could not load %s, using embedded fallback config\n", filepath.Base(configPath))
 	var fallbackCfg setup.GitSetupConfig
 	_ = json.Unmarshal([]byte(fallbackGitSetupJSON), &fallbackCfg)
+
 	return fallbackCfg
 }
 

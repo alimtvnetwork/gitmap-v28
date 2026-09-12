@@ -22,6 +22,7 @@ func getAbsPath(path string) string {
 	if err != nil {
 		return filepath.Clean(path)
 	}
+
 	return absPath
 }
 
@@ -35,6 +36,7 @@ func GetFileLock(path string) *sync.RWMutex {
 
 	if entry, exists := fileLocksMap[absPath]; exists {
 		entry.refCount++
+
 		return entry.mu
 	}
 
@@ -43,6 +45,7 @@ func GetFileLock(path string) *sync.RWMutex {
 		mu:       mu,
 		refCount: 1,
 	}
+
 	return mu
 }
 

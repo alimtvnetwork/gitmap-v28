@@ -57,6 +57,7 @@ func readYesNo() bool {
 	if !scanner.Scan() {
 		return false
 	}
+
 	answer := strings.TrimSpace(strings.ToLower(scanner.Text()))
 
 	return answer == "y" || answer == "yes"
@@ -68,6 +69,7 @@ func isAutoBumpEligible(version, bump, commit, branch string) bool {
 	if len(version) > 0 || len(bump) > 0 {
 		return false
 	}
+
 	if len(commit) > 0 || len(branch) > 0 {
 		return false
 	}

@@ -46,6 +46,7 @@ func extractCleanErrorLines(rawLogs string) string {
 	if len(jobs) == 0 {
 		return ""
 	}
+
 	var parts []string
 	for _, j := range jobs {
 		lines := append([]string{j.FailureSummary}, j.ErrorLines...)
@@ -75,6 +76,7 @@ func ParseFailedLogLines(rawLogs string) []FailedJobItem {
 	if strings.TrimSpace(rawLogs) == "" {
 		return nil
 	}
+
 	jobMap := make(map[string]*FailedJobItem)
 	var order []string
 	scanLogLinesIntoMap(rawLogs, jobMap, &order)
@@ -96,11 +98,14 @@ func processLogLine(raw string, jobMap map[string]*FailedJobItem, order *[]strin
 	if text == "" || isIgnoredLogLine(text) {
 		return
 	}
+
 	key := job + "|||" + step
 	if isError {
 		recordErrorLine(jobMap, order, key, job, step, text, ctxRem, lastKey)
+
 		return
 	}
+
 	appendContextLine(jobMap, key, text, ctxRem, lastKey)
 }
 
@@ -127,6 +132,7 @@ func parseLogLine(raw string) (string, string, string, bool) {
 	if len(parts) >= 3 {
 		return extractThreePartLogLine(parts, isError)
 	}
+
 	if len(parts) == 2 {
 		return strings.TrimSpace(parts[0]), "", cleanLogText(parts[1]), isError
 	}
@@ -146,6 +152,7 @@ func stripTimestamp(text string) string {
 	if idx := strings.Index(text, "Z "); idx != -1 {
 		return text[idx+2:]
 	}
+
 	if idx := strings.Index(text, "Z\t"); idx != -1 {
 		return text[idx+2:]
 	}
@@ -166,6 +173,7 @@ func isIgnoredLogLine(text string) bool {
 	if strings.Contains(lower, "post job cleanup") || strings.Contains(lower, "safe.directory") {
 		return true
 	}
+
 	if strings.Contains(lower, "removing ssh command") {
 		return true
 	}
@@ -187,13 +195,16 @@ func getOrCreateJobItem(jobMap map[string]*FailedJobItem, order *[]string, key, 
 	if item, exists := jobMap[key]; exists {
 		return item
 	}
+
 	if step == "UNKNOWN STEP" || step == "" {
 		step = "Job Execution"
 	}
+
 	item := &FailedJobItem{
 		JobName:  job,
 		StepName: step,
 	}
+
 	jobMap[key] = item
 	*order = append(*order, key)
 
@@ -210,12 +221,15 @@ func isStrongerSummary(candidate, current string) bool {
 	if len(current) == 0 {
 		return true
 	}
+
 	if isGenericExitCode(candidate) && !isGenericExitCode(current) {
 		return false
 	}
+
 	if strings.Contains(candidate, "Expected ") || strings.Contains(candidate, "gofmt") {
 		return true
 	}
+
 	if strings.Contains(candidate, "fatal error:") {
 		return true
 	}
@@ -231,6 +245,7 @@ func assembleJobItems(jobMap map[string]*FailedJobItem, order []string, rawLogs 
 	if len(order) == 0 {
 		return buildFallbackJobItems(rawLogs)
 	}
+
 	var results []FailedJobItem
 	for _, k := range order {
 		results = append(results, *jobMap[k])
@@ -270,6 +285,7 @@ func CorrelateFailedJobs(rawLogs string, ghJobs []ghJobItem) []FailedJobItem {
 	if len(ghJobs) == 0 {
 		return parsedJobs
 	}
+
 	ghFailed := extractFailingJobsAndSteps(ghJobs)
 	if len(ghFailed) == 0 {
 		return parsedJobs
@@ -295,6 +311,7 @@ func mergeCorrelatedFailedJobs(parsed, ghFailed []FailedJobItem, rawLogs string)
 		item := matchOrBuildTargetFailure(target, parsed, matchedIndices, rawLogs)
 		merged = append(merged, item)
 	}
+
 	for i, p := range parsed {
 		if !matchedIndices[i] {
 			merged = append(merged, p)
@@ -308,6 +325,7 @@ func matchOrBuildTargetFailure(target FailedJobItem, parsed []FailedJobItem, mat
 	for i, p := range parsed {
 		if !matchedIndices[i] && isMatchingJobStep(p, target) {
 			matchedIndices[i] = true
+
 			return mergeMatchedFailure(target, p)
 		}
 	}
@@ -326,6 +344,7 @@ func isMatchingJobName(a, b string) bool {
 	if a == b || strings.EqualFold(a, b) {
 		return true
 	}
+
 	lowerA, lowerB := strings.ToLower(a), strings.ToLower(b)
 
 	return strings.Contains(lowerA, lowerB) || strings.Contains(lowerB, lowerA)
@@ -335,6 +354,7 @@ func isMatchingStepName(a, b string) bool {
 	if a == b || strings.EqualFold(a, b) {
 		return true
 	}
+
 	lowerA, lowerB := strings.ToLower(a), strings.ToLower(b)
 
 	return strings.Contains(lowerA, lowerB) || strings.Contains(lowerB, lowerA)
@@ -347,9 +367,11 @@ func mergeMatchedFailure(target, p FailedJobItem) FailedJobItem {
 		FailureSummary: p.FailureSummary,
 		ErrorLines:     p.ErrorLines,
 	}
+
 	if len(item.FailureSummary) == 0 {
 		item.FailureSummary = target.FailureSummary
 	}
+
 	if len(item.ErrorLines) == 0 {
 		item.ErrorLines = target.ErrorLines
 	}
@@ -362,6 +384,7 @@ func searchRawLogsForTarget(target FailedJobItem, rawLogs string) FailedJobItem 
 	if len(lines) == 0 {
 		lines = extractMatchingLogLines(rawLogs, target.JobName)
 	}
+
 	if len(lines) > 0 {
 		target.ErrorLines = lines
 		target.FailureSummary = lines[0]
@@ -374,6 +397,7 @@ func extractMatchingLogLines(rawLogs, query string) []string {
 	if len(query) == 0 || len(rawLogs) == 0 {
 		return nil
 	}
+
 	var matches []string
 	for _, line := range strings.Split(rawLogs, "\n") {
 		clean := cleanLogText(ansiRegex.ReplaceAllString(line, ""))
@@ -416,6 +440,7 @@ func resolveRunCorrelatedJobs(run FailedRunItem) []FailedJobItem {
 	if run.RunId == 0 {
 		return run.FailedJobs
 	}
+
 	ghJobs := queryRunJobs("", run.RunId)
 	if len(ghJobs) == 0 {
 		return run.FailedJobs
@@ -441,6 +466,7 @@ func toRelativeGitPath(targetPath string) string {
 	if len(targetPath) == 0 {
 		return ""
 	}
+
 	root := resolveRepoRootDir()
 	rel, err := filepath.Rel(root, targetPath)
 	if err != nil || strings.HasPrefix(rel, "..") {
@@ -454,6 +480,7 @@ func formatCombinedSectionFailures(sections []SectionFailure) string {
 	if len(sections) == 0 {
 		return ""
 	}
+
 	var sb strings.Builder
 	sb.WriteString(fmt.Sprintf("● Combined Pipeline Section Failures [%d failed section(s)]:\n", len(sections)))
 	for i, sec := range sections {
@@ -475,9 +502,11 @@ func formatSectionMetadata(sb *strings.Builder, sec SectionFailure) {
 	if len(sec.CreatedAt) > 0 {
 		sb.WriteString(fmt.Sprintf("  │ When Run:  %s\n", formatRunTimestamp(sec.CreatedAt)))
 	}
+
 	if len(sec.SavedLogFile) > 0 {
 		sb.WriteString(fmt.Sprintf("  │ Saved Log: %s\n", toRelativeGitPath(sec.SavedLogFile)))
 	}
+
 	if len(sec.FailureSummary) > 0 {
 		sb.WriteString(fmt.Sprintf("  │ Summary:   %s\n", sec.FailureSummary))
 	}
@@ -494,6 +523,7 @@ func formatAggregatedErrorLogs(failedRuns []FailedRunItem) string {
 	if len(failedRuns) == 0 {
 		return ""
 	}
+
 	sections := extractAllSectionFailures(failedRuns)
 	combinedText := formatCombinedSectionFailures(sections)
 	detailedText := formatAllRunsDetailed(failedRuns)
@@ -510,6 +540,7 @@ func formatAllRunsDetailed(failedRuns []FailedRunItem) string {
 		if i > 0 {
 			sb.WriteString("\n\n")
 		}
+
 		formatSingleRunDetailed(&sb, run)
 	}
 
@@ -529,6 +560,7 @@ func formatRunTimingMeta(sb *strings.Builder, run FailedRunItem) {
 	if len(run.CreatedAt) > 0 {
 		sb.WriteString(fmt.Sprintf("    When Run:  %s\n", formatRunTimestamp(run.CreatedAt)))
 	}
+
 	if run.DurationSeconds > 0 {
 		sb.WriteString(fmt.Sprintf("    Duration:  %s\n", formatDurationSeconds(run.DurationSeconds)))
 	}
@@ -538,9 +570,11 @@ func formatRunSourceMeta(sb *strings.Builder, run FailedRunItem) {
 	if len(run.Branch) > 0 {
 		sb.WriteString(fmt.Sprintf("    Branch:    %s | Commit: %s\n", run.Branch, run.Sha))
 	}
+
 	if len(run.SavedLogFile) > 0 {
 		sb.WriteString(fmt.Sprintf("    Saved Log: %s\n", toRelativeGitPath(run.SavedLogFile)))
 	}
+
 	if len(run.Url) > 0 {
 		sb.WriteString(fmt.Sprintf("    URL:       %s\n", run.Url))
 	}
@@ -551,6 +585,7 @@ func formatJobLines(sb *strings.Builder, job FailedJobItem) {
 	if len(job.FailureSummary) > 0 {
 		sb.WriteString(fmt.Sprintf("      Summary: %s\n", job.FailureSummary))
 	}
+
 	for _, l := range job.ErrorLines {
 		sb.WriteString(fmt.Sprintf("      %s\n", l))
 	}

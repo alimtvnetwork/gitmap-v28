@@ -19,16 +19,19 @@ func DetectClobbers(p Plan) ([]string, error) {
 		// No HEAD = empty repo = nothing to clobber.
 		return nil, nil
 	}
+
 	var clobbers []string
 	for _, rel := range p.Files {
 		isClobber, err := oneFileClobbers(p, head, rel)
 		if err != nil {
 			return nil, fmt.Errorf("clobber check %s: %w", rel, err)
 		}
+
 		if isClobber {
 			clobbers = append(clobbers, rel)
 		}
 	}
+
 	return clobbers, nil
 }
 
@@ -40,11 +43,13 @@ func oneFileClobbers(p Plan, head, rel string) (bool, error) {
 	if err != nil {
 		return false, fmt.Errorf("source side: %w", err)
 	}
+
 	tgtHash, err := blobHashAt(p.TargetRepoDir, head, rel)
 	if err != nil {
 		// Target has no such path at HEAD => add, not clobber.
 		return false, nil
 	}
+
 	return srcHash != "" && tgtHash != "" && srcHash != tgtHash, nil
 }
 
@@ -55,5 +60,6 @@ func blobHashAt(dir, sha, rel string) (string, error) {
 	if err != nil {
 		return "", err
 	}
+
 	return strings.TrimSpace(out), nil
 }

@@ -48,6 +48,7 @@ func saveBookmarkToDB(name, command, args, flags string) *apperror.AppError {
 
 		return apperror.WrapSimple(err, fmt.Sprintf(constants.ErrBookmarkSave, err))
 	}
+
 	defer db.Close()
 
 	if err := checkBookmarkNotExists(db, name); err != nil {
@@ -64,6 +65,7 @@ func insertBookmarkRecord(db storeBookmarkWriter, name, command, args, flags str
 		Args:    args,
 		Flags:   flags,
 	}
+
 	err := db.InsertBookmark(record)
 	if err != nil {
 		fmt.Fprintf(os.Stderr, constants.ErrBookmarkSave, err)

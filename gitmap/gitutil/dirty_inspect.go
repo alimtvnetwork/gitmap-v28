@@ -51,6 +51,7 @@ func classifyDirtyFile(prefix, filePath string, diagnosis *DirtyDiagnosis) {
 
 		return
 	}
+
 	classifyIndexFile(prefix, filePath, diagnosis)
 	classifyWorktreeFile(prefix, filePath, diagnosis)
 }
@@ -59,11 +60,13 @@ func classifyIndexFile(prefix, filePath string, diagnosis *DirtyDiagnosis) {
 	if len(prefix) == 0 || prefix[0] == ' ' || prefix[0] == '?' {
 		return
 	}
+
 	if prefix[0] == 'D' {
 		recordDeleted(diagnosis, filePath)
 
 		return
 	}
+
 	recordStaged(diagnosis, filePath)
 }
 
@@ -71,11 +74,13 @@ func classifyWorktreeFile(prefix, filePath string, diagnosis *DirtyDiagnosis) {
 	if len(prefix) < 2 || prefix[1] == ' ' || prefix[1] == '?' {
 		return
 	}
+
 	if prefix[1] == 'D' {
 		recordDeleted(diagnosis, filePath)
 
 		return
 	}
+
 	recordModified(diagnosis, filePath)
 }
 
@@ -83,6 +88,7 @@ func parseDirtyLine(line string, diagnosis *DirtyDiagnosis) {
 	if len(line) < 3 {
 		return
 	}
+
 	prefix := line[:2]
 	filePath := strings.TrimSpace(line[3:])
 	classifyDirtyFile(prefix, filePath, diagnosis)
@@ -93,12 +99,15 @@ func collectReasonParts(diagnosis *DirtyDiagnosis) []string {
 	if diagnosis.StagedCount > 0 {
 		parts = append(parts, "+"+strconv.Itoa(diagnosis.StagedCount)+" staged")
 	}
+
 	if diagnosis.ModifiedCount > 0 {
 		parts = append(parts, "+"+strconv.Itoa(diagnosis.ModifiedCount)+" modified")
 	}
+
 	if diagnosis.UntrackedCount > 0 {
 		parts = append(parts, "+"+strconv.Itoa(diagnosis.UntrackedCount)+" untracked")
 	}
+
 	if diagnosis.DeletedCount > 0 {
 		parts = append(parts, "-"+strconv.Itoa(diagnosis.DeletedCount)+" deleted")
 	}
@@ -121,6 +130,7 @@ func populateDirtyDiagnosis(output string) DirtyDiagnosis {
 	for _, line := range lines {
 		parseDirtyLine(line, &diagnosis)
 	}
+
 	diagnosis.SummaryReason = buildSummaryReason(&diagnosis)
 
 	return diagnosis
@@ -133,6 +143,7 @@ func InspectDirtyState(repoPath string) DirtyDiagnosis {
 	if err != nil {
 		return DirtyDiagnosis{IsDirty: false}
 	}
+
 	trimmedOutput := strings.TrimSpace(string(outputBytes))
 	if len(trimmedOutput) == 0 {
 		return DirtyDiagnosis{IsDirty: false}

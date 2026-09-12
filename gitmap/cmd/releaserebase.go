@@ -49,9 +49,11 @@ func tryCrossDirRelease(args []string) bool {
 	if len(positional) != 2 {
 		return false
 	}
+
 	if looksLikeVersion(positional[0]) {
 		return false
 	}
+
 	if !looksLikeVersion(positional[1]) {
 		return false
 	}
@@ -73,9 +75,11 @@ func extractPositionalArgs(args []string) []string {
 			skipNext = false
 			continue
 		}
+
 		if len(a) > 0 && a[0] == '-' {
 			continue
 		}
+
 		out = append(out, a)
 	}
 
@@ -98,6 +102,7 @@ func performCrossDirRelease(target, alias, version string, originalArgs []string
 		)
 		cliexit.HandleError(appErr, 1)
 	}
+
 	defer func() { _ = os.Chdir(originalDir) }()
 
 	fmt.Printf(constants.MsgRRStartingFmt, alias, target, version)

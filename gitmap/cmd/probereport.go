@@ -46,6 +46,7 @@ func executeOneProbe(db *store.DB, repo model.ScanRecord, depth int) probe.Resul
 
 		return result
 	}
+
 	result := probe.RunOneWithDepth(url, depth)
 	recordProbeResult(db, repo, result)
 
@@ -83,6 +84,7 @@ func pickProbeURL(r model.ScanRecord) string {
 	if r.Transport == constants.ScanTransportSSH && r.SSHUrl != "" {
 		return r.SSHUrl
 	}
+
 	if r.HTTPSUrl != "" {
 		return r.HTTPSUrl
 	}
@@ -112,6 +114,7 @@ func tallyProbe(
 	if hasError && !jsonOut {
 		fmt.Printf(constants.MsgProbeFailFmt, repo.Slug, r.Error)
 	}
+
 	if hasError {
 		return ok, none, fail + 1
 	}
@@ -119,6 +122,7 @@ func tallyProbe(
 	if r.IsAvailable && !jsonOut {
 		fmt.Printf(constants.MsgProbeOkFmt, repo.Slug, r.NextVersionTag, r.Method)
 	}
+
 	if r.IsAvailable {
 		return ok + 1, none, fail
 	}
@@ -150,6 +154,7 @@ func emitProbeTermBlock(idx int, repo model.ScanRecord, r probe.Result) {
 		TargetURL:    url,
 		CloneCommand: cmd,
 	}
+
 	_ = render.RenderRepoTermBlock(os.Stdout, block)
 }
 
@@ -162,6 +167,7 @@ func probeCloneCommandFor(url string, r probe.Result) string {
 	if r.Error != "" {
 		return fmt.Sprintf("(probe failed: %s)", r.Error)
 	}
+
 	if !r.IsAvailable || r.NextVersionTag == "" {
 		return fmt.Sprintf("%s %s %s", constants.GitBin, constants.GitClone, url)
 	}

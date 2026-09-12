@@ -21,6 +21,7 @@ func UploadAsset(owner, repo string, releaseID int, filePath, token string) erro
 	if err != nil {
 		return fmt.Errorf("open asset: %w", err)
 	}
+
 	defer file.Close()
 
 	info, err := file.Stat()
@@ -36,6 +37,7 @@ func UploadAsset(owner, repo string, releaseID int, filePath, token string) erro
 	if err != nil {
 		return fmt.Errorf("upload asset: %w", err)
 	}
+
 	defer resp.Body.Close()
 
 	if verbose.IsEnabled() {
@@ -95,9 +97,11 @@ func logUploadStart(asset, filename string) {
 	if !verbose.IsEnabled() {
 		return
 	}
+
 	info, statErr := os.Stat(asset)
 	if statErr != nil {
 		return
 	}
+
 	verbose.Get().Log("upload-start: %s (%d bytes)", filename, info.Size())
 }

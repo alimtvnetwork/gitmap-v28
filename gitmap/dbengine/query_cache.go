@@ -22,6 +22,7 @@ func (c *CompiledQueryCache) Get(key string) (string, bool) {
 	c.mu.RLock()
 	defer c.mu.RUnlock()
 	sqlStr, found := c.cache[key]
+
 	return sqlStr, found
 }
 
@@ -43,6 +44,7 @@ func (c *CompiledQueryCache) Clear() {
 func (c *CompiledQueryCache) Size() int {
 	c.mu.RLock()
 	defer c.mu.RUnlock()
+
 	return len(c.cache)
 }
 

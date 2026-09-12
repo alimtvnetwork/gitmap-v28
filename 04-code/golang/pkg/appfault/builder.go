@@ -81,6 +81,7 @@ func (b *AppErrorBuilder) WithCause(cause error) *AppErrorBuilder {
 // SetStatusCode updates the status code on the builder.
 func (b *AppErrorBuilder) SetStatusCode(code int) *AppErrorBuilder {
 	b.statusCode = code
+
 	return b
 }
 

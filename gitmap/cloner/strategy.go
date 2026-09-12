@@ -104,9 +104,9 @@ func pickCloneStrategy(rec model.ScanRecord) cloneStrategy {
 // the legacy "remote default HEAD" behavior bit-for-bit.
 func applyDefaultBranchFallback(records []model.ScanRecord, fallback string) []model.ScanRecord {
 	if len(fallback) == 0 {
-
 		return records
 	}
+
 	out := make([]model.ScanRecord, len(records))
 	for i, rec := range records {
 		if pickCloneStrategy(rec).useBranch {
@@ -114,6 +114,7 @@ func applyDefaultBranchFallback(records []model.ScanRecord, fallback string) []m
 
 			continue
 		}
+
 		patched := rec
 		patched.Branch = fallback
 		patched.BranchSource = gitutil.BranchSourceDefault
@@ -131,7 +132,6 @@ func applyDefaultBranchFallback(records []model.ScanRecord, fallback string) []m
 func appendFallbackNote(existing, fallback string) string {
 	note := "default-branch fallback applied: " + fallback
 	if len(existing) == 0 {
-
 		return note
 	}
 

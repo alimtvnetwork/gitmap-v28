@@ -37,6 +37,7 @@ func (db *DB) LookupRepoIdentifiedTransport(url string) (string, error) {
 	if url == "" {
 		return "", nil
 	}
+
 	const q = `SELECT IdentifiedTransport FROM Repo
 		WHERE HttpsUrl = ? OR SshUrl = ?
 		ORDER BY UpdatedAt DESC LIMIT 1`
@@ -45,9 +46,11 @@ func (db *DB) LookupRepoIdentifiedTransport(url string) (string, error) {
 	if errors.Is(err, sql.ErrNoRows) {
 		return "", nil
 	}
+
 	if err != nil {
 		return "", err
 	}
+
 	return transport, nil
 }
 
@@ -63,16 +66,20 @@ func (db *DB) SetRepoIdentifiedTransport(url, transport string) (int64, error) {
 	if url == "" || transport == "" {
 		return 0, nil
 	}
+
 	if transport != RepoTransportHTTPS && transport != RepoTransportSSH {
 		return 0, nil
 	}
+
 	const q = `UPDATE Repo SET IdentifiedTransport = ?, UpdatedAt = CURRENT_TIMESTAMP
 		WHERE HttpsUrl = ? OR SshUrl = ?`
 	res, err := ExecWrapper(db.conn, q, transport, url, url).Destruct()
 	if err != nil {
 		return 0, err
 	}
+
 	n, _ := res.RowsAffected()
+
 	return n, nil
 }
 
@@ -85,8 +92,10 @@ func ClassifyURLTransport(url string) string {
 	if strings.HasPrefix(lower, "git@") || strings.HasPrefix(lower, "ssh://") {
 		return RepoTransportSSH
 	}
+
 	if strings.HasPrefix(lower, "https://") || strings.HasPrefix(lower, "http://") {
 		return RepoTransportHTTPS
 	}
+
 	return ""
 }

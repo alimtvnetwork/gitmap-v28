@@ -29,6 +29,7 @@ var agyGroupAddCmd = &cobra.Command{
 		}
 
 		fmt.Printf("%s Added %d target(s) to AGY group %q.\n", constants.ColorGreen+"✓"+constants.ColorReset, len(args)-1, args[0])
+
 		return nil
 	},
 }
@@ -72,6 +73,7 @@ var agyGroupRmCmd = &cobra.Command{
 		}
 
 		fmt.Printf("%s Removed %q from AGY group %q.\n", constants.ColorGreen+"✓"+constants.ColorReset, args[1], args[0])
+
 		return nil
 	},
 }
@@ -82,6 +84,7 @@ func runDeleteAgyGroup(name string) error {
 	}
 
 	fmt.Printf("%s Deleted AGY group %q.\n", constants.ColorGreen+"✓"+constants.ColorReset, name)
+
 	return nil
 }
 

@@ -48,5 +48,6 @@ func runClusterStatus(args []string) error {
 	for _, n := range currentNodes {
 		fmt.Printf(statusNodePrint, n.ID, n.State, n.LastSeen.Format(time.RFC3339))
 	}
+
 	return nil
 }

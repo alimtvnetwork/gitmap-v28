@@ -20,11 +20,13 @@ func TestParseSeparatorEquivalenceAC1(t *testing.T) {
 		{"src", `"a"`, `"b"`, `"c"`},
 		{"src", `"a, b"`, "c"},
 	}
+
 	for _, argv := range cases {
 		got, perr := Parse(argv)
 		if perr != nil {
 			t.Fatalf("argv %v: unexpected error: %v", argv, perr)
 		}
+
 		if !reflect.DeepEqual(got.Inputs, want) {
 			t.Errorf("argv %v: got inputs %v, want %v", argv, got.Inputs, want)
 		}
@@ -40,6 +42,7 @@ func TestParseKeywordsAC4(t *testing.T) {
 		if perr != nil {
 			t.Fatalf("unexpected error: %v", perr)
 		}
+
 		if got.Keyword != constants.CommitInInputKeywordAll || got.KeywordTail != 0 {
 			t.Errorf("got %q tail=%d, want all/0", got.Keyword, got.KeywordTail)
 		}
@@ -49,6 +52,7 @@ func TestParseKeywordsAC4(t *testing.T) {
 		if perr != nil {
 			t.Fatalf("unexpected error: %v", perr)
 		}
+
 		if got.Keyword != "-5" || got.KeywordTail != 5 {
 			t.Errorf("got %q tail=%d, want -5/5", got.Keyword, got.KeywordTail)
 		}
@@ -75,6 +79,7 @@ func TestParseMissingPositionals(t *testing.T) {
 		{},
 		{"only-source"},
 	}
+
 	for _, argv := range cases {
 		_, perr := Parse(argv)
 		if perr == nil || perr.ExitCode != constants.CommitInExitBadArgs {
@@ -95,6 +100,7 @@ func TestParseAuthorPair(t *testing.T) {
 		{"name only", []string{"--author-name", "Jane", "src", "a"}, false},
 		{"email only", []string{"--author-email", "j@x.io", "src", "a"}, false},
 	}
+
 	for _, tc := range cases {
 		_, perr := Parse(tc.argv)
 		if (perr == nil) != tc.ok {
@@ -119,6 +125,7 @@ func TestParseEnumValidators(t *testing.T) {
 		{"languages Go,Rust ok", []string{"--languages", "Go,Rust", "src", "a"}, false},
 		{"languages Cobol bad", []string{"--languages", "Cobol", "src", "a"}, true},
 	}
+
 	for _, tc := range cases {
 		_, perr := Parse(tc.argv)
 		if (perr != nil) != tc.wantErr {
@@ -137,10 +144,12 @@ func TestParseMessageRules(t *testing.T) {
 		if perr != nil {
 			t.Fatalf("unexpected error: %v", perr)
 		}
+
 		want := []MessageRuleArg{
 			{Kind: "StartsWith", Value: "Signed-off-by:"},
 			{Kind: "Contains", Value: "[skip ci]"},
 		}
+
 		if !reflect.DeepEqual(got.MessageRules, want) {
 			t.Errorf("got %+v, want %+v", got.MessageRules, want)
 		}
@@ -165,12 +174,15 @@ func TestParseFlagsAfterPositionals(t *testing.T) {
 	if perr != nil {
 		t.Fatalf("unexpected error: %v", perr)
 	}
+
 	if !got.IsDryRun {
 		t.Error("--dry-run not picked up after positionals")
 	}
+
 	if got.ConflictMode != "Prompt" {
 		t.Errorf("got conflict %q, want Prompt", got.ConflictMode)
 	}
+
 	if !reflect.DeepEqual(got.Inputs, []string{"a", "b"}) {
 		t.Errorf("got inputs %v, want [a b]", got.Inputs)
 	}
@@ -182,6 +194,7 @@ func TestParseDefaultShortAlias(t *testing.T) {
 	if perr != nil {
 		t.Fatalf("unexpected error: %v", perr)
 	}
+
 	if !got.UseDefaultProfile {
 		t.Error("-d did not toggle UseDefaultProfile")
 	}
@@ -194,6 +207,7 @@ func TestParseLanguageErrorListsKnownSet(t *testing.T) {
 	if perr == nil {
 		t.Fatal("expected error")
 	}
+
 	if !strings.Contains(perr.Message, "Go") || !strings.Contains(perr.Message, "CSharp") {
 		t.Errorf("error %q should list supported languages", perr.Message)
 	}
@@ -208,6 +222,7 @@ func TestParseNoReleaseBranchDefaultsOff(t *testing.T) {
 	if perr != nil {
 		t.Fatalf("unexpected error: %v", perr)
 	}
+
 	if got.IsNoReleaseBranch {
 		t.Error("default should be OFF — branches ON")
 	}
@@ -218,6 +233,7 @@ func TestParseNoReleaseBranchFlagFlipsToTrue(t *testing.T) {
 	if perr != nil {
 		t.Fatalf("unexpected error: %v", perr)
 	}
+
 	if !got.IsNoReleaseBranch {
 		t.Error("--no-release-branch should set IsNoReleaseBranch=true")
 	}
@@ -229,6 +245,7 @@ func TestParseNoReleaseBranchReordersPastPositionals(t *testing.T) {
 	if perr != nil {
 		t.Fatalf("unexpected error: %v", perr)
 	}
+
 	if !got.IsNoReleaseBranch {
 		t.Error("--no-release-branch after positionals not picked up")
 	}

@@ -19,7 +19,6 @@ func fetchAgManagerFromGitTags() (string, string, error) {
 	cmd := exec.CommandContext(ctx, "git", "ls-remote", "--tags", "--refs", agManagerGitURL)
 	out, err := cmd.Output()
 	if err != nil {
-
 		return "", "", fmt.Errorf("git ls-remote failed: %w", err)
 	}
 
@@ -29,13 +28,12 @@ func fetchAgManagerFromGitTags() (string, string, error) {
 func resolveHighestTagFromOutput(raw string) (string, string, error) {
 	ver, isFound := findHighestSemverInOutput(raw)
 	if !isFound {
-
 		return "", "", fmt.Errorf("no valid semver release tags found in git repository")
 	}
+
 	tag := "v" + ver.CoreString()
 	url := constructAgManagerAssetURL(tag, ver.CoreString())
 	if url == "" {
-
 		return "", "", fmt.Errorf("unsupported platform or architecture for %s", tag)
 	}
 
@@ -60,13 +58,12 @@ func parseTagFromGitLine(line string) (release.Version, bool) {
 	trimmed := strings.TrimSpace(line)
 	idx := strings.Index(trimmed, "refs/tags/")
 	if idx < 0 {
-
 		return release.Version{}, false
 	}
+
 	tagStr := trimmed[idx+len("refs/tags/"):]
 	v, err := release.Parse(tagStr)
 	if err != nil {
-
 		return release.Version{}, false
 	}
 
@@ -76,13 +73,12 @@ func parseTagFromGitLine(line string) (release.Version, bool) {
 func resolveAgManagerAssetURL(reqVer string) (string, string, error) {
 	clean := strings.TrimPrefix(strings.TrimSpace(reqVer), "v")
 	if clean == "" {
-
 		return getAgManagerAssetURL()
 	}
+
 	tag := "v" + clean
 	url := constructAgManagerAssetURL(tag, clean)
 	if url == "" {
-
 		return "", "", fmt.Errorf("unsupported platform for version %s", clean)
 	}
 

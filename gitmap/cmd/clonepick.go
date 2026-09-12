@@ -38,6 +38,7 @@ func runClonePick(args []string) error {
 	if err != nil {
 		return apperror.WrapSimple(err, "parse-args parsed.RawURL")
 	}
+
 	plan = maybeRunClonePickPicker(plan, parsed.Flags.Ask)
 
 	if plan.DryRun {
@@ -49,7 +50,9 @@ func runClonePick(args []string) error {
 	if parsed.Output == constants.OutputTerminal {
 		printClonePickTermBlock(plan)
 	}
+
 	runClonePickExecute(plan, parsed.NoVSCodeSync, replayId)
+
 	return nil
 }
 
@@ -62,10 +65,13 @@ func runClonePickDryRun(plan clonepick.Plan, parsed clonePickParsed) error {
 
 		return nil
 	}
+
 	if err := clonepick.Render(os.Stdout, plan); err != nil {
 		return apperror.WrapSimple(err, "render-dry-run parsed.RawURL")
 	}
+
 	maybeExitOnCmdFaithfulMismatch()
+
 	return nil
 }
 
@@ -79,14 +85,17 @@ func buildClonePickPlan(parsed clonePickParsed) (clonepick.Plan, int64, error) {
 
 		return plan, 0, err
 	}
+
 	loader, err := openDB()
 	if err != nil {
 		return clonepick.Plan{}, 0, err
 	}
+
 	plan, replayId, loadErr := clonepick.LoadFromDB(loader, parsed.Flags.Replay)
 	if loadErr != nil {
 		return clonepick.Plan{}, 0, loadErr
 	}
+
 	applyReplayOverrides(&plan, parsed.Flags)
 
 	return plan, replayId, nil

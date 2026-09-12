@@ -51,6 +51,7 @@ func executeExportGit(args []string, isAll bool) error {
 	if errDB != nil {
 		return errDB
 	}
+
 	defer db.Close()
 
 	if errMigrate := db.MigrateInstallers(); errMigrate != nil {
@@ -71,6 +72,7 @@ func executeExportGit(args []string, isAll bool) error {
 	}
 
 	fmt.Printf("Exported installer(s) to Git target %q successfully.\n", target)
+
 	return nil
 }
 

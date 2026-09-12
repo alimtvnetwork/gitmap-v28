@@ -29,6 +29,7 @@ func loadAndDispatchBookmark(name string) *apperror.AppError {
 
 		return apperror.WrapSimple(err, constants.ErrBookmarkQuery)
 	}
+
 	defer db.Close()
 
 	return findAndReplayBookmark(db, name)

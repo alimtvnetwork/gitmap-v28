@@ -13,6 +13,7 @@ import (
 func runCDSetDefault(args []string) error {
 	if len(args) < 2 {
 		fmt.Fprint(os.Stderr, constants.ErrCDSetDefaultUsage)
+
 		return apperror.NewSimple("fatal error", "E9000")
 	}
 
@@ -24,6 +25,7 @@ func runCDSetDefault(args []string) error {
 
 	saveCDDefaultsOrExit(defaults)
 	fmt.Printf(constants.MsgCDDefaultSet, name, path)
+
 	return nil
 }
 
@@ -31,6 +33,7 @@ func runCDSetDefault(args []string) error {
 func runCDClearDefault(args []string) error {
 	if len(args) < 1 {
 		fmt.Fprint(os.Stderr, constants.ErrCDClearDefaultUsage)
+
 		return apperror.NewSimple("fatal error", "E9000")
 	}
 
@@ -44,6 +47,7 @@ func runCDClearDefault(args []string) error {
 	delete(defaults, name)
 	saveCDDefaultsOrExit(defaults)
 	fmt.Printf(constants.MsgCDDefaultCleared, name)
+
 	return nil
 }
 
@@ -60,5 +64,6 @@ func saveCDDefaultsOrExit(defaults map[string]string) *apperror.AppError {
 	if err != nil {
 		return apperror.WrapSimple(err, constants.ErrGenericFmt)
 	}
+
 	return nil
 }

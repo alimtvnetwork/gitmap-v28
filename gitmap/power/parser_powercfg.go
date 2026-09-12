@@ -17,6 +17,7 @@ func ParsePowercfgSettingIndex(output, alias string) (int, error) {
 			foundAlias = true
 			continue
 		}
+
 		if foundAlias && strings.HasPrefix(trimmed, "Current AC Power Setting Index:") {
 			return extractSecondsFromLine(trimmed)
 		}
@@ -46,6 +47,7 @@ func ConvertSecondsToMinutes(seconds int) int {
 	if seconds <= 0 {
 		return 0
 	}
+
 	if seconds < 60 {
 		return 1
 	}

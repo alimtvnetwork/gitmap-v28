@@ -14,6 +14,7 @@ func confirmYesNo(prompt string) bool {
 	if _, err := fmt.Fscanln(os.Stdin, &resp); err != nil {
 		return false
 	}
+
 	resp = strings.ToLower(strings.TrimSpace(resp))
 
 	return resp == "y" || resp == "yes"

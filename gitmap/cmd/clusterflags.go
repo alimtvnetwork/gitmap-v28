@@ -31,6 +31,7 @@ func (s *stringSliceFlag) String() string {
 
 func (s *stringSliceFlag) Set(value string) error {
 	*s = append(*s, strings.Split(value, ",")...)
+
 	return nil
 }
 
@@ -41,6 +42,7 @@ func (s *intSliceFlag) String() string {
 	for i, v := range *s {
 		strs[i] = strconv.Itoa(v)
 	}
+
 	return strings.Join(strs, ",")
 }
 
@@ -50,8 +52,10 @@ func (s *intSliceFlag) Set(value string) error {
 		if err != nil {
 			return err
 		}
+
 		*s = append(*s, v)
 	}
+
 	return nil
 }
 
@@ -69,6 +73,7 @@ func splitClusterFlagsAndArgs(args []string) (flags, positional []string) {
 			positional = append(positional, a)
 		}
 	}
+
 	return flags, positional
 }
 
@@ -80,7 +85,9 @@ func needsClusterValue(token string) bool {
 	if strings.Contains(token, "=") {
 		return false
 	}
+
 	name := strings.TrimLeft(token, "-")
+
 	return name == constants.ClusterFlagExcept || name == constants.ClusterFlagIP || name == constants.ClusterFlagID
 }
 
@@ -99,6 +106,7 @@ func bindClusterFlags(
 	fs.BoolVar(&opts.NoPreflight, constants.ClusterFlagNoPreflight, false, "")
 	fs.BoolVar(&opts.Verbose, constants.ClusterFlagVerbose, false, "")
 	fs.BoolVar(&opts.DryRun, constants.ClusterFlagDryRun, false, "")
+
 	return yes, yesShort
 }
 
@@ -108,6 +116,7 @@ func validateClusterFilter(opts ClusterFlags) error {
 	if isExceptProvided && isIncludeProvided {
 		return errors.New(constants.ErrFilterExclusive)
 	}
+
 	return nil
 }
 
@@ -120,7 +129,9 @@ func parseClusterFlagSet(args []string, opts *ClusterFlags) ([]string, error) {
 	if err := fs.Parse(flags); err != nil {
 		return nil, errors.New("cluster: " + err.Error())
 	}
+
 	opts.AutoConfirm, opts.OnlyIPs, opts.OnlyIDs = *yes || *yesShort, ips, ids
+
 	return pos, validateClusterFilter(*opts)
 }
 
@@ -131,5 +142,6 @@ func ParseClusterFlags(args []string) (ClusterFlags, []string, error) {
 	if err != nil {
 		return opts, nil, err
 	}
+
 	return opts, pos, nil
 }

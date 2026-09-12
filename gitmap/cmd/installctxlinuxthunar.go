@@ -17,12 +17,14 @@ func installThunar(flat []flatCtxEntry, exe string) bool {
 	if err != nil {
 		return false
 	}
+
 	path := filepath.Join(home, constants.CtxLinuxThunarRel)
 	if err := os.MkdirAll(filepath.Dir(path), 0o755); err != nil {
 		fmt.Fprintf(os.Stderr, constants.MsgCtxFsWriteFail, path, err)
 
 		return false
 	}
+
 	cur, _ := os.ReadFile(path)
 	body := thunarMerged(string(cur), flat, exe)
 	if err := os.WriteFile(path, []byte(body), 0o644); err != nil {
@@ -43,15 +45,18 @@ func thunarMerged(cur string, flat []flatCtxEntry, exe string) string {
 	if cur == "" {
 		return "<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n<actions>\n" + block + "</actions>\n"
 	}
+
 	begin, end := constants.CtxThunarMarkBegin, constants.CtxThunarMarkEnd
 	i := strings.Index(cur, begin)
 	j := -1
 	if i >= 0 {
 		j = strings.Index(cur[i:], end)
 	}
+
 	if i >= 0 && j >= 0 {
 		return cur[:i] + block + cur[i+j+len(end):]
 	}
+
 	if k := strings.LastIndex(cur, "</actions>"); k >= 0 {
 		return cur[:k] + block + cur[k:]
 	}
@@ -67,6 +72,7 @@ func buildThunarBlock(flat []flatCtxEntry, exe string) string {
 		fmt.Fprintf(&b, "<action><icon>utilities-terminal</icon><name>%s</name><unique-id>%s</unique-id><command>%s</command><patterns>*</patterns><directories/></action>\n",
 			e.Label, e.Slug, dolphinExec(e, exe))
 	}
+
 	b.WriteString(constants.CtxThunarMarkEnd + "\n")
 
 	return b.String()
@@ -100,16 +106,19 @@ func stripThunarBlock(path string) int {
 	if err != nil {
 		return 0
 	}
+
 	s := string(cur)
 	begin, end := constants.CtxThunarMarkBegin, constants.CtxThunarMarkEnd
 	i := strings.Index(s, begin)
 	if i < 0 {
 		return 0
 	}
+
 	j := strings.Index(s[i:], end)
 	if j < 0 {
 		return 0
 	}
+
 	out := s[:i] + s[i+j+len(end):]
 	if err := os.WriteFile(path, []byte(out), 0o644); err != nil {
 		fmt.Fprintf(os.Stderr, constants.MsgCtxFsRmFail, path, err)

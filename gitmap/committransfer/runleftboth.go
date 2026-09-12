@@ -52,21 +52,25 @@ func runOneDirection(sourceDir, targetDir string, opts Options) error {
 	if isWorkingTreeDirty(sourceDir) {
 		return apperror.New("dirty check", "dirty_source", map[string]any{"message": fmt.Sprintf("source repository has uncommitted changes — please commit or stash them before running %s", opts.LogPrefix)})
 	}
+
 	plan, err := BuildPlan(sourceDir, targetDir, opts)
 	if err != nil {
 		return apperror.WrapSimple(err, "build plan")
 	}
+
 	willReplay := PrintPlan(os.Stdout, plan, opts.LogPrefix)
 	if willReplay == 0 {
 		fmt.Fprintf(os.Stdout, "%s nothing to replay.\n", opts.LogPrefix)
 
 		return nil
 	}
+
 	if !opts.DryRun && !opts.Yes && !Confirm(opts.LogPrefix) {
 		fmt.Fprintf(os.Stderr, "%s aborted by user.\n", opts.LogPrefix)
 
 		return nil
 	}
+
 	res, replayErr := Replay(plan, opts)
 	if replayErr != nil {
 		PrintSummary(os.Stderr, opts.LogPrefix, res)
@@ -74,6 +78,7 @@ func runOneDirection(sourceDir, targetDir string, opts Options) error {
 
 		return replayErr
 	}
+
 	res.Pushed = maybePush(targetDir, opts, len(res.NewSHAs))
 	PrintSummary(os.Stdout, opts.LogPrefix, res)
 	PrintReconciliation(os.Stdout, os.Stderr, opts.LogPrefix, plan, res)

@@ -12,6 +12,7 @@ func isInsidePath(current, target string) bool {
 	if cClean == tClean {
 		return true
 	}
+
 	return strings.HasPrefix(cClean, tClean+string(filepath.Separator))
 }
 
@@ -20,12 +21,15 @@ func escapeFromDir(corruptedPath, safeDir string) (string, string, error) {
 	if err != nil {
 		return "", "", err
 	}
+
 	if !isInsidePath(cwd, corruptedPath) {
 		return "", "", nil
 	}
+
 	if err := os.Chdir(safeDir); err != nil {
 		return "", "", err
 	}
+
 	return cwd, safeDir, nil
 }
 
@@ -45,6 +49,7 @@ func cleanSingleDir(info CorruptedDirInfo, opts CleanOptions, targetDir, safeDir
 	if opts.IsDryRun {
 		return nil
 	}
+
 	return os.RemoveAll(info.Path)
 }
 
@@ -54,17 +59,20 @@ func CleanCorruptedDirs(opts CleanOptions) (CleanResult, error) {
 	if err != nil {
 		return CleanResult{}, err
 	}
+
 	targetDir := resolveCanonicalInstallDir()
 	homeDir, _ := os.UserHomeDir()
 	safeDir := homeDir
 	if safeDir == "" {
 		safeDir = targetDir
 	}
+
 	res := CleanResult{DetectedDirs: detected}
 	for _, info := range detected {
 		if err := cleanSingleDir(info, opts, targetDir, safeDir, &res); err != nil {
 			return res, err
 		}
 	}
+
 	return res, nil
 }

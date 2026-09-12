@@ -73,14 +73,14 @@ func AllowUpdate(t *testing.T, trigger bool) bool {
 func allowUpdate(t fatalReporter, trigger bool) bool {
 	t.Helper()
 	if !trigger {
-
 		return false
 	}
+
 	allow := os.Getenv(AllowUpdateEnv)
 	if allow == allowUpdateValue {
-
 		return true
 	}
+
 	t.Fatalf("golden update requested but %s is not set to %q "+
 		"(got %q). This double-gate prevents accidental fixture "+
 		"rewrites in CI. To regenerate locally, run with BOTH the "+

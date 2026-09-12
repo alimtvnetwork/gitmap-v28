@@ -27,6 +27,7 @@ func TestKindCode_Table(t *testing.T) {
 		{KindVerifyFailed, 3},
 		{KindPreconditionFailed, 4},
 	}
+
 	for _, tc := range cases {
 		got := KindCode(tc.kind)
 		isMismatch := got != tc.want
@@ -59,11 +60,13 @@ func TestWithKindExtra_TagsContext(t *testing.T) {
 		Extras:  original,
 		Err:     errors.New("boom"),
 	}
+
 	tagged := withKindExtra(ctx, KindUserCanceled)
 	isKindMismatch := tagged.Extras["kind"] != "user-canceled"
 	if isKindMismatch {
 		t.Fatalf("kind label missing/wrong: %v", tagged.Extras)
 	}
+
 	_, leaked := original["kind"]
 	if leaked {
 		t.Fatalf("withKindExtra mutated caller's map: %v", original)

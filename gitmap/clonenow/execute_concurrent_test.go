@@ -39,6 +39,7 @@ func TestExecuteWithHooksConcurrent_FallbackBelowTwoWorkers(t *testing.T) {
 	if len(res) != 1 {
 		t.Fatalf("len(res)=%d, want 1", len(res))
 	}
+
 	if res[0].Status != constants.CloneNowStatusFailed {
 		t.Errorf("status=%q, want %q (no-URL row must fail under fallback)",
 			res[0].Status, constants.CloneNowStatusFailed)
@@ -53,6 +54,7 @@ func TestExecuteWithHooksConcurrent_PreservesInputOrder(t *testing.T) {
 		// while still exercising the worker pool's order guarantee.
 		rows[i] = Row{RelativePath: padIdx(i)}
 	}
+
 	plan := Plan{Mode: constants.CloneNowModeHTTPS, Rows: rows}
 	res := ExecuteWithHooksConcurrent(ConcurrentExecutionParams{
 		Plan:     plan,
@@ -63,6 +65,7 @@ func TestExecuteWithHooksConcurrent_PreservesInputOrder(t *testing.T) {
 	if len(res) != len(rows) {
 		t.Fatalf("len(res)=%d, want %d", len(res), len(rows))
 	}
+
 	for i, r := range res {
 		if r.Row.RelativePath != padIdx(i) {
 			t.Errorf("res[%d].RelativePath=%q, want %q (order drift)",
@@ -77,6 +80,7 @@ func TestExecuteWithHooksConcurrent_HookOrderAndCount(t *testing.T) {
 		{RelativePath: "b"},
 		{RelativePath: "c"},
 	}
+
 	plan := Plan{Mode: constants.CloneNowModeHTTPS, Rows: rows}
 
 	var mu sync.Mutex
@@ -89,6 +93,7 @@ func TestExecuteWithHooksConcurrent_HookOrderAndCount(t *testing.T) {
 			t.Errorf("hook total=%d, want %d", total, len(rows))
 		}
 	}
+
 	_ = ExecuteWithHooksConcurrent(ConcurrentExecutionParams{
 		Plan:      plan,
 		Cwd:       t.TempDir(),
@@ -99,6 +104,7 @@ func TestExecuteWithHooksConcurrent_HookOrderAndCount(t *testing.T) {
 	if len(seen) != len(rows) {
 		t.Fatalf("hook fired %d times, want %d", len(seen), len(rows))
 	}
+
 	for i, r := range rows {
 		if seen[i] != r.RelativePath {
 			t.Errorf("hook[%d]=%q, want %q (input order required)",
@@ -113,6 +119,7 @@ func TestExecuteWithHooksConcurrent_ProgressLinesEmittedInOrder(t *testing.T) {
 		{RelativePath: "second"},
 		{RelativePath: "third"},
 	}
+
 	plan := Plan{Mode: constants.CloneNowModeHTTPS, Rows: rows}
 	var buf bytes.Buffer
 	_ = ExecuteWithHooksConcurrent(ConcurrentExecutionParams{

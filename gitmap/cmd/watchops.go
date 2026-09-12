@@ -95,9 +95,11 @@ func buildWatchSummary(snapshots []watchSnapshot) watchSummary {
 		if snap.Status == "dirty" {
 			s.Dirty++
 		}
+
 		if snap.Behind > 0 {
 			s.Behind++
 		}
+
 		if snap.Stash > 0 {
 			s.Stash++
 		}

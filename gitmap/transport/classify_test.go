@@ -15,6 +15,7 @@ func TestClassify(t *testing.T) {
 		"http://x/y.git":               constants.ScanTransportOther,
 		"git://x/y.git":                constants.ScanTransportOther,
 	}
+
 	for in, want := range cases {
 		if got := Classify(in); got != want {
 			t.Errorf("Classify(%q) = %q, want %q", in, got, want)

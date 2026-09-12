@@ -71,10 +71,12 @@ func sameTagSet(a, b []string) bool {
 	if len(a) != len(b) {
 		return false
 	}
+
 	seen := make(map[string]struct{}, len(a))
 	for _, t := range a {
 		seen[t] = struct{}{}
 	}
+
 	for _, t := range b {
 		_, isSeen := seen[t]
 		if !isSeen {

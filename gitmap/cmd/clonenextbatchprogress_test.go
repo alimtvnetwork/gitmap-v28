@@ -19,6 +19,7 @@ func TestBatchProgressReporter_TalliesByStatus(t *testing.T) {
 	if r.done != 3 {
 		t.Fatalf("done counter: got %d, want 3", r.done)
 	}
+
 	if r.ok != 1 || r.failed != 1 || r.skipped != 1 {
 		t.Fatalf("bucket counters: ok=%d failed=%d skipped=%d, want 1/1/1",
 			r.ok, r.failed, r.skipped)
@@ -36,6 +37,7 @@ func TestBatchProgressReporter_IgnoresUnknownStatus(t *testing.T) {
 	if r.done != 2 {
 		t.Fatalf("done: got %d want 2", r.done)
 	}
+
 	if r.ok != 1 || r.failed != 0 || r.skipped != 0 {
 		t.Fatalf("buckets: %+v", r)
 	}
@@ -59,6 +61,7 @@ func TestBatchProgressReporter_FormatHasSixVerbs(t *testing.T) {
 		t.Fatalf("MsgCloneNextBatchProgressFmt: got %d %%d verbs, want %d",
 			got, wantVerbs)
 	}
+
 	if strings.Count(constants.MsgCloneNextBatchProgressFmt, "%s") != 2 {
 		t.Fatalf("MsgCloneNextBatchProgressFmt: want exactly 2 %%s verbs")
 	}

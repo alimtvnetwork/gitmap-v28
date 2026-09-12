@@ -58,6 +58,7 @@ func mustInsertReplay(t *testing.T, db *DB, runID, rewID int64, tagName string, 
 	if isVersion {
 		v = 1
 	}
+
 	q := `INSERT INTO CommitInReplayMap
 		(CommitInRunId, RewrittenCommitId, SourceTagName, SourceTagSha,
 		 SourceCommitSha, DestTagSha, DestCommitSha,
@@ -68,6 +69,7 @@ func mustInsertReplay(t *testing.T, db *DB, runID, rewID int64, tagName string, 
 	if isVersion {
 		branch = "release/" + tagName
 	}
+
 	mustExec(t, db, q, runID, rewID, tagName, "tag-sha-"+tagName,
 		"src-sha-"+itoa(int(rewID)), "dest-tag-"+tagName,
 		"new-sha-"+itoa(int(rewID)), nullable(branch), v)
@@ -86,6 +88,7 @@ func scanInt(t *testing.T, db *DB, q string, args ...any) int {
 	if err := db.conn.QueryRow(q, args...).Scan(&n); err != nil {
 		t.Fatalf("scan int %q: %v", q, err)
 	}
+
 	return n
 }
 
@@ -96,6 +99,7 @@ func nullable(s string) any {
 	if s == "" {
 		return nil
 	}
+
 	return s
 }
 
@@ -104,6 +108,7 @@ func itoa(n int) string {
 	if n == 0 {
 		return "0"
 	}
+
 	const digits = "0123456789"
 	var buf [20]byte
 	i := len(buf)
@@ -112,5 +117,6 @@ func itoa(n int) string {
 		buf[i] = digits[n%10]
 		n /= 10
 	}
+
 	return string(buf[i:])
 }

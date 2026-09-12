@@ -45,9 +45,11 @@ func Resolve() (string, SourceType, error) {
 	if t := os.Getenv("GITHUB_TOKEN"); len(t) > 0 {
 		return t, SourceEnvGitHubToken, nil
 	}
+
 	if t := os.Getenv("GH_TOKEN"); len(t) > 0 {
 		return t, SourceEnvGHToken, nil
 	}
+
 	if t, ok := tokenFromGhCLI(); ok {
 		return t, SourceGhCLI, nil
 	}
@@ -62,10 +64,12 @@ func tokenFromGhCLI() (string, bool) {
 	if _, err := exec.LookPath("gh"); err != nil {
 		return "", false
 	}
+
 	out, err := exec.Command("gh", "auth", "token").Output()
 	if err != nil {
 		return "", false
 	}
+
 	tok := strings.TrimSpace(string(out))
 	if len(tok) == 0 {
 		return "", false

@@ -38,17 +38,21 @@ func (db *DB) InsertPurgeHistoryLog(log *PurgeHistoryLog) error {
 	if err := db.EnsurePurgeHistoryTable(); err != nil {
 		return err
 	}
+
 	res, err := ExecWrapper(db.conn, sqlInsertPurgeHistory,
 		log.RepoPath, log.Pattern, log.BackupBranch, log.TempDir, log.Files, log.Timestamp, boolToInt(log.IsRestored), log.Notes, log.Comments,
 	).Destruct()
 	if err != nil {
 		return err
 	}
+
 	id, err := res.LastInsertId()
 	if err != nil {
 		return err
 	}
+
 	log.PurgeHistoryLogId = id
+
 	return nil
 }
 
@@ -63,6 +67,7 @@ func (db *DB) GetLastPurgeHistoryLog(repoPath string) (*PurgeHistoryLog, error) 
 		`SELECT PurgeHistoryLogId, RepoPath, Pattern, BackupBranch, TempDir, Files, Timestamp, IsRestored, COALESCE(Notes, ''), COALESCE(Comments, '') FROM PurgeHistoryLog WHERE RepoPath = ? AND IsRestored = 0 ORDER BY PurgeHistoryLogId DESC LIMIT 1`,
 		repoPath,
 	)
+
 	return scanPurgeHistoryRow(row)
 }
 
@@ -77,6 +82,7 @@ func (db *DB) GetPurgeHistoryLogById(id int64) (*PurgeHistoryLog, error) {
 		`SELECT PurgeHistoryLogId, RepoPath, Pattern, BackupBranch, TempDir, Files, Timestamp, IsRestored, COALESCE(Notes, ''), COALESCE(Comments, '') FROM PurgeHistoryLog WHERE PurgeHistoryLogId = ?`,
 		id,
 	)
+
 	return scanPurgeHistoryRow(row)
 }
 
@@ -98,11 +104,13 @@ func scanPurgeHistoryRow(row *sql.Row) (*PurgeHistoryLog, error) {
 	if err == sql.ErrNoRows {
 		return nil, nil
 	}
+
 	if err != nil {
 		return nil, err
 	}
 
 	log.IsRestored = isRestoredInt == 1
+
 	return &log, nil
 }
 
@@ -113,5 +121,6 @@ func (db *DB) MarkPurgeHistoryRestored(id int64) error {
 	}
 
 	_, err := ExecWrapper(db.conn, `UPDATE PurgeHistoryLog SET IsRestored = 1 WHERE PurgeHistoryLogId = ?`, id).Destruct()
+
 	return err
 }

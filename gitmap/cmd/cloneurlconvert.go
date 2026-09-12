@@ -62,12 +62,15 @@ func ConvertURLToHTTPS(url string) (string, bool) {
 	if strings.HasPrefix(lower, constants.PrefixHTTPS) {
 		return ensureGitSuffix(trimmed), true
 	}
+
 	if strings.HasPrefix(lower, "http://") {
 		return ensureGitSuffix(constants.PrefixHTTPS + trimmed[len("http://"):]), true
 	}
+
 	if strings.HasPrefix(lower, "git@") {
 		return shorthandToHTTPS(trimmed)
 	}
+
 	if strings.HasPrefix(lower, "ssh://") {
 		return sshSchemeToHTTPS(trimmed)
 	}
@@ -148,6 +151,7 @@ func sshSchemeToShorthand(sshURL string) (string, bool) {
 	if colon := strings.Index(hostPart, ":"); colon > 0 {
 		hostPart = hostPart[:colon]
 	}
+
 	if hostPart == "" || path == "" {
 		return sshURL, false
 	}

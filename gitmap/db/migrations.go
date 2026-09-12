@@ -37,5 +37,6 @@ func ApplyMigrations(ctx context.Context, conn *sql.DB) error {
 			return fmt.Errorf("failed to execute migration %s: %w", entry.Name(), err)
 		}
 	}
+
 	return nil
 }

@@ -11,6 +11,7 @@ func ParseVersionFromCommit(commitMessage string) (string, bool) {
 	if len(matches) < 2 {
 		return "", false
 	}
+
 	isFound := true
 
 	return matches[1], isFound

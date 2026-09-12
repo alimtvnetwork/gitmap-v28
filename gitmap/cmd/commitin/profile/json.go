@@ -50,9 +50,11 @@ func Decode(raw []byte) (*Profile, error) {
 	if err := dec.Decode(&s); err != nil {
 		return nil, &LoadError{Reason: "invalid json", Cause: err}
 	}
+
 	if s.SchemaVersion != CurrentSchemaVersion {
 		return nil, &LoadError{Reason: fmt.Sprintf("unsupported SchemaVersion %d", s.SchemaVersion)}
 	}
+
 	return shapeToProfile(&s), nil
 }
 
@@ -64,6 +66,7 @@ func Encode(p *Profile) ([]byte, error) {
 	if err != nil {
 		return nil, err
 	}
+
 	return append(out, '\n'), nil
 }
 
@@ -83,15 +86,19 @@ func shapeToProfile(s *jsonShape) *Profile {
 		WeakWords:        s.WeakWords,
 		FunctionIntel:    FunctionIntel{IsEnabled: s.FunctionIntel.IsEnabled, Languages: s.FunctionIntel.Languages},
 	}
+
 	if s.Author != nil {
 		p.Author = &Author{Name: s.Author.Name, Email: s.Author.Email}
 	}
+
 	for _, e := range s.Exclusions {
 		p.Exclusions = append(p.Exclusions, Exclusion(e))
 	}
+
 	for _, r := range s.MessageRules {
 		p.MessageRules = append(p.MessageRules, MessageRule(r))
 	}
+
 	return p
 }
 
@@ -111,38 +118,50 @@ func profileToShape(p *Profile) *jsonShape {
 		WeakWords:        p.WeakWords,
 		FunctionIntel:    jsonFuncIntel{IsEnabled: p.FunctionIntel.IsEnabled, Languages: p.FunctionIntel.Languages},
 	}
+
 	if p.Author != nil {
 		s.Author = &jsonAuthor{Name: p.Author.Name, Email: p.Author.Email}
 	}
+
 	if s.SchemaVersion == 0 {
 		s.SchemaVersion = CurrentSchemaVersion
 	}
+
 	for _, e := range p.Exclusions {
 		s.Exclusions = append(s.Exclusions, jsonKV(e))
 	}
+
 	for _, r := range p.MessageRules {
 		s.MessageRules = append(s.MessageRules, jsonKV(r))
 	}
+
 	if s.Exclusions == nil {
 		s.Exclusions = []jsonKV{}
 	}
+
 	if s.MessageRules == nil {
 		s.MessageRules = []jsonKV{}
 	}
+
 	if s.MessagePrefix == nil {
 		s.MessagePrefix = []string{}
 	}
+
 	if s.MessageSuffix == nil {
 		s.MessageSuffix = []string{}
 	}
+
 	if s.OverrideMessages == nil {
 		s.OverrideMessages = []string{}
 	}
+
 	if s.WeakWords == nil {
 		s.WeakWords = []string{}
 	}
+
 	if s.FunctionIntel.Languages == nil {
 		s.FunctionIntel.Languages = []string{}
 	}
+
 	return s
 }

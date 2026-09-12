@@ -37,6 +37,7 @@ func maybePrintCloneNextTermBlock(
 	if flags.Output != constants.OutputTerminal {
 		return
 	}
+
 	block := render.RepoTermBlock{
 		Index:        1,
 		Name:         name,
@@ -46,6 +47,7 @@ func maybePrintCloneNextTermBlock(
 		TargetURL:    targetURL,
 		CloneCommand: fmt.Sprintf("%s %s %s %s", constants.GitBin, constants.GitClone, targetURL, dest),
 	}
+
 	_ = render.RenderRepoTermBlock(os.Stdout, block)
 }
 

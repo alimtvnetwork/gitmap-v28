@@ -40,15 +40,16 @@ func runLatestBranch(args []string) error {
 	result := resolveLatestResult(items, cfg)
 	dispatchLatestOutput(result, items, cfg)
 	maybeSwitchToLatest(result, cfg)
+
 	return nil
 }
 
 // validateLatestBranchRepo exits if the current directory is outside a git repo.
 func validateLatestBranchRepo() {
 	if gitutil.IsInsideWorkTree() {
-
 		return
 	}
+
 	cliexit.HandleError(apperror.NewSimple(constants.ErrLatestBranchNotRepo, "E9000"), 1)
 }
 
@@ -62,6 +63,7 @@ func fetchLatestBranchRefs(cfg latestBranchConfig) {
 	if isTerminal {
 		fmt.Println(constants.MsgLatestBranchFetching)
 	}
+
 	err := gitutil.FetchAllPrune()
 	if err != nil && isTerminal {
 		fmt.Fprintf(os.Stderr, constants.MsgLatestBranchFetchWarning, err)
@@ -75,6 +77,7 @@ func loadFilteredRefs(cfg latestBranchConfig) []string {
 		printNoRefsError(cfg)
 		cliexit.HandleError(apperror.NewSimple("fatal", "E9000"), 1)
 	}
+
 	refs = applyRemoteFilter(refs, cfg)
 	refs = applyPatternFilter(refs, cfg)
 
@@ -88,6 +91,7 @@ func printNoRefsError(cfg latestBranchConfig) {
 
 		return
 	}
+
 	fmt.Fprintln(os.Stderr, constants.ErrLatestBranchNoRefsAll)
 }
 
@@ -126,6 +130,7 @@ func readAndSortBranches(refs []string, sortBy string) []gitutil.RemoteBranchInf
 		fmt.Fprintf(os.Stderr, constants.ErrLatestBranchNoCommits+"\n")
 		cliexit.HandleError(apperror.NewSimple("fatal", "E9000"), 1)
 	}
+
 	if sortBy == constants.SortByName {
 		gitutil.SortByNameAsc(items)
 	} else {
@@ -173,6 +178,7 @@ func resolveLatestBranchConfig(
 	if jsonOut {
 		cfg.format = constants.OutputJSON
 	}
+
 	cfg.top = resolvePositionalTop(fs, cfg.top)
 
 	return cfg
@@ -181,12 +187,11 @@ func resolveLatestBranchConfig(
 // resolvePositionalTop checks for a bare integer positional argument.
 func resolvePositionalTop(fs *flag.FlagSet, current int) int {
 	if current > 0 || fs.NArg() == 0 {
-
 		return current
 	}
+
 	n, err := strconv.Atoi(fs.Arg(0))
 	if err == nil && n > 0 {
-
 		return n
 	}
 

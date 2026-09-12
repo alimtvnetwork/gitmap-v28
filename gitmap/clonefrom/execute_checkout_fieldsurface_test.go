@@ -72,6 +72,7 @@ func TestResultFieldSurface_CheckoutTests(t *testing.T) {
 		Detail:   "",
 		Duration: time.Millisecond,
 	}
+
 	if r.Status != "ok" || r.Dest != "resolved" || r.Row.URL != "u" {
 		t.Fatalf("Result/Row field round-trip failed: %+v", r)
 	}

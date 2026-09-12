@@ -28,6 +28,7 @@ func setupTestPipelineRepo(t *testing.T) (*PipelineRepository, func()) {
 	cleanup := func() {
 		_ = wrapper.Close()
 	}
+
 	return repo, cleanup
 }
 
@@ -52,6 +53,7 @@ func TestPipelineRepository_CRUD(t *testing.T) {
 		CreatedAt:       "2026-09-05T10:00:00Z",
 		UpdatedAt:       "2026-09-05T10:02:00Z",
 	}
+
 	run2 := PipelineRunRecord{
 		RunId:           102,
 		RepoSlug:        "owner/repo",
@@ -83,10 +85,12 @@ func TestPipelineRepository_CRUD(t *testing.T) {
 	if getRes.IsFailed() {
 		t.Fatalf("failed to get run by id 101: %v", getRes.Err)
 	}
+
 	runRecord := getRes.Value
 	if runRecord.WorkflowName != "build-test" {
 		t.Errorf("expected workflow name 'build-test', got '%s'", runRecord.WorkflowName)
 	}
+
 	if runRecord.IsFailed() {
 		t.Errorf("expected run 101 to be successful")
 	}
@@ -96,10 +100,12 @@ func TestPipelineRepository_CRUD(t *testing.T) {
 	if recentRes.IsFailed() {
 		t.Fatalf("failed to get recent runs: %v", recentRes.Err)
 	}
+
 	runs := recentRes.Value
 	if len(runs) != 2 {
 		t.Fatalf("expected 2 runs, got %d", len(runs))
 	}
+
 	if runs[0].RunId != 102 {
 		t.Errorf("expected first run to be 102 (descending order), got %d", runs[0].RunId)
 	}
@@ -126,6 +132,7 @@ func TestPipelineRepository_ActiveErrorsViewAndJoin(t *testing.T) {
 		CreatedAt:       "2026-09-05T12:00:00Z",
 		UpdatedAt:       "2026-09-05T12:05:00Z",
 	}
+
 	_ = repo.InsertRun(ctx, run)
 
 	errRec := PipelineErrorRecord{
@@ -136,6 +143,7 @@ func TestPipelineRepository_ActiveErrorsViewAndJoin(t *testing.T) {
 		ErrorText:    "Access denied on cloud resource",
 		CreatedAt:    "2026-09-05T12:04:00Z",
 	}
+
 	_ = repo.InsertErrorRecord(ctx, errRec)
 
 	// 2. EnsureActiveErrorsView creation
@@ -149,6 +157,7 @@ func TestPipelineRepository_ActiveErrorsViewAndJoin(t *testing.T) {
 	if hashErr != nil {
 		t.Fatalf("failed retrieving view hash: %v", hashErr)
 	}
+
 	if len(hash1) == 0 {
 		t.Fatalf("expected recorded query hash for ActiveCiErrors")
 	}
@@ -158,6 +167,7 @@ func TestPipelineRepository_ActiveErrorsViewAndJoin(t *testing.T) {
 	if reuseRes.IsFailed() {
 		t.Fatalf("failed re-ensuring ActiveCiErrors view: %v", reuseRes.Err)
 	}
+
 	hash2, _ := repo.Db().GetViewHash(ctx, "ActiveCiErrors")
 	if hash1 != hash2 {
 		t.Errorf("expected hash to be unchanged on reuse: %s vs %s", hash1, hash2)
@@ -168,6 +178,7 @@ func TestPipelineRepository_ActiveErrorsViewAndJoin(t *testing.T) {
 	if queryErr != nil {
 		t.Fatalf("failed querying ActiveCiErrors view: %v", queryErr)
 	}
+
 	defer rows.Close()
 
 	var count int
@@ -178,11 +189,13 @@ func TestPipelineRepository_ActiveErrorsViewAndJoin(t *testing.T) {
 		if scanErr != nil {
 			t.Fatalf("failed scanning view row: %v", scanErr)
 		}
+
 		count++
 		if runId != 201 || stepName != "terraform-apply" {
 			t.Errorf("unexpected view row content: runId=%d, step=%s", runId, stepName)
 		}
 	}
+
 	if count != 1 {
 		t.Errorf("expected 1 joined error record in view, got %d", count)
 	}
@@ -210,9 +223,11 @@ func TestPipelineRepository_FluentQueryWithEnums(t *testing.T) {
 		!strings.Contains(cq.SQL, "SELECT \"RunId\", \"WorkflowName\" FROM \"PipelineRunRecord\"") {
 		t.Errorf("SQL missing expected projections: %s", cq.SQL)
 	}
+
 	if len(cq.Args) != 2 {
 		t.Fatalf("expected 2 bound arguments, got %d", len(cq.Args))
 	}
+
 	if len(cq.QueryHash) == 0 {
 		t.Errorf("expected non-empty QueryHash")
 	}
@@ -239,6 +254,7 @@ func TestPipelineRunDbRepo_GeneratedRepo(t *testing.T) {
 		CreatedAt:       "2026-09-05T14:00:00Z",
 		UpdatedAt:       "2026-09-05T14:01:00Z",
 	}
+
 	insRes := domainRepo.InsertRun(ctx, run)
 	if insRes.IsFailed() {
 		t.Fatalf("failed inserting run 301: %v", insRes.Err)
@@ -261,9 +277,11 @@ func TestPipelineRunDbRepo_GeneratedRepo(t *testing.T) {
 	if listRes.IsFailed() {
 		t.Fatalf("FindAll failed: %v", listRes.Err)
 	}
+
 	if len(listRes.Value) != 1 {
 		t.Fatalf("expected 1 record from FindAll, got %d", len(listRes.Value))
 	}
+
 	firstFound := listRes.Value[0]
 	if firstFound.RunId != 301 {
 		t.Errorf("expected RunId 301, got %d", firstFound.RunId)
@@ -274,6 +292,7 @@ func TestPipelineRunDbRepo_GeneratedRepo(t *testing.T) {
 	if entRes.IsFailed() {
 		t.Fatalf("First failed: %v", entRes.Err)
 	}
+
 	if entRes.Value.WorkflowName != "ci-cd" {
 		t.Errorf("expected workflow 'ci-cd', got '%s'", entRes.Value.WorkflowName)
 	}
@@ -283,6 +302,7 @@ func TestPipelineRunDbRepo_GeneratedRepo(t *testing.T) {
 	if countRes.IsFailed() {
 		t.Fatalf("Count failed: %v", countRes.Err)
 	}
+
 	if countRes.Value != 1 {
 		t.Errorf("expected count 1, got %d", countRes.Value)
 	}
@@ -294,6 +314,7 @@ func TestPipelineRunDbRepo_GeneratedRepo(t *testing.T) {
 	if filteredRes.IsFailed() {
 		t.Fatalf("Query().WhereOp() failed: %v", filteredRes.Err)
 	}
+
 	if len(filteredRes.Value) != 1 {
 		t.Errorf("expected 1 filtered record, got %d", len(filteredRes.Value))
 	}
@@ -303,10 +324,12 @@ func TestPipelineRunDbRepo_GeneratedRepo(t *testing.T) {
 	if errDbRepo == nil {
 		t.Fatalf("expected non-nil PipelineErrorDbRepo")
 	}
+
 	errCountRes := errDbRepo.Count(ctx)
 	if errCountRes.IsFailed() {
 		t.Fatalf("errDbRepo.Count failed: %v", errCountRes.Err)
 	}
+
 	if errCountRes.Value != 0 {
 		t.Errorf("expected error count 0, got %d", errCountRes.Value)
 	}
@@ -317,15 +340,19 @@ func TestPipelineDbGeneratedConsts(t *testing.T) {
 	if PipelineRunRecordTable != "PipelineRunRecord" {
 		t.Errorf("expected PipelineRunRecord, got %s", PipelineRunRecordTable)
 	}
+
 	if PipelineRunTable != PipelineRunRecordTable {
 		t.Errorf("expected PipelineRunTable == PipelineRunRecordTable")
 	}
+
 	if PipelineErrorRecordTable != "PipelineErrorRecord" {
 		t.Errorf("expected PipelineErrorRecord, got %s", PipelineErrorRecordTable)
 	}
+
 	if PipelineErrorTable != PipelineErrorRecordTable {
 		t.Errorf("expected PipelineErrorTable == PipelineErrorRecordTable")
 	}
+
 	if PipelineDbStatsTable != "PipelineDbStats" {
 		t.Errorf("expected PipelineDbStats, got %s", PipelineDbStatsTable)
 	}
@@ -352,6 +379,7 @@ func TestPipelineDbEnumsPackageDirectUsage(t *testing.T) {
 	if enums.PipelineRunRecordTable != "PipelineRunRecord" {
 		t.Errorf("expected enums.PipelineRunRecordTable == PipelineRunRecord")
 	}
+
 	if enums.PipelineRunTable != "PipelineRunRecord" {
 		t.Errorf("expected enums.PipelineRunTable == PipelineRunRecord")
 	}
@@ -360,15 +388,19 @@ func TestPipelineDbEnumsPackageDirectUsage(t *testing.T) {
 	if enums.PipelineRunRecordDb.RunId != "RunId" {
 		t.Errorf("expected enums.PipelineRunRecordDb.RunId == RunId")
 	}
+
 	if enums.PipelineRunDb.RunId != "RunId" {
 		t.Errorf("expected enums.PipelineRunDb.RunId == RunId")
 	}
+
 	if enums.PipelineErrorRecordDb.ErrorText != "ErrorText" {
 		t.Errorf("expected enums.PipelineErrorRecordDb.ErrorText == ErrorText")
 	}
+
 	if enums.PipelineErrorDb.ErrorText != "ErrorText" {
 		t.Errorf("expected enums.PipelineErrorDb.ErrorText == ErrorText")
 	}
+
 	if enums.PipelineDbStatsDb.TotalRuns != "TotalRuns" {
 		t.Errorf("expected enums.PipelineDbStatsDb.TotalRuns == TotalRuns")
 	}
@@ -397,6 +429,7 @@ func TestPipelineRunRecordDbRepo_Mutations(t *testing.T) {
 		CreatedAt:    "2026-09-10T12:00:00Z",
 		UpdatedAt:    "2026-09-10T12:00:00Z",
 	}
+
 	insRes := runRepo.Insert(ctx, &record)
 	if insRes.IsFailed() {
 		t.Fatalf("Insert failed: %v", insRes.Err)
@@ -421,6 +454,7 @@ func TestPipelineRunRecordDbRepo_Mutations(t *testing.T) {
 	if delRes.IsFailed() {
 		t.Fatalf("DeleteById failed: %v", delRes.Err)
 	}
+
 	countRes := runRepo.Count(ctx)
 	if countRes.IsFailed() || countRes.Value != 0 {
 		t.Fatalf("expected 0 records after DeleteById, got %d", countRes.Value)

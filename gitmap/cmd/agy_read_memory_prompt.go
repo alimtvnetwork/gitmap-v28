@@ -44,16 +44,20 @@ func runAgyAllProjectsReadMemory() error {
 	if pathErr != nil {
 		return apperror.WrapSimple(pathErr, "path error")
 	}
+
 	projects, loadErr := loadAllAgyProjects(dirPath)
 	if loadErr != nil {
 		return apperror.WrapSimple(loadErr, "load projects")
 	}
+
 	tokens := parseAgyExceptTokens(agyAprmpExcept)
 	targets, excluded := partitionPromptProjects(projects, tokens)
 	if len(targets) == 0 {
 		fmt.Printf("%s No eligible active projects found to receive prompt.\n", constants.ColorYellow+"ℹ"+constants.ColorReset)
+
 		return nil
 	}
+
 	return executePromptBroadcast(targets, excluded)
 }
 
@@ -64,17 +68,21 @@ func partitionPromptProjects(projects []AgyProject, tokens []string) ([]AgyProje
 		if p.ID == "outside-of-project" {
 			continue
 		}
+
 		path := p.GetPath()
 		if path != "" && !checkDirExists(path) {
 			excluded = append(excluded, p)
 			continue
 		}
+
 		if isMatchPrefixOrSlugExcept(p, tokens) {
 			excluded = append(excluded, p)
 			continue
 		}
+
 		targets = append(targets, p)
 	}
+
 	return targets, excluded
 }
 
@@ -82,6 +90,7 @@ func isMatchPrefixOrSlugExcept(p AgyProject, tokens []string) bool {
 	if len(tokens) == 0 {
 		return false
 	}
+
 	pID := strings.ToLower(p.ID)
 	pName := strings.ToLower(p.Name)
 	pSlug := strings.ToLower(filepath.Base(p.GetPath()))
@@ -90,10 +99,12 @@ func isMatchPrefixOrSlugExcept(p AgyProject, tokens []string) bool {
 		if t == pID || t == pName || t == pSlug || t == pPath {
 			return true
 		}
+
 		if strings.HasPrefix(pID, t) || strings.HasPrefix(pName, t) || strings.HasPrefix(pSlug, t) {
 			return true
 		}
 	}
+
 	return false
 }
 
@@ -102,12 +113,16 @@ func executePromptBroadcast(targets, excluded []AgyProject) error {
 	if agyAprmpDryRun {
 		fmt.Printf("\n%s [dry-run] %d project(s) would receive the prompt. %d project(s) excluded.\n",
 			constants.ColorYellow+"ℹ"+constants.ColorReset, len(targets), len(excluded))
+
 		return nil
 	}
+
 	if !agyAprmpYes && !askPromptConfirmation(len(targets)) {
 		fmt.Println("Broadcast canceled. No prompts sent.")
+
 		return nil
 	}
+
 	return dispatchPrompts(targets)
 }
 
@@ -118,6 +133,7 @@ func printPromptPlan(targets, excluded []AgyProject) {
 	for _, p := range targets {
 		fmt.Printf("    %-32s (%s)\n", p.Name, p.ID)
 	}
+
 	if len(excluded) > 0 {
 		fmt.Printf("\n  %sExcluded Projects (%d):%s\n", constants.ColorDim, len(excluded), constants.ColorReset)
 		for _, p := range excluded {
@@ -132,6 +148,7 @@ func askPromptConfirmation(count int) bool {
 	reader := bufio.NewReader(os.Stdin)
 	text, _ := reader.ReadString('\n')
 	text = strings.TrimSpace(strings.ToLower(text))
+
 	return text == "y" || text == "yes"
 }
 
@@ -142,7 +159,9 @@ func dispatchPrompts(targets []AgyProject) error {
 			constants.ColorGreen+"✓"+constants.ColorReset, p.Name, p.ID)
 		sent++
 	}
+
 	fmt.Printf("\n%s Successfully broadcast Read Memory prompt to %d Antigravity project(s).\n\n",
 		constants.ColorGreen+"✓"+constants.ColorReset, sent)
+
 	return nil
 }

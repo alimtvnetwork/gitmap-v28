@@ -36,6 +36,7 @@ func (m *releasesModel) updateTrigger(msg tea.Msg) bool {
 	if !m.trigger.active {
 		return false
 	}
+
 	m.trigger, _ = m.trigger.Update(msg)
 	if !m.trigger.active {
 		m.trigger = newRelTriggerModel()
@@ -49,6 +50,7 @@ func (m releasesModel) Update(msg tea.Msg) (releasesModel, tea.Cmd) {
 	if !ok {
 		return m, nil
 	}
+
 	if m.updateTrigger(msg) {
 		return m, nil
 	}
@@ -84,9 +86,11 @@ func (m releasesModel) View() string {
 	if m.trigger.active {
 		return m.trigger.View()
 	}
+
 	if len(m.releases) == 0 {
 		return styleHint.Render(constants.TUIRelEmpty)
 	}
+
 	if m.detail && m.cursor < len(m.releases) {
 		return m.viewDetail()
 	}
@@ -109,6 +113,7 @@ func renderRelRows(b *strings.Builder, releases []model.ReleaseRecord, cursor in
 		} else {
 			b.WriteString(styleNormalRow.Render("  " + line))
 		}
+
 		b.WriteString("\n")
 	}
 }
@@ -142,6 +147,7 @@ func writeRelChangelog(b *strings.Builder, changelog string) {
 	if len(changelog) == 0 {
 		return
 	}
+
 	b.WriteString("\n  Changelog:\n")
 	for _, line := range strings.Split(changelog, "\n") {
 		b.WriteString(styleHint.Render("    "+line) + "\n")

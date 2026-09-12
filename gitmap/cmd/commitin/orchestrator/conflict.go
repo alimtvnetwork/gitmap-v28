@@ -35,17 +35,23 @@ func conflictCheck(
 	clobbers, err := replay.DetectClobbers(plan)
 	if err != nil {
 		fmt.Fprintf(stdout, "commit-in: conflict probe %s: %v\n", c.Sha, err)
+
 		return false, false
 	}
+
 	if len(clobbers) == 0 {
 		return false, false
 	}
+
 	decision := finalize.Resolve(ctx.Resolved.ConflictMode, c.Sha, stdout)
 	if decision == finalize.ConflictDecisionAbort {
 		ctx.aborted = true
+
 		return true, true
 	}
+
 	// ForceMerge: log clobber list at info-level so audits can see it.
 	fmt.Fprintf(stdout, "commit-in: %s force-merge clobbering %d file(s)\n", c.Sha, len(clobbers))
+
 	return false, false
 }

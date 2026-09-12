@@ -48,11 +48,14 @@ func (e *SearchCacheFieldType) UnmarshalJSON(data []byte) error {
 	if err := json.Unmarshal(data, &s); err != nil {
 		return err
 	}
+
 	target := SearchCacheFieldType(s)
 	if !searchCacheValidMap[target] {
 		return fmt.Errorf("invalid %s enum: %s", "SearchCacheFieldType", s)
 	}
+
 	*e = target
+
 	return nil
 }
 
@@ -62,6 +65,7 @@ func (e SearchCacheFieldType) ToJSON() (string, *apperror.AppError) {
 	if err != nil {
 		return "", apperror.WrapSimple(err, "serialize field to json")
 	}
+
 	return string(b), nil
 }
 
@@ -71,11 +75,14 @@ func (e *SearchCacheFieldType) FromJSON(s string) *apperror.AppError {
 	if err := json.Unmarshal([]byte(s), &str); err != nil {
 		return apperror.WrapSimple(err, "deserialize field from json")
 	}
+
 	target := SearchCacheFieldType(str)
 	if !searchCacheValidMap[target] {
 		return apperror.WrapSimple(fmt.Errorf("invalid %s enum: %s", "SearchCacheFieldType", str), "validate field enum from json")
 	}
+
 	*e = target
+
 	return nil
 }
 
@@ -183,6 +190,7 @@ func (r searchCacheDbRegistry) ToJSON() (string, *apperror.AppError) {
 	if err != nil {
 		return "", apperror.WrapSimple(err, "serialize registry to json")
 	}
+
 	return string(b), nil
 }
 

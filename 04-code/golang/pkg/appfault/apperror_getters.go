@@ -25,6 +25,7 @@ func (e *AppError) GetStatusCode() int {
 	if e.statusCode != 0 {
 		return e.statusCode
 	}
+
 	return e.errType.HttpStatus()
 }
 
@@ -70,5 +71,6 @@ func (e *AppError) Caller() string {
 	if e == nil {
 		return ""
 	}
+
 	return e.stack.CallerLine()
 }

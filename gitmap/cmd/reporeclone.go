@@ -32,6 +32,7 @@ func tryRunRepoReclone(args []string) bool {
 	if !ok {
 		return false
 	}
+
 	runRepoReclone(target, yes)
 
 	return true
@@ -67,14 +68,16 @@ func resolveRepoRecloneTarget(positionals []string) (string, bool) {
 	if len(positionals) > 1 {
 		return "", false
 	}
-	if len(positionals) == 1 {
 
+	if len(positionals) == 1 {
 		return resolveRepoFromArg(positionals[0])
 	}
+
 	cwd, err := os.Getwd()
 	if err != nil {
 		return "", false
 	}
+
 	isNonGitRepoDir := !isGitRepoDir(cwd)
 	if isNonGitRepoDir {
 		return "", false
@@ -88,10 +91,12 @@ func resolveRepoFromArg(arg string) (string, bool) {
 	if err != nil {
 		return "", false
 	}
+
 	info, statErr := os.Stat(abs)
 	if statErr != nil || !info.IsDir() {
 		return "", false
 	}
+
 	isNonGitRepoDir := !isGitRepoDir(abs)
 	if isNonGitRepoDir {
 		return "", false
@@ -115,17 +120,20 @@ func runRepoReclone(target string, yes bool) error {
 	if err != nil || origin == "" {
 		return apperror.NewSimple(constants.ErrRepoRecloneNoOrigin, "E9000")
 	}
+
 	parent := filepath.Dir(target)
 	folderName := filepath.Base(target)
 	fmt.Printf(constants.MsgRepoReclonePlan, target, origin, parent)
 
 	if !yes && !confirmRepoReclone(target, origin) {
 		fmt.Fprint(os.Stderr, constants.MsgRepoRecloneAborted)
+
 		return apperror.NewSimple("fatal error", "E9000")
 	}
 
 	if _, escapeErr := escapeCwdIfInside(target); escapeErr != nil {
 		fmt.Fprintln(os.Stderr, escapeErr.Error())
+
 		return apperror.NewSimple("fatal error", "E9000")
 	}
 
@@ -140,10 +148,12 @@ func runRepoReclone(target string, yes bool) error {
 	if cloneErr := runCloneCommand(origin, dest); cloneErr != nil {
 		return apperror.NewSimple(constants.ErrRepoRecloneClone, "E9000")
 	}
+
 	persistRecloneTransport(origin)
 
 	fmt.Printf(constants.MsgRepoRecloneDone, dest)
 	WriteShellHandoff(dest)
+
 	return nil
 }
 
@@ -158,6 +168,7 @@ func confirmRepoReclone(target, origin string) bool {
 
 		return false
 	}
+
 	fmt.Printf(constants.MsgRepoRecloneConfirm, target, origin)
 	line, err := bufio.NewReader(os.Stdin).ReadString('\n')
 	if err != nil {

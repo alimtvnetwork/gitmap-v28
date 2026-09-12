@@ -36,6 +36,7 @@ func addPinnedProjectTarget(target string) (*PinnedProject, *apperror.AppError) 
 		Branch:   p.GetBranch(),
 		PinnedAt: time.Now().UTC().Format(time.RFC3339),
 	}
+
 	store.Projects = append(store.Projects, pinned)
 	store.UpdatedAt = time.Now().UTC().Format(time.RFC3339)
 

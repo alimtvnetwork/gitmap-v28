@@ -67,7 +67,6 @@ var aptPackageMap = map[string]string{
 // resolveAptPackage maps tool names to apt package IDs.
 func resolveAptPackage(tool string) string {
 	if pkg, isFound := aptPackageMap[tool]; isFound {
-
 		return pkg
 	}
 
@@ -139,7 +138,6 @@ var brewPackageMap = map[string]string{
 // resolveBrewPackage maps tool names to Homebrew package IDs.
 func resolveBrewPackage(tool string) string {
 	if pkg, isFound := brewPackageMap[tool]; isFound {
-
 		return pkg
 	}
 
@@ -179,7 +177,6 @@ var snapPackageMap = map[string]string{
 // resolveSnapPackage maps tool names to Snap package IDs.
 func resolveSnapPackage(tool string) string {
 	if pkg, isFound := snapPackageMap[tool]; isFound {
-
 		return pkg
 	}
 

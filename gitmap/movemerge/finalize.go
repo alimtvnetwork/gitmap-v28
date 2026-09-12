@@ -12,10 +12,12 @@ func finalizeURLSides(left, right Endpoint, dir DirectionType, opts Options) err
 	if opts.IsNoCommit || opts.IsDryRun {
 		return nil
 	}
+
 	errRight := error(nil)
 	if IsWritingRight(dir) && right.Kind == EndpointURL {
 		errRight = commitAndPushOne(right, otherDisplay(left, right), opts)
 	}
+
 	if errRight != nil {
 		return errRight
 	}
@@ -24,6 +26,7 @@ func finalizeURLSides(left, right Endpoint, dir DirectionType, opts Options) err
 	if IsWritingLeft(dir) && left.Kind == EndpointURL {
 		errLeft = commitAndPushOne(left, otherDisplay(right, left), opts)
 	}
+
 	if errLeft != nil {
 		return errLeft
 	}
@@ -57,9 +60,11 @@ func commitAndPushOne(ep Endpoint, otherDisp string, opts Options) error {
 
 		return err
 	}
+
 	if len(sha) > 0 {
 		logIndent(opts.LogPrefix, "commit %s %q", shortSHA(sha), msg)
 	}
+
 	if isPush {
 		logf(opts.LogPrefix, "pushing %s ...", ep.DisplayName)
 		logIndent(opts.LogPrefix, "push OK")

@@ -30,8 +30,10 @@ func printScheduleTreeHeader(taskName, interval, shellType string) {
 		fmt.Printf("  %s%s%s %s%s%s\n",
 			constants.ColorWhite, taskName, constants.ColorReset,
 			constants.ColorDim, details, constants.ColorReset)
+
 		return
 	}
+
 	fmt.Printf("  %s%s%s\n",
 		constants.ColorWhite, taskName, constants.ColorReset)
 }
@@ -44,12 +46,15 @@ func formatScheduleDetails(interval, shellType string) string {
 	if hasInterval && hasShell {
 		return fmt.Sprintf("(interval: %s, shell: %s)", interval, shellType)
 	}
+
 	if hasInterval {
 		return fmt.Sprintf("(interval: %s)", interval)
 	}
+
 	if hasShell {
 		return fmt.Sprintf("(shell: %s)", shellType)
 	}
+
 	return ""
 }
 
@@ -60,6 +65,7 @@ func renderScheduleStepList(steps []string) {
 	if stepCount == 0 {
 		return
 	}
+
 	for stepIndex, stepText := range steps {
 		isLastStep := stepIndex == stepCount-1
 		renderScheduleStepNode(stepText, isLastStep)
@@ -73,6 +79,7 @@ func renderScheduleStepNode(stepText string, isLastStep bool) {
 	if isLastStep {
 		connector = constants.TreeCorner
 	}
+
 	fmt.Printf("  %s%s%s %s%s%s\n",
 		constants.ColorCyan, connector, constants.ColorReset,
 		constants.ColorWhite, stepText, constants.ColorReset)

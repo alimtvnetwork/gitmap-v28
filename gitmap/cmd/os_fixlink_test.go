@@ -10,6 +10,7 @@ func TestRunOSUsage(t *testing.T) {
 	if err := runOS(nil); err != nil {
 		t.Fatalf("runOS(nil) error: %v", err)
 	}
+
 	if err := runOS([]string{}); err != nil {
 		t.Fatalf("runOS([]string{}) error: %v", err)
 	}
@@ -101,6 +102,7 @@ func assertLinkTarget(t *testing.T, linkPath, expectedTarget string) {
 	if err != nil {
 		t.Fatalf("readlink error: %v", err)
 	}
+
 	if actual != expectedTarget {
 		t.Fatalf("link target = %q, want %q", actual, expectedTarget)
 	}

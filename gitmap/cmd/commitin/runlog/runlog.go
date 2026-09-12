@@ -24,10 +24,12 @@ func StartRun(
 	if err != nil {
 		return 0, fmt.Errorf("runlog: lookup RunStatus: %w", err)
 	}
+
 	res, err := db.Exec(sqlInsertRun, sourceRepoPath, sourceURL, boolToInt(wasFreshlyInit), startedAt.Format(time.RFC3339), statusID, profileID)
 	if err != nil {
 		return 0, fmt.Errorf("runlog: insert CommitInRun: %w", err)
 	}
+
 	return res.LastInsertId()
 }
 
@@ -38,9 +40,11 @@ func FinishRun(db *sql.DB, runID int64, status string, finishedAt time.Time) err
 	if err != nil {
 		return fmt.Errorf("runlog: lookup status %q: %w", status, err)
 	}
+
 	if _, err := db.Exec(sqlUpdateRunFinish, finishedAt.Format(time.RFC3339), statusID, runID); err != nil {
 		return fmt.Errorf("runlog: finish run %d: %w", runID, err)
 	}
+
 	return nil
 }
 
@@ -49,6 +53,7 @@ func boolToInt(b bool) int {
 	if b {
 		return 1
 	}
+
 	return 0
 }
 

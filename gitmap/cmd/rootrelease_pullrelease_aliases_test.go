@@ -31,6 +31,7 @@ func TestPullReleaseAliasesShareOneDispatchEntry(t *testing.T) {
 			t.Fatalf("alias %q missing from pull-release dispatch entry %v", alias, entry.names)
 		}
 	}
+
 	if len(entry.names) != len(pullReleaseAliasNames) {
 		t.Fatalf("pull-release dispatch entry has %d names, expected %d (%v)",
 			len(entry.names), len(pullReleaseAliasNames), entry.names)
@@ -45,9 +46,11 @@ func TestPullReleaseAliasesAreUnique(t *testing.T) {
 		if alias == "" {
 			t.Fatalf("empty alias in pullReleaseAliasNames")
 		}
+
 		if _, dup := seen[alias]; dup {
 			t.Fatalf("duplicate pull-release alias: %q", alias)
 		}
+
 		seen[alias] = struct{}{}
 	}
 }
@@ -69,6 +72,7 @@ func TestPullReleaseAliasesResolveSameHelpPage(t *testing.T) {
 		if alias == constants.CmdReleasePull {
 			continue
 		}
+
 		// Every alias is also documented in the canonical help page's
 		// alias table, so the same help text serves every spelling.
 		if !strings.Contains(raw, alias) {
@@ -86,7 +90,9 @@ func findPullReleaseDispatchEntry(t *testing.T) dispatchEntry {
 			return entry
 		}
 	}
+
 	t.Fatalf("pull-release dispatch entry not found")
+
 	return dispatchEntry{}
 }
 
@@ -99,5 +105,6 @@ func captureHelp(t *testing.T, command string) string {
 	if err != nil {
 		t.Fatalf("helptext.ReadRaw(%q) failed: %v", command, err)
 	}
+
 	return string(data)
 }

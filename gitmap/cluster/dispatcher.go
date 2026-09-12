@@ -85,8 +85,10 @@ func dispatchPSCommand(
 	res.ResultStatus = db.ResultStatusSucceeded
 	if !node.IsServer {
 		dispatchRemotePS(node, rawArg, res)
+
 		return
 	}
+
 	dispatchLocalPS(ctx, node, rawArg, res)
 }
 
@@ -96,16 +98,20 @@ func dispatchRemotePS(node ClusterNode, rawArg string, res *db.ClusterExecResult
 	client, err := tls.DialWithDialer(dialer, "tcp", node.IP+":8081", conf)
 	if err != nil {
 		setCommandError(res, err.Error())
+
 		return
 	}
+
 	defer client.Close()
 	rpcClient := rpc.NewClient(client)
 	args := &AgentExecArgs{Command: rawArg}
 	var reply AgentExecReply
 	if err := rpcClient.Call("Agent.ExecPS", args, &reply); err != nil {
 		setCommandError(res, err.Error())
+
 		return
 	}
+
 	applyReply(res, reply)
 }
 
@@ -121,8 +127,10 @@ func dispatchLocalPS(
 	res.ExitCode = &exitCode
 	if err != nil {
 		setCommandError(res, err.Error())
+
 		return
 	}
+
 	if exitCode != 0 {
 		res.ResultStatus = db.ResultStatusFailed
 	}
@@ -137,8 +145,10 @@ func dispatchCmdCommand(
 	res.ResultStatus = db.ResultStatusSucceeded
 	if !node.IsServer {
 		dispatchRemoteCmd(node, rawArg, res)
+
 		return
 	}
+
 	dispatchLocalCmd(ctx, node, rawArg, res)
 }
 
@@ -148,16 +158,20 @@ func dispatchRemoteCmd(node ClusterNode, rawArg string, res *db.ClusterExecResul
 	client, err := tls.DialWithDialer(dialer, "tcp", node.IP+":8081", conf)
 	if err != nil {
 		setCommandError(res, err.Error())
+
 		return
 	}
+
 	defer client.Close()
 	rpcClient := rpc.NewClient(client)
 	args := &AgentExecArgs{Command: rawArg}
 	var reply AgentExecReply
 	if err := rpcClient.Call("Agent.ExecCmd", args, &reply); err != nil {
 		setCommandError(res, err.Error())
+
 		return
 	}
+
 	applyReply(res, reply)
 }
 
@@ -173,8 +187,10 @@ func dispatchLocalCmd(
 	res.ExitCode = &exitCode
 	if err != nil {
 		setCommandError(res, err.Error())
+
 		return
 	}
+
 	if exitCode != 0 {
 		res.ResultStatus = db.ResultStatusFailed
 	}
@@ -189,6 +205,7 @@ func applyReply(res *db.ClusterExecResult, reply AgentExecReply) {
 	if reply.ExitCode != 0 {
 		res.ResultStatus = db.ResultStatusFailed
 	}
+
 	res.Stdout = &reply.Stdout
 	res.Stderr = &reply.Stderr
 	res.ExitCode = &reply.ExitCode

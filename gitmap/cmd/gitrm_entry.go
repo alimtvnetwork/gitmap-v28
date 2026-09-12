@@ -11,5 +11,6 @@ func runGitRm(args []string) error {
 	if err := gitrm.Run(args); err != nil {
 		return apperror.WrapSimple(err, "Error:")
 	}
+
 	return nil
 }

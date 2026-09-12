@@ -25,6 +25,7 @@ func ParseRepoName(name string) ParsedRepo {
 	if m == nil {
 		return ParsedRepo{BaseName: name, CurrentVersion: 1, HasVersion: false}
 	}
+
 	v, _ := strconv.Atoi(m[2])
 
 	return ParsedRepo{BaseName: m[1], CurrentVersion: v, HasVersion: true}
@@ -50,6 +51,7 @@ func ResolveTarget(parsed ParsedRepo, arg string) (int, error) {
 	if err != nil {
 		return 0, fmt.Errorf("invalid version argument: %s (expected v++, v+1, or vN)", arg)
 	}
+
 	if n < 1 {
 		return 0, fmt.Errorf("invalid version argument: %s (version must be a positive integer)", arg)
 	}

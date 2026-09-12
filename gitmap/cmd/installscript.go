@@ -23,11 +23,13 @@ func runInstallScript() error {
 		pterm.Error.Printf("Failed to copy to clipboard: %v\n", err)
 		fmt.Println("Here is the script instead:")
 		fmt.Println(script)
+
 		return nil
 	}
 
 	pterm.Success.Println("Install script copied to !clipboard")
 	fmt.Println()
 	fmt.Println(script)
+
 	return nil
 }

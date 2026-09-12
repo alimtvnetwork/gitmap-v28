@@ -51,6 +51,7 @@ func canonicalStatsOverall(t *testing.T) (model.OverallStats, []model.CommandSta
 			LastUsed:     "2026-05-26T09:00:00Z",
 		},
 	}
+
 	overall := model.OverallStats{
 		TotalCommands:   12,
 		UniqueCommands:  2,
@@ -90,5 +91,6 @@ func TestStatsJSONContract_KeyOrder(t *testing.T) {
 	if err := encodeStatsJSON(&buf, overall, commands); err != nil {
 		t.Fatalf("encode: %v", err)
 	}
+
 	assertSchemaKeysFirstObject(t, buf.Bytes(), "stats")
 }

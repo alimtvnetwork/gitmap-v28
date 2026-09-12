@@ -22,6 +22,7 @@ func setupInstallerVersionTestDB(testingT *testing.T) *DB {
 	if errOpen != nil {
 		testingT.Fatalf("failed to open test db: %v", errOpen)
 	}
+
 	testingT.Cleanup(func() { _ = dbInstance.Close() })
 
 	if errMigrate := dbInstance.MigrateInstallers(); errMigrate != nil {
@@ -42,6 +43,7 @@ func TestSaveVersionSuccess(testingT *testing.T) {
 		Version:      "v1.0.0",
 		Instructions: `{"steps":[{"action":"install","pkg":"go"}]}`,
 	}
+
 	if err := dbInstance.CreateInstaller(script); err != nil {
 		testingT.Fatalf("failed to create parent installer script: %v", err)
 	}
@@ -93,21 +95,27 @@ func TestSaveVersionSuccess(testingT *testing.T) {
 	if fetchedID != versionRecord.ID {
 		testingT.Errorf("expected ID %d, got %d", versionRecord.ID, fetchedID)
 	}
+
 	if fetchedScriptID != script.ID {
 		testingT.Errorf("expected script_id %d, got %d", script.ID, fetchedScriptID)
 	}
+
 	if fetchedSlug != "go-suite" {
 		testingT.Errorf("expected slug 'go-suite', got %q", fetchedSlug)
 	}
+
 	if fetchedVersion != "v1.0.0" {
 		testingT.Errorf("expected version 'v1.0.0', got %q", fetchedVersion)
 	}
+
 	if fetchedTargetOS != "win" {
 		testingT.Errorf("expected target_os 'win', got %q", fetchedTargetOS)
 	}
+
 	if fetchedInstructions != versionRecord.Instructions {
 		testingT.Errorf("expected instructions %q, got %q", versionRecord.Instructions, fetchedInstructions)
 	}
+
 	if fetchedCreatedAt == "" {
 		testingT.Errorf("expected created_at to be populated")
 	}
@@ -123,6 +131,7 @@ func TestSaveVersionMultipleVersions(testingT *testing.T) {
 		TargetOS:     "ubuntu",
 		Instructions: "apt install nodejs",
 	}
+
 	v2 := &model.InstallerVersion{
 		ScriptID:     10,
 		Slug:         "node",
@@ -134,6 +143,7 @@ func TestSaveVersionMultipleVersions(testingT *testing.T) {
 	if err := dbInstance.SaveVersion(v1); err != nil {
 		testingT.Fatalf("expected v1 to save successfully, got: %v", err)
 	}
+
 	if err := dbInstance.SaveVersion(v2); err != nil {
 		testingT.Fatalf("expected v2 to save successfully, got: %v", err)
 	}
@@ -155,6 +165,7 @@ func TestSaveVersionNilInput(testingT *testing.T) {
 	if !errors.As(errSave, &appErr) {
 		testingT.Fatalf("expected AppError, got %T", errSave)
 	}
+
 	if appErr.Code != "E_INSTALLER_INVALID_INPUT" {
 		testingT.Errorf("expected error code E_INSTALLER_INVALID_INPUT, got %s", appErr.Code)
 	}
@@ -167,6 +178,7 @@ func TestSaveVersionNilDB(testingT *testing.T) {
 		Slug:    "python",
 		Version: "3.11",
 	}
+
 	errSave := dbInstance.SaveVersion(versionRecord)
 	if errSave == nil {
 		testingT.Fatalf("expected error on nil db, got nil")
@@ -176,6 +188,7 @@ func TestSaveVersionNilDB(testingT *testing.T) {
 	if !errors.As(errSave, &appErr) {
 		testingT.Fatalf("expected AppError, got %T", errSave)
 	}
+
 	if appErr.Code != "E_INSTALLER_NIL_DB" {
 		testingT.Errorf("expected error code E_INSTALLER_NIL_DB, got %s", appErr.Code)
 	}
@@ -186,6 +199,7 @@ func TestSaveVersionClosedDB(testingT *testing.T) {
 	if err != nil {
 		testingT.Fatalf("sql.Open failed: %v", err)
 	}
+
 	dbInstance := &DB{conn: dbConn}
 	_ = dbConn.Close()
 
@@ -193,6 +207,7 @@ func TestSaveVersionClosedDB(testingT *testing.T) {
 		Slug:    "python",
 		Version: "3.11",
 	}
+
 	errSave := dbInstance.SaveVersion(versionRecord)
 	if errSave == nil {
 		testingT.Fatalf("expected error on closed db, got nil")
@@ -202,6 +217,7 @@ func TestSaveVersionClosedDB(testingT *testing.T) {
 	if !errors.As(errSave, &appErr) {
 		testingT.Fatalf("expected AppError, got %T", errSave)
 	}
+
 	if appErr.Code != "E_INSTALLER_SAVE_VERSION_FAILED" {
 		testingT.Errorf("expected error code E_INSTALLER_SAVE_VERSION_FAILED, got %s", appErr.Code)
 	}

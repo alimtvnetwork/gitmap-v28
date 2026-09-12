@@ -67,6 +67,7 @@ func runForcePush() error {
 	}
 
 	fmt.Print(constants.MsgAmendForcePush)
+
 	return nil
 }
 

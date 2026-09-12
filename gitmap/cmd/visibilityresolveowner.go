@@ -37,6 +37,7 @@ func ResolveOwnerOnly(arg string) (ownerContext, error) {
 	for strings.HasSuffix(trimmed, "/") {
 		trimmed = strings.TrimSuffix(trimmed, "/")
 	}
+
 	if len(trimmed) == 0 {
 		return ownerContext{}, fmt.Errorf("Error: empty target (operation: resolve-owner, reason: arg is blank)")
 	}
@@ -58,6 +59,7 @@ func isURLLike(arg string) bool {
 	if strings.HasPrefix(lower, "https://") {
 		return true
 	}
+
 	if strings.HasPrefix(lower, "http://") {
 		return true
 	}
@@ -71,9 +73,11 @@ func isBareHostOwner(arg string) bool {
 	if strings.Contains(arg, "://") {
 		return false
 	}
+
 	if strings.HasPrefix(arg, ".") {
 		return false
 	}
+
 	parts := strings.Split(arg, "/")
 	if len(parts) != 2 {
 		return false
@@ -132,6 +136,7 @@ func firstPathSegment(url string) string {
 	for strings.HasSuffix(trimmed, "/") {
 		trimmed = strings.TrimSuffix(trimmed, "/")
 	}
+
 	trimmed = strings.TrimSuffix(trimmed, ".git")
 
 	if owner, isSCP := parseSCPFormatOwner(trimmed); isSCP {
@@ -187,6 +192,7 @@ func ownerFromFolder(path string) (ownerContext, error) {
 	if err != nil {
 		return ownerContext{}, err
 	}
+
 	ctx.TargetRaw = path
 
 	return ctx, nil

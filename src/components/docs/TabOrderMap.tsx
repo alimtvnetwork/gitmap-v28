@@ -367,6 +367,7 @@ const TabOrderMap = () => {
 
       if (isMissingTarget) {
         setFocusedStep(null);
+
         return;
       }
 

@@ -22,6 +22,7 @@ func Execute(ctx context.Context, m *Macro, opts ExecOptions) error {
 	if !isStructuredOutput(opts) {
 		printExecutionHeader(m)
 	}
+
 	initialDir, _ := os.Getwd()
 	dt := NewDirTracker(initialDir)
 	rep := NewExecutionReport(m.Name, len(m.Steps), start)
@@ -47,6 +48,7 @@ func runExecuteSteps(ctx context.Context, m *Macro, opts ExecOptions, dt *DirTra
 			break
 		}
 	}
+
 	rep.Finalize(time.Now(), lastErr != nil)
 
 	return handleExecutionFinish(m, opts, rep, start, lastErr)
@@ -59,6 +61,7 @@ func executeReportStep(ctx context.Context, step MacroStep, idx, total int, opts
 	if err == nil {
 		return nil, false
 	}
+
 	rep.FailedSteps++
 
 	return err, !step.ContinueOnError
@@ -67,8 +70,10 @@ func executeReportStep(ctx context.Context, step MacroStep, idx, total int, opts
 func handleExecutionFinish(m *Macro, opts ExecOptions, rep *ExecutionReport, start time.Time, lastErr error) error {
 	if isStructuredOutput(opts) {
 		_ = HandleReportOutput(rep, opts)
+
 		return lastErr
 	}
+
 	if lastErr != nil {
 		return lastErr
 	}
@@ -89,12 +94,14 @@ func executeSingleStep(ctx context.Context, step MacroStep, idx, total int, opts
 	if opts.DryRun {
 		return executeDryRunStep(step, idx, total, opts, dt), nil
 	}
+
 	expandedCmd := ExpandPathAndEnv(step.CommandLine)
 	printStepHeader(opts, idx, total, expandedCmd)
 	start := time.Now()
 	if isDirChange := dt.ProcessCd(expandedCmd); isDirChange {
 		return handleDirChangeStep(step, expandedCmd, dt.CurrentDir, start, opts), nil
 	}
+
 	if isOpen, target := ParseOpenCommand(expandedCmd); isOpen {
 		return executeOpenStep(ctx, step, expandedCmd, target, dt.CurrentDir, start, opts, idx)
 	}
@@ -147,6 +154,7 @@ func runStepProcess(ctx context.Context, cmdText string, step MacroStep, opts Ex
 		ctx, cancel = context.WithTimeout(ctx, time.Duration(step.TimeoutSeconds)*time.Second)
 		defer cancel()
 	}
+
 	targetDir := resolveTargetDir(dt.CurrentDir, step.WorkingDir)
 	outBuf, errBuf := &bytes.Buffer{}, &bytes.Buffer{}
 	cmd := buildStepCmd(ctx, cmdText, targetDir, opts, outBuf, errBuf)
@@ -162,6 +170,7 @@ func evaluateStepProcessResult(step MacroStep, cmdText, targetDir string, elapse
 	if err != nil {
 		return handleStepFailure(step, cmdText, targetDir, elapsed, resolveExitCode(err), err, opts, idx, logs, errLogs)
 	}
+
 	printStepSuccess(opts, elapsed)
 
 	return createStepSuccess(step, cmdText, targetDir, elapsed, logs, errLogs), nil
@@ -209,6 +218,7 @@ func printStepFailureMsg(step MacroStep, elapsed time.Duration, err error, idx i
 	if !step.ContinueOnError {
 		fmt.Printf("  %s✖ Step %d failed: %v%s\n", constants.ColorRed, idx, err, constants.ColorReset)
 	}
+
 	printDiagnosticStderr(errLogs)
 }
 
@@ -216,10 +226,12 @@ func printDiagnosticStderr(errLogs []string) {
 	if len(errLogs) == 0 {
 		return
 	}
+
 	fmt.Printf("  %s--- Step Diagnostics (stderr) ---%s\n", constants.ColorYellow, constants.ColorReset)
 	for _, l := range errLogs {
 		fmt.Printf("  %s%s%s\n", constants.ColorDim, l, constants.ColorReset)
 	}
+
 	fmt.Println()
 }
 
@@ -232,6 +244,7 @@ func splitToLines(raw string) []string {
 			lines = append(lines, text)
 		}
 	}
+
 	if lines == nil {
 		return []string{}
 	}
@@ -253,6 +266,7 @@ func resolveStepWorkingDir(currentDir, stepDir string) string {
 	if len(expanded) == 0 {
 		return ""
 	}
+
 	target := resolveAbsCandidate(currentDir, expanded)
 	if isDirExists(target) {
 		return target
@@ -282,6 +296,7 @@ func resolveExitCode(err error) int {
 	if err == nil {
 		return 0
 	}
+
 	if exitErr, ok := err.(*exec.ExitError); ok {
 		return exitErr.ExitCode()
 	}
@@ -296,9 +311,11 @@ func buildStepCmd(ctx context.Context, cmdText, dir string, opts ExecOptions, ou
 	} else {
 		cmd = exec.CommandContext(ctx, "sh", "-c", cmdText)
 	}
+
 	if len(dir) > 0 {
 		cmd.Dir = dir
 	}
+
 	attachStepCmdStreams(cmd, opts, outBuf, errBuf)
 
 	return cmd
@@ -308,8 +325,10 @@ func attachStepCmdStreams(cmd *exec.Cmd, opts ExecOptions, outBuf, errBuf io.Wri
 	if isStructuredOutput(opts) {
 		cmd.Stdout = outBuf
 		cmd.Stderr = errBuf
+
 		return
 	}
+
 	cmd.Stdin = os.Stdin
 	cmd.Stdout = io.MultiWriter(os.Stdout, outBuf)
 	cmd.Stderr = io.MultiWriter(os.Stderr, errBuf)

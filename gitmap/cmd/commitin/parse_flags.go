@@ -32,6 +32,7 @@ func newFlagSet() (*flag.FlagSet, *RawArgs, *csvHolder) {
 	registerBoolFlags(fs, raw)
 	registerStringFlags(fs, raw)
 	registerCsvFlags(fs, csv)
+
 	return fs, raw, csv
 }
 

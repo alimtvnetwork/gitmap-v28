@@ -36,9 +36,11 @@ func TestSEOWriteConstants_CommandNames(t *testing.T) {
 	if constants.CmdSEOWrite != "seo-write" {
 		t.Errorf("expected seo-write, got %q", constants.CmdSEOWrite)
 	}
+
 	if constants.CmdSEOWriteAlias != "sw" {
 		t.Errorf("expected sw, got %q", constants.CmdSEOWriteAlias)
 	}
+
 	if constants.CmdCreateTemplate != "ct" {
 		t.Errorf("expected ct, got %q", constants.CmdCreateTemplate)
 	}
@@ -76,15 +78,19 @@ func TestSEOWriteConstants_Defaults(t *testing.T) {
 	if constants.SEODefaultInterval != "60-120" {
 		t.Errorf("expected 60-120, got %q", constants.SEODefaultInterval)
 	}
+
 	if constants.SEODefaultIntervalMin != 60 {
 		t.Errorf("expected 60, got %d", constants.SEODefaultIntervalMin)
 	}
+
 	if constants.SEODefaultIntervalMax != 120 {
 		t.Errorf("expected 120, got %d", constants.SEODefaultIntervalMax)
 	}
+
 	if constants.SEOSeedFile != "data/seo-templates.json" {
 		t.Errorf("expected data/seo-templates.json, got %q", constants.SEOSeedFile)
 	}
+
 	if constants.SEOTemplateOutputFile != "seo-templates.json" {
 		t.Errorf("expected seo-templates.json, got %q", constants.SEOTemplateOutputFile)
 	}
@@ -114,6 +120,7 @@ func TestSEOWriteConstants_TemplateKinds(t *testing.T) {
 	if constants.TemplateKindTitle != "title" {
 		t.Errorf("expected title, got %q", constants.TemplateKindTitle)
 	}
+
 	if constants.TemplateKindDescription != "description" {
 		t.Errorf("expected description, got %q", constants.TemplateKindDescription)
 	}

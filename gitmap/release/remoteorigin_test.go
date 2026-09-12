@@ -25,9 +25,11 @@ func TestParseHTTPSURL(t *testing.T) {
 			if err != nil {
 				t.Fatalf("unexpected error: %v", err)
 			}
+
 			if owner != tc.owner {
 				t.Errorf("owner: expected %q, got %q", tc.owner, owner)
 			}
+
 			if repo != tc.repo {
 				t.Errorf("repo: expected %q, got %q", tc.repo, repo)
 			}
@@ -54,9 +56,11 @@ func TestParseSSHURL(t *testing.T) {
 			if err != nil {
 				t.Fatalf("unexpected error: %v", err)
 			}
+
 			if owner != tc.owner {
 				t.Errorf("owner: expected %q, got %q", tc.owner, owner)
 			}
+
 			if repo != tc.repo {
 				t.Errorf("repo: expected %q, got %q", tc.repo, repo)
 			}
@@ -114,12 +118,14 @@ func TestParseHTTPSURLEdgeCases(t *testing.T) {
 		{"uppercase segments", "https://GitHub.com/Octo/Hello.git", "Octo", "Hello"},
 		{"no .git, deep host", "https://git.self-hosted.example/team/proj", "team", "proj"},
 	}
+
 	for _, tc := range tests {
 		t.Run(tc.name, func(t *testing.T) {
 			owner, repo, err := release.ParseGitURLExported(tc.url)
 			if err != nil {
 				t.Fatalf("unexpected error: %v", err)
 			}
+
 			if owner != tc.owner || repo != tc.repo {
 				t.Errorf("got (owner=%q, repo=%q), want (%q, %q)",
 					owner, repo, tc.owner, tc.repo)
@@ -147,12 +153,14 @@ func TestParseSSHURLEdgeCases(t *testing.T) {
 		{"uppercase repo", "git@github.com:Org/RepoName.git", "Org", "RepoName"},
 		{"no .git suffix + host alias", "git@gh:org/repo", "org", "repo"},
 	}
+
 	for _, tc := range tests {
 		t.Run(tc.name, func(t *testing.T) {
 			owner, repo, err := release.ParseGitURLExported(tc.url)
 			if err != nil {
 				t.Fatalf("unexpected error: %v", err)
 			}
+
 			if owner != tc.owner || repo != tc.repo {
 				t.Errorf("got (owner=%q, repo=%q), want (%q, %q)",
 					owner, repo, tc.owner, tc.repo)

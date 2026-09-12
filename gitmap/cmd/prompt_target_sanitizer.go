@@ -10,5 +10,6 @@ func SanitizeTargetDirectory(dir string) string {
 	if err != nil {
 		return filepath.Clean(dir)
 	}
+
 	return abs
 }

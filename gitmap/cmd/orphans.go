@@ -32,37 +32,45 @@ func runOrphans(args []string) error {
 	if err := fs.Parse(args); err != nil {
 		cliexit.HandleError(nil, 2)
 	}
+
 	fmtKind, err := parseHygieneFormat(*format)
 	if err != nil {
 		cliexit.Fail("orphans", "parse-format", *format, err, 2)
 	}
+
 	repos := scanForReposParallel(*root)
 	orphans := mapReposParallel(repos, func(r string) (orphanRepo, bool) {
 		remote, ok := originURL(r)
 		if !ok {
 			return orphanRepo{}, false
 		}
+
 		status := remoteStatus(remote)
 		if status != http.StatusNotFound && status != http.StatusGone {
 			return orphanRepo{}, false
 		}
+
 		return orphanRepo{path: r, remote: remote, status: status}, true
 	})
 	emitOrphans(orphans, fmtKind)
 	if fmtKind != hygieneFormatTable || *dryRun || len(orphans) == 0 {
 		return nil
 	}
+
 	if !*yes && !confirmYesNo(fmt.Sprintf("delete %d orphan(s)?", len(orphans))) {
 		return nil
 	}
+
 	for _, o := range orphans {
 		if err := os.RemoveAll(o.path); err != nil {
 			fmt.Fprintf(os.Stderr, "  \033[31mfailed\033[0m %s: %v\n", o.path, err)
 
 			continue
 		}
+
 		fmt.Fprintf(os.Stdout, "  \033[32mdeleted\033[0m %s\n", o.path)
 	}
+
 	return nil
 }
 
@@ -75,16 +83,19 @@ func emitOrphans(orphans []orphanRepo, f hygieneFormat) {
 			Remote string `json:"remote"`
 			Status int    `json:"status"`
 		}
+
 		out := make([]row, 0, len(orphans))
 		for _, o := range orphans {
 			out = append(out, row{Path: o.path, Remote: o.remote, Status: o.status})
 		}
+
 		emitJSON(out)
 	case hygieneFormatCSV:
 		rows := make([][]string, 0, len(orphans))
 		for _, o := range orphans {
 			rows = append(rows, []string{o.path, o.remote, fmt.Sprintf("%d", o.status)})
 		}
+
 		emitCSV([]string{"path", "remote", "status"}, rows)
 	case hygieneFormatTable:
 		if len(orphans) == 0 {
@@ -92,10 +103,12 @@ func emitOrphans(orphans []orphanRepo, f hygieneFormat) {
 
 			return
 		}
+
 		fmt.Fprintf(os.Stdout, "\n  \033[36m%d orphan(s)\033[0m (remote returns 404/410)\n\n", len(orphans))
 		for _, o := range orphans {
 			fmt.Fprintf(os.Stdout, "  \033[31m%d\033[0m  %s  -> %s\n", o.status, o.path, o.remote)
 		}
+
 		fmt.Fprintln(os.Stdout, "")
 	default:
 		if len(orphans) == 0 {
@@ -103,10 +116,12 @@ func emitOrphans(orphans []orphanRepo, f hygieneFormat) {
 
 			return
 		}
+
 		fmt.Fprintf(os.Stdout, "\n  \033[36m%d orphan(s)\033[0m (remote returns 404/410)\n\n", len(orphans))
 		for _, o := range orphans {
 			fmt.Fprintf(os.Stdout, "  \033[31m%d\033[0m  %s  -> %s\n", o.status, o.path, o.remote)
 		}
+
 		fmt.Fprintln(os.Stdout, "")
 	}
 }
@@ -117,6 +132,7 @@ func originURL(dir string) (string, bool) {
 	if err != nil {
 		return "", false
 	}
+
 	u := strings.TrimSpace(string(out))
 
 	return u, u != ""
@@ -128,15 +144,18 @@ func remoteStatus(remote string) int {
 	if web == "" {
 		return 0
 	}
+
 	client := &http.Client{Timeout: 8 * time.Second}
 	req, err := http.NewRequest(http.MethodHead, web, nil)
 	if err != nil {
 		return 0
 	}
+
 	resp, err := client.Do(req)
 	if err != nil {
 		return 0
 	}
+
 	defer resp.Body.Close()
 
 	return resp.StatusCode
@@ -149,6 +168,7 @@ func gitURLToHTTPS(u string) string {
 
 	if isSSH {
 		parts := strings.SplitN(strings.TrimPrefix(u, "git@"), ":", 2)
+
 		return formatSSHParts(parts)
 	}
 
@@ -164,6 +184,7 @@ func formatSSHParts(parts []string) string {
 	if len(parts) != 2 {
 		return ""
 	}
+
 	return "https://" + parts[0] + "/" + parts[1]
 }
 
@@ -174,6 +195,7 @@ func confirmYesNo(prompt string) bool {
 	if _, err := fmt.Fscanln(os.Stdin, &resp); err != nil {
 		return false
 	}
+
 	resp = strings.ToLower(strings.TrimSpace(resp))
 
 	return resp == "y" || resp == "yes"

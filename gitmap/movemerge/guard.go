@@ -15,6 +15,7 @@ func GuardEndpoints(left, right Endpoint) error {
 	if lAbs == rAbs {
 		return fmt.Errorf(constants.ErrMMSameFolderFmt, lAbs)
 	}
+
 	if isStrictAncestor(lAbs, rAbs) || isStrictAncestor(rAbs, lAbs) {
 		return fmt.Errorf(constants.ErrMMNestedFmt, lAbs, rAbs)
 	}
@@ -28,6 +29,7 @@ func isStrictAncestor(parent, child string) bool {
 	if err != nil {
 		return false
 	}
+
 	if rel == "." || strings.HasPrefix(rel, "..") {
 		return false
 	}

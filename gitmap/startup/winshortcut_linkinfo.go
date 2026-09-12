@@ -56,15 +56,14 @@ const (
 //	// raw[len(raw)-1]                 = 0x00 CommonPathSuffix terminator
 func buildLinkInfo(target string) ([]byte, error) {
 	if bytes.IndexByte([]byte(target), 0) >= 0 {
-
 		return nil, fmt.Errorf("shortcut target contains NUL byte")
 	}
+
 	volumeID := buildVolumeID()
 	pathBytes := append([]byte(target), 0x00) // NUL-terminated ASCII
 	suffixBytes := []byte{0x00}               // empty CommonPathSuffix
 	offsets, err := computeLinkInfoOffsets(volumeID, pathBytes, suffixBytes)
 	if err != nil {
-
 		return nil, err
 	}
 
@@ -92,19 +91,19 @@ type linkInfoOffsets struct {
 func computeLinkInfoOffsets(volumeID, pathBytes, suffixBytes []byte) (linkInfoOffsets, error) {
 	volSize, err := safeUint32(len(volumeID))
 	if err != nil {
-
 		return linkInfoOffsets{}, fmt.Errorf("volumeID size: %w", err)
 	}
+
 	pathSize, err := safeUint32(len(pathBytes))
 	if err != nil {
-
 		return linkInfoOffsets{}, fmt.Errorf("target path size: %w", err)
 	}
+
 	suffixSize, err := safeUint32(len(suffixBytes))
 	if err != nil {
-
 		return linkInfoOffsets{}, fmt.Errorf("suffix size: %w", err)
 	}
+
 	volOff := linkInfoHeaderSize
 	pathOff := volOff + volSize
 	suffixOff := pathOff + pathSize
@@ -145,7 +144,6 @@ func assembleLinkInfo(o linkInfoOffsets, volumeID, pathBytes, suffixBytes []byte
 // gosec G115 guard is uniform across every offset/size we compute.
 func safeUint32(n int) (uint32, error) {
 	if n < 0 || n > math.MaxUint32 {
-
 		return 0, fmt.Errorf("value %d out of uint32 range", n)
 	}
 

@@ -27,6 +27,7 @@ func importReleases(scanDir, outputDir string) {
 
 		return
 	}
+
 	defer db.Close()
 
 	if err := db.Migrate(); err != nil {
@@ -76,6 +77,7 @@ func upsertReleaseFiles(db *store.DB, files []string, repoID int64) int {
 		if isLatestFile(f) {
 			continue
 		}
+
 		if importOneRelease(db, f, repoID) {
 			count++
 		}

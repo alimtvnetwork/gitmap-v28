@@ -20,6 +20,7 @@ func currentRepoOwnerRepo() (string, string, error) {
 	if err != nil {
 		return "", "", fmt.Errorf("no origin remote: %w", err)
 	}
+
 	u := strings.TrimSpace(string(out))
 	u = strings.TrimSuffix(u, ".git")
 	u = strings.TrimPrefix(u, "git@github.com:")
@@ -28,6 +29,7 @@ func currentRepoOwnerRepo() (string, string, error) {
 	if len(parts) != 2 {
 		return "", "", fmt.Errorf("unparseable remote url: %s", u)
 	}
+
 	return parts[0], parts[1], nil
 }
 
@@ -39,10 +41,12 @@ func runPR(args []string) error {
 	if hasArgs {
 		owner = args[0]
 	}
+
 	o, _, err := "", "", error(nil)
 	if !hasArgs {
 		o, _, err = currentRepoOwnerRepo()
 	}
+
 	isErr := !hasArgs && err != nil
 	if isErr {
 		return apperror.NewWithDetails(
@@ -55,19 +59,23 @@ func runPR(args []string) error {
 			nil,
 		)
 	}
+
 	if !hasArgs && !isErr {
 		owner = o
 	}
+
 	token := os.Getenv("GITHUB_TOKEN")
 	url := fmt.Sprintf("https://api.github.com/search/issues?q=is:pr+is:open+user:%s&per_page=50", owner)
 	req, _ := http.NewRequest(http.MethodGet, url, nil)
 	if token != "" {
 		req.Header.Set("Authorization", "Bearer "+token)
 	}
+
 	resp, err := http.DefaultClient.Do(req)
 	if err != nil {
 		return apperror.WrapSimple(err, "pull-requests: ERROR")
 	}
+
 	defer resp.Body.Close()
 	var body struct {
 		Items []struct {
@@ -78,15 +86,18 @@ func runPR(args []string) error {
 			} `json:"user"`
 		} `json:"items"`
 	}
+
 	_ = json.NewDecoder(resp.Body).Decode(&body)
 	fmt.Printf("\033[1;94mOpen PRs for %s\033[0m  (%d)\n", owner, len(body.Items))
 	for _, it := range body.Items {
 		fmt.Printf("  \033[1;96m%s\033[0m  \033[2;37m@%s\033[0m\n    %s\n",
 			it.Title, it.User.Login, it.HTMLURL)
 	}
+
 	if token == "" {
 		fmt.Println("\n\033[2;37mhint:\033[0m export GITHUB_TOKEN for higher rate limits + private repos")
 	}
+
 	return nil
 }
 
@@ -95,28 +106,34 @@ func runBlameStats(args []string) error {
 	if len(args) > 0 {
 		root = args[0]
 	}
+
 	out, err := exec.Command("git", "-C", root, "ls-files").Output()
 	if err != nil {
 		return apperror.WrapSimple(err, "blame-stats: ERROR ls-files:")
 	}
+
 	totals := map[string]int{}
 	for _, f := range strings.Split(strings.TrimSpace(string(out)), "\n") {
 		if f == "" {
 			continue
 		}
+
 		blame, err := exec.Command("git", "-C", root, "blame", "--line-porcelain", f).Output()
 		if err != nil {
 			continue
 		}
+
 		for _, line := range strings.Split(string(blame), "\n") {
 			if strings.HasPrefix(line, "author ") {
 				totals[strings.TrimPrefix(line, "author ")]++
 			}
 		}
 	}
+
 	fmt.Printf("\033[1;94mBlame stats\033[0m  %s\n", root)
 	for who, n := range totals {
 		fmt.Printf("  %-30s %d\n", who, n)
 	}
+
 	return nil
 }

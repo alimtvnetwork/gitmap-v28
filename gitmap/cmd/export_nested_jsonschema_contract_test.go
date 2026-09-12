@@ -73,6 +73,7 @@ func assertNestedRecordKeys(
 	if len(keys) == 0 {
 		t.Fatalf("%s: expected at least one record", arrayKey)
 	}
+
 	for i, row := range keys {
 		for _, key := range row {
 			if _, allowed := props[key]; !allowed {

@@ -24,6 +24,7 @@ func TestHelpFilterRowsMatch(t *testing.T) {
 		{Group: "Cloning", Line: "  clone   Clone a repo"},
 		{Group: "Release", Line: "  rel     Cut a release"},
 	}
+
 	hits := filterRows(rows, "CLONE")
 	if len(hits) != 1 || !strings.Contains(hits[0].Line, "clone") {
 		t.Fatalf("filterRows: unexpected hits %#v", hits)
@@ -48,18 +49,21 @@ func TestHelpJSONDocSchema(t *testing.T) {
 
 			continue
 		}
+
 		byGroup[r.Group] = len(doc.Groups)
 		doc.Groups = append(doc.Groups, helpJSONGroup{
 			Group: stripANSI(r.Group),
 			Lines: []string{line},
 		})
 	}
+
 	doc.Count = len(rows)
 
 	b, err := json.Marshal(doc)
 	if err != nil {
 		t.Fatalf("marshal: %v", err)
 	}
+
 	s := string(b)
 	for _, key := range []string{`"version":"test"`, `"count":`, `"groups":[`} {
 		if !strings.Contains(s, key) {

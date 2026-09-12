@@ -50,6 +50,7 @@ func Render(md string) string {
 		if b.kind == bkBlank && prevBlank {
 			continue
 		}
+
 		emitBlock(&out, b)
 		prevBlank = b.kind == bkBlank
 	}

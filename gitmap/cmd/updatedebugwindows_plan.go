@@ -37,6 +37,7 @@ func dumpDebugWindowsCommandPlan(deployed string, childArgs []string) {
 	if isNonDebugWindowsRequested {
 		return
 	}
+
 	full := append([]string{deployed}, childArgs...)
 	cmdLine := renderShellCommand(full)
 	fmt.Fprintf(os.Stderr, constants.MsgDebugWinCmdLine, cmdLine)
@@ -84,6 +85,7 @@ func dumpDebugWindowsCleanupPlan(ctx updateCleanupContext) {
 	if isNonDebugWindowsRequested {
 		return
 	}
+
 	fmt.Fprint(os.Stderr, constants.MsgDebugWinCleanHdr)
 	tempOps := dumpPlannedRemovals(ctx.tempPatterns, ctx.selfPath,
 		constants.MsgDebugWinCleanMatch)
@@ -116,10 +118,12 @@ func dumpPlannedRemovals(patterns []string, selfPath, matchFmt string) []map[str
 
 			continue
 		}
+
 		printed := collectAndPrintMatches(matches, selfPath, matchFmt)
 		if len(printed) == 0 {
 			fmt.Fprint(os.Stderr, constants.MsgDebugWinCleanEmpty)
 		}
+
 		ops = append(ops, map[string]any{"glob": pattern, "matches": printed})
 	}
 
@@ -134,6 +138,7 @@ func collectAndPrintMatches(matches []string, selfPath, matchFmt string) []strin
 		if isActiveCleanupPath(normalizeCleanupPath(m), selfPath) {
 			continue
 		}
+
 		fmt.Fprintf(os.Stderr, matchFmt, m)
 		printed = append(printed, m)
 	}
@@ -158,6 +163,7 @@ func dumpPlannedSwapDirs(ctx updateCleanupContext) []map[string]any {
 
 			continue
 		}
+
 		ops = append(ops, map[string]any{"glob": pattern,
 			"matches": collectSwapDirMatches(matches)})
 	}
@@ -174,6 +180,7 @@ func collectSwapDirMatches(matches []string) []string {
 		if statErr != nil || !info.IsDir() {
 			continue
 		}
+
 		fmt.Fprintf(os.Stderr, constants.MsgDebugWinCleanSwap, m)
 		out = append(out, m)
 	}
@@ -189,10 +196,12 @@ func dumpPlannedDriveRootShim(ctx updateCleanupContext) (string, string) {
 	if len(shim) == 0 {
 		return "", ""
 	}
+
 	verdict := constants.MsgDebugWinCleanShimSkip
 	if isRemovableDriveRootShim(shim, ctx.selfPath) {
 		verdict = constants.MsgDebugWinCleanShimDel
 	}
+
 	fmt.Fprintf(os.Stderr, constants.MsgDebugWinCleanShim, shim, verdict)
 
 	return shim, verdict

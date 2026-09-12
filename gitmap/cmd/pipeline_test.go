@@ -72,6 +72,7 @@ func TestBuildErrorLogsPayload(t *testing.T) {
 	if p.Conclusion != "failure" {
 		t.Errorf("expected failure conclusion, got %s", p.Conclusion)
 	}
+
 	if p.RunId != 202 {
 		t.Errorf("expected RunId 202, got %d", p.RunId)
 	}

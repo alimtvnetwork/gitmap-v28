@@ -47,9 +47,11 @@ func TestCorpusParityRequiredLangsHaveBothKinds(t *testing.T) {
 
 				continue
 			}
+
 			if r.Source != SourceEmbed {
 				t.Errorf("required %s/%s should resolve to SourceEmbed, got %v (overlay leak?)", kind, lang, r.Source)
 			}
+
 			if len(r.Content) == 0 {
 				t.Errorf("required %s/%s resolved to empty content", kind, lang)
 			}
@@ -83,6 +85,7 @@ func TestListAdvertisesEveryRequiredLang(t *testing.T) {
 			}
 		}
 	}
+
 	sort.Strings(missing)
 	if len(missing) > 0 {
 		t.Fatalf("templates list output is missing required entries:\n  - %v", missing)

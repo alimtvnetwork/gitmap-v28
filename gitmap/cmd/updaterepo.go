@@ -159,6 +159,7 @@ func promptRepoPath() string {
 		if cloned {
 			root = normalizeRepoPath(absPath)
 		}
+
 		if cloned && len(root) > 0 {
 			return root
 		}
@@ -177,10 +178,12 @@ func cloneRepoInto(targetPath string) bool {
 
 	if err := cmd.Run(); err != nil {
 		fmt.Fprintf(os.Stderr, constants.ErrUpdateCloneFailed, err)
+
 		return false
 	}
 
 	fmt.Fprint(os.Stderr, constants.MsgUpdateCloneOK)
+
 	return true
 }
 
@@ -192,6 +195,7 @@ func saveRepoPathToDB(path string) {
 
 		return
 	}
+
 	defer db.Close()
 
 	if err := db.SetSetting(constants.SettingSourceRepoPath, path); err != nil {
@@ -205,6 +209,7 @@ func loadRepoPathFromDB() string {
 	if err != nil {
 		return ""
 	}
+
 	defer db.Close()
 
 	return db.GetSetting(constants.SettingSourceRepoPath)

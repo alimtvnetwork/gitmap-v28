@@ -19,6 +19,7 @@ func TestStripVSCodeTagFlags(t *testing.T) {
 	} {
 		os.Unsetenv(k)
 	}
+
 	defer func() {
 		for _, k := range []string{
 			constants.EnvVSCodeTagAdd,
@@ -37,6 +38,7 @@ func TestStripVSCodeTagFlags(t *testing.T) {
 		"--vscode-tag", "urgent,daily",
 		"https://example.com/r.git",
 	}
+
 	want := []string{"clone", "https://example.com/r.git"}
 
 	got := stripVSCodeTagFlags(in)

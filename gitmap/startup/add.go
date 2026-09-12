@@ -112,17 +112,20 @@ func Add(opts AddOptions) (AddResult, error) {
 	if !isValidName(clean) {
 		return AddResult{Status: AddBadName}, nil
 	}
-	if runtime.GOOS == "windows" {
 
+	if runtime.GOOS == "windows" {
 		return addWindows(clean, opts)
 	}
+
 	dir, err := AutostartDir()
 	if err != nil {
 		return AddResult{}, err
 	}
+
 	if err := os.MkdirAll(dir, 0o755); err != nil {
 		return AddResult{}, fmt.Errorf("create autostart dir %s: %w", dir, err)
 	}
+
 	full := joinPath(dir, platformFilename(clean))
 
 	return writeManaged(full, clean, opts)
@@ -139,7 +142,6 @@ func Add(opts AddOptions) (AddResult, error) {
 // this function can never disagree on which extension Add wrote.
 func platformFilename(clean string) string {
 	if runtime.GOOS == "darwin" {
-
 		return prefixedFilenamePlist(clean)
 	}
 
@@ -167,13 +169,16 @@ func writeManaged(full, clean string, opts AddOptions) (AddResult, error) {
 	if exists && !managed {
 		return AddResult{Status: AddRefused, Path: full}, nil
 	}
+
 	if exists && managed && !opts.Force {
 		return AddResult{Status: AddExists, Path: full}, nil
 	}
+
 	body := renderForOS(clean, opts)
 	if err := atomicWrite(full, body); err != nil {
 		return AddResult{}, err
 	}
+
 	if exists {
 		return AddResult{Status: AddOverwritten, Path: full}, nil
 	}
@@ -187,7 +192,6 @@ func writeManaged(full, clean string, opts AddOptions) (AddResult, error) {
 // body into a .desktop file would have to change both functions).
 func renderForOS(clean string, opts AddOptions) []byte {
 	if runtime.GOOS == "darwin" {
-
 		return renderPlist(clean, opts)
 	}
 

@@ -38,6 +38,7 @@ func handleEcosystemGroupAdd(ecosystem string, label string, unit string, group 
 	}
 
 	fmt.Printf("%s Added %d %s to %s group %q.\n", constants.ColorGreen+"✓"+constants.ColorReset, len(targets), unit, label, group)
+
 	return nil
 }
 
@@ -51,6 +52,7 @@ func handleEcosystemGroupRm(ecosystem string, label string, args []string) error
 	}
 
 	fmt.Printf("%s Removed %q from %s group %q.\n", constants.ColorGreen+"✓"+constants.ColorReset, args[1], label, args[0])
+
 	return nil
 }
 
@@ -60,5 +62,6 @@ func handleEcosystemGroupDelete(ecosystem string, label string, group string) er
 	}
 
 	fmt.Printf("%s Deleted %s group %q.\n", constants.ColorGreen+"✓"+constants.ColorReset, label, group)
+
 	return nil
 }

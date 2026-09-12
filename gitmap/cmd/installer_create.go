@@ -55,6 +55,7 @@ func slugify(name string) string {
 			b.WriteRune('-')
 		}
 	}
+
 	return strings.Trim(b.String(), "-")
 }
 
@@ -85,6 +86,7 @@ func parseCreateFlags(args []string) (*CreateInstallerFlags, error) {
 	if err := fs.Parse(args); err != nil {
 		appErr := apperror.Wrap(err, "parseCreateFlags", map[string]any{"args": args})
 		appErr.Code = "E_INSTALLER_INVALID_FLAGS"
+
 		return nil, appErr
 	}
 
@@ -122,6 +124,7 @@ func executeCreate(ctx context.Context, db *store.DB, flags *CreateInstallerFlag
 			"error": "db cannot be nil",
 		})
 	}
+
 	if flags == nil {
 		return apperror.New("executeCreate", "E_INSTALLER_INVALID_INPUT", map[string]any{
 			"error": "flags cannot be nil",
@@ -143,11 +146,13 @@ func executeCreate(ctx context.Context, db *store.DB, flags *CreateInstallerFlag
 			"slug": flags.Slug,
 		})
 		appErr.Code = "E_INSTALLER_CREATE_FAILED"
+
 		return appErr
 	}
 
 	fmt.Printf("Installer %q created successfully (slug: %s, version: %s, os: %s).\n",
 		script.Name, script.Slug, script.Version, script.TargetOS)
+
 	return nil
 }
 
@@ -168,13 +173,16 @@ func runInstallerCreate(cmd *cobra.Command, args []string) error {
 	if errDB != nil {
 		appErr := apperror.Wrap(errDB, "runInstallerCreate", map[string]any{"action": "open_db"})
 		appErr.Code = "E_INSTALLER_DB_ERROR"
+
 		return appErr
 	}
+
 	defer db.Close()
 
 	if errMigrate := db.MigrateInstallers(); errMigrate != nil {
 		appErr := apperror.Wrap(errMigrate, "runInstallerCreate", map[string]any{"action": "migrate_installers"})
 		appErr.Code = "E_INSTALLER_DB_ERROR"
+
 		return appErr
 	}
 

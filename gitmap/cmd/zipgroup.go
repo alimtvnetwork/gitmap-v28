@@ -16,7 +16,9 @@ func runZipGroup(args []string) error {
 
 		return nil
 	}
+
 	dispatchZipGroup(args[0], args[1:])
+
 	return nil
 }
 
@@ -27,31 +29,37 @@ func dispatchZipGroup(sub string, args []string) {
 
 		return
 	}
+
 	if sub == constants.SubCmdZGAdd {
 		runZipGroupAdd(args)
 
 		return
 	}
+
 	if sub == constants.SubCmdZGRemove {
 		runZipGroupRemove(args)
 
 		return
 	}
+
 	if sub == constants.SubCmdZGList {
 		runZipGroupList()
 
 		return
 	}
+
 	if sub == constants.SubCmdZGShow {
 		runZipGroupShow(args)
 
 		return
 	}
+
 	if sub == constants.SubCmdZGDelete {
 		runZipGroupDelete(args)
 
 		return
 	}
+
 	if sub == constants.SubCmdZGRename {
 		runZipGroupRename(args)
 

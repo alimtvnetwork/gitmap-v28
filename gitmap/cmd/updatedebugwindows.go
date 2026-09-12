@@ -61,6 +61,7 @@ func dumpDebugWindowsHeader(phase string) {
 	if isNonDebugWindowsRequested {
 		return
 	}
+
 	self, _ := os.Executable()
 	fmt.Fprint(os.Stderr, constants.MsgDebugWinHeader)
 	fmt.Fprintf(os.Stderr, constants.MsgDebugWinPhase, phase)
@@ -80,6 +81,7 @@ func dumpDebugWindowsFooter() {
 	if isNonDebugWindowsRequested {
 		return
 	}
+
 	fmt.Fprint(os.Stderr, constants.MsgDebugWinFooter)
 	emitDebugWindowsJSON("footer", nil)
 }
@@ -93,6 +95,7 @@ func dumpDebugWindowsHandoff(source, target string, childArgv []string) {
 	if isNonDebugWindowsRequested {
 		return
 	}
+
 	fmt.Fprintf(os.Stderr, constants.MsgDebugWinSource, source)
 	fmt.Fprintf(os.Stderr, constants.MsgDebugWinTarget, target)
 	fmt.Fprintf(os.Stderr, constants.MsgDebugWinTargetExists, fsutil.FileOrDirExists(target))
@@ -118,6 +121,7 @@ func dumpDebugWindowsRelevantEnv() {
 		"PATH",
 		"GITMAP_DEPLOY_PATH",
 	}
+
 	for _, k := range keys {
 		fmt.Fprintf(os.Stderr, constants.MsgDebugWinChildEnv,
 			k, os.Getenv(k))
@@ -132,6 +136,7 @@ func dumpDebugWindowsChildPID(pid int) {
 	if isNonDebugWindowsRequested {
 		return
 	}
+
 	fmt.Fprintf(os.Stderr, constants.MsgDebugWinChildPID, pid)
 	emitDebugWindowsJSON("child_pid", map[string]any{"pid": pid})
 }
@@ -144,6 +149,7 @@ func dumpDebugWindowsNote(format string, args ...interface{}) {
 	if isNonDebugWindowsRequested {
 		return
 	}
+
 	msg := fmt.Sprintf(format, args...)
 	fmt.Fprintf(os.Stderr, constants.MsgDebugWinNote, msg)
 	emitDebugWindowsJSON("note", map[string]any{"message": msg})

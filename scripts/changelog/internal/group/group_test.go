@@ -30,9 +30,11 @@ func TestByPrefixGroupsConventionalCommits(t *testing.T) {
 	if got := bySection["Added"]; len(got) != 2 || got[0] != "add --dry-run" || got[1] != "second feature" {
 		t.Fatalf("Added section mismatch: %#v", got)
 	}
+
 	if got := bySection["Fixed"]; len(got) != 1 || got[0] != "handle empty config" {
 		t.Fatalf("Fixed section mismatch: %#v", got)
 	}
+
 	if got := bySection["Refactor"]; len(got) != 1 || got[0] != "drop legacy api" {
 		t.Fatalf("Refactor section mismatch: %#v", got)
 	}
@@ -50,6 +52,7 @@ func TestByPrefixPreservesSectionOrder(t *testing.T) {
 	if len(sections) != 3 {
 		t.Fatalf("want 3 sections, got %d", len(sections))
 	}
+
 	if sections[0].Name != "Added" || sections[1].Name != "Fixed" || sections[2].Name != "Chore" {
 		t.Fatalf("order mismatch: %v %v %v", sections[0].Name, sections[1].Name, sections[2].Name)
 	}

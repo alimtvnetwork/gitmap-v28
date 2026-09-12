@@ -43,9 +43,11 @@ func TestRemoteSlugRegex(t *testing.T) {
 		if (m != nil) != w.matches {
 			t.Fatalf("regex match for %q = %v, want %v", in, m != nil, w.matches)
 		}
+
 		if !w.matches {
 			continue
 		}
+
 		if m[1] != w.base || m[2] != w.num {
 			t.Errorf("regex %q -> base=%q num=%q, want base=%q num=%q",
 				in, m[1], m[2], w.base, w.num)
@@ -65,11 +67,13 @@ func buildSlugRegexCases() map[string]struct {
 		base    string
 		num     string
 	}
+
 	out := map[string]want{}
 	add := func(base string, n int) {
 		slug := fmt.Sprintf("%s-v%d", base, n)
 		out[slug] = want{true, base, fmt.Sprintf("%d", n)}
 	}
+
 	add("gitmap", 12)
 	add("my-tool", 123)
 	add("some-app-prefix", 0)
@@ -97,12 +101,14 @@ func TestPairsForTarget(t *testing.T) {
 	if len(got) != 2 {
 		t.Fatalf("expected 2 pairs, got %d", len(got))
 	}
+
 	wantDashOld := fmt.Sprintf("gitmap-v%d", target)
 	wantDashNew := fmt.Sprintf("gitmap-v%d", current)
 	if got[0].old != wantDashOld || got[0].new != wantDashNew {
 		t.Errorf("dash form: got %+v, want {old:%q new:%q} (target=%d current=%d)",
 			got[0], wantDashOld, wantDashNew, target, current)
 	}
+
 	wantSlashOld := fmt.Sprintf("gitmap/v%d", target)
 	wantSlashNew := fmt.Sprintf("gitmap/v%d", current)
 	if got[1].old != wantSlashOld || got[1].new != wantSlashNew {
@@ -119,6 +125,7 @@ func TestPairsForTargetWidthCrossing(t *testing.T) {
 	cases := []struct{ target, current int }{
 		{9, 10}, {9, 12}, {1, 100}, {99, 100},
 	}
+
 	for _, c := range cases {
 		got := pairsForTarget("gitmap", c.target, c.current)
 		wantDash := fmt.Sprintf("gitmap-v%d", c.current)

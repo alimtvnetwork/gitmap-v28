@@ -45,6 +45,7 @@ func TestRunMerge_PreferNewer_BothSidesByteEqual(t *testing.T) {
 		IsYes: true, Prefer: PreferNewer, IsNoCommit: true, IsNoPush: true,
 		CommandName: constants.CmdMergeBoth, LogPrefix: constants.LogPrefixMergeBoth,
 	}
+
 	if err := RunMerge(leftEP, rightEP, DirBoth, opts); err != nil {
 		t.Fatalf("RunMerge: %v", err)
 	}
@@ -56,6 +57,7 @@ func TestRunMerge_PreferNewer_BothSidesByteEqual(t *testing.T) {
 		"conflict-left-newer.txt":         "L-WINS",
 		"nested/conflict-right-newer.txt": "R-WINS",
 	}
+
 	assertTreeEquals(t, "LEFT", left, want)
 	assertTreeEquals(t, "RIGHT", right, want)
 }
@@ -76,13 +78,16 @@ func TestRunMerge_PreferNewer_LeftOnlyDoesNotTouchRight(t *testing.T) {
 		IsYes: true, Prefer: PreferNewer, IsNoCommit: true, IsNoPush: true,
 		CommandName: constants.CmdMergeLeft, LogPrefix: constants.LogPrefixMergeLeft,
 	}
+
 	if err := RunMerge(leftEP, rightEP, DirLeftOnly, opts); err != nil {
 		t.Fatalf("RunMerge: %v", err)
 	}
+
 	if got := snapshot(t, right); IsMapsEqual(got, rightSnapshot) {
 	} else {
 		t.Errorf("RIGHT was modified by merge-left:\nbefore=%v\nafter=%v", rightSnapshot, got)
 	}
+
 	// LEFT keeps its newer copy (L wins under PreferNewer).
 	assertTreeEquals(t, "LEFT", left, map[string]string{"x.txt": "L-newer"})
 }
@@ -94,9 +99,11 @@ func seed(t *testing.T, root, rel, content string, mt time.Time) {
 	if err := os.MkdirAll(filepath.Dir(full), 0o755); err != nil {
 		t.Fatalf("mkdir %s: %v", full, err)
 	}
+
 	if err := os.WriteFile(full, []byte(content), 0o644); err != nil {
 		t.Fatalf("write %s: %v", full, err)
 	}
+
 	if err := os.Chtimes(full, mt, mt); err != nil {
 		t.Fatalf("chtimes %s: %v", full, err)
 	}
@@ -110,11 +117,13 @@ func snapshot(t *testing.T, root string) map[string]string {
 		if err != nil || info.IsDir() {
 			return err
 		}
+
 		rel, _ := filepath.Rel(root, path)
 		bytes, readErr := os.ReadFile(path)
 		if readErr != nil {
 			return readErr
 		}
+
 		out[filepath.ToSlash(rel)] = string(bytes)
 
 		return nil
@@ -141,6 +150,7 @@ func IsMapsEqual(a, b map[string]string) bool {
 	if len(a) != len(b) {
 		return false
 	}
+
 	for k, v := range a {
 		if b[k] != v {
 			return false

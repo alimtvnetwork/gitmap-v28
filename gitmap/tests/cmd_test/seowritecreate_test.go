@@ -55,6 +55,7 @@ func TestBuildSampleTemplate_HasAllPlaceholders(t *testing.T) {
 		if i >= len(sample.Placeholders) {
 			break
 		}
+
 		if sample.Placeholders[i] != p {
 			t.Errorf("expected placeholder %q at index %d, got %q", p, i, sample.Placeholders[i])
 		}

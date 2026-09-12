@@ -27,12 +27,14 @@ func runScan(args []string) error {
 	if err != nil {
 		return apperror.NewSimple(constants.ErrConfigLoad, "E9000")
 	}
+
 	cfg = config.MergeWithFlags(cfg, mode, output, outputPath)
 	cache := model.ScanCache{
 		Dir: dir, ConfigPath: cfgPath, Mode: mode, Output: output,
 		OutFile: outFile, OutputPath: outputPath,
 		IsGithubDesktop: ghDesktop, IsOpenFolder: openFolder, IsQuiet: quiet,
 	}
+
 	return executeScan(dir, cfg, outFile, ghDesktop, openFolder, quiet, noVSCodeSync, noAutoTags, reportErrors, compact, fix, workers, maxDepth, cache, probeOpts, relativeRoot, defaultBranch)
 }
 
@@ -74,6 +76,7 @@ func executeScan(
 	if wdErr != nil {
 		fmt.Fprintf(os.Stderr, "  ⚠ Could not determine working directory: %v\n", wdErr)
 	}
+
 	cmdArgs := buildCommandArgs(append([]string{"scan"}, os.Args[2:]...))
 	taskID, taskDB := createPendingTask(constants.TaskTypeScan, absDir, workDir, "scan", cmdArgs)
 	if taskDB != nil {
@@ -99,6 +102,7 @@ func executeScan(
 
 		return apperror.WrapSimple(err, fmt.Sprintf(constants.ErrScanFailed, absDir, err))
 	}
+
 	var records []model.ScanRecord
 	relRootBase := resolveRelativeRoot(relativeRoot, absDir, quiet)
 	bench.Phase("scan.buildRecords", func() {
@@ -122,6 +126,7 @@ func executeScan(
 			runPruneStaleDB(absDir, records)
 		})
 	}
+
 	bench.Phase("scan.dbUpsertRepos", func() {
 		upsertToDB(records, outputDir)
 	})
@@ -164,6 +169,7 @@ func executeScan(
 	if !quiet {
 		fmt.Printf("  📊 Benchmark log: %s\n", filepath.Join(outputDir, scanBenchmarkFile))
 	}
+
 	bench.Phase("scan.backgroundProbeWait", func() {
 		drainBackgroundProbe(probeRunner, probeOpts, quiet)
 	})
@@ -186,6 +192,7 @@ func autoRegisterFirstWorkDir(absDir string, quiet bool) bool {
 	if err != nil {
 		return false
 	}
+
 	defer db.Close()
 
 	dirs, errList := db.ListWorkDirs()
@@ -210,17 +217,21 @@ func tagReposWithScanFolder(absDir string, records []model.ScanRecord, quiet boo
 	db, err := store.OpenDefault()
 	if err != nil {
 		fmt.Fprintf(os.Stderr, constants.ErrProbeOpenDB, err)
+
 		return
 	}
+
 	defer db.Close()
 	if err := db.Migrate(); err != nil {
 		fmt.Fprintln(os.Stderr, err.Error())
+
 		return
 	}
 
 	folder, err := db.EnsureScanFolder(absDir, "", "")
 	if err != nil {
 		fmt.Fprintln(os.Stderr, err.Error())
+
 		return
 	}
 
@@ -228,8 +239,10 @@ func tagReposWithScanFolder(absDir string, records []model.ScanRecord, quiet boo
 	for _, r := range records {
 		paths = append(paths, r.AbsolutePath)
 	}
+
 	if err := db.TagReposByScanFolder(folder.ID, paths); err != nil {
 		fmt.Fprintln(os.Stderr, err.Error())
+
 		return
 	}
 
@@ -243,19 +256,24 @@ func upsertToDB(records []model.ScanRecord, outputDir string) {
 	db, err := store.OpenDefault()
 	if err != nil {
 		fmt.Fprintf(os.Stderr, constants.MsgDBUpsertFailed, err)
+
 		return
 	}
+
 	defer db.Close()
 
 	if err := db.Migrate(); err != nil {
 		fmt.Fprintf(os.Stderr, constants.MsgDBUpsertFailed, err)
+
 		return
 	}
 
 	if err := db.UpsertRepos(records); err != nil {
 		fmt.Fprintf(os.Stderr, constants.MsgDBUpsertFailed, err)
+
 		return
 	}
+
 	fmt.Printf(constants.MsgDBUpsertDone, len(records))
 }
 
@@ -265,6 +283,7 @@ func alignRecordsWithDB(records []model.ScanRecord, outputDir string) []model.Sc
 	if err != nil {
 		return records
 	}
+
 	defer db.Close()
 
 	repos, err := db.ListRepos()
@@ -282,6 +301,7 @@ func alignRecordsWithDB(records []model.ScanRecord, outputDir string) []model.Sc
 		if id, ok := idsByPath[rec.AbsolutePath]; ok {
 			rec.ID = id
 		}
+
 		aligned = append(aligned, rec)
 	}
 
@@ -310,6 +330,7 @@ func resolveOpenCommand(dir string) *exec.Cmd {
 	if runtime.GOOS == constants.OSWindows {
 		return exec.Command(constants.CmdExplorer, dir)
 	}
+
 	if runtime.GOOS == constants.OSDarwin {
 		return exec.Command(constants.CmdOpen, dir)
 	}

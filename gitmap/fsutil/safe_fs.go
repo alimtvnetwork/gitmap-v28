@@ -12,11 +12,13 @@ func SafeRemoveAll(path string) error {
 	if len(path) == 0 {
 		return nil
 	}
+
 	longPath := EnsureLongPath(path)
 	err := os.RemoveAll(longPath)
 	if err != nil {
 		return os.RemoveAll(path)
 	}
+
 	return nil
 }
 
@@ -26,9 +28,11 @@ func SafeRename(src, dst string) error {
 	if err == nil {
 		return nil
 	}
+
 	if errCopy := CopyDirectory(src, dst); errCopy != nil {
 		return fmt.Errorf("rename fallback failed: %w", errCopy)
 	}
+
 	return SafeRemoveAll(src)
 }
 
@@ -38,14 +42,17 @@ func CopyDirectory(src, dst string) error {
 		if err != nil {
 			return err
 		}
+
 		rel, err := filepath.Rel(src, path)
 		if err != nil {
 			return err
 		}
+
 		target := filepath.Join(dst, rel)
 		if info.IsDir() {
 			return os.MkdirAll(target, info.Mode())
 		}
+
 		return copyFile(path, target, info.Mode())
 	})
 }
@@ -55,14 +62,17 @@ func copyFile(src, dst string, mode os.FileMode) error {
 	if err != nil {
 		return err
 	}
+
 	defer in.Close()
 
 	out, err := os.OpenFile(dst, os.O_CREATE|os.O_WRONLY|os.O_TRUNC, mode)
 	if err != nil {
 		return err
 	}
+
 	defer out.Close()
 
 	_, err = io.Copy(out, in)
+
 	return err
 }

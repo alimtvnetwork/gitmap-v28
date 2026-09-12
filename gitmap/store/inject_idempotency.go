@@ -30,6 +30,7 @@ func (db *DB) GetInjectTimestamps(absPath string) (InjectTimestamps, error) {
 	if errors.Is(err, sql.ErrNoRows) {
 		return InjectTimestamps{}, nil
 	}
+
 	if err != nil {
 		return InjectTimestamps{}, fmt.Errorf(constants.ErrDBQuery, err)
 	}

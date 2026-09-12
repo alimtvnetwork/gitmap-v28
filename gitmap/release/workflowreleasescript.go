@@ -52,6 +52,7 @@ func buildReleaseVersionSnapshots(version, stagingDir string) []string {
 			fmt.Fprintf(os.Stderr, constants.ErrReleaseScriptSnapshot, s.outputName, err)
 			continue
 		}
+
 		fmt.Printf(constants.MsgReleaseScriptSnapshot, filepath.Base(out))
 		produced = append(produced, out)
 	}
@@ -101,6 +102,7 @@ func injectVersionBake(body, embeddedName, bakeLine string) string {
 	if isPS1 && idx < 0 {
 		return header + bakeLine + "\n" + body
 	}
+
 	if isPS1 {
 		return body[:idx] + bakeLine + "\n" + header + body[idx:]
 	}
@@ -111,5 +113,6 @@ func injectVersionBake(body, embeddedName, bakeLine string) string {
 	if idxBash < 0 {
 		return "#!/usr/bin/env bash\n" + header + bakeLine + "\n" + body
 	}
+
 	return body[:idxBash] + header + bakeLine + "\n\n" + body[idxBash:]
 }

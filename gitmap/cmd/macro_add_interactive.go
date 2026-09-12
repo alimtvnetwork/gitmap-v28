@@ -164,6 +164,7 @@ func recordStepLine(line, name string, state *interactiveSessionState, steps *[]
 
 		return loopActionBreak
 	}
+
 	runLiveStepIfEnabled(line, state.isExecEnabled)
 
 	return appendRecordedStep(line, steps, stepNum)
@@ -173,6 +174,7 @@ func runLiveStepIfEnabled(line string, isExecEnabled bool) {
 	if !isExecEnabled {
 		return
 	}
+
 	if err := executeLiveCommand(line); err != nil {
 		ensureTerminalVisibility()
 	}
@@ -189,6 +191,7 @@ func appendRecordedStep(line string, steps *[]macro.MacroStep, stepNum *int) int
 
 		return loopActionContinue
 	}
+
 	*steps = append(*steps, makeMacroStep(*stepNum, line))
 	fmt.Printf("  %s✓ Recorded Step %d: %s%s (will run when macro is executed)\n\n",
 		constants.ColorGreen, *stepNum, line, constants.ColorReset)
@@ -216,6 +219,7 @@ func buildLiveExecCmd(cmdText string) *exec.Cmd {
 	} else {
 		cmd = exec.Command("sh", "-c", exeCmd)
 	}
+
 	cmd.Stdin = os.Stdin
 	cmd.Stdout = os.Stdout
 	cmd.Stderr = os.Stderr
@@ -228,6 +232,7 @@ func resolveLiveCommandText(cmdText string) string {
 	if !strings.Contains(trimmed, "&&") {
 		return resolveSingleLiveCmd(trimmed)
 	}
+
 	parts := splitAndResolveParts(trimmed)
 	if runtime.GOOS == constants.OSWindows {
 		return chainWindowsCompoundCommands(parts)
@@ -252,6 +257,7 @@ func chainWindowsCompoundCommands(parts []string) string {
 	if len(parts) == 0 {
 		return ""
 	}
+
 	res := parts[len(parts)-1]
 	for i := len(parts) - 2; i >= 0; i-- {
 		res = fmt.Sprintf("%s; if ($?) { %s }", parts[i], res)
@@ -266,10 +272,12 @@ func resolveSingleLiveCmd(cmdText string) string {
 	if !strings.HasPrefix(lower, "gitmap ") && lower != "gitmap" {
 		return trimmed
 	}
+
 	exe, err := os.Executable()
 	if err != nil {
 		return trimmed
 	}
+
 	args := strings.TrimSpace(trimmed[len("gitmap"):])
 
 	return formatLiveExeCmd(exe, args)

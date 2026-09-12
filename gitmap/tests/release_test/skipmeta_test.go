@@ -88,8 +88,10 @@ func TestSkipMeta_WriteMetaCalledWhenFalse(t *testing.T) {
 			CreatedAt:    "2026-03-27T00:00:00Z",
 			IsLatest:     true,
 		}
+
 		err = release.WriteReleaseMeta(meta)
 	}
+
 	if !opts.SkipMeta && err != nil {
 		t.Fatalf("WriteReleaseMeta: %v", err)
 	}
@@ -98,6 +100,7 @@ func TestSkipMeta_WriteMetaCalledWhenFalse(t *testing.T) {
 		v, _ := release.Parse("v6.0.0")
 		err = release.WriteLatest(v)
 	}
+
 	if !opts.SkipMeta && err != nil {
 		t.Fatalf("WriteLatest: %v", err)
 	}
@@ -112,6 +115,7 @@ func TestSkipMeta_WriteMetaCalledWhenFalse(t *testing.T) {
 	if err != nil {
 		t.Fatalf("ReadLatest: %v", err)
 	}
+
 	if latest.Tag != "v6.0.0" {
 		t.Errorf("expected latest tag v6.0.0, got %s", latest.Tag)
 	}
@@ -155,6 +159,7 @@ func TestSkipMeta_ReleaseFromMetadataSetsFlag(t *testing.T) {
 		Tag:     "v7.0.0",
 		Commit:  "abc1234567890",
 	}
+
 	err := release.WriteReleaseMeta(seedMeta)
 	if err != nil {
 		t.Fatalf("seed WriteReleaseMeta: %v", err)
@@ -179,6 +184,7 @@ func TestSkipMeta_ReleaseFromMetadataSetsFlag(t *testing.T) {
 	if err != nil {
 		t.Fatalf("read current file: %v", err)
 	}
+
 	if !bytes.Equal(currentBytes, seedBytes) {
 		t.Error("seed v7.0.0.json was modified — expected unchanged")
 	}
@@ -233,6 +239,7 @@ func TestSkipMeta_PerformReleaseGuard(t *testing.T) {
 	if err != nil {
 		t.Fatalf("ReadLatest: %v", err)
 	}
+
 	if latest.Tag != "v8.0.0" {
 		t.Errorf("expected latest tag v8.0.0, got %s", latest.Tag)
 	}

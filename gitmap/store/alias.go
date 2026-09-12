@@ -63,6 +63,7 @@ func (db *DB) ListAliases() ([]model.Alias, error) {
 	if err != nil {
 		return nil, fmt.Errorf(constants.ErrAliasQuery, err)
 	}
+
 	defer rows.Close()
 
 	return scanAliasRows(rows)
@@ -88,6 +89,7 @@ func (db *DB) ListAliasesWithRepo() ([]AliasWithRepo, error) {
 	if err != nil {
 		return nil, fmt.Errorf(constants.ErrAliasQuery, err)
 	}
+
 	defer rows.Close()
 
 	var results []AliasWithRepo
@@ -122,6 +124,7 @@ func (db *DB) ListUnaliasedRepos() ([]UnaliasedRepo, error) {
 	if err != nil {
 		return nil, fmt.Errorf(constants.ErrAliasQuery, err)
 	}
+
 	defer rows.Close()
 
 	var repos []UnaliasedRepo

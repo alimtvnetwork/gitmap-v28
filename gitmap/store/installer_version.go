@@ -14,6 +14,7 @@ VALUES (?, ?, ?, ?, ?);`
 func (db *DB) SaveVersion(version *model.InstallerVersion) error {
 	if db == nil || db.conn == nil {
 		appErr := apperror.New("SaveVersion", "E_INSTALLER_NIL_DB", map[string]any{})
+
 		return appErr
 	}
 

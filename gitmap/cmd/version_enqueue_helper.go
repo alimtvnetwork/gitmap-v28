@@ -15,6 +15,7 @@ func EnqueueVersioningInWhatToRead(filePath string) error {
 	if os.IsNotExist(err) {
 		return nil // Optional file
 	}
+
 	if err != nil {
 		return err
 	}
@@ -27,11 +28,13 @@ func EnqueueVersioningInWhatToRead(filePath string) error {
 	sectionHeader := "## Before writing code"
 	if strings.Contains(content, sectionHeader) {
 		newContent := strings.Replace(content, sectionHeader, sectionHeader+"\n\n"+versioningQueueEntry, 1)
+
 		return os.WriteFile(filePath, []byte(newContent), 0644)
 	}
 
 	// Append at the end if section not found
 	content = strings.TrimSpace(content) + "\n\n" + versioningQueueEntry + "\n"
+
 	return os.WriteFile(filePath, []byte(content), 0644)
 }
 

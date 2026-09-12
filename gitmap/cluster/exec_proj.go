@@ -45,6 +45,7 @@ func ExecProjRun(
 	if isDbError {
 		return nil, fmt.Errorf("failed to open store: %w", err)
 	}
+
 	defer database.Close()
 
 	records, err := database.ListRepos()

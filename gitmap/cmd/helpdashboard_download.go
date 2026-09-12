@@ -65,6 +65,7 @@ func fetchToFile(client *http.Client, url, destPath string) (int64, error) {
 	if err != nil {
 		return 0, fmt.Errorf("http get: %w", err)
 	}
+
 	defer resp.Body.Close()
 
 	if resp.StatusCode != http.StatusOK {
@@ -75,6 +76,7 @@ func fetchToFile(client *http.Client, url, destPath string) (int64, error) {
 	if err != nil {
 		return 0, fmt.Errorf("create file: %w", err)
 	}
+
 	defer out.Close()
 
 	n, err := io.CopyN(out, resp.Body, maxDocsSiteSize)

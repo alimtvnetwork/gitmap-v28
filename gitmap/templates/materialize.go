@@ -24,6 +24,7 @@ func Materialize() (string, []string, error) {
 		if err != nil {
 			return err
 		}
+
 		if d.IsDir() {
 			return nil
 		}
@@ -32,6 +33,7 @@ func Materialize() (string, []string, error) {
 		if copyErr != nil {
 			return copyErr
 		}
+
 		if len(w) > 0 {
 			written = append(written, w)
 		}
@@ -54,6 +56,7 @@ func materializeOne(overlayDir, embedPath string) (string, error) {
 	if _, err := os.Stat(dst); err == nil {
 		return "", nil
 	}
+
 	if err := os.MkdirAll(filepath.Dir(dst), 0o755); err != nil {
 		return "", fmt.Errorf(errTemplateMaterialize, dst, err)
 	}
@@ -62,6 +65,7 @@ func materializeOne(overlayDir, embedPath string) (string, error) {
 	if err != nil {
 		return "", fmt.Errorf(errTemplateRead, embedPath, err)
 	}
+
 	if err := os.WriteFile(dst, data, 0o644); err != nil {
 		return "", fmt.Errorf(errTemplateMaterialize, dst, err)
 	}

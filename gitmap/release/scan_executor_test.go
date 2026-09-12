@@ -16,6 +16,7 @@ func TestExecuteCommitActions(t *testing.T) {
 	if err != nil {
 		t.Fatalf("unexpected error: %v", err)
 	}
+
 	if !actions[0].IsBranchCreated || !actions[0].IsTagCreated {
 		t.Errorf("expected branch and tag created, got %+v", actions[0])
 	}
@@ -24,6 +25,7 @@ func TestExecuteCommitActions(t *testing.T) {
 	if err != nil {
 		t.Fatalf("unexpected error: %v", err)
 	}
+
 	if !actions2[0].IsBranchSkipped || !actions2[0].IsTagSkipped {
 		t.Errorf("expected branch and tag skipped, got %+v", actions2[0])
 	}
@@ -33,6 +35,7 @@ func setupTestRepo(t *testing.T) (string, string) {
 	t.Helper()
 	dir := t.TempDir()
 	initGitRepo(t, dir)
+
 	return dir, createInitialCommit(t, dir)
 }
 
@@ -49,6 +52,7 @@ func createInitialCommit(t *testing.T, dir string) string {
 	if err := os.WriteFile(file, []byte("hello"), 0644); err != nil {
 		t.Fatalf("failed to write test file: %v", err)
 	}
+
 	runTestGitCmd(t, dir, "add", "test.txt")
 	runTestGitCmd(t, dir, "commit", "-m", "init")
 	out := runTestGitCmdOutput(t, dir, "rev-parse", "HEAD")

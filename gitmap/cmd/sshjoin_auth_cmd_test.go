@@ -50,6 +50,7 @@ func TestGetLocalPublicKey(t *testing.T) {
 	if err != nil {
 		t.Errorf("unexpected error: %v", err)
 	}
+
 	if key != expectedKey {
 		t.Errorf("unexpected key content: %v", key)
 	}
@@ -106,6 +107,7 @@ func TestRunSJAddAuth(t *testing.T) {
 	if oldHome == "" {
 		oldHome = os.Getenv("HOME")
 	}
+
 	sshDir := filepath.Join(tmpDir, ".ssh")
 	_ = os.MkdirAll(sshDir, 0755)
 	_ = os.WriteFile(filepath.Join(sshDir, "id_rsa.pub"), []byte("ssh-rsa DUMMY test\n"), 0644)

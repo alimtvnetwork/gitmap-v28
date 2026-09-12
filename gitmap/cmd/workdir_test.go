@@ -66,6 +66,7 @@ func TestAutoRegisterFirstWorkDir(t *testing.T) {
 	if errDB != nil {
 		t.Skip("sqlite unavailable")
 	}
+
 	defer db.Close()
 	ensureWorkDirsTableExists()
 
@@ -80,12 +81,14 @@ func TestAutoRegisterFirstWorkDir(t *testing.T) {
 	if errCheck != nil {
 		t.Fatalf("failed opening store for check: %v", errCheck)
 	}
+
 	defer dbCheck.Close()
 
 	def, errDef := dbCheck.GetDefaultWorkDir()
 	if errDef != nil || def == nil {
 		t.Fatalf("expected default workdir to be set, got err: %v", errDef)
 	}
+
 	if def.AbsolutePath != tempDir {
 		t.Fatalf("expected default workdir %s, got %s", tempDir, def.AbsolutePath)
 	}
@@ -102,6 +105,7 @@ func TestWorkDirAddDefaultsAndDuplicates(t *testing.T) {
 	if errDB != nil {
 		t.Skip("sqlite unavailable")
 	}
+
 	defer db.Close()
 	ensureWorkDirsTableExists()
 

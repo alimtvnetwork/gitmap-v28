@@ -48,6 +48,7 @@ func writeLLMCommandExamples(sb *strings.Builder, commands []llmCmdEntry) {
 			sb.WriteString(c.example + "\n")
 		}
 	}
+
 	sb.WriteString("```\n\n")
 }
 

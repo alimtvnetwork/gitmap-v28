@@ -40,6 +40,7 @@ func GenerateLaravelAppKey() (string, *apperror.AppError) {
 	if err != nil {
 		return "", apperror.WrapSimple(err, "crypto.rand.Read")
 	}
+
 	encoded := base64.StdEncoding.EncodeToString(bytes)
 
 	return laravelAppKeyPrefix + encoded, nil
@@ -51,6 +52,7 @@ func extractEnvKey(line string) (string, bool) {
 	if isComment {
 		return "", false
 	}
+
 	idx := strings.Index(trimmed, "=")
 	isKV := idx > 0
 	if isKV {
@@ -77,6 +79,7 @@ func resolveUpdatedEnvLine(key, originalLine string, updates map[string]string, 
 	newVal, hasUpdate := updates[key]
 	if hasUpdate {
 		handled[key] = true
+
 		return formatEnvLine(key, newVal)
 	}
 
@@ -97,9 +100,11 @@ func appendIfMissing(lines []string, key string, updates map[string]string, hand
 	if isHandled {
 		return lines
 	}
+
 	val, hasVal := updates[key]
 	if hasVal {
 		handled[key] = true
+
 		return append(lines, formatEnvLine(key, val))
 	}
 
@@ -114,6 +119,7 @@ func MergeEnvContent(baseContent string, updates map[string]string, orderedKeys 
 	for _, line := range lines {
 		out = append(out, processEnvLine(line, updates, handled))
 	}
+
 	for _, key := range orderedKeys {
 		out = appendIfMissing(out, key, updates, handled)
 	}
@@ -166,6 +172,7 @@ func SynthesizeLaravelEnv(baseContent string, opts LaravelEnvOptions) (string, *
 	if keyErr != nil {
 		return "", keyErr
 	}
+
 	finalOpts := opts
 	finalOpts.AppKey = key
 	updates, orderedKeys := BuildLaravelEnvMap(finalOpts)

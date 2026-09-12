@@ -13,12 +13,14 @@ import (
 // setEnvPersistent sets an environment variable on Windows via setx.
 func setEnvPersistent(name, value string, system bool, _ string) error {
 	args := buildSetxArgs(name, value, system)
+
 	return runSetx(args)
 }
 
 // deleteEnvPersistent removes an environment variable on Windows.
 func deleteEnvPersistent(name string, system bool, _ string) error {
 	args := buildSetxArgs(name, "", system)
+
 	return runSetx(args)
 }
 
@@ -43,6 +45,7 @@ func runSetx(args []string) error {
 	if err != nil {
 		return apperror.NewSimple("constants.ErrEnvProfileWrite "+"system registry", "E9000")
 	}
+
 	return nil
 }
 

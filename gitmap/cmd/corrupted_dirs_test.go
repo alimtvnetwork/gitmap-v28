@@ -33,6 +33,7 @@ func TestIsCorruptedDirName(t *testing.T) {
 			if isBad != tc.wantIsBad {
 				t.Errorf("got isBad %v, want %v for %q", isBad, tc.wantIsBad, tc.input)
 			}
+
 			if tc.wantIsBad && reason == "" {
 				t.Errorf("expected non-empty reason for %q", tc.input)
 			}
@@ -75,9 +76,11 @@ func TestIsInsidePath(t *testing.T) {
 	if !isInsidePath(base, base) {
 		t.Errorf("expected isInsidePath to be true for identical path")
 	}
+
 	if !isInsidePath(sub, base) {
 		t.Errorf("expected isInsidePath to be true for child path")
 	}
+
 	if isInsidePath(outside, base) {
 		t.Errorf("expected isInsidePath to be false for outside path")
 	}
@@ -106,6 +109,7 @@ func TestRecoverAndCleanCorruptedDir(t *testing.T) {
 	if err != nil {
 		t.Fatalf("unexpected recovery error: %v", err)
 	}
+
 	if len(rec) != 1 {
 		t.Errorf("expected 1 recovered file, got %d", len(rec))
 	}

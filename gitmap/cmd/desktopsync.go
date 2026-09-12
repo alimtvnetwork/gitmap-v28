@@ -20,10 +20,12 @@ func runDesktopSync() error {
 	if appErr := validateDesktopSyncPaths(outputDir, jsonPath); appErr != nil {
 		return appErr
 	}
+
 	records, appErr := loadDesktopRecords(jsonPath)
 	if appErr != nil {
 		return appErr
 	}
+
 	if appErr := syncToDesktop(records, jsonPath); appErr != nil {
 		return appErr
 	}
@@ -68,6 +70,7 @@ func syncToDesktop(records []model.ScanRecord, source string) *apperror.AppError
 	if cli == "" {
 		return apperror.NewSimple(constants.MsgDesktopNotFound, "E9000")
 	}
+
 	fmt.Printf(constants.MsgDesktopSyncStart, source)
 	added, skipped, failed := syncAll(records, cli)
 	fmt.Printf(constants.MsgDesktopSyncDone, added, skipped, failed)
@@ -111,6 +114,7 @@ func syncExistingPath(r model.ScanRecord, cli string) syncResult {
 	if err == nil {
 		return registerOne(r.RepoName, r.AbsolutePath, cli)
 	}
+
 	fmt.Printf(constants.MsgDesktopSyncSkipped, r.RepoName)
 
 	return syncSkipped
@@ -125,6 +129,7 @@ func registerOne(name, repoPath, cli string) syncResult {
 
 		return syncFailed
 	}
+
 	fmt.Printf(constants.MsgDesktopSyncAdded, name)
 
 	return syncAdded
@@ -135,6 +140,7 @@ func tallyResult(r syncResult, added, skipped, failed int) (int, int, int) {
 	if r == syncAdded {
 		return added + 1, skipped, failed
 	}
+
 	if r == syncSkipped {
 		return added, skipped + 1, failed
 	}

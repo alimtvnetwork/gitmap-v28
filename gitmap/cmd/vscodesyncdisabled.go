@@ -45,6 +45,7 @@ func stripVSCodeSyncDisabledFlag(args []string) []string {
 
 			continue
 		}
+
 		out = append(out, a)
 	}
 

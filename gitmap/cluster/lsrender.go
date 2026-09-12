@@ -10,6 +10,7 @@ func RenderNodeTable(nodes []ClusterNode, showRole bool) string {
 	if len(nodes) == 0 {
 		return ""
 	}
+
 	idLen := 2
 	ipLen := 10
 	nameLen := 12
@@ -22,19 +23,24 @@ func RenderNodeTable(nodes []ClusterNode, showRole bool) string {
 		if len(strconv.Itoa(n.DisplayId)) > idLen {
 			idLen = len(strconv.Itoa(n.DisplayId))
 		}
+
 		if len(n.IP) > ipLen {
 			ipLen = len(n.IP)
 		}
+
 		if len(n.Alias) > nameLen {
 			nameLen = len(n.Alias)
 		}
+
 		roleStr := "client"
 		if n.IsServer {
 			roleStr = "server"
 		}
+
 		if len(roleStr) > roleLen {
 			roleLen = len(roleStr)
 		}
+
 		if len(n.OS) > osLen {
 			osLen = len(n.OS)
 		}
@@ -76,6 +82,7 @@ func RenderNodeTable(nodes []ClusterNode, showRole bool) string {
 			sb.WriteString(fmt.Sprintf("%s  %s  %s  %s  %s  %s\n", cId, cIp, cName, cOs, cStatus, cHb))
 		}
 	}
+
 	return sb.String()
 }
 
@@ -83,5 +90,6 @@ func padRight(str string, length int) string {
 	if len(str) >= length {
 		return str
 	}
+
 	return str + strings.Repeat(" ", length-len(str))
 }

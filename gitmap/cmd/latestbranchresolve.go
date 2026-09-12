@@ -36,7 +36,6 @@ func resolveLatestResult(items []gitutil.RemoteBranchInfo, cfg latestBranchConfi
 func extractRemoteName(remoteRef string) string {
 	idx := strings.Index(remoteRef, "/")
 	if idx >= 0 {
-
 		return remoteRef[:idx]
 	}
 
@@ -47,7 +46,6 @@ func extractRemoteName(remoteRef string) string {
 func resolveBranchNames(sha, remote string, containsFallback bool) []string {
 	names := gitutil.ResolvePointsAt(sha, remote)
 	if len(names) > 0 {
-
 		return names
 	}
 
@@ -57,7 +55,6 @@ func resolveBranchNames(sha, remote string, containsFallback bool) []string {
 
 	names = gitutil.ResolveContains(sha, remote)
 	if len(names) > 0 {
-
 		return names
 	}
 

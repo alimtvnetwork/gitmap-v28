@@ -17,6 +17,7 @@ func TestIsExcludedDirAndPrefix(t *testing.T) {
 			t.Errorf("isExcludedDir(%q) = false, want true", name)
 		}
 	}
+
 	for _, name := range []string{"src", "docs", "gitmap", "release"} {
 		if isExcludedDir(name) {
 			t.Errorf("isExcludedDir(%q) = true, want false", name)
@@ -32,14 +33,17 @@ func TestIsExcludedDirAndPrefix(t *testing.T) {
 	if isNonExcludedRelease {
 		t.Error(".gitmap/release should be excluded")
 	}
+
 	isNonExcludedV1 := !isExcludedPrefix(root, filepath.Join(root, ".gitmap", "release", "v1"))
 	if isNonExcludedV1 {
 		t.Error(".gitmap/release/v1 should be excluded (prefix match)")
 	}
+
 	isNonExcludedAssets := !isExcludedPrefix(root, filepath.Join(root, ".gitmap", "release-assets"))
 	if isNonExcludedAssets {
 		t.Error(".gitmap/release-assets should be excluded")
 	}
+
 	if isExcludedPrefix(root, filepath.Join(root, "src")) {
 		t.Error("src must not be excluded by prefix rule")
 	}
@@ -90,6 +94,7 @@ func TestIsBinaryFile(t *testing.T) {
 	if isBinaryFile(textPath) {
 		t.Error("plain ascii file misclassified as binary")
 	}
+
 	isNonBinaryFile := !isBinaryFile(binPath)
 	if isNonBinaryFile {
 		t.Error("file with null byte not classified as binary")
@@ -121,8 +126,10 @@ func relativizeAll(t *testing.T, root string, paths []string) []string {
 		if err != nil {
 			t.Fatalf("Rel: %v", err)
 		}
+
 		out = append(out, filepath.ToSlash(rel))
 	}
+
 	return out
 }
 
@@ -130,10 +137,12 @@ func equalStringSlice(a, b []string) bool {
 	if len(a) != len(b) {
 		return false
 	}
+
 	for i := range a {
 		if a[i] != b[i] {
 			return false
 		}
 	}
+
 	return true
 }

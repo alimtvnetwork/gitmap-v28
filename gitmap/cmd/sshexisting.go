@@ -44,8 +44,10 @@ func printExistingKeyOnDisk(db *store.DB, name, keyPath, host string) {
 			map[string]any{"keyPath": keyPath},
 		)
 		cliexit.HandleError(appErr, 1)
+
 		return
 	}
+
 	fingerprint := readFingerprint(keyPath)
 
 	fmt.Fprintf(os.Stdout, constants.MsgSSHExistsOnDisk, keyPath)
@@ -54,6 +56,7 @@ func printExistingKeyOnDisk(db *store.DB, name, keyPath, host string) {
 	if host != constants.DefaultSSHHost {
 		fmt.Fprintf(os.Stdout, constants.MsgSSHHostUsed, host)
 	}
+
 	fmt.Fprint(os.Stdout, constants.MsgSSHPubLabel)
 	fmt.Fprintf(os.Stdout, "  %s\n", strings.TrimSpace(string(pub)))
 	fmt.Fprint(os.Stdout, constants.MsgSSHCopyHint)
@@ -96,6 +99,7 @@ func backupKeyForRegenerate(keyPath string) error {
 	if err := os.Rename(keyPath, keyPath+suffix); err != nil {
 		return fmt.Errorf("backup private key: %w", err)
 	}
+
 	_, errStat := os.Stat(keyPath + ".pub")
 	hasPub := errStat == nil
 	if !hasPub {

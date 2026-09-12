@@ -21,6 +21,7 @@ func TestBuildRecentRunsQueryNoFilter(t *testing.T) {
 	if strings.Contains(sql, "WHERE") {
 		t.Fatalf("no-filter must omit WHERE: %s", sql)
 	}
+
 	if len(args) != 1 || args[0] != 20 {
 		t.Fatalf("args = %v, want [20]", args)
 	}
@@ -33,9 +34,11 @@ func TestBuildRecentRunsQueryKindOnly(t *testing.T) {
 	if !strings.Contains(sql, "WHERE CommandKind = ?") {
 		t.Fatalf("kind clause missing: %s", sql)
 	}
+
 	if strings.Contains(sql, " AND ") {
 		t.Fatalf("must not emit AND with one clause: %s", sql)
 	}
+
 	if len(args) != 2 || args[0] != constants.CommandKindVisibilityUndo || args[1] != 5 {
 		t.Fatalf("args = %v", args)
 	}
@@ -48,13 +51,16 @@ func TestBuildRecentRunsQueryBothFilters(t *testing.T) {
 	if !strings.Contains(sql, "WHERE CommandKind = ? AND StartedAt >= ?") {
 		t.Fatalf("WHERE composition wrong: %s", sql)
 	}
+
 	if !strings.HasSuffix(sql, "ORDER BY MakeAllVisibilityRunId DESC LIMIT ?") {
 		t.Fatalf("must end with ORDER+LIMIT: %s", sql)
 	}
+
 	want := []any{"MakeAllPublic", "2026-06-06T00:00:00Z", 50}
 	if len(args) != 3 {
 		t.Fatalf("args len = %d, want 3 (%v)", len(args), args)
 	}
+
 	for i, w := range want {
 		if args[i] != w {
 			t.Fatalf("args[%d] = %v, want %v", i, args[i], w)
@@ -69,6 +75,7 @@ func TestSelectRecentMakeAllVisibilityRunsFilteredKindPushdown(t *testing.T) {
 	if err != nil {
 		t.Fatalf("insert undo: %v", err)
 	}
+
 	got, err := db.SelectRecentMakeAllVisibilityRunsFiltered(RecentRunsFilter{
 		Kind: "VisibilityUndo", Limit: 10,
 	})

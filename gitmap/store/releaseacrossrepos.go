@@ -32,6 +32,7 @@ func (db *DB) ListReleasesAcrossRepos() ([]ReleaseAcrossRepos, error) {
 	if !db.tableExists("Release") || !db.tableExists("Repo") {
 		return nil, nil
 	}
+
 	if !db.columnExists("Release", "RepoId") {
 		return nil, nil
 	}
@@ -40,6 +41,7 @@ func (db *DB) ListReleasesAcrossRepos() ([]ReleaseAcrossRepos, error) {
 	if err != nil {
 		return nil, fmt.Errorf(constants.ErrDBReleaseQuery, err)
 	}
+
 	defer rows.Close()
 
 	return scanAcrossRepoRows(rows)
@@ -56,6 +58,7 @@ func scanAcrossRepoRows(rows interface {
 		if err != nil {
 			return nil, err
 		}
+
 		out = append(out, rec)
 	}
 
@@ -72,6 +75,7 @@ func scanOneAcrossRepoRow(row interface{ Scan(dest ...any) error }) (ReleaseAcro
 	if err != nil {
 		return ReleaseAcrossRepos{}, err
 	}
+
 	r.IsDraft = draft == 1
 	r.IsLatest = latest == 1
 	r.IsPreRelease = pre == 1

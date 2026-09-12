@@ -37,14 +37,17 @@ func LoadFromDB(loader Loader, ref string) (Plan, int64, error) {
 	if loader == nil {
 		return Plan{}, 0, fmt.Errorf("clone-pick: --replay requires database access")
 	}
+
 	trimmed := strings.TrimSpace(ref)
 	if len(trimmed) == 0 {
 		return Plan{}, 0, fmt.Errorf(constants.MsgClonePickReplayNotFound, ref)
 	}
+
 	id, err := strconv.ParseInt(trimmed, 10, 64)
 	if err == nil {
 		return loadByIDOrError(loader, id, ref)
 	}
+
 	plan, sel, err := loader.LoadClonePickByName(trimmed)
 	if err != nil {
 		return Plan{}, 0, fmt.Errorf(constants.MsgClonePickReplayNotFound, ref)
@@ -58,6 +61,7 @@ func loadByIDOrError(loader Loader, id int64, ref string) (Plan, int64, error) {
 	if loadErr != nil {
 		return Plan{}, 0, fmt.Errorf(constants.MsgClonePickReplayNotFound, ref)
 	}
+
 	return plan, sel, nil
 }
 

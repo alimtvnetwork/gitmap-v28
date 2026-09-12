@@ -31,6 +31,7 @@ func resolveCwdAndHead() (string, string, error) {
 	if err != nil {
 		return "", "", apperror.WrapSimple(err, "resolveCwdAndHead")
 	}
+
 	head, err := getGitHead(cwd)
 	if err != nil {
 		return "", "", apperror.WrapSimple(err, "resolveCwdAndHead")
@@ -44,10 +45,12 @@ func executeAndPersistScan(cwd, head string, isAll bool) error {
 	if err != nil {
 		return apperror.WrapSimple(err, "executeAndPersistScan")
 	}
+
 	actions, err := release.ExecuteCommitActions(cwd, commits)
 	if err != nil {
 		return apperror.WrapSimple(err, "executeAndPersistScan")
 	}
+
 	printScanCommitsSummary(actions)
 
 	return release.WriteLastScannedCommit(cwd, head)
@@ -80,6 +83,7 @@ func fetchCommits(cwd string, isAll bool) ([]release.ParsedCommit, error) {
 	if rangeStr != "" {
 		cmdArgs = append(cmdArgs, rangeStr)
 	}
+
 	cmd := exec.Command("git", cmdArgs...)
 	cmd.Dir = cwd
 	out, err := cmd.Output()
@@ -94,6 +98,7 @@ func buildCommitRange(cwd string, isAll bool) string {
 	if isAll {
 		return ""
 	}
+
 	lastHash, err := release.ReadLastScannedCommit(cwd)
 	if err != nil || lastHash == "" {
 		return ""
@@ -119,10 +124,12 @@ func parseGitLogLine(line string) (release.ParsedCommit, bool) {
 	if trimmed == "" {
 		return release.ParsedCommit{}, false
 	}
+
 	parts := strings.SplitN(trimmed, " ", 2)
 	if len(parts) < 2 {
 		return release.ParsedCommit{}, false
 	}
+
 	ver, isFound := release.ParseVersionFromCommit(parts[1])
 	if !isFound {
 		return release.ParsedCommit{}, false
@@ -138,16 +145,20 @@ func printScanCommitsSummary(actions []release.ScanCommitAction) {
 		printActionLine("Branch release/"+a.Version, a.IsBranchCreated, a.IsBranchSkipped)
 		printActionLine("Tag "+a.Version, a.IsTagCreated, a.IsTagSkipped)
 	}
+
 	fmt.Println(rscHeaderStyle.Render("Done."))
 }
 
 func printActionLine(name string, isCreated, isSkipped bool) {
 	if isCreated {
 		fmt.Printf("  %s %s created\n", rscSuccessStyle.Render("✓"), name)
+
 		return
 	}
+
 	if isSkipped {
 		fmt.Printf("  %s %s skipped (already exists)\n", rscSkipStyle.Render("~"), name)
+
 		return
 	}
 }

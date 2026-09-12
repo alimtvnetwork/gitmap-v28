@@ -36,10 +36,13 @@ type HandshakeReply struct {
 func (s *Server) Handshake(args *HandshakeArgs, reply *HandshakeReply) error {
 	if args.Token != s.token {
 		reply.Success = false
+
 		return errors.New("invalid join token")
 	}
+
 	s.registry.Register(args.ID)
 	reply.Success = true
+
 	return nil
 }
 
@@ -57,6 +60,7 @@ type PingReply struct {
 func (s *Server) Ping(args *PingArgs, reply *PingReply) error {
 	s.registry.Ping(args.ID)
 	reply.Success = true
+
 	return nil
 }
 
@@ -74,6 +78,7 @@ type DisconnectReply struct {
 func (s *Server) Disconnect(args *DisconnectArgs, reply *DisconnectReply) error {
 	s.registry.Disconnect(args.ID)
 	reply.Success = true
+
 	return nil
 }
 

@@ -17,7 +17,6 @@ const (
 
 func getAntigravityDesktopDownloadUrl(osName string) string {
 	if osName == "windows" {
-
 		return antigravityWindowsUrl
 	}
 
@@ -27,9 +26,9 @@ func getAntigravityDesktopDownloadUrl(osName string) string {
 func copyDownloadStream(resp *http.Response, destFile string) error {
 	out, err := os.Create(destFile)
 	if err != nil {
-
 		return err
 	}
+
 	defer out.Close()
 	_, err = io.Copy(out, resp.Body)
 
@@ -40,12 +39,11 @@ func downloadFileToDest(url, destPath string) error {
 	client := &http.Client{Timeout: 300 * time.Second}
 	resp, err := client.Get(url)
 	if err != nil {
-
 		return err
 	}
+
 	defer resp.Body.Close()
 	if resp.StatusCode != http.StatusOK {
-
 		return fmt.Errorf("download failed with HTTP %d from %s", resp.StatusCode, url)
 	}
 
@@ -55,9 +53,9 @@ func downloadFileToDest(url, destPath string) error {
 func recordAntigravityDesktopInstalled(installPath string) {
 	splitDB, err := store.OpenInstallationSplitDB()
 	if err != nil {
-
 		return
 	}
+
 	defer splitDB.Close()
 	_ = splitDB.SaveInstalledTool("antigravity", installPath, "installer")
 }

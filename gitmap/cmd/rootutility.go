@@ -26,6 +26,7 @@ func utilityDispatchEntries() []dispatchEntry {
 			[]string{"binary", "info"},
 			func() error {
 				printGitmapIdentityBlockLong()
+
 				return nil
 			},
 		},
@@ -45,6 +46,7 @@ func utilityDispatchEntries() []dispatchEntry {
 			func() error {
 				checkHelp("version", argsTail())
 				fmt.Printf(constants.MsgVersionFmt, constants.Version)
+
 				return nil
 			},
 		},
@@ -83,11 +85,13 @@ func runHelpDispatch() error {
 	hasTopic := len(os.Args) >= 3 && !isFlagToken(os.Args[2])
 	if hasTopic {
 		dispatchHelpTopic(os.Args[2])
+
 		return nil
 	}
 
 	if hasFlag(constants.FlagJSON) {
 		printUsageJSON(resolveFilterQuery())
+
 		return nil
 	}
 
@@ -100,6 +104,7 @@ func runHelpDispatch() error {
 	}
 
 	printUsage()
+
 	return nil
 }
 
@@ -134,5 +139,6 @@ func normalizeHelpTopic(topic string) string {
 	case constants.CmdPowerAlias, constants.CmdPowerAlias2:
 		return constants.CmdPower
 	}
+
 	return topic
 }

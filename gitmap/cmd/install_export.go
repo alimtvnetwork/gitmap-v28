@@ -27,9 +27,9 @@ type ExportOptions struct {
 // isInstallExportCommand checks if args invoke export or export-all.
 func isInstallExportCommand(args []string) bool {
 	if len(args) == 0 {
-
 		return false
 	}
+
 	subCmd := strings.ToLower(strings.TrimSpace(args[0]))
 
 	return subCmd == "export" || subCmd == "export-all"
@@ -38,9 +38,9 @@ func isInstallExportCommand(args []string) bool {
 // isInstallImportCommand checks if args invoke import.
 func isInstallImportCommand(args []string) bool {
 	if len(args) == 0 {
-
 		return false
 	}
+
 	subCmd := strings.ToLower(strings.TrimSpace(args[0]))
 
 	return subCmd == "import"
@@ -50,14 +50,14 @@ func isInstallImportCommand(args []string) bool {
 func runInstallExport(args []string) error {
 	opts, errParse := parseExportOptions(args)
 	if errParse != nil {
-
 		return errParse
 	}
+
 	db, errDB := openAndMigrateInstallerDB()
 	if errDB != nil {
-
 		return errDB
 	}
+
 	defer db.Close()
 
 	return executeInstallerExport(db, opts)
@@ -83,15 +83,18 @@ func parseExportPositional(fs *flag.FlagSet, args []string, opts *ExportOptions)
 
 		return nil, appErr
 	}
+
 	if len(positional) > 0 {
 		opts.Slug = strings.TrimSpace(positional[0])
 	}
+
 	if opts.Slug == "" && !opts.ExportAll {
 		appErr := apperror.NewValidationError("installer slug or --all required")
 		appErr.Code = "E_INSTALLER_INVALID_INPUT"
 
 		return nil, appErr
 	}
+
 	resolveExportDefaults(opts)
 
 	return opts, nil
@@ -99,9 +102,9 @@ func parseExportPositional(fs *flag.FlagSet, args []string, opts *ExportOptions)
 
 func resolveExportDefaults(opts *ExportOptions) {
 	if opts.OutputPath != "" {
-
 		return
 	}
+
 	ext := pickExportExtension(opts)
 	opts.OutputPath = pickExportFilename(opts, ext)
 }
@@ -109,7 +112,6 @@ func resolveExportDefaults(opts *ExportOptions) {
 func pickExportExtension(opts *ExportOptions) string {
 	isJSON := strings.ToLower(opts.Format) == "json" || strings.HasSuffix(strings.ToLower(opts.OutputPath), ".json")
 	if isJSON {
-
 		return ".json"
 	}
 
@@ -118,7 +120,6 @@ func pickExportExtension(opts *ExportOptions) string {
 
 func pickExportFilename(opts *ExportOptions, ext string) string {
 	if opts.ExportAll {
-
 		return "gitmap-installers" + ext
 	}
 
@@ -128,12 +129,11 @@ func pickExportFilename(opts *ExportOptions, ext string) string {
 func executeInstallerExport(db *store.DB, opts *ExportOptions) error {
 	scripts, errScripts := loadScriptsForExport(db, opts)
 	if errScripts != nil {
-
 		return errScripts
 	}
+
 	isJSON := strings.ToLower(opts.Format) == "json" || strings.HasSuffix(strings.ToLower(opts.OutputPath), ".json")
 	if isJSON {
-
 		return writeJSONExport(scripts, opts)
 	}
 
@@ -142,12 +142,11 @@ func executeInstallerExport(db *store.DB, opts *ExportOptions) error {
 
 func loadScriptsForExport(db *store.DB, opts *ExportOptions) ([]model.InstallerScript, error) {
 	if opts.ExportAll {
-
 		return db.ListInstallers()
 	}
+
 	single, err := db.GetInstallerBySlug(opts.Slug)
 	if err != nil {
-
 		return nil, err
 	}
 
@@ -162,14 +161,15 @@ func writeJSONExport(scripts []model.InstallerScript, opts *ExportOptions) error
 	} else if len(scripts) > 0 {
 		payload, err = json.MarshalIndent(scripts[0], "", "  ")
 	}
-	if err != nil {
 
+	if err != nil {
 		return apperror.WrapSimple(err, "marshal json export")
 	}
-	if errWrite := os.WriteFile(opts.OutputPath, payload, 0644); errWrite != nil {
 
+	if errWrite := os.WriteFile(opts.OutputPath, payload, 0644); errWrite != nil {
 		return apperror.WrapSimple(errWrite, "write json export file")
 	}
+
 	printExportSuccess(len(scripts), opts.OutputPath, "JSON")
 
 	return nil
@@ -188,9 +188,9 @@ func writeZipExport(scripts []model.InstallerScript, opts *ExportOptions) error 
 func executeExportArchive(scripts []model.InstallerScript, flags *ExportInstallerFlags) error {
 	outFile, errCreate := os.Create(flags.OutputPath)
 	if errCreate != nil {
-
 		return apperror.WrapSimple(errCreate, "create zip output")
 	}
+
 	defer outFile.Close()
 
 	zw := zip.NewWriter(outFile)
@@ -198,10 +198,10 @@ func executeExportArchive(scripts []model.InstallerScript, flags *ExportInstalle
 
 	for _, s := range scripts {
 		if errWrite := writeZipEntry(zw, s); errWrite != nil {
-
 			return apperror.WrapSimple(errWrite, "write zip entry")
 		}
 	}
+
 	printExportSuccess(len(scripts), flags.OutputPath, "ZIP")
 
 	return nil
@@ -222,11 +222,12 @@ func runInstallImport(args []string) error {
 
 		return appErr
 	}
+
 	db, errDB := openAndMigrateInstallerDB()
 	if errDB != nil {
-
 		return errDB
 	}
+
 	defer db.Close()
 
 	return dispatchImportByExtension(db, targetPath)
@@ -239,11 +240,10 @@ func parseImportPath(args []string) string {
 	flagArgs, positional := separateFlagAndPositionalArgs(args)
 	fs.Parse(flagArgs)
 	if *fileFlag != "" {
-
 		return strings.TrimSpace(*fileFlag)
 	}
-	if len(positional) > 0 {
 
+	if len(positional) > 0 {
 		return strings.TrimSpace(positional[0])
 	}
 
@@ -257,8 +257,8 @@ func dispatchImportByExtension(db *store.DB, targetPath string) error {
 
 		return appErr
 	}
-	if strings.HasSuffix(strings.ToLower(targetPath), ".json") {
 
+	if strings.HasSuffix(strings.ToLower(targetPath), ".json") {
 		return importFromJSONFilePath(db, targetPath)
 	}
 
@@ -268,7 +268,6 @@ func dispatchImportByExtension(db *store.DB, targetPath string) error {
 func importFromJSONFilePath(db *store.DB, path string) error {
 	data, err := os.ReadFile(path)
 	if err != nil {
-
 		return apperror.WrapSimple(err, "read json import file")
 	}
 
@@ -278,7 +277,6 @@ func importFromJSONFilePath(db *store.DB, path string) error {
 func importRawJSONPayload(db *store.DB, data []byte, path string) error {
 	trimmed := strings.TrimSpace(string(data))
 	if strings.HasPrefix(trimmed, "[") {
-
 		return importJSONArray(db, data, path)
 	}
 
@@ -288,9 +286,9 @@ func importRawJSONPayload(db *store.DB, data []byte, path string) error {
 func importJSONArray(db *store.DB, data []byte, path string) error {
 	var list []model.InstallerScript
 	if err := json.Unmarshal(data, &list); err != nil {
-
 		return apperror.WrapSimple(err, "unmarshal json array")
 	}
+
 	count := upsertScriptList(db, list)
 	printImportSuccess(count, path)
 
@@ -300,9 +298,9 @@ func importJSONArray(db *store.DB, data []byte, path string) error {
 func importJSONObject(db *store.DB, data []byte, path string) error {
 	var script model.InstallerScript
 	if err := json.Unmarshal(data, &script); err != nil {
-
 		return apperror.WrapSimple(err, "unmarshal json object")
 	}
+
 	count := upsertScriptList(db, []model.InstallerScript{script})
 	printImportSuccess(count, path)
 
@@ -312,9 +310,9 @@ func importJSONObject(db *store.DB, data []byte, path string) error {
 func importFromZipArchiveFile(db *store.DB, path string) error {
 	r, err := zip.OpenReader(path)
 	if err != nil {
-
 		return apperror.WrapSimple(err, "open zip archive")
 	}
+
 	defer r.Close()
 
 	var list []model.InstallerScript
@@ -324,6 +322,7 @@ func importFromZipArchiveFile(db *store.DB, path string) error {
 			list = append(list, *script)
 		}
 	}
+
 	count := upsertScriptList(db, list)
 	printImportSuccess(count, path)
 
@@ -332,19 +331,18 @@ func importFromZipArchiveFile(db *store.DB, path string) error {
 
 func extractZipEntryScript(f *zip.File) *model.InstallerScript {
 	if !strings.HasSuffix(strings.ToLower(f.Name), ".json") {
-
 		return nil
 	}
+
 	rc, errOpen := f.Open()
 	if errOpen != nil {
-
 		return nil
 	}
+
 	defer rc.Close()
 
 	var s model.InstallerScript
 	if errDec := json.NewDecoder(rc).Decode(&s); errDec != nil {
-
 		return nil
 	}
 
@@ -357,6 +355,7 @@ func upsertScriptList(db *store.DB, scripts []model.InstallerScript) int {
 		if s.Slug == "" {
 			s.Slug = slugify(s.Name)
 		}
+
 		if saveOrUpdateScript(db, &s) {
 			importedCount++
 		}

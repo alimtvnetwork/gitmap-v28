@@ -29,6 +29,7 @@ func runFixPath() error {
 
 	printFixPathInfo(absActive, activeVersion, absDeployed, deployedVersion)
 	syncBinaries(absActive, activeVersion, absDeployed, deployedVersion)
+
 	return nil
 }
 

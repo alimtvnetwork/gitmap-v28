@@ -14,6 +14,7 @@ func TestWindowsCandidate_AppDataPresent(t *testing.T) {
 	if runtime.GOOS != "windows" {
 		t.Skip("windows-only test")
 	}
+
 	t.Setenv("APPDATA", filepath.FromSlash("C:/Users/jane/AppData/Roaming"))
 
 	got := windowsUserDataCandidate()
@@ -29,6 +30,7 @@ func TestWindowsCandidate_NoEnvReturnsEmpty(t *testing.T) {
 	if runtime.GOOS != "windows" {
 		t.Skip("windows-only test")
 	}
+
 	t.Setenv("APPDATA", "")
 	t.Setenv("USERPROFILE", "")
 

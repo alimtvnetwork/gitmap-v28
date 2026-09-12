@@ -29,6 +29,7 @@ func listOwnerReposCached(provider, owner string, flags bulkFlags) ([]string, er
 	if dbErr == nil && ttl > 0 {
 		names, age, ok = readOwnerRepoListCache(db, provider, owner, ttl)
 	}
+
 	if ok {
 		fmt.Fprintf(os.Stdout, constants.MsgBulkCacheHitFmt, len(names), age.Round(time.Second))
 
@@ -54,15 +55,18 @@ func resolveOwnerRepoListTTL(flags bulkFlags) time.Duration {
 	if flags.CacheTTLSet {
 		return time.Duration(flags.CacheTTLSecs) * time.Second
 	}
+
 	db, err := openDB()
 	raw := ""
 	if err == nil {
 		raw = db.GetSetting(constants.SettingOwnerRepoListCacheTTL)
 	}
+
 	n, err2 := 0, error(nil)
 	if raw != "" {
 		n, err2 = strconv.Atoi(raw)
 	}
+
 	isValid := raw != "" && err2 == nil && n >= 0
 	if isValid {
 		return time.Duration(n) * time.Second
@@ -83,10 +87,12 @@ func readOwnerRepoListCache(
 	if !ok {
 		return nil, 0, false
 	}
+
 	age := time.Since(fetchedAt)
 	if age > ttl {
 		return nil, 0, false
 	}
+
 	var names []string
 	if err := json.Unmarshal([]byte(raw), &names); err != nil {
 		return nil, 0, false
@@ -102,15 +108,18 @@ func writeOwnerRepoListCache(db *store.DB, provider, owner string, names []strin
 	if err != nil {
 		return
 	}
+
 	now := time.Now()
 	if err := db.UpsertOwnerRepoListCache(provider, owner, string(raw), now); err != nil {
 		fmt.Fprintf(os.Stderr, "make-all-*: cache write failed: %v\n", err)
 	}
+
 	errEnsure := db.EnsureOwnerRepoNameIndex()
 	var errUpsert error
 	if errEnsure == nil {
 		errUpsert = db.UpsertOwnerRepoNameIndex(provider, owner, names, now)
 	}
+
 	if errEnsure == nil && errUpsert != nil {
 		fmt.Fprintf(os.Stderr, "make-all-*: name-index write failed: %v\n", errUpsert)
 	}

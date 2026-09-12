@@ -54,12 +54,14 @@ func assertGoldenBytes(t *testing.T, name string, got []byte) {
 
 		return
 	}
+
 	want, err := os.ReadFile(path)
 	if err != nil {
 		t.Fatalf("read golden %s: %v "+
 			"(run with GITMAP_UPDATE_GOLDEN=1 and "+
 			"GITMAP_ALLOW_GOLDEN_UPDATE=1 to create)", path, err)
 	}
+
 	if !bytes.Equal(got, want) {
 		t.Fatalf("golden mismatch for %s\n--- want\n%s\n--- got\n%s",
 			name, string(want), string(got))
@@ -73,9 +75,11 @@ func mustWriteGolden(t *testing.T, path string, got []byte) {
 	if err := os.MkdirAll(filepath.Dir(path), 0o755); err != nil {
 		t.Fatalf("mkdir testdata: %v", err)
 	}
+
 	if err := os.WriteFile(path, got, 0o644); err != nil {
 		t.Fatalf("write golden %s: %v", path, err)
 	}
+
 	t.Fatalf("regenerated golden %s — re-run without "+
 		"GITMAP_UPDATE_GOLDEN to confirm", path)
 }
@@ -98,7 +102,6 @@ func readFirstObjectKeys(t *testing.T, raw []byte) []string {
 	t.Helper()
 	dec := json.NewDecoder(bytes.NewReader(raw))
 	if err := skipUntilFirstObjectStart(dec); err != nil {
-
 		return nil
 	}
 
@@ -112,11 +115,10 @@ func skipUntilFirstObjectStart(dec *json.Decoder) error {
 	for {
 		tok, err := dec.Token()
 		if err != nil {
-
 			return err
 		}
-		if delim, ok := tok.(json.Delim); ok && delim == '{' {
 
+		if delim, ok := tok.(json.Delim); ok && delim == '{' {
 			return nil
 		}
 	}

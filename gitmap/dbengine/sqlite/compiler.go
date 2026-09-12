@@ -33,9 +33,11 @@ func (c *Compiler) CompilePagination(limit, offset int) string {
 	if limit <= 0 && offset <= 0 {
 		return ""
 	}
+
 	if offset <= 0 {
 		return fmt.Sprintf("LIMIT %d", limit)
 	}
+
 	return fmt.Sprintf("LIMIT %d OFFSET %d", limit, offset)
 }
 
@@ -58,6 +60,7 @@ func (c *Compiler) CompileSearch(table string, fields []string, limit int) strin
 
 	whereSql := strings.Join(whereClauses, " AND ")
 	pagination := c.CompilePagination(limit, 0)
+
 	return buildSelectWithWhere(quotedTable, whereSql, pagination)
 }
 
@@ -67,12 +70,14 @@ func (c *Compiler) CompileCount(table string, field string) string {
 	if len(field) == 0 {
 		return fmt.Sprintf("SELECT COUNT(*) FROM %s;", quotedTable)
 	}
+
 	return fmt.Sprintf("SELECT COUNT(*) FROM %s WHERE %s = ?;", quotedTable, c.QuoteIdentifier(field))
 }
 
 // CompileDelete builds a DELETE query.
 func (c *Compiler) CompileDelete(table string, field string) string {
 	quotedTable := c.QuoteIdentifier(table)
+
 	return fmt.Sprintf("DELETE FROM %s WHERE %s = ?;", quotedTable, c.QuoteIdentifier(field))
 }
 
@@ -80,6 +85,7 @@ func buildSelectWithoutWhere(quotedTable, pagination string) string {
 	if len(pagination) == 0 {
 		return fmt.Sprintf("SELECT * FROM %s;", quotedTable)
 	}
+
 	return fmt.Sprintf("SELECT * FROM %s %s;", quotedTable, pagination)
 }
 
@@ -87,5 +93,6 @@ func buildSelectWithWhere(quotedTable, whereSql, pagination string) string {
 	if len(pagination) == 0 {
 		return fmt.Sprintf("SELECT * FROM %s WHERE %s;", quotedTable, whereSql)
 	}
+
 	return fmt.Sprintf("SELECT * FROM %s WHERE %s %s;", quotedTable, whereSql, pagination)
 }

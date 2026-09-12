@@ -21,6 +21,7 @@ func filterByAvailableUpdates(records []model.ScanRecord) []model.ScanRecord {
 	available, ok := loadAvailableRepoIDs()
 	if !ok {
 		fmt.Fprintln(os.Stderr, constants.WarnPullFilterFallback)
+
 		return records
 	}
 
@@ -34,6 +35,7 @@ func loadAvailableRepoIDs() (map[int64]bool, bool) {
 	if err != nil {
 		return nil, false
 	}
+
 	defer db.Close()
 
 	rows, err := db.FindNext(0)

@@ -12,5 +12,6 @@ func (db *DB) DeleteWorkDir(idOrPath string) error {
 	}
 
 	_, err := ExecWrapper(db.conn, SQLDeleteWorkDir, idOrPath, idOrPath).Destruct()
+
 	return err
 }

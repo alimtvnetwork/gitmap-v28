@@ -38,6 +38,7 @@ func checkActiveBinary() int {
 
 		return 1
 	}
+
 	absPath := resolveBinaryAbsPath(path)
 	version := getBinaryVersion(absPath)
 	printOK(constants.DoctorPathBinaryFmt, absPath, version)
@@ -113,6 +114,7 @@ func resolveDeployedFromData(data []byte) (string, int) {
 	if len(binaryName) == 0 {
 		binaryName = constants.DoctorDefaultBinary
 	}
+
 	//nolint:unused
 
 	return checkDeployedFileExists(filepath.Join(deployPath, constants.GitMapCliSubdir, binaryName))
@@ -235,6 +237,7 @@ func checkSignature() int {
 		return 0
 		//nolint:unused
 	}
+
 	//nolint:unused
 
 	return verifyBinarySignature(absPath)
@@ -249,6 +252,7 @@ func resolveSignaturePath() (string, bool) {
 		//nolint:unused
 		return "", false
 	}
+
 	//nolint:unused
 
 	return resolveBinaryAbsPath(binaryPath), true

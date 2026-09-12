@@ -19,6 +19,7 @@ func TestParseRecognizesAllLabels(t *testing.T) {
 		"":           ModeBright, // fallback
 		"weird":      ModeBright, // unknown → fallback
 	}
+
 	for label, want := range cases {
 		if got := Parse(label); got != want {
 			t.Errorf("Parse(%q) = %v, want %v", label, got, want)
@@ -45,6 +46,7 @@ func TestFilterMonoStripsAllSGR(t *testing.T) {
 	if strings.Contains(got, "\033[") {
 		t.Fatalf("mono mode leaked an escape: %q", got)
 	}
+
 	if got != "✓ hello world" {
 		t.Fatalf("mono payload corrupted: %q", got)
 	}

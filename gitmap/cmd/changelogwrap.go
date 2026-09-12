@@ -23,9 +23,11 @@ func changelogWrapWidth() int {
 	if hasValidCols {
 		width = parsed
 	}
+
 	if width < constants.ChangelogPrettyWrapMin {
 		return constants.ChangelogPrettyWrapMin
 	}
+
 	if width > constants.ChangelogPrettyWrapMax {
 		return constants.ChangelogPrettyWrapMax
 	}
@@ -49,6 +51,7 @@ func renderInlineMarkdown(text string, _ int, pretty bool) string {
 	if !pretty {
 		return stripInlineMarkdown(text)
 	}
+
 	out := convertInlineSpans(text, "**", constants.ChangelogPrettyBoldOpen, constants.ChangelogPrettyBoldClose)
 	out = convertInlineSpans(out, "`", constants.ChangelogPrettyCodeOpen, constants.ChangelogPrettyCodeClose)
 
@@ -77,12 +80,14 @@ func convertInlineSpans(text, delim, open, close string) string {
 
 			return b.String()
 		}
+
 		end := strings.Index(rest[start+len(delim):], delim)
 		if end < 0 {
 			b.WriteString(rest)
 
 			return b.String()
 		}
+
 		b.WriteString(rest[:start])
 		b.WriteString(open)
 		b.WriteString(rest[start+len(delim) : start+len(delim)+end])
@@ -118,6 +123,7 @@ func packWordsIntoLines(words []string, limit int) []string {
 			used = w
 			continue
 		}
+
 		if used+1+w > limit {
 			lines = append(lines, current.String())
 			current.Reset()
@@ -125,10 +131,12 @@ func packWordsIntoLines(words []string, limit int) []string {
 			used = w
 			continue
 		}
+
 		current.WriteByte(' ')
 		current.WriteString(word)
 		used += 1 + w
 	}
+
 	if current.Len() > 0 {
 		lines = append(lines, current.String())
 	}
@@ -149,6 +157,7 @@ func joinWrappedLines(lines []string, prefix, hanging string) string {
 		} else {
 			b.WriteString(hanging)
 		}
+
 		b.WriteString(line)
 		b.WriteByte('\n')
 	}
@@ -166,6 +175,7 @@ func visibleLen(s string) int {
 			i = skipAnsiSequence(s, i)
 			continue
 		}
+
 		_, size := utf8.DecodeRuneInString(s[i:])
 		count++
 		i += size

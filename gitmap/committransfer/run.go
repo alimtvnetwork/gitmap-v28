@@ -21,6 +21,7 @@ func maybePush(targetDir string, opts Options, newCount int) bool {
 	if opts.NoPush || opts.NoCommit || newCount == 0 || opts.DryRun {
 		return false
 	}
+
 	if _, err := pushHEAD(targetDir); err != nil {
 		fmt.Fprintf(os.Stderr, "%s push failed: %v\n", opts.LogPrefix, err)
 

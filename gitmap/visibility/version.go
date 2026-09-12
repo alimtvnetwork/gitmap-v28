@@ -23,6 +23,7 @@ func ParseRepoNameMeta(name string) (string, int, bool) {
 	if m == nil {
 		return "", 0, false
 	}
+
 	v, err := strconv.Atoi(m[2])
 	if err != nil {
 		return "", 0, false
@@ -53,11 +54,13 @@ func HighestVersionedMatch(names []string, wantBase string) (string, int, bool) 
 		if !ok || base != wantBase {
 			continue
 		}
+
 		if ver > bestVer {
 			bestVer = ver
 			bestName = n
 		}
 	}
+
 	if bestVer < 0 {
 		return "", 0, false
 	}

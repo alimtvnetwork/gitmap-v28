@@ -32,30 +32,42 @@ func persistChromeProfile(name, sourcePath string, rec chromeExportRecord) {
 	db, err := store.OpenDefault()
 	if err != nil {
 		fmt.Fprintf(os.Stderr, constants.MsgChromeProfileDBWarn, err)
+
 		return
 	}
+
 	defer db.Close()
 	id, err := db.UpsertChromeProfile(name, sourcePath, true)
 	if err != nil {
 		fmt.Fprintf(os.Stderr, constants.MsgChromeProfileDBWarn, err)
+
 		return
 	}
+
 	if err := persistExportItem(db, id, constants.OutputJSON, rec.JSONPath, rec.JSONSize); err != nil {
 		fmt.Fprintf(os.Stderr, constants.MsgChromeProfileDBWarn, err)
+
 		return
 	}
+
 	if err := persistExportItem(db, id, constants.OutputCSV, rec.CSVPath, rec.CSVSize); err != nil {
 		fmt.Fprintf(os.Stderr, constants.MsgChromeProfileDBWarn, err)
+
 		return
 	}
+
 	if err := persistExportItem(db, id, constants.OutputZIP, rec.ZIPPath, rec.ZIPSize); err != nil {
 		fmt.Fprintf(os.Stderr, constants.MsgChromeProfileDBWarn, err)
+
 		return
 	}
+
 	if err := persistExportItem(db, id, constants.OutputSQLite, rec.SQLitePath, rec.SQLiteSize); err != nil {
 		fmt.Fprintf(os.Stderr, constants.MsgChromeProfileDBWarn, err)
+
 		return
 	}
+
 	fmt.Printf(constants.MsgChromeProfileDBSynced, name)
 }
 
@@ -64,11 +76,13 @@ func persistChromeProfileSilent(name, sourcePath string, rec chromeExportRecord)
 	if err != nil {
 		return
 	}
+
 	defer db.Close()
 	id, err := db.UpsertChromeProfile(name, sourcePath, true)
 	if err != nil {
 		return
 	}
+
 	_ = persistExportItem(db, id, constants.OutputJSON, rec.JSONPath, rec.JSONSize)
 	_ = persistExportItem(db, id, constants.OutputCSV, rec.CSVPath, rec.CSVSize)
 	_ = persistExportItem(db, id, constants.OutputZIP, rec.ZIPPath, rec.ZIPSize)
@@ -79,6 +93,7 @@ func persistExportItem(db *store.DB, id int64, kind, path string, size int) erro
 	if path == "" {
 		return nil
 	}
+
 	return db.InsertChromeProfileExport(id, kind, path, size)
 }
 
@@ -89,11 +104,13 @@ func listChromeProfilesFromDB() {
 	if err != nil {
 		return
 	}
+
 	defer db.Close()
 	rows, err := db.ListChromeProfilesDB()
 	if err != nil || len(rows) == 0 {
 		return
 	}
+
 	fmt.Print(constants.MsgChromeProfileListDBHdr)
 	for _, r := range rows {
 		fmt.Printf(constants.MsgChromeProfileListDBRow, r.Name, r.ExportCount, r.LastSeen)

@@ -39,6 +39,7 @@ func TestResolver_StickyAllLeft(t *testing.T) {
 	if !isFirstMatch {
 		t.Fatalf("first answer: got %v", first)
 	}
+
 	second, _ := r.Resolve("y", FileMeta{Info: dummyInfo(t)}, FileMeta{Info: dummyInfo(t)})
 	isSecondMatch := second == ChoiceLeft
 	if !isSecondMatch {
@@ -62,9 +63,11 @@ func writeWithMTime(t *testing.T, path string, mt time.Time) os.FileInfo {
 	if err := os.WriteFile(path, []byte("x"), 0o644); err != nil {
 		t.Fatal(err)
 	}
+
 	if err := os.Chtimes(path, mt, mt); err != nil {
 		t.Fatal(err)
 	}
+
 	info, err := os.Stat(path)
 	if err != nil {
 		t.Fatal(err)

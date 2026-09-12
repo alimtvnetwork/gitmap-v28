@@ -71,16 +71,19 @@ func (s *fixRepoBackupSession) BackupFile(rel string) {
 	if s.disabled {
 		return
 	}
+
 	dst := filepath.Join(s.dir, constants.FixRepoBackupFilesSubdir, rel)
 	if _, err := os.Stat(dst); err == nil {
 		return
 	}
+
 	if err := copyFileForBackup(filepath.Join(s.root, rel), dst); err != nil {
 		fmt.Fprintf(os.Stderr, constants.FixRepoBackupErrFmt, rel, err)
 		s.disabled = true
 
 		return
 	}
+
 	s.files = append(s.files, rel)
 }
 
@@ -90,12 +93,14 @@ func (s *fixRepoBackupSession) Finalize() {
 	if s.disabled || len(s.files) == 0 {
 		return
 	}
+
 	manifest := fixRepoBackupManifest{
 		SchemaVersion: constants.FixRepoBackupSchemaVersion,
 		Repo:          s.repoName, CurrentV: s.version,
 		Timestamp: s.timestamp, GitmapVersion: constants.Version,
 		Files: s.files,
 	}
+
 	writeFixRepoManifest(s.dir, manifest)
 	fmt.Fprintf(os.Stderr, constants.FixRepoBackupMsgFmt,
 		len(s.files), filepath.ToSlash(relOrAbs(s.root, s.dir)))
@@ -109,6 +114,7 @@ func writeFixRepoManifest(dir string, m fixRepoBackupManifest) {
 
 		return
 	}
+
 	path := filepath.Join(dir, constants.FixRepoBackupManifestName)
 	if err := os.WriteFile(path, body, 0o644); err != nil {
 		fmt.Fprintf(os.Stderr, constants.FixRepoBackupManifestErrFmt, err)
@@ -120,15 +126,18 @@ func copyFileForBackup(src, dst string) error {
 	if err := os.MkdirAll(filepath.Dir(dst), 0o755); err != nil {
 		return err
 	}
+
 	in, err := os.Open(src)
 	if err != nil {
 		return err
 	}
+
 	defer in.Close()
 	out, err := os.Create(dst)
 	if err != nil {
 		return err
 	}
+
 	defer out.Close()
 	if _, err := io.Copy(out, in); err != nil {
 		return err

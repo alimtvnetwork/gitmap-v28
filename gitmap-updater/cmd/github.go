@@ -28,6 +28,7 @@ func fetchLatestTag() (string, error) {
 	if err != nil {
 		return "", fmt.Errorf("network error: %w", err)
 	}
+
 	defer resp.Body.Close()
 
 	if resp.StatusCode != http.StatusOK {

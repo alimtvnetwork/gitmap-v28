@@ -18,9 +18,11 @@ func TestParseHistoryFilters(t *testing.T) {
 	if f.Kind != "VisibilityUndo" || f.Since != 24*time.Hour {
 		t.Fatalf("parse: got %+v", f)
 	}
+
 	if got := parseHistoryFilters([]string{"--since", "garbage"}, now); got.Since != 0 {
 		t.Fatalf("bad --since must be ignored, got %+v", got)
 	}
+
 	if got := parseHistoryFilters(nil, now); got.Kind != "" || got.Since != 0 {
 		t.Fatalf("empty must be zero, got %+v", got)
 	}
@@ -34,17 +36,21 @@ func TestApplyHistoryFilters(t *testing.T) {
 		mkRun(constants.CommandKindMakeAllPublic, "2026-06-05T08:00:00Z"),
 		mkRun(constants.CommandKindMakeAllPrivate, "bogus-ts"),
 	}
+
 	if got := applyHistoryFilters(runs, historyFilters{}, now); len(got) != 4 {
 		t.Fatalf("no-op must keep all, got %d", len(got))
 	}
+
 	kind := applyHistoryFilters(runs, historyFilters{Kind: constants.CommandKindVisibilityUndo}, now)
 	if len(kind) != 1 || kind[0].CommandKind != constants.CommandKindVisibilityUndo {
 		t.Fatalf("kind filter: %+v", kind)
 	}
+
 	since := applyHistoryFilters(runs, historyFilters{Since: 6 * time.Hour}, now)
 	if len(since) != 2 {
 		t.Fatalf("--since 6h must keep 2 (drops 28h-old + bogus-ts), got %d", len(since))
 	}
+
 	both := applyHistoryFilters(runs, historyFilters{
 		Kind: constants.CommandKindVisibilityRedo, Since: 6 * time.Hour}, now)
 	if len(both) != 1 {

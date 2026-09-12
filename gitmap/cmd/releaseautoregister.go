@@ -28,6 +28,7 @@ func autoRegisterCurrentRepo(db *store.DB, cwd string) error {
 		AbsolutePath: absCwd,
 		RelativePath: filepath.Base(absCwd),
 	}
+
 	records := mapper.BuildRecords([]scanner.RepoInfo{repoInfo}, "https", "")
 
 	if err := db.UpsertRepos(records); err != nil {

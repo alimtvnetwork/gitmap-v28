@@ -21,6 +21,7 @@ func TestCSVToMessages_ValidRows(t *testing.T) {
 	if len(messages) != 3 {
 		t.Errorf("expected 3 messages, got %d", len(messages))
 	}
+
 	if messages[0][0] != "Title 1" || messages[0][1] != "Description 1" {
 		t.Errorf("unexpected first message: %v", messages[0])
 	}
@@ -59,6 +60,7 @@ func TestCSVToMessages_ExtraColumns(t *testing.T) {
 	if len(messages) != 1 {
 		t.Errorf("expected 1 message, got %d", len(messages))
 	}
+
 	if messages[0][0] != "Title" || messages[0][1] != "Desc" {
 		t.Errorf("unexpected message: %v", messages[0])
 	}
@@ -76,6 +78,7 @@ func TestReadCSVFile_ValidFile(t *testing.T) {
 	if err != nil {
 		t.Fatal(err)
 	}
+
 	defer f.Close()
 
 	records, err := csv.NewReader(f).ReadAll()
@@ -131,6 +134,7 @@ func TestReadCSVFile_QuotedFields(t *testing.T) {
 	if len(records) != 1 {
 		t.Fatalf("expected 1 record, got %d", len(records))
 	}
+
 	if records[0][0] != "Title, with comma" {
 		t.Errorf("expected quoted title, got %q", records[0][0])
 	}
@@ -146,6 +150,7 @@ func TestCSVToMessages_WhitespacePreserved(t *testing.T) {
 	if len(messages) != 1 {
 		t.Fatal("expected 1 message")
 	}
+
 	if !strings.Contains(messages[0][0], "  ") {
 		t.Error("expected whitespace to be preserved")
 	}
@@ -160,6 +165,7 @@ func csvToMessagesHelper(records [][]string) [][2]string {
 		if len(row) < 2 {
 			continue
 		}
+
 		messages = append(messages, [2]string{row[0], row[1]})
 	}
 

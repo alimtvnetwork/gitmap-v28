@@ -56,9 +56,11 @@ func isRunSuccess(r PipelineRunRecord) int {
 	if r.IsSuccess {
 		return 1
 	}
+
 	if r.Conclusion == "success" {
 		return 1
 	}
+
 	return 0
 }
 
@@ -72,6 +74,7 @@ func (p *PipelineSplitDb) RecordRun(r PipelineRunRecord) error {
 	if err != nil {
 		return apperror.WrapSimple(err, "record pipeline run")
 	}
+
 	return nil
 }
 
@@ -79,6 +82,7 @@ func resolveCreatedAt(createdAt string) string {
 	if createdAt != "" {
 		return createdAt
 	}
+
 	return time.Now().UTC().Format(time.RFC3339)
 }
 
@@ -91,6 +95,7 @@ func (p *PipelineSplitDb) RecordErrorLog(e PipelineErrorRecord) error {
 	if err != nil {
 		return apperror.WrapSimple(err, "record pipeline error log")
 	}
+
 	return nil
 }
 
@@ -101,6 +106,7 @@ func (p *PipelineSplitDb) HasErrorLog(runId uint64) bool {
 	if err != nil {
 		return false
 	}
+
 	return exists == 1
 }
 
@@ -108,6 +114,7 @@ func resolveLimit(limit int, fallback int) int {
 	if limit <= 0 {
 		return fallback
 	}
+
 	return limit
 }
 
@@ -121,7 +128,9 @@ func scanPipelineRun(rows *sql.Rows) (PipelineRunRecord, *apperror.AppError) {
 	if err != nil {
 		return r, apperror.WrapSimple(err, "scan pipeline run row")
 	}
+
 	r.IsSuccess = isSuccessInt == 1
+
 	return r, nil
 }
 
@@ -132,11 +141,14 @@ func collectRecentRuns(rows *sql.Rows) ([]PipelineRunRecord, error) {
 		if scanErr != nil {
 			return nil, scanErr
 		}
+
 		list = append(list, r)
 	}
+
 	if err := rows.Err(); err != nil {
 		return nil, apperror.WrapSimple(err, "iterate pipeline run rows")
 	}
+
 	return list, nil
 }
 
@@ -147,7 +159,9 @@ func (p *PipelineSplitDb) QueryRecentRuns(limit int) ([]PipelineRunRecord, error
 	if err != nil {
 		return nil, apperror.WrapSimple(err, "query recent runs")
 	}
+
 	defer rows.Close()
+
 	return collectRecentRuns(rows)
 }
 
@@ -157,6 +171,7 @@ func scanPipelineError(rows *sql.Rows) (PipelineErrorRecord, *apperror.AppError)
 	if err != nil {
 		return e, apperror.WrapSimple(err, "scan pipeline error log row")
 	}
+
 	return e, nil
 }
 
@@ -167,11 +182,14 @@ func collectRecentErrors(rows *sql.Rows) ([]PipelineErrorRecord, error) {
 		if scanErr != nil {
 			return nil, scanErr
 		}
+
 		list = append(list, e)
 	}
+
 	if err := rows.Err(); err != nil {
 		return nil, apperror.WrapSimple(err, "iterate pipeline error log rows")
 	}
+
 	return list, nil
 }
 
@@ -182,7 +200,9 @@ func (p *PipelineSplitDb) QueryRecentErrorLogs(limit int) ([]PipelineErrorRecord
 	if err != nil {
 		return nil, apperror.WrapSimple(err, "query recent error logs")
 	}
+
 	defer rows.Close()
+
 	return collectRecentErrors(rows)
 }
 
@@ -193,11 +213,13 @@ func (p *PipelineSplitDb) Clear() error {
 		"DELETE FROM PipelineErrorLog;",
 		"DELETE FROM PipelineSegment;",
 	}
+
 	for _, q := range queries {
 		if _, err := p.conn.Exec(q); err != nil {
 			return apperror.WrapSimple(err, "clear pipeline split db")
 		}
 	}
+
 	return nil
 }
 
@@ -208,11 +230,13 @@ func (p *PipelineSplitDb) Reset() error {
 		"DROP TABLE IF EXISTS PipelineErrorLog;",
 		"DROP TABLE IF EXISTS PipelineSegment;",
 	}
+
 	for _, q := range queries {
 		if _, err := p.conn.Exec(q); err != nil {
 			return apperror.WrapSimple(err, "reset pipeline split db")
 		}
 	}
+
 	return p.InitSchema()
 }
 
@@ -220,12 +244,15 @@ func (p *PipelineSplitDb) optimizePragmas() *apperror.AppError {
 	if _, err := p.conn.Exec("PRAGMA wal_checkpoint(TRUNCATE);"); err != nil {
 		return apperror.WrapSimple(err, "wal checkpoint pipeline db")
 	}
+
 	if _, err := p.conn.Exec("VACUUM;"); err != nil {
 		return apperror.WrapSimple(err, "vacuum pipeline db")
 	}
+
 	if _, err := p.conn.Exec("PRAGMA optimize;"); err != nil {
 		return apperror.WrapSimple(err, "optimize pipeline db")
 	}
+
 	return nil
 }
 
@@ -289,9 +316,11 @@ func (p *PipelineSplitDb) loadRunStatsCounts(stats *PipelineDbStats) *apperror.A
 	if stats.TotalRuns, err = countQuery(p.conn, "SELECT COUNT(*) FROM PipelineRun;"); err != nil {
 		return err
 	}
+
 	if stats.SuccessRuns, err = countQuery(p.conn, "SELECT COUNT(*) FROM PipelineRun WHERE IsSuccess = 1;"); err != nil {
 		return err
 	}
+
 	if stats.FailedRuns, err = countQuery(p.conn, "SELECT COUNT(*) FROM PipelineRun WHERE IsSuccess = 0;"); err != nil {
 		return err
 	}
@@ -303,10 +332,12 @@ func (p *PipelineSplitDb) loadStatsCounts(stats *PipelineDbStats) *apperror.AppE
 	if err := p.loadRunStatsCounts(stats); err != nil {
 		return err
 	}
+
 	var err *apperror.AppError
 	if stats.ErrorLogCount, err = countQuery(p.conn, "SELECT COUNT(*) FROM PipelineErrorLog;"); err != nil {
 		return err
 	}
+
 	if stats.SegmentCount, err = countQuery(p.conn, "SELECT COUNT(*) FROM PipelineSegment;"); err != nil {
 		return err
 	}
@@ -322,10 +353,12 @@ func (p *PipelineSplitDb) GetStats() (PipelineDbStats, error) {
 	if err := p.loadStatsCounts(&stats); err != nil {
 		return stats, err
 	}
+
 	lastUpdated, err := queryLastUpdated(p.conn)
 	if err != nil {
 		return stats, err
 	}
+
 	stats.LastUpdated = lastUpdated
 
 	return stats, nil
@@ -338,8 +371,10 @@ func collectRunIdList(rows *sql.Rows) ([]uint64, error) {
 		if err := rows.Scan(&id); err != nil {
 			return nil, apperror.WrapSimple(err, "scan cached run id")
 		}
+
 		list = append(list, id)
 	}
+
 	if err := rows.Err(); err != nil {
 		return nil, apperror.WrapSimple(err, "iterate cached run ids")
 	}
@@ -353,6 +388,7 @@ func (p *PipelineSplitDb) QueryCachedErrorRunIds() ([]uint64, error) {
 	if err != nil {
 		return nil, apperror.WrapSimple(err, "query cached error run ids")
 	}
+
 	defer rows.Close()
 
 	return collectRunIdList(rows)
@@ -364,6 +400,7 @@ func (p *PipelineSplitDb) QueryCachedErrorRunIdMap() (map[uint64]bool, error) {
 	if err != nil {
 		return nil, err
 	}
+
 	idMap := make(map[uint64]bool, len(ids))
 	for _, id := range ids {
 		idMap[id] = true
@@ -376,6 +413,7 @@ func normalizeNegativeOffset(offset int) int {
 	if offset < 0 {
 		offset = -offset
 	}
+
 	if offset > 0 {
 		return offset - 1
 	}
@@ -390,6 +428,7 @@ func (p *PipelineSplitDb) QueryRunByNegativeOffset(offset int) (*PipelineRunReco
 	if err != nil {
 		return nil, apperror.WrapSimple(err, "query run by offset")
 	}
+
 	defer rows.Close()
 	runs, err := collectRecentRuns(rows)
 	if err != nil || len(runs) == 0 {
@@ -411,6 +450,7 @@ func (p *PipelineSplitDb) QueryLastFailedRuns(limit int) ([]PipelineRunRecord, e
 	if err != nil {
 		return nil, apperror.WrapSimple(err, "query last failed runs")
 	}
+
 	defer rows.Close()
 
 	return collectRecentRuns(rows)
@@ -427,6 +467,7 @@ func (p *PipelineSplitDb) QueryErrorLogsByRunId(runId uint64) ([]PipelineErrorRe
 	if err != nil {
 		return nil, apperror.WrapSimple(err, "query error logs by run id")
 	}
+
 	defer rows.Close()
 
 	return collectRecentErrors(rows)

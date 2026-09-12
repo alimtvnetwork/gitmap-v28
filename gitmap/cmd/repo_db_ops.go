@@ -29,6 +29,7 @@ func handleRepoDBStatus(args []string) error {
 	if err != nil {
 		return err
 	}
+
 	defer db.Close()
 
 	var stats repoSplitStats
@@ -56,6 +57,7 @@ func handleRepoDBStatus(args []string) error {
 	fmt.Printf("  • %-20s %d\n", "Cached Searches:", stats.SearchCache)
 	fmt.Printf("  • %-20s %d\n", "File Sequences:", stats.FileSeqs)
 	fmt.Printf("  • %-20s %d\n", "Scan/Sync Logs:", stats.ScanLogs)
+
 	return nil
 }
 
@@ -64,13 +66,16 @@ func handleRepoDBLog(args []string) error {
 	if err != nil {
 		return err
 	}
+
 	defer db.Close()
 
 	rows, err := db.Query("SELECT Action, Status, COALESCE(Details, ''), CreatedAt FROM RepoScanLog ORDER BY RepoScanLogId DESC LIMIT 20;")
 	if err != nil {
 		fmt.Printf("No scan logs recorded in split database for %s.\n", slug)
+
 		return nil
 	}
+
 	defer rows.Close()
 
 	var logs []map[string]string
@@ -86,8 +91,10 @@ func handleRepoDBLog(args []string) error {
 	if hasArgFlag(args, "--json") {
 		return printJSON(logs)
 	}
+
 	if len(logs) == 0 {
 		fmt.Printf("No scan logs recorded in split database for %s.\n", slug)
+
 		return nil
 	}
 
@@ -97,7 +104,9 @@ func handleRepoDBLog(args []string) error {
 	for _, l := range logs {
 		fmt.Printf("    %-20s %-16s %-12s %s\n", l["createdAt"], l["action"], l["status"], l["details"])
 	}
+
 	fmt.Println()
+
 	return nil
 }
 
@@ -106,13 +115,16 @@ func handleRepoDBErrorLogs(args []string) error {
 	if err != nil {
 		return err
 	}
+
 	defer db.Close()
 
 	rows, err := db.Query("SELECT Action, Status, COALESCE(ErrorMessage, ''), CreatedAt FROM RepoScanLog WHERE Status = 'failure' OR ErrorMessage IS NOT NULL ORDER BY RepoScanLogId DESC LIMIT 20;")
 	if err != nil {
 		fmt.Printf("No error logs found in split database for %s.\n", slug)
+
 		return nil
 	}
+
 	defer rows.Close()
 
 	var errs []map[string]string
@@ -128,8 +140,10 @@ func handleRepoDBErrorLogs(args []string) error {
 	if hasArgFlag(args, "--json") {
 		return printJSON(errs)
 	}
+
 	if len(errs) == 0 {
 		fmt.Printf("No error logs recorded in split database for %s.\n", slug)
+
 		return nil
 	}
 
@@ -137,7 +151,9 @@ func handleRepoDBErrorLogs(args []string) error {
 	for _, e := range errs {
 		fmt.Printf("    [%s] Action: %s | Status: %s\n      Error: %s\n", e["createdAt"], e["action"], e["status"], e["error"])
 	}
+
 	fmt.Println()
+
 	return nil
 }
 
@@ -146,18 +162,22 @@ func handleRepoDBClear(args []string) error {
 	if err != nil {
 		return err
 	}
+
 	defer db.Close()
 
 	msg := fmt.Sprintf("Clear search index and cache for %s? [y/N]: ", slug)
 	if !confirmOrSkip(msg, args) {
 		fmt.Println("Clear operation canceled.")
+
 		return nil
 	}
 
 	if err := repodb.ClearRepoDB(context.Background(), db); err != nil {
 		return err
 	}
+
 	fmt.Printf("%s✓ Repository split database cleared for %s.%s\n", constants.ColorGreen, slug, constants.ColorReset)
+
 	return nil
 }
 
@@ -166,18 +186,22 @@ func handleRepoDBReset(args []string) error {
 	if err != nil {
 		return err
 	}
+
 	defer db.Close()
 
 	msg := fmt.Sprintf("Reset repository schema for %s? [y/N]: ", slug)
 	if !confirmOrSkip(msg, args) {
 		fmt.Println("Reset operation canceled.")
+
 		return nil
 	}
 
 	if err := repodb.ResetRepoDB(context.Background(), db); err != nil {
 		return err
 	}
+
 	fmt.Printf("%s✓ Repository split database schema reset for %s.%s\n", constants.ColorGreen, slug, constants.ColorReset)
+
 	return nil
 }
 
@@ -186,14 +210,17 @@ func handleRepoDBOptimize(args []string) error {
 	if err != nil {
 		return err
 	}
+
 	defer db.Close()
 
 	reclaimed, err := repodb.OptimizeRepoDB(context.Background(), db, path)
 	if err != nil {
 		return err
 	}
+
 	fmt.Printf("%s✓ Repository split DB optimized for %s.%s Reclaimed: %s (%s)\n",
 		constants.ColorGreen, slug, constants.ColorReset, formatBytes(reclaimed), path)
+
 	return nil
 }
 
@@ -202,11 +229,13 @@ func lookupRepoID(cwd string) int64 {
 	if err != nil {
 		return 1
 	}
+
 	defer mainDB.Close()
 	id, findErr := mainDB.GetRepoIDByPath(cwd)
 	if findErr != nil || id <= 0 {
 		return 1
 	}
+
 	return id
 }
 
@@ -221,6 +250,7 @@ func resolveCurrentRepoSplitDB() (*sql.DB, string, int64, string, error) {
 	if openErr != nil {
 		return nil, "", 0, "", openErr
 	}
+
 	return db, dbPath, repoID, slug, nil
 }
 

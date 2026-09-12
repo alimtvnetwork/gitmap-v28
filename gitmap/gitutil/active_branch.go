@@ -13,9 +13,11 @@ func GetActiveBranch(repoPath string) string {
 	if err != nil {
 		return "-"
 	}
+
 	branch := strings.TrimSpace(string(out))
 	if branch == "HEAD" {
 		return "(detached)"
 	}
+
 	return branch
 }

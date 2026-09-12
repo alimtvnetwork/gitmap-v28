@@ -17,11 +17,13 @@ func setupInstallerRevertTestDB(t *testing.T) *store.DB {
 	if err != nil {
 		t.Fatalf("failed to open test database: %v", err)
 	}
+
 	t.Cleanup(func() { db.Close() })
 
 	if errMigrate := db.MigrateInstallers(); errMigrate != nil {
 		t.Fatalf("failed to migrate installers: %v", errMigrate)
 	}
+
 	return db
 }
 
@@ -37,6 +39,7 @@ func TestInstallerRevertCmd(t *testing.T) {
 		TargetOS: "win",
 		Version:  "v2.0.0",
 	}
+
 	if errCreate := db.CreateInstaller(script); errCreate != nil {
 		t.Fatalf("failed to seed script: %v", errCreate)
 	}
@@ -45,9 +48,11 @@ func TestInstallerRevertCmd(t *testing.T) {
 	if errUndo := executeRevertAction(ctx, db, "undo", "revert-app", ""); errUndo != nil {
 		t.Fatalf("executeRevertAction undo failed: %v", errUndo)
 	}
+
 	if errRedo := executeRevertAction(ctx, db, "redo", "revert-app", ""); errRedo != nil {
 		t.Fatalf("executeRevertAction redo failed: %v", errRedo)
 	}
+
 	if errRevert := executeRevertAction(ctx, db, "revert", "revert-app", "v1.0.0"); errRevert != nil {
 		t.Fatalf("executeRevertAction revert failed: %v", errRevert)
 	}

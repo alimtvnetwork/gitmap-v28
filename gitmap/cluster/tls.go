@@ -42,6 +42,7 @@ func GenerateTLSConfig() (*tls.Config, error) {
 	if err != nil {
 		return nil, err
 	}
+
 	keyPEM := pem.EncodeToMemory(&pem.Block{Type: "EC PRIVATE KEY", Bytes: privBytes})
 
 	cert, err := tls.X509KeyPair(certPEM, keyPEM)

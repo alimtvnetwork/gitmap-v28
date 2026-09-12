@@ -20,7 +20,6 @@ import (
 func startupFolderDir() (string, error) {
 	roaming := os.Getenv("APPDATA")
 	if len(roaming) == 0 {
-
 		return "", fmt.Errorf("APPDATA env var is empty")
 	}
 

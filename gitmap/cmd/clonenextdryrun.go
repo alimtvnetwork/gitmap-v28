@@ -44,6 +44,7 @@ func previewDryRunBatch(csvPath string, walkAll bool) {
 	if err != nil {
 		return
 	}
+
 	fmt.Print(constants.MsgCloneNextDryRunHeader)
 	count := emitDryRunRows(repos)
 	fmt.Printf(constants.MsgCloneNextDryRunFooter, count)
@@ -63,6 +64,7 @@ func emitDryRunRows(repos []string) int {
 				filepath.Base(repoPath))
 			continue
 		}
+
 		fmt.Printf(constants.MsgCloneNextDryRunCmd,
 			constants.GitBin, constants.GitClone, url, dest)
 		count++
@@ -80,14 +82,17 @@ func resolveDryRunTarget(repoPath string) (url, dest string, ok bool) {
 	if err != nil {
 		return "", "", false
 	}
+
 	target, err := clonenext.ResolveTarget(parsed, "v++")
 	if err != nil {
 		return "", "", false
 	}
+
 	state, err := clonenext.ReadLocalRepoState(repoPath)
 	if err != nil || len(state.OriginURL) == 0 {
 		return "", "", false
 	}
+
 	dest = filepath.Join(filepath.Dir(repoPath),
 		fmt.Sprintf("%s-v%d", parsed.BaseName, target))
 

@@ -27,10 +27,12 @@ func parsePromptMarkdown(content string) PromptTemplate {
 	hasFrontmatter := len(lines) > 2 && strings.TrimSpace(lines[0]) == "---"
 	if !hasFrontmatter {
 		pt.Body = strings.TrimSpace(content)
+
 		return finalizePromptTemplate(pt)
 	}
 
 	parseFrontmatterLines(lines, &pt)
+
 	return finalizePromptTemplate(pt)
 }
 

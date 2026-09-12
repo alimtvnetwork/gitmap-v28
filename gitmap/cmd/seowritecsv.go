@@ -36,6 +36,7 @@ func readCSVFile(path string) [][]string {
 	if err != nil {
 		cliexit.HandleError(apperror.NewSimple(constants.ErrSEOCSVRead, "E9000"), 1)
 	}
+
 	defer f.Close()
 
 	records, err := csv.NewReader(f).ReadAll()
@@ -56,6 +57,7 @@ func csvToMessages(records [][]string) []commitMessage {
 		if len(row) < 2 {
 			continue
 		}
+
 		messages = append(messages, commitMessage{
 			title:       row[0],
 			description: row[1],

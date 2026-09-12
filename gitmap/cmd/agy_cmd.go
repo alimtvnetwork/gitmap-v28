@@ -20,16 +20,21 @@ func dispatchAgy(ctx context.Context, args []string, root *cobra.Command) error 
 	if len(args) > 0 && (args[0] == "agy" || args[0] == "ag" || args[0] == "antigravity") {
 		args = args[1:]
 	}
+
 	if len(args) > 0 {
 		args[0] = normalizeAgySubcommand(args[0])
 	}
+
 	if len(args) > 0 && isAgyFindDuplicatesArg(args[0]) {
 		return runFindDuplicates("agy", args[1:])
 	}
+
 	if isAgyLsEmptyConvsArg(args) {
 		return runAgyLsEmptyConvs(args[1:])
 	}
+
 	AgyCmd.SetArgs(args)
+
 	return AgyCmd.ExecuteContext(ctx)
 }
 
@@ -38,24 +43,31 @@ func normalizeAgySubcommand(sub string) string {
 	if isCureDupsAlias(low) {
 		return "optimize-projects"
 	}
+
 	if isRemoveMissingAlias(low) {
 		return "remove-missing-projects"
 	}
+
 	if isReadMemoryAlias(low) {
 		return "all-projects-read-memory-prompt"
 	}
+
 	if low == "reconcile" || low == "recon" || low == "reconcile-projects" {
 		return "reconcile"
 	}
+
 	if low == "find-duplicate-projects" || low == "fdp" {
 		return "find-duplicate-projects"
 	}
+
 	if low == "pin-projects" || low == "pin-project" || low == "pinned-projects" || low == "pinned" || low == "pins" {
 		return "pin-projects"
 	}
+
 	if low == "install" || low == "in" || low == "i" {
 		return "install"
 	}
+
 	return sub
 }
 
@@ -77,6 +89,7 @@ func isReadMemoryAlias(low string) bool {
 
 func isAgyFindDuplicatesArg(sub string) bool {
 	low := strings.ToLower(sub)
+
 	return low == "find-duplicates" || low == "duplicates" || low == "dups" || low == "find-dups"
 }
 
@@ -84,17 +97,21 @@ func isAgyLsEmptyConvsArg(args []string) bool {
 	if len(args) == 0 {
 		return false
 	}
+
 	if args[0] == "show-projects-with-empty-conversations" || args[0] == "show-proects-with-empty-conversations" {
 		return true
 	}
+
 	if args[0] == "ls" && len(args) > 1 {
 		sub := strings.ToLower(args[1])
+
 		return sub == "show-projects-with-empty-conversations" ||
 			sub == "show-proects-with-empty-conversations" ||
 			sub == "empty-conversations" ||
 			sub == "--empty-conversations" ||
 			sub == "empty-convs"
 	}
+
 	return false
 }
 
@@ -138,10 +155,12 @@ func getProjectsDirPath() (string, error) {
 	if homeErr != nil {
 		return "", homeErr
 	}
+
 	return filepath.Join(homeDir, ".gemini", "config", "projects"), nil
 }
 
 func ensureDirExists(dirPath string) bool {
 	mkErr := os.MkdirAll(dirPath, 0755)
+
 	return mkErr == nil
 }

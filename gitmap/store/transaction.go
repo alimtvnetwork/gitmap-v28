@@ -83,6 +83,7 @@ func (db *DB) ListTransactions(limit int) ([]model.TransactionRecord, error) {
 	if err != nil {
 		return nil, fmt.Errorf("transaction list: %w", err)
 	}
+
 	defer rows.Close()
 
 	return scanTransactionRows(rows)
@@ -94,6 +95,7 @@ func (db *DB) ListTransactionFiles(txnID int64) ([]model.TransactionFileRecord, 
 	if err != nil {
 		return nil, fmt.Errorf("transaction files: %w", err)
 	}
+
 	defer rows.Close()
 
 	return scanTransactionFileRows(rows)
@@ -107,6 +109,7 @@ func (db *DB) LastCommittedTransactionID() (int64, error) {
 	if errors.Is(err, sql.ErrNoRows) {
 		return 0, nil
 	}
+
 	if err != nil {
 		return 0, fmt.Errorf("transaction last-committed: %w", err)
 	}
@@ -121,6 +124,7 @@ func (db *DB) PruneOldestTransactions(cap int) ([]int64, error) {
 	if err != nil {
 		return nil, fmt.Errorf("transaction prune list: %w", err)
 	}
+
 	ids, err := collectInt64Column(rows)
 	if err != nil {
 		return nil, err
@@ -172,9 +176,11 @@ func scanTransactionRow(row *sql.Row) (model.TransactionRecord, error) {
 	if errors.Is(err, sql.ErrNoRows) {
 		return r, ErrTransactionNotFound
 	}
+
 	if err != nil {
 		return r, fmt.Errorf("transaction scan: %w", err)
 	}
+
 	r.CommittedAt = nullInt(committed)
 	r.RevertedAt = nullInt(reverted)
 
@@ -189,6 +195,7 @@ func scanTransactionRows(rows *sql.Rows) ([]model.TransactionRecord, error) {
 		if err != nil {
 			return nil, err
 		}
+
 		out = append(out, r)
 	}
 
@@ -205,6 +212,7 @@ func scanOneTxnFromRows(rows *sql.Rows) (model.TransactionRecord, error) {
 	if err != nil {
 		return r, fmt.Errorf("transaction scan: %w", err)
 	}
+
 	r.CommittedAt = nullInt(committed)
 	r.RevertedAt = nullInt(reverted)
 
@@ -221,6 +229,7 @@ func scanTransactionFileRows(rows *sql.Rows) ([]model.TransactionFileRecord, err
 		if err != nil {
 			return nil, fmt.Errorf("transaction file scan: %w", err)
 		}
+
 		out = append(out, r)
 	}
 
@@ -236,6 +245,7 @@ func collectInt64Column(rows *sql.Rows) ([]int64, error) {
 		if err := rows.Scan(&id); err != nil {
 			return nil, fmt.Errorf("transaction id scan: %w", err)
 		}
+
 		ids = append(ids, id)
 	}
 

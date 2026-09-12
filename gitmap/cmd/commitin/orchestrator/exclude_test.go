@@ -16,11 +16,13 @@ func TestApplyExclusions_FiltersFolderAndFile(t *testing.T) {
 		"README.md",
 		"docs/secret.md",
 	}
+
 	rules := []profile.Exclusion{
 		{Kind: constants.CommitInExclusionKindPathFolder, Value: "vendor"},
 		{Kind: constants.CommitInExclusionKindPathFolder, Value: "node_modules"},
 		{Kind: constants.CommitInExclusionKindPathFile, Value: "docs/secret.md"},
 	}
+
 	got := applyExclusions(files, rules)
 	want := []string{"src/main.go", "README.md"}
 	if !reflect.DeepEqual(got, want) {
@@ -40,6 +42,7 @@ func TestApplyExclusions_FolderMatchesNestedSegment(t *testing.T) {
 	rules := []profile.Exclusion{
 		{Kind: constants.CommitInExclusionKindPathFolder, Value: "dist"},
 	}
+
 	got := applyExclusions([]string{"pkg/dist/out.js", "pkg/src/in.js"}, rules)
 	want := []string{"pkg/src/in.js"}
 	if !reflect.DeepEqual(got, want) {
@@ -51,6 +54,7 @@ func TestApplyExclusions_FileExactMatchOnly(t *testing.T) {
 	rules := []profile.Exclusion{
 		{Kind: constants.CommitInExclusionKindPathFile, Value: "config.json"},
 	}
+
 	got := applyExclusions([]string{"config.json", "src/config.json"}, rules)
 	want := []string{"src/config.json"}
 	if !reflect.DeepEqual(got, want) {

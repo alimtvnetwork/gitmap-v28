@@ -32,6 +32,7 @@ func parse(lines []string) []block {
 	for i < len(lines) {
 		out, i = parseNextBlock(lines, i, out)
 	}
+
 	return out
 }
 
@@ -39,14 +40,18 @@ func parseNextBlock(lines []string, i int, out []block) ([]block, int) {
 	line := lines[i]
 	if isFence(line) {
 		body, next := readFence(lines, i)
+
 		return appendFence(out, body), next
 	}
+
 	if isHeading(line) {
 		return parseHeadingAndSubtitle(lines, i, out)
 	}
+
 	if strings.TrimSpace(line) == "" {
 		return append(out, block{kind: bkBlank}), i + 1
 	}
+
 	return parseCodeOrText(lines, i, out)
 }
 
@@ -54,13 +59,18 @@ func parseCodeOrText(lines []string, i int, out []block) ([]block, int) {
 	line := lines[i]
 	if isListItem(line) {
 		items, next := readList(lines, i)
+
 		return append(out, block{kind: bkList, lines: items}), next
 	}
+
 	if isIndentedCode(line) {
 		body, next := readIndentedCode(lines, i)
+
 		return append(out, block{kind: bkFence, lines: body}), next
 	}
+
 	para, next := readParagraph(lines, i)
+
 	return append(out, block{kind: bkParagraph, text: para}), next
 }
 
@@ -70,8 +80,10 @@ func parseHeadingAndSubtitle(lines []string, i int, out []block) ([]block, int) 
 	sub, next := peekSubtitle(lines, i+1)
 	if next > 0 {
 		out = append(out, block{kind: bkSubtitle, text: sub})
+
 		return out, next
 	}
+
 	return out, i + 1
 }
 
@@ -82,9 +94,11 @@ func peekSubtitle(lines []string, start int) (string, int) {
 	if j < len(lines) && strings.TrimSpace(lines[j]) == "" {
 		j++
 	}
+
 	if j < len(lines) && isItalic(lines[j]) {
 		return stripItalic(lines[j]), j + 1
 	}
+
 	return "", 0
 }
 
@@ -99,8 +113,10 @@ func appendFence(out []block, body []string) []block {
 			kind: bkParagraph,
 			text: TokYellowOpen + collapseArrow + strings.Join(body, " ") + TokYellowClose,
 		}
+
 		return out
 	}
+
 	return append(out, block{kind: bkFence, lines: body})
 }
 
@@ -110,6 +126,7 @@ func lastNonBlank(bs []block) int {
 			return i
 		}
 	}
+
 	return -1
 }
 
@@ -122,9 +139,11 @@ func readFence(lines []string, start int) ([]string, int) {
 		body = append(body, lines[i])
 		i++
 	}
+
 	if i < len(lines) {
 		i++ // consume closing fence
 	}
+
 	return body, i
 }
 
@@ -138,9 +157,11 @@ func readParagraph(lines []string, start int) (string, int) {
 			isListItem(line) || isIndentedCode(line) {
 			break
 		}
+
 		buf = append(buf, line)
 		i++
 	}
+
 	return strings.Join(buf, " "), i
 }
 
@@ -150,6 +171,7 @@ func isFence(line string) bool {
 
 func isHeading(line string) bool {
 	t := strings.TrimLeft(line, " ")
+
 	return strings.HasPrefix(t, "# ") || strings.HasPrefix(t, "## ") ||
 		strings.HasPrefix(t, "### ") || strings.HasPrefix(t, "#### ") ||
 		strings.HasPrefix(t, "##### ") || strings.HasPrefix(t, "###### ")
@@ -161,6 +183,7 @@ func headingDepth(line string) int {
 	for depth < len(t) && t[depth] == '#' {
 		depth++
 	}
+
 	return depth
 }
 
@@ -169,6 +192,7 @@ func isItalic(line string) bool {
 	if len(t) < 3 {
 		return false
 	}
+
 	return (strings.HasPrefix(t, "*") && strings.HasSuffix(t, "*") &&
 		!strings.HasPrefix(t, "**")) ||
 		(strings.HasPrefix(t, "_") && strings.HasSuffix(t, "_") &&
@@ -181,6 +205,7 @@ func stripItalic(line string) string {
 	t = strings.TrimPrefix(t, "_")
 	t = strings.TrimSuffix(t, "*")
 	t = strings.TrimSuffix(t, "_")
+
 	return t
 }
 
@@ -197,6 +222,7 @@ func isListItem(line string) bool {
 	if strings.HasPrefix(t, "- ") || strings.HasPrefix(t, "* ") {
 		return true
 	}
+
 	return strings.HasPrefix(t, "|")
 }
 
@@ -208,6 +234,7 @@ func readList(lines []string, start int) ([]string, int) {
 		out = append(out, lines[i])
 		i++
 	}
+
 	return out, i
 }
 
@@ -220,6 +247,7 @@ func isIndentedCode(line string) bool {
 	if !strings.HasPrefix(line, indentCodePrefix) {
 		return false
 	}
+
 	return strings.TrimSpace(line) != ""
 }
 
@@ -245,5 +273,6 @@ func readIndentedCode(lines []string, start int) ([]string, int) {
 			return body, i
 		}
 	}
+
 	return body, i
 }

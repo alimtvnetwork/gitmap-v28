@@ -28,13 +28,16 @@ func Revert(db *store.DB, id int64, opts RevertOptions) error {
 	if err != nil {
 		return wrapNotFound(id, err)
 	}
+
 	if err := assertCommitted(row); err != nil {
 		return err
 	}
+
 	files, err := db.ListTransactionFiles(id)
 	if err != nil {
 		return err
 	}
+
 	if err := applyAllReverses(files, opts); err != nil {
 		return err
 	}
@@ -88,6 +91,7 @@ func reverseRename(f model.TransactionFileRecord) error {
 	if err := os.MkdirAll(filepath.Dir(f.BackupPath), 0o755); err != nil {
 		return fmt.Errorf("transaction revert mkdir: %w", err)
 	}
+
 	if err := os.Rename(f.AbsPath, f.BackupPath); err != nil {
 		return fmt.Errorf("transaction revert rename %q→%q: %w",
 			f.AbsPath, f.BackupPath, err)
@@ -101,6 +105,7 @@ func reverseRestore(f model.TransactionFileRecord, opts RevertOptions) error {
 	if err := assertBackupSha(f, opts); err != nil {
 		return err
 	}
+
 	if err := os.MkdirAll(filepath.Dir(f.AbsPath), 0o755); err != nil {
 		return fmt.Errorf("transaction revert mkdir: %w", err)
 	}
@@ -113,10 +118,12 @@ func assertBackupSha(f model.TransactionFileRecord, opts RevertOptions) error {
 	if opts.Force || len(f.Sha256) == 0 {
 		return nil
 	}
+
 	got, err := hashFile(f.BackupPath)
 	if err != nil {
 		return fmt.Errorf(constants.ErrTxnBackupMissing, f.TransactionID, f.BackupPath)
 	}
+
 	if got != f.Sha256 {
 		return fmt.Errorf(constants.ErrTxnBackupShaDrift, f.TransactionID, f.BackupPath)
 	}
@@ -130,6 +137,7 @@ func hashFile(path string) (string, error) {
 	if err != nil {
 		return "", err
 	}
+
 	defer in.Close()
 	h := sha256.New()
 	if _, err := io.Copy(h, in); err != nil {
@@ -145,11 +153,13 @@ func copyFile(src, dst string) error {
 	if err != nil {
 		return fmt.Errorf("transaction revert open: %w", err)
 	}
+
 	defer in.Close()
 	out, err := os.Create(dst)
 	if err != nil {
 		return fmt.Errorf("transaction revert create: %w", err)
 	}
+
 	defer out.Close()
 	if _, err := io.Copy(out, in); err != nil {
 		return fmt.Errorf("transaction revert copy: %w", err)

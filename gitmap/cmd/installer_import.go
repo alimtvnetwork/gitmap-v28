@@ -53,6 +53,7 @@ func parseInstallerImportFlags(args []string) (*ImportInstallerFlags, error) {
 	if err := fs.Parse(flagArgs); err != nil {
 		appErr := apperror.Wrap(err, "parseImportFlags", map[string]any{"args": args})
 		appErr.Code = "E_INSTALLER_INVALID_FLAGS"
+
 		return nil, appErr
 	}
 
@@ -60,6 +61,7 @@ func parseInstallerImportFlags(args []string) (*ImportInstallerFlags, error) {
 	if targetPath == "" && len(positional) > 0 {
 		targetPath = positional[0]
 	}
+
 	if targetPath == "" {
 		targetPath = "gitmap-export.zip"
 	}
@@ -75,13 +77,16 @@ func importSingleJSON(db *store.DB, r io.Reader) error {
 	if err := json.NewDecoder(r).Decode(&script); err != nil {
 		return err
 	}
+
 	if script.Slug == "" {
 		script.Slug = slugify(script.Name)
 	}
+
 	existing, _ := db.GetInstallerBySlug(script.Slug)
 	if existing != nil {
 		return nil
 	}
+
 	return db.CreateInstaller(&script)
 }
 
@@ -99,6 +104,7 @@ func executeInstallerImport(ctx context.Context, db *store.DB, flags *ImportInst
 	if _, err := os.Stat(flags.InputPath); err != nil {
 		appErr := apperror.Wrap(err, "executeImport", map[string]any{"path": flags.InputPath})
 		appErr.Code = "E_INSTALLER_FILE_NOT_FOUND"
+
 		return appErr
 	}
 
@@ -114,7 +120,9 @@ func importFromJSONFile(db *store.DB, path string) error {
 	if err != nil {
 		return err
 	}
+
 	defer f.Close()
+
 	return importSingleJSON(db, f)
 }
 
@@ -123,8 +131,10 @@ func importFromZipArchive(path string, db *store.DB) error {
 	if errZip != nil {
 		appErr := apperror.Wrap(errZip, "executeImport", map[string]any{"path": path})
 		appErr.Code = "E_INSTALLER_IMPORT_FAILED"
+
 		return appErr
 	}
+
 	defer zr.Close()
 
 	count := 0
@@ -135,6 +145,7 @@ func importFromZipArchive(path string, db *store.DB) error {
 	}
 
 	fmt.Printf("Successfully imported %d installer script(s) from %s.\n", count, path)
+
 	return nil
 }
 
@@ -142,11 +153,14 @@ func importZipEntry(db *store.DB, file *zip.File) bool {
 	if !strings.HasSuffix(strings.ToLower(file.Name), ".json") {
 		return false
 	}
+
 	rc, err := file.Open()
 	if err != nil {
 		return false
 	}
+
 	defer rc.Close()
+
 	return importSingleJSON(db, rc) == nil
 }
 
@@ -165,13 +179,16 @@ func runInstallerImport(cmd *cobra.Command, args []string) error {
 	if errDB != nil {
 		appErr := apperror.Wrap(errDB, "runInstallerImport", map[string]any{"action": "open_db"})
 		appErr.Code = "E_INSTALLER_DB_ERROR"
+
 		return appErr
 	}
+
 	defer db.Close()
 
 	if errMigrate := db.MigrateInstallers(); errMigrate != nil {
 		appErr := apperror.Wrap(errMigrate, "runInstallerImport", map[string]any{"action": "migrate_installers"})
 		appErr.Code = "E_INSTALLER_DB_ERROR"
+
 		return appErr
 	}
 

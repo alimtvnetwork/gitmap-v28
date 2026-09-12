@@ -73,6 +73,7 @@ func writeVSCodePMSyncSeed(t *testing.T, jsonPath, repoDir string) {
 	if err != nil {
 		t.Fatalf("marshal seed: %v", err)
 	}
+
 	if err := os.WriteFile(jsonPath, data, 0o644); err != nil {
 		t.Fatalf("write seed: %v", err)
 	}
@@ -122,6 +123,7 @@ func setupVSCodePMSyncFixtureWithTags(t *testing.T, seedTags []string) (string, 
 	if err != nil {
 		t.Fatalf("marshal seed: %v", err)
 	}
+
 	if err := os.WriteFile(jsonPath, data, 0o644); err != nil {
 		t.Fatalf("write seed: %v", err)
 	}

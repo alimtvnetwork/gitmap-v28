@@ -80,6 +80,7 @@ func mockGitForTest() func() {
 	gitCmdRunner = func(args ...string) error {
 		return errors.New("mock git execution disabled in tests")
 	}
+
 	gitCombinedRunner = func(args ...string) (string, error) {
 		return "", errors.New("mock git execution disabled in tests")
 	}

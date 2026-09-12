@@ -15,10 +15,12 @@ func swapIPWindows(ctx context.Context, interfaceName string, newIP string) erro
 	if interfaceName == "" {
 		interfaceName = "Ethernet"
 	}
+
 	cmd := netshExecutor(ctx, "netsh", "interface", "ip", "set", "address", "name="+interfaceName, "static", newIP, "255.255.255.0")
 	if err := cmd.Run(); err != nil {
 		return apperror.Wrap(err, "swapIPWindows", map[string]any{"interface": interfaceName})
 	}
+
 	return nil
 }
 

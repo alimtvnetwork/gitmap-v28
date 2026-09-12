@@ -36,9 +36,11 @@ func setupTestLegacyDirs(t *testing.T, cliDir, legacyDir string) {
 	if err := os.MkdirAll(cliDir, 0o755); err != nil {
 		t.Fatal(err)
 	}
+
 	if err := os.MkdirAll(legacyDir, 0o755); err != nil {
 		t.Fatal(err)
 	}
+
 	createTestFile(t, filepath.Join(cliDir, "gitmap.exe"))
 	createTestFile(t, filepath.Join(legacyDir, "gitmap.exe"))
 	createTestFile(t, filepath.Join(legacyDir, "gitmap.ps1"))
@@ -58,9 +60,11 @@ func assertLegacyCleanupResult(t *testing.T, removed int, legacyDir, selfPath st
 	if removed != 2 {
 		t.Errorf("expected 2 removed files, got %d", removed)
 	}
+
 	if _, err := os.Stat(filepath.Join(legacyDir, "gitmap.exe")); !os.IsNotExist(err) {
 		t.Errorf("expected legacy binary to be deleted")
 	}
+
 	if _, err := os.Stat(selfPath); err != nil {
 		t.Errorf("expected active binary to remain, err: %v", err)
 	}

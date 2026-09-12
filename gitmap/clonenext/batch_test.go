@@ -21,9 +21,11 @@ func TestLoadBatchFromCSV_HeaderlessSinglePath(t *testing.T) {
 	if err != nil {
 		t.Fatalf("LoadBatchFromCSV: %v", err)
 	}
+
 	if len(got) != 1 {
 		t.Fatalf("got %d rows, want 1", len(got))
 	}
+
 	if !strings.HasSuffix(got[0], "my-repo") {
 		t.Errorf("got %q, want suffix %q", got[0], "my-repo")
 	}
@@ -38,6 +40,7 @@ func TestLoadBatchFromCSV_WithHeaderAndExtraColumns(t *testing.T) {
 	if err != nil {
 		t.Fatalf("LoadBatchFromCSV: %v", err)
 	}
+
 	if len(got) != 2 {
 		t.Fatalf("got %d rows, want 2", len(got))
 	}
@@ -52,9 +55,11 @@ func TestLoadBatchFromCSV_NamedPathColumnNotFirst(t *testing.T) {
 	if err != nil {
 		t.Fatalf("LoadBatchFromCSV: %v", err)
 	}
+
 	if len(got) != 2 {
 		t.Fatalf("got %d rows, want 2", len(got))
 	}
+
 	if !strings.HasSuffix(got[0], "alpha-dir") {
 		t.Errorf("row 0 = %q, want suffix alpha-dir", got[0])
 	}
@@ -86,6 +91,7 @@ func TestLoadBatchFromCSV_BOMStripped(t *testing.T) {
 	if err != nil {
 		t.Fatalf("LoadBatchFromCSV (BOM): %v", err)
 	}
+
 	if len(got) != 1 {
 		t.Fatalf("got %d rows, want 1 (BOM header was not recognized?)", len(got))
 	}
@@ -100,6 +106,7 @@ func TestLoadBatchFromCSV_WindowsCRLF(t *testing.T) {
 	if err != nil {
 		t.Fatalf("LoadBatchFromCSV (CRLF): %v", err)
 	}
+
 	if len(got) != 2 {
 		t.Fatalf("got %d rows, want 2", len(got))
 	}
@@ -115,6 +122,7 @@ func TestLoadBatchFromCSV_BareCR(t *testing.T) {
 	if err != nil {
 		t.Fatalf("LoadBatchFromCSV (bare CR): %v", err)
 	}
+
 	if len(got) != 2 {
 		t.Fatalf("got %d rows, want 2 (bare CR not normalized?)", len(got))
 	}
@@ -134,6 +142,7 @@ func TestLoadBatchFromCSV_MissingOptionalColumns(t *testing.T) {
 	if err != nil {
 		t.Fatalf("LoadBatchFromCSV (ragged): %v", err)
 	}
+
 	if len(got) != 3 {
 		t.Fatalf("got %d rows, want 3", len(got))
 	}
@@ -149,6 +158,7 @@ func TestLoadBatchFromCSV_PathColumnMissedInShortRow(t *testing.T) {
 	if err != nil {
 		t.Fatalf("LoadBatchFromCSV: %v", err)
 	}
+
 	// beta row is too short to have a path — should be silently skipped.
 	if len(got) != 1 {
 		t.Fatalf("got %d rows, want 1 (short row should have been skipped)", len(got))
@@ -171,9 +181,11 @@ func TestWalkBatchFromDir_OnlyGitDirsIncluded(t *testing.T) {
 	if err != nil {
 		t.Fatalf("WalkBatchFromDir: %v", err)
 	}
+
 	if len(got) != 2 {
 		t.Fatalf("got %d repos, want 2", len(got))
 	}
+
 	if !strings.HasSuffix(got[0], "alpha") || !strings.HasSuffix(got[1], "zeta") {
 		t.Errorf("got %v, want sorted [alpha, zeta]", got)
 	}

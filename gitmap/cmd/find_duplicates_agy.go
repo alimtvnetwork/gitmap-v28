@@ -11,21 +11,28 @@ func runFindDuplicatesAgy() error {
 	dirPath, err := getProjectsDirPath()
 	if err != nil {
 		fmt.Println("  " + constants.ColorYellow + "Antigravity config directory not found." + constants.ColorReset)
+
 		return nil
 	}
+
 	projects, err := loadAllAgyProjects(dirPath)
 	if err != nil || len(projects) == 0 {
 		fmt.Println("  " + constants.ColorDim + "No Antigravity projects configured." + constants.ColorReset)
+
 		return nil
 	}
+
 	dupGroups := groupAgyDuplicates(projects)
 	if len(dupGroups) == 0 {
 		fmt.Printf("  %s✓ Antigravity (AGY): No duplicate projects found. Total active: %d%s\n\n",
 			constants.ColorGreen, len(projects), constants.ColorReset)
+
 		return nil
 	}
+
 	printAgyDupFindings(dupGroups)
 	printAgyRemediations(dupGroups)
+
 	return nil
 }
 
@@ -37,6 +44,7 @@ func groupAgyDuplicates(projects []AgyProject) map[string][]AgyProject {
 			dupGroups[path] = list
 		}
 	}
+
 	return dupGroups
 }
 
@@ -47,6 +55,7 @@ func printAgyDupFindings(dupGroups map[string][]AgyProject) {
 	for _, list := range dupGroups {
 		totalDups += len(list) - 1
 	}
+
 	fmt.Printf("  Found %s%d%s duplicate project group(s) (%s%d%s duplicate entries total):\n\n",
 		constants.ColorWhite, len(dupGroups), constants.ColorReset,
 		constants.ColorYellow, totalDups, constants.ColorReset)
@@ -59,6 +68,7 @@ func printAgyDupFindings(dupGroups map[string][]AgyProject) {
 		for _, p := range list {
 			fmt.Printf("    %-38s %-22s %s\n", p.ID, truncateStr(p.Name, 21), truncateStr(p.UpdatedAt, 20))
 		}
+
 		fmt.Println()
 		groupNum++
 	}
@@ -73,6 +83,7 @@ func printAgyRemediations(dupGroups map[string][]AgyProject) {
 			break
 		}
 	}
+
 	fmt.Println("  " + constants.ColorCyan + "Remediation & Fix Commands for Antigravity:" + constants.ColorReset)
 	fmt.Println("  " + strings.Repeat("─", 74))
 	fmt.Printf("  ● Fix Single (Delete specific duplicate project ID):\n")

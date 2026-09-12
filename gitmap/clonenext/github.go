@@ -25,17 +25,20 @@ func RepoExists(owner, repo string) (bool, error) {
 	if len(token) > 0 {
 		req.Header.Set("Authorization", "token "+token)
 	}
+
 	req.Header.Set("Accept", "application/vnd.github+json")
 
 	resp, err := http.DefaultClient.Do(req)
 	if err != nil {
 		return false, fmt.Errorf("check repo existence: %w", err)
 	}
+
 	defer resp.Body.Close()
 
 	if resp.StatusCode == http.StatusOK {
 		return true, nil
 	}
+
 	if resp.StatusCode == http.StatusNotFound {
 		return false, nil
 	}
@@ -119,6 +122,7 @@ func postCreateRepo(params RepoCreateParams) error {
 	if err != nil {
 		return fmt.Errorf("create repo: %w", err)
 	}
+
 	defer resp.Body.Close()
 
 	if resp.StatusCode == http.StatusCreated {
@@ -164,5 +168,6 @@ func parseHttpsOwnerRepo(url, remoteURL string) (string, string, error) {
 	if len(parts) < 5 {
 		return "", "", fmt.Errorf("invalid HTTPS remote URL: %s", remoteURL)
 	}
+
 	return parts[len(parts)-2], parts[len(parts)-1], nil
 }

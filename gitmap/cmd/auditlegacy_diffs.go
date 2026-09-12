@@ -30,12 +30,14 @@ func writeAuditLegacyDiffs(opts auditLegacyOpts, hits []auditLegacyHit) []auditD
 	if !opts.WriteDiffs || opts.ReportPath == "" || len(hits) == 0 {
 		return nil
 	}
+
 	diffsDir := auditDiffsDir(opts.ReportPath)
 	if err := os.MkdirAll(diffsDir, 0o755); err != nil {
 		fmt.Fprintf(os.Stderr, constants.ErrAuditLegacyDiffWrite, diffsDir, err)
 
 		return nil
 	}
+
 	plans := buildAuditDiffPlans(opts, hits, diffsDir)
 	if len(plans) > 0 {
 		fmt.Fprintf(os.Stdout, constants.MsgAuditLegacyDiffsWrote, len(plans), diffsDir)
@@ -73,12 +75,14 @@ func writeOneAuditDiff(opts auditLegacyOpts, file, diffsDir string) (auditDiffPl
 	if err != nil || body == "" {
 		return auditDiffPlan{}, false
 	}
+
 	diffPath := filepath.Join(diffsDir, sanitizeAuditDiffName(file)+".diff")
 	if err := os.WriteFile(diffPath, []byte(body), 0o644); err != nil {
 		fmt.Fprintf(os.Stderr, constants.ErrAuditLegacyDiffWrite, diffPath, err)
 
 		return auditDiffPlan{}, false
 	}
+
 	rel := relAuditDiffLink(opts.ReportPath, diffPath)
 
 	return auditDiffPlan{SourceFile: file, DiffPath: diffPath, DiffRelLink: rel}, true

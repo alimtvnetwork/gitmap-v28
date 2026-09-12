@@ -34,9 +34,11 @@ func executeSJBroadcast(args []string) error {
 			fmt.Printf("⚠️ Parse error for %s: %v\n", host, errParse)
 			continue
 		}
+
 		fmt.Printf("→ Executing on %s: %s\n", target.String(), command)
 		_ = SpawnSSH(ctx, *target, []string{command})
 	}
+
 	return nil
 }
 

@@ -19,6 +19,7 @@ func createMaxCompressZip(archivePath string, items []model.ZipGroupItem) error 
 	if err != nil {
 		return fmt.Errorf("create zip: %w", err)
 	}
+
 	defer outFile.Close()
 
 	w := zip.NewWriter(outFile)
@@ -84,6 +85,7 @@ func sha1File(path string) (string, error) {
 	if err != nil {
 		return "", err
 	}
+
 	defer f.Close()
 
 	h := sha1.New()
@@ -102,6 +104,7 @@ func addSingleFileToZip(w *zip.Writer, srcPath, entryName string) error {
 	if err != nil {
 		return fmt.Errorf("open %s: %w", srcPath, err)
 	}
+
 	defer src.Close()
 
 	info, err := src.Stat()

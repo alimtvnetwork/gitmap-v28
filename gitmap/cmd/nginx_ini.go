@@ -13,6 +13,7 @@ func probePHPIniPaths() string {
 	if err != nil {
 		return "  PHP CLI: not detected (default fallback: /etc/php/8.x/fpm/conf.d/)"
 	}
+
 	lines := strings.Split(string(out), "\n")
 	var res []string
 	for _, line := range lines {

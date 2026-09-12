@@ -25,10 +25,12 @@ func runDiff(args []string) error {
 	if err != nil {
 		return apperror.WrapSimple(err, "resolve-endpoint left")
 	}
+
 	rightEP, err := diff.ResolveEndpoint(right)
 	if err != nil {
 		return apperror.WrapSimple(err, "resolve-endpoint right")
 	}
+
 	if guardErr := guardDiffPaths(leftEP, rightEP); guardErr != nil {
 		return apperror.WrapSimple(guardErr, "guard-paths")
 	}
@@ -37,9 +39,11 @@ func runDiff(args []string) error {
 	if err != nil {
 		return apperror.NewSimple("diff failed: "+constants.LogPrefixDiff, "E9000")
 	}
+
 	if reportErr := diff.Report(os.Stdout, entries, printOpts); reportErr != nil {
 		return apperror.NewSimple("report failed: "+constants.LogPrefixDiff, "E9000")
 	}
+
 	return nil
 }
 
@@ -57,6 +61,7 @@ func parseDiffArgs(args []string) (left, right string, walk diff.WalkOptions, pr
 	if err := fs.Parse(positional); err != nil {
 		cliexit.HandleError(nil, 2)
 	}
+
 	left, right = extractDiffPositional(fs.Args())
 	walk = diff.WalkOptions{IncludeVCS: *includeVCS, IncludeNodeModules: *includeNM}
 	print = diff.PrintOptions{

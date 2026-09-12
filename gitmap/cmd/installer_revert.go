@@ -74,6 +74,7 @@ func executeRevertAction(
 	if db == nil {
 		return apperror.New("executeRevertAction", "E_INSTALLER_INVALID_INPUT", map[string]any{"error": "db cannot be nil"})
 	}
+
 	if strings.TrimSpace(slug) == "" {
 		return apperror.New("executeRevertAction", "E_INSTALLER_INVALID_INPUT", map[string]any{"error": "slug is required"})
 	}
@@ -85,6 +86,7 @@ func executeRevertAction(
 
 	fmt.Printf("Installer %q version action %s processed (current: %s, target: %s).\n",
 		existing.Name, action, existing.Version, targetVersion)
+
 	return nil
 }
 
@@ -93,6 +95,7 @@ func runInstallerRevertAction(cmd *cobra.Command, args []string, action string) 
 	if cmd == nil {
 		return apperror.New("runInstallerRevertAction", "E_INSTALLER_NIL_COMMAND", map[string]any{"error": "command is nil"})
 	}
+
 	if len(args) == 0 {
 		return apperror.New("runInstallerRevertAction", "E_INSTALLER_INVALID_INPUT", map[string]any{"error": "slug argument required"})
 	}
@@ -107,13 +110,16 @@ func runInstallerRevertAction(cmd *cobra.Command, args []string, action string) 
 	if errDB != nil {
 		appErr := apperror.Wrap(errDB, "runInstallerRevertAction", map[string]any{"action": "open_db"})
 		appErr.Code = "E_INSTALLER_DB_ERROR"
+
 		return appErr
 	}
+
 	defer db.Close()
 
 	if errMigrate := db.MigrateInstallers(); errMigrate != nil {
 		appErr := apperror.Wrap(errMigrate, "runInstallerRevertAction", map[string]any{"action": "migrate_installers"})
 		appErr.Code = "E_INSTALLER_DB_ERROR"
+
 		return appErr
 	}
 
@@ -124,8 +130,10 @@ func resolveRevertTargetVersion(action string, args []string) (string, error) {
 	if action != "revert" {
 		return "", nil
 	}
+
 	if len(args) < 2 {
 		return "", apperror.New("runInstallerRevertAction", "E_INSTALLER_INVALID_INPUT", map[string]any{"error": "version argument required for revert-version"})
 	}
+
 	return args[1], nil
 }

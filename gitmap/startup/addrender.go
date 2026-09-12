@@ -28,6 +28,7 @@ func renderDesktop(clean string, opts AddOptions) []byte {
 	if len(display) == 0 {
 		display = clean
 	}
+
 	var b strings.Builder
 	b.WriteString("[Desktop Entry]\n")
 	b.WriteString("Type=Application\n")
@@ -35,6 +36,7 @@ func renderDesktop(clean string, opts AddOptions) []byte {
 	if len(opts.Comment) > 0 {
 		fmt.Fprintf(&b, "Comment=%s\n", opts.Comment)
 	}
+
 	fmt.Fprintf(&b, "Exec=%s\n", opts.Exec)
 	// Path= is the XDG-spec field for the working directory the
 	// session manager sets before invoking Exec=. Emitted before
@@ -43,11 +45,13 @@ func renderDesktop(clean string, opts AddOptions) []byte {
 	if len(opts.WorkingDir) > 0 {
 		fmt.Fprintf(&b, "Path=%s\n", opts.WorkingDir)
 	}
+
 	b.WriteString("Terminal=false\n")
 	b.WriteString("X-GNOME-Autostart-enabled=true\n")
 	if opts.NoDisplay {
 		b.WriteString("NoDisplay=true\n")
 	}
+
 	fmt.Fprintf(&b, "%s=%s\n", constants.StartupMarkerKey, constants.StartupMarkerVal)
 
 	return []byte(b.String())
@@ -67,8 +71,10 @@ func atomicWrite(target string, body []byte) error {
 	if err := os.WriteFile(tmp, body, 0o644); err != nil {
 		return fmt.Errorf("write temp %s: %w", tmp, err)
 	}
+
 	if err := os.Rename(tmp, target); err != nil {
 		_ = os.Remove(tmp)
+
 		return fmt.Errorf("rename %s -> %s: %w", tmp, target, err)
 	}
 

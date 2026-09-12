@@ -25,6 +25,7 @@ func collectTermPaths(records []model.ScanRecord) []termPathEntry {
 			Path: r.RelativePath, Branch: r.Branch,
 		})
 	}
+
 	sort.Slice(entries, func(i, j int) bool {
 		return entries[i].Path < entries[j].Path
 	})
@@ -61,10 +62,12 @@ func insertTermNode(root *termNode, entry termPathEntry) {
 			child = &termNode{Name: part}
 			current.Children = append(current.Children, child)
 		}
+
 		if i == len(parts)-1 {
 			child.IsRepo = true
 			child.Branch = entry.Branch
 		}
+
 		current = child
 	}
 }
@@ -89,6 +92,7 @@ func renderTermTree(w io.Writer, node *termNode, prefix string) {
 			connector = constants.TreeCorner
 			nextPrefix = prefix + constants.TreeSpace
 		}
+
 		renderTermNode(w, child, prefix, connector)
 		if len(child.Children) > 0 {
 			renderTermTree(w, child, nextPrefix)
@@ -106,6 +110,7 @@ func renderTermNode(w io.Writer, node *termNode, prefix, connector string) {
 
 		return
 	}
+
 	fmt.Fprintf(w, "%s%s%s ■ %s%s%s\n",
 		constants.ColorDim, prefix, connector,
 		constants.ColorYellow, node.Name, constants.ColorReset)

@@ -14,6 +14,7 @@ func TestParseRepoName(t *testing.T) {
 		{"macro-ahk", "macro-ahk", 1, false},
 		{"my-app-v100", "my-app", 100, true},
 	}
+
 	for _, tt := range tests {
 		p := ParseRepoName(tt.input)
 		if p.BaseName != tt.base || p.CurrentVersion != tt.version || p.HasVersion != tt.hasVer {

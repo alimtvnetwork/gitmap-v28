@@ -79,6 +79,7 @@ func runChromeProfileUndo(profileName string) error {
 
 	if chosen == "" {
 		fmt.Printf("%s No Chrome profile snapshots available to undo.\n", constants.ColorYellow+"ℹ"+constants.ColorReset)
+
 		return nil
 	}
 
@@ -92,5 +93,6 @@ func runChromeProfileUndo(profileName string) error {
 	}
 
 	fmt.Printf("%s Restored Chrome profile %q from snapshot: %s\n", constants.ColorGreen+"✓"+constants.ColorReset, profileName, filepath.Base(chosen))
+
 	return nil
 }

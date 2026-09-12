@@ -26,8 +26,10 @@ func runPrintPathSnippet(args []string) error {
 		fmt.Fprintf(os.Stderr, "Error: %v\n", err)
 		cliexit.HandleError(nil, 2)
 	}
+
 	// Trailing newline so callers can `>>` straight into a profile file.
 	fmt.Println(out)
+
 	return nil
 }
 

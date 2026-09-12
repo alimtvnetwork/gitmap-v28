@@ -28,16 +28,20 @@ func preferExistingFolderTransport(positional, absPath string) string {
 	if lacksDotGitDir {
 		return positional
 	}
+
 	existing, err := gitutil.RemoteURL(absPath)
 	if err != nil || existing == "" {
 		warnPreferTransport(absPath, "could not read existing origin", err)
+
 		return positional
 	}
+
 	posIsSSH := isSSHURL(positional)
 	exIsSSH := isSSHURL(existing)
 	if posIsSSH == exIsSSH {
 		return positional
 	}
+
 	return rewriteToMatchExisting(positional, exIsSSH)
 }
 
@@ -45,6 +49,7 @@ func rewriteToMatchExisting(positional string, targetSSH bool) string {
 	if targetSSH {
 		return handleSSHRewrite(positional)
 	}
+
 	return handleHTTPSRewrite(positional)
 }
 
@@ -52,9 +57,12 @@ func handleSSHRewrite(positional string) string {
 	out, ok := ConvertURLToSSH(positional)
 	if !ok {
 		warnPreferTransport("", "ssh rewrite failed", nil)
+
 		return positional
 	}
+
 	fmt.Fprintf(os.Stderr, constants.MsgCFRFolderTransport, "ssh", positional, out)
+
 	return out
 }
 
@@ -62,9 +70,12 @@ func handleHTTPSRewrite(positional string) string {
 	out, ok := ConvertURLToHTTPS(positional)
 	if !ok {
 		warnPreferTransport("", "https rewrite failed", nil)
+
 		return positional
 	}
+
 	fmt.Fprintf(os.Stderr, constants.MsgCFRFolderTransport, "https", positional, out)
+
 	return out
 }
 
@@ -73,6 +84,7 @@ func handleHTTPSRewrite(positional string) string {
 // duplicated here to avoid coupling cfr to the reclone package.
 func hasDotGitDir(absPath string) bool {
 	_, err := os.Stat(filepath.Join(absPath, ".git"))
+
 	return err == nil
 }
 
@@ -85,6 +97,7 @@ func isSSHURL(url string) bool {
 	if strings.HasPrefix(lower, "git@") {
 		return true
 	}
+
 	return strings.HasPrefix(lower, "ssh://")
 }
 
@@ -95,7 +108,9 @@ func isSSHURL(url string) bool {
 func warnPreferTransport(absPath, reason string, err error) {
 	if err != nil {
 		fmt.Fprintf(os.Stderr, constants.WarnCFRFolderTransport, absPath, reason, err)
+
 		return
 	}
+
 	fmt.Fprintf(os.Stderr, constants.WarnCFRFolderTransportNoErr, absPath, reason)
 }

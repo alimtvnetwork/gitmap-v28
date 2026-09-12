@@ -70,6 +70,7 @@ function buildCurrentRepoName(s: BuilderState): string {
 function resolveTargetVersion(s: BuilderState): number {
   if (s.versionMode === VersionModeType.VN) return Math.max(1, s.explicitVersion);
   // v++ and v+1 both increment by 1
+
   return (s.hasVersion ? s.currentVersion : 1) + 1;
 }
 
@@ -94,6 +95,7 @@ function buildTargetURL(s: BuilderState): string {
   const current = buildCurrentRepoName(s);
   const target = buildTargetRepoName(s);
   // Mirrors clonenext.ReplaceRepoInURL: strings.Replace(url, current, target, 1)
+
   return buildOriginURL(s).replace(current, target);
 }
 

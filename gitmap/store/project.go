@@ -37,6 +37,7 @@ func (db *DB) SelectProjectsByTypeKey(key string) ([]model.DetectedProject, erro
 	if err != nil {
 		return nil, fmt.Errorf(constants.ErrProjectQuery, err)
 	}
+
 	defer rows.Close()
 
 	return scanProjectRows(rows)
@@ -55,6 +56,7 @@ func (db *DB) DeleteStaleProjects(repoID int64, keepIDs []int64) (int64, error) 
 	if len(keepIDs) == 0 {
 		return 0, nil
 	}
+
 	placeholders := buildPlaceholders(len(keepIDs))
 	query := fmt.Sprintf(constants.SQLDeleteStaleProjects, placeholders)
 	args := buildStaleArgsInt64(repoID, keepIDs)
@@ -80,6 +82,7 @@ func scanProjectRows(rows interface {
 		if err != nil {
 			return nil, err
 		}
+
 		projects = append(projects, p)
 	}
 

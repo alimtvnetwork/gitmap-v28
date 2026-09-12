@@ -13,6 +13,7 @@ func (db *DB) QueryCommandStats() ([]model.CommandStats, error) {
 	if err != nil {
 		return nil, fmt.Errorf(constants.ErrStatsQuery, err)
 	}
+
 	defer rows.Close()
 
 	return scanStatsRows(rows)
@@ -24,6 +25,7 @@ func (db *DB) QueryCommandStatsFor(command string) ([]model.CommandStats, error)
 	if err != nil {
 		return nil, fmt.Errorf(constants.ErrStatsQuery, err)
 	}
+
 	defer rows.Close()
 
 	return scanStatsRows(rows)
@@ -58,6 +60,7 @@ func scanStatsRows(rows interface {
 		if err != nil {
 			return nil, fmt.Errorf(constants.ErrStatsQuery, err)
 		}
+
 		results = append(results, s)
 	}
 

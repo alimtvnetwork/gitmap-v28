@@ -37,6 +37,7 @@ func TestDerivePackagesFromGoFiles_EmptyInput(t *testing.T) {
 	if got := derivePackagesFromGoFiles("/repo", nil); got != nil {
 		t.Fatalf("nil input: want nil, got %#v", got)
 	}
+
 	if got := derivePackagesFromGoFiles("/repo", []string{}); got != nil {
 		t.Fatalf("empty input: want nil, got %#v", got)
 	}
@@ -54,6 +55,7 @@ func TestDerivePackagesFromGoFiles_RootAndSubdirs(t *testing.T) {
 		filepath.Join(repoRoot, "gitmap", "cmd", "fixrepo_strict.go"),
 		filepath.Join(repoRoot, "gitmap", "constants", "constants_fixrepo.go"),
 	}
+
 	got := derivePackagesFromGoFiles(repoRoot, files)
 	want := []string{".", "./gitmap/cmd", "./gitmap/constants"}
 	if !reflect.DeepEqual(got, want) {
@@ -84,11 +86,13 @@ func TestDerivePackagesFromGoFiles_WindowsBackslashes(t *testing.T) {
 	if runtime.GOOS != "windows" {
 		t.Skip("normalization only observable on Windows-style separators")
 	}
+
 	repoRoot := `C:\repo`
 	files := []string{
 		`C:\repo\gitmap\cmd\fixrepo.go`,
 		`C:\repo\gitmap\cmd\fixrepo_strict.go`,
 	}
+
 	got := derivePackagesFromGoFiles(repoRoot, files)
 	want := []string{"./gitmap/cmd"}
 	if !reflect.DeepEqual(got, want) {
@@ -108,6 +112,7 @@ func TestDerivePackagesFromGoFiles_DeterministicOrder(t *testing.T) {
 		filepath.Join(repoRoot, "a", "a.go"),
 		filepath.Join(repoRoot, "m", "m.go"),
 	}
+
 	first := derivePackagesFromGoFiles(repoRoot, files)
 	for i := 0; i < 20; i++ {
 		got := derivePackagesFromGoFiles(repoRoot, files)
@@ -116,6 +121,7 @@ func TestDerivePackagesFromGoFiles_DeterministicOrder(t *testing.T) {
 				i, first, got)
 		}
 	}
+
 	want := []string{"./a", "./m", "./z"}
 	if !reflect.DeepEqual(first, want) {
 		t.Fatalf("not sorted\nwant: %#v\n got: %#v", want, first)

@@ -22,15 +22,19 @@ func setupFakeChromeRoot(t *testing.T, profiles map[string]string) string {
 		if err := os.MkdirAll(filepath.Join(root, dir), 0o700); err != nil {
 			t.Fatal(err)
 		}
+
 		cache[dir] = map[string]any{"name": display}
 	}
+
 	state := map[string]any{
 		"profile": map[string]any{"info_cache": cache},
 	}
+
 	raw, _ := json.Marshal(state)
 	if err := os.WriteFile(filepath.Join(root, "Local State"), raw, 0o600); err != nil {
 		t.Fatal(err)
 	}
+
 	return root
 }
 
@@ -40,6 +44,7 @@ func TestResolveChromeProfileByDirectoryName(t *testing.T) {
 	if !ok || res.Path != filepath.Join(root, "Profile 15") {
 		t.Fatalf("dir lookup failed: %+v ok=%v", res, ok)
 	}
+
 	if res.DisplayName != "Lovable" || res.Dir != "Profile 15" {
 		t.Fatalf("display enrichment lost: %+v", res)
 	}
@@ -103,6 +108,7 @@ func TestChromeProfileSummaryFormats(t *testing.T) {
 		{"display equals dir", chromeProfileResolution{Dir: "Default", DisplayName: "Default"}, "Default"},
 		{"input fallback", chromeProfileResolution{Input: "raw"}, "raw"},
 	}
+
 	for _, tc := range cases {
 		t.Run(tc.name, func(t *testing.T) {
 			if got := chromeProfileSummary(tc.in); got != tc.want {
@@ -125,6 +131,7 @@ func TestAvailableChromeProfileNamesFiltersNonProfileDirs(t *testing.T) {
 	if len(names) != 2 {
 		t.Fatalf("filter: got %v", names)
 	}
+
 	joined := strings.Join(names, ",")
 	if !strings.Contains(joined, "Default") || !strings.Contains(joined, "Profile 1") {
 		t.Fatalf("missing expected entries: %v", names)
@@ -166,15 +173,19 @@ func TestFormatChromeProfileLabel(t *testing.T) {
 	if got := formatChromeProfileLabel("Default", nil); got != "Default • Personal (alice@gmail.com)" {
 		t.Errorf("Default: got %q, want 'Default • Personal (alice@gmail.com)'", got)
 	}
+
 	if got := formatChromeProfileLabel("Profile 1", nil); got != "Profile 1 • Work (alice@company.com)" {
 		t.Errorf("Profile 1: got %q, want 'Profile 1 • Work (alice@company.com)'", got)
 	}
+
 	if got := formatChromeProfileLabel("Profile 2", nil); got != "Profile 2 (bob@gmail.com)" {
 		t.Errorf("Profile 2: got %q, want 'Profile 2 (bob@gmail.com)'", got)
 	}
+
 	if got := formatChromeProfileLabel("Profile 3", nil); got != "Profile 3 (Side Project)" {
 		t.Errorf("Profile 3: got %q, want 'Profile 3 (Side Project)'", got)
 	}
+
 	if got := formatChromeProfileLabel("Profile 4", nil); got != "Profile 4" {
 		t.Errorf("Profile 4: got %q, want 'Profile 4'", got)
 	}
@@ -189,6 +200,7 @@ func TestMergePendingExtensions(t *testing.T) {
 	if len(merged) != 3 {
 		t.Fatalf("expected 3 unique extensions, got %d (%v)", len(merged), merged)
 	}
+
 	if merged[0] != "ext-aaa" || merged[1] != "ext-bbb" || merged[2] != "ext-ccc" {
 		t.Fatalf("unexpected order or content: %v", merged)
 	}
@@ -216,15 +228,18 @@ func TestZipManifestCreationAndDecoding(t *testing.T) {
 	if err != nil {
 		t.Fatalf("open zip: %v", err)
 	}
+
 	defer r.Close()
 
 	manifest := readZipManifest(r)
 	if manifest == nil {
 		t.Fatal("manifest.json not found or could not be parsed in zip archive")
 	}
+
 	if manifest.ProfileCount != 1 || len(manifest.Profiles) != 1 {
 		t.Fatalf("manifest profile count mismatch: %+v", manifest)
 	}
+
 	if manifest.Profiles[0].Name != "Default" {
 		t.Fatalf("manifest profile name mismatch: %+v", manifest.Profiles[0])
 	}

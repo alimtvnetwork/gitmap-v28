@@ -18,9 +18,11 @@ func TestRenderInlineMarkdownHighlightsDoubleQuotes(t *testing.T) {
 	if !strings.Contains(got, constants.ColorCyan) {
 		t.Fatalf("expected cyan ANSI for double-quoted spans, got %q", got)
 	}
+
 	if !strings.Contains(got, constants.ColorReset) {
 		t.Fatalf("expected ColorReset to close cyan span, got %q", got)
 	}
+
 	// Sentinel tokens must not leak into terminal output.
 	if strings.Contains(got, "[C]") || strings.Contains(got, "[/C]") {
 		t.Fatalf("token sentinels leaked into ANSI output: %q", got)
@@ -45,6 +47,7 @@ func TestRenderInlineMarkdownPreservesBoldAndCode(t *testing.T) {
 	if !strings.Contains(got, constants.ChangelogPrettyBoldOpen) {
 		t.Fatalf("bold open marker missing: %q", got)
 	}
+
 	if !strings.Contains(got, constants.ChangelogPrettyCodeOpen) {
 		t.Fatalf("code open marker missing: %q", got)
 	}
@@ -61,12 +64,15 @@ func TestRenderInlineMarkdownPlainModeStripsAllANSI(t *testing.T) {
 	if strings.ContainsRune(got, '\x1b') {
 		t.Fatalf("plain mode must not emit ESC bytes: %q", got)
 	}
+
 	if strings.Contains(got, "**") {
 		t.Fatalf("plain mode must strip bold delimiters: %q", got)
 	}
+
 	if strings.Contains(got, "`") {
 		t.Fatalf("plain mode must strip code delimiters: %q", got)
 	}
+
 	// Quotes are part of the prose, not formatting — leave them in.
 	if !strings.Contains(got, `"quotes"`) {
 		t.Fatalf("plain mode must preserve literal quote characters: %q", got)
@@ -80,6 +86,7 @@ func TestColorOrEmptyTogglesByPrettyFlag(t *testing.T) {
 	if got := colorOrEmpty(constants.ColorCyan, true); got != constants.ColorCyan {
 		t.Errorf("pretty=true should preserve color, got %q", got)
 	}
+
 	if got := colorOrEmpty(constants.ColorCyan, false); got != "" {
 		t.Errorf("pretty=false should return empty string, got %q", got)
 	}

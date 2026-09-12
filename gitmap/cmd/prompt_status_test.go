@@ -22,6 +22,7 @@ func TestPromptDashboardSuite(t *testing.T) {
 			Version:   "v2.0.0",
 		},
 	}
+
 	RenderPromptInstallSummary(results)
 	ReportPromptFailures(results)
 }

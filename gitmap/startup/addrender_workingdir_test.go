@@ -21,6 +21,7 @@ func TestRenderDesktop_EmitsPathWhenWorkingDirSet(t *testing.T) {
 	if !strings.Contains(body, "\nPath=/srv/work\n") {
 		t.Errorf("missing Path= line:\n%s", body)
 	}
+
 	pathIdx := strings.Index(body, "Path=")
 	termIdx := strings.Index(body, "Terminal=")
 	if pathIdx < 0 || termIdx < 0 || pathIdx > termIdx {
@@ -48,9 +49,11 @@ func TestRenderPlist_EmitsWorkingDirectoryKey(t *testing.T) {
 	if !strings.Contains(body, "<key>WorkingDirectory</key>") {
 		t.Errorf("missing WorkingDirectory key:\n%s", body)
 	}
+
 	if !strings.Contains(body, "<string>/srv/work</string>") {
 		t.Errorf("missing WorkingDirectory value:\n%s", body)
 	}
+
 	runAt := strings.Index(body, "<key>RunAtLoad</key>")
 	wd := strings.Index(body, "<key>WorkingDirectory</key>")
 	if runAt < 0 || wd < 0 || wd < runAt {

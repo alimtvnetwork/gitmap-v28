@@ -45,6 +45,7 @@ func digitWidth(n int) int {
 	if n < 10 {
 		return 1
 	}
+
 	w := 0
 	for n > 0 {
 		n /= 10
@@ -86,10 +87,12 @@ func promptConfirmOrExclude(
 
 			return nil, false
 		}
+
 		next, keepGoing, done := handlePromptLine(line, current, out)
 		if done {
 			return next, keepGoing
 		}
+
 		current = next
 	}
 }
@@ -106,6 +109,7 @@ func handlePromptLine(
 	if tok == "y" || tok == "yes" {
 		return current, true, true
 	}
+
 	if len(tok) == 0 || tok == "n" || tok == "no" {
 		return nil, false, true
 	}
@@ -116,9 +120,11 @@ func handlePromptLine(
 
 		return current, false, false
 	}
+
 	if isAll {
 		return nil, false, true
 	}
+
 	next := applyExclusions(current, excluded)
 	fmt.Fprintf(out, constants.MsgBulkExcludedFmt, len(excluded), len(next))
 
@@ -132,11 +138,13 @@ func applyExclusions(matches []visibility.MatchedRepo, excluded []int) []visibil
 	for _, n := range excluded {
 		skip[n] = true
 	}
+
 	out := make([]visibility.MatchedRepo, 0, len(matches)-len(excluded))
 	for i, m := range matches {
 		if skip[i+1] {
 			continue
 		}
+
 		out = append(out, m)
 	}
 

@@ -10,6 +10,7 @@ func runClusterSetPathAlias(selector cluster.TargetSelectorType, args []string) 
 func runClusterUpdate(selector cluster.TargetSelectorType, isAll bool, args []string) error {
 	return nil
 }
+
 func runClusterClone(selector cluster.TargetSelectorType, subCmd string, args []string) error {
 	return nil
 }

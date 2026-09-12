@@ -29,6 +29,7 @@ func TestEmitSchema_ReportShape(t *testing.T) {
 	if isSchemaErr {
 		t.Fatalf("EmitSchema(report) returned error: %v", err)
 	}
+
 	root := decodeSchema(t, body)
 	assertString(t, root, "$schema", constants.JSONSchemaDialect2020_12)
 	assertString(t, root, "$id", constants.CloneFromSchemaIDReport)
@@ -40,6 +41,7 @@ func verifyReportProperties(t *testing.T, root map[string]any) {
 	if !isPropsMap {
 		t.Fatalf("report schema missing properties object: %T", root["properties"])
 	}
+
 	assertReportKeys(t, props)
 	verifySchemaVersionConst(t, props)
 }
@@ -59,6 +61,7 @@ func TestEmitSchema_InputShape(t *testing.T) {
 	if isSchemaErr {
 		t.Fatalf("EmitSchema(input) returned error: %v", err)
 	}
+
 	root := decodeSchema(t, body)
 	assertString(t, root, "$schema", constants.JSONSchemaDialect2020_12)
 	assertString(t, root, "$id", constants.CloneFromSchemaIDInput)
@@ -71,10 +74,12 @@ func verifyInputItems(t *testing.T, root map[string]any) {
 	if !isItemMap {
 		t.Fatalf("input schema items must be an object, got %T", root["items"])
 	}
+
 	itemProps, isItemPropsMap := item["properties"].(map[string]any)
 	if !isItemPropsMap {
 		t.Fatalf("input schema items.properties must be an object, got %T", item["properties"])
 	}
+
 	assertInputFields(t, itemProps)
 }
 
@@ -93,6 +98,7 @@ func TestEmitSchema_UnknownKindUsesConstantMessage(t *testing.T) {
 	if isNilErr {
 		t.Fatal("expected error for unknown kind, got nil")
 	}
+
 	assertUnknownKindErrorText(t, err.Error())
 }
 
@@ -101,6 +107,7 @@ func assertUnknownKindErrorText(t *testing.T, errMsg string) {
 	if isBadKindMissing {
 		t.Errorf("error %q should mention the bad kind", errMsg)
 	}
+
 	isKindsMissing := !strings.Contains(errMsg, "report") || !strings.Contains(errMsg, "input")
 	if isKindsMissing {
 		t.Errorf("error %q should list both accepted kinds", errMsg)
@@ -131,6 +138,7 @@ func assertString(t *testing.T, obj map[string]any, key, want string) {
 
 		return
 	}
+
 	isMismatch := got != want
 	if isMismatch {
 		t.Errorf("%q = %q; want %q", key, got, want)
@@ -146,6 +154,7 @@ func verifySchemaVersionConst(t *testing.T, props map[string]any) {
 	if !isSchemaMap {
 		t.Fatalf("schemaVersion must be a sub-schema object, got %T", props["schemaVersion"])
 	}
+
 	verifySchemaVersionValue(t, sv)
 }
 
@@ -155,6 +164,7 @@ func verifySchemaVersionValue(t *testing.T, sv map[string]any) {
 	if !hasConst {
 		t.Fatal("schemaVersion sub-schema must declare a const value")
 	}
+
 	checkSchemaNumericConst(t, constVal)
 }
 
@@ -164,6 +174,7 @@ func checkSchemaNumericConst(t *testing.T, constVal any) {
 	if !isNumber {
 		t.Fatalf("schemaVersion const must be numeric, got %T", constVal)
 	}
+
 	isMismatch := int(asFloat) != constants.CloneFromReportSchemaVersion
 	if isMismatch {
 		t.Errorf("schemaVersion const = %v; want %d (live constant)",

@@ -28,6 +28,7 @@ func applySSHKey(name string) {
 		fmt.Fprintf(os.Stderr, constants.ErrSSHQuery, err)
 		cliexit.HandleError(nil, 1)
 	}
+
 	defer db.Close()
 
 	key, err := db.FindSSHKeyByName(name)
@@ -45,7 +46,9 @@ func handleCloneFixFlag(cf CloneFlags) bool {
 	if !cf.Fix {
 		return false
 	}
+
 	runCloneFixOptimization()
+
 	return len(cf.Source) == 0
 }
 
@@ -64,11 +67,13 @@ func runClone(args []string) error {
 	if handleCloneFixFlag(cf) {
 		return nil
 	}
+
 	if len(cf.Source) == 0 {
 		fmt.Fprintln(os.Stderr, constants.ErrSourceRequired)
 		fmt.Fprintln(os.Stderr, constants.ErrCloneUsage)
 		cliexit.HandleError(nil, 1)
 	}
+
 	initCloneVerbose(cf.Verbose)
 	SetCloneDryRun(cf.DryRun)
 	SetCloneAssumeYes(cf.IsAssumeYes)
@@ -111,6 +116,7 @@ func runClone(args []string) error {
 	source := resolveCloneShorthand(cf.Source)
 	executeClone(source, cf.TargetDir, cf.SafePull, cf.GHDesktop, cf.MaxConcurrency, cf.DefaultBranch, cf.NoVSCodeSync, cf.Clean, cf.MissingOnly)
 	maybeExitOnCmdFaithfulMismatch()
+
 	return nil
 }
 
@@ -130,21 +136,25 @@ func isMultiCloneEnabled(cf CloneFlags) bool {
 			return true
 		}
 	}
+
 	for i, p := range cf.Positional {
 		if i >= 1 && isDirectURL(sanitizeURLToken(p)) {
 			return true
 		}
 	}
+
 	flat := []string{}
 	if len(cf.Positional) >= 1 {
 		flat = flattenURLArgs(cf.Positional[:1])
 	}
+
 	urlCount := 0
 	for _, u := range flat {
 		if isDirectURL(u) {
 			urlCount++
 		}
 	}
+
 	if urlCount >= 2 {
 		return true
 	}
@@ -186,6 +196,7 @@ func runCloneMulti(cf CloneFlags) error {
 
 			continue
 		}
+
 		succeeded++
 		// Build a PM pair for the URL we just cloned. Mirrors the
 		// folder resolution executeDirectCloneOne uses internally so
@@ -211,6 +222,7 @@ func runCloneMulti(cf CloneFlags) error {
 	if failed > 0 {
 		cliexit.HandleError(nil, constants.ExitCloneMultiPartialFail)
 	}
+
 	return nil
 }
 
@@ -225,6 +237,7 @@ func isDirectURL(source string) bool {
 		strings.HasPrefix(lower, constants.PrefixSSH) {
 		return true
 	}
+
 	// SSH shorthand: git@host:owner/repo(.git)?  — must contain `:` after `@`.
 	if strings.HasPrefix(lower, "git@") {
 		at := strings.Index(lower, "@")
@@ -250,6 +263,7 @@ func repoNameFromURL(url string) string {
 	if idx := strings.LastIndex(name, "/"); idx >= 0 {
 		name = name[idx+1:]
 	}
+
 	if idx := strings.LastIndex(name, ":"); idx >= 0 {
 		name = name[idx+1:]
 	}
@@ -313,6 +327,7 @@ func executeDirectClone(
 
 	if isGitRepo(absPath) {
 		fmt.Printf("~ %s already exists on disk (%s), skipping clone and workspace re-registration.\n", repoName, absPath)
+
 		return
 	}
 
@@ -345,6 +360,7 @@ func executeDirectClone(
 		fmt.Fprintf(os.Stderr, constants.ErrCloneURLFailed, url, cloneErr)
 		cliexit.HandleError(nil, 1)
 	}
+
 	persistRecloneTransport(url)
 
 	fmt.Printf(constants.MsgCloneURLDone, repoName)
@@ -381,6 +397,7 @@ func upsertDirectClone(url, repoName, folderName, absPath string) {
 		RelativePath: folderName,
 		AbsolutePath: absPath,
 	}
+
 	populateDirectCloneURLs(&rec, url)
 
 	db, err := openDB()
@@ -389,6 +406,7 @@ func upsertDirectClone(url, repoName, folderName, absPath string) {
 
 		return
 	}
+
 	defer db.Close()
 
 	if upsertErr := db.UpsertRepos([]model.ScanRecord{rec}); upsertErr != nil {
@@ -396,6 +414,7 @@ func upsertDirectClone(url, repoName, folderName, absPath string) {
 
 		return
 	}
+
 	if markErr := db.MarkCloned(absPath); markErr != nil {
 		fmt.Fprintf(os.Stderr, "  Warning: could not stamp clone time: %v\n", markErr)
 	}
@@ -418,12 +437,14 @@ func initCloneVerbose(enabled bool) {
 	if !enabled {
 		return
 	}
+
 	log, err := verbose.Init()
 	if err != nil {
 		fmt.Fprintf(os.Stderr, constants.WarnVerboseLogFailed, err)
 
 		return
 	}
+
 	defer log.Close()
 }
 
@@ -434,6 +455,7 @@ func resolveCloneShorthand(source string) string {
 		constants.ShorthandCSV:  filepath.Join(constants.DefaultOutputFolder, constants.DefaultCSVFile),
 		constants.ShorthandText: filepath.Join(constants.DefaultOutputFolder, constants.DefaultTextFile),
 	}
+
 	resolved, ok := shorthandMap[strings.ToLower(source)]
 	if ok {
 		return validateShorthandPath(resolved)
@@ -448,6 +470,7 @@ func validateShorthandPath(resolved string) string {
 	if err == nil {
 		return resolved
 	}
+
 	fmt.Fprintf(os.Stderr, constants.ErrShorthandNotFound, resolved)
 	cliexit.HandleError(nil, 1)
 
@@ -484,6 +507,7 @@ func executeClone(
 		fmt.Fprintf(os.Stderr, constants.ErrCloneMaxConcurrencyInvalid, maxConcurrency)
 		cliexit.HandleError(nil, 1)
 	}
+
 	maxConcurrency = workers
 
 	// Enqueue clone as a pending task before execution.
@@ -492,10 +516,12 @@ func executeClone(
 		fmt.Fprintf(os.Stderr, "  Warning: could not resolve absolute path for %s: %v\n", targetDir, absErr)
 		absTarget = targetDir
 	}
+
 	workDir, wdErr := os.Getwd()
 	if wdErr != nil {
 		fmt.Fprintf(os.Stderr, "  Warning: could not determine working directory: %v\n", wdErr)
 	}
+
 	cmdArgs := buildCommandArgs(append([]string{"clone"}, os.Args[2:]...))
 	taskID, taskDB := createPendingTask(constants.TaskTypeClone, absTarget, workDir, "clone", cmdArgs)
 
@@ -575,19 +601,23 @@ func registerCloned(s model.CloneSummary, targetDir string, enabled bool) {
 	if !enabled {
 		return
 	}
+
 	absTarget, absErr := filepath.Abs(targetDir)
 	if absErr != nil {
 		fmt.Fprintf(os.Stderr, "  Warning: could not resolve absolute path for %s: %v\n", targetDir, absErr)
 		absTarget = targetDir
 	}
+
 	if s.Succeeded == 0 {
 		return
 	}
+
 	records := make([]model.ScanRecord, 0, s.Succeeded)
 	for _, r := range s.Cloned {
 		r.Record.AbsolutePath = filepath.Join(absTarget, model.CleanRelativePath(r.Record.RelativePath))
 		records = append(records, r.Record)
 	}
+
 	result := desktop.AddRepos(records)
 	fmt.Printf(constants.MsgDesktopSummary, result.Added, result.Failed)
 }
@@ -619,15 +649,18 @@ func applyURLSchemeFlags(cf CloneFlags) CloneFlags {
 		if isNonDirectURL {
 			return in
 		}
+
 		out, ok := "", false
 		if toSSH {
 			out, ok = ConvertURLToSSH(in)
 		} else {
 			out, ok = ConvertURLToHTTPS(in)
 		}
+
 		if ok {
 			return out
 		}
+
 		return in
 	}
 

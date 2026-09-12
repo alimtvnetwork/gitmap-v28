@@ -35,27 +35,35 @@ func TestPreflightBoxRender(t *testing.T) {
 	if !bytes.Contains([]byte(output), []byte("Run Ref:")) {
 		t.Errorf("Missing Run Ref in output: %s", output)
 	}
+
 	if !bytes.Contains([]byte(output), []byte("RUN-20260819-001")) {
 		t.Errorf("Missing Run Ref value in output: %s", output)
 	}
+
 	if !bytes.Contains([]byte(output), []byte("Command:")) {
 		t.Errorf("Missing Command in output: %s", output)
 	}
+
 	if !bytes.Contains([]byte(output), []byte(`ps "echo hello"`)) {
 		t.Errorf("Missing Command value in output: %s", output)
 	}
+
 	if !bytes.Contains([]byte(output), []byte("Selector:")) {
 		t.Errorf("Missing Selector in output: %s", output)
 	}
+
 	if !bytes.Contains([]byte(output), []byte("Servers & Clients")) {
 		t.Errorf("Missing Selector value in output: %s", output)
 	}
+
 	if !bytes.Contains([]byte(output), []byte("Nodes:")) {
 		t.Errorf("Missing Nodes in output: %s", output)
 	}
+
 	if !bytes.Contains([]byte(output), []byte("2 effective targets")) {
 		t.Errorf("Missing Nodes value in output: %s", output)
 	}
+
 	if !bytes.Contains([]byte(output), []byte("node1 (ID: 1, IP: 192.168.1.1)")) {
 		t.Errorf("Missing node1 in output: %s", output)
 	}

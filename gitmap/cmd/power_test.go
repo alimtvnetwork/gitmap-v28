@@ -12,6 +12,7 @@ func TestParseSetArgs(t *testing.T) {
 	if err != nil {
 		t.Fatalf("parseSetArgs positional failed: %v", err)
 	}
+
 	if disp != 15 || sleep != 15 {
 		t.Errorf("Expected 15, 15, got %d, %d", disp, sleep)
 	}
@@ -20,6 +21,7 @@ func TestParseSetArgs(t *testing.T) {
 	if err != nil {
 		t.Fatalf("parseSetArgs flags failed: %v", err)
 	}
+
 	if disp != 20 || sleep != 45 {
 		t.Errorf("Expected 20, 45, got %d, %d", disp, sleep)
 	}

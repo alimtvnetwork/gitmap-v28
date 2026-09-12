@@ -24,10 +24,12 @@ func MatchOwnerRepos(repos []string, patterns []Pattern) []MatchedRepo {
 		if seen[name] {
 			continue
 		}
+
 		winner := firstMatchingPattern(name, patterns)
 		if len(winner) == 0 {
 			continue
 		}
+
 		seen[name] = true
 		out = append(out, MatchedRepo{RepoName: name, MatchedPattern: winner})
 	}

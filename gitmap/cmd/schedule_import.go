@@ -24,19 +24,24 @@ func runScheduleImport(args []string) error {
 		opts.FilePath = opts.TargetName
 		opts.TargetName = ""
 	}
+
 	if opts.FilePath == "" {
 		fmt.Fprintf(os.Stderr, "Usage: gitmap schedule import <file> [-except \"name1, name2\"]\n")
+
 		return apperror.NewSimple("import file path required", "E6011")
 	}
+
 	bundles, err := parseImportFileBundles(opts.FilePath)
 	if err != nil {
 		return err
 	}
+
 	return importBundlesIntoStore(bundles, opts.ExceptList)
 }
 
 func fileExists(path string) bool {
 	info, err := os.Stat(path)
+
 	return err == nil && !info.IsDir()
 }
 
@@ -59,14 +64,17 @@ func parseImportJSON(filePath string) ([]scheduleExportBundle, error) {
 	if err != nil {
 		return nil, apperror.WrapSimple(err, "read import json")
 	}
+
 	var bundles []scheduleExportBundle
 	if err := json.Unmarshal(raw, &bundles); err == nil && len(bundles) > 0 {
 		return bundles, nil
 	}
+
 	var single scheduleExportBundle
 	if err := json.Unmarshal(raw, &single); err == nil && single.Task.Name != "" {
 		return []scheduleExportBundle{single}, nil
 	}
+
 	return nil, apperror.NewSimple("invalid json schedule export format", "E6012")
 }
 
@@ -75,14 +83,17 @@ func parseImportYAML(filePath string) ([]scheduleExportBundle, error) {
 	if err != nil {
 		return nil, apperror.WrapSimple(err, "read import yaml")
 	}
+
 	var bundles []scheduleExportBundle
 	if err := yaml.Unmarshal(raw, &bundles); err == nil && len(bundles) > 0 {
 		return bundles, nil
 	}
+
 	var single scheduleExportBundle
 	if err := yaml.Unmarshal(raw, &single); err == nil && single.Task.Name != "" {
 		return []scheduleExportBundle{single}, nil
 	}
+
 	return nil, apperror.NewSimple("invalid yaml schedule export format", "E6013")
 }
 
@@ -91,6 +102,7 @@ func parseImportSQLite(filePath string) ([]scheduleExportBundle, error) {
 	if appErr != nil {
 		return nil, apperror.WrapSimple(appErr, "open import sqlite db")
 	}
+
 	defer conn.Close()
 
 	tasks, err := queryImportTasksFromDB(conn)
@@ -118,7 +130,9 @@ func queryImportTasksFromDB(conn *sql.DB) ([]store.SchedulerTask, error) {
 	if err != nil {
 		return nil, apperror.WrapSimple(err, "query import scheduler_tasks")
 	}
+
 	defer rows.Close()
+
 	return parseImportTaskRows(rows), nil
 }
 
@@ -133,6 +147,7 @@ func parseImportTaskRows(rows *sql.Rows) []store.SchedulerTask {
 			list = append(list, t)
 		}
 	}
+
 	return list
 }
 
@@ -143,7 +158,9 @@ func queryImportRunsFromDB(conn *sql.DB, taskName string) []store.ScheduleRunRec
 	if err != nil {
 		return nil
 	}
+
 	defer rows.Close()
+
 	return parseImportRunRows(rows)
 }
 
@@ -158,6 +175,7 @@ func parseImportRunRows(rows *sql.Rows) []store.ScheduleRunRecord {
 			list = append(list, r)
 		}
 	}
+
 	return list
 }
 
@@ -166,17 +184,20 @@ func parseImportZIP(filePath string) ([]scheduleExportBundle, error) {
 	if err != nil {
 		return nil, apperror.WrapSimple(err, "open zip file")
 	}
+
 	defer zr.Close()
 	var bundles []scheduleExportBundle
 	for _, f := range zr.File {
 		if !strings.HasSuffix(strings.ToLower(f.Name), ".json") {
 			continue
 		}
+
 		b := readBundleFromZipFile(f)
 		if b.Task.Name != "" {
 			bundles = append(bundles, b)
 		}
 	}
+
 	return bundles, nil
 }
 
@@ -185,10 +206,12 @@ func readBundleFromZipFile(f *zip.File) scheduleExportBundle {
 	if err != nil {
 		return scheduleExportBundle{}
 	}
+
 	defer rc.Close()
 	data, _ := io.ReadAll(rc)
 	var b scheduleExportBundle
 	_ = json.Unmarshal(data, &b)
+
 	return b
 }
 
@@ -197,17 +220,21 @@ func importBundlesIntoStore(bundles []scheduleExportBundle, exceptList []string)
 	if err != nil {
 		return err
 	}
+
 	defer db.Close()
 	importedCount := 0
 	for _, b := range bundles {
 		if isNameInExceptList(b.Task.Name, exceptList) {
 			continue
 		}
+
 		if err := persistImportedBundle(db, b); err == nil {
 			importedCount++
 		}
 	}
+
 	fmt.Printf("\n  \033[1;92m✔ Successfully imported %d schedule(s)\033[0m into root and split databases\n\n", importedCount)
+
 	return nil
 }
 
@@ -217,6 +244,7 @@ func isNameInExceptList(name string, exceptList []string) bool {
 			return true
 		}
 	}
+
 	return false
 }
 
@@ -224,14 +252,17 @@ func persistImportedBundle(db *store.DB, b scheduleExportBundle) error {
 	if b.Task.Slug == "" {
 		b.Task.Slug = store.ScheduleSlug(b.Task.Name)
 	}
+
 	b.Task.DBPath = store.ScheduleDBPath(b.Task.Slug)
 	if err := db.InsertSchedule(b.Task); err != nil {
 		return err
 	}
+
 	splitDB, err := store.OpenScheduleSplitDB(b.Task.Slug)
 	if err != nil {
 		return err
 	}
+
 	defer splitDB.Close()
 	_ = splitDB.SaveConfig(store.ScheduleConfig{
 		Name:        b.Task.Name,
@@ -246,5 +277,6 @@ func persistImportedBundle(db *store.DB, b scheduleExportBundle) error {
 	for _, r := range b.Runs {
 		_ = splitDB.RecordRun(r)
 	}
+
 	return nil
 }

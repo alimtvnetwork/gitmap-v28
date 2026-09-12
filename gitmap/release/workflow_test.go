@@ -29,6 +29,7 @@ func TestHandleOrphanedMetaConfirm(t *testing.T) {
 	if err != nil {
 		t.Fatalf("os.Pipe: %v", err)
 	}
+
 	w.WriteString("y\n")
 	w.Close()
 
@@ -62,6 +63,7 @@ func TestHandleOrphanedMetaDecline(t *testing.T) {
 	if err != nil {
 		t.Fatalf("os.Pipe: %v", err)
 	}
+
 	w.WriteString("n\n")
 	w.Close()
 
@@ -100,6 +102,7 @@ func TestHandleOrphanedMetaEOF(t *testing.T) {
 	if err != nil {
 		t.Fatalf("os.Pipe: %v", err)
 	}
+
 	w.Close()
 
 	origStdin := os.Stdin
@@ -137,6 +140,7 @@ func TestOrphanedMetaFileRemoval(t *testing.T) {
 	if err != nil {
 		t.Fatalf("os.Pipe: %v", err)
 	}
+
 	w.WriteString("yes\n")
 	w.Close()
 

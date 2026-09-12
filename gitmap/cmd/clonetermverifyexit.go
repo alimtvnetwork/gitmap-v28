@@ -69,9 +69,11 @@ func maybeExitOnCmdFaithfulMismatch() {
 	if !cmdFaithfulExitOnMismatchEnabled() {
 		return
 	}
+
 	if !cmdFaithfulHadMismatchSet() {
 		return
 	}
+
 	fmt.Fprintln(os.Stderr, constants.MsgCloneVerifyCmdFaithfulExit)
 	getCmdFaithfulExiter()(constants.CloneVerifyCmdFaithfulExitCode)
 }

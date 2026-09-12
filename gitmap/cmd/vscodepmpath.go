@@ -26,10 +26,12 @@ func runVSCodePMPath(args []string) error {
 	path, err := vscodepm.ProjectsJSONPath()
 	if err != nil {
 		printVSCodePMPathError(path, err)
+
 		return apperror.NewSimple("fatal error", "E9000")
 	}
 
 	fmt.Println(path)
+
 	return nil
 }
 

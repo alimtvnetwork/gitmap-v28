@@ -14,23 +14,30 @@ func runFindDuplicatesGit() error {
 	mainDB, err := store.OpenDefault()
 	if err != nil {
 		fmt.Println("  " + constants.ColorYellow + "Gitmap database not available." + constants.ColorReset)
+
 		return nil
 	}
+
 	defer mainDB.Close()
 
 	repos, err := mainDB.ListRepos()
 	if err != nil || len(repos) == 0 {
 		fmt.Println("  " + constants.ColorDim + "No repositories tracked in Gitmap database." + constants.ColorReset)
+
 		return nil
 	}
+
 	dupGroups := groupGitDuplicates(repos)
 	if len(dupGroups) == 0 {
 		fmt.Printf("  %s✓ Git: No duplicate tracked repositories found. Total active: %d%s\n\n",
 			constants.ColorGreen, len(repos), constants.ColorReset)
+
 		return nil
 	}
+
 	printGitDupFindings(dupGroups)
 	printGitRemediations(dupGroups)
+
 	return nil
 }
 
@@ -41,21 +48,26 @@ func groupGitDuplicates(repos []model.ScanRecord) map[string][]model.ScanRecord 
 		if remote == "" {
 			remote = r.HTTPSUrl
 		}
+
 		if remote == "" {
 			remote = r.SSHUrl
 		}
+
 		key := strings.ToLower(strings.TrimSuffix(strings.TrimSpace(remote), ".git"))
 		if key == "" {
 			key = strings.ToLower(filepath.Clean(r.AbsolutePath))
 		}
+
 		groups[key] = append(groups[key], r)
 	}
+
 	dupGroups := make(map[string][]model.ScanRecord)
 	for k, list := range groups {
 		if len(list) > 1 {
 			dupGroups[k] = list
 		}
 	}
+
 	return dupGroups
 }
 
@@ -66,6 +78,7 @@ func printGitDupFindings(dupGroups map[string][]model.ScanRecord) {
 	for _, list := range dupGroups {
 		totalDups += len(list) - 1
 	}
+
 	fmt.Printf("  Found %s%d%s duplicate repository group(s) (%s%d%s duplicate records total):\n\n",
 		constants.ColorWhite, len(dupGroups), constants.ColorReset,
 		constants.ColorYellow, totalDups, constants.ColorReset)
@@ -78,6 +91,7 @@ func printGitDupFindings(dupGroups map[string][]model.ScanRecord) {
 		for _, r := range list {
 			fmt.Printf("    %-6d %-24s %s\n", r.ID, truncateStr(r.Slug, 23), truncateStr(r.AbsolutePath, 42))
 		}
+
 		fmt.Println()
 		groupNum++
 	}
@@ -93,6 +107,7 @@ func printGitRemediations(dupGroups map[string][]model.ScanRecord) {
 			break
 		}
 	}
+
 	fmt.Println("  " + constants.ColorCyan + "Remediation & Fix Commands for Git Repositories:" + constants.ColorReset)
 	fmt.Println("  " + strings.Repeat("─", 74))
 	fmt.Printf("  ● Fix Single (Untrack duplicate record from database without deleting folder):\n")

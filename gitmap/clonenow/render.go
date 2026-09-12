@@ -25,6 +25,7 @@ func Render(w io.Writer, plan Plan) error {
 		plan.Source, plan.Format, plan.Mode, len(plan.Rows)); err != nil {
 		return err
 	}
+
 	for i, r := range plan.Rows {
 		if err := renderRow(w, i+1, len(plan.Rows), r, plan.Mode); err != nil {
 			return err
@@ -42,10 +43,12 @@ func renderRow(w io.Writer, idx, total int, r Row, mode string) error {
 	if len(url) == 0 {
 		url = "(" + constants.MsgCloneNowNoURL + ")"
 	}
+
 	branch := r.Branch
 	if len(branch) == 0 {
 		branch = "(default)"
 	}
+
 	_, err := fmt.Fprintf(w,
 		"  [%d/%d] %s\n        url:    %s\n        dest:   %s\n        branch: %s\n",
 		idx, total, r.RepoName, url, r.RelativePath, branch)
@@ -63,18 +66,22 @@ func RenderSummary(w io.Writer, results []Result) error {
 		ok, skipped, failed, len(results)); err != nil {
 		return err
 	}
+
 	for _, r := range results {
 		if _, err := fmt.Fprintf(w, "  %-7s %s -> %s",
 			r.Status, r.URL, r.Dest); err != nil {
 			return err
 		}
+
 		var detailErr error
 		if len(r.Detail) > 0 {
 			_, detailErr = fmt.Fprintf(w, "  (%s)", r.Detail)
 		}
+
 		if detailErr != nil {
 			return detailErr
 		}
+
 		if _, err := fmt.Fprintln(w); err != nil {
 			return err
 		}

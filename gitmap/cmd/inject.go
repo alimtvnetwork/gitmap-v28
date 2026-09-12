@@ -81,6 +81,7 @@ func runInject(args []string) error {
 	WriteShellHandoff(target)
 
 	fmt.Printf(constants.MsgInjectDone, repoName)
+
 	return nil
 }
 
@@ -129,6 +130,7 @@ func upsertInjectIfRemote(absPath, repoName string) {
 		RelativePath: repoName,
 		AbsolutePath: absPath,
 	}
+
 	if strings.HasPrefix(remoteURL, constants.PrefixSSH) || strings.HasPrefix(remoteURL, "git@") {
 		rec.SSHUrl = remoteURL
 	} else {
@@ -141,6 +143,7 @@ func upsertInjectIfRemote(absPath, repoName string) {
 
 		return
 	}
+
 	defer db.Close()
 
 	if upsertErr := db.UpsertRepos([]model.ScanRecord{rec}); upsertErr != nil {

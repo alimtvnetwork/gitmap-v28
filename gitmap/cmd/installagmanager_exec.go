@@ -13,11 +13,12 @@ func isAgManagerInstalled() (string, bool) {
 	if bin == "" {
 		bin = resolveToolBinaryPath("Antigravity.Tools")
 	}
+
 	if bin == "" {
 		bin = resolveToolBinaryPath("Antigravity-Manager")
 	}
-	if bin == "" {
 
+	if bin == "" {
 		return "", false
 	}
 
@@ -33,9 +34,9 @@ func isAppImageFile(path string) bool {
 func installAgManagerAppImage(srcPath string) error {
 	dest, err := installUserBin("ag-manager", srcPath)
 	if err != nil {
-
 		return err
 	}
+
 	fmt.Printf("  ✓ Installed portable AppImage to %s\n", dest)
 
 	return nil
@@ -43,9 +44,9 @@ func installAgManagerAppImage(srcPath string) error {
 
 func executeAgManagerInstaller(path string) error {
 	if runtime.GOOS == "linux" && isAppImageFile(path) {
-
 		return installAgManagerAppImage(path)
 	}
+
 	cmd := buildInstallerCommand(path)
 	if cmd != nil {
 		cmd.Stdout, cmd.Stderr = os.Stdout, os.Stderr
@@ -71,7 +72,6 @@ func buildInstallerCommand(path string) *exec.Cmd {
 
 func buildWindowsInstallerCmd(path string) *exec.Cmd {
 	if strings.HasSuffix(strings.ToLower(path), ".msi") {
-
 		return exec.Command("msiexec", "/i", path, "/qn")
 	}
 
@@ -80,7 +80,6 @@ func buildWindowsInstallerCmd(path string) *exec.Cmd {
 
 func buildLinuxInstallerCmd(path string) *exec.Cmd {
 	if strings.HasSuffix(strings.ToLower(path), ".deb") {
-
 		return exec.Command("sudo", "dpkg", "-i", path)
 	}
 

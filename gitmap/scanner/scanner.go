@@ -175,6 +175,7 @@ func resolveWorkerCount(requested int) int {
 	if requested <= 0 {
 		return defaultWorkerCount()
 	}
+
 	if requested > scanWorkersMax {
 		return scanWorkersMax
 	}
@@ -200,6 +201,7 @@ func defaultWorkerCount() int {
 	if n < 1 {
 		return 1
 	}
+
 	if n > scanWorkersMax {
 		return scanWorkersMax
 	}
@@ -334,17 +336,20 @@ func (st *scanState) processDir(job dirJob) {
 
 		return
 	}
+
 	if st.hasGitMarker(job.path, entries) {
 		st.recordRepo(job.path, job.depth)
 
 		return
 	}
+
 	// Children sit one level deeper. Skip the descend pass entirely
 	// when even the closest child would exceed the depth budget — no
 	// allocation, no enqueue, no spurious wg traffic.
 	if !st.isDepthAllowed(job.depth + 1) {
 		return
 	}
+
 	for _, entry := range entries {
 		if entry.IsDir() {
 			st.handleSubdir(job.path, job.depth+1, entry)
@@ -382,9 +387,11 @@ func (st *scanState) hasGitMarker(dir string, entries []os.DirEntry) bool {
 		if entry.Name() != constants.ExtGit {
 			continue
 		}
+
 		if entry.IsDir() {
 			return true
 		}
+
 		if isGitdirFile(filepath.Join(dir, entry.Name())) {
 			return true
 		}
@@ -402,6 +409,7 @@ func isGitdirFile(path string) bool {
 	if err != nil {
 		return false
 	}
+
 	defer f.Close()
 	buf := make([]byte, gitFileSniffBytes)
 	n, _ := f.Read(buf)
@@ -419,6 +427,7 @@ func (st *scanState) handleSubdir(parent string, childDepth int, entry os.DirEnt
 	if st.isExcluded[name] {
 		return
 	}
+
 	st.enqueue(dirJob{path: filepath.Join(parent, name), depth: childDepth})
 }
 
@@ -440,6 +449,7 @@ func (st *scanState) recordRepo(repoPath string, depth int) {
 
 		return
 	}
+
 	st.mu.Lock()
 	st.repos = append(st.repos, RepoInfo{
 		AbsolutePath: repoPath,
@@ -459,6 +469,7 @@ func (st *scanState) recordErr(err error) {
 	if st.firstErr == nil {
 		st.firstErr = err
 	}
+
 	st.mu.Unlock()
 }
 

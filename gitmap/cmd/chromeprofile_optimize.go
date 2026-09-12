@@ -33,6 +33,7 @@ func parseChromeOptFlags(name string, args []string) chromeOptFlags {
 	if *exceptStr != "" {
 		excepts = strings.Split(*exceptStr, ",")
 	}
+
 	return chromeOptFlags{Except: excepts, DryRun: *dryRun, Yes: *yes}
 }
 
@@ -41,18 +42,23 @@ func runChromeProfileOptimize(args []string) error {
 	db, err := store.OpenDefault()
 	if err != nil {
 		fmt.Printf("%s Could not open database to optimize chrome profiles: %v\n", constants.ColorYellow+"ℹ"+constants.ColorReset, err)
+
 		return nil
 	}
+
 	defer db.Close()
 
 	dups := findChromeProfileDuplicates(opts.Except)
 	if opts.DryRun {
 		fmt.Printf("%s [dry-run] %d duplicate Chrome profile snapshot(s) found.\n",
 			constants.ColorYellow+"ℹ"+constants.ColorReset, len(dups))
+
 		return nil
 	}
+
 	fmt.Printf("%s Successfully optimized Chrome profiles. 0 duplicate profiles remain.\n",
 		constants.ColorGreen+"✓"+constants.ColorReset)
+
 	return nil
 }
 
@@ -62,6 +68,7 @@ func findChromeProfileDuplicates(exceptList []string) []string {
 	if err != nil {
 		return nil
 	}
+
 	seen := make(map[string]bool)
 	var dups []string
 	for i, entry := range entries {
@@ -69,12 +76,15 @@ func findChromeProfileDuplicates(exceptList []string) []string {
 		if isProfileExcepted(name, exceptList, i+1) {
 			continue
 		}
+
 		if seen[name] {
 			dups = append(dups, entry.Name())
 			continue
 		}
+
 		seen[name] = true
 	}
+
 	return dups
 }
 
@@ -89,16 +99,20 @@ func isProfileExcepted(name string, exceptList []string, index int) bool {
 		if ex == "" {
 			continue
 		}
+
 		if ex == idStr || ex == idPad || ex == lowName || ex == slug {
 			return true
 		}
+
 		if strings.HasPrefix(lowName, ex) || strings.HasPrefix(slug, ex) {
 			return true
 		}
+
 		if strings.Contains(lowName, ex) {
 			return true
 		}
 	}
+
 	return false
 }
 
@@ -108,26 +122,35 @@ func runChromeProfileClear(args []string) error {
 	entries, err := os.ReadDir(dir)
 	if err != nil || len(entries) == 0 {
 		fmt.Printf("%s No tracked Chrome profile snapshots to clear.\n", constants.ColorGreen+"✓"+constants.ColorReset)
+
 		return nil
 	}
+
 	targets := filterChromeClearTargets(entries, opts.Except)
 	if len(targets) == 0 {
 		fmt.Printf("%s No matching Chrome profile snapshots to clear.\n", constants.ColorGreen+"✓"+constants.ColorReset)
+
 		return nil
 	}
+
 	printChromeClearPreview(targets)
 	if opts.DryRun {
 		fmt.Printf("\n%s [dry-run] %d Chrome profile snapshot(s) would be cleared. Remaining: %d\n",
 			constants.ColorYellow+"ℹ"+constants.ColorReset, len(targets), len(entries)-len(targets))
+
 		return nil
 	}
+
 	if !opts.Yes && !askChromeClearConfirmation(len(targets)) {
 		fmt.Println("Clearance canceled. No changes made.")
+
 		return nil
 	}
+
 	deleted := executeDeleteChromeSnapshots(dir, targets)
 	fmt.Printf("\n%s Successfully cleared %d Chrome profile snapshot(s). Remaining: %d\n",
 		constants.ColorGreen+"✓"+constants.ColorReset, deleted, len(entries)-deleted)
+
 	return nil
 }
 
@@ -138,8 +161,10 @@ func filterChromeClearTargets(entries []os.DirEntry, exceptList []string) []os.D
 		if isProfileExcepted(name, exceptList, i+1) {
 			continue
 		}
+
 		targets = append(targets, e)
 	}
+
 	return targets
 }
 
@@ -153,6 +178,7 @@ func printChromeClearPreview(targets []os.DirEntry) {
 		slug := strings.ReplaceAll(strings.ToLower(name), " ", "-")
 		fmt.Printf("    %-6d %-26s %-20s %s\n", i+1, name, slug, e.Name())
 	}
+
 	fmt.Printf("\n    %sTip: Exclude items using: --except \"<id, name, slug, or starts-with text>\"%s\n",
 		constants.ColorDim, constants.ColorReset)
 }
@@ -163,6 +189,7 @@ func askChromeClearConfirmation(count int) bool {
 	reader := bufio.NewReader(os.Stdin)
 	ans, _ := reader.ReadString('\n')
 	ans = strings.TrimSpace(strings.ToLower(ans))
+
 	return ans == "y" || ans == "yes"
 }
 
@@ -173,5 +200,6 @@ func executeDeleteChromeSnapshots(dir string, targets []os.DirEntry) int {
 			deleted++
 		}
 	}
+
 	return deleted
 }

@@ -64,6 +64,7 @@ func (o SqlOperator) IsNotEqual() bool {
 	if o == SqlOpNotEqual {
 		return true
 	}
+
 	return o == SqlOpNotEqualAlt
 }
 
@@ -108,11 +109,14 @@ func (o *SqlOperator) UnmarshalJSON(data []byte) error {
 	if err := json.Unmarshal(data, &s); err != nil {
 		return err
 	}
+
 	target := SqlOperator(s)
 	if !sqlOperatorValidMap[target] {
 		return fmt.Errorf("invalid sql operator: %s", s)
 	}
+
 	*o = target
+
 	return nil
 }
 
@@ -122,6 +126,7 @@ func (o SqlOperator) ToJSON() (string, *apperror.AppError) {
 	if err != nil {
 		return "", apperror.WrapSimple(err, "serialize sql operator to json")
 	}
+
 	return string(b), nil
 }
 
@@ -131,11 +136,14 @@ func (o *SqlOperator) FromJSON(s string) *apperror.AppError {
 	if err := json.Unmarshal([]byte(s), &str); err != nil {
 		return apperror.WrapSimple(err, "deserialize sql operator from json")
 	}
+
 	target := SqlOperator(str)
 	if !sqlOperatorValidMap[target] {
 		return apperror.WrapSimple(fmt.Errorf("invalid sql operator: %s", str), "validate sql operator from json")
 	}
+
 	*o = target
+
 	return nil
 }
 
@@ -181,6 +189,7 @@ func (r sqlOperatorRegistry) Names() []string {
 	for i, op := range all {
 		names[i] = op.String()
 	}
+
 	return names
 }
 
@@ -200,6 +209,7 @@ func (r sqlOperatorRegistry) ToJSON() (string, *apperror.AppError) {
 	if err != nil {
 		return "", apperror.WrapSimple(err, "serialize sql operator registry to json")
 	}
+
 	return string(b), nil
 }
 

@@ -27,6 +27,7 @@ func RunCheck() {
 
 	if normalizeVersion(current) == normalizeVersion(latest) {
 		fmt.Printf(MsgUpToDate, current)
+
 		return
 	}
 

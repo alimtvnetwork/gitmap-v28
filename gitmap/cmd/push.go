@@ -42,8 +42,10 @@ func runPush(args []string) error {
 	useSSH, useHTTPS, rest := extractTransportFlags(args)
 	if useSSH || useHTTPS {
 		runPushCWDWithTransport(useSSH, useHTTPS, rest)
+
 		return nil
 	}
+
 	opts := parsePushFlags(args)
 	if opts.verbose {
 		initVerboseLog()
@@ -52,11 +54,14 @@ func runPush(args []string) error {
 	if isPushCWDEnabled(opts) {
 		fmt.Println("  ↳ cwd is a git repo — running plain `git push` here")
 		runPushCWD(rest)
+
 		return nil
 	}
+
 	if pushNoTargetsHint(opts) {
 		return nil
 	}
+
 	records := resolvePullTargets(opts.slug, opts.group, opts.all) // Reusing target resolver from pull.go
 	fmt.Printf("  ↳ resolved %d repo(s) to push\n", len(records))
 
@@ -86,7 +91,9 @@ func runPush(args []string) error {
 	} else if opts.all {
 		statusArgs = append(statusArgs, "--all")
 	}
+
 	runStatus(statusArgs)
+
 	return nil
 }
 
@@ -105,9 +112,11 @@ func pushNoTargetsHint(opts pushOptions) bool {
 	if opts.slug != "" || opts.group != "" || opts.all || HasAlias() {
 		return false
 	}
+
 	if isGitRepoCWD() {
 		return false
 	}
+
 	cwd, _ := os.Getwd()
 	if childRepos, err := fsutil.DiscoverChildGitRepos(cwd); err == nil && len(childRepos) > 0 {
 		fmt.Printf("→ Discovered %d child repositories in %s for push:\n", len(childRepos), cwd)
@@ -118,8 +127,10 @@ func pushNoTargetsHint(opts pushOptions) bool {
 			cmd.Stderr = os.Stderr
 			_ = cmd.Run()
 		}
+
 		return true
 	}
+
 	fmt.Println("  ↳ nothing to push:")
 	fmt.Println("     • current directory is not a git repository")
 	fmt.Println("     • no <repo-name>, --group, --all, or -A alias provided")
@@ -128,6 +139,7 @@ func pushNoTargetsHint(opts pushOptions) bool {
 	fmt.Println("     gitmap push --all")
 	fmt.Println("     gitmap push --group <group>")
 	fmt.Println("     cd <repo> && gitmap push")
+
 	return true
 }
 
@@ -145,9 +157,11 @@ func parsePushFlags(args []string) pushOptions {
 		group: *gFlag, all: *aFlag, verbose: *vFlag, stopOnFail: *sFlag,
 		parallel: *pFlag,
 	}
+
 	if fs.NArg() > 0 {
 		opts.slug = fs.Arg(0)
 	}
+
 	return opts
 }
 
@@ -159,12 +173,14 @@ func runPushCWDWithTransport(useSSH, useHTTPS bool, extraArgs []string) error {
 
 		return nil
 	}
+
 	if _, _, _, err := ApplyTransportFlag(cwd, useSSH, useHTTPS); err != nil {
 		fmt.Fprintf(os.Stderr, "✗ %v\n", err)
 		cliexit.HandleGeneralError(apperror.WrapSimple(err, "apply transport flag"))
 
 		return nil
 	}
+
 	pushWithAutoRebase(cwd, extraArgs)
 
 	return nil
@@ -173,6 +189,7 @@ func runPushCWDWithTransport(useSSH, useHTTPS bool, extraArgs []string) error {
 func runPushCWD(extraArgs []string) error {
 	cwd, _ := os.Getwd()
 	pushWithAutoRebase(cwd, extraArgs)
+
 	return nil
 }
 
@@ -181,6 +198,7 @@ func beginPushTask(records []model.ScanRecord, rest []string) (int64, *store.DB)
 	if wdErr != nil {
 		fmt.Fprintf(os.Stderr, "  ⚠ Could not determine working directory: %v\n", wdErr)
 	}
+
 	cmdArgs := buildCommandArgs(append([]string{"push"}, os.Args[2:]...))
 	targetPath := workDir
 	if len(records) == 1 {
@@ -199,16 +217,20 @@ func executePush(records []model.ScanRecord, prog *cloner.BatchProgress, opts pu
 	if !ok {
 		cliexit.HandleError(apperror.NewSimple("invalid concurrency", "E9000"), 1)
 	}
+
 	opts.parallel = workers
 
 	if opts.parallel > 1 {
 		runPushParallel(records, prog, opts.parallel, opts.stopOnFail)
+
 		return
 	}
+
 	for _, rec := range records {
 		if prog.Stopped() {
 			break
 		}
+
 		prog.BeginItem(rec.RepoName)
 		pushOneRepoTracked(rec, prog)
 	}
@@ -227,11 +249,13 @@ func pushOneRepoTracked(rec model.ScanRecord, prog *cloner.BatchProgress) {
 
 		return
 	}
+
 	if result.Notes == "up-to-date" {
 		prog.UpToDate(rec.RepoName)
 
 		return
 	}
+
 	prog.Succeed(rec.RepoName)
 }
 
@@ -244,9 +268,11 @@ func pushWithAutoRebase(cwd string, rest []string) {
 	if runErr == nil {
 		return
 	}
+
 	isDirectRejection := !isNonFastForwardRejection(stderr)
 	if isDirectRejection {
 		handleGitExit("git push", runErr)
+
 		return
 	}
 
@@ -254,8 +280,10 @@ func pushWithAutoRebase(cwd string, rest []string) {
 	if pullErr := runGitInherit([]string{"pull", "--rebase"}); pullErr != nil {
 		fmt.Fprintln(os.Stderr, "✗ auto pull --rebase failed — resolve conflicts then re-run `gitmap push`")
 		handleGitExit("git pull --rebase", pullErr)
+
 		return
 	}
+
 	fmt.Printf("→ Retrying: git %s (cwd: %s)\n", joinForLog(gitArgs), cwd)
 	if retryErr := runGitInherit(gitArgs); retryErr != nil {
 		handleGitExit("git push (retry)", retryErr)
@@ -268,6 +296,7 @@ func runGitCapturingStderr(gitArgs []string) (error, string) {
 	cmd.Stdin = os.Stdin
 	cmd.Stdout = os.Stdout
 	cmd.Stderr = io.MultiWriter(os.Stderr, &buf)
+
 	return cmd.Run(), buf.String()
 }
 
@@ -276,6 +305,7 @@ func runGitInherit(gitArgs []string) error {
 	cmd.Stdin = os.Stdin
 	cmd.Stdout = os.Stdout
 	cmd.Stderr = os.Stderr
+
 	return cmd.Run()
 }
 
@@ -284,6 +314,7 @@ func isNonFastForwardRejection(stderr string) bool {
 	if !strings.Contains(lower, "[rejected]") && !strings.Contains(lower, "failed to push some refs") {
 		return false
 	}
+
 	return strings.Contains(lower, "fetch first") || strings.Contains(lower, "non-fast-forward")
 }
 
@@ -294,6 +325,7 @@ func handleGitExit(label string, runErr error) {
 
 		return
 	}
+
 	fmt.Fprintf(os.Stderr, "%s failed: %v\n", label, runErr)
 	cliexit.HandleGeneralError(apperror.WrapSimple(runErr, label))
 }
@@ -304,7 +336,9 @@ func joinForLog(args []string) string {
 		if i > 0 {
 			out += " "
 		}
+
 		out += a
 	}
+
 	return out
 }

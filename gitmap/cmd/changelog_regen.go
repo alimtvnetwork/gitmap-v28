@@ -40,6 +40,7 @@ func RegenChangelog(releaseDir string, w io.Writer) error {
 	if err != nil {
 		return err
 	}
+
 	metas := loadReleaseMetas(releaseDir, entries)
 	sortMetasDesc(metas)
 
@@ -49,6 +50,7 @@ func RegenChangelog(releaseDir string, w io.Writer) error {
 		fmt.Fprintf(w, "## %s\n\n", m.Tag)
 		fmt.Fprintf(w, "- (fill in)\n\n")
 	}
+
 	return nil
 }
 
@@ -59,16 +61,20 @@ func loadReleaseMetas(dir string, entries []os.DirEntry) []ReleaseMeta {
 		if e.IsDir() || !strings.HasSuffix(name, ".json") || name == "latest.json" {
 			continue
 		}
+
 		raw, err := os.ReadFile(filepath.Join(dir, name))
 		if err != nil {
 			continue
 		}
+
 		var m ReleaseMeta
 		if err := json.Unmarshal(raw, &m); err != nil || m.Version == "" {
 			continue
 		}
+
 		out = append(out, m)
 	}
+
 	return out
 }
 
@@ -87,6 +93,7 @@ func compareSemverDesc(a, b string) bool {
 			return pa[i] > pb[i]
 		}
 	}
+
 	return false
 }
 
@@ -97,5 +104,6 @@ func splitSemver(v string) [3]int {
 		n, _ := strconv.Atoi(parts[i])
 		out[i] = n
 	}
+
 	return out
 }

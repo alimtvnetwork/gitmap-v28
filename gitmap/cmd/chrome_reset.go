@@ -28,10 +28,12 @@ func runChromeReset(args []string) error {
 	if profName == "" {
 		profName = constants.ChromeDefaultProfileDir
 	}
+
 	srcPath, hasDir := resolveChromeProfileDir(profName)
 	if !hasDir {
 		return apperror.NewSimple(fmt.Sprintf("profile %s not found", profName), "E4401")
 	}
+
 	return executeProfileReset(srcPath, profName, opts)
 }
 
@@ -55,9 +57,11 @@ func parseChromeResetArgs(args []string) chromeResetOptions {
 			opts.Profile = a
 		}
 	}
+
 	if !opts.IsCache && !opts.IsCookies && !opts.IsHistory && !opts.IsExtensions && !opts.IsAll {
 		opts.IsCache = true
 	}
+
 	return opts
 }
 
@@ -66,19 +70,25 @@ func executeProfileReset(srcPath, profName string, opts chromeResetOptions) erro
 	if opts.IsAll {
 		return performFullProfileReset(srcPath, profName)
 	}
+
 	if opts.IsCache {
 		wipeCacheDirs(srcPath)
 	}
+
 	if opts.IsCookies {
 		wipeCookieFiles(srcPath)
 	}
+
 	if opts.IsHistory {
 		wipeHistoryFiles(srcPath)
 	}
+
 	if opts.IsExtensions {
 		wipeExtensionDir(srcPath)
 	}
+
 	fmt.Printf("\n\033[1;92m✓ reset complete\033[0m  profile %q cleaned\n", profName)
+
 	return nil
 }
 
@@ -92,6 +102,7 @@ func wipeCacheDirs(srcPath string) {
 			cleaned++
 		}
 	}
+
 	fmt.Printf("  \033[1;92m✓\033[0m %d cache folder(s) purged\n", cleaned)
 }
 
@@ -105,6 +116,7 @@ func wipeCookieFiles(srcPath string) {
 			cleaned++
 		}
 	}
+
 	fmt.Printf("  \033[1;92m✓\033[0m %d cookie store(s) wiped\n", cleaned)
 }
 
@@ -118,6 +130,7 @@ func wipeHistoryFiles(srcPath string) {
 			cleaned++
 		}
 	}
+
 	fmt.Printf("  \033[1;92m✓\033[0m %d history database(s) cleared\n", cleaned)
 }
 
@@ -140,11 +153,14 @@ func performFullProfileReset(srcPath, profName string) error {
 		_ = os.WriteFile(prefPath, []byte("{}"), constants.FilePermission)
 		fmt.Println("  \033[1;92m✓\033[0m preferences reset to default (backup saved to .bak)")
 	}
+
 	fmt.Printf("\n\033[1;92m✓ full reset complete\033[0m  profile %q completely refreshed\n", profName)
+
 	return nil
 }
 
 func readFileBytes(path string) []byte {
 	b, _ := os.ReadFile(path)
+
 	return b
 }

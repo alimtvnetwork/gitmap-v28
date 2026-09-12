@@ -28,9 +28,11 @@ func TestAppError_FormattingAndUnwrap(t *testing.T) {
 	if !strings.Contains(rendered, "E1001") {
 		t.Errorf("rendered error missing code: %s", rendered)
 	}
+
 	if !strings.Contains(rendered, "creator=netutil") {
 		t.Errorf("rendered error missing creator: %s", rendered)
 	}
+
 	if !strings.Contains(rendered, "port:8080") && !strings.Contains(rendered, "port: 8080") {
 		t.Errorf("rendered error missing context: %s", rendered)
 	}
@@ -49,6 +51,7 @@ func TestAppError_StackTrace(t *testing.T) {
 	if appErr.Stack == "" {
 		t.Fatalf("expected stack trace to be non-empty")
 	}
+
 	if !strings.Contains(appErr.Stack, "TestAppError_StackTrace") {
 		t.Errorf("expected stack trace to contain test function name: %s", appErr.Stack)
 	}

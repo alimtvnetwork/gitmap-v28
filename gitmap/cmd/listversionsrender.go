@@ -39,12 +39,15 @@ func buildListVersionsJSONItems(entries []versionEntry) [][]stablejson.Field {
 		fields := []stablejson.Field{
 			{Key: listVersionsKeyVersion, Value: e.Version.String()},
 		}
+
 		if e.Source != "" {
 			fields = append(fields, stablejson.Field{Key: listVersionsKeySource, Value: e.Source})
 		}
+
 		if len(e.Notes) > 0 {
 			fields = append(fields, stablejson.Field{Key: listVersionsKeyChangelog, Value: e.Notes})
 		}
+
 		items = append(items, fields)
 	}
 

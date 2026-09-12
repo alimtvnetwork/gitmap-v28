@@ -21,17 +21,22 @@ func runRelease(args []string) error {
 	if tryCrossDirRelease(args) {
 		return nil
 	}
+
 	checkHelp("release", args)
 	v, assets, commit, branch, bump, notes, targets, zg, zi, bundle, draft, dryRun, verbose, comp, cs, bin, listTgts, noComm, yes := parseReleaseFlags(args)
 	_ = verbose
 	if listTgts {
 		printListTargets(targets)
+
 		return nil
 	}
+
 	if handleOutsideRepoRelease(args, v, bump, commit, branch, yes) {
 		return nil
 	}
+
 	performInsideRepoRelease(v, assets, commit, branch, bump, notes, targets, zg, zi, bundle, draft, dryRun, verbose, comp, cs, bin, noComm, yes)
+
 	return nil
 }
 
@@ -39,10 +44,13 @@ func handleOutsideRepoRelease(args []string, version, bump, commit, branch strin
 	if release.IsInsideGitRepo() {
 		return false
 	}
+
 	if tryRunReleaseInRecentClone(args) || (isAutoBumpEligible(version, bump, commit, branch) && tryRunReleaseScanDir(yes)) {
 		return true
 	}
+
 	runReleaseSelf(args)
+
 	return true
 }
 
@@ -78,15 +86,19 @@ func applyBareReleaseAutoBump(version, bump, commit, branch string, yes bool) st
 	if !isAutoBumpEligible(version, bump, commit, branch) {
 		return bump
 	}
+
 	current, next, ok := peekNextMinorVersion()
 	if !ok {
 		return bump
 	}
+
 	if !confirmAutoBump(current, next, yes) {
 		fmt.Fprint(os.Stderr, constants.MsgReleaseAutoBumpAborted)
 		var empty string
+
 		return empty
 	}
+
 	return constants.BumpMinor
 }
 
@@ -95,6 +107,7 @@ func loadReleaseConfig() model.Config {
 	if cfgErr != nil {
 		fmt.Fprintf(os.Stderr, "  ⚠ Could not load config: %v\n", cfgErr)
 	}
+
 	return cfg
 }
 
@@ -155,6 +168,7 @@ func executeRelease(
 	if err := release.Execute(opts); err != nil {
 		cliexit.HandleError(apperror.WrapSimple(err, constants.ErrBareFmt), 1)
 	}
+
 	persistReleaseToDB()
 }
 
@@ -164,6 +178,7 @@ func validateReleaseFlags(version, bump, commit, branch string) {
 		fmt.Fprint(os.Stderr, constants.ErrReleaseBumpConflict)
 		cliexit.HandleError(apperror.NewSimple("fatal error", "E9000"), 1)
 	}
+
 	if len(commit) > 0 && len(branch) > 0 {
 		fmt.Fprint(os.Stderr, constants.ErrReleaseCommitBranch)
 		cliexit.HandleError(apperror.NewSimple("fatal error", "E9000"), 1)
@@ -176,6 +191,7 @@ type zipGroupFlag []string
 func (z *zipGroupFlag) String() string { return fmt.Sprintf("%v", *z) }
 func (z *zipGroupFlag) Set(val string) error {
 	*z = append(*z, val)
+
 	return nil
 }
 
@@ -185,6 +201,7 @@ type zipItemFlag []string
 func (z *zipItemFlag) String() string { return fmt.Sprintf("%v", *z) }
 func (z *zipItemFlag) Set(val string) error {
 	*z = append(*z, val)
+
 	return nil
 }
 
@@ -227,6 +244,7 @@ func newReleaseFlagSet() (*flag.FlagSet, *releaseFlagHolders) {
 	initBoolFlags(fs, h)
 	fs.Var(&h.zgGroups, "zip-group", constants.FlagDescZGZipGroup)
 	fs.Var(&h.zgItems, "Z", constants.FlagDescZGZipItem)
+
 	return fs, h
 }
 
@@ -237,9 +255,11 @@ func parseReleaseFlags(args []string) (version, assets, commit, branch, bump, no
 	if fs.NArg() > 0 {
 		version = normalizeVersion(fs.Arg(0))
 	}
+
 	if forceYesOverride {
 		*h.yes = true
 	}
+
 	return version, *h.assets, *h.commit, *h.branch, *h.bump, *h.notes, *h.targets, []string(h.zgGroups), []string(h.zgItems), *h.bundle, *h.draft, *h.dryRun, *h.verbose, *h.compress, *h.checksums, *h.bin, *h.listTargets, *h.noCommit, *h.yes
 }
 
@@ -253,6 +273,7 @@ func normalizeVersion(v string) string {
 	if len(v) == 0 {
 		return v
 	}
+
 	return versionPrefix + strings.TrimLeft(v, versionTrimChars)
 }
 
@@ -269,6 +290,7 @@ func printListTargets(flagTargets string) {
 	if err != nil {
 		cliexit.HandleError(apperror.WrapSimple(err, constants.ErrBareFmt), 1)
 	}
+
 	printTargetDetails(flagTargets, cfg.Release.Targets, targets)
 }
 
@@ -290,8 +312,10 @@ func resolveTargetSource(flagTargets string, configTargets []model.ReleaseTarget
 	if len(flagTargets) > 0 {
 		return "--targets flag"
 	}
+
 	if len(configTargets) > 0 {
 		return "config.json (release.targets)"
 	}
+
 	return "built-in defaults"
 }

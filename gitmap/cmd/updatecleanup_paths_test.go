@@ -24,6 +24,7 @@ func TestDeriveDeployAppDir(t *testing.T) {
 		if len(want) > 0 {
 			want = filepath.Clean(want)
 		}
+
 		if got != want {
 			t.Fatalf("deriveDeployAppDir(%q) = %q, want %q", tt.selfPath, got, tt.want)
 		}
@@ -39,9 +40,11 @@ func TestResolveBuildOutputDir(t *testing.T) {
 	if got := norm(resolveBuildOutputDir(repoPath, "./bin")); got != "/repo/bin" {
 		t.Fatalf("resolveBuildOutputDir relative = %q, want %q", got, "/repo/bin")
 	}
+
 	if got := norm(resolveBuildOutputDir(repoPath, "")); got != "/repo/bin" {
 		t.Fatalf("resolveBuildOutputDir default = %q, want %q", got, "/repo/bin")
 	}
+
 	if got := norm(resolveBuildOutputDir(repoPath, "/custom/bin")); got != "/custom/bin" {
 		t.Fatalf("resolveBuildOutputDir absolute = %q, want %q", got, "/custom/bin")
 	}

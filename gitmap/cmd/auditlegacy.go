@@ -43,17 +43,20 @@ func runAuditLegacy(args []string) error {
 	if err != nil {
 		return apperror.WrapSimple(err, "parse-args")
 	}
+
 	hits, n, walkErr := scanAuditLegacy(opts)
 	if walkErr != nil {
 		fmt.Fprintf(os.Stderr, constants.ErrAuditLegacyWalk, opts.Root, walkErr)
 		cliexit.HandleError(nil, 2)
 	}
+
 	emitAuditLegacy(opts, hits, n)
 	plans := writeAuditLegacyDiffs(opts, hits)
 	writeAuditLegacyReport(opts, hits, n, plans)
 	if len(hits) > 0 {
 		return apperror.NewSimple("fatal error", "E9000")
 	}
+
 	return nil
 }
 
@@ -79,13 +82,16 @@ func (s *auditWalkState) visit(path string, d fs.DirEntry, err error) error {
 	if err != nil || d == nil {
 		return nil
 	}
+
 	if d.IsDir() {
 		return skipAuditDir(d.Name())
 	}
+
 	isNonAuditScannable := !isAuditScannable(path)
 	if isNonAuditScannable {
 		return nil
 	}
+
 	s.fileCount++
 	s.hits = append(s.hits, scanAuditLegacyFile(path, s.patterns)...)
 
@@ -124,6 +130,7 @@ func scanAuditLegacyFile(path string, pats []*regexp.Regexp) []auditLegacyHit {
 	if err != nil {
 		return nil
 	}
+
 	defer f.Close()
 	scanner := bufio.NewScanner(f)
 	scanner.Buffer(make([]byte, 0, 64*1024), 1024*1024)

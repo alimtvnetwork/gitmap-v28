@@ -41,9 +41,11 @@ func routeCDSub(sub string, args []string) error {
 	if sub == constants.CmdCDRepos {
 		return runCDRepos(args)
 	}
+
 	if sub == constants.CmdCDSetDefault {
 		return runCDSetDefault(args)
 	}
+
 	if sub == constants.CmdCDClearDefault {
 		return runCDClearDefault(args)
 	}

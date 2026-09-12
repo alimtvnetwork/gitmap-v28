@@ -26,6 +26,7 @@ func runSSHStatus(_ []string) error {
 	printSSHLoadedKeys()
 	printSSHProbe()
 	fmt.Fprint(os.Stdout, constants.MsgSSHStatusFooter)
+
 	return nil
 }
 
@@ -37,6 +38,7 @@ func printSSHAgentStatus() {
 
 		return
 	}
+
 	fmt.Fprintf(os.Stdout, constants.MsgSSHStatusAgentRunning, sock)
 }
 
@@ -51,6 +53,7 @@ func printSSHLoadedKeys() {
 
 		return
 	}
+
 	lines := splitNonEmptyLines(text)
 	fmt.Fprintf(os.Stdout, constants.MsgSSHStatusKeysHeader, len(lines))
 	for _, ln := range lines {
@@ -68,6 +71,7 @@ func printSSHProbe() {
 
 			continue
 		}
+
 		fmt.Fprintf(os.Stdout, constants.MsgSSHStatusProbeFail, host, detail)
 	}
 }
@@ -87,6 +91,7 @@ func probeSSHHost(host string) (bool, string) {
 		strings.Contains(lower, "logged in as") {
 		return true, firstSegment(text, 80)
 	}
+
 	if text == "" {
 		return false, "no response (timeout or network blocked)"
 	}

@@ -52,12 +52,16 @@ func runRegoldens(args []string) error {
 		fmt.Fprintln(os.Stderr, constants.ErrRegoldensMissingPat)
 		cliexit.HandleError(nil, 2)
 	}
+
 	validateDiffMode(cfg.diffMode)
 	if cfg.isDryRun {
 		emitRegoldensDryRun(cfg)
+
 		return nil
 	}
+
 	executeRegoldens(cfg)
+
 	return nil
 }
 
@@ -116,8 +120,10 @@ func runRegoldensPass(cfg regoldensFlags, withGate bool, header, errFmt string) 
 	if code == 0 {
 		return nil
 	}
+
 	fmt.Fprintf(os.Stderr, errFmt, code)
 	fmt.Fprintln(os.Stderr)
+
 	return apperror.NewSimple("fatal error", "E9000")
 	// 	return nil
 }
@@ -145,7 +151,6 @@ func runGoTestPass(cfg regoldensFlags, withGate bool) int {
 func buildPassEnv(withGate bool) []string {
 	out := stripGoldenGateVars(os.Environ())
 	if !withGate {
-
 		return out
 	}
 
@@ -164,6 +169,7 @@ func stripGoldenGateVars(parent []string) []string {
 		if isGoldenGateVar(kv) {
 			continue
 		}
+
 		out = append(out, kv)
 	}
 
@@ -185,6 +191,7 @@ func extractExitCode(err error) int {
 	if errors.As(err, &exitErr) {
 		return exitErr.ExitCode()
 	}
+
 	fmt.Fprintf(os.Stderr, "regoldens: failed to invoke `go test`: %v\n", err)
 
 	return 127

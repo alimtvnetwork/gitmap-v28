@@ -14,6 +14,7 @@ func printMacroTree(macroName string) {
 	if loadErr != nil || loadedMacro == nil {
 		return
 	}
+
 	printMacroStepsTree(loadedMacro)
 }
 
@@ -22,6 +23,7 @@ func printMacroStepsTree(targetMacro *macro.Macro) {
 	if targetMacro == nil || len(targetMacro.Steps) == 0 {
 		return
 	}
+
 	printMacroTreeHeader(targetMacro)
 	renderMacroStepList(targetMacro.Steps)
 	fmt.Println()
@@ -33,8 +35,10 @@ func printMacroTreeHeader(targetMacro *macro.Macro) {
 		fmt.Printf("  %s%s%s %s%s%s\n",
 			constants.ColorWhite, targetMacro.Name, constants.ColorReset,
 			constants.ColorDim, targetMacro.Description, constants.ColorReset)
+
 		return
 	}
+
 	fmt.Printf("  %s%s%s\n",
 		constants.ColorWhite, targetMacro.Name, constants.ColorReset)
 }
@@ -53,6 +57,7 @@ func selectTreeConnector(isLastStep bool) string {
 	if isLastStep {
 		return constants.TreeCorner
 	}
+
 	return constants.TreeBranch
 }
 
@@ -63,8 +68,10 @@ func printStepBranch(connector, commandLine, stepDescription string) {
 			constants.ColorCyan, connector, constants.ColorReset,
 			constants.ColorWhite, commandLine, constants.ColorReset,
 			constants.ColorDim, stepDescription, constants.ColorReset)
+
 		return
 	}
+
 	fmt.Printf("  %s%s%s %s%s%s\n",
 		constants.ColorCyan, connector, constants.ColorReset,
 		constants.ColorWhite, commandLine, constants.ColorReset)
@@ -82,5 +89,6 @@ func formatStepDescription(step macro.MacroStep) string {
 	if step.WorkingDir != "" {
 		return fmt.Sprintf("(dir: %s)", step.WorkingDir)
 	}
+
 	return ""
 }

@@ -24,15 +24,19 @@ func TestRemove_DryRun_DeletedReportedButFileRemains(t *testing.T) {
 	if err != nil {
 		t.Fatalf("dry-run remove: %v", err)
 	}
+
 	if res.Status != RemoveDeleted {
 		t.Fatalf("status = %v, want RemoveDeleted (dry-run preview)", res.Status)
 	}
+
 	if !res.DryRun {
 		t.Fatalf("DryRun = false, want true")
 	}
+
 	if res.Path != managedPath {
 		t.Fatalf("Path = %q, want %q", res.Path, managedPath)
 	}
+
 	if _, statErr := os.Stat(managedPath); statErr != nil {
 		t.Fatalf("file must remain on disk after dry-run, stat err=%v", statErr)
 	}
@@ -49,6 +53,7 @@ func TestRemove_DryRun_RefusedDoesNotTouchThirdParty(t *testing.T) {
 	if res.Status != RemoveRefused || !res.DryRun {
 		t.Fatalf("got status=%v dryRun=%v, want RemoveRefused/true", res.Status, res.DryRun)
 	}
+
 	if _, statErr := os.Stat(thirdPartyPath); statErr != nil {
 		t.Fatalf("third-party file must remain, stat err=%v", statErr)
 	}
@@ -83,8 +88,10 @@ func TestRemove_LiveCallStillDeletes(t *testing.T) {
 	if err != nil || res.Status != RemoveDeleted || res.DryRun {
 		t.Fatalf("live: status=%v dryRun=%v err=%v", res.Status, res.DryRun, err)
 	}
+
 	if _, statErr := os.Stat(filepath.Join(dir, "gitmap-live.desktop")); !os.IsNotExist(statErr) {
 		t.Fatalf("file should be gone, stat err=%v", statErr)
 	}
+
 	_ = managedPath
 }

@@ -64,6 +64,7 @@ func BumpStampInBody(body string, req BumpRequest) (string, bool) {
 	if !markerLineRe.MatchString(head) {
 		return body, false
 	}
+
 	head = rewriteGeneration(head, req.NewGeneration)
 	head = rewriteMinCurrent(head, req.NewMinCurrent)
 	head = rewriteCreatedFor(head, req.NewCreatedFor)
@@ -129,14 +130,17 @@ func MaybeAutoBumpFile(path string, req BumpRequest) (bool, error) {
 	if !isAutoBumpEnabled() {
 		return false, nil
 	}
+
 	raw, err := os.ReadFile(path)
 	if err != nil {
 		return false, fmt.Errorf("autobump: read %s: %w", path, err)
 	}
+
 	out, ok := BumpStampInBody(string(raw), req)
 	if !ok {
 		return false, fmt.Errorf("autobump: no stamp marker in %s", path)
 	}
+
 	if err := os.WriteFile(path, []byte(out), readWritePerm); err != nil {
 		return false, fmt.Errorf("autobump: write %s: %w", path, err)
 	}

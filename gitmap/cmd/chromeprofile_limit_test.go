@@ -13,12 +13,15 @@ func TestParseChromeTransferOptions(t *testing.T) {
 	if opts.Limit != 1 {
 		t.Errorf("expected limit 1, got %d", opts.Limit)
 	}
+
 	if opts.Profile != "Work" {
 		t.Errorf("expected profile Work, got %s", opts.Profile)
 	}
+
 	if opts.Format != "json" {
 		t.Errorf("expected format json, got %s", opts.Format)
 	}
+
 	if len(opts.Positional) != 2 || opts.Positional[0] != "export" || opts.Positional[1] != "out.json" {
 		t.Errorf("unexpected positional: %+v", opts.Positional)
 	}
@@ -28,6 +31,7 @@ func TestParseChromeTransferOptions(t *testing.T) {
 	if opts2.Limit != 3 {
 		t.Errorf("expected last limit 3, got %d", opts2.Limit)
 	}
+
 	if opts2.Profile != "Default" {
 		t.Errorf("expected profile Default, got %s", opts2.Profile)
 	}
@@ -45,6 +49,7 @@ func TestChromeExportAndImportWithLimitAndProfile(t *testing.T) {
 	if err := runChromeProfileExport([]string{outJSON, "--format=json", "--limit=1"}); err != nil {
 		t.Fatalf("export with --limit=1 failed: %v", err)
 	}
+
 	if _, err := os.Stat(outJSON); err != nil {
 		t.Fatalf("expected limited.json to exist: %v", err)
 	}
@@ -54,6 +59,7 @@ func TestChromeExportAndImportWithLimitAndProfile(t *testing.T) {
 	if err := runChromeProfileExport([]string{outSingle, "--profile=Default"}); err != nil {
 		t.Fatalf("export with --profile=Default failed: %v", err)
 	}
+
 	if _, err := os.Stat(outSingle); err != nil {
 		t.Fatalf("expected single_flag.json to exist: %v", err)
 	}
@@ -120,6 +126,7 @@ func TestAgyClearProtectsPinnedProjects(t *testing.T) {
 			t.Errorf("agy clear targeted pinned project %s for removal!", pinned.ID)
 		}
 	}
+
 	if len(targets) != 1 || targets[0].ID != "unpinned-missing" {
 		t.Errorf("expected only unpinned-missing in targets, got: %+v", targets)
 	}

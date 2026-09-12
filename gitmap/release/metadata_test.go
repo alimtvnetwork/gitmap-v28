@@ -14,6 +14,7 @@ func setupTempDir(t *testing.T) func() {
 	dir := t.TempDir()
 	orig := constants.DefaultReleaseDir
 	constants.DefaultReleaseDir = filepath.Join(dir, ".gitmap", "release")
+
 	return func() { constants.DefaultReleaseDir = orig }
 }
 
@@ -96,9 +97,11 @@ func TestWriteAndReadLatest(t *testing.T) {
 	if latest.Version != "1.0.0" {
 		t.Errorf("expected version 1.0.0, got %s", latest.Version)
 	}
+
 	if latest.Tag != "v1.0.0" {
 		t.Errorf("expected tag v1.0.0, got %s", latest.Tag)
 	}
+
 	if latest.Branch != "release/v1.0.0" {
 		t.Errorf("expected branch release/v1.0.0, got %s", latest.Branch)
 	}

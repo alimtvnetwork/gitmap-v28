@@ -53,6 +53,7 @@ func (db *DB) SelectCsharpProjectFiles(metadataID int64) ([]model.CsharpProjectF
 	if err != nil {
 		return nil, fmt.Errorf(constants.ErrProjectQuery, err)
 	}
+
 	defer rows.Close()
 
 	return scanCsharpFileRows(rows)
@@ -64,6 +65,7 @@ func (db *DB) SelectCsharpKeyFiles(metadataID int64) ([]model.CsharpKeyFile, err
 	if err != nil {
 		return nil, fmt.Errorf(constants.ErrProjectQuery, err)
 	}
+
 	defer rows.Close()
 
 	return scanCsharpKeyFileRows(rows)
@@ -74,6 +76,7 @@ func (db *DB) DeleteStaleCsharpFiles(metadataID int64, keepIDs []int64) error {
 	if len(keepIDs) == 0 {
 		return nil
 	}
+
 	placeholders := buildPlaceholders(len(keepIDs))
 	query := fmt.Sprintf(constants.SQLDeleteStaleCsharpFiles, placeholders)
 	args := buildStaleArgsInt64(metadataID, keepIDs)
@@ -87,6 +90,7 @@ func (db *DB) DeleteStaleCsharpKeyFiles(metadataID int64, keepIDs []int64) error
 	if len(keepIDs) == 0 {
 		return nil
 	}
+
 	placeholders := buildPlaceholders(len(keepIDs))
 	query := fmt.Sprintf(constants.SQLDeleteStaleCsharpKeyFiles, placeholders)
 	args := buildStaleArgsInt64(metadataID, keepIDs)
@@ -109,6 +113,7 @@ func scanCsharpFileRows(rows interface {
 		if err != nil {
 			return nil, err
 		}
+
 		files = append(files, f)
 	}
 
@@ -128,6 +133,7 @@ func scanCsharpKeyFileRows(rows interface {
 		if err != nil {
 			return nil, err
 		}
+
 		files = append(files, f)
 	}
 

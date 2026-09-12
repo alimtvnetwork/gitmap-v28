@@ -32,11 +32,13 @@ func writeCloneFromReports(results []clonefrom.Result, cfg cloneFromFlags) (stri
 	if cfg.noReport {
 		return "", ""
 	}
+
 	if err := validateCloneFromResults(results); err != nil {
 		cliexit.Reportf(constants.CmdCloneFrom, "validate-results", cfg.file, err)
 
 		return "", ""
 	}
+
 	csvPath := writeCloneFromCSV(results, cfg)
 	if cfg.output != constants.OutputTerminal {
 		return csvPath, ""
@@ -53,6 +55,7 @@ func writeCloneFromCSV(results []clonefrom.Result, cfg cloneFromFlags) string {
 	if err == nil {
 		return path
 	}
+
 	cliexit.Reportf(constants.CmdCloneFrom, "write-csv-report", cfg.file, err)
 
 	return ""
@@ -67,6 +70,7 @@ func writeCloneFromJSON(results []clonefrom.Result, cfg cloneFromFlags) string {
 	if err == nil {
 		return path
 	}
+
 	cliexit.Reportf(constants.CmdCloneFrom, "write-json-report", cfg.file, err)
 
 	return ""
@@ -99,6 +103,7 @@ func collectMissingResultFields(results []clonefrom.Result) (indices, summaries 
 		if len(missing) == 0 {
 			continue
 		}
+
 		indices = append(indices, fmt.Sprintf("%d", i))
 		summaries = append(summaries, fmt.Sprintf("%d:%s", i, strings.Join(missing, "+")))
 	}
@@ -114,9 +119,11 @@ func missingResultFields(r clonefrom.Result) []string {
 	if strings.TrimSpace(r.Row.URL) == "" {
 		out = append(out, constants.CloneFromReportFieldURL)
 	}
+
 	if strings.TrimSpace(r.Dest) == "" {
 		out = append(out, constants.CloneFromReportFieldDest)
 	}
+
 	if strings.TrimSpace(r.Status) == "" {
 		out = append(out, constants.CloneFromReportFieldStatus)
 	}

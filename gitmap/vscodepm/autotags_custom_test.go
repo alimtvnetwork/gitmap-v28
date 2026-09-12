@@ -49,6 +49,7 @@ func TestDetectTagsCustomNoEnvMatchesBuiltin(t *testing.T) {
 	if !reflect.DeepEqual(sortCopy(got), sortCopy(want)) {
 		t.Errorf("custom = %v, want %v (= gitmap brand + builtin)", got, want)
 	}
+
 	if len(got) == 0 || got[0] != constants.AutoTagGitmap {
 		t.Errorf("gitmap brand tag must lead the list, got %v", got)
 	}
@@ -65,6 +66,7 @@ func TestDetectTagsCustomGitmapBrandAlwaysPresent(t *testing.T) {
 		"missing":     filepath.Join(t.TempDir(), "nope"),
 		"empty-input": "",
 	}
+
 	for name, root := range cases {
 		got := DetectTagsCustom(root)
 		if !containsString(got, constants.AutoTagGitmap) {
@@ -101,6 +103,7 @@ func TestDetectTagsCustomGitmapNotDuplicated(t *testing.T) {
 			count++
 		}
 	}
+
 	if count != 1 {
 		t.Errorf("gitmap appeared %d times in %v, want 1", count, got)
 	}
@@ -124,9 +127,11 @@ func TestDetectTagsCustomSkipsAndAdds(t *testing.T) {
 	if cutoff < 0 {
 		cutoff = 0
 	}
+
 	if containsString(got[:cutoff], "git") {
 		t.Errorf("git should be skipped from detected portion, got %v", got)
 	}
+
 	if !containsString(got, "work") || !containsString(got, "git") {
 		t.Errorf("always-add tags missing, got %v", got)
 	}

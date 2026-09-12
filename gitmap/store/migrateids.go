@@ -39,6 +39,7 @@ func (db *DB) hasLegacyTextID(table string) bool {
 	if err != nil {
 		return false
 	}
+
 	defer rows.Close()
 
 	for rows.Next() {

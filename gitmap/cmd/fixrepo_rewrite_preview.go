@@ -30,6 +30,7 @@ func previewFixRepoFile(fullPath, base string, current int,
 	if err != nil {
 		return 0, nil, err
 	}
+
 	total, hits := previewAllTargets(string(original), base, current, targets, restrictNoVersion)
 
 	return total, hits, nil
@@ -59,6 +60,7 @@ func previewOneTarget(text, base string, n, current int, restrictNoVersion bool,
 	if added > 0 {
 		hits = append(hits, fixRepoTargetHit{n: n, count: added})
 	}
+
 	total += added
 	if n != 1 || current != 2 || restrictNoVersion {
 		return updated, hits, total

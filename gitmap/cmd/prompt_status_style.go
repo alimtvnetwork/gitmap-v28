@@ -10,5 +10,6 @@ func formatPromptStatusText(meta model.PromptArchitectMetadata) string {
 	if IsPromptArchitectInstalled(meta) {
 		return constants.ColorGreen + "🟢 Active" + constants.ColorReset
 	}
+
 	return constants.ColorDim + "⚪ Not Installed" + constants.ColorReset
 }

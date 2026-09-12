@@ -198,6 +198,7 @@ func dispatchSync(command string) (bool, error) {
 	if command != constants.CmdSync && command != constants.CmdSyncAlias {
 		return false, nil
 	}
+
 	if len(os.Args) < 3 {
 		err := apperror.NewWithDetails(
 			"cmd.sync.dispatch",
@@ -209,8 +210,10 @@ func dispatchSync(command string) (bool, error) {
 			nil,
 		)
 		cliexit.HandleError(err, 1)
+
 		return true, nil
 	}
+
 	sub, rest := os.Args[2], os.Args[3:]
 	dry, force := parseSyncFlags(rest)
 
@@ -243,6 +246,7 @@ func dispatchSync(command string) (bool, error) {
 		)
 		cliexit.HandleError(err, 1)
 	}
+
 	return true, nil
 }
 
@@ -256,6 +260,7 @@ func parseSyncFlags(args []string) (dry, force bool) {
 			force = true
 		}
 	}
+
 	return
 }
 
@@ -276,15 +281,18 @@ func runSyncLines(path, baseline string, dry bool) error {
 		if isNoise && hasExisting {
 			continue
 		}
+
 		if present[trimmed] {
 			continue
 		}
+
 		present[trimmed] = true
 		toAdd = append(toAdd, l)
 	}
 
 	if len(toAdd) == 0 {
 		fmt.Printf("  ok  %s already has all curated entries\n", path)
+
 		return nil
 	}
 
@@ -293,6 +301,7 @@ func runSyncLines(path, baseline string, dry bool) error {
 		for _, l := range toAdd {
 			fmt.Printf("      %s\n", l)
 		}
+
 		return nil
 	}
 
@@ -300,13 +309,16 @@ func runSyncLines(path, baseline string, dry bool) error {
 	if len(buf) > 0 && !strings.HasSuffix(buf, "\n") {
 		buf += "\n"
 	}
+
 	if len(existing) > 0 {
 		buf += "\n# added by gitmap sync\n"
 	}
+
 	buf += strings.Join(toAdd, "\n")
 	if !strings.HasSuffix(buf, "\n") {
 		buf += "\n"
 	}
+
 	if err := os.WriteFile(path, []byte(buf), 0o644); err != nil {
 		appErr := apperror.WrapWithDetails(
 			err,
@@ -319,9 +331,12 @@ func runSyncLines(path, baseline string, dry bool) error {
 			map[string]any{"path": path},
 		)
 		cliexit.HandleError(appErr, 1)
+
 		return nil
 	}
+
 	fmt.Printf("  +   %s: added %d line(s)\n", path, len(toAdd))
+
 	return nil
 }
 
@@ -343,6 +358,7 @@ func runSyncPrettierRC(dry, force bool) error {
 			added = append(added, k)
 			continue
 		}
+
 		if force && !syncJSONEqual(existing, v) {
 			current[k] = v
 			overwritten = append(overwritten, k)
@@ -351,6 +367,7 @@ func runSyncPrettierRC(dry, force bool) error {
 
 	if len(added) == 0 && len(overwritten) == 0 {
 		fmt.Printf("  ok  %s already has all curated keys\n", path)
+
 		return nil
 	}
 
@@ -360,9 +377,11 @@ func runSyncPrettierRC(dry, force bool) error {
 	if dry && len(added) > 0 {
 		fmt.Printf("  +   %s would add: %s\n", path, strings.Join(added, ", "))
 	}
+
 	if dry && len(overwritten) > 0 {
 		fmt.Printf("  ~   %s would overwrite (--force): %s\n", path, strings.Join(overwritten, ", "))
 	}
+
 	if dry {
 		return nil
 	}
@@ -380,8 +399,10 @@ func runSyncPrettierRC(dry, force bool) error {
 			nil,
 		)
 		cliexit.HandleError(appErr, 1)
+
 		return nil
 	}
+
 	out = append(out, '\n')
 	if err := os.WriteFile(path, out, 0o644); err != nil {
 		appErr := apperror.WrapWithDetails(
@@ -395,14 +416,18 @@ func runSyncPrettierRC(dry, force bool) error {
 			map[string]any{"path": path},
 		)
 		cliexit.HandleError(appErr, 1)
+
 		return nil
 	}
+
 	if len(added) > 0 {
 		fmt.Printf("  +   %s: added keys %s\n", path, strings.Join(added, ", "))
 	}
+
 	if len(overwritten) > 0 {
 		fmt.Printf("  ~   %s: overwrote keys %s\n", path, strings.Join(overwritten, ", "))
 	}
+
 	return nil
 }
 
@@ -412,6 +437,7 @@ func runSyncPrettierRC(dry, force bool) error {
 func syncJSONEqual(a, b any) bool {
 	ab, _ := json.Marshal(a)
 	bb, _ := json.Marshal(b)
+
 	return bytes.Equal(ab, bb)
 }
 
@@ -424,7 +450,9 @@ func runSyncLFSInstall(dry bool) error {
 	if dry {
 		args = append(args, "--dry-run")
 	}
+
 	runAddLFSInstall(args)
+
 	return nil
 }
 

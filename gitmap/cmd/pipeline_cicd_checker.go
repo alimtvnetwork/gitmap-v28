@@ -38,6 +38,7 @@ func runInternalCICDChecks(autoFix bool) []CICDCheckResult {
 	for _, r := range results {
 		printCheckResultLine(r)
 	}
+
 	fmt.Printf("  %s\n\n", strings.Repeat("─", 74))
 
 	return results
@@ -46,12 +47,16 @@ func runInternalCICDChecks(autoFix bool) []CICDCheckResult {
 func printCheckResultLine(r CICDCheckResult) {
 	if r.Fixed {
 		fmt.Printf("  %s✔ FIXED%s  %-28s %s\n", constants.ColorYellow, constants.ColorReset, r.Name, r.Detail)
+
 		return
 	}
+
 	if r.Passed {
 		fmt.Printf("  %s✔ PASS %s  %-28s %s\n", constants.ColorGreen, constants.ColorReset, r.Name, r.Detail)
+
 		return
 	}
+
 	fmt.Printf("  %s✖ FAIL %s  %-28s %s\n", constants.ColorRed, constants.ColorReset, r.Name, r.Detail)
 	if len(r.FixHint) > 0 {
 		fmt.Printf("           %sfix:%s %s\n", constants.ColorYellow, constants.ColorReset, r.FixHint)
@@ -63,16 +68,20 @@ func resolveGitmapRoot() (string, string) {
 	if err != nil {
 		return ".", "."
 	}
+
 	root := findRepoRoot(cwd)
 	if root != "" {
 		return resolveGitmapDirFromRoot(root)
 	}
+
 	if _, err := os.Stat("version.json"); err == nil {
 		return ".", "gitmap"
 	}
+
 	if _, err := os.Stat("../version.json"); err == nil {
 		return "..", "."
 	}
+
 	return ".", "."
 }
 
@@ -81,6 +90,7 @@ func resolveGitmapDirFromRoot(root string) (string, string) {
 	if _, err := os.Stat(gDir); err == nil {
 		return root, gDir
 	}
+
 	return root, root
 }
 
@@ -132,6 +142,7 @@ func applyGofmtFix(gitmapDir string, files []string) CICDCheckResult {
 			FixHint: "Check file permissions and run 'gofmt -w .' manually",
 		}
 	}
+
 	return CICDCheckResult{
 		Name:   "gofmt formatting",
 		Passed: true,
@@ -156,6 +167,7 @@ func probeScriptCheck(scriptRelPath, checkName, fixHint string) CICDCheckResult 
 	out, err := cmd.CombinedOutput()
 	if err != nil {
 		firstLine := extractFirstLine(string(out))
+
 		return CICDCheckResult{
 			Name:    checkName,
 			Passed:  false,
@@ -263,5 +275,6 @@ func extractFirstLine(s string) string {
 	if hasContent {
 		return trimmed
 	}
+
 	return "Check failed"
 }

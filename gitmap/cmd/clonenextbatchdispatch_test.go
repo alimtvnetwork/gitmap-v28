@@ -18,6 +18,7 @@ func TestIsBatchRunnable_ExplicitFlagsWin(t *testing.T) {
 		{"csv path set", CloneNextFlags{CSVPath: "/some/file.csv"}},
 		{"all flag set", CloneNextFlags{All: true}},
 	}
+
 	for _, tc := range cases {
 		t.Run(tc.name, func(t *testing.T) {
 			// Pass an empty cwd to prove the implicit check is bypassed.

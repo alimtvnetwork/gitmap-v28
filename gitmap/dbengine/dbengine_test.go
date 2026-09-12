@@ -48,11 +48,14 @@ func (e *TestItemFieldType) UnmarshalJSON(data []byte) error {
 	if err := json.Unmarshal(data, &s); err != nil {
 		return err
 	}
+
 	target := TestItemFieldType(s)
 	if !testItemValidMap[target] {
 		return apperror.WrapSimple(fmt.Errorf("invalid test item enum: %s", s), "unmarshal test item field")
 	}
+
 	*e = target
+
 	return nil
 }
 
@@ -61,6 +64,7 @@ func (e TestItemFieldType) ToJSON() (string, *apperror.AppError) {
 	if err != nil {
 		return "", apperror.WrapSimple(err, "serialize field to json")
 	}
+
 	return string(b), nil
 }
 
@@ -69,11 +73,14 @@ func (e *TestItemFieldType) FromJSON(s string) *apperror.AppError {
 	if err := json.Unmarshal([]byte(s), &str); err != nil {
 		return apperror.WrapSimple(err, "deserialize field from json")
 	}
+
 	target := TestItemFieldType(str)
 	if !testItemValidMap[target] {
 		return apperror.WrapSimple(fmt.Errorf("invalid test item enum: %s", str), "validate field from json")
 	}
+
 	*e = target
+
 	return nil
 }
 
@@ -117,6 +124,7 @@ func (r testItemDbRegistry) ToJSON() (string, *apperror.AppError) {
 	if err != nil {
 		return "", apperror.WrapSimple(err, "serialize test item db registry to json")
 	}
+
 	return string(b), nil
 }
 
@@ -143,7 +151,9 @@ func scanTestItem(s RowScanner) (*TestItem, error) {
 	if err != nil {
 		return nil, err
 	}
+
 	item.IsActive = activeInt == 1
+
 	return &item, nil
 }
 
@@ -163,6 +173,7 @@ func TestResolveCompiler(t *testing.T) {
 		if err != nil {
 			t.Fatalf("expected compiler for %s, got err: %v", d, err)
 		}
+
 		if compiler == nil {
 			t.Fatalf("compiler for %s is nil", d)
 		}
@@ -179,6 +190,7 @@ func TestCompilerSyntaxes(t *testing.T) {
 	if sqliteComp.Placeholder(1) != "?" {
 		t.Errorf("expected ?, got %s", sqliteComp.Placeholder(1))
 	}
+
 	searchSqlite := sqliteComp.CompileSearch("User", []string{"UserId", "Email"}, 5)
 	expectedSqlite := `SELECT * FROM "User" WHERE "UserId" = ? AND "Email" = ? LIMIT 5;`
 	if searchSqlite != expectedSqlite {
@@ -189,6 +201,7 @@ func TestCompilerSyntaxes(t *testing.T) {
 	if pgComp.Placeholder(1) != "$1" || pgComp.Placeholder(2) != "$2" {
 		t.Errorf("pg placeholder mismatch: %s, %s", pgComp.Placeholder(1), pgComp.Placeholder(2))
 	}
+
 	searchPg := pgComp.CompileSearch("User", []string{"UserId"}, 1)
 	expectedPg := `SELECT * FROM "User" WHERE "UserId" = $1 LIMIT 1;`
 	if searchPg != expectedPg {
@@ -199,6 +212,7 @@ func TestCompilerSyntaxes(t *testing.T) {
 	if mssqlComp.Placeholder(1) != "@p1" {
 		t.Errorf("mssql placeholder mismatch: %s", mssqlComp.Placeholder(1))
 	}
+
 	searchMssql := mssqlComp.CompileSearch("User", []string{"UserId"}, 1)
 	expectedMssql := `SELECT * FROM [User] WHERE [UserId] = @p1 ORDER BY (SELECT NULL) OFFSET 0 ROWS FETCH NEXT 1 ROWS ONLY;`
 	if searchMssql != expectedMssql {
@@ -232,6 +246,7 @@ INSERT INTO TestItem (ItemName, Category, IsActive) VALUES ('Gamma', 'Service', 
 	if appErr != nil {
 		t.Fatalf("WrapDb failed: %v", appErr)
 	}
+
 	return wrapper
 }
 
@@ -247,6 +262,7 @@ func TestRepository_Queries(t *testing.T) {
 	if firstRes.IsFailed() {
 		t.Fatalf("First failed: %v", firstRes.Err)
 	}
+
 	item := firstRes.Value
 	if item.ItemName != "Alpha" || item.ItemId != 1 {
 		t.Errorf("unexpected item: %+v", item)
@@ -263,6 +279,7 @@ func TestRepository_Queries(t *testing.T) {
 	if toolsRes.IsFailed() {
 		t.Fatalf("FindBy failed: %v", toolsRes.Err)
 	}
+
 	if len(toolsRes.Value) != 2 {
 		t.Errorf("expected 2 tools, got %d", len(toolsRes.Value))
 	}
@@ -272,6 +289,7 @@ func TestRepository_Queries(t *testing.T) {
 	if activeRes.IsFailed() {
 		t.Fatalf("FindBy2 failed: %v", activeRes.Err)
 	}
+
 	if len(activeRes.Value) != 2 {
 		t.Errorf("expected 2 active tools, got %d", len(activeRes.Value))
 	}
@@ -281,6 +299,7 @@ func TestRepository_Queries(t *testing.T) {
 	if allRes.IsFailed() {
 		t.Fatalf("FindAll failed: %v", allRes.Err)
 	}
+
 	if len(allRes.Value) != 3 {
 		t.Errorf("expected 3 total items, got %d", len(allRes.Value))
 	}
@@ -290,6 +309,7 @@ func TestRepository_Queries(t *testing.T) {
 	if countRes.IsFailed() || countRes.Value != 2 {
 		t.Errorf("expected 2 tools count, got %d (err: %v)", countRes.Value, countRes.Err)
 	}
+
 	totalCountRes := repo.CountAll(ctx)
 	if totalCountRes.IsFailed() || totalCountRes.Value != 3 {
 		t.Errorf("expected 3 total count, got %d (err: %v)", totalCountRes.Value, totalCountRes.Err)
@@ -312,9 +332,11 @@ func TestFluentQueryBuilder(t *testing.T) {
 	if queryRes.IsFailed() {
 		t.Fatalf("Fluent query failed: %v", queryRes.Err)
 	}
+
 	if len(queryRes.Value) != 2 {
 		t.Fatalf("expected 2 tools, got %d", len(queryRes.Value))
 	}
+
 	if queryRes.Value[0].ItemId != 2 || queryRes.Value[1].ItemId != 1 {
 		t.Errorf("expected descending order (2, 1), got (%d, %d)", queryRes.Value[0].ItemId, queryRes.Value[1].ItemId)
 	}
@@ -381,6 +403,7 @@ func TestTransaction_CommitAndRollback(t *testing.T) {
 		if execErr != nil {
 			return apperror.WrapSimple(execErr, "insert delta")
 		}
+
 		return nil
 	})
 	if err != nil {
@@ -390,6 +413,7 @@ func TestTransaction_CommitAndRollback(t *testing.T) {
 	// Rollback transaction
 	_ = wrapper.WithTransaction(ctx, func(tx *TxWrapper) *apperror.AppError {
 		_, _ = tx.tx.Exec("INSERT INTO TestItem (ItemName, Category, IsActive) VALUES ('Echo', 'Service', 1)")
+
 		return apperror.WrapSimple(sql.ErrTxDone, "simulated tx failure")
 	})
 
@@ -398,6 +422,7 @@ func TestTransaction_CommitAndRollback(t *testing.T) {
 	if itemsRes.IsFailed() {
 		t.Fatalf("FindAll failed: %v", itemsRes.Err)
 	}
+
 	if len(itemsRes.Value) != 4 {
 		t.Errorf("expected 4 items (Delta committed, Echo rolled back), got %d", len(itemsRes.Value))
 	}
@@ -407,18 +432,23 @@ func TestDbType_Methods(t *testing.T) {
 	if DbTypes.SQLite.Name() != "sqlite" {
 		t.Errorf("expected sqlite, got %s", DbTypes.SQLite.Name())
 	}
+
 	if DbTypes.SQLite.String() != "sqlite" {
 		t.Errorf("expected sqlite, got %s", DbTypes.SQLite.String())
 	}
+
 	if DbTypes.SQLite.Value() != "sqlite" {
 		t.Errorf("expected sqlite, got %s", DbTypes.SQLite.Value())
 	}
+
 	if !DbTypes.SQLite.IsCompare("sqlite") {
 		t.Errorf("expected IsCompare('sqlite') to be true")
 	}
+
 	if !DbTypes.SQLite.IsCompare(DbSQLite) {
 		t.Errorf("expected IsCompare(DbSQLite) to be true")
 	}
+
 	if DbTypes.SQLite.IsCompare("postgres") {
 		t.Errorf("expected IsCompare('postgres') to be false")
 	}
@@ -427,15 +457,19 @@ func TestDbType_Methods(t *testing.T) {
 	if !DbTypes.IsEnum(DbSQLite) {
 		t.Errorf("expected DbTypes.IsEnum(DbSQLite) to be true")
 	}
+
 	if !DbTypes.IsEnum(DbPostgreSQL) {
 		t.Errorf("expected DbTypes.IsEnum(DbPostgreSQL) to be true")
 	}
+
 	if DbTypes.IsEnum("invalid_db") {
 		t.Errorf("expected DbTypes.IsEnum('invalid_db') to be false")
 	}
+
 	if !DbTypes.IsSQLite(DbSQLite) {
 		t.Errorf("expected DbTypes.IsSQLite(DbSQLite) to be true")
 	}
+
 	if DbTypes.IsSQLite(DbPostgreSQL) {
 		t.Errorf("expected DbTypes.IsSQLite(DbPostgreSQL) to be false")
 	}
@@ -444,6 +478,7 @@ func TestDbType_Methods(t *testing.T) {
 	if !DbTypes.SQLite.IsSQLite() {
 		t.Errorf("expected DbTypes.SQLite.IsSQLite() to be true")
 	}
+
 	if DbTypes.SQLite.IsPostgreSQL() {
 		t.Errorf("expected DbTypes.SQLite.IsPostgreSQL() to be false")
 	}
@@ -465,15 +500,19 @@ func TestFieldType_Methods(t *testing.T) {
 	if field.Name() != "ItemId" {
 		t.Errorf("expected ItemId, got %s", field.Name())
 	}
+
 	if field.String() != "ItemId" {
 		t.Errorf("expected ItemId, got %s", field.String())
 	}
+
 	if field.Value() != "ItemId" {
 		t.Errorf("expected ItemId, got %s", field.Value())
 	}
+
 	if !field.IsCompare(TestItemDb.ItemId) {
 		t.Errorf("expected IsCompare(TestItemDb.ItemId) to be true")
 	}
+
 	if field.IsCompare(TestItemDb.ItemName) {
 		t.Errorf("expected IsCompare(TestItemDb.ItemName) to be false")
 	}
@@ -487,6 +526,7 @@ func TestFieldType_Methods(t *testing.T) {
 	if !field.IsItemId() {
 		t.Errorf("expected field.IsItemId() to be true")
 	}
+
 	if field.IsItemName() {
 		t.Errorf("expected field.IsItemName() to be false")
 	}
@@ -495,6 +535,7 @@ func TestFieldType_Methods(t *testing.T) {
 	if !TestItemDb.IsItemId(TestItemDb.ItemId) {
 		t.Errorf("expected TestItemDb.IsItemId(TestItemDb.ItemId) to be true")
 	}
+
 	if TestItemDb.IsItemId(TestItemDb.Category) {
 		t.Errorf("expected TestItemDb.IsItemId(TestItemDb.Category) to be false")
 	}
@@ -503,6 +544,7 @@ func TestFieldType_Methods(t *testing.T) {
 	if !TestItemDb.IsEnum(TestItemDb.Category) {
 		t.Errorf("expected TestItemDb.IsEnum(Category) to be true")
 	}
+
 	if TestItemDb.IsEnum("NonExistentColumn") {
 		t.Errorf("expected TestItemDb.IsEnum('NonExistentColumn') to be false")
 	}
@@ -524,30 +566,39 @@ func TestSqlOperator_Methods(t *testing.T) {
 	if op.Name() != "=" || op.String() != "=" || op.Value() != "=" {
 		t.Errorf("unexpected op string: %s", op.String())
 	}
+
 	if !op.IsCompare(SqlOpEqual) {
 		t.Errorf("expected IsCompare true for Equal")
 	}
+
 	if !op.IsEnum() {
 		t.Errorf("expected IsEnum true for Equal")
 	}
+
 	if !op.IsEqual() {
 		t.Errorf("expected IsEqual true for Equal")
 	}
+
 	if op.IsNotEqual() {
 		t.Errorf("expected IsNotEqual false for Equal")
 	}
+
 	if !SqlOperators.NotEqual.IsNotEqual() {
 		t.Errorf("expected IsNotEqual true for NotEqual")
 	}
+
 	if !SqlOperators.LessThan.IsLessThan() {
 		t.Errorf("expected IsLessThan true for LessThan")
 	}
+
 	if !SqlOperators.GreaterThan.IsGreaterThan() {
 		t.Errorf("expected IsGreaterThan true for GreaterThan")
 	}
+
 	if !SqlOperators.Like.IsLike() {
 		t.Errorf("expected IsLike true for Like")
 	}
+
 	if !SqlOperators.In.IsIn() {
 		t.Errorf("expected IsIn true for In")
 	}
@@ -571,12 +622,15 @@ func TestSqlOperator_Methods(t *testing.T) {
 	if len(SqlOperators.All()) != 13 {
 		t.Errorf("expected 13 operators, got %d", len(SqlOperators.All()))
 	}
+
 	if len(SqlOperators.Names()) != 13 {
 		t.Errorf("expected 13 operator names, got %d", len(SqlOperators.Names()))
 	}
+
 	if !SqlOperators.IsEnum(SqlOpLike) {
 		t.Errorf("expected registry IsEnum true for Like")
 	}
+
 	if !SqlOperators.IsEqual(SqlOpEqual) {
 		t.Errorf("expected registry IsEqual true for Equal")
 	}
@@ -639,6 +693,7 @@ INSERT INTO TestDetail (ItemId, DetailText) VALUES (2, 'Detail for Beta');
 	if sqlStr != expectedSql {
 		t.Errorf("BuildSelect mismatch:\ngot:  %s\nwant: %s", sqlStr, expectedSql)
 	}
+
 	if len(args) != 1 || args[0] != "Alpha" {
 		t.Errorf("expected 1 arg ('Alpha'), got %v", args)
 	}
@@ -648,11 +703,13 @@ INSERT INTO TestDetail (ItemId, DetailText) VALUES (2, 'Detail for Beta');
 	if queryErr != nil {
 		t.Fatalf("joined query failed: %v", queryErr)
 	}
+
 	var id uint64
 	var name, detail string
 	if err := row.Scan(&id, &name, &detail); err != nil {
 		t.Fatalf("joined scan failed: %v", err)
 	}
+
 	if name != "Alpha" || detail != "Detail for Alpha" {
 		t.Errorf("unexpected scan result: %s / %s", name, detail)
 	}
@@ -667,6 +724,7 @@ INSERT INTO TestDetail (ItemId, DetailText) VALUES (2, 'Detail for Beta');
 	if firstRes.IsFailed() {
 		t.Fatalf("first execution failed: %v", firstRes.Err)
 	}
+
 	if firstRes.Value.ItemName != "Alpha" {
 		t.Errorf("expected Alpha, got %s", firstRes.Value.ItemName)
 	}
@@ -680,14 +738,17 @@ INSERT INTO TestDetail (ItemId, DetailText) VALUES (2, 'Detail for Beta');
 	if dynRes.IsFailed() {
 		t.Fatalf("dynamic query compile failed: %v", dynRes.Err)
 	}
+
 	dynCq := dynRes.Value
 	// Verify dynSql contains expected tables and clauses
 	if !strings.Contains(dynCq.SQL, "SELECT \"ItemId\", \"ItemName\" FROM \"TestItem\"") {
 		t.Errorf("dynamic query missing projected columns: %s", dynCq.SQL)
 	}
+
 	if len(dynCq.Args) == 0 {
 		t.Errorf("expected dynamic query args")
 	}
+
 	if len(dynCq.QueryHash) == 0 {
 		t.Errorf("expected non-empty QueryHash")
 	}
@@ -708,6 +769,7 @@ func TestQueryBuilder_CompileAndCache(t *testing.T) {
 	if res1.IsFailed() {
 		t.Fatalf("first compile failed: %v", res1.Err)
 	}
+
 	cq1 := res1.Value
 	if GlobalQueryCache.Size() != 1 {
 		t.Errorf("expected cache size 1 after compile, got %d", GlobalQueryCache.Size())
@@ -717,13 +779,16 @@ func TestQueryBuilder_CompileAndCache(t *testing.T) {
 	if res2.IsFailed() {
 		t.Fatalf("second compile failed: %v", res2.Err)
 	}
+
 	cq2 := res2.Value
 	if cq1.SQL != cq2.SQL {
 		t.Errorf("expected cached SQL to match: %s vs %s", cq1.SQL, cq2.SQL)
 	}
+
 	if len(cq1.Args) != len(cq2.Args) {
 		t.Errorf("expected args count to match")
 	}
+
 	if cq1.QueryHash != cq2.QueryHash {
 		t.Errorf("expected query hashes to match: %s vs %s", cq1.QueryHash, cq2.QueryHash)
 	}
@@ -820,6 +885,7 @@ INSERT INTO TestDetail (ItemId, DetailText) VALUES (2, 'Detail for Beta');
 	if !strings.Contains(leftSql, "LEFT JOIN \"TestDetail\" ON \"TestItem\".\"ItemId\" = \"TestDetail\".\"ItemId\" AND \"TestDetail\".\"DetailText\" LIKE ?") {
 		t.Errorf("LeftJoin SQL mismatch: %s", leftSql)
 	}
+
 	if len(leftArgs) != 2 {
 		t.Errorf("expected 2 args for left join query, got %d", len(leftArgs))
 	}
@@ -835,6 +901,7 @@ INSERT INTO TestDetail (ItemId, DetailText) VALUES (2, 'Detail for Beta');
 	if groupSql != expectedGroup {
 		t.Errorf("GroupBy SQL mismatch:\ngot:  %s\nwant: %s", groupSql, expectedGroup)
 	}
+
 	if len(groupArgs) != 1 || groupArgs[0] != int64(1) {
 		t.Errorf("expected having count arg 1, got %v", groupArgs)
 	}
@@ -900,6 +967,7 @@ func TestDbWrapper_ViewHashMetaAndEvolution(t *testing.T) {
 	if hashErr1 != nil {
 		t.Fatalf("failed retrieving view hash: %v", hashErr1)
 	}
+
 	if len(hash1) == 0 {
 		t.Fatalf("expected recorded query hash in __gitmap_view_meta")
 	}
@@ -935,6 +1003,7 @@ func TestDbWrapper_ViewHashMetaAndEvolution(t *testing.T) {
 	if colErr != nil {
 		t.Fatalf("failed getting columns of evolved view: %v", colErr)
 	}
+
 	if len(cols) != 3 {
 		t.Fatalf("expected 3 columns in evolved view, got %d: %v", len(cols), cols)
 	}
@@ -975,6 +1044,7 @@ func TestQueryBuilder_ErrorGuards(t *testing.T) {
 	if compileRes.IsSuccess() {
 		t.Errorf("expected Compile to fail when builder has error")
 	}
+
 	if compileRes.Err != simulatedErr {
 		t.Errorf("expected exact simulatedErr in compile result")
 	}
@@ -1091,6 +1161,7 @@ func testTxQueries(t *testing.T, tx *TxWrapper) *apperror.AppError {
 	if qErr != nil {
 		return qErr
 	}
+
 	defer rows.Close()
 
 	return nil
@@ -1232,6 +1303,7 @@ func TestOpenDb_SQLiteConfigured(t *testing.T) {
 	if appErr != nil {
 		t.Fatalf("OpenDb failed: %v", appErr)
 	}
+
 	defer wrapper.Close()
 
 	if maxOpen := wrapper.Conn().Stats().MaxOpenConnections; maxOpen != 1 {
@@ -1316,6 +1388,7 @@ func testTxPrepareAndValidate(t *testing.T, tx *TxWrapper) *apperror.AppError {
 	if prepErr != nil {
 		return prepErr
 	}
+
 	defer stmt.Close()
 
 	return tx.ValidateSql(context.Background(), "SELECT ItemName FROM TestItem")
@@ -1327,6 +1400,7 @@ func testTxCallFunction(t *testing.T, tx *TxWrapper) *apperror.AppError {
 	if res.IsFailed() {
 		return res.Err
 	}
+
 	if res.Value != "TEST STRING" {
 		t.Errorf("expected 'TEST STRING', got %s", res.Value)
 	}
@@ -1355,6 +1429,7 @@ func assertRepoFirstInsideTx(t *testing.T, ctx context.Context, repo *Repository
 	if res.IsFailed() {
 		return res.Err
 	}
+
 	if res.Value.ItemName != "Alpha" {
 		t.Errorf("expected Alpha, got %s", res.Value.ItemName)
 	}
@@ -1367,6 +1442,7 @@ func assertRepoCountInsideTx(t *testing.T, ctx context.Context, repo *Repository
 	if res.IsFailed() {
 		return res.Err
 	}
+
 	if res.Value != 2 {
 		t.Errorf("expected count 2, got %d", res.Value)
 	}

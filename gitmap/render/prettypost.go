@@ -25,6 +25,7 @@ func transformLine(line string) string {
 	if h, ok := renderHeadingLine(line); ok {
 		return h
 	}
+
 	line = unescapeMarkdown(line)
 	line = colorTableSeparator(line)
 	line = colorTablePipes(line)
@@ -47,6 +48,7 @@ func renderHeadingLine(line string) (string, bool) {
 	if m == nil {
 		return "", false
 	}
+
 	text := unescapeMarkdown(m[2])
 	text = stripInlineMarkers(text)
 	switch len(m[1]) {

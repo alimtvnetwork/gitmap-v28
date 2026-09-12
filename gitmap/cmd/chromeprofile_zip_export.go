@@ -32,6 +32,7 @@ func buildChromeProfileArchive(
 	if err != nil {
 		return 0, fmt.Errorf("create %s: %w", outPath, err)
 	}
+
 	defer f.Close()
 
 	zw := zip.NewWriter(f)
@@ -62,6 +63,7 @@ func maybeExportJSON(zw *zip.Writer, srcProfile, name string, shouldInclude bool
 	if !shouldInclude {
 		return nil
 	}
+
 	return exportChromeProfileJSON(zw, srcProfile, name)
 }
 
@@ -69,6 +71,7 @@ func maybeExportSQLite(zw *zip.Writer, srcProfile string, shouldInclude bool) er
 	if !shouldInclude {
 		return nil
 	}
+
 	return exportChromeProfileSQLite(zw, srcProfile)
 }
 
@@ -77,6 +80,7 @@ func exportChromeProfileJSON(zw *zip.Writer, srcProfile, name string) error {
 	if _, err := writeChromeExport(srcProfile, name, tmpJSON); err != nil {
 		return err
 	}
+
 	defer os.Remove(tmpJSON)
 
 	w, err := zw.Create(name + ".json")
@@ -88,9 +92,11 @@ func exportChromeProfileJSON(zw *zip.Writer, srcProfile, name string) error {
 	if err != nil {
 		return err
 	}
+
 	defer jsonFile.Close()
 
 	_, err = io.Copy(w, jsonFile)
+
 	return err
 }
 
@@ -100,6 +106,7 @@ func exportChromeProfileSQLite(zw *zip.Writer, srcProfile string) error {
 			return err
 		}
 	}
+
 	return nil
 }
 
@@ -119,8 +126,10 @@ func copySQLiteEntryToZip(zw *zip.Writer, srcProfile, dbName string) error {
 	if err != nil {
 		return nil
 	}
+
 	defer dbFile.Close()
 
 	_, err = io.Copy(w, dbFile)
+
 	return err
 }

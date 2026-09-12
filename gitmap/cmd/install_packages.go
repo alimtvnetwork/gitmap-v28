@@ -16,7 +16,6 @@ var managerResolvers = map[string]packageResolver{
 // resolvePackageName maps tool name to package ID for a manager.
 func resolvePackageName(manager, tool string) string {
 	if resolver, isFound := managerResolvers[manager]; isFound {
-
 		return resolver(tool)
 	}
 
@@ -94,7 +93,6 @@ var toolAliasMap = map[string]string{
 // resolveToolAlias normalizes known tool aliases to their canonical tool name.
 func resolveToolAlias(tool string) string {
 	if canonical, isFound := toolAliasMap[tool]; isFound {
-
 		return canonical
 	}
 
@@ -174,7 +172,6 @@ var chocoPackageMap = map[string]string{
 // resolveChocoPackage maps tool names to Chocolatey package IDs.
 func resolveChocoPackage(tool string) string {
 	if pkg, isFound := chocoPackageMap[tool]; isFound {
-
 		return pkg
 	}
 
@@ -232,7 +229,6 @@ var wingetPackageMap = map[string]string{
 // resolveWingetPackage maps tool names to Winget package IDs.
 func resolveWingetPackage(tool string) string {
 	if pkg, isFound := wingetPackageMap[tool]; isFound {
-
 		return pkg
 	}
 

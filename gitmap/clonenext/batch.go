@@ -95,6 +95,7 @@ func convertBareCRToLF(in []byte) []byte {
 
 			continue
 		}
+
 		if i+1 < len(in) && in[i+1] == '\n' {
 			// CRLF — keep both bytes; csv.Reader strips the CR.
 			out = append(out, '\r', '\n')
@@ -102,6 +103,7 @@ func convertBareCRToLF(in []byte) []byte {
 
 			continue
 		}
+
 		out = append(out, '\n')
 	}
 
@@ -146,6 +148,7 @@ func resolvePathColumn(rows [][]string) (colIdx, startIdx int) {
 	if !looksLikeHeader(header) {
 		return 0, 0
 	}
+
 	for i, cell := range header {
 		key := strings.ToLower(strings.TrimSpace(cell))
 		_, hasAlias := pathHeaderAliases[key]
@@ -197,6 +200,7 @@ func WalkBatchFromDir(root string) ([]string, error) {
 		if !entry.IsDir() {
 			continue
 		}
+
 		candidate := filepath.Join(root, entry.Name())
 		if isGitRepo(candidate) {
 			repos = append(repos, candidate)
@@ -225,8 +229,10 @@ func absoluteAndSorted(paths []string) []string {
 
 			continue
 		}
+
 		out[i] = p
 	}
+
 	sort.Strings(out)
 
 	return out

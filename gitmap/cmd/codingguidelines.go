@@ -40,15 +40,19 @@ func withCGDefaults(opts CodingGuidelinesOpts) CodingGuidelinesOpts {
 	if opts.Runner == nil {
 		opts.Runner = exec.Command
 	}
+
 	if opts.LookPath == nil {
 		opts.LookPath = exec.LookPath
 	}
+
 	if opts.Stdout == nil {
 		opts.Stdout = os.Stdout
 	}
+
 	if opts.Stderr == nil {
 		opts.Stderr = os.Stderr
 	}
+
 	if opts.Stdin == nil {
 		opts.Stdin = os.Stdin
 	}
@@ -73,6 +77,7 @@ func dispatchCGWindows(opts CodingGuidelinesOpts, hasCustomRunner bool) error {
 
 		return err
 	}
+
 	defer cleanup()
 
 	return runCGInstaller(cmd, opts, "windows", url)
@@ -107,6 +112,7 @@ func dispatchCGUnix(opts CodingGuidelinesOpts, hasCustomRunner bool) error {
 
 		return ErrCGShellNotFound
 	}
+
 	if _, err := opts.LookPath("curl"); err != nil {
 		fmt.Fprintf(opts.Stderr, constants.ErrCGShellNotFoundUnix, constants.DefaultCodingGuidelinesURLUnix)
 
@@ -121,6 +127,7 @@ func dispatchCGUnix(opts CodingGuidelinesOpts, hasCustomRunner bool) error {
 
 		return err
 	}
+
 	defer cleanup()
 
 	return runCGInstaller(cmd, opts, runtime.GOOS, url)

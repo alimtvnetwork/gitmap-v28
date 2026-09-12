@@ -48,6 +48,7 @@ func buildHistoryJSONItems(records []model.CommandHistoryRecord) [][]stablejson.
 	for _, r := range records {
 		items = append(items, historyRecordToFields(r))
 	}
+
 	return items
 }
 

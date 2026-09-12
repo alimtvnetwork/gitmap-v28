@@ -59,6 +59,7 @@ func encodeLLMDocsJSON(w io.Writer, sections map[string]bool) error {
 	if err != nil {
 		return err
 	}
+
 	if commandsRaw != nil {
 		fields = append(fields, stablejson.Field{Key: llmDocsKeyCommands, Value: commandsRaw})
 	}
@@ -109,6 +110,7 @@ func renderCommandsRawIfWanted(sections map[string]bool) (json.RawMessage, error
 	if !wantSection(sections, "commands") {
 		return nil, nil
 	}
+
 	return renderLLMDocsCommandsRaw()
 }
 
@@ -150,9 +152,11 @@ func buildLLMDocsCommandItems(commands []llmCmdEntry) [][]stablejson.Field {
 			{Key: llmDocsCmdKeyAlias, Value: c.alias},
 			{Key: llmDocsCmdKeyDescription, Value: c.desc},
 		}
+
 		if c.example != "" {
 			fields = append(fields, stablejson.Field{Key: llmDocsCmdKeyExample, Value: c.example})
 		}
+
 		items = append(items, fields)
 	}
 

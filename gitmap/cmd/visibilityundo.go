@@ -45,9 +45,12 @@ func runVisibilityUndo(args []string) error {
 	if flags.DryRun {
 		printVisDryRun(constants.CmdVisibilityUndo, run, results)
 		cliexit.HandleError(nil, constants.ExitVisOK)
+
 		return nil
 	}
+
 	reverseRunAndExit(run, results, flags, constants.CmdVisibilityUndo)
+
 	return nil
 }
 
@@ -92,6 +95,7 @@ func mustLoadRunByID(db *store.DB, id int64) model.MakeAllVisibilityRunRecord {
 	if err != nil {
 		cliexit.Fail("visibility-undo", "load-run", fmt.Sprintf("id=%d", id), err, constants.ExitVisAuthFailed)
 	}
+
 	if run.ID == 0 {
 		appErr := apperror.NewWithDetails(
 			"cmd.visibility.loadRunByID",
@@ -119,9 +123,11 @@ func mustLoadLatestRun(db *store.DB, kind, notFoundMsg string) model.MakeAllVisi
 	} else {
 		run, err = db.SelectLatestMakeAllVisibilityRunByKind(kind)
 	}
+
 	if err != nil {
 		cliexit.Fail("visibility-undo", "load-latest-run", kind, err, constants.ExitVisAuthFailed)
 	}
+
 	if run.ID == 0 {
 		appErr := apperror.NewWithDetails(
 			"cmd.visibility.loadLatestRun",
@@ -182,6 +188,7 @@ func reverseRunAndExit(
 	if flags.JSON {
 		emitUndoJSON(cmdName, run, audit.RunID(), len(results), changed, skipped, failed, exit)
 	}
+
 	if exit != 0 {
 		appErr := apperror.NewWithDetails(
 			"cmd.visibility.reverse",
@@ -219,6 +226,7 @@ func emitUndoJSON(
 
 		return
 	}
+
 	fmt.Fprintln(os.Stdout, string(out))
 }
 
@@ -293,6 +301,7 @@ func reverseOneRepo(
 
 		return applyOneRepo(ctx, r.RepoName, r.PrevVisibility, flags.Verbose)
 	}
+
 	slug := ctx.Owner + "/" + r.RepoName
 	current, readErr := readVisibilityNoExit(visibilityContext{Provider: ctx.Provider, Slug: slug}, flags.Verbose)
 	if readErr != nil {
@@ -300,6 +309,7 @@ func reverseOneRepo(
 
 		return applyStatus{outcome: "fail", err: readErr}
 	}
+
 	if decideDriftAction(current, r.NewVisibility, false) == driftActionSkip {
 		fmt.Fprintf(os.Stdout, constants.MsgUndoDriftSkipFmt, current, r.NewVisibility)
 

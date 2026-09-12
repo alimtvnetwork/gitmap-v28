@@ -38,13 +38,12 @@ import (
 func Render(w io.Writer, p Plan) error {
 	header := fmt.Sprintf(constants.MsgCloneFromDryHeader, p.Source, p.Format, len(p.Rows))
 	if _, err := io.WriteString(w, header); err != nil {
-
 		return err
 	}
+
 	for i, r := range p.Rows {
 		block := renderRow(i+1, r)
 		if _, err := io.WriteString(w, block); err != nil {
-
 			return err
 		}
 	}
@@ -61,6 +60,7 @@ func RenderTerminal(w io.Writer, p Plan) error {
 	if _, err := io.WriteString(w, header); err != nil {
 		return err
 	}
+
 	blocks := make([]render.RepoTermBlock, 0, len(p.Rows))
 	for i, r := range p.Rows {
 		blocks = append(blocks, rowToBlock(i+1, r))
@@ -107,12 +107,15 @@ func cloneCommandForRow(r Row, dest string) string {
 	if len(strings.TrimSpace(r.Branch)) > 0 {
 		parts = append(parts, "-b", r.Branch)
 	}
+
 	if r.Depth > 0 {
 		parts = append(parts, fmt.Sprintf(constants.CloneFromDepthFlagFmt, r.Depth))
 	}
+
 	if EffectiveCheckout(r) == constants.CloneFromCheckoutSkip {
 		parts = append(parts, constants.CloneFromNoCheckoutFlag)
 	}
+
 	parts = append(parts, r.URL, dest)
 
 	return strings.Join(parts, " ")
@@ -143,7 +146,6 @@ func renderRow(n int, r Row) string {
 // value. Helps when a typo'd URL produces a surprising dest.
 func displayDest(r Row) string {
 	if len(r.Dest) > 0 {
-
 		return r.Dest
 	}
 
@@ -161,18 +163,18 @@ func DeriveDest(url string) string {
 		!strings.HasPrefix(url, "https://") && !strings.HasPrefix(url, "http://") {
 		url = url[i+1:]
 	}
+
 	// A trailing slash means the URL has no real path segment
 	// (e.g. "https://example.org/") — fall back to "repo" rather
 	// than letting path.Base return the host name.
 	trimmed := strings.TrimRight(url, "/")
 	if !strings.Contains(strings.TrimPrefix(strings.TrimPrefix(strings.TrimPrefix(trimmed, "https://"), "http://"), "ssh://"), "/") {
-
 		return "repo"
 	}
+
 	base := path.Base(trimmed)
 	base = strings.TrimSuffix(base, ".git")
 	if len(base) == 0 || base == "." || base == "/" {
-
 		return "repo"
 	}
 
@@ -184,7 +186,6 @@ func DeriveDest(url string) string {
 // from a literal branch named e.g. `default`.
 func displayBranch(r Row) string {
 	if len(r.Branch) > 0 {
-
 		return r.Branch
 	}
 
@@ -196,7 +197,6 @@ func displayBranch(r Row) string {
 // facing output.
 func displayDepth(r Row) string {
 	if r.Depth > 0 {
-
 		return fmt.Sprintf("%d", r.Depth)
 	}
 

@@ -62,6 +62,7 @@ func TestListReleasesSchema_RequiredKeysMatchEncoder(t *testing.T) {
 		"commitSha", "changelog", "notes", "isDraft", "isPreRelease",
 		"isLatest", "source", "createdAt",
 	}
+
 	if !equalStringSlices(required, want) {
 		t.Fatalf("schema required = %v, want %v", required, want)
 	}
@@ -78,11 +79,13 @@ func TestListReleasesSchema_PropertyOrderMatchesEncoder(t *testing.T) {
 	if len(want) == 0 {
 		t.Fatalf("schema item has no propertyOrder array")
 	}
+
 	records := []model.ReleaseRecord{{Version: "1.0.0", Tag: "v1.0.0"}}
 	var buf bytes.Buffer
 	if err := encodeListReleasesJSON(&buf, records); err != nil {
 		t.Fatalf("encode: %v", err)
 	}
+
 	got := extractFirstObjectKeyOrder(t, buf.Bytes())
 	if !equalStringSlices(got, want) {
 		t.Fatalf("emitted key order = %v, schema propertyOrder = %v", got, want)
@@ -97,6 +100,7 @@ func TestListReleasesSchema_EmptyEncodesAsArray(t *testing.T) {
 	if err := encodeListReleasesJSON(&buf, nil); err != nil {
 		t.Fatalf("encode: %v", err)
 	}
+
 	if !bytes.Equal(bytes.TrimSpace(buf.Bytes()), []byte("[]")) {
 		t.Fatalf("empty encoded as %q, want []", buf.Bytes())
 	}
@@ -113,6 +117,7 @@ func TestListReleasesAllReposSchema_RequiredKeysMatchEncoder(t *testing.T) {
 		"Branch", "CommitSha", "Source", "IsDraft", "IsLatest",
 		"IsPreRelease", "CreatedAt",
 	}
+
 	if !equalStringSlices(required, want) {
 		t.Fatalf("schema required = %v, want %v", required, want)
 	}
@@ -128,11 +133,13 @@ func TestListReleasesAllReposSchema_PropertyOrderMatchesEncoder(t *testing.T) {
 	if len(want) == 0 {
 		t.Fatalf("schema item has no propertyOrder array")
 	}
+
 	records := []store.ReleaseAcrossRepos{{ReleaseID: 1, RepoSlug: "a/b", Version: "1.0.0"}}
 	var buf bytes.Buffer
 	if err := encodeListReleasesAllReposJSON(&buf, records); err != nil {
 		t.Fatalf("encode: %v", err)
 	}
+
 	got := extractFirstObjectKeyOrder(t, buf.Bytes())
 	if !equalStringSlices(got, want) {
 		t.Fatalf("emitted key order = %v, schema propertyOrder = %v", got, want)
@@ -146,6 +153,7 @@ func TestListReleasesAllReposSchema_EmptyEncodesAsArray(t *testing.T) {
 	if err := encodeListReleasesAllReposJSON(&buf, nil); err != nil {
 		t.Fatalf("encode: %v", err)
 	}
+
 	if !bytes.Equal(bytes.TrimSpace(buf.Bytes()), []byte("[]")) {
 		t.Fatalf("empty encoded as %q, want []", buf.Bytes())
 	}
@@ -169,10 +177,12 @@ func TestListReleasesJSON_ByteCompatWithLegacyMarshalIndent(t *testing.T) {
 	if err != nil {
 		t.Fatalf("legacy marshal: %v", err)
 	}
+
 	var got bytes.Buffer
 	if err := encodeListReleasesJSON(&got, rec); err != nil {
 		t.Fatalf("encode: %v", err)
 	}
+
 	if !bytes.Equal(append(legacy, '\n'), got.Bytes()) {
 		t.Fatalf("byte drift from legacy MarshalIndent:\n--- legacy ---\n%s\n--- new ---\n%s",
 			legacy, got.Bytes())
@@ -193,10 +203,12 @@ func TestListReleasesAllReposJSON_ByteCompatWithLegacyMarshalIndent(t *testing.T
 	if err != nil {
 		t.Fatalf("legacy marshal: %v", err)
 	}
+
 	var got bytes.Buffer
 	if err := encodeListReleasesAllReposJSON(&got, rec); err != nil {
 		t.Fatalf("encode: %v", err)
 	}
+
 	if !bytes.Equal(append(legacy, '\n'), got.Bytes()) {
 		t.Fatalf("byte drift from legacy MarshalIndent:\n--- legacy ---\n%s\n--- new ---\n%s",
 			legacy, got.Bytes())

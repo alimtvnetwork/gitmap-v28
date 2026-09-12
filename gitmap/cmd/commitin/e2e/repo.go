@@ -30,6 +30,7 @@ type Repo struct {
 // in PATH so CI without git degrades cleanly.
 func NewRepo(t *testing.T, name string) *Repo {
 	t.Helper()
+
 	return NewRepoIn(t, t.TempDir(), name)
 }
 
@@ -41,15 +42,18 @@ func NewRepoIn(t *testing.T, parent, name string) *Repo {
 	if _, err := exec.LookPath("git"); err != nil {
 		t.Skipf("git not available: %v", err)
 	}
+
 	dir := filepath.Join(parent, name)
 	if err := os.MkdirAll(dir, 0o755); err != nil {
 		t.Fatalf("mkdir %s: %v", dir, err)
 	}
+
 	r := &Repo{t: t, Path: dir}
 	r.git("init", "-b", "main")
 	r.git("config", "user.email", "e2e@gitmap.test")
 	r.git("config", "user.name", "E2E Bot")
 	r.git("config", "commit.gpgsign", "false")
+
 	return r
 }
 
@@ -64,9 +68,11 @@ func (r *Repo) Commit(path, body, message string, when time.Time) string {
 	if err := os.MkdirAll(filepath.Dir(full), 0o755); err != nil {
 		r.t.Fatalf("mkdir parent of %s: %v", full, err)
 	}
+
 	if err := os.WriteFile(full, []byte(body), 0o644); err != nil {
 		r.t.Fatalf("write %s: %v", full, err)
 	}
+
 	r.git("update-index", "--add", path)
 	tree := r.gitOut("write-tree")
 	stamp := when.UTC().Format(time.RFC3339)
@@ -74,6 +80,7 @@ func (r *Repo) Commit(path, body, message string, when time.Time) string {
 	if parent, ok := r.headShaOpt(); ok {
 		args = append(args, "-p", parent)
 	}
+
 	cmd := exec.Command("git", args...)
 	cmd.Dir = r.Path
 	cmd.Env = append(os.Environ(),
@@ -88,9 +95,11 @@ func (r *Repo) Commit(path, body, message string, when time.Time) string {
 	if err != nil {
 		r.t.Fatalf("git commit-tree: %v\n%s", err, out)
 	}
+
 	sha := strings.TrimSpace(string(out))
 	r.git("update-ref", "refs/heads/main", sha)
 	r.git("symbolic-ref", "HEAD", "refs/heads/main")
+
 	return sha
 }
 
@@ -104,6 +113,7 @@ func (r *Repo) gitOut(args ...string) string {
 	if err != nil {
 		r.t.Fatalf("git %s: %v", strings.Join(args, " "), err)
 	}
+
 	return strings.TrimSpace(string(out))
 }
 
@@ -116,7 +126,9 @@ func (r *Repo) headShaOpt() (string, bool) {
 	if err != nil {
 		return "", false
 	}
+
 	sha := strings.TrimSpace(string(out))
+
 	return sha, sha != ""
 }
 

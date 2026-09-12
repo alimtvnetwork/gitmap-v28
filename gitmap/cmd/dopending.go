@@ -19,6 +19,7 @@ func runDoPending(args []string) error {
 	}
 
 	runDoPendingAll()
+
 	return nil
 }
 
@@ -28,6 +29,7 @@ func runDoPendingAll() error {
 	if err != nil {
 		return apperror.WrapSimple(err, constants.WarnPendingDBOpen)
 	}
+
 	defer db.Close()
 
 	tasks, err := db.ListPendingTasks()
@@ -46,6 +48,7 @@ func runDoPendingAll() error {
 	for _, t := range tasks {
 		retryPendingTask(db, t.ID, t.TaskTypeName, t.TargetPath, t.WorkingDirectory, t.CommandArgs)
 	}
+
 	return nil
 }
 
@@ -60,6 +63,7 @@ func runDoPendingSingle(idStr string) error {
 	if err != nil {
 		return apperror.WrapSimple(err, constants.WarnPendingDBOpen)
 	}
+
 	defer db.Close()
 
 	task, err := db.FindPendingTaskByID(taskID)
@@ -69,5 +73,6 @@ func runDoPendingSingle(idStr string) error {
 
 	fmt.Printf(constants.MsgPendingRetryOne, taskID)
 	retryPendingTask(db, task.ID, task.TaskTypeName, task.TargetPath, task.WorkingDirectory, task.CommandArgs)
+
 	return nil
 }

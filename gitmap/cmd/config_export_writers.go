@@ -18,9 +18,9 @@ func collectVSCodeExtensions() []string {
 	cmd := exec.Command("code", "--list-extensions")
 	out, err := cmd.Output()
 	if err != nil {
-
 		return []string{}
 	}
+
 	lines := strings.Split(strings.TrimSpace(string(out)), "\n")
 	results := make([]string, 0, len(lines))
 	for _, line := range lines {
@@ -37,11 +37,10 @@ func collectVSCodeExtensions() []string {
 func readSingleConfigFile(filePath, fileName string, isBinary bool) (*ConfigFilePayload, error) {
 	data, err := os.ReadFile(filePath)
 	if err != nil {
-
 		return nil, apperror.Wrap(err, "readSingleConfigFile", map[string]any{"path": filePath})
 	}
-	if isBinary {
 
+	if isBinary {
 		return &ConfigFilePayload{
 			Name:     fileName,
 			Encoding: "base64",
@@ -82,6 +81,7 @@ func collectToolFiles(tool, srcDir string) (map[string]ConfigFilePayload, []stri
 		appendFileIfExists(files, filepath.Join(srcDir, "settings.json"), "settings.json", false)
 		appendFileIfExists(files, filepath.Join(srcDir, "keybindings.json"), "keybindings.json", false)
 	}
+
 	collectTorrentFiles(tool, srcDir, files)
 
 	return files, extensions
@@ -93,6 +93,7 @@ func collectTorrentFiles(tool, srcDir string, files map[string]ConfigFilePayload
 		appendFileIfExists(files, filepath.Join(srcDir, "qBittorrent.ini"), "qBittorrent.ini", false)
 		appendFileIfExists(files, filepath.Join(srcDir, "qBittorrent.conf"), "qBittorrent.conf", false)
 	}
+
 	if tool == "utorrent" {
 		appendFileIfExists(files, filepath.Join(srcDir, "settings.dat"), "settings.dat", true)
 	}
@@ -102,14 +103,14 @@ func collectTorrentFiles(tool, srcDir string, files map[string]ConfigFilePayload
 func appendFileIfExists(dest map[string]ConfigFilePayload, filePath, fileName string, isBinary bool) {
 	_, statErr := os.Stat(filePath)
 	if statErr != nil {
-
 		return
 	}
+
 	payload, readErr := readSingleConfigFile(filePath, fileName, isBinary)
 	if readErr != nil {
-
 		return
 	}
+
 	dest[fileName] = *payload
 }
 
@@ -119,15 +120,15 @@ func writeBundleJSON(bundle ConfigBundle, targetFile string) error {
 	if parentDir != "." && parentDir != "" {
 		_ = os.MkdirAll(parentDir, 0o755)
 	}
+
 	data, err := json.MarshalIndent(bundle, "", "  ")
 	if err != nil {
-
 		return apperror.Wrap(err, "writeBundleJSON.Marshal", map[string]any{"target": targetFile})
 	}
+
 	data = append(data, '\n')
 	writeErr := os.WriteFile(targetFile, data, 0o644)
 	if writeErr != nil {
-
 		return apperror.Wrap(writeErr, "writeBundleJSON.WriteFile", map[string]any{"target": targetFile})
 	}
 

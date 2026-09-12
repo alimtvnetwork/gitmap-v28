@@ -36,18 +36,22 @@ func ParseChromeLocalState(raw []byte) (ChromeLocalState, error) {
 			} `json:"info_cache"`
 		} `json:"profile"`
 	}
+
 	if err := json.Unmarshal(raw, &doc); err != nil {
 		return ChromeLocalState{}, err
 	}
+
 	active := map[string]bool{}
 	for _, d := range doc.Profile.LastActiveProf {
 		active[d] = true
 	}
+
 	out := ChromeLocalState{
 		LastUsed:   doc.Profile.LastUsed,
 		LastActive: doc.Profile.LastActiveProf,
 		Profiles:   map[string]ChromeProfileEntry{},
 	}
+
 	for dir, info := range doc.Profile.InfoCache {
 		out.Profiles[dir] = ChromeProfileEntry{
 			DirName:     dir,
@@ -57,11 +61,13 @@ func ParseChromeLocalState(raw []byte) (ChromeLocalState, error) {
 			IsActive:    active[dir],
 		}
 	}
+
 	// Ensure last_used dir is queryable even if absent from info_cache.
 	_, ok := out.Profiles[out.LastUsed]
 	if out.LastUsed != "" && !ok {
 		out.Profiles[out.LastUsed] = ChromeProfileEntry{DirName: out.LastUsed}
 	}
+
 	return out, nil
 }
 
@@ -71,5 +77,6 @@ func (s ChromeLocalState) DisplayNameFor(dir string) string {
 	if e, ok := s.Profiles[dir]; ok && e.DisplayName != "" {
 		return e.DisplayName
 	}
+
 	return dir
 }

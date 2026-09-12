@@ -38,6 +38,7 @@ func logListHeader() string {
 func renderLogRows(b *strings.Builder, filtered []model.CommandHistoryRecord, cursor int) {
 	if len(filtered) == 0 {
 		b.WriteString(styleHint.Render(constants.TUILogNoMatch) + "\n")
+
 		return
 	}
 

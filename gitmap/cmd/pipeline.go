@@ -118,6 +118,7 @@ func runPipeline(args []string) error {
 	if len(args) == 0 {
 		return handlePipelineStatus(nil)
 	}
+
 	subcmd := strings.ToLower(args[0])
 	if handled, err := checkErrorLogsSubcmd(subcmd, args); handled {
 		return err
@@ -130,9 +131,11 @@ func checkErrorLogsSubcmd(subcmd string, args []string) (bool, error) {
 	if subcmd == "last-failed-logs" {
 		return true, HandlePipelineLastFailedLogs(args[1:])
 	}
+
 	if IsNegativeIndexToken(subcmd) {
 		return true, handlePipelineErrorLogs(args)
 	}
+
 	if isErrorLogsSubcmd(subcmd) {
 		return true, handlePipelineErrorLogs(args[1:])
 	}
@@ -177,6 +180,7 @@ func dispatchPipelineFallback(subcmd string, args []string) error {
 	if strings.HasPrefix(subcmd, "-") {
 		return handlePipelineStatus(args)
 	}
+
 	printPipelineHelp()
 
 	return fmt.Errorf("unknown pipeline subcommand: %s", subcmd)

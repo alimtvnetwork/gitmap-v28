@@ -12,6 +12,7 @@ func TestNewLoggerDefaults(t *testing.T) {
 	if l.w != os.Stderr {
 		t.Fatalf("expected stderr default, got %v", l.w)
 	}
+
 	if l.enabled {
 		t.Fatal("expected logger to be disabled")
 	}
@@ -41,12 +42,14 @@ func TestLoggerEnabledLevels(t *testing.T) {
 		if err := dec.Decode(&e); err != nil {
 			t.Fatalf("decode entry: %v", err)
 		}
+
 		entries = append(entries, e)
 	}
 
 	if len(entries) != 3 {
 		t.Fatalf("expected 3 entries, got %d", len(entries))
 	}
+
 	if entries[0].Level != LevelInfo || entries[0].Message != "info-msg" {
 		t.Fatalf("unexpected entry 0: %+v", entries[0])
 	}

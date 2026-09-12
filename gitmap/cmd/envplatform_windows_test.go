@@ -11,6 +11,7 @@ func TestFilterPathPartsRemovesMatch(t *testing.T) {
 	if len(got) != len(want) {
 		t.Fatalf("filterPathParts len = %d, want %d (%v)", len(got), len(want), got)
 	}
+
 	for i := range got {
 		if got[i] != want[i] {
 			t.Errorf("filterPathParts[%d] = %q, want %q", i, got[i], want[i])

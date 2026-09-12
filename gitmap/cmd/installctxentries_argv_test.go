@@ -77,22 +77,28 @@ func flattenCtxMenuByPath(t *testing.T) map[string]ctxEntry {
 			if prefix != "" {
 				path = prefix + "/" + e.KeyName
 			}
+
 			if e.Children != nil {
 				walk(path, e.Children)
 				continue
 			}
+
 			prev, isDuplicate := out[path]
 			isEqual := reflect.DeepEqual(prev, e)
 			if isDuplicate && !isEqual {
 				t.Fatalf("duplicate KeyName %q with divergent definition: %+v vs %+v", path, prev, e)
 			}
+
 			if isDuplicate {
 				continue
 			}
+
 			out[path] = e
 		}
 	}
+
 	walk("", ctxMenu())
+
 	return out
 }
 
@@ -105,9 +111,11 @@ func TestCtxMenuKeyNameToArgvMapping(t *testing.T) {
 			t.Errorf("missing context-menu entry for path %q", path)
 			continue
 		}
+
 		if entry.Exe != want.exe {
 			t.Errorf("%s: Exe = %q, want %q", path, entry.Exe, want.exe)
 		}
+
 		if !reflect.DeepEqual(entry.Args, want.argv) {
 			t.Errorf("%s: Args = %v, want %v", path, entry.Args, want.argv)
 		}
@@ -132,10 +140,12 @@ func TestCtxReleaseNextUsesBumpConstants(t *testing.T) {
 	if !ok {
 		t.Fatal("release-next entry missing")
 	}
+
 	want := []string{constants.CmdRelease, constants.FlagBumpDash, constants.BumpMinor}
 	if !reflect.DeepEqual(entry.Args, want) {
 		t.Fatalf("release-next argv = %v, want %v", entry.Args, want)
 	}
+
 	// Sanity: the resolved literals must match the contract documented in
 	// spec/04-generic-cli/30-install-ctx.md §3.
 	if got := strings.Join(entry.Args, " "); got != "release --bump minor" {

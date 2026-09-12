@@ -59,6 +59,7 @@ func TestListTemplatesByKind_ReturnsCorrectKind(t *testing.T) {
 	if err != nil {
 		t.Fatal(err)
 	}
+
 	if len(titles) != 2 {
 		t.Errorf("expected 2 titles, got %d", len(titles))
 	}
@@ -67,6 +68,7 @@ func TestListTemplatesByKind_ReturnsCorrectKind(t *testing.T) {
 	if err != nil {
 		t.Fatal(err)
 	}
+
 	if len(descs) != 1 {
 		t.Errorf("expected 1 description, got %d", len(descs))
 	}
@@ -81,6 +83,7 @@ func TestListTemplatesByKind_EmptyTable(t *testing.T) {
 	if err != nil {
 		t.Fatal(err)
 	}
+
 	if len(titles) != 0 {
 		t.Errorf("expected 0 titles, got %d", len(titles))
 	}
@@ -95,6 +98,7 @@ func TestCountTemplates_Empty(t *testing.T) {
 	if err != nil {
 		t.Fatal(err)
 	}
+
 	if count != 0 {
 		t.Errorf("expected 0, got %d", count)
 	}
@@ -113,6 +117,7 @@ func TestCountTemplates_AfterInserts(t *testing.T) {
 	if err != nil {
 		t.Fatal(err)
 	}
+
 	if count != 3 {
 		t.Errorf("expected 3, got %d", count)
 	}
@@ -130,6 +135,7 @@ func TestInsertTemplate_UniqueIDs(t *testing.T) {
 	if len(titles) < 2 {
 		t.Fatal("expected at least 2 titles")
 	}
+
 	if titles[0].ID == titles[1].ID {
 		t.Error("expected unique IDs for each template")
 	}
@@ -147,6 +153,7 @@ func TestListTemplatesByKind_TemplateContent(t *testing.T) {
 	if len(titles) != 1 {
 		t.Fatal("expected 1 title")
 	}
+
 	if titles[0].Template != expected {
 		t.Errorf("expected %q, got %q", expected, titles[0].Template)
 	}
@@ -164,6 +171,7 @@ func TestListTemplatesByKind_KindField(t *testing.T) {
 	if len(titles) == 0 {
 		t.Fatal("expected titles")
 	}
+
 	if titles[0].Kind != constants.TemplateKindTitle {
 		t.Errorf("expected kind %q, got %q", constants.TemplateKindTitle, titles[0].Kind)
 	}
@@ -172,6 +180,7 @@ func TestListTemplatesByKind_KindField(t *testing.T) {
 	if len(descs) == 0 {
 		t.Fatal("expected descriptions")
 	}
+
 	if descs[0].Kind != constants.TemplateKindDescription {
 		t.Errorf("expected kind %q, got %q", constants.TemplateKindDescription, descs[0].Kind)
 	}
@@ -188,6 +197,7 @@ func TestInsertTemplate_CreatedAtPopulated(t *testing.T) {
 	if len(titles) == 0 {
 		t.Fatal("expected titles")
 	}
+
 	if titles[0].CreatedAt == "" {
 		t.Error("expected CreatedAt to be populated")
 	}

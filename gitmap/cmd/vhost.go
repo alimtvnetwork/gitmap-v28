@@ -31,6 +31,7 @@ func dispatchVHostSub(sub string, args []string) error {
 	case "create", "add", "new":
 		return runVHostCreate(args)
 	}
+
 	isHandled, err := dispatchVHostOpsSub(sub, args)
 	if isHandled {
 		return err
@@ -58,6 +59,7 @@ func printVHostRow(info VHostInfo) {
 	if info.IsEnabled {
 		status = "enabled"
 	}
+
 	fmt.Printf("  %-25s %-12s %-10s %s\n", info.Domain, info.SiteType, status, info.ConfigPath)
 }
 
@@ -65,13 +67,16 @@ func printVHostTable(vhosts []VHostInfo) {
 	isEmpty := len(vhosts) == 0
 	if isEmpty {
 		fmt.Printf("No virtual hosts found.\n")
+
 		return
 	}
+
 	fmt.Printf("\n  %-25s %-12s %-10s %s\n", "DOMAIN", "TYPE", "STATUS", "CONFIG PATH")
 	fmt.Printf("  %-25s %-12s %-10s %s\n", "------", "----", "------", "-----------")
 	for _, vh := range vhosts {
 		printVHostRow(vh)
 	}
+
 	fmt.Println()
 }
 
@@ -81,6 +86,7 @@ func runVHostList(args []string) error {
 	if err != nil {
 		return err
 	}
+
 	printVHostTable(vhosts)
 
 	return nil
@@ -91,12 +97,14 @@ func runVHostEnable(args []string) error {
 	if isEmpty {
 		return apperror.NewValidationError("domain name required: gitmap vhost enable <domain>")
 	}
+
 	domain := args[0]
 	opts := VHostOptions{}
 	err := EnableVHost(domain, opts)
 	if err != nil {
 		return err
 	}
+
 	fmt.Printf("%sVirtual host enabled: %s%s\n", constants.ColorGreen, domain, constants.ColorReset)
 
 	return nil
@@ -107,12 +115,14 @@ func runVHostDisable(args []string) error {
 	if isEmpty {
 		return apperror.NewValidationError("domain name required: gitmap vhost disable <domain>")
 	}
+
 	domain := args[0]
 	opts := VHostOptions{}
 	err := DisableVHost(domain, opts)
 	if err != nil {
 		return err
 	}
+
 	fmt.Printf("%sVirtual host disabled: %s%s\n", constants.ColorGreen, domain, constants.ColorReset)
 
 	return nil
@@ -138,6 +148,7 @@ func runVHostTest(args []string) error {
 	if err != nil {
 		return err
 	}
+
 	fmt.Println(out)
 
 	return nil
@@ -149,6 +160,7 @@ func runVHostReload(args []string) error {
 	if err != nil {
 		return err
 	}
+
 	fmt.Printf("%sNginx configuration reloaded successfully.%s\n", constants.ColorGreen, constants.ColorReset)
 
 	return nil

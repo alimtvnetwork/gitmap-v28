@@ -21,7 +21,6 @@ func installTool(opts installOptions) {
 	isDryRun := handleDryRunInstall(opts.DryRun, manager, installCmd)
 
 	if isDryRun {
-
 		return
 	}
 
@@ -38,9 +37,7 @@ func printInstallPlan(tool, version, manager string, installCmd []string) {
 }
 
 func handleDryRunInstall(dryRun bool, manager string, installCmd []string) bool {
-
 	if !dryRun {
-
 		return false
 	}
 
@@ -54,9 +51,7 @@ func handleDryRunInstall(dryRun bool, manager string, installCmd []string) bool 
 }
 
 func resolveTotalInstallSteps(manager string) int {
-
 	if manager == constants.PkgMgrApt {
-
 		return 4
 	}
 
@@ -99,7 +94,6 @@ func buildInstallCommand(manager, tool, version string) []string {
 	cmd, isUnix := buildUnixInstallCommand(manager, tool, pkg, version)
 
 	if isUnix {
-
 		return cmd
 	}
 
@@ -123,9 +117,7 @@ func buildUnixInstallCommand(manager, tool, pkg, version string) ([]string, bool
 }
 
 func buildWindowsInstallCommand(manager, pkg, version string) []string {
-
 	if manager == constants.PkgMgrWinget {
-
 		return buildWingetCommand(pkg, version)
 	}
 
@@ -145,9 +137,7 @@ func buildWingetCommand(pkg, version string) []string {
 }
 
 func appendVersionFlag(baseArgs []string, version string) []string {
-
 	if version != "" {
-
 		return append(baseArgs, "--version", version)
 	}
 
@@ -161,9 +151,7 @@ func buildAptCommand(pkg, version string) []string {
 }
 
 func resolveAptTarget(pkg, version string) string {
-
 	if version != "" {
-
 		return pkg + "=" + version
 	}
 
@@ -171,9 +159,7 @@ func resolveAptTarget(pkg, version string) string {
 }
 
 func buildBrewCommand(tool, pkg string) []string {
-
 	if isBrewCaskTool(tool) {
-
 		return []string{"brew", "install", "--cask", pkg}
 	}
 
@@ -181,9 +167,7 @@ func buildBrewCommand(tool, pkg string) []string {
 }
 
 func buildSnapCommand(pkg string) []string {
-
 	if pkg == constants.CmdCode {
-
 		return []string{"sudo", "snap", "install", pkg, "--classic"}
 	}
 
@@ -229,7 +213,6 @@ func recordInstallation(tool, manager string) {
 	splitDB, err := store.OpenInstallationSplitDB()
 
 	if err != nil {
-
 		return
 	}
 

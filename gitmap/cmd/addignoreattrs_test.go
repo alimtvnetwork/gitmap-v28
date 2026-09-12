@@ -23,12 +23,14 @@ func TestNormalizeLangs(t *testing.T) {
 		{"preserve order", []string{"node", "go", "rust"}, []string{"node", "go", "rust"}},
 		{"mixed case + blanks", []string{"", "Node", " GO ", "rust"}, []string{"node", "go", "rust"}},
 	}
+
 	for _, tc := range cases {
 		t.Run(tc.name, func(t *testing.T) {
 			got := normalizeLangs(tc.in)
 			if len(got) != len(tc.want) {
 				t.Fatalf("len: want %d, got %d (%v)", len(tc.want), len(got), got)
 			}
+
 			for i, v := range got {
 				if v != tc.want[i] {
 					t.Errorf("[%d]: want %q, got %q", i, tc.want[i], v)
@@ -48,9 +50,11 @@ func TestBuildAddTagSorted(t *testing.T) {
 	if a != b {
 		t.Fatalf("tag order mismatch: %q vs %q", a, b)
 	}
+
 	if a != "ignore/go+node" {
 		t.Errorf("want ignore/go+node, got %q", a)
 	}
+
 	if buildAddTag("attributes", nil) != "attributes/common" {
 		t.Errorf("empty langs should yield <kind>/common")
 	}
@@ -77,6 +81,7 @@ func TestConcatTemplateBodiesAddsLangBanners(t *testing.T) {
 	if len(body) != 0 {
 		t.Fatalf("nil resolved should yield empty body, got %q", body)
 	}
+
 	// Smoke test on real embedded templates — common always exists.
 	got := concatTemplateBodies(mustResolveForTest(t, "ignore", "common"))
 	if !strings.Contains(string(got), "# ── common ──") {

@@ -40,6 +40,7 @@ func isBannerSuppressed() bool {
 	if os.Getenv(constants.EnvGitMapQuiet) == constants.EnvGitMapQuietTrue {
 		return true
 	}
+
 	for _, arg := range os.Args[1:] {
 		if arg == constants.FlagNoBanner {
 			return true
@@ -55,6 +56,7 @@ func resolveActiveBinaryPath() string {
 	if err != nil {
 		return ""
 	}
+
 	resolved, evalErr := filepath.EvalSymlinks(exe)
 	if evalErr != nil {
 		return filepath.Clean(exe)
@@ -71,6 +73,7 @@ func resolveDeployedAndConfigPaths() (string, string) {
 	if len(constants.RepoPath) == 0 {
 		return "", ""
 	}
+
 	configFile := filepath.Join(constants.RepoPath, constants.GitMapSubdir, constants.PowershellConfigFile)
 	data, err := os.ReadFile(configFile)
 	if err != nil {
@@ -81,6 +84,7 @@ func resolveDeployedAndConfigPaths() (string, string) {
 	if len(deployRoot) == 0 {
 		return "", ""
 	}
+
 	binaryName := extractJSONString(data, constants.JSONKeyBinaryName)
 	if len(binaryName) == 0 {
 		binaryName = constants.DoctorDefaultBinary

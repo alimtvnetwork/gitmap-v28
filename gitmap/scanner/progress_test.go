@@ -22,6 +22,7 @@ func TestScanProgressFinalSnapshotMatchesTotals(t *testing.T) {
 		"side/d",
 		"side/sub/e",
 	}
+
 	for _, r := range want {
 		makeRepo(t, root, r)
 	}
@@ -52,6 +53,7 @@ func TestScanProgressFinalSnapshotMatchesTotals(t *testing.T) {
 	if len(snapshots) == 0 {
 		t.Fatal("expected at least one progress snapshot, got 0")
 	}
+
 	if finalCount != 1 {
 		t.Fatalf("expected exactly 1 Final snapshot, got %d", finalCount)
 	}
@@ -61,9 +63,11 @@ func TestScanProgressFinalSnapshotMatchesTotals(t *testing.T) {
 	} else {
 		t.Fatalf("last snapshot must be Final, got %+v", last)
 	}
+
 	if last.ReposFound != int64(len(got)) {
 		t.Errorf("ReposFound: got %d, want %d", last.ReposFound, len(got))
 	}
+
 	if last.DirsWalked < int64(len(want)) {
 		t.Errorf("DirsWalked: got %d, want >= %d", last.DirsWalked, len(want))
 	}
@@ -102,6 +106,7 @@ func TestScanProgressMonotonic(t *testing.T) {
 		if cur.DirsWalked < prev.DirsWalked {
 			t.Errorf("DirsWalked regressed at i=%d: %d -> %d", i, prev.DirsWalked, cur.DirsWalked)
 		}
+
 		if cur.ReposFound < prev.ReposFound {
 			t.Errorf("ReposFound regressed at i=%d: %d -> %d", i, prev.ReposFound, cur.ReposFound)
 		}
@@ -119,6 +124,7 @@ func TestScanProgressNilCallbackDoesNotCrash(t *testing.T) {
 	if err != nil {
 		t.Fatalf("ScanDirWithOptions: %v", err)
 	}
+
 	if len(got) != 1 {
 		t.Fatalf("expected 1 repo, got %d", len(got))
 	}
@@ -143,6 +149,7 @@ func TestScanProgressFinalAlwaysFiresEvenOnFastScans(t *testing.T) {
 			if !p.IsFinal {
 				return
 			}
+
 			gotFinal.Store(true)
 			close(done)
 		},

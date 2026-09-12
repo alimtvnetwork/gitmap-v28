@@ -48,11 +48,14 @@ func (e *SequenceHistoryFieldType) UnmarshalJSON(data []byte) error {
 	if err := json.Unmarshal(data, &s); err != nil {
 		return err
 	}
+
 	target := SequenceHistoryFieldType(s)
 	if !sequenceHistoryValidMap[target] {
 		return fmt.Errorf("invalid %s enum: %s", "SequenceHistoryFieldType", s)
 	}
+
 	*e = target
+
 	return nil
 }
 
@@ -62,6 +65,7 @@ func (e SequenceHistoryFieldType) ToJSON() (string, *apperror.AppError) {
 	if err != nil {
 		return "", apperror.WrapSimple(err, "serialize field to json")
 	}
+
 	return string(b), nil
 }
 
@@ -71,11 +75,14 @@ func (e *SequenceHistoryFieldType) FromJSON(s string) *apperror.AppError {
 	if err := json.Unmarshal([]byte(s), &str); err != nil {
 		return apperror.WrapSimple(err, "deserialize field from json")
 	}
+
 	target := SequenceHistoryFieldType(str)
 	if !sequenceHistoryValidMap[target] {
 		return apperror.WrapSimple(fmt.Errorf("invalid %s enum: %s", "SequenceHistoryFieldType", str), "validate field enum from json")
 	}
+
 	*e = target
+
 	return nil
 }
 
@@ -157,6 +164,7 @@ func (r sequenceHistoryDbRegistry) ToJSON() (string, *apperror.AppError) {
 	if err != nil {
 		return "", apperror.WrapSimple(err, "serialize registry to json")
 	}
+
 	return string(b), nil
 }
 

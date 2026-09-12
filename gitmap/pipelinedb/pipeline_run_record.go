@@ -29,13 +29,11 @@ type PipelineRunRecord struct {
 
 // IsFailed reports whether the pipeline run failed.
 func (r PipelineRunRecord) IsFailed() bool {
-
 	return !r.IsSuccess
 }
 
 // IsFail reports whether the pipeline run failed.
 func (r PipelineRunRecord) IsFail() bool {
-
 	return !r.IsSuccess
 }
 
@@ -95,6 +93,7 @@ func ScanPipelineRunRecord(row dbengine.RowScanner) (*PipelineRunRecord, error) 
 	item.Comments = dbengine.ScanString(raw_Comments)
 	item.CreatedAt = dbengine.ScanString(raw_CreatedAt)
 	item.UpdatedAt = dbengine.ScanString(raw_UpdatedAt)
+
 	return &item, nil
 }
 
@@ -111,6 +110,7 @@ func NewPipelineRunRecordDbRepo(db *dbengine.DbWrapper) *PipelineRunRecordDbRepo
 		enums.PipelineRunRecordTable,
 		ScanPipelineRunRecord,
 	)
+
 	return &PipelineRunRecordDbRepo{
 		db:   db,
 		repo: repo,
@@ -164,12 +164,14 @@ func (r *PipelineRunRecordDbRepo) Insert(ctx context.Context, item *PipelineRunR
 	if item.RunId == 0 {
 		id = nil
 	}
+
 	return r.db.ExecRowsAffected(ctx, query, id, item.RepoSlug, item.WorkflowName, item.Status, item.Conclusion, item.Branch, item.Sha, item.EtaSeconds, item.DurationSeconds, item.RunUrl, item.IsSuccess, item.Notes, item.Comments, item.CreatedAt, item.UpdatedAt)
 }
 
 // Update updates an existing PipelineRunRecord record identified by its primary key.
 func (r *PipelineRunRecordDbRepo) Update(ctx context.Context, item *PipelineRunRecord) dbengine.RowsAffectedResult {
 	query := "UPDATE PipelineRunRecord SET RepoSlug = ?, WorkflowName = ?, Status = ?, Conclusion = ?, Branch = ?, Sha = ?, EtaSeconds = ?, DurationSeconds = ?, RunUrl = ?, IsSuccess = ?, Notes = ?, Comments = ?, CreatedAt = ?, UpdatedAt = ? WHERE RunId = ?;"
+
 	return r.db.ExecRowsAffected(ctx, query, item.RepoSlug, item.WorkflowName, item.Status, item.Conclusion, item.Branch, item.Sha, item.EtaSeconds, item.DurationSeconds, item.RunUrl, item.IsSuccess, item.Notes, item.Comments, item.CreatedAt, item.UpdatedAt, item.RunId)
 }
 

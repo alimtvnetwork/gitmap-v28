@@ -23,6 +23,7 @@ func AutoFixVDigitPatterns(patterns []Pattern, names []string) []Pattern {
 	for _, p := range patterns {
 		have[p.Raw] = true
 	}
+
 	nameSet := make(map[string]bool, len(names))
 	for _, n := range names {
 		nameSet[n] = true
@@ -33,17 +34,21 @@ func AutoFixVDigitPatterns(patterns []Pattern, names []string) []Pattern {
 		if strings.Contains(p.Raw, "*") {
 			continue
 		}
+
 		if nameSet[p.Raw] {
 			continue // original already matches; no fix needed
 		}
+
 		for _, cand := range vDigitCandidates(p.Raw, nameSet, names) {
 			if have[cand] {
 				continue
 			}
+
 			fixed, err := ParsePattern(cand)
 			if err != nil {
 				continue
 			}
+
 			have[cand] = true
 			out = append(out, fixed)
 		}
@@ -63,6 +68,7 @@ func vDigitCandidates(raw string, nameSet map[string]bool, names []string) []str
 	if ok && nameSet[fixed] {
 		out = append(out, fixed)
 	}
+
 	if best, _, ok := HighestVersionedMatch(names, raw); ok {
 		out = append(out, best)
 	}
@@ -78,11 +84,13 @@ func NearMisses(patterns []Pattern, names []string, maxDist, topN int) []string 
 		name string
 		dist int
 	}
+
 	scoredAll := make([]scored, 0, topN*2)
 	for _, p := range patterns {
 		if strings.Contains(p.Raw, "*") {
 			continue
 		}
+
 		for _, n := range names {
 			d := levenshtein(p.Raw, n)
 			if d > 0 && d <= maxDist {
@@ -101,11 +109,13 @@ func NearMisses(patterns []Pattern, names []string, maxDist, topN int) []string 
 				best = i
 			}
 		}
+
 		pick := scoredAll[best]
 		scoredAll = append(scoredAll[:best], scoredAll[best+1:]...)
 		if seen[pick.name] {
 			continue
 		}
+
 		seen[pick.name] = true
 		out = append(out, pick.name)
 	}
@@ -120,16 +130,20 @@ func levenshtein(a, b string) int {
 	if a == b {
 		return 0
 	}
+
 	if len(a) == 0 {
 		return len(b)
 	}
+
 	if len(b) == 0 {
 		return len(a)
 	}
+
 	prev := make([]int, len(b)+1)
 	for j := range prev {
 		prev[j] = j
 	}
+
 	curr := make([]int, len(b)+1)
 	for i := 1; i <= len(a); i++ {
 		curr[0] = i
@@ -138,8 +152,10 @@ func levenshtein(a, b string) int {
 			if a[i-1] == b[j-1] {
 				cost = 0
 			}
+
 			curr[j] = min3(curr[j-1]+1, prev[j]+1, prev[j-1]+cost)
 		}
+
 		prev, curr = curr, prev
 	}
 
@@ -151,8 +167,10 @@ func min3(a, b, c int) int {
 	if b < min {
 		min = b
 	}
+
 	if c < min {
 		min = c
 	}
+
 	return min
 }

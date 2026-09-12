@@ -33,6 +33,7 @@ func defaultGitRunner(repoDir, sub string, args ...string) (string, error) {
 	if err != nil {
 		return trimmed, fmt.Errorf("git %s: %w (%s)", sub, err, strings.TrimSpace(trimmed))
 	}
+
 	return trimmed, nil
 }
 
@@ -47,6 +48,7 @@ func defaultGitRunnerBytes(repoDir, sub string, args ...string) ([]byte, error) 
 	if err != nil {
 		return out, fmt.Errorf("git %s: %w (%s)", sub, err, strings.TrimSpace(stderr.String()))
 	}
+
 	return out, nil
 }
 
@@ -60,6 +62,7 @@ func defaultGitRunnerEnv(repoDir string, extraEnv []string, args ...string) (str
 	if err != nil {
 		return trimmed, fmt.Errorf("git %s: %w (%s)", args[0], err, strings.TrimSpace(trimmed))
 	}
+
 	return trimmed, nil
 }
 
@@ -72,6 +75,7 @@ func defaultHashObjectStdin(repoDir string, data []byte) (string, error) {
 	if err != nil {
 		return trimmed, fmt.Errorf("git hash-object: %w (%s)", err, trimmed)
 	}
+
 	return trimmed, nil
 }
 
@@ -87,15 +91,19 @@ func SetTestHooks(
 	if textFn != nil {
 		gitRunner = textFn
 	}
+
 	if bytesFn != nil {
 		gitRunnerBytes = bytesFn
 	}
+
 	if envFn != nil {
 		gitRunnerEnv = envFn
 	}
+
 	if hashFn != nil {
 		hashObjectStdin = hashFn
 	}
+
 	return func() {
 		gitRunner, gitRunnerBytes, gitRunnerEnv, hashObjectStdin = prevText, prevBytes, prevEnv, prevHash
 	}

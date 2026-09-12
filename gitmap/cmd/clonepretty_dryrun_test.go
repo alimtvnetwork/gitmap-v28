@@ -37,16 +37,20 @@ func TestRunCloneCommandPrettyDryRun(t *testing.T) {
 	if !strings.Contains(out, url) {
 		t.Errorf("header missing url %q in output:\n%s", url, out)
 	}
+
 	if !strings.Contains(out, dest) {
 		t.Errorf("header missing dest %q in output:\n%s", dest, out)
 	}
+
 	if !strings.Contains(out, constants.GitClone) {
 		t.Errorf("header missing %q (git subcommand) in output:\n%s",
 			constants.GitClone, out)
 	}
+
 	if !strings.Contains(out, constants.MsgCloneDryRunNoop) {
 		t.Errorf("dry-run sentinel missing in output:\n%s", out)
 	}
+
 	if _, err := os.Stat(dest); err == nil {
 		t.Errorf("dry-run should not have created %q", dest)
 	}
@@ -78,5 +82,6 @@ func TestWithSSHAcceptNewKeepsExplicitStrictHostKey(t *testing.T) {
 // returns whatever was written.
 func captureClonePrettyStdout(t *testing.T, fn func()) string {
 	t.Helper()
+
 	return captureStdoutForTest(t, fn)
 }

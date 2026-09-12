@@ -21,21 +21,27 @@ func parseExecOptions(flagArgs []string) macro.ExecOptions {
 		if arg == "--dry-run" {
 			opts.DryRun = true
 		}
+
 		if arg == "--verbose" || arg == "-v" {
 			opts.Verbose = true
 		}
+
 		if arg == "--json" {
 			opts.JSON = true
 		}
+
 		if arg == "--yaml" || arg == "--yml" || arg == "-y" {
 			opts.YAML = true
 		}
+
 		if isFileFlagWithArg(arg) && i+1 < len(flagArgs) {
 			opts.FilePath = flagArgs[i+1]
 			i++
 		}
+
 		checkInlineFileArg(arg, &opts)
 	}
+
 	return opts
 }
 
@@ -44,6 +50,7 @@ func checkInlineFileArg(arg string, opts *macro.ExecOptions) {
 	for _, p := range prefixes {
 		if strings.HasPrefix(strings.ToLower(arg), p) {
 			opts.FilePath = arg[len(p):]
+
 			return
 		}
 	}
@@ -58,21 +65,25 @@ func extractMacroNameAndFlags(args []string) (string, []string) {
 			name = args[i]
 			continue
 		}
+
 		if !isFlag {
 			flags = append(flags, args[i])
 			continue
 		}
+
 		flags = append(flags, args[i])
 		if isFileFlagWithArg(args[i]) && i+1 < len(args) {
 			flags = append(flags, args[i+1])
 			i++
 		}
 	}
+
 	return name, flags
 }
 
 func isFileFlagWithArg(arg string) bool {
 	lower := strings.ToLower(arg)
+
 	return lower == "--file" || lower == "--filepath" || lower == "--out" || lower == "--output" || lower == "-o" || lower == "-f"
 }
 
@@ -227,17 +238,22 @@ func outputStructuredData(data interface{}, opts macro.ExecOptions) error {
 	formatted := formatStructuredBytes(data, isYAML)
 	if len(opts.FilePath) == 0 {
 		fmt.Println(formatted)
+
 		return nil
 	}
+
 	return saveAndPrintStructuredOutput(opts.FilePath, formatted)
 }
 
 func formatStructuredBytes(data interface{}, isYAML bool) string {
 	if isYAML {
 		bytes, _ := yaml.Marshal(data)
+
 		return string(bytes)
 	}
+
 	bytes, _ := json.MarshalIndent(data, "", "  ")
+
 	return string(bytes)
 }
 
@@ -246,24 +262,29 @@ func saveAndPrintStructuredOutput(filePath, formatted string) error {
 	if saveErr != nil {
 		return fmt.Errorf("failed saving to %s: %w", filePath, saveErr)
 	}
+
 	fmt.Println(formatted)
 	fmt.Printf("\n  %s✔ Output saved to:%s %s%s%s\n\n",
 		constants.ColorGreen, constants.ColorReset,
 		constants.ColorCyan, savedPath, constants.ColorReset)
+
 	return nil
 }
 
 func renderMacroListTable(macros []macro.Macro) {
 	if len(macros) == 0 {
 		fmt.Println("  No saved macros found. Record one with: gitmap macro record <name>")
+
 		return
 	}
+
 	fmt.Println()
 	fmt.Printf("  %s%-24s %-12s %s%s\n", constants.ColorCyan, "MACRO NAME", "STEPS", "UPDATED", constants.ColorReset)
 	fmt.Printf("  %s%s%s\n", constants.ColorDim, constants.TermTableRule, constants.ColorReset)
 	for _, m := range macros {
 		fmt.Printf("  %-24s %-12d %s\n", m.Name, len(m.Steps), m.UpdatedAt.Format("2006-01-02 15:04"))
 	}
+
 	fmt.Println()
 }
 
@@ -272,6 +293,7 @@ func renderMacroShow(m *macro.Macro) {
 	for i, step := range m.Steps {
 		fmt.Printf("    %d. %s\n", i+1, step.CommandLine)
 	}
+
 	fmt.Println()
 }
 

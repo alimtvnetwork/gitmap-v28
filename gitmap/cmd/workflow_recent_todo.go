@@ -19,8 +19,10 @@ func runRecent(args []string) error {
 	f, err := os.Open(path)
 	if err != nil {
 		fmt.Fprintf(os.Stderr, "recent: no history yet (%s)\n", path)
+
 		return nil
 	}
+
 	defer f.Close()
 	var lines []string
 	sc := bufio.NewScanner(f)
@@ -30,23 +32,29 @@ func runRecent(args []string) error {
 			lines = append(lines, l)
 		}
 	}
+
 	uniq := dedupeReverse(lines, 10)
 	if len(args) > 0 && args[0] == "--print" {
 		for _, p := range uniq {
 			fmt.Println(p)
 		}
+
 		return nil
 	}
+
 	fmt.Println("\033[1;94mRecent repos\033[0m")
 	for i, p := range uniq {
 		fmt.Printf("  \033[2;37m%2d\033[0m %s\n", i+1, p)
 	}
+
 	fmt.Println("\n\033[2;37mhint:\033[0m pipe to fzf — \033[1;96mgitmap recent --print | fzf\033[0m")
+
 	return nil
 }
 
 func recentLogPath() string {
 	home, _ := os.UserHomeDir()
+
 	return filepath.Join(home, ".gitmap", "recent.log")
 }
 
@@ -59,6 +67,7 @@ func dedupeReverse(in []string, max int) []string {
 			out = append(out, in[i])
 		}
 	}
+
 	return out
 }
 
@@ -67,11 +76,14 @@ func runTodo(args []string) error {
 	if len(args) > 0 {
 		root = args[0]
 	}
+
 	out, err := exec.Command("git", "-C", root, "grep", "-nE", `TODO|FIXME|XXX`).Output()
 	if err != nil && len(out) == 0 {
 		fmt.Println("todo: no matches")
+
 		return nil
 	}
+
 	fmt.Printf("\033[1;94mTODO / FIXME / XXX\033[0m in %s\n", root)
 	sc := bufio.NewScanner(strings.NewReader(string(out)))
 	for sc.Scan() {
@@ -80,6 +92,7 @@ func runTodo(args []string) error {
 		if len(parts) < 3 {
 			continue
 		}
+
 		file, lno := parts[0], parts[1]
 		blame, _ := exec.Command("git", "-C", root, "blame", "-L", lno+","+lno, "--porcelain", file).Output()
 		author := "?"
@@ -89,8 +102,10 @@ func runTodo(args []string) error {
 				break
 			}
 		}
+
 		fmt.Printf("  \033[2;37m%s:%s\033[0m  \033[1;93m%s\033[0m  %s\n",
 			file, lno, author, strings.TrimSpace(parts[2]))
 	}
+
 	return nil
 }

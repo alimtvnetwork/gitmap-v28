@@ -34,13 +34,16 @@ func runAgyScan(args []string) error {
 	if pathErr != nil {
 		return apperror.WrapSimple(pathErr, "path error")
 	}
+
 	projects, loadErr := loadAllAgyProjects(dirPath)
 	if loadErr != nil {
 		return apperror.WrapSimple(loadErr, "load projects")
 	}
+
 	repos := discoverGitRepos(rootPath)
 	results := matchReposWithAgyProjects(repos, projects)
 	renderAgyScanResults(rootPath, results)
+
 	return nil
 }
 
@@ -48,7 +51,9 @@ func resolveAgyScanRoot(args []string) string {
 	if len(args) > 0 && args[0] != "" {
 		return resolveTargetAbs(args[0])
 	}
+
 	cwd, _ := os.Getwd()
+
 	return cwd
 }
 
@@ -57,7 +62,9 @@ func resolveTargetAbs(raw string) string {
 	if err == nil {
 		return abs
 	}
+
 	cwd, _ := os.Getwd()
+
 	return cwd
 }
 
@@ -67,14 +74,18 @@ func discoverGitRepos(root string) []string {
 		if err != nil || !info.IsDir() {
 			return nil
 		}
+
 		name := info.Name()
 		if isSkippableScanDir(name) {
 			return filepath.SkipDir
 		}
+
 		if checkDirExists(filepath.Join(path, ".git")) {
 			repos = append(repos, path)
+
 			return filepath.SkipDir
 		}
+
 		return nil
 	})
 
@@ -103,6 +114,7 @@ func matchReposWithAgyProjects(repos []string, projects []AgyProject) []agyScanR
 				matchedIDs = append(matchedIDs, shortProjectId(p.ID))
 			}
 		}
+
 		results = append(results, agyScanRepoResult{
 			Name:       filepath.Base(r),
 			Path:       r,
@@ -110,6 +122,7 @@ func matchReposWithAgyProjects(repos []string, projects []AgyProject) []agyScanR
 			ProjectIDs: matchedIDs,
 		})
 	}
+
 	return results
 }
 
@@ -127,6 +140,7 @@ func renderAgyScanResults(root string, results []agyScanRepoResult) {
 		fmt.Printf("  %-30s  %-24s  %s\n", res.Name, statusStr, res.Path)
 		tallyScanResult(res.MatchCount, &added, &repeated, &missing)
 	}
+
 	printAgyScanSummary(len(results), added, repeated, missing)
 }
 
@@ -134,9 +148,11 @@ func formatAgyScanStatus(count int) string {
 	if count == 1 {
 		return constants.ColorGreen + "✔ added (1)" + constants.ColorReset
 	}
+
 	if count > 1 {
 		return fmt.Sprintf("%s⚠ repeated (%d)%s", constants.ColorYellow, count, constants.ColorReset)
 	}
+
 	return constants.ColorRed + "✖ not added" + constants.ColorReset
 }
 
@@ -162,5 +178,6 @@ func printAgyScanSummary(total, added, repeated, missing int) {
 	if repeated > 0 {
 		fmt.Println("  Tip: Run 'gitmap agy optimize-projects' to remove duplicate projects.")
 	}
+
 	fmt.Println()
 }

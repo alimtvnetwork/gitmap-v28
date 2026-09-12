@@ -7,9 +7,11 @@ func TestParseFullVersion(t *testing.T) {
 	if err != nil {
 		t.Fatalf("unexpected error: %v", err)
 	}
+
 	if v.Major != 1 || v.Minor != 2 || v.Patch != 3 {
 		t.Errorf("expected 1.2.3, got %d.%d.%d", v.Major, v.Minor, v.Patch)
 	}
+
 	if v.PreRelease != "" {
 		t.Errorf("expected no pre-release, got %s", v.PreRelease)
 	}
@@ -20,6 +22,7 @@ func TestParsePaddingMajorOnly(t *testing.T) {
 	if err != nil {
 		t.Fatalf("unexpected error: %v", err)
 	}
+
 	if v.Major != 1 || v.Minor != 0 || v.Patch != 0 {
 		t.Errorf("expected 1.0.0, got %d.%d.%d", v.Major, v.Minor, v.Patch)
 	}
@@ -30,6 +33,7 @@ func TestParsePaddingMajorMinor(t *testing.T) {
 	if err != nil {
 		t.Fatalf("unexpected error: %v", err)
 	}
+
 	if v.Major != 1 || v.Minor != 2 || v.Patch != 0 {
 		t.Errorf("expected 1.2.0, got %d.%d.%d", v.Major, v.Minor, v.Patch)
 	}
@@ -40,6 +44,7 @@ func TestParseNoPrefix(t *testing.T) {
 	if err != nil {
 		t.Fatalf("unexpected error: %v", err)
 	}
+
 	if v.Major != 2 || v.Minor != 3 || v.Patch != 4 {
 		t.Errorf("expected 2.3.4, got %d.%d.%d", v.Major, v.Minor, v.Patch)
 	}
@@ -50,9 +55,11 @@ func TestParsePreRelease(t *testing.T) {
 	if err != nil {
 		t.Fatalf("unexpected error: %v", err)
 	}
+
 	if v.PreRelease != "rc.1" {
 		t.Errorf("expected pre-release rc.1, got %s", v.PreRelease)
 	}
+
 	if !v.IsPreRelease() {
 		t.Error("expected IsPreRelease true")
 	}
@@ -63,6 +70,7 @@ func TestParsePreReleaseBeta(t *testing.T) {
 	if err != nil {
 		t.Fatalf("unexpected error: %v", err)
 	}
+
 	if v.PreRelease != "beta" {
 		t.Errorf("expected pre-release beta, got %s", v.PreRelease)
 	}
@@ -99,11 +107,13 @@ func TestStringOutput(t *testing.T) {
 		{"v1.2.3", "v1.2.3"},
 		{"v1.0.0-rc.1", "v1.0.0-rc.1"},
 	}
+
 	for _, tt := range tests {
 		v, err := Parse(tt.input)
 		if err != nil {
 			t.Fatalf("Parse(%s) error: %v", tt.input, err)
 		}
+
 		if v.String() != tt.expected {
 			t.Errorf("Parse(%s).String() = %s, want %s", tt.input, v.String(), tt.expected)
 		}
@@ -140,6 +150,7 @@ func TestBumpPatch(t *testing.T) {
 	if err != nil {
 		t.Fatalf("unexpected error: %v", err)
 	}
+
 	if bumped.String() != "v1.2.4" {
 		t.Errorf("expected v1.2.4, got %s", bumped.String())
 	}
@@ -151,6 +162,7 @@ func TestBumpMinor(t *testing.T) {
 	if err != nil {
 		t.Fatalf("unexpected error: %v", err)
 	}
+
 	if bumped.String() != "v1.3.0" {
 		t.Errorf("expected v1.3.0, got %s", bumped.String())
 	}
@@ -162,6 +174,7 @@ func TestBumpMajor(t *testing.T) {
 	if err != nil {
 		t.Fatalf("unexpected error: %v", err)
 	}
+
 	if bumped.String() != "v1.0.0" {
 		t.Errorf("expected v1.0.0, got %s", bumped.String())
 	}
@@ -181,6 +194,7 @@ func TestGreaterThanMajor(t *testing.T) {
 	if !a.GreaterThan(b) {
 		t.Error("v2.0.0 should be greater than v1.9.9")
 	}
+
 	if b.GreaterThan(a) {
 		t.Error("v1.9.9 should not be greater than v2.0.0")
 	}
@@ -216,6 +230,7 @@ func TestGreaterThanStableBeatsPreRelease(t *testing.T) {
 	if !stable.GreaterThan(pre) {
 		t.Error("v1.0.0 should be greater than v1.0.0-rc.1")
 	}
+
 	if pre.GreaterThan(stable) {
 		t.Error("v1.0.0-rc.1 should not be greater than v1.0.0")
 	}

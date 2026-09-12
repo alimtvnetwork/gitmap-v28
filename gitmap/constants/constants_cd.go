@@ -89,6 +89,7 @@ const CDFuncBash = `gcd() {
   dest="$(GITMAP_COMMAND_WRAPPER=1 GITMAP_WRAPPER=1 command gitmap cd "$@")"
   status=$?
   if [ $status -ne 0 ]; then
+
     return $status
   fi
   if [ -n "$dest" ] && [ -d "$dest" ]; then
@@ -102,11 +103,13 @@ gitmap() {
     dest="$(GITMAP_COMMAND_WRAPPER=1 GITMAP_WRAPPER=1 command gitmap "$@")"
     status=$?
     if [ $status -ne 0 ]; then
+
       return $status
     fi
     if [ -n "$dest" ] && [ -d "$dest" ]; then
       builtin cd "$dest" || return $?
     fi
+
     return 0
   fi
   local handoff status
@@ -122,6 +125,7 @@ gitmap() {
       fi
     fi
     rm -f "$handoff"
+
     return $status
   fi
   command gitmap "$@"
@@ -137,6 +141,7 @@ const CDFuncZsh = `gcd() {
   dest="$(GITMAP_COMMAND_WRAPPER=1 GITMAP_WRAPPER=1 command gitmap cd "$@")"
   status=$?
   if (( status != 0 )); then
+
     return $status
   fi
   if [[ -n "$dest" && -d "$dest" ]]; then
@@ -151,11 +156,13 @@ gitmap() {
     dest="$(GITMAP_COMMAND_WRAPPER=1 GITMAP_WRAPPER=1 command gitmap "$@")"
     status=$?
     if (( status != 0 )); then
+
       return $status
     fi
     if [[ -n "$dest" && -d "$dest" ]]; then
       builtin cd "$dest" || return $?
     fi
+
     return 0
   fi
   local handoff status
@@ -171,6 +178,7 @@ gitmap() {
       fi
     fi
     rm -f "$handoff"
+
     return $status
   fi
   command gitmap "$@"
@@ -184,14 +192,17 @@ const CDFuncPowerShell = `function gcd {
   $real = Get-GitmapCommand
   if (-not $real) {
     Write-Error "gitmap executable not found"
+
     return
   }
+
   $env:GITMAP_WRAPPER = "1"
   $env:GITMAP_COMMAND_WRAPPER = "1"
   $dest = [string](& $real cd @args | Out-String)
   if ($LASTEXITCODE -ne 0) {
     return
   }
+
   $dest = $dest.Trim()
   if ($dest -and (Test-Path -LiteralPath ([string]$dest))) {
     Set-Location -LiteralPath ([string]$dest)
@@ -203,10 +214,12 @@ function Get-GitmapCommand {
   if ($cmd) {
     return $cmd.Source
   }
+
   $cmd = Get-Command gitmap -CommandType Application -ErrorAction SilentlyContinue | Select-Object -First 1
   if ($cmd) {
     return $cmd.Source
   }
+
   return $null
 }
 
@@ -214,8 +227,10 @@ function gitmap {
   $real = Get-GitmapCommand
   if (-not $real) {
     Write-Error "gitmap executable not found"
+
     return
   }
+
   if ($args.Count -gt 0 -and ($args[0] -eq 'cd' -or $args[0] -eq 'go')) {
     $env:GITMAP_WRAPPER = "1"
     $env:GITMAP_COMMAND_WRAPPER = "1"
@@ -223,12 +238,15 @@ function gitmap {
     if ($LASTEXITCODE -ne 0) {
       return
     }
+
     $dest = $dest.Trim()
     if ($dest -and (Test-Path -LiteralPath ([string]$dest))) {
       Set-Location -LiteralPath ([string]$dest)
     }
+
     return
   }
+
   $handoff = [System.IO.Path]::Combine([System.IO.Path]::GetTempPath(), "gitmap-handoff-$([System.Guid]::NewGuid().ToString('N')).txt")
   try {
     $env:GITMAP_HANDOFF_FILE = $handoff

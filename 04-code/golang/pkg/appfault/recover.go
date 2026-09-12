@@ -38,5 +38,6 @@ func Recover(handler func(*AppError)) {
 // overrideStackTrace is a private method on AppErrorBuilder to forcefully set the stack trace.
 func (b *AppErrorBuilder) overrideStackTrace(trace StackTrace) *AppErrorBuilder {
 	b.stack = trace
+
 	return b
 }

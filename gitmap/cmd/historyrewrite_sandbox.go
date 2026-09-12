@@ -20,6 +20,7 @@ func ensureFilterRepoInstalled() {
 	if err := cmd.Run(); err == nil {
 		return
 	}
+
 	fmt.Fprint(os.Stderr, constants.HistoryErrNoFilterRepo)
 	switch runtime.GOOS {
 	case "darwin":
@@ -29,6 +30,7 @@ func ensureFilterRepoInstalled() {
 	default:
 		fmt.Fprint(os.Stderr, constants.HistoryMsgInstallHintLinux)
 	}
+
 	cliexit.HandleError(nil, constants.HistoryExitNoFilterRepo)
 }
 
@@ -41,11 +43,13 @@ func readOriginURL() string {
 		fmt.Fprintf(os.Stderr, constants.HistoryErrNoOrigin, err)
 		cliexit.HandleError(nil, constants.HistoryExitNotInRepo)
 	}
+
 	url := strings.TrimSpace(string(out))
 	if url == "" {
 		fmt.Fprintf(os.Stderr, constants.HistoryErrNoOrigin, fmt.Errorf("empty origin URL"))
 		cliexit.HandleError(nil, constants.HistoryExitNotInRepo)
 	}
+
 	return url
 }
 
@@ -57,9 +61,11 @@ func mirrorClone(originURL string, opts historyOpts) string {
 		fmt.Fprintf(os.Stderr, constants.HistoryErrSandbox, err)
 		cliexit.HandleError(nil, constants.HistoryExitBadArgs)
 	}
+
 	if !opts.quiet {
 		fmt.Fprintf(os.Stderr, constants.HistoryMsgPhaseClone, originURL, sandbox)
 	}
+
 	cmd := exec.Command(constants.HistoryGitBin, "clone", "--mirror", originURL, sandbox)
 	cmd.Stdout, cmd.Stderr = os.Stderr, os.Stderr
 	if err := cmd.Run(); err != nil {
@@ -67,6 +73,7 @@ func mirrorClone(originURL string, opts historyOpts) string {
 		fmt.Fprintf(os.Stderr, constants.HistoryErrMirrorClone, err)
 		cliexit.HandleError(nil, constants.HistoryExitFilterFailed)
 	}
+
 	return sandbox
 }
 
@@ -76,9 +83,12 @@ func runFilterRepo(mode historyMode, sandbox string, paths []string,
 ) error {
 	if mode == historyModePurge {
 		runFilterRepoPurge(sandbox, paths, opts)
+
 		return nil
 	}
+
 	runFilterRepoPin(sandbox, paths, pinPayloads, opts)
+
 	return nil
 }
 
@@ -88,12 +98,15 @@ func runFilterRepoPurge(sandbox string, paths []string, opts historyOpts) error 
 	if !opts.quiet {
 		fmt.Fprintf(os.Stderr, constants.HistoryMsgPhaseFilterPurge, len(paths))
 	}
+
 	args := []string{"-C", sandbox, "filter-repo", "--force", "--invert-paths"}
 	for _, p := range paths {
 		args = append(args, "--path", p)
 	}
+
 	args = append(args, historyMessageArgs(opts, sandbox, paths)...)
 	execFilterRepo(args)
+
 	return nil
 }
 
@@ -106,17 +119,21 @@ func runFilterRepoPin(sandbox string, paths []string,
 	if !opts.quiet {
 		fmt.Fprintf(os.Stderr, constants.HistoryMsgPhaseFilterPin, len(paths))
 	}
+
 	manifest, err := writePinManifest(sandbox, paths, pinPayloads)
 	if err != nil {
 		fmt.Fprintf(os.Stderr, constants.HistoryErrManifest, err)
 		cliexit.HandleError(nil, constants.HistoryExitFilterFailed)
 	}
+
 	args := []string{
 		"-C", sandbox, "filter-repo", "--force",
 		"--blob-callback", buildPinCallbackPython(manifest),
 	}
+
 	args = append(args, historyMessageArgs(opts, sandbox, paths)...)
 	execFilterRepo(args)
+
 	return nil
 }
 
@@ -135,7 +152,9 @@ func historyMessageArgs(opts historyOpts, sandbox string, paths []string) []stri
 	if opts.message == "" {
 		return nil
 	}
+
 	touched := touchedCommitSHAs(sandbox, paths)
+
 	return []string{"--commit-callback", buildScopedMessagePython(opts.message, touched)}
 }
 
@@ -149,8 +168,10 @@ func touchedCommitSHAs(sandbox string, paths []string) []string {
 	out, err := exec.Command(constants.HistoryGitBin, args...).Output()
 	if err != nil {
 		fmt.Fprintf(os.Stderr, constants.HistoryErrFilterRepo, exitCodeOf(err), err.Error())
+
 		return nil
 	}
+
 	lines := strings.Split(strings.TrimSpace(string(out)), "\n")
 	shas := make([]string, 0, len(lines))
 	for _, ln := range lines {
@@ -159,6 +180,7 @@ func touchedCommitSHAs(sandbox string, paths []string) []string {
 			shas = append(shas, ln)
 		}
 	}
+
 	return shas
 }
 
@@ -174,7 +196,9 @@ func buildScopedMessagePython(message string, shas []string) string {
 	for _, s := range shas {
 		quoted = append(quoted, fmt.Sprintf("%q", s))
 	}
+
 	setLiteral := "{" + strings.Join(quoted, ", ") + "}"
+
 	return fmt.Sprintf(`
 _touched_shas = %s
 _oid = commit.original_id
@@ -206,5 +230,6 @@ func exitCodeOf(err error) int {
 	if errors.As(err, &exitErr) {
 		return exitErr.ExitCode()
 	}
+
 	return -1
 }

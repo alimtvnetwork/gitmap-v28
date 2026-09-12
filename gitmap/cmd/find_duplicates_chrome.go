@@ -19,23 +19,30 @@ func runFindDuplicatesChrome() error {
 	mainDB, err := store.OpenDefault()
 	if err != nil {
 		fmt.Println("  " + constants.ColorYellow + "Gitmap database not available for Chrome profile check." + constants.ColorReset)
+
 		return nil
 	}
+
 	defer mainDB.Close()
 
 	profiles := queryChromeProfileDetails(mainDB)
 	if len(profiles) == 0 {
 		fmt.Println("  " + constants.ColorDim + "No Chrome profiles tracked in database." + constants.ColorReset)
+
 		return nil
 	}
+
 	dupGroups := groupChromeDuplicates(profiles)
 	if len(dupGroups) == 0 {
 		fmt.Printf("  %s✓ Chrome: No duplicate profiles found. Total active: %d%s\n\n",
 			constants.ColorGreen, len(profiles), constants.ColorReset)
+
 		return nil
 	}
+
 	printChromeDupFindings(dupGroups)
 	printChromeRemediations(dupGroups)
+
 	return nil
 }
 
@@ -45,6 +52,7 @@ func queryChromeProfileDetails(db *store.DB) []chromeProfileDetail {
 	if err != nil {
 		return out
 	}
+
 	defer rows.Close()
 	for rows.Next() {
 		var d chromeProfileDetail
@@ -52,6 +60,7 @@ func queryChromeProfileDetails(db *store.DB) []chromeProfileDetail {
 			out = append(out, d)
 		}
 	}
+
 	return out
 }
 
@@ -62,14 +71,17 @@ func groupChromeDuplicates(profiles []chromeProfileDetail) map[string][]chromePr
 		if key == "" || key == "." {
 			key = strings.ToLower(p.Name)
 		}
+
 		groups[key] = append(groups[key], p)
 	}
+
 	dupGroups := make(map[string][]chromeProfileDetail)
 	for k, list := range groups {
 		if len(list) > 1 {
 			dupGroups[k] = list
 		}
 	}
+
 	return dupGroups
 }
 
@@ -80,6 +92,7 @@ func printChromeDupFindings(dupGroups map[string][]chromeProfileDetail) {
 	for _, list := range dupGroups {
 		totalDups += len(list) - 1
 	}
+
 	fmt.Printf("  Found %s%d%s duplicate profile group(s) (%s%d%s duplicate entries total):\n\n",
 		constants.ColorWhite, len(dupGroups), constants.ColorReset,
 		constants.ColorYellow, totalDups, constants.ColorReset)
@@ -91,6 +104,7 @@ func printChromeDupFindings(dupGroups map[string][]chromeProfileDetail) {
 		for _, p := range list {
 			fmt.Printf("    %-6d %-24s %s\n", p.ID, truncateStr(p.Name, 23), truncateStr(p.SourcePath, 34))
 		}
+
 		fmt.Println()
 	}
 }
@@ -103,6 +117,7 @@ func printChromeRemediations(dupGroups map[string][]chromeProfileDetail) {
 			break
 		}
 	}
+
 	fmt.Println("  " + constants.ColorCyan + "Remediation & Fix Commands for Chrome Profiles:" + constants.ColorReset)
 	fmt.Println("  " + strings.Repeat("─", 68))
 	fmt.Printf("  ● Fix Single (Delete specific duplicate profile):\n")

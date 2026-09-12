@@ -34,6 +34,7 @@ func TestSafeUint32_AcceptsBoundaryValues(t *testing.T) {
 		{"max uint32 upper bound", math.MaxUint32, math.MaxUint32},
 		{"one below max uint32", math.MaxUint32 - 1, math.MaxUint32 - 1},
 	}
+
 	for _, tc := range cases {
 		t.Run(tc.name, func(t *testing.T) {
 			t.Parallel()
@@ -41,6 +42,7 @@ func TestSafeUint32_AcceptsBoundaryValues(t *testing.T) {
 			if err != nil {
 				t.Fatalf("safeUint32(%d) returned unexpected error: %v", tc.in, err)
 			}
+
 			if got != tc.want {
 				t.Fatalf("safeUint32(%d) = %d, want %d", tc.in, got, tc.want)
 			}
@@ -58,6 +60,7 @@ func TestSafeUint32_RejectsNegatives(t *testing.T) {
 			if err == nil {
 				t.Fatalf("safeUint32(%d) = %d, want error", in, got)
 			}
+
 			if got != 0 {
 				t.Fatalf("safeUint32(%d) returned %d on error, want 0", in, got)
 			}
@@ -73,11 +76,13 @@ func TestSafeUint32_RejectsAboveMaxUint32(t *testing.T) {
 	if math.MaxInt <= math.MaxUint32 {
 		t.Skip("int cannot exceed math.MaxUint32 on this platform (32-bit)")
 	}
+
 	cases := []int{
 		math.MaxUint32 + 1,
 		math.MaxUint32 + 1024,
 		math.MaxInt, // largest int on a 64-bit platform
 	}
+
 	for _, in := range cases {
 		t.Run(strconv.Itoa(in), func(t *testing.T) {
 			t.Parallel()
@@ -85,6 +90,7 @@ func TestSafeUint32_RejectsAboveMaxUint32(t *testing.T) {
 			if err == nil {
 				t.Fatalf("safeUint32(%d) = %d, want error", in, got)
 			}
+
 			if got != 0 {
 				t.Fatalf("safeUint32(%d) returned %d on error, want 0", in, got)
 			}
@@ -102,6 +108,7 @@ func TestSafeUint32_ErrorIsNotSentinel(t *testing.T) {
 	if err == nil {
 		t.Fatal("expected error for negative input")
 	}
+
 	if errors.Is(err, errSafeUint32Sentinel) {
 		t.Fatalf("safeUint32 error must not match an exported sentinel; got %v", err)
 	}

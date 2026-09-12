@@ -95,10 +95,12 @@ func latestIsHigher(candidate Version) bool {
 	if err != nil {
 		return false
 	}
+
 	currentVer, parseErr := Parse(current.Tag)
 	if parseErr != nil {
 		return false
 	}
+
 	if candidate.GreaterThan(currentVer) {
 		return false
 	}
@@ -157,6 +159,7 @@ func ReadReleaseMeta(path string) (ReleaseMeta, error) {
 		Draft      *bool `json:"draft"`
 		PreRelease *bool `json:"preRelease"`
 	}
+
 	if jsonErr := json.Unmarshal(data, &legacy); jsonErr != nil {
 		return meta, nil
 	}
@@ -164,6 +167,7 @@ func ReadReleaseMeta(path string) (ReleaseMeta, error) {
 	if !meta.IsDraft && legacy.Draft != nil && *legacy.Draft {
 		meta.IsDraft = true
 	}
+
 	if !meta.IsPreRelease && legacy.PreRelease != nil && *legacy.PreRelease {
 		meta.IsPreRelease = true
 	}

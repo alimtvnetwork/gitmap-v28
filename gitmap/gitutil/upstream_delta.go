@@ -14,11 +14,14 @@ func GetUpstreamDelta(repoPath string) (int, int) {
 	if err != nil {
 		return 0, 0
 	}
+
 	parts := strings.Fields(strings.TrimSpace(string(out)))
 	if len(parts) != 2 {
 		return 0, 0
 	}
+
 	ahead, _ := strconv.Atoi(parts[0])
 	behind, _ := strconv.Atoi(parts[1])
+
 	return ahead, behind
 }

@@ -43,6 +43,7 @@ func runSSHCat(args []string) error {
 			nil,
 		)
 	}
+
 	defer db.Close()
 
 	key, err := db.FindSSHKeyByName(name)
@@ -78,6 +79,7 @@ func runSSHCat(args []string) error {
 	upsertExistingKeyToDB(db, name, diskPath, string(pubBytes), fp)
 	fmt.Println(pub)
 	copyPubKeyAndAnnounce(pub)
+
 	return nil
 }
 
@@ -95,6 +97,7 @@ func printSSHNotFound(db *store.DB, name string) {
 	)
 	cliexit.HandleError(appErr, 1)
 }
+
 func fallbackToSingleKey(
 	db *store.DB,
 	fallbackKey *model.SSHKey,
@@ -105,6 +108,7 @@ func fallbackToSingleKey(
 	if hasOneKey {
 		return &keys[0], nil
 	}
+
 	return fallbackKey, fallbackErr
 }
 
@@ -123,5 +127,6 @@ func fallbackAndAssign(db *store.DB, origKey model.SSHKey, origErr error) (model
 	if keyPtr != nil {
 		return *keyPtr, errFallback
 	}
+
 	return origKey, errFallback
 }

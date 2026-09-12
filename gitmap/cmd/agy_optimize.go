@@ -41,16 +41,20 @@ func runAgyOptimize() error {
 	if pathErr != nil {
 		return apperror.WrapSimple(pathErr, "path error")
 	}
+
 	projects, loadErr := loadAllAgyProjects(dirPath)
 	if loadErr != nil {
 		return apperror.WrapSimple(loadErr, "load projects")
 	}
+
 	duplicates := findAgyDuplicates(projects, agyOptExcept)
 	if len(duplicates) == 0 {
 		fmt.Printf("%s No duplicate Antigravity projects found. Total active: %d\n",
 			constants.ColorGreen+"✓"+constants.ColorReset, len(projects))
+
 		return nil
 	}
+
 	return executeAgyOptimize(dirPath, duplicates, len(projects)-len(duplicates))
 }
 
@@ -61,6 +65,7 @@ func findAgyDuplicates(projects []AgyProject, exceptStr string) []AgyProject {
 		if len(group) <= 1 {
 			continue
 		}
+
 		sortGroupNewestFirst(group)
 		for _, dup := range group[1:] {
 			if !isAgyProjectExcepted(dup, exceptStr) {
@@ -68,6 +73,7 @@ func findAgyDuplicates(projects []AgyProject, exceptStr string) []AgyProject {
 			}
 		}
 	}
+
 	return duplicates
 }
 
@@ -77,12 +83,15 @@ func groupProjectsByPath(projects []AgyProject) map[string][]AgyProject {
 		if p.ID == "outside-of-project" {
 			continue
 		}
+
 		path := strings.ToLower(filepath.Clean(p.GetPath()))
 		if path == "" {
 			continue
 		}
+
 		groups[path] = append(groups[path], p)
 	}
+
 	return groups
 }
 
@@ -97,12 +106,16 @@ func executeAgyOptimize(dirPath string, duplicates []AgyProject, remainingCount 
 	if agyOptDryRun {
 		fmt.Printf("\n%s [dry-run] %d duplicate project(s) would be removed. Remaining: %d\n",
 			constants.ColorYellow+"ℹ"+constants.ColorReset, len(duplicates), remainingCount)
+
 		return nil
 	}
+
 	if !agyOptYes && !askClearConfirmation(len(duplicates)) {
 		fmt.Println("Optimization canceled. No changes made.")
+
 		return nil
 	}
+
 	return deleteAgyDuplicates(dirPath, duplicates, remainingCount)
 }
 
@@ -114,7 +127,9 @@ func deleteAgyDuplicates(dirPath string, duplicates []AgyProject, remainingCount
 			deleted++
 		}
 	}
+
 	fmt.Printf("\n%s Successfully removed %d duplicate Antigravity project(s). Remaining: %d\n",
 		constants.ColorGreen+"✓"+constants.ColorReset, deleted, remainingCount)
+
 	return nil
 }

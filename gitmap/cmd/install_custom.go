@@ -37,14 +37,18 @@ func runInstallCustomTool(tool string) error {
 	if err := cmd.Run(); err != nil {
 		return apperror.NewSimple("Failed to install: "+tool, "E9000")
 	}
+
 	return nil
 }
 
 func buildCustomToolCmd(winUrl, unixUrl string) *exec.Cmd {
 	if runtime.GOOS == "windows" {
 		psCmd := fmt.Sprintf("irm %s | iex", winUrl)
+
 		return exec.Command("powershell", "-NoProfile", "-Command", psCmd)
 	}
+
 	shCmd := fmt.Sprintf("curl -fsSL %s | bash", unixUrl)
+
 	return exec.Command("bash", "-c", shCmd)
 }

@@ -15,12 +15,10 @@ type PromptRunStatusRecord = PromptInstallResult
 
 // IsFailed reports whether the prompt installation failed.
 func (r PromptInstallResult) IsFailed() bool {
-
 	return !r.IsSuccess
 }
 
 // IsFail reports whether the prompt installation failed.
 func (r PromptInstallResult) IsFail() bool {
-
 	return !r.IsSuccess
 }

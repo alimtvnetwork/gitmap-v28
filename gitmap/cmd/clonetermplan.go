@@ -46,6 +46,7 @@ func printCloneNowTermBlocks(plan clonenow.Plan) {
 			branch = detectRemoteHEAD(url)
 			source = remoteBranchSource(branch)
 		}
+
 		maybePrintCloneTermBlock(constants.OutputTerminal, CloneTermBlockInput{
 			Index:        i + 1,
 			Name:         pickCloneNowName(row, dest),
@@ -92,10 +93,12 @@ func printClonePickTermBlock(plan clonepick.Plan) {
 		branch = detectRemoteHEAD(plan.RepoUrl)
 		source = remoteBranchSource(branch)
 	}
+
 	name := plan.Name
 	if len(name) == 0 {
 		name = repoNameFromURL(plan.RepoUrl)
 	}
+
 	in := CloneTermBlockInput{
 		Index:           1,
 		Name:            name,
@@ -107,6 +110,7 @@ func printClonePickTermBlock(plan clonepick.Plan) {
 		CmdBranch:       "", // explicit opt-out: clone-pick uses --branch (long form)
 		CmdExtraArgsPre: clonePickCmdPre(plan),
 	}
+
 	maybePrintCloneTermBlock(constants.OutputTerminal, in)
 	// Verifier: clonepick.BuildGitArgs is the same builder
 	// gitClonePartial uses, so any drift between displayed and
@@ -124,6 +128,7 @@ func clonePickCmdPre(plan clonepick.Plan) []string {
 	if len(plan.Branch) > 0 {
 		parts = append(parts, "--branch", plan.Branch)
 	}
+
 	if plan.Depth > 0 {
 		parts = append(parts, "--depth", fmt.Sprintf("%d", plan.Depth))
 	}

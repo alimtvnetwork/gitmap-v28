@@ -90,6 +90,7 @@ func TestResolveAlias_Success(t *testing.T) {
 	if err != nil {
 		t.Fatalf("CreateAlias failed: %v", err)
 	}
+
 	t.Logf("created alias ID: %d, RepoID: %d", alias.ID, alias.RepoID)
 
 	// Verify alias exists via direct lookup.
@@ -153,6 +154,7 @@ func TestListAliasesWithRepo_Multiple(t *testing.T) {
 	if _, err := db.CreateAlias("api", id1); err != nil {
 		t.Fatalf("CreateAlias(api) failed: %v", err)
 	}
+
 	if _, err := db.CreateAlias("web", id2); err != nil {
 		t.Fatalf("CreateAlias(web) failed: %v", err)
 	}

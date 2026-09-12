@@ -30,6 +30,7 @@ func buildZipGroupAssets(opts Options) []string {
 
 		return nil
 	}
+
 	defer db.Close()
 
 	stagingDir, err := EnsureStagingDir()
@@ -65,6 +66,7 @@ func buildAdHocZipAssets(opts Options) []string {
 	if isVerbose && bundleLabel == "" {
 		bundleLabel = "(individual)"
 	}
+
 	if isVerbose {
 		verbose.Get().Log("ad-hoc-zip: %d item(s), bundle=%s", len(opts.ZipItems), bundleLabel)
 		for _, item := range opts.ZipItems {

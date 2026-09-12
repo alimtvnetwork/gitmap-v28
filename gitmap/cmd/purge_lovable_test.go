@@ -25,6 +25,7 @@ func TestPurgeLovable(t *testing.T) {
 	if err != nil {
 		t.Fatalf("unexpected error: %v", err)
 	}
+
 	if purged != 1 {
 		t.Errorf("expected 1 file purged, got %d", purged)
 	}
@@ -32,6 +33,7 @@ func TestPurgeLovable(t *testing.T) {
 	if _, err := os.Stat(trackedFile); os.IsNotExist(err) {
 		t.Errorf("expected tracked file to be preserved")
 	}
+
 	if _, err := os.Stat(untrackedFile); !os.IsNotExist(err) {
 		t.Errorf("expected untracked file to be deleted")
 	}

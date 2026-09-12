@@ -73,5 +73,6 @@ func TestExecuteInteractiveMkdir(t *testing.T) {
 	if !executeInteractiveMkdir(tempSub, "mkdir "+tempSub) {
 		t.Fatalf("expected executeInteractiveMkdir with //temp to succeed")
 	}
+
 	defer os.RemoveAll(macro.ExpandPathAndEnv(tempSub))
 }

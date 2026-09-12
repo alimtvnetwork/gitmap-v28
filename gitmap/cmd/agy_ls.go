@@ -45,17 +45,21 @@ func runAgyLs() error {
 	if pathErr != nil {
 		return apperror.WrapSimple(pathErr, "path error")
 	}
+
 	projects, loadErr := loadAllAgyProjects(dirPath)
 	if loadErr != nil {
 		return apperror.WrapSimple(loadErr, "load projects")
 	}
+
 	filtered := filterAgyProjects(projects)
 	sortAgyProjects(filtered, agyLsSortBy)
 
 	if agyLsJSON {
 		return outputAgyProjectsJSON(filtered)
 	}
+
 	renderAgyProjectsTable(filtered, dirPath)
+
 	return nil
 }
 
@@ -65,16 +69,19 @@ func loadAllAgyProjects(dirPath string) ([]AgyProject, error) {
 	if err != nil {
 		return nil, err
 	}
+
 	projects := make([]AgyProject, 0, len(entries))
 	for _, entry := range entries {
 		if filepath.Ext(entry.Name()) != ".json" {
 			continue
 		}
+
 		p, parseErr := readAgyProject(filepath.Join(dirPath, entry.Name()))
 		if parseErr == nil {
 			projects = append(projects, p)
 		}
 	}
+
 	return projects, nil
 }
 
@@ -84,7 +91,9 @@ func readAgyProject(filePath string) (AgyProject, error) {
 	if err != nil {
 		return p, err
 	}
+
 	err = json.Unmarshal(data, &p)
+
 	return p, err
 }
 
@@ -122,12 +131,15 @@ func matchesAgyFilter(p AgyProject) bool {
 	if agyLsOnlyMissing && !isMissing {
 		return false
 	}
+
 	if agyLsOnlyActive && isMissing {
 		return false
 	}
+
 	if agyLsFilter != "" && !matchesFilter(p.Name, path, agyLsFilter) {
 		return false
 	}
+
 	return true
 }
 
@@ -135,6 +147,7 @@ func matchesFilter(name, path, filter string) bool {
 	term := strings.ToLower(filter)
 	matchesName := strings.Contains(strings.ToLower(name), term)
 	matchesPath := strings.Contains(strings.ToLower(path), term)
+
 	return matchesName || matchesPath
 }
 
@@ -143,8 +156,10 @@ func sortAgyProjects(projects []AgyProject, sortBy string) {
 		sort.Slice(projects, func(i, j int) bool {
 			return projects[i].UpdatedAt > projects[j].UpdatedAt
 		})
+
 		return
 	}
+
 	sort.Slice(projects, func(i, j int) bool {
 		return strings.ToLower(projects[i].Name) < strings.ToLower(projects[j].Name)
 	})
@@ -161,6 +176,7 @@ func renderAgyProjectsTable(projects []AgyProject, dirPath string) {
 		} else {
 			activeCount++
 		}
+
 		ctx.addRow(row)
 	}
 
@@ -169,6 +185,7 @@ func renderAgyProjectsTable(projects []AgyProject, dirPath string) {
 	for i, r := range ctx.Rows {
 		printAgyTableRow(ctx, r, i)
 	}
+
 	printAgySummary(len(projects), activeCount, missingCount)
 }
 
@@ -178,12 +195,14 @@ func buildAgyTableRow(p AgyProject) agyTableRow {
 	if branch == "" {
 		branch = "—"
 	}
+
 	isMissing := path != "" && !checkDirExists(path)
 	status := "active"
 	if path == "" {
 		status = "global"
 		path = "—"
 	}
+
 	return agyTableRow{
 		ID:        shortProjectId(p.ID),
 		Name:      p.Name,
@@ -200,6 +219,7 @@ func checkDirExists(path string) bool {
 	if err != nil {
 		return false
 	}
+
 	return info.IsDir()
 }
 
@@ -208,6 +228,8 @@ func outputAgyProjectsJSON(projects []AgyProject) error {
 	if err != nil {
 		return apperror.WrapSimple(err, "json marshal")
 	}
+
 	fmt.Println(string(data))
+
 	return nil
 }

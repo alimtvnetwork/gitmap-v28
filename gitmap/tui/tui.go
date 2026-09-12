@@ -106,6 +106,7 @@ func (m rootModel) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 
 			return m, tea.Quit
 		}
+
 		if keys.tab(msg) && !m.browser.searching {
 			m.activeTab = (m.activeTab + 1) % viewCount
 

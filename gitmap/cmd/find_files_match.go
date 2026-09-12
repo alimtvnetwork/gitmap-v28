@@ -16,6 +16,7 @@ func parseExtensionList(raw string) []string {
 			exts = append(exts, clean)
 		}
 	}
+
 	return exts
 }
 
@@ -23,9 +24,11 @@ func isFileMatching(opts FindFilesOptions, baseName, relPath string) bool {
 	if len(opts.Exts) > 0 && !hasAllowedExtension(baseName, opts.Exts) {
 		return false
 	}
+
 	if opts.Query == "" {
 		return true
 	}
+
 	return evaluateMatchKind(opts.Kind, opts.Query, baseName, relPath)
 }
 
@@ -36,6 +39,7 @@ func hasAllowedExtension(filename string, allowedExts []string) bool {
 			return true
 		}
 	}
+
 	return false
 }
 
@@ -64,9 +68,11 @@ func matchWildcardPattern(query, baseName, relPath string) bool {
 	if matched, _ := filepath.Match(query, baseName); matched {
 		return true
 	}
+
 	if matched, _ := filepath.Match(query, relPath); matched {
 		return true
 	}
+
 	hasLeading := strings.HasPrefix(query, "*")
 	hasTrailing := strings.HasSuffix(query, "*")
 	clean := strings.Trim(query, "*")
@@ -74,11 +80,14 @@ func matchWildcardPattern(query, baseName, relPath string) bool {
 	if hasLeading && hasTrailing {
 		return strings.Contains(baseName, clean) || strings.Contains(relPath, clean)
 	}
+
 	if hasLeading {
 		return strings.HasSuffix(baseName, clean) || strings.HasSuffix(relPath, clean)
 	}
+
 	if hasTrailing {
 		return strings.HasPrefix(baseName, clean) || strings.HasPrefix(relPath, clean)
 	}
+
 	return strings.Contains(baseName, query) || strings.Contains(relPath, query)
 }

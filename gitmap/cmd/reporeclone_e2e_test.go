@@ -35,6 +35,7 @@ func TestRunRepoRecloneEndToEnd(t *testing.T) {
 		// than fail when the harness vetoes the seed step.
 		t.Skipf("git commit blocked by environment: %v\n%s", err, commitErr.String())
 	}
+
 	mustRun(t, seed, "git", "push", "origin", "HEAD")
 
 	work := filepath.Join(root, "work")
@@ -58,13 +59,16 @@ func assertRepoRecloned(t *testing.T, work, sentinel string) {
 	if _, err := os.Stat(filepath.Join(work, ".git")); err != nil {
 		t.Fatalf("post-stat .git: %v (re-clone did not rebuild .git)", err)
 	}
+
 	_, err := os.Stat(sentinel)
 	if err != nil && os.IsNotExist(err) {
 		return
 	}
+
 	if err != nil {
 		t.Fatalf("stat sentinel: %v", err)
 	}
+
 	t.Fatal("sentinel survived reclone")
 }
 
@@ -109,6 +113,7 @@ func swapStdin(t *testing.T) {
 	if err != nil {
 		t.Fatalf("open devnull: %v", err)
 	}
+
 	os.Stdin = devnull
 	t.Cleanup(func() {
 		os.Stdin = orig

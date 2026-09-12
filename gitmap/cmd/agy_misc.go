@@ -37,10 +37,12 @@ func runAgyStats() error {
 	if pathErr != nil {
 		return apperror.WrapSimple(pathErr, "path error")
 	}
+
 	projects, loadErr := loadAllAgyProjects(dirPath)
 	if loadErr != nil {
 		return apperror.WrapSimple(loadErr, "load error")
 	}
+
 	activeCount, missingCount := 0, 0
 	for _, p := range projects {
 		path := p.GetPath()
@@ -50,10 +52,12 @@ func runAgyStats() error {
 			missingCount++
 		}
 	}
+
 	fmt.Printf("Account: Default\n")
 	fmt.Printf("Total projects: %d\n", len(projects))
 	fmt.Printf("Active on disk: %d\n", activeCount)
 	fmt.Printf("Missing paths:  %d\n", missingCount)
+
 	return nil
 }
 
@@ -65,6 +69,7 @@ var agyExportCmd = &cobra.Command{
 		if len(args) < 1 {
 			return fmt.Errorf("requires destination zip path")
 		}
+
 		return executeAgyExport(args[0])
 	},
 }
@@ -74,10 +79,12 @@ func executeAgyExport(dest string) error {
 	if err != nil {
 		return err
 	}
+
 	defer outFile.Close()
 	zipWriter := zip.NewWriter(outFile)
 	defer zipWriter.Close()
 	fmt.Printf("Created zip backup of Antigravity projects at %s\n", dest)
+
 	return nil
 }
 
@@ -89,7 +96,9 @@ var agyImportCmd = &cobra.Command{
 		if len(args) < 1 {
 			return fmt.Errorf("requires source zip path")
 		}
+
 		fmt.Printf("Imported zip backup from %s\n", args[0])
+
 		return nil
 	},
 }
@@ -99,6 +108,7 @@ var agyOpenCmd = &cobra.Command{
 	Short: "Open Antigravity or a specific project",
 	RunE: func(cmd *cobra.Command, args []string) error {
 		fmt.Println("Feature [open] is not yet implemented")
+
 		return nil
 	},
 }
@@ -108,6 +118,7 @@ var agyPromptCmd = &cobra.Command{
 	Short: "Send a prompt to Antigravity",
 	RunE: func(cmd *cobra.Command, args []string) error {
 		fmt.Println("Feature [prompt] is not yet implemented")
+
 		return nil
 	},
 }
@@ -117,6 +128,7 @@ var agyRwCmd = &cobra.Command{
 	Short: "Enable rewrite both for project",
 	RunE: func(cmd *cobra.Command, args []string) error {
 		fmt.Println("Feature [rw] is not yet implemented")
+
 		return nil
 	},
 }
@@ -134,15 +146,19 @@ func runAgySync(args []string) error {
 	records, err := loadStatusRecords(scanFile)
 	if err != nil {
 		fmt.Printf("%s Could not read %s. Run 'gitmap scan' first.\n", constants.ColorYellow+"ℹ"+constants.ColorReset, scanFile)
+
 		return nil
 	}
+
 	syncedCount := 0
 	for _, rec := range records {
 		if workspacesync.SyncAntigravity(rec.AbsolutePath, rec.RepoName) {
 			syncedCount++
 		}
 	}
+
 	fmt.Printf("%s Successfully synced %d repositories to Antigravity workspaces.\n", constants.ColorGreen+"✓"+constants.ColorReset, syncedCount)
+
 	return nil
 }
 
@@ -152,6 +168,7 @@ var agyPapCmd = &cobra.Command{
 	Short:   "Send prompt to all projects",
 	RunE: func(cmd *cobra.Command, args []string) error {
 		fmt.Println("Sending prompt to all projects")
+
 		return nil
 	},
 }

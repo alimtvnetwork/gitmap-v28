@@ -12,6 +12,7 @@ func TestAntigravityDesktopDownloadUrl(t *testing.T) {
 	if !strings.Contains(winUrl, "Antigravity-x64.exe") {
 		t.Fatalf("expected windows URL to point to Antigravity-x64.exe, got %s", winUrl)
 	}
+
 	if !strings.Contains(winUrl, "antigravity.google") {
 		t.Fatalf("expected windows URL from antigravity.google, got %s", winUrl)
 	}
@@ -20,6 +21,7 @@ func TestAntigravityDesktopDownloadUrl(t *testing.T) {
 	if !strings.Contains(linuxUrl, "Antigravity.tar.gz") {
 		t.Fatalf("expected linux URL to point to Antigravity.tar.gz, got %s", linuxUrl)
 	}
+
 	if !strings.Contains(linuxUrl, "antigravity.google") {
 		t.Fatalf("expected linux URL from antigravity.google, got %s", linuxUrl)
 	}
@@ -50,6 +52,7 @@ func TestAntigravityBinaryAndProbeMapping(t *testing.T) {
 	if bin := toolBinaryName(constants.ToolAntigravity); bin != "antigravity" {
 		t.Errorf("expected ToolAntigravity binary name 'antigravity', got %q", bin)
 	}
+
 	if bin := toolBinaryName(constants.ToolAgy); bin != "agy" {
 		t.Errorf("expected ToolAgy binary name 'agy', got %q", bin)
 	}
@@ -58,6 +61,7 @@ func TestAntigravityBinaryAndProbeMapping(t *testing.T) {
 	if !hasAntigravity || len(cfgAntigravity.bins) == 0 {
 		t.Fatalf("expected ToolAntigravity in toolProbeMap")
 	}
+
 	cfgAgy, hasAgy := toolProbeMap[constants.ToolAgy]
 	if !hasAgy || len(cfgAgy.bins) == 0 {
 		t.Fatalf("expected ToolAgy in toolProbeMap")

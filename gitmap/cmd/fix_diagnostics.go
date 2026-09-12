@@ -23,11 +23,13 @@ func printBluntRemediationFailure(repoName string, step gitutil.RemediationStep,
 	if len(strings.TrimSpace(output)) > 0 {
 		fmt.Printf("  Output:\n    %s\n", strings.ReplaceAll(strings.TrimSpace(output), "\n", "\n    "))
 	}
+
 	fmt.Printf("  RCA (Root Cause): %s\n", diag.RCA)
 	fmt.Printf("  Known Solutions:\n")
 	for _, sol := range diag.Solutions {
 		fmt.Printf("    • %s\n", sol)
 	}
+
 	fmt.Println()
 }
 
@@ -36,18 +38,23 @@ func analyzeGitErrorOutput(output string, err error) gitDiagnosticInfo {
 	if strings.Contains(lower, "pathspec") {
 		return pathspecDiagnostic()
 	}
+
 	if strings.Contains(lower, "would be overwritten by merge") || strings.Contains(lower, "would be overwritten by rebase") {
 		return overwrittenDiagnostic()
 	}
+
 	if strings.Contains(lower, "conflict") {
 		return conflictDiagnostic()
 	}
+
 	if strings.Contains(lower, "permission denied") || strings.Contains(lower, "could not read username") {
 		return authDiagnostic()
 	}
+
 	if strings.Contains(lower, "could not resolve host") || strings.Contains(lower, "unable to access") {
 		return networkDiagnostic()
 	}
+
 	return defaultDiagnostic(err)
 }
 

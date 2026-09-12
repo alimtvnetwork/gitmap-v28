@@ -42,6 +42,7 @@ func normalizeOptions(opts CollectOptions) CollectOptions {
 	if opts.Recent && len(opts.Since) == 0 {
 		opts.Since = recentSinceDate()
 	}
+
 	return opts
 }
 
@@ -97,6 +98,7 @@ func queryRemoteURL(repoPath string) string {
 	if err != nil {
 		return ""
 	}
+
 	return strings.TrimSpace(out)
 }
 
@@ -107,6 +109,7 @@ func queryCurrentBranch(repoPath string) string {
 	if err != nil {
 		return ""
 	}
+
 	return strings.TrimSpace(out)
 }
 
@@ -116,6 +119,7 @@ func collectCommits(opts CollectOptions) ([]model.CommitInfo, error) {
 	if err != nil {
 		return nil, err
 	}
+
 	return parseCommitLog(raw), nil
 }
 
@@ -125,6 +129,7 @@ func collectBranches(repoPath string) []model.BranchInfo {
 	if err != nil {
 		return nil
 	}
+
 	return parseBranchLines(lines)
 }
 
@@ -134,5 +139,6 @@ func collectTags(repoPath string) []model.TagInfo {
 	if err != nil {
 		return nil
 	}
+
 	return parseTagLines(repoPath, lines)
 }

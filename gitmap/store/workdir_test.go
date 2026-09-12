@@ -16,6 +16,7 @@ func TestWorkDirStoreSuite(t *testing.T) {
 	if errEnsure != nil {
 		t.Fatalf("EnsureWorkDir failed: %v", errEnsure)
 	}
+
 	if !wd.IsDefault {
 		t.Fatal("expected isDefault to be true")
 	}

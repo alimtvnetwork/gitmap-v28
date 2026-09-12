@@ -18,6 +18,7 @@ func (db *DB) SelectRecentMakeAllVisibilityRuns(limit int) ([]model.MakeAllVisib
 	if err != nil {
 		return nil, fmt.Errorf(constants.ErrHistorySelectFmt, err, err.Error())
 	}
+
 	defer rows.Close()
 
 	return scanRecentRuns(rows)
@@ -33,8 +34,10 @@ func scanRecentRuns(rows *sql.Rows) ([]model.MakeAllVisibilityRunRecord, error) 
 			&r.ExcludedCount, &r.ExitCode, &r.StartedAt, &r.FinishedAt); err != nil {
 			return nil, fmt.Errorf(constants.ErrHistorySelectFmt, err, err.Error())
 		}
+
 		out = append(out, r)
 	}
+
 	if err := rows.Err(); err != nil {
 		return nil, fmt.Errorf(constants.ErrHistorySelectFmt, err, err.Error())
 	}

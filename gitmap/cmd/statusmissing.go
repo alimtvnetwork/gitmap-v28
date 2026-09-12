@@ -14,6 +14,7 @@ func printMissingRepoRemediation(c *statusTableContext) {
 			missingSlugs = append(missingSlugs, r.RepoName)
 		}
 	}
+
 	if len(missingSlugs) == 0 {
 		return
 	}
@@ -24,6 +25,7 @@ func printMissingRepoRemediation(c *statusTableContext) {
 	for _, slug := range missingSlugs {
 		fmt.Printf("     • %s%s%s\n", constants.ColorRed, slug, constants.ColorReset)
 	}
+
 	fmt.Println()
 	fmt.Println("  To resolve missing repositories:")
 	fmt.Println("  1. Relocate to a new folder:")
@@ -37,12 +39,15 @@ func slugList(slugs []string) string {
 	if len(slugs) > 3 {
 		return fmt.Sprintf("%s %s ... (+%d more)", slugs[0], slugs[1], len(slugs)-2)
 	}
+
 	out := ""
 	for i, s := range slugs {
 		if i > 0 {
 			out += " "
 		}
+
 		out += s
 	}
+
 	return out
 }

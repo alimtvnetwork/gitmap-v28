@@ -32,8 +32,10 @@ func runTempReleaseCreate(args []string) error {
 			nil,
 		)
 		cliexit.HandleError(appErr, 1)
+
 		return nil
 	}
+
 	defer db.Close()
 	if err := db.Migrate(); err != nil {
 		fmt.Fprintf(os.Stderr, "  ⚠ DB migration failed: %v\n", err)
@@ -48,6 +50,7 @@ func runTempReleaseCreate(args []string) error {
 
 	validateSequenceRange(start, count, digitCount)
 	executeTRCreate(db, count, prefix, digitCount, start, dryRun)
+
 	return nil
 }
 
@@ -66,6 +69,7 @@ func executeTRCreate(db *store.DB, count int, prefix string, digitCount, start i
 			map[string]any{"count": count},
 		)
 		cliexit.HandleError(appErr, 1)
+
 		return
 	}
 
@@ -179,6 +183,7 @@ func createTempBranches(
 		if err := db.InsertTempRelease(branchName, prefix, seq, c.SHA, c.Message); err != nil {
 			fmt.Fprintf(os.Stderr, "  ⚠ Could not save temp release %s to DB: %v\n", branchName, err)
 		}
+
 		created = append(created, branchName)
 	}
 

@@ -16,9 +16,12 @@ func runSSH(args []string) error {
 	if len(args) == 0 {
 		runSSHGenerate(args)
 		fmt.Fprint(os.Stdout, constants.MsgSSHAvailableCommands)
+
 		return nil
 	}
+
 	_ = dispatchSSH(context.Background(), args, nil)
+
 	return nil
 }
 
@@ -26,6 +29,7 @@ func dispatchSSH(ctx context.Context, args []string, parent *cobra.Command) erro
 	if len(args) == 0 {
 		runSSHGenerate(args)
 		fmt.Fprint(os.Stdout, constants.MsgSSHAvailableCommands)
+
 		return nil
 	}
 
@@ -45,31 +49,44 @@ func dispatchSSH(ctx context.Context, args []string, parent *cobra.Command) erro
 		// Fallback for $username@ip and implicit aliases
 		if sub == constants.SubCmdSSHCat || sub == constants.SubCmdSSHView || sub == constants.SubCmdSSHViewS {
 			runSSHCat(args[1:])
+
 			return nil
 		}
+
 		if sub == constants.SubCmdSSHCopy || sub == constants.SubCmdSSHCopyS {
 			runSSHCopy(args[1:])
+
 			return nil
 		}
+
 		if sub == constants.SubCmdSSHCreate {
 			runSSHGenerate(args[1:])
 			fmt.Fprint(os.Stdout, constants.MsgSSHAvailableCommands)
+
 			return nil
 		}
+
 		if sub == constants.SubCmdSSHList || sub == constants.SubCmdSSHListS {
 			runSSHList(args[1:]...)
+
 			return nil
 		}
+
 		if sub == constants.SubCmdSSHDelete || sub == constants.SubCmdSSHDeleteS {
 			runSSHDelete(args[1:])
+
 			return nil
 		}
+
 		if sub == constants.SubCmdSSHConfig {
 			runSSHConfig()
+
 			return nil
 		}
+
 		if sub == constants.SubCmdSSHStatus || sub == constants.SubCmdSSHStatusS {
 			runSSHStatus(args[1:])
+
 			return nil
 		}
 

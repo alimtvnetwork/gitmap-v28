@@ -96,6 +96,7 @@ func (db *DB) importOneGroupTx(tx *sql.Tx, ge model.GroupExport) error {
 	if err != nil {
 		return err
 	}
+
 	group, err := findGroupByNameRunner(tx, ge.Name)
 	if err != nil {
 		return err

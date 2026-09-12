@@ -26,13 +26,16 @@ func FindFile(
 	if appErr != nil {
 		return nil, appErr
 	}
+
 	if hasCache {
 		return res, nil
 	}
+
 	rows, queryErr := queryFindFileRows(ctx, db, query, limit)
 	if queryErr != nil {
 		return nil, queryErr
 	}
+
 	defer rows.Close()
 
 	return processFindFileResults(ctx, db, query, rows, useCache)
@@ -49,6 +52,7 @@ func processFindFileResults(
 	if scanErr != nil {
 		return nil, scanErr
 	}
+
 	maybeUpdateCache(ctx, db, "find:"+query, castFileFindResults(results), useCache)
 
 	return results, nil
@@ -106,8 +110,10 @@ func scanFindFileRows(rows *sql.Rows) ([]FileFindResult, *apperror.AppError) {
 		if err != nil {
 			return nil, apperror.WrapSimple(err, "searcher.scanFindFileRows.Scan")
 		}
+
 		results = append(results, r)
 	}
+
 	if err := rows.Err(); err != nil {
 		return nil, apperror.WrapSimple(err, "searcher.scanFindFileRows.Rows")
 	}
@@ -128,13 +134,16 @@ func FindFileRegex(
 	if appErr != nil {
 		return nil, appErr
 	}
+
 	if hasCache {
 		return res, nil
 	}
+
 	rows, queryErr := db.QueryContext(ctx, "SELECT RelativePath, AbsolutePath FROM RepoFile")
 	if queryErr != nil {
 		return nil, apperror.WrapSimple(queryErr, "searcher.FindFileRegex.Query")
 	}
+
 	defer rows.Close()
 
 	return processFindRegexResults(ctx, db, cacheKey, rows, expr, limit, useCache)
@@ -154,6 +163,7 @@ func processFindRegexResults(
 	if scanErr != nil {
 		return nil, scanErr
 	}
+
 	maybeUpdateCache(ctx, db, cacheKey, castFileFindResults(results), useCache)
 
 	return results, nil
@@ -170,14 +180,17 @@ func scanFindFileRegexRows(
 		if hasHitLimit {
 			break
 		}
+
 		var r FileFindResult
 		if err := rows.Scan(&r.RelativePath, &r.AbsolutePath); err != nil {
 			return nil, apperror.WrapSimple(err, "searcher.scanFindFileRegexRows.Scan")
 		}
+
 		if lz.Re().MatchString(r.RelativePath) {
 			results = append(results, r)
 		}
 	}
+
 	if err := rows.Err(); err != nil {
 		return nil, apperror.WrapSimple(err, "searcher.scanFindFileRegexRows.Rows")
 	}
@@ -196,9 +209,11 @@ func getCachedFindResults(
 	if err == sql.ErrNoRows {
 		return nil, false, nil
 	}
+
 	if err != nil {
 		return nil, false, apperror.WrapSimple(err, "searcher.getCachedFindResults.Scan")
 	}
+
 	if cached == "" {
 		return nil, false, nil
 	}
@@ -217,9 +232,11 @@ func parseCachedFindResults(
 	if err := json.Unmarshal([]byte(cached), &res); err != nil {
 		return nil, false, apperror.WrapSimple(err, "searcher.parseCachedFindResults.Unmarshal")
 	}
+
 	if appErr := incrementCacheHits(ctx, db, key); appErr != nil {
 		appErr.HandleError()
 	}
+
 	hasTruncate := limit > 0 && len(res) > limit
 	if hasTruncate {
 		res = res[:limit]
@@ -260,12 +277,14 @@ func FindAndRead(
 	if err != nil {
 		return nil, err
 	}
+
 	var results []FileReadResult
 	for _, f := range files {
 		item, readErr := readFileFindContent(ctx, db, f)
 		if readErr != nil {
 			return nil, readErr
 		}
+
 		results = append(results, item)
 	}
 
@@ -298,6 +317,7 @@ func readFileFindContent(
 	if err != nil {
 		return FileReadResult{}, apperror.WrapSimple(err, "searcher.readFileFindContent.Query")
 	}
+
 	hasBigContent := isBig == 1
 	if hasBigContent {
 		content = "[BIG_FILE_CONTENT]"

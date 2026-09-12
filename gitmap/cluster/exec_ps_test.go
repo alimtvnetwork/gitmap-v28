@@ -25,6 +25,7 @@ func TestExecPS_Windows_Pwsh(t *testing.T) {
 		if file == "pwsh" {
 			return "C:\\pwsh.exe", nil
 		}
+
 		return "", errors.New("not found")
 	}
 
@@ -32,7 +33,9 @@ func TestExecPS_Windows_Pwsh(t *testing.T) {
 		if !strings.Contains(cmd.Path, "pwsh.exe") {
 			t.Errorf("expected pwsh.exe, got %s", cmd.Path)
 		}
+
 		cmd.Stdout.Write([]byte("ok"))
+
 		return nil
 	}
 
@@ -40,12 +43,15 @@ func TestExecPS_Windows_Pwsh(t *testing.T) {
 	if err != nil {
 		t.Fatalf("unexpected error: %v", err)
 	}
+
 	if code != 0 {
 		t.Errorf("expected code 0, got %d", code)
 	}
+
 	if out != "ok" {
 		t.Errorf("expected out 'ok', got %q", out)
 	}
+
 	if errOut != "" {
 		t.Errorf("expected empty stderr, got %q", errOut)
 	}
@@ -67,9 +73,11 @@ func TestExecPS_Windows_PowershellFallback(t *testing.T) {
 		if file == "pwsh" {
 			return "", errors.New("pwsh not found")
 		}
+
 		if file == "powershell" {
 			return "C:\\powershell.exe", nil
 		}
+
 		return "", errors.New("not found")
 	}
 
@@ -77,6 +85,7 @@ func TestExecPS_Windows_PowershellFallback(t *testing.T) {
 		if !strings.Contains(cmd.Path, "powershell.exe") {
 			t.Errorf("expected powershell.exe, got %s", cmd.Path)
 		}
+
 		return nil
 	}
 
@@ -102,6 +111,7 @@ func TestExecPS_Unix_Pwsh(t *testing.T) {
 		if file == "pwsh" {
 			return "/bin/pwsh", nil
 		}
+
 		return "", errors.New("not found")
 	}
 
@@ -109,6 +119,7 @@ func TestExecPS_Unix_Pwsh(t *testing.T) {
 		if !strings.Contains(cmd.Path, "pwsh") {
 			t.Errorf("expected pwsh, got %s", cmd.Path)
 		}
+
 		return nil
 	}
 
@@ -138,12 +149,15 @@ func TestExecPS_Unix_PwshNotFound(t *testing.T) {
 	if err != nil {
 		t.Fatalf("unexpected error: %v", err)
 	}
+
 	if out != "" {
 		t.Errorf("expected empty out, got %q", out)
 	}
+
 	if errOut != "pwsh not found, skipping" {
 		t.Errorf("unexpected stderr: %q", errOut)
 	}
+
 	if code != 0 {
 		t.Errorf("expected code 0, got %d", code)
 	}

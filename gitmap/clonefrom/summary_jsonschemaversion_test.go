@@ -76,18 +76,22 @@ func assertEnvelopeSchemaVersion(t *testing.T, results []Result, wantRows int) {
 	if err := writeReportRowsJSON(&buf, results); err != nil {
 		t.Fatalf("writeReportRowsJSON: %v", err)
 	}
+
 	var env envelopePeek
 	if err := json.Unmarshal(buf.Bytes(), &env); err != nil {
 		t.Fatalf("decode envelope: %v\nraw: %s", err, buf.String())
 	}
+
 	if env.SchemaVersion == nil {
 		t.Fatalf("schemaVersion field missing from envelope. raw: %s",
 			buf.String())
 	}
+
 	if *env.SchemaVersion != expectedSchemaVersionPinned {
 		t.Fatalf("schemaVersion mismatch: got %d, want %d",
 			*env.SchemaVersion, expectedSchemaVersionPinned)
 	}
+
 	if len(env.Rows) != wantRows {
 		t.Fatalf("rows length: got %d, want %d", len(env.Rows), wantRows)
 	}

@@ -49,9 +49,11 @@ func repairSingleLink(linkPath string, opts FixLinkOptions) LinkResult {
 	if os.IsNotExist(err) {
 		return handleMissingLink(linkPath, opts)
 	}
+
 	if err != nil {
 		return LinkResult{Path: linkPath, IsBroken: true, Message: err.Error()}
 	}
+
 	if fi.Mode()&os.ModeSymlink == 0 {
 		return handleRegularFileLink(linkPath, opts)
 	}
@@ -64,6 +66,7 @@ func handleMissingLink(linkPath string, opts FixLinkOptions) LinkResult {
 	if target == "" {
 		return LinkResult{Path: linkPath, IsBroken: true, Message: "path does not exist"}
 	}
+
 	if opts.IsDryRun {
 		return LinkResult{Path: linkPath, Target: target, IsRepaired: true, Message: "would create symlink"}
 	}
@@ -80,6 +83,7 @@ func resolveMissingLinkTarget(linkPath, override string) string {
 	if override != "" {
 		return override
 	}
+
 	if filepath.Base(linkPath) == "SharedDirectories" && pathExists("/mnt/hgfs") {
 		return "/mnt/hgfs"
 	}
@@ -91,6 +95,7 @@ func handleRegularFileLink(linkPath string, opts FixLinkOptions) LinkResult {
 	if !opts.IsForce || opts.TargetOverride == "" {
 		return LinkResult{Path: linkPath, IsHealthy: true, Message: "file exists (not a symlink)"}
 	}
+
 	if opts.IsDryRun {
 		return LinkResult{Path: linkPath, Target: opts.TargetOverride, OldTarget: "file", IsRepaired: true, Message: "would replace file with symlink"}
 	}
@@ -125,6 +130,7 @@ func evaluateSymlinkHealth(linkPath, currentTarget string, opts FixLinkOptions) 
 	if newTarget == "" {
 		return LinkResult{Path: linkPath, Target: currentTarget, IsBroken: true, Message: "dangling symlink (target missing)"}
 	}
+
 	if opts.IsDryRun {
 		return LinkResult{Path: linkPath, Target: newTarget, OldTarget: currentTarget, IsRepaired: true, Message: "would repair symlink"}
 	}

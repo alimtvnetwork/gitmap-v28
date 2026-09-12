@@ -58,6 +58,7 @@ func runRm(args []string) error {
 	if err != nil {
 		return apperror.WrapSimple(err, "rm: open db:")
 	}
+
 	defer db.Close()
 
 	return executeRmTargets(db, targets, yes, dbOnly)
@@ -89,6 +90,7 @@ func resolveRmMatches(db *store.DB, targets []string) ([]model.ScanRecord, []str
 			})
 			continue
 		}
+
 		finalMissing = append(finalMissing, m)
 	}
 
@@ -169,6 +171,7 @@ func confirmRemove(r *bufio.Reader, rec model.ScanRecord, dbOnly bool) bool {
 	if dbOnly {
 		action = "Untrack from database"
 	}
+
 	fmt.Printf("%s %s\n  %s ? [y/N] ", action, rec.Slug, rec.AbsolutePath)
 	line, _ := r.ReadString('\n')
 	ans := strings.ToLower(strings.TrimSpace(line))

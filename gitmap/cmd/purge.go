@@ -26,6 +26,7 @@ func parsePurgeArgs(args []string) (pat string, isRestore, isAutoConfirm, isLova
 			pat = a
 		}
 	}
+
 	return pat, isRestore, isAutoConfirm, isLovable
 }
 
@@ -34,6 +35,7 @@ func runPurgeCmd(name string, args ...string) (string, error) {
 	if err != nil {
 		return string(out), fmt.Errorf("%s failed: %w\n%s", name, err, string(out))
 	}
+
 	return string(out), nil
 }
 
@@ -42,6 +44,7 @@ func copyPurgeFile(src, dst string) error {
 	if err != nil {
 		return err
 	}
+
 	return os.WriteFile(dst, data, 0644)
 }
 
@@ -51,19 +54,24 @@ func runPurge(args []string) error {
 	if err != nil {
 		return apperror.Wrap(err, "failed to get current directory", nil)
 	}
+
 	db, err := store.OpenDefault()
 	if err != nil {
 		return apperror.Wrap(err, "failed to open database", nil)
 	}
+
 	defer db.Close()
 	if isLovable {
 		return doPurgeLovable(repo)
 	}
+
 	if isRestore {
 		return doRestore(db, repo)
 	}
+
 	if pat == "" {
 		return apperror.NewSimple("EXECUTION", "pattern argument required")
 	}
+
 	return doPurge(db, repo, pat, isAutoConfirm)
 }

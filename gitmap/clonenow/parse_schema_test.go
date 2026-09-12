@@ -24,10 +24,12 @@ func TestParseFile_JSONUnknownField(t *testing.T) {
 	if err == nil {
 		t.Fatal("ParseFile: want unknown-field error, got nil")
 	}
+
 	msg := err.Error()
 	if !strings.Contains(msg, "https_url") {
 		t.Errorf("error %q missing offending field name", msg)
 	}
+
 	if !strings.Contains(msg, "httpsUrl") {
 		t.Errorf("error %q missing known-field list", msg)
 	}
@@ -42,6 +44,7 @@ func TestParseFile_JSONMissingURL(t *testing.T) {
 	if err == nil {
 		t.Fatal("ParseFile: want missing-url error, got nil")
 	}
+
 	if !strings.Contains(err.Error(), "row 1") {
 		t.Errorf("error %q missing row index", err.Error())
 	}
@@ -56,6 +59,7 @@ func TestParseFile_JSONNotArray(t *testing.T) {
 	if err == nil {
 		t.Fatal("ParseFile: want shape error, got nil")
 	}
+
 	if !strings.Contains(err.Error(), "array") {
 		t.Errorf("error %q missing 'array' phrasing", err.Error())
 	}
@@ -71,10 +75,12 @@ func TestParseFile_CSVUnknownColumn(t *testing.T) {
 	if err == nil {
 		t.Fatal("ParseFile: want unknown-column error, got nil")
 	}
+
 	msg := err.Error()
 	if !strings.Contains(msg, "https_url") {
 		t.Errorf("error %q missing offending column name", msg)
 	}
+
 	if !strings.Contains(msg, "httpsUrl") {
 		t.Errorf("error %q missing known-column list", msg)
 	}
@@ -90,6 +96,7 @@ func TestParseFile_CSVMissingURLColumn(t *testing.T) {
 	if err == nil {
 		t.Fatal("ParseFile: want missing-url-column error, got nil")
 	}
+
 	if !strings.Contains(err.Error(), "httpsUrl") {
 		t.Errorf("error %q missing httpsUrl mention", err.Error())
 	}
@@ -104,6 +111,7 @@ func TestParseFile_CSVEmpty(t *testing.T) {
 	if err == nil {
 		t.Fatal("ParseFile: want empty-csv error, got nil")
 	}
+
 	if !strings.Contains(err.Error(), "empty") {
 		t.Errorf("error %q missing 'empty' phrasing", err.Error())
 	}
@@ -128,6 +136,7 @@ func TestParseFile_JSONAllKnownFieldsAccepted(t *testing.T) {
 	if err != nil {
 		t.Fatalf("ParseFile rejected scan-shaped input: %v", err)
 	}
+
 	if len(plan.Rows) != 1 {
 		t.Fatalf("rows = %d, want 1", len(plan.Rows))
 	}

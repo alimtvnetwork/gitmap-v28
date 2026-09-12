@@ -21,8 +21,11 @@ func runVisibilityRedo(args []string) error {
 	if flags.DryRun {
 		printVisDryRun(constants.CmdVisibilityRedo, run, results)
 		cliexit.HandleError(nil, constants.ExitVisOK)
+
 		return nil
 	}
+
 	reverseRunAndExit(run, results, flags, constants.CmdVisibilityRedo)
+
 	return nil
 }

@@ -47,6 +47,7 @@ func runPromptList() error {
 	})
 
 	printPromptTable(templates)
+
 	return nil
 }
 
@@ -84,6 +85,7 @@ func runPromptShow(slug string) error {
 	}
 
 	fmt.Printf("\n%s\n", pt.Body)
+
 	return nil
 }
 
@@ -104,6 +106,7 @@ func runPromptAdd(slug string, srcPath string) error {
 	}
 
 	fmt.Printf("%s Successfully saved prompt template %q to %s\n", constants.ColorGreen+"✓"+constants.ColorReset, slug, destPath)
+
 	return nil
 }
 
@@ -119,5 +122,6 @@ func runPromptRm(slug string) error {
 	}
 
 	fmt.Printf("%s Removed prompt template %q.\n", constants.ColorGreen+"✓"+constants.ColorReset, slug)
+
 	return nil
 }

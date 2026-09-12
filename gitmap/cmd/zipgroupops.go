@@ -24,6 +24,7 @@ func runZipGroupRemove(args []string) error {
 			nil,
 		)
 		cliexit.HandleError(err, 1)
+
 		return nil
 	}
 
@@ -43,8 +44,10 @@ func runZipGroupRemove(args []string) error {
 			nil,
 		)
 		cliexit.HandleError(appErr, 1)
+
 		return nil
 	}
+
 	defer db.Close()
 
 	// Resolve to full path for matching.
@@ -63,11 +66,13 @@ func runZipGroupRemove(args []string) error {
 			map[string]any{"group": groupName, "path": rawPath},
 		)
 		cliexit.HandleError(appErr, 1)
+
 		return nil
 	}
 
 	fmt.Printf(constants.MsgZGItemRemoved, rawPath, groupName)
 	syncZipGroupJSON(db)
+
 	return nil
 }
 
@@ -84,6 +89,7 @@ func runZipGroupDelete(args []string) error {
 			nil,
 		)
 		cliexit.HandleError(err, 1)
+
 		return nil
 	}
 
@@ -102,8 +108,10 @@ func runZipGroupDelete(args []string) error {
 			nil,
 		)
 		cliexit.HandleError(appErr, 1)
+
 		return nil
 	}
+
 	defer db.Close()
 
 	err = db.DeleteZipGroup(name)
@@ -119,11 +127,13 @@ func runZipGroupDelete(args []string) error {
 			map[string]any{"name": name},
 		)
 		cliexit.HandleError(appErr, 1)
+
 		return nil
 	}
 
 	fmt.Printf(constants.MsgZGDeleted, name)
 	syncZipGroupJSON(db)
+
 	return nil
 }
 
@@ -141,8 +151,10 @@ func runZipGroupRename(args []string) error {
 			nil,
 		)
 		cliexit.HandleError(err, 1)
+
 		return nil
 	}
+
 	if len(archiveName) == 0 {
 		err := apperror.NewWithDetails(
 			"cmd.zipgroup.rename.archive",
@@ -154,9 +166,12 @@ func runZipGroupRename(args []string) error {
 			nil,
 		)
 		cliexit.HandleError(err, 1)
+
 		return nil
 	}
+
 	executeZipGroupRename(name, archiveName)
+
 	return nil
 }
 
@@ -188,8 +203,10 @@ func executeZipGroupRename(name, archiveName string) {
 			nil,
 		)
 		cliexit.HandleError(appErr, 1)
+
 		return
 	}
+
 	defer db.Close()
 
 	err = db.UpdateZipGroupArchive(name, archiveName)
@@ -205,6 +222,7 @@ func executeZipGroupRename(name, archiveName string) {
 			map[string]any{"name": name, "archive": archiveName},
 		)
 		cliexit.HandleError(appErr, 1)
+
 		return
 	}
 

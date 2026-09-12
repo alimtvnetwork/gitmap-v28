@@ -46,9 +46,11 @@ func cloneURL(r model.ScanRecord) string {
 	if r.IdentifiedTransport == "ssh" && len(r.SSHUrl) > 0 {
 		return r.SSHUrl
 	}
+
 	if r.IdentifiedTransport == "ssh" {
 		return r.HTTPSUrl
 	}
+
 	if len(r.HTTPSUrl) > 0 {
 		return r.HTTPSUrl
 	}

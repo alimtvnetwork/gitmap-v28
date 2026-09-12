@@ -16,11 +16,13 @@ func TestParseVHostSiteTypeValid(t *testing.T) {
 		"static":    VHostSiteTypeStatic,
 		"html":      VHostSiteTypeStatic,
 	}
+
 	for input, want := range cases {
 		got, err := ParseVHostSiteType(input)
 		if err != nil {
 			t.Fatalf("ParseVHostSiteType(%q) unexpected err: %v", input, err)
 		}
+
 		if got != want {
 			t.Errorf("ParseVHostSiteType(%q) = %q, want %q", input, got, want)
 		}
@@ -56,10 +58,12 @@ func TestRenderVHostWordPress(t *testing.T) {
 		Domain:       "wp.local",
 		DocumentRoot: "/var/www/wordpress",
 	}
+
 	out, err := RenderVHostConfig(cfg)
 	if err != nil {
 		t.Fatalf("RenderVHostConfig failed: %v", err)
 	}
+
 	assertContains(t, out, "server_name wp.local;")
 	assertContains(t, out, "try_files $uri $uri/ /index.php?$args;")
 	assertContains(t, out, "location = /wp-config.php")
@@ -75,10 +79,12 @@ func TestRenderVHostLaravel(t *testing.T) {
 		Domain:       "laravel.local",
 		DocumentRoot: "/var/www/laravel",
 	}
+
 	out, err := RenderVHostConfig(cfg)
 	if err != nil {
 		t.Fatalf("RenderVHostConfig failed: %v", err)
 	}
+
 	assertContains(t, out, "root /var/www/laravel/public;")
 	assertContains(t, out, "try_files $uri $uri/ /index.php?$query_string;")
 	assertContains(t, out, "location ~ /\\.env")
@@ -91,10 +97,12 @@ func TestRenderVHostPHP(t *testing.T) {
 		Domain:       "php.local",
 		DocumentRoot: "/var/www/phpapp",
 	}
+
 	out, err := RenderVHostConfig(cfg)
 	if err != nil {
 		t.Fatalf("RenderVHostConfig failed: %v", err)
 	}
+
 	assertContains(t, out, "fastcgi_pass unix:/run/php/php-fpm.sock;")
 	assertContains(t, out, "# >>> gitmap:vhost/php/php.local >>>")
 }
@@ -105,10 +113,12 @@ func TestRenderVHostStatic(t *testing.T) {
 		Domain:       "static.local",
 		DocumentRoot: "/var/www/static",
 	}
+
 	out, err := RenderVHostConfig(cfg)
 	if err != nil {
 		t.Fatalf("RenderVHostConfig failed: %v", err)
 	}
+
 	assertContains(t, out, "try_files $uri $uri/ =404;")
 	assertNotContains(t, out, "fastcgi_pass")
 }

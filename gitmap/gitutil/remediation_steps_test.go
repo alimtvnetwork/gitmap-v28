@@ -12,6 +12,7 @@ func TestRemediationStepsGeneration(t *testing.T) {
 	if len(commitRecipe.Steps) != 3 {
 		t.Fatalf("expected 3 steps in commit recipe, got %d", len(commitRecipe.Steps))
 	}
+
 	if commitRecipe.Steps[0].Name != "git" {
 		t.Errorf("expected step 0 name 'git', got %s", commitRecipe.Steps[0].Name)
 	}
@@ -34,6 +35,7 @@ func TestRemediationStepsGeneration(t *testing.T) {
 			hasMsgFlag = true
 		}
 	}
+
 	if !hasMsgFlag {
 		t.Errorf("expected -m flag with 'wip: local changes' in commit step: %v", commitStep.Args)
 	}

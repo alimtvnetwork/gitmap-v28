@@ -70,6 +70,7 @@ func parseUpdateFlags(args []string) (*UpdateInstallerFlags, error) {
 	if err := fs.Parse(flagArgs); err != nil {
 		appErr := apperror.Wrap(err, "parseUpdateFlags", map[string]any{"args": args})
 		appErr.Code = "E_INSTALLER_INVALID_FLAGS"
+
 		return nil, appErr
 	}
 
@@ -101,6 +102,7 @@ func executeInstallerUpdate(ctx context.Context, db *store.DB, flags *UpdateInst
 			"error": "db cannot be nil",
 		})
 	}
+
 	if flags == nil {
 		return apperror.New("executeUpdate", "E_INSTALLER_INVALID_INPUT", map[string]any{
 			"error": "flags cannot be nil",
@@ -111,18 +113,22 @@ func executeInstallerUpdate(ctx context.Context, db *store.DB, flags *UpdateInst
 	if errGet != nil {
 		appErr := apperror.Wrap(errGet, "executeUpdate", map[string]any{"slug": flags.Slug})
 		appErr.Code = "E_INSTALLER_NOT_FOUND"
+
 		return appErr
 	}
 
 	if flags.Description != "" {
 		existing.Description = flags.Description
 	}
+
 	if flags.TargetOS != "" {
 		existing.TargetOS = flags.TargetOS
 	}
+
 	if flags.Instructions != "" {
 		existing.Instructions = flags.Instructions
 	}
+
 	if flags.Version != "" {
 		existing.Version = flags.Version
 	}
@@ -134,14 +140,17 @@ func executeInstallerUpdate(ctx context.Context, db *store.DB, flags *UpdateInst
 		TargetOS:     existing.TargetOS,
 		Instructions: existing.Instructions,
 	}
+
 	if errSave := db.SaveVersion(versionRecord); errSave != nil {
 		appErr := apperror.Wrap(errSave, "executeUpdate", map[string]any{"slug": flags.Slug})
 		appErr.Code = "E_INSTALLER_UPDATE_FAILED"
+
 		return appErr
 	}
 
 	fmt.Printf("Installer %q updated successfully (version: %s, os: %s).\n",
 		existing.Name, existing.Version, existing.TargetOS)
+
 	return nil
 }
 
@@ -162,13 +171,16 @@ func runInstallerUpdate(cmd *cobra.Command, args []string) error {
 	if errDB != nil {
 		appErr := apperror.Wrap(errDB, "runInstallerUpdate", map[string]any{"action": "open_db"})
 		appErr.Code = "E_INSTALLER_DB_ERROR"
+
 		return appErr
 	}
+
 	defer db.Close()
 
 	if errMigrate := db.MigrateInstallers(); errMigrate != nil {
 		appErr := apperror.Wrap(errMigrate, "runInstallerUpdate", map[string]any{"action": "migrate_installers"})
 		appErr.Code = "E_INSTALLER_DB_ERROR"
+
 		return appErr
 	}
 

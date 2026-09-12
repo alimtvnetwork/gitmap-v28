@@ -87,6 +87,7 @@ func queryGHLatestTag(repo string) string {
 	var releases []struct {
 		TagName string `json:"tagName"`
 	}
+
 	if err := json.Unmarshal(out, &releases); err == nil && len(releases) > 0 {
 		return releases[0].TagName
 	}
@@ -147,6 +148,7 @@ func queryRunsFromDB(repo string) []ghRunItem {
 	if err != nil {
 		return nil
 	}
+
 	defer db.Close()
 
 	dbRuns, err := db.ListRecentPipelineRuns(repo, 5)
@@ -195,9 +197,11 @@ func formatDurationShort(d time.Duration) string {
 	if d < time.Minute {
 		return fmt.Sprintf("%ds", int(d.Seconds()))
 	}
+
 	if d < time.Hour {
 		return fmt.Sprintf("%dm", int(d.Minutes()))
 	}
+
 	if d < 24*time.Hour {
 		return fmt.Sprintf("%dh", int(d.Hours()))
 	}
@@ -219,6 +223,7 @@ func formatDurationSeconds(sec int) string {
 	if sec <= 0 {
 		return "<1s"
 	}
+
 	if sec < 60 {
 		return fmt.Sprintf("%ds", sec)
 	}

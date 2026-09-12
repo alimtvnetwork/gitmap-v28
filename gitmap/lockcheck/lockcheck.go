@@ -28,7 +28,9 @@ func FormatProcessList(procs []LockingProcess) string {
 		if i > 0 {
 			b.WriteString("\n")
 		}
+
 		b.WriteString(fmt.Sprintf("  • %s", p.String()))
 	}
+
 	return b.String()
 }

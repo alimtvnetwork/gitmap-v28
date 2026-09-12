@@ -50,11 +50,10 @@ func normalizeConfigTool(name string) string {
 func resolveDefaultConfigFileName(inputTool string, canonicalTool string) string {
 	lower := strings.ToLower(strings.TrimSpace(inputTool))
 	if lower == "uttorrent" {
-
 		return "uttorrent.json"
 	}
-	if lower == "qtorrent" {
 
+	if lower == "qtorrent" {
 		return "qtorrent.json"
 	}
 
@@ -64,9 +63,9 @@ func resolveDefaultConfigFileName(inputTool string, canonicalTool string) string
 // isConfigDirectoryPath checks if path represents a directory.
 func isConfigDirectoryPath(path string) bool {
 	if strings.HasSuffix(path, "/") || strings.HasSuffix(path, "\\") {
-
 		return true
 	}
+
 	fi, err := os.Stat(path)
 
 	return err == nil && fi.IsDir()
@@ -76,11 +75,10 @@ func isConfigDirectoryPath(path string) bool {
 func resolveConfigFilePath(specifiedPath, defaultFilename string) string {
 	cleanPath := strings.TrimSpace(specifiedPath)
 	if cleanPath == "" {
-
 		return defaultFilename
 	}
-	if isConfigDirectoryPath(cleanPath) {
 
+	if isConfigDirectoryPath(cleanPath) {
 		return filepath.Join(cleanPath, defaultFilename)
 	}
 

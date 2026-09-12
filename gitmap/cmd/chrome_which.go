@@ -18,6 +18,7 @@ func runChromeWhich(_ []string) error {
 	if err != nil {
 		return apperror.WrapSimple(err, "chrome which: ERROR read Local State:")
 	}
+
 	var doc struct {
 		Profile struct {
 			LastUsed       string   `json:"last_used"`
@@ -27,19 +28,23 @@ func runChromeWhich(_ []string) error {
 			} `json:"info_cache"`
 		} `json:"profile"`
 	}
+
 	if err := json.Unmarshal(raw, &doc); err != nil {
 		return apperror.WrapSimple(err, "chrome which: ERROR parse Local State:")
 	}
+
 	fmt.Printf("\033[1;96mChrome User Data\033[0m %s\n", root)
 	if doc.Profile.LastUsed != "" {
 		name := doc.Profile.InfoCache[doc.Profile.LastUsed].Name
 		fmt.Printf("\033[1;92mlast_used\033[0m       %s  \033[2;37m(display: %q)\033[0m\n", doc.Profile.LastUsed, name)
 	}
+
 	if len(doc.Profile.LastActiveProf) > 0 {
 		fmt.Printf("\033[1;94mlast_active\033[0m\n")
 		for _, d := range doc.Profile.LastActiveProf {
 			fmt.Printf("  - %s  \033[2;37m(display: %q)\033[0m\n", d, doc.Profile.InfoCache[d].Name)
 		}
 	}
+
 	return nil
 }

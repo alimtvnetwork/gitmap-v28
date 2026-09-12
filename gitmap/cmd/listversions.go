@@ -31,6 +31,7 @@ func runListVersions(args []string) error {
 	}
 
 	printVersionEntriesTerminal(entries)
+
 	return nil
 }
 
@@ -117,6 +118,7 @@ func loadVersionSourceMap() map[string]string {
 	if err != nil {
 		return map[string]string{}
 	}
+
 	defer db.Close()
 
 	releases, err := db.ListReleases()

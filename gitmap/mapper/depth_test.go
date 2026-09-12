@@ -22,13 +22,16 @@ func TestBuildRecords_PropagatesDepth(t *testing.T) {
 		{AbsolutePath: "/x/a", RelativePath: "a", Depth: 1},
 		{AbsolutePath: "/x/deep/b/c/d", RelativePath: "deep/b/c/d", Depth: 4},
 	}
+
 	records := BuildRecords(repos, "https", "")
 	if len(records) != 2 {
 		t.Fatalf("expected 2 records, got %d", len(records))
 	}
+
 	if records[0].Depth != 1 {
 		t.Errorf("record[0].Depth: got %d, want 1", records[0].Depth)
 	}
+
 	if records[1].Depth != 4 {
 		t.Errorf("record[1].Depth: got %d, want 4", records[1].Depth)
 	}

@@ -22,6 +22,7 @@ func runAmendList(args []string) error {
 	if err != nil {
 		return err
 	}
+
 	amendments = applyAmendmentLimit(amendments, limit)
 
 	if asJSON {
@@ -31,6 +32,7 @@ func runAmendList(args []string) error {
 	}
 
 	printAmendmentsTerminal(amendments)
+
 	return nil
 }
 
@@ -78,6 +80,7 @@ func loadAmendments(branch string) ([]store.AmendmentRow, *apperror.AppError) {
 	if err != nil {
 		return nil, apperror.NewSimple(constants.ErrNoDatabase, "E9000")
 	}
+
 	defer db.Close()
 
 	var amendments []store.AmendmentRow

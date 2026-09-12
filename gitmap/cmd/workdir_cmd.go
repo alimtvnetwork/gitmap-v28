@@ -84,6 +84,7 @@ func printActiveDefaultWorkDirNotice() {
 
 		return
 	}
+
 	defer db.Close()
 
 	wd, err := db.GetDefaultWorkDir()

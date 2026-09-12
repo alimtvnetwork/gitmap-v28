@@ -31,6 +31,7 @@ func buildScanPMPairs(records []model.ScanRecord, noAutoTags bool) []vscodepm.Pa
 			RootPath: canonical,
 			Name:     rec.RepoName,
 		}
+
 		if !noAutoTags {
 			pair.Tags = vscodepm.DetectTagsCustom(canonical)
 		}

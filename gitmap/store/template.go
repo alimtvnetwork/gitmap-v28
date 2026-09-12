@@ -31,6 +31,7 @@ func (db *DB) ListTemplatesByKind(kind string) ([]CommitTemplate, error) {
 	if err != nil {
 		return nil, fmt.Errorf(constants.ErrDBQuery, err)
 	}
+
 	defer rows.Close()
 
 	return scanTemplateRows(rows)
@@ -56,6 +57,7 @@ func scanTemplateRows(rows interface {
 		if err != nil {
 			return nil, err
 		}
+
 		results = append(results, t)
 	}
 

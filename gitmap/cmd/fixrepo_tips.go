@@ -42,11 +42,14 @@ func emitFixRepoTips(opts fixRepoOptions, changed int) {
 		fmt.Fprintln(os.Stderr, "  - re-run without --dry-run to apply the rewrite")
 		fmt.Fprintln(os.Stderr, "  - narrow scope: --restrict no-version | -r nv  (skip bare-base on v1->v2)")
 		fmt.Fprintln(os.Stderr, "  - widen window: gitmap fix-repo N   (e.g. 3, 4, 7)  or  --all")
+
 		return
 	}
+
 	if changed == 0 {
 		return
 	}
+
 	fmt.Fprintln(os.Stderr)
 	fmt.Fprintln(os.Stderr, "next steps:")
 	fmt.Fprintln(os.Stderr, "  - undo:        gitmap undo            (restores the snapshot just written)")

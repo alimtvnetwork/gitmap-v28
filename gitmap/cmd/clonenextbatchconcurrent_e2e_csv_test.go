@@ -51,6 +51,7 @@ func runAndSerialize(t *testing.T, repos []string, workers int) []byte {
 	if err != nil {
 		t.Fatalf("temp csv: %v", err)
 	}
+
 	writeReportRows(tmp, results)
 	tmp.Close()
 
@@ -58,6 +59,7 @@ func runAndSerialize(t *testing.T, repos []string, workers int) []byte {
 	if err != nil {
 		t.Fatalf("read back csv: %v", err)
 	}
+
 	return data
 }
 
@@ -82,14 +84,17 @@ func TestE2E_BatchConcurrency_FullWriteBatchReport(t *testing.T) {
 	if err != nil {
 		t.Fatalf("read report: %v", err)
 	}
+
 	lines := strings.Split(strings.TrimRight(string(data), "\n"), "\n")
 	if len(lines) != len(repos)+1 {
 		t.Fatalf("line count: got %d, want %d (1 header + %d rows)",
 			len(lines), len(repos)+1, len(repos))
 	}
+
 	if !strings.HasPrefix(lines[0], "repo,from,to,status,detail") {
 		t.Fatalf("header line: got %q", lines[0])
 	}
+
 	for i := 0; i < len(repos); i++ {
 		want := fmt.Sprintf("repo-%d", i)
 		if !strings.Contains(lines[i+1], want) {
@@ -119,6 +124,7 @@ func TestE2E_BatchConcurrency_CSVStatusCountsMatchInMemory(t *testing.T) {
 	if reportPath == "" {
 		t.Fatal("writeBatchReport returned empty path")
 	}
+
 	gotOK, gotFailed, gotSkipped := tallyCSVStatuses(t, reportPath)
 
 	if gotOK != wantOK || gotFailed != wantFailed || gotSkipped != wantSkipped {
@@ -140,22 +146,27 @@ func tallyCSVStatuses(t *testing.T, path string) (ok, failed, skipped int) {
 	if err != nil {
 		t.Fatalf("open report: %v", err)
 	}
+
 	defer f.Close()
 
 	rows, err := csv.NewReader(f).ReadAll()
 	if err != nil {
 		t.Fatalf("parse csv: %v", err)
 	}
+
 	if len(rows) < 1 {
 		t.Fatalf("csv has no header row")
 	}
+
 	statusCol := indexOfHeader(rows[0], "status")
 	if statusCol < 0 {
 		t.Fatalf("csv header missing 'status' column: %v", rows[0])
 	}
+
 	for _, row := range rows[1:] {
 		ok, failed, skipped = bumpStatusBucket(row[statusCol], ok, failed, skipped)
 	}
+
 	return ok, failed, skipped
 }
 
@@ -166,6 +177,7 @@ func indexOfHeader(header []string, name string) int {
 			return i
 		}
 	}
+
 	return -1
 }
 
@@ -182,5 +194,6 @@ func bumpStatusBucket(status string, ok, failed, skipped int) (int, int, int) {
 	case constants.BatchStatusSkipped:
 		skipped++
 	}
+
 	return ok, failed, skipped
 }

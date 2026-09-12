@@ -65,6 +65,7 @@ func (db *DB) ListSplitDBs(dbType string) ([]SplitDatabaseEntry, error) {
 	if err != nil {
 		return nil, apperror.WrapSimple(err, "store.ListSplitDBs")
 	}
+
 	defer rows.Close()
 
 	return scanSplitDBRows(rows)
@@ -85,8 +86,10 @@ func scanSplitDBRows(rows *sql.Rows) ([]SplitDatabaseEntry, error) {
 		if err != nil {
 			return nil, apperror.WrapSimple(err, "store.scanSplitDBRows")
 		}
+
 		list = append(list, *entry)
 	}
+
 	if err := rows.Err(); err != nil {
 		return nil, apperror.WrapSimple(err, "store.scanSplitDBRows.iter")
 	}
@@ -106,6 +109,7 @@ func scanSplitEntry(s rowScanner) (*SplitDatabaseEntry, error) {
 	if err := s.Scan(dest...); err != nil {
 		return nil, err
 	}
+
 	populateEntryAux(&e, active, attached, desc, notes, comm)
 
 	return &e, nil
@@ -133,6 +137,7 @@ func normalizeSplitDBEntry(e SplitDatabaseEntry) SplitDatabaseEntry {
 	if e.Status == "" {
 		e.Status = "active"
 	}
+
 	if e.SchemaVersion == 0 {
 		e.SchemaVersion = 1
 	}
@@ -145,9 +150,11 @@ func fillEntryTimestamps(e SplitDatabaseEntry) SplitDatabaseEntry {
 	if e.LastSyncedAt == 0 {
 		e.LastSyncedAt = now
 	}
+
 	if e.CreatedAt == 0 {
 		e.CreatedAt = now
 	}
+
 	if e.UpdatedAt == 0 {
 		e.UpdatedAt = now
 	}

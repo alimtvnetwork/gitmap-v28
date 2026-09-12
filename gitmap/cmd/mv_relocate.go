@@ -14,6 +14,7 @@ import (
 func executeMove(db *store.DB, rec model.ScanRecord, destPath string, opts moveOpts) {
 	if err := fsutil.SafeRename(rec.AbsolutePath, destPath); err != nil {
 		fmt.Printf("mv: physical move failed: %v\n", err)
+
 		return
 	}
 
@@ -30,6 +31,7 @@ func syncExternalMove(oldPath, newPath, newName string, opts moveOpts) {
 	if !opts.noVSCode {
 		_ = vscodepm.UpdateRootPath(oldPath, newPath, newName)
 	}
+
 	if !opts.noDesktop {
 		_ = desktop.UpdateRepoPath(oldPath, newPath)
 	}

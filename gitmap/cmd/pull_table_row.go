@@ -14,6 +14,7 @@ func resolveRepoStatusStyle(isDirty bool) lipgloss.Style {
 
 		return dirtyStyle
 	}
+
 	cleanStyle := lipgloss.NewStyle().Foreground(lipgloss.Color("#50fa7b"))
 
 	return cleanStyle
@@ -22,8 +23,10 @@ func resolveRepoStatusStyle(isDirty bool) lipgloss.Style {
 func (l *PullTableLayout) PrintRow(r model.PullTableRow) {
 	if l.IsWide {
 		l.printWideRow(r)
+
 		return
 	}
+
 	l.printCompactRow(r)
 }
 

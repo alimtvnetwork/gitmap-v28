@@ -19,17 +19,20 @@ func TestPrettyFixtures(t *testing.T) {
 	if err != nil {
 		t.Fatalf("read fixture dir: %v", err)
 	}
+
 	cases := 0
 	for _, e := range entries {
 		if !strings.HasSuffix(e.Name(), ".in.md") {
 			continue
 		}
+
 		cases++
 		name := strings.TrimSuffix(e.Name(), ".in.md")
 		t.Run(name, func(t *testing.T) {
 			runFixture(t, dir, name)
 		})
 	}
+
 	if cases == 0 {
 		t.Fatal("no fixtures found in testdata/pretty/")
 	}
@@ -41,10 +44,12 @@ func runFixture(t *testing.T, dir, name string) {
 	if err != nil {
 		t.Fatalf("read input: %v", err)
 	}
+
 	want, err := os.ReadFile(filepath.Join(dir, name+".want.txt"))
 	if err != nil {
 		t.Fatalf("read want: %v", err)
 	}
+
 	got := Render(string(in))
 	if got != string(want) {
 		t.Errorf("fixture %s mismatch\n--- want ---\n%s--- got ---\n%s",
@@ -60,6 +65,7 @@ func TestRenderANSISwapsTokens(t *testing.T) {
 	if strings.Contains(out, TokCyanOpen) || strings.Contains(out, TokCyanClose) {
 		t.Fatalf("RenderANSI leaked tokens: %q", out)
 	}
+
 	if !strings.Contains(out, constants.ColorCyan) || !strings.Contains(out, constants.ColorReset) {
 		t.Fatalf("RenderANSI missing ANSI codes: %q", out)
 	}

@@ -31,6 +31,7 @@ func (db *DB) LoadClonePickByName(name string) (clonepick.Plan, int64, error) {
 	if len(strings.TrimSpace(name)) == 0 {
 		return clonepick.Plan{}, 0, sql.ErrNoRows
 	}
+
 	row := QueryRowWrapper(db.conn, constants.SQLSelectClonePickByName, name)
 
 	return scanClonePickRow(row)
@@ -80,6 +81,7 @@ func scanClonePickRow(row *sql.Row) (clonepick.Plan, int64, error) {
 	if err := scanClonePickFields(row, &plan, &data); err != nil {
 		return clonepick.Plan{}, 0, err
 	}
+
 	populateClonePickPlan(&plan, &data)
 
 	return plan, data.id, nil

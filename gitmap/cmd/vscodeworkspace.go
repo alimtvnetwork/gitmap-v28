@@ -57,6 +57,7 @@ func runVSCodeWorkspace(args []string) error {
 			nil,
 		)
 		cliexit.HandleError(appErr, 1)
+
 		return nil
 	}
 
@@ -68,6 +69,7 @@ func runVSCodeWorkspace(args []string) error {
 	}
 
 	writeWorkspaceFile(flags, folders)
+
 	return nil
 }
 
@@ -99,6 +101,7 @@ func loadReposForWorkspace() ([]model.ScanRecord, error) {
 	if err != nil {
 		return nil, fmt.Errorf(constants.ErrVSCodeWorkspaceDBOpen, err)
 	}
+
 	defer db.Close()
 
 	if err := db.Migrate(); err != nil {
@@ -128,11 +131,13 @@ func buildFoldersFromRecords(
 		if !matchesWorkspaceTag(r.AbsolutePath, tag) {
 			continue
 		}
+
 		path, ok := resolveFolderPath(r.AbsolutePath, rootSubdir)
 		if !ok {
 			fmt.Fprintf(os.Stderr, constants.MsgVSCodeWorkspaceSubdirSkip, r.RepoName, rootSubdir)
 			continue
 		}
+
 		out = append(out, vscodeworkspace.Folder{Name: r.RepoName, Path: path})
 	}
 
@@ -146,11 +151,13 @@ func resolveFolderPath(repoRoot, rootSubdir string) (string, bool) {
 	if rootSubdir == "" {
 		return repoRoot, true
 	}
+
 	candidate := filepath.Join(repoRoot, rootSubdir)
 	info, err := os.Stat(candidate)
 	if err != nil || !info.IsDir() {
 		return "", false
 	}
+
 	return candidate, true
 }
 
@@ -160,6 +167,7 @@ func matchesWorkspaceTag(rootPath, tag string) bool {
 	if tag == "" {
 		return true
 	}
+
 	for _, t := range vscodepm.DetectTagsCustom(rootPath) {
 		if strings.EqualFold(t, tag) {
 			return true
@@ -185,6 +193,7 @@ func writeWorkspaceFile(flags vscodeWorkspaceFlags, folders []vscodeworkspace.Fo
 			map[string]any{"path": flags.out},
 		)
 		cliexit.HandleError(appErr, 1)
+
 		return
 	}
 
@@ -193,6 +202,7 @@ func writeWorkspaceFile(flags vscodeWorkspaceFlags, folders []vscodeworkspace.Fo
 	if flags.isRelative {
 		finalFolders, errRel = vscodeworkspace.Relativize(folders, filepath.Dir(outPath))
 	}
+
 	isRelErr := flags.isRelative && errRel != nil
 	if isRelErr {
 		fmt.Fprintln(os.Stderr, errRel.Error())
@@ -211,6 +221,7 @@ func writeWorkspaceFile(flags vscodeWorkspaceFlags, folders []vscodeworkspace.Fo
 			map[string]any{"outPath": outPath},
 		)
 		cliexit.HandleError(appErr, 1)
+
 		return
 	}
 

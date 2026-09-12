@@ -19,6 +19,7 @@ func TestIsSSHURL(t *testing.T) {
 		{"", false},
 		{"   ", false},
 	}
+
 	for _, c := range cases {
 		got := isSSHURL(c.in)
 		if got != c.want {

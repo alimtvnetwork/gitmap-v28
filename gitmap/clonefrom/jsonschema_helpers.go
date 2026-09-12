@@ -46,9 +46,11 @@ func rootSchema(id, title string, properties map[string]any, required []string) 
 		"type":                 "object",
 		"additionalProperties": false,
 	}
+
 	if properties != nil {
 		out["properties"] = properties
 	}
+
 	if len(required) > 0 {
 		out["required"] = required
 	}
@@ -63,6 +65,7 @@ func objectSchema(properties map[string]any, required []string, description stri
 		"additionalProperties": false,
 		"description":          description,
 	}
+
 	if len(required) > 0 {
 		out["required"] = required
 	}

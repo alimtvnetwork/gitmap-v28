@@ -84,6 +84,7 @@ func TestFixRepoRewriteV9ToV12Fixture(t *testing.T) {
 	if err != nil {
 		t.Fatalf("rewriteFixRepoFile: %v", err)
 	}
+
 	got := readFile(t, path)
 
 	assertDashFormBumped(t, got, base, target, current, count)
@@ -128,10 +129,12 @@ func assertDashFormBumped(t *testing.T, got, base string, target, current, count
 		t.Errorf("found stale unguarded %q after bump\n%s",
 			oldTok, renderFixRepoFailureDiff(got, oldTok, newTok, target, current))
 	}
+
 	if !strings.Contains(got, newTok) {
 		t.Errorf("missing bumped %q after rewrite\n%s",
 			newTok, renderFixRepoFailureDiff(got, oldTok, newTok, target, current))
 	}
+
 	wantCount := countUnguardedHits(fixRepoV9ToV12FixtureBody, oldTok)
 	if count != wantCount {
 		t.Errorf("replacement count = %d, want %d (unguarded hits in fixture)\n%s",
@@ -174,6 +177,7 @@ func assertPairsForTargetAgrees(t *testing.T, base string, target, current int, 
 	if len(pairs) < 1 {
 		t.Fatalf("pairsForTarget returned %d pairs, want >=1", len(pairs))
 	}
+
 	if !strings.Contains(got, pairs[0].new) {
 		oldTok := fmt.Sprintf("%s-v%d", base, target)
 		t.Errorf("rewriter output missing pairsForTarget dash.new=%q\n%s",
@@ -192,6 +196,7 @@ func assertRemoteSlugRegexAgrees(t *testing.T, base string, current int) {
 	if m == nil {
 		t.Fatalf("remoteSlugRe did not match bumped slug %q", bumpedSlug)
 	}
+
 	wantNum := fmt.Sprintf("%d", current)
 	if m[1] != base || m[2] != wantNum {
 		t.Errorf("remoteSlugRe(%q) = base=%q num=%q, want base=%q num=%q",
@@ -233,6 +238,7 @@ func renderUnguardedHitContext(body, token string) string {
 	if len(hits) == 0 {
 		return ""
 	}
+
 	b.WriteString("  -- unguarded stale matches --\n")
 	for _, off := range hits {
 		line, col, text := lineAtOffset(body, off)
@@ -258,6 +264,7 @@ func lineAtOffset(body string, off int) (int, int, string) {
 	if off < 0 || off > len(body) {
 		return 0, 0, ""
 	}
+
 	line := 1 + strings.Count(body[:off], "\n")
 	lineStart := strings.LastIndexByte(body[:off], '\n') + 1
 	lineEnd := lineStart + strings.IndexByte(body[lineStart:], '\n')
@@ -275,6 +282,7 @@ func indentLines(s, prefix string) string {
 	if s == "" {
 		return ""
 	}
+
 	lines := strings.Split(s, "\n")
 	for i, line := range lines {
 		lines[i] = prefix + line

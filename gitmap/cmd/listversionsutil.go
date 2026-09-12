@@ -42,10 +42,12 @@ func parseVersionTags(output string) []release.Version {
 		if len(tag) == 0 {
 			continue
 		}
+
 		v, err := release.Parse(tag)
 		if err != nil {
 			continue
 		}
+
 		versions = append(versions, v)
 	}
 
@@ -75,6 +77,7 @@ func printVersionEntriesTerminal(entries []versionEntry) {
 		} else {
 			fmt.Println(e.Version.String())
 		}
+
 		for _, note := range e.Notes {
 			fmt.Printf("  - %s\n", note)
 		}

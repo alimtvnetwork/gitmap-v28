@@ -71,6 +71,7 @@ func (db *DB) migrateV15Phase2() error {
 	if !db.tableExists("GroupRepo") {
 		return nil
 	}
+
 	if err := db.rebuildGroupRepoFK(); err != nil {
 		return fmt.Errorf("rebuild GroupRepo FK: %w", err)
 	}
@@ -118,6 +119,7 @@ func firstWords(s string, n int) string {
 		if r == ' ' || r == '\n' || r == '\t' {
 			count++
 		}
+
 		if count >= n {
 			return s[:i]
 		}

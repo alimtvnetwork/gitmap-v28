@@ -48,11 +48,13 @@ func runClearReleaseJSON(args []string) error {
 
 	if _, err := os.Stat(path); os.IsNotExist(err) {
 		fmt.Fprintf(os.Stderr, constants.ErrClearReleaseNotFound, v.String())
+
 		return apperror.NewSimple("fatal error", "E9000")
 	}
 
 	if dryRun {
 		fmt.Printf(constants.MsgClearReleaseDryRun, path)
+
 		return nil
 	}
 
@@ -62,5 +64,6 @@ func runClearReleaseJSON(args []string) error {
 	}
 
 	fmt.Printf(constants.MsgClearReleaseDone, v.String())
+
 	return nil
 }

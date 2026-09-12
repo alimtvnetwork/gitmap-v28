@@ -51,9 +51,11 @@ func TestParsePurgeArgs(t *testing.T) {
 			if pat != tc.wantPat {
 				t.Errorf("got pat %q, want %q", pat, tc.wantPat)
 			}
+
 			if isRestore != tc.wantRestore {
 				t.Errorf("got isRestore %v, want %v", isRestore, tc.wantRestore)
 			}
+
 			if isAutoConfirm != tc.wantConfirm {
 				t.Errorf("got isAutoConfirm %v, want %v", isAutoConfirm, tc.wantConfirm)
 			}
@@ -78,6 +80,7 @@ func TestPurgeCopyFile(t *testing.T) {
 	if err != nil {
 		t.Fatalf("failed to read dest: %v", err)
 	}
+
 	if string(data) != "purge content" {
 		t.Errorf("got content %q, want %q", string(data), "purge content")
 	}

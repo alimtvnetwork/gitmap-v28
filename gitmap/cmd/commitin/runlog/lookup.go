@@ -15,5 +15,6 @@ func lookupEnumID(db *sql.DB, table, idCol, name string) (int64, error) {
 	if err := db.QueryRow(q, name).Scan(&id); err != nil {
 		return 0, fmt.Errorf("lookup %s.%s where Name=%q: %w", table, idCol, name, err)
 	}
+
 	return id, nil
 }

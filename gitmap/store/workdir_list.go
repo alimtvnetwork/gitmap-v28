@@ -29,6 +29,7 @@ func (db *DB) EnsureWorkDir(absPath, label string, isDefault bool) (*model.WorkD
 	if db == nil || db.conn == nil {
 		return nil, apperror.New("EnsureWorkDir", "E_NIL_DB", map[string]any{"path": absPath})
 	}
+
 	if err := db.EnsureWorkDirsTable(); err != nil {
 		return nil, apperror.Wrap(err, "EnsureWorkDir.EnsureWorkDirsTable", map[string]any{"path": absPath})
 	}
@@ -51,6 +52,7 @@ func (db *DB) ListWorkDirs() ([]model.WorkDir, error) {
 	if db == nil || db.conn == nil {
 		return nil, apperror.NewSimple("ListWorkDirs", "E_NIL_DB")
 	}
+
 	if err := db.EnsureWorkDirsTable(); err != nil {
 		return nil, apperror.WrapSimple(err, "ListWorkDirs.EnsureWorkDirsTable")
 	}
@@ -59,6 +61,7 @@ func (db *DB) ListWorkDirs() ([]model.WorkDir, error) {
 	if err != nil {
 		return nil, apperror.WrapSimple(err, "ListWorkDirs")
 	}
+
 	defer rows.Close()
 
 	return scanWorkDirRows(rows)
@@ -74,10 +77,12 @@ func scanWorkDirRows(rows *sql.Rows) ([]model.WorkDir, error) {
 		if errScan != nil {
 			return nil, apperror.WrapSimple(errScan, "scanWorkDirRows.Scan")
 		}
+
 		wd.Label = label.String
 		wd.IsDefault = (defInt == 1)
 		results = append(results, wd)
 	}
+
 	if err := rows.Err(); err != nil {
 		return nil, apperror.WrapSimple(err, "scanWorkDirRows.Rows")
 	}
@@ -90,6 +95,7 @@ func (db *DB) GetWorkDirByPath(absPath string) (*model.WorkDir, error) {
 	if db == nil || db.conn == nil {
 		return nil, apperror.New("GetWorkDirByPath", "E_NIL_DB", map[string]any{"path": absPath})
 	}
+
 	if err := db.EnsureWorkDirsTable(); err != nil {
 		return nil, apperror.Wrap(err, "GetWorkDirByPath.EnsureWorkDirsTable", map[string]any{"path": absPath})
 	}
@@ -101,6 +107,7 @@ func (db *DB) GetWorkDirByPath(absPath string) (*model.WorkDir, error) {
 	if err := row.Scan(&wd.ID, &wd.AbsolutePath, &label, &defInt, &wd.CreatedAt, &wd.UpdatedAt); err != nil {
 		return nil, apperror.Wrap(err, "GetWorkDirByPath", map[string]any{"path": absPath})
 	}
+
 	wd.Label = label.String
 	wd.IsDefault = (defInt == 1)
 

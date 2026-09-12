@@ -39,6 +39,7 @@ func runUnzipCompact(args []string) error {
 			nil,
 		)
 		cliexit.HandleError(appErr, 1)
+
 		return nil
 	}
 
@@ -56,16 +57,20 @@ func runUnzipCompact(args []string) error {
 			map[string]any{"src": src},
 		)
 		cliexit.HandleError(appErr, 1)
+
 		return nil
 	}
+
 	defer archive.CleanupResolved(resolved)
 
 	if listMode {
 		runListMode(ctx, resolved.LocalPath)
+
 		return nil
 	}
 
 	executeCompactExtract(ctx, resolved, src, dest)
+
 	return nil
 }
 
@@ -105,6 +110,7 @@ func resolveUnzipInputs(positional []string) (src, dest string, err error) {
 		if perr != nil {
 			return "", "", perr
 		}
+
 		fmt.Fprintf(os.Stderr, constants.MsgArchiveAutoPicked+"\n", picked)
 
 		return picked, cwd, nil
@@ -130,12 +136,15 @@ func runListMode(ctx context.Context, path string) error {
 			map[string]any{"path": path},
 		)
 		cliexit.HandleError(appErr, 1)
+
 		return nil
 	}
+
 	fmt.Fprintf(os.Stderr, constants.MsgArchiveListHeader+"\n", path, format, len(entries))
 	for _, e := range entries {
 		fmt.Fprintf(os.Stderr, constants.MsgArchiveListEntry+"\n", e.Path, e.Size)
 	}
+
 	return nil
 }
 
@@ -152,10 +161,12 @@ func executeCompactExtract(
 	if dbErr == nil {
 		defer db.Close()
 	}
+
 	migErr := error(nil)
 	if dbErr == nil {
 		migErr = db.Migrate()
 	}
+
 	if dbErr == nil && migErr == nil {
 		historyID = startArchiveRow(db, constants.ArchiveCmdUnzipCompact, []string{originalSrc}, "")
 	}
@@ -177,6 +188,7 @@ func executeCompactExtract(
 			map[string]any{"path": resolved.LocalPath, "dest": dest},
 		)
 		cliexit.HandleError(appErr, 1)
+
 		return
 	}
 
@@ -213,16 +225,19 @@ func finishArchiveRow(
 	if db == nil || id == 0 {
 		return
 	}
+
 	status := constants.ArchiveStatusSuccess
 	errMsg := ""
 	if runErr != nil {
 		status = constants.ArchiveStatusFailed
 		errMsg = runErr.Error()
 	}
+
 	if err := db.FinishArchiveHistory(id, outputPath, format, status, errMsg, usedTemp); err != nil {
 		fmt.Fprintf(os.Stderr, constants.WarnArchiveHistoryWrite+"\n", err)
 
 		return
 	}
+
 	fmt.Fprintf(os.Stderr, constants.MsgArchiveHistoryRecorded+"\n", id, status)
 }

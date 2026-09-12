@@ -24,9 +24,11 @@ func (c *PostgresCompiler) CompilePagination(limit, offset int) string {
 	if limit <= 0 && offset <= 0 {
 		return ""
 	}
+
 	if offset <= 0 {
 		return fmt.Sprintf("LIMIT %d", limit)
 	}
+
 	return fmt.Sprintf("LIMIT %d OFFSET %d", limit, offset)
 }
 
@@ -43,11 +45,13 @@ func (c *PostgresCompiler) CompileSearch(table string, fields []string, limit in
 
 	whereSql := strings.Join(whereClauses, " AND ")
 	pagination := c.CompilePagination(limit, 0)
+
 	return buildSelectWithWhere(quotedTable, whereSql, pagination)
 }
 
 func (c *PostgresCompiler) CompileCreateView(name string, selectSql string) string {
 	cleanSql := strings.TrimRight(strings.TrimSpace(selectSql), ";")
+
 	return fmt.Sprintf("CREATE OR REPLACE VIEW %s AS %s;", c.QuoteIdentifier(name), cleanSql)
 }
 
@@ -59,10 +63,12 @@ func (c *PostgresCompiler) CompileFunctionCall(name string, argCount int) string
 	if argCount <= 0 {
 		return fmt.Sprintf("SELECT %s();", name)
 	}
+
 	placeholders := make([]string, argCount)
 	for i := 0; i < argCount; i++ {
 		placeholders[i] = fmt.Sprintf("$%d", i+1)
 	}
+
 	return fmt.Sprintf("SELECT %s(%s);", name, strings.Join(placeholders, ", "))
 }
 
@@ -71,11 +77,13 @@ func (c *PostgresCompiler) CompileCount(table string, field string) string {
 	if len(field) == 0 {
 		return fmt.Sprintf("SELECT COUNT(*) FROM %s;", quotedTable)
 	}
+
 	return fmt.Sprintf("SELECT COUNT(*) FROM %s WHERE %s = $1;", quotedTable, c.QuoteIdentifier(field))
 }
 
 func (c *PostgresCompiler) CompileDelete(table string, field string) string {
 	quotedTable := c.QuoteIdentifier(table)
+
 	return fmt.Sprintf("DELETE FROM %s WHERE %s = $1;", quotedTable, c.QuoteIdentifier(field))
 }
 
@@ -108,9 +116,11 @@ func (c *MySQLCompiler) CompilePagination(limit, offset int) string {
 	if limit <= 0 && offset <= 0 {
 		return ""
 	}
+
 	if offset <= 0 {
 		return fmt.Sprintf("LIMIT %d", limit)
 	}
+
 	return fmt.Sprintf("LIMIT %d OFFSET %d", limit, offset)
 }
 
@@ -127,11 +137,13 @@ func (c *MySQLCompiler) CompileSearch(table string, fields []string, limit int) 
 
 	whereSql := strings.Join(whereClauses, " AND ")
 	pagination := c.CompilePagination(limit, 0)
+
 	return buildSelectWithWhere(quotedTable, whereSql, pagination)
 }
 
 func (c *MySQLCompiler) CompileCreateView(name string, selectSql string) string {
 	cleanSql := strings.TrimRight(strings.TrimSpace(selectSql), ";")
+
 	return fmt.Sprintf("CREATE OR REPLACE VIEW %s AS %s;", c.QuoteIdentifier(name), cleanSql)
 }
 
@@ -143,10 +155,12 @@ func (c *MySQLCompiler) CompileFunctionCall(name string, argCount int) string {
 	if argCount <= 0 {
 		return fmt.Sprintf("SELECT %s();", name)
 	}
+
 	placeholders := make([]string, argCount)
 	for i := 0; i < argCount; i++ {
 		placeholders[i] = "?"
 	}
+
 	return fmt.Sprintf("SELECT %s(%s);", name, strings.Join(placeholders, ", "))
 }
 
@@ -155,11 +169,13 @@ func (c *MySQLCompiler) CompileCount(table string, field string) string {
 	if len(field) == 0 {
 		return fmt.Sprintf("SELECT COUNT(*) FROM %s;", quotedTable)
 	}
+
 	return fmt.Sprintf("SELECT COUNT(*) FROM %s WHERE %s = ?;", quotedTable, c.QuoteIdentifier(field))
 }
 
 func (c *MySQLCompiler) CompileDelete(table string, field string) string {
 	quotedTable := c.QuoteIdentifier(table)
+
 	return fmt.Sprintf("DELETE FROM %s WHERE %s = ?;", quotedTable, c.QuoteIdentifier(field))
 }
 
@@ -190,14 +206,17 @@ func (c *MSSQLCompiler) CompilePagination(limit, offset int) string {
 	if limit <= 0 && offset <= 0 {
 		return ""
 	}
+
 	cleanOffset := offset
 	if cleanOffset < 0 {
 		cleanOffset = 0
 	}
+
 	cleanLimit := limit
 	if cleanLimit <= 0 {
 		cleanLimit = 1000
 	}
+
 	return fmt.Sprintf("OFFSET %d ROWS FETCH NEXT %d ROWS ONLY", cleanOffset, cleanLimit)
 }
 
@@ -214,6 +233,7 @@ func (c *MSSQLCompiler) CompileSearch(table string, fields []string, limit int) 
 	}
 
 	whereSql := strings.Join(whereClauses, " AND ")
+
 	return buildMssqlSelect(quotedTable, whereSql, pagination)
 }
 
@@ -222,14 +242,17 @@ func buildMssqlSelect(quotedTable, whereSql, pagination string) string {
 	if len(whereSql) > 0 {
 		base += " WHERE " + whereSql
 	}
+
 	if len(pagination) == 0 {
 		return base + ";"
 	}
+
 	return base + " ORDER BY (SELECT NULL) " + pagination + ";"
 }
 
 func (c *MSSQLCompiler) CompileCreateView(name string, selectSql string) string {
 	cleanSql := strings.TrimRight(strings.TrimSpace(selectSql), ";")
+
 	return fmt.Sprintf("CREATE OR ALTER VIEW %s AS %s;", c.QuoteIdentifier(name), cleanSql)
 }
 
@@ -241,10 +264,12 @@ func (c *MSSQLCompiler) CompileFunctionCall(name string, argCount int) string {
 	if argCount <= 0 {
 		return fmt.Sprintf("SELECT %s();", name)
 	}
+
 	placeholders := make([]string, argCount)
 	for i := 0; i < argCount; i++ {
 		placeholders[i] = fmt.Sprintf("@p%d", i+1)
 	}
+
 	return fmt.Sprintf("SELECT %s(%s);", name, strings.Join(placeholders, ", "))
 }
 
@@ -253,11 +278,13 @@ func (c *MSSQLCompiler) CompileCount(table string, field string) string {
 	if len(field) == 0 {
 		return fmt.Sprintf("SELECT COUNT(*) FROM %s;", quotedTable)
 	}
+
 	return fmt.Sprintf("SELECT COUNT(*) FROM %s WHERE %s = @p1;", quotedTable, c.QuoteIdentifier(field))
 }
 
 func (c *MSSQLCompiler) CompileDelete(table string, field string) string {
 	quotedTable := c.QuoteIdentifier(table)
+
 	return fmt.Sprintf("DELETE FROM %s WHERE %s = @p1;", quotedTable, c.QuoteIdentifier(field))
 }
 
@@ -288,14 +315,17 @@ func (c *OracleCompiler) CompilePagination(limit, offset int) string {
 	if limit <= 0 && offset <= 0 {
 		return ""
 	}
+
 	cleanOffset := offset
 	if cleanOffset < 0 {
 		cleanOffset = 0
 	}
+
 	cleanLimit := limit
 	if cleanLimit <= 0 {
 		cleanLimit = 1000
 	}
+
 	return fmt.Sprintf("OFFSET %d ROWS FETCH NEXT %d ROWS ONLY", cleanOffset, cleanLimit)
 }
 
@@ -312,11 +342,13 @@ func (c *OracleCompiler) CompileSearch(table string, fields []string, limit int)
 	}
 
 	whereSql := strings.Join(whereClauses, " AND ")
+
 	return buildSelectWithWhere(quotedTable, whereSql, pagination)
 }
 
 func (c *OracleCompiler) CompileCreateView(name string, selectSql string) string {
 	cleanSql := strings.TrimRight(strings.TrimSpace(selectSql), ";")
+
 	return fmt.Sprintf("CREATE OR REPLACE VIEW %s AS %s;", c.QuoteIdentifier(name), cleanSql)
 }
 
@@ -328,10 +360,12 @@ func (c *OracleCompiler) CompileFunctionCall(name string, argCount int) string {
 	if argCount <= 0 {
 		return fmt.Sprintf("SELECT %s() FROM DUAL;", name)
 	}
+
 	placeholders := make([]string, argCount)
 	for i := 0; i < argCount; i++ {
 		placeholders[i] = fmt.Sprintf(":%d", i+1)
 	}
+
 	return fmt.Sprintf("SELECT %s(%s) FROM DUAL;", name, strings.Join(placeholders, ", "))
 }
 
@@ -340,11 +374,13 @@ func (c *OracleCompiler) CompileCount(table string, field string) string {
 	if len(field) == 0 {
 		return fmt.Sprintf("SELECT COUNT(*) FROM %s;", quotedTable)
 	}
+
 	return fmt.Sprintf("SELECT COUNT(*) FROM %s WHERE %s = :1;", quotedTable, c.QuoteIdentifier(field))
 }
 
 func (c *OracleCompiler) CompileDelete(table string, field string) string {
 	quotedTable := c.QuoteIdentifier(table)
+
 	return fmt.Sprintf("DELETE FROM %s WHERE %s = :1;", quotedTable, c.QuoteIdentifier(field))
 }
 
@@ -379,11 +415,14 @@ func (c *MongoDBCompiler) CompileSearch(table string, fields []string, limit int
 	if len(fields) == 0 {
 		return fmt.Sprintf("db.%s.find({}).limit(%d)", table, limit)
 	}
+
 	quotedFields := make([]string, 0, len(fields))
 	for _, f := range fields {
 		quotedFields = append(quotedFields, `"`+f+`": $param`)
 	}
+
 	filter := strings.Join(quotedFields, ", ")
+
 	return fmt.Sprintf("db.%s.find({%s}).limit(%d)", table, filter, limit)
 }
 

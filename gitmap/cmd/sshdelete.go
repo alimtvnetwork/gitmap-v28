@@ -23,6 +23,7 @@ func runSSHDelete(args []string) error {
 	if len(name) == 0 && fs.NArg() > 0 {
 		name = fs.Arg(0)
 	}
+
 	if len(name) == 0 {
 		return apperror.NewSimple(constants.ErrSSHNameEmpty, "E9000")
 	}
@@ -31,6 +32,7 @@ func runSSHDelete(args []string) error {
 	if err != nil {
 		return apperror.WrapSimple(err, constants.ErrSSHQuery)
 	}
+
 	defer db.Close()
 
 	key, err := db.FindSSHKeyByName(name)
@@ -58,5 +60,6 @@ func runSSHDelete(args []string) error {
 	}
 
 	updateSSHConfig(db)
+
 	return nil
 }

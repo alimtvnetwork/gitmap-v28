@@ -79,6 +79,7 @@ func writeReportRowsJSON(w io.Writer, results []Result) error {
 		Provenance:    buildProvenanceEntries(),
 		Rows:          rows,
 	}
+
 	enc := json.NewEncoder(w)
 	enc.SetIndent("", "  ")
 	enc.SetEscapeHTML(false)

@@ -51,6 +51,7 @@ func TestProcessLockStaleRemoval(t *testing.T) {
 	if err != nil {
 		t.Fatalf("expected acquireLock to clear dead lock and succeed, got: %v", err)
 	}
+
 	defer releaseLock(tempDir)
 
 	if !lockExists(lockFile) {

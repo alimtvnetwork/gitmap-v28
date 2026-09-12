@@ -17,11 +17,14 @@ func maybeSaveProfile(ctx *runContext, stderr io.Writer) int {
 	if ctx.Raw.SaveProfileName == "" {
 		return constants.CommitInExitOk
 	}
+
 	name := strings.TrimSpace(ctx.Raw.SaveProfileName)
 	if name == "" {
 		fmt.Fprintf(stderr, constants.CommitInErrBadArgs, "--save-profile name is empty")
+
 		return constants.CommitInExitBadArgs
 	}
+
 	fmt.Fprintf(stderr, constants.CommitInMsgPhaseSaveProfile, name)
 	p := profile.BuildFromResolved(profile.BuildArgs{
 		Name:           name,
@@ -29,6 +32,7 @@ func maybeSaveProfile(ctx *runContext, stderr io.Writer) int {
 		IsDefault:      ctx.Raw.SetDefault,
 		Resolved:       ctx.Resolved,
 	})
+
 	return persistProfile(ctx, p, stderr)
 }
 
@@ -36,11 +40,14 @@ func clearDefaultsIfNeeded(ctx *runContext, p *profile.Profile, stderr io.Writer
 	if !p.IsDefault {
 		return constants.CommitInExitOk
 	}
+
 	err := profile.ClearOtherDefaults(ctx.Paths.SourceRoot, ctx.Source.Path, p.Name)
 	if err != nil {
 		fmt.Fprintf(stderr, constants.CommitInErrDbWrite, err)
+
 		return constants.CommitInExitDbFailed
 	}
+
 	return constants.CommitInExitOk
 }
 
@@ -49,16 +56,21 @@ func persistProfile(ctx *runContext, p *profile.Profile, stderr io.Writer) int {
 	if exitCode != constants.CommitInExitOk {
 		return exitCode
 	}
+
 	saveErr := profile.SaveToDisk(ctx.Paths.SourceRoot, p, ctx.Raw.SaveProfileOverwrite)
 	// Distinguish "exists" (user fixable) from generic IO.
 	if isExistsError(saveErr) {
 		fmt.Fprintf(stderr, constants.CommitInErrSaveProfileExists+"\n", p.Name)
+
 		return constants.CommitInExitBadArgs
 	}
+
 	if saveErr != nil {
 		fmt.Fprintf(stderr, constants.CommitInErrDbWrite, saveErr)
+
 		return constants.CommitInExitDbFailed
 	}
+
 	return constants.CommitInExitOk
 }
 

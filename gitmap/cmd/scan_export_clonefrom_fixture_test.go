@@ -47,13 +47,16 @@ func requireGitForIntegration(t *testing.T) {
 	if _, err := exec.LookPath("git"); err != nil {
 		t.Skipf("git not on PATH: %v", err)
 	}
+
 	probe := t.TempDir()
 	if err := exec.Command("git", "-C", probe, "init", "-q").Run(); err != nil {
 		t.Skipf("git init blocked in sandbox: %v", err)
 	}
+
 	if err := os.WriteFile(filepath.Join(probe, "x"), []byte("x"), 0o644); err != nil {
 		t.Skipf("tempdir write blocked: %v", err)
 	}
+
 	if err := exec.Command("git", "-C", probe, "add", "x").Run(); err != nil {
 		t.Skipf("git add blocked in sandbox: %v", err)
 	}
@@ -73,6 +76,7 @@ func makeIntegrationBareRepo(t *testing.T) string {
 	if err := os.WriteFile(filepath.Join(work, "README"), []byte("hi"), 0o644); err != nil {
 		t.Fatalf("seed README: %v", err)
 	}
+
 	runIntegrationGit(t, work, "add", ".")
 	runIntegrationGit(t, work, "commit", "-q", "-m", "init")
 	runIntegrationGit(t, work, "clone", "--bare", "-q", work, bare)
@@ -89,5 +93,6 @@ func runIntegrationGit(t *testing.T, dir string, args ...string) error {
 	if out, err := cmd.CombinedOutput(); err != nil {
 		t.Fatalf("git %v in %s: %v\n%s", args, dir, err, string(out))
 	}
+
 	return nil
 }

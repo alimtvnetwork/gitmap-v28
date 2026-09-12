@@ -29,6 +29,7 @@ func TestValidateRawShape_RejectsWrongTypePerKey(t *testing.T) {
 	if err == nil {
 		t.Fatal("expected shape error for numeric defaultMode, got nil")
 	}
+
 	for _, want := range []string{"defaultMode", "string", "number"} {
 		if !strings.Contains(err.Error(), want) {
 			t.Errorf("error missing %q: %v", want, err)
@@ -46,6 +47,7 @@ func TestValidateRawShape_AggregatesAllMismatches(t *testing.T) {
 	if err == nil {
 		t.Fatal("expected aggregated shape error, got nil")
 	}
+
 	msg := err.Error()
 	for _, want := range []string{"defaultMode", "defaultOutput", "outputDir"} {
 		if !strings.Contains(msg, want) {
@@ -85,6 +87,7 @@ func TestValidateConfigStruct_RejectsEmptyOutputDir(t *testing.T) {
 	if err == nil {
 		t.Fatal("expected error for empty outputDir, got nil")
 	}
+
 	if !strings.Contains(err.Error(), "outputDir") {
 		t.Errorf("error must name outputDir: %v", err)
 	}
@@ -111,6 +114,7 @@ func TestValidateConfigStruct_RejectsNegativeDashboardRefresh(t *testing.T) {
 	if err == nil {
 		t.Fatal("expected error for negative dashboardRefresh, got nil")
 	}
+
 	if !strings.Contains(err.Error(), "-5") {
 		t.Errorf("error must report bad value: %v", err)
 	}
@@ -139,6 +143,7 @@ func TestValidateConfigStruct_RejectsEmptyExcludeEntry(t *testing.T) {
 	if err == nil {
 		t.Fatal("expected error for empty excludeDirs entry, got nil")
 	}
+
 	if !strings.Contains(err.Error(), "excludeDirs[1]") {
 		t.Errorf("error must name the bad index: %v", err)
 	}
@@ -154,10 +159,12 @@ func TestValidateConfigStruct_RejectsIncompleteReleaseTarget(t *testing.T) {
 		{GOOS: "linux", GOARCH: ""},
 		{GOOS: "", GOARCH: "amd64"},
 	}
+
 	err := ValidateConfigStruct(cfg)
 	if err == nil {
 		t.Fatal("expected error for incomplete release targets, got nil")
 	}
+
 	msg := err.Error()
 	for _, want := range []string{"release.targets[0].goarch", "release.targets[1].goos"} {
 		if !strings.Contains(msg, want) {
@@ -188,6 +195,7 @@ func TestLoadFromFile_FailsFastOnTypeMismatch(t *testing.T) {
 	if err == nil {
 		t.Fatal("expected error for numeric defaultMode, got nil")
 	}
+
 	if !strings.Contains(err.Error(), "type mismatch") {
 		t.Errorf("expected shape-layer error, got: %v", err)
 	}
@@ -203,6 +211,7 @@ func TestLoadFromFile_FailsFastOnNegativeRefresh(t *testing.T) {
 	if err == nil {
 		t.Fatal("expected error for negative dashboardRefresh, got nil")
 	}
+
 	if !strings.Contains(err.Error(), "dashboardRefresh") {
 		t.Errorf("expected struct-layer error naming dashboardRefresh, got: %v", err)
 	}

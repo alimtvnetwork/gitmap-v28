@@ -22,9 +22,11 @@ func TestApplyCommitDryRunShortCircuitsAllSideEffects(t *testing.T) {
 	if err != nil {
 		t.Fatalf("ApplyCommit dry-run: %v", err)
 	}
+
 	if res.NewSha != "" {
 		t.Fatalf("dry-run returned NewSha %q, want empty", res.NewSha)
 	}
+
 	if calls != 0 {
 		t.Fatalf("dry-run made %d git calls, want 0", calls)
 	}
@@ -38,18 +40,22 @@ func TestApplyCommitWiresFullPipelineThroughHooks(t *testing.T) {
 	restore := SetTestHooks(
 		func(_, sub string, args ...string) (string, error) {
 			calls = append(calls, sub+":"+strings.Join(args, ","))
+
 			return cannedTextResponse(sub)
 		},
 		func(_, sub string, _ ...string) ([]byte, error) {
 			calls = append(calls, sub+":bytes")
+
 			return []byte("file-contents"), nil
 		},
 		func(_ string, _ []string, args ...string) (string, error) {
 			calls = append(calls, args[0])
+
 			return "newshaXYZ", nil
 		},
 		func(_ string, _ []byte) (string, error) {
 			calls = append(calls, "hash-object")
+
 			return "blobsha", nil
 		},
 	)
@@ -58,9 +64,11 @@ func TestApplyCommitWiresFullPipelineThroughHooks(t *testing.T) {
 	if err != nil {
 		t.Fatalf("ApplyCommit: %v", err)
 	}
+
 	if res.NewSha != "newshaXYZ" {
 		t.Fatalf("NewSha = %q, want newshaXYZ", res.NewSha)
 	}
+
 	got := strings.Join(calls, "|")
 	for _, want := range []string{"cat-file:bytes", "hash-object", "update-index", "write-tree", "rev-parse", "commit-tree", "update-ref"} {
 		if !strings.Contains(got, want) {
@@ -92,6 +100,7 @@ func cannedTextResponse(sub string) (string, error) {
 	case "rev-parse":
 		return "parentshaABC", nil
 	}
+
 	return "", nil
 }
 
@@ -101,12 +110,14 @@ func contains(haystack []string, needle string) bool {
 			return true
 		}
 	}
+
 	return false
 }
 
 func samplePlan() Plan {
 	at, _ := time.Parse(time.RFC3339, "2024-03-04T05:06:07+02:00")
 	ct, _ := time.Parse(time.RFC3339, "2024-03-04T05:06:08+02:00")
+
 	return Plan{
 		SourceRepoDir: "/src",
 		TargetRepoDir: "/tgt",

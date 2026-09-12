@@ -19,6 +19,7 @@ func coreDispatchEntries() []dispatchEntry {
 	entries = append(entries, coreVisibilityActionEntries()...)
 	entries = append(entries, coreVisibilityHistoryEntries()...)
 	entries = append(entries, coreClusterEntries()...)
+
 	return entries
 }
 
@@ -102,12 +103,15 @@ func coreClusterEntries() []dispatchEntry {
 func dispatchServersClients(args []string) {
 	if len(args) == 0 {
 		runClusterCommand(cluster.ServersClients, args)
+
 		return
 	}
+
 	subCmd, rest := args[0], args[1:]
 	if dispatchServersClientsPathCmd(subCmd, rest) || dispatchClusterReadWrite(cluster.ServersClients, subCmd, rest) || dispatchClusterMutate(cluster.ServersClients, subCmd, rest) {
 		return
 	}
+
 	runClusterCommand(cluster.ServersClients, args)
 }
 
@@ -115,9 +119,11 @@ func dispatchServersClientsPathCmd(subCmd string, rest []string) bool {
 	switch subCmd {
 	case "set-default-path":
 		runClusterSetDefaultPath(cluster.ServersClients, rest)
+
 		return true
 	case "set-path-alias":
 		runClusterSetPathAlias(cluster.ServersClients, rest)
+
 		return true
 	default:
 		return false
@@ -139,6 +145,7 @@ func dispatchClusterReadWrite(
 	default:
 		return false
 	}
+
 	return true
 }
 
@@ -153,18 +160,22 @@ func dispatchClusterMutate(selector cluster.TargetSelectorType, subCmd string, r
 	default:
 		return false
 	}
+
 	return true
 }
 
 func dispatchClients(args []string) {
 	if len(args) == 0 {
 		runClusterCommand(cluster.ClientsOnly, args)
+
 		return
 	}
+
 	subCmd, rest := args[0], args[1:]
 	if dispatchClusterReadWrite(cluster.ClientsOnly, subCmd, rest) || dispatchClusterMutate(cluster.ClientsOnly, subCmd, rest) {
 		return
 	}
+
 	runClusterCommand(cluster.ClientsOnly, args)
 }
 
@@ -172,10 +183,13 @@ func dispatchServers(args []string) {
 	if len(args) == 0 {
 		return
 	}
+
 	if args[0] == "ls" {
 		runClusterLS(cluster.ServersOnly, args[1:])
+
 		return
 	}
+
 	dispatchServersUpdate(args[0], args[1:])
 }
 

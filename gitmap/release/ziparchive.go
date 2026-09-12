@@ -161,16 +161,19 @@ func logZipGroupItems(name string, items []model.ZipGroupItem) {
 	if !verbose.IsEnabled() {
 		return
 	}
+
 	verbose.Get().Log("zip-group %q: %d item(s)", name, len(items))
 	for _, item := range items {
 		p := item.FullPath
 		if len(p) == 0 {
 			p = item.Path
 		}
+
 		kind := "file"
 		if item.IsFolder {
 			kind = "folder"
 		}
+
 		verbose.Get().Log("  → %s (%s)", p, kind)
 	}
 }

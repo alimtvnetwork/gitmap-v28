@@ -91,6 +91,7 @@ func enqueueJobs(records []model.ScanRecord, targetDir string, cache *CloneCache
 
 			continue
 		}
+
 		jobs <- cloneJob{rec: rec, dest: dest}
 	}
 }
@@ -108,6 +109,7 @@ func collectOutcomes(records []model.ScanRecord, targetDir string, safePull bool
 
 			continue
 		}
+
 		trackResult(progress, o.result, o.rec, targetDir, safePull)
 		summary = updateSummary(summary, o.result)
 		if o.result.IsSuccess {

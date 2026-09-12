@@ -122,6 +122,7 @@ func NewFailureWithType[T any](
 		apperror.SeverityError,
 		nil,
 	)
+
 	return FailureResult[T](appErr)
 }
 
@@ -130,8 +131,10 @@ func NewFailureWithType[T any](
 func (r Result[T]) HandleError() {
 	if r.Err != nil {
 		r.Err.HandleError()
+
 		return
 	}
+
 	appErr, ok := r.AppError.(*apperror.AppError)
 	if ok && appErr != nil {
 		appErr.HandleError()

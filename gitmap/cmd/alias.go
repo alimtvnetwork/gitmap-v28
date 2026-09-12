@@ -15,6 +15,7 @@ func runAlias(args []string) *apperror.AppError {
 
 		return nil
 	}
+
 	return dispatchAlias(args[0], args[1:])
 }
 
@@ -22,22 +23,31 @@ func runAlias(args []string) *apperror.AppError {
 func dispatchAlias(sub string, args []string) *apperror.AppError {
 	if sub == constants.SubCmdAliasSet {
 		runAliasSet(args)
+
 		return nil
 	}
+
 	if sub == constants.SubCmdAliasRm {
 		runAliasRemove(args)
+
 		return nil
 	}
+
 	if sub == constants.SubCmdAliasList {
 		runAliasList()
+
 		return nil
 	}
+
 	if sub == constants.SubCmdAliasShow {
 		runAliasShow(args)
+
 		return nil
 	}
+
 	if sub == constants.SubCmdAliasSug {
 		runAliasSuggest(args)
+
 		return nil
 	}
 

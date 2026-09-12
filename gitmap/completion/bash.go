@@ -11,6 +11,7 @@ func generateBash() string {
 
     if [[ ${COMP_CWORD} -eq 1 ]]; then
         COMPREPLY=($(compgen -W "$(gitmap completion --list-commands)" -- "$cur"))
+
         return
     fi
 
@@ -117,6 +118,7 @@ func generateBash() string {
             ;;
     esac
 }
+
 complete -F _gitmap_completions gitmap
 `
 }

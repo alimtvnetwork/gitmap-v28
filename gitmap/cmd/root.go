@@ -25,6 +25,7 @@ func Run() {
 	if len(os.Args) < 2 {
 		PrintBinaryLocations()
 		printUsage()
+
 		return
 	}
 
@@ -61,6 +62,7 @@ func Run() {
 	if len(os.Args) < 2 {
 		PrintBinaryLocations()
 		printUsage()
+
 		return
 	}
 
@@ -124,6 +126,7 @@ func handleGlobalError(command string, err error) {
 	if err == nil {
 		return
 	}
+
 	appErr, isAppErr := err.(*apperror.AppError)
 	if isAppErr && appErr == nil {
 		return
@@ -186,6 +189,7 @@ func persistLastError(command string, err error) {
 	if err == nil {
 		return
 	}
+
 	appErr, isAppErr := err.(*apperror.AppError)
 	if isAppErr && appErr == nil {
 		return
@@ -216,6 +220,7 @@ func populateAppErrorReport(report map[string]any, appErr *apperror.AppError) {
 	if appErr == nil {
 		return
 	}
+
 	report["code"] = appErr.Code
 	report["type"] = string(appErr.Type)
 	report["severity"] = string(appErr.Severity)
@@ -239,6 +244,7 @@ func getRootCause(err error) error {
 		if !isAppErr || appErr == nil || appErr.Cause == nil {
 			return err
 		}
+
 		err = appErr.Cause
 	}
 }
@@ -254,10 +260,12 @@ func handleDispatchResult(
 	if !found {
 		return false
 	}
+
 	finishCommandAudit(shouldAudit, auditID, auditStart, 0, "", 0)
 	if err != nil {
 		handleGlobalError(command, err)
 	}
+
 	return true
 }
 
@@ -347,6 +355,7 @@ func dispatch(command string) {
 	if looksLikeURLToken(command) {
 		msg = fmt.Sprintf(constants.ErrUnknownCommandURLHint, command)
 	}
+
 	printUsage()
 	dispatchErr := apperror.NewWithDetails(
 		"cmd.dispatch",
@@ -369,15 +378,18 @@ func isCloneRewriteRequired(args []string) bool {
 	if len(args) == 0 {
 		return false
 	}
+
 	// Never rewrite if the first token is already a known subcommand.
 	if !looksLikeFlag(args[0]) && !looksLikeURLToken(args[0]) {
 		return false
 	}
+
 	for _, a := range args {
 		if looksLikeURLToken(a) {
 			return true
 		}
 	}
+
 	return false
 }
 
@@ -395,6 +407,7 @@ func looksLikeURLToken(s string) bool {
 			return true
 		}
 	}
+
 	return false
 }
 
@@ -410,6 +423,7 @@ func splitOnComma(s string) []string {
 			start = i + 1
 		}
 	}
+
 	return out
 }
 
@@ -418,6 +432,7 @@ func appendTrimmedPiece(out []string, s string, start, i int) []string {
 	if len(piece) > 0 {
 		return append(out, piece)
 	}
+
 	return out
 }
 
@@ -428,9 +443,11 @@ func trimSpaces(s string) string {
 	for i < j && isSpace(s[i]) {
 		i++
 	}
+
 	for j > i && isSpace(s[j-1]) {
 		j--
 	}
+
 	return s[i:j]
 }
 
@@ -443,15 +460,19 @@ func dispatchIP(ctx context.Context, args []string, parent *cobra.Command) error
 	if len(args) == 0 {
 		return nil
 	}
+
 	switch args[0] {
 	case "ip":
 		// IPCmd expects to parse args itself, so let Cobra do its thing.
 		IPCmd.SetArgs(args[1:])
+
 		return IPCmd.ExecuteContext(ctx)
 	case "ip-change":
 		IPChangeCmd.SetArgs(args[1:])
+
 		return IPChangeCmd.ExecuteContext(ctx)
 	}
+
 	return nil
 }
 
@@ -459,6 +480,7 @@ func runSJ(args []string) error {
 	if err := dispatchSJ(context.Background(), os.Args[1:], nil); err != nil {
 		cliexit.HandleError(err, 1)
 	}
+
 	return nil
 }
 
@@ -470,6 +492,7 @@ func dispatchSJ(ctx context.Context, args []string, root *cobra.Command) error {
 	cleanArgs := stripLeadingSJCommand(args)
 	if len(cleanArgs) == 0 {
 		SSHJoinCmd.SetArgs([]string{})
+
 		return SSHJoinCmd.ExecuteContext(ctx)
 	}
 
@@ -498,6 +521,7 @@ func routeSJSubcommand(ctx context.Context, args []string, root *cobra.Command) 
 		return runSJAddAuth(root, args[1:], ctx)
 	default:
 		SSHJoinCmd.SetArgs(args)
+
 		return SSHJoinCmd.ExecuteContext(ctx)
 	}
 }
@@ -511,15 +535,19 @@ func dispatchExtraCommand(
 	switch command {
 	case "ip", "ip-change":
 		executeAndAudit(dispatchIP, shouldAudit, auditID, auditStart)
+
 		return true
 	case "agy", "ag", "antigravity":
 		executeAndAudit(dispatchAgy, shouldAudit, auditID, auditStart)
+
 		return true
 	case "sj", "ssh-join", "ssh-joined", "ssh-joiner":
 		executeAndAudit(dispatchSJ, shouldAudit, auditID, auditStart)
+
 		return true
 	case "prompt", "prompts", "pmt":
 		executeAndAudit(dispatchPrompt, shouldAudit, auditID, auditStart)
+
 		return true
 	default:
 		return false
@@ -535,5 +563,6 @@ func executeAndAudit(
 	if err != nil {
 		cliexit.HandleError(err, 1)
 	}
+
 	finishCommandAudit(shouldAudit, auditID, auditStart, 0, "", 0)
 }

@@ -54,6 +54,7 @@ func parseSingleCommitLine(line string) (model.CommitEntry, bool) {
 	if line == "" {
 		return model.CommitEntry{}, false
 	}
+
 	parts := strings.SplitN(line, " ", 2)
 	msg := ""
 	if len(parts) > 1 {
@@ -79,6 +80,7 @@ func detectPreviousAuthor(commits []model.CommitEntry) (string, string) {
 	if len(commits) == 0 {
 		return "", ""
 	}
+
 	sha := commits[0].SHA
 
 	return getGitAuthorField(sha, "--format=%an"), getGitAuthorField(sha, "--format=%ae")

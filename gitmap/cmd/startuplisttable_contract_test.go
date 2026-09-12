@@ -48,6 +48,7 @@ func TestStartupListTableContract_HeaderIncludesDir(t *testing.T) {
 	if !strings.HasPrefix(first, wantPrefix) {
 		t.Errorf("header prefix drift\n  want prefix: %q\n  got line:    %q", wantPrefix, first)
 	}
+
 	if !strings.Contains(first, "/home/user/.config/autostart") {
 		t.Errorf("header missing scanned dir, got: %q", first)
 	}
@@ -76,15 +77,18 @@ func TestStartupListTableContract_RowShape(t *testing.T) {
 		{Name: "gitmap-b", Path: "/p/b.desktop", Exec: "/bin/b --flag"},
 		{Name: "gitmap-c", Path: "/p/c.desktop", Exec: ""},
 	}
+
 	got := mustRenderTable(t, "/x", entries)
 	rows := matchingRows(got, "  • ")
 	if len(rows) != len(entries) {
 		t.Fatalf("row count: want %d, got %d\n  output: %q", len(entries), len(rows), got)
 	}
+
 	for i, row := range rows {
 		if !strings.Contains(row, "  →  ") {
 			t.Errorf("row[%d] missing arrow separator: %q", i, row)
 		}
+
 		if !strings.Contains(row, entries[i].Name) {
 			t.Errorf("row[%d] missing name %q: %q", i, entries[i].Name, row)
 		}
@@ -116,6 +120,7 @@ func TestStartupListTableContract_FooterPinsCount(t *testing.T) {
 		{Name: "b", Path: "/p/b.desktop", Exec: "/bin/b"},
 		{Name: "c", Path: "/p/c.desktop", Exec: "/bin/c"},
 	}
+
 	got := mustRenderTable(t, "/x", entries)
 	const want = "Total: 3 entry(ies)."
 	if !strings.Contains(got, want) {
@@ -143,7 +148,6 @@ func mustRenderTable(t *testing.T, dir string, entries []startup.Entry) string {
 // line matters and trailing-content drift is covered elsewhere.
 func firstLine(s string) string {
 	if idx := strings.IndexByte(s, '\n'); idx >= 0 {
-
 		return s[:idx]
 	}
 

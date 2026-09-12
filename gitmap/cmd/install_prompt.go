@@ -8,9 +8,9 @@ import (
 
 func isInstallApproved(opts installOptions, installName string) bool {
 	if alreadyInstalled(installName) {
-
 		return false
 	}
+
 	if opts.Check {
 		fmt.Printf(constants.MsgInstallNotFound, installName)
 
@@ -36,9 +36,9 @@ func executeGenericInstall(opts installOptions) {
 	originalTool := opts.Tool
 	installName := resolveNppInstallName(opts.Tool)
 	if !isInstallApproved(opts, installName) {
-
 		return
 	}
+
 	runToolInstallation(opts, originalTool, installName)
 }
 
@@ -46,9 +46,9 @@ func alreadyInstalled(installName string) bool {
 	fmt.Printf(constants.MsgInstallChecking, installName)
 	existingVersion := detectInstalledVersion(installName)
 	if existingVersion == "" {
-
 		return false
 	}
+
 	fmt.Printf(constants.MsgInstallFound, installName, existingVersion)
 
 	return true
@@ -60,18 +60,19 @@ func announceInstallPlan(version, manager string) {
 	} else {
 		fmt.Print(constants.MsgInstallVersionLabel)
 	}
+
 	fmt.Printf(constants.MsgInstallManager, manager)
 }
 
 func confirmInstallIfNeeded(opts installOptions, installName, manager string) bool {
 	if opts.Yes || opts.DryRun {
-
 		return true
 	}
+
 	if confirmInstall(installName, opts.Version, manager) {
-
 		return true
 	}
+
 	fmt.Print(constants.MsgInstallAborted)
 
 	return false
@@ -92,6 +93,7 @@ func confirmInstall(tool, version, manager string) bool {
 	} else {
 		fmt.Printf(constants.MsgInstallPromptNoVer, tool, manager)
 	}
+
 	var answer string
 	fmt.Scanln(&answer)
 

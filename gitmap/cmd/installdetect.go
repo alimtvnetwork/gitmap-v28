@@ -17,6 +17,7 @@ func resolvePackageManager(override, tool string) string {
 	if pm == constants.PkgMgrApt && tool == constants.ToolVSCode && isCommandAvailable(constants.PkgMgrSnap) {
 		return constants.PkgMgrSnap
 	}
+
 	return pm
 }
 
@@ -25,6 +26,7 @@ func detectPackageManager() string {
 	if runtime.GOOS == constants.PlatformWindows {
 		return detectWindowsManager()
 	}
+
 	if runtime.GOOS == constants.PlatformDarwin {
 		return detectDarwinManager()
 	}
@@ -37,6 +39,7 @@ func detectWindowsManager() string {
 	if isCommandAvailable(constants.PkgMgrChocolatey) {
 		return constants.PkgMgrChocolatey
 	}
+
 	if isCommandAvailable(constants.PkgMgrWinget) {
 		return constants.PkgMgrWinget
 	}
@@ -59,6 +62,7 @@ func detectLinuxManager() string {
 	if osType == OSUbuntu || osType == OSDebian {
 		return constants.PkgMgrApt
 	}
+
 	if osType == OSFedora || osType == OSCentOS {
 		return constants.PkgMgrDnf
 	}
@@ -66,9 +70,11 @@ func detectLinuxManager() string {
 	if isCommandAvailable(constants.PkgMgrApt) {
 		return constants.PkgMgrApt
 	}
+
 	if isCommandAvailable(constants.PkgMgrDnf) {
 		return constants.PkgMgrDnf
 	}
+
 	if isCommandAvailable(constants.PkgMgrPacman) {
 		return constants.PkgMgrPacman
 	}

@@ -42,13 +42,16 @@ func rewriteFixRepoFileR(
 	if err != nil {
 		return 0, err
 	}
+
 	updated, count := applyAllTargetsR(string(original), base, current, targets, restrictNoVersion)
 	if count == 0 {
 		return 0, nil
 	}
+
 	if dryRun {
 		return count, nil
 	}
+
 	if err := os.WriteFile(fullPath, []byte(updated), 0o644); err != nil {
 		return 0, err
 	}
@@ -121,6 +124,7 @@ func scanBareBase(text, base, replacement string) (string, int) {
 			b.WriteString(text[pos:])
 			break
 		}
+
 		idx := pos + rel
 		b.WriteString(text[pos:idx])
 		end := idx + tlen
@@ -140,6 +144,7 @@ func writeBareBaseHit(b *strings.Builder, text string, start, end int,
 
 		return 1
 	}
+
 	b.WriteString(base)
 
 	return 0
@@ -152,6 +157,7 @@ func isBareBaseBoundary(text string, start, end int) bool {
 	if start > 0 && isBareBaseWordByte(text[start-1]) {
 		return false
 	}
+
 	if end < len(text) && isBareBaseWordByte(text[end]) {
 		return false
 	}
@@ -203,6 +209,7 @@ func rewriteToken(text, token, replacement string) (string, int) {
 			b.WriteString(text)
 			break
 		}
+
 		b.WriteString(text[:idx])
 		count += writeOneTokenHit(&b, text, idx, tlen, token, replacement)
 		text = text[idx+tlen:]
@@ -224,6 +231,7 @@ func writeOneTokenHit(b *strings.Builder, text string, idx, tlen int,
 
 		return 0
 	}
+
 	b.WriteString(replacement)
 
 	return 1

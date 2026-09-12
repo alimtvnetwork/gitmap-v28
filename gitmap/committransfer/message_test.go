@@ -12,6 +12,7 @@ func TestCleanMessageDropPattern(t *testing.T) {
 	if res.Final != "" {
 		t.Fatalf("expected drop, got %q", res.Final)
 	}
+
 	if !strings.HasPrefix(res.Skipped, "drop-pattern") {
 		t.Fatalf("expected drop-pattern reason, got %q", res.Skipped)
 	}
@@ -22,10 +23,12 @@ func TestCleanMessageStripThenConventional(t *testing.T) {
 		StripPatterns: []string{`^\[WIP\]\s*`, `\s*\(#\d+\)$`},
 		Conventional:  true,
 	}
+
 	res := CleanMessage("[WIP] Add login form (#42)", "", policy, "abc123", time.Now())
 	if res.Skipped != "" {
 		t.Fatalf("unexpected skip: %q", res.Skipped)
 	}
+
 	if !strings.HasPrefix(res.Final, "feat: ") {
 		t.Fatalf("expected feat: prefix, got %q", res.Final)
 	}
@@ -46,10 +49,12 @@ func TestCleanMessageProvenanceFooter(t *testing.T) {
 		SourceDisplayName: "repo-A",
 		CommandName:       "commit-right",
 	}
+
 	res := CleanMessage("feat: add OAuth", "body line", policy, "a3f2c1d", when)
 	if !strings.Contains(res.Final, "gitmap-replay: from repo-A a3f2c1d") {
 		t.Fatalf("missing provenance footer: %q", res.Final)
 	}
+
 	if !strings.Contains(res.Final, "gitmap-replay-cmd: commit-right") {
 		t.Fatalf("missing cmd footer: %q", res.Final)
 	}
@@ -60,6 +65,7 @@ func TestAlreadyReplayedDetection(t *testing.T) {
 	if !AlreadyReplayed(log, "repo-A", "a3f2c1d") {
 		t.Fatal("expected match")
 	}
+
 	if AlreadyReplayed(log, "repo-A", "deadbee") {
 		t.Fatal("false positive on different sha")
 	}
@@ -71,9 +77,11 @@ func TestBuildReplayedSet(t *testing.T) {
 	if len(set) != 2 {
 		t.Fatalf("expected 2 entries, got %d: %+v", len(set), set)
 	}
+
 	if _, ok := set["repo-A a3f2c1d"]; !ok {
 		t.Fatal("missing repo-A a3f2c1d")
 	}
+
 	if _, ok := set["repo-B b4e5g6h"]; !ok {
 		t.Fatal("missing repo-B b4e5g6h")
 	}
@@ -83,12 +91,15 @@ func TestSetHasReplayed(t *testing.T) {
 	set := map[string]struct{}{
 		"repo-A a3f2c1d": {},
 	}
+
 	if !SetHasReplayed(set, "repo-A", "a3f2c1d") {
 		t.Fatal("expected match")
 	}
+
 	if SetHasReplayed(set, "repo-A", "deadbee") {
 		t.Fatal("false positive on different sha")
 	}
+
 	if SetHasReplayed(set, "repo-B", "a3f2c1d") {
 		t.Fatal("false positive on different repo")
 	}

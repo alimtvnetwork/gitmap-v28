@@ -22,6 +22,7 @@ func runWorkDirShowDefault() error {
 	if errDB != nil {
 		return errDB
 	}
+
 	defer db.Close()
 
 	wd, err := db.GetDefaultWorkDir()
@@ -42,6 +43,7 @@ func runWorkDirPath() error {
 	if errDB != nil {
 		return errDB
 	}
+
 	defer db.Close()
 
 	wd, err := db.GetDefaultWorkDir()
@@ -71,6 +73,7 @@ func runWorkDirSetDefault(target string) error {
 	if errDB != nil {
 		return errDB
 	}
+
 	defer db.Close()
 
 	_, _ = db.EnsureWorkDir(absPath, filepath.Base(absPath), true)

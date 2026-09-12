@@ -33,7 +33,6 @@ func formatProfileTreeNode(tool string, isLast bool, installed map[string]string
 
 func resolveTreeConnector(isLast bool) string {
 	if isLast {
-
 		return constants.ColorCyan + constants.TreeCorner + constants.ColorReset
 	}
 
@@ -43,7 +42,6 @@ func resolveTreeConnector(isLast bool) string {
 func resolveTreeNodeStatus(tool string, installed map[string]string) (string, string) {
 	status, ver := resolveToolStatus(tool, installed)
 	if status == constants.StatusInstalled {
-
 		return installedDot, ver
 	}
 

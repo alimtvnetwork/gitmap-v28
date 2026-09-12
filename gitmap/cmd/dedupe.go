@@ -28,24 +28,29 @@ func runDedupe(args []string) error {
 	if err := fs.Parse(args); err != nil {
 		cliexit.HandleError(nil, 2)
 	}
+
 	fmtKind, err := parseHygieneFormat(*format)
 	if err != nil {
 		cliexit.Fail("dedupe", "parse-format", *format, err, 2)
 	}
+
 	repos := scanForReposParallel(*root)
 	entries := mapReposParallel(repos, func(r string) (headTreeEntry, bool) {
 		sha, ok := headTreeSHA(r)
 		if !ok {
 			return headTreeEntry{}, false
 		}
+
 		return headTreeEntry{path: r, sha: sha}, true
 	})
 	groups := map[string][]string{}
 	for _, e := range entries {
 		groups[e.sha] = append(groups[e.sha], e.path)
 	}
+
 	dupes := filterDuplicateGroups(groups)
 	emitDedupe(dupes, fmtKind)
+
 	return nil
 }
 
@@ -55,6 +60,7 @@ func headTreeSHA(dir string) (string, bool) {
 	if err != nil {
 		return "", false
 	}
+
 	s := strings.TrimSpace(string(out))
 
 	return s, s != ""
@@ -78,6 +84,7 @@ func emitDedupe(dupes map[string][]string, f hygieneFormat) {
 	for k := range dupes {
 		keys = append(keys, k)
 	}
+
 	sort.Strings(keys)
 	switch f {
 	case hygieneFormatJSON:
@@ -85,10 +92,12 @@ func emitDedupe(dupes map[string][]string, f hygieneFormat) {
 			Tree  string   `json:"tree"`
 			Paths []string `json:"paths"`
 		}
+
 		out := make([]group, 0, len(keys))
 		for _, k := range keys {
 			out = append(out, group{Tree: k, Paths: dupes[k]})
 		}
+
 		emitJSON(out)
 	case hygieneFormatCSV:
 		rows := [][]string{}
@@ -97,6 +106,7 @@ func emitDedupe(dupes map[string][]string, f hygieneFormat) {
 				rows = append(rows, []string{k, p})
 			}
 		}
+
 		emitCSV([]string{"tree_sha", "path"}, rows)
 	case hygieneFormatTable:
 		printDedupeReport(dupes)
@@ -112,10 +122,12 @@ func printDedupeReport(dupes map[string][]string) {
 
 		return
 	}
+
 	keys := make([]string, 0, len(dupes))
 	for k := range dupes {
 		keys = append(keys, k)
 	}
+
 	sort.Strings(keys)
 	fmt.Fprintf(os.Stdout, "\n  \033[36m%d duplicate group(s)\033[0m (identical HEAD tree)\n\n", len(dupes))
 	for _, k := range keys {
@@ -124,5 +136,6 @@ func printDedupeReport(dupes map[string][]string) {
 			fmt.Fprintf(os.Stdout, "    • %s\n", p)
 		}
 	}
+
 	fmt.Fprintln(os.Stdout, "")
 }

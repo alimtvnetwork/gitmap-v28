@@ -66,6 +66,7 @@ func Execute(plan Plan, cwd string, progress io.Writer) []Result {
 	if len(cwd) == 0 && err == nil {
 		cwd = wd
 	}
+
 	out := make([]Result, 0, len(plan.Rows))
 	for i, r := range plan.Rows {
 		res := executeRow(r, plan, cwd)
@@ -88,11 +89,13 @@ func executeRow(r Row, plan Plan, cwd string) Result {
 	if plan.CoerceURL != nil {
 		url = plan.CoerceURL(url)
 	}
+
 	dest := r.RelativePath
 	absDest := dest
 	if !filepath.IsAbs(absDest) {
 		absDest = filepath.Join(cwd, dest)
 	}
+
 	base := Result{Row: r, URL: url, Dest: dest}
 	if len(url) == 0 {
 		base.Status = constants.CloneNowStatusFailed
@@ -101,11 +104,13 @@ func executeRow(r Row, plan Plan, cwd string) Result {
 
 		return base
 	}
+
 	state := inspectExistingRepo(absDest)
 	res := dispatchOnExists(r, url, absDest, cwd, plan.OnExists, state)
 	if plan.PersistURL != nil && res.Status == constants.CloneNowStatusOK {
 		plan.PersistURL(url)
 	}
+
 	res.Row = r
 	res.URL = url
 	res.Dest = dest
@@ -130,17 +135,21 @@ func runGitClone(r Row, url, dest, cwd string) (string, bool) {
 	if !filepath.IsAbs(absDest) {
 		absDest = filepath.Join(cwd, dest)
 	}
+
 	parent := filepath.Dir(absDest)
 	if err := os.MkdirAll(parent, constants.DirPermission); err != nil {
 		fmt.Fprintf(os.Stderr, constants.ErrCloneNowMkdirParent, parent, err)
+
 		return fmt.Sprintf(constants.MsgCloneNowMkdirParentFailFmt, err), false
 	}
+
 	args := buildGitArgs(r, url, dest)
 	cmd := exec.Command(constants.GitBin, args...)
 	cmd.Dir = cwd
 	if isSSHCloneURL(url) {
 		return runInteractiveGitClone(cmd)
 	}
+
 	out, err := cmd.CombinedOutput()
 	if err != nil {
 		return trimGitError(string(out), err), false
@@ -157,6 +166,7 @@ func buildGitArgs(r Row, url, dest string) []string {
 	if len(r.Branch) > 0 {
 		args = append(args, constants.GitBranchFlag, r.Branch)
 	}
+
 	args = append(args, url, dest)
 
 	return args
@@ -171,9 +181,11 @@ func trimGitError(stderr string, err error) string {
 	if i := strings.LastIndex(last, "\n"); i >= 0 {
 		last = strings.TrimSpace(last[i+1:])
 	}
+
 	if len(last) == 0 {
 		last = err.Error()
 	}
+
 	if len(last) > constants.CloneNowErrTrimLimit {
 		last = last[:constants.CloneNowErrTrimLimit] + "..."
 	}
@@ -188,5 +200,6 @@ func writeProgress(w io.Writer, n, total int, res Result) {
 	if w == nil {
 		return
 	}
+
 	fmt.Fprintf(w, "  [%d/%d] %-7s %s -> %s\n", n, total, res.Status, res.URL, res.Dest)
 }

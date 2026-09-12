@@ -22,6 +22,7 @@ func TestNormalizeConfigTool(t *testing.T) {
 		{"u-torrent", "utorrent"},
 		{"all", "all"},
 	}
+
 	for _, tc := range cases {
 		got := normalizeConfigTool(tc.input)
 		if got != tc.want {
@@ -34,9 +35,11 @@ func TestResolveDefaultConfigFileName(t *testing.T) {
 	if got := resolveDefaultConfigFileName("qtorrent", "qtorrent"); got != "qtorrent.json" {
 		t.Errorf("expected qtorrent.json, got %s", got)
 	}
+
 	if got := resolveDefaultConfigFileName("uttorrent", "utorrent"); got != "uttorrent.json" {
 		t.Errorf("expected uttorrent.json, got %s", got)
 	}
+
 	if got := resolveDefaultConfigFileName("vscode", "vscode"); got != "vscode.json" {
 		t.Errorf("expected vscode.json, got %s", got)
 	}
@@ -50,15 +53,18 @@ func TestExportAndImportRoundtrip(t *testing.T) {
 	if err := writeBundleJSON(bundle, exportPath); err != nil {
 		t.Fatalf("failed to write bundle: %v", err)
 	}
+
 	loaded, loadErr := loadConfigBundle(exportPath)
 	if loadErr != nil {
 		t.Fatalf("failed to load bundle: %v", loadErr)
 	}
+
 	restoreDir := filepath.Join(tmpDir, "restored")
 	count, restoreErr := restoreBundleFiles(loaded, restoreDir)
 	if restoreErr != nil {
 		t.Fatalf("failed to restore files: %v", restoreErr)
 	}
+
 	if count != len(files) {
 		t.Errorf("expected %d restored files, got %d", len(files), count)
 	}
@@ -69,6 +75,7 @@ func TestExportAllToolConfigs(t *testing.T) {
 	if err := exportAllToolConfigs(tmpDir); err != nil {
 		t.Fatalf("exportAllToolConfigs failed: %v", err)
 	}
+
 	expectedFiles := []string{"vscode.json", "qtorrent.json", "utorrent.json"}
 	for _, f := range expectedFiles {
 		fullPath := filepath.Join(tmpDir, f)
@@ -82,6 +89,7 @@ func TestConfigCLICalls(t *testing.T) {
 	if err := runExportConfig([]string{"--help"}); err != nil {
 		t.Errorf("export-config help returned error: %v", err)
 	}
+
 	if err := runImportConfig([]string{"--help"}); err != nil {
 		t.Errorf("import-config help returned error: %v", err)
 	}
@@ -102,6 +110,7 @@ func TestBase64BinaryDecodeRoundtrip(t *testing.T) {
 		Encoding: "base64",
 		Content:  "ZDRpZDFleQ==",
 	}
+
 	bytes, err := decodeConfigFileBytes(payload)
 	if err != nil || len(bytes) == 0 {
 		t.Fatalf("failed to decode base64 payload: %v", err)
@@ -121,6 +130,7 @@ func TestImportAllToolConfigs(t *testing.T) {
 	if err := exportAllToolConfigs(tmpDir); err != nil {
 		t.Fatalf("exportAllToolConfigs failed: %v", err)
 	}
+
 	if err := importAllToolConfigs(tmpDir); err != nil {
 		t.Fatalf("importAllToolConfigs failed: %v", err)
 	}

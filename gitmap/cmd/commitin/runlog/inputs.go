@@ -24,6 +24,7 @@ func InsertInputRepo(
 	if err != nil {
 		return 0, fmt.Errorf("runlog: lookup InputKind %q: %w", kind, err)
 	}
+
 	res, err := db.Exec(sqlInsertInputRepo, runID, orderIndex, originalRef, resolvedPath, kindID)
 	if err != nil {
 		return 0, fmt.Errorf("runlog: insert InputRepo: %w", err)
@@ -60,6 +61,7 @@ func executeCommitInsertTx(tx *dbengine.TxWrapper, inputRepoID int64, c SourceCo
 	if err != nil {
 		return 0, err
 	}
+
 	if err := insertSourceFilesTx(tx, id, c.Files); err != nil {
 		return 0, err
 	}

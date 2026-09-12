@@ -18,6 +18,7 @@ func TestApplyDefaultBranchFallback_EmptyFallbackIsNoop(t *testing.T) {
 		{Branch: "", BranchSource: gitutil.BranchSourceUnknown},
 		{Branch: "feat-x", BranchSource: gitutil.BranchSourceHEAD},
 	}
+
 	out := applyDefaultBranchFallback(in, "")
 	if &out[0] != &in[0] {
 		t.Fatalf("empty fallback must return the same slice header (no copy)")
@@ -40,24 +41,29 @@ func TestApplyDefaultBranchFallback_RewritesUntrustedRows(t *testing.T) {
 		{"HEAD with literal HEAD branch", model.ScanRecord{Branch: "HEAD", BranchSource: gitutil.BranchSourceHEAD}},
 		{"HEAD with empty branch", model.ScanRecord{Branch: "", BranchSource: gitutil.BranchSourceHEAD}},
 	}
+
 	for _, tc := range cases {
 		t.Run(tc.name, func(t *testing.T) {
 			out := applyDefaultBranchFallback([]model.ScanRecord{tc.rec}, "trunk")
 			if len(out) != 1 {
 				t.Fatalf("expected 1 record, got %d", len(out))
 			}
+
 			if out[0].Branch != "trunk" {
 				t.Errorf("Branch: want %q, got %q", "trunk", out[0].Branch)
 			}
+
 			if out[0].BranchSource != gitutil.BranchSourceDefault {
 				t.Errorf("BranchSource: want %q, got %q",
 					gitutil.BranchSourceDefault, out[0].BranchSource)
 			}
+
 			// And the strategy now picks -b trunk, closing the loop.
 			strategy := pickCloneStrategy(out[0])
 			if !strategy.useBranch || strategy.branch != "trunk" {
 				t.Errorf("strategy after fallback: want useBranch=true branch=trunk, got %+v", strategy)
 			}
+
 			// Breadcrumb must be present so audits can tell what happened.
 			if !strings.Contains(out[0].Notes, "default-branch fallback applied: trunk") {
 				t.Errorf("Notes missing breadcrumb: %q", out[0].Notes)
@@ -75,15 +81,18 @@ func TestApplyDefaultBranchFallback_LeavesTrustedRowsUntouched(t *testing.T) {
 		{Branch: "develop", BranchSource: gitutil.BranchSourceRemoteTracking},
 		{Branch: "release", BranchSource: gitutil.BranchSourceDefault},
 	}
+
 	out := applyDefaultBranchFallback(in, "trunk")
 	for i, rec := range out {
 		if rec.Branch != in[i].Branch {
 			t.Errorf("[%d] trusted Branch mutated: %q → %q", i, in[i].Branch, rec.Branch)
 		}
+
 		if rec.BranchSource != in[i].BranchSource {
 			t.Errorf("[%d] trusted BranchSource mutated: %q → %q",
 				i, in[i].BranchSource, rec.BranchSource)
 		}
+
 		if rec.Notes != in[i].Notes {
 			t.Errorf("[%d] trusted Notes mutated: %q → %q", i, in[i].Notes, rec.Notes)
 		}
@@ -98,6 +107,7 @@ func TestApplyDefaultBranchFallback_DoesNotMutateInputSlice(t *testing.T) {
 	in := []model.ScanRecord{
 		{Branch: "", BranchSource: gitutil.BranchSourceUnknown, Notes: "orig"},
 	}
+
 	_ = applyDefaultBranchFallback(in, "trunk")
 	if in[0].Branch != "" || in[0].BranchSource != gitutil.BranchSourceUnknown || in[0].Notes != "orig" {
 		t.Fatalf("input slice mutated: %+v", in[0])

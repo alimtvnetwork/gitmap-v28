@@ -33,6 +33,7 @@ func winHasRootCascade(cmds [][]string, root, exe string) bool {
 		{"reg", "add", root, "/v", "SubCommands", "/d", "", "/f"},
 		{"reg", "add", root, "/v", "Icon", "/d", exe + ",0", "/f"},
 	}
+
 	for _, w := range want {
 		if !winContainsCmd(cmds, w) {
 			return false
@@ -82,6 +83,7 @@ func countCtxLeaves() int {
 
 			continue
 		}
+
 		n += len(e.Children)
 	}
 
@@ -116,6 +118,7 @@ func TestCtxWindowsExtendedFlagOnlyOnExtended(t *testing.T) {
 			t.Errorf("unexpected Extended write on key %q (segment %q)", key, seg)
 		}
 	}
+
 	if len(gotExtKeys) != len(wantExtSlugs)*2 {
 		t.Errorf("Extended writes = %d, want %d (=%d Extended leaves × 2 roots)",
 			len(gotExtKeys), len(wantExtSlugs)*2, len(wantExtSlugs))
@@ -149,7 +152,6 @@ func lastPathSegment(p string) string {
 func TestCtxWindowsCommandBodyMatchesMode(t *testing.T) {
 	exe := fakeGitmapExe(t)
 	for _, l := range collectCtxLeaves(t) {
-
 		t.Run(l.Slug, func(t *testing.T) {
 			body := commandTemplate(ctxEntry{
 				KeyName: l.Slug, MUIVerb: l.Label, Args: l.Args,
@@ -212,6 +214,7 @@ func TestCtxWindowsExplainTogglesCommandBody(t *testing.T) {
 		if strings.Contains(offAll, marker) {
 			t.Errorf("explain OFF unexpectedly contains %q", marker)
 		}
+
 		if !strings.Contains(onAll, marker) {
 			t.Errorf("explain ON missing %q", marker)
 		}
@@ -224,6 +227,7 @@ func winAnnounceMarkers(leaves []ctxFlatLeaf, exe string) []string {
 		if l.Mode == constants.CtxModePrefill {
 			continue
 		}
+
 		out = append(out, "Write-Host '> "+l.resolvedTarget(exe)+" "+strings.Join(l.Args, " ")+"'")
 	}
 
@@ -248,6 +252,7 @@ func TestCtxWindowsUninstallTargetsBothRoots(t *testing.T) {
 		{"reg", "delete", constants.CtxRootKeyBackground, "/f"},
 		{"reg", "delete", constants.CtxRootKeyDirectory, "/f"},
 	}
+
 	// The uninstall command set is constructed inline in
 	// runUninstallCtxWindows; mirror it here so a refactor that drops a
 	// root or forgets /f is caught.
@@ -255,9 +260,11 @@ func TestCtxWindowsUninstallTargetsBothRoots(t *testing.T) {
 		{"reg", "delete", constants.CtxRootKeyBackground, "/f"},
 		{"reg", "delete", constants.CtxRootKeyDirectory, "/f"},
 	}
+
 	if !reflect.DeepEqual(want, got) {
 		t.Fatalf("uninstall command set drifted: %+v", got)
 	}
+
 	for _, c := range want {
 		if c[len(c)-1] != "/f" {
 			t.Errorf("uninstall missing /f: %v", c)

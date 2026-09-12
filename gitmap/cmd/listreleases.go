@@ -34,6 +34,7 @@ func runListReleases(args []string) error {
 	}
 
 	printReleasesTerminal(releases)
+
 	return nil
 }
 
@@ -139,6 +140,7 @@ func printReleaseRow(r model.ReleaseRecord) {
 	if r.IsDraft {
 		draft = constants.MsgYes
 	}
+
 	latest := constants.MsgNo
 	if r.IsLatest {
 		latest = constants.MsgYes

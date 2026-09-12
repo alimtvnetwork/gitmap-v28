@@ -20,6 +20,7 @@ func applyCheckoutDefault(plan *clonefrom.Plan, globalDefault string) {
 	if len(globalDefault) == 0 {
 		return
 	}
+
 	for i := range plan.Rows {
 		if len(plan.Rows[i].Checkout) == 0 {
 			plan.Rows[i].Checkout = globalDefault
@@ -33,12 +34,14 @@ func validateCheckoutFlag(v string) {
 	if len(v) == 0 {
 		return
 	}
+
 	switch v {
 	case constants.CloneFromCheckoutAuto,
 		constants.CloneFromCheckoutSkip,
 		constants.CloneFromCheckoutForce:
 		return
 	}
+
 	fmt.Fprintf(os.Stderr, constants.MsgCloneFromBadCheckoutFlag+"\n", v)
 	cliexit.HandleError(nil, 2)
 }

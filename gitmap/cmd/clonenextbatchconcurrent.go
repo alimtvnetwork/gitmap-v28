@@ -17,6 +17,7 @@ func normalizeBatchWorkers(requested, jobs int) int {
 	if requested < 1 {
 		return 1
 	}
+
 	if requested > jobs && jobs > 0 {
 		return jobs
 	}
@@ -92,6 +93,7 @@ func enqueueBatchJobs(repos []string, jobs chan<- indexedBatchJob) {
 	for i, r := range repos {
 		jobs <- indexedBatchJob{idx: i, path: r}
 	}
+
 	close(jobs)
 }
 

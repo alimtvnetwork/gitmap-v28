@@ -25,11 +25,13 @@ func performDbReset() error {
 	if err != nil {
 		return apperror.WrapSimple(err, "E9001")
 	}
+
 	defer mainDb.Close()
 
 	if resetErr := mainDb.Reset(); resetErr != nil {
 		return apperror.WrapSimple(resetErr, "E9002")
 	}
+
 	removedSplit := clearSplitDbFiles()
 
 	fmt.Printf("%s✓ Main database reset: %s%s\n", constants.ColorGreen, store.DefaultDBPath(), constants.ColorReset)
@@ -47,6 +49,7 @@ func clearSplitDbFiles() int {
 		if err != nil {
 			continue
 		}
+
 		for _, e := range entries {
 			count += removeSingleSplitEntry(dir, e)
 		}
@@ -59,6 +62,7 @@ func removeSingleSplitEntry(dir string, e os.DirEntry) int {
 	if e.IsDir() {
 		return 0
 	}
+
 	target := dir + string(os.PathSeparator) + e.Name()
 	if rmErr := os.Remove(target); rmErr == nil {
 		return 1

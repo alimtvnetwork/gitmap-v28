@@ -22,21 +22,26 @@ func ClearOtherDefaults(workspaceRoot, sourceRepoPath, keepName string) error {
 	if errors.Is(err, os.ErrNotExist) {
 		return nil
 	}
+
 	if err != nil {
 		return fmt.Errorf("read profiles dir: %w", err)
 	}
+
 	for _, e := range entries {
 		if e.IsDir() || filepath.Ext(e.Name()) != constants.CommitInProfileFileExt {
 			continue
 		}
+
 		name := e.Name()[:len(e.Name())-len(constants.CommitInProfileFileExt)]
 		if name == keepName {
 			continue
 		}
+
 		if err := clearOneDefault(workspaceRoot, name, sourceRepoPath); err != nil {
 			return err
 		}
 	}
+
 	return nil
 }
 
@@ -47,9 +52,12 @@ func clearOneDefault(workspaceRoot, name, sourceRepoPath string) error {
 	if err != nil {
 		return nil
 	}
+
 	if !p.IsDefault || p.SourceRepoPath != sourceRepoPath {
 		return nil
 	}
+
 	p.IsDefault = false
+
 	return SaveToDisk(workspaceRoot, p, true)
 }

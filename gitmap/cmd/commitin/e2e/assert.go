@@ -29,9 +29,11 @@ func (r *Repo) LogFirstParent(t *testing.T) []CommitNode {
 	if err != nil && strings.Contains(err.Error(), "exit status 128") {
 		return nil
 	}
+
 	if err != nil {
 		t.Fatalf("git log: %v", err)
 	}
+
 	return parseLogLines(string(out))
 }
 
@@ -54,6 +56,7 @@ func (r *Repo) AssertHasSubject(t *testing.T, subject string) {
 			return
 		}
 	}
+
 	t.Fatalf("no commit with subject %q on HEAD first-parent", subject)
 }
 
@@ -64,16 +67,19 @@ func parseLogLines(raw string) []CommitNode {
 	if len(lines) == 1 && lines[0] == "" {
 		return nil
 	}
+
 	out := make([]CommitNode, 0, len(lines))
 	for _, ln := range lines {
 		parts := strings.SplitN(ln, "\t", 6)
 		if len(parts) < 6 {
 			continue
 		}
+
 		out = append(out, CommitNode{
 			Sha: parts[0], AuthorName: parts[1], AuthorEmail: parts[2],
 			AuthorDate: parts[3], CommitDate: parts[4], Subject: parts[5],
 		})
 	}
+
 	return out
 }

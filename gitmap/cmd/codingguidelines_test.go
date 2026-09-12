@@ -25,6 +25,7 @@ func assertCGBanners(t *testing.T, stderr string) {
 	if !hasRunning {
 		t.Fatalf("stderr missing running banner: %q", stderr)
 	}
+
 	hasDone := strings.Contains(stderr, "OK Coding guidelines")
 	if !hasDone {
 		t.Fatalf("stderr missing done banner: %q", stderr)
@@ -47,6 +48,7 @@ func TestRunCodingGuidelinesInstall_SuccessViaFakeRunner(t *testing.T) {
 	if err := RunCodingGuidelinesInstall(opts); err != nil {
 		t.Fatalf("expected success, got err=%v; stderr=%q", err, stderr.String())
 	}
+
 	assertCGBanners(t, stderr.String())
 }
 
@@ -56,6 +58,7 @@ func assertCGMissingShell(t *testing.T, err error, stderr string) {
 	if !isExpectedErr {
 		t.Fatalf("expected ErrCGShellNotFound, got %v", err)
 	}
+
 	hasUnixFallback := strings.Contains(stderr, "curl -fsSL")
 	hasWindowsFallback := strings.Contains(stderr, "irm ")
 	if !hasUnixFallback && !hasWindowsFallback {
@@ -76,6 +79,7 @@ func TestRunCodingGuidelinesInstall_ShellMissing(t *testing.T) {
 		},
 		Stderr: &stderr,
 	}
+
 	err := RunCodingGuidelinesInstall(opts)
 	assertCGMissingShell(t, err, stderr.String())
 }
@@ -85,10 +89,12 @@ func assertCGErrorAndBanner(t *testing.T, err error, stderr string) {
 	if err == nil {
 		t.Fatalf("expected non-nil error from failing installer")
 	}
+
 	hasContext := strings.Contains(err.Error(), "coding-guidelines install")
 	if !hasContext {
 		t.Fatalf("error missing context prefix: %v", err)
 	}
+
 	hasFailBanner := strings.Contains(stderr, "install failed")
 	if !hasFailBanner {
 		t.Fatalf("stderr missing failure banner: %q", stderr)
@@ -140,6 +146,7 @@ func TestCommitCodingGuidelinesNoCommitNoPushPrintsBothNotes(t *testing.T) {
 	if err != nil {
 		t.Fatalf("expected success, got %v", err)
 	}
+
 	assertCGNotes(t, stderr.String())
 }
 
@@ -160,10 +167,12 @@ func TestPatchCGWindowsScriptFile(t *testing.T) {
 	if !bytes.HasPrefix(data, []byte{0xef, 0xbb, 0xbf}) {
 		t.Fatalf("expected UTF-8 BOM prefix, got: %x", data[:min(len(data), 3)])
 	}
+
 	out := string(data)
 	if strings.Contains(out, "$oldFile:") || strings.Contains(out, "$destPath:") || strings.Contains(out, "$targetVersionFile:") {
 		t.Fatalf("unpatched syntax remains: %s", out)
 	}
+
 	if !strings.Contains(out, "${oldFile}:") || !strings.Contains(out, "${destPath}:") || !strings.Contains(out, "${targetVersionFile}:") {
 		t.Fatalf("expected patched variables with braces, got: %s", out)
 	}

@@ -20,6 +20,7 @@ func TestConvertURLToSSH(t *testing.T) {
 		{"not a url", "json", "json", false},
 		{"empty", "", "", false},
 	}
+
 	for _, tc := range cases {
 		t.Run(tc.name, func(t *testing.T) {
 			got, ok := ConvertURLToSSH(tc.in)
@@ -45,6 +46,7 @@ func TestConvertURLToHTTPS(t *testing.T) {
 		{"ssh scheme to https", "ssh://git@github.com:22/owner/repo.git", "https://github.com/owner/repo.git", true},
 		{"not a url", "csv", "csv", false},
 	}
+
 	for _, tc := range cases {
 		t.Run(tc.name, func(t *testing.T) {
 			got, ok := ConvertURLToHTTPS(tc.in)

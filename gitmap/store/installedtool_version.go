@@ -38,9 +38,11 @@ func CompareVersions(a, b InstalledTool) int {
 	if a.VersionMajor != b.VersionMajor {
 		return intCmp(a.VersionMajor, b.VersionMajor)
 	}
+
 	if a.VersionMinor != b.VersionMinor {
 		return intCmp(a.VersionMinor, b.VersionMinor)
 	}
+
 	if a.VersionPatch != b.VersionPatch {
 		return intCmp(a.VersionPatch, b.VersionPatch)
 	}
@@ -53,6 +55,7 @@ func intCmp(a, b int) int {
 	if a < b {
 		return -1
 	}
+
 	if a > b {
 		return 1
 	}

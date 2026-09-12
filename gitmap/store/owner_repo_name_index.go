@@ -61,6 +61,7 @@ func populateOwnerRepoIndexTx(
 	if appErr != nil {
 		return apperror.WrapSimple(appErr, "prepare insert owner repo index")
 	}
+
 	defer stmt.Close()
 
 	return insertOwnerRepoNames(stmt, provider, owner, names, fetchedAt)

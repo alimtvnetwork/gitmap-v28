@@ -24,6 +24,7 @@ func resolveKeyPath(keyPath string) (string, error) {
 	if keyPath != "" {
 		return keyPath, nil
 	}
+
 	homeDir, err := os.UserHomeDir()
 	if err != nil {
 		return "", err
@@ -39,10 +40,12 @@ func getLocalPublicKey(ctx context.Context, keyPath string, parse bool) (string,
 	if err != nil {
 		return "", apperror.New("getLocalPublicKey", "E_INTERNAL_ERROR", map[string]any{"err": err.Error()})
 	}
+
 	data, err := os.ReadFile(resolvedPath)
 	if os.IsNotExist(err) {
 		return "", apperror.New("getLocalPublicKey", "E_NOT_FOUND", map[string]any{"msg": "key missing", "path": resolvedPath})
 	}
+
 	if err != nil {
 		return "", apperror.New("getLocalPublicKey", "E_INTERNAL_ERROR", map[string]any{"err": err.Error(), "path": resolvedPath})
 	}
@@ -105,5 +108,6 @@ func runSJAddAuth(cmd *cobra.Command, args []string, ctx context.Context) error 
 	}
 
 	fmt.Printf("Added auth to %s\n", target.String())
+
 	return nil
 }

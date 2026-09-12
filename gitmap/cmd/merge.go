@@ -30,6 +30,7 @@ func runMerge(spec mergeSpec, args []string) error {
 	if err := movemerge.RunMerge(leftEP, rightEP, spec.direction, opts); err != nil {
 		cliexit.Fail(spec.cmd, "merge", leftEP.DisplayName+" <-> "+rightEP.DisplayName, err, 1)
 	}
+
 	return nil
 }
 
@@ -41,11 +42,13 @@ func parseMergeArgs(spec mergeSpec, args []string) (string, string, movemerge.Op
 	if err := fs.Parse(reorderFlagsBeforeArgs(args)); err != nil {
 		cliexit.HandleError(nil, 2)
 	}
+
 	rest := fs.Args()
 	if len(rest) != 2 {
 		fmt.Fprintf(os.Stderr, constants.ErrMMUsageFmt, spec.cmd)
 		cliexit.HandleError(nil, 2)
 	}
+
 	opts := mf.toOptions(spec.cmd, spec.prefix, spec.msgFmt)
 
 	return rest[0], rest[1], opts

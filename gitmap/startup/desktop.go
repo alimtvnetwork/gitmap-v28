@@ -31,7 +31,6 @@ import (
 // reaches here because AutostartDir errors first.
 func collectManaged(dir string, files []os.DirEntry) []Entry {
 	if runtime.GOOS == "darwin" {
-
 		return collectManagedPlist(dir, files)
 	}
 
@@ -45,14 +44,17 @@ func collectManagedDesktop(dir string, files []os.DirEntry) []Entry {
 		if f.IsDir() {
 			continue
 		}
+
 		name := f.Name()
 		if !looksLikeOursDesktop(name) {
 			continue
 		}
+
 		entry, ok := readManagedDesktop(dir, name)
 		if !ok {
 			continue
 		}
+
 		out = append(out, entry)
 	}
 
@@ -80,6 +82,7 @@ func readManagedDesktop(dir, filename string) (Entry, bool) {
 	if err != nil {
 		return Entry{}, false
 	}
+
 	defer f.Close()
 
 	managed, exec := parseDesktopFields(bufio.NewScanner(f))
@@ -110,6 +113,7 @@ func parseDesktopFields(sc *bufio.Scanner) (bool, string) {
 			managed = true
 			continue
 		}
+
 		if strings.HasPrefix(line, "Exec=") {
 			exec = strings.TrimPrefix(line, "Exec=")
 		}

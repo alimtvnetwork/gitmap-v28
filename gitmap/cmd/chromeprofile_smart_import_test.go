@@ -24,14 +24,17 @@ func createTestSnapshotJSON(t *testing.T, dir, filename, name, displayName, emai
 		Preferences:   json.RawMessage(`{"account_info":[{"email":"` + email + `"}]}`),
 		ExtensionIDs:  []string{"extension-id-1", "extension-id-2"},
 	}
+
 	raw, err := json.MarshalIndent(exp, "", "  ")
 	if err != nil {
 		t.Fatalf("marshal failed: %v", err)
 	}
+
 	filePath := filepath.Join(dir, filename)
 	if err := os.WriteFile(filePath, raw, 0644); err != nil {
 		t.Fatalf("write failed: %v", err)
 	}
+
 	return filePath
 }
 
@@ -57,6 +60,7 @@ func TestChromeProfileImportProtectsExistingProfileAndAllocatesNew(t *testing.T)
 	if err := os.MkdirAll(defaultProfileDir, 0755); err != nil {
 		t.Fatalf("mkdir failed: %v", err)
 	}
+
 	_ = os.WriteFile(filepath.Join(defaultProfileDir, "Bookmarks"), []byte(`dummy-bookmarks-content-over-50-bytes-1234567890-abcdefghij-klmnopqrst`), 0644)
 
 	// Pre-register Default in Local State with personal@gmail.com
@@ -72,6 +76,7 @@ func TestChromeProfileImportProtectsExistingProfileAndAllocatesNew(t *testing.T)
 			"profiles_order": []any{"Default"},
 		},
 	}
+
 	rawLS, _ := json.Marshal(localStateData)
 	_ = os.WriteFile(localStatePath, rawLS, 0644)
 
@@ -101,6 +106,7 @@ func TestChromeProfileImportProtectsExistingProfileAndAllocatesNew(t *testing.T)
 	if err != nil {
 		t.Fatalf("read Local State failed: %v", err)
 	}
+
 	var root map[string]any
 	_ = json.Unmarshal(rawUpdatedLS, &root)
 	prof := root["profile"].(map[string]any)
@@ -109,6 +115,7 @@ func TestChromeProfileImportProtectsExistingProfileAndAllocatesNew(t *testing.T)
 	if !ok {
 		t.Fatalf("Profile 1 not registered in info_cache")
 	}
+
 	if p1Entry["user_name"] != "work@company.com" {
 		t.Errorf("expected user_name work@company.com, got %v", p1Entry["user_name"])
 	}
@@ -136,6 +143,7 @@ func TestChromeProfileImportByEmail(t *testing.T) {
 	if len(names) != 1 {
 		t.Fatalf("expected exactly 1 imported profile, got %d: %v", len(names), names)
 	}
+
 	_, email := resolveProfileNameAndEmail(names[0], nil)
 	if email != "target.work@corp.com" {
 		t.Errorf("expected email target.work@corp.com, got %s", email)
@@ -162,6 +170,7 @@ func TestChromeProfileImportWithExceptAndLimit(t *testing.T) {
 	if len(names) != 1 {
 		t.Fatalf("expected 1 profile imported, got %d: %v", len(names), names)
 	}
+
 	_, email := resolveProfileNameAndEmail(names[0], nil)
 	if email != "c@test.com" {
 		t.Errorf("expected email c@test.com, got %s", email)

@@ -52,6 +52,7 @@ func runTemplatesDiff(args []string) error {
 		fmt.Fprint(os.Stderr, errDiffLangRequired)
 		cliexit.HandleError(nil, exitDiffError)
 	}
+
 	kinds, ok := resolveDiffKinds(kind)
 	if !ok {
 		fmt.Fprintf(os.Stderr, errDiffBadKind, kind)
@@ -62,7 +63,9 @@ func runTemplatesDiff(args []string) error {
 	if anyChanged {
 		cliexit.HandleError(nil, exitDiffChanged)
 	}
+
 	cliexit.HandleError(nil, exitDiffNoChange)
+
 	return nil
 }
 
@@ -120,6 +123,7 @@ func diffOneKind(kind, lang, cwd string) bool {
 		fmt.Fprintf(os.Stderr, errDiffResolve, kind, lang, err)
 		cliexit.HandleError(nil, exitDiffError)
 	}
+
 	target := filepath.Join(cwd, targetFileFor(kind))
 	tag := kind + "/" + lang
 	res, err := templates.Diff(target, tag, r.Content)
@@ -127,11 +131,13 @@ func diffOneKind(kind, lang, cwd string) bool {
 		fmt.Fprintf(os.Stderr, errDiffRun, err)
 		cliexit.HandleError(nil, exitDiffError)
 	}
+
 	if res.Status == templates.DiffNoChange {
 		fmt.Printf(msgDiffNoChange, kind, lang, res.Path)
 
 		return false
 	}
+
 	printDiffHunks(res.Hunks)
 
 	return true
@@ -166,6 +172,7 @@ func decorateDiffLine(line string, useColor bool) string {
 	if !useColor || line == "" {
 		return line
 	}
+
 	switch line[0] {
 	case '+':
 		return render.HighlightQuotesANSI(constants.ColorCyan + line + constants.ColorReset)

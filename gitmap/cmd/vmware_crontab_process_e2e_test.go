@@ -40,10 +40,13 @@ func handleHelperExecution(args []string) {
 func dispatchHelperSubcommand(sub string) {
 	if sub == "-l" {
 		handleHelperList()
+
 		return
 	}
+
 	if sub == "-" {
 		handleHelperWrite()
+
 		return
 	}
 
@@ -108,10 +111,12 @@ func assertCrontabFileValid(t *testing.T, statePath string) {
 	if err != nil {
 		t.Fatalf("crontab file missing: %v", err)
 	}
+
 	content := string(data)
 	if !strings.Contains(content, "@reboot") {
 		t.Errorf("expected @reboot in saved crontab, got: %q", content)
 	}
+
 	if strings.Contains(content, "no crontab") {
 		t.Errorf("saved crontab contains 'no crontab': %q", content)
 	}

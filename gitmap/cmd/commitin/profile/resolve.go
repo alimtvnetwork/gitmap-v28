@@ -48,9 +48,11 @@ func Resolve(cli *CliOverrides, prof *Profile) Resolved {
 	if prof != nil {
 		applyProfile(&r, prof)
 	}
+
 	if cli != nil {
 		applyCli(&r, cli)
 	}
+
 	return r
 }
 
@@ -69,12 +71,15 @@ func applyProfile(r *Resolved, p *Profile) {
 	if p.PRMode != "" {
 		r.PRMode = p.PRMode
 	}
+
 	if p.ConflictMode != "" {
 		r.ConflictMode = p.ConflictMode
 	}
+
 	if p.Author != nil {
 		r.Author = p.Author
 	}
+
 	r.Exclusions = p.Exclusions
 	r.MessageRules = p.MessageRules
 	r.MessagePrefix = p.MessagePrefix
@@ -86,6 +91,7 @@ func applyProfile(r *Resolved, p *Profile) {
 	if len(p.WeakWords) > 0 {
 		r.WeakWords = p.WeakWords
 	}
+
 	r.FunctionIntel = p.FunctionIntel
 }
 
@@ -93,39 +99,51 @@ func applyCli(r *Resolved, c *CliOverrides) {
 	if c.PRMode != nil {
 		r.PRMode = *c.PRMode
 	}
+
 	if c.ConflictMode != nil {
 		r.ConflictMode = *c.ConflictMode
 	}
+
 	if c.Author != nil {
 		r.Author = c.Author
 	}
+
 	if c.Exclusions != nil {
 		r.Exclusions = c.Exclusions
 	}
+
 	if c.MessageRules != nil {
 		r.MessageRules = c.MessageRules
 	}
+
 	if c.MessagePrefix != nil {
 		r.MessagePrefix = c.MessagePrefix
 	}
+
 	if c.MessageSuffix != nil {
 		r.MessageSuffix = c.MessageSuffix
 	}
+
 	if c.TitlePrefix != nil {
 		r.TitlePrefix = *c.TitlePrefix
 	}
+
 	if c.TitleSuffix != nil {
 		r.TitleSuffix = *c.TitleSuffix
 	}
+
 	if c.OverrideMessages != nil {
 		r.OverrideMessages = c.OverrideMessages
 	}
+
 	if c.OverrideOnlyWeak != nil {
 		r.OverrideOnlyWeak = *c.OverrideOnlyWeak
 	}
+
 	if c.WeakWords != nil {
 		r.WeakWords = c.WeakWords
 	}
+
 	if c.FunctionIntel != nil {
 		r.FunctionIntel = *c.FunctionIntel
 	}

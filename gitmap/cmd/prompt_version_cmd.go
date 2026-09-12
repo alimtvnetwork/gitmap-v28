@@ -20,5 +20,6 @@ func runPromptVersion(targets []string) error {
 			fmt.Printf("%s: not installed\n", name)
 		}
 	}
+
 	return nil
 }

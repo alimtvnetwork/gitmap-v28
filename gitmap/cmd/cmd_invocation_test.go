@@ -45,6 +45,7 @@ func TestPipelineCommandInvocations(t *testing.T) {
 	if err != nil {
 		t.Errorf("expected runPipeline waittime to succeed, got %v", err)
 	}
+
 	err = runPipeline([]string{"eta"})
 	if err != nil {
 		t.Errorf("expected runPipeline eta to succeed, got %v", err)
@@ -68,6 +69,7 @@ func TestPipelineCommandInvocations(t *testing.T) {
 	if err != nil {
 		t.Errorf("expected runPipeline error-logs --tempfile to succeed, got %v", err)
 	}
+
 	defer os.Remove(filepath.Join(resolveTempDir(), tempFile))
 
 	// 7. gitmap pipeline help

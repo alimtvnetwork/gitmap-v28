@@ -22,6 +22,7 @@ func TestDefaultPowerShellProfilePathsWindows(t *testing.T) {
 	if len(paths) != len(expected) {
 		t.Fatalf("expected %d paths, got %d", len(expected), len(paths))
 	}
+
 	for i, want := range expected {
 		if paths[i] != want {
 			t.Fatalf("path %d mismatch: want %s, got %s", i, want, paths[i])
@@ -55,6 +56,7 @@ func TestUniqueProfilePathsDropsDuplicatesAndEmptyValues(t *testing.T) {
 	if len(paths) != len(expected) {
 		t.Fatalf("expected %d unique paths, got %d", len(expected), len(paths))
 	}
+
 	for i, want := range expected {
 		if paths[i] != want {
 			t.Fatalf("path %d mismatch: want %s, got %s", i, want, paths[i])

@@ -37,6 +37,7 @@ func detectDefaultDocumentRoot(domain string) string {
 	if pwd != "" {
 		return pwd
 	}
+
 	if runtime.GOOS == "windows" {
 		return filepath.Join("C:\\www", domain)
 	}
@@ -48,9 +49,11 @@ func detectDefaultSiteType(rawType string) string {
 	if rawType != "" && rawType != "php" {
 		return rawType
 	}
+
 	if _, err := os.Stat("artisan"); err == nil {
 		return "laravel"
 	}
+
 	if _, err := os.Stat("wp-config.php"); err == nil {
 		return "wordpress"
 	}
@@ -62,10 +65,12 @@ func persistSiteRecord(cfg VHostConfig, targetPath string, isDryRun bool) error 
 	if isDryRun {
 		return nil
 	}
+
 	db, err := store.OpenSitesSplitDB()
 	if err != nil {
 		return err
 	}
+
 	defer db.Close()
 
 	rec := store.SiteRecord{

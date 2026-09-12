@@ -45,6 +45,7 @@ func mustGitRoot() string {
 		fmt.Fprint(os.Stderr, constants.FixRepoErrNotARepo)
 		cliexit.HandleError(nil, constants.FixRepoExitNotARepo)
 	}
+
 	root := strings.TrimSpace(string(out))
 	if root == "" {
 		fmt.Fprint(os.Stderr, constants.FixRepoErrNotARepo)
@@ -61,6 +62,7 @@ func mustGitRemoteURL() string {
 		fmt.Fprint(os.Stderr, constants.FixRepoErrNoRemote)
 		cliexit.HandleError(nil, constants.FixRepoExitNoRemote)
 	}
+
 	url := strings.TrimSpace(string(out))
 	if url == "" {
 		fmt.Fprint(os.Stderr, constants.FixRepoErrNoRemote)
@@ -91,9 +93,11 @@ func parseRemoteURL(url string) (string, string, string, bool) {
 	if h, o, r, ok := matchSSHRemote(trimmed); ok {
 		return h, o, r, true
 	}
+
 	if h, o, r, ok := matchHTTPSRemote(trimmed); ok {
 		return h, o, r, true
 	}
+
 	if h, o, r, ok := matchSSHProtoRemote(trimmed); ok {
 		return h, o, r, true
 	}
@@ -148,6 +152,7 @@ func mustSplitRepoVersion(repo string) (string, int) {
 		fmt.Fprintf(os.Stderr, constants.FixRepoErrNoVerSuffFmt, repo)
 		cliexit.HandleError(nil, constants.FixRepoExitNoVersionSuffix)
 	}
+
 	n, err := strconv.Atoi(m[2])
 	if err != nil || n < 1 {
 		fmt.Fprint(os.Stderr, constants.FixRepoErrBadVersion)

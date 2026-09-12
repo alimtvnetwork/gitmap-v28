@@ -13,21 +13,28 @@ func runFindDuplicatesVSCode() error {
 	path, err := vscodepm.ProjectsJSONPath()
 	if err != nil {
 		fmt.Println("  " + constants.ColorYellow + "VS Code projects.json path not resolvable." + constants.ColorReset)
+
 		return nil
 	}
+
 	entries, err := vscodepm.ReadEntries(path)
 	if err != nil || len(entries) == 0 {
 		fmt.Println("  " + constants.ColorDim + "No VS Code projects found in projects.json." + constants.ColorReset)
+
 		return nil
 	}
+
 	dupGroups := groupVSCodeDuplicates(entries)
 	if len(dupGroups) == 0 {
 		fmt.Printf("  %s✓ VS Code: No duplicate projects found. Total active: %d%s\n\n",
 			constants.ColorGreen, len(entries), constants.ColorReset)
+
 		return nil
 	}
+
 	printVSCodeDupFindings(dupGroups)
 	printVSCodeRemediations(dupGroups)
+
 	return nil
 }
 
@@ -38,14 +45,17 @@ func groupVSCodeDuplicates(entries []vscodepm.Entry) map[string][]vscodepm.Entry
 		if norm == "" {
 			continue
 		}
+
 		groups[norm] = append(groups[norm], e)
 	}
+
 	dupGroups := make(map[string][]vscodepm.Entry)
 	for k, list := range groups {
 		if len(list) > 1 {
 			dupGroups[k] = list
 		}
 	}
+
 	return dupGroups
 }
 
@@ -56,6 +66,7 @@ func printVSCodeDupFindings(dupGroups map[string][]vscodepm.Entry) {
 	for _, list := range dupGroups {
 		totalDups += len(list) - 1
 	}
+
 	fmt.Printf("  Found %s%d%s duplicate group(s) (%s%d%s duplicate entries total):\n\n",
 		constants.ColorWhite, len(dupGroups), constants.ColorReset,
 		constants.ColorYellow, totalDups, constants.ColorReset)
@@ -69,6 +80,7 @@ func printVSCodeDupFindings(dupGroups map[string][]vscodepm.Entry) {
 			extra := strings.Join(e.Paths, ", ")
 			fmt.Printf("    %-24s %s\n", truncateStr(e.Name, 23), truncateStr(extra, 42))
 		}
+
 		fmt.Println()
 		groupNum++
 	}
@@ -81,8 +93,10 @@ func printVSCodeRemediations(dupGroups map[string][]vscodepm.Entry) {
 		if len(list) > 0 {
 			sampleName = list[0].Name
 		}
+
 		break
 	}
+
 	fmt.Println("  " + constants.ColorCyan + "Remediation & Fix Commands for VS Code:" + constants.ColorReset)
 	fmt.Println("  " + strings.Repeat("─", 68))
 	fmt.Printf("  ● Fix Single (Remove specific duplicate project by path or name):\n")

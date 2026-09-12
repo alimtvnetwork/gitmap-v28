@@ -26,13 +26,16 @@ func TestListVersionsJSONSchema_TopLevelShape(t *testing.T) {
 	if root["type"] != "array" {
 		t.Fatalf("top-level type = %v, want array", root["type"])
 	}
+
 	items, ok := root["items"].(map[string]any)
 	if !ok {
 		t.Fatalf("schema missing items object")
 	}
+
 	if items["type"] != "object" {
 		t.Fatalf("items.type = %v, want object", items["type"])
 	}
+
 	got := stringSliceFromAny(items["required"])
 	sort.Strings(got)
 	if !equalStringSlices(got, listVersionsItemsRequiredKeys) {
@@ -56,6 +59,7 @@ func TestListVersionsJSONSchema_EncoderMatchesSchema(t *testing.T) {
 	if err := encodeListVersionsJSON(&buf, entries); err != nil {
 		t.Fatalf("encode: %v", err)
 	}
+
 	gotKeys := extractFirstObjectKeyOrder(t, buf.Bytes())
 	for _, key := range gotKeys {
 		if _, allowed := props[key]; !allowed {

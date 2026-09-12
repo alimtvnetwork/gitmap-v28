@@ -29,6 +29,7 @@ func TestToBytes(t *testing.T) {
 		Name string `json:"name"`
 		Age  int    `json:"age"`
 	}
+
 	p := Person{Name: "Alice", Age: 30}
 	j := ToBytesMust(p)
 	if !strings.Contains(string(j), `"name": "Alice"`) {

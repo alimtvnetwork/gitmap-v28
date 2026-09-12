@@ -34,6 +34,7 @@ func runTaskCreate(args []string) error {
 	saveTaskFile(tasks)
 
 	fmt.Printf(constants.MsgTaskCreated, name)
+
 	return nil
 }
 
@@ -51,6 +52,7 @@ func validateTaskCreateInputs(name, src, dest string) {
 		)
 		cliexit.HandleError(err, 1)
 	}
+
 	if src == "" {
 		err := apperror.NewWithDetails(
 			"cmd.task.validateSrc",
@@ -63,6 +65,7 @@ func validateTaskCreateInputs(name, src, dest string) {
 		)
 		cliexit.HandleError(err, 1)
 	}
+
 	if dest == "" {
 		err := apperror.NewWithDetails(
 			"cmd.task.validateDest",
@@ -130,6 +133,7 @@ func runTaskList() error {
 	for _, t := range tasks.Tasks {
 		fmt.Printf(constants.MsgTaskListRow, t.Name, t.Source, t.Dest)
 	}
+
 	return nil
 }
 
@@ -143,6 +147,7 @@ func runTaskShow(args []string) error {
 	}
 
 	fmt.Printf(constants.MsgTaskShowFmt, entry.Name, entry.Source, entry.Dest)
+
 	return nil
 }
 
@@ -154,6 +159,7 @@ func runTaskDelete(args []string) error {
 	saveTaskFile(tasks)
 
 	fmt.Printf(constants.MsgTaskDeleted, name)
+
 	return nil
 }
 

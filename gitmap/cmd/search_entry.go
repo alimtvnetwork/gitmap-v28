@@ -27,8 +27,10 @@ func runSearch(args []string) error {
 		fmt.Println("  gitmap search \"Resolve-Version\"")
 		fmt.Println("  gitmap search \"AppError\" --limit 10")
 		fmt.Println("  gitmap search \"type SearchResult struct\"")
+
 		return nil
 	}
+
 	query := cleanArgs[0]
 
 	ctx := context.Background()
@@ -36,12 +38,14 @@ func runSearch(args []string) error {
 	if err != nil {
 		return apperror.WrapSimple(err, "error")
 	}
+
 	defer mainDB.Close()
 	defer db.Close()
 
 	res, searchErr := searcher.SearchRepoDB(ctx, db, query, limit, false)
 	if searchErr != nil {
 		pterm.Error.Println(searchErr)
+
 		return nil
 	}
 
@@ -50,6 +54,7 @@ func runSearch(args []string) error {
 		fmt.Println(r.MatchedText)
 		fmt.Println()
 	}
+
 	return nil
 }
 
@@ -61,9 +66,12 @@ func runReplaceRegex(args []string) error {
 		fmt.Println()
 		fmt.Println(constants.ColorCyan + "Examples:" + constants.ColorReset)
 		fmt.Println("  gitmap replace-regex \"v6\\.\\d+\\.\\d+\" \"v6.155.6\"")
+
 		return nil
 	}
+
 	fmt.Println("replace-regex executed. (Requires file-writing engine implementation)")
+
 	return nil
 }
 
@@ -80,15 +88,20 @@ func runRepoSearch(args []string) error {
 		fmt.Println(constants.ColorCyan + "Examples:" + constants.ColorReset)
 		fmt.Println("  gitmap repo-search \"pipeline\"")
 		fmt.Println("  gitmap repo-search \"constants\" --limit 5")
+
 		return nil
 	}
+
 	query := cleanArgs[0]
 	if query == "history" {
 		fmt.Println("repo-search history: No history recorded yet.")
+
 		return nil
 	}
+
 	if query == "clear" {
 		fmt.Println("repo-search clear: Cache cleared for current folder.")
+
 		return nil
 	}
 
@@ -97,12 +110,14 @@ func runRepoSearch(args []string) error {
 	if err != nil {
 		return apperror.WrapSimple(err, "error")
 	}
+
 	defer mainDB.Close()
 	defer db.Close()
 
 	res, searchErr := searcher.SearchRepoDB(ctx, db, query, limit, true)
 	if searchErr != nil {
 		pterm.Error.Println(searchErr)
+
 		return nil
 	}
 
@@ -111,6 +126,7 @@ func runRepoSearch(args []string) error {
 		fmt.Println(r.MatchedText)
 		fmt.Println()
 	}
+
 	return nil
 }
 
@@ -119,15 +135,20 @@ func runRepoRegex(args []string) error {
 	limit, cleanArgs := parseLimit(args)
 	if len(cleanArgs) == 0 {
 		fmt.Println("Usage: gitmap repo-regex <regex> [--limit <n>]")
+
 		return nil
 	}
+
 	query := cleanArgs[0]
 	if query == "history" {
 		fmt.Println("repo-regex history: No history recorded yet.")
+
 		return nil
 	}
+
 	if query == "clear" {
 		fmt.Println("repo-regex clear: Cache cleared for current folder.")
+
 		return nil
 	}
 
@@ -136,12 +157,14 @@ func runRepoRegex(args []string) error {
 	if err != nil {
 		return apperror.WrapSimple(err, "error")
 	}
+
 	defer mainDB.Close()
 	defer db.Close()
 
 	res, searchErr := searcher.SearchRepoDBRegex(ctx, db, query, limit, true)
 	if searchErr != nil {
 		pterm.Error.Println(searchErr)
+
 		return nil
 	}
 
@@ -150,6 +173,7 @@ func runRepoRegex(args []string) error {
 		fmt.Println(r.MatchedText)
 		fmt.Println()
 	}
+
 	return nil
 }
 
@@ -158,27 +182,33 @@ func runRepoSearchJson(args []string) error {
 	limit, cleanArgs := parseLimit(args)
 	if len(cleanArgs) == 0 {
 		fmt.Println("[]")
+
 		return nil
 	}
+
 	query := cleanArgs[0]
 
 	ctx := context.Background()
 	mainDB, db, err := getRepoDB(ctx)
 	if err != nil {
 		fmt.Println("[]")
+
 		return apperror.NewSimple("fatal error", "E9000")
 	}
+
 	defer mainDB.Close()
 	defer db.Close()
 
 	res, searchErr := searcher.SearchRepoDB(ctx, db, query, limit, true)
 	if searchErr != nil {
 		fmt.Println("[]")
+
 		return nil
 	}
 
 	b, _ := json.Marshal(res)
 	fmt.Println(string(b))
+
 	return nil
 }
 
@@ -187,27 +217,33 @@ func runRepoSearchRegexJson(args []string) error {
 	limit, cleanArgs := parseLimit(args)
 	if len(cleanArgs) == 0 {
 		fmt.Println("[]")
+
 		return nil
 	}
+
 	query := cleanArgs[0]
 
 	ctx := context.Background()
 	mainDB, db, err := getRepoDB(ctx)
 	if err != nil {
 		fmt.Println("[]")
+
 		return apperror.NewSimple("fatal error", "E9000")
 	}
+
 	defer mainDB.Close()
 	defer db.Close()
 
 	res, searchErr := searcher.SearchRepoDBRegex(ctx, db, query, limit, true)
 	if searchErr != nil {
 		fmt.Println("[]")
+
 		return nil
 	}
 
 	b, _ := json.Marshal(res)
 	fmt.Println(string(b))
+
 	return nil
 }
 
@@ -217,8 +253,11 @@ func runSearchReplaceAll(args []string) error {
 		// Clean the repo_search folder
 		os.RemoveAll(".gitmap/output/repo_search")
 		fmt.Println("search-replace-all reset: Databases cleared.")
+
 		return nil
 	}
+
 	fmt.Println("search-replace-all executed.")
+
 	return nil
 }

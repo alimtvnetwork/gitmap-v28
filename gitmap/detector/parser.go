@@ -28,9 +28,11 @@ func detectNodeOrReact(
 	if err != nil {
 		return
 	}
+
 	if isDuplicate(dir, constants.ProjectKeyReact, results) {
 		return
 	}
+
 	if isDuplicate(dir, constants.ProjectKeyNode, results) {
 		return
 	}
@@ -46,6 +48,7 @@ func detectNodeOrReact(
 
 		return
 	}
+
 	addResult(dir, repoPath, repoID, repoName, constants.ProjectTypeNodeID,
 		constants.ProjectKeyNode, projName, constants.IndicatorPackageJSON, results)
 }
@@ -56,6 +59,7 @@ func parsePackageJSON(path string) (*packageJSON, error) {
 	if err != nil {
 		return nil, err
 	}
+
 	var pkg packageJSON
 	err = json.Unmarshal(data, &pkg)
 
@@ -68,6 +72,7 @@ func isReactProject(pkg *packageJSON) bool {
 		if hasDepKey(pkg.Dependencies, dep) {
 			return true
 		}
+
 		if hasDepKey(pkg.DevDependencies, dep) {
 			return true
 		}

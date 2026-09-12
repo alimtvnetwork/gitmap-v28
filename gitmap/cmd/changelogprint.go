@@ -55,6 +55,7 @@ func printChangelogHeader(entry release.ChangelogEntry, pretty bool) {
 		fmt.Printf(constants.ChangelogPrettyHeaderBare,
 			cyan, entry.Version, reset)
 	}
+
 	fmt.Printf("  %s%s%s\n", dim, constants.ChangelogPrettyRule, reset)
 }
 
@@ -107,9 +108,11 @@ func changelogMarker(bullet release.ChangelogBullet) string {
 	if bullet.Ordered {
 		return bullet.Marker
 	}
+
 	if bullet.Depth == 0 {
 		return constants.ChangelogPrettyMarkerL0
 	}
+
 	if bullet.Depth == 1 {
 		return constants.ChangelogPrettyMarkerL1
 	}
@@ -122,6 +125,7 @@ func changelogMarkerColor(depth int) string {
 	if depth == 0 {
 		return constants.ColorGreen
 	}
+
 	if depth == 1 {
 		return constants.ColorCyan
 	}

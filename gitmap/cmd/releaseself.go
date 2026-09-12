@@ -21,6 +21,7 @@ func runReleaseSelf(args []string) error {
 
 	validateReleaseFlags(version, bump, commit, branch)
 	executeSelfRelease(version, assets, commit, branch, bump, notes, targets, zipGroups, zipItems, bundleName, draft, dryRun, verbose, compress, checksums, bin, noCommit, yes)
+
 	return nil
 }
 

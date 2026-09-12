@@ -40,6 +40,7 @@ func resolveDefaultWorkDirPath() (string, bool) {
 	if err != nil {
 		return "", false
 	}
+
 	defer db.Close()
 
 	wd, errGet := db.GetDefaultWorkDir()
@@ -68,6 +69,7 @@ func findWorkDirByNameOrLabel(target string) (string, bool) {
 	if err != nil {
 		return "", false
 	}
+
 	defer db.Close()
 
 	dirs, errList := db.ListWorkDirs()

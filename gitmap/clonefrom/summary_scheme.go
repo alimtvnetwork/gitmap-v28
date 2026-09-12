@@ -54,6 +54,7 @@ func ClassifyScheme(url string) string {
 	if hit, ok := matchKnownScheme(url); ok {
 		return hit
 	}
+
 	if looksLikeSCP(url) {
 		return constants.CloneFromSchemeSCP
 	}
@@ -72,6 +73,7 @@ func matchKnownScheme(url string) (string, bool) {
 		{"git://", constants.CloneFromSchemeGit},
 		{"file://", constants.CloneFromSchemeFile},
 	}
+
 	for _, p := range prefixes {
 		if strings.HasPrefix(url, p.prefix) {
 			return p.scheme, true

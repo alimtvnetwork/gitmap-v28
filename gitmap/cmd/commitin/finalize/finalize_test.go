@@ -35,6 +35,7 @@ func TestResolveForceMergeReturnsTakeTheirs(t *testing.T) {
 	if got != ConflictDecisionTakeTheirs {
 		t.Fatalf("want TakeTheirs, got %v", got)
 	}
+
 	if buf.Len() != 0 {
 		t.Fatalf("ForceMerge must not print: %q", buf.String())
 	}
@@ -46,6 +47,7 @@ func TestResolvePromptAbortsWithBanner(t *testing.T) {
 	if got != ConflictDecisionAbort {
 		t.Fatalf("want Abort, got %v", got)
 	}
+
 	if !strings.Contains(buf.String(), "abc123") {
 		t.Fatalf("banner missing source sha: %q", buf.String())
 	}

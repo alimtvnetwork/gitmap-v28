@@ -38,6 +38,7 @@ func splitCommaURLs(raw string) []string {
 	if !strings.Contains(raw, ",") {
 		return handleSingleURLSplit(raw)
 	}
+
 	parts := strings.Split(raw, ",")
 	out := make([]string, 0, len(parts))
 	for _, p := range parts {
@@ -46,6 +47,7 @@ func splitCommaURLs(raw string) []string {
 			out = append(out, t)
 		}
 	}
+
 	return out
 }
 
@@ -59,7 +61,9 @@ func initCFRJobQueue(urls []string) chan cfrJob {
 	for i, u := range urls {
 		jobs <- cfrJob{i: i, url: u}
 	}
+
 	close(jobs)
+
 	return jobs
 }
 
@@ -67,9 +71,11 @@ func resolveCFRWorkers(workers, total int) int {
 	if workers <= 0 {
 		workers = constants.CloneFixRepoDefaultParallel
 	}
+
 	if workers > total {
 		return total
 	}
+
 	return workers
 }
 
@@ -112,7 +118,9 @@ func runCFRWorkerPool(
 		wg.Add(1)
 		go startCFRWorker(bin, subcmd, len(urls), leadingMods, passthroughFlags, jobs, &mu, &failed, &wg)
 	}
+
 	wg.Wait()
+
 	return failed
 }
 
@@ -134,11 +142,14 @@ func runCloneFixRepoParallel(
 	bin, err := os.Executable()
 	if err != nil {
 		fmt.Fprintf(os.Stderr, constants.ErrCloneFixRepoExecFmt, err)
+
 		return len(urls)
 	}
+
 	fmt.Fprintf(os.Stdout, constants.MsgCloneFixRepoParallelHeader, len(urls), workers, subcmd)
 	failed := runCFRWorkerPool(bin, subcmd, urls, leadingMods, passthroughFlags, workers)
 	printCloneFixRepoParallelSummary(len(urls), failed)
+
 	return failed
 }
 
@@ -147,6 +158,7 @@ func buildCFRJobArgs(subcmd, url string, leadingMods, passthroughFlags []string)
 	args = append(args, subcmd)
 	args = append(args, leadingMods...)
 	args = append(args, url)
+
 	return append(args, passthroughFlags...)
 }
 
@@ -160,8 +172,10 @@ func logCFRJobResult(
 ) {
 	if runErr == nil {
 		fmt.Fprintf(buf, constants.MsgCloneFixRepoParallelItemOk, idx, total, url, elapsed)
+
 		return
 	}
+
 	fmt.Fprintf(buf, constants.MsgCloneFixRepoParallelItemFail, idx, total, url, elapsed, runErr)
 }
 
@@ -171,6 +185,7 @@ func execCFRJobCommand(bin string, args []string, buf *bytes.Buffer) (time.Durat
 	cmd.Stdout = buf
 	cmd.Stderr = buf
 	runErr := cmd.Run()
+
 	return time.Since(start).Round(time.Millisecond), runErr
 }
 
@@ -195,14 +210,17 @@ func runOneCFRJob(
 	mu.Lock()
 	_, _ = os.Stdout.Write(buf.Bytes())
 	mu.Unlock()
+
 	return runErr == nil
 }
 
 func printCloneFixRepoParallelSummary(total, failed int) {
 	if failed == 0 {
 		fmt.Fprintf(os.Stdout, constants.MsgCloneFixRepoParallelDoneOk, total)
+
 		return
 	}
+
 	fmt.Fprintf(os.Stdout, constants.MsgCloneFixRepoParallelDoneFail, total-failed, failed)
 }
 
@@ -215,12 +233,15 @@ func parseParallelArgStep(args []string, i int) (int, int, bool) {
 	if !isParallelFlagName(name) {
 		return 0, 0, false
 	}
+
 	if hasVal {
 		return atoiSafe(val), 0, true
 	}
+
 	if i+1 < len(args) {
 		return atoiSafe(args[i+1]), 1, true
 	}
+
 	return 0, 0, true
 }
 
@@ -237,11 +258,14 @@ func extractParallelFlag(args []string) (int, []string) {
 			out = append(out, args[i])
 			continue
 		}
+
 		if pVal != 0 {
 			parallel = pVal
 		}
+
 		i += advance
 	}
+
 	return parallel, out
 }
 
@@ -252,6 +276,7 @@ func splitFlagEq(a string) (string, string, bool) {
 	if idx < 0 {
 		return a, "", false
 	}
+
 	return a[:idx], a[idx+1:], true
 }
 
@@ -261,8 +286,10 @@ func atoiSafe(s string) int {
 		if c < '0' || c > '9' {
 			return 0
 		}
+
 		n = n*10 + int(c-'0')
 	}
+
 	return n
 }
 
@@ -271,15 +298,19 @@ func buildCFRTransportAndSyncFlags(noVSCodeSync, requireVersion, useSSH, useHTTP
 	if noVSCodeSync {
 		out = append(out, "--"+constants.FlagNoVSCodeSync)
 	}
+
 	if requireVersion {
 		out = append(out, "--"+constants.FlagRequireVersion)
 	}
+
 	if useSSH {
 		out = append(out, "--ssh")
 	}
+
 	if useHTTPS {
 		out = append(out, "--https")
 	}
+
 	return out
 }
 
@@ -288,15 +319,19 @@ func buildCFRActionFlags(autoYes, dryRun, noCommit, noPush bool) []string {
 	if autoYes {
 		out = append(out, "--yes")
 	}
+
 	if dryRun {
 		out = append(out, "--"+constants.FlagCloneDryRun)
 	}
+
 	if noCommit {
 		out = append(out, "--"+constants.FlagCGNoCommit)
 	}
+
 	if noPush {
 		out = append(out, "--"+constants.FlagCGNoPush)
 	}
+
 	return out
 }
 
@@ -316,6 +351,7 @@ func buildCFRPassthroughFlags(
 	noPush bool,
 ) []string {
 	flags := buildCFRTransportAndSyncFlags(noVSCodeSync, requireVersion, useSSH, useHTTPS)
+
 	return append(flags, buildCFRActionFlags(autoYes, dryRun, noCommit, noPush)...)
 }
 
@@ -324,5 +360,6 @@ func handleSingleURLSplit(raw string) []string {
 	if trimmed == "" {
 		return nil
 	}
+
 	return []string{trimmed}
 }

@@ -45,12 +45,15 @@ func executeAs(root, aliasName string, force bool) *apperror.AppError {
 	if buildErr != nil {
 		return buildErr
 	}
+
 	if upsertErr := upsertSingleRepo(rec); upsertErr != nil {
 		return upsertErr
 	}
+
 	if regErr := registerAlias(resolvedAlias, rec, force); regErr != nil {
 		return regErr
 	}
+
 	WriteShellHandoff(root)
 
 	return nil
@@ -82,6 +85,7 @@ func extractAsAliasArg(rest []string, force bool) (string, bool) {
 		fmt.Fprintln(os.Stderr, constants.ErrAsUsage)
 		cliexit.HandleUsageError(fmt.Errorf("%s", constants.ErrAsUsage))
 	}
+
 	if len(rest) == 1 {
 		return rest[0], force
 	}

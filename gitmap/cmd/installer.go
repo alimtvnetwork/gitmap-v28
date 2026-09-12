@@ -22,13 +22,16 @@ func runInstaller(cmd *cobra.Command, args []string) error {
 			"error": "command is nil",
 		})
 	}
+
 	if err := cmd.Help(); err != nil {
 		appErr := apperror.Wrap(err, "runInstaller", map[string]any{
 			"args": args,
 		})
 		appErr.Code = "E_INSTALLER_COMMAND_FAILED"
+
 		return appErr
 	}
+
 	return nil
 }
 
@@ -50,5 +53,6 @@ func init() {
 // RunInstallerCLI routes CLI arguments to the Cobra installer command tree.
 func RunInstallerCLI(args []string) error {
 	installerCmd.SetArgs(args)
+
 	return installerCmd.Execute()
 }

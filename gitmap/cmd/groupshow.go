@@ -15,6 +15,7 @@ func runGroupShow(args []string) error {
 	if len(args) == 0 {
 		return apperror.NewSimple(constants.ErrGroupNameReq, "E9000")
 	}
+
 	name := args[0]
 	if appErr := executeGroupShow(name); appErr != nil {
 		return appErr
@@ -30,6 +31,7 @@ func fetchGroupRepos(db *store.DB, name string) ([]model.ScanRecord, *apperror.A
 
 		return nil, apperror.NewSimple("legacy data error", "E9000")
 	}
+
 	if err != nil {
 		return nil, apperror.WrapSimple(err, constants.ErrBareFmt)
 	}
@@ -43,12 +45,14 @@ func executeGroupShow(name string) *apperror.AppError {
 	if err != nil {
 		return apperror.WrapSimple(err, constants.ErrListDBFailed)
 	}
+
 	defer db.Close()
 
 	repos, appErr := fetchGroupRepos(db, name)
 	if appErr != nil {
 		return appErr
 	}
+
 	printGroupShowOutput(name, repos)
 
 	return nil
@@ -61,5 +65,6 @@ func printGroupShowOutput(name string, repos []model.ScanRecord) {
 	for _, r := range repos {
 		fmt.Printf(constants.MsgGroupShowRowFmt, r.Slug, r.AbsolutePath)
 	}
+
 	fmt.Println()
 }

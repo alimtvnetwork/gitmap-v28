@@ -24,10 +24,12 @@ func TestBuildLinkInfoGoldenBytes(t *testing.T) {
 	if err != nil {
 		t.Fatalf("buildLinkInfo: %v", err)
 	}
+
 	if len(got) != len(want) {
 		t.Fatalf("length mismatch: got %d, want %d\n got=%s\nwant=%s",
 			len(got), len(want), hex.EncodeToString(got), wantHex)
 	}
+
 	for i := range want {
 		if got[i] != want[i] {
 			t.Fatalf("byte %d (0x%02x): got 0x%02x, want 0x%02x\n got=%s\nwant=%s",

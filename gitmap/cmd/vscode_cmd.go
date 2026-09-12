@@ -101,8 +101,10 @@ func handleVSCodeAdd(args []string) {
 			nil,
 		)
 		cliexit.HandleError(err, 1)
+
 		return
 	}
+
 	for _, p := range strings.Split(args[1], ",") {
 		if p = strings.TrimSpace(p); p != "" {
 			_ = runVSCodeAdd(p)
@@ -123,8 +125,10 @@ func handleVSCodeRm(args []string) {
 			nil,
 		)
 		cliexit.HandleError(err, 1)
+
 		return
 	}
+
 	for _, t := range strings.Split(args[1], ",") {
 		if t = strings.TrimSpace(t); t != "" {
 			_ = runVSCodeRm(t)
@@ -175,14 +179,18 @@ func runVSCodeAdd(target string) error {
 	if err != nil {
 		return err
 	}
+
 	name := filepath.Base(absPath)
 	pair := vscodepm.Pair{RootPath: absPath, Name: name}
 	summary, err := vscodepm.Sync([]vscodepm.Pair{pair})
 	if err != nil {
 		fmt.Fprintf(os.Stderr, "Error adding project: %v\n", err)
+
 		return err
 	}
+
 	reportVSCodeAdd(summary, name, absPath)
+
 	return nil
 }
 
@@ -191,21 +199,26 @@ func resolveVSCodePath(target string) (string, error) {
 	if err != nil {
 		return "", apperror.Wrap(err, "ResolveVSCodePath", map[string]any{"target": target})
 	}
+
 	info, err := os.Stat(absPath)
 	if err != nil {
 		return "", apperror.Wrap(err, "ResolveVSCodePath", map[string]any{"path": absPath})
 	}
+
 	if !info.IsDir() {
 		return "", apperror.New("ResolveVSCodePath", "INVALID_DIR", map[string]any{"path": absPath})
 	}
+
 	return absPath, nil
 }
 
 func reportVSCodeAdd(summary vscodepm.SyncSummary, name, absPath string) {
 	if summary.Added > 0 || summary.Updated > 0 {
 		fmt.Printf("Added/Updated %s (%s) in projects.json\n", name, absPath)
+
 		return
 	}
+
 	fmt.Printf("Project %s already exists in projects.json\n", absPath)
 }
 
@@ -214,15 +227,21 @@ func runVSCodeRm(target string) error {
 	if err != nil {
 		return err
 	}
+
 	if targetPath == "" {
 		fmt.Printf("Project not found: %s\n", target)
+
 		return nil
 	}
+
 	if err := vscodepm.RemoveEntry(targetPath); err != nil {
 		fmt.Fprintf(os.Stderr, "Error removing project: %v\n", err)
+
 		return err
 	}
+
 	fmt.Printf("Removed %s from projects.json\n", targetPath)
+
 	return nil
 }
 
@@ -231,11 +250,13 @@ func findVSCodeTarget(target string) (string, error) {
 	if err != nil {
 		return "", err
 	}
+
 	for _, e := range entries {
 		isMatch := strings.EqualFold(e.Name, target) || strings.EqualFold(e.RootPath, target)
 		if isMatch {
 			return e.RootPath, nil
 		}
 	}
+
 	return "", nil
 }

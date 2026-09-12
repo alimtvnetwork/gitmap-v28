@@ -14,20 +14,26 @@ func runFix(args []string, aliasOverride string) error {
 	if len(items) == 0 {
 		fmt.Printf("%s No pending repositories require remediation.\n", constants.ColorGreen+"✓"+constants.ColorReset)
 		fmt.Println("  Run 'gitmap pull' to pull all tracked repositories.")
+
 		return nil
 	}
+
 	if len(args) == 0 && aliasOverride == "" {
 		PrintRemediationSummary(items)
+
 		return nil
 	}
+
 	item, action, err := resolveFixTarget(args, aliasOverride, items)
 	if err != nil {
 		return err
 	}
+
 	idx := parseRecipeIndex(action, item.Recipes)
 	if idx < 0 || idx >= len(item.Recipes) {
 		return apperror.New("fix", "E_INVALID_OPTION", map[string]any{"msg": fmt.Sprintf("Invalid fix option: %s", action)})
 	}
+
 	return executeFixRecipe(item, item.Recipes[idx])
 }
 
@@ -36,13 +42,17 @@ func resolveFixTarget(args []string, aliasOverride string, items []RemediationIt
 	if aliasOverride != "" {
 		action = aliasOverride
 	}
+
 	if repoQuery != "" {
 		return findItemOrError(items, repoQuery, action)
 	}
+
 	if len(items) == 1 {
 		return &items[0], action, nil
 	}
+
 	PrintRemediationSummary(items)
+
 	return nil, "", apperror.New("fix", "E_AMBIGUOUS", map[string]any{"msg": "Multiple repositories need remediation. Specify repo: gitmap fix <repo> <action>"})
 }
 
@@ -55,9 +65,11 @@ func parseRecipeIndex(option string, recipes []gitutil.RemediationRecipe) int {
 	case "3", "discard", "clean", "d":
 		return 2
 	}
+
 	if i, err := strconv.Atoi(option); err == nil && i > 0 && i <= len(recipes) {
 		return i - 1
 	}
+
 	return -1
 }
 
@@ -66,5 +78,6 @@ func findItemOrError(items []RemediationItem, repoQuery, action string) (*Remedi
 	if matched == nil {
 		return nil, "", apperror.New("fix", "E_NOT_FOUND", map[string]any{"msg": fmt.Sprintf("Repository %q not found in pending remediation list.", repoQuery)})
 	}
+
 	return matched, action, nil
 }

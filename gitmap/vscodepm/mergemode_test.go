@@ -27,11 +27,13 @@ func TestParseMergeModeAcceptsCanonicalLiterals(t *testing.T) {
 		{constants.VSCodePMSyncModeReplace, MergeModeReplace},
 		{constants.VSCodePMSyncModeIntersection, MergeModeIntersection},
 	}
+
 	for _, tc := range cases {
 		got, err := ParseMergeMode(tc.in)
 		if err != nil {
 			t.Errorf("ParseMergeMode(%q) returned err: %v", tc.in, err)
 		}
+
 		if got != tc.want {
 			t.Errorf("ParseMergeMode(%q) = %d, want %d", tc.in, got, tc.want)
 		}
@@ -45,6 +47,7 @@ func TestParseMergeModeRejectsUnknown(t *testing.T) {
 	if err == nil {
 		t.Fatal("ParseMergeMode accepted unknown literal")
 	}
+
 	if !strings.Contains(err.Error(), "merge-everything-please") {
 		t.Errorf("error should echo the bad value, got: %v", err)
 	}
@@ -56,9 +59,11 @@ func TestMergeModeStringRoundTrip(t *testing.T) {
 	if got, want := MergeModeUnion.String(), constants.VSCodePMSyncModeUnion; got != want {
 		t.Errorf("union: got %q, want %q", got, want)
 	}
+
 	if got, want := MergeModeReplace.String(), constants.VSCodePMSyncModeReplace; got != want {
 		t.Errorf("replace: got %q, want %q", got, want)
 	}
+
 	if got, want := MergeModeIntersection.String(), constants.VSCodePMSyncModeIntersection; got != want {
 		t.Errorf("intersection: got %q, want %q", got, want)
 	}
@@ -103,6 +108,7 @@ func TestMergeTagsIntersectionPinsBrand(t *testing.T) {
 	if len(got) != len(wantSet) {
 		t.Fatalf("intersection len: got %v, want %v", got, wantSet)
 	}
+
 	for _, tag := range got {
 		if _, ok := wantSet[tag]; !ok {
 			t.Errorf("intersection produced unexpected tag %q in %v",
@@ -125,6 +131,7 @@ func sliceEqual(a, b []string) bool {
 	if len(a) != len(b) {
 		return false
 	}
+
 	ac := append([]string{}, a...)
 	bc := append([]string{}, b...)
 	sort.Strings(ac)

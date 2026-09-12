@@ -16,6 +16,7 @@ func ctxExplainPrefixPwsh(target string, args []string) string {
 	if !isCtxExplainEnabled() {
 		return ""
 	}
+
 	resolved := strings.Join(args, " ")
 
 	return fmt.Sprintf(`Write-Host '> %s %s'; `, target, resolved)
@@ -27,6 +28,7 @@ func ctxExplainPrefixSh(target string, args []string) string {
 	if !isCtxExplainEnabled() {
 		return ""
 	}
+
 	resolved := strings.Join(args, " ")
 
 	return fmt.Sprintf(`echo '> %s %s'; `, target, resolved)

@@ -12,7 +12,9 @@ func addedNames(prevSet, newSet map[string]struct{}) []string {
 			out = append(out, name)
 		}
 	}
+
 	sort.Strings(out)
+
 	return out
 }
 
@@ -23,5 +25,6 @@ func extractByRegex(src string, lineMatch func(line string) (string, bool)) map[
 			set[name] = struct{}{}
 		}
 	}
+
 	return set
 }

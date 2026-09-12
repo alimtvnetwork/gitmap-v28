@@ -88,6 +88,7 @@ func completeBranchRelease(
 
 		return fmt.Errorf("create tag: %w", err)
 	}
+
 	fmt.Printf(constants.MsgReleaseTag, tag)
 
 	opts := Options{Assets: assetsPath, Notes: notes, IsDraft: isDraft, SkipMeta: true}

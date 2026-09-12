@@ -33,9 +33,11 @@ func executeSJSyncProfile(args []string) error {
 		if errParse != nil {
 			continue
 		}
+
 		fmt.Printf("→ Syncing profile on %s\n", target.String())
 		_ = SpawnSSH(ctx, *target, []string{zshSetupScript})
 	}
+
 	return nil
 }
 

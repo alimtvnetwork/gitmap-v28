@@ -71,6 +71,7 @@ func removeCleanupMatch(match, selfPath string, seen map[string]bool, successMsg
 	if hasSeenCleanupPath(seen, normalizedPath) {
 		return false
 	}
+
 	if isActiveCleanupPath(normalizedPath, selfPath) {
 		return false
 	}

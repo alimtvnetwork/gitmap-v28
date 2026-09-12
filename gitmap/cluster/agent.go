@@ -14,6 +14,7 @@ func (a *Agent) ExecPS(args *AgentExecArgs, reply *AgentExecReply) error {
 	reply.Stdout = stdout
 	reply.Stderr = stderr
 	reply.ExitCode = exitCode
+
 	return err
 }
 
@@ -22,6 +23,7 @@ func (a *Agent) ExecCmd(args *AgentExecArgs, reply *AgentExecReply) error {
 	reply.Stdout = stdout
 	reply.Stderr = stderr
 	reply.ExitCode = exitCode
+
 	return err
 }
 

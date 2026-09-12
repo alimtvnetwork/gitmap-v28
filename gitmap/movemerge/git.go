@@ -29,6 +29,7 @@ func CloneURL(url, branch, dir string) error {
 	if branch != "" {
 		args = append(args, constants.GitBranchFlag, branch)
 	}
+
 	args = append(args, url, dir)
 	cmd := exec.Command(constants.GitBin, args...)
 	if out, err := cmd.CombinedOutput(); err != nil {
@@ -56,14 +57,17 @@ func AddCommitPush(dir, msg string, push bool) (string, error) {
 	if _, err := runGit(dir, constants.GitAddCmd, constants.GitAddAllArg); err != nil {
 		return "", fmt.Errorf("git add -A in %s: %w", dir, err)
 	}
+
 	if _, err := runGit(dir, constants.GitCommitCmd, constants.GitMessageArg, msg); err != nil {
 		// Empty commits aren't an error here — nothing changed.
 		return "", nil
 	}
+
 	sha, _ := runGit(dir, constants.GitRevParse, constants.GitHEAD)
 	if !push {
 		return sha, nil
 	}
+
 	if _, err := runGit(dir, constants.GitPush); err != nil {
 		return sha, fmt.Errorf("git push in %s: %w", dir, err)
 	}

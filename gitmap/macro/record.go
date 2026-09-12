@@ -23,8 +23,10 @@ func RecordInteractive(name string) error {
 		CreatedAt: time.Now(),
 		Steps:     make([]MacroStep, 0),
 	}
+
 	var redoStack []MacroStep
 	reader := bufio.NewReader(os.Stdin)
+
 	return runRecorderLoop(name, m, dt, &redoStack, reader)
 }
 
@@ -36,23 +38,30 @@ func runRecorderLoop(name string, m *Macro, dt *DirTracker, redoStack *[]MacroSt
 		if err != nil {
 			break
 		}
+
 		cmdText := strings.TrimSpace(line)
 		if len(cmdText) == 0 {
 			continue
 		}
+
 		isHandled, shouldExit, shouldSave := handleSessionCommand(cmdText, m, redoStack, r, dt.CurrentDir)
 		if isHandled && shouldExit && !shouldSave {
 			fmt.Printf("  %s▲ Recording canceled. Macro %q was not saved.%s\n\n", constants.ColorYellow, name, constants.ColorReset)
+
 			return nil
 		}
+
 		if isHandled && shouldExit {
 			break
 		}
+
 		if isHandled {
 			continue
 		}
+
 		recordSingleStep(cmdText, dt, m, redoStack)
 	}
+
 	return finalizeSavedMacro(m)
 }
 
@@ -69,27 +78,37 @@ func handleSessionCommand(cmdText string, m *Macro, redoStack *[]MacroStep, r *b
 	if lower == "stop" || lower == "exit" || lower == "quit" {
 		return true, true, true
 	}
+
 	if lower == "cancel" || lower == "abort" {
 		return true, true, false
 	}
+
 	if lower == "help" || lower == "?" {
 		printRecorderHelp()
+
 		return true, false, false
 	}
+
 	if lower == "list" || lower == "steps" || lower == "show" {
 		printRecordedSteps(m, currentDir)
+
 		return true, false, false
 	}
+
 	if strings.HasPrefix(lower, "undo") {
 		count, isAutoConfirm := parseUndoParams(cmdText)
 		handleUndo(m, redoStack, count, isAutoConfirm, r)
+
 		return true, false, false
 	}
+
 	if strings.HasPrefix(lower, "redo") {
 		count := parseRedoParams(cmdText)
 		handleRedo(m, redoStack, count)
+
 		return true, false, false
 	}
+
 	return false, false, false
 }
 
@@ -112,8 +131,10 @@ func printStepExecutionResult(stepNum int, elapsed time.Duration, isSuccess bool
 		fmt.Printf("  %s✔ Recorded step %d%s %s(%.1fs)%s\n\n",
 			constants.ColorGreen, stepNum, constants.ColorReset,
 			constants.ColorDim, elapsed.Seconds(), constants.ColorReset)
+
 		return
 	}
+
 	fmt.Printf("  %s▲ Recorded step %d (non-zero exit)%s %s(%.1fs)%s\n\n",
 		constants.ColorYellow, stepNum, constants.ColorReset,
 		constants.ColorDim, elapsed.Seconds(), constants.ColorReset)
@@ -123,8 +144,10 @@ func finalizeSavedMacro(m *Macro) error {
 	if err := SaveMacro(m); err != nil {
 		return fmt.Errorf("could not save macro: %w", err)
 	}
+
 	fmt.Printf("\n  %s✔ Saved macro %q with %d steps.%s\n\n",
 		constants.ColorGreen, m.Name, len(m.Steps), constants.ColorReset)
+
 	return nil
 }
 
@@ -136,12 +159,14 @@ func execLive(cmdText, dir string) (time.Duration, bool) {
 	} else {
 		cmd = exec.CommandContext(context.Background(), "sh", "-c", cmdText)
 	}
+
 	cmd.Dir = dir
 	cmd.Stdout = os.Stdout
 	cmd.Stderr = os.Stderr
 	err := cmd.Run()
 	elapsed := time.Since(start)
 	isSuccess := err == nil
+
 	return elapsed, isSuccess
 }
 
@@ -170,8 +195,10 @@ func printRecorderHelp() {
 func printRecordedSteps(m *Macro, currentDir string) {
 	if len(m.Steps) == 0 {
 		fmt.Printf("  %s▲ No steps recorded yet.%s\n", constants.ColorYellow, constants.ColorReset)
+
 		return
 	}
+
 	fmt.Printf("\n  %sRecorded steps in %q (%d steps) · 📁 %s:%s\n",
 		constants.ColorCyan, m.Name, len(m.Steps), currentDir, constants.ColorReset)
 	for _, s := range m.Steps {
@@ -179,7 +206,9 @@ func printRecordedSteps(m *Macro, currentDir string) {
 		if len(s.WorkingDir) > 0 {
 			dirLabel = fmt.Sprintf(" %s(dir: %s)%s", constants.ColorDim, s.WorkingDir, constants.ColorReset)
 		}
+
 		fmt.Printf("    %2d. %s➜%s %s%s\n", s.StepNum, constants.ColorGreen, constants.ColorReset, s.CommandLine, dirLabel)
 	}
+
 	fmt.Println()
 }

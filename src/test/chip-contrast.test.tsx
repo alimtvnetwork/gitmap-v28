@@ -249,6 +249,7 @@ describe("chip foreground-color readability (regression)", () => {
       // would also recolor solid `bg-primary` buttons.
       expect(rule).toMatch(/bg-primary\//);
     }
+
     // And the contrast for a solid primary button is comfortably high:
     const fg = hslTokenToRgb(DARK_TOKENS["primary-foreground"]);
     const bg = hslTokenToRgb(DARK_TOKENS.primary);

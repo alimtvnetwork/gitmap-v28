@@ -56,6 +56,7 @@ func detectTagsWithExtraMarkers(rootPath string, extra map[string]string) []stri
 	if rootPath == "" {
 		return nil
 	}
+
 	info, err := os.Stat(rootPath)
 	if err != nil || !info.IsDir() {
 		return nil
@@ -68,13 +69,16 @@ func detectTagsWithExtraMarkers(rootPath string, extra map[string]string) []stri
 			hits[tag] = struct{}{}
 		}
 	}
+
 	for marker, tag := range extra {
 		if _, builtin := constants.AutoTagMarkers[marker]; builtin {
 			continue
 		}
+
 		if !markerExists(rootPath, marker) {
 			continue
 		}
+
 		if _, dup := hits[tag]; !dup {
 			hits[tag] = struct{}{}
 			customOrder = append(customOrder, tag)
@@ -92,19 +96,23 @@ func customOnly(hits map[string]struct{}, order []string) []string {
 	for _, t := range constants.AutoTagOrder {
 		known[t] = struct{}{}
 	}
+
 	out := make([]string, 0, len(order))
 	seen := map[string]struct{}{}
 	for _, t := range order {
 		if _, isBuiltin := known[t]; isBuiltin {
 			continue
 		}
+
 		if _, dup := seen[t]; dup {
 			continue
 		}
+
 		_, isHit := hits[t]
 		if !isHit {
 			continue
 		}
+
 		seen[t] = struct{}{}
 		out = append(out, t)
 	}
@@ -117,15 +125,18 @@ func dropSkipped(tags, skip []string) []string {
 	if len(skip) == 0 {
 		return tags
 	}
+
 	skipSet := map[string]struct{}{}
 	for _, s := range skip {
 		skipSet[s] = struct{}{}
 	}
+
 	out := tags[:0:0]
 	for _, t := range tags {
 		if _, drop := skipSet[t]; drop {
 			continue
 		}
+
 		out = append(out, t)
 	}
 
@@ -137,18 +148,22 @@ func appendAlwaysAdd(base, add []string) []string {
 	if len(add) == 0 {
 		return base
 	}
+
 	seen := map[string]struct{}{}
 	for _, t := range base {
 		seen[t] = struct{}{}
 	}
+
 	out := append([]string{}, base...)
 	for _, t := range add {
 		if t == "" {
 			continue
 		}
+
 		if _, dup := seen[t]; dup {
 			continue
 		}
+
 		seen[t] = struct{}{}
 		out = append(out, t)
 	}
@@ -163,6 +178,7 @@ func parseListEnv(name string) []string {
 	if raw == "" {
 		return nil
 	}
+
 	parts := strings.Split(raw, constants.EnvVSCodeTagSeparator)
 	out := make([]string, 0, len(parts))
 	for _, p := range parts {
@@ -183,6 +199,7 @@ func parseMarkerEnv() map[string]string {
 	if len(raw) == 0 {
 		return nil
 	}
+
 	out := make(map[string]string, len(raw))
 	for _, kv := range raw {
 		k, v, hasSep := strings.Cut(kv, constants.TagMarkerKVSeparator)
@@ -190,6 +207,7 @@ func parseMarkerEnv() map[string]string {
 		if !hasSep || k == "" || v == "" {
 			continue
 		}
+
 		out[k] = v
 	}
 

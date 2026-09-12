@@ -28,6 +28,7 @@ func runGoMod(args []string) error {
 
 	if len(opts.newPath) == 0 {
 		fmt.Fprint(os.Stderr, constants.ErrGoModUsage)
+
 		return apperror.NewSimple("fatal error", "E9000")
 	}
 
@@ -58,6 +59,7 @@ func runGoMod(args []string) error {
 
 	mergeGoModBranch(originalBranch, featureBranch, opts.newPath)
 	printGoModSummary(oldPath, opts.newPath, fileCount, backupBranch, featureBranch, originalBranch)
+
 	return nil
 }
 
@@ -118,6 +120,7 @@ func runGoModDryRun(oldPath, newPath string, exts []string) error {
 	for _, f := range files {
 		fmt.Printf(constants.MsgGoModDryFile, f)
 	}
+
 	return nil
 }
 
@@ -152,5 +155,6 @@ func runGoModTidy(noTidy bool) error {
 	if err != nil {
 		fmt.Printf(constants.MsgGoModTidyWarn, err)
 	}
+
 	return nil
 }

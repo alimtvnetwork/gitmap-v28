@@ -23,17 +23,21 @@ func ProcessPR(
 	if !isPRCreationEnabled(originalSubject, prMode) {
 		return nil
 	}
+
 	branchName := fmt.Sprintf("pr/replay-%s-%d", shortSHA, time.Now().Unix())
 	if err := createAndPushBranch(targetDir, branchName); err != nil {
 		return err
 	}
+
 	if err := createGHPR(targetDir, branchName, cleanedBody); err != nil {
 		return err
 	}
+
 	pterm.Success.Printf("Created PR for %s\n", shortSHA)
 	if err := mergeAndRestore(targetDir, branchName); err != nil {
 		return err
 	}
+
 	pterm.Success.Printf("Merged PR for %s\n", shortSHA)
 
 	return nil
@@ -43,6 +47,7 @@ func isPRCreationEnabled(subject, prMode string) bool {
 	if prMode == "all" {
 		return true
 	}
+
 	lower := strings.ToLower(subject)
 	isTag := strings.Contains(lower, "tag:") || strings.Contains(lower, "release ") || strings.Contains(lower, "version ")
 	isRelease := strings.Contains(lower, "chore(release):") || strings.Contains(lower, "release v")
@@ -57,9 +62,11 @@ func createAndPushBranch(dir, branchName string) error {
 	if err := exec.Command("git", "-C", dir, "checkout", "-b", branchName).Run(); err != nil {
 		return apperror.WrapSimple(err, "ProcessPR: failed to checkout new PR branch")
 	}
+
 	if err := exec.Command("git", "-C", dir, "push", "-u", "origin", branchName).Run(); err != nil {
 		return apperror.WrapSimple(err, "ProcessPR: failed to push PR branch")
 	}
+
 	return nil
 }
 
@@ -70,6 +77,7 @@ func createGHPR(dir, branchName, body string) error {
 	if err := cmd.Run(); err != nil {
 		return apperror.WrapSimple(err, "ProcessPR: failed to create PR via gh")
 	}
+
 	return nil
 }
 
@@ -79,11 +87,14 @@ func mergeAndRestore(dir, branchName string) error {
 	if err := cmd.Run(); err != nil {
 		return apperror.WrapSimple(err, "ProcessPR: failed to merge PR via gh")
 	}
+
 	if err := exec.Command("git", "-C", dir, "checkout", "-").Run(); err != nil {
 		return apperror.WrapSimple(err, "ProcessPR: failed to checkout previous branch")
 	}
+
 	if err := exec.Command("git", "-C", dir, "pull").Run(); err != nil {
 		return apperror.WrapSimple(err, "ProcessPR: failed to pull latest after PR merge")
 	}
+
 	return nil
 }

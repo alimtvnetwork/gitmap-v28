@@ -16,6 +16,7 @@ func dataDispatchEntries() []dispatchEntry {
 	entries = append(entries, dataProfileEntries()...)
 	entries = append(entries, dataDatabaseEntries()...)
 	entries = append(entries, dataExecutionEntries()...)
+
 	return entries
 }
 

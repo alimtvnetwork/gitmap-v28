@@ -126,9 +126,11 @@ func isLocalRemote(url string) bool {
 	if strings.HasPrefix(lower, "file://") {
 		return true
 	}
+
 	if strings.HasPrefix(lower, "/") {
 		return true
 	}
+
 	if len(lower) >= 3 && lower[1] == ':' && (lower[2] == '/' || lower[2] == '\\') {
 		return true
 	}
@@ -143,6 +145,7 @@ func classifyProvider(url string) string {
 	if strings.Contains(lower, constants.HostGitHub) {
 		return constants.ProviderGitHub
 	}
+
 	if strings.Contains(lower, constants.HostGitLab) {
 		return constants.ProviderGitLab
 	}
@@ -162,6 +165,7 @@ func parseOwnerRepo(url string) string {
 	if idx >= 0 {
 		colon = strings.Index(trimmed[idx:], ":")
 	}
+
 	if idx >= 0 && colon >= 0 {
 		return trimmed[idx+colon+1:]
 	}
@@ -181,6 +185,7 @@ func mustEnsureProviderCLI(provider string, verbose bool) {
 	if verbose {
 		fmt.Fprintf(os.Stderr, constants.MsgVisVerboseExec, "which", cli)
 	}
+
 	if _, err := exec.LookPath(cli); err != nil {
 		appErr := apperror.NewWithDetails(
 			"cmd.visibility.ensureCLI",

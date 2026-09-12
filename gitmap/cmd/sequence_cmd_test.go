@@ -33,6 +33,7 @@ func assertScanPayloadCounts(t *testing.T, payload *SequencePayload, wantTotal, 
 	if payload.TotalFiles != wantTotal {
 		t.Errorf("expected %d total files, got %d", wantTotal, payload.TotalFiles)
 	}
+
 	if payload.SequencedFiles != wantSeq {
 		t.Errorf("expected %d sequenced files, got %d", wantSeq, payload.SequencedFiles)
 	}
@@ -49,6 +50,7 @@ func TestApplySequenceOrderingWithPin(t *testing.T) {
 		StartNum: 1,
 		PinMap:   map[string]int{"index": 1, "shared-engine": 2},
 	}
+
 	applySequenceOrdering(parsedFiles, flags)
 
 	report := executeSequenceRenames(parsedFiles, tempDir, true)
@@ -65,6 +67,7 @@ func assertPinRenameOperations(t *testing.T, report SequenceFixReport) {
 	if len(report.Operations) != 3 {
 		t.Fatalf("expected 3 rename operations, got %d", len(report.Operations))
 	}
+
 	for _, op := range report.Operations {
 		assertSinglePinOp(t, op)
 	}
@@ -74,9 +77,11 @@ func assertSinglePinOp(t *testing.T, op SequenceRenameOp) {
 	if op.From == "index.md" && op.To != "01-index.md" {
 		t.Errorf("expected index.md -> 01-index.md, got %s", op.To)
 	}
+
 	if op.From == "shared-engine.py" && op.To != "02-shared-engine.py" {
 		t.Errorf("expected shared-engine.py -> 02-shared-engine.py, got %s", op.To)
 	}
+
 	if op.From == "file-manipulator.py" && op.To != "03-file-manipulator.py" {
 		t.Errorf("expected file-manipulator.py -> 03-file-manipulator.py, got %s", op.To)
 	}
@@ -87,6 +92,7 @@ func setupTestFileSequenceDB(t *testing.T) *sql.DB {
 	if err != nil {
 		t.Fatalf("open sqlite failed: %v", err)
 	}
+
 	schema := `CREATE TABLE IF NOT EXISTS FileSequence (
 		Directory TEXT, Filename TEXT, SequenceNumber INTEGER, BaseName TEXT, UpdatedAt INTEGER
 	);`
@@ -135,6 +141,7 @@ func assertSavedSequenceRows(t *testing.T, db *sql.DB, wantCount int) {
 	if err := db.QueryRow("SELECT COUNT(*) FROM FileSequence WHERE Directory = 'testdir'").Scan(&count); err != nil {
 		t.Fatalf("query FileSequence count failed: %v", err)
 	}
+
 	if count != wantCount {
 		t.Errorf("expected %d rows in FileSequence, got %d", wantCount, count)
 	}
@@ -175,6 +182,7 @@ func setupTestStoreDB(t *testing.T) *store.DB {
 	if err != nil {
 		t.Fatalf("open test db failed: %v", err)
 	}
+
 	if err := db.Migrate(); err != nil {
 		t.Fatalf("migrate test db failed: %v", err)
 	}
@@ -191,9 +199,11 @@ func TestUpdateRepoInDBAndRemoveRepoDB(t *testing.T) {
 		RepoName:     "old-path",
 		Slug:         "old-path",
 	}
+
 	if err := db.UpsertRepos([]model.ScanRecord{rec}); err != nil {
 		t.Fatalf("upsert repo failed: %v", err)
 	}
+
 	repos, _ := db.FindByPath("/test/repos/old-path")
 	if len(repos) == 0 {
 		t.Fatalf("repo not found after insert")
@@ -231,9 +241,11 @@ func TestRemoveRepoDBWithAliasAtomicity(t *testing.T) {
 		RepoName:     "aliased-path",
 		Slug:         "aliased-path",
 	}
+
 	if err := db.UpsertRepos([]model.ScanRecord{rec}); err != nil {
 		t.Fatalf("upsert repo failed: %v", err)
 	}
+
 	repos, _ := db.FindByPath("/test/repos/aliased-path")
 	if len(repos) == 0 {
 		t.Fatalf("repo not found")

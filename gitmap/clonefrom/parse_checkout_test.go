@@ -23,10 +23,12 @@ func TestParseFile_JSON_CheckoutField(t *testing.T) {
 	if err != nil {
 		t.Fatalf("ParseFile: %v", err)
 	}
+
 	if plan.Rows[0].Checkout != "skip" {
 		t.Errorf("row0 checkout = %q, want skip (lower-cased)",
 			plan.Rows[0].Checkout)
 	}
+
 	if plan.Rows[1].Checkout != "force" {
 		t.Errorf("row1 checkout = %q, want force", plan.Rows[1].Checkout)
 	}
@@ -41,6 +43,7 @@ func TestParseFile_JSON_CheckoutFieldRejectsBogus(t *testing.T) {
 	if err == nil {
 		t.Fatalf("ParseFile accepted bogus checkout")
 	}
+
 	if !strings.Contains(err.Error(), "yolo") {
 		t.Errorf("error %q does not mention bad value", err.Error())
 	}
@@ -57,9 +60,11 @@ func TestParseFile_CSV_CheckoutColumn(t *testing.T) {
 	if err != nil {
 		t.Fatalf("ParseFile: %v", err)
 	}
+
 	if plan.Rows[0].Checkout != "skip" {
 		t.Errorf("row0 checkout = %q, want skip", plan.Rows[0].Checkout)
 	}
+
 	if plan.Rows[1].Checkout != "force" || plan.Rows[1].Branch != "main" {
 		t.Errorf("row1 = %+v", plan.Rows[1])
 	}
@@ -76,6 +81,7 @@ func TestMergeRows_CheckoutLaterWins(t *testing.T) {
 	if out.Checkout != "skip" {
 		t.Errorf("merged checkout = %q, want skip", out.Checkout)
 	}
+
 	// Empty later does NOT clobber a non-empty first.
 	out2 := mergeRows(Row{URL: "u", Checkout: "force"}, Row{URL: "u"})
 	if out2.Checkout != "force" {

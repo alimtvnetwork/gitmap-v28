@@ -17,8 +17,10 @@ func resolveSource(raw *commitin.RawArgs, stderr io.Writer) (*workspace.SourceHa
 	src, err := workspace.EnsureSource(raw.Source)
 	if err != nil {
 		fmt.Fprint(stderr, err.Error())
+
 		return nil, constants.CommitInExitSourceUnusable
 	}
+
 	return src, constants.CommitInExitOk
 }
 
@@ -26,8 +28,10 @@ func ensureWorkspace(sourceRoot string, stderr io.Writer) (*workspace.Paths, int
 	paths, err := workspace.EnsureWorkspace(sourceRoot)
 	if err != nil {
 		fmt.Fprintf(stderr, "commit-in: workspace: %v\n", err)
+
 		return nil, constants.CommitInExitDbFailed
 	}
+
 	return paths, constants.CommitInExitOk
 }
 
@@ -35,8 +39,10 @@ func acquireLock(paths *workspace.Paths, stderr io.Writer) (*workspace.LockHandl
 	lock, err := workspace.AcquireLock(paths)
 	if err != nil {
 		fmt.Fprint(stderr, err.Error())
+
 		return nil, constants.CommitInExitLockBusy
 	}
+
 	return lock, constants.CommitInExitOk
 }
 
@@ -44,13 +50,17 @@ func openAndMigrate(paths *workspace.Paths, stderr io.Writer) (dbCloser, int) {
 	db, err := store.OpenAt(paths.DbFile)
 	if err != nil {
 		fmt.Fprintf(stderr, constants.CommitInErrDbMigrate, err)
+
 		return nil, constants.CommitInExitDbFailed
 	}
+
 	if err := db.Migrate(); err != nil {
 		_ = db.Close()
 		fmt.Fprintf(stderr, constants.CommitInErrDbMigrate, err)
+
 		return nil, constants.CommitInExitDbFailed
 	}
+
 	return db, constants.CommitInExitOk
 }
 
@@ -68,7 +78,9 @@ func loadProfile(
 	if code != constants.CommitInExitOk {
 		return profile.Resolved{}, nil, code
 	}
+
 	cli := buildCliOverrides(raw)
+
 	return profile.Resolve(cli, prof), prof, constants.CommitInExitOk
 }
 
@@ -76,8 +88,10 @@ func pickNamedProfile(sourceRoot, name string, stderr io.Writer) (*profile.Profi
 	p, err := profile.LoadFromDisk(sourceRoot, name)
 	if err != nil {
 		fmt.Fprintf(stderr, constants.CommitInErrProfileMissing, name)
+
 		return nil, constants.CommitInExitProfileMissing
 	}
+
 	return p, constants.CommitInExitOk
 }
 
@@ -89,9 +103,11 @@ func pickProfile(
 	if raw.ProfileName != "" {
 		return pickNamedProfile(paths.SourceRoot, raw.ProfileName, stderr)
 	}
+
 	if raw.UseDefaultProfile {
 		return loadDefaultProfile(paths.SourceRoot)
 	}
+
 	return nil, constants.CommitInExitOk
 }
 
@@ -102,6 +118,7 @@ func loadDefaultProfile(sourceRoot string) (*profile.Profile, int) {
 	if err != nil {
 		return nil, constants.CommitInExitOk
 	}
+
 	return p, constants.CommitInExitOk
 }
 

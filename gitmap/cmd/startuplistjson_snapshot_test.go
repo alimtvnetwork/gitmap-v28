@@ -56,10 +56,12 @@ func TestStartupListJSONSnapshot_SchemaIsLocked(t *testing.T) {
 		// key whether or not the value is the zero string.
 		{Name: "gitmap-c", Path: "/p/c.desktop", Exec: ""},
 	}
+
 	var buf bytes.Buffer
 	if err := encodeStartupListJSON(&buf, entries); err != nil {
 		t.Fatalf("encode: %v", err)
 	}
+
 	assertSchemaKeysArray(t, buf.Bytes(), "startup-list")
 }
 
@@ -76,6 +78,7 @@ func TestStartupListJSONSnapshot_DeterministicAcrossRuns(t *testing.T) {
 		{Name: "gitmap-y", Path: "/p/y.desktop", Exec: "/bin/y"},
 		{Name: "gitmap-z", Path: "/p/z.desktop", Exec: ""},
 	}
+
 	const runs = 32
 	first := mustEncodeStartupList(t, entries)
 	for i := 1; i < runs; i++ {
@@ -97,6 +100,7 @@ func TestStartupListJSONSnapshot_EmptyListHasNoObjects(t *testing.T) {
 	if err := encodeStartupListJSON(&buf, nil); err != nil {
 		t.Fatalf("encode: %v", err)
 	}
+
 	keysPerObject := readEveryObjectKeys(t, buf.Bytes())
 	if len(keysPerObject) != 0 {
 		t.Fatalf("empty list must produce zero objects, got %d: %v",

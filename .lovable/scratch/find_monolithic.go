@@ -20,6 +20,7 @@ func main() {
 		if err != nil {
 			return err
 		}
+
 		if !strings.HasSuffix(path, ".go") || strings.Contains(path, "vendor") || strings.Contains(path, "node_modules") {
 			return nil
 		}
@@ -38,8 +39,10 @@ func main() {
 					fmt.Printf("%s:%d: Monolithic function %s exceeds 15 lines (%d lines)\n", path, start, fn.Name.Name, lines)
 				}
 			}
+
 			return true
 		})
+
 		return nil
 	})
 

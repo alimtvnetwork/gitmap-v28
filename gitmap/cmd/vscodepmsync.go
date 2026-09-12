@@ -34,6 +34,7 @@ func runVSCodePMSync(args []string) error {
 
 	if len(entries) == 0 {
 		fmt.Print(constants.MsgVSCodePMSyncEmptyFile)
+
 		return nil
 	}
 
@@ -43,10 +44,12 @@ func runVSCodePMSync(args []string) error {
 
 	if opts.DryRun {
 		emitVSCodePMSyncDryRunReport(entries, pairs, skipped)
+
 		return nil
 	}
 
 	commitVSCodePMSync(pairs, skipped, opts)
+
 	return nil
 }
 
@@ -63,12 +66,15 @@ func loadVSCodePMEntries(opts vscodePMSyncOpts) (string, []vscodepm.Entry, bool)
 	if opts.ProjectsJSON != "" {
 		entriesExplicit, errExplicit = vscodepm.ListEntriesAt(opts.ProjectsJSON)
 	}
+
 	isExplicitErr := opts.ProjectsJSON != "" && errExplicit != nil
 	isExplicitSuccess := opts.ProjectsJSON != "" && errExplicit == nil
 	if isExplicitErr {
 		reportVSCodePMSoftError(errExplicit)
+
 		return opts.ProjectsJSON, nil, false
 	}
+
 	if isExplicitSuccess {
 		return opts.ProjectsJSON, entriesExplicit, true
 	}
@@ -78,6 +84,7 @@ func loadVSCodePMEntries(opts vscodePMSyncOpts) (string, []vscodepm.Entry, bool)
 
 	if pathErr != nil || listErr != nil {
 		reportVSCodePMSoftError(firstNonNil(pathErr, listErr))
+
 		return path, nil, false
 	}
 
@@ -174,6 +181,7 @@ func commitVSCodePMSync(pairs []vscodepm.Pair, skipped int, opts vscodePMSyncOpt
 	summary, err := runVSCodePMSyncWriter(pairs, opts)
 	if err != nil {
 		reportVSCodePMSoftError(err)
+
 		return
 	}
 

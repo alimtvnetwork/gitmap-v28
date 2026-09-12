@@ -37,7 +37,6 @@ import (
 // JSON `id` field renders as a stable integer; CSV ignores ID
 // because ScanCSVHeaders intentionally omits it (legacy contract).
 func canonicalScanRecords() []model.ScanRecord {
-
 	return []model.ScanRecord{
 		{
 			ID: 1, Slug: "acme/widget", RepoName: "widget",
@@ -101,6 +100,7 @@ func TestScanGolden_JSONEmpty(t *testing.T) {
 	if err := WriteJSON(&buf, nil); err != nil {
 		t.Fatalf("WriteJSON: %v", err)
 	}
+
 	assertScanGolden(t, "scan_empty.json", buf.Bytes())
 }
 
@@ -113,6 +113,7 @@ func TestScanGolden_JSONCanonical(t *testing.T) {
 	if err := WriteJSON(&buf, canonicalScanRecords()); err != nil {
 		t.Fatalf("WriteJSON: %v", err)
 	}
+
 	assertScanGolden(t, "scan_canonical.json", buf.Bytes())
 }
 
@@ -125,6 +126,7 @@ func TestScanGolden_CSVEmpty(t *testing.T) {
 	if err := WriteCSV(&buf, nil); err != nil {
 		t.Fatalf("WriteCSV: %v", err)
 	}
+
 	assertScanGolden(t, "scan_empty.csv", buf.Bytes())
 }
 
@@ -137,6 +139,7 @@ func TestScanGolden_CSVCanonical(t *testing.T) {
 	if err := WriteCSV(&buf, canonicalScanRecords()); err != nil {
 		t.Fatalf("WriteCSV: %v", err)
 	}
+
 	assertScanGolden(t, "scan_canonical.csv", buf.Bytes())
 }
 
@@ -153,12 +156,14 @@ func assertScanGolden(t *testing.T, name string, got []byte) {
 
 		return
 	}
+
 	want, err := os.ReadFile(path)
 	if err != nil {
 		t.Fatalf("read golden %s: %v (run with "+
 			"GITMAP_UPDATE_GOLDEN=1 and "+
 			"GITMAP_ALLOW_GOLDEN_UPDATE=1 to create)", path, err)
 	}
+
 	// Normalize CRLF→LF on both sides: the production CSV writer emits
 	// CRLF (csv.Writer.UseCRLF=true, pinned by csvcrlf_contract_test.go)
 	// but the on-disk golden is checked out as LF on every platform via
@@ -189,8 +194,10 @@ func writeScanGolden(t *testing.T, path string, got []byte) {
 	if err := os.MkdirAll(filepath.Dir(path), 0o755); err != nil {
 		t.Fatalf("mkdir testdata: %v", err)
 	}
+
 	if err := os.WriteFile(path, got, 0o644); err != nil {
 		t.Fatalf("write golden %s: %v", path, err)
 	}
+
 	t.Fatalf("regenerated golden %s — re-run without GITMAP_UPDATE_GOLDEN to confirm", path)
 }

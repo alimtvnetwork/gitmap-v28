@@ -34,10 +34,12 @@ func ResolveEndpoint(raw string) (Endpoint, error) {
 	if isURLLike(trimmed) {
 		return ep, fmt.Errorf(constants.ErrDiffNotFolderFmt, trimmed)
 	}
+
 	abs, err := filepath.Abs(trimmed)
 	if err != nil {
 		return ep, fmt.Errorf("resolve abs path %s: %w", trimmed, err)
 	}
+
 	ep.WorkingDir = abs
 
 	return validateFolder(ep)
@@ -49,9 +51,11 @@ func validateFolder(ep Endpoint) (Endpoint, error) {
 	if os.IsNotExist(err) {
 		return ep, fmt.Errorf(constants.ErrDiffMissingFmt, ep.DisplayName)
 	}
+
 	if err != nil {
 		return ep, fmt.Errorf("stat %s: %w", ep.WorkingDir, err)
 	}
+
 	if !info.IsDir() {
 		return ep, fmt.Errorf(constants.ErrDiffNotFolderFmt, ep.DisplayName)
 	}

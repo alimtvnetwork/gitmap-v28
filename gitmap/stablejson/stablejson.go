@@ -103,9 +103,9 @@ func WriteArrayIndent(w io.Writer, items [][]Field, indent string) error {
 
 		return err
 	}
+
 	var buf bytes.Buffer
 	if indent == "" {
-
 		return writeArrayMinified(w, &buf, items)
 	}
 
@@ -145,15 +145,18 @@ func WriteObjectIndent(w io.Writer, fields []Field, indent string) error {
 
 		return err
 	}
+
 	var buf bytes.Buffer
 	err := error(nil)
 	if indent == "" {
 		err = writeCompactObject(&buf, fields)
 	}
+
 	if indent == "" && err == nil {
 		buf.WriteByte('\n')
 		_, err = w.Write(buf.Bytes())
 	}
+
 	if indent == "" {
 		return err
 	}
@@ -165,11 +168,14 @@ func WriteObjectIndent(w io.Writer, fields []Field, indent string) error {
 		if err != nil {
 			return err
 		}
+
 		if i < len(fields)-1 {
 			buf.WriteByte(',')
 		}
+
 		buf.WriteByte('\n')
 	}
+
 	buf.WriteString("}\n")
 	_, err = w.Write(buf.Bytes())
 
@@ -191,17 +197,18 @@ func WriteObjectIndent(w io.Writer, fields []Field, indent string) error {
 // WriteJSONLines outputs produces a valid combined stream.
 func WriteJSONLines(w io.Writer, items [][]Field) error {
 	if len(items) == 0 {
-
 		return nil
 	}
+
 	var buf bytes.Buffer
 	for _, obj := range items {
 		if err := writeCompactObject(&buf, obj); err != nil {
-
 			return err
 		}
+
 		buf.WriteByte('\n')
 	}
+
 	_, err := w.Write(buf.Bytes())
 
 	return err

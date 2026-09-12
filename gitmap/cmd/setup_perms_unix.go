@@ -16,6 +16,7 @@ func isSensitiveFile(name string) bool {
 
 		return true
 	}
+
 	ext := filepath.Ext(name)
 
 	return ext == ".key" || ext == ".pem"
@@ -26,6 +27,7 @@ func isWritablePath(relPath string, appType PermsAppType) bool {
 	if appType == PermsAppTypeWordPress {
 		return strings.HasPrefix(cleanRel, "wp-content/uploads")
 	}
+
 	if appType == PermsAppTypeLaravel {
 		return strings.HasPrefix(cleanRel, "storage") || strings.HasPrefix(cleanRel, "bootstrap/cache")
 	}
@@ -46,6 +48,7 @@ func resolveFileMode(relPath string, appType PermsAppType) os.FileMode {
 	if isSensitiveFile(base) {
 		return 0600
 	}
+
 	if isWritablePath(relPath, appType) {
 		return 0664
 	}
@@ -65,9 +68,11 @@ func fixItemMode(path string, expected os.FileMode, isFix, isDryRun bool) (bool,
 	if !isFix {
 		return false, nil
 	}
+
 	if isDryRun || currentOS == "windows" {
 		return true, nil
 	}
+
 	err := os.Chmod(path, expected)
 	if err != nil {
 		return false, apperror.WrapSimple(err, "os.Chmod")
@@ -84,12 +89,14 @@ func auditItem(path, relPath string, info os.FileInfo, opts PermsOptions, report
 	if isMatch {
 		return nil
 	}
+
 	msg := fmt.Sprintf("%s: mode %04o != expected %04o", relPath, actual, expected)
 	report.Violations = append(report.Violations, msg)
 	wasFixed, fixErr := fixItemMode(path, expected, opts.IsFix, opts.IsDryRun)
 	if fixErr != nil {
 		return fixErr
 	}
+
 	if wasFixed {
 		report.FixedCount++
 	}
@@ -102,10 +109,12 @@ func createPermsWalkFunc(targetDir string, opts PermsOptions, report *PermsRepor
 		if err != nil {
 			return err
 		}
+
 		rel, relErr := filepath.Rel(targetDir, path)
 		if relErr != nil {
 			return relErr
 		}
+
 		appErr := auditItem(path, rel, info, opts, report)
 		if appErr != nil {
 			return appErr
@@ -120,10 +129,12 @@ func applyOwnership(targetDir, owner string) *apperror.AppError {
 	if !hasOwner {
 		return nil
 	}
+
 	_, lookErr := exec.LookPath("chown")
 	if lookErr != nil {
 		return nil
 	}
+
 	runErr := commandRunner("chown", "-R", owner, targetDir)
 	if runErr != nil {
 		return apperror.WrapSimple(runErr, "chown")
@@ -148,6 +159,7 @@ func ApplyUnixPermissions(opts PermsOptions) (*PermsReport, *apperror.AppError) 
 	if walkErr != nil {
 		return report, apperror.WrapSimple(walkErr, "filepath.Walk")
 	}
+
 	ownErr := handleUnixOwnership(opts)
 	if ownErr != nil {
 		return report, ownErr

@@ -14,14 +14,17 @@ func RunMove(left, right Endpoint, opts Options) error {
 	if err := GuardEndpoints(left, right); err != nil {
 		return err
 	}
+
 	if err := ensureRightExists(right, opts); err != nil {
 		return err
 	}
+
 	logf(opts.LogPrefix, "copying files LEFT -> RIGHT (excluding .git/) ...")
 	count, err := copyOrDryRun(left.WorkingDir, right.WorkingDir, opts)
 	if err != nil {
 		return err
 	}
+
 	logIndent(opts.LogPrefix, "copied %d files", count)
 	if delErr := deleteLeftFolder(left, opts); delErr != nil {
 		return delErr
@@ -36,17 +39,21 @@ func ensureRightExists(right Endpoint, opts Options) error {
 	if right.IsExisted || right.Kind == EndpointURL {
 		return nil
 	}
+
 	if opts.IsDryRun {
 		logIndent(opts.LogPrefix, "[dry-run] mkdir %s", right.WorkingDir)
 
 		return nil
 	}
+
 	if err := os.MkdirAll(right.WorkingDir, 0o755); err != nil {
 		return fmt.Errorf("mkdir %s: %w", right.WorkingDir, err)
 	}
+
 	if !opts.IsInitNewRight {
 		return nil
 	}
+
 	if _, err := runGit(right.WorkingDir, "init"); err != nil {
 		return fmt.Errorf("git init %s: %w", right.WorkingDir, err)
 	}
@@ -64,6 +71,7 @@ func copyOrDryRun(src, dst string, opts Options) (int, error) {
 	if err != nil {
 		return 0, err
 	}
+
 	for rel := range idx {
 		logIndent(opts.LogPrefix, "[dry-run] copy %s", rel)
 	}
@@ -79,9 +87,11 @@ func deleteLeftFolder(left Endpoint, opts Options) error {
 
 		return nil
 	}
+
 	if err := os.RemoveAll(left.WorkingDir); err != nil {
 		return fmt.Errorf("delete LEFT %s: %w", left.WorkingDir, err)
 	}
+
 	logIndent(opts.LogPrefix, "deleted")
 
 	return nil

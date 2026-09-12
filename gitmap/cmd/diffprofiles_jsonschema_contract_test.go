@@ -31,6 +31,7 @@ func TestDiffProfilesJSONSchema_TopLevelShape(t *testing.T) {
 	if root["type"] != "object" {
 		t.Fatalf("top-level type = %v, want object", root["type"])
 	}
+
 	got := stringSliceFromAny(root["required"])
 	sort.Strings(got)
 	if !equalStringSlices(got, diffProfilesTopLevelRequiredKeys) {
@@ -53,6 +54,7 @@ func TestDiffProfilesJSONSchema_EncoderMatchesSchema(t *testing.T) {
 	if err := encodeDiffProfilesJSON(&buf, "alpha", "beta", result); err != nil {
 		t.Fatalf("encode: %v", err)
 	}
+
 	gotKeys := readFirstObjectKeys(t, buf.Bytes())
 	for _, key := range gotKeys {
 		if _, allowed := props[key]; !allowed {

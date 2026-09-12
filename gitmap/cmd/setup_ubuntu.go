@@ -12,20 +12,20 @@ import (
 // ensureZshUbuntuStep coordinates Ubuntu ZSH setup.
 func ensureZshUbuntuStep(isDryRun, isSkipZsh bool) {
 	if isZshBypassed(isSkipZsh) || checkExistingZsh() {
-
 		return
 	}
+
 	if isDryRun {
 		fmt.Printf("  %s[dry-run]%s would install ZSH\n", constants.ColorDim, constants.ColorReset)
 
 		return
 	}
+
 	promptZshIfInteractive()
 }
 
 func isZshBypassed(isSkipZsh bool) bool {
 	if !isUbuntuOS() || isSkipZsh {
-
 		return true
 	}
 
@@ -35,7 +35,6 @@ func isZshBypassed(isSkipZsh bool) bool {
 func isUbuntuOS() bool {
 	b, readErr := os.ReadFile("/etc/os-release")
 	if readErr != nil {
-
 		return false
 	}
 
@@ -45,9 +44,9 @@ func isUbuntuOS() bool {
 func checkExistingZsh() bool {
 	zshPath, isInstalled := findZshBinary()
 	if !isInstalled {
-
 		return false
 	}
+
 	printZshInstalled(zshPath)
 	_ = checkExistingOhMyZsh()
 
@@ -60,6 +59,7 @@ func printZshInstalled(zshPath string) {
 	if len(ver) > 0 {
 		msg += " (" + ver + ")"
 	}
+
 	fmt.Println(msg)
 }
 
@@ -79,6 +79,7 @@ func promptZshIfInteractive() {
 
 		return
 	}
+
 	fmt.Println("  Non-interactive terminal: skipping ZSH installation prompt.")
 }
 
@@ -87,8 +88,8 @@ func promptZshInstallation() {
 	reader := bufio.NewReader(os.Stdin)
 	resp, readErr := reader.ReadString('\n')
 	if readErr != nil {
-
 		return
 	}
+
 	evaluateZshPrompt(strings.TrimSpace(strings.ToLower(resp)))
 }

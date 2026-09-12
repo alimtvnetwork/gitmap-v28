@@ -11,6 +11,7 @@ func runIgnore(args []string) error {
 	if err := ignore.RunIgnore(args); err != nil {
 		return apperror.WrapSimple(err, "Error:")
 	}
+
 	return nil
 }
 
@@ -19,5 +20,6 @@ func runIgnoreRm(args []string) error {
 	if err := ignore.RunIgnoreRm(args); err != nil {
 		return apperror.WrapSimple(err, "Error:")
 	}
+
 	return nil
 }

@@ -18,6 +18,7 @@ func runTempReleaseList(args []string) error {
 	if err != nil {
 		return apperror.WrapSimple(err, constants.ErrListDBFailed)
 	}
+
 	defer db.Close()
 	if err := db.Migrate(); err != nil {
 		fmt.Fprintf(os.Stderr, "  ⚠ DB migration failed: %v\n", err)
@@ -30,6 +31,7 @@ func runTempReleaseList(args []string) error {
 
 	if !jsonOutput {
 		printTRList(releases)
+
 		return nil
 	}
 
@@ -37,6 +39,7 @@ func runTempReleaseList(args []string) error {
 	if errEncode != nil {
 		fmt.Fprintf(os.Stderr, "  ✗ Failed to encode temp releases to JSON: %v\n", errEncode)
 	}
+
 	return nil
 }
 

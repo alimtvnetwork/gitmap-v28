@@ -12,6 +12,7 @@ func generatePowerShell() string {
     if (($cmd -eq "cd" -or $cmd -eq "go") -and ($prev -eq "--group" -or $prev -eq "-g")) {
         gitmap completion --list-groups | Where-Object { $_ -like "$wordToComplete*" } |
             ForEach-Object { [System.Management.Automation.CompletionResult]::new($_) }
+
         return
     }
 
@@ -19,18 +20,21 @@ func generatePowerShell() string {
         $items = @(gitmap completion --list-repos) + @("repos", "set-default", "clear-default")
         $items | Where-Object { $_ -like "$wordToComplete*" } |
             ForEach-Object { [System.Management.Automation.CompletionResult]::new($_) }
+
         return
     }
 
     if ($cmd -eq "pull") {
         gitmap completion --list-repos | Where-Object { $_ -like "$wordToComplete*" } |
             ForEach-Object { [System.Management.Automation.CompletionResult]::new($_) }
+
         return
     }
 
     if ($cmd -eq "exec" -and ($prev -eq "--group")) {
         gitmap completion --list-groups | Where-Object { $_ -like "$wordToComplete*" } |
             ForEach-Object { [System.Management.Automation.CompletionResult]::new($_) }
+
         return
     }
 
@@ -40,6 +44,7 @@ func generatePowerShell() string {
         $items = $subs + $groups
         $items | Where-Object { $_ -like "$wordToComplete*" } |
             ForEach-Object { [System.Management.Automation.CompletionResult]::new($_) }
+
         return
     }
 
@@ -47,6 +52,7 @@ func generatePowerShell() string {
         $items = @("go", "node", "nodejs", "react", "cpp", "csharp", "groups", "--group", "--verbose")
         $items | Where-Object { $_ -like "$wordToComplete*" } |
             ForEach-Object { [System.Management.Automation.CompletionResult]::new($_) }
+
         return
     }
 
@@ -56,12 +62,14 @@ func generatePowerShell() string {
         $items = $subs + $groups
         $items | Where-Object { $_ -like "$wordToComplete*" } |
             ForEach-Object { [System.Management.Automation.CompletionResult]::new($_) }
+
         return
     }
 
     if (($cmd -eq "release" -or $cmd -eq "r") -and ($prev -eq "--zip-group")) {
         gitmap completion --list-zip-groups | Where-Object { $_ -like "$wordToComplete*" } |
             ForEach-Object { [System.Management.Automation.CompletionResult]::new($_) }
+
         return
     }
 
@@ -69,6 +77,7 @@ func generatePowerShell() string {
         $items = @("--assets", "--commit", "--branch", "--bump", "--draft", "--dry-run", "--compress", "--checksums", "--bin", "--targets", "--list-targets", "--verbose", "--zip-group", "-Z", "--bundle")
         $items | Where-Object { $_ -like "$wordToComplete*" } |
             ForEach-Object { [System.Management.Automation.CompletionResult]::new($_) }
+
         return
     }
 
@@ -76,6 +85,7 @@ func generatePowerShell() string {
         $items = @("--assets", "--draft", "--dry-run", "--compress", "--checksums", "--bin", "--targets")
         $items | Where-Object { $_ -like "$wordToComplete*" } |
             ForEach-Object { [System.Management.Automation.CompletionResult]::new($_) }
+
         return
     }
 
@@ -85,12 +95,14 @@ func generatePowerShell() string {
         $items = $subs + $aliases
         $items | Where-Object { $_ -like "$wordToComplete*" } |
             ForEach-Object { [System.Management.Automation.CompletionResult]::new($_) }
+
         return
     }
 
     if (($cmd -eq "zip-group" -or $cmd -eq "z") -and ($sub -eq "add" -or $sub -eq "show" -or $sub -eq "delete" -or $sub -eq "remove" -or $sub -eq "rename")) {
         gitmap completion --list-zip-groups | Where-Object { $_ -like "$wordToComplete*" } |
             ForEach-Object { [System.Management.Automation.CompletionResult]::new($_) }
+
         return
     }
 
@@ -100,6 +112,7 @@ func generatePowerShell() string {
         $items = $subs + $zgroups
         $items | Where-Object { $_ -like "$wordToComplete*" } |
             ForEach-Object { [System.Management.Automation.CompletionResult]::new($_) }
+
         return
     }
 
@@ -107,12 +120,14 @@ func generatePowerShell() string {
         $items = @("--limit", "--since", "--no-merges", "--out-dir", "--open")
         $items | Where-Object { $_ -like "$wordToComplete*" } |
             ForEach-Object { [System.Management.Automation.CompletionResult]::new($_) }
+
         return
     }
 
     if ($cmd -eq "ssh" -and ($sub -eq "cat" -or $sub -eq "delete" -or $sub -eq "rm") -and ($prev -eq "--name" -or $prev -eq "-n")) {
         gitmap completion --list-ssh-keys | Where-Object { $_ -like "$wordToComplete*" } |
             ForEach-Object { [System.Management.Automation.CompletionResult]::new($_) }
+
         return
     }
 
@@ -120,12 +135,14 @@ func generatePowerShell() string {
         $subs = @("cat", "list", "ls", "delete", "rm", "config", "--name", "--path", "--email", "--force")
         $subs | Where-Object { $_ -like "$wordToComplete*" } |
             ForEach-Object { [System.Management.Automation.CompletionResult]::new($_) }
+
         return
     }
 
     if ($cmd -eq "help" -and ($prev -eq "--compact")) {
         gitmap completion --list-help-groups | Where-Object { $_ -like "$wordToComplete*" } |
             ForEach-Object { [System.Management.Automation.CompletionResult]::new($_) }
+
         return
     }
 
@@ -133,6 +150,7 @@ func generatePowerShell() string {
         $items = @("--compact")
         $items | Where-Object { $_ -like "$wordToComplete*" } |
             ForEach-Object { [System.Management.Automation.CompletionResult]::new($_) }
+
         return
     }
 
@@ -140,6 +158,7 @@ func generatePowerShell() string {
         $items = @("v++", "--delete", "--keep", "--no-desktop", "--ssh-key", "--verbose", "--force", "-f")
         $items | Where-Object { $_ -like "$wordToComplete*" } |
             ForEach-Object { [System.Management.Automation.CompletionResult]::new($_) }
+
         return
     }
 
@@ -147,6 +166,7 @@ func generatePowerShell() string {
         $items = @("--limit", "--json")
         $items | Where-Object { $_ -like "$wordToComplete*" } |
             ForEach-Object { [System.Management.Automation.CompletionResult]::new($_) }
+
         return
     }
 
@@ -154,6 +174,7 @@ func generatePowerShell() string {
         $items = @("--prefer-newer", "--prefer-left", "--prefer-right", "--dry-run", "--verbose")
         $items | Where-Object { $_ -like "$wordToComplete*" } |
             ForEach-Object { [System.Management.Automation.CompletionResult]::new($_) }
+
         return
     }
 
@@ -161,6 +182,7 @@ func generatePowerShell() string {
         $items = @("--prefer-newer", "--prefer-left", "--prefer-right", "--prefer-larger", "--dry-run", "--verbose")
         $items | Where-Object { $_ -like "$wordToComplete*" } |
             ForEach-Object { [System.Management.Automation.CompletionResult]::new($_) }
+
         return
     }
 
@@ -168,6 +190,7 @@ func generatePowerShell() string {
         $items = @("union", "replace", "intersection")
         $items | Where-Object { $_ -like "$wordToComplete*" } |
             ForEach-Object { [System.Management.Automation.CompletionResult]::new($_) }
+
         return
     }
 
@@ -179,6 +202,7 @@ func generatePowerShell() string {
         $items = @("--dry-run", "--projects-json", "--tag", "--mode")
         $items | Where-Object { $_ -like "$wordToComplete*" } |
             ForEach-Object { [System.Management.Automation.CompletionResult]::new($_) }
+
         return
     }
 
@@ -186,6 +210,7 @@ func generatePowerShell() string {
         $items = @("markdown", "json")
         $items | Where-Object { $_ -like "$wordToComplete*" } |
             ForEach-Object { [System.Management.Automation.CompletionResult]::new($_) }
+
         return
     }
 
@@ -193,6 +218,7 @@ func generatePowerShell() string {
         $items = @("commands", "architecture", "flags", "conventions", "structure", "database", "installation", "patterns")
         $items | Where-Object { $_ -like "$wordToComplete*" } |
             ForEach-Object { [System.Management.Automation.CompletionResult]::new($_) }
+
         return
     }
 
@@ -200,29 +226,34 @@ func generatePowerShell() string {
         $items = @("--stdout", "--format", "--sections")
         $items | Where-Object { $_ -like "$wordToComplete*" } |
             ForEach-Object { [System.Management.Automation.CompletionResult]::new($_) }
+
         return
     }
 
     if ($prev -eq "-A" -or $prev -eq "--alias") {
         gitmap completion --list-aliases | Where-Object { $_ -like "$wordToComplete*" } |
             ForEach-Object { [System.Management.Automation.CompletionResult]::new($_) }
+
         return
     }
 
     if ($prev -eq "--zip-group") {
         gitmap completion --list-zip-groups | Where-Object { $_ -like "$wordToComplete*" } |
             ForEach-Object { [System.Management.Automation.CompletionResult]::new($_) }
+
         return
     }
 
     if ($prev -eq "--ssh-key" -or $prev -eq "-K") {
         gitmap completion --list-ssh-keys | Where-Object { $_ -like "$wordToComplete*" } |
             ForEach-Object { [System.Management.Automation.CompletionResult]::new($_) }
+
         return
     }
 
     gitmap completion --list-commands | Where-Object { $_ -like "$wordToComplete*" } |
         ForEach-Object { [System.Management.Automation.CompletionResult]::new($_) }
 }
+
 `
 }

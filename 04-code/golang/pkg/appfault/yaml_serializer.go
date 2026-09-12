@@ -24,6 +24,7 @@ func appendDetailYamlFields(b *strings.Builder, m AppErrorDataModel) {
 	if len(m.Stack) > 0 {
 		appendYamlLine(b, "Caller", m.Stack.CallerLine())
 	}
+
 	appendYamlLine(b, "Cause", m.Cause)
 }
 

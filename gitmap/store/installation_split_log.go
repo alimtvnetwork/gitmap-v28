@@ -46,21 +46,17 @@ type InstallationLogRecord struct {
 
 // IsFailed reports whether the installation log record represents a failure.
 func (r InstallationLogRecord) IsFailed() bool {
-
 	return !r.IsSuccess
 }
 
 // IsFail reports whether the installation log record represents a failure.
 func (r InstallationLogRecord) IsFail() bool {
-
 	return !r.IsSuccess
 }
 
 // SanitizeLogOutput truncates log output to 64 KB to prevent SQLite database bloat.
 func SanitizeLogOutput(s string) string {
-
 	if len(s) > maxLogOutputBytes {
-
 		return strings.ToValidUTF8(s[:maxLogOutputBytes], "")
 	}
 
@@ -79,7 +75,6 @@ func (s *InstallationSplitDB) RecordLog(r InstallationLogRecord) error {
 		stdout, stderr, r.CommandLine, r.Notes, r.Comments, now)
 
 	if err != nil {
-
 		return apperror.WrapSimple(err, "installation_split.recordLog")
 	}
 
@@ -106,7 +101,6 @@ func (s *InstallationSplitDB) GetLogs(limit int) ([]InstallationLogRecord, error
 	rows, err := s.conn.Query(sqlSelectInstallationLogs, effectiveLimit)
 
 	if err != nil {
-
 		return nil, apperror.WrapSimple(err, "installation_split.getLogs")
 	}
 
@@ -122,7 +116,6 @@ func (s *InstallationSplitDB) GetLogsByTool(tool string, limit int) ([]Installat
 	rows, err := s.conn.Query(sqlSelectLogsByTool, tool, effectiveLimit)
 
 	if err != nil {
-
 		return nil, apperror.WrapSimple(err, "installation_split.getLogsByTool")
 	}
 
@@ -138,7 +131,6 @@ func (s *InstallationSplitDB) GetFailedLogs(limit int) ([]InstallationLogRecord,
 	rows, err := s.conn.Query(sqlSelectFailedLogs, effectiveLimit)
 
 	if err != nil {
-
 		return nil, apperror.WrapSimple(err, "installation_split.getFailedLogs")
 	}
 
@@ -156,7 +148,6 @@ func scanInstallationLogs(rows *sql.Rows) ([]InstallationLogRecord, error) {
 		err := scanSingleLogRecord(rows, &r)
 
 		if err != nil {
-
 			return nil, apperror.WrapSimple(err, "installation_split.scanLogs")
 		}
 
@@ -174,7 +165,6 @@ func scanSingleLogRecord(rows *sql.Rows, r *InstallationLogRecord) error {
 		&r.Stdout, &r.Stderr, &r.CommandLine, &r.Notes, &r.Comments, &r.CreatedAt)
 
 	if err != nil {
-
 		return err
 	}
 
@@ -187,7 +177,6 @@ func newExecutionRecord(
 	tool, action, version, manager string,
 	durationMs int64, isSuccess bool, exitCode int,
 ) InstallationLogRecord {
-
 	return InstallationLogRecord{
 		Tool:           tool,
 		Action:         action,
@@ -200,9 +189,7 @@ func newExecutionRecord(
 }
 
 func resolveCreatedAt(createdAt string) string {
-
 	if createdAt != "" {
-
 		return createdAt
 	}
 
@@ -210,9 +197,7 @@ func resolveCreatedAt(createdAt string) string {
 }
 
 func resolveLogLimit(limit int) int {
-
 	if limit > 0 {
-
 		return limit
 	}
 

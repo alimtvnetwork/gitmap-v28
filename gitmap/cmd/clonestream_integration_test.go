@@ -54,7 +54,6 @@ import (
 // a plausible production transcript. Branches are pinned (non-empty)
 // to avoid network calls — see file header.
 func streamCaptureRows() []clonefrom.Row {
-
 	return []clonefrom.Row{
 		{URL: "https://github.com/acme/widget.git",
 			Branch: "main", Depth: 1},
@@ -69,7 +68,6 @@ func streamCaptureRows() []clonefrom.Row {
 // (vs. inlined) so the row table reads cleanly and the test loop
 // can index both with a single i.
 func streamCaptureDests() []string {
-
 	return []string{"widget", "gadget", "sprocket"}
 }
 
@@ -111,6 +109,7 @@ func captureStreamedRows(t *testing.T) ([]byte, []byte) {
 	for i, row := range rows {
 		printCloneFromTermBlockRow(i+1, len(rows), row, dests[i])
 	}
+
 	restore() // closes the pipe writers so the drain goroutines exit
 
 	return <-outCh, <-errCh
@@ -199,11 +198,13 @@ func assertStreamGolden(t *testing.T, name string, got []byte) {
 
 		return
 	}
+
 	want, err := os.ReadFile(path)
 	if err != nil {
 		t.Fatalf("read golden %s: %v (run with GITMAP_UPDATE_GOLDEN=1 "+
 			"and GITMAP_ALLOW_GOLDEN_UPDATE=1 to create)", path, err)
 	}
+
 	if !bytes.Equal(got, want) {
 		t.Fatalf("golden mismatch for %s\n--- want (%d bytes) ---\n"+
 			"%s\n--- got (%d bytes) ---\n%s",
@@ -219,9 +220,11 @@ func writeStreamGolden(t *testing.T, path string, got []byte) {
 	if err := os.MkdirAll(filepath.Dir(path), 0o755); err != nil {
 		t.Fatalf("mkdir testdata: %v", err)
 	}
+
 	if err := os.WriteFile(path, got, 0o644); err != nil {
 		t.Fatalf("write golden %s: %v", path, err)
 	}
+
 	t.Fatalf("regenerated golden %s — re-run without "+
 		"GITMAP_UPDATE_GOLDEN to confirm", path)
 }

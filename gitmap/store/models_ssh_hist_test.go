@@ -17,12 +17,15 @@ func TestSSHHistory(t *testing.T) {
 	if h.ID != "test-id" {
 		t.Errorf("expected ID test-id, got %s", h.ID)
 	}
+
 	if h.HostIP != "192.168.1.1" {
 		t.Errorf("expected HostIP 192.168.1.1, got %s", h.HostIP)
 	}
+
 	if !h.JoinedAt.Equal(now) {
 		t.Errorf("expected JoinedAt to match %v, got %v", now, h.JoinedAt)
 	}
+
 	if h.User != "admin" {
 		t.Errorf("expected User admin, got %s", h.User)
 	}

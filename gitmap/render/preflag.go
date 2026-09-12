@@ -61,12 +61,15 @@ func Decide(mode PrettyModeType, isTTY, isMarkdown bool) bool {
 	if mode == PrettyOff {
 		return false
 	}
+
 	if !isMarkdown {
 		return false
 	}
+
 	if mode == PrettyOn {
 		return true
 	}
+
 	if os.Getenv(EnvNoPretty) != "" {
 		return false
 	}
@@ -87,6 +90,7 @@ func StdoutIsTerminal() bool {
 	if theme.Active() != theme.ModeBright {
 		return theme.IsStdoutTTY()
 	}
+
 	info, err := os.Stdout.Stat()
 	if err != nil {
 		return false

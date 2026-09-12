@@ -26,6 +26,7 @@ func TestBuildAuditNeedles(t *testing.T) {
 			[]byte(fmt.Sprintf("gitmap/v%d", n)),
 		)
 	}
+
 	// Diagnostic log: print both slices so any future failure here
 	// surfaces the full got/want context even when CI truncates the
 	// per-assertion error line.
@@ -33,6 +34,7 @@ func TestBuildAuditNeedles(t *testing.T) {
 	if len(got) != len(want) {
 		t.Fatalf("len = %d, want %d (got=%q want=%q)", len(got), len(want), got, want)
 	}
+
 	for i := range got {
 		if !bytes.Equal(got[i], want[i]) {
 			t.Errorf("needle[%d] = %q, want %q (targets=%v)", i, got[i], want[i], targets)
@@ -57,6 +59,7 @@ func TestBuildAuditNeedlesWidthCrossing(t *testing.T) {
 	if len(got) != len(want) {
 		t.Fatalf("len = %d, want %d", len(got), len(want))
 	}
+
 	for i := range got {
 		if string(got[i]) != want[i] {
 			t.Errorf("needle[%d] = %q, want %q", i, got[i], want[i])
@@ -86,9 +89,11 @@ func TestLineContainsAny(t *testing.T) {
 	if !lineContainsAny([]byte("import gitmap-v28/foo"), needles) {
 		t.Error("expected dash-form match")
 	}
+
 	if !lineContainsAny([]byte("module github.com/x/gitmap/v9"), needles) {
 		t.Error("expected slash-form match")
 	}
+
 	if lineContainsAny([]byte("nothing relevant"), needles) {
 		t.Error("unexpected match on clean line")
 	}
@@ -117,6 +122,7 @@ func TestScanAuditFileFormatting(t *testing.T) {
 	if !strings.Contains(stdout, want2) {
 		t.Errorf("missing line-2 hit\n got: %q\nwant substring: %q", stdout, want2)
 	}
+
 	if !strings.Contains(stdout, want4) {
 		t.Errorf("missing line-4 hit\n got: %q\nwant substring: %q", stdout, want4)
 	}

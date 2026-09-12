@@ -34,6 +34,7 @@ func runReleaseUndo(args []string) error {
 	if version == "" && !ok {
 		return apperror.NewSimple("release-undo: no .gitmap/release/v*.json found and no version argument given", "E9000")
 	}
+
 	if version == "" {
 		version = latest
 	}
@@ -42,6 +43,7 @@ func runReleaseUndo(args []string) error {
 	if err != nil {
 		return apperror.NewSimple(constants.ErrReleaseInvalidVersion, "E9000")
 	}
+
 	tag := "v" + v.String()
 	jsonPath := filepath.Join(constants.DefaultReleaseDir, v.String()+constants.ExtJSON)
 
@@ -50,12 +52,15 @@ func runReleaseUndo(args []string) error {
 	if !keepRemote {
 		fmt.Printf("  remote tag     : git push origin :refs/tags/%s\n", tag)
 	}
+
 	fmt.Printf("  release json   : %s\n", jsonPath)
 
 	if dryRun {
 		fmt.Println("\x1b[33m(dry-run; no changes applied)\x1b[0m")
+
 		return nil
 	}
+
 	if !yes && !confirmUndoRelease(tag) {
 		return apperror.NewSimple("release-undo: aborted", "E9000")
 	}
@@ -64,6 +69,7 @@ func runReleaseUndo(args []string) error {
 	summary := fmt.Sprintf("✅ release-undo complete — %s removed (%s)", tag, strings.Join(steps, ", "))
 	fmt.Println("\x1b[1;32m" + summary + "\x1b[0m")
 	fmt.Println("\x1b[2m(share this line in your task report)\x1b[0m")
+
 	return nil
 }
 
@@ -78,6 +84,7 @@ func parseReleaseUndoFlags(args []string) (version string, keepRemote, dryRun, y
 	if fs.NArg() > 0 {
 		version = fs.Arg(0)
 	}
+
 	return version, keepRemote, dryRun, yes
 }
 
@@ -87,6 +94,7 @@ func confirmUndoRelease(tag string) bool {
 	var reply string
 	_, _ = fmt.Scanln(&reply)
 	reply = strings.ToLower(strings.TrimSpace(reply))
+
 	return reply == "y" || reply == "yes"
 }
 
@@ -98,21 +106,26 @@ func applyReleaseUndo(tag, jsonPath string, keepRemote bool) []string {
 	} else {
 		fmt.Fprintf(os.Stderr, "  ⚠ local tag delete failed: %v\n", err)
 	}
+
 	errPush := error(nil)
 	if !keepRemote {
 		errPush = runGitQuiet("push", "origin", ":refs/tags/"+tag)
 	}
+
 	if !keepRemote && errPush == nil {
 		done = append(done, "remote tag")
 	}
+
 	if !keepRemote && errPush != nil {
 		fmt.Fprintf(os.Stderr, "  ⚠ remote tag delete failed: %v\n", errPush)
 	}
+
 	if err := os.Remove(jsonPath); err == nil {
 		done = append(done, "release json")
 	} else if !os.IsNotExist(err) {
 		fmt.Fprintf(os.Stderr, "  ⚠ json delete failed: %v\n", err)
 	}
+
 	return done
 }
 
@@ -120,6 +133,7 @@ func applyReleaseUndo(tag, jsonPath string, keepRemote bool) []string {
 func runGitQuiet(args ...string) error {
 	cmd := exec.Command("git", args...)
 	cmd.Stderr = os.Stderr
+
 	return cmd.Run()
 }
 
@@ -129,31 +143,39 @@ func latestReleaseJSONVersion() (string, bool) {
 	if err != nil {
 		return "", false
 	}
+
 	var versions []release.Version
 	for _, e := range entries {
 		name := e.Name()
 		if !strings.HasSuffix(name, constants.ExtJSON) {
 			continue
 		}
+
 		raw := strings.TrimSuffix(name, constants.ExtJSON)
 		v, err := release.Parse(raw)
 		if err != nil {
 			continue
 		}
+
 		versions = append(versions, v)
 	}
+
 	if len(versions) == 0 {
 		return "", false
 	}
+
 	sort.Slice(versions, func(i, j int) bool {
 		a, b := versions[i], versions[j]
 		if a.Major != b.Major {
 			return a.Major < b.Major
 		}
+
 		if a.Minor != b.Minor {
 			return a.Minor < b.Minor
 		}
+
 		return a.Patch < b.Patch
 	})
+
 	return versions[len(versions)-1].String(), true
 }

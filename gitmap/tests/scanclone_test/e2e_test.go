@@ -77,6 +77,7 @@ func writeScanArtifact(t *testing.T, tmpDir, name string,
 	if err != nil {
 		t.Fatalf("create %s: %v", path, err)
 	}
+
 	defer f.Close()
 	if err := write(f); err != nil {
 		t.Fatalf("write %s: %v", path, err)
@@ -99,6 +100,7 @@ func renderPlanNormalized(t *testing.T, plan clonenow.Plan, marker string) []byt
 	if err := clonenow.Render(&buf, plan); err != nil {
 		t.Fatalf("Render: %v", err)
 	}
+
 	out := strings.ReplaceAll(buf.String(), plan.Source, marker)
 	// Format token lives in the dry-run header as `(<format>, mode=...)`.
 	// Replace the parenthesized prefix only — bare `csv` / `json`
@@ -153,6 +155,7 @@ func TestScanClone_E2E_JSONRoundTrip(t *testing.T) {
 		t.Fatalf("non-deterministic e2e plan\n--- run 1 (%d bytes)\n%s\n--- run 2 (%d bytes)\n%s",
 			len(first), string(first), len(second), string(second))
 	}
+
 	assertE2EGolden(t, "scanclone_e2e_plan.golden", first)
 }
 
@@ -177,6 +180,7 @@ func TestScanClone_E2E_CSVMatchesJSON(t *testing.T) {
 			len(jsonPlan), string(jsonPlan),
 			len(csvPlan), string(csvPlan))
 	}
+
 	// Both formats share the JSON-roundtrip golden — anything else
 	// would let drift sneak in via a fixture mismatch.
 	assertE2EGolden(t, "scanclone_e2e_plan.golden", csvPlan)
@@ -196,12 +200,14 @@ func assertE2EGolden(t *testing.T, name string, got []byte) {
 
 		return
 	}
+
 	want, err := os.ReadFile(path)
 	if err != nil {
 		t.Fatalf("read golden %s: %v "+
 			"(run with GITMAP_UPDATE_GOLDEN=1 and "+
 			"GITMAP_ALLOW_GOLDEN_UPDATE=1 to create)", path, err)
 	}
+
 	if !bytes.Equal(got, want) {
 		t.Fatalf("golden mismatch for %s\n--- want (%d bytes)\n%s\n--- got (%d bytes)\n%s",
 			name, len(want), string(want), len(got), string(got))
@@ -215,9 +221,11 @@ func writeE2EGolden(t *testing.T, path string, got []byte) {
 	if err := os.MkdirAll(filepath.Dir(path), 0o755); err != nil {
 		t.Fatalf("mkdir testdata: %v", err)
 	}
+
 	if err := os.WriteFile(path, got, 0o644); err != nil {
 		t.Fatalf("write golden %s: %v", path, err)
 	}
+
 	t.Fatalf("regenerated golden %s — re-run "+
 		"without GITMAP_UPDATE_GOLDEN to confirm", path)
 }

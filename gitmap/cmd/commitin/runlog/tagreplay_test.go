@@ -30,6 +30,7 @@ func openTagReplayDB(t *testing.T) *sql.DB {
 			t.Fatalf("tag-replay ddl exec: %v\n%s", err, ddl)
 		}
 	}
+
 	return db
 }
 
@@ -41,11 +42,13 @@ func seedRewrittenRow(t *testing.T, db *sql.DB, sourceSha, newSha string) (int64
 	if err != nil {
 		t.Fatalf("StartRun: %v", err)
 	}
+
 	inputID, err := InsertInputRepo(db, runID, 1, "input-a", "/tmp/abc",
 		constants.CommitInInputKindLocalFolder)
 	if err != nil {
 		t.Fatalf("InsertInputRepo: %v", err)
 	}
+
 	srcID, err := InsertSourceCommit(db, inputID, SourceCommitRow{
 		OrderIndex: 1, Sha: sourceSha,
 		AuthorName: "A", AuthorEmail: "a@x",
@@ -56,6 +59,7 @@ func seedRewrittenRow(t *testing.T, db *sql.DB, sourceSha, newSha string) (int64
 	if err != nil {
 		t.Fatalf("InsertSourceCommit: %v", err)
 	}
+
 	rewID, err := RecordRewritten(db, runID, srcID, RewrittenRow{
 		NewSha: newSha, SourceSha: sourceSha, FinalMessage: "msg",
 		AuthorName: "A", AuthorEmail: "a@x",
@@ -66,6 +70,7 @@ func seedRewrittenRow(t *testing.T, db *sql.DB, sourceSha, newSha string) (int64
 	if err != nil {
 		t.Fatalf("RecordRewritten: %v", err)
 	}
+
 	return runID, rewID
 }
 
@@ -89,6 +94,7 @@ func TestRecordTagReplayCreatedWritesAllColumns(t *testing.T) {
 	if err != nil || id <= 0 {
 		t.Fatalf("RecordTagReplay: id=%d err=%v", id, err)
 	}
+
 	assertReplayRow(t, db, "v1.2.3", "dest-tag-1", "new1", "release/v1.2.3", 1, "Created")
 }
 
@@ -104,12 +110,14 @@ func TestRecordTagReplayDryRunWritesNullDestColumns(t *testing.T) {
 	}); err != nil {
 		t.Fatalf("RecordTagReplay: %v", err)
 	}
+
 	var dt, dc, mb sql.NullString
 	if err := db.QueryRow(`SELECT DestTagSha, DestCommitSha, MirroredReleaseBranch
 		FROM CommitInReplayMap WHERE SourceTagName = ?`, "v1.0.0").
 		Scan(&dt, &dc, &mb); err != nil {
 		t.Fatalf("readback: %v", err)
 	}
+
 	if dt.Valid || dc.Valid || mb.Valid {
 		t.Fatalf("expected NULLs on dry-run, got %+v %+v %+v", dt, dc, mb)
 	}
@@ -129,6 +137,7 @@ func TestLookupTagReplayHitsOnPriorCreated(t *testing.T) {
 	if err != nil {
 		t.Fatalf("LookupTagReplay: %v", err)
 	}
+
 	if got.DestTagSha != "dest-3" || got.DestCommitSha != "new3" {
 		t.Fatalf("lookup got %+v", got)
 	}
@@ -168,6 +177,7 @@ func TestRecordTagReplayUniqueConstraintBlocksDuplicateInRun(t *testing.T) {
 	}); err != nil {
 		t.Fatalf("first insert: %v", err)
 	}
+
 	if _, err := RecordTagReplay(db, runID, rewID, TagReplayFacts{
 		SourceTagName: "v4.0.0", SourceTagSha: "t1", SourceCommitSha: "src5",
 		IsAnnotated: true, IsVersionTag: true, Outcome: constants.TagReplayOutcomeCreated,
@@ -191,12 +201,14 @@ func TestRecordTagReplayRejectsLightweightVersionTag(t *testing.T) {
 	if !errors.Is(err, ErrLightweightVersionTag) {
 		t.Fatalf("expected ErrLightweightVersionTag, got %v", err)
 	}
+
 	var n int
 	if err := db.QueryRow(
 		`SELECT COUNT(*) FROM CommitInReplayMap WHERE SourceTagName=?`, "v5.0.0",
 	).Scan(&n); err != nil {
 		t.Fatalf("count: %v", err)
 	}
+
 	if n != 0 {
 		t.Fatalf("rejected insert leaked a row: count=%d", n)
 	}
@@ -219,6 +231,7 @@ func TestClassifyVersionTagStrictMatrix(t *testing.T) {
 		{"v1.2", true, false}, // annotated but not full semver
 		{"", true, false},
 	}
+
 	for _, tc := range cases {
 		got := ClassifyVersionTag(tc.name, tc.isAnnotated)
 		if got != tc.want {
@@ -249,6 +262,7 @@ func TestIsAnnotatedSemverVersionTagMatrix(t *testing.T) {
 		{"", false},
 		{"v01.2.3", false}, // leading zero in MAJOR is invalid SemVer
 	}
+
 	for _, tc := range cases {
 		if got := IsAnnotatedSemverVersionTag(tc.name); got != tc.want {
 			t.Errorf("IsAnnotatedSemverVersionTag(%q) = %v, want %v",
@@ -273,6 +287,7 @@ func assertReplayRow(t *testing.T, db *sql.DB, name, dt, dc, mb string, isVer in
 	if err := db.QueryRow(q, name).Scan(&gotDT, &gotDC, &gotMB, &gotIsVer, &gotOutcome); err != nil {
 		t.Fatalf("readback %s: %v", name, err)
 	}
+
 	if gotDT.String != dt || gotDC.String != dc || gotMB.String != mb ||
 		gotIsVer != isVer || gotOutcome != outcome {
 		t.Fatalf("row mismatch for %s:\n got DT=%q DC=%q MB=%q isVer=%d outcome=%s",

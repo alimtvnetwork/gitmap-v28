@@ -37,6 +37,7 @@ func startTerminal(sessionID string) (*termSession, error) {
 	if hasExisting {
 		return castTerminal(existingSess)
 	}
+
 	return createTerminal(safeID)
 }
 
@@ -45,6 +46,7 @@ func getSafeSessionID(sessionID string) string {
 	if hasSession {
 		return sessionID
 	}
+
 	return "default"
 }
 
@@ -53,6 +55,7 @@ func castTerminal(existingSess any) (*termSession, error) {
 	if isValid {
 		return termSess, nil
 	}
+
 	return nil, apperror.NewSimple("term_cast", "invalid_type")
 }
 
@@ -61,7 +64,9 @@ func createTerminal(sessionID string) (*termSession, error) {
 	if startErr != nil {
 		return nil, startErr
 	}
+
 	termSessionsMap.Store(sessionID, newTerm)
+
 	return newTerm, nil
 }
 
@@ -72,9 +77,11 @@ func newTerminal() (*termSession, error) {
 	if pipeErr != nil {
 		return nil, pipeErr
 	}
+
 	if startErr := cmdExec.Start(); startErr != nil {
 		return nil, apperror.WrapSimple(startErr, "term_start")
 	}
+
 	return &termSession{cmdExec: cmdExec, stdIn: stdIn, stdOut: stdOut}, nil
 }
 
@@ -83,11 +90,14 @@ func attachPipes(cmdExec *exec.Cmd) (io.WriteCloser, io.ReadCloser, error) {
 	if inErr != nil {
 		return nil, nil, apperror.WrapSimple(inErr, "term_stdin")
 	}
+
 	stdOut, outErr := cmdExec.StdoutPipe()
 	if outErr != nil {
 		return nil, nil, apperror.WrapSimple(outErr, "term_stdout")
 	}
+
 	cmdExec.Stderr = cmdExec.Stdout
+
 	return stdIn, stdOut, nil
 }
 
@@ -96,11 +106,13 @@ func getShell() string {
 	if isWindows {
 		return "cmd.exe"
 	}
+
 	shellPath := os.Getenv("SHELL")
 	hasShell := shellPath != ""
 	if hasShell {
 		return shellPath
 	}
+
 	return "/bin/sh"
 }
 
@@ -109,13 +121,16 @@ func termStreamHandler(httpWriter http.ResponseWriter, httpRequest *http.Request
 	termSess, startErr := startTerminal(sessionID)
 	if startErr != nil {
 		writeTermJSONError(httpWriter, http.StatusInternalServerError, startErr.Error())
+
 		return
 	}
+
 	setStreamHeaders(httpWriter)
 	httpFlusher, isFlusher := httpWriter.(http.Flusher)
 	if !isFlusher {
 		return
 	}
+
 	streamOutput(termSess, httpWriter, httpFlusher)
 }
 
@@ -133,6 +148,7 @@ func streamOutput(termSess *termSession, httpWriter io.Writer, httpFlusher http.
 		if hasBytes {
 			writeStreamChunk(termBuf[:readBytes], httpWriter, httpFlusher)
 		}
+
 		if readErr != nil {
 			break
 		}
@@ -151,18 +167,24 @@ func termInputHandler(httpWriter http.ResponseWriter, httpRequest *http.Request)
 	termSess, startErr := startTerminal(sessionID)
 	if startErr != nil {
 		writeTermJSONError(httpWriter, http.StatusInternalServerError, startErr.Error())
+
 		return
 	}
+
 	reqBody, readErr := readInputBody(httpRequest)
 	if readErr != nil {
 		writeTermJSONError(httpWriter, http.StatusBadRequest, readErr.Error())
+
 		return
 	}
+
 	writeErr := writeTermInput(termSess, reqBody)
 	if writeErr != nil {
 		writeTermJSONError(httpWriter, http.StatusInternalServerError, writeErr.Error())
+
 		return
 	}
+
 	httpWriter.WriteHeader(http.StatusOK)
 }
 
@@ -171,6 +193,7 @@ func readInputBody(httpRequest *http.Request) ([]byte, error) {
 	if readErr != nil {
 		return nil, apperror.WrapSimple(readErr, "term_input_read")
 	}
+
 	return reqBody, nil
 }
 
@@ -181,6 +204,7 @@ func writeTermInput(termSess *termSession, reqBody []byte) error {
 	if writeErr != nil {
 		return apperror.WrapSimple(writeErr, "term_input_write")
 	}
+
 	return nil
 }
 
@@ -192,6 +216,7 @@ func writeTermJSONError(w http.ResponseWriter, status int, msg string) {
 		Errors:   []string{msg},
 		Error:    msg,
 	}
+
 	w.Header().Set("Content-Type", "application/json")
 	w.WriteHeader(status)
 	_ = json.NewEncoder(w).Encode(resp)
@@ -204,6 +229,7 @@ func termAutocompleteHandler(httpWriter http.ResponseWriter, httpRequest *http.R
 	if isGitmap {
 		completions = completion.AllCommands()
 	}
+
 	httpWriter.Header().Set("Content-Type", "application/json")
 	_ = json.NewEncoder(httpWriter).Encode(completions)
 }
@@ -224,13 +250,17 @@ type commandExecResp struct {
 func termCommandExecHandler(w http.ResponseWriter, r *http.Request) {
 	if r.Method != http.MethodPost {
 		writeTermJSONError(w, http.StatusMethodNotAllowed, "POST required")
+
 		return
 	}
+
 	var req commandExecReq
 	if err := json.NewDecoder(r.Body).Decode(&req); err != nil {
 		writeTermJSONError(w, http.StatusBadRequest, err.Error())
+
 		return
 	}
+
 	resp := executeCLIForAPI(req.Command)
 	w.Header().Set("Content-Type", "application/json")
 	_ = json.NewEncoder(w).Encode(resp)
@@ -247,7 +277,9 @@ func executeCLIForAPI(cmdStr string) commandExecResp {
 			ExitCode: 0,
 		}
 	}
+
 	exitCode := resolveExitCode(err)
+
 	return commandExecResp{
 		Status:   "error",
 		Success:  false,
@@ -262,6 +294,7 @@ func buildPlatformCmd(cmdStr string) *exec.Cmd {
 	if runtime.GOOS == "windows" {
 		return exec.Command("cmd.exe", "/C", cmdStr)
 	}
+
 	return exec.Command("sh", "-c", cmdStr)
 }
 
@@ -270,5 +303,6 @@ func resolveExitCode(err error) int {
 	if isExit {
 		return exitErr.ExitCode()
 	}
+
 	return 1
 }

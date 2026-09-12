@@ -22,6 +22,7 @@ var agyGroupExportCmd = &cobra.Command{
 		}
 
 		fmt.Printf("%s Exported AGY group %q to %s.\n", constants.ColorGreen+"✓"+constants.ColorReset, args[0], args[1])
+
 		return nil
 	},
 }
@@ -39,6 +40,7 @@ var agyGroupImportCmd = &cobra.Command{
 		}
 
 		fmt.Printf("%s Successfully imported AGY group from %s.\n", constants.ColorGreen+"✓"+constants.ColorReset, args[0])
+
 		return nil
 	},
 }
@@ -63,6 +65,7 @@ func runAgyGroupList() error {
 
 	if len(store.Groups) == 0 {
 		fmt.Printf("%s No Antigravity project groups configured. Use 'gitmap agy group add <name> <project>' to create one.\n", constants.ColorYellow+"ℹ"+constants.ColorReset)
+
 		return nil
 	}
 
@@ -112,5 +115,6 @@ func runAgyGroupPrompt(groupName string, promptText string) error {
 	}
 
 	fmt.Printf("%s Finished prompt dispatch to AGY group %q.\n", constants.ColorGreen+"✓"+constants.ColorReset, groupName)
+
 	return nil
 }

@@ -52,6 +52,7 @@ func tryOptimizePipelineFile(dir string, p os.DirEntry) (int64, int) {
 	if p.IsDir() || filepath.Ext(p.Name()) != ".db" {
 		return 0, 0
 	}
+
 	pipePath := filepath.Join(dir, p.Name())
 
 	return tryOptimizeDBFile(pipePath, "Split Pipeline DB")
@@ -62,6 +63,7 @@ func tryOptimizeDBFile(path, label string) (int64, int) {
 	if err != nil {
 		return 0, 0
 	}
+
 	fmt.Printf("  ✔ %-20s %-40s (reclaimed: %s)\n", label+":", filepath.Base(path), formatBytes(reclaimed))
 
 	return reclaimed, 1
@@ -72,6 +74,7 @@ func optimizeSingleDBFile(path string) (int64, error) {
 	if err != nil {
 		return 0, err
 	}
+
 	defer db.Close()
 
 	return repodb.OptimizeRepoDB(context.Background(), db, path)

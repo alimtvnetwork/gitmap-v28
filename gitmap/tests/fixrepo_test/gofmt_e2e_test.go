@@ -38,6 +38,7 @@ func TestFixRepoGofmtCleanAfterRewrite(t *testing.T) {
 	if err != nil {
 		t.Fatalf("create stdout capture file: %v", err)
 	}
+
 	stderrF, err := os.Create(stderrPath)
 	if err != nil {
 		t.Fatalf("create stderr capture file: %v", err)
@@ -101,6 +102,7 @@ func buildGitmapBinary(t *testing.T) string {
 	if runtime.GOOS == "windows" {
 		binName += ".exe"
 	}
+
 	bin := filepath.Join(t.TempDir(), binName)
 	cmd := exec.Command("go", "build", "-o", bin, ".")
 	cmd.Dir = filepath.Join(repoRoot, "gitmap")
@@ -121,13 +123,17 @@ func findRepoRoot(t *testing.T) string {
 	if err != nil {
 		t.Fatal(err)
 	}
+
 	for i := 0; i < 8; i++ {
 		if _, err := os.Stat(filepath.Join(dir, "gitmap", "go.mod")); err == nil {
 			return dir
 		}
+
 		dir = filepath.Dir(dir)
 	}
+
 	t.Fatalf("could not locate repo root from %s", dir)
+
 	return ""
 }
 

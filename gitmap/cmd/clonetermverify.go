@@ -85,9 +85,11 @@ func VerifyCmdFaithful(in CloneTermBlockInput, executorArgv []string) CmdFaithfu
 		Displayed: displayed,
 		Executed:  executed,
 	}
+
 	if displayed == executed {
 		return report
 	}
+
 	report.Mismatches = diffArgvTokens(strings.Split(displayed, " "), fullExecuted)
 
 	return report
@@ -110,11 +112,13 @@ func diffArgvTokens(displayed, executed []string) []CmdFaithfulMismatch {
 	if len(executed) > maxLen {
 		maxLen = len(executed)
 	}
+
 	for i := 0; i < maxLen; i++ {
 		d, e := tokenAt(displayed, i), tokenAt(executed, i)
 		if d == e {
 			continue
 		}
+
 		out = append(out, CmdFaithfulMismatch{
 			Index: i, Displayed: d, Executed: e, Reason: classifyDiff(d, e),
 		})
@@ -138,6 +142,7 @@ func classifyDiff(displayed, executed string) string {
 	if len(displayed) == 0 {
 		return "missing-in-displayed"
 	}
+
 	if len(executed) == 0 {
 		return "missing-in-executed"
 	}
@@ -159,18 +164,22 @@ func PrintCmdFaithfulReport(w io.Writer, r CmdFaithfulReport) error {
 	if !r.HasMismatch() {
 		return nil
 	}
+
 	tag := constants.CmdFaithfulReportSeverityTag
 	header := fmt.Sprintf(constants.CmdFaithfulReportHeaderFmt,
 		tag, r.Repo, len(r.Mismatches))
 	if _, err := io.WriteString(w, header); err != nil {
 		return err
 	}
+
 	if _, err := fmt.Fprintf(w, "  %s   displayed: %s\n", tag, r.Displayed); err != nil {
 		return err
 	}
+
 	if _, err := fmt.Fprintf(w, "  %s   executed:  %s\n", tag, r.Executed); err != nil {
 		return err
 	}
+
 	for _, m := range r.Mismatches {
 		if _, err := fmt.Fprintf(w,
 			"  %s   [#%d %s] displayed=%q executed=%q\n",

@@ -35,10 +35,12 @@ func TestTerminal(t *testing.T) {
 	if err != nil {
 		t.Fatalf("Terminal error: %v", err)
 	}
+
 	out := buf.String()
 	if strings.Contains(out, "repo-a") {
 		t.Log("Terminal contains repo-a — OK")
 	}
+
 	if strings.Contains(out, "develop") {
 		t.Log("Terminal contains branch — OK")
 	}
@@ -54,10 +56,12 @@ func TestWriteCSV(t *testing.T) {
 	if err != nil {
 		t.Fatalf("CSV error: %v", err)
 	}
+
 	lines := strings.Split(strings.TrimRight(buf.String(), "\r\n"), "\r\n")
 	if len(lines) != 3 {
 		t.Errorf("CSV line count: got %d, want 3 (header + 2 rows)", len(lines))
 	}
+
 	if !strings.HasPrefix(lines[0], "repoName,") {
 		t.Errorf("CSV header: got %q, want prefix %q", lines[0], "repoName,")
 	}
@@ -70,6 +74,7 @@ func TestWriteJSON(t *testing.T) {
 	if err != nil {
 		t.Fatalf("JSON error: %v", err)
 	}
+
 	if strings.Contains(buf.String(), "repo-a") {
 		t.Log("JSON contains repo-a — OK")
 	}
@@ -84,12 +89,15 @@ func TestCSVRoundTrip(t *testing.T) {
 	if err != nil {
 		t.Fatalf("ParseCSV error: %v", err)
 	}
+
 	if len(parsed) == 2 {
 		t.Log("Round-trip preserved 2 records — OK")
 	}
+
 	if parsed[0].RepoName == "repo-a" {
 		t.Log("Round-trip preserved repo name — OK")
 	}
+
 	if parsed[1].Branch == "develop" {
 		t.Log("Round-trip preserved branch — OK")
 	}
@@ -104,6 +112,7 @@ func TestJSONRoundTrip(t *testing.T) {
 	if err != nil {
 		t.Fatalf("ParseJSON error: %v", err)
 	}
+
 	if len(parsed) == 2 {
 		t.Log("JSON round-trip preserved 2 records — OK")
 	}

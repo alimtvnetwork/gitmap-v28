@@ -18,6 +18,7 @@ func PrintPlan(w io.Writer, plan ReplayPlan, prefix string) int {
 			willReplay++
 		}
 	}
+
 	considered := len(plan.Commits) + plan.MergeExcluded
 	fmt.Fprintf(w,
 		"%s replaying %d commits onto target (source-considered=%d, merge-excluded=%d)\n",
@@ -27,6 +28,7 @@ func PrintPlan(w io.Writer, plan ReplayPlan, prefix string) int {
 			"%s   note: %d merge commits excluded by --no-include-merges\n",
 			prefix, plan.MergeExcluded)
 	}
+
 	for i, c := range plan.Commits {
 		printPlanLine(w, prefix, i+1, len(plan.Commits), c)
 	}
@@ -46,6 +48,7 @@ func printPlanLine(w io.Writer, prefix string, i, n int, c SourceCommit) {
 
 		return
 	}
+
 	subject := firstLine(c.Cleaned)
 	fmt.Fprintf(w, "%s %s %s  %s\n", padPrefix, idxStr, shaStr, pterm.White(subject))
 }
@@ -86,6 +89,7 @@ func PrintReconciliation(w, errW io.Writer, prefix string, plan ReplayPlan, res 
 	if considered != accounted {
 		mark = "discrepancy"
 	}
+
 	fmt.Fprintf(w,
 		"%s reconcile: source-considered=%d, replayed=%d, skipped=%d (drop=%d, already-replayed=%d, empty=%d), merge-excluded=%d → accounted=%d [%s]\n",
 		prefix, considered, res.Replayed,
@@ -107,6 +111,7 @@ func Confirm(prefix string) bool {
 	if _, err := fmt.Scanln(&ans); err != nil {
 		return false
 	}
+
 	switch ans {
 	case "y", "Y", "yes", "YES", "Yes":
 		return true

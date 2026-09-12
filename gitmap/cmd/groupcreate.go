@@ -14,6 +14,7 @@ func runGroupCreate(args []string) error {
 	if len(name) == 0 {
 		return apperror.NewSimple(constants.ErrGroupNameReq, "E9000")
 	}
+
 	if appErr := executeGroupCreate(name, desc, color); appErr != nil {
 		return appErr
 	}
@@ -27,12 +28,14 @@ func executeGroupCreate(name, desc, color string) *apperror.AppError {
 	if err != nil {
 		return apperror.WrapSimple(err, constants.ErrListDBFailed)
 	}
+
 	defer db.Close()
 
 	_, err = db.CreateGroup(name, desc, color)
 	if err != nil {
 		return apperror.WrapSimple(err, constants.ErrBareFmt)
 	}
+
 	fmt.Printf(constants.MsgGroupCreated, name)
 
 	return nil

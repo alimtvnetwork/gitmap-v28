@@ -16,6 +16,7 @@ func TestFilterSafeRewritesEmoji(t *testing.T) {
 		"⊘ skip":  "✔ skip",
 		"plain":   "plain",
 	}
+
 	for in, want := range cases {
 		got := string(Filter([]byte(in), ModeSafe))
 		if got != want {
@@ -38,9 +39,11 @@ func TestParse(t *testing.T) {
 	if Parse("rich") != ModeRich {
 		t.Error("rich")
 	}
+
 	if Parse("safe") != ModeSafe {
 		t.Error("safe")
 	}
+
 	if !IsValidLabel("auto") {
 		t.Error("auto label invalid")
 	}

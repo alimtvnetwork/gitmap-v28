@@ -106,6 +106,7 @@ func FormatFromPath(p string) FormatType {
 	if f := matchExtMap(lower, doubleExtMap); f != FormatUnknown {
 		return f
 	}
+
 	if f := matchExtMap(lower, singleExtMap); f != FormatUnknown {
 		return f
 	}
@@ -129,6 +130,7 @@ func IdentifyArchive(ctx context.Context, path string) (FormatType, error) {
 	if err != nil {
 		return FormatUnknown, err
 	}
+
 	defer f.Close()
 
 	format, _, err := archives.Identify(ctx, filepath.Base(path), f)
@@ -146,6 +148,7 @@ func mholtToFormat(f archives.Format) FormatType {
 	if f == nil {
 		return FormatUnknown
 	}
+
 	if res := mholtArchiveType(f); res != FormatUnknown {
 		return res
 	}
@@ -166,6 +169,7 @@ func mholtArchiveType(f archives.Format) FormatType {
 	case archives.CompressedArchive:
 		return FormatFromPath(f.Extension())
 	}
+
 	return FormatUnknown
 }
 
@@ -180,5 +184,6 @@ func mholtCompressType(f archives.Format) FormatType {
 	case archives.Zstd:
 		return FormatZst
 	}
+
 	return FormatUnknown
 }

@@ -84,13 +84,17 @@ func GetHostByAlias(ctx context.Context, alias string, db *sql.DB) (SSHHost, err
 	if errors.Is(err, sql.ErrNoRows) {
 		appErr := apperror.Wrap(apperror.ErrNotFound, "GetHostByAlias", map[string]any{"alias": alias})
 		appErr.Code = "E_INTERNAL_ERROR"
+
 		return SSHHost{}, appErr
 	}
+
 	if err != nil {
 		appErr := apperror.Wrap(err, "GetHostByAlias", map[string]any{"alias": alias})
 		appErr.Code = "E_INTERNAL_ERROR"
+
 		return SSHHost{}, appErr
 	}
+
 	return host, nil
 }
 
@@ -102,6 +106,7 @@ func DeleteHostByIP(ctx context.Context, ip string, db *sql.DB) error {
 	if err != nil {
 		appErr := apperror.Wrap(err, "DeleteHostByIP", map[string]any{"ip": ip})
 		appErr.Code = "E_INTERNAL_ERROR"
+
 		return appErr
 	}
 
@@ -120,8 +125,10 @@ func ListHosts(ctx context.Context, db *sql.DB) ([]SSHHost, error) {
 	if err != nil {
 		appErr := apperror.WrapSimple(err, "ListHosts")
 		appErr.Code = "E_INTERNAL_ERROR"
+
 		return nil, appErr
 	}
+
 	defer rows.Close()
 
 	var hosts []SSHHost
@@ -130,14 +137,17 @@ func ListHosts(ctx context.Context, db *sql.DB) ([]SSHHost, error) {
 		if err := rows.Scan(&host.ID, &host.Alias, &host.IP, &host.Username, &host.CreatedAt); err != nil {
 			appErr := apperror.WrapSimple(err, "ListHosts_Scan")
 			appErr.Code = "E_INTERNAL_ERROR"
+
 			return nil, appErr
 		}
+
 		hosts = append(hosts, host)
 	}
 
 	if err := rows.Err(); err != nil {
 		appErr := apperror.WrapSimple(err, "ListHosts_Rows")
 		appErr.Code = "E_INTERNAL_ERROR"
+
 		return nil, appErr
 	}
 

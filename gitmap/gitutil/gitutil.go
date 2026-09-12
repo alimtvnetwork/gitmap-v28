@@ -102,17 +102,20 @@ func DetectBranchWithDefault(repoPath, fallback string) (branch, source string) 
 	if name, ok := detectFromLocalHEAD(repoPath); ok {
 		return name, BranchSourceHEAD
 	}
+
 	if name, ok := detectFromLocalRemoteRef(repoPath); ok {
 		return name, BranchSourceRemoteTracking
 	}
+
 	if name, ok := detectFromLiveRemote(repoPath); ok {
 		return name, BranchSourceRemoteTracking
 	}
+
 	if len(fallback) > 0 {
 		return fallback, BranchSourceDefault
 	}
-	if isDetachedHEAD(repoPath) {
 
+	if isDetachedHEAD(repoPath) {
 		return constants.GitHEAD, BranchSourceDetached
 	}
 
@@ -126,12 +129,11 @@ func detectFromLocalHEAD(repoPath string) (string, bool) {
 	out, err := runGit(repoPath,
 		constants.GitRevParse, constants.GitAbbrevRef, constants.GitHEAD)
 	if err != nil {
-
 		return "", false
 	}
+
 	name := strings.TrimSpace(out)
 	if len(name) == 0 || name == constants.GitHEAD {
-
 		return "", false
 	}
 
@@ -146,13 +148,12 @@ func detectFromLocalRemoteRef(repoPath string) (string, bool) {
 	out, err := runGit(repoPath,
 		"symbolic-ref", "refs/remotes/origin/HEAD")
 	if err != nil {
-
 		return "", false
 	}
+
 	const prefix = "refs/remotes/origin/"
 	ref := strings.TrimSpace(out)
 	if !strings.HasPrefix(ref, prefix) {
-
 		return "", false
 	}
 
@@ -170,7 +171,6 @@ func detectFromLiveRemote(repoPath string) (string, bool) {
 	out, err := runGit(repoPath,
 		"ls-remote", "--symref", "origin", constants.GitHEAD)
 	if err != nil {
-
 		return "", false
 	}
 
@@ -187,12 +187,14 @@ func parseLsRemoteSymref(output string) (string, bool) {
 		if !strings.HasPrefix(trimmed, "ref: ") {
 			continue
 		}
+
 		// Format: "ref: refs/heads/<name>\tHEAD"
 		body := strings.TrimPrefix(trimmed, "ref: ")
 		fields := strings.Fields(body)
 		if len(fields) == 0 {
 			continue
 		}
+
 		if !strings.HasPrefix(fields[0], refPrefix) {
 			continue
 		}
@@ -211,7 +213,6 @@ func isDetachedHEAD(repoPath string) bool {
 	out, err := runGit(repoPath,
 		constants.GitRevParse, constants.GitAbbrevRef, constants.GitHEAD)
 	if err != nil {
-
 		return false
 	}
 
@@ -225,12 +226,14 @@ func Status(repoPath string) RepoStatus {
 
 	if _, err := os.Stat(repoPath); err != nil {
 		rs.Unreachable = true
+
 		return rs
 	}
 
 	branch, err := CurrentBranch(repoPath)
 	if err != nil {
 		rs.Unreachable = true
+
 		return rs
 	}
 
@@ -255,6 +258,7 @@ func parseAheadBehind(repoPath string) (ahead, behind int) {
 	if err != nil {
 		return 0, 0
 	}
+
 	parts := strings.Fields(strings.TrimSpace(out))
 	if len(parts) == 2 {
 		ahead, _ = strconv.Atoi(parts[0])

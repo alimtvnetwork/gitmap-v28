@@ -29,11 +29,13 @@ func TestTagListValueRepeatAndCommaList(t *testing.T) {
 	if len(v.values) != len(want) {
 		t.Fatalf("len = %d, want %d (%v)", len(v.values), len(want), v.values)
 	}
+
 	for i := range want {
 		if v.values[i] != want[i] {
 			t.Errorf("values[%d] = %q, want %q", i, v.values[i], want[i])
 		}
 	}
+
 	if !v.wasSet {
 		t.Error("wasSet = false after Set, want true")
 	}
@@ -47,6 +49,7 @@ func TestTagListValueEmptyEntriesDropped(t *testing.T) {
 	if err := v.Set(",,a,,b,"); err != nil {
 		t.Fatalf("Set: %v", err)
 	}
+
 	if len(v.values) != 2 || v.values[0] != "a" || v.values[1] != "b" {
 		t.Fatalf("values = %v, want [a b]", v.values)
 	}
@@ -60,15 +63,19 @@ func TestParseVSCodePMSyncFlagsDefaults(t *testing.T) {
 	if err != nil {
 		t.Fatalf("err = %v", err)
 	}
+
 	if opts.DryRun {
 		t.Error("DryRun = true, want false")
 	}
+
 	if opts.Mode != vscodepm.MergeModeUnion {
 		t.Errorf("Mode = %v, want union", opts.Mode)
 	}
+
 	if opts.ProjectsJSON != "" {
 		t.Errorf("ProjectsJSON = %q, want \"\"", opts.ProjectsJSON)
 	}
+
 	if opts.HasTagOverride {
 		t.Error("HasTagOverride = true, want false")
 	}
@@ -89,19 +96,24 @@ func TestParseVSCodePMSyncFlagsAllSet(t *testing.T) {
 		"--tag", "a",
 		"--tag", "b,c",
 	}
+
 	opts, err := parseVSCodePMSyncFlags(args)
 	if err != nil {
 		t.Fatalf("err = %v", err)
 	}
+
 	if !opts.DryRun {
 		t.Error("DryRun = false, want true")
 	}
+
 	if opts.Mode != vscodepm.MergeModeReplace {
 		t.Errorf("Mode = %v, want replace", opts.Mode)
 	}
+
 	if opts.ProjectsJSON != "/tmp/projects.json" {
 		t.Errorf("ProjectsJSON = %q", opts.ProjectsJSON)
 	}
+
 	if !opts.HasTagOverride {
 		t.Fatal("HasTagOverride = false, want true")
 	}
@@ -110,6 +122,7 @@ func TestParseVSCodePMSyncFlagsAllSet(t *testing.T) {
 	if len(opts.TagOverride) != len(want) {
 		t.Fatalf("TagOverride = %v, want %v", opts.TagOverride, want)
 	}
+
 	for i := range want {
 		if opts.TagOverride[i] != want[i] {
 			t.Errorf("TagOverride[%d] = %q, want %q", i, opts.TagOverride[i], want[i])

@@ -27,6 +27,7 @@ func TestChromeExtensionLifecycle(t *testing.T) {
 			},
 		},
 	}
+
 	prefRaw, _ := json.Marshal(prefData)
 	_ = os.WriteFile(filepath.Join(profDir, "Preferences"), prefRaw, constants.FilePermission)
 
@@ -41,9 +42,11 @@ func TestChromeExtensionLifecycle(t *testing.T) {
 	if err != nil {
 		t.Fatalf("scan failed: %v", err)
 	}
+
 	if len(exts) != 1 {
 		t.Fatalf("expected 1 extension, got %d", len(exts))
 	}
+
 	if exts[0].Name != "Mock Test Extension" || !exts[0].IsEnabled {
 		t.Errorf("unexpected extension info: %+v", exts[0])
 	}
@@ -52,6 +55,7 @@ func TestChromeExtensionLifecycle(t *testing.T) {
 	if err := runChromeExtensionDisable([]string{"Mock", "--profile=Default"}); err != nil {
 		t.Fatalf("disable failed: %v", err)
 	}
+
 	extsAfterDisable, _ := scanExtensionsForProfile("Default")
 	if extsAfterDisable[0].IsEnabled {
 		t.Errorf("expected extension to be disabled")
@@ -61,6 +65,7 @@ func TestChromeExtensionLifecycle(t *testing.T) {
 	if err := runChromeExtensionEnable([]string{"mock_ext_123", "--profile=Default"}); err != nil {
 		t.Fatalf("enable failed: %v", err)
 	}
+
 	extsAfterEnable, _ := scanExtensionsForProfile("Default")
 	if !extsAfterEnable[0].IsEnabled {
 		t.Errorf("expected extension to be enabled")
@@ -70,6 +75,7 @@ func TestChromeExtensionLifecycle(t *testing.T) {
 	if err := runChromeExtensionDisableAll([]string{"--profile=Default"}); err != nil {
 		t.Fatalf("disable all failed: %v", err)
 	}
+
 	extsAfterDisableAll, _ := scanExtensionsForProfile("Default")
 	if extsAfterDisableAll[0].IsEnabled {
 		t.Errorf("expected extension to be disabled")
@@ -90,6 +96,7 @@ func TestChromeExtensionInstall(t *testing.T) {
 	if err := runChromeExtensionInstall([]string{unpackedDir, "--profile=Default"}); err != nil {
 		t.Fatalf("install failed: %v", err)
 	}
+
 	exts, _ := scanExtensionsForProfile("Default")
 	if len(exts) == 0 {
 		t.Fatalf("expected installed extension to be discovered")

@@ -40,6 +40,7 @@ func initTestRepo(t *testing.T) (string, func()) {
 	if err := os.WriteFile(filepath.Join(dir, "README.md"), []byte("# test\n"), 0o644); err != nil {
 		t.Fatal(err)
 	}
+
 	run("git", "add", "-A")
 	run("git", "commit", "-m", "initial")
 
@@ -78,6 +79,7 @@ func TestCreateGoModBranches_Integration(t *testing.T) {
 	if backup != expectedBackup {
 		t.Errorf("backup = %q, want %q", backup, expectedBackup)
 	}
+
 	if feature != expectedFeature {
 		t.Errorf("feature = %q, want %q", feature, expectedFeature)
 	}
@@ -87,10 +89,12 @@ func TestCreateGoModBranches_Integration(t *testing.T) {
 	if err != nil {
 		t.Fatalf("git branch --list failed: %v", err)
 	}
+
 	branches := string(out)
 	if !strings.Contains(branches, expectedBackup) {
 		t.Errorf("backup branch %q not found in:\n%s", expectedBackup, branches)
 	}
+
 	if !strings.Contains(branches, expectedFeature) {
 		t.Errorf("feature branch %q not found in:\n%s", expectedFeature, branches)
 	}
@@ -149,6 +153,7 @@ func TestCommitGoModChanges_Integration(t *testing.T) {
 	if err != nil {
 		t.Fatalf("git log failed: %v", err)
 	}
+
 	subject := strings.TrimSpace(string(out))
 	if subject != "refactor: rename go module path" {
 		t.Errorf("unexpected commit subject: %q", subject)
@@ -178,6 +183,7 @@ func TestReplaceModulePath_Integration(t *testing.T) {
 	if !strings.Contains(string(gofile), "github.com/new/mod") {
 		t.Error("main.go not updated")
 	}
+
 	if strings.Contains(string(gofile), "github.com/old/mod") {
 		t.Error("main.go still contains old path")
 	}

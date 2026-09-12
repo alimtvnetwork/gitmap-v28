@@ -16,19 +16,23 @@ func runGroupList() error {
 	if err != nil {
 		return apperror.WrapSimple(err, constants.ErrListDBFailed)
 	}
+
 	defer db.Close()
 
 	groups, err := db.ListGroups()
 	if err != nil && isLegacyDataError(err) {
 		fmt.Fprint(os.Stderr, constants.MsgLegacyProjectData)
+
 		return apperror.NewSimple("fatal error", "E9000")
 	}
+
 	if err != nil {
 		return apperror.WrapSimple(err, constants.ErrListDBFailed)
 	}
 
 	printGroupList(db, groups)
 	printHints(groupListHints())
+
 	return nil
 }
 
@@ -39,6 +43,7 @@ func printGroupList(db *store.DB, groups []model.Group) {
 
 		return
 	}
+
 	fmt.Println(constants.MsgGroupHeader)
 	fmt.Println(constants.MsgListSeparator)
 	for _, g := range groups {
@@ -46,6 +51,7 @@ func printGroupList(db *store.DB, groups []model.Group) {
 		if countErr != nil {
 			fmt.Fprintf(os.Stderr, "  ⚠ Could not count repos for group %s: %v\n", g.Name, countErr)
 		}
+
 		fmt.Printf(constants.MsgGroupRowFmt, g.Name, count, g.Description)
 	}
 }

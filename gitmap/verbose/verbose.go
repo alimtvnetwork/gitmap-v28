@@ -53,6 +53,7 @@ func (l *Logger) Log(format string, args ...interface{}) {
 	if l == nil {
 		return
 	}
+
 	if l.enabled {
 		writeLogEntry(l, format, args...)
 	}

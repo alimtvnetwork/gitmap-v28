@@ -9,6 +9,7 @@ func TestPipelineSplitDBLifecycle(t *testing.T) {
 	if err != nil {
 		t.Fatalf("failed to open pipeline split db: %v", err)
 	}
+
 	defer db.Close()
 
 	// 1. Record Run
@@ -25,6 +26,7 @@ func TestPipelineSplitDBLifecycle(t *testing.T) {
 		CreatedAt:    "2026-09-03T10:00:00Z",
 		UpdatedAt:    "2026-09-03T10:02:00Z",
 	}
+
 	if err := db.RecordRun(run); err != nil {
 		t.Fatalf("failed to record run: %v", err)
 	}
@@ -37,6 +39,7 @@ func TestPipelineSplitDBLifecycle(t *testing.T) {
 		StepName:     "Test Step",
 		ErrorText:    "##[error]Process exited with code 1",
 	}
+
 	if err := db.RecordErrorLog(errLog); err != nil {
 		t.Fatalf("failed to record error log: %v", err)
 	}
@@ -46,9 +49,11 @@ func TestPipelineSplitDBLifecycle(t *testing.T) {
 	if err != nil {
 		t.Fatalf("failed to get stats: %v", err)
 	}
+
 	if stats.TotalRuns != 1 {
 		t.Errorf("expected 1 run, got %d", stats.TotalRuns)
 	}
+
 	if stats.ErrorLogCount != 1 {
 		t.Errorf("expected 1 error log, got %d", stats.ErrorLogCount)
 	}
@@ -58,6 +63,7 @@ func TestPipelineSplitDBLifecycle(t *testing.T) {
 	if err != nil || len(logs) != 1 {
 		t.Fatalf("expected 1 error log, got %d (err: %v)", len(logs), err)
 	}
+
 	if logs[0].StepName != "Test Step" {
 		t.Errorf("expected step name 'Test Step', got %s", logs[0].StepName)
 	}
@@ -71,6 +77,7 @@ func TestPipelineSplitDBLifecycle(t *testing.T) {
 	if err := db.Clear(); err != nil {
 		t.Fatalf("failed to clear: %v", err)
 	}
+
 	statsAfterClear, _ := db.GetStats()
 	if statsAfterClear.TotalRuns != 0 || statsAfterClear.ErrorLogCount != 0 {
 		t.Errorf("expected 0 runs and 0 error logs after clear, got %d, %d",
@@ -88,6 +95,7 @@ func TestPipelineDbGeneratedFields(t *testing.T) {
 	if !PipelineRunRecordDb.IsRunId(PipelineRunRecordDb.RunId) {
 		t.Errorf("expected PipelineRunRecordDb.IsRunId(PipelineRunRecordDb.RunId) to be true")
 	}
+
 	if PipelineRunRecordDb.IsRunId(PipelineRunRecordDb.RepoSlug) {
 		t.Errorf("expected PipelineRunRecordDb.IsRunId(PipelineRunRecordDb.RepoSlug) to be false")
 	}
@@ -96,9 +104,11 @@ func TestPipelineDbGeneratedFields(t *testing.T) {
 	if !PipelineRunRecordDb.IsEnum(PipelineRunRecordDb.RunId) {
 		t.Errorf("expected PipelineRunRecordDb.IsEnum(PipelineRunRecordDb.RunId) to be true")
 	}
+
 	if !PipelineRunRecordDb.IsEnum(PipelineRunRecordDb.Sha) {
 		t.Errorf("expected PipelineRunRecordDb.IsEnum(PipelineRunRecordDb.Sha) to be true")
 	}
+
 	if PipelineRunRecordDb.IsEnum("NonExistentColumn") {
 		t.Errorf("expected PipelineRunRecordDb.IsEnum('NonExistentColumn') to be false")
 	}
@@ -108,6 +118,7 @@ func TestPipelineDbGeneratedFields(t *testing.T) {
 	if len(allFields) != 15 {
 		t.Errorf("expected 15 fields, got %d", len(allFields))
 	}
+
 	names := PipelineRunRecordDb.Names()
 	if len(names) != 15 || names[0] != "RunId" {
 		t.Errorf("unexpected names: %v", names)
@@ -124,18 +135,23 @@ func TestPipelineDbGeneratedFields(t *testing.T) {
 	if field.Name() != "RunId" || field.String() != "RunId" || field.Value() != "RunId" {
 		t.Errorf("unexpected field values: %s, %s, %s", field.Name(), field.String(), field.Value())
 	}
+
 	if !field.IsCompare(PipelineRunRecordDb.RunId) {
 		t.Errorf("expected IsCompare to be true for RunId")
 	}
+
 	if field.IsCompare(PipelineRunRecordDb.RepoSlug) {
 		t.Errorf("expected IsCompare to be false for RepoSlug")
 	}
+
 	if !field.IsEnum() {
 		t.Errorf("expected field.IsEnum() to be true")
 	}
+
 	if !field.IsRunId() {
 		t.Errorf("expected field.IsRunId() to be true")
 	}
+
 	if field.IsRepoSlug() {
 		t.Errorf("expected field.IsRepoSlug() to be false")
 	}
@@ -155,9 +171,11 @@ func TestPipelineDbGeneratedFields(t *testing.T) {
 	if !PipelineErrorRecordDb.IsRunId(PipelineErrorRecordDb.RunId) {
 		t.Errorf("expected PipelineErrorRecordDb.IsRunId(PipelineErrorRecordDb.RunId) to be true")
 	}
+
 	if !PipelineErrorRecordDb.IsStepName(PipelineErrorRecordDb.StepName) {
 		t.Errorf("expected PipelineErrorRecordDb.IsStepName(PipelineErrorRecordDb.StepName) to be true")
 	}
+
 	if PipelineErrorRecordDb.IsRunId(PipelineErrorRecordDb.StepName) {
 		t.Errorf("expected PipelineErrorRecordDb.IsRunId(PipelineErrorRecordDb.StepName) to be false")
 	}
@@ -168,6 +186,7 @@ func TestPipelineDbScanError(t *testing.T) {
 	if err != nil {
 		t.Fatalf("failed to open pipeline split db: %v", err)
 	}
+
 	defer db.Close()
 
 	query := `INSERT INTO PipelineRun (
@@ -177,6 +196,7 @@ func TestPipelineDbScanError(t *testing.T) {
 	if _, execErr := db.conn.Exec(query); execErr != nil {
 		return
 	}
+
 	if _, queryErr := db.QueryRecentRuns(5); queryErr == nil {
 		t.Errorf("expected QueryRecentRuns to propagate error on corrupt row")
 	}

@@ -49,6 +49,7 @@ func runInstallCtx(explain bool) error {
 	default:
 		fmt.Fprintf(os.Stderr, constants.MsgCtxOSUnsupported, runtime.GOOS)
 	}
+
 	return nil
 }
 
@@ -64,6 +65,7 @@ func runUninstallCtx() error {
 	default:
 		fmt.Fprintf(os.Stderr, constants.MsgCtxOSUnsupported, runtime.GOOS)
 	}
+
 	return nil
 }
 
@@ -76,6 +78,7 @@ func runInstallCtxWindows() error {
 
 	successes := runRegistryCommandsCtx(cmds)
 	fmt.Printf(constants.MsgCtxInstallDone, successes, len(cmds))
+
 	return nil
 }
 
@@ -90,6 +93,7 @@ func runUninstallCtxWindows() error {
 
 	successes := runRegistryCommandsCtx(cmds)
 	fmt.Printf(constants.MsgCtxUninstallDone, successes, len(cmds))
+
 	return nil
 }
 
@@ -147,9 +151,11 @@ func categoryCommands(key string, e ctxEntry, exe string) [][]string {
 		{"reg", "add", key, "/v", "MUIVerb", "/d", e.MUIVerb, "/f"},
 		{"reg", "add", key, "/v", "SubCommands", "/d", "", "/f"},
 	}
+
 	if icon := resolveCtxIcon(e.Icon, exe); icon != "" {
 		out = append(out, []string{"reg", "add", key, "/v", "Icon", "/d", icon, "/f"})
 	}
+
 	for _, child := range e.Children {
 		out = append(out, leafCommands(key+`\shell\`+child.KeyName, child, exe)...)
 	}
@@ -169,9 +175,11 @@ func leafCommands(key string, e ctxEntry, exe string) [][]string {
 		{"reg", "add", key, "/ve", "/d", e.MUIVerb, "/f"},
 		{"reg", "add", key + `\command`, "/ve", "/d", commandTemplate(e, exe), "/f"},
 	}
+
 	if icon := resolveCtxIcon(e.Icon, exe); icon != "" {
 		out = append(out, []string{"reg", "add", key, "/v", "Icon", "/d", icon, "/f"})
 	}
+
 	if e.Extended {
 		out = append(out, []string{"reg", "add", key, "/v", "Extended", "/d", "", "/f"})
 	}
@@ -201,6 +209,7 @@ func commandTemplate(e ctxEntry, exe string) string {
 	if e.Exe != "" {
 		target = e.Exe // resolved from PATH at runtime (e.g. "git")
 	}
+
 	args := strings.Join(e.Args, " ")
 	prefix := ctxExplainPrefixPwsh(target, e.Args)
 	if e.Mode == constants.CtxModeSilent {

@@ -45,8 +45,10 @@ func (it *LazyRegex) IsApplicable() bool {
 	it.locker.Lock()
 	if it.isApplicable {
 		it.locker.Unlock()
+
 		return true
 	}
+
 	it.locker.Unlock()
 
 	if it.IsUndefined() {
@@ -57,6 +59,7 @@ func (it *LazyRegex) IsApplicable() bool {
 
 	it.locker.Lock()
 	defer it.locker.Unlock()
+
 	return it.isApplicable
 }
 
@@ -77,6 +80,7 @@ func (it *LazyRegex) Compile() appfault.Result[*regexp.Regexp] {
 		if it.compiledErr != nil {
 			return appfault.Fail[*regexp.Regexp](appfault.NewAppBuilder(errtype.Execution, "lazy regex compilation failed").SetCause(it.compiledErr).Build())
 		}
+
 		return appfault.NewSuccess(it.regex)
 	}
 
@@ -103,6 +107,7 @@ func (it *LazyRegex) Compile() appfault.Result[*regexp.Regexp] {
 		builder := appfault.NewAppBuilder(errtype.Execution, "lazy regex compilation failed")
 		builder.SetCause(regExErr)
 		builder.SetContext("expression", it.expression)
+
 		return appfault.Fail[*regexp.Regexp](builder.Build())
 	}
 
@@ -151,6 +156,7 @@ func (it *LazyRegex) OnRequiredCompiled() error {
 	}
 
 	err := it.Compile().Error()
+
 	return err
 }
 
@@ -171,6 +177,7 @@ func (it *LazyRegex) HasError() bool {
 	}
 
 	_ = it.OnRequiredCompiled()
+
 	return it.compiledErr != nil
 }
 
@@ -391,6 +398,7 @@ func (it *LazyRegex) compiledRegex() (*regexp.Regexp, error) {
 	if res.AppError != nil {
 		return res.Value, res.AppError
 	}
+
 	return res.Value, nil
 }
 
@@ -401,6 +409,7 @@ func (it *LazyRegex) FindString(s string) string {
 	}
 
 	re := it.CompileMust()
+
 	return re.FindString(s)
 }
 
@@ -411,6 +420,7 @@ func (it *LazyRegex) FindStringSubmatch(s string) []string {
 	}
 
 	re := it.CompileMust()
+
 	return re.FindStringSubmatch(s)
 }
 
@@ -421,6 +431,7 @@ func (it *LazyRegex) ReplaceAllString(src, repl string) string {
 	}
 
 	re := it.CompileMust()
+
 	return re.ReplaceAllString(src, repl)
 }
 
@@ -455,6 +466,7 @@ func (it *LazyRegex) Count(comparing string) int {
 	}
 
 	matches := re.FindAllString(comparing, -1)
+
 	return len(matches)
 }
 
@@ -480,6 +492,7 @@ func (it *LazyRegex) GroupBy(comparing string) GroupMap {
 		if name == "" || i >= len(match) {
 			continue
 		}
+
 		result[name] = match[i]
 	}
 
@@ -515,8 +528,10 @@ func (it *LazyRegex) FindAllGroups(comparing string) GroupList {
 			if name == "" || i >= len(match) {
 				continue
 			}
+
 			groupMap[name] = match[i]
 		}
+
 		results = append(results, groupMap)
 	}
 

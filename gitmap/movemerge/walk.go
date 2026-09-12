@@ -24,19 +24,24 @@ func IndexTree(root string, opts Options) (map[string]FileMeta, error) {
 		if err != nil {
 			return err
 		}
+
 		rel, relErr := filepath.Rel(root, path)
 		if relErr != nil || rel == "." {
 			return relErr
 		}
+
 		if IsSkipWalk(rel, opts) && info.IsDir() {
 			return filepath.SkipDir
 		}
+
 		if IsSkipWalk(rel, opts) {
 			return nil
 		}
+
 		if info.IsDir() {
 			return nil
 		}
+
 		out[filepath.ToSlash(rel)] = FileMeta{RelPath: filepath.ToSlash(rel), Info: info}
 
 		return nil
@@ -52,6 +57,7 @@ func IsSkipWalk(rel string, opts Options) bool {
 	if base == ".git" {
 		return !opts.IsIncludeVCS
 	}
+
 	if base == "node_modules" {
 		return !opts.IsIncludeNodeMods
 	}
@@ -65,13 +71,16 @@ func SortedKeys(a, b map[string]FileMeta) []string {
 	for k := range a {
 		seen[k] = struct{}{}
 	}
+
 	for k := range b {
 		seen[k] = struct{}{}
 	}
+
 	out := make([]string, 0, len(seen))
 	for k := range seen {
 		out = append(out, k)
 	}
+
 	sort.Strings(out)
 
 	return out
@@ -83,6 +92,7 @@ func HashFile(path string) (string, error) {
 	if err != nil {
 		return "", err
 	}
+
 	defer f.Close()
 	h := sha256.New()
 	if _, err = io.Copy(h, f); err != nil {

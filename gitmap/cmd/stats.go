@@ -25,6 +25,7 @@ func runStats(args []string) error {
 	}
 
 	printStatsTerminal(overall, commands)
+
 	return nil
 }
 
@@ -53,8 +54,10 @@ func loadStats(cmdFilter string) (model.OverallStats, []model.CommandStats) {
 			nil,
 		)
 		cliexit.HandleError(appErr, 1)
+
 		return model.OverallStats{}, nil
 	}
+
 	defer db.Close()
 
 	overall, err := db.QueryOverallStats()
@@ -110,8 +113,10 @@ func printStatsJSON(overall model.OverallStats, commands []model.CommandStats) {
 	data, err := json.MarshalIndent(overall, "", "  ")
 	if err != nil {
 		fmt.Fprintf(os.Stderr, "  ✗ Failed to marshal stats to JSON: %v\n", err)
+
 		return
 	}
+
 	fmt.Println(string(data))
 }
 
@@ -119,6 +124,7 @@ func handleStatsError(err error) {
 	if err == nil {
 		return
 	}
+
 	if isLegacyDataError(err) {
 		appErr := apperror.WrapWithDetails(
 			err,
@@ -131,8 +137,10 @@ func handleStatsError(err error) {
 			nil,
 		)
 		cliexit.HandleError(appErr, 1)
+
 		return
 	}
+
 	appErr := apperror.WrapWithDetails(
 		err,
 		"cmd.stats.query",

@@ -64,6 +64,7 @@ func (m groupsModel) View() string {
 		if desc == "" {
 			desc = "—"
 		}
+
 		line := fmt.Sprintf("%-20s %s", g.Name, desc)
 
 		if i == m.cursor {
@@ -71,6 +72,7 @@ func (m groupsModel) View() string {
 		} else {
 			b.WriteString(styleNormalRow.Render("  " + line))
 		}
+
 		b.WriteString("\n")
 	}
 

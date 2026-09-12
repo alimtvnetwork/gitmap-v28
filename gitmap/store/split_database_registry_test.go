@@ -14,6 +14,7 @@ func TestSplitDatabaseRegistry_RegisterAndGet(t *testing.T) {
 	if err != nil {
 		t.Fatalf("OpenAt failed: %v", err)
 	}
+
 	defer db.Close()
 
 	if err := db.Migrate(); err != nil {
@@ -49,9 +50,11 @@ func TestSplitDatabaseRegistry_RegisterAndGet(t *testing.T) {
 	if got.ID <= 0 || got.SplitDatabaseRegistryID != got.ID {
 		t.Errorf("expected valid ID, got %d / %d", got.ID, got.SplitDatabaseRegistryID)
 	}
+
 	if got.RecordCount != 42 || got.TableCount != 3 || got.SizeBytes != 1024 {
 		t.Errorf("unexpected counts: rec=%d tbl=%d sz=%d", got.RecordCount, got.TableCount, got.SizeBytes)
 	}
+
 	if !got.IsActive || got.IsAttached {
 		t.Errorf("unexpected bools: active=%v attached=%v", got.IsActive, got.IsAttached)
 	}
@@ -63,6 +66,7 @@ func TestSplitDatabaseRegistry_ConflictUpdate(t *testing.T) {
 	if err != nil {
 		t.Fatalf("OpenAt failed: %v", err)
 	}
+
 	defer db.Close()
 
 	if err := db.Migrate(); err != nil {
@@ -76,6 +80,7 @@ func TestSplitDatabaseRegistry_ConflictUpdate(t *testing.T) {
 		RecordCount:  10,
 		TableCount:   2,
 	}
+
 	_ = db.RegisterSplitDB(e1)
 	first, _ := db.GetSplitDB("custom", "conflict-node")
 
@@ -89,6 +94,7 @@ func TestSplitDatabaseRegistry_ConflictUpdate(t *testing.T) {
 		Status:       "updated",
 		IsActive:     true,
 	}
+
 	if err := db.RegisterSplitDB(e2); err != nil {
 		t.Fatalf("second register failed: %v", err)
 	}
@@ -101,6 +107,7 @@ func TestSplitDatabaseRegistry_ConflictUpdate(t *testing.T) {
 	if second.RecordCount != 150 || second.TableCount != 5 || second.SizeBytes != 8192 {
 		t.Errorf("conflict update failed: rec=%d tbl=%d sz=%d", second.RecordCount, second.TableCount, second.SizeBytes)
 	}
+
 	if second.Status != "updated" || second.CreatedAt != first.CreatedAt {
 		t.Errorf("expected status 'updated' and preserved CreatedAt")
 	}
@@ -112,6 +119,7 @@ func TestSplitDatabaseRegistry_ListSplitDBs(t *testing.T) {
 	if err != nil {
 		t.Fatalf("OpenAt failed: %v", err)
 	}
+
 	defer db.Close()
 
 	if err := db.Migrate(); err != nil {
@@ -139,6 +147,7 @@ func TestSplitDatabaseRegistry_SyncKnownSplitDatabases(t *testing.T) {
 	if err != nil {
 		t.Fatalf("OpenAt failed: %v", err)
 	}
+
 	defer db.Close()
 
 	if err := db.Migrate(); err != nil {
@@ -157,6 +166,7 @@ func TestSplitDatabaseRegistry_SyncKnownSplitDatabases(t *testing.T) {
 	if err != nil {
 		t.Fatalf("create sched db failed: %v", err)
 	}
+
 	_, _ = conn.Exec("CREATE TABLE test_job (id INTEGER PRIMARY KEY, msg TEXT);")
 	_, _ = conn.Exec("INSERT INTO test_job (msg) VALUES ('hello');")
 	_ = conn.Close()
@@ -177,6 +187,7 @@ func TestSplitDatabaseRegistry_NotFound(t *testing.T) {
 	if err != nil {
 		t.Fatalf("OpenAt failed: %v", err)
 	}
+
 	defer db.Close()
 
 	if err := db.Migrate(); err != nil {

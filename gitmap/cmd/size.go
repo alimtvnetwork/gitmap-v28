@@ -31,10 +31,12 @@ func runSize(args []string) error {
 	if err := fs.Parse(args); err != nil {
 		cliexit.HandleError(err, 2)
 	}
+
 	fmtKind, err := parseHygieneFormat(*format)
 	if err != nil {
 		cliexit.Fail("size", "parse-format", *format, err, 2)
 	}
+
 	repos := scanForReposParallel(*root)
 	sizes := mapReposParallel(repos, func(r string) (repoSize, bool) {
 		return repoSize{path: r, size: dirSize(filepath.Join(r, ".git"))}, true
@@ -43,10 +45,12 @@ func runSize(args []string) error {
 	if *topN > 0 && len(sizes) > *topN {
 		sizes = sizes[:*topN]
 	}
+
 	emitSize(sizes, fmtKind)
 	if *prune {
 		runAggressiveGC(sizes, *dryRun)
 	}
+
 	return nil
 }
 
@@ -58,16 +62,19 @@ func emitSize(sizes []repoSize, f hygieneFormat) {
 			Path  string `json:"path"`
 			Bytes int64  `json:"bytes"`
 		}
+
 		out := make([]row, 0, len(sizes))
 		for _, s := range sizes {
 			out = append(out, row{Path: s.path, Bytes: s.size})
 		}
+
 		emitJSON(out)
 	case hygieneFormatCSV:
 		rows := make([][]string, 0, len(sizes))
 		for _, s := range sizes {
 			rows = append(rows, []string{s.path, fmt.Sprintf("%d", s.size)})
 		}
+
 		emitCSV([]string{"path", "bytes"}, rows)
 	case hygieneFormatTable:
 		printSizeReport(sizes)
@@ -83,14 +90,17 @@ func printSizeReport(sizes []repoSize) {
 
 		return
 	}
+
 	var total int64
 	for _, s := range sizes {
 		total += s.size
 	}
+
 	fmt.Fprintf(os.Stdout, "\n  \033[36m%d repo(s)\033[0m  total .git = %s\n\n", len(sizes), humanBytes(total))
 	for _, s := range sizes {
 		fmt.Fprintf(os.Stdout, "  \033[33m%10s\033[0m  %s\n", humanBytes(s.size), s.path)
 	}
+
 	fmt.Fprintln(os.Stdout, "")
 }
 
@@ -102,6 +112,7 @@ func runAggressiveGC(sizes []repoSize, dryRun bool) error {
 
 			continue
 		}
+
 		fmt.Fprintf(os.Stdout, "  \033[36mgc\033[0m %s ...\n", s.path)
 		cmd := exec.Command("git", "-C", s.path, "gc", "--aggressive", "--prune=now")
 		cmd.Stdout = os.Stdout
@@ -111,8 +122,10 @@ func runAggressiveGC(sizes []repoSize, dryRun bool) error {
 
 			continue
 		}
+
 		after := dirSize(filepath.Join(s.path, ".git"))
 		fmt.Fprintf(os.Stdout, "  \033[32mdone\033[0m %s  %s -> %s\n", s.path, humanBytes(s.size), humanBytes(after))
 	}
+
 	return nil
 }

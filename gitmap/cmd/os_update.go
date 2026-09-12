@@ -27,5 +27,6 @@ func ExecuteOSUpdate(ctx context.Context) error {
 
 	cmd.Stdout = os.Stdout
 	cmd.Stderr = os.Stderr
+
 	return cmd.Run()
 }

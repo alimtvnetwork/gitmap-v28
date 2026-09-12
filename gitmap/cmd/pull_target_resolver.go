@@ -31,13 +31,16 @@ func ResolvePullDirectoryTargets(dirPath string) []model.ScanRecord {
 			Slug:         name,
 			AbsolutePath: d,
 		}
+
 		for _, dbR := range dbRepos {
 			if stringsEqualAbs(dbR.AbsolutePath, d) {
 				rec = dbR
 				break
 			}
 		}
+
 		records = append(records, rec)
 	}
+
 	return records
 }

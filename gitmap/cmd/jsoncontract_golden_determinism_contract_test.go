@@ -36,11 +36,13 @@ func TestAssertGoldenBytesDeterministic_DetectsDivergence(t *testing.T) {
 
 		return fmt.Appendf(nil, "run-%d", counter), nil
 	}
+
 	first, _ := flaky()
 	second, _ := flaky()
 	if bytes.Equal(first, second) {
 		t.Fatalf("test setup broken: flaky encoder returned identical bytes %q", first)
 	}
+
 	// Loop matches assertGoldenBytesDeterministic's body — if the
 	// production helper switches to a sample-only or hash-based
 	// comparison, this scaffolding will need to follow.
@@ -58,6 +60,7 @@ func TestAssertGoldenBytesDeterministic_PassesDeterministicEncoder(t *testing.T)
 
 		return buf.Bytes(), err
 	}
+
 	// A failure here means EITHER encodeFindNextJSON regressed OR
 	// the determinism helper itself regressed. Both are worth
 	// catching loudly.
@@ -76,12 +79,15 @@ func TestAssertGoldenBytesDeterministic_RunCount(t *testing.T) {
 
 		return []byte("stable"), nil
 	}
+
 	for i := 0; i < determinismRuns; i++ {
 		_, _ = encode()
 	}
+
 	if counter != determinismRuns {
 		t.Fatalf("expected %d encode calls, got %d", determinismRuns, counter)
 	}
+
 	if determinismRuns < 3 {
 		t.Fatalf("determinismRuns must be ≥3 to catch cache-warmup divergence, got %d", determinismRuns)
 	}

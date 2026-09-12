@@ -29,6 +29,7 @@ func runSJHistory(cmd *cobra.Command, args []string, ctx context.Context) error 
 	if len(args) > 0 {
 		filter = args[0]
 	}
+
 	return printSJHistory(ctx, os.Stdout, filter)
 }
 
@@ -39,6 +40,7 @@ func printSJHistory(ctx context.Context, out io.Writer, filter string) error {
 	if err != nil {
 		return apperror.New("printSJHistory", "E_INTERNAL_ERROR", map[string]any{"msg": "failed to open db", "err": err.Error()})
 	}
+
 	defer dbConn.Close()
 
 	// ListSSHHistory gets up to 100 history items for display
@@ -54,6 +56,7 @@ func printSJHistory(ctx context.Context, out io.Writer, filter string) error {
 		if filter != "" && h.HostIP != filter && h.User != filter {
 			continue // simple filter
 		}
+
 		fmt.Fprintf(w, "%s\t%s\t%s\t%s\n",
 			h.ID,
 			h.HostIP,

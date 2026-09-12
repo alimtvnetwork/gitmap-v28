@@ -30,7 +30,9 @@ func runInstallCtxMac() error {
 			ok++
 		}
 	}
+
 	fmt.Printf(constants.MsgCtxMacInstallDone, ok, len(flat))
+
 	return nil
 }
 
@@ -55,9 +57,12 @@ func runUninstallCtxMac() error {
 
 			continue
 		}
+
 		ok++
 	}
+
 	fmt.Printf(constants.MsgCtxMacUninstallDone, ok, len(flat))
+
 	return nil
 }
 
@@ -67,6 +72,7 @@ func macServicesDir() (string, error) {
 	if err != nil {
 		return "", err
 	}
+
 	dir := filepath.Join(home, constants.CtxMacServicesRel)
 	if err := os.MkdirAll(dir, 0o755); err != nil {
 		return "", err
@@ -91,6 +97,7 @@ func writeMacWorkflow(dir string, e flatCtxEntry, exe string) bool {
 	if !writeFileCtx(filepath.Join(contents, "Info.plist"), macInfoPlist(e.Label)) {
 		return false
 	}
+
 	shell := macShellFor(e, exe)
 	if !writeFileCtx(filepath.Join(contents, "document.wflow"), macDocumentWflow(shell)) {
 		return false
@@ -118,6 +125,7 @@ func macShellFor(e flatCtxEntry, exe string) string {
 	if e.Exe != "" {
 		target = e.Exe
 	}
+
 	switch e.Mode {
 	case constants.CtxModePrefill:
 		return `osascript -e 'tell application "Terminal" to do script "cd \"'"$1"'\" && printf \"gitmap \""' -e 'tell application "Terminal" to activate'`
@@ -134,6 +142,7 @@ func macShellFor(e flatCtxEntry, exe string) string {
 		if isCtxExplainEnabled() {
 			echoPrefix = fmt.Sprintf(`echo \"> %s %s\" && `, target, args)
 		}
+
 		open := fmt.Sprintf(`osascript -e 'tell application "Terminal" to do script "cd \"'"$1"'\" && %s'"'"'%s'"'"' %s"' -e 'tell application "Terminal" to activate'`, echoPrefix, target, args)
 		if e.Extended {
 			// Power-user fan-out: confirm before running. macOS lacks

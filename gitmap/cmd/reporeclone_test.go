@@ -23,15 +23,18 @@ func TestSplitRepoRecloneArgs(t *testing.T) {
 		{"yes plus path", []string{"-y", "./repo"}, true, 1, "./repo"},
 		{"manifest path passthrough", []string{".gitmap/output/gitmap.json"}, false, 1, ".gitmap/output/gitmap.json"},
 	}
+
 	for _, tc := range cases {
 		t.Run(tc.name, func(t *testing.T) {
 			gotYes, gotPos := splitRepoRecloneArgs(tc.in)
 			if gotYes != tc.wantYes {
 				t.Fatalf("yes: got %v want %v", gotYes, tc.wantYes)
 			}
+
 			if len(gotPos) != tc.wantPosLen {
 				t.Fatalf("positionals: got %d want %d (%#v)", len(gotPos), tc.wantPosLen, gotPos)
 			}
+
 			if tc.wantPosLen > 0 && gotPos[0] != tc.wantFirst {
 				t.Fatalf("first positional: got %q want %q", gotPos[0], tc.wantFirst)
 			}
@@ -48,6 +51,7 @@ func TestResolveRepoRecloneTarget(t *testing.T) {
 	if err := os.MkdirAll(notGit, 0o755); err != nil {
 		t.Fatal(err)
 	}
+
 	gitRepo := filepath.Join(tmp, "real")
 	if err := os.MkdirAll(filepath.Join(gitRepo, ".git"), 0o755); err != nil {
 		t.Fatal(err)
@@ -56,16 +60,20 @@ func TestResolveRepoRecloneTarget(t *testing.T) {
 	if _, ok := resolveRepoRecloneTarget([]string{notGit}); ok {
 		t.Fatal("non-git dir must not be claimed")
 	}
+
 	got, ok := resolveRepoRecloneTarget([]string{gitRepo})
 	if !ok {
 		t.Fatal("git dir must be claimed")
 	}
+
 	if abs, _ := filepath.Abs(gitRepo); got != abs {
 		t.Fatalf("target: got %q want %q", got, abs)
 	}
+
 	if _, ok := resolveRepoRecloneTarget([]string{notGit, gitRepo}); ok {
 		t.Fatal("multi-positional must not be claimed (manifest pipeline owns it)")
 	}
+
 	if _, ok := resolveRepoRecloneTarget([]string{"/nonexistent/path/xyz123"}); ok {
 		t.Fatal("missing path must not be claimed")
 	}
@@ -78,9 +86,11 @@ func TestIsGitRepoDirHelper(t *testing.T) {
 	if isGitRepoDir(tmp) {
 		t.Fatal("empty dir is not a git repo")
 	}
+
 	if err := os.MkdirAll(filepath.Join(tmp, ".git"), 0o755); err != nil {
 		t.Fatal(err)
 	}
+
 	isNonGitRepoDir := !isGitRepoDir(tmp)
 	if isNonGitRepoDir {
 		t.Fatal("dir with .git/ must be detected")
@@ -98,17 +108,20 @@ func TestTryRunRepoRecloneFallthrough(t *testing.T) {
 	if err != nil {
 		t.Fatal(err)
 	}
+
 	defer func() { _ = os.Chdir(originalDir) }()
 	tmp := t.TempDir()
 	if err := os.Chdir(tmp); err != nil {
 		t.Fatal(err)
 	}
+
 	cases := [][]string{
 		{".gitmap/output/gitmap.json"},               // manifest path, no .git
 		{"--manifest", ".gitmap/output/gitmap.json"}, // flag form
 		{"file1.json", "file2.json"},                 // multi-positional
 		{"/definitely/not/a/real/path/xyz123"},       // missing path
 	}
+
 	for _, args := range cases {
 		if tryRunRepoReclone(args) {
 			t.Fatalf("manifest-shaped args must fall through: %#v", args)

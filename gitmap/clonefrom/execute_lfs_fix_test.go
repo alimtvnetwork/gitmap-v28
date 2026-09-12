@@ -34,6 +34,7 @@ func testDetectLFSSmudgeErrorPrimary(t *testing.T) {
 	if !isDetected {
 		t.Fatalf("expected to detect LFS smudge error, got ok=false")
 	}
+
 	if file != "assets/01-licensing.xmind" {
 		t.Errorf("expected file 'assets/01-licensing.xmind', got '%s'", file)
 	}
@@ -45,6 +46,7 @@ func testDetectLFSSmudgeErrorFallback(t *testing.T) {
 	if !isFallbackDetected {
 		t.Fatalf("expected to detect LFS smudge error using fallback regex, got ok=false")
 	}
+
 	if file != "deep/path/file.bin" {
 		t.Errorf("expected file 'deep/path/file.bin', got '%s'", file)
 	}

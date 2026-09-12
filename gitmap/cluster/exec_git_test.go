@@ -32,6 +32,7 @@ func TestExecGit_Commands(t *testing.T) {
 	var lastCmd string
 	runCmdFunc = func(cmd *exec.Cmd) error {
 		lastCmd = strings.Join(cmd.Args, " ")
+
 		return nil
 	}
 
@@ -59,17 +60,21 @@ func runSingleGitExecTest(
 	if _, _, _, err := tc.fn(ctx, node); err != nil {
 		t.Fatalf("unexpected error: %v", err)
 	}
+
 	if !strings.Contains(*lastCmd, tc.expected) {
 		t.Errorf("expected command %q to contain %q", *lastCmd, tc.expected)
 	}
+
 	assertPlatformShellWrapping(t, *lastCmd)
 }
 
 func assertPlatformShellWrapping(t *testing.T, cmdStr string) {
 	if runtime.GOOS == constants.PlatformWindows {
 		assertWindowsShellWrapping(t, cmdStr)
+
 		return
 	}
+
 	assertUnixShellWrapping(t, cmdStr)
 }
 

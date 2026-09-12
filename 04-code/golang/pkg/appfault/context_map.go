@@ -23,6 +23,7 @@ func (cm ContextMap) Set(key string, val any) ContextMap {
 	if cm == nil {
 		cm = make(ContextMap, 0)
 	}
+
 	cm[key] = val
 
 	return cm

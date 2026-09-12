@@ -79,6 +79,7 @@ func loadRecords(path string) ([]model.ScanRecord, error) {
 	if err != nil {
 		return nil, fmt.Errorf("open clone source %q: %w", path, err)
 	}
+
 	defer file.Close()
 
 	records, err := parseByExtension(ext, file)
@@ -94,6 +95,7 @@ func parseByExtension(ext string, r io.Reader) ([]model.ScanRecord, error) {
 	if ext == constants.ExtCSV {
 		return formatter.ParseCSV(r)
 	}
+
 	if ext == constants.ExtJSON {
 		return formatter.ParseJSON(r)
 	}
@@ -115,6 +117,7 @@ func parseTextFile(r io.Reader) ([]model.ScanRecord, error) {
 			records = append(records, parseCloneLine(line))
 		}
 	}
+
 	if err := sc.Err(); err != nil {
 		return nil, fmt.Errorf("read line %d: %w", lineNum+1, err)
 	}
@@ -130,6 +133,7 @@ func parseCloneLine(line string) model.ScanRecord {
 		rec.Branch = parts[3]
 		rec.HTTPSUrl = parts[4]
 	}
+
 	if len(parts) >= 6 {
 		rec.RelativePath = parts[5]
 	}
@@ -188,17 +192,20 @@ func runClone(rec model.ScanRecord, dest string) model.CloneResult {
 	if strategy.useBranch {
 		args = append(args, constants.GitBranchFlag, strategy.branch)
 	}
+
 	args = append(args, url, dest)
 
 	cmd := exec.Command(constants.GitBin, args...)
 	if isSSHCloneURL(url) {
 		return runInteractiveClone(cmd, rec, url, dest, strategy)
 	}
+
 	out, err := cmd.CombinedOutput()
 	needsLFSRetry := err != nil && isLFSSmudgeFailure(string(out))
 	if needsLFSRetry {
 		out, err = retryCloneSkipSmudge(constants.GitBin, args, dest)
 	}
+
 	notes := strategy.reason
 	if needsLFSRetry && err == nil {
 		notes = appendLFSRetryNote(notes)
@@ -220,6 +227,7 @@ func appendLFSRetryNote(notes string) string {
 	if notes == "" {
 		return LFSRetryNote
 	}
+
 	return notes + "; " + LFSRetryNote
 }
 

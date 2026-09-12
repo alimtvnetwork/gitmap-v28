@@ -117,6 +117,7 @@ func (it *GroupList) Add(group GroupMap) *GroupList {
 	}
 
 	*it = append(*it, group)
+
 	return it
 }
 
@@ -132,6 +133,7 @@ func (it *GroupList) RemoveAt(index int) *GroupList {
 	}
 
 	*it = append((*it)[:index], (*it)[index+1:]...)
+
 	return it
 }
 
@@ -154,6 +156,7 @@ func (it GroupList) AllKeys() []string {
 	}
 
 	sort.Strings(keys)
+
 	return keys
 }
 

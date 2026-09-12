@@ -20,6 +20,7 @@ func setupInstallerListTestDB(t *testing.T) *DB {
 	if err != nil {
 		t.Fatalf("OpenAt failed: %v", err)
 	}
+
 	t.Cleanup(func() { _ = db.Close() })
 
 	if err := db.MigrateInstallers(); err != nil {
@@ -40,6 +41,7 @@ func TestListInstallersSuccess(t *testing.T) {
 		Version:      "2.7.0",
 		Instructions: "echo install composer",
 	}
+
 	script2 := &model.InstallerScript{
 		Name:         "NodeJS",
 		Slug:         "nodejs",
@@ -52,6 +54,7 @@ func TestListInstallersSuccess(t *testing.T) {
 	if err := db.CreateInstaller(script1); err != nil {
 		t.Fatalf("CreateInstaller failed for script1: %v", err)
 	}
+
 	if err := db.CreateInstaller(script2); err != nil {
 		t.Fatalf("CreateInstaller failed for script2: %v", err)
 	}
@@ -68,9 +71,11 @@ func TestListInstallersSuccess(t *testing.T) {
 	if scripts[0].ID != script1.ID || scripts[0].Slug != "composer" || scripts[0].Name != "Composer" {
 		t.Errorf("script[0] mismatch: %+v", scripts[0])
 	}
+
 	if scripts[0].Description != "PHP dependency manager" || scripts[0].TargetOS != "all" || scripts[0].Version != "2.7.0" {
 		t.Errorf("script[0] field mismatch: %+v", scripts[0])
 	}
+
 	if scripts[0].Instructions != "echo install composer" || scripts[0].CreatedAt == "" || scripts[0].UpdatedAt == "" {
 		t.Errorf("script[0] metadata mismatch: %+v", scripts[0])
 	}
@@ -78,9 +83,11 @@ func TestListInstallersSuccess(t *testing.T) {
 	if scripts[1].ID != script2.ID || scripts[1].Slug != "nodejs" || scripts[1].Name != "NodeJS" {
 		t.Errorf("script[1] mismatch: %+v", scripts[1])
 	}
+
 	if scripts[1].Description != "JavaScript runtime" || scripts[1].TargetOS != "win" || scripts[1].Version != "20.11.0" {
 		t.Errorf("script[1] field mismatch: %+v", scripts[1])
 	}
+
 	if scripts[1].Instructions != "echo install nodejs" || scripts[1].CreatedAt == "" || scripts[1].UpdatedAt == "" {
 		t.Errorf("script[1] metadata mismatch: %+v", scripts[1])
 	}
@@ -104,6 +111,7 @@ func TestListInstallersClosedDB(t *testing.T) {
 	if err != nil {
 		t.Fatalf("sql.Open failed: %v", err)
 	}
+
 	db := &DB{conn: dbConn}
 	_ = dbConn.Close()
 
@@ -111,6 +119,7 @@ func TestListInstallersClosedDB(t *testing.T) {
 	if err == nil {
 		t.Fatalf("expected error on closed db, got nil")
 	}
+
 	if scripts != nil {
 		t.Errorf("expected nil scripts on error, got %+v", scripts)
 	}
@@ -119,6 +128,7 @@ func TestListInstallersClosedDB(t *testing.T) {
 	if !errors.As(err, &appErr) {
 		t.Fatalf("expected AppError, got %T", err)
 	}
+
 	if appErr.Code != "E_INSTALLER_LIST_FAILED" {
 		t.Errorf("expected code E_INSTALLER_LIST_FAILED, got %s", appErr.Code)
 	}
@@ -130,6 +140,7 @@ func TestListInstallersNilDB(t *testing.T) {
 	if err == nil {
 		t.Fatalf("expected error on nil db, got nil")
 	}
+
 	if scripts != nil {
 		t.Errorf("expected nil scripts on error, got %+v", scripts)
 	}
@@ -138,6 +149,7 @@ func TestListInstallersNilDB(t *testing.T) {
 	if !errors.As(err, &appErr) {
 		t.Fatalf("expected AppError, got %T", err)
 	}
+
 	if appErr.Code != "E_INSTALLER_NIL_DB" {
 		t.Errorf("expected code E_INSTALLER_NIL_DB, got %s", appErr.Code)
 	}

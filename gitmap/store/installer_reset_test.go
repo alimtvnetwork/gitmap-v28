@@ -20,6 +20,7 @@ func setupInstallerResetTestDB(t *testing.T) *DB {
 	if err != nil {
 		t.Fatalf("OpenAt failed: %v", err)
 	}
+
 	t.Cleanup(func() { _ = db.Close() })
 
 	if err := db.MigrateInstallers(); err != nil {
@@ -40,6 +41,7 @@ func TestResetInstallersAllSuccess(t *testing.T) {
 		Version:      "2.7.0",
 		Instructions: "echo install composer",
 	}
+
 	script2 := &model.InstallerScript{
 		Name:         "NodeJS",
 		Slug:         "nodejs",
@@ -52,6 +54,7 @@ func TestResetInstallersAllSuccess(t *testing.T) {
 	if err := db.CreateInstaller(script1); err != nil {
 		t.Fatalf("CreateInstaller failed for script1: %v", err)
 	}
+
 	if err := db.CreateInstaller(script2); err != nil {
 		t.Fatalf("CreateInstaller failed for script2: %v", err)
 	}
@@ -63,6 +66,7 @@ func TestResetInstallersAllSuccess(t *testing.T) {
 		TargetOS:     "all",
 		Instructions: "echo install composer",
 	}
+
 	v2 := &model.InstallerVersion{
 		ScriptID:     script2.ID,
 		Slug:         "nodejs",
@@ -74,6 +78,7 @@ func TestResetInstallersAllSuccess(t *testing.T) {
 	if err := db.SaveVersion(v1); err != nil {
 		t.Fatalf("SaveVersion failed for v1: %v", err)
 	}
+
 	if err := db.SaveVersion(v2); err != nil {
 		t.Fatalf("SaveVersion failed for v2: %v", err)
 	}
@@ -86,6 +91,7 @@ func TestResetInstallersAllSuccess(t *testing.T) {
 	if err != nil {
 		t.Fatalf("ListInstallers failed after reset: %v", err)
 	}
+
 	if len(scripts) != 0 {
 		t.Errorf("expected 0 installer scripts after reset all, got %d", len(scripts))
 	}
@@ -95,6 +101,7 @@ func TestResetInstallersAllSuccess(t *testing.T) {
 	if err := row.Scan(&versionCount); err != nil {
 		t.Fatalf("failed to query installer_versions count: %v", err)
 	}
+
 	if versionCount != 0 {
 		t.Errorf("expected 0 installer versions after reset all, got %d", versionCount)
 	}
@@ -111,6 +118,7 @@ func TestResetInstallersSpecificSlugSuccess(t *testing.T) {
 		Version:      "2.7.0",
 		Instructions: "echo install composer",
 	}
+
 	script2 := &model.InstallerScript{
 		Name:         "NodeJS",
 		Slug:         "nodejs",
@@ -123,6 +131,7 @@ func TestResetInstallersSpecificSlugSuccess(t *testing.T) {
 	if err := db.CreateInstaller(script1); err != nil {
 		t.Fatalf("CreateInstaller failed for script1: %v", err)
 	}
+
 	if err := db.CreateInstaller(script2); err != nil {
 		t.Fatalf("CreateInstaller failed for script2: %v", err)
 	}
@@ -134,6 +143,7 @@ func TestResetInstallersSpecificSlugSuccess(t *testing.T) {
 		TargetOS:     "all",
 		Instructions: "echo install composer",
 	}
+
 	v2 := &model.InstallerVersion{
 		ScriptID:     script2.ID,
 		Slug:         "nodejs",
@@ -145,6 +155,7 @@ func TestResetInstallersSpecificSlugSuccess(t *testing.T) {
 	if err := db.SaveVersion(v1); err != nil {
 		t.Fatalf("SaveVersion failed for v1: %v", err)
 	}
+
 	if err := db.SaveVersion(v2); err != nil {
 		t.Fatalf("SaveVersion failed for v2: %v", err)
 	}
@@ -164,6 +175,7 @@ func TestResetInstallersSpecificSlugSuccess(t *testing.T) {
 	if err != nil {
 		t.Fatalf("expected nodejs to exist after resetting composer: %v", err)
 	}
+
 	if nodeScript.Slug != "nodejs" {
 		t.Errorf("expected slug 'nodejs', got %q", nodeScript.Slug)
 	}
@@ -174,6 +186,7 @@ func TestResetInstallersSpecificSlugSuccess(t *testing.T) {
 	if err := row.Scan(&composerVersionCount); err != nil {
 		t.Fatalf("failed to query composer version count: %v", err)
 	}
+
 	if composerVersionCount != 0 {
 		t.Errorf("expected 0 versions for composer, got %d", composerVersionCount)
 	}
@@ -184,6 +197,7 @@ func TestResetInstallersSpecificSlugSuccess(t *testing.T) {
 	if err := row.Scan(&nodeVersionCount); err != nil {
 		t.Fatalf("failed to query nodejs version count: %v", err)
 	}
+
 	if nodeVersionCount != 1 {
 		t.Errorf("expected 1 version for nodejs, got %d", nodeVersionCount)
 	}
@@ -200,6 +214,7 @@ func TestResetInstallersNonExistentSlug(t *testing.T) {
 		Version:      "20.11.0",
 		Instructions: "echo install nodejs",
 	}
+
 	if err := db.CreateInstaller(script); err != nil {
 		t.Fatalf("CreateInstaller failed: %v", err)
 	}
@@ -212,6 +227,7 @@ func TestResetInstallersNonExistentSlug(t *testing.T) {
 	if err != nil {
 		t.Fatalf("expected nodejs to still exist: %v", err)
 	}
+
 	if existingScript == nil || existingScript.Slug != "nodejs" {
 		t.Errorf("nodejs script corrupted")
 	}
@@ -229,6 +245,7 @@ func TestResetInstallersEmptySlugWhenNotAll(t *testing.T) {
 	if !errors.As(err, &appErr) {
 		t.Fatalf("expected AppError, got %T", err)
 	}
+
 	if appErr.Code != "E_INSTALLER_INVALID_INPUT" {
 		t.Errorf("expected code E_INSTALLER_INVALID_INPUT, got %s", appErr.Code)
 	}
@@ -241,10 +258,12 @@ func TestResetInstallersNilDB(t *testing.T) {
 	if err1 == nil {
 		t.Fatalf("expected error on nil db with all=true, got nil")
 	}
+
 	var appErr1 *apperror.AppError
 	if !errors.As(err1, &appErr1) {
 		t.Fatalf("expected AppError, got %T", err1)
 	}
+
 	if appErr1.Code != "E_INSTALLER_NIL_DB" {
 		t.Errorf("expected code E_INSTALLER_NIL_DB, got %s", appErr1.Code)
 	}
@@ -253,10 +272,12 @@ func TestResetInstallersNilDB(t *testing.T) {
 	if err2 == nil {
 		t.Fatalf("expected error on nil db with all=false, got nil")
 	}
+
 	var appErr2 *apperror.AppError
 	if !errors.As(err2, &appErr2) {
 		t.Fatalf("expected AppError, got %T", err2)
 	}
+
 	if appErr2.Code != "E_INSTALLER_NIL_DB" {
 		t.Errorf("expected code E_INSTALLER_NIL_DB, got %s", appErr2.Code)
 	}
@@ -267,6 +288,7 @@ func TestResetInstallersClosedDB(t *testing.T) {
 	if err != nil {
 		t.Fatalf("sql.Open failed: %v", err)
 	}
+
 	db := &DB{conn: dbConn}
 	_ = dbConn.Close()
 
@@ -274,10 +296,12 @@ func TestResetInstallersClosedDB(t *testing.T) {
 	if err1 == nil {
 		t.Fatalf("expected error on closed db with all=true, got nil")
 	}
+
 	var appErr1 *apperror.AppError
 	if !errors.As(err1, &appErr1) {
 		t.Fatalf("expected AppError, got %T", err1)
 	}
+
 	if appErr1.Code != "E_INSTALLER_RESET_FAILED" {
 		t.Errorf("expected code E_INSTALLER_RESET_FAILED, got %s", appErr1.Code)
 	}
@@ -286,10 +310,12 @@ func TestResetInstallersClosedDB(t *testing.T) {
 	if err2 == nil {
 		t.Fatalf("expected error on closed db with all=false, got nil")
 	}
+
 	var appErr2 *apperror.AppError
 	if !errors.As(err2, &appErr2) {
 		t.Fatalf("expected AppError, got %T", err2)
 	}
+
 	if appErr2.Code != "E_INSTALLER_RESET_FAILED" {
 		t.Errorf("expected code E_INSTALLER_RESET_FAILED, got %s", appErr2.Code)
 	}

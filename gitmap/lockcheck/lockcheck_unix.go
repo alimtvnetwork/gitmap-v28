@@ -30,15 +30,18 @@ func parseLsofOutput(output string) []LockingProcess {
 		if i == 0 || strings.TrimSpace(line) == "" {
 			continue // skip header
 		}
+
 		fields := strings.Fields(line)
 		if len(fields) < 2 {
 			continue
 		}
+
 		name := fields[0]
 		pid, err := strconv.Atoi(fields[1])
 		if err != nil || seen[pid] {
 			continue
 		}
+
 		seen[pid] = true
 		procs = append(procs, LockingProcess{PID: pid, Name: name})
 	}

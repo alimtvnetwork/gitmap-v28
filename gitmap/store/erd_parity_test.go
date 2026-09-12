@@ -46,18 +46,23 @@ func repoRoot(t *testing.T) string {
 	if !ok {
 		t.Fatal("runtime.Caller failed — cannot locate ERD parity test")
 	}
+
 	dir := filepath.Dir(thisFile)
 	for i := 0; i < 8; i++ {
 		if _, err := os.Stat(filepath.Join(dir, erdPathRel)); err == nil {
 			return dir
 		}
+
 		parent := filepath.Dir(dir)
 		if parent == dir {
 			break
 		}
+
 		dir = parent
 	}
+
 	t.Fatalf("could not locate repo root from %s (looking for %s)", thisFile, erdPathRel)
+
 	return ""
 }
 
@@ -67,20 +72,24 @@ func collectSQLCreateTables(t *testing.T, root string) map[string]struct{} {
 	if err != nil {
 		t.Fatalf("read constants dir: %v", err)
 	}
+
 	tables := make(map[string]struct{})
 	for _, e := range entries {
 		name := e.Name()
 		if e.IsDir() || !strings.HasPrefix(name, "constants_") || !strings.HasSuffix(name, ".go") {
 			continue
 		}
+
 		body, err := os.ReadFile(filepath.Join(root, constantsDirRel, name))
 		if err != nil {
 			t.Fatalf("read %s: %v", name, err)
 		}
+
 		for _, m := range reCreateTable.FindAllStringSubmatch(string(body), -1) {
 			tables[m[1]] = struct{}{}
 		}
 	}
+
 	return tables
 }
 
@@ -90,16 +99,19 @@ func collectErdTables(t *testing.T, root string) map[string]struct{} {
 	if err != nil {
 		t.Fatalf("read ERD: %v", err)
 	}
+
 	tables := make(map[string]struct{})
 	for _, line := range strings.Split(string(body), "\n") {
 		// Skip mermaid relationship lines; only struct-block headers count.
 		if strings.Contains(line, "--") {
 			continue
 		}
+
 		if m := reErdTable.FindStringSubmatch(line); m != nil {
 			tables[m[1]] = struct{}{}
 		}
 	}
+
 	return tables
 }
 
@@ -108,7 +120,9 @@ func sortedKeys(m map[string]struct{}) []string {
 	for k := range m {
 		out = append(out, k)
 	}
+
 	sort.Strings(out)
+
 	return out
 }
 
@@ -125,6 +139,7 @@ func TestERDMatchesSQLCreate(t *testing.T) {
 			missingFromErd[k] = struct{}{}
 		}
 	}
+
 	extraInErd := make(map[string]struct{})
 	for k := range erdTables {
 		if _, ok := sqlTables[k]; !ok {
@@ -143,6 +158,7 @@ func TestERDMatchesSQLCreate(t *testing.T) {
 			erdParityRegenHint,
 		)
 	}
+
 	if len(extraInErd) > 0 {
 		t.Errorf("ERD parity drift — %d table(s) present in %s but no matching SQLCreate* constant:\n  %s\n\nFix: either add the SQLCreate* constant or remove the orphan block from the ERD.",
 			len(extraInErd), erdPathRel,

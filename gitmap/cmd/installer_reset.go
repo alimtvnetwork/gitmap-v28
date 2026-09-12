@@ -48,6 +48,7 @@ func parseInstallerResetFlags(args []string) (*ResetInstallerFlags, error) {
 	if err := fs.Parse(flagArgs); err != nil {
 		appErr := apperror.Wrap(err, "parseInstallerResetFlags", map[string]any{"args": args})
 		appErr.Code = "E_INSTALLER_INVALID_FLAGS"
+
 		return nil, appErr
 	}
 
@@ -78,6 +79,7 @@ func executeInstallerReset(ctx context.Context, db *store.DB, flags *ResetInstal
 	if errReset := db.ResetInstallers(flags.Slug, flags.ResetAll); errReset != nil {
 		appErr := apperror.Wrap(errReset, "executeInstallerReset", map[string]any{"slug": flags.Slug, "all": flags.ResetAll})
 		appErr.Code = "E_INSTALLER_RESET_FAILED"
+
 		return appErr
 	}
 
@@ -86,6 +88,7 @@ func executeInstallerReset(ctx context.Context, db *store.DB, flags *ResetInstal
 	} else {
 		fmt.Printf("Installer %q reset successfully.\n", flags.Slug)
 	}
+
 	return nil
 }
 
@@ -104,13 +107,16 @@ func runInstallerReset(cmd *cobra.Command, args []string) error {
 	if errDB != nil {
 		appErr := apperror.Wrap(errDB, "runInstallerReset", map[string]any{"action": "open_db"})
 		appErr.Code = "E_INSTALLER_DB_ERROR"
+
 		return appErr
 	}
+
 	defer db.Close()
 
 	if errMigrate := db.MigrateInstallers(); errMigrate != nil {
 		appErr := apperror.Wrap(errMigrate, "runInstallerReset", map[string]any{"action": "migrate_installers"})
 		appErr.Code = "E_INSTALLER_DB_ERROR"
+
 		return appErr
 	}
 

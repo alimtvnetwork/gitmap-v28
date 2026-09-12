@@ -9,15 +9,19 @@ func TestEnums_TableConstants(t *testing.T) {
 	if PipelineRunRecordTable != "PipelineRunRecord" {
 		t.Errorf("expected PipelineRunRecord, got %s", PipelineRunRecordTable)
 	}
+
 	if PipelineRunTable != PipelineRunRecordTable {
 		t.Errorf("expected PipelineRunTable == PipelineRunRecordTable")
 	}
+
 	if PipelineErrorRecordTable != "PipelineErrorRecord" {
 		t.Errorf("expected PipelineErrorRecord, got %s", PipelineErrorRecordTable)
 	}
+
 	if PipelineErrorTable != PipelineErrorRecordTable {
 		t.Errorf("expected PipelineErrorTable == PipelineErrorRecordTable")
 	}
+
 	if PipelineDbStatsTable != "PipelineDbStats" {
 		t.Errorf("expected PipelineDbStats, got %s", PipelineDbStatsTable)
 	}
@@ -29,18 +33,23 @@ func TestEnums_FieldTypeReceivers(t *testing.T) {
 	if field.Name() != "RunId" {
 		t.Errorf("expected 'RunId', got '%s'", field.Name())
 	}
+
 	if field.String() != "RunId" {
 		t.Errorf("expected 'RunId', got '%s'", field.String())
 	}
+
 	if field.Value() != "RunId" {
 		t.Errorf("expected 'RunId', got '%s'", field.Value())
 	}
+
 	if !field.IsCompare(PipelineRunRecordDb.RunId) {
 		t.Errorf("expected IsCompare true")
 	}
+
 	if field.IsCompare(PipelineRunRecordDb.WorkflowName) {
 		t.Errorf("expected IsCompare false for different fields")
 	}
+
 	if !field.IsEnum() {
 		t.Errorf("expected IsEnum true for valid field")
 	}
@@ -53,6 +62,7 @@ func TestEnums_FieldTypeReceivers(t *testing.T) {
 	if !field.IsRunId() {
 		t.Errorf("expected IsRunId true")
 	}
+
 	if field.IsWorkflowName() {
 		t.Errorf("expected IsWorkflowName false")
 	}
@@ -66,6 +76,7 @@ func TestEnums_JSONMarshaling(t *testing.T) {
 	if err != nil {
 		t.Fatalf("unexpected marshal error: %v", err)
 	}
+
 	if string(bytes) != `"WorkflowName"` {
 		t.Errorf("expected %q, got %s", `"WorkflowName"`, string(bytes))
 	}
@@ -75,6 +86,7 @@ func TestEnums_JSONMarshaling(t *testing.T) {
 	if err := json.Unmarshal(bytes, &unmarshaled); err != nil {
 		t.Fatalf("unexpected unmarshal error: %v", err)
 	}
+
 	if unmarshaled != field {
 		t.Errorf("expected '%s', got '%s'", field, unmarshaled)
 	}
@@ -91,6 +103,7 @@ func TestEnums_JSONMarshaling(t *testing.T) {
 	if appErr != nil {
 		t.Fatalf("ToJSON failed: %v", appErr)
 	}
+
 	if jsonStr != `"WorkflowName"` {
 		t.Errorf("expected %q, got %s", `"WorkflowName"`, jsonStr)
 	}
@@ -100,6 +113,7 @@ func TestEnums_JSONMarshaling(t *testing.T) {
 	if fromErr := fromTarget.FromJSON(jsonStr); fromErr != nil {
 		t.Fatalf("FromJSON failed: %v", fromErr)
 	}
+
 	if fromTarget != field {
 		t.Errorf("expected '%s', got '%s'", field, fromTarget)
 	}
@@ -126,6 +140,7 @@ func TestEnums_Registry(t *testing.T) {
 	if !reg.IsEnum(reg.RunId) {
 		t.Errorf("expected IsEnum true for RunId")
 	}
+
 	if reg.IsEnum(PipelineRunRecordFieldType("NoSuchField")) {
 		t.Errorf("expected IsEnum false for NoSuchField")
 	}
@@ -133,6 +148,7 @@ func TestEnums_Registry(t *testing.T) {
 	if !reg.IsRunId(reg.RunId) {
 		t.Errorf("expected IsRunId true")
 	}
+
 	if reg.IsRunId(reg.WorkflowName) {
 		t.Errorf("expected IsRunId false for WorkflowName")
 	}
@@ -141,6 +157,7 @@ func TestEnums_Registry(t *testing.T) {
 	if regErr != nil {
 		t.Fatalf("reg.ToJSON failed: %v", regErr)
 	}
+
 	if len(regJSON) == 0 {
 		t.Errorf("expected non-empty registry JSON")
 	}
@@ -149,6 +166,7 @@ func TestEnums_Registry(t *testing.T) {
 	if PipelineRunDb.RunId != PipelineRunRecordDb.RunId {
 		t.Errorf("expected PipelineRunDb.RunId == PipelineRunRecordDb.RunId")
 	}
+
 	if PipelineErrorDb.ErrorText != PipelineErrorRecordDb.ErrorText {
 		t.Errorf("expected PipelineErrorDb.ErrorText == PipelineErrorRecordDb.ErrorText")
 	}

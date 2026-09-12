@@ -105,6 +105,7 @@ func parseUpdateDebugWindows(t *testing.T) *ast.File {
 	if !ok {
 		t.Fatalf("runtime.Caller failed; cannot resolve absolute path to %s", updatedebugwindowsPath)
 	}
+
 	absPath := filepath.Join(filepath.Dir(thisFile), updatedebugwindowsPath)
 	file, err := parser.ParseFile(fset, absPath, nil, parser.ParseComments)
 	if err != nil {

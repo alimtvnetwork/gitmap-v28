@@ -63,6 +63,7 @@ func TestAgyPinProjectsAddAndRemove(t *testing.T) {
 	if dupErr != nil {
 		t.Fatalf("re-adding pinned project returned error: %v", dupErr)
 	}
+
 	if dup.ID != pinned.ID {
 		t.Errorf("expected duplicate to have same ID")
 	}
@@ -77,6 +78,7 @@ func TestAgyPinProjectsAddAndRemove(t *testing.T) {
 	if rmErr != nil {
 		t.Fatalf("removePinnedProjectTarget failed: %v", rmErr)
 	}
+
 	if removed.ID != pinned.ID {
 		t.Errorf("expected removed ID %s, got %s", pinned.ID, removed.ID)
 	}
@@ -102,6 +104,7 @@ func TestAgyPinProjectsClearAll(t *testing.T) {
 	if clearErr != nil {
 		t.Fatalf("clearAllPinnedProjects failed: %v", clearErr)
 	}
+
 	if cleared != 1 {
 		t.Errorf("expected 1 cleared, got %d", cleared)
 	}

@@ -25,6 +25,7 @@ func startCloneSpinner(label string) func() {
 	if cloneSpinnerOff.Load() || !isStderrInteractive() || uipref.IsQuiet() || uipref.IsNoColor() {
 		return func() {}
 	}
+
 	frames := []rune{'⠋', '⠙', '⠹', '⠸', '⠼', '⠴', '⠦', '⠧', '⠇', '⠏'}
 	stopCh := make(chan struct{})
 	doneCh := make(chan struct{})
@@ -38,6 +39,7 @@ func startCloneSpinner(label string) func() {
 			select {
 			case <-stopCh:
 				fmt.Fprint(os.Stderr, "\r\033[K")
+
 				return
 			case <-ticker.C:
 				elapsed := time.Since(start).Truncate(time.Second)
@@ -49,6 +51,7 @@ func startCloneSpinner(label string) func() {
 			}
 		}
 	}()
+
 	return func() {
 		select {
 		case <-stopCh:
@@ -69,5 +72,6 @@ func isStderrInteractive() bool {
 	if err != nil {
 		return false
 	}
+
 	return (fi.Mode() & os.ModeCharDevice) != 0
 }

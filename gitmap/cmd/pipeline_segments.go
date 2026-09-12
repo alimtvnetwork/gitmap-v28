@@ -47,6 +47,7 @@ func queryRunJobs(repo string, runId uint64) []ghJobItem {
 	if runId == 0 {
 		return nil
 	}
+
 	out, err := exec.Command("gh", buildRunJobsArgs(repo, runId)...).Output()
 	if err != nil || len(out) == 0 {
 		return nil
@@ -91,6 +92,7 @@ func extractFailingStepsFromJob(j ghJobItem) []FailedJobItem {
 			items = append(items, buildStepFailureItem(j.Name, s.Name))
 		}
 	}
+
 	if len(items) == 0 {
 		items = append(items, buildStepFailureItem(j.Name, "Job Execution"))
 	}
@@ -113,6 +115,7 @@ func renderSegmentBreakdown(repo string, runId uint64) {
 	if len(jobs) == 0 {
 		return
 	}
+
 	fmt.Printf("\n  %s● Pipeline Segments:%s\n", constants.ColorCyan, constants.ColorReset)
 	for _, j := range jobs {
 		renderSingleJobBreakdown(j)
@@ -122,8 +125,10 @@ func renderSegmentBreakdown(repo string, runId uint64) {
 func renderSingleJobBreakdown(j ghJobItem) {
 	if len(j.Steps) == 0 {
 		printJobStatusLine(j.Name, j.Status, j.Conclusion)
+
 		return
 	}
+
 	fmt.Printf("    %sJob: %s%s\n", constants.ColorWhite, j.Name, constants.ColorReset)
 	for _, s := range j.Steps {
 		if !strings.HasPrefix(s.Name, "Post ") {
@@ -162,9 +167,11 @@ func computeStepDurationString(startedStr, completedStr, status string) string {
 	if status == "in_progress" {
 		return formatInProgressDuration(startedStr)
 	}
+
 	if startedStr == "" || completedStr == "" || startedStr == "0001-01-01T00:00:00Z" {
 		return ""
 	}
+
 	t1, err1 := time.Parse(time.RFC3339, startedStr)
 	t2, err2 := time.Parse(time.RFC3339, completedStr)
 	if err1 != nil || err2 != nil || t2.Before(t1) {

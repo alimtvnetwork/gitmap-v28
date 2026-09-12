@@ -26,6 +26,7 @@ func TestCGMultiRepoSuite(t *testing.T) {
 		Version: "v24.2.0",
 		Status:  "active",
 	}
+
 	if errWrite := cmd.WriteCGMetadata(repo1, meta); errWrite != nil {
 		t.Fatalf("WriteCGMetadata failed: %v", errWrite)
 	}

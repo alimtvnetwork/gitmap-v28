@@ -35,8 +35,10 @@ func cloneOrPullOne(rec model.ScanRecord, targetDir string, opts CloneOptions) m
 	cleanErr := cleanDirIfRequested(dirExists, opts.Clean, dest)
 	if cleanErr != nil {
 		msg := fmt.Sprintf("failed to clean existing directory %q: %v", dest, cleanErr)
+
 		return model.CloneResult{Record: rec, IsSuccess: false, Error: msg}
 	}
+
 	if dirExists && opts.Clean {
 		dirExists = false
 	}
@@ -47,6 +49,7 @@ func cloneOrPullOne(rec model.ScanRecord, targetDir string, opts CloneOptions) m
 
 	if dirExists && !isGitRepo(dest) {
 		msg := fmt.Sprintf("target directory %q exists but is not a git repository (conflict)", dest)
+
 		return model.CloneResult{Record: rec, IsSuccess: false, Error: msg}
 	}
 
@@ -89,16 +92,20 @@ func safePullRepo(rec model.ScanRecord, repoDir string) model.CloneResult {
 			log.Log("pull attempt %d/%d for %s: exit=%v output=%s",
 				attempt, constants.SafePullRetryAttempts, rec.RepoName, err, trimOutput(output))
 		}
+
 		var successResult *model.CloneResult
 		if err == nil {
 			successResult = &model.CloneResult{Record: rec, IsSuccess: true}
 		}
+
 		if successResult != nil && strings.Contains(output, "Already up to date.") {
 			successResult.Notes = "up-to-date"
 		}
+
 		if successResult != nil && log != nil {
 			log.Log("safe-pull succeeded: %s (attempt %d)", rec.RepoName, attempt)
 		}
+
 		if successResult != nil {
 			return *successResult
 		}
@@ -107,10 +114,12 @@ func safePullRepo(rec model.ScanRecord, repoDir string) model.CloneResult {
 		if log != nil && cleared {
 			log.Log("cleared read-only attributes for blocked files in %s", repoDir)
 		}
+
 		diagnosis := buildPullDiagnosis(repoDir, output)
 		if log != nil {
 			log.Log("diagnosis for %s: %s", rec.RepoName, diagnosis)
 		}
+
 		lastError = fmt.Sprintf(
 			"safe-pull failed for %s (attempt %d/%d): repo=%q branch=%q: %v\n%s\nDiagnosis: %s",
 			recordTag(rec),

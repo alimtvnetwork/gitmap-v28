@@ -30,6 +30,7 @@ func TestValidateRawConfig_MissingKeysAggregated(t *testing.T) {
 	if err == nil {
 		t.Fatal("expected error for empty config object, got nil")
 	}
+
 	for _, want := range []string{"defaultMode", "defaultOutput", "outputDir"} {
 		if !strings.Contains(err.Error(), want) {
 			t.Errorf("error missing key %q: %v", want, err)
@@ -55,6 +56,7 @@ func TestValidateRawConfig_InvalidJSON(t *testing.T) {
 	if err == nil {
 		t.Fatal("expected error for malformed JSON, got nil")
 	}
+
 	if !strings.Contains(err.Error(), "invalid JSON") {
 		t.Errorf("expected wrapped 'invalid JSON' message, got: %v", err)
 	}
@@ -69,10 +71,12 @@ func TestValidateConfig_RejectsEmptyEnumValue(t *testing.T) {
 		DefaultOutput: "terminal",
 		OutputDir:     "./out",
 	}
+
 	err := ValidateConfig(cfg)
 	if err == nil {
 		t.Fatal("expected error for empty defaultMode, got nil")
 	}
+
 	if !strings.Contains(err.Error(), "defaultMode") {
 		t.Errorf("error must name the offending key: %v", err)
 	}
@@ -87,10 +91,12 @@ func TestValidateConfig_RejectsTypoEnumValue(t *testing.T) {
 		DefaultOutput: "trminal", // typo
 		OutputDir:     "./out",
 	}
+
 	err := ValidateConfig(cfg)
 	if err == nil {
 		t.Fatal("expected error for typo'd enums, got nil")
 	}
+
 	msg := err.Error()
 	for _, want := range []string{"defaultMode", "defaultOutput", "https", "terminal"} {
 		if !strings.Contains(msg, want) {
@@ -108,6 +114,7 @@ func TestValidateConfig_AcceptsAllValidEnums(t *testing.T) {
 			cfg := model.Config{
 				DefaultMode: mode, DefaultOutput: output, OutputDir: "./out", ErrorDisplay: "full",
 			}
+
 			if err := ValidateConfig(cfg); err != nil {
 				t.Errorf("rejected valid combo mode=%s output=%s: %v", mode, output, err)
 			}
@@ -126,6 +133,7 @@ func TestLoadFromFile_FailsFastOnMissingKey(t *testing.T) {
 	if err == nil {
 		t.Fatal("expected error for partial config, got nil")
 	}
+
 	if !strings.Contains(err.Error(), "defaultOutput") {
 		t.Errorf("expected error to name missing 'defaultOutput', got: %v", err)
 	}
@@ -141,6 +149,7 @@ func TestLoadFromFile_FailsFastOnInvalidEnum(t *testing.T) {
 	if err == nil {
 		t.Fatal("expected error for invalid enum, got nil")
 	}
+
 	if !strings.Contains(err.Error(), "sftp") {
 		t.Errorf("expected error to name bad value 'sftp', got: %v", err)
 	}

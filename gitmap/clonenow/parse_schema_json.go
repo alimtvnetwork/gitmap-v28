@@ -25,6 +25,7 @@ func validateJSONSchema(data []byte) error {
 	if err := json.Unmarshal(data, &elems); err != nil {
 		return fmt.Errorf(constants.ErrCloneNowJSONShape, err)
 	}
+
 	for i, raw := range elems {
 		if err := validateJSONElement(i, raw); err != nil {
 			return err
@@ -59,6 +60,7 @@ func validateJSONRow(i int, obj map[string]json.RawMessage) error {
 				i+1, k, knownFieldList())
 		}
 	}
+
 	if !hasJSONURL(obj) {
 		return fmt.Errorf(constants.ErrCloneNowMissingURL, i+1)
 	}
@@ -74,6 +76,7 @@ func jsonKind(raw json.RawMessage) string {
 	if len(s) == 0 {
 		return "empty"
 	}
+
 	switch s[0] {
 	case '"':
 		return "string"
@@ -86,6 +89,7 @@ func jsonKind(raw json.RawMessage) string {
 	case 'n':
 		return "null"
 	}
+
 	if (s[0] >= '0' && s[0] <= '9') || s[0] == '-' {
 		return "number"
 	}
@@ -108,6 +112,7 @@ func jsonStringNonEmpty(raw json.RawMessage) bool {
 	if len(raw) == 0 {
 		return false
 	}
+
 	var s string
 	if err := json.Unmarshal(raw, &s); err != nil {
 		return false

@@ -32,5 +32,6 @@ func runDocs(args []string) error {
 	}
 
 	fmt.Printf(constants.MsgDocsOpened, url)
+
 	return nil
 }

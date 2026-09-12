@@ -37,6 +37,7 @@ func persistEnvVariable(name, value string) *apperror.AppError {
 	if appErr != nil {
 		return appErr
 	}
+
 	registry = upsertEnvVariable(registry, name, value)
 
 	return saveEnvRegistry(registry)
@@ -48,12 +49,15 @@ func applyEnvSet(name, value string, f envSetFlags) error {
 
 		return nil
 	}
+
 	if err := setEnvPersistent(name, value, f.system, f.shell); err != nil {
 		return err
 	}
+
 	if appErr := persistEnvVariable(name, value); appErr != nil {
 		return appErr
 	}
+
 	fmt.Printf(constants.MsgEnvSet, name, value)
 
 	return nil
@@ -65,6 +69,7 @@ func runEnvSet(args []string) error {
 	if appErr := validateEnvName(name); appErr != nil {
 		return appErr
 	}
+
 	if appErr := validateEnvValue(value); appErr != nil {
 		return appErr
 	}
@@ -77,10 +82,12 @@ func fetchAndDisplayEnv(name string) *apperror.AppError {
 	if appErr != nil {
 		return appErr
 	}
+
 	entry, findErr := findEnvVariable(registry, name)
 	if findErr != nil {
 		return findErr
 	}
+
 	fmt.Printf(constants.MsgEnvGetFmt, entry.Name, entry.Value)
 
 	return nil
@@ -117,6 +124,7 @@ func deleteEnvFromRegistry(name string) *apperror.AppError {
 	if appErr != nil {
 		return appErr
 	}
+
 	registry = removeEnvVariable(registry, name)
 
 	return saveEnvRegistry(registry)
@@ -128,12 +136,15 @@ func applyEnvDelete(name string, f envCommonFlags) error {
 
 		return nil
 	}
+
 	if err := deleteEnvPersistent(name, f.system, f.shell); err != nil {
 		return err
 	}
+
 	if appErr := deleteEnvFromRegistry(name); appErr != nil {
 		return appErr
 	}
+
 	fmt.Printf(constants.MsgEnvDeleted, name)
 
 	return nil
@@ -162,11 +173,13 @@ func runEnvList() error {
 	if appErr != nil {
 		return appErr
 	}
+
 	if len(registry.Variables) == 0 {
 		fmt.Print(constants.MsgEnvListEmpty)
 
 		return nil
 	}
+
 	printEnvVariables(registry.Variables)
 
 	return nil
@@ -177,6 +190,7 @@ func persistEnvPath(dir string) *apperror.AppError {
 	if appErr != nil {
 		return appErr
 	}
+
 	registry.Paths = append(registry.Paths, model.EnvPathEntry{Path: dir})
 
 	return saveEnvRegistry(registry)
@@ -188,12 +202,15 @@ func applyEnvPathAdd(dir string, f envCommonFlags) error {
 
 		return nil
 	}
+
 	if err := addPathPersistent(dir, f.system, f.shell); err != nil {
 		return err
 	}
+
 	if appErr := persistEnvPath(dir); appErr != nil {
 		return appErr
 	}
+
 	fmt.Printf(constants.MsgEnvPathAdded, dir)
 
 	return nil
@@ -205,10 +222,12 @@ func runEnvPathAdd(args []string) error {
 	if appErr := validateEnvPathDir(dir); appErr != nil {
 		return appErr
 	}
+
 	registry, appErr := loadEnvRegistry()
 	if appErr != nil {
 		return appErr
 	}
+
 	if appErr := checkEnvPathNotDuplicate(registry, dir); appErr != nil {
 		return appErr
 	}
@@ -231,6 +250,7 @@ func deleteEnvPathFromRegistry(dir string) *apperror.AppError {
 	if appErr != nil {
 		return appErr
 	}
+
 	registry = removeEnvPath(registry, dir)
 
 	return saveEnvRegistry(registry)
@@ -242,12 +262,15 @@ func applyEnvPathRemove(dir string, f envCommonFlags) error {
 
 		return nil
 	}
+
 	if err := removePathPersistent(dir, f.system, f.shell); err != nil {
 		return err
 	}
+
 	if appErr := deleteEnvPathFromRegistry(dir); appErr != nil {
 		return appErr
 	}
+
 	fmt.Printf(constants.MsgEnvPathRemoved, dir)
 
 	return nil
@@ -276,11 +299,13 @@ func runEnvPathList() error {
 	if appErr != nil {
 		return appErr
 	}
+
 	if len(registry.Paths) == 0 {
 		fmt.Print(constants.MsgEnvPathEmpty)
 
 		return nil
 	}
+
 	printEnvPaths(registry.Paths)
 
 	return nil

@@ -14,11 +14,14 @@ import (
 func handlePipelineErrorLogs(args []string) error {
 	if hasArgFlag(args, "--help") || hasArgFlag(args, "-h") {
 		printPipelineErrorLogsHelp()
+
 		return nil
 	}
+
 	if hasArgFlag(args, "last-failed-logs") {
 		return HandlePipelineLastFailedLogs(args)
 	}
+
 	if handled, err := HandlePipelineHistoryErrors(args); handled {
 		return err
 	}
@@ -46,6 +49,7 @@ func processAndRenderErrorLogs(repo string, flags PipelineErrorFlags) error {
 	if len(runs) > 0 {
 		payload.RerunEtaSeconds = calculateAverageDuration(runs, payload.WorkflowName)
 	}
+
 	if flags.HasFix || flags.HasCheck {
 		payload.CICDChecks = runInternalCICDChecks(flags.HasFix)
 	}
@@ -61,6 +65,7 @@ func processAndRenderErrorLogs(repo string, flags PipelineErrorFlags) error {
 func handlePipelineLogs(args []string) error {
 	if hasArgFlag(args, "--help") || hasArgFlag(args, "-h") {
 		printPipelineLogsHelp()
+
 		return nil
 	}
 
@@ -97,6 +102,7 @@ func buildErrorLogsPayload(repo string, runs []ghRunItem) PipelineErrorLogsPaylo
 	if len(runs) == 0 {
 		return buildLocalOrEmptyErrorPayload(payload)
 	}
+
 	initLatestRunMeta(&payload, runs[0])
 	checkAndApplyRunningState(&payload, runs)
 	failedRuns := resolveFailedRunsForPayload(repo, runs)
@@ -121,6 +127,7 @@ func checkAndApplyRunningState(p *PipelineErrorLogsPayload, runs []ghRunItem) {
 	if len(runs) == 0 {
 		return
 	}
+
 	latest := runs[0]
 	if latest.Status == "in_progress" || latest.Status == "queued" {
 		setPayloadRunningState(p, latest, calculateETA(runs))
@@ -160,6 +167,7 @@ func populateFailedRunsPayload(repo string, failedRuns []ghRunItem, p *PipelineE
 	for _, fr := range failedRuns {
 		p.FailedRuns = append(p.FailedRuns, fetchAndBuildFailedRunItem(repo, fr))
 	}
+
 	p.SectionFailures = extractAllSectionFailures(p.FailedRuns)
 	p.CombinedErrors = formatCombinedSectionFailures(p.SectionFailures)
 	p.ErrorLogs = formatAggregatedErrorLogs(p.FailedRuns)
@@ -216,8 +224,10 @@ func collectFailedRuns(runs []ghRunItem) []ghRunItem {
 func checkAndCollectRun(r ghRunItem, succeeded map[string]bool, active *[]ghRunItem) {
 	if r.Conclusion == "success" {
 		succeeded[r.Name] = true
+
 		return
 	}
+
 	if r.Conclusion == "failure" && !succeeded[r.Name] {
 		*active = append(*active, r)
 	}
@@ -227,6 +237,7 @@ func filterFailingRunsByTargetSha(runs []ghRunItem) []ghRunItem {
 	if len(runs) == 0 {
 		return nil
 	}
+
 	targetSha := runs[0].HeadSha
 	var filtered []ghRunItem
 
@@ -278,15 +289,18 @@ func writeOrRenderErrorLogs(params ErrorLogOutputParams) error {
 	if err != nil {
 		return err
 	}
+
 	_ = persistAutoErrorReport(params)
 	if len(params.TempFile) > 0 || len(params.FilePath) > 0 {
 		return writeErrorLogsToDisk(params, contentToWrite)
 	}
+
 	if params.IsJSON {
 		fmt.Println(contentToWrite)
 
 		return nil
 	}
+
 	renderErrorLogsTerminal(params.Payload)
 
 	return nil
@@ -317,6 +331,7 @@ func saveActiveErrorReport(p PipelineErrorLogsPayload) error {
 	if len(reportContent) == 0 {
 		reportContent = p.CombinedErrors
 	}
+
 	if len(reportContent) == 0 {
 		return nil
 	}
@@ -345,9 +360,11 @@ func renderErrorLogsTerminal(p PipelineErrorLogsPayload) {
 
 		return
 	}
+
 	if p.IsRunning {
 		renderActiveRunningBanner(p)
 	}
+
 	if p.Conclusion == "failure" || len(p.FailedRuns) > 0 {
 		renderFailureTerminal(p)
 
@@ -364,6 +381,7 @@ func renderCleanSuccessTerminal(p PipelineErrorLogsPayload) {
 		fmt.Printf("  All recent pipeline runs for %s on branch %s are PASSING (clean).\n",
 			p.Repo, p.Branch)
 	}
+
 	renderCleanSuccessDbAndHistory(p)
 	printRerunETA(p.RerunEtaSeconds)
 }
@@ -372,6 +390,7 @@ func renderCleanSuccessDbAndHistory(p PipelineErrorLogsPayload) {
 	if len(p.DbPath) > 0 {
 		fmt.Printf("  • Pipeline DB:     %s\n", FormatRelativeDbPath(p.DbPath))
 	}
+
 	runs := queryWorkflowRuns(p.Repo)
 	RenderHistorySummaryTable(runs)
 }
@@ -409,6 +428,7 @@ func renderCombinedSectionsTerminal(sections []SectionFailure) {
 	for i, sec := range sections {
 		renderSingleSectionFailureRow(sec, i+1, len(sections))
 	}
+
 	fmt.Println()
 }
 
@@ -418,6 +438,7 @@ func renderSingleSectionFailureRow(sec SectionFailure, idx, total int) {
 	if len(sec.FailureSummary) > 0 {
 		fmt.Printf("      Error: %s%s%s\n", constants.ColorRed, sec.FailureSummary, constants.ColorReset)
 	}
+
 	if len(sec.SavedLogFile) > 0 {
 		fmt.Printf("      Log:   %s\n", sec.SavedLogFile)
 	}
@@ -448,6 +469,7 @@ func renderFailedRunCard(fr FailedRunItem, idx, total int) {
 	for _, job := range fr.FailedJobs {
 		renderFailedJobSection(job)
 	}
+
 	fmt.Printf("  %s└──────────────────────────────────────────────────────────%s\n\n",
 		constants.ColorRed, constants.ColorReset)
 }
@@ -456,15 +478,19 @@ func renderRunCardMeta(fr FailedRunItem) {
 	if len(fr.CreatedAt) > 0 {
 		fmt.Printf("  │ When Run:  %s\n", formatRunTimestamp(fr.CreatedAt))
 	}
+
 	if fr.DurationSeconds > 0 {
 		fmt.Printf("  │ Duration:  %s\n", formatDurationSeconds(fr.DurationSeconds))
 	}
+
 	if len(fr.Branch) > 0 {
 		fmt.Printf("  │ Branch:    %s | Commit: %s\n", fr.Branch, fr.Sha)
 	}
+
 	if len(fr.SavedLogFile) > 0 {
 		fmt.Printf("  │ Saved Log: %s\n", fr.SavedLogFile)
 	}
+
 	if len(fr.Url) > 0 {
 		fmt.Printf("  │ URL:       %s\n", fr.Url)
 	}
@@ -475,12 +501,15 @@ func renderSavedLocationsTerminal(p PipelineErrorLogsPayload) {
 	if len(p.SavedReportFile) > 0 {
 		fmt.Printf("    • Combined Report: %s\n", p.SavedReportFile)
 	}
+
 	if len(p.SavedLogFile) > 0 {
 		fmt.Printf("    • Latest Run Log:  %s\n", p.SavedLogFile)
 	}
+
 	if len(p.DbPath) > 0 {
 		fmt.Printf("    • Pipeline DB:     %s\n", FormatRelativeDbPath(p.DbPath))
 	}
+
 	if len(p.Url) > 0 {
 		fmt.Printf("    • Web Run URL:     %s\n\n", p.Url)
 	}
@@ -492,6 +521,7 @@ func renderFailedJobSection(job FailedJobItem) {
 	if len(job.FailureSummary) > 0 {
 		fmt.Printf("  │ Error: %s%s%s\n", constants.ColorRed, job.FailureSummary, constants.ColorReset)
 	}
+
 	for _, line := range job.ErrorLines {
 		fmt.Printf("  │   %s\n", line)
 	}
@@ -511,6 +541,7 @@ func printRerunETA(eta int) {
 	if eta <= 0 {
 		return
 	}
+
 	fmt.Printf("\n  %s● Estimated pipeline rerun duration (ETA): ~%ds%s\n",
 		constants.ColorYellow, eta, constants.ColorReset)
 	fmt.Println("    (Based on historical successful pipeline runs baseline)")

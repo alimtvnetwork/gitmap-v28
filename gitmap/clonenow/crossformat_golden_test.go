@@ -111,6 +111,7 @@ func writeFormatFile(t *testing.T, tmpDir, name string,
 	if err != nil {
 		t.Fatalf("create %s: %v", path, err)
 	}
+
 	defer f.Close()
 	if err := write(f); err != nil {
 		t.Fatalf("write %s: %v", path, err)
@@ -139,6 +140,7 @@ func TestCloneNowCrossFormat_Golden(t *testing.T) {
 	if err != nil {
 		t.Fatalf("ParseFile(csv): %v", err)
 	}
+
 	jsonPlan, err := ParseFile(jsonPath, "",
 		constants.CloneNowModeHTTPS, constants.CloneNowOnExistsSkip)
 	if err != nil {
@@ -175,12 +177,14 @@ func assertCrossFormatGolden(t *testing.T, name string, got []byte) {
 
 		return
 	}
+
 	want, err := os.ReadFile(path)
 	if err != nil {
 		t.Fatalf("read golden %s: %v "+
 			"(run with GITMAP_UPDATE_GOLDEN=1 and "+
 			"GITMAP_ALLOW_GOLDEN_UPDATE=1 to create)", path, err)
 	}
+
 	if !bytes.Equal(got, want) {
 		t.Fatalf("golden mismatch for %s\n"+
 			"--- want (%d bytes)\n%s\n--- got (%d bytes)\n%s",
@@ -196,9 +200,11 @@ func writeCrossFormatGolden(t *testing.T, path string, got []byte) {
 	if err := os.MkdirAll(filepath.Dir(path), 0o755); err != nil {
 		t.Fatalf("mkdir testdata: %v", err)
 	}
+
 	if err := os.WriteFile(path, got, 0o644); err != nil {
 		t.Fatalf("write golden %s: %v", path, err)
 	}
+
 	t.Fatalf("regenerated golden %s — re-run "+
 		"without GITMAP_UPDATE_GOLDEN to confirm", path)
 }

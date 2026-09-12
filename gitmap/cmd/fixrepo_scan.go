@@ -52,6 +52,7 @@ func runFixRepoSweep(
 	if !opts.isDryRun {
 		result.backup = newFixRepoBackupSession(identity)
 	}
+
 	for _, rel := range files {
 		processFixRepoFile(rel, identity, targets, opts, &result)
 	}
@@ -69,12 +70,14 @@ func processFixRepoFile(rel string, identity fixRepoIdentity, targets []int,
 	if isFixRepoIgnoredPath(rel) || !isFixRepoScannable(full) {
 		return
 	}
+
 	result.scanned++
 	if opts.isDryRun {
 		previewOneFile(full, rel, identity, targets, opts, result)
 
 		return
 	}
+
 	rewriteOneFile(full, rel, identity, targets, opts, result)
 }
 
@@ -92,11 +95,13 @@ func rewriteOneFile(full, rel string, identity fixRepoIdentity, targets []int,
 
 		return
 	}
+
 	updated, reps := applyAllTargetsR(string(raw), identity.base,
 		identity.current, targets, opts.restrictNoVersion)
 	if reps == 0 {
 		return
 	}
+
 	persistRewrittenFile(full, rel, updated, reps, opts, result)
 }
 
@@ -109,17 +114,20 @@ func persistRewrittenFile(full, rel, updated string, reps int,
 	if result.backup != nil {
 		result.backup.BackupFile(rel)
 	}
+
 	if err := os.WriteFile(full, []byte(updated), 0o644); err != nil {
 		fmt.Fprintf(os.Stderr, constants.FixRepoErrWriteFmt, rel, err)
 		result.failed = true
 
 		return
 	}
+
 	result.changed++
 	result.replacements += reps
 	if isGoSourceFile(rel) {
 		result.goFiles = append(result.goFiles, full)
 	}
+
 	if opts.isVerbose {
 		fmt.Printf(constants.FixRepoMsgModified, rel, reps)
 	}
@@ -138,9 +146,11 @@ func previewOneFile(full, rel string, identity fixRepoIdentity, targets []int,
 
 		return
 	}
+
 	if reps == 0 {
 		return
 	}
+
 	result.changed++
 	result.replacements += reps
 	fmt.Printf(constants.FixRepoMsgDryRunPreview, rel, reps, formatFixRepoHits(hits))
@@ -153,6 +163,7 @@ func formatFixRepoHits(hits []fixRepoTargetHit) string {
 	if len(hits) == 0 {
 		return ""
 	}
+
 	parts := make([]string, 0, len(hits))
 	for _, h := range hits {
 		parts = append(parts, formatOneFixRepoHit(h))
@@ -183,6 +194,7 @@ func listTrackedFiles(repoRoot string) []string {
 	if err != nil {
 		return nil
 	}
+
 	lines := strings.Split(strings.ReplaceAll(string(out), "\r\n", "\n"), "\n")
 	files := make([]string, 0, len(lines))
 	for _, l := range lines {
@@ -200,9 +212,11 @@ func isFixRepoScannable(fullPath string) bool {
 	if isFixRepoSkippablePath(fullPath) {
 		return false
 	}
+
 	if isFixRepoBinaryExt(fullPath) {
 		return false
 	}
+
 	if hasFixRepoNullByte(fullPath) {
 		return false
 	}
@@ -216,9 +230,11 @@ func isFixRepoSkippablePath(fullPath string) bool {
 	if err != nil {
 		return true
 	}
+
 	if info.Mode()&os.ModeSymlink != 0 {
 		return true
 	}
+
 	if info.Size() > constants.FixRepoMaxFileBytes {
 		return true
 	}
@@ -242,6 +258,7 @@ func hasFixRepoNullByte(fullPath string) bool {
 	if err != nil {
 		return true
 	}
+
 	defer func() { _ = f.Close() }()
 	buf := make([]byte, constants.FixRepoBinarySniffMax)
 	n, _ := f.Read(buf)

@@ -22,6 +22,7 @@ func WriteShellHandoff(targetPath string) {
 	if len(handoffFile) == 0 {
 		return
 	}
+
 	if len(targetPath) == 0 {
 		return
 	}

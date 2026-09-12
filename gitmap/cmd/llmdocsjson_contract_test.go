@@ -39,6 +39,7 @@ func TestLLMDocsJSONContract_TopLevelKeyOrder(t *testing.T) {
 	if err := encodeLLMDocsJSON(&buf, nil); err != nil {
 		t.Fatalf("encode: %v", err)
 	}
+
 	assertSchemaKeysFirstObject(t, buf.Bytes(), "llm-docs")
 }
 
@@ -51,12 +52,15 @@ func TestLLMDocsJSONContract_CommandGroupKeyOrder(t *testing.T) {
 	if err := encodeLLMDocsJSON(&buf, map[string]bool{"commands": true}); err != nil {
 		t.Fatalf("encode: %v", err)
 	}
+
 	var doc struct {
 		Commands json.RawMessage `json:"commands"`
 	}
+
 	if err := json.Unmarshal(buf.Bytes(), &doc); err != nil {
 		t.Fatalf("unmarshal: %v", err)
 	}
+
 	if len(doc.Commands) == 0 {
 		t.Fatalf("expected non-empty commands array")
 	}
@@ -65,6 +69,7 @@ func TestLLMDocsJSONContract_CommandGroupKeyOrder(t *testing.T) {
 	if len(groupKeys) == 0 {
 		t.Fatalf("expected at least one command group")
 	}
+
 	wantGroupKeys := []string{"title", "commands"}
 	for i, got := range groupKeys {
 		if !equalStringSlices(got, wantGroupKeys) {
@@ -78,28 +83,34 @@ func TestLLMDocsJSONContract_CommandGroupKeyOrder(t *testing.T) {
 	var firstGroup struct {
 		Commands json.RawMessage `json:"commands"`
 	}
+
 	// Re-parse the first element of the groups array.
 	var groupsArr []json.RawMessage
 	if err := json.Unmarshal(doc.Commands, &groupsArr); err != nil {
 		t.Fatalf("unmarshal groups: %v", err)
 	}
+
 	if err := json.Unmarshal(groupsArr[0], &firstGroup); err != nil {
 		t.Fatalf("unmarshal first group: %v", err)
 	}
+
 	cmdKeys := readEveryObjectKeys(t, firstGroup.Commands)
 	wantPrefix := []string{"name", "alias", "description"}
 	for i, got := range cmdKeys {
 		if len(got) < len(wantPrefix) {
 			t.Fatalf("command[%d] only has keys %v", i, got)
 		}
+
 		for j, k := range wantPrefix {
 			if got[j] != k {
 				t.Fatalf("command[%d] key[%d] = %q, want %q (full=%v)", i, j, got[j], k, got)
 			}
 		}
+
 		if len(got) == 4 && got[3] != "example" {
 			t.Fatalf("command[%d] optional 4th key = %q, want \"example\"", i, got[3])
 		}
+
 		if len(got) > 4 {
 			t.Fatalf("command[%d] has unexpected extra keys: %v", i, got)
 		}

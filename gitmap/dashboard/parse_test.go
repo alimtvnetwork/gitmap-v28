@@ -10,10 +10,12 @@ func TestParseCommitLog(t *testing.T) {
 	if len(commits) != 1 {
 		t.Fatalf("expected 1 commit, got %d", len(commits))
 	}
+
 	c := commits[0]
 	if c.SHA != "abcd1234ef5678" || c.ShortSHA != "abcd123" || c.Author != "Alice" {
 		t.Errorf("unexpected commit info: %+v", c)
 	}
+
 	if c.FilesChanged != 1 || c.Insertions != 1 || c.Deletions != 2 {
 		t.Errorf("unexpected numstat counts: %+v", c)
 	}
@@ -33,6 +35,7 @@ func TestParseBranchLines(t *testing.T) {
 	if len(branches) != 2 {
 		t.Fatalf("expected 2 branches, got %d", len(branches))
 	}
+
 	if branches[0].IsRemote || !branches[1].IsRemote {
 		t.Errorf("branch remote detection incorrect")
 	}

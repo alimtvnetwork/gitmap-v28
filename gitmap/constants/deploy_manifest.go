@@ -56,6 +56,7 @@ func init() {
 		Manifest.SourceRepoSubdir = "gitmap"
 		Manifest.LegacyAppSubdirs = []string{"gitmap"}
 	}
+
 	GitMapSubdir = Manifest.SourceRepoSubdir
 	GitMapCliSubdir = Manifest.AppSubdir
 	LegacyAppSubdirs = Manifest.LegacyAppSubdirs

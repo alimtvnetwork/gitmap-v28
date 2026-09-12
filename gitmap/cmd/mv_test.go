@@ -13,6 +13,7 @@ func TestCalculateDestPath(t *testing.T) {
 	if err != nil {
 		t.Fatalf("calculateDestPath .. failed: %v", err)
 	}
+
 	expected := filepath.Join(string(filepath.Separator), "work", "my-repo")
 	if filepath.Clean(dest) != filepath.Clean(expected) {
 		t.Errorf("calculateDestPath .. got %s, want %s", dest, expected)

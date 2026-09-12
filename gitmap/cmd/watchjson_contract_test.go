@@ -40,6 +40,7 @@ func TestWatchJSONContract_CanonicalObject_KeyOrders(t *testing.T) {
 	if err := encodeWatchJSON(&buf, snapshots, summary, "2025-01-01T12:00:00Z"); err != nil {
 		t.Fatalf("encode: %v", err)
 	}
+
 	assertSchemaKeysFirstObject(t, buf.Bytes(), "watch")
 }
 

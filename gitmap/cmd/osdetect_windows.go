@@ -14,6 +14,7 @@ func detectWindowsVersion() OSType {
 	if err != nil {
 		return OSWindows
 	}
+
 	defer k.Close()
 
 	productName, _, err := k.GetStringValue("ProductName")
@@ -30,8 +31,10 @@ func detectWindowsVersion() OSType {
 	if err != nil {
 		return OSWindows
 	}
+
 	if build >= 22000 {
 		return OSWindows11
 	}
+
 	return OSWindows10
 }

@@ -24,6 +24,7 @@ func (db *DB) ListBookmarks() ([]model.BookmarkRecord, error) {
 	if err != nil {
 		return nil, fmt.Errorf(constants.ErrBookmarkQuery, err)
 	}
+
 	defer rows.Close()
 
 	return scanBookmarkRows(rows)
@@ -65,6 +66,7 @@ func scanBookmarkRows(rows interface {
 		if err != nil {
 			return nil, fmt.Errorf(constants.ErrBookmarkQuery, err)
 		}
+
 		results = append(results, r)
 	}
 

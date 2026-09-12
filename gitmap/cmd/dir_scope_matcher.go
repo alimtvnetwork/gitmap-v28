@@ -14,6 +14,7 @@ func IsCurrentDirWorkDir(cwd string) bool {
 	if errDB != nil {
 		return false
 	}
+
 	defer db.Close()
 
 	dirs, errList := db.ListWorkDirs()
@@ -27,6 +28,7 @@ func IsCurrentDirWorkDir(cwd string) bool {
 			return true
 		}
 	}
+
 	return false
 }
 

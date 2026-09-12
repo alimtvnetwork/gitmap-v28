@@ -20,11 +20,13 @@ func setupInstallerImportTestDB(t *testing.T) *store.DB {
 	if err != nil {
 		t.Fatalf("failed to open test database: %v", err)
 	}
+
 	t.Cleanup(func() { db.Close() })
 
 	if errMigrate := db.MigrateInstallers(); errMigrate != nil {
 		t.Fatalf("failed to migrate installers: %v", errMigrate)
 	}
+
 	return db
 }
 
@@ -37,6 +39,7 @@ func TestInstallerImportCmd(t *testing.T) {
 	if err != nil {
 		t.Fatalf("unexpected error: %v", err)
 	}
+
 	if flags.InputPath != "custom.zip" {
 		t.Errorf("unexpected input path: %s", flags.InputPath)
 	}
@@ -48,17 +51,20 @@ func TestInstallerImportCmd(t *testing.T) {
 	if errCreate != nil {
 		t.Fatalf("failed to create zip: %v", errCreate)
 	}
+
 	zw := zip.NewWriter(fZip)
 	w, errEntry := zw.Create("imported-app.json")
 	if errEntry != nil {
 		t.Fatalf("failed to create zip entry: %v", errEntry)
 	}
+
 	script := model.InstallerScript{
 		Name:     "Imported App",
 		Slug:     "imported-app",
 		TargetOS: "all",
 		Version:  "v1.0.0",
 	}
+
 	data, _ := json.Marshal(script)
 	w.Write(data)
 	zw.Close()
@@ -76,6 +82,7 @@ func TestInstallerImportCmd(t *testing.T) {
 	if errGet != nil || imported == nil {
 		t.Fatalf("failed to find imported script: %v", errGet)
 	}
+
 	if imported.Name != "Imported App" {
 		t.Errorf("unexpected imported name: %s", imported.Name)
 	}

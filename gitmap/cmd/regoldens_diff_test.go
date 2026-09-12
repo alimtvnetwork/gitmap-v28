@@ -35,10 +35,12 @@ func TestSortGoldenDiffEntries_OrdersByStatusThenPath(t *testing.T) {
 		{status: "M", path: "a/testdata/y"},
 		{status: "A", path: "a/testdata/x"},
 	}
+
 	sortGoldenDiffEntries(in)
 	wantOrder := []string{
 		"a/testdata/x", "b/testdata/y", "a/testdata/y", "z/testdata/x",
 	}
+
 	for i, e := range in {
 		if e.path != wantOrder[i] {
 			t.Fatalf("position %d: got %q, want %q", i, e.path, wantOrder[i])
@@ -65,21 +67,27 @@ func assertTotalsEqual(t *testing.T, totals goldenDiffTotals,
 	if totals.added != wantAdded {
 		mismatches = append(mismatches, "added")
 	}
+
 	if totals.modified != wantModified {
 		mismatches = append(mismatches, "modified")
 	}
+
 	if totals.renamed != wantRenamed {
 		mismatches = append(mismatches, "renamed")
 	}
+
 	if totals.deleted != wantDeleted {
 		mismatches = append(mismatches, "deleted")
 	}
+
 	if totals.linesAdded != wantLinesAdded {
 		mismatches = append(mismatches, "linesAdded")
 	}
+
 	if totals.linesDeleted != wantLinesDeleted {
 		mismatches = append(mismatches, "linesDeleted")
 	}
+
 	if len(mismatches) > 0 {
 		t.Fatalf("totals mismatch in fields [%s]: got %+v",
 			strings.Join(mismatches, ", "), totals)
@@ -93,6 +101,7 @@ func TestGoldenDiffStatusRank_OrderingContract(t *testing.T) {
 		goldenDiffStatusRank("R"),
 		goldenDiffStatusRank("D"),
 	}
+
 	for i := 1; i < len(ranks); i++ {
 		if ranks[i-1] >= ranks[i] {
 			t.Fatalf("rank ordering broken at %d: %v", i, ranks)
@@ -106,6 +115,7 @@ func TestIsGoldenFixturePath_AcceptsTestdataGoldenBasename(t *testing.T) {
 		"pkg/x/testdata/sub/Foo_Golden.txt",
 		"a/testdata/snapshot.golden",
 	}
+
 	for _, p := range cases {
 		isNonGoldenFixturePath := !isGoldenFixturePath(p)
 		if isNonGoldenFixturePath {
@@ -122,6 +132,7 @@ func TestIsGoldenFixturePath_RejectsNonGoldenOrNonTestdata(t *testing.T) {
 		"docs/golden-rules.md",                       // not under testdata/
 		"testdata-not-a-dir/foo.golden.json",         // wrong segment
 	}
+
 	for _, p := range cases {
 		if isGoldenFixturePath(p) {
 			t.Fatalf("expected reject, got accept for %q", p)

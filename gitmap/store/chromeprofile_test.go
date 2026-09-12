@@ -15,10 +15,12 @@ func freshChromeProfileDB(t *testing.T) *DB {
 	if err != nil {
 		t.Fatalf("OpenAt: %v", err)
 	}
+
 	t.Cleanup(func() { _ = db.Close() })
 	if err := db.EnsureChromeProfileTables(); err != nil {
 		t.Fatalf("EnsureChromeProfileTables: %v", err)
 	}
+
 	return db
 }
 
@@ -28,10 +30,12 @@ func TestChromeProfileUpsertIdempotent(t *testing.T) {
 	if err != nil {
 		t.Fatalf("upsert #1: %v", err)
 	}
+
 	id2, err := db.UpsertChromeProfile("Default", "/tmp/src2", true)
 	if err != nil {
 		t.Fatalf("upsert #2: %v", err)
 	}
+
 	if id1 != id2 {
 		t.Fatalf("expected same id on re-upsert, got %d vs %d", id1, id2)
 	}
@@ -43,19 +47,24 @@ func TestChromeProfileExportInsertAndList(t *testing.T) {
 	if err != nil {
 		t.Fatalf("upsert: %v", err)
 	}
+
 	if err := db.InsertChromeProfileExport(id, "json", "/snap/work.json", 1234); err != nil {
 		t.Fatalf("insert json: %v", err)
 	}
+
 	if err := db.InsertChromeProfileExport(id, "csv", "/snap/work.csv", 234); err != nil {
 		t.Fatalf("insert csv: %v", err)
 	}
+
 	rows, err := db.ListChromeProfilesDB()
 	if err != nil {
 		t.Fatalf("list: %v", err)
 	}
+
 	if len(rows) != 1 {
 		t.Fatalf("want 1 row, got %d", len(rows))
 	}
+
 	if rows[0].Name != "Work" || rows[0].ExportCount != 2 {
 		t.Fatalf("unexpected row: %+v", rows[0])
 	}
@@ -71,9 +80,11 @@ func TestChromeProfileDeleteReturnsArtifacts(t *testing.T) {
 	if err != nil {
 		t.Fatalf("delete: %v", err)
 	}
+
 	if len(paths) != 2 {
 		t.Fatalf("want 2 artifact paths, got %d (%v)", len(paths), paths)
 	}
+
 	if db.ChromeProfileExists("Gone") {
 		t.Fatalf("row should be gone")
 	}

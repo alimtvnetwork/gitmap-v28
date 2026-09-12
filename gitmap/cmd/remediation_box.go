@@ -31,6 +31,7 @@ func getRemediationStateFile() string {
 	home, _ := os.UserHomeDir()
 	dir := filepath.Join(home, ".gitmap", "output")
 	_ = os.MkdirAll(dir, 0755)
+
 	return filepath.Join(dir, "last_remediation.json")
 }
 
@@ -40,6 +41,7 @@ func SaveRemediationState(items []RemediationItem) error {
 	if err != nil {
 		return err
 	}
+
 	return os.WriteFile(getRemediationStateFile(), b, 0644)
 }
 
@@ -48,14 +50,17 @@ func LoadRemediationState() []RemediationItem {
 	if err != nil {
 		return nil
 	}
+
 	var batch RemediationBatchState
 	if err := json.Unmarshal(b, &batch); err == nil && len(batch.Items) > 0 {
 		return batch.Items
 	}
+
 	var single RemediationItem
 	if err := json.Unmarshal(b, &single); err == nil && single.RepoName != "" {
 		return []RemediationItem{single}
 	}
+
 	return nil
 }
 
@@ -65,18 +70,22 @@ func FindRemediationItem(items []RemediationItem, query string) *RemediationItem
 		if strings.EqualFold(items[i].RepoName, cleanQuery) {
 			return &items[i]
 		}
+
 		if strings.EqualFold(filepath.Base(items[i].RepoPath), cleanQuery) {
 			return &items[i]
 		}
 	}
+
 	for i := range items {
 		if strings.Contains(strings.ToLower(items[i].RepoName), strings.ToLower(cleanQuery)) {
 			return &items[i]
 		}
 	}
+
 	if num, err := strconv.Atoi(cleanQuery); err == nil && num > 0 && num <= len(items) {
 		return &items[num-1]
 	}
+
 	return nil
 }
 
@@ -88,10 +97,13 @@ func RemoveRemediationItem(repoName string) {
 			remaining = append(remaining, item)
 		}
 	}
+
 	if len(remaining) == 0 {
 		_ = os.Remove(getRemediationStateFile())
+
 		return
 	}
+
 	_ = SaveRemediationState(remaining)
 }
 
@@ -100,12 +112,14 @@ func PrintRemediationBox(repoName, repoPath string, d gitutil.DirtyDiagnosis) {
 	if len(recipes) == 0 {
 		return
 	}
+
 	item := RemediationItem{
 		RepoPath:      repoPath,
 		RepoName:      repoName,
 		SummaryReason: d.SummaryReason,
 		Recipes:       recipes,
 	}
+
 	PrintRemediationSummary([]RemediationItem{item})
 }
 
@@ -125,6 +139,7 @@ func printPendingReposList(items []RemediationItem) {
 	for i, item := range items {
 		printPendingRepoEntry(i+1, item)
 	}
+
 	fmt.Println()
 }
 
@@ -136,6 +151,7 @@ func printPendingRepoEntry(idx int, item RemediationItem) {
 	if reason == "" {
 		reason = "uncommitted changes"
 	}
+
 	fmt.Printf("    %2d. %s %s\n", idx, titleStyle.Render(item.RepoName), dimStyle.Render("("+reason+")"))
 	cleanPath := gitutil.CleanRepoPath(item.RepoPath)
 	stashCmd := fmt.Sprintf("git -C %s stash -u && git -C %s pull && git -C %s stash pop", cleanPath, cleanPath, cleanPath)
@@ -162,6 +178,7 @@ func promptForRemediation(items []RemediationItem) {
 
 		return
 	}
+
 	printRemediationCLIHelp()
 }
 
@@ -169,6 +186,7 @@ func PrintRemediationSummaryNoPrompt(items []RemediationItem) {
 	if len(items) == 0 {
 		return
 	}
+
 	_ = SaveRemediationState(items)
 	printRemediationStrategyBox()
 	printPendingReposList(items)
@@ -179,6 +197,7 @@ func PrintRemediationSummaryAutoFix(items []RemediationItem) {
 	if len(items) == 0 {
 		return
 	}
+
 	_ = SaveRemediationState(items)
 	printRemediationStrategyBox()
 	printPendingReposList(items)
@@ -189,6 +208,7 @@ func PrintRemediationSummary(items []RemediationItem) {
 	if len(items) == 0 {
 		return
 	}
+
 	_ = SaveRemediationState(items)
 	printRemediationStrategyBox()
 	printPendingReposList(items)
@@ -197,5 +217,6 @@ func PrintRemediationSummary(items []RemediationItem) {
 
 		return
 	}
+
 	promptForRemediation(items)
 }

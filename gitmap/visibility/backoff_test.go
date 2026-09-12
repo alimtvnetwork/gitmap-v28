@@ -27,6 +27,7 @@ func TestRetryRateLimitedRecoversMidway(t *testing.T) {
 
 		return nil
 	}
+
 	n, err := RetryRateLimited(op, backoffSchedule(), noSleep)
 	if err != nil || n != 3 || calls != 3 {
 		t.Fatalf("recover: n=%d calls=%d err=%v", n, calls, err)
@@ -58,6 +59,7 @@ func TestBackoffScheduleSumUnderRateLimitWindow(t *testing.T) {
 	for _, d := range backoffSchedule() {
 		total += d
 	}
+
 	if total >= 64*time.Second {
 		t.Fatalf("schedule %v sums to %v — must stay under GitHub's 60s window ceiling (63s budget)", backoffSchedule(), total)
 	}

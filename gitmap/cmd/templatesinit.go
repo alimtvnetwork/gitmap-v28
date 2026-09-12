@@ -76,8 +76,10 @@ func runTemplatesInit(args []string) error {
 			nil,
 		)
 		cliexit.HandleError(appErr, 1)
+
 		return nil
 	}
+
 	if len(flags.langs) == 0 {
 		appErr := apperror.NewWithDetails(
 			"cmd.templates.init.langs",
@@ -89,6 +91,7 @@ func runTemplatesInit(args []string) error {
 			nil,
 		)
 		cliexit.HandleError(appErr, 1)
+
 		return nil
 	}
 
@@ -105,6 +108,7 @@ func runTemplatesInit(args []string) error {
 			nil,
 		)
 		cliexit.HandleError(appErr, 1)
+
 		return nil
 	}
 
@@ -112,6 +116,7 @@ func runTemplatesInit(args []string) error {
 
 	results := executeTemplatesInit(cwd, flags)
 	printTemplatesInitSummary(results, flags.dryRun)
+
 	return nil
 }
 
@@ -208,6 +213,7 @@ func runTemplatesInitStep(
 			dryRun:     flags.dryRun,
 		}
 	}
+
 	if err != nil {
 		appErr := apperror.WrapWithDetails(
 			err,
@@ -220,8 +226,10 @@ func runTemplatesInitStep(
 			map[string]any{"kind": step.kind, "lang": step.lang},
 		)
 		cliexit.HandleError(appErr, 1)
+
 		return templatesInitResult{step: step, skipped: true}
 	}
+
 	step.resolved = res
 
 	if flags.dryRun {
@@ -236,6 +244,7 @@ func runTemplatesInitStep(
 	if flags.force {
 		errRm = os.Remove(step.target)
 	}
+
 	if errRm != nil && !os.IsNotExist(errRm) {
 		appErr := apperror.WrapWithDetails(
 			errRm,
@@ -282,12 +291,14 @@ func simulateTemplatesInitMerge(step templatesInitStep, flags templatesInitFlags
 
 		return res
 	}
+
 	marker := []byte("# >>> gitmap:" + step.tag + " >>>")
 	if strings.Contains(string(prior), string(marker)) {
 		res.Outcome = templates.MergeUpdated
 
 		return res
 	}
+
 	res.Outcome = templates.MergeInserted
 
 	return res
@@ -305,15 +316,18 @@ func printTemplatesInitBanner(flags templatesInitFlags, cwd string) {
 	if flags.lfs {
 		fmt.Printf("   %s+lfs%s", constants.ColorYellow, constants.ColorReset)
 	}
+
 	fmt.Println()
 	if flags.dryRun {
 		fmt.Printf("  %s[dry-run]%s no files will be modified\n",
 			constants.ColorYellow, constants.ColorReset)
 	}
+
 	if flags.force {
 		fmt.Printf("  %s[--force]%s pre-existing .gitignore/.gitattributes will be discarded\n",
 			constants.ColorYellow, constants.ColorReset)
 	}
+
 	fmt.Println()
 }
 
@@ -327,8 +341,10 @@ func printTemplatesInitSummary(results []templatesInitResult, dryRun bool) {
 
 			continue
 		}
+
 		printTemplatesInitStepLine(r, dryRun)
 	}
+
 	fmt.Println()
 	if dryRun {
 		fmt.Printf("  %sRe-run without --dry-run to apply.%s\n",
@@ -339,6 +355,7 @@ func printTemplatesInitSummary(results []templatesInitResult, dryRun bool) {
 		fmt.Println("    git add .gitignore .gitattributes")
 		fmt.Println("    git commit -m \"chore: scaffold ignore/attributes via gitmap templates init\"")
 	}
+
 	fmt.Println()
 }
 
@@ -355,6 +372,7 @@ func printTemplatesInitStepLine(r templatesInitResult, dryRun bool) {
 		verb = "unchanged"
 		color = constants.ColorDim
 	}
+
 	fmt.Printf("  %s%s%s %s (block: %s)\n",
 		color, verb, constants.ColorReset, r.merge.Path, r.merge.BlockTag)
 }

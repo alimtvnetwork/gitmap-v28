@@ -23,17 +23,21 @@ func runSnapshot(args []string) error {
 	if len(args) > 0 {
 		root = args[0]
 	}
+
 	ts := time.Now().UTC().Format("20060102-150405")
 	out := filepath.Join(root, ".gitmap", "snapshot", "snap-"+ts+".tar.gz")
 	if err := os.MkdirAll(filepath.Dir(out), 0o755); err != nil {
 		return apperror.WrapSimple(err, "snapshot: ERROR")
 	}
+
 	n, err := writeSnapshot(root, out)
 	if err != nil {
 		return apperror.WrapSimple(err, "snapshot: ERROR")
 	}
+
 	fmt.Printf("\033[1;92m✓ snapshot\033[0m  %d files → \033[1;96m%s\033[0m\n", n, out)
 	fmt.Printf("  rollback: \033[1;96mgitmap rollback %s\033[0m\n", out)
+
 	return nil
 }
 
@@ -42,6 +46,7 @@ func writeSnapshot(root, outPath string) (int, error) {
 	if err != nil {
 		return 0, err
 	}
+
 	defer f.Close()
 	gz := gzip.NewWriter(f)
 	defer gz.Close()
@@ -52,30 +57,38 @@ func writeSnapshot(root, outPath string) (int, error) {
 		if walkErr != nil || info == nil {
 			return nil
 		}
+
 		rel, _ := filepath.Rel(root, p)
 		if rel == "." || strings.HasPrefix(rel, filepath.Join(".gitmap", "snapshot")) {
 			return nil
 		}
+
 		hdr, err := tar.FileInfoHeader(info, "")
 		if err != nil {
 			return nil
 		}
+
 		hdr.Name = filepath.ToSlash(rel)
 		if err := tw.WriteHeader(hdr); err != nil {
 			return err
 		}
+
 		if !info.Mode().IsRegular() {
 			return nil
 		}
+
 		in, err := os.Open(p)
 		if err != nil {
 			return nil
 		}
+
 		_, _ = io.Copy(tw, in)
 		in.Close()
 		count++
+
 		return nil
 	})
+
 	return count, err
 }
 
@@ -86,15 +99,19 @@ func runRollback(args []string) error {
 	} else {
 		src = latestSnapshot(".")
 	}
+
 	if src == "" {
 		fmt.Fprintln(os.Stderr, "rollback: ERROR no snapshot found; pass <tarball> explicitly")
 		cliexit.HandleError(nil, 2)
 	}
+
 	n, err := readChromeBackup(src, ".") // tar.gz extractor reused
 	if err != nil {
 		return apperror.WrapSimple(err, "rollback: ERROR")
 	}
+
 	fmt.Printf("\033[1;92m✓ rollback\033[0m  restored %d files from %s\n", n, src)
+
 	return nil
 }
 
@@ -104,16 +121,20 @@ func latestSnapshot(root string) string {
 	if err != nil {
 		return ""
 	}
+
 	names := []string{}
 	for _, e := range entries {
 		if !e.IsDir() && strings.HasSuffix(e.Name(), ".tar.gz") {
 			names = append(names, e.Name())
 		}
 	}
+
 	if len(names) == 0 {
 		return ""
 	}
+
 	sort.Strings(names)
+
 	return filepath.Join(dir, names[len(names)-1])
 }
 
@@ -122,17 +143,21 @@ func runGuard(args []string) error {
 	if len(args) > 0 {
 		root = args[0]
 	}
+
 	hooks := filepath.Join(root, ".git", "hooks")
 	if _, err := os.Stat(hooks); err != nil {
 		fmt.Fprintln(os.Stderr, "guard: ERROR not a git repo (no .git/hooks)")
 		cliexit.HandleError(nil, 2)
 	}
+
 	hook := filepath.Join(hooks, "pre-commit")
 	if err := os.WriteFile(hook, []byte(guardHookBody), 0o755); err != nil {
 		return apperror.WrapSimple(err, "guard: ERROR write hook:")
 	}
+
 	fmt.Printf("\033[1;92m✓ installed\033[0m pre-commit guard → %s\n", hook)
 	fmt.Println("  blocks: secrets (API_KEY/PRIVATE_KEY), large files (>10MB), -vN drift")
+
 	return nil
 }
 

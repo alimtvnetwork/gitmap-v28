@@ -36,17 +36,22 @@ func runAgyFindDups() error {
 	if pathErr != nil {
 		return apperror.WrapSimple(pathErr, "path error")
 	}
+
 	projects, loadErr := loadAllAgyProjects(dirPath)
 	if loadErr != nil {
 		return apperror.WrapSimple(loadErr, "load projects")
 	}
+
 	dupGroups := buildAgyDuplicateGroups(projects, agyFdpExcept)
 	if len(dupGroups) == 0 {
 		fmt.Printf("%s No duplicate Antigravity projects found across %d projects.\n",
 			constants.ColorGreen+"✓"+constants.ColorReset, len(projects))
+
 		return nil
 	}
+
 	renderAgyDuplicateFindings(dupGroups)
+
 	return nil
 }
 
@@ -60,10 +65,12 @@ func buildAgyDuplicateGroups(projects []AgyProject, exceptStr string) map[string
 				filtered = append(filtered, p)
 			}
 		}
+
 		if len(filtered) > 1 {
 			dupGroups[path] = filtered
 		}
 	}
+
 	return dupGroups
 }
 
@@ -72,6 +79,7 @@ func renderAgyDuplicateFindings(dupGroups map[string][]AgyProject) {
 	for _, list := range dupGroups {
 		totalDups += len(list) - 1
 	}
+
 	fmt.Printf("\n  %s── Antigravity (AGY) Duplicate Projects ──%s\n", constants.ColorYellow, constants.ColorReset)
 	fmt.Printf("  Found %d duplicate project group(s) (%d duplicate entries total):\n\n", len(dupGroups), totalDups)
 	groupNum := 1
@@ -80,6 +88,7 @@ func renderAgyDuplicateFindings(dupGroups map[string][]AgyProject) {
 		printAgyDupGroup(groupNum, path, list)
 		groupNum++
 	}
+
 	printAgyDupRemediation()
 }
 
@@ -93,8 +102,10 @@ func printAgyDupGroup(num int, path string, list []AgyProject) {
 		if idx > 0 {
 			status = constants.ColorRed + "DUPLICATE (older)" + constants.ColorReset
 		}
+
 		fmt.Printf("    %-38s %-22s %-20s %s\n", p.ID, p.Name, p.UpdatedAt, status)
 	}
+
 	fmt.Println()
 }
 

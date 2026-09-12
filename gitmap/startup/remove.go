@@ -82,18 +82,18 @@ func Remove(name string) (RemoveResult, error) {
 func RemoveWithOptions(name string, opts RemoveOptions) (RemoveResult, error) {
 	clean := normalizeName(name)
 	if !isValidName(clean) {
-
 		return RemoveResult{Status: RemoveBadName, DryRun: opts.DryRun}, nil
 	}
-	if runtime.GOOS == "windows" {
 
+	if runtime.GOOS == "windows" {
 		return removeWindows(clean, opts)
 	}
+
 	dir, err := AutostartDir()
 	if err != nil {
-
 		return RemoveResult{}, err
 	}
+
 	full := joinPath(dir, clean+platformExt())
 
 	return removeIfManaged(full, opts)
@@ -118,11 +118,10 @@ func normalizeName(name string) string {
 // Linux filesystems treat embedded NULs as path terminators.
 func isValidName(name string) bool {
 	if len(name) == 0 {
-
 		return false
 	}
-	if strings.ContainsAny(name, "/\\\x00") {
 
+	if strings.ContainsAny(name, "/\\\x00") {
 		return false
 	}
 
@@ -137,19 +136,18 @@ func isValidName(name string) bool {
 // suppressed — so renderers can preview accurately.
 func removeIfManaged(full string, opts RemoveOptions) (RemoveResult, error) {
 	if _, err := os.Stat(full); os.IsNotExist(err) {
-
 		return RemoveResult{Status: RemoveNoOp, DryRun: opts.DryRun}, nil
 	}
-	if !isManagedFile(full) {
 
+	if !isManagedFile(full) {
 		return RemoveResult{Status: RemoveRefused, Path: full, DryRun: opts.DryRun}, nil
 	}
-	if opts.DryRun {
 
+	if opts.DryRun {
 		return RemoveResult{Status: RemoveDeleted, Path: full, DryRun: true}, nil
 	}
-	if err := os.Remove(full); err != nil {
 
+	if err := os.Remove(full); err != nil {
 		return RemoveResult{}, fmt.Errorf("delete %s: %w", full, err)
 	}
 
@@ -167,9 +165,9 @@ func removeIfManaged(full string, opts RemoveOptions) (RemoveResult, error) {
 func isManagedFile(path string) bool {
 	f, err := os.Open(path)
 	if err != nil {
-
 		return false
 	}
+
 	defer f.Close()
 
 	if runtime.GOOS == "darwin" {
@@ -177,6 +175,7 @@ func isManagedFile(path string) bool {
 
 		return managed
 	}
+
 	managed, _ := parseDesktopFields(newScanner(f))
 
 	return managed
@@ -187,7 +186,6 @@ func isManagedFile(path string) bool {
 // either importing the runtime constant directly.
 func platformExt() string {
 	if runtime.GOOS == "darwin" {
-
 		return constants.StartupPlistExt
 	}
 

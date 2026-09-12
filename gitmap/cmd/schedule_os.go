@@ -29,6 +29,7 @@ func runScheduleRestart() error {
 	default:
 		executeOSCommand("restart", exec.Command("sudo", "reboot"))
 	}
+
 	return nil
 }
 
@@ -42,5 +43,6 @@ func runScheduleShutdown() error {
 	default:
 		executeOSCommand("shutdown", exec.Command("sudo", "poweroff"))
 	}
+
 	return nil
 }

@@ -24,6 +24,7 @@ func TestParseFolderUri(t *testing.T) {
 			filepath.FromSlash("C:/Users/Alim/project"),
 		},
 	}
+
 	for _, tc := range cases {
 		got := parseFolderUri(tc.input)
 		if !strings.EqualFold(got, tc.want) {
@@ -36,6 +37,7 @@ func TestShortProjectId(t *testing.T) {
 	if got := shortProjectId("0349c4d0-5a91-4f3e-800f-81fd53fc724f"); got != "0349c4d0" {
 		t.Errorf("expected 0349c4d0, got %s", got)
 	}
+
 	if got := shortProjectId("short"); got != "short" {
 		t.Errorf("expected short, got %s", got)
 	}
@@ -45,10 +47,12 @@ func TestFormatRelativeTime(t *testing.T) {
 	if got := formatRelativeTime(""); got != "—" {
 		t.Errorf("expected —, got %s", got)
 	}
+
 	nowStr := time.Now().Format(time.RFC3339Nano)
 	if got := formatRelativeTime(nowStr); got != "just now" {
 		t.Errorf("expected 'just now', got %s", got)
 	}
+
 	pastStr := time.Now().Add(-2 * time.Hour).Format(time.RFC3339Nano)
 	if got := formatRelativeTime(pastStr); got != "2h ago" {
 		t.Errorf("expected '2h ago', got %s", got)
@@ -61,6 +65,7 @@ func TestFilterAgyProjects(t *testing.T) {
 		{ID: "2", Name: "Beta"},
 		{ID: "3", Name: "Gamma"},
 	}
+
 	agyLsFilter = "alp"
 	filtered := filterAgyProjects(projects)
 	agyLsFilter = ""
@@ -75,10 +80,12 @@ func TestSortAgyProjects(t *testing.T) {
 		{ID: "1", Name: "Zeta", UpdatedAt: "2026-09-01T00:00:00Z"},
 		{ID: "2", Name: "Alpha", UpdatedAt: "2026-09-02T00:00:00Z"},
 	}
+
 	sortAgyProjects(projects, "name")
 	if projects[0].Name != "Alpha" {
 		t.Errorf("expected Alpha first, got %s", projects[0].Name)
 	}
+
 	sortAgyProjects(projects, "time")
 	if projects[0].Name != "Alpha" {
 		t.Errorf("expected Alpha first by time, got %s", projects[0].Name)
@@ -167,12 +174,15 @@ func TestIsAgyProjectExcepted(t *testing.T) {
 	if !isAgyProjectExcepted(proj, "abc-123") {
 		t.Errorf("expected match on ID")
 	}
+
 	if !isAgyProjectExcepted(proj, "my-service") {
 		t.Errorf("expected match on Name")
 	}
+
 	if !isAgyProjectExcepted(proj, "/mock/repos/my-service") {
 		t.Errorf("expected match on Path")
 	}
+
 	if isAgyProjectExcepted(proj, "other-service") {
 		t.Errorf("expected no match on other-service")
 	}

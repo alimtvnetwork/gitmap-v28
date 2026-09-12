@@ -34,6 +34,7 @@ func (it GroupMap) Has(key string) bool {
 	}
 
 	_, exists := it[key]
+
 	return exists
 }
 
@@ -72,6 +73,7 @@ func (it GroupMap) Set(key, value string) GroupMap {
 	}
 
 	it[key] = value
+
 	return it
 }
 
@@ -90,6 +92,7 @@ func (it GroupMap) Remove(key string) GroupMap {
 	if it != nil {
 		delete(it, key)
 	}
+
 	return it
 }
 
@@ -110,6 +113,7 @@ func (it GroupMap) Keys() []string {
 	}
 
 	sort.Strings(keys)
+
 	return keys
 }
 
@@ -202,6 +206,7 @@ func (it GroupMap) Clear() GroupMap {
 	for k := range it {
 		delete(it, k)
 	}
+
 	return it
 }
 

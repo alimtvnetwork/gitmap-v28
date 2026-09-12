@@ -54,6 +54,7 @@ func runDBStatus(args []string) error {
 	}
 
 	printUnifiedStatus(status)
+
 	return nil
 }
 
@@ -84,6 +85,7 @@ func accumulatePipelineFileStats(status *dbUnifiedStatus, f os.DirEntry) {
 	if f.IsDir() || filepath.Ext(f.Name()) != ".db" {
 		return
 	}
+
 	status.PipelineCount++
 	info, err := f.Info()
 	if err == nil {

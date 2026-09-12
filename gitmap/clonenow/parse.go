@@ -39,18 +39,22 @@ func ParseFile(path, format, mode, onExists string) (Plan, error) {
 	if err != nil {
 		return Plan{}, fmt.Errorf(constants.ErrCloneNowAbsPath, path, err)
 	}
+
 	resolved := format
 	var derr error
 	if len(resolved) == 0 {
 		resolved, derr = detectFormat(abs)
 	}
+
 	if derr != nil {
 		return Plan{}, derr
 	}
+
 	rows, err := parseByFormat(abs, resolved)
 	if err != nil {
 		return Plan{}, err
 	}
+
 	rows = dedupRows(rows)
 	if len(rows) == 0 {
 		return Plan{}, fmt.Errorf(constants.ErrCloneNowEmpty, abs)
@@ -91,6 +95,7 @@ func parseByFormat(path, format string) ([]Row, error) {
 	if err != nil {
 		return nil, fmt.Errorf(constants.ErrCloneNowOpen, path, err)
 	}
+
 	defer f.Close()
 
 	switch format {
@@ -112,9 +117,11 @@ func parseJSONWithSchema(f io.Reader) ([]Row, error) {
 	if err != nil {
 		return nil, fmt.Errorf(constants.ErrCloneNowJSONDecode, err)
 	}
+
 	if err := validateJSONSchema(data); err != nil {
 		return nil, err
 	}
+
 	recs, err := formatter.ParseJSON(bytes.NewReader(data))
 	if err != nil {
 		return nil, fmt.Errorf(constants.ErrCloneNowJSONDecode, err)
@@ -132,18 +139,22 @@ func parseCSVWithSchema(f io.Reader) ([]Row, error) {
 	if err != nil {
 		return nil, fmt.Errorf(constants.ErrCloneNowCSVRead, err)
 	}
+
 	if err := validateCSVSchema(bytes.NewReader(data)); err != nil {
 		return nil, err
 	}
+
 	recs, err := parseCSVByHeaderName(bytes.NewReader(data))
 	if err != nil {
 		return nil, fmt.Errorf(constants.ErrCloneNowCSVRead, err)
 	}
+
 	if len(recs) == 0 {
 		// Fall back to the legacy positional parser for full 8+ col
 		// scan exports whose header names are not normalized cleanly.
 		recs, err = formatter.ParseCSV(bytes.NewReader(data))
 	}
+
 	if err != nil {
 		return nil, fmt.Errorf(constants.ErrCloneNowCSVRead, err)
 	}
@@ -165,13 +176,16 @@ func parseCSVByHeaderName(r io.Reader) ([]model.ScanRecord, error) {
 	if err != nil {
 		return nil, err
 	}
+
 	if len(rows) < 2 {
 		return nil, nil
 	}
+
 	idx := buildHeaderIndex(rows[0])
 	if !headerHasURL(idx) {
 		return nil, nil
 	}
+
 	out := make([]model.ScanRecord, 0, len(rows)-1)
 	for _, row := range rows[1:] {
 		out = append(out, recordFromIndexedRow(row, idx))
@@ -211,12 +225,15 @@ func recordFromIndexedRow(row []string, idx map[string]int) model.ScanRecord {
 		if !ok || i >= len(row) {
 			return ""
 		}
+
 		return row[i]
 	}
+
 	depth := 0
 	if d, err := strconv.Atoi(get("depth")); err == nil {
 		depth = d
 	}
+
 	return model.ScanRecord{
 		RepoName: get("repoName"), HTTPSUrl: get("httpsUrl"), SSHUrl: get("sshUrl"),
 		Branch: get("branch"), BranchSource: get("branchSource"),
@@ -239,10 +256,12 @@ func rowsFromRecords(recs []model.ScanRecord) []Row {
 		if len(rec.HTTPSUrl) == 0 && len(rec.SSHUrl) == 0 {
 			continue
 		}
+
 		dest := rec.RelativePath
 		if len(dest) == 0 {
 			dest = deriveDestFromRecord(rec)
 		}
+
 		out = append(out, Row{
 			RepoName:     rec.RepoName,
 			HTTPSUrl:     strings.TrimSpace(rec.HTTPSUrl),
@@ -281,6 +300,7 @@ func dedupRows(rows []Row) []Row {
 
 			continue
 		}
+
 		seen[key] = len(out)
 		out = append(out, r)
 	}

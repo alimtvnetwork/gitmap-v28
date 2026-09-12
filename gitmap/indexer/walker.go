@@ -62,8 +62,10 @@ func scanWriteTimes(rows *sql.Rows, times map[string]int64) (map[string]int64, e
 		if err := rows.Scan(&relPath, &writeTime); err != nil {
 			return times, err
 		}
+
 		times[relPath] = writeTime
 	}
+
 	return times, rows.Err()
 }
 
@@ -72,11 +74,14 @@ func loadExistingWriteTimes(ctx context.Context, db *sql.DB) (map[string]int64, 
 	if db == nil {
 		return times, nil
 	}
+
 	rows, err := db.QueryContext(ctx, "SELECT RelativePath, WriteTime FROM RepoFile")
 	if err != nil {
 		return times, err
 	}
+
 	defer rows.Close()
+
 	return scanWriteTimes(rows, times)
 }
 
@@ -85,6 +90,7 @@ func isFileModified(cachedTimes map[string]int64, relPath string, writeTime int6
 	if !hasCached {
 		return true
 	}
+
 	return lastWriteTime < writeTime
 }
 
@@ -96,9 +102,11 @@ func (w *Walker) isDotDirSkipped(name string, path string) bool {
 	if w.ForceDot {
 		return false
 	}
+
 	if path == w.RepoPath {
 		return false
 	}
+
 	return strings.HasPrefix(name, ".")
 }
 
@@ -107,9 +115,11 @@ func (w *Walker) handleDirSkip(d fs.DirEntry, path string) error {
 	if isExcludedDir(name) {
 		return filepath.SkipDir
 	}
+
 	if w.isDotDirSkipped(name, path) {
 		return filepath.SkipDir
 	}
+
 	return nil
 }
 
@@ -118,6 +128,7 @@ func isBinaryContent(head []byte) bool {
 	if probeLimit > probeMaxBytes {
 		probeLimit = probeMaxBytes
 	}
+
 	return bytes.IndexByte(head[:probeLimit], 0) != -1
 }
 
@@ -126,9 +137,11 @@ func readFileContent(path string) (string, bool) {
 	if err != nil {
 		return "", false
 	}
+
 	if isBinaryContent(b) {
 		return "", true
 	}
+
 	return string(b), false
 }
 
@@ -136,13 +149,17 @@ func resolveFileInfo(info FileInfo) FileInfo {
 	if info.IsBig {
 		return info
 	}
+
 	content, isBinary := readFileContent(info.AbsolutePath)
 	if isBinary {
 		info.IsBig = true
 		info.Content = ""
+
 		return info
 	}
+
 	info.Content = content
+
 	return info
 }
 
@@ -160,11 +177,13 @@ func (w *Walker) upsertRepoFile(ctx context.Context, info FileInfo) (bool, error
 	_, err := w.RepoDB.ExecContext(ctx, sqlUpsertRepoFile,
 		info.RelativePath, info.AbsolutePath, info.Content, info.IsBig, info.WriteTime, now, now,
 	)
+
 	return err == nil, err
 }
 
 func (w *Walker) processFile(ctx context.Context, info FileInfo) (bool, error) {
 	resolved := resolveFileInfo(info)
+
 	return w.upsertRepoFile(ctx, resolved)
 }
 
@@ -173,10 +192,12 @@ func (w *Walker) inspectAndQueueFile(path string, d fs.DirEntry, cachedTimes map
 	if err != nil {
 		return nil
 	}
+
 	relPath, err := filepath.Rel(w.RepoPath, path)
 	if err != nil {
 		return nil
 	}
+
 	writeTime := info.ModTime().Unix()
 	if isFileModified(cachedTimes, relPath, writeTime) {
 		fileChan <- FileInfo{
@@ -186,6 +207,7 @@ func (w *Walker) inspectAndQueueFile(path string, d fs.DirEntry, cachedTimes map
 			WriteTime:    writeTime,
 		}
 	}
+
 	return nil
 }
 
@@ -194,9 +216,11 @@ func (w *Walker) buildWalkFn(cachedTimes map[string]int64, fileChan chan<- FileI
 		if err != nil {
 			return nil
 		}
+
 		if d.IsDir() {
 			return w.handleDirSkip(d, path)
 		}
+
 		return w.inspectAndQueueFile(path, d, cachedTimes, fileChan)
 	}
 }
@@ -206,8 +230,10 @@ func startDrain(results <-chan worker.Result[bool]) <-chan struct{} {
 	go func() {
 		for range results {
 		}
+
 		close(done)
 	}()
+
 	return done
 }
 
@@ -217,6 +243,7 @@ func (w *Walker) Walk(ctx context.Context, workers int) error {
 	if err != nil {
 		return err
 	}
+
 	fileChan := make(chan FileInfo, 100)
 	pool := worker.NewPool(workers, func(c context.Context, input FileInfo) (bool, error) {
 		return w.processFile(c, input)
@@ -225,5 +252,6 @@ func (w *Walker) Walk(ctx context.Context, workers int) error {
 	walkErr := filepath.WalkDir(w.RepoPath, w.buildWalkFn(cachedTimes, fileChan))
 	close(fileChan)
 	<-done
+
 	return walkErr
 }

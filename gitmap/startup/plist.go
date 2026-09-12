@@ -38,14 +38,17 @@ func collectManagedPlist(dir string, files []os.DirEntry) []Entry {
 		if f.IsDir() {
 			continue
 		}
+
 		name := f.Name()
 		if !looksLikeOursPlist(name) {
 			continue
 		}
+
 		entry, ok := readManagedPlist(dir, name)
 		if !ok {
 			continue
 		}
+
 		out = append(out, entry)
 	}
 
@@ -74,6 +77,7 @@ func readManagedPlist(dir, filename string) (Entry, bool) {
 	if err != nil {
 		return Entry{}, false
 	}
+
 	defer f.Close()
 
 	managed, exec := parsePlistFields(f)
@@ -101,6 +105,7 @@ func parsePlistFields(r io.Reader) (bool, string) {
 		if err != nil {
 			break
 		}
+
 		state.consume(tok)
 	}
 
@@ -129,6 +134,7 @@ func (s *plistParseState) consume(tok xml.Token) {
 	if !ok {
 		return
 	}
+
 	switch start.Name.Local {
 	case "key":
 		s.pendingKey = readElementText(s.decoder, start)
@@ -136,6 +142,7 @@ func (s *plistParseState) consume(tok xml.Token) {
 		if s.pendingKey == constants.StartupPlistMarker {
 			s.managed = true
 		}
+
 		s.pendingKey = ""
 	case "string":
 		s.handleString(readElementText(s.decoder, start))
@@ -153,6 +160,7 @@ func (s *plistParseState) handleString(val string) {
 	if s.pendingKey == "Program" {
 		s.program = val
 	}
+
 	s.pendingKey = ""
 }
 

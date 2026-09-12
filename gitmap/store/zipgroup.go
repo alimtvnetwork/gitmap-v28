@@ -44,6 +44,7 @@ func (db *DB) ListZipGroups() ([]model.ZipGroup, error) {
 	if err != nil {
 		return nil, fmt.Errorf(constants.ErrZGQuery, err)
 	}
+
 	defer rows.Close()
 
 	var groups []model.ZipGroup
@@ -68,6 +69,7 @@ func (db *DB) ListZipGroupsWithCount() ([]ZipGroupWithCount, error) {
 	if err != nil {
 		return nil, fmt.Errorf(constants.ErrZGQuery, err)
 	}
+
 	defer rows.Close()
 
 	var groups []ZipGroupWithCount
@@ -158,6 +160,7 @@ func (db *DB) ListZipGroupItems(groupName string) ([]model.ZipGroupItem, error) 
 	if err != nil {
 		return nil, fmt.Errorf(constants.ErrZGQuery, err)
 	}
+
 	defer rows.Close()
 
 	var items []model.ZipGroupItem

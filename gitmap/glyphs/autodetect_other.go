@@ -25,6 +25,7 @@ func resolveLocale() string {
 	if locale == "" {
 		locale = os.Getenv("LC_CTYPE")
 	}
+
 	if locale == "" {
 		locale = os.Getenv("LANG")
 	}

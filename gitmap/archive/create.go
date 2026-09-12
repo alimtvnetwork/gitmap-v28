@@ -64,6 +64,7 @@ func validateCreateFormat(path string) (Format, error) {
 	if format == FormatUnknown {
 		return FormatUnknown, apperror.Wrap(ErrUnknownFormat, "validate format", map[string]any{"path": path})
 	}
+
 	if format == Format7z || format == FormatRar {
 		return FormatUnknown, apperror.New("validate format", "ERR_READONLY_FORMAT", map[string]any{"format": format})
 	}
@@ -102,6 +103,7 @@ func writeArchive(params ArchiveWriteParams) error {
 	if err != nil {
 		return err
 	}
+
 	defer out.Close()
 
 	writer, err := buildArchiver(params.Format, params.Mode)
@@ -122,12 +124,14 @@ func CreateArchive(ctx context.Context, opts CreateOptions) (CreateResult, error
 	if err != nil {
 		return res, err
 	}
+
 	res.Format = format
 
 	files, err := prepareArchiveFiles(ctx, opts)
 	if err != nil {
 		return res, err
 	}
+
 	res.EntriesWritten = len(files)
 
 	writeParams := ArchiveWriteParams{
@@ -150,6 +154,7 @@ func mapSourceEntry(src string) (string, error) {
 	if err != nil {
 		return "", err
 	}
+
 	base := filepath.Base(src)
 	if info.IsDir() {
 		return base + "/", nil
@@ -169,6 +174,7 @@ func gatherFiles(ctx context.Context, sources []string) ([]archives.FileInfo, er
 		if err != nil {
 			return nil, err
 		}
+
 		mapping[src] = target
 	}
 
@@ -192,6 +198,7 @@ func filterFiles(in []archives.FileInfo, includes, excludes []string) []archives
 	if len(includes) == 0 && len(excludes) == 0 {
 		return in
 	}
+
 	out := in[:0]
 	for _, f := range in {
 		if isEntryIncluded(f.NameInArchive, includes, excludes).Data {
@@ -206,6 +213,7 @@ func matchPattern(pattern, name string) result.Result[bool] {
 	if ok, err := filepath.Match(pattern, name); err == nil && ok {
 		return result.NewSuccess(true)
 	}
+
 	if ok, err := filepath.Match(pattern, filepath.Base(name)); err == nil && ok {
 		return result.NewSuccess(true)
 	}

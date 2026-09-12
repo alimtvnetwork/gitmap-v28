@@ -102,9 +102,11 @@ func parseWordPressFlags(args []string) (WordPressOptions, *apperror.AppError) {
 	if parseErr == flag.ErrHelp {
 		cliexit.Exit(0)
 	}
+
 	if parseErr != nil {
 		return opts, apperror.WrapSimple(parseErr, "flag.Parse")
 	}
+
 	hasPositional := len(fs.Args()) > 0
 	if hasPositional {
 		opts.TargetDir = fs.Args()[0]
@@ -141,6 +143,7 @@ func replaceWpDebug(content string, isDebug bool) string {
 	if isDebug {
 		debugStr = "true"
 	}
+
 	re := regexp.MustCompile(`(?m)define\s*\(\s*['"]WP_DEBUG['"]\s*,\s*.*?\s*\);`)
 	replacement := fmt.Sprintf("define( 'WP_DEBUG', %s );", debugStr)
 	hasMatch := re.MatchString(content)
@@ -156,6 +159,7 @@ func resolveInitialWpContent(baseContent string, opts WordPressOptions) string {
 	if hasContent {
 		return baseContent
 	}
+
 	debugStr := "false"
 	if opts.IsDebug {
 		debugStr = "true"
@@ -188,6 +192,7 @@ func readFileIfExists(path string) (string, bool, *apperror.AppError) {
 	if !hasFile {
 		return "", false, nil
 	}
+
 	b, err := os.ReadFile(path)
 	if err != nil {
 		return "", true, apperror.WrapSimple(err, "os.ReadFile")
@@ -201,13 +206,16 @@ func resolveWpBaseContent(targetDir string) (string, *apperror.AppError) {
 	if cfgErr != nil {
 		return "", cfgErr
 	}
+
 	if hasCfg {
 		return cfgContent, nil
 	}
+
 	sampleContent, hasSample, sampleErr := readFileIfExists(filepath.Join(targetDir, "wp-config-sample.php"))
 	if sampleErr != nil {
 		return "", sampleErr
 	}
+
 	if hasSample {
 		return sampleContent, nil
 	}
@@ -221,6 +229,7 @@ func writeWpConfigFile(targetDir, content string) *apperror.AppError {
 	if writeErr != nil {
 		return apperror.WrapSimple(writeErr, "os.WriteFile")
 	}
+
 	fmt.Printf("  %s✓%s WordPress config written: %s\n", constants.ColorGreen, constants.ColorReset, filePath)
 
 	return nil
@@ -240,6 +249,7 @@ func writeVHostOutputFile(targetDir, domain, content string) *apperror.AppError 
 	if writeErr != nil {
 		return apperror.WrapSimple(writeErr, "os.WriteFile")
 	}
+
 	fmt.Printf("  %s✓%s VHost generated: %s\n", constants.ColorGreen, constants.ColorReset, outFile)
 
 	return nil
@@ -250,12 +260,14 @@ func generateWpVHost(opts WordPressOptions) *apperror.AppError {
 	if pathErr != nil {
 		return apperror.WrapSimple(pathErr, "filepath.Abs")
 	}
+
 	vhostCfg := VHostConfig{
 		SiteType:     VHostSiteTypeWordpress,
 		Domain:       opts.Domain,
 		DocumentRoot: absPath,
 		Port:         opts.Port,
 	}
+
 	rendered, renderErr := RenderVHostConfig(vhostCfg)
 	if renderErr != nil {
 		return renderErr
@@ -285,6 +297,7 @@ func runPostWpSetup(opts WordPressOptions) *apperror.AppError {
 	if vhostErr != nil {
 		return vhostErr
 	}
+
 	permsErr := runOptionalWpPerms(opts.TargetDir, opts.IsFixPerms)
 	if permsErr != nil {
 		return permsErr
@@ -299,10 +312,12 @@ func SetupWordPress(opts WordPressOptions) *apperror.AppError {
 	if baseErr != nil {
 		return baseErr
 	}
+
 	content, genErr := GenerateWpConfigContent(base, opts)
 	if genErr != nil {
 		return genErr
 	}
+
 	writeErr := writeWpConfigIfActive(opts.TargetDir, content, opts.IsDryRun)
 	if writeErr != nil {
 		return writeErr
@@ -316,6 +331,7 @@ func runSetupWordpress(args []string) error {
 	if parseErr != nil {
 		return parseErr
 	}
+
 	appErr := SetupWordPress(opts)
 	if appErr != nil {
 		return appErr

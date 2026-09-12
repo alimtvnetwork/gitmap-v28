@@ -26,6 +26,7 @@ func runDbMigrate(args []string) error {
 	if err != nil {
 		return apperror.WrapSimple(err, constants.ErrDBMigrateFailFmt)
 	}
+
 	defer db.Close()
 
 	if err := db.Migrate(); err != nil {
@@ -83,6 +84,7 @@ func runPostUpdateMigrate() error {
 
 		return nil
 	}
+
 	defer db.Close()
 
 	if err := db.Migrate(); err != nil {

@@ -24,11 +24,13 @@ func runTempRelease(args []string) error {
 			nil,
 		)
 		cliexit.HandleError(err, 1)
+
 		return nil
 	}
 
 	sub := args[0]
 	dispatchTempRelease(sub, args)
+
 	return nil
 }
 
@@ -39,6 +41,7 @@ func dispatchTempRelease(sub string, args []string) {
 
 		return
 	}
+
 	if sub == constants.SubCmdTRRemove {
 		runTempReleaseRemove(args[1:])
 

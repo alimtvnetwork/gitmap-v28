@@ -42,36 +42,35 @@ func LoadFromFile(path string) (model.Config, error) {
 	cfg := model.DefaultConfig()
 	data, err := os.ReadFile(path)
 	if err != nil {
-
 		return cfg, handleMissingFile(err)
 	}
-	if err := ValidateRawConfig(data); err != nil {
 
+	if err := ValidateRawConfig(data); err != nil {
 		return cfg, err
 	}
+
 	// Shape check runs BEFORE the typed unmarshal so a wrong-type
 	// value (e.g. `"defaultMode": 42`) is reported with the offending
 	// key name instead of cascading into json.Unmarshal's generic
 	// "cannot unmarshal number into Go struct field ..." message.
 	if err := ValidateRawShape(data); err != nil {
-
 		return cfg, err
 	}
+
 	cfg, err = parseConfig(data, cfg)
 	if err != nil {
-
 		return cfg, err
 	}
+
 	if err := ValidateConfig(cfg); err != nil {
-
 		return cfg, err
 	}
+
 	// Struct-level checks (non-empty outputDir, non-negative
 	// dashboardRefresh, no-empty excludeDirs, complete release
 	// targets) run last because they assume a defaulted-then-
 	// populated struct, not raw JSON.
 	if err := ValidateConfigStruct(cfg); err != nil {
-
 		return cfg, err
 	}
 

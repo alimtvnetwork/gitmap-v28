@@ -23,6 +23,7 @@ func TestUserDirUnderHome(t *testing.T) {
 	if err != nil {
 		t.Fatalf("UserDir error: %v", err)
 	}
+
 	want := filepath.Join(home, userTemplatesDirName, userTemplatesSubdir)
 	if got != want {
 		t.Fatalf("UserDir = %q, want %q", got, want)
@@ -35,6 +36,7 @@ func TestEnsureUserDirCreates(t *testing.T) {
 	if err != nil {
 		t.Fatalf("EnsureUserDir error: %v", err)
 	}
+
 	info, err := os.Stat(dir)
 	if err != nil || !info.IsDir() {
 		t.Fatalf("EnsureUserDir did not create %s: %v", dir, err)
@@ -53,6 +55,7 @@ func TestResolveUserOverlayWinsOverEmbed(t *testing.T) {
 	if mkErr := os.MkdirAll(filepath.Dir(overlay), 0o755); mkErr != nil {
 		t.Fatalf("mkdir: %v", mkErr)
 	}
+
 	body := []byte("# user override\nfoo\n")
 	if wErr := os.WriteFile(overlay, body, 0o644); wErr != nil {
 		t.Fatalf("write: %v", wErr)
@@ -62,9 +65,11 @@ func TestResolveUserOverlayWinsOverEmbed(t *testing.T) {
 	if err != nil {
 		t.Fatalf("Resolve: %v", err)
 	}
+
 	if r.Source != SourceUser {
 		t.Fatalf("Source = %v, want SourceUser", r.Source)
 	}
+
 	if !bytes.Equal(r.Content, body) {
 		t.Fatalf("Content mismatch: got %q", r.Content)
 	}

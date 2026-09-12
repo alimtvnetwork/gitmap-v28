@@ -15,6 +15,7 @@ func runCGInstallPrompts(targetDirs []string, isDryRun bool) error {
 
 	if len(targetDirs) == 0 {
 		fmt.Println("No target repositories found to install Prompt Architect.")
+
 		return nil
 	}
 
@@ -35,5 +36,6 @@ func runCGInstallPrompts(targetDirs []string, isDryRun bool) error {
 
 	RenderPromptInstallSummary(results)
 	ReportPromptFailures(results)
+
 	return nil
 }

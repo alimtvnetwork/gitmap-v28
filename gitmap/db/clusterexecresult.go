@@ -59,9 +59,11 @@ func capString(s *string, maxLen int) *string {
 	if s == nil {
 		return nil
 	}
+
 	hasExceeded := len(*s) > maxLen
 	if hasExceeded {
 		capped := (*s)[:maxLen]
+
 		return &capped
 	}
 
@@ -84,6 +86,7 @@ func InsertClusterExecResult(
 	if err != nil {
 		return 0, apperror.WrapSimple(err, "InsertClusterExecResult.Exec")
 	}
+
 	id, errId := res.LastInsertId()
 	if errId != nil {
 		return 0, apperror.WrapSimple(errId, "InsertClusterExecResult.LastInsertId")
@@ -114,6 +117,7 @@ func SelectClusterExecResultsByRunId(
 	if err != nil {
 		return nil, apperror.WrapSimple(err, "SelectClusterExecResultsByRunId.Query")
 	}
+
 	defer rows.Close()
 
 	return scanClusterExecResultRows(rows)
@@ -131,8 +135,10 @@ func scanClusterExecResultRows(rows *sql.Rows) ([]ClusterExecResult, *apperror.A
 		if err != nil {
 			return nil, apperror.WrapSimple(err, "scanClusterExecResultRows.Scan")
 		}
+
 		results = append(results, res)
 	}
+
 	if err := rows.Err(); err != nil {
 		return nil, apperror.WrapSimple(err, "scanClusterExecResultRows.Rows")
 	}

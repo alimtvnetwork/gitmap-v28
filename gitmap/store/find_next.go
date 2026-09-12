@@ -16,6 +16,7 @@ func (db *DB) FindNext(scanFolderID int64) ([]model.FindNextRow, error) {
 	if err != nil {
 		return nil, fmt.Errorf(constants.ErrFindNextQuery, err)
 	}
+
 	defer rows.Close()
 
 	return scanFindNextRows(rows)
@@ -38,6 +39,7 @@ func scanFindNextRows(rows *sql.Rows) ([]model.FindNextRow, error) {
 		if err != nil {
 			return nil, fmt.Errorf(constants.ErrFindNextScanRow, err)
 		}
+
 		results = append(results, row)
 	}
 

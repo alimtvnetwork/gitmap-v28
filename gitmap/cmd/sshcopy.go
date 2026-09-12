@@ -25,12 +25,14 @@ func runSSHCopy(args []string) error {
 	if err != nil {
 		return apperror.WrapSimple(err, constants.ErrSSHQuery)
 	}
+
 	defer db.Close()
 
 	key, err := db.FindSSHKeyByName(*nameFlag)
 	if err != nil {
 		fmt.Fprintf(os.Stderr, constants.ErrSSHNotFound, *nameFlag)
 		printAvailableKeys(db)
+
 		return apperror.NewSimple("fatal error", "E9000")
 	}
 
@@ -38,6 +40,7 @@ func runSSHCopy(args []string) error {
 	fmt.Println(pub)
 
 	copyPubKeyAndAnnounce(pub)
+
 	return nil
 }
 
@@ -51,11 +54,13 @@ func copyPubKeyAndAnnounce(pub string) {
 
 		return
 	}
+
 	if tool == "" {
 		fmt.Fprint(os.Stderr, constants.MsgSSHCopyFallback)
 
 		return
 	}
+
 	fmt.Fprintf(os.Stderr, constants.MsgSSHCopied, len(pub))
 }
 
@@ -66,6 +71,7 @@ func writeClipboard(text string) (string, error) {
 	if tool == "" {
 		return "", nil
 	}
+
 	cmd := exec.Command(tool, args...)
 	cmd.Stdin = strings.NewReader(text)
 	if err := cmd.Run(); err != nil {
@@ -83,12 +89,15 @@ func resolveClipboardTool() (string, []string) {
 	case "darwin":
 		return "pbcopy", nil
 	}
+
 	if path, err := exec.LookPath("wl-copy"); err == nil {
 		return path, nil
 	}
+
 	if path, err := exec.LookPath("xclip"); err == nil {
 		return path, []string{"-selection", "clipboard"}
 	}
+
 	if path, err := exec.LookPath("xsel"); err == nil {
 		return path, []string{"--clipboard", "--input"}
 	}

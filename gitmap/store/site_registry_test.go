@@ -13,6 +13,7 @@ func TestSitesSplitDBCRUD(t *testing.T) {
 	if err != nil {
 		t.Fatalf("OpenSitesSplitDBAt failed: %v", err)
 	}
+
 	defer db.Close()
 
 	rec := SiteRecord{
@@ -34,6 +35,7 @@ func TestSitesSplitDBCRUD(t *testing.T) {
 	if err != nil {
 		t.Fatalf("GetSite failed: %v", err)
 	}
+
 	if got == nil || got.Domain != "example.com" || got.SiteType != "wordpress" {
 		t.Fatalf("unexpected site retrieved: %+v", got)
 	}
@@ -47,6 +49,7 @@ func TestSitesSplitDBCRUD(t *testing.T) {
 		IsSslEnabled:    true,
 		IsActive:        true,
 	}
+
 	if err := db.UpsertSite(subRec); err != nil {
 		t.Fatalf("UpsertSite sub failed: %v", err)
 	}
@@ -55,6 +58,7 @@ func TestSitesSplitDBCRUD(t *testing.T) {
 	if err != nil {
 		t.Fatalf("ListSites failed: %v", err)
 	}
+
 	if len(all) != 2 {
 		t.Fatalf("expected 2 sites, got %d", len(all))
 	}
@@ -67,6 +71,7 @@ func TestSitesSplitDBCRUD(t *testing.T) {
 	if err != nil {
 		t.Fatalf("GetSite after del failed: %v", err)
 	}
+
 	if afterDel != nil {
 		t.Fatalf("expected nil after delete, got %+v", afterDel)
 	}

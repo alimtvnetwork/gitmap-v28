@@ -31,6 +31,7 @@ func RunUpdate() {
 
 	if normalizeVersion(current) == normalizeVersion(latest) {
 		fmt.Printf(MsgUpToDate, current)
+
 		return
 	}
 
@@ -92,12 +93,14 @@ func copyBinary(src, dst string) error {
 	if err != nil {
 		return err
 	}
+
 	defer in.Close()
 
 	out, err := os.Create(dst)
 	if err != nil {
 		return err
 	}
+
 	defer out.Close()
 
 	_, err = io.Copy(out, in)

@@ -72,6 +72,7 @@ func loadProfileRepos(name string) []model.ScanRecord {
 		fmt.Fprintln(os.Stderr, apperror.NewSimple(constants.ErrDPOpenFailed, "E9000").Error())
 		cliexit.HandleError(nil, 1)
 	}
+
 	defer db.Close()
 
 	if err := db.Migrate(); err != nil {

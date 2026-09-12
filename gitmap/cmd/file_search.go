@@ -34,12 +34,14 @@ func runFileSearch(args []string) error {
 	if err != nil {
 		return apperror.WrapSimple(err, "Error connecting to db:")
 	}
+
 	defer mainDB.Close()
 	defer db.Close()
 
 	cacheKey := fmt.Sprintf("file-search:%s:%s:%d:%d", filePath, pattern, contextBefore, contextAfter)
 	if res, ok := fetchCachedFileSearch(ctx, db, cacheKey); ok {
 		printFileSearchResults(res)
+
 		return nil
 	}
 
@@ -51,12 +53,14 @@ func runFileSearch(args []string) error {
 	results := executeLineSearch(content, rx, filePath, absPath, contextBefore, contextAfter)
 	printFileSearchResults(results)
 	updateFileSearchCache(ctx, db, cacheKey, results)
+
 	return nil
 }
 
 func parseContextCounts(args []string) (int, int) {
 	before := parsePositionalInt(args, 2)
 	after := parsePositionalInt(args, 3)
+
 	return before, after
 }
 
@@ -64,10 +68,12 @@ func parsePositionalInt(args []string, index int) int {
 	if len(args) <= index {
 		return 0
 	}
+
 	val, err := strconv.Atoi(args[index])
 	if err != nil || val <= 0 {
 		return 0
 	}
+
 	return val
 }
 
@@ -81,11 +87,14 @@ func fetchCachedFileSearch(
 	if err != nil || cachedJson == "" {
 		return nil, false
 	}
+
 	var res []searcher.SearchResult
 	if err := json.Unmarshal([]byte(cachedJson), &res); err != nil {
 		return nil, false
 	}
+
 	db.ExecContext(ctx, "UPDATE SearchCache SET Hits = Hits + 1 WHERE Query = ?", cacheKey)
+
 	return res, true
 }
 
@@ -104,6 +113,7 @@ func readFileSearchContent(
 	if errDisk != nil {
 		return "", "", apperror.WrapSimple(errDisk, "Error reading file:")
 	}
+
 	return string(b), filePath, nil
 }
 
@@ -122,6 +132,7 @@ func executeLineSearch(
 		if !rx.MatchString(line) {
 			continue
 		}
+
 		matchedText, endIdx := buildContextSnippet(lines, i, before, after)
 		results = append(results, searcher.SearchResult{
 			MatchedText:   matchedText,
@@ -131,6 +142,7 @@ func executeLineSearch(
 			FilePath:      absPath,
 		})
 	}
+
 	return results
 }
 
@@ -142,6 +154,7 @@ func buildContextSnippet(lines []string, i, before, after int) (string, int) {
 	for j := startIdx; j <= endIdx; j++ {
 		matchedContext = append(matchedContext, fmt.Sprintf("%d: %s", j+1, lines[j]))
 	}
+
 	return strings.Join(matchedContext, "\n"), endIdx
 }
 
@@ -149,6 +162,7 @@ func max(a, b int) int {
 	if a > b {
 		return a
 	}
+
 	return b
 }
 
@@ -156,6 +170,7 @@ func min(a, b int) int {
 	if a < b {
 		return a
 	}
+
 	return b
 }
 
@@ -175,6 +190,7 @@ func updateFileSearchCache(
 	if err != nil {
 		return
 	}
+
 	query := `
 		INSERT INTO SearchCache (Query, Hits, ResultJson, CreatedAt, UpdatedAt)
 		VALUES (?, 1, ?, 0, 0)

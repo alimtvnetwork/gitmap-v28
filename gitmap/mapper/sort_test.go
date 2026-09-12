@@ -18,6 +18,7 @@ func TestSortRecords_PathPrimaryKey(t *testing.T) {
 		{RelativePath: "a", HTTPSUrl: "https://x/a.git"},
 		{RelativePath: "m", HTTPSUrl: "https://x/m.git"},
 	}
+
 	SortRecords(in)
 	want := []string{"a", "m", "z"}
 	for i, w := range want {
@@ -34,6 +35,7 @@ func TestSortRecords_HTTPSURLTiebreaker(t *testing.T) {
 		{RelativePath: "same", HTTPSUrl: "https://x/b.git"},
 		{RelativePath: "same", HTTPSUrl: "https://x/a.git"},
 	}
+
 	SortRecords(in)
 	if in[0].HTTPSUrl != "https://x/a.git" {
 		t.Errorf("HTTPSUrl tiebreaker broken: %+v", in)
@@ -47,6 +49,7 @@ func TestSortRecords_SSHFallback(t *testing.T) {
 		{RelativePath: "same", SSHUrl: "git@x:b.git"},
 		{RelativePath: "same", SSHUrl: "git@x:a.git"},
 	}
+
 	SortRecords(in)
 	if in[0].SSHUrl != "git@x:a.git" {
 		t.Errorf("SSHUrl fallback broken: %+v", in)
@@ -60,6 +63,7 @@ func TestSortRecords_AbsPathFinal(t *testing.T) {
 		{RelativePath: "same", AbsolutePath: "/b"},
 		{RelativePath: "same", AbsolutePath: "/a"},
 	}
+
 	SortRecords(in)
 	if in[0].AbsolutePath != "/a" {
 		t.Errorf("AbsolutePath final fallback broken: %+v", in)

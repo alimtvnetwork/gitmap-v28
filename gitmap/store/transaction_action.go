@@ -50,6 +50,7 @@ func (db *DB) queryActions(query string, txnID int64) ([]model.TransactionAction
 	if err != nil {
 		return nil, fmt.Errorf(constants.ErrActionList, err)
 	}
+
 	defer rows.Close()
 
 	return scanActionRows(rows)
@@ -74,6 +75,7 @@ func scanActionRows(rows *sql.Rows) ([]model.TransactionActionRecord, error) {
 		if err != nil {
 			return nil, err
 		}
+
 		out = append(out, r)
 	}
 
@@ -90,6 +92,7 @@ func scanOneAction(rows *sql.Rows) (model.TransactionActionRecord, error) {
 	if err != nil {
 		return r, fmt.Errorf(constants.ErrActionList, err)
 	}
+
 	r.RevertedAt = nullInt(reverted)
 
 	return r, nil

@@ -40,8 +40,10 @@ func executeUpdateWindows(repoPath string, report reportErrorsConfig) {
 			map[string]any{"repoPath": repoPath},
 		)
 		cliexit.HandleError(appErr, 1)
+
 		return
 	}
+
 	defer os.Remove(scriptPath)
 
 	log := verbose.Get()
@@ -68,6 +70,7 @@ func executeUpdateUnix(repoPath string, report reportErrorsConfig) {
 			map[string]any{"repoPath": repoPath},
 		)
 		cliexit.HandleError(appErr, 1)
+
 		return
 	}
 
@@ -117,9 +120,11 @@ func resolveInstalledDir() string {
 	if err == nil {
 		resolved, evalErr = filepath.EvalSymlinks(path)
 	}
+
 	if err == nil && evalErr == nil {
 		return filepath.Dir(resolved)
 	}
+
 	if err == nil {
 		return filepath.Dir(path)
 	}
@@ -153,12 +158,14 @@ func writeScriptToTemp(script string) (string, error) {
 	if err != nil {
 		return "", err
 	}
+
 	defer tmpFile.Close()
 
 	bom := []byte{0xEF, 0xBB, 0xBF}
 	if _, err := tmpFile.Write(bom); err != nil {
 		return "", err
 	}
+
 	if _, err := tmpFile.WriteString(script); err != nil {
 		return "", err
 	}
@@ -199,6 +206,7 @@ func buildPSSubdirArray() string {
 		if name == "" || seen[name] {
 			continue
 		}
+
 		seen[name] = true
 		quoted = append(quoted, fmt.Sprintf("%q", name))
 	}
@@ -213,6 +221,7 @@ func joinComma(parts []string) string {
 		if i > 0 {
 			out += ","
 		}
+
 		out += p
 	}
 
@@ -242,8 +251,10 @@ func runUpdateScript(scriptPath string, report reportErrorsConfig) error {
 			map[string]any{"scriptPath": scriptPath},
 		)
 		cliexit.HandleError(appErr, 1)
+
 		return nil
 	}
+
 	return nil
 }
 

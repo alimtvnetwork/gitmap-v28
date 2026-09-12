@@ -77,6 +77,7 @@ func (m aliasesModel) View() string {
 		} else {
 			b.WriteString(styleNormalRow.Render("  " + line))
 		}
+
 		b.WriteString("\n")
 	}
 

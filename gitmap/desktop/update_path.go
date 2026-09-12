@@ -6,5 +6,6 @@ func UpdateRepoPath(oldPath, newPath string) error {
 	if cli == "" {
 		return nil
 	}
+
 	return addOne(newPath, cli)
 }

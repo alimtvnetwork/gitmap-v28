@@ -39,6 +39,7 @@ func ReadModuleName() (string, error) {
 	if err != nil {
 		return "", err
 	}
+
 	defer f.Close()
 
 	scanner := bufio.NewScanner(f)
@@ -134,6 +135,7 @@ func handleBuildResult(result CrossCompileResult, t BuildTarget) {
 	if result.IsSuccess {
 		logSuccessfulBuild(result, t)
 		fmt.Printf(constants.MsgAssetBuilt, filepath.Base(result.Output), t.GOOS, t.GOARCH)
+
 		return
 	}
 

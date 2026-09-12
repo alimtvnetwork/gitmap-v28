@@ -35,17 +35,21 @@ func BuildRecentRunsQuery(f RecentRunsFilter) (string, []any) {
 		clauses = append(clauses, constants.SQLWhereCommandKindEq)
 		args = append(args, f.Kind)
 	}
+
 	if f.SinceISO != "" {
 		clauses = append(clauses, constants.SQLWhereStartedAtGTE)
 		args = append(args, f.SinceISO)
 	}
+
 	for i, c := range clauses {
 		if i == 0 {
 			sql += constants.SQLKeywordWHERE + c
 			continue
 		}
+
 		sql += constants.SQLKeywordAND + c
 	}
+
 	sql += constants.SQLOrderRunIDDescLimit
 	args = append(args, f.Limit)
 
@@ -61,6 +65,7 @@ func (db *DB) SelectRecentMakeAllVisibilityRunsFiltered(f RecentRunsFilter) ([]m
 	if err != nil {
 		return nil, fmt.Errorf(constants.ErrHistorySelectFmt, err, err.Error())
 	}
+
 	defer rows.Close()
 
 	return scanRecentRuns(rows)

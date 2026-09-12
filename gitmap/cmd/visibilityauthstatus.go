@@ -26,11 +26,13 @@ func mustEnsureProviderAuth(provider string, verbose bool) {
 	if verbose {
 		fmt.Fprintf(os.Stderr, constants.MsgVisVerboseExec, cli, strings.Join(args, " "))
 	}
+
 	cmd := exec.Command(cli, args...)
 	out, err := cmd.CombinedOutput()
 	if err == nil {
 		return
 	}
+
 	fmt.Fprintf(os.Stderr, constants.ErrVisAuthStatusFailedFmt, cli, err, strings.TrimSpace(string(out)))
 	cliexit.HandleError(nil, constants.ExitVisAuthFailed)
 }

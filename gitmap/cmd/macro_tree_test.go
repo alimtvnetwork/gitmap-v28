@@ -19,6 +19,7 @@ func TestPrintMacroStepsTree_EmptyAndNil(t *testing.T) {
 		Name:  "empty-macro",
 		Steps: []macro.MacroStep{},
 	}
+
 	printMacroStepsTree(emptyMacro)
 }
 

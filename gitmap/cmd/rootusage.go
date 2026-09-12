@@ -87,7 +87,6 @@ func printUsageAdvancedCategories() {
 		printGroupIntegrations()
 	})
 	printSuperCategory("CLUSTER & NETWORK", func() {
-
 		printGroupCluster()
 		printGroupUser()
 	})
@@ -109,8 +108,10 @@ func printUsageTrailer() {
 func printSuperCategory(title string, body func()) {
 	if measuringHelp {
 		body()
+
 		return
 	}
+
 	fmt.Println()
 	rule := repeatRule(superCategoryLineWidth - len(title))
 	fmt.Println("  " + constants.ColorMagenta + "━━ " +
@@ -124,6 +125,7 @@ func repeatRule(count int) string {
 	if count < minRuleLength {
 		count = minRuleLength
 	}
+
 	out := ""
 	for idx := 0; idx < count; idx++ {
 		out += "━"
@@ -161,12 +163,14 @@ func renderHeader(header string) {
 	if measuringHelp {
 		return
 	}
+
 	fmt.Println()
 	if strings.HasPrefix(header, "  ") {
 		fmt.Println(colorGroupHeader(header))
 	} else {
 		fmt.Println(colorGroupHeader("  " + header))
 	}
+
 	fmt.Println()
 }
 
@@ -174,12 +178,14 @@ func renderFlagHeader(header string) {
 	if measuringHelp {
 		return
 	}
+
 	fmt.Println()
 	if strings.HasPrefix(header, "  ") {
 		fmt.Println(colorGroupHeader(header))
 	} else {
 		fmt.Println(colorGroupHeader("  " + header))
 	}
+
 	fmt.Println()
 }
 
@@ -190,6 +196,7 @@ func updateMaxHelpCmdLen(cmd string) {
 	if l > maxCmdColumnWidth {
 		l = maxCmdColumnWidth
 	}
+
 	if l > maxHelpCmdLen {
 		maxHelpCmdLen = l
 	}
@@ -217,6 +224,7 @@ func parseExpandableMarker(cmd, desc string) ExpandableMarkerResult {
 	if strings.Contains(desc, "(use --help to expand)") {
 		cleanDesc := strings.TrimSpace(strings.ReplaceAll(desc, "(use --help to expand)", ""))
 		firstWord := strings.Split(cmd, " ")[0]
+
 		return ExpandableMarkerResult{
 			Cmd:    cmd,
 			Desc:   cleanDesc,
@@ -227,6 +235,7 @@ func parseExpandableMarker(cmd, desc string) ExpandableMarkerResult {
 	if strings.Contains(cmd, "(use --help to expand)") {
 		cleanCmd := strings.TrimSpace(strings.ReplaceAll(cmd, "(use --help to expand)", ""))
 		firstWord := strings.Split(cmd, " ")[0]
+
 		return ExpandableMarkerResult{
 			Cmd:    cleanCmd,
 			Desc:   desc,
@@ -247,6 +256,7 @@ func renderLongHelpRow(cmd, fullDesc string, termWidth int) {
 	descWidth := termWidth - len(indent)
 	if descWidth <= 10 {
 		fmt.Printf("%s%s\n", indent, fullDesc)
+
 		return
 	}
 
@@ -271,6 +281,7 @@ func renderStandardHelpRow(params HelpRowParams) {
 	descWidth := params.TermWidth - lipgloss.Width(prefix)
 	if descWidth <= 10 {
 		fmt.Printf("%s%s\n", prefix, params.FullDesc)
+
 		return
 	}
 
@@ -281,6 +292,7 @@ func renderHelpRow(cmd string, fullDesc string, termWidth int) {
 	cmdWidth := lipgloss.Width(cmd)
 	if cmdWidth > maxHelpCmdLen {
 		renderLongHelpRow(cmd, fullDesc, termWidth)
+
 		return
 	}
 
@@ -302,6 +314,7 @@ func renderLine(line string) {
 
 	if measuringHelp {
 		updateMaxHelpCmdLen(markerResult.Cmd)
+
 		return
 	}
 
@@ -322,6 +335,7 @@ func printWrappedHelpLines(prefix, fullDesc string, descWidth int) {
 			fmt.Printf("%s%s\n", prefix, l)
 			continue
 		}
+
 		fmt.Printf("%s%s\n", indent, l)
 	}
 }
@@ -330,11 +344,13 @@ func appendWord(out *strings.Builder, w string, wLen int, curLen int, width int)
 	if curLen+1+wLen > width {
 		out.WriteString("\n")
 		out.WriteString(w)
+
 		return wLen
 	}
 
 	out.WriteString(" ")
 	out.WriteString(w)
+
 	return curLen + 1 + wLen
 }
 

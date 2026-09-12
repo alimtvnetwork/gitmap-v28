@@ -14,6 +14,7 @@ func TestInstallationSplitDB_Lifecycle(t *testing.T) {
 	if err != nil {
 		t.Fatalf("Failed to open split DB: %v", err)
 	}
+
 	defer splitDB.Close()
 
 	testSaveAndGetTool(t, splitDB)
@@ -94,6 +95,7 @@ func TestRecordExecutionAndGetFailedLogs(t *testing.T) {
 	if err != nil {
 		t.Fatalf("OpenInstallationSplitDBAt failed: %v", err)
 	}
+
 	defer splitDB.Close()
 
 	testRecordExecutionFlow(t, splitDB)
@@ -129,6 +131,7 @@ func TestMigrateInstalledToolsFromRoot(t *testing.T) {
 	if err != nil {
 		t.Fatalf("OpenAt failed: %v", err)
 	}
+
 	defer rootDB.Close()
 
 	if err := rootDB.Migrate(); err != nil {
@@ -152,6 +155,7 @@ func verifyMigratedRootTools(t *testing.T, rootDB *DB, splitPath string) {
 	if err != nil {
 		t.Fatalf("OpenInstallationSplitDBAt failed: %v", err)
 	}
+
 	defer splitDB.Close()
 
 	if err := MigrateInstalledToolsFromRoot(rootDB.conn, splitDB); err != nil {

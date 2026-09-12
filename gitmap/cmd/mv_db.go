@@ -16,6 +16,7 @@ func updateRepoInDB(db *store.DB, repoID int64, newPath, newName string) error {
 	if appErr != nil {
 		return appErr
 	}
+
 	if txErr := runUpdateMoveTx(ctx, wrapper, repoID, newPath, newName); txErr != nil {
 		return txErr
 	}
@@ -56,6 +57,7 @@ func updateAliasRowIfPresent(ctx context.Context, tx *dbengine.TxWrapper, repoID
 	if !hasColumn {
 		return nil
 	}
+
 	query := "UPDATE Alias SET AbsolutePath = ? WHERE RepoId = ?"
 	if _, err := tx.Exec(ctx, query, newPath, repoID); err != nil {
 		return apperror.WrapSimple(err, "mv: update alias row")
@@ -69,6 +71,7 @@ func hasAliasPathColumn(ctx context.Context, tx *dbengine.TxWrapper) bool {
 	if appErr != nil {
 		return false
 	}
+
 	defer rows.Close()
 
 	return scanForColumnName(rows, "AbsolutePath")

@@ -60,11 +60,13 @@ func resolveUser(kind, lang, rel string) (Resolved, bool, error) {
 	if err != nil {
 		return Resolved{}, false, err
 	}
+
 	full := filepath.Join(dir, rel)
 	data, err := os.ReadFile(full)
 	if errors.Is(err, fs.ErrNotExist) {
 		return Resolved{}, false, nil
 	}
+
 	if err != nil {
 		return Resolved{}, false, fmt.Errorf(errTemplateRead, full, err)
 	}
@@ -79,6 +81,7 @@ func resolveEmbed(kind, lang, rel string) (Resolved, error) {
 	if errors.Is(err, fs.ErrNotExist) {
 		return Resolved{}, fmt.Errorf(errTemplateNotFound, kind, lang)
 	}
+
 	if err != nil {
 		return Resolved{}, fmt.Errorf(errTemplateRead, full, err)
 	}

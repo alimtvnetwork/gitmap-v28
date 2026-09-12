@@ -22,12 +22,15 @@ func routeEnvVariableSub(sub string, args []string) (error, bool) {
 	if sub == constants.CmdEnvSet {
 		return runEnvSet(args), true
 	}
+
 	if sub == constants.CmdEnvGet {
 		return runEnvGet(args), true
 	}
+
 	if sub == constants.CmdEnvDelete {
 		return runEnvDelete(args), true
 	}
+
 	if sub == constants.CmdEnvList {
 		return runEnvList(), true
 	}
@@ -40,6 +43,7 @@ func routeEnvSub(sub string, args []string) error {
 	if err, isHandled := routeEnvVariableSub(sub, args); isHandled {
 		return err
 	}
+
 	if sub == constants.CmdEnvPathAdd {
 		return routeEnvPath(args)
 	}
@@ -63,9 +67,11 @@ func dispatchEnvPath(sub string, rest []string) error {
 	if sub == constants.CmdEnvPathSub {
 		return runEnvPathAdd(rest)
 	}
+
 	if sub == constants.CmdEnvPathRemove {
 		return runEnvPathRemove(rest)
 	}
+
 	if sub == constants.CmdEnvPathList {
 		return runEnvPathList()
 	}

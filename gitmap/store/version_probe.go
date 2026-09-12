@@ -67,9 +67,11 @@ func (db *DB) LatestVersionProbe(repoID int64) (model.VersionProbe, error) {
 	if errors.Is(err, sql.ErrNoRows) {
 		return model.VersionProbe{}, sql.ErrNoRows
 	}
+
 	if err != nil {
 		return model.VersionProbe{}, fmt.Errorf(constants.ErrProbeRecord, repoID, err)
 	}
+
 	p.IsAvailable = available == 1
 
 	return p, nil

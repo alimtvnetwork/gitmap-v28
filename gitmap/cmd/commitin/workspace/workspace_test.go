@@ -17,13 +17,16 @@ func TestEnsureWorkspaceCreatesAllDirsIdempotently(t *testing.T) {
 	if err != nil {
 		t.Fatalf("first EnsureWorkspace: %v", err)
 	}
+
 	second, err := EnsureWorkspace(root)
 	if err != nil {
 		t.Fatalf("second EnsureWorkspace: %v", err)
 	}
+
 	if *first != *second {
 		t.Fatalf("paths drifted between calls: %+v vs %+v", first, second)
 	}
+
 	for _, dir := range []string{first.GitmapRoot, first.CommitInRoot, first.ProfilesDir, first.TempRoot} {
 		if info, statErr := os.Stat(dir); statErr != nil || !info.IsDir() {
 			t.Fatalf("expected dir %s to exist: %v", dir, statErr)
@@ -39,6 +42,7 @@ func TestAcquireLockBlocksDoubleAcquire(t *testing.T) {
 	if err != nil {
 		t.Fatalf("first AcquireLock: %v", err)
 	}
+
 	defer first.Release()
 	if _, err := AcquireLock(p); err == nil {
 		t.Fatalf("expected lock-busy error on second acquire")
@@ -52,6 +56,7 @@ func TestAcquireLockReleaseAllowsReacquire(t *testing.T) {
 	if err != nil {
 		t.Fatalf("acquire: %v", err)
 	}
+
 	h.Release()
 	if _, err := AcquireLock(p); err != nil {
 		t.Fatalf("reacquire failed: %v", err)
@@ -68,9 +73,11 @@ func TestEnsureSourceInitsMissingDir(t *testing.T) {
 	if err != nil {
 		t.Fatalf("EnsureSource: %v", err)
 	}
+
 	if h.Kind != SourceKindCreatedAndInit || !h.IsFreshlyInit {
 		t.Fatalf("expected CreatedAndInit, got %+v", h)
 	}
+
 	if _, err := os.Stat(root); err != nil {
 		t.Fatalf("dir not created: %v", err)
 	}
@@ -82,10 +89,12 @@ func TestEnsureSourceReusesExistingRepo(t *testing.T) {
 	if err := os.MkdirAll(filepath.Join(root, ".git"), 0o755); err != nil {
 		t.Fatalf("mkdir .git: %v", err)
 	}
+
 	h, err := EnsureSource(root)
 	if err != nil {
 		t.Fatalf("EnsureSource: %v", err)
 	}
+
 	if h.Kind != SourceKindExistingRepo || h.IsFreshlyInit {
 		t.Fatalf("expected ExistingRepo, got %+v", h)
 	}
@@ -99,6 +108,7 @@ func TestEnsureSourceClonesUrl(t *testing.T) {
 		if sub != "clone" {
 			t.Fatalf("expected clone, got %s", sub)
 		}
+
 		return nil
 	})
 	defer restore()
@@ -108,13 +118,16 @@ func TestEnsureSourceClonesUrl(t *testing.T) {
 	if err := os.Chdir(tmp); err != nil {
 		t.Fatalf("chdir: %v", err)
 	}
+
 	h, err := EnsureSource("https://example.com/foo.git")
 	if err != nil {
 		t.Fatalf("EnsureSource: %v", err)
 	}
+
 	if h.Kind != SourceKindCloned || calls != 1 {
 		t.Fatalf("expected single clone call, got kind=%v calls=%d", h.Kind, calls)
 	}
+
 	if filepath.Base(h.Path) != "foo" {
 		t.Fatalf("expected basename foo, got %s", h.Path)
 	}
@@ -133,14 +146,17 @@ func TestExpandInputsKeywordAllSortsAscending(t *testing.T) {
 	if err != nil {
 		t.Fatalf("expand: %v", err)
 	}
+
 	wantNames := []string{"demo", "demo-v1", "demo-v10"}
 	if len(got) != len(wantNames) {
 		t.Fatalf("got %d siblings (%v), want %d (%v)", len(got), namesOf(got), len(wantNames), wantNames)
 	}
+
 	for i, w := range wantNames {
 		if got[i].Original != w {
 			t.Fatalf("position %d: got %q want %q", i, got[i].Original, w)
 		}
+
 		if got[i].OrderIndex != i+1 {
 			t.Fatalf("position %d: order index = %d want %d", i, got[i].OrderIndex, i+1)
 		}
@@ -159,6 +175,7 @@ func TestExpandInputsTailKeywordTruncates(t *testing.T) {
 	if err != nil {
 		t.Fatalf("expand: %v", err)
 	}
+
 	if len(got) != 2 || got[0].Original != "p-v1" || got[1].Original != "p-v2" {
 		t.Fatalf("tail truncation wrong: %v", namesOf(got))
 	}
@@ -172,9 +189,11 @@ func TestExpandInputsExplicitClassifiesUrlsAndPaths(t *testing.T) {
 	if err != nil {
 		t.Fatalf("expand: %v", err)
 	}
+
 	if got[0].Kind != constants.CommitInInputKindLocalFolder {
 		t.Fatalf("expected LocalFolder, got %q", got[0].Kind)
 	}
+
 	if got[1].Kind != constants.CommitInInputKindGitUrl || got[1].URL == "" {
 		t.Fatalf("expected GitUrl with URL set, got %+v", got[1])
 	}
@@ -188,8 +207,10 @@ func TestCloneInputsStagesAllThreeKinds(t *testing.T) {
 	restore := SetGitRunnerForTest(func(sub string, args ...string) error {
 		if sub == "clone" && len(args) == 2 {
 			cloneTargets = append(cloneTargets, args[1])
+
 			return os.MkdirAll(args[1], 0o755)
 		}
+
 		return nil
 	})
 	defer restore()
@@ -202,22 +223,28 @@ func TestCloneInputsStagesAllThreeKinds(t *testing.T) {
 		{OrderIndex: 2, Original: "https://example.com/r.git", Kind: constants.CommitInInputKindGitUrl, URL: "https://example.com/r.git", Version: -1},
 		{OrderIndex: 3, Original: filepath.Base(siblingDir), Kind: constants.CommitInInputKindVersionedSibling, AbsPath: siblingDir, Version: 1},
 	}
+
 	staged, err := CloneInputs(p, 42, inputs)
 	if err != nil {
 		t.Fatalf("CloneInputs: %v", err)
 	}
+
 	if len(staged) != 3 {
 		t.Fatalf("staged %d, want 3", len(staged))
 	}
+
 	if staged[0].WorkPath != localDir || staged[0].IsClone {
 		t.Fatalf("local folder should be reused in place, got %+v", staged[0])
 	}
+
 	if !staged[1].IsClone || !strings.Contains(staged[1].WorkPath, "2-r") {
 		t.Fatalf("url stage path wrong: %+v", staged[1])
 	}
+
 	if !staged[2].IsClone || !strings.HasPrefix(staged[2].WorkPath, p.TempRoot) {
 		t.Fatalf("sibling stage path wrong: %+v", staged[2])
 	}
+
 	if len(cloneTargets) != 2 {
 		t.Fatalf("expected 2 clone calls, got %d (%v)", len(cloneTargets), cloneTargets)
 	}
@@ -235,5 +262,6 @@ func namesOf(in []ResolvedInput) []string {
 	for i, r := range in {
 		out[i] = r.Original
 	}
+
 	return out
 }

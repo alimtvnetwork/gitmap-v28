@@ -20,6 +20,7 @@ func toolingDispatchEntries() []dispatchEntry {
 	entries = append(entries, toolingUtilEntries()...)
 	entries = append(entries, toolingChromeEntries()...)
 	entries = append(entries, toolingNetworkEntries()...)
+
 	return entries
 }
 

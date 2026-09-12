@@ -98,11 +98,13 @@ func TestCommitInEnumsMatchSpec(t *testing.T) {
 			},
 		},
 	}
+
 	for _, tc := range cases {
 		if !equalSlices(tc.got, tc.want) {
 			t.Errorf("enum %s mismatch:\n  got : %v\n  want: %v\n  fix : update spec/03-commit-in/04-database-schema.md, constants_commitin.go, and enums.go together",
 				tc.name, tc.got, tc.want)
 		}
+
 		// PascalCase guard: every member must be non-empty and start
 		// with an uppercase ASCII letter (matches DB-schema rule that
 		// enum-mirror Names are PascalCase).
@@ -130,11 +132,13 @@ func TestCommitInExitCodesUnique(t *testing.T) {
 		"LockBusy":        constants.CommitInExitLockBusy,
 		"FunctionIntel":   constants.CommitInExitFunctionIntel,
 	}
+
 	seen := map[int]string{}
 	for name, code := range codes {
 		if other, dup := seen[code]; dup {
 			t.Errorf("commit-in exit code %d collides: %s and %s", code, other, name)
 		}
+
 		seen[code] = name
 	}
 }
@@ -166,18 +170,22 @@ func TestCommitInFlagNamesShape(t *testing.T) {
 		constants.CommitInFlagDryRun,
 		constants.CommitInFlagKeepTemp,
 	}
+
 	seen := map[string]bool{}
 	for _, f := range flags {
 		if f == "" {
 			t.Error("commit-in flag name must not be empty")
 			continue
 		}
+
 		if strings.ContainsAny(f, "_ ") || strings.ToLower(f) != f {
 			t.Errorf("commit-in flag %q must be lowercase kebab-case", f)
 		}
+
 		if seen[f] {
 			t.Errorf("commit-in flag %q is duplicated", f)
 		}
+
 		seen[f] = true
 	}
 }
@@ -191,6 +199,7 @@ func toStrings[T stringer](items []T) []string {
 	for i, it := range items {
 		out[i] = it.String()
 	}
+
 	return out
 }
 
@@ -198,10 +207,12 @@ func equalSlices(a, b []string) bool {
 	if len(a) != len(b) {
 		return false
 	}
+
 	for i := range a {
 		if a[i] != b[i] {
 			return false
 		}
 	}
+
 	return true
 }

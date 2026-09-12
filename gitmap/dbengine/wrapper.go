@@ -75,6 +75,7 @@ func WrapDb(conn *sql.DB, dialect DatabaseDialectType) (*DbWrapper, *apperror.Ap
 	if appErr != nil {
 		return nil, appErr
 	}
+
 	return &DbWrapper{
 		conn:     conn,
 		dialect:  dialect,
@@ -87,10 +88,12 @@ func (w *DbWrapper) Close() *apperror.AppError {
 	if w.conn == nil {
 		return nil
 	}
+
 	err := w.conn.Close()
 	if err != nil {
 		return apperror.WrapSimple(err, "close database connection")
 	}
+
 	return nil
 }
 
@@ -100,6 +103,7 @@ func (w *DbWrapper) QueryRow(ctx context.Context, query string, args ...any) (*s
 	if row.Err() != nil {
 		return nil, apperror.WrapSimple(row.Err(), "execute query row: "+query)
 	}
+
 	return row, nil
 }
 
@@ -109,6 +113,7 @@ func (w *DbWrapper) Query(ctx context.Context, query string, args ...any) (*sql.
 	if err != nil {
 		return nil, apperror.WrapSimple(err, "execute query: "+query)
 	}
+
 	return rows, nil
 }
 
@@ -150,9 +155,11 @@ var (
 	immediateTxOptions = &sql.TxOptions{
 		Isolation: sql.LevelSerializable,
 	}
+
 	readOnlyTxOptions = &sql.TxOptions{
 		ReadOnly: true,
 	}
+
 	exclusiveTxOptions = &sql.TxOptions{
 		Isolation: sql.LevelLinearizable,
 	}
@@ -257,6 +264,7 @@ func (w *DbWrapper) CreateView(ctx context.Context, name string, selectSql strin
 	if err != nil {
 		return FailureBool(err)
 	}
+
 	return SuccessBool(true)
 }
 
@@ -267,6 +275,7 @@ func (w *DbWrapper) DropView(ctx context.Context, name string) BoolResult {
 	if err != nil {
 		return FailureBool(err)
 	}
+
 	return SuccessBool(true)
 }
 
@@ -282,6 +291,7 @@ func (w *DbWrapper) CallFunction(ctx context.Context, name string, args ...any) 
 	if err := row.Scan(&res); err != nil {
 		return FailureString(apperror.WrapSimple(err, "scan result of function "+name))
 	}
+
 	return SuccessString(res)
 }
 
@@ -296,6 +306,7 @@ func (w *DbWrapper) ExecRowsAffected(ctx context.Context, query string, args ...
 	if err != nil {
 		return FailureRowsAffected(apperror.WrapSimple(err, "get rows affected"))
 	}
+
 	return SuccessRowsAffected(affected)
 }
 
@@ -316,9 +327,11 @@ func (w *DbWrapper) ViewExists(ctx context.Context, name string) (bool, *apperro
 	if err == nil {
 		return true, nil
 	}
+
 	if errors.Is(err, sql.ErrNoRows) {
 		return false, nil
 	}
+
 	return false, apperror.WrapSimple(err, "check view existence "+name)
 }
 
@@ -341,6 +354,7 @@ func (w *DbWrapper) scanSqliteColumns(ctx context.Context, query string) ([]stri
 	if appErr != nil {
 		return nil, appErr
 	}
+
 	defer rows.Close()
 
 	var cols []string
@@ -356,8 +370,10 @@ func (w *DbWrapper) scanSqliteColumns(ctx context.Context, query string) ([]stri
 		if err := rows.Scan(&cid, &colName, &ctype, &notnull, &dflt, &pk); err != nil {
 			return nil, apperror.WrapSimple(err, "scan sqlite column info")
 		}
+
 		cols = append(cols, colName)
 	}
+
 	return cols, nil
 }
 
@@ -366,6 +382,7 @@ func (w *DbWrapper) scanStandardColumns(ctx context.Context, query string, name 
 	if appErr != nil {
 		return nil, appErr
 	}
+
 	defer rows.Close()
 
 	var cols []string
@@ -374,8 +391,10 @@ func (w *DbWrapper) scanStandardColumns(ctx context.Context, query string, name 
 		if err := rows.Scan(&colName); err != nil {
 			return nil, apperror.WrapSimple(err, "scan column info for "+name)
 		}
+
 		cols = append(cols, colName)
 	}
+
 	return cols, nil
 }
 
@@ -395,6 +414,7 @@ func (w *DbWrapper) verifyViewColumns(ctx context.Context, name string, required
 			return false, nil
 		}
 	}
+
 	return true, nil
 }
 
@@ -409,6 +429,7 @@ CREATE TABLE IF NOT EXISTS __gitmap_view_meta (
 // ComputeSqlHash computes a deterministic SHA-256 hex string for a given SQL statement.
 func ComputeSqlHash(sqlStr string) string {
 	sum := sha256.Sum256([]byte(strings.TrimSpace(sqlStr)))
+
 	return hex.EncodeToString(sum[:])
 }
 
@@ -420,7 +441,9 @@ func (w *DbWrapper) ValidateSql(ctx context.Context, sqlStr string) *apperror.Ap
 	if err != nil {
 		return apperror.WrapSimple(err, "validate sql query syntax")
 	}
+
 	defer rows.Close()
+
 	return nil
 }
 
@@ -430,6 +453,7 @@ func (w *DbWrapper) EnsureViewMetaTable(ctx context.Context) *apperror.AppError 
 	if err != nil {
 		return apperror.WrapSimple(err, "ensure view metadata table")
 	}
+
 	return nil
 }
 
@@ -440,14 +464,17 @@ func (w *DbWrapper) GetViewHash(ctx context.Context, name string) (string, *appe
 	if appErr != nil {
 		return "", appErr
 	}
+
 	var hash string
 	err := row.Scan(&hash)
 	if err == nil {
 		return hash, nil
 	}
+
 	if errors.Is(err, sql.ErrNoRows) {
 		return "", nil
 	}
+
 	return "", apperror.WrapSimple(err, "scan view hash for "+name)
 }
 
@@ -461,6 +488,7 @@ VALUES (?, ?, ?, ?);`
 	if appErr != nil {
 		return apperror.WrapSimple(appErr, "save view metadata for "+name)
 	}
+
 	return nil
 }
 
@@ -469,9 +497,11 @@ func (w *DbWrapper) isViewCurrent(ctx context.Context, name, queryHash string) (
 	if appErr != nil {
 		return false, appErr
 	}
+
 	if len(existingHash) == 0 {
 		return false, nil
 	}
+
 	return existingHash == queryHash, nil
 }
 
@@ -479,10 +509,12 @@ func (w *DbWrapper) recordViewMetaIfPresent(ctx context.Context, name, queryHash
 	if len(queryHash) == 0 {
 		return SuccessBool(true)
 	}
+
 	saveErr := w.SaveViewMeta(ctx, name, queryHash, selectSql)
 	if saveErr != nil {
 		return FailureBool(saveErr)
 	}
+
 	return SuccessBool(true)
 }
 
@@ -491,6 +523,7 @@ func (w *DbWrapper) createAndRegisterView(ctx context.Context, name, selectSql, 
 	if createRes.IsFailed() {
 		return createRes
 	}
+
 	return w.recordViewMetaIfPresent(ctx, name, queryHash, selectSql)
 }
 
@@ -499,6 +532,7 @@ func (w *DbWrapper) dropAndRecreateView(ctx context.Context, name, selectSql, qu
 	if dropRes.IsFailed() {
 		return dropRes
 	}
+
 	return w.createAndRegisterView(ctx, name, selectSql, queryHash)
 }
 
@@ -512,9 +546,11 @@ func (w *DbWrapper) recreateAndRegisterView(ctx context.Context, name string, se
 	if appErr != nil {
 		return FailureBool(appErr)
 	}
+
 	if exists {
 		return w.dropAndRecreateView(ctx, name, selectSql, queryHash)
 	}
+
 	return w.createAndRegisterView(ctx, name, selectSql, queryHash)
 }
 
@@ -530,6 +566,7 @@ func (w *DbWrapper) CreateViewOrUseViewWithHash(ctx context.Context, name string
 	if appErr != nil {
 		return FailureBool(appErr)
 	}
+
 	if !exists {
 		return w.recreateAndRegisterView(ctx, name, selectSql, queryHash)
 	}
@@ -538,6 +575,7 @@ func (w *DbWrapper) CreateViewOrUseViewWithHash(ctx context.Context, name string
 	if currentErr != nil {
 		return FailureBool(currentErr)
 	}
+
 	if current {
 		return SuccessBool(true)
 	}
@@ -562,6 +600,7 @@ func (w *DbWrapper) CreateViewOrUseView(ctx context.Context, name string, select
 	if appErr != nil {
 		return FailureBool(appErr)
 	}
+
 	if !exists {
 		return w.recreateAndRegisterView(ctx, name, selectSql, hash)
 	}
@@ -570,6 +609,7 @@ func (w *DbWrapper) CreateViewOrUseView(ctx context.Context, name string, select
 	if verifyErr != nil {
 		return FailureBool(verifyErr)
 	}
+
 	if !hasAll {
 		return w.recreateAndRegisterView(ctx, name, selectSql, hash)
 	}
@@ -578,5 +618,6 @@ func (w *DbWrapper) CreateViewOrUseView(ctx context.Context, name string, select
 	if saveRes.IsFailed() {
 		return saveRes
 	}
+
 	return SuccessBool(true)
 }

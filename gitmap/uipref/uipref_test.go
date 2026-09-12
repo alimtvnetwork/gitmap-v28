@@ -7,6 +7,7 @@ func TestIsQuietHonorsEnv(t *testing.T) {
 	if !IsQuiet() {
 		t.Fatal("expected IsQuiet=true when GITMAP_QUIET=1")
 	}
+
 	t.Setenv(EnvQuiet, "0")
 	if IsQuiet() {
 		t.Fatal("expected IsQuiet=false when GITMAP_QUIET=0")

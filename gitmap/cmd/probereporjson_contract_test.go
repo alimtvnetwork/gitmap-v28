@@ -56,5 +56,6 @@ func TestProbeJSONContract_CanonicalRow_KeyOrders(t *testing.T) {
 	if err := encodeProbeJSON(&buf, entries); err != nil {
 		t.Fatalf("encode: %v", err)
 	}
+
 	assertSchemaKeysFirstObject(t, buf.Bytes(), "probe-report")
 }

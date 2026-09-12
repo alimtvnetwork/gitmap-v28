@@ -77,6 +77,7 @@ func LoadCloneCache(targetDir string) *CloneCache {
 	if err := json.Unmarshal(data, &loaded); err != nil {
 		return c
 	}
+
 	if loaded.Version != CloneCacheVersion || loaded.Entries == nil {
 		return c
 	}
@@ -92,6 +93,7 @@ func (c *CloneCache) Save() error {
 	if c == nil {
 		return nil
 	}
+
 	c.mu.Lock()
 	defer c.mu.Unlock()
 
@@ -117,6 +119,7 @@ func (c *CloneCache) IsUpToDate(rec model.ScanRecord, dest string) bool {
 	if c == nil {
 		return false
 	}
+
 	if !IsGitRepo(dest) {
 		return false
 	}
@@ -159,6 +162,7 @@ func (c *CloneCache) Record(rec model.ScanRecord, dest string) {
 	if c == nil {
 		return
 	}
+
 	if !IsGitRepo(dest) {
 		return
 	}
@@ -167,6 +171,7 @@ func (c *CloneCache) Record(rec model.ScanRecord, dest string) {
 	if err != nil {
 		return
 	}
+
 	remoteSHA, _ := readRemoteHead(dest, rec.Branch)
 	if remoteSHA == "" {
 		// Fall back to the local SHA so we still benefit from offline reruns.
@@ -181,6 +186,7 @@ func (c *CloneCache) Record(rec model.ScanRecord, dest string) {
 		RemoteSHA: remoteSHA,
 		UpdatedAt: time.Now().UTC(),
 	}
+
 	c.mu.Unlock()
 }
 
@@ -204,6 +210,7 @@ func readRemoteHead(dest, branch string) (string, error) {
 	if len(branch) == 0 {
 		branch = constants.DefaultBranch
 	}
+
 	cmd := exec.Command(constants.GitBin,
 		constants.GitDirFlag, dest,
 		constants.GitLsRemote, constants.GitOrigin, branch)
@@ -211,10 +218,12 @@ func readRemoteHead(dest, branch string) (string, error) {
 	if err != nil {
 		return "", err
 	}
+
 	line := strings.TrimSpace(string(out))
 	if len(line) == 0 {
 		return "", nil
 	}
+
 	// Output: "<sha>\trefs/heads/<branch>"
 	fields := strings.Fields(line)
 	if len(fields) == 0 {

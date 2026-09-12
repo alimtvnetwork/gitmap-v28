@@ -27,6 +27,7 @@ func Encrypt(plaintext []byte, key []byte) (string, error) {
 	}
 
 	ciphertext := aesGCM.Seal(nonce, nonce, plaintext, nil)
+
 	return base64.StdEncoding.EncodeToString(ciphertext), nil
 }
 

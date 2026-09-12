@@ -18,6 +18,7 @@ func (p *BatchProgress) PrintFailureReport() {
 	for i, f := range p.failures {
 		fmt.Fprintf(os.Stderr, constants.BatchFailureEntryFmt, i+1, f.Name, f.Error)
 	}
+
 	fmt.Fprintf(os.Stderr, constants.BatchFailureFooterFmt, len(p.failures))
 }
 

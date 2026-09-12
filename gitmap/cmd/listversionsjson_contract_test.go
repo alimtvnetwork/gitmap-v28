@@ -39,6 +39,7 @@ func canonicalListVersionsEntries(t *testing.T) []versionEntry {
 	if err != nil {
 		t.Fatalf("parse v5.72.0: %v", err)
 	}
+
 	v2, err := release.Parse("v5.71.0")
 	if err != nil {
 		t.Fatalf("parse v5.71.0: %v", err)
@@ -71,5 +72,6 @@ func TestListVersionsJSONContract_KeyOrder(t *testing.T) {
 	if err := encodeListVersionsJSON(&buf, entries); err != nil {
 		t.Fatalf("encode: %v", err)
 	}
+
 	assertSchemaKeysFirstObject(t, buf.Bytes(), "list-versions")
 }

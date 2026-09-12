@@ -413,6 +413,7 @@ func resolveBranchDirtyStatus(dir string) string {
 	}
 
 	lines := strings.Split(strings.TrimSpace(out), "\n")
+
 	return fmt.Sprintf("dirty (%d changed)", len(lines))
 }
 
@@ -420,12 +421,15 @@ func formatSyncCounts(ahead, behind string) string {
 	if ahead == "0" && behind == "0" {
 		return "up to date"
 	}
+
 	if ahead != "0" && behind == "0" {
 		return fmt.Sprintf("ahead %s", ahead)
 	}
+
 	if ahead == "0" && behind != "0" {
 		return fmt.Sprintf("behind %s", behind)
 	}
+
 	return fmt.Sprintf("ahead %s, behind %s", ahead, behind)
 }
 
@@ -514,6 +518,7 @@ func gitmapSourceDir() string {
 	if len(constants.RepoPath) == 0 {
 		return ""
 	}
+
 	if _, err := os.Stat(filepath.Join(constants.RepoPath, ".git")); err != nil {
 		return ""
 	}
@@ -535,6 +540,7 @@ func sameRepo(a, b string) bool {
 	if len(a) == 0 || len(b) == 0 {
 		return false
 	}
+
 	ta := captureGit(a, "rev-parse", "--show-toplevel")
 	tb := captureGit(b, "rev-parse", "--show-toplevel")
 
@@ -564,6 +570,7 @@ func captureGit(dir string, args ...string) string {
 	if len(dir) == 0 {
 		return ""
 	}
+
 	cmd := exec.Command("git", args...)
 	cmd.Dir = dir
 	out, err := cmd.Output()

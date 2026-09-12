@@ -24,9 +24,11 @@ func Run(t *testing.T, raw *commitin.RawArgs) RunResult {
 	if raw == nil {
 		t.Fatal("e2e.Run: raw must not be nil")
 	}
+
 	raw.IsNoPrompt = true
 	var outBuf, errBuf bytes.Buffer
 	code := orchestrator.Run(raw, &outBuf, &errBuf)
+
 	return RunResult{ExitCode: code, Stdout: outBuf.String(), Stderr: errBuf.String()}
 }
 

@@ -39,6 +39,7 @@ func runRevertRunner() error {
 	fmt.Printf(constants.MsgRevertStarting)
 	executeRevert(repoPath)
 	scheduleDeployedCleanupHandoff()
+
 	return nil
 }
 
@@ -48,6 +49,7 @@ func executeRevert(repoPath string) {
 	if err != nil {
 		cliexit.HandleError(err, 1)
 	}
+
 	defer os.Remove(scriptPath)
 
 	log := verbose.Get()

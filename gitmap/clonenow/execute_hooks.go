@@ -38,6 +38,7 @@ func ExecuteWithHooks(plan Plan, cwd string, progress io.Writer,
 	if len(cwd) == 0 && err == nil {
 		cwd = wd
 	}
+
 	out := make([]Result, 0, len(plan.Rows))
 	total := len(plan.Rows)
 	for i, r := range plan.Rows {
@@ -45,6 +46,7 @@ func ExecuteWithHooks(plan Plan, cwd string, progress io.Writer,
 			url := r.PickURL(plan.Mode)
 			beforeRow(i+1, total, r, url, r.RelativePath)
 		}
+
 		res := executeRow(r, plan, cwd)
 		out = append(out, res)
 		writeProgress(progress, i+1, total, res)

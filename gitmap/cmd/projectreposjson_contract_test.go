@@ -56,5 +56,6 @@ func TestProjectReposJSONContract_CanonicalRow_KeyOrder(t *testing.T) {
 	if err := encodeProjectReposJSON(&buf, projects); err != nil {
 		t.Fatalf("encode: %v", err)
 	}
+
 	assertSchemaKeysFirstObject(t, buf.Bytes(), "project-repos")
 }

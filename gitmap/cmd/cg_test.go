@@ -9,6 +9,7 @@ func TestCGCLIParseFlags(t *testing.T) {
 	if opts.Action != "version" {
 		t.Fatalf("expected version action, got %s", opts.Action)
 	}
+
 	if len(opts.Repos) != 2 {
 		t.Fatalf("expected 2 repos, got %d", len(opts.Repos))
 	}

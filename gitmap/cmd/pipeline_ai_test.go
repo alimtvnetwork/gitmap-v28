@@ -43,6 +43,7 @@ func TestParsePipelineAIDelay(t *testing.T) {
 		if gotDelay != tt.wantDelay {
 			t.Errorf("parsePipelineAIDelay(%v) delay = %d, want %d", tt.args, gotDelay, tt.wantDelay)
 		}
+
 		if len(gotSubArgs) != len(tt.wantSubArgs) {
 			t.Errorf("parsePipelineAIDelay(%v) subArgs = %v, want %v", tt.args, gotSubArgs, tt.wantSubArgs)
 		}

@@ -19,8 +19,8 @@ func ReadBranchTips(refs []string) ([]RemoteBranchInfo, error) {
 			items = append(items, info)
 		}
 	}
-	if len(items) == 0 {
 
+	if len(items) == 0 {
 		return nil, fmt.Errorf(constants.ErrLatestBranchNoCommits)
 	}
 
@@ -32,7 +32,6 @@ func readSingleTip(ref string) (RemoteBranchInfo, bool) {
 	cmd := exec.Command(constants.GitBin, constants.GitLog, "-1", constants.GitLogTipFormat, ref)
 	out, err := cmd.Output()
 	if err != nil {
-
 		return RemoteBranchInfo{}, false
 	}
 
@@ -43,12 +42,11 @@ func readSingleTip(ref string) (RemoteBranchInfo, bool) {
 func parseTipLine(line, ref string) (RemoteBranchInfo, bool) {
 	parts := strings.SplitN(line, constants.GitLogDelimiter, constants.GitLogFieldCount)
 	if len(parts) != constants.GitLogFieldCount {
-
 		return RemoteBranchInfo{}, false
 	}
+
 	t, err := time.Parse(time.RFC3339, parts[0])
 	if err != nil {
-
 		return RemoteBranchInfo{}, false
 	}
 
@@ -68,7 +66,6 @@ func ResolvePointsAt(sha, remote string) []string {
 		constants.GitFormatRefnameShort)
 	out, err := cmd.Output()
 	if err != nil {
-
 		return nil
 	}
 
@@ -86,10 +83,12 @@ func parseUniqueNames(output, remote string) []string {
 		if len(trimmed) == 0 || trimmed == headRef {
 			continue
 		}
+
 		name := strings.TrimPrefix(trimmed, prefix)
 		if seen[name] {
 			continue
 		}
+
 		seen[name] = true
 		names = append(names, name)
 	}
@@ -102,7 +101,6 @@ func ResolveContains(sha, remote string) []string {
 	cmd := exec.Command(constants.GitBin, constants.GitBranch, constants.GitArgRemote, constants.GitArgContains, sha)
 	out, err := cmd.Output()
 	if err != nil {
-
 		return nil
 	}
 
@@ -119,6 +117,7 @@ func parseContainsNames(output, remote string) []string {
 		if len(name) == 0 || seen[name] {
 			continue
 		}
+
 		seen[name] = true
 		names = append(names, name)
 	}
@@ -130,9 +129,9 @@ func parseContainsNames(output, remote string) []string {
 func extractContainsName(line, prefix string) string {
 	trimmed := strings.TrimSpace(line)
 	if len(trimmed) == 0 || strings.Contains(trimmed, constants.HeadPointer) {
-
 		return ""
 	}
+
 	if !strings.HasPrefix(trimmed, prefix) {
 		return ""
 	}

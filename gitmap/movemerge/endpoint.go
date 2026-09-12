@@ -31,10 +31,12 @@ func splitBranchSuffix(raw string) (url, branch string) {
 	if idx == -1 {
 		return raw, ""
 	}
+
 	tail := raw[idx+1:]
 	if strings.Contains(tail, "/") || tail == "" {
 		return raw, ""
 	}
+
 	// scp-like git@host:user/repo has no branch suffix.
 	if strings.HasPrefix(strings.ToLower(raw), "git@") &&
 		strings.Count(raw[:idx], ":") == 0 {
@@ -51,6 +53,7 @@ func MapURLToFolder(cwd, url string) string {
 	if i := strings.LastIndex(base, "/"); i >= 0 {
 		base = base[i+1:]
 	}
+
 	base = strings.TrimSuffix(base, ".git")
 
 	return filepath.Join(cwd, base)
@@ -62,6 +65,7 @@ func IsFolderExisting(path string) (bool, error) {
 	if os.IsNotExist(err) {
 		return false, nil
 	}
+
 	if err != nil {
 		return false, fmt.Errorf("stat %s: %w", path, err)
 	}

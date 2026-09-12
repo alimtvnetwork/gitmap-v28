@@ -17,6 +17,7 @@ func runRevert(args []string) error {
 	if handleRevertTxnFlags(args) {
 		return nil
 	}
+
 	if len(args) == 0 {
 		cliexit.HandleError(apperror.NewSimple(constants.ErrRevertUsage, "E9000"), 1)
 	}
@@ -25,6 +26,7 @@ func runRevert(args []string) error {
 	validateRevertVersion(version)
 	checkoutRevertTag(version)
 	launchRevertHandoff()
+
 	return nil
 }
 

@@ -52,6 +52,7 @@ func TestExpectDelim_FailureMessages(t *testing.T) {
 			wantSubstrs: []string{`EOF`},
 		},
 	}
+
 	for _, tc := range cases {
 		t.Run(tc.name, func(t *testing.T) {
 			err := expectDelim(json.NewDecoder(strings.NewReader(tc.raw)), tc.want)
@@ -92,6 +93,7 @@ func TestScanEveryObjectKeysPure_PointsAtBrokenObject(t *testing.T) {
 			wantSubstrs: []string{"object[0]"},
 		},
 	}
+
 	for _, tc := range cases {
 		t.Run(tc.name, func(t *testing.T) {
 			_, err := scanEveryObjectKeysPure([]byte(tc.raw))
@@ -110,10 +112,12 @@ func TestScanEveryObjectKeysPure_HappyPath(t *testing.T) {
 	if err != nil {
 		t.Fatalf("unexpected error: %v", err)
 	}
+
 	want := [][]string{{"name", "path"}, {"name", "path"}}
 	if len(got) != len(want) {
 		t.Fatalf("object count: want %d got %d (%v)", len(want), len(got), got)
 	}
+
 	for i := range want {
 		if !equalStringSlices(got[i], want[i]) {
 			t.Fatalf("object[%d] keys: want %v got %v", i, want[i], got[i])
@@ -127,20 +131,20 @@ func TestScanEveryObjectKeysPure_HappyPath(t *testing.T) {
 func scanEveryObjectKeysPure(raw []byte) ([][]string, error) {
 	dec := json.NewDecoder(bytes.NewReader(raw))
 	if err := expectDelim(dec, '['); err != nil {
-
 		return nil, fmt.Errorf("expected top-level array: %w", err)
 	}
+
 	var out [][]string
 	for dec.More() {
 		if err := expectDelim(dec, '{'); err != nil {
-
 			return nil, fmt.Errorf("expected object at index %d: %w", len(out), err)
 		}
+
 		keys, err := pureCollectObjectKeys(dec, len(out))
 		if err != nil {
-
 			return nil, err
 		}
+
 		out = append(out, keys)
 	}
 
@@ -154,23 +158,22 @@ func pureCollectObjectKeys(dec *json.Decoder, objIdx int) ([]string, error) {
 	for dec.More() {
 		tok, err := dec.Token()
 		if err != nil {
-
 			return nil, fmt.Errorf("reading object[%d] key: %w", objIdx, err)
 		}
+
 		key, isString := tok.(string)
 		if !isString {
-
 			return nil, fmt.Errorf("object[%d] expected string key, got %v (%T)", objIdx, tok, tok)
 		}
+
 		keys = append(keys, key)
 		var skip json.RawMessage
 		if err := dec.Decode(&skip); err != nil {
-
 			return nil, fmt.Errorf("object[%d] skipping value for key %q: %w", objIdx, key, err)
 		}
 	}
-	if _, err := dec.Token(); err != nil {
 
+	if _, err := dec.Token(); err != nil {
 		return nil, fmt.Errorf("object[%d] expected closing '}': %w", objIdx, err)
 	}
 
@@ -186,6 +189,7 @@ func assertErrorContainsAll(t *testing.T, err error, wantSubstrs []string) {
 	if err == nil {
 		t.Fatalf("expected error, got nil (wanted substrings: %v)", wantSubstrs)
 	}
+
 	msg := err.Error()
 	var missing []string
 	for _, s := range wantSubstrs {
@@ -193,6 +197,7 @@ func assertErrorContainsAll(t *testing.T, err error, wantSubstrs []string) {
 			missing = append(missing, s)
 		}
 	}
+
 	if len(missing) > 0 {
 		t.Fatalf("error message missing substrings %v\nfull message: %q", missing, msg)
 	}

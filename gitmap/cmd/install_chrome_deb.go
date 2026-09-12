@@ -33,7 +33,6 @@ func runInstallChromeLinux(opts installOptions) error {
 	}
 
 	if checkChromeDryRun(opts) {
-
 		return nil
 	}
 
@@ -51,7 +50,6 @@ func checkChromeDryRun(opts installOptions) bool {
 
 func resolveChromeTool(tool string) string {
 	if tool != "" {
-
 		return tool
 	}
 
@@ -60,7 +58,6 @@ func resolveChromeTool(tool string) string {
 
 func resolveChromeVersion(version string) string {
 	if version != "" {
-
 		return version
 	}
 
@@ -80,7 +77,6 @@ func executeChromePipeline(tool, version string, verbose bool) error {
 	err := runChromePhases(tool, version, verbose)
 
 	if err != nil {
-
 		return err
 	}
 
@@ -96,7 +92,6 @@ func runChromePhases(tool, version string, verbose bool) error {
 		err := executeSingleChromeStep(tool, version, step, verbose)
 
 		if err != nil {
-
 			return err
 		}
 	}
@@ -109,7 +104,6 @@ func executeSingleChromeStep(tool, version string, step chromePhaseStep, verbose
 	err := runPhaseWithAudit(tool, constants.PkgMgrApt, version, step.Command, step.PhaseName, verbose)
 
 	if err != nil {
-
 		return err
 	}
 
@@ -123,7 +117,6 @@ func finishChromeInstall(tool string) {
 }
 
 func getChromePipelineSteps() []chromePhaseStep {
-
 	return []chromePhaseStep{
 		{phaseChromeUpdate, buildChromeUpdateCmd(), "  [1/6] Updating APT package repositories..."},
 		{phaseChromeFetchUtils, buildChromeFetchUtilsCmd(), "  [2/6] Ensuring fetch utilities (wget, curl)..."},
@@ -135,18 +128,15 @@ func getChromePipelineSteps() []chromePhaseStep {
 }
 
 func buildChromeUpdateCmd() []string {
-
 	return []string{"sudo", "apt-get", "update"}
 }
 
 func buildChromeFetchUtilsCmd() []string {
-
 	return []string{"sudo", "apt-get", "install", "-y", "wget", "curl"}
 }
 
 func buildChromeDownloadCmd() []string {
 	if isBinaryOnPath("wget") {
-
 		return []string{"wget", "-q", "-O", chromeDebStage, chromeDebURL}
 	}
 
@@ -154,17 +144,14 @@ func buildChromeDownloadCmd() []string {
 }
 
 func buildChromeInstallCmd() []string {
-
 	return []string{"sudo", "apt-get", "install", "-y", chromeDebStage}
 }
 
 func buildChromeCleanupCmd() []string {
-
 	return []string{"rm", "-f", chromeDebStage}
 }
 
 func buildChromeVerifyCmd() []string {
-
 	return []string{"google-chrome", "--version"}
 }
 
@@ -173,7 +160,6 @@ func isChromeInstalledLinux() bool {
 
 	for _, bin := range bins {
 		if isBinaryOnPath(bin) {
-
 			return true
 		}
 	}

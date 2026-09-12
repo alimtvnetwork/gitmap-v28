@@ -61,18 +61,23 @@ func TestSplitRescanSubtreeArgs(t *testing.T) {
 			if tc.wantErrSubs != "" && err == nil {
 				t.Fatalf("expected error containing %q, got nil", tc.wantErrSubs)
 			}
+
 			if tc.wantErrSubs != "" && contains(err.Error(), tc.wantErrSubs) == false {
 				t.Fatalf("error %q does not contain %q", err.Error(), tc.wantErrSubs)
 			}
+
 			if tc.wantErrSubs != "" {
 				return
 			}
+
 			if err != nil {
 				t.Fatalf("unexpected error: %v", err)
 			}
+
 			if gotPath != tc.wantPath {
 				t.Errorf("path: got %q want %q", gotPath, tc.wantPath)
 			}
+
 			if !reflect.DeepEqual(gotFlags, tc.wantFlags) {
 				t.Errorf("flags: got %v want %v", gotFlags, tc.wantFlags)
 			}
@@ -92,6 +97,7 @@ func TestBuildRescanSubtreeArgs(t *testing.T) {
 		intToString(constants.RescanSubtreeDefaultMaxDepth),
 		"/abs/dir",
 	}
+
 	got := buildRescanSubtreeArgs("/abs/dir", []string{"--quiet"})
 	if !reflect.DeepEqual(got, wantDefault) {
 		t.Errorf("default injection: got %v want %v", got, wantDefault)
@@ -143,6 +149,7 @@ func TestExtractMaxDepthForLog(t *testing.T) {
 			want: "auto",
 		},
 	}
+
 	for _, tc := range cases {
 		t.Run(tc.name, func(t *testing.T) {
 			t.Parallel()
@@ -173,11 +180,13 @@ func contains(haystack, needle string) bool {
 	if len(needle) == 0 {
 		return true
 	}
+
 	for i := 0; i+len(needle) <= len(haystack); i++ {
 		if haystack[i:i+len(needle)] == needle {
 			return true
 		}
 	}
+
 	return false
 }
 
@@ -187,10 +196,12 @@ func intToString(n int) string {
 	if n == 0 {
 		return "0"
 	}
+
 	negative := n < 0
 	if negative {
 		n = -n
 	}
+
 	var buf [20]byte
 	i := len(buf)
 	for n > 0 {
@@ -198,9 +209,11 @@ func intToString(n int) string {
 		buf[i] = byte('0' + n%10)
 		n /= 10
 	}
+
 	if negative {
 		i--
 		buf[i] = '-'
 	}
+
 	return string(buf[i:])
 }

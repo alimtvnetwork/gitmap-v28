@@ -30,14 +30,17 @@ func CloneInputs(p *Paths, runID int64, inputs []ResolvedInput) ([]StagedInput, 
 	if err != nil {
 		return nil, err
 	}
+
 	out := make([]StagedInput, 0, len(inputs))
 	for _, in := range inputs {
 		staged, stageErr := stageOneInput(runDir, in)
 		if stageErr != nil {
 			return nil, stageErr
 		}
+
 		out = append(out, staged)
 	}
+
 	return out, nil
 }
 
@@ -47,6 +50,7 @@ func ensureRunTempDir(p *Paths, runID int64) (string, error) {
 	if err := os.MkdirAll(dir, 0o755); err != nil {
 		return "", fmt.Errorf("mkdir temp run dir %s: %w", dir, err)
 	}
+
 	return dir, nil
 }
 
@@ -61,6 +65,7 @@ func stageOneInput(runDir string, in ResolvedInput) (StagedInput, error) {
 	case constants.CommitInInputKindVersionedSibling:
 		return stageVersionedSibling(runDir, in)
 	}
+
 	return StagedInput{}, fmt.Errorf(constants.CommitInErrInputOpen, in.Original, fmt.Errorf("unknown kind %q", in.Kind))
 }
 
@@ -70,9 +75,11 @@ func stageLocalFolder(in ResolvedInput) (StagedInput, error) {
 	if err != nil {
 		return StagedInput{}, fmt.Errorf(constants.CommitInErrInputOpen, in.Original, err)
 	}
+
 	if !info.IsDir() {
 		return StagedInput{}, fmt.Errorf(constants.CommitInErrInputOpen, in.Original, fmt.Errorf("not a directory"))
 	}
+
 	return StagedInput{Input: in, WorkPath: in.AbsPath}, nil
 }
 
@@ -82,6 +89,7 @@ func stageRemoteUrl(runDir string, in ResolvedInput) (StagedInput, error) {
 	if err := gitRunner("clone", in.URL, target); err != nil {
 		return StagedInput{}, fmt.Errorf(constants.CommitInErrInputClone, in.Original, err)
 	}
+
 	return StagedInput{Input: in, WorkPath: target, IsClone: true}, nil
 }
 
@@ -92,5 +100,6 @@ func stageVersionedSibling(runDir string, in ResolvedInput) (StagedInput, error)
 	if err := gitRunner("clone", in.AbsPath, target); err != nil {
 		return StagedInput{}, fmt.Errorf(constants.CommitInErrInputClone, in.Original, err)
 	}
+
 	return StagedInput{Input: in, WorkPath: target, IsClone: true}, nil
 }

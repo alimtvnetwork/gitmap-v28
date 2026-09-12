@@ -33,6 +33,7 @@ func ScanUnguardedTokenHits(body, token string) []int {
 	if token == "" || len(token) > len(body) {
 		return nil
 	}
+
 	var hits []int
 	visit := func(start int) { hits = append(hits, start) }
 	walkTokenHits(body, token, visit, nil)
@@ -47,6 +48,7 @@ func CountUnguardedTokenHits(body, token string) int {
 	if token == "" || len(token) > len(body) {
 		return 0
 	}
+
 	count := 0
 	visit := func(int) { count++ }
 	walkTokenHits(body, token, visit, nil)
@@ -68,15 +70,18 @@ func walkTokenHits(body, token string, onUnguarded, onGuarded func(int)) {
 		if rel < 0 {
 			return
 		}
+
 		idx := pos + rel
 		end := idx + tlen
 		hasDigitSuffix := end < len(body) && isASCIIDigit(body[end])
 		if hasDigitSuffix && onGuarded != nil {
 			onGuarded(idx)
 		}
+
 		if !hasDigitSuffix {
 			onUnguarded(idx)
 		}
+
 		pos = end
 	}
 }

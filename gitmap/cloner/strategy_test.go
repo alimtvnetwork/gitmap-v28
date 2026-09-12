@@ -74,9 +74,11 @@ func assertPickCloneStrategy(t *testing.T, tc pickCloneStrategyCase) {
 	if got.useBranch != tc.useBranch {
 		t.Fatalf("useBranch: want %v, got %v (reason=%q)", tc.useBranch, got.useBranch, got.reason)
 	}
+
 	if tc.useBranch && got.branch != tc.branch {
 		t.Fatalf("branch: want %q, got %q", tc.branch, got.branch)
 	}
+
 	if got.reason == "" {
 		t.Fatalf("expected non-empty reason")
 	}

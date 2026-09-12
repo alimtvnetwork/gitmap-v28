@@ -24,6 +24,7 @@ func parseAuditLegacyArgs(args []string) (auditLegacyOpts, error) {
 	if err := fs.Parse(args); err != nil {
 		return auditLegacyOpts{}, err
 	}
+
 	reportSet := isAuditFlagSet(fs, constants.FlagAuditLegacyReport)
 	compiled, raw, err := compileAuditPatterns(*pats)
 	if err != nil {
@@ -55,6 +56,7 @@ func resolveReportPath(set bool, value string) string {
 	if !set {
 		return ""
 	}
+
 	if value == "" {
 		return constants.DefaultAuditLegacyReport
 	}
@@ -72,10 +74,12 @@ func compileAuditPatterns(csv string) ([]*regexp.Regexp, []string, error) {
 		if p == "" {
 			continue
 		}
+
 		re, err := compileOnePattern(p)
 		if err != nil {
 			return nil, nil, err
 		}
+
 		out = append(out, re)
 		raw = append(raw, p)
 	}

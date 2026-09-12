@@ -55,6 +55,7 @@ func executeDbReset() *apperror.AppError {
 	if err != nil {
 		return apperror.WrapSimple(err, constants.ErrDBResetFailed)
 	}
+
 	defer db.Close()
 
 	err = db.Reset()

@@ -19,12 +19,14 @@ func openTestDB(t *testing.T) *sql.DB {
 	if err != nil {
 		t.Fatalf("open in-memory db: %v", err)
 	}
+
 	t.Cleanup(func() { _ = db.Close() })
 	for _, ddl := range schemaDDL() {
 		if _, err := db.Exec(ddl); err != nil {
 			t.Fatalf("ddl exec: %v\n%s", err, ddl)
 		}
 	}
+
 	return db
 }
 
@@ -57,16 +59,20 @@ func TestStartAndFinishRunFlowsThroughEnumLookups(t *testing.T) {
 	if err != nil {
 		t.Fatalf("StartRun: %v", err)
 	}
+
 	if runID <= 0 {
 		t.Fatalf("expected positive runID, got %d", runID)
 	}
+
 	if err := FinishRun(db, runID, constants.CommitInRunStatusCompleted, time.Now()); err != nil {
 		t.Fatalf("FinishRun: %v", err)
 	}
+
 	var statusName string
 	if err := db.QueryRow(`SELECT s.Name FROM CommitInRun r JOIN RunStatus s ON s.RunStatusId = r.RunStatusId WHERE r.CommitInRunId = ?`, runID).Scan(&statusName); err != nil {
 		t.Fatalf("readback: %v", err)
 	}
+
 	if statusName != constants.CommitInRunStatusCompleted {
 		t.Fatalf("status = %q, want Completed", statusName)
 	}
@@ -81,6 +87,7 @@ func TestInsertSourceCommitWritesFilesAtomically(t *testing.T) {
 	if err != nil {
 		t.Fatalf("InsertInputRepo: %v", err)
 	}
+
 	row := SourceCommitRow{
 		OrderIndex:           1,
 		Sha:                  "deadbeef",
@@ -91,14 +98,17 @@ func TestInsertSourceCommitWritesFilesAtomically(t *testing.T) {
 		OriginalMessage:      "first",
 		Files:                []string{"a.go", "b.go"},
 	}
+
 	scID, err := InsertSourceCommit(db, inputID, row)
 	if err != nil {
 		t.Fatalf("InsertSourceCommit: %v", err)
 	}
+
 	var fileCount int
 	if err := db.QueryRow(`SELECT COUNT(*) FROM SourceCommitFile WHERE SourceCommitId = ?`, scID).Scan(&fileCount); err != nil {
 		t.Fatalf("count files: %v", err)
 	}
+
 	if fileCount != 2 {
 		t.Fatalf("file count = %d, want 2", fileCount)
 	}
@@ -123,13 +133,16 @@ func TestRecordRewrittenCreatedAlsoInsertsShaMap(t *testing.T) {
 	if err != nil {
 		t.Fatalf("RecordRewritten: %v", err)
 	}
+
 	if rewID <= 0 {
 		t.Fatalf("expected positive rewrittenID")
 	}
+
 	var got int64
 	if err := db.QueryRow(`SELECT RewrittenCommitId FROM ShaMap WHERE SourceSha = ?`, "feedface").Scan(&got); err != nil {
 		t.Fatalf("ShaMap readback: %v", err)
 	}
+
 	if got != rewID {
 		t.Fatalf("ShaMap.RewrittenCommitId = %d, want %d", got, rewID)
 	}
@@ -143,10 +156,12 @@ func TestRecordSkipPersistsReason(t *testing.T) {
 	if err := RecordSkip(db, 1, scID, constants.CommitInSkipReasonDuplicateSourceSha, nil); err != nil {
 		t.Fatalf("RecordSkip: %v", err)
 	}
+
 	var reasonName string
 	if err := db.QueryRow(`SELECT r.Name FROM SkipLog s JOIN SkipReason r ON r.SkipReasonId = s.SkipReasonId WHERE s.SourceCommitId = ?`, scID).Scan(&reasonName); err != nil {
 		t.Fatalf("readback: %v", err)
 	}
+
 	if reasonName != constants.CommitInSkipReasonDuplicateSourceSha {
 		t.Fatalf("reason = %q, want DuplicateSourceSha", reasonName)
 	}
@@ -161,10 +176,12 @@ func seedRunWithOneCommit(t *testing.T, db *sql.DB, sha string) int64 {
 	if err != nil {
 		t.Fatalf("StartRun: %v", err)
 	}
+
 	inputID, err := InsertInputRepo(db, runID, 1, "x", "/tmp/x", constants.CommitInInputKindLocalFolder)
 	if err != nil {
 		t.Fatalf("InsertInputRepo: %v", err)
 	}
+
 	scID, err := InsertSourceCommit(db, inputID, SourceCommitRow{
 		OrderIndex: 1, Sha: sha,
 		AuthorName: "x", AuthorEmail: "x@x",
@@ -174,5 +191,6 @@ func seedRunWithOneCommit(t *testing.T, db *sql.DB, sha string) int64 {
 	if err != nil {
 		t.Fatalf("InsertSourceCommit: %v", err)
 	}
+
 	return scID
 }

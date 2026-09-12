@@ -27,6 +27,7 @@ func TestCtxParityWindowsLinuxMacEmitSameLeafSet(t *testing.T) {
 		Args                     []string
 		Extended                 bool
 	}
+
 	canonical := map[string]tup{}
 	for _, l := range leaves {
 		canonical[l.Slug] = tup{
@@ -49,6 +50,7 @@ func TestCtxParityWindowsLinuxMacEmitSameLeafSet(t *testing.T) {
 			if !strings.Contains(joined, winKey) {
 				continue
 			}
+
 			// Prefill mode emits a generic pwsh prompt with no target
 			// binary baked in (see commandTemplate in installctx.go) —
 			// matches Linux/macOS branches below which also exempt it.
@@ -103,9 +105,11 @@ func TestCtxDuplicateTopLevelTerminalDocsRegression(t *testing.T) {
 			docsCount++
 		}
 	}
+
 	if terminalCount != 2 {
 		t.Errorf("90_terminal must appear exactly 2× at top level (got %d) — see installctxentries.go lines 29-32", terminalCount)
 	}
+
 	if docsCount != 2 {
 		t.Errorf("91_docs must appear exactly 2× at top level (got %d) — see installctxentries.go lines 29-32", docsCount)
 	}
@@ -121,6 +125,7 @@ func TestCtxFlattenDedupesDuplicateTopLevelEntries(t *testing.T) {
 	for _, l := range leaves {
 		seen[l.Slug]++
 	}
+
 	for slug, n := range seen {
 		if n > 1 {
 			t.Errorf("flatten produced slug %q %d times — duplicate-collapse broken", slug, n)
@@ -148,6 +153,7 @@ func TestCtxArgvParityAcrossPlatformRenders(t *testing.T) {
 			if !strings.Contains(lin, joined) {
 				t.Errorf("Linux render missing joined argv %q in:\n%s", joined, lin)
 			}
+
 			if !strings.Contains(mac, joined) {
 				t.Errorf("macOS render missing joined argv %q in:\n%s", joined, mac)
 			}
@@ -160,6 +166,7 @@ func keysOf[V any](m map[string]V) []string {
 	for k := range m {
 		out = append(out, k)
 	}
+
 	sort.Strings(out)
 
 	return out
@@ -182,20 +189,24 @@ func diffSlugSets(want, got []string) (missing, extra []string) {
 	for _, s := range want {
 		w[s] = true
 	}
+
 	g := map[string]bool{}
 	for _, s := range got {
 		g[s] = true
 	}
+
 	for s := range w {
 		if !g[s] {
 			missing = append(missing, s)
 		}
 	}
+
 	for s := range g {
 		if !w[s] {
 			extra = append(extra, s)
 		}
 	}
+
 	sort.Strings(missing)
 	sort.Strings(extra)
 

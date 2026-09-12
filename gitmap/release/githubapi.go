@@ -50,6 +50,7 @@ func CreateGitHubRelease(
 	if err != nil {
 		return nil, fmt.Errorf("create release: %w", err)
 	}
+
 	defer resp.Body.Close()
 
 	if resp.StatusCode >= 300 {

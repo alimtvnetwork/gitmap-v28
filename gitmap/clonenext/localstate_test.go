@@ -13,6 +13,7 @@ func TestReadLocalRepoState_PlainRepo(t *testing.T) {
 	if err := os.MkdirAll(filepath.Join(gitDir, "refs", "heads"), 0o755); err != nil {
 		t.Fatalf("mkdir: %v", err)
 	}
+
 	writeFile(t, filepath.Join(gitDir, "HEAD"), "ref: refs/heads/main\n")
 	writeFile(t, filepath.Join(gitDir, "refs", "heads", "main"), "abc123def456\n")
 	writeFile(t, filepath.Join(gitDir, "config"), `[core]
@@ -26,9 +27,11 @@ func TestReadLocalRepoState_PlainRepo(t *testing.T) {
 	if err != nil {
 		t.Fatalf("ReadLocalRepoState: %v", err)
 	}
+
 	if state.OriginURL != "https://github.com/acme/alpha-v3.git" {
 		t.Errorf("OriginURL = %q", state.OriginURL)
 	}
+
 	if state.HeadSHA != "abc123def456" {
 		t.Errorf("HeadSHA = %q, want abc123def456", state.HeadSHA)
 	}
@@ -48,6 +51,7 @@ func TestReadLocalRepoState_DetachedHead(t *testing.T) {
 	if err := os.MkdirAll(gitDir, 0o755); err != nil {
 		t.Fatalf("mkdir: %v", err)
 	}
+
 	writeFile(t, filepath.Join(gitDir, "HEAD"), "deadbeefcafe1234\n")
 	writeFile(t, filepath.Join(gitDir, "config"), `[remote "origin"]
 	url = git@github.com:acme/alpha-v3.git
@@ -57,9 +61,11 @@ func TestReadLocalRepoState_DetachedHead(t *testing.T) {
 	if err != nil {
 		t.Fatalf("ReadLocalRepoState: %v", err)
 	}
+
 	if state.HeadSHA != "deadbeefcafe1234" {
 		t.Errorf("HeadSHA = %q, want detached SHA", state.HeadSHA)
 	}
+
 	if state.OriginURL != "git@github.com:acme/alpha-v3.git" {
 		t.Errorf("OriginURL = %q", state.OriginURL)
 	}
@@ -71,6 +77,7 @@ func TestReadLocalRepoState_NoOriginRemote(t *testing.T) {
 	if err := os.MkdirAll(gitDir, 0o755); err != nil {
 		t.Fatalf("mkdir: %v", err)
 	}
+
 	writeFile(t, filepath.Join(gitDir, "HEAD"), "ref: refs/heads/main\n")
 	writeFile(t, filepath.Join(gitDir, "config"), `[core]
 	repositoryformatversion = 0
@@ -82,6 +89,7 @@ func TestReadLocalRepoState_NoOriginRemote(t *testing.T) {
 	if err != nil {
 		t.Fatalf("ReadLocalRepoState: %v", err)
 	}
+
 	if state.OriginURL != "" {
 		t.Errorf("OriginURL = %q, want empty (no origin remote)", state.OriginURL)
 	}

@@ -17,8 +17,10 @@ func runRescan() error {
 	if err != nil {
 		return apperror.WrapSimple(err, constants.ErrRescanNoCache)
 	}
+
 	fmt.Printf(constants.MsgRescanReplay, cache.Dir)
 	runScanFromCache(cache)
+
 	return nil
 }
 
@@ -29,6 +31,7 @@ func loadScanCache() (model.ScanCache, error) {
 	if err != nil {
 		return model.ScanCache{}, err
 	}
+
 	var cache model.ScanCache
 	err = json.Unmarshal(data, &cache)
 
@@ -44,16 +47,19 @@ func saveScanCache(outputDir string, cache model.ScanCache) {
 
 		return
 	}
+
 	if err := os.MkdirAll(filepath.Dir(path), constants.DirPermission); err != nil {
 		fmt.Fprintf(os.Stderr, "  ⚠ Could not create cache directory: %v\n", err)
 
 		return
 	}
+
 	if err := os.WriteFile(path, data, 0o644); err != nil {
 		fmt.Fprintf(os.Stderr, "  ⚠ Could not write scan cache to %s: %v\n", path, err)
 
 		return
 	}
+
 	fmt.Printf(constants.MsgScanCacheSaved, filepath.Base(path))
 }
 
@@ -61,6 +67,7 @@ func saveScanCache(outputDir string, cache model.ScanCache) {
 func runScanFromCache(c model.ScanCache) error {
 	args := buildScanArgs(c)
 	runScan(args)
+
 	return nil
 }
 

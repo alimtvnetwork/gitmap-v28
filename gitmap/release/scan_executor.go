@@ -28,6 +28,7 @@ func ExecuteCommitActions(repoDir string, commits []ParsedCommit) ([]ScanCommitA
 		if err != nil {
 			return nil, apperror.Wrap(err, "ExecuteCommitActions", map[string]any{"hash": commit.Hash})
 		}
+
 		actions = append(actions, action)
 	}
 
@@ -39,9 +40,11 @@ func processCommit(repoDir string, commit ParsedCommit) (ScanCommitAction, error
 		CommitHash: commit.Hash,
 		Version:    commit.Version,
 	}
+
 	if err := processBranch(repoDir, commit, &action); err != nil {
 		return action, apperror.WrapSimple(err, "processCommit")
 	}
+
 	if err := processTag(repoDir, commit, &action); err != nil {
 		return action, apperror.WrapSimple(err, "processCommit")
 	}
@@ -55,6 +58,7 @@ func processBranch(repoDir string, commit ParsedCommit, action *ScanCommitAction
 	if err != nil {
 		return apperror.WrapSimple(err, "processBranch")
 	}
+
 	if isExists {
 		action.IsBranchSkipped = true
 
@@ -70,6 +74,7 @@ func createBranch(repoDir, branchName, hash string, action *ScanCommitAction) er
 	if err := cmd.Run(); err != nil {
 		return apperror.Wrap(err, "createBranch", map[string]any{"branch": branchName})
 	}
+
 	action.IsBranchCreated = true
 
 	return nil
@@ -80,6 +85,7 @@ func processTag(repoDir string, commit ParsedCommit, action *ScanCommitAction) e
 	if err != nil {
 		return apperror.WrapSimple(err, "processTag")
 	}
+
 	if isExists {
 		action.IsTagSkipped = true
 
@@ -95,6 +101,7 @@ func createTag(repoDir, tagName, hash string, action *ScanCommitAction) error {
 	if err := cmd.Run(); err != nil {
 		return apperror.Wrap(err, "createTag", map[string]any{"tag": tagName})
 	}
+
 	action.IsTagCreated = true
 
 	return nil
@@ -107,6 +114,7 @@ func isRefPresent(repoDir, refPath string) (bool, error) {
 	if err == nil {
 		return true, nil
 	}
+
 	if _, isExit := err.(*exec.ExitError); isExit {
 		return false, nil
 	}

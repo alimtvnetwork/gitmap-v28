@@ -21,28 +21,34 @@ func runChromeProfileDelete(args []string) error {
 		fmt.Fprint(os.Stderr, constants.ErrChromeProfileUsageDelete)
 		cliexit.HandleError(nil, constants.ExitChromeProfileUsage)
 	}
+
 	name, confirmed := parseChromeDeleteArgs(args)
 	if !confirmed {
 		fmt.Fprint(os.Stderr, constants.MsgChromeProfileDeleteAbort)
 		cliexit.HandleError(nil, constants.ExitChromeProfileUsage)
 	}
+
 	db, err := store.OpenDefault()
 	if err != nil {
 		fmt.Fprintf(os.Stderr, constants.ErrChromeProfileDeleteFail, err)
 		cliexit.HandleError(nil, constants.ExitChromeProfileCopyFailed)
 	}
+
 	defer db.Close()
 	paths, err := db.DeleteChromeProfile(name)
 	if err != nil {
 		fmt.Fprintf(os.Stderr, constants.ErrChromeProfileDeleteFail, err)
 		cliexit.HandleError(nil, constants.ExitChromeProfileCopyFailed)
 	}
+
 	if len(paths) == 0 && !db.ChromeProfileExists(name) {
 		fmt.Fprintf(os.Stderr, constants.ErrChromeProfileNotInDB, name)
 		cliexit.HandleError(nil, constants.ExitChromeProfileNotFound)
 	}
+
 	removed := removeChromeArtifactFiles(paths)
 	fmt.Printf(constants.MsgChromeProfileDeleteOk, name, removed)
+
 	return nil
 }
 
@@ -55,10 +61,12 @@ func parseChromeDeleteArgs(args []string) (string, bool) {
 			confirmed = true
 			continue
 		}
+
 		if name == "" {
 			name = a
 		}
 	}
+
 	return name, confirmed && name != ""
 }
 
@@ -70,10 +78,12 @@ func removeChromeArtifactFiles(paths []string) int {
 		if p == "" {
 			continue
 		}
+
 		fmt.Printf(constants.MsgChromeProfileDeleteRm, p)
 		if err := os.Remove(p); err == nil {
 			count++
 		}
 	}
+
 	return count
 }

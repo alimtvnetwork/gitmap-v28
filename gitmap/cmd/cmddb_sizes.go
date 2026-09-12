@@ -16,12 +16,14 @@ func runDBSizes(args []string) error {
 	if exists {
 		allItems = append(allItems, mainInfo)
 	}
+
 	allItems = append(allItems, profileDBs...)
 	allItems = append(allItems, splitDBs...)
 
 	printDBSizesHeader()
 	printDBSizesTable(allItems)
 	printDBSizesTotal(allItems)
+
 	return nil
 }
 
@@ -41,6 +43,7 @@ func printDBSizesTable(items []DBFileInfo) {
 		} else if it.Category == "Split Repository DB" {
 			catColor = constants.ColorDim
 		}
+
 		fmt.Printf("  %-28s %s%-20s%s %-12s %s\n",
 			truncateStr(it.Name, 27),
 			catColor, it.Category, constants.ColorReset,
@@ -55,6 +58,7 @@ func printDBSizesTotal(items []DBFileInfo) {
 	for _, it := range items {
 		totalBytes += it.Size
 	}
+
 	fmt.Println("  " + strings.Repeat("─", 90))
 	fmt.Printf("  Total: %s%d database file(s)%s, combined size: %s%s%s\n\n",
 		constants.ColorWhite, len(items), constants.ColorReset,

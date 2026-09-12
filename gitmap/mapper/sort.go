@@ -51,9 +51,11 @@ func lessRecord(a, b model.ScanRecord) bool {
 	if a.RelativePath != b.RelativePath {
 		return a.RelativePath < b.RelativePath
 	}
+
 	if a.HTTPSUrl != b.HTTPSUrl {
 		return a.HTTPSUrl < b.HTTPSUrl
 	}
+
 	if a.SSHUrl != b.SSHUrl {
 		return a.SSHUrl < b.SSHUrl
 	}

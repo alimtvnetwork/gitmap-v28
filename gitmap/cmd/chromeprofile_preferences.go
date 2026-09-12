@@ -28,21 +28,26 @@ func patchCopiedChromeProfilePreferences(dstPath, displayName string) error {
 	if err != nil && os.IsNotExist(err) {
 		return nil
 	}
+
 	if err != nil {
 		return fmt.Errorf("read %s: %w", prefPath, err)
 	}
+
 	var root map[string]any
 	if err := json.Unmarshal(raw, &root); err != nil {
 		return fmt.Errorf("parse %s: %w", prefPath, err)
 	}
+
 	scrubChromePreferencesIdentity(root, displayName)
 	out, err := json.MarshalIndent(root, "", constants.JSONIndent)
 	if err != nil {
 		return fmt.Errorf("encode Preferences: %w", err)
 	}
+
 	if err := os.WriteFile(prefPath, out, constants.FilePermission); err != nil {
 		return fmt.Errorf("write %s: %w", prefPath, err)
 	}
+
 	return nil
 }
 
@@ -56,9 +61,11 @@ func scrubChromePreferencesIdentity(root map[string]any, displayName string) {
 		prof = map[string]any{}
 		root["profile"] = prof
 	}
+
 	if displayName != "" {
 		prof["name"] = displayName
 	}
+
 	prof["using_default_name"] = false
 	delete(prof, "gaia_info_picture_url")
 	delete(prof, "gaia_given_name")
@@ -82,21 +89,26 @@ func patchImportedChromeProfilePreferencesWithOptions(dstPath, displayName strin
 	if err != nil && os.IsNotExist(err) {
 		return nil
 	}
+
 	if err != nil {
 		return fmt.Errorf("read %s: %w", prefPath, err)
 	}
+
 	var root map[string]any
 	if err := json.Unmarshal(raw, &root); err != nil {
 		return fmt.Errorf("parse %s: %w", prefPath, err)
 	}
+
 	if !keepSignin {
 		scrubImportedPreferencesAuth(root)
 	}
+
 	applyPreferencesProfileName(root, displayName)
 	out, err := json.MarshalIndent(root, "", constants.JSONIndent)
 	if err != nil {
 		return fmt.Errorf("encode Preferences: %w", err)
 	}
+
 	return os.WriteFile(prefPath, out, constants.FilePermission)
 }
 
@@ -106,9 +118,11 @@ func applyPreferencesProfileName(root map[string]any, displayName string) {
 		prof = map[string]any{}
 		root["profile"] = prof
 	}
+
 	if displayName != "" {
 		prof["name"] = displayName
 	}
+
 	prof["using_default_name"] = false
 	delete(prof, "managed")
 	delete(prof, "managed_user_id")
@@ -122,11 +136,13 @@ func scrubImportedPreferencesAuth(root map[string]any) {
 	root["signin"] = map[string]any{
 		"allowed": false,
 	}
+
 	browser, isBrowserMap := root["browser"].(map[string]any)
 	if !isBrowserMap {
 		browser = map[string]any{}
 		root["browser"] = browser
 	}
+
 	browser["has_seen_welcome_page"] = true
 
 	prof, isProfileMap := root["profile"].(map[string]any)

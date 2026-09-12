@@ -51,6 +51,7 @@ func NewLogger(w io.Writer, command string, enabled bool) *Logger {
 	if w == nil {
 		w = os.Stderr
 	}
+
 	return &Logger{w: w, command: command, enabled: enabled}
 }
 
@@ -59,6 +60,7 @@ func (l *Logger) Log(level LevelType, msg string, fields map[string]interface{})
 	if !l.enabled {
 		return
 	}
+
 	l.mu.Lock()
 	defer l.mu.Unlock()
 	entry := Entry{
@@ -70,6 +72,7 @@ func (l *Logger) Log(level LevelType, msg string, fields map[string]interface{})
 		Message:   msg,
 		Fields:    fields,
 	}
+
 	enc := json.NewEncoder(l.w)
 	_ = enc.Encode(entry)
 }

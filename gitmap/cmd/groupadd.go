@@ -14,6 +14,7 @@ func runGroupAdd(args []string) error {
 	if len(args) < 2 {
 		return apperror.NewSimple(constants.ErrGroupSlugReq, "E9000")
 	}
+
 	groupName := args[0]
 	slugs := args[1:]
 
@@ -21,11 +22,13 @@ func runGroupAdd(args []string) error {
 	if err != nil {
 		return apperror.WrapSimple(err, constants.ErrListDBFailed)
 	}
+
 	defer db.Close()
 
 	for _, slug := range slugs {
 		addOneSlugToGroup(db, groupName, slug)
 	}
+
 	return nil
 }
 
@@ -37,6 +40,7 @@ func addOneSlugToGroup(db *store.DB, groupName, slug string) {
 
 		return
 	}
+
 	for _, r := range repos {
 		err := db.AddRepoToGroup(groupName, r.ID)
 		if err != nil {
@@ -44,6 +48,7 @@ func addOneSlugToGroup(db *store.DB, groupName, slug string) {
 
 			return
 		}
+
 		fmt.Printf(constants.MsgGroupAdded, r.Slug, groupName)
 	}
 }

@@ -53,6 +53,7 @@ func installPathSnippet(dryRun bool) {
 	if shell == constants.ShellPowerShell {
 		shell = constants.PathSnippetShellPwsh
 	}
+
 	fmt.Printf("\n  %s%s%s\n", constants.ColorYellow, "PATH snippet:", constants.ColorReset)
 
 	dir := resolveActiveBinaryDir()
@@ -76,6 +77,7 @@ func installPathSnippet(dryRun bool) {
 
 		return
 	}
+
 	fmt.Printf("  %s%s%s -> %s\n", constants.ColorGreen, res.Action, constants.ColorReset, res.Profile)
 }
 
@@ -86,6 +88,7 @@ func resolveActiveBinaryDir() string {
 	if err != nil {
 		return ""
 	}
+
 	resolved, err := filepath.EvalSymlinks(exe)
 	if err != nil {
 		resolved = exe
@@ -189,9 +192,11 @@ func printSetupCounts(r setup.SetupResult) {
 	if r.Applied > 0 {
 		fmt.Printf("  %s"+constants.SetupAppliedFmt+"%s\n", constants.ColorGreen, r.Applied, constants.ColorReset)
 	}
+
 	if r.Skipped > 0 {
 		fmt.Printf("  %s"+constants.SetupSkippedFmt+"%s\n", constants.ColorDim, r.Skipped, constants.ColorReset)
 	}
+
 	if r.Failed > 0 {
 		fmt.Printf("  %s"+constants.SetupFailedFmt+"%s\n", constants.ColorYellow, r.Failed, constants.ColorReset)
 	}
@@ -202,6 +207,7 @@ func printSetupErrors(r setup.SetupResult) {
 	if r.Failed == 0 {
 		return
 	}
+
 	for _, e := range r.Errors {
 		fmt.Printf("    %s"+constants.SetupErrorEntryFmt+"%s\n", constants.ColorYellow, e, constants.ColorReset)
 	}

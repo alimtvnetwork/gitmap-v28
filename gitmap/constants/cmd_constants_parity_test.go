@@ -44,6 +44,7 @@ func TestTopLevelCmdRegistryMatchesAST(t *testing.T) {
 			"Add them to topLevelCmds() in cmd_constants_test.go, or mark them `// gitmap:cmd skip`.",
 			len(missingFromRegistry), strings.Join(missingFromRegistry, "\n  "))
 	}
+
 	if len(extraInRegistry) > 0 {
 		t.Errorf("topLevelCmds() registry has %d entry/entries with no matching AST declaration:\n  %s\n"+
 			"Remove them from topLevelCmds(), or restore the constant under a `// gitmap:cmd top-level` block.",
@@ -98,6 +99,7 @@ func findUnmarkedCmdBlocksForTest(t *testing.T, path string) []string {
 		if !ok || gen.Tok != token.CONST {
 			continue
 		}
+
 		if parityCommentHas(gen.Doc, parityMarkerTopLevel) {
 			continue
 		}
@@ -122,21 +124,26 @@ func unmarkedCmdNamesForTest(gen *ast.GenDecl) []string {
 		if !ok {
 			continue
 		}
+
 		if parityCommentHas(vs.Comment, parityMarkerSkip) || parityCommentHas(vs.Doc, parityMarkerSkip) {
 			continue
 		}
+
 		for i, name := range vs.Names {
 			if !strings.HasPrefix(name.Name, "Cmd") || i >= len(vs.Values) {
 				continue
 			}
+
 			lit, ok := vs.Values[i].(*ast.BasicLit)
 			if !ok || lit.Kind != token.STRING {
 				continue
 			}
+
 			val, err := strconv.Unquote(lit.Value)
 			if err != nil || val == "" {
 				continue
 			}
+
 			names = append(names, name.Name)
 		}
 	}
@@ -154,6 +161,7 @@ func collectTopLevelCmdNamesFromAST(t *testing.T) map[string]struct{} {
 	if err != nil {
 		t.Fatalf("glob constants dir: %v", err)
 	}
+
 	if len(files) == 0 {
 		t.Fatalf("no constants_*.go files found under %s", dir)
 	}
@@ -180,9 +188,11 @@ func collectNamesFromFile(t *testing.T, path string, names map[string]struct{}) 
 		if !ok || gen.Tok != token.CONST {
 			continue
 		}
+
 		if !parityCommentHas(gen.Doc, parityMarkerTopLevel) {
 			continue
 		}
+
 		collectSpecNames(gen, names)
 	}
 }
@@ -193,21 +203,26 @@ func collectSpecNames(gen *ast.GenDecl, names map[string]struct{}) {
 		if !ok {
 			continue
 		}
+
 		if parityCommentHas(vs.Comment, parityMarkerSkip) || parityCommentHas(vs.Doc, parityMarkerSkip) {
 			continue
 		}
+
 		for i, name := range vs.Names {
 			if !strings.HasPrefix(name.Name, "Cmd") || i >= len(vs.Values) {
 				continue
 			}
+
 			lit, ok := vs.Values[i].(*ast.BasicLit)
 			if !ok || lit.Kind != token.STRING {
 				continue
 			}
+
 			val, err := strconv.Unquote(lit.Value)
 			if err != nil || val == "" {
 				continue
 			}
+
 			names[name.Name] = struct{}{}
 		}
 	}
@@ -217,6 +232,7 @@ func parityCommentHas(cg *ast.CommentGroup, needle string) bool {
 	if cg == nil {
 		return false
 	}
+
 	for _, c := range cg.List {
 		if strings.Contains(c.Text, needle) {
 			return true
@@ -234,6 +250,7 @@ func diffNameSets(a, b map[string]struct{}) []string {
 			out = append(out, k)
 		}
 	}
+
 	sort.Strings(out)
 
 	return out

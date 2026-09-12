@@ -19,5 +19,6 @@ func RenderPullBatchTable(rows []model.PullTableRow) {
 	for _, r := range rows {
 		layout.PrintRow(r)
 	}
+
 	fmt.Printf("  %s\n", strings.Repeat("-", layout.DividerLen))
 }

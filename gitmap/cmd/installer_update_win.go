@@ -65,6 +65,7 @@ func parseUpdateWinFlags(args []string) (*UpdateWinInstallerFlags, error) {
 	if err := fs.Parse(flagArgs); err != nil {
 		appErr := apperror.Wrap(err, "parseUpdateWinFlags", map[string]any{"args": args})
 		appErr.Code = "E_INSTALLER_INVALID_FLAGS"
+
 		return nil, appErr
 	}
 
@@ -95,6 +96,7 @@ func executeUpdateWin(ctx context.Context, db *store.DB, flags *UpdateWinInstall
 			"error": "db cannot be nil",
 		})
 	}
+
 	if flags == nil {
 		return apperror.New("executeUpdateWin", "E_INSTALLER_INVALID_INPUT", map[string]any{
 			"error": "flags cannot be nil",
@@ -105,16 +107,19 @@ func executeUpdateWin(ctx context.Context, db *store.DB, flags *UpdateWinInstall
 	if errGet != nil {
 		appErr := apperror.Wrap(errGet, "executeUpdateWin", map[string]any{"slug": flags.Slug})
 		appErr.Code = "E_INSTALLER_NOT_FOUND"
+
 		return appErr
 	}
 
 	if flags.Description != "" {
 		existing.Description = flags.Description
 	}
+
 	existing.TargetOS = "win"
 	if flags.Instructions != "" {
 		existing.Instructions = flags.Instructions
 	}
+
 	if flags.Version != "" {
 		existing.Version = flags.Version
 	}
@@ -126,14 +131,17 @@ func executeUpdateWin(ctx context.Context, db *store.DB, flags *UpdateWinInstall
 		TargetOS:     "win",
 		Instructions: existing.Instructions,
 	}
+
 	if errSave := db.SaveVersion(versionRecord); errSave != nil {
 		appErr := apperror.Wrap(errSave, "executeUpdateWin", map[string]any{"slug": flags.Slug})
 		appErr.Code = "E_INSTALLER_UPDATE_FAILED"
+
 		return appErr
 	}
 
 	fmt.Printf("Windows Installer %q updated successfully (version: %s).\n",
 		existing.Name, existing.Version)
+
 	return nil
 }
 
@@ -154,13 +162,16 @@ func runInstallerUpdateWin(cmd *cobra.Command, args []string) error {
 	if errDB != nil {
 		appErr := apperror.Wrap(errDB, "runInstallerUpdateWin", map[string]any{"action": "open_db"})
 		appErr.Code = "E_INSTALLER_DB_ERROR"
+
 		return appErr
 	}
+
 	defer db.Close()
 
 	if errMigrate := db.MigrateInstallers(); errMigrate != nil {
 		appErr := apperror.Wrap(errMigrate, "runInstallerUpdateWin", map[string]any{"action": "migrate_installers"})
 		appErr.Code = "E_INSTALLER_DB_ERROR"
+
 		return appErr
 	}
 

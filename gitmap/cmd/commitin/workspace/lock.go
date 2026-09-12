@@ -26,9 +26,11 @@ func AcquireLock(p *Paths) (*LockHandle, error) {
 	if isLockHeldByLive(p.LockFile) {
 		return nil, fmt.Errorf(constants.CommitInErrLockBusy, p.LockFile)
 	}
+
 	if err := writeLockPid(p.LockFile); err != nil {
 		return nil, fmt.Errorf("commit-in: lock write failed: %w", err)
 	}
+
 	return &LockHandle{Path: p.LockFile}, nil
 }
 
@@ -38,6 +40,7 @@ func (h *LockHandle) Release() {
 	if h == nil || h.Path == "" {
 		return
 	}
+
 	_ = os.Remove(h.Path)
 }
 
@@ -56,18 +59,24 @@ func isLockHeldByLive(lockPath string) bool {
 	if err != nil {
 		return false
 	}
+
 	pid, parseErr := strconv.Atoi(strings.TrimSpace(string(data)))
 	if parseErr != nil {
 		_ = os.Remove(lockPath)
+
 		return false
 	}
+
 	if pid == os.Getpid() {
 		return true
 	}
+
 	if isProcessAlive(pid) {
 		return true
 	}
+
 	_ = os.Remove(lockPath)
+
 	return false
 }
 
@@ -75,6 +84,7 @@ func isLockHeldByLive(lockPath string) bool {
 // match store/lock.go's existing pattern.
 func writeLockPid(lockPath string) error {
 	pid := strconv.Itoa(os.Getpid())
+
 	return os.WriteFile(lockPath, []byte(pid), 0o644)
 }
 
@@ -90,9 +100,11 @@ func isProcessAlive(pid int) bool {
 	if err != nil {
 		return false
 	}
+
 	sigErr := proc.Signal(syscall.Signal(0))
 	if sigErr == nil {
 		return true
 	}
+
 	return errors.Is(sigErr, syscall.EPERM)
 }

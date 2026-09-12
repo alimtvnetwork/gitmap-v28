@@ -27,12 +27,14 @@ func writeAuditLegacyReport(
 	if opts.ReportPath == "" {
 		return
 	}
+
 	body := renderAuditMarkdown(opts, hits, fileCount, plans)
 	if err := writeAuditReportFile(opts.ReportPath, body); err != nil {
 		fmt.Fprintf(os.Stderr, constants.ErrAuditLegacyReportWrite, opts.ReportPath, err)
 
 		return
 	}
+
 	fmt.Fprintf(os.Stdout, constants.MsgAuditLegacyReportWrote, opts.ReportPath)
 }
 
@@ -98,6 +100,7 @@ func writeAuditMDPatternCounts(b *strings.Builder, opts auditLegacyOpts, hits []
 	for _, p := range opts.Raw {
 		fmt.Fprintf(b, "| `%s` | %d |\n", p, counts[p])
 	}
+
 	fmt.Fprintln(b)
 }
 
@@ -111,6 +114,7 @@ func writeAuditMDFileCounts(b *strings.Builder, hits []auditLegacyHit, plans []a
 
 		return
 	}
+
 	links := indexAuditDiffPlans(plans)
 	writeAuditMDFileCountsTable(b, hits, links)
 }
@@ -127,9 +131,11 @@ func writeAuditMDFileCountsTable(
 	} else {
 		fmt.Fprintf(b, "| File | Matches |\n|---|---:|\n")
 	}
+
 	for _, row := range sortedFileCounts(hits) {
 		writeAuditMDFileCountRow(b, row, links, hasDiffs)
 	}
+
 	fmt.Fprintln(b)
 }
 
@@ -146,12 +152,14 @@ func writeAuditMDFileCountRow(
 
 		return
 	}
+
 	link := links[row.file]
 	if link == "" {
 		fmt.Fprintf(b, "| `%s` | %d | — |\n", row.file, row.count)
 
 		return
 	}
+
 	fmt.Fprintf(b, "| `%s` | %d | [view](%s) |\n", row.file, row.count, link)
 }
 
@@ -161,12 +169,14 @@ func writeAuditMDDiffArtifacts(b *strings.Builder, plans []auditDiffPlan) {
 	if len(plans) == 0 {
 		return
 	}
+
 	fmt.Fprintf(b, "## Per-file diffs\n\n")
 	fmt.Fprintf(b, "Each diff previews the legacy → `gitmap-v28` substitution for one file. ")
 	fmt.Fprintf(b, "Apply with `patch -p0 < <file>.diff` from the repo root.\n\n")
 	for _, p := range plans {
 		fmt.Fprintf(b, "- [`%s`](%s)\n", p.SourceFile, p.DiffRelLink)
 	}
+
 	fmt.Fprintln(b)
 }
 
@@ -185,10 +195,12 @@ func writeAuditMDHitList(b *strings.Builder, hits []auditLegacyHit) {
 	if len(hits) == 0 {
 		return
 	}
+
 	fmt.Fprintf(b, "## All matches\n\n```\n")
 	for _, h := range hits {
 		fmt.Fprintf(b, "%s:%d: %s\n", h.File, h.Line, h.Text)
 	}
+
 	fmt.Fprintf(b, "```\n")
 }
 
@@ -198,6 +210,7 @@ func countAuditByPattern(raws []string, hits []auditLegacyHit) map[string]int {
 	for _, p := range raws {
 		out[p] = 0
 	}
+
 	for _, h := range hits {
 		out[h.Pattern]++
 	}
@@ -217,10 +230,12 @@ func sortedFileCounts(hits []auditLegacyHit) []auditFileCount {
 	for _, h := range hits {
 		counts[h.File]++
 	}
+
 	out := make([]auditFileCount, 0, len(counts))
 	for f, c := range counts {
 		out = append(out, auditFileCount{file: f, count: c})
 	}
+
 	sort.Slice(out, func(i, j int) bool {
 		if out[i].count != out[j].count {
 			return out[i].count > out[j].count

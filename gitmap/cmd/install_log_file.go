@@ -28,9 +28,7 @@ func printInstallFailureDetails(
 }
 
 func resolveDisplayVersion(version string) string {
-
 	if version != "" {
-
 		return version
 	}
 
@@ -70,7 +68,6 @@ func buildInstallErrorLogContent(
 		tool, versionLabel, manager, strings.Join(args, " "), time.Now().Format(time.RFC3339), installErr)
 
 	if len(output) > 0 {
-
 		return header + string(output)
 	}
 

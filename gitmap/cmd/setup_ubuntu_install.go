@@ -18,6 +18,7 @@ func evaluateZshPrompt(ans string) {
 
 		return
 	}
+
 	fmt.Println("  Skipped ZSH installation.")
 }
 
@@ -29,9 +30,9 @@ func executeZshInstall() {
 func installMissingZsh() {
 	_, isZshInstalled := findZshBinary()
 	if isZshInstalled {
-
 		return
 	}
+
 	runAptInstallZsh()
 }
 
@@ -47,9 +48,9 @@ func runAptInstallZsh() {
 
 func executeOhMyZshInstall() {
 	if isOhMyZshInstalled() {
-
 		return
 	}
+
 	runOhMyZshInstallScript()
 }
 
@@ -62,30 +63,31 @@ func runOhMyZshInstallScript() {
 
 		return
 	}
+
 	configureZshTheme()
 }
 
 func configureZshTheme() {
 	homeDirectoryPath, getHomeErr := userHomeDirFunc()
 	if getHomeErr != nil {
-
 		return
 	}
+
 	zshrcFilePath := filepath.Join(homeDirectoryPath, ".zshrc")
 	zshrcContentBytes, readErr := osReadFileHook(zshrcFilePath)
 	if readErr != nil {
-
 		return
 	}
+
 	applyThemeReplacement(zshrcFilePath, zshrcContentBytes)
 }
 
 func applyThemeReplacement(zshrcFilePath string, zshrcContentBytes []byte) {
 	originalContentString := string(zshrcContentBytes)
 	if strings.Contains(originalContentString, `ZSH_THEME="agnoster"`) {
-
 		return
 	}
+
 	replacedContentString := strings.Replace(originalContentString, `ZSH_THEME="robbyrussell"`, `ZSH_THEME="agnoster"`, 1)
 	writeErr := osWriteFileHook(zshrcFilePath, []byte(replacedContentString), 0644)
 	if writeErr != nil {
@@ -93,5 +95,6 @@ func applyThemeReplacement(zshrcFilePath string, zshrcContentBytes []byte) {
 
 		return
 	}
+
 	fmt.Println("  ZSH theme configured successfully.")
 }

@@ -35,6 +35,7 @@ func CleanRepoPath(repoPath string) string {
 	if strings.Contains(p, " ") {
 		return `"` + p + `"`
 	}
+
 	return p
 }
 

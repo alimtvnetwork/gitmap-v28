@@ -17,8 +17,10 @@ func runReplaceAudit(opts replaceOpts) error {
 	targets := versionTargets(k, 0)
 	if len(targets) == 0 {
 		fmt.Print(constants.MsgReplaceAlreadyAtV1)
+
 		return nil
 	}
+
 	root := repoRoot()
 	files := loadRepoFiles(root, opts.exts, opts.extCaseIns)
 
@@ -27,6 +29,7 @@ func runReplaceAudit(opts replaceOpts) error {
 	if totalHits == 0 {
 		fmt.Print(constants.MsgReplaceAuditClean)
 	}
+
 	return nil
 }
 
@@ -40,6 +43,7 @@ func buildAuditNeedles(base string, targets []int) [][]byte {
 			[]byte(fmt.Sprintf("%s/v%d", base, t)),
 		)
 	}
+
 	return out
 }
 
@@ -50,6 +54,7 @@ func scanAudit(files []string, needles [][]byte) int {
 	for _, f := range files {
 		total += scanAuditFile(f, needles)
 	}
+
 	return total
 }
 
@@ -59,8 +64,10 @@ func scanAuditFile(path string, needles [][]byte) int {
 	data, err := os.ReadFile(path)
 	if err != nil {
 		fmt.Fprintf(os.Stderr, constants.ErrReplaceWrite, path, err)
+
 		return 0
 	}
+
 	hits := 0
 	lineNum := 0
 	for _, line := range bytes.Split(data, []byte("\n")) {
@@ -70,6 +77,7 @@ func scanAuditFile(path string, needles [][]byte) int {
 			hits++
 		}
 	}
+
 	return hits
 }
 
@@ -80,5 +88,6 @@ func lineContainsAny(line []byte, needles [][]byte) bool {
 			return true
 		}
 	}
+
 	return false
 }

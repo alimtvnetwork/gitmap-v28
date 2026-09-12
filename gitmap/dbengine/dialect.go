@@ -110,11 +110,14 @@ func (d *DbType) UnmarshalJSON(data []byte) error {
 	if err := json.Unmarshal(data, &s); err != nil {
 		return err
 	}
+
 	target := DbType(s)
 	if !dbTypeValidMap[target] {
 		return fmt.Errorf("invalid db type: %s", s)
 	}
+
 	*d = target
+
 	return nil
 }
 
@@ -124,6 +127,7 @@ func (d DbType) ToJSON() (string, *apperror.AppError) {
 	if err != nil {
 		return "", apperror.WrapSimple(err, "serialize db type to json")
 	}
+
 	return string(b), nil
 }
 
@@ -133,11 +137,14 @@ func (d *DbType) FromJSON(s string) *apperror.AppError {
 	if err := json.Unmarshal([]byte(s), &str); err != nil {
 		return apperror.WrapSimple(err, "deserialize db type from json")
 	}
+
 	target := DbType(str)
 	if !dbTypeValidMap[target] {
 		return apperror.WrapSimple(fmt.Errorf("invalid db type: %s", str), "validate db type from json")
 	}
+
 	*d = target
+
 	return nil
 }
 
@@ -230,6 +237,7 @@ func (r dbTypeRegistry) ToJSON() (string, *apperror.AppError) {
 	if err != nil {
 		return "", apperror.WrapSimple(err, "serialize db type registry to json")
 	}
+
 	return string(b), nil
 }
 

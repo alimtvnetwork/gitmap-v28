@@ -48,11 +48,14 @@ func (e *PipelineRunRecordFieldType) UnmarshalJSON(data []byte) error {
 	if err := json.Unmarshal(data, &s); err != nil {
 		return err
 	}
+
 	target := PipelineRunRecordFieldType(s)
 	if !pipelineRunRecordValidMap[target] {
 		return fmt.Errorf("invalid %s enum: %s", "PipelineRunRecordFieldType", s)
 	}
+
 	*e = target
+
 	return nil
 }
 
@@ -62,6 +65,7 @@ func (e PipelineRunRecordFieldType) ToJSON() (string, *apperror.AppError) {
 	if err != nil {
 		return "", apperror.WrapSimple(err, "serialize field to json")
 	}
+
 	return string(b), nil
 }
 
@@ -71,11 +75,14 @@ func (e *PipelineRunRecordFieldType) FromJSON(s string) *apperror.AppError {
 	if err := json.Unmarshal([]byte(s), &str); err != nil {
 		return apperror.WrapSimple(err, "deserialize field from json")
 	}
+
 	target := PipelineRunRecordFieldType(str)
 	if !pipelineRunRecordValidMap[target] {
 		return apperror.WrapSimple(fmt.Errorf("invalid %s enum: %s", "PipelineRunRecordFieldType", str), "validate field enum from json")
 	}
+
 	*e = target
+
 	return nil
 }
 
@@ -300,6 +307,7 @@ func (r pipelineRunRecordDbRegistry) ToJSON() (string, *apperror.AppError) {
 	if err != nil {
 		return "", apperror.WrapSimple(err, "serialize registry to json")
 	}
+
 	return string(b), nil
 }
 

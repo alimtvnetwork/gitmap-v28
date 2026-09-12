@@ -34,9 +34,12 @@ func runProbe(args []string) error {
 	targets := mustResolveProbeTargets(db, opts.rest)
 	if len(targets) == 0 {
 		emitProbeEmpty(opts.jsonOut)
+
 		return nil
 	}
+
 	probeAndReport(db, targets, opts)
+
 	return nil
 }
 
@@ -46,6 +49,7 @@ func mustParseProbeArgs(args []string) probeOptions {
 	if err != nil {
 		fmt.Fprintln(os.Stderr, err.Error())
 		var empty probeOptions
+
 		return empty
 	}
 
@@ -57,6 +61,7 @@ func mustResolveProbeTargets(db *store.DB, rest []string) []model.ScanRecord {
 	targets, err := resolveProbeTargets(db, rest)
 	if err != nil {
 		var empty []model.ScanRecord
+
 		return empty
 	}
 
@@ -67,8 +72,10 @@ func mustResolveProbeTargets(db *store.DB, rest []string) []model.ScanRecord {
 func emitProbeEmpty(jsonOut bool) {
 	if jsonOut {
 		fmt.Println("[]")
+
 		return
 	}
+
 	fmt.Print(constants.MsgProbeNoTargets)
 }
 
@@ -87,6 +94,7 @@ func resolveProbeTargets(db *store.DB, args []string) ([]model.ScanRecord, error
 	if err != nil {
 		return nil, err
 	}
+
 	if len(matches) == 0 {
 		return nil, fmt.Errorf(constants.ErrProbeNoRepo, absPath)
 	}
@@ -107,8 +115,10 @@ func probeAndReport(db *store.DB, targets []model.ScanRecord, opts probeOptions)
 	// explicit terminal opts in to the human format and trumps json.
 	if opts.jsonOut && !opts.termOut {
 		emitProbeJSON(entries)
+
 		return
 	}
+
 	fmt.Printf(constants.MsgProbeDoneFmt, available, unchanged, failed)
 }
 
@@ -139,9 +149,11 @@ func runProbePool(
 		wg.Add(1)
 		go probeWorker(db, jobs, entries, &counterMu, &available, &unchanged, &failed, opts, &wg)
 	}
+
 	for i, repo := range targets {
 		jobs <- probeJob{idx: i, repo: repo}
 	}
+
 	close(jobs)
 	wg.Wait()
 
@@ -168,6 +180,7 @@ func probeWorker(db *store.DB, jobs <-chan probeJob, entries []probeJSONEntry,
 		if opts.termOut {
 			emitProbeTermBlock(j.idx+1, j.repo, result)
 		}
+
 		counterMu.Unlock()
 	}
 }

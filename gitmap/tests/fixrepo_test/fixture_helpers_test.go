@@ -55,6 +55,7 @@ func baseName(s string) string {
 	if idx < 0 {
 		return s
 	}
+
 	rest := s[idx+2:]
 	for _, c := range rest {
 		if c < '0' || c > '9' {
@@ -74,10 +75,12 @@ func writeFixtureFiles(t *testing.T, work, base string) {
 		[]byte("module fixture\n\ngo 1.24\n"), 0o644); err != nil {
 		t.Fatal(err)
 	}
+
 	if err := os.WriteFile(filepath.Join(work, "aligned_map.go"),
 		[]byte(alignedMapSource(base)), 0o644); err != nil {
 		t.Fatal(err)
 	}
+
 	if err := os.WriteFile(filepath.Join(work, "aligned_const.go"),
 		[]byte(alignedConstSource(base)), 0o644); err != nil {
 		t.Fatal(err)
@@ -98,6 +101,7 @@ var AlignedKeys = map[string]string{
 	"%[1]s-v9":  "nine",
 	"%[1]s-v10": "ten",
 }
+
 `, base)
 }
 
@@ -150,6 +154,7 @@ func dumpGoFiles(t *testing.T, dir string) string {
 		if err != nil || info.IsDir() || !strings.HasSuffix(p, ".go") {
 			return nil
 		}
+
 		data, _ := os.ReadFile(p)
 		fmt.Fprintf(&b, "=== %s ===\n%s\n", p, data)
 

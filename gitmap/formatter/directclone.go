@@ -65,9 +65,11 @@ func pickDirectCloneURL(r model.ScanRecord, useSSH bool) string {
 	if r.IdentifiedTransport == "ssh" && len(r.SSHUrl) > 0 {
 		return r.SSHUrl
 	}
+
 	if r.IdentifiedTransport == "https" && len(r.HTTPSUrl) > 0 {
 		return r.HTTPSUrl
 	}
+
 	if useSSH {
 		return r.SSHUrl
 	}

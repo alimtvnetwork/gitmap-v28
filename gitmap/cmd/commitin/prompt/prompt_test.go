@@ -14,6 +14,7 @@ func TestAskStringNoPromptReturnsError(t *testing.T) {
 	if !errors.Is(err, ErrNoPrompt) {
 		t.Fatalf("want ErrNoPrompt, got %v", err)
 	}
+
 	if !strings.Contains(out.String(), "ConflictMode") {
 		t.Fatalf("error message lacks field name: %q", out.String())
 	}

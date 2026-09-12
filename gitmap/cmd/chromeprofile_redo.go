@@ -17,6 +17,7 @@ func runChromeProfileRedo(profileName string) error {
 	chosen := pickLatestSnapshotWithTag(snapshots, "pre-undo")
 	if chosen == "" {
 		fmt.Printf("%s No Chrome profile redo snapshots available.\n", constants.ColorYellow+"ℹ"+constants.ColorReset)
+
 		return nil
 	}
 
@@ -26,6 +27,7 @@ func runChromeProfileRedo(profileName string) error {
 	}
 
 	fmt.Printf("%s Redone Chrome profile %q from snapshot: %s\n", constants.ColorGreen+"✓"+constants.ColorReset, profileName, filepath.Base(chosen))
+
 	return nil
 }
 
@@ -52,6 +54,7 @@ func handleChromeGroupAdd(group string, profiles []string) error {
 	}
 
 	fmt.Printf("%s Added %d profile(s) to Chrome group %q.\n", constants.ColorGreen+"✓"+constants.ColorReset, len(profiles), group)
+
 	return nil
 }
 
@@ -65,6 +68,7 @@ func handleChromeGroupRm(args []string) error {
 	}
 
 	fmt.Printf("%s Removed %q from Chrome group %q.\n", constants.ColorGreen+"✓"+constants.ColorReset, args[1], args[0])
+
 	return nil
 }
 
@@ -74,6 +78,7 @@ func handleChromeGroupDelete(group string) error {
 	}
 
 	fmt.Printf("%s Deleted Chrome group %q.\n", constants.ColorGreen+"✓"+constants.ColorReset, group)
+
 	return nil
 }
 
@@ -85,6 +90,7 @@ func runEcosystemGroupList(ecosystem string, label string) error {
 
 	if len(store.Groups) == 0 {
 		fmt.Printf("%s No %s groups configured.\n", constants.ColorYellow+"ℹ"+constants.ColorReset, label)
+
 		return nil
 	}
 

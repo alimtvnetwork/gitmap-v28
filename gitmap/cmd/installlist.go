@@ -31,11 +31,13 @@ func printInstallListGrouped() {
 
 		return
 	}
+
 	installed := loadInstalledLookup()
 	printInstallListHeader()
 	for _, cat := range sortedCategoryNames() {
 		printCategoryBlock(cat, constants.InstallToolCategories[cat], installed)
 	}
+
 	printCustomInstallersSection(installed)
 	printInstallProfilesSection(installed)
 	printInstallListLegend()
@@ -49,6 +51,7 @@ func printInstallListHeader() {
 		tagLine := fmt.Sprintf("Recent Releases: %s", recentTags)
 		fmt.Println(lipgloss.NewStyle().Foreground(lipgloss.Color("#8be9fd")).Italic(true).Render(tagLine))
 	}
+
 	fmt.Println()
 }
 
@@ -59,7 +62,6 @@ func loadRecentReleaseTags() string {
 	cmd := exec.CommandContext(ctx, "git", "tag", "-l", "v*", "--sort=-v:refname")
 	out, err := cmd.Output()
 	if err != nil {
-
 		return ""
 	}
 
@@ -74,6 +76,7 @@ func formatRecentTags(raw string) string {
 		if trimmed != "" {
 			tags = append(tags, trimmed)
 		}
+
 		if len(tags) >= 4 {
 			break
 		}
@@ -123,6 +126,7 @@ func sortedCategoryNames() []string {
 			cats = append(cats, cat)
 		}
 	}
+
 	sort.Strings(cats)
 
 	return append([]string{constants.ToolCategoryCore}, cats...)
@@ -133,6 +137,7 @@ func printInstallListFlat() {
 	for tool := range constants.InstallToolDescriptions {
 		tools = append(tools, tool)
 	}
+
 	sort.Strings(tools)
 
 	installed := loadInstalledLookup()
@@ -145,14 +150,13 @@ func loadInstalledLookup() map[string]string {
 	out := make(map[string]string)
 	splitDB, err := store.OpenInstallationSplitDB()
 	if err != nil {
-
 		return out
 	}
+
 	defer splitDB.Close()
 
 	tools, err := splitDB.ListInstalledTools()
 	if err != nil {
-
 		return out
 	}
 
@@ -165,18 +169,18 @@ func loadInstalledLookup() map[string]string {
 
 func resolveToolStatus(tool string, installed map[string]string) (string, string) {
 	if tool == constants.ToolGitmap {
-
 		return constants.StatusInstalled, constants.Version
 	}
-	if ver, ok := installed[tool]; ok && ver != "" && ver != "0.0.0" && ver != "found" && ver != "installed" {
 
+	if ver, ok := installed[tool]; ok && ver != "" && ver != "0.0.0" && ver != "found" && ver != "installed" {
 		return constants.StatusInstalled, ver
 	}
+
 	bin, ver := resolveToolProbeCommand(tool)
 	if bin == "" {
-
 		return constants.StatusNotInstalled, "—"
 	}
+
 	if ver == "" {
 		ver = "installed"
 	}
@@ -186,7 +190,6 @@ func resolveToolStatus(tool string, installed map[string]string) (string, string
 
 func pickDisplayVersion(t store.InstalledTool) string {
 	if t.VersionString == "" || t.VersionString == "0.0.0" {
-
 		return "—"
 	}
 
@@ -196,17 +199,16 @@ func pickDisplayVersion(t store.InstalledTool) string {
 func loadCustomInstallersList() []model.InstallerScript {
 	db, errDB := store.OpenDefault()
 	if errDB != nil {
-
 		return nil
 	}
+
 	defer db.Close()
 	if errMig := db.MigrateInstallers(); errMig != nil {
-
 		return nil
 	}
+
 	list, errList := db.ListInstallers()
 	if errList != nil {
-
 		return nil
 	}
 
@@ -216,9 +218,9 @@ func loadCustomInstallersList() []model.InstallerScript {
 func printCustomInstallersSection(installed map[string]string) {
 	customList := loadCustomInstallersList()
 	if len(customList) == 0 {
-
 		return
 	}
+
 	fmt.Println(catStyle.Render("Custom Tools"))
 	for _, script := range customList {
 		printCustomInstallerRow(script, installed)
@@ -232,6 +234,7 @@ func printCustomInstallerRow(script model.InstallerScript, installed map[string]
 	if status == constants.StatusInstalled {
 		dot = installedDot
 	}
+
 	row := fmt.Sprintf("  %s %s %s %s", dot, toolStyle.Render(script.Slug), versionStyle.Render(ver), descStyle.Render(desc))
 	fmt.Println(row)
 }
@@ -241,12 +244,12 @@ func resolveCustomToolStatus(script model.InstallerScript, installed map[string]
 	if ver == "" {
 		ver = "—"
 	}
-	if v, ok := installed[script.Slug]; ok && v != "" {
 
+	if v, ok := installed[script.Slug]; ok && v != "" {
 		return constants.StatusInstalled, v
 	}
-	if isBinaryInPath(script.Slug) {
 
+	if isBinaryInPath(script.Slug) {
 		return constants.StatusInstalled, ver
 	}
 

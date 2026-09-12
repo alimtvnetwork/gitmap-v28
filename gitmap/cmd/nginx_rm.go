@@ -22,10 +22,12 @@ func deleteSiteFromDB(domain string, isDryRun bool) {
 	if isDryRun {
 		return
 	}
+
 	db, err := store.OpenSitesSplitDB()
 	if err != nil {
 		return
 	}
+
 	defer db.Close()
 
 	_ = db.DeleteSite(domain)
@@ -36,6 +38,7 @@ func printRmSuccess(domain string, isDryRun bool) {
 	if isDryRun {
 		dryPrefix = "[dry-run] "
 	}
+
 	fmt.Printf("%s%s✔ Removed virtual host: %s%s\n", constants.ColorGreen, dryPrefix, domain, constants.ColorReset)
 	fmt.Printf("  • Unlinked from sites-enabled and removed from sites-available\n")
 	fmt.Printf("  • Deleted record from sites.db\n")
@@ -46,10 +49,12 @@ func executeNginxRm(domain string, opts VHostOptions) error {
 	if err := RemoveVHost(domain, opts); err != nil {
 		return err
 	}
+
 	deleteSiteFromDB(domain, opts.IsDryRun)
 	if err := ReloadNginx(opts); err != nil {
 		return err
 	}
+
 	printRmSuccess(domain, opts.IsDryRun)
 
 	return nil
@@ -61,6 +66,7 @@ func runNginxRm(args []string) error {
 	if !hasDomain {
 		return apperror.NewValidationError("domain name required: gitmap nginx rm <domain>")
 	}
+
 	opts := VHostOptions{IsDryRun: parseDryRunOption(args)}
 
 	return executeNginxRm(domain, opts)

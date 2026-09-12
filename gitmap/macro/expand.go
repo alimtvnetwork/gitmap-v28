@@ -19,10 +19,12 @@ func ExpandPathAndEnv(input string) string {
 	if len(input) == 0 {
 		return input
 	}
+
 	expanded := expandWindowsEnv(input)
 	expanded = expandUnixEnv(expanded)
 	expanded = expandTilde(expanded)
 	expanded = expandMacroTemp(expanded)
+
 	return expanded
 }
 
@@ -30,14 +32,17 @@ func expandWindowsEnv(input string) string {
 	if !strings.Contains(input, "%") {
 		return input
 	}
+
 	return winEnvRegex.ReplaceAllStringFunc(input, func(token string) string {
 		varName := token[1 : len(token)-1]
 		if val, hasVal := getEnvCaseInsensitive(varName); hasVal {
 			return val
 		}
+
 		if isTempVar(varName) {
 			return getNormalizedTempDir()
 		}
+
 		return token
 	})
 }
@@ -50,13 +55,16 @@ func expandUnixEnv(input string) string {
 	if !strings.Contains(input, "$") {
 		return input
 	}
+
 	return os.Expand(input, func(varName string) string {
 		if val, hasVal := getEnvCaseInsensitive(varName); hasVal {
 			return val
 		}
+
 		if isTempVar(varName) {
 			return getNormalizedTempDir()
 		}
+
 		return os.Getenv(varName)
 	})
 }
@@ -65,12 +73,14 @@ func getEnvCaseInsensitive(key string) (string, bool) {
 	if val, hasKey := os.LookupEnv(key); hasKey {
 		return val, true
 	}
+
 	for _, env := range os.Environ() {
 		parts := strings.SplitN(env, "=", 2)
 		if len(parts) == 2 && strings.EqualFold(parts[0], key) {
 			return parts[1], true
 		}
 	}
+
 	return "", false
 }
 
@@ -78,10 +88,12 @@ func expandTilde(input string) string {
 	if !strings.Contains(input, "~") {
 		return input
 	}
+
 	home, err := os.UserHomeDir()
 	if err != nil || len(home) == 0 {
 		return input
 	}
+
 	return replaceTildeTokens(input, home)
 }
 
@@ -90,6 +102,7 @@ func replaceTildeTokens(input, home string) string {
 	for i, token := range tokens {
 		tokens[i] = resolveSingleTildeToken(token, home)
 	}
+
 	return strings.Join(tokens, " ")
 }
 
@@ -97,12 +110,15 @@ func resolveSingleTildeToken(token, home string) string {
 	if token == "~" {
 		return home
 	}
+
 	if strings.HasPrefix(token, "~/") {
 		return filepath.Join(home, token[2:])
 	}
+
 	if runtime.GOOS == "windows" && strings.HasPrefix(token, `~\`) {
 		return filepath.Join(home, token[2:])
 	}
+
 	return token
 }
 
@@ -111,6 +127,7 @@ func expandMacroTemp(input string) string {
 	for i, token := range tokens {
 		tokens[i] = resolveSingleTempToken(token)
 	}
+
 	return strings.Join(tokens, " ")
 }
 
@@ -120,9 +137,11 @@ func resolveSingleTempToken(token string) string {
 	if isRootTempToken(trimmed) {
 		return tempDir
 	}
+
 	if rel, hasRel := extractTempSubdir(trimmed); hasRel {
 		return filepath.Join(tempDir, rel)
 	}
+
 	return token
 }
 
@@ -137,5 +156,6 @@ func extractTempSubdir(t string) (string, bool) {
 			return t[len(p):], true
 		}
 	}
+
 	return "", false
 }

@@ -71,12 +71,11 @@ func ValidateRawConfig(data []byte) error {
 	var raw map[string]json.RawMessage
 	err := json.Unmarshal(data, &raw)
 	if err != nil {
-
 		return fmt.Errorf("config: invalid JSON: %w", err)
 	}
+
 	missing := findMissingKeys(raw, requiredConfigKeys)
 	if len(missing) == 0 {
-
 		return nil
 	}
 
@@ -94,9 +93,9 @@ func ValidateRawConfig(data []byte) error {
 func ValidateConfig(cfg model.Config) error {
 	violations := collectEnumViolations(cfg)
 	if len(violations) == 0 {
-
 		return nil
 	}
+
 	sort.Strings(violations)
 
 	return fmt.Errorf(
@@ -146,7 +145,6 @@ func collectEnumViolations(cfg model.Config) []string {
 // silently fall back to a default.
 func appendEnumViolation(violations []string, key, value string, allowed []string) []string {
 	if isAllowedValue(value, allowed) {
-
 		return violations
 	}
 
@@ -161,7 +159,6 @@ func appendEnumViolation(violations []string, key, value string, allowed []strin
 func isAllowedValue(value string, allowed []string) bool {
 	for _, candidate := range allowed {
 		if value == candidate {
-
 			return true
 		}
 	}

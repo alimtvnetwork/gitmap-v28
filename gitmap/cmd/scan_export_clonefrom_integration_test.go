@@ -66,6 +66,7 @@ func runRoundTrip(t *testing.T, scanRoot, mode, format string) error {
 	exportPath := exportRecords(t, records, format)
 	manifest := writeCloneFromManifest(t, records, mode, format)
 	executePlanAndAssertOK(t, manifest, exportPath)
+
 	return nil
 }
 
@@ -78,6 +79,7 @@ func scanAndBuildRecords(t *testing.T, root, mode string) []model.ScanRecord {
 	if err != nil {
 		t.Fatalf("scanner.ScanDirWithOptions: %v", err)
 	}
+
 	if len(repos) < 2 {
 		t.Fatalf("scanner found %d repos, want >=2 (root=%s)", len(repos), root)
 	}
@@ -97,6 +99,7 @@ func exportRecords(t *testing.T, records []model.ScanRecord, format string) stri
 	if err != nil {
 		t.Fatalf("create export file: %v", err)
 	}
+
 	defer f.Close()
 	if err := pickFormatterWriter(format)(f, records); err != nil {
 		t.Fatalf("write %s: %v", format, err)
@@ -133,11 +136,13 @@ func writeCloneFromManifest(
 		if url == "" {
 			t.Fatalf("record %d has empty URL for mode %s", i, mode)
 		}
+
 		rows = append(rows, map[string]any{
 			"url":  url,
 			"dest": filepath.Join(destRoot, originFormat+"-"+mode+"-"+rec.RepoName),
 		})
 	}
+
 	path := filepath.Join(t.TempDir(), "clone-from."+originFormat+"."+mode+".json")
 	writeJSONFile(t, path, rows)
 
@@ -163,6 +168,7 @@ func writeJSONFile(t *testing.T, path string, rows []map[string]any) {
 	if err != nil {
 		t.Fatalf("create manifest: %v", err)
 	}
+
 	defer f.Close()
 	enc := json.NewEncoder(f)
 	enc.SetIndent("", "  ")
@@ -181,10 +187,12 @@ func executePlanAndAssertOK(t *testing.T, manifest, exportPath string) {
 	if err != nil {
 		t.Fatalf("ParseFile(%s): %v (export=%s)", manifest, err, exportPath)
 	}
+
 	results := clonefrom.Execute(plan, "", os.Stderr)
 	if len(results) != len(plan.Rows) {
 		t.Fatalf("results=%d, want %d", len(results), len(plan.Rows))
 	}
+
 	for i, r := range results {
 		if r.Status != constants.CloneFromStatusOK {
 			t.Fatalf("row %d status=%q detail=%q (export=%s)",

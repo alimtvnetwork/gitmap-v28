@@ -31,6 +31,7 @@ func detectUnixShell() string {
 	if strings.Contains(shell, "zsh") {
 		return "zsh"
 	}
+
 	if strings.Contains(shell, "bash") {
 		return "bash"
 	}

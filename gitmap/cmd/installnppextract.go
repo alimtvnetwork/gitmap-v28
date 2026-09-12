@@ -26,6 +26,7 @@ func extractNppSettingsZip(target string) {
 
 		return
 	}
+
 	defer reader.Close()
 
 	extracted := 0
@@ -48,6 +49,7 @@ func extractZipEntry(target string, file *zip.File) {
 	if absErr != nil {
 		absTarget = target
 	}
+
 	absDest, destErr := filepath.Abs(destPath)
 	if destErr != nil {
 		absDest = destPath
@@ -61,6 +63,7 @@ func extractZipEntry(target string, file *zip.File) {
 
 	if file.FileInfo().IsDir() {
 		handleNppExtractDir(destPath)
+
 		return
 	}
 
@@ -90,6 +93,7 @@ func writeZipFile(target string, file *zip.File, destPath string) {
 
 		return
 	}
+
 	defer src.Close()
 
 	dst, err := os.Create(destPath)
@@ -98,6 +102,7 @@ func writeZipFile(target string, file *zip.File, destPath string) {
 
 		return
 	}
+
 	defer dst.Close()
 
 	_, err = io.Copy(dst, io.LimitReader(src, maxNppFileSize))
@@ -121,6 +126,7 @@ func syncNppSettingsFallback(target string) {
 		if entry.Name() == "npp-settings.zip" {
 			continue
 		}
+
 		copySettingsFile(source, target, entry.Name())
 	}
 

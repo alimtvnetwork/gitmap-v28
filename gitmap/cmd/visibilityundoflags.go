@@ -54,6 +54,7 @@ func mustParseRunID(args []string, i int) int64 {
 		)
 		cliexit.HandleError(err, constants.ExitVisBadFlag)
 	}
+
 	raw := args[i+1]
 	id, err := strconv.ParseInt(raw, 10, 64)
 	if err != nil || id <= 0 {
@@ -84,5 +85,6 @@ func printVisDryRun(
 	for i, r := range rs {
 		fmt.Fprintf(os.Stdout, constants.MsgDryRunRowFmt, i+1, total, r.RepoName, r.PrevVisibility)
 	}
+
 	fmt.Fprintf(os.Stdout, constants.MsgDryRunFooterFmt, cmdName)
 }

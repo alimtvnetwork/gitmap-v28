@@ -142,6 +142,7 @@ func saveSourceRepoDB(path string) {
 
 		return
 	}
+
 	defer db.Close()
 
 	if err := db.SetSetting(constants.SettingSourceRepoPath, path); err != nil {
@@ -155,6 +156,7 @@ func loadSourceRepoDB() string {
 	if err != nil {
 		return ""
 	}
+
 	defer db.Close()
 
 	return db.GetSetting(constants.SettingSourceRepoPath)

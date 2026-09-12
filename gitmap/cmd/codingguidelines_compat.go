@@ -22,6 +22,7 @@ func writeCGCompatScript(url string) (string, func(), error) {
 	path := filepath.Join(dir, "install.sh")
 	if err := downloadCGScript(url, path); err != nil {
 		_ = os.RemoveAll(dir)
+
 		return "", func() {}, err
 	}
 
@@ -37,6 +38,7 @@ func writeCGCompatScriptWindows(url string) (string, func(), error) {
 	path := filepath.Join(dir, "install.ps1")
 	if err := downloadCGScript(url, path); err != nil {
 		_ = os.RemoveAll(dir)
+
 		return "", func() {}, err
 	}
 
@@ -47,8 +49,10 @@ func downloadCGScript(url, path string) error {
 	resp, err := http.Get(url)
 	if err == nil && resp.StatusCode == http.StatusOK {
 		defer resp.Body.Close()
+
 		return copyHTTPBodyToFile(resp.Body, path)
 	}
+
 	if resp != nil {
 		_ = resp.Body.Close()
 	}
@@ -63,6 +67,7 @@ func copyHTTPBodyToFile(body io.Reader, path string) error {
 	if err != nil {
 		return err
 	}
+
 	defer out.Close()
 
 	_, err = io.Copy(out, body)

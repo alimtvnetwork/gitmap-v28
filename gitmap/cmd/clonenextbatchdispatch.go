@@ -32,9 +32,11 @@ func isBatchRunnable(flags CloneNextFlags, cwd string) bool {
 	if len(flags.CSVPath) > 0 || flags.All {
 		return true
 	}
+
 	if len(cwd) == 0 {
 		return false
 	}
+
 	if clonenext.IsGitRepo(cwd) {
 		return false
 	}

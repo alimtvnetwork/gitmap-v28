@@ -19,10 +19,12 @@ func RenderPathSnippet(shell, dir, manager string) (string, error) {
 	if len(dir) == 0 {
 		return "", fmt.Errorf(constants.ErrPathSnippetDirRequired)
 	}
+
 	tpl, err := snippetTemplate(shell)
 	if err != nil {
 		return "", err
 	}
+
 	if len(manager) == 0 {
 		manager = "gitmap setup"
 	}

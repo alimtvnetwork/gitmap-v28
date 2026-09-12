@@ -58,5 +58,6 @@ func TestAmendListJSONContract_CanonicalRow_KeyOrders(t *testing.T) {
 	if err := encodeAmendListJSON(&buf, rows); err != nil {
 		t.Fatalf("encode: %v", err)
 	}
+
 	assertSchemaKeysFirstObject(t, buf.Bytes(), "amend-list")
 }

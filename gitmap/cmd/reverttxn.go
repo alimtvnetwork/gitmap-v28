@@ -26,11 +26,13 @@ func handleRevertTxnFlags(args []string) bool {
 
 		return true
 	}
+
 	if id, ok := flagValue(args, constants.FlagRevertShowTxn); ok {
 		runShowTxn(id)
 
 		return true
 	}
+
 	if hasRevertFlag(args, constants.FlagRevertPruneTxn) {
 		runPruneTxn()
 
@@ -48,11 +50,13 @@ func dispatchRevertTxn(args []string) bool {
 
 		return true
 	}
+
 	if hasRevertFlag(args, constants.FlagRevertLastTxn) {
 		runRevertLastTxn(hasRevertFlag(args, constants.FlagRevertForce))
 
 		return true
 	}
+
 	if raw, ok := flagValue(args, constants.FlagRevertLastN); ok {
 		runRevertLastN(raw, hasRevertFlag(args, constants.FlagRevertForce))
 
@@ -81,6 +85,7 @@ func flagValue(args []string, name string) (string, bool) {
 		if v, ok := strings.CutPrefix(a, prefix+"="); ok {
 			return v, true
 		}
+
 		if a == prefix && i+1 < len(args) {
 			return args[i+1], true
 		}
@@ -97,7 +102,9 @@ func runListTxn() error {
 	if err != nil {
 		cliexit.HandleError(err, 1)
 	}
+
 	printTxnRows(rows)
+
 	return nil
 }
 
@@ -108,6 +115,7 @@ func printTxnRows(rows []model.TransactionRecord) {
 
 		return
 	}
+
 	for _, r := range rows {
 		fmt.Printf("#%-4d %-10s %-9s %s  %s\n",
 			r.ID, r.Kind, r.Status,
@@ -125,11 +133,14 @@ func runShowTxn(raw string) error {
 	if err != nil {
 		cliexit.HandleError(apperror.NewSimple(constants.ErrTxnRowNotFound, "E9000"), 1)
 	}
+
 	files, err := db.ListTransactionFiles(id)
 	if err != nil {
 		cliexit.HandleError(err, 1)
 	}
+
 	printTxnDetail(rec, files)
+
 	return nil
 }
 
@@ -147,6 +158,7 @@ func printTxnDetail(r model.TransactionRecord, files []model.TransactionFileReco
 func runRevertTxn(raw string, force bool) error {
 	id := mustParseTxnID(raw)
 	revertOne(id, force)
+
 	return nil
 }
 
@@ -158,12 +170,15 @@ func runRevertLastTxn(force bool) error {
 	if err != nil {
 		cliexit.HandleError(err, 1)
 	}
+
 	if id == 0 {
 		fmt.Print(constants.MsgTxnNoCommitted)
 
 		return nil
 	}
+
 	revertOne(id, force)
+
 	return nil
 }
 
@@ -175,12 +190,14 @@ func revertOne(id int64, force bool) {
 	if err != nil {
 		cliexit.HandleError(apperror.NewSimple(constants.ErrTxnRowNotFound, "E9000"), 1)
 	}
+
 	files, _ := db.ListTransactionFiles(id)
 	if !force && !confirmRevert(rec, len(files)) {
 		fmt.Print(constants.MsgTxnAbortedByUser)
 
 		return
 	}
+
 	applyRevertOrExit(db, id, rec, force)
 }
 
@@ -199,6 +216,7 @@ func applyRevertOrExit(db *store.DB, id int64, rec model.TransactionRecord, forc
 		)
 		cliexit.HandleError(appErr, 1)
 	}
+
 	fmt.Printf(constants.MsgTxnReverted, id, rec.Kind)
 }
 
@@ -222,7 +240,9 @@ func runPruneTxn() error {
 	if err != nil {
 		cliexit.HandleError(err, 1)
 	}
+
 	fmt.Printf(constants.MsgTxnPruned, len(dropped))
+
 	return nil
 }
 

@@ -23,6 +23,7 @@ func ApplyTransportFlag(dir string, useSSH, useHTTPS bool) (bool, string, string
 	if !useSSH && !useHTTPS {
 		return false, "", "", nil
 	}
+
 	if useSSH && useHTTPS {
 		fmt.Fprintln(os.Stderr, "⚠ both --ssh and --https set; --ssh wins")
 		useHTTPS = false
@@ -40,11 +41,13 @@ func ApplyTransportFlag(dir string, useSSH, useHTTPS bool) (bool, string, string
 	} else {
 		converted, ok = ConvertURLToHTTPS(old)
 	}
+
 	if !ok {
 		fmt.Fprintf(os.Stderr, "⚠ remote.origin.url %q is not a recognized Git URL; skipping transport rewrite\n", old)
 
 		return false, old, old, nil
 	}
+
 	if converted == old {
 		return false, old, old, nil
 	}
@@ -52,6 +55,7 @@ func ApplyTransportFlag(dir string, useSSH, useHTTPS bool) (bool, string, string
 	if err := setOriginURL(dir, converted); err != nil {
 		return false, old, converted, err
 	}
+
 	fmt.Printf("→ remote.origin.url: %s → %s\n", old, converted)
 
 	return true, old, converted, nil

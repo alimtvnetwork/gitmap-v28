@@ -15,6 +15,7 @@ func filterBookmarksByTitle(roots []bookmarkItem, match, exactTitle string) []bo
 	if match == "" && exactTitle == "" {
 		return roots
 	}
+
 	out := make([]bookmarkItem, 0, len(roots))
 	for _, r := range roots {
 		pruned, isPruned := pruneBookmark(r, strings.ToLower(match), exactTitle)
@@ -22,6 +23,7 @@ func filterBookmarksByTitle(roots []bookmarkItem, match, exactTitle string) []bo
 			out = append(out, pruned)
 		}
 	}
+
 	return out
 }
 
@@ -30,6 +32,7 @@ func pruneBookmark(n bookmarkItem, matchLower, exact string) (bookmarkItem, bool
 	if isURL {
 		return pruneBookmarkLeaf(n, matchLower, exact)
 	}
+
 	kept := make([]bookmarkItem, 0, len(n.Children))
 	for _, c := range n.Children {
 		p, isPruned := pruneBookmark(c, matchLower, exact)
@@ -37,10 +40,13 @@ func pruneBookmark(n bookmarkItem, matchLower, exact string) (bookmarkItem, bool
 			kept = append(kept, p)
 		}
 	}
+
 	if len(kept) == 0 {
 		return bookmarkItem{}, false
 	}
+
 	n.Children = kept
+
 	return n, true
 }
 
@@ -49,6 +55,7 @@ func pruneBookmarkLeaf(n bookmarkItem, matchLower, exact string) (bookmarkItem, 
 	if matches {
 		return n, true
 	}
+
 	return bookmarkItem{}, false
 }
 
@@ -56,8 +63,10 @@ func bookmarkMatches(title, matchLower, exact string) bool {
 	if exact != "" && title == exact {
 		return true
 	}
+
 	if matchLower != "" && strings.Contains(strings.ToLower(title), matchLower) {
 		return true
 	}
+
 	return false
 }

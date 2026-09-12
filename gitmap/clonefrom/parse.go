@@ -35,10 +35,12 @@ func ParseFile(path string) (Plan, error) {
 	if err != nil {
 		return Plan{}, fmt.Errorf(constants.ErrCloneFromAbsPath, path, err)
 	}
+
 	f, err := os.Open(abs)
 	if err != nil {
 		return Plan{}, fmt.Errorf(constants.ErrCloneFromOpen, abs, err)
 	}
+
 	defer f.Close()
 
 	format := detectFormat(abs)
@@ -46,6 +48,7 @@ func ParseFile(path string) (Plan, error) {
 	if err != nil {
 		return Plan{}, err
 	}
+
 	rows = dedupRows(rows)
 
 	return Plan{Source: abs, Format: format, Rows: rows}, nil
@@ -84,12 +87,14 @@ func parseJSON(r io.Reader) ([]Row, error) {
 	if err := dec.Decode(&raw); err != nil {
 		return nil, fmt.Errorf(constants.ErrCloneFromJSONDecode, err)
 	}
+
 	out := make([]Row, 0, len(raw))
 	for i, obj := range raw {
 		row, err := jsonRow(obj)
 		if err != nil {
 			return nil, fmt.Errorf(constants.ErrCloneFromJSONRow, i+1, err)
 		}
+
 		out = append(out, row)
 	}
 
@@ -107,6 +112,7 @@ func jsonRow(obj map[string]any) (Row, error) {
 	if d, ok := obj[constants.CSVColumnDepth].(float64); ok {
 		depth = int(d)
 	}
+
 	row := Row{
 		URL:      strings.TrimSpace(url),
 		Dest:     strings.TrimSpace(dest),

@@ -96,9 +96,11 @@ func (r Row) PickURL(mode string) string {
 	if mode == constants.CloneNowModeSSH && len(r.SSHUrl) > 0 {
 		return r.SSHUrl
 	}
+
 	if mode == constants.CloneNowModeSSH {
 		return r.HTTPSUrl
 	}
+
 	if len(r.HTTPSUrl) > 0 {
 		return r.HTTPSUrl
 	}

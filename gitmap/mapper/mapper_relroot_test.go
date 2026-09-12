@@ -21,10 +21,12 @@ func TestBuildRecordsWithRoot_PinsBaseToProvidedRoot(t *testing.T) {
 			RelativePath: "should-be-overridden",
 		},
 	}
+
 	records := BuildRecordsWithRoot(repos, "https", "", root)
 	if len(records) != 1 {
 		t.Fatalf("want 1 record, got %d", len(records))
 	}
+
 	want := filepath.Join("team-a", "repo-1")
 	if records[0].RelativePath != want {
 		t.Errorf("RelativePath = %q, want %q", records[0].RelativePath, want)
@@ -41,6 +43,7 @@ func TestBuildRecordsWithRoot_EmptyRootKeepsScannerValue(t *testing.T) {
 			RelativePath: "kept-as-is",
 		},
 	}
+
 	records := BuildRecordsWithRoot(repos, "https", "", "")
 	if records[0].RelativePath != "kept-as-is" {
 		t.Errorf("RelativePath = %q, want kept-as-is", records[0].RelativePath)
@@ -60,6 +63,7 @@ func TestBuildRecordsWithRoot_OutOfTreeFallsBack(t *testing.T) {
 			RelativePath: "scanner-fallback",
 		},
 	}
+
 	records := BuildRecordsWithRoot(repos, "https", "", root)
 	if records[0].RelativePath != "scanner-fallback" {
 		t.Errorf("expected fallback to scanner value, got %q", records[0].RelativePath)
@@ -73,6 +77,7 @@ func absRoot(t *testing.T) string {
 	if runtime.GOOS == "windows" {
 		return `C:\repos`
 	}
+
 	if !strings.HasPrefix("/tmp", "/") {
 		t.Fatal("unexpected: /tmp is not absolute")
 	}

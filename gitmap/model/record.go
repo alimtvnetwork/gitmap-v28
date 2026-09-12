@@ -67,7 +67,6 @@ type Config struct {
 
 // DefaultConfig returns a Config with sensible built-in defaults.
 func DefaultConfig() Config {
-
 	return Config{
 		DefaultMode:           constants.ModeHTTPS,
 		DefaultOutput:         constants.OutputTerminal,
@@ -100,13 +99,11 @@ type CloneResult struct {
 
 // IsFailed reports whether the clone operation failed.
 func (r CloneResult) IsFailed() bool {
-
 	return !r.IsSuccess
 }
 
 // IsFail reports whether the clone operation failed.
 func (r CloneResult) IsFail() bool {
-
 	return !r.IsSuccess
 }
 

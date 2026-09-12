@@ -19,13 +19,16 @@ func hydrate(repoDir, sha string, orderIndex int) (SourceCommit, error) {
 	if err != nil {
 		return SourceCommit{}, err
 	}
+
 	files, err := readCommitFiles(repoDir, sha)
 	if err != nil {
 		return SourceCommit{}, err
 	}
+
 	meta.OrderIndex = orderIndex
 	meta.Sha = sha
 	meta.Files = files
+
 	return meta, nil
 }
 
@@ -36,10 +39,12 @@ func readCommitMeta(repoDir, sha string) (SourceCommit, error) {
 	if err != nil {
 		return SourceCommit{}, fmt.Errorf("show %s: %w", sha, err)
 	}
+
 	parts := strings.SplitN(out, "\x1f", 6)
 	if len(parts) != 6 {
 		return SourceCommit{}, fmt.Errorf("malformed git show output for %s: %q", sha, out)
 	}
+
 	return assembleMeta(parts)
 }
 
@@ -50,10 +55,12 @@ func assembleMeta(parts []string) (SourceCommit, error) {
 	if err != nil {
 		return SourceCommit{}, fmt.Errorf("parse author date: %w", err)
 	}
+
 	committerDate, err := time.Parse(time.RFC3339, strings.TrimSpace(parts[3]))
 	if err != nil {
 		return SourceCommit{}, fmt.Errorf("parse committer date: %w", err)
 	}
+
 	return SourceCommit{
 		AuthorName:      parts[0],
 		AuthorEmail:     parts[1],
@@ -71,6 +78,7 @@ func assembleMessage(subject, body string) string {
 	if body == "" {
 		return subject
 	}
+
 	return subject + "\n\n" + body
 }
 
@@ -82,10 +90,12 @@ func readCommitFiles(repoDir, sha string) ([]string, error) {
 	if err != nil {
 		return nil, fmt.Errorf("show files %s: %w", sha, err)
 	}
+
 	out = strings.TrimSpace(out)
 	if out == "" {
 		return nil, nil
 	}
+
 	return splitAndCleanPaths(out), nil
 }
 
@@ -99,7 +109,9 @@ func splitAndCleanPaths(out string) []string {
 		if p == "" {
 			continue
 		}
+
 		cleaned = append(cleaned, strings.TrimPrefix(p, "./"))
 	}
+
 	return cleaned
 }

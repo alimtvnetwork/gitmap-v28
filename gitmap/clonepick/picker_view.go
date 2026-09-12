@@ -18,6 +18,7 @@ func (m pickerModel) View() string {
 	if len(m.paths) == 0 {
 		return "clone-pick: repository has no tracked files\n"
 	}
+
 	var b strings.Builder
 	fmt.Fprintf(&b, "gitmap clone-pick --ask  (%d/%d selected, rows %d-%d)\n",
 		m.countPicked(), len(m.paths),
@@ -50,6 +51,7 @@ func (m pickerModel) renderRows(b *strings.Builder) {
 	if end > len(m.paths) {
 		end = len(m.paths)
 	}
+
 	for i := m.scrollOffset; i < end; i++ {
 		b.WriteString(formatRow(i == m.cursor, m.picked[i],
 			IsAutoExcluded(m.paths[i]), m.paths[i]))
@@ -65,6 +67,7 @@ func formatRow(isCursor, isPicked, isGreyed bool, path string) string {
 	if isCursor {
 		prefix = "> "
 	}
+
 	mark := pickMark(isPicked, isGreyed)
 	suffix := ""
 	if isGreyed {

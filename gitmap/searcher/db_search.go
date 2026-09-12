@@ -32,8 +32,10 @@ func collectExactMatches(rows *sql.Rows, query string) ([]SearchResult, *apperro
 		if err != nil {
 			return nil, apperror.WrapSimple(err, "searcher.collectExactMatches.Scan")
 		}
+
 		allResults = append(allResults, SearchExact(content, query, abs, rel)...)
 	}
+
 	if err := rows.Err(); err != nil {
 		return nil, apperror.WrapSimple(err, "searcher.collectExactMatches.Rows")
 	}
@@ -48,8 +50,10 @@ func collectRegexMatches(rows *sql.Rows, lz *lazyregex.LazyRegexp) ([]SearchResu
 		if err != nil {
 			return nil, apperror.WrapSimple(err, "searcher.collectRegexMatches.Scan")
 		}
+
 		allResults = append(allResults, SearchRegex(content, lz, abs, rel)...)
 	}
+
 	if err := rows.Err(); err != nil {
 		return nil, apperror.WrapSimple(err, "searcher.collectRegexMatches.Rows")
 	}
@@ -61,6 +65,7 @@ func applyLimit(results []SearchResult, limit int) []SearchResult {
 	if limit <= 0 {
 		return results
 	}
+
 	hasFit := len(results) <= limit
 	if hasFit {
 		return results
@@ -74,6 +79,7 @@ func executeSearchExact(ctx context.Context, db *sql.DB, query string) ([]Search
 	if err != nil {
 		return nil, apperror.WrapSimple(err, "searcher.executeSearchExact.Query")
 	}
+
 	defer rows.Close()
 
 	return collectExactMatches(rows, query)
@@ -85,13 +91,16 @@ func SearchRepoDB(ctx context.Context, db *sql.DB, query string, limit int, useC
 	if appErr != nil {
 		return nil, appErr
 	}
+
 	if hasCache {
 		return res, nil
 	}
+
 	results, err := executeSearchExact(ctx, db, query)
 	if err != nil {
 		return nil, err
 	}
+
 	maybeUpdateCache(ctx, db, query, results, useCache)
 
 	return applyLimit(results, limit), nil
@@ -102,6 +111,7 @@ func executeSearchRegex(ctx context.Context, db *sql.DB, lz *lazyregex.LazyRegex
 	if err != nil {
 		return nil, apperror.WrapSimple(err, "searcher.executeSearchRegex.Query")
 	}
+
 	defer rows.Close()
 
 	return collectRegexMatches(rows, lz)
@@ -114,14 +124,17 @@ func SearchRepoDBRegex(ctx context.Context, db *sql.DB, expr string, limit int, 
 	if appErr != nil {
 		return nil, appErr
 	}
+
 	if hasCache {
 		return res, nil
 	}
+
 	lz := lazyregex.New(expr)
 	results, err := executeSearchRegex(ctx, db, lz)
 	if err != nil {
 		return nil, err
 	}
+
 	maybeUpdateCache(ctx, db, cacheKey, results, useCache)
 
 	return applyLimit(results, limit), nil
@@ -131,6 +144,7 @@ func maybeUpdateCache(ctx context.Context, db *sql.DB, cacheKey string, results 
 	if !useCache {
 		return
 	}
+
 	if appErr := updateCache(ctx, db, cacheKey, results); appErr != nil {
 		appErr.HandleError()
 	}
@@ -141,6 +155,7 @@ func updateCache(ctx context.Context, db *sql.DB, cacheKey string, results []Sea
 	if err != nil {
 		return apperror.WrapSimple(err, "searcher.updateCache.Marshal")
 	}
+
 	_, execErr := db.ExecContext(ctx, sqlUpsertCache, cacheKey, string(b))
 	if execErr != nil {
 		return apperror.WrapSimple(execErr, "searcher.updateCache.Exec")
@@ -164,9 +179,11 @@ func queryCachedJson(ctx context.Context, db *sql.DB, query string) (string, boo
 	if err == sql.ErrNoRows {
 		return "", false, nil
 	}
+
 	if err != nil {
 		return "", false, apperror.WrapSimple(err, "searcher.queryCachedJson.Scan")
 	}
+
 	hasJson := cachedJson != ""
 
 	return cachedJson, hasJson, nil
@@ -177,13 +194,16 @@ func getCachedSearchResults(ctx context.Context, db *sql.DB, query string, limit
 	if appErr != nil {
 		return nil, false, appErr
 	}
+
 	if !hasJson {
 		return nil, false, nil
 	}
+
 	var res []SearchResult
 	if err := json.Unmarshal([]byte(cachedJson), &res); err != nil {
 		return nil, false, apperror.WrapSimple(err, "searcher.getCachedSearchResults.Unmarshal")
 	}
+
 	if hitErr := incrementCacheHits(ctx, db, query); hitErr != nil {
 		hitErr.HandleError()
 	}

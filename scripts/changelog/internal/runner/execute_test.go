@@ -30,6 +30,7 @@ func TestEndToEndWriteThenCheck(t *testing.T) {
 	if err := os.WriteFile(mdPath, []byte(mdSeed), 0o644); err != nil {
 		t.Fatal(err)
 	}
+
 	if err := os.WriteFile(tsPath, []byte(tsSeed), 0o644); err != nil {
 		t.Fatal(err)
 	}
@@ -51,6 +52,7 @@ func TestEndToEndWriteThenCheck(t *testing.T) {
 	if !bytes.Contains(mdOut, []byte("## v3.92.0")) || !bytes.Contains(mdOut, []byte("## v3.91.0")) {
 		t.Fatalf("Markdown round-trip lost an entry:\n%s", mdOut)
 	}
+
 	if !strings.Contains(string(mdOut), "- awesome") || !strings.Contains(string(mdOut), "- crash") {
 		t.Fatalf("Markdown round-trip lost items:\n%s", mdOut)
 	}

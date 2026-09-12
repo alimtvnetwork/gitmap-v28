@@ -15,6 +15,7 @@ func detectGo(dir, repoPath string, repoID int64, repoName string, results *[]De
 	if isDuplicate(dir, constants.ProjectKeyGo, results) {
 		return
 	}
+
 	modPath := filepath.Join(dir, constants.IndicatorGoMod)
 	meta := parseGoMetadata(dir, modPath)
 	projName := meta.ModuleName
@@ -33,10 +34,12 @@ func parseGoMetadata(dir, modPath string) *model.GoProjectMetadata {
 	meta := &model.GoProjectMetadata{
 		GoModPath: modPath,
 	}
+
 	sumPath := filepath.Join(dir, constants.GoSumFile)
 	if fileExists(sumPath) {
 		meta.GoSumPath = sumPath
 	}
+
 	parseGoModContent(modPath, meta)
 	meta.Runnables = findGoRunnables(dir)
 
@@ -49,11 +52,13 @@ func parseGoModContent(modPath string, meta *model.GoProjectMetadata) {
 	if err != nil {
 		return
 	}
+
 	for _, line := range strings.Split(string(data), "\n") {
 		trimmed := strings.TrimSpace(line)
 		if strings.HasPrefix(trimmed, "module ") {
 			meta.ModuleName = strings.TrimSpace(strings.TrimPrefix(trimmed, "module "))
 		}
+
 		if strings.HasPrefix(trimmed, "go ") {
 			meta.GoVersion = strings.TrimSpace(strings.TrimPrefix(trimmed, "go "))
 		}
@@ -76,6 +81,7 @@ func findCmdRunnables(projectDir string, runnables []model.GoRunnableFile) []mod
 	if err != nil {
 		return runnables
 	}
+
 	for _, entry := range entries {
 		if entry.IsDir() {
 			runnables = checkCmdSubdir(cmdDir, entry.Name(), projectDir, runnables)
@@ -102,6 +108,7 @@ func checkCmdSubdir(
 			RelativePath: filepath.Join(rel, constants.GoMainFile),
 		})
 	}
+
 	nestedPath := filepath.Join(cmdDir, subName, "main", constants.GoMainFile)
 	if fileExists(nestedPath) {
 		rel := buildRelativePath(filepath.Dir(nestedPath), projectDir)

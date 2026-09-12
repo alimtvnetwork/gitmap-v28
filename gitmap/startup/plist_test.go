@@ -42,13 +42,16 @@ func plistBody(name string, managed bool, argv []string) string {
 	if managed {
 		b.WriteString("<key>" + constants.StartupPlistMarker + "</key><true/>\n")
 	}
+
 	if len(argv) > 0 {
 		b.WriteString("<key>ProgramArguments</key><array>\n")
 		for _, a := range argv {
 			b.WriteString("<string>" + a + "</string>\n")
 		}
+
 		b.WriteString("</array>\n")
 	}
+
 	b.WriteString("</dict></plist>\n")
 
 	return b.String()
@@ -69,9 +72,11 @@ func TestList_Plist_OnlyReturnsManaged(t *testing.T) {
 	if err != nil {
 		t.Fatalf("List: %v", err)
 	}
+
 	if len(got) != 2 {
 		t.Fatalf("expected 2 managed entries, got %d (%+v)", len(got), got)
 	}
+
 	names := map[string]bool{got[0].Name: true, got[1].Name: true}
 	if !names["gitmap.foo"] || !names["gitmap.bar"] {
 		t.Fatalf("unexpected entries: %+v", got)
@@ -90,6 +95,7 @@ func TestList_Plist_ExecJoinsProgramArguments(t *testing.T) {
 	if err != nil || len(got) != 1 {
 		t.Fatalf("List: err=%v entries=%+v", err, got)
 	}
+
 	want := "/usr/local/bin/gitmap watch ~/projects"
 	if got[0].Exec != want {
 		t.Fatalf("Exec = %q, want %q", got[0].Exec, want)
@@ -103,12 +109,14 @@ func TestList_Plist_MissingDirReturnsEmpty(t *testing.T) {
 	if runtime.GOOS != "darwin" {
 		t.Skip("plist tests are macOS-only")
 	}
+
 	root := t.TempDir()
 	t.Setenv("HOME", root)
 	got, err := List()
 	if err != nil {
 		t.Fatalf("List on missing dir must not error, got: %v", err)
 	}
+
 	if len(got) != 0 {
 		t.Fatalf("expected 0 entries, got %d", len(got))
 	}
@@ -126,6 +134,7 @@ func TestRemove_Plist_StatusMatrix(t *testing.T) {
 	if err != nil || res.Status != RemoveDeleted {
 		t.Fatalf("delete: status=%v err=%v", res.Status, err)
 	}
+
 	if _, statErr := os.Stat(managedPath); !os.IsNotExist(statErr) {
 		t.Fatalf("file should be gone, stat err=%v", statErr)
 	}
@@ -139,6 +148,7 @@ func TestRemove_Plist_StatusMatrix(t *testing.T) {
 	if res.Status != RemoveRefused {
 		t.Fatalf("refused: got status=%v", res.Status)
 	}
+
 	if _, statErr := os.Stat(filepath.Join(dir, "gitmap.thirdparty.plist")); statErr != nil {
 		t.Fatalf("refused file must remain on disk, stat err=%v", statErr)
 	}
@@ -160,6 +170,7 @@ func TestRemove_Plist_DotPlistSuffixTolerated(t *testing.T) {
 	if err != nil || res.Status != RemoveDeleted {
 		t.Fatalf("got status=%v err=%v", res.Status, err)
 	}
+
 	if _, statErr := os.Stat(filepath.Join(dir, "gitmap.suffixed.plist")); !os.IsNotExist(statErr) {
 		t.Fatalf("file should be gone")
 	}

@@ -50,6 +50,7 @@ func ScanRepoScanLog(row dbengine.RowScanner) (*RepoScanLog, error) {
 	item.Notes = dbengine.ScanString(raw_Notes)
 	item.Comments = dbengine.ScanString(raw_Comments)
 	item.CreatedAt = dbengine.ScanString(raw_CreatedAt)
+
 	return &item, nil
 }
 
@@ -66,6 +67,7 @@ func NewRepoScanLogDbRepo(db *dbengine.DbWrapper) *RepoScanLogDbRepo {
 		enums.RepoScanLogTable,
 		ScanRepoScanLog,
 	)
+
 	return &RepoScanLogDbRepo{
 		db:   db,
 		repo: repo,
@@ -114,12 +116,14 @@ func (r *RepoScanLogDbRepo) Insert(ctx context.Context, item *RepoScanLog) dbeng
 	if item.RepoScanLogId == 0 {
 		id = nil
 	}
+
 	return r.db.ExecRowsAffected(ctx, query, id, item.RepoId, item.RepoSlug, item.Action, item.Status, item.ErrorMessage, item.Details, item.Notes, item.Comments, item.CreatedAt)
 }
 
 // Update updates an existing RepoScanLog record identified by its primary key.
 func (r *RepoScanLogDbRepo) Update(ctx context.Context, item *RepoScanLog) dbengine.RowsAffectedResult {
 	query := "UPDATE RepoScanLog SET RepoId = ?, RepoSlug = ?, Action = ?, Status = ?, ErrorMessage = ?, Details = ?, Notes = ?, Comments = ?, CreatedAt = ? WHERE RepoScanLogId = ?;"
+
 	return r.db.ExecRowsAffected(ctx, query, item.RepoId, item.RepoSlug, item.Action, item.Status, item.ErrorMessage, item.Details, item.Notes, item.Comments, item.CreatedAt, item.RepoScanLogId)
 }
 

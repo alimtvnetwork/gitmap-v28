@@ -61,12 +61,15 @@ func (db *DB) SeedDownloaderConfig(seedPath string) {
 
 		return
 	}
+
 	if err := db.SetDownloaderSeedHash(hash); err != nil {
 		fmt.Fprintf(os.Stderr, "  ⚠ Could not record seed hash: %v\n", err)
 	}
+
 	if isSeedBannerSuppressed() {
 		return
 	}
+
 	fmt.Fprintf(os.Stdout, constants.MsgDownloaderConfigSeeded+"\n", short(hash))
 	fmt.Fprintf(os.Stdout, constants.MsgDownloaderConfigDBVersion+"\n", doc.DatabaseVersion.LastKnownVersion)
 }
@@ -79,10 +82,12 @@ func isSeedBannerSuppressed() bool {
 	if os.Getenv(constants.EnvGitMapQuiet) == constants.EnvGitMapQuietTrue {
 		return true
 	}
+
 	for _, arg := range os.Args[1:] {
 		if arg == constants.FlagNoBanner || arg == "--json" || strings.HasSuffix(arg, "-json") {
 			return true
 		}
+
 		if arg == "version" || arg == "--version" || arg == "-v" || arg == "reset" || arg == "db-reset" {
 			return true
 		}
@@ -101,8 +106,10 @@ func loadSeedOrDefaults(seedPath string) (downloaderconfig.Document, string) {
 	if res.IsFailure() && !errors.Is(res.Err, fs.ErrNotExist) {
 		fmt.Fprintf(os.Stderr, constants.WarnDownloaderSeedRead+"\n", resolved, res.Err)
 	}
+
 	if res.IsFailure() {
 		fallback := downloaderconfig.Defaults()
+
 		return fallback, downloaderconfig.SeedHash(fallback)
 	}
 
@@ -116,6 +123,7 @@ func resolveSeedPath(seedPath string) string {
 	if filepath.IsAbs(seedPath) {
 		return seedPath
 	}
+
 	exe, err := os.Executable()
 	if err != nil {
 		return seedPath

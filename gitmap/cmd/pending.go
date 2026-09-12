@@ -19,12 +19,14 @@ func runPending() error {
 
 		return nil
 	}
+
 	checkHelp("pending", args)
 
 	db, err := openDB()
 	if err != nil {
 		return apperror.WrapSimple(err, constants.WarnPendingDBOpen)
 	}
+
 	defer db.Close()
 
 	tasks, err := db.ListPendingTasks()
@@ -43,5 +45,6 @@ func runPending() error {
 	for _, t := range tasks {
 		fmt.Printf(constants.MsgPendingListRow, t.ID, t.TaskTypeName, t.TargetPath, t.FailureReason)
 	}
+
 	return nil
 }

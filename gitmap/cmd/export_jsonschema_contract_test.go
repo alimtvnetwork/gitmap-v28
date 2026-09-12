@@ -28,6 +28,7 @@ func TestExportJSONSchema_TopLevelShape(t *testing.T) {
 	if root["type"] != "object" {
 		t.Fatalf("top-level type = %v, want object", root["type"])
 	}
+
 	got := stringSliceFromAny(root["required"])
 	sort.Strings(got)
 	if !equalStringSlices(got, exportRequiredKeys) {
@@ -49,6 +50,7 @@ func TestExportJSONSchema_EncoderMatchesSchema(t *testing.T) {
 	if err := encodeDatabaseExportJSON(&buf, model.DatabaseExport{}); err != nil {
 		t.Fatalf("encode: %v", err)
 	}
+
 	gotKeys := extractFirstObjectKeyOrder(t, buf.Bytes())
 	for _, key := range gotKeys {
 		if _, allowed := props[key]; !allowed {

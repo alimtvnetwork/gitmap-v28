@@ -24,5 +24,6 @@ func parseMoveFlags(args []string) (moveOpts, []string) {
 			positional = append(positional, a)
 		}
 	}
+
 	return opts, positional
 }

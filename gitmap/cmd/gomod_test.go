@@ -23,6 +23,7 @@ func TestParseExtFlag_Multiple(t *testing.T) {
 	if len(exts) != 3 {
 		t.Fatalf("expected 3 exts, got %d", len(exts))
 	}
+
 	expected := []string{".go", ".md", ".txt"}
 	for i, e := range expected {
 		if exts[i] != e {
@@ -74,9 +75,11 @@ func TestParseGoModFlags_Defaults(t *testing.T) {
 	if opts.newPath != "github.com/new/path" {
 		t.Errorf("expected newPath=github.com/new/path, got %q", opts.newPath)
 	}
+
 	if opts.dryRun || opts.noMerge || opts.noTidy || opts.verbose {
 		t.Error("expected all flags false by default")
 	}
+
 	if opts.exts != nil {
 		t.Errorf("expected nil exts, got %v", opts.exts)
 	}
@@ -91,9 +94,11 @@ func TestParseGoModFlags_AllFlags(t *testing.T) {
 	if !opts.dryRun || !opts.noMerge || !opts.noTidy || !opts.verbose {
 		t.Error("expected all flags true")
 	}
+
 	if len(opts.exts) != 2 {
 		t.Errorf("expected 2 exts, got %v", opts.exts)
 	}
+
 	if opts.newPath != "github.com/new/path" {
 		t.Errorf("expected newPath=github.com/new/path, got %q", opts.newPath)
 	}

@@ -18,23 +18,29 @@ func TestHarnessSmoke(t *testing.T) {
 	if len(sha) != 40 {
 		t.Fatalf("commit sha looks malformed: %q", sha)
 	}
+
 	log := src.LogFirstParent(t)
 	if len(log) != 1 {
 		t.Fatalf("got %d log entries, want 1", len(log))
 	}
+
 	if log[0].Sha != sha {
 		t.Fatalf("log sha %q != commit sha %q", log[0].Sha, sha)
 	}
+
 	if log[0].Subject != "initial commit" {
 		t.Fatalf("subject = %q, want %q", log[0].Subject, "initial commit")
 	}
+
 	// Date round-trip: %aI is RFC3339 strict — must contain our timestamp.
 	if log[0].AuthorDate[:19] != "2024-01-15T12:30:00" {
 		t.Fatalf("author date = %q, want prefix 2024-01-15T12:30:00", log[0].AuthorDate)
 	}
+
 	if log[0].CommitDate[:19] != "2024-01-15T12:30:00" {
 		t.Fatalf("commit date = %q, want prefix 2024-01-15T12:30:00", log[0].CommitDate)
 	}
+
 	src.MustExist("readme.md")
 }
 

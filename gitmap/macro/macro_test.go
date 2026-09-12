@@ -20,6 +20,7 @@ func TestMacroSaveLoadListDelete(t *testing.T) {
 			{StepNum: 2, CommandLine: "echo world", TimeoutSeconds: 10},
 		},
 	}
+
 	testSaveAndLoadMacro(t, m)
 	assertMacroListed(t, "test-macro")
 	testDryRunAndCleanup(t, m)
@@ -29,6 +30,7 @@ func testSaveAndLoadMacro(t *testing.T, m *Macro) {
 	if err := SaveMacro(m); err != nil {
 		t.Fatalf("SaveMacro failed: %v", err)
 	}
+
 	loaded, err := LoadMacro(m.Name)
 	if err != nil || loaded.Name != m.Name || len(loaded.Steps) != len(m.Steps) {
 		t.Fatalf("LoadMacro failed: %v, loaded: %+v", err, loaded)
@@ -40,11 +42,13 @@ func assertMacroListed(t *testing.T, name string) {
 	if err != nil {
 		t.Fatalf("ListMacros failed: %v", err)
 	}
+
 	for _, item := range list {
 		if item.Name == name {
 			return
 		}
 	}
+
 	t.Fatalf("macro %q not found in list", name)
 }
 
@@ -52,9 +56,11 @@ func testDryRunAndCleanup(t *testing.T, m *Macro) {
 	if err := Execute(context.Background(), m, ExecOptions{DryRun: true}); err != nil {
 		t.Fatalf("Dry run execution failed: %v", err)
 	}
+
 	if err := DeleteMacro(m.Name); err != nil {
 		t.Fatalf("DeleteMacro failed: %v", err)
 	}
+
 	if err := DeleteMacro(m.Name); err != nil {
 		t.Fatalf("Idempotent delete failed: %v", err)
 	}
@@ -72,6 +78,7 @@ func TestExecute_WithCdAndEnvExpansion(t *testing.T) {
 			{StepNum: 2, CommandLine: "echo active"},
 		},
 	}
+
 	if err := Execute(context.Background(), m, ExecOptions{DryRun: false}); err != nil {
 		t.Fatalf("Execute failed: %v", err)
 	}
@@ -109,6 +116,7 @@ func TestExecute_WithJSONAndFileReport(t *testing.T) {
 			{StepNum: 1, CommandLine: "echo json-step"},
 		},
 	}
+
 	opts := ExecOptions{JSON: true, FilePath: outFile}
 	runAndAssertReportFile(t, m, opts, outFile)
 }
@@ -122,6 +130,7 @@ func TestExecute_WithYAMLAndFileReport(t *testing.T) {
 			{StepNum: 1, CommandLine: "echo yaml-step"},
 		},
 	}
+
 	opts := ExecOptions{YAML: true, FilePath: outFile}
 	runAndAssertReportFile(t, m, opts, outFile)
 }
@@ -130,6 +139,7 @@ func runAndAssertReportFile(t *testing.T, m *Macro, opts ExecOptions, outFile st
 	if err := Execute(context.Background(), m, opts); err != nil {
 		t.Fatalf("Execute failed: %v", err)
 	}
+
 	content, err := os.ReadFile(outFile)
 	if err != nil || len(content) == 0 {
 		t.Fatalf("Report file not written: %v", err)
@@ -143,6 +153,7 @@ func TestExecute_StepTimeout(t *testing.T) {
 			{StepNum: 1, CommandLine: getSleepCmd(3), TimeoutSeconds: 1},
 		},
 	}
+
 	start := time.Now()
 	err := Execute(context.Background(), m, ExecOptions{DryRun: false})
 	elapsed := time.Since(start)
@@ -185,6 +196,7 @@ func TestExecute_StepWorkingDirPrecedence(t *testing.T) {
 			{StepNum: 1, CommandLine: "echo step-ok", WorkingDir: subDir},
 		},
 	}
+
 	if err := Execute(context.Background(), m, ExecOptions{DryRun: false}); err != nil {
 		t.Fatalf("Execute failed: %v", err)
 	}

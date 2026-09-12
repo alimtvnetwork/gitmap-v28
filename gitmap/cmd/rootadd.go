@@ -32,6 +32,7 @@ func dispatchAdd(command string) (bool, error) {
 	if command != "add" {
 		return false, nil
 	}
+
 	if len(os.Args) < 3 {
 		fmt.Fprint(os.Stderr, addUsage)
 		err := apperror.NewWithDetails(

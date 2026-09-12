@@ -109,10 +109,12 @@ func runCmdFaithfulCheck(in CloneTermBlockInput, executorArgv []string) error {
 	if !cmdFaithfulVerifyEnabled() {
 		return nil
 	}
+
 	report := VerifyCmdFaithful(in, executorArgv)
 	if report.HasMismatch() {
 		cmdFaithfulHadMismatch.Store(true)
 	}
+
 	if err := PrintCmdFaithfulReport(os.Stderr, report); err != nil {
 		// Zero-swallow policy: surface the write failure but don't
 		// abort the clone — the verifier is purely informational.
@@ -120,5 +122,6 @@ func runCmdFaithfulCheck(in CloneTermBlockInput, executorArgv []string) error {
 			"  Warning: --verify-cmd-faithful: failed to write report: " +
 				err.Error() + "\n")
 	}
+
 	return nil
 }

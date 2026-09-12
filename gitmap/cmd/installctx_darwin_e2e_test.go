@@ -60,9 +60,11 @@ func TestCtxMacInfoPlistIsWellFormed(t *testing.T) {
 
 			continue
 		}
+
 		if !strings.HasPrefix(strings.TrimSpace(string(body)), `<?xml`) {
 			t.Errorf("%s Info.plist missing XML declaration", l.Slug)
 		}
+
 		assertPlistContract(t, l, string(body))
 	}
 }
@@ -76,6 +78,7 @@ func assertPlistContract(t *testing.T, l ctxFlatLeaf, body string) {
 		"<string>public.folder</string>",
 		"<string>" + l.Label + "</string>",
 	}
+
 	for _, n := range want {
 		if !strings.Contains(body, n) {
 			t.Errorf("%s Info.plist missing %q", l.Slug, n)
@@ -103,10 +106,12 @@ func TestCtxMacWflowEmbedsResolvedArgv(t *testing.T) {
 
 			continue
 		}
+
 		s := string(body)
 		if !strings.Contains(s, "<key>COMMAND_STRING</key>") {
 			t.Errorf("%s missing COMMAND_STRING key", l.Slug)
 		}
+
 		assertWflowMode(t, l, s, exe)
 	}
 }
@@ -127,6 +132,7 @@ func assertWflowMode(t *testing.T, l ctxFlatLeaf, body, exe string) {
 		if !strings.Contains(body, "Terminal") || !strings.Contains(body, target) {
 			t.Errorf("%s terminal missing Terminal + %s", l.Slug, target)
 		}
+
 		joined := strings.Join(l.Args, " ")
 		if joined != "" && !strings.Contains(body, joined) {
 			t.Errorf("%s missing argv %q", l.Slug, joined)
@@ -149,10 +155,12 @@ func TestCtxMacExtendedInjectsConfirmDialog(t *testing.T) {
 		if err != nil {
 			continue
 		}
+
 		hasGuard := strings.Contains(string(body), "display dialog")
 		if l.Extended && !hasGuard {
 			t.Errorf("Extended leaf %q missing osascript display-dialog guard", l.Slug)
 		}
+
 		if !l.Extended && hasGuard {
 			t.Errorf("non-Extended leaf %q has unexpected display-dialog guard", l.Slug)
 		}
@@ -176,12 +184,14 @@ func TestCtxMacExplainInjectsAnnounce(t *testing.T) {
 		if l.Mode == constants.CtxModePrefill {
 			continue
 		}
+
 		body, err := os.ReadFile(filepath.Join(root, l.Slug+".workflow", "Contents", "document.wflow"))
 		if err != nil {
 			t.Errorf("read %s: %v", l.Slug, err)
 
 			continue
 		}
+
 		marker := "> " + l.resolvedTarget(exe) + " " + strings.Join(l.Args, " ")
 		if !strings.Contains(string(body), marker) {
 			t.Errorf("%s explain marker missing %q", l.Slug, marker)
@@ -226,6 +236,7 @@ func TestCtxMacInstallIsIdempotent(t *testing.T) {
 			t.Errorf("idempotency drift at %q", k)
 		}
 	}
+
 	if len(first) != len(second) {
 		t.Errorf("bundle count drift: first=%d second=%d", len(first), len(second))
 	}

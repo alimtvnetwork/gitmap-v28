@@ -19,10 +19,12 @@ func TestLLMDocsJSONSchema_TopLevelShape(t *testing.T) {
 	if root["type"] != "object" {
 		t.Fatalf("top-level type = %v, want object", root["type"])
 	}
+
 	props, ok := root["properties"].(map[string]any)
 	if !ok {
 		t.Fatalf("schema missing properties object")
 	}
+
 	for _, want := range []string{
 		"commands", "architecture", "flags", "conventions",
 		"structure", "database", "installation", "patterns",
@@ -47,6 +49,7 @@ func TestLLMDocsJSONSchema_EncoderMatchesSchema(t *testing.T) {
 	if err := encodeLLMDocsJSON(&buf, nil); err != nil {
 		t.Fatalf("encode: %v", err)
 	}
+
 	gotKeys := extractFirstObjectKeyOrder(t, buf.Bytes())
 	for _, key := range gotKeys {
 		if _, allowed := props[key]; !allowed {
@@ -64,19 +67,23 @@ func TestLLMDocsJSONSchema_NestedCommandShape(t *testing.T) {
 	if !ok {
 		t.Fatalf("schema missing commands property")
 	}
+
 	groupItems, ok := commands["items"].(map[string]any)
 	if !ok {
 		t.Fatalf("commands.items missing")
 	}
+
 	groupProps, ok := groupItems["properties"].(map[string]any)
 	if !ok {
 		t.Fatalf("group items.properties missing")
 	}
+
 	for _, k := range []string{"title", "commands"} {
 		if _, ok := groupProps[k]; !ok {
 			t.Errorf("group missing property %q", k)
 		}
 	}
+
 	cmdsField, _ := groupProps["commands"].(map[string]any)
 	cmdItems, _ := cmdsField["items"].(map[string]any)
 	cmdProps, _ := cmdItems["properties"].(map[string]any)

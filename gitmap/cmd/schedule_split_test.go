@@ -36,11 +36,13 @@ func TestScheduleSplitDBAndLogs(t *testing.T) {
 	if err != nil {
 		t.Fatalf("open split DB failed: %v", err)
 	}
+
 	runs, err := splitDB.GetRuns(10)
 	splitDB.Close()
 	if err != nil {
 		t.Fatalf("get runs failed: %v", err)
 	}
+
 	if len(runs) != 1 || !runs[0].IsSuccess {
 		t.Fatalf("unexpected run logs: %+v", runs)
 	}
@@ -49,9 +51,11 @@ func TestScheduleSplitDBAndLogs(t *testing.T) {
 	if err := runScheduleLogs([]string{taskName}); err != nil {
 		t.Errorf("runScheduleLogs table failed: %v", err)
 	}
+
 	if err := runScheduleLogs([]string{taskName, "--json"}); err != nil {
 		t.Errorf("runScheduleLogs json failed: %v", err)
 	}
+
 	if err := runScheduleLogs([]string{taskName, "--yaml"}); err != nil {
 		t.Errorf("runScheduleLogs yaml failed: %v", err)
 	}
@@ -60,6 +64,7 @@ func TestScheduleSplitDBAndLogs(t *testing.T) {
 	if err := runScheduleSetEnabled([]string{taskName}, false); err != nil {
 		t.Fatalf("disable failed: %v", err)
 	}
+
 	db, _ := openSchedulerDB()
 	task, _ := db.GetSchedule(taskName)
 	db.Close()
@@ -70,6 +75,7 @@ func TestScheduleSplitDBAndLogs(t *testing.T) {
 	if err := runScheduleSetEnabled([]string{taskName}, true); err != nil {
 		t.Fatalf("enable failed: %v", err)
 	}
+
 	db, _ = openSchedulerDB()
 	task, _ = db.GetSchedule(taskName)
 	db.Close()
@@ -81,6 +87,7 @@ func TestScheduleSplitDBAndLogs(t *testing.T) {
 	if err := runScheduleReset([]string{taskName}); err != nil {
 		t.Fatalf("reset failed: %v", err)
 	}
+
 	splitDB, _ = store.OpenScheduleSplitDB(slug)
 	runsAfterReset, _ := splitDB.GetRuns(10)
 	splitDB.Close()

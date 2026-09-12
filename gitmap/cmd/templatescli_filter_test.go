@@ -34,6 +34,7 @@ func TestFilterTemplatesByKind(t *testing.T) {
 	if len(got) != 2 {
 		t.Fatalf("want 2 ignore rows, got %d", len(got))
 	}
+
 	for _, e := range got {
 		if e.Kind != "ignore" {
 			t.Errorf("unexpected kind in result: %s", e.Kind)
@@ -48,10 +49,12 @@ func TestFilterTemplatesByLang(t *testing.T) {
 	if len(got) != 2 {
 		t.Fatalf("want 2 go rows (ignore + attributes), got %d", len(got))
 	}
+
 	kinds := map[string]bool{}
 	for _, e := range got {
 		kinds[e.Kind] = true
 	}
+
 	if !kinds["ignore"] || !kinds["attributes"] {
 		t.Errorf("expected both ignore + attributes for go, got %v", kinds)
 	}
@@ -65,6 +68,7 @@ func TestFilterTemplatesByKindAndLang(t *testing.T) {
 	if len(got) != 1 {
 		t.Fatalf("want exactly one row, got %d", len(got))
 	}
+
 	if got[0].Kind != "ignore" || got[0].Lang != "go" {
 		t.Errorf("want ignore/go, got %s/%s", got[0].Kind, got[0].Lang)
 	}
@@ -92,6 +96,7 @@ func TestIsValidKindFilter(t *testing.T) {
 		"foo":        false,
 		"Ignore":     false, // already lowered upstream
 	}
+
 	for kind, want := range cases {
 		if got := isValidKindFilter(kind); got != want {
 			t.Errorf("isValidKindFilter(%q) = %v, want %v", kind, got, want)
@@ -107,6 +112,7 @@ func TestParseTemplatesListFlagsLowersValues(t *testing.T) {
 	if kind != "ignore" {
 		t.Errorf("kind = %q, want ignore", kind)
 	}
+
 	if lang != "go" {
 		t.Errorf("lang = %q, want go", lang)
 	}

@@ -15,6 +15,7 @@ func TestApplyAllTargets_BareBase_V1To2(t *testing.T) {
 	if got != want {
 		t.Fatalf("rewrite mismatch.\n got:  %q\n want: %q", got, want)
 	}
+
 	// 2 bare-base hits + 1 -v1 hit = 3
 	if count != 3 {
 		t.Fatalf("expected 3 replacements, got %d", count)
@@ -31,6 +32,7 @@ func TestApplyBareBase_WordBoundaryGuards(t *testing.T) {
 		"img-pdf-v2 already-versioned",
 		"img-pdf-tools dashed",
 	}
+
 	for _, in := range cases {
 		got, n := applyBareBase(in, "img-pdf", 2)
 		if got != in || n != 0 {

@@ -34,6 +34,7 @@ func (c *InteractiveSSHClient) Run(ctx context.Context, target string) error {
 			Ctx:   map[string]any{"target": target},
 		}
 	}
+
 	return nil
 }
 
@@ -69,5 +70,6 @@ func PromptSSHPassword(ctx context.Context, prompt string, fd int) (string, erro
 			Cause: err,
 		}
 	}
+
 	return string(password), nil
 }

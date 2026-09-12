@@ -16,6 +16,7 @@ func TestWriteArray_EmptyIsBracketsNewline(t *testing.T) {
 	if err := WriteArray(&buf, nil); err != nil {
 		t.Fatalf("WriteArray: %v", err)
 	}
+
 	if got := buf.String(); got != "[]\n" {
 		t.Fatalf("empty array: want %q, got %q", "[]\n", got)
 	}
@@ -32,6 +33,7 @@ func TestWriteArray_ByteCompatWithEncoder(t *testing.T) {
 		Path string `json:"path"`
 		Exec string `json:"exec"`
 	}
+
 	src := []entry{
 		{Name: "a", Path: "/p/a", Exec: "/bin/a"},
 		{Name: "b", Path: "/p/b", Exec: "/bin/b --flag"},
@@ -52,6 +54,7 @@ func TestWriteArray_ByteCompatWithEncoder(t *testing.T) {
 			{Key: "exec", Value: e.Exec},
 		})
 	}
+
 	var stableBuf bytes.Buffer
 	if err := WriteArray(&stableBuf, stable); err != nil {
 		t.Fatalf("WriteArray: %v", err)

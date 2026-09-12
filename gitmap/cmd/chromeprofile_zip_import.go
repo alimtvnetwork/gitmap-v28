@@ -17,6 +17,7 @@ func applyChromeExportZIPWithOptions(zipPath, dstProfile string, limit int) erro
 	if err != nil {
 		return fmt.Errorf("open zip %s: %w", zipPath, err)
 	}
+
 	defer r.Close()
 
 	targetDir := filepath.Join(chromeUserDataDir(), dstProfile)
@@ -26,14 +27,17 @@ func applyChromeExportZIPWithOptions(zipPath, dstProfile string, limit int) erro
 	if isMultiProfileArchive(m, r) {
 		return extractMultiProfileZipWithOptions(r, dstProfile, limit)
 	}
+
 	return extractSingleProfileZip(r, dstProfile)
 }
 
 func isMultiProfileArchive(m *chromeProfileManifest, r *zip.ReadCloser) bool {
 	if m != nil {
 		checkSnapshotVersion(m.GitMapVersion)
+
 		return len(m.Profiles) > 1 || isMultiProfileZip(r)
 	}
+
 	return isMultiProfileZip(r)
 }
 
@@ -43,6 +47,7 @@ func readZipManifest(r *zip.ReadCloser) *chromeProfileManifest {
 			return decodeZipManifestFile(f)
 		}
 	}
+
 	return nil
 }
 
@@ -51,11 +56,13 @@ func decodeZipManifestFile(f *zip.File) *chromeProfileManifest {
 	if err != nil {
 		return nil
 	}
+
 	defer rc.Close()
 	var m chromeProfileManifest
 	if json.NewDecoder(rc).Decode(&m) == nil {
 		return &m
 	}
+
 	return nil
 }
 
@@ -65,6 +72,7 @@ func isMultiProfileZip(r *zip.ReadCloser) bool {
 			return true
 		}
 	}
+
 	return false
 }
 
@@ -74,10 +82,12 @@ func extractMultiProfileZipWithOptions(r *zip.ReadCloser, targetProfile string, 
 	for _, f := range r.File {
 		processFilteredZipEntry(f, targetProfile, limit, importedProfiles, allowedProfiles)
 	}
+
 	for profName := range importedProfiles {
 		label := formatChromeProfileLabel(profName, nil)
 		fmt.Printf("  \033[1;92m✓\033[0m %s → imported from zip\n", label)
 	}
+
 	return nil
 }
 
@@ -118,6 +128,7 @@ func processMultiProfileZipEntry(f *zip.File, imported map[string]bool) {
 	if len(parts) < 2 {
 		return
 	}
+
 	profName, fileName := parts[0], parts[len(parts)-1]
 	profDir := chromeProfilePath(profName)
 	_ = os.MkdirAll(profDir, constants.DirPermission)
@@ -126,6 +137,7 @@ func processMultiProfileZipEntry(f *zip.File, imported map[string]bool) {
 	} else if isAllowedSQLiteDB(fileName) || fileName == "Bookmarks" || fileName == "Preferences" {
 		_ = extractZipFile(f, filepath.Join(profDir, fileName))
 	}
+
 	imported[profName] = true
 }
 
@@ -133,22 +145,27 @@ func extractSingleProfileZip(r *zip.ReadCloser, dstProfile string) error {
 	if err := os.MkdirAll(dstProfile, constants.DirPermission); err != nil {
 		return fmt.Errorf("mkdir %s: %w", dstProfile, err)
 	}
+
 	var jsonFile *zip.File
 	for _, f := range r.File {
 		if f.Name == "manifest.json" {
 			continue
 		}
+
 		if strings.HasSuffix(f.Name, ".json") {
 			jsonFile = f
 			continue
 		}
+
 		if isAllowedSQLiteDB(f.Name) || f.Name == "Bookmarks" || f.Name == "Preferences" {
 			_ = extractZipFile(f, filepath.Join(dstProfile, f.Name))
 		}
 	}
+
 	if jsonFile != nil {
 		return importChromeJSONFile(jsonFile, dstProfile)
 	}
+
 	return nil
 }
 
@@ -157,6 +174,7 @@ func importChromeJSONFile(jsonFile *zip.File, dstProfile string) error {
 	if err != nil {
 		return err
 	}
+
 	defer rc.Close()
 
 	var exp chromeExport
@@ -172,15 +190,18 @@ func extractZipFile(f *zip.File, dest string) error {
 	if err != nil {
 		return err
 	}
+
 	defer rc.Close()
 
 	out, err := os.OpenFile(dest, os.O_WRONLY|os.O_CREATE|os.O_TRUNC, constants.FilePermission)
 	if err != nil {
 		return err
 	}
+
 	defer out.Close()
 
 	_, err = io.Copy(out, rc)
+
 	return err
 }
 
@@ -190,5 +211,6 @@ func isAllowedSQLiteDB(name string) bool {
 			return true
 		}
 	}
+
 	return false
 }

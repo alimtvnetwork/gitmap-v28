@@ -85,9 +85,11 @@ func TestExtractCleanErrorLines(t *testing.T) {
 	if !strings.Contains(cleaned, "--- FAIL: TestFailureCase") {
 		t.Errorf("expected cleaned log to contain test failure, got:\n%s", cleaned)
 	}
+
 	if !strings.Contains(cleaned, "Process completed with exit code 1.") {
 		t.Errorf("expected cleaned log to contain exit code error, got:\n%s", cleaned)
 	}
+
 	if strings.Contains(cleaned, "go version go1.24.0") {
 		t.Errorf("cleaned error log should NOT contain setup lines, got:\n%s", cleaned)
 	}

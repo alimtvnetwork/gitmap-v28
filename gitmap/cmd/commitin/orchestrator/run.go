@@ -24,20 +24,26 @@ func Run(raw *commitin.RawArgs, stdout, stderr io.Writer) int {
 	if code != constants.CommitInExitOk {
 		return code
 	}
+
 	defer ctx.Cleanup()
 	if code := maybeSaveProfile(ctx, stderr); code != constants.CommitInExitOk {
 		_ = runlog.FinishRun(ctx.DB.Conn(), ctx.RunID, constants.CommitInRunStatusFailed, time.Now())
+
 		return code
 	}
+
 	if code := executePipeline(ctx, stdout); code != constants.CommitInExitOk {
 		_ = runlog.FinishRun(ctx.DB.Conn(), ctx.RunID, constants.CommitInRunStatusFailed, time.Now())
+
 		return code
 	}
+
 	_ = runlog.FinishRun(ctx.DB.Conn(), ctx.RunID, finalRunStatus(ctx.Counters), time.Now())
 	finalize.PrintSummary(stderr, ctx.Counters)
 	if ctx.Raw.IsDryRun {
 		finalize.PrintDryRunBanner(stderr)
 	}
+
 	return finalize.Outcome(ctx.Counters)
 }
 
@@ -47,9 +53,11 @@ func finalRunStatus(c finalize.Counters) string {
 	if c.Failed == 0 {
 		return constants.CommitInRunStatusCompleted
 	}
+
 	if c.Created == 0 {
 		return constants.CommitInRunStatusFailed
 	}
+
 	return constants.CommitInRunStatusPartiallyFailed
 }
 
@@ -62,14 +70,17 @@ func setUp(raw *commitin.RawArgs, stderr io.Writer) (*runContext, int) {
 	if code != constants.CommitInExitOk {
 		return nil, code
 	}
+
 	paths, code := ensureWorkspace(src.Path, stderr)
 	if code != constants.CommitInExitOk {
 		return nil, code
 	}
+
 	lock, code := acquireLock(paths, stderr)
 	if code != constants.CommitInExitOk {
 		return nil, code
 	}
+
 	return finishSetUp(raw, src, paths, lock, stderr)
 }
 
@@ -85,20 +96,26 @@ func finishSetUp(
 	db, code := openAndMigrate(paths, stderr)
 	if code != constants.CommitInExitOk {
 		lock.Release()
+
 		return nil, code
 	}
+
 	resolved, prof, code := loadProfile(raw, paths, db, stderr)
 	if code != constants.CommitInExitOk {
 		_ = db.Close()
 		lock.Release()
+
 		return nil, code
 	}
+
 	runID, code := startRun(db, src, prof, stderr)
 	if code != constants.CommitInExitOk {
 		_ = db.Close()
 		lock.Release()
+
 		return nil, code
 	}
+
 	return newContext(raw, src, paths, lock, db, resolved, runID), constants.CommitInExitOk
 }
 
@@ -114,12 +131,15 @@ func startRun(
 		s := src.Path
 		url = &s
 	}
+
 	var profID *int64
 	_ = prof // profile->ID not yet persisted; placeholder for future ProfileId FK
 	id, err := runlog.StartRun(db.Conn(), src.Path, url, src.IsFreshlyInit, profID, time.Now())
 	if err != nil {
 		fmt.Fprintf(stderr, constants.CommitInErrDbWrite, err)
+
 		return 0, constants.CommitInExitDbFailed
 	}
+
 	return id, constants.CommitInExitOk
 }

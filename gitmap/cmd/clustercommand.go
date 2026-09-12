@@ -111,6 +111,7 @@ func runClusterCommand(selector cluster.TargetSelectorType, args []string) error
 		for _, sc := range subCmds {
 			fmt.Printf("  %s\n", sc.Kind.String())
 		}
+
 		cliexit.HandleError(nil, 0)
 	}
 
@@ -150,6 +151,7 @@ func runClusterCommand(selector cluster.TargetSelectorType, args []string) error
 	fmt.Printf("┌%s%s┐\n", summaryTitle, strings.Repeat("─", titlePad))
 	fmt.Printf("│%s%s│\n", summaryData, strings.Repeat(" ", dataPad))
 	fmt.Printf("└%s┘\n", strings.Repeat("─", boxWidth))
+
 	return nil
 }
 
@@ -157,11 +159,13 @@ func generateRunRef(dbConn *sql.DB) string {
 	if dbConn == nil {
 		return "RUN-YYYYMMDD-001"
 	}
+
 	runRef, err := cluster.RunRefGenerator(dbConn)
 	if err != nil {
 		fmt.Fprintf(os.Stderr, "Error generating run ref: %v\n", err)
 		cliexit.HandleError(nil, 1)
 	}
+
 	return runRef
 }
 
@@ -175,6 +179,7 @@ func performPreflight(
 	if flags.NoPreflight {
 		return nil
 	}
+
 	confirmed, err := cluster.PrintPreflight(selector, effective, cmdStr, runRef, flags.AutoConfirm)
 	if err != nil {
 		return apperror.WrapSimple(err, "Preflight error")
@@ -184,6 +189,7 @@ func performPreflight(
 	if !isConfirmed {
 		return apperror.NewSimple("Operation aborted", "E9000")
 	}
+
 	return nil
 }
 
@@ -191,11 +197,13 @@ func insertRun(ctx context.Context, dbConn *sql.DB, run db.ClusterRun) int64 {
 	if dbConn == nil {
 		return 0
 	}
+
 	runId, err := db.InsertClusterRun(ctx, dbConn, run)
 	if err != nil {
 		fmt.Fprintf(os.Stderr, "Error inserting ClusterRun: %v\n", err)
 		cliexit.HandleError(nil, 1)
 	}
+
 	return runId
 }
 
@@ -211,6 +219,7 @@ func updateRunCounts(
 	if dbConn == nil {
 		return
 	}
+
 	now := time.Now()
 	err := db.UpdateClusterRun(ctx, dbConn, runId, &now, &totalNodes, &succeeded, &failed, &skipped)
 	if err != nil {

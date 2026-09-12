@@ -44,6 +44,7 @@ func runFixRepo(args []string) error {
 		fmt.Fprintf(os.Stderr, constants.FixRepoErrBadFlagFmt, err.Error())
 		cliexit.Exit(constants.FixRepoExitBadFlag)
 	}
+
 	identity := resolveFixRepoIdentity()
 	loadFixRepoConfig(opts.configPath, identity.root)
 	opts.span = computeFixRepoSpan(opts.mode, identity.current)
@@ -55,14 +56,17 @@ func runFixRepo(args []string) error {
 		emitFixRepoTips(opts, 0)
 		cliexit.Exit(constants.FixRepoExitOk)
 	}
+
 	result := runFixRepoSweep(identity, targets, opts)
 	if result.backup != nil {
 		result.backup.Finalize()
 	}
+
 	emitFixRepoSummary(result.scanned, result.changed, result.replacements, opts.isDryRun)
 	if !runFixRepoGofmt(result.goFiles, opts) {
 		result.failed = true
 	}
+
 	if !runFixRepoStrict(identity.root, result.goFiles, opts) {
 		// Tests-failed is a distinct exit code so CI scripts can
 		// branch on "rewrite produced semantically broken code" vs
@@ -71,11 +75,14 @@ func runFixRepo(args []string) error {
 		emitFixRepoTips(opts, result.changed)
 		cliexit.Exit(constants.FixRepoExitTestsFailed)
 	}
+
 	emitFixRepoTips(opts, result.changed)
 	if result.failed {
 		cliexit.Exit(constants.FixRepoExitWriteFailed)
 	}
+
 	cliexit.Exit(constants.FixRepoExitOk)
+
 	return nil
 }
 
@@ -94,9 +101,11 @@ func computeFixRepoSpan(mode string, current int) int {
 	case "--" + constants.FixRepoFlagAll:
 		return current - 1
 	}
+
 	if !strings.HasPrefix(mode, "-") {
 		return constants.FixRepoDefaultSpan
 	}
+
 	n, err := strconv.Atoi(mode[1:])
 	if err == nil && n > 0 {
 		return n
@@ -111,14 +120,17 @@ func computeFixRepoTargets(current, span int) []int {
 	if span <= 0 || current <= 1 {
 		return nil
 	}
+
 	start := current - span
 	if start < 1 {
 		start = 1
 	}
+
 	end := current - 1
 	if start > end {
 		return nil
 	}
+
 	out := make([]int, 0, end-start+1)
 	for n := start; n <= end; n++ {
 		out = append(out, n)
@@ -143,6 +155,7 @@ func emitFixRepoSummary(scanned, changed, replacements int, isDryRun bool) {
 	if isDryRun {
 		mode = constants.FixRepoModeDryRun
 	}
+
 	fmt.Println()
 	fmt.Printf(constants.FixRepoMsgScannedFmt, scanned)
 	fmt.Printf(constants.FixRepoMsgChangedFmt, changed, replacements)
@@ -155,11 +168,13 @@ func formatFixRepoTargets(targets []int) string {
 	if len(targets) == 0 {
 		return constants.FixRepoTargetsNone
 	}
+
 	out := ""
 	for i, n := range targets {
 		if i > 0 {
 			out += ", "
 		}
+
 		out += fmt.Sprintf("v%d", n)
 	}
 

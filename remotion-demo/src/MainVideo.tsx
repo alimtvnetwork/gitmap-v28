@@ -58,11 +58,13 @@ export const MainVideo: React.FC = () => {
               />,
             );
           }
+
           nodes.push(
             <TransitionSeries.Sequence key={`seq-${i}`} durationInFrames={cmdDurations[i]}>
               <CommandScene caption={c.caption} cwd={c.cwd} lines={c.lines} />
             </TransitionSeries.Sequence>,
           );
+
           return nodes;
         })}
       </TransitionSeries>

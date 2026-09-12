@@ -28,15 +28,18 @@ func maybeSwitchToLatest(result latestBranchResult, cfg latestBranchConfig) {
 	if !cfg.shouldSwitch {
 		return
 	}
+
 	target := pickSwitchTarget(result)
 	if target == "" {
 		cliexit.HandleError(apperror.NewSimple(constants.ErrLatestBranchSwitchNoTarget, "E9000"), 1)
 	}
+
 	fmt.Printf(constants.MsgLatestBranchSwitching, target)
 	out, err := gitutil.CheckoutBranch(".", target)
 	if len(out) > 0 {
 		fmt.Println(out)
 	}
+
 	if err != nil {
 		cliexit.HandleError(apperror.NewSimple(constants.ErrLatestBranchSwitchFailed, "E9000"), 1)
 	}
@@ -59,6 +62,7 @@ func pickSwitchTarget(result latestBranchResult) string {
 			return name
 		}
 	}
+
 	if result.latest.RemoteRef != "" {
 		return gitutil.StripRemotePrefix(result.latest.RemoteRef)
 	}

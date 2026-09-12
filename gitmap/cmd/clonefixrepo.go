@@ -35,6 +35,7 @@ import (
 func runCloneFixRepo(args []string) error {
 	checkHelp(constants.CmdCloneFixRepo, args)
 	runCloneFixRepoPipeline(args, false)
+
 	return nil
 }
 
@@ -42,6 +43,7 @@ func runCloneFixRepo(args []string) error {
 func runCloneFixRepoPub(args []string) error {
 	checkHelp(constants.CmdCloneFixRepoPub, args)
 	runCloneFixRepoPipeline(args, true)
+
 	return nil
 }
 
@@ -53,6 +55,7 @@ func runCloneFixRepoPipeline(args []string, makePublic bool) error {
 	if modifiers.PromotePublic {
 		makePublic = true
 	}
+
 	url, folder, noVSCodeSync, reqVer, useSSH, useHTTPS, autoYes, dryRun, noCommit, noPush := parseCloneFixRepoArgs(args)
 	modifiers.NoCommit = modifiers.NoCommit || noCommit
 	modifiers.NoPush = modifiers.NoPush || noPush
@@ -60,7 +63,9 @@ func runCloneFixRepoPipeline(args []string, makePublic bool) error {
 	if dispatchCFRMultiURL(f, makePublic, modifiers, parallel) {
 		return nil
 	}
+
 	runSingleCloneFixRepo(f, makePublic, modifiers)
+
 	return nil
 }
 
@@ -74,7 +79,9 @@ func dispatchCFRMultiURL(
 	if len(urls) <= 1 {
 		return false
 	}
+
 	runParallelCloneFixRepo(urls, makePublic, f.noVSCodeSync, f.requireVersion, f.useSSH, f.useHTTPS, f.autoYes, f.dryRun, modifiers, parallel)
+
 	return true
 }
 
@@ -83,9 +90,12 @@ func runSingleCloneFixRepo(f cloneFixRepoFlags, makePublic bool, modifiers CfrMo
 	executeCFRClone(f.url, folderName, absPath, f)
 	if f.dryRun {
 		printDryRunMessage(makePublic, absPath)
+
 		return nil
 	}
+
 	executeCFRPostSteps(absPath, makePublic, f, modifiers)
+
 	return nil
 }
 
@@ -97,10 +107,12 @@ func validateAndPrepareCFR(f *cloneFixRepoFlags) (string, string) {
 		fmt.Fprint(os.Stderr, constants.ErrCloneFixRepoUsage)
 		cliexit.HandleError(nil, constants.ExitCloneFixRepoBadFlag)
 	}
+
 	f.url = applyCloneFixRepoScheme(f.url, f.useSSH, f.useHTTPS)
 	escapeNestedGitRepo()
 	folderName := deriveFolderNameForCFR(f.url, f.folder)
 	absPath := resolveCloneTargetFolder(f.url, folderName)
+
 	return folderName, absPath
 }
 
@@ -124,11 +136,13 @@ func executeCFRPostSteps(
 		fmt.Fprintf(os.Stderr, constants.ErrCloneFixRepoChdirFmt, absPath, err)
 		cliexit.HandleError(nil, constants.ExitCloneFixRepoChdir)
 	}
+
 	maybeRunFixRepoStep(absPath, f.requireVersion)
 	if makePublic {
 		runChainedGitmapStep([]string{constants.CmdMakePublic, "--" + constants.FlagVisYes})
 		runCFRPPriorVersionPrivatize(absPath, f.autoYes)
 	}
+
 	dispatchCodingGuidelinesModifier(absPath, modifiers)
 	fmt.Printf(constants.MsgCloneFixRepoDone, absPath)
 }
@@ -150,12 +164,14 @@ func runParallelCloneFixRepo(
 	if makePublic {
 		subcmd = constants.CmdCloneFixRepoPub
 	}
+
 	passthrough := buildCFRPassthroughFlags(noVSCodeSync, requireVersion, useSSH, useHTTPS, autoYes, dryRun, modifiers.NoCommit, modifiers.NoPush)
 	leadingMods := buildCFRLeadingModifiers(modifiers)
 	failed := runCloneFixRepoParallel(urls, subcmd, leadingMods, passthrough, parallel)
 	if failed > 0 {
 		cliexit.HandleError(nil, constants.ExitCloneFixRepoChainFailed)
 	}
+
 	return nil
 }
 
@@ -164,6 +180,7 @@ func printDryRunMessage(makePublic bool, absPath string) {
 	if makePublic {
 		suffix = " → make-public --yes"
 	}
+
 	fmt.Printf("  "+constants.MsgCloneDryRunNoop+"\n  would chain: fix-repo --all%s @ %s\n",
 		suffix, absPath)
 }
@@ -178,6 +195,7 @@ func buildCFRLeadingModifiers(m CfrModifierFlags) []string {
 	if m.InstallCodingGuidelines {
 		out = append(out, constants.CfrModifierCodingGuidelines)
 	}
+
 	return out
 }
 
@@ -191,9 +209,11 @@ func dispatchCodingGuidelinesModifier(absPath string, m CfrModifierFlags) {
 	if !m.InstallCodingGuidelines {
 		return
 	}
+
 	if err := RunCodingGuidelinesInstall(CodingGuidelinesOpts{WorkingDir: absPath}); err != nil {
 		cliexit.HandleError(nil, constants.ExitCloneFixRepoChainFailed)
 	}
+
 	commitOpts := CGCommitOpts{WorkingDir: absPath, NoCommit: m.NoCommit, NoPush: m.NoPush}
 	if err := CommitCodingGuidelines(commitOpts); err != nil {
 		cliexit.HandleError(nil, constants.ExitCloneFixRepoChainFailed)
@@ -212,12 +232,15 @@ func applyCloneFixRepoScheme(url string, useSSH, useHTTPS bool) string {
 		fmt.Fprintln(os.Stderr, "warning: --ssh and --https both set; --ssh wins")
 		useHTTPS = false
 	}
+
 	if converted, ok := applySSHScheme(url, useSSH); ok {
 		return converted
 	}
+
 	if converted, ok := applyHTTPSScheme(url, useHTTPS); ok {
 		return converted
 	}
+
 	return url
 }
 
@@ -225,13 +248,16 @@ func applySSHScheme(url string, useSSH bool) (string, bool) {
 	if !useSSH {
 		return url, false
 	}
+
 	converted, ok := ConvertURLToSSH(url)
 	if !ok {
 		return url, false
 	}
+
 	if converted != url {
 		fmt.Printf("↪ --ssh rewrite: %s → %s\n", url, converted)
 	}
+
 	return converted, true
 }
 
@@ -239,13 +265,16 @@ func applyHTTPSScheme(url string, useHTTPS bool) (string, bool) {
 	if !useHTTPS {
 		return url, false
 	}
+
 	converted, ok := ConvertURLToHTTPS(url)
 	if !ok {
 		return url, false
 	}
+
 	if converted != url {
 		fmt.Printf("↪ --https rewrite: %s → %s\n", url, converted)
 	}
+
 	return converted, true
 }
 
@@ -262,10 +291,12 @@ func maybeRunFixRepoStep(absPath string, requireVersion bool) {
 
 		return
 	}
+
 	if requireVersion {
 		fmt.Fprintf(os.Stderr, constants.ErrCloneFixRepoNeedVersion, parsed.BaseName)
 		cliexit.HandleError(nil, constants.ExitCloneFixRepoChainFailed)
 	}
+
 	fmt.Printf(constants.MsgCloneFixRepoSkipNoVer, parsed.BaseName)
 }
 
@@ -276,10 +307,12 @@ func resolveCloneFixRepoName(absPath string) string {
 
 		return filepath.Base(absPath)
 	}
+
 	repo := repoNameFromURL(remoteURL)
 	if len(repo) > 0 {
 		return repo
 	}
+
 	fmt.Fprintf(os.Stderr, constants.WarnCloneFixRepoRemoteFmt, remoteURL, constants.ErrCloneFixRepoRemoteParse)
 
 	return filepath.Base(absPath)
@@ -311,6 +344,7 @@ func applyCFRFlag(name string, f *cloneFixRepoFlags) bool {
 	default:
 		return applyCFRFlagExtra(name, f)
 	}
+
 	return true
 }
 
@@ -327,6 +361,7 @@ func applyCFRFlagExtra(name string, f *cloneFixRepoFlags) bool {
 	default:
 		return false
 	}
+
 	return true
 }
 
@@ -337,6 +372,7 @@ func extractCFRPositionals(args []string, f *cloneFixRepoFlags) []string {
 			positional = append(positional, a)
 		}
 	}
+
 	return positional
 }
 
@@ -344,6 +380,7 @@ func assignCFRPositionals(positional []string, f *cloneFixRepoFlags) {
 	if len(positional) > 0 {
 		f.url = positional[0]
 	}
+
 	if len(positional) > 1 {
 		f.folder = positional[1]
 	}
@@ -361,6 +398,7 @@ func parseCloneFixRepoArgs(args []string) (string, string, bool, bool, bool, boo
 	var f cloneFixRepoFlags
 	positional := extractCFRPositionals(args, &f)
 	assignCFRPositionals(positional, &f)
+
 	return f.url, f.folder, f.noVSCodeSync, f.requireVersion, f.useSSH, f.useHTTPS, f.autoYes, f.dryRun, f.noCommit, f.noPush
 }
 
@@ -381,11 +419,13 @@ func deriveFolderNameForCFR(url string, folderName string) string {
 	if len(folderName) > 0 {
 		return folderName
 	}
+
 	repoName := repoNameFromURL(url)
 	parsed := clonenext.ParseRepoName(repoName)
 	if parsed.HasVersion {
 		return parsed.BaseName
 	}
+
 	return repoName
 }
 
@@ -398,11 +438,13 @@ func runChainedGitmapStep(args []string) error {
 		fmt.Fprintf(os.Stderr, constants.ErrCloneFixRepoExecFmt, err)
 		cliexit.HandleError(nil, constants.ExitCloneFixRepoChainFailed)
 	}
+
 	cmd := exec.Command(bin, args...)
 	cmd.Stdin = os.Stdin
 	cmd.Stdout = os.Stdout
 	cmd.Stderr = os.Stderr
 	handleChainedStepResult(cmd.Run())
+
 	return nil
 }
 
@@ -410,10 +452,12 @@ func handleChainedStepResult(runErr error) {
 	if runErr == nil {
 		return
 	}
+
 	var exitErr *exec.ExitError
 	if errors.As(runErr, &exitErr) {
 		cliexit.HandleError(nil, exitErr.ExitCode())
 	}
+
 	fmt.Fprintf(os.Stderr, constants.ErrCloneFixRepoExecFmt, runErr)
 	cliexit.HandleError(nil, constants.ExitCloneFixRepoChainFailed)
 }

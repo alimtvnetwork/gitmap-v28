@@ -27,6 +27,7 @@ func stringFromInt(i int) string {
 	if i < 10 {
 		return string(digits[i])
 	}
+
 	if i < 100 {
 		return string(digits[i/10]) + string(digits[i%10])
 	}
@@ -45,6 +46,7 @@ func TestClampScrollKeepsCursorInWindow(t *testing.T) {
 		{cursor: 2, offset: 10, height: 5, total: 100, want: 2}, // jumped up
 		{cursor: 0, offset: 0, height: 5, total: 0, want: 0},    // empty
 	}
+
 	for _, tc := range cases {
 		got := clampScroll(tc.cursor, tc.offset, tc.height, tc.total)
 		if got != tc.want {

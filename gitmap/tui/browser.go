@@ -157,6 +157,7 @@ func (m browserModel) View() string {
 		default:
 			b.WriteString(styleNormalRow.Render("  " + line))
 		}
+
 		b.WriteString("\n")
 	}
 

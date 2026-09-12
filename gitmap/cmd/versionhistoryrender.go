@@ -47,12 +47,15 @@ func buildVersionHistoryItems(records []model.RepoVersionHistoryRecord) [][]stab
 			{Key: vhKeyToVersionTag, Value: r.ToVersionTag},
 			{Key: vhKeyToVersionNum, Value: r.ToVersionNum},
 		}
+
 		if r.FlattenedPath != "" {
 			row = append(row, stablejson.Field{Key: vhKeyFlattenedPath, Value: r.FlattenedPath})
 		}
+
 		if r.CreatedAt != "" {
 			row = append(row, stablejson.Field{Key: vhKeyCreatedAt, Value: r.CreatedAt})
 		}
+
 		row = append(row,
 			stablejson.Field{Key: vhKeyID, Value: r.ID},
 			stablejson.Field{Key: vhKeyRepoID, Value: r.RepoID},

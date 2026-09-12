@@ -14,8 +14,10 @@ import (
 func runReplaceLiteral(oldS, newS string, opts replaceOpts) error {
 	if oldS == "" {
 		fmt.Fprint(os.Stderr, constants.ErrReplaceEmptyOld)
+
 		return apperror.NewSimple("fatal error", "E9000")
 	}
+
 	root := repoRoot()
 	files := loadRepoFiles(root, opts.exts, opts.extCaseIns)
 
@@ -26,12 +28,16 @@ func runReplaceLiteral(oldS, newS string, opts replaceOpts) error {
 
 	if total == 0 {
 		fmt.Print(constants.MsgReplaceNoMatches)
+
 		return nil
 	}
+
 	if opts.dryRun || !confirmLiteral(hits, total, opts) {
 		return nil
 	}
+
 	commitHits(hits)
+
 	return nil
 }
 
@@ -41,8 +47,10 @@ func runReplaceVersion(n int, opts replaceOpts, isAll bool) error {
 	targets := versionTargets(k, n)
 	if len(targets) == 0 {
 		fmt.Print(constants.MsgReplaceAlreadyAtV1)
+
 		return nil
 	}
+
 	root := repoRoot()
 	files := loadRepoFiles(root, opts.exts, opts.extCaseIns)
 
@@ -50,12 +58,16 @@ func runReplaceVersion(n int, opts replaceOpts, isAll bool) error {
 	fmt.Printf(constants.MsgReplaceSummary, len(hits), total)
 	if total == 0 {
 		fmt.Print(constants.MsgReplaceNoMatches)
+
 		return nil
 	}
+
 	if opts.dryRun || !confirmVersion(targets, k, opts, isAll) {
 		return nil
 	}
+
 	commitHits(hits)
+
 	return nil
 }
 
@@ -73,6 +85,7 @@ func scanVersionTargets(
 		all = append(all, hits...)
 		total += sum
 	}
+
 	return all, total
 }
 
@@ -85,7 +98,9 @@ func loadRepoFiles(root string, exts []string, caseInsensitive bool) []string {
 		fmt.Fprintf(os.Stderr, constants.ErrReplaceWalk, err)
 		cliexit.HandleError(nil, 2)
 	}
+
 	fmt.Printf(constants.MsgReplaceScanning, len(files), root)
+
 	return files
 }
 
@@ -94,11 +109,14 @@ func confirmLiteral(hits []replaceHit, total int, opts replaceOpts) bool {
 	if opts.yes {
 		return true
 	}
+
 	fmt.Printf(constants.MsgReplaceConfirmLit, total, len(hits))
 	if confirmYes() {
 		return true
 	}
+
 	fmt.Print(constants.MsgReplaceAborted)
+
 	return false
 }
 
@@ -107,11 +125,14 @@ func confirmVersion(targets []int, k int, opts replaceOpts, _ bool) bool {
 	if opts.yes {
 		return true
 	}
+
 	fmt.Printf(constants.MsgReplaceConfirmVer, targets[0], targets[len(targets)-1], k)
 	if confirmYes() {
 		return true
 	}
+
 	fmt.Print(constants.MsgReplaceAborted)
+
 	return false
 }
 

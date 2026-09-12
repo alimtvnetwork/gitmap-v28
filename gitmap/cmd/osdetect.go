@@ -51,6 +51,7 @@ func IsCentOS() bool { return CurrentOS() == OSCentOS }
 // IsWindows returns true if the current OS is any Windows version.
 func IsWindows() bool {
 	osType := CurrentOS()
+
 	return osType == OSWindows || osType == OSWindows10 || osType == OSWindows11 || osType == OSWindowsServer
 }
 
@@ -65,6 +66,7 @@ func detectLinuxDistro() OSType {
 	if err != nil {
 		return OSUnknown
 	}
+
 	content := strings.ToLower(string(data))
 	for _, line := range strings.Split(content, "\n") {
 		if strings.HasPrefix(line, "id=") {
@@ -81,5 +83,6 @@ func detectLinuxDistro() OSType {
 			}
 		}
 	}
+
 	return OSUnknown
 }

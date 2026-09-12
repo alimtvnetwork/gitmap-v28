@@ -15,6 +15,7 @@ func TestParseOpenCommand(t *testing.T) {
 		if isOpen != tt.wantOpen {
 			t.Errorf("ParseOpenCommand(%q) isOpen = %v, want %v", tt.cmd, isOpen, tt.wantOpen)
 		}
+
 		if isOpen && target != tt.wantTarget {
 			t.Errorf("ParseOpenCommand(%q) target = %q, want %q", tt.cmd, target, tt.wantTarget)
 		}
@@ -47,6 +48,7 @@ func TestParseURLTarget(t *testing.T) {
 		if isURL != tt.wantURL {
 			t.Errorf("parseURLTarget(%q) isURL = %v, want %v", tt.target, isURL, tt.wantURL)
 		}
+
 		if isURL && out != tt.wantOut {
 			t.Errorf("parseURLTarget(%q) out = %q, want %q", tt.target, out, tt.wantOut)
 		}
@@ -80,6 +82,7 @@ func TestExecuteOpenStep_WithMock(t *testing.T) {
 	var launchedTargets []string
 	openLauncherFn = func(ctx context.Context, target, currentDir string) error {
 		launchedTargets = append(launchedTargets, target)
+
 		return nil
 	}
 
@@ -88,6 +91,7 @@ func TestExecuteOpenStep_WithMock(t *testing.T) {
 	if err != nil || len(launchedTargets) != 2 {
 		t.Fatalf("Execute failed: %v, targets: %v", err, launchedTargets)
 	}
+
 	assertLaunchedTargets(t, launchedTargets)
 }
 
@@ -105,6 +109,7 @@ func assertLaunchedTargets(t *testing.T, targets []string) {
 	if targets[0] != "chrome" {
 		t.Errorf("target 0 = %q, want chrome", targets[0])
 	}
+
 	if targets[1] != "linkedin.com" {
 		t.Errorf("target 1 = %q, want linkedin.com", targets[1])
 	}
@@ -161,6 +166,7 @@ func mockLaunchPath(t *testing.T) *string {
 	t.Cleanup(func() { launchPathFn = orig })
 	launchPathFn = func(ctx context.Context, p string) error {
 		opened = p
+
 		return nil
 	}
 

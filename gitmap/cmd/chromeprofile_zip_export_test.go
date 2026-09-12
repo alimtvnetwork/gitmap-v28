@@ -24,6 +24,7 @@ func TestChromeProfileZipExport(t *testing.T) {
 	if err != nil {
 		t.Fatalf("writeChromeExportZIP failed: %v", err)
 	}
+
 	if n == 0 {
 		t.Fatalf("expected non-zero bytes")
 	}
@@ -33,6 +34,7 @@ func TestChromeProfileZipExport(t *testing.T) {
 	if err != nil {
 		t.Fatalf("open zip failed: %v", err)
 	}
+
 	defer r.Close()
 
 	foundJSON := false
@@ -44,12 +46,15 @@ func TestChromeProfileZipExport(t *testing.T) {
 		if f.Name == "testprofile.json" {
 			foundJSON = true
 		}
+
 		if f.Name == "History" {
 			foundHistory = true
 		}
+
 		if f.Name == "Web Data" {
 			foundWebData = true
 		}
+
 		if f.Name == "Login Data" {
 			foundLoginData = true
 		}
@@ -58,12 +63,15 @@ func TestChromeProfileZipExport(t *testing.T) {
 	if !foundJSON {
 		t.Errorf("missing JSON snapshot in zip")
 	}
+
 	if !foundHistory {
 		t.Errorf("missing History in zip")
 	}
+
 	if !foundWebData {
 		t.Errorf("missing Web Data in zip")
 	}
+
 	if foundLoginData {
 		t.Errorf("Login Data should be omitted from export")
 	}

@@ -15,6 +15,7 @@ func runIndex(args []string) error {
 	if err != nil {
 		return apperror.WrapSimple(err, "error")
 	}
+
 	defer mainDB.Close()
 	defer db.Close()
 
@@ -24,6 +25,8 @@ func runIndex(args []string) error {
 	if err := w.Walk(ctx, 4); err != nil {
 		return apperror.WrapSimple(err, "error")
 	}
+
 	fmt.Println("Indexing complete.")
+
 	return nil
 }

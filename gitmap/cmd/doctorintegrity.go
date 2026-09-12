@@ -17,6 +17,7 @@ func checkReleaseRepoIntegrity() int {
 	if err != nil {
 		return 0 // checkDatabase already reports this
 	}
+
 	defer db.Close()
 
 	orphaned, reposNoRel, err := db.ReleaseRepoIntegrity()

@@ -30,6 +30,7 @@ func (db *DB) ListScanFolders() ([]model.ScanFolder, error) {
 	if err != nil {
 		return nil, fmt.Errorf(constants.ErrSFList, err)
 	}
+
 	defer rows.Close()
 
 	return scanScanFolderRows(rows)
@@ -115,6 +116,7 @@ func (db *DB) findScanFolderByPath(absPath string) (model.ScanFolder, error) {
 	if errors.Is(err, sql.ErrNoRows) {
 		return model.ScanFolder{}, fmt.Errorf(constants.ErrSFFindByPath, absPath)
 	}
+
 	if err != nil {
 		return model.ScanFolder{}, fmt.Errorf(constants.ErrSFList, err)
 	}
@@ -129,6 +131,7 @@ func (db *DB) findScanFolderByID(id int64) (model.ScanFolder, error) {
 	if errors.Is(err, sql.ErrNoRows) {
 		return model.ScanFolder{}, fmt.Errorf(constants.ErrSFFindByID, id)
 	}
+
 	if err != nil {
 		return model.ScanFolder{}, fmt.Errorf(constants.ErrSFList, err)
 	}
@@ -155,6 +158,7 @@ func scanScanFolderRows(rows interface {
 		if err != nil {
 			return nil, fmt.Errorf(constants.ErrSFList, err)
 		}
+
 		results = append(results, f)
 	}
 

@@ -32,11 +32,13 @@ func TestParseTemplatesInitFlagsAcceptsMixedOrder(t *testing.T) {
 		{"--dry-run", "--lfs", "go"},
 		{"go", "node", "--force"},
 	}
+
 	for _, args := range cases {
 		flags, err := parseTemplatesInitFlags(args)
 		if err != nil {
 			t.Fatalf("parse %v: %v", args, err)
 		}
+
 		if len(flags.langs) == 0 {
 			t.Errorf("%v: expected at least one lang, got none", args)
 		}
@@ -50,9 +52,11 @@ func TestParseTemplatesInitFlagsLFSAndDryRunStored(t *testing.T) {
 	if err != nil {
 		t.Fatalf("parse: %v", err)
 	}
+
 	if !flags.lfs || !flags.dryRun || !flags.force {
 		t.Fatalf("expected all flags true, got %+v", flags)
 	}
+
 	if len(flags.langs) != 1 || flags.langs[0] != "go" {
 		t.Fatalf("expected langs=[go], got %v", flags.langs)
 	}
@@ -73,6 +77,7 @@ func TestExecuteTemplatesInitWritesIgnoreAndAttributes(t *testing.T) {
 	if len(results) != 2 {
 		t.Fatalf("expected 2 results, got %d: %+v", len(results), results)
 	}
+
 	for _, r := range results {
 		if r.skipped {
 			t.Errorf("step %s/%s should not be skipped (embed has it): %s", r.step.kind, r.step.lang, r.skipReason)
@@ -85,6 +90,7 @@ func TestExecuteTemplatesInitWritesIgnoreAndAttributes(t *testing.T) {
 		if err != nil {
 			t.Fatalf("read %s: %v", path, err)
 		}
+
 		if !strings.Contains(string(body), "# >>> gitmap:") {
 			t.Errorf("%s missing gitmap marker block:\n%s", name, body)
 		}
@@ -111,6 +117,7 @@ func TestExecuteTemplatesInitIsIdempotent(t *testing.T) {
 		if r.skipped {
 			continue
 		}
+
 		if r.merge.Changed {
 			t.Errorf("second run mutated %s (block=%s): expected Changed=false", r.merge.Path, r.merge.BlockTag)
 		}
@@ -120,6 +127,7 @@ func TestExecuteTemplatesInitIsIdempotent(t *testing.T) {
 	if err != nil {
 		t.Fatalf("read .gitignore after second run: %v", err)
 	}
+
 	if !bytes.Equal(before, after) {
 		t.Fatalf("idempotent run changed bytes:\nbefore:\n%s\nafter:\n%s", before, after)
 	}
@@ -142,9 +150,11 @@ func TestExecuteTemplatesInitDryRunWritesNothing(t *testing.T) {
 			t.Fatalf("--dry-run wrote %s; expected it to remain absent", name)
 		}
 	}
+
 	if len(results) == 0 {
 		t.Fatal("expected dry-run to still return result rows for the printer")
 	}
+
 	for _, r := range results {
 		if !r.skipped && !r.dryRun {
 			t.Errorf("dry-run result for %s/%s missing dryRun flag", r.step.kind, r.step.lang)
@@ -174,9 +184,11 @@ func TestExecuteTemplatesInitForceReplacesExisting(t *testing.T) {
 	if err != nil {
 		t.Fatalf("read .gitignore: %v", err)
 	}
+
 	if strings.Contains(string(body), "my hand-written gitignore") {
 		t.Errorf("--force should have discarded stale content; got:\n%s", body)
 	}
+
 	if !strings.Contains(string(body), "# >>> gitmap:ignore/go >>>") {
 		t.Errorf("--force result missing fresh gitmap block:\n%s", body)
 	}
@@ -201,9 +213,11 @@ func TestExecuteTemplatesInitWithoutForcePreservesUserContent(t *testing.T) {
 	if err != nil {
 		t.Fatalf("read: %v", err)
 	}
+
 	if !strings.Contains(string(body), "secret.env") {
 		t.Errorf("non-force run lost user content; got:\n%s", body)
 	}
+
 	if !strings.Contains(string(body), "# >>> gitmap:ignore/go >>>") {
 		t.Errorf("non-force run missing appended gitmap block:\n%s", body)
 	}
@@ -226,10 +240,12 @@ func TestExecuteTemplatesInitLFSMergesIntoAttributes(t *testing.T) {
 	if err != nil {
 		t.Fatalf("read .gitattributes: %v", err)
 	}
+
 	want := []string{
 		"# >>> gitmap:attributes/go >>>",
 		"# >>> gitmap:lfs/common >>>",
 	}
+
 	for _, w := range want {
 		if !strings.Contains(string(body), w) {
 			t.Errorf("missing marker %q in .gitattributes:\n%s", w, body)
@@ -262,9 +278,11 @@ func TestRunTemplatesInitStepSoftSkipsMissingOptional(t *testing.T) {
 	if !r.skipped {
 		t.Fatalf("expected skip for missing optional template, got merged result: %+v", r)
 	}
+
 	if r.skipReason == "" {
 		t.Error("skip result should carry a non-empty skipReason for the summary printer")
 	}
+
 	if _, err := os.Stat(step.target); !os.IsNotExist(err) {
 		t.Error("soft-skip path must not create the target file")
 	}

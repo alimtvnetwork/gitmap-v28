@@ -23,6 +23,7 @@ func ResolveCLI() string {
 	if err == nil {
 		return hit
 	}
+
 	return resolveFromKnownInstalls()
 }
 
@@ -35,6 +36,7 @@ func resolveFromKnownInstalls() string {
 			return candidate
 		}
 	}
+
 	return ""
 }
 
@@ -45,9 +47,11 @@ func knownInstallCandidates() []string {
 	if runtime.GOOS == constants.OSWindows {
 		return windowsCandidates()
 	}
+
 	if runtime.GOOS == "darwin" {
 		return darwinCandidates()
 	}
+
 	return nil
 }
 
@@ -58,17 +62,20 @@ func windowsCandidates() []string {
 	if base == "" {
 		return nil
 	}
+
 	root := filepath.Join(base, "GitHubDesktop")
 	out := []string{filepath.Join(root, "bin", "github.bat")}
 	entries, err := os.ReadDir(root)
 	if err != nil {
 		return out
 	}
+
 	versionDirs := collectAppDirs(entries)
 	sort.Sort(sort.Reverse(sort.StringSlice(versionDirs)))
 	for _, name := range versionDirs {
 		out = append(out, filepath.Join(root, name, "bin", "github.bat"))
 	}
+
 	return out
 }
 
@@ -81,6 +88,7 @@ func collectAppDirs(entries []os.DirEntry) []string {
 			out = append(out, e.Name())
 		}
 	}
+
 	return out
 }
 

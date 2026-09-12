@@ -18,6 +18,7 @@ func FilterTopLevelOnly(repoPaths []string) []string {
 			if i == j {
 				continue
 			}
+
 			cleanOther := filepath.Clean(other)
 			rel, err := filepath.Rel(cleanOther, cleanCand)
 			if err == nil && !strings.HasPrefix(rel, "..") && rel != "." {
@@ -30,5 +31,6 @@ func FilterTopLevelOnly(repoPaths []string) []string {
 			filtered = append(filtered, cleanCand)
 		}
 	}
+
 	return filtered
 }

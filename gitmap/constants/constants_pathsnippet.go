@@ -49,14 +49,18 @@ function global:Get-GitmapCommand {
   if (Test-Path -LiteralPath $candidate) { return $candidate }
   $cmd = Get-Command gitmap.exe -CommandType Application -ErrorAction SilentlyContinue | Select-Object -First 1
   if ($cmd) { return $cmd.Source }
+
   return $null
 }
+
 function global:gcd {
   Invoke-GitmapAndSetLocation -GitMapArgs (@('cd') + $args)
 }
+
 function global:gitmap {
   Invoke-GitmapAndSetLocation $args
 }
+
 function global:Invoke-GitmapAndSetLocation {
   param([string[]]$GitMapArgs)
   $real = Get-GitmapCommand
@@ -68,8 +72,10 @@ function global:Invoke-GitmapAndSetLocation {
     if ($LASTEXITCODE -ne 0) { return }
     $dest = $dest.Trim()
     if ($dest -and (Test-Path -LiteralPath ([string]$dest))) { Set-Location -LiteralPath ([string]$dest) }
+
     return
   }
+
   $handoff = [System.IO.Path]::Combine([System.IO.Path]::GetTempPath(), "gitmap-handoff-$([System.Guid]::NewGuid().ToString('N')).txt")
   try {
     $env:GITMAP_HANDOFF_FILE = $handoff
@@ -86,6 +92,7 @@ function global:Invoke-GitmapAndSetLocation {
     Remove-Item Env:\GITMAP_HANDOFF_FILE -ErrorAction SilentlyContinue
   }
 }
+
 # gitmap shell wrapper v2 end`
 )
 

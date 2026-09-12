@@ -13,14 +13,17 @@ func runAgyLsEmptyConvs(args []string) error {
 	if err != nil {
 		return apperror.WrapSimple(err, "path error")
 	}
+
 	projects, err := loadAllAgyProjects(dirPath)
 	if err != nil {
 		return apperror.WrapSimple(err, "load projects")
 	}
+
 	convs, err := scanAllConversations()
 	if err != nil {
 		return apperror.WrapSimple(err, "scan conversations")
 	}
+
 	mapped := mapProjectsToConversations(projects, convs)
 	emptyList := filterEmptyProjectConvs(mapped)
 
@@ -28,8 +31,10 @@ func runAgyLsEmptyConvs(args []string) error {
 	if len(emptyList) == 0 {
 		return nil
 	}
+
 	printEmptyConvsTable(emptyList)
 	printEmptyConvsRemediations()
+
 	return nil
 }
 
@@ -40,6 +45,7 @@ func filterEmptyProjectConvs(mapped []AgyProjectConvs) []AgyProjectConvs {
 			out = append(out, m)
 		}
 	}
+
 	return out
 }
 
@@ -50,8 +56,10 @@ func printEmptyConvsHeader(emptyCount, totalCount int) {
 	if emptyCount == 0 {
 		fmt.Printf("  %s✓ All %d Antigravity projects have active conversations.%s\n\n",
 			constants.ColorGreen, totalCount, constants.ColorReset)
+
 		return
 	}
+
 	fmt.Printf("  Found %s%d%s project(s) with empty or zero conversations (out of %d total):\n\n",
 		constants.ColorYellow, emptyCount, constants.ColorReset, totalCount)
 }
@@ -65,6 +73,7 @@ func printEmptyConvsTable(items []AgyProjectConvs) {
 		if len(it.Convs) > 0 {
 			status = "Empty/Abort"
 		}
+
 		pathStr := it.Project.GetPath()
 		fmt.Printf("  %-38s %-24s %-42s %-6d %s%s%s\n",
 			it.Project.ID,
@@ -73,6 +82,7 @@ func printEmptyConvsTable(items []AgyProjectConvs) {
 			len(it.Convs),
 			constants.ColorDim, status, constants.ColorReset)
 	}
+
 	fmt.Println()
 }
 

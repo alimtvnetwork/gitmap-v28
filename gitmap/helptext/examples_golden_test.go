@@ -17,22 +17,27 @@ func TestEveryHelpFileHasExamples(t *testing.T) {
 	if err != nil {
 		t.Fatalf("read helptext dir: %v", err)
 	}
+
 	var missing []string
 	for _, e := range entries {
 		if e.IsDir() || !strings.HasSuffix(e.Name(), ".md") {
 			continue
 		}
+
 		if isExemptHelpFile(e.Name()) {
 			continue
 		}
+
 		body, err := os.ReadFile(filepath.Join(".", e.Name()))
 		if err != nil {
 			t.Fatalf("read %s: %v", e.Name(), err)
 		}
+
 		if !hasExamplesSection(string(body)) {
 			missing = append(missing, e.Name())
 		}
 	}
+
 	if len(missing) > 0 {
 		t.Fatalf("help files missing `## Examples` section (%d):\n  - %s",
 			len(missing), strings.Join(missing, "\n  - "))
@@ -46,6 +51,7 @@ func hasExamplesSection(md string) bool {
 	if idx < 0 {
 		return false
 	}
+
 	return strings.Contains(md[idx:], "```")
 }
 
@@ -56,5 +62,6 @@ func isExemptHelpFile(name string) bool {
 	case "README.md", "_overview.md":
 		return true
 	}
+
 	return false
 }

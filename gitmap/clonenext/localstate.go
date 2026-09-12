@@ -53,6 +53,7 @@ func resolveGitDir(repoPath string) (string, error) {
 	if err != nil {
 		return "", fmt.Errorf("%w: %s", ErrNotAGitRepo, repoPath)
 	}
+
 	if info.IsDir() {
 		return dotGit, nil
 	}
@@ -67,6 +68,7 @@ func resolveWorktreeGitDir(dotGitFile string) (string, error) {
 	if err != nil {
 		return "", fmt.Errorf(constants.ErrCloneNextReadWorktree, dotGitFile, err)
 	}
+
 	line := strings.TrimSpace(string(body))
 	if strings.HasPrefix(line, constants.GitdirPrefix) {
 		return strings.TrimSpace(strings.TrimPrefix(line, constants.GitdirPrefix)), nil
@@ -96,6 +98,7 @@ func extractOriginURL(config string) string {
 			inOriginSection = line == constants.GitConfigRemoteOrigin
 			continue
 		}
+
 		if inOriginSection && strings.HasPrefix(line, constants.GitConfigURLPrefix) {
 			return parseURLValue(line)
 		}
@@ -109,6 +112,7 @@ func parseURLValue(line string) string {
 	if len(parts) == constants.GitConfigSplitPartsCount {
 		return strings.TrimSpace(parts[1])
 	}
+
 	return ""
 }
 
@@ -120,10 +124,12 @@ func readHeadSHA(gitDir string) string {
 	if err != nil {
 		return ""
 	}
+
 	head := strings.TrimSpace(string(body))
 	if !strings.HasPrefix(head, constants.GitRefPrefix) {
 		return head
 	}
+
 	refPath := strings.TrimSpace(strings.TrimPrefix(head, constants.GitRefPrefix))
 	refBytes, err := os.ReadFile(filepath.Join(gitDir, refPath))
 	if err != nil {

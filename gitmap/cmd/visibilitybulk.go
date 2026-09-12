@@ -116,7 +116,6 @@ func extractBaseAndVersionFromArg(arg string) (string, int) {
 // signal even when most items succeed.
 func runBulkVisibility(ctx visibilityContext, req bulkVisibilityRequest,
 	target string, opts visibilityFlags) error {
-
 	fmt.Printf(constants.MsgVisBulkHeaderFmt, target, req.Count, req.BaseRepo, ctx.Provider)
 
 	worst := constants.ExitVisOK
@@ -138,6 +137,7 @@ func runBulkVisibility(ctx visibilityContext, req bulkVisibilityRequest,
 	}
 
 	cliexit.HandleError(nil, worst)
+
 	return nil
 }
 
@@ -147,7 +147,6 @@ func runBulkVisibility(ctx visibilityContext, req bulkVisibilityRequest,
 // on apply failure).
 func flipOneSlug(provider, owner, base string, ver int,
 	target string, opts visibilityFlags) int {
-
 	slug := fmt.Sprintf("%s/%s-v%d", owner, base, ver)
 	subCtx := visibilityContext{Provider: provider, Slug: slug,
 		URL: fmt.Sprintf("https://%s/%s", providerHost(provider), slug)}
@@ -177,7 +176,6 @@ func flipOneSlug(provider, owner, base string, ver int,
 // applyAndReport runs the provider edit + prints a one-line outcome.
 func applyAndReport(ctx visibilityContext, current, target string,
 	opts visibilityFlags) int {
-
 	args := applyVisibilityArgs(ctx.Provider, ctx.Slug, target)
 	if _, err := runProviderCLICapturingStderr(ctx.Provider, args, opts.verbose); err != nil {
 		fmt.Printf(constants.MsgVisBulkFailFmt, err)

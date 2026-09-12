@@ -59,16 +59,19 @@ func inspectExistingRepo(absDest string) existingRepoState {
 	if err != nil || !info.IsDir() {
 		return state
 	}
+
 	state.Exists = true
 	entries, _ := os.ReadDir(absDest)
 	state.Empty = len(entries) == 0
 	if !isGitWorkTree(absDest) {
 		return state
 	}
+
 	state.IsRepo = true
 	if remote, err := gitutil.RemoteURL(absDest); err == nil {
 		state.RemoteURL = strings.TrimSpace(remote)
 	}
+
 	if branch, err := gitutil.CurrentBranch(absDest); err == nil {
 		state.Branch = strings.TrimSpace(branch)
 	}
@@ -103,21 +106,25 @@ func dispatchOnExists(r Row, url, absDest, cwd, policy string, state existingRep
 	if !state.Exists || state.Empty {
 		return cloneFresh(r, url, absDest, cwd)
 	}
+
 	if !state.IsRepo {
 		return Result{
 			Status: constants.CloneNowStatusFailed,
 			Detail: constants.MsgCloneNowNotARepo,
 		}
 	}
+
 	if policy == constants.CloneNowOnExistsForce {
 		return forceReclone(r, url, absDest, cwd)
 	}
+
 	if repoMatches(r, url, state) {
 		return Result{
 			Status: constants.CloneNowStatusSkipped,
 			Detail: constants.MsgCloneNowAlreadyMatches,
 		}
 	}
+
 	if policy == constants.CloneNowOnExistsUpdate {
 		return updateExisting(r, url, absDest, state)
 	}
@@ -134,6 +141,7 @@ func cloneFresh(r Row, url, absDest, cwd string) Result {
 	if info, err := os.Stat(absDest); err == nil && info.IsDir() {
 		_ = os.Remove(absDest) // empty -> ok; non-empty -> git will error.
 	}
+
 	dest := relOrAbs(absDest, cwd)
 	detail, ok := runGitClone(r, url, dest, cwd)
 	if !ok {
@@ -157,6 +165,7 @@ func repoMatches(r Row, url string, state existingRepoState) bool {
 		!urlsMatch(state.RemoteURL, r.SSHUrl) {
 		return false
 	}
+
 	if len(r.Branch) == 0 {
 		return true
 	}
@@ -239,8 +248,10 @@ func updateExisting(r Row, url, absDest string, state existingRepoState) Result 
 			Detail: fmt.Sprintf(constants.MsgCloneNowFetchFail, detail),
 		}
 	}
+
 	if len(r.Branch) == 0 || state.Branch == r.Branch {
 		_ = url // url unused once update succeeds -- the existing remote stays.
+
 		return Result{Status: constants.CloneNowStatusOK, Detail: constants.MsgCloneNowUpdated}
 	}
 
@@ -268,11 +279,13 @@ func forceReclone(r Row, url, absDest, cwd string) Result {
 			Detail: fmt.Sprintf(constants.MsgCloneNowForceRemoveFail, absDest, err),
 		}
 	}
+
 	dest := relOrAbs(absDest, cwd)
 	detail, ok := runGitClone(r, url, dest, cwd)
 	if !ok {
 		return Result{Status: constants.CloneNowStatusFailed, Detail: detail}
 	}
+
 	_ = detail
 
 	return Result{Status: constants.CloneNowStatusOK, Detail: constants.MsgCloneNowForceRecloned}

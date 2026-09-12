@@ -35,18 +35,21 @@ func runFixAuth(args []string) error {
 
 		return apperror.NewSimple("--user <github-username> is required", "E_FIXAUTH_USER")
 	}
+
 	isNonGitRepoCWD := !isGitRepoCWD()
 	if isNonGitRepoCWD {
 		fmt.Fprintln(os.Stderr, "✗ not a git repository (run inside the repo you want to fix)")
 
 		return apperror.NewSimple("not a git repository (run inside the repo you want to fix)", "E_NOT_GIT_REPO")
 	}
+
 	keyPath := fixAuthKeyPath(user)
 	if err := ensureSSHDir(filepath.Dir(keyPath)); err != nil {
 		fmt.Fprintf(os.Stderr, "✗ mkdir ~/.ssh failed: %v\n", err)
 
 		return apperror.WrapSimple(err, "mkdir ~/.ssh")
 	}
+
 	fixAuthGenerate(keyPath, resolveFixAuthEmail(email), assumeYes, force)
 	fixAuthBind(keyPath)
 	fixAuthAnnounce(user, keyPath)
@@ -79,6 +82,7 @@ func resolveFixAuthEmail(email string) string {
 	if email != "" {
 		return email
 	}
+
 	resolved := resolveGitEmail()
 	if resolved == "" {
 		fmt.Fprintln(os.Stderr, "  ⚠ git user.email not set; using placeholder — pass --email to override")
@@ -111,22 +115,26 @@ func fixAuthGenerate(keyPath, email string, assumeYes, force bool) {
 
 		return
 	}
+
 	if keyExists && !assumeYes && !confirmOverwrite(keyPath) {
 		fmt.Println("• aborted; existing key kept")
 		cliexit.HandleSuccess()
 
 		return
 	}
+
 	if keyExists {
 		_ = os.Remove(keyPath)
 		_ = os.Remove(keyPath + ".pub")
 	}
+
 	if err := validateSSHKeygen(); err != nil {
 		fmt.Fprint(os.Stderr, constants.ErrSSHKeygenMissing)
 		cliexit.HandleError(apperror.NewSimple(constants.ErrSSHKeygenMissing, "E_KEYGEN_MISSING"))
 
 		return
 	}
+
 	runSSHKeygenEd25519(keyPath, email)
 }
 
@@ -140,6 +148,7 @@ func runSSHKeygenEd25519(keyPath, email string) error {
 		fmt.Fprintf(os.Stderr, "✗ ssh-keygen failed: %v\n", err)
 		cliexit.HandleError(apperror.WrapSimple(err, "ssh-keygen"))
 	}
+
 	return nil
 }
 
@@ -163,6 +172,7 @@ func fixAuthBind(keyPath string) {
 
 		return
 	}
+
 	fmt.Printf("✓ pinned repo → %s\n", cmdStr)
 }
 
@@ -172,6 +182,7 @@ func sshBindRefForKey(keyPath string) string {
 	if err != nil || home == "" {
 		return keyPath
 	}
+
 	if strings.HasPrefix(keyPath, home) {
 		return "~" + strings.ReplaceAll(keyPath[len(home):], "\\", "/")
 	}
@@ -189,6 +200,7 @@ func fixAuthAnnounce(user, keyPath string) {
 
 		return
 	}
+
 	trimmed := strings.TrimSpace(string(pub))
 	fmt.Println("\n=== PUBLIC KEY (add this to GitHub) ===")
 	fmt.Println(trimmed)

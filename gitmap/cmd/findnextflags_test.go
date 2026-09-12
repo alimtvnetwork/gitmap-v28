@@ -22,12 +22,14 @@ func TestParseFindNextFlags_HappyPaths(t *testing.T) {
 		{"both flags", []string{"--scan-folder", "7", "--json"}, 7, true},
 		{"flags reversed", []string{"--json", "--scan-folder=9"}, 9, true},
 	}
+
 	for _, tc := range cases {
 		t.Run(tc.name, func(t *testing.T) {
 			id, jsn, err := parseFindNextFlags(tc.args)
 			if err != nil {
 				t.Fatalf("unexpected err: %v", err)
 			}
+
 			if id != tc.wantID || jsn != tc.wantJSN {
 				t.Fatalf("got (%d,%v) want (%d,%v)", id, jsn, tc.wantID, tc.wantJSN)
 			}
@@ -44,6 +46,7 @@ func TestParseFindNextFlags_RejectsJSONValue(t *testing.T) {
 		if err == nil {
 			t.Fatalf("expected error for %q, got nil", arg)
 		}
+
 		if !strings.Contains(err.Error(), "does not take a value") {
 			t.Fatalf("expected boolean-no-value error for %q, got %v", arg, err)
 		}
@@ -57,11 +60,13 @@ func TestParseFindNextFlags_RejectsBadInt(t *testing.T) {
 		{"--scan-folder", "abc"},
 		{"--scan-folder=xyz"},
 	}
+
 	for _, args := range cases {
 		_, _, err := parseFindNextFlags(args)
 		if err == nil {
 			t.Fatalf("expected error for %v, got nil", args)
 		}
+
 		if !strings.Contains(err.Error(), "expects an integer") {
 			t.Fatalf("expected bad-int error for %v, got %v", args, err)
 		}
@@ -76,11 +81,13 @@ func TestParseFindNextFlags_RejectsMissingValue(t *testing.T) {
 		{"--scan-folder"},
 		{"--scan-folder", "--json"},
 	}
+
 	for _, args := range cases {
 		_, _, err := parseFindNextFlags(args)
 		if err == nil {
 			t.Fatalf("expected missing-value error for %v, got nil", args)
 		}
+
 		if !strings.Contains(err.Error(), "requires an integer") {
 			t.Fatalf("expected missing-value error for %v, got %v", args, err)
 		}
@@ -98,11 +105,13 @@ func TestParseFindNextFlags_UnknownFlagWithSuggestion(t *testing.T) {
 		{"--scanfolder", "--scan-folder"},
 		{"--scan_folder", "--scan-folder"},
 	}
+
 	for _, tc := range cases {
 		_, _, err := parseFindNextFlags([]string{tc.arg})
 		if err == nil {
 			t.Fatalf("expected unknown-flag error for %q, got nil", tc.arg)
 		}
+
 		if !strings.Contains(err.Error(), tc.want) {
 			t.Fatalf("expected suggestion %q in %v", tc.want, err)
 		}
@@ -117,6 +126,7 @@ func TestParseFindNextFlags_UnknownFlagWithoutSuggestion(t *testing.T) {
 	if err == nil {
 		t.Fatalf("expected unknown-flag error, got nil")
 	}
+
 	if strings.Contains(err.Error(), "did you mean") {
 		t.Fatalf("did not expect suggestion in %v", err)
 	}
@@ -129,6 +139,7 @@ func TestParseFindNextFlags_RejectsPositional(t *testing.T) {
 	if err == nil {
 		t.Fatalf("expected positional error, got nil")
 	}
+
 	if !strings.Contains(err.Error(), "unexpected positional") {
 		t.Fatalf("expected positional error, got %v", err)
 	}

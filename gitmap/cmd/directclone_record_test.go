@@ -13,6 +13,7 @@ func TestPopulateDirectCloneURLsPreservesSSHTransport(t *testing.T) {
 	if rec.Transport != constants.ScanTransportSSH {
 		t.Fatalf("Transport = %q, want ssh", rec.Transport)
 	}
+
 	if rec.SSHUrl == "" || rec.HTTPSUrl == "" {
 		t.Fatalf("urls not both populated: ssh=%q https=%q", rec.SSHUrl, rec.HTTPSUrl)
 	}
@@ -24,6 +25,7 @@ func TestPopulateDirectCloneURLsPreservesHTTPSTransport(t *testing.T) {
 	if rec.Transport != constants.ScanTransportHTTPS {
 		t.Fatalf("Transport = %q, want https", rec.Transport)
 	}
+
 	if rec.SSHUrl == "" || rec.HTTPSUrl == "" {
 		t.Fatalf("urls not both populated: ssh=%q https=%q", rec.SSHUrl, rec.HTTPSUrl)
 	}

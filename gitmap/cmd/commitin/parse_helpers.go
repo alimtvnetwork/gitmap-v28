@@ -35,9 +35,11 @@ func splitInputs(tokens []string) []string {
 			if part == "" {
 				continue
 			}
+
 			out = append(out, stripOuterQuotes(part))
 		}
 	}
+
 	return out
 }
 
@@ -47,6 +49,7 @@ func stripOuterQuotes(s string) string {
 	if len(s) >= 2 && s[0] == '"' && s[len(s)-1] == '"' {
 		return s[1 : len(s)-1]
 	}
+
 	return s
 }
 
@@ -57,9 +60,11 @@ func classifyKeyword(token string) (string, int, bool, *ParseError) {
 	if token == constants.CommitInInputKeywordAll {
 		return token, 0, true, nil
 	}
+
 	if !strings.HasPrefix(token, constants.CommitInInputKeywordTailDash) {
 		return "", 0, false, nil
 	}
+
 	digits := token[len(constants.CommitInInputKeywordTailDash):]
 	if digits == "" {
 		return "", 0, true, &ParseError{
@@ -67,6 +72,7 @@ func classifyKeyword(token string) (string, int, bool, *ParseError) {
 			Message:  fmt.Sprintf(constants.CommitInErrInputKeyword, token),
 		}
 	}
+
 	n, err := strconv.Atoi(digits)
 	if err != nil || n < 1 {
 		return "", 0, true, &ParseError{
@@ -74,6 +80,7 @@ func classifyKeyword(token string) (string, int, bool, *ParseError) {
 			Message:  fmt.Sprintf(constants.CommitInErrInputKeyword, token),
 		}
 	}
+
 	return token, n, true, nil
 }
 
@@ -83,6 +90,7 @@ func splitCSV(value string) []string {
 	if value == "" {
 		return nil
 	}
+
 	parts := strings.Split(value, constants.CommitInCsvSep)
 	out := make([]string, 0, len(parts))
 	for _, p := range parts {
@@ -91,5 +99,6 @@ func splitCSV(value string) []string {
 			out = append(out, p)
 		}
 	}
+
 	return out
 }

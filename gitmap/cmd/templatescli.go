@@ -87,6 +87,7 @@ func dispatchTemplates(command string) (bool, error) {
 	if command != constants.CmdTemplates && command != constants.CmdTemplatesAlias {
 		return false, nil
 	}
+
 	if len(os.Args) < 3 {
 		err := apperror.NewWithDetails(
 			"cmd.templates.dispatch",
@@ -98,6 +99,7 @@ func dispatchTemplates(command string) (bool, error) {
 			nil,
 		)
 		cliexit.HandleError(err, 1)
+
 		return true, nil
 	}
 
@@ -145,6 +147,7 @@ func runTemplatesList(args []string) error {
 			map[string]any{"kind": kindFilter},
 		)
 		cliexit.HandleError(err, 1)
+
 		return nil
 	}
 
@@ -161,8 +164,10 @@ func runTemplatesList(args []string) error {
 			nil,
 		)
 		cliexit.HandleError(appErr, 1)
+
 		return nil
 	}
+
 	if len(entries) == 0 {
 		fmt.Print(msgTemplatesEmpty)
 
@@ -180,6 +185,7 @@ func runTemplatesList(args []string) error {
 	for _, e := range filtered {
 		fmt.Printf(fmtTemplatesListRow, e.Kind, e.Lang, sourceLabel(e.Source), e.Path)
 	}
+
 	return nil
 }
 
@@ -214,14 +220,17 @@ func filterTemplates(in []templates.Entry, kindFilter, langFilter string) []temp
 	if kindFilter == "" && langFilter == "" {
 		return in
 	}
+
 	out := make([]templates.Entry, 0, len(in))
 	for _, e := range in {
 		if kindFilter != "" && e.Kind != kindFilter {
 			continue
 		}
+
 		if langFilter != "" && !strings.EqualFold(e.Lang, langFilter) {
 			continue
 		}
+
 		out = append(out, e)
 	}
 
@@ -252,8 +261,10 @@ func runTemplatesShow(args []string) error {
 			nil,
 		)
 		cliexit.HandleError(err, 1)
+
 		return nil
 	}
+
 	kind, lang := rest[0], rest[1]
 	r, err := templates.Resolve(kind, lang)
 	if err != nil {
@@ -268,6 +279,7 @@ func runTemplatesShow(args []string) error {
 			map[string]any{"kind": kind, "lang": lang},
 		)
 		cliexit.HandleError(appErr, 1)
+
 		return nil
 	}
 
@@ -288,8 +300,10 @@ func runTemplatesShow(args []string) error {
 			nil,
 		)
 		cliexit.HandleError(appErr, 1)
+
 		return nil
 	}
+
 	return nil
 }
 

@@ -26,9 +26,11 @@ func sendToRecycleBin(path string) error {
 	if err != nil {
 		return err
 	}
+
 	if _, err := os.Stat(absPath); os.IsNotExist(err) {
 		return nil
 	}
+
 	return invokeShFileDelete(absPath)
 }
 
@@ -37,6 +39,7 @@ func invokeShFileDelete(absPath string) error {
 	if err != nil {
 		return err
 	}
+
 	shell32 := syscall.NewLazyDLL("shell32.dll")
 	proc := shell32.NewProc("SHFileOperationW")
 	op := shFileOpStruct{wFunc: 3, pFrom: pFrom, fFlags: 0x40 | 0x10 | 0x0400 | 0x0004}
@@ -44,5 +47,6 @@ func invokeShFileDelete(absPath string) error {
 	if ret != 0 {
 		return fmt.Errorf("SHFileOperation failed with code %d", ret)
 	}
+
 	return nil
 }

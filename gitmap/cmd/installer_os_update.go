@@ -36,6 +36,7 @@ func executeOSUpdate(args []string, osTarget string) error {
 	if errDB != nil {
 		return errDB
 	}
+
 	defer db.Close()
 
 	if errMigrate := db.MigrateInstallers(); errMigrate != nil {
@@ -52,6 +53,7 @@ func executeOSUpdate(args []string, osTarget string) error {
 	}
 
 	fmt.Printf("Installer \"%s\" (%s) updated successfully.\n", slug, osTarget)
+
 	return nil
 }
 

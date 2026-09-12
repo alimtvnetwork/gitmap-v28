@@ -19,6 +19,7 @@ func runAttribClear(targetDir string, isDryRun bool) *apperror.AppError {
 	if isDryRun {
 		return nil
 	}
+
 	pattern := filepath.Join(targetDir, "*.*")
 	err := commandRunner("attrib", "-r", pattern, "/s", "/d")
 	if err != nil {
@@ -32,6 +33,7 @@ func runIcaclsGrant(targetDir string, isDryRun bool) *apperror.AppError {
 	if isDryRun {
 		return nil
 	}
+
 	err := commandRunner("icacls", targetDir, "/grant", "Users:(OI)(CI)M", "/T", "/C", "/Q")
 	if err != nil {
 		return apperror.WrapSimple(err, "icacls.grant")
@@ -44,6 +46,7 @@ func runIcaclsCredentials(credPath string, isDryRun bool) *apperror.AppError {
 	if isDryRun {
 		return nil
 	}
+
 	err := commandRunner("icacls", credPath, "/inheritance:r", "/grant:r", "Administrators:(F)", "SYSTEM:(F)", "/Q")
 	if err != nil {
 		return apperror.WrapSimple(err, "icacls.credentials")
@@ -66,6 +69,7 @@ func secureWindowsCredentials(targetDir string, isDryRun bool) *apperror.AppErro
 	if wpErr != nil {
 		return wpErr
 	}
+
 	envErr := secureSingleCredential(filepath.Join(targetDir, ".env"), isDryRun)
 	if envErr != nil {
 		return envErr
@@ -79,6 +83,7 @@ func executeWindowsFixSteps(targetDir string, isDryRun bool) *apperror.AppError 
 	if attribErr != nil {
 		return attribErr
 	}
+
 	grantErr := runIcaclsGrant(targetDir, isDryRun)
 	if grantErr != nil {
 		return grantErr
@@ -95,10 +100,12 @@ func ApplyWindowsPermissions(opts PermsOptions) (*PermsReport, *apperror.AppErro
 
 		return report, nil
 	}
+
 	execErr := executeWindowsFixSteps(opts.TargetDir, opts.IsDryRun)
 	if execErr != nil {
 		return report, execErr
 	}
+
 	report.FixedCount++
 
 	return report, nil

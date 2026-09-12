@@ -42,9 +42,11 @@ func tryRenameWithFallback(src, dest string) error {
 	if renameErr := os.Rename(src, dest); renameErr == nil {
 		return nil
 	}
+
 	if mkErr := os.MkdirAll(dest, 0o755); mkErr != nil {
 		return mkErr
 	}
+
 	return copyTreeThenRemove(src, dest)
 }
 
@@ -58,6 +60,7 @@ func copyTreeThenRemove(src, dest string) error {
 		if err != nil {
 			return err
 		}
+
 		rel, relErr := filepath.Rel(src, path)
 		if relErr != nil {
 			return relErr
@@ -79,9 +82,11 @@ func copyOneEntry(src, dest string, entry fs.DirEntry) error {
 	if entry.IsDir() {
 		return os.MkdirAll(dest, 0o755)
 	}
+
 	if entry.Type()&os.ModeSymlink != 0 {
 		return copySymlinkEntry(src, dest)
 	}
+
 	if !entry.Type().IsRegular() {
 		return nil
 	}
@@ -94,6 +99,7 @@ func copySymlinkEntry(src, dest string) error {
 	if err != nil {
 		return err
 	}
+
 	return os.Symlink(target, dest)
 }
 
@@ -105,15 +111,18 @@ func copyRegularFile(src, dest string) error {
 	if err != nil {
 		return err
 	}
+
 	in, err := os.Open(src)
 	if err != nil {
 		return err
 	}
+
 	defer in.Close()
 	out, err := os.OpenFile(dest, os.O_WRONLY|os.O_CREATE|os.O_TRUNC, info.Mode().Perm())
 	if err != nil {
 		return err
 	}
+
 	if _, copyErr := io.Copy(out, in); copyErr != nil {
 		out.Close()
 

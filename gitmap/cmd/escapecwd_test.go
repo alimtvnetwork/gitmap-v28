@@ -21,6 +21,7 @@ func TestIsPathInside(t *testing.T) {
 		{"parent-of", "/a", "/a/b", false},
 		{"case-fold", "/A/B", "/a/b", true},
 	}
+
 	for _, tc := range cases {
 		t.Run(tc.name, func(t *testing.T) {
 			got := isPathInside(filepath.Clean(tc.child), filepath.Clean(tc.parent))
@@ -61,11 +62,13 @@ func restoreCwd(t *testing.T) func() {
 	if err != nil {
 		t.Fatalf("snapshot cwd: %v", err)
 	}
+
 	restore := func() {
 		if cerr := os.Chdir(orig); cerr != nil {
 			t.Logf("restore cwd to %q: %v", orig, cerr)
 		}
 	}
+
 	t.Cleanup(restore)
 
 	return restore
@@ -80,6 +83,7 @@ func TestEscapeCwdIfInside_EscapesWhenInside(t *testing.T) {
 	if err != nil {
 		t.Fatalf("evalsymlinks: %v", err)
 	}
+
 	defer restoreCwd(t)()
 
 	if err := os.Chdir(target); err != nil {

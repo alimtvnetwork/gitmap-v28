@@ -52,14 +52,17 @@ func countBookmarks(raw json.RawMessage) int {
 	if len(raw) == 0 {
 		return 0
 	}
+
 	var root bookmarkRoot
 	if err := json.Unmarshal(raw, &root); err != nil {
 		return 0
 	}
+
 	count := 0
 	for _, node := range root.Roots {
 		count += countNodeBookmarks(node)
 	}
+
 	return count
 }
 
@@ -68,9 +71,11 @@ func countNodeBookmarks(node bookmarkNode) int {
 	if node.Type == "url" {
 		count++
 	}
+
 	for _, child := range node.Children {
 		count += countNodeBookmarks(child)
 	}
+
 	return count
 }
 
@@ -80,6 +85,7 @@ func hasProfileBookmarks(profileDir string) bool {
 	if err != nil {
 		return false
 	}
+
 	return info.Size() > 50
 }
 
@@ -91,11 +97,14 @@ func findNextAvailableProfileDir() string {
 		if stateSet[candidate] {
 			continue
 		}
+
 		if chromeProfilePathExists(filepath.Join(root, candidate)) {
 			continue
 		}
+
 		return candidate
 	}
+
 	return fmt.Sprintf("Profile %d", time.Now().Unix())
 }
 
@@ -103,9 +112,11 @@ func resolveImportDestination(exp *chromeExport, explicitTarget string, logSteps
 	if explicitTarget != "" {
 		return resolveExplicitDestination(explicitTarget, exp, logSteps)
 	}
+
 	if exp.Email != "" {
 		return resolveDestinationByEmail(exp, logSteps)
 	}
+
 	return resolveDestinationDefault(exp, logSteps)
 }
 
@@ -113,6 +124,7 @@ func resolveExplicitDestination(explicitTarget string, exp *chromeExport, logSte
 	path := chromeProfilePath(explicitTarget)
 	isNew := !chromeProfilePathExists(path)
 	logExplicitTargetStep(explicitTarget, logSteps)
+
 	return importDestination{
 		Dir:         explicitTarget,
 		Path:        path,
@@ -127,6 +139,7 @@ func logExplicitTargetStep(target string, logSteps bool) {
 	if !logSteps {
 		return
 	}
+
 	fmt.Printf("      \033[1;94m[Step 2/5]\033[0m Using explicit profile target: %q\n", target)
 }
 
@@ -134,6 +147,7 @@ func resolveDestinationByEmail(exp *chromeExport, logSteps bool) importDestinati
 	existingDir, found := findChromeProfileByEmail(exp.Email)
 	if found {
 		logExistingProfileMatched(existingDir, exp.Email, logSteps)
+
 		return importDestination{
 			Dir:         existingDir,
 			Path:        chromeProfilePath(existingDir),
@@ -147,6 +161,7 @@ func resolveDestinationByEmail(exp *chromeExport, logSteps bool) importDestinati
 	nextDir := findNextAvailableProfileDir()
 	dispName := resolveProfileDisplayName(exp)
 	logNewProfileCreated(exp.Email, nextDir, logSteps)
+
 	return importDestination{
 		Dir:         nextDir,
 		Path:        chromeProfilePath(nextDir),
@@ -161,6 +176,7 @@ func logExistingProfileMatched(existingDir, email string, logSteps bool) {
 	if !logSteps {
 		return
 	}
+
 	fmt.Printf("      \033[1;94m[Step 2/5]\033[0m Matched existing Chrome profile %q by email <%s>\n", existingDir, email)
 }
 
@@ -168,6 +184,7 @@ func logNewProfileCreated(email, nextDir string, logSteps bool) {
 	if !logSteps {
 		return
 	}
+
 	fmt.Printf("      \033[1;94m[Step 2/5]\033[0m Email <%s> not found in Chrome. Creating new profile %q (protecting existing profiles)\n", email, nextDir)
 }
 
@@ -175,12 +192,15 @@ func resolveProfileDisplayName(exp *chromeExport) string {
 	if exp.DisplayName != "" {
 		return exp.DisplayName
 	}
+
 	if exp.Name != "" {
 		return exp.Name
 	}
+
 	if exp.Email != "" {
 		return strings.Split(exp.Email, "@")[0]
 	}
+
 	return "Profile"
 }
 
@@ -191,6 +211,7 @@ func findChromeProfileByEmail(email string) (string, bool) {
 			return dir, true
 		}
 	}
+
 	return "", false
 }
 
@@ -199,9 +220,11 @@ func resolveDestinationDefault(exp *chromeExport, logSteps bool) importDestinati
 	if candidate == "" {
 		candidate = "Default"
 	}
+
 	targetPath := chromeProfilePath(candidate)
 	if !chromeProfilePathExists(targetPath) {
 		logProfileAvailable(candidate, logSteps)
+
 		return importDestination{
 			Dir:         candidate,
 			Path:        targetPath,
@@ -217,6 +240,7 @@ func resolveDestinationDefault(exp *chromeExport, logSteps bool) importDestinati
 	if isOccupied {
 		nextDir := findNextAvailableProfileDir()
 		logProfileOccupied(candidate, nextDir, logSteps)
+
 		return importDestination{
 			Dir:         nextDir,
 			Path:        chromeProfilePath(nextDir),
@@ -228,6 +252,7 @@ func resolveDestinationDefault(exp *chromeExport, logSteps bool) importDestinati
 	}
 
 	logProfileUpdating(candidate, logSteps)
+
 	return importDestination{
 		Dir:         candidate,
 		Path:        targetPath,
@@ -242,6 +267,7 @@ func logProfileAvailable(name string, logSteps bool) {
 	if !logSteps {
 		return
 	}
+
 	fmt.Printf("      \033[1;94m[Step 2/5]\033[0m Target profile directory %q is available\n", name)
 }
 
@@ -249,6 +275,7 @@ func logProfileOccupied(candidate, nextDir string, logSteps bool) {
 	if !logSteps {
 		return
 	}
+
 	fmt.Printf("      \033[1;94m[Step 2/5]\033[0m Profile %q is occupied; allocating new profile %q to protect existing data\n", candidate, nextDir)
 }
 
@@ -256,6 +283,7 @@ func logProfileUpdating(candidate string, logSteps bool) {
 	if !logSteps {
 		return
 	}
+
 	fmt.Printf("      \033[1;94m[Step 2/5]\033[0m Updating profile %q\n", candidate)
 }
 
@@ -265,23 +293,29 @@ func isExcepted(exceptRules []string, fileName, profileName, displayName, email 
 		if r == "" {
 			continue
 		}
+
 		if matchExceptRule(r, fileName) {
 			return true, r
 		}
+
 		baseName := strings.TrimSuffix(fileName, filepath.Ext(fileName))
 		if matchExceptRule(r, baseName) {
 			return true, r
 		}
+
 		if matchExceptRule(r, profileName) {
 			return true, r
 		}
+
 		if matchExceptRule(r, displayName) {
 			return true, r
 		}
+
 		if matchExceptRule(r, email) {
 			return true, r
 		}
 	}
+
 	return false, ""
 }
 
@@ -289,15 +323,19 @@ func matchExceptRule(rule, val string) bool {
 	if val == "" {
 		return false
 	}
+
 	lowRule := strings.ToLower(rule)
 	lowVal := strings.ToLower(val)
 	if strings.EqualFold(lowRule, lowVal) {
 		return true
 	}
+
 	if strings.HasSuffix(lowRule, "*") {
 		prefix := strings.TrimSuffix(lowRule, "*")
+
 		return strings.HasPrefix(lowVal, prefix)
 	}
+
 	return strings.HasPrefix(lowVal, lowRule)
 }
 
@@ -306,15 +344,19 @@ func readSnapshotMetadata(srcFile string) (*snapshotMetadata, error) {
 	if strings.HasSuffix(lower, constants.ExtZIP) {
 		return readZipSnapshotMetadata(srcFile)
 	}
+
 	if isDirectoryPath(srcFile) {
 		return readDirectorySnapshotMetadata(srcFile)
 	}
+
 	if strings.HasSuffix(lower, constants.ExtJSON) {
 		return readJSONSnapshotMetadata(srcFile)
 	}
+
 	if strings.HasSuffix(lower, constants.ExtYAML) || strings.HasSuffix(lower, constants.ExtYML) {
 		return readYAMLSnapshotMetadata(srcFile)
 	}
+
 	return readGenericSnapshotMetadata(srcFile)
 }
 
@@ -323,15 +365,18 @@ func readZipSnapshotMetadata(srcFile string) (*snapshotMetadata, error) {
 	if err != nil || len(candidates) == 0 {
 		return readGenericSnapshotMetadata(srcFile)
 	}
+
 	base := filepath.Base(srcFile)
 	info, _ := os.Stat(srcFile)
 	var size int64
 	if info != nil {
 		size = info.Size()
 	}
+
 	if len(candidates) == 1 {
 		c := candidates[0]
 		exp := &chromeExport{Name: c.ProfileDirName, DisplayName: c.DisplayName, Email: c.Email}
+
 		return &snapshotMetadata{
 			FilePath:          srcFile,
 			FileName:          base,
@@ -346,15 +391,18 @@ func readZipSnapshotMetadata(srcFile string) (*snapshotMetadata, error) {
 			TargetDestination: c.TargetDestination,
 		}, nil
 	}
+
 	totalBM := 0
 	totalExt := 0
 	for _, c := range candidates {
 		totalBM += c.BookmarksCount
 		totalExt += c.ExtensionsCount
 	}
+
 	profLabel := fmt.Sprintf("%d profiles", len(candidates))
 	exp := &chromeExport{Name: profLabel, DisplayName: profLabel}
 	target := resolveImportDestination(exp, "", false)
+
 	return &snapshotMetadata{
 		FilePath:          srcFile,
 		FileName:          base,
@@ -374,12 +422,15 @@ func readDirectorySnapshotMetadata(srcDir string) (*snapshotMetadata, error) {
 	if !ok {
 		return readGenericSnapshotMetadata(srcDir)
 	}
+
 	info, _ := os.Stat(srcDir)
 	var size int64
 	if info != nil {
 		size = info.Size()
 	}
+
 	exp := &chromeExport{Name: cand.ProfileDirName, DisplayName: cand.DisplayName, Email: cand.Email}
+
 	return &snapshotMetadata{
 		FilePath:          srcDir,
 		FileName:          base,
@@ -400,23 +451,28 @@ func readJSONSnapshotMetadata(srcFile string) (*snapshotMetadata, error) {
 	if err != nil {
 		return nil, fmt.Errorf("read %s: %w", srcFile, err)
 	}
+
 	var exp chromeExport
 	if err := json.Unmarshal(raw, &exp); err != nil {
 		return nil, fmt.Errorf("parse %s: %w", srcFile, err)
 	}
+
 	if exp.Name == "" {
 		base := filepath.Base(srcFile)
 		exp.Name = strings.TrimSuffix(base, filepath.Ext(base))
 	}
+
 	extractEmailIfMissing(&exp, raw)
 	info, _ := os.Stat(srcFile)
 	var size int64
 	if info != nil {
 		size = info.Size()
 	}
+
 	bmsCount := countBookmarks(exp.Bookmarks)
 	extsCount := len(exp.ExtensionIDs)
 	target := resolveImportDestination(&exp, "", false)
+
 	return &snapshotMetadata{
 		FilePath:          srcFile,
 		FileName:          filepath.Base(srcFile),
@@ -437,9 +493,11 @@ func extractEmailIfMissing(exp *chromeExport, raw []byte) {
 	if exp.Email == "" && len(exp.Preferences) > 0 {
 		exp.Email = extractEmailFromPreferences(exp.Preferences)
 	}
+
 	if exp.Email == "" && len(raw) > 0 {
 		exp.Email = extractEmailFromPreferences(json.RawMessage(raw))
 	}
+
 	if exp.Email == "" && len(raw) > 0 {
 		exp.Email = extractEmailFromRawString(raw)
 	}
@@ -452,6 +510,7 @@ func extractEmailFromRawString(raw []byte) string {
 	if len(matches) > 1 {
 		return string(matches[1])
 	}
+
 	return ""
 }
 
@@ -460,17 +519,21 @@ func readYAMLSnapshotMetadata(srcFile string) (*snapshotMetadata, error) {
 	if err != nil {
 		return nil, fmt.Errorf("read %s: %w", srcFile, err)
 	}
+
 	var exp chromeExport
 	if err := yaml.Unmarshal(raw, &exp); err != nil {
 		return nil, fmt.Errorf("parse %s: %w", srcFile, err)
 	}
+
 	extractEmailIfMissing(&exp, raw)
 	info, _ := os.Stat(srcFile)
 	var size int64
 	if info != nil {
 		size = info.Size()
 	}
+
 	target := resolveImportDestination(&exp, "", false)
+
 	return &snapshotMetadata{
 		FilePath:          srcFile,
 		FileName:          filepath.Base(srcFile),
@@ -495,8 +558,10 @@ func readGenericSnapshotMetadata(srcFile string) (*snapshotMetadata, error) {
 	if info != nil {
 		size = info.Size()
 	}
+
 	exp := &chromeExport{Name: name, DisplayName: name}
 	target := resolveImportDestination(exp, "", false)
+
 	return &snapshotMetadata{
 		FilePath:          srcFile,
 		FileName:          base,
@@ -553,6 +618,7 @@ func scanSnapshotFiles(dir string) []string {
 	if err != nil {
 		return nil
 	}
+
 	var files []string
 	for _, e := range entries {
 		p := resolveSnapshotEntryPath(dir, e)
@@ -560,7 +626,9 @@ func scanSnapshotFiles(dir string) []string {
 			files = append(files, p)
 		}
 	}
+
 	sort.Strings(files)
+
 	return files
 }
 
@@ -569,15 +637,19 @@ func isValidChromeSnapshotFile(path string) bool {
 	if strings.HasSuffix(lower, constants.ExtJSON) {
 		return isChromeSnapshotJSON(path)
 	}
+
 	if strings.HasSuffix(lower, constants.ExtZIP) {
 		return true
 	}
+
 	if isSQLiteSnapshot(lower) {
 		return true
 	}
+
 	if strings.HasSuffix(lower, constants.ExtYAML) || strings.HasSuffix(lower, constants.ExtYML) {
 		return isChromeSnapshotYAML(path)
 	}
+
 	return false
 }
 
@@ -586,6 +658,7 @@ func isImportableSnapshot(path string) bool {
 	if strings.HasSuffix(lower, constants.ExtJSON) || strings.HasSuffix(lower, constants.ExtZIP) {
 		return true
 	}
+
 	if strings.HasSuffix(lower, constants.ExtYAML) || strings.HasSuffix(lower, constants.ExtYML) {
 		return true
 	}
@@ -606,22 +679,28 @@ func isChromeSnapshotJSON(path string) bool {
 	if isExcludedSystemJSON(base) {
 		return false
 	}
+
 	raw, err := os.ReadFile(path)
 	if err != nil {
 		return false
 	}
+
 	var exp chromeExport
 	if err := json.Unmarshal(raw, &exp); err == nil && isExportPopulated(&exp) {
 		return true
 	}
+
 	var all chromeAllProfilesExport
 	if err := json.Unmarshal(raw, &all); err == nil && len(all.Profiles) > 0 {
 		return true
 	}
+
 	if isChromeProfileNamedJSON(base) {
 		var obj map[string]any
+
 		return json.Unmarshal(raw, &obj) == nil && len(obj) > 0
 	}
+
 	return false
 }
 
@@ -630,6 +709,7 @@ func isExcludedSystemJSON(base string) bool {
 	case "manifest.json", "package.json", "package-lock.json", "tsconfig.json", "version.json", "composer.json":
 		return true
 	}
+
 	return false
 }
 
@@ -637,6 +717,7 @@ func isChromeProfileNamedJSON(base string) bool {
 	if base == "default.json" {
 		return true
 	}
+
 	return strings.HasPrefix(base, "profile") && strings.HasSuffix(base, ".json")
 }
 
@@ -655,10 +736,12 @@ func isChromeSnapshotYAML(path string) bool {
 	if err != nil {
 		return false
 	}
+
 	var exp chromeExport
 	if err := yaml.Unmarshal(raw, &exp); err == nil {
 		return exp.SchemaVersion > 0 || exp.ExportedAt != ""
 	}
+
 	return false
 }
 
@@ -670,13 +753,16 @@ func importSingleSnapshotWithStepLogging(srcFile, explicitTarget string) error {
 	if strings.HasSuffix(strings.ToLower(srcFile), constants.ExtZIP) {
 		return importZipSnapshotWithStepLogging(srcFile, explicitTarget)
 	}
+
 	if isDirectoryPath(srcFile) {
 		return importDirectorySnapshotWithStepLogging(srcFile, explicitTarget)
 	}
+
 	meta, err := readSnapshotMetadata(srcFile)
 	if err != nil {
 		return err
 	}
+
 	exp := meta.Export
 	fmt.Printf("  \033[1;94m[Step 1/5]\033[0m Inspecting snapshot: %s\n", srcFile)
 	fmt.Printf("        → Name: %q | Display: %q | Email: %q | Bookmarks: %d | Extensions: %d\n",
@@ -691,9 +777,11 @@ func importSingleSnapshotWithStepLogging(srcFile, explicitTarget string) error {
 	if err := writeOptional(filepath.Join(dest.Path, "Bookmarks"), exp.Bookmarks); err != nil {
 		return err
 	}
+
 	if err := writeOptional(filepath.Join(dest.Path, "Preferences"), exp.Preferences); err != nil {
 		return err
 	}
+
 	if err := patchImportedChromeProfilePreferences(dest.Path, dest.DisplayName); err != nil {
 		fmt.Fprintf(os.Stderr, "        \033[1;93m⚠\033[0m Preferences patch notice: %v\n", err)
 	}
@@ -707,9 +795,11 @@ func importSingleSnapshotWithStepLogging(srcFile, explicitTarget string) error {
 	if err := registerImportedProfileToLocalState(dest.Dir, dest.DisplayName, dest.Email); err != nil {
 		fmt.Fprintf(os.Stderr, "        \033[1;93m⚠\033[0m Warning: Local State registration notice: %v\n", err)
 	}
+
 	checkChromeRunningAdvisory()
 
 	fmt.Printf("  \033[1;92m✓ Successfully imported\033[0m %s → %s (%q)\n\n", srcFile, dest.Dir, dest.DisplayName)
+
 	return nil
 }
 
@@ -718,6 +808,7 @@ func checkChromeRunningAdvisory() {
 	if err != nil || !isRunning {
 		return
 	}
+
 	fmt.Println()
 	fmt.Println("        \033[1;93m⚠ Warning: Google Chrome is currently running!\033[0m")
 	fmt.Println("          Chrome caches Local State in memory and will overwrite disk changes on exit.")
@@ -735,6 +826,7 @@ func collectSnapshotFileCandidates(target string) []DiscoveredProfileCandidate {
 		if cErr != nil {
 			continue
 		}
+
 		candidates = append(candidates, c...)
 	}
 
@@ -750,9 +842,11 @@ func runChromeProfileImportCheck(args []string) error {
 	if err != nil || len(candidates) == 0 {
 		candidates = collectSnapshotFileCandidates(target)
 	}
+
 	if len(candidates) == 0 && opts.Fnf {
 		return fmt.Errorf("no profile snapshot files found to check in %q (--fnf asserted)", target)
 	}
+
 	if len(candidates) == 0 {
 		fmt.Printf("No snapshot files found to check in %q\n", target)
 
@@ -777,13 +871,16 @@ func resolveCheckTarget(args []string) string {
 		if a == "--json" || a == "-j" || a == "--fnf" || isHelpFlag(a) || isPreflightInspectArg(a) {
 			continue
 		}
+
 		if isValuedFlag(a) && !strings.Contains(a, "=") {
 			i++
 			continue
 		}
+
 		if isValuedFlag(a) {
 			continue
 		}
+
 		if a == "*.*" || a == "*" {
 			return "."
 		}
@@ -799,8 +896,10 @@ func resolveSnapshotCheckFiles(target string) ([]string, error) {
 	if err == nil && !info.IsDir() {
 		return []string{target}, nil
 	}
+
 	files := scanSnapshotFiles(target)
 	files = fallbackCheckFiles(files, target)
+
 	return files, nil
 }
 
@@ -808,10 +907,12 @@ func fallbackCheckFiles(files []string, target string) []string {
 	if len(files) > 0 || target != "." {
 		return files
 	}
+
 	gitmapChromeDir := filepath.Join(constants.GitMapDir, "chrome")
 	if !chromeProfilePathExists(gitmapChromeDir) {
 		return files
 	}
+
 	return scanSnapshotFiles(gitmapChromeDir)
 }
 
@@ -829,13 +930,16 @@ func listDiscoveredSnapshotsInDir(dir string) {
 			fmt.Printf("  [%d] %s\n", i+1, filepath.Base(f))
 			continue
 		}
+
 		emailStr := meta.Email
 		if emailStr == "" {
 			emailStr = "(none)"
 		}
+
 		fmt.Printf("  [%d] \033[1;97m%-16s\033[0m (Display: %q, Email: %s, Bookmarks: %d, Ext: %d)\n",
 			i+1, meta.FileName, meta.DisplayName, emailStr, meta.BookmarksCount, meta.ExtensionsCount)
 	}
+
 	fmt.Println()
 }
 
@@ -843,10 +947,12 @@ func resolveFallbackSnapshots(files []string, dir string) ([]string, string) {
 	if len(files) > 0 {
 		return files, dir
 	}
+
 	gitmapChromeDir := filepath.Join(constants.GitMapDir, "chrome")
 	if dir == gitmapChromeDir || !chromeProfilePathExists(gitmapChromeDir) {
 		return files, dir
 	}
+
 	return scanSnapshotFiles(gitmapChromeDir), gitmapChromeDir
 }
 
@@ -855,17 +961,21 @@ func runSmartChromeImport(opts chromeTransferOptions) error {
 	if err != nil {
 		fmt.Fprintf(os.Stderr, "chrome-profile-import: ERROR %v\n", err)
 		printChromeProfileImportUsage()
+
 		return err
 	}
+
 	if len(candidates) == 0 {
 		fmt.Fprintf(os.Stderr, "chrome-profile-import: ERROR no matching profile snapshot files found\n")
 		printChromeProfileImportUsage()
+
 		return fmt.Errorf("no matching snapshot files found to import")
 	}
 
 	filtered := filterImportCandidates(candidates, opts)
 	if len(filtered) == 0 {
 		fmt.Println("No snapshot files remained after applying filters (--except / --email).")
+
 		return nil
 	}
 
@@ -880,11 +990,13 @@ func runSmartChromeImport(opts chromeTransferOptions) error {
 			fmt.Fprintf(os.Stderr, "  \033[1;91m✗ Failed to import %s:\033[0m %v\n", f, err)
 			continue
 		}
+
 		successCount++
 	}
 
 	fmt.Printf("\033[1;92m✓ Chrome Profile Import Complete:\033[0m %d of %d profile(s) imported successfully.\n\n",
 		successCount, len(filtered))
+
 	return nil
 }
 
@@ -898,12 +1010,15 @@ func collectImportCandidates(opts chromeTransferOptions) ([]string, string, erro
 	if opts.Email != "" {
 		return findCandidatesByEmail(opts.Email, targetDir)
 	}
+
 	if len(opts.Positional) == 0 {
 		return findCandidatesInDir(".")
 	}
+
 	if len(opts.Positional) == 1 {
 		return resolveSinglePositionalCandidate(opts.Positional[0])
 	}
+
 	return resolveMultiplePositionalCandidates(opts.Positional)
 }
 
@@ -911,6 +1026,7 @@ func resolveTargetDirFromOpts(opts chromeTransferOptions) string {
 	if len(opts.Positional) > 0 && isDirectoryPath(opts.Positional[0]) {
 		return opts.Positional[0]
 	}
+
 	return "."
 }
 
@@ -922,6 +1038,7 @@ func findCandidatesByEmail(email, targetDir string) ([]string, string, error) {
 			return []string{f}, "", nil
 		}
 	}
+
 	return nil, "", fmt.Errorf("no snapshot file found containing email %q (searched %d files in %s)", email, len(files), targetDir)
 }
 
@@ -929,11 +1046,13 @@ func collectSearchSnapshotFiles(dir string) []string {
 	if dir == "" {
 		dir = "."
 	}
+
 	files := scanSnapshotFiles(dir)
 	gitmapChromeDir := filepath.Join(constants.GitMapDir, "chrome")
 	if dir != gitmapChromeDir && chromeProfilePathExists(gitmapChromeDir) {
 		files = append(files, scanSnapshotFiles(gitmapChromeDir)...)
 	}
+
 	return files
 }
 
@@ -950,9 +1069,11 @@ func findCandidatesInDir(dir string) ([]string, string, error) {
 	if dir == "*.*" || dir == "*" {
 		dir = "."
 	}
+
 	if candidates, err := DiscoverProfileCandidates(dir); err == nil && len(candidates) > 0 {
 		return extractCandidatePaths(candidates), "", nil
 	}
+
 	files := fallbackCheckFiles(scanSnapshotFiles(dir), dir)
 	if len(files) == 0 {
 		return nil, "", fmt.Errorf("no profile snapshot files (.json, .zip, .sqlite) found in %q", dir)
@@ -965,24 +1086,30 @@ func resolveSinglePositionalCandidate(pos0 string) ([]string, string, error) {
 	if pos0 == "." || pos0 == "*.*" || pos0 == "*" || isDirectoryPath(pos0) {
 		return findCandidatesInDir(pos0)
 	}
+
 	if strings.ContainsAny(pos0, "*?[") {
 		return resolveGlobCandidate(pos0)
 	}
+
 	if strings.Contains(pos0, "@") && !isSnapshotFileExtension(pos0) {
 		return findCandidatesByEmail(pos0, ".")
 	}
+
 	if chromeProfilePathExists(pos0) {
 		return []string{pos0}, "", nil
 	}
+
 	for _, ext := range []string{constants.ExtZIP, constants.ExtJSON, constants.ExtSQLite} {
 		if candExt := pos0 + ext; chromeProfilePathExists(candExt) {
 			return []string{candExt}, "", nil
 		}
 	}
+
 	gitmapFile := filepath.Join(constants.GitMapDir, "chrome", pos0+".json")
 	if chromeProfilePathExists(gitmapFile) {
 		return []string{gitmapFile}, "", nil
 	}
+
 	return nil, "", fmt.Errorf("snapshot file or directory %q not found", pos0)
 }
 
@@ -991,9 +1118,11 @@ func resolveGlobCandidate(pattern string) ([]string, string, error) {
 	if err != nil {
 		return nil, "", err
 	}
+
 	if len(matches) == 0 {
 		return nil, "", fmt.Errorf("no files matching pattern %q found", pattern)
 	}
+
 	return matches, "", nil
 }
 
@@ -1001,10 +1130,12 @@ func resolveMultiplePositionalCandidates(pos []string) ([]string, string, error)
 	if len(pos) == 2 && isImportableSnapshot(pos[0]) && !isImportableSnapshot(pos[1]) {
 		return []string{pos[0]}, pos[1], nil
 	}
+
 	var out []string
 	for _, p := range pos {
 		appendCandidateMatches(p, &out)
 	}
+
 	return out, "", nil
 }
 
@@ -1012,8 +1143,10 @@ func appendCandidateMatches(p string, out *[]string) {
 	if strings.ContainsAny(p, "*?[") {
 		matches, _ := filepath.Glob(p)
 		*out = append(*out, matches...)
+
 		return
 	}
+
 	if chromeProfilePathExists(p) {
 		*out = append(*out, p)
 	}
@@ -1027,14 +1160,18 @@ func filterImportCandidates(candidates []string, opts chromeTransferOptions) []s
 			out = append(out, f)
 			continue
 		}
+
 		if opts.Email != "" && !strings.EqualFold(meta.Email, opts.Email) {
 			continue
 		}
+
 		if isEx, rule := isExcepted(opts.Except, meta.FileName, meta.ProfileName, meta.DisplayName, meta.Email); isEx {
 			fmt.Printf("  \033[1;93m↷ Skipping\033[0m %s (matched --except %q)\n", f, rule)
 			continue
 		}
+
 		out = append(out, f)
 	}
+
 	return out
 }

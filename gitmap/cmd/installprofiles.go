@@ -24,7 +24,6 @@ func AllInstallProfiles() []InstallProfile {
 }
 
 func getCoreWorkstationProfiles() []InstallProfile {
-
 	return []InstallProfile{
 		buildMinimalProfile(),
 		buildBaseProfile(),
@@ -38,7 +37,6 @@ func getCoreWorkstationProfiles() []InstallProfile {
 }
 
 func buildMinimalProfile() InstallProfile {
-
 	return InstallProfile{
 		Name:        "minimal",
 		Title:       "Minimal dev workstation",
@@ -49,7 +47,6 @@ func buildMinimalProfile() InstallProfile {
 }
 
 func buildBaseProfile() InstallProfile {
-
 	return InstallProfile{
 		Name:        "base",
 		Title:       "Base Windows workstation",
@@ -64,7 +61,6 @@ func buildBaseProfile() InstallProfile {
 }
 
 func buildGitCompactProfile() InstallProfile {
-
 	return InstallProfile{
 		Name:        "git-compact",
 		Title:       "Git compact workstation",
@@ -75,7 +71,6 @@ func buildGitCompactProfile() InstallProfile {
 }
 
 func buildAdvanceProfile() InstallProfile {
-
 	return InstallProfile{
 		Name:        "advance",
 		Title:       "Advance workstation",
@@ -92,7 +87,6 @@ func buildAdvanceProfile() InstallProfile {
 }
 
 func buildCppDxProfile() InstallProfile {
-
 	return InstallProfile{
 		Name:        "cpp-dx",
 		Title:       "C++ and DirectX development",
@@ -105,7 +99,6 @@ func buildCppDxProfile() InstallProfile {
 }
 
 func buildSmallDevProfile() InstallProfile {
-
 	return InstallProfile{
 		Name:        "small-dev",
 		Title:       "Small dev workstation",
@@ -122,7 +115,6 @@ func buildSmallDevProfile() InstallProfile {
 }
 
 func buildDevProfile() InstallProfile {
-
 	return InstallProfile{
 		Name:        "dev",
 		Title:       "Dev workstation with AI",
@@ -138,7 +130,6 @@ func buildDevProfile() InstallProfile {
 }
 
 func buildDevAdvanceProfile() InstallProfile {
-
 	return InstallProfile{
 		Name:        "dev-advance",
 		Title:       "Dev advance polyglot workstation",
@@ -159,7 +150,6 @@ func FindInstallProfile(name string) (InstallProfile, bool) {
 	low := strings.ToLower(strings.TrimSpace(name))
 	for _, p := range AllInstallProfiles() {
 		if matchesProfile(p, low) {
-
 			return p, true
 		}
 	}
@@ -169,12 +159,11 @@ func FindInstallProfile(name string) (InstallProfile, bool) {
 
 func matchesProfile(p InstallProfile, low string) bool {
 	if strings.ToLower(p.Name) == low {
-
 		return true
 	}
+
 	for _, a := range p.Aliases {
 		if strings.ToLower(a) == low {
-
 			return true
 		}
 	}

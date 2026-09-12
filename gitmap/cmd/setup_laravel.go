@@ -107,9 +107,11 @@ func parseLaravelFlags(args []string) (LaravelSetupOptions, *apperror.AppError) 
 	if parseErr == flag.ErrHelp {
 		cliexit.Exit(0)
 	}
+
 	if parseErr != nil {
 		return opts, apperror.WrapSimple(parseErr, "flag.Parse")
 	}
+
 	hasPositional := len(fs.Args()) > 0
 	if hasPositional {
 		opts.TargetDir = fs.Args()[0]
@@ -123,13 +125,16 @@ func resolveLaravelBaseContent(targetDir string) (string, *apperror.AppError) {
 	if envErr != nil {
 		return "", envErr
 	}
+
 	if hasEnv {
 		return envContent, nil
 	}
+
 	sampleContent, hasSample, sampleErr := readFileIfExists(filepath.Join(targetDir, ".env.example"))
 	if sampleErr != nil {
 		return "", sampleErr
 	}
+
 	if hasSample {
 		return sampleContent, nil
 	}
@@ -148,6 +153,7 @@ func ensurePublicStorageTarget(targetPath string) *apperror.AppError {
 	if hasTarget {
 		return nil
 	}
+
 	err := os.MkdirAll(targetPath, 0775)
 	if err != nil {
 		return apperror.WrapSimple(err, "os.MkdirAll")
@@ -184,6 +190,7 @@ func createStorageSymlink(targetDir string) *apperror.AppError {
 	if ensureErr != nil {
 		return ensureErr
 	}
+
 	err := os.Symlink(targetPath, linkPath)
 	isSafeErr := err == nil || os.IsExist(err)
 	if isSafeErr {
@@ -199,10 +206,12 @@ func runArtisanStorageLink(targetDir string) *apperror.AppError {
 	if !hasArtisan {
 		return nil
 	}
+
 	_, lookErr := exec.LookPath("php")
 	if lookErr != nil {
 		return createStorageSymlink(targetDir)
 	}
+
 	cmd := exec.Command("php", "artisan", "storage:link")
 	cmd.Dir = targetDir
 	err := cmd.Run()
@@ -218,12 +227,14 @@ func generateLaravelVHost(opts LaravelSetupOptions) *apperror.AppError {
 	if pathErr != nil {
 		return apperror.WrapSimple(pathErr, "filepath.Abs")
 	}
+
 	vhostCfg := VHostConfig{
 		SiteType:     VHostSiteTypeLaravel,
 		Domain:       opts.Domain,
 		DocumentRoot: absPath,
 		Port:         opts.Port,
 	}
+
 	rendered, renderErr := RenderVHostConfig(vhostCfg)
 	if renderErr != nil {
 		return renderErr
@@ -238,6 +249,7 @@ func writeLaravelEnvFile(targetDir, content string) *apperror.AppError {
 	if writeErr != nil {
 		return apperror.WrapSimple(writeErr, "os.WriteFile")
 	}
+
 	fmt.Printf("  %s✓%s Laravel .env written: %s\n", constants.ColorGreen, constants.ColorReset, filePath)
 
 	return nil
@@ -280,10 +292,12 @@ func runPostLaravelSetup(opts LaravelSetupOptions) *apperror.AppError {
 	if linkErr != nil {
 		return linkErr
 	}
+
 	vhostErr := runOptionalLaravelVHost(opts)
 	if vhostErr != nil {
 		return vhostErr
 	}
+
 	permsErr := runOptionalLaravelPerms(opts.TargetDir, opts.IsFixPerms)
 	if permsErr != nil {
 		return permsErr
@@ -298,10 +312,12 @@ func SetupLaravel(opts LaravelSetupOptions) *apperror.AppError {
 	if baseErr != nil {
 		return baseErr
 	}
+
 	synthesized, synErr := SynthesizeLaravelEnv(base, opts.EnvOpts)
 	if synErr != nil {
 		return synErr
 	}
+
 	writeErr := writeLaravelEnvIfActive(opts.TargetDir, synthesized, opts.IsDryRun)
 	if writeErr != nil {
 		return writeErr
@@ -315,6 +331,7 @@ func runSetupLaravel(args []string) error {
 	if parseErr != nil {
 		return parseErr
 	}
+
 	appErr := SetupLaravel(opts)
 	if appErr != nil {
 		return appErr

@@ -68,6 +68,7 @@ func newPickerModel(all, preselected []string) pickerModel {
 	for _, p := range preselected {
 		preset[p] = struct{}{}
 	}
+
 	for i, path := range all {
 		if _, ok := preset[path]; ok {
 			picked[i] = true
@@ -107,6 +108,7 @@ func (m pickerModel) handleResize(msg tea.WindowSizeMsg) pickerModel {
 	if height < 1 {
 		height = 1
 	}
+
 	m.viewportHeight = height
 	m.scrollOffset = clampScroll(m.cursor, m.scrollOffset, height, len(m.paths))
 
@@ -143,6 +145,7 @@ func (m pickerModel) handleNavKey(k tea.KeyMsg) pickerModel {
 	case "n":
 		m.picked = make(map[int]bool)
 	}
+
 	m.scrollOffset = clampScroll(m.cursor, m.scrollOffset,
 		m.viewportHeight, len(m.paths))
 

@@ -49,19 +49,21 @@ func resolveCloneNowSource(fs *flag.FlagSet, manifest, scanRoot string) string {
 			fs.Arg(0), manifest)
 		cliexit.HandleError(nil, 2)
 	}
-	if manifest != "" {
 
+	if manifest != "" {
 		return manifest
 	}
-	if fs.NArg() >= 1 {
 
+	if fs.NArg() >= 1 {
 		return fs.Arg(0)
 	}
+
 	picked, ok := autoPickupRecloneManifest(scanRoot)
 	if !ok {
 		printAutoPickupMiss(scanRoot)
 		cliexit.HandleError(nil, 2)
 	}
+
 	fmt.Fprintf(os.Stderr, constants.MsgCloneNowAutoPickup, picked)
 
 	return picked
@@ -77,6 +79,7 @@ func printAutoPickupMiss(scanRoot string) {
 
 		return
 	}
+
 	fmt.Fprintf(os.Stderr, constants.MsgCloneNowMissingArgScanRoot+"\n", scanRoot)
 }
 
@@ -92,13 +95,14 @@ func autoPickupRecloneManifest(scanRoot string) (string, bool) {
 		filepath.Join(base, constants.DefaultJSONFile),
 		filepath.Join(base, constants.DefaultCSVFile),
 	}
+
 	for _, path := range candidates {
 		info, err := os.Stat(path)
 		if err != nil {
 			continue
 		}
-		if info.Mode().IsRegular() {
 
+		if info.Mode().IsRegular() {
 			return path, true
 		}
 	}

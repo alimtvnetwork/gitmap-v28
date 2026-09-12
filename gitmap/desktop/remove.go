@@ -6,6 +6,7 @@ func RemoveRepo(repoPath string) error {
 	if cli == "" {
 		return nil
 	}
+
 	// GitHub Desktop does not provide a CLI delete flag; we verify existence.
 	return nil
 }

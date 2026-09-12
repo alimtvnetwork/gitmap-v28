@@ -25,10 +25,12 @@ func seedChromeProfileTree(t *testing.T, root string) {
 		if err := os.MkdirAll(filepath.Dir(full), 0o755); err != nil {
 			t.Fatal(err)
 		}
+
 		if err := os.WriteFile(full, []byte(body), 0o644); err != nil {
 			t.Fatal(err)
 		}
 	}
+
 	mustWrite("Local State", `{"profile":{"info_cache":{}}}`)
 	mustWrite(filepath.Join("Default", "Preferences"), `{"profile":{"name":"Default"}}`)
 	mustWrite(filepath.Join("Default", "Bookmarks"), `{"roots":{"bookmark_bar":{"children":[]}}}`)
@@ -43,10 +45,12 @@ func mutateTarMember(t *testing.T, path, target, newBody string) {
 	if err != nil {
 		t.Fatal(err)
 	}
+
 	gzr, err := gzip.NewReader(in)
 	if err != nil {
 		t.Fatal(err)
 	}
+
 	tr := tar.NewReader(gzr)
 
 	var buf bytes.Buffer
@@ -59,25 +63,31 @@ func mutateTarMember(t *testing.T, path, target, newBody string) {
 		if errors.Is(err, io.EOF) {
 			break
 		}
+
 		if err != nil {
 			t.Fatal(err)
 		}
+
 		body, err := io.ReadAll(tr)
 		if err != nil {
 			t.Fatal(err)
 		}
+
 		if hdr.Name == target {
 			body = []byte(newBody)
 			hdr.Size = int64(len(body))
 			found = true
 		}
+
 		if err := tw.WriteHeader(hdr); err != nil {
 			t.Fatal(err)
 		}
+
 		if _, err := tw.Write(body); err != nil {
 			t.Fatal(err)
 		}
 	}
+
 	_ = tw.Close()
 	_ = gzw.Close()
 	_ = gzr.Close()
@@ -85,6 +95,7 @@ func mutateTarMember(t *testing.T, path, target, newBody string) {
 	if !found {
 		t.Fatalf("mutateTarMember: %q not found in %s", target, path)
 	}
+
 	if err := os.WriteFile(path, buf.Bytes(), 0o644); err != nil {
 		t.Fatal(err)
 	}
@@ -99,6 +110,7 @@ func TestChromeBackupRestoreDetectsTamperedMember(t *testing.T) {
 	if _, err := writeChromeBackup(src, tarball); err != nil {
 		t.Fatalf("writeChromeBackup: %v", err)
 	}
+
 	if _, err := writeChromeManifestWithSource(tarball, src); err != nil {
 		t.Fatalf("writeChromeManifestWithSource: %v", err)
 	}
@@ -115,15 +127,18 @@ func TestChromeBackupRestoreDetectsTamperedMember(t *testing.T) {
 	if err != nil {
 		t.Fatalf("verify after tamper errored: %v", err)
 	}
+
 	if ok {
 		t.Fatalf("tampered tarball verified clean; expected mismatch")
 	}
+
 	foundPref := false
 	for _, m := range miss {
 		if m == "Default/Preferences" {
 			foundPref = true
 		}
 	}
+
 	if !foundPref {
 		t.Fatalf("tampered member missing from mismatch list: %v", miss)
 	}
@@ -135,17 +150,21 @@ func TestChromeBackupRestoreDetectsTamperedMember(t *testing.T) {
 	if err := os.MkdirAll(dst, 0o755); err != nil {
 		t.Fatal(err)
 	}
+
 	n, err := readChromeBackup(tarball, dst)
 	if err != nil {
 		t.Fatalf("readChromeBackup (no-verify path): %v", err)
 	}
+
 	if n == 0 {
 		t.Fatalf("expected files to be restored under --no-verify, got 0")
 	}
+
 	got, err := os.ReadFile(filepath.Join(dst, "Default", "Preferences"))
 	if err != nil {
 		t.Fatalf("read restored Preferences: %v", err)
 	}
+
 	if string(got) != `{"profile":{"name":"tampered"}}` {
 		t.Fatalf("restored payload mismatch: %s", string(got))
 	}
@@ -160,9 +179,11 @@ func TestChromeBackupRecordsSourcePathHeader(t *testing.T) {
 	if _, err := writeChromeBackup(src, tarball); err != nil {
 		t.Fatal(err)
 	}
+
 	if _, err := writeChromeManifestWithSource(tarball, src); err != nil {
 		t.Fatal(err)
 	}
+
 	got := readChromeManifestSource(tarball)
 	if got != filepath.ToSlash(src) {
 		t.Fatalf("readChromeManifestSource = %q, want %q", got, filepath.ToSlash(src))

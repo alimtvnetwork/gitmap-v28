@@ -15,11 +15,13 @@ func setupInstallerHistoryTreeTestDB(testingT *testing.T) *store.DB {
 	if errOpen != nil {
 		testingT.Fatalf("failed to open test database: %v", errOpen)
 	}
+
 	testingT.Cleanup(func() { dbInstance.Close() })
 
 	if errMigrate := dbInstance.MigrateInstallers(); errMigrate != nil {
 		testingT.Fatalf("failed to migrate installers: %v", errMigrate)
 	}
+
 	return dbInstance
 }
 
@@ -46,6 +48,7 @@ func TestPrintInstallerHistoryTree_ProfileAndNonProfile(testingT *testing.T) {
 		TargetOS:    "ubuntu",
 		Version:     "v1.0.0",
 	}
+
 	scriptCustom := &model.InstallerScript{
 		Name:        "Custom CLI Tool",
 		Slug:        "custom-cli",
@@ -57,6 +60,7 @@ func TestPrintInstallerHistoryTree_ProfileAndNonProfile(testingT *testing.T) {
 	if errCreate := dbInstance.CreateInstaller(scriptDev); errCreate != nil {
 		testingT.Fatalf("failed to insert scriptDev: %v", errCreate)
 	}
+
 	if errCreate := dbInstance.CreateInstaller(scriptCustom); errCreate != nil {
 		testingT.Fatalf("failed to insert scriptCustom: %v", errCreate)
 	}
@@ -78,9 +82,11 @@ func TestGroupLatestInstallers(testingT *testing.T) {
 	if len(grouped) != 2 {
 		testingT.Fatalf("expected 2 unique slugs, got %d", len(grouped))
 	}
+
 	if grouped[0].Slug != "tool-b" {
 		testingT.Errorf("expected tool-b first (newest), got %s", grouped[0].Slug)
 	}
+
 	if grouped[1].Slug != "tool-a" || grouped[1].Version != "v1.1.0" {
 		testingT.Errorf("expected tool-a v1.1.0, got %s %s", grouped[1].Slug, grouped[1].Version)
 	}

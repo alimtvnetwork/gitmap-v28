@@ -60,6 +60,7 @@ func InsertClusterRun(ctx context.Context, db *sql.DB, run ClusterRun) (int64, *
 	if err != nil {
 		return 0, apperror.WrapSimple(err, "InsertClusterRun.Exec")
 	}
+
 	id, errId := res.LastInsertId()
 	if errId != nil {
 		return 0, apperror.WrapSimple(errId, "InsertClusterRun.LastInsertId")
@@ -97,6 +98,7 @@ func SelectClusterRun(ctx context.Context, db *sql.DB, runRef string) (ClusterRu
 			apperror.ErrorTypeNotFound, apperror.SeverityError, map[string]any{"runRef": runRef},
 		)
 	}
+
 	if err != nil {
 		return ClusterRun{}, apperror.WrapSimple(err, "SelectClusterRun.Scan")
 	}
@@ -109,10 +111,12 @@ func ListClusterRuns(ctx context.Context, db *sql.DB, limit int) ([]ClusterRun, 
 	if limit > 0 {
 		query += " LIMIT " + strconv.Itoa(limit)
 	}
+
 	rows, err := db.QueryContext(ctx, query)
 	if err != nil {
 		return nil, apperror.WrapSimple(err, "ListClusterRuns.Query")
 	}
+
 	defer rows.Close()
 
 	return scanClusterRunRows(rows)
@@ -130,8 +134,10 @@ func scanClusterRunRows(rows *sql.Rows) ([]ClusterRun, *apperror.AppError) {
 		if err != nil {
 			return nil, apperror.WrapSimple(err, "scanClusterRunRows.Scan")
 		}
+
 		runs = append(runs, run)
 	}
+
 	if err := rows.Err(); err != nil {
 		return nil, apperror.WrapSimple(err, "scanClusterRunRows.Rows")
 	}

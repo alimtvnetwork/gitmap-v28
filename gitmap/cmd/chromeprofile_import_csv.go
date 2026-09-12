@@ -18,6 +18,7 @@ func parseCSVRows(path string) ([][]string, error) {
 	if err != nil {
 		return nil, fmt.Errorf("read %s: %w", path, err)
 	}
+
 	defer f.Close()
 	r := csv.NewReader(f)
 	r.FieldsPerRecord = -1
@@ -25,6 +26,7 @@ func parseCSVRows(path string) ([][]string, error) {
 	if err != nil {
 		return nil, fmt.Errorf("parse %s: %w", path, err)
 	}
+
 	return rows, nil
 }
 
@@ -36,10 +38,12 @@ func readChromeExportCSV(path string) (*chromeExport, error) {
 	if err != nil {
 		return nil, err
 	}
+
 	exp := &chromeExport{SchemaVersion: chromeExportSchemaVersion}
 	prefs := map[string]any{}
 	populateExportRows(exp, prefs, rows)
 	finalizeExport(exp, prefs)
+
 	return exp, nil
 }
 
@@ -48,6 +52,7 @@ func populateExportRows(exp *chromeExport, prefs map[string]any, rows [][]string
 		if i == 0 || len(row) < 3 {
 			continue
 		}
+
 		assignChromeCSVRow(exp, prefs, row[0], row[1], row[2])
 	}
 }
@@ -57,6 +62,7 @@ func finalizeExport(exp *chromeExport, prefs map[string]any) {
 		raw, _ := json.Marshal(prefs)
 		exp.Preferences = raw
 	}
+
 	if exp.Name == "" {
 		exp.Name = constants.ChromeDefaultImportedName
 	}

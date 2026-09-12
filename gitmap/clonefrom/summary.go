@@ -37,12 +37,15 @@ func RenderSummary(w io.Writer, results []Result, reportPath string) error {
 	if _, err := io.WriteString(w, header); err != nil {
 		return err
 	}
+
 	if err := writeTransportLine(w, results); err != nil {
 		return err
 	}
+
 	if err := writeReportPath(w, reportPath); err != nil {
 		return err
 	}
+
 	for _, r := range results {
 		if _, err := io.WriteString(w, formatSummaryRow(r)); err != nil {
 			return err
@@ -55,8 +58,10 @@ func RenderSummary(w io.Writer, results []Result, reportPath string) error {
 func writeReportPath(w io.Writer, reportPath string) error {
 	if len(reportPath) > 0 {
 		_, err := fmt.Fprintf(w, "report: %s\n\n", reportPath)
+
 		return err
 	}
+
 	return nil
 }
 
@@ -88,6 +93,7 @@ func formatSummaryRow(r Result) string {
 	if r.Status == constants.CloneFromStatusOK {
 		tail = fmt.Sprintf("(%.1fs)", r.Duration.Seconds())
 	}
+
 	if len(tail) > 0 {
 		return fmt.Sprintf("  %-7s  %s    %s\n", r.Status, r.Row.URL, tail)
 	}
@@ -107,16 +113,19 @@ func WriteReport(results []Result) (string, error) {
 	if err := os.MkdirAll(dir, 0o755); err != nil {
 		return "", fmt.Errorf(constants.ErrCloneFromReportMkdir, dir, err)
 	}
+
 	name := fmt.Sprintf("clone-from-report-%d.csv", time.Now().Unix())
 	full := filepath.Join(dir, name)
 	f, err := os.Create(full)
 	if err != nil {
 		return "", fmt.Errorf(constants.ErrCloneFromReportCreate, full, err)
 	}
+
 	defer f.Close()
 	if err := writeReportRows(f, results); err != nil {
 		return "", err
 	}
+
 	abs, _ := filepath.Abs(full)
 
 	return abs, nil
@@ -130,6 +139,7 @@ func writeReportRows(w io.Writer, results []Result) error {
 	if err := cw.Write([]string{"url", "dest", "branch", "depth", "status", "detail", "duration_seconds"}); err != nil {
 		return err
 	}
+
 	for _, r := range results {
 		rec := []string{r.Row.URL, r.Dest, r.Row.Branch,
 			fmt.Sprintf("%d", r.Row.Depth),
@@ -139,6 +149,7 @@ func writeReportRows(w io.Writer, results []Result) error {
 			return err
 		}
 	}
+
 	cw.Flush()
 
 	return cw.Error()

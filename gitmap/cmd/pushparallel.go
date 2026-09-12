@@ -23,6 +23,7 @@ func runPushParallel(
 	if parallel < 1 {
 		parallel = 1
 	}
+
 	if parallel > len(records) {
 		parallel = len(records)
 	}
@@ -37,6 +38,7 @@ func runPushParallel(
 	startPushWorkers(parallel, jobs, prog, &progMu, &wg, stopOnFail, &stopped)
 	dispatchPushJobs(records, jobs, &progMu, &stopped)
 	wg.Wait()
+
 	return nil
 }
 
@@ -61,8 +63,10 @@ func dispatchPushJobs(records []model.ScanRecord, jobs chan<- model.ScanRecord,
 		if halted {
 			break
 		}
+
 		jobs <- rec
 	}
+
 	close(jobs)
 }
 
@@ -100,19 +104,23 @@ func runOnePushJob(rec model.ScanRecord, prog *cloner.BatchProgress,
 	if result.IsFailed() {
 		prog.FailWithError(rec.RepoName, result.Error)
 	}
+
 	if result.IsFailed() && stopOnFail {
 		*stopped = true
 	}
+
 	if result.IsFailed() {
 		progMu.Unlock()
 
 		return nil
 	}
+
 	if result.Notes == "up-to-date" {
 		prog.UpToDate(rec.RepoName)
 	} else {
 		prog.Succeed(rec.RepoName)
 	}
+
 	progMu.Unlock()
 
 	return nil

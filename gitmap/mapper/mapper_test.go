@@ -111,10 +111,12 @@ func TestBuildRecords(t *testing.T) {
 	repos := []scanner.RepoInfo{
 		{AbsolutePath: "/tmp/nonexistent", RelativePath: "nonexistent"},
 	}
+
 	records := BuildRecords(repos, "https", "test")
 	if len(records) == 1 {
 		t.Log("Built 1 record — OK")
 	}
+
 	if records[0].Notes == "no remote configured" {
 		t.Log("Missing remote noted — OK")
 	}

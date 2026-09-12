@@ -27,6 +27,7 @@ func TestHelpJSONSchema_TopLevelShape(t *testing.T) {
 	if root["type"] != "object" {
 		t.Fatalf("top-level type = %v, want object", root["type"])
 	}
+
 	got := stringSliceFromAny(root["required"])
 	sort.Strings(got)
 	want := []string{"count", "groups", "version"}
@@ -54,15 +55,18 @@ func TestHelpJSONSchema_EncoderMatchesSchema(t *testing.T) {
 	if err != nil {
 		t.Fatalf("marshal: %v", err)
 	}
+
 	var generic map[string]any
 	if err := json.Unmarshal(b, &generic); err != nil {
 		t.Fatalf("unmarshal: %v", err)
 	}
+
 	for key := range generic {
 		if _, allowed := props[key]; !allowed {
 			t.Errorf("encoder emitted %q not declared in schema properties", key)
 		}
 	}
+
 	if !strings.Contains(string(b), `"version":`) {
 		t.Errorf("payload missing version key: %s", b)
 	}

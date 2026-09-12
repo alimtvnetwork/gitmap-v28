@@ -29,9 +29,11 @@ func parseLLMDocsFlags(args []string) (llmDocsOptions, error) {
 	if err := fs.Parse(reorderFlagsBeforeArgs(args)); err != nil {
 		return llmDocsOptions{}, err
 	}
+
 	if *format != constants.FormatMarkdown && *format != constants.FormatJSON {
 		return llmDocsOptions{}, fmt.Errorf(constants.ErrLLMDocsFormat, *format)
 	}
+
 	return llmDocsOptions{toStdout: *toStdout, format: *format, sections: *sections}, nil
 }
 
@@ -49,10 +51,12 @@ func writeLLMDocsFile(content, format string) {
 	if err != nil {
 		cliexit.HandleError(apperror.WrapSimple(err, constants.ErrLLMDocsWrite), 1)
 	}
+
 	outPath := filepath.Join(wd, "LLM"+llmDocsExt(format))
 	if writeErr := os.WriteFile(outPath, []byte(content), constants.FilePermission); writeErr != nil {
 		cliexit.HandleError(apperror.NewSimple(constants.ErrLLMDocsWrite, "E9000"), 1)
 	}
+
 	fmt.Printf(constants.MsgLLMDocsWritten, outPath)
 }
 
@@ -62,8 +66,10 @@ func runLLMDocs(args []string) error {
 	opts, err := parseLLMDocsFlags(args)
 	if err != nil {
 		fmt.Fprint(os.Stderr, err.Error())
+
 		return apperror.NewSimple("fatal error", "E9000")
 	}
+
 	sectionSet := parseSections(opts.sections)
 	content := buildLLMOutput(opts.format, sectionSet)
 	if opts.toStdout {
@@ -71,7 +77,9 @@ func runLLMDocs(args []string) error {
 
 		return nil
 	}
+
 	writeLLMDocsFile(content, opts.format)
+
 	return nil
 }
 
@@ -90,6 +98,7 @@ func parseSections(raw string) map[string]bool {
 	if raw == "" {
 		return nil
 	}
+
 	valid := collectValidSections()
 	set := make(map[string]bool)
 	for _, s := range strings.Split(raw, ",") {
@@ -97,12 +106,16 @@ func parseSections(raw string) map[string]bool {
 		if s == "" {
 			continue
 		}
+
 		if !valid[s] {
 			var empty map[string]bool
+
 			return empty
 		}
+
 		set[s] = true
 	}
+
 	return set
 }
 
@@ -139,12 +152,15 @@ func appendLLMSectionsFirstHalf(sb *strings.Builder, sections map[string]bool) {
 	if wantSection(sections, llmDocsKeyArchitecture) {
 		writeLLMArchitecture(sb)
 	}
+
 	if wantSection(sections, llmDocsKeyCommands) {
 		writeLLMCommands(sb)
 	}
+
 	if wantSection(sections, llmDocsKeyFlags) {
 		writeLLMGlobalFlags(sb)
 	}
+
 	if wantSection(sections, llmDocsKeyConventions) {
 		writeLLMCodingConventions(sb)
 	}
@@ -154,12 +170,15 @@ func appendLLMSectionsSecondHalf(sb *strings.Builder, sections map[string]bool) 
 	if wantSection(sections, llmDocsKeyStructure) {
 		writeLLMProjectStructure(sb)
 	}
+
 	if wantSection(sections, llmDocsKeyDatabase) {
 		writeLLMDatabase(sb)
 	}
+
 	if wantSection(sections, llmDocsKeyInstallation) {
 		writeLLMInstallation(sb)
 	}
+
 	if wantSection(sections, llmDocsKeyPatterns) {
 		writeLLMPatterns(sb)
 	}

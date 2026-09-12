@@ -17,6 +17,7 @@ func TestParseCfrModifiers(t *testing.T) {
 		pub  bool
 		rest []string
 	}
+
 	cases := []struct {
 		name string
 		in   []string
@@ -75,7 +76,6 @@ func TestParseCfrModifiers(t *testing.T) {
 	}
 
 	for _, tc := range cases {
-
 		t.Run(tc.name, func(t *testing.T) {
 			t.Parallel()
 			got, rest := ParseCfrModifiers(tc.in)
@@ -83,6 +83,7 @@ func TestParseCfrModifiers(t *testing.T) {
 				t.Fatalf("flags: got {cg=%v p=%v}, want {cg=%v p=%v}",
 					got.InstallCodingGuidelines, got.PromotePublic, tc.want.cg, tc.want.pub)
 			}
+
 			if !reflect.DeepEqual(rest, tc.want.rest) && !(len(rest) == 0 && len(tc.want.rest) == 0) {
 				t.Fatalf("rest: got %#v, want %#v", rest, tc.want.rest)
 			}

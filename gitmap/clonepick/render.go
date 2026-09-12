@@ -20,6 +20,7 @@ func Render(w io.Writer, plan Plan) error {
 	if len(branch) == 0 {
 		branch = "(default)"
 	}
+
 	sparseMode := "cone"
 	if !plan.Cone {
 		sparseMode = "non-cone"
@@ -55,6 +56,7 @@ func renderCommands(w io.Writer, plan Plan) error {
 	if !plan.KeepGit {
 		body += "  $ rm -rf " + plan.DestDir + "/.git\n"
 	}
+
 	_, err := io.WriteString(w, body)
 
 	return err
@@ -67,9 +69,11 @@ func buildCloneCommandPreview(plan Plan) string {
 	if len(plan.Branch) > 0 {
 		parts = append(parts, "--branch", plan.Branch)
 	}
+
 	if plan.Depth > 0 {
 		parts = append(parts, "--depth", fmt.Sprintf("%d", plan.Depth))
 	}
+
 	parts = append(parts, plan.RepoUrl, plan.DestDir)
 
 	return strings.Join(parts, " ")
@@ -82,6 +86,7 @@ func buildSparsePreview(plan Plan) string {
 	if !plan.Cone {
 		mode = "--no-cone"
 	}
+
 	parts := []string{"git", "-C", plan.DestDir, "sparse-checkout", "set", mode}
 	parts = append(parts, plan.Paths...)
 

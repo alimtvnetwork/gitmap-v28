@@ -28,9 +28,11 @@ func detectLFSSmudgeError(output string) (string, bool) {
 	if match := rxSmudgeFatal.FindStringSubmatch(output); len(match) == constants.LFSSubmatchLength {
 		return match[1], true
 	}
+
 	if match := rxSmudgeError.FindStringSubmatch(output); len(match) == constants.LFSSubmatchLength {
 		return match[1], true
 	}
+
 	return "", false
 }
 

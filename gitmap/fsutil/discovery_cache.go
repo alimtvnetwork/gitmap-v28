@@ -18,6 +18,7 @@ func (dc *DiscoveryCache) Get(dir string) ([]string, bool) {
 	dc.mu.RLock()
 	defer dc.mu.RUnlock()
 	repos, hasRepo := dc.cache[dir]
+
 	return repos, hasRepo
 }
 

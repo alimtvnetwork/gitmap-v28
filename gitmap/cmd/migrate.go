@@ -17,5 +17,6 @@ func cleanCorruptedInstallDirsSilent() {
 	if runtime.GOOS == "windows" {
 		return
 	}
+
 	_, _ = CleanCorruptedDirs(CleanOptions{IsDryRun: false, IsForce: true})
 }

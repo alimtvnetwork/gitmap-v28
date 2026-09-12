@@ -70,6 +70,7 @@ func TestStartupListJSONContract_CanonicalEntry(t *testing.T) {
 			Exec: "/usr/local/bin/gitmap watch ~/projects",
 		},
 	}
+
 	assertGoldenBytesDeterministic(t, "startup_list_single.json", func() ([]byte, error) {
 		var buf bytes.Buffer
 		err := encodeStartupListJSON(&buf, entries)
@@ -88,9 +89,11 @@ func TestStartupListJSONContract_KeyOrderStable(t *testing.T) {
 		{Name: "gitmap-b", Path: "/p/b.desktop", Exec: "/bin/b --flag"},
 		{Name: "gitmap-c", Path: "/p/c.desktop", Exec: ""},
 	}
+
 	var buf bytes.Buffer
 	if err := encodeStartupListJSON(&buf, entries); err != nil {
 		t.Fatalf("encode: %v", err)
 	}
+
 	assertSchemaKeysFirstObject(t, buf.Bytes(), "startup-list")
 }

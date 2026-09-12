@@ -15,6 +15,7 @@ func TestParsePrettyFlagDefaultsToAuto(t *testing.T) {
 	if mode != render.PrettyAuto {
 		t.Errorf("mode = %v, want PrettyAuto", mode)
 	}
+
 	if !reflect.DeepEqual(rest, []string{"foo", "bar"}) {
 		t.Errorf("rest = %v, want unchanged passthrough", rest)
 	}
@@ -83,6 +84,7 @@ func TestParsePrettyFlagPassesThroughUnknownValues(t *testing.T) {
 	if mode != render.PrettyAuto {
 		t.Errorf("unknown value → %v, want unchanged PrettyAuto", mode)
 	}
+
 	if !reflect.DeepEqual(rest, []string{"--pretty=maybe"}) {
 		t.Errorf("rest = %v, want passthrough so downstream errors clearly", rest)
 	}
@@ -106,11 +108,13 @@ func TestParsePrettyFlagAcceptsColorSynonyms(t *testing.T) {
 		{"--color=on", render.PrettyOn},
 		{"--color=auto", render.PrettyAuto},
 	}
+
 	for _, tc := range cases {
 		rest, mode := ParsePrettyFlag([]string{tc.arg})
 		if mode != tc.want {
 			t.Errorf("%s → %v, want %v", tc.arg, mode, tc.want)
 		}
+
 		if len(rest) != 0 {
 			t.Errorf("%s left residue in args: %v", tc.arg, rest)
 		}
@@ -126,6 +130,7 @@ func TestParsePrettyFlagColorAndPrettyInteract(t *testing.T) {
 	if mode != render.PrettyOff {
 		t.Fatalf("--pretty then --no-color → %v, want PrettyOff", mode)
 	}
+
 	_, mode = ParsePrettyFlag([]string{"--no-color", "--pretty=on"})
 	if mode != render.PrettyOn {
 		t.Fatalf("--no-color then --pretty=on → %v, want PrettyOn", mode)
@@ -140,6 +145,7 @@ func TestParsePrettyFlagDoesNotEatColorPrefixedFlags(t *testing.T) {
 	if mode != render.PrettyAuto {
 		t.Errorf("unknown color value → %v, want PrettyAuto", mode)
 	}
+
 	if !reflect.DeepEqual(rest, []string{"--colorblind", "--color=blue"}) {
 		t.Errorf("rest = %v, want both flags passed through", rest)
 	}

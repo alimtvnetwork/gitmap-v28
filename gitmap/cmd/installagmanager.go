@@ -19,6 +19,7 @@ func runInstallAgManagerWithOpts(opts installOptions) error {
 
 		return nil
 	}
+
 	fmt.Println("Fetching release for Antigravity-Manager...")
 	assetURL, relVer, err := resolveAgManagerAssetURL(opts.Version)
 	if err != nil {
@@ -26,11 +27,13 @@ func runInstallAgManagerWithOpts(opts installOptions) error {
 
 		return nil
 	}
+
 	if opts.DryRun {
 		fmt.Printf("  [dry-run] Would download %s (version: %s) and execute installer\n", assetURL, relVer)
 
 		return nil
 	}
+
 	performAgManagerDownloadAndInstall(assetURL, relVer)
 
 	return nil
@@ -44,12 +47,14 @@ func performAgManagerDownloadAndInstall(assetURL, ver string) {
 
 		return
 	}
+
 	fmt.Printf("Installing %s...\n", filepath.Base(tmpPath))
 	if err := executeAgManagerInstaller(tmpPath); err != nil {
 		reportVerificationFailure(constants.ToolAgManager, "ag-manager")
 
 		return
 	}
+
 	recordAgManagerInstalled(ver)
 	fmt.Println(constants.ColorGreen + "✓" + constants.ColorReset + " Antigravity Manager installed successfully.")
 }
@@ -57,9 +62,9 @@ func performAgManagerDownloadAndInstall(assetURL, ver string) {
 func recordAgManagerInstalled(ver string) {
 	splitDB, err := store.OpenInstallationSplitDB()
 	if err != nil {
-
 		return
 	}
+
 	defer splitDB.Close()
 	_ = splitDB.SaveInstalledTool("ag-manager", ver, "github-release")
 }
@@ -67,18 +72,18 @@ func recordAgManagerInstalled(ver string) {
 func downloadAgManagerFile(url string) (string, error) {
 	resp, err := http.Get(url)
 	if err != nil {
-
 		return "", err
 	}
+
 	defer resp.Body.Close()
 	parts := strings.Split(url, "/")
 	name := parts[len(parts)-1]
 	tmpPath := filepath.Join(os.TempDir(), name)
 	out, err := os.Create(tmpPath)
 	if err != nil {
-
 		return "", err
 	}
+
 	defer out.Close()
 	_, err = io.Copy(out, resp.Body)
 

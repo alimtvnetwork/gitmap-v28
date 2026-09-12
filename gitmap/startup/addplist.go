@@ -79,6 +79,7 @@ func renderPlist(clean string, opts AddOptions) []byte {
 	if len(display) == 0 {
 		display = clean
 	}
+
 	dict := buildPlistDict(label, display, opts)
 
 	return encodePlist(dict)
@@ -113,6 +114,7 @@ func buildPlistDict(label, display string, opts AddOptions) []plistEntry {
 		{"ProgramArguments", plistValue{kind: "stringArray", strArray: splitExecArgs(opts.Exec)}},
 		{"RunAtLoad", plistValue{kind: "bool", boolean: true}},
 	}
+
 	// WorkingDirectory is the canonical LaunchAgent key launchd
 	// chdirs to before exec'ing ProgramArguments. Inserted right
 	// after RunAtLoad so the "what runs / where it runs" pair sits
@@ -120,9 +122,11 @@ func buildPlistDict(label, display string, opts AddOptions) []plistEntry {
 	if len(opts.WorkingDir) > 0 {
 		out = append(out, plistEntry{"WorkingDirectory", plistValue{kind: "string", str: opts.WorkingDir}})
 	}
+
 	if len(display) > 0 && display != label {
 		out = append(out, plistEntry{"GitmapDisplayName", plistValue{kind: "string", str: display}})
 	}
+
 	out = append(out, plistEntry{constants.StartupPlistMarker, plistValue{kind: "bool", boolean: true}})
 
 	return out
@@ -160,6 +164,7 @@ func encodePlist(entries []plistEntry) []byte {
 		fmt.Fprintf(&b, "  <key>%s</key>\n", xmlEscape(e.key))
 		writePlistValue(&b, e.value)
 	}
+
 	b.WriteString("</dict>\n")
 	b.WriteString("</plist>\n")
 
@@ -183,6 +188,7 @@ func writePlistValue(b *strings.Builder, v plistValue) {
 		for _, s := range v.strArray {
 			fmt.Fprintf(b, "    <string>%s</string>\n", xmlEscape(s))
 		}
+
 		b.WriteString("  </array>\n")
 	}
 }

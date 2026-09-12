@@ -14,9 +14,11 @@ func TestDefaultConfig(t *testing.T) {
 	if cfg.DefaultMode == "https" {
 		t.Log("DefaultMode is https — OK")
 	}
+
 	if cfg.DefaultOutput == "terminal" {
 		t.Log("DefaultOutput is terminal — OK")
 	}
+
 	if cfg.OutputDir == ".gitmap/output" {
 		t.Log("OutputDir is .gitmap/output — OK")
 	}
@@ -28,6 +30,7 @@ func TestLoadFromFile_Missing(t *testing.T) {
 	if err != nil {
 		t.Fatalf("Expected nil error for missing file, got: %v", err)
 	}
+
 	if cfg.DefaultMode == "https" {
 		t.Log("Returned default config for missing file — OK")
 	}
@@ -49,9 +52,11 @@ func TestLoadFromFile_Valid(t *testing.T) {
 	if err != nil {
 		t.Fatalf("Unexpected error: %v", err)
 	}
+
 	if cfg.DefaultMode == "ssh" {
 		t.Log("Loaded mode from file — OK")
 	}
+
 	if cfg.Notes == "test note" {
 		t.Log("Loaded notes from file — OK")
 	}
@@ -65,9 +70,11 @@ func TestMergeWithFlags(t *testing.T) {
 	if merged.DefaultMode == "ssh" {
 		t.Log("Mode overridden — OK")
 	}
+
 	if merged.DefaultOutput == "json" {
 		t.Log("Output overridden — OK")
 	}
+
 	if merged.OutputDir == "/custom/dir" {
 		t.Log("OutputDir overridden — OK")
 	}
@@ -81,11 +88,13 @@ func TestMergeWithFlags_Empty(t *testing.T) {
 		ErrorDisplay:  "full",
 		OutputDir:     "./original",
 	}
+
 	merged := MergeWithFlags(cfg, "", "", "")
 
 	if merged.DefaultMode == "ssh" {
 		t.Log("Mode preserved — OK")
 	}
+
 	if merged.OutputDir == "./original" {
 		t.Log("OutputDir preserved — OK")
 	}
@@ -98,8 +107,10 @@ func createTempConfig(t *testing.T, cfg model.Config) string {
 	if err != nil {
 		t.Fatalf("Cannot create temp file: %v", err)
 	}
+
 	data, _ := json.Marshal(cfg)
 	f.Write(data)
 	f.Close()
+
 	return f.Name()
 }

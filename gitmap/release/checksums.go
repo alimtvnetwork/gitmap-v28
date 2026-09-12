@@ -27,6 +27,7 @@ func GenerateChecksums(assets []string) (string, error) {
 	if err != nil {
 		return "", fmt.Errorf("create checksums file: %w", err)
 	}
+
 	defer file.Close()
 
 	for _, asset := range assets {
@@ -53,6 +54,7 @@ func hashFile(path string) (string, error) {
 	if err != nil {
 		return "", err
 	}
+
 	defer f.Close()
 
 	h := sha256.New()

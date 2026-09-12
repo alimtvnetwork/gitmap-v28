@@ -11,6 +11,7 @@ func TestHandlePipelineErrorLogsWithTimeline(t *testing.T) {
 	if testing.Short() || os.Getenv("CI") != "" {
 		t.Skip("skipping live GitHub API timeline test in CI/short mode to avoid blocking")
 	}
+
 	err := handlePipelineErrorLogs([]string{"-t", "--json"})
 	if err != nil {
 		t.Errorf("expected handlePipelineErrorLogs with -t and --json to succeed, got %v", err)
@@ -21,6 +22,7 @@ func TestHandlePipelineErrorLogsWithCheckAndFix(t *testing.T) {
 	if testing.Short() || os.Getenv("CI") != "" {
 		t.Skip("skipping live GitHub API check test in CI/short mode")
 	}
+
 	errCheck := handlePipelineErrorLogs([]string{"--check", "--json"})
 	if errCheck != nil {
 		t.Errorf("expected handlePipelineErrorLogs with --check and --json to succeed, got %v", errCheck)
@@ -59,6 +61,7 @@ func TestPipelineErrorLogsPayloadRerunETA(t *testing.T) {
 	if payload.Conclusion != "failure" {
 		t.Errorf("expected failure conclusion, got %s", payload.Conclusion)
 	}
+
 	if payload.RerunEtaSeconds != 100 {
 		t.Errorf("expected rerun ETA 100s, got %d", payload.RerunEtaSeconds)
 	}
@@ -77,6 +80,7 @@ func TestRunInternalCICDChecks(t *testing.T) {
 			break
 		}
 	}
+
 	if !hasGofmtCheck {
 		t.Errorf("expected gofmt formatting probe to be present in results")
 	}
@@ -113,6 +117,7 @@ func TestParseFailedLogLines(t *testing.T) {
 	if jobs[0].JobName != "macos-latest / test" || jobs[0].StepName != "run tests" {
 		t.Errorf("unexpected job 0: %+v", jobs[0])
 	}
+
 	if jobs[0].FailureSummary != "sample_test.go:12: Expected true to be false" {
 		t.Errorf("unexpected summary 0: %s", jobs[0].FailureSummary)
 	}
@@ -120,6 +125,7 @@ func TestParseFailedLogLines(t *testing.T) {
 	if jobs[1].JobName != "windows-latest / smoke" || jobs[1].StepName != "cfr cg" {
 		t.Errorf("unexpected job 1: %+v", jobs[1])
 	}
+
 	if jobs[1].FailureSummary != "cfr cg exited 10" {
 		t.Errorf("unexpected summary 1: %s", jobs[1].FailureSummary)
 	}
@@ -137,6 +143,7 @@ func TestCollectFailedRuns(t *testing.T) {
 	if len(collected) != 2 {
 		t.Fatalf("expected 2 collected runs matching first failure sha abc, got %d", len(collected))
 	}
+
 	if collected[0].DatabaseId != 1 || collected[1].DatabaseId != 2 {
 		t.Errorf("unexpected collected runs: %+v", collected)
 	}
@@ -163,6 +170,7 @@ func TestFormatAggregatedErrorLogs(t *testing.T) {
 	if !strings.Contains(formatted, "==> Failed Run: Cross-Platform Build (#123)") {
 		t.Errorf("missing header in formatted logs: %s", formatted)
 	}
+
 	if !strings.Contains(formatted, "Summary: panic: nil pointer") {
 		t.Errorf("missing summary in formatted logs: %s", formatted)
 	}
@@ -174,9 +182,11 @@ func TestExtractAllSectionFailures(t *testing.T) {
 	if len(sections) != 2 {
 		t.Fatalf("expected 2 sections, got %d", len(sections))
 	}
+
 	if sections[0].WorkflowName != "CI" || sections[0].JobName != "Lint" {
 		t.Errorf("unexpected section 0: %+v", sections[0])
 	}
+
 	if sections[1].WorkflowName != "Build" || sections[1].JobName != "Compile" {
 		t.Errorf("unexpected section 1: %+v", sections[1])
 	}
@@ -207,13 +217,16 @@ func TestFormatCombinedSectionFailures(t *testing.T) {
 			SavedLogFile: ".gitmap/pipeline/101.log", CreatedAt: "2026-09-11T10:00:00Z",
 		},
 	}
+
 	out := formatCombinedSectionFailures(sections)
 	if !strings.Contains(out, "Combined Pipeline Section Failures [1 failed section(s)]") {
 		t.Errorf("missing combined header in %s", out)
 	}
+
 	if !strings.Contains(out, "CI #101 ➔ Job: Test | Step: Unit") {
 		t.Errorf("missing section details in %s", out)
 	}
+
 	if !strings.Contains(out, ".gitmap/pipeline/101.log") {
 		t.Errorf("missing log path in %s", out)
 	}
@@ -224,10 +237,12 @@ func TestFormatRunTimestampAndDuration(t *testing.T) {
 	if !strings.Contains(ts, "2026-09-11 12:00:00 UTC") {
 		t.Errorf("unexpected timestamp formatting: %s", ts)
 	}
+
 	dur := calculateRunDuration("2026-09-11T12:00:00Z", "2026-09-11T12:02:30Z")
 	if dur != 150 {
 		t.Errorf("expected duration 150s, got %d", dur)
 	}
+
 	durStr := formatDurationSeconds(150)
 	if durStr != "2m 30s" {
 		t.Errorf("expected 2m 30s, got %s", durStr)
@@ -239,9 +254,11 @@ func TestPersistErrorReport(t *testing.T) {
 	if err != nil {
 		t.Fatalf("expected writeCombinedErrorReport to succeed, got %v", err)
 	}
+
 	if !strings.HasSuffix(reportPath, "pipeline_errors.log") {
 		t.Errorf("unexpected report path: %s", reportPath)
 	}
+
 	data, readErr := os.ReadFile(reportPath)
 	if readErr != nil || !strings.Contains(string(data), "test error report content") {
 		t.Errorf("expected content to match in %s", reportPath)

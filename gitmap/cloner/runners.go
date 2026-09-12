@@ -70,6 +70,7 @@ func normalizeWorkers(requested, jobs int) int {
 	if requested < 1 {
 		return 1
 	}
+
 	if requested > jobs && jobs > 0 {
 		return jobs
 	}
@@ -141,6 +142,7 @@ func countConflicts(records []model.ScanRecord, targetDir string) int {
 			conflicts++
 		}
 	}
+
 	return conflicts
 }
 
@@ -148,6 +150,7 @@ func handleConflicts(opts *CloneOptions, records []model.ScanRecord, targetDir s
 	if opts.Clean || opts.MissingOnly {
 		return
 	}
+
 	conflicts := countConflicts(records, targetDir)
 	if conflicts > 0 {
 		promptAndSetClean(opts, conflicts)

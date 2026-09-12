@@ -102,6 +102,7 @@ func (db *DB) hasCanonicalV15Shape(spec v15RebuildSpec) bool {
 	if !strings.Contains(spec.NewTable, "_v15") {
 		return false
 	}
+
 	if db.columnExists(spec.OldTable, "Id") {
 		return false
 	}
@@ -188,6 +189,7 @@ func replaceLeadingIDToken(list, replacement string) string {
 	if strings.TrimSpace(first) != "Id" {
 		return list
 	}
+
 	if !found {
 		return replacement
 	}

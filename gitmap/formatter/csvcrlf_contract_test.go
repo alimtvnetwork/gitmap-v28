@@ -38,12 +38,14 @@ func TestCSVCRLF_WriteCSV(t *testing.T) {
 			},
 		}},
 	}
+
 	for _, tc := range cases {
 		t.Run(tc.name, func(t *testing.T) {
 			var buf bytes.Buffer
 			if err := WriteCSV(&buf, tc.records); err != nil {
 				t.Fatalf("WriteCSV: %v", err)
 			}
+
 			assertScanCSVCommaCRLF(t, buf.Bytes())
 		})
 	}
@@ -59,13 +61,16 @@ func assertScanCSVCommaCRLF(t *testing.T, got []byte) {
 	if !strings.Contains(s, "\r\n") {
 		t.Fatalf("expected CRLF line endings, got none in: %q", s)
 	}
+
 	if hasBareLF(s) {
 		t.Fatalf("found bare LF (not preceded by CR) — UseCRLF likely off: %q", s)
 	}
+
 	header, _, ok := strings.Cut(s, "\r\n")
 	if !ok {
 		t.Fatalf("output missing CRLF-terminated header: %q", s)
 	}
+
 	if !strings.Contains(header, ",") {
 		t.Fatalf("expected comma separator in header, got: %q", header)
 	}
@@ -77,8 +82,8 @@ func hasBareLF(s string) bool {
 		if s[i] != '\n' {
 			continue
 		}
-		if i == 0 || s[i-1] != '\r' {
 
+		if i == 0 || s[i-1] != '\r' {
 			return true
 		}
 	}

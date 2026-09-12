@@ -80,6 +80,7 @@ func resolvePowerShellProfilePaths() []string {
 	if profile := strings.TrimSpace(os.Getenv("PROFILE")); len(profile) > 0 {
 		paths = append(paths, profile)
 	}
+
 	paths = append(paths, probePowerShellProfilePaths()...)
 	home, _ := os.UserHomeDir()
 	paths = append(paths, defaultPowerShellProfilePaths(home, runtime.GOOS)...)
@@ -96,6 +97,7 @@ func probePowerShellProfilePaths() []string {
 		if err != nil {
 			continue
 		}
+
 		paths = append(paths, parsePowerShellProfileOutput(string(out))...)
 	}
 
@@ -121,6 +123,7 @@ func defaultPowerShellProfilePaths(home, goos string) []string {
 	if len(home) == 0 {
 		return nil
 	}
+
 	if goos == "windows" {
 		docs := filepath.Join(home, "Documents")
 
@@ -149,9 +152,11 @@ func uniqueProfilePaths(paths []string) []string {
 		if len(path) == 0 {
 			continue
 		}
+
 		if _, ok := seen[path]; ok {
 			continue
 		}
+
 		seen[path] = struct{}{}
 		unique = append(unique, path)
 	}
@@ -230,6 +235,7 @@ func addSourceLine(scriptPath, profilePath, shell string) error {
 	if err != nil {
 		return fmt.Errorf(constants.ErrCompProfileWrite, profilePath, err)
 	}
+
 	defer f.Close()
 
 	_, err = fmt.Fprintf(f, "\n# gitmap shell completion\n%s\n", sourceLine)

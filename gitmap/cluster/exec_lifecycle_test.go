@@ -34,6 +34,7 @@ func TestExecLifecycle_Success(t *testing.T) {
 	if err != nil {
 		t.Errorf("unexpected error: %v", err)
 	}
+
 	if code != 0 {
 		t.Errorf("expected exit code 0, got %d", code)
 	}

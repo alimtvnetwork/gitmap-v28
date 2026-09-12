@@ -31,6 +31,7 @@ func TestStatsJSONSchema_TopLevelShape(t *testing.T) {
 	if root["type"] != "object" {
 		t.Fatalf("top-level type = %v, want object", root["type"])
 	}
+
 	got := stringSliceFromAny(root["required"])
 	sort.Strings(got)
 	if !equalStringSlices(got, statsTopLevelRequiredKeys) {
@@ -53,6 +54,7 @@ func TestStatsJSONSchema_EncoderMatchesSchema(t *testing.T) {
 	if err := encodeStatsJSON(&buf, overall, commands); err != nil {
 		t.Fatalf("encode: %v", err)
 	}
+
 	gotKeys := readFirstObjectKeys(t, buf.Bytes())
 	for _, key := range gotKeys {
 		if _, allowed := props[key]; !allowed {

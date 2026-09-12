@@ -19,12 +19,14 @@ func TestDefaults_ValidationAndMarshal(t *testing.T) {
 	if res.IsFailure() {
 		t.Fatalf("expected Marshal to succeed, got: %v", res.Err)
 	}
+
 	raw := res.Value
 
 	str := string(raw)
 	if !strings.Contains(str, `"PreferredDownloader":`) {
 		t.Errorf("expected marshaled JSON to contain PreferredDownloader, got:\n%s", str)
 	}
+
 	if !strings.Contains(str, `"FallbackDownloader":`) {
 		t.Errorf("expected marshaled JSON to contain FallbackDownloader, got:\n%s", str)
 	}
@@ -46,11 +48,13 @@ func TestParse_SeedFileRoundTrip(t *testing.T) {
 	if res2.IsFailure() {
 		t.Fatalf("expected Parse to succeed on seed file, got: %v", res2.Err)
 	}
+
 	doc := res2.Value
 
 	if doc.DownloaderConfig.PreferredDownloader != "Aria2C" {
 		t.Errorf("expected PreferredDownloader Aria2C, got: %s", doc.DownloaderConfig.PreferredDownloader)
 	}
+
 	if doc.DownloaderConfig.ParallelDownloads != 15 {
 		t.Errorf("expected ParallelDownloads 15, got: %d", doc.DownloaderConfig.ParallelDownloads)
 	}

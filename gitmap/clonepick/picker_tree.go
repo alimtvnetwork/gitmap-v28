@@ -32,11 +32,13 @@ func ListRepoPathsKeep(plan Plan) ([]string, string, error) {
 	if err != nil {
 		return nil, "", fmt.Errorf(constants.ErrClonePickPickerLaunch, err)
 	}
+
 	if err := metaCloneForListing(plan, tmp); err != nil {
 		os.RemoveAll(tmp)
 
 		return nil, "", err
 	}
+
 	paths, lsErr := runLsTree(tmp)
 	if lsErr != nil {
 		os.RemoveAll(tmp)
@@ -54,9 +56,11 @@ func metaCloneForListing(plan Plan, dest string) error {
 	args := []string{
 		"clone", "--filter=blob:none", "--no-checkout", "--depth=1",
 	}
+
 	if len(plan.Branch) > 0 {
 		args = append(args, "--branch", plan.Branch)
 	}
+
 	args = append(args, plan.RepoUrl, dest)
 	cmd := exec.Command("git", args...)
 	cmd.Stdout = os.Stderr
@@ -94,6 +98,7 @@ func splitNonEmptyLines(raw string) []string {
 		if len(clean) == 0 {
 			continue
 		}
+
 		out = append(out, clean)
 	}
 

@@ -17,6 +17,7 @@ func createTarGz(srcPath string) (string, error) {
 	if err != nil {
 		return "", fmt.Errorf("create tar.gz: %w", err)
 	}
+
 	defer outFile.Close()
 
 	gw := gzip.NewWriter(outFile)
@@ -45,6 +46,7 @@ func addFileToTar(tw *tar.Writer, srcPath string) error {
 	if err != nil {
 		return fmt.Errorf("open source: %w", err)
 	}
+
 	defer src.Close()
 
 	info, err := src.Stat()

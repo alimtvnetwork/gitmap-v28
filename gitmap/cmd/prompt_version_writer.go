@@ -19,6 +19,7 @@ func WritePromptArchitectMetadata(repoPath string, meta model.PromptArchitectMet
 	if errRead == nil {
 		_ = json.Unmarshal(data, &root)
 	}
+
 	if root == nil {
 		root = make(map[string]any)
 	}

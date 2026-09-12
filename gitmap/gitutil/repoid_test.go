@@ -17,6 +17,7 @@ func TestCanonicalRepoID_Equivalence(t *testing.T) {
 		"  https://github.com/acme/widget.git/  ",
 		"https://GitHub.com/Acme/Widget.git",
 	}
+
 	for _, in := range cases {
 		got := CanonicalRepoID(in)
 		if got != want {
@@ -32,9 +33,11 @@ func TestCanonicalRepoID_Edges(t *testing.T) {
 	if got := CanonicalRepoID(""); got != "" {
 		t.Errorf("empty: got %q, want \"\"", got)
 	}
+
 	if got := CanonicalRepoID("not-a-url"); got != "not-a-url" {
 		t.Errorf("plain: got %q, want %q", got, "not-a-url")
 	}
+
 	a := CanonicalRepoID("https://gitlab.com/x/a")
 	b := CanonicalRepoID("https://gitlab.com/x/b")
 	if a == b {

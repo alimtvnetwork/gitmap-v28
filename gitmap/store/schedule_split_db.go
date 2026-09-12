@@ -38,13 +38,11 @@ type ScheduleRunRecord struct {
 
 // IsFailed reports whether the scheduled task run failed.
 func (r ScheduleRunRecord) IsFailed() bool {
-
 	return !r.IsSuccess
 }
 
 // IsFail reports whether the scheduled task run failed.
 func (r ScheduleRunRecord) IsFail() bool {
-
 	return !r.IsSuccess
 }
 
@@ -71,6 +69,7 @@ func ScheduleSlug(name string) string {
 	if slug == "" {
 		return "schedule-default"
 	}
+
 	return slug
 }
 
@@ -78,6 +77,7 @@ func ScheduleSlug(name string) string {
 func ScheduleDBDir() string {
 	dir := filepath.Join(BinaryDataDir(), "schedules")
 	_ = os.MkdirAll(dir, 0755)
+
 	return dir
 }
 
@@ -152,9 +152,11 @@ func (s *ScheduleSplitDB) InitSchema() error {
 	if _, err := s.conn.Exec(sqlCreateScheduleConfig); err != nil {
 		return apperror.WrapSimple(err, "init schedule_config table")
 	}
+
 	if _, err := s.conn.Exec(sqlCreateScheduleLogs); err != nil {
 		return apperror.WrapSimple(err, "init schedule_logs table")
 	}
+
 	return nil
 }
 
@@ -171,6 +173,7 @@ func (s *ScheduleSplitDB) SaveConfig(cfg ScheduleConfig) error {
 	          is_startup=excluded.is_startup,
 	          updated_at=CURRENT_TIMESTAMP`
 	_, err := s.conn.Exec(q, cfg.Name, cfg.Slug, cfg.MacroName, cfg.CommandLine, cfg.IntervalVal, cfg.DelayVal, cfg.IsEnabled, cfg.IsStartup)
+
 	return err
 }
 
@@ -179,6 +182,7 @@ func (s *ScheduleSplitDB) RecordRun(r ScheduleRunRecord) error {
 	q := `INSERT INTO schedule_logs (run_number, trigger_type, runner_user, started_at, finished_at, duration_ms, is_success, exit_code, output, error_msg)
 	      VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`
 	_, err := s.conn.Exec(q, r.RunNumber, r.TriggerType, r.RunnerUser, r.StartedAt, r.FinishedAt, r.DurationMS, r.IsSuccess, r.ExitCode, r.Output, r.ErrorMsg)
+
 	return err
 }
 
@@ -187,13 +191,16 @@ func (s *ScheduleSplitDB) GetRuns(limit int) ([]ScheduleRunRecord, error) {
 	if limit <= 0 {
 		limit = 50
 	}
+
 	q := `SELECT id, run_number, trigger_type, runner_user, started_at, finished_at, duration_ms, is_success, exit_code, output, error_msg, created_at
 	      FROM schedule_logs ORDER BY id DESC LIMIT ?`
 	rows, err := s.conn.Query(q, limit)
 	if err != nil {
 		return nil, err
 	}
+
 	defer rows.Close()
+
 	return parseRunRows(rows), nil
 }
 
@@ -208,12 +215,14 @@ func parseRunRows(rows *sql.Rows) []ScheduleRunRecord {
 			list = append(list, r)
 		}
 	}
+
 	return list
 }
 
 // ResetLogs truncates the schedule logs table in the split DB.
 func (s *ScheduleSplitDB) ResetLogs() error {
 	_, err := s.conn.Exec("DELETE FROM schedule_logs")
+
 	return err
 }
 
@@ -228,6 +237,7 @@ func DeleteScheduleSplitDB(slug string) error {
 	if _, err := os.Stat(path); err == nil {
 		return os.Remove(path)
 	}
+
 	return nil
 }
 
@@ -238,11 +248,13 @@ func MigrateAllScheduleSplitDBs() error {
 	if err != nil {
 		return nil
 	}
+
 	for _, e := range entries {
 		if strings.HasSuffix(e.Name(), ".db") {
 			migrateSingleSplitDB(strings.TrimSuffix(e.Name(), ".db"))
 		}
 	}
+
 	return nil
 }
 

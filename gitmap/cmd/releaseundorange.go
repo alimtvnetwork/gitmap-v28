@@ -29,20 +29,26 @@ func RunReleaseUndoRange(opts ReleaseUndoRangeOptions) int {
 	versions, err := expandReleaseRange(opts.Range)
 	if err != nil {
 		fmt.Fprintf(opts.Stdout, "release-undo: %v\n", err)
+
 		return 2
 	}
+
 	fmt.Fprintf(opts.Stdout, "release-undo: %d versions in range %s\n", len(versions), opts.Range)
 	for _, v := range versions {
 		if opts.DryRun {
 			fmt.Fprintf(opts.Stdout, "[dry-run] would undo %s\n", v)
 			continue
 		}
+
 		if err := opts.UndoOne(v); err != nil {
 			fmt.Fprintf(opts.Stdout, "release-undo: %s failed: %v\n", v, err)
+
 			return 1
 		}
+
 		fmt.Fprintf(opts.Stdout, "release-undo: %s done\n", v)
 	}
+
 	return 0
 }
 
@@ -55,16 +61,20 @@ func expandReleaseRange(spec string) ([]string, error) {
 	if !ok {
 		return nil, fmt.Errorf("range must be of form vX.Y.Z..vX.Y.Z, got %q", spec)
 	}
+
 	a, b := splitSemver(strings.TrimPrefix(lo, "v")), splitSemver(strings.TrimPrefix(hi, "v"))
 	if a[0] != b[0] || a[1] != b[1] {
 		return nil, fmt.Errorf("range endpoints must share major.minor (%s vs %s)", lo, hi)
 	}
+
 	if a[2] > b[2] {
 		return nil, fmt.Errorf("range endpoints reversed (%s > %s)", lo, hi)
 	}
+
 	out := make([]string, 0, b[2]-a[2]+1)
 	for p := a[2]; p <= b[2]; p++ {
 		out = append(out, fmt.Sprintf("v%d.%d.%d", a[0], a[1], p))
 	}
+
 	return out, nil
 }

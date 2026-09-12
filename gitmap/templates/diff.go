@@ -101,6 +101,7 @@ func extractBlockBody(file []byte, tag string) (body []byte, found bool) {
 	if loc == nil {
 		return nil, false
 	}
+
 	matched := file[loc[0]:loc[1]]
 	// Drop the leading `# >>> gitmap:tag >>>\n` and trailing
 	// `# <<< gitmap:tag <<<\n?` lines to recover the raw body.
@@ -134,6 +135,7 @@ func renderChangeHunk(tag string, oldBody, newBody []byte) []string {
 	for _, line := range splitDiffLines(oldBody) {
 		out = append(out, "-"+line)
 	}
+
 	for _, line := range splitDiffLines(newBody) {
 		out = append(out, "+"+line)
 	}
@@ -148,6 +150,7 @@ func splitDiffLines(body []byte) []string {
 	if len(body) == 0 {
 		return nil
 	}
+
 	s := string(body)
 	parts := strings.Split(s, "\n")
 	if parts[len(parts)-1] == "" {
@@ -165,6 +168,7 @@ func LoadFile(path string) ([]byte, bool, error) {
 	if err == nil {
 		return data, true, nil
 	}
+
 	if os.IsNotExist(err) {
 		return nil, false, nil
 	}

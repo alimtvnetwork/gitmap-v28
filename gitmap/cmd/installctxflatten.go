@@ -33,9 +33,11 @@ func flattenCtxMenu() []flatCtxEntry {
 		if seen[e.Slug] {
 			return
 		}
+
 		seen[e.Slug] = true
 		out = append(out, e)
 	}
+
 	for _, e := range ctxMenu() {
 		if len(e.Children) > 0 {
 			for _, c := range e.Children {
@@ -44,6 +46,7 @@ func flattenCtxMenu() []flatCtxEntry {
 
 			continue
 		}
+
 		add(flatEntry("", e))
 	}
 
@@ -57,6 +60,7 @@ func flatEntry(category string, e ctxEntry) flatCtxEntry {
 	if category != "" {
 		label += category + constants.CtxFlatChildJoiner
 	}
+
 	label += e.MUIVerb
 
 	return flatCtxEntry{
@@ -96,6 +100,7 @@ func slugifyCtx(s string) string {
 			}
 		}
 	}
+
 	for len(out) > 0 && out[len(out)-1] == '-' {
 		out = out[:len(out)-1]
 	}

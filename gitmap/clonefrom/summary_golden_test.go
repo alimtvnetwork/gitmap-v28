@@ -95,6 +95,7 @@ func TestCloneFromReport_Golden_Empty(t *testing.T) {
 	if err := writeReportRows(&buf, nil); err != nil {
 		t.Fatalf("writeReportRows: %v", err)
 	}
+
 	assertReportGolden(t, "clonefrom_report_empty.csv", buf.Bytes())
 }
 
@@ -107,6 +108,7 @@ func TestCloneFromReport_Golden_Canonical(t *testing.T) {
 	if err := writeReportRows(&buf, canonicalReportResults()); err != nil {
 		t.Fatalf("writeReportRows: %v", err)
 	}
+
 	assertReportGolden(t, "clonefrom_report_canonical.csv", buf.Bytes())
 }
 
@@ -146,6 +148,7 @@ func assertReportGolden(t *testing.T, name string, got []byte) {
 
 		return
 	}
+
 	want := readReportGolden(t, path)
 	compareReportGolden(t, name, got, want)
 }
@@ -165,9 +168,11 @@ func writeReportGolden(t *testing.T, path string, got []byte) {
 	if err := os.MkdirAll(filepath.Dir(path), 0o755); err != nil {
 		t.Fatalf("mkdir testdata: %v", err)
 	}
+
 	if err := os.WriteFile(path, got, 0o644); err != nil {
 		t.Fatalf("write golden %s: %v", path, err)
 	}
+
 	t.Fatalf("regenerated golden %s — re-run "+
 		"without GITMAP_UPDATE_GOLDEN to confirm", path)
 }

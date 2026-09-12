@@ -42,15 +42,18 @@ func CreateSnapshot(anyPath string) (Snapshot, bool) {
 	if volume == `\` {
 		return Snapshot{}, false
 	}
+
 	out, err := exec.Command("vssadmin", "create", "shadow", "/for="+volume).CombinedOutput()
 	if err != nil {
 		return Snapshot{}, false
 	}
+
 	id := parseVSSField(string(out), `Shadow Copy ID:\s*(\{[A-F0-9-]+\})`)
 	dev := parseVSSField(string(out), `Shadow Copy Volume Name:\s*(\\\\\?\\GLOBALROOT\\[^\r\n]+)`)
 	if id == "" || dev == "" {
 		return Snapshot{}, false
 	}
+
 	return Snapshot{ID: id, DevicePath: strings.TrimSpace(dev), Volume: volume}, true
 }
 
@@ -60,8 +63,10 @@ func (s Snapshot) TranslatePath(srcAbs string) string {
 	if s.DevicePath == "" {
 		return srcAbs
 	}
+
 	rel := strings.TrimPrefix(srcAbs, filepath.VolumeName(srcAbs))
 	rel = strings.TrimPrefix(rel, `\`)
+
 	return s.DevicePath + `\` + rel
 }
 
@@ -71,6 +76,7 @@ func (s Snapshot) Delete() {
 	if s.ID == "" {
 		return
 	}
+
 	_ = exec.Command("vssadmin", "delete", "shadows", "/shadow="+s.ID, "/quiet").Run()
 }
 
@@ -80,5 +86,6 @@ func parseVSSField(out, pattern string) string {
 	if len(m) < 2 {
 		return ""
 	}
+
 	return strings.TrimSpace(m[1])
 }

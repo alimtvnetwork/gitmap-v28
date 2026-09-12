@@ -48,11 +48,14 @@ func (e *FileSequenceFieldType) UnmarshalJSON(data []byte) error {
 	if err := json.Unmarshal(data, &s); err != nil {
 		return err
 	}
+
 	target := FileSequenceFieldType(s)
 	if !fileSequenceValidMap[target] {
 		return fmt.Errorf("invalid %s enum: %s", "FileSequenceFieldType", s)
 	}
+
 	*e = target
+
 	return nil
 }
 
@@ -62,6 +65,7 @@ func (e FileSequenceFieldType) ToJSON() (string, *apperror.AppError) {
 	if err != nil {
 		return "", apperror.WrapSimple(err, "serialize field to json")
 	}
+
 	return string(b), nil
 }
 
@@ -71,11 +75,14 @@ func (e *FileSequenceFieldType) FromJSON(s string) *apperror.AppError {
 	if err := json.Unmarshal([]byte(s), &str); err != nil {
 		return apperror.WrapSimple(err, "deserialize field from json")
 	}
+
 	target := FileSequenceFieldType(str)
 	if !fileSequenceValidMap[target] {
 		return apperror.WrapSimple(fmt.Errorf("invalid %s enum: %s", "FileSequenceFieldType", str), "validate field enum from json")
 	}
+
 	*e = target
+
 	return nil
 }
 
@@ -183,6 +190,7 @@ func (r fileSequenceDbRegistry) ToJSON() (string, *apperror.AppError) {
 	if err != nil {
 		return "", apperror.WrapSimple(err, "serialize registry to json")
 	}
+
 	return string(b), nil
 }
 

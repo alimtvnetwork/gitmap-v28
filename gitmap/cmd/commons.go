@@ -41,6 +41,7 @@ func dispatchCommons(command string) (bool, error) {
 	if command != constants.CmdCommons && command != constants.CmdCommonsAlias {
 		return false, nil
 	}
+
 	rest := os.Args[2:]
 	for _, a := range rest {
 		if a == "--help" || a == "-h" {
@@ -49,6 +50,7 @@ func dispatchCommons(command string) (bool, error) {
 			return true, nil
 		}
 	}
+
 	dry, force := parseSyncFlags(rest)
 
 	runSyncLines(".gitignore", defaultGitignoreBaseline, dry)

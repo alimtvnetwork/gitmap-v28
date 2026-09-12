@@ -18,19 +18,24 @@ func runBackupCloudPush(args []string) error {
 	if err != nil {
 		return err
 	}
+
 	repoSlug := resolveBackupRepoSlug(prof, args)
 	cloudDir := filepath.Join(store.BinaryDataDir(), "cloud-backup")
 	if prepErr := ensureCloudRepoPrepared(cloudDir, repoSlug); prepErr != nil {
 		return prepErr
 	}
+
 	snapID, copyErr := createSnapshotFolder(cloudDir, args)
 	if copyErr != nil {
 		return copyErr
 	}
+
 	if pushErr := commitAndPushSnapshot(cloudDir, snapID); pushErr != nil {
 		return pushErr
 	}
+
 	printBackupSuccess(snapID, repoSlug)
+
 	return nil
 }
 
@@ -39,19 +44,24 @@ func resolveDefaultCloudProfile(args []string) (model.GitProfile, error) {
 	if err != nil {
 		return model.GitProfile{}, apperror.WrapSimple(err, "load profiles:")
 	}
+
 	req := extractFlagVal(args, "--profile")
 	if req != "" {
 		_, p, findErr := pickProfileBySequenceOrName(cfg.Profiles, req)
+
 		return p, findErr
 	}
+
 	for _, p := range cfg.Profiles {
 		if p.IsDefault || p.Name == cfg.Default {
 			return p, nil
 		}
 	}
+
 	if len(cfg.Profiles) > 0 {
 		return cfg.Profiles[0], nil
 	}
+
 	return model.GitProfile{Name: "default", Provider: "github"}, nil
 }
 
@@ -60,10 +70,12 @@ func resolveBackupRepoSlug(p model.GitProfile, args []string) string {
 	if customRepo != "" {
 		return customRepo
 	}
+
 	repoName := "gitmap-cloud-backup"
 	if p.Name != "" && p.Name != "default" {
 		return p.Name + "/" + repoName
 	}
+
 	return repoName
 }
 
@@ -71,24 +83,29 @@ func ensureCloudRepoPrepared(cloudDir, repoSlug string) error {
 	if mkErr := os.MkdirAll(cloudDir, 0755); mkErr != nil {
 		return apperror.WrapSimple(mkErr, "create cloud backup dir:")
 	}
+
 	ensureRemoteRepoExists(repoSlug)
 	gitDir := filepath.Join(cloudDir, ".git")
 	if isDirExists(gitDir) {
 		cmdPull := exec.Command("git", "pull", "--rebase", "origin", "main")
 		cmdPull.Dir = cloudDir
 		_ = cmdPull.Run()
+
 		return nil
 	}
+
 	cmdClone := exec.Command("gh", "repo", "clone", repoSlug, cloudDir)
 	out, err := cmdClone.CombinedOutput()
 	if err != nil {
 		return initFallbackRepo(cloudDir, repoSlug, string(out))
 	}
+
 	return nil
 }
 
 func isDirExists(path string) bool {
 	info, err := os.Stat(path)
+
 	return err == nil && info.IsDir()
 }
 
@@ -97,6 +114,7 @@ func ensureRemoteRepoExists(repoSlug string) {
 	if viewErr := cmdView.Run(); viewErr == nil {
 		return
 	}
+
 	cmdCreate := exec.Command("gh", "repo", "create", repoSlug, "--private")
 	_ = cmdCreate.Run()
 }
@@ -107,10 +125,12 @@ func initFallbackRepo(cloudDir, repoSlug, logMsg string) error {
 	if initErr := cmdInit.Run(); initErr != nil {
 		return apperror.WrapSimple(initErr, "fallback git init: "+logMsg)
 	}
+
 	remoteURL := fmt.Sprintf("https://github.com/%s.git", repoSlug)
 	cmdRemote := exec.Command("git", "remote", "add", "origin", remoteURL)
 	cmdRemote.Dir = cloudDir
 	_ = cmdRemote.Run()
+
 	return nil
 }
 
@@ -120,13 +140,16 @@ func createSnapshotFolder(cloudDir string, args []string) (string, error) {
 	if mkErr := os.MkdirAll(destDir, 0755); mkErr != nil {
 		return "", apperror.WrapSimple(mkErr, "create snapshot dir:")
 	}
+
 	if copyErr := copyBackupArtifacts(destDir); copyErr != nil {
 		return "", copyErr
 	}
+
 	note := extractFlagVal(args, "--note")
 	if manifestErr := writeSnapshotManifest(destDir, snapID, note); manifestErr != nil {
 		return "", manifestErr
 	}
+
 	return snapID, nil
 }
 
@@ -148,6 +171,7 @@ func commitAndPushSnapshot(cloudDir, snapID string) error {
 	if pushErr != nil {
 		return apperror.NewSimple("git push backup failed: "+string(out), "E1079")
 	}
+
 	return nil
 }
 

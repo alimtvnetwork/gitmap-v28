@@ -42,21 +42,29 @@ func CommitCodingGuidelines(opts CGCommitOpts) error {
 	opts = withCGCommitDefaults(opts)
 	if opts.NoCommit {
 		emitCGSkipNotes(opts, true, opts.NoPush)
+
 		return nil
 	}
+
 	if err := runGitStep(opts, "add", "-A"); err != nil {
 		fmt.Fprintf(opts.Stderr, constants.ErrCGCommitFailed, err)
+
 		return err
 	}
+
 	dirty, err := hasStagedChanges(opts)
 	if err != nil {
 		fmt.Fprintf(opts.Stderr, constants.ErrCGCommitFailed, err)
+
 		return err
 	}
+
 	if !dirty {
 		fmt.Fprint(opts.Stderr, constants.MsgCGNoChanges)
+
 		return nil
 	}
+
 	return commitAndMaybePush(opts)
 }
 
@@ -64,12 +72,15 @@ func withCGCommitDefaults(opts CGCommitOpts) CGCommitOpts {
 	if opts.Runner == nil {
 		opts.Runner = exec.Command
 	}
+
 	if opts.Stdout == nil {
 		opts.Stdout = os.Stdout
 	}
+
 	if opts.Stderr == nil {
 		opts.Stderr = os.Stderr
 	}
+
 	return opts
 }
 
@@ -80,6 +91,7 @@ func runGitStep(opts CGCommitOpts, args ...string) error {
 	cmd.Dir = opts.WorkingDir
 	cmd.Stdout = opts.Stdout
 	cmd.Stderr = opts.Stderr
+
 	return cmd.Run()
 }
 
@@ -94,29 +106,39 @@ func hasStagedChanges(opts CGCommitOpts) (bool, error) {
 	if err != nil {
 		return false, err
 	}
+
 	return len(strings.TrimSpace(string(out))) > 0, nil
 }
 
 func commitAndMaybePush(opts CGCommitOpts) error {
 	if err := runGitStep(opts, "commit", "-m", constants.CodingGuidelinesCommitMessage); err != nil {
 		fmt.Fprintf(opts.Stderr, constants.ErrCGCommitFailed, err)
+
 		return err
 	}
+
 	fmt.Fprintf(opts.Stderr, constants.MsgCGCommitted, constants.CodingGuidelinesCommitMessage)
 	if opts.NoPush {
 		emitCGSkipNotes(opts, false, true)
+
 		return nil
 	}
+
 	upstream, ok := detectUpstream(opts)
 	if !ok {
 		emitCGSkipNotes(opts, false, true)
+
 		return nil
 	}
+
 	if err := runGitStep(opts, "push"); err != nil {
 		fmt.Fprintf(opts.Stderr, constants.ErrCGPushFailed, err)
+
 		return err
 	}
+
 	fmt.Fprintf(opts.Stderr, constants.MsgCGPushed, upstream)
+
 	return nil
 }
 
@@ -131,10 +153,12 @@ func detectUpstream(opts CGCommitOpts) (string, bool) {
 	if err != nil {
 		return "", false
 	}
+
 	ref := strings.TrimSpace(string(out))
 	if len(ref) == 0 {
 		return "", false
 	}
+
 	return ref, true
 }
 
@@ -149,12 +173,15 @@ func emitCGSkipNotes(opts CGCommitOpts, noCommit, noPush bool) {
 	if noCommit {
 		b.WriteString(constants.MsgCGSkipCommit)
 	}
+
 	if noPush {
 		b.WriteString(constants.MsgCGSkipPush)
 	}
+
 	if b.Len() == 0 {
 		return
 	}
+
 	msg := b.String()
 	fmt.Fprint(opts.Stderr, msg)
 	fmt.Fprint(opts.Stdout, msg)

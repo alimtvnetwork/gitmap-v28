@@ -50,6 +50,7 @@ func TestStartupListCSVContract_HeaderIsExact(t *testing.T) {
 	if err := encodeStartupListCSV(&buf, nil); err != nil {
 		t.Fatalf("encode: %v", err)
 	}
+
 	got := buf.String()
 	if !strings.HasPrefix(got, expectedStartupListCSVHeader) {
 		t.Fatalf("header drift\n  want prefix: %q\n  got:         %q",
@@ -67,6 +68,7 @@ func TestStartupListCSVContract_EmptyIsHeaderOnly(t *testing.T) {
 	if err := encodeStartupListCSV(&buf, nil); err != nil {
 		t.Fatalf("encode: %v", err)
 	}
+
 	if got := buf.String(); got != expectedStartupListCSVHeader {
 		t.Fatalf("empty CSV must be header-only\n  want: %q\n  got:  %q",
 			expectedStartupListCSVHeader, got)
@@ -87,16 +89,19 @@ func TestStartupListCSVContract_EveryRowHas3Columns(t *testing.T) {
 		{Name: "gitmap-b", Path: "/p/b.desktop", Exec: `/bin/b -arg "x,y"`},
 		{Name: "gitmap-c", Path: "/p/c.desktop", Exec: ""},
 	}
+
 	var buf bytes.Buffer
 	if err := encodeStartupListCSV(&buf, entries); err != nil {
 		t.Fatalf("encode: %v", err)
 	}
+
 	rows := mustParseCSV(t, buf.Bytes())
 	wantRows := 1 + len(entries) // header + data
 	if len(rows) != wantRows {
 		t.Fatalf("row count: want %d (header + %d data), got %d",
 			wantRows, len(entries), len(rows))
 	}
+
 	for i, row := range rows {
 		if len(row) != 3 {
 			t.Errorf("row[%d] column count: want 3, got %d (%v)", i, len(row), row)
@@ -115,10 +120,12 @@ func TestStartupListCSVContract_HeaderMatchesJSONSchema(t *testing.T) {
 	if err := encodeStartupListCSV(&buf, nil); err != nil {
 		t.Fatalf("encode: %v", err)
 	}
+
 	rows := mustParseCSV(t, buf.Bytes())
 	if len(rows) == 0 {
 		t.Fatalf("empty parse — expected at least header row")
 	}
+
 	header := rows[0]
 	wantHeader := assertSchemaKeysSlice(t, "startup-list")
 	if !equalStringSlices(header, wantHeader) {

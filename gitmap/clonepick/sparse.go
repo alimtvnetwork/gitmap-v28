@@ -33,18 +33,23 @@ func runSparseCheckout(plan Plan, progress io.Writer) (string, error) {
 	if err != nil {
 		return "", err
 	}
+
 	if err := acquireRepoTree(plan, dest, progress); err != nil {
 		return dest, err
 	}
+
 	if err := gitSparseInit(plan, dest, progress); err != nil {
 		return dest, fmt.Errorf(constants.ErrClonePickGitSparseInit, err)
 	}
+
 	if err := gitSparseSet(plan, dest, progress); err != nil {
 		return dest, fmt.Errorf(constants.ErrClonePickGitSparseSet, err)
 	}
+
 	if err := gitCheckout(dest, progress); err != nil {
 		return dest, fmt.Errorf(constants.ErrClonePickGitCheckout, err)
 	}
+
 	if err := removeDotGitIfRequested(plan.KeepGit, dest); err != nil {
 		return dest, err
 	}
@@ -59,6 +64,7 @@ func acquireRepoTree(plan Plan, dest string, progress io.Writer) error {
 	if len(plan.PreClonedSrc) > 0 {
 		return promotePreClonedOrError(plan.PreClonedSrc, dest)
 	}
+
 	if err := gitClonePartial(plan, dest, progress); err != nil {
 		return fmt.Errorf(constants.ErrClonePickGitClone, err)
 	}
@@ -70,9 +76,11 @@ func removeDotGitIfRequested(keepGit bool, dest string) error {
 	if keepGit {
 		return nil
 	}
+
 	if err := os.RemoveAll(filepath.Join(dest, ".git")); err != nil {
 		return fmt.Errorf(constants.ErrClonePickFsRemoveDotGit, err)
 	}
+
 	return nil
 }
 
@@ -80,6 +88,7 @@ func promotePreClonedOrError(src, dest string) error {
 	if err := promotePreClonedSrc(src, dest); err != nil {
 		return fmt.Errorf(constants.ErrClonePickPromoteSrc, err)
 	}
+
 	return nil
 }
 
@@ -92,12 +101,15 @@ func prepareDest(plan Plan) (string, error) {
 	if err != nil {
 		return "", fmt.Errorf(constants.ErrClonePickFsCreateDest, err)
 	}
+
 	if err := os.MkdirAll(abs, 0o755); err != nil {
 		return abs, fmt.Errorf(constants.ErrClonePickFsCreateDest, err)
 	}
+
 	if plan.Force {
 		return abs, nil
 	}
+
 	if err := assertDestEmpty(abs); err != nil {
 		return abs, err
 	}
@@ -113,6 +125,7 @@ func assertDestEmpty(abs string) error {
 	if err != nil {
 		return fmt.Errorf(constants.ErrClonePickFsCreateDest, err)
 	}
+
 	if len(entries) > 0 {
 		return fmt.Errorf("%s", constants.MsgClonePickDestDirty)
 	}
@@ -131,9 +144,11 @@ func gitClonePartial(plan Plan, dest string, progress io.Writer) error {
 	if len(plan.Branch) > 0 {
 		args = append(args, "--branch", plan.Branch)
 	}
+
 	if plan.Depth > 0 {
 		args = append(args, "--depth", strconv.Itoa(plan.Depth))
 	}
+
 	args = append(args, plan.RepoUrl, dest)
 
 	return runGit(progress, "", args...)
@@ -177,6 +192,7 @@ func runGit(progress io.Writer, workdir string, args ...string) error {
 	if len(workdir) > 0 {
 		cmd.Dir = workdir
 	}
+
 	cmd.Stdout = progress
 	cmd.Stderr = progress
 

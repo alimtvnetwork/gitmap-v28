@@ -31,6 +31,7 @@ func getConversationsDirPath() (string, error) {
 	if err != nil {
 		return "", err
 	}
+
 	return filepath.Join(home, ".gemini", "antigravity", "conversations"), nil
 }
 
@@ -39,10 +40,12 @@ func scanAllConversations() ([]AgyConvInfo, error) {
 	if err != nil {
 		return nil, err
 	}
+
 	entries, err := os.ReadDir(dir)
 	if err != nil {
 		return nil, err
 	}
+
 	var out []AgyConvInfo
 	for _, e := range entries {
 		info, isReadSuccess := tryReadConvEntry(dir, e)
@@ -50,6 +53,7 @@ func scanAllConversations() ([]AgyConvInfo, error) {
 			out = append(out, info)
 		}
 	}
+
 	return out, nil
 }
 
@@ -57,7 +61,9 @@ func tryReadConvEntry(dir string, e os.DirEntry) (AgyConvInfo, bool) {
 	if e.IsDir() || !strings.HasSuffix(e.Name(), ".db") {
 		return AgyConvInfo{}, false
 	}
+
 	full := filepath.Join(dir, e.Name())
+
 	return readSingleConvDB(full, e.Name())
 }
 
@@ -66,6 +72,7 @@ func readSingleConvDB(dbPath, fileName string) (AgyConvInfo, bool) {
 	if err != nil {
 		return AgyConvInfo{}, false
 	}
+
 	defer conn.Close()
 
 	return buildConvInfo(conn, fileName), true
@@ -90,10 +97,12 @@ func extractWorkspaceFromConv(conn *sql.DB) string {
 	if err := row.Scan(&blob); err != nil || len(blob) == 0 {
 		return ""
 	}
+
 	match := fileURIRegex.Find(blob)
 	if len(match) == 0 {
 		return ""
 	}
+
 	return cleanURIStringToPath(string(match))
 }
 
@@ -103,7 +112,9 @@ func cleanURIStringToPath(rawURI string) string {
 	if err != nil {
 		decoded = trimmed
 	}
+
 	clean := filepath.Clean(filepath.FromSlash(decoded))
+
 	return strings.ToLower(clean)
 }
 
@@ -113,6 +124,7 @@ func mapProjectsToConversations(projects []AgyProject, convs []AgyConvInfo) []Ag
 		if p.ID == "outside-of-project" {
 			continue
 		}
+
 		pClean := cleanProjectWorkspace(p.GetPath())
 		matching, hasActive := findMatchingConvs(pClean, convs)
 		results = append(results, AgyProjectConvs{
@@ -121,6 +133,7 @@ func mapProjectsToConversations(projects []AgyProject, convs []AgyConvInfo) []Ag
 			HasActive: hasActive,
 		})
 	}
+
 	return results
 }
 
@@ -128,6 +141,7 @@ func cleanProjectWorkspace(rawPath string) string {
 	if rawPath == "" {
 		return ""
 	}
+
 	return strings.ToLower(filepath.Clean(rawPath))
 }
 
@@ -138,11 +152,13 @@ func findMatchingConvs(pClean string, convs []AgyConvInfo) ([]AgyConvInfo, bool)
 		if !isConvPathMatch(pClean, c.CleanPath) {
 			continue
 		}
+
 		matched = append(matched, c)
 		if isConvActive(c) {
 			hasActive = true
 		}
 	}
+
 	return matched, hasActive
 }
 
@@ -150,6 +166,7 @@ func isConvPathMatch(pClean, cClean string) bool {
 	if pClean == "" || cClean == "" {
 		return false
 	}
+
 	return pClean == cClean || strings.HasPrefix(pClean, cClean) || strings.HasPrefix(cClean, pClean)
 }
 

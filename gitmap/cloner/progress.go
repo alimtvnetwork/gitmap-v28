@@ -29,10 +29,12 @@ func NewProgress(total int, quiet bool) *Progress {
 		start: time.Now(),
 		quiet: quiet,
 	}
+
 	if !quiet {
 		fmt.Printf("  %s⚡ Parallel clone active: %d repositories%s\n\n",
 			constants.ColorCyan, total, constants.ColorReset)
 	}
+
 	return p
 }
 
@@ -64,8 +66,10 @@ func (p *Progress) Done(result model.CloneResult, pulled bool) {
 		fmt.Printf("  [%2d/%d] 📂 %-32s %s✔ updated (pull) (%s)%s\n",
 			p.cloned+p.pulled+p.skipped+p.failed, p.total, name,
 			constants.ColorGreen, formatDuration(elapsed), constants.ColorReset)
+
 		return
 	}
+
 	fmt.Printf("  [%2d/%d] 📂 %-32s %s✔ cloned (%s)%s\n",
 		p.cloned+p.pulled+p.skipped+p.failed, p.total, name,
 		constants.ColorGreen, formatDuration(elapsed), constants.ColorReset)

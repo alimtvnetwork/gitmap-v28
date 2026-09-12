@@ -40,6 +40,7 @@ func TestPatchImportedChromeProfilePreferencesScrubAuth(t *testing.T) {
 	if err != nil {
 		t.Fatalf("failed to marshal initial prefs: %v", err)
 	}
+
 	if writeErr := os.WriteFile(prefPath, raw, 0644); writeErr != nil {
 		t.Fatalf("failed to write initial prefs: %v", writeErr)
 	}
@@ -61,9 +62,11 @@ func TestPatchImportedChromeProfilePreferencesScrubAuth(t *testing.T) {
 	if _, hasAccountInfo := patched["account_info"]; hasAccountInfo {
 		t.Errorf("expected account_info to be scrubbed, but it was found")
 	}
+
 	if _, hasGoogle := patched["google"]; hasGoogle {
 		t.Errorf("expected google to be scrubbed, but it was found")
 	}
+
 	if _, hasSync := patched["sync"]; hasSync {
 		t.Errorf("expected sync to be scrubbed, but it was found")
 	}
@@ -82,6 +85,7 @@ func TestPatchImportedChromeProfilePreferencesScrubAuth(t *testing.T) {
 	if !ok || profMap["name"] != "Clean Profile" {
 		t.Errorf("expected profile.name to be 'Clean Profile', got: %v", patched["profile"])
 	}
+
 	if _, hasGaiaName := profMap["gaia_name"]; hasGaiaName {
 		t.Errorf("expected gaia_name to be scrubbed from profile")
 	}
@@ -106,6 +110,7 @@ func TestPatchImportedChromeProfilePreferencesKeepSignin(t *testing.T) {
 	if err != nil {
 		t.Fatalf("failed to marshal initial prefs: %v", err)
 	}
+
 	if writeErr := os.WriteFile(prefPath, raw, 0644); writeErr != nil {
 		t.Fatalf("failed to write initial prefs: %v", writeErr)
 	}

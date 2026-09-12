@@ -14,9 +14,11 @@ func runReconcileCmd(args []string) error {
 	if isReconcileAllRequested(args) {
 		return runReconcileAll(args, items)
 	}
+
 	if len(args) == 0 {
 		return runReconcileList(items)
 	}
+
 	repoQuery, action := parseReconcileArgs(args)
 	matched := FindRemediationItem(items, repoQuery)
 	if matched == nil {
@@ -24,10 +26,12 @@ func runReconcileCmd(args []string) error {
 			"msg": fmt.Sprintf("Repository %q not found in pending reconciliation list.", repoQuery),
 		})
 	}
+
 	idx := parseRecipeIndex(action, matched.Recipes)
 	if idx < 0 || idx >= len(matched.Recipes) {
 		idx = 0
 	}
+
 	return executeFixRecipe(matched, matched.Recipes[idx])
 }
 
@@ -37,6 +41,7 @@ func isReconcileAllRequested(args []string) bool {
 			return true
 		}
 	}
+
 	return false
 }
 
@@ -44,37 +49,47 @@ func parseReconcileArgs(args []string) (string, string) {
 	if len(args) == 0 {
 		return "", "stash"
 	}
+
 	if len(args) == 1 && isNamedAction(args[0]) {
 		return "", args[0]
 	}
+
 	if len(args) == 1 {
 		return args[0], "stash"
 	}
+
 	if isNamedAction(args[0]) {
 		return args[1], args[0]
 	}
+
 	return args[0], args[1]
 }
 
 func isNamedAction(s string) bool {
 	norm := strings.ToLower(s)
+
 	return norm == "stash" || norm == "wip" || norm == "discard" || norm == "clean"
 }
 
 func runReconcileList(items []RemediationItem) error {
 	if len(items) == 0 {
 		fmt.Printf("%s No pending repositories require reconciliation.\n", constants.ColorGreen+"✓"+constants.ColorReset)
+
 		return nil
 	}
+
 	PrintRemediationSummary(items)
+
 	return nil
 }
 
 func runReconcileAll(args []string, items []RemediationItem) error {
 	if len(items) == 0 {
 		fmt.Printf("%s No pending repositories require reconciliation.\n", constants.ColorGreen+"✓"+constants.ColorReset)
+
 		return nil
 	}
+
 	action := "stash"
 	for _, a := range args {
 		norm := strings.ToLower(a)
@@ -83,6 +98,7 @@ func runReconcileAll(args []string, items []RemediationItem) error {
 			break
 		}
 	}
+
 	fmt.Printf("%s Reconciling %d repository(ies) with action: %s\n\n",
 		constants.ColorCyan+"ℹ"+constants.ColorReset, len(items), action)
 	for i := range items {
@@ -90,7 +106,9 @@ func runReconcileAll(args []string, items []RemediationItem) error {
 		if idx < 0 || idx >= len(items[i].Recipes) {
 			idx = 0
 		}
+
 		_ = executeFixRecipe(&items[i], items[i].Recipes[idx])
 	}
+
 	return nil
 }

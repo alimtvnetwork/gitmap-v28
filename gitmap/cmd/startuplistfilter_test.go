@@ -44,6 +44,7 @@ func TestFilterStartupList_NoFilters(t *testing.T) {
 	if len(got) != len(in) {
 		t.Fatalf("len = %d, want %d", len(got), len(in))
 	}
+
 	for i := range in {
 		if got[i].Path != in[i].Path {
 			t.Errorf("entry %d reordered: got %q want %q", i, got[i].Path, in[i].Path)
@@ -59,6 +60,7 @@ func TestFilterStartupList_BackendRegistry(t *testing.T) {
 	if len(got) != 1 {
 		t.Fatalf("len = %d, want 1; got %#v", len(got), got)
 	}
+
 	if got[0].Name != "gitmap-watch" {
 		t.Errorf("name = %q, want gitmap-watch", got[0].Name)
 	}
@@ -72,6 +74,7 @@ func TestFilterStartupList_BackendStartupFolder(t *testing.T) {
 	if len(got) != 1 {
 		t.Fatalf("len = %d, want 1; got %#v", len(got), got)
 	}
+
 	if got[0].Name != "gitmap-watch.lnk" {
 		t.Errorf("name = %q, want gitmap-watch.lnk", got[0].Name)
 	}
@@ -96,6 +99,7 @@ func TestFilterStartupList_BackendRegistryHKLM(t *testing.T) {
 	if len(got) != 1 {
 		t.Fatalf("len = %d, want 1; got %#v", len(got), got)
 	}
+
 	if !strings.HasPrefix(got[0].Path, `HKLM\`) {
 		t.Errorf("path = %q, want HKLM-rooted", got[0].Path)
 	}
@@ -109,6 +113,7 @@ func TestFilterStartupList_BackendAndName(t *testing.T) {
 	if len(got) != 1 {
 		t.Fatalf("len = %d, want 1; got %#v", len(got), got)
 	}
+
 	if got[0].Name != "gitmap-watch" {
 		t.Errorf("name = %q, want gitmap-watch", got[0].Name)
 	}
@@ -122,6 +127,7 @@ func TestFilterStartupList_NameNoMatch(t *testing.T) {
 	if got == nil {
 		t.Fatal("got nil slice; want empty non-nil")
 	}
+
 	if len(got) != 0 {
 		t.Errorf("len = %d, want 0", len(got))
 	}
@@ -143,6 +149,7 @@ func TestParseStartupListFlags_BackendValidation(t *testing.T) {
 		{"startup-folder", []string{"--backend=startup-folder"}, false},
 		{"unknown", []string{"--backend=hkcu"}, true},
 	}
+
 	for _, tc := range cases {
 		t.Run(tc.name, func(t *testing.T) {
 			_, err := parseStartupListFlags(tc.args)
@@ -164,6 +171,7 @@ func TestParseStartupListFlags_NameAcceptsAnyString(t *testing.T) {
 		if err != nil {
 			t.Fatalf("name=%q: err = %v", name, err)
 		}
+
 		if opts.name != name {
 			t.Errorf("name=%q: opts.name = %q", name, opts.name)
 		}

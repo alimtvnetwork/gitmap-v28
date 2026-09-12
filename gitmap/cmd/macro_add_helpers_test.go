@@ -20,6 +20,7 @@ func TestMacroPromptPwdToggle(t *testing.T) {
 	if !handlePwdCmd("pwd off") {
 		t.Fatal("expected handlePwdCmd to handle 'pwd off'")
 	}
+
 	if uipref.IsMacroPwdVisible() {
 		t.Fatal("expected PWD display to be false after 'pwd off'")
 	}
@@ -27,6 +28,7 @@ func TestMacroPromptPwdToggle(t *testing.T) {
 	if !handlePwdCmd("pwd on") {
 		t.Fatal("expected handlePwdCmd to handle 'pwd on'")
 	}
+
 	if !uipref.IsMacroPwdVisible() {
 		t.Fatal("expected PWD display to be true after 'pwd on'")
 	}
@@ -44,6 +46,7 @@ func TestMacroInteractiveLs(t *testing.T) {
 	if !handleLsOrDir("ls "+tempDir, state) {
 		t.Fatal("expected handleLsOrDir to return true")
 	}
+
 	if state.lastInspectedCmd != "ls "+tempDir {
 		t.Fatalf("expected lastInspectedCmd to be saved, got %q", state.lastInspectedCmd)
 	}
@@ -89,6 +92,7 @@ func TestMacroInteractiveReplace(t *testing.T) {
 	if err != nil {
 		t.Fatalf("read updated file failed: %v", err)
 	}
+
 	if string(updated) != "replacement bar replacement baz" {
 		t.Fatalf("unexpected content after replace: %q", string(updated))
 	}
@@ -135,9 +139,11 @@ func TestMacroInteractiveExecToggle(t *testing.T) {
 	if !handleExecCmd("exec on", state) || !state.isExecEnabled {
 		t.Fatal("expected exec on to enable live execution")
 	}
+
 	if !handleExecCmd("exec off", state) || state.isExecEnabled {
 		t.Fatal("expected exec off to disable live execution")
 	}
+
 	if !handleExecCmd("exec", state) || !state.isExecEnabled {
 		t.Fatal("expected exec toggle to enable live execution")
 	}
@@ -150,9 +156,11 @@ func TestMacroInteractiveCdExpansion(t *testing.T) {
 	if !handleCdCmd("cd %temp%", state) || state.lastInspectedCmd != "cd %temp%" {
 		t.Fatalf("expected handleCdCmd with %%temp%% to succeed")
 	}
+
 	if !handleCdCmd("cd //temp", state) || !handleCdCmd("cd /temp", state) {
 		t.Fatal("expected handleCdCmd with //temp and /temp to succeed")
 	}
+
 	if !handleCdCmd("cd ~", state) {
 		t.Fatal("expected handleCdCmd with ~ to succeed")
 	}

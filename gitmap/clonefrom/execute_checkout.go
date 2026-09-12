@@ -54,6 +54,7 @@ func runPostCloneCheckout(r Row, dest, cwd string) (string, bool) {
 	if EffectiveCheckout(r) != constants.CloneFromCheckoutForce {
 		return "", true
 	}
+
 	if len(r.Branch) == 0 {
 		// force on a default-HEAD row: git already checked out HEAD.
 		return "", true

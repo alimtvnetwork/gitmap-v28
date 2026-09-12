@@ -43,6 +43,7 @@ func cloneReplacing(url, target string) (cloneReplaceResult, error) {
 	if removeErr == nil {
 		return handleStrategy1(url, target)
 	}
+
 	fmt.Printf(constants.MsgCloneReplaceStrat1Fail, removeErr)
 
 	return cloneViaTempSwap(url, target)
@@ -63,6 +64,7 @@ func cloneViaTempSwap(url, target string) (cloneReplaceResult, error) {
 	if err := runCloneCommand(url, tmp); err != nil {
 		return res, fmt.Errorf("git clone into temp failed: %w", err)
 	}
+
 	defer os.RemoveAll(tmp)
 
 	if err := emptyDirContents(target); err != nil {
@@ -154,6 +156,7 @@ func handleFreeTarget(url, target string) (cloneReplaceResult, error) {
 	if err != nil {
 		return cloneReplaceResult{}, err
 	}
+
 	return cloneReplaceResult{Strategy: "direct"}, nil
 }
 
@@ -162,5 +165,6 @@ func handleStrategy1(url, target string) (cloneReplaceResult, error) {
 	if err != nil {
 		return cloneReplaceResult{}, err
 	}
+
 	return cloneReplaceResult{Strategy: "direct"}, nil
 }

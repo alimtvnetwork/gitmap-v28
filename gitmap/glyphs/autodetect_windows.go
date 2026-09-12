@@ -28,15 +28,19 @@ func isModernWindowsHost() bool {
 	if os.Getenv("WT_SESSION") != "" {
 		return true
 	}
+
 	if os.Getenv("TERM_PROGRAM") == "vscode" || os.Getenv("VSCODE_PID") != "" {
 		return true
 	}
+
 	if os.Getenv("ConEmuANSI") == "ON" || os.Getenv("ALACRITTY_LOG") != "" {
 		return true
 	}
+
 	if os.Getenv("WEZTERM_PANE") != "" || os.Getenv("GHOSTTY_RESOURCES_DIR") != "" {
 		return true
 	}
+
 	term := os.Getenv("TERM")
 
 	return term != "" && term != "dumb"

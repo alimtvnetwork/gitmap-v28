@@ -22,6 +22,7 @@ func TestRender_HeaderShape(t *testing.T) {
 	if err := Render(&buf, plan); err != nil {
 		t.Fatalf("Render: %v", err)
 	}
+
 	out := buf.String()
 	wantSubstrings := []string{
 		"gitmap clone-from: dry-run",
@@ -32,6 +33,7 @@ func TestRender_HeaderShape(t *testing.T) {
 		"     branch: (default HEAD)",
 		"     depth:  full",
 	}
+
 	for _, s := range wantSubstrings {
 		if !strings.Contains(out, s) {
 			t.Errorf("missing substring: %q in:\n%s", s, out)
@@ -52,9 +54,11 @@ func TestRender_ExplicitFieldsNotMarkedDerived(t *testing.T) {
 	if strings.Contains(out, "(derived)") {
 		t.Errorf("explicit dest got (derived) annotation:\n%s", out)
 	}
+
 	if !strings.Contains(out, "branch: dev") {
 		t.Errorf("explicit branch missing")
 	}
+
 	if !strings.Contains(out, "depth:  5") {
 		t.Errorf("explicit depth missing")
 	}
@@ -72,6 +76,7 @@ func TestDeriveDest(t *testing.T) {
 		{"ssh://git@host/path/to/proj.git", "proj"},
 		{"https://example.org/", "repo"}, // empty basename → fallback
 	}
+
 	for _, tc := range cases {
 		if got := DeriveDest(tc.url); got != tc.want {
 			t.Errorf("DeriveDest(%q) = %q, want %q", tc.url, got, tc.want)

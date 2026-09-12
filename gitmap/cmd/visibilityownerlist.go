@@ -67,6 +67,7 @@ func parseOwnerRepoNames(raw string) ([]string, error) {
 		Name string `json:"name"`
 		Path string `json:"path"` // glab fallback (older versions)
 	}
+
 	if err := json.Unmarshal([]byte(raw), &rows); err != nil {
 		return nil, err
 	}
@@ -77,6 +78,7 @@ func parseOwnerRepoNames(raw string) ([]string, error) {
 		if len(name) == 0 {
 			name = r.Path
 		}
+
 		if len(name) > 0 {
 			out = append(out, name)
 		}

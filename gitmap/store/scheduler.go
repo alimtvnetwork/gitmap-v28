@@ -49,7 +49,9 @@ func (db *DB) InitSchedulerTable() error {
 	if _, err := db.conn.Exec(SQLCreateSchedulerTasksTable); err != nil {
 		return err
 	}
+
 	db.migrateSchedulerColumns()
+
 	return nil
 }
 
@@ -67,6 +69,7 @@ func (db *DB) migrateSchedulerColumns() {
 func (db *DB) addTableColumnSafe(tableName, colName, colType string) error {
 	q := "ALTER TABLE " + tableName + " ADD COLUMN " + colName + " " + colType
 	_, err := db.conn.Exec(q)
+
 	return err
 }
 
@@ -75,9 +78,11 @@ func (db *DB) InsertSchedule(t SchedulerTask) error {
 	if t.Slug == "" {
 		t.Slug = ScheduleSlug(t.Name)
 	}
+
 	if t.DBPath == "" {
 		t.DBPath = ScheduleDBPath(t.Slug)
 	}
+
 	q := `INSERT INTO scheduler_tasks (name, slug, db_path, macro_name, command_line, interval_val, delay_val, is_enabled, is_scheduled, has_delay, is_startup) 
 	      VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
 	      ON CONFLICT(name) DO UPDATE SET 
@@ -92,6 +97,7 @@ func (db *DB) InsertSchedule(t SchedulerTask) error {
 	          has_delay=excluded.has_delay,
 	          is_startup=excluded.is_startup`
 	_, err := db.conn.Exec(q, t.Name, t.Slug, t.DBPath, t.MacroName, t.CommandLine, t.IntervalVal, t.DelayVal, t.IsEnabled, t.IsScheduled, t.HasDelay, t.IsStartup)
+
 	return err
 }
 
@@ -101,8 +107,10 @@ func (db *DB) SetScheduleEnabled(name string, isEnabled bool) error {
 	if isEnabled {
 		val = 1
 	}
+
 	q := `UPDATE scheduler_tasks SET is_enabled = ? WHERE name = ?`
 	_, err := db.conn.Exec(q, val, name)
+
 	return err
 }
 
@@ -117,7 +125,9 @@ func (db *DB) GetSchedule(name string) (*SchedulerTask, error) {
 	if err != nil {
 		return nil, err
 	}
+
 	t.IsEnabled = isEnabledInt == 1
+
 	return &t, nil
 }
 
@@ -125,6 +135,7 @@ func (db *DB) GetSchedule(name string) (*SchedulerTask, error) {
 func (db *DB) DeleteSchedule(name string) error {
 	q := `DELETE FROM scheduler_tasks WHERE name = ?`
 	_, err := db.conn.Exec(q, name)
+
 	return err
 }
 
@@ -132,6 +143,7 @@ func (db *DB) DeleteSchedule(name string) error {
 func (db *DB) UpdateScheduleRun(name, timestamp string) error {
 	q := `UPDATE scheduler_tasks SET run_count = run_count + 1, last_run_at = ? WHERE name = ?`
 	_, err := db.conn.Exec(q, timestamp, name)
+
 	return err
 }
 
@@ -143,7 +155,9 @@ func (db *DB) ListSchedules() ([]SchedulerTask, error) {
 	if err != nil {
 		return nil, err
 	}
+
 	defer rows.Close()
+
 	return parseScheduleRows(rows), nil
 }
 
@@ -158,5 +172,6 @@ func parseScheduleRows(rows *sql.Rows) []SchedulerTask {
 			tasks = append(tasks, t)
 		}
 	}
+
 	return tasks
 }

@@ -31,6 +31,7 @@ func runList(args []string) error {
 	}
 
 	executeList(args)
+
 	return nil
 }
 
@@ -40,6 +41,7 @@ func executeList(args []string) {
 	if err != nil {
 		return
 	}
+
 	defer db.Close()
 	records := fetchListRecords(db, groupFilter)
 	printListOutput(records, verboseMode)
@@ -50,11 +52,14 @@ func fetchListRecords(db *store.DB, groupFilter string) []model.ScanRecord {
 	records, err := loadListRecords(db, groupFilter)
 	if err != nil && isLegacyDataError(err) {
 		fmt.Fprint(os.Stderr, constants.MsgLegacyProjectData)
+
 		return nil
 	}
+
 	if err != nil {
 		return nil
 	}
+
 	return records
 }
 
@@ -64,6 +69,7 @@ func isListTypeOrGroups(arg string) bool {
 	if lower == constants.SubCmdGroups {
 		return true
 	}
+
 	_, ok := typeKeywords[lower]
 
 	return ok
@@ -78,6 +84,7 @@ func handleListSpecial(keyword string, args []string) {
 
 		return
 	}
+
 	typeKey := typeKeywords[lower]
 	runProjectRepos(typeKey, args)
 }
@@ -106,11 +113,13 @@ func printListOutput(records []model.ScanRecord, verbose bool) {
 	if verbose || len(records) == 0 {
 		fmt.Printf(constants.MsgListDBPath, store.DefaultDBPath())
 	}
+
 	if len(records) == 0 {
 		fmt.Println(constants.MsgListEmpty)
 
 		return
 	}
+
 	fmt.Println(constants.MsgListHeader)
 	fmt.Println(constants.MsgListSeparator)
 	for _, r := range records {
@@ -125,6 +134,7 @@ func printListRow(r model.ScanRecord, verbose bool) {
 
 		return
 	}
+
 	fmt.Printf(constants.MsgListRowFmt, r.Slug, r.RepoName)
 }
 

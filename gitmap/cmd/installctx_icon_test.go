@@ -22,12 +22,15 @@ func TestCtxWindowsHelpEntryHasIcon(t *testing.T) {
 		if len(c) < 7 || c[0] != "reg" || c[1] != "add" || c[3] != "/v" || c[4] != "Icon" {
 			continue
 		}
+
 		if !strings.HasSuffix(c[2], `\shell\92_help`) {
 			continue
 		}
+
 		if c[6] != wantIcon {
 			t.Errorf("92_help Icon = %q, want %q (key=%s)", c[6], wantIcon, c[2])
 		}
+
 		hits++
 	}
 
@@ -48,11 +51,13 @@ func TestCtxWindowsNoIconWhenUnset(t *testing.T) {
 		if len(c) < 5 || c[3] != "/v" || c[4] != "Icon" {
 			continue
 		}
+
 		// The root cascade keys legitimately carry an Icon; every other
 		// Icon write must correspond to an entry that opted in.
 		if c[2] == constants.CtxRootKeyBackground || c[2] == constants.CtxRootKeyDirectory {
 			continue
 		}
+
 		if !ctxKeyHasOptedInIcon(c[2]) {
 			t.Errorf("unexpected Icon write on key without Icon opt-in: %s", c[2])
 		}
@@ -66,10 +71,12 @@ func ctxKeyHasOptedInIcon(key string) bool {
 	if i := strings.LastIndex(key, `\`); i >= 0 {
 		seg = key[i+1:]
 	}
+
 	for _, e := range ctxMenu() {
 		if e.KeyName == seg && e.Icon != "" {
 			return true
 		}
+
 		for _, c := range e.Children {
 			if c.KeyName == seg && c.Icon != "" {
 				return true

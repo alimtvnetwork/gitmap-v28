@@ -38,10 +38,12 @@ func ValidateVHostConfig(cfg VHostConfig) *apperror.AppError {
 	if isDomainEmpty {
 		return apperror.NewValidationError("domain is required")
 	}
+
 	isRootEmpty := cfg.DocumentRoot == ""
 	if isRootEmpty {
 		return apperror.NewValidationError("document root is required")
 	}
+
 	isSiteTypeEmpty := cfg.SiteType == ""
 	if isSiteTypeEmpty {
 		return apperror.NewValidationError("site type is required")
@@ -55,6 +57,7 @@ func resolveVHostPort(port int, isSslEnabled bool) int {
 	if isCustomPort {
 		return port
 	}
+
 	if isSslEnabled {
 		return defaultVHostSslPort
 	}
@@ -126,6 +129,7 @@ func executeVHostTemplate(tmplStr string, cfg VHostConfig) (string, *apperror.Ap
 	if parseErr != nil {
 		return "", apperror.WrapSimple(parseErr, "template.Parse")
 	}
+
 	var buf bytes.Buffer
 	execErr := tmpl.Execute(&buf, cfg)
 	if execErr != nil {
@@ -141,6 +145,7 @@ func RenderVHostTemplate(cfg VHostConfig) (string, *apperror.AppError) {
 	if valErr != nil {
 		return "", valErr
 	}
+
 	applied := ApplyVHostDefaults(cfg)
 	tmplStr, selectErr := SelectVHostTemplate(applied.SiteType)
 	if selectErr != nil {
@@ -170,6 +175,7 @@ func RenderVHostConfig(cfg VHostConfig) (string, *apperror.AppError) {
 	if err != nil {
 		return "", err
 	}
+
 	wrapped := WrapVHostMarker(cfg.SiteType, cfg.Domain, body)
 
 	return wrapped, nil

@@ -14,6 +14,7 @@ func runCGInstallVersionJSON(targetDirs []string, initialVersion string, isDryRu
 
 	if len(targetDirs) == 0 {
 		fmt.Println("No target repositories found to install version.json.")
+
 		return nil
 	}
 
@@ -35,5 +36,6 @@ func runCGInstallVersionJSON(targetDirs []string, initialVersion string, isDryRu
 	}
 
 	fmt.Printf("\nversion.json Installation Summary: %d Success | %d Failed\n", successCount, failCount)
+
 	return nil
 }

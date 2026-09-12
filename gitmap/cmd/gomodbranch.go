@@ -36,6 +36,7 @@ func setupGoModBranch(branch string) {
 	if err := ensureBranchNotExists(branch); err != nil {
 		cliexit.HandleGeneralError(err)
 	}
+
 	if err := createBranchAtHead(branch); err != nil {
 		cliexit.HandleGeneralError(err)
 	}

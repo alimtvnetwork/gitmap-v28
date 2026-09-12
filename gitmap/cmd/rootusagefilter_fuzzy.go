@@ -17,6 +17,7 @@ func printNoFilterMatches(rows []helpRow, query string) {
 	if len(sugg) == 0 {
 		return
 	}
+
 	fmt.Println("  Did you mean:")
 	for _, s := range sugg {
 		fmt.Println("   " + constants.ColorCyan + "• " +
@@ -31,6 +32,7 @@ func fuzzySuggest(rows []helpRow, query string, top int) []string {
 		score int
 		line  string
 	}
+
 	q := strings.ToLower(query)
 	scoredRows := make([]scored, 0, len(rows))
 	for _, r := range rows {
@@ -39,12 +41,14 @@ func fuzzySuggest(rows []helpRow, query string, top int) []string {
 			scoredRows = append(scoredRows, scored{s, strings.TrimSpace(r.Line)})
 		}
 	}
+
 	sort.SliceStable(scoredRows, func(i, j int) bool {
 		return scoredRows[i].score > scoredRows[j].score
 	})
 	if len(scoredRows) > top {
 		scoredRows = scoredRows[:top]
 	}
+
 	out := make([]string, 0, len(scoredRows))
 	for _, s := range scoredRows {
 		out = append(out, s.line)
@@ -59,6 +63,7 @@ func subseqScore(hay, q string) int {
 	if len(q) == 0 {
 		return 0
 	}
+
 	idx, hits, last := 0, 0, -1
 	for i := 0; i < len(hay) && idx < len(q); i++ {
 		if hay[i] == q[idx] {
@@ -67,6 +72,7 @@ func subseqScore(hay, q string) int {
 			idx++
 		}
 	}
+
 	if idx < len(q) {
 		return 0
 	}
@@ -78,5 +84,6 @@ func calcAdjacencyBonus(last, i int) int {
 	if last >= 0 && i-last == 1 {
 		return 2
 	}
+
 	return 1
 }

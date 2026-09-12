@@ -17,6 +17,7 @@ func applyExclusions(files []string, rules []profile.Exclusion) []string {
 	if len(files) == 0 || len(rules) == 0 {
 		return files
 	}
+
 	out := make([]string, 0, len(files))
 	for _, f := range files {
 		isNonExcluded := !isExcluded(f, rules)
@@ -24,6 +25,7 @@ func applyExclusions(files []string, rules []profile.Exclusion) []string {
 			out = append(out, f)
 		}
 	}
+
 	return out
 }
 
@@ -34,6 +36,7 @@ func isExcluded(rel string, rules []profile.Exclusion) bool {
 			return true
 		}
 	}
+
 	return false
 }
 
@@ -44,6 +47,7 @@ func matchesExclusion(rel string, r profile.Exclusion) bool {
 	case constants.CommitInExclusionKindPathFolder:
 		return matchesFolder(rel, r.Value)
 	}
+
 	return false
 }
 
@@ -52,13 +56,16 @@ func matchesFolder(rel, folder string) bool {
 	if folder == "" {
 		return false
 	}
+
 	if strings.HasPrefix(rel, folder+"/") {
 		return true
 	}
+
 	for _, seg := range strings.Split(rel, "/") {
 		if seg == folder {
 			return true
 		}
 	}
+
 	return false
 }

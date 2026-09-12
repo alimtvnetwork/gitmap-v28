@@ -22,6 +22,7 @@ func WriteJSON(w io.Writer, records []model.ScanRecord) error {
 	if err != nil {
 		return err
 	}
+
 	emitWriteSummary("json", len(records), issueCount)
 
 	return nil
@@ -57,6 +58,7 @@ func WriteJSONCompact(w io.Writer, records []model.ScanRecord) error {
 	if err != nil {
 		return err
 	}
+
 	emitWriteSummary("json", len(records), issueCount)
 
 	return nil

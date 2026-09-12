@@ -85,12 +85,15 @@ func runCloneNow(args []string) error {
 	if tryRunRepoReclone(args) {
 		return nil
 	}
+
 	cfg := parseCloneNowFlags(args)
 	plan, err := initCloneNowPlan(cfg)
 	if err != nil {
 		return err
 	}
+
 	dispatchCloneNow(plan, cfg)
+
 	return nil
 }
 
@@ -102,9 +105,11 @@ func initCloneNowPlan(cfg cloneNowFlags) (clonenow.Plan, error) {
 	if err != nil {
 		return clonenow.Plan{}, apperror.WrapSimple(err, "parse-manifest cfg.file")
 	}
+
 	plan.CoerceURL = coerceURLToStoredTransport
 	plan.PersistURL = persistRecloneTransport
 	validateRecloneManifestOrExit(plan)
+
 	return plan, nil
 }
 
@@ -112,8 +117,10 @@ func dispatchCloneNow(plan clonenow.Plan, cfg cloneNowFlags) {
 	if !cfg.execute {
 		runCloneNowDry(plan, cfg)
 		maybeExitOnCmdFaithfulMismatch()
+
 		return
 	}
+
 	applyCloneAssumeYesEnv(cfg.assumeYes)
 	printRecloneExecuteSummary(plan, cfg)
 	confirmCloneNowExistingDestsOrExit(plan, cfg)
@@ -141,6 +148,7 @@ func bindCloneNowAuditFlags(fs *flag.FlagSet, cfg *cloneNowFlags) *int {
 	fs.BoolVar(&cfg.assumeYes, constants.FlagCloneYesShort, false, constants.FlagDescCloneNowYes)
 	fs.BoolVar(&cfg.noSummary, constants.FlagCloneNowNoSummary, false, constants.FlagDescCloneNowNoSummary)
 	fs.BoolVar(&cfg.noVSCodeSync, constants.FlagNoVSCodeSync, false, constants.FlagDescNoVSCodeSync)
+
 	return fs.Int(constants.CloneFlagMaxConcurrency, constants.CloneDefaultMaxConcurrency, constants.FlagDescCloneMaxConcurrency)
 }
 
@@ -150,6 +158,7 @@ func resolveCloneNowConcurrency(maxConc int) int {
 		fmt.Fprintf(os.Stderr, constants.ErrCloneMaxConcurrencyInvalid, maxConc)
 		cliexit.HandleError(nil, 2)
 	}
+
 	return resolved
 }
 
@@ -166,6 +175,7 @@ func parseCloneNowFlags(args []string) cloneNowFlags {
 	cfg.file = resolveCloneNowSource(fs, cfg.manifest, cfg.scanRoot)
 	cfg.maxConcurrency = resolveCloneNowConcurrency(*maxConcFlag)
 	validateCloneNowFlags(cfg)
+
 	return cfg
 }
 
@@ -174,6 +184,7 @@ func validateCloneNowModeAndFormat(mode, format string) {
 		fmt.Fprintf(os.Stderr, constants.ErrCloneNowBadMode+"\n", mode)
 		cliexit.HandleError(nil, 2)
 	}
+
 	switch format {
 	case "", constants.CloneNowFormatJSON, constants.CloneNowFormatCSV, constants.CloneNowFormatText:
 	default:
@@ -191,6 +202,7 @@ func validateCloneNowFlags(cfg cloneNowFlags) {
 	case constants.CloneNowOnExistsSkip, constants.CloneNowOnExistsUpdate, constants.CloneNowOnExistsForce:
 		return
 	}
+
 	fmt.Fprintf(os.Stderr, constants.ErrCloneNowBadOnExists+"\n", cfg.onExists)
 	cliexit.HandleError(nil, 2)
 }
@@ -201,11 +213,14 @@ func validateCloneNowFlags(cfg cloneNowFlags) {
 func runCloneNowDry(plan clonenow.Plan, cfg cloneNowFlags) error {
 	if cfg.output == constants.OutputTerminal {
 		printCloneNowTermBlocks(plan)
+
 		return nil
 	}
+
 	if err := clonenow.Render(os.Stdout, plan); err != nil {
 		return apperror.WrapSimple(err, "render-dry-run cfg.file")
 	}
+
 	return nil
 }
 
@@ -214,10 +229,12 @@ func executeCloneNowPlan(plan clonenow.Plan, cfg cloneNowFlags) []clonenow.Resul
 	if cfg.quiet {
 		progress = io.Discard
 	}
+
 	var hook clonenow.BeforeRowHook
 	if cfg.output == constants.OutputTerminal {
 		hook = printCloneNowTermBlockRow
 	}
+
 	if cfg.maxConcurrency > 1 {
 		fmt.Fprintf(os.Stderr, constants.MsgCloneConcurrencyEnabledFmt, cfg.maxConcurrency)
 		concurrentParams := clonenow.ConcurrentExecutionParams{
@@ -227,8 +244,10 @@ func executeCloneNowPlan(plan clonenow.Plan, cfg cloneNowFlags) []clonenow.Resul
 			BeforeRow: hook,
 			Workers:   cfg.maxConcurrency,
 		}
+
 		return clonenow.ExecuteWithHooksConcurrent(concurrentParams)
 	}
+
 	return clonenow.ExecuteWithHooks(plan, cfg.cwd, progress, hook)
 }
 
@@ -236,6 +255,7 @@ func finalizeCloneNowRun(cfg cloneNowFlags, results []clonenow.Result) {
 	if err := clonenow.RenderSummary(os.Stdout, results); err != nil {
 		cliexit.Reportf(constants.CmdCloneReclone, "render-summary", cfg.file, err)
 	}
+
 	syncCloneNowResultsToVSCodePM(results, cfg.noVSCodeSync)
 	cliexit.HandleError(nil, cloneNowExitCode(results))
 }
@@ -246,6 +266,7 @@ func finalizeCloneNowRun(cfg cloneNowFlags, results []clonenow.Result) {
 func runCloneNowExecute(plan clonenow.Plan, cfg cloneNowFlags) error {
 	results := executeCloneNowPlan(plan, cfg)
 	finalizeCloneNowRun(cfg, results)
+
 	return nil
 }
 
@@ -258,6 +279,7 @@ func cloneNowExitCode(results []clonenow.Result) int {
 			return 1
 		}
 	}
+
 	return 0
 }
 
@@ -265,14 +287,17 @@ func cloneNowResultToPMPair(r clonenow.Result) (vscodepm.Pair, bool) {
 	if r.Status != constants.CloneNowStatusOK {
 		return vscodepm.Pair{}, false
 	}
+
 	abs, err := filepath.Abs(r.Dest)
 	if err != nil {
 		abs = r.Dest
 	}
+
 	name := r.Row.RepoName
 	if name == "" {
 		name = filepath.Base(abs)
 	}
+
 	return buildClonePMPair(abs, name), true
 }
 
@@ -285,5 +310,6 @@ func syncCloneNowResultsToVSCodePM(results []clonenow.Result, skip bool) {
 			pairs = append(pairs, pair)
 		}
 	}
+
 	syncClonedReposToVSCodePM(pairs, skip)
 }

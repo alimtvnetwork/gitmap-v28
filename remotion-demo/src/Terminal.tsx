@@ -39,8 +39,10 @@ const buildTimeline = (lines: TerminalLine[], typeSpeed: number, linePause: numb
     } else {
       cursor += Math.floor(linePause / 2);
     }
+
     ends.push(cursor);
   }
+
   return { starts, ends, total: cursor };
 };
 
@@ -56,9 +58,11 @@ const renderTokens = (tokens: Token[], reveal: number) => {
         <span key={i} style={{ color: tk.c ?? COLORS.text }}>{slice}</span>,
       );
     }
+
     used += tk.t.length;
     if (used >= reveal) break;
   }
+
   return out;
 };
 
@@ -169,6 +173,7 @@ export const Terminal: React.FC<Props> = ({
               const totalChars = ln.tokens.reduce((n, t) => n + t.t.length, 0);
               const reveal = Math.min(totalChars, Math.floor(local / typeSpeed));
               const isTyping = reveal < totalChars;
+
               return (
                 <div key={idx} style={{ display: "flex", flexWrap: "wrap" }}>
                   <span style={{ color: COLORS.success }}>➜</span>
@@ -193,6 +198,7 @@ export const Terminal: React.FC<Props> = ({
 
             // output line: fade in
             const opacity = interpolate(local, [0, 4], [0, 1], { extrapolateRight: "clamp" });
+
             return (
               <div key={idx} style={{ opacity }}>
                 {renderTokens(ln.tokens, 9999)}
@@ -223,5 +229,6 @@ export const useZoom = (inFrame: number, outFrame: number, fps: number) => {
   const outS = spring({ frame: f - outFrame, fps, config: { damping: 22, stiffness: 110 } });
   const baseToZoom = interpolate(inS, [0, 1], [1, 1.18]);
   const zoomToBase = interpolate(outS, [0, 1], [0, -0.18]);
+
   return baseToZoom + zoomToBase;
 };

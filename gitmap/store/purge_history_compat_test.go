@@ -12,6 +12,7 @@ func TestPurgeHistory_MigrationFromLegacySchema(t *testing.T) {
 	if err != nil {
 		t.Fatalf("OpenAt failed: %v", err)
 	}
+
 	defer db.Close()
 
 	legacySchema := `CREATE TABLE PurgeHistoryLog (
@@ -47,9 +48,11 @@ func TestPurgeHistory_MigrationFromLegacySchema(t *testing.T) {
 	if err != nil || log == nil {
 		t.Fatalf("GetLastPurgeHistoryLog failed or returned nil: %v", err)
 	}
+
 	if log.PurgeHistoryLogId != 1 {
 		t.Errorf("expected PurgeHistoryLogId 1, got %d", log.PurgeHistoryLogId)
 	}
+
 	if log.IsRestored {
 		t.Errorf("expected unrestored state")
 	}
@@ -80,6 +83,7 @@ func TestPurgeHistory_RestoredState(t *testing.T) {
 	if err != nil {
 		t.Fatalf("OpenAt failed: %v", err)
 	}
+
 	defer db.Close()
 
 	entry := &PurgeHistoryLog{
@@ -100,6 +104,7 @@ func TestPurgeHistory_RestoredState(t *testing.T) {
 	if err != nil {
 		t.Fatalf("GetPurgeHistoryLogById failed: %v", err)
 	}
+
 	if !byId.IsRestored {
 		t.Errorf("expected IsRestored=true")
 	}

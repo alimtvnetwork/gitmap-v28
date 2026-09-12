@@ -48,9 +48,11 @@ func TestScanProject_FileMapMatchesRegistry(t *testing.T) {
 	if err != nil {
 		t.Fatalf("read registry %s: %v", regPath, err)
 	}
+
 	var reg struct {
 		Files []string `json:"files"`
 	}
+
 	if err := json.Unmarshal(raw, &reg); err != nil {
 		t.Fatalf("parse registry: %v", err)
 	}
@@ -94,6 +96,7 @@ func TestScanProject_RecordKeysSubsetOfSchema(t *testing.T) {
 	if len(keysPerRecord) != len(results) {
 		t.Fatalf("expected %d records, got %d", len(results), len(keysPerRecord))
 	}
+
 	for i, keys := range keysPerRecord {
 		for _, key := range keys {
 			if _, allowed := props[key]; !allowed {

@@ -13,6 +13,7 @@ func TestApplyMigrations(t *testing.T) {
 	if err != nil {
 		t.Fatalf("failed to open memory db: %v", err)
 	}
+
 	defer conn.Close()
 
 	ctx := context.Background()

@@ -28,6 +28,7 @@ func TestValidateCloneFromResults_PassesWhenComplete(t *testing.T) {
 		newCloneFromResult("https://x/a.git", "a", constants.CloneFromStatusOK),
 		newCloneFromResult("https://x/b.git", "b", constants.CloneFromStatusFailed),
 	}
+
 	if err := validateCloneFromResults(results); err != nil {
 		t.Fatalf("expected nil for complete results, got: %v", err)
 	}
@@ -55,10 +56,12 @@ func TestValidateCloneFromResults_FlagsMissingFields(t *testing.T) {
 		// row 2: missing dest
 		{Row: clonefrom.Row{URL: "https://x/c.git"}, Dest: "", Status: constants.CloneFromStatusFailed},
 	}
+
 	err := validateCloneFromResults(results)
 	if err == nil {
 		t.Fatalf("expected validation error, got nil")
 	}
+
 	msg := err.Error()
 	for _, want := range []string{
 		"rows=[1,2]",

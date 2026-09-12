@@ -42,6 +42,7 @@ func TestCanonicalCSVColumn(t *testing.T) {
 		{"sha", ""},
 		{"comment", ""},
 	}
+
 	for _, tc := range cases {
 		if got := CanonicalCSVColumn(tc.raw); got != tc.want {
 			t.Errorf("CanonicalCSVColumn(%q) = %q, want %q", tc.raw, got, tc.want)
@@ -57,6 +58,7 @@ func TestCSVColumnAliasesNoConflict(t *testing.T) {
 		CSVColumnURL: true, CSVColumnDest: true, CSVColumnBranch: true,
 		CSVColumnDepth: true, CSVColumnCheckout: true,
 	}
+
 	for alias, canonical := range CSVColumnAliases {
 		if !valid[canonical] {
 			t.Errorf("alias %q maps to unknown canonical %q", alias, canonical)

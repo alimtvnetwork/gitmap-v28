@@ -41,9 +41,11 @@ func runChromeObserve(args []string) error {
 	if opts.Format == constants.OutputJSON {
 		return printJSON(report)
 	}
+
 	if opts.Format == constants.OutputYAML {
 		return printYAML(report)
 	}
+
 	return printObservationTable(report)
 }
 
@@ -53,14 +55,17 @@ func collectChromeObservation(profFilter string, isAll bool) chromeObservationRe
 	if isRunning {
 		procCount = 1
 	}
+
 	report := chromeObservationReport{
 		IsRunning:    isRunning,
 		ProcessCount: procCount,
 		ReportedAt:   time.Now().UTC().Format(time.RFC3339),
 	}
+
 	profiles := resolveTargetProfiles(profFilter, isAll)
 	report.ActiveProfiles = profiles
 	report.Tabs = collectTabsAcrossProfiles(profiles, report.IsRunning)
+
 	return report
 }
 
@@ -70,10 +75,12 @@ func collectTabsAcrossProfiles(profiles []string, isRunning bool) []chromeTabInf
 	if len(cdpTabs) > 0 {
 		return cdpTabs
 	}
+
 	for _, prof := range profiles {
 		tabs := extractProfileSessionTabs(prof, isRunning)
 		allTabs = append(allTabs, tabs...)
 	}
+
 	return allTabs
 }
 
@@ -89,13 +96,16 @@ func fetchCDPTabs() []chromeTabInfo {
 	if err != nil || resp.StatusCode != http.StatusOK {
 		return nil
 	}
+
 	defer resp.Body.Close()
 	body, err := io.ReadAll(resp.Body)
 	if err != nil {
 		return nil
 	}
+
 	var rawTabs []cdpTabItem
 	_ = json.Unmarshal(body, &rawTabs)
+
 	return mapCDPTabs(rawTabs)
 }
 
@@ -111,6 +121,7 @@ func mapCDPTabs(rawTabs []cdpTabItem) []chromeTabInfo {
 			})
 		}
 	}
+
 	return tabs
 }
 
@@ -119,10 +130,12 @@ func extractProfileSessionTabs(profName string, isRunning bool) []chromeTabInfo 
 	if !hasDir {
 		return nil
 	}
+
 	historyDB := filepath.Join(srcPath, "History")
 	if _, err := os.Stat(historyDB); err == nil {
 		return readRecentHistoryURLs(historyDB, profName, isRunning)
 	}
+
 	return nil
 }
 
@@ -131,12 +144,15 @@ func readRecentHistoryURLs(dbPath, profName string, isRunning bool) []chromeTabI
 	if err != nil {
 		return nil
 	}
+
 	defer db.Close()
 	rows, err := db.Query("SELECT url, title FROM urls ORDER BY last_visit_time DESC LIMIT 10")
 	if err != nil {
 		return nil
 	}
+
 	defer rows.Close()
+
 	return scanHistoryRows(rows, profName, isRunning)
 }
 
@@ -146,6 +162,7 @@ func scanHistoryRows(rows *sql.Rows, profName string, isRunning bool) []chromeTa
 	if isRunning {
 		status = "active"
 	}
+
 	for rows.Next() {
 		var u, t string
 		if rows.Scan(&u, &t) == nil && u != "" {
@@ -157,6 +174,7 @@ func scanHistoryRows(rows *sql.Rows, profName string, isRunning bool) []chromeTa
 			})
 		}
 	}
+
 	return tabs
 }
 
@@ -165,12 +183,15 @@ func printObservationTable(report chromeObservationReport) error {
 	if report.IsRunning {
 		runStatus = fmt.Sprintf("\033[1;92m● running\033[0m (%d process(es))", report.ProcessCount)
 	}
+
 	fmt.Printf("\n\033[1;96mChrome Browser Status:\033[0m %s\n", runStatus)
 	fmt.Printf("Active Profiles: %s\n\n", strings.Join(report.ActiveProfiles, ", "))
 	if len(report.Tabs) == 0 {
 		fmt.Println("  (no active tabs or recent pages found)")
+
 		return nil
 	}
+
 	fmt.Printf("%-14s %-10s %-32s %s\n", "PROFILE", "STATUS", "TITLE", "URL")
 	fmt.Println(strings.Repeat("-", 100))
 	for _, t := range report.Tabs {
@@ -178,8 +199,11 @@ func printObservationTable(report chromeObservationReport) error {
 		if len(title) > 30 {
 			title = title[:27] + "..."
 		}
+
 		fmt.Printf("%-14s %-10s %-32s %s\n", t.Profile, t.Status, title, t.URL)
 	}
+
 	fmt.Printf("\nTotal: %d page(s)/tab(s) observed\n", len(report.Tabs))
+
 	return nil
 }

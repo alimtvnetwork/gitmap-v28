@@ -16,12 +16,14 @@ import (
 func setEnvPersistent(name, value string, _ bool, shell string) error {
 	profilePath := resolveShellProfile(shell)
 	exportLine := fmt.Sprintf(constants.EnvExportFmt, name, value)
+
 	return appendToProfile(profilePath, name, exportLine)
 }
 
 // deleteEnvPersistent removes a variable from the shell profile.
 func deleteEnvPersistent(name string, _ bool, shell string) error {
 	profilePath := resolveShellProfile(shell)
+
 	return removeFromProfile(profilePath, name)
 }
 
@@ -75,6 +77,7 @@ func detectShellProfile() string {
 
 		return ""
 	}
+
 	shell := os.Getenv("SHELL")
 
 	if strings.Contains(shell, constants.ShellZsh) {

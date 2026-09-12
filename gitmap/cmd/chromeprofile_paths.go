@@ -17,12 +17,14 @@ func chromeUserDataDir() string {
 	if override := os.Getenv("GITMAP_CHROME_USER_DATA"); len(override) > 0 {
 		return override
 	}
+
 	home, _ := os.UserHomeDir()
 	switch runtime.GOOS {
 	case "windows":
 		if local := os.Getenv("LOCALAPPDATA"); len(local) > 0 {
 			return filepath.Join(local, "Google", "Chrome", "User Data")
 		}
+
 		return filepath.Join(home, "AppData", "Local", "Google", "Chrome", "User Data")
 	case "darwin":
 		return filepath.Join(home, "Library", "Application Support", "Google", "Chrome")
@@ -37,12 +39,14 @@ func chromeProfilePath(name string) string {
 	if filepath.IsAbs(name) {
 		return name
 	}
+
 	return filepath.Join(chromeUserDataDir(), name)
 }
 
 // chromeProfilePathExists reports whether path exists on disk.
 func chromeProfilePathExists(path string) bool {
 	_, err := os.Stat(path)
+
 	return err == nil
 }
 
@@ -55,7 +59,9 @@ func availableChromeProfileNames() []string {
 	if err != nil {
 		return nil
 	}
+
 	stateDirs := chromeLocalStateProfileDirs()
+
 	return chromeProfileNamesFromEntries(entries, stateDirs)
 }
 
@@ -65,11 +71,13 @@ func chromeProfileNamesFromEntries(entries []os.DirEntry, stateDirs map[string]b
 		if !e.IsDir() {
 			continue
 		}
+
 		name := e.Name()
 		if isChromeProfileDirectoryName(name, stateDirs) {
 			out = append(out, name)
 		}
 	}
+
 	return out
 }
 
@@ -79,9 +87,11 @@ func chromeLocalStateProfileDirs() map[string]bool {
 	if state == nil {
 		return out
 	}
+
 	for dir := range state.Profile.InfoCache {
 		out[dir] = true
 	}
+
 	return out
 }
 
@@ -89,11 +99,14 @@ func isChromeProfileDirectoryName(name string, stateDirs map[string]bool) bool {
 	if name == "" {
 		return false
 	}
+
 	if stateDirs[name] {
 		return true
 	}
+
 	if name == constants.ChromeDefaultProfileDir {
 		return true
 	}
+
 	return strings.HasPrefix(name, constants.ChromeProfileDirPrefix)
 }

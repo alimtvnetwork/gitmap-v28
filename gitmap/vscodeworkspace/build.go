@@ -80,10 +80,12 @@ func Relativize(folders []Folder, baseDir string) ([]Folder, error) {
 		if err != nil && firstErr == nil {
 			firstErr = fmt.Errorf("relativize %q against %q: %w", f.Path, baseDir, err)
 		}
+
 		if err != nil {
 			out = append(out, f)
 			continue
 		}
+
 		out = append(out, Folder{Name: f.Name, Path: filepath.ToSlash(rel)})
 	}
 
@@ -100,6 +102,7 @@ func dedupeFolders(folders []Folder) []Folder {
 		if _, dup := seen[key]; dup {
 			continue
 		}
+
 		seen[key] = struct{}{}
 		out = append(out, f)
 	}

@@ -51,6 +51,7 @@ func installProbeFailureHook(runner *probe.BackgroundRunner, c *errreport.Collec
 	if runner == nil || c == nil {
 		return
 	}
+
 	runner.SetFailureHook(func(rec model.ScanRecord, res probe.Result) {
 		c.Add(errreport.PhaseScan, errreport.Entry{
 			RepoPath:  rec.RelativePath,
@@ -68,16 +69,19 @@ func finalizeErrorReport(c *errreport.Collector, quiet bool) {
 	if c == nil {
 		return
 	}
+
 	scan, clone := c.Count()
 	if scan+clone == 0 {
 		return
 	}
+
 	path, err := c.WriteIfAny(resolveBinaryDir())
 	if err != nil {
 		fmt.Fprintf(os.Stderr, "  ⚠ failed to write error report: %v\n", err)
 
 		return
 	}
+
 	if !quiet && len(path) > 0 {
 		fmt.Printf("  📝 %d failure(s) recorded → %s\n", scan+clone, path)
 	}

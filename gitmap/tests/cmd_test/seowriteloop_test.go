@@ -14,6 +14,7 @@ func TestParseInterval_Valid(t *testing.T) {
 	if min != 30 {
 		t.Errorf("expected min=30, got %d", min)
 	}
+
 	if max != 90 {
 		t.Errorf("expected max=90, got %d", max)
 	}
@@ -109,6 +110,7 @@ func TestAppendAndRevertFile(t *testing.T) {
 	if strings.Contains(string(data), text) {
 		t.Error("expected appended text to be removed after revert")
 	}
+
 	if strings.TrimSpace(string(data)) != original {
 		t.Errorf("expected original content %q, got %q", original, strings.TrimSpace(string(data)))
 	}
@@ -169,8 +171,10 @@ func parseIntSafe(s string, target *int) (bool, error) {
 		if c < '0' || c > '9' {
 			return false, errInvalid()
 		}
+
 		val = val*10 + int(c-'0')
 	}
+
 	*target = val
 
 	return true, nil
@@ -215,6 +219,7 @@ func appendToFileHelper(path, text string) {
 	if err != nil {
 		return
 	}
+
 	defer f.Close()
 
 	_, _ = f.WriteString("\n" + text)
@@ -234,8 +239,10 @@ func resolveRotateFileHelper(explicit string) string {
 	if explicit == "" {
 		return ""
 	}
+
 	if _, err := os.Stat(explicit); err != nil {
 		return ""
 	}
+
 	return explicit
 }

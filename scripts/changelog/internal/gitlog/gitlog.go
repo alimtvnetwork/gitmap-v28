@@ -101,6 +101,7 @@ func handleHighestSemverTagError(err error) (string, error) {
 	if _, isExitErr := err.(*exec.ExitError); isExitErr {
 		return "", nil
 	}
+
 	return "", fmt.Errorf("git tag failed: %w", err)
 }
 

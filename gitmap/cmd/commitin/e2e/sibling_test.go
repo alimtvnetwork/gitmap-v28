@@ -32,10 +32,12 @@ func TestKeywordAllDiscoversEveryVersionedSibling(t *testing.T) {
 	if res.ExitCode != 0 {
 		t.Fatalf("exit=%d, want 0\nstderr=%s", res.ExitCode, res.Stderr)
 	}
+
 	dst := src.LogFirstParent(t)
 	if len(dst) != 2 {
 		t.Fatalf("dst commits=%d, want 2\nstderr=%s", len(dst), res.Stderr)
 	}
+
 	// Ascending-version order means v2 replays before v3.
 	if dst[0].Subject != "v2-only" || dst[1].Subject != "v3-only" {
 		t.Fatalf("subjects=%q,%q, want v2-only, v3-only",
@@ -63,11 +65,13 @@ func TestKeywordTailNReturnsLastNSiblings(t *testing.T) {
 	if res.ExitCode != 0 {
 		t.Fatalf("exit=%d, want 0\nstderr=%s", res.ExitCode, res.Stderr)
 	}
+
 	dst := src.LogFirstParent(t)
 	if len(dst) != 2 {
 		t.Fatalf("dst commits=%d, want 2 (last-2 of 3 siblings)\nstderr=%s",
 			len(dst), res.Stderr)
 	}
+
 	if dst[0].Subject != "v3" || dst[1].Subject != "v4" {
 		t.Fatalf("subjects=%q,%q, want v3,v4", dst[0].Subject, dst[1].Subject)
 	}
@@ -88,12 +92,14 @@ func TestAutoInitOnMissingSourceCreatesRepoAndReplays(t *testing.T) {
 	if res.ExitCode != 0 {
 		t.Fatalf("exit=%d, want 0\nstderr=%s", res.ExitCode, res.Stderr)
 	}
+
 	// Wrap the now-init'd source in a Repo so we can re-use the log
 	// helpers. NewRepoIn would re-init, so build the value manually.
 	created := &Repo{t: t, Path: missing}
 	if log := created.LogFirstParent(t); len(log) != 1 || log[0].Subject != "seed" {
 		t.Fatalf("auto-init source did not receive the seed commit: %+v", log)
 	}
+
 	if !strings.Contains(res.Stderr, "fresh-source") {
 		t.Errorf("stderr should mention freshly-init'd source path\nstderr=%s", res.Stderr)
 	}
@@ -117,5 +123,6 @@ func buildSiblingFixture(t *testing.T, sibs ...siblingSpec) (parent string, src 
 		when := time.Date(2024, 1, 1+i, 0, 0, 0, 0, time.UTC)
 		repo.Commit("f.txt", s.subject+"\n", s.subject, when)
 	}
+
 	return parent, src
 }

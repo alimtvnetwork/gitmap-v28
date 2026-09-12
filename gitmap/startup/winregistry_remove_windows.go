@@ -45,29 +45,28 @@ func removeWindowsRegistryAt(root registry.Key, hive, clean string,
 	valueName := constants.StartupWinValuePrefix + clean
 	exists, managed, err := classifyRunValueAt(root, valueName, clean)
 	if err != nil {
-
 		return RemoveResult{}, err
 	}
-	if !exists {
 
+	if !exists {
 		return RemoveResult{Status: RemoveNoOp, DryRun: opts.DryRun}, nil
 	}
-	if !managed {
 
+	if !managed {
 		return RemoveResult{Status: RemoveRefused,
 			Path: runValuePathFor(hive, valueName), DryRun: opts.DryRun}, nil
 	}
-	if opts.DryRun {
 
+	if opts.DryRun {
 		return RemoveResult{Status: RemoveDeleted,
 			Path: runValuePathFor(hive, valueName), DryRun: true}, nil
 	}
-	if err := deleteRunValueAt(root, valueName); err != nil {
 
+	if err := deleteRunValueAt(root, valueName); err != nil {
 		return RemoveResult{}, err
 	}
-	if err := deleteTrackingSubkeyAt(root, constants.RegGitmapRegistrySub, clean); err != nil {
 
+	if err := deleteTrackingSubkeyAt(root, constants.RegGitmapRegistrySub, clean); err != nil {
 		return RemoveResult{}, err
 	}
 
@@ -83,13 +82,12 @@ func deleteRunValueAt(root registry.Key, valueName string) error {
 	k, err := registry.OpenKey(root,
 		constants.RegRunKeyPath, registry.SET_VALUE)
 	if err != nil {
-
 		return fmt.Errorf(constants.ErrStartupRegistryOpen, constants.RegRunKeyPath, err)
 	}
+
 	defer k.Close()
 
 	if err := k.DeleteValue(valueName); err != nil && !errors.Is(err, registry.ErrNotExist) {
-
 		return fmt.Errorf(constants.ErrStartupRegistryWrite, valueName, err)
 	}
 
@@ -110,7 +108,6 @@ func deleteTrackingSubkeyAt(root registry.Key, parent, name string) error {
 	full := parent + `\` + name
 	if err := registry.DeleteKey(root, full); err != nil &&
 		!errors.Is(err, registry.ErrNotExist) {
-
 		return fmt.Errorf(constants.ErrStartupRegistryWrite, full, err)
 	}
 
@@ -141,14 +138,15 @@ func listWindowsRegistryAt(root registry.Key, hive string) ([]Entry, error) {
 	if errors.Is(err, registry.ErrNotExist) {
 		return nil, nil
 	}
+
 	if err != nil {
 		return nil, fmt.Errorf(constants.ErrStartupRegistryOpen, constants.RegRunKeyPath, err)
 	}
+
 	defer k.Close()
 
 	names, err := k.ReadValueNames(-1)
 	if err != nil {
-
 		return nil, fmt.Errorf(constants.ErrStartupRegistryRead, constants.RegRunKeyPath, err)
 	}
 
@@ -168,10 +166,12 @@ func collectRegistryManagedAt(root registry.Key, hive string,
 		if !strings.HasPrefix(name, constants.StartupWinValuePrefix) {
 			continue
 		}
+
 		entry, ok := readManagedRegistryValueAt(root, hive, k, name)
 		if !ok {
 			continue
 		}
+
 		out = append(out, entry)
 	}
 
@@ -185,12 +185,11 @@ func readManagedRegistryValueAt(root registry.Key, hive string,
 	k registry.Key, valueName string) (Entry, bool) {
 	exec, _, err := k.GetStringValue(valueName)
 	if err != nil {
-
 		return Entry{}, false
 	}
+
 	clean := strings.TrimPrefix(valueName, constants.StartupWinValuePrefix)
 	if !trackingSubkeyExistsAt(root, constants.RegGitmapRegistrySub, clean) {
-
 		return Entry{}, false
 	}
 

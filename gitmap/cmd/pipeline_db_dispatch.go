@@ -27,9 +27,11 @@ func handlePipelineDB(args []string) error {
 		return runPipelineDBErrorLogs(args[1:])
 	case "help", "-h", "--help":
 		printPipelineDBHelp()
+
 		return nil
 	default:
 		printPipelineDBHelp()
+
 		return fmt.Errorf("unknown pipeline db subcommand: %s", sub)
 	}
 }

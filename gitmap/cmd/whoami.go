@@ -33,6 +33,7 @@ func runWhoAmI(_ []string) error {
 	printWhoAmIAuth(url)
 	printWhoAmISSHKeys()
 	printWhoAmIFixHints(url)
+
 	return nil
 }
 
@@ -44,6 +45,7 @@ func printWhoAmISSHKeys() {
 	if err != nil {
 		return
 	}
+
 	dir := filepath.Join(home, ".ssh")
 	entries, err := os.ReadDir(dir)
 	if err != nil {
@@ -51,19 +53,23 @@ func printWhoAmISSHKeys() {
 
 		return
 	}
+
 	fmt.Println("\n── SSH keys (~/.ssh) ──")
 	found := false
 	for _, e := range entries {
 		if e.IsDir() {
 			continue
 		}
+
 		name := e.Name()
 		if strings.HasSuffix(name, ".pub") || name == "known_hosts" || name == "config" || strings.HasPrefix(name, "known_hosts") {
 			continue
 		}
+
 		fmt.Printf("  %s\n", name)
 		found = true
 	}
+
 	if !found {
 		fmt.Println("  (no private keys found)")
 		fmt.Println("  generate one: ssh-keygen -t ed25519 -C \"you@example.com\" -f ~/.ssh/id_ed25519_<label>")
@@ -97,9 +103,11 @@ func classifyTransport(url string) string {
 	if url == "" {
 		return "none"
 	}
+
 	if strings.HasPrefix(url, "git@") || strings.HasPrefix(url, "ssh://") {
 		return "SSH"
 	}
+
 	if strings.HasPrefix(url, "https://") || strings.HasPrefix(url, "http://") {
 		return "HTTPS"
 	}
@@ -136,6 +144,7 @@ func probeHTTPSCachedUser(url string) string {
 	if err != nil {
 		return "(none cached / helper unavailable)"
 	}
+
 	for _, line := range strings.Split(string(out), "\n") {
 		if strings.HasPrefix(line, "username=") {
 			return strings.TrimPrefix(line, "username=")
@@ -152,6 +161,7 @@ func probeSSHIdentity(url string) string {
 	if host == "" {
 		return "(cannot parse host)"
 	}
+
 	cmd := exec.Command("ssh", "-o", "BatchMode=yes", "-T", "git@"+host)
 	var buf strings.Builder
 	cmd.Stderr = &buf
@@ -174,10 +184,12 @@ func extractSSHHost(url string) string {
 	if isSSHScheme && atSSH >= 0 {
 		restSSH = restSSH[atSSH+1:]
 	}
+
 	slashSSH := strings.IndexAny(restSSH, "/:")
 	if isSSHScheme && slashSSH >= 0 {
 		return restSSH[:slashSSH]
 	}
+
 	if isSSHScheme {
 		return restSSH
 	}
@@ -189,6 +201,7 @@ func extractSSHHost(url string) string {
 		restNonSSH = url[at+1:]
 		colon = strings.Index(restNonSSH, ":")
 	}
+
 	if at >= 0 && colon >= 0 {
 		return restNonSSH[:colon]
 	}
@@ -218,6 +231,7 @@ func printWhoAmIFixHints(url string) {
 		} else {
 			fmt.Println("    printf 'protocol=https\\nhost=github.com\\n\\n' | git credential-manager erase")
 		}
+
 		fmt.Println("  Or pin the correct user into the remote URL:")
 		fmt.Println("    git remote set-url origin https://<correct-user>@github.com/<owner>/<repo>.git")
 	case "SSH":
@@ -227,6 +241,7 @@ func printWhoAmIFixHints(url string) {
 
 		fmt.Println("  Or switch to HTTPS: gitmap push --https")
 	}
+
 	fmt.Println()
 }
 

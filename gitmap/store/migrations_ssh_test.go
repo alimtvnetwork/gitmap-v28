@@ -12,6 +12,7 @@ func TestSQLCreateSSHHosts(t *testing.T) {
 	if err != nil {
 		t.Fatalf("failed to open memory db: %v", err)
 	}
+
 	defer db.Close()
 
 	err = RegisterSSHHostMigration(db, 1, false)

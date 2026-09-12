@@ -38,6 +38,7 @@ func ScanIndexedRepo(row dbengine.RowScanner) (*IndexedRepo, error) {
 	item.MigratedVersion = dbengine.ScanInt(raw_MigratedVersion)
 	item.CreatedAt = dbengine.ScanInt64(raw_CreatedAt)
 	item.UpdatedAt = dbengine.ScanInt64(raw_UpdatedAt)
+
 	return &item, nil
 }
 
@@ -54,6 +55,7 @@ func NewIndexedRepoDbRepo(db *dbengine.DbWrapper) *IndexedRepoDbRepo {
 		enums.IndexedRepoTable,
 		ScanIndexedRepo,
 	)
+
 	return &IndexedRepoDbRepo{
 		db:   db,
 		repo: repo,
@@ -102,12 +104,14 @@ func (r *IndexedRepoDbRepo) Insert(ctx context.Context, item *IndexedRepo) dbeng
 	if item.IndexedRepoId == 0 {
 		id = nil
 	}
+
 	return r.db.ExecRowsAffected(ctx, query, id, item.Path, item.Slug, item.MigratedVersion, item.CreatedAt, item.UpdatedAt)
 }
 
 // Update updates an existing IndexedRepo record identified by its primary key.
 func (r *IndexedRepoDbRepo) Update(ctx context.Context, item *IndexedRepo) dbengine.RowsAffectedResult {
 	query := "UPDATE IndexedRepo SET Path = ?, Slug = ?, MigratedVersion = ?, CreatedAt = ?, UpdatedAt = ? WHERE IndexedRepoId = ?;"
+
 	return r.db.ExecRowsAffected(ctx, query, item.Path, item.Slug, item.MigratedVersion, item.CreatedAt, item.UpdatedAt, item.IndexedRepoId)
 }
 

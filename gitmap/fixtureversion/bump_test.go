@@ -14,12 +14,15 @@ func TestBumpStampInBodyRewritesGeneration(t *testing.T) {
 	if !ok {
 		t.Fatalf("BumpStampInBody returned ok=false on a stamped body")
 	}
+
 	if !strings.Contains(out, "generation=5") {
 		t.Fatalf("expected generation=5 in:\n%s", out)
 	}
+
 	if strings.Contains(out, "generation=1 ") {
 		t.Fatalf("old generation=1 still present in:\n%s", out)
 	}
+
 	if !strings.HasSuffix(out, "body bytes follow\n") {
 		t.Fatalf("tail of body mutated; got suffix mismatch:\n%s", out)
 	}
@@ -34,6 +37,7 @@ func TestBumpStampInBodyRewritesAllFields(t *testing.T) {
 	if !ok {
 		t.Fatalf("BumpStampInBody returned ok=false")
 	}
+
 	for _, want := range []string{"generation=3", "min-current=14", "for=v12->v14-bump"} {
 		if !strings.Contains(out, want) {
 			t.Fatalf("missing %q in rewritten body:\n%s", want, out)
@@ -46,6 +50,7 @@ func TestBumpStampInBodyZeroValuesAreNoOp(t *testing.T) {
 	if !ok {
 		t.Fatalf("BumpStampInBody returned ok=false")
 	}
+
 	if out != sampleBody {
 		t.Fatalf("zero-value request mutated body:\nwant=%q\n got=%q", sampleBody, out)
 	}
@@ -57,6 +62,7 @@ func TestBumpStampInBodyUnstampedReturnsFalse(t *testing.T) {
 	if ok {
 		t.Fatalf("expected ok=false on unstamped body")
 	}
+
 	if out != body {
 		t.Fatalf("unstamped body was mutated; got:\n%s", out)
 	}
@@ -70,6 +76,7 @@ func TestNextGenerationClampsToMin(t *testing.T) {
 		{stampGen: 1, wantMin: 5, expected: 5}, // clamp jumps multiple
 		{stampGen: 4, wantMin: 2, expected: 5}, // already past min
 	}
+
 	for _, c := range cases {
 		got := NextGeneration(Stamp{Generation: c.stampGen}, Expectation{MinGeneration: c.wantMin})
 		if got != c.expected {
@@ -88,9 +95,11 @@ func TestMaybeAutoBumpFileGateOff(t *testing.T) {
 	if err != nil {
 		t.Fatalf("unexpected error with gate off: %v", err)
 	}
+
 	if ok {
 		t.Fatalf("autobump ran with gate off (must be no-op)")
 	}
+
 	got := mustRead(t, path)
 	if got != sampleBody {
 		t.Fatalf("file mutated despite gate off:\n%s", got)
@@ -106,9 +115,11 @@ func TestMaybeAutoBumpFileGateOnRewritesFile(t *testing.T) {
 	if err != nil {
 		t.Fatalf("unexpected error: %v", err)
 	}
+
 	if !ok {
 		t.Fatalf("autobump did not run with gate on")
 	}
+
 	got := mustRead(t, path)
 	if !strings.Contains(got, "generation=7") {
 		t.Fatalf("file was not rewritten:\n%s", got)
@@ -130,6 +141,7 @@ func TestParseGenerationFromBody(t *testing.T) {
 	if got := ParseGenerationFromBody(sampleBody); got != 1 {
 		t.Errorf("ParseGenerationFromBody stamped = %d, want 1", got)
 	}
+
 	if got := ParseGenerationFromBody("nothing here"); got != -1 {
 		t.Errorf("ParseGenerationFromBody unstamped = %d, want -1", got)
 	}

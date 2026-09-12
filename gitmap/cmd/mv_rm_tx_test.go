@@ -34,9 +34,11 @@ func insertInitialTestRepo(t *testing.T, db *store.DB, absPath, name string) int
 		RepoName:     name,
 		Slug:         name,
 	}
+
 	if err := db.UpsertRepos([]model.ScanRecord{rec}); err != nil {
 		t.Fatalf("failed to insert initial repo: %v", err)
 	}
+
 	repos, err := db.FindByPath(absPath)
 	if err != nil || len(repos) == 0 {
 		t.Fatalf("failed to find inserted repo: %v", err)
@@ -75,6 +77,7 @@ func assertRepoUpdated(t *testing.T, db *store.DB, repoID int64, expectedPath, e
 	if err != nil {
 		t.Fatalf("failed to query updated repo: %v", err)
 	}
+
 	if actualPath != expectedPath || actualName != expectedName {
 		t.Errorf("repo mismatch: got (%s, %s), want (%s, %s)", actualPath, actualName, expectedPath, expectedName)
 	}
@@ -100,6 +103,7 @@ func TestRemoveRepoDB_Success(t *testing.T) {
 		AbsolutePath: "/path/to/rm",
 		Slug:         "rm-repo",
 	}
+
 	if err := removeRepoDB(db, scanRec); err != nil {
 		t.Fatalf("removeRepoDB failed: %v", err)
 	}
@@ -115,6 +119,7 @@ func assertRepoAndAliasDeleted(t *testing.T, db *store.DB, repoID int64) {
 	if count != 0 {
 		t.Errorf("expected 0 repos, got %d", count)
 	}
+
 	_ = db.Conn().QueryRow("SELECT COUNT(*) FROM Alias WHERE RepoId = ?", repoID).Scan(&count)
 	if count != 0 {
 		t.Errorf("expected 0 aliases, got %d", count)
@@ -146,6 +151,7 @@ func TestRemoveRepoDB_RollbackOnError(t *testing.T) {
 		AbsolutePath: "/path/to/rollback",
 		Slug:         "rb-repo",
 	}
+
 	err := removeRepoDB(db, scanRec)
 	if err == nil {
 		t.Fatalf("expected error from removeRepoDB when history fails, got nil")
@@ -165,6 +171,7 @@ func TestPipelineRecorderAndSyncCacheHelpers(t *testing.T) {
 	if err != nil {
 		t.Fatalf("failed to open split db: %v", err)
 	}
+
 	defer pipeDb.Close()
 
 	testRecordRunAndErrorInSplitDb(t, pipeDb, slug)
@@ -181,6 +188,7 @@ func testRecordRunAndErrorInSplitDb(t *testing.T, pipeDb *pipelinedb.PipelineSpl
 		HeadSha:    "abc1234",
 		Url:        "https://github.com/test/run/991001",
 	}
+
 	if err := recordRunInSplitDb(pipeDb, slug, runItem); err != nil {
 		t.Fatalf("recordRunInSplitDb failed: %v", err)
 	}

@@ -22,6 +22,7 @@ func runDispatchTable(command string, entries []dispatchEntry) (bool, error) {
 	for _, entry := range entries {
 		if matchAny(command, entry.names) {
 			err := entry.handler()
+
 			return true, err
 		}
 	}

@@ -30,6 +30,7 @@ func (db *DB) ListTempReleases() ([]model.TempRelease, error) {
 	if err != nil {
 		return nil, fmt.Errorf(constants.ErrTRQuery, err)
 	}
+
 	defer rows.Close()
 
 	var releases []model.TempRelease

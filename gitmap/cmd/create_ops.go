@@ -29,14 +29,18 @@ func executeCreateRepo(args []string) error {
 	if parseErr != nil {
 		return parseErr
 	}
+
 	if initErr := initLocalRepo(params); initErr != nil {
 		return initErr
 	}
+
 	remoteURL, pushErr := pushRemoteRepo(params)
 	if pushErr != nil {
 		return pushErr
 	}
+
 	recordProfileUsage(params.Profile)
+
 	return reportCreatedRepo(params, remoteURL)
 }
 
@@ -49,14 +53,17 @@ func parseCreateParams(args []string) (createRepoParams, error) {
 	if desc == "" {
 		desc = extractFlagVal(args, "-d")
 	}
+
 	dir := extractFlagVal(args, "--dir")
 	if dir == "" {
 		dir = filepath.Join(".", name)
 	}
+
 	prof, profErr := resolveCreationProfile(args)
 	if profErr != nil {
 		return createRepoParams{}, profErr
 	}
+
 	return createRepoParams{
 		Name: name, LocalDir: dir, Description: desc,
 		IsPublic: isPublic, NoRemote: noRemote, IsJSON: isJSON, Profile: prof,
@@ -68,22 +75,28 @@ func resolveCreationProfile(args []string) (model.GitProfile, error) {
 	if err != nil {
 		return model.GitProfile{}, apperror.WrapSimple(err, "load profiles:")
 	}
+
 	req := extractFlagVal(args, "--profile")
 	if req == "" {
 		req = extractFlagVal(args, "--org")
 	}
+
 	if req != "" {
 		_, p, findErr := pickProfileBySequenceOrName(cfg.Profiles, req)
+
 		return p, findErr
 	}
+
 	for _, p := range cfg.Profiles {
 		if p.IsDefault || p.Name == cfg.Default {
 			return p, nil
 		}
 	}
+
 	if len(cfg.Profiles) > 0 {
 		return cfg.Profiles[0], nil
 	}
+
 	return model.GitProfile{Name: "default", Provider: "github", Type: "user"}, nil
 }
 
@@ -92,15 +105,19 @@ func initLocalRepo(p createRepoParams) error {
 	if absErr != nil {
 		return apperror.WrapSimple(absErr, "resolve absolute dir:")
 	}
+
 	if mkErr := os.MkdirAll(absDir, 0755); mkErr != nil {
 		return apperror.WrapSimple(mkErr, "create directory:")
 	}
+
 	cmdInit := exec.Command("git", "init", "-b", "main")
 	cmdInit.Dir = absDir
 	if initErr := cmdInit.Run(); initErr != nil {
 		return apperror.WrapSimple(initErr, "git init:")
 	}
+
 	writeInitialFiles(absDir, p)
+
 	return commitInitialFiles(absDir)
 }
 
@@ -122,6 +139,7 @@ func commitInitialFiles(absDir string) error {
 	cmdCommit := exec.Command("git", "commit", "-m", "feat: initial commit")
 	cmdCommit.Dir = absDir
 	_ = cmdCommit.Run()
+
 	return nil
 }
 
@@ -129,21 +147,25 @@ func pushRemoteRepo(p createRepoParams) (string, error) {
 	if p.NoRemote {
 		return "", nil
 	}
+
 	absDir, _ := filepath.Abs(p.LocalDir)
 	visibilityFlag := "--private"
 	if p.IsPublic {
 		visibilityFlag = "--public"
 	}
+
 	slug := p.Name
 	if p.Profile.Name != "" && p.Profile.Name != "default" {
 		slug = p.Profile.Name + "/" + p.Name
 	}
+
 	cmd := exec.Command("gh", "repo", "create", slug, visibilityFlag, "--source=.", "--remote=origin", "--push")
 	cmd.Dir = absDir
 	out, err := cmd.CombinedOutput()
 	if err != nil {
 		return "", apperror.NewSimple(fmt.Sprintf("gh repo create failed: %s", string(out)), "E1078")
 	}
+
 	return fmt.Sprintf("https://github.com/%s", slug), nil
 }
 
@@ -152,6 +174,7 @@ func recordProfileUsage(prof model.GitProfile) {
 	if err != nil {
 		return
 	}
+
 	for i := range cfg.Profiles {
 		if cfg.Profiles[i].Name == prof.Name {
 			cfg.Profiles[i].UsageCount++
@@ -159,6 +182,7 @@ func recordProfileUsage(prof model.GitProfile) {
 			break
 		}
 	}
+
 	_ = store.SaveGitProfiles(cfg)
 }
 
@@ -169,10 +193,13 @@ func reportCreatedRepo(p createRepoParams, remoteURL string) error {
 			"name": p.Name, "path": absDir, "remoteUrl": remoteURL,
 			"profile": p.Profile.Name, "provider": p.Profile.Provider,
 		}
+
 		data, _ := json.MarshalIndent(res, "", "  ")
 		fmt.Println(string(data))
+
 		return nil
 	}
+
 	fmt.Printf("\n  %s✓ Repository created successfully!%s\n", constants.ColorGreen, constants.ColorReset)
 	fmt.Printf("  ● Name:      %s\n", p.Name)
 	fmt.Printf("  ● Path:      %s\n", absDir)
@@ -180,6 +207,8 @@ func reportCreatedRepo(p createRepoParams, remoteURL string) error {
 	if remoteURL != "" {
 		fmt.Printf("  ● Remote:    %s\n", remoteURL)
 	}
+
 	fmt.Println()
+
 	return nil
 }

@@ -16,6 +16,7 @@ func recordVersionHistory(absPath string, fromVersion, toVersion int, flattenedP
 
 		return
 	}
+
 	defer db.Close()
 
 	// Find or create the repo record by absolute path.

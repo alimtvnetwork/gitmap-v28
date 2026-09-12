@@ -28,9 +28,11 @@ func TestDiffMissingFile(t *testing.T) {
 	if err != nil {
 		t.Fatalf("Diff: %v", err)
 	}
+
 	if res.Status != DiffMissingFile {
 		t.Fatalf("status = %v, want DiffMissingFile", res.Status)
 	}
+
 	if len(res.Hunks) != 3 || res.Hunks[1] != "+*.log" || res.Hunks[2] != "+node_modules/" {
 		t.Errorf("unexpected hunks: %v", res.Hunks)
 	}
@@ -45,9 +47,11 @@ func TestDiffMissingBlock(t *testing.T) {
 	if err != nil {
 		t.Fatalf("Diff: %v", err)
 	}
+
 	if res.Status != DiffMissingBlock {
 		t.Fatalf("status = %v, want DiffMissingBlock", res.Status)
 	}
+
 	if len(res.Hunks) != 2 || res.Hunks[1] != "+*.log" {
 		t.Errorf("unexpected hunks: %v", res.Hunks)
 	}
@@ -63,9 +67,11 @@ func TestDiffNoChange(t *testing.T) {
 	if err != nil {
 		t.Fatalf("Diff: %v", err)
 	}
+
 	if res.Status != DiffNoChange {
 		t.Fatalf("status = %v, want DiffNoChange", res.Status)
 	}
+
 	if len(res.Hunks) != 0 {
 		t.Errorf("expected empty hunks, got %v", res.Hunks)
 	}
@@ -81,18 +87,22 @@ func TestDiffBlockChanged(t *testing.T) {
 	if err != nil {
 		t.Fatalf("Diff: %v", err)
 	}
+
 	if res.Status != DiffBlockChanged {
 		t.Fatalf("status = %v, want DiffBlockChanged", res.Status)
 	}
+
 	want := []string{
 		"@@ gitmap:ignore/node @@",
 		"-*.log",
 		"+*.log",
 		"+node_modules/",
 	}
+
 	if len(res.Hunks) != len(want) {
 		t.Fatalf("hunks = %v, want %v", res.Hunks, want)
 	}
+
 	for i := range want {
 		if res.Hunks[i] != want[i] {
 			t.Errorf("hunk[%d] = %q, want %q", i, res.Hunks[i], want[i])
@@ -109,6 +119,7 @@ func TestDiffPreservesBlankLines(t *testing.T) {
 	if err != nil {
 		t.Fatalf("Diff: %v", err)
 	}
+
 	if len(res.Hunks) != 4 || res.Hunks[2] != "+" {
 		t.Errorf("blank line lost in hunks: %v", res.Hunks)
 	}

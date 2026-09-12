@@ -18,9 +18,9 @@ func runImportConfig(args []string) error {
 
 		return nil
 	}
+
 	canonicalTool, inputTool, targetArg := parseImportArgs(args)
 	if canonicalTool == "all" {
-
 		return importAllToolConfigs(targetArg)
 	}
 
@@ -59,13 +59,12 @@ func locateExistingConfigBundle(targetArg, inputTool, canonicalTool string) stri
 	defaultName := resolveDefaultConfigFileName(inputTool, canonicalTool)
 	directPath := resolveConfigFilePath(targetArg, defaultName)
 	if _, err := os.Stat(directPath); err == nil {
-
 		return directPath
 	}
+
 	aliasName := canonicalTool + ".json"
 	aliasPath := resolveConfigFilePath(targetArg, aliasName)
 	if _, err := os.Stat(aliasPath); err == nil {
-
 		return aliasPath
 	}
 
@@ -95,12 +94,14 @@ func restoreAndReportToolConfig(canonicalTool, sourcePath string, bundle *Config
 
 		return err
 	}
+
 	count, restoreErr := restoreBundleFiles(bundle, destDir)
 	if restoreErr != nil {
 		cliexit.Reportf("import-config", "restore", destDir, restoreErr)
 
 		return restoreErr
 	}
+
 	logImportSuccess(canonicalTool, sourcePath, destDir, count, bundle.Extensions)
 
 	return nil
@@ -118,9 +119,9 @@ func importAllToolConfigs(targetFolder string) error {
 	folder := resolveExportFolder(targetFolder)
 	entries, err := os.ReadDir(folder)
 	if err != nil {
-
 		return apperror.Wrap(err, "importAllToolConfigs.ReadDir", map[string]any{"folder": folder})
 	}
+
 	total := 0
 	for _, entry := range entries {
 		if isImportableJSON(entry) {
@@ -128,6 +129,7 @@ func importAllToolConfigs(targetFolder string) error {
 			total += imported
 		}
 	}
+
 	fmt.Printf("%s Batch import complete: %d tool configuration(s) processed from %s\n",
 		constants.ColorGreen+"✓"+constants.ColorReset, total, folder)
 
@@ -144,11 +146,10 @@ func importEntryIfValid(folder, fileName string) int {
 	fullPath := filepath.Join(folder, fileName)
 	bundle, loadErr := loadConfigBundle(fullPath)
 	if loadErr != nil || bundle.Tool == "" {
-
 		return 0
 	}
-	if err := importSingleToolConfig(bundle.Tool, bundle.Tool, fullPath); err != nil {
 
+	if err := importSingleToolConfig(bundle.Tool, bundle.Tool, fullPath); err != nil {
 		return 0
 	}
 

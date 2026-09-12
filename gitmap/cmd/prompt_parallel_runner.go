@@ -18,6 +18,7 @@ func ExecuteSinglePromptInstall(targetDir string, isDryRun bool) model.PromptIns
 		SimulatePromptInstallation(targetDir)
 		res.IsSuccess = true
 		res.Duration = "0.1s"
+
 		return res
 	}
 
@@ -27,11 +28,13 @@ func ExecuteSinglePromptInstall(targetDir string, isDryRun bool) model.PromptIns
 	if err != nil {
 		res.IsSuccess = false
 		res.Error = err.Error()
+
 		return res
 	}
 
 	res.IsSuccess = true
 	meta, _ := ReadPromptArchitectMetadata(targetDir)
 	res.Version = meta.Version
+
 	return res
 }

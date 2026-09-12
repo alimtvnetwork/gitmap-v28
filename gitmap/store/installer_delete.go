@@ -39,6 +39,7 @@ func validateInstallerInput(db *DB, slug string) *apperror.AppError {
 	if db == nil || db.conn == nil {
 		return apperror.New("DeleteInstaller", "E_INSTALLER_NIL_DB", map[string]any{"slug": slug})
 	}
+
 	if slug == "" {
 		return apperror.New("DeleteInstaller", "E_INSTALLER_INVALID_INPUT", map[string]any{"error": "slug cannot be empty"})
 	}
@@ -85,6 +86,7 @@ func verifyScriptRowsAffected(res sql.Result, slug string) *apperror.AppError {
 	if err != nil {
 		return installerError(err, "E_INSTALLER_DELETE_FAILED", slug)
 	}
+
 	if affected == 0 {
 		return installerError(apperror.ErrNotFound, "E_INSTALLER_NOT_FOUND", slug)
 	}
@@ -112,6 +114,7 @@ func (db *DB) DeleteInstallerVersion(slug, version string) error {
 	if db == nil || db.conn == nil {
 		return apperror.New("DeleteInstallerVersion", "E_INSTALLER_NIL_DB", map[string]any{"slug": slug})
 	}
+
 	_, err := ExecWrapper(db.conn, SQLDeleteInstallerExactVersion, slug, version).Destruct()
 
 	return err

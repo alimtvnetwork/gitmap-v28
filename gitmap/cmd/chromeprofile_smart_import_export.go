@@ -20,9 +20,11 @@ func parseOptionExport(arg string, args []string, i *int, opts *chromeTransferOp
 	if parseOptionFile(arg, args, i, opts) {
 		return true
 	}
+
 	if parseOptionTempFile(arg, args, i, opts) {
 		return true
 	}
+
 	if parseOptionFnf(arg, args, i, opts) {
 		return true
 	}
@@ -36,6 +38,7 @@ func parseOptionFile(arg string, args []string, i *int, opts *chromeTransferOpti
 
 		return true
 	}
+
 	if isFlag := isFileFlagToken(arg); isFlag && *i+1 < len(args) {
 		*i++
 		opts.FilePath = args[*i]
@@ -56,6 +59,7 @@ func parseOptionTempFile(arg string, args []string, i *int, opts *chromeTransfer
 
 		return true
 	}
+
 	if isTemp := isTempFlagToken(arg); isTemp && *i+1 < len(args) {
 		*i++
 		opts.TempFile = args[*i]
@@ -77,6 +81,7 @@ func parseOptionFnf(arg string, args []string, i *int, opts *chromeTransferOptio
 
 		return true
 	}
+
 	if arg != "--fnf" && arg != "--fail-not-found" {
 		return false
 	}
@@ -110,6 +115,7 @@ func isValuedFlag(arg string) bool {
 		"--tempfile", "--temp", "--fnf", "--limit", "-n", "-l",
 		"--except", "--exclude", "--skip", "--email", "--format", "--profile", "-p",
 	}
+
 	for _, p := range prefixes {
 		if arg == p || strings.HasPrefix(arg, p+"=") {
 			return true
@@ -124,6 +130,7 @@ func dispatchPreviewOutput(params ChromePreviewOutputParams) error {
 	if len(destPath) > 0 {
 		return writePreviewToFile(destPath, params)
 	}
+
 	if params.IsJSON {
 		return renderProfileCandidatesJSON(params.Candidates)
 	}

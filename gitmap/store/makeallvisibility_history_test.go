@@ -18,6 +18,7 @@ func freshHistoryDB(t *testing.T) *DB {
 	if err != nil {
 		t.Fatalf("OpenAt: %v", err)
 	}
+
 	t.Cleanup(func() { _ = db.Close() })
 	if err := db.Migrate(); err != nil {
 		t.Fatalf("Migrate: %v", err)
@@ -58,6 +59,7 @@ func TestSelectRecentMakeAllVisibilityRunsNewestFirst(t *testing.T) {
 	if err != nil || len(rows) != 3 {
 		t.Fatalf("expected 3 rows, got %d err=%v", len(rows), err)
 	}
+
 	if rows[0].ID != newest || rows[0].Owner != "newest" {
 		t.Fatalf("expected newest-first ordering, got %+v", rows[0])
 	}
@@ -68,6 +70,7 @@ func TestSelectRecentMakeAllVisibilityRunsHonorsLimit(t *testing.T) {
 	for i := 0; i < 5; i++ {
 		_ = insertHistoryRun(t, db, "owner")
 	}
+
 	rows, err := db.SelectRecentMakeAllVisibilityRuns(2)
 	if err != nil || len(rows) != 2 {
 		t.Fatalf("expected limit=2 to return 2 rows, got %d err=%v", len(rows), err)

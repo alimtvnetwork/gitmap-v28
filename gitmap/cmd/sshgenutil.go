@@ -47,6 +47,7 @@ func removeKeyFiles(privatePath string) {
 	if err := os.Remove(privatePath); err != nil && !os.IsNotExist(err) {
 		fmt.Fprintf(os.Stderr, "  ⚠ Could not remove %s: %v\n", privatePath, err)
 	}
+
 	if err := os.Remove(privatePath + ".pub"); err != nil && !os.IsNotExist(err) {
 		fmt.Fprintf(os.Stderr, "  ⚠ Could not remove %s: %v\n", privatePath+".pub", err)
 	}
@@ -60,6 +61,7 @@ func defaultSSHKeyPath(name string) string {
 
 		return filepath.Join(".", ".ssh", "id_rsa")
 	}
+
 	if name == constants.DefaultSSHKeyName {
 		return filepath.Join(home, ".ssh", "id_rsa")
 	}

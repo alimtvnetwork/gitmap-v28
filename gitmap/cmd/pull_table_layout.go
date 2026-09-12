@@ -39,6 +39,7 @@ func parseColumnsEnv() int {
 	if err == nil && parsed >= minPullTableTermWidth {
 		return parsed
 	}
+
 	return 0
 }
 
@@ -47,15 +48,18 @@ func detectTerminalWidth() int {
 	if err == nil && width >= minPullTableTermWidth {
 		return width
 	}
+
 	envWidth := parseColumnsEnv()
 	if envWidth >= minPullTableTermWidth {
 		return envWidth
 	}
+
 	return defaultPullTableTermWidth
 }
 
 func NewPullTableLayout(rows []model.PullTableRow) *PullTableLayout {
 	termWidth := detectTerminalWidth()
+
 	return NewPullTableLayoutWithWidth(rows, termWidth)
 }
 
@@ -63,10 +67,12 @@ func NewPullTableLayoutWithWidth(rows []model.PullTableRow, termWidth int) *Pull
 	if termWidth < minPullTableTermWidth {
 		termWidth = defaultPullTableTermWidth
 	}
+
 	isWide := termWidth >= widePullTableThreshold
 	if isWide {
 		return buildWidePullTableLayout(rows, termWidth)
 	}
+
 	return buildCompactPullTableLayout(rows, termWidth)
 }
 
@@ -76,10 +82,12 @@ func buildWidePullTableLayout(rows []model.PullTableRow, termWidth int) *PullTab
 	if avail < 36 {
 		avail = 36
 	}
+
 	maxRepo := avail * 40 / 100
 	maxBranch := avail * 30 / 100
 	maxLatest := avail - maxRepo - maxBranch
 	totalRowWidth := 2 + maxRepo + 3 + maxBranch + 3 + maxLatest + 3 + 10 + 3 + 10 + 3 + 7 + 3 + 4
+
 	return &PullTableLayout{
 		TermWidth:   termWidth,
 		IsWide:      true,
@@ -101,15 +109,19 @@ func buildCompactPullTableLayout(rows []model.PullTableRow, termWidth int) *Pull
 	if avail < 16 {
 		avail = 16
 	}
+
 	maxRepo := avail * 55 / 100
 	maxBranch := avail - maxRepo
 	if maxRepo < 10 {
 		maxRepo = 10
 	}
+
 	if maxBranch < 8 {
 		maxBranch = 8
 	}
+
 	totalRowWidth := 2 + maxRepo + 2 + maxBranch + 2 + 8 + 2 + 10 + 2 + 7 + 2 + 4
+
 	return &PullTableLayout{
 		TermWidth:   termWidth,
 		IsWide:      false,
@@ -128,8 +140,10 @@ func buildCompactPullTableLayout(rows []model.PullTableRow, termWidth int) *Pull
 func (l *PullTableLayout) PrintHeader() {
 	if l.IsWide {
 		l.printWideHeader()
+
 		return
 	}
+
 	l.printCompactHeader()
 }
 

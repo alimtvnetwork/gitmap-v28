@@ -33,11 +33,14 @@ func ResolveReleaseBranchName(
 	if isNoReleaseBranch {
 		return ""
 	}
+
 	if !ClassifyVersionTag(tagName, isAnnotated) {
 		return ""
 	}
+
 	if isDryRun {
 		return ""
 	}
+
 	return constants.ReleaseBranchPrefix + tagName
 }

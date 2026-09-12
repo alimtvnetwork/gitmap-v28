@@ -13,13 +13,16 @@ func TestPreviewAllTargets_NumberedRulesOnly(t *testing.T) {
 	if total != 3 {
 		t.Fatalf("total: got %d want 3", total)
 	}
+
 	want := map[int]int{1: 1, 2: 2}
 	for _, h := range hits {
 		if want[h.n] != h.count {
 			t.Errorf("hit %+v not in want %v", h, want)
 		}
+
 		delete(want, h.n)
 	}
+
 	if len(want) != 0 {
 		t.Fatalf("missing hits: %v", want)
 	}
@@ -31,6 +34,7 @@ func TestPreviewAllTargets_BareBaseSweepAtV2(t *testing.T) {
 	if total != 2 {
 		t.Fatalf("total: got %d want 2", total)
 	}
+
 	// Expect one numbered hit (v1×1) + one bare-base hit (bare×1).
 	sawBare := false
 	sawV1 := false
@@ -38,10 +42,12 @@ func TestPreviewAllTargets_BareBaseSweepAtV2(t *testing.T) {
 		if h.n == fixRepoBareBaseSentinel && h.count == 1 {
 			sawBare = true
 		}
+
 		if h.n == 1 && h.count == 1 {
 			sawV1 = true
 		}
 	}
+
 	if !sawBare || !sawV1 {
 		t.Fatalf("missing hit categories: hits=%v", hits)
 	}
@@ -53,6 +59,7 @@ func TestPreviewAllTargets_RestrictSuppressesBareBase(t *testing.T) {
 	if total != 1 {
 		t.Fatalf("total: got %d want 1 (bare suppressed)", total)
 	}
+
 	for _, h := range hits {
 		if h.n == fixRepoBareBaseSentinel {
 			t.Fatalf("bare sentinel leaked despite restrictNoVersion: %v", hits)
@@ -75,6 +82,7 @@ func TestPreviewAllTargets_TotalMatchesRewriteEngine(t *testing.T) {
 		{3, []int{1, 2}, false},
 		{4, []int{1, 2, 3}, false},
 	}
+
 	for _, c := range cases {
 		_, rw := applyAllTargetsR(body, "acme", c.current, c.targets, c.restr)
 		prev, _ := previewAllTargets(body, "acme", c.current, c.targets, c.restr)

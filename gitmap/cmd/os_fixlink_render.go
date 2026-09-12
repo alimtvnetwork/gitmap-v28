@@ -54,6 +54,7 @@ func renderLinkItemTerminal(r LinkResult) {
 
 		return
 	}
+
 	if r.IsHealthy {
 		fmt.Printf("  %s✓ Healthy:%s  %s -> %s\n", constants.ColorGreen, constants.ColorReset, r.Path, r.Target)
 

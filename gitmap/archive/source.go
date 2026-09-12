@@ -57,6 +57,7 @@ func ClassifySource(s string) SourceKindType {
 	if isGitURL(s) {
 		return SourceGit
 	}
+
 	if isHTTPURL(s).Data {
 		return SourceHTTP
 	}
@@ -80,9 +81,11 @@ func isGitURL(s string) bool {
 	if strings.HasPrefix(s, "git@") && strings.Contains(s, ":") {
 		return true
 	}
+
 	if strings.HasPrefix(s, "git://") {
 		return true
 	}
+
 	if isHTTPURL(s).Data && strings.HasSuffix(strings.ToLower(s), ".git") {
 		return true
 	}
@@ -100,6 +103,7 @@ func ResolveSource(ctx context.Context, raw string) (ResolvedSource, error) {
 		if err != nil {
 			return ResolvedSource{Original: raw}, err
 		}
+
 		if _, err := os.Stat(abs); err != nil {
 			return ResolvedSource{Original: raw}, apperror.Wrap(err, "resolve local source", map[string]any{"raw": raw})
 		}
@@ -173,6 +177,7 @@ func downloadWithAria2c(params Aria2cDownloadParams) error {
 	if _, err := exec.LookPath("aria2c"); err != nil {
 		return err
 	}
+
 	cmd := exec.CommandContext(params.Ctx, "aria2c",
 		"--dir", params.Dir,
 		"--out", params.Name,
@@ -186,6 +191,7 @@ func downloadWithAria2c(params Aria2cDownloadParams) error {
 	if err := cmd.Run(); err != nil {
 		return err
 	}
+
 	info, err := os.Stat(filepath.Join(params.Dir, params.Name))
 	if err != nil || info.Size() == 0 {
 		return errors.New("aria2c produced empty file")
@@ -201,19 +207,23 @@ func downloadWithHTTP(ctx context.Context, rawURL, dst string) error {
 	if err != nil {
 		return err
 	}
+
 	client := &http.Client{Timeout: 10 * time.Minute}
 	resp, err := client.Do(req)
 	if err != nil {
 		return err
 	}
+
 	defer resp.Body.Close()
 	if resp.StatusCode < 200 || resp.StatusCode >= 300 {
 		return apperror.New("download source", "ERR_HTTP", map[string]any{"status": resp.Status})
 	}
+
 	out, err := os.OpenFile(dst, os.O_CREATE|os.O_WRONLY|os.O_TRUNC, 0o644)
 	if err != nil {
 		return err
 	}
+
 	defer out.Close()
 	_, err = io.Copy(out, resp.Body)
 
@@ -227,6 +237,7 @@ func filenameFromURL(raw string) string {
 	if err != nil {
 		return "download.bin"
 	}
+
 	base := path.Base(u.Path)
 	if base == "" || base == "/" || base == "." {
 		return "download.bin"
@@ -266,6 +277,7 @@ func AutoDetectSingleArchive(dir string) (string, error) {
 	if err != nil {
 		return "", err
 	}
+
 	entries, err := os.ReadDir(abs)
 	if err != nil {
 		return "", err
@@ -276,10 +288,12 @@ func AutoDetectSingleArchive(dir string) (string, error) {
 		if e.IsDir() {
 			continue
 		}
+
 		if FormatFromPath(e.Name()) != FormatUnknown {
 			found = append(found, filepath.Join(abs, e.Name()))
 		}
 	}
+
 	switch len(found) {
 	case 0:
 		return "", apperror.New("find archive", "ERR_NOT_FOUND", map[string]any{"dir": abs})

@@ -46,7 +46,6 @@ func TestFindNextJSONContract_EmptyIsArrayNotNull(t *testing.T) {
 // across machines and time. Used for the byte-exact + key-order
 // tests below.
 func canonicalFindNextRow() model.FindNextRow {
-
 	return model.FindNextRow{
 		Repo: model.ScanRecord{
 			ID:               42,
@@ -79,5 +78,6 @@ func TestFindNextJSONContract_CanonicalRow_KeyOrders(t *testing.T) {
 	if err := encodeFindNextJSON(&buf, rows); err != nil {
 		t.Fatalf("encode: %v", err)
 	}
+
 	assertSchemaKeysFirstObject(t, buf.Bytes(), "find-next")
 }

@@ -39,6 +39,7 @@ func printExecOutput(output string) {
 	if len(output) == 0 {
 		return
 	}
+
 	for _, line := range strings.Split(output, "\n") {
 		fmt.Printf(constants.ExecOutputLineFmt, constants.ColorDim, line, constants.ColorReset)
 	}

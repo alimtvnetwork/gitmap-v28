@@ -55,6 +55,7 @@ func runCloneNextBatch(
 	reportPath := writeBatchReport(results)
 	printBatchSummary(results, reportPath)
 	writeCNErrorReport(reportErrors, results)
+
 	return nil
 }
 
@@ -69,6 +70,7 @@ func loadBatchRepos(csvPath string, walkAll bool) ([]string, error) {
 	if err != nil {
 		return nil, err
 	}
+
 	_ = walkAll // walkAll only matters as a dispatcher trigger; the walk itself is unconditional once we get here
 
 	return clonenext.WalkBatchFromDir(cwd)
@@ -118,6 +120,7 @@ func processOneBatchRepo(repoPath string) batchRowResult {
 	if err != nil {
 		return failRow(row, err)
 	}
+
 	row.FromVersion = fromStr
 
 	updateCheck, err := evaluateRemoteUpdate(repoPath, parsed)
@@ -139,6 +142,7 @@ func processOneBatchRepo(repoPath string) batchRowResult {
 	if err != nil {
 		return failRow(row, err)
 	}
+
 	row.ToVersion = fmt.Sprintf("v%d", target)
 
 	// Delegate to the existing single-repo path by cd'ing in and re-invoking.
@@ -170,9 +174,11 @@ func evaluateRemoteUpdate(repoPath string, parsed clonenext.ParsedRepo) (clonene
 	if err != nil {
 		return clonenext.RemoteUpdateCheck{}, err
 	}
+
 	if len(state.OriginURL) == 0 {
 		return clonenext.RemoteUpdateCheck{}, fmt.Errorf("no origin remote configured")
 	}
+
 	owner, _, err := clonenext.ParseOwnerRepo(state.OriginURL)
 	if err != nil {
 		return clonenext.RemoteUpdateCheck{}, err

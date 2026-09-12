@@ -51,6 +51,7 @@ func TestMergeStringPaths(t *testing.T) {
 			if len(got) == 0 && len(tt.want) == 0 {
 				return
 			}
+
 			if !reflect.DeepEqual(got, tt.want) {
 				t.Errorf("mergeStringPaths() = %v, want %v", got, tt.want)
 			}

@@ -65,24 +65,23 @@ type Entry struct {
 // "unsupported OS" message instead of touching a non-existent dir.
 func AutostartDir() (string, error) {
 	if override := strings.TrimSpace(os.Getenv(constants.EnvStartupAutostartDir)); len(override) > 0 {
-
 		return override, nil
 	}
-	if runtime.GOOS == "windows" {
 
+	if runtime.GOOS == "windows" {
 		return "", fmt.Errorf(constants.ErrStartupUnsupportedOS)
 	}
-	if runtime.GOOS == "darwin" {
 
+	if runtime.GOOS == "darwin" {
 		return darwinLaunchAgentsDir()
 	}
-	if xdg := strings.TrimSpace(os.Getenv("XDG_CONFIG_HOME")); len(xdg) > 0 {
 
+	if xdg := strings.TrimSpace(os.Getenv("XDG_CONFIG_HOME")); len(xdg) > 0 {
 		return filepath.Join(xdg, "autostart"), nil
 	}
+
 	home, err := os.UserHomeDir()
 	if err != nil {
-
 		return "", err
 	}
 
@@ -95,7 +94,6 @@ func AutostartDir() (string, error) {
 func darwinLaunchAgentsDir() (string, error) {
 	home, err := os.UserHomeDir()
 	if err != nil {
-
 		return "", err
 	}
 
@@ -109,21 +107,20 @@ func darwinLaunchAgentsDir() (string, error) {
 // BOTH the Registry Run-key and Startup-folder backends.
 func List() ([]Entry, error) {
 	if runtime.GOOS == "windows" {
-
 		return listWindows()
 	}
+
 	dir, err := AutostartDir()
 	if err != nil {
-
 		return nil, err
 	}
+
 	files, err := os.ReadDir(dir)
 	if os.IsNotExist(err) {
-
 		return nil, nil
 	}
-	if err != nil {
 
+	if err != nil {
 		return nil, fmt.Errorf(constants.ErrStartupReadDir, dir, err)
 	}
 

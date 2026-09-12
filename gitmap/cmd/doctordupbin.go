@@ -88,14 +88,17 @@ func parseCleanLine(line string, seen map[string]struct{}) (string, bool) {
 	if len(p) == 0 {
 		return "", false
 	}
+
 	abs, err := filepath.Abs(p)
 	if err != nil {
 		abs = p
 	}
+
 	lower := strings.ToLower(abs)
 	if _, ok := seen[lower]; ok {
 		return "", false
 	}
+
 	seen[lower] = struct{}{}
 
 	return abs, true
@@ -138,11 +141,13 @@ func formatDupFixWindows(stale []string) string {
 	if len(stale) == 1 {
 		return "Remove-Item '" + stale[0] + "' -Force"
 	}
+
 	var b strings.Builder
 	for i, p := range stale {
 		if i > 0 {
 			b.WriteString("; ")
 		}
+
 		b.WriteString("Remove-Item '" + p + "' -Force")
 	}
 
@@ -156,6 +161,7 @@ func formatDupFixUnix(stale []string) string {
 	if len(stale) == 1 {
 		return "sudo rm '" + stale[0] + "'"
 	}
+
 	var b strings.Builder
 	b.WriteString("sudo rm")
 	for _, p := range stale {

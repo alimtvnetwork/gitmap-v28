@@ -25,7 +25,6 @@ import (
 // gitutil format-helper changes (we go around the helpers by
 // pre-formatting the strings ourselves at the call site).
 func canonicalLatestResult() latestBranchResult {
-
 	return latestBranchResult{
 		branchNames:    []string{"main", "develop"},
 		selectedRemote: "origin",
@@ -50,6 +49,7 @@ func TestLatestBranchJSONContract_NoTopOmitsKey(t *testing.T) {
 
 		return buf.Bytes(), err
 	}
+
 	assertGoldenBytesDeterministic(t, "latest_branch_no_top.json", encode)
 	// Schema check uses a fresh encode so a bug in the helper that
 	// mutates the returned slice cannot cross-contaminate the two checks.
@@ -72,9 +72,11 @@ func TestLatestBranchJSONContract_WithTopIncludesKey(t *testing.T) {
 			Subject:    "Initial commit",
 		},
 	}
+
 	var buf bytes.Buffer
 	if err := encodeLatestBranchJSON(&buf, canonicalLatestResult(), items, 1); err != nil {
 		t.Fatalf("encode: %v", err)
 	}
+
 	assertSchemaKeysFirstObject(t, buf.Bytes(), "latest-branch-with-top")
 }

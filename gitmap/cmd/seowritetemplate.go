@@ -124,6 +124,7 @@ func insertTemplates(db *store.DB, tf templateFile) {
 		if err := db.InsertTemplate(constants.TemplateKindTitle, t); err != nil {
 			fmt.Fprintf(os.Stderr, "  ⚠ Could not insert title template: %v\n", err)
 		}
+
 		total++
 	}
 
@@ -131,6 +132,7 @@ func insertTemplates(db *store.DB, tf templateFile) {
 		if err := db.InsertTemplate(constants.TemplateKindDescription, d); err != nil {
 			fmt.Fprintf(os.Stderr, "  ⚠ Could not insert description template: %v\n", err)
 		}
+
 		total++
 	}
 

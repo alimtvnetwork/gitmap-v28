@@ -96,8 +96,10 @@ func populateActiveRunPayload(payload *PipelineStatusPayload, runs []ghRunItem, 
 		payload.LastRunId = activeRun.DatabaseId
 		payload.LastRunUrl = activeRun.Url
 		payload.EtaSeconds = calculateETA(runs)
+
 		return
 	}
+
 	payload.ActiveWorkflow = latest.Name
 	payload.EtaSeconds = calculateETA(runs)
 }
@@ -149,16 +151,19 @@ func calculateETA(runs []ghRunItem) int {
 	if activeRun == nil {
 		return 0
 	}
+
 	createdAt, parseErr := time.Parse(time.RFC3339, activeRun.CreatedAt)
 	if parseErr != nil {
 		return 30
 	}
+
 	avgDuration := calculateAverageDuration(runs, activeRun.Name)
 	elapsedSeconds := int(time.Since(createdAt).Seconds())
 	remainingSeconds := avgDuration - elapsedSeconds
 	if remainingSeconds < 15 {
 		return 15
 	}
+
 	return remainingSeconds
 }
 
@@ -169,6 +174,7 @@ func findActiveWorkflowRun(runs []ghRunItem) *ghRunItem {
 			return &runs[i]
 		}
 	}
+
 	return nil
 }
 
@@ -177,6 +183,7 @@ func calculateAverageDuration(runs []ghRunItem, workflowName string) int {
 	if completedCount > 0 {
 		return totalDuration / completedCount
 	}
+
 	return fallbackWorkflowDuration(workflowName)
 }
 
@@ -187,11 +194,13 @@ func sumCompletedRunDurations(runs []ghRunItem, workflowName string) (int, int) 
 		if !isMatchingSuccess {
 			continue
 		}
+
 		dur := computeRunDuration(r.CreatedAt, r.UpdatedAt)
 		if dur >= 10 {
 			totalDuration += dur
 			successCount++
 		}
 	}
+
 	return totalDuration, successCount
 }

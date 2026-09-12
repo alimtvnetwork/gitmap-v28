@@ -89,5 +89,6 @@ func runAgyPluginInstall(slug string) error {
 	}
 
 	fmt.Printf("%s Successfully installed plugin %q to %s\n", constants.ColorGreen+"✓"+constants.ColorReset, slug, targetDir)
+
 	return nil
 }

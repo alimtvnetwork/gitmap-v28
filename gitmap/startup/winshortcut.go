@@ -26,18 +26,18 @@ import (
 // outcome model as every other backend.
 func addWindowsStartupFolder(clean string, opts AddOptions) (AddResult, error) {
 	if runtime.GOOS != "windows" {
-
 		return AddResult{}, fmt.Errorf(constants.ErrStartupUnsupportedOS)
 	}
+
 	dir, err := startupFolderDir()
 	if err != nil {
-
 		return AddResult{}, err
 	}
-	if err := os.MkdirAll(dir, 0o755); err != nil {
 
+	if err := os.MkdirAll(dir, 0o755); err != nil {
 		return AddResult{}, fmt.Errorf("create startup folder %s: %w", dir, err)
 	}
+
 	full := filepath.Join(dir, constants.StartupWinValuePrefix+clean+constants.StartupLnkExt)
 
 	return writeStartupShortcut(full, clean, opts)
@@ -51,24 +51,23 @@ func writeStartupShortcut(full, clean string, opts AddOptions) (AddResult, error
 	exists := fileExists(full)
 	managed := exists && trackingSubkeyExists(constants.RegGitmapStartupFolder, clean)
 	if exists && !managed {
-
 		return AddResult{Status: AddRefused, Path: full}, nil
 	}
-	if exists && managed && !opts.Force {
 
+	if exists && managed && !opts.Force {
 		return AddResult{Status: AddExists, Path: full}, nil
 	}
-	if err := writeShortcutFile(full, opts.Exec); err != nil {
 
+	if err := writeShortcutFile(full, opts.Exec); err != nil {
 		return AddResult{}, fmt.Errorf(constants.ErrStartupShortcutCreate, full, err)
 	}
+
 	if err := writeTrackingSubkey(constants.RegGitmapStartupFolder, clean,
 		opts.Exec, constants.StartupBackendStartupFolder, opts.WorkingDir); err != nil {
-
 		return AddResult{}, err
 	}
-	if exists {
 
+	if exists {
 		return AddResult{Status: AddOverwritten, Path: full}, nil
 	}
 
@@ -80,33 +79,32 @@ func writeStartupShortcut(full, clean string, opts AddOptions) (AddResult, error
 // semantics as the Linux Remove path.
 func removeWindowsStartupFolder(clean string, opts RemoveOptions) (RemoveResult, error) {
 	if runtime.GOOS != "windows" {
-
 		return RemoveResult{}, fmt.Errorf(constants.ErrStartupUnsupportedOS)
 	}
+
 	dir, err := startupFolderDir()
 	if err != nil {
-
 		return RemoveResult{}, err
 	}
+
 	full := filepath.Join(dir, constants.StartupWinValuePrefix+clean+constants.StartupLnkExt)
 	if !fileExists(full) {
-
 		return RemoveResult{Status: RemoveNoOp, DryRun: opts.DryRun}, nil
 	}
-	if !trackingSubkeyExists(constants.RegGitmapStartupFolder, clean) {
 
+	if !trackingSubkeyExists(constants.RegGitmapStartupFolder, clean) {
 		return RemoveResult{Status: RemoveRefused, Path: full, DryRun: opts.DryRun}, nil
 	}
-	if opts.DryRun {
 
+	if opts.DryRun {
 		return RemoveResult{Status: RemoveDeleted, Path: full, DryRun: true}, nil
 	}
-	if err := os.Remove(full); err != nil {
 
+	if err := os.Remove(full); err != nil {
 		return RemoveResult{}, fmt.Errorf("delete %s: %w", full, err)
 	}
-	if err := deleteTrackingSubkey(constants.RegGitmapStartupFolder, clean); err != nil {
 
+	if err := deleteTrackingSubkey(constants.RegGitmapStartupFolder, clean); err != nil {
 		return RemoveResult{}, err
 	}
 
@@ -118,21 +116,20 @@ func removeWindowsStartupFolder(clean string, opts RemoveOptions) (RemoveResult,
 // Missing folder is "zero entries", not an error.
 func listWindowsStartupFolder() ([]Entry, error) {
 	if runtime.GOOS != "windows" {
-
 		return nil, nil
 	}
+
 	dir, err := startupFolderDir()
 	if err != nil {
-
 		return nil, err
 	}
+
 	files, err := os.ReadDir(dir)
 	if os.IsNotExist(err) {
-
 		return nil, nil
 	}
-	if err != nil {
 
+	if err != nil {
 		return nil, fmt.Errorf(constants.ErrStartupReadDir, dir, err)
 	}
 
@@ -148,15 +145,18 @@ func collectStartupFolderManaged(dir string, files []os.DirEntry) []Entry {
 		if f.IsDir() {
 			continue
 		}
+
 		name := f.Name()
 		if !looksLikeOursLnk(name) {
 			continue
 		}
+
 		clean := strings.TrimSuffix(strings.TrimPrefix(name,
 			constants.StartupWinValuePrefix), constants.StartupLnkExt)
 		if !trackingSubkeyExists(constants.RegGitmapStartupFolder, clean) {
 			continue
 		}
+
 		out = append(out, Entry{
 			Name: strings.TrimSuffix(name, constants.StartupLnkExt),
 			Path: filepath.Join(dir, name),

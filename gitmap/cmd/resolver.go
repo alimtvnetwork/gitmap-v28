@@ -15,19 +15,24 @@ func ResolveRepo(db *store.DB, target string) (*model.ScanRecord, error) {
 	if err != nil {
 		return nil, fmt.Errorf("list repos: %w", err)
 	}
+
 	t := strings.TrimSpace(target)
 	if len(t) == 0 || t == "." {
 		return resolveByPWD(all)
 	}
+
 	if rec := resolveByPath(t, all); rec != nil {
 		return rec, nil
 	}
+
 	if rec := resolveByAlias(db, t, all); rec != nil {
 		return rec, nil
 	}
+
 	if rec := resolveBySlug(t, all); rec != nil {
 		return rec, nil
 	}
+
 	return nil, fmt.Errorf("no repository matched %q", target)
 }
 
@@ -37,6 +42,7 @@ func ResolveMultiRepos(db *store.DB, targets []string) ([]model.ScanRecord, []st
 	if err != nil {
 		return nil, targets
 	}
+
 	var out []model.ScanRecord
 	var missing []string
 	seen := make(map[int64]bool)
@@ -47,6 +53,7 @@ func ResolveMultiRepos(db *store.DB, targets []string) ([]model.ScanRecord, []st
 			missing = append(missing, t)
 			continue
 		}
+
 		for _, r := range hits {
 			if !seen[r.ID] {
 				seen[r.ID] = true
@@ -54,6 +61,7 @@ func ResolveMultiRepos(db *store.DB, targets []string) ([]model.ScanRecord, []st
 			}
 		}
 	}
+
 	return out, missing
 }
 
@@ -62,10 +70,12 @@ func resolveOneMulti(db *store.DB, target string, all []model.ScanRecord) []mode
 	if isGlob(t) {
 		return resolveByGlob(t, all)
 	}
+
 	rec, err := ResolveRepo(db, t)
 	if err == nil && rec != nil {
 		return []model.ScanRecord{*rec}
 	}
+
 	return nil
 }
 
@@ -76,6 +86,7 @@ func resolveBySlug(target string, all []model.ScanRecord) *model.ScanRecord {
 			return &r
 		}
 	}
+
 	return nil
 }
 
@@ -98,15 +109,18 @@ func resolveEndpointString(raw string) string {
 			return raw
 		}
 	}
+
 	db, err := openDB()
 	if err != nil || db == nil {
 		return raw
 	}
+
 	defer db.Close()
 
 	rec, err := ResolveRepo(db, raw)
 	if err == nil && rec != nil {
 		return rec.AbsolutePath
 	}
+
 	return raw
 }

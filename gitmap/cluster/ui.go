@@ -57,6 +57,7 @@ func (ui *TerminalUI) render() {
 
 	if isEmpty {
 		fmt.Print(MsgNoClients)
+
 		return
 	}
 

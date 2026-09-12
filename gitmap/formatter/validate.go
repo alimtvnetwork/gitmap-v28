@@ -118,6 +118,7 @@ func checkSlugConsistency(
 	if len(rec.Slug) == 0 || len(rec.RepoName) == 0 {
 		return issues
 	}
+
 	want := strings.ToLower(rec.RepoName)
 	if rec.Slug == want {
 		return issues

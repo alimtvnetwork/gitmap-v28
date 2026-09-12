@@ -19,6 +19,7 @@ func extractDocsSiteZip(zipPath, targetDir string) error {
 	if err != nil {
 		return fmt.Errorf("open zip: %w", err)
 	}
+
 	defer r.Close()
 
 	absTarget, err := filepath.Abs(targetDir)
@@ -64,6 +65,7 @@ func extractDocsZipEntry(f *zip.File, absTarget string, totalSize int64) (int64,
 	if openErr != nil {
 		return 0, fmt.Errorf("open entry %s: %w", f.Name, openErr)
 	}
+
 	defer rc.Close()
 
 	outFile, createErr := os.Create(absDestPath) // #nosec G304 — absDestPath validated above
@@ -87,5 +89,6 @@ func handleExtractDir(absDestPath string) (int64, error) {
 	if mkErr != nil {
 		return 0, fmt.Errorf("create dir %s: %w", absDestPath, mkErr)
 	}
+
 	return 0, nil
 }

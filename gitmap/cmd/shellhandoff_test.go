@@ -29,6 +29,7 @@ func TestWriteShellHandoffWritesPath(t *testing.T) {
 	if err != nil {
 		t.Fatalf("expected sentinel file to exist: %v", err)
 	}
+
 	if string(got) != target {
 		t.Fatalf("expected %q in sentinel; got %q", target, string(got))
 	}
@@ -42,6 +43,7 @@ func TestWriteShellHandoffEmptyPathIsNoop(t *testing.T) {
 	if err := os.WriteFile(sentinel, []byte("preserved"), 0o600); err != nil {
 		t.Fatalf("seed sentinel: %v", err)
 	}
+
 	t.Setenv(constants.EnvGitmapHandoffFile, sentinel)
 
 	WriteShellHandoff("")

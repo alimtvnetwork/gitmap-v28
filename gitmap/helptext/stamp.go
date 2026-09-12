@@ -40,6 +40,7 @@ func ValidateStamp(command string, body string, want fixtureversion.Expectation)
 	if !ok {
 		return nil
 	}
+
 	stamp, ok := fixtureversion.ParseMarker(marker)
 	if !ok {
 		return fmt.Errorf("helptext %q has a fixture-stamp comment but it failed to parse; "+
@@ -61,11 +62,13 @@ func extractHelpMarker(body string) (string, bool) {
 	if len(head) > 1024 {
 		head = head[:1024]
 	}
+
 	for _, line := range strings.Split(head, "\n") {
 		trimmed := strings.TrimSpace(line)
 		if !strings.HasPrefix(trimmed, stampCommentPrefix) {
 			continue
 		}
+
 		// Convert `<!-- fixture-stamp: X -->` → `// fixture-stamp: X`
 		inner := strings.TrimPrefix(trimmed, "<!--")
 		inner = strings.TrimSuffix(inner, "-->")

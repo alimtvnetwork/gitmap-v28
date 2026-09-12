@@ -17,6 +17,7 @@ func TestNilCollectorIsNoOp(t *testing.T) {
 	if s, k := c.Count(); s != 0 || k != 0 {
 		t.Fatalf("nil Count must be 0/0, got %d/%d", s, k)
 	}
+
 	got, err := c.WriteIfAny(t.TempDir())
 	if err != nil || got != "" {
 		t.Fatalf("nil WriteIfAny must be ('',nil), got (%q,%v)", got, err)
@@ -33,9 +34,11 @@ func TestWriteIfAnySkipsCleanRun(t *testing.T) {
 	if err != nil {
 		t.Fatalf("WriteIfAny: %v", err)
 	}
+
 	if got != "" {
 		t.Fatalf("empty collector must return '', got %q", got)
 	}
+
 	entries, _ := os.ReadDir(filepath.Join(dir, reportDirRel))
 	if len(entries) != 0 {
 		t.Fatalf("clean run must leave reports dir empty, got %d entries", len(entries))
@@ -57,6 +60,7 @@ func TestWriteIfAnyEmitsGroupedPayload(t *testing.T) {
 	if err != nil {
 		t.Fatalf("WriteIfAny: %v", err)
 	}
+
 	if path == "" {
 		t.Fatal("expected non-empty path for non-empty collector")
 	}
@@ -65,19 +69,24 @@ func TestWriteIfAnyEmitsGroupedPayload(t *testing.T) {
 	if err != nil {
 		t.Fatalf("read back: %v", err)
 	}
+
 	var out fileShape
 	if err := json.Unmarshal(body, &out); err != nil {
 		t.Fatalf("unmarshal: %v", err)
 	}
+
 	if out.Meta.Version != "test-1.2.3" || out.Meta.Command != "scan+clone-next" {
 		t.Fatalf("meta mismatch: %+v", out.Meta)
 	}
+
 	if out.Meta.TotalScan != 2 || out.Meta.TotalClone != 1 {
 		t.Fatalf("totals wrong: scan=%d clone=%d", out.Meta.TotalScan, out.Meta.TotalClone)
 	}
+
 	if len(out.Scan) != 2 || len(out.Clone) != 1 {
 		t.Fatalf("entry counts wrong: %+v", out)
 	}
+
 	for _, e := range append(out.Scan, out.Clone...) {
 		if e.TimestampUnixMS == 0 {
 			t.Fatalf("entry missing timestamp: %+v", e)
@@ -102,6 +111,7 @@ func TestConcurrentAdd(t *testing.T) {
 			}
 		}(w)
 	}
+
 	wg.Wait()
 	gotScan, _ := c.Count()
 	if gotScan != writers*perWriter {

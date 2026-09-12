@@ -18,11 +18,13 @@ func setupInstallerInstallWinTestDB(t *testing.T) *store.DB {
 	if err != nil {
 		t.Fatalf("failed to open test database: %v", err)
 	}
+
 	t.Cleanup(func() { db.Close() })
 
 	if errMigrate := db.MigrateInstallers(); errMigrate != nil {
 		t.Fatalf("failed to migrate installers: %v", errMigrate)
 	}
+
 	return db
 }
 
@@ -35,6 +37,7 @@ func TestInstallerInstallWinCmd(t *testing.T) {
 	if err != nil {
 		t.Fatalf("unexpected error parsing flags: %v", err)
 	}
+
 	if flags.Slug != "my-app" || !flags.DryRun {
 		t.Errorf("unexpected parsed values: %+v", flags)
 	}
@@ -53,6 +56,7 @@ func TestInstallerInstallWinCmd(t *testing.T) {
 		TargetOS: "win",
 		Version:  "v1.0.0",
 	}
+
 	if errCreate := db.CreateInstaller(script); errCreate != nil {
 		t.Fatalf("failed to seed installer: %v", errCreate)
 	}
@@ -69,14 +73,17 @@ func TestInstallerInstallWinCmd(t *testing.T) {
 		TargetOS: "ubuntu",
 		Version:  "v1.0.0",
 	}
+
 	if errCreate := db.CreateInstaller(scriptUbuntu); errCreate != nil {
 		t.Fatalf("failed to seed installer: %v", errCreate)
 	}
+
 	flagsMismatch := &InstallWinFlags{Slug: "ubuntu-app"}
 	errMismatch := executeInstallWin(ctx, db, flagsMismatch)
 	if errMismatch == nil {
 		t.Fatal("expected OS mismatch error")
 	}
+
 	appErr, ok := errMismatch.(*apperror.AppError)
 	if !ok || appErr.Code != "E_INSTALLER_OS_MISMATCH" {
 		t.Errorf("expected E_INSTALLER_OS_MISMATCH code, got: %v", errMismatch)

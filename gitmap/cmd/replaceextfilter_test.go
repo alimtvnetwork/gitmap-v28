@@ -22,6 +22,7 @@ func TestNormalizeExtListInsensitive(t *testing.T) {
 		{"dedup case-folded", ".go,go,.GO", []string{".go"}},
 		{"drops empties and lone dot", ".,,.md, ", []string{".md"}},
 	}
+
 	for _, tc := range cases {
 		t.Run(tc.name, func(t *testing.T) {
 			got := normalizeExtList(tc.in, true)
@@ -49,25 +50,31 @@ func TestMatchesExtFilterCaseModes(t *testing.T) {
 	if !matchesExtFilter("/x/foo.go", nil, true) {
 		t.Error("nil filter must match every file (insensitive)")
 	}
+
 	if !matchesExtFilter("/x/foo.go", nil, false) {
 		t.Error("nil filter must match every file (sensitive)")
 	}
+
 	// insensitive: GO matches .go list
 	if !matchesExtFilter("/x/foo.GO", []string{".go"}, true) {
 		t.Error("insensitive: .GO should match .go list")
 	}
+
 	// sensitive: GO does NOT match .go list
 	if matchesExtFilter("/x/foo.GO", []string{".go"}, false) {
 		t.Error("sensitive: .GO must not match .go list")
 	}
+
 	// sensitive: GO matches .GO list
 	if !matchesExtFilter("/x/foo.GO", []string{".GO"}, false) {
 		t.Error("sensitive: .GO must match .GO list")
 	}
+
 	// no-extension file fails non-empty filter in both modes
 	if matchesExtFilter("/x/Makefile", []string{".go"}, true) {
 		t.Error("Makefile must not match a non-empty filter")
 	}
+
 	if matchesExtFilter("/x/Makefile", []string{".go"}, false) {
 		t.Error("Makefile must not match a non-empty filter (sensitive)")
 	}
@@ -84,6 +91,7 @@ func TestResolveExtCase(t *testing.T) {
 		"  sensitive  ": false,
 		"Sensitive":     false,
 	}
+
 	for in, want := range cases {
 		if got := resolveExtCase(in); got != want {
 			t.Errorf("resolveExtCase(%q) = %v, want %v", in, got, want)
@@ -109,18 +117,22 @@ func TestParseReplaceFlagsExtAndCase(t *testing.T) {
 		{"equals form", []string{"--ext=.go", "--ext-case=sensitive", "old", "new"},
 			[]string{".go"}, false},
 	}
+
 	for _, tc := range cases {
 		t.Run(tc.name, func(t *testing.T) {
 			opts, pos, err := parseReplaceFlags(tc.args)
 			if err != nil {
 				t.Fatalf("parseReplaceFlags: %v", err)
 			}
+
 			if !equalStringSlice(opts.exts, tc.wantExts) {
 				t.Errorf("opts.exts = %v, want %v", opts.exts, tc.wantExts)
 			}
+
 			if opts.extCaseIns != tc.wantInsens {
 				t.Errorf("opts.extCaseIns = %v, want %v", opts.extCaseIns, tc.wantInsens)
 			}
+
 			if len(pos) != 2 || pos[0] != "old" || pos[1] != "new" {
 				t.Errorf("positional = %v, want [old new]", pos)
 			}
@@ -142,6 +154,7 @@ func TestWalkRepoFilesExtCaseSensitive(t *testing.T) {
 	if err != nil {
 		t.Fatalf("walkRepoFiles: %v", err)
 	}
+
 	rels := relativizeAll(t, root, got)
 	sort.Strings(rels)
 

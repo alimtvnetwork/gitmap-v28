@@ -33,6 +33,7 @@ func TestValidateStamp_StaleFails(t *testing.T) {
 	if err == nil {
 		t.Fatal("stale stamp must fail validation")
 	}
+
 	if !strings.Contains(err.Error(), "generation 1") {
 		t.Fatalf("error should surface stale generation, got: %v", err)
 	}

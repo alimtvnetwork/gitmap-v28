@@ -53,5 +53,6 @@ func PrintPreflight(
 
 	ans = strings.TrimSpace(strings.ToLower(ans))
 	isConfirmed := ans == "y" || ans == "yes"
+
 	return isConfirmed, nil
 }

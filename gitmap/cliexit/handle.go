@@ -28,11 +28,13 @@ func HandleError(err error, defaultCode ...int) {
 
 		return
 	}
+
 	code := resolveExitCode(defaultCode...)
 	appErr := ensureAppError(err)
 	if appErr == nil {
 		return
 	}
+
 	dispatchError(appErr, code)
 }
 
@@ -67,6 +69,7 @@ func dispatchError(appErr *apperror.AppError, code int) {
 	if os.Getenv("GITMAP_ERROR_PANIC") == "1" {
 		panic(appErr)
 	}
+
 	exitFunc(code)
 }
 
@@ -80,6 +83,7 @@ func WriteAppErrorReport(w io.Writer, e *apperror.AppError) {
 	if e == nil {
 		return
 	}
+
 	writeErrorHeader(w, e)
 	writeErrorMetadata(w, e)
 	writeErrorStack(w, e)
@@ -92,6 +96,7 @@ func writeErrorHeader(w io.Writer, e *apperror.AppError) {
 
 		return
 	}
+
 	fmt.Fprintf(w, "gitmap: [%s:%s] %s\n", e.Code, e.Type, e.Op)
 }
 
@@ -99,12 +104,15 @@ func writeErrorMetadata(w io.Writer, e *apperror.AppError) {
 	if e.Caller != "" {
 		fmt.Fprintf(w, "  origin: %s\n", e.Caller)
 	}
+
 	if e.Creator != "" {
 		fmt.Fprintf(w, "  creator: %s\n", e.Creator)
 	}
+
 	if len(e.Ctx) > 0 {
 		fmt.Fprintf(w, "  context: %v\n", e.Ctx)
 	}
+
 	if e.Cause != nil {
 		fmt.Fprintf(w, "  cause: %v\n", e.Cause)
 	}
@@ -122,6 +130,7 @@ func isStackTraceEnabled(e *apperror.AppError) bool {
 	if isDebug {
 		return true
 	}
+
 	isFatal := e.Code == "E9000" || e.Type == apperror.ErrorTypeExecution || e.Severity == apperror.SeverityFatal
 	if isFatal {
 		return true

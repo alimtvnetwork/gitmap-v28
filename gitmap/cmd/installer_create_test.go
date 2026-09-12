@@ -55,6 +55,7 @@ func TestInstallerCreateCmd(t *testing.T) {
 	if !errors.As(errNil, &appErr) {
 		t.Fatalf("expected *apperror.AppError, got %T", errNil)
 	}
+
 	if appErr.Code != "E_INSTALLER_NIL_COMMAND" {
 		t.Fatalf("expected code E_INSTALLER_NIL_COMMAND, got %q", appErr.Code)
 	}
@@ -65,9 +66,11 @@ func TestInstallerCreateCmd(t *testing.T) {
 	if errEmpty == nil {
 		t.Fatal("expected error when running with empty args")
 	}
+
 	if !errors.As(errEmpty, &appErr) {
 		t.Fatalf("expected *apperror.AppError, got %T", errEmpty)
 	}
+
 	if appErr.Code != "E_INSTALLER_INVALID_INPUT" {
 		t.Fatalf("expected code E_INSTALLER_INVALID_INPUT, got %q", appErr.Code)
 	}
@@ -81,15 +84,19 @@ func TestParseCreateFlagsSuccess(t *testing.T) {
 	if err != nil {
 		t.Fatalf("parseCreateFlags failed: %v", err)
 	}
+
 	if flags.Name != "my-awesome-tool" {
 		t.Errorf("expected Name 'my-awesome-tool', got %q", flags.Name)
 	}
+
 	if flags.Slug != "my-awesome-tool" {
 		t.Errorf("expected Slug 'my-awesome-tool', got %q", flags.Slug)
 	}
+
 	if flags.TargetOS != "win" {
 		t.Errorf("expected default TargetOS 'win', got %q", flags.TargetOS)
 	}
+
 	if flags.Version != "v1.0.0" {
 		t.Errorf("expected default Version 'v1.0.0', got %q", flags.Version)
 	}
@@ -103,25 +110,32 @@ func TestParseCreateFlagsSuccess(t *testing.T) {
 		"-i", `{"step":"go install"}`,
 		"-s", "go-cli-custom",
 	}
+
 	flagsFull, errFull := parseCreateFlags(fullArgs)
 	if errFull != nil {
 		t.Fatalf("parseCreateFlags with full args failed: %v", errFull)
 	}
+
 	if flagsFull.Name != "Golang CLI Tool" {
 		t.Errorf("expected Name 'Golang CLI Tool', got %q", flagsFull.Name)
 	}
+
 	if flagsFull.Slug != "go-cli-custom" {
 		t.Errorf("expected Slug 'go-cli-custom', got %q", flagsFull.Slug)
 	}
+
 	if flagsFull.Description != "Installs go binaries" {
 		t.Errorf("expected Description 'Installs go binaries', got %q", flagsFull.Description)
 	}
+
 	if flagsFull.TargetOS != "ubuntu" {
 		t.Errorf("expected TargetOS 'ubuntu', got %q", flagsFull.TargetOS)
 	}
+
 	if flagsFull.Version != "v2.1.0" {
 		t.Errorf("expected Version 'v2.1.0', got %q", flagsFull.Version)
 	}
+
 	if flagsFull.Instructions != `{"step":"go install"}` {
 		t.Errorf("expected Instructions %q, got %q", `{"step":"go install"}`, flagsFull.Instructions)
 	}
@@ -131,6 +145,7 @@ func TestParseCreateFlagsSuccess(t *testing.T) {
 	if errSpace != nil {
 		t.Fatalf("parseCreateFlags failed: %v", errSpace)
 	}
+
 	if flagsSpace.Slug != "docker-desktop-suite" {
 		t.Errorf("expected Slug 'docker-desktop-suite', got %q", flagsSpace.Slug)
 	}
@@ -144,6 +159,7 @@ func TestParseCreateFlagsFailure(t *testing.T) {
 	if errEmpty == nil {
 		t.Fatal("expected error on empty args")
 	}
+
 	var appErr *apperror.AppError
 	if !errors.As(errEmpty, &appErr) || appErr.Code != "E_INSTALLER_INVALID_INPUT" {
 		t.Fatalf("expected E_INSTALLER_INVALID_INPUT, got %v", errEmpty)
@@ -154,6 +170,7 @@ func TestParseCreateFlagsFailure(t *testing.T) {
 	if errFlag == nil {
 		t.Fatal("expected error on invalid flag")
 	}
+
 	if !errors.As(errFlag, &appErr) || appErr.Code != "E_INSTALLER_INVALID_FLAGS" {
 		t.Fatalf("expected E_INSTALLER_INVALID_FLAGS, got %v", errFlag)
 	}
@@ -163,6 +180,7 @@ func TestParseCreateFlagsFailure(t *testing.T) {
 	if errBlank == nil {
 		t.Fatal("expected error on blank name")
 	}
+
 	if !errors.As(errBlank, &appErr) || appErr.Code != "E_INSTALLER_INVALID_INPUT" {
 		t.Fatalf("expected E_INSTALLER_INVALID_INPUT, got %v", errBlank)
 	}
@@ -194,6 +212,7 @@ func TestExecuteCreate(t *testing.T) {
 	if errGet != nil {
 		t.Fatalf("GetInstallerBySlug failed: %v", errGet)
 	}
+
 	if saved.Name != "NodeJS LTS" || saved.Version != "v18.0.0" {
 		t.Errorf("saved script mismatch: %+v", saved)
 	}
@@ -203,6 +222,7 @@ func TestExecuteCreate(t *testing.T) {
 	if errDup == nil {
 		t.Fatal("expected error on duplicate slug")
 	}
+
 	var appErr *apperror.AppError
 	if !errors.As(errDup, &appErr) || appErr.Code != "E_INSTALLER_CREATE_FAILED" {
 		t.Fatalf("expected E_INSTALLER_CREATE_FAILED, got %v", errDup)
@@ -213,6 +233,7 @@ func TestExecuteCreate(t *testing.T) {
 	if errNilDB == nil {
 		t.Fatal("expected error on nil db")
 	}
+
 	if !errors.As(errNilDB, &appErr) || appErr.Code != "E_INSTALLER_INVALID_INPUT" {
 		t.Fatalf("expected E_INSTALLER_INVALID_INPUT, got %v", errNilDB)
 	}
@@ -222,6 +243,7 @@ func TestExecuteCreate(t *testing.T) {
 	if errNilFlags == nil {
 		t.Fatal("expected error on nil flags")
 	}
+
 	if !errors.As(errNilFlags, &appErr) || appErr.Code != "E_INSTALLER_INVALID_INPUT" {
 		t.Fatalf("expected E_INSTALLER_INVALID_INPUT, got %v", errNilFlags)
 	}

@@ -64,5 +64,6 @@ func TestHistoryJSONContract_CanonicalRow_KeyOrders(t *testing.T) {
 	if err := encodeHistoryJSON(&buf, records); err != nil {
 		t.Fatalf("encode: %v", err)
 	}
+
 	assertSchemaKeysFirstObject(t, buf.Bytes(), "history")
 }

@@ -34,15 +34,19 @@ func runCode(args []string) error {
 		switch strings.ToLower(args[0]) {
 		case "install":
 			runCodeInstall()
+
 			return nil
 		case "paths":
 			runCodePaths(args[1:])
+
 			return nil
 		case "pap", "prompt-all-project":
 			fmt.Println("Feature [vscode pap] is not yet implemented")
+
 			return nil
 		case "plugins", "plugin":
 			fmt.Println("Feature [vscode plugins] is not yet implemented")
+
 			return nil
 		case "ls", "list", "add", "add-project", "ap", "rm", "remove", "delete", "del",
 			"optimize-projects", "optimize", "--repeat-fix", "-r", "dedupe", "dedup", "clear", "clean",
@@ -70,6 +74,7 @@ func runCode(args []string) error {
 
 	syncCodeEntry(resolved, alias, extras)
 	openInVSCode(resolved)
+
 	return nil
 }
 
@@ -132,6 +137,7 @@ func upsertCodeEntry(rootPath, name string) {
 		fmt.Fprintln(os.Stderr, err.Error())
 		cliexit.HandleError(nil, 1)
 	}
+
 	defer db.Close()
 
 	if err := db.UpsertVSCodeProject(rootPath, name); err != nil {
@@ -151,6 +157,7 @@ func appendCodePathsToDB(rootPath string, extras []string) {
 		fmt.Fprintln(os.Stderr, err.Error())
 		cliexit.HandleError(nil, 1)
 	}
+
 	defer db.Close()
 
 	row, err := db.FindVSCodeProjectByPath(rootPath)
@@ -180,6 +187,7 @@ func resolveExtras(extras []string) []string {
 			fmt.Fprintln(os.Stderr, err.Error())
 			cliexit.HandleError(nil, 1)
 		}
+
 		out = append(out, abs)
 	}
 
@@ -197,6 +205,7 @@ func mergeStringPaths(existing, incoming []string) []string {
 		if _, dup := seen[key]; dup {
 			continue
 		}
+
 		seen[key] = struct{}{}
 		out = append(out, p)
 	}
@@ -206,6 +215,7 @@ func mergeStringPaths(existing, incoming []string) []string {
 		if _, dup := seen[key]; dup {
 			continue
 		}
+
 		seen[key] = struct{}{}
 		out = append(out, p)
 	}
@@ -285,6 +295,7 @@ func runCodePaths(args []string) error {
 		fmt.Fprintf(os.Stderr, "unknown subcommand: %s\nusage: gitmap code paths <add|rm|list> <alias> [path]\n", op)
 		cliexit.HandleError(nil, 2)
 	}
+
 	return nil
 }
 
@@ -308,6 +319,7 @@ func runCodePathsAdd(args []string) error {
 	persistAliasPaths(row.RootPath, alias, merged)
 	syncAliasEntry(row.RootPath, row.Name, merged)
 	fmt.Printf(constants.MsgVSCodePMPathsAdded, alias, abs)
+
 	return nil
 }
 
@@ -332,6 +344,7 @@ func runCodePathsRm(args []string) error {
 
 			continue
 		}
+
 		pruned = append(pruned, p)
 	}
 
@@ -344,6 +357,7 @@ func runCodePathsRm(args []string) error {
 	persistAliasPaths(row.RootPath, alias, pruned)
 	overwriteAliasEntry(row.RootPath, row.Name, pruned)
 	fmt.Printf(constants.MsgVSCodePMPathsRemoved, alias, abs)
+
 	return nil
 }
 
@@ -365,6 +379,7 @@ func runCodePathsList(args []string) error {
 	if len(row.Paths) == 0 {
 		fmt.Print(constants.MsgVSCodePMPathsNone)
 	}
+
 	return nil
 }
 
@@ -386,6 +401,7 @@ func lookupAlias(alias string) (row aliasRow) {
 		fmt.Fprintln(os.Stderr, err.Error())
 		cliexit.HandleError(nil, 1)
 	}
+
 	defer db.Close()
 
 	found, err := db.FindVSCodeProjectByName(alias)
@@ -394,6 +410,7 @@ func lookupAlias(alias string) (row aliasRow) {
 		fmt.Fprintln(os.Stderr)
 		cliexit.HandleError(nil, 1)
 	}
+
 	if err != nil {
 		fmt.Fprintln(os.Stderr, err.Error())
 		cliexit.HandleError(nil, 1)
@@ -417,6 +434,7 @@ func persistAliasPaths(rootPath, alias string, paths []string) {
 		fmt.Fprintln(os.Stderr, err.Error())
 		cliexit.HandleError(nil, 1)
 	}
+
 	defer db.Close()
 
 	if err := db.SetVSCodeProjectPaths(rootPath, paths); err != nil {
@@ -455,5 +473,6 @@ func runCodeInstall() error {
 		fmt.Fprintf(os.Stderr, "gitmap install vscode-ctx failed: %v\n", err)
 		cliexit.HandleError(nil, 1)
 	}
+
 	return nil
 }

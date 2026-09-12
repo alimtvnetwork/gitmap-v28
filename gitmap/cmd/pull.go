@@ -50,21 +50,27 @@ func runPull(args []string) error {
 	useSSH, useHTTPS, rest := extractTransportFlags(args)
 	if useSSH || useHTTPS {
 		runPullCWDWithTransport(useSSH, useHTTPS, rest)
+
 		return nil
 	}
+
 	opts := parsePullFlags(args)
 	if opts.verbose {
 		initVerboseLog()
 	}
+
 	if isPullCWDEnabled(opts) {
 		fmt.Println("  ↳ cwd is a git repo — running plain `git pull` here")
 		runPullCWD()
+
 		return nil
 	}
+
 	records, ok := resolvePullBatchRecords(opts)
 	if !ok {
 		return nil
 	}
+
 	fmt.Printf("  ↳ resolved %d repo(s) to pull\n", len(records))
 	if opts.onlyAvailable {
 		records = filterByAvailableUpdates(records)
@@ -73,6 +79,7 @@ func runPull(args []string) error {
 	isAvailableEmpty := opts.onlyAvailable && len(records) == 0
 	if isAvailableEmpty {
 		fmt.Print(constants.MsgPullNoAvailable)
+
 		return nil
 	}
 
@@ -97,6 +104,7 @@ func runPull(args []string) error {
 		if diag.IsDirty {
 			status = "DIRTY"
 		}
+
 		latestBranch := gitutil.GetLatestRemoteBranch(rec.AbsolutePath)
 		tableRows = append(tableRows, model.PullTableRow{
 			RepoName:     rec.RepoName,
@@ -110,6 +118,7 @@ func runPull(args []string) error {
 			Reason:       diag.SummaryReason,
 		})
 	}
+
 	RenderPullBatchTable(tableRows)
 
 	var remItems []RemediationItem
@@ -126,6 +135,7 @@ func runPull(args []string) error {
 			})
 		}
 	}
+
 	handlePullRemediation(remItems, opts)
 
 	if code := prog.ExitCodeForBatch(); code != 0 {
@@ -136,6 +146,7 @@ func runPull(args []string) error {
 	}
 
 	completePendingTask(taskDB, taskID)
+
 	return nil
 }
 
@@ -164,9 +175,11 @@ func pullNoTargetsHint(opts pullOptions) bool {
 	if opts.slug != "" || opts.group != "" || opts.all || HasAlias() {
 		return false
 	}
+
 	if isGitRepoCWD() {
 		return false
 	}
+
 	fmt.Println("  ↳ nothing to pull:")
 	fmt.Println("     • current directory is not a git repository")
 	fmt.Println("     • no <repo-name>, --group, --all, or -A alias provided")
@@ -175,6 +188,7 @@ func pullNoTargetsHint(opts pullOptions) bool {
 	fmt.Println("     gitmap pull --all")
 	fmt.Println("     gitmap pull --group <group>")
 	fmt.Println("     cd <repo> && gitmap pull")
+
 	return true
 }
 
@@ -187,6 +201,7 @@ func isGitRepoCWD() bool {
 	if err != nil {
 		return false
 	}
+
 	return strings.TrimSpace(string(out)) == "true"
 }
 
@@ -195,6 +210,7 @@ func isGitRepoCWD() bool {
 
 func runPullCWD() error {
 	runPullCWDWithTransport(false, false, nil)
+
 	return nil
 }
 
@@ -208,12 +224,14 @@ func runPullCWDWithTransport(useSSH, useHTTPS bool, extraArgs []string) error {
 	if !isGitRepoCWD() {
 		return handleNonGitPull(cwd, extraArgs)
 	}
+
 	if _, _, _, err := ApplyTransportFlag(cwd, useSSH, useHTTPS); err != nil {
 		fmt.Fprintf(os.Stderr, "✗ %v\n", err)
 		cliexit.HandleGeneralError(apperror.WrapSimple(err, "apply transport flag"))
 
 		return nil
 	}
+
 	gitArgs := append([]string{"pull"}, extraArgs...)
 	fmt.Printf("→ Running: git %s (cwd: %s)\n", joinForLog(gitArgs), cwd)
 	cmd := exec.Command("git", gitArgs...)
@@ -229,12 +247,14 @@ func runPullCWDWithTransport(useSSH, useHTTPS bool, extraArgs []string) error {
 
 		return nil
 	}
+
 	if err != nil {
 		fmt.Fprintf(os.Stderr, "git pull failed: %v\n", err)
 		cliexit.HandleGeneralError(apperror.WrapSimple(err, "git pull failed"))
 
 		return nil
 	}
+
 	return nil
 }
 
@@ -256,6 +276,7 @@ func extractTransportFlags(args []string) (bool, bool, []string) {
 			rest = append(rest, a)
 		}
 	}
+
 	return useSSH, useHTTPS, rest
 }
 
@@ -266,6 +287,7 @@ func beginPullTask(records []model.ScanRecord) (int64, *store.DB) {
 	if wdErr != nil {
 		fmt.Fprintf(os.Stderr, "  ⚠ Could not determine working directory: %v\n", wdErr)
 	}
+
 	cmdArgs := buildCommandArgs(append([]string{"pull"}, os.Args[2:]...))
 	targetPath := workDir
 	if len(records) == 1 {
@@ -282,16 +304,20 @@ func executePull(records []model.ScanRecord, prog *cloner.BatchProgress, opts pu
 	if !ok {
 		cliexit.HandleError(apperror.NewSimple("invalid concurrency", "E9000"), 1)
 	}
+
 	opts.parallel = workers
 
 	if opts.parallel > 1 {
 		runPullParallel(records, prog, opts.parallel, opts.stopOnFail)
+
 		return
 	}
+
 	for _, rec := range records {
 		if prog.Stopped() {
 			break
 		}
+
 		prog.BeginItem(rec.RepoName)
 		pullOneRepoTracked(rec, prog)
 	}
@@ -301,16 +327,19 @@ func handlePullRemediation(remItems []RemediationItem, opts pullOptions) {
 	if len(remItems) == 0 {
 		return
 	}
+
 	if opts.noFix {
 		PrintRemediationSummaryNoPrompt(remItems)
 
 		return
 	}
+
 	if opts.yes || opts.autoFix {
 		PrintRemediationSummaryAutoFix(remItems)
 
 		return
 	}
+
 	PrintRemediationSummary(remItems)
 }
 
@@ -333,6 +362,7 @@ func initPullFlagSet() (*flag.FlagSet, *pullFlagHolders) {
 		yFlag:     fs.Bool("yes", false, "Remediate without prompt"),
 		noFixFlag: fs.Bool("no-fix", false, "Skip remediation prompt"),
 	}
+
 	fs.StringVar(h.gFlag, "g", "", constants.FlagDescGroup)
 	fs.BoolVar(h.yFlag, "y", false, "Remediate without prompt")
 
@@ -374,6 +404,7 @@ func initVerboseLog() {
 
 		return
 	}
+
 	log.Close()
 }
 
@@ -387,14 +418,18 @@ func resolvePullTargets(slug, groupName string, all bool) []model.ScanRecord {
 			AbsolutePath: GetAliasPath(),
 		}}
 	}
+
 	if len(groupName) > 0 {
 		return loadRecordsByGroup(groupName)
 	}
+
 	if all {
 		return loadAllRecordsDB()
 	}
+
 	if len(slug) == 0 {
 		fmt.Fprintln(os.Stderr, constants.ErrPullSlugRequired)
+
 		return nil
 	}
 
@@ -439,6 +474,7 @@ func loadJSONRecords(path string) ([]model.ScanRecord, error) {
 	if err != nil {
 		return nil, err
 	}
+
 	defer file.Close()
 
 	var records []model.ScanRecord
@@ -512,9 +548,11 @@ func pullOneRepoTracked(rec model.ScanRecord, prog *cloner.BatchProgress) {
 	if isUpToDate {
 		prog.UpToDate(rec.RepoName)
 	}
+
 	if isSucceed {
 		prog.Succeed(rec.RepoName)
 	}
+
 	if result.IsFailed() {
 		prog.FailWithError(rec.RepoName, result.Error)
 	}
@@ -529,11 +567,13 @@ func findChildrenOfCWD(cwd string) []model.ScanRecord {
 	if !strings.HasSuffix(prefix, string(os.PathSeparator)) {
 		prefix += string(os.PathSeparator)
 	}
+
 	for _, r := range all {
 		if strings.HasPrefix(r.AbsolutePath, prefix) || r.AbsolutePath == cwd {
 			children = append(children, r)
 		}
 	}
+
 	return children
 }
 
@@ -541,15 +581,19 @@ func resolvePullBatchRecords(opts pullOptions) ([]model.ScanRecord, bool) {
 	if opts.slug != "" || opts.group != "" || opts.all || HasAlias() {
 		return resolvePullTargets(opts.slug, opts.group, opts.all), true
 	}
+
 	cwd, _ := os.Getwd()
 	records := ResolvePullDirectoryTargets(cwd)
 	if len(records) == 0 {
 		records = findChildrenOfCWD(cwd)
 	}
+
 	if len(records) == 0 {
 		fmt.Println("  ↳ nothing to pull: no tracked repositories found in or under this directory.")
+
 		return nil, false
 	}
+
 	return records, true
 }
 
@@ -558,6 +602,7 @@ func handleNonGitPull(cwd string, extraArgs []string) error {
 	if err == nil && len(childRepos) > 0 {
 		return pullDiscoveredChildren(cwd, childRepos, extraArgs)
 	}
+
 	fmt.Fprintln(os.Stderr, "✗ not a git repository (run `gitmap pull` inside a repo)")
 	cliexit.HandleValidationError(apperror.NewValidationError("not a git repository (run `gitmap pull` inside a repo)"))
 
@@ -576,5 +621,6 @@ func pullDiscoveredChildren(cwd string, childRepos []string, extraArgs []string)
 		cmd.Stderr = os.Stderr
 		_ = cmd.Run()
 	}
+
 	return nil
 }

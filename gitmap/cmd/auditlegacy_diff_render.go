@@ -41,6 +41,7 @@ func computeAuditDiffLines(file string, pats []*regexp.Regexp) ([]auditDiffLine,
 	if err != nil {
 		return nil, err
 	}
+
 	defer f.Close()
 	scanner := bufio.NewScanner(f)
 	scanner.Buffer(make([]byte, 0, 64*1024), 1024*1024)

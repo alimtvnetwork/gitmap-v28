@@ -48,7 +48,6 @@ func TestParsePRCEntries(t *testing.T) {
 	}
 
 	for _, c := range cases {
-
 		t.Run(c.name, func(t *testing.T) {
 			t.Parallel()
 
@@ -56,15 +55,19 @@ func TestParsePRCEntries(t *testing.T) {
 			if c.wantErr != "" && (err == nil || !strings.Contains(err.Error(), c.wantErr)) {
 				t.Fatalf("want err containing %q, got %v", c.wantErr, err)
 			}
+
 			if c.wantErr != "" {
 				return
 			}
+
 			if err != nil {
 				t.Fatalf("unexpected err: %v", err)
 			}
+
 			if len(got) != len(c.want) {
 				t.Fatalf("len=%d want %d (%+v)", len(got), len(c.want), got)
 			}
+
 			for i := range got {
 				if got[i] != c.want[i] {
 					t.Errorf("entry[%d]=%+v want %+v", i, got[i], c.want[i])

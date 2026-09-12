@@ -49,10 +49,12 @@ func readChromeLocalState() *chromeLocalState {
 	if err != nil {
 		return nil
 	}
+
 	var s chromeLocalState
 	if json.Unmarshal(raw, &s) != nil {
 		return nil
 	}
+
 	return &s
 }
 
@@ -68,8 +70,10 @@ func chromeProfileEntries() []chromeProfileEntry {
 			info := state.Profile.InfoCache[d]
 			display = info.Name
 		}
+
 		out = append(out, chromeProfileEntry{Dir: d, DisplayName: display})
 	}
+
 	return out
 }
 
@@ -84,17 +88,21 @@ func chromeProfileEntries() []chromeProfileEntry {
 func resolveChromeProfile(name string) (chromeProfileResolution, bool) {
 	if filepath.IsAbs(name) {
 		res := chromeProfileFromPath(name, name)
+
 		return res, chromeProfilePathExists(name)
 	}
+
 	direct := filepath.Join(chromeUserDataDir(), name)
 	if chromeProfilePathExists(direct) {
 		return chromeProfileFromPath(name, direct), true
 	}
+
 	return resolveChromeProfileDisplayName(name, direct)
 }
 
 func resolveChromeProfileDir(name string) (string, bool) {
 	res, ok := resolveChromeProfile(name)
+
 	return res.Path, ok
 }
 
@@ -104,6 +112,7 @@ func chromeProfileDestination(name string) chromeProfileResolution {
 
 func chromeProfileFromPath(input, path string) chromeProfileResolution {
 	dir := filepath.Base(path)
+
 	return chromeProfileResolution{Input: input, Path: path, Dir: dir, DisplayName: chromeProfileDisplayName(dir)}
 }
 
@@ -112,9 +121,11 @@ func chromeProfileDisplayName(dir string) string {
 	if state == nil {
 		return ""
 	}
+
 	if info, ok := state.Profile.InfoCache[dir]; ok {
 		return info.Name
 	}
+
 	return ""
 }
 
@@ -123,6 +134,7 @@ func resolveChromeProfileDisplayName(name, direct string) (chromeProfileResoluti
 	if state == nil {
 		return chromeProfileResolution{Input: name, Path: direct, Dir: filepath.Base(direct)}, false
 	}
+
 	want := strings.ToLower(strings.TrimSpace(name))
 	for dir, info := range state.Profile.InfoCache {
 		p := filepath.Join(chromeUserDataDir(), dir)
@@ -130,6 +142,7 @@ func resolveChromeProfileDisplayName(name, direct string) (chromeProfileResoluti
 			return chromeProfileResolution{Input: name, Path: p, Dir: dir, DisplayName: info.Name}, true
 		}
 	}
+
 	return chromeProfileResolution{Input: name, Path: direct, Dir: filepath.Base(direct)}, false
 }
 
@@ -137,9 +150,11 @@ func chromeProfileSummary(p chromeProfileResolution) string {
 	if p.DisplayName != "" && p.DisplayName != p.Dir {
 		return fmt.Sprintf("%s (dir: %s)", p.DisplayName, p.Dir)
 	}
+
 	if p.Dir != "" {
 		return p.Dir
 	}
+
 	return p.Input
 }
 
@@ -151,14 +166,17 @@ func printAvailableChromeProfilesWithDisplay() {
 	entries := chromeProfileEntries()
 	if len(entries) == 0 {
 		fmt.Fprintf(os.Stderr, "  available profiles under %s: (none found)\n", root)
+
 		return
 	}
+
 	fmt.Fprintf(os.Stderr, "  available profiles under %s:\n", root)
 	for _, e := range entries {
 		if e.DisplayName != "" {
 			fmt.Fprintf(os.Stderr, "    - %s  (display: %q)\n", e.Dir, e.DisplayName)
 			continue
 		}
+
 		fmt.Fprintf(os.Stderr, "    - %s\n", e.Dir)
 	}
 }

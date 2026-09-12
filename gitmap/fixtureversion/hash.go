@@ -62,6 +62,7 @@ func HashMatches(body, recordedShortHash string) bool {
 	if recordedShortHash == "" {
 		return true
 	}
+
 	got := ShortHash(BodyHashExcludingMarker(body))
 
 	return got == recordedShortHash
@@ -86,6 +87,7 @@ func RewriteOrAppendSHA(head, newSHA string) string {
 	if newSHA == "" {
 		return head
 	}
+
 	if shaFieldRe.MatchString(head) {
 		return shaFieldRe.ReplaceAllString(head, "${1}"+newSHA)
 	}

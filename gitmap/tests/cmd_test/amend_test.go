@@ -30,6 +30,7 @@ func TestExtractAmendSHA_Empty(t *testing.T) {
 	if sha != "" {
 		t.Errorf("expected empty SHA, got %q", sha)
 	}
+
 	if len(remaining) != 0 {
 		t.Errorf("expected empty remaining, got %v", remaining)
 	}
@@ -41,6 +42,7 @@ func TestExtractAmendSHA_WithSHA(t *testing.T) {
 	if sha != "abc123" {
 		t.Errorf("expected sha=abc123, got %q", sha)
 	}
+
 	if len(remaining) != 2 || remaining[0] != "--name" {
 		t.Errorf("expected [--name Test], got %v", remaining)
 	}
@@ -52,6 +54,7 @@ func TestExtractAmendSHA_FlagFirst(t *testing.T) {
 	if sha != "" {
 		t.Errorf("expected empty SHA, got %q", sha)
 	}
+
 	if len(remaining) != 2 {
 		t.Errorf("expected 2 remaining args, got %d", len(remaining))
 	}
@@ -63,6 +66,7 @@ func TestExtractAmendSHA_HEAD(t *testing.T) {
 	if sha != "HEAD" {
 		t.Errorf("expected sha=HEAD, got %q", sha)
 	}
+
 	if len(remaining) != 2 {
 		t.Errorf("expected 2 remaining, got %d", len(remaining))
 	}
@@ -142,6 +146,7 @@ func splitLines(s string) []string {
 			start = i + 1
 		}
 	}
+
 	if start < len(s) {
 		lines = append(lines, s[start:])
 	}
@@ -165,9 +170,11 @@ func TestParseCommitLines_Multiple(t *testing.T) {
 	if len(entries) != 2 {
 		t.Fatalf("expected 2 entries, got %d", len(entries))
 	}
+
 	if entries[0].SHA != "abc1234" || entries[0].Message != "Fix login page" {
 		t.Errorf("entry 0 mismatch: %+v", entries[0])
 	}
+
 	if entries[1].SHA != "def5678" || entries[1].Message != "Add dashboard" {
 		t.Errorf("entry 1 mismatch: %+v", entries[1])
 	}
@@ -185,6 +192,7 @@ func TestParseCommitLines_SingleLine(t *testing.T) {
 	if len(entries) != 1 {
 		t.Fatalf("expected 1 entry, got %d", len(entries))
 	}
+
 	if entries[0].SHA != "abc1234" || entries[0].Message != "Solo commit" {
 		t.Errorf("entry mismatch: %+v", entries[0])
 	}
@@ -195,6 +203,7 @@ func TestParseCommitLines_NoMessage(t *testing.T) {
 	if len(entries) != 1 {
 		t.Fatalf("expected 1 entry, got %d", len(entries))
 	}
+
 	if entries[0].SHA != "abc1234" || entries[0].Message != "" {
 		t.Errorf("entry mismatch: %+v", entries[0])
 	}
@@ -250,6 +259,7 @@ func TestBuildAuditRecord_Range(t *testing.T) {
 		{SHA: "aaa1111", Message: "First"},
 		{SHA: "bbb2222", Message: "Second"},
 	}
+
 	flags := testAmendFlags{name: "New Name", email: "new@test.com", forcePush: true}
 	ts := time.Date(2026, 3, 9, 14, 30, 0, 0, time.UTC)
 
@@ -258,27 +268,35 @@ func TestBuildAuditRecord_Range(t *testing.T) {
 	if record.Branch != "develop" {
 		t.Errorf("expected branch=develop, got %q", record.Branch)
 	}
+
 	if record.FromCommit != "aaa1111" {
 		t.Errorf("expected fromCommit=aaa1111, got %q", record.FromCommit)
 	}
+
 	if record.ToCommit != "bbb2222" {
 		t.Errorf("expected toCommit=bbb2222, got %q", record.ToCommit)
 	}
+
 	if record.TotalCommits != 2 {
 		t.Errorf("expected totalCommits=2, got %d", record.TotalCommits)
 	}
+
 	if record.PreviousAuthor.Name != "Old Name" {
 		t.Errorf("expected prevName=Old Name, got %q", record.PreviousAuthor.Name)
 	}
+
 	if record.NewAuthor.Email != "new@test.com" {
 		t.Errorf("expected newEmail=new@test.com, got %q", record.NewAuthor.Email)
 	}
+
 	if record.Mode != "range" {
 		t.Errorf("expected mode=range, got %q", record.Mode)
 	}
+
 	if record.IsForcePushed != true {
 		t.Error("expected forcePushed=true")
 	}
+
 	if record.Timestamp != "2026-03-09T14:30:00Z" {
 		t.Errorf("expected timestamp 2026-03-09T14:30:00Z, got %q", record.Timestamp)
 	}
@@ -292,6 +310,7 @@ func TestBuildAuditRecord_EmptyCommits(t *testing.T) {
 	if record.FromCommit != "" || record.ToCommit != "" {
 		t.Error("expected empty from/to commits for nil slice")
 	}
+
 	if record.TotalCommits != 0 {
 		t.Errorf("expected 0 total, got %d", record.TotalCommits)
 	}
@@ -306,9 +325,11 @@ func TestBuildAuditRecord_HeadMode(t *testing.T) {
 	if record.Mode != "head" {
 		t.Errorf("expected mode=head, got %q", record.Mode)
 	}
+
 	if record.FromCommit != "head123" || record.ToCommit != "head123" {
 		t.Error("expected from=to for single HEAD commit")
 	}
+
 	if record.IsForcePushed != false {
 		t.Error("expected forcePushed=false")
 	}

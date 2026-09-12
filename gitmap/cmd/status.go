@@ -24,6 +24,7 @@ func runStatus(args []string) error {
 	if onlyDirty {
 		records = filterDirtyRecords(records)
 	}
+
 	if onlyDirty && len(records) == 0 {
 		fmt.Println("✨ All repositories are !clean")
 
@@ -76,9 +77,11 @@ func loadStatusByScope(groupName string, all bool) []model.ScanRecord {
 			AbsolutePath: GetAliasPath(),
 		}}
 	}
+
 	if len(groupName) > 0 {
 		return loadRecordsByGroup(groupName)
 	}
+
 	if all {
 		return loadAllRecordsDB()
 	}
@@ -95,6 +98,7 @@ func loadRecordsByGroup(groupName string) []model.ScanRecord {
 
 		return nil
 	}
+
 	defer db.Close()
 
 	records, err := db.ShowGroup(groupName)
@@ -141,6 +145,7 @@ func loadAllRecordsDB() []model.ScanRecord {
 
 		return nil
 	}
+
 	defer db.Close()
 
 	records, err := db.ListRepos()
@@ -157,6 +162,7 @@ func loadRecordsJSONFallback() []model.ScanRecord {
 	if _, statErr := os.Stat(jsonPath); os.IsNotExist(statErr) {
 		return loadAllRecordsDBOrEmpty()
 	}
+
 	records, err := loadStatusRecords(jsonPath)
 	if err != nil {
 		appErr := apperror.WrapWithDetails(
@@ -186,12 +192,14 @@ func loadAllRecordsDBOrEmpty() []model.ScanRecord {
 
 		return nil
 	}
+
 	defer db.Close()
 
 	records, err := db.ListRepos()
 	if err != nil {
 		handleStatusDBError(err)
 	}
+
 	if len(records) == 0 {
 		cliexit.HandleGeneralError(newStatusNoDataError("noRepos", "E1087"))
 
@@ -219,6 +227,7 @@ func loadStatusRecords(path string) ([]model.ScanRecord, error) {
 	if err != nil {
 		return nil, err
 	}
+
 	var records []model.ScanRecord
 	err = json.Unmarshal(data, &records)
 
@@ -252,6 +261,7 @@ func handleStatusDBError(err error) {
 
 		return
 	}
+
 	appErr := apperror.WrapWithDetails(
 		err,
 		"cmd.status.dbError",

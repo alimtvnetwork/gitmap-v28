@@ -52,23 +52,28 @@ func runSSHExec(args []string) error {
 	dbConn, err := store.OpenDefault()
 	if err != nil {
 		fmt.Printf("Failed to open DB: %v\n", err)
+
 		return nil
 	}
+
 	defer dbConn.Close()
 
 	conns, connErr := db.GetSSHConnections(dbConn.Context(), dbConn.SQL())
 	if connErr != nil {
 		fmt.Printf("Failed to get connections: %v\n", connErr)
+
 		return nil
 	}
 
 	conns = filterSSHConns(conns, opts.Exclude)
 	if len(conns) == 0 {
 		fmt.Println("No machines to execute on.")
+
 		return nil
 	}
 
 	executeOnAllSSH(conns, opts.Args)
+
 	return nil
 }
 
@@ -88,10 +93,12 @@ func filterSSHConns(conns []db.SSHConnection, excludeCSV string) []db.SSHConnect
 				break
 			}
 		}
+
 		if !excluded {
 			filtered = append(filtered, c)
 		}
 	}
+
 	return filtered
 }
 
@@ -101,9 +108,11 @@ func executeOnAllSSH(conns []db.SSHConnection, args []string) {
 		wg.Add(1)
 		go runSSHWorker(c, args, &wg)
 	}
+
 	wg.Wait()
 	fmt.Println("SSH Execution Done.")
 }
+
 func runSSHWorker(c db.SSHConnection, args []string, wg *sync.WaitGroup) error {
 	defer wg.Done()
 
@@ -113,10 +122,12 @@ func runSSHWorker(c db.SSHConnection, args []string, wg *sync.WaitGroup) error {
 	if !ok {
 		return nil
 	}
+
 	defer client.Close()
 
 	if err := ensureGitmapInstalled(client, c.OS, header); err != nil {
 		fmt.Printf("%s Failed to ensure gitmap: %v\n", header, err)
+
 		return nil
 	}
 
@@ -134,10 +145,12 @@ func runSSHWorker(c db.SSHConnection, args []string, wg *sync.WaitGroup) error {
 	out, err := crypto.RunCommand(client, commandStr, shellType)
 	if err != nil {
 		fmt.Printf("%s Execute error: %v\n%s\n", header, err, strings.TrimSpace(out))
+
 		return nil
 	}
 
 	fmt.Printf("%s\n%s\n", header, strings.TrimSpace(out))
+
 	return nil
 }
 
@@ -145,10 +158,13 @@ func connectSSHClient(c db.SSHConnection, header string) (*ssh.Client, bool) {
 	if c.EncryptedPassword != "" {
 		return connectWithEncryptedPassword(c, header)
 	}
+
 	if c.KeyPath != "" {
 		return connectWithKeyPath(c, header)
 	}
+
 	fmt.Printf("%s No password or key configured\n", header)
+
 	return nil, false
 }
 
@@ -156,8 +172,10 @@ func connectWithKeyPath(c db.SSHConnection, header string) (*ssh.Client, bool) {
 	client, err := crypto.ConnectWithKey(c.IPAddress, c.Username, c.KeyPath)
 	if err != nil {
 		fmt.Printf("%s Connect error: %v\n", header, err)
+
 		return nil, false
 	}
+
 	return client, true
 }
 
@@ -165,13 +183,17 @@ func connectWithEncryptedPassword(c db.SSHConnection, header string) (*ssh.Clien
 	passBytes, decErr := crypto.Decrypt(c.EncryptedPassword, getEncryptionKey())
 	if decErr != nil {
 		fmt.Printf("%s Decrypt error: %v\n", header, decErr)
+
 		return nil, false
 	}
+
 	client, err := crypto.ConnectWithPassword(c.IPAddress, c.Username, string(passBytes))
 	if err != nil {
 		fmt.Printf("%s Connect error: %v\n", header, err)
+
 		return nil, false
 	}
+
 	return client, true
 }
 
@@ -196,6 +218,7 @@ func determineSSHCommand(osType string, args []string) (string, string, bool) {
 	if strings.EqualFold(osType, "windows") {
 		shell = "ps"
 	}
+
 	return shell, strings.Join(args, " "), false
 }
 
@@ -207,6 +230,7 @@ func extractShellCommandArgs(args []string) string {
 	if len(args) > 1 {
 		return strings.Join(args[1:], " ")
 	}
+
 	return ""
 }
 
@@ -229,8 +253,10 @@ func ensureGitmapInstalled(client *ssh.Client, osType, header string) error {
 	if err != nil {
 		return fmt.Errorf("auto-install failed: %w", err)
 	}
+
 	return nil
 }
+
 func ensurePowerShellInstalled(client *ssh.Client, osType, header string) error {
 	if strings.EqualFold(osType, "windows") {
 		return nil
@@ -247,5 +273,6 @@ func ensurePowerShellInstalled(client *ssh.Client, osType, header string) error 
 	if err != nil {
 		fmt.Printf("%s Note: auto-installing PowerShell failed. It may require manual setup.\n", header)
 	}
+
 	return nil
 }

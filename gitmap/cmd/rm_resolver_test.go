@@ -9,9 +9,11 @@ func TestParseRmFlags(t *testing.T) {
 	if !yes {
 		t.Errorf("parseRmFlags expected yes=true")
 	}
+
 	if !dbOnly {
 		t.Errorf("parseRmFlags expected dbOnly=true")
 	}
+
 	if len(args) != 2 || args[0] != ".\\prompt-architect" || args[1] != "macro*" {
 		t.Errorf("parseRmFlags args mismatch: %+v", args)
 	}

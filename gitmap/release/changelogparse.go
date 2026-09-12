@@ -25,15 +25,18 @@ func parseChangelogStream(r io.Reader) ([]ChangelogEntry, error) {
 			entries, current, inSection = startNewSection(entries, current, inSection, raw)
 			continue
 		}
+
 		if !inSection {
 			continue
 		}
+
 		current = appendChangelogBullet(current, raw)
 	}
 
 	if err := scanner.Err(); err != nil {
 		return nil, err
 	}
+
 	if inSection {
 		entries = append(entries, current)
 	}
@@ -56,6 +59,7 @@ func startNewSection(
 	if inSection {
 		entries = append(entries, current)
 	}
+
 	header := strings.TrimSpace(raw)
 	version := parseVersionHeader(header)
 	if len(version) == 0 {
@@ -131,6 +135,7 @@ func extractBulletMarker(body string) (string, string, bool) {
 	if strings.HasPrefix(body, "- ") {
 		return "-", body[2:], true
 	}
+
 	if strings.HasPrefix(body, "* ") {
 		return "*", body[2:], true
 	}
@@ -144,6 +149,7 @@ func extractOrderedMarker(body string) (string, string, bool) {
 	for end < len(body) && unicode.IsDigit(rune(body[end])) {
 		end++
 	}
+
 	if end == 0 || end+1 >= len(body) || body[end] != '.' || body[end+1] != ' ' {
 		return "", "", false
 	}
@@ -164,6 +170,7 @@ func indentToDepth(leading string) int {
 			width += 4
 			continue
 		}
+
 		width++
 	}
 

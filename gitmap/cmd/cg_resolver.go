@@ -21,6 +21,7 @@ func ResolveCGTarget(spec string) (string, bool) {
 	// 1. Check if it is a local filesystem path
 	if info, err := os.Stat(trimmed); err == nil && info.IsDir() {
 		abs, _ := filepath.Abs(trimmed)
+
 		return abs, true
 	}
 
@@ -28,6 +29,7 @@ func ResolveCGTarget(spec string) (string, bool) {
 	if errDB != nil {
 		return "", false
 	}
+
 	defer db.Close()
 
 	repos, errList := db.ListRepos()
@@ -63,11 +65,13 @@ func matchRepoByID(repos []model.ScanRecord, idStr string) (string, bool) {
 	if err != nil {
 		return "", false
 	}
+
 	for _, r := range repos {
 		if r.ID == id {
 			return r.AbsolutePath, true
 		}
 	}
+
 	return "", false
 }
 
@@ -81,8 +85,10 @@ func ResolveAllCGTargets(specs []string) []string {
 		if !isTargetResolved || seen[path] {
 			continue
 		}
+
 		seen[path] = true
 		resolved = append(resolved, path)
 	}
+
 	return resolved
 }

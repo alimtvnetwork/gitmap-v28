@@ -39,12 +39,14 @@ func Validate(stamp Stamp, want Expectation) error {
 		return fmt.Errorf("fixture is unstamped: add %q as the first line",
 			Marker(Stamp{Name: "<name>", Generation: 1, MinCurrent: want.CurrentVersion}))
 	}
+
 	if stamp.Generation < want.MinGeneration {
 		return fmt.Errorf(
 			"fixture %q is generation %d, test expects >=%d (stale fixture)\n"+
 				"  regenerate via: %s",
 			stamp.Name, stamp.Generation, want.MinGeneration, want.RegenerateRecipe)
 	}
+
 	if want.CurrentVersion > 0 && stamp.MinCurrent > want.CurrentVersion {
 		return fmt.Errorf(
 			"fixture %q requires min-current=%d but test runs at current=%d\n"+
@@ -64,9 +66,11 @@ func ValidateBody(body string, stamp Stamp, want Expectation) error {
 	if err := Validate(stamp, want); err != nil {
 		return err
 	}
+
 	if HashMatches(body, stamp.SHA) {
 		return nil
 	}
+
 	got := ShortHash(BodyHashExcludingMarker(body))
 
 	return fmt.Errorf(
@@ -88,6 +92,7 @@ func MustValidateBody(t *testing.T, body string, want Expectation) Stamp {
 		t.Fatalf("fixture is unstamped or marker malformed: add %q as the first line",
 			Marker(Stamp{Name: "<name>", Generation: 1, MinCurrent: want.CurrentVersion}))
 	}
+
 	if err := ValidateBody(body, stamp, want); err != nil {
 		t.Fatal(err)
 	}
@@ -113,10 +118,12 @@ func MustValidateBodyWithAutobump(t *testing.T, body, sourcePath string, want Ex
 		t.Fatalf("fixture is unstamped or marker malformed: add %q as the first line",
 			Marker(Stamp{Name: "<name>", Generation: 1, MinCurrent: want.CurrentVersion}))
 	}
+
 	validateErr := ValidateBody(body, stamp, want)
 	if validateErr == nil {
 		return stamp
 	}
+
 	if !tryAutobumpAndReport(t, body, stamp, sourcePath, want) {
 		t.Fatal(validateErr)
 	}
@@ -146,9 +153,11 @@ func tryAutobumpAndReport(
 	if err != nil {
 		t.Fatalf("autobump attempt failed: %v", err)
 	}
+
 	if !bumped {
 		return false
 	}
+
 	t.Log(FormatBumpSummary(sourcePath, stamp.Generation, newGen))
 	t.Logf("autobumped sha %s -> %s", stamp.SHA, newSHA)
 	t.Log("re-run the test without GITMAP_FIXTURE_AUTOBUMP=1 to confirm the bumped fixture passes")

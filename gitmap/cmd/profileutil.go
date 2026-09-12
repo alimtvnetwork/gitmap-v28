@@ -70,6 +70,7 @@ func initProfileDB(name string) {
 
 		return
 	}
+
 	defer db.Close()
 
 	if err := db.Migrate(); err != nil {

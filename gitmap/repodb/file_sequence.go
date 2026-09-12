@@ -38,6 +38,7 @@ func ScanFileSequence(row dbengine.RowScanner) (*FileSequence, error) {
 	item.SequenceNumber = dbengine.ScanInt(raw_SequenceNumber)
 	item.BaseName = dbengine.ScanString(raw_BaseName)
 	item.UpdatedAt = dbengine.ScanInt64(raw_UpdatedAt)
+
 	return &item, nil
 }
 
@@ -54,6 +55,7 @@ func NewFileSequenceDbRepo(db *dbengine.DbWrapper) *FileSequenceDbRepo {
 		enums.FileSequenceTable,
 		ScanFileSequence,
 	)
+
 	return &FileSequenceDbRepo{
 		db:   db,
 		repo: repo,
@@ -102,12 +104,14 @@ func (r *FileSequenceDbRepo) Insert(ctx context.Context, item *FileSequence) dbe
 	if item.FileSequenceId == 0 {
 		id = nil
 	}
+
 	return r.db.ExecRowsAffected(ctx, query, id, item.Directory, item.Filename, item.SequenceNumber, item.BaseName, item.UpdatedAt)
 }
 
 // Update updates an existing FileSequence record identified by its primary key.
 func (r *FileSequenceDbRepo) Update(ctx context.Context, item *FileSequence) dbengine.RowsAffectedResult {
 	query := "UPDATE FileSequence SET Directory = ?, Filename = ?, SequenceNumber = ?, BaseName = ?, UpdatedAt = ? WHERE FileSequenceId = ?;"
+
 	return r.db.ExecRowsAffected(ctx, query, item.Directory, item.Filename, item.SequenceNumber, item.BaseName, item.UpdatedAt, item.FileSequenceId)
 }
 

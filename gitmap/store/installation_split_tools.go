@@ -59,6 +59,7 @@ func (s *InstallationSplitDB) ListInstalledTools() ([]InstalledTool, error) {
 	if err != nil {
 		return nil, apperror.WrapSimple(err, "installation_split.listInstalledTools")
 	}
+
 	defer rows.Close()
 
 	return scanSplitTools(rows)
@@ -74,6 +75,7 @@ func scanSplitTools(rows *sql.Rows) ([]InstalledTool, error) {
 		if err != nil {
 			return nil, apperror.WrapSimple(err, "installation_split.scanSplitTools")
 		}
+
 		tools = append(tools, t)
 	}
 

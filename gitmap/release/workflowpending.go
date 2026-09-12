@@ -41,9 +41,11 @@ func isMetaPending(meta ReleaseMeta, branchSet map[string]bool) bool {
 	if branchSet[branchName] {
 		return false
 	}
+
 	if BranchExists(branchName) {
 		return false
 	}
+
 	if TagExistsLocally(meta.Tag) || TagExistsRemote(meta.Tag) {
 		return false
 	}
@@ -105,6 +107,7 @@ func releaseFromMetadata(meta ReleaseMeta, assetsPath, notes string, isDraft, dr
 	if err != nil {
 		return fmt.Errorf("create branch from metadata: %w", err)
 	}
+
 	fmt.Printf(constants.MsgReleaseBranch, branchName)
 
 	tag := v.String()
@@ -112,6 +115,7 @@ func releaseFromMetadata(meta ReleaseMeta, assetsPath, notes string, isDraft, dr
 	if err != nil {
 		return fmt.Errorf("create tag from metadata: %w", err)
 	}
+
 	fmt.Printf(constants.MsgReleaseTag, tag)
 
 	opts := Options{Assets: assetsPath, Notes: notes, IsDraft: isDraft, SkipMeta: true}
@@ -136,6 +140,7 @@ func tagIsMissing(tag string) bool {
 	if TagExistsLocally(tag) {
 		return false
 	}
+
 	if TagExistsRemote(tag) {
 		return false
 	}

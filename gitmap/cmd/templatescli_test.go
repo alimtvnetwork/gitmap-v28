@@ -24,6 +24,7 @@ func TestIsMarkdownTemplatePathRecognizesMarkdownExtensions(t *testing.T) {
 		"plain":                              false,
 		"":                                   false,
 	}
+
 	for path, want := range cases {
 		if got := isMarkdownTemplatePath(path); got != want {
 			t.Errorf("isMarkdownTemplatePath(%q) = %v, want %v", path, got, want)
@@ -45,12 +46,14 @@ func TestParseTemplatesShowFlagsPrefersPretty(t *testing.T) {
 		{"--no-pretty → off", []string{"--no-pretty", "ignore", "go"}, render.PrettyOff},
 		{"--pretty=false → off", []string{"ignore", "--pretty=false", "go"}, render.PrettyOff},
 	}
+
 	for _, tc := range cases {
 		t.Run(tc.name, func(t *testing.T) {
 			rest, mode := parseTemplatesShowFlags(tc.args)
 			if mode != tc.want {
 				t.Errorf("mode = %v, want %v", mode, tc.want)
 			}
+
 			if len(rest) != 2 || rest[0] != "ignore" || rest[1] != "go" {
 				t.Errorf("rest = %v, want [ignore go]", rest)
 			}
@@ -66,6 +69,7 @@ func TestParseTemplatesShowFlagsRawAliases(t *testing.T) {
 	if mode != render.PrettyOff {
 		t.Errorf("--raw → %v, want PrettyOff (back-compat alias)", mode)
 	}
+
 	if len(rest) != 2 || rest[0] != "ignore" || rest[1] != "go" {
 		t.Errorf("rest = %v, want [ignore go]", rest)
 	}

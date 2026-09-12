@@ -10,6 +10,7 @@ func runErrorCmd(args []string) error {
 
 	if len(args) == 0 {
 		printErrorUsage()
+
 		return nil
 	}
 
@@ -21,6 +22,7 @@ func runErrorCmd(args []string) error {
 	}
 
 	printErrorUsage()
+
 	return nil
 }
 
@@ -28,6 +30,7 @@ func runErrorExport(args []string) error {
 	if len(args) == 0 {
 		return fmt.Errorf("error export: missing destination file")
 	}
+
 	dest := args[0]
 
 	lastErrFile := ".gitmap/last_error.log"
@@ -35,6 +38,7 @@ func runErrorExport(args []string) error {
 	if os.IsNotExist(err) {
 		return fmt.Errorf("error export: no recent error found to export")
 	}
+
 	if err != nil {
 		return fmt.Errorf("error export: could not read last error: %w", err)
 	}
@@ -44,6 +48,7 @@ func runErrorExport(args []string) error {
 	}
 
 	fmt.Printf("gitmap error: exported last error to %s\n", dest)
+
 	return nil
 }
 

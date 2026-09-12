@@ -42,6 +42,7 @@ func printCloneTermBlockForURL(output string, idx int, url, dest string) {
 		CmdBranch:       "",
 		CmdExtraArgsPre: []string{},
 	}
+
 	maybePrintCloneTermBlock(output, in)
 	// Verifier: URL-driven path runs `git clone <url> <dest>` with
 	// no extra flags, so the expected argv is just those two
@@ -60,5 +61,6 @@ func determineRepoName(url string) string {
 	if parsed.HasVersion {
 		return parsed.BaseName
 	}
+
 	return name
 }

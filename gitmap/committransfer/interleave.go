@@ -28,6 +28,7 @@ func RunBothInterleaved(leftDir, rightDir string, opts Options) error {
 	if err != nil {
 		return apperror.WrapSimple(err, "interleave plan L→R")
 	}
+
 	rightToLeft, err := BuildPlan(rightDir, leftDir, opts)
 	if err != nil {
 		return apperror.WrapSimple(err, "interleave plan R→L")
@@ -56,9 +57,11 @@ func buildInterleavedStream(leftToRight, rightToLeft ReplayPlan) []interleaveSte
 	for _, c := range leftToRight.Commits {
 		stream = append(stream, interleaveStep{Commit: c, Direction: "L→R"})
 	}
+
 	for _, c := range rightToLeft.Commits {
 		stream = append(stream, interleaveStep{Commit: c, Direction: "R→L"})
 	}
+
 	sort.SliceStable(stream, func(i, j int) bool {
 		return stream[i].Commit.AuthorAt.Before(stream[j].Commit.AuthorAt)
 	})
@@ -75,6 +78,7 @@ func executeInterleaveStream(stream []interleaveStep, ltr, rtl ReplayPlan, opts 
 
 		return nil
 	}
+
 	if opts.DryRun {
 		return nil
 	}
@@ -102,23 +106,28 @@ func replayInterleaveSteps(stream []interleaveStep, ltr, rtl ReplayPlan, opts Op
 		if step.Direction == "R→L" {
 			plan = rtl
 		}
+
 		if step.Commit.SkipCause != "" {
 			results[step.Direction].SkippedDrop++
 
 			continue
 		}
+
 		newSHA, _, err := replayOne(plan, step.Commit, opts)
 		if err != nil {
 			return apperror.Wrap(err, fmt.Sprintf("interleave step %d (%s %s)", i+1, step.Direction, step.Commit.ShortSHA), nil)
 		}
+
 		if newSHA == "" {
 			results[step.Direction].SkippedEmpty++
 
 			continue
 		}
+
 		results[step.Direction].NewSHAs = append(results[step.Direction].NewSHAs, newSHA)
 		results[step.Direction].Replayed++
 	}
+
 	finalizeInterleavePush(ltr, rtl, results, opts)
 
 	return nil

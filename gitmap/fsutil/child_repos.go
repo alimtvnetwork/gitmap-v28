@@ -19,6 +19,7 @@ func DiscoverChildGitRepos(parentDir string) ([]string, error) {
 		if !entry.IsDir() {
 			continue
 		}
+
 		subPath := filepath.Join(parentDir, entry.Name())
 		gitDir := filepath.Join(subPath, ".git")
 		if info, errStat := os.Stat(gitDir); errStat == nil && (info.IsDir() || !info.IsDir()) { // works for worktrees/submodules too

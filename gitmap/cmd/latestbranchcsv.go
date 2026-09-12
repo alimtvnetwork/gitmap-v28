@@ -33,12 +33,13 @@ func encodeLatestBranchCSV(
 	cw := csv.NewWriter(w)
 	cw.UseCRLF = true
 	if err := cw.Write(constants.LatestBranchCSVHeaders); err != nil {
-
 		return err
 	}
+
 	for _, item := range items[:count] {
 		writeCSVRow(cw, item, remote)
 	}
+
 	cw.Flush()
 
 	return cw.Error()
@@ -50,6 +51,7 @@ func resolveTopCount(top, total int) int {
 	if top > 0 {
 		count = top
 	}
+
 	if count > total {
 		count = total
 	}

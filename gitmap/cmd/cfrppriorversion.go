@@ -49,6 +49,7 @@ func runCFRPPriorVersionPrivatize(absPath string, autoYes bool) error {
 	}
 
 	privatizeSlugs(ctx, publicSlugs)
+
 	return nil
 }
 
@@ -59,15 +60,18 @@ func resolvePriorScanIdentity(absPath string) (string, int) {
 	if !clonenext.IsGitRepo(absPath) {
 		return "", 0
 	}
+
 	remoteURL, err := gitutil.RemoteURL(absPath)
 	if err != nil {
 		return "", 0
 	}
+
 	repoName := repoNameFromURL(remoteURL)
 	parsed := clonenext.ParseRepoName(repoName)
 	if !parsed.HasVersion {
 		return "", 0
 	}
+
 	return parsed.BaseName, parsed.CurrentVersion
 }
 

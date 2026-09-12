@@ -21,24 +21,29 @@ func writeChromeExportCSV(srcProfile, name, outPath string) (int, error) {
 	if err := os.MkdirAll(filepath.Dir(outPath), constants.DirPermission); err != nil {
 		return 0, fmt.Errorf("mkdir %s: %w", filepath.Dir(outPath), err)
 	}
+
 	f, err := os.Create(outPath)
 	if err != nil {
 		return 0, fmt.Errorf("create %s: %w", outPath, err)
 	}
+
 	defer f.Close()
 	w := csv.NewWriter(f)
 	defer w.Flush()
 	if err := w.Write([]string{"Category", "Key", "Value"}); err != nil {
 		return 0, err
 	}
+
 	rows := buildChromeCSVRows(srcProfile, name)
 	for _, r := range rows {
 		if err := w.Write(r); err != nil {
 			return 0, err
 		}
 	}
+
 	w.Flush()
 	info, _ := os.Stat(outPath)
+
 	return int(info.Size()), nil
 }
 
@@ -48,11 +53,14 @@ func buildChromeCSVRows(srcProfile, name string) [][]string {
 		{"meta", "name", name},
 		{"meta", "sourcePath", srcProfile},
 	}
+
 	for _, id := range listExtensionIDs(filepath.Join(srcProfile, "Extensions")) {
 		rows = append(rows, []string{"extension", "id", id})
 	}
+
 	rows = append(rows, flattenPreferences(filepath.Join(srcProfile, "Preferences"))...)
 	rows = append(rows, bookmarkSummary(filepath.Join(srcProfile, "Bookmarks"))...)
+
 	return rows
 }
 
@@ -62,10 +70,12 @@ func flattenPreferences(prefsPath string) [][]string {
 	if err != nil {
 		return nil
 	}
+
 	var doc map[string]any
 	if json.Unmarshal(raw, &doc) != nil {
 		return nil
 	}
+
 	keys := []string{"homepage", "homepage_is_newtabpage", "browser.show_home_button"}
 	var out [][]string
 	for _, k := range keys {
@@ -73,6 +83,7 @@ func flattenPreferences(prefsPath string) [][]string {
 			out = append(out, []string{"preference", k, v})
 		}
 	}
+
 	return out
 }
 
@@ -85,11 +96,14 @@ func lookupDotted(doc map[string]any, dotted string) string {
 		if !ok {
 			return ""
 		}
+
 		cur = m[p]
 	}
+
 	if cur == nil {
 		return ""
 	}
+
 	return fmt.Sprintf("%v", cur)
 }
 
@@ -99,18 +113,22 @@ func bookmarkSummary(bookmarksPath string) [][]string {
 	if err != nil {
 		return nil
 	}
+
 	var doc struct {
 		Roots map[string]struct {
 			Name     string `json:"name"`
 			Children []any  `json:"children"`
 		} `json:"roots"`
 	}
+
 	if json.Unmarshal(raw, &doc) != nil {
 		return nil
 	}
+
 	var out [][]string
 	for key, root := range doc.Roots {
 		out = append(out, []string{"bookmark", key, fmt.Sprintf("%s (%d items)", root.Name, len(root.Children))})
 	}
+
 	return out
 }

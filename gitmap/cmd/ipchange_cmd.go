@@ -25,7 +25,9 @@ func runIPChangeCmd(cmd *cobra.Command, args []string, ctx context.Context) erro
 	if len(args) < 1 {
 		return apperror.New("runIPChangeCmd", "E_INTERNAL_ERROR", map[string]any{"msg": "requires new-ip argument"})
 	}
+
 	newIP := args[0]
+
 	return executeIPChange(ctx, newIP, true)
 }
 
@@ -36,7 +38,9 @@ func validatePing(ctx context.Context, targetHost string, count int) bool {
 	} else {
 		cmd = exec.CommandContext(ctx, "ping", "-c", strconv.Itoa(count), targetHost)
 	}
+
 	err := cmd.Run()
+
 	return err == nil
 }
 
@@ -46,6 +50,7 @@ func executeIPChange(ctx context.Context, newIP string, doPing bool) error {
 	if runtime.GOOS == "windows" {
 		interfaceName = "Ethernet"
 	}
+
 	swapErr = swapIP(ctx, interfaceName, "", newIP)
 
 	if swapErr != nil {
@@ -55,8 +60,10 @@ func executeIPChange(ctx context.Context, newIP string, doPing bool) error {
 	if doPing && !validatePing(ctx, "8.8.8.8", 3) {
 		fmt.Println("reverting")
 		_ = swapIP(ctx, interfaceName, newIP, "192.168.1.100") // rollback
+
 		return apperror.New("executeIPChange", "E_INTERNAL_ERROR", map[string]any{"msg": "ping failed, reverting"})
 	}
+
 	return nil
 }
 

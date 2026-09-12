@@ -44,10 +44,12 @@ func RetryRateLimited(op func() error, schedule []time.Duration, sleep func(time
 		if err == nil {
 			return attempt + 1, nil
 		}
+
 		lastErr = err
 		if !errors.Is(err, ErrRateLimited) {
 			return attempt + 1, err
 		}
+
 		if attempt < len(schedule) {
 			sleep(schedule[attempt])
 		}

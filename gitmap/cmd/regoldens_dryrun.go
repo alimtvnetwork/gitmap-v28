@@ -21,6 +21,7 @@ func emitRegoldensDryRun(cfg regoldensFlags) {
 	if cfg.determinism {
 		emitDryRunPrecheck(cfg)
 	}
+
 	emitDryRunMainPasses(cfg)
 	emitDryRunDiffNote(cfg)
 }
@@ -55,6 +56,7 @@ func emitDryRunDiffNote(cfg regoldensFlags) {
 	if !cfg.hasDiff() {
 		return
 	}
+
 	fmt.Fprintf(os.Stdout,
 		"  (--diff=%s: golden diff summary would print between passes)\n",
 		cfg.diffMode)

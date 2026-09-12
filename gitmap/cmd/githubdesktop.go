@@ -26,6 +26,7 @@ func runGitHubDesktop(args []string) error {
 			return runGitHubDesktopGroup(args[1:])
 		}
 	}
+
 	cwd, err := os.Getwd()
 	if err != nil {
 		return apperror.WrapSimple(err, constants.ErrGHDesktopCwd)

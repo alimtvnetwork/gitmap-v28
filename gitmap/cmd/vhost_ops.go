@@ -14,6 +14,7 @@ func applyVHostDirDefaults(opts VHostOptions) VHostOptions {
 	if isAvailEmpty {
 		res.SitesAvailableDir = defaultSitesAvailableDir
 	}
+
 	isEnabledEmpty := res.SitesEnabledDir == ""
 	if isEnabledEmpty {
 		res.SitesEnabledDir = defaultSitesEnabledDir
@@ -29,6 +30,7 @@ func ApplyVHostOptionDefaults(opts VHostOptions) VHostOptions {
 	if isConfDEmpty {
 		res.ConfDDir = defaultConfDDir
 	}
+
 	isNginxEmpty := res.NginxBin == ""
 	if isNginxEmpty {
 		res.NginxBin = "nginx"
@@ -43,6 +45,7 @@ func scanVHostEntries(availDir, enabledDir string) []VHostInfo {
 	if hasError {
 		return []VHostInfo{}
 	}
+
 	var res []VHostInfo
 	for _, entry := range entries {
 		info := readVHostInfo(availDir, enabledDir, entry.Name())
@@ -60,6 +63,7 @@ func ListVHosts(opts VHostOptions) ([]VHostInfo, *apperror.AppError) {
 	if hasDir {
 		return scanVHostEntries(applied.SitesAvailableDir, applied.SitesEnabledDir), nil
 	}
+
 	_, confDErr := os.Stat(applied.ConfDDir)
 	hasConfD := confDErr == nil
 	if hasConfD {
@@ -75,6 +79,7 @@ func prepareVHostConfig(cfg VHostConfig) VHostConfig {
 	if isStatic {
 		return out
 	}
+
 	isPassEmpty := cfg.FastCGIPass == ""
 	if isPassEmpty {
 		out.FastCGIPass = DiscoverFastCGIPass()
@@ -91,6 +96,7 @@ func resolveVHostTargetPath(opts VHostOptions, domain string) string {
 	if isExplicitSitesAvail(opts) {
 		return filepath.Join(opts.SitesAvailableDir, domain)
 	}
+
 	_, err := os.Stat(opts.SitesAvailableDir)
 	hasAvail := err == nil
 	if hasAvail {
@@ -106,6 +112,7 @@ func writeVHostFile(targetPath, content string) *apperror.AppError {
 	if dirErr != nil {
 		return apperror.WrapSimple(dirErr, "os.MkdirAll")
 	}
+
 	writeErr := os.WriteFile(targetPath, []byte(content), 0644)
 	if writeErr != nil {
 		return apperror.WrapSimple(writeErr, "os.WriteFile")
@@ -139,10 +146,12 @@ func CreateVHost(cfg VHostConfig, opts VHostOptions) (string, *apperror.AppError
 	if renderErr != nil {
 		return "", renderErr
 	}
+
 	targetPath := resolveVHostTargetPath(applied, prepCfg.Domain)
 	if applied.IsDryRun {
 		return targetPath, nil
 	}
+
 	err := writeAndEnableVHost(prepCfg.Domain, targetPath, rendered, applied)
 
 	return targetPath, err
@@ -164,6 +173,7 @@ func RemoveVHost(domain string, opts VHostOptions) *apperror.AppError {
 	if applied.IsDryRun {
 		return nil
 	}
+
 	removeVHostFiles(domain, applied)
 
 	return nil
@@ -181,9 +191,11 @@ func TestNginxConfig(opts VHostOptions) (string, *apperror.AppError) {
 	if applied.IsDryRun {
 		return "nginx: configuration file test is successful (dry-run)", nil
 	}
+
 	if !isNginxInstalled(applied.NginxBin) {
 		return "nginx: binary not in PATH (syntax test skipped)", nil
 	}
+
 	cmd := exec.Command(applied.NginxBin, "-t")
 	out, err := cmd.CombinedOutput()
 	if err != nil {
@@ -199,10 +211,12 @@ func ReloadNginx(opts VHostOptions) *apperror.AppError {
 	if applied.IsDryRun || !isNginxInstalled(applied.NginxBin) {
 		return nil
 	}
+
 	_, testErr := TestNginxConfig(applied)
 	if testErr != nil {
 		return testErr
 	}
+
 	cmd := exec.Command(applied.NginxBin, "-s", "reload")
 	out, err := cmd.CombinedOutput()
 	if err != nil {

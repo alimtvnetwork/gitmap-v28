@@ -59,6 +59,7 @@ func TestSuggestAlias_SkipsExistingAlias(t *testing.T) {
 			// This is the conflict — suggestion should be skipped
 			continue
 		}
+
 		t.Errorf("expected conflict for %q but AliasExists returned false", suggestion)
 	}
 }
@@ -82,10 +83,12 @@ func TestSuggestAlias_AutoApplyCreatesAll(t *testing.T) {
 		if db.AliasExists(r.RepoName) {
 			continue
 		}
+
 		_, err := db.CreateAlias(r.RepoName, r.ID)
 		if err != nil {
 			t.Fatalf("CreateAlias(%s) failed: %v", r.RepoName, err)
 		}
+
 		created++
 	}
 
@@ -124,6 +127,7 @@ func TestSuggestAlias_PartialConflict(t *testing.T) {
 			skipped++
 			continue
 		}
+
 		db.CreateAlias(r.RepoName, r.ID)
 		created++
 	}
@@ -131,6 +135,7 @@ func TestSuggestAlias_PartialConflict(t *testing.T) {
 	if created != 1 {
 		t.Errorf("expected 1 created (web), got %d", created)
 	}
+
 	if skipped != 1 {
 		t.Errorf("expected 1 skipped (api conflict), got %d", skipped)
 	}
@@ -172,6 +177,7 @@ func TestSuggestAlias_AfterDeleteReopens(t *testing.T) {
 	if err != nil {
 		t.Fatalf("ResolveAlias after re-create failed: %v", err)
 	}
+
 	if resolved.AbsolutePath != "/repos/org-api" {
 		t.Errorf("expected /repos/org-api, got %q", resolved.AbsolutePath)
 	}
@@ -199,11 +205,13 @@ func helperSuggest(db *store.DB, repos []store.UnaliasedRepo) (created, skipped 
 			skipped++
 			continue
 		}
+
 		_, err := db.CreateAlias(r.RepoName, r.ID)
 		if err != nil {
 			skipped++
 			continue
 		}
+
 		created++
 	}
 

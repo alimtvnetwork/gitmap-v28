@@ -56,6 +56,7 @@ func validateRecloneManifestOrExit(plan clonenow.Plan) {
 	if len(issues) == 0 {
 		return
 	}
+
 	printRecloneManifestIssues(plan, issues)
 	cliexit.HandleError(nil, constants.CloneNowExitManifestInvalid)
 }
@@ -108,14 +109,17 @@ func checkRecloneRow(row clonenow.Row, mode string) []string {
 	if len(strings.TrimSpace(row.RepoName)) == 0 {
 		reasons = append(reasons, constants.MsgRecloneValidateMissingRepoName)
 	}
+
 	noURL := len(strings.TrimSpace(row.HTTPSUrl)) == 0 && len(strings.TrimSpace(row.SSHUrl)) == 0
 	if noURL {
 		reasons = append(reasons, constants.MsgRecloneValidateNoURL)
 	}
+
 	picked := row.PickURL(mode)
 	if !noURL && !isPlausibleGitURL(picked) {
 		reasons = append(reasons, constants.MsgRecloneValidateMalformedURL)
 	}
+
 	reasons = append(reasons, checkRecloneDest(row.RelativePath)...)
 
 	if len(reasons) == 0 {
@@ -134,9 +138,11 @@ func checkRecloneDest(dest string) []string {
 	if len(trimmed) == 0 {
 		return []string{constants.MsgRecloneValidateMissingDest}
 	}
+
 	if filepath.IsAbs(trimmed) {
 		return []string{constants.MsgRecloneValidateAbsoluteDest}
 	}
+
 	cleaned := filepath.ToSlash(filepath.Clean(trimmed))
 	if cleaned == ".." || strings.HasPrefix(cleaned, "../") {
 		return []string{constants.MsgRecloneValidateTraversalDest}
@@ -157,6 +163,7 @@ func isPlausibleGitURL(url string) bool {
 	if len(trimmed) == 0 {
 		return false
 	}
+
 	if hasURLScheme(trimmed) {
 		return true
 	}
@@ -172,6 +179,7 @@ func hasURLScheme(url string) bool {
 	if idx <= 0 {
 		return false
 	}
+
 	for _, ch := range url[:idx] {
 		isNonSchemeChar := !isSchemeChar(ch)
 		if isNonSchemeChar {
@@ -209,6 +217,7 @@ func isSCPLikeGitURL(url string) bool {
 	if at <= 0 || colon <= at+1 || colon == len(url)-1 {
 		return false
 	}
+
 	// Reject "user@host:/absolute" only when it looks like a
 	// drive letter — actual SSH paths starting with '/' are fine.
 	return true
@@ -237,6 +246,7 @@ func printRecloneManifestIssues(plan clonenow.Plan, issues []recloneRowIssue) {
 		fmt.Fprintf(os.Stderr, constants.MsgRecloneValidateRowFmt,
 			issue.rowIndex, issue.repoName, displayDest(issue.dest), issue.reason)
 	}
+
 	fmt.Fprint(os.Stderr, constants.MsgRecloneValidateFooter)
 }
 

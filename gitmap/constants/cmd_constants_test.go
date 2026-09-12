@@ -459,6 +459,7 @@ func TestTopLevelCmdConstantsAreUnique(t *testing.T) {
 			t.Errorf("duplicate top-level Cmd constant value %q: %s collides with %s", value, name, prev)
 			continue
 		}
+
 		seen[value] = name
 	}
 }
@@ -477,10 +478,12 @@ func TestTopLevelCmdAliasesAreUnique(t *testing.T) {
 		if len(value) == 0 || len(value) > maxAliasLen {
 			continue
 		}
+
 		if prev, exists := seen[value]; exists {
 			t.Errorf("duplicate short alias %q: %s collides with %s", value, name, prev)
 			continue
 		}
+
 		seen[value] = name
 	}
 }

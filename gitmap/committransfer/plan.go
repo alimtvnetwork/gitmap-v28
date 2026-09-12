@@ -12,18 +12,22 @@ func BuildPlan(sourceDir, targetDir string, opts Options) (ReplayPlan, error) {
 	if err != nil {
 		return ReplayPlan{}, apperror.WrapSimple(err, "read source HEAD ref")
 	}
+
 	base, err := resolveBase(sourceDir, targetDir, opts.Since)
 	if err != nil {
 		return ReplayPlan{}, err
 	}
+
 	shas, err := revListReverse(sourceDir, base, "HEAD", opts.IncludeMerges)
 	if err != nil {
 		return ReplayPlan{}, apperror.WrapSimple(err, "rev-list source")
 	}
+
 	mergeExcluded := countMergeExcluded(sourceDir, base, opts.IncludeMerges, len(shas))
 	if opts.Limit > 0 && len(shas) > opts.Limit {
 		shas = shas[:opts.Limit]
 	}
+
 	// Unbounded by default (spec 114 Gap A — prevents false-fresh
 	// classification on targets with >200 commits since the
 	// already-applied source commit). opts.MaxHistoryScan > 0 lets
@@ -48,10 +52,12 @@ func countMergeExcluded(sourceDir, base string, includeMerges bool, mainlineCoun
 	if includeMerges {
 		return 0
 	}
+
 	withMerges, err := revListReverse(sourceDir, base, "HEAD", true)
 	if err != nil {
 		return 0
 	}
+
 	delta := len(withMerges) - mainlineCount
 	if delta < 0 {
 		return 0
@@ -66,6 +72,7 @@ func resolveBase(sourceDir, targetDir, since string) (string, error) {
 	if since != "" {
 		return since, nil
 	}
+
 	targetHead, err := gitOut(targetDir, "rev-parse", "HEAD")
 	if err != nil {
 		// Empty target repo — no base, replay full source history.
@@ -84,14 +91,17 @@ func assemblePlan(sourceDir, targetDir, sourceHead, base string,
 		SourceDir: sourceDir, TargetDir: targetDir,
 		SourceHEAD: sourceHead, BaseSHA: base,
 	}
+
 	for _, sha := range shas {
 		entry, err := hydrateCommit(sourceDir, sha, replayedSet, opts)
 		if err != nil {
 			return plan, err
 		}
+
 		if entry.SkipCause == "drop-pattern" || isDropSkip(entry.SkipCause) {
 			plan.SkippedDrop++
 		}
+
 		plan.Commits = append(plan.Commits, entry)
 	}
 
@@ -111,22 +121,26 @@ func hydrateCommit(
 	if err != nil {
 		return SourceCommit{}, apperror.Wrap(err, "read commit", map[string]any{"sha": sha})
 	}
+
 	entry := SourceCommit{
 		SHA: sha, ShortSHA: shortSHA, Subject: subject, Body: body,
 		Author: author, AuthorAt: when,
 	}
+
 	if !opts.ForceReplay && opts.Message.Provenance &&
 		SetHasReplayed(replayedSet, opts.Message.SourceDisplayName, shortSHA) {
 		entry.SkipCause = "already-replayed"
 
 		return entry, nil
 	}
+
 	cleaned := CleanMessage(subject, body, opts.Message, shortSHA, when)
 	if cleaned.Skipped != "" {
 		entry.SkipCause = cleaned.Skipped
 
 		return entry, nil
 	}
+
 	entry.Cleaned = cleaned.Final
 
 	return entry, nil

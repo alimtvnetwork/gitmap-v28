@@ -103,6 +103,7 @@ func (m tempReleasesModel) viewList() string {
 		} else {
 			b.WriteString(styleNormalRow.Render("  " + line))
 		}
+
 		b.WriteString("\n")
 	}
 

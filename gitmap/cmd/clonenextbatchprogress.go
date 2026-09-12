@@ -48,6 +48,7 @@ func (r *batchProgressReporter) OnResult(row batchRowResult) {
 	if r.silent {
 		return
 	}
+
 	fmt.Printf(constants.MsgCloneNextBatchProgressFmt,
 		r.done, r.total,
 		filepath.Base(row.RepoPath),

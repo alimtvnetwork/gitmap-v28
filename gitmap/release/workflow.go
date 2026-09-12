@@ -154,6 +154,7 @@ func resolveVersion(opts Options) (Version, error) {
 	if len(opts.Version) > 0 {
 		return resolveExplicitVersion(opts.Version)
 	}
+
 	if len(opts.Bump) > 0 {
 		return resolveBumpVersion(opts.Bump)
 	}
@@ -166,9 +167,11 @@ func resolveExplicitVersion(ver string) (Version, error) {
 	if err != nil {
 		return v, err
 	}
+
 	if verbose.IsEnabled() {
 		verbose.Get().Log("version: resolved from CLI argument: %s", v.String())
 	}
+
 	return v, nil
 }
 
@@ -177,9 +180,11 @@ func resolveBumpVersion(bump string) (Version, error) {
 	if err != nil {
 		return v, err
 	}
+
 	if verbose.IsEnabled() {
 		verbose.Get().Log("version: resolved via --bump %s: %s", bump, v.String())
 	}
+
 	return v, nil
 }
 
@@ -188,9 +193,11 @@ func resolveFileVersion() (Version, error) {
 	if err != nil {
 		return v, err
 	}
+
 	if verbose.IsEnabled() {
 		verbose.Get().Log("version: resolved from %s: %s", constants.DefaultVersionFile, v.String())
 	}
+
 	return v, nil
 }
 
@@ -259,12 +266,14 @@ func executeSteps(v Version, branchName, tag, sourceRef, sourceName string, opts
 	if err != nil {
 		return fmt.Errorf("create branch: %w", err)
 	}
+
 	fmt.Printf(constants.MsgReleaseBranch, branchName)
 
 	err = CreateTag(tag, resolveTagMessage(tag, opts))
 	if err != nil {
 		return fmt.Errorf("create tag: %w", err)
 	}
+
 	fmt.Printf(constants.MsgReleaseTag, tag)
 
 	return pushAndFinalize(v, branchName, tag, sourceName, opts)

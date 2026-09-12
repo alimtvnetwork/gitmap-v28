@@ -11,6 +11,7 @@ func TestParseTagFromGitLine(t *testing.T) {
 	if !ok {
 		t.Fatalf("expected valid parse, got ok=false")
 	}
+
 	if ver.CoreString() != "4.6.9" {
 		t.Errorf("expected 4.6.9, got %s", ver.CoreString())
 	}
@@ -35,6 +36,7 @@ c6ab5e6fa689271a6453ed9eefead7caa99285fc\trefs/tags/v3.3.31
 	if !isFound {
 		t.Fatalf("expected semver to be found")
 	}
+
 	if highest.CoreString() != "4.6.9" {
 		t.Errorf("expected highest 4.6.9, got %s", highest.CoreString())
 	}
@@ -45,9 +47,11 @@ func TestResolveAgManagerAssetURL_SpecifiedVersion(t *testing.T) {
 	if err != nil {
 		t.Fatalf("unexpected error: %v", err)
 	}
+
 	if ver != "4.6.0" {
 		t.Errorf("expected ver 4.6.0, got %s", ver)
 	}
+
 	if !strings.Contains(url, "v4.6.0") {
 		t.Errorf("expected url to contain v4.6.0, got %s", url)
 	}
@@ -58,9 +62,11 @@ func TestResolveAgManagerAssetURL_WithVPrefix(t *testing.T) {
 	if err != nil {
 		t.Fatalf("unexpected error: %v", err)
 	}
+
 	if ver != "4.5.8" {
 		t.Errorf("expected ver 4.5.8, got %s", ver)
 	}
+
 	if !strings.Contains(url, "v4.5.8") {
 		t.Errorf("expected url to contain v4.5.8, got %s", url)
 	}
@@ -71,10 +77,12 @@ func TestAgyInstallFlags(t *testing.T) {
 	if dryFlag == nil {
 		t.Errorf("expected --dry-run flag on agyInstallCmd")
 	}
+
 	verFlag := agyInstallCmd.Flags().Lookup("version")
 	if verFlag == nil {
 		t.Errorf("expected --version flag on agyInstallCmd")
 	}
+
 	yesFlag := agyInstallCmd.Flags().Lookup("yes")
 	if yesFlag == nil {
 		t.Errorf("expected --yes flag on agyInstallCmd")
@@ -87,6 +95,7 @@ func TestAgyInstallDryRunDispatch(t *testing.T) {
 	if err != nil {
 		t.Errorf("expected nil error for dry-run dispatch, got %v", err)
 	}
+
 	errCli := dispatchAgyInstallTarget("cli", opts)
 	if errCli != nil {
 		t.Errorf("expected nil error for cli dry-run dispatch, got %v", errCli)

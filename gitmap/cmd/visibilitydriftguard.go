@@ -28,6 +28,7 @@ func decideDriftAction(current, expected string, force bool) driftAction {
 	if force {
 		return driftActionForce
 	}
+
 	if current != expected {
 		return driftActionSkip
 	}

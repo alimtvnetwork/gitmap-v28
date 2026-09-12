@@ -23,5 +23,6 @@ func runInstallGitmapOneliner() error {
 	fmt.Fprintf(w, constants.MsgInstallHintHeader, constants.Version)
 	fmt.Fprint(w, constants.MsgInstallHintWindows)
 	fmt.Fprint(w, constants.MsgInstallHintUnix)
+
 	return nil
 }

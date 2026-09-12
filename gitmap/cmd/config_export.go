@@ -13,7 +13,6 @@ import (
 // isSupportedExportTool checks if tool is supported for configuration export.
 func isSupportedExportTool(canonicalTool string) bool {
 	if canonicalTool == "all" {
-
 		return true
 	}
 
@@ -39,8 +38,8 @@ func dispatchExportArgs(args []string) error {
 
 		return nil
 	}
-	if canonicalTool == "all" {
 
+	if canonicalTool == "all" {
 		return exportAllToolConfigs(targetArg)
 	}
 
@@ -94,6 +93,7 @@ func exportSingleToolConfig(canonicalTool, inputTool, targetArg string) error {
 
 		return err
 	}
+
 	reportExportSuccess(canonicalTool, finalPath, len(files))
 
 	return nil
@@ -123,10 +123,10 @@ func exportAllToolConfigs(targetFolder string) error {
 	for _, tool := range tools {
 		targetFile := filepath.Join(folder, tool+".json")
 		if err := exportSingleToolConfig(tool, tool, targetFile); err != nil {
-
 			return apperror.Wrap(err, "exportAllToolConfigs", map[string]any{"tool": tool})
 		}
 	}
+
 	reportAllExportSuccess(folder)
 
 	return nil
@@ -136,7 +136,6 @@ func exportAllToolConfigs(targetFolder string) error {
 func resolveExportFolder(targetFolder string) string {
 	folder := strings.TrimSpace(targetFolder)
 	if folder == "" {
-
 		return "."
 	}
 

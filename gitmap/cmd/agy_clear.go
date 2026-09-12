@@ -43,15 +43,19 @@ func runAgyClear() error {
 	if pathErr != nil {
 		return apperror.WrapSimple(pathErr, "path error")
 	}
+
 	projects, loadErr := loadAllAgyProjects(dirPath)
 	if loadErr != nil {
 		return apperror.WrapSimple(loadErr, "load projects")
 	}
+
 	targets := selectClearTargets(projects)
 	if len(targets) == 0 {
 		fmt.Printf("%s No stale or missing Antigravity projects found to clear.\n", constants.ColorGreen+"✓"+constants.ColorReset)
+
 		return nil
 	}
+
 	return executeClearTargets(dirPath, targets)
 }
 
@@ -63,9 +67,11 @@ func selectClearTargets(projects []AgyProject) []AgyProject {
 		if p.ID == "outside-of-project" || isAgyProjectExcepted(p, agyClearExcept) {
 			continue
 		}
+
 		if isAgyProjectPinned(p, pinnedMap) {
 			continue
 		}
+
 		path := p.GetPath()
 		isMissing := path != "" && !checkDirExists(path)
 		shouldClear := agyClearAll || isMissing
@@ -73,6 +79,7 @@ func selectClearTargets(projects []AgyProject) []AgyProject {
 			targets = append(targets, p)
 		}
 	}
+
 	return targets
 }
 
@@ -80,14 +87,17 @@ func isAgyProjectPinned(p AgyProject, pinnedMap map[string]bool) bool {
 	if len(pinnedMap) == 0 {
 		return false
 	}
+
 	if pinnedMap[p.ID] {
 		return true
 	}
+
 	return pinnedMap[filepath.Clean(p.GetPath())]
 }
 
 func isAgyProjectExcepted(p AgyProject, exceptStr string) bool {
 	tokens := parseAgyExceptTokens(exceptStr)
+
 	return isAgyProjectExceptedWithTokens(p, tokens)
 }
 
@@ -95,10 +105,13 @@ func executeClearTargets(dirPath string, targets []AgyProject) error {
 	printClearPreview(targets)
 	if agyClearDryRun {
 		fmt.Printf("\n%s [dry-run] %d project(s) would be removed. No changes made.\n", constants.ColorYellow+"ℹ"+constants.ColorReset, len(targets))
+
 		return nil
 	}
+
 	if !agyClearYes && !askClearConfirmation(len(targets)) {
 		fmt.Println("Aborted. No projects were removed.")
+
 		return nil
 	}
 
@@ -106,6 +119,7 @@ func executeClearTargets(dirPath string, targets []AgyProject) error {
 	deletedCount := deleteTargetProjects(dirPath, targets)
 	fmt.Printf("\n%s Successfully removed %d stale project(s).\n", constants.ColorGreen+"✓"+constants.ColorReset, deletedCount)
 	fmt.Printf("  %sTip: You can undo this clear action anytime using: gitmap agy undo%s\n", constants.ColorDim, constants.ColorReset)
+
 	return nil
 }
 
@@ -120,8 +134,10 @@ func printClearPreview(targets []AgyProject) {
 			path = "(no path)"
 			slug = "—"
 		}
+
 		fmt.Printf("    %-12s %-24s %-20s %s\n", shortProjectId(p.ID), p.Name, slug, path)
 	}
+
 	fmt.Printf("\n    %sTip: Exclude items using: --except \"<id, name, slug, or starts-with text>\"%s\n",
 		constants.ColorDim, constants.ColorReset)
 }
@@ -133,7 +149,9 @@ func askClearConfirmation(count int) bool {
 	if err != nil {
 		return false
 	}
+
 	ans = strings.TrimSpace(strings.ToLower(ans))
+
 	return ans == "y" || ans == "yes"
 }
 
@@ -146,5 +164,6 @@ func deleteTargetProjects(dirPath string, targets []AgyProject) int {
 			count++
 		}
 	}
+
 	return count
 }

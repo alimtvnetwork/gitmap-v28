@@ -24,18 +24,21 @@ func runSSHBind(args []string) error {
 
 		return apperror.NewSimple("not a git repository (run `gitmap ssh-bind` inside a repo)", "E_NOT_GIT_REPO")
 	}
+
 	if len(args) == 0 {
 		fmt.Fprintln(os.Stderr, "usage: gitmap ssh-bind <key-filename-or-path>")
 		fmt.Fprintln(os.Stderr, "  tip: run `gitmap whoami` to list available keys under ~/.ssh")
 
 		return apperror.NewSimple("missing key argument", "E_USAGE")
 	}
+
 	keyRef, keyPath := resolveSSHKeyPath(args[0])
 	if _, err := os.Stat(keyPath); err != nil {
 		fmt.Fprintf(os.Stderr, "✗ key not found: %s (%v)\n", keyPath, err)
 
 		return apperror.WrapSimple(err, fmt.Sprintf("key not found: %s", keyPath))
 	}
+
 	cmdStr := fmt.Sprintf("ssh -i %s -F /dev/null -o IdentitiesOnly=yes", keyRef)
 	out, err := exec.Command("git", "config", "core.sshCommand", cmdStr).CombinedOutput()
 	if err != nil {
@@ -43,6 +46,7 @@ func runSSHBind(args []string) error {
 
 		return apperror.WrapSimple(err, "git config core.sshCommand")
 	}
+
 	fmt.Printf("✓ pinned SSH key for this repo: %s\n", keyPath)
 	fmt.Printf("  core.sshCommand = %s\n", cmdStr)
 	fmt.Println("  test with: git push")
@@ -58,9 +62,11 @@ func resolveSSHKeyPath(arg string) (string, string) {
 	if strings.HasPrefix(arg, "~/") || strings.HasPrefix(arg, "~\\") {
 		return arg, home + string(os.PathSeparator) + arg[2:]
 	}
+
 	if strings.ContainsAny(arg, "/\\") || (len(arg) > 1 && arg[1] == ':') {
 		return arg, arg
 	}
+
 	ref := "~/.ssh/" + arg
 	abs := home + string(os.PathSeparator) + ".ssh" + string(os.PathSeparator) + arg
 

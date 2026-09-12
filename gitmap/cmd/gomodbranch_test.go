@@ -54,6 +54,7 @@ func TestCreateGoModBranches_Names(t *testing.T) {
 	if backup != expectedBackup {
 		t.Errorf("expected %q, got %q", expectedBackup, backup)
 	}
+
 	if feature != expectedFeature {
 		t.Errorf("expected %q, got %q", expectedFeature, feature)
 	}

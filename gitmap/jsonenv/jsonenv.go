@@ -56,5 +56,6 @@ func WriteErr(w io.Writer, command string, errMsg string, data interface{}) erro
 func write(w io.Writer, env Envelope) error {
 	enc := json.NewEncoder(w)
 	enc.SetIndent("", constants.JSONIndent)
+
 	return enc.Encode(env)
 }

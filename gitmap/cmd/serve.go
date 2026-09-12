@@ -38,6 +38,7 @@ func runServe(args []string) error {
 		fmt.Fprintf(os.Stderr, constants.ErrServeBind+"\n", err)
 		cliexit.HandleError(nil, 1)
 	}
+
 	defer listener.Close()
 
 	// Display IP/Port and Token
@@ -56,6 +57,7 @@ func runServe(args []string) error {
 	<-sigChan
 
 	fmt.Println(constants.MsgServeShutdown)
+
 	return nil
 }
 
@@ -64,6 +66,7 @@ func parseServeFlags(args []string) int {
 	fs := flag.NewFlagSet(constants.CmdServe, flag.ExitOnError)
 	port := fs.Int(constants.FlagServePort, constants.ServeDefaultPort, constants.FlagDescServePort)
 	fs.Parse(args)
+
 	return *port
 }
 
@@ -73,6 +76,7 @@ func generateJoinToken() (string, error) {
 	if _, err := rand.Read(bytes); err != nil {
 		return "", err
 	}
+
 	return hex.EncodeToString(bytes), nil
 }
 
@@ -88,12 +92,15 @@ func getLocalIP() string {
 		if !ok {
 			continue
 		}
+
 		if ipnet.IP.IsLoopback() {
 			continue
 		}
+
 		if ipnet.IP.To4() != nil {
 			return ipnet.IP.String()
 		}
 	}
+
 	return constants.ServeBindAddress
 }

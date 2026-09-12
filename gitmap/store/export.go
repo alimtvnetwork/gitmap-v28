@@ -58,6 +58,7 @@ func (db *DB) exportGroups() ([]model.GroupExport, error) {
 		if err != nil {
 			return nil, err
 		}
+
 		results = append(results, ge)
 	}
 

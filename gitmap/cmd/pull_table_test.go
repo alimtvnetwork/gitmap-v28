@@ -63,10 +63,12 @@ func TestFormatBranchNameMiddleTruncate(t *testing.T) {
 	if hasExpectedLen == false {
 		t.Fatalf("expected length 18, got %d (%q)", len(formatted), formatted)
 	}
+
 	hasEllipsis := strings.Contains(formatted, "...")
 	if hasEllipsis == false {
 		t.Fatalf("expected ellipsis in %q", formatted)
 	}
+
 	hasEndDigits := strings.HasSuffix(formatted, "55629")
 	if hasEndDigits == false {
 		t.Fatalf("expected ending 55629 in %q", formatted)
@@ -80,6 +82,7 @@ func TestFormatRepoNameMiddleTruncate(t *testing.T) {
 	if hasExpectedLen == false {
 		t.Fatalf("expected length 20, got %d (%q)", len(formatted), formatted)
 	}
+
 	hasEndSuffix := strings.HasSuffix(formatted, "er-v1")
 	if hasEndSuffix == false {
 		t.Fatalf("expected ending er-v1 in %q", formatted)
@@ -166,10 +169,12 @@ func TestPullTableNarrowWidth72(t *testing.T) {
 			Duration:     "1.0s",
 		},
 	}
+
 	layout := NewPullTableLayoutWithWidth(rows, 72)
 	if layout.IsWide {
 		t.Errorf("expected compact layout for width 72, got wide")
 	}
+
 	if layout.DividerLen+2 > 72 {
 		t.Errorf("expected total row width <= 72, got %d", layout.DividerLen+2)
 	}
@@ -187,10 +192,12 @@ func TestPullTableStandardWidth80(t *testing.T) {
 			Duration:     "1.0s",
 		},
 	}
+
 	layout := NewPullTableLayoutWithWidth(rows, 80)
 	if layout.IsWide {
 		t.Errorf("expected compact layout for width 80, got wide")
 	}
+
 	if layout.DividerLen+2 > 80 {
 		t.Errorf("expected total row width <= 80, got %d", layout.DividerLen+2)
 	}
@@ -209,13 +216,16 @@ func TestPullTableWideWidth120(t *testing.T) {
 			IsDirty:      true,
 		},
 	}
+
 	layout := NewPullTableLayoutWithWidth(rows, 120)
 	if !layout.IsWide {
 		t.Errorf("expected wide layout for width 120, got compact")
 	}
+
 	if layout.DividerLen+2 > 120 {
 		t.Errorf("expected total row width <= 120, got %d", layout.DividerLen+2)
 	}
+
 	if layout.MaxLatestBr <= 0 {
 		t.Errorf("expected positive MaxLatestBr in wide layout, got %d", layout.MaxLatestBr)
 	}

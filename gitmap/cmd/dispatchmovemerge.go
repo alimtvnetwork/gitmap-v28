@@ -17,6 +17,7 @@ func dispatchMoveMerge(command string) (bool, error) {
 
 		return true, nil
 	}
+
 	if spec, ok := mergeSpecFor(command); ok {
 		runMerge(spec, os.Args[2:])
 

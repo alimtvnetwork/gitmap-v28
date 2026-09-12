@@ -23,6 +23,7 @@ func TestParseArgsAcceptsSinceAndReleaseTag(t *testing.T) {
 		Mode: ModeCheck, Version: "v3.92.0", RepoRoot: "/tmp/x",
 		Since: "v3.90.0", ReleaseTag: "v3.91.0",
 	}
+
 	if got != want {
 		t.Fatalf("got %+v want %+v", got, want)
 	}
@@ -51,6 +52,7 @@ func TestResolveVersionPriority(t *testing.T) {
 		{"lower-bound +next", Args{}, "vLT", "vLT+next"},
 		{"vNEXT default", Args{}, "", "vNEXT"},
 	}
+
 	for _, tc := range cases {
 		got := resolveVersion(tc.args, tc.lower)
 		if got != tc.want {

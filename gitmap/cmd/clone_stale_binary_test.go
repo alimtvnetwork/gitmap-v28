@@ -48,12 +48,14 @@ func TestIsDirectURLAcceptsAllReportedShapes(t *testing.T) {
 		"http://gitlab.example.com/foo/bar",
 		"git@github.com:alimtvnetwork/account-automator.git",
 	}
+
 	for _, u := range urls {
 		isNonDirectURL := !isDirectURL(u)
 		if isNonDirectURL {
 			t.Fatalf("isDirectURL rejected %q — folder-name disambiguation will break", u)
 		}
 	}
+
 	// And it must reject things that LOOK like folder names.
 	notURLs := []string{"my-repo", "C:\\work\\repo", "./repo", ""}
 	for _, n := range notURLs {

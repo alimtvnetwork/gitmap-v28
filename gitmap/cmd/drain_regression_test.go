@@ -42,6 +42,7 @@ func TestVersion_FlushedOnCleanExit(t *testing.T) {
 	if err != nil {
 		t.Fatalf("create stdout capture: %v", err)
 	}
+
 	stderrF, err := os.Create(stderrPath)
 	if err != nil {
 		t.Fatalf("create stderr capture: %v", err)
@@ -64,9 +65,11 @@ func TestVersion_FlushedOnCleanExit(t *testing.T) {
 	if code != 0 {
 		t.Fatalf("version exited %d\nstdout=%q\nstderr=%q", code, stdout, stderr)
 	}
+
 	if len(strings.TrimSpace(string(stdout))) == 0 {
 		t.Fatalf("version produced empty stdout under glyphs=safe — drain regression\nstderr=%q", stderr)
 	}
+
 	if !strings.Contains(string(stdout), constants.Version) {
 		t.Fatalf("version stdout %q missing pinned version %q", stdout, constants.Version)
 	}
@@ -82,8 +85,10 @@ func envSwapGlyphs(mode string) []string {
 		if strings.HasPrefix(kv, "GITMAP_GLYPHS=") {
 			continue
 		}
+
 		out = append(out, kv)
 	}
+
 	out = append(out, "GITMAP_GLYPHS="+mode)
 
 	return out

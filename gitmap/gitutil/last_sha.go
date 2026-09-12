@@ -13,5 +13,6 @@ func GetLastCommitSHA(repoPath string) string {
 	if err != nil {
 		return "-"
 	}
+
 	return strings.TrimSpace(string(out))
 }

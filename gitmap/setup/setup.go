@@ -55,6 +55,7 @@ func LoadConfig(path string) (GitSetupConfig, error) {
 	if err != nil {
 		return GitSetupConfig{}, err
 	}
+
 	var cfg GitSetupConfig
 	err = json.Unmarshal(data, &cfg)
 
@@ -68,15 +69,19 @@ func Apply(cfg GitSetupConfig, isDryRun bool) SetupResult {
 	if cfg.DiffTool != nil {
 		applyDiffTool(cfg.DiffTool, isDryRun, &result)
 	}
+
 	if cfg.MergeTool != nil {
 		applyMergeTool(cfg.MergeTool, isDryRun, &result)
 	}
+
 	if len(cfg.Aliases) > 0 {
 		applyAliases(cfg.Aliases, isDryRun, &result)
 	}
+
 	if len(cfg.CredentialHelper) > 0 {
 		applyCredentialHelper(cfg.CredentialHelper, isDryRun, &result)
 	}
+
 	if len(cfg.Core) > 0 {
 		applyCoreSettings(cfg.Core, isDryRun, &result)
 	}
@@ -91,11 +96,13 @@ func applyDiffTool(tool *ToolConfig, isDryRun bool, r *SetupResult) {
 		{fmt.Sprintf(gitConfigDiffToolCmd, tool.Name), tool.Cmd},
 		{gitConfigDiffToolPrompt, gitValueFalse},
 	}
+
 	if tool.IsTrustExitCode {
 		settings = append(settings, gitSetting{
 			fmt.Sprintf(gitConfigDiffToolTrust, tool.Name), gitValueTrue,
 		})
 	}
+
 	applySection(constants.SetupSectionDiff, settings, isDryRun, r)
 }
 
@@ -107,11 +114,13 @@ func applyMergeTool(tool *ToolConfig, isDryRun bool, r *SetupResult) {
 		{gitConfigMergeToolPrompt, gitValueFalse},
 		{gitConfigMergeToolKeepBackup, gitValueFalse},
 	}
+
 	if tool.IsTrustExitCode {
 		settings = append(settings, gitSetting{
 			fmt.Sprintf(gitConfigMergeToolTrust, tool.Name), gitValueTrue,
 		})
 	}
+
 	applySection(constants.SetupSectionMerge, settings, isDryRun, r)
 }
 
@@ -123,6 +132,7 @@ func applyAliases(aliases map[string]string, isDryRun bool, r *SetupResult) {
 			fmt.Sprintf(gitConfigAlias, name), value,
 		})
 	}
+
 	applySection(constants.SetupSectionAlias, settings, isDryRun, r)
 }
 
@@ -131,6 +141,7 @@ func applyCredentialHelper(helper string, isDryRun bool, r *SetupResult) {
 	settings := []gitSetting{
 		{gitConfigCredentialHelper, helper},
 	}
+
 	applySection(constants.SetupSectionCred, settings, isDryRun, r)
 }
 
@@ -141,5 +152,6 @@ func applyCoreSettings(core map[string]string, isDryRun bool, r *SetupResult) {
 		gitKey := mapCoreKey(key)
 		settings = append(settings, gitSetting{gitKey, value})
 	}
+
 	applySection(constants.SetupSectionCore, settings, isDryRun, r)
 }

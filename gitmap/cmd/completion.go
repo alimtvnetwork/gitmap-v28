@@ -15,13 +15,17 @@ func runCompletion(args []string) error {
 	checkHelp("completion", args)
 	if hasListFlag(args) {
 		handleCompletionList(args)
+
 		return nil
 	}
+
 	if len(args) < 1 {
 		fmt.Fprint(os.Stderr, constants.ErrCompUsage)
 		cliexit.HandleError(nil, 1)
 	}
+
 	printCompletionScript(args[0])
+
 	return nil
 }
 
@@ -35,6 +39,7 @@ func hasListFlag(args []string) bool {
 			return true
 		}
 	}
+
 	return false
 }
 
@@ -44,6 +49,7 @@ func handleCompletionList(args []string) {
 	for _, a := range args {
 		if fn, ok := printers[a]; ok {
 			fn()
+
 			return
 		}
 	}
@@ -67,11 +73,13 @@ func printCompletionRepos() {
 	if err != nil {
 		return
 	}
+
 	defer db.Close()
 	repos, err := db.ListRepos()
 	if err != nil {
 		return
 	}
+
 	for _, r := range repos {
 		fmt.Println(r.Slug)
 	}
@@ -83,11 +91,13 @@ func printCompletionGroups() {
 	if err != nil {
 		return
 	}
+
 	defer db.Close()
 	groups, err := db.ListGroups()
 	if err != nil {
 		return
 	}
+
 	for _, g := range groups {
 		fmt.Println(g.Name)
 	}
@@ -106,11 +116,13 @@ func printCompletionAliases() {
 	if err != nil {
 		return
 	}
+
 	defer db.Close()
 	aliases, err := db.ListAliases()
 	if err != nil {
 		return
 	}
+
 	for _, a := range aliases {
 		fmt.Println(a.Alias)
 	}
@@ -122,11 +134,13 @@ func printCompletionZipGroups() {
 	if err != nil {
 		return
 	}
+
 	defer db.Close()
 	groups, err := db.ListZipGroups()
 	if err != nil {
 		return
 	}
+
 	for _, g := range groups {
 		fmt.Println(g.Name)
 	}
@@ -138,11 +152,13 @@ func printCompletionSSHKeys() {
 	if err != nil {
 		return
 	}
+
 	defer db.Close()
 	names, err := db.SSHKeyNames()
 	if err != nil {
 		return
 	}
+
 	for _, n := range names {
 		fmt.Println(n)
 	}
@@ -162,5 +178,6 @@ func printCompletionScript(shell string) {
 		fmt.Fprintf(os.Stderr, constants.ErrCompUnknownShell, shell)
 		cliexit.HandleError(nil, 1)
 	}
+
 	fmt.Print(script)
 }

@@ -40,8 +40,10 @@ func runHelpDashboard(args []string) error {
 	if isMissing {
 		ensureErr = ensureDocsSite(binaryDir, docsDir)
 	}
+
 	if isMissing && ensureErr != nil {
 		openHostedDocsFallback()
+
 		return nil
 	}
 
@@ -49,6 +51,7 @@ func runHelpDashboard(args []string) error {
 	if os.IsNotExist(err) {
 		fmt.Fprintf(os.Stderr, constants.ErrHDNoDocsDir, docsDir)
 		openHostedDocsFallback()
+
 		return nil
 	}
 
@@ -57,11 +60,13 @@ func runHelpDashboard(args []string) error {
 	info, err := os.Stat(distDir)
 	if err == nil && info.IsDir() {
 		serveStatic(distDir, port)
+
 		return nil
 	}
 
 	fmt.Print(constants.MsgHDNoDistFallback)
 	serveDev(docsDir, port)
+
 	return nil
 }
 
@@ -76,26 +81,35 @@ func ensureDocsSite(binaryDir, docsDir string) error {
 	if isZipMissing {
 		_, n, dlErr = downloadDocsSiteArchive(zipPath)
 	}
+
 	if isZipMissing && dlErr != nil {
 		fmt.Fprintf(os.Stderr, constants.ErrDocsSiteDownload, 2, dlErr, zipPath)
+
 		return dlErr
 	}
+
 	if isZipMissing {
 		fmt.Printf(constants.MsgDocsSiteDownloaded, n)
 	}
+
 	fmt.Printf("  Extracting %s...\n", constants.DocsSiteArchive)
 	mkErr := os.MkdirAll(docsDir, constants.DirPermission)
 	if mkErr != nil {
 		fmt.Fprintf(os.Stderr, "  ✗ Failed to create docs-site dir: %v\n", mkErr)
+
 		return mkErr
 	}
+
 	extractTarget := chooseDocsExtractTarget(zipPath, binaryDir, docsDir)
 	extractErr := extractDocsSiteZip(zipPath, extractTarget)
 	if extractErr != nil {
 		fmt.Fprintf(os.Stderr, "  ✗ Failed to extract docs-site.zip: %v\n", extractErr)
+
 		return extractErr
 	}
+
 	fmt.Printf("  ✓ Docs site extracted to %s\n", docsDir)
+
 	return nil
 }
 
@@ -158,6 +172,7 @@ func serveStatic(distDir string, port int) {
 func spaHandler(distDir string) http.Handler {
 	fs := http.FileServer(http.Dir(distDir))
 	indexPath := distDir + "/index.html"
+
 	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		requested := distDir + r.URL.Path
 		info, err := os.Stat(requested)
@@ -167,6 +182,7 @@ func spaHandler(distDir string) http.Handler {
 			w.Header().Set("Content-Type", "text/html; charset=utf-8")
 			w.Header().Set("Cache-Control", "no-cache")
 			http.ServeFile(w, r, indexPath)
+
 			return
 		}
 
@@ -174,6 +190,7 @@ func spaHandler(distDir string) http.Handler {
 		if strings.HasSuffix(r.URL.Path, ".html") {
 			w.Header().Set("Content-Type", "text/html; charset=utf-8")
 		}
+
 		fs.ServeHTTP(w, r)
 	})
 }

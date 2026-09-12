@@ -49,6 +49,7 @@ func TestClusterRunAndExecResult(t *testing.T) {
 	if err != nil {
 		t.Fatalf("InsertClusterRun failed: %v", err)
 	}
+
 	if runId == 0 {
 		t.Fatalf("Expected non-zero runId")
 	}
@@ -58,9 +59,11 @@ func TestClusterRunAndExecResult(t *testing.T) {
 	if err != nil {
 		t.Fatalf("SelectClusterRun failed: %v", err)
 	}
+
 	if retrieved.ClusterRunId != runId {
 		t.Errorf("Expected runId %d, got %d", runId, retrieved.ClusterRunId)
 	}
+
 	if retrieved.CommandKind != run.CommandKind {
 		t.Errorf("Expected CommandKind %v, got %v", run.CommandKind, retrieved.CommandKind)
 	}
@@ -76,6 +79,7 @@ func TestClusterRunAndExecResult(t *testing.T) {
 	if err != nil {
 		t.Fatalf("SelectClusterRun after update failed: %v", err)
 	}
+
 	if retrieved.TotalNodes == nil || *retrieved.TotalNodes != 5 {
 		t.Errorf("Expected TotalNodes to be 5, got %v", retrieved.TotalNodes)
 	}
@@ -103,6 +107,7 @@ func TestClusterRunAndExecResult(t *testing.T) {
 			FinishedAt:   ptrTime(now.Add(1 * time.Second)),
 			DurationMs:   ptrInt(1000),
 		}
+
 		_, err := InsertClusterExecResult(ctx, db, res)
 		if err != nil {
 			t.Fatalf("InsertClusterExecResult %d failed: %v", i, err)
@@ -114,6 +119,7 @@ func TestClusterRunAndExecResult(t *testing.T) {
 	if err != nil {
 		t.Fatalf("SelectClusterExecResultsByRunId failed: %v", err)
 	}
+
 	if len(results) != 5 {
 		t.Errorf("Expected 5 results, got %d", len(results))
 	}
@@ -129,6 +135,7 @@ func TestClusterRunAndExecResult(t *testing.T) {
 	if err != nil {
 		t.Fatalf("SelectClusterExecResultsByRunId after delete failed: %v", err)
 	}
+
 	if len(resultsAfterDelete) != 0 {
 		t.Errorf("Expected 0 results after run deletion due to cascade, got %d", len(resultsAfterDelete))
 	}

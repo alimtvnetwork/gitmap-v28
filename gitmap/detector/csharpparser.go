@@ -29,6 +29,7 @@ func findSlnFile(dir string, meta *model.CsharpProjectMetadata) {
 	if err != nil {
 		return
 	}
+
 	for _, entry := range entries {
 		if strings.HasSuffix(entry.Name(), constants.ExtSln) {
 			meta.SlnPath = filepath.Join(dir, entry.Name())
@@ -61,6 +62,7 @@ func parseGlobalJSONSdk(path string) string {
 	if err != nil {
 		return ""
 	}
+
 	var g globalJSON
 	err = json.Unmarshal(data, &g)
 	if err != nil {
@@ -87,9 +89,11 @@ func findCsprojFiles(dir, _ string) []model.CsharpProjectFile {
 		if err != nil {
 			return nil
 		}
+
 		if info.IsDir() && isExcludedDir(info.Name()) {
 			return filepath.SkipDir
 		}
+
 		if isCsprojFile(info.Name()) {
 			f := parseCsprojFile(path, dir)
 			files = append(files, f)
@@ -122,6 +126,7 @@ func parseCsprojFile(path, baseDir string) model.CsharpProjectFile {
 		FileName:     name,
 		ProjectName:  projName,
 	}
+
 	parseCsprojXML(path, &f)
 
 	return f
@@ -133,16 +138,19 @@ func parseCsprojXML(path string, f *model.CsharpProjectFile) {
 	if err != nil {
 		return
 	}
+
 	var proj csprojXML
 	err = xml.Unmarshal(data, &proj)
 	if err != nil {
 		return
 	}
+
 	f.Sdk = proj.Sdk
 	for _, pg := range proj.Groups {
 		if len(pg.TargetFramework) > 0 {
 			f.TargetFramework = pg.TargetFramework
 		}
+
 		if len(pg.OutputType) > 0 {
 			f.OutputType = pg.OutputType
 		}
@@ -156,9 +164,11 @@ func findKeyFiles(dir, _ string) []model.CsharpKeyFile {
 		if err != nil {
 			return nil
 		}
+
 		if info.IsDir() && isExcludedDir(info.Name()) {
 			return filepath.SkipDir
 		}
+
 		if isKeyFile(info.Name()) {
 			rel := buildRelativePath(filepath.Dir(path), dir)
 			relPath := filepath.Join(rel, info.Name())
@@ -182,6 +192,7 @@ func isKeyFile(name string) bool {
 			return true
 		}
 	}
+
 	if strings.HasSuffix(name, ".props") {
 		return true
 	}

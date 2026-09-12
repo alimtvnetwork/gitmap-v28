@@ -31,6 +31,7 @@ func ListEntries(ctx context.Context, path string) ([]Entry, Format, error) {
 	if err != nil {
 		return nil, FormatUnknown, err
 	}
+
 	defer f.Close()
 
 	format, stream, err := archives.Identify(ctx, filepath.Base(path), f)
@@ -69,12 +70,15 @@ func extractListEntries(params ListExtractParams) ([]Entry, Format, error) {
 		if isLimitReached {
 			return io.EOF
 		}
+
 		out = append(out, Entry{Path: entry.NameInArchive, Size: entry.Size(), IsDir: entry.IsDir()})
+
 		return nil
 	})
 	isSuccess := err == nil || errors.Is(err, io.EOF)
 	if isSuccess {
 		return out, mholtToFormat(params.Format), nil
 	}
+
 	return out, mholtToFormat(params.Format), err
 }

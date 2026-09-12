@@ -93,6 +93,7 @@ func (db *DB) ListInstalledTools() ([]InstalledTool, error) {
 	if err != nil {
 		return nil, err
 	}
+
 	defer rows.Close()
 
 	return scanLegacyInstalledTools(rows)
@@ -110,6 +111,7 @@ func scanLegacyInstalledTools(rows *sql.Rows) ([]InstalledTool, error) {
 		if err != nil {
 			return nil, err
 		}
+
 		tools = append(tools, t)
 	}
 

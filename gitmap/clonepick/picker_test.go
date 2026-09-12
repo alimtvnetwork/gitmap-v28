@@ -34,6 +34,7 @@ func TestSpaceTogglesCurrentRow(t *testing.T) {
 	if !out.picked[0] {
 		t.Fatal("space did not toggle row 0 on")
 	}
+
 	again, _ := out.handleKey(keyMsg(" "))
 	if again.(pickerModel).picked[0] {
 		t.Fatal("second space did not toggle row 0 off")
@@ -57,6 +58,7 @@ func TestSelectAllSkipsAutoExcluded(t *testing.T) {
 	if !out.picked[0] || !out.picked[2] {
 		t.Fatal("'a' should pick non-greyed rows")
 	}
+
 	if out.picked[1] {
 		t.Fatal("'a' must not pick auto-greyed node_modules row")
 	}
@@ -76,6 +78,7 @@ func TestQuitFlagsCancelled(t *testing.T) {
 	if !next.(pickerModel).isCanceled {
 		t.Fatal("'q' should set the cancel flag")
 	}
+
 	if cmd == nil {
 		t.Fatal("'q' should return tea.Quit cmd (non-nil)")
 	}
@@ -88,6 +91,7 @@ func TestSaveFlagsDoneAndReturnsSelection(t *testing.T) {
 	if !out.done || cmd == nil {
 		t.Fatalf("'s' should set done + return tea.Quit, got done=%v cmd=%v", out.done, cmd)
 	}
+
 	got := out.selected()
 	if len(got) != 2 || got[0] != "a" || got[1] != "c" {
 		t.Fatalf("selected() = %v, want [a c]", got)
@@ -102,6 +106,7 @@ func TestIsAutoExcludedMatchesPrefixesNotSubstrings(t *testing.T) {
 		"vendor/x.go":             true,
 		"docs/README.md":          false,
 	}
+
 	for path, want := range cases {
 		if got := IsAutoExcluded(path); got != want {
 			t.Errorf("IsAutoExcluded(%q) = %v, want %v", path, got, want)
@@ -115,6 +120,7 @@ func TestViewIncludesCounterAndKeyHints(t *testing.T) {
 	if !strings.Contains(out, "1/2 selected") {
 		t.Errorf("view missing counter: %q", out)
 	}
+
 	if !strings.Contains(out, "space toggle") {
 		t.Errorf("view missing key hints: %q", out)
 	}

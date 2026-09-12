@@ -11,6 +11,7 @@ func TestCreateInFlightStageDir(t *testing.T) {
 	if err != nil {
 		t.Fatalf("CreateInFlightStageDir failed: %v", err)
 	}
+
 	defer os.RemoveAll(stageDir)
 
 	info, err := os.Stat(stageDir)

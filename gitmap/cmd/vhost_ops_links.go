@@ -15,12 +15,14 @@ func parseMarkerSiteType(content string) VHostSiteType {
 	if isMissing {
 		return VHostSiteTypeStatic
 	}
+
 	sub := content[idx+len(markerPrefix):]
 	slashIdx := strings.Index(sub, "/")
 	isNoSlash := slashIdx < 0
 	if isNoSlash {
 		return VHostSiteTypeStatic
 	}
+
 	rawType := sub[:slashIdx]
 	siteType, err := ParseVHostSiteType(rawType)
 	hasError := err != nil
@@ -73,6 +75,7 @@ func findAvailableVHostFile(availDir, domain string) (string, *apperror.AppError
 	if isFound {
 		return path, nil
 	}
+
 	confPath := path + ".conf"
 	_, confErr := os.Stat(confPath)
 	isConfFound := confErr == nil
@@ -90,6 +93,7 @@ func findEnabledVHostPath(enabledDir, domain string) string {
 	if isFound {
 		return path
 	}
+
 	confPath := path + ".conf"
 	_, confErr := os.Lstat(confPath)
 	isConfFound := confErr == nil
@@ -106,6 +110,7 @@ func createVHostSymlink(source, target string) *apperror.AppError {
 	if dirErr != nil {
 		return apperror.WrapSimple(dirErr, "os.MkdirAll")
 	}
+
 	linkErr := os.Symlink(source, target)
 	if linkErr != nil {
 		return apperror.WrapSimple(linkErr, "os.Symlink")
@@ -121,6 +126,7 @@ func EnableVHost(domain string, opts VHostOptions) *apperror.AppError {
 	if srcErr != nil {
 		return srcErr
 	}
+
 	dstPath := filepath.Join(applied.SitesEnabledDir, filepath.Base(srcPath))
 	_, statErr := os.Lstat(dstPath)
 	isAlreadyEnabled := statErr == nil
@@ -139,6 +145,7 @@ func DisableVHost(domain string, opts VHostOptions) *apperror.AppError {
 	if isEmpty {
 		return nil
 	}
+
 	remErr := os.Remove(target)
 	if remErr != nil {
 		return apperror.WrapSimple(remErr, "os.Remove")

@@ -25,6 +25,7 @@ func TestCreateDirAndFile(t *testing.T) {
 	if resFile.HasError() {
 		t.Fatalf("Expected CreateFile to succeed, got %v", resFile.Fault().Error())
 	}
+
 	f := resFile.Data()
 	f.Close()
 

@@ -31,6 +31,7 @@ func Dynamic(cword int, argv []string) []string {
 	if cword <= 0 {
 		return filterByPrefix(AllCommands(), currentWord(argv, cword))
 	}
+
 	cmd := argv[0]
 	prefix := currentWord(argv, cword)
 
@@ -56,6 +57,7 @@ func currentWord(argv []string, cword int) string {
 	if cword < 0 || cword >= len(argv) {
 		return ""
 	}
+
 	return argv[cword]
 }
 
@@ -63,12 +65,14 @@ func filterByPrefix(in []string, prefix string) []string {
 	if prefix == "" {
 		return in
 	}
+
 	out := in[:0:0]
 	for _, s := range in {
 		if strings.HasPrefix(s, prefix) {
 			out = append(out, s)
 		}
 	}
+
 	return out
 }
 
@@ -77,6 +81,7 @@ func isRepoPathCmd(cmd string) bool {
 	case "cd", "clone", "clone-next", "cn", "cfr", "cfrp", "reclone", "rm", "del", "remove", "scan":
 		return true
 	}
+
 	return false
 }
 
@@ -88,14 +93,18 @@ func localGitDirs(root string) []string {
 	if err != nil {
 		return nil
 	}
+
 	out := make([]string, 0, len(entries))
 	for _, e := range entries {
 		if !e.IsDir() || strings.HasPrefix(e.Name(), ".") {
 			continue
 		}
+
 		out = append(out, e.Name())
 	}
+
 	sort.Strings(out)
+
 	return out
 }
 
@@ -107,21 +116,26 @@ func chromeProfileNames() []string {
 	if dir == "" {
 		return nil
 	}
+
 	entries, err := os.ReadDir(dir)
 	if err != nil {
 		return nil
 	}
+
 	out := make([]string, 0, len(entries))
 	for _, e := range entries {
 		name := e.Name()
 		if !e.IsDir() {
 			continue
 		}
+
 		if name == "Default" || strings.HasPrefix(name, "Profile ") {
 			out = append(out, name)
 		}
 	}
+
 	sort.Strings(out)
+
 	return out
 }
 
@@ -129,10 +143,12 @@ func chromeUserDataDir() string {
 	if v := os.Getenv("LOCALAPPDATA"); v != "" {
 		return filepath.Join(v, "Google", "Chrome", "User Data")
 	}
+
 	home, err := os.UserHomeDir()
 	if err != nil {
 		return ""
 	}
+
 	// macOS + Linux fallbacks.
 	for _, candidate := range []string{
 		filepath.Join(home, "Library", "Application Support", "Google", "Chrome"),
@@ -142,5 +158,6 @@ func chromeUserDataDir() string {
 			return candidate
 		}
 	}
+
 	return ""
 }

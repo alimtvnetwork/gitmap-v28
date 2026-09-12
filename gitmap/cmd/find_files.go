@@ -36,26 +36,31 @@ type FindFilesOptions struct {
 
 func runFindFiles(args []string) error {
 	checkHelp(constants.CmdFindFiles, args)
+
 	return executeFindFiles(args, MatchExact)
 }
 
 func runFindFilesAny(args []string) error {
 	checkHelp(constants.CmdFindFilesAny, args)
+
 	return executeFindFiles(args, MatchContains)
 }
 
 func runFindFilesStartsWith(args []string) error {
 	checkHelp(constants.CmdFindFilesStartsWith, args)
+
 	return executeFindFiles(args, MatchStartsWith)
 }
 
 func runFindFilesEndsWith(args []string) error {
 	checkHelp(constants.CmdFindFilesEndsWith, args)
+
 	return executeFindFiles(args, MatchEndsWith)
 }
 
 func runListFiles(args []string) error {
 	checkHelp(constants.CmdListFiles, args)
+
 	return executeFindFiles(args, MatchWildcard)
 }
 
@@ -63,10 +68,13 @@ func executeFindFiles(args []string, defaultKind MatchKind) error {
 	opts := parseFindFilesOptions(args, defaultKind)
 	if opts.Query == "" && defaultKind != MatchWildcard {
 		showFindFilesHelp(defaultKind)
+
 		return nil
 	}
+
 	if opts.Query == "" && defaultKind == MatchWildcard {
 		showFindFilesHelp(defaultKind)
+
 		return nil
 	}
 
@@ -83,6 +91,7 @@ func parseFindFilesOptions(args []string, defaultKind MatchKind) FindFilesOption
 		Kind:      defaultKind,
 		TargetDir: ".",
 	}
+
 	var nonFlags []string
 
 	for i := 0; i < len(args); i++ {
@@ -111,6 +120,7 @@ func parseFindFilesOptions(args []string, defaultKind MatchKind) FindFilesOption
 	if len(nonFlags) > 0 {
 		opts.Query = nonFlags[0]
 	}
+
 	return opts
 }
 
@@ -125,6 +135,7 @@ func scanAndMatchFiles(opts FindFilesOptions) ([]string, error) {
 		if err := handleFindWalkErr(errIn); err != nil {
 			return err
 		}
+
 		if d.IsDir() {
 			return handleFindDirSkip(d.Name())
 		}
@@ -136,9 +147,11 @@ func scanAndMatchFiles(opts FindFilesOptions) ([]string, error) {
 		if isFileMatching(opts, baseName, relNorm) {
 			results = append(results, relNorm)
 		}
+
 		if opts.Limit > 0 && len(results) >= opts.Limit {
 			return fs.SkipAll
 		}
+
 		return nil
 	})
 
@@ -166,6 +179,7 @@ func outputFindResults(matches []string, isJson bool) error {
 		for _, m := range matches {
 			fmt.Println(m)
 		}
+
 		return nil
 	}
 
@@ -173,7 +187,9 @@ func outputFindResults(matches []string, isJson bool) error {
 	if err != nil {
 		return err
 	}
+
 	fmt.Println(string(b))
+
 	return nil
 }
 

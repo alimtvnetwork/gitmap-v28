@@ -23,12 +23,14 @@ func TestBuildSortsAndDedupes(t *testing.T) {
 	if len(got.Folders) != 3 {
 		t.Fatalf("len = %d, want 3 (after dedupe)", len(got.Folders))
 	}
+
 	wantOrder := []string{"alpha", "mid", "zeta"}
 	for i, f := range got.Folders {
 		if f.Name != wantOrder[i] {
 			t.Errorf("Folders[%d].Name = %q, want %q", i, f.Name, wantOrder[i])
 		}
 	}
+
 	if got.Settings == nil {
 		t.Errorf("Settings = nil, want non-nil empty map")
 	}
@@ -43,12 +45,15 @@ func TestEncodeMatchesVSCodeShape(t *testing.T) {
 	if err != nil {
 		t.Fatalf("Encode err = %v", err)
 	}
+
 	if !strings.HasSuffix(string(got), "\n") {
 		t.Errorf("output missing trailing newline: %q", got)
 	}
+
 	if !strings.Contains(string(got), "\t\"folders\"") {
 		t.Errorf("expected tab-indented folders key, got: %s", got)
 	}
+
 	if !strings.Contains(string(got), "\"settings\": {}") {
 		t.Errorf("expected empty settings object, got: %s", got)
 	}
@@ -58,6 +63,7 @@ func TestEncodeMatchesVSCodeShape(t *testing.T) {
 	if err := json.Unmarshal(got, &parsed); err != nil {
 		t.Fatalf("re-parse err = %v", err)
 	}
+
 	if len(parsed.Folders) != 1 || parsed.Folders[0].Name != "demo" {
 		t.Errorf("round-trip mismatch: %+v", parsed)
 	}
@@ -77,9 +83,11 @@ func TestRelativizeProducesForwardSlashes(t *testing.T) {
 	if err != nil {
 		t.Fatalf("Relativize err = %v", err)
 	}
+
 	if got[0].Path != "alpha" {
 		t.Errorf("got[0].Path = %q, want %q", got[0].Path, "alpha")
 	}
+
 	if got[1].Path != "nested/beta" {
 		t.Errorf("got[1].Path = %q, want %q", got[1].Path, "nested/beta")
 	}

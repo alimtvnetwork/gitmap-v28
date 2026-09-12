@@ -95,6 +95,7 @@ echo "$@" > "%s"`, escArgsFile)
 		if i > 0 {
 			expectedArgsStr += " "
 		}
+
 		expectedArgsStr += arg
 	}
 

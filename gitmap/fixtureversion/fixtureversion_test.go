@@ -16,11 +16,13 @@ func TestMarkerRoundTrip(t *testing.T) {
 		Name: "v9-to-v12", Generation: 2,
 		MinCurrent: 12, CreatedFor: "v9->v12-width-cross",
 	}
+
 	body := Marker(in) + "\nrest of fixture\n"
 	got, ok := ParseMarker(body)
 	if !ok {
 		t.Fatalf("ParseMarker failed on body: %q", body)
 	}
+
 	if got != in {
 		t.Errorf("round-trip mismatch:\n  got  = %+v\n  want = %+v", got, in)
 	}
@@ -48,6 +50,7 @@ func TestValidateStaleGeneration(t *testing.T) {
 	if err == nil {
 		t.Fatal("expected stale-generation error, got nil")
 	}
+
 	if !strings.Contains(err.Error(), "generation 1") ||
 		!strings.Contains(err.Error(), "expects >=2") ||
 		!strings.Contains(err.Error(), "TestRegen -update") {
@@ -64,6 +67,7 @@ func TestValidateMinCurrentTooHigh(t *testing.T) {
 	if err == nil {
 		t.Fatal("expected min-current error, got nil")
 	}
+
 	if !strings.Contains(err.Error(), "min-current=14") ||
 		!strings.Contains(err.Error(), "current=12") {
 		t.Errorf("error missing version details: %v", err)

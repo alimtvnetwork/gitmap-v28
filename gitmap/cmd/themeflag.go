@@ -33,15 +33,18 @@ func stripThemeFlag(args []string) []string {
 			applyThemeChoice(val)
 			continue
 		}
+
 		if (a == short || a == long) && i+1 < len(args) {
 			applyThemeChoice(args[i+1])
 			i++
 			continue
 		}
+
 		if a == short || a == long {
 			applyThemeChoice("")
 			continue
 		}
+
 		cleaned = append(cleaned, a)
 	}
 
@@ -53,6 +56,7 @@ func parseThemeEqual(a, short, long string) (string, bool) {
 	if val, ok := stripThemePrefix(a, short+"="); ok {
 		return val, true
 	}
+
 	return stripThemePrefix(a, long+"=")
 }
 
@@ -84,5 +88,6 @@ func applyThemeChoice(choice string) {
 		)
 		cliexit.HandleError(err, 2)
 	}
+
 	os.Setenv(constants.EnvTheme, choice)
 }

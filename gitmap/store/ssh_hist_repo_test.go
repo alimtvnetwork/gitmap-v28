@@ -17,6 +17,7 @@ func setupTestDB(t *testing.T) *sql.DB {
 	if err != nil {
 		t.Fatalf("failed to run migration: %v", err)
 	}
+
 	return db
 }
 
@@ -45,6 +46,7 @@ func TestLogSSHJoin(t *testing.T) {
 	if err != nil {
 		t.Fatalf("failed to query count: %v", err)
 	}
+
 	if count != 1 {
 		t.Errorf("expected 1 record, got %d", count)
 	}
@@ -85,6 +87,7 @@ func TestListSSHHistory(t *testing.T) {
 	if results[0].ID != "list-test-1" {
 		t.Errorf("expected list-test-1 to be first, got %s", results[0].ID)
 	}
+
 	if results[1].ID != "list-test-2" {
 		t.Errorf("expected list-test-2 to be second, got %s", results[1].ID)
 	}
@@ -94,9 +97,11 @@ func TestListSSHHistory(t *testing.T) {
 	if err != nil {
 		t.Fatalf("ListSSHHistory failed on empty offset: %v", err)
 	}
+
 	if emptyResults == nil {
 		t.Error("expected non-nil empty slice, got nil")
 	}
+
 	if len(emptyResults) != 0 {
 		t.Errorf("expected empty results, got %d", len(emptyResults))
 	}

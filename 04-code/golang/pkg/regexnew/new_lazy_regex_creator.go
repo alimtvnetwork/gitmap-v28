@@ -7,6 +7,7 @@ func (it newLazyRegexCreator) New(
 	pattern string,
 ) *LazyRegex {
 	lazyRegex, _ := lazyRegexOnceMap.CreateOrExisting(pattern)
+
 	return lazyRegex
 }
 
@@ -15,6 +16,7 @@ func (it newLazyRegexCreator) NewLock(
 	pattern string,
 ) *LazyRegex {
 	lazyRegex, _ := lazyRegexOnceMap.CreateOrExistingLock(pattern)
+
 	return lazyRegex
 }
 

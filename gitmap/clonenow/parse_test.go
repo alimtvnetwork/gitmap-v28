@@ -36,9 +36,11 @@ func writeTemp(t *testing.T, ext, body string) string {
 	if err != nil {
 		t.Fatalf("temp: %v", err)
 	}
+
 	if _, err := f.WriteString(body); err != nil {
 		t.Fatalf("write: %v", err)
 	}
+
 	if err := f.Close(); err != nil {
 		t.Fatalf("close: %v", err)
 	}
@@ -56,15 +58,19 @@ func TestParseFile_JSON(t *testing.T) {
 	if err != nil {
 		t.Fatalf("ParseFile: %v", err)
 	}
+
 	if plan.Format != constants.CloneNowFormatJSON {
 		t.Errorf("format = %q, want json", plan.Format)
 	}
+
 	if len(plan.Rows) != 2 {
 		t.Fatalf("rows = %d, want 2", len(plan.Rows))
 	}
+
 	if plan.Rows[0].SSHUrl == "" || plan.Rows[0].HTTPSUrl == "" {
 		t.Errorf("row 0 url fields lost: %+v", plan.Rows[0])
 	}
+
 	if plan.Rows[0].RelativePath != "src/a" {
 		t.Errorf("row 0 dest = %q", plan.Rows[0].RelativePath)
 	}
@@ -82,12 +88,15 @@ func TestParseFile_CSV(t *testing.T) {
 	if err != nil {
 		t.Fatalf("ParseFile: %v", err)
 	}
+
 	if plan.Format != constants.CloneNowFormatCSV {
 		t.Errorf("format = %q", plan.Format)
 	}
+
 	if len(plan.Rows) != 2 {
 		t.Fatalf("rows = %d", len(plan.Rows))
 	}
+
 	if plan.Rows[0].Branch != "main" || plan.Rows[1].Branch != "develop" {
 		t.Errorf("branch lost: %+v", plan.Rows)
 	}
@@ -107,18 +116,22 @@ func TestParseFile_Text(t *testing.T) {
 	if err != nil {
 		t.Fatalf("ParseFile: %v", err)
 	}
+
 	if plan.Format != constants.CloneNowFormatText {
 		t.Errorf("format = %q", plan.Format)
 	}
+
 	if len(plan.Rows) != 3 {
 		t.Fatalf("rows = %d, want 3 (a/b/c, comment + echo skipped)", len(plan.Rows))
 	}
+
 	// Row 1 used `-b main` -- branch flags are stripped on purpose;
 	// see parsetext.skipCloneFlags. We assert the URL still landed
 	// at the expected slot and the dest is preserved.
 	if plan.Rows[1].HTTPSUrl != "https://example.com/b.git" || plan.Rows[1].RelativePath != "src/b" {
 		t.Errorf("row 1: %+v", plan.Rows[1])
 	}
+
 	// Row 2 had no explicit dest -> derived from URL basename.
 	if plan.Rows[2].SSHUrl == "" || plan.Rows[2].RelativePath != "c" {
 		t.Errorf("row 2 ssh/dest: %+v", plan.Rows[2])
@@ -135,6 +148,7 @@ func TestParseFile_ForceFormat(t *testing.T) {
 	if err != nil {
 		t.Fatalf("ParseFile: %v", err)
 	}
+
 	if plan.Format != constants.CloneNowFormatJSON || len(plan.Rows) != 1 {
 		t.Errorf("forced format ignored: %+v", plan)
 	}
@@ -158,6 +172,7 @@ func TestParseFile_AutoDetect_Extensions(t *testing.T) {
 			constants.CloneNowFormatCSV},
 		{"txt", ".txt", "git clone https://x/a.git a\n", constants.CloneNowFormatText},
 	}
+
 	for _, tc := range cases {
 		t.Run(tc.name, func(t *testing.T) {
 			path := writeTemp(t, tc.ext, tc.body)
@@ -165,6 +180,7 @@ func TestParseFile_AutoDetect_Extensions(t *testing.T) {
 			if err != nil {
 				t.Fatalf("ParseFile: %v", err)
 			}
+
 			if plan.Format != tc.want {
 				t.Errorf("format = %q, want %q", plan.Format, tc.want)
 			}
@@ -182,10 +198,12 @@ func TestParseFile_UnsupportedExtension(t *testing.T) {
 	if err == nil {
 		t.Fatal("ParseFile: want unsupported-extension error, got nil")
 	}
+
 	msg := err.Error()
 	if !strings.Contains(msg, ".list") {
 		t.Errorf("error %q missing offending extension", msg)
 	}
+
 	if !strings.Contains(msg, ".json") || !strings.Contains(msg, ".csv") || !strings.Contains(msg, ".txt") {
 		t.Errorf("error %q missing supported-extension list", msg)
 	}
@@ -215,10 +233,12 @@ func TestDedupRows_LaterWins(t *testing.T) {
 		{HTTPSUrl: "https://y/a.git", RelativePath: "a"}, // same dest -> overrides
 		{HTTPSUrl: "https://x/b.git", RelativePath: "b"},
 	}
+
 	got := dedupRows(rows)
 	if len(got) != 2 {
 		t.Fatalf("len = %d, want 2", len(got))
 	}
+
 	if got[0].HTTPSUrl != "https://y/a.git" {
 		t.Errorf("dedup later-wins broken: %+v", got[0])
 	}
@@ -231,6 +251,7 @@ func TestDeriveDest(t *testing.T) {
 		"ssh://git@example.com/owner/repo":   "repo",
 		"https://example.com/owner/repo/":    "repo",
 	}
+
 	for in, want := range cases {
 		if got := DeriveDest(in); got != want {
 			t.Errorf("DeriveDest(%q) = %q, want %q", in, got, want)

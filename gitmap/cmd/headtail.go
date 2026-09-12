@@ -21,6 +21,7 @@ func runHead(args []string) error {
 	if err != nil {
 		return apperror.WrapSimple(err, "Error opening file:")
 	}
+
 	defer file.Close()
 
 	scanner := bufio.NewScanner(file)
@@ -36,6 +37,7 @@ func runHead(args []string) error {
 	if err := scanner.Err(); err != nil {
 		return apperror.WrapSimple(err, "Error reading file:")
 	}
+
 	return nil
 }
 
@@ -51,6 +53,7 @@ func runTail(args []string) error {
 	if err != nil {
 		return apperror.WrapSimple(err, "Error opening file:")
 	}
+
 	defer file.Close()
 
 	// A simple circular buffer approach
@@ -76,6 +79,7 @@ func runTail(args []string) error {
 	for i := 0; i < lines; i++ {
 		fmt.Println(buffer[(start+i)%len(buffer)])
 	}
+
 	return nil
 }
 
@@ -83,9 +87,11 @@ func parseLineCount(args []string, defaultVal int) int {
 	if len(args) <= 1 {
 		return defaultVal
 	}
+
 	val, err := strconv.Atoi(args[1])
 	if err != nil || val <= 0 {
 		return defaultVal
 	}
+
 	return val
 }

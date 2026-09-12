@@ -26,6 +26,7 @@ func (m ConflictMode) String() string {
 	case ConflictModePrompt:
 		return constants.CommitInConflictModePrompt
 	}
+
 	return ""
 }
 
@@ -51,6 +52,7 @@ func (k InputKind) String() string {
 	case InputKindVersionedSibling:
 		return constants.CommitInInputKindVersionedSibling
 	}
+
 	return ""
 }
 
@@ -82,6 +84,7 @@ func (s RunStatus) String() string {
 	case RunStatusPartiallyFailed:
 		return constants.CommitInRunStatusPartiallyFailed
 	}
+
 	return ""
 }
 
@@ -107,6 +110,7 @@ func (o CommitOutcome) String() string {
 	case CommitOutcomeFailed:
 		return constants.CommitInOutcomeFailed
 	}
+
 	return ""
 }
 
@@ -135,6 +139,7 @@ func (r SkipReason) String() string {
 	case SkipReasonDryRun:
 		return constants.CommitInSkipReasonDryRun
 	}
+
 	return ""
 }
 
@@ -157,6 +162,7 @@ func (k ExclusionKind) String() string {
 	case ExclusionKindPathFile:
 		return constants.CommitInExclusionKindPathFile
 	}
+
 	return ""
 }
 
@@ -182,6 +188,7 @@ func (k MessageRuleKind) String() string {
 	case MessageRuleKindContains:
 		return constants.CommitInMessageRuleKindContains
 	}
+
 	return ""
 }
 
@@ -222,6 +229,7 @@ func (l FunctionIntelLanguage) String() string {
 	case LanguageCSharp:
 		return constants.CommitInLanguageCSharp
 	}
+
 	return ""
 }
 

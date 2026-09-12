@@ -34,6 +34,7 @@ func ParseSubCommands(tokens []string) ([]cluster.ClusterSubCommand, error) {
 		if isGit && !hasMinTokens {
 			return fmt.Errorf("missing git sub-command")
 		}
+
 		if isProj && !hasMinTokens {
 			return fmt.Errorf("missing proj sub-command")
 		}
@@ -53,6 +54,7 @@ func ParseSubCommands(tokens []string) ([]cluster.ClusterSubCommand, error) {
 			default:
 				return fmt.Errorf("unknown git sub-command: %s", subToken)
 			}
+
 			rawArgParts = currentTokens[2:]
 		case "proj":
 			subToken := strings.ToLower(currentTokens[1])
@@ -64,6 +66,7 @@ func ParseSubCommands(tokens []string) ([]cluster.ClusterSubCommand, error) {
 			default:
 				return fmt.Errorf("unknown proj sub-command: %s", subToken)
 			}
+
 			rawArgParts = currentTokens[2:]
 		case "ps":
 			kind = db.CommandKindPsCommand
@@ -92,6 +95,7 @@ func ParseSubCommands(tokens []string) ([]cluster.ClusterSubCommand, error) {
 			RawArg: strings.Join(rawArgParts, " "),
 		})
 		currentTokens = nil
+
 		return nil
 	}
 
@@ -102,9 +106,11 @@ func ParseSubCommands(tokens []string) ([]cluster.ClusterSubCommand, error) {
 		if isComma {
 			err = commitCurrent()
 		}
+
 		if err != nil {
 			return nil, err
 		}
+
 		if isComma {
 			continue
 		}
@@ -124,6 +130,7 @@ func ParseSubCommands(tokens []string) ([]cluster.ClusterSubCommand, error) {
 		if err != nil {
 			return nil, err
 		}
+
 		if hasCommaSuffix {
 			continue
 		}

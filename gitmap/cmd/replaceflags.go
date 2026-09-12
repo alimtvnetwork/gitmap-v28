@@ -64,6 +64,7 @@ func defineReplaceFlags() (*flag.FlagSet, rawReplaceFlags) {
 		ext:        fs.String(constants.ReplaceFlagExt, "", constants.FlagDescReplaceExt),
 		extCase:    fs.String(constants.ReplaceFlagExtCase, "", constants.FlagDescReplaceExtCase),
 	}
+
 	return fs, r
 }
 
@@ -82,6 +83,7 @@ func resolveExtCase(raw string) bool {
 		return false
 	default:
 		cliexit.HandleError(apperror.NewSimple(constants.ReplaceExtCaseSensitive, "E9000"), 1)
+
 		return false
 	}
 }
@@ -95,8 +97,10 @@ func stripAuditToken(args []string) (replaceOpts, []string) {
 			opts.audit = true
 			continue
 		}
+
 		out = append(out, a)
 	}
+
 	return opts, out
 }
 
@@ -113,13 +117,16 @@ func splitReplaceFlagsAndArgs(args []string) (flags, positional []string) {
 			expectValue = false
 			continue
 		}
+
 		if isReplaceFlag(a) {
 			flags = append(flags, a)
 			expectValue = needsValue(a)
 			continue
 		}
+
 		positional = append(positional, a)
 	}
+
 	return
 }
 
@@ -130,7 +137,9 @@ func needsValue(token string) bool {
 	if strings.Contains(token, "=") {
 		return false
 	}
+
 	name := strings.TrimLeft(token, "-")
+
 	return name == constants.ReplaceFlagExt || name == constants.ReplaceFlagExtCase
 }
 
@@ -140,10 +149,13 @@ func isReplaceFlag(s string) bool {
 	if len(s) < 2 || s[0] != '-' {
 		return false
 	}
+
 	if s[1] == '-' {
 		return true
 	}
+
 	c := s[1]
+
 	return (c >= 'a' && c <= 'z') || (c >= 'A' && c <= 'Z')
 }
 
@@ -155,6 +167,7 @@ func normalizeExtList(raw string, caseInsensitive bool) []string {
 	if raw == "" {
 		return nil
 	}
+
 	seen := make(map[string]struct{}, 4)
 	out := make([]string, 0, 4)
 	for _, piece := range strings.Split(raw, constants.ReplaceExtSep) {
@@ -162,12 +175,15 @@ func normalizeExtList(raw string, caseInsensitive bool) []string {
 		if ext == "" {
 			continue
 		}
+
 		if _, dup := seen[ext]; dup {
 			continue
 		}
+
 		seen[ext] = struct{}{}
 		out = append(out, ext)
 	}
+
 	return out
 }
 
@@ -179,11 +195,14 @@ func normalizeOneExt(piece string, caseInsensitive bool) string {
 	if caseInsensitive {
 		piece = strings.ToLower(piece)
 	}
+
 	if piece == "" || piece == "." {
 		return ""
 	}
+
 	if piece[0] != '.' {
 		piece = "." + piece
 	}
+
 	return piece
 }

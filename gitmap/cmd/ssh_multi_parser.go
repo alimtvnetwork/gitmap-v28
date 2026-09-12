@@ -15,5 +15,6 @@ func ParseMultiIPList(raw string) []string {
 			results = append(results, trimmed)
 		}
 	}
+
 	return results
 }

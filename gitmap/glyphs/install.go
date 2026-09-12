@@ -40,6 +40,7 @@ func Install() {
 		if activeMode == ModeRich {
 			return
 		}
+
 		os.Stdout = wrap(os.Stdout, activeMode)
 		os.Stderr = wrap(os.Stderr, activeMode)
 	})
@@ -74,6 +75,7 @@ func wrap(dst *os.File, mode ModeType) *os.File {
 	if err != nil {
 		return dst
 	}
+
 	done := make(chan struct{})
 	go func() {
 		forward(r, dst, mode)
@@ -96,6 +98,7 @@ func forward(r io.ReadCloser, dst io.Writer, mode ModeType) {
 		if n > 0 {
 			_, _ = dst.Write(Filter(buf[:n], mode))
 		}
+
 		if err != nil {
 			return
 		}

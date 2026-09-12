@@ -51,15 +51,18 @@ func (s *SitesSplitDB) UpsertSite(site SiteRecord) error {
 	if site.IsSslEnabled {
 		isSsl = 1
 	}
+
 	isActive := 1
 	if !site.IsActive && site.SiteRegistryId > 0 {
 		isActive = 0
 	}
+
 	args := []any{
 		site.Domain, site.SiteType, site.DocumentRoot, site.NginxConfigPath,
 		site.PhpVersion, site.PhpSocketPath, site.ListenPort, isSsl,
 		isActive, site.Description, site.Notes, site.Comments,
 	}
+
 	_, err := s.conn.Exec(sqlUpsertSite, args...)
 	if err != nil {
 		return apperror.WrapSimple(err, "sites_split.upsertSite")
@@ -80,6 +83,7 @@ func scanSiteRecord(scanner interface{ Scan(...any) error }) (*SiteRecord, error
 	if err != nil {
 		return nil, err
 	}
+
 	r.IsSslEnabled = isSsl == 1
 	r.IsActive = isActive == 1
 
@@ -100,6 +104,7 @@ func (s *SitesSplitDB) GetSite(domain string) (*SiteRecord, error) {
 	if errors.Is(err, sql.ErrNoRows) {
 		return nil, nil
 	}
+
 	if err != nil {
 		return nil, apperror.WrapSimple(err, "sites_split.getSite")
 	}
@@ -120,6 +125,7 @@ func (s *SitesSplitDB) ListSites() ([]SiteRecord, error) {
 	if err != nil {
 		return nil, apperror.WrapSimple(err, "sites_split.listSites")
 	}
+
 	defer rows.Close()
 
 	return iterateSiteRows(rows)
@@ -132,6 +138,7 @@ func iterateSiteRows(rows *sql.Rows) ([]SiteRecord, error) {
 		if err != nil {
 			return nil, apperror.WrapSimple(err, "sites_split.scanRow")
 		}
+
 		results = append(results, *rec)
 	}
 

@@ -47,9 +47,11 @@ func TestVSCodePMSyncSkipsMissingRootPaths(t *testing.T) {
 	if got, want := len(pairs), 1; got != want {
 		t.Fatalf("pairs: got %d, want %d", got, want)
 	}
+
 	if got, want := skipped, 2; got != want {
 		t.Fatalf("skipped: got %d, want %d", got, want)
 	}
+
 	if pairs[0].RootPath != realDir {
 		t.Errorf("kept wrong entry: got %q, want %q", pairs[0].RootPath, realDir)
 	}
@@ -70,6 +72,7 @@ func TestVSCodePMSyncPairsCarryGitmapBrandTag(t *testing.T) {
 	if len(pairs) != 1 {
 		t.Fatalf("expected 1 pair, got %d", len(pairs))
 	}
+
 	if !containsTag(pairs[0].Tags, "gitmap") {
 		t.Errorf("brand tag missing from pair: %v", pairs[0].Tags)
 	}
@@ -83,6 +86,7 @@ func TestVSCodePMSyncEndToEndPreservesUserTags(t *testing.T) {
 	if runtime.GOOS == "windows" {
 		t.Skip("XDG path layout — windows path resolution covered elsewhere")
 	}
+
 	repoDir, restore := setupVSCodePMSyncFixture(t)
 	defer restore()
 
@@ -92,14 +96,17 @@ func TestVSCodePMSyncEndToEndPreservesUserTags(t *testing.T) {
 	if len(got) != 1 {
 		t.Fatalf("expected 1 entry on disk, got %d", len(got))
 	}
+
 	if got[0].RootPath != repoDir {
 		t.Fatalf("rootPath mutated: got %q, want %q", got[0].RootPath, repoDir)
 	}
+
 	tags := append([]string{}, got[0].Tags...)
 	sort.Strings(tags)
 	if !containsTag(tags, "user") {
 		t.Errorf("user tag stripped: %v", tags)
 	}
+
 	if !containsTag(tags, "gitmap") {
 		t.Errorf("brand tag missing: %v", tags)
 	}
@@ -111,6 +118,7 @@ func TestVSCodePMSyncDryRunDoesNotMutate(t *testing.T) {
 	if runtime.GOOS == "windows" {
 		t.Skip("XDG path layout — windows path resolution covered elsewhere")
 	}
+
 	_, restore := setupVSCodePMSyncFixture(t)
 	defer restore()
 
@@ -118,6 +126,7 @@ func TestVSCodePMSyncDryRunDoesNotMutate(t *testing.T) {
 	if err != nil {
 		t.Fatalf("resolve path: %v", err)
 	}
+
 	before, err := os.ReadFile(path)
 	if err != nil {
 		t.Fatalf("read before: %v", err)
@@ -129,6 +138,7 @@ func TestVSCodePMSyncDryRunDoesNotMutate(t *testing.T) {
 	if err != nil {
 		t.Fatalf("read after: %v", err)
 	}
+
 	if !bytes.Equal(before, after) {
 		t.Errorf("dry-run mutated projects.json")
 	}

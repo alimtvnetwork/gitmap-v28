@@ -24,6 +24,7 @@ func persistReleaseToDB() {
 
 		return
 	}
+
 	defer db.Close()
 
 	if err := db.Migrate(); err != nil {

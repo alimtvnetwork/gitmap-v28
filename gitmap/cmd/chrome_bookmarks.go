@@ -26,12 +26,15 @@ func runChromeExportBookmarks(args []string) error {
 		fmt.Fprintln(os.Stderr, "chrome export-bookmarks: ERROR usage: gitmap chrome export-bookmarks <profile> [--format md|html|json] [--out <file>] [--root <bookmark_bar|other|synced>] [--folder <path/to/folder>] [--match <substr>] [--title <exact>]")
 		cliexit.HandleError(nil, 2)
 	}
+
 	profile, isResolved := resolveChromeProfile(args[0])
 	if !isResolved {
 		fmt.Fprintf(os.Stderr, "chrome export-bookmarks: ERROR profile %q not found\n", args[0])
 		printAvailableChromeProfilesWithDisplay()
+
 		return apperror.NewSimple("fatal error", "E9000")
 	}
+
 	format, outPath, rootName, folderPath, match, title := "md", "", "", "", "", ""
 	for i := 1; i < len(args); i++ {
 		switch args[i] {
@@ -67,32 +70,42 @@ func runChromeExportBookmarks(args []string) error {
 			}
 		}
 	}
+
 	roots := loadBookmarkRoots(profile.Path)
 	if len(roots) == 0 {
 		fmt.Fprintf(os.Stderr, "chrome export-bookmarks: ERROR no Bookmarks file found or it is empty/unreadable at %q\n  hint: open Chrome with this profile once so it writes %s\n", profile.Path, filepath.Join(profile.Path, "Bookmarks"))
+
 		return apperror.NewSimple("fatal error", "E9000")
 	}
+
 	available := availableRootNames(roots)
 	if rootName != "" {
 		roots = filterBookmarkRoots(roots, rootName, "")
 	}
+
 	isEmptyRootsAfterRootName := rootName != "" && len(roots) == 0
 	if isEmptyRootsAfterRootName {
 		fmt.Fprintf(os.Stderr, "chrome export-bookmarks: ERROR --root=%q did not match any top-level root\n  available roots: %s\n", rootName, strings.Join(available, ", "))
+
 		return apperror.NewSimple("fatal error", "E9000")
 	}
+
 	if folderPath != "" {
 		roots = filterBookmarkRoots(roots, "", folderPath)
 	}
+
 	isEmptyRootsAfterFolderPath := folderPath != "" && len(roots) == 0
 	if isEmptyRootsAfterFolderPath {
 		fmt.Fprintf(os.Stderr, "chrome export-bookmarks: ERROR --folder=%q not found under root=%q\n  available top-level folders: %s\n  hint: paths are slash-delimited and case-insensitive (e.g. --folder \"Work/Docs\")\n", folderPath, fallback(rootName, "<all>"), strings.Join(topLevelFolderNames(roots), ", "))
+
 		return apperror.NewSimple("fatal error", "E9000")
 	}
+
 	hasMatchOrTitle := match != "" || title != ""
 	if hasMatchOrTitle {
 		roots = filterBookmarksByTitle(roots, match, title)
 	}
+
 	isEmptyRootsAfterMatch := hasMatchOrTitle && len(roots) == 0
 	if isEmptyRootsAfterMatch {
 		return apperror.NewSimple("chrome export-bookmarks: ERROR no bookmarks matched", "E9000")
@@ -102,14 +115,19 @@ func runChromeExportBookmarks(args []string) error {
 	if err != nil {
 		return apperror.WrapSimple(err, "chrome export-bookmarks: ERROR")
 	}
+
 	if outPath == "" {
 		fmt.Print(body)
+
 		return nil
 	}
+
 	if err := os.WriteFile(outPath, []byte(body), 0o644); err != nil {
 		return apperror.WrapSimple(err, "chrome export-bookmarks: ERROR write:")
 	}
+
 	fmt.Printf("\033[1;92m✓ wrote\033[0m %s (%d bytes)\n", outPath, len(body))
+
 	return nil
 }
 
@@ -121,12 +139,14 @@ func filterBookmarkRoots(roots []bookmarkItem, rootName, folderPath string) []bo
 	if folderPath == "" {
 		return out
 	}
+
 	parts := []string{}
 	for _, p := range strings.Split(folderPath, "/") {
 		if p != "" {
 			parts = append(parts, p)
 		}
 	}
+
 	matched := []bookmarkItem{}
 	for _, r := range out {
 		sub, isSubFound := findBookmarkFolder(r, parts)
@@ -134,6 +154,7 @@ func filterBookmarkRoots(roots []bookmarkItem, rootName, folderPath string) []bo
 			matched = append(matched, sub)
 		}
 	}
+
 	return matched
 }
 
@@ -141,12 +162,14 @@ func filterByRootName(roots []bookmarkItem, rootName string) []bookmarkItem {
 	if rootName == "" {
 		return roots
 	}
+
 	filtered := make([]bookmarkItem, 0, 1)
 	for _, r := range roots {
 		if strings.EqualFold(r.Folder, rootName) {
 			filtered = append(filtered, r)
 		}
 	}
+
 	return filtered
 }
 
@@ -156,18 +179,22 @@ func findBookmarkFolder(node bookmarkItem, parts []string) (bookmarkItem, bool) 
 	if len(parts) == 0 {
 		return node, true
 	}
+
 	for _, c := range node.Children {
 		if c.URL != "" {
 			continue
 		}
+
 		name := c.Title
 		if name == "" {
 			name = c.Folder
 		}
+
 		if strings.EqualFold(name, parts[0]) {
 			return findBookmarkFolder(c, parts[1:])
 		}
 	}
+
 	return bookmarkItem{}, false
 }
 
@@ -176,18 +203,22 @@ func loadBookmarkRoots(profile string) []bookmarkItem {
 	if err != nil {
 		return nil
 	}
+
 	var doc struct {
 		Roots map[string]json.RawMessage `json:"roots"`
 	}
+
 	if json.Unmarshal(raw, &doc) != nil {
 		return nil
 	}
+
 	out := []bookmarkItem{}
 	for name, r := range doc.Roots {
 		item := parseBookmarkNode(r)
 		item.Folder = name
 		out = append(out, item)
 	}
+
 	return out
 }
 
@@ -197,13 +228,16 @@ func parseBookmarkNode(raw json.RawMessage) bookmarkItem {
 		URL      string            `json:"url"`
 		Children []json.RawMessage `json:"children"`
 	}
+
 	if json.Unmarshal(raw, &n) != nil {
 		return bookmarkItem{}
 	}
+
 	item := bookmarkItem{Title: n.Name, URL: n.URL}
 	for _, c := range n.Children {
 		item.Children = append(item.Children, parseBookmarkNode(c))
 	}
+
 	return item
 }
 
@@ -211,6 +245,7 @@ func renderBookmarks(roots []bookmarkItem, format string) (string, error) {
 	switch format {
 	case "json":
 		b, err := json.MarshalIndent(roots, "", "  ")
+
 		return string(b) + "\n", err
 	case "html":
 		var sb strings.Builder
@@ -218,13 +253,16 @@ func renderBookmarks(roots []bookmarkItem, format string) (string, error) {
 		for _, r := range roots {
 			renderBookmarkHTML(&sb, r, 0)
 		}
+
 		sb.WriteString("</body></html>\n")
+
 		return sb.String(), nil
 	default: // md
 		var sb strings.Builder
 		for _, r := range roots {
 			renderBookmarkMD(&sb, r, 0)
 		}
+
 		return sb.String(), nil
 	}
 }
@@ -237,6 +275,7 @@ func renderBookmarkMD(sb *strings.Builder, n bookmarkItem, depth int) {
 	case n.Title != "" || n.Folder != "":
 		fmt.Fprintf(sb, "%s- **%s/**\n", indent, fallback(n.Title, n.Folder))
 	}
+
 	for _, c := range n.Children {
 		renderBookmarkMD(sb, c, depth+1)
 	}
@@ -245,12 +284,15 @@ func renderBookmarkMD(sb *strings.Builder, n bookmarkItem, depth int) {
 func renderBookmarkHTML(sb *strings.Builder, n bookmarkItem, depth int) {
 	if n.URL != "" {
 		fmt.Fprintf(sb, "<dt><a href=\"%s\">%s</a></dt>\n", n.URL, fallback(n.Title, n.URL))
+
 		return
 	}
+
 	fmt.Fprintf(sb, "<dt><h3>%s</h3><dl>\n", fallback(n.Title, n.Folder))
 	for _, c := range n.Children {
 		renderBookmarkHTML(sb, c, depth+1)
 	}
+
 	sb.WriteString("</dl></dt>\n")
 }
 
@@ -258,6 +300,7 @@ func fallback(a, b string) string {
 	if a != "" {
 		return a
 	}
+
 	return b
 }
 
@@ -266,9 +309,11 @@ func availableRootNames(roots []bookmarkItem) []string {
 	for _, r := range roots {
 		out = append(out, r.Folder)
 	}
+
 	if len(out) == 0 {
 		return []string{"(none)"}
 	}
+
 	return out
 }
 
@@ -281,8 +326,10 @@ func topLevelFolderNames(roots []bookmarkItem) []string {
 			}
 		}
 	}
+
 	if len(out) == 0 {
 		return []string{"(none)"}
 	}
+
 	return out
 }

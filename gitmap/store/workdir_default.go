@@ -13,6 +13,7 @@ func (db *DB) SetDefaultWorkDir(idOrPath string) error {
 	}
 
 	_, err := ExecWrapper(db.conn, SQLSetDefaultWorkDir, idOrPath, idOrPath).Destruct()
+
 	return err
 }
 
@@ -22,13 +23,16 @@ func (db *DB) GetDefaultWorkDir() (*model.WorkDir, error) {
 	if err != nil {
 		return nil, err
 	}
+
 	for _, d := range dirs {
 		if d.IsDefault {
 			return &d, nil
 		}
 	}
+
 	if len(dirs) > 0 {
 		return &dirs[0], nil
 	}
+
 	return nil, apperror.NewSimple("GetDefaultWorkDir", "E_NOT_FOUND")
 }

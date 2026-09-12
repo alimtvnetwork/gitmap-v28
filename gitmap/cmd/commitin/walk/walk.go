@@ -31,17 +31,21 @@ func WalkFirstParent(repoDir string) ([]SourceCommit, error) {
 	if err != nil {
 		return nil, fmt.Errorf("walk: list shas: %w", err)
 	}
+
 	if len(shas) == 0 {
 		return nil, nil
 	}
+
 	out := make([]SourceCommit, 0, len(shas))
 	for i, sha := range shas {
 		c, hyErr := hydrate(repoDir, sha, i+1)
 		if hyErr != nil {
 			return nil, fmt.Errorf("walk: hydrate %s: %w", sha, hyErr)
 		}
+
 		out = append(out, c)
 	}
+
 	return out, nil
 }
 
@@ -52,13 +56,16 @@ func listFirstParentShas(repoDir string) ([]string, error) {
 	if err != nil && isEmptyRepoError(out, err) {
 		return nil, nil
 	}
+
 	if err != nil {
 		return nil, err
 	}
+
 	out = strings.TrimSpace(out)
 	if out == "" {
 		return nil, nil
 	}
+
 	return strings.Split(out, "\n"), nil
 }
 
@@ -68,6 +75,8 @@ func isEmptyRepoError(out string, err error) bool {
 	if err == nil {
 		return false
 	}
+
 	lc := strings.ToLower(out + " " + err.Error())
+
 	return strings.Contains(lc, "unknown revision") || strings.Contains(lc, "ambiguous argument 'head'")
 }

@@ -12,6 +12,7 @@ func TestPurgeHistory_TableCreationAndMigrate(t *testing.T) {
 	if err != nil {
 		t.Fatalf("OpenAt failed: %v", err)
 	}
+
 	defer db.Close()
 
 	if err := db.Migrate(); err != nil {
@@ -26,6 +27,7 @@ func TestPurgeHistory_TableCreationAndMigrate(t *testing.T) {
 		"PurgeHistoryLogId", "RepoPath", "Pattern", "BackupBranch",
 		"TempDir", "Files", "Timestamp", "IsRestored", "Notes", "Comments",
 	}
+
 	for _, col := range expectedColumns {
 		if !db.columnExists("PurgeHistoryLog", col) {
 			t.Errorf("expected column %s to exist in PurgeHistoryLog", col)
@@ -39,6 +41,7 @@ func TestPurgeHistory_InsertRetrievalAndRestoration(t *testing.T) {
 	if err != nil {
 		t.Fatalf("OpenAt failed: %v", err)
 	}
+
 	defer db.Close()
 
 	now := time.Now().Unix()
@@ -70,6 +73,7 @@ func TestPurgeHistory_InsertRetrievalAndRestoration(t *testing.T) {
 	if retrieved.PurgeHistoryLogId != logEntry.PurgeHistoryLogId {
 		t.Errorf("expected PurgeHistoryLogId %d, got %d", logEntry.PurgeHistoryLogId, retrieved.PurgeHistoryLogId)
 	}
+
 	if retrieved.IsRestored {
 		t.Errorf("expected unrestored state")
 	}
@@ -87,6 +91,7 @@ func TestPurgeHistory_InsertRetrievalAndRestoration(t *testing.T) {
 	if err != nil || restoredEntry == nil {
 		t.Fatalf("GetPurgeHistoryLogById failed or returned nil: %v", err)
 	}
+
 	if !restoredEntry.IsRestored {
 		t.Errorf("expected IsRestored=true")
 	}

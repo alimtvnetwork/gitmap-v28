@@ -36,6 +36,7 @@ func (db *DB) columnExists(table, column string) bool {
 	if err != nil {
 		return false
 	}
+
 	defer rows.Close()
 
 	for rows.Next() {

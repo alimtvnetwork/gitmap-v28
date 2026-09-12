@@ -21,10 +21,12 @@ func readElementText(dec *xml.Decoder, start xml.StartElement) string {
 		if err != nil {
 			break
 		}
+
 		if cd, ok := tok.(xml.CharData); ok {
 			b.Write(cd)
 			continue
 		}
+
 		if end, ok := tok.(xml.EndElement); ok && end.Name.Local == start.Name.Local {
 			break
 		}
@@ -44,10 +46,12 @@ func readStringArray(dec *xml.Decoder) []string {
 		if err != nil {
 			break
 		}
+
 		if start, ok := tok.(xml.StartElement); ok && start.Name.Local == "string" {
 			out = append(out, readElementText(dec, start))
 			continue
 		}
+
 		if end, ok := tok.(xml.EndElement); ok && end.Name.Local == "array" {
 			break
 		}

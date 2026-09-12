@@ -87,6 +87,7 @@ func (db *DB) InsertOrUpdatePipelineRun(run PipelineRun) error {
 	if err := db.InitPipelineTable(); err != nil {
 		return err
 	}
+
 	nowStr := time.Now().UTC().Format(time.RFC3339)
 	_, err := db.conn.Exec(
 		sqlUpsertPipelineRun,
@@ -105,6 +106,7 @@ func (db *DB) GetLatestPipelineRun(repo string) (*PipelineRun, error) {
 	if err := db.InitPipelineTable(); err != nil {
 		return nil, err
 	}
+
 	row := db.conn.QueryRow(sqlSelectLatestPipelineRun, repo, repo)
 
 	return scanPipelineRun(row)
@@ -115,6 +117,7 @@ func (db *DB) GetLatestPipelineError(repo string) (*PipelineRun, error) {
 	if err := db.InitPipelineTable(); err != nil {
 		return nil, err
 	}
+
 	row := db.conn.QueryRow(sqlSelectLatestPipelineError, repo, repo)
 
 	return scanPipelineRun(row)
@@ -125,13 +128,16 @@ func (db *DB) ListRecentPipelineRuns(repo string, limit int) ([]PipelineRun, err
 	if err := db.InitPipelineTable(); err != nil {
 		return nil, err
 	}
+
 	if limit <= 0 {
 		limit = 10
 	}
+
 	rows, err := db.conn.Query(sqlSelectListRecentPipelineRuns, repo, repo, limit)
 	if err != nil {
 		return nil, apperror.WrapSimple(err, "ListRecentPipelineRuns.Query")
 	}
+
 	defer rows.Close()
 
 	return scanPipelineRows(rows)
@@ -163,8 +169,10 @@ func scanPipelineRows(rows *sql.Rows) ([]PipelineRun, error) {
 		if err != nil {
 			return nil, apperror.WrapSimple(err, "scanPipelineRows.Scan")
 		}
+
 		runs = append(runs, run)
 	}
+
 	if err := rows.Err(); err != nil {
 		return nil, apperror.WrapSimple(err, "scanPipelineRows.Rows")
 	}

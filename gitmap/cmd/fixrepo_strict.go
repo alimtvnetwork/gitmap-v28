@@ -34,22 +34,26 @@ func runFixRepoStrict(repoRoot string, goFiles []string, opts fixRepoOptions) bo
 	if !opts.isStrict {
 		return true
 	}
+
 	if opts.isDryRun {
 		fmt.Print(constants.FixRepoMsgStrictSkipDryRun)
 
 		return true
 	}
+
 	if len(goFiles) == 0 {
 		fmt.Print(constants.FixRepoMsgStrictNoGoFiles)
 
 		return true
 	}
+
 	packages := derivePackagesFromGoFiles(repoRoot, goFiles)
 	if len(packages) == 0 {
 		fmt.Print(constants.FixRepoMsgStrictNoPackages)
 
 		return true
 	}
+
 	if _, err := exec.LookPath("go"); err != nil {
 		fmt.Fprint(os.Stderr, constants.FixRepoErrStrictMissing)
 
@@ -79,6 +83,7 @@ func invokeGoTest(repoRoot string, packages []string) bool {
 
 		return false
 	}
+
 	fmt.Printf(constants.FixRepoMsgStrictPassFmt, len(packages))
 
 	return true

@@ -99,6 +99,7 @@ func (t *TxWrapper) ValidateSql(ctx context.Context, sqlStr string) *apperror.Ap
 	if appErr != nil {
 		return appErr
 	}
+
 	defer rows.Close()
 
 	return nil

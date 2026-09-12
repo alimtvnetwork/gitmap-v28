@@ -24,6 +24,7 @@ func escapeCwdIfInside(target string) (string, error) {
 	if err != nil {
 		return "", nil
 	}
+
 	if isPathInside(cleanExistingPath(cwd), cleanExistingPath(target)) {
 		return escapeCwdToParent(cwd, target)
 	}

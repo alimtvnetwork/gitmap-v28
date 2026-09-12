@@ -67,6 +67,7 @@ func pickURLForTransport(transport, https, ssh string) string {
 	if transport == constants.ScanTransportSSH && len(sshTrim) > 0 {
 		return ssh
 	}
+
 	if len(httpsTrim) > 0 {
 		return https
 	}

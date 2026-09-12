@@ -113,17 +113,19 @@ func loadSchema(t *testing.T, name string) schema {
 	schemaCacheMu.Lock()
 	defer schemaCacheMu.Unlock()
 	if cached, ok := schemaCache[name]; ok {
-
 		return cached
 	}
+
 	path, err := findLatestVersion(name)
 	if err != nil {
 		t.Fatalf("loadSchema(%q): %v", name, err)
 	}
+
 	loaded, err := readSchemaFile(path)
 	if err != nil {
 		t.Fatalf("loadSchema(%q) reading %s: %v", name, path, err)
 	}
+
 	schemaCache[name] = loaded
 
 	return loaded
@@ -137,15 +139,14 @@ func findLatestVersion(name string) (string, error) {
 	pattern := filepath.Join(resolveSchemaDir(), fmt.Sprintf(schemaFilePattern, name))
 	matches, err := filepath.Glob(pattern)
 	if err != nil {
-
 		return "", fmt.Errorf("glob %s: %w", pattern, err)
 	}
-	if len(matches) == 0 {
 
+	if len(matches) == 0 {
 		return "", fmt.Errorf("no schema files matched %s", pattern)
 	}
-	sort.Slice(matches, func(i, j int) bool {
 
+	sort.Slice(matches, func(i, j int) bool {
 		return parseVersionFromPath(matches[i]) < parseVersionFromPath(matches[j])
 	})
 
@@ -162,12 +163,11 @@ func parseVersionFromPath(path string) int {
 	// Find the last ".v" — split on it.
 	idx := strings.LastIndex(stem, ".v")
 	if idx < 0 {
-
 		return 0
 	}
+
 	var n int
 	if _, err := fmt.Sscanf(stem[idx+2:], "%d", &n); err != nil {
-
 		return 0
 	}
 
@@ -181,12 +181,11 @@ func parseVersionFromPath(path string) int {
 func readSchemaFile(path string) (schema, error) {
 	raw, err := os.ReadFile(path)
 	if err != nil {
-
 		return schema{}, fmt.Errorf("read: %w", err)
 	}
+
 	var s schema
 	if err := json.Unmarshal(raw, &s); err != nil {
-
 		return schema{}, fmt.Errorf("parse: %w", err)
 	}
 

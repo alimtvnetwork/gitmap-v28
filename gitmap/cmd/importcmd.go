@@ -25,6 +25,7 @@ func runImport(args []string) error {
 	if err := executeImport(data); err != nil {
 		return err
 	}
+
 	printImportSummary(inFile, data)
 
 	return nil
@@ -70,6 +71,7 @@ func executeImport(data model.DatabaseExport) error {
 	if err != nil {
 		return apperror.WrapSimple(err, constants.MsgImportFailed)
 	}
+
 	defer db.Close()
 
 	err = db.ImportAll(data)

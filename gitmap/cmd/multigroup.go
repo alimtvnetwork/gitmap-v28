@@ -21,6 +21,7 @@ func runMultiGroup(args []string) error {
 	}
 
 	routeMultiGroup(args[0], args[1:])
+
 	return nil
 }
 
@@ -30,6 +31,7 @@ func showActiveMultiGroup() {
 	if err != nil {
 		cliexit.HandleError(apperror.WrapSimple(err, constants.ErrListDBFailed), 1)
 	}
+
 	defer db.Close()
 
 	value := db.GetSetting(constants.SettingActiveMultiGroup)
@@ -38,6 +40,7 @@ func showActiveMultiGroup() {
 
 		return
 	}
+
 	fmt.Printf(constants.MsgMGActive, value)
 	printHints(activeGroupHints())
 }
@@ -49,16 +52,19 @@ func routeMultiGroup(sub string, args []string) {
 
 		return
 	}
+
 	if sub == constants.CmdMGPull {
 		runMultiGroupPull()
 
 		return
 	}
+
 	if sub == constants.CmdMGStatus {
 		runMultiGroupStatus()
 
 		return
 	}
+
 	if sub == constants.CmdMGExec {
 		runMultiGroupExec(args)
 
@@ -74,6 +80,7 @@ func setMultiGroup(groups string) {
 	if err != nil {
 		cliexit.HandleError(apperror.WrapSimple(err, constants.ErrListDBFailed), 1)
 	}
+
 	defer db.Close()
 
 	validateMultiGroupNames(db, groups)
@@ -81,6 +88,7 @@ func setMultiGroup(groups string) {
 	if err != nil {
 		cliexit.HandleError(apperror.WrapSimple(err, constants.ErrGenericFmt), 1)
 	}
+
 	fmt.Printf(constants.MsgMGSet, groups)
 }
 
@@ -95,11 +103,13 @@ func clearMultiGroup() {
 	if err != nil {
 		cliexit.HandleError(apperror.WrapSimple(err, constants.ErrListDBFailed), 1)
 	}
+
 	defer db.Close()
 
 	if err := db.DeleteSetting(constants.SettingActiveMultiGroup); err != nil {
 		fmt.Fprintf(os.Stderr, "  ⚠ Could not clear multi-group setting: %v\n", err)
 	}
+
 	fmt.Print(constants.MsgMGCleared)
 }
 
@@ -109,6 +119,7 @@ func loadMultiGroupNames(dbGetter interface{ GetSetting(string) string }) []stri
 	if len(value) == 0 {
 		fmt.Fprint(os.Stderr, constants.MsgMGNone)
 		var empty []string
+
 		return empty
 	}
 

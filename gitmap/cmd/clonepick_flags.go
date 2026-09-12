@@ -48,6 +48,7 @@ func parseClonePickFlags(args []string) clonePickParsed {
 	output, audit, noVSCodeSync := bindClonePickAuxFlags(fs)
 	fs.Parse(reorderFlagsBeforeArgs(args))
 	rawURL, rawPaths := requireClonePickPositional(fs, flags)
+
 	return buildClonePickParsed(rawURL, rawPaths, flags, output, audit, noVSCodeSync)
 }
 
@@ -121,7 +122,9 @@ func bindClonePickAuxFlags(fs *flag.FlagSet) (*string, clonePickAuditFlags, *boo
 		verifyExit: fs.Bool(constants.FlagCloneVerifyCmdFaithfulExitOnMismatch, false, constants.FlagDescCloneVerifyCmdFaithfulExitOnMismatch),
 		printArgv:  fs.Bool(constants.FlagClonePrintArgv, false, constants.FlagDescClonePrintArgv),
 	}
+
 	noVSCodeSync := fs.Bool(constants.FlagNoVSCodeSync, false, constants.FlagDescNoVSCodeSync)
+
 	return output, audit, noVSCodeSync
 }
 
@@ -132,12 +135,15 @@ func requireClonePickPositional(fs *flag.FlagSet, flags clonepick.Flags) (string
 		fmt.Fprintln(os.Stderr, constants.MsgClonePickMissingURL)
 		cliexit.HandleError(nil, 2)
 	}
+
 	var rawURL, rawPaths string
 	if fs.NArg() >= 1 {
 		rawURL = fs.Arg(0)
 	}
+
 	if fs.NArg() >= 2 {
 		rawPaths = fs.Arg(1)
 	}
+
 	return rawURL, rawPaths
 }

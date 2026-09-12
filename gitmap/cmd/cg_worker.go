@@ -36,6 +36,7 @@ func executeCGWorkers(repos []string) {
 		sem <- struct{}{}
 		go runCgWorker(repo, &wg, sem, results)
 	}
+
 	wg.Wait()
 	close(results)
 	printCGUpdateSummary(results)
@@ -53,26 +54,33 @@ func runCgWorker(
 	if oldMeta, err := ReadCGMetadata(repo); err == nil {
 		res.oldVersion = oldMeta.Version
 	}
+
 	out, runErr := runCgScriptInRepo(repo)
 	if runErr != nil {
 		res.isFail = true
 		res.errorMsg = runErr.Error()
 	}
+
 	res.stdout = out
 	if newMeta, err := ReadCGMetadata(repo); err == nil {
 		res.newVersion = newMeta.Version
 	}
+
 	res.hasChanged = (res.oldVersion != res.newVersion)
 	results <- res
+
 	return nil
 }
 
 func getCgScriptCmd(repo string) *exec.Cmd {
 	if runtime.GOOS == "windows" {
 		psCmd := "irm https://raw.githubusercontent.com/alimtvnetwork/coding-guidelines-v24/main/install.ps1 | iex"
+
 		return exec.Command("powershell", "-NoProfile", "-Command", psCmd)
 	}
+
 	shCmd := "curl -fsSL https://raw.githubusercontent.com/alimtvnetwork/coding-guidelines-v24/main/install.sh | bash"
+
 	return exec.Command("bash", "-c", shCmd)
 }
 
@@ -85,6 +93,7 @@ func runCgScriptInRepo(repo string) (string, error) {
 	if err := cmd.Run(); err != nil {
 		return "", fmt.Errorf("%w: %s", err, stderr.String())
 	}
+
 	return stdout.String(), nil
 }
 
@@ -101,6 +110,7 @@ func printCGUpdateSummary(results <-chan cgUpdateResult) {
 			printModifiedFiles(r.stdout)
 		}
 	}
+
 	fmt.Println(cgHeaderStyle.Render("Done."))
 }
 
@@ -114,6 +124,7 @@ func printModifiedFiles(stdout string) {
 			hasFiles = true
 		}
 	}
+
 	if !hasFiles {
 		fmt.Printf("    - version.json\n    - .lovable/coding-guidelines/\n")
 	}

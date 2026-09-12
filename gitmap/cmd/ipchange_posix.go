@@ -15,13 +15,16 @@ func swapIPLinux(ctx context.Context, oldIP string, newIP string) error {
 	if err := cmdAdd.Run(); err != nil {
 		return apperror.Wrap(err, "swapIPLinux", map[string]any{"op": "add"})
 	}
+
 	if oldIP == "" {
 		return nil
 	}
+
 	cmdDel := exec.CommandContext(ctx, "ip", "addr", "del", oldIP, "dev", "eth0")
 	if err := cmdDel.Run(); err != nil {
 		return apperror.Wrap(err, "swapIPLinux", map[string]any{"op": "del"})
 	}
+
 	return nil
 }
 

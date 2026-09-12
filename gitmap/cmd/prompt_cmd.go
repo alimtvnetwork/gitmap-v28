@@ -77,6 +77,7 @@ func dispatchPrompt(ctx context.Context, args []string, root *cobra.Command) err
 	}
 
 	PromptCmd.SetArgs(args)
+
 	return PromptCmd.ExecuteContext(ctx)
 }
 

@@ -32,6 +32,7 @@ func seedRepoForRelease(t *testing.T, db *DB) int64 {
 	}); err != nil {
 		t.Fatalf("UpsertRepos failed: %v", err)
 	}
+
 	repos, err := db.FindBySlug("release-repo")
 	if err != nil || len(repos) == 0 {
 		t.Fatalf("failed to find created repo: %v", err)
@@ -46,6 +47,7 @@ func upsertTwoReleases(t *testing.T, db *DB, repoID int64) {
 	if err := db.UpsertRelease(r1); err != nil {
 		t.Fatalf("UpsertRelease v1 failed: %v", err)
 	}
+
 	r2 := model.ReleaseRecord{RepoID: repoID, Version: "v2.0.0", Tag: "v2.0.0", IsLatest: true}
 	if err := db.UpsertRelease(r2); err != nil {
 		t.Fatalf("UpsertRelease v2 failed: %v", err)
@@ -58,6 +60,7 @@ func verifyLatestReleases(t *testing.T, db *DB) {
 	if err != nil || rel1.IsLatest {
 		t.Errorf("expected v1.0.0 IsLatest false, err: %v", err)
 	}
+
 	rel2, err := db.FindReleaseByTag("v2.0.0")
 	if err != nil || !rel2.IsLatest {
 		t.Errorf("expected v2.0.0 IsLatest true, err: %v", err)
@@ -132,6 +135,7 @@ func TestUpsertRepos_TransactionAtomicity(t *testing.T) {
 		{Slug: "repo1", RepoName: "Repo One", AbsolutePath: "/path/to/repo1"},
 		{Slug: "repo2", RepoName: "Repo Two", AbsolutePath: "/path/to/repo2"},
 	}
+
 	if err := db.UpsertRepos(records); err != nil {
 		t.Fatalf("UpsertRepos failed: %v", err)
 	}

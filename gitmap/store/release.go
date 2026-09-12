@@ -90,6 +90,7 @@ func (db *DB) ListReleases() ([]model.ReleaseRecord, error) {
 	if err != nil {
 		return nil, fmt.Errorf(constants.ErrDBReleaseQuery, err)
 	}
+
 	defer rows.Close()
 
 	return scanReleaseRows(rows)
@@ -114,6 +115,7 @@ func scanReleaseRows(rows interface {
 		if err != nil {
 			return nil, err
 		}
+
 		results = append(results, r)
 	}
 
@@ -170,6 +172,7 @@ func (db *DB) ResolveCurrentRepoID(absPath string) (int64, error) {
 	if err != nil {
 		return 0, err
 	}
+
 	if len(repos) == 0 {
 		return 0, fmt.Errorf(constants.ErrReleaseNoRepo, absPath)
 	}

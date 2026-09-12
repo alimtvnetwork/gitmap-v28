@@ -21,10 +21,12 @@ func matchTs(line string) (string, bool) {
 	if name, ok := matchJsFunc(line); ok {
 		return name, true
 	}
+
 	m := tsArrowRe.FindStringSubmatch(line)
 	if m == nil {
 		return "", false
 	}
+
 	return m[1], true
 }
 

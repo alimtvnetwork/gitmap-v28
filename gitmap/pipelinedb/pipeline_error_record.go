@@ -59,6 +59,7 @@ func ScanPipelineErrorRecord(row dbengine.RowScanner) (*PipelineErrorRecord, err
 	item.Notes = dbengine.ScanString(raw_Notes)
 	item.Comments = dbengine.ScanString(raw_Comments)
 	item.CreatedAt = dbengine.ScanString(raw_CreatedAt)
+
 	return &item, nil
 }
 
@@ -75,6 +76,7 @@ func NewPipelineErrorRecordDbRepo(db *dbengine.DbWrapper) *PipelineErrorRecordDb
 		enums.PipelineErrorRecordTable,
 		ScanPipelineErrorRecord,
 	)
+
 	return &PipelineErrorRecordDbRepo{
 		db:   db,
 		repo: repo,
@@ -128,12 +130,14 @@ func (r *PipelineErrorRecordDbRepo) Insert(ctx context.Context, item *PipelineEr
 	if item.RunId == 0 {
 		id = nil
 	}
+
 	return r.db.ExecRowsAffected(ctx, query, id, item.RepoSlug, item.WorkflowName, item.StepName, item.ErrorText, item.RawLogs, item.Notes, item.Comments, item.CreatedAt)
 }
 
 // Update updates an existing PipelineErrorRecord record identified by its primary key.
 func (r *PipelineErrorRecordDbRepo) Update(ctx context.Context, item *PipelineErrorRecord) dbengine.RowsAffectedResult {
 	query := "UPDATE PipelineErrorRecord SET RepoSlug = ?, WorkflowName = ?, StepName = ?, ErrorText = ?, RawLogs = ?, Notes = ?, Comments = ?, CreatedAt = ? WHERE RunId = ?;"
+
 	return r.db.ExecRowsAffected(ctx, query, item.RepoSlug, item.WorkflowName, item.StepName, item.ErrorText, item.RawLogs, item.Notes, item.Comments, item.CreatedAt, item.RunId)
 }
 

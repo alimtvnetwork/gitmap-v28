@@ -13,10 +13,12 @@ func resolveByPWD(all []model.ScanRecord) (*model.ScanRecord, error) {
 	if err != nil {
 		return nil, fmt.Errorf("get current directory: %w", err)
 	}
+
 	for _, r := range all {
 		if fsutil.EqualPaths(r.AbsolutePath, pwd) {
 			return &r, nil
 		}
 	}
+
 	return nil, fmt.Errorf("current directory (%s) is not a tracked repository", pwd)
 }

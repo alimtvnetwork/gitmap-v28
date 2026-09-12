@@ -34,6 +34,7 @@ func runSSHGenerate(args []string) error {
 	if len(email) == 0 {
 		email = resolveGitEmail()
 	}
+
 	if len(email) == 0 {
 		return apperror.NewWithDetails(
 			"cmd.sshgen.resolveEmail",
@@ -67,6 +68,7 @@ func runSSHGenerate(args []string) error {
 			nil,
 		)
 	}
+
 	defer db.Close()
 
 	// Disk check FIRST — covers keys created outside gitmap (e.g. via raw
@@ -80,6 +82,7 @@ func runSSHGenerate(args []string) error {
 
 		return nil
 	}
+
 	if keyExistsOnDisk(keyPath) && force {
 		err2 := backupKeyForRegenerate(keyPath)
 		exitOnBackupError(err2)
@@ -92,6 +95,7 @@ func runSSHGenerate(args []string) error {
 	}
 
 	generateAndStore(db, name, keyPath, email, host)
+
 	return nil
 }
 
@@ -122,10 +126,12 @@ func parseSSHGenFlags(args []string) (name, keyPath, email string, force bool, h
 
 			continue
 		}
+
 		if name == constants.DefaultSSHKeyName {
 			name = a
 		}
 	}
+
 	// `--name me@x.com` (or `-n me@x.com`) — treat as email too.
 	if strings.Contains(name, "@") && len(email) == 0 {
 		email = name
@@ -158,6 +164,7 @@ func handleExistingKey(db *store.DB, name string, keyPath *string) bool {
 
 		return true
 	}
+
 	if input == "N" {
 		fmt.Fprint(os.Stdout, constants.MsgSSHNewPathPrompt)
 		newPath, _ := reader.ReadString('\n')
@@ -183,6 +190,7 @@ func generateAndStore(db *store.DB, name, keyPath, email, host string) {
 			map[string]any{"path": keyPath},
 		)
 		cliexit.HandleError(appErr, 1)
+
 		return
 	}
 
@@ -207,6 +215,7 @@ func generateAndStore(db *store.DB, name, keyPath, email, host string) {
 			map[string]any{"keyPath": keyPath},
 		)
 		cliexit.HandleError(appErr, 1)
+
 		return
 	}
 
@@ -223,6 +232,7 @@ func generateAndStore(db *store.DB, name, keyPath, email, host string) {
 			map[string]any{"pubKeyPath": keyPath + ".pub"},
 		)
 		cliexit.HandleError(appErr, 1)
+
 		return
 	}
 
@@ -233,6 +243,7 @@ func generateAndStore(db *store.DB, name, keyPath, email, host string) {
 		errUpdate := db.UpdateSSHKey(name, keyPath, string(pubKey), fingerprint, email)
 		printDBError(errUpdate, "update")
 	}
+
 	if !exists {
 		_, errInsert := db.InsertSSHKey(name, keyPath, string(pubKey), fingerprint, email)
 		printDBError(errInsert, "save")
@@ -244,6 +255,7 @@ func generateAndStore(db *store.DB, name, keyPath, email, host string) {
 	if host != constants.DefaultSSHHost {
 		fmt.Fprintf(os.Stdout, constants.MsgSSHHostUsed, host)
 	}
+
 	fmt.Fprint(os.Stdout, constants.MsgSSHPubLabel)
 	fmt.Fprintf(os.Stdout, "  %s\n", strings.TrimSpace(string(pubKey)))
 	fmt.Fprint(os.Stdout, constants.MsgSSHCopyHint)
@@ -256,6 +268,7 @@ func askConfirm(name, keyPath string) bool {
 	fmt.Fprintf(os.Stdout, constants.MsgSSHConfirmPrompt, name, keyPath)
 	reader := bufio.NewReader(os.Stdin)
 	input, _ := reader.ReadString('\n')
+
 	return strings.TrimSpace(strings.ToLower(input)) == "y"
 }
 
@@ -279,9 +292,11 @@ func printDBError(err error, action string) {
 	if err == nil {
 		return
 	}
+
 	if action == "update" {
 		fmt.Fprintf(os.Stderr, "  ⚠ Could not update SSH key in DB: %v\n", err)
 	}
+
 	if action == "save" {
 		fmt.Fprintf(os.Stderr, "  ⚠ Could not save SSH key to DB: %v\n", err)
 	}

@@ -22,6 +22,7 @@ func runProjectRepos(typeKey string, args []string) error {
 		fmt.Fprint(os.Stderr, constants.MsgProjectNoDB)
 		cliexit.HandleError(apperror.NewSimple("fatal", "E9000"), 1)
 	}
+
 	defer db.Close()
 
 	if countOnly {
@@ -29,10 +30,12 @@ func runProjectRepos(typeKey string, args []string) error {
 
 		return nil
 	}
+
 	printProjectList(db, typeKey, jsonOut)
 	if !jsonOut {
 		printHints(projectReposHints())
 	}
+
 	return nil
 }
 
@@ -82,11 +85,13 @@ func printProjectList(db *store.DB, typeKey string, jsonOut bool) {
 
 		return
 	}
+
 	if jsonOut {
 		printProjectsJSON(projects)
 
 		return
 	}
+
 	printProjectsTerminal(projects)
 	printProjectsSummary(projects)
 }

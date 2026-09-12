@@ -18,10 +18,12 @@ func tryShallowClone(url string, depth int) (string, error) {
 	if depth < 1 {
 		depth = 1
 	}
+
 	tmp, err := os.MkdirTemp("", "gitmap-probe-*")
 	if err != nil {
 		return "", fmt.Errorf("mkdtemp: %w", err)
 	}
+
 	defer os.RemoveAll(tmp)
 
 	target := filepath.Join(tmp, "repo")
@@ -57,6 +59,7 @@ func summarize(out []byte, err error) string {
 	if tail == "" {
 		return err.Error()
 	}
+
 	if idx := strings.LastIndex(tail, "\n"); idx >= 0 {
 		tail = tail[idx+1:]
 	}

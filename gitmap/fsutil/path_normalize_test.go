@@ -26,6 +26,7 @@ func TestPathNormalize(t *testing.T) {
 	if err != nil {
 		t.Fatalf("MakeRelativeToRoot failed: %v", err)
 	}
+
 	if rel != "dir/file.txt" {
 		t.Errorf("expected dir/file.txt, got %s", rel)
 	}

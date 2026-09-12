@@ -19,10 +19,12 @@ func newTestDB(t *testing.T) *DB {
 	if err != nil {
 		t.Fatalf("OpenAt: %v", err)
 	}
+
 	t.Cleanup(func() { _ = db.Close() })
 	if err := db.Migrate(); err != nil {
 		t.Fatalf("Migrate: %v", err)
 	}
+
 	return db
 }
 
@@ -36,6 +38,7 @@ func TestClassifyURLTransport(t *testing.T) {
 		"file:///tmp/repo":                 "",
 		"  HTTPS://Acme.io/r.git  ":        RepoTransportHTTPS,
 	}
+
 	for in, want := range cases {
 		if got := ClassifyURLTransport(in); got != want {
 			t.Errorf("ClassifyURLTransport(%q) = %q, want %q", in, got, want)
@@ -51,12 +54,14 @@ func TestSetRepoIdentifiedTransportRejectsBadInput(t *testing.T) {
 		{"https://x", "telnet"},
 		{"  ", "ssh"},
 	}
+
 	for _, c := range cases {
 		n, err := db.SetRepoIdentifiedTransport(c.url, c.transport)
 		if err != nil {
 			t.Errorf("SetRepoIdentifiedTransport(%q,%q) unexpected error: %v",
 				c.url, c.transport, err)
 		}
+
 		if n != 0 {
 			t.Errorf("SetRepoIdentifiedTransport(%q,%q) touched %d rows, want 0",
 				c.url, c.transport, n)
@@ -70,6 +75,7 @@ func TestLookupRepoIdentifiedTransportMiss(t *testing.T) {
 	if err != nil {
 		t.Fatalf("lookup miss returned error: %v", err)
 	}
+
 	if got != "" {
 		t.Fatalf("lookup miss returned %q, want empty", got)
 	}

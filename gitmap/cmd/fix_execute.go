@@ -23,6 +23,7 @@ func executeFixRecipe(item *RemediationItem, recipe gitutil.RemediationRecipe) e
 	if len(recipe.Steps) > 0 {
 		return executeStructuredRecipe(item, recipe)
 	}
+
 	return executeShellFallback(item, recipe)
 }
 
@@ -32,12 +33,15 @@ func synthesizeRecipeSteps(recipe gitutil.RemediationRecipe, repoPath string) []
 	if strings.Contains(titleLower, "wip") || strings.Contains(titleLower, "commit") || strings.Contains(cmdLower, "commit") {
 		return gitutil.GenerateCommitRecipe(repoPath).Steps
 	}
+
 	if strings.Contains(titleLower, "discard") || strings.Contains(titleLower, "clean") || strings.Contains(cmdLower, "reset --hard") {
 		return gitutil.GenerateDiscardRecipe(repoPath).Steps
 	}
+
 	if strings.Contains(titleLower, "stash") || strings.Contains(cmdLower, "stash") {
 		return gitutil.GenerateStashRecipe(repoPath).Steps
 	}
+
 	return nil
 }
 
@@ -49,8 +53,10 @@ func executeStructuredRecipe(item *RemediationItem, recipe gitutil.RemediationRe
 			return err
 		}
 	}
+
 	fmt.Printf("\n%s Fix applied successfully on %s\n", constants.ColorGreen+"✓"+constants.ColorReset, item.RepoName)
 	RemoveRemediationItem(item.RepoName)
+
 	return nil
 }
 
@@ -66,17 +72,20 @@ func executeSingleStep(repoName string, idx, total int, step gitutil.Remediation
 	err := cmd.Run()
 	if err == nil {
 		fmt.Printf("%s ok\n", constants.ColorGreen+"✔"+constants.ColorReset)
+
 		return nil
 	}
 
 	outStr := outBuf.String()
 	if isBenignCommitClean(step, outStr) {
 		fmt.Printf("%s clean (nothing to commit)\n", constants.ColorYellow+"•"+constants.ColorReset)
+
 		return nil
 	}
 
 	fmt.Printf("%s failed\n", constants.ColorRed+"✖"+constants.ColorReset)
 	printBluntRemediationFailure(repoName, step, outStr, err)
+
 	return err
 }
 
@@ -88,10 +97,13 @@ func isBenignCommitClean(step gitutil.RemediationStep, output string) bool {
 			break
 		}
 	}
+
 	if !hasCommit {
 		return false
 	}
+
 	lower := strings.ToLower(output)
+
 	return strings.Contains(lower, "nothing to commit") || strings.Contains(lower, "working tree clean")
 }
 
@@ -102,6 +114,7 @@ func executeShellFallback(item *RemediationItem, recipe gitutil.RemediationRecip
 	} else {
 		cmd = exec.Command("sh", "-c", recipe.Command)
 	}
+
 	var outBuf bytes.Buffer
 	cmd.Stdout = &outBuf
 	cmd.Stderr = &outBuf
@@ -110,9 +123,12 @@ func executeShellFallback(item *RemediationItem, recipe gitutil.RemediationRecip
 	if err != nil {
 		step := gitutil.RemediationStep{Name: "shell", Args: []string{recipe.Command}}
 		printBluntRemediationFailure(item.RepoName, step, outBuf.String(), err)
+
 		return err
 	}
+
 	fmt.Printf("\n%s Fix applied successfully on %s\n", constants.ColorGreen+"✓"+constants.ColorReset, item.RepoName)
 	RemoveRemediationItem(item.RepoName)
+
 	return nil
 }

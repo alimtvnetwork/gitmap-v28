@@ -42,6 +42,7 @@ func runPullReleaseCD(args []string) error {
 			return apperror.NewSimple("fatal error", "E9000")
 		}
 	}
+
 	return nil
 }
 
@@ -77,13 +78,16 @@ func parsePRCEntries(args []string) ([]prcEntry, error) {
 		if seg == "" {
 			continue
 		}
+
 		parts := strings.Fields(seg)
 		if len(parts) < 2 {
 			return nil, fmt.Errorf("entry %q missing version (expected `<name-or-url> <version>`)", seg)
 		}
+
 		if len(parts) > 2 {
 			return nil, fmt.Errorf("entry %q has extra tokens; only `<name-or-url> <version>` allowed", seg)
 		}
+
 		out = append(out, prcEntry{token: parts[0], version: parts[1]})
 	}
 
@@ -115,6 +119,7 @@ func executeOnePRCEntry(self string, e prcEntry) prcResult {
 
 		return res
 	}
+
 	res.slug = slug
 	res.path = path
 
@@ -139,9 +144,11 @@ func resolvePRCTarget(self, token string) (string, string, error) {
 	if isNonPRCURL {
 		path, err = lookupPRCPath(token)
 	}
+
 	if isNonPRCURL && err != nil {
 		return token, "", err
 	}
+
 	if isNonPRCURL {
 		return token, path, nil
 	}
@@ -180,12 +187,14 @@ func lookupPRCPath(slug string) (string, error) {
 	if err != nil {
 		return "", fmt.Errorf("open db: %w", err)
 	}
+
 	defer db.Close()
 
 	repos, err := db.FindBySlug(strings.ToLower(slug))
 	if err != nil {
 		return "", fmt.Errorf("lookup %s: %w", slug, err)
 	}
+
 	if len(repos) == 0 {
 		return "", fmt.Errorf("repo %q not found — run `gitmap scan` first", slug)
 	}
@@ -225,6 +234,7 @@ func printPRCSummary(results []prcResult) {
 			status = "FAIL"
 			detail = r.reason
 		}
+
 		fmt.Fprintf(os.Stderr, "  [%s] %s %s — %s\n", status, r.entry.token, r.entry.version, detail)
 	}
 }

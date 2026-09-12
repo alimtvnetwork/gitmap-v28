@@ -24,15 +24,18 @@ func TestParseCurrentRepoSlug(t *testing.T) {
 		{"gitmap-v", "", 0, true},
 		{"-v5", "", 0, true},
 	}
+
 	for _, c := range cases {
 		t.Run(c.in, func(t *testing.T) {
 			base, n, err := parseCurrentRepoSlug(c.in)
 			if (err != nil) != c.wantErr {
 				t.Fatalf("err=%v wantErr=%v", err, c.wantErr)
 			}
+
 			if c.wantErr {
 				return
 			}
+
 			if base != c.wantBase || n != c.wantN {
 				t.Fatalf("got (%q,%d) want (%q,%d)", base, n, c.wantBase, c.wantN)
 			}
@@ -47,11 +50,13 @@ type rewriteTransport struct{ target *url.URL }
 func (r *rewriteTransport) RoundTrip(req *http.Request) (*http.Response, error) {
 	req.URL.Scheme = r.target.Scheme
 	req.URL.Host = r.target.Host
+
 	return http.DefaultTransport.RoundTrip(req)
 }
 
 func newTestClient(server *httptest.Server) *http.Client {
 	u, _ := url.Parse(server.URL)
+
 	return &http.Client{Transport: &rewriteTransport{target: u}}
 }
 
@@ -63,9 +68,11 @@ func hitSet(hits map[string]bool) *httptest.Server {
 			if strings.HasSuffix(req.URL.Path, "/"+slug) ||
 				strings.Contains(req.URL.Path, "/"+slug+"/") {
 				w.WriteHeader(http.StatusOK)
+
 				return
 			}
 		}
+
 		w.WriteHeader(http.StatusNotFound)
 	}))
 }
@@ -81,6 +88,7 @@ func TestProbeSiblings_MaxHitWins(t *testing.T) {
 	if !ok {
 		t.Fatal("expected hit")
 	}
+
 	if slug != winner {
 		t.Fatalf("got %q want %q (max-offset hit must win)", slug, winner)
 	}
@@ -99,8 +107,10 @@ func TestResolveLatestRepoSlug_FallbackToRelease(t *testing.T) {
 	srv := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, req *http.Request) {
 		if strings.HasPrefix(req.URL.Path, "/repos/") && strings.HasSuffix(req.URL.Path, "/releases/latest") {
 			w.WriteHeader(http.StatusOK)
+
 			return
 		}
+
 		w.WriteHeader(http.StatusNotFound)
 	}))
 	defer srv.Close()
@@ -109,9 +119,11 @@ func TestResolveLatestRepoSlug_FallbackToRelease(t *testing.T) {
 	if err != nil {
 		t.Fatalf("err=%v", err)
 	}
+
 	if source != "current-release" {
 		t.Fatalf("source=%q want current-release", source)
 	}
+
 	if slug == "" {
 		t.Fatal("empty slug")
 	}

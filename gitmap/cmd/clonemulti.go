@@ -45,6 +45,7 @@ func flattenURLArgs(args []string) []string {
 			if _, dup := seen[key]; dup {
 				continue
 			}
+
 			seen[key] = struct{}{}
 			out = append(out, cleaned)
 		}
@@ -93,6 +94,7 @@ func stripInvisibleRunes(s string) string {
 		case '\uFEFF', '\u200B', '\u200C', '\u200D':
 			continue
 		}
+
 		b.WriteRune(r)
 	}
 
@@ -118,6 +120,7 @@ func trimMatchingWrappers(s string) string {
 	if len(s) < 2 {
 		return s
 	}
+
 	first, last := s[0], s[len(s)-1]
 	if first == last && (first == '\'' || first == '"' || first == '`') {
 		return s[1 : len(s)-1]
@@ -205,6 +208,7 @@ func executeCloneStrategy(url string, absPath string, noReplace bool) error {
 	if noReplace {
 		return handleNoReplaceClone(url, absPath)
 	}
+
 	return handleReplaceClone(url, absPath)
 }
 
@@ -213,10 +217,12 @@ func handleNoReplaceClone(url string, absPath string) error {
 	if statErr == nil {
 		return fmt.Errorf("target exists: %s (use without --no-replace to replace)", absPath)
 	}
+
 	cloneErr := runCloneCommand(url, absPath)
 	if cloneErr != nil {
 		return fmt.Errorf("git clone: %w", cloneErr)
 	}
+
 	return nil
 }
 
@@ -225,5 +231,6 @@ func handleReplaceClone(url string, absPath string) error {
 	if replaceErr != nil {
 		return fmt.Errorf("clone-replace: %w", replaceErr)
 	}
+
 	return nil
 }

@@ -29,6 +29,7 @@ func runWatch(args []string) error {
 	}
 
 	runWatchLoop(records, interval, noFetch)
+
 	return nil
 }
 
@@ -59,6 +60,7 @@ func loadWatchRecords(groupName string) []model.ScanRecord {
 	if err != nil {
 		return loadRecordsJSONFallback()
 	}
+
 	defer db.Close()
 
 	repos, err := db.ListRepos()

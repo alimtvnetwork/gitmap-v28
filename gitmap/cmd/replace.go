@@ -23,6 +23,7 @@ func runReplace(args []string) error {
 
 	mode := classifyReplaceMode(positional, opts)
 	dispatchReplaceMode(mode, positional, opts)
+
 	return nil
 }
 
@@ -47,8 +48,10 @@ func dispatchReplaceMode(mode replaceMode, positional []string, opts replaceOpts
 func dispatchVersionMode(mode replaceMode, positional []string, opts replaceOpts) {
 	if mode == replaceModeAll {
 		runReplaceVersion(constants.ReplaceAllVersionTarget, opts, true)
+
 		return
 	}
+
 	n := mustParseDashN(positional[0])
 	runReplaceVersion(n, opts, false)
 }
@@ -70,12 +73,15 @@ func classifyReplaceMode(positional []string, opts replaceOpts) replaceMode {
 	if opts.audit {
 		return replaceModeAudit
 	}
+
 	if len(positional) == constants.ReplaceMinPositionalArgs {
 		return classifySingleArgMode(positional[0])
 	}
+
 	if len(positional) == constants.ReplaceLiteralArgsCount {
 		return replaceModeLiteral
 	}
+
 	return replaceModeUnknown
 }
 
@@ -83,12 +89,15 @@ func classifySingleArgMode(arg string) replaceMode {
 	if arg == constants.ReplaceSubcmdAll {
 		return replaceModeAll
 	}
+
 	if arg == "history" || arg == "audit" {
 		return replaceModeAudit
 	}
+
 	if looksLikeDashN(arg) {
 		return replaceModeVersionN
 	}
+
 	return replaceModeUnknown
 }
 
@@ -97,11 +106,13 @@ func looksLikeDashN(s string) bool {
 	if len(s) < 2 || s[0] != '-' {
 		return false
 	}
+
 	for i := 1; i < len(s); i++ {
 		if s[i] < '0' || s[i] > '9' {
 			return false
 		}
 	}
+
 	return true
 }
 
@@ -113,6 +124,7 @@ func mustParseDashN(s string) int {
 		fmt.Fprintf(os.Stderr, constants.ErrReplaceBadN, s)
 		cliexit.HandleError(nil, constants.ExitCodeError)
 	}
+
 	return n
 }
 
@@ -124,5 +136,6 @@ func parseDashNDigits(s string) (int, bool) {
 			return 0, false
 		}
 	}
+
 	return n, true
 }

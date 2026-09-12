@@ -26,6 +26,7 @@ const (
 func runHistoryPurge(args []string) error {
 	checkHelp(constants.CmdHistoryPurge, args)
 	runHistoryRewrite(historyModePurge, args)
+
 	return nil
 }
 
@@ -33,6 +34,7 @@ func runHistoryPurge(args []string) error {
 func runHistoryPin(args []string) error {
 	checkHelp(constants.CmdHistoryPin, args)
 	runHistoryRewrite(historyModePin, args)
+
 	return nil
 }
 
@@ -53,9 +55,12 @@ func runHistoryRewrite(mode historyMode, args []string) error {
 
 	if opts.dryRun {
 		fmt.Fprintf(os.Stdout, constants.HistoryMsgDryRunDone, sandbox)
+
 		return nil
 	}
+
 	finalizePush(sandbox, originURL, opts)
+
 	return nil
 }
 
@@ -65,6 +70,7 @@ func historyModeLabel(mode historyMode) string {
 	if mode == historyModePin {
 		return "history-pin"
 	}
+
 	return "history-purge"
 }
 
@@ -74,6 +80,7 @@ func loadPinPayloads(mode historyMode, paths []string) map[string][]byte {
 	if mode != historyModePin {
 		return nil
 	}
+
 	out := make(map[string][]byte, len(paths))
 	for _, p := range paths {
 		data, err := os.ReadFile(p)
@@ -82,8 +89,10 @@ func loadPinPayloads(mode historyMode, paths []string) map[string][]byte {
 				fmt.Sprintf(constants.HistoryErrPathNotReadable, p, err))
 			cliexit.HandleError(nil, constants.HistoryExitBadArgs)
 		}
+
 		out[p] = data
 	}
+
 	return out
 }
 
@@ -92,7 +101,9 @@ func loadPinPayloads(mode historyMode, paths []string) map[string][]byte {
 func cleanupSandbox(sandbox string, opts historyOpts) {
 	if opts.keepSandbox {
 		fmt.Fprintf(os.Stderr, constants.HistoryMsgKeepSandbox, sandbox)
+
 		return
 	}
+
 	_ = os.RemoveAll(sandbox)
 }

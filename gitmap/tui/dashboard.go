@@ -93,6 +93,7 @@ func statusLabel(dirty, unreachable bool) string {
 	if unreachable {
 		return "error"
 	}
+
 	if dirty {
 		return "dirty"
 	}
@@ -108,9 +109,11 @@ func (m dashboardModel) Update(msg tea.Msg) (dashboardModel, tea.Cmd) {
 	switch msg := msg.(type) {
 	case refreshMsg:
 		m.entries, m.loading = msg.entries, false
+
 		return m, m.scheduleTick()
 	case tickMsg:
 		m.loading = true
+
 		return m, refreshStatuses(m.repos)
 	case tea.KeyMsg:
 		return m.handleKey(msg)
@@ -141,6 +144,7 @@ func (m dashboardModel) handleKey(msg tea.KeyMsg) (dashboardModel, tea.Cmd) {
 
 		return m, refreshStatuses(m.repos)
 	}
+
 	m.moveCursor(msg, maxIndex(len(m.entries), len(m.repos)))
 
 	return m, nil
@@ -154,6 +158,7 @@ func renderDashRows(b *strings.Builder, entries []statusEntry, cursor int) {
 		} else {
 			b.WriteString(styleNormalRow.Render("  " + line))
 		}
+
 		b.WriteString("\n")
 	}
 }
@@ -162,6 +167,7 @@ func (m dashboardModel) View() string {
 	if len(m.repos) == 0 {
 		return styleHint.Render(constants.TUINoRepos)
 	}
+
 	if m.loading {
 		return styleHint.Render(constants.TUIRefreshing)
 	}

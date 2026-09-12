@@ -73,6 +73,7 @@ func createDocsSiteZip(archivePath, distDir string, items []string) error {
 	if err != nil {
 		return fmt.Errorf("create archive %s: %w", archivePath, err)
 	}
+
 	defer outFile.Close()
 
 	w := zip.NewWriter(outFile)
@@ -105,10 +106,12 @@ func logDocsSiteBundled(archivePath string, itemCount int) {
 	if !verbose.IsEnabled() {
 		return
 	}
+
 	archiveInfo, statErr := os.Stat(archivePath)
 	if statErr != nil {
 		return
 	}
+
 	verbose.Get().Log("docs-site: bundled %d file(s) into %s (%d bytes)",
 		itemCount, filepath.Base(archivePath), archiveInfo.Size())
 }

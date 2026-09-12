@@ -74,6 +74,7 @@ func ApplyWordPressPermissions(targetDir string) *apperror.AppError {
 		IsFix:     true,
 		IsDryRun:  false,
 	}
+
 	_, err := AuditAndFixPermissions(opts)
 
 	return err
@@ -88,6 +89,7 @@ func ApplyLaravelPermissions(targetDir string) *apperror.AppError {
 		IsFix:     true,
 		IsDryRun:  false,
 	}
+
 	_, err := AuditAndFixPermissions(opts)
 
 	return err
@@ -118,9 +120,11 @@ func parsePermsFlags(args []string) (PermsOptions, *apperror.AppError) {
 	if parseErr == flag.ErrHelp {
 		cliexit.Exit(0)
 	}
+
 	if parseErr != nil {
 		return opts, apperror.WrapSimple(parseErr, "flag.Parse")
 	}
+
 	opts.AppType = ParsePermsAppType(rawApp)
 	hasPositional := len(fs.Args()) > 0
 	if hasPositional {
@@ -137,6 +141,7 @@ func printPermsSummary(report *PermsReport, isFix, isDryRun bool) {
 	if isFix {
 		fmt.Printf("    Fixed:      %d items\n", report.FixedCount)
 	}
+
 	if isDryRun {
 		fmt.Printf("    %s[dry-run] simulated execution only%s\n", constants.ColorDim, constants.ColorReset)
 	}
@@ -147,15 +152,18 @@ func runSetupPerms(args []string) error {
 	if parseErr != nil {
 		return parseErr
 	}
+
 	absPath, absErr := filepath.Abs(opts.TargetDir)
 	if absErr != nil {
 		return apperror.WrapSimple(absErr, "filepath.Abs")
 	}
+
 	opts.TargetDir = absPath
 	report, appErr := AuditAndFixPermissions(opts)
 	if appErr != nil {
 		return appErr
 	}
+
 	printPermsSummary(report, opts.IsFix, opts.IsDryRun)
 
 	return nil

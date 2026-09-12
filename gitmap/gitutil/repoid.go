@@ -29,6 +29,7 @@ func CanonicalRepoID(raw string) string {
 	if len(s) == 0 {
 		return ""
 	}
+
 	s = strings.TrimSuffix(s, "/")
 	s = strings.TrimSuffix(s, ".git")
 	switch {

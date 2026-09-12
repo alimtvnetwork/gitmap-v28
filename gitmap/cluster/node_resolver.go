@@ -61,6 +61,7 @@ func ResolveTargetNodes(
 		if isClientOnlyServer {
 			continue
 		}
+
 		selectorFiltered = append(selectorFiltered, n)
 	}
 
@@ -82,12 +83,14 @@ func isNodeIncluded(n ClusterNode, filter NodeFilter) bool {
 			return true
 		}
 	}
+
 	for _, id := range filter.IDs {
 		isMatchID := n.DisplayId == id
 		if isMatchID {
 			return true
 		}
 	}
+
 	return false
 }
 
@@ -110,11 +113,13 @@ func matchesExclusion(n ClusterNode, excepts []string) bool {
 		if isRangeMatch {
 			return true
 		}
+
 		isExactMatch := !hasSeparator && matchesExact(n, ex, trailingOctet, hasTrailing)
 		if isExactMatch {
 			return true
 		}
 	}
+
 	return false
 }
 
@@ -166,6 +171,7 @@ func matchesExact(n ClusterNode, ex string, trailingOctet string, hasTrailing bo
 	if !isValidInt && isMatchDotSuffix {
 		return true
 	}
+
 	if !isValidInt {
 		return false
 	}
@@ -200,6 +206,7 @@ func filterIncluded(nodes []ClusterNode, filter NodeFilter) []ClusterNode {
 			included = append(included, n)
 		}
 	}
+
 	return included
 }
 
@@ -210,5 +217,6 @@ func filterExcluded(nodes []ClusterNode, filter NodeFilter) []ClusterNode {
 			excluded = append(excluded, n)
 		}
 	}
+
 	return excluded
 }

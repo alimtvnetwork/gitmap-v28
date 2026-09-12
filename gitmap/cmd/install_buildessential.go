@@ -71,6 +71,7 @@ func recordBuildEssentialTools() {
 	if err != nil {
 		return
 	}
+
 	defer splitDB.Close()
 
 	for _, tool := range buildEssentialPackages {

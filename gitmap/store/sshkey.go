@@ -48,6 +48,7 @@ func (db *DB) ListSSHKeys() ([]model.SSHKey, error) {
 	if err != nil {
 		return nil, fmt.Errorf(constants.ErrSSHQuery, err)
 	}
+
 	defer rows.Close()
 
 	return scanSSHKeyRows(rows)

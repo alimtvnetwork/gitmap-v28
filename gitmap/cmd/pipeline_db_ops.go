@@ -23,6 +23,7 @@ func runPipelineDBStatus(args []string) error {
 	if err != nil {
 		return err
 	}
+
 	defer db.Close()
 
 	stats, err := db.GetStats()
@@ -46,6 +47,7 @@ func runPipelineDBStatus(args []string) error {
 	if stats.LastUpdated != "" {
 		fmt.Printf("  • %-20s %s\n", "Last Synced:", stats.LastUpdated)
 	}
+
 	return nil
 }
 
@@ -54,18 +56,23 @@ func runPipelineDBClear(args []string) error {
 	msg := fmt.Sprintf("Clear all pipeline runs and error logs for %s? [y/N]: ", repo)
 	if !confirmOrSkip(msg, args) {
 		fmt.Println("Clear operation canceled.")
+
 		return nil
 	}
+
 	db, err := pipelinedb.OpenPipelineSplitDb(repo)
 	if err != nil {
 		return err
 	}
+
 	defer db.Close()
 
 	if err := db.Clear(); err != nil {
 		return err
 	}
+
 	fmt.Printf("%s✓ Pipeline split database cleared for %s.%s\n", constants.ColorGreen, repo, constants.ColorReset)
+
 	return nil
 }
 
@@ -74,18 +81,23 @@ func runPipelineDBReset(args []string) error {
 	msg := fmt.Sprintf("Reset and re-create pipeline schema for %s? [y/N]: ", repo)
 	if !confirmOrSkip(msg, args) {
 		fmt.Println("Reset operation canceled.")
+
 		return nil
 	}
+
 	db, err := pipelinedb.OpenPipelineSplitDb(repo)
 	if err != nil {
 		return err
 	}
+
 	defer db.Close()
 
 	if err := db.Reset(); err != nil {
 		return err
 	}
+
 	fmt.Printf("%s✓ Pipeline split database reset for %s.%s\n", constants.ColorGreen, repo, constants.ColorReset)
+
 	return nil
 }
 
@@ -95,14 +107,17 @@ func runPipelineDBOptimize(args []string) error {
 	if err != nil {
 		return err
 	}
+
 	defer db.Close()
 
 	reclaimed, err := db.Optimize()
 	if err != nil {
 		return err
 	}
+
 	fmt.Printf("%s✓ Pipeline split DB optimized.%s Reclaimed: %s (%s)\n",
 		constants.ColorGreen, constants.ColorReset, formatBytes(reclaimed), db.Path)
+
 	return nil
 }
 
@@ -112,18 +127,21 @@ func runPipelineDBErrorLogs(args []string) error {
 	if err != nil {
 		return err
 	}
+
 	defer db.Close()
 
 	logs, err := db.QueryRecentErrorLogs(20)
 	if err != nil {
 		return err
 	}
+
 	if hasArgFlag(args, "--json") {
 		return printJSON(logs)
 	}
 
 	if len(logs) == 0 {
 		fmt.Printf("No error logs recorded in pipeline database for %s.\n", repo)
+
 		return nil
 	}
 
@@ -135,8 +153,11 @@ func runPipelineDBErrorLogs(args []string) error {
 		for _, line := range strings.Split(l.ErrorText, "\n") {
 			fmt.Printf("      %s\n", line)
 		}
+
 		fmt.Println()
 	}
+
 	fmt.Printf("    %s\n", strings.Repeat("─", 78))
+
 	return nil
 }

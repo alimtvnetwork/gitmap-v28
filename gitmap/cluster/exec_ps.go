@@ -30,9 +30,11 @@ func ExecPS(
 	if isWin {
 		cmdPath, errLook = lookPathFuncVar(pwshCmd)
 	}
+
 	if isWin && errLook != nil {
 		cmdPath, errLook = lookPathFuncVar(powershellCmd)
 	}
+
 	if isWin && errLook != nil {
 		return "", "", 1, errLook
 	}
@@ -40,6 +42,7 @@ func ExecPS(
 	if !isWin {
 		cmdPath, errLook = lookPathFuncVar(pwshCmd)
 	}
+
 	if !isWin && errLook != nil {
 		return "", "pwsh not found, skipping", 0, nil
 	}
@@ -47,6 +50,7 @@ func ExecPS(
 	if isWin {
 		cmd = exec.CommandContext(ctx, cmdPath, nonIntFlag, cmdFlag, command)
 	}
+
 	if !isWin {
 		cmd = exec.CommandContext(ctx, cmdPath, cmdFlag, command)
 	}
@@ -64,6 +68,7 @@ func ExecPS(
 	if err != nil {
 		exitCode = 1
 	}
+
 	exitErr, isExitErr := err.(*exec.ExitError)
 	if isExitErr {
 		exitCode = exitErr.ExitCode()

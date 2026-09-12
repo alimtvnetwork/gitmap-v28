@@ -18,11 +18,13 @@ func setupInstallerExportTestDB(t *testing.T) *store.DB {
 	if err != nil {
 		t.Fatalf("failed to open test database: %v", err)
 	}
+
 	t.Cleanup(func() { db.Close() })
 
 	if errMigrate := db.MigrateInstallers(); errMigrate != nil {
 		t.Fatalf("failed to migrate installers: %v", errMigrate)
 	}
+
 	return db
 }
 
@@ -35,6 +37,7 @@ func TestInstallerExportCmd(t *testing.T) {
 	if err != nil {
 		t.Fatalf("unexpected error parsing flags: %v", err)
 	}
+
 	if flags.Slug != "my-app" || flags.OutputPath != "out.zip" {
 		t.Errorf("unexpected parsed values: %+v", flags)
 	}
@@ -53,6 +56,7 @@ func TestInstallerExportCmd(t *testing.T) {
 		TargetOS: "all",
 		Version:  "v1.0.0",
 	}
+
 	if errCreate := db.CreateInstaller(script); errCreate != nil {
 		t.Fatalf("failed to seed installer: %v", errCreate)
 	}
@@ -75,6 +79,7 @@ func TestInstallerExportCmd(t *testing.T) {
 	if errZip != nil {
 		t.Fatalf("failed to read created zip: %v", errZip)
 	}
+
 	defer zr.Close()
 
 	if len(zr.File) != 1 || zr.File[0].Name != "export-app.json" {
@@ -87,6 +92,7 @@ func TestInstallerExportCmd(t *testing.T) {
 		OutputPath: zipAllPath,
 		ExportAll:  true,
 	}
+
 	if errExportAll := executeExport(ctx, db, flagsExportAll); errExportAll != nil {
 		t.Fatalf("executeExport all failed: %v", errExportAll)
 	}

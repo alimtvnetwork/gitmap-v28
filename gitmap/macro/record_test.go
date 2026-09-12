@@ -45,6 +45,7 @@ func TestUndoAndRedoLogic(t *testing.T) {
 			{StepNum: 3, CommandLine: "echo step 3"},
 		},
 	}
+
 	var redoStack []MacroStep
 	reader := bufio.NewReader(strings.NewReader("y\n"))
 
@@ -53,6 +54,7 @@ func TestUndoAndRedoLogic(t *testing.T) {
 	if len(m.Steps) != 2 {
 		t.Fatalf("expected 2 steps remaining, got %d", len(m.Steps))
 	}
+
 	if len(redoStack) != 1 {
 		t.Fatalf("expected 1 step on redoStack, got %d", len(redoStack))
 	}
@@ -62,6 +64,7 @@ func TestUndoAndRedoLogic(t *testing.T) {
 	if len(m.Steps) != 3 {
 		t.Fatalf("expected 3 steps after redo, got %d", len(m.Steps))
 	}
+
 	if len(redoStack) != 0 {
 		t.Fatalf("expected empty redoStack, got %d", len(redoStack))
 	}
@@ -71,6 +74,7 @@ func TestUndoAndRedoLogic(t *testing.T) {
 	if len(m.Steps) != 1 {
 		t.Fatalf("expected 1 step remaining after undo 2, got %d", len(m.Steps))
 	}
+
 	if len(redoStack) != 2 {
 		t.Fatalf("expected 2 steps on redoStack, got %d", len(redoStack))
 	}

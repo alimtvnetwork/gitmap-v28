@@ -8,6 +8,7 @@ func TestSSHTarget(t *testing.T) {
 		IP:       "10.0.0.1",
 		Port:     22,
 	}
+
 	expected := "root@10.0.0.1"
 	if got := target.String(); got != expected {
 		t.Errorf("SSHTarget.String() = %q, want %q", got, expected)
@@ -55,6 +56,7 @@ func TestParseSSHTarget(t *testing.T) {
 			if err != nil {
 				t.Fatalf("unexpected error: %v", err)
 			}
+
 			if target.Username != tt.expected.Username || target.IP != tt.expected.IP {
 				t.Errorf("expected Username=%q IP=%q, got Username=%q IP=%q",
 					tt.expected.Username, tt.expected.IP, target.Username, target.IP)

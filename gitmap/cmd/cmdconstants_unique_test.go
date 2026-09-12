@@ -26,6 +26,7 @@ func TestTopLevelCmdConstantsAreUnique(t *testing.T) {
 	if err != nil {
 		t.Fatalf("glob constants dir: %v", err)
 	}
+
 	if len(files) == 0 {
 		t.Fatalf("no constants_*.go files found under %s", dir)
 	}

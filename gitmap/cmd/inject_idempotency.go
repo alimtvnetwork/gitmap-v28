@@ -43,6 +43,7 @@ func loadInjectStamps(absPath string) store.InjectTimestamps {
 	if err != nil {
 		return store.InjectTimestamps{}
 	}
+
 	defer db.Close()
 
 	ts, err := db.GetInjectTimestamps(absPath)
@@ -61,6 +62,7 @@ func markInjected(absPath string, kind constants.InjectKindType) {
 	if err != nil {
 		return
 	}
+
 	defer db.Close()
 
 	if err := db.MarkInjected(absPath, kind); err != nil {

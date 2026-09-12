@@ -62,11 +62,13 @@ func readEveryObjectKeys(t *testing.T, raw []byte) [][]string {
 	if err := expectDelim(dec, '['); err != nil {
 		t.Fatalf("expected top-level array: %v", err)
 	}
+
 	var out [][]string
 	for dec.More() {
 		if err := expectDelim(dec, '{'); err != nil {
 			t.Fatalf("expected object at index %d: %v", len(out), err)
 		}
+
 		out = append(out, collectObjectKeys(t, dec))
 	}
 
@@ -80,12 +82,11 @@ func readEveryObjectKeys(t *testing.T, raw []byte) [][]string {
 func expectDelim(dec *json.Decoder, want byte) error {
 	tok, err := dec.Token()
 	if err != nil {
-
 		return err
 	}
+
 	delim, isDelim := tok.(json.Delim)
 	if !isDelim || delim != json.Delim(want) {
-
 		return fmt.Errorf("want delim %q, got %v (%T)", want, tok, tok)
 	}
 
@@ -103,10 +104,12 @@ func collectObjectKeys(t *testing.T, dec *json.Decoder) []string {
 		if err != nil {
 			t.Fatalf("reading object key: %v", err)
 		}
+
 		key, ok := tok.(string)
 		if !ok {
 			t.Fatalf("expected string key, got %v (%T)", tok, tok)
 		}
+
 		keys = append(keys, key)
 		// Skip the value without decoding its type.
 		var raw json.RawMessage
@@ -114,10 +117,12 @@ func collectObjectKeys(t *testing.T, dec *json.Decoder) []string {
 			t.Fatalf("skipping value for key %q: %v", key, err)
 		}
 	}
+
 	// Consume the closing '}'.
 	if _, err := dec.Token(); err != nil {
 		t.Fatalf("expected closing '}': %v", err)
 	}
+
 	return keys
 }
 
@@ -127,11 +132,13 @@ func equalStringSlices(a, b []string) bool {
 	if len(a) != len(b) {
 		return false
 	}
+
 	for i := range a {
 		if a[i] != b[i] {
 			return false
 		}
 	}
+
 	return true
 }
 

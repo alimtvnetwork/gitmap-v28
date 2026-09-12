@@ -21,9 +21,11 @@ func TestHandleMacroAdd(t *testing.T) {
 	if err != nil {
 		t.Fatalf("load created macro failed: %v", err)
 	}
+
 	if loaded.Name != "test-build" || len(loaded.Steps) != 2 {
 		t.Fatalf("unexpected macro: %+v", loaded)
 	}
+
 	if loaded.Description != "Build and test pipeline" || loaded.Tags != "ci" {
 		t.Errorf("unexpected metadata: desc=%q, tag=%q", loaded.Description, loaded.Tags)
 	}
@@ -43,6 +45,7 @@ func TestHandleMacroAddChainedSteps(t *testing.T) {
 	if err != nil {
 		t.Fatalf("load chained macro failed: %v", err)
 	}
+
 	if len(loaded.Steps) != 3 {
 		t.Fatalf("expected 3 steps, got %d", len(loaded.Steps))
 	}

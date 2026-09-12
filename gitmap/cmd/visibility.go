@@ -31,6 +31,7 @@ import (
 func runMakePublic(args []string) error {
 	checkHelp(constants.CmdMakePublic, args)
 	runVisibility(args, constants.VisibilityPublic)
+
 	return nil
 }
 
@@ -38,6 +39,7 @@ func runMakePublic(args []string) error {
 func runMakePrivate(args []string) error {
 	checkHelp(constants.CmdMakePrivate, args)
 	runVisibility(args, constants.VisibilityPrivate)
+
 	return nil
 }
 
@@ -81,6 +83,7 @@ func runVisibility(args []string, target string) error {
 	applyVisibilityOrExit(ctx, target, opts.verbose)
 	verifyVisibilityOrExit(ctx, target, opts.verbose)
 	fmt.Printf(constants.MsgVisChangedFmt, current, target, ctx.Slug, ctx.Provider)
+
 	return nil
 }
 

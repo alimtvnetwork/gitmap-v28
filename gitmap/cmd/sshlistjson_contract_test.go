@@ -49,5 +49,6 @@ func TestSSHListJSONContract_CanonicalRow_KeyOrder(t *testing.T) {
 	if err := encodeSSHListJSON(&buf, records); err != nil {
 		t.Fatalf("encode: %v", err)
 	}
+
 	assertSchemaKeysFirstObject(t, buf.Bytes(), "ssh-list")
 }

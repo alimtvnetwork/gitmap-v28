@@ -37,5 +37,6 @@ func FixRegionalMirrors(sourcesPath string) error {
 	}
 
 	fmt.Printf("✓ Regional mirrors !fixed Backup created at %s\n", backupPath)
+
 	return nil
 }

@@ -32,6 +32,7 @@ func initDownloaderConfigDB() (*store.DB, *apperror.AppError) {
 	if err != nil {
 		return nil, apperror.WrapSimple(err, "✗ open DB failed")
 	}
+
 	if err := db.Migrate(); err != nil {
 		return nil, apperror.WrapSimple(err, "✗ Migrate failed")
 	}
@@ -43,9 +44,11 @@ func saveAndReportDownloaderConfig(db *store.DB, doc downloaderconfig.Document, 
 	if err := db.SetDownloaderConfig(doc); err != nil {
 		return apperror.WrapSimple(err, "✗ Could not save downloader config:")
 	}
+
 	if source != "" {
 		fmt.Fprintf(os.Stderr, constants.MsgDownloaderConfigLoaded+"\n", source)
 	}
+
 	fmt.Fprintf(os.Stderr, constants.MsgDownloaderConfigSaved+"\n", constants.SettingDownloaderConfig)
 	fmt.Fprintf(os.Stderr, constants.MsgDownloaderConfigDBVersion+"\n", doc.DatabaseVersion.LastKnownVersion)
 
@@ -67,6 +70,7 @@ func runDownloaderConfig(args []string) error {
 	if appErr != nil {
 		return appErr
 	}
+
 	defer db.Close()
 
 	if appErr := executeDownloaderConfig(db, args); appErr != nil {
@@ -88,6 +92,7 @@ func loadDocOrPrompt(db *store.DB, args []string) (downloaderconfig.Document, st
 	if !ok {
 		current = downloaderconfig.Defaults()
 	}
+
 	current.DatabaseVersion.LastKnownVersion = constants.Version
 
 	return promptDownloaderConfig(current), ""
@@ -149,6 +154,7 @@ func promptDownloaderConfig(current downloaderconfig.Document) downloaderconfig.
 		DownloaderConfig: dc,
 		DatabaseVersion:  downloaderconfig.DatabaseVersion{LastKnownVersion: constants.Version},
 	}
+
 	return validatePromptedDoc(doc)
 }
 
@@ -172,6 +178,7 @@ func promptInt(reader *bufio.Reader, label string, def int) int {
 		if err == nil {
 			return n
 		}
+
 		fmt.Fprintf(os.Stderr, "      ⚠ %q is not a valid integer — try again\n", raw)
 	}
 }

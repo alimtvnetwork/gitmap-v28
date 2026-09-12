@@ -8,12 +8,14 @@ import (
 // Create compiles or retrieves a cached regex using the single global pattern cache.
 func Create(regularExpressionPattern string) appfault.Result[*regexp.Regexp] {
 	lz := New.Lazy(regularExpressionPattern)
+
 	return lz.Compile()
 }
 
 // CreateLock calls Create protected by regexMutex.
 func CreateLock(regularExpressionPattern string) appfault.Result[*regexp.Regexp] {
 	lz := New.LazyLock(regularExpressionPattern)
+
 	return lz.Compile()
 }
 
@@ -44,6 +46,7 @@ func CreateApplicableLock(regularExpressionPattern string) (
 // CreateMust compiles the regex or panics if invalid, caching on success.
 func CreateMust(regularExpressionSyntax string) *regexp.Regexp {
 	lz := New.Lazy(regularExpressionSyntax)
+
 	return lz.CompileMust()
 }
 
@@ -59,5 +62,6 @@ func CreateMustLockIf(isLock bool, regularExpressionSyntax string) *regexp.Regex
 // NewMustLock compiles or retrieves a cached regex under regexMutex, panicking on error.
 func NewMustLock(regularExpressionSyntax string) *regexp.Regexp {
 	lz := New.LazyLock(regularExpressionSyntax)
+
 	return lz.CompileMust()
 }

@@ -18,15 +18,19 @@ func Parse(args []string) (*RawArgs, *ParseError) {
 	if err := fs.Parse(reorder(args)); err != nil {
 		return nil, newBadArgs("%v", err)
 	}
+
 	if perr := finalizeFlagFanout(raw, csv); perr != nil {
 		return nil, perr
 	}
+
 	if perr := splitPositional(raw, fs.Args()); perr != nil {
 		return nil, perr
 	}
+
 	if perr := validateAll(raw); perr != nil {
 		return nil, perr
 	}
+
 	return raw, nil
 }
 
@@ -44,7 +48,9 @@ func finalizeFlagFanout(raw *RawArgs, csv *csvHolder) *ParseError {
 	if perr != nil {
 		return perr
 	}
+
 	raw.MessageRules = rules
+
 	return nil
 }
 
@@ -55,12 +61,15 @@ func splitPositional(raw *RawArgs, positional []string) *ParseError {
 	if len(positional) == 0 {
 		return newBadArgs("%s", "missing <source>")
 	}
+
 	raw.Source = positional[0]
 	rest := positional[1:]
 	if len(rest) == 1 {
 		return applyKeywordArg(raw, rest)
 	}
+
 	raw.Inputs = splitInputs(rest)
+
 	return nil
 }
 
@@ -71,12 +80,16 @@ func applyKeywordArg(raw *RawArgs, rest []string) *ParseError {
 	if perr != nil {
 		return perr
 	}
+
 	if !isKw {
 		raw.Inputs = splitInputs(rest)
+
 		return nil
 	}
+
 	raw.Keyword = kw
 	raw.KeywordTail = tail
+
 	return nil
 }
 
@@ -87,18 +100,23 @@ func validateAll(raw *RawArgs) *ParseError {
 	if perr := requireSourceAndInputs(raw.Source, raw.Inputs, raw.Keyword); perr != nil {
 		return perr
 	}
+
 	if perr := rejectMixedKeyword(raw.Keyword, raw.Inputs); perr != nil {
 		return perr
 	}
+
 	if perr := validateAuthorPair(raw.AuthorName, raw.AuthorEmail); perr != nil {
 		return perr
 	}
+
 	if perr := validateConflictMode(raw.ConflictMode); perr != nil {
 		return perr
 	}
+
 	if perr := validateFunctionIntelToggle(raw.FunctionIntel); perr != nil {
 		return perr
 	}
+
 	return validateLanguages(raw.Languages)
 }
 
@@ -114,6 +132,7 @@ func reorder(args []string) []string {
 	out := make([]string, 0, len(args))
 	out = append(out, flags...)
 	out = append(out, positional...)
+
 	return out
 }
 
@@ -130,12 +149,14 @@ func splitFlagsAndPositional(args []string) ([]string, []string) {
 			positional = append(positional, tok)
 			continue
 		}
+
 		flags = append(flags, tok)
 		if needsValue(tok, bools) && i+1 < len(args) {
 			flags = append(flags, args[i+1])
 			i++
 		}
 	}
+
 	return flags, positional
 }
 
@@ -147,11 +168,13 @@ func isTailKeywordToken(tok string) bool {
 	if len(tok) < 2 || tok[0] != '-' {
 		return false
 	}
+
 	for i := 1; i < len(tok); i++ {
 		if tok[i] < '0' || tok[i] > '9' {
 			return false
 		}
 	}
+
 	return true
 }
 
@@ -162,6 +185,8 @@ func needsValue(tok string, bools map[string]bool) bool {
 	if strings.Contains(tok, "=") {
 		return false
 	}
+
 	name := strings.TrimLeft(tok, "-")
+
 	return !bools[name]
 }

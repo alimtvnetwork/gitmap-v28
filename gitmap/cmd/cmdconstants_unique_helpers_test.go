@@ -62,6 +62,7 @@ func collectTopLevelCmdConstants(
 		if !ok || gen.Tok != token.CONST {
 			continue
 		}
+
 		if !commentGroupHas(gen.Doc, uniqMarkerTopLevel) {
 			continue
 		}
@@ -82,6 +83,7 @@ func appendBlockOccurrences(
 		if !ok {
 			continue
 		}
+
 		if commentGroupHas(vs.Comment, uniqMarkerSkip) || commentGroupHas(vs.Doc, uniqMarkerSkip) {
 			continue
 		}
@@ -126,6 +128,7 @@ func commentGroupHas(cg *ast.CommentGroup, needle string) bool {
 	if cg == nil {
 		return false
 	}
+
 	for _, c := range cg.List {
 		if strings.Contains(c.Text, needle) {
 			return true
@@ -144,6 +147,7 @@ func reportDuplicateValues(t *testing.T, byValue map[string][]cmdConstantOccurre
 	for v := range byValue {
 		values = append(values, v)
 	}
+
 	sort.Strings(values)
 
 	hasDup := false
@@ -173,6 +177,7 @@ func hasDistinctNames(occ []cmdConstantOccurrence) bool {
 	if len(occ) < 2 {
 		return false
 	}
+
 	first := occ[0].Name
 	for _, o := range occ[1:] {
 		if o.Name != first {

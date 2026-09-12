@@ -26,9 +26,11 @@ func runAgyAdd(args []string) error {
 	if !hasEnoughArgs(args, 2) {
 		return apperror.NewSimple("requires id and name", "E9000")
 	}
+
 	if err := createProjectFile(args[0], args[1]); err != nil {
 		return apperror.WrapSimple(err, "create")
 	}
+
 	return nil
 }
 
@@ -41,9 +43,11 @@ func createProjectFile(projectID, projectName string) error {
 	if pathErr != nil {
 		return apperror.WrapSimple(pathErr, "path error")
 	}
+
 	if !ensureDirExists(projectsPath) {
 		return fmt.Errorf("failed to create projects dir")
 	}
+
 	return writeAgyProjectJson(projectsPath, projectID, projectName)
 }
 
@@ -51,6 +55,7 @@ func writeAgyProjectJson(projectsPath, projectID, projectName string) error {
 	filePath := filepath.Join(projectsPath, projectID+".json")
 	currentTime := time.Now().Format(time.RFC3339Nano)
 	content := fmt.Sprintf(`{"id":"%s","name":"%s","updatedAt":"%s"}`, projectID, projectName, currentTime)
+
 	return os.WriteFile(filePath, []byte(content), 0644)
 }
 
@@ -67,9 +72,11 @@ func runAgyRm(args []string) error {
 	if !hasEnoughArgs(args, 1) {
 		return apperror.NewSimple("requires id", "E9000")
 	}
+
 	if err := deleteProjectFile(args[0]); err != nil {
 		return apperror.WrapSimple(err, "delete")
 	}
+
 	return nil
 }
 
@@ -78,7 +85,9 @@ func deleteProjectFile(projectID string) error {
 	if pathErr != nil {
 		return apperror.WrapSimple(pathErr, "path error")
 	}
+
 	filePath := filepath.Join(projectsPath, projectID+".json")
+
 	return os.Remove(filePath)
 }
 
@@ -94,9 +103,11 @@ func runAgyUpdate(args []string) error {
 	if !hasEnoughArgs(args, 1) {
 		return apperror.NewSimple("requires id", "E9000")
 	}
+
 	if err := updateProjectFile(args[0]); err != nil {
 		return apperror.WrapSimple(err, "update error")
 	}
+
 	return nil
 }
 
@@ -105,7 +116,9 @@ func updateProjectFile(projectID string) error {
 	if pathErr != nil {
 		return apperror.WrapSimple(pathErr, "path error")
 	}
+
 	filePath := filepath.Join(projectsPath, projectID+".json")
+
 	return modifyProjectFile(filePath)
 }
 
@@ -114,6 +127,7 @@ func modifyProjectFile(filePath string) error {
 	if readErr != nil {
 		return apperror.WrapSimple(readErr, "read error")
 	}
+
 	return rewriteProjectFile(filePath, fileBytes)
 }
 
@@ -123,7 +137,9 @@ func rewriteProjectFile(filePath string, fileBytes []byte) error {
 	if unmarshalErr != nil {
 		return unmarshalErr
 	}
+
 	projectMap["updatedAt"] = time.Now().Format(time.RFC3339Nano)
+
 	return saveProjectFile(filePath, projectMap)
 }
 
@@ -132,5 +148,6 @@ func saveProjectFile(filePath string, projectMap map[string]interface{}) error {
 	if marshalErr != nil {
 		return marshalErr
 	}
+
 	return os.WriteFile(filePath, newBytes, 0644)
 }

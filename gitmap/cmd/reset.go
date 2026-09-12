@@ -38,6 +38,7 @@ func printResetNoConfirm(isRescan bool) {
 	if isRescan {
 		cmd += " --rescan"
 	}
+
 	fmt.Println()
 	fmt.Printf("  %s⚠ Warning:%s This will permanently delete the database file and rebuild it from scratch.\n", constants.ColorYellow, constants.ColorReset)
 	fmt.Printf("  Run with %s--confirm%s to proceed:\n\n", constants.ColorCyan, constants.ColorReset)
@@ -77,6 +78,7 @@ func executeReset() {
 	if err != nil {
 		cliexit.HandleError(err, 1)
 	}
+
 	defer db.Close()
 
 	reseedFromJSON(db)
@@ -94,6 +96,7 @@ func removeActiveDbFile() error {
 
 		return nil
 	}
+
 	if errors.Is(err, os.ErrNotExist) {
 		return nil
 	}

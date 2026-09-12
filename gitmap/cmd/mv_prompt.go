@@ -21,6 +21,8 @@ func confirmMovePrompt(slug, src, dest string) bool {
 	if err != nil {
 		return false
 	}
+
 	ans := strings.ToLower(strings.TrimSpace(line))
+
 	return ans == "y" || ans == "yes"
 }

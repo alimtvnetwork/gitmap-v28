@@ -27,9 +27,12 @@ func runZipGroupCreate(args []string) error {
 			nil,
 		)
 		cliexit.HandleError(err, 1)
+
 		return nil
 	}
+
 	executeZipGroupCreate(name, archiveName, paths)
+
 	return nil
 }
 
@@ -43,6 +46,7 @@ func parseZipGroupCreateFlags(args []string) (name, archive string, paths []stri
 	if len(remaining) > 0 {
 		name = remaining[0]
 	}
+
 	if len(remaining) > 1 {
 		paths = remaining[1:]
 	}
@@ -65,8 +69,10 @@ func executeZipGroupCreate(name, archiveName string, paths []string) {
 			nil,
 		)
 		cliexit.HandleError(appErr, 1)
+
 		return
 	}
+
 	defer db.Close()
 
 	_, err = db.CreateZipGroup(name, archiveName)
@@ -82,6 +88,7 @@ func executeZipGroupCreate(name, archiveName string, paths []string) {
 			map[string]any{"name": name},
 		)
 		cliexit.HandleError(appErr, 1)
+
 		return
 	}
 
@@ -102,6 +109,7 @@ func executeZipGroupCreate(name, archiveName string, paths []string) {
 	if countErr != nil {
 		fmt.Fprintf(os.Stderr, "  ⚠ Could not count zip group items: %v\n", countErr)
 	}
+
 	fmt.Printf(constants.MsgZGCreatedPath, name, fmt.Sprintf("%d", count), "item(s)")
 	printHints(zipGroupCreateHints())
 	syncZipGroupJSON(db)
@@ -120,6 +128,7 @@ func runZipGroupAdd(args []string) error {
 			nil,
 		)
 		cliexit.HandleError(err, 1)
+
 		return nil
 	}
 
@@ -139,8 +148,10 @@ func runZipGroupAdd(args []string) error {
 			nil,
 		)
 		cliexit.HandleError(appErr, 1)
+
 		return nil
 	}
+
 	defer db.Close()
 
 	for _, p := range paths {
@@ -148,6 +159,7 @@ func runZipGroupAdd(args []string) error {
 	}
 
 	syncZipGroupJSON(db)
+
 	return nil
 }
 

@@ -27,6 +27,7 @@ func executeWorkDirAdd(absPath, label string) error {
 	if errDB != nil {
 		return errDB
 	}
+
 	defer db.Close()
 
 	if existing, errFind := db.GetWorkDirByPath(absPath); errFind == nil && existing != nil {
@@ -68,6 +69,7 @@ func runWorkDirRm(target string) error {
 	if errDB != nil {
 		return errDB
 	}
+
 	defer db.Close()
 
 	if err := deleteWorkDirByPathOrTarget(db, absPath, target); err != nil {

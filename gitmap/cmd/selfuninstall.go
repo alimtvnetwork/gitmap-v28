@@ -34,13 +34,18 @@ func runSelfUninstall(args []string) error {
 	opts := parseSelfUninstallFlags(args)
 	if !opts.Confirm && !confirmSelfUninstall(opts) {
 		fmt.Fprint(os.Stderr, constants.ErrSelfUninstallNoConfirm)
+
 		return apperror.NewSimple("fatal error", "E9000")
 	}
+
 	if isSelfUninstallHandoffNeeded() {
 		handoffSelfUninstall(opts, args)
+
 		return nil
 	}
+
 	executeSelfUninstall(opts)
+
 	return nil
 }
 
@@ -94,6 +99,7 @@ func printSelfUninstallTargets(opts selfUninstallOpts) {
 	for _, p := range resolveProfilesForShellMode(opts.ShellMode) {
 		fmt.Printf(constants.MsgSelfUninstallTargetSnippet, p)
 	}
+
 	fmt.Printf(constants.MsgSelfUninstallTargetCompl, selfDeployDir())
 }
 
@@ -106,11 +112,13 @@ func executeSelfUninstall(opts selfUninstallOpts) {
 			removeProfileSnippet(p)
 		}
 	}
+
 	removeCompletionSourceLines()
 	removeCompletionFiles(selfDeployDir())
 	if !opts.KeepData {
 		removePathBestEffort(selfDataDir())
 	}
+
 	removeDeployArtifacts(selfDeployDir())
 	fmt.Print(constants.MsgSelfUninstallDone)
 }
@@ -122,10 +130,12 @@ func isSelfUninstallHandoffNeeded() bool {
 	if runtime.GOOS != "windows" {
 		return false
 	}
+
 	self, err := os.Executable()
 	if err != nil {
 		return false
 	}
+
 	deploy := selfDeployDir()
 	if len(deploy) == 0 {
 		return false
@@ -140,5 +150,6 @@ func runSelfUninstallRunner() error {
 	opts := parseSelfUninstallFlags(os.Args[2:])
 	executeSelfUninstall(opts)
 	scheduleSelfDelete()
+
 	return nil
 }

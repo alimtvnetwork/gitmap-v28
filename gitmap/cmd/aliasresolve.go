@@ -31,6 +31,7 @@ func extractAliasFlag(args []string) (string, []string) {
 		if hasAliasPrefix(arg, "-A=") {
 			return arg[3:], removeElements(args, i, 1)
 		}
+
 		if hasAliasPrefix(arg, "--alias=") {
 			return arg[8:], removeElements(args, i, 1)
 		}
@@ -74,6 +75,7 @@ func resolveAliasContext(aliasName string) *apperror.AppError {
 
 		return apperror.WrapSimple(err, fmt.Sprintf(constants.ErrListDBFailed, err))
 	}
+
 	defer db.Close()
 
 	return queryAndSetAliasContext(db, aliasName)

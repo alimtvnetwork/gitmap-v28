@@ -25,15 +25,18 @@ func TestEveryCmdIDHasHelpFile(t *testing.T) {
 	if err != nil {
 		t.Fatalf("parse constants_cli.go: %v", err)
 	}
+
 	if len(ids) == 0 {
 		t.Fatal("parsed zero Cmd* constants — locator broke?")
 	}
+
 	var missing []string
 	for _, id := range ids {
 		if _, lookupErr := ReadRaw(id.value); lookupErr != nil {
 			missing = append(missing, fmt.Sprintf("%s (constant %s = %q)", id.value+".md", id.name, id.value))
 		}
 	}
+
 	if len(missing) > 0 {
 		t.Fatalf("commands missing helptext/<id>.md (%d):\n  - %s\n\n"+
 			"Add the file or, if intentional (subcommand/internal/runner), append the constant name to helptextExemptConstants in helptext_coverage_test.go.",
@@ -56,6 +59,7 @@ func parsePrimaryCmdIDs() ([]cmdID, error) {
 	if err != nil {
 		return nil, err
 	}
+
 	var out []cmdID
 	for _, decl := range file.Decls {
 		out = append(out, collectFromDecl(decl)...)
@@ -70,12 +74,14 @@ func collectFromDecl(decl ast.Decl) []cmdID {
 	if !ok || gen.Tok != token.CONST {
 		return nil
 	}
+
 	var out []cmdID
 	for _, spec := range gen.Specs {
 		valSpec, ok2 := spec.(*ast.ValueSpec)
 		if !ok2 {
 			continue
 		}
+
 		out = append(out, extractFromSpec(valSpec)...)
 	}
 
@@ -89,10 +95,12 @@ func extractFromSpec(spec *ast.ValueSpec) []cmdID {
 		if !strings.HasPrefix(name.Name, "Cmd") || i >= len(spec.Values) {
 			continue
 		}
+
 		lit, ok := spec.Values[i].(*ast.BasicLit)
 		if !ok || lit.Kind != token.STRING {
 			continue
 		}
+
 		out = append(out, cmdID{name: name.Name, value: strings.Trim(lit.Value, `"`)})
 	}
 
@@ -105,11 +113,13 @@ func filterPrimaries(in []cmdID) []cmdID {
 	for _, n := range helptextExemptConstants {
 		exempt[n] = struct{}{}
 	}
+
 	out := make([]cmdID, 0, len(in))
 	for _, id := range in {
 		if isAliasName(id.name) || isExempt(id.name, exempt) {
 			continue
 		}
+
 		out = append(out, id)
 	}
 

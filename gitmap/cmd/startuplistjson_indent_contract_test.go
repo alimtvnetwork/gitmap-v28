@@ -35,12 +35,14 @@ func TestStartupListJSONIndent_KeyOrderStableAcrossIndents(t *testing.T) {
 		{Name: "gitmap-a", Path: "/p/a", Exec: "/bin/a"},
 		{Name: "gitmap-b", Path: "/p/b", Exec: "/bin/b"},
 	}
+
 	wantKeys := []string{"name", "path", "exec"}
 	for _, indent := range []int{0, 1, 2, 4, 8} {
 		var buf bytes.Buffer
 		if err := encodeStartupListJSONIndent(&buf, entries, indent); err != nil {
 			t.Fatalf("indent=%d: encode: %v", indent, err)
 		}
+
 		assertJSONArrayKeyOrder(t, indent, buf.Bytes(), wantKeys, len(entries))
 	}
 }
@@ -61,23 +63,28 @@ func assertJSONArrayKeyOrder(
 	if _, err := dec.Token(); err != nil { // opening `[`
 		t.Fatalf("indent=%d: open array: %v", indent, err)
 	}
+
 	for objIdx := 0; objIdx < wantObjects; objIdx++ {
 		if _, err := dec.Token(); err != nil { // opening `{`
 			t.Fatalf("indent=%d obj %d: open: %v", indent, objIdx, err)
 		}
+
 		for keyIdx, wantKey := range want {
 			tok, err := dec.Token()
 			if err != nil {
 				t.Fatalf("indent=%d obj %d key %d: %v", indent, objIdx, keyIdx, err)
 			}
+
 			if tok != wantKey {
 				t.Fatalf("indent=%d obj %d key %d: want %q got %v",
 					indent, objIdx, keyIdx, wantKey, tok)
 			}
+
 			if _, err := dec.Token(); err != nil { // value
 				t.Fatalf("indent=%d obj %d val %d: %v", indent, objIdx, keyIdx, err)
 			}
 		}
+
 		if _, err := dec.Token(); err != nil { // closing `}`
 			t.Fatalf("indent=%d obj %d: close: %v", indent, objIdx, err)
 		}
@@ -93,10 +100,12 @@ func TestStartupListJSONIndent_MinifiedByteExact(t *testing.T) {
 		{Name: "gitmap-a", Path: "/p/a", Exec: "/bin/a"},
 		{Name: "gitmap-b", Path: "/p/b", Exec: ""},
 	}
+
 	var buf bytes.Buffer
 	if err := encodeStartupListJSONIndent(&buf, entries, 0); err != nil {
 		t.Fatalf("encode: %v", err)
 	}
+
 	want := `[{"name":"gitmap-a","path":"/p/a","exec":"/bin/a"},` +
 		`{"name":"gitmap-b","path":"/p/b","exec":""}]` + "\n"
 
@@ -115,13 +124,16 @@ func TestStartupListJSONIndent_DefaultMatchesLegacy(t *testing.T) {
 		{Name: "gitmap-a", Path: "/p/a", Exec: "/bin/a"},
 		{Name: "gitmap-b", Path: "/p/b", Exec: "/bin/b --flag"},
 	}
+
 	var legacyBuf, indentBuf bytes.Buffer
 	if err := encodeStartupListJSON(&legacyBuf, entries); err != nil {
 		t.Fatalf("legacy: %v", err)
 	}
+
 	if err := encodeStartupListJSONIndent(&indentBuf, entries, 2); err != nil {
 		t.Fatalf("indent=2: %v", err)
 	}
+
 	if !bytes.Equal(legacyBuf.Bytes(), indentBuf.Bytes()) {
 		t.Fatalf("default-indent drift\n--- legacy\n%s--- indent=2\n%s",
 			legacyBuf.String(), indentBuf.String())
@@ -138,6 +150,7 @@ func TestStartupListJSONIndent_EmptyAlwaysBracketsNewline(t *testing.T) {
 		if err := encodeStartupListJSONIndent(&buf, nil, indent); err != nil {
 			t.Fatalf("indent=%d: %v", indent, err)
 		}
+
 		if got := buf.String(); got != "[]\n" {
 			t.Fatalf("indent=%d empty: want %q got %q",
 				indent, "[]\n", got)
@@ -153,11 +166,13 @@ func TestStartupListJSONIndent_IndentWidthIsCountedSpaces(t *testing.T) {
 	entries := []startup.Entry{
 		{Name: "gitmap-a", Path: "/p/a", Exec: "/bin/a"},
 	}
+
 	for _, indent := range []int{1, 2, 4, 8} {
 		var buf bytes.Buffer
 		if err := encodeStartupListJSONIndent(&buf, entries, indent); err != nil {
 			t.Fatalf("indent=%d: %v", indent, err)
 		}
+
 		// Per writeObject contract: outer brace at 1×indent, key
 		// lines at 2×indent. Look for the key line specifically.
 		wantPrefix := "\n" + strings.Repeat(" ", indent*2) + `"name"`
@@ -184,6 +199,7 @@ func TestStartupListJSONIndent_FlagParsing(t *testing.T) {
 		{"negative", []string{"--json-indent=-1"}, true},
 		{"too_large", []string{"--json-indent=9"}, true},
 	}
+
 	for _, tc := range cases {
 		t.Run(tc.name, func(t *testing.T) {
 			_, err := parseStartupListFlags(tc.args)

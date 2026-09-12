@@ -40,6 +40,7 @@ func ExecuteWithHooks(plan Plan, cwd string, progress io.Writer,
 		if beforeRow != nil {
 			invokeBeforeRowHook(beforeRow, i, total, r)
 		}
+
 		res := executeRow(r, cwd)
 		out = append(out, res)
 		writeProgress(progress, i+1, total, res)
@@ -53,5 +54,6 @@ func invokeBeforeRowHook(hook BeforeRowHook, i, total int, r Row) {
 	if len(dest) == 0 {
 		dest = DeriveDest(r.URL)
 	}
+
 	hook(i+1, total, r, dest)
 }

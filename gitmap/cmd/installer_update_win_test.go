@@ -18,11 +18,13 @@ func setupInstallerUpdateWinTestDB(t *testing.T) *store.DB {
 	if err != nil {
 		t.Fatalf("failed to open test database: %v", err)
 	}
+
 	t.Cleanup(func() { db.Close() })
 
 	if errMigrate := db.MigrateInstallers(); errMigrate != nil {
 		t.Fatalf("failed to migrate installers: %v", errMigrate)
 	}
+
 	return db
 }
 
@@ -35,6 +37,7 @@ func TestInstallerUpdateWinCmd(t *testing.T) {
 	if err != nil {
 		t.Fatalf("unexpected error parsing flags: %v", err)
 	}
+
 	if flags.Slug != "my-app" || flags.Version != "v2.0.0" {
 		t.Errorf("unexpected parsed values: %+v", flags)
 	}
@@ -53,6 +56,7 @@ func TestInstallerUpdateWinCmd(t *testing.T) {
 		TargetOS: "ubuntu",
 		Version:  "v1.0.0",
 	}
+
 	if errCreate := db.CreateInstaller(script); errCreate != nil {
 		t.Fatalf("failed to seed installer: %v", errCreate)
 	}
@@ -68,6 +72,7 @@ func TestInstallerUpdateWinCmd(t *testing.T) {
 	if errNotFound == nil {
 		t.Fatal("expected not found error")
 	}
+
 	appErr, ok := errNotFound.(*apperror.AppError)
 	if !ok || appErr.Code != "E_INSTALLER_NOT_FOUND" {
 		t.Errorf("expected E_INSTALLER_NOT_FOUND code, got: %v", errNotFound)

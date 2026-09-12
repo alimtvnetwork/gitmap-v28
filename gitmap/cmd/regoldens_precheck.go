@@ -43,7 +43,9 @@ func runDeterminismPrecheck(cfg regoldensFlags) error {
 	if precheckFoundNonDeterminism(captured) {
 		return apperror.NewSimple(constants.ErrRegoldensPrecheckFailed, "E9000")
 	}
+
 	fmt.Fprint(os.Stderr, constants.MsgRegoldensPrecheckPass)
+
 	return nil
 }
 
@@ -58,6 +60,7 @@ func runPrecheckGoTest(cfg regoldensFlags) []byte {
 	cmd.Stderr = io.MultiWriter(os.Stderr, &buf)
 	cmd.Env = buildPrecheckEnv()
 	_ = cmd.Run() // exit code is intentionally ignored; we read the buffer
+
 	return buf.Bytes()
 }
 
@@ -66,6 +69,7 @@ func runPrecheckGoTest(cfg regoldensFlags) []byte {
 // gate-strip done by buildPassEnv for safety against leaked exports.
 func buildPrecheckEnv() []string {
 	out := stripGoldenGateVars(os.Environ())
+
 	return append(out,
 		goTestUpdateTriggerEnv+"="+goTestUpdateEnvValue,
 	)

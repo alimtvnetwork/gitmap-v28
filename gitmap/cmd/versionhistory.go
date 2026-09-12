@@ -32,6 +32,7 @@ func runVersionHistory(args []string) error {
 			nil,
 		)
 		cliexit.HandleError(appErr, 1)
+
 		return nil
 	}
 
@@ -45,6 +46,7 @@ func runVersionHistory(args []string) error {
 	}
 
 	printVersionHistoryTerminal(records, absPath)
+
 	return nil
 }
 
@@ -86,14 +88,17 @@ func loadVersionHistory(absPath string, limit int) []model.RepoVersionHistoryRec
 			nil,
 		)
 		cliexit.HandleError(appErr, 1)
+
 		return nil
 	}
+
 	defer db.Close()
 
 	repoID, findErr := db.GetRepoIDByPath(absPath)
 	if findErr != nil {
 		fmt.Print(constants.MsgVersionHistoryEmpty)
 		cliexit.HandleError(nil, 0)
+
 		return nil
 	}
 
@@ -110,6 +115,7 @@ func loadVersionHistory(absPath string, limit int) []model.RepoVersionHistoryRec
 			map[string]any{"repoID": repoID},
 		)
 		cliexit.HandleError(appErr, 1)
+
 		return nil
 	}
 
@@ -134,6 +140,7 @@ func printVersionHistoryTerminal(records []model.RepoVersionHistoryRecord, absPa
 		fmt.Printf(constants.MsgVersionHistoryRowFmt,
 			r.FromVersionTag, r.ToVersionTag, r.FlattenedPath, r.CreatedAt)
 	}
+
 	fmt.Printf(constants.MsgVersionHistoryCount, len(records))
 }
 

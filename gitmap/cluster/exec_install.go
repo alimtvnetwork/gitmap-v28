@@ -22,16 +22,19 @@ func detectPackageManager(ctx context.Context) (string, error) {
 	if isWindows {
 		return detectWindowsPackageManager(ctx)
 	}
+
 	return detectUnixPackageManager(ctx)
 }
 
 func detectWindowsPackageManager(ctx context.Context) (string, error) {
 	managers := []string{constants.PkgMgrWinget, constants.PkgMgrChocolatey}
+
 	return checkManagers(ctx, managers)
 }
 
 func detectUnixPackageManager(ctx context.Context) (string, error) {
 	managers := []string{constants.PkgMgrBrew, constants.PkgMgrApt}
+
 	return checkManagers(ctx, managers)
 }
 
@@ -44,6 +47,7 @@ func checkManagers(ctx context.Context, managers []string) (string, error) {
 			return mgr, nil
 		}
 	}
+
 	return "", errors.New(constants.ErrNoPackageManager)
 }
 
@@ -89,6 +93,7 @@ func ExecInstall(
 			Succeeded:   succeeded,
 			Stderr:      stderr,
 		}
+
 		results = append(results, res)
 	}
 

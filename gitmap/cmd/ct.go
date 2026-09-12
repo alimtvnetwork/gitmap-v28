@@ -17,9 +17,11 @@ func runCT(args []string) error {
 	switch opts.Action {
 	case "status", "prompts-status":
 		runPromptStatus(opts.Targets)
+
 		return nil
 	case "version", "prompts-version":
 		runPromptVersion(opts.Targets)
+
 		return nil
 	}
 
@@ -28,6 +30,7 @@ func runCT(args []string) error {
 	targetDirs = FilterPromptExclusions(targetDirs, opts.Exclude)
 	if len(targetDirs) == 0 {
 		fmt.Println("No target repositories found to install Prompt Architect.")
+
 		return nil
 	}
 
@@ -48,6 +51,7 @@ func runCT(args []string) error {
 
 	RenderPromptInstallSummary(results)
 	ReportPromptFailures(results)
+
 	return nil
 }
 
@@ -56,11 +60,15 @@ func resolveCTTargetDirs(opts promptInstallOptions) []string {
 	if len(opts.Targets) > 0 {
 		return resolvePromptTargetsList(opts.Targets)
 	}
+
 	if opts.IsAll {
 		resolved, _ := ResolveAllWorkDirPromptTargets()
+
 		return resolved
 	}
+
 	resolved, _ := ResolvePromptTarget("")
+
 	return resolved
 }
 
@@ -73,5 +81,6 @@ func resolvePromptTargetsList(targets []string) []string {
 			targetDirs = append(targetDirs, resolved...)
 		}
 	}
+
 	return targetDirs
 }

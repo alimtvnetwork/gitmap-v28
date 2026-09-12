@@ -262,6 +262,7 @@ try {
 } catch {
     Write-Host "  [WARN] Could not refresh run.ps1: $_" -ForegroundColor Yellow
 }
+
 `
 	// UpdatePSDeployDetect format args (in order):
 	//   %[1]s — repo path           (e.g. C:\dev\gitmap-v28)
@@ -289,6 +290,7 @@ if ($activeCmdForDeploy -and (Test-Path $activeCmdForDeploy.Source)) {
     } else {
         $effectiveDeployTarget = Split-Path $resolvedActiveDir -Parent
     }
+
     if ($effectiveDeployTarget) {
         $deployedBinary = Join-Path $effectiveDeployTarget "%[3]s\%[4]s"
     }
@@ -297,6 +299,7 @@ if ($activeCmdForDeploy -and (Test-Path $activeCmdForDeploy.Source)) {
 if ((-not $deployedBinary) -and $configDeployedBinary) {
     $deployedBinary = $configDeployedBinary
 }
+
 `
 	UpdatePSVersionBefore = `
 $activeBinary = $null
@@ -306,6 +309,7 @@ if ($cmdBefore -and (Test-Path $cmdBefore.Source)) {
     $activeBinary = $cmdBefore.Source
     $activeBefore = & $activeBinary version 2>&1
 }
+
 `
 	UpdatePSRunUpdate = `
 Write-Host ""
@@ -315,6 +319,7 @@ $runExit = $LASTEXITCODE
 if (($runExit -ne 0) -and ($runExit -ne $null)) {
     exit $runExit
 }
+
 `
 	UpdatePSSync = `
 # Auto-sync deployed binary to active PATH binary if they differ.
@@ -371,6 +376,7 @@ if ($activeBinary -and $deployedBinary -and (Test-Path $deployedBinary)) {
                         Write-Host "    Stopped PID $($proc.ProcessId)" -ForegroundColor DarkGray
                     } catch {}
                 }
+
                 if ($stale) { Start-Sleep -Milliseconds 500 }
                 try {
                     Copy-Item -Path $resolvedDeployed -Destination $resolvedActive -Force
@@ -387,6 +393,7 @@ if ($activeBinary -and $deployedBinary -and (Test-Path $deployedBinary)) {
         }
     }
 }
+
 `
 	UpdatePSVersionAfter = `
 $activeAfter = "unknown"
@@ -398,6 +405,7 @@ if ($cmdAfter -and (Test-Path $cmdAfter.Source)) {
 } else {
     Write-Host "  [TRACE] Get-Command gitmap: not found in PATH" -ForegroundColor DarkGray
 }
+
 if ($deployedBinary -and (Test-Path $deployedBinary)) {
     $deployedAfter = & $deployedBinary version 2>&1
 } else {
@@ -407,6 +415,7 @@ if ($deployedBinary -and (Test-Path $deployedBinary)) {
         Write-Host "  [TRACE] deployedBinary: path not found: $deployedBinary" -ForegroundColor DarkGray
     }
 }
+
 `
 	UpdatePSVerify = `
 Write-Host ""
@@ -434,6 +443,7 @@ if ($activeAfter -ne "unknown" -and $deployedAfter -eq "unknown") {
         Write-Host "  [HINT] Check that powershell.json 'deployPath' points to the correct directory" -ForegroundColor Yellow
         Write-Host "         and that the binary exists at: $deployedBinary" -ForegroundColor Yellow
     }
+
     Write-Host "  [OK] Active PATH binary updated successfully: $activeAfter" -ForegroundColor Green
 } elseif (($activeAfter -eq "unknown") -or ($activeAfter -ne $deployedAfter)) {
     Write-Host ""
@@ -444,10 +454,12 @@ if ($activeAfter -ne "unknown" -and $deployedAfter -eq "unknown") {
     } elseif ($configDeployedBinary -and $deployedBinary -and ($configDeployedBinary -ne $deployedBinary)) {
         Write-Host "  [HINT] powershell.json still references a different deploy location than the active PATH binary." -ForegroundColor Yellow
     }
+
     exit 1
 } else {
     Write-Host "  [OK] Active PATH binary matches deployed version." -ForegroundColor Green
 }
+
 `
 	UpdatePSPostActions = `
 if ($activeBinary -and (Test-Path $activeBinary)) {
@@ -490,6 +502,7 @@ $runExit = $LASTEXITCODE
 if (($runExit -ne 0) -and ($runExit -ne $null)) {
     exit $runExit
 }
+
 `
 	RevertPSPostActions = `
 $cmdAfter = Get-Command gitmap -ErrorAction SilentlyContinue | Select-Object -First 1

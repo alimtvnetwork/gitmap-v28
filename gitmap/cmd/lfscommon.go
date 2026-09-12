@@ -57,11 +57,13 @@ func runLFSCommon(args []string) error {
 	if !insideGitRepo() {
 		fmt.Fprintln(os.Stderr, "  ✗ Not inside a Git repository.")
 		fmt.Fprintln(os.Stderr, "    Run this command from the root of a repo (where .git/ lives).")
+
 		return apperror.NewSimple("fatal error", "E9000")
 	}
 
 	if !lfsAvailable() {
 		fmt.Fprintln(os.Stderr, "  ✗ Git LFS is not installed or not on PATH.")
+
 		return apperror.NewSimple("    Install it from https://git-lfs.com and re-run.", "E9000")
 	}
 
@@ -79,6 +81,7 @@ func runLFSCommon(args []string) error {
 
 	added, existing, failed := trackLFSPatterns(lfsCommonPatterns)
 	printLFSCommonSummary(added, existing, failed)
+
 	return nil
 }
 
@@ -88,6 +91,7 @@ func parseLFSCommonFlags(args []string) lfsCommonFlags {
 	dryRun := fs.Bool("dry-run", false, constants.FlagDescDryRun)
 	if err := fs.Parse(args); err != nil {
 		var empty lfsCommonFlags
+
 		return empty
 	}
 
@@ -189,6 +193,7 @@ func loadTrackedPatterns() map[string]bool {
 		if line == "" || strings.HasPrefix(line, "#") {
 			continue
 		}
+
 		if !strings.Contains(line, "filter=lfs") {
 			continue
 		}
@@ -213,6 +218,7 @@ func printLFSCommonBanner(dryRun bool) {
 		fmt.Printf("  %s[dry-run]%s no files will be modified\n",
 			constants.ColorYellow, constants.ColorReset)
 	}
+
 	fmt.Println()
 }
 
@@ -226,8 +232,10 @@ func printLFSCommonDryRun() {
 			status = "already tracked"
 			color = constants.ColorDim
 		}
+
 		fmt.Printf("  %s%-15s%s %s\n", color, status, constants.ColorReset, p)
 	}
+
 	fmt.Println()
 }
 
@@ -236,9 +244,11 @@ func printLFSCommonSummary(added, existing []string, failed []lfsTrackFailure) {
 	for _, p := range added {
 		fmt.Printf("  %s+ added%s          %s\n", constants.ColorGreen, constants.ColorReset, p)
 	}
+
 	for _, p := range existing {
 		fmt.Printf("  %s· already tracked%s %s\n", constants.ColorDim, constants.ColorReset, p)
 	}
+
 	for _, f := range failed {
 		fmt.Printf("  %s✗ failed%s         %s — %v\n",
 			constants.ColorYellow, constants.ColorReset, f.Pattern, f.Err)
@@ -256,5 +266,6 @@ func printLFSCommonSummary(added, existing []string, failed []lfsTrackFailure) {
 		fmt.Println("    git add .gitattributes")
 		fmt.Println("    git commit -m \"chore: track common binary types with Git LFS\"")
 	}
+
 	fmt.Println()
 }

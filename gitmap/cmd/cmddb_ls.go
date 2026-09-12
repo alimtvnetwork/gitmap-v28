@@ -18,6 +18,7 @@ func runDBLs(args []string) error {
 	printSplitDBSection(splitDBs)
 	printProfileDBSection(profileDBs)
 	printDBSummary(mainInfo, splitDBs, profileDBs)
+
 	return nil
 }
 
@@ -37,6 +38,7 @@ func printMainDBSection(m DBFileInfo, exists bool) {
 	} else {
 		fmt.Printf("    %-13s %s(not yet initialized - run 'gitmap scan')%s\n", "Size:", constants.ColorYellow, constants.ColorReset)
 	}
+
 	printPurposeWrapped("Purpose:", m.Purpose)
 	fmt.Println()
 }
@@ -52,6 +54,7 @@ func printSplitDBSection(splitDBs []DBFileInfo) {
 	if len(dirs) > 0 {
 		dirStr = dirs[0]
 	}
+
 	fmt.Printf("    %-13s %s\n", "Directory:", dirStr)
 	fmt.Printf("    %-13s %s%d split database(s)%s\n", "Total:", constants.ColorWhite, len(splitDBs), constants.ColorReset)
 	if len(splitDBs) == 0 {
@@ -59,6 +62,7 @@ func printSplitDBSection(splitDBs []DBFileInfo) {
 	} else {
 		printSplitDBRows(splitDBs)
 	}
+
 	printSplitDBWhy()
 	fmt.Println()
 }
@@ -72,6 +76,7 @@ func printSplitDBRows(splitDBs []DBFileInfo) {
 		if s.RepoID > 0 {
 			idStr = fmt.Sprintf("%d", s.RepoID)
 		}
+
 		slug := truncateStr(s.RepoSlug, 27)
 		fmt.Printf("    %-8s %-28s %-26s %-10s\n", idStr, slug, truncateStr(s.Name, 25), formatBytes(s.Size))
 	}
@@ -81,6 +86,7 @@ func truncateStr(s string, maxLen int) string {
 	if len(s) > maxLen {
 		return s[:maxLen-3] + "..."
 	}
+
 	return s
 }
 
@@ -96,10 +102,12 @@ func printProfileDBSection(profiles []DBFileInfo) {
 	if len(profiles) == 0 {
 		return
 	}
+
 	fmt.Println("  " + constants.ColorCyan + "● Profile Databases:" + constants.ColorReset)
 	for _, p := range profiles {
 		fmt.Printf("    %-13s %s (%s) - %s\n", p.Name, p.Path, formatBytes(p.Size), p.Purpose)
 	}
+
 	fmt.Println()
 }
 
@@ -109,9 +117,11 @@ func printDBSummary(main DBFileInfo, splitDBs, profileDBs []DBFileInfo) {
 	for _, s := range splitDBs {
 		totalBytes += s.Size
 	}
+
 	for _, p := range profileDBs {
 		totalBytes += p.Size
 	}
+
 	fmt.Println("  " + strings.Repeat("─", 78))
 	fmt.Printf("  Total: %s%d database file(s)%s, combined size: %s%s%s on disk\n\n",
 		constants.ColorWhite, totalCount, constants.ColorReset,

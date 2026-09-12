@@ -25,17 +25,21 @@ func LoadFromDisk(workspaceRoot, name string) (*Profile, error) {
 	if errors.Is(err, os.ErrNotExist) {
 		return nil, &LoadError{Path: path, Reason: "not found", Cause: err}
 	}
+
 	if err != nil {
 		return nil, &LoadError{Path: path, Reason: "read failed", Cause: err}
 	}
+
 	p, err := Decode(raw)
 	var le *LoadError
 	if errors.As(err, &le) {
 		le.Path = path
 	}
+
 	if err != nil {
 		return nil, err
 	}
+
 	return p, nil
 }
 
@@ -47,20 +51,25 @@ func SaveToDisk(workspaceRoot string, p *Profile, allowOverwrite bool) error {
 	if !allowOverwrite && fileAlreadyExists {
 		return fmt.Errorf("profile %q already exists", p.Name)
 	}
+
 	if err := os.MkdirAll(filepath.Dir(path), 0o755); err != nil {
 		return fmt.Errorf("mkdir profiles: %w", err)
 	}
+
 	out, err := Encode(p)
 	if err != nil {
 		return err
 	}
+
 	tmp := path + ".tmp"
 	if err := os.WriteFile(tmp, out, 0o644); err != nil {
 		return fmt.Errorf("write tmp: %w", err)
 	}
+
 	if err := os.Rename(tmp, path); err != nil {
 		return fmt.Errorf("rename: %w", err)
 	}
+
 	return nil
 }
 
@@ -72,11 +81,13 @@ func profileExists(path string) error {
 	if err == nil {
 		return fmt.Errorf("profile %q already exists", filepath.Base(path))
 	}
+
 	return nil
 }
 
 // isExistingFile returns true when path exists and is accessible.
 func isExistingFile(path string) bool {
 	_, err := os.Stat(path)
+
 	return err == nil
 }

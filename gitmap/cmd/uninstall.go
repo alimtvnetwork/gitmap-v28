@@ -65,6 +65,7 @@ func runUninstall(args []string) error {
 	if db != nil {
 		defer db.Close()
 	}
+
 	if db != nil && !db.IsToolInstalled(tool) && !force {
 		return apperror.NewSimple(constants.ErrUninstallNotFound, "E9000")
 	}
@@ -89,11 +90,13 @@ func runUninstall(args []string) error {
 	if db != nil {
 		errRemove = db.RemoveInstalledTool(tool)
 	}
+
 	if db != nil && errRemove != nil {
 		fmt.Fprintf(os.Stderr, constants.ErrUninstallDBRemove, tool, errRemove)
 	}
 
 	fmt.Printf(constants.MsgUninstallSuccess, tool)
+
 	return nil
 }
 
@@ -124,10 +127,12 @@ func hasPositionalToolArg(args []string) bool {
 			skipNext = false
 			continue
 		}
+
 		if isFlagToken(a) && (a == "--shell-mode" || a == "-shell-mode") {
 			skipNext = true
 			continue
 		}
+
 		if isFlagToken(a) {
 			continue
 		}
@@ -159,15 +164,19 @@ func buildUninstallCommand(manager, tool string, purge bool) []string {
 	if manager == constants.PkgMgrChocolatey {
 		return buildChocoUninstall(pkgName, purge)
 	}
+
 	if manager == constants.PkgMgrWinget {
 		return []string{"winget", "uninstall", pkgName}
 	}
+
 	if manager == constants.PkgMgrApt {
 		return buildAptUninstall(pkgName, purge)
 	}
+
 	if manager == constants.PkgMgrBrew {
 		return []string{"brew", "uninstall", pkgName}
 	}
+
 	if manager == constants.PkgMgrSnap {
 		return []string{"sudo", "snap", "remove", pkgName}
 	}

@@ -54,15 +54,18 @@ func assertGoldenBytesDeterministic(t *testing.T, name string, encode func() ([]
 	if err != nil {
 		t.Fatalf("%s: encode run 0: %v", name, err)
 	}
+
 	for i := 1; i < determinismRuns; i++ {
 		got, err := encode()
 		if err != nil {
 			t.Fatalf("%s: encode run %d: %v", name, i, err)
 		}
+
 		if !bytes.Equal(got, first) {
 			t.Fatalf("%s: determinism broken — run %d differs from run 0\n--- run 0 (%d bytes)\n%s--- run %d (%d bytes)\n%s",
 				name, i, len(first), string(first), i, len(got), string(got))
 		}
 	}
+
 	assertGoldenBytes(t, name, first)
 }

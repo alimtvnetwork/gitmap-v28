@@ -51,6 +51,7 @@ func (r *Resolver) Resolve(rel string, l, rgt FileMeta) (ChoiceType, error) {
 	if c, done := r.resolveSticky(); done {
 		return c, nil
 	}
+
 	if c, done := r.resolveByPolicy(l, rgt); done {
 		return c, nil
 	}
@@ -112,9 +113,11 @@ func (r *Resolver) parseKey(key string) ChoiceType {
 		return ChoiceRight
 	case keyAllLeft:
 		r.sticky, r.hasStk = ChoiceLeft, true
+
 		return ChoiceLeft
 	case keyAllRight:
 		r.sticky, r.hasStk = ChoiceRight, true
+
 		return ChoiceRight
 	case keyQuit:
 		return ChoiceQuit

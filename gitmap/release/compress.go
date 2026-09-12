@@ -77,6 +77,7 @@ func createZip(srcPath string) (string, error) {
 	if err != nil {
 		return "", fmt.Errorf("create zip: %w", err)
 	}
+
 	defer outFile.Close()
 
 	w := zip.NewWriter(outFile)
@@ -101,6 +102,7 @@ func addFileToZip(w *zip.Writer, srcPath string) error {
 	if err != nil {
 		return fmt.Errorf("open source: %w", err)
 	}
+
 	defer src.Close()
 
 	info, err := src.Stat()

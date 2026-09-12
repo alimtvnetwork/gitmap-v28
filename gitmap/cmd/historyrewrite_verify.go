@@ -24,6 +24,7 @@ func verifyHistoryRewrite(mode historyMode, sandbox string, paths []string) {
 			verifyPinPath(sandbox, p)
 		}
 	}
+
 	fmt.Fprint(os.Stderr, constants.HistoryMsgVerifyOk)
 }
 
@@ -49,8 +50,10 @@ func verifyPinPath(sandbox, path string) {
 		if !ok {
 			continue
 		}
+
 		uniq[hash] = true
 	}
+
 	if len(uniq) > 1 {
 		fmt.Fprintf(os.Stderr, constants.HistoryErrVerifyPin, path, len(uniq))
 		cliexit.HandleError(nil, constants.HistoryExitVerifyFailed)
@@ -70,6 +73,7 @@ func commitsTouchingPath(sandbox, path string) []string {
 			clean = append(clean, l)
 		}
 	}
+
 	return clean
 }
 
@@ -82,7 +86,9 @@ func hashPathAtCommit(sandbox, commit, path string) (string, bool) {
 	if err != nil {
 		return "", false
 	}
+
 	sum := sha256.Sum256(out)
+
 	return hex.EncodeToString(sum[:]), true
 }
 
@@ -94,5 +100,6 @@ func nonEmptyLineCount(s string) int {
 			n++
 		}
 	}
+
 	return n
 }

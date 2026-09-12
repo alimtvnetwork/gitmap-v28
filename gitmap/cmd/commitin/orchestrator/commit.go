@@ -28,21 +28,27 @@ func processOneCommit(
 	if !ok {
 		return
 	}
+
 	if handleDedupe(ctx, srcID, c, stdout) {
 		return
 	}
+
 	keptFiles := applyExclusions(c.Files, ctx.Resolved.Exclusions)
 	if len(c.Files) > 0 && len(keptFiles) == 0 {
 		recordSkip(ctx, srcID, constants.CommitInSkipReasonExcludedAllFiles, stdout, c.Sha)
+
 		return
 	}
+
 	c.Files = keptFiles
 	intelBlock := renderFunctionIntel(staged.WorkPath, c, keptFiles, ctx.Resolved.FunctionIntel)
 	finalMsg := buildMessage(ctx, c, intelBlock, pick)
 	if finalMsg.IsEmpty {
 		recordSkip(ctx, srcID, constants.CommitInSkipReasonEmptyAfterMessageRules, stdout, c.Sha)
+
 		return
 	}
+
 	doReplayAndRecord(ctx, staged, c, finalMsg.Message, inputRepoID, srcID, stdout)
 }
 
@@ -58,15 +64,19 @@ func persistSource(
 	if err != nil {
 		fmt.Fprintf(stdout, constants.CommitInErrDbWrite, err)
 		ctx.Counters.Failed++
+
 		return 0, 0, false
 	}
+
 	row := toSourceCommitRow(c)
 	srcID, err := runlog.InsertSourceCommit(ctx.DB.Conn(), inputRepoID, row)
 	if err != nil {
 		fmt.Fprintf(stdout, constants.CommitInErrDbWrite, err)
 		ctx.Counters.Failed++
+
 		return 0, 0, false
 	}
+
 	return inputRepoID, srcID, true
 }
 
@@ -90,15 +100,19 @@ func handleDedupe(ctx *runContext, srcID int64, c walk.SourceCommit, stdout io.W
 	if err != nil {
 		fmt.Fprintf(stdout, constants.CommitInErrDbWrite, err)
 		ctx.Counters.Failed++
+
 		return true
 	}
+
 	if !v.IsHit {
 		return false
 	}
+
 	prev := v.PreviousRewrittenId
 	_ = runlog.RecordSkip(ctx.DB.Conn(), ctx.RunID, srcID, constants.CommitInSkipReasonDuplicateSourceSha, &prev)
 	fmt.Fprintf(stdout, constants.CommitInMsgCommitSkip, c.Sha, constants.CommitInSkipReasonDuplicateSourceSha)
 	ctx.Counters.Skipped++
+
 	return true
 }
 
@@ -134,21 +148,27 @@ func doReplayAndRecord(
 	_ = inputRepoID
 	if ctx.Raw.IsDryRun {
 		recordSkip(ctx, srcID, constants.CommitInSkipReasonDryRun, stdout, c.Sha)
+
 		return
 	}
+
 	plan := buildReplayPlan(ctx, staged, c, msg)
 	abort, skip := conflictCheck(ctx, plan, c, stdout)
 	if abort {
 		recordFail(ctx, srcID, c, msg, errConflictAborted, stdout)
 	}
+
 	if abort || skip {
 		return
 	}
+
 	res, err := replay.ApplyCommit(plan, false)
 	if err != nil {
 		recordFail(ctx, srcID, c, msg, err, stdout)
+
 		return
 	}
+
 	recordCreated(ctx, srcID, c, msg, res.NewSha, stdout)
 	if err := committransfer.ProcessPR(plan.TargetRepoDir, c.OriginalMessage, msg, c.Sha[:7], ctx.Resolved.PRMode, res.NewSha); err != nil {
 		fmt.Fprintf(stdout, "PR processing failed: %v\n", err)
@@ -178,6 +198,7 @@ func pickAuthorName(ctx *runContext, c walk.SourceCommit) string {
 	if ctx.Resolved.Author != nil && ctx.Resolved.Author.Name != "" {
 		return ctx.Resolved.Author.Name
 	}
+
 	return c.AuthorName
 }
 
@@ -185,6 +206,7 @@ func pickAuthorEmail(ctx *runContext, c walk.SourceCommit) string {
 	if ctx.Resolved.Author != nil && ctx.Resolved.Author.Email != "" {
 		return ctx.Resolved.Author.Email
 	}
+
 	return c.AuthorEmail
 }
 
@@ -206,9 +228,11 @@ func recordCreated(
 		CommitterDateRFC3339: c.CommitterDate.Format(time.RFC3339),
 		Outcome:              constants.CommitInOutcomeCreated,
 	}
+
 	if _, err := runlog.RecordRewritten(ctx.DB.Conn(), ctx.RunID, srcID, row); err != nil {
 		fmt.Fprintf(stdout, constants.CommitInErrDbWrite, err)
 	}
+
 	fmt.Fprintf(stdout, constants.CommitInMsgCommitOk, c.Sha, newSha, firstLine(msg))
 	ctx.Counters.Created++
 }
@@ -230,6 +254,7 @@ func recordFail(
 		CommitterDateRFC3339: c.CommitterDate.Format(time.RFC3339),
 		Outcome:              constants.CommitInOutcomeFailed,
 	}
+
 	_, _ = runlog.RecordRewritten(ctx.DB.Conn(), ctx.RunID, srcID, row)
 	fmt.Fprintf(stdout, constants.CommitInMsgCommitFail, c.Sha, cause)
 	ctx.Counters.Failed++

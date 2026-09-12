@@ -18,5 +18,6 @@ func PrintCommitInHelp() string {
 	b.WriteString("Usage:\n")
 	b.WriteString("  gitmap commit-in --seo-url https://example.com --interval 60-120\n")
 	b.WriteString("  gitmap commit-in --profile work --dry-run\n")
+
 	return b.String()
 }

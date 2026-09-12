@@ -137,6 +137,7 @@ func (m relTriggerModel) viewMenu() string {
 		} else {
 			b.WriteString(styleNormalRow.Render("  " + opt.label))
 		}
+
 		b.WriteString("\n")
 	}
 

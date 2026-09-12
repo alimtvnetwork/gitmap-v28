@@ -29,10 +29,12 @@ func handoffSelfUninstall(opts selfUninstallOpts, args []string) {
 	if err != nil {
 		cliexit.HandleError(err, 1)
 	}
+
 	copyPath, err := writeHandoffCopy(self)
 	if err != nil {
 		cliexit.HandleError(err, 1)
 	}
+
 	fmt.Printf(constants.MsgSelfUninstallHandoffActive, copyPath)
 	runHandoffCopy(copyPath, opts, args)
 }
@@ -43,10 +45,12 @@ func writeHandoffCopy(selfPath string) (string, error) {
 	if isWindows() {
 		name += ".exe"
 	}
+
 	dst := filepath.Join(os.TempDir(), name)
 	if err := copySelfFile(selfPath, dst); err != nil {
 		return "", err
 	}
+
 	isNonWindows := !isWindows()
 	if isNonWindows {
 		_ = os.Chmod(dst, 0o755)
@@ -61,11 +65,13 @@ func copySelfFile(src, dst string) error {
 	if err != nil {
 		return err
 	}
+
 	defer in.Close()
 	out, err := os.Create(dst)
 	if err != nil {
 		return err
 	}
+
 	defer out.Close()
 	_, err = io.Copy(out, in)
 
@@ -79,9 +85,11 @@ func runHandoffCopy(copyPath string, opts selfUninstallOpts, _ []string) error {
 	if opts.KeepData {
 		runnerArgs = append(runnerArgs, "--keep-data")
 	}
+
 	if opts.KeepSnippet {
 		runnerArgs = append(runnerArgs, "--keep-snippet")
 	}
+
 	cmd := exec.Command(copyPath, runnerArgs...)
 	cmd.Stdout = os.Stdout
 	cmd.Stderr = os.Stderr
@@ -90,10 +98,12 @@ func runHandoffCopy(copyPath string, opts selfUninstallOpts, _ []string) error {
 	if err == nil {
 		return nil
 	}
+
 	var exitErr *exec.ExitError
 	if errors.As(err, &exitErr) {
 		cliexit.HandleError(nil, exitErr.ExitCode())
 	}
+
 	appErr := apperror.WrapWithDetails(
 		err,
 		"selfuninstall.handoff",
@@ -118,12 +128,14 @@ func scheduleSelfDelete() {
 	if err != nil {
 		return
 	}
+
 	isNonWindows := !isWindows()
 	if isNonWindows {
 		_ = os.Remove(self)
 
 		return
 	}
+
 	cmd := exec.Command("cmd.exe", "/C",
 		"ping", "127.0.0.1", "-n", "2", ">nul", "&", "del", "/F", "/Q", self)
 	cmd.Stdout = nil

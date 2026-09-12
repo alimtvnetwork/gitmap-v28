@@ -41,12 +41,14 @@ func CompactExtract(ctx context.Context, srcArchive, destBaseDir string) (Extrac
 	if err != nil {
 		return res, err
 	}
+
 	res.Format = format
 
 	tempDir, err := os.MkdirTemp(destBaseDir, ".gitmap-uzc-*")
 	if err != nil {
 		return res, err
 	}
+
 	defer os.RemoveAll(tempDir)
 
 	params := CompactExtractParams{
@@ -65,9 +67,11 @@ func prepareExtractDest(ctx context.Context, srcArchive, destBaseDir string) (Fo
 	if err != nil {
 		return format, apperror.Wrap(err, "identify archive", map[string]any{"src": srcArchive})
 	}
+
 	if err := os.MkdirAll(destBaseDir, constants.DirPermission); err != nil {
 		return format, err
 	}
+
 	return format, nil
 }
 
@@ -85,6 +89,7 @@ func completeCompactExtract(params CompactExtractParams) (ExtractResult, error) 
 	if err != nil {
 		return params.Result, apperror.WrapSimple(err, "extract")
 	}
+
 	params.Result.EntriesWritten = written
 
 	finalDir := filepath.Join(params.DestBaseDir, archiveBaseName(params.SrcArchive))
@@ -96,8 +101,10 @@ func completeCompactExtract(params CompactExtractParams) (ExtractResult, error) 
 	if err != nil {
 		return params.Result, err
 	}
+
 	params.Result.FlattenedLayers = flattened
 	params.Result.OutputDir = finalDir
+
 	return params.Result, nil
 }
 
@@ -111,6 +118,7 @@ func extractAllIntoDir(ctx context.Context, srcArchive, destDir string) (int, er
 	if err != nil {
 		return 0, err
 	}
+
 	defer f.Close()
 
 	format, stream, err := archives.Identify(ctx, filepath.Base(srcArchive), f)
@@ -151,6 +159,7 @@ func runArchiveExtraction(params ArchiveExtractParams) (int, error) {
 	if err := params.Extractor.Extract(params.Ctx, params.Stream, handler); err != nil {
 		return written, err
 	}
+
 	return written, nil
 }
 
@@ -169,6 +178,7 @@ func extractArchiveEntry(destDir string, entry archives.FileInfo, written *int) 
 	if err := os.MkdirAll(filepath.Dir(clean), constants.DirPermission); err != nil {
 		return err
 	}
+
 	return writeArchiveFile(entry, clean, written)
 }
 
@@ -185,6 +195,7 @@ func writeArchiveFile(entry archives.FileInfo, destPath string, written *int) er
 	if err != nil {
 		return err
 	}
+
 	defer src.Close()
 
 	return copyEntryToFile(src, destPath, written)
@@ -195,12 +206,15 @@ func copyEntryToFile(src io.Reader, destPath string, written *int) error {
 	if err != nil {
 		return err
 	}
+
 	defer dst.Close()
 
 	if _, err := io.Copy(dst, src); err != nil {
 		return err
 	}
+
 	*written++
+
 	return nil
 }
 
@@ -214,10 +228,12 @@ func safeJoin(destDir, name string) string {
 	if err != nil {
 		return ""
 	}
+
 	destAbs, err := filepath.Abs(destDir)
 	if err != nil {
 		return ""
 	}
+
 	isOutsideDest := !strings.HasPrefix(abs+string(filepath.Separator), destAbs+string(filepath.Separator))
 	isSame := abs == destAbs
 	isEscaped := isOutsideDest && !isSame
@@ -245,6 +261,7 @@ func promoteRealRoot(tempDir, finalDir string) (int, error) {
 	if err != nil {
 		return flattened, err
 	}
+
 	return flattened, moveEntries(root, finalDir, entries)
 }
 
@@ -256,18 +273,22 @@ func findDeepestRoot(tempDir string) (string, int, error) {
 		if err != nil {
 			return root, flattened, err
 		}
+
 		hasSingleEntry := len(entries) == 1
 		if !hasSingleEntry {
 			break
 		}
+
 		isDir := entries[0].IsDir()
 		isNonDir := !isDir
 		if isNonDir {
 			break
 		}
+
 		root = filepath.Join(root, entries[0].Name())
 		flattened++
 	}
+
 	return root, flattened, nil
 }
 
@@ -279,6 +300,7 @@ func moveEntries(root, finalDir string, entries []fs.DirEntry) error {
 			return err
 		}
 	}
+
 	return nil
 }
 
@@ -289,10 +311,12 @@ func moveOrCopy(src, dst string) error {
 	if err := os.Rename(src, dst); err == nil {
 		return nil
 	}
+
 	info, err := os.Stat(src)
 	if err != nil {
 		return err
 	}
+
 	isDir := info.IsDir()
 	if isDir {
 		return copyDir(src, dst)
@@ -307,6 +331,7 @@ func copyDir(src, dst string) error {
 		if err != nil {
 			return err
 		}
+
 		entryParams := CopyDirEntryParams{
 			Src:   src,
 			Dst:   dst,
@@ -331,11 +356,13 @@ func copyDirEntry(params CopyDirEntryParams) error {
 	if err != nil {
 		return err
 	}
+
 	target := filepath.Join(params.Dst, rel)
 	isDir := params.Entry.IsDir()
 	if isDir {
 		return os.MkdirAll(target, constants.DirPermission)
 	}
+
 	info, err := params.Entry.Info()
 	if err != nil {
 		return err
@@ -350,11 +377,13 @@ func copyFile(src, dst string, mode fs.FileMode) error {
 	if err != nil {
 		return err
 	}
+
 	defer in.Close()
 
 	if err := os.MkdirAll(filepath.Dir(dst), constants.DirPermission); err != nil {
 		return err
 	}
+
 	return streamToFile(in, dst, mode)
 }
 
@@ -363,9 +392,11 @@ func streamToFile(in io.Reader, dst string, mode fs.FileMode) error {
 	if err != nil {
 		return err
 	}
+
 	defer out.Close()
 
 	_, err = io.Copy(out, in)
+
 	return err
 }
 

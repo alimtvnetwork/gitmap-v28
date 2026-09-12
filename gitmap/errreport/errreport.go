@@ -111,9 +111,11 @@ func (c *Collector) Add(phase PhaseType, e Entry) {
 	if c == nil {
 		return
 	}
+
 	if e.TimestampUnixMS == 0 {
 		e.TimestampUnixMS = time.Now().UnixMilli()
 	}
+
 	c.mu.Lock()
 	defer c.mu.Unlock()
 	switch phase {
@@ -131,6 +133,7 @@ func (c *Collector) Count() (scan, clone int) {
 	if c == nil {
 		return 0, 0
 	}
+
 	c.mu.Lock()
 	defer c.mu.Unlock()
 

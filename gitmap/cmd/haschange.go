@@ -48,6 +48,7 @@ func runHasChange(args []string) error {
 	}
 
 	printHasChangeOne(target, mode)
+
 	return nil
 }
 
@@ -60,6 +61,7 @@ func parseHasChangeFlags(args []string) (alias, mode string, all, fetch bool) {
 	if err := fs.Parse(reorderFlagsBeforeArgs(args)); err != nil {
 		cliexit.HandleError(nil, 2)
 	}
+
 	rest := fs.Args()
 	if len(rest) >= 1 {
 		alias = rest[0]
@@ -94,6 +96,7 @@ func printHasChangeAll(target string) {
 
 		return
 	}
+
 	fmt.Printf(constants.MsgHCAllFmt, boolStr(dirty), boolStr(ahead > 0), boolStr(behind > 0))
 }
 
@@ -116,10 +119,12 @@ func readAheadBehind(target string) (int, int, bool) {
 	if err != nil {
 		return 0, 0, false
 	}
+
 	parts := strings.Fields(strings.TrimSpace(string(out)))
 	if len(parts) != 2 {
 		return 0, 0, false
 	}
+
 	ahead, _ := strconv.Atoi(parts[0])
 	behind, _ := strconv.Atoi(parts[1])
 

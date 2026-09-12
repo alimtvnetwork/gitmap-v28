@@ -25,6 +25,7 @@ func TestSchemaRegistry_ParseVersionFromPath(t *testing.T) {
 		{"x/no-version.json", 0},
 		{"x/foo.vXYZ.json", 0},
 	}
+
 	for _, tc := range cases {
 		if got := parseVersionFromPath(tc.path); got != tc.want {
 			t.Errorf("path=%q want %d got %d", tc.path, tc.want, got)
@@ -42,6 +43,7 @@ func TestSchemaRegistry_FindLatestPicksHighestVersion(t *testing.T) {
 	if err != nil {
 		t.Fatalf("findLatestVersion: %v", err)
 	}
+
 	if !strings.HasSuffix(got, "demo.v10.json") {
 		t.Fatalf("want demo.v10.json, got %s", got)
 	}
@@ -68,6 +70,7 @@ func TestSchemaRegistry_ListContains(t *testing.T) {
 		{"foo@v1,bar@v2", "bar@v2", true},
 		{"foo@v1,bar@v2", "bar@v3", false},
 	}
+
 	for _, tc := range cases {
 		if got := listContains(tc.list, tc.want); got != tc.expect {
 			t.Errorf("listContains(%q,%q): want %v got %v",
@@ -85,13 +88,16 @@ func TestSchemaRegistry_WriteSchemaPreservesDoc(t *testing.T) {
 	if loaded.Doc == "" {
 		t.Fatalf("setup: doc must be non-empty")
 	}
+
 	if err := writeSchemaFile(loaded, []string{"a", "b", "c"}); err != nil {
 		t.Fatalf("write: %v", err)
 	}
+
 	reloaded := loadSchema(t, "demo")
 	if !equalStringSlices(reloaded.Keys, []string{"a", "b", "c"}) {
 		t.Fatalf("keys not updated: %v", reloaded.Keys)
 	}
+
 	if reloaded.Doc != loaded.Doc {
 		t.Fatalf("doc lost\n  before: %q\n  after: %q", loaded.Doc, reloaded.Doc)
 	}
@@ -106,9 +112,11 @@ func TestSchemaRegistry_AcceptIsVersionStrict(t *testing.T) {
 	if isNonSchemaAccepted {
 		t.Fatalf("v3 should be accepted")
 	}
+
 	if isSchemaAccepted("demo", 2) {
 		t.Fatalf("v2 must NOT be accepted via @v3 entry")
 	}
+
 	if isSchemaAccepted("other", 3) {
 		t.Fatalf("name mismatch must not match")
 	}
@@ -128,6 +136,7 @@ func TestSchemaRegistry_FlagAndEnvBothHonored(t *testing.T) {
 	if isFlagUpdateSkipped {
 		t.Fatalf("flag value must be honored")
 	}
+
 	isEnvUpdateSkipped := !isSchemaUpdateNeeded("from-env")
 	if isEnvUpdateSkipped {
 		t.Fatalf("env value must also be honored")
@@ -147,6 +156,7 @@ func TestSchemaRegistry_ProductionSchemasParse(t *testing.T) {
 			if s.Name != name {
 				t.Fatalf("name %q != filename %q", s.Name, name)
 			}
+
 			if s.Version < 1 || len(s.Keys) == 0 {
 				t.Fatalf("invalid schema: version=%d keys=%v", s.Version, s.Keys)
 			}
@@ -191,10 +201,12 @@ func writeSchemaFor(t *testing.T, dir, name string, version int, keys []string) 
 		"keys":    keys,
 		"_doc":    "synthetic test schema for " + name,
 	}
+
 	raw, err := json.MarshalIndent(body, "", "  ")
 	if err != nil {
 		t.Fatalf("marshal: %v", err)
 	}
+
 	path := filepath.Join(dir, name+".v"+strconv.Itoa(version)+".json")
 	if err := os.WriteFile(path, raw, 0o644); err != nil {
 		t.Fatalf("write %s: %v", path, err)

@@ -19,9 +19,11 @@ func withFakeAutostartDir(t *testing.T) string {
 	if runtime.GOOS == "windows" {
 		t.Skip("startup package does not support Windows")
 	}
+
 	if runtime.GOOS == "darwin" {
 		t.Skip(".desktop tests are Linux-only; plist_test.go covers macOS")
 	}
+
 	root := t.TempDir()
 	t.Setenv("XDG_CONFIG_HOME", root)
 	dir := filepath.Join(root, "autostart")
@@ -42,6 +44,7 @@ func writeDesktop(t *testing.T, dir, name string, managed bool, exec string) str
 	if managed {
 		body += constants.StartupMarkerKey + "=" + constants.StartupMarkerVal + "\n"
 	}
+
 	full := filepath.Join(dir, name)
 	if err := os.WriteFile(full, []byte(body), 0o644); err != nil {
 		t.Fatalf("write %s: %v", full, err)
@@ -66,9 +69,11 @@ func TestList_OnlyReturnsManaged(t *testing.T) {
 	if err != nil {
 		t.Fatalf("List: %v", err)
 	}
+
 	if len(got) != 2 {
 		t.Fatalf("expected 2 managed entries, got %d (%+v)", len(got), got)
 	}
+
 	names := map[string]bool{got[0].Name: true, got[1].Name: true}
 	if !names["gitmap-foo"] || !names["gitmap-bar"] {
 		t.Fatalf("unexpected entries: %+v", got)
@@ -84,6 +89,7 @@ func TestList_MissingDirReturnsEmpty(t *testing.T) {
 	if runtime.GOOS == "windows" || runtime.GOOS == "darwin" {
 		t.Skip("Linux-only; macOS missing-dir behavior covered in plist_test.go")
 	}
+
 	root := t.TempDir()
 	t.Setenv("XDG_CONFIG_HOME", root)
 	// Note: no autostart subdir created.
@@ -91,6 +97,7 @@ func TestList_MissingDirReturnsEmpty(t *testing.T) {
 	if err != nil {
 		t.Fatalf("List on missing dir must not error, got: %v", err)
 	}
+
 	if len(got) != 0 {
 		t.Fatalf("expected 0 entries, got %d", len(got))
 	}
@@ -112,6 +119,7 @@ func TestRemove_StatusMatrix(t *testing.T) {
 	if err != nil || res.Status != RemoveDeleted {
 		t.Fatalf("delete: status=%v err=%v", res.Status, err)
 	}
+
 	if _, statErr := os.Stat(managedPath); !os.IsNotExist(statErr) {
 		t.Fatalf("file should be gone, stat err=%v", statErr)
 	}
@@ -127,6 +135,7 @@ func TestRemove_StatusMatrix(t *testing.T) {
 	if res.Status != RemoveRefused {
 		t.Fatalf("refused: got status=%v", res.Status)
 	}
+
 	if _, statErr := os.Stat(filepath.Join(dir, "gitmap-thirdparty.desktop")); statErr != nil {
 		t.Fatalf("refused file must remain on disk, stat err=%v", statErr)
 	}
@@ -149,6 +158,7 @@ func TestRemove_DotDesktopSuffixTolerated(t *testing.T) {
 	if err != nil || res.Status != RemoveDeleted {
 		t.Fatalf("got status=%v err=%v", res.Status, err)
 	}
+
 	if _, statErr := os.Stat(filepath.Join(dir, "gitmap-suffixed.desktop")); !os.IsNotExist(statErr) {
 		t.Fatalf("file should be gone")
 	}

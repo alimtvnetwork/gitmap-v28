@@ -35,16 +35,20 @@ func TestBuildShortcutBytes_HeaderShape(t *testing.T) {
 	if got := le.Uint32(data[0:4]); got != 0x0000004C {
 		t.Errorf("HeaderSize = %#x, want 0x4C", got)
 	}
+
 	if !bytes.Equal(data[4:20], linkCLSID[:]) {
 		t.Errorf("CLSID = %x, want %x", data[4:20], linkCLSID[:])
 	}
+
 	wantFlags := uint32(0x02 | 0x80) // HasLinkInfo | IsUnicode
 	if got := le.Uint32(data[20:24]); got != wantFlags {
 		t.Errorf("LinkFlags = %#x, want %#x", got, wantFlags)
 	}
+
 	if got := le.Uint32(data[24:28]); got != 0x80 {
 		t.Errorf("FileAttributes = %#x, want FILE_ATTRIBUTE_NORMAL", got)
 	}
+
 	if got := le.Uint32(data[68:72]); got != 0x01 {
 		t.Errorf("ShowCommand = %#x, want SW_SHOWNORMAL", got)
 	}
@@ -71,12 +75,15 @@ func TestBuildShortcutBytes_LinkInfoOffsets(t *testing.T) {
 	if int(totalSize) != len(li) {
 		t.Errorf("LinkInfoSize = %d, want %d", totalSize, len(li))
 	}
+
 	if headerSize != 0x1C {
 		t.Errorf("LinkInfoHeaderSize = %#x, want 0x1C", headerSize)
 	}
+
 	if flags&0x01 == 0 {
 		t.Errorf("LinkInfoFlags missing VolumeIDAndLocalBasePath bit")
 	}
+
 	if volOff != 0x1C || pathOff <= volOff || suffixOff <= pathOff {
 		t.Errorf("offsets non-monotonic: vol=%d path=%d suffix=%d",
 			volOff, pathOff, suffixOff)

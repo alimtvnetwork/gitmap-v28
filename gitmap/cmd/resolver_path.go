@@ -28,6 +28,7 @@ func resolveByPath(target string, all []model.ScanRecord) *model.ScanRecord {
 			return &r
 		}
 	}
+
 	return nil
 }
 
@@ -37,6 +38,7 @@ func findByAbsolutePath(abs string, all []model.ScanRecord) *model.ScanRecord {
 			return &r
 		}
 	}
+
 	return nil
 }
 
@@ -45,5 +47,6 @@ func findByCleanTargetAbs(cleanTarget string, all []model.ScanRecord) *model.Sca
 	if err != nil {
 		return nil
 	}
+
 	return findByAbsolutePath(abs, all)
 }

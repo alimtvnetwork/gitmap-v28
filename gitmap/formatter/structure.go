@@ -38,6 +38,7 @@ func collectPaths(records []model.ScanRecord) []pathEntry {
 			Path: r.RelativePath, Branch: r.Branch, URL: r.HTTPSUrl,
 		})
 	}
+
 	sort.Slice(entries, func(i, j int) bool {
 		return entries[i].Path < entries[j].Path
 	})
@@ -75,11 +76,13 @@ func insertPath(root *treeNode, entry pathEntry) {
 			child = &treeNode{Name: part}
 			current.Children = append(current.Children, child)
 		}
+
 		if i == len(parts)-1 {
 			child.IsRepo = true
 			child.Branch = entry.Branch
 			child.URL = entry.URL
 		}
+
 		current = child
 	}
 }
@@ -104,13 +107,16 @@ func renderTree(w io.Writer, node *treeNode, prefix string) error {
 			connector = constants.TreeCorner
 			nextPrefix = prefix + constants.TreeSpace
 		}
+
 		err := renderNode(w, child, prefix, connector)
 		if err != nil {
 			return err
 		}
+
 		if len(child.Children) > 0 {
 			err = renderTree(w, child, nextPrefix)
 		}
+
 		if err != nil {
 			return err
 		}
@@ -126,6 +132,7 @@ func renderNode(w io.Writer, node *treeNode, prefix, connector string) error {
 		label = fmt.Sprintf(constants.StructureRepoFmt,
 			node.Name, node.Branch, node.URL)
 	}
+
 	_, err := fmt.Fprintf(w, "%s%s %s\n", prefix, connector, label)
 
 	return err

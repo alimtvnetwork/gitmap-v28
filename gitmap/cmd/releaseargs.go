@@ -68,6 +68,7 @@ func partitionFlagsAndArgs(args []string) ([]string, []string) {
 			positional = append(positional, currentArg)
 			continue
 		}
+
 		flags, argIdx = appendFlagWithValue(args, argIdx, flags)
 	}
 

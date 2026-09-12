@@ -48,6 +48,7 @@ func saveEnvRegistry(registry model.EnvRegistry) *apperror.AppError {
 	if err := os.MkdirAll(filepath.Dir(path), constants.DirPermission); err != nil {
 		return apperror.WrapSimple(err, constants.ErrEnvRegistrySave)
 	}
+
 	if err := writeEnvRegistryFile(path, registry); err != nil {
 		return apperror.WrapSimple(err, constants.ErrEnvRegistrySave)
 	}

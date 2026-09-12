@@ -69,6 +69,7 @@ func TestParseCSV_RowError_NamesOffendingColumn(t *testing.T) {
 			wantInErr: "negative",
 		},
 	}
+
 	for _, tc := range cases {
 		t.Run(tc.name, func(t *testing.T) {
 			t.Parallel()
@@ -76,6 +77,7 @@ func TestParseCSV_RowError_NamesOffendingColumn(t *testing.T) {
 			if err == nil {
 				t.Fatalf("expected parse error, got nil")
 			}
+
 			msg := err.Error()
 			for _, want := range []string{tc.wantRow, tc.wantCol, tc.wantInErr} {
 				if !strings.Contains(msg, want) {
@@ -100,6 +102,7 @@ func TestParseCSV_ValidRows_NoError(t *testing.T) {
 	if err != nil {
 		t.Fatalf("unexpected error: %v", err)
 	}
+
 	if len(rows) != 2 {
 		t.Fatalf("got %d rows, want 2", len(rows))
 	}

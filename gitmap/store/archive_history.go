@@ -83,6 +83,7 @@ func (db *DB) RecentArchiveHistory(limit int) ([]ArchiveHistoryRow, error) {
 	if limit <= 0 {
 		limit = 25
 	}
+
 	if limit > 200 {
 		limit = 200
 	}
@@ -91,6 +92,7 @@ func (db *DB) RecentArchiveHistory(limit int) ([]ArchiveHistoryRow, error) {
 	if err != nil {
 		return nil, err
 	}
+
 	defer rows.Close()
 
 	var out []ArchiveHistoryRow
@@ -99,6 +101,7 @@ func (db *DB) RecentArchiveHistory(limit int) ([]ArchiveHistoryRow, error) {
 		if err != nil {
 			return nil, err
 		}
+
 		out = append(out, row)
 	}
 
@@ -125,6 +128,7 @@ func scanArchiveHistory(rows *sql.Rows) (ArchiveHistoryRow, error) {
 	if rawIn != "" {
 		_ = json.Unmarshal([]byte(rawIn), &row.InputSources)
 	}
+
 	row.UsedTemporaryDirectory = tempInt != 0
 
 	return row, nil

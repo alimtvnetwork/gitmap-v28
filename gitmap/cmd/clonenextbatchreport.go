@@ -29,6 +29,7 @@ func writeBatchReport(results []batchRowResult) string {
 
 		return ""
 	}
+
 	defer file.Close()
 
 	writeReportRows(file, results)

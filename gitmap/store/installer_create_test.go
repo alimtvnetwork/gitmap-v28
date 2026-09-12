@@ -80,24 +80,31 @@ func TestCreateInstallerSuccess(testingT *testing.T) {
 	if fetchedID != script.ID {
 		testingT.Errorf("expected ID %d, got %d", script.ID, fetchedID)
 	}
+
 	if fetchedName != "Golang Suite" {
 		testingT.Errorf("expected name 'Golang Suite', got %q", fetchedName)
 	}
+
 	if fetchedSlug != "go-suite" {
 		testingT.Errorf("expected slug 'go-suite', got %q", fetchedSlug)
 	}
+
 	if fetchedDescription != "Go tooling installer" {
 		testingT.Errorf("expected description 'Go tooling installer', got %q", fetchedDescription)
 	}
+
 	if fetchedTargetOS != "win" {
 		testingT.Errorf("expected targetOS 'win', got %q", fetchedTargetOS)
 	}
+
 	if fetchedVersion != "v1.0.0" {
 		testingT.Errorf("expected version 'v1.0.0', got %q", fetchedVersion)
 	}
+
 	if fetchedInstructions != script.Instructions {
 		testingT.Errorf("expected instructions %q, got %q", script.Instructions, fetchedInstructions)
 	}
+
 	if fetchedCreatedAt == "" || fetchedUpdatedAt == "" {
 		testingT.Errorf("expected timestamps to be populated")
 	}
@@ -130,6 +137,7 @@ func TestCreateInstallerDuplicateSlug(testingT *testing.T) {
 		Name: "Docker CE",
 		Slug: "docker",
 	}
+
 	script2 := &model.InstallerScript{
 		Name: "Docker Desktop",
 		Slug: "docker",

@@ -14,6 +14,7 @@ func TestWorkDirIntegration(t *testing.T) {
 	if errDB != nil {
 		t.Skip("sqlite db unavailable in isolated test")
 	}
+
 	defer db.Close()
 
 	_, _ = db.SQL().Exec(store.SQLCreateWorkDirsTable)

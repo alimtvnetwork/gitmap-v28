@@ -84,13 +84,16 @@ func loadReleasesFromDB() []model.ReleaseRecord {
 	if err != nil {
 		return nil
 	}
+
 	defer db.Close()
 
 	releases, err := db.ListReleases()
 	if err != nil && isLegacyDataError(err) {
 		fmt.Fprint(os.Stderr, constants.MsgLegacyProjectData)
+
 		return nil
 	}
+
 	if err != nil {
 		return nil
 	}
@@ -113,6 +116,7 @@ func loadReleasesFromTags(existing []model.ReleaseRecord) []model.ReleaseRecord 
 		if seen[t.Tag] {
 			continue
 		}
+
 		added = append(added, tagToRecord(t))
 	}
 
@@ -152,6 +156,7 @@ func cacheReleasesToDB(records []model.ReleaseRecord) {
 
 		return
 	}
+
 	defer db.Close()
 
 	if err := db.Migrate(); err != nil {
@@ -164,6 +169,7 @@ func cacheReleasesToDB(records []model.ReleaseRecord) {
 
 		return
 	}
+
 	upsertRecords(db, records, repoID)
 }
 

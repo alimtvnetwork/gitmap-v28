@@ -32,11 +32,13 @@ func TestAddWindowsRegistry_NoSiblingMarker(t *testing.T) {
 	if err != nil || res.Status != AddCreated {
 		t.Fatalf("Add: %v / status=%d", err, res.Status)
 	}
+
 	added := diffRunValueNames(snapshotRunValueNames(t), before)
 	want := constants.StartupWinValuePrefix + name
 	if len(added) != 1 || added[0] != want {
 		t.Fatalf("Run-key new values = %v, want exactly [%s]", added, want)
 	}
+
 	for _, n := range added {
 		if strings.HasSuffix(n, ".gitmap-managed") {
 			t.Fatalf("sibling marker leaked into Run key: %s", n)
@@ -53,14 +55,17 @@ func snapshotRunValueNames(t *testing.T) []string {
 	if errors.Is(err, registry.ErrNotExist) {
 		return nil
 	}
+
 	if err != nil {
 		t.Fatalf("open Run key: %v", err)
 	}
+
 	defer k.Close()
 	names, err := k.ReadValueNames(-1)
 	if err != nil {
 		t.Fatalf("read value names: %v", err)
 	}
+
 	return names
 }
 
@@ -71,11 +76,13 @@ func diffRunValueNames(after, before []string) []string {
 	for _, n := range before {
 		seen[n] = struct{}{}
 	}
+
 	var out []string
 	for _, n := range after {
 		if _, ok := seen[n]; !ok {
 			out = append(out, n)
 		}
 	}
+
 	return out
 }

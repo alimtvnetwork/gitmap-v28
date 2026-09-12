@@ -44,6 +44,7 @@ func (db *DB) SelectGoRunnables(goMetadataID int64) ([]model.GoRunnableFile, err
 	if err != nil {
 		return nil, fmt.Errorf(constants.ErrProjectQuery, err)
 	}
+
 	defer rows.Close()
 
 	return scanGoRunnableRows(rows)
@@ -54,6 +55,7 @@ func (db *DB) DeleteStaleGoRunnables(goMetadataID int64, keepIDs []int64) error 
 	if len(keepIDs) == 0 {
 		return nil
 	}
+
 	placeholders := buildPlaceholders(len(keepIDs))
 	query := fmt.Sprintf(constants.SQLDeleteStaleGoRunnables, placeholders)
 	args := buildStaleArgsInt64(goMetadataID, keepIDs)
@@ -75,6 +77,7 @@ func scanGoRunnableRows(rows interface {
 		if err != nil {
 			return nil, err
 		}
+
 		runnables = append(runnables, r)
 	}
 

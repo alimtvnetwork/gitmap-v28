@@ -20,6 +20,7 @@ func printDryRun(v Version, branchName, tag, sourceName string, opts Options) er
 	} else {
 		fmt.Print(constants.MsgAutoCommitScanning)
 	}
+
 	fmt.Printf(constants.MsgReleaseComplete, v.String())
 
 	return nil
@@ -61,6 +62,7 @@ func printDryRunSteps(branchName, tag, sourceName string) {
 	if len(body) > 0 {
 		fmt.Printf(constants.MsgReleaseDryRun, "Use changelog.md as release body")
 	}
+
 	readme := DetectReadme()
 	if len(readme) > 0 {
 		fmt.Printf(constants.MsgReleaseDryRun, "Attach README.md")
@@ -110,6 +112,7 @@ func runZipGroupsDryRun(groups []string) {
 	if err != nil {
 		return
 	}
+
 	defer db.Close()
 
 	DryRunZipGroups(db, groups)

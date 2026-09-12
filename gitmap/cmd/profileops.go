@@ -13,6 +13,7 @@ import (
 func runProfileCreate(args []string) error {
 	if len(args) < 1 {
 		fmt.Fprint(os.Stderr, constants.ErrProfileCreateUsage)
+
 		return apperror.NewSimple("fatal error", "E9000")
 	}
 
@@ -28,6 +29,7 @@ func runProfileCreate(args []string) error {
 	initProfileDB(name)
 
 	fmt.Printf(constants.MsgProfileCreated, name)
+
 	return nil
 }
 
@@ -47,8 +49,10 @@ func runProfileList() error {
 		if p == cfg.Active {
 			tag = constants.MsgProfileActiveTag
 		}
+
 		fmt.Printf(constants.MsgProfileRowFmt, p, tag)
 	}
+
 	return nil
 }
 
@@ -56,6 +60,7 @@ func runProfileList() error {
 func runProfileSwitch(args []string) error {
 	if len(args) < 1 {
 		fmt.Fprint(os.Stderr, constants.ErrProfileSwitchUsage)
+
 		return apperror.NewSimple("fatal error", "E9000")
 	}
 
@@ -70,6 +75,7 @@ func runProfileSwitch(args []string) error {
 	saveProfileOrExit(cfg)
 
 	fmt.Printf(constants.MsgProfileSwitched, name)
+
 	return nil
 }
 
@@ -77,6 +83,7 @@ func runProfileSwitch(args []string) error {
 func runProfileDelete(args []string) error {
 	if len(args) < 1 {
 		fmt.Fprint(os.Stderr, constants.ErrProfileDeleteUsage)
+
 		return apperror.NewSimple("fatal error", "E9000")
 	}
 
@@ -89,6 +96,7 @@ func runProfileDelete(args []string) error {
 	removeProfileDB(name)
 
 	fmt.Printf(constants.MsgProfileDeleted, name)
+
 	return nil
 }
 
@@ -96,5 +104,6 @@ func runProfileDelete(args []string) error {
 func runProfileShow() error {
 	cfg := store.LoadProfileConfig(constants.DefaultOutputFolder)
 	fmt.Printf(constants.MsgProfileActive, cfg.Active)
+
 	return nil
 }

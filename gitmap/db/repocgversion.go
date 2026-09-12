@@ -47,6 +47,7 @@ func GetRepoCGVersion(ctx context.Context, db *sql.DB, repoAlias string) (*RepoC
 	if err == sql.ErrNoRows {
 		return nil, nil
 	}
+
 	if err != nil {
 		return nil, apperror.WrapSimple(err, "GetRepoCGVersion.Scan")
 	}

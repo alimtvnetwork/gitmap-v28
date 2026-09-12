@@ -14,6 +14,7 @@ func ConnectWithPassword(ip, user, password string) (*ssh.Client, error) {
 		Auth:            []ssh.AuthMethod{ssh.Password(password)},
 		HostKeyCallback: ssh.InsecureIgnoreHostKey(),
 	}
+
 	return ssh.Dial("tcp", fmt.Sprintf("%s:22", ip), config)
 }
 
@@ -29,6 +30,7 @@ func ConnectWithKey(ip, user, keyPath string) (*ssh.Client, error) {
 		Auth:            []ssh.AuthMethod{ssh.PublicKeys(signer)},
 		HostKeyCallback: ssh.InsecureIgnoreHostKey(),
 	}
+
 	return ssh.Dial("tcp", fmt.Sprintf("%s:22", ip), config)
 }
 
@@ -52,6 +54,7 @@ func RunCommand(client *ssh.Client, cmd, shellType string) (string, error) {
 	if err != nil {
 		return "", err
 	}
+
 	defer session.Close()
 
 	wrappedCmd := wrapCommandForShell(cmd, shellType)
@@ -67,9 +70,11 @@ func wrapCommandForShell(cmd, shellType string) string {
 	if shellType == "cmd" {
 		return fmt.Sprintf("cmd.exe /c \"%s\"", cmd)
 	}
+
 	isPowerShell := shellType == "ps" || shellType == "pwsh" || shellType == "powershell"
 	if isPowerShell {
 		return fmt.Sprintf("powershell -NoProfile -Command \"%s\"", cmd)
 	}
+
 	return cmd
 }

@@ -118,6 +118,7 @@ func updateHighest(
 	if !hasCurrent {
 		return candidate, true
 	}
+
 	if candidate.GreaterThan(current) {
 		return candidate, true
 	}

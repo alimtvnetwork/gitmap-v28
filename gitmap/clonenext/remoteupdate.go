@@ -67,10 +67,12 @@ func checkRemoteForUpdateWith(params RemoteProbeParams) (RemoteUpdateCheck, erro
 		LocalVersion:  params.Parsed.CurrentVersion,
 		RemoteVersion: params.Parsed.CurrentVersion,
 	}
+
 	if !params.Parsed.HasVersion {
 		// No -v<N> baseline → no notion of "next version" to check.
 		return out, nil
 	}
+
 	if params.Ceiling <= 0 {
 		params.Ceiling = DefaultRemoteProbeCeiling
 	}
@@ -98,9 +100,11 @@ func probeHighestSibling(params RemoteProbeParams) (int, error) {
 		if err != nil {
 			return highest, fmt.Errorf("probe %s/%s-v%d: %w", params.Owner, params.Parsed.BaseName, m, err)
 		}
+
 		if !exists {
 			return highest, nil
 		}
+
 		highest = m
 	}
 

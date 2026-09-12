@@ -39,8 +39,10 @@ func runZip(args []string) error {
 			nil,
 		)
 		cliexit.HandleError(appErr, 1)
+
 		return nil
 	}
+
 	if opts.OutputPath == "" {
 		appErr := apperror.NewWithDetails(
 			"cmd.zip.outputPath",
@@ -52,8 +54,10 @@ func runZip(args []string) error {
 			nil,
 		)
 		cliexit.HandleError(appErr, 1)
+
 		return nil
 	}
+
 	if len(sources) == 0 {
 		appErr := apperror.NewWithDetails(
 			"cmd.zip.sources",
@@ -65,6 +69,7 @@ func runZip(args []string) error {
 			nil,
 		)
 		cliexit.HandleError(appErr, 1)
+
 		return nil
 	}
 
@@ -84,11 +89,13 @@ func runZip(args []string) error {
 			map[string]any{"sources": sources},
 		)
 		cliexit.HandleError(appErr, 1)
+
 		return nil
 	}
 
 	opts.Sources = resolvedToPaths(resolved)
 	executeZip(ctx, opts, sources)
+
 	return nil
 }
 
@@ -124,6 +131,7 @@ func parseZipFlags(args []string) (archive.CreateOptions, []string, error) {
 	if err != nil {
 		return archive.CreateOptions{}, nil, err
 	}
+
 	z.Mode = mode
 	z.Includes = splitCSV(z.include)
 	z.Excludes = splitCSV(z.exclude)
@@ -140,9 +148,11 @@ func resolveCompressionMode(best, fast, standard bool) (archive.CompressionMode,
 			count++
 		}
 	}
+
 	if count > 1 {
 		return "", fmt.Errorf(constants.ErrArchiveBadCompression, constants.CmdZip)
 	}
+
 	switch {
 	case best:
 		return archive.ModeBest, nil
@@ -159,6 +169,7 @@ func splitCSV(raw string) []string {
 	if raw == "" {
 		return nil
 	}
+
 	parts := strings.Split(raw, ",")
 	out := make([]string, 0, len(parts))
 	for _, p := range parts {
@@ -183,6 +194,7 @@ func resolveAllSources(ctx context.Context, sources []string) ([]archive.Resolve
 		if err != nil {
 			return out, err
 		}
+
 		fmt.Fprintf(os.Stderr, constants.MsgArchiveResolved+"\n", s, r.LocalPath)
 		out = append(out, r)
 	}
@@ -218,10 +230,12 @@ func executeZip(ctx context.Context, opts archive.CreateOptions, originalSrcs []
 	if dbErr == nil {
 		defer db.Close()
 	}
+
 	migErr := error(nil)
 	if dbErr == nil {
 		migErr = db.Migrate()
 	}
+
 	if dbErr == nil && migErr == nil {
 		historyID = startArchiveRow(db, constants.ArchiveCmdZip, originalSrcs, string(opts.Mode))
 	}
@@ -243,6 +257,7 @@ func executeZip(ctx context.Context, opts archive.CreateOptions, originalSrcs []
 			map[string]any{"outputPath": opts.OutputPath},
 		)
 		cliexit.HandleError(appErr, 1)
+
 		return
 	}
 

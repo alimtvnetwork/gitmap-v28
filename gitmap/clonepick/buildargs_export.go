@@ -23,9 +23,11 @@ func BuildGitArgs(plan Plan, dest string) []string {
 	if len(plan.Branch) > 0 {
 		args = append(args, "--branch", plan.Branch)
 	}
+
 	if plan.Depth > 0 {
 		args = append(args, "--depth", strconv.Itoa(plan.Depth))
 	}
+
 	args = append(args, plan.RepoUrl, dest)
 
 	return args

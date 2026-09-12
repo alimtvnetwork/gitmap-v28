@@ -19,6 +19,7 @@ func TestPromotePreClonedSrcRenameFastPath(t *testing.T) {
 	if err := promotePreClonedSrc(src, dest); err != nil {
 		t.Fatalf("promotePreClonedSrc: %v", err)
 	}
+
 	assertFile(t, filepath.Join(dest, "a.txt"), "alpha")
 	assertFile(t, filepath.Join(dest, "sub", "b.txt"), "beta")
 	if _, err := os.Stat(src); !os.IsNotExist(err) {
@@ -34,6 +35,7 @@ func TestCopyTreeThenRemoveFallback(t *testing.T) {
 	if err := copyTreeThenRemove(src, dest); err != nil {
 		t.Fatalf("copyTreeThenRemove: %v", err)
 	}
+
 	assertFile(t, filepath.Join(dest, "x.txt"), "xray")
 	assertFile(t, filepath.Join(dest, "deep", "nested", "y.txt"), "yankee")
 	if _, err := os.Stat(src); !os.IsNotExist(err) {
@@ -52,6 +54,7 @@ func setupPromoteDirs(t *testing.T, srcName, destName string) (string, string) {
 	if err := os.MkdirAll(src, 0o755); err != nil {
 		t.Fatalf("mkdir src: %v", err)
 	}
+
 	if err := os.MkdirAll(dest, 0o755); err != nil {
 		t.Fatalf("mkdir dest: %v", err)
 	}
@@ -64,6 +67,7 @@ func mustWrite(t *testing.T, path, body string) {
 	if err := os.MkdirAll(filepath.Dir(path), 0o755); err != nil {
 		t.Fatalf("mkdir %s: %v", filepath.Dir(path), err)
 	}
+
 	if err := os.WriteFile(path, []byte(body), 0o644); err != nil {
 		t.Fatalf("write %s: %v", path, err)
 	}
@@ -75,6 +79,7 @@ func assertFile(t *testing.T, path, want string) {
 	if err != nil {
 		t.Fatalf("read %s: %v", path, err)
 	}
+
 	if string(got) != want {
 		t.Fatalf("file %s body = %q, want %q", path, got, want)
 	}

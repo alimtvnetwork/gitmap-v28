@@ -32,6 +32,7 @@ func runReleasePull(args []string) error {
 	pullCurrentRepo(dir, mode, dryRun, verbose)
 	forceYesOverride = true
 	runRelease(ensureYesForward(rest))
+
 	return nil
 }
 
@@ -114,6 +115,7 @@ func splitReleasePullArgs(args []string) (own, forwarded []string) {
 		if eq := strings.IndexByte(a, '='); eq > 0 {
 			token = a[:eq]
 		}
+
 		if ownFlags[token] {
 			own = append(own, a)
 		} else {
@@ -141,6 +143,7 @@ func resolvePullMode(ffOnly, rebase, merge bool) string {
 	if rebase {
 		return constants.RPModeRebase
 	}
+
 	if merge {
 		return constants.RPModeMerge
 	}
@@ -155,9 +158,11 @@ func describePickedModes(ffOnly, rebase, merge bool) string {
 	if ffOnly {
 		picked = append(picked, "--"+constants.FlagRPFFOnly)
 	}
+
 	if rebase {
 		picked = append(picked, "--"+constants.FlagRPRebase)
 	}
+
 	if merge {
 		picked = append(picked, "--"+constants.FlagRPMerge)
 	}

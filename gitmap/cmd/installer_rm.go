@@ -34,6 +34,7 @@ func executeInstallerRm(args []string) error {
 	if errDB != nil {
 		return errDB
 	}
+
 	defer db.Close()
 
 	if errMigrate := db.MigrateInstallers(); errMigrate != nil {
@@ -50,6 +51,7 @@ func executeInstallerRm(args []string) error {
 	}
 
 	fmt.Printf("Installer \"%s\" deleted successfully.\n", slug)
+
 	return nil
 }
 

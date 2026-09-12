@@ -59,6 +59,7 @@ func maxChromeProfileLabelWidth(names []string) int {
 			maxW = w
 		}
 	}
+
 	return maxW
 }
 
@@ -67,6 +68,7 @@ func calculateLabelPadding(maxW int, label string) int {
 	if pad < 0 {
 		return 0
 	}
+
 	return pad
 }
 
@@ -74,19 +76,24 @@ func inferExportFormatFromPath(path, explicit string) string {
 	if explicit != "" {
 		return explicit
 	}
+
 	lower := strings.ToLower(path)
 	if strings.HasSuffix(lower, constants.ExtDB) || strings.HasSuffix(lower, constants.ExtSQLite) || strings.HasSuffix(lower, ".sqlite3") {
 		return constants.OutputSQLite
 	}
+
 	if strings.HasSuffix(lower, constants.ExtYAML) || strings.HasSuffix(lower, constants.ExtYML) {
 		return constants.OutputYAML
 	}
+
 	if strings.HasSuffix(lower, constants.ExtZIP) {
 		return constants.OutputZIP
 	}
+
 	if strings.HasSuffix(lower, constants.ExtJSON) {
 		return constants.OutputJSON
 	}
+
 	return constants.OutputZIP
 }
 
@@ -98,11 +105,13 @@ func buildAllProfilesExport(names []string) chromeAllProfilesExport {
 		ProfileCount:  len(names),
 		Profiles:      make([]chromeExport, 0, len(names)),
 	}
+
 	for _, name := range names {
 		if exp, hasProfile := loadSingleChromeProfileExport(name); hasProfile {
 			all.Profiles = append(all.Profiles, exp)
 		}
 	}
+
 	return all
 }
 
@@ -111,6 +120,7 @@ func loadSingleChromeProfileExport(name string) (chromeExport, bool) {
 	if !hasDir {
 		return chromeExport{}, false
 	}
+
 	exp := buildExportFromDisk(name, srcPath)
 
 	return exp, true
@@ -140,14 +150,18 @@ func writeAllChromeProfilesJSON(names []string, outPath string) (int, error) {
 	if err := os.MkdirAll(filepath.Dir(outPath), constants.DirPermission); err != nil && filepath.Dir(outPath) != "." {
 		return 0, err
 	}
+
 	raw, err := json.MarshalIndent(all, "", constants.JSONIndent)
 	if err != nil {
 		return 0, fmt.Errorf("marshal all profiles JSON: %w", err)
 	}
+
 	if err := os.WriteFile(outPath, raw, constants.FilePermission); err != nil {
 		return 0, fmt.Errorf("write %s: %w", outPath, err)
 	}
+
 	printAllProfilesExportRows(all.Profiles, names, "JSON snapshot")
+
 	return len(raw), nil
 }
 
@@ -165,14 +179,18 @@ func writeAllChromeProfilesYAML(names []string, outPath string) (int, error) {
 	if err := os.MkdirAll(filepath.Dir(outPath), constants.DirPermission); err != nil && filepath.Dir(outPath) != "." {
 		return 0, err
 	}
+
 	raw, err := yaml.Marshal(all)
 	if err != nil {
 		return 0, fmt.Errorf("marshal all profiles YAML: %w", err)
 	}
+
 	if err := os.WriteFile(outPath, raw, constants.FilePermission); err != nil {
 		return 0, fmt.Errorf("write %s: %w", outPath, err)
 	}
+
 	printAllProfilesExportRows(all.Profiles, names, "YAML snapshot")
+
 	return len(raw), nil
 }
 
@@ -180,15 +198,18 @@ func writeAllChromeProfilesSQLite(names []string, outPath string) (int, error) {
 	if err := os.MkdirAll(filepath.Dir(outPath), constants.DirPermission); err != nil && filepath.Dir(outPath) != "." {
 		return 0, err
 	}
+
 	db, err := store.OpenSQLiteDB(outPath)
 	if err != nil {
 		return 0, fmt.Errorf("open sqlite db %s: %w", outPath, err)
 	}
+
 	defer db.Close()
 
 	if err := initChromeSQLiteTables(db); err != nil {
 		return 0, err
 	}
+
 	if err := populateProfilesInSQLite(db, names); err != nil {
 		return 0, err
 	}
@@ -262,9 +283,11 @@ func insertAllProfilesTx(tx *dbengine.TxWrapper, names []string) *apperror.AppEr
 		if !hasExp {
 			continue
 		}
+
 		if err := insertProfileToSQLite(tx, name, exp); err != nil {
 			return err
 		}
+
 		printProfilePopulatedRow(name, exp.Preferences, maxW)
 	}
 
@@ -281,6 +304,7 @@ func insertProfileToSQLite(tx *dbengine.TxWrapper, name string, exp chromeExport
 	if err := insertProfileMetaToSQLite(tx, name, exp); err != nil {
 		return err
 	}
+
 	if err := insertTokensToSQLite(tx, name, exp.TokenVault); err != nil {
 		return err
 	}
@@ -295,6 +319,7 @@ func insertProfileMetaToSQLite(tx *dbengine.TxWrapper, name string, exp chromeEx
 	if _, err := tx.Exec(ctx, query, name, displayName, exp.ExportedAt, len(exp.ExtensionIDs)); err != nil {
 		return err
 	}
+
 	if prefErr := insertOptionalJSONToSQLite(tx, "chrome_preferences", "preferences_json", name, exp.Preferences); prefErr != nil {
 		return prefErr
 	}
@@ -306,6 +331,7 @@ func insertTokensToSQLite(tx *dbengine.TxWrapper, name string, vault *ChromeToke
 	if vault == nil || len(vault.Tokens) == 0 {
 		return nil
 	}
+
 	ctx := context.Background()
 	query := "INSERT OR REPLACE INTO chrome_tokens (profile_name, service, account_id, raw_base64, double_base64) VALUES (?, ?, ?, ?, ?)"
 	for _, t := range vault.Tokens {
@@ -321,6 +347,7 @@ func insertOptionalJSONToSQLite(tx *dbengine.TxWrapper, table, col, name string,
 	if len(raw) == 0 {
 		return nil
 	}
+
 	query := fmt.Sprintf("INSERT OR REPLACE INTO %s (profile_name, %s) VALUES (?, ?)", table, col)
 	_, err := tx.Exec(context.Background(), query, name, string(raw))
 
@@ -355,6 +382,7 @@ func saveBlobEntry(tx *dbengine.TxWrapper, name, srcPath, blobFile string) *appe
 	if err != nil || len(bytes) == 0 {
 		return nil
 	}
+
 	query := "INSERT OR REPLACE INTO chrome_blobs (profile_name, file_name, payload) VALUES (?, ?, ?)"
 	_, execErr := tx.Exec(context.Background(), query, name, blobFile, bytes)
 
@@ -365,10 +393,12 @@ func writeAllChromeProfilesZIP(names []string, outPath string) (int, error) {
 	if err := os.MkdirAll(filepath.Dir(outPath), constants.DirPermission); err != nil && filepath.Dir(outPath) != "." {
 		return 0, err
 	}
+
 	f, err := os.Create(outPath)
 	if err != nil {
 		return 0, err
 	}
+
 	defer f.Close()
 
 	zw := zip.NewWriter(f)
@@ -379,7 +409,9 @@ func writeAllChromeProfilesZIP(names []string, outPath string) (int, error) {
 	for _, name := range names {
 		writeProfileToZipWithProgress(zw, name, maxW)
 	}
+
 	_ = zw.Close()
+
 	return getFileSize(outPath), nil
 }
 
@@ -388,6 +420,7 @@ func writeProfileToZipWithProgress(zw *zip.Writer, name string, maxW int) {
 	if !hasDir {
 		return
 	}
+
 	_ = addProfileToZip(zw, srcPath, name)
 	label := formatChromeProfileLabel(name, nil)
 	pad := calculateLabelPadding(maxW, label)
@@ -402,6 +435,7 @@ func addManifestToZip(zw *zip.Writer, names []string) error {
 		ProfileCount:  len(names),
 		Profiles:      make([]chromeManifestProfile, 0, len(names)),
 	}
+
 	for _, name := range names {
 		displayName, email := resolveProfileNameAndEmail(name, nil)
 		srcPath, _ := resolveChromeProfileDir(name)
@@ -413,15 +447,19 @@ func addManifestToZip(zw *zip.Writer, names []string) error {
 			ExtensionCount: extCount,
 		})
 	}
+
 	raw, err := json.MarshalIndent(m, "", constants.JSONIndent)
 	if err != nil {
 		return err
 	}
+
 	w, err := zw.Create("manifest.json")
 	if err != nil {
 		return err
 	}
+
 	_, err = w.Write(raw)
+
 	return err
 }
 
@@ -431,11 +469,13 @@ func addProfileToZip(zw *zip.Writer, srcPath, name string) error {
 		defer os.Remove(tmpJSON)
 		_ = copyFileToZipPath(zw, tmpJSON, filepath.ToSlash(filepath.Join(name, name+".json")))
 	}
+
 	_ = copyFileToZipPath(zw, filepath.Join(srcPath, "Bookmarks"), filepath.ToSlash(filepath.Join(name, "Bookmarks")))
 	_ = copyFileToZipPath(zw, filepath.Join(srcPath, "Preferences"), filepath.ToSlash(filepath.Join(name, "Preferences")))
 	for _, dbName := range constants.ChromeProfileSQLiteEntries {
 		_ = copyFileToZipPath(zw, filepath.Join(srcPath, dbName), filepath.ToSlash(filepath.Join(name, dbName)))
 	}
+
 	return nil
 }
 
@@ -444,16 +484,20 @@ func copyFileToZipPath(zw *zip.Writer, srcPath, zipPath string) error {
 	if err != nil || info.IsDir() {
 		return nil
 	}
+
 	f, err := os.Open(srcPath)
 	if err != nil {
 		return nil
 	}
+
 	defer f.Close()
 	w, err := zw.Create(zipPath)
 	if err != nil {
 		return err
 	}
+
 	_, err = io.Copy(w, f)
+
 	return err
 }
 
@@ -462,6 +506,7 @@ func getFileSize(path string) int {
 	if err != nil {
 		return 0
 	}
+
 	return int(info.Size())
 }
 
@@ -484,9 +529,11 @@ func resolveProfileNameAndEmail(dirName string, prefsRaw json.RawMessage) (strin
 	if email == "" && len(prefsRaw) > 0 {
 		email = extractEmailFromPreferences(prefsRaw)
 	}
+
 	if email == "" {
 		email = extractEmailFromProfileDisk(dirName)
 	}
+
 	return displayName, email
 }
 
@@ -495,6 +542,7 @@ func fetchLocalStateProfileInfo(dirName string) (string, string) {
 	if state == nil {
 		return "", ""
 	}
+
 	info, isFound := state.Profile.InfoCache[dirName]
 	if !isFound {
 		return "", ""
@@ -508,10 +556,12 @@ func extractEmailFromProfileDisk(dirName string) string {
 	if !hasDir {
 		return ""
 	}
+
 	prefBytes, err := os.ReadFile(filepath.Join(srcPath, "Preferences"))
 	if err != nil || len(prefBytes) == 0 {
 		return ""
 	}
+
 	return extractEmailFromPreferences(prefBytes)
 }
 
@@ -519,6 +569,7 @@ func extractEmailFromPreferences(raw json.RawMessage) string {
 	if len(raw) == 0 {
 		return ""
 	}
+
 	var pref struct {
 		AccountInfo []struct {
 			Email string `json:"email"`
@@ -532,14 +583,18 @@ func extractEmailFromPreferences(raw json.RawMessage) string {
 			} `json:"services"`
 		} `json:"google"`
 	}
+
 	if err := json.Unmarshal(raw, &pref); err != nil {
 		return ""
 	}
+
 	if len(pref.AccountInfo) > 0 && pref.AccountInfo[0].Email != "" {
 		return pref.AccountInfo[0].Email
 	}
+
 	if pref.Signin.UserName != "" {
 		return pref.Signin.UserName
 	}
+
 	return pref.Google.Services.Username
 }

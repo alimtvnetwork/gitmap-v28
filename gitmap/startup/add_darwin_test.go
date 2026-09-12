@@ -53,28 +53,35 @@ func TestAddDarwin_CreatesManagedFile(t *testing.T) {
 	if err != nil {
 		t.Fatalf("Add: %v", err)
 	}
+
 	if res.Status != AddCreated {
 		t.Fatalf("status = %d, want AddCreated", res.Status)
 	}
+
 	want := filepath.Join(dir, "gitmap.watch.plist")
 	if res.Path != want {
 		t.Fatalf("path = %s, want %s", res.Path, want)
 	}
+
 	body, err := os.ReadFile(res.Path)
 	if err != nil {
 		t.Fatalf("read back: %v", err)
 	}
+
 	s := string(body)
 	if !strings.Contains(s, "<key>"+constants.StartupPlistMarker+"</key>") {
 		t.Errorf("body missing managed marker key:\n%s", s)
 	}
+
 	if !strings.Contains(s, "<true/>") {
 		t.Errorf("body missing <true/> for marker:\n%s", s)
 	}
+
 	if !strings.Contains(s, "<string>/usr/local/bin/gitmap</string>") ||
 		!strings.Contains(s, "<string>watch</string>") {
 		t.Errorf("body missing split ProgramArguments:\n%s", s)
 	}
+
 	if !strings.Contains(s, "<key>Label</key>") ||
 		!strings.Contains(s, "<string>gitmap.watch</string>") {
 		t.Errorf("body missing Label=gitmap.watch:\n%s", s)
@@ -91,9 +98,11 @@ func TestAddDarwin_RefusesNonManagedOverwrite(t *testing.T) {
 	if err != nil {
 		t.Fatalf("Add: %v", err)
 	}
+
 	if res.Status != AddRefused {
 		t.Fatalf("status = %d, want AddRefused", res.Status)
 	}
+
 	body, _ := os.ReadFile(target)
 	if !strings.Contains(string(body), "/evil") {
 		t.Errorf("third-party plist was modified:\n%s", body)
@@ -107,13 +116,16 @@ func TestAddDarwin_ExistsWithoutForce(t *testing.T) {
 	if err != nil || first.Status != AddCreated {
 		t.Fatalf("first add: %v / %d", err, first.Status)
 	}
+
 	second, err := Add(AddOptions{Name: "watch", Exec: "/v2"})
 	if err != nil {
 		t.Fatalf("second add: %v", err)
 	}
+
 	if second.Status != AddExists {
 		t.Fatalf("status = %d, want AddExists", second.Status)
 	}
+
 	body, _ := os.ReadFile(second.Path)
 	if !strings.Contains(string(body), "<string>/v1</string>") {
 		t.Errorf("file overwritten without --force:\n%s", body)
@@ -127,13 +139,16 @@ func TestAddDarwin_ForceOverwritesOurOwn(t *testing.T) {
 	if _, err := Add(AddOptions{Name: "watch", Exec: "/v1"}); err != nil {
 		t.Fatalf("first add: %v", err)
 	}
+
 	res, err := Add(AddOptions{Name: "watch", Exec: "/v2", Force: true})
 	if err != nil {
 		t.Fatalf("force add: %v", err)
 	}
+
 	if res.Status != AddOverwritten {
 		t.Fatalf("status = %d, want AddOverwritten", res.Status)
 	}
+
 	body, _ := os.ReadFile(res.Path)
 	if !strings.Contains(string(body), "<string>/v2</string>") {
 		t.Errorf("force did not replace body:\n%s", body)
@@ -150,6 +165,7 @@ func TestAddDarwin_PrefixNotDoubled(t *testing.T) {
 	if err != nil {
 		t.Fatalf("Add: %v", err)
 	}
+
 	want := filepath.Join(dir, "gitmap.watch.plist")
 	if res.Path != want {
 		t.Fatalf("path = %s, want %s (no double prefix)", res.Path, want)
@@ -163,15 +179,18 @@ func TestAddDarwin_AutoCreatesDir(t *testing.T) {
 	if runtime.GOOS != "darwin" {
 		t.Skip("plist tests are macOS-only")
 	}
+
 	root := t.TempDir()
 	t.Setenv("HOME", root)
 	res, err := Add(AddOptions{Name: "watch", Exec: "/x"})
 	if err != nil {
 		t.Fatalf("Add: %v", err)
 	}
+
 	if res.Status != AddCreated {
 		t.Fatalf("status = %d, want AddCreated", res.Status)
 	}
+
 	if _, err := os.Stat(filepath.Join(root, "Library", "LaunchAgents")); err != nil {
 		t.Errorf("LaunchAgents dir not created: %v", err)
 	}
@@ -187,16 +206,20 @@ func TestAddDarwin_ListSeesAddedEntry(t *testing.T) {
 	if _, err := Add(AddOptions{Name: "watch", Exec: "/usr/local/bin/gitmap watch"}); err != nil {
 		t.Fatalf("Add: %v", err)
 	}
+
 	entries, err := List()
 	if err != nil {
 		t.Fatalf("List: %v", err)
 	}
+
 	if len(entries) != 1 {
 		t.Fatalf("List returned %d entries, want 1: %#v", len(entries), entries)
 	}
+
 	if entries[0].Name != "gitmap.watch" {
 		t.Errorf("entry name = %s, want gitmap.watch", entries[0].Name)
 	}
+
 	if entries[0].Exec != "/usr/local/bin/gitmap watch" {
 		t.Errorf("entry exec = %s, want /usr/local/bin/gitmap watch", entries[0].Exec)
 	}

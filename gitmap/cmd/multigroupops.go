@@ -18,6 +18,7 @@ func runMultiGroupPull() error {
 	for _, r := range records {
 		pullOneRepo(r)
 	}
+
 	return nil
 }
 
@@ -29,6 +30,7 @@ func runMultiGroupStatus() error {
 	printStatusBanner(len(records))
 	summary := printStatusTable(records)
 	printStatusSummary(summary)
+
 	return nil
 }
 
@@ -44,6 +46,7 @@ func runMultiGroupExec(args []string) error {
 	printExecBanner(args, len(records))
 	succeeded, failed, missing := execAllRepos(records, args)
 	printExecSummary(succeeded, failed, missing, len(records))
+
 	return nil
 }
 
@@ -71,6 +74,7 @@ func collectGroupRepos(db *store.DB, names []string) []model.ScanRecord {
 			if seen[r.ID] {
 				continue
 			}
+
 			seen[r.ID] = true
 			all = append(all, r)
 		}

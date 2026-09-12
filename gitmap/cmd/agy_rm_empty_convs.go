@@ -37,14 +37,17 @@ func runAgyRemoveEmptyConvs(args []string) error {
 	if err != nil {
 		return apperror.WrapSimple(err, "path error")
 	}
+
 	projects, err := loadAllAgyProjects(dirPath)
 	if err != nil {
 		return apperror.WrapSimple(err, "load projects")
 	}
+
 	convs, err := scanAllConversations()
 	if err != nil {
 		return apperror.WrapSimple(err, "scan conversations")
 	}
+
 	return processAgyEmptyRemoval(dirPath, projects, convs)
 }
 
@@ -57,8 +60,10 @@ func processAgyEmptyRemoval(dirPath string, projects []AgyProject, convs []AgyCo
 	if len(targets) == 0 {
 		fmt.Printf("%s No Antigravity projects with empty conversations found to remove.\n",
 			constants.ColorGreen+"✓"+constants.ColorReset)
+
 		return nil
 	}
+
 	return executeAgyEmptyRemoval(dirPath, targets, len(projects)-len(targets))
 }
 
@@ -69,6 +74,7 @@ func filterExceptedCandidates(candidates []AgyProjectConvs, tokens []string) []A
 			targets = append(targets, c)
 		}
 	}
+
 	return targets
 }
 
@@ -77,12 +83,16 @@ func executeAgyEmptyRemoval(dirPath string, targets []AgyProjectConvs, remaining
 	if agyRmEmptyDryRun {
 		fmt.Printf("\n%s [dry-run] %d project(s) would be removed. Remaining: %d\n",
 			constants.ColorYellow+"ℹ"+constants.ColorReset, len(targets), remaining)
+
 		return nil
 	}
+
 	if !agyRmEmptyYes && !confirmEmptyRemoval(len(targets)) {
 		fmt.Println("Removal canceled. No changes made.")
+
 		return nil
 	}
+
 	return deleteTargetProjectFiles(dirPath, targets, remaining)
 }
 
@@ -90,6 +100,7 @@ func confirmEmptyRemoval(count int) bool {
 	msg := fmt.Sprintf("%sAre you sure you want to remove %d Antigravity project(s) with empty conversations? [y/N]: %s",
 		constants.ColorYellow, count, constants.ColorReset)
 	ok, err := promptConfirm(msg)
+
 	return err == nil && ok
 }
 
@@ -101,8 +112,10 @@ func deleteTargetProjectFiles(dirPath string, targets []AgyProjectConvs, remaini
 			deleted++
 		}
 	}
+
 	fmt.Printf("\n%s Successfully removed %d Antigravity project(s) with empty conversations. Remaining active: %d\n",
 		constants.ColorGreen+"✓"+constants.ColorReset, deleted, remaining)
+
 	return nil
 }
 

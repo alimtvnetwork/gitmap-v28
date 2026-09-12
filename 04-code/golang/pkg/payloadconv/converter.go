@@ -35,6 +35,7 @@ func ToBytes(payload any) result.Wrap[[]byte] {
 
 		// Append trailing newline for better file readability
 		b = append(b, '\n')
+
 		return result.Success(b)
 	}
 }
@@ -45,5 +46,6 @@ func ToBytesMust(payload any) []byte {
 	if res.IsFailure() {
 		panic(res.Fault().Error())
 	}
+
 	return res.Data()
 }

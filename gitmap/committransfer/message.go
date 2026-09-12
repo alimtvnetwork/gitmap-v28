@@ -36,11 +36,13 @@ func CleanMessage(
 	if reason := matchDrop(subject, p.DropPatterns); reason != "" {
 		return CleanResult{Skipped: "drop-pattern " + reason}
 	}
+
 	cleanedSubject := applyStrip(subject, p.StripPatterns)
 	cleanedSubject = strings.TrimSpace(cleanedSubject)
 	if cleanedSubject == "" {
 		return CleanResult{Skipped: "cleaned-empty"}
 	}
+
 	if p.Conventional {
 		cleanedSubject = normalizeConventional(cleanedSubject)
 	}
@@ -62,6 +64,7 @@ func applyTemplateOverride(subject string, p MessagePolicy) string {
 	if !p.TemplateOverride || p.Templates == nil {
 		return subject
 	}
+
 	mapped, isMapped := p.Templates[subject]
 	if isMapped {
 		return mapped
@@ -78,6 +81,7 @@ func matchDrop(subject string, patterns []string) string {
 		if err != nil {
 			continue
 		}
+
 		if re.MatchString(subject) {
 			return pat
 		}
@@ -94,6 +98,7 @@ func applyStrip(subject string, patterns []string) string {
 		if err != nil {
 			continue
 		}
+
 		out = re.ReplaceAllString(out, "")
 	}
 
@@ -111,6 +116,7 @@ func normalizeConventional(subject string) string {
 	if conventionalPrefix.MatchString(subject) {
 		return subject
 	}
+
 	lower := strings.ToLower(subject)
 	switch {
 	case startsWithAny(lower, "fix", "bugfix", "hotfix"):
@@ -188,6 +194,7 @@ func BuildReplayedSet(recentLog string) map[string]struct{} {
 		if !strings.HasPrefix(line, prefix) {
 			continue
 		}
+
 		rest := strings.TrimPrefix(line, prefix)
 		// rest = "<sourceDisplay> <shortSHA>"
 		if idx := strings.LastIndex(rest, " "); idx > 0 {

@@ -15,6 +15,7 @@ func DefaultVersionInstallConfig(initialVersion string) VersionInstallConfig {
 	if initialVersion == "" {
 		initialVersion = "1.0.0"
 	}
+
 	return VersionInstallConfig{
 		DocDir:            ".lovable",
 		MemoryDir:         ".lovable/memory/learned",

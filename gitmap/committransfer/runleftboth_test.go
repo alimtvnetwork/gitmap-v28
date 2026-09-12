@@ -20,6 +20,7 @@ func TestWithDirectionLabel(t *testing.T) {
 		{"right to left", "[commit-both]", "(right→left)", "[commit-both] (right→left)"},
 		{"empty suffix", "[commit-right]", "", "[commit-right] "},
 	}
+
 	for _, tc := range cases {
 		t.Run(tc.name, func(t *testing.T) {
 			t.Parallel()
@@ -46,12 +47,15 @@ func TestRunBothImmutableOptions(t *testing.T) {
 	if original.LogPrefix != "[commit-both]" {
 		t.Fatalf("original mutated: got %q", original.LogPrefix)
 	}
+
 	if first.LogPrefix == second.LogPrefix {
 		t.Fatalf("two passes share LogPrefix: %q", first.LogPrefix)
 	}
+
 	if !strings.Contains(first.LogPrefix, "left→right") {
 		t.Fatalf("first pass missing direction tag: %q", first.LogPrefix)
 	}
+
 	if !strings.Contains(second.LogPrefix, "right→left") {
 		t.Fatalf("second pass missing direction tag: %q", second.LogPrefix)
 	}

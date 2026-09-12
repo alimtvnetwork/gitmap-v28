@@ -13,6 +13,7 @@ func renderPinnedProjectsTable(projects []PinnedProject) {
 	if len(projects) == 0 {
 		fmt.Printf("\n  %sNo pinned Antigravity projects found.%s\n", constants.ColorDim, constants.ColorReset)
 		fmt.Printf("  Pin a project with: %sgitmap agy pin-projects add <project-id-or-path>%s\n\n", constants.ColorCyan, constants.ColorReset)
+
 		return
 	}
 
@@ -59,6 +60,7 @@ func buildPinnedTableContext(projects []PinnedProject) *pinnedTableContext {
 		if len(p.Name) > ctx.MaxProject {
 			ctx.MaxProject = len(p.Name)
 		}
+
 		if len(shortProjectId(p.ID)) > ctx.MaxID {
 			ctx.MaxID = len(shortProjectId(p.ID))
 		}

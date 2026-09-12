@@ -52,6 +52,7 @@ func TestScanCSVHeaders_ExactOrder(t *testing.T) {
 		t.Fatalf("ScanCSVHeaders length: got %d, want %d (%v)",
 			len(got), len(expectedScanCSVHeaders), expectedScanCSVHeaders)
 	}
+
 	for i, want := range expectedScanCSVHeaders {
 		if got[i] != want {
 			t.Errorf("ScanCSVHeaders[%d]: got %q, want %q", i, got[i], want)
@@ -67,6 +68,7 @@ func TestLatestBranchCSVHeaders_ExactOrder(t *testing.T) {
 		t.Fatalf("LatestBranchCSVHeaders length: got %d, want %d (%v)",
 			len(got), len(expectedLatestBranchCSVHeaders), expectedLatestBranchCSVHeaders)
 	}
+
 	for i, want := range expectedLatestBranchCSVHeaders {
 		if got[i] != want {
 			t.Errorf("LatestBranchCSVHeaders[%d]: got %q, want %q", i, got[i], want)
@@ -90,10 +92,12 @@ func TestWriteCSV_ExactBytes(t *testing.T) {
 		DiscoveredURL: "https://example.com/u/repo-a.git",
 		Transport:     "https",
 	}
+
 	var buf bytes.Buffer
 	if err := WriteCSV(&buf, []model.ScanRecord{rec}); err != nil {
 		t.Fatalf("WriteCSV: %v", err)
 	}
+
 	want := "repoName,httpsUrl,sshUrl,branch,branchSource,relativePath,absolutePath,cloneInstruction,notes,depth,repoId,discoveredUrl,transport\r\n" +
 		"repo-a,https://example.com/u/repo-a.git,git@example.com:u/repo-a.git,main,head,p/repo-a,/p/repo-a,git clone X,n,3,example.com/u/repo-a,https://example.com/u/repo-a.git,https\r\n"
 	if got := buf.String(); got != want {
@@ -110,6 +114,7 @@ func TestWriteCSV_HeaderIsFirstLine(t *testing.T) {
 	if err := WriteCSV(&buf, nil); err != nil {
 		t.Fatalf("WriteCSV: %v", err)
 	}
+
 	first, _, _ := strings.Cut(buf.String(), "\r\n")
 	want := strings.Join(expectedScanCSVHeaders, ",")
 	if first != want {
@@ -126,15 +131,18 @@ func TestWriteCSV_ColumnCountMatchesHeader(t *testing.T) {
 	if err := WriteCSV(&buf, []model.ScanRecord{{RepoName: "x"}}); err != nil {
 		t.Fatalf("WriteCSV: %v", err)
 	}
+
 	lines := strings.Split(strings.TrimRight(buf.String(), "\r\n"), "\r\n")
 	if len(lines) < 2 {
 		t.Fatalf("expected header + 1 row, got %d lines", len(lines))
 	}
+
 	hdrCols := strings.Count(lines[0], ",") + 1
 	rowCols := strings.Count(lines[1], ",") + 1
 	if hdrCols != rowCols {
 		t.Errorf("column count drift: header=%d row=%d", hdrCols, rowCols)
 	}
+
 	if hdrCols != len(expectedScanCSVHeaders) {
 		t.Errorf("header column count: got %d, want %d", hdrCols, len(expectedScanCSVHeaders))
 	}

@@ -21,6 +21,7 @@ func runUpdateCleanup() error {
 	if len(selfPath) > 0 {
 		fmt.Printf(constants.MsgUpdateCleanBinary, selfPath)
 	}
+
 	logUpdateCleanup(constants.UpdateCleanupLogStart, selfPath)
 	logHandoffEvent("cleanup", "start",
 		map[string]string{"self": selfPath})
@@ -39,6 +40,7 @@ func runUpdateCleanup() error {
 	logHandoffEvent("cleanup", "done",
 		map[string]string{"removed": fmt.Sprintf("%d", total)})
 	dumpDebugWindowsNote("cleanup finished, removed=%d", total)
+
 	return nil
 }
 
@@ -49,6 +51,7 @@ func delayUpdateCleanupIfNeeded() {
 	if len(raw) == 0 {
 		return
 	}
+
 	ms, err := strconv.Atoi(raw)
 	if err != nil || ms <= 0 {
 		fmt.Fprintf(os.Stderr, constants.ErrUpdateCleanDelayInvalid, raw)
@@ -58,6 +61,7 @@ func delayUpdateCleanupIfNeeded() {
 
 		return
 	}
+
 	fmt.Printf(constants.MsgUpdateCleanDelay, ms)
 	logHandoffEvent("cleanup", "delay",
 		map[string]string{"ms": fmt.Sprintf("%d", ms)})

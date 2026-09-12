@@ -103,6 +103,7 @@ func parseSequenceFlags(args []string) (SequenceFlags, []string) {
 		StartNum: 1,
 		PinMap:   make(map[string]int),
 	}
+
 	var dirs []string
 
 	for i := 0; i < len(args); i++ {
@@ -121,10 +122,12 @@ func parseOneSeqArg(args []string, i int, flags *SequenceFlags) (int, string) {
 	if parseSeqBoolFlags(arg, flags) {
 		return 0, ""
 	}
+
 	adv := parseSeqValFlags(args, i, flags)
 	if adv > 0 {
 		return adv, ""
 	}
+
 	if !strings.HasPrefix(arg, "-") {
 		return 0, arg
 	}
@@ -136,15 +139,19 @@ func parseSeqBoolFlags(arg string, flags *SequenceFlags) bool {
 	switch arg {
 	case "--json", "-json":
 		flags.IsJson = true
+
 		return true
 	case "--dry-run", "-dry-run":
 		flags.IsDryRun = true
+
 		return true
 	case "--order-by-time", "-orderbytime":
 		flags.IsOrderByTime = true
+
 		return true
 	case "--order-by-az", "-orderbyaz":
 		flags.IsOrderByAZ = true
+
 		return true
 	}
 
@@ -156,20 +163,24 @@ func parseSeqValFlags(args []string, i int, flags *SequenceFlags) int {
 	if i+1 >= len(args) {
 		return 0
 	}
+
 	nextVal := args[i+1]
 	switch arg {
 	case "--start", "-start":
 		if val, err := strconv.Atoi(nextVal); err == nil {
 			flags.StartNum = val
 		}
+
 		return 1
 	case "--shift", "-shift":
 		if val, err := strconv.Atoi(nextVal); err == nil {
 			flags.ShiftNum = val
 		}
+
 		return 1
 	case "--pin", "-pin":
 		parsePinMap(nextVal, flags.PinMap)
+
 		return 1
 	}
 
@@ -207,6 +218,7 @@ func outputSequenceList(payload *SequencePayload, flags SequenceFlags) error {
 
 		return nil
 	}
+
 	printSequenceTable(payload)
 
 	return nil
@@ -238,10 +250,12 @@ func extractSequenceItems(dir string, entries []os.DirEntry) ([]SequenceItem, in
 		if entry.IsDir() {
 			continue
 		}
+
 		item, isSeq := buildSequenceItem(dir, entry.Name(), re)
 		if isSeq {
 			sequencedCount++
 		}
+
 		items = append(items, item)
 	}
 
@@ -258,6 +272,7 @@ func buildSequenceItem(dir, name string, re *regexp.Regexp) (SequenceItem, bool)
 		base = match[2]
 		isSeq = true
 	}
+
 	relPath := strings.ReplaceAll(filepath.Join(dir, name), "\\", "/")
 
 	return SequenceItem{
@@ -298,8 +313,10 @@ func printSequenceTable(payload *SequencePayload) {
 		if f.Sequence > 0 {
 			seqStr = fmt.Sprintf("%02d", f.Sequence)
 		}
+
 		fmt.Printf("%-6s  %-35s  %-30s\n", seqStr, f.Filename, f.BaseName)
 	}
+
 	fmt.Println()
 }
 
@@ -345,6 +362,7 @@ func outputSequenceFixReport(report SequenceFixReport, flags SequenceFlags) erro
 
 		return nil
 	}
+
 	printFixReport(report)
 
 	return nil
@@ -354,9 +372,11 @@ func persistSequenceChanges(report SequenceFixReport, targetDir string, isDryRun
 	if isDryRun {
 		return nil
 	}
+
 	if err := recordSequenceHistoryInDB(report); err != nil {
 		return err
 	}
+
 	updatedPayload, errScan := scanDirectorySequence(targetDir)
 	if errScan != nil {
 		return errScan
@@ -390,6 +410,7 @@ func assignNewSequences(unpinned, pinned []*seqFile, flags SequenceFlags) {
 		for usedSeqs[currentSeq] {
 			currentSeq++
 		}
+
 		newSeq := currentSeq + flags.ShiftNum
 		pf.NewSeq = newSeq
 		usedSeqs[newSeq] = true
@@ -453,9 +474,11 @@ func printFixReport(report SequenceFixReport) {
 	for _, op := range report.Operations {
 		fmt.Printf("  %s %s -> %s (seq %02d)\n", statusPrefix, op.From, op.To, op.Seq)
 	}
+
 	if report.TotalFixed == 0 {
 		fmt.Println("  No files needed re-sequencing (already cleanly ordered).")
 	}
+
 	fmt.Println()
 }
 
@@ -465,6 +488,7 @@ func handleSequenceGet(args []string) error {
 	if err != nil {
 		return err
 	}
+
 	defer mainDB.Close()
 	defer repoDB.Close()
 
@@ -480,6 +504,7 @@ func queryAndPrintSequenceGet(ctx context.Context, repoDB *sql.DB, targetDir str
 	if err != nil {
 		return err
 	}
+
 	defer rows.Close()
 
 	files, err := scanSequenceRows(rows, targetDir)
@@ -502,6 +527,7 @@ func scanSequenceRows(rows *sql.Rows, targetDir string) ([]SequenceItem, error) 
 		if err := rows.Scan(&fn, &seq, &bn); err != nil {
 			return nil, apperror.WrapSimple(err, "scan sequence row")
 		}
+
 		files = append(files, SequenceItem{
 			Sequence: seq,
 			Filename: fn,
@@ -509,6 +535,7 @@ func scanSequenceRows(rows *sql.Rows, targetDir string) ([]SequenceItem, error) 
 			Path:     filepath.Join(targetDir, fn),
 		})
 	}
+
 	if err := rows.Err(); err != nil {
 		return nil, apperror.WrapSimple(err, "iterate sequence rows")
 	}
@@ -522,6 +549,7 @@ func handleSequenceHistory(args []string) error {
 	if err != nil {
 		return err
 	}
+
 	defer mainDB.Close()
 	defer repoDB.Close()
 
@@ -537,6 +565,7 @@ func queryAndPrintSequenceHistory(ctx context.Context, repoDB *sql.DB, targetDir
 	if err != nil {
 		return err
 	}
+
 	defer rows.Close()
 
 	return printSequenceHistoryRows(rows, targetDir)
@@ -551,12 +580,15 @@ func printSequenceHistoryRows(rows *sql.Rows, targetDir string) error {
 		if err := rows.Scan(&id, &dir, &opsJson, &created); err != nil {
 			return apperror.WrapSimple(err, "scan sequence history")
 		}
+
 		t := time.Unix(created, 0).UTC().Format(time.RFC3339)
 		fmt.Printf("  [%s] ID #%d:\n    %s\n", t, id, opsJson)
 	}
+
 	if err := rows.Err(); err != nil {
 		return apperror.WrapSimple(err, "iterate sequence history")
 	}
+
 	fmt.Println()
 
 	return nil
@@ -568,6 +600,7 @@ func saveSequenceToRepoDB(payload *SequencePayload) error {
 	if err != nil {
 		return apperror.WrapSimple(err, "get repo db for sequence")
 	}
+
 	defer mainDB.Close()
 	defer repoDB.Close()
 
@@ -600,6 +633,7 @@ func insertSequenceFilesTx(ctx context.Context, tx *dbengine.TxWrapper, payload 
 	if err != nil {
 		return apperror.WrapSimple(err, "prepare insert file sequence")
 	}
+
 	defer stmt.Close()
 
 	for _, f := range payload.Files {
@@ -617,6 +651,7 @@ func recordSequenceHistoryInDB(report SequenceFixReport) error {
 	if err != nil {
 		return apperror.WrapSimple(err, "get repo db for history")
 	}
+
 	defer mainDB.Close()
 	defer repoDB.Close()
 

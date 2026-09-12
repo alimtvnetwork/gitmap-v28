@@ -20,6 +20,7 @@ func main() {
 		if err != nil {
 			return err
 		}
+
 		if !strings.HasSuffix(path, ".go") || strings.Contains(path, "vendor") || strings.Contains(path, "node_modules") {
 			return nil
 		}
@@ -65,6 +66,7 @@ func main() {
 						fmt.Printf("%s:%d: Single-character variable '%s'\n", pos.Filename, pos.Line, ident.Name)
 					}
 				}
+
 				if ident, ok := rangeStmt.Value.(*ast.Ident); ok {
 					if len(ident.Name) == 1 && ident.Name != "_" {
 						pos := fset.Position(ident.Pos())
@@ -72,8 +74,10 @@ func main() {
 					}
 				}
 			}
+
 			return true
 		})
+
 		return nil
 	})
 

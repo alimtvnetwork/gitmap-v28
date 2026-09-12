@@ -14,8 +14,10 @@ if ($args.Count -gt 0 -and ($args[0] -eq 'cd' -or $args[0] -eq 'go')) {
   if ($LASTEXITCODE -ne 0) { $global:LASTEXITCODE = $LASTEXITCODE; return }
   $dest = $dest.Trim()
   if ($dest -and (Test-Path -LiteralPath ([string]$dest))) { Set-Location -LiteralPath ([string]$dest) }
+
   return
 }
+
 $handoff = [IO.Path]::Combine([IO.Path]::GetTempPath(), "gitmap-handoff-$([Guid]::NewGuid().ToString('N')).txt")
 try {
   $env:GITMAP_HANDOFF_FILE = $handoff; $env:GITMAP_WRAPPER = "1"; $env:GITMAP_COMMAND_WRAPPER = "1"
@@ -25,12 +27,15 @@ try {
     $target = [string](Get-Content -LiteralPath $handoff -Raw); $target = $target.Trim()
     if ($target -and (Test-Path -LiteralPath ([string]$target))) { Set-Location -LiteralPath ([string]$target) }
   }
+
   $global:LASTEXITCODE = $exitCode
+
   return
 }
 finally {
   Remove-Item -LiteralPath $handoff -ErrorAction SilentlyContinue
   Remove-Item Env:\GITMAP_HANDOFF_FILE -ErrorAction SilentlyContinue
 }
+
 `
 )

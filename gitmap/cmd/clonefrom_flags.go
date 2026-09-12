@@ -38,6 +38,7 @@ func parseCloneFromFlags(args []string) cloneFromFlags {
 	if cfg.emitSchema != "" {
 		return cfg
 	}
+
 	validateCloneFromArgs(fs, cfg.checkout)
 	cfg.maxConcurrency = resolveCloneFromConcurrency(*maxConcFlag)
 	cfg.file = fs.Arg(0)
@@ -50,6 +51,7 @@ func validateCloneFromArgs(fs *flag.FlagSet, checkout string) {
 		fmt.Fprintln(os.Stderr, constants.MsgCloneFromMissingArg)
 		cliexit.HandleError(nil, 2)
 	}
+
 	validateCheckoutFlag(checkout)
 }
 
@@ -59,6 +61,7 @@ func resolveCloneFromConcurrency(maxConc int) int {
 		fmt.Fprintf(os.Stderr, constants.ErrCloneMaxConcurrencyInvalid, maxConc)
 		cliexit.HandleError(nil, 2)
 	}
+
 	return resolvedConc
 }
 
@@ -71,6 +74,7 @@ func bindCloneFromFlags(fs *flag.FlagSet, cfg *cloneFromFlags) *int {
 	bindCloneFromBasicFlags(fs, cfg)
 	bindCloneFromVerificationFlags(fs, cfg)
 	bindCloneFromOptionFlags(fs, cfg)
+
 	return fs.Int(constants.CloneFlagMaxConcurrency,
 		constants.CloneDefaultMaxConcurrency, constants.FlagDescCloneMaxConcurrency)
 }

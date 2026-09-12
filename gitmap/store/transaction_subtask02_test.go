@@ -40,6 +40,7 @@ func seedVisibilityRun(t *testing.T, db *DB) int64 {
 		PatternList:      "*",
 		StartedAt:        "2026-09-12T10:00:00Z",
 	}
+
 	id, err := db.InsertMakeAllVisibilityRun(run)
 	if err != nil {
 		t.Fatalf("InsertMakeAllVisibilityRun failed: %v", err)
@@ -57,6 +58,7 @@ func TestMakeAllVisibilityPendingAndExclude(t *testing.T) {
 		{RepoName: "repo-a", MatchedPattern: "*", StartedAt: "2026-09-12T10:00:00Z"},
 		{RepoName: "repo-b", MatchedPattern: "*", StartedAt: "2026-09-12T10:00:00Z"},
 	}
+
 	ids, err := db.InsertMakeAllVisibilityPendingResults(runID, rows)
 	if err != nil || len(ids) != 2 {
 		t.Fatalf("InsertMakeAllVisibilityPendingResults failed: %v", err)

@@ -573,6 +573,7 @@ var global *Logger`} />
     if verboseFlag {
         initVerboseLog()       // Init + defer Close
     }
+
     // ... command logic ...
 }
 
@@ -1033,6 +1034,7 @@ toolname completion --list-commands          # one command per line`} />
         $items = @(toolname completion --list-repos) + @("repos", "set-default")
         $items | Where-Object { $_ -like "$wordToComplete*" } |
             ForEach-Object { [System.Management.Automation.CompletionResult]::new($_) }
+
         return
     }
 

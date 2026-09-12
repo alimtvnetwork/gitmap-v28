@@ -20,7 +20,9 @@ func runMove(args []string) error {
 	if len(positional) == constants.ExpectedMoveArgsCount && handleRepoMove(positional[0], positional[1], mOpts) {
 		return nil
 	}
+
 	runMoveMerge(args)
+
 	return nil
 }
 
@@ -29,11 +31,13 @@ func handleRepoMove(srcTarget, destTarget string, opts moveOpts) bool {
 	if err != nil {
 		return false
 	}
+
 	defer db.Close()
 	rec, destPath, ok := prepareRepoMove(db, srcTarget, destTarget)
 	if !ok {
 		return false
 	}
+
 	return executeRepoMove(db, *rec, destPath, opts)
 }
 
@@ -42,23 +46,30 @@ func prepareRepoMove(db *store.DB, src, dest string) (*model.ScanRecord, string,
 	if err != nil || rec == nil {
 		return nil, "", false
 	}
+
 	destPath, err := calculateDestPath(rec.AbsolutePath, dest)
 	if err != nil || preflightMove(rec.AbsolutePath, destPath) != nil {
 		return nil, "", false
 	}
+
 	return rec, destPath, true
 }
 
 func executeRepoMove(db *store.DB, rec model.ScanRecord, destPath string, opts moveOpts) bool {
 	if opts.dryRun {
 		printMoveDryRun(rec.AbsolutePath, destPath)
+
 		return true
 	}
+
 	if opts.yes || confirmMovePrompt(rec.Slug, rec.AbsolutePath, destPath) {
 		executeMove(db, rec, destPath, opts)
+
 		return true
 	}
+
 	fmt.Println(constants.MsgMoveAborted)
+
 	return true
 }
 
@@ -72,7 +83,9 @@ func runMoveMerge(args []string) error {
 		_ = j.Abort()
 		cliexit.Fail(constants.CmdMv, constants.OpMove, leftEP.DisplayName+" -> "+rightEP.DisplayName, err, constants.ExitCodeError)
 	}
+
 	finalizeMoveTxn(j, leftEP, rightEP)
+
 	return nil
 }
 
@@ -83,10 +96,12 @@ func beginMoveTxn(left, right movemerge.Endpoint) *txn.Journal {
 	if left.Kind != movemerge.EndpointFolder || right.Kind != movemerge.EndpointFolder {
 		return &txn.Journal{}
 	}
+
 	db, err := openDB()
 	if err != nil {
 		return &txn.Journal{}
 	}
+
 	return createMoveTxnJournal(db, left, right)
 }
 
@@ -107,6 +122,7 @@ func finalizeMoveTxn(j *txn.Journal, left, right movemerge.Endpoint) {
 	if j.ID() == 0 {
 		return
 	}
+
 	_ = j.RecordRename(left.WorkingDir, right.WorkingDir)
 	_ = j.Commit()
 }
@@ -117,11 +133,13 @@ func parseMoveArgs(args []string) (string, string, movemerge.Options) {
 	if err := fs.Parse(reorderFlagsBeforeArgs(args)); err != nil {
 		cliexit.HandleError(nil, constants.ExitCodeUsage)
 	}
+
 	rest := fs.Args()
 	if len(rest) != constants.ExpectedMoveArgsCount {
 		fmt.Fprintf(os.Stderr, constants.ErrMMUsageFmt, constants.CmdMv)
 		cliexit.HandleError(nil, constants.ExitCodeUsage)
 	}
+
 	opts := mf.toOptions(constants.CmdMv, constants.LogPrefixMv, constants.CommitMsgMv)
 
 	return rest[0], rest[1], opts
@@ -131,6 +149,7 @@ func newMoveFlagSet() (*flag.FlagSet, *movemergeFlagSet) {
 	fs := flag.NewFlagSet(constants.CmdMv, flag.ExitOnError)
 	mf := &movemergeFlagSet{}
 	mf.bindFlags(fs)
+
 	return fs, mf
 }
 
@@ -149,6 +168,7 @@ func printEndpointSuggestions(raw string) {
 	if dbErr != nil {
 		return
 	}
+
 	defer db.Close()
 	PrintRepoSuggestions(db, raw)
 }

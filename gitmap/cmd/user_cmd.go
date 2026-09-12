@@ -18,6 +18,7 @@ func dispatchUser(command string) (bool, error) {
 	args := os.Args[2:]
 	if len(args) == 0 {
 		printUserUsage()
+
 		return true, nil
 	}
 
@@ -41,6 +42,7 @@ func dispatchUser(command string) (bool, error) {
 			fmt.Fprintf(os.Stderr, "Error creating user: %v\n", err)
 			cliexit.HandleError(nil, 1)
 		}
+
 		fmt.Printf("✔ Successfully created user %q\n", username)
 
 	case "rm", "delete", "remove":
@@ -54,6 +56,7 @@ func dispatchUser(command string) (bool, error) {
 			fmt.Fprintf(os.Stderr, "Error removing user: %v\n", err)
 			cliexit.HandleError(nil, 1)
 		}
+
 		fmt.Printf("✔ Successfully removed user %q\n", username)
 
 	case "help", "--help", "-h":

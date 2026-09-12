@@ -28,6 +28,7 @@ func acquireLock(dbDir string) error {
 
 		return nil
 	}
+
 	processLockMu.Unlock()
 
 	return retryAcquireLock(cleanDir)
@@ -42,9 +43,11 @@ func retryAcquireLock(cleanDir string) error {
 		} else {
 			lastErr = writeLock(cleanDir, lockPath)
 		}
+
 		if lastErr == nil {
 			return nil
 		}
+
 		time.Sleep(100 * time.Millisecond)
 	}
 

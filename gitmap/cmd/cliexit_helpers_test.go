@@ -67,11 +67,13 @@ func buildGitmapBinaryOnce() {
 
 		return
 	}
+
 	_, currentFile, _, ok := runtime.Caller(0)
 	moduleRoot := ".."
 	if ok {
 		moduleRoot = filepath.Dir(filepath.Dir(currentFile))
 	}
+
 	out := filepath.Join(os.TempDir(), gitmapBinaryName())
 	// Build from the gitmap module root.
 	cmd := exec.Command("go", "build", "-o", out, ".")
@@ -84,6 +86,7 @@ func buildGitmapBinaryOnce() {
 
 		return
 	}
+
 	gitmapBinary = out
 }
 
@@ -150,6 +153,7 @@ func runGitmap(t *testing.T, args []string, stdin string) (int, string, string) 
 	if err != nil {
 		t.Fatalf("create stdout capture file: %v", err)
 	}
+
 	stderrF, err := os.Create(stderrPath)
 	if err != nil {
 		t.Fatalf("create stderr capture file: %v", err)
@@ -167,6 +171,7 @@ func runGitmap(t *testing.T, args []string, stdin string) (int, string, string) 
 	if readErr1 != nil {
 		t.Fatalf("read stdout capture file: %v", readErr1)
 	}
+
 	if readErr2 != nil {
 		t.Fatalf("read stderr capture file: %v", readErr2)
 	}
@@ -194,6 +199,7 @@ func hermeticEnv() []string {
 			out = append(out, k+"="+v)
 		}
 	}
+
 	out = append(out,
 		"NO_COLOR=1",
 		"GITMAP_GLYPHS=rich",
@@ -212,6 +218,7 @@ func extractTestExitCode(err error) int {
 	if err == nil {
 		return 0
 	}
+
 	var exitErr *exec.ExitError
 	if errors.As(err, &exitErr) {
 		return exitErr.ExitCode()

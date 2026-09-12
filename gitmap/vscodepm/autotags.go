@@ -77,6 +77,7 @@ func unionTags(existing, incoming []string) []string {
 		if _, dup := seen[t]; dup {
 			continue
 		}
+
 		seen[t] = struct{}{}
 		out = append(out, t)
 	}
@@ -85,6 +86,7 @@ func unionTags(existing, incoming []string) []string {
 		if _, dup := seen[t]; dup {
 			continue
 		}
+
 		seen[t] = struct{}{}
 		out = append(out, t)
 	}

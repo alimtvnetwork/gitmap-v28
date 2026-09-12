@@ -14,6 +14,7 @@ import (
 func runOBSSettingsOnly() error {
 	fmt.Println("  Syncing OBS Studio settings...")
 	syncOBSSettings()
+
 	return nil
 }
 
@@ -125,6 +126,7 @@ func extractOBSSettingsZip(zipPath, target string) {
 
 		return
 	}
+
 	defer reader.Close()
 
 	// Create temp directory for extraction.
@@ -134,6 +136,7 @@ func extractOBSSettingsZip(zipPath, target string) {
 
 		return
 	}
+
 	defer os.RemoveAll(tmpDir)
 
 	// Extract all files to temp.
@@ -193,6 +196,7 @@ func extractOBSZipEntry(target string, file *zip.File) {
 	if absErr != nil {
 		absTarget = target
 	}
+
 	absDest, destErr := filepath.Abs(destPath)
 	if destErr != nil {
 		absDest = destPath
@@ -204,6 +208,7 @@ func extractOBSZipEntry(target string, file *zip.File) {
 
 	if file.FileInfo().IsDir() {
 		handleOBSExtractDir(destPath)
+
 		return
 	}
 
@@ -219,6 +224,7 @@ func extractOBSZipEntry(target string, file *zip.File) {
 
 		return
 	}
+
 	defer src.Close()
 
 	dst, err := os.Create(destPath)
@@ -227,6 +233,7 @@ func extractOBSZipEntry(target string, file *zip.File) {
 
 		return
 	}
+
 	defer dst.Close()
 
 	if _, copyErr := io.Copy(dst, io.LimitReader(src, 50*1024*1024)); copyErr != nil {
@@ -283,8 +290,10 @@ func handleOBSProfileDir(srcPath, name, profilesDir string) int {
 	_, dirErr := copyDirRecursive(srcPath, dstPath)
 	if dirErr != nil {
 		fmt.Fprintf(os.Stderr, "  ! Failed to copy profile %s: %v\n", name, dirErr)
+
 		return 0
 	}
+
 	return 1
 }
 
@@ -293,8 +302,10 @@ func handleOBSSceneFile(srcPath, name, scenesDir string) int {
 	copyErr := copyFile(srcPath, dstPath)
 	if copyErr != nil {
 		fmt.Fprintf(os.Stderr, "  ! Failed to copy scene %s: %v\n", name, copyErr)
+
 		return 0
 	}
+
 	return 1
 }
 
@@ -308,8 +319,10 @@ func handleOBSCopyDir(srcPath, dstPath, name string) int {
 	n, dirErr := copyDirRecursive(srcPath, dstPath)
 	if dirErr != nil {
 		fmt.Fprintf(os.Stderr, "  ! Failed to copy directory %s: %v\n", name, dirErr)
+
 		return 0
 	}
+
 	return n
 }
 

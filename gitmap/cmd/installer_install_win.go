@@ -54,6 +54,7 @@ func parseInstallWinFlags(args []string) (*InstallWinFlags, error) {
 	if err := fs.Parse(flagArgs); err != nil {
 		appErr := apperror.Wrap(err, "parseInstallWinFlags", map[string]any{"args": args})
 		appErr.Code = "E_INSTALLER_INVALID_FLAGS"
+
 		return nil, appErr
 	}
 
@@ -82,6 +83,7 @@ func executeInstallWin(ctx context.Context, db *store.DB, flags *InstallWinFlags
 			"error": "db cannot be nil",
 		})
 	}
+
 	if flags == nil {
 		return apperror.New("executeInstallWin", "E_INSTALLER_INVALID_INPUT", map[string]any{
 			"error": "flags cannot be nil",
@@ -92,6 +94,7 @@ func executeInstallWin(ctx context.Context, db *store.DB, flags *InstallWinFlags
 	if errGet != nil {
 		appErr := apperror.Wrap(errGet, "executeInstallWin", map[string]any{"slug": flags.Slug})
 		appErr.Code = "E_INSTALLER_NOT_FOUND"
+
 		return appErr
 	}
 
@@ -106,10 +109,12 @@ func executeInstallWin(ctx context.Context, db *store.DB, flags *InstallWinFlags
 	fmt.Printf("Executing Windows installer for %q (version: %s)...\n", existing.Name, existing.Version)
 	if flags.DryRun {
 		fmt.Println("[dry-run] Execution simulated successfully.")
+
 		return nil
 	}
 
 	fmt.Println("✓ Installation completed successfully.")
+
 	return nil
 }
 
@@ -130,13 +135,16 @@ func runInstallerInstallWin(cmd *cobra.Command, args []string) error {
 	if errDB != nil {
 		appErr := apperror.Wrap(errDB, "runInstallerInstallWin", map[string]any{"action": "open_db"})
 		appErr.Code = "E_INSTALLER_DB_ERROR"
+
 		return appErr
 	}
+
 	defer db.Close()
 
 	if errMigrate := db.MigrateInstallers(); errMigrate != nil {
 		appErr := apperror.Wrap(errMigrate, "runInstallerInstallWin", map[string]any{"action": "migrate_installers"})
 		appErr.Code = "E_INSTALLER_DB_ERROR"
+
 		return appErr
 	}
 

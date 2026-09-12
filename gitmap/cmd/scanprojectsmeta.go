@@ -19,12 +19,14 @@ func upsertGoProjectMeta(db *store.DB, r detector.DetectionResult) {
 
 		return
 	}
+
 	saved, err := db.SelectGoMetadata(r.Project.ID)
 	if err != nil {
 		fmt.Fprintf(os.Stderr, constants.ErrGoMetadataUpsert, err)
 
 		return
 	}
+
 	r.GoMeta.ID = saved.ID
 	runnableIDs := upsertGoRunnables(db, r.GoMeta)
 	if err := db.DeleteStaleGoRunnables(r.GoMeta.ID, runnableIDs); err != nil {
@@ -42,6 +44,7 @@ func upsertGoRunnables(db *store.DB, meta *model.GoProjectMetadata) []int64 {
 
 			continue
 		}
+
 		ids = append(ids, run.ID)
 	}
 
@@ -56,18 +59,21 @@ func upsertCsharpProjectMeta(db *store.DB, r detector.DetectionResult) {
 
 		return
 	}
+
 	saved, err := db.SelectCsharpMetadata(r.Project.ID)
 	if err != nil {
 		fmt.Fprintf(os.Stderr, constants.ErrCsharpMetaUpsert, err)
 
 		return
 	}
+
 	r.Csharp.ID = saved.ID
 	fileIDs := upsertCsharpFiles(db, r.Csharp)
 	keyIDs := upsertCsharpKeyFiles(db, r.Csharp)
 	if err := db.DeleteStaleCsharpFiles(r.Csharp.ID, fileIDs); err != nil {
 		fmt.Fprintf(os.Stderr, "  ⚠ Could not clean stale C# files: %v\n", err)
 	}
+
 	if err := db.DeleteStaleCsharpKeyFiles(r.Csharp.ID, keyIDs); err != nil {
 		fmt.Fprintf(os.Stderr, "  ⚠ Could not clean stale C# key files: %v\n", err)
 	}
@@ -83,6 +89,7 @@ func upsertCsharpFiles(db *store.DB, meta *model.CsharpProjectMetadata) []int64 
 
 			continue
 		}
+
 		ids = append(ids, f.ID)
 	}
 
@@ -99,6 +106,7 @@ func upsertCsharpKeyFiles(db *store.DB, meta *model.CsharpProjectMetadata) []int
 
 			continue
 		}
+
 		ids = append(ids, f.ID)
 	}
 
@@ -125,6 +133,7 @@ func cleanStaleProjects(db *store.DB, repoIDs map[int64]bool, results []detector
 
 			continue
 		}
+
 		if cleaned > 0 {
 			fmt.Printf(constants.MsgProjectCleanedStale, cleaned)
 		}

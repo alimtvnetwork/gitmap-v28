@@ -39,6 +39,7 @@ func TestCloneFromReportJSON_Golden_Empty(t *testing.T) {
 	if err := writeReportRowsJSON(&buf, nil); err != nil {
 		t.Fatalf("writeReportRowsJSON: %v", err)
 	}
+
 	assertReportGolden(t, "clonefrom_report_empty.json", buf.Bytes())
 }
 
@@ -51,5 +52,6 @@ func TestCloneFromReportJSON_Golden_Canonical(t *testing.T) {
 	if err := writeReportRowsJSON(&buf, canonicalReportResults()); err != nil {
 		t.Fatalf("writeReportRowsJSON: %v", err)
 	}
+
 	assertReportGolden(t, "clonefrom_report_canonical.json", buf.Bytes())
 }

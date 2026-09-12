@@ -24,5 +24,6 @@ func FilterPromptExclusions(targets []string, excludeCSV string) []string {
 			filtered = append(filtered, t)
 		}
 	}
+
 	return filtered
 }

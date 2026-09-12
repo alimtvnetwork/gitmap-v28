@@ -52,6 +52,7 @@ func TestCLI_FailureContext_Scan(t *testing.T) {
 		t.Fatalf("scan of missing dir unexpectedly succeeded\nstdout=%s\nstderr=%s",
 			stdout, stderr)
 	}
+
 	// Some Windows CI configurations merge or buffer the
 	// subprocess streams differently; assert against the
 	// combined output so the contract check stays meaningful
@@ -75,6 +76,7 @@ func TestCLI_FailureContext_CloneFromMissingManifest(t *testing.T) {
 		t.Fatalf("clone-from with missing manifest unexpectedly succeeded\nstdout=%s\nstderr=%s",
 			stdout, stderr)
 	}
+
 	combined := stdout + "\n" + stderr
 	assertStderrContext(t, "clone-from", combined, missing, []string{
 		"no such file", "cannot find", "does not exist", "not exist", "open",
@@ -94,6 +96,7 @@ func TestCLI_FailureContext_CloneNowMissingManifest(t *testing.T) {
 		t.Fatalf("clone-now with missing manifest unexpectedly succeeded\nstdout=%s\nstderr=%s",
 			stdout, stderr)
 	}
+
 	combined := stdout + "\n" + stderr
 	assertStderrContextAny(t, []string{"clone-now", "reclone"}, combined, missing, []string{
 		"no such file", "cannot find", "does not exist", "not exist", "open",
@@ -125,9 +128,11 @@ func assertStderrContextAny(
 		t.Errorf("stderr missing command label (any of %v)\nstderr=%s",
 			commands, stderr)
 	}
+
 	if !strings.Contains(stderr, subject) {
 		t.Errorf("stderr missing subject path %q\nstderr=%s", subject, stderr)
 	}
+
 	if !containsAnyCI(stderr, errPhrases) {
 		t.Errorf("stderr missing underlying-error phrase (any of %v)\nstderr=%s",
 			errPhrases, stderr)

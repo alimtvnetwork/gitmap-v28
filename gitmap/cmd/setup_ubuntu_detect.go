@@ -26,12 +26,11 @@ func isFilePresent(path string) bool {
 func findZshBinary() (string, bool) {
 	path, lookErr := lookPathFunc("zsh")
 	if lookErr == nil {
-
 		return path, true
 	}
+
 	for _, candidate := range []string{"/bin/zsh", "/usr/bin/zsh", "/usr/local/bin/zsh"} {
 		if isFilePresent(candidate) {
-
 			return candidate, true
 		}
 	}
@@ -44,7 +43,6 @@ func getZshVersion(zshPath string) string {
 	outBytes, runErr := cmd.Output()
 	hasOutput := runErr == nil && len(outBytes) > 0
 	if hasOutput {
-
 		return parseVersionFromOutput(string(outBytes))
 	}
 
@@ -54,7 +52,6 @@ func getZshVersion(zshPath string) string {
 func isDirPresent(path string) bool {
 	stat, statErr := statPathFunc(path)
 	if statErr == nil && stat.IsDir() {
-
 		return true
 	}
 
@@ -64,12 +61,11 @@ func isDirPresent(path string) bool {
 func isOhMyZshInstalled() bool {
 	zshEnv := getenvFunc("ZSH")
 	if len(zshEnv) > 0 && isDirPresent(zshEnv) {
-
 		return true
 	}
+
 	homeDir, homeErr := userHomeDirFunc()
 	if homeErr == nil && isDirPresent(filepath.Join(homeDir, ".oh-my-zsh")) {
-
 		return true
 	}
 

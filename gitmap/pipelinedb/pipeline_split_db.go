@@ -31,6 +31,7 @@ func SanitizeRepoSlug(repo string) string {
 	if slug == "" {
 		return "pipeline-default"
 	}
+
 	return slug
 }
 
@@ -38,6 +39,7 @@ func SanitizeRepoSlug(repo string) string {
 func PipelineDbDir() string {
 	dir := filepath.Join(store.BinaryDataDir(), "pipeline_db")
 	_ = os.MkdirAll(dir, 0755)
+
 	return dir
 }
 
@@ -47,6 +49,7 @@ var PipelineDBDir = PipelineDbDir
 // PipelineDbPath returns the full SQLite database file path for a repository.
 func PipelineDbPath(repoSlug string) string {
 	slug := SanitizeRepoSlug(repoSlug)
+
 	return filepath.Join(PipelineDbDir(), "pipeline_"+slug+".db")
 }
 
@@ -91,11 +94,13 @@ func (p *PipelineSplitDb) InitSchema() error {
 		sqlCreatePipelineErrorLog,
 		sqlCreatePipelineSegment,
 	}
+
 	for _, q := range queries {
 		if _, err := p.conn.Exec(q); err != nil {
 			return apperror.WrapSimple(err, "init pipeline db schema")
 		}
 	}
+
 	return nil
 }
 
@@ -104,5 +109,6 @@ func (p *PipelineSplitDb) Close() error {
 	if p.conn != nil {
 		return p.conn.Close()
 	}
+
 	return nil
 }

@@ -24,6 +24,7 @@ func TestClassifyScheme_AllBuckets(t *testing.T) {
 		{"git@github.com:owner/repo.git", constants.CloneFromSchemeSCP},
 		{"weird-thing-no-colon", constants.CloneFromSchemeOther},
 	}
+
 	for _, tc := range cases {
 		if got := ClassifyScheme(tc.url); got != tc.want {
 			t.Errorf("ClassifyScheme(%q) = %q, want %q", tc.url, got, tc.want)
@@ -41,6 +42,7 @@ func TestRenderSummaryTerminal_FullBlock(t *testing.T) {
 		{Status: constants.CloneFromStatusSkipped, Row: Row{URL: "git@h:o/c.git"}},
 		{Status: constants.CloneFromStatusFailed, Row: Row{URL: "ssh://h/d.git"}, Detail: "boom"},
 	}
+
 	var buf bytes.Buffer
 	summaryParams := TermSummaryParams{
 		Writer:   &buf,
@@ -48,9 +50,11 @@ func TestRenderSummaryTerminal_FullBlock(t *testing.T) {
 		CsvPath:  "/r/x.csv",
 		JsonPath: "/r/x.json",
 	}
+
 	if err := RenderSummaryTerminal(summaryParams); err != nil {
 		t.Fatalf("RenderSummaryTerminal: %v", err)
 	}
+
 	out := buf.String()
 	want := []string{
 		"gitmap clone-from: summary",
@@ -63,11 +67,13 @@ func TestRenderSummaryTerminal_FullBlock(t *testing.T) {
 		"report csv : /r/x.csv",
 		"report json: /r/x.json",
 	}
+
 	for _, s := range want {
 		if !strings.Contains(out, s) {
 			t.Errorf("missing %q in:\n%s", s, out)
 		}
 	}
+
 	// Zero-count schemes must NOT appear.
 	for _, absent := range []string{"http ", "git ", "file ", "other "} {
 		if strings.Contains(out, "    "+absent) {
@@ -87,6 +93,7 @@ func TestRenderSummaryTerminal_NoReportPlaceholder(t *testing.T) {
 		CsvPath:  "",
 		JsonPath: "",
 	}
+
 	_ = RenderSummaryTerminal(summaryParams)
 	if !strings.Contains(buf.String(), "(skipped") {
 		t.Errorf("missing placeholder line:\n%s", buf.String())

@@ -52,15 +52,18 @@ func emitDebugWindowsJSON(event string, fields map[string]any) {
 	if isNonDebugWindowsJSONRequested {
 		return
 	}
+
 	f := openDebugWindowsJSONFile()
 	if f == nil {
 		return
 	}
+
 	payload := buildDebugWindowsJSONPayload(event, fields)
 	line, err := json.Marshal(payload)
 	if err != nil {
 		return
 	}
+
 	debugWinJSONMu.Lock()
 	defer debugWinJSONMu.Unlock()
 	_, _ = f.Write(append(line, '\n'))
@@ -80,6 +83,7 @@ func buildDebugWindowsJSONPayload(event string,
 		"self":    self,
 		"version": constants.Version,
 	}
+
 	for k, v := range fields {
 		payload[k] = v
 	}
@@ -93,6 +97,7 @@ func isDebugWindowsJSONRequested() bool {
 	if len(os.Getenv(constants.EnvDebugWindowsJSON)) > 0 {
 		return true
 	}
+
 	for _, arg := range os.Args[1:] {
 		if arg == constants.FlagDebugWindowsJSON ||
 			isDebugWindowsJSONFlagWithValue(arg) {
@@ -127,6 +132,7 @@ func openDebugWindowsJSONFile() *os.File {
 
 			return
 		}
+
 		debugWinJSONFile = f
 		debugWinJSONPath = path
 		fmt.Fprintf(os.Stderr, constants.MsgDebugWinJSONFile, path)
@@ -146,9 +152,11 @@ func resolveDebugWindowsJSONPath() string {
 			return arg[len(constants.FlagDebugWindowsJSON)+1:]
 		}
 	}
+
 	if envPath := os.Getenv(constants.EnvDebugWindowsJSON); len(envPath) > 0 {
 		return envPath
 	}
+
 	ts := time.Now().Format("2006-01-02_15-04-05")
 	name := fmt.Sprintf(constants.DebugWindowsJSONFileFmt, ts)
 

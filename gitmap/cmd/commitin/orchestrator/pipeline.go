@@ -22,14 +22,17 @@ func executePipeline(ctx *runContext, stdout io.Writer) int {
 	if code != constants.CommitInExitOk {
 		return code
 	}
+
 	for _, staged := range inputs {
 		if code := processOneInput(ctx, staged, stdout); code != constants.CommitInExitOk {
 			return code
 		}
+
 		if ctx.aborted {
 			return constants.CommitInExitConflictAborted
 		}
 	}
+
 	return constants.CommitInExitOk
 }
 
@@ -37,14 +40,18 @@ func expandAndStage(ctx *runContext, stdout io.Writer) ([]workspace.StagedInput,
 	resolved, err := workspace.ExpandInputs(ctx.Source.Path, ctx.Raw.Inputs, ctx.Raw.Keyword, ctx.Raw.KeywordTail)
 	if err != nil {
 		fmt.Fprint(stdout, err.Error())
+
 		return nil, constants.CommitInExitInputUnusable
 	}
+
 	fmt.Fprintf(stdout, constants.CommitInMsgPhaseStageInputs, len(resolved), ctx.TempDir)
 	staged, err := workspace.CloneInputs(ctx.Paths, ctx.RunID, resolved)
 	if err != nil {
 		fmt.Fprint(stdout, err.Error())
+
 		return nil, constants.CommitInExitInputUnusable
 	}
+
 	return staged, constants.CommitInExitOk
 }
 
@@ -53,8 +60,10 @@ func processOneInput(ctx *runContext, staged workspace.StagedInput, stdout io.Wr
 	if err != nil {
 		fmt.Fprintf(stdout, constants.CommitInErrInputOpen, staged.Input.Original, err)
 		ctx.Counters.Failed++
+
 		return constants.CommitInExitOk
 	}
+
 	fmt.Fprintf(stdout, constants.CommitInMsgPhaseWalk, len(commits))
 	cp := openCheckpoint(ctx, staged)
 	picker := newPicker()
@@ -63,14 +72,17 @@ func processOneInput(ctx *runContext, staged workspace.StagedInput, stdout io.Wr
 			ctx.Counters.Skipped++
 			continue
 		}
+
 		processOneCommit(ctx, staged, c, picker, stdout)
 		if cp != nil {
 			_ = cp.MarkDone(c.Sha)
 		}
+
 		if ctx.aborted {
 			return constants.CommitInExitOk // outer loop sees ctx.aborted and exits
 		}
 	}
+
 	return constants.CommitInExitOk
 }
 
@@ -84,6 +96,7 @@ func openCheckpoint(ctx *runContext, staged workspace.StagedInput) *checkpoint.F
 	if err != nil {
 		return nil
 	}
+
 	return cp
 }
 
@@ -91,6 +104,7 @@ func openCheckpoint(ctx *runContext, staged workspace.StagedInput) *checkpoint.F
 // the same input. Hash of the work path keeps it filesystem-safe.
 func inputFingerprint(staged workspace.StagedInput) string {
 	sum := sha1.Sum([]byte(staged.Input.Original))
+
 	return hex.EncodeToString(sum[:8])
 }
 
@@ -98,10 +112,12 @@ func inputFingerprint(staged workspace.StagedInput) string {
 // (per-run seed satisfies spec §3.4 "deterministic within a run").
 func newPicker() func(n int) int {
 	r := rand.New(rand.NewSource(time.Now().UnixNano()))
+
 	return func(n int) int {
 		if n <= 0 {
 			return 0
 		}
+
 		return r.Intn(n)
 	}
 }

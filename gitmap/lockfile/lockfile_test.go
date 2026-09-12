@@ -16,6 +16,7 @@ func TestAcquire_FreshSucceeds(t *testing.T) {
 	if err != nil {
 		t.Fatalf("Acquire: %v", err)
 	}
+
 	defer release()
 
 	path := lockPath(name)
@@ -32,6 +33,7 @@ func TestAcquire_DoubleClaimFails(t *testing.T) {
 	if err != nil {
 		t.Fatalf("first Acquire: %v", err)
 	}
+
 	defer release()
 
 	_, err = Acquire(name)
@@ -52,18 +54,21 @@ func TestAcquire_StalePIDReclaimed(t *testing.T) {
 	if err := os.WriteFile(path, []byte("999999999"), 0o600); err != nil {
 		t.Fatalf("seed lock: %v", err)
 	}
+
 	defer os.Remove(path)
 
 	release, err := Acquire(name)
 	if err != nil {
 		t.Fatalf("Acquire over stale lock: %v", err)
 	}
+
 	defer release()
 
 	pid, err := readPID(path)
 	if err != nil {
 		t.Fatalf("readPID: %v", err)
 	}
+
 	if pid != os.Getpid() {
 		t.Errorf("PID in lock = %d, want current pid %d", pid, os.Getpid())
 	}
@@ -77,12 +82,14 @@ func TestForceAcquire_OverridesLiveLock(t *testing.T) {
 	if err != nil {
 		t.Fatalf("first Acquire: %v", err)
 	}
+
 	defer release()
 
 	forceRelease, err := ForceAcquire(name)
 	if err != nil {
 		t.Fatalf("ForceAcquire: %v", err)
 	}
+
 	defer forceRelease()
 
 	pid, _ := readPID(lockPath(name))
@@ -100,6 +107,7 @@ func TestRelease_Idempotent(t *testing.T) {
 	if err != nil {
 		t.Fatalf("Acquire: %v", err)
 	}
+
 	release()
 	release() // must not panic
 }

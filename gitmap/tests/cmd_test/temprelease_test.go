@@ -50,6 +50,7 @@ func TestParseVersionPattern_Valid(t *testing.T) {
 			if prefix != tt.wantPrefix {
 				t.Errorf("prefix = %q, want %q", prefix, tt.wantPrefix)
 			}
+
 			if digits != tt.wantDigits {
 				t.Errorf("digits = %d, want %d", digits, tt.wantDigits)
 			}

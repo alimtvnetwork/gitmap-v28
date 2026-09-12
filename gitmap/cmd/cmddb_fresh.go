@@ -16,6 +16,7 @@ func runDbFresh(args []string) error {
 	if !hasConfirmFlag(args) {
 		printFreshWarning()
 	}
+
 	if !confirmOrSkip(msg, args) {
 		fmt.Println(constants.ColorDim + "Start fresh operation canceled." + constants.ColorReset)
 
@@ -47,11 +48,13 @@ func executeStartFresh() error {
 	if err != nil {
 		return apperror.WrapSimple(err, "E9003")
 	}
+
 	defer freshDb.Close()
 
 	if migrateErr := freshDb.Migrate(); migrateErr != nil {
 		return apperror.WrapSimple(migrateErr, "E9004")
 	}
+
 	printFreshSuccess(removedCount, store.DefaultDBPath())
 
 	return nil
@@ -74,6 +77,7 @@ func removeMatchingFiles(dir string) int {
 	if err != nil {
 		return 0
 	}
+
 	removed := 0
 	for _, e := range entries {
 		removed += tryRemoveDbFile(dir, e.Name())
@@ -86,6 +90,7 @@ func tryRemoveDbFile(dir, name string) int {
 	if !isDbRelatedFile(name) {
 		return 0
 	}
+
 	target := filepath.Join(dir, name)
 	if err := os.Remove(target); err == nil {
 		return 1

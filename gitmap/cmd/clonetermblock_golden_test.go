@@ -279,6 +279,7 @@ func handleGoldenUpdate(t *testing.T, path string, got []byte) {
 	if err != nil {
 		t.Fatalf("update golden %s: %v", path, err)
 	}
+
 	t.Logf("updated %s", path)
 }
 
@@ -296,6 +297,7 @@ func TestCloneTermBlock_Golden(t *testing.T) {
 
 			if goldenguard.AllowUpdate(t, *updateGolden) {
 				handleGoldenUpdate(t, path, got)
+
 				return
 			}
 
@@ -305,6 +307,7 @@ func TestCloneTermBlock_Golden(t *testing.T) {
 					"AND GITMAP_ALLOW_GOLDEN_UPDATE=1 to create)",
 					path, err)
 			}
+
 			if !bytes.Equal(got, want) {
 				t.Fatalf("%s mismatch\n--- want (%s) ---\n%s"+
 					"\n--- got ---\n%s", tc.name, path, want, got)

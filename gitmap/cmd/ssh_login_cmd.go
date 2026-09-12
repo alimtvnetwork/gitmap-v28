@@ -28,6 +28,7 @@ func runSSHLogin(cmd *cobra.Command, args []string, ctx context.Context) error {
 	}
 
 	target := args[0]
+
 	return executeSSHLogin(ctx, target, false)
 }
 
@@ -49,6 +50,7 @@ func resolveSSHHostTarget(ctx context.Context, target string, sshTarget *SSHTarg
 	if err != nil {
 		return
 	}
+
 	defer db.Close()
 
 	host, err := store.GetHostByAlias(ctx, target, db.Conn())

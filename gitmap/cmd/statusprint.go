@@ -58,21 +58,27 @@ func (c *statusTableContext) addRow(r statusRow) {
 	if l := len(r.RepoName); l > c.MaxRepo {
 		c.MaxRepo = l
 	}
+
 	if r.Missing {
 		return
 	}
+
 	if l := len(r.Branch); l > c.MaxBranch {
 		c.MaxBranch = l
 	}
+
 	if l := len(stripANSI(r.StateIcon)); l > c.MaxStatus {
 		c.MaxStatus = l
 	}
+
 	if l := len(stripANSI(r.SyncText)); l > c.MaxSync {
 		c.MaxSync = l
 	}
+
 	if l := len(stripANSI(r.StashText)); l > c.MaxStash {
 		c.MaxStash = l
 	}
+
 	if l := len(stripANSI(r.FilesText)); l > c.MaxFiles {
 		c.MaxFiles = l
 	}
@@ -89,6 +95,7 @@ func printStatusTable(records []model.ScanRecord) statusSummary {
 	}
 
 	printStatusTableWithContext(tableCtx)
+
 	return s
 }
 
@@ -105,6 +112,7 @@ func printStatusTableTracked(records []model.ScanRecord, prog *cloner.BatchProgr
 	}
 
 	printStatusTableWithContext(tableCtx)
+
 	return s
 }
 
@@ -168,6 +176,7 @@ func printDirtySummaryTip(dirtyCount int) {
 	if dirtyCount <= 0 {
 		return
 	}
+
 	fmt.Printf("  %sTip: %d repository(ies) dirty. Run 'gitmap fix' or 'gitmap pull --fix' to remediate.%s\n",
 		constants.ColorDim, dirtyCount, constants.ColorReset)
 }
@@ -190,6 +199,7 @@ func appendSummaryPart(parts []string, count int, color, format string) []string
 	if count == 0 {
 		return parts
 	}
+
 	if len(color) > 0 {
 		colored := fmt.Sprintf("%s"+format+"%s", color, count, constants.ColorReset)
 

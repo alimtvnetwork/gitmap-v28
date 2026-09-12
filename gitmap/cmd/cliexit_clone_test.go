@@ -66,6 +66,7 @@ func TestCloneCLI_FailureExitCodes(t *testing.T) {
 		{"clonenow_missing_file", []string{"clone-now", "/no/such/manifest.json"}, 1},
 		{"clonepick_no_args", []string{"clone-pick"}, 2},
 	}
+
 	for _, tc := range cases {
 		t.Run(tc.name, func(t *testing.T) {
 			t.Parallel()
@@ -95,6 +96,7 @@ func TestCloneNowCLI_UserCanceledNonTTY(t *testing.T) {
 	if err := os.MkdirAll(existing, 0o755); err != nil {
 		t.Fatalf("seed existing dest: %v", err)
 	}
+
 	manifest := writeCloneNowManifest(t, root)
 
 	args := []string{
@@ -104,11 +106,13 @@ func TestCloneNowCLI_UserCanceledNonTTY(t *testing.T) {
 		"--cwd", root,
 		manifest,
 	}
+
 	code, stdout, stderr := runGitmap(t, args, "")
 	if code != constants.CloneNowExitConfirmAborted {
 		t.Fatalf("clone-now non-TTY confirm: exit=%d want %d (CloneNowExitConfirmAborted)\nstdout=%s\nstderr=%s",
 			code, constants.CloneNowExitConfirmAborted, stdout, stderr)
 	}
+
 	// Combine streams so Windows CI configurations that buffer
 	// or redirect stderr differently still satisfy the substring
 	// contract — the message-presence check is what matters.

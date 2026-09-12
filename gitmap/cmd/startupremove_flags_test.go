@@ -19,6 +19,7 @@ func TestParseStartupRemoveFlags_PositionalOnly(t *testing.T) {
 	if err != nil {
 		t.Fatalf("parse: %v", err)
 	}
+
 	if cfg.name != "foo" || cfg.dryRun || cfg.backend != "" {
 		t.Errorf("got name=%q dryRun=%v backend=%q, want foo/false/\"\"",
 			cfg.name, cfg.dryRun, cfg.backend)
@@ -35,6 +36,7 @@ func TestParseStartupRemoveFlags_Backend(t *testing.T) {
 	if err != nil {
 		t.Fatalf("parse: %v", err)
 	}
+
 	if cfg.backend != "registry" {
 		t.Errorf("backend = %q, want registry", cfg.backend)
 	}
@@ -50,6 +52,7 @@ func TestParseStartupRemoveFlags_BackendStartupFolder(t *testing.T) {
 	if err != nil {
 		t.Fatalf("parse: %v", err)
 	}
+
 	if cfg.backend != "startup-folder" {
 		t.Errorf("backend = %q, want startup-folder", cfg.backend)
 	}
@@ -65,6 +68,7 @@ func TestParseStartupRemoveFlags_BackendAndDryRun(t *testing.T) {
 	if err != nil {
 		t.Fatalf("parse: %v", err)
 	}
+
 	if cfg.name != "myapp" || !cfg.dryRun || cfg.backend != "startup-folder" {
 		t.Errorf("got name=%q dryRun=%v backend=%q, want myapp/true/startup-folder",
 			cfg.name, cfg.dryRun, cfg.backend)
@@ -89,6 +93,7 @@ func TestParseStartupRemoveFlags_OutputAndIndent(t *testing.T) {
 	if err != nil {
 		t.Fatalf("parse: %v", err)
 	}
+
 	if cfg.output != "json" || cfg.jsonIndent != 0 {
 		t.Errorf("got output=%q indent=%d, want json/0", cfg.output, cfg.jsonIndent)
 	}

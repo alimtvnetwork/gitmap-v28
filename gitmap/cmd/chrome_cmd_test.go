@@ -11,9 +11,11 @@ func TestChromeHelpAndZeroArgs(t *testing.T) {
 	if err := runChrome([]string{}); err != nil {
 		t.Fatalf("expected nil on zero args, got %v", err)
 	}
+
 	if err := runChrome([]string{"--help"}); err != nil {
 		t.Fatalf("expected nil on --help, got %v", err)
 	}
+
 	if err := runChrome([]string{"help"}); err != nil {
 		t.Fatalf("expected nil on help, got %v", err)
 	}
@@ -23,6 +25,7 @@ func TestChromeInstallDryRun(t *testing.T) {
 	if err := runChrome([]string{"install", "--dry-run"}); err != nil {
 		t.Fatalf("expected nil on install --dry-run, got %v", err)
 	}
+
 	if err := runChrome([]string{"in", "--dry-run"}); err != nil {
 		t.Fatalf("expected nil on in --dry-run, got %v", err)
 	}
@@ -34,6 +37,7 @@ func TestChromeListEmpty(t *testing.T) {
 	if err := runChrome([]string{"list"}); err != nil {
 		t.Fatalf("expected nil on list with empty user data, got %v", err)
 	}
+
 	if err := runChrome([]string{"ls"}); err != nil {
 		t.Fatalf("expected nil on ls alias, got %v", err)
 	}
@@ -91,6 +95,7 @@ func TestChromeSmartExportAndImport(t *testing.T) {
 	if err := runChromeProfileExport([]string{outJSON, "--format=json"}); err != nil {
 		t.Fatalf("export to a.json failed: %v", err)
 	}
+
 	if _, err := os.Stat(outJSON); err != nil {
 		t.Fatalf("expected a.json to exist: %v", err)
 	}
@@ -100,6 +105,7 @@ func TestChromeSmartExportAndImport(t *testing.T) {
 	if err := runChromeProfileExport([]string{outDB}); err != nil {
 		t.Fatalf("export to a.db failed: %v", err)
 	}
+
 	if _, err := os.Stat(outDB); err != nil {
 		t.Fatalf("expected a.db to exist: %v", err)
 	}
@@ -126,9 +132,11 @@ func TestChromeSmartExportAndImport(t *testing.T) {
 	if err := runChromeProfileImport([]string{outJSON}); err != nil {
 		t.Fatalf("import from a.json failed: %v", err)
 	}
+
 	if err := runChromeProfileImport([]string{outDB}); err != nil {
 		t.Fatalf("import from a.db failed: %v", err)
 	}
+
 	if err := runChromeProfileImport([]string{outYAML}); err != nil {
 		t.Fatalf("import from a.yaml failed: %v", err)
 	}

@@ -23,6 +23,7 @@ func getSettingPipelineDir() string {
 	if err != nil {
 		return ""
 	}
+
 	defer db.Close()
 
 	return db.GetSetting("pipeline.dir")

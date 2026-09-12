@@ -10,6 +10,7 @@ func TestSQLCreateSSHHistory(t *testing.T) {
 	if err != nil {
 		t.Fatalf("failed to open memory db: %v", err)
 	}
+
 	defer db.Close()
 
 	err = RegisterSSHHistoryMigration(db, 1, false)

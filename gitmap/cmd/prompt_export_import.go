@@ -61,6 +61,7 @@ func executePromptExport(outPath string) error {
 	if err != nil {
 		return err
 	}
+
 	defer f.Close()
 
 	zw := zip.NewWriter(f)
@@ -80,6 +81,7 @@ func executePromptExport(outPath string) error {
 	}
 
 	fmt.Printf("%s Exported %d prompt template(s) into zip archive: %s\n", constants.ColorGreen+"✓"+constants.ColorReset, count, outPath)
+
 	return nil
 }
 
@@ -89,6 +91,7 @@ func executePromptImport(inPath string) error {
 	}
 
 	slug := strings.TrimSuffix(filepath.Base(inPath), filepath.Ext(inPath))
+
 	return runPromptAdd(slug, inPath)
 }
 
@@ -97,6 +100,7 @@ func importPromptZip(zipPath string) error {
 	if err != nil {
 		return err
 	}
+
 	defer r.Close()
 
 	dir, dirErr := getPromptsStorageDir()
@@ -120,6 +124,7 @@ func importPromptZip(zipPath string) error {
 	}
 
 	fmt.Printf("%s Successfully imported %d prompt template(s) from %s\n", constants.ColorGreen+"✓"+constants.ColorReset, count, zipPath)
+
 	return nil
 }
 
@@ -138,5 +143,6 @@ func executePromptInject(slug string, target string) error {
 	pt := parsePromptMarkdown(string(data))
 	fmt.Printf("%s Injecting prompt template \033[1m%s\033[0m into target \033[1m%s\033[0m...\n", constants.ColorCyan+"▶"+constants.ColorReset, pt.Title, target)
 	fmt.Printf("%s Injected prompt successfully into AGY target.\n", constants.ColorGreen+"✓"+constants.ColorReset)
+
 	return nil
 }

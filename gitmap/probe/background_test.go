@@ -35,6 +35,7 @@ func TestBackgroundRunner_NilWhenWorkersZero(t *testing.T) {
 	if r := NewBackgroundRunner(0, 5, nil, nil); r != nil {
 		t.Fatalf("expected nil runner for workers=0, got %p", r)
 	}
+
 	if r := NewBackgroundRunner(-1, 5, nil, nil); r != nil {
 		t.Fatalf("expected nil runner for workers=-1, got %p", r)
 	}
@@ -53,9 +54,11 @@ func TestBackgroundRunner_NilSafe(t *testing.T) {
 	if got := r.Stats(); (got != Stats{}) {
 		t.Fatalf("nil Stats should be zero, got %+v", got)
 	}
+
 	if got := r.Remaining(); got != 0 {
 		t.Fatalf("nil Remaining should be 0, got %d", got)
 	}
+
 	if got := r.Wait(); (got != Stats{}) {
 		t.Fatalf("nil Wait should return zero stats, got %+v", got)
 	}
@@ -77,6 +80,7 @@ func TestBackgroundRunner_DrainsAllJobs(t *testing.T) {
 	for i := 0; i < total; i++ {
 		r.Start(model.ScanRecord{ID: int64(i + 1)})
 	}
+
 	stats := r.Wait()
 
 	sink.mu.Lock()
@@ -84,6 +88,7 @@ func TestBackgroundRunner_DrainsAllJobs(t *testing.T) {
 	if len(sink.rows) != total {
 		t.Fatalf("sink got %d rows, want %d", len(sink.rows), total)
 	}
+
 	if stats.Queued != total || stats.Failed != total {
 		t.Fatalf("expected all %d to fail (empty url), got %+v", total, stats)
 	}
@@ -104,6 +109,7 @@ func TestBackgroundRunner_HonorsWorkerCap(t *testing.T) {
 				break
 			}
 		}
+
 		time.Sleep(10 * time.Millisecond)
 		atomic.AddInt64(&inflight, -1)
 
@@ -114,6 +120,7 @@ func TestBackgroundRunner_HonorsWorkerCap(t *testing.T) {
 	for i := 0; i < 20; i++ {
 		r.Start(model.ScanRecord{ID: int64(i + 1)})
 	}
+
 	r.Wait()
 
 	if peak > 2 {

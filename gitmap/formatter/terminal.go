@@ -27,6 +27,7 @@ func Terminal(w io.Writer, records []model.ScanRecord, outputDir string, quiet b
 	if quiet {
 		return nil
 	}
+
 	printCloneHelp(w)
 
 	return nil
@@ -38,6 +39,7 @@ func printRepoSummaryBlocks(w io.Writer, records []model.ScanRecord) {
 	if len(records) == 0 {
 		return
 	}
+
 	fmt.Fprintf(w, constants.ColorYellow+"  ■ Per-Repo Summary"+constants.ColorReset+"\n")
 	fmt.Fprintf(w, constants.ColorDim+constants.TermSeparator+constants.ColorReset+"\n")
 	_ = render.RenderRepoTermBlocks(w, render.FromScanRecords(records))
@@ -62,6 +64,7 @@ func printRepoList(w io.Writer, records []model.ScanRecord) {
 	for i, r := range records {
 		printOneRepo(w, r, i+1, len(records))
 	}
+
 	fmt.Fprintln(w)
 }
 
@@ -138,5 +141,6 @@ func printCloneStepMulti(w io.Writer, step string, cmds ...string) {
 	for _, cmd := range cmds {
 		fmt.Fprintf(w, "%s%s%s\n", constants.ColorCyan, cmd, constants.ColorReset)
 	}
+
 	fmt.Fprintln(w)
 }

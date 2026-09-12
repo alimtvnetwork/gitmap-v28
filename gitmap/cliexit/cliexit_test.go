@@ -84,6 +84,7 @@ func TestWriteReport_NilErrSurfacesBug(t *testing.T) {
 	if isBugMissing {
 		t.Fatalf("expected BUG marker, got: %q", out)
 	}
+
 	isOpMissing := !strings.Contains(out, "op=walk")
 	isSubjectMissing := !strings.Contains(out, "subject=/repo")
 	hasMissingDetail := isOpMissing || isSubjectMissing

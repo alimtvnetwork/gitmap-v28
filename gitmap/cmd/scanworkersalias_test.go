@@ -38,6 +38,7 @@ func TestResolveScanWorkers_Canonical(t *testing.T) {
 	if got != 8 {
 		t.Fatalf("workers: got %d, want 8", got)
 	}
+
 	if stderr != "" {
 		t.Fatalf("expected silent stderr, got %q", stderr)
 	}
@@ -52,6 +53,7 @@ func TestResolveScanWorkers_DeprecatedAlias(t *testing.T) {
 	if got != 12 {
 		t.Fatalf("workers: got %d, want 12 (from --concurrency)", got)
 	}
+
 	if !strings.Contains(stderr, "deprecated") ||
 		!strings.Contains(stderr, "--workers") {
 		t.Fatalf("expected deprecation notice mentioning --workers, got %q",
@@ -70,6 +72,7 @@ func TestResolveScanWorkers_CanonicalWinsOverAlias(t *testing.T) {
 	if got != 4 {
 		t.Fatalf("workers: got %d, want 4 (canonical wins)", got)
 	}
+
 	if stderr != "" {
 		t.Fatalf("expected silent stderr when canonical is set, got %q",
 			stderr)
@@ -86,6 +89,7 @@ func TestResolveScanWorkers_NeitherSet(t *testing.T) {
 		t.Fatalf("workers: got %d, want default %d",
 			got, constants.DefaultScanWorkers)
 	}
+
 	if stderr != "" {
 		t.Fatalf("expected silent stderr at defaults, got %q", stderr)
 	}

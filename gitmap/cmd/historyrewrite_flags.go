@@ -32,9 +32,11 @@ func parseHistoryArgs(args []string) (historyOpts, []string) {
 		fmt.Fprintf(os.Stderr, constants.HistoryErrBadArgs, err.Error())
 		cliexit.HandleError(nil, constants.HistoryExitBadArgs)
 	}
+
 	opts := assembleHistoryOpts(raw)
 	paths := parseHistoryPaths(positional)
 	validateHistoryOpts(opts, paths)
+
 	return opts, paths
 }
 
@@ -77,6 +79,7 @@ func validateHistoryOpts(opts historyOpts, paths []string) {
 		fmt.Fprintf(os.Stderr, constants.HistoryErrBadArgs, constants.HistoryErrNoPaths)
 		cliexit.HandleError(nil, constants.HistoryExitBadArgs)
 	}
+
 	if opts.yes && opts.noPush {
 		fmt.Fprintf(os.Stderr, constants.HistoryErrBadArgs, constants.HistoryErrConflictFlags)
 		cliexit.HandleError(nil, constants.HistoryExitBadArgs)
@@ -108,6 +111,7 @@ func splitHistoryFlagsAndArgs(args []string) ([]string, []string) {
 
 		i++
 	}
+
 	return flags, positional
 }
 

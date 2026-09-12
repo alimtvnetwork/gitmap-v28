@@ -31,8 +31,10 @@ func detectVersion() (string, int) {
 			nil,
 		)
 		cliexit.HandleError(appErr, 1)
+
 		return "", 0
 	}
+
 	slug := slugFromRemote(strings.TrimSpace(string(out)))
 	m := remoteSlugRe.FindStringSubmatch(slug)
 	if m == nil {
@@ -46,9 +48,12 @@ func detectVersion() (string, int) {
 			map[string]any{"slug": slug},
 		)
 		cliexit.HandleError(appErr, 1)
+
 		return "", 0
 	}
+
 	num, _ := strconv.Atoi(m[2])
+
 	return m[1], num
 }
 
@@ -59,9 +64,11 @@ func slugFromRemote(url string) string {
 	if i := strings.LastIndex(url, "/"); i >= 0 {
 		return url[i+1:]
 	}
+
 	if i := strings.LastIndex(url, ":"); i >= 0 {
 		return url[i+1:]
 	}
+
 	return url
 }
 
@@ -71,17 +78,21 @@ func versionTargets(k, n int) []int {
 	if n == 0 || n >= k {
 		n = k - 1
 	}
+
 	if n < 1 {
 		return nil
 	}
+
 	start := k - n
 	if start < 1 {
 		start = 1
 	}
+
 	out := make([]int, 0, k-start)
 	for i := start; i < k; i++ {
 		out = append(out, i)
 	}
+
 	return out
 }
 

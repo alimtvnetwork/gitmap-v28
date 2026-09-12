@@ -33,6 +33,7 @@ func TestWriteStructured_HumanMode(t *testing.T) {
 	if isPrefixMissing {
 		t.Fatalf("missing canonical lead line.\n got: %q\nwant prefix: %q", got, wantLead)
 	}
+
 	assertHumanOutputElements(t, got)
 }
 
@@ -71,6 +72,7 @@ func TestWriteStructured_JSONMode(t *testing.T) {
 	if !isSingleLine {
 		t.Fatalf("expected exactly one line, got: %q", buf.String())
 	}
+
 	assertJSONOutput(t, buf)
 }
 
@@ -80,12 +82,14 @@ func assertJSONOutput(t *testing.T, buf bytes.Buffer) {
 	if err := json.Unmarshal(bytes.TrimSpace(buf.Bytes()), &got); err != nil {
 		t.Fatalf("output not valid JSON: %v\nraw=%q", err, buf.String())
 	}
+
 	for _, k := range []string{"command", "op", "path", "mode", "args", "extras", "error"} {
 		_, hasKey := got[k]
 		if !hasKey {
 			t.Fatalf("JSON missing key %q: %v", k, got)
 		}
 	}
+
 	isErrorMismatch := got["error"] != "io error"
 	if isErrorMismatch {
 		t.Fatalf("error field wrong: %v", got["error"])
@@ -108,6 +112,7 @@ func TestWriteStructured_OmitsEmpty(t *testing.T) {
 	if hasOnPath {
 		t.Fatalf("empty Path should elide ' on <subject>': %q", got)
 	}
+
 	hasMode := strings.Contains(got, "mode=")
 	hasArgs := strings.Contains(got, "args=")
 	hasModeOrArgs := hasMode || hasArgs

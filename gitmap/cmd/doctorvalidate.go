@@ -64,6 +64,7 @@ func checkDatabase() int {
 
 		return 1
 	}
+
 	defer db.Close()
 
 	err = db.Migrate()

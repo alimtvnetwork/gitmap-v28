@@ -77,6 +77,7 @@ func maybePrintCloneTermBlock(output string, in CloneTermBlockInput) {
 	if output != constants.OutputTerminal {
 		return
 	}
+
 	block := render.RepoTermBlock{
 		Index:        in.Index,
 		Name:         in.Name,
@@ -86,6 +87,7 @@ func maybePrintCloneTermBlock(output string, in CloneTermBlockInput) {
 		TargetURL:    in.TargetURL,
 		CloneCommand: buildCloneCommand(in),
 	}
+
 	if err := render.RenderRepoTermBlock(os.Stdout, block); err != nil {
 		fmt.Fprintf(os.Stderr,
 			"  Warning: could not write terminal block for %s: %v\n",
@@ -113,6 +115,7 @@ func buildCloneCommand(in CloneTermBlockInput) string {
 	if len(branch) > 0 {
 		parts = append(parts, constants.GitBranchFlag, branch)
 	}
+
 	parts = append(parts, in.CmdExtraArgsPost...)
 	parts = append(parts, in.TargetURL, in.Dest)
 
@@ -126,6 +129,7 @@ func pickCmdBranch(in CloneTermBlockInput) string {
 	if len(in.CmdBranch) > 0 {
 		return in.CmdBranch
 	}
+
 	// Non-nil CmdExtraArgsPre is the explicit "no -b" sentinel
 	// (URL-driven clone). nil = legacy fallback to in.Branch.
 	if in.CmdExtraArgsPre != nil {

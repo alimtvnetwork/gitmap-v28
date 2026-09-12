@@ -41,6 +41,7 @@ func fillRandomChars(buf []byte) *apperror.AppError {
 		if err != nil {
 			return apperror.WrapSimple(err, "crypto.rand.Int")
 		}
+
 		buf[i] = WpSaltCharset[num.Int64()]
 	}
 
@@ -53,6 +54,7 @@ func GenerateRandomSalt(length int) (string, *apperror.AppError) {
 	if isInvalidLength {
 		return "", apperror.NewValidationError("salt length must be positive")
 	}
+
 	buf := make([]byte, length)
 	err := fillRandomChars(buf)
 	if err != nil {
@@ -83,6 +85,7 @@ func GenerateWpSalts() (*WpSalts, *apperror.AppError) {
 		if err != nil {
 			return nil, err
 		}
+
 		salts[i] = val
 	}
 
@@ -123,6 +126,7 @@ func appendWpSalts(originalContent string, newBlock string) string {
 	if isFound {
 		before := originalContent[:idx]
 		after := originalContent[idx:]
+
 		return before + newBlock + constants.NewLineUnix + after
 	}
 

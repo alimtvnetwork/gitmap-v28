@@ -12,9 +12,11 @@ func TestResolveProfileTree_Hierarchy(t *testing.T) {
 	if !hasBasic {
 		t.Fatal("expected ubuntu-basic to resolve")
 	}
+
 	if basicProfile.Name != "ubuntu-basic" || basicProfile.Base != nil {
 		t.Errorf("unexpected basic profile structure: %+v", basicProfile)
 	}
+
 	if len(basicProfile.Tools) != 4 {
 		t.Errorf("expected 4 tools in ubuntu-basic, got %d", len(basicProfile.Tools))
 	}
@@ -24,6 +26,7 @@ func TestResolveProfileTree_Hierarchy(t *testing.T) {
 	if !hasVscode {
 		t.Fatal("expected ubuntu+vscode to resolve")
 	}
+
 	if vscodeProfile.Base == nil || vscodeProfile.Base.Name != "ubuntu-basic" {
 		t.Errorf("expected base ubuntu-basic, got %+v", vscodeProfile.Base)
 	}
@@ -33,6 +36,7 @@ func TestResolveProfileTree_Hierarchy(t *testing.T) {
 	if !hasSmallDev {
 		t.Fatal("expected ubuntu+small-dev to resolve")
 	}
+
 	if smallDevProfile.Base == nil || smallDevProfile.Base.Name != "ubuntu+vscode" {
 		t.Errorf("expected base ubuntu+vscode, got %+v", smallDevProfile.Base)
 	}
@@ -42,6 +46,7 @@ func TestResolveProfileTree_Hierarchy(t *testing.T) {
 	if !hasDev {
 		t.Fatal("expected ubuntu+dev to resolve")
 	}
+
 	if devProfile.Base == nil || devProfile.Base.Name != "ubuntu+small-dev" {
 		t.Errorf("expected base ubuntu+small-dev, got %+v", devProfile.Base)
 	}
@@ -74,6 +79,7 @@ func TestResolveProfileTree_Aliases(t *testing.T) {
 			t.Errorf("slug %q failed to resolve", testCase.slug)
 			continue
 		}
+
 		if profile.Name != testCase.expectedName {
 			t.Errorf("slug %q resolved to %q, expected %q", testCase.slug, profile.Name, testCase.expectedName)
 		}
@@ -101,6 +107,7 @@ func TestProfileToTreeNode(t *testing.T) {
 	if treeNode.Title != "ubuntu+dev" {
 		t.Errorf("expected root title 'ubuntu+dev', got %q", treeNode.Title)
 	}
+
 	// Children should have BaseProfile node + 2 tools = 3 children
 	if len(treeNode.Children) != 3 {
 		t.Errorf("expected 3 children on root node, got %d", len(treeNode.Children))

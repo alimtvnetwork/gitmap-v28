@@ -62,6 +62,7 @@ func deleteLocalBranch(branchName string) {
 	if err != nil && verbose.IsEnabled() {
 		verbose.Get().Log("rollback: branch delete failed: %v", err)
 	}
+
 	if err != nil {
 		fmt.Fprintf(os.Stderr, constants.MsgRollbackWarn, "delete branch "+branchName, err)
 
@@ -89,6 +90,7 @@ func deleteLocalTag(tag string) {
 	if err != nil && verbose.IsEnabled() {
 		verbose.Get().Log("rollback: tag delete failed: %v", err)
 	}
+
 	if err != nil {
 		fmt.Fprintf(os.Stderr, constants.MsgRollbackWarn, "delete tag "+tag, err)
 

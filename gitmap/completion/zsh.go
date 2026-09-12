@@ -10,6 +10,7 @@ _gitmap() {
     if (( CURRENT == 2 )); then
         commands=($(gitmap completion --list-commands))
         _describe 'command' commands
+
         return
     fi
 

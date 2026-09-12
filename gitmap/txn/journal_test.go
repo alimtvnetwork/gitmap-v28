@@ -23,6 +23,7 @@ func TestBeginCommitRevertEdit(t *testing.T) {
 	if err := j.SnapshotEdit(target); err != nil {
 		t.Fatalf("SnapshotEdit: %v", err)
 	}
+
 	mustWriteFile(t, target, []byte("mutated"))
 	if err := j.Commit(); err != nil {
 		t.Fatalf("Commit: %v", err)
@@ -31,6 +32,7 @@ func TestBeginCommitRevertEdit(t *testing.T) {
 	if err := Revert(db, j.ID(), RevertOptions{Force: true}); err != nil {
 		t.Fatalf("Revert: %v", err)
 	}
+
 	got, _ := os.ReadFile(target)
 	if string(got) != "original" {
 		t.Fatalf("revert restored %q, want %q", got, "original")
@@ -50,6 +52,7 @@ func TestAbortRemovesBackups(t *testing.T) {
 	if err := j.SnapshotDelete(target); err != nil {
 		t.Fatalf("SnapshotDelete: %v", err)
 	}
+
 	if err := j.Abort(); err != nil {
 		t.Fatalf("Abort: %v", err)
 	}
@@ -80,6 +83,7 @@ func openTempDB(t *testing.T) *store.DB {
 	if err != nil {
 		t.Fatalf("store.Open: %v", err)
 	}
+
 	if err := db.Migrate(); err != nil {
 		t.Fatalf("db.Migrate: %v", err)
 	}
@@ -93,6 +97,7 @@ func mustWriteFile(t *testing.T, path string, data []byte) {
 	if err := os.MkdirAll(filepath.Dir(path), 0o755); err != nil {
 		t.Fatalf("mkdir: %v", err)
 	}
+
 	if err := os.WriteFile(path, data, 0o644); err != nil {
 		t.Fatalf("write: %v", err)
 	}

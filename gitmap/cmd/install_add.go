@@ -30,9 +30,9 @@ type InstallAddFlags struct {
 // isInstallAddCommand reports if args invoke installer add or create.
 func isInstallAddCommand(args []string) bool {
 	if len(args) == 0 {
-
 		return false
 	}
+
 	subCmd := strings.ToLower(strings.TrimSpace(args[0]))
 
 	return subCmd == "add" || subCmd == "create"
@@ -41,11 +41,10 @@ func isInstallAddCommand(args []string) bool {
 func runInstallAdd(args []string) error {
 	flags, errParse := parseInstallAddFlags(args)
 	if errParse != nil {
-
 		return errParse
 	}
-	if errPrompt := promptIfInteractive(flags); errPrompt != nil {
 
+	if errPrompt := promptIfInteractive(flags); errPrompt != nil {
 		return errPrompt
 	}
 
@@ -54,7 +53,6 @@ func runInstallAdd(args []string) error {
 
 func promptIfInteractive(flags *InstallAddFlags) error {
 	if !isInteractivePromptNeeded(flags) {
-
 		return nil
 	}
 
@@ -63,7 +61,6 @@ func promptIfInteractive(flags *InstallAddFlags) error {
 
 func isInteractivePromptNeeded(flags *InstallAddFlags) bool {
 	if flags.Yes || !isTerminalInput() {
-
 		return false
 	}
 
@@ -96,12 +93,15 @@ func parseInstallAddPositional(fs *flag.FlagSet, args []string, flags *InstallAd
 
 		return nil, appErr
 	}
+
 	if len(positional) > 0 {
 		flags.Name = strings.TrimSpace(positional[0])
 	}
+
 	if len(positional) > 1 && flags.Version == "" {
 		flags.Version = strings.TrimSpace(positional[1])
 	}
+
 	if flags.Version == "" {
 		flags.Version = "v1.0.0"
 	}
@@ -115,15 +115,19 @@ func promptInteractiveInstallAdd(flags *InstallAddFlags) error {
 	if flags.Description == "" {
 		flags.Description = promptAddLine(scanner, "Installer description: ")
 	}
+
 	if flags.WinScript == "" {
 		flags.WinScript = promptAddLine(scanner, "Windows install script (PowerShell) [empty to skip]: ")
 	}
+
 	if flags.UnixScript == "" {
 		flags.UnixScript = promptAddLine(scanner, "Unix install script (sh/bash) [empty to skip]: ")
 	}
+
 	if flags.UbuntuScript == "" {
 		flags.UbuntuScript = promptAddLine(scanner, "Ubuntu install script (apt/bash) [empty to skip]: ")
 	}
+
 	askLater := promptAddLine(scanner, "Add/edit Unix or Ubuntu instructions later? (y/n) [n]: ")
 	flags.AddLater = strings.EqualFold(askLater, "y") || strings.EqualFold(askLater, "yes")
 
@@ -138,7 +142,6 @@ func printInteractiveAddHeader(name, ver string) {
 func promptAddLine(scanner *bufio.Scanner, prompt string) string {
 	fmt.Print("  " + prompt)
 	if !scanner.Scan() {
-
 		return ""
 	}
 
@@ -152,11 +155,12 @@ func executeInstallAdd(flags *InstallAddFlags) error {
 
 		return appErr
 	}
+
 	db, errDB := openAndMigrateInstallerDB()
 	if errDB != nil {
-
 		return errDB
 	}
+
 	defer db.Close()
 
 	script := buildInstallerScriptFromFlags(flags)
@@ -186,9 +190,11 @@ func buildOSScriptsMap(flags *InstallAddFlags) map[string]model.OSScript {
 	if flags.WinScript != "" {
 		out["win"] = model.OSScript{Runtime: "powershell", Instructions: flags.WinScript}
 	}
+
 	if flags.UnixScript != "" {
 		out["unix"] = model.OSScript{Runtime: "bash", Instructions: flags.UnixScript}
 	}
+
 	if flags.UbuntuScript != "" {
 		out["ubuntu"] = model.OSScript{Runtime: "bash", Instructions: flags.UbuntuScript}
 	}
@@ -200,19 +206,18 @@ func resolveTargetOSFromFlags(flags *InstallAddFlags) string {
 	hasWin := flags.WinScript != ""
 	hasUnix := flags.UnixScript != "" || flags.UbuntuScript != ""
 	if hasWin && hasUnix {
-
 		return "all"
 	}
-	if hasWin {
 
+	if hasWin {
 		return "win"
 	}
-	if flags.UbuntuScript != "" {
 
+	if flags.UbuntuScript != "" {
 		return "ubuntu"
 	}
-	if flags.UnixScript != "" {
 
+	if flags.UnixScript != "" {
 		return "unix"
 	}
 
@@ -224,15 +229,17 @@ func marshalMultiOSInstructions(flags *InstallAddFlags) string {
 	if flags.WinScript != "" {
 		payload["win"] = flags.WinScript
 	}
+
 	if flags.UnixScript != "" {
 		payload["unix"] = flags.UnixScript
 	}
+
 	if flags.UbuntuScript != "" {
 		payload["ubuntu"] = flags.UbuntuScript
 	}
+
 	data, err := json.Marshal(payload)
 	if err != nil {
-
 		return ""
 	}
 
@@ -252,9 +259,9 @@ func persistInstallerScript(db *store.DB, script *model.InstallerScript) error {
 
 func updateExistingInstaller(db *store.DB, script *model.InstallerScript) error {
 	if errUpdate := db.UpdateInstaller(script); errUpdate != nil {
-
 		return errUpdate
 	}
+
 	printInstallAddSuccess(script, true)
 
 	return nil
@@ -262,9 +269,9 @@ func updateExistingInstaller(db *store.DB, script *model.InstallerScript) error 
 
 func createNewInstaller(db *store.DB, script *model.InstallerScript) error {
 	if errCreate := db.CreateInstaller(script); errCreate != nil {
-
 		return errCreate
 	}
+
 	printInstallAddSuccess(script, false)
 
 	return nil
@@ -275,6 +282,7 @@ func printInstallAddSuccess(script *model.InstallerScript, isUpdate bool) {
 	if isUpdate {
 		action = "updated"
 	}
+
 	msg := fmt.Sprintf("\n  %s✔ Custom installer %q (%s) %s successfully!%s\n",
 		constants.ColorGreen, script.Name, script.Version, action, constants.ColorReset)
 	fmt.Println(msg)

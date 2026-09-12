@@ -112,12 +112,15 @@ func recoverOrFail(path string) error {
 
 		return writePIDFile(path)
 	}
+
 	if pid == os.Getpid() {
 		return fmt.Errorf("%w (pid=%d, file=%s)", ErrAlreadyHeld, pid, path)
 	}
+
 	if processRunning(pid) {
 		return fmt.Errorf("%w (pid=%d, file=%s)", ErrAlreadyHeld, pid, path)
 	}
+
 	os.Remove(path)
 
 	return writePIDFile(path)
@@ -153,10 +156,12 @@ func processRunning(pid int) bool {
 	if pid <= 0 {
 		return false
 	}
+
 	proc, err := os.FindProcess(pid)
 	if err != nil {
 		return false
 	}
+
 	err = proc.Signal(syscall.Signal(0))
 
 	return err == nil

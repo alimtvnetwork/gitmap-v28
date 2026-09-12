@@ -48,9 +48,11 @@ func assertSchemaKeysArray(t *testing.T, raw []byte, name string) {
 	if len(observed) == 0 {
 		t.Fatalf("schema %q: expected at least one object", name)
 	}
+
 	for i, got := range observed {
 		if !equalStringSlices(got, expected.Keys) {
 			handleSchemaDrift(t, expected, got, fmt.Sprintf("array[%d]", i))
+
 			return
 		}
 	}
@@ -81,6 +83,7 @@ func assertSchemaKeysFirstObject(t *testing.T, raw []byte, name string) {
 // the schema cache hit and still benefits from --update-schema.
 func assertSchemaKeysSlice(t *testing.T, name string) []string {
 	t.Helper()
+
 	return loadSchema(t, name).Keys
 }
 
@@ -91,13 +94,17 @@ func handleSchemaDrift(t *testing.T, expected schema, observed []string, where s
 	t.Helper()
 	if isSchemaUpdateNeeded(expected.Name) {
 		handleSchemaUpdate(t, expected, observed)
+
 		return
 	}
+
 	if isSchemaAccepted(expected.Name, expected.Version) {
 		t.Logf("--accept-schema=%s@v%d: drift acknowledged (observed %v)",
 			expected.Name, expected.Version, observed)
+
 		return
 	}
+
 	t.Errorf("schema drift in %s for %q (loaded v%d)\n  expected: %v\n  observed: %v\n%s",
 		where, expected.Name, expected.Version, expected.Keys, observed,
 		schemaDriftHowToFix(expected.Name, expected.Version))
@@ -110,6 +117,7 @@ func handleSchemaUpdate(t *testing.T, expected schema, observed []string) {
 	if err != nil {
 		t.Fatalf("--update-schema=%q write failed: %v", expected.Name, err)
 	}
+
 	t.Logf("--update-schema=%q: rewrote v%d with observed keys %v",
 		expected.Name, expected.Version, observed)
 }
@@ -138,6 +146,7 @@ func isSchemaUpdateNeeded(name string) bool {
 // v3". Flag overrides env.
 func isSchemaAccepted(name string, version int) bool {
 	want := fmt.Sprintf("%s@v%d", name, version)
+
 	return listContains(*schemaAcceptFlag, want) ||
 		listContains(os.Getenv(envAcceptSchema), want)
 }
@@ -149,11 +158,13 @@ func listContains(commaList, want string) bool {
 	if commaList == "" {
 		return false
 	}
+
 	for _, raw := range strings.Split(commaList, ",") {
 		if strings.TrimSpace(raw) == want {
 			return true
 		}
 	}
+
 	return false
 }
 
@@ -169,18 +180,22 @@ func writeSchemaFile(s schema, observedKeys []string) error {
 		Keys:    observedKeys,
 		Doc:     s.Doc,
 	}
+
 	body, err := json.MarshalIndent(updated, "", "  ")
 	if err != nil {
 		return fmt.Errorf("marshal: %w", err)
 	}
+
 	body = append(body, '\n')
 	if err := os.WriteFile(path, body, 0o644); err != nil {
 		return fmt.Errorf("write %s: %w", path, err)
 	}
+
 	// Invalidate cache so a subsequent loadSchema in the same run
 	// sees the freshly written file.
 	schemaCacheMu.Lock()
 	delete(schemaCache, s.Name)
 	schemaCacheMu.Unlock()
+
 	return nil
 }

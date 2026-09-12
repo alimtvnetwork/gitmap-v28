@@ -42,11 +42,13 @@ func runBackup(args []string) error {
 	if len(args) == 0 {
 		return runBackupCloudList(nil)
 	}
+
 	switch args[0] {
 	case constants.SubCmdBackupLs, constants.SubCmdBackupList:
 		if hasArgFlag(args, "--local") {
 			return runBackupLs(args[1:])
 		}
+
 		return runBackupCloudList(args[1:])
 	case "create", "push", "now", "run":
 		return runBackupCloudPush(args[1:])
@@ -69,16 +71,20 @@ func runBackupLs(_ []string) error {
 	if err != nil {
 		return apperror.WrapSimple(err, "gitmap backup ls:")
 	}
+
 	snaps, err := collectSnapshots(root)
 	if err != nil {
 		return apperror.WrapSimple(err, "gitmap backup ls:")
 	}
+
 	if len(snaps) == 0 {
 		fmt.Fprintf(os.Stdout, "\n  no backups under %s\n\n", root)
 
 		return nil
 	}
+
 	printBackupTable(root, snaps)
+
 	return nil
 }
 
@@ -91,20 +97,25 @@ func runBackupPrune(args []string) error {
 	if err := fs.Parse(args); err != nil {
 		cliexit.HandleError(nil, 2)
 	}
+
 	if *keep == 0 && *olderDays == 0 {
 		fmt.Fprintln(os.Stderr, "gitmap backup prune: pass --keep=N and/or --older-than=DAYS")
 		cliexit.HandleError(nil, 2)
 	}
+
 	root, err := backupRoot()
 	if err != nil {
 		return apperror.WrapSimple(err, "gitmap backup prune:")
 	}
+
 	snaps, err := collectSnapshots(root)
 	if err != nil {
 		return apperror.WrapSimple(err, "gitmap backup prune:")
 	}
+
 	victims := selectPruneVictims(snaps, *keep, *olderDays)
 	applyPrune(victims, *dryRun)
+
 	return nil
 }
 
@@ -124,17 +135,21 @@ func collectSnapshots(root string) ([]backupSnapshot, error) {
 	if _, err := os.Stat(root); os.IsNotExist(err) {
 		return nil, nil
 	}
+
 	var out []backupSnapshot
 	repos, err := os.ReadDir(root)
 	if err != nil {
 		return nil, err
 	}
+
 	for _, repo := range repos {
 		if !repo.IsDir() {
 			continue
 		}
+
 		out = append(out, walkRepoBackups(filepath.Join(root, repo.Name()), repo.Name())...)
 	}
+
 	sort.Slice(out, func(i, j int) bool { return out[i].ts.After(out[j].ts) })
 
 	return out, nil
@@ -148,12 +163,14 @@ func walkRepoBackups(repoDir, repo string) []backupSnapshot {
 		if !v.IsDir() {
 			continue
 		}
+
 		fixDir := filepath.Join(repoDir, v.Name(), "fix-repo")
 		stamps, _ := os.ReadDir(fixDir)
 		for _, s := range stamps {
 			if !s.IsDir() {
 				continue
 			}
+
 			full := filepath.Join(fixDir, s.Name())
 			ts := parseBackupTimestamp(s.Name())
 			out = append(out, backupSnapshot{repo: repo, full: full, ts: ts, size: dirSize(full)})
@@ -195,10 +212,12 @@ func selectPruneVictims(snaps []backupSnapshot, keep, olderDays int) []backupSna
 	for _, s := range snaps {
 		byRepo[s.repo] = append(byRepo[s.repo], s)
 	}
+
 	cutoff := time.Time{}
 	if olderDays > 0 {
 		cutoff = time.Now().AddDate(0, 0, -olderDays)
 	}
+
 	var victims []backupSnapshot
 	for _, list := range byRepo {
 		sort.Slice(list, func(i, j int) bool { return list[i].ts.After(list[j].ts) })
@@ -208,6 +227,7 @@ func selectPruneVictims(snaps []backupSnapshot, keep, olderDays int) []backupSna
 
 				continue
 			}
+
 			if olderDays > 0 && !s.ts.IsZero() && s.ts.Before(cutoff) {
 				victims = append(victims, s)
 			}
@@ -224,6 +244,7 @@ func applyPrune(victims []backupSnapshot, dryRun bool) {
 
 		return
 	}
+
 	var freed int64
 	for _, v := range victims {
 		freed += v.size
@@ -232,17 +253,21 @@ func applyPrune(victims []backupSnapshot, dryRun bool) {
 
 			continue
 		}
+
 		if err := os.RemoveAll(v.full); err != nil {
 			fmt.Fprintf(os.Stderr, "  \033[31mfailed\033[0m %s: %v\n", v.full, err)
 
 			continue
 		}
+
 		fmt.Fprintf(os.Stdout, "  \033[32mdeleted\033[0m %s (%s)\n", v.full, humanBytes(v.size))
 	}
+
 	verb := "freed"
 	if dryRun {
 		verb = "would free"
 	}
+
 	fmt.Fprintf(os.Stdout, "\n  %s: %d snapshot(s), %s\n\n", verb, len(victims), humanBytes(freed))
 }
 
@@ -253,10 +278,12 @@ func printBackupTable(root string, snaps []backupSnapshot) {
 	for _, s := range snaps {
 		byRepo[s.repo] = append(byRepo[s.repo], s)
 	}
+
 	repos := make([]string, 0, len(byRepo))
 	for r := range byRepo {
 		repos = append(repos, r)
 	}
+
 	sort.Strings(repos)
 	for _, r := range repos {
 		list := byRepo[r]
@@ -264,15 +291,18 @@ func printBackupTable(root string, snaps []backupSnapshot) {
 		for _, s := range list {
 			total += s.size
 		}
+
 		fmt.Fprintf(os.Stdout, "  \033[1m%s\033[0m — %d snapshot(s), %s\n", r, len(list), humanBytes(total))
 		for _, s := range list {
 			ts := s.ts.Format(time.RFC3339)
 			if s.ts.IsZero() {
 				ts = "(no timestamp)"
 			}
+
 			fmt.Fprintf(os.Stdout, "    • %s  %s\n", ts, humanBytes(s.size))
 		}
 	}
+
 	fmt.Fprintf(os.Stdout, "\n  prune: `gitmap backup prune --keep=5` or `--older-than=30 --dry-run`\n\n")
 }
 
@@ -282,12 +312,14 @@ func humanBytes(n int64) string {
 	if n < int64(k) {
 		return fmt.Sprintf("%d B", n)
 	}
+
 	units := []string{"KB", "MB", "GB", "TB", "PB"}
 	f := float64(n) / k
 	for _, u := range units {
 		if f < k {
 			return fmt.Sprintf("%.1f %s", f, u)
 		}
+
 		f /= k
 	}
 

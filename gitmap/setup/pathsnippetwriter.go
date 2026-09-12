@@ -44,11 +44,13 @@ func WritePathSnippet(shell, dir, manager, profile string) (PathSnippetWriteResu
 	if err != nil {
 		return PathSnippetWriteResult{}, err
 	}
+
 	existing, _ := os.ReadFile(profile)
 	open := MarkerOpenFor(manager)
 	if !strings.Contains(string(existing), open) {
 		return appendSnippet(profile, body)
 	}
+
 	return rewriteProfileFile(profile, string(existing), open, MarkerClose(), body)
 }
 
@@ -57,10 +59,12 @@ func resolveSnippetTarget(shell, dir, manager, profile string) (string, string, 
 	if err != nil {
 		return "", "", err
 	}
+
 	resolvedPath, err := resolveProfilePath(shell, profile)
 	if err != nil {
 		return "", "", err
 	}
+
 	return body, resolvedPath, nil
 }
 
@@ -69,9 +73,11 @@ func resolveProfilePath(shell, profile string) (string, error) {
 	if err != nil {
 		return "", err
 	}
+
 	if err := os.MkdirAll(filepath.Dir(resolved), constants.DirPermission); err != nil {
 		return "", fmt.Errorf("create profile dir %s: %w", filepath.Dir(resolved), err)
 	}
+
 	return resolved, nil
 }
 
@@ -79,6 +85,7 @@ func ensureProfilePath(shell, profile string) (string, error) {
 	if len(profile) > 0 {
 		return profile, nil
 	}
+
 	return defaultProfilePath(shell)
 }
 
@@ -93,10 +100,12 @@ func rewriteProfileFile(
 	if rewritten == existing {
 		return PathSnippetWriteResult{Profile: profile, Action: "noop", Snippet: body}, nil
 	}
+
 	wrErr := os.WriteFile(profile, []byte(rewritten), constants.FilePermission)
 	if wrErr != nil {
 		return PathSnippetWriteResult{}, fmt.Errorf("rewrite profile %s: %w", profile, wrErr)
 	}
+
 	return PathSnippetWriteResult{Profile: profile, Action: "rewritten", Snippet: body}, nil
 }
 
@@ -106,10 +115,12 @@ func appendSnippet(profile, body string) (PathSnippetWriteResult, error) {
 	if err != nil {
 		return PathSnippetWriteResult{}, fmt.Errorf("open profile %s: %w", profile, err)
 	}
+
 	defer f.Close()
 	if _, err = fmt.Fprintf(f, "\n%s\n", body); err != nil {
 		return PathSnippetWriteResult{}, fmt.Errorf("append snippet: %w", err)
 	}
+
 	return PathSnippetWriteResult{Profile: profile, Action: "appended", Snippet: body}, nil
 }
 
@@ -147,6 +158,7 @@ func scanSnippetLines(content, open, close, body string) (string, bool) {
 	for scanner.Scan() {
 		processSnippetLine(scanner.Text(), open, close, body, &state, &out)
 	}
+
 	return out.String(), state.wrote
 }
 
@@ -157,9 +169,11 @@ func rewriteSnippetBlock(content, open, close, body string) string {
 	if !wrote {
 		return content
 	}
+
 	if strings.HasSuffix(content, "\n") {
 		return res
 	}
+
 	return strings.TrimRight(res, "\n")
 }
 
@@ -169,10 +183,12 @@ func defaultProfilePath(shell string) (string, error) {
 	if err != nil {
 		return "", fmt.Errorf("resolve home dir: %w", err)
 	}
+
 	rel, err := profileRelPath(shell)
 	if err != nil {
 		return "", err
 	}
+
 	return filepath.Join(home, rel), nil
 }
 

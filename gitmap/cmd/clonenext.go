@@ -23,6 +23,7 @@ func runCloneNext(args []string) error {
 	if tryFolderArgCloneNext(args) || tryCrossDirCloneNext(args) {
 		return nil
 	}
+
 	checkHelp("clone-next", args)
 	cnFlags := parseCloneNextFlags(args)
 	configureCloneNextFlags(cnFlags)
@@ -31,6 +32,7 @@ func runCloneNext(args []string) error {
 	if errVerbose != nil {
 		fmt.Fprintf(os.Stderr, constants.WarnVerboseLogFailed, errVerbose)
 	}
+
 	if log != nil {
 		defer log.Close()
 	}
@@ -49,11 +51,13 @@ func dispatchCloneNext(cnFlags CloneNextFlags) error {
 	if isBatch {
 		return handleCloneNextBatch(cnFlags)
 	}
+
 	if len(cnFlags.VersionArg) == 0 {
 		fmt.Fprintln(os.Stderr, constants.ErrCloneNextUsage)
 
 		return apperror.NewValidationError(constants.ErrCloneNextUsage)
 	}
+
 	requireOnline()
 	applySSHKey(cnFlags.SSHKeyName)
 
@@ -66,6 +70,7 @@ func handleCloneNextBatch(cnFlags CloneNextFlags) error {
 
 		return nil
 	}
+
 	runCloneNextBatch(cnFlags.CSVPath, cnFlags.All, cnFlags.MaxConcurrency, cnFlags.NoProgress, cnFlags.ReportErrors)
 	maybeExitOnCmdFaithfulMismatch()
 
@@ -77,6 +82,7 @@ func executeSingleCloneNext(cnFlags CloneNextFlags) error {
 	if cwdErr != nil {
 		return cwdErr
 	}
+
 	remoteURL, err := gitutil.RemoteURL(cwd)
 	if err != nil {
 		fmt.Fprintf(os.Stderr, constants.ErrCloneNextNoRemote, err)
@@ -143,10 +149,12 @@ func executeCloneNextPipeline(cnFlags CloneNextFlags, cwd, remoteURL string) err
 	if err != nil {
 		return err
 	}
+
 	maybePrintCloneNextTermBlock(cnFlags, p.targetName, currentBranch(cwd), remoteURL, p.targetURL, p.targetPath)
 	if cnFlags.Force {
 		fmt.Printf(constants.MsgCNStagePrepare, p.currentFolder, p.flattenedFolder)
 	}
+
 	if escErr := prepareCloneNextTarget(p.targetPath, p.flattenedFolder); escErr != nil {
 		return escErr
 	}
@@ -173,6 +181,7 @@ func performCloneNextOperation(cnFlags CloneNextFlags, cwd, remoteURL string, p 
 	if remoteErr != nil {
 		return remoteErr
 	}
+
 	if cnFlags.DryRun {
 		printCloneNextDryRun(p.targetURL, p.targetPath)
 	}
@@ -184,6 +193,7 @@ func executeCloneAndFinalize(cnFlags CloneNextFlags, cwd string, p cloneNextTarg
 	if cnFlags.Force {
 		fmt.Printf(constants.MsgCNStageClone, p.targetName)
 	}
+
 	fmt.Printf(constants.MsgFlattenCloning, p.targetName, p.flattenedFolder)
 	cloneResult := runGitClone(p.targetURL, p.targetPath)
 	if !cloneResult {
@@ -191,6 +201,7 @@ func executeCloneAndFinalize(cnFlags CloneNextFlags, cwd string, p cloneNextTarg
 
 		return apperror.NewExecutionError(fmt.Sprintf(constants.ErrCloneNextFailed, p.targetName))
 	}
+
 	fmt.Printf(constants.MsgFlattenDone, p.targetName, p.flattenedFolder)
 
 	finalizeCloneNext(cnFlags, cwd, p)
@@ -203,14 +214,17 @@ func finalizeCloneNext(cnFlags CloneNextFlags, cwd string, p cloneNextTargetPara
 	if cnFlags.Force {
 		fmt.Printf(constants.MsgCNStageFinalize)
 	}
+
 	recordVersionHistory(p.targetPath, p.currentVersion, p.targetVersion, p.flattenedFolder)
 	if !cnFlags.NoDesktop {
 		registerCloneNextDesktop(p.targetName, p.targetPath)
 	}
+
 	if p.currentFolder != p.flattenedFolder {
 		keep := cnFlags.Keep || cnFlags.Force
 		handleCloneNextRemoval(p.currentFolder, cwd, p.targetPath, cnFlags.Delete, keep)
 	}
+
 	WriteShellHandoff(p.targetPath)
 	openInVSCode(p.targetPath)
 	syncSingleClonedRepoToVSCodePM(p.targetPath, p.flattenedFolder, cnFlags.NoVSCodeSync)
@@ -232,12 +246,14 @@ func escapeToRepoRoot(cwd string) (string, *apperror.AppError) {
 	if rootErr != nil || root == "" || root == cwd {
 		return cwd, nil
 	}
+
 	chErr := os.Chdir(root)
 	if chErr != nil {
 		fmt.Fprintf(os.Stderr, constants.ErrCloneNextCwd, chErr)
 
 		return cwd, apperror.WrapSimple(chErr, fmt.Sprintf(constants.ErrCloneNextCwd, chErr))
 	}
+
 	fmt.Printf("cn: escaped to repo root: %s\n", root)
 
 	return root, nil
@@ -248,6 +264,7 @@ func removeExistingTargetFolder(targetPath string, flattenedFolder string) *appe
 	if statErr != nil {
 		return nil
 	}
+
 	fmt.Printf(constants.MsgFlattenRemoving, flattenedFolder)
 
 	if !removeFolderWithLockCheck(flattenedFolder, targetPath) {
@@ -271,6 +288,7 @@ func handleCreateRemote(params CreateRemoteParams) *apperror.AppError {
 	if !params.IsCreateRemote {
 		return nil
 	}
+
 	owner, _, parseErr := clonenext.ParseOwnerRepo(params.RemoteURL)
 	if parseErr != nil {
 		fmt.Fprintf(os.Stderr, constants.ErrCloneNextRemoteParse, parseErr)
@@ -288,6 +306,7 @@ func ensureAndCreateRemote(owner, targetName string) *apperror.AppError {
 
 		return apperror.WrapSimple(checkErr, fmt.Sprintf(constants.ErrCloneNextRepoCheck, checkErr))
 	}
+
 	if exists {
 		return nil
 	}
@@ -299,6 +318,7 @@ func ensureAndCreateRemote(owner, targetName string) *apperror.AppError {
 
 		return apperror.WrapSimple(createErr, fmt.Sprintf(constants.ErrCloneNextRepoCreate, targetName, createErr))
 	}
+
 	fmt.Printf(constants.MsgCloneNextCreated, targetName)
 
 	return nil
@@ -311,6 +331,7 @@ func extractRepoName(remoteURL string) string {
 	if idx := strings.LastIndex(name, "/"); idx >= 0 {
 		name = name[idx+1:]
 	}
+
 	if idx := strings.LastIndex(name, ":"); idx >= 0 {
 		name = name[idx+1:]
 	}
@@ -373,12 +394,14 @@ func handlePostRemovalChdir(removed bool, targetPath string) {
 	if !removed {
 		return
 	}
+
 	chErr := os.Chdir(targetPath)
 	if chErr != nil {
 		fmt.Fprintf(os.Stderr, "Warning: could not cd to %s: %v\n", targetPath, chErr)
 
 		return
 	}
+
 	fmt.Printf(constants.MsgCloneNextMovedTo, filepath.Base(targetPath))
 }
 
@@ -410,6 +433,7 @@ func handleLockedFolderRemoval(db *store.DB, taskID int64, name, path string) bo
 
 		return false
 	}
+
 	if len(procs) == 0 {
 		fmt.Print(constants.MsgLockCheckNoneFound)
 		failPendingTask(db, taskID, constants.ReasonNoLockingProcs)
@@ -430,6 +454,7 @@ func confirmAndKillProcs(db *store.DB, taskID int64, name, path string, procs []
 
 		return false
 	}
+
 	killLockingProcesses(procs)
 	time.Sleep(500 * time.Millisecond)
 
@@ -455,6 +480,7 @@ func retryFolderRemoval(db *store.DB, taskID int64, name, path string) bool {
 
 		return false
 	}
+
 	fmt.Printf(constants.MsgCloneNextRemoved, name)
 	completePendingTask(db, taskID)
 

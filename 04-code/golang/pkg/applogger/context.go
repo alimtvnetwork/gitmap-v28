@@ -50,5 +50,6 @@ func FromContext(ctx context.Context, logger Logger) Logger {
 	}
 
 	childLogger := logger.WithFields(fields)
+
 	return childLogger
 }

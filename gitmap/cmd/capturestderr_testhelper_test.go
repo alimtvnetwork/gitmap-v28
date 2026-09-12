@@ -35,6 +35,7 @@ func captureStderr(t *testing.T, fn func()) string {
 	if err != nil {
 		t.Fatalf("pipe: %v", err)
 	}
+
 	os.Stderr = w
 
 	done := make(chan string, 1)
@@ -63,6 +64,7 @@ func captureStdout(t *testing.T, fn func() int) (string, int) {
 	if err != nil {
 		t.Fatalf("pipe: %v", err)
 	}
+
 	os.Stdout = w
 
 	done := make(chan string, 1)
@@ -83,7 +85,9 @@ func captureStdout(t *testing.T, fn func() int) (string, int) {
 func captureStdoutForTest(t *testing.T, fn func()) string {
 	out, _ := captureStdout(t, func() int {
 		fn()
+
 		return 0
 	})
+
 	return out
 }

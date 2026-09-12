@@ -19,19 +19,24 @@ func TestParseLaravelFlags(t *testing.T) {
 		"--port=8088",
 		"--dry-run",
 	}
+
 	opts, err := parseLaravelFlags(args)
 	if err != nil {
 		t.Fatalf("parseLaravelFlags failed: %v", err)
 	}
+
 	if opts.TargetDir != "/tmp/laravel_app" {
 		t.Errorf("expected TargetDir /tmp/laravel_app, got %s", opts.TargetDir)
 	}
+
 	if opts.EnvOpts.AppName != "CustomApp" || opts.EnvOpts.AppEnv != "staging" {
 		t.Errorf("unexpected AppName/Env: %s, %s", opts.EnvOpts.AppName, opts.EnvOpts.AppEnv)
 	}
+
 	if opts.EnvOpts.DBConnection != "sqlite" || opts.EnvOpts.DBDatabase != "database.sqlite" {
 		t.Errorf("unexpected DB opts: %s, %s", opts.EnvOpts.DBConnection, opts.EnvOpts.DBDatabase)
 	}
+
 	if !opts.IsVHost || !opts.IsDryRun {
 		t.Error("expected boolean flags to be true")
 	}
@@ -43,9 +48,11 @@ func TestParseLaravelFlagsPositional(t *testing.T) {
 	if err != nil {
 		t.Fatalf("parseLaravelFlags failed: %v", err)
 	}
+
 	if opts.TargetDir != "/var/www/art_app" {
 		t.Errorf("expected positional dir /var/www/art_app, got %s", opts.TargetDir)
 	}
+
 	if opts.EnvOpts.AppName != "PosApp" {
 		t.Errorf("expected app name PosApp, got %s", opts.EnvOpts.AppName)
 	}
@@ -62,6 +69,7 @@ func TestSetupLaravelDryRun(t *testing.T) {
 	if err != nil {
 		t.Fatalf("SetupLaravel dry-run failed: %v", err)
 	}
+
 	envFile := filepath.Join(dir, ".env")
 	hasFile := fileExists(envFile)
 	if hasFile {
@@ -89,6 +97,7 @@ func TestSetupLaravelRealExecution(t *testing.T) {
 	if readErr != nil {
 		t.Fatalf("failed reading written .env: %v", readErr)
 	}
+
 	str := string(content)
 	assertContains(t, str, "APP_NAME=ProdLaravel")
 	assertContains(t, str, "DB_DATABASE=prod_db")
@@ -99,6 +108,7 @@ func TestSetupLaravelRealExecution(t *testing.T) {
 	if vhostErr != nil {
 		t.Fatalf("failed reading written vhost file: %v", vhostErr)
 	}
+
 	assertContains(t, string(vhostContent), "server_name laratest.local;")
 }
 
@@ -125,6 +135,7 @@ func TestSetupLaravelExistingEnvPreserved(t *testing.T) {
 	if readErr != nil {
 		t.Fatalf("failed reading .env: %v", readErr)
 	}
+
 	str := string(content)
 	assertContains(t, str, "APP_NAME=NewApp")
 	assertContains(t, str, "CUSTOM_TOKEN=secret123")
@@ -136,10 +147,12 @@ func TestResolveSetupTargetLaravel(t *testing.T) {
 	if !handled {
 		t.Error("expected 'laravel' to be handled by resolveSetupTarget")
 	}
+
 	handledArt, _ := resolveSetupTarget("art", []string{"--dry-run"})
 	if !handledArt {
 		t.Error("expected 'art' to be handled by resolveSetupTarget")
 	}
+
 	handledArtisan, _ := resolveSetupTarget("artisan", []string{"--dry-run"})
 	if !handledArtisan {
 		t.Error("expected 'artisan' to be handled by resolveSetupTarget")
@@ -152,6 +165,7 @@ func TestCreateStorageSymlink(t *testing.T) {
 	if err != nil {
 		t.Fatalf("createStorageSymlink failed: %v", err)
 	}
+
 	targetPath := filepath.Join(dir, "storage", "app", "public")
 	hasTarget := dirExists(targetPath)
 	if !hasTarget {

@@ -47,6 +47,7 @@ func DiffTrees(leftDir, rightDir string, opts WalkOptions) ([]Entry, error) {
 	if err != nil {
 		return nil, err
 	}
+
 	rightIdx, err := indexTree(rightDir, opts)
 	if err != nil {
 		return nil, err
@@ -62,19 +63,24 @@ func indexTree(root string, opts WalkOptions) (map[string]os.FileInfo, error) {
 		if err != nil {
 			return err
 		}
+
 		rel, relErr := filepath.Rel(root, path)
 		if relErr != nil || rel == "." {
 			return relErr
 		}
+
 		if isIgnoredPath(rel, opts) && info.IsDir() {
 			return filepath.SkipDir
 		}
+
 		if isIgnoredPath(rel, opts) {
 			return nil
 		}
+
 		if info.IsDir() {
 			return nil
 		}
+
 		out[filepath.ToSlash(rel)] = info
 
 		return nil
@@ -89,9 +95,11 @@ func isIgnoredPath(rel string, opts WalkOptions) bool {
 	if !opts.IncludeVCS && base == ".git" {
 		return true
 	}
+
 	if !opts.IncludeNodeModules && base == "node_modules" {
 		return true
 	}
+
 	relSlash := filepath.ToSlash(rel)
 
 	return strings.HasPrefix(relSlash, ".gitmap/release-assets/")
@@ -114,13 +122,16 @@ func unionKeys(a, b map[string]os.FileInfo) []string {
 	for k := range a {
 		seen[k] = struct{}{}
 	}
+
 	for k := range b {
 		seen[k] = struct{}{}
 	}
+
 	out := make([]string, 0, len(seen))
 	for k := range seen {
 		out = append(out, k)
 	}
+
 	sort.Strings(out)
 
 	return out
@@ -132,9 +143,11 @@ func classifyOne(rel string, l, r os.FileInfo, leftDir, rightDir string) Entry {
 	if l != nil {
 		entry.LeftSize, entry.LeftMTime = l.Size(), l.ModTime().Unix()
 	}
+
 	if r != nil {
 		entry.RightSize, entry.RightMTime = r.Size(), r.ModTime().Unix()
 	}
+
 	entry.Kind = pickKind(l, r, leftDir, rightDir, rel)
 	entry.KindLabel = labelFor(entry.Kind)
 
@@ -188,6 +201,7 @@ func hashFile(path string) (string, error) {
 	if err != nil {
 		return "", err
 	}
+
 	defer f.Close()
 	h := sha256.New()
 	if _, err = io.Copy(h, f); err != nil {

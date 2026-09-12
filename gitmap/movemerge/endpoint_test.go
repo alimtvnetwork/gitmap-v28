@@ -22,10 +22,12 @@ func TestClassifyEndpoint_HTTPSWithBranch(t *testing.T) {
 	if !isURL {
 		t.Fatalf("kind = %v, want URL", kind)
 	}
+
 	isMatchURL := url == "https://github.com/owner/repo"
 	if !isMatchURL {
 		t.Errorf("url = %q", url)
 	}
+
 	isMatchBranch := branch == "develop"
 	if !isMatchBranch {
 		t.Errorf("branch = %q", branch)

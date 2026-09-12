@@ -46,5 +46,6 @@ func init() {
 // RunOSCLI routes OS CLI commands.
 func RunOSCLI(args []string) error {
 	osCmd.SetArgs(args)
+
 	return osCmd.Execute()
 }

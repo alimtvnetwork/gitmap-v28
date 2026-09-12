@@ -32,6 +32,7 @@ func TestDepthFlagFormat_Locked(t *testing.T) {
 		t.Fatalf("CloneFromDepthFlagFmt rendered %q, want %q "+
 			"(joined form is mandatory — see constant doc)", got, want)
 	}
+
 	hasSpace := strings.Contains(constants.CloneFromDepthFlagFmt, " ")
 	if hasSpace {
 		t.Fatalf("CloneFromDepthFlagFmt contains a space (%q); "+
@@ -54,6 +55,7 @@ func TestBuildGitArgs_DepthJoined(t *testing.T) {
 		t.Fatalf("BuildGitArgs argv missing %q\n got: %v",
 			wantTok, args)
 	}
+
 	assertNoSplitDepthArg(t, args)
 }
 
@@ -81,6 +83,7 @@ func TestCloneCommandForRow_DepthJoined(t *testing.T) {
 		t.Fatalf("cloneCommandForRow missing `--depth=7`\n got: %s",
 			got)
 	}
+
 	hasSplit := strings.Contains(got, "--depth 7")
 	if hasSplit {
 		t.Fatalf("cloneCommandForRow rendered split form "+

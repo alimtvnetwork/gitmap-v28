@@ -47,16 +47,20 @@ func TestLoadFromDBNumericRefRoutesToByID(t *testing.T) {
 		planByID: Plan{Name: "docs", RepoUrl: "u"},
 		idByID:   42,
 	}
+
 	plan, id, err := LoadFromDB(loader, "42")
 	if err != nil {
 		t.Fatalf("unexpected err: %v", err)
 	}
+
 	if id != 42 || plan.Name != "docs" {
 		t.Fatalf("got id=%d name=%q, want 42/docs", id, plan.Name)
 	}
+
 	if loader.idArgSeen != 42 {
 		t.Fatalf("ByID called with %d, want 42", loader.idArgSeen)
 	}
+
 	if len(loader.nameArgSeen) > 0 {
 		t.Fatal("ByName must not be called for numeric ref")
 	}
@@ -67,13 +71,16 @@ func TestLoadFromDBNonNumericRefRoutesToByName(t *testing.T) {
 		planByName: Plan{Name: "release-bundle"},
 		idByName:   7,
 	}
+
 	plan, id, err := LoadFromDB(loader, "release-bundle")
 	if err != nil {
 		t.Fatalf("unexpected err: %v", err)
 	}
+
 	if id != 7 || plan.Name != "release-bundle" {
 		t.Fatalf("got id=%d name=%q, want 7/release-bundle", id, plan.Name)
 	}
+
 	if loader.nameArgSeen != "release-bundle" {
 		t.Fatalf("ByName called with %q", loader.nameArgSeen)
 	}
@@ -85,6 +92,7 @@ func TestLoadFromDBMissingRefReturnsUserFacingMessage(t *testing.T) {
 	if err == nil {
 		t.Fatal("want error for missing id")
 	}
+
 	if !strings.Contains(err.Error(), "no saved selection") {
 		t.Fatalf("err missing user-facing prefix: %v", err)
 	}
@@ -109,6 +117,7 @@ func TestTouchAfterReplaySkippedOnDryRun(t *testing.T) {
 	if err := TouchAfterReplay(loader, 5, true); err != nil {
 		t.Fatalf("unexpected err: %v", err)
 	}
+
 	if len(loader.touchCalls) != 0 {
 		t.Fatalf("dry-run must not touch DB, got %v", loader.touchCalls)
 	}
@@ -119,6 +128,7 @@ func TestTouchAfterReplayBumpsRow(t *testing.T) {
 	if err := TouchAfterReplay(loader, 5, false); err != nil {
 		t.Fatalf("unexpected err: %v", err)
 	}
+
 	if len(loader.touchCalls) != 1 || loader.touchCalls[0] != 5 {
 		t.Fatalf("want touch(5), got %v", loader.touchCalls)
 	}

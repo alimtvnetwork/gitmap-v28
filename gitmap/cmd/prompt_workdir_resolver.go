@@ -10,6 +10,7 @@ func ResolveAllWorkDirPromptTargets() ([]string, error) {
 	if errDB != nil {
 		return nil, errDB
 	}
+
 	defer db.Close()
 
 	dirs, errList := db.ListWorkDirs()
@@ -25,5 +26,6 @@ func ResolveAllWorkDirPromptTargets() ([]string, error) {
 			allTargets = append(allTargets, d.AbsolutePath)
 		}
 	}
+
 	return allTargets, nil
 }

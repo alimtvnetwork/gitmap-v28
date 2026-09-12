@@ -22,16 +22,19 @@ func writeCNErrorReport(reportErrors bool, results []batchRowResult) {
 	if !reportErrors {
 		return
 	}
+
 	c := errreport.New(constants.Version, "clone-next")
 	for _, r := range results {
 		if r.Status != constants.BatchStatusFailed {
 			continue
 		}
+
 		c.Add(errreport.PhaseClone, errreport.Entry{
 			RepoPath: r.RepoPath,
 			Step:     "clone",
 			Error:    r.Detail,
 		})
 	}
+
 	finalizeErrorReport(c, false)
 }

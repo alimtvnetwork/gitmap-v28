@@ -27,6 +27,7 @@ func TestDetectTagsRecognizesMarkers(t *testing.T) {
 		constants.AutoTagGo,
 		constants.AutoTagDocker,
 	}
+
 	if !reflect.DeepEqual(got, want) {
 		t.Fatalf("DetectTags() = %v, want %v", got, want)
 	}

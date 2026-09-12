@@ -50,6 +50,7 @@ type addTemplateSpec struct {
 // of which languages the user picked.
 func runAddIgnore(args []string) *apperror.AppError {
 	checkHelp("add-ignore", args)
+
 	return executeAddTemplate(addTemplateSpec{
 		kind:        "ignore",
 		subcommand:  "ignore",
@@ -62,6 +63,7 @@ func runAddIgnore(args []string) *apperror.AppError {
 // pipeline as runAddIgnore, just a different file + extension.
 func runAddAttributes(args []string) *apperror.AppError {
 	checkHelp("add-attributes", args)
+
 	return executeAddTemplate(addTemplateSpec{
 		kind:        "attributes",
 		subcommand:  "attributes",
@@ -77,6 +79,7 @@ func executeAddTemplate(spec addTemplateSpec, args []string) *apperror.AppError 
 	if err != nil {
 		return err
 	}
+
 	if !insideGitRepo() {
 		return apperror.NewSimple("Not inside a Git repository", "E9000")
 	}
@@ -105,7 +108,9 @@ func executeAddTemplate(spec addTemplateSpec, args []string) *apperror.AppError 
 	if mergeErr != nil {
 		return apperror.WrapSimple(mergeErr, "merge error")
 	}
+
 	printAddTemplateSummary(spec, res)
+
 	return nil
 }
 
@@ -134,9 +139,11 @@ func normalizeLangs(in []string) []string {
 		if lang == "" || lang == "common" {
 			continue
 		}
+
 		if _, dup := seen[lang]; dup {
 			continue
 		}
+
 		seen[lang] = struct{}{}
 		out = append(out, lang)
 	}
@@ -155,6 +162,7 @@ func resolveAddTemplates(kind string, langs []string) ([]templates.Resolved, err
 		if err != nil {
 			return nil, fmt.Errorf("template %s/%s: %w", kind, lang, err)
 		}
+
 		out = append(out, r)
 	}
 
@@ -170,6 +178,7 @@ func concatTemplateBodies(resolved []templates.Resolved) []byte {
 		if i > 0 {
 			b.WriteString("\n")
 		}
+
 		fmt.Fprintf(&b, "# ── %s ──\n", r.Lang)
 		b.Write(r.Content)
 		if len(r.Content) > 0 && r.Content[len(r.Content)-1] != '\n' {
@@ -195,6 +204,7 @@ func dedupeLines(body []byte) []byte {
 
 			continue
 		}
+
 		if _, dup := seen[trimmed]; dup {
 			// Keep position as a blank so visual spacing between
 			// retained sections is preserved instead of collapsing.
@@ -202,9 +212,11 @@ func dedupeLines(body []byte) []byte {
 
 			continue
 		}
+
 		seen[trimmed] = struct{}{}
 		out = append(out, line)
 	}
+
 	// Collapse runs of 3+ blank lines down to 2 — two blanks is the
 	// widest separator we ever want to render after dedupe.
 	out = collapseBlankRuns(out, 2)
@@ -225,6 +237,7 @@ func collapseBlankRuns(lines []string, maxBlank int) []string {
 			lastNonBlank = i
 		}
 	}
+
 	out := make([]string, 0, len(lines))
 	run := 0
 	for i, line := range lines {
@@ -233,6 +246,7 @@ func collapseBlankRuns(lines []string, maxBlank int) []string {
 			out = append(out, line)
 			continue
 		}
+
 		run++
 		if i > lastNonBlank || run <= maxBlank {
 			out = append(out, line)
@@ -248,6 +262,7 @@ func buildAddTag(kind string, langs []string) string {
 	if len(langs) == 0 {
 		return kind + "/common"
 	}
+
 	sorted := make([]string, len(langs))
 	copy(sorted, langs)
 	sort.Strings(sorted)
@@ -287,14 +302,17 @@ func printAddTemplateBanner(
 		if r.Source == templates.SourceUser {
 			src = "user"
 		}
+
 		fmt.Printf("    %s%s/%s%s  source=%s  (%s)\n",
 			constants.ColorDim, r.Kind, r.Lang, constants.ColorReset, src, r.Path)
 	}
+
 	fmt.Printf("  block tag: %s%s%s\n", constants.ColorDim, tag, constants.ColorReset)
 	if dryRun {
 		fmt.Printf("  %s[dry-run]%s no files will be modified\n",
 			constants.ColorYellow, constants.ColorReset)
 	}
+
 	fmt.Println()
 }
 
@@ -309,6 +327,7 @@ func printAddTemplateDryRun(target, tag string, body []byte) {
 	if len(body) == 0 || body[len(body)-1] != '\n' {
 		fmt.Println()
 	}
+
 	fmt.Printf("# <<< gitmap:%s <<<\n", tag)
 	fmt.Println()
 }
@@ -321,6 +340,7 @@ func printAddTemplateSummary(spec addTemplateSpec, res templates.MergeResult) {
 		verb = "unchanged"
 		color = constants.ColorDim
 	}
+
 	fmt.Printf("  %s%s%s %s (block: %s)\n",
 		color, verb, constants.ColorReset, res.Path, res.BlockTag)
 	if res.Changed {
@@ -330,5 +350,6 @@ func printAddTemplateSummary(spec addTemplateSpec, res templates.MergeResult) {
 		fmt.Printf("    git add %s\n", spec.targetName)
 		fmt.Printf("    git commit -m \"chore: refresh %s via gitmap template\"\n", spec.targetName)
 	}
+
 	fmt.Println()
 }

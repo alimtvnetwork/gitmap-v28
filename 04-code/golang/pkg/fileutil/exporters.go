@@ -17,6 +17,7 @@ func ExportText(path string, content string, perm FilePermType) result.Wrap[bool
 	if fRes.HasError() {
 		return result.WrapFailure[bool](fRes.Fault())
 	}
+
 	f := fRes.Data()
 	defer f.Close()
 
@@ -44,6 +45,7 @@ func ExportJSON(path string, data any, perm FilePermType) result.Wrap[bool] {
 	if fRes.HasError() {
 		return result.WrapFailure[bool](fRes.Fault())
 	}
+
 	f := fRes.Data()
 	defer f.Close()
 
@@ -63,6 +65,7 @@ func ExportYAML(path string, data any, perm FilePermType) result.Wrap[bool] {
 	if fRes.HasError() {
 		return result.WrapFailure[bool](fRes.Fault())
 	}
+
 	f := fRes.Data()
 	defer f.Close()
 

@@ -13,6 +13,7 @@ func (c *SQLiteCompiler) getImpl() *sqlite.Compiler {
 	if c.impl == nil {
 		c.impl = sqlite.NewCompiler()
 	}
+
 	return c.impl
 }
 
@@ -80,6 +81,7 @@ func buildSelectWithoutWhere(quotedTable, pagination string) string {
 	if len(pagination) == 0 {
 		return "SELECT * FROM " + quotedTable + ";"
 	}
+
 	return "SELECT * FROM " + quotedTable + " " + pagination + ";"
 }
 
@@ -87,5 +89,6 @@ func buildSelectWithWhere(quotedTable, whereSql, pagination string) string {
 	if len(pagination) == 0 {
 		return "SELECT * FROM " + quotedTable + " WHERE " + whereSql + ";"
 	}
+
 	return "SELECT * FROM " + quotedTable + " WHERE " + whereSql + " " + pagination + ";"
 }

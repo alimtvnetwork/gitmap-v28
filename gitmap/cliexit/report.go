@@ -115,11 +115,13 @@ func writeStructured(w io.Writer, ctx Context, mode OutputMode) {
 
 		return
 	}
+
 	if mode == OutputJSON {
 		writeJSON(w, ctx)
 
 		return
 	}
+
 	writeHuman(w, ctx)
 }
 
@@ -145,6 +147,7 @@ func humanContextLines(ctx Context) []string {
 	if ctx.Mode != "" {
 		out = append(out, "mode="+ctx.Mode)
 	}
+
 	if len(ctx.Args) > 0 {
 		out = append(out, "args="+strings.Join(ctx.Args, " "))
 	}
@@ -158,6 +161,7 @@ func sortedExtraLines(extras map[string]string) []string {
 	if len(extras) == 0 {
 		return nil
 	}
+
 	keys := sortedKeys(extras)
 	out := make([]string, 0, len(keys))
 	for _, k := range keys {
@@ -172,6 +176,7 @@ func sortedKeys(extras map[string]string) []string {
 	for k := range extras {
 		keys = append(keys, k)
 	}
+
 	sort.Strings(keys)
 
 	return keys
@@ -187,6 +192,7 @@ func writeJSON(w io.Writer, ctx Context) {
 
 		return
 	}
+
 	fmt.Fprintln(w, string(encoded))
 }
 
@@ -196,11 +202,13 @@ func buildJSONPayload(ctx Context) map[string]any {
 		"op":      ctx.Op,
 		"error":   ctx.Err.Error(),
 	}
+
 	addNonEmptyString(payload, "path", ctx.Path)
 	addNonEmptyString(payload, "mode", ctx.Mode)
 	if len(ctx.Args) > 0 {
 		payload["args"] = ctx.Args
 	}
+
 	if len(ctx.Extras) > 0 {
 		payload["extras"] = ctx.Extras
 	}
@@ -214,5 +222,6 @@ func addNonEmptyString(m map[string]any, key, value string) {
 	if value == "" {
 		return
 	}
+
 	m[key] = value
 }

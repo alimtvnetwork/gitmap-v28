@@ -68,12 +68,15 @@ func writeShortcutFile(lnkPath, target string) error {
 	if err != nil {
 		return err
 	}
+
 	tmp := lnkPath + ".tmp"
 	if err := os.WriteFile(tmp, data, 0o644); err != nil {
 		return fmt.Errorf("write shortcut tmp %s: %w", tmp, err)
 	}
+
 	if err := os.Rename(tmp, lnkPath); err != nil {
 		os.Remove(tmp)
+
 		return fmt.Errorf("rename shortcut %s: %w", lnkPath, err)
 	}
 
@@ -88,14 +91,17 @@ func buildShortcutBytes(target string) ([]byte, error) {
 	if target == "" {
 		return nil, fmt.Errorf("shortcut target is empty")
 	}
+
 	linkInfo, err := buildLinkInfo(target)
 	if err != nil {
 		return nil, err
 	}
+
 	var buf bytes.Buffer
 	if err := writeShellLinkHeader(&buf); err != nil {
 		return nil, err
 	}
+
 	buf.Write(linkInfo)
 
 	return buf.Bytes(), nil

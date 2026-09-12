@@ -28,6 +28,7 @@ func ParseOpenCommand(cmdText string) (bool, string) {
 	if len(fields) == 0 || strings.ToLower(fields[0]) != "open" {
 		return false, ""
 	}
+
 	if len(fields) == 1 {
 		return true, "."
 	}
@@ -51,6 +52,7 @@ func executeOpenStep(ctx context.Context, step MacroStep, cmdText, target, curre
 	if err != nil {
 		return handleStepFailure(step, cmdText, currentDir, elapsed, 1, err, opts, idx, []string{}, []string{err.Error()})
 	}
+
 	printStepSuccess(opts, elapsed)
 
 	return createOpenStepSuccess(step, cmdText, currentDir, target, elapsed), nil
@@ -73,10 +75,12 @@ func defaultOpenLauncher(ctx context.Context, target, currentDir string) error {
 	if isChromeTarget(target) {
 		return launchChromeFn(ctx)
 	}
+
 	resolvedPath := resolveTargetPath(target, currentDir)
 	if isPathExists(resolvedPath) {
 		return launchPathFn(ctx, resolvedPath)
 	}
+
 	if isURL, urlStr := parseURLTarget(target); isURL {
 		return launchURLFn(ctx, urlStr)
 	}
@@ -96,9 +100,11 @@ func parseURLTarget(target string) (bool, string) {
 	if strings.HasPrefix(lower, "http://") || strings.HasPrefix(lower, "https://") {
 		return true, trimmed
 	}
+
 	if strings.HasPrefix(lower, "www.") {
 		return true, "https://" + trimmed
 	}
+
 	if hasDomainTLD(lower) {
 		return true, "https://" + trimmed
 	}
@@ -135,6 +141,7 @@ func launchChrome(ctx context.Context) error {
 	if runtime.GOOS == constants.OSWindows {
 		return launchChromeWindows(ctx)
 	}
+
 	if runtime.GOOS == "darwin" {
 		return exec.CommandContext(ctx, "open", "-a", "Google Chrome").Run()
 	}
@@ -149,6 +156,7 @@ func findExistingChromeWindowsPath() (string, bool) {
 			return p, true
 		}
 	}
+
 	p, err := exec.LookPath("chrome.exe")
 	if err == nil {
 		return p, true
@@ -161,6 +169,7 @@ func launchChromeWindows(ctx context.Context) error {
 	p, hasChrome := findExistingChromeWindowsPath()
 	if hasChrome {
 		cmd := exec.CommandContext(ctx, p)
+
 		return cmd.Start()
 	}
 
@@ -190,6 +199,7 @@ func launchChromeLinux(ctx context.Context) error {
 	p, hasChrome := findExistingChromeLinuxPath()
 	if hasChrome {
 		cmd := exec.CommandContext(ctx, p)
+
 		return cmd.Start()
 	}
 
@@ -200,6 +210,7 @@ func launchURL(ctx context.Context, urlStr string) error {
 	if runtime.GOOS == constants.OSWindows {
 		return launchURLWindows(ctx, urlStr)
 	}
+
 	if runtime.GOOS == "darwin" {
 		return exec.CommandContext(ctx, "open", urlStr).Run()
 	}
@@ -220,8 +231,10 @@ func launchURLWindows(ctx context.Context, urlStr string) error {
 func launchPath(ctx context.Context, pathStr string) error {
 	if runtime.GOOS == constants.OSWindows {
 		cmd := exec.CommandContext(ctx, "explorer.exe", pathStr)
+
 		return cmd.Start()
 	}
+
 	if runtime.GOOS == "darwin" {
 		return exec.CommandContext(ctx, "open", pathStr).Run()
 	}
@@ -233,6 +246,7 @@ func launchGeneric(ctx context.Context, target string) error {
 	if runtime.GOOS == constants.OSWindows {
 		return exec.CommandContext(ctx, "powershell", "-NoProfile", "-Command", "Start-Process", target).Run()
 	}
+
 	if runtime.GOOS == "darwin" {
 		return exec.CommandContext(ctx, "open", target).Run()
 	}

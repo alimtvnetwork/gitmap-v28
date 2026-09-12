@@ -36,6 +36,7 @@ func runDoctorFixRepo(args []string) error {
 
 			continue
 		}
+
 		if a == "--budget" && i+1 < len(args) {
 			budget = parseBudget(args[i+1], budget)
 			i++
@@ -43,6 +44,7 @@ func runDoctorFixRepo(args []string) error {
 			budget = parseBudget(a[len("--budget="):], budget)
 		}
 	}
+
 	results := doctorFixRepoProbes(budget)
 	failed := 0
 	for _, r := range results {
@@ -50,14 +52,17 @@ func runDoctorFixRepo(args []string) error {
 			failed++
 		}
 	}
+
 	if wantJSON {
 		emitDoctorFixRepoJSON(results, failed, budget)
 	} else {
 		emitDoctorFixRepoText(results, failed, budget)
 	}
+
 	if failed > 0 {
 		return apperror.NewSimple("fatal error", "E9000")
 	}
+
 	return nil
 }
 
@@ -66,6 +71,7 @@ func parseBudget(val string, defaultBudget int) int {
 	if err == nil && n >= constants.FixRepoGofmtMinCmdLen {
 		return n
 	}
+
 	return defaultBudget
 }
 
@@ -104,11 +110,13 @@ func probeGofmtRuns() DoctorResult {
 	if err != nil {
 		return DoctorResult{Name: "gofmt-runs", OK: false, Detail: "mktemp: " + err.Error()}
 	}
+
 	defer os.RemoveAll(dir)
 	sample := filepath.Join(dir, "sample.go")
 	if err := os.WriteFile(sample, []byte("package sample\n"), 0o644); err != nil {
 		return DoctorResult{Name: "gofmt-runs", OK: false, Detail: "write sample: " + err.Error()}
 	}
+
 	cmd := exec.Command("gofmt", "-l", sample)
 	out, err := cmd.CombinedOutput()
 	if err != nil {
@@ -136,6 +144,7 @@ func probeArgvBudget(budget int) DoctorResult {
 			Detail: fmt.Sprintf("configured=%d (measurement skipped on %s; ARG_MAX ~2MB)", budget, runtime.GOOS),
 		}
 	}
+
 	measured := measureWindowsArgvCap()
 	ok := measured == 0 || measured >= budget
 	detail := fmt.Sprintf("configured=%d, measured=%d", budget, measured)
@@ -155,6 +164,7 @@ func measureWindowsArgvCap() int {
 	if _, err := exec.LookPath("gofmt"); err != nil {
 		return 0
 	}
+
 	// Try 8k, 16k, 24k, 32k joined arg bytes. Anything above 32k
 	// exceeds the documented cap.
 	sizes := []int{8000, 16000, 24000, 32000}
@@ -162,25 +172,30 @@ func measureWindowsArgvCap() int {
 	if err != nil {
 		return 0
 	}
+
 	defer os.RemoveAll(dir)
 	sample := filepath.Join(dir, "sample.go")
 	if err := os.WriteFile(sample, []byte("package sample\n"), 0o644); err != nil {
 		return 0
 	}
+
 	last := 0
 	for _, target := range sizes {
 		copies := target / (len(sample) + 1)
 		if copies < 1 {
 			copies = 1
 		}
+
 		args := make([]string, 0, copies+1)
 		args = append(args, "-l")
 		for i := 0; i < copies; i++ {
 			args = append(args, sample)
 		}
+
 		if err := exec.Command("gofmt", args...).Run(); err != nil {
 			return last
 		}
+
 		last = target
 	}
 
@@ -194,6 +209,7 @@ func probeChunkerSelfTest(budget int) DoctorResult {
 	if got := chunkPathsForGofmt(nil, budget); got != nil {
 		return DoctorResult{Name: "chunker-selftest", OK: false, Detail: "empty input did not return nil"}
 	}
+
 	small := []string{"a.go", "b.go", "c.go"}
 	if got := chunkPathsForGofmt(small, budget); len(got) != 1 {
 		return DoctorResult{
@@ -201,11 +217,13 @@ func probeChunkerSelfTest(budget int) DoctorResult {
 			Detail: fmt.Sprintf("expected 1 chunk for %d small paths, got %d", len(small), len(got)),
 		}
 	}
+
 	long := strings.Repeat("x", 200)
 	overflow := make([]string, 500)
 	for i := range overflow {
 		overflow[i] = long
 	}
+
 	batches := chunkPathsForGofmt(overflow, budget)
 	if len(batches) < 2 {
 		return DoctorResult{
@@ -213,6 +231,7 @@ func probeChunkerSelfTest(budget int) DoctorResult {
 			Detail: fmt.Sprintf("overflow input yielded only %d batch(es)", len(batches)),
 		}
 	}
+
 	for i, b := range batches {
 		if len(b) > 1 && batchCmdLen(b)-gofmtArgvOverhead > budget {
 			return DoctorResult{
@@ -236,16 +255,19 @@ func emitDoctorFixRepoText(results []DoctorResult, failed, budget int) {
 		if !r.OK {
 			mark = "[fail]"
 		}
+
 		fmt.Printf("%s %-18s %s\n", mark, r.Name, r.Detail)
 		if !r.OK && r.FixHint != "" {
 			fmt.Printf("                    fix: %s\n", r.FixHint)
 		}
 	}
+
 	if failed > 0 {
 		fmt.Printf("\n%d probe(s) failed.\n", failed)
 
 		return
 	}
+
 	fmt.Println("\nfix-repo → gofmt pipeline nominal.")
 }
 
@@ -261,6 +283,7 @@ func emitDoctorFixRepoJSON(results []DoctorResult, failed, budget int) {
 		Failed:  failed,
 		Results: results,
 	}
+
 	buf, _ := json.MarshalIndent(payload, "", "  ")
 	fmt.Println(string(buf))
 }

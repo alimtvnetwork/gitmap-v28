@@ -26,6 +26,7 @@ func pushAndFinalize(v Version, branchName, tag, _ string, opts Options) error {
 	if err != nil {
 		return fmt.Errorf(constants.ErrReleasePushFailed, err)
 	}
+
 	fmt.Print(constants.MsgReleasePushed)
 
 	assets := CollectAssets(opts.Assets)
@@ -89,6 +90,7 @@ func writeMetadata(
 	if commitErr != nil {
 		fmt.Fprintf(os.Stderr, "  ⚠ Could not determine current commit SHA: %v\n", commitErr)
 	}
+
 	meta := buildReleaseMeta(v, branchName, tag, sourceName, commit, assets, opts)
 
 	metaPath := constants.DefaultReleaseDir + "/" + v.String() + constants.ExtJSON
@@ -101,6 +103,7 @@ func writeMetadata(
 	if err != nil {
 		return fmt.Errorf(constants.ErrReleaseMetaWrite, metaPath, err)
 	}
+
 	fmt.Printf(constants.MsgReleaseMeta, metaPath)
 
 	LastMeta = &meta

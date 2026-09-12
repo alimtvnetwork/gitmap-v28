@@ -73,8 +73,10 @@ func populateLeafPaths(out map[string]string, e ctxEntry) {
 	isTopLevelOnly := len(e.Children) == 0
 	if isTopLevelOnly {
 		out[topSlug(e)] = e.KeyName
+
 		return
 	}
+
 	for _, c := range e.Children {
 		out[childSlug(e, c)] = e.KeyName + "." + c.KeyName
 	}
@@ -137,6 +139,7 @@ func sortedSlugs(leaves []ctxFlatLeaf) []string {
 	for _, l := range leaves {
 		out = append(out, l.Slug)
 	}
+
 	sort.Strings(out)
 
 	return out

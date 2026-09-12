@@ -67,6 +67,7 @@ func parseMacroAddFlags(args []string) (string, string, bool, []string) {
 		if handleMacroAddSpecialFlag(a, &isExec) {
 			continue
 		}
+
 		i, desc, tag, rawSteps = parseSingleMacroFlag(args, i, desc, tag, rawSteps)
 	}
 
@@ -76,16 +77,22 @@ func parseMacroAddFlags(args []string) (string, string, bool, []string) {
 func handleMacroAddSpecialFlag(flag string, isExec *bool) bool {
 	if flag == "--pwd" {
 		uipref.SetMacroPwdOverride(true)
+
 		return true
 	}
+
 	if flag == "--no-pwd" {
 		uipref.SetMacroPwdOverride(false)
+
 		return true
 	}
+
 	if flag == "--exec" || flag == "-e" {
 		*isExec = true
+
 		return true
 	}
+
 	return false
 }
 
@@ -115,12 +122,14 @@ func parseMacroStepsList(rawSteps []string) []macro.MacroStep {
 			stepNum = appendChainedSteps(&steps, raw, stepNum)
 			continue
 		}
+
 		trimmed := strings.TrimSpace(raw)
 		if trimmed != "" {
 			steps = append(steps, makeMacroStep(stepNum, trimmed))
 			stepNum++
 		}
 	}
+
 	return steps
 }
 
@@ -133,6 +142,7 @@ func appendChainedSteps(steps *[]macro.MacroStep, raw string, stepNum int) int {
 			stepNum++
 		}
 	}
+
 	return stepNum
 }
 
@@ -147,6 +157,7 @@ func makeMacroStep(num int, cmdLine string) macro.MacroStep {
 
 func buildNewMacro(name, desc, tag string, steps []macro.MacroStep) macro.Macro {
 	now := time.Now()
+
 	return macro.Macro{
 		Name:        name,
 		Description: desc,

@@ -22,6 +22,7 @@ func runTask(args []string) error {
 			nil,
 		)
 		cliexit.HandleError(err, 1)
+
 		return nil
 	}
 
@@ -29,6 +30,7 @@ func runTask(args []string) error {
 	rest := args[1:]
 
 	routeTaskSub(sub, rest)
+
 	return nil
 }
 
@@ -39,21 +41,25 @@ func routeTaskSub(sub string, args []string) {
 
 		return
 	}
+
 	if sub == constants.CmdTaskList {
 		runTaskList()
 
 		return
 	}
+
 	if sub == constants.CmdTaskRun {
 		runTaskRun(args)
 
 		return
 	}
+
 	if sub == constants.CmdTaskShow {
 		runTaskShow(args)
 
 		return
 	}
+
 	if sub == constants.CmdTaskDelete {
 		runTaskDelete(args)
 

@@ -24,6 +24,7 @@ func KnownScanFields() []string {
 	for k := range knownScanFields {
 		out = append(out, k)
 	}
+
 	sort.Strings(out)
 
 	return out

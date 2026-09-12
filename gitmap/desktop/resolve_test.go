@@ -16,17 +16,20 @@ func TestResolveCLI_FindsKnownInstall(t *testing.T) {
 	if runtime.GOOS != constants.OSWindows {
 		t.Skip("known-install fallback test targets Windows layout")
 	}
+
 	tmp := t.TempDir()
 	binDir := filepath.Join(tmp, "GitHubDesktop", "bin")
 	mkdirErr := os.MkdirAll(binDir, 0o755)
 	if mkdirErr != nil {
 		t.Fatalf("mkdir: %v", mkdirErr)
 	}
+
 	shim := filepath.Join(binDir, "github.bat")
 	writeErr := os.WriteFile(shim, []byte("@echo off\r\n"), 0o644)
 	if writeErr != nil {
 		t.Fatalf("write shim: %v", writeErr)
 	}
+
 	t.Setenv("LOCALAPPDATA", tmp)
 	t.Setenv("PATH", "")
 
@@ -61,10 +64,12 @@ func TestCollectAppDirs(t *testing.T) {
 			t.Fatalf("mkdir %s: %v", name, mkErr)
 		}
 	}
+
 	entries, readErr := os.ReadDir(tmp)
 	if readErr != nil {
 		t.Fatalf("readdir: %v", readErr)
 	}
+
 	got := collectAppDirs(entries)
 	if len(got) != 2 {
 		t.Fatalf("collectAppDirs got %v, want 2 entries", got)

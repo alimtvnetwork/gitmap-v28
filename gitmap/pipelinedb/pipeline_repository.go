@@ -75,6 +75,7 @@ INSERT INTO PipelineRunRecord (
 	if run.IsSuccess {
 		isSuccessInt = 1
 	}
+
 	return r.db.ExecRowsAffected(ctx, query,
 		run.RunId, run.RepoSlug, run.WorkflowName, run.Status, run.Conclusion,
 		run.Branch, run.Sha, run.EtaSeconds, run.DurationSeconds, run.RunUrl,
@@ -88,6 +89,7 @@ func (r *PipelineRepository) InsertErrorRecord(ctx context.Context, errLog Pipel
 INSERT INTO PipelineErrorRecord (
     RunId, RepoSlug, WorkflowName, StepName, ErrorText, RawLogs, Notes, Comments, CreatedAt
 ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?);`
+
 	return r.db.ExecRowsAffected(ctx, query,
 		errLog.RunId, errLog.RepoSlug, errLog.WorkflowName, errLog.StepName,
 		errLog.ErrorText, errLog.RawLogs, errLog.Notes, errLog.Comments, errLog.CreatedAt,

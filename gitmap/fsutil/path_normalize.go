@@ -28,6 +28,7 @@ func MakeRelativeToRoot(base, target string) (string, error) {
 			"target": target,
 		})
 		appErr.Code = "E_INSTALLER_PATH_ERROR"
+
 		return "", appErr
 	}
 
@@ -53,5 +54,6 @@ func EqualPaths(p1, p2 string) bool {
 func IsSubdirectory(parent, child string) bool {
 	p := NormalizeToForwardSlashes(parent)
 	c := NormalizeToForwardSlashes(child)
+
 	return strings.HasPrefix(c, p+"/")
 }

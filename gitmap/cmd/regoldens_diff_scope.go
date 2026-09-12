@@ -25,9 +25,11 @@ func isGoldenFixturePath(p string) bool {
 	if !strings.Contains(p, goldenDiffPathFragment) {
 		return false
 	}
+
 	base := p
 	if i := strings.LastIndex(p, "/"); i >= 0 {
 		base = p[i+1:]
 	}
+
 	return strings.Contains(strings.ToLower(base), goldenDiffBasenameFragment)
 }

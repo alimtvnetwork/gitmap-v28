@@ -21,6 +21,7 @@ func addEcosystemGroup(ecosystem string, name string, desc string, targets []str
 	existing, exists := store.Groups[name]
 	if !exists {
 		store.Groups[name] = newEcosystemGroup(name, desc, targets)
+
 		return saveEcosystemGroupStore(store)
 	}
 

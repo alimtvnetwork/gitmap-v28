@@ -95,6 +95,7 @@ func ValidateRawShape(data []byte) error {
 		// don't double-report on malformed JSON.
 		return nil
 	}
+
 	violations := collectShapeViolations(raw)
 	if len(violations) == 0 {
 		return nil
@@ -117,10 +118,12 @@ func collectShapeViolations(raw map[string]json.RawMessage) []string {
 		if !hasKey {
 			continue // ValidateRawConfig already reported it.
 		}
+
 		got := detectKind(val)
 		if got == want {
 			continue
 		}
+
 		violations = append(violations, fmt.Sprintf(
 			"%s: expected %s, got %s",
 			key, want, got,
@@ -217,6 +220,7 @@ func checkExcludeDirs(violations []string, cfg model.Config) []string {
 		if len(strings.TrimSpace(entry)) > 0 {
 			continue
 		}
+
 		violations = append(violations, fmt.Sprintf(
 			"excludeDirs[%d]: empty entry not allowed", i,
 		))
@@ -237,6 +241,7 @@ func checkReleaseTargets(violations []string, cfg model.Config) []string {
 				"release.targets[%d].goos: must be non-empty", i,
 			))
 		}
+
 		if len(strings.TrimSpace(target.GOARCH)) == 0 {
 			violations = append(violations, fmt.Sprintf(
 				"release.targets[%d].goarch: must be non-empty", i,

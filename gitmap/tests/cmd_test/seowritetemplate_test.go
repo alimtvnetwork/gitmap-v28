@@ -43,6 +43,7 @@ func TestLoadFromJSONFile_ValidFile(t *testing.T) {
 	if len(loaded.Titles) != 2 {
 		t.Errorf("expected 2 titles, got %d", len(loaded.Titles))
 	}
+
 	if len(loaded.Descriptions) != 3 {
 		t.Errorf("expected 3 descriptions, got %d", len(loaded.Descriptions))
 	}
@@ -64,6 +65,7 @@ func TestLoadFromJSONFile_EmptyArrays(t *testing.T) {
 	if len(loaded.Titles) != 0 {
 		t.Errorf("expected 0 titles, got %d", len(loaded.Titles))
 	}
+
 	if len(loaded.Descriptions) != 0 {
 		t.Errorf("expected 0 descriptions, got %d", len(loaded.Descriptions))
 	}
@@ -132,9 +134,11 @@ func TestBuildReplacer_PartialPlaceholders(t *testing.T) {
 	if !strings.Contains(result, "Roofing") {
 		t.Error("expected Roofing in result")
 	}
+
 	if !strings.Contains(result, "roof.com") {
 		t.Error("expected roof.com in result")
 	}
+
 	// Area should be replaced with empty string
 	if strings.Contains(result, "{area}") {
 		t.Error("expected {area} to be replaced")

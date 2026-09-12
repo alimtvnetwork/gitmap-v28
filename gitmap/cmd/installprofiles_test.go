@@ -15,6 +15,7 @@ func TestInstallProfilesRegistry(t *testing.T) {
 	if len(profiles) < 15 {
 		t.Fatalf("expected at least 15 profiles, got %d", len(profiles))
 	}
+
 	for _, expected := range allExpectedProfiles {
 		assertProfilePresent(t, profiles, expected)
 	}
@@ -28,6 +29,7 @@ func assertProfilePresent(t *testing.T, profiles []InstallProfile, name string) 
 
 		return
 	}
+
 	if len(p.Tools) == 0 {
 		t.Errorf("profile '%s' has 0 tools", name)
 	}
@@ -80,6 +82,7 @@ func assertAliasResolves(t *testing.T, alias, canonical string) {
 
 		return
 	}
+
 	if p.Name != canonical {
 		t.Errorf("alias '%s' resolved to '%s', expected '%s'", alias, p.Name, canonical)
 	}
@@ -97,6 +100,7 @@ func TestIsInstallProfile(t *testing.T) {
 			t.Errorf("expected %q to be recognized as profile", name)
 		}
 	}
+
 	if IsInstallProfile("non-existent-profile-xyz") {
 		t.Errorf("expected unknown string to not be a profile")
 	}
@@ -107,10 +111,12 @@ func TestProfileDotAndBadge(t *testing.T) {
 	if dotComplete != installedDot {
 		t.Errorf("expected installedDot for complete profile, got %s", dotComplete)
 	}
+
 	dotIncomplete := formatProfileDot(3, 5)
 	if dotIncomplete != missingDot {
 		t.Errorf("expected missingDot for incomplete profile, got %s", dotIncomplete)
 	}
+
 	progress := formatProfileProgress(3, 5)
 	if progress != "[3/5 tools]" {
 		t.Errorf("unexpected progress badge: %s", progress)
@@ -125,6 +131,7 @@ func TestAgyInstallCommandRegistered(t *testing.T) {
 			break
 		}
 	}
+
 	if !isFound {
 		t.Errorf("expected 'install' subcommand to be registered in AgyCmd")
 	}

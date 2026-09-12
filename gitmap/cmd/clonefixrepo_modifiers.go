@@ -49,6 +49,7 @@ func ParseCfrModifiers(args []string) (CfrModifierFlags, []string) {
 		if isNonCfrModifierToken {
 			break
 		}
+
 		applyCfrModifier(&flags, args[i])
 		i++
 	}

@@ -97,6 +97,7 @@ func TestSplitOnCommaHandlesPasteArtifacts(t *testing.T) {
 		if len(got) == 0 && len(tc.want) == 0 {
 			continue
 		}
+
 		if !reflect.DeepEqual(got, tc.want) {
 			t.Errorf("splitOnComma(%q) = %#v, want %#v", tc.in, got, tc.want)
 		}
@@ -116,6 +117,7 @@ func TestLooksLikeURLTokenAcceptsAllSupportedShapes(t *testing.T) {
 		"https://github.com/a/b,https://github.com/c/d",
 		"  https://github.com/a/b  ",
 	}
+
 	for _, s := range good {
 		if !looksLikeURLToken(s) {
 			t.Errorf("looksLikeURLToken(%q) = false, want true", s)

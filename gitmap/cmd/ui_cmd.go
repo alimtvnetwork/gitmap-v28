@@ -94,6 +94,7 @@ func serveUIStatic(distDir string, port int, targetRoute string) error {
 	}
 
 	fmt.Println("\n" + constants.ColorCyan + "UI server stopped." + constants.ColorReset)
+
 	return nil
 }
 
@@ -120,5 +121,6 @@ func serveUIDev(docsDir string, port int, targetRoute string) error {
 	}
 
 	fmt.Println("\n" + constants.ColorCyan + "UI server stopped." + constants.ColorReset)
+
 	return nil
 }

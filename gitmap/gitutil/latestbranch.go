@@ -40,7 +40,6 @@ func ListRemoteBranches() ([]string, error) {
 	cmd := exec.Command(constants.GitBin, constants.GitBranch, constants.GitArgRemote)
 	out, err := cmd.Output()
 	if err != nil {
-
 		return nil, err
 	}
 
@@ -55,9 +54,11 @@ func parseRemoteBranchLines(output string) []string {
 		if len(trimmed) == 0 {
 			continue
 		}
+
 		if strings.Contains(trimmed, constants.HeadPointer) {
 			continue
 		}
+
 		refs = append(refs, trimmed)
 	}
 
@@ -95,7 +96,6 @@ func FilterByPattern(refs []string, pattern string) []string {
 func matchesPattern(name, pattern string) bool {
 	matched, err := filepath.Match(pattern, name)
 	if err == nil && matched {
-
 		return true
 	}
 
@@ -105,7 +105,6 @@ func matchesPattern(name, pattern string) bool {
 // SortByDateDesc sorts items by CommitDate descending.
 func SortByDateDesc(items []RemoteBranchInfo) {
 	sort.Slice(items, func(i, j int) bool {
-
 		return items[i].CommitDate.After(items[j].CommitDate)
 	})
 }
@@ -113,7 +112,6 @@ func SortByDateDesc(items []RemoteBranchInfo) {
 // SortByNameAsc sorts items by branch name ascending.
 func SortByNameAsc(items []RemoteBranchInfo) {
 	sort.Slice(items, func(i, j int) bool {
-
 		return items[i].RemoteRef < items[j].RemoteRef
 	})
 }
@@ -122,7 +120,6 @@ func SortByNameAsc(items []RemoteBranchInfo) {
 func StripRemotePrefix(ref string) string {
 	idx := strings.Index(ref, "/")
 	if idx >= 0 {
-
 		return ref[idx+1:]
 	}
 
@@ -132,7 +129,6 @@ func StripRemotePrefix(ref string) string {
 // TruncSha returns the first N characters of a SHA for display.
 func TruncSha(sha string) string {
 	if len(sha) > constants.ShaDisplayLength {
-
 		return sha[:constants.ShaDisplayLength]
 	}
 

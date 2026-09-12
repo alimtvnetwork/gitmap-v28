@@ -11,10 +11,12 @@ func resolveByAlias(db *store.DB, target string, all []model.ScanRecord) *model.
 	if err != nil {
 		return nil
 	}
+
 	for _, r := range all {
 		if r.ID == aliasRow.RepoID || fsutil.EqualPaths(r.AbsolutePath, aliasRow.AbsolutePath) {
 			return &r
 		}
 	}
+
 	return nil
 }

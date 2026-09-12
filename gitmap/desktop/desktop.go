@@ -16,6 +16,7 @@ func AddRepos(records []model.ScanRecord) DesktopSummary {
 	if cli != "" {
 		return addAll(records, summary, cli)
 	}
+
 	fmt.Println(constants.MsgDesktopNotFound)
 
 	return summary
@@ -47,6 +48,7 @@ func updateSummary(s DesktopSummary, name string, err error) DesktopSummary {
 
 		return s
 	}
+
 	s.Failed++
 	fmt.Printf(constants.MsgDesktopFailed, name, err)
 

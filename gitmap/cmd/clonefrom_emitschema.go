@@ -27,8 +27,10 @@ func runCloneFromEmitSchema(kind string) error {
 	if err != nil {
 		return apperror.WrapSimple(err, "emit-schema kind")
 	}
+
 	if _, err := os.Stdout.Write(body); err != nil {
 		return apperror.WrapSimple(err, "write-stdout emit-schema")
 	}
+
 	return nil
 }

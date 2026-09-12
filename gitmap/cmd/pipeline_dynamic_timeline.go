@@ -15,12 +15,15 @@ func runPipelineDynamicTimeline(repo string, isJSON bool) error {
 	runs := queryWorkflowRuns(repo)
 	if len(runs) == 0 {
 		fmt.Printf("No recent pipeline runs found for %s.\n", repo)
+
 		return nil
 	}
+
 	active := findActiveWorkflowRun(runs)
 	if active == nil {
 		return reportCompletedTimeline(runs[0], repo, isJSON)
 	}
+
 	return watchDynamicTimeline(repo, active.Name, isJSON)
 }
 
@@ -28,9 +31,11 @@ func isTimelineTestMode() bool {
 	if os.Getenv("CI") != "" {
 		return true
 	}
+
 	if os.Getenv("GITMAP_TEST") != "" {
 		return true
 	}
+
 	return flag.Lookup("test.v") != nil
 }
 
@@ -42,10 +47,12 @@ func watchDynamicTimeline(repo, workflowName string, isJSON bool) error {
 		if err != nil || isDone {
 			return err
 		}
+
 		if isTimelineTestMode() {
 			break
 		}
 	}
+
 	return nil
 }
 
@@ -55,15 +62,18 @@ func pollTimelineStep(repo string, isJSON bool, startTime time.Time) (bool, erro
 	if active == nil && len(runs) > 0 {
 		return true, reportCompletedTimeline(runs[0], repo, isJSON)
 	}
+
 	if active == nil {
 		return true, nil
 	}
+
 	eta := calculateETA(runs)
 	elapsed := int(time.Since(startTime).Seconds())
 	printTimelineProgress(active.Name, eta, elapsed)
 	if !isTimelineTestMode() {
 		time.Sleep(time.Duration(computeAdaptiveInterval(eta)) * time.Second)
 	}
+
 	return false, nil
 }
 
@@ -71,9 +81,11 @@ func computeAdaptiveInterval(eta int) int {
 	if eta > 120 {
 		return 15
 	}
+
 	if eta > 60 {
 		return 10
 	}
+
 	return 5
 }
 
@@ -127,8 +139,10 @@ func runPipelineErrorLogsDynamicTimeline(params ErrorLogsTimelineParams) error {
 func reportCompletedTimeline(latest ghRunItem, repo string, isJSON bool) error {
 	if latest.Conclusion == "success" {
 		fmt.Printf("\n%s✓ Pipeline [%s] completed successfully!%s\n", constants.ColorGreen, latest.Name, constants.ColorReset)
+
 		return nil
 	}
+
 	fmt.Printf("\n%s✖ Pipeline [%s] finished with conclusion: %s%s\n", constants.ColorRed, latest.Name, latest.Conclusion, constants.ColorReset)
 	renderFailureErrorSummary(repo, latest.DatabaseId)
 	runs := queryWorkflowRuns(repo)
@@ -136,6 +150,7 @@ func reportCompletedTimeline(latest ghRunItem, repo string, isJSON bool) error {
 		rerunETA := calculateAverageDuration(runs, latest.Name)
 		printRerunETA(rerunETA)
 	}
+
 	return nil
 }
 
@@ -145,6 +160,7 @@ func locateFailedRunId(runs []ghRunItem) uint64 {
 			return r.DatabaseId
 		}
 	}
+
 	return 0
 }
 
@@ -152,19 +168,23 @@ func renderFailureErrorSummary(repo string, runId uint64) {
 	if runId == 0 {
 		runId = locateFailedRunId(queryWorkflowRuns(repo))
 	}
+
 	if runId == 0 {
 		return
 	}
+
 	rawLogs := queryFailedRunLogs(repo, runId)
 	cleanErrors := extractCleanErrorLines(rawLogs)
 	if cleanErrors == "" {
 		return
 	}
+
 	fmt.Printf("\n  %s● CI/CD Error Diagnostics:%s\n", constants.ColorRed, constants.ColorReset)
 	fmt.Printf("    %s\n", strings.Repeat("─", 78))
 	for _, l := range strings.Split(cleanErrors, "\n") {
 		fmt.Printf("    %s\n", l)
 	}
+
 	fmt.Printf("    %s\n\n", strings.Repeat("─", 78))
 }
 
@@ -174,6 +194,7 @@ func computeRunDuration(createdStr, updatedStr string) int {
 	if err1 != nil || err2 != nil || updatedAt.Before(createdAt) {
 		return 0
 	}
+
 	return int(updatedAt.Sub(createdAt).Seconds())
 }
 
@@ -182,8 +203,10 @@ func fallbackWorkflowDuration(workflowName string) int {
 	if strings.Contains(lowerName, "release") {
 		return 95
 	}
+
 	if strings.Contains(lowerName, "ci") {
 		return 180
 	}
+
 	return 90
 }

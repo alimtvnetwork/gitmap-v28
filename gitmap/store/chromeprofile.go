@@ -69,6 +69,7 @@ func (db *DB) EnsureChromeProfileTables() error {
 			return fmt.Errorf("ensure chrome-profile tables: %w", err)
 		}
 	}
+
 	return nil
 }
 
@@ -78,17 +79,21 @@ func (db *DB) UpsertChromeProfile(name, sourcePath string, isOffline bool) (int6
 	if err := db.EnsureChromeProfileTables(); err != nil {
 		return 0, err
 	}
+
 	offline := 0
 	if isOffline {
 		offline = 1
 	}
+
 	if _, err := ExecWrapper(db.conn, sqlUpsertChromeProfile, name, sourcePath, offline).Destruct(); err != nil {
 		return 0, fmt.Errorf("upsert chrome-profile: %w", err)
 	}
+
 	var id int64
 	if err := db.conn.QueryRow(sqlSelectChromeProfileId, name).Scan(&id); err != nil {
 		return 0, fmt.Errorf("read chrome-profile id: %w", err)
 	}
+
 	return id, nil
 }
 
@@ -102,9 +107,11 @@ func (db *DB) InsertChromeProfileExport(
 	if err := db.EnsureChromeProfileTables(); err != nil {
 		return err
 	}
+
 	if _, err := ExecWrapper(db.conn, sqlInsertChromeProfileExport, profileID, format, filePath, byteSize).Destruct(); err != nil {
 		return fmt.Errorf("insert chrome-profile-export: %w", err)
 	}
+
 	return nil
 }
 
@@ -113,10 +120,12 @@ func (db *DB) ListChromeProfilesDB() ([]ChromeProfileRow, error) {
 	if err := db.EnsureChromeProfileTables(); err != nil {
 		return nil, err
 	}
+
 	rows, err := QueryWrapper(db.conn, sqlListChromeProfiles).Destruct()
 	if err != nil {
 		return nil, fmt.Errorf("list chrome-profiles: %w", err)
 	}
+
 	defer rows.Close()
 	var out []ChromeProfileRow
 	for rows.Next() {
@@ -124,7 +133,9 @@ func (db *DB) ListChromeProfilesDB() ([]ChromeProfileRow, error) {
 		if err := rows.Scan(&r.Name, &r.ExportCount, &r.LastSeen); err != nil {
 			return nil, fmt.Errorf("scan chrome-profile row: %w", err)
 		}
+
 		out = append(out, r)
 	}
+
 	return out, nil
 }

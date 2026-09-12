@@ -29,6 +29,7 @@ func newEntry(rootPath, name string, paths, tags []string) Entry {
 	if paths == nil {
 		paths = []string{}
 	}
+
 	if tags == nil {
 		tags = []string{}
 	}
@@ -69,6 +70,7 @@ func unionPaths(existing, incoming []string) []string {
 		if _, dup := seen[key]; dup {
 			continue
 		}
+
 		seen[key] = struct{}{}
 		out = append(out, p)
 	}
@@ -78,6 +80,7 @@ func unionPaths(existing, incoming []string) []string {
 		if _, dup := seen[key]; dup {
 			continue
 		}
+
 		seen[key] = struct{}{}
 		out = append(out, p)
 	}

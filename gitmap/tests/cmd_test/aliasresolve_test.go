@@ -13,6 +13,7 @@ func extractAliasFlag(args []string) (string, []string) {
 		if (arg == "-A" || arg == "--alias") && i+1 < len(args) {
 			return args[i+1], removeElements(args, i, 2)
 		}
+
 		if arg == "-A" || arg == "--alias" {
 			return "", args
 		}
@@ -20,6 +21,7 @@ func extractAliasFlag(args []string) (string, []string) {
 		if hasAliasPrefix(arg, "-A=") {
 			return arg[3:], removeElements(args, i, 1)
 		}
+
 		if hasAliasPrefix(arg, "--alias=") {
 			return arg[8:], removeElements(args, i, 1)
 		}
@@ -54,6 +56,7 @@ func TestExtractAliasFlag_ShortForm(t *testing.T) {
 	if alias != "api" {
 		t.Errorf("expected alias=api, got %q", alias)
 	}
+
 	if len(remaining) != 1 || remaining[0] != "fetch" {
 		t.Errorf("expected [fetch], got %v", remaining)
 	}
@@ -64,6 +67,7 @@ func TestExtractAliasFlag_LongForm(t *testing.T) {
 	if alias != "web" {
 		t.Errorf("expected alias=web, got %q", alias)
 	}
+
 	if len(remaining) != 1 || remaining[0] != "status" {
 		t.Errorf("expected [status], got %v", remaining)
 	}
@@ -74,6 +78,7 @@ func TestExtractAliasFlag_ShortEquals(t *testing.T) {
 	if alias != "infra" {
 		t.Errorf("expected alias=infra, got %q", alias)
 	}
+
 	if len(remaining) != 1 || remaining[0] != "--all" {
 		t.Errorf("expected [--all], got %v", remaining)
 	}
@@ -84,6 +89,7 @@ func TestExtractAliasFlag_LongEquals(t *testing.T) {
 	if alias != "db" {
 		t.Errorf("expected alias=db, got %q", alias)
 	}
+
 	if len(remaining) != 1 || remaining[0] != "pull" {
 		t.Errorf("expected [pull], got %v", remaining)
 	}
@@ -94,6 +100,7 @@ func TestExtractAliasFlag_NoAlias(t *testing.T) {
 	if alias != "" {
 		t.Errorf("expected empty alias, got %q", alias)
 	}
+
 	if len(remaining) != 2 {
 		t.Errorf("expected 2 remaining args, got %d", len(remaining))
 	}
@@ -104,6 +111,7 @@ func TestExtractAliasFlag_Empty(t *testing.T) {
 	if alias != "" {
 		t.Errorf("expected empty alias, got %q", alias)
 	}
+
 	if len(remaining) != 0 {
 		t.Errorf("expected empty remaining, got %v", remaining)
 	}
@@ -114,6 +122,7 @@ func TestExtractAliasFlag_MidArgs(t *testing.T) {
 	if alias != "api" {
 		t.Errorf("expected alias=api, got %q", alias)
 	}
+
 	if len(remaining) != 3 || remaining[0] != "--group" || remaining[1] != "work" || remaining[2] != "--all" {
 		t.Errorf("expected [--group work --all], got %v", remaining)
 	}
@@ -190,9 +199,11 @@ func TestAliasAccessors_Nil(t *testing.T) {
 	if path != "" {
 		t.Errorf("expected empty path, got %q", path)
 	}
+
 	if slug != "" {
 		t.Errorf("expected empty slug, got %q", slug)
 	}
+
 	if hasAlias {
 		t.Error("expected hasAlias=false")
 	}
@@ -208,6 +219,7 @@ func TestAliasAccessors_Set(t *testing.T) {
 	if ctx.AbsolutePath != "/home/user/repos/api-gateway" {
 		t.Errorf("expected path, got %q", ctx.AbsolutePath)
 	}
+
 	if ctx.Slug != "github/user/api-gateway" {
 		t.Errorf("expected slug, got %q", ctx.Slug)
 	}
@@ -244,9 +256,11 @@ func TestAliasAsRecords_Set(t *testing.T) {
 	if len(records) != 1 {
 		t.Fatalf("expected 1 record, got %d", len(records))
 	}
+
 	if records[0].AbsolutePath != "/repos/web-app" {
 		t.Errorf("expected path /repos/web-app, got %q", records[0].AbsolutePath)
 	}
+
 	if records[0].Slug != "github/user/web-app" {
 		t.Errorf("expected slug github/user/web-app, got %q", records[0].Slug)
 	}
@@ -262,6 +276,7 @@ func TestAliasFlagIntegration_PullWithAlias(t *testing.T) {
 	if alias != "api" {
 		t.Errorf("pull: expected alias=api, got %q", alias)
 	}
+
 	if len(remaining) != 0 {
 		t.Errorf("pull: expected no remaining args, got %v", remaining)
 	}
@@ -281,6 +296,7 @@ func TestAliasFlagIntegration_ExecWithAlias(t *testing.T) {
 	if alias != "web" {
 		t.Errorf("exec: expected alias=web, got %q", alias)
 	}
+
 	if len(remaining) != 2 || remaining[0] != "fetch" || remaining[1] != "--prune" {
 		t.Errorf("exec: expected [fetch --prune], got %v", remaining)
 	}
@@ -294,6 +310,7 @@ func TestAliasFlagIntegration_StatusWithAlias(t *testing.T) {
 	if alias != "api" {
 		t.Errorf("status: expected alias=api, got %q", alias)
 	}
+
 	if len(remaining) != 1 || remaining[0] != "--all" {
 		t.Errorf("status: expected [--all], got %v", remaining)
 	}
@@ -307,6 +324,7 @@ func TestAliasFlagIntegration_CdWithAlias(t *testing.T) {
 	if alias != "infra" {
 		t.Errorf("cd: expected alias=infra, got %q", alias)
 	}
+
 	if len(remaining) != 0 {
 		t.Errorf("cd: expected no remaining args, got %v", remaining)
 	}
@@ -326,9 +344,11 @@ func TestAliasFlagIntegration_AliasWithGroupFlag(t *testing.T) {
 	if alias != "api" {
 		t.Errorf("mixed: expected alias=api, got %q", alias)
 	}
+
 	if len(remaining) != 3 {
 		t.Errorf("mixed: expected 3 remaining args, got %v", remaining)
 	}
+
 	if remaining[0] != "--group" || remaining[1] != "work" || remaining[2] != "--all" {
 		t.Errorf("mixed: expected [--group work --all], got %v", remaining)
 	}
@@ -342,6 +362,7 @@ func TestAliasFlagIntegration_EqualsFormExec(t *testing.T) {
 	if alias != "db" {
 		t.Errorf("exec-equals: expected alias=db, got %q", alias)
 	}
+
 	if len(remaining) != 1 || remaining[0] != "status" {
 		t.Errorf("exec-equals: expected [status], got %v", remaining)
 	}

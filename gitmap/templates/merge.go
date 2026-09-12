@@ -71,6 +71,7 @@ func Merge(targetPath, tag string, body []byte) (MergeResult, error) {
 	if mkErr := os.MkdirAll(filepath.Dir(abs), 0o755); mkErr != nil {
 		return MergeResult{}, fmt.Errorf("mkdir %q: %w", filepath.Dir(abs), mkErr)
 	}
+
 	if wErr := os.WriteFile(abs, next, 0o644); wErr != nil {
 		return MergeResult{}, fmt.Errorf("write %q: %w", abs, wErr)
 	}
@@ -85,6 +86,7 @@ func readIfExists(path string) (data []byte, existed bool, err error) {
 	if err == nil {
 		return data, true, nil
 	}
+
 	if os.IsNotExist(err) {
 		return nil, false, nil
 	}
@@ -139,9 +141,11 @@ func appendBlock(prior, block []byte) []byte {
 	if !bytes.HasSuffix(prior, []byte("\n")) {
 		b.WriteByte('\n')
 	}
+
 	if !bytes.HasSuffix(prior, []byte("\n\n")) && len(prior) > 0 {
 		b.WriteByte('\n')
 	}
+
 	b.Write(block)
 
 	return b.Bytes()

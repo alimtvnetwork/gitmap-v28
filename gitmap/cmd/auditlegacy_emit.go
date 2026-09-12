@@ -16,6 +16,7 @@ func emitAuditLegacy(opts auditLegacyOpts, hits []auditLegacyHit, fileCount int)
 
 		return
 	}
+
 	emitAuditLegacyText(opts, hits)
 }
 
@@ -29,6 +30,7 @@ func emitAuditLegacyJSON(opts auditLegacyOpts, hits []auditLegacyHit, fileCount 
 		"matches":        hits,
 		"filesWithMatch": uniqueAuditFiles(hits),
 	}
+
 	enc := json.NewEncoder(os.Stdout)
 	enc.SetIndent("", "  ")
 	if err := enc.Encode(report); err != nil {
@@ -43,6 +45,7 @@ func emitAuditLegacyText(opts auditLegacyOpts, hits []auditLegacyHit) {
 
 		return
 	}
+
 	files := uniqueAuditFiles(hits)
 	fmt.Fprintf(os.Stdout, constants.MsgAuditLegacyHeader, len(hits), len(files), opts.Raw)
 	for _, h := range hits {
@@ -58,6 +61,7 @@ func uniqueAuditFiles(hits []auditLegacyHit) []string {
 		if _, ok := seen[h.File]; ok {
 			continue
 		}
+
 		seen[h.File] = struct{}{}
 		out = append(out, h.File)
 	}

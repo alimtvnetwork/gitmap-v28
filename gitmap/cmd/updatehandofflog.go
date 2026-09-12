@@ -68,6 +68,7 @@ func logHandoffEvent(phase, event string, fields map[string]string) {
 	if err != nil {
 		return
 	}
+
 	defer f.Close()
 	_, _ = f.WriteString(line)
 }
@@ -83,6 +84,7 @@ func formatHandoffLogLine(phase, event string,
 	for _, k := range sortedStringMapKeys(fields) {
 		fmt.Fprintf(&b, " %s=%s", k, escapeHandoffLogValue(fields[k]))
 	}
+
 	b.WriteByte('\n')
 
 	return b.String()
@@ -95,6 +97,7 @@ func sortedStringMapKeys(m map[string]string) []string {
 	for k := range m {
 		keys = append(keys, k)
 	}
+
 	// Tiny n — insertion sort keeps the helper allocation-free without
 	// dragging in sort.Strings for a hot, no-fail logger.
 	for i := 1; i < len(keys); i++ {
@@ -112,6 +115,7 @@ func escapeHandoffLogValue(v string) string {
 	if !strings.ContainsAny(v, " \t=\"") {
 		return v
 	}
+
 	escaped := strings.ReplaceAll(v, `"`, `\"`)
 
 	return `"` + escaped + `"`

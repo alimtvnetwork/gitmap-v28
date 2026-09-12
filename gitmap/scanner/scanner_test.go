@@ -32,6 +32,7 @@ func TestScanDirFindsAllRepos(t *testing.T) {
 		"side/d",
 		"side/sub/e",
 	}
+
 	for _, r := range want {
 		makeRepo(t, root, r)
 	}
@@ -40,6 +41,7 @@ func TestScanDirFindsAllRepos(t *testing.T) {
 	if err != nil {
 		t.Fatalf("ScanDir: %v", err)
 	}
+
 	if len(got) != len(want) {
 		t.Fatalf("repo count: got %d (%v), want %d", len(got), got, len(want))
 	}
@@ -48,6 +50,7 @@ func TestScanDirFindsAllRepos(t *testing.T) {
 	for i, r := range got {
 		gotRel[i] = filepath.ToSlash(r.RelativePath)
 	}
+
 	sort.Strings(gotRel)
 	sort.Strings(want)
 	for i := range want {
@@ -69,6 +72,7 @@ func TestScanDirRespectsExcludes(t *testing.T) {
 	if err != nil {
 		t.Fatalf("ScanDir: %v", err)
 	}
+
 	if len(got) != 1 || filepath.ToSlash(got[0].RelativePath) != "keep" {
 		t.Fatalf("expected only 'keep', got %+v", got)
 	}
@@ -89,6 +93,7 @@ func TestScanDirDoesNotDescendIntoRepos(t *testing.T) {
 	if err != nil {
 		t.Fatalf("ScanDir: %v", err)
 	}
+
 	if len(got) != 1 || filepath.ToSlash(got[0].RelativePath) != "outer" {
 		t.Fatalf("expected only outer, got %+v", got)
 	}
@@ -101,6 +106,7 @@ func TestScanDirEmpty(t *testing.T) {
 	if err != nil {
 		t.Fatalf("ScanDir: %v", err)
 	}
+
 	if len(got) != 0 {
 		t.Fatalf("expected 0 repos, got %d", len(got))
 	}
@@ -119,16 +125,19 @@ func TestScanDirManyReposParallel(t *testing.T) {
 	if err != nil {
 		t.Fatalf("ScanDir: %v", err)
 	}
+
 	// Some path collisions are expected when i%5/i%10/i%26 coincide;
 	// just assert the walker produced a non-trivial, unique result set.
 	if len(got) == 0 {
 		t.Fatalf("expected some repos, got 0")
 	}
+
 	seen := make(map[string]bool, len(got))
 	for _, r := range got {
 		if seen[r.AbsolutePath] {
 			t.Errorf("duplicate repo in result: %s", r.AbsolutePath)
 		}
+
 		seen[r.AbsolutePath] = true
 	}
 }

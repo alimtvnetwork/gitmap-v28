@@ -51,16 +51,20 @@ func walkRepoOnce(repoPath string) repoHits {
 		if err != nil {
 			return nil
 		}
+
 		if info.IsDir() && isExcludedDir(info.Name()) {
 			return filepath.SkipDir
 		}
+
 		if info.IsDir() {
 			return nil
 		}
+
 		name := info.Name()
 		if !isInterestingFile(name) {
 			return nil
 		}
+
 		out.files = append(out.files, fileHit{path: path, dir: filepath.Dir(path), name: name})
 		if strings.HasSuffix(name, constants.ExtSln) {
 			out.slnDirs[filepath.Dir(path)] = true
@@ -78,12 +82,15 @@ func isInterestingFile(name string) bool {
 	if name == constants.IndicatorGoMod || name == constants.IndicatorPackageJSON {
 		return true
 	}
+
 	if name == constants.IndicatorCMakeLists || name == constants.IndicatorMesonBuild {
 		return true
 	}
+
 	if strings.HasSuffix(name, constants.ExtVcxproj) {
 		return true
 	}
+
 	if strings.HasSuffix(name, constants.ExtSln) || strings.HasSuffix(name, constants.ExtCsproj) {
 		return true
 	}
@@ -116,9 +123,11 @@ func detectFile(
 	if name == constants.IndicatorGoMod {
 		detectGo(dir, repoPath, repoID, repoName, results)
 	}
+
 	if name == constants.IndicatorPackageJSON {
 		detectNodeOrReact(dir, path, repoPath, repoID, repoName, results)
 	}
+
 	detectCpp(name, dir, repoPath, repoID, repoName, results)
 	detectCsharpFile(name, dir, repoPath, repoID, repoName, slnDirs, results)
 }
@@ -128,6 +137,7 @@ func isExcludedDir(name string) bool {
 	if strings.HasPrefix(name, constants.CMakeBuildPfx) {
 		return true
 	}
+
 	for _, excluded := range constants.ProjectExcludeDirs {
 		if name == excluded {
 			return true

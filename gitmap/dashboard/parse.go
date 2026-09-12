@@ -19,6 +19,7 @@ func parseCommitLog(raw string) []model.CommitInfo {
 			commits = append(commits, commit)
 		}
 	}
+
 	return commits
 }
 
@@ -28,11 +29,14 @@ func parseOneCommit(block string) (model.CommitInfo, bool) {
 	if len(lines) == 0 {
 		return model.CommitInfo{}, false
 	}
+
 	fields := strings.SplitN(lines[0], "|", 7)
 	if len(fields) < 7 {
 		return model.CommitInfo{}, false
 	}
+
 	files, ins, del := parseNumstat(lines[1:])
+
 	return makeCommitInfo(fields, files, ins, del), true
 }
 
@@ -65,6 +69,7 @@ func parseNumstat(lines []string) (int, int, int) {
 			del += removed
 		}
 	}
+
 	return files, ins, del
 }
 
@@ -82,6 +87,7 @@ func parseBranchLines(lines []string) []model.BranchInfo {
 			})
 		}
 	}
+
 	return branches
 }
 
@@ -94,6 +100,7 @@ func parseTagLines(repoPath string, lines []string) []model.TagInfo {
 			tags = append(tags, parseTagEntry(repoPath, lines, i, fields))
 		}
 	}
+
 	return tags
 }
 
@@ -104,6 +111,7 @@ func parseTagEntry(repoPath string, lines []string, i int, fields []string) mode
 		nextFields := strings.SplitN(lines[i+1], "|", 3)
 		count = resolveTagDistance(repoPath, fields[0], nextFields)
 	}
+
 	return model.TagInfo{
 		Name:        fields[0],
 		SHA:         fields[1],
@@ -117,5 +125,6 @@ func resolveTagDistance(repoPath, field string, nextFields []string) int {
 	if len(nextFields) >= 1 {
 		return queryTagDistance(repoPath, nextFields[0], field)
 	}
+
 	return 0
 }

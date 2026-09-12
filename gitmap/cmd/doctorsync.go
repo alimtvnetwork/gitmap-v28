@@ -26,6 +26,7 @@ func tryCopyWithRetry(src, dst string, maxAttempts int, delay time.Duration) boo
 		if err == nil {
 			return true
 		}
+
 		if attempt < maxAttempts {
 			fmt.Printf(constants.DoctorRetryFmt, attempt, maxAttempts)
 			time.Sleep(delay)
@@ -110,12 +111,14 @@ func copyFileOverwrite(src, dst string) error {
 	if err != nil {
 		return err
 	}
+
 	defer in.Close()
 
 	out, err := os.Create(dst)
 	if err != nil {
 		return err
 	}
+
 	defer out.Close()
 
 	_, err = io.Copy(out, in)

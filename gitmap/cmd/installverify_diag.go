@@ -27,6 +27,7 @@ func recordVerificationFailure(tool, binary, logPath string) {
 		IsSuccess:   false,
 		Err:         fmt.Errorf("binary not found: %s", binary),
 	}
+
 	recordInstallExecution(tool, "verifier", "latest", cmdRes, "verification-failed")
 }
 

@@ -22,9 +22,11 @@ func WriteAtomic(outPath string, ws Workspace) error {
 	if err := os.MkdirAll(filepath.Dir(outPath), 0o755); err != nil {
 		return fmt.Errorf(constants.ErrVSCodeWorkspaceWriteTemp, tmpPath, err)
 	}
+
 	if err := os.WriteFile(tmpPath, bytesOut, 0o644); err != nil {
 		return fmt.Errorf(constants.ErrVSCodeWorkspaceWriteTemp, tmpPath, err)
 	}
+
 	if err := os.Rename(tmpPath, outPath); err != nil {
 		_ = os.Remove(tmpPath)
 

@@ -73,14 +73,17 @@ func reportText(out io.Writer, entries []Entry, opts PrintOptions) error {
 
 		return nil
 	}
+
 	printSection(out, constants.DiffSectionConflicts, entries, Conflict, true)
 	if !opts.OnlyConflicts {
 		printSection(out, constants.DiffSectionMissingRight, entries, MissingRight, !opts.OnlyMissing || true)
 		printSection(out, constants.DiffSectionMissingLeft, entries, MissingLeft, !opts.OnlyMissing || true)
 	}
+
 	if opts.IncludeIdentical {
 		printSection(out, constants.DiffSectionIdentical, entries, Identical, true)
 	}
+
 	fmt.Fprintf(out, constants.DiffSummaryFmt, constants.LogPrefixDiff,
 		summary.MissingLeft, summary.MissingRight, summary.Conflicts, summary.Identical)
 
@@ -97,14 +100,17 @@ func printSection(out io.Writer, header string, entries []Entry, kind EntryKindT
 	if !enabled {
 		return
 	}
+
 	matched := filterByKind(entries, kind)
 	if len(matched) == 0 {
 		return
 	}
+
 	fmt.Fprintf(out, "  %s\n", header)
 	for _, e := range matched {
 		fmt.Fprintf(out, "    %s%s\n", e.RelPath, metaSuffix(e, kind))
 	}
+
 	fmt.Fprintln(out)
 }
 
@@ -127,9 +133,11 @@ func metaSuffix(e Entry, kind EntryKindType) string {
 			humanSize(e.LeftSize), humanTime(e.LeftMTime),
 			humanSize(e.RightSize), humanTime(e.RightMTime))
 	}
+
 	if kind == MissingRight {
 		return fmt.Sprintf("  (L: %s @ %s)", humanSize(e.LeftSize), humanTime(e.LeftMTime))
 	}
+
 	if kind == MissingLeft {
 		return fmt.Sprintf("  (R: %s @ %s)", humanSize(e.RightSize), humanTime(e.RightMTime))
 	}
@@ -143,6 +151,7 @@ func humanSize(b int64) string {
 	if b < k {
 		return fmt.Sprintf("%d B", b)
 	}
+
 	if b < k*k {
 		return fmt.Sprintf("%.1f KB", float64(b)/float64(k))
 	}

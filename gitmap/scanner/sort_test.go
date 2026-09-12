@@ -19,6 +19,7 @@ func TestSortRepos_PathPrimaryKey(t *testing.T) {
 		{RelativePath: "a/first", AbsolutePath: "/abs/a/first"},
 		{RelativePath: "m/middle", AbsolutePath: "/abs/m/middle"},
 	}
+
 	SortRepos(in)
 	want := []string{"a/first", "m/middle", "z/last"}
 	for i, w := range want {
@@ -36,6 +37,7 @@ func TestSortRepos_AbsPathTiebreaker(t *testing.T) {
 		{RelativePath: "same", AbsolutePath: "/b/abs"},
 		{RelativePath: "same", AbsolutePath: "/a/abs"},
 	}
+
 	SortRepos(in)
 	if in[0].AbsolutePath != "/a/abs" {
 		t.Errorf("tiebreaker broken: %+v", in)
@@ -51,6 +53,7 @@ func TestSortRepos_StableForEqualKeys(t *testing.T) {
 		{RelativePath: "x", AbsolutePath: "/x", Depth: 1},
 		{RelativePath: "x", AbsolutePath: "/x", Depth: 2},
 	}
+
 	SortRepos(in)
 	if in[0].Depth != 1 || in[1].Depth != 2 {
 		t.Errorf("sort not stable: %+v", in)

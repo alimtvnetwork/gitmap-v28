@@ -76,11 +76,13 @@ func RecordTagReplay(db *sql.DB, runID, rewrittenID int64, f TagReplayFacts) (in
 	if f.IsVersionTag && !f.IsAnnotated {
 		return 0, fmt.Errorf("runlog: tag %q: %w", f.SourceTagName, ErrLightweightVersionTag)
 	}
+
 	outcomeID, err := lookupEnumID(db, constants.TableCommitInTagOutcome,
 		"TagReplayOutcomeId", f.Outcome)
 	if err != nil {
 		return 0, fmt.Errorf("runlog: lookup tag outcome %q: %w", f.Outcome, err)
 	}
+
 	res, err := db.Exec(constants.SQLInsertCommitInReplayMap,
 		runID, rewrittenID,
 		f.SourceTagName, f.SourceTagSha, f.SourceCommitSha,
@@ -91,6 +93,7 @@ func RecordTagReplay(db *sql.DB, runID, rewrittenID int64, f TagReplayFacts) (in
 	if err != nil {
 		return 0, fmt.Errorf("runlog: insert CommitInReplayMap: %w", err)
 	}
+
 	return res.LastInsertId()
 }
 
@@ -105,12 +108,15 @@ func LookupTagReplay(db *sql.DB, sourceTagName, sourceTagSha string) (TagReplayL
 	if errors.Is(err, sql.ErrNoRows) {
 		return got, ErrTagReplayMiss
 	}
+
 	if err != nil {
 		return got, fmt.Errorf("runlog: lookup tag replay %q: %w", sourceTagName, err)
 	}
+
 	got.DestTagSha = dt.String
 	got.DestCommitSha = dc.String
 	got.MirroredReleaseBranch = mb.String
+
 	return got, nil
 }
 
@@ -144,6 +150,7 @@ func ClassifyVersionTag(tagName string, isAnnotated bool) bool {
 	if isNonAnnotated {
 		return false
 	}
+
 	return IsAnnotatedSemverVersionTag(tagName)
 }
 
@@ -156,6 +163,7 @@ func versionTagRegex() *regexp.Regexp {
 	versionTagRegexOnce.Do(func() {
 		versionTagRegexVal = regexp.MustCompile(constants.VersionTagPattern)
 	})
+
 	return versionTagRegexVal
 }
 
@@ -166,5 +174,6 @@ func nullIfEmpty(s string) any {
 	if s == "" {
 		return nil
 	}
+
 	return s
 }

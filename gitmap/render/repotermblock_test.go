@@ -22,6 +22,7 @@ func TestRenderRepoTermBlock_FullBlock(t *testing.T) {
 	if err != nil {
 		t.Fatalf("unexpected error: %v", err)
 	}
+
 	want := strings.Join([]string{
 		"  1. scripts-fixer",
 		"     branch:    main (HEAD)",
@@ -46,6 +47,7 @@ func TestRenderRepoTermBlock_UnknownPlaceholders(t *testing.T) {
 	if err != nil {
 		t.Fatalf("unexpected error: %v", err)
 	}
+
 	got := buf.String()
 	for _, line := range []string{
 		"     branch:    (unknown)",
@@ -85,6 +87,7 @@ func TestRenderRepoTermBlocks_OrderPreserved(t *testing.T) {
 	if err != nil {
 		t.Fatalf("unexpected error: %v", err)
 	}
+
 	out := buf.String()
 	ai := strings.Index(out, "1. a")
 	bi := strings.Index(out, "2. b")
@@ -105,6 +108,7 @@ func TestFormatBranch_EdgeCases(t *testing.T) {
 		{"main", "HEAD", "main (HEAD)"},
 		{"main", " HEAD ", "main (HEAD)"},
 	}
+
 	for _, c := range cases {
 		if got := formatBranch(c.branch, c.source); got != c.want {
 			t.Fatalf("formatBranch(%q,%q) = %q, want %q",

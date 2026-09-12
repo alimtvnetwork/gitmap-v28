@@ -22,9 +22,9 @@ func parseInstallLogsFlags(args []string) (installLogsOptions, error) {
 	fs.StringVar(&opts.Tool, "tool", "", "Filter logs by tool name")
 	fs.IntVar(&opts.Limit, "limit", 50, "Limit number of logs to display")
 	if err := fs.Parse(args); err != nil {
-
 		return opts, err
 	}
+
 	if opts.Tool == "" && len(fs.Args()) > 0 {
 		opts.Tool = fs.Arg(0)
 	}
@@ -34,7 +34,6 @@ func parseInstallLogsFlags(args []string) (installLogsOptions, error) {
 
 func resolveLogsLimit(limit int) int {
 	if limit > 0 {
-
 		return limit
 	}
 
@@ -44,15 +43,14 @@ func resolveLogsLimit(limit int) int {
 func queryInstallationLogs(db *store.InstallationSplitDB, opts installLogsOptions) ([]store.InstallationLogRecord, error) {
 	limit := resolveLogsLimit(opts.Limit)
 	if opts.Tool != "" && opts.Failed {
-
 		return queryFailedLogsForTool(db, opts.Tool, limit)
 	}
-	if opts.Tool != "" {
 
+	if opts.Tool != "" {
 		return db.GetLogsByTool(opts.Tool, limit)
 	}
-	if opts.Failed {
 
+	if opts.Failed {
 		return db.GetFailedLogs(limit)
 	}
 
@@ -62,7 +60,6 @@ func queryInstallationLogs(db *store.InstallationSplitDB, opts installLogsOption
 func queryFailedLogsForTool(db *store.InstallationSplitDB, tool string, limit int) ([]store.InstallationLogRecord, error) {
 	logs, err := db.GetLogsByTool(tool, limit*2)
 	if err != nil {
-
 		return nil, err
 	}
 
@@ -83,12 +80,11 @@ func filterFailedLogs(logs []store.InstallationLogRecord, limit int) []store.Ins
 func executeInstallLogs(out io.Writer, db *store.InstallationSplitDB, args []string) error {
 	opts, err := parseInstallLogsFlags(args)
 	if err != nil {
-
 		return err
 	}
+
 	logs, err := queryInstallationLogs(db, opts)
 	if err != nil {
-
 		return err
 	}
 
@@ -98,9 +94,9 @@ func executeInstallLogs(out io.Writer, db *store.InstallationSplitDB, args []str
 func runInstallLogsWithOutput(out io.Writer, args []string) error {
 	splitDB, err := store.OpenInstallationSplitDB()
 	if err != nil {
-
 		return apperror.WrapSimple(err, "install_logs.openDB")
 	}
+
 	defer splitDB.Close()
 
 	return executeInstallLogs(out, splitDB, args)
@@ -108,6 +104,5 @@ func runInstallLogsWithOutput(out io.Writer, args []string) error {
 
 // runInstallLogs prints a table of recent installation execution logs.
 func runInstallLogs(args []string) error {
-
 	return runInstallLogsWithOutput(os.Stdout, args)
 }

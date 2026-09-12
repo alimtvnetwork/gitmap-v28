@@ -34,6 +34,7 @@ func TestVSCodePMSyncModeUnionDefaultPreservesUserTags(t *testing.T) {
 	if runtime.GOOS == "windows" {
 		t.Skip("XDG path layout — windows path resolution covered elsewhere")
 	}
+
 	_, restore := setupVSCodePMSyncFixtureWithTags(t,
 		[]string{"user-only-tag"})
 	defer restore()
@@ -44,9 +45,11 @@ func TestVSCodePMSyncModeUnionDefaultPreservesUserTags(t *testing.T) {
 	if len(got) != 1 {
 		t.Fatalf("expected 1 entry, got %d", len(got))
 	}
+
 	if !containsTag(got[0].Tags, "user-only-tag") {
 		t.Errorf("union dropped user tag: %v", got[0].Tags)
 	}
+
 	if !containsTag(got[0].Tags, "gitmap") {
 		t.Errorf("union missing brand tag: %v", got[0].Tags)
 	}
@@ -60,6 +63,7 @@ func TestVSCodePMSyncModeReplaceDropsUserTags(t *testing.T) {
 	if runtime.GOOS == "windows" {
 		t.Skip("XDG path layout — windows path resolution covered elsewhere")
 	}
+
 	_, restore := setupVSCodePMSyncFixtureWithTags(t,
 		[]string{"user-only-tag", "gitmap"})
 	defer restore()
@@ -70,9 +74,11 @@ func TestVSCodePMSyncModeReplaceDropsUserTags(t *testing.T) {
 	if len(got) != 1 {
 		t.Fatalf("expected 1 entry, got %d", len(got))
 	}
+
 	if containsTag(got[0].Tags, "user-only-tag") {
 		t.Errorf("replace did not drop user tag: %v", got[0].Tags)
 	}
+
 	if !containsTag(got[0].Tags, "gitmap") {
 		t.Errorf("replace dropped brand tag (detector should pre-pend it): %v",
 			got[0].Tags)
@@ -91,6 +97,7 @@ func TestVSCodePMSyncModeIntersectionDropsExclusiveTags(t *testing.T) {
 	if runtime.GOOS == "windows" {
 		t.Skip("XDG path layout — windows path resolution covered elsewhere")
 	}
+
 	_, restore := setupVSCodePMSyncFixtureWithTags(t,
 		[]string{"user-only-tag", "gitmap"})
 	defer restore()
@@ -101,10 +108,12 @@ func TestVSCodePMSyncModeIntersectionDropsExclusiveTags(t *testing.T) {
 	if len(got) != 1 {
 		t.Fatalf("expected 1 entry, got %d", len(got))
 	}
+
 	if containsTag(got[0].Tags, "user-only-tag") {
 		t.Errorf("intersection retained tag that's only in existing set: %v",
 			got[0].Tags)
 	}
+
 	if !containsTag(got[0].Tags, "gitmap") {
 		t.Errorf("intersection lost brand tag (should always be pinned): %v",
 			got[0].Tags)
@@ -123,6 +132,7 @@ func TestVSCodePMSyncModeIntersectionPinsBrandWhenAbsent(t *testing.T) {
 	if runtime.GOOS == "windows" {
 		t.Skip("XDG path layout — windows path resolution covered elsewhere")
 	}
+
 	_, restore := setupVSCodePMSyncFixtureWithTags(t,
 		[]string{"user-only-tag"})
 	defer restore()
@@ -133,9 +143,11 @@ func TestVSCodePMSyncModeIntersectionPinsBrandWhenAbsent(t *testing.T) {
 	if len(got) != 1 {
 		t.Fatalf("expected 1 entry, got %d", len(got))
 	}
+
 	if !containsTag(got[0].Tags, "gitmap") {
 		t.Errorf("brand-pin failed under intersection: %v", got[0].Tags)
 	}
+
 	if countTag(got[0].Tags, "gitmap") != 1 {
 		t.Errorf("brand pinned more than once under intersection: %v",
 			got[0].Tags)

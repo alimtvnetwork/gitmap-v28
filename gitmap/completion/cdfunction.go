@@ -16,6 +16,7 @@ func InstallCDFunction(shell string) error {
 	if len(snippet) == 0 {
 		return fmt.Errorf(constants.ErrCompUnknownShell, shell)
 	}
+
 	if shell == constants.ShellPowerShell {
 		return installPowerShellCDFunction(snippet)
 	}
@@ -27,6 +28,7 @@ func installPowerShellCDFunction(snippet string) error {
 	if err := appendCDFunctions(snippet, cdProfilePaths(constants.ShellPowerShell)); err != nil {
 		return err
 	}
+
 	if runtime.GOOS != constants.OSWindows {
 		return nil
 	}
@@ -39,6 +41,7 @@ func installPowerShellCommandShim() error {
 	if err != nil {
 		return err
 	}
+
 	dir := filepath.Dir(exe)
 	body := renderPowerShellCommandShim(dir)
 
@@ -74,9 +77,11 @@ func cdProfilePaths(shell string) []string {
 		return resolvePowerShellProfilePaths()
 	case constants.ShellBash:
 		home, _ := os.UserHomeDir()
+
 		return []string{filepath.Join(home, ".bashrc")}
 	default:
 		home, _ := os.UserHomeDir()
+
 		return []string{filepath.Join(home, ".zshrc")}
 	}
 }
@@ -107,6 +112,7 @@ func appendCDFunction(snippet, profilePath string) error {
 	if err != nil {
 		return fmt.Errorf(constants.ErrCompProfileWrite, profilePath, err)
 	}
+
 	defer f.Close()
 
 	_, err = fmt.Fprintf(f, "\n%s\n%s\n", constants.CDFuncMarker, snippet)
@@ -130,6 +136,7 @@ func updateExistingCDFunction(text, snippet, profilePath string) error {
 	if writeErr := os.WriteFile(profilePath, []byte(next), 0o644); writeErr != nil {
 		return fmt.Errorf(constants.ErrCompProfileWrite, profilePath, writeErr)
 	}
+
 	fmt.Fprintf(os.Stderr, constants.MsgCDFuncInstalled)
 
 	return nil
@@ -151,10 +158,12 @@ func replaceCDFunction(text, snippet string) string {
 	if start < 0 {
 		return text
 	}
+
 	end, marker := findCDFunctionEnd(text[start:])
 	if end < 0 {
 		return text
 	}
+
 	end += start + len(marker)
 	replacement := constants.CDFuncMarker + "\n" + snippet
 
@@ -166,10 +175,12 @@ func reconcileCDFunction(text, snippet string) string {
 	if start < 0 {
 		return text
 	}
+
 	endRel, marker := findCDFunctionEnd(text[start:])
 	if endRel < 0 {
 		return text
 	}
+
 	blockEnd := start + endRel + len(marker)
 
 	desired := constants.CDFuncMarker + "\n" + snippet
@@ -180,6 +191,7 @@ func reconcileCDFunction(text, snippet string) string {
 	if existing == desired && !trailingSignificant {
 		return text
 	}
+
 	if !trailingSignificant {
 		return text[:start] + desired + after
 	}
@@ -201,6 +213,7 @@ func removeCDFunction(text string) string {
 	if start < 0 {
 		return text
 	}
+
 	end, marker := findCDFunctionEnd(text[start:])
 	if end < 0 {
 		return text
@@ -224,5 +237,6 @@ func findCDFunctionEnd(text string) (int, string) {
 	if current >= 0 && (legacy < 0 || current < legacy) {
 		return current, constants.CDFuncMarkerEnd
 	}
+
 	return legacy, constants.CDFuncMarkerEndLegacy
 }

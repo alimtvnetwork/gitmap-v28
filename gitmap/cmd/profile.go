@@ -15,6 +15,7 @@ func runProfile(args []string) error {
 
 		return runProfileList()
 	}
+
 	if isHelpFlag(args[0]) {
 		checkHelp("profile", args)
 
@@ -32,9 +33,11 @@ func routeProfileSub(subCmd string, tailArgs []string) error {
 	if err, isHandled := routeGitProfileSub(subCmd, tailArgs); isHandled {
 		return err
 	}
+
 	if err, isHandled := routeDBProfileSub(subCmd, tailArgs); isHandled {
 		return err
 	}
+
 	if err, isHandled := routeChromeProfileSub(subCmd, tailArgs); isHandled {
 		return err
 	}
@@ -69,6 +72,7 @@ func routeDBProfileExtra(subCmd string, tailArgs []string) (error, bool) {
 	if subCmd == constants.CmdProfileDelete {
 		return runProfileDelete(tailArgs), true
 	}
+
 	if subCmd == constants.CmdProfileShow {
 		return runProfileShow(), true
 	}
@@ -80,6 +84,7 @@ func routeChromeProfileSub(subCmd string, tailArgs []string) (error, bool) {
 	if err, isHandled := routeChromeImportSub(subCmd, tailArgs); isHandled {
 		return err, true
 	}
+
 	if err, isHandled := routeChromeExportSub(subCmd, tailArgs); isHandled {
 		return err, true
 	}

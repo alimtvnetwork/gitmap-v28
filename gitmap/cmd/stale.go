@@ -34,10 +34,12 @@ func runStale(args []string) error {
 	if err := fs.Parse(args); err != nil {
 		cliexit.HandleError(err, 2)
 	}
+
 	fmtKind, err := parseHygieneFormat(*format)
 	if err != nil {
 		cliexit.Fail("stale", "parse-format", *format, err, 2)
 	}
+
 	repos := scanForReposParallel(*root)
 	cutoff := time.Now().AddDate(0, 0, -*days)
 	probed := mapReposParallel(repos, func(r string) (staleRepo, bool) {
@@ -45,6 +47,7 @@ func runStale(args []string) error {
 		if !ok || !t.Before(cutoff) {
 			return staleRepo{}, false
 		}
+
 		return staleRepo{path: r, last: t}, true
 	})
 	sort.Slice(probed, func(i, j int) bool { return probed[i].last.Before(probed[j].last) })
@@ -52,6 +55,7 @@ func runStale(args []string) error {
 	if *archive {
 		archiveStaleRepos(probed, *dryRun)
 	}
+
 	return nil
 }
 
@@ -65,6 +69,7 @@ func emitStale(stale []staleRepo, days int, f hygieneFormat) {
 			LastUTC string `json:"last_commit_utc"`
 			AgeDays int    `json:"age_days"`
 		}
+
 		rows := make([]row, 0, len(stale))
 		now := time.Now()
 		for _, s := range stale {
@@ -74,6 +79,7 @@ func emitStale(stale []staleRepo, days int, f hygieneFormat) {
 				AgeDays: int(now.Sub(s.last).Hours() / 24),
 			})
 		}
+
 		emitJSON(rows)
 	case hygieneFormatCSV:
 		now := time.Now()
@@ -82,6 +88,7 @@ func emitStale(stale []staleRepo, days int, f hygieneFormat) {
 			age := int(now.Sub(s.last).Hours() / 24)
 			rows = append(rows, []string{s.path, s.last.UTC().Format(time.RFC3339), fmt.Sprintf("%d", age)})
 		}
+
 		emitCSV([]string{"path", "last_commit_utc", "age_days"}, rows)
 	case hygieneFormatTable:
 		printStaleTable(stale, days)
@@ -99,10 +106,12 @@ func scanForRepos(root string) []string {
 	if err != nil {
 		return nil
 	}
+
 	for _, e := range entries {
 		if !e.IsDir() {
 			continue
 		}
+
 		full := filepath.Join(root, e.Name())
 		if isGitRepo(full) {
 			out = append(out, full)
@@ -122,10 +131,12 @@ func lastCommitTime(dir string) (time.Time, bool) {
 	if err != nil {
 		return time.Time{}, false
 	}
+
 	s := strings.TrimSpace(string(out))
 	if s == "" {
 		return time.Time{}, false
 	}
+
 	var sec int64
 	if _, err := fmt.Sscanf(s, "%d", &sec); err != nil {
 		return time.Time{}, false
@@ -142,12 +153,14 @@ func printStaleTable(stale []staleRepo, days int) {
 
 		return
 	}
+
 	fmt.Fprintf(os.Stdout, "\n  \033[36m%d stale repo(s)\033[0m (no commits in %d days)\n\n", len(stale), days)
 	now := time.Now()
 	for _, s := range stale {
 		age := int(now.Sub(s.last).Hours() / 24)
 		fmt.Fprintf(os.Stdout, "  \033[33m%4dd\033[0m  %s  (last: %s)\n", age, s.path, s.last.Format("2006-01-02"))
 	}
+
 	fmt.Fprintln(os.Stdout, "")
 }
 
@@ -157,6 +170,7 @@ func archiveStaleRepos(stale []staleRepo, dryRun bool) {
 	if len(stale) == 0 {
 		return
 	}
+
 	stamp := time.Now().UTC().Format("20060102T150405Z")
 	archiveDir := filepath.Join(".gitmap", "archive", stamp)
 	for _, s := range stale {
@@ -166,16 +180,19 @@ func archiveStaleRepos(stale []staleRepo, dryRun bool) {
 
 			continue
 		}
+
 		if err := os.MkdirAll(archiveDir, 0o755); err != nil {
 			fmt.Fprintf(os.Stderr, "  archive mkdir: %v\n", err)
 
 			return
 		}
+
 		if err := os.Rename(s.path, dest); err != nil {
 			fmt.Fprintf(os.Stderr, "  \033[31mfailed\033[0m %s: %v\n", s.path, err)
 
 			continue
 		}
+
 		fmt.Fprintf(os.Stdout, "  \033[32marchived\033[0m %s -> %s\n", s.path, dest)
 	}
 }

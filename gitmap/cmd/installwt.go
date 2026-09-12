@@ -12,6 +12,7 @@ import (
 func runWTSettingsOnly() error {
 	fmt.Println("  Syncing Windows Terminal settings...")
 	syncWTSettings()
+
 	return nil
 }
 

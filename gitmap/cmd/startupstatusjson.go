@@ -90,6 +90,7 @@ func addResultToStatus(name string, force bool, res startup.AddResult) startupSt
 		command: constants.CmdStartupAdd, name: name,
 		target: res.Path, forceUsed: force,
 	}
+
 	switch res.Status {
 	case startup.AddCreated:
 		s.action, s.owner = StartupActionCreated, StartupOwnerGitmap
@@ -119,6 +120,7 @@ func removeResultToStatus(name string, res startup.RemoveResult) startupStatus {
 		command: constants.CmdStartupRemove, name: name,
 		target: res.Path, dryRun: res.DryRun,
 	}
+
 	switch res.Status {
 	case startup.RemoveDeleted:
 		s.action, s.owner = StartupActionDeleted, StartupOwnerGitmap
@@ -152,6 +154,7 @@ func writeStartupStatusJSON(w io.Writer, s startupStatus, jsonIndent int) error 
 		{Key: startupStatusKeyForceUsed, Value: s.forceUsed},
 		{Key: startupStatusKeyDryRun, Value: s.dryRun},
 	}
+
 	indent := indentSpaces(jsonIndent)
 
 	return stablejson.WriteArrayIndent(w, [][]stablejson.Field{fields}, indent)

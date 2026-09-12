@@ -34,6 +34,7 @@ func TestLatestBranchJSONSchema_TopLevelShape(t *testing.T) {
 	if root["type"] != "object" {
 		t.Fatalf("top-level type = %v, want object", root["type"])
 	}
+
 	got := stringSliceFromAny(root["required"])
 	sort.Strings(got)
 	if !equalStringSlices(got, latestBranchTopLevelRequiredKeys) {
@@ -68,6 +69,7 @@ func TestLatestBranchJSONSchema_EncoderMatchesSchema(t *testing.T) {
 	if err := encodeLatestBranchJSON(&buf, result, nil, 0); err != nil {
 		t.Fatalf("encode: %v", err)
 	}
+
 	gotKeys := readFirstObjectKeys(t, buf.Bytes())
 	for _, key := range gotKeys {
 		if _, allowed := props[key]; !allowed {

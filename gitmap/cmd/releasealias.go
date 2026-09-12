@@ -24,6 +24,7 @@ func runReleaseAlias(args []string, forcePull bool) error {
 	alias, version, pull, noStash, dryRun := parseRAArgs(args, forcePull)
 	target := resolveReleaseAliasPath(alias)
 	performReleaseAlias(target, alias, version, pull, noStash, dryRun)
+
 	return nil
 }
 
@@ -53,6 +54,7 @@ func resolveReleaseAliasPath(alias string) string {
 	if err != nil {
 		cliexit.HandleError(err, 1)
 	}
+
 	defer db.Close()
 
 	resolved, err := db.ResolveAlias(alias)
@@ -89,6 +91,7 @@ func performReleaseAlias(target, alias, version string, pull, noStash, dryRun bo
 		)
 		cliexit.HandleError(appErr, 1)
 	}
+
 	defer func() { _ = os.Chdir(originalDir) }()
 
 	fmt.Printf(constants.MsgRAReleasingFmt, alias, target, version)
@@ -101,6 +104,7 @@ func performReleaseAlias(target, alias, version string, pull, noStash, dryRun bo
 	if !noStash {
 		stashLabel = autoStashIfDirty(target, alias, version)
 	}
+
 	if stashLabel != "" {
 		defer popAutoStash(target, stashLabel)
 	}

@@ -9,9 +9,11 @@ func formatPullStatus(status string, isDirty bool) string {
 	if isDirty {
 		return constants.ColorYellow + "● dirty" + constants.ColorReset
 	}
+
 	if status == "active" || status == "ACTIVE" {
 		return constants.ColorGreen + "✔ active" + constants.ColorReset
 	}
+
 	if status == "UP_TO_DATE" || status == "up-to-date" || status == "synced" {
 		return constants.ColorGreen + "✔ active" + constants.ColorReset
 	}

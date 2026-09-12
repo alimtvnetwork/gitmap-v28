@@ -32,6 +32,7 @@ func groupTRByPrefix(records []model.TempRelease) []trPrefixGroup {
 		if _, exists := prefixMap[r.VersionPrefix]; !exists {
 			order = append(order, r.VersionPrefix)
 		}
+
 		prefixMap[r.VersionPrefix] = append(prefixMap[r.VersionPrefix], r)
 	}
 

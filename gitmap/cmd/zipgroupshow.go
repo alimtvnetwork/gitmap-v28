@@ -27,8 +27,10 @@ func runZipGroupList() error {
 			nil,
 		)
 		cliexit.HandleError(appErr, 1)
+
 		return nil
 	}
+
 	defer db.Close()
 
 	groups, err := db.ListZipGroupsWithCount()
@@ -44,11 +46,13 @@ func runZipGroupList() error {
 			nil,
 		)
 		cliexit.HandleError(appErr, 1)
+
 		return nil
 	}
 
 	printZipGroupList(groups)
 	printHints(zipGroupListHints())
+
 	return nil
 }
 
@@ -85,11 +89,13 @@ func runZipGroupShow(args []string) error {
 			nil,
 		)
 		cliexit.HandleError(err, 1)
+
 		return nil
 	}
 
 	name := args[0]
 	executeZipGroupShow(name)
+
 	return nil
 }
 
@@ -108,8 +114,10 @@ func executeZipGroupShow(name string) {
 			nil,
 		)
 		cliexit.HandleError(appErr, 1)
+
 		return
 	}
+
 	defer db.Close()
 
 	items, err := db.ListZipGroupItems(name)
@@ -125,6 +133,7 @@ func executeZipGroupShow(name string) {
 			map[string]any{"group": name},
 		)
 		cliexit.HandleError(appErr, 1)
+
 		return
 	}
 
@@ -132,6 +141,7 @@ func executeZipGroupShow(name string) {
 	if grpErr != nil {
 		fmt.Fprintf(os.Stderr, "  ⚠ Could not load zip group %s: %v\n", name, grpErr)
 	}
+
 	printZipGroupShow(group, items)
 }
 
@@ -150,6 +160,7 @@ func printZipGroupShow(group model.ZipGroup, items []model.ZipGroupItem) {
 		if isFolder {
 			files = expandFolder(item.FullPath)
 		}
+
 		hasFiles := len(files) > 0
 		if isFolder && hasFiles {
 			fmt.Printf(constants.MsgZGShowExpanded, len(files))
@@ -157,6 +168,7 @@ func printZipGroupShow(group model.ZipGroup, items []model.ZipGroupItem) {
 				fmt.Printf(constants.MsgZGShowExpFile, f)
 			}
 		}
+
 		if !isFolder {
 			fmt.Printf(constants.MsgZGShowFile, item.RelativePath)
 			fmt.Printf(constants.MsgZGShowPaths, item.RepoPath, item.RelativePath, item.FullPath)

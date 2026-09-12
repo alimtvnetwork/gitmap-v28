@@ -23,11 +23,13 @@ func TestScheduleLifecycle(t *testing.T) {
 	if err != nil {
 		t.Fatalf("open db failed: %v", err)
 	}
+
 	task, err := db.GetSchedule("daily-build")
 	db.Close()
 	if err != nil {
 		t.Fatalf("get schedule failed: %v", err)
 	}
+
 	if task.Name != "daily-build" || task.IntervalVal != "1d" || task.CommandLine != "echo Build Finished" {
 		t.Errorf("unexpected task data: %+v", task)
 	}
@@ -47,6 +49,7 @@ func TestScheduleLifecycle(t *testing.T) {
 	if err != nil {
 		t.Fatalf("open db failed: %v", err)
 	}
+
 	taskAfterRuns, _ := dbAfter.GetSchedule("daily-build")
 	dbAfter.Close()
 	if taskAfterRuns == nil || taskAfterRuns.RunCount < 3 {
@@ -57,10 +60,12 @@ func TestScheduleLifecycle(t *testing.T) {
 	if err := runScheduleDelete([]string{"daily-build"}); err != nil {
 		t.Fatalf("runScheduleDelete failed: %v", err)
 	}
+
 	dbCheck, err := openSchedulerDB()
 	if err != nil {
 		t.Fatalf("open db failed: %v", err)
 	}
+
 	defer dbCheck.Close()
 	if _, err := dbCheck.GetSchedule("daily-build"); err == nil {
 		t.Errorf("expected schedule to be deleted")
@@ -96,6 +101,7 @@ func TestTerminalCommandExecAPI(t *testing.T) {
 	if rec.Code != http.StatusOK {
 		t.Fatalf("expected 200 OK, got %d", rec.Code)
 	}
+
 	if !bytes.Contains(rec.Body.Bytes(), []byte("API_TEST_SUCCESS")) {
 		t.Errorf("expected response to contain output, got %s", rec.Body.String())
 	}

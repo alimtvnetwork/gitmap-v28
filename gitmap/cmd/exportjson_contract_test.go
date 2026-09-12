@@ -46,5 +46,6 @@ func TestExportJSONContract_TopLevelKeyOrder(t *testing.T) {
 	if err := encodeDatabaseExportJSON(&buf, export); err != nil {
 		t.Fatalf("encode: %v", err)
 	}
+
 	assertSchemaKeysFirstObject(t, buf.Bytes(), "export")
 }

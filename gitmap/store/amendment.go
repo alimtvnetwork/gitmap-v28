@@ -55,6 +55,7 @@ func (db *DB) ListAmendments() ([]AmendmentRow, error) {
 	if err != nil {
 		return nil, fmt.Errorf(constants.ErrDBQuery, err)
 	}
+
 	defer rows.Close()
 
 	return scanAmendmentRows(rows)
@@ -66,6 +67,7 @@ func (db *DB) ListAmendmentsByBranch(branch string) ([]AmendmentRow, error) {
 	if err != nil {
 		return nil, fmt.Errorf(constants.ErrDBQuery, err)
 	}
+
 	defer rows.Close()
 
 	return scanAmendmentRows(rows)

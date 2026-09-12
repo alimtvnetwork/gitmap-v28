@@ -65,6 +65,7 @@ func lookupRecentClone() (target struct {
 	if err != nil {
 		return target, false
 	}
+
 	defer db.Close()
 
 	rec, found, err := db.MostRecentClone()
@@ -89,5 +90,6 @@ func restoreDir(originalDir string) {
 
 		return
 	}
+
 	fmt.Printf(constants.MsgReleaseAutoCdReturn, originalDir)
 }

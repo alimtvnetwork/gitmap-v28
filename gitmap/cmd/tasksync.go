@@ -28,6 +28,7 @@ func runTaskRun(args []string) error {
 	name := fs.Arg(0)
 	if name == "" {
 		fmt.Fprint(os.Stderr, constants.ErrTaskNameRequired)
+
 		return apperror.NewSimple("fatal error", "E9000")
 	}
 
@@ -40,6 +41,7 @@ func runTaskRun(args []string) error {
 
 	fmt.Printf(constants.MsgTaskRunning, name, interval)
 	runSyncLoop(entry, interval, verbose, dryRun)
+
 	return nil
 }
 
@@ -89,6 +91,7 @@ func syncOnce(entry model.TaskEntry, verbose, dryRun bool) {
 		if ignored && info.IsDir() {
 			return filepath.SkipDir
 		}
+
 		if ignored {
 			return nil
 		}

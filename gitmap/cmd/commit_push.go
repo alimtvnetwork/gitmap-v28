@@ -49,6 +49,7 @@ func printCommandVersionFooter() {
 func runCommitPush(args []string) error {
 	if isCommitPushHelpArg(args) {
 		checkHelp(constants.CmdCommitPush, []string{"--help"})
+
 		return nil
 	}
 
@@ -65,6 +66,7 @@ func runCommitPush(args []string) error {
 func runPullCommitPush(args []string) error {
 	if isCommitPushHelpArg(args) {
 		checkHelp(constants.CmdPullCommitPush, []string{"--help"})
+
 		return nil
 	}
 
@@ -78,6 +80,7 @@ func runPullCommitPush(args []string) error {
 	if err := execGitInheritCP("pull", "--rebase"); err != nil {
 		printPaddedWarning("Pull failed — you may need to resolve conflicts manually.")
 		printPaddedWarning("Error: %v", err)
+
 		return apperror.NewSimple("fatal error", "E9000")
 	}
 
@@ -90,6 +93,7 @@ func runPullCommitPush(args []string) error {
 func runCommitPushBug(args []string) error {
 	if isCommitPushHelpArg(args) {
 		checkHelp(constants.CmdCommitPushBug, []string{"--help"})
+
 		return nil
 	}
 
@@ -106,6 +110,7 @@ func runCommitPushBug(args []string) error {
 func runCommitPushFeature(args []string) error {
 	if isCommitPushHelpArg(args) {
 		checkHelp(constants.CmdCommitPushFeature, []string{"--help"})
+
 		return nil
 	}
 
@@ -122,6 +127,7 @@ func runCommitPushFeature(args []string) error {
 func runCommitPushRelease(args []string) error {
 	if isCommitPushHelpArg(args) {
 		checkHelp(constants.CmdCommitPushRelease, []string{"--help"})
+
 		return nil
 	}
 
@@ -157,6 +163,7 @@ func parseRewriteFlags(args []string) (string, bool) {
 func runRmGit(args []string) error {
 	if isCommitPushHelpArg(args) {
 		checkHelp(constants.CmdRmGit, []string{"--help"})
+
 		return nil
 	}
 
@@ -193,6 +200,7 @@ func runRmGit(args []string) error {
 func runGitReset(args []string) error {
 	if isCommitPushHelpArg(args) {
 		checkHelp(constants.CmdGitReset, []string{"--help"})
+
 		return nil
 	}
 
@@ -215,6 +223,7 @@ func runGitReset(args []string) error {
 
 	if errReset := execGitPadded("reset", "--hard", fullSha); errReset != nil {
 		printPaddedError("Failed to reset branch: %v", errReset)
+
 		return apperror.NewSimple("reset failed", "E9000")
 	}
 
@@ -254,6 +263,7 @@ func executeDropCommit(fullSha string) error {
 	if errRebase := execGitPadded("rebase", "--onto", fullSha+"^", fullSha, "HEAD"); errRebase != nil {
 		execGitOutputCP("rebase", "--abort")
 		printPaddedError("Failed to rebase commit %s: %v", fullSha[:8], errRebase)
+
 		return apperror.NewSimple("rebase failed", "E9000")
 	}
 
@@ -270,6 +280,7 @@ func syncRemoteAfterRewrite() {
 	if errPush := forcePushRemote(branch); errPush != nil {
 		printPaddedWarning("Remote push with lease failed: %v", errPush)
 		printPaddedWarning("Run 'git push --force origin %s' if you wish to overwrite remote history.", branch)
+
 		return
 	}
 

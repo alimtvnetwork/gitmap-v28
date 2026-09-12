@@ -79,6 +79,7 @@ func isRemovableDriveRootShim(shimPath, selfPath string) bool {
 	if err != nil || info.IsDir() {
 		return false
 	}
+
 	if info.Size() > driveRootShimMaxBytes {
 		fmt.Fprintf(os.Stderr, "  !! [cleanup] skipping drive-root shim %s (size %d > 5MB)\n", shimPath, info.Size())
 		logHandoffEvent("cleanup", "drive_root_skip", map[string]string{
@@ -152,6 +153,7 @@ func uniqueParentDirs(patternGroups ...[]string) []string {
 			if seen[key] {
 				continue
 			}
+
 			seen[key] = true
 			out = append(out, dir)
 		}
@@ -183,6 +185,7 @@ func removeCloneSwapDirsIn(base string) int {
 		if statErr != nil || !info.IsDir() {
 			continue
 		}
+
 		if err := os.RemoveAll(match); err != nil {
 			fmt.Fprintf(os.Stderr, "  !! [cleanup] could not remove swap dir %s: %v\n", match, err)
 			logHandoffEvent("cleanup", "swap_remove_fail", map[string]string{
@@ -196,6 +199,7 @@ func removeCloneSwapDirsIn(base string) int {
 
 			continue
 		}
+
 		fmt.Printf("  → Removed swap dir: %s\n", match)
 		logHandoffEvent("cleanup", "swap_remove_ok", map[string]string{
 			"path": match,
@@ -211,6 +215,7 @@ func cleanupLegacyDeployDir(ctx updateCleanupContext) int {
 	if len(ctx.selfPath) == 0 {
 		return 0
 	}
+
 	selfDir := filepath.Dir(ctx.selfPath)
 	if filepath.Base(selfDir) != constants.GitMapCliSubdir {
 		return 0
@@ -226,6 +231,7 @@ func scanAndRemoveLegacyDeploy(selfDir, selfPath string) int {
 		if legacyDir == selfDir {
 			continue
 		}
+
 		if count := purgeLegacyDirBinaries(legacyDir, selfPath); count > 0 {
 			return count
 		}
@@ -240,6 +246,7 @@ func purgeLegacyDirBinaries(legacyDir, selfPath string) int {
 	if !isTargetRemovable(legacyBin, selfPath) {
 		return 0
 	}
+
 	removed := removeFileWithLog(legacyBin)
 	removed += purgeLegacyAuxiliaryFiles(legacyDir)
 	tryRemoveEmptyLegacyDir(legacyDir)
@@ -251,6 +258,7 @@ func isTargetRemovable(target, selfPath string) bool {
 	if len(target) == 0 || target == selfPath {
 		return false
 	}
+
 	info, err := os.Stat(target)
 
 	return err == nil && !info.IsDir()
@@ -271,6 +279,7 @@ func purgeLegacyAuxiliaryFiles(legacyDir string) int {
 func removeFileWithLog(path string) int {
 	if err := os.Remove(path); err == nil {
 		fmt.Printf("  • Removed legacy deployment binary: %s\n", path)
+
 		return 1
 	}
 

@@ -31,12 +31,15 @@ func parseTextRows(r io.Reader) ([]Row, error) {
 		if len(line) == 0 || strings.HasPrefix(line, "#") {
 			continue
 		}
+
 		row, ok := textRowFromLine(line)
 		if !ok {
 			continue
 		}
+
 		out = append(out, row)
 	}
+
 	if err := scanner.Err(); err != nil {
 		return nil, fmt.Errorf(constants.ErrCloneNowTextRead, err)
 	}
@@ -56,15 +59,18 @@ func textRowFromLine(line string) (Row, bool) {
 	if !ok {
 		return Row{}, false
 	}
+
 	row := Row{
 		RepoName:     deriveRepoName(url),
 		RelativePath: dest,
 	}
+
 	if isSSHURL(url) {
 		row.SSHUrl = url
 	} else {
 		row.HTTPSUrl = url
 	}
+
 	if len(row.RelativePath) == 0 {
 		row.RelativePath = DeriveDest(url)
 	}
@@ -81,11 +87,13 @@ func extractCloneArgs(fields []string) (string, string, bool) {
 	if len(fields) < 3 || fields[0] != constants.GitBin || fields[1] != constants.GitClone {
 		return "", "", false
 	}
+
 	rest := fields[2:]
 	rest = skipCloneFlags(rest)
 	if len(rest) == 0 {
 		return "", "", false
 	}
+
 	url := rest[0]
 	dest := ""
 	if len(rest) > 1 {
@@ -106,6 +114,7 @@ func skipCloneFlags(toks []string) []string {
 
 			continue
 		}
+
 		toks = toks[1:]
 	}
 
@@ -118,10 +127,12 @@ func isSSHURL(url string) bool {
 	if strings.HasPrefix(url, "ssh://") {
 		return true
 	}
+
 	// scp-style: must contain '@' before ':' and not be http(s)://
 	if strings.Contains(url, "://") {
 		return false
 	}
+
 	at := strings.Index(url, "@")
 	colon := strings.Index(url, ":")
 
@@ -146,6 +157,7 @@ func DeriveDest(url string) string {
 	if i := strings.LastIndex(url, ":"); i >= 0 && !strings.Contains(url[:i], "/") {
 		url = url[i+1:]
 	}
+
 	if i := strings.LastIndex(url, "/"); i >= 0 {
 		url = url[i+1:]
 	}

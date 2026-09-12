@@ -31,14 +31,17 @@ func filterStartupList(entries []startup.Entry, backend, name string) []startup.
 
 		return out
 	}
+
 	out := make([]startup.Entry, 0, len(entries))
 	for _, e := range entries {
 		if !matchesBackend(e, backend) {
 			continue
 		}
+
 		if !matchesName(e, name) {
 			continue
 		}
+
 		out = append(out, e)
 	}
 
@@ -64,6 +67,7 @@ func matchesBackend(e startup.Entry, backend string) bool {
 	if backend == "" {
 		return true
 	}
+
 	switch backend {
 	case constants.StartupBackendRegistry:
 		return strings.HasPrefix(e.Path, `HKCU\`)

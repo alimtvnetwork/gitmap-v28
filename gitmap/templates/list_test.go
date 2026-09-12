@@ -12,18 +12,22 @@ func TestListIncludesEmbeddedCorpus(t *testing.T) {
 	if err != nil {
 		t.Fatalf("List: %v", err)
 	}
+
 	if len(entries) == 0 {
 		t.Fatal("expected at least the embedded corpus")
 	}
+
 	hasGoIgnore := false
 	for _, e := range entries {
 		if e.Kind == kindIgnore && e.Lang == "go" {
 			hasGoIgnore = true
 		}
+
 		if e.Kind == kindIgnore && e.Lang == "go" && e.Source != SourceEmbed {
 			t.Errorf("ignore/go should be SourceEmbed, got %v", e.Source)
 		}
 	}
+
 	if !hasGoIgnore {
 		t.Fatal("ignore/go missing from List()")
 	}
@@ -35,12 +39,14 @@ func TestListSortedByKindThenLang(t *testing.T) {
 	if err != nil {
 		t.Fatalf("List: %v", err)
 	}
+
 	for i := 1; i < len(entries); i++ {
 		prev, cur := entries[i-1], entries[i]
 		pk, ck := kindRank(prev.Kind), kindRank(cur.Kind)
 		if pk > ck {
 			t.Fatalf("kind order broken at %d: %s before %s", i, prev.Kind, cur.Kind)
 		}
+
 		if pk == ck && prev.Lang > cur.Lang {
 			t.Fatalf("lang order broken at %d: %s before %s", i, prev.Lang, cur.Lang)
 		}
@@ -53,10 +59,12 @@ func TestListUserOverlayShadowsEmbed(t *testing.T) {
 	if err != nil {
 		t.Fatalf("EnsureUserDir: %v", err)
 	}
+
 	overridePath := filepath.Join(dir, kindIgnore, "go"+templateExtIgnore)
 	if mkErr := os.MkdirAll(filepath.Dir(overridePath), 0o755); mkErr != nil {
 		t.Fatalf("mkdir: %v", mkErr)
 	}
+
 	if wErr := os.WriteFile(overridePath, []byte("# overridden\n"), 0o644); wErr != nil {
 		t.Fatalf("write override: %v", wErr)
 	}
@@ -65,18 +73,23 @@ func TestListUserOverlayShadowsEmbed(t *testing.T) {
 	if err != nil {
 		t.Fatalf("List: %v", err)
 	}
+
 	for _, e := range entries {
 		if e.Kind != kindIgnore || e.Lang != "go" {
 			continue
 		}
+
 		if e.Source != SourceUser {
 			t.Fatalf("ignore/go should be SourceUser after overlay, got %v", e.Source)
 		}
+
 		if e.Path != overridePath {
 			t.Fatalf("ignore/go path = %s, want %s", e.Path, overridePath)
 		}
+
 		return
 	}
+
 	t.Fatal("ignore/go missing after overlay")
 }
 
@@ -94,6 +107,7 @@ func TestParseRelTemplatePath(t *testing.T) {
 		{"unknown/foo.gitignore", "", "", false},
 		{"toplevel.gitignore", "", "", false},
 	}
+
 	for _, c := range cases {
 		k, l, ok := parseRelTemplatePath(c.in)
 		if ok != c.wantOK || k != c.wantKind || l != c.wantLang {

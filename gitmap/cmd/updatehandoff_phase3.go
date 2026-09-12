@@ -94,10 +94,12 @@ func resolveDeployedBinaryPath() (string, string) {
 	if err == nil {
 		candidate = filepath.Join(filepath.Dir(self), deployedBinaryName())
 	}
+
 	errStat := error(nil)
 	if err == nil {
 		_, errStat = os.Stat(candidate)
 	}
+
 	if err == nil && errStat == nil {
 		return candidate, constants.UpdateCleanupSourceSibling
 	}
@@ -106,6 +108,7 @@ func resolveDeployedBinaryPath() (string, string) {
 	if err != nil {
 		return "", constants.UpdateCleanupSourceUnknown
 	}
+
 	resolved, evalErr := filepath.EvalSymlinks(path)
 	if evalErr == nil {
 		return resolved, constants.UpdateCleanupSourcePath
@@ -189,6 +192,7 @@ func spawnDeployedCleanupUnix(deployed, source string) {
 
 		return
 	}
+
 	logHandoffEvent("phase-3", "run_ok",
 		map[string]string{"target": deployed})
 }
@@ -201,6 +205,7 @@ func buildCleanupChildArgs() []string {
 	if isDebugWindowsRequested() {
 		args = append(args, constants.FlagDebugWindows)
 	}
+
 	if isDebugWindowsJSONRequested() {
 		args = append(args, constants.FlagDebugWindowsJSON)
 	}
@@ -218,6 +223,7 @@ func buildCleanupChildEnv() []string {
 	if isDebugWindowsRequested() {
 		env = append(env, constants.EnvDebugWindows+"=1")
 	}
+
 	if path := debugWindowsJSONPath(); len(path) > 0 {
 		env = append(env, constants.EnvDebugWindowsJSON+"="+path)
 	}

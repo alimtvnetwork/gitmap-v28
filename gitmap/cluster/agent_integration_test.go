@@ -20,6 +20,7 @@ func TestAgentIntegration(t *testing.T) {
 	if err != nil {
 		t.Fatalf("Failed to listen: %v", err)
 	}
+
 	defer listener.Close()
 
 	go ServeAgent(listener)
@@ -39,6 +40,7 @@ func TestAgentIntegration(t *testing.T) {
 	if err != nil {
 		t.Fatalf("Failed to dial agent: %v", err)
 	}
+
 	defer client.Close()
 
 	// Wait, we don't want to run real commands that might break things. Just echo "hello".

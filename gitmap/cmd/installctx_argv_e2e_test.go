@@ -35,13 +35,16 @@ func TestCtxArgvCoversEveryLeaf(t *testing.T) {
 
 			continue
 		}
+
 		if !reflect.DeepEqual(l.Args, want.argv) {
 			t.Errorf("%s: flat Args = %v, want %v", key, l.Args, want.argv)
 		}
+
 		if l.Exe != want.exe {
 			t.Errorf("%s: flat Exe = %q, want %q", key, l.Exe, want.exe)
 		}
 	}
+
 	for path := range wantPaths {
 		if !seen[path] {
 			t.Errorf("expectedCtxArgv has %q but flatten produced no matching leaf", path)
@@ -85,6 +88,7 @@ func TestCtxExplainAffectsEveryNonPrefillLeaf(t *testing.T) {
 			if strings.Contains(off, expect) {
 				t.Errorf("explain OFF unexpectedly contains announce %q in:\n%s", expect, off)
 			}
+
 			if !strings.Contains(on, expect) {
 				t.Errorf("explain ON missing announce %q in:\n%s", expect, on)
 			}
@@ -117,9 +121,11 @@ func TestCtxReleaseNextE2EArgvComposes(t *testing.T) {
 		if l.Path != "30_release.20_release_next" {
 			continue
 		}
+
 		if !reflect.DeepEqual(l.Args, want) {
 			t.Fatalf("release-next args = %v, want %v", l.Args, want)
 		}
+
 		body := renderAllPlatformsForLeaf(l, exe)
 		if !strings.Contains(body, wantJoined) {
 			t.Fatalf("release-next render missing composed argv %q. Body:\n%s", wantJoined, body)
@@ -127,6 +133,7 @@ func TestCtxReleaseNextE2EArgvComposes(t *testing.T) {
 
 		return
 	}
+
 	t.Fatal("release-next leaf not found")
 }
 
@@ -145,9 +152,11 @@ func TestCtxPullAllIsExtendedEverywhere(t *testing.T) {
 			break
 		}
 	}
+
 	if got == nil {
 		t.Fatal("pull-all leaf not found")
 	}
+
 	if !got.Extended {
 		t.Fatal("pull-all must be Extended=true")
 	}
@@ -162,6 +171,7 @@ func TestCtxPullAllIsExtendedEverywhere(t *testing.T) {
 	if guard := extendedGuard(fE); guard == "" || !strings.Contains(guard, "zenity") {
 		t.Errorf("Linux extendedGuard returned no zenity-chain: %q", guard)
 	}
+
 	macBody := macShellFor(fE, exe)
 	if !strings.Contains(macBody, "display dialog") {
 		t.Errorf("macOS shell missing osascript confirm dialog:\n%s", macBody)
