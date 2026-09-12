@@ -12,7 +12,7 @@ import (
 
 func beginCommandAudit(command string, args []string) (int64, time.Time, bool) {
 	start := time.Now()
-	isNonAuditCommand := !shouldAuditCommand(command)
+	isNonAuditCommand := !isAuditableCommand(command)
 	if isNonAuditCommand {
 		return 0, start, false
 	}
@@ -36,7 +36,7 @@ func finishCommandAudit(
 	recordAuditEnd(id, start, exitCode, summary, repoCount)
 }
 
-func shouldAuditCommand(command string) bool {
+func isAuditableCommand(command string) bool {
 	if command == constants.CmdVersion || command == constants.CmdVersionAlias {
 		return false
 	}

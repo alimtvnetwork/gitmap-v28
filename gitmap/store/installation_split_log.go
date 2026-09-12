@@ -44,6 +44,18 @@ type InstallationLogRecord struct {
 	CreatedAt         string `json:"createdAt"`
 }
 
+// IsFailed reports whether the installation log record represents a failure.
+func (r InstallationLogRecord) IsFailed() bool {
+
+	return !r.IsSuccess
+}
+
+// IsFail reports whether the installation log record represents a failure.
+func (r InstallationLogRecord) IsFail() bool {
+
+	return !r.IsSuccess
+}
+
 // SanitizeLogOutput truncates log output to 64 KB to prevent SQLite database bloat.
 func SanitizeLogOutput(s string) string {
 

@@ -33,13 +33,16 @@ import (
 	"github.com/alimtvnetwork/gitmap-v28/gitmap/constants"
 )
 
-// MergeMode picks the tag-merge strategy used by SyncMode / SyncAtMode.
+// MergeModeType picks the tag-merge strategy used by SyncMode / SyncAtMode.
 // uint8 per the project-wide rule "smallest viable int type for ≤255 members".
-type MergeMode uint8
+type MergeModeType uint8
+
+// MergeMode is a backward-compatible alias for MergeModeType.
+type MergeMode = MergeModeType
 
 const (
 	// MergeModeUnion is the v4.36.0 default — existing ∪ incoming, dedup'd.
-	MergeModeUnion MergeMode = iota
+	MergeModeUnion MergeModeType = iota
 	// MergeModeReplace overwrites with incoming verbatim. Detector keeps brand.
 	MergeModeReplace
 	// MergeModeIntersection keeps only tags present in BOTH sets, plus brand pin.

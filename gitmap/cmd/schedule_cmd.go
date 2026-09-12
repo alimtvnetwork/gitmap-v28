@@ -405,7 +405,7 @@ func renderScheduleRunsTable(taskName string, runs []store.ScheduleRunRecord) {
 	fmt.Printf("  %s\n", strings.Repeat("─", 72))
 	for _, r := range runs {
 		status := "\033[32msuccess\033[0m"
-		if !r.IsSuccess {
+		if r.IsFailed() {
 			status = "\033[31mfailed\033[0m"
 		}
 		user := r.RunnerUser

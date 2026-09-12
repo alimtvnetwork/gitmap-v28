@@ -67,7 +67,7 @@ func readProjectsJSONEntries(t *testing.T, path string) []map[string]any {
 	t.Helper()
 
 	data, err := os.ReadFile(path)
-	if err != nil && os.IsNotExist(err) == true {
+	if err != nil && os.IsNotExist(err) {
 		return nil
 	}
 	if err != nil {

@@ -428,7 +428,8 @@ Update `.lovable/cicd-index.md` in the same operation. Never delete existing ent
 > Phase 3 is a hard gate. The release MUST NOT start until every item below is green.
 > If any item fails, loop back to Phase 2 immediately.
 
-- [ ] **Full runner pass:** Run `python 03-ai-scripts/06-cicd-local-runner.py` one final time. Exit code MUST be 0.
+- [ ] **Full Unit Test & CI/CD Verification (MANDATORY Before Release):** Run `python 03-ai-scripts/06-cicd-local-runner.py --run-tests` one final time. All unit test suites, AST checks, and quality gates MUST pass 100% green (`exit 0`). The release MUST NOT start if any test fails.
+- [ ] **Test Inventory Validation:** Check `.lovable/temp/recent-file-changes.json` against `.lovable/test-inventory.json` and verify all tests associated with modified files pass.
 - [ ] **No open plan tasks from this run:** All `.lovable/plans/pending/XX-cicd-*.md` files created in this run are marked `resolved` or closed.
 - [ ] **All RCA files written:** Every failure encountered has a `.lovable/memory/issues/xx-<slug>.md` with all 4 sections.
 - [ ] **Coding standards pass:** Run `python 03-ai-scripts/05-guideline-autofixer.py` on all modified files. Zero violations remain.
@@ -619,6 +620,14 @@ Include: previous version, new version, step number and name, command run, full 
 > - **NEVER** add `|| true`, `continue-on-error: true`, `# nolint`, `// eslint-disable`, or ignore flags to "quickly win the race" or fake a pipeline pass.
 > - **Your job is to legitimately fix the underlying source code.** If resolving complex lint errors or test failures requires multiple sub-steps, sub-agents, or nested self-looping turns, you MUST execute all necessary turns until the code is 100% clean and compliant.
 > - Disabling or bypassing any CI/CD or CLI lint check is an automatic and immediate rejection.
+
+---
+
+## Mandatory Pre-Release Full Unit Tests & CI/CD Verification (Strict Policy)
+
+> [!CAUTION]
+> **ALL CI/CD FIXES & RELEASES MUST RUN TESTS PROPERLY:** This workflow repairs CI/CD pipelines and cuts a release. You MUST NOT skip or disable tests with `--no-tests`. All unit test suites, integration tests, AST checks, and quality gates MUST be executed and verified green (`python 03-ai-scripts/06-cicd-local-runner.py --run-tests`).
+> **ATOMIC CHANGE TRACKING:** Record all modified files under lock via `python 03-ai-scripts/33-test-inventory-generator.py --record <files...>`.
 
 ---
 

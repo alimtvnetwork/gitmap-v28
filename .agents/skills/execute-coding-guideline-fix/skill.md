@@ -12,4 +12,4 @@ Autonomously refactors code violations against `spec/02-coding-guidelines/` in s
 - **Implicit Booleans:** Never write `== true`. Replace with implicit checks.
 - **Guard Clauses:** Invert early checks to return immediately and flatten nested blocks.
 - **Go Errors:** Return `*apperror.AppError` and preserve full error causal chains.
-- **Verification:** Run `python 03-ai-scripts/06-cicd-local-runner.py --no-tests` after each batch (test execution is disabled unless explicitly commanded by the repository owner).
+- **Verification:** Run `python 03-ai-scripts/06-cicd-local-runner.py --no-tests --no-tests` after each batch (test execution is disabled unless explicitly commanded by the repository owner).

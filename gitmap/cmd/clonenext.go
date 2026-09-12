@@ -45,7 +45,7 @@ func configureCloneNextFlags(cnFlags CloneNextFlags) {
 }
 
 func dispatchCloneNext(cnFlags CloneNextFlags) error {
-	isBatch := shouldRunBatch(cnFlags, currentWorkingDir())
+	isBatch := isBatchRunnable(cnFlags, currentWorkingDir())
 	if isBatch {
 		return handleCloneNextBatch(cnFlags)
 	}

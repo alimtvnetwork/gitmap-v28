@@ -111,13 +111,13 @@ func writeErrorMetadata(w io.Writer, e *apperror.AppError) {
 }
 
 func writeErrorStack(w io.Writer, e *apperror.AppError) {
-	hasStack := shouldPrintStackTrace(e) && e.Stack != ""
+	hasStack := isStackTraceEnabled(e) && e.Stack != ""
 	if hasStack {
 		fmt.Fprintf(w, "  stack trace:\n%s\n", indentLines(e.Stack, "    "))
 	}
 }
 
-func shouldPrintStackTrace(e *apperror.AppError) bool {
+func isStackTraceEnabled(e *apperror.AppError) bool {
 	isDebug := os.Getenv("GITMAP_DEBUG") == "1" || os.Getenv("DEBUG") == "1"
 	if isDebug {
 		return true

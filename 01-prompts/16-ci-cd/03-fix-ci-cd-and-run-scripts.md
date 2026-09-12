@@ -130,6 +130,13 @@ Before you write any code to fix the problem, you MUST document the issue in `.l
 > - **Your job is to legitimately fix the underlying source code.** If resolving complex lint errors or test failures requires multiple sub-steps, sub-agents, or nested self-looping turns, you MUST execute all necessary turns until the code is 100% clean and compliant.
 > - Disabling or bypassing any CI/CD or CLI lint check is an automatic and immediate rejection.
 
+## Strictly Avoid: No Automatic Releases & Run All Tests (Strict Policy)
+
+> [!CAUTION]
+> **NO AUTOMATIC RELEASES:** You MUST NOT bump versions, update changelogs, or cut a release at the end of this task. Commits must remain standard development commits. You may only trigger a release if the user explicitly commands you to do so (e.g., "cut a release" or "bump the version").
+> **RUN ALL TESTS & QUALITY GATES (FULL PIPELINE FIDELITY):** All CI/CD repair and runner tasks MUST run all unit tests, integration tests, and quality gates properly (`python 03-ai-scripts/06-cicd-local-runner.py`). NEVER skip or disable tests with `--no-tests` in CI/CD fix workflows.
+> **ATOMIC CHANGE TRACKING:** Record all modified files under lock via `python 03-ai-scripts/33-test-inventory-generator.py --record <files...>`.
+
 ## Anti-Hallucination, Micro-Tasking, & Self-Looping
 
 > [!CAUTION]

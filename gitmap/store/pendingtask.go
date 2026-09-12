@@ -2,10 +2,12 @@
 package store
 
 import (
-	"database/sql"
+	"context"
 	"fmt"
 
+	"github.com/alimtvnetwork/gitmap-v28/gitmap/apperror"
 	"github.com/alimtvnetwork/gitmap-v28/gitmap/constants"
+	"github.com/alimtvnetwork/gitmap-v28/gitmap/dbengine"
 	"github.com/alimtvnetwork/gitmap-v28/gitmap/model"
 )
 
@@ -87,51 +89,50 @@ func (db *DB) FindPendingTaskByID(id int64) (model.PendingTaskRecord, error) {
 
 // CompleteTask moves a pending task to the completed table in a transaction.
 func (db *DB) CompleteTask(taskID int64) error {
-	tx, err := db.conn.Begin()
-	if err != nil {
-		return fmt.Errorf(constants.ErrPendingTaskComplete, err)
-	}
-	defer tx.Rollback()
-
-	if err := executeCompleteTaskTx(tx, taskID); err != nil {
-		return err
+	wrap, appErr := dbengine.WrapDb(db.conn, dbengine.DbSQLite)
+	if appErr != nil {
+		return fmt.Errorf(constants.ErrPendingTaskComplete, appErr)
 	}
 
-	if err := tx.Commit(); err != nil {
-		return fmt.Errorf(constants.ErrPendingTaskComplete, err)
+	ctx := context.Background()
+	appErr = wrap.WithTransaction(ctx, func(tx *dbengine.TxWrapper) *apperror.AppError {
+		return executeCompleteTaskTx(ctx, tx, taskID)
+	})
+	if appErr != nil {
+		return fmt.Errorf(constants.ErrPendingTaskComplete, appErr)
 	}
 
 	return nil
 }
 
-func executeCompleteTaskTx(tx *sql.Tx, taskID int64) error {
-	task, err := findPendingTaskInTx(tx, taskID)
-	if err != nil {
-		return fmt.Errorf(constants.ErrPendingTaskComplete, err)
+func executeCompleteTaskTx(ctx context.Context, tx *dbengine.TxWrapper, taskID int64) *apperror.AppError {
+	task, appErr := findPendingTaskInTx(ctx, tx, taskID)
+	if appErr != nil {
+		return appErr
 	}
 
-	if err := insertCompletedTaskInTx(tx, task); err != nil {
-		return err
+	if insertErr := insertCompletedTaskInTx(ctx, tx, task); insertErr != nil {
+		return insertErr
 	}
 
-	return deletePendingTaskInTx(tx, taskID)
+	return deletePendingTaskInTx(ctx, tx, taskID)
 }
 
-func insertCompletedTaskInTx(tx *sql.Tx, task model.PendingTaskRecord) error {
-	_, err := tx.Exec(constants.SQLInsertCompletedTask,
+func insertCompletedTaskInTx(ctx context.Context, tx *dbengine.TxWrapper, task model.PendingTaskRecord) *apperror.AppError {
+	_, appErr := tx.Exec(ctx, constants.SQLInsertCompletedTask,
 		task.ID, task.TaskTypeId, task.TargetPath, task.WorkingDirectory,
 		task.SourceCommand, task.CommandArgs, task.CreatedAt)
-	if err != nil {
-		return fmt.Errorf(constants.ErrPendingTaskComplete, err)
+	if appErr != nil {
+		return appErr
 	}
 
 	return nil
 }
 
-func deletePendingTaskInTx(tx *sql.Tx, taskID int64) error {
-	_, err := tx.Exec(constants.SQLDeletePendingTask, taskID)
-	if err != nil {
-		return fmt.Errorf(constants.ErrPendingTaskComplete, err)
+func deletePendingTaskInTx(ctx context.Context, tx *dbengine.TxWrapper, taskID int64) *apperror.AppError {
+	_, appErr := tx.Exec(ctx, constants.SQLDeletePendingTask, taskID)
+	if appErr != nil {
+		return appErr
 	}
 
 	return nil
@@ -182,14 +183,19 @@ func (db *DB) DeletePendingTask(id int64) error {
 }
 
 // findPendingTaskInTx reads a pending task within an existing transaction.
-func findPendingTaskInTx(tx *sql.Tx, id int64) (model.PendingTaskRecord, error) {
-	row := tx.QueryRow(constants.SQLSelectPendingTaskByID, id)
+func findPendingTaskInTx(ctx context.Context, tx *dbengine.TxWrapper, id int64) (model.PendingTaskRecord, *apperror.AppError) {
+	row, appErr := tx.QueryRow(ctx, constants.SQLSelectPendingTaskByID, id)
+	if appErr != nil {
+		return model.PendingTaskRecord{}, appErr
+	}
 
 	var r model.PendingTaskRecord
-
 	err := row.Scan(&r.ID, &r.TaskTypeId, &r.TaskTypeName, &r.TargetPath,
 		&r.WorkingDirectory, &r.SourceCommand, &r.CommandArgs,
 		&r.FailureReason, &r.CreatedAt, &r.UpdatedAt)
+	if err != nil {
+		return r, apperror.WrapSimple(err, "scan pending task in tx")
+	}
 
-	return r, err
+	return r, nil
 }

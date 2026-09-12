@@ -56,7 +56,8 @@ func tagsInCanonicalOrder(hits map[string]struct{}) []string {
 
 	out := make([]string, 0, len(hits))
 	for _, tag := range constants.AutoTagOrder {
-		if _, ok := hits[tag]; ok {
+		_, isHit := hits[tag]
+		if isHit {
 			out = append(out, tag)
 		}
 	}

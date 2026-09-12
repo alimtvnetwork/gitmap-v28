@@ -39,7 +39,7 @@ This skill governs autonomous execution for boolean conventions, semantic naming
 ## Validation Linters
 
 - Linter: `python linter-scripts/check-enum-and-boolean.py`
-- Local Runner: `python 03-ai-scripts/06-cicd-local-runner.py --no-tests`
+- Local Runner: `python 03-ai-scripts/06-cicd-local-runner.py --no-tests --no-tests`
 
 
 ## Change Tracking & Test Avoidance

@@ -339,10 +339,12 @@ LOOP:
 
 ---
 
-## No Automatic Releases (Strict Policy)
+## Strictly Avoid: No Automatic Releases & Run All Tests (Strict Policy)
 
 > [!CAUTION]
-> This prompt creates and verifies CI/CD infrastructure. You MUST NOT bump versions, update changelogs, or cut a release unless the user explicitly commands it in chat (e.g., "cut a release" or "bump the version"). All commits use `feat(ci): <description>` or `fix(ci): <description>`.
+> **NO AUTOMATIC RELEASES:** This prompt creates and verifies CI/CD infrastructure. You MUST NOT bump versions, update changelogs, or cut a release unless the user explicitly commands it in chat (e.g., "cut a release" or "bump the version"). All commits use `feat(ci): <description>` or `fix(ci): <description>`.
+> **RUN ALL TESTS & QUALITY GATES (FULL PIPELINE FIDELITY):** All newly created CI/CD pipelines, local runners, and jobs MUST execute and verify all unit test suites, integration tests, and quality gates properly (`python 03-ai-scripts/06-cicd-local-runner.py`). NEVER skip or disable tests with `--no-tests` during pipeline creation and verification.
+> **ATOMIC CHANGE TRACKING:** Record all modified files under lock via `python 03-ai-scripts/33-test-inventory-generator.py --record <files...>`.
 
 ---
 

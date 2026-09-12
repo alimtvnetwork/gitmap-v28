@@ -72,7 +72,7 @@ func queryFailedLogsForTool(db *store.InstallationSplitDB, tool string, limit in
 func filterFailedLogs(logs []store.InstallationLogRecord, limit int) []store.InstallationLogRecord {
 	var filtered []store.InstallationLogRecord
 	for _, r := range logs {
-		if !r.IsSuccess && len(filtered) < limit {
+		if r.IsFailed() && len(filtered) < limit {
 			filtered = append(filtered, r)
 		}
 	}

@@ -66,10 +66,10 @@ func indexTree(root string, opts WalkOptions) (map[string]os.FileInfo, error) {
 		if relErr != nil || rel == "." {
 			return relErr
 		}
-		if shouldIgnore(rel, opts) && info.IsDir() {
+		if isIgnoredPath(rel, opts) && info.IsDir() {
 			return filepath.SkipDir
 		}
-		if shouldIgnore(rel, opts) {
+		if isIgnoredPath(rel, opts) {
 			return nil
 		}
 		if info.IsDir() {
@@ -83,8 +83,8 @@ func indexTree(root string, opts WalkOptions) (map[string]os.FileInfo, error) {
 	return out, walkErr
 }
 
-// shouldIgnore returns true when rel matches the default ignore list.
-func shouldIgnore(rel string, opts WalkOptions) bool {
+// isIgnoredPath returns true when rel matches the default ignore list.
+func isIgnoredPath(rel string, opts WalkOptions) bool {
 	base := filepath.Base(rel)
 	if !opts.IncludeVCS && base == ".git" {
 		return true

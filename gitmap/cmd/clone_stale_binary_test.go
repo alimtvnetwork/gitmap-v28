@@ -32,9 +32,9 @@ func TestShouldUseMultiCloneCoversReportedInvocation(t *testing.T) {
 
 	for i, positionals := range cases {
 		cf := CloneFlags{Source: positionals[0], Positional: positionals}
-		isNonUseMultiClone := !shouldUseMultiClone(cf)
+		isNonUseMultiClone := !isMultiCloneEnabled(cf)
 		if isNonUseMultiClone {
-			t.Fatalf("case %d: shouldUseMultiClone returned false for %#v — would route to executeDirectClone with second URL as folder name", i, positionals)
+			t.Fatalf("case %d: isMultiCloneEnabled returned false for %#v — would route to executeDirectClone with second URL as folder name", i, positionals)
 		}
 	}
 }

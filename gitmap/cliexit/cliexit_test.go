@@ -61,7 +61,7 @@ func assertFormatLine(t *testing.T, tc formatLineCase) {
 		Err:     tc.err,
 	})
 	isMismatch := got != tc.want
-	if isMismatch == true {
+	if isMismatch {
 		t.Fatalf("formatLine mismatch:\n got: %q\nwant: %q", got, tc.want)
 	}
 }
@@ -81,13 +81,13 @@ func TestWriteReport_NilErrSurfacesBug(t *testing.T) {
 	})
 	out := buf.String()
 	isBugMissing := !strings.Contains(out, "BUG")
-	if isBugMissing == true {
+	if isBugMissing {
 		t.Fatalf("expected BUG marker, got: %q", out)
 	}
 	isOpMissing := !strings.Contains(out, "op=walk")
 	isSubjectMissing := !strings.Contains(out, "subject=/repo")
-	hasMissingDetail := isOpMissing == true || isSubjectMissing == true
-	if hasMissingDetail == true {
+	hasMissingDetail := isOpMissing || isSubjectMissing
+	if hasMissingDetail {
 		t.Fatalf("expected op + subject in BUG line, got: %q", out)
 	}
 }
@@ -105,7 +105,7 @@ func TestWriteReport_TrailingNewline(t *testing.T) {
 		Err:     errors.New("boom"),
 	})
 	isNewlineMissing := !strings.HasSuffix(buf.String(), "\n")
-	if isNewlineMissing == true {
+	if isNewlineMissing {
 		t.Fatalf("missing trailing newline: %q", buf.String())
 	}
 }

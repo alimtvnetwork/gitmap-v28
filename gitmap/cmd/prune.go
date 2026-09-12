@@ -28,7 +28,7 @@ func executePruneWorkflow(stale []staleBranch, dryRun, confirm, remote bool) {
 		fmt.Print(constants.MsgPruneDryRunHint)
 		return
 	}
-	if shouldProceedWithPrune(confirm, len(stale)) {
+	if isPruneConfirmed(confirm, len(stale)) {
 		deleteStaleBranches(stale, remote)
 	}
 }
@@ -44,8 +44,8 @@ func parsePruneFlags(args []string) (bool, bool, bool) {
 	return *dryRun, *confirm, *remote
 }
 
-// shouldProceedWithPrune checks confirmation or prompts the user.
-func shouldProceedWithPrune(confirmed bool, count int) bool {
+// isPruneConfirmed checks confirmation or prompts the user.
+func isPruneConfirmed(confirmed bool, count int) bool {
 	if confirmed {
 		return true
 	}
@@ -53,6 +53,7 @@ func shouldProceedWithPrune(confirmed bool, count int) bool {
 		return true
 	}
 	fmt.Print(constants.MsgPruneAborted)
+
 	return false
 }
 

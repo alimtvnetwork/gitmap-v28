@@ -108,7 +108,7 @@ func collectExportBundles(db *store.DB, opts scheduleExportOpts) ([]scheduleExpo
 	}
 	var bundles []scheduleExportBundle
 	for _, t := range tasks {
-		if shouldSkipSchedule(t.Name, opts) {
+		if isSkippableSchedule(t.Name, opts) {
 			continue
 		}
 		runs := fetchScheduleRunsSafe(t.Slug)
@@ -117,10 +117,11 @@ func collectExportBundles(db *store.DB, opts scheduleExportOpts) ([]scheduleExpo
 	if len(bundles) == 0 && !opts.IsAll {
 		return nil, apperror.NewSimple("schedule "+opts.TargetName+" not found", "E6010")
 	}
+
 	return bundles, nil
 }
 
-func shouldSkipSchedule(name string, opts scheduleExportOpts) bool {
+func isSkippableSchedule(name string, opts scheduleExportOpts) bool {
 	if !opts.IsAll && !strings.EqualFold(name, opts.TargetName) {
 		return true
 	}
@@ -129,6 +130,7 @@ func shouldSkipSchedule(name string, opts scheduleExportOpts) bool {
 			return true
 		}
 	}
+
 	return false
 }
 

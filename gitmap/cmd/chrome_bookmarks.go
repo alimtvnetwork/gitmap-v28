@@ -26,8 +26,8 @@ func runChromeExportBookmarks(args []string) error {
 		fmt.Fprintln(os.Stderr, "chrome export-bookmarks: ERROR usage: gitmap chrome export-bookmarks <profile> [--format md|html|json] [--out <file>] [--root <bookmark_bar|other|synced>] [--folder <path/to/folder>] [--match <substr>] [--title <exact>]")
 		cliexit.HandleError(nil, 2)
 	}
-	profile, ok := resolveChromeProfile(args[0])
-	if !ok {
+	profile, isResolved := resolveChromeProfile(args[0])
+	if !isResolved {
 		fmt.Fprintf(os.Stderr, "chrome export-bookmarks: ERROR profile %q not found\n", args[0])
 		printAvailableChromeProfilesWithDisplay()
 		return apperror.NewSimple("fatal error", "E9000")
@@ -129,7 +129,8 @@ func filterBookmarkRoots(roots []bookmarkItem, rootName, folderPath string) []bo
 	}
 	matched := []bookmarkItem{}
 	for _, r := range out {
-		if sub, ok := findBookmarkFolder(r, parts); ok {
+		sub, isSubFound := findBookmarkFolder(r, parts)
+		if isSubFound {
 			matched = append(matched, sub)
 		}
 	}

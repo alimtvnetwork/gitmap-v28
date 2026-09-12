@@ -98,6 +98,18 @@ type CloneResult struct {
 	Notes     string
 }
 
+// IsFailed reports whether the clone operation failed.
+func (r CloneResult) IsFailed() bool {
+
+	return !r.IsSuccess
+}
+
+// IsFail reports whether the clone operation failed.
+func (r CloneResult) IsFail() bool {
+
+	return !r.IsSuccess
+}
+
 // CloneSummary aggregates results of a batch clone operation.
 //
 // Skipped tracks repos that were already cloned and up to date according to

@@ -48,23 +48,33 @@ const TerminalDemo = ({ title, lines, autoPlay = false }: TerminalDemoProps) => 
   const reset = () => {
     const hasTimeout = Boolean(timeoutRef.current);
 
-    if (hasTimeout) clearTimeout(timeoutRef.current!);
+    if (hasTimeout) {
+      clearTimeout(timeoutRef.current!);
+    }
+
     setVisibleLines(0);
     setIsPlaying(false);
   };
 
   useEffect(() => {
-    const shouldAutoPlay = autoPlay === true;
+    const isAutoPlayEnabled = Boolean(autoPlay);
 
-    if (shouldAutoPlay) play();
+    if (isAutoPlayEnabled) {
+      play();
+    }
 
     return () => {
-      if (timeoutRef.current) clearTimeout(timeoutRef.current);
+      if (timeoutRef.current) {
+        clearTimeout(timeoutRef.current);
+      }
     };
   }, []);
 
   useEffect(() => {
-    if (!isPlaying) return;
+    if (!isPlaying) {
+      return;
+    }
+
     const isFinished = visibleLines >= lines.length;
 
     if (isFinished) {

@@ -62,9 +62,11 @@ func applyTemplateOverride(subject string, p MessagePolicy) string {
 	if !p.TemplateOverride || p.Templates == nil {
 		return subject
 	}
-	if mapped, ok := p.Templates[subject]; ok {
+	mapped, isMapped := p.Templates[subject]
+	if isMapped {
 		return mapped
 	}
+
 	return subject
 }
 
@@ -199,7 +201,7 @@ func BuildReplayedSet(recentLog string) map[string]struct{} {
 // SetHasReplayed reports whether the pre-built set contains a provenance
 // footer for (sourceDisplay, shortSHA).
 func SetHasReplayed(set map[string]struct{}, sourceDisplay, shortSHA string) bool {
-	_, ok := set[sourceDisplay+" "+shortSHA]
+	_, isFound := set[sourceDisplay+" "+shortSHA]
 
-	return ok
+	return isFound
 }

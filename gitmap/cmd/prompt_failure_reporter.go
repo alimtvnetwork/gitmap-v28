@@ -10,7 +10,7 @@ import (
 
 func ReportPromptFailures(results []model.PromptInstallResult) {
 	for _, r := range results {
-		if !r.IsSuccess {
+		if r.IsFailed() {
 			fmt.Fprintf(os.Stderr, "  ✖ %s: %s\n", r.RepoPath, r.Error)
 		}
 	}

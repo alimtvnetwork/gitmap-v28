@@ -27,6 +27,18 @@ type PipelineRunRecord struct {
 	UpdatedAt       string `json:"updatedAt"`
 }
 
+// IsFailed reports whether the pipeline run failed.
+func (r PipelineRunRecord) IsFailed() bool {
+
+	return !r.IsSuccess
+}
+
+// IsFail reports whether the pipeline run failed.
+func (r PipelineRunRecord) IsFail() bool {
+
+	return !r.IsSuccess
+}
+
 // ScanPipelineRunRecord maps a database row scanner to a PipelineRunRecord entity.
 func ScanPipelineRunRecord(row dbengine.RowScanner) (*PipelineRunRecord, error) {
 	var item PipelineRunRecord

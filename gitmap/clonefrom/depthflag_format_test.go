@@ -33,7 +33,7 @@ func TestDepthFlagFormat_Locked(t *testing.T) {
 			"(joined form is mandatory — see constant doc)", got, want)
 	}
 	hasSpace := strings.Contains(constants.CloneFromDepthFlagFmt, " ")
-	if hasSpace == true {
+	if hasSpace {
 		t.Fatalf("CloneFromDepthFlagFmt contains a space (%q); "+
 			"split form `--depth N` is forbidden for clone-from",
 			constants.CloneFromDepthFlagFmt)
@@ -50,7 +50,7 @@ func TestBuildGitArgs_DepthJoined(t *testing.T) {
 
 	const wantTok = "--depth=5"
 	isTokMissing := !containsTok(args, wantTok)
-	if isTokMissing == true {
+	if isTokMissing {
 		t.Fatalf("BuildGitArgs argv missing %q\n got: %v",
 			wantTok, args)
 	}
@@ -60,7 +60,7 @@ func TestBuildGitArgs_DepthJoined(t *testing.T) {
 func assertNoSplitDepthArg(t *testing.T, args []string) {
 	for i, a := range args {
 		isSplitDepth := a == "--depth"
-		if isSplitDepth == true {
+		if isSplitDepth {
 			t.Fatalf("BuildGitArgs argv contains split form "+
 				"`--depth` at index %d (followed by %q) — must "+
 				"be joined `--depth=N`\n got: %v",
@@ -77,12 +77,12 @@ func TestCloneCommandForRow_DepthJoined(t *testing.T) {
 	got := cloneCommandForRow(row, "x")
 
 	isMissingJoined := !strings.Contains(got, "--depth=7")
-	if isMissingJoined == true {
+	if isMissingJoined {
 		t.Fatalf("cloneCommandForRow missing `--depth=7`\n got: %s",
 			got)
 	}
 	hasSplit := strings.Contains(got, "--depth 7")
-	if hasSplit == true {
+	if hasSplit {
 		t.Fatalf("cloneCommandForRow rendered split form "+
 			"`--depth 7` — must be joined `--depth=7`\n got: %s",
 			got)
@@ -94,7 +94,7 @@ func TestCloneCommandForRow_DepthJoined(t *testing.T) {
 func containsTok(args []string, tok string) bool {
 	for _, a := range args {
 		isMatch := a == tok
-		if isMatch == true {
+		if isMatch {
 			return true
 		}
 	}
@@ -107,7 +107,7 @@ func containsTok(args []string, tok string) bool {
 // is the last token (which would itself be a separate bug).
 func safeIdx(args []string, i int) string {
 	isOutOfBounds := i < 0 || i >= len(args)
-	if isOutOfBounds == true {
+	if isOutOfBounds {
 		return "<end-of-argv>"
 	}
 

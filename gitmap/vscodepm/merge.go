@@ -76,7 +76,8 @@ func sameTagSet(a, b []string) bool {
 		seen[t] = struct{}{}
 	}
 	for _, t := range b {
-		if _, ok := seen[t]; !ok {
+		_, isSeen := seen[t]
+		if !isSeen {
 			return false
 		}
 	}

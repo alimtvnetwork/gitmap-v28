@@ -30,6 +30,7 @@ func NewCompileFailure(appErr *apperror.AppError) *CompileResult {
 // IsSuccess reports whether compilation succeeded without errors.
 func (it *CompileResult) IsSuccess() bool {
 	if it == nil {
+
 		return false
 	}
 
@@ -38,7 +39,12 @@ func (it *CompileResult) IsSuccess() bool {
 
 // IsFailed reports whether compilation failed.
 func (it *CompileResult) IsFailed() bool {
-	return !it.IsSuccess()
+	if it == nil {
+
+		return true
+	}
+
+	return it.appError != nil || it.re == nil
 }
 
 // HasError reports whether a non-nil AppError is present.

@@ -129,7 +129,8 @@ func deduplicateStrings(items []string) []string {
 	seen := map[string]struct{}{}
 	unique := make([]string, 0, len(items))
 	for _, item := range items {
-		if _, ok := seen[item]; ok {
+		_, isSeen := seen[item]
+		if isSeen {
 			continue
 		}
 		seen[item] = struct{}{}

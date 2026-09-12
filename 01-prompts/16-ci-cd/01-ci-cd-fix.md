@@ -494,10 +494,12 @@ Before entering Phase 1 or Phase 2:
 
 ---
 
-## No Automatic Releases (Strict Policy)
+## Strictly Avoid: No Automatic Releases & Run All Tests (Strict Policy)
 
 > [!CAUTION]
-> This is a development fix workflow. You MUST NOT bump versions, update changelogs, or cut a release unless the user explicitly commands it in chat (e.g., "cut a release" or "bump the version"). All commits use `fix(ci): <description>`.
+> **NO AUTOMATIC RELEASES:** This is a development fix workflow. You MUST NOT bump versions, update changelogs, or cut a release unless the user explicitly commands it in chat (e.g., "cut a release" or "bump the version"). All commits use `fix(ci): <description>`.
+> **RUN ALL TESTS & QUALITY GATES (FULL PIPELINE FIDELITY):** `ci-cd-fix` is an explicit CI pipeline repair workflow. It MUST run all CI/CD quality gates, linters, static analysis, and test suites properly (`python 03-ai-scripts/06-cicd-local-runner.py`). NEVER skip or disable tests with `--no-tests` in CI/CD fix workflows; all unit test suites, AST checks, and verification jobs must be executed and diagnosed until they legitimately pass (`exit 0`).
+> **ATOMIC CHANGE TRACKING:** Record all modified files under lock via `python 03-ai-scripts/33-test-inventory-generator.py --record <files...>`.
 
 ---
 
@@ -522,7 +524,7 @@ Run `03-ai-scripts/05-guideline-autofixer.py` on all modified files, then verify
 When `06-cicd-local-runner.py` exits with code 0:
 
 - [ ] **Zero Linting/CI/CD Bypass:** Confirmed that NO CLI linters, static analysis tools, or test scripts were disabled, commented out, skipped, or bypassed with `|| true`.
-- [ ] **Local CI Runner 100% Green:** All jobs in `06-cicd-local-runner.py` passed legitimately (exit code = 0).
+- [ ] **Local CI Runner 100% Green:** All jobs in `06-cicd-local-runner.py` (including all unit tests, linters, and quality gates) passed legitimately (exit code = 0).
 - [ ] **RCA Documented:** All encountered failures have memory files in `.lovable/memory/issues/`.
 - [ ] **Antigravity Skill Updated:** Verified `.agents/skills/ci-cd-fix/skill.md` is present and synchronized with the latest rules.
 - [ ] **Stage & Commit:** Group all related fixes into a single descriptive commit: `fix(ci): resolve <summary>`.

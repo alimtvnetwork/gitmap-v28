@@ -11,9 +11,12 @@ func parseAgyExceptTokens(raw string) []string {
 	if trimmed == "" {
 		return nil
 	}
-	if tokens, ok := tryReadTokenFile(trimmed); ok {
+
+	tokens, isTokenFile := tryReadTokenFile(trimmed)
+	if isTokenFile {
 		return tokens
 	}
+
 	return splitTokens(trimmed)
 }
 

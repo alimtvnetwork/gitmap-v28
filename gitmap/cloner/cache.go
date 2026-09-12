@@ -122,9 +122,9 @@ func (c *CloneCache) IsUpToDate(rec model.ScanRecord, dest string) bool {
 	}
 
 	c.mu.Lock()
-	entry, ok := c.Entries[rec.RelativePath]
+	entry, isCached := c.Entries[rec.RelativePath]
 	c.mu.Unlock()
-	if !ok {
+	if !isCached {
 		return false
 	}
 

@@ -113,8 +113,8 @@ func ValidateRawShape(data []byte) error {
 func collectShapeViolations(raw map[string]json.RawMessage) []string {
 	violations := make([]string, 0, len(expectedRequiredKeyTypes))
 	for key, want := range expectedRequiredKeyTypes {
-		val, ok := raw[key]
-		if !ok {
+		val, hasKey := raw[key]
+		if !hasKey {
 			continue // ValidateRawConfig already reported it.
 		}
 		got := detectKind(val)

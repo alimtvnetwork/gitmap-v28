@@ -41,11 +41,12 @@ func printInstallerTableHeader() {
 	fmt.Println(strings.Repeat("-", 75))
 }
 
-// shouldSkipInstallerRow checks if target OS matches the provided filter.
-func shouldSkipInstallerRow(targetOS, filter string) bool {
+// isSkippableInstallerRow checks if target OS matches the provided filter.
+func isSkippableInstallerRow(targetOS, filter string) bool {
 	if filter == "" || filter == "all" {
 		return false
 	}
+
 	return !strings.EqualFold(targetOS, filter) && !strings.EqualFold(targetOS, "all")
 }
 
@@ -54,13 +55,14 @@ func printInstallerRows(scriptList []model.InstallerScript, osFilter string) int
 	filterKey := strings.ToLower(strings.TrimSpace(osFilter))
 	matchedCount := 0
 	for _, scriptRecord := range scriptList {
-		if shouldSkipInstallerRow(scriptRecord.TargetOS, filterKey) {
+		if isSkippableInstallerRow(scriptRecord.TargetOS, filterKey) {
 			continue
 		}
 		fmt.Printf("%-20s %-15s %-10s %-10s %s\n",
 			scriptRecord.Name, scriptRecord.Slug, scriptRecord.TargetOS, scriptRecord.Version, scriptRecord.Description)
 		matchedCount++
 	}
+
 	return matchedCount
 }
 

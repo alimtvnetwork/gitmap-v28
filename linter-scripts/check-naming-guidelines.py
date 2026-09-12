@@ -10,7 +10,7 @@ if hasattr(sys.stderr, "reconfigure"):
     sys.stderr.reconfigure(encoding="utf-8", errors="replace")
 
 ROOT_DIR = Path(__file__).resolve().parent.parent
-SCRIPT = ROOT_DIR / ".lovable" / "ai-fix-scripts" / "05-naming-autofixer.py"
+SCRIPT = ROOT_DIR / "03-ai-scripts" / "08-naming-autofixer.py"
 
 
 def main():

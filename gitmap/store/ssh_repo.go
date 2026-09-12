@@ -4,18 +4,53 @@ import (
 	"context"
 	"database/sql"
 	"errors"
+	"fmt"
 
 	"github.com/alimtvnetwork/gitmap-v28/gitmap/apperror"
+	"github.com/alimtvnetwork/gitmap-v28/gitmap/dbengine"
 )
 
-// InsertSSHHost inserts a new SSHHost into the database.
+type sqlContextExecer interface {
+	ExecContext(ctx context.Context, query string, args ...any) (sql.Result, error)
+}
 
-func InsertSSHHost(ctx context.Context, host SSHHost, tx *sql.Tx) error {
-	query := `
-		INSERT INTO ssh_hosts (id, alias, ip, username, created_at)
-		VALUES (:id, :alias, :ip, :username, :created_at)
-	`
-	_, err := tx.ExecContext(ctx, query,
+func resolveContextExecer(tx any) (sqlContextExecer, error) {
+	if exec, isDirect := tx.(sqlContextExecer); isDirect {
+		return exec, nil
+	}
+
+	if wrap, isTxWrap := tx.(*dbengine.TxWrapper); isTxWrap {
+		return wrap.Tx(), nil
+	}
+
+	if wrap, isDbWrap := tx.(*dbengine.DbWrapper); isDbWrap {
+		return wrap.Conn(), nil
+	}
+
+	return nil, fmt.Errorf("unsupported executor type: %T", tx)
+}
+
+const sqlInsertSSHHost = `
+	INSERT INTO ssh_hosts (id, alias, ip, username, created_at)
+	VALUES (:id, :alias, :ip, :username, :created_at)
+`
+
+// InsertSSHHost inserts a new SSHHost into the database.
+// Supports callers passing *sql.Tx, *dbengine.TxWrapper, dbengine.SqlExecutor, or *sql.DB.
+func InsertSSHHost(ctx context.Context, host SSHHost, tx any) error {
+	execer, err := resolveContextExecer(tx)
+	if err != nil {
+		appErr := apperror.Wrap(err, "InsertSSHHost", map[string]any{"id": host.ID})
+		appErr.Code = "E_INTERNAL_ERROR"
+
+		return appErr
+	}
+
+	return executeSSHHostInsert(ctx, host, execer)
+}
+
+func executeSSHHostInsert(ctx context.Context, host SSHHost, execer sqlContextExecer) error {
+	_, err := execer.ExecContext(ctx, sqlInsertSSHHost,
 		sql.Named("id", host.ID),
 		sql.Named("alias", host.Alias),
 		sql.Named("ip", host.IP),
@@ -25,9 +60,16 @@ func InsertSSHHost(ctx context.Context, host SSHHost, tx *sql.Tx) error {
 	if err != nil {
 		appErr := apperror.Wrap(err, "InsertSSHHost", map[string]any{"id": host.ID})
 		appErr.Code = "E_INTERNAL_ERROR"
+
 		return appErr
 	}
+
 	return nil
+}
+
+// InsertSSHHostTx inserts a new SSHHost using a dbengine.TxWrapper.
+func InsertSSHHostTx(ctx context.Context, host SSHHost, tx *dbengine.TxWrapper) error {
+	return InsertSSHHost(ctx, host, tx)
 }
 
 // GetHostByAlias retrieves an SSHHost by its alias.

@@ -33,9 +33,9 @@ func runChromeProfileCopy(args []string) error {
 		fmt.Fprint(os.Stderr, constants.ErrChromeProfileUsageCopy)
 		cliexit.HandleError(nil, constants.ExitChromeProfileUsage)
 	}
-	srcProfile, ok := resolveChromeProfile(pos[0])
+	srcProfile, isResolved := resolveChromeProfile(pos[0])
 	dstProfile := chromeProfileDestination(pos[1])
-	if !ok {
+	if !isResolved {
 		fmt.Fprintf(os.Stderr, constants.ErrChromeProfileSrcMissing, pos[0], srcProfile.Path)
 		printAvailableChromeProfilesWithDisplay()
 		cliexit.HandleError(nil, constants.ExitChromeProfileNotFound)
@@ -305,8 +305,9 @@ func isProfileRegisteredInLocalState(state *chromeLocalState, dir string) bool {
 	if state == nil {
 		return false
 	}
-	_, ok := state.Profile.InfoCache[dir]
-	return ok
+
+	_, isCached := state.Profile.InfoCache[dir]
+	return isCached
 }
 
 func printProfileListEntry(e chromeProfileEntry, registered bool, email string) {

@@ -57,7 +57,7 @@ func TestProbeSkipZshEnv(t *testing.T) {
 
 		return
 	}
-	t.Fatalf("expected isSkipZshEnv() == true when GITMAP_SKIP_ZSH=1")
+	t.Fatalf("expected isSkipZshEnv() to be true when GITMAP_SKIP_ZSH=1")
 }
 
 func TestProbeStdinTerminal(t *testing.T) {
@@ -72,5 +72,5 @@ func TestProbeStdinTerminal(t *testing.T) {
 
 		return
 	}
-	t.Fatalf("expected isStdinTerminal() == true for char device")
+	t.Fatalf("expected isStdinTerminal() to be true for char device")
 }

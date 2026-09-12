@@ -28,13 +28,14 @@ func OptimizeProjectsAt(filePath string, exceptList []string, dryRun bool) (Opti
 		return OptimizeSummary{}, err
 	}
 	deduped, removed := deduplicateEntries(entries, exceptList)
-	if shouldWrite(dryRun, removed) {
+	if isWriteEnabled(dryRun, removed) {
 		return commitOptimizedEntries(filePath, deduped, removed)
 	}
+
 	return OptimizeSummary{Removed: removed, Remaining: len(deduped)}, nil
 }
 
-func shouldWrite(dryRun bool, count int) bool {
+func isWriteEnabled(dryRun bool, count int) bool {
 	return !dryRun && count > 0
 }
 

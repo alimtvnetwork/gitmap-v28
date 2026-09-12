@@ -76,7 +76,7 @@ func TestBuildPinCallbackPythonExecutesWithoutFunctionSymbol(t *testing.T) {
 	out, err := cmd.CombinedOutput()
 	isStub := strings.Contains(string(out), "Python was not found")
 
-	if err != nil && isStub == true {
+	if err != nil && isStub {
 		t.Skip("python stub found but python is not installed; skipping")
 	}
 	if err != nil {

@@ -47,8 +47,8 @@ func (p *Pool[T, R]) Run(ctx context.Context, inputs <-chan T) <-chan Result[R] 
 				select {
 				case <-ctx.Done():
 					return
-				case input, ok := <-inputs:
-					if !ok {
+				case input, hasInput := <-inputs:
+					if !hasInput {
 						return
 					}
 

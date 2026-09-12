@@ -30,9 +30,8 @@ func TestDetectLFSSmudgeError(t *testing.T) {
 }
 
 func testDetectLFSSmudgeErrorPrimary(t *testing.T) {
-	file, ok := detectLFSSmudgeError(sampleLFSSmudgeOutput)
-	isDetectFailed := !ok
-	if isDetectFailed == true {
+	file, isDetected := detectLFSSmudgeError(sampleLFSSmudgeOutput)
+	if !isDetected {
 		t.Fatalf("expected to detect LFS smudge error, got ok=false")
 	}
 	if file != "assets/01-licensing.xmind" {
@@ -42,9 +41,8 @@ func testDetectLFSSmudgeErrorPrimary(t *testing.T) {
 
 func testDetectLFSSmudgeErrorFallback(t *testing.T) {
 	output := `Error downloading object: deep/path/file.bin (abc1234): Smudge error: [404] Object does not exist on the server`
-	file, ok := detectLFSSmudgeError(output)
-	isFallbackDetectFailed := !ok
-	if isFallbackDetectFailed == true {
+	file, isFallbackDetected := detectLFSSmudgeError(output)
+	if !isFallbackDetected {
 		t.Fatalf("expected to detect LFS smudge error using fallback regex, got ok=false")
 	}
 	if file != "deep/path/file.bin" {
@@ -54,8 +52,8 @@ func testDetectLFSSmudgeErrorFallback(t *testing.T) {
 
 func testDetectLFSSmudgeErrorNegative(t *testing.T) {
 	output := `fatal: repository 'https://github.com/missing/repo.git' not found`
-	_, ok := detectLFSSmudgeError(output)
-	if ok == true {
+	_, isDetected := detectLFSSmudgeError(output)
+	if isDetected {
 		t.Fatalf("expected NOT to detect LFS smudge error for standard missing repo")
 	}
 }

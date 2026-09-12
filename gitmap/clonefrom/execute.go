@@ -92,7 +92,7 @@ type FailedResultParams struct {
 func executeRow(r Row, cwd string) Result {
 	start := time.Now()
 	dest, absDest := resolveDest(r, cwd)
-	isSkipped := shouldSkip(absDest)
+	isSkipped := isSkippable(absDest)
 	if isSkipped {
 		return Result{Row: r, Dest: dest, Status: constants.CloneFromStatusSkipped,
 			Detail: constants.MsgCloneFromDestExists, Duration: time.Since(start)}

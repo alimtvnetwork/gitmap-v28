@@ -3,7 +3,13 @@
 // paths that were tracked so the CLI can rm() them on disk.
 package store
 
-import "fmt"
+import (
+	"context"
+	"fmt"
+
+	"github.com/alimtvnetwork/gitmap-v28/gitmap/apperror"
+	"github.com/alimtvnetwork/gitmap-v28/gitmap/dbengine"
+)
 
 const sqlSelectChromeProfileExports = `
 SELECT e.FilePath FROM ChromeProfileExport e
@@ -22,17 +28,46 @@ func (db *DB) DeleteChromeProfile(name string) ([]string, error) {
 	if err := db.EnsureChromeProfileTables(); err != nil {
 		return nil, err
 	}
+
 	paths, err := db.collectChromeArtifactPaths(name)
 	if err != nil {
 		return nil, err
 	}
-	if _, err := ExecWrapper(db.conn, sqlDeleteChromeProfileExports, name).Destruct(); err != nil {
-		return nil, fmt.Errorf("delete chrome-profile exports: %w", err)
+
+	if delErr := db.deleteChromeProfileTx(name); delErr != nil {
+		return nil, delErr
 	}
-	if _, err := ExecWrapper(db.conn, sqlDeleteChromeProfile, name).Destruct(); err != nil {
-		return nil, fmt.Errorf("delete chrome-profile: %w", err)
-	}
+
 	return paths, nil
+}
+
+func (db *DB) deleteChromeProfileTx(name string) error {
+	wrap, appErr := dbengine.WrapDb(db.conn, dbengine.DbSQLite)
+	if appErr != nil {
+		return appErr
+	}
+
+	ctx := context.Background()
+	appErr = wrap.WithTransaction(ctx, func(tx *dbengine.TxWrapper) *apperror.AppError {
+		return executeDeleteChromeProfileTx(ctx, tx, name)
+	})
+	if appErr != nil {
+		return appErr
+	}
+
+	return nil
+}
+
+func executeDeleteChromeProfileTx(ctx context.Context, tx *dbengine.TxWrapper, name string) *apperror.AppError {
+	if _, appErr := tx.Exec(ctx, sqlDeleteChromeProfileExports, name); appErr != nil {
+		return apperror.WrapSimple(appErr, "delete chrome-profile exports")
+	}
+
+	if _, appErr := tx.Exec(ctx, sqlDeleteChromeProfile, name); appErr != nil {
+		return apperror.WrapSimple(appErr, "delete chrome-profile")
+	}
+
+	return nil
 }
 
 // ChromeProfileExists reports whether a row with the given name exists.

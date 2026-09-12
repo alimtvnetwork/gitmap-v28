@@ -12,7 +12,7 @@ func TestPromptE2ESuite(t *testing.T) {
 
 	// 1. Dry run execution
 	res := cmd.ExecuteSinglePromptInstall(tempDir, true)
-	if !res.IsSuccess {
+	if res.IsFailed() {
 		t.Fatalf("expected dry-run to succeed, got %+v", res)
 	}
 

@@ -61,7 +61,7 @@ func resolveFromCWD() string {
 }
 
 func promptForSourceRepo() (string, error) {
-	if !canPromptForPath() {
+	if !isPathPromptAllowed() {
 		return "", fmt.Errorf("%s", constants.ErrSelfReleaseNoRepo)
 	}
 
@@ -90,7 +90,7 @@ func promptForSourceRepo() (string, error) {
 	}
 }
 
-func canPromptForPath() bool {
+func isPathPromptAllowed() bool {
 	info, err := os.Stdin.Stat()
 	if err != nil {
 		return false

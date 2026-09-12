@@ -62,14 +62,14 @@ func runChromeProfileMerge(args []string) error {
 		fmt.Fprintf(os.Stderr, constants.ErrChromeMergeUnknown, *what)
 		cliexit.HandleError(nil, constants.ExitChromeProfileUsage)
 	}
-	src, ok := resolveChromeProfile(pos[0])
-	if !ok {
+	src, isSrcResolved := resolveChromeProfile(pos[0])
+	if !isSrcResolved {
 		fmt.Fprintf(os.Stderr, constants.ErrChromeProfileSrcMissing, pos[0], src.Path)
 		printAvailableChromeProfilesWithDisplay()
 		cliexit.HandleError(nil, constants.ExitChromeProfileNotFound)
 	}
-	dst, ok := resolveChromeProfile(pos[1])
-	if !ok {
+	dst, isDstResolved := resolveChromeProfile(pos[1])
+	if !isDstResolved {
 		fmt.Fprintf(os.Stderr, constants.ErrChromeProfileSrcMissing, pos[1], dst.Path)
 		printAvailableChromeProfilesWithDisplay()
 		cliexit.HandleError(nil, constants.ExitChromeProfileNotFound)
@@ -316,8 +316,8 @@ func mergeBookmarkFolder(src, dst map[string]any, label string, pol *mergePolicy
 	dstChildren, _ := dst["children"].([]any)
 	seen := bookmarkChildIndex(dstChildren)
 	for _, c := range srcChildren {
-		child, ok := c.(map[string]any)
-		if !ok {
+		child, isMap := c.(map[string]any)
+		if !isMap {
 			continue
 		}
 		key := bookmarkKey(child)
@@ -341,7 +341,8 @@ func mergeBookmarkFolder(src, dst map[string]any, label string, pol *mergePolicy
 func bookmarkChildIndex(children []any) map[string]struct{} {
 	out := map[string]struct{}{}
 	for _, c := range children {
-		if m, ok := c.(map[string]any); ok {
+		m, isMap := c.(map[string]any)
+		if isMap {
 			out[bookmarkKey(m)] = struct{}{}
 		}
 	}
@@ -349,12 +350,16 @@ func bookmarkChildIndex(children []any) map[string]struct{} {
 }
 
 func bookmarkKey(b map[string]any) string {
-	if u, ok := b["url"].(string); ok && u != "" {
+	u, isURL := b["url"].(string)
+	if isURL && u != "" {
 		return "u:" + u
 	}
-	if n, ok := b["name"].(string); ok {
+
+	n, isName := b["name"].(string)
+	if isName {
 		return "f:" + n
 	}
+
 	return ""
 }
 

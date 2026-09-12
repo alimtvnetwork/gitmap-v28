@@ -105,14 +105,15 @@ func runOnePullJob(rec model.ScanRecord, prog *cloner.BatchProgress,
 	if isSucceed {
 		prog.Succeed(rec.RepoName)
 	}
-	if !result.IsSuccess {
+	if result.IsFailed() {
 		prog.FailWithError(rec.RepoName, result.Error)
 	}
 
-	shouldStop := !result.IsSuccess && stopOnFail
-	if shouldStop {
+	isStopRequested := result.IsFailed() && stopOnFail
+	if isStopRequested {
 		*stopped = true
 	}
 	progMu.Unlock()
+
 	return nil
 }

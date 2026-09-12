@@ -62,9 +62,9 @@ func readYesNo() bool {
 	return answer == "y" || answer == "yes"
 }
 
-// shouldAutoBumpMinor reports whether the bare-release auto-bump path should
+// isAutoBumpEligible reports whether the bare-release auto-bump path should
 // fire: no explicit version, no --bump, no commit/branch override.
-func shouldAutoBumpMinor(version, bump, commit, branch string) bool {
+func isAutoBumpEligible(version, bump, commit, branch string) bool {
 	if len(version) > 0 || len(bump) > 0 {
 		return false
 	}

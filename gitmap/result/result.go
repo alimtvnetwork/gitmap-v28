@@ -35,11 +35,6 @@ func (r Result[T]) HasError() bool {
 	return r.Err != nil || r.AppError != nil
 }
 
-// HasNoError reports whether no error exists.
-func (r Result[T]) HasNoError() bool {
-	return r.Err == nil && r.AppError == nil
-}
-
 // HasValidError reports whether an AppError exists and is properly structured.
 func (r Result[T]) HasValidError() bool {
 	if r.Err != nil {

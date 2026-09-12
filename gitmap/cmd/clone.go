@@ -94,7 +94,7 @@ func runClone(args []string) error {
 	// Multi-URL form: any positional arg containing a comma, OR 2+ positional
 	// args where the second one looks like a URL. This catches PowerShell's
 	// silent comma-splitting of unquoted args (root cause of v3.78 regression).
-	if shouldUseMultiClone(cf) {
+	if isMultiCloneEnabled(cf) {
 		runCloneMulti(cf)
 		maybeExitOnCmdFaithfulMismatch()
 
@@ -114,7 +114,7 @@ func runClone(args []string) error {
 	return nil
 }
 
-// shouldUseMultiClone returns true when the positional args describe a
+// isMultiCloneEnabled returns true when the positional args describe a
 // batch of URLs rather than a single source + optional folder name.
 // Three triggers (any one is sufficient):
 //  1. Any positional arg contains a list separator (`,` or `;`) — the
@@ -124,7 +124,7 @@ func runClone(args []string) error {
 //     AND the `clone url1 url2 url3` space-only form.
 //  3. The first arg flattens (after sanitisation) to 2+ valid URLs —
 //     covers `clone "url1,url2"` where the whole list is one token.
-func shouldUseMultiClone(cf CloneFlags) bool {
+func isMultiCloneEnabled(cf CloneFlags) bool {
 	for _, p := range cf.Positional {
 		if strings.ContainsAny(p, urlListSeparators) {
 			return true

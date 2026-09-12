@@ -148,7 +148,8 @@ func resolvePathColumn(rows [][]string) (colIdx, startIdx int) {
 	}
 	for i, cell := range header {
 		key := strings.ToLower(strings.TrimSpace(cell))
-		if _, ok := pathHeaderAliases[key]; ok {
+		_, hasAlias := pathHeaderAliases[key]
+		if hasAlias {
 			return i, 1
 		}
 	}
@@ -164,7 +165,8 @@ func resolvePathColumn(rows [][]string) (colIdx, startIdx int) {
 func looksLikeHeader(row []string) bool {
 	for _, cell := range row {
 		key := strings.ToLower(strings.TrimSpace(cell))
-		if _, ok := pathHeaderAliases[key]; ok {
+		_, hasAlias := pathHeaderAliases[key]
+		if hasAlias {
 			return true
 		}
 	}

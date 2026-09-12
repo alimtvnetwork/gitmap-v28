@@ -51,8 +51,8 @@ func scrubChromePreferencesIdentity(root map[string]any, displayName string) {
 	delete(root, "signin")
 	delete(root, "google")
 	delete(root, "gaia_cookie")
-	prof, ok := root["profile"].(map[string]any)
-	if !ok {
+	prof, isProfileMap := root["profile"].(map[string]any)
+	if !isProfileMap {
 		prof = map[string]any{}
 		root["profile"] = prof
 	}
@@ -101,8 +101,8 @@ func patchImportedChromeProfilePreferencesWithOptions(dstPath, displayName strin
 }
 
 func applyPreferencesProfileName(root map[string]any, displayName string) {
-	prof, ok := root["profile"].(map[string]any)
-	if !ok {
+	prof, isProfileMap := root["profile"].(map[string]any)
+	if !isProfileMap {
 		prof = map[string]any{}
 		root["profile"] = prof
 	}
@@ -122,15 +122,15 @@ func scrubImportedPreferencesAuth(root map[string]any) {
 	root["signin"] = map[string]any{
 		"allowed": false,
 	}
-	browser, ok := root["browser"].(map[string]any)
-	if !ok {
+	browser, isBrowserMap := root["browser"].(map[string]any)
+	if !isBrowserMap {
 		browser = map[string]any{}
 		root["browser"] = browser
 	}
 	browser["has_seen_welcome_page"] = true
 
-	prof, ok := root["profile"].(map[string]any)
-	if ok {
+	prof, isProfileMap := root["profile"].(map[string]any)
+	if isProfileMap {
 		delete(prof, "gaia_info_picture_url")
 		delete(prof, "gaia_given_name")
 		delete(prof, "gaia_name")

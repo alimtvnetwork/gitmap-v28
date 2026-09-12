@@ -209,7 +209,7 @@ func TestLazyRegexp_CompileAppError(t *testing.T) {
 
 	valid := New(`^[a-z]+$`)
 	validRes := valid.CompileResult()
-	if !validRes.IsSuccess() {
+	if validRes.IsFailed() {
 		t.Errorf("expected valid pattern to succeed")
 	}
 	if validRes.HasError() {
@@ -356,7 +356,7 @@ func TestLazyRegexp_CheckExistingCompiledFirst(t *testing.T) {
 	}
 
 	res := lr.CompileResult()
-	if !res.IsSuccess() || res.Value != re1 {
+	if res.IsFailed() || res.Value != re1 {
 		t.Errorf("expected CompileResult to return existing compiled regex")
 	}
 

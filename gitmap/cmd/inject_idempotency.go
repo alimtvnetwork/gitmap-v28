@@ -68,10 +68,10 @@ func markInjected(absPath string, kind constants.InjectKindType) {
 	}
 }
 
-// shouldRunDesktop reports whether GitHub Desktop registration should
+// isDesktopRunnable reports whether GitHub Desktop registration should
 // run, and prints the skip notice when it shouldn't. `force` always
 // wins.
-func shouldRunDesktop(absPath string, ts store.InjectTimestamps, force bool) bool {
+func isDesktopRunnable(absPath string, ts store.InjectTimestamps, force bool) bool {
 	if force || len(ts.Desktop) == 0 {
 		return true
 	}
@@ -85,8 +85,8 @@ func shouldRunDesktop(absPath string, ts store.InjectTimestamps, force bool) boo
 	return false
 }
 
-// shouldRunVSCode mirrors shouldRunDesktop for the VS Code slot.
-func shouldRunVSCode(absPath string, ts store.InjectTimestamps, force bool) bool {
+// isVSCodeRunnable mirrors isDesktopRunnable for the VS Code slot.
+func isVSCodeRunnable(absPath string, ts store.InjectTimestamps, force bool) bool {
 	if force || len(ts.VSCode) == 0 {
 		return true
 	}

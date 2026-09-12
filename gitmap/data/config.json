@@ -13,7 +13,10 @@
       "*/testdata/*", "*/golden/*",
       "*/.gitmap/release/*", "*/.gitmap/release-assets/*",
       "gitmap/completion/allcommands_generated.go",
-      ".lovable/*"
+      ".lovable/*",
+      ".agents/*",
+      "01-prompts/*",
+      "conversation/*"
     ],
     "include": []
   }

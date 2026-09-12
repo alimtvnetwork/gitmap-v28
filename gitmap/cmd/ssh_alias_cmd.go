@@ -8,6 +8,7 @@ import (
 	"github.com/spf13/cobra"
 
 	"github.com/alimtvnetwork/gitmap-v28/gitmap/apperror"
+	"github.com/alimtvnetwork/gitmap-v28/gitmap/dbengine"
 	"github.com/alimtvnetwork/gitmap-v28/gitmap/store"
 )
 
@@ -40,29 +41,38 @@ func saveAliasCommand(ctx context.Context, ip string, alias string) error {
 	}
 	defer db.Close()
 
-	tx, err := db.Conn().BeginTx(ctx, nil)
-	if err != nil {
-		return apperror.WrapSimple(err, "saveAliasCommand")
+	wrapper, appErr := dbengine.WrapDb(db.Conn(), dbengine.DbSQLite)
+	if appErr != nil {
+		return appErr
 	}
-	defer tx.Rollback()
 
-	id := fmt.Sprintf("ssh-%d", time.Now().UnixNano())
+	return runSaveAliasTx(ctx, wrapper, ip, alias)
+}
+
+func runSaveAliasTx(ctx context.Context, wrapper *dbengine.DbWrapper, ip, alias string) error {
+	txErr := wrapper.WithTransaction(ctx, func(tx *dbengine.TxWrapper) *apperror.AppError {
+		return executeSaveAliasTx(ctx, tx, ip, alias)
+	})
+	if txErr != nil {
+		return txErr
+	}
+
+	fmt.Printf("Successfully saved alias %s for %s\n", alias, ip)
+
+	return nil
+}
+
+func executeSaveAliasTx(ctx context.Context, tx *dbengine.TxWrapper, ip, alias string) *apperror.AppError {
 	host := store.SSHHost{
-		ID:        id,
+		ID:        fmt.Sprintf("ssh-%d", time.Now().UnixNano()),
 		Alias:     alias,
 		IP:        ip,
 		Username:  "",
 		CreatedAt: time.Now().UTC(),
 	}
-
-	if err := store.InsertSSHHost(ctx, host, tx); err != nil {
+	if err := store.InsertSSHHost(ctx, host, tx.Tx()); err != nil {
 		return apperror.WrapSimple(err, "saveAliasCommand")
 	}
 
-	if err := tx.Commit(); err != nil {
-		return apperror.WrapSimple(err, "saveAliasCommand")
-	}
-
-	fmt.Printf("Successfully saved alias %s for %s\n", alias, ip)
 	return nil
 }

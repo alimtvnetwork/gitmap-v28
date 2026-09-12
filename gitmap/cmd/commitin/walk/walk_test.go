@@ -73,13 +73,13 @@ func fakeRunner(_, sub string, args ...string) (string, error) {
 func fakeShow(args []string) (string, error) {
 	isNameOnly := hasArg(args, "--name-only")
 	isAaa := hasArg(args, "aaa")
-	if isNameOnly == true && isAaa == true {
+	if isNameOnly && isAaa {
 		return "main.go\nREADME.md", nil
 	}
-	if isNameOnly == true {
+	if isNameOnly {
 		return "src/lib.go", nil
 	}
-	if isAaa == true {
+	if isAaa {
 		return strings.Join([]string{"alice", "alice@x", "2024-01-02T03:04:05+00:00", "2024-01-02T03:04:06+00:00", "first", "body-line"}, "\x1f"), nil
 	}
 	return strings.Join([]string{"bob", "bob@x", "2024-02-03T04:05:06+02:00", "2024-02-03T04:05:07+02:00", "second", ""}, "\x1f"), nil

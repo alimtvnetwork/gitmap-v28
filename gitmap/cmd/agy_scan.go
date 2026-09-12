@@ -68,7 +68,7 @@ func discoverGitRepos(root string) []string {
 			return nil
 		}
 		name := info.Name()
-		if shouldSkipScanDir(name) {
+		if isSkippableScanDir(name) {
 			return filepath.SkipDir
 		}
 		if checkDirExists(filepath.Join(path, ".git")) {
@@ -77,16 +77,18 @@ func discoverGitRepos(root string) []string {
 		}
 		return nil
 	})
+
 	return repos
 }
 
-func shouldSkipScanDir(name string) bool {
+func isSkippableScanDir(name string) bool {
 	skipNames := []string{".git", "node_modules", "vendor", ".gemini", "dist", "bin", "temp", "obj"}
 	for _, skip := range skipNames {
 		if strings.EqualFold(name, skip) {
 			return true
 		}
 	}
+
 	return false
 }
 

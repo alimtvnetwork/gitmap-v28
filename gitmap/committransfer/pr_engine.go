@@ -20,7 +20,7 @@ func ProcessPR(
 	prMode,
 	newSHA string,
 ) error {
-	if !shouldCreatePR(originalSubject, prMode) {
+	if !isPRCreationEnabled(originalSubject, prMode) {
 		return nil
 	}
 	branchName := fmt.Sprintf("pr/replay-%s-%d", shortSHA, time.Now().Unix())
@@ -35,10 +35,11 @@ func ProcessPR(
 		return err
 	}
 	pterm.Success.Printf("Merged PR for %s\n", shortSHA)
+
 	return nil
 }
 
-func shouldCreatePR(subject, prMode string) bool {
+func isPRCreationEnabled(subject, prMode string) bool {
 	if prMode == "all" {
 		return true
 	}
@@ -48,6 +49,7 @@ func shouldCreatePR(subject, prMode string) bool {
 	if prMode == "tags" && isTag {
 		return true
 	}
+
 	return prMode == "release" && isRelease
 }
 

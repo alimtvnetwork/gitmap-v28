@@ -49,7 +49,7 @@ func runPush(args []string) error {
 		initVerboseLog()
 	}
 
-	if shouldPushCWD(opts) {
+	if isPushCWDEnabled(opts) {
 		fmt.Println("  ↳ cwd is a git repo — running plain `git push` here")
 		runPushCWD(rest)
 		return nil
@@ -90,12 +90,13 @@ func runPush(args []string) error {
 	return nil
 }
 
-// shouldPushCWD reports whether `gitmap push` was invoked with no targeting flags
+// isPushCWDEnabled reports whether `gitmap push` was invoked with no targeting flags
 // AND the current working directory is a git repo.
-func shouldPushCWD(opts pushOptions) bool {
+func isPushCWDEnabled(opts pushOptions) bool {
 	if opts.slug != "" || opts.group != "" || opts.all || HasAlias() {
 		return false
 	}
+
 	return isGitRepoCWD()
 }
 
@@ -216,16 +217,19 @@ func executePush(records []model.ScanRecord, prog *cloner.BatchProgress, opts pu
 func pushOneRepoTracked(rec model.ScanRecord, prog *cloner.BatchProgress) {
 	if cloner.IsMissingRepo(rec.AbsolutePath) {
 		prog.Skip(rec.RepoName)
+
 		return
 	}
 
 	result := cloner.SafePushOne(rec, rec.AbsolutePath)
-	if !result.IsSuccess {
+	if result.IsFailed() {
 		prog.FailWithError(rec.RepoName, result.Error)
+
 		return
 	}
 	if result.Notes == "up-to-date" {
 		prog.UpToDate(rec.RepoName)
+
 		return
 	}
 	prog.Succeed(rec.RepoName)

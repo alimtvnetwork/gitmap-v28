@@ -23,6 +23,16 @@ type commandExecutionResult struct {
 	Err                         error
 }
 
+func (r commandExecutionResult) IsFailed() bool {
+
+	return !r.IsSuccess
+}
+
+func (r commandExecutionResult) IsFail() bool {
+
+	return !r.IsSuccess
+}
+
 func executeCommandWithAudit(args []string, verbose bool) commandExecutionResult {
 	cmd, stdoutBuf, stderrBuf := prepareAuditCmd(args, verbose)
 	start := time.Now()

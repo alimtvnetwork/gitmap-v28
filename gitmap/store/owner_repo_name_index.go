@@ -6,11 +6,13 @@
 package store
 
 import (
+	"context"
 	"database/sql"
 	"time"
 
 	"github.com/alimtvnetwork/gitmap-v28/gitmap/apperror"
 	"github.com/alimtvnetwork/gitmap-v28/gitmap/constants"
+	"github.com/alimtvnetwork/gitmap-v28/gitmap/dbengine"
 	"github.com/alimtvnetwork/gitmap-v28/gitmap/visibility"
 )
 
@@ -23,39 +25,41 @@ func (db *DB) UpsertOwnerRepoNameIndex(
 	names []string,
 	fetchedAt time.Time,
 ) error {
-	tx, err := db.conn.Begin()
-	if err != nil {
-		return apperror.WrapSimple(err, "begin tx owner repo index")
-	}
-	defer tx.Rollback()
-
-	if err := populateOwnerRepoIndexTx(tx, provider, owner, names, fetchedAt); err != nil {
-		return err
+	wrap, appErr := dbengine.WrapDb(db.conn, dbengine.DbSQLite)
+	if appErr != nil {
+		return appErr
 	}
 
-	if commitErr := tx.Commit(); commitErr != nil {
-		return apperror.WrapSimple(commitErr, "commit owner repo name index")
+	ctx := context.Background()
+	appErr = wrap.WithTransaction(ctx, func(tx *dbengine.TxWrapper) *apperror.AppError {
+		return populateOwnerRepoIndexTx(ctx, tx, provider, owner, names, fetchedAt)
+	})
+	if appErr != nil {
+		return appErr
 	}
 
 	return nil
 }
 
 func populateOwnerRepoIndexTx(
-	tx *sql.Tx,
+	ctx context.Context,
+	tx *dbengine.TxWrapper,
 	provider,
 	owner string,
 	names []string,
 	fetchedAt time.Time,
-) error {
-	if _, err := tx.Exec(`DELETE FROM OwnerRepoNameIndex WHERE Provider=? AND Owner=?`, provider, owner); err != nil {
-		return apperror.WrapSimple(err, "delete existing owner repo index")
+) *apperror.AppError {
+	delQuery := `DELETE FROM OwnerRepoNameIndex WHERE Provider=? AND Owner=?`
+	if _, appErr := tx.Exec(ctx, delQuery, provider, owner); appErr != nil {
+		return apperror.WrapSimple(appErr, "delete existing owner repo index")
 	}
 
-	stmt, err := tx.Prepare(`INSERT INTO OwnerRepoNameIndex
+	insQuery := `INSERT INTO OwnerRepoNameIndex
 		(Provider, Owner, RepoName, BaseName, VersionNumber, FetchedAt)
-		VALUES (?, ?, ?, ?, ?, ?)`)
-	if err != nil {
-		return apperror.WrapSimple(err, "prepare insert owner repo index")
+		VALUES (?, ?, ?, ?, ?, ?)`
+	stmt, appErr := tx.Prepare(ctx, insQuery)
+	if appErr != nil {
+		return apperror.WrapSimple(appErr, "prepare insert owner repo index")
 	}
 	defer stmt.Close()
 
@@ -68,14 +72,15 @@ func insertOwnerRepoNames(
 	owner string,
 	names []string,
 	fetchedAt time.Time,
-) error {
+) *apperror.AppError {
 	ts := fetchedAt.UTC().Format(time.RFC3339Nano)
 	for _, n := range names {
-		base, ver, ok := visibility.ParseRepoNameMeta(n)
-		if !ok {
+		base, ver, hasMeta := visibility.ParseRepoNameMeta(n)
+		if hasMeta == false {
 			base = n
 			ver = -1
 		}
+
 		if _, err := stmt.Exec(provider, owner, n, base, ver, ts); err != nil {
 			return apperror.WrapSimple(err, "insert owner repo index row")
 		}

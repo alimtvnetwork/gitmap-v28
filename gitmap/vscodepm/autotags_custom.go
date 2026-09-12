@@ -101,7 +101,8 @@ func customOnly(hits map[string]struct{}, order []string) []string {
 		if _, dup := seen[t]; dup {
 			continue
 		}
-		if _, ok := hits[t]; !ok {
+		_, isHit := hits[t]
+		if !isHit {
 			continue
 		}
 		seen[t] = struct{}{}
@@ -184,9 +185,9 @@ func parseMarkerEnv() map[string]string {
 	}
 	out := make(map[string]string, len(raw))
 	for _, kv := range raw {
-		k, v, ok := strings.Cut(kv, constants.TagMarkerKVSeparator)
+		k, v, hasSep := strings.Cut(kv, constants.TagMarkerKVSeparator)
 		k, v = strings.TrimSpace(k), strings.TrimSpace(v)
-		if !ok || k == "" || v == "" {
+		if !hasSep || k == "" || v == "" {
 			continue
 		}
 		out[k] = v

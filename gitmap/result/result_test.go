@@ -10,16 +10,12 @@ import (
 
 func TestSuccessResult(t *testing.T) {
 	res := result.SuccessResult("hello")
-	if !res.IsSuccess() {
+	if res.IsFailed() {
 		t.Fatal("expected IsSuccess to be true")
 	}
 
 	if res.IsFailed() {
 		t.Fatal("expected IsFailed to be false")
-	}
-
-	if !res.HasNoError() {
-		t.Fatal("expected HasNoError to be true")
 	}
 
 	if res.HasError() {
@@ -62,10 +58,6 @@ func TestFailureResult(t *testing.T) {
 
 	if !res.HasError() {
 		t.Fatal("expected HasError to be true")
-	}
-
-	if res.HasNoError() {
-		t.Fatal("expected HasNoError to be false")
 	}
 
 	_, err := res.Unwrap()

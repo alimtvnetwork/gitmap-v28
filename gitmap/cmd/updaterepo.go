@@ -107,8 +107,8 @@ func isGitmapSourceRepo(path string) bool {
 	return fsutil.FileExists(filepath.Join(path, "constants", "constants.go"))
 }
 
-// canPromptForRepoPath checks whether stdin is interactive.
-func canPromptForRepoPath() bool {
+// isRepoPathPromptAllowed checks whether stdin is interactive.
+func isRepoPathPromptAllowed() bool {
 	info, err := os.Stdin.Stat()
 	if err != nil {
 		return false
@@ -120,7 +120,7 @@ func canPromptForRepoPath() bool {
 // promptRepoPath asks the user to enter the source repo path interactively.
 // If the path does not exist, it clones the gitmap repo into that location.
 func promptRepoPath() string {
-	isNonPromptForRepoPath := !canPromptForRepoPath()
+	isNonPromptForRepoPath := !isRepoPathPromptAllowed()
 	if isNonPromptForRepoPath {
 		return ""
 	}

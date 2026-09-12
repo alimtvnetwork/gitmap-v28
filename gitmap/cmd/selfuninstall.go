@@ -36,7 +36,7 @@ func runSelfUninstall(args []string) error {
 		fmt.Fprint(os.Stderr, constants.ErrSelfUninstallNoConfirm)
 		return apperror.NewSimple("fatal error", "E9000")
 	}
-	if shouldHandoffSelfUninstall() {
+	if isSelfUninstallHandoffNeeded() {
 		handoffSelfUninstall(opts, args)
 		return nil
 	}
@@ -115,10 +115,10 @@ func executeSelfUninstall(opts selfUninstallOpts) {
 	fmt.Print(constants.MsgSelfUninstallDone)
 }
 
-// shouldHandoffSelfUninstall reports whether the running binary lives
+// isSelfUninstallHandoffNeeded reports whether the running binary lives
 // inside the directory we are about to delete (Windows only — on Unix
 // we can unlink an open file safely).
-func shouldHandoffSelfUninstall() bool {
+func isSelfUninstallHandoffNeeded() bool {
 	if runtime.GOOS != "windows" {
 		return false
 	}

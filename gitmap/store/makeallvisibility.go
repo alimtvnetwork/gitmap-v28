@@ -15,10 +15,12 @@
 package store
 
 import (
-	"database/sql"
+	"context"
 	"fmt"
 
+	"github.com/alimtvnetwork/gitmap-v28/gitmap/apperror"
 	"github.com/alimtvnetwork/gitmap-v28/gitmap/constants"
+	"github.com/alimtvnetwork/gitmap-v28/gitmap/dbengine"
 	"github.com/alimtvnetwork/gitmap-v28/gitmap/model"
 )
 
@@ -41,44 +43,61 @@ func (db *DB) InsertMakeAllVisibilityRun(r model.MakeAllVisibilityRunRecord) (in
 // in input order so callers can later UPDATE by primary key without
 // re-querying.
 func (db *DB) InsertMakeAllVisibilityPendingResults(runID int64, rows []model.MakeAllVisibilityResultRecord) ([]int64, error) {
-	tx, err := db.conn.Begin()
-	if err != nil {
-		return nil, fmt.Errorf(constants.ErrMakeAllResultInsertFmt, err, err.Error())
-	}
-	defer tx.Rollback()
-
-	ids, err := insertPendingResultsInTx(tx, runID, rows)
-	if err != nil {
-		return nil, err
+	wrap, appErr := dbengine.WrapDb(db.conn, dbengine.DbSQLite)
+	if appErr != nil {
+		return nil, fmt.Errorf(constants.ErrMakeAllResultInsertFmt, appErr, appErr.Error())
 	}
 
-	if commitErr := tx.Commit(); commitErr != nil {
-		return nil, fmt.Errorf(constants.ErrMakeAllResultInsertFmt, commitErr, commitErr.Error())
+	var ids []int64
+	ctx := context.Background()
+	appErr = wrap.WithTransaction(ctx, func(tx *dbengine.TxWrapper) *apperror.AppError {
+		var err *apperror.AppError
+		ids, err = insertPendingResultsInTx(ctx, tx, runID, rows)
+
+		return err
+	})
+	if appErr != nil {
+		return nil, fmt.Errorf(constants.ErrMakeAllResultInsertFmt, appErr, appErr.Error())
 	}
 
 	return ids, nil
 }
 
-// insertPendingResultsInTx is the per-row insert loop. Extracted so the
-// outer function stays under the 15-line cap and the loop is testable
-// against an injected tx in unit tests.
+func insertPendingRow(
+	ctx context.Context,
+	tx *dbengine.TxWrapper,
+	runID int64,
+	r model.MakeAllVisibilityResultRecord,
+) (int64, *apperror.AppError) {
+	res, appErr := tx.Exec(ctx, constants.SQLInsertMakeAllVisibilityResult,
+		runID, r.RepoName, r.MatchedPattern,
+		constants.ResultStatusPending, r.StartedAt)
+	if appErr != nil {
+		return 0, appErr
+	}
+
+	id, idErr := res.LastInsertId()
+	if idErr != nil {
+		return 0, apperror.WrapSimple(idErr, "last insert id")
+	}
+
+	return id, nil
+}
+
+// insertPendingResultsInTx is the per-row insert loop executed within a transaction.
 func insertPendingResultsInTx(
-	tx txExecer,
+	ctx context.Context,
+	tx *dbengine.TxWrapper,
 	runID int64,
 	rows []model.MakeAllVisibilityResultRecord,
-) ([]int64, error) {
+) ([]int64, *apperror.AppError) {
 	ids := make([]int64, 0, len(rows))
 	for _, r := range rows {
-		res, err := tx.Exec(constants.SQLInsertMakeAllVisibilityResult,
-			runID, r.RepoName, r.MatchedPattern,
-			constants.ResultStatusPending, r.StartedAt)
-		if err != nil {
-			return nil, fmt.Errorf(constants.ErrMakeAllResultInsertFmt, err, err.Error())
+		id, appErr := insertPendingRow(ctx, tx, runID, r)
+		if appErr != nil {
+			return nil, appErr
 		}
-		id, idErr := res.LastInsertId()
-		if idErr != nil {
-			return nil, fmt.Errorf(constants.ErrMakeAllResultInsertFmt, idErr, idErr.Error())
-		}
+
 		ids = append(ids, id)
 	}
 
@@ -88,26 +107,32 @@ func insertPendingResultsInTx(
 // MarkMakeAllVisibilityResultsExcluded flips the given result rows to
 // Status='Excluded' with FinishedAt = now. Single tx for atomicity.
 func (db *DB) MarkMakeAllVisibilityResultsExcluded(ids []int64, finishedAt string) error {
-	if len(ids) == 0 {
+	isMissing := len(ids) == 0
+	if isMissing {
 		return nil
 	}
-	tx, err := db.conn.Begin()
-	if err != nil {
-		return fmt.Errorf(constants.ErrMakeAllResultExcludeFmt, err, err.Error())
-	}
-	defer tx.Rollback()
 
-	if err := markIdsExcludedInTx(tx, ids, finishedAt); err != nil {
-		return err
+	wrap, appErr := dbengine.WrapDb(db.conn, dbengine.DbSQLite)
+	if appErr != nil {
+		return fmt.Errorf(constants.ErrMakeAllResultExcludeFmt, appErr, appErr.Error())
 	}
 
-	return commitOrWrap(tx, constants.ErrMakeAllResultExcludeFmt)
+	ctx := context.Background()
+	appErr = wrap.WithTransaction(ctx, func(tx *dbengine.TxWrapper) *apperror.AppError {
+		return markIdsExcludedInTx(ctx, tx, ids, finishedAt)
+	})
+	if appErr != nil {
+		return fmt.Errorf(constants.ErrMakeAllResultExcludeFmt, appErr, appErr.Error())
+	}
+
+	return nil
 }
 
-func markIdsExcludedInTx(tx *sql.Tx, ids []int64, finishedAt string) error {
+func markIdsExcludedInTx(ctx context.Context, tx *dbengine.TxWrapper, ids []int64, finishedAt string) *apperror.AppError {
 	for _, id := range ids {
-		if _, execErr := tx.Exec(constants.SQLUpdateMakeAllVisibilityResultExcluded, finishedAt, id); execErr != nil {
-			return fmt.Errorf(constants.ErrMakeAllResultExcludeFmt, execErr, execErr.Error())
+		_, appErr := tx.Exec(ctx, constants.SQLUpdateMakeAllVisibilityResultExcluded, finishedAt, id)
+		if appErr != nil {
+			return appErr
 		}
 	}
 

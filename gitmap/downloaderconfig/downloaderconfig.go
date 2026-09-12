@@ -25,14 +25,17 @@ import (
 	"github.com/alimtvnetwork/gitmap-v28/gitmap/result"
 )
 
-type ConfigKey string
+type ConfigKeyType string
+
+// ConfigKey is a backward-compatible alias for ConfigKeyType.
+type ConfigKey = ConfigKeyType
 
 const (
-	KeyDefaultSplitSize   ConfigKey = "DownloaderConfig.DefaultSplitSize"
-	KeyLargeFileSplitSize ConfigKey = "DownloaderConfig.LargeFileSplitSize"
-	KeyLargeFileThreshold ConfigKey = "DownloaderConfig.LargeFileThreshold"
-	KeyTinyFileThreshold  ConfigKey = "DownloaderConfig.TinyFileThreshold"
-	KeyTinyFileSplitSize  ConfigKey = "DownloaderConfig.TinyFileSplitSize"
+	KeyDefaultSplitSize   ConfigKeyType = "DownloaderConfig.DefaultSplitSize"
+	KeyLargeFileSplitSize ConfigKeyType = "DownloaderConfig.LargeFileSplitSize"
+	KeyLargeFileThreshold ConfigKeyType = "DownloaderConfig.LargeFileThreshold"
+	KeyTinyFileThreshold  ConfigKeyType = "DownloaderConfig.TinyFileThreshold"
+	KeyTinyFileSplitSize  ConfigKeyType = "DownloaderConfig.TinyFileSplitSize"
 )
 
 // Document is the top-level Seedable-Config envelope. Field names are

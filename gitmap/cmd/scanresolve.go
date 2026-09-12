@@ -49,7 +49,7 @@ func resolveScanTarget(raw string) string {
 		cliexit.HandleError(nil, 1)
 	}
 
-	if shouldAnnounceResolve(original, abs) {
+	if isAnnounceResolveNeeded(original, abs) {
 		fmt.Fprintf(os.Stderr, constants.MsgScanResolvedDir, original, abs)
 	}
 
@@ -74,11 +74,11 @@ func expandHome(p string) string {
 	return filepath.Join(home, p[2:])
 }
 
-// shouldAnnounceResolve decides whether to print the "resolved" hint. We
+// isAnnounceResolveNeeded decides whether to print the "resolved" hint. We
 // only print it when the user typed something that materially differs from
 // the absolute target (relative segments, "~", trailing dots) — printing
 // it for an already-absolute path would be noise.
-func shouldAnnounceResolve(original, abs string) bool {
+func isAnnounceResolveNeeded(original, abs string) bool {
 	if original == "" || original == abs {
 		return false
 	}

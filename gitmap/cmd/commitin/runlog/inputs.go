@@ -1,10 +1,13 @@
 package runlog
 
 import (
+	"context"
 	"database/sql"
 	"fmt"
 
+	"github.com/alimtvnetwork/gitmap-v28/gitmap/apperror"
 	"github.com/alimtvnetwork/gitmap-v28/gitmap/constants"
+	"github.com/alimtvnetwork/gitmap-v28/gitmap/dbengine"
 )
 
 // InsertInputRepo persists one staged input. Returns the new
@@ -25,6 +28,7 @@ func InsertInputRepo(
 	if err != nil {
 		return 0, fmt.Errorf("runlog: insert InputRepo: %w", err)
 	}
+
 	return res.LastInsertId()
 }
 
@@ -32,21 +36,26 @@ func InsertInputRepo(
 // both writes in a single transaction so a partial insert never
 // leaves orphaned rows.
 func InsertSourceCommit(db *sql.DB, inputRepoID int64, c SourceCommitRow) (int64, error) {
-	tx, err := db.Begin()
-	if err != nil {
-		return 0, fmt.Errorf("runlog: begin tx: %w", err)
-	}
-	defer tx.Rollback()
-
-	id, err := executeCommitInsertTx(tx, inputRepoID, c)
-	if err != nil {
-		return 0, err
+	wrapper, appErr := dbengine.WrapDb(db, dbengine.DbSQLite)
+	if appErr != nil {
+		return 0, fmt.Errorf("runlog: wrap db: %w", appErr)
 	}
 
-	return id, commitRunlogTx(tx)
+	var id int64
+	txErr := wrapper.WithTransaction(context.Background(), func(tx *dbengine.TxWrapper) *apperror.AppError {
+		var err *apperror.AppError
+		id, err = executeCommitInsertTx(tx, inputRepoID, c)
+
+		return err
+	})
+	if txErr != nil {
+		return 0, txErr
+	}
+
+	return id, nil
 }
 
-func executeCommitInsertTx(tx *sql.Tx, inputRepoID int64, c SourceCommitRow) (int64, error) {
+func executeCommitInsertTx(tx *dbengine.TxWrapper, inputRepoID int64, c SourceCommitRow) (int64, *apperror.AppError) {
 	id, err := insertSourceCommitTx(tx, inputRepoID, c)
 	if err != nil {
 		return 0, err
@@ -58,34 +67,35 @@ func executeCommitInsertTx(tx *sql.Tx, inputRepoID int64, c SourceCommitRow) (in
 	return id, nil
 }
 
-func commitRunlogTx(tx *sql.Tx) error {
-	if err := tx.Commit(); err != nil {
-		return fmt.Errorf("runlog: commit tx: %w", err)
-	}
-
-	return nil
-}
-
 // insertSourceCommitTx writes the SourceCommit row only.
-func insertSourceCommitTx(tx *sql.Tx, inputRepoID int64, c SourceCommitRow) (int64, error) {
-	res, err := tx.Exec(sqlInsertSourceCommit,
+func insertSourceCommitTx(tx *dbengine.TxWrapper, inputRepoID int64, c SourceCommitRow) (int64, *apperror.AppError) {
+	res, err := tx.Exec(
+		context.Background(), sqlInsertSourceCommit,
 		inputRepoID, c.Sha, c.AuthorName, c.AuthorEmail,
 		c.AuthorDateRFC3339, c.CommitterDateRFC3339,
 		c.OriginalMessage, c.OrderIndex,
 	)
 	if err != nil {
-		return 0, fmt.Errorf("runlog: insert SourceCommit %s: %w", c.Sha, err)
+		return 0, apperror.WrapSimple(err, fmt.Sprintf("runlog: insert SourceCommit %s", c.Sha))
 	}
-	return res.LastInsertId()
+
+	rowID, idErr := res.LastInsertId()
+	if idErr != nil {
+		return 0, apperror.WrapSimple(idErr, "get last insert id for source commit")
+	}
+
+	return rowID, nil
 }
 
 // insertSourceFilesTx batch-writes one row per touched file.
-func insertSourceFilesTx(tx *sql.Tx, sourceCommitID int64, files []string) error {
+func insertSourceFilesTx(tx *dbengine.TxWrapper, sourceCommitID int64, files []string) *apperror.AppError {
+	ctx := context.Background()
 	for _, rel := range files {
-		if _, err := tx.Exec(sqlInsertSourceFile, sourceCommitID, rel); err != nil {
-			return fmt.Errorf("runlog: insert SourceCommitFile %q: %w", rel, err)
+		if _, err := tx.Exec(ctx, sqlInsertSourceFile, sourceCommitID, rel); err != nil {
+			return apperror.WrapSimple(err, fmt.Sprintf("runlog: insert SourceCommitFile %q", rel))
 		}
 	}
+
 	return nil
 }
 

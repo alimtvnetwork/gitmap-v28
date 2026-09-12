@@ -44,10 +44,10 @@ func TestParseFixRepoGofmtMaxCmdLen(t *testing.T) {
 	for _, tc := range cases {
 		t.Run(tc.name, func(t *testing.T) {
 			opts, err := parseFixRepoArgs(tc.args)
-			if tc.wantErr == true && err == nil {
+			if tc.wantErr && err == nil {
 				t.Fatalf("expected error, got opts=%+v", opts)
 			}
-			if tc.wantErr == true {
+			if tc.wantErr {
 				return
 			}
 			if err != nil {

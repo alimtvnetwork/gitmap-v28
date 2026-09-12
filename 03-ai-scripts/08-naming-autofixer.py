@@ -40,11 +40,20 @@ def find_explicit_true_violations(content: str) -> list[tuple[int, str]]:
         RegexPatternType.EXPLICIT_PYTHON_TRUE,
     )
     violations = []
+    is_docstring = False
     for idx, line in enumerate(content.split(LINE_SEPARATOR), start=1):
+        stripped = line.strip()
+        if stripped.startswith('"""') or stripped.startswith("'''"):
+            if stripped.count('"""') % 2 != 0 or stripped.count("'''") % 2 != 0:
+                is_docstring = not is_docstring
+            continue
+        if is_docstring:
+            if '"""' in stripped or "'''" in stripped:
+                is_docstring = False
+            continue
         is_comment = bool(re_comment.match(line))
         if is_comment:
             continue
-        stripped = line.strip()
         has_violation = any(pat.search(line) for pat in explicit_patterns)
         if has_violation:
             violations.append((idx, stripped))

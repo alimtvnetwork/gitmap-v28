@@ -4,7 +4,7 @@ package clonefrom
 //
 // We exercise the worker pool WITHOUT a real `git` binary by
 // pre-creating each row's destination as a non-empty directory.
-// executeRow's shouldSkip short-circuits these as `skipped`, so
+// executeRow's isSkippable short-circuits these as `skipped`, so
 // the network/exec layer is bypassed but the pool's ordering,
 // hook-firing, and progress-emission contracts are still exercised.
 //

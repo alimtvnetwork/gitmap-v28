@@ -51,7 +51,7 @@ func walkRepoOnce(repoPath string) repoHits {
 		if err != nil {
 			return nil
 		}
-		if info.IsDir() && shouldExcludeDir(info.Name()) {
+		if info.IsDir() && isExcludedDir(info.Name()) {
 			return filepath.SkipDir
 		}
 		if info.IsDir() {
@@ -123,8 +123,8 @@ func detectFile(
 	detectCsharpFile(name, dir, repoPath, repoID, repoName, slnDirs, results)
 }
 
-// shouldExcludeDir checks if a directory name should be skipped.
-func shouldExcludeDir(name string) bool {
+// isExcludedDir checks if a directory name should be skipped.
+func isExcludedDir(name string) bool {
 	if strings.HasPrefix(name, constants.CMakeBuildPfx) {
 		return true
 	}

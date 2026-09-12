@@ -23,7 +23,8 @@ EXCLUDE_DIRS = {
 # Regex patterns
 EXPLICIT_BOOL_REGEX = re.compile(r'\b(==\s*true|===\s*true|==\s*false|===\s*false)\b')
 NEGATIVE_BOOL_NAME_REGEX = re.compile(r'\b(isNot[A-Z]\w*|hasNo[A-Z]\w*)\b')
-INVERTED_SUCCESS_REGEX = re.compile(r'!\s*(?:[a-zA-Z0-9_$.->]+\.)?\bisSuccess\b')
+INVERTED_SUCCESS_REGEX = re.compile(r'!\s*(?:[a-zA-Z0-9_$.->]+\.)?[iI]sSuccess\b')
+BANNED_FUNC_PREFIX_REGEX = re.compile(r'\bfunc\s+(?:(?:\([a-zA-Z0-9_*]+\)\s+)?)(can[A-Z]\w*|should[A-Z]\w*)\s*\([^)]*\)\s*bool\b')
 MIXED_POLARITY_REGEX = re.compile(r'\bif\b[^;{}]*?(?:&&|\band\b)\s*![a-zA-Z0-9_$.->]+')
 
 
@@ -148,11 +149,18 @@ def scan_file(filepath: Path) -> list[tuple[int, str]]:
     ext = filepath.suffix.lower()
     stripped_lines = strip_comments_and_strings(content, ext)
     violations = []
+    in_fail_method = False
 
     for line_num, line in stripped_lines:
         s = line.strip()
         if not s:
             continue
+
+        is_fail_def = False
+        if ext == '.go':
+            if re.search(r'\bfunc\s+(?:\([^)]+\)\s+)?(?:IsFail|IsFailed)\b', line):
+                in_fail_method = True
+                is_fail_def = True
 
         # 1. Explicit boolean comparisons
         m_exp = EXPLICIT_BOOL_REGEX.search(line)
@@ -165,9 +173,18 @@ def scan_file(filepath: Path) -> list[tuple[int, str]]:
             violations.append((line_num, f"Negative boolean variable name ({m_neg.group(1)}): {s}"))
 
         # 3. Inverted success check
-        m_succ = INVERTED_SUCCESS_REGEX.search(line)
-        if m_succ:
-            violations.append((line_num, f"Inverted success check (!isSuccess): {s}"))
+        if not in_fail_method:
+            m_succ = INVERTED_SUCCESS_REGEX.search(line)
+            if m_succ:
+                violations.append((line_num, f"Inverted success check (!isSuccess): {s}"))
+
+        # 4. Banned function prefixes returning bool
+        m_func = BANNED_FUNC_PREFIX_REGEX.search(line)
+        if m_func:
+            violations.append((line_num, f"Banned function prefix returning bool ({m_func.group(1)}): {s}"))
+
+        if ext == '.go' and in_fail_method and '}' in line and (not is_fail_def or '{' in line):
+            in_fail_method = False
 
     return violations
 

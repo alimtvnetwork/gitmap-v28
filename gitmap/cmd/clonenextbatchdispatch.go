@@ -6,7 +6,7 @@ import (
 	"github.com/alimtvnetwork/gitmap-v28/gitmap/clonenext"
 )
 
-// shouldRunBatch decides whether `gitmap cn` should fan out across
+// isBatchRunnable decides whether `gitmap cn` should fan out across
 // multiple repos. Three triggers, evaluated in priority order:
 //
 //  1. Explicit `--csv <path>` flag.
@@ -28,7 +28,7 @@ import (
 // the implicit check — the dispatcher then falls through to the
 // single-repo path, which already prints a clear "no remote" error
 // when the user really is sitting in a non-repo directory.
-func shouldRunBatch(flags CloneNextFlags, cwd string) bool {
+func isBatchRunnable(flags CloneNextFlags, cwd string) bool {
 	if len(flags.CSVPath) > 0 || flags.All {
 		return true
 	}

@@ -4,11 +4,14 @@ Master directory of architectural and execution plans.
 
 ## Pending Plans
 
-- [96-booleans-and-complex-conditions-audit.md](pending/96-booleans-and-complex-conditions-audit.md): Boolean Principles, Negatives & Complex Conditions Coding Guideline Refactoring
-- [97-db-transaction-mechanism-and-package-unification.md](pending/97-db-transaction-mechanism-and-package-unification.md): DB Transaction Mechanism & Package Repo-Wide Unification
+*(None)*
 
 ## Completed Plans (Consolidated Milestones)
 
+- [99-constants-and-enums-architecture.md](completed/99-constants-and-enums-architecture.md): Constants & Enums Architecture Audit (*Type suffix, rune ban, constants centralization)
+- [98-naming-conventions-and-anti-ok-variables.md](completed/98-naming-conventions-and-anti-ok-variables.md): Naming Conventions, Affirmative Boolean Prefixes & Anti-Ok Variables Audit
+- [97-db-transaction-mechanism-and-package-unification.md](completed/97-db-transaction-mechanism-and-package-unification.md): DB Transaction Mechanism & Package Repo-Wide Unification
+- [96-booleans-and-complex-conditions-audit.md](completed/96-booleans-and-complex-conditions-audit.md): Boolean Principles, Negatives & Complex Conditions Coding Guideline Refactoring
 - [95-nested-if-elimination-and-guard-clauses.md](completed/95-nested-if-elimination-and-guard-clauses.md): Nested If Elimination & Guard Clauses Coding Guideline Refactoring
 - [94-error-management-and-apperror-architecture.md](completed/94-error-management-and-apperror-architecture.md): Repo-wide Error Management & Architecture Coding Guideline Refactoring
 - [93-db-transaction-mechanism-repo-wide-confirmation.md](completed/93-db-transaction-mechanism-repo-wide-confirmation.md): Repo-wide Database Transaction Package & Mechanism Confirmation

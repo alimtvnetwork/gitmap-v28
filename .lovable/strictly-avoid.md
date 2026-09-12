@@ -355,9 +355,10 @@ Forbidden:
 - ❌ Adding automatic test execution steps to non-release workflows or prompts.
 
 Allowed work:
-- ✅ Run tests ONLY when the repository owner explicitly requests it in their prompt (e.g., "run tests", "execute unit tests", "fix failing tests").
-- ✅ Mandatory test runs during release workflows (e.g. `03-ai-scripts/29-release-orchestrator.py` or explicit release prompts) where 100% test passing is a required pre-release quality gate.
-- ✅ Always use `--no-tests` (or `--skip-tests`) when running CI/CD quality gate checks (`06-cicd-local-runner.py`) unless running a release or explicitly instructed by the owner.
+- ✅ Run tests when the repository owner explicitly requests it in their prompt (e.g., "run tests", "execute unit tests", "fix failing tests").
+- ✅ **ALL CI/CD Fix Workflows (`ci-cd-fix`, `16-ci-cd/*`):** MUST run all unit test suites, integration tests, linters, and quality gates properly (`python 03-ai-scripts/06-cicd-local-runner.py`) to diagnose, surface, and repair pipeline failures. Skipping tests with `--no-tests` in CI/CD fix tasks is strictly prohibited.
+- ✅ **ALL Release Workflows (`release-management`, `release-orchestrator`, `01`, `03`, `07`, `16-ci-cd/04`):** MUST run all unit test suites (`--run-tests`) and verify 100% green passing before cutting any release.
+- ✅ Always use `--no-tests` (or `--skip-tests`) when running standard routine development quality gate checks (`06-cicd-local-runner.py`) unless running CI/CD fixes, release ceremonies, or explicitly instructed by the owner.
 
 **Why:** Unit test suites can be slow, resource-heavy, and disruptive during rapid iterative development loops. Running tests without explicit owner authorization wastes resources. Quality gates in standard turns focus on static analysis, linting, and structural integrity.
 

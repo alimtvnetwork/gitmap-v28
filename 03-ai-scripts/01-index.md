@@ -111,7 +111,7 @@ DEFAULT_MAX_WORKERS = 4
 3. **Implicit Booleans:** Always evaluate positive booleans implicitly (`if is_valid:`, never `if is_valid == True:`).
 4. **Prefix Boolean Variables & Functions:** Use `is_` or `has_` prefix for all boolean variables and return functions (`is_ready`, `has_match`, `is_success`, `has_failures`).
 5. **Enums Format:** Python enums MUST use `PascalCase` class name ending in `Type`, `UPPER_CASE` members, and string values mirroring the member names.
-6. **Quality Gates:** Before completing any work session, execute `python 03-ai-scripts/06-cicd-local-runner.py --no-tests` and verify all quality gates pass (test execution is disabled unless explicitly commanded by repository owner).
+6. **Quality Gates:** Before completing standard work sessions, execute `python 03-ai-scripts/06-cicd-local-runner.py --no-tests` and verify all quality gates pass (test execution is disabled unless explicitly commanded by repository owner). For release tasks or CI/CD fix tasks (`ci-cd-fix`), execute `python 03-ai-scripts/06-cicd-local-runner.py` (or `--run-tests`) to run all unit tests, linters, and quality gates properly.
 7. **Atomic Change Tracking:** Append all modified files under lock via `python 03-ai-scripts/33-test-inventory-generator.py --record <files...>`.
 
 - [29-release-orchestrator.py](29-release-orchestrator.py): Orchestrates git release, bump version, branches, tags, and commits.

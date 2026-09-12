@@ -53,7 +53,7 @@ func runInstallAdd(args []string) error {
 }
 
 func promptIfInteractive(flags *InstallAddFlags) error {
-	if !shouldPromptInteractively(flags) {
+	if !isInteractivePromptNeeded(flags) {
 
 		return nil
 	}
@@ -61,7 +61,7 @@ func promptIfInteractive(flags *InstallAddFlags) error {
 	return promptInteractiveInstallAdd(flags)
 }
 
-func shouldPromptInteractively(flags *InstallAddFlags) bool {
+func isInteractivePromptNeeded(flags *InstallAddFlags) bool {
 	if flags.Yes || !isTerminalInput() {
 
 		return false

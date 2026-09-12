@@ -33,7 +33,7 @@ func runCommitLoop(flags seoWriteFlags, messages []commitMessage, minSec, maxSec
 	count := 0
 
 	for i, m := range messages {
-		if shouldStop(stop, flags.maxCommits, count) {
+		if isStopRequested(stop, flags.maxCommits, count) {
 			break
 		}
 
@@ -93,7 +93,7 @@ func rotateLoop(
 	maxSec int,
 ) {
 	for flags.maxCommits == 0 || *count < flags.maxCommits {
-		if shouldStop(stop, 0, 0) {
+		if isStopRequested(stop, 0, 0) {
 			break
 		}
 

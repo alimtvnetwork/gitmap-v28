@@ -254,8 +254,8 @@ func (e *AppError) HasError() bool {
 	return e != nil
 }
 
-// HasNoError reports whether no error exists.
-func (e *AppError) HasNoError() bool {
+// IsSuccess reports whether no error exists (e == nil).
+func (e *AppError) IsSuccess() bool {
 	return e == nil
 }
 

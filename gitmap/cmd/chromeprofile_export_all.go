@@ -4,6 +4,7 @@ package cmd
 
 import (
 	"archive/zip"
+	"context"
 	"database/sql"
 	"encoding/json"
 	"fmt"
@@ -13,7 +14,10 @@ import (
 	"strings"
 	"time"
 
+	"github.com/alimtvnetwork/gitmap-v28/gitmap/apperror"
 	"github.com/alimtvnetwork/gitmap-v28/gitmap/constants"
+	"github.com/alimtvnetwork/gitmap-v28/gitmap/dbengine"
+	"github.com/alimtvnetwork/gitmap-v28/gitmap/store"
 	"github.com/mattn/go-runewidth"
 	"gopkg.in/yaml.v3"
 	_ "modernc.org/sqlite"
@@ -176,7 +180,7 @@ func writeAllChromeProfilesSQLite(names []string, outPath string) (int, error) {
 	if err := os.MkdirAll(filepath.Dir(outPath), constants.DirPermission); err != nil && filepath.Dir(outPath) != "." {
 		return 0, err
 	}
-	db, err := sql.Open("sqlite", outPath)
+	db, err := store.OpenSQLiteDB(outPath)
 	if err != nil {
 		return 0, fmt.Errorf("open sqlite db %s: %w", outPath, err)
 	}
@@ -188,6 +192,7 @@ func writeAllChromeProfilesSQLite(names []string, outPath string) (int, error) {
 	if err := populateProfilesInSQLite(db, names); err != nil {
 		return 0, err
 	}
+
 	return getFileSize(outPath), nil
 }
 
@@ -231,62 +236,80 @@ func initChromeSQLiteTables(db *sql.DB) error {
 		PRIMARY KEY (profile_name, service)
 	);`
 	_, err := db.Exec(schema)
+
 	return err
 }
 
 func populateProfilesInSQLite(db *sql.DB, names []string) error {
+	wrapper, appErr := dbengine.WrapDb(db, dbengine.DbSQLite)
+	if appErr != nil {
+		return appErr
+	}
+
+	if txErr := wrapper.WithTransaction(context.Background(), func(tx *dbengine.TxWrapper) *apperror.AppError {
+		return insertAllProfilesTx(tx, names)
+	}); txErr != nil {
+		return txErr
+	}
+
+	return nil
+}
+
+func insertAllProfilesTx(tx *dbengine.TxWrapper, names []string) *apperror.AppError {
 	maxW := maxChromeProfileLabelWidth(names)
 	for _, name := range names {
 		exp, hasExp := loadSingleChromeProfileExport(name)
 		if !hasExp {
 			continue
 		}
-		if err := insertProfileToSQLite(db, name, exp); err != nil {
+		if err := insertProfileToSQLite(tx, name, exp); err != nil {
 			return err
 		}
-		label := formatChromeProfileLabel(name, exp.Preferences)
-		pad := calculateLabelPadding(maxW, label)
-		fmt.Printf("  \033[1;92m✓\033[0m %s%s → SQLite tables populated\n", label, strings.Repeat(" ", pad))
+		printProfilePopulatedRow(name, exp.Preferences, maxW)
 	}
+
 	return nil
 }
 
-func insertProfileToSQLite(db *sql.DB, name string, exp chromeExport) error {
-	if err := insertProfileMetaToSQLite(db, name, exp); err != nil {
-		return err
-	}
-	if err := insertTokensToSQLite(db, name, exp.TokenVault); err != nil {
-		return err
-	}
-
-	return insertExtensionsAndBlobsToSQLite(db, name, exp.ExtensionIDs)
+func printProfilePopulatedRow(name string, prefs json.RawMessage, maxW int) {
+	label := formatChromeProfileLabel(name, prefs)
+	pad := calculateLabelPadding(maxW, label)
+	fmt.Printf("  \033[1;92m✓\033[0m %s%s → SQLite tables populated\n", label, strings.Repeat(" ", pad))
 }
 
-func insertProfileMetaToSQLite(db *sql.DB, name string, exp chromeExport) error {
+func insertProfileToSQLite(tx *dbengine.TxWrapper, name string, exp chromeExport) *apperror.AppError {
+	if err := insertProfileMetaToSQLite(tx, name, exp); err != nil {
+		return err
+	}
+	if err := insertTokensToSQLite(tx, name, exp.TokenVault); err != nil {
+		return err
+	}
+
+	return insertExtensionsAndBlobsToSQLite(tx, name, exp.ExtensionIDs)
+}
+
+func insertProfileMetaToSQLite(tx *dbengine.TxWrapper, name string, exp chromeExport) *apperror.AppError {
+	ctx := context.Background()
 	displayName := chromeProfileDisplayName(name)
-	_, err := db.Exec(
-		"INSERT OR REPLACE INTO chrome_profiles (name, display_name, exported_at, extension_count) VALUES (?, ?, ?, ?)",
-		name, displayName, exp.ExportedAt, len(exp.ExtensionIDs),
-	)
-	if err != nil {
+	query := "INSERT OR REPLACE INTO chrome_profiles (name, display_name, exported_at, extension_count) VALUES (?, ?, ?, ?)"
+	if _, err := tx.Exec(ctx, query, name, displayName, exp.ExportedAt, len(exp.ExtensionIDs)); err != nil {
 		return err
 	}
-	_ = insertOptionalJSONToSQLite(db, "chrome_preferences", "preferences_json", name, exp.Preferences)
-	_ = insertOptionalJSONToSQLite(db, "chrome_bookmarks", "bookmarks_json", name, exp.Bookmarks)
+	if prefErr := insertOptionalJSONToSQLite(tx, "chrome_preferences", "preferences_json", name, exp.Preferences); prefErr != nil {
+		return prefErr
+	}
 
-	return nil
+	return insertOptionalJSONToSQLite(tx, "chrome_bookmarks", "bookmarks_json", name, exp.Bookmarks)
 }
 
-func insertTokensToSQLite(db *sql.DB, name string, vault *ChromeTokenVault) error {
+func insertTokensToSQLite(tx *dbengine.TxWrapper, name string, vault *ChromeTokenVault) *apperror.AppError {
 	if vault == nil || len(vault.Tokens) == 0 {
 		return nil
 	}
+	ctx := context.Background()
+	query := "INSERT OR REPLACE INTO chrome_tokens (profile_name, service, account_id, raw_base64, double_base64) VALUES (?, ?, ?, ?, ?)"
 	for _, t := range vault.Tokens {
-		_, err := db.Exec(
-			"INSERT OR REPLACE INTO chrome_tokens (profile_name, service, account_id, raw_base64, double_base64) VALUES (?, ?, ?, ?, ?)",
-			name, t.Service, t.AccountID, t.RawBase64, t.DoubleBase64,
-		)
-		if err != nil {
+		if _, err := tx.Exec(ctx, query, name, t.Service, t.AccountID, t.RawBase64, t.DoubleBase64); err != nil {
 			return err
 		}
 	}
@@ -294,26 +317,31 @@ func insertTokensToSQLite(db *sql.DB, name string, vault *ChromeTokenVault) erro
 	return nil
 }
 
-func insertOptionalJSONToSQLite(db *sql.DB, table, col, name string, raw json.RawMessage) error {
+func insertOptionalJSONToSQLite(tx *dbengine.TxWrapper, table, col, name string, raw json.RawMessage) *apperror.AppError {
 	if len(raw) == 0 {
 		return nil
 	}
 	query := fmt.Sprintf("INSERT OR REPLACE INTO %s (profile_name, %s) VALUES (?, ?)", table, col)
-	_, err := db.Exec(query, name, string(raw))
+	_, err := tx.Exec(context.Background(), query, name, string(raw))
 
 	return err
 }
 
-func insertExtensionsAndBlobsToSQLite(db *sql.DB, name string, extIDs []string) error {
+func insertExtensionsAndBlobsToSQLite(tx *dbengine.TxWrapper, name string, extIDs []string) *apperror.AppError {
+	ctx := context.Background()
 	for _, id := range extIDs {
-		if _, err := db.Exec("INSERT OR REPLACE INTO chrome_extensions (profile_name, extension_id) VALUES (?, ?)", name, id); err != nil {
+		if _, err := tx.Exec(ctx, "INSERT OR REPLACE INTO chrome_extensions (profile_name, extension_id) VALUES (?, ?)", name, id); err != nil {
 			return err
 		}
 	}
 
+	return saveProfileBlobs(tx, name)
+}
+
+func saveProfileBlobs(tx *dbengine.TxWrapper, name string) *apperror.AppError {
 	srcPath, _ := resolveChromeProfileDir(name)
 	for _, blobFile := range constants.ChromeProfileSQLiteEntries {
-		if err := saveBlobEntry(db, name, srcPath, blobFile); err != nil {
+		if err := saveBlobEntry(tx, name, srcPath, blobFile); err != nil {
 			return err
 		}
 	}
@@ -321,14 +349,14 @@ func insertExtensionsAndBlobsToSQLite(db *sql.DB, name string, extIDs []string) 
 	return nil
 }
 
-func saveBlobEntry(db *sql.DB, name, srcPath, blobFile string) error {
+func saveBlobEntry(tx *dbengine.TxWrapper, name, srcPath, blobFile string) *apperror.AppError {
 	filePath := filepath.Join(srcPath, blobFile)
 	bytes, err := os.ReadFile(filePath)
 	if err != nil || len(bytes) == 0 {
 		return nil
 	}
-
-	_, execErr := db.Exec("INSERT OR REPLACE INTO chrome_blobs (profile_name, file_name, payload) VALUES (?, ?, ?)", name, blobFile, bytes)
+	query := "INSERT OR REPLACE INTO chrome_blobs (profile_name, file_name, payload) VALUES (?, ?, ?)"
+	_, execErr := tx.Exec(context.Background(), query, name, blobFile, bytes)
 
 	return execErr
 }
@@ -467,10 +495,11 @@ func fetchLocalStateProfileInfo(dirName string) (string, string) {
 	if state == nil {
 		return "", ""
 	}
-	info, ok := state.Profile.InfoCache[dirName]
-	if !ok {
+	info, isFound := state.Profile.InfoCache[dirName]
+	if !isFound {
 		return "", ""
 	}
+
 	return info.Name, info.UserName
 }
 

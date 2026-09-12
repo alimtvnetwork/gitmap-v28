@@ -156,7 +156,6 @@ JOB_BATCHES: list[dict[str, Any]] = [
             "Constants Registry AST Check": ["go", "test", "-C", "gitmap", "./constants/...", "-run", "TestTopLevelCmdRegistryMatchesAST", "-count=1"],
             "Constants Collision Check": ["go", "test", "-C", "gitmap", "./constants/...", "-run", "TestTopLevelCmdConstantsAreUnique", "-count=1"],
             "Helptext Parity Check": ["go", "test", "-C", "gitmap", "./helptext/...", "-count=1"],
-            "Lint Script Unit Tests": [sys.executable, ".github/scripts/tests/test_ci_scripts.py"],
             "govulncheck": [sys.executable, ".github/scripts/check-vulncheck.py"],
             "Startup Build-Tags (linux)": {"cmd": ["go", "build", "./startup/..."], "cwd": "gitmap", "env": {"GOOS": "linux", "GOARCH": "amd64", "CGO_ENABLED": "0"}},
             "Startup Build-Tags (darwin)": {"cmd": ["go", "build", "./startup/..."], "cwd": "gitmap", "env": {"GOOS": "darwin", "GOARCH": "amd64", "CGO_ENABLED": "0"}},
@@ -201,6 +200,13 @@ JOB_BATCHES: list[dict[str, Any]] = [
         "jobs": {
             "Go Smart Incremental Tests": {"type": "smart_go_tests", "cmd": ["go", "test", "smart-incremental"], "cwd": "gitmap"},
             "Go Test Coverage Profile": {"cmd": ["go", "test", "-p", str(DEFAULT_WORKERS), "-parallel", str(DEFAULT_WORKERS), "-count=1", "-timeout=20m", "-coverprofile=../coverage.out", "./..."], "cwd": "gitmap"},
+        },
+    },
+    {
+        "name": "Python CI Script Unit Tests",
+        "max_workers": 1,
+        "jobs": {
+            "Lint Script Unit Tests": [sys.executable, ".github/scripts/tests/test_ci_scripts.py"],
         },
     },
     {
@@ -1679,6 +1685,17 @@ def is_test_batch(batch_name: str) -> bool:
     return any(k in b_lower for k in ("smoke", "unit test", "coverage", "race"))
 
 
+def is_test_job(job_name: str, command: Any) -> bool:
+    """Identifies individual test execution suites, smoke tests, and script unit tests."""
+    name_lower = job_name.lower()
+    if any(k in name_lower for k in ("unit test", "smoke", "coverage", "race test")):
+        return True
+    cmd_str = str(command).lower()
+    if "test_ci_scripts.py" in cmd_str:
+        return True
+    return False
+
+
 def create_base_arg_parser() -> argparse.ArgumentParser:
     """Initializes ArgumentParser with basic description and epilog."""
     parser = argparse.ArgumentParser(
@@ -2486,7 +2503,19 @@ def main() -> None:
         batches = filter_job_batches(JOB_BATCHES, args.filter)
 
     if getattr(args, "no_tests", False):
-        batches = [b for b in batches if not is_test_batch(b.get("name", ""))]
+        filtered_batches = []
+        for b in batches:
+            if is_test_batch(b.get("name", "")):
+                continue
+            non_test_jobs = {
+                jname: jcmd for jname, jcmd in b.get("jobs", {}).items()
+                if not is_test_job(jname, jcmd)
+            }
+            if non_test_jobs:
+                b_copy = dict(b)
+                b_copy["jobs"] = non_test_jobs
+                filtered_batches.append(b_copy)
+        batches = filtered_batches
     timings = load_cicd_timings(TIMING_FILE_PATH)
     total_est = calculate_total_eta(batches, timings)
     code = run_pipeline_with_eta(args, batches, repo_root, timings, total_est)

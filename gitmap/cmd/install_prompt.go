@@ -6,7 +6,7 @@ import (
 	"github.com/alimtvnetwork/gitmap-v28/gitmap/constants"
 )
 
-func shouldProceedInstall(opts installOptions, installName string) bool {
+func isInstallApproved(opts installOptions, installName string) bool {
 	if alreadyInstalled(installName) {
 
 		return false
@@ -35,7 +35,7 @@ func runToolInstallation(opts installOptions, originalTool, installName string) 
 func executeGenericInstall(opts installOptions) {
 	originalTool := opts.Tool
 	installName := resolveNppInstallName(opts.Tool)
-	if !shouldProceedInstall(opts, installName) {
+	if !isInstallApproved(opts, installName) {
 
 		return
 	}

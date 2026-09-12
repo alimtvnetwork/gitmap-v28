@@ -81,7 +81,7 @@ func Run() {
 	//   gitmap https://a,https://b,https://c     → gitmap clone https://a,https://b,https://c
 	//   gitmap https://a, https://b https://c    → gitmap clone https://a, https://b https://c
 	//   gitmap --verbose https://...             → gitmap clone --verbose https://...
-	if shouldRewriteToClone(os.Args[1:]) {
+	if isCloneRewriteRequired(os.Args[1:]) {
 		os.Args = append([]string{os.Args[0], constants.CmdClone}, os.Args[1:]...)
 	}
 
@@ -360,12 +360,12 @@ func dispatch(command string) {
 	cliexit.HandleError(dispatchErr, 1)
 }
 
-// shouldRewriteToClone returns true when the args (excluding argv[0])
+// isCloneRewriteRequired returns true when the args (excluding argv[0])
 // describe a bare-URL invocation that should be redirected to `clone`.
 // It accepts URLs in any positional slot — not just the first — so
 // invocations with leading flags (e.g. `gitmap --verbose <url>`) and
 // PowerShell's silent comma-splitting both work.
-func shouldRewriteToClone(args []string) bool {
+func isCloneRewriteRequired(args []string) bool {
 	if len(args) == 0 {
 		return false
 	}

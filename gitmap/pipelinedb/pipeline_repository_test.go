@@ -87,7 +87,7 @@ func TestPipelineRepository_CRUD(t *testing.T) {
 	if runRecord.WorkflowName != "build-test" {
 		t.Errorf("expected workflow name 'build-test', got '%s'", runRecord.WorkflowName)
 	}
-	if !runRecord.IsSuccess {
+	if runRecord.IsFailed() {
 		t.Errorf("expected run 101 to be successful")
 	}
 

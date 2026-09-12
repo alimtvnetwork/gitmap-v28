@@ -87,7 +87,7 @@ func findCsprojFiles(dir, _ string) []model.CsharpProjectFile {
 		if err != nil {
 			return nil
 		}
-		if info.IsDir() && shouldExcludeDir(info.Name()) {
+		if info.IsDir() && isExcludedDir(info.Name()) {
 			return filepath.SkipDir
 		}
 		if isCsprojFile(info.Name()) {
@@ -156,7 +156,7 @@ func findKeyFiles(dir, _ string) []model.CsharpKeyFile {
 		if err != nil {
 			return nil
 		}
-		if info.IsDir() && shouldExcludeDir(info.Name()) {
+		if info.IsDir() && isExcludedDir(info.Name()) {
 			return filepath.SkipDir
 		}
 		if isKeyFile(info.Name()) {

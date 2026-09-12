@@ -36,7 +36,8 @@ func ResolveCGTarget(spec string) (string, bool) {
 	}
 
 	// 2. Check if it matches a numeric ID
-	if path, ok := matchRepoByID(repos, trimmed); ok {
+	path, isMatched := matchRepoByID(repos, trimmed)
+	if isMatched {
 		return path, true
 	}
 
@@ -76,8 +77,8 @@ func ResolveAllCGTargets(specs []string) []string {
 	seen := make(map[string]bool)
 
 	for _, spec := range specs {
-		path, ok := ResolveCGTarget(spec)
-		if !ok || seen[path] {
+		path, isTargetResolved := ResolveCGTarget(spec)
+		if !isTargetResolved || seen[path] {
 			continue
 		}
 		seen[path] = true

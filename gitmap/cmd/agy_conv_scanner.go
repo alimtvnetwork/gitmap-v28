@@ -7,6 +7,8 @@ import (
 	"path/filepath"
 	"regexp"
 	"strings"
+
+	"github.com/alimtvnetwork/gitmap-v28/gitmap/store"
 )
 
 type AgyConvInfo struct {
@@ -43,8 +45,8 @@ func scanAllConversations() ([]AgyConvInfo, error) {
 	}
 	var out []AgyConvInfo
 	for _, e := range entries {
-		info, ok := tryReadConvEntry(dir, e)
-		if ok {
+		info, isReadSuccess := tryReadConvEntry(dir, e)
+		if isReadSuccess {
 			out = append(out, info)
 		}
 	}
@@ -60,23 +62,26 @@ func tryReadConvEntry(dir string, e os.DirEntry) (AgyConvInfo, bool) {
 }
 
 func readSingleConvDB(dbPath, fileName string) (AgyConvInfo, bool) {
-	conn, err := sql.Open("sqlite", dbPath)
+	conn, err := store.OpenSQLiteDB(dbPath)
 	if err != nil {
 		return AgyConvInfo{}, false
 	}
 	defer conn.Close()
 
+	return buildConvInfo(conn, fileName), true
+}
+
+func buildConvInfo(conn *sql.DB, fileName string) AgyConvInfo {
 	steps := querySingleCount(conn, "SELECT COUNT(*) FROM steps")
 	userSteps := querySingleCount(conn, "SELECT COUNT(*) FROM steps WHERE step_type = 1")
 	cleanPath := extractWorkspaceFromConv(conn)
-	cid := strings.TrimSuffix(fileName, ".db")
 
 	return AgyConvInfo{
-		ID:        cid,
+		ID:        strings.TrimSuffix(fileName, ".db"),
 		StepCount: steps,
 		UserSteps: userSteps,
 		CleanPath: cleanPath,
-	}, true
+	}
 }
 
 func extractWorkspaceFromConv(conn *sql.DB) string {

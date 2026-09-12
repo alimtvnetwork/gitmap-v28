@@ -89,7 +89,7 @@ func assertSchemaKeysSlice(t *testing.T, name string) []string {
 // outcomes — fully driven by accept/update flags + env vars.
 func handleSchemaDrift(t *testing.T, expected schema, observed []string, where string) {
 	t.Helper()
-	if shouldUpdateSchema(expected.Name) {
+	if isSchemaUpdateNeeded(expected.Name) {
 		handleSchemaUpdate(t, expected, observed)
 		return
 	}
@@ -123,10 +123,10 @@ func schemaDriftHowToFix(name string, currentVersion int) string {
 		currentVersion+1, schemaDir, name, currentVersion+1, name, currentVersion+1)
 }
 
-// shouldUpdateSchema returns true when the current test run wants
+// isSchemaUpdateNeeded returns true when the current test run wants
 // to rewrite this schema's stored expectation. Flag overrides env.
 // Empty/missing values are treated identically (no opt-in).
-func shouldUpdateSchema(name string) bool {
+func isSchemaUpdateNeeded(name string) bool {
 	return listContains(*schemaUpdateFlag, name) ||
 		listContains(os.Getenv(envUpdateSchema), name)
 }

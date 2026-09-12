@@ -36,6 +36,18 @@ type ScheduleRunRecord struct {
 	CreatedAt   string `json:"createdAt" yaml:"createdAt"`
 }
 
+// IsFailed reports whether the scheduled task run failed.
+func (r ScheduleRunRecord) IsFailed() bool {
+
+	return !r.IsSuccess
+}
+
+// IsFail reports whether the scheduled task run failed.
+func (r ScheduleRunRecord) IsFail() bool {
+
+	return !r.IsSuccess
+}
+
 // ScheduleConfig represents metadata stored in the split schedule database.
 type ScheduleConfig struct {
 	Name        string `json:"name" yaml:"name"`

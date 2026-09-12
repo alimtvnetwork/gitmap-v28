@@ -103,7 +103,7 @@ def record_refs_in_file(f: Path, refs: dict[str, set[Path]]) -> None:
         refs.setdefault(code, set()).add(f)
 
 
-def has_no_unknown_refs(refs: dict[str, set[Path]], catalog: set[str], errors: list[str]) -> bool:
+def is_refs_valid(refs: dict[str, set[Path]], catalog: set[str], errors: list[str]) -> bool:
     unallocated = load_unallocated()
     unknown = sorted((set(refs) - catalog) - unallocated)
     for code in unknown:
@@ -127,7 +127,7 @@ def load_code_list(path: Path) -> set[str]:
     return {ln.strip() for ln in lines if ln.strip() and not ln.lstrip().startswith("#")}
 
 
-def has_no_orphans(refs: dict[str, set[Path]], catalog: set[str], waivers: set[str], errors: list[str]) -> bool:
+def is_catalog_referenced(refs: dict[str, set[Path]], catalog: set[str], waivers: set[str], errors: list[str]) -> bool:
     orphans = sorted((catalog - set(refs)) - waivers)
     for code in orphans:
         errors.append(f"R2 orphan {code} cataloged in 13-error-codes.md but never referenced elsewhere (and not waived)")
@@ -177,8 +177,8 @@ def main() -> int:
     refs = collect_references(iter_scan_files())
     waivers = load_waivers()
     errors: list[str] = []
-    has_no_unknown_refs(refs, set(catalog), errors)
-    has_no_orphans(refs, set(catalog), waivers, errors)
+    is_refs_valid(refs, set(catalog), errors)
+    is_catalog_referenced(refs, set(catalog), waivers, errors)
     is_bijective(catalog, errors)
     is_in_range(catalog, errors)
     return report(errors, catalog, waivers)

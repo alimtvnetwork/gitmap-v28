@@ -1,12 +1,15 @@
 package store
 
 import (
+	"context"
 	"database/sql"
 	"errors"
 	"fmt"
 	"time"
 
+	"github.com/alimtvnetwork/gitmap-v28/gitmap/apperror"
 	"github.com/alimtvnetwork/gitmap-v28/gitmap/constants"
+	"github.com/alimtvnetwork/gitmap-v28/gitmap/dbengine"
 	"github.com/alimtvnetwork/gitmap-v28/gitmap/model"
 )
 
@@ -128,9 +131,31 @@ func (db *DB) PruneOldestTransactions(cap int) ([]int64, error) {
 
 // deleteTransactionRows removes each id; the FK cascade drops file rows.
 func deleteTransactionRows(db *DB, ids []int64) error {
+	isMissing := len(ids) == 0
+	if isMissing {
+		return nil
+	}
+
+	wrap, appErr := dbengine.WrapDb(db.conn, dbengine.DbSQLite)
+	if appErr != nil {
+		return fmt.Errorf("transaction prune delete: %w", appErr)
+	}
+
+	ctx := context.Background()
+	appErr = wrap.WithTransaction(ctx, func(tx *dbengine.TxWrapper) *apperror.AppError {
+		return deleteTransactionRowsInTx(ctx, tx, ids)
+	})
+	if appErr != nil {
+		return fmt.Errorf("transaction prune delete: %w", appErr)
+	}
+
+	return nil
+}
+
+func deleteTransactionRowsInTx(ctx context.Context, tx *dbengine.TxWrapper, ids []int64) *apperror.AppError {
 	for _, id := range ids {
-		if _, err := ExecWrapper(db.conn, constants.SQLDeleteTransaction, id).Destruct(); err != nil {
-			return fmt.Errorf("transaction prune delete: %w", err)
+		if _, appErr := tx.Exec(ctx, constants.SQLDeleteTransaction, id); appErr != nil {
+			return apperror.WrapSimple(appErr, "transaction prune delete")
 		}
 	}
 

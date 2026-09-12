@@ -47,10 +47,10 @@ func prepareDestParent(absDest string) (string, bool) {
 	return "", true
 }
 
-// shouldSkip returns true when the dest is a non-empty directory.
+// isSkippable returns true when the dest is a non-empty directory.
 // Errors reading the dir (permission denied) → false (let git try
 // and fail with a clearer message than we could craft).
-func shouldSkip(absDest string) bool {
+func isSkippable(absDest string) bool {
 	info, err := os.Stat(absDest)
 	isInvalidDir := err != nil || !info.IsDir()
 	if isInvalidDir {

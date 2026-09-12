@@ -39,7 +39,7 @@ func handleOutsideRepoRelease(args []string, version, bump, commit, branch strin
 	if release.IsInsideGitRepo() {
 		return false
 	}
-	if tryRunReleaseInRecentClone(args) || (shouldAutoBumpMinor(version, bump, commit, branch) && tryRunReleaseScanDir(yes)) {
+	if tryRunReleaseInRecentClone(args) || (isAutoBumpEligible(version, bump, commit, branch) && tryRunReleaseScanDir(yes)) {
 		return true
 	}
 	runReleaseSelf(args)
@@ -75,7 +75,7 @@ func performInsideRepoRelease(
 // applyBareReleaseAutoBump injects bump=minor when no explicit version/bump
 // was provided, after confirming with the user (skipped with -y).
 func applyBareReleaseAutoBump(version, bump, commit, branch string, yes bool) string {
-	if !shouldAutoBumpMinor(version, bump, commit, branch) {
+	if !isAutoBumpEligible(version, bump, commit, branch) {
 		return bump
 	}
 	current, next, ok := peekNextMinorVersion()

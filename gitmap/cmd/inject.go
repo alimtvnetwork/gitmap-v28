@@ -64,13 +64,13 @@ func runInject(args []string) error {
 	stamps := loadInjectStamps(target)
 
 	// 2. GitHub Desktop registration — gated by per-tool stamp.
-	if shouldRunDesktop(target, stamps, force) {
+	if isDesktopRunnable(target, stamps, force) {
 		registerSingleDesktop(repoName, target)
 		markInjected(target, constants.InjectKindDesktop)
 	}
 
 	// 3. VS Code open — same gate.
-	if shouldRunVSCode(target, stamps, force) {
+	if isVSCodeRunnable(target, stamps, force) {
 		openInVSCode(target)
 		markInjected(target, constants.InjectKindVSCode)
 	}

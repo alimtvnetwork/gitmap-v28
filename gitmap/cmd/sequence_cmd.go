@@ -576,9 +576,13 @@ func saveSequenceToRepoDB(payload *SequencePayload) error {
 		return appErr
 	}
 
-	return wrapper.WithTransaction(ctx, func(tx *dbengine.TxWrapper) *apperror.AppError {
+	if txErr := wrapper.WithTransaction(ctx, func(tx *dbengine.TxWrapper) *apperror.AppError {
 		return executeSaveSequenceTx(ctx, tx, payload)
-	})
+	}); txErr != nil {
+		return txErr
+	}
+
+	return nil
 }
 
 func executeSaveSequenceTx(ctx context.Context, tx *dbengine.TxWrapper, payload *SequencePayload) *apperror.AppError {

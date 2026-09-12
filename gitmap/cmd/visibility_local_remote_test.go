@@ -77,10 +77,10 @@ func TestResolveProviderAndSlug_LocalRemote_ExitsZero(t *testing.T) {
 			if err != nil {
 				ee, isExitErr = err.(*exec.ExitError)
 			}
-			if err != nil && isExitErr == true {
+			if err != nil && isExitErr {
 				exitCode = ee.ExitCode()
 			}
-			if err != nil && isExitErr == false {
+			if err != nil && !isExitErr {
 				t.Fatalf("exec failed: %v\noutput:\n%s", err, out)
 			}
 

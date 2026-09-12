@@ -56,7 +56,7 @@ func runPull(args []string) error {
 	if opts.verbose {
 		initVerboseLog()
 	}
-	if shouldPullCWD(opts) {
+	if isPullCWDEnabled(opts) {
 		fmt.Println("  ↳ cwd is a git repo — running plain `git pull` here")
 		runPullCWD()
 		return nil
@@ -139,15 +139,16 @@ func runPull(args []string) error {
 	return nil
 }
 
-// shouldPullCWD reports whether `gitmap pull` was invoked with no
+// isPullCWDEnabled reports whether `gitmap pull` was invoked with no
 // targeting flags AND the current working directory is itself a git
 // repo. In that case we short-circuit to a plain `git pull` so the
 // command behaves like the muscle-memory `git pull` users expect.
 
-func shouldPullCWD(opts pullOptions) bool {
+func isPullCWDEnabled(opts pullOptions) bool {
 	if opts.slug != "" || opts.group != "" || opts.all || HasAlias() {
 		return false
 	}
+
 	return isGitRepoCWD()
 }
 
@@ -514,7 +515,7 @@ func pullOneRepoTracked(rec model.ScanRecord, prog *cloner.BatchProgress) {
 	if isSucceed {
 		prog.Succeed(rec.RepoName)
 	}
-	if !result.IsSuccess {
+	if result.IsFailed() {
 		prog.FailWithError(rec.RepoName, result.Error)
 	}
 }

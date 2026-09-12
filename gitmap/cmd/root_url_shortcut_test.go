@@ -68,9 +68,9 @@ func TestShouldRewriteToCloneCoversReportedInvocations(t *testing.T) {
 	}
 
 	for _, tc := range cases {
-		got := shouldRewriteToClone(tc.args)
+		got := isCloneRewriteRequired(tc.args)
 		if got != tc.want {
-			t.Errorf("%s: shouldRewriteToClone(%q) = %v, want %v", tc.name, tc.args, got, tc.want)
+			t.Errorf("%s: isCloneRewriteRequired(%q) = %v, want %v", tc.name, tc.args, got, tc.want)
 		}
 	}
 }

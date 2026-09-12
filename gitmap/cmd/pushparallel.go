@@ -86,6 +86,7 @@ func runOnePushJob(rec model.ScanRecord, prog *cloner.BatchProgress,
 		prog.BeginItem(rec.RepoName)
 		prog.Skip(rec.RepoName)
 		progMu.Unlock()
+
 		return nil
 	}
 
@@ -96,14 +97,15 @@ func runOnePushJob(rec model.ScanRecord, prog *cloner.BatchProgress,
 	result := cloner.SafePushOne(rec, rec.AbsolutePath)
 
 	progMu.Lock()
-	if !result.IsSuccess {
+	if result.IsFailed() {
 		prog.FailWithError(rec.RepoName, result.Error)
 	}
-	if !result.IsSuccess && stopOnFail {
+	if result.IsFailed() && stopOnFail {
 		*stopped = true
 	}
-	if !result.IsSuccess {
+	if result.IsFailed() {
 		progMu.Unlock()
+
 		return nil
 	}
 	if result.Notes == "up-to-date" {
@@ -112,5 +114,6 @@ func runOnePushJob(rec model.ScanRecord, prog *cloner.BatchProgress,
 		prog.Succeed(rec.RepoName)
 	}
 	progMu.Unlock()
+
 	return nil
 }

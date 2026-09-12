@@ -7,23 +7,26 @@ import (
 	"github.com/alimtvnetwork/gitmap-v28/gitmap/apperror"
 )
 
-// SqlOperator represents comparison and logical operators in SQL queries.
-type SqlOperator string
+// SqlOperatorType represents comparison and logical operators in SQL queries.
+type SqlOperatorType string
+
+// SqlOperator is a backward-compatible alias for SqlOperatorType.
+type SqlOperator = SqlOperatorType
 
 const (
-	SqlOpEqual              SqlOperator = "="
-	SqlOpNotEqual           SqlOperator = "!="
-	SqlOpNotEqualAlt        SqlOperator = "<>"
-	SqlOpLessThan           SqlOperator = "<"
-	SqlOpLessThanOrEqual    SqlOperator = "<="
-	SqlOpGreaterThan        SqlOperator = ">"
-	SqlOpGreaterThanOrEqual SqlOperator = ">="
-	SqlOpLike               SqlOperator = "LIKE"
-	SqlOpNotLike            SqlOperator = "NOT LIKE"
-	SqlOpIn                 SqlOperator = "IN"
-	SqlOpNotIn              SqlOperator = "NOT IN"
-	SqlOpIsNull             SqlOperator = "IS NULL"
-	SqlOpIsNotNull          SqlOperator = "IS NOT NULL"
+	SqlOpEqual              SqlOperatorType = "="
+	SqlOpNotEqual           SqlOperatorType = "!="
+	SqlOpNotEqualAlt        SqlOperatorType = "<>"
+	SqlOpLessThan           SqlOperatorType = "<"
+	SqlOpLessThanOrEqual    SqlOperatorType = "<="
+	SqlOpGreaterThan        SqlOperatorType = ">"
+	SqlOpGreaterThanOrEqual SqlOperatorType = ">="
+	SqlOpLike               SqlOperatorType = "LIKE"
+	SqlOpNotLike            SqlOperatorType = "NOT LIKE"
+	SqlOpIn                 SqlOperatorType = "IN"
+	SqlOpNotIn              SqlOperatorType = "NOT IN"
+	SqlOpIsNull             SqlOperatorType = "IS NULL"
+	SqlOpIsNotNull          SqlOperatorType = "IS NOT NULL"
 )
 
 // Name returns the operator string name.

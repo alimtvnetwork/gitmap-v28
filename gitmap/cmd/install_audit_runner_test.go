@@ -10,7 +10,7 @@ func TestExecuteCommandWithAudit_Success(t *testing.T) {
 	args := []string{"go", "version"}
 	res := executeCommandWithAudit(args, false)
 
-	if !res.IsSuccess {
+	if res.IsFailed() {
 		t.Fatalf("expected successful execution, got err: %v", res.Err)
 	}
 

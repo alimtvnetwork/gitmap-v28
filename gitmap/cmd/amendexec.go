@@ -41,7 +41,8 @@ func parseCommitLines(output string) []model.CommitEntry {
 	lines := strings.Split(strings.TrimSpace(output), "\n")
 	var entries []model.CommitEntry
 	for _, line := range lines {
-		if e, ok := parseSingleCommitLine(line); ok {
+		e, isParsed := parseSingleCommitLine(line)
+		if isParsed {
 			entries = append(entries, e)
 		}
 	}

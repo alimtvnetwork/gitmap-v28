@@ -60,7 +60,7 @@ func ParseArgs(rawURL, rawPaths string, flags Flags) (Plan, error) {
 	// or file-shaped entries -- cone mode only matches at directory
 	// granularity. Done after path validation so the heuristic only
 	// runs over already-clean strings.
-	if flags.Cone && hasNonConeShape(paths) {
+	if flags.Cone && hasGlobOrFile(paths) {
 		plan.Cone = false
 	}
 
@@ -215,10 +215,10 @@ func cleanPath(raw string) (string, error) {
 	return p, nil
 }
 
-// hasNonConeShape reports whether any path looks like a glob or a
+// hasGlobOrFile reports whether any path looks like a glob or a
 // file (extension after the last /). Used to auto-flip --cone off so
 // the user doesn't have to remember the cone-mode constraint.
-func hasNonConeShape(paths []string) bool {
+func hasGlobOrFile(paths []string) bool {
 	for _, p := range paths {
 		if strings.ContainsAny(p, "*?[") {
 			return true
