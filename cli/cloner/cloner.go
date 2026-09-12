@@ -27,8 +27,8 @@ import (
 // Quiet suppresses per-repo progress lines but keeps the final summary
 // (matches the legacy CloneFromFileQuiet behavior).
 type CloneOptions struct {
-	SafePull       bool
-	Quiet          bool
+	IsSafePull     bool
+	IsQuiet        bool
 	MaxConcurrency int
 	// DefaultBranch is the fallback branch name handed to `git clone -b`
 	// for any record whose recorded (Branch, BranchSource) would
@@ -38,18 +38,18 @@ type CloneOptions struct {
 	// the CLI from `--default-branch` (constants.FlagScanDefaultBranch),
 	// the wording and semantics match `gitmap scan --default-branch`.
 	DefaultBranch string
-	Clean         bool
-	MissingOnly   bool
+	IsClean       bool
+	IsMissingOnly bool
 }
 
 // CloneFromFile reads a source file and clones all repos under targetDir.
-func CloneFromFile(sourcePath, targetDir string, safePull bool) (model.CloneSummary, error) {
-	return CloneFromFileWithOptions(sourcePath, targetDir, CloneOptions{SafePull: safePull})
+func CloneFromFile(sourcePath, targetDir string, isSafePull bool) (model.CloneSummary, error) {
+	return CloneFromFileWithOptions(sourcePath, targetDir, CloneOptions{IsSafePull: isSafePull})
 }
 
 // CloneFromFileQuiet reads a source file and clones with suppressed progress.
-func CloneFromFileQuiet(sourcePath, targetDir string, safePull bool) (model.CloneSummary, error) {
-	return CloneFromFileWithOptions(sourcePath, targetDir, CloneOptions{SafePull: safePull, Quiet: true})
+func CloneFromFileQuiet(sourcePath, targetDir string, isSafePull bool) (model.CloneSummary, error) {
+	return CloneFromFileWithOptions(sourcePath, targetDir, CloneOptions{IsSafePull: isSafePull, IsQuiet: true})
 }
 
 // CloneFromFileWithOptions is the full-control entry point. The legacy
@@ -197,7 +197,13 @@ func runClone(rec model.ScanRecord, dest string) model.CloneResult {
 
 	cmd := exec.Command(constants.GitBin, args...)
 	if isSSHCloneURL(url) {
-		return runInteractiveClone(cmd, rec, url, dest, strategy)
+		return runInteractiveClone(InteractiveCloneParams{
+			Cmd:      cmd,
+			Record:   rec,
+			URL:      url,
+			Dest:     dest,
+			Strategy: strategy,
+		})
 	}
 
 	out, err := cmd.CombinedOutput()

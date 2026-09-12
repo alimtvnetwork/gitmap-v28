@@ -527,11 +527,11 @@ func executeClone(
 	taskID, taskDB := createPendingTask(constants.TaskTypeClone, absTarget, workDir, "clone", cmdArgs)
 
 	summary, err := cloner.CloneFromFileWithOptions(source, targetDir, cloner.CloneOptions{
-		SafePull:       safePull,
+		IsSafePull:     safePull,
 		MaxConcurrency: maxConcurrency,
 		DefaultBranch:  defaultBranch,
-		Clean:          clean,
-		MissingOnly:    missingOnly,
+		IsClean:        clean,
+		IsMissingOnly:  missingOnly,
 	})
 	if err != nil {
 		failPendingTask(taskDB, taskID, fmt.Sprintf(constants.ErrCloneFailed, source, err))

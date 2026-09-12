@@ -72,8 +72,8 @@ func acquireRepoTree(plan Plan, dest string, progress io.Writer) error {
 	return nil
 }
 
-func removeDotGitIfRequested(keepGit bool, dest string) error {
-	if keepGit {
+func removeDotGitIfRequested(isKeepGit bool, dest string) error {
+	if isKeepGit {
 		return nil
 	}
 

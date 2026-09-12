@@ -88,8 +88,8 @@ func TestSaveFlagsDoneAndReturnsSelection(t *testing.T) {
 	m := newTestModel([]string{"a", "b", "c"}, []string{"a", "c"})
 	next, cmd := m.handleKey(keyMsg("s"))
 	out := next.(pickerModel)
-	if !out.done || cmd == nil {
-		t.Fatalf("'s' should set done + return tea.Quit, got done=%v cmd=%v", out.done, cmd)
+	if !out.isDone || cmd == nil {
+		t.Fatalf("'s' should set isDone + return tea.Quit, got isDone=%v cmd=%v", out.isDone, cmd)
 	}
 
 	got := out.selected()

@@ -15,7 +15,7 @@ type Progress struct {
 	total   int
 	current int
 	start   time.Time
-	quiet   bool
+	isQuiet bool
 	cloned  int
 	pulled  int
 	skipped int
@@ -23,14 +23,14 @@ type Progress struct {
 }
 
 // NewProgress creates a progress tracker.
-func NewProgress(total int, quiet bool) *Progress {
+func NewProgress(total int, isQuiet bool) *Progress {
 	p := &Progress{
-		total: total,
-		start: time.Now(),
-		quiet: quiet,
+		total:   total,
+		start:   time.Now(),
+		isQuiet: isQuiet,
 	}
 
-	if !quiet {
+	if !isQuiet {
 		fmt.Printf("  %s⚡ Parallel clone active: %d repositories%s\n\n",
 			constants.ColorCyan, total, constants.ColorReset)
 	}
@@ -46,23 +46,23 @@ func (p *Progress) Begin(name string) {
 }
 
 // Done marks a repo as successfully completed.
-func (p *Progress) Done(result model.CloneResult, pulled bool) {
+func (p *Progress) Done(result model.CloneResult, isPulled bool) {
 	p.mu.Lock()
 	defer p.mu.Unlock()
 
-	if pulled {
+	if isPulled {
 		p.pulled++
 	} else {
 		p.cloned++
 	}
 
-	if p.quiet {
+	if p.isQuiet {
 		return
 	}
 
 	name := repoDisplayName(result.Record)
 	elapsed := time.Since(p.start)
-	if pulled {
+	if isPulled {
 		fmt.Printf("  [%2d/%d] 📂 %-32s %s✔ updated (pull) (%s)%s\n",
 			p.cloned+p.pulled+p.skipped+p.failed, p.total, name,
 			constants.ColorGreen, formatDuration(elapsed), constants.ColorReset)
@@ -81,7 +81,7 @@ func (p *Progress) Skip(result model.CloneResult) {
 	defer p.mu.Unlock()
 
 	p.skipped++
-	if p.quiet {
+	if p.isQuiet {
 		return
 	}
 
@@ -97,7 +97,7 @@ func (p *Progress) Fail(result model.CloneResult) {
 	defer p.mu.Unlock()
 
 	p.failed++
-	if p.quiet {
+	if p.isQuiet {
 		return
 	}
 
@@ -112,7 +112,7 @@ func (p *Progress) PrintSummary() {
 	p.mu.Lock()
 	defer p.mu.Unlock()
 
-	if p.quiet {
+	if p.isQuiet {
 		return
 	}
 

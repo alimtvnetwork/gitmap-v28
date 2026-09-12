@@ -53,28 +53,40 @@ func (m pickerModel) renderRows(b *strings.Builder) {
 	}
 
 	for i := m.scrollOffset; i < end; i++ {
-		b.WriteString(formatRow(i == m.cursor, m.picked[i],
-			IsAutoExcluded(m.paths[i]), m.paths[i]))
+		b.WriteString(formatRow(FormatRowParams{
+			IsCursor: i == m.cursor,
+			IsPicked: m.picked[i],
+			IsGreyed: IsAutoExcluded(m.paths[i]),
+			Path:     m.paths[i],
+		}))
 		b.WriteByte('\n')
 	}
+}
+
+// FormatRowParams encapsulates the visual rendering state of a single picker row.
+type FormatRowParams struct {
+	IsCursor bool
+	IsPicked bool
+	IsGreyed bool
+	Path     string
 }
 
 // formatRow returns the single-line representation of one picker
 // entry. Cursor row gets a leading ">", everything else gets two
 // spaces so columns line up.
-func formatRow(isCursor, isPicked, isGreyed bool, path string) string {
+func formatRow(params FormatRowParams) string {
 	prefix := "  "
-	if isCursor {
+	if params.IsCursor {
 		prefix = "> "
 	}
 
-	mark := pickMark(isPicked, isGreyed)
+	mark := pickMark(params.IsPicked, params.IsGreyed)
 	suffix := ""
-	if isGreyed {
+	if params.IsGreyed {
 		suffix = "  (auto-greyed)"
 	}
 
-	return prefix + mark + " " + path + suffix
+	return prefix + mark + " " + params.Path + suffix
 }
 
 // pickMark returns the bracketed checkbox glyph for the row state.

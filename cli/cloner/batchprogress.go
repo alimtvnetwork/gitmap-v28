@@ -52,10 +52,10 @@ func initBatchProgressUI(p *BatchProgress, total int, operation string) {
 }
 
 // SetStopOnFail enables early termination after the first failure.
-func (p *BatchProgress) SetStopOnFail(v bool) {
+func (p *BatchProgress) SetStopOnFail(isStopOnFail bool) {
 	p.mu.Lock()
 	defer p.mu.Unlock()
-	p.stopOnFail = v
+	p.stopOnFail = isStopOnFail
 }
 
 // Stopped returns true if the batch was halted due to --stop-on-fail.

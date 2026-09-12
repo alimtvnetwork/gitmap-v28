@@ -28,22 +28,22 @@ func cloneOrPullOne(rec model.ScanRecord, targetDir string, opts CloneOptions) m
 		dirExists = true
 	}
 
-	if dirExists && opts.MissingOnly {
+	if dirExists && opts.IsMissingOnly {
 		return model.CloneResult{Record: rec, IsSuccess: true, Notes: "skipped (existing directory)"}
 	}
 
-	cleanErr := cleanDirIfRequested(dirExists, opts.Clean, dest)
+	cleanErr := cleanDirIfRequested(dirExists, opts.IsClean, dest)
 	if cleanErr != nil {
 		msg := fmt.Sprintf("failed to clean existing directory %q: %v", dest, cleanErr)
 
 		return model.CloneResult{Record: rec, IsSuccess: false, Error: msg}
 	}
 
-	if dirExists && opts.Clean {
+	if dirExists && opts.IsClean {
 		dirExists = false
 	}
 
-	if dirExists && opts.SafePull && isGitRepo(dest) {
+	if dirExists && opts.IsSafePull && isGitRepo(dest) {
 		return safePullRepo(rec, dest)
 	}
 

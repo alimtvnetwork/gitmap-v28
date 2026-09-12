@@ -110,7 +110,7 @@ func TestCloneAllPreservesNestedHierarchy(t *testing.T) {
 			target := filepath.Join(tmp, "out")
 
 			summary := cloner.CloneAll(records, target, cloner.CloneOptions{
-				Quiet:          true,
+				IsQuiet:        true,
 				MaxConcurrency: workers,
 			})
 

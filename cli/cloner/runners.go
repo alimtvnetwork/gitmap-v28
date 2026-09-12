@@ -14,9 +14,28 @@ import (
 	"path/filepath"
 	"strings"
 
+	"github.com/alimtvnetwork/gitmap-v28/cli/apperror"
 	"github.com/alimtvnetwork/gitmap-v28/cli/constants"
 	"github.com/alimtvnetwork/gitmap-v28/cli/model"
 )
+
+// SequentialRunParams groups all arguments for sequential clone execution.
+type SequentialRunParams struct {
+	Records   []model.ScanRecord
+	TargetDir string
+	Options   CloneOptions
+	Progress  *Progress
+	Cache     *CloneCache
+}
+
+// TrackResultParams encapsulates all inputs required for tracking a clone/pull result.
+type TrackResultParams struct {
+	Progress   *Progress
+	Result     model.CloneResult
+	ScanRecord model.ScanRecord
+	TargetDir  string
+	IsSafePull bool
+}
 
 // cloneAll iterates records and clones each one with progress tracking.
 //
@@ -37,22 +56,35 @@ func cloneAll(records []model.ScanRecord, targetDir string, opts CloneOptions) m
 
 	handleConflicts(&opts, records, targetDir)
 
-	if !opts.SafePull && !opts.Clean && !opts.MissingOnly && hasExistingRepos(records, targetDir) {
-		opts.SafePull = true
+	if !opts.IsSafePull && !opts.IsClean && !opts.IsMissingOnly && hasExistingRepos(records, targetDir) {
+		opts.IsSafePull = true
 		fmt.Print(constants.MsgAutoSafePull)
 	}
 
 	cache := LoadCloneCache(targetDir)
-	progress := NewProgress(len(records), opts.Quiet)
+	progress := NewProgress(len(records), opts.IsQuiet)
 
 	workers := normalizeWorkers(opts.MaxConcurrency, len(records))
 
 	var summary model.CloneSummary
 	if workers > 1 {
 		fmt.Fprintf(os.Stderr, constants.MsgCloneConcurrencyEnabledFmt, workers)
-		summary = runConcurrent(records, targetDir, opts, workers, progress, cache)
+		summary = runConcurrent(ConcurrentRunParams{
+			Records:   records,
+			TargetDir: targetDir,
+			Options:   opts,
+			Workers:   workers,
+			Progress:  progress,
+			Cache:     cache,
+		})
 	} else {
-		summary = runSequential(records, targetDir, opts, progress, cache)
+		summary = runSequential(SequentialRunParams{
+			Records:   records,
+			TargetDir: targetDir,
+			Options:   opts,
+			Progress:  progress,
+			Cache:     cache,
+		})
 	}
 
 	// Best-effort cache persistence — never fail the run on write errors.
@@ -80,26 +112,32 @@ func normalizeWorkers(requested, jobs int) int {
 
 // runSequential is the legacy in-order runner. Kept as a separate
 // function so concurrent.go can stay focused on the worker-pool path.
-func runSequential(records []model.ScanRecord, targetDir string, opts CloneOptions,
-	progress *Progress, cache *CloneCache) model.CloneSummary {
+func runSequential(params SequentialRunParams) model.CloneSummary {
 	summary := model.CloneSummary{}
-	for _, rec := range records {
-		progress.Begin(repoDisplayName(rec))
+	for _, rec := range params.Records {
+		params.Progress.Begin(repoDisplayName(rec))
 
-		dest := filepath.Join(targetDir, model.CleanRelativePath(rec.RelativePath))
-		if cache.IsUpToDate(rec, dest) {
+		dest := filepath.Join(params.TargetDir, model.CleanRelativePath(rec.RelativePath))
+		if params.Cache.IsUpToDate(rec, dest) {
 			result := model.CloneResult{Record: rec, IsSuccess: true}
-			progress.Skip(result)
+			params.Progress.Skip(result)
 			summary = updateSummarySkipped(summary, result)
+
 			continue
 		}
 
-		result := cloneOrPullOne(rec, targetDir, opts)
-		trackResult(progress, result, rec, targetDir, opts.SafePull)
+		result := cloneOrPullOne(rec, params.TargetDir, params.Options)
+		_ = TrackResult(TrackResultParams{
+			Progress:   params.Progress,
+			Result:     result,
+			ScanRecord: rec,
+			TargetDir:  params.TargetDir,
+			IsSafePull: params.Options.IsSafePull,
+		})
 		summary = updateSummary(summary, result)
 
 		if result.IsSuccess {
-			cache.Record(rec, dest)
+			params.Cache.Record(rec, dest)
 		}
 	}
 
@@ -115,22 +153,23 @@ func repoDisplayName(rec model.ScanRecord) string {
 	return rec.RelativePath
 }
 
-// trackResult updates progress based on clone/pull outcome.
-func trackResult(
-	p *Progress,
-	result model.CloneResult,
-	rec model.ScanRecord,
-	targetDir string,
-	safePull bool,
-) {
-	if result.IsSuccess {
-		pulled := safePull && isGitRepo(filepath.Join(targetDir, model.CleanRelativePath(rec.RelativePath)))
-		p.Done(result, pulled)
-
-		return
+// TrackResult updates progress based on clone/pull outcome and returns any processing error.
+func TrackResult(params TrackResultParams) *apperror.AppError {
+	if params.Progress == nil {
+		return apperror.New("TrackResult", "E_PARAM_NIL", map[string]any{"reason": "progress tracker cannot be nil"})
 	}
 
-	p.Fail(result)
+	if params.Result.IsSuccess {
+		destPath := filepath.Join(params.TargetDir, model.CleanRelativePath(params.ScanRecord.RelativePath))
+		isPulled := params.IsSafePull && isGitRepo(destPath)
+		params.Progress.Done(params.Result, isPulled)
+
+		return nil
+	}
+
+	params.Progress.Fail(params.Result)
+
+	return nil
 }
 
 func countConflicts(records []model.ScanRecord, targetDir string) int {
@@ -147,7 +186,7 @@ func countConflicts(records []model.ScanRecord, targetDir string) int {
 }
 
 func handleConflicts(opts *CloneOptions, records []model.ScanRecord, targetDir string) {
-	if opts.Clean || opts.MissingOnly {
+	if opts.IsClean || opts.IsMissingOnly {
 		return
 	}
 
@@ -163,7 +202,7 @@ func promptAndSetClean(opts *CloneOptions, conflicts int) {
 	var response string
 	fmt.Scanln(&response)
 	if strings.ToLower(strings.TrimSpace(response)) == "y" {
-		opts.Clean = true
+		opts.IsClean = true
 	} else {
 		fmt.Println("Proceeding without --clean. Conflicting directories will fail.")
 	}

@@ -27,32 +27,40 @@ func applyCursorMove(m pickerModel, key string) pickerModel {
 	return m
 }
 
+// ScrollBoundsParams defines the window bounds and cursor positions for scroll clamping.
+type ScrollBoundsParams struct {
+	Cursor int
+	Offset int
+	Height int
+	Total  int
+}
+
 // clampScroll keeps the cursor in the visible window. Returns the
 // new offset such that cursor in [offset, offset+height). Pure --
 // no model mutation -- so the caller decides when to commit it.
-func clampScroll(cursor, offset, height, total int) int {
-	if height < 1 || total == 0 {
+func clampScroll(params ScrollBoundsParams) int {
+	if params.Height < 1 || params.Total == 0 {
 		return 0
 	}
 
-	if cursor < offset {
-		return cursor
+	if params.Cursor < params.Offset {
+		return params.Cursor
 	}
 
-	if cursor >= offset+height {
-		return cursor - height + 1
+	if params.Cursor >= params.Offset+params.Height {
+		return params.Cursor - params.Height + 1
 	}
 
-	maxOffset := total - height
+	maxOffset := params.Total - params.Height
 	if maxOffset < 0 {
 		maxOffset = 0
 	}
 
-	if offset > maxOffset {
+	if params.Offset > maxOffset {
 		return maxOffset
 	}
 
-	return offset
+	return params.Offset
 }
 
 // minInt / maxInt: tiny stdlib-free helpers so picker.go has no

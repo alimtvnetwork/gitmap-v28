@@ -41,48 +41,103 @@ type cloneOutcome struct {
 	cached bool
 }
 
+// ConcurrentRunParams encapsulates all arguments required for concurrent clone execution.
+type ConcurrentRunParams struct {
+	Records   []model.ScanRecord
+	TargetDir string
+	Options   CloneOptions
+	Workers   int
+	Progress  *Progress
+	Cache     *CloneCache
+}
+
+// WorkerParams encapsulates dependencies for concurrent worker goroutines.
+type WorkerParams struct {
+	Workers   int
+	Jobs      <-chan cloneJob
+	Out       chan<- cloneOutcome
+	TargetDir string
+	Options   CloneOptions
+	Progress  *Progress
+}
+
+// EnqueueJobsParams encapsulates parameters for enqueuing clone jobs.
+type EnqueueJobsParams struct {
+	Records   []model.ScanRecord
+	TargetDir string
+	Cache     *CloneCache
+	Jobs      chan<- cloneJob
+	Out       chan<- cloneOutcome
+}
+
+// CollectOutcomesParams encapsulates parameters for collecting worker outcomes.
+type CollectOutcomesParams struct {
+	Records    []model.ScanRecord
+	TargetDir  string
+	IsSafePull bool
+	Progress   *Progress
+	Cache      *CloneCache
+	Out        <-chan cloneOutcome
+}
+
 // runConcurrent fans the records out across `workers` goroutines and
 // returns the same CloneSummary shape as the sequential runner. The
 // caller is responsible for picking a sane worker count (>=1).
-func runConcurrent(records []model.ScanRecord, targetDir string, opts CloneOptions,
-	workers int, progress *Progress, cache *CloneCache) model.CloneSummary {
-	jobs := make(chan cloneJob, len(records))
-	out := make(chan cloneOutcome, len(records))
+func runConcurrent(params ConcurrentRunParams) model.CloneSummary {
+	jobs := make(chan cloneJob, len(params.Records))
+	out := make(chan cloneOutcome, len(params.Records))
 
-	startWorkers(workers, jobs, out, targetDir, opts, progress)
-	enqueueJobs(records, targetDir, cache, jobs, out)
+	startWorkers(WorkerParams{
+		Workers:   params.Workers,
+		Jobs:      jobs,
+		Out:       out,
+		TargetDir: params.TargetDir,
+		Options:   params.Options,
+		Progress:  params.Progress,
+	})
+	enqueueJobs(EnqueueJobsParams{
+		Records:   params.Records,
+		TargetDir: params.TargetDir,
+		Cache:     params.Cache,
+		Jobs:      jobs,
+		Out:       out,
+	})
 	close(jobs)
 
-	return collectOutcomes(records, targetDir, opts.SafePull, progress, cache, out)
+	return collectOutcomes(CollectOutcomesParams{
+		Records:    params.Records,
+		TargetDir:  params.TargetDir,
+		IsSafePull: params.Options.IsSafePull,
+		Progress:   params.Progress,
+		Cache:      params.Cache,
+		Out:        out,
+	})
 }
 
 // startWorkers spins up the worker goroutines.
-func startWorkers(workers int, jobs <-chan cloneJob, out chan<- cloneOutcome,
-	targetDir string, opts CloneOptions, progress *Progress) {
-	for i := 0; i < workers; i++ {
-		go cloneWorker(jobs, out, targetDir, opts, progress)
+func startWorkers(params WorkerParams) {
+	for i := 0; i < params.Workers; i++ {
+		go cloneWorker(params)
 	}
 }
 
 // cloneWorker drains the job channel until it closes.
-func cloneWorker(jobs <-chan cloneJob, out chan<- cloneOutcome,
-	targetDir string, opts CloneOptions, progress *Progress) {
-	for job := range jobs {
-		progress.Begin(repoDisplayName(job.rec))
-		result := cloneOrPullOne(job.rec, targetDir, opts)
-		out <- cloneOutcome{rec: job.rec, dest: job.dest, result: result}
+func cloneWorker(params WorkerParams) {
+	for job := range params.Jobs {
+		params.Progress.Begin(repoDisplayName(job.rec))
+		result := cloneOrPullOne(job.rec, params.TargetDir, params.Options)
+		params.Out <- cloneOutcome{rec: job.rec, dest: job.dest, result: result}
 	}
 }
 
 // enqueueJobs short-circuits cache hits (reported synchronously so the
 // progress line lands before any worker output) and dispatches the rest
 // onto the job channel.
-func enqueueJobs(records []model.ScanRecord, targetDir string, cache *CloneCache,
-	jobs chan<- cloneJob, out chan<- cloneOutcome) {
-	for _, rec := range records {
-		dest := filepath.Join(targetDir, model.CleanRelativePath(rec.RelativePath))
-		if cache.IsUpToDate(rec, dest) {
-			out <- cloneOutcome{
+func enqueueJobs(params EnqueueJobsParams) {
+	for _, rec := range params.Records {
+		dest := filepath.Join(params.TargetDir, model.CleanRelativePath(rec.RelativePath))
+		if params.Cache.IsUpToDate(rec, dest) {
+			params.Out <- cloneOutcome{
 				rec:    rec,
 				dest:   dest,
 				result: model.CloneResult{Record: rec, IsSuccess: true},
@@ -92,28 +147,33 @@ func enqueueJobs(records []model.ScanRecord, targetDir string, cache *CloneCache
 			continue
 		}
 
-		jobs <- cloneJob{rec: rec, dest: dest}
+		params.Jobs <- cloneJob{rec: rec, dest: dest}
 	}
 }
 
 // collectOutcomes drains the outcome channel, updating progress, cache,
 // and summary in the same order outcomes complete.
-func collectOutcomes(records []model.ScanRecord, targetDir string, safePull bool,
-	progress *Progress, cache *CloneCache, out <-chan cloneOutcome) model.CloneSummary {
+func collectOutcomes(params CollectOutcomesParams) model.CloneSummary {
 	summary := model.CloneSummary{}
-	for i := 0; i < len(records); i++ {
-		o := <-out
+	for i := 0; i < len(params.Records); i++ {
+		o := <-params.Out
 		if o.cached {
-			progress.Skip(o.result)
+			params.Progress.Skip(o.result)
 			summary = updateSummarySkipped(summary, o.result)
 
 			continue
 		}
 
-		trackResult(progress, o.result, o.rec, targetDir, safePull)
+		_ = TrackResult(TrackResultParams{
+			Progress:   params.Progress,
+			Result:     o.result,
+			ScanRecord: o.rec,
+			TargetDir:  params.TargetDir,
+			IsSafePull: params.IsSafePull,
+		})
 		summary = updateSummary(summary, o.result)
 		if o.result.IsSuccess {
-			cache.Record(o.rec, o.dest)
+			params.Cache.Record(o.rec, o.dest)
 		}
 	}
 

@@ -147,9 +147,19 @@ func resolveURL(raw, mode string) (string, error) {
 	parts := strings.Split(s, "/")
 	switch len(parts) {
 	case 2:
-		return shorthandToURL("github.com", parts[0], parts[1], mode), nil
+		return shorthandToURL(ShorthandURLParams{
+			Host:  "github.com",
+			Owner: parts[0],
+			Repo:  parts[1],
+			Mode:  mode,
+		}), nil
 	case 3:
-		return shorthandToURL(parts[0], parts[1], parts[2], mode), nil
+		return shorthandToURL(ShorthandURLParams{
+			Host:  parts[0],
+			Owner: parts[1],
+			Repo:  parts[2],
+			Mode:  mode,
+		}), nil
 	default:
 		// Anything else, hand it to git verbatim. Git will reject
 		// nonsense with its own (more accurate) error message.
@@ -157,23 +167,31 @@ func resolveURL(raw, mode string) (string, error) {
 	}
 }
 
+// ShorthandURLParams defines parameters for constructing a canonical repository URL from shorthand.
+type ShorthandURLParams struct {
+	Host  string
+	Owner string
+	Repo  string
+	Mode  string
+}
+
 // shorthandToURL builds the canonical https or ssh URL for the host
 // triple. Kept tiny so it stays under the 15-line function rule.
-func shorthandToURL(host, owner, repo, mode string) string {
-	repo = strings.TrimSuffix(repo, ".git")
-	if mode == constants.ClonePickModeSSH {
-		return fmt.Sprintf("git@%s:%s/%s.git", host, owner, repo)
+func shorthandToURL(params ShorthandURLParams) string {
+	repo := strings.TrimSuffix(params.Repo, ".git")
+	if params.Mode == constants.ClonePickModeSSH {
+		return fmt.Sprintf("git@%s:%s/%s.git", params.Host, params.Owner, repo)
 	}
 
-	return fmt.Sprintf("https://%s/%s/%s.git", host, owner, repo)
+	return fmt.Sprintf("https://%s/%s/%s.git", params.Host, params.Owner, repo)
 }
 
 // normalisePaths splits, validates, deduplicates, and sorts the
-// comma-separated path list. askMode permits an empty list:
+// comma-separated path list. isAskMode permits an empty list:
 // the picker will fill it in interactively, so requiring `<paths>`
 // up front would be a usability bug.
-func normalisePaths(raw string, askMode bool) ([]string, error) {
-	if len(strings.TrimSpace(raw)) == 0 && askMode {
+func normalisePaths(raw string, isAskMode bool) ([]string, error) {
+	if len(strings.TrimSpace(raw)) == 0 && isAskMode {
 		return nil, nil
 	}
 

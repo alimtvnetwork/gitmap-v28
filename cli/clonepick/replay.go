@@ -67,9 +67,9 @@ func loadByIDOrError(loader Loader, id int64, ref string) (Plan, int64, error) {
 
 // TouchAfterReplay bumps CreatedAt on the replayed row. Best-effort:
 // a failure is logged by the caller but never fails the replay.
-// Skipped when dryRun is true so dry-runs stay read-only.
-func TouchAfterReplay(loader Loader, id int64, dryRun bool) error {
-	if loader == nil || id <= 0 || dryRun {
+// Skipped when isDryRun is true so dry-runs stay read-only.
+func TouchAfterReplay(loader Loader, id int64, isDryRun bool) error {
+	if loader == nil || id <= 0 || isDryRun {
 		return nil
 	}
 

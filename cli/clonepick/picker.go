@@ -48,7 +48,7 @@ type pickerModel struct {
 	// clampScroll after every cursor move.
 	scrollOffset int
 	isCanceled   bool
-	done         bool
+	isDone       bool
 }
 
 // defaultViewportHeight is the row-window size used until bubbletea
@@ -110,7 +110,12 @@ func (m pickerModel) handleResize(msg tea.WindowSizeMsg) pickerModel {
 	}
 
 	m.viewportHeight = height
-	m.scrollOffset = clampScroll(m.cursor, m.scrollOffset, height, len(m.paths))
+	m.scrollOffset = clampScroll(ScrollBoundsParams{
+		Cursor: m.cursor,
+		Offset: m.scrollOffset,
+		Height: height,
+		Total:  len(m.paths),
+	})
 
 	return m
 }
@@ -124,7 +129,7 @@ func (m pickerModel) handleKey(k tea.KeyMsg) (tea.Model, tea.Cmd) {
 
 		return m, tea.Quit
 	case "s", "enter":
-		m.done = true
+		m.isDone = true
 
 		return m, tea.Quit
 	}
@@ -146,8 +151,12 @@ func (m pickerModel) handleNavKey(k tea.KeyMsg) pickerModel {
 		m.picked = make(map[int]bool)
 	}
 
-	m.scrollOffset = clampScroll(m.cursor, m.scrollOffset,
-		m.viewportHeight, len(m.paths))
+	m.scrollOffset = clampScroll(ScrollBoundsParams{
+		Cursor: m.cursor,
+		Offset: m.scrollOffset,
+		Height: m.viewportHeight,
+		Total:  len(m.paths),
+	})
 
 	return m
 }

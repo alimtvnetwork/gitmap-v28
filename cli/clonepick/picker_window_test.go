@@ -48,7 +48,12 @@ func TestClampScrollKeepsCursorInWindow(t *testing.T) {
 	}
 
 	for _, tc := range cases {
-		got := clampScroll(tc.cursor, tc.offset, tc.height, tc.total)
+		got := clampScroll(ScrollBoundsParams{
+			Cursor: tc.cursor,
+			Offset: tc.offset,
+			Height: tc.height,
+			Total:  tc.total,
+		})
 		if got != tc.want {
 			t.Errorf("clampScroll(c=%d,o=%d,h=%d,t=%d) = %d, want %d",
 				tc.cursor, tc.offset, tc.height, tc.total, got, tc.want)
