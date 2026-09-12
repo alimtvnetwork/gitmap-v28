@@ -88,6 +88,7 @@ from concurrent.futures import ThreadPoolExecutor, as_completed
 from dataclasses import asdict, dataclass
 import fnmatch
 import hashlib
+import importlib
 import json
 import os
 from pathlib import Path
@@ -804,131 +805,54 @@ def load_raw_test_inventory(path: Path) -> dict[str, Any]:
 
 
 def build_or_update_test_inventory(repo_root: Path, force: bool = False) -> dict[str, Any]:
-    """Discovers all Go unit tests, indexes source code functions, maps code-to-test, and caches hashes & timings."""
-    gitmap_dir = repo_root / "cli"
+    """Discovers all repository tests, indexes source code functions, maps code-to-test, and caches hashes & timings."""
     existing_inv = load_raw_test_inventory(TEST_INVENTORY_PATH)
-    cached_tests = existing_inv.get("tests", {}) if isinstance(existing_inv, dict) else {}
+    slow_threshold = float(os.environ.get("GITMAP_SLOW_TEST_THRESHOLD", "4.0"))
 
-    # Step 1: Index non-test Go source files and extract function hashes
-    source_funcs: dict[str, dict[str, str]] = {}
-    source_file_hashes: dict[str, str] = {}
-    pkg_to_files: dict[str, list[str]] = {}
+    # If inventory does not exist, has no tests, or force is requested, delegate to centralized generator
+    if not existing_inv or not existing_inv.get("tests") or force:
+        try:
+            sys.path.insert(0, str(Path(__file__).parent))
+            inv_gen = importlib.import_module("33-test-inventory-generator")
+            return inv_gen.build_test_inventory(repo_root, slow_threshold=slow_threshold, force_run_all=force)
+        except Exception as exc:
+            sys.stderr.write(f"[WARN] Failed to invoke 33-test-inventory-generator: {exc}\n")
 
-    for root, _, files in os.walk(gitmap_dir):
-        rel_pkg = os.path.relpath(root, repo_root).replace("\\", "/")
-        pkg_files: list[str] = []
-        for f in files:
-            if f.endswith(".go") and not f.endswith("_test.go"):
-                p = Path(root) / f
-                rel_path = os.path.relpath(p, repo_root).replace("\\", "/")
-                source_funcs[rel_path] = extract_go_function_hashes(p)
-                source_file_hashes[rel_path] = compute_file_hash(p)
-                pkg_files.append(rel_path)
-        if pkg_files:
-            pkg_to_files[rel_pkg] = pkg_files
-
-    # Step 2: Discover all tests across *_test.go and map to target functions
-    inventory_tests: dict[str, Any] = {}
+    # Fast incremental dirty checking across existing inventory
+    tests = existing_inv.get("tests", {})
     dirty_count = 0
-    passed_count = 0
+    cached_count = 0
 
-    for root, _, files in os.walk(gitmap_dir):
-        rel_pkg = os.path.relpath(root, repo_root).replace("\\", "/")
-        for f in files:
-            if f.endswith("_test.go"):
-                p = Path(root) / f
-                rel_test_file = os.path.relpath(p, repo_root).replace("\\", "/")
-                tests = extract_go_test_functions(p)
-                candidates = pkg_to_files.get(rel_pkg, [])
-                if not candidates and rel_pkg.startswith("cli/tests/"):
-                    target_name = rel_pkg[len("cli/tests/"):].replace("_test", "")
-                    candidates = pkg_to_files.get(f"cli/{target_name}", []) or pkg_to_files.get("cli/cmd", [])
+    for tid, t in tests.items():
+        rel_target = t.get("target_file", "")
+        rel_test = t.get("test_file", "")
+        curr_test_hash = compute_file_hash(repo_root / rel_test) if rel_test else ""
+        curr_code_hash = compute_file_hash(repo_root / rel_target) if rel_target else ""
 
-                base_stem = f.replace("_test.go", "").replace("_unit", "")
-                primary_candidate = ""
-                for c in candidates:
-                    if Path(c).stem == base_stem or Path(c).stem.startswith(base_stem):
-                        primary_candidate = c
-                        break
-                if not primary_candidate and candidates:
-                    primary_candidate = candidates[0]
+        is_unchanged = (
+            not force
+            and t.get("last_status") == "passed"
+            and curr_code_hash == t.get("code_hash")
+            and curr_test_hash == t.get("test_hash")
+            and curr_code_hash != ""
+        )
 
-                for test_func, test_hash in tests.items():
-                    test_id = f"{rel_pkg}.{test_func}"
-                    func_suffix = test_func[4:]  # strip 'Test'
-                    matched_func = ""
-                    matched_file = primary_candidate
-                    matched_hash = ""
+        needs_run = not is_unchanged
+        t["needs_run"] = needs_run
+        if needs_run:
+            dirty_count += 1
+        else:
+            cached_count += 1
 
-                    for c in candidates:
-                        funcs = source_funcs.get(c, {})
-                        for fn, fhash in funcs.items():
-                            if fn.lower() == func_suffix.lower() or func_suffix.lower().startswith(fn.lower()):
-                                matched_func = fn
-                                matched_file = c
-                                matched_hash = fhash
-                                break
-                        if matched_func:
-                            break
+    summary = existing_inv.setdefault("summary", {})
+    summary["total"] = len(tests)
+    summary["cached"] = cached_count
+    summary["dirty"] = dirty_count
+    existing_inv["updated_at"] = time.strftime("%Y-%m-%dT%H:%M:%SZ")
 
-                    if not matched_hash and matched_file:
-                        matched_hash = source_file_hashes.get(matched_file, "")
-                    if not matched_hash:
-                        matched_hash = test_hash
-
-                    cached = cached_tests.get(test_id, {})
-                    prev_status = cached.get("last_status", "never_run")
-                    prev_duration = cached.get("duration_sec", 0.0)
-                    prev_run_at = cached.get("last_run_at", "")
-                    prev_code_hash = cached.get("code_hash", "")
-                    prev_test_hash = cached.get("test_hash", "")
-
-                    is_unchanged = (
-                        not force
-                        and prev_status == "passed"
-                        and prev_code_hash == matched_hash
-                        and prev_test_hash == test_hash
-                        and matched_hash != ""
-                    )
-
-                    needs_run = not is_unchanged
-                    if needs_run:
-                        dirty_count += 1
-                    else:
-                        passed_count += 1
-
-                    inventory_tests[test_id] = {
-                        "id": test_id,
-                        "package": rel_pkg,
-                        "test_file": rel_test_file,
-                        "test_func": test_func,
-                        "test_hash": test_hash,
-                        "target_file": matched_file,
-                        "target_func": matched_func,
-                        "code_hash": matched_hash,
-                        "duration_sec": prev_duration,
-                        "last_status": prev_status if is_unchanged else ("dirty" if prev_status == "passed" else prev_status),
-                        "last_run_at": prev_run_at,
-                        "needs_run": needs_run,
-                    }
-
-    inventory = {
-        "version": 1,
-        "updated_at": time.strftime("%Y-%m-%dT%H:%M:%S"),
-        "total_tests": len(inventory_tests),
-        "summary": {
-            "total": len(inventory_tests),
-            "cached": passed_count,
-            "dirty": dirty_count,
-            "packages": len(set(t["package"] for t in inventory_tests.values())),
-        },
-        "tests": inventory_tests,
-    }
-
-    atomic_write_json(TEST_INVENTORY_PATH, inventory)
-    atomic_write_json(TEST_INVENTORY_CACHE_PATH, inventory)
-
-    return inventory
+    atomic_write_json(TEST_INVENTORY_PATH, existing_inv)
+    atomic_write_json(TEST_INVENTORY_CACHE_PATH, existing_inv)
+    return existing_inv
 
 
 def print_inventory_summary(inventory: dict[str, Any]) -> None:
@@ -1190,6 +1114,11 @@ def run_smart_go_tests(
                             tests[tid]["last_status"] = res_info["status"]
                             tests[tid]["last_run_at"] = time.strftime("%Y-%m-%dT%H:%M:%S")
                             tests[tid]["needs_run"] = (res_info["status"] != "passed")
+                            tests[tid]["code_hash"] = compute_file_hash(repo_root / tests[tid].get("target_file", ""))
+                            tests[tid]["test_hash"] = compute_file_hash(repo_root / tests[tid].get("test_file", ""))
+                            if res_info["elapsed"] >= slow_threshold:
+                                tests[tid]["is_slow"] = True
+                                tests[tid]["tier"] = "slow"
                             record_job_timing(f"GoTest:{tid}", res_info["elapsed"])
                 except Exception as ex:
                     failed_count += len(b_tests)
@@ -1226,6 +1155,11 @@ def run_smart_go_tests(
                                 tests[tid]["last_status"] = res_info["status"]
                                 tests[tid]["last_run_at"] = time.strftime("%Y-%m-%dT%H:%M:%S")
                                 tests[tid]["needs_run"] = (res_info["status"] != "passed")
+                                tests[tid]["code_hash"] = compute_file_hash(repo_root / tests[tid].get("target_file", ""))
+                                tests[tid]["test_hash"] = compute_file_hash(repo_root / tests[tid].get("test_file", ""))
+                                if res_info["elapsed"] >= slow_threshold:
+                                    tests[tid]["is_slow"] = True
+                                    tests[tid]["tier"] = "slow"
                                 record_job_timing(f"GoTest:{tid}", res_info["elapsed"])
                     except Exception as ex:
                         failed_count += len(b_tests)
@@ -1334,6 +1268,10 @@ def execute_subprocess(
     resolved = resolve_command_binary(cmd)
     sub_env = dict(os.environ) if env is None else dict(env)
     sub_env.setdefault("PYTHONUNBUFFERED", "1")
+    sub_env["GOTMPDIR"] = str(TMP_CACHE_DIR)
+    sub_env["TMPDIR"] = str(TMP_CACHE_DIR)
+    sub_env["TEMP"] = str(TMP_CACHE_DIR)
+    sub_env["TMP"] = str(TMP_CACHE_DIR)
     res = subprocess.run(
         resolved, capture_output=True, text=True, encoding=DEFAULT_ENCODING,
         errors="replace", timeout=timeout_sec, env=sub_env, cwd=cwd,
@@ -2388,6 +2326,7 @@ def prepare_runner_context(args: argparse.Namespace, root: Path, total_jobs: int
     curr_dirty = get_dirty_files_map(root)
     last_head = prev_state.get("head", "")
     last_dirty = prev_state.get("dirty", {})
+    delta = compute_repo_delta(root, last_head, curr_head, last_dirty, curr_dirty)
     hb_interval = getattr(args, "heartbeat_interval", DEFAULT_HEARTBEAT_INTERVAL)
     telemetry = TelemetryTracker(total_jobs, sys.stdout.isatty(), bool(args.json_mode), args.show_all, heartbeat_interval=hb_interval)
     state = setup_runner_state(total_jobs, bool(args.json_mode), curr_head, curr_dirty)
