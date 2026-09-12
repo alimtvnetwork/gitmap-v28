@@ -1,7 +1,7 @@
 # Learned: Test Inventory & Atomic File Change Tracking
 
-**Recorded:** 2026-09-12  
-**Scope:** Repository-wide test management, local CI runner, and multi-agent coordination  
+**Recorded:** 2026-09-12
+**Scope:** Repository-wide test management, local CI runner, and multi-agent coordination
 
 ---
 

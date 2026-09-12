@@ -398,4 +398,3 @@ Allowed work:
 - ✅ **Release Ceremonies (`release-orchestrator`, `01`, `03`, `07`, `16-ci-cd/04`):** Run `python 03-ai-scripts/06-cicd-local-runner.py --run-tests` as the mandatory final pre-release gate before cutting a release.
 
 **Why:** The local CI/CD runner runs up to 38 segments (linters, cross-OS compilation, snapshot builds, web builds) across the entire codebase. Executing this massive suite on every micro-turn or coding guideline edit causes immense latency, hits unrelated files, and wastes substantial developer and compute time.
-

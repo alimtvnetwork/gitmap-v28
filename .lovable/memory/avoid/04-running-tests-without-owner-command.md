@@ -1,7 +1,7 @@
 # Avoid: Running Tests Without Owner Explicit Command
 
-**Status:** 🚫 Blocked — Explicit Owner Authorization Required  
-**Recorded:** 2026-09-12  
+**Status:** 🚫 Blocked — Explicit Owner Authorization Required
+**Recorded:** 2026-09-12
 
 ---
 

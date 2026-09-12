@@ -2,8 +2,8 @@
 
 Trigger Keywords & Aliases: `cg-nested-if`, `cg-execute nested-if`, `audit nested if`, `fix nested if`, `flatten conditionals`, `enforce guard clauses`
 
-> **Prompt Version:** 2.1.0  
-> **Synchronization:** Main Meta-Repo & Connected Workspaces  
+> **Prompt Version:** 2.1.0
+> **Synchronization:** Main Meta-Repo & Connected Workspaces
 > **Budget:** N = 200 (PHASE_1_STEPS = 100, PHASE_2_STEPS = 100)
 
 ---

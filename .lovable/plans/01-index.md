@@ -8,6 +8,7 @@ Master directory of architectural and execution plans.
 
 ## Completed Plans (Consolidated Milestones)
 
+- [102-code-hygiene-and-encoding-architecture.md](completed/102-code-hygiene-and-encoding-architecture.md): Code Hygiene & Universal Encoding Standards Audit (UTF-8, LF line endings, newline styling)
 - [101-react-frontend-architecture.md](completed/101-react-frontend-architecture.md): React & Frontend Architecture Audit (named hook objects, enum status types, Vite build)
 - [100-data-and-schema-architecture.md](completed/100-data-and-schema-architecture.md): Database & Data Schema Rules Architecture Audit (PascalCase tables, PK conventions, schema linter)
 - [99-constants-and-enums-architecture.md](completed/99-constants-and-enums-architecture.md): Constants & Enums Architecture Audit (*Type suffix, rune ban, constants centralization)
