@@ -35,11 +35,22 @@ SLICE_TUPLE_RETURN = re.compile(
     r"func\s+(?:\([^)]+\)\s+)?(\w+)\s*\([^)]*\)\s*\(\s*\[\](?!(?:byte|rune)\b)[^,]+,\s*(?:error|\*apperror\.AppError)\s*\)"
 )
 
+# Regex for detecting value receiver declarations on Result types
+VALUE_RECEIVER_RESULT = re.compile(
+    r"func\s+\((\w+)\s+(Result(?:Slice|Map)?\[[^\]]+\])\)"
+)
+
+# Regex for detecting clumsy compound cardinality checks
+CLUMSY_CARDINALITY_CHECK = re.compile(
+    r"(?:\.IsFailure\(\)\s*\|\|\s*[^.\s]+\.Count\(\)\s*!=\s*\d+|[^.\s]+\.Count\(\)\s*!=\s*\d+\s*\|\|\s*[^.\s]+\.IsFailure\(\))"
+)
+
 # Enforced subsystems/files that must strictly use ResultSlice[T]
 RESULT_SLICE_ENFORCED_PREFIXES = (
     "cli/macro/",
     "cli/pipelinedb/",
     "cli/cmdprompt/",
+    "cli/cmdschedule/",
     "cli/cluster/pathalias.go",
     "cli/db/nodepath.go",
 )
@@ -85,6 +96,21 @@ def audit_file(filepath: Path) -> tuple[list[str], int]:
                     )
                 else:
                     unmigrated_slices += 1
+
+        val_match = VALUE_RECEIVER_RESULT.search(stripped)
+        if val_match:
+            typ_name = val_match.group(2)
+            violations.append(
+                f"{rel}:{lno} method declared on value receiver `{typ_name}`; "
+                f"must use pointer receiver `(r *{typ_name})` for null safety"
+            )
+
+        clumsy_match = CLUMSY_CARDINALITY_CHECK.search(stripped)
+        if clumsy_match:
+            violations.append(
+                f"{rel}:{lno} clumsy compound cardinality check; "
+                f"use `.IsCountOtherThan(N)` instead"
+            )
 
     return violations, unmigrated_slices
 

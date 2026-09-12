@@ -8,6 +8,7 @@ Master directory of architectural and execution plans.
 
 ## Completed Plans (Consolidated Milestones)
 
+- [144-result-wrapper-null-safety-and-single-return-audit.md](completed/144-result-wrapper-null-safety-and-single-return-audit.md): Result Wrapper Types, Collections & AppError Returns (Pointer Null Safety & Predicates)
 - [143-argument-reduction-and-parameter-structs.md](completed/143-argument-reduction-and-parameter-structs.md): Argument Reduction, Parameter Structs & Return Architecture Audit (parameter structs, affirmative boolean fields, AppError returns)
 - [142-boolean-principles-negatives-and-complex-conditions.md](completed/142-boolean-principles-negatives-and-complex-conditions.md): Boolean Principles, Negatives & Complex Conditions Coding Guideline Audit
 - [141-result-wrapper-and-slice-returns.md](completed/141-result-wrapper-and-slice-returns.md): Result Wrapper Types, Collections & AppError Returns Architecture (Phase 2 - ResultSlice)

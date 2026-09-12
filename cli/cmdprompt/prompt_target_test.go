@@ -8,7 +8,7 @@ func TestPromptTargetSuite(t *testing.T) {
 	tempDir := t.TempDir()
 
 	targetRes := ResolvePromptTarget(tempDir)
-	if targetRes.IsFailure() || targetRes.IsEmpty() {
+	if !targetRes.HasRecord() {
 		t.Fatalf("ResolvePromptTarget failed: %v", targetRes.AppError())
 	}
 	targets := targetRes.Data

@@ -15,13 +15,13 @@ import (
 )
 
 type createRepoParams struct {
-	Name        string
-	LocalDir    string
-	Description string
+	Name         string
+	LocalDir     string
+	Description  string
 	IsPublic     bool
 	IsSkipRemote bool
 	IsJSON       bool
-	Profile     model.GitProfile
+	Profile      model.GitProfile
 }
 
 func executeCreateRepo(args []string) error {

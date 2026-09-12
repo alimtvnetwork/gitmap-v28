@@ -47,9 +47,9 @@ func TestScheduleExportAndImportFormats(t *testing.T) {
 		t.Fatalf("export except failed: %v", err)
 	}
 
-	bundles, err := parseImportJSON(exceptJSON)
-	if err != nil || len(bundles) != 1 || bundles[0].Task.Name != "exp-task-2" {
-		t.Fatalf("expected only exp-task-2 in except export, got: %+v (err: %v)", bundles, err)
+	bundlesRes := parseImportJSON(exceptJSON)
+	if bundlesRes.IsCountOtherThan(1) || bundlesRes.Data[0].Task.Name != "exp-task-2" {
+		t.Fatalf("expected only exp-task-2 in except export, got: %+v (err: %v)", bundlesRes.Data, bundlesRes.AppError())
 	}
 
 	// 7. Delete exp-task-1 and re-import from JSON

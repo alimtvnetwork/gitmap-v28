@@ -31,7 +31,7 @@ func TestExportMacros_SingleAndAllJSON(t *testing.T) {
 	}
 
 	listRes := ParseImportJSON(payload)
-	if listRes.IsFailure() || listRes.Count() != 2 {
+	if listRes.IsCountOtherThan(2) {
 		t.Fatalf("ParseImportJSON slice failed: count=%d, err=%v", listRes.Count(), listRes.AppError())
 	}
 
@@ -41,7 +41,7 @@ func TestExportMacros_SingleAndAllJSON(t *testing.T) {
 	}
 
 	singleRes := ParseImportJSON(singlePayload)
-	if singleRes.IsFailure() || singleRes.Count() != 1 {
+	if singleRes.IsCountOtherThan(1) {
 		t.Fatalf("ParseImportJSON single failed: count=%d, err=%v", singleRes.Count(), singleRes.AppError())
 	}
 }
@@ -55,7 +55,7 @@ func TestExportMacros_SingleAndAllYAML(t *testing.T) {
 	}
 
 	yamlRes := ParseImportYAML(payload)
-	if yamlRes.IsFailure() || yamlRes.Count() != 2 {
+	if yamlRes.IsCountOtherThan(2) {
 		t.Fatalf("ParseImportYAML slice failed: count=%d, err=%v", yamlRes.Count(), yamlRes.AppError())
 	}
 
@@ -65,7 +65,7 @@ func TestExportMacros_SingleAndAllYAML(t *testing.T) {
 	}
 
 	singleYamlRes := ParseImportYAML(singlePayload)
-	if singleYamlRes.IsFailure() || singleYamlRes.Count() != 1 {
+	if singleYamlRes.IsCountOtherThan(1) {
 		t.Fatalf("ParseImportYAML single failed: count=%d, err=%v", singleYamlRes.Count(), singleYamlRes.AppError())
 	}
 }

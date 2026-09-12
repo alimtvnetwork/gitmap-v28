@@ -251,7 +251,7 @@ func renderRunErrorsByDetailMode(db *pipelinedb.PipelineSplitDb, runId uint64, i
 
 func renderDetailedOrLegacyErrors(db *pipelinedb.PipelineSplitDb, runId uint64) {
 	detailRes := db.QueryDetailedErrorLogsByRunId(runId)
-	if detailRes.IsSuccess() && !detailRes.IsEmpty() {
+	if detailRes.HasRecord() {
 		renderCachedErrorsList(detailRes.Data)
 
 		return
@@ -263,7 +263,7 @@ func renderDetailedOrLegacyErrors(db *pipelinedb.PipelineSplitDb, runId uint64) 
 
 func renderCompactOrLegacyErrors(db *pipelinedb.PipelineSplitDb, runId uint64) {
 	compactRes := db.QueryCompactErrorLogsByRunId(runId)
-	if compactRes.IsSuccess() && !compactRes.IsEmpty() {
+	if compactRes.HasRecord() {
 		renderCachedCompactErrorsList(compactRes.Data)
 
 		return

@@ -23,7 +23,7 @@ func ResolveAllWorkDirPromptTargets() result.ResultSlice[string] {
 	var allTargets []string
 	for _, d := range dirs {
 		childRes := DiscoverPromptChildRepos(d.AbsolutePath)
-		if childRes.IsSuccess() && !childRes.IsEmpty() {
+		if childRes.HasRecord() {
 			allTargets = append(allTargets, childRes.Data...)
 		} else {
 			allTargets = append(allTargets, d.AbsolutePath)

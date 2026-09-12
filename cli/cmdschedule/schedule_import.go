@@ -13,6 +13,7 @@ import (
 	"strings"
 
 	"github.com/alimtvnetwork/gitmap-v28/cli/apperror"
+	"github.com/alimtvnetwork/gitmap-v28/cli/result"
 	"github.com/alimtvnetwork/gitmap-v28/cli/store"
 	"gopkg.in/yaml.v3"
 	_ "modernc.org/sqlite"
@@ -31,12 +32,12 @@ func runScheduleImport(args []string) error {
 		return apperror.NewSimple("import file path required", "E6011")
 	}
 
-	bundles, err := parseImportFileBundles(opts.FilePath)
-	if err != nil {
-		return err
+	bundlesRes := parseImportFileBundles(opts.FilePath)
+	if bundlesRes.IsFailure() {
+		return bundlesRes.AppError()
 	}
 
-	return importBundlesIntoStore(bundles, opts.ExceptList)
+	return importBundlesIntoStore(bundlesRes.Data, opts.ExceptList)
 }
 
 func fileExists(path string) bool {
@@ -45,7 +46,7 @@ func fileExists(path string) bool {
 	return err == nil && !info.IsDir()
 }
 
-func parseImportFileBundles(filePath string) ([]scheduleExportBundle, error) {
+func parseImportFileBundles(filePath string) result.ResultSlice[scheduleExportBundle] {
 	ext := strings.ToLower(filepath.Ext(filePath))
 	switch ext {
 	case ".yaml", ".yml":
@@ -59,58 +60,58 @@ func parseImportFileBundles(filePath string) ([]scheduleExportBundle, error) {
 	}
 }
 
-func parseImportJSON(filePath string) ([]scheduleExportBundle, error) {
+func parseImportJSON(filePath string) result.ResultSlice[scheduleExportBundle] {
 	raw, err := os.ReadFile(filePath)
 	if err != nil {
-		return nil, apperror.WrapSimple(err, "read import json")
+		return result.FailSlice[scheduleExportBundle](apperror.WrapSimple(err, "read import json"))
 	}
 
 	var bundles []scheduleExportBundle
 	if err := json.Unmarshal(raw, &bundles); err == nil && len(bundles) > 0 {
-		return bundles, nil
+		return result.OkSlice(bundles)
 	}
 
 	var single scheduleExportBundle
 	if err := json.Unmarshal(raw, &single); err == nil && single.Task.Name != "" {
-		return []scheduleExportBundle{single}, nil
+		return result.OkSlice([]scheduleExportBundle{single})
 	}
 
-	return nil, apperror.NewSimple("invalid json schedule export format", "E6012")
+	return result.FailSlice[scheduleExportBundle](apperror.NewSimple("invalid json schedule export format", "E6012"))
 }
 
-func parseImportYAML(filePath string) ([]scheduleExportBundle, error) {
+func parseImportYAML(filePath string) result.ResultSlice[scheduleExportBundle] {
 	raw, err := os.ReadFile(filePath)
 	if err != nil {
-		return nil, apperror.WrapSimple(err, "read import yaml")
+		return result.FailSlice[scheduleExportBundle](apperror.WrapSimple(err, "read import yaml"))
 	}
 
 	var bundles []scheduleExportBundle
 	if err := yaml.Unmarshal(raw, &bundles); err == nil && len(bundles) > 0 {
-		return bundles, nil
+		return result.OkSlice(bundles)
 	}
 
 	var single scheduleExportBundle
 	if err := yaml.Unmarshal(raw, &single); err == nil && single.Task.Name != "" {
-		return []scheduleExportBundle{single}, nil
+		return result.OkSlice([]scheduleExportBundle{single})
 	}
 
-	return nil, apperror.NewSimple("invalid yaml schedule export format", "E6013")
+	return result.FailSlice[scheduleExportBundle](apperror.NewSimple("invalid yaml schedule export format", "E6013"))
 }
 
-func parseImportSQLite(filePath string) ([]scheduleExportBundle, error) {
+func parseImportSQLite(filePath string) result.ResultSlice[scheduleExportBundle] {
 	conn, appErr := store.OpenSQLiteDB(filePath)
 	if appErr != nil {
-		return nil, apperror.WrapSimple(appErr, "open import sqlite db")
+		return result.FailSlice[scheduleExportBundle](apperror.WrapSimple(appErr, "open import sqlite db"))
 	}
 
 	defer conn.Close()
 
-	tasks, err := queryImportTasksFromDB(conn)
-	if err != nil {
-		return nil, err
+	tasksRes := queryImportTasksFromDB(conn)
+	if tasksRes.IsFailure() {
+		return result.FailSlice[scheduleExportBundle](tasksRes.AppError())
 	}
 
-	return buildImportBundles(conn, tasks), nil
+	return result.OkSlice(buildImportBundles(conn, tasksRes.Data))
 }
 
 func buildImportBundles(conn *sql.DB, tasks []store.SchedulerTask) []scheduleExportBundle {
@@ -123,17 +124,17 @@ func buildImportBundles(conn *sql.DB, tasks []store.SchedulerTask) []scheduleExp
 	return bundles
 }
 
-func queryImportTasksFromDB(conn *sql.DB) ([]store.SchedulerTask, error) {
+func queryImportTasksFromDB(conn *sql.DB) result.ResultSlice[store.SchedulerTask] {
 	q := `SELECT id, name, COALESCE(slug,''), COALESCE(db_path,''), COALESCE(macro_name,''), COALESCE(command_line,''), interval_val, delay_val, is_enabled, is_scheduled, has_delay, is_startup, run_count, COALESCE(last_run_at,''), created_at
 	      FROM scheduler_tasks`
 	rows, err := conn.Query(q)
 	if err != nil {
-		return nil, apperror.WrapSimple(err, "query import scheduler_tasks")
+		return result.FailSlice[store.SchedulerTask](apperror.WrapSimple(err, "query import scheduler_tasks"))
 	}
 
 	defer rows.Close()
 
-	return parseImportTaskRows(rows), nil
+	return result.OkSlice(parseImportTaskRows(rows))
 }
 
 func parseImportTaskRows(rows *sql.Rows) []store.SchedulerTask {
@@ -179,10 +180,10 @@ func parseImportRunRows(rows *sql.Rows) []store.ScheduleRunRecord {
 	return list
 }
 
-func parseImportZIP(filePath string) ([]scheduleExportBundle, error) {
+func parseImportZIP(filePath string) result.ResultSlice[scheduleExportBundle] {
 	zr, err := zip.OpenReader(filePath)
 	if err != nil {
-		return nil, apperror.WrapSimple(err, "open zip file")
+		return result.FailSlice[scheduleExportBundle](apperror.WrapSimple(err, "open zip file"))
 	}
 
 	defer zr.Close()
@@ -198,7 +199,7 @@ func parseImportZIP(filePath string) ([]scheduleExportBundle, error) {
 		}
 	}
 
-	return bundles, nil
+	return result.OkSlice(bundles)
 }
 
 func readBundleFromZipFile(f *zip.File) scheduleExportBundle {

@@ -9,8 +9,8 @@ import (
 
 // movemergeFlagSet attaches every shared flag for mv/merge-* to fs.
 type movemergeFlagSet struct {
-	yes, accept                                   bool
-	prefL, prefR, prefNewer, prefSkip             bool
+	yes, accept                                           bool
+	prefL, prefR, prefNewer, prefSkip                     bool
 	isSkipPush, isSkipCommit, forceFold, pullFold, dryRun bool
 	initNew, includeVCS, includeNM                        bool
 }

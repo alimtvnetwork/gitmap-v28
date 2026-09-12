@@ -196,7 +196,7 @@ func TestDualTableRepoSplitDbStorage(t *testing.T) {
 
 func verifySplitDbDualLogs(t *testing.T, pipeDb *pipelinedb.PipelineSplitDb, runId uint64) {
 	detailRes := pipeDb.QueryDetailedErrorLogsByRunId(runId)
-	if detailRes.IsFailure() || detailRes.Count() != 1 {
+	if detailRes.IsCountOtherThan(1) {
 		t.Fatalf("expected 1 detail log, got %d (err: %v)", detailRes.Count(), detailRes.AppError())
 	}
 	details := detailRes.Data
@@ -205,7 +205,7 @@ func verifySplitDbDualLogs(t *testing.T, pipeDb *pipelinedb.PipelineSplitDb, run
 	}
 
 	compactRes := pipeDb.QueryCompactErrorLogsByRunId(runId)
-	if compactRes.IsFailure() || compactRes.Count() != 1 {
+	if compactRes.IsCountOtherThan(1) {
 		t.Fatalf("expected 1 compact log, got %d (err: %v)", compactRes.Count(), compactRes.AppError())
 	}
 	compacts := compactRes.Data

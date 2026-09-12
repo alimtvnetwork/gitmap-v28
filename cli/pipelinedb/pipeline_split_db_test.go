@@ -60,7 +60,7 @@ func TestPipelineSplitDBLifecycle(t *testing.T) {
 
 	// 4. Query Error Logs
 	logRes := db.QueryRecentErrorLogs(5)
-	if logRes.IsFailure() || logRes.Count() != 1 {
+	if logRes.IsCountOtherThan(1) {
 		t.Fatalf("expected 1 error log, got %d (err: %v)", logRes.Count(), logRes.AppError())
 	}
 	logs := logRes.Data

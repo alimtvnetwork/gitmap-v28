@@ -13,6 +13,7 @@ import (
 
 	"github.com/alimtvnetwork/gitmap-v28/cli/apperror"
 	"github.com/alimtvnetwork/gitmap-v28/cli/constants"
+	"github.com/alimtvnetwork/gitmap-v28/cli/result"
 	"github.com/alimtvnetwork/gitmap-v28/cli/store"
 	"gopkg.in/yaml.v3"
 	_ "modernc.org/sqlite"
@@ -39,12 +40,12 @@ func runScheduleExport(args []string) error {
 	}
 
 	defer db.Close()
-	bundles, err := collectExportBundles(db, opts)
-	if err != nil {
-		return err
+	bundlesRes := collectExportBundles(db, opts)
+	if bundlesRes.IsFailure() {
+		return bundlesRes.AppError()
 	}
 
-	return writeScheduleExportOutput(bundles, opts)
+	return writeScheduleExportOutput(bundlesRes.Data, opts)
 }
 
 func parseScheduleExportOpts(args []string) scheduleExportOpts {
@@ -109,10 +110,10 @@ func parseExceptTokens(raw string) []string {
 	return list
 }
 
-func collectExportBundles(db *store.DB, opts scheduleExportOpts) ([]scheduleExportBundle, error) {
+func collectExportBundles(db *store.DB, opts scheduleExportOpts) result.ResultSlice[scheduleExportBundle] {
 	tasks, err := db.ListSchedules()
 	if err != nil {
-		return nil, apperror.WrapSimple(err, "list schedules for export")
+		return result.FailSlice[scheduleExportBundle](apperror.WrapSimple(err, "list schedules for export"))
 	}
 
 	var bundles []scheduleExportBundle
@@ -126,10 +127,10 @@ func collectExportBundles(db *store.DB, opts scheduleExportOpts) ([]scheduleExpo
 	}
 
 	if len(bundles) == 0 && !opts.IsAll {
-		return nil, apperror.NewSimple("schedule "+opts.TargetName+" not found", "E6010")
+		return result.FailSlice[scheduleExportBundle](apperror.NewSimple("schedule "+opts.TargetName+" not found", "E6010"))
 	}
 
-	return bundles, nil
+	return result.OkSlice(bundles)
 }
 
 func isSkippableSchedule(name string, opts scheduleExportOpts) bool {
