@@ -134,21 +134,70 @@ func runMacroCmd(args []string) error {
 }
 
 func routeMacroSubcommand(sub string, rest []string) error {
+	if isExecSubcommand(sub) {
+		return routeExecSubcommand(sub, rest)
+	}
+
+	return routeManagementSubcommand(sub, rest)
+}
+
+func isExecSubcommand(sub string) bool {
+	return sub == "run" || sub == "exec" || isRetrySubcommand(sub)
+}
+
+func isRetrySubcommand(sub string) bool {
+	switch sub {
+	case "run-until-succeed", "until-success", "retry", "loop-until-success", "loop", "retry-until-success":
+		return true
+	default:
+		return false
+	}
+}
+
+func routeExecSubcommand(sub string, rest []string) error {
+	if isRetrySubcommand(sub) {
+		return runMacroUntilSuccess(rest)
+	}
+
+	return runExecuteCmd(rest)
+}
+
+func routeManagementSubcommand(sub string, rest []string) error {
+	if isModifySubcommand(sub) {
+		return routeModifySubcommand(sub, rest)
+	}
+
+	return routeInspectSubcommand(sub, rest)
+}
+
+func isModifySubcommand(sub string) bool {
+	switch sub {
+	case "add", "create", "new", "edit", "modify", "record", "rec", "rm", "delete":
+		return true
+	default:
+		return false
+	}
+}
+
+func routeModifySubcommand(sub string, rest []string) error {
 	switch sub {
 	case "add", "create", "new":
 		return handleMacroAdd(rest)
-	case "run-until-succeed", "until-success", "retry", "loop-until-success", "loop", "retry-until-success":
-		return runMacroUntilSuccess(rest)
-	case "run", "exec":
-		return runExecuteCmd(rest)
+	case "edit", "modify":
+		return handleMacroEdit(rest)
 	case "record", "rec":
 		return handleMacroRecord(rest)
+	default:
+		return handleMacroDelete(rest)
+	}
+}
+
+func routeInspectSubcommand(sub string, rest []string) error {
+	switch sub {
 	case "list", "ls":
 		return handleMacroList(rest)
 	case "show":
 		return handleMacroShow(rest)
-	case "rm", "delete":
-		return handleMacroDelete(rest)
 	default:
 		printMacroUsage()
 	}
@@ -301,6 +350,7 @@ func printMacroUsage() {
 	fmt.Println("Usage: gitmap macro <command> [arguments]")
 	fmt.Println("Commands:")
 	fmt.Println("  add <name> <steps...>          Create/add a new macro directly from arguments")
+	fmt.Println("  edit <name> [--no-exec]        Interactively edit steps of an existing macro")
 	fmt.Println("  run <name> [--json] [--yaml]   Replay a macro (optional JSON/YAML & file export)")
 	fmt.Println("  run-until-succeed <name|cmd>   Execute macro or command repeatedly until success (with sleep & AI diagnostics)")
 	fmt.Println("  record <name>                  Record an interactive shell session as a macro")

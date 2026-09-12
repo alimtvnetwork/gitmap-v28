@@ -4,10 +4,11 @@ Master directory of architectural and execution plans.
 
 ## Pending Plans
 
-*(None)*
+(None)
 
 ## Completed Plans (Consolidated Milestones)
 
+- [114-macro-live-execution-copy-explorer-browser.md](completed/114-macro-live-execution-copy-explorer-browser.md): Macro Live Execution & Edit, Memory/Clipboard Copy-Paste, Explorer & Browser URL Openers
 - [113-enhanced-pipeline-error-logs.md](completed/113-enhanced-pipeline-error-logs.md): Enhanced Pipeline Error Logs, Zero-Error State, Metadata Embedding & Clipboard Integration
 - [112-clone-next-dry-run-guard.md](completed/112-clone-next-dry-run-guard.md): Clone-Next Dry-Run Side-Effect Prevention & Preview Verification
 - [111-function-argument-reduction-and-params.md](completed/111-function-argument-reduction-and-params.md): Argument Reduction, Parameter Structs & Return Architecture Audit (parameter structs, affirmative fields)

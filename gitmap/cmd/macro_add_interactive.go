@@ -167,7 +167,7 @@ func recordStepLine(line, name string, state *interactiveSessionState, steps *[]
 
 	runLiveStepIfEnabled(line, state.isExecEnabled)
 
-	return appendRecordedStep(line, steps, stepNum)
+	return appendRecordedStep(line, state.isExecEnabled, steps, stepNum)
 }
 
 func runLiveStepIfEnabled(line string, isExecEnabled bool) {
@@ -185,26 +185,52 @@ func ensureTerminalVisibility() {
 	_ = os.Stderr.Sync()
 }
 
-func appendRecordedStep(line string, steps *[]macro.MacroStep, stepNum *int) interactiveLoopAction {
+func appendRecordedStep(line string, isExecEnabled bool, steps *[]macro.MacroStep, stepNum *int) interactiveLoopAction {
 	if strings.Contains(line, "&&") {
 		*stepNum = appendChainedSteps(steps, line, *stepNum)
+		printChainedStepFeedback(isExecEnabled, *stepNum)
 
 		return loopActionContinue
 	}
 
 	*steps = append(*steps, makeMacroStep(*stepNum, line))
-	fmt.Printf("  %s✓ Recorded Step %d: %s%s (will run when macro is executed)\n\n",
-		constants.ColorGreen, *stepNum, line, constants.ColorReset)
+	printStepFeedback(line, isExecEnabled, *stepNum)
 	*stepNum++
 
 	return loopActionContinue
 }
 
+func printStepFeedback(line string, isExecEnabled bool, stepNum int) {
+	if isExecEnabled {
+		fmt.Printf("  %s✓ Executed & Recorded Step %d: %s%s\n\n",
+			constants.ColorGreen, stepNum, line, constants.ColorReset)
+
+		return
+	}
+
+	fmt.Printf("  %s✓ Recorded Step %d: %s%s (will run when macro is executed)\n\n",
+		constants.ColorGreen, stepNum, line, constants.ColorReset)
+}
+
+func printChainedStepFeedback(isExecEnabled bool, stepNum int) {
+	if isExecEnabled {
+		fmt.Printf("  %s✓ Executed & Recorded compound steps through Step %d%s\n\n",
+			constants.ColorGreen, stepNum-1, constants.ColorReset)
+
+		return
+	}
+
+	fmt.Printf("  %s✓ Recorded compound steps through Step %d (will run when macro is executed)%s\n\n",
+		constants.ColorGreen, stepNum-1, constants.ColorReset)
+}
+
 func executeLiveCommand(cmdText string) error {
+	fmt.Printf("  %s▶ Executing: %s%s\n", constants.ColorCyan, cmdText, constants.ColorReset)
 	cmd := buildLiveExecCmd(cmdText)
 	err := cmd.Run()
+	ensureTerminalVisibility()
 	if err != nil {
-		fmt.Fprintf(os.Stderr, "  %s▲ Live command returned error: %v%s\n\n",
+		fmt.Fprintf(os.Stderr, "  %s▲ Command exited with error: %v%s\n\n",
 			constants.ColorYellow, err, constants.ColorReset)
 	}
 
@@ -269,18 +295,46 @@ func chainWindowsCompoundCommands(parts []string) string {
 func resolveSingleLiveCmd(cmdText string) string {
 	trimmed := strings.TrimSpace(cmdText)
 	lower := strings.ToLower(trimmed)
-	if !strings.HasPrefix(lower, "gitmap ") && lower != "gitmap" {
-		return trimmed
+	prefixLen := getGitmapPrefixLen(lower)
+	if prefixLen > 0 {
+		return formatGitmapExeCmd(trimmed[prefixLen:])
 	}
 
+	if isGitmapDirectCommand(lower) {
+		return formatGitmapExeCmd(trimmed)
+	}
+
+	return trimmed
+}
+
+func isGitmapDirectCommand(lower string) bool {
+	return strings.HasPrefix(lower, "open-url ") ||
+		strings.HasPrefix(lower, "browse ") ||
+		strings.HasPrefix(lower, "pipeline ") ||
+		lower == "pipeline"
+}
+
+func formatGitmapExeCmd(args string) string {
 	exe, err := os.Executable()
 	if err != nil {
-		return trimmed
+		return args
 	}
 
-	args := strings.TrimSpace(trimmed[len("gitmap"):])
+	cleanArgs := strings.TrimSpace(args)
 
-	return formatLiveExeCmd(exe, args)
+	return formatLiveExeCmd(exe, cleanArgs)
+}
+
+func getGitmapPrefixLen(lower string) int {
+	if strings.HasPrefix(lower, "gitmap.exe ") || lower == "gitmap.exe" {
+		return len("gitmap.exe")
+	}
+
+	if strings.HasPrefix(lower, "gitmap ") || lower == "gitmap" {
+		return len("gitmap")
+	}
+
+	return 0
 }
 
 func formatLiveExeCmd(exe, args string) string {

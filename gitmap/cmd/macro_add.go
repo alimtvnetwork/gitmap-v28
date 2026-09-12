@@ -60,7 +60,7 @@ func ensureMacroSteps(name string, steps []macro.MacroStep, isExec bool) ([]macr
 
 func parseMacroAddFlags(args []string) (string, string, bool, []string) {
 	var desc, tag string
-	var isExec bool
+	isExec := true
 	var rawSteps []string
 	for i := 0; i < len(args); i++ {
 		a := args[i]
@@ -83,6 +83,12 @@ func handleMacroAddSpecialFlag(flag string, isExec *bool) bool {
 
 	if flag == "--no-pwd" {
 		uipref.SetMacroPwdOverride(false)
+
+		return true
+	}
+
+	if flag == "--no-exec" {
+		*isExec = false
 
 		return true
 	}

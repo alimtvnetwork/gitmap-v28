@@ -70,6 +70,7 @@ func dataExecutionEntries() []dispatchEntry {
 		{[]string{"macro", "m"}, func() error { return runMacroCmd(argsTail()) }},
 		{[]string{"macro-run", "macro-exec"}, func() error { return runExecuteCmd(argsTail()) }},
 		{[]string{"macro-add", "macro-create"}, func() error { return handleMacroAdd(argsTail()) }},
+		{[]string{"macro-edit", "macro-modify"}, func() error { return handleMacroEdit(argsTail()) }},
 		{[]string{"macro-list", "macro-ls"}, func() error { return handleMacroList(argsTail()) }},
 		{[]string{"macro-record", "macro-rec"}, func() error { return handleMacroRecord(argsTail()) }},
 		{[]string{"macro-show"}, func() error { return handleMacroShow(argsTail()) }},

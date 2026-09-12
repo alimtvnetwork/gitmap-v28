@@ -21,36 +21,59 @@ func dispatchUtility(command string) (bool, error) {
 
 // utilityDispatchEntries returns the routing table for utility commands.
 func utilityDispatchEntries() []dispatchEntry {
-	return []dispatchEntry{
-		{
-			[]string{"binary", "info"},
-			func() error {
-				printGitmapIdentityBlockLong()
+	entries := make([]dispatchEntry, 0, 45)
+	entries = append(entries, utilityCoreEntries()...)
+	entries = append(entries, utilityToolEntries()...)
+	entries = append(entries, utilitySystemEntries()...)
+	entries = append(entries, utilityPipelineEntries()...)
+	entries = append(entries, utilityDesktopEntries()...)
 
-				return nil
-			},
-		},
+	return entries
+}
+
+func utilityCoreEntries() []dispatchEntry {
+	return []dispatchEntry{
+		{[]string{"binary", "info"}, printIdentityLong},
 		{[]string{"error"}, func() error { return runErrorCmd(argsTail()) }},
-		{[]string{constants.CmdUpdate}, func() error { checkHelp("update", argsTail()); return runUpdate() }},
+		{[]string{constants.CmdUpdate}, runUpdateHelp},
 		{[]string{constants.CmdUpdateRunner}, runUpdateRunner},
 		{[]string{constants.CmdUpdateCleanup}, runUpdateCleanup},
-		{
-			[]string{constants.CmdInstalledDir, constants.CmdInstalledDirAlias},
-			func() error { checkHelp("installed-dir", argsTail()); return runInstalledDir() },
-		},
+		{[]string{constants.CmdInstalledDir, constants.CmdInstalledDirAlias}, runInstalledDirHelp},
 		{[]string{constants.CmdRevert}, func() error { return runRevert(argsTail()) }},
 		{[]string{constants.CmdRm, constants.CmdRmAlias, constants.CmdRmAlias2}, func() error { return runRm(argsTail()) }},
 		{[]string{constants.CmdRevertRunner}, runRevertRunner},
-		{
-			[]string{constants.CmdVersion, constants.CmdVersionAlias},
-			func() error {
-				checkHelp("version", argsTail())
-				fmt.Printf(constants.MsgVersionFmt, constants.Version)
-
-				return nil
-			},
-		},
+		{[]string{constants.CmdVersion, constants.CmdVersionAlias}, printVersionBlock},
 		{[]string{constants.CmdHelp, "--help", "-h"}, runHelpDispatch},
+	}
+}
+
+func printIdentityLong() error {
+	printGitmapIdentityBlockLong()
+
+	return nil
+}
+
+func printVersionBlock() error {
+	checkHelp("version", argsTail())
+	fmt.Printf(constants.MsgVersionFmt, constants.Version)
+
+	return nil
+}
+
+func runInstalledDirHelp() error {
+	checkHelp("installed-dir", argsTail())
+
+	return runInstalledDir()
+}
+
+func runUpdateHelp() error {
+	checkHelp("update", argsTail())
+
+	return runUpdate()
+}
+
+func utilityToolEntries() []dispatchEntry {
+	return []dispatchEntry{
 		{[]string{constants.CmdDocs, constants.CmdDocsAlias}, func() error { return runDocs(argsTail()) }},
 		{[]string{constants.CmdHelpDashboard, constants.CmdHelpDashboardAlias}, func() error { return runHelpDashboard(argsTail()) }},
 		{[]string{constants.CmdLLMDocs, constants.CmdLLMDocsAlias}, func() error { return runLLMDocs(argsTail()) }},
@@ -63,12 +86,22 @@ func utilityDispatchEntries() []dispatchEntry {
 		{[]string{constants.CmdVSCodeWorkspace, constants.CmdVSCodeWorkspaceAlias}, func() error { return runVSCodeWorkspace(argsTail()) }},
 		{[]string{constants.CmdLFSCommon, constants.CmdLFSCommonAlias}, func() error { return runLFSCommon(argsTail()) }},
 		{[]string{constants.CmdReinstall}, func() error { return runReinstall(argsTail()) }},
+	}
+}
+
+func utilitySystemEntries() []dispatchEntry {
+	return []dispatchEntry{
 		{[]string{constants.CmdPower, constants.CmdPowerAlias, constants.CmdPowerAlias2}, func() error { return runPower(argsTail()) }},
 		{[]string{constants.CmdOS}, func() error { return runOS(argsTail()) }},
 		{[]string{constants.CmdFixLink, constants.CmdFixLinkAlias, constants.CmdFixLinkAlias2}, func() error { return runOSFixLink(argsTail()) }},
 		{[]string{constants.CmdWhoAmI, constants.CmdWhoAmIAlias}, func() error { checkHelp("whoami", argsTail()); return runWhoAmI(argsTail()) }},
 		{[]string{constants.CmdSSHBind, constants.CmdSSHBindAlias}, func() error { checkHelp("ssh-bind", argsTail()); return runSSHBind(argsTail()) }},
 		{[]string{constants.CmdFixAuth, constants.CmdFixAuthAlias}, func() error { checkHelp("fix-auth", argsTail()); return runFixAuth(argsTail()) }},
+	}
+}
+
+func utilityPipelineEntries() []dispatchEntry {
+	return []dispatchEntry{
 		{[]string{"pipeline-ai", "pl-ai", "plai", "pipeline_ai"}, func() error { return runPipelineAI(argsTail()) }},
 		{[]string{"pipeline", "pipelines", "pl"}, func() error { return runPipeline(argsTail()) }},
 		{[]string{"error-logs", "error-log", "errorlogs", "errorlog", "errors", "err", "errorslogs", "errors-log", "errors-logs", "last-failed-logs"}, func() error { return runPipeline(append([]string{os.Args[1]}, argsTail()...)) }},
@@ -76,6 +109,15 @@ func utilityDispatchEntries() []dispatchEntry {
 		{[]string{"waittime", "wait-time", "eta"}, func() error { return runPipeline(append([]string{"waittime"}, argsTail()...)) }},
 		{[]string{"repo"}, func() error { return runRepoCommand(argsTail()) }},
 		{[]string{"ui"}, func() error { return runUI(argsTail()) }},
+	}
+}
+
+func utilityDesktopEntries() []dispatchEntry {
+	return []dispatchEntry{
+		{[]string{"copy", "cp-mem", "copy-to-memory"}, func() error { return runCopyCmd(argsTail()) }},
+		{[]string{"paste", "paste-mem"}, func() error { return runPasteCmd(argsTail()) }},
+		{[]string{"explorer", "open-explorer", "folder", "open-folder", "browse-folder"}, func() error { return runExplorerCmd(argsTail()) }},
+		{[]string{"open-url", "browse", "browse-url", "open-browser"}, func() error { return runBrowseCmd(argsTail()) }},
 	}
 }
 

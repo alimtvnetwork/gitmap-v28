@@ -21,7 +21,9 @@ type interactiveSessionState struct {
 }
 
 func newInteractiveState() *interactiveSessionState {
-	return &interactiveSessionState{}
+	return &interactiveSessionState{
+		isExecEnabled: true,
+	}
 }
 
 func isInteractiveHelper(line string) bool {
@@ -691,6 +693,10 @@ func printInteractiveSessionCommands() {
 	fmt.Println("    find <pattern>             - Search for filenames matching pattern or glob")
 	fmt.Println("    search <text> / grep <text>- Search file text contents for matching lines")
 	fmt.Println("    replace <old> <new> [glob] - Replace text in matching files")
+	fmt.Println("    copy <text|--file <path>>  - Copy text or file to memory & OS clipboard")
+	fmt.Println("    paste [--file <path>]      - Paste from memory or OS clipboard")
+	fmt.Println("    explorer [path]            - Open native graphical file explorer")
+	fmt.Println("    browse <url> [--chrome]    - Open URL in default browser or Google Chrome")
 	fmt.Println("    done / exit / quit         - Save entered steps and create the macro")
 	fmt.Println("    cancel / abort             - Abort macro creation without saving")
 	fmt.Println("    rec / record               - Switch to live terminal recording session")
