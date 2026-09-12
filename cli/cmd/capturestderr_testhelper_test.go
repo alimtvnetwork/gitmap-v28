@@ -93,12 +93,12 @@ func captureStdoutForTest(t *testing.T, fn func()) string {
 	return out
 }
 
-func assertContains(t *testing.T, content, substr string) {
-	t.Helper()
-	hasMatch := strings.Contains(content, substr)
-	if hasMatch {
-		return
+func containsToken(args []string, substr string) bool {
+	for _, a := range args {
+		if strings.Contains(a, substr) {
+			return true
+		}
 	}
 
-	t.Errorf("expected content to contain %q", substr)
+	return false
 }

@@ -4,7 +4,7 @@ Master directory of architectural and execution plans.
 
 ## Pending Plans
 
-- None
+- [130-nuclear-package-modularization-phase7.md](pending/130-nuclear-package-modularization-phase7.md): Nuclear Package Modularization (Phase 7), Heavy Test Isolation & Test Inventory Duration Estimation
 
 ## Completed Plans (Consolidated Milestones)
 

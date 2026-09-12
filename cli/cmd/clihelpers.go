@@ -12,15 +12,20 @@ import (
 
 	"github.com/alimtvnetwork/gitmap-v28/cli/apperror"
 	"github.com/alimtvnetwork/gitmap-v28/cli/cmdcg"
+	"github.com/alimtvnetwork/gitmap-v28/cli/cmdchrome"
 	"github.com/alimtvnetwork/gitmap-v28/cli/cmddb"
 	"github.com/alimtvnetwork/gitmap-v28/cli/cmdfixgit"
 	"github.com/alimtvnetwork/gitmap-v28/cli/cmdfixrepo"
+	"github.com/alimtvnetwork/gitmap-v28/cli/cmdinstall"
+	"github.com/alimtvnetwork/gitmap-v28/cli/cmdinstaller"
 	"github.com/alimtvnetwork/gitmap-v28/cli/cmdmacro"
 	"github.com/alimtvnetwork/gitmap-v28/cli/cmdpipeline"
+	"github.com/alimtvnetwork/gitmap-v28/cli/cmdsetup"
 	"github.com/alimtvnetwork/gitmap-v28/cli/cmdssh"
 	"github.com/alimtvnetwork/gitmap-v28/cli/cmdvhost"
 	"github.com/alimtvnetwork/gitmap-v28/cli/cmdvscode"
 	"github.com/alimtvnetwork/gitmap-v28/cli/cmdzip"
+	"github.com/alimtvnetwork/gitmap-v28/cli/constants"
 	"github.com/alimtvnetwork/gitmap-v28/cli/macro"
 	"github.com/alimtvnetwork/gitmap-v28/cli/model"
 	"github.com/alimtvnetwork/gitmap-v28/cli/vscodepm"
@@ -500,7 +505,154 @@ func InstallVersionJSON(repoPath string, cfg VersionInstallConfig, isDryRun bool
 	return cmdcg.InstallVersionJSON(repoPath, cfg, isDryRun)
 }
 
+// ExportInstallerFlags aliases cmdinstaller.ExportInstallerFlags.
+type ExportInstallerFlags = cmdinstaller.ExportInstallerFlags
+
+// InstallerTreeNode aliases cmdinstaller.InstallerTreeNode.
+type InstallerTreeNode = cmdinstaller.InstallerTreeNode
+
+// RunInstallerCLI delegates to cmdinstaller.RunInstallerCLI.
+func RunInstallerCLI(args []string) error {
+	return cmdinstaller.RunInstallerCLI(args)
+}
+
+// runChrome delegates to cmdchrome.RunChrome.
+func runChrome(args []string) error {
+	return cmdchrome.RunChrome(args)
+}
+
+// findChromeBinaryPath delegates to cmdchrome.FindChromeBinaryPath.
+func findChromeBinaryPath() (string, error) {
+	return cmdchrome.FindChromeBinaryPath()
+}
+
+// isHelpFlag returns true if the argument matches standard help flags.
+func isHelpFlag(arg string) bool {
+	return arg == "help" || arg == "--help" || arg == "-h"
+}
+
+// readChromeBackup delegates to cmdchrome.ReadChromeBackup.
+func readChromeBackup(src, dstRoot string) (int, error) {
+	return cmdchrome.ReadChromeBackup(src, dstRoot)
+}
+
+// runSetup delegates to cmdsetup.RunSetup.
+func runSetup(args []string) error {
+	return cmdsetup.RunSetup(args)
+}
+
+// runSetupPerms delegates to cmdsetup.RunSetupPerms.
+func runSetupPerms(args []string) error {
+	return cmdsetup.RunSetupPerms(args)
+}
+
+// warnIfNoWrapper delegates to cmdsetup.WarnIfNoWrapper.
+func warnIfNoWrapper() {
+	cmdsetup.WarnIfNoWrapper()
+}
+
+// resolveSetupConfigPath delegates to cmdsetup.ResolveSetupConfigPath.
+//
+//nolint:unused
+func resolveSetupConfigPath(configPath string, hasConfig bool) string {
+	return cmdsetup.ResolveSetupConfigPath(configPath, hasConfig)
+}
+
+// isWrapperActive delegates to cmdsetup.IsWrapperActive.
+//
+//nolint:unused
+func isWrapperActive() bool {
+	return cmdsetup.IsWrapperActive()
+}
+
+type installOptions = cmdinstall.InstallOptions
+type ProfileComposition = cmdinstall.ProfileComposition
+
+func runInstall(args []string) error {
+	return cmdinstall.RunInstall(args)
+}
+
+func runInstalledDir() error {
+	return cmdinstall.RunInstalledDir()
+}
+
+func installTool(opts installOptions) {
+	cmdinstall.InstallTool(opts)
+}
+
+func runInstallAdd(args []string) error {
+	return cmdinstall.RunInstallAdd(args)
+}
+
+func runInstallChromeLinux(opts installOptions) error {
+	return cmdinstall.RunInstallChromeLinux(opts)
+}
+
+func resolveProfileTree(slug string) (ProfileComposition, bool) {
+	return cmdinstall.ResolveProfileTree(slug)
+}
+
+func printProfileTree(prof ProfileComposition) {
+	cmdinstall.PrintProfileTree(prof)
+}
+
+func printProfileInstallSummary(slug string) {
+	cmdinstall.PrintProfileInstallSummary(slug)
+}
+
+func resolvePowerShellBinaryWithLookPath(lookPath func(string) (string, error)) string {
+	return cmdinstall.ResolvePowerShellBinaryWithLookPath(lookPath)
+}
+
+func getInstalledVersion(binary string) string {
+	return cmdinstall.GetInstalledVersion(binary)
+}
+
+func validateToolName(tool string) {
+	cmdinstall.ValidateToolName(tool)
+}
+
+func runUninstallCtx() {
+	cmdinstall.RunUninstallCtx()
+}
+
+func resolvePackageManager(override, tool string) string {
+	return cmdinstall.ResolvePackageManager(override, tool)
+}
+
+func resolvePackageName(tool, manager string) string {
+	return cmdinstall.ResolvePackageName(tool, manager)
+}
+
+func runInstallCommand(args []string, opts installOptions) error {
+	return cmdinstall.RunInstallCommand(args, opts)
+}
+
 func init() {
 	cmdssh.JoinRunner = runJoin
 	cmdssh.ProfileRunner = runProfile
+
+	cmdinstaller.ResolveProfileTreeFn = func(s string) (any, bool) {
+		p, ok := resolveProfileTree(s)
+		return p, ok
+	}
+	cmdinstaller.PrintProfileTreeFn = func(p any) {
+		if prof, ok := p.(ProfileComposition); ok {
+			printProfileTree(prof)
+		}
+	}
+	cmdinstaller.PrintProfileInstallSummaryFn = printProfileInstallSummary
+	cmdinstaller.RunInstallAddFn = runInstallAdd
+
+	cmdchrome.InstallChromeLinuxFn = func(isDryRun bool) error {
+		return runInstallChromeLinux(installOptions{Tool: constants.ToolChrome, DryRun: isDryRun})
+	}
+	cmdchrome.InstallToolFn = func(tool string, isDryRun bool) {
+		installTool(installOptions{Tool: tool, DryRun: isDryRun})
+	}
+	cmdchrome.RunFindDuplicatesFn = func(category string, args []string) error {
+		return runFindDuplicates(category, args)
+	}
+	cmdchrome.CheckHelpFn = checkHelp
+	cmdinstall.CheckHelpFn = checkHelp
 }
