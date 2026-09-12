@@ -8,6 +8,7 @@ Master directory of architectural and execution plans.
 
 ## Completed Plans (Consolidated Milestones)
 
+- [113-enhanced-pipeline-error-logs.md](completed/113-enhanced-pipeline-error-logs.md): Enhanced Pipeline Error Logs, Zero-Error State, Metadata Embedding & Clipboard Integration
 - [112-clone-next-dry-run-guard.md](completed/112-clone-next-dry-run-guard.md): Clone-Next Dry-Run Side-Effect Prevention & Preview Verification
 - [111-function-argument-reduction-and-params.md](completed/111-function-argument-reduction-and-params.md): Argument Reduction, Parameter Structs & Return Architecture Audit (parameter structs, affirmative fields)
 - [110-terminal-ui-and-cli-styling.md](completed/110-terminal-ui-and-cli-styling.md): Terminal UI, CLI Styling, Lipgloss & Animations Architecture Audit (11/11 TUI tests passing, ANSI palettes)

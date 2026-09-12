@@ -28,31 +28,36 @@ type PipelineStatusPayload struct {
 
 // PipelineErrorLogsPayload represents error log outputs.
 type PipelineErrorLogsPayload struct {
-	Repo            string            `json:"repo"`
-	WorkflowName    string            `json:"workflowName"`
-	RunId           uint64            `json:"runId"`
-	Status          string            `json:"status"`
-	Conclusion      string            `json:"conclusion"`
-	Branch          string            `json:"branch,omitempty"`
-	Sha             string            `json:"sha,omitempty"`
-	CreatedAt       string            `json:"createdAt,omitempty"`
-	UpdatedAt       string            `json:"updatedAt,omitempty"`
-	DurationSeconds int               `json:"durationSeconds,omitempty"`
-	SavedLogFile    string            `json:"savedLogFile,omitempty"`
-	SavedReportFile string            `json:"savedReportFile,omitempty"`
-	DbPath          string            `json:"dbPath,omitempty"`
-	EtaSeconds      int               `json:"etaSeconds,omitempty"`
-	RerunEtaSeconds int               `json:"rerunEtaSeconds,omitempty"`
-	IsRunning       bool              `json:"isRunning"`
-	ActiveRunName   string            `json:"activeRunName,omitempty"`
-	ActiveRunId     uint64            `json:"activeRunId,omitempty"`
-	ActiveRunUrl    string            `json:"activeRunUrl,omitempty"`
-	ErrorLogs       string            `json:"errorLogs"`
-	CombinedErrors  string            `json:"combinedErrors,omitempty"`
-	Url             string            `json:"url,omitempty"`
-	FailedRuns      []FailedRunItem   `json:"failedRuns,omitempty"`
-	SectionFailures []SectionFailure  `json:"sectionFailures,omitempty"`
-	CICDChecks      []CICDCheckResult `json:"cicdChecks,omitempty"`
+	Repo               string            `json:"repo"`
+	RepoUrl            string            `json:"repoUrl,omitempty"`
+	LastHash           string            `json:"lastHash,omitempty"`
+	LastReleaseVersion string            `json:"lastReleaseVersion,omitempty"`
+	LatestBranch       string            `json:"latestBranch,omitempty"`
+	OpenPRsCount       int               `json:"openPRsCount"`
+	WorkflowName       string            `json:"workflowName"`
+	RunId              uint64            `json:"runId"`
+	Status             string            `json:"status"`
+	Conclusion         string            `json:"conclusion"`
+	Branch             string            `json:"branch,omitempty"`
+	Sha                string            `json:"sha,omitempty"`
+	CreatedAt          string            `json:"createdAt,omitempty"`
+	UpdatedAt          string            `json:"updatedAt,omitempty"`
+	DurationSeconds    int               `json:"durationSeconds,omitempty"`
+	SavedLogFile       string            `json:"savedLogFile,omitempty"`
+	SavedReportFile    string            `json:"savedReportFile,omitempty"`
+	DbPath             string            `json:"dbPath,omitempty"`
+	EtaSeconds         int               `json:"etaSeconds,omitempty"`
+	RerunEtaSeconds    int               `json:"rerunEtaSeconds,omitempty"`
+	IsRunning          bool              `json:"isRunning"`
+	ActiveRunName      string            `json:"activeRunName,omitempty"`
+	ActiveRunId        uint64            `json:"activeRunId,omitempty"`
+	ActiveRunUrl       string            `json:"activeRunUrl,omitempty"`
+	ErrorLogs          string            `json:"errorLogs"`
+	CombinedErrors     string            `json:"combinedErrors,omitempty"`
+	Url                string            `json:"url,omitempty"`
+	FailedRuns         []FailedRunItem   `json:"failedRuns,omitempty"`
+	SectionFailures    []SectionFailure  `json:"sectionFailures,omitempty"`
+	CICDChecks         []CICDCheckResult `json:"cicdChecks,omitempty"`
 }
 
 // SectionFailure represents a discrete failing section or step across pipeline runs.

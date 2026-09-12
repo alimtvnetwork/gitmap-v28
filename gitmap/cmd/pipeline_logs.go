@@ -8,7 +8,9 @@ import (
 	"strings"
 
 	"github.com/alimtvnetwork/gitmap-v28/gitmap/constants"
+	"github.com/alimtvnetwork/gitmap-v28/gitmap/gitutil"
 	"github.com/alimtvnetwork/gitmap-v28/gitmap/pipelinedb"
+	"github.com/atotto/clipboard"
 )
 
 func handlePipelineErrorLogs(args []string) error {
@@ -100,19 +102,88 @@ func handlePipelineLogs(args []string) error {
 func buildErrorLogsPayload(repo string, runs []ghRunItem) PipelineErrorLogsPayload {
 	payload := initBaseErrorLogsPayload(repo)
 	if len(runs) == 0 {
+		enrichErrorLogsMetadata(&payload, repo, runs)
+
 		return buildLocalOrEmptyErrorPayload(payload)
 	}
 
-	initLatestRunMeta(&payload, runs[0])
-	checkAndApplyRunningState(&payload, runs)
-	failedRuns := resolveFailedRunsForPayload(repo, runs)
-	if len(failedRuns) > 0 {
-		populateFailedRunsPayload(repo, failedRuns, &payload)
-
-		return payload
-	}
+	populateRunsIntoPayload(repo, runs, &payload)
+	enrichErrorLogsMetadata(&payload, repo, runs)
 
 	return payload
+}
+
+func populateRunsIntoPayload(repo string, runs []ghRunItem, p *PipelineErrorLogsPayload) {
+	initLatestRunMeta(p, runs[0])
+	checkAndApplyRunningState(p, runs)
+	failedRuns := resolveFailedRunsForPayload(repo, runs)
+	if len(failedRuns) > 0 {
+		populateFailedRunsPayload(repo, failedRuns, p)
+	}
+}
+
+func enrichErrorLogsMetadata(p *PipelineErrorLogsPayload, repo string, runs []ghRunItem) {
+	p.RepoUrl = resolveRepoWebURL(repo)
+	p.LastReleaseVersion = queryLatestTagRelease(repo)
+	p.OpenPRsCount = queryPendingPRs(repo)
+	p.LatestBranch = resolveLatestBranchName(p, runs)
+	p.LastHash = resolveLatestCommitHash(p, runs)
+}
+
+func resolveRepoWebURL(repo string) string {
+	remoteURL, err := gitutil.RemoteURL(".")
+	if err == nil && len(remoteURL) > 0 {
+		return formatWebURL(remoteURL)
+	}
+
+	if len(repo) > 0 {
+		return "https://github.com/" + repo
+	}
+
+	return ""
+}
+
+func formatWebURL(raw string) string {
+	clean := strings.TrimSuffix(strings.TrimSpace(raw), ".git")
+	if strings.HasPrefix(clean, "git@github.com:") {
+		return "https://github.com/" + strings.TrimPrefix(clean, "git@github.com:")
+	}
+
+	return clean
+}
+
+func resolveLatestBranchName(p *PipelineErrorLogsPayload, runs []ghRunItem) string {
+	if len(runs) > 0 && len(runs[0].HeadBranch) > 0 {
+		return runs[0].HeadBranch
+	}
+
+	if len(p.Branch) > 0 {
+		return p.Branch
+	}
+
+	active := gitutil.GetActiveBranch(".")
+	if len(active) > 0 && active != "-" {
+		return active
+	}
+
+	return "main"
+}
+
+func resolveLatestCommitHash(p *PipelineErrorLogsPayload, runs []ghRunItem) string {
+	if len(runs) > 0 && len(runs[0].HeadSha) > 0 {
+		return gitutil.TruncSha(runs[0].HeadSha)
+	}
+
+	if len(p.Sha) > 0 {
+		return gitutil.TruncSha(p.Sha)
+	}
+
+	sha := gitutil.GetLastCommitSHA(".")
+	if len(sha) > 0 && sha != "-" {
+		return sha
+	}
+
+	return ""
 }
 
 func initBaseErrorLogsPayload(repo string) PipelineErrorLogsPayload {
@@ -297,6 +368,7 @@ func writeOrRenderErrorLogs(params ErrorLogOutputParams) error {
 
 	if params.IsJSON {
 		fmt.Println(contentToWrite)
+		_ = clipboard.WriteAll(contentToWrite)
 
 		return nil
 	}
@@ -307,6 +379,7 @@ func writeOrRenderErrorLogs(params ErrorLogOutputParams) error {
 }
 
 func writeErrorLogsToDisk(params ErrorLogOutputParams, content string) error {
+	_ = clipboard.WriteAll(content)
 	if len(params.TempFile) > 0 {
 		targetPath := filepath.Join(resolveTempDir(), params.TempFile)
 
@@ -357,6 +430,7 @@ func formatErrorLogContent(params ErrorLogOutputParams) (string, error) {
 func renderErrorLogsTerminal(p PipelineErrorLogsPayload) {
 	if p.IsRunning && len(p.FailedRuns) == 0 {
 		renderActiveRunningBanner(p)
+		copyReportToClipboard(buildClipboardCleanReport(p), false)
 
 		return
 	}
@@ -365,25 +439,54 @@ func renderErrorLogsTerminal(p PipelineErrorLogsPayload) {
 		renderActiveRunningBanner(p)
 	}
 
-	if p.Conclusion == "failure" || len(p.FailedRuns) > 0 {
+	renderAndCopyTerminalReport(p)
+}
+
+func renderAndCopyTerminalReport(p PipelineErrorLogsPayload) {
+	hasFailure := p.Conclusion == "failure" || len(p.FailedRuns) > 0
+	if hasFailure {
 		renderFailureTerminal(p)
+		copyReportToClipboard(buildClipboardErrorReport(p), true)
 
 		return
 	}
 
 	renderCleanSuccessTerminal(p)
+	copyReportToClipboard(buildClipboardCleanReport(p), false)
 }
 
 func renderCleanSuccessTerminal(p PipelineErrorLogsPayload) {
-	fmt.Printf("  %s● No error logs found.%s Status: %s (conclusion: %s)\n",
-		constants.ColorGreen, constants.ColorReset, p.Status, p.Conclusion)
-	if len(p.Branch) > 0 {
-		fmt.Printf("  All recent pipeline runs for %s on branch %s are PASSING (clean).\n",
-			p.Repo, p.Branch)
-	}
-
+	fmt.Printf("  %s● Pipeline Status: CLEAN (No errors found)%s\n",
+		constants.ColorGreen, constants.ColorReset)
+	renderPipelineMetaBlock(p)
+	fmt.Printf("\n  %s✓ All recent pipeline runs for %s on branch %s are PASSING (100%% green).%s\n\n",
+		constants.ColorGreen, p.Repo, p.LatestBranch, constants.ColorReset)
 	renderCleanSuccessDbAndHistory(p)
 	printRerunETA(p.RerunEtaSeconds)
+}
+
+func renderPipelineMetaBlock(p PipelineErrorLogsPayload) {
+	fmt.Printf("    %-18s %s\n", "Repo:", p.Repo)
+	if len(p.RepoUrl) > 0 {
+		fmt.Printf("    %-18s %s\n", "Repo URL:", p.RepoUrl)
+	}
+	if len(p.LatestBranch) > 0 {
+		fmt.Printf("    %-18s %s\n", "Branch:", p.LatestBranch)
+	}
+	if len(p.LastHash) > 0 {
+		fmt.Printf("    %-18s %s\n", "Last Commit:", p.LastHash)
+	}
+	renderPipelineMetaVersionAndPR(p)
+}
+
+func renderPipelineMetaVersionAndPR(p PipelineErrorLogsPayload) {
+	if len(p.LastReleaseVersion) > 0 {
+		fmt.Printf("    %-18s %s\n", "Last Release:", p.LastReleaseVersion)
+	}
+	fmt.Printf("    %-18s %d\n", "Open PRs:", p.OpenPRsCount)
+	if len(p.Status) > 0 && len(p.Conclusion) > 0 {
+		fmt.Printf("    %-18s %s (conclusion: %s)\n", "Run Status:", p.Status, p.Conclusion)
+	}
 }
 
 func renderCleanSuccessDbAndHistory(p PipelineErrorLogsPayload) {
@@ -404,18 +507,94 @@ func renderActiveRunningBanner(p PipelineErrorLogsPayload) {
 }
 
 func renderFailureTerminal(p PipelineErrorLogsPayload) {
+	fmt.Printf("  %s● Pipeline Failure Detected%s\n",
+		constants.ColorRed, constants.ColorReset)
+	renderPipelineMetaBlock(p)
+	fmt.Println()
 	if len(p.FailedRuns) == 0 {
 		renderSingleFailureTerminal(p)
 
 		return
 	}
 
+	renderFailureSectionsAndETA(p)
+}
+
+func renderFailureSectionsAndETA(p PipelineErrorLogsPayload) {
 	renderCombinedSectionsTerminal(p.SectionFailures)
 	renderFailedRunsBreakdown(p.FailedRuns)
 	renderSavedLocationsTerminal(p)
 	runs := queryWorkflowRuns(p.Repo)
 	RenderHistorySummaryTable(runs)
 	printRerunETA(p.RerunEtaSeconds)
+}
+
+func buildClipboardErrorReport(p PipelineErrorLogsPayload) string {
+	var sb strings.Builder
+	appendClipboardMetaHeader(&sb, "GITMAP PIPELINE ERROR REPORT", p)
+	if len(p.CombinedErrors) > 0 {
+		sb.WriteString(p.CombinedErrors)
+		sb.WriteString("\n\n")
+	}
+
+	if len(p.ErrorLogs) > 0 && p.ErrorLogs != p.CombinedErrors {
+		sb.WriteString(p.ErrorLogs)
+		sb.WriteString("\n")
+	}
+
+	return strings.TrimSpace(sb.String())
+}
+
+func buildClipboardCleanReport(p PipelineErrorLogsPayload) string {
+	var sb strings.Builder
+	appendClipboardMetaHeader(&sb, "GITMAP PIPELINE STATUS: CLEAN (No errors found)", p)
+	sb.WriteString("All recent pipeline workflow runs are PASSING (100% green).\n")
+
+	return strings.TrimSpace(sb.String())
+}
+
+func appendClipboardMetaHeader(sb *strings.Builder, title string, p PipelineErrorLogsPayload) {
+	sb.WriteString("================================================================================\n")
+	sb.WriteString(title + "\n")
+	sb.WriteString("================================================================================\n")
+	sb.WriteString(fmt.Sprintf("Repo:                 %s\n", p.Repo))
+	if len(p.RepoUrl) > 0 {
+		sb.WriteString(fmt.Sprintf("Repo URL:             %s\n", p.RepoUrl))
+	}
+	appendClipboardMetaDetails(sb, p)
+}
+
+func appendClipboardMetaDetails(sb *strings.Builder, p PipelineErrorLogsPayload) {
+	sb.WriteString(fmt.Sprintf("Branch:               %s\n", p.LatestBranch))
+	sb.WriteString(fmt.Sprintf("Last Commit:          %s\n", p.LastHash))
+	sb.WriteString(fmt.Sprintf("Last Release:         %s\n", p.LastReleaseVersion))
+	sb.WriteString(fmt.Sprintf("Open PRs:             %d\n", p.OpenPRsCount))
+	if len(p.Status) > 0 && len(p.Conclusion) > 0 {
+		sb.WriteString(fmt.Sprintf("Status:               %s (conclusion: %s)\n", p.Status, p.Conclusion))
+	}
+	if len(p.Url) > 0 {
+		sb.WriteString(fmt.Sprintf("Pipeline Run URL:     %s\n", p.Url))
+	}
+	sb.WriteString("================================================================================\n\n")
+}
+
+func copyReportToClipboard(content string, isFailure bool) {
+	if len(content) == 0 {
+		return
+	}
+
+	err := clipboard.WriteAll(content)
+	if err != nil {
+		return
+	}
+
+	if isFailure {
+		fmt.Printf("\n  📋 Copied pipeline error logs to clipboard\n")
+
+		return
+	}
+
+	fmt.Printf("\n  📋 Copied pipeline status to clipboard\n")
 }
 
 func renderCombinedSectionsTerminal(sections []SectionFailure) {
