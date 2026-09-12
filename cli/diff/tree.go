@@ -7,6 +7,9 @@ import (
 	"path/filepath"
 	"sort"
 	"strings"
+
+	"github.com/alimtvnetwork/gitmap-v28/cli/apperror"
+	"github.com/alimtvnetwork/gitmap-v28/cli/result"
 )
 
 // EntryKindType classifies how a single relative path differs.
@@ -43,21 +46,21 @@ type WalkOptions struct {
 // DiffTrees walks LEFT and RIGHT and returns every classified entry,
 // sorted ascending by relative path.
 func DiffTrees(leftDir, rightDir string, opts WalkOptions) ([]Entry, error) {
-	leftIdx, err := indexTree(leftDir, opts)
-	if err != nil {
-		return nil, err
+	leftRes := indexTree(leftDir, opts)
+	if leftRes.IsFailure() {
+		return nil, leftRes.AppError()
 	}
 
-	rightIdx, err := indexTree(rightDir, opts)
-	if err != nil {
-		return nil, err
+	rightRes := indexTree(rightDir, opts)
+	if rightRes.IsFailure() {
+		return nil, rightRes.AppError()
 	}
 
-	return classifyAll(leftIdx, rightIdx, leftDir, rightDir), nil
+	return classifyAll(leftRes.Data, rightRes.Data, leftDir, rightDir), nil
 }
 
 // indexTree returns rel-path -> os.FileInfo for every non-ignored file.
-func indexTree(root string, opts WalkOptions) (map[string]os.FileInfo, error) {
+func indexTree(root string, opts WalkOptions) result.ResultMap[string, os.FileInfo] {
 	out := make(map[string]os.FileInfo)
 	walkErr := filepath.Walk(root, func(path string, info os.FileInfo, err error) error {
 		if err != nil {
@@ -85,8 +88,13 @@ func indexTree(root string, opts WalkOptions) (map[string]os.FileInfo, error) {
 
 		return nil
 	})
+	if walkErr != nil {
+		appErr := apperror.WrapSimple(walkErr, "walk directory tree")
 
-	return out, walkErr
+		return result.FailMap[string, os.FileInfo](appErr)
+	}
+
+	return result.OkMap(out)
 }
 
 // isIgnoredPath returns true when rel matches the default ignore list.

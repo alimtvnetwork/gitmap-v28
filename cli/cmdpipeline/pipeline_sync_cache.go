@@ -201,13 +201,13 @@ func processSyncRun(db *pipelinedb.PipelineSplitDb, repo string, run ghRunItem, 
 }
 
 func syncAllRunsIntoDb(db *pipelinedb.PipelineSplitDb, repo string, runs []ghRunItem, res *PipelineSyncResult) {
-	cachedMap, err := db.QueryCachedErrorRunIdMap()
-	if err != nil {
-		fmt.Fprintf(os.Stderr, "  ⚠ Could not query cached error run ID map for %s: %v\n", repo, err)
+	cachedRes := db.QueryCachedErrorRunIdMap()
+	if cachedRes.IsFailure() {
+		fmt.Fprintf(os.Stderr, "  ⚠ Could not query cached error run ID map for %s: %v\n", repo, cachedRes.AppError())
 	}
 
 	for _, run := range runs {
-		processSyncRun(db, repo, run, cachedMap, res)
+		processSyncRun(db, repo, run, cachedRes.Data, res)
 	}
 }
 

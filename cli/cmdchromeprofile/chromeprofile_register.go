@@ -13,7 +13,9 @@ import (
 	"path/filepath"
 	"time"
 
+	"github.com/alimtvnetwork/gitmap-v28/cli/apperror"
 	"github.com/alimtvnetwork/gitmap-v28/cli/constants"
+	"github.com/alimtvnetwork/gitmap-v28/cli/result"
 )
 
 // registerChromeProfileInLocalState clones the source profile's
@@ -23,17 +25,17 @@ import (
 // returned so the caller can warn without aborting the whole copy.
 func registerChromeProfileInLocalState(srcDir, dstDir, displayName string) error {
 	path := filepath.Join(chromeUserDataDir(), constants.ChromeLocalStateFile)
-	root, err := readOrCreateLocalStateRoot(path)
-	if err != nil {
-		return err
+	rootRes := readOrCreateLocalStateRoot(path)
+	if rootRes.IsFailure() {
+		return rootRes.AppError()
 	}
 
-	profile := ensureChromeLocalStateProfile(root)
+	profile := ensureChromeLocalStateProfile(rootRes.Data)
 	infoCache := ensureChromeLocalStateInfoCache(profile)
 	infoCache[dstDir] = buildChromeDestinationInfoEntry(infoCache, srcDir, displayName)
 	appendChromeProfileToOrder(profile, dstDir)
 
-	return writeChromeLocalState(path, root)
+	return writeChromeLocalState(path, rootRes.Data)
 }
 
 // registerChromeProfileWithFullSchema registers a profile in Local State
@@ -41,12 +43,12 @@ func registerChromeProfileInLocalState(srcDir, dstDir, displayName string) error
 // profile picker UI displays the profile tile without dropping it.
 func registerChromeProfileWithFullSchema(dstDir, displayName, email string) error {
 	path := filepath.Join(chromeUserDataDir(), constants.ChromeLocalStateFile)
-	root, err := readOrCreateLocalStateRoot(path)
-	if err != nil {
-		return err
+	rootRes := readOrCreateLocalStateRoot(path)
+	if rootRes.IsFailure() {
+		return rootRes.AppError()
 	}
 
-	profile := ensureChromeLocalStateProfile(root)
+	profile := ensureChromeLocalStateProfile(rootRes.Data)
 	infoCache := ensureChromeLocalStateInfoCache(profile)
 	entry, ok := infoCache[dstDir].(map[string]any)
 	if !ok {
@@ -61,25 +63,29 @@ func registerChromeProfileWithFullSchema(dstDir, displayName, email string) erro
 	infoCache[dstDir] = entry
 	appendChromeProfileToOrder(profile, dstDir)
 
-	return writeChromeLocalState(path, root)
+	return writeChromeLocalState(path, rootRes.Data)
 }
 
-func readOrCreateLocalStateRoot(path string) (map[string]any, error) {
+func readOrCreateLocalStateRoot(path string) result.ResultMap[string, any] {
 	raw, err := os.ReadFile(path)
 	if err != nil && !os.IsNotExist(err) {
-		return nil, fmt.Errorf("read %s: %w", path, err)
+		appErr := apperror.WrapSimple(err, fmt.Sprintf("read %s", path))
+
+		return result.FailMap[string, any](appErr)
 	}
 
 	if len(raw) == 0 {
-		return map[string]any{}, nil
+		return result.OkMap(map[string]any{})
 	}
 
 	var root map[string]any
 	if err := json.Unmarshal(raw, &root); err != nil {
-		return nil, fmt.Errorf("parse %s: %w", path, err)
+		appErr := apperror.WrapSimple(err, fmt.Sprintf("parse %s", path))
+
+		return result.FailMap[string, any](appErr)
 	}
 
-	return root, nil
+	return result.OkMap(root)
 }
 
 func ensureChromeLocalStateProfile(root map[string]any) map[string]any {

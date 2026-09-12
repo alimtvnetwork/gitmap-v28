@@ -31,20 +31,20 @@ type DiffEntry struct {
 // DiffTrees walks both sides and classifies every relative path.
 // Identical files are detected by SHA-256 (computed on demand).
 func DiffTrees(leftDir, rightDir string, opts Options) ([]DiffEntry, error) {
-	li, err := IndexTree(leftDir, opts)
-	if err != nil {
-		return nil, err
+	liRes := IndexTree(leftDir, opts)
+	if liRes.IsFailure() {
+		return nil, liRes.AppError()
 	}
 
-	ri, err := IndexTree(rightDir, opts)
-	if err != nil {
-		return nil, err
+	riRes := IndexTree(rightDir, opts)
+	if riRes.IsFailure() {
+		return nil, riRes.AppError()
 	}
 
-	keys := SortedKeys(li, ri)
+	keys := SortedKeys(liRes.Data, riRes.Data)
 	out := make([]DiffEntry, 0, len(keys))
 	for _, rel := range keys {
-		res := classifyOne(rel, li, ri, leftDir, rightDir)
+		res := classifyOne(rel, liRes.Data, riRes.Data, leftDir, rightDir)
 		if res.IsFailure() {
 			return nil, res.Err
 		}

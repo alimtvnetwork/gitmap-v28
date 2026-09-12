@@ -67,16 +67,16 @@ func copyOrDryRun(src, dst string, opts Options) (int, error) {
 		return CopyTree(src, dst, opts)
 	}
 
-	idx, err := IndexTree(src, opts)
-	if err != nil {
-		return 0, err
+	idxRes := IndexTree(src, opts)
+	if idxRes.IsFailure() {
+		return 0, idxRes.AppError()
 	}
 
-	for rel := range idx {
+	for rel := range idxRes.Data {
 		logIndent(opts.LogPrefix, "[dry-run] copy %s", rel)
 	}
 
-	return len(idx), nil
+	return idxRes.Count(), nil
 }
 
 // deleteLeftFolder removes LEFT recursively (mv semantic).

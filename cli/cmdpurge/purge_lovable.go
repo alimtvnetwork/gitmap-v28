@@ -5,15 +5,18 @@ import (
 	"os"
 	"path/filepath"
 	"strings"
+
+	"github.com/alimtvnetwork/gitmap-v28/cli/apperror"
+	"github.com/alimtvnetwork/gitmap-v28/cli/result"
 )
 
 func doPurgeLovable(repoPath string) error {
-	tracked, err := getTrackedLovableFiles(repoPath)
-	if err != nil {
-		return err
+	trackedRes := getTrackedLovableFiles(repoPath)
+	if trackedRes.IsFailure() {
+		return trackedRes.AppError()
 	}
 
-	purged, err := removeUntrackedLovable(repoPath, tracked)
+	purged, err := removeUntrackedLovable(repoPath, trackedRes.Data)
 	if err != nil {
 		return err
 	}
@@ -23,10 +26,12 @@ func doPurgeLovable(repoPath string) error {
 	return nil
 }
 
-func getTrackedLovableFiles(repoPath string) (map[string]bool, error) {
+func getTrackedLovableFiles(repoPath string) result.ResultMap[string, bool] {
 	out, err := runPurgeCmd("git", "-C", repoPath, "ls-files", ".lovable")
 	if err != nil {
-		return nil, err
+		appErr := apperror.WrapSimple(err, "git ls-files .lovable")
+
+		return result.FailMap[string, bool](appErr)
 	}
 
 	lines := strings.Split(out, "\n")
@@ -38,7 +43,7 @@ func getTrackedLovableFiles(repoPath string) (map[string]bool, error) {
 		}
 	}
 
-	return res, nil
+	return result.OkMap(res)
 }
 
 func removeUntrackedLovable(repoPath string, tracked map[string]bool) (int, error) {

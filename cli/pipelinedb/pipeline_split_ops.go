@@ -6,6 +6,7 @@ import (
 	"time"
 
 	"github.com/alimtvnetwork/gitmap-v28/cli/apperror"
+	"github.com/alimtvnetwork/gitmap-v28/cli/result"
 )
 
 const sqlRecordRun = `
@@ -537,10 +538,12 @@ func (p *PipelineSplitDb) QueryCachedErrorRunIds() ([]uint64, error) {
 }
 
 // QueryCachedErrorRunIdMap returns a map set of cached error RunIds for fast lookups.
-func (p *PipelineSplitDb) QueryCachedErrorRunIdMap() (map[uint64]bool, error) {
+func (p *PipelineSplitDb) QueryCachedErrorRunIdMap() result.ResultMap[uint64, bool] {
 	ids, err := p.QueryCachedErrorRunIds()
 	if err != nil {
-		return nil, err
+		appErr := apperror.WrapSimple(err, "query cached error run ids")
+
+		return result.FailMap[uint64, bool](appErr)
 	}
 
 	idMap := make(map[uint64]bool, len(ids))
@@ -548,7 +551,7 @@ func (p *PipelineSplitDb) QueryCachedErrorRunIdMap() (map[uint64]bool, error) {
 		idMap[id] = true
 	}
 
-	return idMap, nil
+	return result.OkMap(idMap)
 }
 
 func normalizeNegativeOffset(offset int) int {

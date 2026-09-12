@@ -12,7 +12,9 @@ import (
 	"path/filepath"
 	"runtime"
 
+	"github.com/alimtvnetwork/gitmap-v28/cli/apperror"
 	"github.com/alimtvnetwork/gitmap-v28/cli/constants"
+	"github.com/alimtvnetwork/gitmap-v28/cli/result"
 )
 
 // runChromeProfileReconcile scans on-disk profiles and registers any
@@ -22,12 +24,12 @@ func runChromeProfileReconcile(args []string) error {
 	warnIfChromeRunningForReconcile()
 
 	localStatePath := filepath.Join(chromeUserDataDir(), constants.ChromeLocalStateFile)
-	root, err := loadChromeLocalStateMap(localStatePath)
-	if err != nil {
-		return fmt.Errorf("reconcile: %w", err)
+	rootRes := loadChromeLocalStateMap(localStatePath)
+	if rootRes.IsFailure() {
+		return rootRes.AppError()
 	}
 
-	profile := ensureChromeLocalStateProfile(root)
+	profile := ensureChromeLocalStateProfile(rootRes.Data)
 	infoCache := ensureChromeLocalStateInfoCache(profile)
 	dirs := availableChromeProfileNames()
 
@@ -40,7 +42,7 @@ func runChromeProfileReconcile(args []string) error {
 		return nil
 	}
 
-	if err := writeChromeLocalState(localStatePath, root); err != nil {
+	if err := writeChromeLocalState(localStatePath, rootRes.Data); err != nil {
 		return fmt.Errorf("reconcile write Local State: %w", err)
 	}
 
@@ -61,18 +63,22 @@ func warnIfChromeRunningForReconcile() {
 	fmt.Println("  please restart or close Google Chrome.")
 }
 
-func loadChromeLocalStateMap(path string) (map[string]any, error) {
+func loadChromeLocalStateMap(path string) result.ResultMap[string, any] {
 	raw, err := os.ReadFile(path)
 	if err != nil {
-		return nil, fmt.Errorf("read %s: %w", path, err)
+		appErr := apperror.WrapSimple(err, fmt.Sprintf("read %s", path))
+
+		return result.FailMap[string, any](appErr)
 	}
 
 	var root map[string]any
 	if err := json.Unmarshal(raw, &root); err != nil {
-		return nil, fmt.Errorf("parse %s: %w", path, err)
+		appErr := apperror.WrapSimple(err, fmt.Sprintf("parse %s", path))
+
+		return result.FailMap[string, any](appErr)
 	}
 
-	return root, nil
+	return result.OkMap(root)
 }
 
 func reconcileOnDiskProfiles(dirs []string, infoCache map[string]any, profile map[string]any) int {

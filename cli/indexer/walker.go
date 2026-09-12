@@ -10,6 +10,8 @@ import (
 	"strings"
 	"time"
 
+	"github.com/alimtvnetwork/gitmap-v28/cli/apperror"
+	"github.com/alimtvnetwork/gitmap-v28/cli/result"
 	"github.com/alimtvnetwork/gitmap-v28/cli/worker"
 )
 
@@ -55,29 +57,39 @@ func NewWalker(repoPath string, repoDB *sql.DB, forceDot bool) *Walker {
 	}
 }
 
-func scanWriteTimes(rows *sql.Rows, times map[string]int64) (map[string]int64, error) {
+func scanWriteTimes(rows *sql.Rows, times map[string]int64) result.ResultMap[string, int64] {
 	for rows.Next() {
 		var relPath string
 		var writeTime int64
 		if err := rows.Scan(&relPath, &writeTime); err != nil {
-			return times, err
+			appErr := apperror.WrapSimple(err, "scan write time row")
+
+			return result.FailMap[string, int64](appErr)
 		}
 
 		times[relPath] = writeTime
 	}
 
-	return times, rows.Err()
+	if err := rows.Err(); err != nil {
+		appErr := apperror.WrapSimple(err, "iterate write time rows")
+
+		return result.FailMap[string, int64](appErr)
+	}
+
+	return result.OkMap(times)
 }
 
-func loadExistingWriteTimes(ctx context.Context, db *sql.DB) (map[string]int64, error) {
+func loadExistingWriteTimes(ctx context.Context, db *sql.DB) result.ResultMap[string, int64] {
 	times := make(map[string]int64)
 	if db == nil {
-		return times, nil
+		return result.OkMap(times)
 	}
 
 	rows, err := db.QueryContext(ctx, "SELECT RelativePath, WriteTime FROM RepoFile")
 	if err != nil {
-		return times, err
+		appErr := apperror.WrapSimple(err, "query repo file write times")
+
+		return result.FailMap[string, int64](appErr)
 	}
 
 	defer rows.Close()
@@ -239,9 +251,9 @@ func startDrain(results <-chan worker.Result[bool]) <-chan struct{} {
 
 // Walk traverses the directory, schedules indexing for changed files
 func (w *Walker) Walk(ctx context.Context, workers int) error {
-	cachedTimes, err := loadExistingWriteTimes(ctx, w.RepoDB)
-	if err != nil {
-		return err
+	timesRes := loadExistingWriteTimes(ctx, w.RepoDB)
+	if timesRes.IsFailure() {
+		return timesRes.AppError()
 	}
 
 	fileChan := make(chan FileInfo, 100)
@@ -249,7 +261,7 @@ func (w *Walker) Walk(ctx context.Context, workers int) error {
 		return w.processFile(c, input)
 	})
 	done := startDrain(pool.Run(ctx, fileChan))
-	walkErr := filepath.WalkDir(w.RepoPath, w.buildWalkFn(cachedTimes, fileChan))
+	walkErr := filepath.WalkDir(w.RepoPath, w.buildWalkFn(timesRes.Data, fileChan))
 	close(fileChan)
 	<-done
 

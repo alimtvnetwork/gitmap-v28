@@ -26,9 +26,10 @@ import (
 	"path/filepath"
 	"strings"
 
-	"github.com/alimtvnetwork/gitmap-v28/cli/constants"
-
+	"github.com/alimtvnetwork/gitmap-v28/cli/apperror"
 	"github.com/alimtvnetwork/gitmap-v28/cli/cliexit"
+	"github.com/alimtvnetwork/gitmap-v28/cli/constants"
+	"github.com/alimtvnetwork/gitmap-v28/cli/result"
 )
 
 type mergePolicy struct {
@@ -136,25 +137,26 @@ func mergeChromeSettings(srcDir, dstDir string, pol *mergePolicy) mergeStats {
 
 func mergeJSONFile(srcPath, dstPath string, pol *mergePolicy) mergeStats {
 	var stats mergeStats
-	srcRoot, err := readJSONObject(srcPath)
-	if err != nil {
-		fmt.Fprintf(os.Stderr, "  skip: %v\n", err)
+	srcRes := readJSONObject(srcPath)
+	if srcRes.IsFailure() {
+		fmt.Fprintf(os.Stderr, "  skip: %v\n", srcRes.AppError())
 
 		return stats
 	}
 
-	dstRoot, err := readJSONObject(dstPath)
-	if err != nil && !os.IsNotExist(err) {
-		fmt.Fprintf(os.Stderr, "  skip: %v\n", err)
+	dstRes := readJSONObject(dstPath)
+	if dstRes.IsFailure() && !os.IsNotExist(dstRes.AppError().Unwrap()) {
+		fmt.Fprintf(os.Stderr, "  skip: %v\n", dstRes.AppError())
 
 		return stats
 	}
 
+	dstRoot := dstRes.Data
 	if dstRoot == nil {
 		dstRoot = map[string]any{}
 	}
 
-	stats = mergeMapInto(srcRoot, dstRoot, "", pol)
+	stats = mergeMapInto(srcRes.Data, dstRoot, "", pol)
 	if pol.dryRun {
 		return stats
 	}
@@ -257,18 +259,22 @@ func joinKey(prefix, k string) string {
 	return prefix + "." + k
 }
 
-func readJSONObject(path string) (map[string]any, error) {
+func readJSONObject(path string) result.ResultMap[string, any] {
 	raw, err := os.ReadFile(path)
 	if err != nil {
-		return nil, err
+		appErr := apperror.WrapSimple(err, "read JSON file")
+
+		return result.FailMap[string, any](appErr)
 	}
 
 	var m map[string]any
 	if err := json.Unmarshal(raw, &m); err != nil {
-		return nil, fmt.Errorf("parse %s: %w", path, err)
+		appErr := apperror.WrapSimple(err, fmt.Sprintf("parse %s", path))
+
+		return result.FailMap[string, any](appErr)
 	}
 
-	return m, nil
+	return result.OkMap(m)
 }
 
 func writeJSONObject(path string, m map[string]any) error {
@@ -299,25 +305,26 @@ func mergeChromeBookmarks(srcDir, dstDir string, pol *mergePolicy) mergeStats {
 	var stats mergeStats
 	srcPath := filepath.Join(srcDir, constants.ChromeBookmarksFile)
 	dstPath := filepath.Join(dstDir, constants.ChromeBookmarksFile)
-	src, err := readJSONObject(srcPath)
-	if err != nil {
-		fmt.Fprintf(os.Stderr, "  skip: %v\n", err)
+	srcRes := readJSONObject(srcPath)
+	if srcRes.IsFailure() {
+		fmt.Fprintf(os.Stderr, "  skip: %v\n", srcRes.AppError())
 
 		return stats
 	}
 
-	dst, err := readJSONObject(dstPath)
-	if err != nil && !os.IsNotExist(err) {
-		fmt.Fprintf(os.Stderr, "  skip: %v\n", err)
+	dstRes := readJSONObject(dstPath)
+	if dstRes.IsFailure() && !os.IsNotExist(dstRes.AppError().Unwrap()) {
+		fmt.Fprintf(os.Stderr, "  skip: %v\n", dstRes.AppError())
 
 		return stats
 	}
 
+	dst := dstRes.Data
 	if dst == nil {
 		dst = map[string]any{"roots": map[string]any{}}
 	}
 
-	stats = mergeBookmarkRoots(src, dst, pol)
+	stats = mergeBookmarkRoots(srcRes.Data, dst, pol)
 	if pol.dryRun {
 		return stats
 	}

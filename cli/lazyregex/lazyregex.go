@@ -134,7 +134,7 @@ func (it *LazyRegexp) compiledRegex() (*regexp.Regexp, error) {
 
 	res := it.Compile()
 
-	return res.Value, res.AppError
+	return res.Value, res.AppError()
 }
 
 // IsCompiled reports whether compilation has already been executed.

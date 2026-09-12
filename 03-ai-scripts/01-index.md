@@ -63,6 +63,7 @@ Follow this sequence before and during any repository modification task:
 | **33** | `33-git-history-tracer-and-purger.py` | Traces deleted files in Git, pre-flight inspection with selective exclusion, workspace restoration, and deep history purging | ~20ms | `git`, `history`, `tracer`, `restore`, `purge`, `filter-repo`, `deleted-files` |
 | **33** | `33-test-inventory-generator.py` | Generates `.lovable/test-inventory.json` and manages atomic file change tracking under lock | ~15ms | `test-inventory`, `tracking`, `locking`, `changes` |
 | **34** | `34-schema-scanner.py` | Scans SQL table definitions for PascalCase, PK conventions, and affirmative booleans | ~15ms | `schema`, `database`, `sqlite`, `scanner`, `linter`, `erd` |
+| **35** | `35-result-wrapper-auditor.py` | Audits Go functions returning multi-value map/slice error tuples for ResultMap and AppError compliance | ~15ms | `result`, `result-wrapper`, `result-map`, `apperror`, `linter`, `audit` |
 
 ---
 
@@ -119,6 +120,7 @@ DEFAULT_MAX_WORKERS = 4
 - [32-deep-consolidator.py](32-deep-consolidator.py): Deep plans and subtasks consolidator preserving 100% technical detail, subtask ledgers, and verified outcomes.
 - [33-git-history-tracer-and-purger.py](33-git-history-tracer-and-purger.py): Traces deleted and active files in Git, selective pre-flight exclusion, workspace restoration, Recycle Bin file deletion (`--delete`), and deep history purging (`--purge`). Features automatic OS temp directory backups (`%TEMP%` / `/tmp`) with instant rollback instructions. Built-in presets: `--spec-25-audit` (`spec/21-app/25-app-spec-audit`), `--spec-audit` (`spec/19-main-worker-service/audit`), `--audit` (repo-wide `*audit*`), `--lovable`, `--lovable-subtasks`, `--lovable-md`, `--spec`, `--spec-md`, and positional root/folder scans.
 - [33-test-inventory-generator.py](33-test-inventory-generator.py): Centralized test inventory manifest generator (`.lovable/test-inventory.json`) and atomic file change tracker with cross-platform mutex (`.lovable/temp/recent-file-changes.lock`).
+- [35-result-wrapper-auditor.py](35-result-wrapper-auditor.py): Audits Go functions returning multi-value map/slice error tuples for ResultMap and AppError compliance.
 
 ---
 

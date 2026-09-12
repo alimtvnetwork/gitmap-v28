@@ -56,13 +56,13 @@ func copyRegular(src, dst string, mode os.FileMode) error {
 
 // CopyTree copies every file from src into dst, honoring opts ignore list.
 func CopyTree(src, dst string, opts Options) (int, error) {
-	idx, err := IndexTree(src, opts)
-	if err != nil {
-		return 0, err
+	idxRes := IndexTree(src, opts)
+	if idxRes.IsFailure() {
+		return 0, idxRes.AppError()
 	}
 
 	count := 0
-	for rel, meta := range idx {
+	for rel, meta := range idxRes.Data {
 		srcPath := filepath.Join(src, filepath.FromSlash(rel))
 		dstPath := filepath.Join(dst, filepath.FromSlash(rel))
 		if copyErr := CopyFile(srcPath, dstPath, meta.Info); copyErr != nil {

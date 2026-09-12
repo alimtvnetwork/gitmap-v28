@@ -15,7 +15,9 @@ import (
 	"strconv"
 	"strings"
 
+	"github.com/alimtvnetwork/gitmap-v28/cli/apperror"
 	"github.com/alimtvnetwork/gitmap-v28/cli/constants"
+	"github.com/alimtvnetwork/gitmap-v28/cli/result"
 )
 
 // goldenDiffEntry captures one changed testdata/ file. Status uses
@@ -80,29 +82,31 @@ func isGitWorkingTree() bool {
 // untracked/added/deleted) with numstat (covers +/- line counts for
 // modified files) into a unified per-file record list.
 func collectGoldenDiffEntries() ([]goldenDiffEntry, error) {
-	statuses, err := readPorcelainStatuses()
-	if err != nil {
-		return nil, fmt.Errorf("git status: %w", err)
+	statusRes := readPorcelainStatuses()
+	if statusRes.IsFailure() {
+		return nil, fmt.Errorf("git status: %w", statusRes.AppError())
 	}
 
-	numstat, err := readNumstatCounts()
-	if err != nil {
-		return nil, fmt.Errorf("git diff numstat: %w", err)
+	numstatRes := readNumstatCounts()
+	if numstatRes.IsFailure() {
+		return nil, fmt.Errorf("git diff numstat: %w", numstatRes.AppError())
 	}
 
-	return mergeStatusAndNumstat(statuses, numstat), nil
+	return mergeStatusAndNumstat(statusRes.Data, numstatRes.Data), nil
 }
 
 // readPorcelainStatuses returns a map of testdata/ path -> entry
 // (status letter + optional renamedFrom) from `git status --porcelain`.
 // Untracked entries (`??`) are normalized to "A" (added).
-func readPorcelainStatuses() (map[string]goldenDiffEntry, error) {
+func readPorcelainStatuses() result.ResultMap[string, goldenDiffEntry] {
 	out, err := runGitCapture("status", "--porcelain", "--", "*"+goldenDiffPathFragment+"*")
 	if err != nil {
-		return nil, err
+		appErr := apperror.WrapSimple(err, "read git status porcelain")
+
+		return result.FailMap[string, goldenDiffEntry](appErr)
 	}
 
-	result := make(map[string]goldenDiffEntry)
+	entries := make(map[string]goldenDiffEntry)
 	for _, line := range strings.Split(out, "\n") {
 		if len(line) < 4 {
 			continue
@@ -114,14 +118,14 @@ func readPorcelainStatuses() (map[string]goldenDiffEntry, error) {
 			continue
 		}
 
-		result[path] = goldenDiffEntry{
+		entries[path] = goldenDiffEntry{
 			status:      normalizePorcelainStatus(strings.TrimSpace(line[:2])),
 			path:        path,
 			renamedFrom: from,
 		}
 	}
 
-	return result, nil
+	return result.OkMap(entries)
 }
 
 // splitPorcelainPath extracts (newPath, oldPath) from the path
@@ -163,13 +167,15 @@ func normalizePorcelainStatus(code string) string {
 // readNumstatCounts returns added/deleted line counts for tracked
 // modifications. Untracked files do not appear here — that's why
 // readPorcelainStatuses runs in parallel.
-func readNumstatCounts() (map[string][2]int, error) {
+func readNumstatCounts() result.ResultMap[string, [2]int] {
 	out, err := runGitCapture("diff", "--numstat", "--", "*"+goldenDiffPathFragment+"*")
 	if err != nil {
-		return nil, err
+		appErr := apperror.WrapSimple(err, "read git diff numstat")
+
+		return result.FailMap[string, [2]int](appErr)
 	}
 
-	result := make(map[string][2]int)
+	counts := make(map[string][2]int)
 	for _, line := range strings.Split(out, "\n") {
 		fields := strings.Fields(line)
 		if len(fields) < 3 {
@@ -183,10 +189,10 @@ func readNumstatCounts() (map[string][2]int, error) {
 
 		added, _ := strconv.Atoi(fields[0]) // "-" (binary) becomes 0
 		deleted, _ := strconv.Atoi(fields[1])
-		result[fields[2]] = [2]int{added, deleted}
+		counts[fields[2]] = [2]int{added, deleted}
 	}
 
-	return result, nil
+	return result.OkMap(counts)
 }
 
 // mergeStatusAndNumstat joins the two maps by path, defaulting line

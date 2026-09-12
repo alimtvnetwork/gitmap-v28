@@ -7,6 +7,9 @@ import (
 	"path/filepath"
 	"sort"
 	"strings"
+
+	"github.com/alimtvnetwork/gitmap-v28/cli/apperror"
+	"github.com/alimtvnetwork/gitmap-v28/cli/result"
 )
 
 // FileMeta is a single file's identity used by the diff stage.
@@ -18,7 +21,7 @@ type FileMeta struct {
 
 // IndexTree walks root and returns rel-path -> FileMeta for every
 // non-ignored regular file. Symlinks are recorded but not followed.
-func IndexTree(root string, opts Options) (map[string]FileMeta, error) {
+func IndexTree(root string, opts Options) result.ResultMap[string, FileMeta] {
 	out := make(map[string]FileMeta)
 	walkErr := filepath.Walk(root, func(path string, info os.FileInfo, err error) error {
 		if err != nil {
@@ -46,8 +49,13 @@ func IndexTree(root string, opts Options) (map[string]FileMeta, error) {
 
 		return nil
 	})
+	if walkErr != nil {
+		appErr := apperror.WrapSimple(walkErr, "walk root index tree")
 
-	return out, walkErr
+		return result.FailMap[string, FileMeta](appErr)
+	}
+
+	return result.OkMap(out)
 }
 
 // IsSkipWalk applies the default ignore list (.git/, node_modules/,
