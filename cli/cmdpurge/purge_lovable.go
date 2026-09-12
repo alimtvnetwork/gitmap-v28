@@ -26,7 +26,7 @@ func doPurgeLovable(repoPath string) error {
 	return nil
 }
 
-func getTrackedLovableFiles(repoPath string) result.ResultMap[string, bool] {
+func getTrackedLovableFiles(repoPath string) TrackedLovableFilesMapResult {
 	out, err := runPurgeCmd("git", "-C", repoPath, "ls-files", ".lovable")
 	if err != nil {
 		appErr := apperror.WrapSimple(err, "git ls-files .lovable")

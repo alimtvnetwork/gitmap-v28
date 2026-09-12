@@ -58,14 +58,14 @@ func runSSHExec(args []string) error {
 
 	defer dbConn.Close()
 
-	conns, connErr := db.GetSSHConnections(dbConn.Context(), dbConn.SQL())
-	if connErr != nil {
-		fmt.Printf("Failed to get connections: %v\n", connErr)
+	connsRes := db.GetSSHConnections(dbConn.Context(), dbConn.SQL())
+	if connsRes.IsFailure() {
+		fmt.Printf("Failed to get connections: %v\n", connsRes.AppError())
 
 		return nil
 	}
 
-	conns = filterSSHConns(conns, opts.Exclude)
+	conns := filterSSHConns(connsRes.Data, opts.Exclude)
 	if len(conns) == 0 {
 		fmt.Println("No machines to execute on.")
 

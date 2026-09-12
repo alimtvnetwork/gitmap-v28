@@ -51,6 +51,9 @@ ENFORCED_TYPES_GO_PACKAGES = (
     "cli/cmdschedule",
     "cli/pipelinedb",
     "cli/macro",
+    "cli/db",
+    "cli/cluster",
+    "cli/cmdpurge",
 )
 
 NON_AFFIRMATIVE_DEFINED = re.compile(r"\bdefined\s+bool\b")
@@ -62,7 +65,7 @@ RESULT_SLICE_ENFORCED_PREFIXES = (
     "cli/cmdprompt/",
     "cli/cmdschedule/",
     "cli/cluster/pathalias.go",
-    "cli/db/nodepath.go",
+    "cli/db/",
 )
 
 EXCLUDED_FUNCTIONS = {

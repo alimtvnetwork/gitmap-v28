@@ -43,9 +43,9 @@ func runClusterHistory(args []string) error {
 }
 
 func printClusterHistoryList(ctx context.Context, conn *sql.DB) {
-	runs, err := db.ListClusterRuns(ctx, conn, constants.ClusterDefaultHistoryLimit)
-	if err != nil {
-		fmt.Fprintf(os.Stderr, "failed to list runs: %v\n", err)
+	runsRes := db.ListClusterRuns(ctx, conn, constants.ClusterDefaultHistoryLimit)
+	if runsRes.IsFailure() {
+		fmt.Fprintf(os.Stderr, "failed to list runs: %v\n", runsRes.AppError())
 		cliexit.HandleError(nil, 1)
 	}
 
@@ -53,7 +53,7 @@ func printClusterHistoryList(ctx context.Context, conn *sql.DB) {
 		constants.ClusterHeaderRunRef, constants.ClusterHeaderCommandKind,
 		constants.ClusterHeaderTargetSelector, constants.ClusterHeaderNodes,
 		constants.ClusterHeaderOK, constants.ClusterHeaderFAIL, constants.ClusterHeaderStartedAt)
-	for _, r := range runs {
+	for _, r := range runsRes.Data {
 		printClusterRunRow(r)
 	}
 }
@@ -88,9 +88,9 @@ func printClusterRunDetails(ctx context.Context, conn *sql.DB, runRef string) {
 		cliexit.HandleError(nil, 1)
 	}
 
-	results, err := db.SelectClusterExecResultsByRunId(ctx, conn, run.ClusterRunId)
-	if err != nil {
-		fmt.Fprintf(os.Stderr, "failed to get results for run %s: %v\n", runRef, err)
+	resultsRes := db.SelectClusterExecResultsByRunId(ctx, conn, run.ClusterRunId)
+	if resultsRes.IsFailure() {
+		fmt.Fprintf(os.Stderr, "failed to get results for run %s: %v\n", runRef, resultsRes.AppError())
 		cliexit.HandleError(nil, 1)
 	}
 
@@ -98,7 +98,7 @@ func printClusterRunDetails(ctx context.Context, conn *sql.DB, runRef string) {
 	fmt.Printf("%-20s %-20s %-15s %-8s %s\n",
 		constants.ClusterHeaderNode, constants.ClusterHeaderSubCommand,
 		constants.ClusterHeaderResult, constants.ClusterHeaderExitCode, constants.ClusterHeaderDurationMs)
-	for _, res := range results {
+	for _, res := range resultsRes.Data {
 		printClusterExecResultRow(ctx, conn, res)
 	}
 }
@@ -158,13 +158,13 @@ func runClusterExport(args []string) error {
 	}
 
 	defer storeDB.Close()
-	nodes, listErr := db.ListClusterNodes(ctx, storeDB.Conn())
-	if listErr != nil {
-		fmt.Fprintf(os.Stderr, "failed to list nodes: %v\n", listErr)
+	nodesRes := db.ListClusterNodes(ctx, storeDB.Conn())
+	if nodesRes.IsFailure() {
+		fmt.Fprintf(os.Stderr, "failed to list nodes: %v\n", nodesRes.AppError())
 		cliexit.HandleError(nil, 1)
 	}
 
-	data := formatClusterExportNodes(nodes, format)
+	data := formatClusterExportNodes(nodesRes.Data, format)
 	writeClusterExportData(data, output)
 
 	return nil
@@ -272,9 +272,9 @@ func importClusterNodes(ctx context.Context, conn *sql.DB, nodes []db.ClusterNod
 }
 
 func getExistingClusterNodesMap(ctx context.Context, conn *sql.DB) map[string]bool {
-	existing, _ := db.ListClusterNodes(ctx, conn)
-	m := make(map[string]bool, len(existing))
-	for _, e := range existing {
+	existingRes := db.ListClusterNodes(ctx, conn)
+	m := make(map[string]bool, existingRes.Count())
+	for _, e := range existingRes.Data {
 		m[e.NodeId] = true
 	}
 
@@ -393,13 +393,13 @@ func runClusterNodes(args []string) error {
 	}
 
 	defer storeDB.Close()
-	nodes, listErr := db.ListClusterNodes(ctx, storeDB.Conn())
-	if listErr != nil {
-		fmt.Fprintf(os.Stderr, "failed to list nodes: %v\n", listErr)
+	nodesRes := db.ListClusterNodes(ctx, storeDB.Conn())
+	if nodesRes.IsFailure() {
+		fmt.Fprintf(os.Stderr, "failed to list nodes: %v\n", nodesRes.AppError())
 		cliexit.HandleError(nil, 1)
 	}
 
-	displayClusterNodes(nodes, hasClusterJSONFlag(args))
+	displayClusterNodes(nodesRes.Data, hasClusterJSONFlag(args))
 
 	return nil
 }

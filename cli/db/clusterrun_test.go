@@ -115,13 +115,13 @@ func TestClusterRunAndExecResult(t *testing.T) {
 	}
 
 	// 6. Query by RunId and verify counts
-	results, err := SelectClusterExecResultsByRunId(ctx, db, runId)
-	if err != nil {
-		t.Fatalf("SelectClusterExecResultsByRunId failed: %v", err)
+	resultsRes := SelectClusterExecResultsByRunId(ctx, db, runId)
+	if resultsRes.IsFailure() {
+		t.Fatalf("SelectClusterExecResultsByRunId failed: %v", resultsRes.AppError())
 	}
 
-	if len(results) != 5 {
-		t.Errorf("Expected 5 results, got %d", len(results))
+	if resultsRes.IsCountOtherThan(5) {
+		t.Errorf("Expected 5 results, got %d", resultsRes.Count())
 	}
 
 	// 7. Verify FK cascade on run delete
@@ -131,12 +131,12 @@ func TestClusterRunAndExecResult(t *testing.T) {
 	}
 
 	// Check if results are deleted
-	resultsAfterDelete, err := SelectClusterExecResultsByRunId(ctx, db, runId)
-	if err != nil {
-		t.Fatalf("SelectClusterExecResultsByRunId after delete failed: %v", err)
+	resultsAfterDelete := SelectClusterExecResultsByRunId(ctx, db, runId)
+	if resultsAfterDelete.IsFailure() {
+		t.Fatalf("SelectClusterExecResultsByRunId after delete failed: %v", resultsAfterDelete.AppError())
 	}
 
-	if len(resultsAfterDelete) != 0 {
-		t.Errorf("Expected 0 results after run deletion due to cascade, got %d", len(resultsAfterDelete))
+	if resultsAfterDelete.IsCountOtherThan(0) {
+		t.Errorf("Expected 0 results after run deletion due to cascade, got %d", resultsAfterDelete.Count())
 	}
 }

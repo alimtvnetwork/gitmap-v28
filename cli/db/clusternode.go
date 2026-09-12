@@ -6,6 +6,7 @@ import (
 	"time"
 
 	"github.com/alimtvnetwork/gitmap-v28/cli/apperror"
+	"github.com/alimtvnetwork/gitmap-v28/cli/result"
 )
 
 type ClusterNode struct {
@@ -72,10 +73,10 @@ func InsertOrUpdateClusterNode(ctx context.Context, db *sql.DB, node ClusterNode
 	return nil
 }
 
-func ListClusterNodes(ctx context.Context, db *sql.DB) ([]ClusterNode, *apperror.AppError) {
+func ListClusterNodes(ctx context.Context, db *sql.DB) ClusterNodeSliceResult {
 	rows, err := db.QueryContext(ctx, sqlSelectListClusterNodes)
 	if err != nil {
-		return nil, apperror.WrapSimple(err, "ListClusterNodes.Query")
+		return result.FailSlice[ClusterNode](apperror.WrapSimple(err, "ListClusterNodes.Query"))
 	}
 
 	defer rows.Close()
@@ -83,7 +84,7 @@ func ListClusterNodes(ctx context.Context, db *sql.DB) ([]ClusterNode, *apperror
 	return scanClusterNodeRows(rows)
 }
 
-func scanClusterNodeRows(rows *sql.Rows) ([]ClusterNode, *apperror.AppError) {
+func scanClusterNodeRows(rows *sql.Rows) ClusterNodeSliceResult {
 	var nodes []ClusterNode
 	for rows.Next() {
 		var n ClusterNode
@@ -92,17 +93,17 @@ func scanClusterNodeRows(rows *sql.Rows) ([]ClusterNode, *apperror.AppError) {
 			&n.JoinedAt, &n.LastHeartbeat, &n.Status, &n.PasswordHash, &n.PackageManager,
 		)
 		if err != nil {
-			return nil, apperror.WrapSimple(err, "scanClusterNodeRows.Scan")
+			return result.FailSlice[ClusterNode](apperror.WrapSimple(err, "scanClusterNodeRows.Scan"))
 		}
 
 		nodes = append(nodes, n)
 	}
 
 	if err := rows.Err(); err != nil {
-		return nil, apperror.WrapSimple(err, "scanClusterNodeRows.Rows")
+		return result.FailSlice[ClusterNode](apperror.WrapSimple(err, "scanClusterNodeRows.Rows"))
 	}
 
-	return nodes, nil
+	return result.OkSlice(nodes)
 }
 
 func GetClusterNode(ctx context.Context, db *sql.DB, id string) (ClusterNode, *apperror.AppError) {

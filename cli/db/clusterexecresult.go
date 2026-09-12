@@ -6,6 +6,7 @@ import (
 	"time"
 
 	"github.com/alimtvnetwork/gitmap-v28/cli/apperror"
+	"github.com/alimtvnetwork/gitmap-v28/cli/result"
 )
 
 type ClusterExecResult struct {
@@ -112,10 +113,10 @@ func SelectClusterExecResultsByRunId(
 	ctx context.Context,
 	db *sql.DB,
 	runId int64,
-) ([]ClusterExecResult, *apperror.AppError) {
+) ClusterExecResultSliceResult {
 	rows, err := db.QueryContext(ctx, sqlSelectClusterExecResultsByRunId, runId)
 	if err != nil {
-		return nil, apperror.WrapSimple(err, "SelectClusterExecResultsByRunId.Query")
+		return result.FailSlice[ClusterExecResult](apperror.WrapSimple(err, "SelectClusterExecResultsByRunId.Query"))
 	}
 
 	defer rows.Close()
@@ -123,7 +124,7 @@ func SelectClusterExecResultsByRunId(
 	return scanClusterExecResultRows(rows)
 }
 
-func scanClusterExecResultRows(rows *sql.Rows) ([]ClusterExecResult, *apperror.AppError) {
+func scanClusterExecResultRows(rows *sql.Rows) ClusterExecResultSliceResult {
 	var results []ClusterExecResult
 	for rows.Next() {
 		var res ClusterExecResult
@@ -133,15 +134,15 @@ func scanClusterExecResultRows(rows *sql.Rows) ([]ClusterExecResult, *apperror.A
 			&res.Stderr, &res.StartedAt, &res.FinishedAt, &res.DurationMs, &res.ErrorMessage,
 		)
 		if err != nil {
-			return nil, apperror.WrapSimple(err, "scanClusterExecResultRows.Scan")
+			return result.FailSlice[ClusterExecResult](apperror.WrapSimple(err, "scanClusterExecResultRows.Scan"))
 		}
 
 		results = append(results, res)
 	}
 
 	if err := rows.Err(); err != nil {
-		return nil, apperror.WrapSimple(err, "scanClusterExecResultRows.Rows")
+		return result.FailSlice[ClusterExecResult](apperror.WrapSimple(err, "scanClusterExecResultRows.Rows"))
 	}
 
-	return results, nil
+	return result.OkSlice(results)
 }

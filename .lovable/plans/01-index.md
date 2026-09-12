@@ -8,6 +8,7 @@ Master directory of architectural and execution plans.
 
 ## Completed Plans (Consolidated Milestones)
 
+- [146-db-cluster-result-wrapper-and-types-go.md](completed/146-db-cluster-result-wrapper-and-types-go.md): Result Wrapper Types, Collections & AppError Returns (DB, Cluster, and CmdPurge Types Centralization)
 - [145-result-wrapper-and-types-go-centralization-audit.md](completed/145-result-wrapper-and-types-go-centralization-audit.md): Result Wrapper Types, Collections & AppError Returns (Types.go Centralization & Single Reusable Types)
 - [144-result-wrapper-null-safety-and-single-return-audit.md](completed/144-result-wrapper-null-safety-and-single-return-audit.md): Result Wrapper Types, Collections & AppError Returns (Pointer Null Safety & Predicates)
 - [143-argument-reduction-and-parameter-structs.md](completed/143-argument-reduction-and-parameter-structs.md): Argument Reduction, Parameter Structs & Return Architecture Audit (parameter structs, affirmative boolean fields, AppError returns)

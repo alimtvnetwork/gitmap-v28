@@ -6,6 +6,7 @@ import (
 	"time"
 
 	"github.com/alimtvnetwork/gitmap-v28/cli/apperror"
+	"github.com/alimtvnetwork/gitmap-v28/cli/result"
 )
 
 type SSHConnection struct {
@@ -51,10 +52,10 @@ func InsertOrUpdateSSHConnection(ctx context.Context, db *sql.DB, conn SSHConnec
 	return nil
 }
 
-func GetSSHConnections(ctx context.Context, db *sql.DB) ([]SSHConnection, *apperror.AppError) {
+func GetSSHConnections(ctx context.Context, db *sql.DB) SSHConnectionSliceResult {
 	rows, err := db.QueryContext(ctx, sqlSelectSSHConnections)
 	if err != nil {
-		return nil, apperror.WrapSimple(err, "GetSSHConnections.Query")
+		return result.FailSlice[SSHConnection](apperror.WrapSimple(err, "GetSSHConnections.Query"))
 	}
 
 	defer rows.Close()
@@ -62,22 +63,22 @@ func GetSSHConnections(ctx context.Context, db *sql.DB) ([]SSHConnection, *apper
 	return scanSSHConnectionRows(rows)
 }
 
-func scanSSHConnectionRows(rows *sql.Rows) ([]SSHConnection, *apperror.AppError) {
+func scanSSHConnectionRows(rows *sql.Rows) SSHConnectionSliceResult {
 	var conns []SSHConnection
 	for rows.Next() {
 		var c SSHConnection
 		if err := rows.Scan(&c.Alias, &c.IPAddress, &c.Username, &c.EncryptedPassword, &c.KeyPath, &c.OS, &c.CreatedAt); err != nil {
-			return nil, apperror.WrapSimple(err, "scanSSHConnectionRows.Scan")
+			return result.FailSlice[SSHConnection](apperror.WrapSimple(err, "scanSSHConnectionRows.Scan"))
 		}
 
 		conns = append(conns, c)
 	}
 
 	if err := rows.Err(); err != nil {
-		return nil, apperror.WrapSimple(err, "scanSSHConnectionRows.Rows")
+		return result.FailSlice[SSHConnection](apperror.WrapSimple(err, "scanSSHConnectionRows.Rows"))
 	}
 
-	return conns, nil
+	return result.OkSlice(conns)
 }
 
 func DeleteSSHConnection(ctx context.Context, db *sql.DB, alias string) *apperror.AppError {

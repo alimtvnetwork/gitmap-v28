@@ -7,6 +7,7 @@ import (
 	"time"
 
 	"github.com/alimtvnetwork/gitmap-v28/cli/apperror"
+	"github.com/alimtvnetwork/gitmap-v28/cli/result"
 )
 
 type ClusterRun struct {
@@ -106,7 +107,7 @@ func SelectClusterRun(ctx context.Context, db *sql.DB, runRef string) (ClusterRu
 	return run, nil
 }
 
-func ListClusterRuns(ctx context.Context, db *sql.DB, limit int) ([]ClusterRun, *apperror.AppError) {
+func ListClusterRuns(ctx context.Context, db *sql.DB, limit int) ClusterRunSliceResult {
 	query := sqlSelectListClusterRuns
 	if limit > 0 {
 		query += " LIMIT " + strconv.Itoa(limit)
@@ -114,7 +115,7 @@ func ListClusterRuns(ctx context.Context, db *sql.DB, limit int) ([]ClusterRun, 
 
 	rows, err := db.QueryContext(ctx, query)
 	if err != nil {
-		return nil, apperror.WrapSimple(err, "ListClusterRuns.Query")
+		return result.FailSlice[ClusterRun](apperror.WrapSimple(err, "ListClusterRuns.Query"))
 	}
 
 	defer rows.Close()
@@ -122,7 +123,7 @@ func ListClusterRuns(ctx context.Context, db *sql.DB, limit int) ([]ClusterRun, 
 	return scanClusterRunRows(rows)
 }
 
-func scanClusterRunRows(rows *sql.Rows) ([]ClusterRun, *apperror.AppError) {
+func scanClusterRunRows(rows *sql.Rows) ClusterRunSliceResult {
 	var runs []ClusterRun
 	for rows.Next() {
 		var run ClusterRun
@@ -132,15 +133,15 @@ func scanClusterRunRows(rows *sql.Rows) ([]ClusterRun, *apperror.AppError) {
 			&run.FailedNodes, &run.SkippedNodes,
 		)
 		if err != nil {
-			return nil, apperror.WrapSimple(err, "scanClusterRunRows.Scan")
+			return result.FailSlice[ClusterRun](apperror.WrapSimple(err, "scanClusterRunRows.Scan"))
 		}
 
 		runs = append(runs, run)
 	}
 
 	if err := rows.Err(); err != nil {
-		return nil, apperror.WrapSimple(err, "scanClusterRunRows.Rows")
+		return result.FailSlice[ClusterRun](apperror.WrapSimple(err, "scanClusterRunRows.Rows"))
 	}
 
-	return runs, nil
+	return result.OkSlice(runs)
 }

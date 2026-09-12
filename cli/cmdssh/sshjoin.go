@@ -81,15 +81,15 @@ func runSSHJoinLs() error {
 
 	defer dbConn.Close()
 
-	conns, connErr := db.GetSSHConnections(dbConn.Context(), dbConn.SQL())
-	if connErr != nil {
-		fmt.Printf("Failed to get connections: %v\n", connErr)
+	connsRes := db.GetSSHConnections(dbConn.Context(), dbConn.SQL())
+	if connsRes.IsFailure() {
+		fmt.Printf("Failed to get connections: %v\n", connsRes.AppError())
 
 		return nil
 	}
 
 	fmt.Println(lipgloss.NewStyle().Bold(true).Foreground(lipgloss.Color("#bd93f9")).Render("SSH Joined Machines:"))
-	for _, c := range conns {
+	for _, c := range connsRes.Data {
 		fmt.Printf("  Alias: %-15s IP: %-15s User: %-10s OS: %-8s\n", c.Alias, c.IPAddress, c.Username, c.OS)
 	}
 
@@ -227,14 +227,14 @@ func runSSHJoinExport(file string) error {
 
 	defer dbConn.Close()
 
-	conns, connErr := db.GetSSHConnections(dbConn.Context(), dbConn.SQL())
-	if connErr != nil {
-		fmt.Printf("Failed to get connections: %v\n", connErr)
+	connsRes := db.GetSSHConnections(dbConn.Context(), dbConn.SQL())
+	if connsRes.IsFailure() {
+		fmt.Printf("Failed to get connections: %v\n", connsRes.AppError())
 
 		return nil
 	}
 
-	data, err := json.MarshalIndent(conns, "", "  ")
+	data, err := json.MarshalIndent(connsRes.Data, "", "  ")
 	if err != nil {
 		fmt.Printf("JSON marshal error: %v\n", err)
 
@@ -247,7 +247,7 @@ func runSSHJoinExport(file string) error {
 		return nil
 	}
 
-	fmt.Printf("Exported %d connections to %s\n", len(conns), file)
+	fmt.Printf("Exported %d connections to %s\n", connsRes.Count(), file)
 
 	return nil
 }
