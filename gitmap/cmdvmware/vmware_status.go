@@ -1,4 +1,4 @@
-package cmd
+package cmdvmware
 
 import (
 	"fmt"
@@ -12,7 +12,7 @@ func runVmwareSharedStatus() error {
 	active := isMountActive(defaultMountPoint)
 	fmt.Printf("  Mount (%s): active=%t\n", defaultMountPoint, active)
 
-	desktopDir := resolveUserDesktopDir()
+	desktopDir := ResolveUserDesktopDir()
 	link := filepath.Join(desktopDir, "SharedDirectories")
 	target, err := os.Readlink(link)
 	hasLink := err == nil

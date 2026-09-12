@@ -1,4 +1,4 @@
-package cmd
+package cmdvmware
 
 import (
 	"fmt"
@@ -9,7 +9,7 @@ import (
 )
 
 // runVmware dispatches gitmap vmware CLI commands.
-func runVmware(args []string) error {
+func Run(args []string) error {
 	checkHelp(constants.CmdVmware, args)
 	if len(args) == 0 {
 		printVmwareUsage()

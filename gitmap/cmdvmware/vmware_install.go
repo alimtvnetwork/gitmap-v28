@@ -1,4 +1,4 @@
-package cmd
+package cmdvmware
 
 import (
 	"fmt"

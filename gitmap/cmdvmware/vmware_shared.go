@@ -1,4 +1,4 @@
-package cmd
+package cmdvmware
 
 import (
 	"fmt"
@@ -85,7 +85,8 @@ func ensureVMwareToolsInstalled() {
 	_ = cmd.Run()
 }
 
-func resolveUserDesktopDir() string {
+// ResolveUserDesktopDir returns the user Desktop directory accounting for SUDO_USER.
+func ResolveUserDesktopDir() string {
 	sudoUser := os.Getenv("SUDO_USER")
 	if sudoUser != "" && sudoUser != "root" {
 		return filepath.Join("/home", sudoUser, "Desktop")
@@ -216,7 +217,7 @@ func mountHostShare(mountPoint string) error {
 }
 
 func createDesktopSymlink(mountPoint string) error {
-	desktopDir := resolveUserDesktopDir()
+	desktopDir := ResolveUserDesktopDir()
 	if err := os.MkdirAll(desktopDir, 0755); err != nil {
 		return apperror.WrapSimple(err, "vmware.createDesktopSymlink.mkdir")
 	}
@@ -266,7 +267,7 @@ func runVmwareSharedEnable(args []string) error {
 
 	fmt.Printf("  ✓ Created Desktop/SharedDirectories symlink\n")
 
-	if err := ensureCrontabPersistence(); err != nil {
+	if err := EnsureCrontabPersistence(); err != nil {
 		return err
 	}
 

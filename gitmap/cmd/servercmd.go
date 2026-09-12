@@ -21,7 +21,7 @@ type serverCmdOptions struct {
 
 // runServerCmd dispatches remote server commands across cluster and SSH nodes.
 func runServerCmd(args []string) error {
-	if len(args) == 0 || isHelpArg(args[0]) {
+	if len(args) == 0 || hasHelpFlag(args) {
 		printServerCmdUsage()
 
 		return nil

@@ -6,6 +6,7 @@ import (
 	"strings"
 
 	"github.com/alimtvnetwork/gitmap-v28/gitmap/apperror"
+	"github.com/alimtvnetwork/gitmap-v28/gitmap/cmdvmware"
 	"github.com/alimtvnetwork/gitmap-v28/gitmap/constants"
 )
 
@@ -60,7 +61,7 @@ func runOSStatus(args []string) error {
 	fmt.Printf("  • Operating System: %s (%s)\n", runtime.GOOS, runtime.GOARCH)
 	fmt.Printf("  • User Home:        %s\n", expandHome("~"))
 
-	desktopDir := resolveUserDesktopDir()
+	desktopDir := cmdvmware.ResolveUserDesktopDir()
 	fmt.Printf("  • Desktop Dir:      %s\n", desktopDir)
 
 	return inspectStandardLinksStatus(desktopDir)

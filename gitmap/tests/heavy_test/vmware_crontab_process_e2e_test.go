@@ -1,4 +1,4 @@
-package cmd
+package heavy_test
 
 import (
 	"io"
@@ -7,6 +7,8 @@ import (
 	"path/filepath"
 	"strings"
 	"testing"
+
+	"github.com/alimtvnetwork/gitmap-v28/gitmap/cmdvmware"
 )
 
 func TestCrontabHelperProcess(t *testing.T) {
@@ -80,12 +82,12 @@ func handleHelperWrite() {
 
 func TestCrontabE2EFullUbuntuLifecycle(t *testing.T) {
 	statePath := filepath.Join(t.TempDir(), "crontab.txt")
-	origCmd := crontabCommandFunc
-	defer func() { crontabCommandFunc = origCmd }()
+	origCmd := cmdvmware.CrontabCommandFunc
+	defer func() { cmdvmware.CrontabCommandFunc = origCmd }()
 
-	crontabCommandFunc = makeHelperCrontabCmd(statePath)
+	cmdvmware.CrontabCommandFunc = makeHelperCrontabCmd(statePath)
 
-	err := ensureCrontabPersistence()
+	err := cmdvmware.EnsureCrontabPersistence()
 	if err != nil {
 		t.Fatalf("first-time ensureCrontabPersistence failed: %v", err)
 	}
@@ -124,7 +126,7 @@ func assertCrontabFileValid(t *testing.T, statePath string) {
 
 func assertSecondPersistenceCall(t *testing.T) {
 	t.Helper()
-	err := ensureCrontabPersistence()
+	err := cmdvmware.EnsureCrontabPersistence()
 	if err != nil {
 		t.Fatalf("idempotent ensureCrontabPersistence failed: %v", err)
 	}
@@ -132,13 +134,13 @@ func assertSecondPersistenceCall(t *testing.T) {
 
 func TestCrontabE2ERejectsBadMinuteFormat(t *testing.T) {
 	statePath := filepath.Join(t.TempDir(), "crontab.txt")
-	origCmd := crontabCommandFunc
-	defer func() { crontabCommandFunc = origCmd }()
+	origCmd := cmdvmware.CrontabCommandFunc
+	defer func() { cmdvmware.CrontabCommandFunc = origCmd }()
 
-	crontabCommandFunc = makeHelperCrontabCmd(statePath)
+	cmdvmware.CrontabCommandFunc = makeHelperCrontabCmd(statePath)
 
 	badCrontab := "no crontab for a\n@reboot mount\n"
-	err := writeCrontab(badCrontab)
+	err := cmdvmware.WriteCrontabFunc(badCrontab)
 	if err == nil {
 		t.Fatalf("expected writeCrontab to fail on bad minute input")
 	}

@@ -1,6 +1,7 @@
 package cmd
 
 import (
+	"github.com/alimtvnetwork/gitmap-v28/gitmap/cmdvmware"
 	"github.com/alimtvnetwork/gitmap-v28/gitmap/constants"
 )
 
@@ -104,7 +105,7 @@ func toolingInstallEntries() []dispatchEntry {
 		{[]string{constants.CmdSelfUninstallRunner}, runSelfUninstallRunner},
 		{[]string{constants.CmdPending}, runPending},
 		{[]string{constants.CmdDoPending, constants.CmdDoPendingAlias}, func() error { return runDoPending(argsTail()) }},
-		{[]string{constants.CmdVmware, constants.CmdVmwareAlias}, func() error { return runVmware(argsTail()) }},
+		{[]string{constants.CmdVmware, constants.CmdVmwareAlias}, func() error { return cmdvmware.Run(argsTail()) }},
 		{[]string{"perms", "permissions"}, func() error { return runSetupPerms(argsTail()) }},
 		{[]string{constants.CmdVHost}, func() error { return runVHost(argsTail()) }},
 		{[]string{constants.CmdNginx, constants.CmdNginxAlias}, func() error { return runNginx(argsTail()) }},

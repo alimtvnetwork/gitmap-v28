@@ -1,4 +1,4 @@
-package cmd
+package cmdvmware
 
 import (
 	"strings"
@@ -6,25 +6,25 @@ import (
 )
 
 func TestCrontabE2EFirstTimeSetupNoCrontab(t *testing.T) {
-	origRead := readCrontabFunc
-	origWrite := writeCrontabFunc
+	origRead := ReadCrontabFunc
+	origWrite := WriteCrontabFunc
 	defer func() {
-		readCrontabFunc = origRead
-		writeCrontabFunc = origWrite
+		ReadCrontabFunc = origRead
+		WriteCrontabFunc = origWrite
 	}()
 
-	readCrontabFunc = func() string {
+	ReadCrontabFunc = func() string {
 		return ""
 	}
 
 	var writtenCrontab string
-	writeCrontabFunc = func(content string) error {
+	WriteCrontabFunc = func(content string) error {
 		writtenCrontab = content
 
 		return nil
 	}
 
-	err := ensureCrontabPersistence()
+	err := EnsureCrontabPersistence()
 	if err != nil {
 		t.Fatalf("ensureCrontabPersistence failed: %v", err)
 	}
@@ -43,34 +43,34 @@ func TestCrontabE2EFirstTimeSetupNoCrontab(t *testing.T) {
 }
 
 func TestCrontabE2EIdempotencyAndPreservation(t *testing.T) {
-	origRead := readCrontabFunc
-	origWrite := writeCrontabFunc
+	origRead := ReadCrontabFunc
+	origWrite := WriteCrontabFunc
 	defer func() {
-		readCrontabFunc = origRead
-		writeCrontabFunc = origWrite
+		ReadCrontabFunc = origRead
+		WriteCrontabFunc = origWrite
 	}()
 
 	existingJob := "0 12 * * * /usr/local/bin/backup.sh"
 	alreadyPersisted := existingJob + "\n" + crontabRebootLine + "\n"
 
-	readCrontabFunc = func() string {
+	ReadCrontabFunc = func() string {
 		return alreadyPersisted
 	}
 
 	wasWritten := false
-	writeCrontabFunc = func(content string) error {
+	WriteCrontabFunc = func(content string) error {
 		wasWritten = true
 
 		return nil
 	}
 
-	err := ensureCrontabPersistence()
+	err := EnsureCrontabPersistence()
 	if err != nil {
 		t.Fatalf("expected nil error on already persisted crontab, got: %v", err)
 	}
 
 	if wasWritten {
-		t.Errorf("writeCrontabFunc should not be called when entry already exists")
+		t.Errorf("WriteCrontabFunc should not be called when entry already exists")
 	}
 }
 
@@ -89,26 +89,26 @@ func TestCrontabE2ENoBadMinuteError(t *testing.T) {
 }
 
 func TestCrontabE2EPreserveExistingJobs(t *testing.T) {
-	origRead := readCrontabFunc
-	origWrite := writeCrontabFunc
+	origRead := ReadCrontabFunc
+	origWrite := WriteCrontabFunc
 	defer func() {
-		readCrontabFunc = origRead
-		writeCrontabFunc = origWrite
+		ReadCrontabFunc = origRead
+		WriteCrontabFunc = origWrite
 	}()
 
 	userJob := "30 2 * * * /opt/scripts/nightly-backup.sh"
-	readCrontabFunc = func() string {
+	ReadCrontabFunc = func() string {
 		return userJob
 	}
 
 	var writtenContent string
-	writeCrontabFunc = func(content string) error {
+	WriteCrontabFunc = func(content string) error {
 		writtenContent = content
 
 		return nil
 	}
 
-	err := ensureCrontabPersistence()
+	err := EnsureCrontabPersistence()
 	if err != nil {
 		t.Fatalf("ensureCrontabPersistence failed: %v", err)
 	}

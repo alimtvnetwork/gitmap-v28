@@ -16,7 +16,7 @@ func runOSDisplay(args []string) error {
 		return runOSDisplayStatus()
 	}
 
-	if isHelpArg(args[0]) {
+	if isOSHelpArg(args[0]) {
 		printOSDisplayUsage()
 
 		return nil

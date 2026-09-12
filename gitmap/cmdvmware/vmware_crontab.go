@@ -1,5 +1,5 @@
-// Package cmd — vmware_crontab.go: crontab persistence management for VMware shared folders.
-package cmd
+// Package cmdvmware — vmware_crontab.go: crontab persistence management for VMware shared folders.
+package cmdvmware
 
 import (
 	"fmt"
@@ -10,13 +10,13 @@ import (
 )
 
 var (
-	crontabCommandFunc = exec.Command
-	readCrontabFunc    = readCurrentCrontab
-	writeCrontabFunc   = writeCrontab
+	CrontabCommandFunc = exec.Command
+	ReadCrontabFunc    = readCurrentCrontab
+	WriteCrontabFunc   = writeCrontab
 )
 
 func readCurrentCrontab() string {
-	cmd := crontabCommandFunc("crontab", "-l")
+	cmd := CrontabCommandFunc("crontab", "-l")
 	outBytes, err := cmd.Output()
 	if err != nil {
 		return ""
@@ -35,7 +35,7 @@ func cleanCrontabOutput(raw string) string {
 }
 
 func isCrontabPersisted() bool {
-	current := readCrontabFunc()
+	current := ReadCrontabFunc()
 
 	return strings.Contains(current, "vmhgfs-fuse") && strings.Contains(current, defaultMountPoint)
 }
@@ -49,7 +49,7 @@ func buildUpdatedCrontab(current, rebootLine string) string {
 }
 
 func writeCrontab(content string) error {
-	cmd := crontabCommandFunc("crontab", "-")
+	cmd := CrontabCommandFunc("crontab", "-")
 	cmd.Stdin = strings.NewReader(content)
 	out, err := cmd.CombinedOutput()
 	if err != nil {
@@ -61,12 +61,13 @@ func writeCrontab(content string) error {
 	return nil
 }
 
-func ensureCrontabPersistence() error {
+// EnsureCrontabPersistence guarantees VMware shared folder mounts persist across reboots.
+func EnsureCrontabPersistence() error {
 	if isCrontabPersisted() {
 		return nil
 	}
 
-	updated := buildUpdatedCrontab(readCrontabFunc(), crontabRebootLine)
+	updated := buildUpdatedCrontab(ReadCrontabFunc(), crontabRebootLine)
 
-	return writeCrontabFunc(updated)
+	return WriteCrontabFunc(updated)
 }

@@ -1,4 +1,4 @@
-package cmd
+package cmdvmware
 
 import (
 	"errors"
@@ -8,11 +8,11 @@ import (
 )
 
 func TestVmwareSubcommandDispatch(t *testing.T) {
-	if err := runVmware([]string{}); err != nil {
+	if err := Run([]string{}); err != nil {
 		t.Errorf("Expected nil error for empty args, got %v", err)
 	}
 
-	err := runVmware([]string{"nonexistent-command"})
+	err := Run([]string{"nonexistent-command"})
 	if err == nil {
 		t.Errorf("Expected error for unknown subcommand, got nil")
 	}
@@ -36,11 +36,11 @@ func TestVmwareOSConstraint(t *testing.T) {
 }
 
 func TestVmwareInstallDryRun(t *testing.T) {
-	if err := runVmware([]string{"install", "--dry-run"}); err != nil {
+	if err := Run([]string{"install", "--dry-run"}); err != nil {
 		t.Errorf("Expected nil error for install --dry-run, got %v", err)
 	}
 
-	if err := runVmware([]string{"in", "-n"}); err != nil {
+	if err := Run([]string{"in", "-n"}); err != nil {
 		t.Errorf("Expected nil error for in -n, got %v", err)
 	}
 }
@@ -50,7 +50,7 @@ func TestVmwareSharedEnableDryRun(t *testing.T) {
 		return
 	}
 
-	if err := runVmware([]string{"shared", "enable", "--dry-run"}); err != nil {
+	if err := Run([]string{"shared", "enable", "--dry-run"}); err != nil {
 		t.Errorf("Expected nil error for shared enable --dry-run, got %v", err)
 	}
 }

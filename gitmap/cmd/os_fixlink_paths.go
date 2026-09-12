@@ -4,10 +4,12 @@ import (
 	"fmt"
 	"os"
 	"path/filepath"
+
+	"github.com/alimtvnetwork/gitmap-v28/gitmap/cmdvmware"
 )
 
 func resolveDefaultFixLinkPaths() []string {
-	desktopDir := resolveUserDesktopDir()
+	desktopDir := cmdvmware.ResolveUserDesktopDir()
 	candidates := []string{
 		filepath.Join(desktopDir, "SharedDirectories"),
 		"/usr/local/bin/gitmap",
