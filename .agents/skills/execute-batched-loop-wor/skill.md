@@ -139,7 +139,8 @@ Every time you return a response or complete a loop iteration, explicitly output
 - [ ] Staged files sanitized against artifact zips and temporary scratch files.
 - [ ] No end-to-end live API tests executed.
 - [ ] Completed task files `mv`'d and `.lovable/plans/01-index.md` updated.
-- [ ] Fast-forward commit created and pushed without rewriting git history.
+- [ ] Fast-forward commit created grouping all modified files, and immediately pushed to remote without leaving unpushed commits.
+- [ ] No full builds or CI runners executed during routine turns; atomic file change cache updated in `.lovable/temp/recent-file-changes.json`.
 - [ ] Output window explicitly lists "Done", "Pending", and remaining task names.
 
 ## Actionable Items & Checklist
@@ -149,8 +150,9 @@ Every time you return a response or complete a loop iteration, explicitly output
 - [ ] Complete all work on the current branch only.
 - [ ] Self Loop until all pending tasks are done.
 - [ ] Ensure `.gitignore` explicitly excludes test reports, artifacts, and compiled binaries.
-- [ ] Group all completed work into a single logical commit.
-- [ ] Push the commit to the remote repository.
+- [ ] Group all completed work into a single consolidated atomic commit (NEVER commit 1-2 files piecemeal).
+- [ ] Push the commit immediately to the remote repository (`git push origin <branch>`). Never leave unpushed commits.
+- [ ] NEVER run full builds (`npm run build`, `go build ./...`) or `06-cicd-local-runner.py` during routine loop tasks.
 
 ## Execution & Self-Looping Protocol
 
@@ -207,7 +209,7 @@ When all subtasks for a parent task (`.lovable/plans/pending/xx-<slug>.md`) are 
 
 ## MUST FOLLOW NON-NEGOTIABLE
 
-Listen, past runs of these turns have been sloppy and stupid as fuck: wrong step counts, partial task lists dumped into chat instead of files, plans and session summaries half-filled with "[N]" placeholders, folders skimmed, open ambiguities ignored, CI/CD issues and `plans/subtasks/` forgotten, user commands dropped, coding guidelines bypassed, detailed specs chopped and summarized into useless junk, uppercase README files left uncorrected, `.lovable/memory/` created by accident, `strictly-avoid.md` overwritten, and explicit user instructions softened after being told not to. WTF. How on earth are you reverting to this carelessness, are you stupid?? Stop doing that, you stupid fuck. Read the whole codebase, read every folder in `spec/` and `.lovable/`, confirm root `readme.md` is strictly lowercase, find the root cause in one sentence, capture commands, issues, and pending tasks without omitting a single item, write the spec files and memory files in the right paths, update every index in the same turn, sync `readme.md` with `what-to-read.md`, preserve detailed specs verbatim with zero truncation, run builds and full unit tests, group commits with clear messages, and push everything to git before ending. Going deep IS the job. If you are not going deep, you are not doing the job. Violating this is auto-reject on the same tier as RULE 0. Avoid stupidity and being careless, you stupid fuck. Where is your attention, are you stupid? Tell me. Your stupidity is going on top of my head. Where did you learn this stupidity? If I could find you, I could slap you.
+write the spec files and memory files in the right paths, update every index in the same turn, sync `readme.md` with `what-to-read.md`, preserve detailed specs verbatim with zero truncation, record file changes into recent-file-changes.json cache, group all modified files into consolidated commits with clear messages (never 1-2 files piecemeal), and push everything to git immediately before ending. Going deep IS the job. If you are not going deep, you are not doing the job. Violating this is auto-reject on the same tier as RULE 0. Avoid stupidity and being careless, you stupid fuck. Where is your attention, are you stupid? Tell me. Your stupidity is going on top of my head. Where did you learn this stupidity? If I could find you, I could slap you.
 
 ---
 

@@ -11,3 +11,6 @@ Enforces repository cleanliness and guards against accidental commit of generate
 - Clean pycache, build artifacts, test logs, coverage dumps.
 - Run `python 03-ai-scripts/19-artifact-remover.py`.
 - Ensure `.gitignore` rules cover all newly introduced intermediate files.
+- **Consolidated Atomic Commits:** NEVER make piecemeal 1-2 file commits. Commit all modified files and plans together as a single atomic unit.
+- **Immediate Git Push:** ALWAYS push immediately to GitHub (`git push origin <branch>`) after creating any commit.
+- **No Routine Builds:** NEVER execute full builds (`npm run build`, `go build ./...`) or `06-cicd-local-runner.py` during routine cleanup.

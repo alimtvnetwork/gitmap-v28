@@ -16,4 +16,8 @@ Executes comprehensive testing, linting verification, and quality gate validatio
 3. **Targeted Verification (Routine):** Run targeted linters on modified files (full `06-cicd-local-runner.py` is strictly banned in routine turns).
 4. **Full Runner (Owner Explicit Command Only):** `python 03-ai-scripts/06-cicd-local-runner.py`
 5. **Pre-Release Full Gates (Release Ceremony Only):** `python 03-ai-scripts/06-cicd-local-runner.py --run-tests`
-4. **Git Hygiene:** Verify no un-ignored test dumps or binaries via `git status`.
+6. **Git Hygiene:** Verify no un-ignored test dumps or binaries via `git status`.
+7. **Atomic Change Tracking:** Record modified files under lock via `python 03-ai-scripts/33-test-inventory-generator.py --record <files...>`.
+8. **Consolidated Atomic Commits:** NEVER commit 1-2 files piecemeal. Stage all modified files and plans together as a single atomic unit.
+9. **Immediate Push to GitHub:** ALWAYS push immediately to GitHub (`git push origin <branch>`) after creating any commit.
+10. **No Routine Builds:** NEVER run full builds (`npm run build`, `go build ./...`) during routine tasks.
