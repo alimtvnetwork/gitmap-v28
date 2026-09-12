@@ -8,6 +8,7 @@ Master directory of architectural and execution plans.
 
 ## Completed Plans (Consolidated Milestones)
 
+- [101-react-frontend-architecture.md](completed/101-react-frontend-architecture.md): React & Frontend Architecture Audit (named hook objects, enum status types, Vite build)
 - [100-data-and-schema-architecture.md](completed/100-data-and-schema-architecture.md): Database & Data Schema Rules Architecture Audit (PascalCase tables, PK conventions, schema linter)
 - [99-constants-and-enums-architecture.md](completed/99-constants-and-enums-architecture.md): Constants & Enums Architecture Audit (*Type suffix, rune ban, constants centralization)
 - [98-naming-conventions-and-anti-ok-variables.md](completed/98-naming-conventions-and-anti-ok-variables.md): Naming Conventions, Affirmative Boolean Prefixes & Anti-Ok Variables Audit
