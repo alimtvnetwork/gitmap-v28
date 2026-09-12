@@ -8,6 +8,7 @@ Master directory of architectural and execution plans.
 
 ## Completed Plans (Consolidated Milestones)
 
+- [108-typescript-guidelines-and-types.md](completed/108-typescript-guidelines-and-types.md): TypeScript Strict Typing & Discriminated Unions Architecture Audit (tsc --noEmit clean, MWS codes verified)
 - [107-function-signatures-and-return-types.md](completed/107-function-signatures-and-return-types.md): Function Signatures, Invocations & Result Envelopes Architecture Audit (AppError envelopes, interface naming, 2,699 files)
 - [106-cli-commands-and-help-parity-architecture.md](completed/106-cli-commands-and-help-parity-architecture.md): CLI Commands, Help Text Parity & Help UI Architecture Audit (8,155 CLI files audited, AST parity verified)
 - [105-relative-paths-and-absolute-path-elimination.md](completed/105-relative-paths-and-absolute-path-elimination.md): Relative Git Paths & Absolute Path Elimination Architecture Audit (0 absolute paths across 6,613 files)
