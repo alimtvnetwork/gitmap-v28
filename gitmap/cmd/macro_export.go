@@ -65,20 +65,33 @@ func processExportFlag(arg string, args []string, index *int, opts *macroExportO
 	case matchFlagWithVal(arg, "-except", "--except", "--exclude"):
 		opts.ExceptList = parseExceptTokens(extractFlagValue(index, args))
 	case matchFlagWithVal(arg, "--format"):
-		opts.Format = strings.ToLower(extractFlagValue(index, args))
+		opts.Format = normalizeMacroFormat(extractFlagValue(index, args))
 	case arg == "--all":
 		opts.IsAll = true
 	case arg == "--json":
 		opts.Format = constants.OutputJSON
 	case arg == "--yaml" || arg == "--yml" || arg == "-y":
 		opts.Format = constants.OutputYAML
-	case arg == "--sqlite" || arg == "--db":
+	case arg == "--sqlite" || arg == "--db" || arg == "--sqlitedb":
 		opts.Format = "sqlite"
 	case arg == "--zip":
 		opts.Format = "zip"
 	case !strings.HasPrefix(arg, "-") && opts.TargetName == "":
 		opts.TargetName = arg
 	}
+}
+
+func normalizeMacroFormat(raw string) string {
+	lower := strings.ToLower(strings.TrimSpace(raw))
+	if lower == "sqlitedb" || lower == "db" {
+		return "sqlite"
+	}
+
+	if lower == "yml" {
+		return constants.OutputYAML
+	}
+
+	return lower
 }
 
 func inferMacroExportFormat(opts *macroExportOpts) {
@@ -165,7 +178,7 @@ func exportMacrosZIPOutput(macros []macro.Macro, opts macroExportOpts) error {
 }
 
 func exportMacrosTextOutput(macros []macro.Macro, opts macroExportOpts) error {
-	payload, err := macro.SerializeMacros(macros, opts.Format)
+	payload, err := macro.SerializeSingleOrAll(macros, !opts.IsAll, opts.Format)
 	if err != nil {
 		return err
 	}

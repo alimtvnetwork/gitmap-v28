@@ -24,11 +24,11 @@ func TestParseMacroExportOpts_ParsesFlags(t *testing.T) {
 }
 
 func TestParseMacroImportOpts_ParsesFlags(t *testing.T) {
-	args := []string{"backup.db", "--force", "--dry-run", "--format", "sqlite"}
+	args := []string{"backup.sqlitedb", "--name", "test-macro", "--force", "--dry-run", "--sqlitedb"}
 	opts := parseMacroImportOpts(args)
 
-	if opts.FilePath != "backup.db" {
-		t.Fatalf("expected FilePath=backup.db, got %s", opts.FilePath)
+	if opts.FilePath != "backup.sqlitedb" || opts.TargetName != "test-macro" {
+		t.Fatalf("expected FilePath=backup.sqlitedb and TargetName=test-macro, got %s, %s", opts.FilePath, opts.TargetName)
 	}
 
 	if !opts.IsForce || !opts.IsDryRun || opts.Format != "sqlite" {

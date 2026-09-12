@@ -25,7 +25,7 @@ func getMacroDir() (string, error) {
 	return dir, nil
 }
 
-// SaveMacro writes a macro to disk.
+// SaveMacro writes a macro to disk atomically.
 func SaveMacro(m *Macro) error {
 	dir, err := getMacroDir()
 	if err != nil {
@@ -34,13 +34,22 @@ func SaveMacro(m *Macro) error {
 
 	m.UpdatedAt = time.Now()
 	m.TotalSteps = len(m.Steps)
-	path := filepath.Join(dir, m.Name+".json")
 	data, err := json.MarshalIndent(m, "", "  ")
 	if err != nil {
 		return err
 	}
 
-	return os.WriteFile(path, data, 0644)
+	return writeMacroFileAtomic(dir, m.Name, data)
+}
+
+func writeMacroFileAtomic(dir, name string, data []byte) error {
+	targetPath := filepath.Join(dir, name+".json")
+	tmpPath := targetPath + ".tmp"
+	if err := os.WriteFile(tmpPath, data, 0644); err != nil {
+		return err
+	}
+
+	return os.Rename(tmpPath, targetPath)
 }
 
 // LoadMacro loads a named macro from disk.

@@ -16,6 +16,7 @@ import (
 
 // ImportOptions configures macro import parsing and persistence.
 type ImportOptions struct {
+	TargetName string
 	Format     string
 	FilePath   string
 	IsForce    bool
@@ -32,7 +33,7 @@ type ImportResult struct {
 	Names       []string `json:"names" yaml:"names"`
 }
 
-// ValidateMacro validates macro name against path traversal and verifies step count.
+// ValidateMacro validates macro name against path traversal and verifies step count and commands.
 func ValidateMacro(m *Macro) error {
 	cleanName := strings.TrimSpace(m.Name)
 	if cleanName == "" {
@@ -45,6 +46,16 @@ func ValidateMacro(m *Macro) error {
 
 	if len(m.Steps) == 0 {
 		return apperror.NewValidationError("macro contains no steps: " + cleanName)
+	}
+
+	return validateMacroSteps(m.Steps, cleanName)
+}
+
+func validateMacroSteps(steps []MacroStep, macroName string) error {
+	for i, step := range steps {
+		if strings.TrimSpace(step.CommandLine) == "" {
+			return apperror.NewValidationError("macro " + macroName + " step command line cannot be empty at index " + string(rune('1'+i)))
+		}
 	}
 
 	return nil
@@ -142,7 +153,7 @@ func InferMacroFormat(filePath string) string {
 	switch ext {
 	case ".yaml", ".yml":
 		return constants.OutputYAML
-	case ".db", ".sqlite", ".sqlite3":
+	case ".db", ".sqlite", ".sqlite3", ".sqlitedb":
 		return "sqlite"
 	case ".zip":
 		return "zip"
@@ -158,7 +169,7 @@ func ParseImportFile(filePath string, explicitFormat string) ([]Macro, error) {
 		format = InferMacroFormat(filePath)
 	}
 
-	if format == "sqlite" || format == "db" {
+	if format == "sqlite" || format == "db" || format == "sqlitedb" {
 		return ParseImportSQLite(filePath)
 	}
 
@@ -183,6 +194,10 @@ func ImportMacros(macros []Macro, opts ImportOptions) (*ImportResult, error) {
 	res := &ImportResult{TotalFound: len(macros)}
 	for _, m := range macros {
 		if isExcludedMacro(m.Name, opts.ExceptList) {
+			continue
+		}
+
+		if opts.TargetName != "" && !strings.EqualFold(m.Name, opts.TargetName) {
 			continue
 		}
 

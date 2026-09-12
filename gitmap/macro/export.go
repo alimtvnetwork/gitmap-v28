@@ -119,6 +119,24 @@ func SerializeMacros(macros []Macro, format string) ([]byte, error) {
 	return ExportToJSON(macros)
 }
 
+// SerializeSingleOrAll serializes macros as a single object when isSingle is true, or array otherwise.
+func SerializeSingleOrAll(macros []Macro, isSingle bool, format string) ([]byte, error) {
+	if isSingle && len(macros) == 1 {
+		return serializeSingleMacro(macros[0], format)
+	}
+
+	return SerializeMacros(macros, format)
+}
+
+func serializeSingleMacro(m Macro, format string) ([]byte, error) {
+	cleanFormat := strings.ToLower(strings.TrimSpace(format))
+	if cleanFormat == constants.OutputYAML || cleanFormat == "yml" {
+		return ExportToYAML(m)
+	}
+
+	return ExportToJSON(m)
+}
+
 // WriteExportPayload writes raw bytes to destination path ensuring parent directory exists.
 func WriteExportPayload(filePath string, payload []byte) error {
 	if dir := filepath.Dir(filePath); dir != "" && dir != "." {

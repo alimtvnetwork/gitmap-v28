@@ -131,6 +131,32 @@ func TestValidateMacro_RejectsInvalidNameAndEmptySteps(t *testing.T) {
 	if err := ValidateMacro(&noSteps); err == nil {
 		t.Fatal("expected error for macro with zero steps")
 	}
+
+	emptyCommand := Macro{Name: "validname", Steps: []MacroStep{{CommandLine: "   "}}}
+	if err := ValidateMacro(&emptyCommand); err == nil {
+		t.Fatal("expected error for macro step with empty command")
+	}
+}
+
+func TestSerializeSingleOrAll_DifferentiatesSingleAndList(t *testing.T) {
+	m1 := sampleMacroFixture("single-macro")
+	singleBytes, err := SerializeSingleOrAll([]Macro{m1}, true, "json")
+	if err != nil || len(singleBytes) == 0 {
+		t.Fatalf("SerializeSingleOrAll single failed: %v", err)
+	}
+
+	if singleBytes[0] == '[' {
+		t.Fatalf("expected JSON object starting with '{', got array: %s", string(singleBytes))
+	}
+
+	listBytes, err := SerializeSingleOrAll([]Macro{m1}, false, "json")
+	if err != nil || len(listBytes) == 0 {
+		t.Fatalf("SerializeSingleOrAll list failed: %v", err)
+	}
+
+	if listBytes[0] != '[' {
+		t.Fatalf("expected JSON array starting with '[', got: %s", string(listBytes))
+	}
 }
 
 func TestImportMacros_HandlesDryRunAndExceptFilter(t *testing.T) {
@@ -146,5 +172,17 @@ func TestImportMacros_HandlesDryRunAndExceptFilter(t *testing.T) {
 
 	if res.Imported != 1 || res.TotalFound != 2 {
 		t.Fatalf("unexpected dry run result: %+v", res)
+	}
+
+	filteredRes, err := ImportMacros([]Macro{m1, m2}, ImportOptions{
+		IsDryRun:   true,
+		TargetName: "dry-m2",
+	})
+	if err != nil {
+		t.Fatalf("ImportMacros with TargetName error: %v", err)
+	}
+
+	if filteredRes.Imported != 1 || filteredRes.Names[0] != "dry-m2" {
+		t.Fatalf("expected only dry-m2 imported, got %+v", filteredRes)
 	}
 }
