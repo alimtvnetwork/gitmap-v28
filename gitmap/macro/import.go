@@ -6,6 +6,7 @@ import (
 	"io"
 	"os"
 	"path/filepath"
+	"strconv"
 	"strings"
 
 	"gopkg.in/yaml.v3"
@@ -21,16 +22,20 @@ type ImportOptions struct {
 	FilePath   string
 	IsForce    bool
 	IsDryRun   bool
+	IsSingle   bool
+	IsAll      bool
+	RenameAs   string
 	ExceptList []string
 }
 
 // ImportResult summarizes the outcome of a macro import batch.
 type ImportResult struct {
-	TotalFound  int      `json:"total_found" yaml:"total_found"`
-	Imported    int      `json:"imported" yaml:"imported"`
-	Skipped     int      `json:"skipped" yaml:"skipped"`
-	Overwritten int      `json:"overwritten" yaml:"overwritten"`
-	Names       []string `json:"names" yaml:"names"`
+	TotalFound   int      `json:"total_found" yaml:"total_found"`
+	Imported     int      `json:"imported" yaml:"imported"`
+	Skipped      int      `json:"skipped" yaml:"skipped"`
+	Overwritten  int      `json:"overwritten" yaml:"overwritten"`
+	Names        []string `json:"names" yaml:"names"`
+	SkippedNames []string `json:"skipped_names,omitempty" yaml:"skipped_names,omitempty"`
 }
 
 // ValidateMacro validates macro name against path traversal and verifies step count and commands.
@@ -54,7 +59,7 @@ func ValidateMacro(m *Macro) error {
 func validateMacroSteps(steps []MacroStep, macroName string) error {
 	for i, step := range steps {
 		if strings.TrimSpace(step.CommandLine) == "" {
-			return apperror.NewValidationError("macro " + macroName + " step command line cannot be empty at index " + string(rune('1'+i)))
+			return apperror.NewValidationError("macro " + macroName + " step command line cannot be empty at index " + strconv.Itoa(i+1))
 		}
 	}
 
@@ -62,7 +67,41 @@ func validateMacroSteps(steps []MacroStep, macroName string) error {
 }
 
 func hasInvalidNameChars(name string) bool {
-	return strings.Contains(name, "..") || strings.Contains(name, "/") || strings.Contains(name, "\\")
+	if strings.Contains(name, "..") || strings.Contains(name, "/") || strings.Contains(name, "\\") {
+		return true
+	}
+
+	if strings.HasSuffix(name, ".") || strings.HasSuffix(name, " ") {
+		return true
+	}
+
+	if hasReservedWin32Chars(name) {
+		return true
+	}
+
+	return isReservedDeviceName(name)
+}
+
+func hasReservedWin32Chars(name string) bool {
+	for _, r := range name {
+		if r < 32 || strings.ContainsRune(`:*?"<>|`, r) {
+			return true
+		}
+	}
+
+	return false
+}
+
+func isReservedDeviceName(name string) bool {
+	base := strings.ToUpper(strings.TrimSuffix(name, filepath.Ext(name)))
+	switch base {
+	case "CON", "PRN", "AUX", "NUL",
+		"COM1", "COM2", "COM3", "COM4", "COM5", "COM6", "COM7", "COM8", "COM9",
+		"LPT1", "LPT2", "LPT3", "LPT4", "LPT5", "LPT6", "LPT7", "LPT8", "LPT9":
+		return true
+	default:
+		return false
+	}
 }
 
 // ParseImportJSON deserializes JSON bytes using polymorphic dual-shape detection.
@@ -191,7 +230,40 @@ func ParseImportFile(filePath string, explicitFormat string) ([]Macro, error) {
 
 // ImportMacros validates, filters, and saves parsed macros into the local store.
 func ImportMacros(macros []Macro, opts ImportOptions) (*ImportResult, error) {
-	res := &ImportResult{TotalFound: len(macros)}
+	filtered, err := filterAndValidateImportTargets(macros, opts)
+	if err != nil {
+		return nil, err
+	}
+
+	res := &ImportResult{TotalFound: len(filtered)}
+	for _, m := range filtered {
+		if err := processSingleMacroImport(&m, opts, res); err != nil {
+			return nil, err
+		}
+	}
+
+	return res, nil
+}
+
+func filterAndValidateImportTargets(macros []Macro, opts ImportOptions) ([]Macro, error) {
+	matched := matchImportMacros(macros, opts)
+	if opts.TargetName != "" && len(matched) == 0 {
+		return nil, apperror.NewValidationError("macro target " + opts.TargetName + " not found in import archive")
+	}
+
+	if opts.IsSingle && len(matched) > 1 && opts.TargetName == "" {
+		return nil, apperror.NewValidationError("multiple macros found in archive; please specify target macro name")
+	}
+
+	if opts.RenameAs != "" && len(matched) > 1 {
+		return nil, apperror.NewValidationError("cannot rename multiple macros with a single name")
+	}
+
+	return matched, nil
+}
+
+func matchImportMacros(macros []Macro, opts ImportOptions) []Macro {
+	var matched []Macro
 	for _, m := range macros {
 		if isExcludedMacro(m.Name, opts.ExceptList) {
 			continue
@@ -201,15 +273,17 @@ func ImportMacros(macros []Macro, opts ImportOptions) (*ImportResult, error) {
 			continue
 		}
 
-		if err := processSingleMacroImport(&m, opts, res); err != nil {
-			return nil, err
-		}
+		matched = append(matched, m)
 	}
 
-	return res, nil
+	return matched
 }
 
 func processSingleMacroImport(m *Macro, opts ImportOptions, res *ImportResult) error {
+	if opts.RenameAs != "" {
+		m.Name = strings.TrimSpace(opts.RenameAs)
+	}
+
 	if err := ValidateMacro(m); err != nil {
 		return err
 	}
@@ -217,6 +291,7 @@ func processSingleMacroImport(m *Macro, opts ImportOptions, res *ImportResult) e
 	isExisting := MacroExists(m.Name)
 	if isExisting && !opts.IsForce {
 		res.Skipped++
+		res.SkippedNames = append(res.SkippedNames, m.Name)
 
 		return nil
 	}

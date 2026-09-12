@@ -16,8 +16,12 @@ Record, replay, automate, and loop command sequences with environment variable e
     gitmap macro list [--json] [--yaml] [--file <path>]
     gitmap macro show <name> [--json] [--yaml] [--file <path>]
     gitmap macro rm <name>
-    gitmap macro export <name|all> [-f <path>] [--format json|yaml|sqlite|zip] [--all] [-except <list>]
-    gitmap macro import <file> [--format json|yaml|sqlite|zip] [--force] [--dry-run] [-except <list>]
+    gitmap macro export [all|single] [name] [-o <path>] [--json|--yaml|--sqlitedb|--zip] [-except <list>]
+    gitmap macro export-all [-o <path>] [--json|--yaml|--sqlitedb|--zip]
+    gitmap macro export-single <name> [-o <path>] [--json|--yaml|--sqlitedb]
+    gitmap macro import [all|single] <file> [name] [--as <newname>] [--force] [--dry-run] [-except <list>]
+    gitmap macro import-all <file> [--force] [--dry-run]
+    gitmap macro import-single <file> [name] [--as <newname>] [--force] [--dry-run]
 
 ## Subcommands
 
@@ -31,8 +35,12 @@ Record, replay, automate, and loop command sequences with environment variable e
 | `list` (`ls`) | List all saved macros |
 | `show` `<name>` | View steps in a recorded macro |
 | `rm` (`delete`) `<name>` | Delete a saved macro |
-| `export` (`exp`, `dump`) `<name\|all>` | Export macro(s) to JSON, YAML, SQLite DB, or ZIP bundle |
-| `import` (`imp`, `load`, `restore`) `<file>` | Import macro(s) safely with format auto-inference and overwrite guards |
+| `export` (`exp`, `dump`) `[all\|single] [name]` | Export macro(s) to JSON, YAML, SQLite DB, or ZIP bundle |
+| `export-all` | Export all stored macros to file or stdout |
+| `export-single <name>` | Export single macro to JSON, YAML, or SQLite DB |
+| `import` (`imp`, `load`, `restore`) `[all\|single] <file> [name]` | Import macro(s) safely with format auto-inference and overwrite guards |
+| `import-all <file>` | Import all macros from archive or SQLite database |
+| `import-single <file> [name]` | Import single macro from file with optional `--as <name>` renaming |
 
 ## In-Builder Commands (Create & Edit Mode)
 
@@ -75,9 +83,11 @@ When creating (`gitmap macro add <name>`) or editing (`gitmap macro edit <name>`
 | `--file <path>`, `-o <path>` | Save execution report to file |
 | `--dry-run` | Simulate macro execution or import without modifying disk |
 | `--verbose`, `-v` | Show live command stdout and stderr |
-| `--all` | Export all stored macros into a single bundle file or archive |
-| `--sqlite`, `--db` | Export/import using portable SQLite database table format |
+| `--all` | Export/import all stored macros into a single bundle file or database |
+| `--single` | Export/import a single macro definition |
+| `--sqlite`, `--db`, `--sqlitedb` | Export/import using portable SQLite database table format |
 | `--zip` | Export/import using compressed ZIP archive with per-macro JSON files |
+| `--as <name>`, `--rename <name>` | Save imported single macro under a new name |
 | `--force`, `--overwrite` | Overwrite existing saved macros during import |
 | `-except <list>`, `--exclude <list>` | Comma-separated list of macro names to exclude from export/import |
 
@@ -134,22 +144,27 @@ gitmap macro run-until-succeed "npm run test" --sleep 2s --backoff exponential -
 ### 5. Multi-Format Macro Export & Import
 
 ```bash
-# Export single macro to JSON or YAML
-gitmap macro export setup-dev -f setup-dev.json
-gitmap macro export setup-dev -f setup-dev.yaml --yaml
+# Export single macro to JSON, YAML, or SQLite DB
+gitmap macro export single setup-dev setup-dev.json
+gitmap macro export single setup-dev setup-dev.yaml --yaml
+gitmap macro export single setup-dev setup-dev.sqlitedb
 
 # Export all macros into a portable SQLite database
-gitmap macro export --all -f macros.db --sqlite
+gitmap macro export all macros.sqlitedb
+gitmap macro export-all -o macros.db --sqlitedb
 
 # Export all macros into a compressed ZIP archive
-gitmap macro export --all -f macros.zip --zip
+gitmap macro export-all -o macros.zip --zip
 
 # Export all except specific macros
-gitmap macro export --all -f backup.json -except "test-run,debug-macro"
+gitmap macro export all -o backup.json -except "test-run,debug-macro"
 
 # Safely preview an import without writing to disk
-gitmap macro import macros.db --dry-run
+gitmap macro import macros.sqlitedb --dry-run
 
-# Import macros with overwrite enabled
-gitmap macro import macros.db --force
+# Import all macros with overwrite enabled
+gitmap macro import macros.sqlitedb --force
+
+# Import a single macro from database under a new name
+gitmap macro import single macros.sqlitedb setup-dev --as setup-dev-v2
 ```

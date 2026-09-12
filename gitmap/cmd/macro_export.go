@@ -16,11 +16,12 @@ type macroExportOpts struct {
 	Format     string
 	ExceptList []string
 	IsAll      bool
+	IsSingle   bool
 }
 
 func runMacroExport(args []string) error {
 	opts := parseMacroExportOpts(args)
-	if opts.TargetName == "" && !opts.IsAll {
+	if opts.TargetName == "" && !opts.IsAll && !opts.IsSingle {
 		opts.IsAll = true
 	}
 
@@ -46,12 +47,41 @@ func parseMacroExportOpts(args []string) macroExportOpts {
 	}
 
 	inferMacroExportFormat(&opts)
+	reconcileExportTargets(&opts)
+
+	return opts
+}
+
+func reconcileExportTargets(opts *macroExportOpts) {
 	if isAllExportTarget(opts.TargetName) {
 		opts.IsAll = true
 		opts.TargetName = ""
 	}
 
-	return opts
+	if opts.TargetName == "single" {
+		opts.IsSingle = true
+		opts.TargetName = ""
+	}
+
+	if opts.TargetName != "" && opts.FilePath == "" && isLikelyFilePath(opts.TargetName) {
+		opts.FilePath = opts.TargetName
+		opts.TargetName = ""
+		inferMacroExportFormat(opts)
+	}
+}
+
+func isLikelyFilePath(token string) bool {
+	return hasKnownExportExtension(token) || strings.ContainsAny(token, "/\\")
+}
+
+func hasKnownExportExtension(token string) bool {
+	ext := strings.ToLower(filepath.Ext(token))
+	switch ext {
+	case ".json", ".yaml", ".yml", ".db", ".sqlite", ".sqlite3", ".sqlitedb", ".zip":
+		return true
+	default:
+		return false
+	}
 }
 
 func isAllExportTarget(name string) bool {
@@ -59,31 +89,72 @@ func isAllExportTarget(name string) bool {
 }
 
 func processExportFlag(arg string, args []string, index *int, opts *macroExportOpts) {
+	if processExportFormatFlag(arg, args, index, opts) {
+		return
+	}
+
+	if processExportScopeFlag(arg, opts) {
+		return
+	}
+
+	processExportTargetFlag(arg, args, index, opts)
+}
+
+func processExportFormatFlag(arg string, args []string, index *int, opts *macroExportOpts) bool {
+	switch {
+	case matchFlagWithVal(arg, "--format"):
+		opts.Format = normalizeMacroFormat(extractFlagValue(index, args))
+		return true
+	case arg == "--json":
+		opts.Format = constants.OutputJSON
+		return true
+	case arg == "--yaml" || arg == "--yml" || arg == "-y":
+		opts.Format = constants.OutputYAML
+		return true
+	case arg == "--sqlite" || arg == "--db" || arg == "--sqlitedb":
+		opts.Format = "sqlite"
+		return true
+	case arg == "--zip":
+		opts.Format = "zip"
+		return true
+	default:
+		return false
+	}
+}
+
+func processExportScopeFlag(arg string, opts *macroExportOpts) bool {
+	switch {
+	case arg == "--all" || arg == "all" || arg == "*":
+		opts.IsAll = true
+		opts.IsSingle = false
+		return true
+	case arg == "--single" || arg == "single":
+		opts.IsSingle = true
+		opts.IsAll = false
+		return true
+	default:
+		return false
+	}
+}
+
+func processExportTargetFlag(arg string, args []string, index *int, opts *macroExportOpts) {
 	switch {
 	case matchFlagWithVal(arg, "-f", "--file", "--filepath", "-o", "--output", "--out"):
 		opts.FilePath = extractFlagValue(index, args)
 	case matchFlagWithVal(arg, "-except", "--except", "--exclude"):
 		opts.ExceptList = parseExceptTokens(extractFlagValue(index, args))
-	case matchFlagWithVal(arg, "--format"):
-		opts.Format = normalizeMacroFormat(extractFlagValue(index, args))
-	case arg == "--all":
-		opts.IsAll = true
-	case arg == "--json":
-		opts.Format = constants.OutputJSON
-	case arg == "--yaml" || arg == "--yml" || arg == "-y":
-		opts.Format = constants.OutputYAML
-	case arg == "--sqlite" || arg == "--db" || arg == "--sqlitedb":
-		opts.Format = "sqlite"
-	case arg == "--zip":
-		opts.Format = "zip"
+	case matchFlagWithVal(arg, "--name", "--target", "--macro"):
+		opts.TargetName = extractFlagValue(index, args)
 	case !strings.HasPrefix(arg, "-") && opts.TargetName == "":
 		opts.TargetName = arg
+	case !strings.HasPrefix(arg, "-") && opts.FilePath == "":
+		opts.FilePath = arg
 	}
 }
 
 func normalizeMacroFormat(raw string) string {
 	lower := strings.ToLower(strings.TrimSpace(raw))
-	if lower == "sqlitedb" || lower == "db" {
+	if lower == "sqlitedb" || lower == "db" || lower == "sqlite3" {
 		return "sqlite"
 	}
 
@@ -104,7 +175,7 @@ func inferMacroExportFormat(opts *macroExportOpts) {
 		opts.Format = constants.OutputYAML
 	}
 
-	if ext == ".db" || ext == ".sqlite" || ext == ".sqlite3" {
+	if ext == ".db" || ext == ".sqlite" || ext == ".sqlite3" || ext == ".sqlitedb" {
 		opts.Format = "sqlite"
 	}
 
@@ -114,6 +185,10 @@ func inferMacroExportFormat(opts *macroExportOpts) {
 }
 
 func collectMacrosForExport(opts macroExportOpts) ([]macro.Macro, error) {
+	if opts.IsSingle && opts.TargetName == "" {
+		return nil, apperror.NewValidationError("macro name required for single export (usage: gitmap macro export single <name>)")
+	}
+
 	if !opts.IsAll && opts.TargetName != "" {
 		m, err := macro.LoadMacro(opts.TargetName)
 		if err != nil {
@@ -128,17 +203,15 @@ func collectMacrosForExport(opts macroExportOpts) ([]macro.Macro, error) {
 		return nil, apperror.WrapSimple(err, "list macros for export")
 	}
 
-	filtered := macro.FilterMacrosForExport(list, macro.ExportOptions{
+	return macro.FilterMacrosForExport(list, macro.ExportOptions{
 		IsAll:      true,
 		ExceptList: opts.ExceptList,
-	})
-
-	return filtered, nil
+	}), nil
 }
 
 func executeMacroExport(macros []macro.Macro, opts macroExportOpts) error {
 	switch opts.Format {
-	case "sqlite", "db":
+	case "sqlite", "db", "sqlitedb", "sqlite3":
 		return exportMacrosSQLiteOutput(macros, opts)
 	case "zip":
 		return exportMacrosZIPOutput(macros, opts)
@@ -150,7 +223,11 @@ func executeMacroExport(macros []macro.Macro, opts macroExportOpts) error {
 func exportMacrosSQLiteOutput(macros []macro.Macro, opts macroExportOpts) error {
 	outPath := opts.FilePath
 	if outPath == "" {
-		outPath = "macros_export.db"
+		if opts.TargetName != "" && !opts.IsAll {
+			outPath = opts.TargetName + ".db"
+		} else {
+			outPath = "macros_export.db"
+		}
 	}
 
 	if err := macro.ExportMacrosToSQLite(macros, outPath); err != nil {

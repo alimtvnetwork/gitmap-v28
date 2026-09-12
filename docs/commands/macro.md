@@ -40,8 +40,12 @@ gitmap test-all --dry-run
 | `gitmap macro show <name>` | `gitmap macro-show` | Inspect the steps and parameters of a macro |
 | `gitmap macro rm <name>` | `gitmap macro-rm`, `gitmap macro-del` | Delete a saved macro |
 | `gitmap macro run-until-succeed <name>` | `gitmap retry`, `gitmap loop` | Retry macro until success with AI diagnostics |
-| `gitmap macro export <name\|all>` | `gitmap macro-export`, `gitmap macro-exp` | Export macro(s) to JSON, YAML, SQLite DB, or ZIP bundle |
-| `gitmap macro import <file>` | `gitmap macro-import`, `gitmap macro-imp` | Import macro(s) safely with format auto-inference and overwrite guards |
+| `gitmap macro export [all\|single] [name]` | `gitmap macro-export`, `gitmap macro-exp` | Export macro(s) to JSON, YAML, SQLite DB, or ZIP bundle |
+| `gitmap macro export-all` | `gitmap macro-export-all` | Export all stored macros into a single bundle file or SQLite DB |
+| `gitmap macro export-single <name>` | `gitmap macro-export-single` | Export single macro into JSON, YAML, or SQLite DB |
+| `gitmap macro import [all\|single] <file> [name]` | `gitmap macro-import`, `gitmap macro-imp` | Import macro(s) safely with format auto-inference and overwrite guards |
+| `gitmap macro import-all <file>` | `gitmap macro-import-all` | Import all macros from archive or SQLite database |
+| `gitmap macro import-single <file> [name]` | `gitmap macro-import-single` | Import single macro from file with optional `--as <name>` renaming |
 
 ---
 
@@ -114,18 +118,24 @@ gitmap init-project --verbose
 ### 4. Exporting and Importing Macros
 
 ```bash
-# Export single macro to JSON
-gitmap macro export init-project -f init-project.json
+# Export single macro to JSON, YAML, or SQLite DB
+gitmap macro export single init-project init-project.json
+gitmap macro export single init-project init-project.yaml --yaml
+gitmap macro export single init-project init-project.sqlitedb
 
 # Export all macros into a portable SQLite database
-gitmap macro export --all -f macros.db --sqlite
+gitmap macro export all macros.sqlitedb
+gitmap macro export-all -o macros.db --sqlitedb
 
 # Export all macros into a ZIP archive
-gitmap macro export --all -f macros.zip --zip
+gitmap macro export-all -o macros.zip --zip
 
 # Preview importing macros without saving
-gitmap macro import macros.db --dry-run
+gitmap macro import macros.sqlitedb --dry-run
 
 # Import macros and overwrite any existing macros with matching names
-gitmap macro import macros.db --force
+gitmap macro import macros.sqlitedb --force
+
+# Import a single macro from database under a new name
+gitmap macro import single macros.sqlitedb init-project --as init-project-v2
 ```

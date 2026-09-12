@@ -53,6 +53,8 @@ func ExportMacrosToSQLite(macros []Macro, dbPath string) error {
 
 func prepareSQLiteExportPath(dbPath string) {
 	_ = os.Remove(dbPath)
+	_ = os.Remove(dbPath + "-wal")
+	_ = os.Remove(dbPath + "-shm")
 	if dir := filepath.Dir(dbPath); dir != "" && dir != "." {
 		_ = os.MkdirAll(dir, constants.DirPermission)
 	}

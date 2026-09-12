@@ -36,8 +36,12 @@ Package releases, install developer tools, and replay terminal automation macros
   * `gitmap macro run <name>`: Executes a macro.
   * `gitmap macro run-until-succeed <name>` (alias: `retry`): Loops execution until exit code 0.
   * `gitmap macro rm <name>`: Deletes a recorded macro.
-  * `gitmap macro export <name|all>`: Exports macro(s) to JSON, YAML, SQLite DB, or ZIP archive.
-  * `gitmap macro import <file>`: Safely imports macro(s) with format auto-detection and overwrite guards.
+  * `gitmap macro export [all|single] [name]`: Exports macro(s) to JSON, YAML, SQLite DB, or ZIP archive.
+  * `gitmap macro export-all`: Exports all stored macros to file or stdout.
+  * `gitmap macro export-single <name>`: Exports a single macro to JSON, YAML, or SQLite DB.
+  * `gitmap macro import [all|single] <file> [name]`: Safely imports macro(s) with format auto-detection, `--as` renaming, and overwrite guards.
+  * `gitmap macro import-all <file>`: Imports all macros from backup archive or SQLite database.
+  * `gitmap macro import-single <file> [name]`: Imports a single macro from backup file with optional `--as` renaming.
 
 ### Release ZIP Archives (`gitmap zip-group`)
 

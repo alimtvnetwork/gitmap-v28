@@ -44,12 +44,39 @@ func SaveMacro(m *Macro) error {
 
 func writeMacroFileAtomic(dir, name string, data []byte) error {
 	targetPath := filepath.Join(dir, name+".json")
-	tmpPath := targetPath + ".tmp"
-	if err := os.WriteFile(tmpPath, data, 0644); err != nil {
+	tmpPath := fmt.Sprintf("%s.%d.tmp", targetPath, time.Now().UnixNano())
+	if err := writeAndSyncMacroFile(tmpPath, data); err != nil {
+		_ = os.Remove(tmpPath)
+
 		return err
 	}
 
-	return os.Rename(tmpPath, targetPath)
+	return replaceMacroFile(tmpPath, targetPath)
+}
+
+func writeAndSyncMacroFile(tmpPath string, data []byte) error {
+	file, err := os.OpenFile(tmpPath, os.O_CREATE|os.O_WRONLY|os.O_TRUNC, 0644)
+	if err != nil {
+		return err
+	}
+
+	defer file.Close()
+	if _, writeErr := file.Write(data); writeErr != nil {
+		return writeErr
+	}
+
+	return file.Sync()
+}
+
+func replaceMacroFile(tmpPath, targetPath string) error {
+	_ = os.Remove(targetPath)
+	if err := os.Rename(tmpPath, targetPath); err != nil {
+		_ = os.Remove(tmpPath)
+
+		return err
+	}
+
+	return nil
 }
 
 // LoadMacro loads a named macro from disk.

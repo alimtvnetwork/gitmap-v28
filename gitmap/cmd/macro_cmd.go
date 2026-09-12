@@ -138,6 +138,10 @@ func routeMacroSubcommand(sub string, rest []string) error {
 		return routeExecSubcommand(sub, rest)
 	}
 
+	if isModifierSubcommand(sub) && len(rest) > 0 && isExportImportSubcommand(rest[0]) {
+		return routeExportImportSubcommand(rest[0], append([]string{"--" + sub}, rest[1:]...))
+	}
+
 	if isExportImportSubcommand(sub) {
 		return routeExportImportSubcommand(sub, rest)
 	}
@@ -145,9 +149,15 @@ func routeMacroSubcommand(sub string, rest []string) error {
 	return routeManagementSubcommand(sub, rest)
 }
 
+func isModifierSubcommand(sub string) bool {
+	return sub == "all" || sub == "single"
+}
+
 func isExportImportSubcommand(sub string) bool {
 	switch sub {
-	case "export", "exp", "dump", "export-all", "import", "imp", "load", "restore", "import-all":
+	case "export", "exp", "dump", "export-all", "export-single":
+		return true
+	case "import", "imp", "load", "restore", "import-all", "import-single":
 		return true
 	default:
 		return false
@@ -156,8 +166,16 @@ func isExportImportSubcommand(sub string) bool {
 
 func routeExportImportSubcommand(sub string, rest []string) error {
 	switch sub {
-	case "export", "exp", "dump", "export-all":
+	case "export", "exp", "dump":
 		return runMacroExport(rest)
+	case "export-all":
+		return runMacroExport(append([]string{"--all"}, rest...))
+	case "export-single":
+		return runMacroExport(append([]string{"--single"}, rest...))
+	case "import-all":
+		return runMacroImport(append([]string{"--all"}, rest...))
+	case "import-single":
+		return runMacroImport(append([]string{"--single"}, rest...))
 	default:
 		return runMacroImport(rest)
 	}
@@ -371,14 +389,18 @@ func renderMacroShow(m *macro.Macro) {
 func printMacroUsage() {
 	fmt.Println("Usage: gitmap macro <command> [arguments]")
 	fmt.Println("Commands:")
-	fmt.Println("  add <name> <steps...>          Create/add a new macro directly from arguments")
-	fmt.Println("  edit <name> [--no-exec]        Interactively edit steps of an existing macro")
-	fmt.Println("  run <name> [--json] [--yaml]   Replay a macro (optional JSON/YAML & file export)")
-	fmt.Println("  run-until-succeed <name|cmd>   Execute macro or command repeatedly until success (with sleep & AI diagnostics)")
-	fmt.Println("  record <name>                  Record an interactive shell session as a macro")
-	fmt.Println("  list [--json] [--yaml]         List all saved macros")
-	fmt.Println("  show <name> [--json] [--yaml]  Inspect steps of a macro")
-	fmt.Println("  rm <name>                      Delete a saved macro")
-	fmt.Println("  export <name|all> [options]    Export macro(s) to JSON, YAML, SQLite DB, or ZIP")
-	fmt.Println("  import <file> [options]        Import macro(s) safely with format auto-inference")
+	fmt.Println("  add <name> <steps...>               Create/add a new macro directly from arguments")
+	fmt.Println("  edit <name> [--no-exec]             Interactively edit steps of an existing macro")
+	fmt.Println("  run <name> [--json] [--yaml]        Replay a macro (optional JSON/YAML & file export)")
+	fmt.Println("  run-until-succeed <name|cmd>        Execute macro repeatedly until success")
+	fmt.Println("  record <name>                       Record an interactive shell session as a macro")
+	fmt.Println("  list [--json] [--yaml]              List all saved macros")
+	fmt.Println("  show <name> [--json] [--yaml]       Inspect steps of a macro")
+	fmt.Println("  rm <name>                           Delete a saved macro")
+	fmt.Println("  export [name|all] [options]         Export macro(s) to JSON, YAML, SQLite DB, or ZIP")
+	fmt.Println("  export-all [options]                Export all macros (--json, --yaml, --sqlitedb, --zip)")
+	fmt.Println("  export-single <name> [options]      Export a single macro to JSON, YAML, or SQLite DB")
+	fmt.Println("  import <file> [name] [options]      Import macro(s) safely with format auto-inference")
+	fmt.Println("  import-all <file> [options]         Import all macros from backup archive or database")
+	fmt.Println("  import-single <file> [options]      Import single macro from file with optional --as rename")
 }

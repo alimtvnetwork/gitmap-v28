@@ -2,6 +2,7 @@ package macro
 
 import (
 	"path/filepath"
+	"strings"
 	"testing"
 	"time"
 )
@@ -184,5 +185,90 @@ func TestImportMacros_HandlesDryRunAndExceptFilter(t *testing.T) {
 
 	if filteredRes.Imported != 1 || filteredRes.Names[0] != "dry-m2" {
 		t.Fatalf("expected only dry-m2 imported, got %+v", filteredRes)
+	}
+}
+
+func TestValidateMacro_RejectsWin32InvalidCharsAndReservedNames(t *testing.T) {
+	invalidNames := []string{
+		"macro:stream",
+		"macro*wildcard",
+		"macro?query",
+		"macro\"quote",
+		"macro<less",
+		"macro>greater",
+		"macro|pipe",
+		"macro\x00null",
+		"CON",
+		"prn",
+		"AUX",
+		"NUL",
+		"COM1",
+		"LPT1",
+		"trailingdot.",
+		"trailingspace ",
+	}
+
+	for _, name := range invalidNames {
+		m := Macro{Name: name, Steps: []MacroStep{{CommandLine: "echo test"}}}
+		if err := ValidateMacro(&m); err == nil {
+			t.Fatalf("expected ValidateMacro to reject invalid name %q", name)
+		}
+	}
+}
+
+func TestValidateMacro_StepIndexFormattingBeyondNine(t *testing.T) {
+	steps := make([]MacroStep, 12)
+	for i := range steps {
+		steps[i] = MacroStep{StepNum: i + 1, CommandLine: "echo ok"}
+	}
+	steps[9].CommandLine = "   " // 10th step is empty
+
+	m := Macro{Name: "macro-ten-steps", Steps: steps}
+	err := ValidateMacro(&m)
+	if err == nil {
+		t.Fatal("expected validation error for empty step 10")
+	}
+
+	if !strings.Contains(err.Error(), "at index 10") {
+		t.Fatalf("expected error message to contain 'at index 10', got: %v", err)
+	}
+}
+
+func TestImportMacros_RenamingSingleMacro(t *testing.T) {
+	m1 := sampleMacroFixture("original-macro")
+	res, err := ImportMacros([]Macro{m1}, ImportOptions{
+		IsDryRun: true,
+		RenameAs: "custom-alias",
+	})
+	if err != nil {
+		t.Fatalf("ImportMacros with RenameAs error: %v", err)
+	}
+
+	if len(res.Names) != 1 || res.Names[0] != "custom-alias" {
+		t.Fatalf("expected renamed macro 'custom-alias', got: %+v", res.Names)
+	}
+}
+
+func TestImportMacros_MissingTargetReturnsNotFoundError(t *testing.T) {
+	m1 := sampleMacroFixture("existing-macro")
+	_, err := ImportMacros([]Macro{m1}, ImportOptions{
+		TargetName: "non-existent-macro",
+	})
+	if err == nil {
+		t.Fatal("expected error when TargetName is not found in archive")
+	}
+}
+
+func TestImportMacros_SkippedExistingRecordsSkippedNames(t *testing.T) {
+	m1 := sampleMacroFixture("dry-skip-macro")
+	// First import in dry-run mode
+	res, err := ImportMacros([]Macro{m1}, ImportOptions{
+		IsDryRun: true,
+	})
+	if err != nil {
+		t.Fatalf("first import error: %v", err)
+	}
+	if res.Imported != 1 {
+		t.Fatalf("expected 1 imported, got %d", res.Imported)
 	}
 }

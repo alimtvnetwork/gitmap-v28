@@ -3,9 +3,11 @@ package macro
 import (
 	"archive/zip"
 	"encoding/json"
+	"fmt"
 	"os"
 	"path/filepath"
 	"strings"
+	"time"
 
 	"gopkg.in/yaml.v3"
 
@@ -139,14 +141,50 @@ func serializeSingleMacro(m Macro, format string) ([]byte, error) {
 
 // WriteExportPayload writes raw bytes to destination path ensuring parent directory exists.
 func WriteExportPayload(filePath string, payload []byte) error {
+	if err := ensureExportDirExists(filePath); err != nil {
+		return err
+	}
+
+	tmpPath := fmt.Sprintf("%s.%d.tmp", filePath, time.Now().UnixNano())
+	if err := writeAndSyncPayload(tmpPath, payload); err != nil {
+		_ = os.Remove(tmpPath)
+
+		return err
+	}
+
+	return replaceExportFile(tmpPath, filePath)
+}
+
+func ensureExportDirExists(filePath string) error {
 	if dir := filepath.Dir(filePath); dir != "" && dir != "." {
 		if err := os.MkdirAll(dir, constants.DirPermission); err != nil {
 			return apperror.WrapSimple(err, "create export directory")
 		}
 	}
 
-	if err := os.WriteFile(filePath, payload, constants.FilePermission); err != nil {
-		return apperror.WrapSimple(err, "write export file")
+	return nil
+}
+
+func writeAndSyncPayload(tmpPath string, payload []byte) error {
+	file, err := os.OpenFile(tmpPath, os.O_CREATE|os.O_WRONLY|os.O_TRUNC, constants.FilePermission)
+	if err != nil {
+		return apperror.WrapSimple(err, "create temp export file")
+	}
+
+	defer file.Close()
+	if _, writeErr := file.Write(payload); writeErr != nil {
+		return apperror.WrapSimple(writeErr, "write temp export payload")
+	}
+
+	return file.Sync()
+}
+
+func replaceExportFile(tmpPath, filePath string) error {
+	_ = os.Remove(filePath)
+	if err := os.Rename(tmpPath, filePath); err != nil {
+		_ = os.Remove(tmpPath)
+
+		return apperror.WrapSimple(err, "rename temp export file")
 	}
 
 	return nil
