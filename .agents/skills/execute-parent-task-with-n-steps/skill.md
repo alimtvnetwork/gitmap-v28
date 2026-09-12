@@ -77,6 +77,7 @@ Before doing anything else, you MUST write a highly detailed execution spec.
 - [ ] Code adheres to explicit booleans, `Type` suffixed Enums, and error wrapper rules.
 - [ ] Formatting & Acronyms: Spacing rules are strictly followed. Acronyms are strictly PascalCase (`SwapIpWindows` not `SwapIPWindows`).
 - [ ] Temp & Failure Folder Isolation: All temporary test files, caches, and runner artifacts are isolated within `.lovable/temp/`. Never create `.tmp/` at root. Failed tests/gates write to `.lovable/temp/failures/`; passing tests remain completely silent and produce zero disk files.
+- [ ] Storage Hygiene & Pre-Build Cleanup: Never write un-namespaced loose files to OS/user temp; always namespace under `<temp>/gitmap/<category>/` (build/, test/, purge/, downloads/). All build operations (`go build`, runner compile gates, smoke tests) MUST clear previous build artifacts (`bin/gitmap.exe` and `<temp>/gitmap/build/`) before running to prevent storage waste and enforce reuse.
 - [ ] Runner In-Flight ETA Wait Protocol: When executing or checking background runners/tests (with runner heartbeats every 25 seconds), agents MUST sleep/wait for 1 minute (60s) each time, or dynamically sleep for the remaining ETA duration read from `.lovable/temp/runner-eta.json` (or based on previous total approximate delay) instead of busy-polling.
 - [ ] Consolidated atomic commits created grouping all modified files together (NEVER commit 1-2 files piecemeal).
 - [ ] Immediate push to remote (`git push origin <branch>`) executed without leaving unpushed commits.

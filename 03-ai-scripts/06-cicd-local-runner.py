@@ -96,6 +96,7 @@ import re
 import shutil
 import subprocess
 import sys
+import tempfile
 import threading
 import time
 from typing import Any
@@ -118,10 +119,43 @@ TMP_CACHE_DIR.mkdir(parents=True, exist_ok=True)
 FAILURES_DIR = TMP_CACHE_DIR / "failures"
 FAILURES_DIR.mkdir(parents=True, exist_ok=True)
 RUNNER_ETA_FILE = TMP_CACHE_DIR / "runner-eta.json"
-os.environ["GOTMPDIR"] = str(TMP_CACHE_DIR)
-os.environ["TMPDIR"] = str(TMP_CACHE_DIR)
-os.environ["TEMP"] = str(TMP_CACHE_DIR)
-os.environ["TMP"] = str(TMP_CACHE_DIR)
+
+
+def get_repo_os_temp_dir(*subdirs: str) -> Path:
+    """Returns a directory under the OS temp directory scoped by repository name."""
+    target = Path(tempfile.gettempdir()) / "gitmap"
+    if subdirs:
+        target = target.joinpath(*subdirs)
+    target.mkdir(parents=True, exist_ok=True)
+
+    return target
+
+
+def clear_repo_build_temp() -> None:
+    """Purges previous build artifacts and sweeps repo build temp to prevent disk waste."""
+    bin_file = REPO_ROOT / "bin" / "gitmap.exe"
+    if bin_file.exists():
+        try:
+            bin_file.unlink()
+        except OSError:
+            pass
+    build_dir = Path(tempfile.gettempdir()) / "gitmap" / "build"
+    if build_dir.exists():
+        try:
+            shutil.rmtree(build_dir, ignore_errors=True)
+        except OSError:
+            pass
+    build_dir.mkdir(parents=True, exist_ok=True)
+
+
+REPO_OS_TEMP = get_repo_os_temp_dir()
+REPO_BUILD_TEMP = get_repo_os_temp_dir("build")
+REPO_TEST_TEMP = get_repo_os_temp_dir("test")
+
+os.environ["GOTMPDIR"] = str(REPO_BUILD_TEMP)
+os.environ["TMPDIR"] = str(REPO_TEST_TEMP)
+os.environ["TEMP"] = str(REPO_TEST_TEMP)
+os.environ["TMP"] = str(REPO_TEST_TEMP)
 
 CICD_DIR = REPO_ROOT / ".lovable" / "cicd"
 CICD_DIR.mkdir(parents=True, exist_ok=True)
@@ -896,10 +930,10 @@ def run_package_tests_worker(
 
     cwd = repo_root / "cli"
     test_env = dict(os.environ)
-    test_env["GOTMPDIR"] = str(TMP_CACHE_DIR)
-    test_env["TMPDIR"] = str(TMP_CACHE_DIR)
-    test_env["TEMP"] = str(TMP_CACHE_DIR)
-    test_env["TMP"] = str(TMP_CACHE_DIR)
+    test_env["GOTMPDIR"] = str(REPO_BUILD_TEMP)
+    test_env["TMPDIR"] = str(REPO_TEST_TEMP)
+    test_env["TEMP"] = str(REPO_TEST_TEMP)
+    test_env["TMP"] = str(REPO_TEST_TEMP)
 
     try:
         proc = subprocess.run(
@@ -1268,10 +1302,10 @@ def execute_subprocess(
     resolved = resolve_command_binary(cmd)
     sub_env = dict(os.environ) if env is None else dict(env)
     sub_env.setdefault("PYTHONUNBUFFERED", "1")
-    sub_env["GOTMPDIR"] = str(TMP_CACHE_DIR)
-    sub_env["TMPDIR"] = str(TMP_CACHE_DIR)
-    sub_env["TEMP"] = str(TMP_CACHE_DIR)
-    sub_env["TMP"] = str(TMP_CACHE_DIR)
+    sub_env["GOTMPDIR"] = str(REPO_BUILD_TEMP)
+    sub_env["TMPDIR"] = str(REPO_TEST_TEMP)
+    sub_env["TEMP"] = str(REPO_TEST_TEMP)
+    sub_env["TMP"] = str(REPO_TEST_TEMP)
     res = subprocess.run(
         resolved, capture_output=True, text=True, encoding=DEFAULT_ENCODING,
         errors="replace", timeout=timeout_sec, env=sub_env, cwd=cwd,
@@ -1296,6 +1330,8 @@ def run_job(
     name: str, cmd: list[str], timeout_sec: int, env: dict[str, str] | None = None, cwd: str | None = None
 ) -> JobResult:
     """Executes a single gate subprocess and records duration, return code, and streams."""
+    if name in ("Go Compile Gate", "Web App Build", "GoReleaser Snapshot Build"):
+        clear_repo_build_temp()
     start = time.monotonic()
     try:
         res = execute_subprocess(cmd, timeout_sec, env, cwd)
@@ -2321,6 +2357,7 @@ def setup_runner_state(total_jobs: int, is_json: bool, curr_head: str, curr_dirt
 
 def prepare_runner_context(args: argparse.Namespace, root: Path, total_jobs: int) -> tuple[Path, dict, set, TelemetryTracker, dict]:
     """Prepares directories, git delta, and initial state machine."""
+    clear_repo_build_temp()
     session_dir, prev_state = init_session_scaffolding(args.force_run, args.resume_mode)
     curr_head = get_head_commit(root)
     curr_dirty = get_dirty_files_map(root)
