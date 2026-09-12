@@ -201,3 +201,65 @@ func TestPipelineDbScanError(t *testing.T) {
 		t.Errorf("expected QueryRecentRuns to propagate error on corrupt row")
 	}
 }
+
+func TestPipelineSplitDB_3ConnectedTables(t *testing.T) {
+	db, err := OpenPipelineSplitDB("test-owner/test-3tables")
+	if err != nil {
+		t.Fatalf("failed to open split db: %v", err)
+	}
+	defer db.Close()
+	_ = db.Reset()
+
+	verifyMasterAndDetailStorage(t, db)
+	verifyCompactStorageAndQuery(t, db)
+	verifyCleanAndReset3Tables(t, db)
+}
+
+func verifyMasterAndDetailStorage(t *testing.T, db *PipelineSplitDb) {
+	run := PipelineRunRecord{
+		RunId: 99001, RepoSlug: "test-owner/test-3tables", WorkflowName: "CI",
+		Status: "completed", Conclusion: "failure", Branch: "main", Sha: "sha99001",
+		CreatedAt: "2026-09-12T10:00:00Z", UpdatedAt: "2026-09-12T10:05:00Z",
+	}
+	if err := db.RecordRun(run); err != nil {
+		t.Fatalf("failed to record master run: %v", err)
+	}
+	detail := PipelineErrorRecord{
+		RunId: 99001, RepoSlug: "test-owner/test-3tables", WorkflowName: "CI",
+		StepName: "Step 1", ErrorText: "fail", RawLogs: "ok 1\nFAIL 2\nok 3",
+	}
+	if err := db.RecordDetailErrorLog(detail); err != nil {
+		t.Fatalf("failed to record detail error log: %v", err)
+	}
+}
+
+func verifyCompactStorageAndQuery(t *testing.T, db *PipelineSplitDb) {
+	compact := PipelineCompactErrorRecord{
+		RunId: 99001, RepoSlug: "test-owner/test-3tables", WorkflowName: "CI",
+		StepName: "Step 1", ErrorText: "fail", CompactLogs: "FAIL 2", FilteredOkCount: 2,
+	}
+	if err := db.RecordCompactErrorLog(compact); err != nil {
+		t.Fatalf("failed to record compact error log: %v", err)
+	}
+	details, _ := db.QueryDetailedErrorLogsByRunId(99001)
+	compacts, _ := db.QueryCompactErrorLogsByRunId(99001)
+	if len(details) != 1 || len(compacts) != 1 {
+		t.Fatalf("expected 1 detail and 1 compact log, got %d and %d", len(details), len(compacts))
+	}
+	if compacts[0].FilteredOkCount != 2 {
+		t.Errorf("expected FilteredOkCount 2, got %d", compacts[0].FilteredOkCount)
+	}
+}
+
+func verifyCleanAndReset3Tables(t *testing.T, db *PipelineSplitDb) {
+	if !db.HasDetailErrorLog(99001) || !db.HasCompactErrorLog(99001) {
+		t.Errorf("expected HasDetailErrorLog and HasCompactErrorLog to be true")
+	}
+	if err := db.Clear(); err != nil {
+		t.Fatalf("failed to clear db: %v", err)
+	}
+	details, _ := db.QueryDetailedErrorLogsByRunId(99001)
+	if len(details) != 0 {
+		t.Errorf("expected 0 detail logs after clear, got %d", len(details))
+	}
+}

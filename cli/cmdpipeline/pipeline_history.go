@@ -228,19 +228,65 @@ func renderCachedErrorsList(errors []pipelinedb.PipelineErrorRecord) {
 	}
 }
 
-func renderSingleCachedFailureCard(db *pipelinedb.PipelineSplitDb, r pipelinedb.PipelineRunRecord, idx, total int) {
+func renderSingleCachedFailureCard(db *pipelinedb.PipelineSplitDb, r pipelinedb.PipelineRunRecord, idx, total int, isDetailed bool) {
 	fmt.Printf("  %s┌─ [%d/%d] %s #%d ──────────────────────────%s\n",
 		constants.ColorRed, idx, total, r.WorkflowName, r.RunId, constants.ColorReset)
 	fmt.Printf("  │ Branch / Commit: %s (%s)\n", r.Branch, r.Sha)
 	fmt.Printf("  │ When Run:        %s | Duration: %s\n",
 		formatRunTimestamp(r.CreatedAt), formatDurationSeconds(r.DurationSeconds))
-	errors, _ := db.QueryErrorLogsByRunId(r.RunId)
-	renderCachedErrorsList(errors)
+	renderRunErrorsByDetailMode(db, r.RunId, isDetailed)
 	fmt.Printf("  %s└──────────────────────────────────────────────────────────%s\n\n",
 		constants.ColorRed, constants.ColorReset)
 }
 
-func renderCachedFailuresTerminal(db *pipelinedb.PipelineSplitDb, repo string, runs []pipelinedb.PipelineRunRecord) {
+func renderRunErrorsByDetailMode(db *pipelinedb.PipelineSplitDb, runId uint64, isDetailed bool) {
+	if isDetailed {
+		renderDetailedOrLegacyErrors(db, runId)
+
+		return
+	}
+
+	renderCompactOrLegacyErrors(db, runId)
+}
+
+func renderDetailedOrLegacyErrors(db *pipelinedb.PipelineSplitDb, runId uint64) {
+	details, err := db.QueryDetailedErrorLogsByRunId(runId)
+	if err == nil && len(details) > 0 {
+		renderCachedErrorsList(details)
+
+		return
+	}
+
+	legacy, _ := db.QueryErrorLogsByRunId(runId)
+	renderCachedErrorsList(legacy)
+}
+
+func renderCompactOrLegacyErrors(db *pipelinedb.PipelineSplitDb, runId uint64) {
+	compacts, err := db.QueryCompactErrorLogsByRunId(runId)
+	if err == nil && len(compacts) > 0 {
+		renderCachedCompactErrorsList(compacts)
+
+		return
+	}
+
+	legacy, _ := db.QueryErrorLogsByRunId(runId)
+	renderCachedErrorsList(legacy)
+}
+
+func renderCachedCompactErrorsList(errors []pipelinedb.PipelineCompactErrorRecord) {
+	if len(errors) == 0 {
+		fmt.Println("  │ Error: (No error diagnostic logs cached for this run)")
+
+		return
+	}
+
+	for _, e := range errors {
+		fmt.Printf("  │ Step:  %s\n", e.StepName)
+		fmt.Printf("  │ Error: %s%s%s\n", constants.ColorRed, e.ErrorText, constants.ColorReset)
+	}
+}
+
+func renderCachedFailuresTerminal(db *pipelinedb.PipelineSplitDb, repo string, runs []pipelinedb.PipelineRunRecord, isDetailed bool) {
 	relDb := FormatRelativeDbPath(db.Path)
 	if len(runs) == 0 {
 		fmt.Printf("\n  No cached pipeline failures found in SQLite for %s.\n", repo)
@@ -252,7 +298,7 @@ func renderCachedFailuresTerminal(db *pipelinedb.PipelineSplitDb, repo string, r
 	fmt.Printf("\n  %s● Last %d Cached Pipeline Failure(s) from SQLite (%s):%s\n",
 		constants.ColorRed, len(runs), relDb, constants.ColorReset)
 	for i, r := range runs {
-		renderSingleCachedFailureCard(db, r, i+1, len(runs))
+		renderSingleCachedFailureCard(db, r, i+1, len(runs), isDetailed)
 	}
 }
 
@@ -274,7 +320,8 @@ func fetchLastCachedFailures(repo string, count int) (*pipelinedb.PipelineSplitD
 }
 
 // RenderLastCachedFailures displays cached failure logs from SQLite up to count.
-func RenderLastCachedFailures(repo string, count int, isJSON bool) error {
+func RenderLastCachedFailures(repo string, count int, isJSON bool, isDetailed ...bool) error {
+	detailed := len(isDetailed) > 0 && isDetailed[0]
 	db, runs, err := fetchLastCachedFailures(repo, count)
 	if err != nil {
 		return err
@@ -285,7 +332,7 @@ func RenderLastCachedFailures(repo string, count int, isJSON bool) error {
 		return printJSON(runs)
 	}
 
-	renderCachedFailuresTerminal(db, repo, runs)
+	renderCachedFailuresTerminal(db, repo, runs, detailed)
 
 	return nil
 }
@@ -303,7 +350,9 @@ func HandlePipelineHistoryErrors(args []string) (bool, error) {
 
 	count, hasLastFailures := extractLastFailuresFlag(args)
 	if hasLastFailures {
-		return true, RenderLastCachedFailures(repo, count, isJSON)
+		isDetailed := hasDetailedArg(args)
+
+		return true, RenderLastCachedFailures(repo, count, isJSON, isDetailed)
 	}
 
 	return false, nil

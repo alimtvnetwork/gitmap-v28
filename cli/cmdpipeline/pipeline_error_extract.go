@@ -620,6 +620,19 @@ func filterCompactLines(lines []string) []string {
 	return filtered
 }
 
+// FilterCompactLogText strips passing ok lines from a text block and returns filtered count.
+func FilterCompactLogText(rawText string) (string, int) {
+	if len(rawText) == 0 {
+		return "", 0
+	}
+
+	lines := strings.Split(rawText, "\n")
+	filtered := filterCompactLines(lines)
+	filteredCount := len(lines) - len(filtered)
+
+	return strings.Join(filtered, "\n"), filteredCount
+}
+
 func compactErrorPayload(p *PipelineErrorLogsPayload) {
 	for i := range p.FailedRuns {
 		for j := range p.FailedRuns[i].FailedJobs {

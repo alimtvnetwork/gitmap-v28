@@ -8,6 +8,8 @@ import (
 	"path/filepath"
 	"strings"
 	"time"
+
+	"github.com/alimtvnetwork/gitmap-v28/cli/pipelinedb"
 )
 
 func resolvePipelineDir() string {
@@ -60,7 +62,42 @@ func writeCachedPipelineLog(runId uint64, logContent, repo string) error {
 		return err
 	}
 
+	persistLogToRepoSplitDb(repo, runId, logContent)
+
 	return writeCachedPipelineJSON(dir, runId, logFile, repo, len(logContent))
+}
+
+func buildPersistRecords(repo string, runId uint64, workflow, raw, clean string) (pipelinedb.PipelineErrorRecord, pipelinedb.PipelineCompactErrorRecord) {
+	compactClean, filtered := FilterCompactLogText(clean)
+	compactRaw, _ := FilterCompactLogText(raw)
+	detail := pipelinedb.PipelineErrorRecord{
+		RunId: runId, RepoSlug: repo, WorkflowName: workflow,
+		StepName: "Failed Step", ErrorText: clean, RawLogs: raw,
+	}
+	compact := pipelinedb.PipelineCompactErrorRecord{
+		RunId: runId, RepoSlug: repo, WorkflowName: workflow,
+		StepName: "Failed Step", ErrorText: compactClean, CompactLogs: compactRaw,
+		FilteredOkCount: filtered,
+	}
+
+	return detail, compact
+}
+
+func persistLogToRepoSplitDb(repo string, runId uint64, logContent string) {
+	pipeDb, err := pipelinedb.OpenPipelineSplitDb(repo)
+	if err != nil {
+		return
+	}
+
+	defer pipeDb.Close()
+	if pipeDb.HasDetailErrorLog(runId) && pipeDb.HasCompactErrorLog(runId) {
+		return
+	}
+
+	clean := extractCleanErrorLines(logContent)
+	workflow := pipeDb.GetRunWorkflowName(runId)
+	detail, compact := buildPersistRecords(repo, runId, workflow, logContent, clean)
+	_ = pipeDb.RecordDualErrorLog(detail, compact)
 }
 
 func writeCachedPipelineJSON(dir string, runId uint64, logFile, repo string, byteCount int) error {

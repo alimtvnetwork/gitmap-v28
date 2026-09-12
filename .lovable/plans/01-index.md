@@ -8,6 +8,7 @@ None
 
 ## Completed Plans (Consolidated Milestones)
 
+- [136-pipeline-repo-db-compact-and-detailed-logs.md](completed/136-pipeline-repo-db-compact-and-detailed-logs.md): Pipeline Repo-DB Compact & Detailed Error Logs Architecture (3 Connected Tables)
 - [135-repo-scoped-temp-storage-and-prebuild-clean.md](completed/135-repo-scoped-temp-storage-and-prebuild-clean.md): Repository-Scoped Temp Storage & Mandatory Pre-Build Cleanup
 - [134-pipeline-compact-error-logs.md](completed/134-pipeline-compact-error-logs.md): Pipeline Compact Error Logs Default Filtering & Detailed Verbose Flags
 - [133-nuclear-package-modularization-phase10.md](completed/133-nuclear-package-modularization-phase10.md): Nuclear Package Modularization (cmdschedule, cmdconfig, cmdworkdir), Heavy Test Isolation & Test Inventory Duration Estimation

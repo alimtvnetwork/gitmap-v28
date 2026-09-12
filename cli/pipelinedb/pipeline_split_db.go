@@ -92,6 +92,8 @@ func (p *PipelineSplitDb) InitSchema() error {
 	queries := []string{
 		sqlCreatePipelineRun,
 		sqlCreatePipelineErrorLog,
+		sqlCreatePipelineDetailErrorLog,
+		sqlCreatePipelineCompactErrorLog,
 		sqlCreatePipelineSegment,
 	}
 

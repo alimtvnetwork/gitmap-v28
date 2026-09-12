@@ -79,16 +79,36 @@ func recordSingleFailedRun(pipeDb *pipelinedb.PipelineSplitDb, repo string, r gh
 }
 
 func persistSingleFailedRunLog(pipeDb *pipelinedb.PipelineSplitDb, repo string, r ghRunItem, clean, raw string) {
-	err := pipeDb.RecordErrorLog(pipelinedb.PipelineErrorRecord{
+	compactClean, filteredCount := FilterCompactLogText(clean)
+	compactRaw, _ := FilterCompactLogText(raw)
+	detailRec := buildDetailRecord(repo, r, clean, raw)
+	compactRec := buildCompactRecord(repo, r, compactClean, compactRaw, filteredCount)
+
+	if err := pipeDb.RecordDualErrorLog(detailRec, compactRec); err != nil {
+		fmt.Fprintf(os.Stderr, "  ⚠ Could not record pipeline error log for run %d: %v\n", r.DatabaseId, err)
+	}
+}
+
+func buildDetailRecord(repo string, r ghRunItem, clean, raw string) pipelinedb.PipelineErrorRecord {
+	return pipelinedb.PipelineErrorRecord{
 		RunId:        r.DatabaseId,
 		RepoSlug:     repo,
 		WorkflowName: r.Name,
 		StepName:     "Failed Step",
 		ErrorText:    clean,
 		RawLogs:      raw,
-	})
-	if err != nil {
-		fmt.Fprintf(os.Stderr, "  ⚠ Could not record pipeline error log for run %d: %v\n", r.DatabaseId, err)
+	}
+}
+
+func buildCompactRecord(repo string, r ghRunItem, clean, raw string, filtered int) pipelinedb.PipelineCompactErrorRecord {
+	return pipelinedb.PipelineCompactErrorRecord{
+		RunId:           r.DatabaseId,
+		RepoSlug:        repo,
+		WorkflowName:    r.Name,
+		StepName:        "Failed Step",
+		ErrorText:       clean,
+		CompactLogs:     raw,
+		FilteredOkCount: filtered,
 	}
 }
 

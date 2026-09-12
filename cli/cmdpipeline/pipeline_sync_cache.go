@@ -96,9 +96,12 @@ func recordRunInSplitDb(db *pipelinedb.PipelineSplitDb, repo string, run ghRunIt
 
 func saveParsedFailedJobs(db *pipelinedb.PipelineSplitDb, repo string, run ghRunItem, jobs []FailedJobItem, rawLogs string) {
 	for _, job := range jobs {
-		rec := buildParsedFailedJobRecord(repo, run, job, rawLogs)
-		if err := db.RecordErrorLog(rec); err != nil {
-			fmt.Fprintf(os.Stderr, "  ⚠ Could not record pipeline error log for run %d: %v\n", run.DatabaseId, err)
+		detailRec := buildParsedFailedJobRecord(repo, run, job, rawLogs)
+		compactSummary, filteredCount := FilterCompactLogText(job.FailureSummary)
+		compactRaw, _ := FilterCompactLogText(rawLogs)
+		compactRec := buildParsedCompactRecord(repo, run, job, compactSummary, compactRaw, filteredCount)
+		if err := db.RecordDualErrorLog(detailRec, compactRec); err != nil {
+			fmt.Fprintf(os.Stderr, "  ⚠ Could not record dual pipeline error log for run %d: %v\n", run.DatabaseId, err)
 		}
 	}
 }
@@ -115,19 +118,38 @@ func buildParsedFailedJobRecord(repo string, run ghRunItem, job FailedJobItem, r
 	}
 }
 
-func saveFallbackErrorLog(db *pipelinedb.PipelineSplitDb, repo string, run ghRunItem, rawLogs string) {
-	rec := pipelinedb.PipelineErrorRecord{
-		RunId:        run.DatabaseId,
-		RepoSlug:     repo,
-		WorkflowName: run.Name,
-		StepName:     "Execution Failure",
-		ErrorText:    rawLogs,
-		RawLogs:      rawLogs,
-		CreatedAt:    run.UpdatedAt,
+func buildParsedCompactRecord(repo string, run ghRunItem, job FailedJobItem, summary, raw string, filtered int) pipelinedb.PipelineCompactErrorRecord {
+	return pipelinedb.PipelineCompactErrorRecord{
+		RunId:           run.DatabaseId,
+		RepoSlug:        repo,
+		WorkflowName:    run.Name,
+		StepName:        job.StepName,
+		ErrorText:       summary,
+		CompactLogs:     raw,
+		FilteredOkCount: filtered,
+		CreatedAt:       run.UpdatedAt,
+	}
+}
+
+func buildFallbackCompactRecord(repo string, run ghRunItem, raw string) (pipelinedb.PipelineCompactErrorRecord, pipelinedb.PipelineErrorRecord) {
+	compactLogs, filtered := FilterCompactLogText(raw)
+	compactRec := pipelinedb.PipelineCompactErrorRecord{
+		RunId: run.DatabaseId, RepoSlug: repo, WorkflowName: run.Name,
+		StepName: "Execution Failure", ErrorText: compactLogs, CompactLogs: compactLogs,
+		FilteredOkCount: filtered, CreatedAt: run.UpdatedAt,
+	}
+	detailRec := pipelinedb.PipelineErrorRecord{
+		RunId: run.DatabaseId, RepoSlug: repo, WorkflowName: run.Name,
+		StepName: "Execution Failure", ErrorText: raw, RawLogs: raw, CreatedAt: run.UpdatedAt,
 	}
 
-	if err := db.RecordErrorLog(rec); err != nil {
-		fmt.Fprintf(os.Stderr, "  ⚠ Could not record fallback error log for run %d: %v\n", run.DatabaseId, err)
+	return compactRec, detailRec
+}
+
+func saveFallbackErrorLog(db *pipelinedb.PipelineSplitDb, repo string, run ghRunItem, rawLogs string) {
+	compactRec, detailRec := buildFallbackCompactRecord(repo, run, rawLogs)
+	if err := db.RecordDualErrorLog(detailRec, compactRec); err != nil {
+		fmt.Fprintf(os.Stderr, "  ⚠ Could not record dual fallback error log for run %d: %v\n", run.DatabaseId, err)
 	}
 }
 

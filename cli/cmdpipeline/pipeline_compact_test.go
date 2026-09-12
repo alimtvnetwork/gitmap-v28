@@ -3,6 +3,8 @@ package cmdpipeline
 import (
 	"strings"
 	"testing"
+
+	"github.com/alimtvnetwork/gitmap-v28/cli/pipelinedb"
 )
 
 func TestIsOkLogLine_WithPassingInputs_ReturnsTrue(t *testing.T) {
@@ -154,5 +156,61 @@ func assertPayloadCompacted(t *testing.T, payload PipelineErrorLogsPayload) {
 	secLines := payload.SectionFailures[0].ErrorLines
 	if len(secLines) != 1 || !strings.Contains(secLines[0], "--- FAIL: TestTwo") {
 		t.Errorf("expected only FAIL line in section error lines, got: %v", secLines)
+	}
+}
+
+func TestFilterCompactLogText(t *testing.T) {
+	raw := "=== RUN TestA\n--- PASS: TestA (0.01s)\n--- FAIL: TestB (0.02s)\nok pkg/a 0.05s\nProcess completed with exit code 1."
+	compact, count := FilterCompactLogText(raw)
+	if count != 3 {
+		t.Errorf("expected 3 filtered ok lines, got %d", count)
+	}
+	if strings.Contains(compact, "PASS") || strings.Contains(compact, "ok pkg/a") {
+		t.Errorf("compact text contains ok lines: %q", compact)
+	}
+	if !strings.Contains(compact, "FAIL: TestB") {
+		t.Errorf("compact text missing FAIL line: %q", compact)
+	}
+}
+
+func TestDualTableRepoSplitDbStorage(t *testing.T) {
+	repo := "test-owner/test-dual-table"
+	pipeDb, err := pipelinedb.OpenPipelineSplitDb(repo)
+	if err != nil {
+		t.Fatalf("failed to open split db: %v", err)
+	}
+	defer pipeDb.Close()
+	_ = pipeDb.Reset()
+
+	run := ghRunItem{
+		DatabaseId: 88001, Name: "CI", Status: "completed", Conclusion: "failure",
+		HeadBranch: "main", HeadSha: "sha88001",
+	}
+	recordSingleSplitRun(pipeDb, PipelineStatusPayload{Repo: repo}, run)
+	clean := "--- FAIL: Test1\nok pkg 0.01s\nError: boom"
+	raw := "=== RUN Test1\n--- PASS: Test0\n--- FAIL: Test1\nok pkg 0.01s\nError: boom"
+	persistSingleFailedRunLog(pipeDb, repo, run, clean, raw)
+
+	verifySplitDbDualLogs(t, pipeDb, 88001)
+}
+
+func verifySplitDbDualLogs(t *testing.T, pipeDb *pipelinedb.PipelineSplitDb, runId uint64) {
+	details, err := pipeDb.QueryDetailedErrorLogsByRunId(runId)
+	if err != nil || len(details) != 1 {
+		t.Fatalf("expected 1 detail log, got %d (err: %v)", len(details), err)
+	}
+	if !strings.Contains(details[0].RawLogs, "PASS: Test0") {
+		t.Errorf("detail log missing raw PASS line: %s", details[0].RawLogs)
+	}
+
+	compacts, err := pipeDb.QueryCompactErrorLogsByRunId(runId)
+	if err != nil || len(compacts) != 1 {
+		t.Fatalf("expected 1 compact log, got %d (err: %v)", len(compacts), err)
+	}
+	if strings.Contains(compacts[0].ErrorText, "ok pkg") {
+		t.Errorf("compact log contains ok lines: %s", compacts[0].ErrorText)
+	}
+	if compacts[0].FilteredOkCount != 1 {
+		t.Errorf("expected FilteredOkCount 1, got %d", compacts[0].FilteredOkCount)
 	}
 }

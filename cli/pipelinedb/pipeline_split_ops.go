@@ -26,6 +26,16 @@ INSERT INTO PipelineErrorLog (
     RunId, RepoSlug, WorkflowName, StepName, ErrorText, RawLogs, Notes, Comments, CreatedAt
 ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?);`
 
+const sqlRecordDetailErrorLog = `
+INSERT INTO PipelineDetailErrorLog (
+    RunId, RepoSlug, WorkflowName, StepName, ErrorText, RawLogs, Notes, Comments, CreatedAt
+) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?);`
+
+const sqlRecordCompactErrorLog = `
+INSERT INTO PipelineCompactErrorLog (
+    RunId, RepoSlug, WorkflowName, StepName, ErrorText, CompactLogs, FilteredOkCount, Notes, Comments, CreatedAt
+) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?);`
+
 const sqlQueryRecentRuns = `
 SELECT RunId, RepoSlug, WorkflowName, Status, Conclusion, Branch, Sha,
        EtaSeconds, DurationSeconds, RunUrl, IsSuccess, CreatedAt, UpdatedAt
@@ -34,6 +44,14 @@ FROM PipelineRun ORDER BY PipelineRunId DESC LIMIT ?;`
 const sqlQueryRecentErrors = `
 SELECT RunId, RepoSlug, WorkflowName, StepName, ErrorText, COALESCE(RawLogs, ''), CreatedAt
 FROM PipelineErrorLog ORDER BY PipelineErrorLogId DESC LIMIT ?;`
+
+const sqlQueryRecentDetailErrors = `
+SELECT RunId, RepoSlug, WorkflowName, StepName, ErrorText, COALESCE(RawLogs, ''), CreatedAt
+FROM PipelineDetailErrorLog ORDER BY PipelineDetailErrorLogId DESC LIMIT ?;`
+
+const sqlQueryRecentCompactErrors = `
+SELECT RunId, RepoSlug, WorkflowName, StepName, ErrorText, COALESCE(CompactLogs, ''), FilteredOkCount, CreatedAt
+FROM PipelineCompactErrorLog ORDER BY PipelineCompactErrorLogId DESC LIMIT ?;`
 
 const sqlQueryCachedErrorRunIds = `
 SELECT DISTINCT RunId FROM PipelineErrorLog ORDER BY RunId DESC;`
@@ -51,6 +69,14 @@ FROM PipelineRun WHERE IsSuccess = 0 ORDER BY PipelineRunId DESC LIMIT ?;`
 const sqlQueryErrorLogsByRunId = `
 SELECT RunId, RepoSlug, WorkflowName, StepName, ErrorText, COALESCE(RawLogs, ''), CreatedAt
 FROM PipelineErrorLog WHERE RunId = ? ORDER BY PipelineErrorLogId ASC;`
+
+const sqlQueryDetailErrorLogsByRunId = `
+SELECT RunId, RepoSlug, WorkflowName, StepName, ErrorText, COALESCE(RawLogs, ''), CreatedAt
+FROM PipelineDetailErrorLog WHERE RunId = ? ORDER BY PipelineDetailErrorLogId ASC;`
+
+const sqlQueryCompactErrorLogsByRunId = `
+SELECT RunId, RepoSlug, WorkflowName, StepName, ErrorText, COALESCE(CompactLogs, ''), FilteredOkCount, CreatedAt
+FROM PipelineCompactErrorLog WHERE RunId = ? ORDER BY PipelineCompactErrorLogId ASC;`
 
 func isRunSuccess(r PipelineRunRecord) int {
 	if r.IsSuccess {
@@ -103,6 +129,64 @@ func (p *PipelineSplitDb) RecordErrorLog(e PipelineErrorRecord) error {
 func (p *PipelineSplitDb) HasErrorLog(runId uint64) bool {
 	var exists int
 	err := p.conn.QueryRow("SELECT 1 FROM PipelineErrorLog WHERE RunId = ? LIMIT 1;", runId).Scan(&exists)
+	if err != nil {
+		return false
+	}
+
+	return exists == 1
+}
+
+// RecordDetailErrorLog inserts an uncompressed diagnostic error log into PipelineDetailErrorLog.
+func (p *PipelineSplitDb) RecordDetailErrorLog(e PipelineErrorRecord) error {
+	createdAt := resolveCreatedAt(e.CreatedAt)
+	_, err := p.conn.Exec(sqlRecordDetailErrorLog,
+		e.RunId, e.RepoSlug, e.WorkflowName, e.StepName, e.ErrorText, e.RawLogs, e.Notes, e.Comments, createdAt,
+	)
+	if err != nil {
+		return apperror.WrapSimple(err, "record pipeline detail error log")
+	}
+
+	return nil
+}
+
+// RecordCompactErrorLog inserts a noise-filtered compact error log into PipelineCompactErrorLog.
+func (p *PipelineSplitDb) RecordCompactErrorLog(c PipelineCompactErrorRecord) error {
+	createdAt := resolveCreatedAt(c.CreatedAt)
+	_, err := p.conn.Exec(sqlRecordCompactErrorLog,
+		c.RunId, c.RepoSlug, c.WorkflowName, c.StepName, c.ErrorText, c.CompactLogs, c.FilteredOkCount, c.Notes, c.Comments, createdAt,
+	)
+	if err != nil {
+		return apperror.WrapSimple(err, "record pipeline compact error log")
+	}
+
+	return nil
+}
+
+// RecordDualErrorLog inserts both detail and compact error diagnostics for a run.
+func (p *PipelineSplitDb) RecordDualErrorLog(detail PipelineErrorRecord, compact PipelineCompactErrorRecord) error {
+	_ = p.RecordErrorLog(detail)
+	if err := p.RecordDetailErrorLog(detail); err != nil {
+		return err
+	}
+
+	return p.RecordCompactErrorLog(compact)
+}
+
+// HasDetailErrorLog checks if a detail error log exists for the run.
+func (p *PipelineSplitDb) HasDetailErrorLog(runId uint64) bool {
+	var exists int
+	err := p.conn.QueryRow("SELECT 1 FROM PipelineDetailErrorLog WHERE RunId = ? LIMIT 1;", runId).Scan(&exists)
+	if err != nil {
+		return false
+	}
+
+	return exists == 1
+}
+
+// HasCompactErrorLog checks if a compact error log exists for the run.
+func (p *PipelineSplitDb) HasCompactErrorLog(runId uint64) bool {
+	var exists int
+	err := p.conn.QueryRow("SELECT 1 FROM PipelineCompactErrorLog WHERE RunId = ? LIMIT 1;", runId).Scan(&exists)
 	if err != nil {
 		return false
 	}
@@ -206,12 +290,68 @@ func (p *PipelineSplitDb) QueryRecentErrorLogs(limit int) ([]PipelineErrorRecord
 	return collectRecentErrors(rows)
 }
 
+func scanPipelineCompactError(rows *sql.Rows) (PipelineCompactErrorRecord, *apperror.AppError) {
+	var c PipelineCompactErrorRecord
+	err := rows.Scan(&c.RunId, &c.RepoSlug, &c.WorkflowName, &c.StepName, &c.ErrorText, &c.CompactLogs, &c.FilteredOkCount, &c.CreatedAt)
+	if err != nil {
+		return c, apperror.WrapSimple(err, "scan pipeline compact error row")
+	}
+
+	return c, nil
+}
+
+func collectRecentCompactErrors(rows *sql.Rows) ([]PipelineCompactErrorRecord, error) {
+	var list []PipelineCompactErrorRecord
+	for rows.Next() {
+		c, scanErr := scanPipelineCompactError(rows)
+		if scanErr != nil {
+			return nil, scanErr
+		}
+
+		list = append(list, c)
+	}
+
+	if err := rows.Err(); err != nil {
+		return nil, apperror.WrapSimple(err, "iterate pipeline compact error rows")
+	}
+
+	return list, nil
+}
+
+// QueryDetailedErrors retrieves stored uncompressed detailed error diagnostics.
+func (p *PipelineSplitDb) QueryDetailedErrors(limit int) ([]PipelineErrorRecord, error) {
+	limitVal := resolveLimit(limit, 20)
+	rows, err := p.conn.Query(sqlQueryRecentDetailErrors, limitVal)
+	if err != nil {
+		return nil, apperror.WrapSimple(err, "query recent detail error logs")
+	}
+
+	defer rows.Close()
+
+	return collectRecentErrors(rows)
+}
+
+// QueryCompactErrors retrieves stored noise-filtered compact error diagnostics.
+func (p *PipelineSplitDb) QueryCompactErrors(limit int) ([]PipelineCompactErrorRecord, error) {
+	limitVal := resolveLimit(limit, 20)
+	rows, err := p.conn.Query(sqlQueryRecentCompactErrors, limitVal)
+	if err != nil {
+		return nil, apperror.WrapSimple(err, "query recent compact error logs")
+	}
+
+	defer rows.Close()
+
+	return collectRecentCompactErrors(rows)
+}
+
 // Clear truncates all recorded runs, error logs, and segments.
 func (p *PipelineSplitDb) Clear() error {
 	queries := []string{
-		"DELETE FROM PipelineRun;",
+		"DELETE FROM PipelineCompactErrorLog;",
+		"DELETE FROM PipelineDetailErrorLog;",
 		"DELETE FROM PipelineErrorLog;",
 		"DELETE FROM PipelineSegment;",
+		"DELETE FROM PipelineRun;",
 	}
 
 	for _, q := range queries {
@@ -226,9 +366,11 @@ func (p *PipelineSplitDb) Clear() error {
 // Reset drops all tables and re-initializes the schema.
 func (p *PipelineSplitDb) Reset() error {
 	queries := []string{
-		"DROP TABLE IF EXISTS PipelineRun;",
+		"DROP TABLE IF EXISTS PipelineCompactErrorLog;",
+		"DROP TABLE IF EXISTS PipelineDetailErrorLog;",
 		"DROP TABLE IF EXISTS PipelineErrorLog;",
 		"DROP TABLE IF EXISTS PipelineSegment;",
+		"DROP TABLE IF EXISTS PipelineRun;",
 	}
 
 	for _, q := range queries {
@@ -471,4 +613,39 @@ func (p *PipelineSplitDb) QueryErrorLogsByRunId(runId uint64) ([]PipelineErrorRe
 	defer rows.Close()
 
 	return collectRecentErrors(rows)
+}
+
+// QueryDetailedErrorLogsByRunId retrieves uncompressed detailed errors for a run ID.
+func (p *PipelineSplitDb) QueryDetailedErrorLogsByRunId(runId uint64) ([]PipelineErrorRecord, error) {
+	rows, err := p.conn.Query(sqlQueryDetailErrorLogsByRunId, runId)
+	if err != nil {
+		return nil, apperror.WrapSimple(err, "query detail error logs by run id")
+	}
+
+	defer rows.Close()
+
+	return collectRecentErrors(rows)
+}
+
+// QueryCompactErrorLogsByRunId retrieves compact filtered errors for a run ID.
+func (p *PipelineSplitDb) QueryCompactErrorLogsByRunId(runId uint64) ([]PipelineCompactErrorRecord, error) {
+	rows, err := p.conn.Query(sqlQueryCompactErrorLogsByRunId, runId)
+	if err != nil {
+		return nil, apperror.WrapSimple(err, "query compact error logs by run id")
+	}
+
+	defer rows.Close()
+
+	return collectRecentCompactErrors(rows)
+}
+
+// GetRunWorkflowName looks up the workflow name for a run ID from PipelineRun.
+func (p *PipelineSplitDb) GetRunWorkflowName(runId uint64) string {
+	var name string
+	err := p.conn.QueryRow("SELECT WorkflowName FROM PipelineRun WHERE RunId = ? LIMIT 1;", runId).Scan(&name)
+	if err != nil || len(name) == 0 {
+		return "CI"
+	}
+
+	return name
 }

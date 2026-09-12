@@ -42,6 +42,43 @@ CREATE INDEX IF NOT EXISTS IdxPipelineErrorLog_RepoSlug ON PipelineErrorLog (Rep
 CREATE INDEX IF NOT EXISTS IdxPipelineErrorLog_RunId ON PipelineErrorLog (RunId);
 CREATE INDEX IF NOT EXISTS IdxPipelineErrorLog_RepoSlug_RunId ON PipelineErrorLog (RepoSlug, RunId);`
 
+	sqlCreatePipelineDetailErrorLog = `
+CREATE TABLE IF NOT EXISTS PipelineDetailErrorLog (
+    PipelineDetailErrorLogId INTEGER PRIMARY KEY AUTOINCREMENT,
+    RunId INTEGER NOT NULL,
+    RepoSlug TEXT NOT NULL,
+    WorkflowName TEXT NOT NULL,
+    StepName TEXT NOT NULL,
+    ErrorText TEXT NOT NULL,
+    RawLogs TEXT NULL,
+    Notes TEXT NULL,
+    Comments TEXT NULL,
+    CreatedAt TEXT DEFAULT CURRENT_TIMESTAMP,
+    FOREIGN KEY (RunId) REFERENCES PipelineRun(RunId) ON DELETE CASCADE
+);
+CREATE INDEX IF NOT EXISTS IdxPipelineDetailErrorLog_RepoSlug ON PipelineDetailErrorLog (RepoSlug);
+CREATE INDEX IF NOT EXISTS IdxPipelineDetailErrorLog_RunId ON PipelineDetailErrorLog (RunId);
+CREATE INDEX IF NOT EXISTS IdxPipelineDetailErrorLog_RepoSlug_RunId ON PipelineDetailErrorLog (RepoSlug, RunId);`
+
+	sqlCreatePipelineCompactErrorLog = `
+CREATE TABLE IF NOT EXISTS PipelineCompactErrorLog (
+    PipelineCompactErrorLogId INTEGER PRIMARY KEY AUTOINCREMENT,
+    RunId INTEGER NOT NULL,
+    RepoSlug TEXT NOT NULL,
+    WorkflowName TEXT NOT NULL,
+    StepName TEXT NOT NULL,
+    ErrorText TEXT NOT NULL,
+    CompactLogs TEXT NULL,
+    FilteredOkCount INTEGER DEFAULT 0,
+    Notes TEXT NULL,
+    Comments TEXT NULL,
+    CreatedAt TEXT DEFAULT CURRENT_TIMESTAMP,
+    FOREIGN KEY (RunId) REFERENCES PipelineRun(RunId) ON DELETE CASCADE
+);
+CREATE INDEX IF NOT EXISTS IdxPipelineCompactErrorLog_RepoSlug ON PipelineCompactErrorLog (RepoSlug);
+CREATE INDEX IF NOT EXISTS IdxPipelineCompactErrorLog_RunId ON PipelineCompactErrorLog (RunId);
+CREATE INDEX IF NOT EXISTS IdxPipelineCompactErrorLog_RepoSlug_RunId ON PipelineCompactErrorLog (RepoSlug, RunId);`
+
 	sqlCreatePipelineSegment = `
 CREATE TABLE IF NOT EXISTS PipelineSegment (
     PipelineSegmentId INTEGER PRIMARY KEY AUTOINCREMENT,
