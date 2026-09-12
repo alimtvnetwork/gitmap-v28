@@ -1,3 +1,20 @@
+## [v6.220.0] 2026-09-12 Release v6.220.0
+
+### Install GitMap v6.220.0
+
+To pin your repository to this exact version, run the following one-liner:
+Unix/Bash: `curl -sL https://raw.githubusercontent.com/alimtvnetwork/gitmap-v28/v6.220.0/install.sh | bash -s -- ".lovable/prompts" "v6.220.0"`
+PowerShell: `Invoke-WebRequest -Uri https://raw.githubusercontent.com/alimtvnetwork/gitmap-v28/v6.220.0/install.ps1 -OutFile install.ps1; .\install.ps1 -TargetDir ".lovable/prompts" -Version "v6.220.0"`
+
+### Added / Changed / Fixed / Removed
+
+- Complete architectural audit and execution across all 18 Coding Guideline modules (Prompts 01-18)
+- Enforce single return types, Result[T] envelopes, and strict *AppError wrapping
+- Zero nested ifs, affirmative boolean naming, and strict *Type enum suffixes
+- Normalize vertical newline styling (Rule R4/R5) and 100% gofmt hygiene across 2,524 Go files
+- Enforce strict relative Git paths and eliminate absolute filesystem paths / file:/// URIs
+- Full CLI commands and help text parity verified across 8,155 CLI files
+
 ## [v6.219.0] 2026-09-11 Release v6.219.0
 
 ### Install GitMap v6.219.0
