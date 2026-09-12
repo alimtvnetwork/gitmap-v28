@@ -76,6 +76,8 @@ Before doing anything else, you MUST write a highly detailed execution spec.
 - [ ] Error Handling (AppError): Errors use domain-specific `AppError` or custom `AppException` (for C#/OOP), not generic base `Error`.
 - [ ] Code adheres to explicit booleans, `Type` suffixed Enums, and error wrapper rules.
 - [ ] Formatting & Acronyms: Spacing rules are strictly followed. Acronyms are strictly PascalCase (`SwapIpWindows` not `SwapIPWindows`).
+- [ ] Temp & Failure Folder Isolation: All temporary test files, caches, and runner artifacts are isolated within `.lovable/temp/`. Never create `.tmp/` at root. Failed tests/gates write to `.lovable/temp/failures/`; passing tests remain completely silent and produce zero disk files.
+- [ ] Runner In-Flight ETA Wait Protocol: When executing or checking background runners/tests, read remaining ETA from `.lovable/temp/runner-eta.json` and sleep/wait for that duration instead of busy-polling.
 - [ ] Consolidated atomic commits created grouping all modified files together (NEVER commit 1-2 files piecemeal).
 - [ ] Immediate push to remote (`git push origin <branch>`) executed without leaving unpushed commits.
 - [ ] Zero full builds (`npm run build`, `go build ./...`) or `06-cicd-local-runner.py` executed during routine turns; atomic file change cache updated in `.lovable/temp/recent-file-changes.json`.

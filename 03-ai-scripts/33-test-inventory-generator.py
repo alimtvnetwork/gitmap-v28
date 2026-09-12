@@ -243,33 +243,68 @@ def resolve_go_package_rel(pkg_dir: Path, repo_root: Path) -> str:
     return rel
 
 
-def estimate_test_duration(filepath: Path, test_name: str, content: str) -> tuple[float, str]:
-    """Estimates test duration in seconds and categorizes tier (unit vs heavy)."""
+def estimate_test_duration(
+    filepath: Path, test_name: str, content: str, slow_threshold: float = 4.0
+) -> tuple[float, str, bool]:
+    """Estimates test duration in seconds and categorizes tier (slow vs fast)."""
     rel = str(filepath).replace("\\", "/")
     if "tests/heavy_test" in rel:
-        return 3.0, "heavy"
+        return 5.0, "slow", True
 
-    is_heavy = False
     duration = 0.005
     if "exec.Command" in content:
-        is_heavy = True
-        duration += 2.0
+        duration += 3.0
     if "time.Sleep" in content:
-        is_heavy = True
-        duration += 1.0
+        duration += 1.5
     if "net.Listen" in content or "http.Get" in content or "http.Post" in content:
-        is_heavy = True
         duration += 0.5
     if "git" in test_name.lower() and ("subprocess" in content.lower() or "exec" in content.lower()):
-        is_heavy = True
-        duration += 1.5
+        duration += 2.0
 
-    tier = "heavy" if is_heavy else "unit"
-    return round(duration, 3), tier
+    is_slow = (duration >= slow_threshold)
+    tier = "slow" if is_slow else "fast"
+    return round(duration, 3), tier, is_slow
 
 
-def scan_go_tests(repo_root: Path) -> tuple[dict[str, Any], int, int]:
-    """Scans and indexes all Go test files."""
+def resolve_target_file(tf: Path, pkg_dir: Path, repo_root: Path, rel_test_file: str) -> tuple[str, str]:
+    """Intelligently resolves relative target source file and hash for a test file."""
+    # 1. Exact match: foo_test.go -> foo.go
+    target_name = tf.name.replace("_test.go", ".go")
+    target_path = pkg_dir / target_name
+    if target_path.is_file():
+        return normalize_repo_rel(target_path), compute_file_hash(target_path)
+
+    # 2. Suffix stripping: foo_unit_test.go / foo_e2e_test.go -> foo.go
+    for suffix in ("_unit_test.go", "_e2e_test.go", "_integration_test.go", "_helpers_test.go"):
+        if tf.name.endswith(suffix):
+            cand_name = tf.name.replace(suffix, ".go")
+            cand_p = pkg_dir / cand_name
+            if cand_p.is_file():
+                return normalize_repo_rel(cand_p), compute_file_hash(cand_p)
+
+    # 3. External heavy_test directory package mapping
+    if "tests/heavy_test" in rel_test_file:
+        stem = tf.name.replace("_e2e_test.go", "").replace("_test.go", "")
+        prefix = stem.split("_")[0]
+        cand_dir = repo_root / "gitmap" / prefix
+        if cand_dir.is_dir():
+            go_files = sorted([f for f in cand_dir.glob("*.go") if not f.name.endswith("_test.go")])
+            if go_files:
+                return normalize_repo_rel(go_files[0]), compute_file_hash(go_files[0])
+
+    # 4. Fallback to any non-test .go file in package directory
+    pkg_go_files = sorted([f for f in pkg_dir.glob("*.go") if not f.name.endswith("_test.go")])
+    if pkg_go_files:
+        return normalize_repo_rel(pkg_go_files[0]), compute_file_hash(pkg_go_files[0])
+
+    # 5. Last fallback: test file itself
+    return rel_test_file, compute_file_hash(tf)
+
+
+def scan_go_tests(
+    repo_root: Path, slow_threshold: float = 4.0, force_run_all: bool = False
+) -> tuple[dict[str, Any], int, int]:
+    """Scans and indexes all Go test files with non-empty relative paths and slow thresholds."""
     tests_dict: dict[str, Any] = {}
     go_test_files = list(repo_root.rglob("*_test.go"))
 
@@ -289,10 +324,7 @@ def scan_go_tests(repo_root: Path) -> tuple[dict[str, Any], int, int]:
         except Exception:
             pass
 
-        target_file_name = tf.name.replace("_test.go", ".go")
-        target_path = pkg_dir / target_file_name
-        rel_target = normalize_repo_rel(target_path) if target_path.exists() else ""
-        code_hash = compute_file_hash(target_path) if target_path.exists() else test_file_hash
+        rel_target, code_hash = resolve_target_file(tf, pkg_dir, repo_root, rel_test_file)
 
         for tname, thash in test_funcs.items():
             tid = f"{rel_pkg}.{tname}"
@@ -301,7 +333,7 @@ def scan_go_tests(repo_root: Path) -> tuple[dict[str, Any], int, int]:
                 cand = tname[4:].split("_")[0]
                 target_func = cand
 
-            dur, tier = estimate_test_duration(tf, tname, file_content)
+            dur, tier, is_slow = estimate_test_duration(tf, tname, file_content, slow_threshold)
 
             tests_dict[tid] = {
                 "id": tid,
@@ -314,15 +346,16 @@ def scan_go_tests(repo_root: Path) -> tuple[dict[str, Any], int, int]:
                 "code_hash": code_hash,
                 "duration_sec": dur,
                 "tier": tier,
+                "is_slow": is_slow,
                 "last_status": "never_run",
                 "last_run_at": "",
-                "needs_run": True,
+                "needs_run": True if force_run_all else True,
             }
 
     return tests_dict, len(tests_dict), len(set(t["package"] for t in tests_dict.values()))
 
 
-def scan_python_and_ts_tests(repo_root: Path) -> dict[str, Any]:
+def scan_python_and_ts_tests(repo_root: Path, slow_threshold: float = 4.0) -> dict[str, Any]:
     """Scans and indexes Python and TypeScript test files."""
     tests_dict: dict[str, Any] = {}
     for root, _, files in os.walk(repo_root):
@@ -345,7 +378,9 @@ def scan_python_and_ts_tests(repo_root: Path) -> dict[str, Any]:
                         "target_file": rel_file.replace("test_", "").replace("_test.py", ".py"),
                         "target_func": "",
                         "code_hash": thash,
-                        "duration_sec": 0.0,
+                        "duration_sec": 0.05,
+                        "tier": "fast",
+                        "is_slow": False,
                         "last_status": "never_run",
                         "last_run_at": "",
                         "needs_run": True,
@@ -365,7 +400,8 @@ def scan_python_and_ts_tests(repo_root: Path) -> dict[str, Any]:
                         "target_func": "",
                         "code_hash": thash,
                         "duration_sec": 0.005,
-                        "tier": "unit",
+                        "tier": "fast",
+                        "is_slow": False,
                         "last_status": "never_run",
                         "last_run_at": "",
                         "needs_run": True,
@@ -373,18 +409,20 @@ def scan_python_and_ts_tests(repo_root: Path) -> dict[str, Any]:
     return tests_dict
 
 
-def build_test_inventory(repo_root: Path) -> dict[str, Any]:
-    """Compiles the complete test inventory across all supported languages."""
-    go_tests, go_count, _ = scan_go_tests(repo_root)
-    py_ts_tests = scan_python_and_ts_tests(repo_root)
+def build_test_inventory(
+    repo_root: Path, slow_threshold: float = 4.0, force_run_all: bool = False
+) -> dict[str, Any]:
+    """Compiles the complete test inventory across all supported languages with relative paths and dual tiers."""
+    go_tests, go_count, _ = scan_go_tests(repo_root, slow_threshold, force_run_all)
+    py_ts_tests = scan_python_and_ts_tests(repo_root, slow_threshold)
 
     combined_tests = {**go_tests, **py_ts_tests}
     packages = set(t["package"] for t in combined_tests.values())
 
-    heavy_count = len([t for t in combined_tests.values() if t.get("tier") == "heavy"])
-    unit_count = len([t for t in combined_tests.values() if t.get("tier") == "unit"])
-    heavy_dur = round(sum(t.get("duration_sec", 0.0) for t in combined_tests.values() if t.get("tier") == "heavy"), 2)
-    unit_dur = round(sum(t.get("duration_sec", 0.0) for t in combined_tests.values() if t.get("tier") == "unit"), 2)
+    slow_count = len([t for t in combined_tests.values() if t.get("is_slow", False) or t.get("tier") in ("slow", "heavy")])
+    fast_count = len(combined_tests) - slow_count
+    slow_dur = round(sum(t.get("duration_sec", 0.0) for t in combined_tests.values() if t.get("is_slow", False) or t.get("tier") in ("slow", "heavy")), 2)
+    fast_dur = round(sum(t.get("duration_sec", 0.0) for t in combined_tests.values() if not (t.get("is_slow", False) or t.get("tier") in ("slow", "heavy"))), 2)
 
     inventory = {
         "version": 1,
@@ -395,10 +433,15 @@ def build_test_inventory(repo_root: Path) -> dict[str, Any]:
             "cached": 0,
             "dirty": len(combined_tests),
             "packages": len(packages),
-            "heavy_tests": heavy_count,
-            "unit_tests": unit_count,
-            "estimated_heavy_sec": heavy_dur,
-            "estimated_unit_sec": unit_dur,
+            "slow_tests": slow_count,
+            "fast_tests": fast_count,
+            "heavy_tests": slow_count,
+            "unit_tests": fast_count,
+            "slow_threshold_sec": slow_threshold,
+            "estimated_slow_sec": slow_dur,
+            "estimated_fast_sec": fast_dur,
+            "estimated_heavy_sec": slow_dur,
+            "estimated_unit_sec": fast_dur,
         },
         "tests": combined_tests,
     }
@@ -459,10 +502,13 @@ def record_recent_changes(changed_files: list[str]) -> dict[str, Any]:
 
 
 def main():
+    default_threshold = float(os.environ.get("GITMAP_SLOW_TEST_THRESHOLD", "4.0"))
     parser = argparse.ArgumentParser(description="Test inventory generator & atomic change recorder.")
     parser.add_argument("--record", nargs="+", help="Record modified file paths to recent-file-changes.json under lock.")
     parser.add_argument("--query-recent", action="store_true", help="Display recently modified files and associated tests.")
     parser.add_argument("--clear", action="store_true", help="Clear recent changes log.")
+    parser.add_argument("--slow-threshold", type=float, default=default_threshold, help="Slow test threshold in seconds (default: 4.0s).")
+    parser.add_argument("--force-run-all", action="store_true", help="Marks all tests as dirty for full profiling.")
     args = parser.parse_args()
 
     if args.clear:
@@ -486,10 +532,12 @@ def main():
         return
 
     print("Scanning codebase to generate test inventory...")
-    inv = build_test_inventory(REPO_ROOT)
+    inv = build_test_inventory(REPO_ROOT, slow_threshold=args.slow_threshold, force_run_all=args.force_run_all)
     print(f"Generated test inventory at {normalize_repo_rel(TEST_INVENTORY_PATH)}")
     print(f"Total Tests Indexed : {inv['total_tests']}")
     print(f"Total Packages      : {inv['summary']['packages']}")
+    print(f"Slow Tests (> {args.slow_threshold}s) : {inv['summary']['slow_tests']}")
+    print(f"Fast Tests (<= {args.slow_threshold}s): {inv['summary']['fast_tests']}")
 
 
 if __name__ == "__main__":

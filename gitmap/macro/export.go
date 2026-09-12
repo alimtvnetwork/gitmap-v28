@@ -156,10 +156,13 @@ func WriteExportPayload(filePath string, payload []byte) error {
 }
 
 func ensureExportDirExists(filePath string) error {
-	if dir := filepath.Dir(filePath); dir != "" && dir != "." {
-		if err := os.MkdirAll(dir, constants.DirPermission); err != nil {
-			return apperror.WrapSimple(err, "create export directory")
-		}
+	dir := filepath.Dir(filePath)
+	if dir == "" || dir == "." {
+		return nil
+	}
+
+	if err := os.MkdirAll(dir, constants.DirPermission); err != nil {
+		return apperror.WrapSimple(err, "create export directory")
 	}
 
 	return nil

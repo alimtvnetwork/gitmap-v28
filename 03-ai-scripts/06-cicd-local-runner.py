@@ -111,9 +111,15 @@ DEFAULT_TIMEOUT_SEC = int(os.environ.get("CI_TIMEOUT_SEC", 1200))
 DEFAULT_ENCODING = "utf-8"
 DEFAULT_JOB_ESTIMATE_SEC = 5.0
 REPO_ROOT = Path(__file__).resolve().parent.parent
-TMP_CACHE_DIR = REPO_ROOT / ".tmp"
+TMP_CACHE_DIR = REPO_ROOT / ".lovable" / "temp"
 TMP_CACHE_DIR.mkdir(parents=True, exist_ok=True)
-os.environ.setdefault("GOTMPDIR", str(TMP_CACHE_DIR))
+FAILURES_DIR = TMP_CACHE_DIR / "failures"
+FAILURES_DIR.mkdir(parents=True, exist_ok=True)
+RUNNER_ETA_FILE = TMP_CACHE_DIR / "runner-eta.json"
+os.environ["GOTMPDIR"] = str(TMP_CACHE_DIR)
+os.environ["TMPDIR"] = str(TMP_CACHE_DIR)
+os.environ["TEMP"] = str(TMP_CACHE_DIR)
+os.environ["TMP"] = str(TMP_CACHE_DIR)
 
 CICD_DIR = REPO_ROOT / ".lovable" / "cicd"
 CICD_DIR.mkdir(parents=True, exist_ok=True)
@@ -168,6 +174,15 @@ JOB_BATCHES: list[dict[str, Any]] = [
             "GoCritic Guard (style)": [sys.executable, ".github/scripts/check-gocritic-diff.py"],
             "Cross-OS Vet (Windows)": {"cmd": ["go", "vet", "-C", "gitmap", "./..."], "env": {"GOOS": "windows", "GOARCH": "amd64"}},
             "Cross-OS Vet (Darwin)": {"cmd": ["go", "vet", "-C", "gitmap", "./..."], "env": {"GOOS": "darwin", "GOARCH": "amd64"}},
+            "cmd/ Naming Check": [sys.executable, ".github/scripts/check-cmd-naming.py", "gitmap/cmd"],
+            "Legacy Refs Check": [sys.executable, ".github/scripts/check-legacy-refs.py", "."],
+            "Deploy Layout Check": [sys.executable, ".github/scripts/check-deploy-layout.py", "."],
+            "constants/ Naming Check": [sys.executable, ".github/scripts/check-constants-naming.py"],
+            "Golden Allow Leak Check": [sys.executable, ".github/scripts/check-no-golden-allow-leak.py"],
+            "Bare Stderr Check": [sys.executable, ".github/scripts/check-bare-stderr-err.py"],
+            "Changelog Version Sync": [sys.executable, ".github/scripts/check-changelog-version-sync.py"],
+            "File Size Check": [sys.executable, ".github/scripts/file-size-check.py", "200"],
+            "JSON Snapshot Fast Check": ["go", "test", "-C", "gitmap", "./cmd/...", "./formatter/...", "-failfast", "-count=1", "-run", "^(TestStartupListJSON|TestFindNextJSONContract|TestLatestBranchJSONContract|TestSchemaRegistry|TestAssertGoldenBytesDeterministic|TestExpectDelim|TestScanEveryObjectKeysPure|TestWriteJSON|TestWriteCSV)"],
         },
     },
     {
@@ -222,7 +237,7 @@ JOB_BATCHES: list[dict[str, Any]] = [
         "name": "Race Detection",
         "max_workers": 1,
         "jobs": {
-            "Go Test Race (Hot Packages)": {"cmd": ["go", "test", "-p", str(min(4, DEFAULT_WORKERS)), "-parallel", str(min(4, DEFAULT_WORKERS)), "-count=1", "-timeout=15m", "./cmd/...", "./cloneconcurrency/...", "./visibility/...", "./store/...", "./uipref/..."], "cwd": "gitmap", "env": {"GITMAP_IN_MEMORY_DB": "1"}},
+            "Go Test Race (Hot Packages)": {"cmd": ["go", "test", "-p", str(min(4, DEFAULT_WORKERS)), "-parallel", str(min(4, DEFAULT_WORKERS)), "-count=1", "-timeout=15m", "./cmd/...", "./cmdagy/...", "./cmdchromeprofile/...", "./cloneconcurrency/...", "./visibility/...", "./store/...", "./uipref/..."], "cwd": "gitmap", "env": {"GITMAP_IN_MEMORY_DB": "1"}},
         },
     },
 ]
@@ -234,11 +249,11 @@ EXCLUDE_DEFAULTS = [
 ]
 
 CLUSTER_GO_ALL = ["gitmap/**/*.go", "gitmap/go.mod", "gitmap/go.sum"]
-CLUSTER_GO_CMD = ["gitmap/cmd/**/*.go", "gitmap/constants/**/*.go", "gitmap/go.mod", "gitmap/go.sum"]
+CLUSTER_GO_CMD = ["gitmap/cmd/**/*.go", "gitmap/cmdagy/**/*.go", "gitmap/cmdchromeprofile/**/*.go", "gitmap/constants/**/*.go", "gitmap/go.mod", "gitmap/go.sum"]
 CLUSTER_GO_CONSTANTS = ["gitmap/constants/**/*.go", "gitmap/go.mod"]
-CLUSTER_GO_HELPTEXT = ["gitmap/helptext/**/*.go", "gitmap/cmd/**/*.go", "gitmap/constants/**/*.go", "gitmap/go.mod"]
+CLUSTER_GO_HELPTEXT = ["gitmap/helptext/**/*.go", "gitmap/cmd/**/*.go", "gitmap/cmdagy/**/*.go", "gitmap/cmdchromeprofile/**/*.go", "gitmap/constants/**/*.go", "gitmap/go.mod"]
 CLUSTER_GO_STARTUP = ["gitmap/startup/**/*.go", "gitmap/go.mod"]
-CLUSTER_GO_RACE = ["gitmap/cmd/**/*.go", "gitmap/cloneconcurrency/**/*.go", "gitmap/visibility/**/*.go", "gitmap/store/**/*.go", "gitmap/uipref/**/*.go", "gitmap/go.mod"]
+CLUSTER_GO_RACE = ["gitmap/cmd/**/*.go", "gitmap/cmdagy/**/*.go", "gitmap/cmdchromeprofile/**/*.go", "gitmap/cloneconcurrency/**/*.go", "gitmap/visibility/**/*.go", "gitmap/store/**/*.go", "gitmap/uipref/**/*.go", "gitmap/go.mod"]
 CLUSTER_WEB_APP = ["src/**/*", "public/**/*", "index.html", "package.json", "package-lock.json", "vite.config.ts", "tsconfig*.json", "tailwind.config.ts", "postcss.config.js"]
 CLUSTER_LINTER_SCRIPTS = ["linter-scripts/**/*.py", ".github/scripts/**/*.py"]
 CLUSTER_REPO_TEXT = ["gitmap/**", "src/**", "spec/**", "docs/**", "03-ai-scripts/**", "linter-scripts/**", ".github/**", "*.md", "*.json", "*.yml", "*.yaml"]
@@ -415,6 +430,15 @@ GATE_SPECS: dict[str, GateSpec] = {
     "Go Test Coverage Profile": GateSpec("Go Test Coverage Profile", configs=["gitmap/go.mod", "gitmap/go.sum"], relevant_patterns=CLUSTER_GO_ALL, artifact_outputs=["coverage.out"]),
     "Coverage Floor Guard": GateSpec("Coverage Floor Guard", tool_scripts=[".github/scripts/coverage-floor.py"], artifact_inputs=["coverage.out"], upstream_gates=["Go Test Coverage Profile"]),
     "Go Test Race (Hot Packages)": GateSpec("Go Test Race (Hot Packages)", configs=["gitmap/go.mod", "gitmap/go.sum"], relevant_patterns=CLUSTER_GO_RACE),
+    "cmd/ Naming Check": GateSpec("cmd/ Naming Check", tool_scripts=[".github/scripts/check-cmd-naming.py"], relevant_patterns=["gitmap/cmd/**/*.go", "gitmap/cmdagy/**/*.go", "gitmap/cmdchromeprofile/**/*.go"]),
+    "Legacy Refs Check": GateSpec("Legacy Refs Check", tool_scripts=[".github/scripts/check-legacy-refs.py"], relevant_patterns=CLUSTER_REPO_TEXT),
+    "Deploy Layout Check": GateSpec("Deploy Layout Check", tool_scripts=[".github/scripts/check-deploy-layout.py"], relevant_patterns=CLUSTER_REPO_TEXT),
+    "constants/ Naming Check": GateSpec("constants/ Naming Check", tool_scripts=[".github/scripts/check-constants-naming.py"], relevant_patterns=CLUSTER_GO_CONSTANTS),
+    "Golden Allow Leak Check": GateSpec("Golden Allow Leak Check", tool_scripts=[".github/scripts/check-no-golden-allow-leak.py"], relevant_patterns=CLUSTER_REPO_TEXT),
+    "Bare Stderr Check": GateSpec("Bare Stderr Check", tool_scripts=[".github/scripts/check-bare-stderr-err.py"], relevant_patterns=["gitmap/cmd/**/*.go", "gitmap/cmdagy/**/*.go", "gitmap/cmdchromeprofile/**/*.go"]),
+    "Changelog Version Sync": GateSpec("Changelog Version Sync", tool_scripts=[".github/scripts/check-changelog-version-sync.py"], configs=["gitmap/constants/constants.go", "changelog.md"], relevant_patterns=["gitmap/constants/constants.go", "changelog.md"]),
+    "File Size Check": GateSpec("File Size Check", tool_scripts=[".github/scripts/file-size-check.py"], relevant_patterns=CLUSTER_GO_ALL),
+    "JSON Snapshot Fast Check": GateSpec("JSON Snapshot Fast Check", configs=["gitmap/go.mod", "gitmap/go.sum"], relevant_patterns=["gitmap/cmd/**/*.go", "gitmap/formatter/**/*.go"]),
 }
 
 
@@ -946,21 +970,33 @@ def run_package_tests_worker(
         cmd.extend(["-run", run_regex])
 
     cwd = repo_root / "gitmap"
+    test_env = dict(os.environ)
+    test_env["GOTMPDIR"] = str(TMP_CACHE_DIR)
+    test_env["TMPDIR"] = str(TMP_CACHE_DIR)
+    test_env["TEMP"] = str(TMP_CACHE_DIR)
+    test_env["TMP"] = str(TMP_CACHE_DIR)
 
     try:
         proc = subprocess.run(
             cmd, cwd=cwd, capture_output=True, text=True,
-            encoding="utf-8", errors="replace", timeout=timeout_sec
+            encoding="utf-8", errors="replace", timeout=timeout_sec,
+            env=test_env
         )
     except subprocess.TimeoutExpired:
+        for t in pkg_tests:
+            fail_log = FAILURES_DIR / f"{t['id'].replace('/', '_')}.log"
+            fail_log.write_text(f"Timeout expired after {timeout_sec}s for test {t['id']}", encoding="utf-8")
         return 0, len(pkg_tests), f"Timeout expired after {timeout_sec}s", {}
     except Exception as exc:
+        for t in pkg_tests:
+            fail_log = FAILURES_DIR / f"{t['id'].replace('/', '_')}.log"
+            fail_log.write_text(f"Execution error: {exc}", encoding="utf-8")
         return 0, len(pkg_tests), str(exc), {}
 
     test_results: dict[str, dict[str, Any]] = {}
+    test_output_map: dict[str, list[str]] = {}
     passed = 0
     failed = 0
-    output_lines: list[str] = []
     raw_stdout = proc.stdout or ""
 
     for line in raw_stdout.splitlines():
@@ -973,14 +1009,13 @@ def run_package_tests_worker(
             tname = data.get("Test")
             if tname:
                 tid = f"{pkg}.{tname}"
+                test_output_map.setdefault(tid, []).append(data.get("Output", ""))
                 if action == "pass":
                     passed += 1
                     test_results[tid] = {"status": "passed", "elapsed": float(data.get("Elapsed", 0.0))}
                 elif action == "fail":
                     failed += 1
                     test_results[tid] = {"status": "failed", "elapsed": float(data.get("Elapsed", 0.0))}
-                elif action == "output":
-                    output_lines.append(data.get("Output", ""))
         except Exception:
             pass
 
@@ -994,7 +1029,16 @@ def run_package_tests_worker(
                 failed += 1
                 test_results[tid] = {"status": "failed", "elapsed": 0.0}
 
-    out_summary = "".join(output_lines) if failed > 0 else ""
+    # Write failure logs only for failing tests; passing tests are completely silent
+    failure_snippets: list[str] = []
+    for tid, res_info in test_results.items():
+        if res_info["status"] == "failed":
+            fail_log = FAILURES_DIR / f"{tid.replace('/', '_')}.log"
+            err_content = "".join(test_output_map.get(tid, [])) or f"Test {tid} failed with exit code {proc.returncode}"
+            fail_log.write_text(err_content, encoding="utf-8")
+            failure_snippets.append(f"[{tid}] {err_content.strip()}")
+
+    out_summary = "\n".join(failure_snippets) if failed > 0 else ""
     return passed, failed, out_summary, test_results
 
 
@@ -1055,7 +1099,7 @@ def run_smart_go_tests(
     name: str, timeout_sec: int, max_workers: int, force: bool, repo_root: Path,
     tel: TelemetryTracker | None = None, package_filter: list[str] | str | None = None
 ) -> JobResult:
-    """Executes only changed or failing Go unit tests in parallel worker groups, caching results."""
+    """Executes changed Go tests with dual worker queues (slow: 4w x 2 tests; fast: 4w x 4 tests in 100-chunks)."""
     start_time = time.monotonic()
     inventory = build_or_update_test_inventory(repo_root, force=force)
     tests = inventory.get("tests", {})
@@ -1082,44 +1126,138 @@ def run_smart_go_tests(
             out=out_msg, err="", elapsed=elapsed, is_cached=True
         )
 
-    # Group dirty tests by package
-    pkg_map: dict[str, list[dict[str, Any]]] = {}
-    for t in dirty_tests:
-        pkg = t["package"]
-        pkg_map.setdefault(pkg, []).append(t)
+    slow_threshold = float(os.environ.get("GITMAP_SLOW_TEST_THRESHOLD", "4.0"))
+    slow_tests = [
+        t for t in dirty_tests
+        if t.get("tier") in ("slow", "heavy")
+        or t.get("is_slow", False)
+        or float(t.get("duration_sec", 0.0)) >= slow_threshold
+    ]
+    fast_tests = [t for t in dirty_tests if t not in slow_tests]
 
     total_dirty = len(dirty_tests)
     passed_count = 0
     failed_count = 0
     error_outputs: list[str] = []
 
-    worker_count = min(max(1, max_workers), len(pkg_map))
-    with ThreadPoolExecutor(max_workers=worker_count) as executor:
-        futures = {}
-        for pkg, pkg_tests in pkg_map.items():
-            fut = executor.submit(run_package_tests_worker, pkg, pkg_tests, repo_root, timeout_sec)
-            futures[fut] = (pkg, pkg_tests)
+    # Calculate exact ETA from test inventory durations
+    slow_dur = sum(float(t.get("duration_sec", 4.0)) for t in slow_tests)
+    fast_dur = sum(float(t.get("duration_sec", 0.005)) for t in fast_tests)
+    slow_eta = slow_dur / 8.0   # 4 workers * 2 tests
+    fast_eta = fast_dur / 16.0  # 4 workers * 4 tests
+    total_test_eta = max(1.0, round(slow_eta + fast_eta, 1))
 
-        for fut in as_completed(futures):
-            pkg, pkg_tests = futures[fut]
-            try:
-                pkg_passed, pkg_failed, pkg_out, test_results = fut.result()
-                passed_count += pkg_passed
-                failed_count += pkg_failed
-                if pkg_failed > 0:
-                    error_outputs.append(f"[{pkg}] {pkg_out}")
-                for tid, res_info in test_results.items():
-                    if tid in tests:
-                        tests[tid]["duration_sec"] = res_info["elapsed"]
-                        tests[tid]["last_status"] = res_info["status"]
-                        tests[tid]["last_run_at"] = time.strftime("%Y-%m-%dT%H:%M:%S")
-                        tests[tid]["needs_run"] = (res_info["status"] != "passed")
-                        record_job_timing(f"GoTest:{tid}", res_info["elapsed"])
-            except Exception as ex:
-                failed_count += len(pkg_tests)
-                error_outputs.append(f"[{pkg}] Worker exception: {ex}")
+    # Initialize ETA telemetry file for AI agent wait protocol
+    RUNNER_ETA_FILE.write_text(json.dumps({
+        "status": "running",
+        "total_eta_sec": total_test_eta,
+        "start_time": start_time,
+        "elapsed_sec": 0.0,
+        "remaining_eta_sec": total_test_eta,
+        "slow_tests_total": len(slow_tests),
+        "fast_tests_total": len(fast_tests),
+        "completed": 0,
+        "passed": 0,
+        "failed": 0,
+    }, indent=2), encoding="utf-8")
+
+    # Queue 1: Slow Tests Pool (4 workers, 2 tests per batch)
+    if slow_tests:
+        slow_batches = [slow_tests[i:i + 2] for i in range(0, len(slow_tests), 2)]
+        worker_limit = min(4, len(slow_batches))
+        with ThreadPoolExecutor(max_workers=worker_limit) as executor:
+            futures = {}
+            for batch in slow_batches:
+                batch_pkg_map: dict[str, list[dict[str, Any]]] = {}
+                for t in batch:
+                    batch_pkg_map.setdefault(t["package"], []).append(t)
+                for pkg, b_tests in batch_pkg_map.items():
+                    fut = executor.submit(run_package_tests_worker, pkg, b_tests, repo_root, timeout_sec)
+                    futures[fut] = (pkg, b_tests)
+
+            for fut in as_completed(futures):
+                pkg, b_tests = futures[fut]
+                try:
+                    pkg_passed, pkg_failed, pkg_out, test_results = fut.result()
+                    passed_count += pkg_passed
+                    failed_count += pkg_failed
+                    if pkg_failed > 0:
+                        error_outputs.append(f"[{pkg}] {pkg_out}")
+                    for tid, res_info in test_results.items():
+                        if tid in tests:
+                            tests[tid]["duration_sec"] = res_info["elapsed"]
+                            tests[tid]["last_status"] = res_info["status"]
+                            tests[tid]["last_run_at"] = time.strftime("%Y-%m-%dT%H:%M:%S")
+                            tests[tid]["needs_run"] = (res_info["status"] != "passed")
+                            record_job_timing(f"GoTest:{tid}", res_info["elapsed"])
+                except Exception as ex:
+                    failed_count += len(b_tests)
+                    error_outputs.append(f"[{pkg}] Slow worker exception: {ex}")
+
+    # Queue 2: Fast Tests Pool (4 workers, 4 tests per batch, chunks of 100 tests from inventory queue)
+    if fast_tests:
+        chunk_size = 100
+        for chunk_start in range(0, len(fast_tests), chunk_size):
+            chunk = fast_tests[chunk_start:chunk_start + chunk_size]
+            sub_batches = [chunk[i:i + 4] for i in range(0, len(chunk), 4)]
+            worker_limit = min(4, len(sub_batches))
+            with ThreadPoolExecutor(max_workers=worker_limit) as executor:
+                futures = {}
+                for sbatch in sub_batches:
+                    batch_pkg_map = {}
+                    for t in sbatch:
+                        batch_pkg_map.setdefault(t["package"], []).append(t)
+                    for pkg, b_tests in batch_pkg_map.items():
+                        fut = executor.submit(run_package_tests_worker, pkg, b_tests, repo_root, timeout_sec)
+                        futures[fut] = (pkg, b_tests)
+
+                for fut in as_completed(futures):
+                    pkg, b_tests = futures[fut]
+                    try:
+                        pkg_passed, pkg_failed, pkg_out, test_results = fut.result()
+                        passed_count += pkg_passed
+                        failed_count += pkg_failed
+                        if pkg_failed > 0:
+                            error_outputs.append(f"[{pkg}] {pkg_out}")
+                        for tid, res_info in test_results.items():
+                            if tid in tests:
+                                tests[tid]["duration_sec"] = res_info["elapsed"]
+                                tests[tid]["last_status"] = res_info["status"]
+                                tests[tid]["last_run_at"] = time.strftime("%Y-%m-%dT%H:%M:%S")
+                                tests[tid]["needs_run"] = (res_info["status"] != "passed")
+                                record_job_timing(f"GoTest:{tid}", res_info["elapsed"])
+                    except Exception as ex:
+                        failed_count += len(b_tests)
+                        error_outputs.append(f"[{pkg}] Fast worker exception: {ex}")
+
+            # Update live telemetry after each 100-test chunk
+            cur_elapsed = round(time.monotonic() - start_time, 1)
+            rem = max(1.0, round(total_test_eta - cur_elapsed, 1))
+            RUNNER_ETA_FILE.write_text(json.dumps({
+                "status": "running",
+                "total_eta_sec": total_test_eta,
+                "elapsed_sec": cur_elapsed,
+                "remaining_eta_sec": rem,
+                "slow_tests_total": len(slow_tests),
+                "fast_tests_total": len(fast_tests),
+                "completed": passed_count + failed_count,
+                "passed": passed_count,
+                "failed": failed_count,
+            }, indent=2), encoding="utf-8")
 
     elapsed = round(time.monotonic() - start_time, 2)
+    RUNNER_ETA_FILE.write_text(json.dumps({
+        "status": "completed",
+        "total_eta_sec": total_test_eta,
+        "elapsed_sec": elapsed,
+        "remaining_eta_sec": 0.0,
+        "slow_tests_total": len(slow_tests),
+        "fast_tests_total": len(fast_tests),
+        "completed": passed_count + failed_count,
+        "passed": passed_count,
+        "failed": failed_count,
+    }, indent=2), encoding="utf-8")
+
     inventory["summary"]["dirty"] = failed_count
     inventory["summary"]["cached"] = len(tests) - failed_count
     atomic_write_json(TEST_INVENTORY_PATH, inventory)
@@ -1132,7 +1270,7 @@ def run_smart_go_tests(
             out="", err=err_text, elapsed=elapsed
         )
 
-    out_msg = f"Passed {passed_count} tests across {len(pkg_map)} packages in {elapsed}s ({len(tests) - total_dirty} tests cached)"
+    out_msg = f"Passed {passed_count} tests ({len(slow_tests)} slow [4w x 2], {len(fast_tests)} fast [4w x 4 in 100-chunks]) in {elapsed}s ({len(tests) - total_dirty} tests cached)"
     return JobResult(
         name=name, cmd=["go", "test", "smart-incremental"], code=0,
         out=out_msg, err="", elapsed=elapsed
@@ -2428,13 +2566,22 @@ def save_cicd_timings(path: Path, timings: dict[str, float]) -> None:
 
 
 def calculate_total_eta(active_batches: list[dict[str, Any]], timings: dict[str, float]) -> int:
-    """Computes total estimated execution time across all active batches."""
+    """Computes total estimated execution time across all active batches using historical and inventory data."""
     total_sec = 0.0
     for batch in active_batches:
         batch_sum = 0.0
         batch_max = 0.0
         for job_name in batch.get("jobs", {}):
-            job_est = timings.get(job_name, DEFAULT_JOB_ESTIMATE_SEC)
+            if job_name == "Go Smart Incremental Tests":
+                inv = load_raw_test_inventory(TEST_INVENTORY_PATH)
+                dirty_tests = [t for t in inv.get("tests", {}).values() if t.get("needs_run", True)]
+                slow_threshold = float(os.environ.get("GITMAP_SLOW_TEST_THRESHOLD", "4.0"))
+                slow_t = [t for t in dirty_tests if t.get("tier") in ("slow", "heavy") or t.get("is_slow", False) or float(t.get("duration_sec", 0.0)) >= slow_threshold]
+                fast_t = [t for t in dirty_tests if t not in slow_t]
+                job_est = (sum(float(t.get("duration_sec", 4.0)) for t in slow_t) / 8.0) + (sum(float(t.get("duration_sec", 0.005)) for t in fast_t) / 16.0)
+                job_est = max(5.0, round(job_est, 1))
+            else:
+                job_est = timings.get(job_name, DEFAULT_JOB_ESTIMATE_SEC)
             batch_sum += job_est
             batch_max = max(batch_max, job_est)
         workers = batch.get("workers", DEFAULT_WORKERS)
@@ -2445,13 +2592,21 @@ def calculate_total_eta(active_batches: list[dict[str, Any]], timings: dict[str,
 
 
 def run_eta_worker(interval_sec: int, total_est_sec: int, start_time: float, stop_event: threading.Event) -> None:
-    """Background worker reporting remaining ETA every interval."""
+    """Background worker reporting remaining ETA every interval and updating live telemetry."""
     while not stop_event.is_set():
         if stop_event.wait(timeout=interval_sec):
             break
         elapsed = time.time() - start_time
-        remaining = max(0, int(total_est_sec - elapsed))
+        remaining = max(1, int(total_est_sec - elapsed))
         print(f"\n[ETA] Estimated remaining time: {remaining} seconds\n", flush=True)
+        if RUNNER_ETA_FILE.is_file():
+            try:
+                eta_data = json.loads(RUNNER_ETA_FILE.read_text(encoding="utf-8"))
+                eta_data["remaining_eta_sec"] = remaining
+                eta_data["elapsed_sec"] = round(elapsed, 1)
+                atomic_write_json(RUNNER_ETA_FILE, eta_data)
+            except Exception:
+                pass
 
 
 def start_eta_reporter(interval_sec: int, total_est_sec: int, stop_event: threading.Event) -> threading.Thread | None:

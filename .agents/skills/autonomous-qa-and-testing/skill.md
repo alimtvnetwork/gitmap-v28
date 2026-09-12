@@ -21,3 +21,5 @@ Executes comprehensive testing, linting verification, and quality gate validatio
 8. **Consolidated Atomic Commits:** NEVER commit 1-2 files piecemeal. Stage all modified files and plans together as a single atomic unit.
 9. **Immediate Push to GitHub:** ALWAYS push immediately to GitHub (`git push origin <branch>`) after creating any commit.
 10. **No Routine Builds:** NEVER run full builds (`npm run build`, `go build ./...`) during routine tasks.
+11. **Temp & Failure Folder Isolation:** All temporary test files, caches, and scratch directories MUST be isolated strictly to `.lovable/temp/`. Never create `.tmp/` at root. Failed tests/gates write logs strictly to `.lovable/temp/failures/<test-or-job>.log`. Passing tests MUST remain completely silent in output logs and produce zero filesystem artifacts.
+12. **In-Flight ETA Wait Protocol:** When executing CI/CD runner or test suites in the background, read remaining ETA from `.lovable/temp/runner-eta.json` and sleep/wait for that duration instead of busy-polling.

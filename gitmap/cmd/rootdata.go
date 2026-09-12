@@ -1,6 +1,7 @@
 package cmd
 
 import (
+	"github.com/alimtvnetwork/gitmap-v28/gitmap/cmdmacro"
 	"github.com/alimtvnetwork/gitmap-v28/gitmap/constants"
 )
 
@@ -66,23 +67,23 @@ func dataDatabaseEntries() []dispatchEntry {
 
 func dataExecutionEntries() []dispatchEntry {
 	return []dispatchEntry{
-		{[]string{"execute", "exec"}, func() error { return runExecuteCmd(argsTail()) }},
-		{[]string{"macro", "m"}, func() error { return runMacroCmd(argsTail()) }},
-		{[]string{"macro-run", "macro-exec"}, func() error { return runExecuteCmd(argsTail()) }},
-		{[]string{"macro-add", "macro-create"}, func() error { return handleMacroAdd(argsTail()) }},
-		{[]string{"macro-edit", "macro-modify"}, func() error { return handleMacroEdit(argsTail()) }},
-		{[]string{"macro-list", "macro-ls"}, func() error { return handleMacroList(argsTail()) }},
-		{[]string{"macro-record", "macro-rec"}, func() error { return handleMacroRecord(argsTail()) }},
-		{[]string{"macro-show"}, func() error { return handleMacroShow(argsTail()) }},
-		{[]string{"macro-rm", "macro-del"}, func() error { return handleMacroDelete(argsTail()) }},
-		{[]string{"macro-export", "macro-exp"}, func() error { return runMacroExport(argsTail()) }},
-		{[]string{"macro-export-all"}, func() error { return runMacroExport(append([]string{"--all"}, argsTail()...)) }},
-		{[]string{"macro-export-single"}, func() error { return runMacroExport(append([]string{"--single"}, argsTail()...)) }},
-		{[]string{"macro-import", "macro-imp"}, func() error { return runMacroImport(argsTail()) }},
-		{[]string{"macro-import-all"}, func() error { return runMacroImport(append([]string{"--all"}, argsTail()...)) }},
-		{[]string{"macro-import-single"}, func() error { return runMacroImport(append([]string{"--single"}, argsTail()...)) }},
-		{[]string{"record", "rec"}, func() error { return runMacroCmd(append([]string{"record"}, argsTail()...)) }},
-		{[]string{"retry", "loop", "until-success"}, func() error { return runMacroUntilSuccess(argsTail()) }},
+		{[]string{"execute", "exec"}, func() error { return cmdmacro.RunExecuteCmd(argsTail()) }},
+		{[]string{"macro", "m"}, func() error { return cmdmacro.RunMacroCmd(argsTail()) }},
+		{[]string{"macro-run", "macro-exec"}, func() error { return cmdmacro.RunExecuteCmd(argsTail()) }},
+		{[]string{"macro-add", "macro-create"}, func() error { return cmdmacro.HandleMacroAdd(argsTail()) }},
+		{[]string{"macro-edit", "macro-modify"}, func() error { return cmdmacro.HandleMacroEdit(argsTail()) }},
+		{[]string{"macro-list", "macro-ls"}, func() error { return cmdmacro.HandleMacroList(argsTail()) }},
+		{[]string{"macro-record", "macro-rec"}, func() error { return cmdmacro.HandleMacroRecord(argsTail()) }},
+		{[]string{"macro-show"}, func() error { return cmdmacro.HandleMacroShow(argsTail()) }},
+		{[]string{"macro-rm", "macro-del"}, func() error { return cmdmacro.HandleMacroDelete(argsTail()) }},
+		{[]string{"macro-export", "macro-exp"}, func() error { return cmdmacro.RunMacroExport(argsTail()) }},
+		{[]string{"macro-export-all"}, func() error { return cmdmacro.RunMacroExport(append([]string{"--all"}, argsTail()...)) }},
+		{[]string{"macro-export-single"}, func() error { return cmdmacro.RunMacroExport(append([]string{"--single"}, argsTail()...)) }},
+		{[]string{"macro-import", "macro-imp"}, func() error { return cmdmacro.RunMacroImport(argsTail()) }},
+		{[]string{"macro-import-all"}, func() error { return cmdmacro.RunMacroImport(append([]string{"--all"}, argsTail()...)) }},
+		{[]string{"macro-import-single"}, func() error { return cmdmacro.RunMacroImport(append([]string{"--single"}, argsTail()...)) }},
+		{[]string{"record", "rec"}, func() error { return cmdmacro.RunMacroCmd(append([]string{"record"}, argsTail()...)) }},
+		{[]string{"retry", "loop", "until-success"}, func() error { return cmdmacro.RunMacroUntilSuccess(argsTail()) }},
 		{[]string{"mv", "move"}, func() error { return runMove(argsTail()) }},
 	}
 }

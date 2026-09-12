@@ -79,7 +79,11 @@ Before writing any source code changes, you MUST execute Phase 1:
    - Rollback dirty changes and write the failure error log to `.lovable/plan.md` and `.lovable/memory/issues/xx-failure.md`.
    - The next subagent spawned MUST read the previous failure log first, record it as a pending memory task, and implement the necessary fix.
 5. **Progress & Completion:** Move completed subtasks to `.lovable/plans/completed/` and update `.lovable/plans/01-index.md`.
+6. **Temp & Failure Directory Isolation:** All temporary files, test outputs, and runner caches MUST be isolated within `.lovable/temp/`. Creating `.tmp/` at root is strictly prohibited.
+   - Dedicated Failure Directory: `.lovable/temp/failures/` is the dedicated folder where failed tests and failed quality gates write error logs (`<test-or-job-name>.log`).
+   - Passing Tests Completely Silent: Passing tests must produce ZERO filesystem artifacts and remain completely silent in output logs.
 7. **Local Verification:** Run targeted linters on modified files and ensure code compiles / passes lint checks with exit code 0 (`exit 0`). DO NOT run the full CI/CD runner (`06-cicd-local-runner.py`) during routine task steps.
+8. **Runner In-Flight ETA Wait Protocol:** When running background commands, the runner writes live status and remaining ETA to `.lovable/temp/runner-eta.json`. If an agent inspects an active background job, it MUST read the remaining duration from `.lovable/temp/runner-eta.json` and sleep/wait for that duration instead of busy-polling.
 
 ---
 
@@ -145,6 +149,8 @@ To guarantee full execution without stopping after planning mode, the master orc
   - Rollback dirty working tree and log error details to `.lovable/plan.md` and `.lovable/memory/issues/xx-failure.md`.
   - The next subagent spawned MUST read the previous failure log first, record it as a pending memory task, and implement the necessary fix.
 - Execute targeted local linters on modified files ensuring `exit 0` before concluding. DO NOT run the full CI/CD pipeline runner (`06-cicd-local-runner.py`) during routine loops.
+- Isolate all temporary test files, caches, and scratch directories within `.lovable/temp/`. Never create `.tmp/` at root. Failed tests/gates write to `.lovable/temp/failures/`; passing tests remain completely silent and produce zero disk files.
+- In-Flight ETA Wait Protocol: When checking background test runners, read remaining ETA from `.lovable/temp/runner-eta.json` and sleep/wait for that duration instead of busy-polling.
 - Record all modified files to `.lovable/temp/recent-file-changes.json` under lock (`python 03-ai-scripts/33-test-inventory-generator.py --record <files...>`).
 
 ## Task Consolidation & File Reduction (End of Loop)

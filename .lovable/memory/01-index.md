@@ -54,6 +54,11 @@ Updated: 2026-04-27
 - [Test Inventory & Atomic File Change Tracking](learned/11-test-inventory-and-atomic-file-change-tracking.md) — Centralized test cataloging, cross-platform locking, and targeted test resolution for releases.
 - [Consolidated Commits, Immediate Push, and Build Rules](learned/12-consolidated-commit-push-and-build-rules.md) — Mandatory atomic commit grouping, immediate remote push, and ban on uncommanded routine builds.
 - [CI Step Timeout Flakiness & Fixture Gofmt Dirtiness RCA](issues/2026-09-12-ci-step-timeout-and-fixture-gofmt-rca.md) — Root cause analysis for macro process timeout and fixrepo fixture gofmt backup filtering.
+- [Unused isHelpArg in cmdvmware RCA](issues/2026-09-12-unused-ishelparg-cmdvmware-rca.md) — Elimination of dead private helper symbol in cmdvmware/vmware.go.
+- [CaptureStderr Pipe Race RCA](issues/2026-09-12-testhelpers-capturestderr-pipe-race-rca.md) — Synchronization and safe pipe draining in cmdchromeprofile/testhelpers_test.go.
+- [Macro Export/Import Nested If RCA](issues/2026-09-12-macro-export-import-nested-if-rca.md) — Guard flattening in cmd/macro_export.go, cmd/macro_import.go, and macro/export.go.
+- [Nuclear Modularization Phase 4 & Heavy Test Isolation](learned/13-nuclear-modularization-phase4.md) — Domain package extraction (cmdmacro, cmdvscode, cmdvhost, cmdzip), strict acyclic DAG, and test inventory duration estimation.
+- [Smart Test Runner, Dual Queue & Temp Isolation](learned/14-smart-test-runner-and-temp-isolation.md) — Directory isolation (.lovable/temp/ vs .tmp/), failure output folder (.lovable/temp/failures/), silent passing tests, dual worker queue architecture (4x2 slow, 4x4 fast in 100-test chunks), and in-flight ETA synchronization.
 
 - [Fast File Indexing & Caching Strategy](standards/05-fast-file-indexing-and-caching.md) — Pre-computed file scanning and index caching in `tmp/` via `08-fast-file-scanner.py` for rapid multi-step lookups.
 - [Prompt Synchronization Architecture](standards/04-prompt-synchronization-architecture.md) — All prompts authored in `01-prompts/` and compiled to flat `01-prompts/*.md` via `scripts/update-prompts.ps1` without external Git clones.

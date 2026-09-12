@@ -22,10 +22,6 @@ func Run(args []string) error {
 	return dispatchVmwareSubcommand(subCmd, args[1:])
 }
 
-func isHelpArg(arg string) bool {
-	return arg == "-h" || arg == "--help" || arg == "help"
-}
-
 func dispatchVmwareSubcommand(subCmd string, rest []string) error {
 	switch subCmd {
 	case constants.SubCmdVmwareShared:

@@ -5,19 +5,26 @@ import (
 	"io"
 	"os"
 	"path/filepath"
+	"sync"
 	"testing"
 )
 
+var stdIOMutex sync.Mutex
+
 func captureStderr(t *testing.T, fn func()) string {
 	t.Helper()
+	stdIOMutex.Lock()
+	defer stdIOMutex.Unlock()
+
 	origStderr := os.Stderr
 	r, w, err := os.Pipe()
 	if err != nil {
 		t.Fatalf("pipe: %v", err)
 	}
+
 	os.Stderr = w
 
-	outC := make(chan string)
+	outC := make(chan string, 1)
 	go func() {
 		var buf bytes.Buffer
 		_, _ = io.Copy(&buf, r)
@@ -27,9 +34,10 @@ func captureStderr(t *testing.T, fn func()) string {
 	fn()
 	_ = w.Close()
 	os.Stderr = origStderr
+	res := <-outC
 	_ = r.Close()
 
-	return <-outC
+	return res
 }
 
 func seedChromeProfileTree(t *testing.T, root string) {

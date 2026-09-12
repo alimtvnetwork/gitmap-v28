@@ -17,6 +17,7 @@ import (
 	"bytes"
 	"io"
 	"os"
+	"strings"
 	"sync"
 	"testing"
 )
@@ -90,4 +91,22 @@ func captureStdoutForTest(t *testing.T, fn func()) string {
 	})
 
 	return out
+}
+
+func assertContains(t *testing.T, content, substr string) {
+	t.Helper()
+	hasMatch := strings.Contains(content, substr)
+	if hasMatch {
+		return
+	}
+
+	t.Errorf("expected content to contain %q", substr)
+}
+
+func assertNotContains(t *testing.T, content, substr string) {
+	t.Helper()
+	hasSub := strings.Contains(content, substr)
+	if hasSub {
+		t.Errorf("expected content NOT to contain %q", substr)
+	}
 }
