@@ -20,13 +20,16 @@ type SourceHandle struct {
 	IsFreshlyInit bool
 }
 
-// SourceKind enumerates spec §2.3 cases. PascalCase per Core memory
+// SourceKindType enumerates spec §2.3 cases. PascalCase per Core memory
 // rules; literal strings live in this file (single use site).
-type SourceKind uint8
+type SourceKindType uint8
+
+// SourceKind is a backward-compatible alias for SourceKindType.
+type SourceKind = SourceKindType
 
 const (
 	// SourceKindCloned is spec §2.3 case 1: URL → git clone.
-	SourceKindCloned SourceKind = iota + 1
+	SourceKindCloned SourceKindType = iota + 1
 	// SourceKindExistingRepo is spec §2.3 case 2: dir w/ .git → reuse.
 	SourceKindExistingRepo
 	// SourceKindInitInPlace is spec §2.3 case 3: dir w/o .git → git init.

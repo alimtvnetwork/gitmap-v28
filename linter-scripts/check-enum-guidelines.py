@@ -24,6 +24,7 @@ TS_ENUM_MISSING_TYPE = re.compile(r'^\s*(?:export\s+)?enum\s+([A-Z]\w*?)(?<!Type
 TS_CONST_ENUM_MISSING_TYPE = re.compile(r'^\s*(?:export\s+)?const\s+([A-Z]\w*?)(?<!Type)\s*=\s*\{.*?\}\s*as\s+const', re.DOTALL)
 PY_ENUM_MISSING_TYPE = re.compile(r'^\s*class\s+([A-Z]\w*?)(?<!Type)\s*\((?:StrEnum|IntEnum|Enum)\)\s*:')
 RAW_RUNE_NUM_CAST = re.compile(r'\brune\s*\(\s*(?:10|13|0|\d+)\s*\)')
+GO_ENUM_TYPE_DEF = re.compile(r'^\s*type\s+([A-Z]\w*?)(?<!Type)\s+(?:string|int|int8|int16|int32|int64|uint|uint8|uint16|uint32|uint64|byte)\b')
 
 
 def check_file(filepath: Path) -> list[str]:
@@ -36,13 +37,18 @@ def check_file(filepath: Path) -> list[str]:
     rel_path = filepath.relative_to(ROOT_DIR).as_posix()
     lines = content.split('\n')
 
-    # Check for raw rune number casts (e.g. rune(10))
+    # Check for raw rune number casts and Go enums missing *Type suffix
     if filepath.suffix == '.go':
         for idx, line in enumerate(lines, 1):
             if line.strip().startswith(('//', '/*', '*')):
                 continue
             if RAW_RUNE_NUM_CAST.search(line):
                 violations.append(f"{rel_path}:{idx} Raw rune numerical cast found: {line.strip()[:80]}")
+            m = GO_ENUM_TYPE_DEF.search(line)
+            if m:
+                tname = m.group(1)
+                if re.search(rf'\b{tname}\b\s*=\s*(?:iota|")', content):
+                    violations.append(f"{rel_path}:{idx} Go enum '{tname}' missing mandatory 'Type' suffix")
 
     # Check for TypeScript Enums missing *Type suffix
     if filepath.suffix in ('.ts', '.tsx'):

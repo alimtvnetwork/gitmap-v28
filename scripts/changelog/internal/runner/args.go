@@ -7,14 +7,17 @@ import (
 	"fmt"
 )
 
-// Mode selects between regeneration and CI drift detection.
-type Mode string
+// ModeType selects between regeneration and CI drift detection.
+type ModeType string
+
+// Mode is a backward-compatible alias for ModeType.
+type Mode = ModeType
 
 const (
 	// ModeWrite overwrites the on-disk changelog files.
-	ModeWrite Mode = "write"
+	ModeWrite ModeType = "write"
 	// ModeCheck regenerates into memory and exits non-zero on drift.
-	ModeCheck Mode = "check"
+	ModeCheck ModeType = "check"
 )
 
 // Args is the parsed CLI surface for the changelog command. Bundled

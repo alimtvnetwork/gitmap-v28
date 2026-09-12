@@ -12,14 +12,14 @@ package commitin
 import "github.com/alimtvnetwork/gitmap-v28/cli/constants"
 
 // ---- ConflictMode -------------------------------------------------
-type ConflictMode uint8
+type ConflictModeType uint8
 
 const (
-	ConflictModeForceMerge ConflictMode = iota + 1
+	ConflictModeForceMerge ConflictModeType = iota + 1
 	ConflictModePrompt
 )
 
-func (m ConflictMode) String() string {
+func (m ConflictModeType) String() string {
 	switch m {
 	case ConflictModeForceMerge:
 		return constants.CommitInConflictModeForceMerge
@@ -30,20 +30,20 @@ func (m ConflictMode) String() string {
 	return ""
 }
 
-func AllConflictModes() []ConflictMode {
-	return []ConflictMode{ConflictModeForceMerge, ConflictModePrompt}
+func AllConflictModes() []ConflictModeType {
+	return []ConflictModeType{ConflictModeForceMerge, ConflictModePrompt}
 }
 
 // ---- InputKind ----------------------------------------------------
-type InputKind uint8
+type InputKindType uint8
 
 const (
-	InputKindLocalFolder InputKind = iota + 1
+	InputKindLocalFolder InputKindType = iota + 1
 	InputKindGitUrl
 	InputKindVersionedSibling
 )
 
-func (k InputKind) String() string {
+func (k InputKindType) String() string {
 	switch k {
 	case InputKindLocalFolder:
 		return constants.CommitInInputKindLocalFolder
@@ -56,22 +56,22 @@ func (k InputKind) String() string {
 	return ""
 }
 
-func AllInputKinds() []InputKind {
-	return []InputKind{InputKindLocalFolder, InputKindGitUrl, InputKindVersionedSibling}
+func AllInputKinds() []InputKindType {
+	return []InputKindType{InputKindLocalFolder, InputKindGitUrl, InputKindVersionedSibling}
 }
 
 // ---- RunStatus ----------------------------------------------------
-type RunStatus uint8
+type RunStatusType uint8
 
 const (
-	RunStatusPending RunStatus = iota + 1
+	RunStatusPending RunStatusType = iota + 1
 	RunStatusRunning
 	RunStatusCompleted
 	RunStatusFailed
 	RunStatusPartiallyFailed
 )
 
-func (s RunStatus) String() string {
+func (s RunStatusType) String() string {
 	switch s {
 	case RunStatusPending:
 		return constants.CommitInRunStatusPending
@@ -88,20 +88,20 @@ func (s RunStatus) String() string {
 	return ""
 }
 
-func AllRunStatuses() []RunStatus {
-	return []RunStatus{RunStatusPending, RunStatusRunning, RunStatusCompleted, RunStatusFailed, RunStatusPartiallyFailed}
+func AllRunStatuses() []RunStatusType {
+	return []RunStatusType{RunStatusPending, RunStatusRunning, RunStatusCompleted, RunStatusFailed, RunStatusPartiallyFailed}
 }
 
 // ---- CommitOutcome ------------------------------------------------
-type CommitOutcome uint8
+type CommitOutcomeType uint8
 
 const (
-	CommitOutcomeCreated CommitOutcome = iota + 1
+	CommitOutcomeCreated CommitOutcomeType = iota + 1
 	CommitOutcomeSkipped
 	CommitOutcomeFailed
 )
 
-func (o CommitOutcome) String() string {
+func (o CommitOutcomeType) String() string {
 	switch o {
 	case CommitOutcomeCreated:
 		return constants.CommitInOutcomeCreated
@@ -114,21 +114,21 @@ func (o CommitOutcome) String() string {
 	return ""
 }
 
-func AllCommitOutcomes() []CommitOutcome {
-	return []CommitOutcome{CommitOutcomeCreated, CommitOutcomeSkipped, CommitOutcomeFailed}
+func AllCommitOutcomes() []CommitOutcomeType {
+	return []CommitOutcomeType{CommitOutcomeCreated, CommitOutcomeSkipped, CommitOutcomeFailed}
 }
 
 // ---- SkipReason ---------------------------------------------------
-type SkipReason uint8
+type SkipReasonType uint8
 
 const (
-	SkipReasonDuplicateSourceSha SkipReason = iota + 1
+	SkipReasonDuplicateSourceSha SkipReasonType = iota + 1
 	SkipReasonExcludedAllFiles
 	SkipReasonEmptyAfterMessageRules
 	SkipReasonDryRun
 )
 
-func (r SkipReason) String() string {
+func (r SkipReasonType) String() string {
 	switch r {
 	case SkipReasonDuplicateSourceSha:
 		return constants.CommitInSkipReasonDuplicateSourceSha
@@ -143,19 +143,19 @@ func (r SkipReason) String() string {
 	return ""
 }
 
-func AllSkipReasons() []SkipReason {
-	return []SkipReason{SkipReasonDuplicateSourceSha, SkipReasonExcludedAllFiles, SkipReasonEmptyAfterMessageRules, SkipReasonDryRun}
+func AllSkipReasons() []SkipReasonType {
+	return []SkipReasonType{SkipReasonDuplicateSourceSha, SkipReasonExcludedAllFiles, SkipReasonEmptyAfterMessageRules, SkipReasonDryRun}
 }
 
 // ---- ExclusionKind ------------------------------------------------
-type ExclusionKind uint8
+type ExclusionKindType uint8
 
 const (
-	ExclusionKindPathFolder ExclusionKind = iota + 1
+	ExclusionKindPathFolder ExclusionKindType = iota + 1
 	ExclusionKindPathFile
 )
 
-func (k ExclusionKind) String() string {
+func (k ExclusionKindType) String() string {
 	switch k {
 	case ExclusionKindPathFolder:
 		return constants.CommitInExclusionKindPathFolder
@@ -166,20 +166,20 @@ func (k ExclusionKind) String() string {
 	return ""
 }
 
-func AllExclusionKinds() []ExclusionKind {
-	return []ExclusionKind{ExclusionKindPathFolder, ExclusionKindPathFile}
+func AllExclusionKinds() []ExclusionKindType {
+	return []ExclusionKindType{ExclusionKindPathFolder, ExclusionKindPathFile}
 }
 
 // ---- MessageRuleKind ----------------------------------------------
-type MessageRuleKind uint8
+type MessageRuleKindType uint8
 
 const (
-	MessageRuleKindStartsWith MessageRuleKind = iota + 1
+	MessageRuleKindStartsWith MessageRuleKindType = iota + 1
 	MessageRuleKindEndsWith
 	MessageRuleKindContains
 )
 
-func (k MessageRuleKind) String() string {
+func (k MessageRuleKindType) String() string {
 	switch k {
 	case MessageRuleKindStartsWith:
 		return constants.CommitInMessageRuleKindStartsWith
@@ -192,15 +192,15 @@ func (k MessageRuleKind) String() string {
 	return ""
 }
 
-func AllMessageRuleKinds() []MessageRuleKind {
-	return []MessageRuleKind{MessageRuleKindStartsWith, MessageRuleKindEndsWith, MessageRuleKindContains}
+func AllMessageRuleKinds() []MessageRuleKindType {
+	return []MessageRuleKindType{MessageRuleKindStartsWith, MessageRuleKindEndsWith, MessageRuleKindContains}
 }
 
 // ---- FunctionIntelLanguage ----------------------------------------
-type FunctionIntelLanguage uint8
+type FunctionIntelLanguageType uint8
 
 const (
-	LanguageGo FunctionIntelLanguage = iota + 1
+	LanguageGo FunctionIntelLanguageType = iota + 1
 	LanguageJavaScript
 	LanguageTypeScript
 	LanguageRust
@@ -210,7 +210,7 @@ const (
 	LanguageCSharp
 )
 
-func (l FunctionIntelLanguage) String() string {
+func (l FunctionIntelLanguageType) String() string {
 	switch l {
 	case LanguageGo:
 		return constants.CommitInLanguageGo
@@ -233,18 +233,18 @@ func (l FunctionIntelLanguage) String() string {
 	return ""
 }
 
-func AllLanguages() []FunctionIntelLanguage {
-	return []FunctionIntelLanguage{LanguageGo, LanguageJavaScript, LanguageTypeScript, LanguageRust, LanguagePython, LanguagePhp, LanguageJava, LanguageCSharp}
+func AllLanguages() []FunctionIntelLanguageType {
+	return []FunctionIntelLanguageType{LanguageGo, LanguageJavaScript, LanguageTypeScript, LanguageRust, LanguagePython, LanguagePhp, LanguageJava, LanguageCSharp}
 }
 
-// Type aliases for strict coding guideline compliance (*Type suffix).
+// Backward-compatible type aliases.
 type (
-	ConflictModeType          = ConflictMode
-	InputKindType             = InputKind
-	RunStatusType             = RunStatus
-	CommitOutcomeType         = CommitOutcome
-	SkipReasonType            = SkipReason
-	ExclusionKindType         = ExclusionKind
-	MessageRuleKindType       = MessageRuleKind
-	FunctionIntelLanguageType = FunctionIntelLanguage
+	ConflictMode          = ConflictModeType
+	InputKind             = InputKindType
+	RunStatus             = RunStatusType
+	CommitOutcome         = CommitOutcomeType
+	SkipReason            = SkipReasonType
+	ExclusionKind         = ExclusionKindType
+	MessageRuleKind       = MessageRuleKindType
+	FunctionIntelLanguage = FunctionIntelLanguageType
 )

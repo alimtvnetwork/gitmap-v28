@@ -8,6 +8,7 @@ None
 
 ## Completed Plans (Consolidated Milestones)
 
+- [140-constants-and-enums-architecture.md](completed/140-constants-and-enums-architecture.md): Constants & Enums Architecture Audit (*Type Suffix & Rune Cast Elimination)
 - [139-nested-if-elimination-and-guard-clauses.md](completed/139-nested-if-elimination-and-guard-clauses.md): Nested If Elimination & Guard Clauses Coding Guideline Audit
 - [138-result-wrapper-types-and-apperror-returns.md](completed/138-result-wrapper-types-and-apperror-returns.md): Result Wrapper Types, Collections & AppError Returns Coding Guideline Audit
 - [137-repo-scoped-temp-storage-and-prebuild-clean-audit.md](completed/137-repo-scoped-temp-storage-and-prebuild-clean-audit.md): Repository-Scoped Temp Storage & Mandatory Pre-Build Cleanup Audit
