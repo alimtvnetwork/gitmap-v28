@@ -13,6 +13,7 @@ import (
 	"github.com/alimtvnetwork/gitmap-v28/cli/apperror"
 	"github.com/alimtvnetwork/gitmap-v28/cli/cmdcg"
 	"github.com/alimtvnetwork/gitmap-v28/cli/cmdchrome"
+	"github.com/alimtvnetwork/gitmap-v28/cli/cmdclone"
 	"github.com/alimtvnetwork/gitmap-v28/cli/cmddb"
 	"github.com/alimtvnetwork/gitmap-v28/cli/cmdfixgit"
 	"github.com/alimtvnetwork/gitmap-v28/cli/cmdfixrepo"
@@ -20,15 +21,16 @@ import (
 	"github.com/alimtvnetwork/gitmap-v28/cli/cmdinstaller"
 	"github.com/alimtvnetwork/gitmap-v28/cli/cmdmacro"
 	"github.com/alimtvnetwork/gitmap-v28/cli/cmdpipeline"
+	"github.com/alimtvnetwork/gitmap-v28/cli/cmdpull"
 	"github.com/alimtvnetwork/gitmap-v28/cli/cmdsetup"
 	"github.com/alimtvnetwork/gitmap-v28/cli/cmdssh"
+	"github.com/alimtvnetwork/gitmap-v28/cli/cmdupdate"
 	"github.com/alimtvnetwork/gitmap-v28/cli/cmdvhost"
 	"github.com/alimtvnetwork/gitmap-v28/cli/cmdvscode"
 	"github.com/alimtvnetwork/gitmap-v28/cli/cmdzip"
 	"github.com/alimtvnetwork/gitmap-v28/cli/constants"
 	"github.com/alimtvnetwork/gitmap-v28/cli/macro"
 	"github.com/alimtvnetwork/gitmap-v28/cli/model"
-	"github.com/alimtvnetwork/gitmap-v28/cli/vscodepm"
 	"github.com/spf13/cobra"
 )
 
@@ -39,6 +41,11 @@ func isTerminalInput() bool {
 	}
 
 	return (stat.Mode() & os.ModeCharDevice) != 0
+}
+
+func isExistingFile(path string) bool {
+	info, err := os.Stat(path)
+	return err == nil && !info.IsDir()
 }
 
 func isFileFlagWithArg(arg string) bool {
@@ -124,28 +131,12 @@ func syncRecordsToVSCodePM(records []model.ScanRecord, noVSCodeSync, noAutoTags 
 	cmdvscode.SyncRecordsToVSCodePM(records, noVSCodeSync, noAutoTags)
 }
 
-func syncClonedReposToVSCodePM(pairs []vscodepm.Pair, skip bool) {
-	cmdvscode.SyncClonedReposToVSCodePM(pairs, skip)
-}
-
-func syncSingleClonedRepoToVSCodePM(absPath, repoName string, skip bool) {
-	cmdvscode.SyncSingleClonedRepoToVSCodePM(absPath, repoName, skip)
-}
-
-func buildClonePMPair(absPath, repoName string) vscodepm.Pair {
-	return cmdvscode.BuildClonePMPair(absPath, repoName)
-}
-
 func reportVSCodePMSoftError(err error) {
 	cmdvscode.ReportVSCodePMSoftError(err)
 }
 
 func renameVSCodePMByPath(absPath, newName string) {
 	cmdvscode.RenameVSCodePMByPath(absPath, newName)
-}
-
-func printVSCodeOptimizeResult(s vscodepm.OptimizeSummary, isDryRun bool) {
-	cmdvscode.PrintVSCodeOptimizeResult(s, isDryRun)
 }
 
 func runGitHubDesktopGroup(args []string) error {
@@ -158,10 +149,6 @@ func stripVSCodeSyncDisabledFlag(args []string) []string {
 
 func stripVSCodeTagFlags(args []string) []string {
 	return cmdvscode.StripVSCodeTagFlags(args)
-}
-
-func applyDebugPathsEnv(isOn bool) {
-	cmdvscode.ApplyDebugPathsEnv(isOn)
 }
 
 func runVHost(args []string) error {
@@ -628,6 +615,158 @@ func runInstallCommand(args []string, opts installOptions) error {
 	return cmdinstall.RunInstallCommand(args, opts)
 }
 
+func runUpdate() error {
+	return cmdupdate.RunUpdate()
+}
+
+func runUpdateCleanup() error {
+	return cmdupdate.RunUpdateCleanup()
+}
+
+func runUpdateRunner() error {
+	return cmdupdate.RunUpdateRunner()
+}
+
+func scheduleDeployedCleanupHandoff() {
+	cmdupdate.ScheduleDeployedCleanupHandoff()
+}
+
+func initRunnerVerbose() {
+	cmdupdate.InitRunnerVerbose()
+}
+
+func expandTilde(path string) string {
+	return cmdupdate.ExpandTilde(path)
+}
+
+func createHandoffCopy(selfPath string) string {
+	return cmdupdate.CreateHandoffCopy(selfPath)
+}
+
+func hasFlag(flagName string) bool {
+	return cmdupdate.HasFlag(flagName)
+}
+
+func handleHandoffError(err error) {
+	cmdupdate.HandleHandoffError(err)
+}
+
+func writeScriptToTemp(script string) (string, error) {
+	return cmdupdate.WriteScriptToTemp(script)
+}
+
+func normalizeRepoPath(path string) string {
+	return cmdupdate.NormalizeRepoPath(path)
+}
+
+func saveRepoPathToDB(path string) {
+	cmdupdate.SaveRepoPathToDB(path)
+}
+
+func runPull(args []string) error {
+	return cmdpull.RunPull(args)
+}
+
+func runPullAll(args []string) error {
+	return cmdpull.RunPullAll(args)
+}
+
+func runPullReleaseCD(args []string) error {
+	return cmdpull.RunPullReleaseCD(args)
+}
+
+func runPush(args []string) error {
+	return cmdpull.RunPush(args)
+}
+
+func findBySlug(records []model.ScanRecord, slug string) []model.ScanRecord {
+	return cmdpull.FindBySlug(records, slug)
+}
+
+func isGitRepoCWD() bool {
+	return cmdpull.IsGitRepoCWD()
+}
+
+func pullOneRepo(rec model.ScanRecord) {
+	cmdpull.PullOneRepo(rec)
+}
+
+func ResolvePullDirectoryTargets(dirPath string) []model.ScanRecord {
+	return cmdpull.ResolvePullDirectoryTargets(dirPath)
+}
+
+func ExtractTransportFlags(args []string) (bool, bool, []string) {
+	return cmdpull.ExtractTransportFlags(args)
+}
+
+func repoNameFromURL(rawURL string) string {
+	return cmdclone.RepoNameFromURL(rawURL)
+}
+
+func extractRepoName(rawURL string) string {
+	return cmdclone.ExtractRepoName(rawURL)
+}
+
+func resolveCloneNextFolder(token string) (string, error) {
+	return cmdclone.ResolveCloneNextFolder(token)
+}
+
+func openInVSCode(absPath string) {
+	cmdclone.OpenInVSCode(absPath)
+}
+
+func registerSingleDesktop(name, absPath string) {
+	cmdclone.RegisterSingleDesktop(name, absPath)
+}
+
+func runClone(args []string) error {
+	return cmdclone.RunClone(args)
+}
+
+func runCloneFixRepo(args []string) error {
+	return cmdclone.RunCloneFixRepo(args)
+}
+
+func runCloneFixRepoPub(args []string) error {
+	return cmdclone.RunCloneFixRepoPub(args)
+}
+
+func runCloneFrom(args []string) error {
+	return cmdclone.RunCloneFrom(args)
+}
+
+func runCloneNext(args []string) error {
+	return cmdclone.RunCloneNext(args)
+}
+
+func runCloneNow(args []string) error {
+	return cmdclone.RunCloneNow(args)
+}
+
+func runClonePick(args []string) error {
+	return cmdclone.RunClonePick(args)
+}
+
+func runCloneSync() error {
+	return cmdclone.RunCloneSync()
+}
+
+func ConvertURLToSSH(rawURL string) (string, bool) {
+	return cmdclone.ConvertURLToSSH(rawURL)
+}
+
+func ConvertURLToHTTPS(rawURL string) (string, bool) {
+	return cmdclone.ConvertURLToHTTPS(rawURL)
+}
+
+func ResolveCloneFixRepoName(absPath string) string {
+	return cmdclone.ResolveCloneFixRepoName(absPath)
+}
+
+func RunRepoReclone(target string, yes bool) error {
+	return cmdclone.RunRepoReclone(target, yes)
+}
+
 func init() {
 	cmdssh.JoinRunner = runJoin
 	cmdssh.ProfileRunner = runProfile
@@ -655,4 +794,81 @@ func init() {
 	}
 	cmdchrome.CheckHelpFn = checkHelp
 	cmdinstall.CheckHelpFn = checkHelp
+
+	cmdupdate.RunPostUpdateMigrateFn = runPostUpdateMigrate
+	cmdupdate.RequireOnlineFn = requireOnline
+	cmdupdate.ResolveDeployedAndConfigPathsFn = resolveDeployedAndConfigPaths
+	cmdupdate.PrintGitmapIdentityBlockLongFn = printGitmapIdentityBlockLong
+
+	cmdpull.LoadAllRecordsDBFn = loadAllRecordsDB
+	cmdpull.LoadRecordsByGroupFn = loadRecordsByGroup
+	cmdpull.CreatePendingTaskFn = createPendingTask
+	cmdpull.CompletePendingTaskFn = completePendingTask
+	cmdpull.FailPendingTaskFn = failPendingTask
+	cmdpull.RequireOnlineFn = requireOnline
+	cmdpull.CheckHelpFn = checkHelp
+	cmdpull.ApplyTransportFlagFn = ApplyTransportFlag
+	cmdpull.HasAliasFn = HasAlias
+	cmdpull.GetAliasSlugFn = GetAliasSlug
+	cmdpull.GetAliasPathFn = GetAliasPath
+	cmdpull.RunStatusFn = runStatus
+	cmdpull.PrintRemediationSummaryNoPromptFn = func(items []cmdpull.RemediationItem) {
+		cmdItems := make([]RemediationItem, len(items))
+		for i, it := range items {
+			cmdItems[i] = RemediationItem{
+				RepoPath:      it.RepoPath,
+				RepoName:      it.RepoName,
+				SummaryReason: it.SummaryReason,
+				Recipes:       it.Recipes,
+				Files:         it.Files,
+			}
+		}
+		PrintRemediationSummaryNoPrompt(cmdItems)
+	}
+	cmdpull.PrintRemediationSummaryAutoFixFn = func(items []cmdpull.RemediationItem) {
+		cmdItems := make([]RemediationItem, len(items))
+		for i, it := range items {
+			cmdItems[i] = RemediationItem{
+				RepoPath:      it.RepoPath,
+				RepoName:      it.RepoName,
+				SummaryReason: it.SummaryReason,
+				Recipes:       it.Recipes,
+				Files:         it.Files,
+			}
+		}
+		PrintRemediationSummaryAutoFix(cmdItems)
+	}
+	cmdpull.PrintRemediationSummaryFn = func(items []cmdpull.RemediationItem) {
+		cmdItems := make([]RemediationItem, len(items))
+		for i, it := range items {
+			cmdItems[i] = RemediationItem{
+				RepoPath:      it.RepoPath,
+				RepoName:      it.RepoName,
+				SummaryReason: it.SummaryReason,
+				Recipes:       it.Recipes,
+				Files:         it.Files,
+			}
+		}
+		PrintRemediationSummary(cmdItems)
+	}
+
+	cmdclone.CreatePendingTaskFn = createPendingTask
+	cmdclone.CompletePendingTaskFn = completePendingTask
+	cmdclone.FailPendingTaskFn = failPendingTask
+	cmdclone.RequireOnlineFn = requireOnline
+	cmdclone.CheckHelpFn = checkHelp
+	cmdclone.WriteShellHandoffFn = WriteShellHandoff
+	cmdclone.EscapeCwdIfInsideFn = escapeCwdIfInside
+	cmdclone.FinalizeErrorReportFn = finalizeErrorReport
+	cmdclone.RunCodingGuidelinesInstallFn = func(dir string) error {
+		return RunCodingGuidelinesInstall(CodingGuidelinesOpts{WorkingDir: dir})
+	}
+	cmdclone.CommitCodingGuidelinesFn = func(dir string, noCommit, noPush bool) error {
+		return CommitCodingGuidelines(CGCommitOpts{WorkingDir: dir, NoCommit: noCommit, NoPush: noPush})
+	}
+	cmdclone.RunCFRPPriorVersionPrivatizeFn = runCFRPPriorVersionPrivatize
+	cmdclone.RunGitHubDesktopOptimizeFn = runGitHubDesktopOptimize
+	cmdclone.ResolveEndpointStringFn = resolveEndpointString
+	cmdclone.ResolveReleaseAliasPathFn = resolveReleaseAliasPath
+	cmdclone.RunStatusFn = runStatus
 }

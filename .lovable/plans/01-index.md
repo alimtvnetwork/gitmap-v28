@@ -4,10 +4,12 @@ Master directory of architectural and execution plans.
 
 ## Pending Plans
 
-- [130-nuclear-package-modularization-phase7.md](pending/130-nuclear-package-modularization-phase7.md): Nuclear Package Modularization (Phase 7), Heavy Test Isolation & Test Inventory Duration Estimation
+*None currently pending.*
 
 ## Completed Plans (Consolidated Milestones)
 
+- [131-nuclear-package-modularization-phase8.md](completed/131-nuclear-package-modularization-phase8.md): Nuclear Package Modularization (cmdclone, cmdupdate, cmdpull), Heavy Test Isolation & Test Inventory Duration Estimation
+- [130-nuclear-package-modularization-phase7.md](completed/130-nuclear-package-modularization-phase7.md): Nuclear Package Modularization (cmdinstaller, cmdchrome, cmdsetup, cmdinstall), Heavy Test Isolation & Test Inventory Duration Estimation
 - [129-smart-test-runner-and-eta-sleep-sync.md](completed/129-smart-test-runner-and-eta-sleep-sync.md): Smart Test Runner, Dual-Queue Worker Pools, and Dynamic ETA Sleep Protocol Synchronization
 - [128-rename-gitmap-to-cli-and-cleanup.md](completed/128-rename-gitmap-to-cli-and-cleanup.md): Remove gitmap.json, Rename Folder References to cli & cli-updater, and Fix Paths
 - [127-smart-test-runner-and-inventory-v2.md](completed/127-smart-test-runner-and-inventory-v2.md): Smart Test Runner, Centralized Inventory V2, Failure Isolation & Dual-Queue Dispatch
