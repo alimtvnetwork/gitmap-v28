@@ -115,8 +115,8 @@ When a chunk of tasks is completed by the agents, do the following before starti
 1. Use `mv` to move the completed task files from `.lovable/plans/pending/` to `.lovable/plans/completed/`.
 2. Open the moved files and change `Status: pending` to `Status: completed`.
 3. Update `.lovable/plans/01-index.md` to reflect the new file locations.
-4. Artifact sanitizer: Audit staged files. Purge unapproved artifact zip archives, temporary scratch files, or test outputs before committing.
-5. Lovable git history guard: Run local tests (no live API calls). Commit code with a clear descriptive message. Never rewrite published git history (no force push, no rebasing, no squash). Push to git cleanly without failure.
+4. Artifact sanitizer: Audit staged files. Purge unapproved artifact zip archives, temporary scratch files, or test outputs before committing. All runner temp artifacts and failure logs belong in `.lovable/temp/failures/`; passing tests produce zero filesystem artifacts and remain silent.
+5. Smart Test Runner & Lovable git history guard: If testing is required, utilize the centralized test inventory (`.lovable/test-inventory.json`) with dual-queue workers (slow: 4w x 2 tests; fast: 4w x 4 tests in 100-test chunks). When tests run, AI agents read `.lovable/temp/runner-eta.json` and sleep for the estimated duration rather than burning tokens in active loops. Commit code with a clear descriptive message. Never rewrite published git history (no force push, no rebasing, no squash). Push to git cleanly without failure.
 
 ## Phase 5: Output Window Stats (Mandatory Every Loop)
 

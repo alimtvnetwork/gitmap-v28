@@ -77,6 +77,8 @@ Before doing anything else, you MUST write a highly detailed execution spec.
 - [ ] Formatting & Acronyms: Spacing rules are strictly followed. Acronyms are strictly PascalCase (`SwapIpWindows` not `SwapIPWindows`).
 - [ ] Temp & Failure Folder Isolation: All temporary test files, caches, and runner artifacts are isolated within `.lovable/temp/`. Never create `.tmp/` at root. Failed tests/gates write to `.lovable/temp/failures/`; passing tests remain completely silent and produce zero disk files.
 - [ ] Runner In-Flight ETA Wait Protocol: When executing or checking background runners/tests (with runner heartbeats every 25 seconds), agents MUST sleep/wait for 1 minute (60s) each time, or dynamically sleep for the remaining ETA duration read from `.lovable/temp/runner-eta.json` (or based on previous total approximate delay) instead of busy-polling.
+- [ ] Centralized Test Inventory & Incremental Caching: All unit tests are cataloged in `.lovable/test-inventory.json` with strictly repository-relative paths (`target_file`, `test_file`). First run profiles all tests for baseline timings; subsequent runs execute incrementally only when target code or test files change. Slow test threshold defaults to `4.0s` (`GITMAP_SLOW_TEST_THRESHOLD`).
+- [ ] Dual-Queue Worker Pools: Slow tests run in a dedicated 4-worker pool running at most 2 tests at a time per batch. Fast tests run in a 4-worker pool running at most 4 tests at a time, pulling in chunks of 100 tests from the test inventory queue until all are complete.
 - [ ] Fast-forward commits created and pushed without rewriting published git history.
 - [ ] Continuous loop maintained; only pausing to ask for "continue" on critical unrecoverable failures.
 

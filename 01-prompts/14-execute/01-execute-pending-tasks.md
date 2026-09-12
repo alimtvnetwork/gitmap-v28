@@ -120,8 +120,8 @@ At the end of every single iteration of your execution loop:
 
 0. Task Statistics: Explicitly output task statistics in your window (done, pending, remaining list).
 
-1. Artifact sanitizer: Audit working tree and staged files. Ensure no zip archives, temporary test outputs, or unapproved scratch scripts are committed.
-2. Run tests and builds: Ensure code runs standalone locally and in CI/CD. Run full builds and unit test suites.
+1. Artifact sanitizer: Audit working tree and staged files. Ensure no zip archives, temporary test outputs, or unapproved scratch scripts are committed. All temporary runner artifacts and error logs belong strictly in `.lovable/temp/failures/`; passing tests produce zero filesystem files and remain completely silent.
+2. Smart Test Runner & Verification: When running tests, utilize the centralized test inventory (`.lovable/test-inventory.json`) with dual-queue workers (slow: 4w x 2 tests; fast: 4w x 4 tests in 100-test chunks). AI agents read `.lovable/temp/runner-eta.json` and sleep for the estimated duration rather than burning tokens in active loops.
 3. Lovable git history guard: Group similar code changes into a single commit with a clear, descriptive message. Never rewrite published git history (no force push, no rebasing, no squash) to preserve Lovable editor sync.
 4. Push every commit to the remote git repository.
 5. Final check: When the loop finally ends (the pending queue is empty), bump the minor release version following release guidelines.

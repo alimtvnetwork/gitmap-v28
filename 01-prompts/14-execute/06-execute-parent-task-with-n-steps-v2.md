@@ -51,7 +51,10 @@ PHASE_2_STEPS = N / 2   (Parallel Execution & QA)
 2. **Execution & Coding Guidelines:** Subagents refactor code following all coding guidelines (<= 8–15 line functions, single return types, Unix LF line endings).
 3. **Failure Memory & Error Recovery:** If a subagent fails, record the failure log in `.lovable/plan.md` and `.lovable/memory/issues/xx-failure.md`; subsequent agents MUST read the failure log first to remediate root causes.
 4. **Atomic Change Tracking:** Append all modified files to `.lovable/temp/recent-file-changes.json` under lock (`python 03-ai-scripts/33-test-inventory-generator.py --record <files...>`), mapping to associated tests in `.lovable/test-inventory.json`.
-7. **Local Verification:** Run targeted linters on modified files and ensure code compiles / passes lint checks with exit code 0 (`exit 0`). DO NOT run the full CI/CD runner (`06-cicd-local-runner.py`) during routine task steps.
+5. **Temp & Failure Folder Isolation:** All temporary test files and outputs must be strictly in `.lovable/temp/`. Failed tests write error logs to `.lovable/temp/failures/<test-id>.log`. Passing tests must be 100% silent (zero filesystem files, zero log lines).
+6. **Dual-Queue Worker Pools:** Slow tests (>= 4.0s, configurable via `GITMAP_SLOW_TEST_THRESHOLD`) run with 4 workers at most 2 tests per batch. Fast tests (< 4.0s) run with 4 workers at most 4 tests per batch, pulling in 100-test chunks from the inventory queue.
+7. **Dynamic ETA Sleep Protocol:** The AI agent reads `.lovable/temp/runner-eta.json` to sleep for the estimated duration rather than burning tokens in active loops. If the runner is still active upon waking, the agent re-checks remaining ETA and sleeps again.
+8. **Local Verification:** Run targeted linters on modified files and ensure code compiles / passes lint checks with exit code 0 (`exit 0`). DO NOT run the full CI/CD runner (`06-cicd-local-runner.py`) during routine task steps unless explicitly commanded by the repository owner.
 
 ### Phase 3: Task Consolidation & File Reduction (End of Loop)
 

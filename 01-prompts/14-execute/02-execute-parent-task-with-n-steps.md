@@ -82,8 +82,10 @@ Before writing any source code changes, you MUST execute Phase 1:
 6. **Temp & Failure Directory Isolation:** All temporary files, test outputs, and runner caches MUST be isolated within `.lovable/temp/`. Creating `.tmp/` at root is strictly prohibited.
    - Dedicated Failure Directory: `.lovable/temp/failures/` is the dedicated folder where failed tests and failed quality gates write error logs (`<test-or-job-name>.log`).
    - Passing Tests Completely Silent: Passing tests must produce ZERO filesystem artifacts and remain completely silent in output logs.
-7. **Local Verification:** Run targeted linters on modified files and ensure code compiles / passes lint checks with exit code 0 (`exit 0`). DO NOT run the full CI/CD runner (`06-cicd-local-runner.py`) during routine task steps.
+7. **Local Verification:** Run targeted linters on modified files and ensure code compiles / passes lint checks with exit code 0 (`exit 0`). DO NOT run the full CI/CD runner (`06-cicd-local-runner.py`) during routine task steps unless explicitly commanded by repository owner.
 8. **Runner In-Flight ETA Wait Protocol:** When running background commands, the runner writes live status and remaining ETA to `.lovable/temp/runner-eta.json` (emitting in-flight heartbeats strictly every 25 seconds or more). If an agent inspects an active background job, it MUST sleep/wait for **1 minute (60 seconds) each time**, or dynamically sleep for the remaining ETA duration read from `.lovable/temp/runner-eta.json` (or based on previous total approximate delay) instead of busy-polling.
+9. **Centralized Test Inventory & Incremental Caching:** All unit tests are cataloged in `.lovable/test-inventory.json` with strictly repository-relative paths (`target_file`, `test_file`). First run executes all tests to establish baseline timings; subsequent runs execute incrementally only if target code files or test files change. Slow test threshold defaults to `4.0s` (configurable via `GITMAP_SLOW_TEST_THRESHOLD`).
+10. **Dual-Queue Worker Pools:** Slow tests run in a dedicated 4-worker pool running at most 2 tests at a time per batch. Fast tests run in a 4-worker pool running at most 4 tests at a time, pulling in chunks of 100 tests from the test inventory queue until all are complete.
 
 ---
 

@@ -283,6 +283,7 @@ Before you commit code or end your turn, you MUST mechanically check off these i
 - **NO TEST RUNNING (Strict Policy):** Test execution is strictly disabled. You MUST NOT execute unit tests, integration tests, or test suites unless explicitly commanded by the repository owner.
 - **NO FULL CI/CD RUNNER (Strict Policy):** DO NOT run `python 03-ai-scripts/06-cicd-local-runner.py` during routine coding guideline execution turns. Running the heavy 28-38 gate pipeline across the entire repository wastes massive amounts of time and scans unrelated files. Verify code strictly using targeted file-level linters / autofixers on the specific modified files.
 - **Test Inventory & Recent Changes Tracking:** Whenever any file is modified, append its repository-relative path to `.lovable/temp/recent-file-changes.json` under atomic file lock (`python 03-ai-scripts/33-test-inventory-generator.py --record <path>`), cross-referencing `.lovable/test-inventory.json` so associated tests are known for future release verification.
+- **Smart Test Runner Architecture (When Explicitly Commanded):** When unit tests are explicitly run, the runner uses dual-queue worker pools (slow: 4w x 2 tests; fast: 4w x 4 tests in 100-test chunks). All temporary artifacts and error logs are isolated strictly to `.lovable/temp/failures/`; passing tests are 100% silent (zero files, zero output). The AI agent reads `.lovable/temp/runner-eta.json` to sleep for the estimated duration rather than burning tokens in polling loops.
 
 ## MUST FOLLOW NON-NEGOTIABLE
 
