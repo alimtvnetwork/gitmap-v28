@@ -24,8 +24,9 @@ Welcome to the structured command reference directory for **GitMap** (`v6.166.0`
 | **Git Accounts & Profiles** | [📄 `profiles.md`](./profiles.md) | `profiles ls`, `set-default`, `switch`, `add`, `rm`, `status` |
 | **Cloud Backup & Recovery** | [📄 `backup.md`](./backup.md) | `backup create`, `backup ls`, `backup restore`, `backup rm`, `backup status`, `prune` |
 | **Data, Profiles & Bookmarks** | [📂 `data/`](./data/readme.md) | `profile`, `bookmark`, `export`, `import`, `mv`, `rm` |
-| **Installers & Macros** | [📂 `automation/`](./automation/readme.md) | `installer`, `install`, `macro`, `task`, `zip-group` |
-| **Utilities & Diagnostics** | [📂 `utilities/`](./utilities/readme.md) | `doctor`, `update`, `interactive`, `fix-repo`, `seo-write`, `gomod` |
+| **Installers & Macros** | [📂 `automation/`](./automation/readme.md) | `installer`, `install`, `macro` (`add`, `edit`, `record`, `run`), `task`, `zip-group` |
+| **Utilities & Diagnostics** | [📂 `utilities/`](./utilities/readme.md) | `doctor`, `update`, `interactive`, `fix-repo`, `seo-write`, `gomod`, `open` |
+| **Desktop & File Utilities** | [📂 `utilities/`](./utilities/readme.md#desktop--file-utilities) | `copy`, `paste`, `explorer`, `browse`, `open-url`, `cat`, `touch`, `mkfile` |
 
 ---
 

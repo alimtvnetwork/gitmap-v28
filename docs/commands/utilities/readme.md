@@ -35,3 +35,39 @@ System diagnostics, self-updating, interactive TUI, and repository utilities.
 | `gitmap cg <sub>` | — | Scaffolds Coding Guidelines (v24) into a repository (`install`, `update`) |
 | `gitmap user <sub>` | — | Manages cross-platform OS system users (`add`, `list`, `rm`) |
 | `gitmap help [command]` | — | Views manual and flag reference for any command |
+
+---
+
+## Desktop & File Utilities
+
+Cross-platform OS desktop integration, clipboard memory buffers, and safe file operations.
+
+| Command | Alias | Description |
+|---|---|---|
+| `gitmap copy [text\|file]` | `cp` | Copies text or file content to system clipboard & persistent memory buffer (`.gitmap/memory/clipboard.txt`) |
+| `gitmap paste [file]` | `pst` | Pastes clipboard/memory content to stdout or writes to destination file (`--memory`) |
+| `gitmap explorer [path]` | `exp` | Opens directory or reveals file in native OS desktop file manager (Explorer/Finder/xdg-open) |
+| `gitmap browse <url>` | `open-url`, `web` | Opens URL or local HTML file in default browser (or Google Chrome via `--chrome`) |
+| `gitmap cat <file>` | `view` | Streams file content directly to terminal stdout |
+| `gitmap touch <file>` | `mkfile` | Creates a new empty file and automatically generates any missing parent directories |
+
+### Usage Examples
+
+```bash
+# Copy and Paste via clipboard & persistent memory buffer
+gitmap copy "gitmap release --tag v1.0.0"
+gitmap paste
+gitmap paste --file deploy-notes.txt
+gitmap copy --file ./config.json
+
+# Cross-platform desktop file explorer & browser openers
+gitmap explorer .
+gitmap explorer ./src/components/Card.tsx
+gitmap browse https://github.com/alimtvnetwork/gitmap-v28
+gitmap browse https://localhost:3000 --chrome
+
+# Cross-platform file creation & viewing
+gitmap touch docs/new-feature.md
+gitmap cat docs/new-feature.md
+```
+

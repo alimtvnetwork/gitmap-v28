@@ -2968,6 +2968,99 @@ gitmap dashboard --limit 100 --open
 
 ---
 
+<div align="center">
+
+### Interactive Macros & Automation
+
+</div>
+
+Record, interactively compose, and replay terminal command sequences with live stdout/stderr previews and in-builder file manipulation.
+
+| Command | Alias | Description |
+|---------|-------|-------------|
+| `macro add <name>` | — | Interactively build a macro step-by-step with live execution results and file tools |
+| `macro edit <name>` | — | Interactively edit, insert, replace, delete, or test individual steps in a saved macro |
+| `macro run <name>` | `execute`, `exec` | Replay all recorded steps of a macro (`--dry-run`, `--verbose`) |
+| `macro list` | — | List all saved macros with step counts and timestamps |
+| `macro show <name>` | — | Inspect the individual steps of a saved macro |
+| `macro record <name>` | — | Record an interactive terminal session into a macro |
+| `macro rm <name>` | — | Delete a saved macro |
+
+#### In-Builder Interactive Commands & Live Execution
+
+When building (`gitmap macro add`) or editing (`gitmap macro edit`) a macro:
+- **Live Execution:** Every step is executed immediately in the terminal, showing its live stdout and stderr so you verify correctness as you record.
+- `cat <file>` / `view <file>`: Inspect a file's content directly inside the builder.
+- `touch <file>` / `mkfile <file>`: Create a new file (and any missing parent directories) on the fly.
+- `rmfile <file>` / `cpfile <src> <dst>`: Delete or copy files within the macro workflow.
+- `copy <text|file>` / `paste`: Copy text or file contents into clipboard/memory and paste into files.
+- `explorer [path]` / `browse <url>`: Open local folders in the OS file manager or launch web pages.
+- `undo`: Drop the last added step from the macro.
+- `list` / `show`: Display current steps recorded so far.
+- `test <step#>`: Re-execute a specific step to inspect results (in edit mode).
+- `done` / `save`: Finalize and save the macro.
+
+```bash
+# Interactively create a deployment macro with live step execution
+gitmap macro add deploy-flow
+
+# Edit an existing macro (insert, delete, or test steps)
+gitmap macro edit deploy-flow
+
+# Replay macro
+gitmap macro run deploy-flow
+
+# Replay with preview (dry run)
+gitmap macro run deploy-flow --dry-run
+```
+
+→ [macro](gitmap/helptext/macro.md)
+
+---
+
+<div align="center">
+
+### Desktop & File Utilities
+
+</div>
+
+Seamless cross-platform OS desktop integration, persistent clipboard memory, and file utilities.
+
+| Command | Alias | Description |
+|---------|-------|-------------|
+| `copy [text\|--file]` | `cp` | Copy text, file content, or piped stdin to OS clipboard and persistent memory buffer (`.gitmap/memory/clipboard.txt`) |
+| `paste [--file]` | `pst` | Paste from OS clipboard or persistent memory buffer (`--memory`) to stdout or destination file |
+| `explorer [path]` | `exp` | Open directory or reveal file in native desktop file manager (Explorer, Finder, xdg-open) |
+| `browse <url>` | `open-url`, `web` | Open URL or local HTML file in system default browser or Google Chrome (`--chrome`) |
+| `cat <file>` | `view` | Stream and inspect file contents directly in terminal stdout |
+| `touch <path>` | `mkfile` | Create a new file and automatically create missing parent directories |
+
+```bash
+# Copy text or file to OS clipboard and GitMap memory buffer
+gitmap copy "gitmap release --tag v6.222.0"
+gitmap copy --file ./config.json
+gitmap copy notes.txt
+
+# Paste to stdout or write directly to target file
+gitmap paste
+gitmap paste --file ./output.txt
+gitmap paste --memory
+
+# Open desktop file manager or web browser
+gitmap explorer .
+gitmap explorer ./src/data/commands.ts
+gitmap browse https://github.com/alimtvnetwork/gitmap-v28
+gitmap browse https://localhost:3000 --chrome
+
+# Cross-platform file creation and terminal viewing
+gitmap touch src/features/new-flow.ts
+gitmap cat src/features/new-flow.ts
+```
+
+→ [copy](gitmap/helptext/copy.md) · [paste](gitmap/helptext/paste.md) · [explorer](gitmap/helptext/explorer.md) · [browse](gitmap/helptext/browse.md) · [cat](gitmap/helptext/cat.md) · [touch](gitmap/helptext/touch.md)
+
+---
+
 ## Build & Deploy
 
 ### Makefile Targets

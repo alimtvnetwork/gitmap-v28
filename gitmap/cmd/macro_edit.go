@@ -93,6 +93,7 @@ func printCurrentEditSteps(steps []macro.MacroStep) {
 
 func printMacroEditInstructions() {
 	fmt.Println("  Commands: 'del <n>', 'replace <n> <cmd>', 'insert <n> <cmd>', 'list', 'done', 'cancel'")
+	fmt.Println("  In-builder: 'cat <file>', 'touch <file>', 'mkfile <file>', 'copy', 'paste', 'explorer', 'browse'")
 	fmt.Println("  Type any shell command to append it (executes live in terminal):")
 	fmt.Println()
 }

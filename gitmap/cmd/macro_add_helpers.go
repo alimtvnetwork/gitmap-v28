@@ -36,12 +36,20 @@ func isExactHelper(line string) bool {
 	switch strings.ToLower(line) {
 	case "ls", "dir", ":ls", ":dir", "pwd", ":pwd", "help", ":help", "?", "+add", "mkdir", ":mkdir", "gitmap mkdir", "exec", ":exec":
 		return true
+	case "cat", ":cat", "touch", ":touch", "mkfile", ":mkfile", "paste", ":paste", "explorer", ":explorer":
+		return true
 	default:
 		return false
 	}
 }
 
 func hasPrefixHelper(line string) bool {
+	low := strings.ToLower(line)
+
+	return hasBasicPrefix(low) || hasDesktopPrefix(low)
+}
+
+func hasBasicPrefix(low string) bool {
 	prefixes := []string{
 		"find ", ":find ", "search ", ":search ", "grep ", ":grep ",
 		"replace ", ":replace ", "cd ", ":cd ", "pwd ", ":pwd ", "add ",
@@ -50,7 +58,24 @@ func hasPrefixHelper(line string) bool {
 	}
 
 	for _, p := range prefixes {
-		if strings.HasPrefix(strings.ToLower(line), p) {
+		if strings.HasPrefix(low, p) {
+			return true
+		}
+	}
+
+	return false
+}
+
+func hasDesktopPrefix(low string) bool {
+	prefixes := []string{
+		"cat ", ":cat ", "type ", ":type ", "view ", ":view ",
+		"touch ", ":touch ", "mkfile ", ":mkfile ", "rmfile ", ":rmfile ",
+		"cpfile ", ":cpfile ", "copy ", ":copy ", "paste ", ":paste ",
+		"explorer ", ":explorer ", "browse ", ":browse ", "open-url ", ":open-url ",
+	}
+
+	for _, p := range prefixes {
+		if strings.HasPrefix(low, p) {
 			return true
 		}
 	}
@@ -68,7 +93,115 @@ func handleInteractiveHelper(line string, state *interactiveSessionState, steps 
 		return true
 	}
 
+	if handleFileOperationHelper(trimmed, state) {
+		return true
+	}
+
 	return handleSearchOrReplace(trimmed, state)
+}
+
+func handleFileOperationHelper(line string, state *interactiveSessionState) bool {
+	low := strings.ToLower(line)
+	if isCatHelperCmd(low) {
+		return handleCatHelper(line, state)
+	}
+
+	if isTouchHelperCmd(low) {
+		return handleTouchHelper(line, state)
+	}
+
+	if isMkfileHelperCmd(low) {
+		return handleMkfileHelper(line, state)
+	}
+
+	return handleRmOrCpHelper(line, state, low)
+}
+
+func handleRmOrCpHelper(line string, state *interactiveSessionState, low string) bool {
+	if isRmFileHelperCmd(low) {
+		return handleRmFileHelper(line, state)
+	}
+
+	if isCpFileHelperCmd(low) {
+		return handleCpFileHelper(line, state)
+	}
+
+	return false
+}
+
+func handleCatHelper(line string, state *interactiveSessionState) bool {
+	state.lastInspectedCmd = line
+	args := extractCommandArgList(line)
+	_ = runCatCmd(args)
+
+	return true
+}
+
+func handleTouchHelper(line string, state *interactiveSessionState) bool {
+	state.lastInspectedCmd = line
+	args := extractCommandArgList(line)
+	_ = runTouchCmd(args)
+
+	return true
+}
+
+func handleMkfileHelper(line string, state *interactiveSessionState) bool {
+	state.lastInspectedCmd = line
+	args := extractCommandArgList(line)
+	_ = runMkfileCmd(args)
+
+	return true
+}
+
+func handleRmFileHelper(line string, state *interactiveSessionState) bool {
+	state.lastInspectedCmd = line
+	args := extractCommandArgList(line)
+	_ = runRmFileCmd(args)
+
+	return true
+}
+
+func handleCpFileHelper(line string, state *interactiveSessionState) bool {
+	state.lastInspectedCmd = line
+	args := extractCommandArgList(line)
+	_ = runCpFileCmd(args)
+
+	return true
+}
+
+func extractCommandArgList(line string) []string {
+	parts := strings.Fields(line)
+	if len(parts) <= 1 {
+		return nil
+	}
+
+	return parts[1:]
+}
+
+func isCatHelperCmd(low string) bool {
+	return low == "cat" || low == ":cat" ||
+		strings.HasPrefix(low, "cat ") || strings.HasPrefix(low, ":cat ") ||
+		strings.HasPrefix(low, "type ") || strings.HasPrefix(low, ":type ") ||
+		strings.HasPrefix(low, "view ") || strings.HasPrefix(low, ":view ")
+}
+
+func isTouchHelperCmd(low string) bool {
+	return low == "touch" || low == ":touch" ||
+		strings.HasPrefix(low, "touch ") || strings.HasPrefix(low, ":touch ")
+}
+
+func isMkfileHelperCmd(low string) bool {
+	return low == "mkfile" || low == ":mkfile" ||
+		strings.HasPrefix(low, "mkfile ") || strings.HasPrefix(low, ":mkfile ") ||
+		strings.HasPrefix(low, "create-file ") || strings.HasPrefix(low, ":create-file ")
+}
+
+func isRmFileHelperCmd(low string) bool {
+	return strings.HasPrefix(low, "rmfile ") || strings.HasPrefix(low, ":rmfile ")
+}
+
+func isCpFileHelperCmd(low string) bool {
+	return strings.HasPrefix(low, "cpfile ") || strings.HasPrefix(low, ":cpfile ")
 }
 
 func handleNavigationOrInspection(line string, state *interactiveSessionState) bool {
@@ -669,6 +802,7 @@ func replaceFileContent(path string, oldStr, newStr string) (int, error) {
 func printInteractiveHelp() {
 	printInteractiveHelpHeader()
 	printInteractiveInspectionCommands()
+	printInteractiveFileCommands()
 	printInteractiveSessionCommands()
 }
 
@@ -676,6 +810,14 @@ func printInteractiveHelpHeader() {
 	fmt.Println()
 	fmt.Printf("  %s● Interactive Macro Builder Helper Commands:%s\n", constants.ColorCyan, constants.ColorReset)
 	fmt.Printf("  %s------------------------------------------------------------------------%s\n", constants.ColorDim, constants.ColorReset)
+}
+
+func printInteractiveFileCommands() {
+	fmt.Println("    cat <file> / view <file>   - View file contents live in terminal")
+	fmt.Println("    touch <file>               - Create an empty file (auto-creates parent dirs)")
+	fmt.Println("    mkfile <file> [content]    - Create file with initial content")
+	fmt.Println("    rmfile <file>              - Remove file live during session")
+	fmt.Println("    cpfile <src> <dst>         - Copy file live during session")
 }
 
 func printInteractiveInspectionCommands() {

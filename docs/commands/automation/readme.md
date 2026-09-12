@@ -28,6 +28,8 @@ Package releases, install developer tools, and replay terminal automation macros
 
 * **Alias:** `m`
 * Subcommands:
+  * `gitmap macro add <name> [steps...]`: Creates a macro directly or interactively with live execution.
+  * `gitmap macro edit <name>`: Interactively modifies, replaces, inserts, or deletes macro steps.
   * `gitmap macro record <name>` (alias: `rec`): Interactively records terminal commands.
   * `gitmap macro list` (alias: `ls`): Lists recorded macros.
   * `gitmap macro show <name>`: Displays steps inside a macro.

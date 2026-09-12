@@ -52,6 +52,7 @@ export const Categories: CommandCategory[] = [
   { key: "maintenance", label: "Maintenance & Backups", description: "Backups, SSH health, doctor, changelog regen, and file deletion", icon: "🧹" },
   { key: "cluster", label: "Cluster & Delegation", description: "Multi-machine clustering and command delegation", icon: "🕸️" },
   { key: "pipeline", label: "Pipeline & CI/CD", description: "Live CI/CD telemetry, ETA wait times, and failure logs", icon: "⚡" },
+  { key: "tasks", label: "Automation & Macros", description: "Interactive macro step builder, live execution preview, and terminal automation", icon: "🤖" },
 ];
 
 export const commands: CommandDef[] = [
@@ -2971,18 +2972,21 @@ export const commands: CommandDef[] = [
   {
     name: "macro",
     alias: "m",
-    description: "Record, replay, list, and manage interactive terminal macro sessions.",
-    usage: "gitmap macro <record|run|list|show|rm> [arguments]",
+    description: "Record, replay, list, and interactively build or edit terminal macros with live execution preview, step testing, and in-builder file operations.",
+    usage: "gitmap macro <add|edit|record|run|list|show|rm> [arguments]",
     category: "tasks",
     flags: [
       { flag: "--dry-run", description: "Preview macro steps without execution" },
       { flag: "--verbose", description: "Stream live stdout/stderr during replay" },
     ],
     examples: [
-      { command: 'gitmap macro record deploy-sync', description: "Record an interactive shell session as a macro named 'deploy-sync'" },
+      { command: 'gitmap macro add deploy-sync', description: "Interactively build a macro step-by-step with live execution preview and file commands" },
+      { command: 'gitmap macro edit deploy-sync', description: "Interactively edit, insert, delete, or test steps inside an existing macro" },
       { command: 'gitmap macro run deploy-sync', description: "Replay all recorded steps of 'deploy-sync'" },
+      { command: 'gitmap macro run deploy-sync --dry-run', description: "Preview commands without executing" },
       { command: 'gitmap macro list', description: "List all saved macros with step counts and timestamps" },
       { command: 'gitmap macro show deploy-sync', description: "Inspect individual steps inside 'deploy-sync'" },
+      { command: 'gitmap macro rm deploy-sync', description: "Delete a saved macro" },
     ],
   },
   {
@@ -2994,6 +2998,96 @@ export const commands: CommandDef[] = [
     examples: [
       { command: 'gitmap execute deploy-sync', description: "Execute 'deploy-sync' macro steps in sequence" },
       { command: 'gitmap execute deploy-sync --dry-run', description: "Preview commands without executing" },
+    ],
+  },
+  {
+    name: "copy",
+    alias: "cp",
+    description: "Copy text, file contents, or piped input directly to the OS clipboard and persistent GitMap memory buffer.",
+    usage: "gitmap copy [text | --file <path>]",
+    category: "tools",
+    flags: [
+      { flag: "--file <path>", description: "Read content from a file and copy to clipboard and memory" },
+      { flag: "--quiet", description: "Suppress confirmation messages" },
+      { flag: "--json", description: "Output JSON envelope" },
+    ],
+    examples: [
+      { command: 'gitmap copy "npm run build && npm test"', description: "Copy command or text string to clipboard and memory buffer" },
+      { command: 'gitmap copy --file ./notes.txt', description: "Copy entire file contents to clipboard and memory" },
+      { command: 'gitmap copy notes.txt', description: "Copy file content when passed as positional argument" },
+    ],
+  },
+  {
+    name: "paste",
+    alias: "pst",
+    description: "Paste content from the OS clipboard or GitMap persistent memory buffer to stdout or write directly to a destination file.",
+    usage: "gitmap paste [--file <path>] [--memory]",
+    category: "tools",
+    flags: [
+      { flag: "--file <path>", description: "Write clipboard/memory content into destination file" },
+      { flag: "--memory", description: "Force reading from persistent memory buffer instead of OS clipboard" },
+      { flag: "--quiet", description: "Suppress confirmation messages" },
+      { flag: "--json", description: "Output JSON envelope" },
+    ],
+    examples: [
+      { command: 'gitmap paste', description: "Print current clipboard contents to terminal stdout" },
+      { command: 'gitmap paste --file output.txt', description: "Write clipboard content into destination file" },
+      { command: 'gitmap paste --memory', description: "Print saved content from persistent memory buffer" },
+    ],
+  },
+  {
+    name: "explorer",
+    alias: "exp",
+    description: "Open directory or reveal and highlight a file in the native desktop file manager across Windows, macOS, and Linux.",
+    usage: "gitmap explorer [path]",
+    category: "tools",
+    flags: [
+      { flag: "--json", description: "Output JSON envelope" },
+    ],
+    examples: [
+      { command: 'gitmap explorer', description: "Open current working directory in native OS file explorer" },
+      { command: 'gitmap explorer ./src/data', description: "Open specific directory in native file explorer" },
+      { command: 'gitmap explorer config.json', description: "Reveal and highlight specific file in native file explorer" },
+    ],
+  },
+  {
+    name: "browse",
+    alias: "open-url / web",
+    description: "Open a URL or local HTML file in the system default browser or specifically in Google Chrome.",
+    usage: "gitmap browse <url> [--chrome]",
+    category: "tools",
+    flags: [
+      { flag: "--chrome", description: "Launch URL specifically in Google Chrome instead of default browser" },
+      { flag: "--json", description: "Output JSON envelope" },
+    ],
+    examples: [
+      { command: 'gitmap browse https://github.com', description: "Open website in default system browser" },
+      { command: 'gitmap browse https://github.com --chrome', description: "Open website in Google Chrome" },
+      { command: 'gitmap open-url ./docs/index.html', description: "Open local HTML file in default browser" },
+    ],
+  },
+  {
+    name: "cat",
+    alias: "view",
+    description: "Stream and inspect file contents directly in the terminal.",
+    usage: "gitmap cat <file>",
+    category: "tools",
+    examples: [
+      { command: 'gitmap cat README.md', description: "Display contents of README.md in terminal" },
+      { command: 'gitmap cat .gitmap/macros.json', description: "Display macro definitions file" },
+      { command: 'gitmap view config.json', description: "Alias to inspect file contents" },
+    ],
+  },
+  {
+    name: "touch",
+    alias: "mkfile",
+    description: "Create a new file and automatically generate any missing parent directories across all platforms.",
+    usage: "gitmap touch <path>",
+    category: "tools",
+    examples: [
+      { command: 'gitmap touch notes.md', description: "Create empty file in current working directory" },
+      { command: 'gitmap touch src/components/NewCard.tsx', description: "Create file and auto-generate missing parent directories" },
+      { command: 'gitmap mkfile docs/guides/intro.md', description: "Alias to create file with recursive parent paths" },
     ],
   },
   {

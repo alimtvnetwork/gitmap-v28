@@ -310,6 +310,9 @@ func resolveSingleLiveCmd(cmdText string) string {
 func isGitmapDirectCommand(lower string) bool {
 	return strings.HasPrefix(lower, "open-url ") ||
 		strings.HasPrefix(lower, "browse ") ||
+		strings.HasPrefix(lower, "cat ") ||
+		strings.HasPrefix(lower, "touch ") ||
+		strings.HasPrefix(lower, "mkfile ") ||
 		strings.HasPrefix(lower, "pipeline ") ||
 		lower == "pipeline"
 }

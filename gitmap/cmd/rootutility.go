@@ -118,6 +118,9 @@ func utilityDesktopEntries() []dispatchEntry {
 		{[]string{"paste", "paste-mem"}, func() error { return runPasteCmd(argsTail()) }},
 		{[]string{"explorer", "open-explorer", "folder", "open-folder", "browse-folder"}, func() error { return runExplorerCmd(argsTail()) }},
 		{[]string{"open-url", "browse", "browse-url", "open-browser"}, func() error { return runBrowseCmd(argsTail()) }},
+		{[]string{"cat", "view", "type"}, func() error { return runCatCmd(argsTail()) }},
+		{[]string{"touch"}, func() error { return runTouchCmd(argsTail()) }},
+		{[]string{"mkfile", "create-file"}, func() error { return runMkfileCmd(argsTail()) }},
 	}
 }
 
