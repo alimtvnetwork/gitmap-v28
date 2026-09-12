@@ -31,12 +31,12 @@ func runMacroImport(args []string) error {
 		return apperror.NewSimple("import file path required", "E6021")
 	}
 
-	macros, err := macro.ParseImportFile(opts.FilePath, opts.Format)
-	if err != nil {
-		return err
+	macroRes := macro.ParseImportFile(opts.FilePath, opts.Format)
+	if macroRes.IsFailure() {
+		return macroRes.AppError()
 	}
 
-	res, err := macro.ImportMacros(macros, macro.ImportOptions{
+	res, err := macro.ImportMacros(macroRes.Data, macro.ImportOptions{
 		TargetName: opts.TargetName,
 		Format:     opts.Format,
 		FilePath:   opts.FilePath,

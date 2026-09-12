@@ -33,12 +33,12 @@ func testSaveAndLoadMacro(t *testing.T, m *Macro) {
 }
 
 func assertMacroListed(t *testing.T, name string) {
-	list, err := ListMacros()
-	if err != nil {
-		t.Fatalf("ListMacros failed: %v", err)
+	listRes := ListMacros()
+	if listRes.IsFailure() {
+		t.Fatalf("ListMacros failed: %v", listRes.AppError())
 	}
 
-	for _, item := range list {
+	for _, item := range listRes.Data {
 		if item.Name == name {
 			return
 		}

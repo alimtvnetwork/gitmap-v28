@@ -7,10 +7,11 @@ import (
 func TestPromptTargetSuite(t *testing.T) {
 	tempDir := t.TempDir()
 
-	targets, err := ResolvePromptTarget(tempDir)
-	if err != nil || len(targets) == 0 {
-		t.Fatalf("ResolvePromptTarget failed: %v", err)
+	targetRes := ResolvePromptTarget(tempDir)
+	if targetRes.IsFailure() || targetRes.IsEmpty() {
+		t.Fatalf("ResolvePromptTarget failed: %v", targetRes.AppError())
 	}
+	targets := targetRes.Data
 
 	filtered := FilterPromptExclusions(targets, "non-existent")
 	if len(filtered) != len(targets) {

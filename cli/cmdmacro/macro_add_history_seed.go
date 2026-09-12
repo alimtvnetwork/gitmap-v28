@@ -9,12 +9,12 @@ import (
 )
 
 func seedMacroHistory(t *term.Terminal) {
-	macros, err := macro.ListMacros()
-	if err != nil {
+	macroRes := macro.ListMacros()
+	if macroRes.IsFailure() {
 		return
 	}
 
-	for _, m := range macros {
+	for _, m := range macroRes.Data {
 		for _, step := range m.Steps {
 			if step.CommandLine != "" {
 				t.History.Add(step.CommandLine)

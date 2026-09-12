@@ -195,18 +195,20 @@ func TestDualTableRepoSplitDbStorage(t *testing.T) {
 }
 
 func verifySplitDbDualLogs(t *testing.T, pipeDb *pipelinedb.PipelineSplitDb, runId uint64) {
-	details, err := pipeDb.QueryDetailedErrorLogsByRunId(runId)
-	if err != nil || len(details) != 1 {
-		t.Fatalf("expected 1 detail log, got %d (err: %v)", len(details), err)
+	detailRes := pipeDb.QueryDetailedErrorLogsByRunId(runId)
+	if detailRes.IsFailure() || detailRes.Count() != 1 {
+		t.Fatalf("expected 1 detail log, got %d (err: %v)", detailRes.Count(), detailRes.AppError())
 	}
+	details := detailRes.Data
 	if !strings.Contains(details[0].RawLogs, "PASS: Test0") {
 		t.Errorf("detail log missing raw PASS line: %s", details[0].RawLogs)
 	}
 
-	compacts, err := pipeDb.QueryCompactErrorLogsByRunId(runId)
-	if err != nil || len(compacts) != 1 {
-		t.Fatalf("expected 1 compact log, got %d (err: %v)", len(compacts), err)
+	compactRes := pipeDb.QueryCompactErrorLogsByRunId(runId)
+	if compactRes.IsFailure() || compactRes.Count() != 1 {
+		t.Fatalf("expected 1 compact log, got %d (err: %v)", compactRes.Count(), compactRes.AppError())
 	}
+	compacts := compactRes.Data
 	if strings.Contains(compacts[0].ErrorText, "ok pkg") {
 		t.Errorf("compact log contains ok lines: %s", compacts[0].ErrorText)
 	}

@@ -130,16 +130,17 @@ func runPipelineDBErrorLogs(args []string) error {
 
 	defer db.Close()
 
-	logs, err := db.QueryRecentErrorLogs(20)
-	if err != nil {
-		return err
+	logRes := db.QueryRecentErrorLogs(20)
+	if logRes.IsFailure() {
+		return logRes.AppError()
 	}
 
+	logs := logRes.Data
 	if hasArgFlag(args, "--json") {
 		return printJSON(logs)
 	}
 
-	if len(logs) == 0 {
+	if logRes.IsEmpty() {
 		fmt.Printf("No error logs recorded in pipeline database for %s.\n", repo)
 
 		return nil

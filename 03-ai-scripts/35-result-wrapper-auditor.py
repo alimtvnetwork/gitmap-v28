@@ -29,31 +29,64 @@ MAP_TUPLE_RETURN = re.compile(
     r"func\s+(?:\([^)]+\)\s+)?(\w+)\s*\([^)]*\)\s*\(\s*map\[[^\]]+\][^,]+,\s*(?:error|\*apperror\.AppError)\s*\)"
 )
 
+# Regex for detecting legacy multi-value slice return tuples with error
+# Excludes []byte and []rune which represent low-level stream/serialization primitives
+SLICE_TUPLE_RETURN = re.compile(
+    r"func\s+(?:\([^)]+\)\s+)?(\w+)\s*\([^)]*\)\s*\(\s*\[\](?!(?:byte|rune)\b)[^,]+,\s*(?:error|\*apperror\.AppError)\s*\)"
+)
 
-def audit_file(filepath: Path) -> list[str]:
+# Enforced subsystems/files that must strictly use ResultSlice[T]
+RESULT_SLICE_ENFORCED_PREFIXES = (
+    "cli/macro/",
+    "cli/pipelinedb/",
+    "cli/cmdprompt/",
+    "cli/cluster/pathalias.go",
+    "cli/db/nodepath.go",
+)
+
+EXCLUDED_FUNCTIONS = {
+    "Unwrap", "MarshalJSON", "UnmarshalJSON", "Read", "Write",
+}
+
+
+def audit_file(filepath: Path) -> tuple[list[str], int]:
     violations = []
+    unmigrated_slices = 0
     try:
         content = filepath.read_text(encoding="utf-8", errors="replace")
     except Exception as e:
-        return [f"{filepath}: error reading file: {e}"]
+        return [f"{filepath}: error reading file: {e}"], 0
 
     rel = filepath.relative_to(ROOT_DIR).as_posix()
+    is_slice_enforced = any(rel.startswith(p) or rel == p for p in RESULT_SLICE_ENFORCED_PREFIXES)
+
     for lno, line in enumerate(content.splitlines(), 1):
         stripped = line.strip()
         if stripped.startswith("//") or stripped.startswith("/*"):
             continue
 
-        match = MAP_TUPLE_RETURN.search(stripped)
-        if match:
-            fn_name = match.group(1)
-            if fn_name in ("Unwrap",):
-                continue
-            violations.append(
-                f"{rel}:{lno} function `{fn_name}` returns multi-value map tuple with error; "
-                f"must return result.ResultMap[K, V]"
-            )
+        map_match = MAP_TUPLE_RETURN.search(stripped)
+        if map_match:
+            fn_name = map_match.group(1)
+            if fn_name not in EXCLUDED_FUNCTIONS:
+                violations.append(
+                    f"{rel}:{lno} function `{fn_name}` returns multi-value map tuple with error; "
+                    f"must return result.ResultMap[K, V]"
+                )
 
-    return violations
+        slice_match = SLICE_TUPLE_RETURN.search(stripped)
+        if slice_match:
+            fn_name = slice_match.group(1)
+            if fn_name not in EXCLUDED_FUNCTIONS:
+                if is_slice_enforced:
+                    violations.append(
+                        f"{rel}:{lno} function `{fn_name}` returns multi-value slice tuple with error; "
+                        f"must return result.ResultSlice[T]"
+                    )
+                else:
+                    unmigrated_slices += 1
+
+    return violations, unmigrated_slices
 
 
 def main() -> None:
@@ -62,6 +95,7 @@ def main() -> None:
         sys.exit(1)
 
     all_violations = []
+    total_unmigrated_slices = 0
     file_count = 0
 
     for root, dirs, files in os.walk(CLI_DIR):
@@ -70,12 +104,16 @@ def main() -> None:
             if f.endswith(".go") and not f.endswith("_test.go"):
                 file_count += 1
                 fp = Path(root) / f
-                all_violations.extend(audit_file(fp))
+                violations, unmigrated = audit_file(fp)
+                all_violations.extend(violations)
+                total_unmigrated_slices += unmigrated
 
-    print(f"Audited {file_count} Go files in {CLI_DIR.name}/ for ResultMap/Result wrapper compliance.")
+    print(f"Audited {file_count} Go files in {CLI_DIR.name}/ for ResultMap/ResultSlice compliance.")
+    print(f"ResultSlice enforced subsystems: {', '.join(RESULT_SLICE_ENFORCED_PREFIXES)}")
+    print(f"Backlog slice returns pending future migrations across other packages: {total_unmigrated_slices}")
 
     if not all_violations:
-        print("\n✅ PASS: Zero legacy multi-value map tuple error returns found. ResultMap envelopes verified.")
+        print("\n✅ PASS: Zero legacy map/slice error return tuples in enforced subsystems. Result envelopes verified.")
         sys.exit(0)
 
     print(f"\n❌ FAIL: Found {len(all_violations)} violation(s):")

@@ -219,30 +219,30 @@ func scanPipelineRun(rows *sql.Rows) (PipelineRunRecord, *apperror.AppError) {
 	return r, nil
 }
 
-func collectRecentRuns(rows *sql.Rows) ([]PipelineRunRecord, error) {
+func collectRecentRuns(rows *sql.Rows) result.ResultSlice[PipelineRunRecord] {
 	var list []PipelineRunRecord
 	for rows.Next() {
 		r, scanErr := scanPipelineRun(rows)
 		if scanErr != nil {
-			return nil, scanErr
+			return result.FailSlice[PipelineRunRecord](scanErr)
 		}
 
 		list = append(list, r)
 	}
 
 	if err := rows.Err(); err != nil {
-		return nil, apperror.WrapSimple(err, "iterate pipeline run rows")
+		return result.FailSlice[PipelineRunRecord](apperror.WrapSimple(err, "iterate pipeline run rows"))
 	}
 
-	return list, nil
+	return result.OkSlice(list)
 }
 
 // QueryRecentRuns retrieves recent pipeline executions.
-func (p *PipelineSplitDb) QueryRecentRuns(limit int) ([]PipelineRunRecord, error) {
+func (p *PipelineSplitDb) QueryRecentRuns(limit int) result.ResultSlice[PipelineRunRecord] {
 	limitVal := resolveLimit(limit, 10)
 	rows, err := p.conn.Query(sqlQueryRecentRuns, limitVal)
 	if err != nil {
-		return nil, apperror.WrapSimple(err, "query recent runs")
+		return result.FailSlice[PipelineRunRecord](apperror.WrapSimple(err, "query recent runs"))
 	}
 
 	defer rows.Close()
@@ -260,30 +260,30 @@ func scanPipelineError(rows *sql.Rows) (PipelineErrorRecord, *apperror.AppError)
 	return e, nil
 }
 
-func collectRecentErrors(rows *sql.Rows) ([]PipelineErrorRecord, error) {
+func collectRecentErrors(rows *sql.Rows) result.ResultSlice[PipelineErrorRecord] {
 	var list []PipelineErrorRecord
 	for rows.Next() {
 		e, scanErr := scanPipelineError(rows)
 		if scanErr != nil {
-			return nil, scanErr
+			return result.FailSlice[PipelineErrorRecord](scanErr)
 		}
 
 		list = append(list, e)
 	}
 
 	if err := rows.Err(); err != nil {
-		return nil, apperror.WrapSimple(err, "iterate pipeline error log rows")
+		return result.FailSlice[PipelineErrorRecord](apperror.WrapSimple(err, "iterate pipeline error log rows"))
 	}
 
-	return list, nil
+	return result.OkSlice(list)
 }
 
 // QueryRecentErrorLogs retrieves stored error diagnostics.
-func (p *PipelineSplitDb) QueryRecentErrorLogs(limit int) ([]PipelineErrorRecord, error) {
+func (p *PipelineSplitDb) QueryRecentErrorLogs(limit int) result.ResultSlice[PipelineErrorRecord] {
 	limitVal := resolveLimit(limit, 20)
 	rows, err := p.conn.Query(sqlQueryRecentErrors, limitVal)
 	if err != nil {
-		return nil, apperror.WrapSimple(err, "query recent error logs")
+		return result.FailSlice[PipelineErrorRecord](apperror.WrapSimple(err, "query recent error logs"))
 	}
 
 	defer rows.Close()
@@ -301,30 +301,30 @@ func scanPipelineCompactError(rows *sql.Rows) (PipelineCompactErrorRecord, *appe
 	return c, nil
 }
 
-func collectRecentCompactErrors(rows *sql.Rows) ([]PipelineCompactErrorRecord, error) {
+func collectRecentCompactErrors(rows *sql.Rows) result.ResultSlice[PipelineCompactErrorRecord] {
 	var list []PipelineCompactErrorRecord
 	for rows.Next() {
 		c, scanErr := scanPipelineCompactError(rows)
 		if scanErr != nil {
-			return nil, scanErr
+			return result.FailSlice[PipelineCompactErrorRecord](scanErr)
 		}
 
 		list = append(list, c)
 	}
 
 	if err := rows.Err(); err != nil {
-		return nil, apperror.WrapSimple(err, "iterate pipeline compact error rows")
+		return result.FailSlice[PipelineCompactErrorRecord](apperror.WrapSimple(err, "iterate pipeline compact error rows"))
 	}
 
-	return list, nil
+	return result.OkSlice(list)
 }
 
 // QueryDetailedErrors retrieves stored uncompressed detailed error diagnostics.
-func (p *PipelineSplitDb) QueryDetailedErrors(limit int) ([]PipelineErrorRecord, error) {
+func (p *PipelineSplitDb) QueryDetailedErrors(limit int) result.ResultSlice[PipelineErrorRecord] {
 	limitVal := resolveLimit(limit, 20)
 	rows, err := p.conn.Query(sqlQueryRecentDetailErrors, limitVal)
 	if err != nil {
-		return nil, apperror.WrapSimple(err, "query recent detail error logs")
+		return result.FailSlice[PipelineErrorRecord](apperror.WrapSimple(err, "query recent detail error logs"))
 	}
 
 	defer rows.Close()
@@ -333,11 +333,11 @@ func (p *PipelineSplitDb) QueryDetailedErrors(limit int) ([]PipelineErrorRecord,
 }
 
 // QueryCompactErrors retrieves stored noise-filtered compact error diagnostics.
-func (p *PipelineSplitDb) QueryCompactErrors(limit int) ([]PipelineCompactErrorRecord, error) {
+func (p *PipelineSplitDb) QueryCompactErrors(limit int) result.ResultSlice[PipelineCompactErrorRecord] {
 	limitVal := resolveLimit(limit, 20)
 	rows, err := p.conn.Query(sqlQueryRecentCompactErrors, limitVal)
 	if err != nil {
-		return nil, apperror.WrapSimple(err, "query recent compact error logs")
+		return result.FailSlice[PipelineCompactErrorRecord](apperror.WrapSimple(err, "query recent compact error logs"))
 	}
 
 	defer rows.Close()
@@ -507,29 +507,29 @@ func (p *PipelineSplitDb) GetStats() (PipelineDbStats, error) {
 	return stats, nil
 }
 
-func collectRunIdList(rows *sql.Rows) ([]uint64, error) {
+func collectRunIdList(rows *sql.Rows) result.ResultSlice[uint64] {
 	var list []uint64
 	for rows.Next() {
 		var id uint64
 		if err := rows.Scan(&id); err != nil {
-			return nil, apperror.WrapSimple(err, "scan cached run id")
+			return result.FailSlice[uint64](apperror.WrapSimple(err, "scan cached run id"))
 		}
 
 		list = append(list, id)
 	}
 
 	if err := rows.Err(); err != nil {
-		return nil, apperror.WrapSimple(err, "iterate cached run ids")
+		return result.FailSlice[uint64](apperror.WrapSimple(err, "iterate cached run ids"))
 	}
 
-	return list, nil
+	return result.OkSlice(list)
 }
 
 // QueryCachedErrorRunIds retrieves distinct RunIds cached in PipelineErrorLog.
-func (p *PipelineSplitDb) QueryCachedErrorRunIds() ([]uint64, error) {
+func (p *PipelineSplitDb) QueryCachedErrorRunIds() result.ResultSlice[uint64] {
 	rows, err := p.conn.Query(sqlQueryCachedErrorRunIds)
 	if err != nil {
-		return nil, apperror.WrapSimple(err, "query cached error run ids")
+		return result.FailSlice[uint64](apperror.WrapSimple(err, "query cached error run ids"))
 	}
 
 	defer rows.Close()
@@ -539,15 +539,13 @@ func (p *PipelineSplitDb) QueryCachedErrorRunIds() ([]uint64, error) {
 
 // QueryCachedErrorRunIdMap returns a map set of cached error RunIds for fast lookups.
 func (p *PipelineSplitDb) QueryCachedErrorRunIdMap() result.ResultMap[uint64, bool] {
-	ids, err := p.QueryCachedErrorRunIds()
-	if err != nil {
-		appErr := apperror.WrapSimple(err, "query cached error run ids")
-
-		return result.FailMap[uint64, bool](appErr)
+	runRes := p.QueryCachedErrorRunIds()
+	if runRes.IsFailure() {
+		return result.FailMap[uint64, bool](runRes.AppError())
 	}
 
-	idMap := make(map[uint64]bool, len(ids))
-	for _, id := range ids {
+	idMap := make(map[uint64]bool, runRes.Count())
+	for _, id := range runRes.Data {
 		idMap[id] = true
 	}
 
@@ -575,12 +573,12 @@ func (p *PipelineSplitDb) QueryRunByNegativeOffset(offset int) (*PipelineRunReco
 	}
 
 	defer rows.Close()
-	runs, err := collectRecentRuns(rows)
-	if err != nil || len(runs) == 0 {
-		return nil, err
+	runsRes := collectRecentRuns(rows)
+	if runsRes.IsFailure() || runsRes.IsEmpty() {
+		return nil, runsRes.AppError()
 	}
 
-	return &runs[0], nil
+	return &runsRes.Data[0], nil
 }
 
 // QueryRunsByNegativeOffset is an alias for QueryRunByNegativeOffset.
@@ -589,11 +587,11 @@ func (p *PipelineSplitDb) QueryRunsByNegativeOffset(offset int) (*PipelineRunRec
 }
 
 // QueryLastFailedRuns retrieves the most recent failed pipeline runs up to limit.
-func (p *PipelineSplitDb) QueryLastFailedRuns(limit int) ([]PipelineRunRecord, error) {
+func (p *PipelineSplitDb) QueryLastFailedRuns(limit int) result.ResultSlice[PipelineRunRecord] {
 	limitVal := resolveLimit(limit, 5)
 	rows, err := p.conn.Query(sqlQueryLastFailedRuns, limitVal)
 	if err != nil {
-		return nil, apperror.WrapSimple(err, "query last failed runs")
+		return result.FailSlice[PipelineRunRecord](apperror.WrapSimple(err, "query last failed runs"))
 	}
 
 	defer rows.Close()
@@ -602,15 +600,15 @@ func (p *PipelineSplitDb) QueryLastFailedRuns(limit int) ([]PipelineRunRecord, e
 }
 
 // QueryLastNFailedRuns is an alias for QueryLastFailedRuns.
-func (p *PipelineSplitDb) QueryLastNFailedRuns(limit int) ([]PipelineRunRecord, error) {
+func (p *PipelineSplitDb) QueryLastNFailedRuns(limit int) result.ResultSlice[PipelineRunRecord] {
 	return p.QueryLastFailedRuns(limit)
 }
 
 // QueryErrorLogsByRunId retrieves all error diagnostics recorded for a specific run ID.
-func (p *PipelineSplitDb) QueryErrorLogsByRunId(runId uint64) ([]PipelineErrorRecord, error) {
+func (p *PipelineSplitDb) QueryErrorLogsByRunId(runId uint64) result.ResultSlice[PipelineErrorRecord] {
 	rows, err := p.conn.Query(sqlQueryErrorLogsByRunId, runId)
 	if err != nil {
-		return nil, apperror.WrapSimple(err, "query error logs by run id")
+		return result.FailSlice[PipelineErrorRecord](apperror.WrapSimple(err, "query error logs by run id"))
 	}
 
 	defer rows.Close()
@@ -619,10 +617,10 @@ func (p *PipelineSplitDb) QueryErrorLogsByRunId(runId uint64) ([]PipelineErrorRe
 }
 
 // QueryDetailedErrorLogsByRunId retrieves uncompressed detailed errors for a run ID.
-func (p *PipelineSplitDb) QueryDetailedErrorLogsByRunId(runId uint64) ([]PipelineErrorRecord, error) {
+func (p *PipelineSplitDb) QueryDetailedErrorLogsByRunId(runId uint64) result.ResultSlice[PipelineErrorRecord] {
 	rows, err := p.conn.Query(sqlQueryDetailErrorLogsByRunId, runId)
 	if err != nil {
-		return nil, apperror.WrapSimple(err, "query detail error logs by run id")
+		return result.FailSlice[PipelineErrorRecord](apperror.WrapSimple(err, "query detail error logs by run id"))
 	}
 
 	defer rows.Close()
@@ -631,10 +629,10 @@ func (p *PipelineSplitDb) QueryDetailedErrorLogsByRunId(runId uint64) ([]Pipelin
 }
 
 // QueryCompactErrorLogsByRunId retrieves compact filtered errors for a run ID.
-func (p *PipelineSplitDb) QueryCompactErrorLogsByRunId(runId uint64) ([]PipelineCompactErrorRecord, error) {
+func (p *PipelineSplitDb) QueryCompactErrorLogsByRunId(runId uint64) result.ResultSlice[PipelineCompactErrorRecord] {
 	rows, err := p.conn.Query(sqlQueryCompactErrorLogsByRunId, runId)
 	if err != nil {
-		return nil, apperror.WrapSimple(err, "query compact error logs by run id")
+		return result.FailSlice[PipelineCompactErrorRecord](apperror.WrapSimple(err, "query compact error logs by run id"))
 	}
 
 	defer rows.Close()

@@ -30,9 +30,9 @@ func TestExportMacros_SingleAndAllJSON(t *testing.T) {
 		t.Fatalf("ExportToJSON error: %v", err)
 	}
 
-	parsedList, err := ParseImportJSON(payload)
-	if err != nil || len(parsedList) != 2 {
-		t.Fatalf("ParseImportJSON slice failed: count=%d, err=%v", len(parsedList), err)
+	listRes := ParseImportJSON(payload)
+	if listRes.IsFailure() || listRes.Count() != 2 {
+		t.Fatalf("ParseImportJSON slice failed: count=%d, err=%v", listRes.Count(), listRes.AppError())
 	}
 
 	singlePayload, err := ExportToJSON(m1)
@@ -40,9 +40,9 @@ func TestExportMacros_SingleAndAllJSON(t *testing.T) {
 		t.Fatalf("ExportToJSON single error: %v", err)
 	}
 
-	singleParsed, err := ParseImportJSON(singlePayload)
-	if err != nil || len(singleParsed) != 1 {
-		t.Fatalf("ParseImportJSON single failed: count=%d, err=%v", len(singleParsed), err)
+	singleRes := ParseImportJSON(singlePayload)
+	if singleRes.IsFailure() || singleRes.Count() != 1 {
+		t.Fatalf("ParseImportJSON single failed: count=%d, err=%v", singleRes.Count(), singleRes.AppError())
 	}
 }
 
@@ -54,9 +54,9 @@ func TestExportMacros_SingleAndAllYAML(t *testing.T) {
 		t.Fatalf("ExportToYAML error: %v", err)
 	}
 
-	parsedList, err := ParseImportYAML(payload)
-	if err != nil || len(parsedList) != 2 {
-		t.Fatalf("ParseImportYAML slice failed: count=%d, err=%v", len(parsedList), err)
+	yamlRes := ParseImportYAML(payload)
+	if yamlRes.IsFailure() || yamlRes.Count() != 2 {
+		t.Fatalf("ParseImportYAML slice failed: count=%d, err=%v", yamlRes.Count(), yamlRes.AppError())
 	}
 
 	singlePayload, err := ExportToYAML(m1)
@@ -64,9 +64,9 @@ func TestExportMacros_SingleAndAllYAML(t *testing.T) {
 		t.Fatalf("ExportToYAML single error: %v", err)
 	}
 
-	singleParsed, err := ParseImportYAML(singlePayload)
-	if err != nil || len(singleParsed) != 1 {
-		t.Fatalf("ParseImportYAML single failed: count=%d, err=%v", len(singleParsed), err)
+	singleYamlRes := ParseImportYAML(singlePayload)
+	if singleYamlRes.IsFailure() || singleYamlRes.Count() != 1 {
+		t.Fatalf("ParseImportYAML single failed: count=%d, err=%v", singleYamlRes.Count(), singleYamlRes.AppError())
 	}
 }
 
@@ -79,11 +79,12 @@ func TestExportMacros_SQLiteDatabaseRoundtrip(t *testing.T) {
 		t.Fatalf("ExportMacrosToSQLite error: %v", err)
 	}
 
-	imported, err := ParseImportSQLite(dbPath)
-	if err != nil {
-		t.Fatalf("ParseImportSQLite error: %v", err)
+	importRes := ParseImportSQLite(dbPath)
+	if importRes.IsFailure() {
+		t.Fatalf("ParseImportSQLite error: %v", importRes.AppError())
 	}
 
+	imported := importRes.Data
 	if len(imported) != 2 {
 		t.Fatalf("expected 2 imported macros, got %d", len(imported))
 	}
@@ -102,11 +103,12 @@ func TestExportMacros_ZIPArchiveRoundtrip(t *testing.T) {
 		t.Fatalf("ExportToZIP error: %v", err)
 	}
 
-	imported, err := ParseImportZIP(zipPath)
-	if err != nil {
-		t.Fatalf("ParseImportZIP error: %v", err)
+	zipRes := ParseImportZIP(zipPath)
+	if zipRes.IsFailure() {
+		t.Fatalf("ParseImportZIP error: %v", zipRes.AppError())
 	}
 
+	imported := zipRes.Data
 	if len(imported) != 2 {
 		t.Fatalf("expected 2 imported macros from zip, got %d", len(imported))
 	}

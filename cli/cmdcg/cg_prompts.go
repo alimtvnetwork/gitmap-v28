@@ -11,7 +11,7 @@ import (
 
 func runCGInstallPrompts(targetDirs []string, isDryRun bool) error {
 	if len(targetDirs) == 0 {
-		targetDirs, _ = cmdprompt.ResolvePromptTarget("")
+		targetDirs = cmdprompt.ResolvePromptTarget("").Data
 	}
 
 	if len(targetDirs) == 0 {

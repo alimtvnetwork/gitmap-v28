@@ -8,7 +8,7 @@ import (
 
 func RunPromptVersion(targets []string) error {
 	if len(targets) == 0 {
-		targets, _ = ResolvePromptTarget("")
+		targets = ResolvePromptTarget("").Data
 	}
 
 	for _, t := range targets {

@@ -263,18 +263,18 @@ func handleMacroRecord(args []string) error {
 
 func handleMacroList(args []string) error {
 	opts := parseExecOptions(args)
-	macros, err := macro.ListMacros()
-	if err != nil {
-		fmt.Fprintf(os.Stderr, "Error listing macros: %v\n", err)
+	macroRes := macro.ListMacros()
+	if macroRes.IsFailure() {
+		fmt.Fprintf(os.Stderr, "Error listing macros: %v\n", macroRes.AppError())
 
-		return apperror.WrapSimple(err, "macro.ListMacros")
+		return macroRes.AppError().WithContext("caller", "handleMacroList")
 	}
 
 	if opts.JSON || opts.YAML || len(opts.FilePath) > 0 {
-		return outputStructuredData(macros, opts)
+		return outputStructuredData(macroRes.Data, opts)
 	}
 
-	renderMacroListTable(macros)
+	renderMacroListTable(macroRes.Data)
 
 	return nil
 }

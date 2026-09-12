@@ -6,24 +6,25 @@ import (
 	"path/filepath"
 
 	"github.com/alimtvnetwork/gitmap-v28/cli/fsutil"
+	"github.com/alimtvnetwork/gitmap-v28/cli/result"
 	"github.com/alimtvnetwork/gitmap-v28/cli/store"
 )
 
 // ResolvePromptTarget resolves a path, alias, ID, or discovers child repos.
-func ResolvePromptTarget(target string) ([]string, error) {
+func ResolvePromptTarget(target string) result.ResultSlice[string] {
 	if target == "" {
-		return resolveFallbackPromptTarget(), nil
+		return result.OkSlice(resolveFallbackPromptTarget())
 	}
 
 	if repos, ok := resolveDirPromptTarget(target); ok {
-		return repos, nil
+		return result.OkSlice(repos)
 	}
 
 	if repos, ok := resolveDBPromptTarget(target); ok {
-		return repos, nil
+		return result.OkSlice(repos)
 	}
 
-	return resolveFallbackPromptTarget(), nil
+	return result.OkSlice(resolveFallbackPromptTarget())
 }
 
 func resolveDirPromptTarget(target string) ([]string, bool) {

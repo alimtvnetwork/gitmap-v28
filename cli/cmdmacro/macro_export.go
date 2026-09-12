@@ -202,12 +202,12 @@ func collectMacrosForExport(opts macroExportOpts) ([]macro.Macro, error) {
 		return collectSingleMacro(opts.TargetName)
 	}
 
-	list, err := macro.ListMacros()
-	if err != nil {
-		return nil, apperror.WrapSimple(err, "list macros for export")
+	listRes := macro.ListMacros()
+	if listRes.IsFailure() {
+		return nil, listRes.AppError()
 	}
 
-	return macro.FilterMacrosForExport(list, macro.ExportOptions{
+	return macro.FilterMacrosForExport(listRes.Data, macro.ExportOptions{
 		IsAll:      true,
 		ExceptList: opts.ExceptList,
 	}), nil

@@ -59,10 +59,11 @@ func TestPipelineSplitDBLifecycle(t *testing.T) {
 	}
 
 	// 4. Query Error Logs
-	logs, err := db.QueryRecentErrorLogs(5)
-	if err != nil || len(logs) != 1 {
-		t.Fatalf("expected 1 error log, got %d (err: %v)", len(logs), err)
+	logRes := db.QueryRecentErrorLogs(5)
+	if logRes.IsFailure() || logRes.Count() != 1 {
+		t.Fatalf("expected 1 error log, got %d (err: %v)", logRes.Count(), logRes.AppError())
 	}
+	logs := logRes.Data
 
 	if logs[0].StepName != "Test Step" {
 		t.Errorf("expected step name 'Test Step', got %s", logs[0].StepName)
@@ -197,7 +198,7 @@ func TestPipelineDbScanError(t *testing.T) {
 		return
 	}
 
-	if _, queryErr := db.QueryRecentRuns(5); queryErr == nil {
+	if queryRes := db.QueryRecentRuns(5); queryRes.IsSuccess() {
 		t.Errorf("expected QueryRecentRuns to propagate error on corrupt row")
 	}
 }
@@ -241,13 +242,13 @@ func verifyCompactStorageAndQuery(t *testing.T, db *PipelineSplitDb) {
 	if err := db.RecordCompactErrorLog(compact); err != nil {
 		t.Fatalf("failed to record compact error log: %v", err)
 	}
-	details, _ := db.QueryDetailedErrorLogsByRunId(99001)
-	compacts, _ := db.QueryCompactErrorLogsByRunId(99001)
-	if len(details) != 1 || len(compacts) != 1 {
-		t.Fatalf("expected 1 detail and 1 compact log, got %d and %d", len(details), len(compacts))
+	details := db.QueryDetailedErrorLogsByRunId(99001)
+	compacts := db.QueryCompactErrorLogsByRunId(99001)
+	if details.Count() != 1 || compacts.Count() != 1 {
+		t.Fatalf("expected 1 detail and 1 compact log, got %d and %d", details.Count(), compacts.Count())
 	}
-	if compacts[0].FilteredOkCount != 2 {
-		t.Errorf("expected FilteredOkCount 2, got %d", compacts[0].FilteredOkCount)
+	if compacts.Data[0].FilteredOkCount != 2 {
+		t.Errorf("expected FilteredOkCount 2, got %d", compacts.Data[0].FilteredOkCount)
 	}
 }
 
@@ -258,8 +259,8 @@ func verifyCleanAndReset3Tables(t *testing.T, db *PipelineSplitDb) {
 	if err := db.Clear(); err != nil {
 		t.Fatalf("failed to clear db: %v", err)
 	}
-	details, _ := db.QueryDetailedErrorLogsByRunId(99001)
-	if len(details) != 0 {
-		t.Errorf("expected 0 detail logs after clear, got %d", len(details))
+	details := db.QueryDetailedErrorLogsByRunId(99001)
+	if !details.IsEmpty() {
+		t.Errorf("expected 0 detail logs after clear, got %d", details.Count())
 	}
 }

@@ -9,7 +9,7 @@ import (
 
 func RunPromptStatus(targets []string) error {
 	if len(targets) == 0 {
-		targets, _ = ResolvePromptTarget("")
+		targets = ResolvePromptTarget("").Data
 	}
 
 	layout := NewPromptStatusTableLayout()

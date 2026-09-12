@@ -12,14 +12,14 @@ import (
 )
 
 // ParseImportSQLite reads macros and their steps from a SQLite database file.
-func ParseImportSQLite(dbPath string) ([]Macro, error) {
+func ParseImportSQLite(dbPath string) result.ResultSlice[Macro] {
 	if _, err := os.Stat(dbPath); err != nil {
-		return nil, apperror.WrapSimple(err, "sqlite file not found")
+		return result.FailSlice[Macro](apperror.WrapSimple(err, "sqlite file not found"))
 	}
 
 	db, err := sql.Open("sqlite", dbPath)
 	if err != nil {
-		return nil, apperror.WrapSimple(err, "open sqlite import db")
+		return result.FailSlice[Macro](apperror.WrapSimple(err, "open sqlite import db"))
 	}
 
 	defer db.Close()
@@ -28,16 +28,16 @@ func ParseImportSQLite(dbPath string) ([]Macro, error) {
 	return queryAllMacrosWithSteps(db)
 }
 
-func queryAllMacrosWithSteps(db *sql.DB) ([]Macro, error) {
+func queryAllMacrosWithSteps(db *sql.DB) result.ResultSlice[Macro] {
 	stepRes := queryAllMacroSteps(db)
 	if stepRes.IsFailure() {
-		return nil, stepRes.AppError()
+		return result.FailSlice[Macro](stepRes.AppError())
 	}
 
 	query := `SELECT id, name, COALESCE(description, ''), created_at, updated_at, total_steps, COALESCE(tags, '') FROM macros ORDER BY id ASC`
 	rows, err := db.Query(query)
 	if err != nil {
-		return nil, apperror.WrapSimple(err, "query macros table")
+		return result.FailSlice[Macro](apperror.WrapSimple(err, "query macros table"))
 	}
 
 	defer rows.Close()
@@ -45,21 +45,21 @@ func queryAllMacrosWithSteps(db *sql.DB) ([]Macro, error) {
 	return scanMacroRows(rows, stepRes.Data)
 }
 
-func scanMacroRows(rows *sql.Rows, stepMap map[string][]MacroStep) ([]Macro, error) {
+func scanMacroRows(rows *sql.Rows, stepMap map[string][]MacroStep) result.ResultSlice[Macro] {
 	var list []Macro
 	for rows.Next() {
 		m, err := scanSingleMacroRow(rows, stepMap)
 		if err != nil {
-			return nil, err
+			return result.FailSlice[Macro](err)
 		}
 
 		list = append(list, m)
 	}
 
-	return list, nil
+	return result.OkSlice(list)
 }
 
-func scanSingleMacroRow(rows *sql.Rows, stepMap map[string][]MacroStep) (Macro, error) {
+func scanSingleMacroRow(rows *sql.Rows, stepMap map[string][]MacroStep) (Macro, *apperror.AppError) {
 	var m Macro
 	var createdStr, updatedStr string
 	if err := rows.Scan(&m.ID, &m.Name, &m.Description, &createdStr, &updatedStr, &m.TotalSteps, &m.Tags); err != nil {

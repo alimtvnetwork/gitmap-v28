@@ -13,6 +13,7 @@ import (
 
 	"github.com/alimtvnetwork/gitmap-v28/cli/apperror"
 	"github.com/alimtvnetwork/gitmap-v28/cli/constants"
+	"github.com/alimtvnetwork/gitmap-v28/cli/result"
 )
 
 // ImportOptions configures macro import parsing and persistence.
@@ -104,40 +105,40 @@ func isReservedDeviceName(name string) bool {
 }
 
 // ParseImportJSON deserializes JSON bytes using polymorphic dual-shape detection.
-func ParseImportJSON(data []byte) ([]Macro, error) {
+func ParseImportJSON(data []byte) result.ResultSlice[Macro] {
 	var list []Macro
 	if err := json.Unmarshal(data, &list); err == nil && len(list) > 0 {
-		return list, nil
+		return result.OkSlice(list)
 	}
 
 	var single Macro
 	if err := json.Unmarshal(data, &single); err == nil && single.Name != "" {
-		return []Macro{single}, nil
+		return result.OkSlice([]Macro{single})
 	}
 
-	return nil, apperror.NewSimple("invalid json macro format", "E6022")
+	return result.FailSlice[Macro](apperror.NewSimple("invalid json macro format", "E6022"))
 }
 
 // ParseImportYAML deserializes YAML bytes using polymorphic dual-shape detection.
-func ParseImportYAML(data []byte) ([]Macro, error) {
+func ParseImportYAML(data []byte) result.ResultSlice[Macro] {
 	var list []Macro
 	if err := yaml.Unmarshal(data, &list); err == nil && len(list) > 0 {
-		return list, nil
+		return result.OkSlice(list)
 	}
 
 	var single Macro
 	if err := yaml.Unmarshal(data, &single); err == nil && single.Name != "" {
-		return []Macro{single}, nil
+		return result.OkSlice([]Macro{single})
 	}
 
-	return nil, apperror.NewSimple("invalid yaml macro format", "E6023")
+	return result.FailSlice[Macro](apperror.NewSimple("invalid yaml macro format", "E6023"))
 }
 
 // ParseImportZIP unpacks and deserializes all JSON macro definitions inside a ZIP archive.
-func ParseImportZIP(filePath string) ([]Macro, error) {
+func ParseImportZIP(filePath string) result.ResultSlice[Macro] {
 	zr, err := zip.OpenReader(filePath)
 	if err != nil {
-		return nil, apperror.WrapSimple(err, "open zip macro archive")
+		return result.FailSlice[Macro](apperror.WrapSimple(err, "open zip macro archive"))
 	}
 
 	defer zr.Close()
@@ -145,7 +146,7 @@ func ParseImportZIP(filePath string) ([]Macro, error) {
 	return extractMacrosFromZip(&zr.Reader)
 }
 
-func extractMacrosFromZip(zr *zip.Reader) ([]Macro, error) {
+func extractMacrosFromZip(zr *zip.Reader) result.ResultSlice[Macro] {
 	var list []Macro
 	for _, f := range zr.File {
 		if !strings.HasSuffix(strings.ToLower(f.Name), ".json") {
@@ -159,13 +160,13 @@ func extractMacrosFromZip(zr *zip.Reader) ([]Macro, error) {
 	}
 
 	if len(list) == 0 {
-		return nil, apperror.NewSimple("no valid macro definitions found in zip", "E6024")
+		return result.FailSlice[Macro](apperror.NewSimple("no valid macro definitions found in zip", "E6024"))
 	}
 
-	return list, nil
+	return result.OkSlice(list)
 }
 
-func readZipMacroEntry(f *zip.File) (*Macro, error) {
+func readZipMacroEntry(f *zip.File) (*Macro, *apperror.AppError) {
 	rc, err := f.Open()
 	if err != nil {
 		return nil, apperror.WrapSimple(err, "open zip file entry")
@@ -201,7 +202,7 @@ func InferMacroFormat(filePath string) string {
 }
 
 // ParseImportFile loads and parses macros from disk with auto format inference.
-func ParseImportFile(filePath string, explicitFormat string) ([]Macro, error) {
+func ParseImportFile(filePath string, explicitFormat string) result.ResultSlice[Macro] {
 	format := strings.ToLower(strings.TrimSpace(explicitFormat))
 	if format == "" {
 		format = InferMacroFormat(filePath)
@@ -217,7 +218,7 @@ func ParseImportFile(filePath string, explicitFormat string) ([]Macro, error) {
 
 	raw, err := os.ReadFile(filePath)
 	if err != nil {
-		return nil, apperror.WrapSimple(err, "read import file")
+		return result.FailSlice[Macro](apperror.WrapSimple(err, "read import file"))
 	}
 
 	if format == constants.OutputYAML || format == "yml" {
@@ -229,13 +230,13 @@ func ParseImportFile(filePath string, explicitFormat string) ([]Macro, error) {
 
 // ImportMacros validates, filters, and saves parsed macros into the local store.
 func ImportMacros(macros []Macro, opts ImportOptions) (*ImportResult, error) {
-	filtered, err := filterAndValidateImportTargets(macros, opts)
-	if err != nil {
-		return nil, err
+	filterRes := filterAndValidateImportTargets(macros, opts)
+	if filterRes.IsFailure() {
+		return nil, filterRes.AppError()
 	}
 
 	res := &ImportResult{TotalFound: len(macros)}
-	for _, m := range filtered {
+	for _, m := range filterRes.Data {
 		if err := processSingleMacroImport(&m, opts, res); err != nil {
 			return nil, err
 		}
@@ -244,21 +245,21 @@ func ImportMacros(macros []Macro, opts ImportOptions) (*ImportResult, error) {
 	return res, nil
 }
 
-func filterAndValidateImportTargets(macros []Macro, opts ImportOptions) ([]Macro, error) {
+func filterAndValidateImportTargets(macros []Macro, opts ImportOptions) result.ResultSlice[Macro] {
 	matched := matchImportMacros(macros, opts)
 	if opts.TargetName != "" && len(matched) == 0 {
-		return nil, apperror.NewValidationError("macro target " + opts.TargetName + " not found in import archive")
+		return result.FailSlice[Macro](apperror.NewValidationError("macro target " + opts.TargetName + " not found in import archive"))
 	}
 
 	if opts.IsSingle && len(matched) > 1 && opts.TargetName == "" {
-		return nil, apperror.NewValidationError("multiple macros found in archive; please specify target macro name")
+		return result.FailSlice[Macro](apperror.NewValidationError("multiple macros found in archive; please specify target macro name"))
 	}
 
 	if opts.RenameAs != "" && len(matched) > 1 {
-		return nil, apperror.NewValidationError("cannot rename multiple macros with a single name")
+		return result.FailSlice[Macro](apperror.NewValidationError("cannot rename multiple macros with a single name"))
 	}
 
-	return matched, nil
+	return result.OkSlice(matched)
 }
 
 func matchImportMacros(macros []Macro, opts ImportOptions) []Macro {

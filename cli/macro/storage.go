@@ -8,7 +8,9 @@ import (
 	"strings"
 	"time"
 
+	"github.com/alimtvnetwork/gitmap-v28/cli/apperror"
 	"github.com/alimtvnetwork/gitmap-v28/cli/constants"
+	"github.com/alimtvnetwork/gitmap-v28/cli/result"
 )
 
 func getMacroDir() (string, error) {
@@ -101,15 +103,15 @@ func LoadMacro(name string) (*Macro, error) {
 }
 
 // ListMacros returns all saved macros.
-func ListMacros() ([]Macro, error) {
+func ListMacros() result.ResultSlice[Macro] {
 	dir, err := getMacroDir()
 	if err != nil {
-		return nil, err
+		return result.FailSlice[Macro](apperror.WrapSimple(err, "get macro dir"))
 	}
 
 	entries, err := os.ReadDir(dir)
 	if err != nil {
-		return nil, err
+		return result.FailSlice[Macro](apperror.WrapSimple(err, "read macro dir"))
 	}
 
 	var out []Macro
@@ -125,7 +127,7 @@ func ListMacros() ([]Macro, error) {
 		}
 	}
 
-	return out, nil
+	return result.OkSlice(out)
 }
 
 // DeleteMacro removes a saved macro.

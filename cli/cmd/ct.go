@@ -63,23 +63,23 @@ func resolveCTTargetDirs(opts cmdprompt.PromptInstallOptions) []string {
 	}
 
 	if opts.IsAll {
-		resolved, _ := cmdprompt.ResolveAllWorkDirPromptTargets()
+		resolved := cmdprompt.ResolveAllWorkDirPromptTargets()
 
-		return resolved
+		return resolved.Data
 	}
 
-	resolved, _ := cmdprompt.ResolvePromptTarget("")
+	resolved := cmdprompt.ResolvePromptTarget("")
 
-	return resolved
+	return resolved.Data
 }
 
 //nolint:unused
 func resolvePromptTargetsList(targets []string) []string {
 	var targetDirs []string
 	for _, t := range targets {
-		resolved, err := cmdprompt.ResolvePromptTarget(t)
-		if err == nil {
-			targetDirs = append(targetDirs, resolved...)
+		resolved := cmdprompt.ResolvePromptTarget(t)
+		if resolved.IsSuccess() {
+			targetDirs = append(targetDirs, resolved.Data...)
 		}
 	}
 

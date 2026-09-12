@@ -3,8 +3,14 @@ package cmdprompt
 
 import (
 	"github.com/alimtvnetwork/gitmap-v28/cli/fsutil"
+	"github.com/alimtvnetwork/gitmap-v28/cli/result"
 )
 
-func DiscoverPromptChildRepos(rootDir string) ([]string, error) {
-	return fsutil.DiscoverTopLevelGitRepos(rootDir)
+func DiscoverPromptChildRepos(rootDir string) result.ResultSlice[string] {
+	repos, err := fsutil.DiscoverTopLevelGitRepos(rootDir)
+	if err != nil {
+		return result.NewFailureSlice[string](err)
+	}
+
+	return result.OkSlice(repos)
 }

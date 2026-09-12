@@ -250,27 +250,27 @@ func renderRunErrorsByDetailMode(db *pipelinedb.PipelineSplitDb, runId uint64, i
 }
 
 func renderDetailedOrLegacyErrors(db *pipelinedb.PipelineSplitDb, runId uint64) {
-	details, err := db.QueryDetailedErrorLogsByRunId(runId)
-	if err == nil && len(details) > 0 {
-		renderCachedErrorsList(details)
+	detailRes := db.QueryDetailedErrorLogsByRunId(runId)
+	if detailRes.IsSuccess() && !detailRes.IsEmpty() {
+		renderCachedErrorsList(detailRes.Data)
 
 		return
 	}
 
-	legacy, _ := db.QueryErrorLogsByRunId(runId)
-	renderCachedErrorsList(legacy)
+	legacyRes := db.QueryErrorLogsByRunId(runId)
+	renderCachedErrorsList(legacyRes.Data)
 }
 
 func renderCompactOrLegacyErrors(db *pipelinedb.PipelineSplitDb, runId uint64) {
-	compacts, err := db.QueryCompactErrorLogsByRunId(runId)
-	if err == nil && len(compacts) > 0 {
-		renderCachedCompactErrorsList(compacts)
+	compactRes := db.QueryCompactErrorLogsByRunId(runId)
+	if compactRes.IsSuccess() && !compactRes.IsEmpty() {
+		renderCachedCompactErrorsList(compactRes.Data)
 
 		return
 	}
 
-	legacy, _ := db.QueryErrorLogsByRunId(runId)
-	renderCachedErrorsList(legacy)
+	legacyRes := db.QueryErrorLogsByRunId(runId)
+	renderCachedErrorsList(legacyRes.Data)
 }
 
 func renderCachedCompactErrorsList(errors []pipelinedb.PipelineCompactErrorRecord) {
@@ -309,14 +309,14 @@ func fetchLastCachedFailures(repo string, count int) (*pipelinedb.PipelineSplitD
 	}
 
 	limit := resolveMaxSyncLimit(count)
-	runs, err := db.QueryLastFailedRuns(limit)
-	if err != nil {
+	runRes := db.QueryLastFailedRuns(limit)
+	if runRes.IsFailure() {
 		_ = db.Close()
 
-		return nil, nil, err
+		return nil, nil, runRes.AppError()
 	}
 
-	return db, runs, nil
+	return db, runRes.Data, nil
 }
 
 // RenderLastCachedFailures displays cached failure logs from SQLite up to count.
