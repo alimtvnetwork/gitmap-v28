@@ -23,10 +23,20 @@ export default function SettingsPage() {
       theme: localStorage.getItem("gitmap_terminal_theme"),
     }));
 
-    if (res.isSuccess && res.data) {
-      if (res.data.temp) setTempDir(res.data.temp);
-      if (res.data.poll) setPollInterval(res.data.poll);
-      if (res.data.theme) setTerminalTheme(res.data.theme as TerminalThemeType);
+    if (res.isFail || !res.data) {
+      return;
+    }
+
+    if (res.data.temp) {
+      setTempDir(res.data.temp);
+    }
+
+    if (res.data.poll) {
+      setPollInterval(res.data.poll);
+    }
+
+    if (res.data.theme) {
+      setTerminalTheme(res.data.theme as TerminalThemeType);
     }
   }, []);
 

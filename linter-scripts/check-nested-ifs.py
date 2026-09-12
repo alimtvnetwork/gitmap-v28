@@ -343,8 +343,28 @@ def main() -> int:
     monitor.stop()
     elapsed = time.time() - start_time
     exit_code = report_violations_and_exit(all_violations, total_files, elapsed)
+    if exit_code != 0:
+        return exit_code
 
-    return exit_code
+    ts_mjs = ROOT_DIR / "linter-scripts" / "check-nested-ifs.mjs"
+    if ts_mjs.exists():
+        try:
+            ts_res = subprocess.run(
+                ["node", str(ts_mjs)],
+                cwd=str(ROOT_DIR),
+                capture_output=True,
+                text=True,
+                encoding="utf-8",
+                errors="replace",
+            )
+            if ts_res.returncode != 0:
+                print(ts_res.stderr or ts_res.stdout)
+                return 1
+            print(f"▸ TypeScript AST check: {ts_res.stdout.strip()}")
+        except Exception:
+            pass
+
+    return 0
 
 
 if __name__ == "__main__":

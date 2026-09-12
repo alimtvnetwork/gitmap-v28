@@ -135,16 +135,25 @@ const getFormElementLabel = (el: HTMLElement): string | null => {
     el instanceof HTMLSelectElement ||
     el instanceof HTMLTextAreaElement;
 
-  if (isFormEl && el.labels && el.labels.length > 0) {
-    const text = Array.from(el.labels)
-      .map((l) => l.textContent?.trim() ?? "")
-      .filter(Boolean)
-      .join(" ");
-
-    if (text) return truncate(text.replace(/\s+/g, " "));
+  if (!isFormEl) {
+    return null;
   }
 
-  return null;
+  const formEl = el as HTMLInputElement | HTMLSelectElement | HTMLTextAreaElement;
+  if (!formEl.labels || formEl.labels.length === 0) {
+    return null;
+  }
+
+  const text = Array.from(formEl.labels)
+    .map((l) => l.textContent?.trim() ?? "")
+    .filter(Boolean)
+    .join(" ");
+
+  if (!text) {
+    return null;
+  }
+
+  return truncate(text.replace(/\s+/g, " "));
 };
 
 /**
@@ -202,22 +211,38 @@ const getLandmarkSection = (el: HTMLElement): string | null => {
   return null;
 };
 
+const getAriaLabelledByText = (section: HTMLElement): string | null => {
+  const labelId = section.getAttribute("aria-labelledby");
+  if (!labelId) {
+    return null;
+  }
+
+  const ref = document.getElementById(labelId);
+  const text = ref?.textContent?.trim();
+  if (!text) {
+    return null;
+  }
+
+  return text;
+};
+
 const getAriaSection = (el: HTMLElement): string | null => {
   const section = el.closest<HTMLElement>("section[aria-labelledby], section[aria-label]");
-  const isMissingSection = !section;
+  if (!section) {
+    return null;
+  }
 
-  if (isMissingSection) return null;
-  const labelId = section.getAttribute("aria-labelledby");
-
-  if (labelId) {
-    const ref = document.getElementById(labelId);
-
-    if (ref?.textContent) return ref.textContent.trim();
+  const labelledByText = getAriaLabelledByText(section);
+  if (labelledByText) {
+    return labelledByText;
   }
 
   const label = section.getAttribute("aria-label");
+  if (!label) {
+    return null;
+  }
 
-  return label ? label.trim() : null;
+  return label.trim();
 };
 
 /** Closest meaningful landmark for grouping in the list. */
@@ -303,8 +328,11 @@ const groupEntriesBySection = (entries: FocusEntry[]): { section: string; items:
   for (const e of entries) {
     const last = groups[groups.length - 1];
 
-    if (last && last.section === e.section) last.items.push(e);
-    else groups.push({ section: e.section, items: [e] });
+    if (last && last.section === e.section) {
+      last.items.push(e);
+    } else {
+      groups.push({ section: e.section, items: [e] });
+    }
   }
 
   return groups;

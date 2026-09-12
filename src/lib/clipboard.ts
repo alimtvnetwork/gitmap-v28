@@ -1,27 +1,43 @@
 import { queryWrapper, queryWrapperSync } from "./queryWrapper";
 
+function isModernClipboardSupported(): boolean {
+  if (typeof navigator === "undefined" || !navigator.clipboard) {
+    return false;
+  }
+
+  if (typeof navigator.clipboard.writeText !== "function") {
+    return false;
+  }
+
+  if (typeof window !== "undefined" && typeof window.isSecureContext !== "undefined" && !window.isSecureContext) {
+    return false;
+  }
+
+  return true;
+}
+
+async function tryModernClipboardCopy(text: string): Promise<boolean> {
+  if (!isModernClipboardSupported()) {
+    return false;
+  }
+
+  const res = await queryWrapper(async () => {
+    await navigator.clipboard.writeText(text);
+
+    return true;
+  });
+
+  if (res.isFail || !res.data) {
+    return false;
+  }
+
+  return true;
+}
+
 export async function copyToClipboard(text: string): Promise<boolean> {
-  // Path 1: modern async Clipboard API. Guard for both the property
-  // existing AND the document being focused — Safari rejects writes
-  // from blurred documents with a NotAllowedError.
-
-  if (
-    typeof navigator !== "undefined" &&
-    navigator.clipboard &&
-    typeof navigator.clipboard.writeText === "function" &&
-    (typeof window === "undefined" ||
-      typeof window.isSecureContext === "undefined" ||
-      window.isSecureContext)
-  ) {
-    const res = await queryWrapper(async () => {
-      await navigator.clipboard.writeText(text);
-
-      return true;
-    });
-
-    if (!res.isFail && res.data) {
-      return true;
-    }
+  const isCopied = await tryModernClipboardCopy(text);
+  if (isCopied) {
+    return true;
   }
 
   return legacyCopy(text);
