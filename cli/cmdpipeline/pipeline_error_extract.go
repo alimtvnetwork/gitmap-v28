@@ -590,3 +590,56 @@ func formatJobLines(sb *strings.Builder, job FailedJobItem) {
 		sb.WriteString(fmt.Sprintf("      %s\n", l))
 	}
 }
+
+func isOkLogLine(line string) bool {
+	trimmed := strings.TrimSpace(line)
+	if trimmed == "PASS" || trimmed == "ok" || strings.HasPrefix(trimmed, "PASS:") {
+		return true
+	}
+	if strings.HasPrefix(trimmed, "ok\t") || strings.HasPrefix(trimmed, "ok ") {
+		return true
+	}
+	if strings.HasPrefix(trimmed, "?\t") || strings.HasPrefix(trimmed, "? ") {
+		return true
+	}
+	if strings.HasPrefix(trimmed, "--- PASS") || strings.HasPrefix(trimmed, "=== RUN") {
+		return true
+	}
+
+	return strings.HasPrefix(trimmed, "✔ ok") || strings.HasPrefix(trimmed, "✔ Macro")
+}
+
+func filterCompactLines(lines []string) []string {
+	var filtered []string
+	for _, line := range lines {
+		if !isOkLogLine(line) {
+			filtered = append(filtered, line)
+		}
+	}
+
+	return filtered
+}
+
+func compactErrorPayload(p *PipelineErrorLogsPayload) {
+	for i := range p.FailedRuns {
+		for j := range p.FailedRuns[i].FailedJobs {
+			p.FailedRuns[i].FailedJobs[j].ErrorLines = filterCompactLines(p.FailedRuns[i].FailedJobs[j].ErrorLines)
+		}
+	}
+	for i := range p.SectionFailures {
+		p.SectionFailures[i].ErrorLines = filterCompactLines(p.SectionFailures[i].ErrorLines)
+	}
+	p.CombinedErrors = formatCombinedSectionFailures(p.SectionFailures)
+	updateCompactedErrorLogs(p)
+}
+
+func updateCompactedErrorLogs(p *PipelineErrorLogsPayload) {
+	if len(p.FailedRuns) > 0 {
+		p.ErrorLogs = p.CombinedErrors + "\n\n" + formatAllRunsDetailed(p.FailedRuns)
+
+		return
+	}
+	if len(p.ErrorLogs) > 0 {
+		p.ErrorLogs = strings.Join(filterCompactLines(strings.Split(p.ErrorLogs, "\n")), "\n")
+	}
+}

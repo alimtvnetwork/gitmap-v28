@@ -17,6 +17,7 @@ type PipelineErrorFlags struct {
 	HasLastFailures   bool
 	LastFailures      int
 	HasLastFailedLogs bool
+	IsDetailed        bool
 	FilePath          string
 	TempFileName      string
 }
@@ -36,8 +37,16 @@ func parseCommonErrorFlags(args []string, flags *PipelineErrorFlags) {
 	flags.HasTimeline = hasTimelineArg(args)
 	flags.HasFix = hasArgFlag(args, "--fix") || hasArgFlag(args, "-f")
 	flags.HasCheck = hasArgFlag(args, "--check") || hasArgFlag(args, "-c")
+	flags.IsDetailed = hasDetailedArg(args)
 	flags.FilePath = extractFlagVal(args, "--file")
 	flags.TempFileName = extractFlagVal(args, "--tempfile")
+}
+
+func hasDetailedArg(args []string) bool {
+	return hasArgFlag(args, "--detailed") || hasArgFlag(args, "--verbose") ||
+		hasArgFlag(args, "--v") || hasArgFlag(args, "-v") || hasArgFlag(args, "-V") ||
+		hasArgFlag(os.Args, "--detailed") || hasArgFlag(os.Args, "--verbose") ||
+		hasArgFlag(os.Args, "--v") || hasArgFlag(os.Args, "-v") || hasArgFlag(os.Args, "-V")
 }
 
 func hasTimelineArg(args []string) bool {

@@ -100,6 +100,7 @@ type ErrorLogsTimelineParams struct {
 	IsJSON       bool
 	WantFix      bool
 	WantCheck    bool
+	IsDetailed   bool
 	FilePath     string
 	TempFileName string
 	Args         []string
@@ -115,25 +116,26 @@ func runPipelineErrorLogsDynamicTimeline(params ErrorLogsTimelineParams) error {
 	}
 
 	payload := buildErrorLogsPayload(params.Repo, runs)
-	if len(runs) > 0 {
-		payload.RerunEtaSeconds = calculateAverageDuration(runs, payload.WorkflowName)
-	}
+	applyTimelinePayloadOptions(&payload, runs, params)
 
-	if params.WantFix || params.WantCheck {
-		payload.CICDChecks = runInternalCICDChecks(params.WantFix)
-	}
-
-	err := writeOrRenderErrorLogs(ErrorLogOutputParams{
+	return writeOrRenderErrorLogs(ErrorLogOutputParams{
 		Payload:  payload,
 		IsJSON:   params.IsJSON,
 		FilePath: params.FilePath,
 		TempFile: params.TempFileName,
 	})
-	if err != nil {
-		return err
-	}
+}
 
-	return nil
+func applyTimelinePayloadOptions(p *PipelineErrorLogsPayload, runs []ghRunItem, params ErrorLogsTimelineParams) {
+	if len(runs) > 0 {
+		p.RerunEtaSeconds = calculateAverageDuration(runs, p.WorkflowName)
+	}
+	if !params.IsDetailed {
+		compactErrorPayload(p)
+	}
+	if params.WantFix || params.WantCheck {
+		p.CICDChecks = runInternalCICDChecks(params.WantFix)
+	}
 }
 
 func reportCompletedTimeline(latest ghRunItem, repo string, isJSON bool) error {

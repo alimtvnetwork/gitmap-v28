@@ -37,8 +37,8 @@ func executePipelineErrorLogs(args []string) error {
 	if flags.HasTimeline {
 		return runPipelineErrorLogsDynamicTimeline(ErrorLogsTimelineParams{
 			Repo: repo, IsJSON: flags.IsJSON, WantFix: flags.HasFix,
-			WantCheck: flags.HasCheck, FilePath: flags.FilePath,
-			TempFileName: flags.TempFileName, Args: args,
+			WantCheck: flags.HasCheck, IsDetailed: flags.IsDetailed,
+			FilePath: flags.FilePath, TempFileName: flags.TempFileName, Args: args,
 		})
 	}
 
@@ -48,13 +48,7 @@ func executePipelineErrorLogs(args []string) error {
 func processAndRenderErrorLogs(repo string, flags PipelineErrorFlags) error {
 	runs := queryWorkflowRuns(repo)
 	payload := buildErrorLogsPayload(repo, runs)
-	if len(runs) > 0 {
-		payload.RerunEtaSeconds = calculateAverageDuration(runs, payload.WorkflowName)
-	}
-
-	if flags.HasFix || flags.HasCheck {
-		payload.CICDChecks = runInternalCICDChecks(flags.HasFix)
-	}
+	applyPayloadOptions(&payload, runs, flags)
 
 	return writeOrRenderErrorLogs(ErrorLogOutputParams{
 		Payload:  payload,
@@ -62,6 +56,18 @@ func processAndRenderErrorLogs(repo string, flags PipelineErrorFlags) error {
 		FilePath: flags.FilePath,
 		TempFile: flags.TempFileName,
 	})
+}
+
+func applyPayloadOptions(p *PipelineErrorLogsPayload, runs []ghRunItem, flags PipelineErrorFlags) {
+	if len(runs) > 0 {
+		p.RerunEtaSeconds = calculateAverageDuration(runs, p.WorkflowName)
+	}
+	if !flags.IsDetailed {
+		compactErrorPayload(p)
+	}
+	if flags.HasFix || flags.HasCheck {
+		p.CICDChecks = runInternalCICDChecks(flags.HasFix)
+	}
 }
 
 func handlePipelineLogs(args []string) error {
@@ -733,6 +739,7 @@ func printPipelineErrorLogsHelp() {
 	fmt.Println("  -t, --timeline          Watch pipeline dynamic timeline until completion")
 	fmt.Println("  -f, --fix               Execute internal CI/CD diagnostic & auto-repair suite")
 	fmt.Println("  -c, --check             Run internal CI/CD checks without modifying files")
+	fmt.Println("  -v, --detailed, --verbose  Show full raw error logs including passing ok lines")
 	fmt.Println("  -y, --yes               Auto-confirm prompts non-interactively")
 	fmt.Println("  --json                  Output data in structured JSON format")
 	fmt.Println("  --file <path>           Write error logs to specified file path")

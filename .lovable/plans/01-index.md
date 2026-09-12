@@ -8,6 +8,7 @@ None
 
 ## Completed Plans (Consolidated Milestones)
 
+- [134-pipeline-compact-error-logs.md](completed/134-pipeline-compact-error-logs.md): Pipeline Compact Error Logs Default Filtering & Detailed Verbose Flags
 - [133-nuclear-package-modularization-phase10.md](completed/133-nuclear-package-modularization-phase10.md): Nuclear Package Modularization (cmdschedule, cmdconfig, cmdworkdir), Heavy Test Isolation & Test Inventory Duration Estimation
 - [132-nuclear-package-modularization-phase9.md](completed/132-nuclear-package-modularization-phase9.md): Nuclear Package Modularization (cmdscan, cmddoctor, cmdos), Heavy Test Isolation & Test Inventory Duration Estimation
 - [131-nuclear-package-modularization-phase8.md](completed/131-nuclear-package-modularization-phase8.md): Nuclear Package Modularization (cmdclone, cmdupdate, cmdpull), Heavy Test Isolation & Test Inventory Duration Estimation
