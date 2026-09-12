@@ -661,6 +661,7 @@ When tasked with auditing, reviewing, or fixing coding guidelines across a codeb
 - [ ] **Strict Lowercase Filenames:** All generated or modified files use strictly lowercase naming (`readme.md`, `agents.md`, `skill.md`).
 - [ ] **Tooling Execution:** I ran `03-ai-scripts/05-guideline-autofixer.py` and verified clean output with `python linter-scripts/validate-guidelines.py`.
 - [ ] **Targeted Verification:** All modified files pass targeted linters / autofixers cleanly with exit 0. (Full CI runner `06-cicd-local-runner.py` is banned in routine turns).
+- [ ] **Temp Storage & Pre-Build Clean (R17):** All OS/user temporary files are scoped under `<temp>/gitmap/<category>/` (build, test, purge, downloads). Before running any build, previous build artifacts in the target directory are purged to respect storage and prevent disk bloat.
 - [ ] **File Change Summary:** I provided a detailed summary in chat of what files changed, what changed inside them, and why.
 
 ---

@@ -68,6 +68,17 @@ This includes — but is not limited to:
 
 **If you generate these files during a run or compilation, verify they are ignored by `.gitignore`. If not, update `.gitignore` or delete them before running `git add`.**
 
+## Un-namespaced OS Temp Writes & Un-cleaned Builds — TOTAL BAN
+
+🔴 **NEVER write loose build artifacts or temporary test files directly to the root of the OS/user temp directory (`os.TempDir()`, `tempfile.gettempdir()`, `$env:TEMP`, `$TMPDIR`).**
+
+All operations targeting OS/user temp must strictly write inside a repository-named directory: `<temp_dir>/gitmap/<subfolder>/` (e.g. `build/`, `test/`, `purge/`, `downloads/`).
+
+🔴 **NEVER execute a build without clearing previous build artifacts first.**
+Before any build command runs, the build output directory must be purged of stale artifacts to respect disk storage, prevent accumulation of orphaned binaries, and guarantee clean storage reuse.
+
+---
+
 ## Release on Every Commit — TOTAL BAN
 
 🔴 **NEVER trigger a release (version bump, release tagging, `scripts/release.mjs`) on every commit or every chat turn.**

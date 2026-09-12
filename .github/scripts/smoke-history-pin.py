@@ -182,7 +182,9 @@ def main() -> int:
         print(f"gitmap binary not found at {gitmap_bin}", file=sys.stderr)
         return 1
 
-    with tempfile.TemporaryDirectory() as work_dir:
+    test_base = os.path.join(tempfile.gettempdir(), "gitmap", "test")
+    os.makedirs(test_base, exist_ok=True)
+    with tempfile.TemporaryDirectory(dir=test_base) as work_dir:
         _, repo = init_test_repos(Path(work_dir))
 
         sandbox = run_scenario_a(gitmap_bin, repo)

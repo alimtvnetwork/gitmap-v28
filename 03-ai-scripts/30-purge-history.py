@@ -117,7 +117,7 @@ def purge_history(raw_pattern, is_auto_confirm=False):
     current_branch, matching_files = validate_repo_state(norm_pattern)
     ts = int(time.time())
     backup_branch = f"backup-purge-{ts}"
-    temp_dir = os.path.join(tempfile.gettempdir(), f"gitmap_purge_{ts}")
+    temp_dir = os.path.join(tempfile.gettempdir(), "gitmap", "purge", f"gitmap_purge_{ts}")
     print_purge_warning(norm_pattern, matching_files, temp_dir, backup_branch)
     confirm_operation(is_auto_confirm)
     run_cmd(["git", "branch", backup_branch])

@@ -43,6 +43,7 @@ PHASE_2_STEPS = N / 2  (Steps 151 .. 300: Workflow Generation, Python Linter Ver
 >    - ❌ **BAD:** `[SSH Commands](file:///absolute/path/to/...)`
 >    - ✅ **GOOD:** `[SSH Commands](spec/13-generic-cli/01-index.md)`
 > 7. **No External or Random File Creation:** NEVER write scripts, temporary test scripts, or scratch files to root, `/tmp`, global system paths, or outside the repository boundary.
+> 8. **OS Temp Namespacing & Pre-Build Clean:** All temporary files and test workdirs under OS temp MUST be scoped under `<temp_dir>/gitmap/<category>/`. Before executing any build, the build directory MUST be cleared of existing artifacts to prevent disk storage bloat.
 
 ---
 

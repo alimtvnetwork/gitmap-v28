@@ -238,7 +238,7 @@ def execute_filter_repo(paths_file: Path) -> bool:
 def create_temp_backup_dir() -> Path:
     """Creates a timestamped backup directory in the OS temp directory."""
     tag = datetime.datetime.now(datetime.timezone.utc).strftime("%Y%m%d-%H%M%S")
-    backup_path = Path(tempfile.gettempdir()) / f"gitmap-deleted-backup-{tag}"
+    backup_path = Path(tempfile.gettempdir()) / "gitmap" / "purge" / f"gitmap-deleted-backup-{tag}"
     backup_path.mkdir(parents=True, exist_ok=True)
     return backup_path
 

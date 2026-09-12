@@ -10,6 +10,7 @@ import (
 
 	"github.com/alimtvnetwork/gitmap-v28/cli/apperror"
 	"github.com/alimtvnetwork/gitmap-v28/cli/store"
+	"github.com/alimtvnetwork/gitmap-v28/cli/tempdir"
 )
 
 func checkWorkTreeAndBranch() error {
@@ -130,7 +131,8 @@ func doPurge(db *store.DB, repoPath, pattern string, isAutoConfirm bool) error {
 	}
 
 	ts := time.Now().Unix()
-	br, tmp := fmt.Sprintf("backup-purge-%d", ts), filepath.Join(os.TempDir(), fmt.Sprintf("gitmap_purge_%d", ts))
+	br := fmt.Sprintf("backup-purge-%d", ts)
+	tmp := tempdir.RepoTempDir("purge", fmt.Sprintf("gitmap_purge_%d", ts))
 	backed, err := createPurgeBackup(br, tmp, files)
 	if err != nil {
 		return err

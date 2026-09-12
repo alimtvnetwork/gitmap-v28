@@ -79,10 +79,38 @@ def load_deploy_manifest(repo_root: str):
     return app_subdir, bin_name, legacy_subdirs
 
 
+def get_repo_temp_dir(*subdirs: str) -> str:
+    """Returns a repository-scoped path under the OS temp directory."""
+    target = os.path.join(tempfile.gettempdir(), "gitmap", *subdirs)
+    os.makedirs(target, exist_ok=True)
+
+    return target
+
+
+def clear_repo_build_temp() -> None:
+    """Cleans all previous build artifacts in the repo temp build directory before building."""
+    build_dir = get_repo_temp_dir("build")
+    for item in os.listdir(build_dir):
+        item_path = os.path.join(build_dir, item)
+        if os.path.isdir(item_path):
+            shutil.rmtree(item_path, ignore_errors=True)
+        else:
+            try:
+                os.remove(item_path)
+            except OSError:
+                pass
+
+
 def run_source_mode(repo_root: str, expected: str, workdir: str) -> str:
     print(f"▶ Building gitmap from source into {workdir}")
+    clear_repo_build_temp()
     bin_name = "gitmap.exe" if os.name == "nt" else "gitmap"
     bin_path = os.path.join(workdir, bin_name)
+    if os.path.exists(bin_path):
+        try:
+            os.remove(bin_path)
+        except OSError:
+            pass
     gitmap_dir = os.path.join(repo_root, "cli")
 
     cmd = ["go", "build", "-buildvcs=false", "-o", bin_path, "."]
@@ -177,13 +205,13 @@ def resolve_mock_source_binary(repo_root: str, expected: str) -> str:
     if os.path.isfile(dist_src):
         return dist_src
 
-    return run_source_mode(repo_root, expected, tempfile.mkdtemp())
+    return run_source_mode(repo_root, expected, get_repo_temp_dir("build"))
 
 
 def run_local_mock_release_installer(repo_root: str, expected: str, dest_dir: str) -> bool:
     """Packages local gitmap binary into release zip and serves it to validate installer."""
     bin_src = resolve_mock_source_binary(repo_root, expected)
-    mock_dir = tempfile.mkdtemp(prefix="gitmap-mock-release-")
+    mock_dir = tempfile.mkdtemp(prefix="gitmap-mock-release-", dir=get_repo_temp_dir("test"))
     try:
         archive_name, archive_path = build_mock_archive(mock_dir, bin_src, expected, os.name == "nt")
         write_mock_checksums(mock_dir, archive_name, archive_path)
@@ -344,7 +372,7 @@ def main():
         print("::error::Could not determine expected version", file=sys.stderr)
         sys.exit(2)
 
-    workdir = tempfile.mkdtemp(prefix="gitmap-smoke-")
+    workdir = tempfile.mkdtemp(prefix="gitmap-smoke-", dir=get_repo_temp_dir("test"))
     try:
         print(f"▶ Smoke mode:    {mode}")
         print(f"▶ Expected:      v{expected}")

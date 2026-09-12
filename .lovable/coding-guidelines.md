@@ -22,3 +22,8 @@
 - `constants.go` handles all static values; versions are injected via `-ldflags` using `var` instead of `const`.
 - **No State Mutation in Switch Statements**: When computing state/objects across multiple conditions (e.g., inside a switch statement), do not mutate an existing object. Instead, extract the logic into a separate function that creates and returns the object for each case, and assign the result.
 - **No Nested Ternaries**: Avoid complex or nested ternary operators (?:). Favor clear, explicit conditional blocks (if/else) or early returns for readability.
+
+## Temp Directory & Storage Hygiene
+
+- **Repository Temp Scoping**: When writing to OS/user temporary directories (`os.TempDir()`, `tempfile.gettempdir()`, `$env:TEMP`), all paths MUST be scoped inside a repository-named directory: `<temp_dir>/gitmap/<category>/` (e.g. `build/`, `test/`, `purge/`, `downloads/`). Never place loose files or unstructured directories in the root of OS temp.
+- **Mandatory Pre-Build Cleanup**: Before any build command executes, the build directory MUST be cleared of existing binaries/artifacts. Orphaned binaries must never accumulate, respecting disk storage and guaranteeing clean storage reuse.

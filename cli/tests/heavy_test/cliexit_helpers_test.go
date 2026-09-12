@@ -34,6 +34,8 @@ import (
 	"strings"
 	"sync"
 	"testing"
+
+	"github.com/alimtvnetwork/gitmap-v28/cli/tempdir"
 )
 
 // gitmapBinary holds the path to the once-built binary. Populated
@@ -59,8 +61,15 @@ func ensureGitmapBinary(t *testing.T) string {
 	return gitmapBinary
 }
 
-// buildGitmapBinaryOnce is invoked under sync.Once so concurrent
-// t.Parallel tests share a single artifact.
+func resolveHeavyTestModuleRoot() string {
+	_, currentFile, _, ok := runtime.Caller(0)
+	if ok {
+		return filepath.Dir(filepath.Dir(currentFile))
+	}
+
+	return ".."
+}
+
 func buildGitmapBinaryOnce() {
 	if _, err := exec.LookPath("go"); err != nil {
 		errGitmapBuild = err
@@ -68,26 +77,29 @@ func buildGitmapBinaryOnce() {
 		return
 	}
 
-	_, currentFile, _, ok := runtime.Caller(0)
-	moduleRoot := ".."
-	if ok {
-		moduleRoot = filepath.Dir(filepath.Dir(currentFile))
+	moduleRoot := resolveHeavyTestModuleRoot()
+	_ = tempdir.ClearRepoBuildTempDir()
+	out := filepath.Join(tempdir.BuildTempDir(), gitmapBinaryName())
+	if err := executeGoBuild(moduleRoot, out); err != nil {
+		errGitmapBuild = err
+
+		return
 	}
 
-	out := filepath.Join(os.TempDir(), gitmapBinaryName())
-	// Build from the gitmap module root.
+	gitmapBinary = out
+}
+
+func executeGoBuild(moduleRoot, out string) error {
 	cmd := exec.Command("go", "build", "-o", out, ".")
 	cmd.Dir = moduleRoot
 	cmd.Env = append(os.Environ(), "CGO_ENABLED=0")
 	var stderr bytes.Buffer
 	cmd.Stderr = &stderr
 	if err := cmd.Run(); err != nil {
-		errGitmapBuild = wrapBuildErr(err, &stderr)
-
-		return
+		return wrapBuildErr(err, &stderr)
 	}
 
-	gitmapBinary = out
+	return nil
 }
 
 // gitmapBinaryName returns the right artifact name per platform.
