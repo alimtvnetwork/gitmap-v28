@@ -2,23 +2,29 @@
 package cmd
 
 import (
+	"context"
 	"encoding/json"
 	"fmt"
+	"io"
 	"os"
 	"strings"
 	"time"
 
 	"github.com/alimtvnetwork/gitmap-v28/cli/apperror"
+	"github.com/alimtvnetwork/gitmap-v28/cli/cmdcg"
 	"github.com/alimtvnetwork/gitmap-v28/cli/cmddb"
+	"github.com/alimtvnetwork/gitmap-v28/cli/cmdfixgit"
 	"github.com/alimtvnetwork/gitmap-v28/cli/cmdfixrepo"
 	"github.com/alimtvnetwork/gitmap-v28/cli/cmdmacro"
 	"github.com/alimtvnetwork/gitmap-v28/cli/cmdpipeline"
+	"github.com/alimtvnetwork/gitmap-v28/cli/cmdssh"
 	"github.com/alimtvnetwork/gitmap-v28/cli/cmdvhost"
 	"github.com/alimtvnetwork/gitmap-v28/cli/cmdvscode"
 	"github.com/alimtvnetwork/gitmap-v28/cli/cmdzip"
 	"github.com/alimtvnetwork/gitmap-v28/cli/macro"
 	"github.com/alimtvnetwork/gitmap-v28/cli/model"
 	"github.com/alimtvnetwork/gitmap-v28/cli/vscodepm"
+	"github.com/spf13/cobra"
 )
 
 func isTerminalInput() bool {
@@ -340,4 +346,174 @@ func printJSON(v any) error {
 	fmt.Println(string(b))
 
 	return nil
+}
+
+// RunFixGit delegates to cmdfixgit.RunFixGit.
+func runFixGit(args []string) error {
+	return cmdfixgit.RunFixGit(args)
+}
+
+// CGOptions is an alias to cmdcg.CGOptions.
+type CGOptions = cmdcg.CGOptions
+
+// runCG delegates to cmdcg.RunCG.
+func runCG(args []string) error {
+	return cmdcg.RunCG(args)
+}
+
+// parseCGFlags delegates to cmdcg.ParseCGFlags.
+func parseCGFlags(args []string) CGOptions {
+	return cmdcg.ParseCGFlags(args)
+}
+
+// SSHJoinCmd is re-exported from cmdssh.
+var SSHJoinCmd = cmdssh.SSHJoinCmd
+
+// SJAddAuthCmd is re-exported from cmdssh.
+var SJAddAuthCmd = cmdssh.SJAddAuthCmd
+
+// SJHistCmd is re-exported from cmdssh.
+var SJHistCmd = cmdssh.SJHistCmd
+
+// SJLsCmd is re-exported from cmdssh.
+var SJLsCmd = cmdssh.SJLsCmd
+
+// runSSH delegates to cmdssh.RunSSH.
+func runSSH(args []string) error {
+	return cmdssh.RunSSH(args)
+}
+
+// runSSHExec delegates to cmdssh.RunSSHExec.
+func runSSHExec(args []string) error {
+	return cmdssh.RunSSHExec(args)
+}
+
+// runSSHBind delegates to cmdssh.RunSSHBind.
+func runSSHBind(args []string) error {
+	return cmdssh.RunSSHBind(args)
+}
+
+// runSJAddAuth delegates to cmdssh.RunSJAddAuth.
+func runSJAddAuth(cmd *cobra.Command, args []string, ctx context.Context) error {
+	return cmdssh.RunSJAddAuth(cmd, args, ctx)
+}
+
+// runSJHistory delegates to cmdssh.RunSJHistory.
+func runSJHistory(cmd *cobra.Command, args []string, ctx context.Context) error {
+	return cmdssh.RunSJHistory(cmd, args, ctx)
+}
+
+// runSJLs delegates to cmdssh.RunSJLs.
+func runSJLs(cmd *cobra.Command, args []string, ctx context.Context) error {
+	return cmdssh.RunSJLs(cmd, args, ctx)
+}
+
+// runSJRm delegates to cmdssh.RunSJRm.
+func runSJRm(cmd *cobra.Command, args []string, ctx context.Context) error {
+	return cmdssh.RunSJRm(cmd, args, ctx)
+}
+
+// runSSHJoin delegates to cmdssh.RunSSHJoin.
+func runSSHJoin(cmd *cobra.Command, args []string, ctx context.Context) error {
+	return cmdssh.RunSSHJoin(cmd, args, ctx)
+}
+
+// parseSEFlags delegates to cmdssh.ParseSEFlags.
+type SEOptions = cmdssh.SEOptions
+
+func parseSEFlags(args []string) SEOptions {
+	return cmdssh.ParseSEFlags(args)
+}
+
+// parseSJFlags delegates to cmdssh.ParseSJFlags.
+type SJOptions = cmdssh.SJOptions
+
+func parseSJFlags(args []string) SJOptions {
+	return cmdssh.ParseSJFlags(args)
+}
+
+// ensureSSHDir delegates to cmdssh.EnsureSSHDir.
+func ensureSSHDir(dir string) error {
+	return cmdssh.EnsureSSHDir(dir)
+}
+
+// copyPubKeyAndAnnounce delegates to cmdssh.CopyPubKeyAndAnnounce.
+func copyPubKeyAndAnnounce(pub string) {
+	cmdssh.CopyPubKeyAndAnnounce(pub)
+}
+
+// resolveGitEmail delegates to cmdssh.ResolveGitEmail.
+func resolveGitEmail() string {
+	return cmdssh.ResolveGitEmail()
+}
+
+// validateSSHKeygen delegates to cmdssh.ValidateSSHKeygen.
+func validateSSHKeygen() error {
+	return cmdssh.ValidateSSHKeygen()
+}
+
+// encodeSSHListJSON delegates to cmdssh.EncodeSSHListJSON.
+func encodeSSHListJSON(w io.Writer, keys []model.SSHKey) error {
+	return cmdssh.EncodeSSHListJSON(w, keys)
+}
+
+// FixGitOptions aliases cmdfixgit.FixGitOptions.
+type FixGitOptions = cmdfixgit.FixGitOptions
+
+// FixGitIssue aliases cmdfixgit.FixGitIssue.
+type FixGitIssue = cmdfixgit.FixGitIssue
+
+// RemediateGitIndex delegates to cmdfixgit.RemediateGitIndex.
+func RemediateGitIndex(repoRoot, gitDir string, opts FixGitOptions) ([]FixGitIssue, error) {
+	return cmdfixgit.RemediateGitIndex(repoRoot, gitDir, opts)
+}
+
+// CGMetadata aliases cmdcg.CGMetadata.
+type CGMetadata = cmdcg.CGMetadata
+
+// WriteCGMetadata delegates to cmdcg.WriteCGMetadata.
+func WriteCGMetadata(repoPath string, meta CGMetadata) error {
+	return cmdcg.WriteCGMetadata(repoPath, meta)
+}
+
+// ReadCGMetadata delegates to cmdcg.ReadCGMetadata.
+func ReadCGMetadata(repoPath string) (*CGMetadata, error) {
+	return cmdcg.ReadCGMetadata(repoPath)
+}
+
+// ResolveCGTarget delegates to cmdcg.ResolveCGTarget.
+func ResolveCGTarget(target string) (string, bool) {
+	return cmdcg.ResolveCGTarget(target)
+}
+
+// SSHExecutor is forwarded from cmdssh.
+var SSHExecutor = cmdssh.SSHExecutor
+
+// RunSSHLogin delegates to cmdssh.RunSSHLogin.
+func RunSSHLogin(cmd *cobra.Command, args []string, ctx context.Context) error {
+	cmdssh.SSHExecutor = SSHExecutor
+	return cmdssh.RunSSHLogin(cmd, args, ctx)
+}
+
+// ParseMultiIPList delegates to cmdssh.ParseMultiIPList.
+func ParseMultiIPList(raw string) []string {
+	return cmdssh.ParseMultiIPList(raw)
+}
+
+// VersionInstallConfig aliases cmdcg.VersionInstallConfig.
+type VersionInstallConfig = cmdcg.VersionInstallConfig
+
+// DefaultVersionInstallConfig delegates to cmdcg.DefaultVersionInstallConfig.
+func DefaultVersionInstallConfig(initialVersion string) VersionInstallConfig {
+	return cmdcg.DefaultVersionInstallConfig(initialVersion)
+}
+
+// InstallVersionJSON delegates to cmdcg.InstallVersionJSON.
+func InstallVersionJSON(repoPath string, cfg VersionInstallConfig, isDryRun bool) error {
+	return cmdcg.InstallVersionJSON(repoPath, cfg, isDryRun)
+}
+
+func init() {
+	cmdssh.JoinRunner = runJoin
+	cmdssh.ProfileRunner = runProfile
 }

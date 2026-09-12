@@ -1,0 +1,74 @@
+package cmdssh
+
+import (
+	"fmt"
+	"os"
+
+	"github.com/alimtvnetwork/gitmap-v28/cli/apperror"
+	"github.com/alimtvnetwork/gitmap-v28/cli/constants"
+	"github.com/alimtvnetwork/gitmap-v28/cli/model"
+)
+
+// runSSHList displays all stored SSH keys as an aligned table or JSON.
+func runSSHList(args ...string) error {
+	jsonOut := hasFlagInArgs(args, constants.FlagSSHJSON)
+
+	db, err := openDB()
+	if err != nil {
+		return apperror.WrapSimple(err, constants.ErrSSHQuery)
+	}
+
+	defer db.Close()
+
+	keys, err := db.ListSSHKeys()
+	if err != nil {
+		return apperror.WrapSimple(err, constants.ErrSSHQuery)
+	}
+
+	if jsonOut {
+		printSSHListJSON(keys)
+
+		return nil
+	}
+
+	if len(keys) == 0 {
+		fmt.Println("  No SSH keys stored. Run 'gitmap ssh' to generate one.")
+
+		return nil
+	}
+
+	fmt.Fprintf(os.Stdout, constants.MsgSSHListHeader, len(keys))
+	fmt.Fprintf(os.Stdout, constants.MsgSSHListColumns, "Name", "Path", "Fingerprint", "Created")
+	fmt.Fprintf(os.Stdout, constants.MsgSSHListColumns,
+		"───────────────", "──────────────────────────────",
+		"─────────────────────────", "──────────")
+
+	for _, k := range keys {
+		created := k.CreatedAt
+		if len(created) > 10 {
+			created = created[:10]
+		}
+
+		fmt.Fprintf(os.Stdout, constants.MsgSSHListRow, k.Name, k.PrivatePath, k.Fingerprint, created)
+	}
+
+	return nil
+}
+
+// printSSHListJSON outputs SSH keys as JSON.
+func printSSHListJSON(keys []model.SSHKey) {
+	if err := encodeSSHListJSON(os.Stdout, keys); err != nil {
+		fmt.Fprintf(os.Stderr, constants.ErrSSHQuery, err)
+	}
+}
+
+// hasFlagInArgs checks if a flag is present in the given args slice.
+func hasFlagInArgs(args []string, flag string) bool {
+	for _, a := range args {
+		if a == flag {
+			return true
+		}
+	}
+
+	return false
+}

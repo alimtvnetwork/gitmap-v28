@@ -8,6 +8,7 @@ Master directory of architectural and execution plans.
 
 ## Completed Plans (Consolidated Milestones)
 
+- [126-nuclear-package-modularization-phase6.md](completed/126-nuclear-package-modularization-phase6.md): Nuclear Package Modularization (cmdssh, cmdcg, cmdfixgit), Heavy Test Isolation & Test Inventory Duration Estimation
 - [125-nuclear-package-modularization-phase5.md](completed/125-nuclear-package-modularization-phase5.md): Nuclear Package Modularization (cmdfixrepo, cmddb, cmdpipeline), Heavy Test Isolation & Test Inventory Duration Estimation
 - [124-runner-in-flight-heartbeat-and-ai-sleep-protocol.md](completed/124-runner-in-flight-heartbeat-and-ai-sleep-protocol.md): Runner 25s In-Flight Heartbeat & 1-Minute AI Agent Sleep/Wait Protocol
 - [123-rename-gitmap-to-cli-and-updater-folder-refactor.md](completed/123-rename-gitmap-to-cli-and-updater-folder-refactor.md): Rename gitmap to cli and gitmap-updater to cli-updater Folder Refactor
