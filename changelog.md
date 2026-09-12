@@ -1,3 +1,15 @@
+## [v6.220.2] 2026-09-12 Release v6.220.2
+
+### Install GitMap v6.220.2
+
+To pin your repository to this exact version, run the following one-liner:
+Unix/Bash: `curl -sL https://raw.githubusercontent.com/alimtvnetwork/gitmap-v28/v6.220.2/install.sh | bash -s -- ".lovable/prompts" "v6.220.2"`
+PowerShell: `Invoke-WebRequest -Uri https://raw.githubusercontent.com/alimtvnetwork/gitmap-v28/v6.220.2/install.ps1 -OutFile install.ps1; .\install.ps1 -TargetDir ".lovable/prompts" -Version "v6.220.2"`
+
+### Added / Changed / Fixed / Removed
+
+- Fix macro step timeout pipe hanging on Unix and fixrepo e2e gofmt backup inspection
+
 ## [v6.220.1] 2026-09-12 Release v6.220.1
 
 ### Install GitMap v6.220.1
