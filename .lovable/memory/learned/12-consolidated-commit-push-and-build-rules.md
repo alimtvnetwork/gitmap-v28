@@ -1,7 +1,7 @@
 # Consolidated Commits, Immediate Push, and Build Execution Standards
 
-**Added:** 2026-09-12  
-**Category:** Workflow & Git Hygiene  
+**Added:** 2026-09-12
+**Category:** Workflow & Git Hygiene
 **Status:** Active Rule (Mandatory)
 
 ---

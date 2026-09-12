@@ -1,6 +1,6 @@
 # Plan 108: TypeScript Strict Typing & Discriminated Unions Architecture Audit
 
-**Status:** Completed  
+**Status:** Completed
 **Milestone:** Coding Guidelines Execution - Prompt 15 (`01-prompts/15-cg-execute/15-typescript-guidelines-and-types.md`)
 
 ---

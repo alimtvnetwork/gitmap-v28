@@ -9,6 +9,7 @@ import (
 	"strings"
 
 	"github.com/alimtvnetwork/gitmap-v28/gitmap/apperror"
+	"github.com/alimtvnetwork/gitmap-v28/gitmap/cmdchromeprofile"
 	"github.com/alimtvnetwork/gitmap-v28/gitmap/constants"
 )
 
@@ -29,7 +30,7 @@ func runChromeReset(args []string) error {
 		profName = constants.ChromeDefaultProfileDir
 	}
 
-	srcPath, hasDir := resolveChromeProfileDir(profName)
+	srcPath, hasDir := cmdchromeprofile.ResolveProfileDir(profName)
 	if !hasDir {
 		return apperror.NewSimple(fmt.Sprintf("profile %s not found", profName), "E4401")
 	}

@@ -11,6 +11,7 @@ import (
 	"strings"
 
 	"github.com/alimtvnetwork/gitmap-v28/gitmap/apperror"
+	"github.com/alimtvnetwork/gitmap-v28/gitmap/cmdchromeprofile"
 	"github.com/alimtvnetwork/gitmap-v28/gitmap/constants"
 )
 
@@ -54,7 +55,7 @@ func mutateExtensionsState(args []string, isEnable, isAll bool) error {
 }
 
 func applyExtensionStateChange(profName, pattern string, isEnable, isAll bool) error {
-	srcPath, hasDir := resolveChromeProfileDir(profName)
+	srcPath, hasDir := cmdchromeprofile.ResolveProfileDir(profName)
 	if !hasDir {
 		return apperror.NewSimple(fmt.Sprintf("profile %s not found", profName), "E4203")
 	}
@@ -184,14 +185,14 @@ func installExtensionToProfile(extPath, profName string) error {
 	}
 
 	_ = json.Unmarshal(raw, &m)
-	srcProfile, hasDir := resolveChromeProfileDir(profName)
+	srcProfile, hasDir := cmdchromeprofile.ResolveProfileDir(profName)
 	if !hasDir {
 		return apperror.NewSimple(fmt.Sprintf("profile %s not found", profName), "E4205")
 	}
 
 	extID := generateExtensionID(extPath, m.Name)
 	dstDir := filepath.Join(srcProfile, "Extensions", extID, m.Version)
-	if _, copyErr := copyEntry(extPath, dstDir); copyErr != nil {
+	if _, copyErr := cmdchromeprofile.CopyEntry(extPath, dstDir); copyErr != nil {
 		return copyErr
 	}
 

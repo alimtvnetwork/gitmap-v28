@@ -5,6 +5,7 @@ import (
 	"fmt"
 
 	"github.com/alimtvnetwork/gitmap-v28/gitmap/constants"
+	"github.com/alimtvnetwork/gitmap-v28/gitmap/ecosystemgroup"
 )
 
 func runVSCodeGroup(args []string) error {
@@ -17,7 +18,7 @@ func runGitHubDesktopGroup(args []string) error {
 
 func dispatchEcosystemGroupCli(ecosystem string, label string, unit string, args []string) error {
 	if len(args) == 0 || args[0] == "ls" || args[0] == "list" {
-		return runEcosystemGroupList(ecosystem, label)
+		return ecosystemgroup.PrintGroupList(ecosystem, label)
 	}
 
 	if args[0] == "add" && len(args) >= 3 {
@@ -32,7 +33,7 @@ func dispatchEcosystemGroupCli(ecosystem string, label string, unit string, args
 }
 
 func handleEcosystemGroupAdd(ecosystem string, label string, unit string, group string, targets []string) error {
-	appErr := addEcosystemGroup(ecosystem, group, "", targets)
+	appErr := ecosystemgroup.AddGroup(ecosystem, group, "", targets)
 	if appErr != nil {
 		return fmt.Errorf("add %s group: %w", label, appErr.Unwrap())
 	}
@@ -47,7 +48,7 @@ func handleEcosystemGroupRm(ecosystem string, label string, args []string) error
 		return handleEcosystemGroupDelete(ecosystem, label, args[0])
 	}
 
-	if err := removeEcosystemGroupTarget(ecosystem, args[0], args[1]); err != nil {
+	if err := ecosystemgroup.RemoveTarget(ecosystem, args[0], args[1]); err != nil {
 		return fmt.Errorf("remove %s target: %w", label, err.Unwrap())
 	}
 
@@ -57,7 +58,7 @@ func handleEcosystemGroupRm(ecosystem string, label string, args []string) error
 }
 
 func handleEcosystemGroupDelete(ecosystem string, label string, group string) error {
-	if err := deleteEcosystemGroup(ecosystem, group); err != nil {
+	if err := ecosystemgroup.DeleteGroup(ecosystem, group); err != nil {
 		return fmt.Errorf("delete %s group: %w", label, err.Unwrap())
 	}
 

@@ -4,6 +4,8 @@ import (
 	"fmt"
 	"strings"
 
+	"github.com/alimtvnetwork/gitmap-v28/gitmap/cmdagy"
+	"github.com/alimtvnetwork/gitmap-v28/gitmap/cmdchromeprofile"
 	"github.com/alimtvnetwork/gitmap-v28/gitmap/constants"
 )
 
@@ -12,11 +14,11 @@ func runFindDuplicates(platform string, args []string) error {
 	resolved := resolveDuplicatePlatform(platform, args)
 	switch resolved {
 	case "agy", "ag", "antigravity":
-		return runFindDuplicatesAgy()
+		return cmdagy.RunFindDuplicates()
 	case "vscode", "vsc":
 		return runFindDuplicatesVSCode()
 	case "chrome", "chromeprofile", "chrome-profile":
-		return runFindDuplicatesChrome()
+		return cmdchromeprofile.RunFindDuplicates()
 	case "git", "repo", "clone":
 		return runFindDuplicatesGit()
 	case "all", "":
@@ -51,9 +53,9 @@ func runFindDuplicatesAll() error {
 	fmt.Println("  " + constants.ColorMagenta + "       Gitmap Cross-Platform Duplicate Project & Repo Auditor        " + constants.ColorReset)
 	fmt.Println("  " + constants.ColorMagenta + "═════════════════════════════════════════════════════════════════════" + constants.ColorReset)
 
-	_ = runFindDuplicatesAgy()
+	_ = cmdagy.RunFindDuplicates()
 	_ = runFindDuplicatesVSCode()
-	_ = runFindDuplicatesChrome()
+	_ = cmdchromeprofile.RunFindDuplicates()
 	_ = runFindDuplicatesGit()
 
 	return nil

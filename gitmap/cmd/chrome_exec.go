@@ -11,6 +11,7 @@ import (
 	"strings"
 
 	"github.com/alimtvnetwork/gitmap-v28/gitmap/apperror"
+	"github.com/alimtvnetwork/gitmap-v28/gitmap/cmdchromeprofile"
 	"github.com/alimtvnetwork/gitmap-v28/gitmap/constants"
 )
 
@@ -180,7 +181,7 @@ func parseMultiSegmentMapping(arg string) []chromeLaunchTarget {
 }
 
 func isProfileNameOrDir(name string) bool {
-	_, hasDir := resolveChromeProfileDir(name)
+	_, hasDir := cmdchromeprofile.ResolveProfileDir(name)
 
 	return hasDir
 }
@@ -197,7 +198,7 @@ func executeChromeLaunches(bin string, opts chromeLaunchOptions) error {
 
 func launchSingleTarget(bin string, tgt chromeLaunchTarget, opts chromeLaunchOptions) error {
 	dirName := tgt.Profile
-	if resolved, hasDir := resolveChromeProfileDir(tgt.Profile); hasDir {
+	if resolved, hasDir := cmdchromeprofile.ResolveProfileDir(tgt.Profile); hasDir {
 		dirName = filepath.Base(resolved)
 	}
 
@@ -209,7 +210,7 @@ func launchSingleTarget(bin string, tgt chromeLaunchTarget, opts chromeLaunchOpt
 		return apperror.WrapSimple(err, fmt.Sprintf("launch chrome profile %s", dirName))
 	}
 
-	displayName := chromeProfileDisplayName(dirName)
+	displayName := cmdchromeprofile.ProfileDisplayName(dirName)
 	urlsJoined := strings.Join(tgt.URLs, ", ")
 	fmt.Printf("\033[1;92m✓ launched\033[0m  Chrome [\033[1m%s\033[0m / %q] → %s\n", dirName, displayName, urlsJoined)
 

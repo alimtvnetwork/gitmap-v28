@@ -7,6 +7,7 @@ import (
 	"runtime"
 
 	"github.com/alimtvnetwork/gitmap-v28/gitmap/cliexit"
+	"github.com/alimtvnetwork/gitmap-v28/gitmap/cmdchromeprofile"
 	"github.com/alimtvnetwork/gitmap-v28/gitmap/constants"
 )
 
@@ -146,31 +147,31 @@ func hasDryRunFlag(args []string) bool {
 func handleChromeProfileOps(sub string, tail []string) bool {
 	switch sub {
 	case constants.SubCmdChromeCopy, constants.SubCmdChromeCopyAlias, constants.SubCmdChromeCopyAlias2:
-		_ = runChromeProfileCopy(tail)
+		_ = cmdchromeprofile.RunProfileCopy(tail)
 
 		return true
 	case constants.SubCmdChromeExport, constants.SubCmdChromeExportAlias, constants.SubCmdChromeExportAlias2:
-		_ = runChromeProfileExport(tail)
+		_ = cmdchromeprofile.RunProfileExport(tail)
 
 		return true
 	case constants.SubCmdChromeImport, constants.SubCmdChromeImportAlias, constants.SubCmdChromeImportAlias2:
-		_ = runChromeProfileImport(tail)
+		_ = cmdchromeprofile.RunProfileImport(tail)
 
 		return true
 	case constants.SubCmdChromeImportCheck, constants.SubCmdChromeImportCheckAlias, constants.SubCmdChromeImportCheckAlias2:
-		_ = runChromeProfileImportCheck(tail)
+		_ = cmdchromeprofile.RunProfileImportCheck(tail)
 
 		return true
 	case constants.SubCmdChromeList, constants.SubCmdChromeListAlias, constants.SubCmdChromeListAlias2, constants.SubCmdChromeListAlias3:
-		_ = runChromeProfileList(tail)
+		_ = cmdchromeprofile.RunProfileList(tail)
 
 		return true
 	case constants.SubCmdChromeDelete, constants.SubCmdChromeDeleteAlias, constants.SubCmdChromeDeleteAlias2, constants.SubCmdChromeDeleteAlias3, "clear":
-		_ = runChromeProfileClear(tail)
+		_ = cmdchromeprofile.RunProfileClear(tail)
 
 		return true
 	case "optimize-projects", "optimize", "--repeat-fix", "-r", "dedupe":
-		_ = runChromeProfileOptimize(tail)
+		_ = cmdchromeprofile.RunProfileOptimize(tail)
 
 		return true
 	case "find-duplicates", "duplicates", "dups", "find-dups":
@@ -178,11 +179,11 @@ func handleChromeProfileOps(sub string, tail []string) bool {
 
 		return true
 	case constants.SubCmdChromeMerge, constants.SubCmdChromeMergeAlias:
-		_ = runChromeProfileMerge(tail)
+		_ = cmdchromeprofile.RunProfileMerge(tail)
 
 		return true
 	case constants.SubCmdChromeReconcile, constants.SubCmdChromeReconcileAlias, constants.SubCmdChromeReconcileAlias2, constants.SubCmdChromeReconcileAlias3:
-		_ = runChromeProfileReconcile(tail)
+		_ = cmdchromeprofile.RunProfileReconcile(tail)
 
 		return true
 	case "undo":
@@ -191,7 +192,7 @@ func handleChromeProfileOps(sub string, tail []string) bool {
 			profile = tail[0]
 		}
 
-		_ = runChromeProfileUndo(profile)
+		_ = cmdchromeprofile.RunProfileUndo(profile)
 
 		return true
 	case "redo":
@@ -200,11 +201,11 @@ func handleChromeProfileOps(sub string, tail []string) bool {
 			profile = tail[0]
 		}
 
-		_ = runChromeProfileRedo(profile)
+		_ = cmdchromeprofile.RunProfileRedo(profile)
 
 		return true
 	case "group", "grp", "groups":
-		_ = runChromeGroupDispatch(tail)
+		_ = cmdchromeprofile.RunProfileGroupDispatch(tail)
 
 		return true
 	}
@@ -215,15 +216,15 @@ func handleChromeProfileOps(sub string, tail []string) bool {
 func handleChromeBatchOps(sub string, tail []string) bool {
 	switch sub {
 	case constants.SubCmdChromeCopyAll, constants.SubCmdChromeCopyAllAlias, constants.SubCmdChromeCopyAllAlias2, constants.SubCmdChromeCopyAllAlias3:
-		_ = runChromeCopyAll(tail)
+		_ = cmdchromeprofile.RunCopyAll(tail)
 
 		return true
 	case constants.SubCmdChromeExportAll, constants.SubCmdChromeExportAllAlias, constants.SubCmdChromeExportAllAlias2, constants.SubCmdChromeExportAllAlias3:
-		_ = runChromeExportAll(tail)
+		_ = cmdchromeprofile.RunExportAll(tail)
 
 		return true
 	case constants.SubCmdChromeImportAll, constants.SubCmdChromeImportAllAlias, constants.SubCmdChromeImportAllAlias2, constants.SubCmdChromeImportAllAlias3:
-		_ = runChromeImportAll(tail)
+		_ = cmdchromeprofile.RunImportAll(tail)
 
 		return true
 	}

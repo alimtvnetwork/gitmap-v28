@@ -19,12 +19,14 @@ Two failures were surfaced in remote GitHub Actions CI workflows (#34675150281 a
    - When setupFixtureRepo wrote ligned_map.go, the file was unformatted before ix-repo even executed.
    - ix-repo created a pre-rewrite snapshot in .gitmap/backup/, preserving those original unformatted bytes.
    - ix-repo then formatted the working tree copy of ligned_map.go, making it clean.
-   - However, unGofmtList called gofmt -l . across the whole fixture root directory, which recursed into .gitmap/backup/ and flagged the preserved backup file as dirty.
+   - However,
+unGofmtList called gofmt -l . across the whole fixture root directory, which recursed into .gitmap/backup/ and flagged the preserved backup file as dirty.
 
 ## 3. Root Cause
 
 1. uildStepCmd lacked cmd.WaitDelay, allowing orphaned subprocesses to hold stdout/stderr descriptors beyond the context deadline. Furthermore, getSleepCmd did not use xec on Unix, resulting in a child process fork.
-2. lignedMapSource had superfluous trailing blank lines, making the initial fixture dirty, and unGofmtList did not exclude internal backup directories (.gitmap/ and .git/) from the working tree formatting check.
+2. lignedMapSource had superfluous trailing blank lines, making the initial fixture dirty, and
+unGofmtList did not exclude internal backup directories (.gitmap/ and .git/) from the working tree formatting check.
 
 ## 4. Code Fix
 
@@ -32,4 +34,5 @@ Two failures were surfaced in remote GitHub Actions CI workflows (#34675150281 a
 2. In gitmap/macro/macro_test.go: Changed Unix sleep command to xec sleep %d in getSleepCmd so sh replaces itself directly with sleep.
 3. In gitmap/tests/fixrepo_test/fixture_helpers_test.go:
    - Stripped trailing blank lines from lignedMapSource.
-   - Updated unGofmtList via ilterDirtyGofmtLines to ignore .gitmap/ and .git/ directories.
+   - Updated
+unGofmtList via ilterDirtyGofmtLines to ignore .gitmap/ and .git/ directories.

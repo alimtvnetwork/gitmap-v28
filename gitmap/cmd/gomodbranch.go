@@ -23,6 +23,16 @@ func requireInsideWorkTree() error {
 	return apperror.NewSimple("fatal error", "E9000")
 }
 
+// DeriveSlug derives a filesystem and branch-safe slug from a Go module path.
+func DeriveSlug(modulePath string) string {
+	return deriveSlug(modulePath)
+}
+
+// CreateGoModBranches creates backup and feature branches.
+func CreateGoModBranches(slug string) (string, string) {
+	return createGoModBranches(slug)
+}
+
 // deriveSlug sanitizes a module path into a branch-safe slug.
 func deriveSlug(modulePath string) string {
 	slug := strings.ReplaceAll(modulePath, "/", "-")
@@ -89,6 +99,16 @@ func checkoutBranch(branch string) {
 	}
 }
 
+// GoModCurrentBranch returns the active git branch name.
+func GoModCurrentBranch() string {
+	return goModCurrentBranch()
+}
+
+// IsWorkTreeDirty checks if there are uncommitted changes.
+func IsWorkTreeDirty() bool {
+	return isWorkTreeDirty()
+}
+
 // goModCurrentBranch returns the name of the current branch.
 func goModCurrentBranch() string {
 	cmd := exec.Command(constants.GitBin, constants.GitRevParse, constants.GitAbbrevRef, constants.GitHEAD)
@@ -117,6 +137,11 @@ func stageAllChanges() {
 	if err := stageCmd.Run(); err != nil {
 		fmt.Fprintf(os.Stderr, "  ⚠ Could not stage changes: %v\n", err)
 	}
+}
+
+// CommitGoModChanges stages and commits all changes.
+func CommitGoModChanges(oldPath, newPath string, fileCount int) {
+	commitGoModChanges(oldPath, newPath, fileCount)
 }
 
 // commitGoModChanges stages and commits all changes.

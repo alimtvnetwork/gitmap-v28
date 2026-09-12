@@ -1,7 +1,6 @@
 package cmd
 
 import (
-	"encoding/json"
 	"flag"
 	"fmt"
 	"os"
@@ -223,15 +222,7 @@ func newStatusNoDataError(op, code string) *apperror.AppError {
 
 // loadStatusRecords reads ScanRecords from gitmap.json.
 func loadStatusRecords(path string) ([]model.ScanRecord, error) {
-	data, err := os.ReadFile(path)
-	if err != nil {
-		return nil, err
-	}
-
-	var records []model.ScanRecord
-	err = json.Unmarshal(data, &records)
-
-	return records, err
+	return model.LoadStatusRecords(path)
 }
 
 // statusSummary aggregates counts across all repos.

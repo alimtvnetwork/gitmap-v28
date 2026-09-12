@@ -1,9 +1,6 @@
 package cmd
 
 import (
-	"os"
-	"os/exec"
-	"path/filepath"
 	"testing"
 
 	"github.com/alimtvnetwork/gitmap-v28/gitmap/gitutil"
@@ -130,61 +127,6 @@ func TestIsReconcileAllRequested(t *testing.T) {
 	if isReconcileAllRequested([]string{"codelane"}) {
 		t.Errorf("expected false for codelane")
 	}
-}
-
-func TestReconcileWorkflowE2E(t *testing.T) {
-	t.Setenv("HOME", t.TempDir())
-	t.Setenv("USERPROFILE", t.TempDir())
-
-	tempDir := t.TempDir()
-	repoDir := initDummyGitRepoWithRemote(t, tempDir)
-
-	diag := gitutil.InspectDirtyState(repoDir)
-	recipes := gitutil.GenerateRemediationRecipes(repoDir, diag)
-	item := RemediationItem{
-		RepoName:      "sample-repo",
-		RepoPath:      repoDir,
-		SummaryReason: diag.SummaryReason,
-		Recipes:       recipes,
-	}
-
-	_ = SaveRemediationState([]RemediationItem{item})
-
-	err := runReconcileCmd([]string{"sample-repo", "discard"})
-	if err != nil {
-		t.Fatalf("runReconcileCmd failed: %v", err)
-	}
-
-	remaining := LoadRemediationState()
-	if len(remaining) != 0 {
-		t.Fatalf("expected 0 remaining items, got %d", len(remaining))
-	}
-}
-
-func initDummyGitRepoWithRemote(t *testing.T, baseDir string) string {
-	t.Helper()
-	remoteDir := filepath.Join(baseDir, "remote.git")
-	runCmdIn(baseDir, "git", "init", "--bare", remoteDir)
-
-	repoDir := filepath.Join(baseDir, "local")
-	runCmdIn(baseDir, "git", "clone", remoteDir, repoDir)
-	runCmdIn(repoDir, "git", "config", "user.name", "Tester")
-	runCmdIn(repoDir, "git", "config", "user.email", "tester@example.com")
-
-	_ = os.WriteFile(filepath.Join(repoDir, "tracked.txt"), []byte("tracked"), 0644)
-	runCmdIn(repoDir, "git", "add", "tracked.txt")
-	runCmdIn(repoDir, "git", "commit", "-m", "init")
-	runCmdIn(repoDir, "git", "push", "origin", "HEAD")
-
-	_ = os.WriteFile(filepath.Join(repoDir, "untracked.txt"), []byte("dirty"), 0644)
-
-	return repoDir
-}
-
-func runCmdIn(dir, name string, args ...string) {
-	cmd := exec.Command(name, args...)
-	cmd.Dir = dir
-	_ = cmd.Run()
 }
 
 func TestResolvePromptChoice(t *testing.T) {

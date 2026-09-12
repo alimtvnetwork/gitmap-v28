@@ -1,6 +1,6 @@
 # Plan 106: CLI Commands, Help Text Parity & Help UI Architecture Audit
 
-**Status:** Completed  
+**Status:** Completed
 **Milestone:** Coding Guidelines Execution - Prompt 13 (`01-prompts/15-cg-execute/13-cli-commands-and-help.md`)
 
 ---

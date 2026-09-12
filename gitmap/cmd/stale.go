@@ -123,7 +123,10 @@ func scanForRepos(root string) []string {
 
 // (isGitRepo lives in githubdesktop.go and is reused here.)
 
-// lastCommitTime returns the last commit time for repo at dir.
+// LastCommitTime returns the last commit time for repo at dir.
+func LastCommitTime(dir string) (time.Time, bool) {
+	return lastCommitTime(dir)
+}
 
 func lastCommitTime(dir string) (time.Time, bool) {
 	cmd := exec.Command("git", "-C", dir, "log", "-1", "--format=%ct")

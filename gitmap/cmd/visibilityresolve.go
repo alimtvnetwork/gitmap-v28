@@ -77,6 +77,11 @@ func mustResolveVisibilityContext() visibilityContext {
 	return resolveProviderAndSlugOrExit(url)
 }
 
+// ResolveProviderAndSlugOrExit exposes resolveProviderAndSlugOrExit for integration tests.
+func ResolveProviderAndSlugOrExit(url string) {
+	resolveProviderAndSlugOrExit(url)
+}
+
 // resolveProviderAndSlugOrExit classifies the URL and parses the slug.
 // Exits with ExitVisBadProvider if anything is unrecognized. Local
 // remotes (file://, bare filesystem paths) warn-and-skip with exit 0

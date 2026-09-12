@@ -5,6 +5,8 @@ import (
 	"strings"
 
 	"github.com/spf13/cobra"
+
+	"github.com/alimtvnetwork/gitmap-v28/gitmap/cmdagy"
 )
 
 var (
@@ -28,6 +30,7 @@ var agyInstallCmd = &cobra.Command{
 
 func init() {
 	bindAgyInstallFlags()
+	cmdagy.AgyCmd.AddCommand(agyInstallCmd)
 }
 
 func bindAgyInstallFlags() {

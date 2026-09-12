@@ -10,6 +10,7 @@ import (
 	"strings"
 
 	"github.com/alimtvnetwork/gitmap-v28/gitmap/apperror"
+	"github.com/alimtvnetwork/gitmap-v28/gitmap/cmdchromeprofile"
 	"github.com/alimtvnetwork/gitmap-v28/gitmap/constants"
 )
 
@@ -97,7 +98,7 @@ func printFlagsTable(flags []string, dir string) error {
 }
 
 func readEnabledChromeFlags() ([]string, string, error) {
-	root := chromeUserDataDir()
+	root := cmdchromeprofile.UserDataDir()
 	statePath := filepath.Join(root, constants.ChromeLocalStateFile)
 	raw, err := os.ReadFile(statePath)
 	if err != nil {
@@ -121,7 +122,7 @@ func setChromeFlagState(args []string, isEnable bool) error {
 	}
 
 	flagName := args[0]
-	root := chromeUserDataDir()
+	root := cmdchromeprofile.UserDataDir()
 	statePath := filepath.Join(root, constants.ChromeLocalStateFile)
 	raw, err := os.ReadFile(statePath)
 	if err != nil {
@@ -210,7 +211,7 @@ func mutateFlagInSlice(list []string, target string, isEnable bool) []string {
 }
 
 func resetChromeFlags() error {
-	root := chromeUserDataDir()
+	root := cmdchromeprofile.UserDataDir()
 	statePath := filepath.Join(root, constants.ChromeLocalStateFile)
 	raw, err := os.ReadFile(statePath)
 	if err != nil {

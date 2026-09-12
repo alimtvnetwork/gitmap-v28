@@ -1,6 +1,6 @@
 # Plan 111: Argument Reduction, Parameter Structs & Return Architecture Audit
 
-**Status:** Completed  
+**Status:** Completed
 **Milestone:** Coding Guidelines Execution - Prompt 18 (`01-prompts/15-cg-execute/18-function-argument-reduction-and-params.md`)
 
 ---

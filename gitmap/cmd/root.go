@@ -12,6 +12,7 @@ import (
 
 	"github.com/alimtvnetwork/gitmap-v28/gitmap/apperror"
 	"github.com/alimtvnetwork/gitmap-v28/gitmap/cliexit"
+	"github.com/alimtvnetwork/gitmap-v28/gitmap/cmdagy"
 	"github.com/alimtvnetwork/gitmap-v28/gitmap/cmdprompt"
 	"github.com/alimtvnetwork/gitmap-v28/gitmap/config"
 	"github.com/alimtvnetwork/gitmap-v28/gitmap/constants"
@@ -539,7 +540,7 @@ func dispatchExtraCommand(
 
 		return true
 	case "agy", "ag", "antigravity":
-		executeAndAudit(dispatchAgy, shouldAudit, auditID, auditStart)
+		executeAndAudit(cmdagy.DispatchAgy, shouldAudit, auditID, auditStart)
 
 		return true
 	case "sj", "ssh-join", "ssh-joined", "ssh-joiner":

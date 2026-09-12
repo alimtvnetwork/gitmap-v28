@@ -70,4 +70,3 @@ gitmap browse https://localhost:3000 --chrome
 gitmap touch docs/new-feature.md
 gitmap cat docs/new-feature.md
 ```
-

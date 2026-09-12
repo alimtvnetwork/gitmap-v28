@@ -102,6 +102,11 @@ func parseBlobShasFromRawLog(raw string) []string {
 }
 
 // buildPinCallbackPython renders the Python source that filter-repo
+// BuildPinCallbackPython generates the Python callback script for blob rewriting.
+func BuildPinCallbackPython(manifestPath string) string {
+	return buildPinCallbackPython(manifestPath)
+}
+
 // will exec for every blob. It loads the JSON manifest once into a
 // dict keyed by blob SHA and rewrites blob.data on hit.
 func buildPinCallbackPython(manifestPath string) string {

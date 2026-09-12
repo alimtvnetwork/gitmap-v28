@@ -13,8 +13,8 @@ import (
 	"time"
 
 	"github.com/alimtvnetwork/gitmap-v28/gitmap/apperror"
-
 	"github.com/alimtvnetwork/gitmap-v28/gitmap/cliexit"
+	"github.com/alimtvnetwork/gitmap-v28/gitmap/cmdchromeprofile"
 )
 
 func runChromeBackup(args []string) *apperror.AppError {
@@ -33,7 +33,7 @@ func runChromeBackup(args []string) *apperror.AppError {
 		return apperror.WrapSimple(err, "chrome backup: ERROR mkdir:")
 	}
 
-	srcRoot := chromeUserDataDir()
+	srcRoot := cmdchromeprofile.UserDataDir()
 	n, err := writeChromeBackup(srcRoot, out)
 	if err != nil {
 		return apperror.WrapSimple(err, "chrome backup: ERROR")
@@ -97,7 +97,7 @@ func runChromeRestore(args []string) *apperror.AppError {
 
 	useDefault := needsDst && recorded == ""
 	if useDefault {
-		dst = chromeUserDataDir()
+		dst = cmdchromeprofile.UserDataDir()
 	}
 
 	if !skipVerify {
@@ -141,7 +141,7 @@ func runChromeRestore(args []string) *apperror.AppError {
 		return doDryRun(src, dst)
 	}
 
-	_, _ = snapshotChromeProfile(dst, "pre-restore")
+	_, _ = cmdchromeprofile.SnapshotProfile(dst, "pre-restore")
 	n, err := readChromeBackup(src, dst)
 	if err != nil {
 		return apperror.WrapSimple(err, "chrome restore: ERROR")

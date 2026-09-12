@@ -8,9 +8,9 @@ package cmd
 import (
 	"fmt"
 	"path/filepath"
+	"runtime"
 	"sync/atomic"
 	"testing"
-	"time"
 
 	"github.com/alimtvnetwork/gitmap-v28/gitmap/constants"
 )
@@ -37,7 +37,9 @@ func stubProcessor(concurrentSeen *int64) func(string) batchRowResult {
 
 		base := filepath.Base(path)
 		last := base[len(base)-1] - '0'
-		time.Sleep(time.Duration(last%5+1) * time.Millisecond)
+		for i := 0; i < int(last%5+1); i++ {
+			runtime.Gosched()
+		}
 		atomic.AddInt64(&inflight, -1)
 
 		return batchRowResult{

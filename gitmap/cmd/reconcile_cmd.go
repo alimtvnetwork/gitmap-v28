@@ -8,7 +8,8 @@ import (
 	"github.com/alimtvnetwork/gitmap-v28/gitmap/constants"
 )
 
-func runReconcileCmd(args []string) error {
+// RunReconcileCmd executes the reconcile command workflow.
+func RunReconcileCmd(args []string) error {
 	checkHelp(constants.CmdReconcile, args)
 	items := LoadRemediationState()
 	if isReconcileAllRequested(args) {

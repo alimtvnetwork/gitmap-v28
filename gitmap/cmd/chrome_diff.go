@@ -10,8 +10,8 @@ import (
 	"sort"
 
 	"github.com/alimtvnetwork/gitmap-v28/gitmap/apperror"
-
 	"github.com/alimtvnetwork/gitmap-v28/gitmap/cliexit"
+	"github.com/alimtvnetwork/gitmap-v28/gitmap/cmdchromeprofile"
 )
 
 func runChromeDiff(args []string) error {
@@ -20,17 +20,17 @@ func runChromeDiff(args []string) error {
 		cliexit.HandleError(nil, 2)
 	}
 
-	a, okA := resolveChromeProfile(args[0])
-	b, okB := resolveChromeProfile(args[1])
+	a, okA := cmdchromeprofile.ResolveProfile(args[0])
+	b, okB := cmdchromeprofile.ResolveProfile(args[1])
 	if !okA || !okB {
 		fmt.Fprintln(os.Stderr, "chrome diff: ERROR one or both profiles not found")
-		printAvailableChromeProfilesWithDisplay()
+		cmdchromeprofile.PrintAvailableProfilesWithDisplay()
 
 		return apperror.NewSimple("fatal error", "E9000")
 	}
 
 	fmt.Printf("\n\033[1;96m▸ chrome diff\033[0m  \033[1m%s\033[0m ↔ \033[1m%s\033[0m\n",
-		chromeProfileSummary(a), chromeProfileSummary(b))
+		cmdchromeprofile.ProfileSummary(a), cmdchromeprofile.ProfileSummary(b))
 
 	extA, extB := listChromeExtensions(a.Path), listChromeExtensions(b.Path)
 	printSetDiff("extensions", extA, extB)

@@ -282,7 +282,7 @@ def scan_go_tests(repo_root: Path) -> tuple[dict[str, Any], int, int]:
         rel_pkg = normalize_repo_rel(pkg_dir)
         test_funcs = extract_go_tests(tf)
         test_file_hash = compute_file_hash(tf)
-        
+
         file_content = ""
         try:
             file_content = tf.read_text(encoding="utf-8", errors="replace")

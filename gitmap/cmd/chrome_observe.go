@@ -14,6 +14,7 @@ import (
 	"strings"
 	"time"
 
+	"github.com/alimtvnetwork/gitmap-v28/gitmap/cmdchromeprofile"
 	"github.com/alimtvnetwork/gitmap-v28/gitmap/constants"
 	_ "modernc.org/sqlite"
 )
@@ -50,7 +51,7 @@ func runChromeObserve(args []string) error {
 }
 
 func collectChromeObservation(profFilter string, isAll bool) chromeObservationReport {
-	isRunning, _ := isChromeRunning(runtime.GOOS)
+	isRunning, _ := cmdchromeprofile.IsChromeRunning(runtime.GOOS)
 	procCount := 0
 	if isRunning {
 		procCount = 1
@@ -126,7 +127,7 @@ func mapCDPTabs(rawTabs []cdpTabItem) []chromeTabInfo {
 }
 
 func extractProfileSessionTabs(profName string, isRunning bool) []chromeTabInfo {
-	srcPath, hasDir := resolveChromeProfileDir(profName)
+	srcPath, hasDir := cmdchromeprofile.ResolveProfileDir(profName)
 	if !hasDir {
 		return nil
 	}

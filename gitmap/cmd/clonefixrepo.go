@@ -284,7 +284,7 @@ func applyHTTPSScheme(url string, useHTTPS bool) (string, bool) {
 // `--require-version` restores the strict (exit-4) failure mode for
 // CI pipelines that want the old contract.
 func maybeRunFixRepoStep(absPath string, requireVersion bool) {
-	repoName := resolveCloneFixRepoName(absPath)
+	repoName := ResolveCloneFixRepoName(absPath)
 	parsed := clonenext.ParseRepoName(repoName)
 	if parsed.HasVersion {
 		runChainedGitmapStep([]string{constants.CmdFixRepo, "--" + constants.FixRepoFlagAll})
@@ -300,7 +300,8 @@ func maybeRunFixRepoStep(absPath string, requireVersion bool) {
 	fmt.Printf(constants.MsgCloneFixRepoSkipNoVer, parsed.BaseName)
 }
 
-func resolveCloneFixRepoName(absPath string) string {
+// ResolveCloneFixRepoName discovers repository name from remote or directory base.
+func ResolveCloneFixRepoName(absPath string) string {
 	remoteURL, err := gitutil.RemoteURL(absPath)
 	if err != nil {
 		fmt.Fprintf(os.Stderr, constants.WarnCloneFixRepoRemoteFmt, absPath, err)

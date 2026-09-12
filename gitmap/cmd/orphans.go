@@ -126,6 +126,11 @@ func emitOrphans(orphans []orphanRepo, f hygieneFormat) {
 	}
 }
 
+// OriginURL returns the `origin` remote URL for repo at dir.
+func OriginURL(dir string) (string, bool) {
+	return originURL(dir)
+}
+
 // originURL returns the `origin` remote URL for repo at dir.
 func originURL(dir string) (string, bool) {
 	out, err := exec.Command("git", "-C", dir, "config", "--get", "remote.origin.url").Output()
@@ -159,6 +164,11 @@ func remoteStatus(remote string) int {
 	defer resp.Body.Close()
 
 	return resp.StatusCode
+}
+
+// GitURLToHTTPS converts ssh/https git URLs into a browseable HTTPS URL.
+func GitURLToHTTPS(u string) string {
+	return gitURLToHTTPS(u)
 }
 
 // gitURLToHTTPS converts ssh/https git URLs into a browseable HTTPS URL.

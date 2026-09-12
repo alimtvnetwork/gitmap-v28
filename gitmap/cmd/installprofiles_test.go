@@ -2,6 +2,8 @@ package cmd
 
 import (
 	"testing"
+
+	"github.com/alimtvnetwork/gitmap-v28/gitmap/cmdagy"
 )
 
 var allExpectedProfiles = []string{
@@ -125,7 +127,7 @@ func TestProfileDotAndBadge(t *testing.T) {
 
 func TestAgyInstallCommandRegistered(t *testing.T) {
 	isFound := false
-	for _, sub := range AgyCmd.Commands() {
+	for _, sub := range cmdagy.AgyCmd.Commands() {
 		if sub.Name() == "install" {
 			isFound = true
 			break

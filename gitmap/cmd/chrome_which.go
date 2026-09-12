@@ -9,10 +9,11 @@ import (
 	"path/filepath"
 
 	"github.com/alimtvnetwork/gitmap-v28/gitmap/apperror"
+	"github.com/alimtvnetwork/gitmap-v28/gitmap/cmdchromeprofile"
 )
 
 func runChromeWhich(_ []string) error {
-	root := chromeUserDataDir()
+	root := cmdchromeprofile.UserDataDir()
 	statePath := filepath.Join(root, "Local State")
 	raw, err := os.ReadFile(statePath)
 	if err != nil {

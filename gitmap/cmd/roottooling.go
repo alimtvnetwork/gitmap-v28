@@ -1,6 +1,7 @@
 package cmd
 
 import (
+	"github.com/alimtvnetwork/gitmap-v28/gitmap/cmdchromeprofile"
 	"github.com/alimtvnetwork/gitmap-v28/gitmap/cmdvmware"
 	"github.com/alimtvnetwork/gitmap-v28/gitmap/constants"
 )
@@ -178,15 +179,15 @@ func toolingUtilEntries() []dispatchEntry {
 
 func toolingChromeEntries() []dispatchEntry {
 	return []dispatchEntry{
-		{[]string{constants.CmdChromeProfileCopy, constants.CmdChromeProfileCopyAlias}, func() error { return runChromeProfileCopy(argsTail()) }},
-		{[]string{constants.CmdChromeProfileExport, constants.CmdChromeProfileExportAlias}, func() error { return runChromeProfileExport(argsTail()) }},
-		{[]string{constants.CmdChromeProfileImport, constants.CmdChromeProfileImportAlias}, func() error { return runChromeProfileImport(argsTail()) }},
-		{[]string{constants.CmdChromeProfileList, constants.CmdChromeProfileListAlias, constants.CmdChromeProfileListAlias2}, func() error { return runChromeProfileList(argsTail()) }},
-		{[]string{constants.CmdChromeProfileDelete, constants.CmdChromeProfileDeleteAlias}, func() error { return runChromeProfileDelete(argsTail()) }},
-		{[]string{constants.CmdChromeProfileMerge, constants.CmdChromeProfileMergeAlias}, func() error { return runChromeProfileMerge(argsTail()) }},
-		{[]string{"chrome-profile-copy-all", "cpc-all", "copy-all"}, func() error { return runChromeCopyAll(argsTail()) }},
-		{[]string{"chrome-profile-export-all", "cpe-all", "export-all"}, func() error { return runChromeExportAll(argsTail()) }},
-		{[]string{"chrome-profile-import-all", "cpi-all", "import-all"}, func() error { return runChromeImportAll(argsTail()) }},
+		{[]string{constants.CmdChromeProfileCopy, constants.CmdChromeProfileCopyAlias}, func() error { return cmdchromeprofile.RunProfileCopy(argsTail()) }},
+		{[]string{constants.CmdChromeProfileExport, constants.CmdChromeProfileExportAlias}, func() error { return cmdchromeprofile.RunProfileExport(argsTail()) }},
+		{[]string{constants.CmdChromeProfileImport, constants.CmdChromeProfileImportAlias}, func() error { return cmdchromeprofile.RunProfileImport(argsTail()) }},
+		{[]string{constants.CmdChromeProfileList, constants.CmdChromeProfileListAlias, constants.CmdChromeProfileListAlias2}, func() error { return cmdchromeprofile.RunProfileList(argsTail()) }},
+		{[]string{constants.CmdChromeProfileDelete, constants.CmdChromeProfileDeleteAlias}, func() error { return cmdchromeprofile.RunProfileDelete(argsTail()) }},
+		{[]string{constants.CmdChromeProfileMerge, constants.CmdChromeProfileMergeAlias}, func() error { return cmdchromeprofile.RunProfileMerge(argsTail()) }},
+		{[]string{"chrome-profile-copy-all", "cpc-all", "copy-all"}, func() error { return cmdchromeprofile.RunCopyAll(argsTail()) }},
+		{[]string{"chrome-profile-export-all", "cpe-all", "export-all"}, func() error { return cmdchromeprofile.RunExportAll(argsTail()) }},
+		{[]string{"chrome-profile-import-all", "cpi-all", "import-all"}, func() error { return cmdchromeprofile.RunImportAll(argsTail()) }},
 		{[]string{constants.CmdChrome, constants.CmdChromeAlias, constants.CmdChromeAlias2}, func() error { return runChrome(argsTail()) }},
 	}
 }

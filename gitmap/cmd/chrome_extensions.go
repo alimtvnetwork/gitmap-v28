@@ -10,6 +10,7 @@ import (
 	"strings"
 
 	"github.com/alimtvnetwork/gitmap-v28/gitmap/apperror"
+	"github.com/alimtvnetwork/gitmap-v28/gitmap/cmdchromeprofile"
 	"github.com/alimtvnetwork/gitmap-v28/gitmap/constants"
 	"gopkg.in/yaml.v3"
 )
@@ -67,14 +68,14 @@ func parseExtensionFilterArgs(args []string) extensionFilterOpts {
 
 func resolveTargetProfiles(explicit string, isAll bool) []string {
 	if isAll || explicit == "all" {
-		return availableChromeProfileNames()
+		return cmdchromeprofile.AvailableProfileNames()
 	}
 
 	if explicit != "" {
 		return []string{explicit}
 	}
 
-	names := availableChromeProfileNames()
+	names := cmdchromeprofile.AvailableProfileNames()
 	if len(names) > 0 {
 		return []string{names[0]}
 	}
@@ -83,7 +84,7 @@ func resolveTargetProfiles(explicit string, isAll bool) []string {
 }
 
 func scanExtensionsForProfile(profName string) ([]chromeExtensionInfo, error) {
-	srcPath, hasDir := resolveChromeProfileDir(profName)
+	srcPath, hasDir := cmdchromeprofile.ResolveProfileDir(profName)
 	if !hasDir {
 		return nil, apperror.NewSimple(fmt.Sprintf("profile %s not found", profName), "E4201")
 	}

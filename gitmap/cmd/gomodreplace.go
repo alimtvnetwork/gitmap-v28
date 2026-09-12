@@ -42,6 +42,16 @@ func parseModuleLine(content string) string {
 	return ""
 }
 
+// ReplaceModulePath replaces all occurrences of oldPath with newPath across the repo.
+func ReplaceModulePath(oldPath, newPath string, verbose bool, exts []string) int {
+	return replaceModulePath(oldPath, newPath, verbose, exts)
+}
+
+// ReplaceInGoMod replaces the module line in go.mod.
+func ReplaceInGoMod(oldPath, newPath string) error {
+	return replaceInGoMod(oldPath, newPath)
+}
+
 // replaceModulePath replaces all occurrences of oldPath with newPath across the repo.
 func replaceModulePath(oldPath, newPath string, verbose bool, exts []string) int {
 	replaceInGoMod(oldPath, newPath)

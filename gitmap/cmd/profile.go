@@ -5,6 +5,7 @@ import (
 	"os"
 
 	"github.com/alimtvnetwork/gitmap-v28/gitmap/apperror"
+	"github.com/alimtvnetwork/gitmap-v28/gitmap/cmdchromeprofile"
 	"github.com/alimtvnetwork/gitmap-v28/gitmap/constants"
 )
 
@@ -95,12 +96,12 @@ func routeChromeProfileSub(subCmd string, tailArgs []string) (error, bool) {
 func routeChromeImportSub(subCmd string, tailArgs []string) (error, bool) {
 	switch subCmd {
 	case constants.CmdProfileImport, "cpi", "profile-import":
-		return runChromeProfileImport(tailArgs), true
+		return cmdchromeprofile.RunProfileImport(tailArgs), true
 	case constants.CmdProfileImportAll, "cpi-all", "all-profile-import", "import-all-profiles":
-		return runChromeImportAll(tailArgs), true
+		return cmdchromeprofile.RunImportAll(tailArgs), true
 	case constants.CmdProfileInspect, constants.CmdProfilePreview, constants.CmdProfileCheck,
 		constants.CmdProfileImportCheck, "check-import":
-		return runChromeProfileImportCheck(tailArgs), true
+		return cmdchromeprofile.RunProfileImportCheck(tailArgs), true
 	}
 
 	return nil, false
@@ -109,9 +110,9 @@ func routeChromeImportSub(subCmd string, tailArgs []string) (error, bool) {
 func routeChromeExportSub(subCmd string, tailArgs []string) (error, bool) {
 	switch subCmd {
 	case constants.CmdProfileExport, "cpe", "profile-export":
-		return runChromeProfileExport(tailArgs), true
+		return cmdchromeprofile.RunProfileExport(tailArgs), true
 	case constants.CmdProfileExportAll, "cpe-all", "all-profile-export", "export-all-profiles":
-		return runChromeExportAll(tailArgs), true
+		return cmdchromeprofile.RunExportAll(tailArgs), true
 	}
 
 	return nil, false

@@ -10,8 +10,8 @@ import (
 	"strings"
 
 	"github.com/alimtvnetwork/gitmap-v28/gitmap/apperror"
-
 	"github.com/alimtvnetwork/gitmap-v28/gitmap/cliexit"
+	"github.com/alimtvnetwork/gitmap-v28/gitmap/cmdchromeprofile"
 )
 
 type bookmarkItem struct {
@@ -27,10 +27,10 @@ func runChromeExportBookmarks(args []string) error {
 		cliexit.HandleError(nil, 2)
 	}
 
-	profile, isResolved := resolveChromeProfile(args[0])
+	profile, isResolved := cmdchromeprofile.ResolveProfile(args[0])
 	if !isResolved {
 		fmt.Fprintf(os.Stderr, "chrome export-bookmarks: ERROR profile %q not found\n", args[0])
-		printAvailableChromeProfilesWithDisplay()
+		cmdchromeprofile.PrintAvailableProfilesWithDisplay()
 
 		return apperror.NewSimple("fatal error", "E9000")
 	}

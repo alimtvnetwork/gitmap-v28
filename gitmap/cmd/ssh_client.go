@@ -12,7 +12,8 @@ import (
 	"github.com/alimtvnetwork/gitmap-v28/gitmap/apperror"
 )
 
-var sshExecutor = exec.CommandContext
+// SSHExecutor is the command factory used for executing SSH commands.
+var SSHExecutor = exec.CommandContext
 
 type InteractiveSSHClient struct {
 	Stdin  io.Reader
@@ -21,7 +22,7 @@ type InteractiveSSHClient struct {
 }
 
 func (c *InteractiveSSHClient) Run(ctx context.Context, target string) error {
-	cmd := sshExecutor(ctx, "ssh", target)
+	cmd := SSHExecutor(ctx, "ssh", target)
 	cmd.Stdin = c.Stdin
 	cmd.Stdout = c.Stdout
 	cmd.Stderr = c.Stderr
@@ -42,7 +43,7 @@ func SpawnSSH(ctx context.Context, target SSHTarget, args []string) error {
 	cmdArgs := []string{target.String()}
 	cmdArgs = append(cmdArgs, args...)
 
-	cmd := sshExecutor(ctx, "ssh", cmdArgs...)
+	cmd := SSHExecutor(ctx, "ssh", cmdArgs...)
 	cmd.Stdin = os.Stdin
 	cmd.Stdout = os.Stdout
 	cmd.Stderr = os.Stderr

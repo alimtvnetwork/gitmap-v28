@@ -8,6 +8,7 @@ import (
 
 	"github.com/alimtvnetwork/gitmap-v28/gitmap/cloneconcurrency"
 	"github.com/alimtvnetwork/gitmap-v28/gitmap/cloner"
+	"github.com/alimtvnetwork/gitmap-v28/gitmap/cmdagy"
 	"github.com/alimtvnetwork/gitmap-v28/gitmap/constants"
 	"github.com/alimtvnetwork/gitmap-v28/gitmap/desktop"
 	"github.com/alimtvnetwork/gitmap-v28/gitmap/model"
@@ -54,7 +55,7 @@ func handleCloneFixFlag(cf CloneFlags) bool {
 
 func runCloneFixOptimization() {
 	fmt.Printf("%s Running workspace project optimization and repeat removal...\n", constants.ColorCyan+"▸"+constants.ColorReset)
-	_ = runAgyOptimize()
+	_ = cmdagy.RunOptimize()
 	summary, _ := vscodepm.OptimizeProjects(nil, false)
 	printVSCodeOptimizeResult(summary, false)
 	_ = runGitHubDesktopOptimize(nil)

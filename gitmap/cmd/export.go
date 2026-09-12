@@ -6,6 +6,7 @@ import (
 	"os"
 
 	"github.com/alimtvnetwork/gitmap-v28/gitmap/apperror"
+	"github.com/alimtvnetwork/gitmap-v28/gitmap/cmdchromeprofile"
 	"github.com/alimtvnetwork/gitmap-v28/gitmap/constants"
 	"github.com/alimtvnetwork/gitmap-v28/gitmap/model"
 
@@ -104,14 +105,14 @@ func printExportSummary(path string, e model.DatabaseExport) {
 func runExportAll(args []string) error {
 	checkHelp("export-all", args)
 
-	return runChromeExportAll(args)
+	return cmdchromeprofile.RunExportAll(args)
 }
 
 // runImportAll handles the "import-all" command.
 func runImportAll(args []string) error {
 	checkHelp("import-all", args)
 
-	return runChromeImportAll(args)
+	return cmdchromeprofile.RunImportAll(args)
 }
 
 // runExportOnly handles the "export-only" command.

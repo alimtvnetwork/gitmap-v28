@@ -10,7 +10,8 @@ import (
 	"time"
 )
 
-func remediateGitIndex(repoRoot, gitDir string, opts FixGitOptions) ([]FixGitIssue, error) {
+// RemediateGitIndex detects and repairs corrupt or truncated git index.
+func RemediateGitIndex(repoRoot, gitDir string, opts FixGitOptions) ([]FixGitIssue, error) {
 	var issues []FixGitIssue
 
 	hasCorrupt, reason := inspectIndexCorrupt(repoRoot, gitDir)

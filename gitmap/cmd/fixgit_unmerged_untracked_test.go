@@ -3,7 +3,6 @@ package cmd
 
 import (
 	"os"
-	"os/exec"
 	"path/filepath"
 	"testing"
 )
@@ -11,13 +10,8 @@ import (
 func TestFixGit_DetectAndAbortUnmerged(t *testing.T) {
 	tempDir := t.TempDir()
 
-	cmd := exec.Command("git", "init")
-	cmd.Dir = tempDir
-	if err := cmd.Run(); err != nil {
-		t.Skipf("git not installed: %v", err)
-	}
-
 	gitDir := filepath.Join(tempDir, ".git")
+	_ = os.MkdirAll(gitDir, 0755)
 	mergeHead := filepath.Join(gitDir, "MERGE_HEAD")
 	_ = os.WriteFile(mergeHead, []byte("fake-merge-sha"), 0644)
 

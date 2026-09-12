@@ -28,6 +28,11 @@ func hygieneWorkers() int {
 	return n
 }
 
+// ScanForReposParallel discovers git repository directories concurrently.
+func ScanForReposParallel(root string) []string {
+	return scanForReposParallel(root)
+}
+
 // scanForReposParallel walks the immediate children of root and returns
 // directories that contain a .git folder. The .git probe is fanned out
 // across hygieneWorkers() goroutines so large directories stay snappy.

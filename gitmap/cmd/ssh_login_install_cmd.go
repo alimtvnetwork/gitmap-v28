@@ -55,7 +55,7 @@ func getInstallPayload(ctx context.Context, target string, version string) (stri
 }
 
 func executeRemoteInstall(ctx context.Context, payload string, target SSHTarget) error {
-	cmd := sshExecutor(ctx, "ssh", target.String())
+	cmd := SSHExecutor(ctx, "ssh", target.String())
 	cmd.Stdin = strings.NewReader(payload)
 	cmd.Stdout = os.Stdout
 	cmd.Stderr = os.Stderr

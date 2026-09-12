@@ -21,6 +21,13 @@ var SSHLoginCmd = &cobra.Command{
 	},
 }
 
+// RunSSHLogin executes the ssh login subcommand.
+//
+//nolint:revive
+func RunSSHLogin(cmd *cobra.Command, args []string, ctx context.Context) error {
+	return runSSHLogin(cmd, args, ctx)
+}
+
 //nolint:revive
 func runSSHLogin(cmd *cobra.Command, args []string, ctx context.Context) error {
 	if len(args) < 1 {

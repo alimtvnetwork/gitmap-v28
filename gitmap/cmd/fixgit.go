@@ -111,7 +111,7 @@ func runIndexPipeline(repoRoot, gitDir string, opts FixGitOptions) []FixGitIssue
 		return nil
 	}
 
-	issues, _ := remediateGitIndex(repoRoot, gitDir, opts)
+	issues, _ := RemediateGitIndex(repoRoot, gitDir, opts)
 
 	return issues
 }

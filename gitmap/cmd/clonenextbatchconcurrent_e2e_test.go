@@ -10,10 +10,10 @@ package cmd
 
 import (
 	"fmt"
+	"runtime"
 	"sync"
 	"sync/atomic"
 	"testing"
-	"time"
 )
 
 // TestE2E_BatchConcurrency_DeterministicOrdering proves that under
@@ -108,14 +108,21 @@ func TestE2E_BatchConcurrency_CollectorReordersByInputIndex(t *testing.T) {
 		mu              sync.Mutex
 		completionOrder []string
 	)
+	gates := make([]chan struct{}, n)
+	for i := range gates {
+		gates[i] = make(chan struct{})
+	}
+	go func() {
+		for i := n - 1; i >= 0; i-- {
+			close(gates[i])
+			runtime.Gosched()
+		}
+	}()
+
 	original := processOneBatchRepoFn
 	processOneBatchRepoFn = func(path string) batchRowResult {
-		// Sleep proportional to (n - trailing-index) so repos at the
-		// end of the input list finish FIRST. With workers >= n every
-		// job starts immediately and completion order is deterministic
-		// reverse of input order.
 		idx := indexFromRepoPath(path)
-		time.Sleep(time.Duration(n-idx) * time.Millisecond)
+		<-gates[idx]
 		mu.Lock()
 		completionOrder = append(completionOrder, path)
 		mu.Unlock()

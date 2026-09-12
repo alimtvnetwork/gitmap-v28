@@ -54,6 +54,11 @@ func runDedupe(args []string) error {
 	return nil
 }
 
+// HeadTreeSHA returns the tree SHA pointed to by HEAD for repo at dir.
+func HeadTreeSHA(dir string) (string, bool) {
+	return headTreeSHA(dir)
+}
+
 // headTreeSHA returns the tree SHA pointed to by HEAD for repo at dir.
 func headTreeSHA(dir string) (string, bool) {
 	out, err := exec.Command("git", "-C", dir, "rev-parse", "HEAD^{tree}").Output()
@@ -64,6 +69,11 @@ func headTreeSHA(dir string) (string, bool) {
 	s := strings.TrimSpace(string(out))
 
 	return s, s != ""
+}
+
+// FilterDuplicateGroups keeps only groups with 2+ entries.
+func FilterDuplicateGroups(groups map[string][]string) map[string][]string {
+	return filterDuplicateGroups(groups)
 }
 
 // filterDuplicateGroups keeps only groups with 2+ entries.

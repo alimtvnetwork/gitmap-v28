@@ -1,6 +1,6 @@
 # Plan 103: Style Guidelines, Formatting & Line-Gaps Architecture Audit
 
-**Status:** Completed  
+**Status:** Completed
 **Milestone:** Coding Guidelines Execution - Prompt 10 (`01-prompts/15-cg-execute/10-style-guidelines.md`)
 
 ---

@@ -2,10 +2,24 @@ package cmd
 
 import (
 	"errors"
+	"fmt"
+	"os"
+	"path/filepath"
 	"testing"
 
 	"github.com/alimtvnetwork/gitmap-v28/gitmap/apperror"
 )
+
+func createTestSnapshotJSON(t *testing.T, dir, filename, name, displayName, email string) string {
+	t.Helper()
+	content := fmt.Sprintf(`{"schema_version":1,"name":%q,"display_name":%q,"email":%q}`, name, displayName, email)
+	target := filepath.Join(dir, filename)
+	if err := os.WriteFile(target, []byte(content), 0644); err != nil {
+		t.Fatalf("write test snapshot: %v", err)
+	}
+
+	return target
+}
 
 func TestProfileImportRouting(t *testing.T) {
 	tempUserData := t.TempDir()

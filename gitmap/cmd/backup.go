@@ -192,6 +192,11 @@ func parseBackupTimestamp(name string) time.Time {
 	return time.Time{}
 }
 
+// DirSize returns the total byte count under path (best-effort).
+func DirSize(path string) int64 {
+	return dirSize(path)
+}
+
 // dirSize returns the total byte count under path (best-effort).
 func dirSize(path string) int64 {
 	var total int64

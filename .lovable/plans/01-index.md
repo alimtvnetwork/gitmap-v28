@@ -8,6 +8,7 @@ Master directory of architectural and execution plans.
 
 ## Completed Plans (Consolidated Milestones)
 
+- [120-nuclear-package-modularization-phase3.md](completed/120-nuclear-package-modularization-phase3.md): Nuclear Monolith Subpackage Modularization, Heavy Test Isolation & Test Inventory Duration Sync
 - [119-macro-export-import-robustness.md](completed/119-macro-export-import-robustness.md): Macro Multi-Format Export and Safe Import Robustness Engine
 - [118-macro-multi-format-export-import.md](completed/118-macro-multi-format-export-import.md): Macro Multi-Format Export and Safe Import Architecture
 - [117-nuclear-package-modularization-phase2.md](completed/117-nuclear-package-modularization-phase2.md): Nuclear Monolith Subpackage Modularization & DAG Decoupling

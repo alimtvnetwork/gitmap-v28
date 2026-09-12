@@ -5,6 +5,8 @@ import (
 	"os"
 	"path/filepath"
 	"testing"
+
+	"github.com/alimtvnetwork/gitmap-v28/gitmap/cmdchromeprofile"
 )
 
 func TestChromeHelpAndZeroArgs(t *testing.T) {
@@ -92,7 +94,7 @@ func TestChromeSmartExportAndImport(t *testing.T) {
 
 	// 1. Export all to a.json with explicit --format=json
 	outJSON := filepath.Join(workDir, "a.json")
-	if err := runChromeProfileExport([]string{outJSON, "--format=json"}); err != nil {
+	if err := cmdchromeprofile.RunProfileExport([]string{outJSON, "--format=json"}); err != nil {
 		t.Fatalf("export to a.json failed: %v", err)
 	}
 
@@ -102,7 +104,7 @@ func TestChromeSmartExportAndImport(t *testing.T) {
 
 	// 2. Export all to a.db with auto-inferred SQLite format
 	outDB := filepath.Join(workDir, "a.db")
-	if err := runChromeProfileExport([]string{outDB}); err != nil {
+	if err := cmdchromeprofile.RunProfileExport([]string{outDB}); err != nil {
 		t.Fatalf("export to a.db failed: %v", err)
 	}
 
@@ -112,32 +114,32 @@ func TestChromeSmartExportAndImport(t *testing.T) {
 
 	// 3. Export all to a.sqlite with explicit --format=sqlite
 	outSQLite := filepath.Join(workDir, "a.sqlite")
-	if err := runChromeProfileExport([]string{outSQLite, "--format=sqlite"}); err != nil {
+	if err := cmdchromeprofile.RunProfileExport([]string{outSQLite, "--format=sqlite"}); err != nil {
 		t.Fatalf("export to a.sqlite failed: %v", err)
 	}
 
 	// 4. Export all to a.yaml
 	outYAML := filepath.Join(workDir, "a.yaml")
-	if err := runChromeProfileExport([]string{outYAML}); err != nil {
+	if err := cmdchromeprofile.RunProfileExport([]string{outYAML}); err != nil {
 		t.Fatalf("export to a.yaml failed: %v", err)
 	}
 
 	// 5. Export single profile Default to single.json
 	outSingleJSON := filepath.Join(workDir, "single.json")
-	if err := runChromeProfileExport([]string{"Default", outSingleJSON}); err != nil {
+	if err := cmdchromeprofile.RunProfileExport([]string{"Default", outSingleJSON}); err != nil {
 		t.Fatalf("export Default to single.json failed: %v", err)
 	}
 
 	// 6. Test imports
-	if err := runChromeProfileImport([]string{outJSON}); err != nil {
+	if err := cmdchromeprofile.RunProfileImport([]string{outJSON}); err != nil {
 		t.Fatalf("import from a.json failed: %v", err)
 	}
 
-	if err := runChromeProfileImport([]string{outDB}); err != nil {
+	if err := cmdchromeprofile.RunProfileImport([]string{outDB}); err != nil {
 		t.Fatalf("import from a.db failed: %v", err)
 	}
 
-	if err := runChromeProfileImport([]string{outYAML}); err != nil {
+	if err := cmdchromeprofile.RunProfileImport([]string{outYAML}); err != nil {
 		t.Fatalf("import from a.yaml failed: %v", err)
 	}
 }

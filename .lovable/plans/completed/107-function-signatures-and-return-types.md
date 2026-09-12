@@ -1,6 +1,6 @@
 # Plan 107: Function Signatures, Invocations & Result Envelopes Architecture Audit
 
-**Status:** Completed  
+**Status:** Completed
 **Milestone:** Coding Guidelines Execution - Prompt 14 (`01-prompts/15-cg-execute/14-function-signatures-and-return-types.md`)
 
 ---
