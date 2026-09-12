@@ -8,6 +8,7 @@ Master directory of architectural and execution plans.
 
 ## Completed Plans (Consolidated Milestones)
 
+- [111-function-argument-reduction-and-params.md](completed/111-function-argument-reduction-and-params.md): Argument Reduction, Parameter Structs & Return Architecture Audit (parameter structs, affirmative fields)
 - [110-terminal-ui-and-cli-styling.md](completed/110-terminal-ui-and-cli-styling.md): Terminal UI, CLI Styling, Lipgloss & Animations Architecture Audit (11/11 TUI tests passing, ANSI palettes)
 - [109-multi-language-enums-and-traits.md](completed/109-multi-language-enums-and-traits.md): Multi-Language Enums, Traits & Pattern Matching Architecture Audit (*Type suffixes, string-backed enums)
 - [108-typescript-guidelines-and-types.md](completed/108-typescript-guidelines-and-types.md): TypeScript Strict Typing & Discriminated Unions Architecture Audit (tsc --noEmit clean, MWS codes verified)
