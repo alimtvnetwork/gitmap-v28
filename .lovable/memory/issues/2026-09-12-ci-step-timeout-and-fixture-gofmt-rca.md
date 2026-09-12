@@ -30,9 +30,9 @@ unGofmtList did not exclude internal backup directories (.gitmap/ and .git/) fro
 
 ## 4. Code Fix
 
-1. In gitmap/macro/execute.go: Added cmd.WaitDelay = 250 * time.Millisecond in uildStepCmd to forcibly terminate lingering I/O handles after context cancellation.
-2. In gitmap/macro/macro_test.go: Changed Unix sleep command to xec sleep %d in getSleepCmd so sh replaces itself directly with sleep.
-3. In gitmap/tests/fixrepo_test/fixture_helpers_test.go:
+1. In cli/macro/execute.go: Added cmd.WaitDelay = 250 * time.Millisecond in uildStepCmd to forcibly terminate lingering I/O handles after context cancellation.
+2. In cli/macro/macro_test.go: Changed Unix sleep command to xec sleep %d in getSleepCmd so sh replaces itself directly with sleep.
+3. In cli/tests/fixrepo_test/fixture_helpers_test.go:
    - Stripped trailing blank lines from lignedMapSource.
    - Updated
 unGofmtList via ilterDirtyGofmtLines to ignore .gitmap/ and .git/ directories.

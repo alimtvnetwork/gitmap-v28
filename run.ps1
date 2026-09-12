@@ -237,7 +237,7 @@ function Show-Banner {
 
 # -- Load deploy manifest (single source of truth) -------------
 # Mirrors run.sh's load_deploy_manifest. Reads
-# gitmap/constants/deploy-manifest.json so AppSubdir / LegacyAppSubdirs
+# cli/constants/deploy-manifest.json so AppSubdir / LegacyAppSubdirs
 # aren't hardcoded across run.ps1, run.sh, install.sh, and Go constants.
 # Renaming the deploy folder ONLY requires editing that JSON file.
 $script:AppSubdir = "gitmap-cli"
@@ -1101,7 +1101,7 @@ function Deploy-Binary {
     Repair-DeployLayout -DeployTarget $target -BinaryName $Config.binaryName
 
     # Deploy into nested $AppSubdir/ subfolder (DFD-1). Folder name comes
-    # from gitmap/constants/deploy-manifest.json (single source of truth).
+    # from cli/constants/deploy-manifest.json (single source of truth).
     $appDir = Join-Path $target $script:AppSubdir
     if (-not (Test-Path $appDir)) {
         New-Item -ItemType Directory -Path $appDir -Force | Out-Null

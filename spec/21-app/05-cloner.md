@@ -25,7 +25,7 @@ repository directly from a Git URL.
 ### Parallel execution (`--max-concurrency N`)
 
 When `N > 1` the per-record clone work is dispatched onto a bounded
-worker pool (`gitmap/cloner/concurrent.go`):
+worker pool (`cli/cloner/concurrent.go`):
 
 - The default of `N = 1` keeps the legacy sequential runner so progress
   lines stay strictly ordered for users who script around them.

@@ -11,9 +11,9 @@ Recent macro multi-format export/import features introduced nested conditional b
 
 ## 3. Root Cause
 - Files:
-  - `gitmap/cmd/macro_export.go:194, 226`
-  - `gitmap/cmd/macro_import.go:89`
-  - `gitmap/macro/export.go:160`
+  - `cli/cmd/macro_export.go:194, 226`
+  - `cli/cmd/macro_import.go:89`
+  - `cli/macro/export.go:160`
 - Nested `if` blocks exceeding depth limit of 1.
 
 ## 4. Code Fix

@@ -19,11 +19,11 @@ language, plus a pretty markdown renderer for CLI output.
 - `gitmap templates list` (alias `tl`)
 - `gitmap templates show <kind> <lang>` (alias `ts`)
 
-`add` is a real subcommand router (see `gitmap/cmd/rootadd.go`).
+`add` is a real subcommand router (see `cli/cmd/rootadd.go`).
 
 ## Storage
 
-- Embedded: `gitmap/templates/assets/{ignore,attributes,lfs}/<lang>.<ext>`
+- Embedded: `cli/templates/assets/{ignore,attributes,lfs}/<lang>.<ext>`
 - User overlay: `~/.gitmap/templates/...` (materialized on first run)
 - Resolution: overlay wins, embed is fallback. Lets users in read-only
   install paths (e.g. `C:\Program Files\gitmap`) still customize.
@@ -60,14 +60,14 @@ Bump `version:` when re-curating from upstream.
 
 ## Pretty renderer
 
-`gitmap/render/pretty.go`. Rules:
+`cli/render/pretty.go`. Rules:
 1. Fenced block whose content == preceding paragraph → collapse to
    `→ <content>` in yellow, drop fence.
 2. `"double-quoted strings"` → cyan. Single quotes untouched.
 3. Subtitle (italic under heading) → muted color.
 4. Body indented 2 spaces under headings.
 
-Fixtures: `gitmap/render/testdata/pretty/case-NNN-*.{in.md,want.txt}`.
+Fixtures: `cli/render/testdata/pretty/case-NNN-*.{in.md,want.txt}`.
 Add new cases as paired files; test loop picks them up automatically.
 
 ## Spec

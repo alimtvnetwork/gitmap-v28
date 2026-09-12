@@ -28,7 +28,7 @@ install gives working `gcd` after one terminal restart.
 
 ## Files
 
-- `gitmap/cmd/selfinstall.go::autoRunSetupAfterInstall`.
+- `cli/cmd/selfinstall.go::autoRunSetupAfterInstall`.
 
 ## Limits
 

@@ -14,7 +14,7 @@ trailing `-vN` suffix**.
   `codex-june-6-v2/`, never `codex-june-6/`.
 - An explicit folder argument (single-URL form) wins verbatim.
 - Single-URL and multi-URL paths must agree. Both go through
-  `resolveCloneFolder` in `gitmap/cmd/clonemulti.go`.
+  `resolveCloneFolder` in `cli/cmd/clonemulti.go`.
 
 **Why:** users expect the folder to match what they typed. The old
 multi-URL behavior called `clonenext.ParseRepoName` and flattened
@@ -26,4 +26,4 @@ folder (fixed in v6.83.0).
 bumping belong to `gitmap clone-next` / `cn` only. Pinned by
 `TestResolveCloneFolderPreservesVersionSuffix` and
 `TestRepoNameFromURLKeepsVersionSuffix` in
-`gitmap/cmd/clonemulti_folder_test.go`.
+`cli/cmd/clonemulti_folder_test.go`.

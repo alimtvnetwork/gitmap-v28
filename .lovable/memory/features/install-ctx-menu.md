@@ -6,14 +6,14 @@ type: feature
 
 `gitmap install ctx` / `gitmap uninstall ctx` adds gitmap actions to the OS right-click menu.
 
-**Single source of truth**: `ctxMenu()` in `gitmap/cmd/installctxentries.go` returns a nested `[]ctxEntry` tree (Scan / Clone / Release / Repos / Visibility / Tools + top-level Open-terminal + Docs). All platforms read from this same table.
+**Single source of truth**: `ctxMenu()` in `cli/cmd/installctxentries.go` returns a nested `[]ctxEntry` tree (Scan / Clone / Release / Repos / Visibility / Tools + top-level Open-terminal + Docs). All platforms read from this same table.
 
 **Windows** (`installctx.go` + `installctxmenu.go`): nested HKCU cascade under `Software\Classes\Directory\{Background,}\shell\gitmap` using `MUIVerb` + empty `SubCommands` pattern. Real submenus.
 
 **macOS** (`installctxmac.go`): one `.workflow` bundle per flat entry under `~/Library/Services`. Minimal `Info.plist` + `document.wflow` (XML plist) wrapping a `Run Shell Script` action. Shows in Finder Quick Actions / Services. After install, `pkill -KILL -u $USER cfprefsd` refreshes Finder.
 
 **Linux** (`installctxlinux.go` + `installctxlinuxthunar.go`):
-- Nautilus: shell script per entry in `~/.local/share/nautilus/scripts/gitmap/`.
+- Nautilus: shell script per entry in `~/.local/share/nautilus/scripts/cli/`.
 - Dolphin: single `.desktop` with `X-KDE-Submenu=gitmap` + `Actions=` listing every entry → real cascade.
 - Thunar: marker-delimited (`<!-- gitmap-ctx-begin/end -->`) `<action>` block in `~/.config/Thunar/uca.xml`; uninstall strips block in place.
 
@@ -32,7 +32,7 @@ type: feature
 
 Spec: `spec/04-generic-cli/30-install-ctx.md`.
 
-**Test coverage** (added v4.x, 5-step E2E suite under `gitmap/cmd/`):
+**Test coverage** (added v4.x, 5-step E2E suite under `cli/cmd/`):
 - `installctx_harness_test.go` — shared harness: `collectCtxLeaves`, `withExplain`, `fakeGitmapExe`, `containsAll`.
 - `installctx_argv_e2e_test.go` — cross-platform argv contract + Extended/explain coverage on every leaf via combined Win/Linux/mac render.
 - `installctx_windows_e2e_test.go` — both HKCU roots, `\command` key per leaf, mode-specific bodies, idempotent build, `--explain` toggle, uninstall.

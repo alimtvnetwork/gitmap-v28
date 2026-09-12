@@ -94,7 +94,7 @@ can be listed, audited, and re-applied.
 
 8. **README + help text**
    - Add a "Chrome profile" section to `readme.txt` with the four commands.
-   - Add `Help*` constants in `gitmap/constants/constants_chromeprofile.go`.
+   - Add `Help*` constants in `cli/constants/constants_chromeprofile.go`.
    - Register handlers in `dispatchTooling` (or a new `dispatchBrowser`).
    - Mark const block with `// gitmap:cmd top-level` for completion generator.
 

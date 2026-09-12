@@ -65,7 +65,7 @@ The correct fix is:
 
 ### Layer 1 — Parent → Handoff Worker
 
-In `gitmap/cmd/update.go`:
+In `cli/cmd/update.go`:
 
 - `runUpdate()` resolves repo path and executable path
 - `createHandoffCopy(selfPath)` creates `gitmap-update-<pid>.exe`
@@ -88,7 +88,7 @@ This is **foreground/blocking** execution. The parent waits.
 
 ### Layer 2 — Worker → Update Script
 
-In `gitmap/cmd/updatescript.go`:
+In `cli/cmd/updatescript.go`:
 
 ```go
 cmd := exec.Command("powershell.exe",

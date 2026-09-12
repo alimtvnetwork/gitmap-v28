@@ -1,6 +1,6 @@
 // Package store — ERD parity test.
 //
-// Source of truth: every SQLCreate* constant in gitmap/constants/constants_*.go
+// Source of truth: every SQLCreate* constant in cli/constants/constants_*.go
 // MUST be represented as a table block in 02-spec/01-app/gitmap-database-erd.mmd.
 //
 // Why name-only (not column-level): the test is intentionally a name-set
@@ -26,7 +26,7 @@ const (
 	// erdPathRel is the canonical ERD location relative to the repo root.
 	erdPathRel = "spec/21-app/gitmap-database-erd.mmd"
 	// constantsDirRel is the directory containing SQLCreate* constants.
-	constantsDirRel = "gitmap/constants"
+	constantsDirRel = "cli/constants"
 	// erdParityRegenHint is shown when the test fails so the fix is obvious.
 	erdParityRegenHint = "Add the missing table block to " + erdPathRel +
 		" — even a stub like `TableName { INTEGER TableNameId PK }` is enough."
@@ -152,7 +152,7 @@ func TestERDMatchesSQLCreate(t *testing.T) {
 	}
 
 	if len(missingFromErd) > 0 {
-		t.Errorf("ERD parity drift — %d table(s) declared in gitmap/constants/constants_*.go SQLCreate* but missing from %s:\n  %s\n\nFix: %s",
+		t.Errorf("ERD parity drift — %d table(s) declared in cli/constants/constants_*.go SQLCreate* but missing from %s:\n  %s\n\nFix: %s",
 			len(missingFromErd), erdPathRel,
 			strings.Join(sortedKeys(missingFromErd), ", "),
 			erdParityRegenHint,

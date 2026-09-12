@@ -87,7 +87,7 @@ Fails during the compress/checksum step.
 
 ### Root Cause
 
-In a monorepo with `gitmap-v28/` and `gitmap-updater/`, each `run:` step in GitHub Actions starts at the repository root unless `working-directory:` is set. A `cd dist` command assumed the previous step's CWD persisted — it doesn't.
+In a monorepo with `gitmap-v28/` and `cli-updater/`, each `run:` step in GitHub Actions starts at the repository root unless `working-directory:` is set. A `cd dist` command assumed the previous step's CWD persisted — it doesn't.
 
 ### Why It Wasn't Caught
 

@@ -20,15 +20,15 @@
 ## Architectural Decisions & Implementations
 
 1. **Universal Path Normalization (`macro.NormalizeTargetPath`):**
-   - Created `macro.NormalizeTargetPath(target, currentDir string) string` in `gitmap/macro/expand.go`.
+   - Created `macro.NormalizeTargetPath(target, currentDir string) string` in `cli/macro/expand.go`.
    - Automatically strips single and double quotes (`"%temp%"` -> `%temp%`).
    - Resolves `%VAR%` (Windows case-insensitive), `$VAR` (Unix), `~` (home directory).
    - Resolves cross-platform temp aliases (`//temp`, `\\temp`, `/temp`, `\temp`, `/tmp`, `//tmp`, and subpaths) to `os.TempDir()`.
    - Normalizes slashes and path traversal via `filepath.Clean`.
-   - Wired into `gitmap/cmd/macro_add_helpers.go` (`handleCdCmd`, `executeInteractiveCd`) and `gitmap/macro/record_dir.go` (`DirTracker.resolveTarget`).
+   - Wired into `cli/cmd/macro_add_helpers.go` (`handleCdCmd`, `executeInteractiveCd`) and `cli/macro/record_dir.go` (`DirTracker.resolveTarget`).
 
 2. **Enhanced `gitmap mkdir` Engine:**
-   - Overhauled `gitmap/cmd/mkdir.go` to support `-p` / `--parents`, `-f` / `--file`, and `-v` / `--verbose` in any argument position.
+   - Overhauled `cli/cmd/mkdir.go` to support `-p` / `--parents`, `-f` / `--file`, and `-v` / `--verbose` in any argument position.
    - Traverses and synthesizes missing directory hierarchies, printing progressive logs (`  [DIR]  created: ...` or `  [DIR]  exists: ...`).
    - When `-f` / `--file` is supplied, synthesizes parent directories and touches the file (`  [FILE] created: ...`).
    - Fully idempotent: re-running on existing paths succeeds without error.
@@ -40,15 +40,15 @@
    - Updated `.lovable/strictly-avoid.md` with a Total Ban on depositing binaries outside canonical `bin/` and user AppData locations.
 
 4. **Live Execution & Output Streaming:**
-   - Updated `gitmap/macro/execute.go` to stream child process output to `os.Stdout` and `os.Stderr` via `io.MultiWriter` by default (guarding structured output `--json`/`--yaml`).
+   - Updated `cli/macro/execute.go` to stream child process output to `os.Stdout` and `os.Stderr` via `io.MultiWriter` by default (guarding structured output `--json`/`--yaml`).
    - Added diagnostic stderr dumping on step failure so errors are immediately visible.
-   - Added live execution in `gitmap/cmd/macro_add_interactive.go` with interactive `exec on` / `exec off` toggle (default `exec on`).
+   - Added live execution in `cli/cmd/macro_add_interactive.go` with interactive `exec on` / `exec off` toggle (default `exec on`).
 
 ---
 
 ## Verification & Quality Gates
 
-- **Unit Tests:** All unit tests in `gitmap/macro` and `gitmap/cmd` pass 100%.
+- **Unit Tests:** All unit tests in `cli/macro` and `cli/cmd` pass 100%.
 - **Linters:**
   - `python linter-scripts/check-nested-ifs.py` (0 violations)
   - `python linter-scripts/check-boolean-guidelines.py` (0 violations)

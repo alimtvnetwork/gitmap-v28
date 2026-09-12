@@ -7,13 +7,13 @@ During CI/CD execution of the Lint Baseline Guard (`check-single-linter-diff.sh 
 
 ## 2. Root Cause
 
-In `gitmap/cmd/pull.go` (and related refactored sites), `gitArgs := append([]string{"-C", r, "pull"}, extraArgs...)` was assigning the return value of `append` to a new slice variable `gitArgs` rather than modifying an already declared slice, triggering gocritic's `appendAssign` check.
+In `cli/cmd/pull.go` (and related refactored sites), `gitArgs := append([]string{"-C", r, "pull"}, extraArgs...)` was assigning the return value of `append` to a new slice variable `gitArgs` rather than modifying an already declared slice, triggering gocritic's `appendAssign` check.
 
 ## 3. Corrective and Preventive Actions
 
-- Refactored `pullDiscoveredChildren` in `gitmap/cmd/pull.go` to use `make([]string, 0, 3+len(extraArgs))` and chained `append` statements to assign directly to `gitArgs`.
-- Refactored `fuzzyFallback` in `gitmap/cmd/visibilityallbulk.go` to allocate and append explicitly.
-- Corrected buffer read ordering in `gitmap/tests/fixrepo_test/gofmt_e2e_test.go`.
+- Refactored `pullDiscoveredChildren` in `cli/cmd/pull.go` to use `make([]string, 0, 3+len(extraArgs))` and chained `append` statements to assign directly to `gitArgs`.
+- Refactored `fuzzyFallback` in `cli/cmd/visibilityallbulk.go` to allocate and append explicitly.
+- Corrected buffer read ordering in `cli/tests/fixrepo_test/gofmt_e2e_test.go`.
 - Added `//nolint:unused` annotations to internal helper functions in `cmd/ct.go` and `cmd/sshjoin.go`.
 
 ## 4. Verification

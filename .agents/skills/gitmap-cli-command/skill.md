@@ -12,20 +12,20 @@ Autonomously implement, refactor, and verify CLI commands in the Gitmap Go toolc
 ## Core Checkpoints & Mandatory Invariants
 
 1. **AST Parity & Registry Synchronization:**
-   - Define top-level command constant in `gitmap/constants/constants_cli.go` inside a block marked with `// gitmap:cmd top-level`.
+   - Define top-level command constant in `cli/constants/constants_cli.go` inside a block marked with `// gitmap:cmd top-level`.
    - If a command is an internal alias or exempt, mark with `// gitmap:cmd skip`.
-   - Update `topLevelCmds()` in `gitmap/constants/cmd_constants_test.go` whenever adding or changing command constants.
-   - Run `go test ./gitmap/constants/... -run TestTopLevelCmdRegistryMatchesAST -count=1` to guarantee AST parity.
+   - Update `topLevelCmds()` in `cli/constants/cmd_constants_test.go` whenever adding or changing command constants.
+   - Run `go test ./cli/constants/... -run TestTopLevelCmdRegistryMatchesAST -count=1` to guarantee AST parity.
 
 2. **Command Help Text Standards:**
-   - Dedicated markdown file in `gitmap/helptext/<command>.md`.
+   - Dedicated markdown file in `cli/helptext/<command>.md`.
    - Maximum **120 lines** total.
    - Realistic execution simulation block: **3 to 8 lines**.
    - ALWAYS use fenced code blocks (` ``` `); NEVER use 4-space indentations (prevents golden test failures).
-   - Verify golden tests: `go test ./gitmap/helptext/... -run Golden -count=1`.
+   - Verify golden tests: `go test ./cli/helptext/... -run Golden -count=1`.
 
 3. **Standardized Error Reporting:**
-   - NEVER use bare `fmt.Fprintln(os.Stderr, err)` in `gitmap/cmd/`.
+   - NEVER use bare `fmt.Fprintln(os.Stderr, err)` in `cli/cmd/`.
    - Always route error exits through `cliexit.Reportf` or `cliexit.Fail`.
    - Wrap internal errors in `apperror.AppError` with operational context.
 

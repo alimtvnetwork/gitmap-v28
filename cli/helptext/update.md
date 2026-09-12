@@ -18,7 +18,7 @@ None
 | `--verbose` | Enable verbose logging to file |
 | `--report-errors json` | Append a JSON-Lines entry for every non-fatal failure during the build/deploy phase (e.g. `npm install` or `npm run build` failing) so CI can branch on them without parsing prose. |
 | `--report-errors-file <path>` | Write the JSONL report to this path. When omitted, the file is auto-created at `<TMP>/gitmap-update-report-YYYYMMDD-HHMMSS.jsonl`. |
-| `--debug-repo-detect` | Print marker checks (`gitmap/main.go`, `package.json`, `vite` dep, `node_modules`, prebuilt `dist/` locations, npm on PATH) and the resulting decision (`use-prebuilt-*`, `auto-build`, `skip-no-build-script`, `skip-not-a-vite-repo`, `use-legacy-source`, `no-docs-source`). When combined with `--report-errors json`, entries are mirrored under `stage="repo-detect"`. |
+| `--debug-repo-detect` | Print marker checks (`cli/main.go`, `package.json`, `vite` dep, `node_modules`, prebuilt `dist/` locations, npm on PATH) and the resulting decision (`use-prebuilt-*`, `auto-build`, `skip-no-build-script`, `skip-not-a-vite-repo`, `use-legacy-source`, `no-docs-source`). When combined with `--report-errors json`, entries are mirrored under `stage="repo-detect"`. |
 | `--debug-windows` | Print a `[debug-windows]` dump on every phase of the self-update handoff: phase name, GOOS, self executable, self/parent PIDs, resolution source (`config`/`sibling`/`PATH`), resolved cleanup target, target-exists check, child argv, relevant env vars (`GITMAP_DEBUG_WINDOWS`, `GITMAP_UPDATE_CLEANUP_DELAY_MS`, `GITMAP_DEBUG_REPO_DETECT`, `GITMAP_REPORT_ERRORS`, `GITMAP_REPORT_ERRORS_FILE`, `PATH`, `GITMAP_DEPLOY_PATH`), spawned child PID, and the path to the durable handoff log file. **As of v3.90.0** the dump also includes (a) the exact shell-quoted spawn command line that Phase 3 will execute (copy-paste safe in PowerShell/cmd/bash/zsh) plus an explicit "no `git` subprocess is launched" note, and (b) a pre-flight enumeration of every `filepath.Glob` pattern and the matching `os.Remove`/`os.RemoveAll` targets the deployed binary will operate on, so the planned filesystem changes are visible before any deletion happens. The flag is propagated through Phase 2 and Phase 3 via both argv and the `GITMAP_DEBUG_WINDOWS=1` env bridge so the dump runs on both sides of the detached cleanup spawn. Despite the name, it works on Unix too. |
 | `--debug-windows-json[=<path>]` | **(v3.91.0)** Mirror every `[debug-windows]` event to a structured NDJSON file. Default path: `output/gitmap-debug-windows-<timestamp>.jsonl`; pass `--debug-windows-json=/path/to/trace.jsonl` to override, or set `GITMAP_DEBUG_WINDOWS_JSON=<path>`. One JSON object per line with a stable envelope (`ts`, `event`, `pid`, `ppid`, `goos`, `self`, `version`) plus event-specific fields. Events: `header`, `footer`, `handoff`, `child_pid`, `note`, `command_plan`, `cleanup_plan`. The opened path is auto-forwarded to the Phase 3 cleanup child via env+argv, so both phases append to the **same file** for one consolidated trace per handoff. Sink is off by default; `--debug-windows` alone keeps the v3.90 console-only behavior. File-open failures degrade silently to console-only. |
 
@@ -141,7 +141,7 @@ The path is also printed once on every `gitmap update` run via `→ Handoff log 
 
 ## Updater Fallback
 
-If no source repo is available and `gitmap-updater` is installed, `gitmap update`
+If no source repo is available and `cli-updater` is installed, `gitmap update`
 automatically delegates to it. The updater checks GitHub releases and downloads
 the latest version without needing a local source checkout.
 
@@ -149,7 +149,7 @@ the latest version without needing a local source checkout.
 
 **Output (with updater installed):**
 
-    → No source repo found. Delegating to gitmap-updater...
+    → No source repo found. Delegating to cli-updater...
 
     ■ Checking for updates...
     Current version: v2.49.0
@@ -164,7 +164,7 @@ the latest version without needing a local source checkout.
 If you installed gitmap from a GitHub release (e.g. via the one-liner installer),
 the binary does not have a source repo path embedded. You have three choices:
 
-1. **Install `gitmap-updater`** — it handles updates via GitHub releases automatically.
+1. **Install `cli-updater`** — it handles updates via GitHub releases automatically.
 2. **Use `--repo-path`** to point at a local clone for a one-time update.
 3. **Clone and rebuild** from source so future updates work automatically.
 

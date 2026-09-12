@@ -20,7 +20,7 @@ All workflows use 'concurrency: group: ci-${{ github.ref }}' to scope runs by br
 
 ## Lessons Learned
 
-1. **Never use `cd` in CI scripts** — use `working-directory` in the workflow step definition. The v2.54.0 release pipeline failed with `cd: dist: No such file or directory` because the compress step ran in `gitmap-updater/` instead of `gitmap/`. Fixed by setting explicit `working-directory: gitmap/dist`. See `spec/02-app-issues/13-release-pipeline-dist-directory.md`.
+1. **Never use `cd` in CI scripts** — use `working-directory` in the workflow step definition. The v2.54.0 release pipeline failed with `cd: dist: No such file or directory` because the compress step ran in `cli-updater/` instead of `cli/`. Fixed by setting explicit `working-directory: cli/dist`. See `spec/02-app-issues/13-release-pipeline-dist-directory.md`.
 2. **Pin Go tool versions** — `go install tool@latest` is non-reproducible. All tools (e.g., `golangci-lint@v1.64.8`, `govulncheck@v1.1.4`) must use exact version tags. Documented in `setup.sh` and `spec/05-coding-guidelines/17-cicd-patterns.md`.
 3. **Validate build output directories** before operating on them: `test -d "$DIR" || exit 1`.
 4. **Never use job-level `if` for SHA deduplication** — GitHub treats skipped jobs as neither success nor failure, blocking required status checks. Use the passthrough gate pattern with step-level conditionals instead.

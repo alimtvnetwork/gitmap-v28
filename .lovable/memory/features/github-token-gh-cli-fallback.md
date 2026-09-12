@@ -9,7 +9,7 @@ type: feature
 ## Rule
 
 Every code path that needs a GitHub API token MUST call
-`gitmap/ghtoken.Resolve()` instead of reading `GITHUB_TOKEN`
+`cli/ghtoken.Resolve()` instead of reading `GITHUB_TOKEN`
 directly. Resolution order is fixed and documented in the package
 header.
 
@@ -32,10 +32,10 @@ gitmap should use it transparently.
 
 ## Files
 
-- `gitmap/ghtoken/ghtoken.go` — `Resolve()`, `Source`, `ErrNoToken`.
-- `gitmap/release/workflowgithub.go` — release+asset upload.
-- `gitmap/clonenext/github.go` — `RepoExists`, `CreateRepo`.
-- `gitmap/constants/constants_assets.go` — `MsgTokenFromSource` (green log line), updated `ErrAssetNoToken` with multi-source hint.
+- `cli/ghtoken/ghtoken.go` — `Resolve()`, `Source`, `ErrNoToken`.
+- `cli/release/workflowgithub.go` — release+asset upload.
+- `cli/clonenext/github.go` — `RepoExists`, `CreateRepo`.
+- `cli/constants/constants_assets.go` — `MsgTokenFromSource` (green log line), updated `ErrAssetNoToken` with multi-source hint.
 
 ## UX
 

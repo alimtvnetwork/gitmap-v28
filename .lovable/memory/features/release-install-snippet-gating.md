@@ -8,13 +8,13 @@ type: feature
 
 `gitmap release` appends a PowerShell + bash pinned-version installer snippet
 to the GitHub release body via `AppendPinnedInstallSnippet`
-(`gitmap/release/installsnippet.go`). This snippet installs the gitmap binary
+(`cli/release/installsnippet.go`). This snippet installs the gitmap binary
 at a specific tag, so it is meaningless — and confusing — in releases of any
 non-gitmap repository.
 
 ## Rule
 
-`uploadToGitHub` in `gitmap/release/workflowgithub.go` MUST gate the call
+`uploadToGitHub` in `cli/release/workflowgithub.go` MUST gate the call
 with `ShouldPrintInstallHint(getRemoteURL())`:
 
 ```go

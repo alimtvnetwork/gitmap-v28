@@ -30,8 +30,8 @@ Solves the "already-flattened cwd" deadlock:
 
 ### Key Code
 
-- Flag: `CloneNextFlags.Force` in `gitmap/cmd/clonenextflags.go` (long `--force`, short `-f`).
-- Force-handling helper: `forceReleaseLockOnCwd` in `gitmap/cmd/clonenext.go` — chdirs to parent ONLY when `Force && cwd == targetPath`.
+- Flag: `CloneNextFlags.Force` in `cli/cmd/clonenextflags.go` (long `--force`, short `-f`).
+- Force-handling helper: `forceReleaseLockOnCwd` in `cli/cmd/clonenext.go` — chdirs to parent ONLY when `Force && cwd == targetPath`.
 - Fallback gate: when `Force` is true, the code path that sets `flattenedFolder = fallbackFolder` is replaced by `os.Exit(1)` after `ErrCloneNextForceFailed`.
 
 ### `gitmap clone <url>` Auto-Flatten

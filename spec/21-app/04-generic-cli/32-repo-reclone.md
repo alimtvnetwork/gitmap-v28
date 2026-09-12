@@ -37,7 +37,7 @@ repos, so the manifest pipeline is never starved.
 ## Why overlay instead of new verb
 
 `rc`, `rec`, `reclone`, `relclone`, `clone-now` already route to
-`runCloneNow` (see `gitmap/cmd/rootcore.go`). Adding a parallel verb
+`runCloneNow` (see `cli/cmd/rootcore.go`). Adding a parallel verb
 would either collide on `rc` (breaking existing manifest scripts) or
 require yet another name. The overlay is shape-detected and falls
 through cleanly, so manifest users see no behavior change.
@@ -51,6 +51,6 @@ through cleanly, so manifest users see no behavior change.
 
 ## Files
 
-- `gitmap/cmd/reporeclone.go`
-- `gitmap/constants/constants_reporeclone.go`
-- `gitmap/cmd/clonenow.go` (interception)
+- `cli/cmd/reporeclone.go`
+- `cli/constants/constants_reporeclone.go`
+- `cli/cmd/clonenow.go` (interception)

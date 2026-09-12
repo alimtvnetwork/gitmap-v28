@@ -126,7 +126,7 @@ exits with code 2.
 
 ## Constants (per `mem://style/code-constraints`)
 
-`gitmap/constants/constants_cli.go`:
+`cli/constants/constants_cli.go`:
 
 ```go
 const (
@@ -143,7 +143,7 @@ const (
 )
 ```
 
-`gitmap/constants/constants_messages.go`:
+`cli/constants/constants_messages.go`:
 
 ```go
 const (

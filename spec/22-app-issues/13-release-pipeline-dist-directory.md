@@ -10,7 +10,7 @@ cd: dist: No such file or directory
 
 ## Root Cause
 
-The compress/checksum step ran inside `gitmap-updater/` (which has no `dist/` folder) instead of `gitmap-v28/dist/` where cross-compiled binaries are output. The `cd dist` command assumed the working directory was `gitmap-v28/`, but GitHub Actions defaults to the repository root.
+The compress/checksum step ran inside `cli-updater/` (which has no `dist/` folder) instead of `gitmap-v28/dist/` where cross-compiled binaries are output. The `cd dist` command assumed the working directory was `gitmap-v28/`, but GitHub Actions defaults to the repository root.
 
 ## Fix
 

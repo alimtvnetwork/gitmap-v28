@@ -9,9 +9,9 @@ type: feature
 ## Deploy folder naming
 
 - **Default deploy subfolder is `gitmap-cli`** (not `gitmap`). Full default path on Windows: `E:\bin-run\gitmap-cli\gitmap.exe`.
-- The legacy subfolder name was `gitmap`, which collided visually with the binary name and caused user confusion (`E:\gitmap\gitmap.exe` looked like a typo). New layout: `<deployRoot>\gitmap-cli\gitmap.exe`.
-- The constant `constants.GitMapSubdir` (currently `"gitmap"`) MUST be renamed to `GitMapCliSubdir = "gitmap-cli"` and every reference (run.ps1 `Join-Path $target "gitmap"`, `constants_update.go` `Join-Path $cfg.deployPath "gitmap\gitmap.exe"`, `doctorfixpath.go` `filepath.Join(deployPath, constants.GitMapSubdir, binaryName)`, `updatecleanup_paths.go::resolveConfigDeployAppDir`) updated to match.
-- Migration: when a legacy `<deployRoot>\gitmap\gitmap.exe` is detected on next run/update, move it to `<deployRoot>\gitmap-cli\gitmap.exe` and delete the empty `gitmap\` folder. Idempotent — no-op if already migrated.
+- The legacy subfolder name was `gitmap`, which collided visually with the binary name and caused user confusion (`E:\cli\gitmap.exe` looked like a typo). New layout: `<deployRoot>\gitmap-cli\gitmap.exe`.
+- The constant `constants.GitMapSubdir` (currently `"gitmap"`) MUST be renamed to `GitMapCliSubdir = "gitmap-cli"` and every reference (run.ps1 `Join-Path $target "gitmap"`, `constants_update.go` `Join-Path $cfg.deployPath "cli\gitmap.exe"`, `doctorfixpath.go` `filepath.Join(deployPath, constants.GitMapSubdir, binaryName)`, `updatecleanup_paths.go::resolveConfigDeployAppDir`) updated to match.
+- Migration: when a legacy `<deployRoot>\cli\gitmap.exe` is detected on next run/update, move it to `<deployRoot>\gitmap-cli\gitmap.exe` and delete the empty `cli\` folder. Idempotent — no-op if already migrated.
 
 ## Deploy target resolution (already implemented in run.ps1::Resolve-DeployTarget)
 

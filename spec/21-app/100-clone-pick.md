@@ -238,7 +238,7 @@ Skipped when `<dest> == "."` (already there) or `--dry-run`.
 
 ## 9. Help text
 
-`gitmap/helptext/clone-pick.md` follows the standard 120-line limit and
+`cli/helptext/clone-pick.md` follows the standard 120-line limit and
 3-8 line realistic simulations. Examples cover:
 
 1. Single-folder pick: `gitmap cpk owner/repo docs`

@@ -14,7 +14,7 @@ Previously, tests and local runners defaulted `TMP_CACHE_DIR` to `.tmp/` at the 
 
 ### B. Test Inventory Schema & Non-Empty Relative Paths
 - In `03-ai-scripts/33-test-inventory-generator.py`:
-  - `resolve_target_file` maps each test file to a valid non-empty relative source file path with fallback to package-level Go files or domain directories (e.g. `tests/heavy_test/` -> `gitmap/<domain>/`).
+  - `resolve_target_file` maps each test file to a valid non-empty relative source file path with fallback to package-level Go files or domain directories (e.g. `tests/heavy_test/` -> `cli/<domain>/`).
   - Strict forward-slash relative paths guaranteed repository-wide (0 empty target files, 0 absolute paths).
   - Configurable slow test threshold (`--slow-threshold`, default 4.0s, env `GITMAP_SLOW_TEST_THRESHOLD`).
   - Tests segregated into `tier: "slow"` (> 4.0s) and `tier: "fast"` (<= 4.0s).

@@ -131,14 +131,6 @@ func buildClonePMPair(absPath, repoName string) vscodepm.Pair {
 	return cmdvscode.BuildClonePMPair(absPath, repoName)
 }
 
-func canonicalizePMPath(absPath string) string {
-	return cmdvscode.CanonicalizePMPath(absPath)
-}
-
-func isVSCodeSyncDisabled() bool {
-	return cmdvscode.IsVSCodeSyncDisabled()
-}
-
 func reportVSCodePMSoftError(err error) {
 	cmdvscode.ReportVSCodePMSoftError(err)
 }
@@ -290,13 +282,8 @@ func runPipelineAI(args []string) error {
 	return cmdpipeline.RunPipelineAI(args)
 }
 
-var handlePipelineStatus = cmdpipeline.HandlePipelineStatus
-var handlePipelineErrorLogs = cmdpipeline.HandlePipelineErrorLogs
-var handlePipelineLastFailedLogs = cmdpipeline.HandlePipelineLastFailedLogs
 var HandlePipelineLastFailedLogs = cmdpipeline.HandlePipelineLastFailedLogs
 var handlePipelineDB = cmdpipeline.HandlePipelineDB
-var handlePipelineWaitTime = cmdpipeline.HandlePipelineWaitTime
-var isNegativeIndexToken = cmdpipeline.IsNegativeIndexToken
 var IsNegativeIndexToken = cmdpipeline.IsNegativeIndexToken
 var resolveTempDir = cmdpipeline.ResolveTempDir
 

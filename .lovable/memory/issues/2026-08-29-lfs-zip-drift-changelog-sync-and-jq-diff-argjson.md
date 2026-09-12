@@ -29,8 +29,8 @@ CI failed simultaneously on 3 distinct validation jobs:
 ## 4. Code Fix
 
 - **`.gitattributes`**: Explicitly exempt committed archive files (`data/**/*.zip -filter -diff -merge`, `settings/**/*.zip -filter -diff -merge`).
-- **`.github/workflows/ci.yml`**: Scope `git diff --exit-code .` and `git diff --name-only .` to `gitmap/`. Bump baseline cache version to `v2`.
-- **`gitmap/constants/constants.go`**: Update `var Version = "6.144.0"`.
+- **`.github/workflows/ci.yml`**: Scope `git diff --exit-code .` and `git diff --name-only .` to `cli/`. Bump baseline cache version to `v2`.
+- **`cli/constants/constants.go`**: Update `var Version = "6.144.0"`.
 - **`changelog.md`**: Update release heading to `## [v6.144.0] - 2026-08-29`.
 - **`.github/scripts/check-changelog-version-sync.sh`**: Accept optional `v` in heading regex.
 - **`.github/scripts/check-single-linter-diff.sh` & `check-misspell-diff.sh`**: Sanitize `LINE` to ensure integer values before `jq --argjson` and strip newlines from issue text.

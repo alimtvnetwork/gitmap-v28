@@ -3,7 +3,7 @@
 This page documents every key gitmap reads from `data/config.json` and the
 exact defaults baked into the binary.
 
-> **Source of truth:** [`gitmap/model/record.go`](../gitmap/model/record.go)
+> **Source of truth:** [`cli/model/record.go`](../cli/model/record.go)
 > (`type Config struct` + `func DefaultConfig`).
 > If anything here drifts from those Go definitions, the Go code wins —
 > please open an issue or PR to update this doc.
@@ -18,7 +18,7 @@ exact defaults baked into the binary.
    Keys you omit fall through to the default — partial files are valid.
 3. Three CLI flags can override the loaded values one more time at run-time:
    `--mode`, `--output`, and `--output-path`. Flags only override when set
-   to a non-empty value (see `MergeWithFlags` in [`gitmap/config/config.go`](../gitmap/config/config.go)).
+   to a non-empty value (see `MergeWithFlags` in [`cli/config/config.go`](../cli/config/config.go)).
 
 If `data/config.json` is missing, gitmap silently uses defaults — it is
 **not** an error.

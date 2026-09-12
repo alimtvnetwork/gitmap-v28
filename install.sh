@@ -240,7 +240,7 @@ detect_os() {
         Darwin*)    echo "darwin" ;;
         MINGW*|MSYS*|CYGWIN*)
             err "Windows detected. Use the PowerShell installer instead:"
-            err "  irm https://raw.githubusercontent.com/${REPO}/main/gitmap/scripts/install.ps1 | iex"
+            err "  irm https://raw.githubusercontent.com/${REPO}/main/cli/scripts/install.ps1 | iex"
             exit 1
             ;;
         *)

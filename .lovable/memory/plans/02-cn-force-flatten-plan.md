@@ -21,12 +21,12 @@ Add `-f` / `--force` flag with a strict contract:
 | File | Change |
 |---|---|
 | `spec/01-app/87-clone-next-flatten.md` | Document `-f` flag + use case + interaction table |
-| `gitmap/cmd/clonenextflags.go` | Add `Force bool` field, `--force` / `-f` parsing |
-| `gitmap/cmd/clonenext.go` | New `forceReleaseLockOnCwd` helper; guard fallback branch on `!Force` |
-| `gitmap/constants/constants_clonenext.go` | New msgs: `MsgForceReleasing`, `ErrCloneNextForceFailed`, flag-desc, help-line |
-| `gitmap/helptext/clone-next.md` | New row in flags table + new example block |
-| `gitmap/completion/zsh.go`, `powershell.go` | Add `-f` / `--force` to hint arrays |
-| `gitmap/constants/constants.go` | Bump `Version` to `3.50.0` |
+| `cli/cmd/clonenextflags.go` | Add `Force bool` field, `--force` / `-f` parsing |
+| `cli/cmd/clonenext.go` | New `forceReleaseLockOnCwd` helper; guard fallback branch on `!Force` |
+| `cli/constants/constants_clonenext.go` | New msgs: `MsgForceReleasing`, `ErrCloneNextForceFailed`, flag-desc, help-line |
+| `cli/helptext/clone-next.md` | New row in flags table + new example block |
+| `cli/completion/zsh.go`, `powershell.go` | Add `-f` / `--force` to hint arrays |
+| `cli/constants/constants.go` | Bump `Version` to `3.50.0` |
 | `.lovable/memory/features/clone-next-flatten.md` | Updated with v3.50.0 force section |
 
 ## Out of Scope

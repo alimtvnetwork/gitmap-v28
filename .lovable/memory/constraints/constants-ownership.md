@@ -8,7 +8,7 @@ type: constraint
 
 Do not force artificial naming prefixes just to organize constants.
 
-- If a constant belongs to CLI routing and is shared broadly, it may live in `gitmap/constants`.
+- If a constant belongs to CLI routing and is shared broadly, it may live in `cli/constants`.
 - If a constant belongs only to one feature package, keep it in that package.
 - If a constant belongs only to one cmd flow, keep it in `cmd` as file-local/package-local state.
 

@@ -114,7 +114,7 @@ spec 103.
 ### 4. Interactive Summary
 
 When stdout is a TTY and `--yes` is not set, render a Bubble Tea
-summary table reusing `gitmap/tui` (spec 43):
+summary table reusing `cli/tui` (spec 43):
 
 ```
 Available updates (3)
@@ -186,7 +186,7 @@ The `FindNext` page must include:
 
 ## Constants
 
-`gitmap/constants/constants_cn_bridge.go` (new):
+`cli/constants/constants_cn_bridge.go` (new):
 
 ```go
 const (
@@ -204,7 +204,7 @@ const (
 )
 ```
 
-`gitmap/constants/constants_messages.go` additions:
+`cli/constants/constants_messages.go` additions:
 
 ```go
 const (

@@ -60,8 +60,8 @@ line per the spec 109 §4 contract.
 
 ### 3.1 Adding a new language
 
-1. Drop `<lang>.gitignore` into `gitmap/templates/assets/ignore/`.
-2. Drop `<lang>.gitattributes` into `gitmap/templates/assets/attributes/`.
+1. Drop `<lang>.gitignore` into `cli/templates/assets/ignore/`.
+2. Drop `<lang>.gitattributes` into `cli/templates/assets/attributes/`.
 3. Both files MUST start with the audit header
    `# source: <origin>` and `# version: 1`.
 4. `corpus_test.go` enforces presence and non-emptiness automatically —
@@ -110,7 +110,7 @@ contract as `add` itself, so the diff's silence is meaningful.
 
 ### 5.2 Status enum
 
-`gitmap/templates/diff.go` exposes a `DiffStatus` enum that drives
+`cli/templates/diff.go` exposes a `DiffStatus` enum that drives
 both the CLI exit code and the printed hunks:
 
 | Status | Trigger | Hunks |
@@ -179,12 +179,12 @@ linters) can re-parse cleanly.
 
 | Surface | Test | File |
 |---------|------|------|
-| Corpus headers + non-empty | `TestCorpusHasHeader`, `TestCorpusNonEmpty` | `gitmap/templates/corpus_test.go` |
-| Sorted-tag invariant | `TestSortedTag*` | `gitmap/cmd/addignoreattrs_test.go` |
-| `list` filters | `TestFilterTemplates*` | `gitmap/cmd/templatescli_filter_test.go` |
-| Pretty renderer | 9 fixtures + ANSI swap + unterminated quote | `gitmap/render/pretty_test.go` |
-| `Diff` status branches | `TestDiffMissingFile/MissingBlock/NoChange/BlockChanged` | `gitmap/templates/diff_test.go` |
-| Blank-line preservation | `TestDiffPreservesBlankLines` | `gitmap/templates/diff_test.go` |
+| Corpus headers + non-empty | `TestCorpusHasHeader`, `TestCorpusNonEmpty` | `cli/templates/corpus_test.go` |
+| Sorted-tag invariant | `TestSortedTag*` | `cli/cmd/addignoreattrs_test.go` |
+| `list` filters | `TestFilterTemplates*` | `cli/cmd/templatescli_filter_test.go` |
+| Pretty renderer | 9 fixtures + ANSI swap + unterminated quote | `cli/render/pretty_test.go` |
+| `Diff` status branches | `TestDiffMissingFile/MissingBlock/NoChange/BlockChanged` | `cli/templates/diff_test.go` |
+| Blank-line preservation | `TestDiffPreservesBlankLines` | `cli/templates/diff_test.go` |
 
 ## 8. Sequencing recap
 

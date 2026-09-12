@@ -1,10 +1,6 @@
 package cmdfixgit
 
 import (
-	"os/exec"
-	"path/filepath"
-	"strings"
-
 	"github.com/alimtvnetwork/gitmap-v28/cli/cliexit"
 	"github.com/alimtvnetwork/gitmap-v28/cli/helptext"
 )
@@ -24,12 +20,4 @@ func hasHelpFlag(args []string) bool {
 		}
 	}
 	return false
-}
-
-func repoRoot() string {
-	out, err := exec.Command("git", "rev-parse", "--show-toplevel").Output()
-	if err != nil {
-		cliexit.HandleError(err, 1)
-	}
-	return filepath.Clean(filepath.FromSlash(strings.TrimSpace(string(out))))
 }

@@ -7,7 +7,7 @@ Usage:
   python 03-ai-scripts/30-db-struct-enum-generator.py --dir cli/store
   python 03-ai-scripts/30-db-struct-enum-generator.py --dir cli/pipelinedb
   python 03-ai-scripts/30-db-struct-enum-generator.py --file cli/pipelinedb/pipeline_split_db.go
-  python 03-ai-scripts/30-db-struct-enum-generator.py --file cli/pipelinedb/pipeline_split_db.go --out-dir gitmap/generated/db/pipelinedb
+  python 03-ai-scripts/30-db-struct-enum-generator.py --file cli/pipelinedb/pipeline_split_db.go --out-dir cli/generated/db/pipelinedb
   python 03-ai-scripts/30-db-struct-enum-generator.py --dry-run
 """
 

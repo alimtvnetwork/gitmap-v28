@@ -3,9 +3,9 @@
 ## Verification Commands
 
 ```bash
-go test ./gitmap/constants/... -run TestTopLevelCmdRegistryMatchesAST -count=1
-go test ./gitmap/helptext/... -count=1
-go test -v ./gitmap/cmd -run "TestPickProfile|TestNormalize|TestResolveBackup|TestApplyDefault" -count=1
+go test ./cli/constants/... -run TestTopLevelCmdRegistryMatchesAST -count=1
+go test ./cli/helptext/... -count=1
+go test -v ./cli/cmd -run "TestPickProfile|TestNormalize|TestResolveBackup|TestApplyDefault" -count=1
 python .github/scripts/e2e-cli-smoke.py bin/gitmap.exe
 ```
 

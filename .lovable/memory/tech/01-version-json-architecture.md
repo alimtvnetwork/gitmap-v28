@@ -11,7 +11,7 @@ The AI agents should never touch core Golang source files during a standard rele
 ## The Solution
 
 1. **Central `version.json`**: The absolute source of truth for the project version is now strictly `version.json` at the root of the repository.
-2. **Go `var Version`**: Inside `gitmap/constants/constants.go`, the `Version` field was converted from `const` to `var Version = "0.0.0-dev"`. This enables the GitHub Action to natively inject the version using `-ldflags` during compilation.
+2. **Go `var Version`**: Inside `cli/constants/constants.go`, the `Version` field was converted from `const` to `var Version = "0.0.0-dev"`. This enables the GitHub Action to natively inject the version using `-ldflags` during compilation.
 3. **CI/CD Integration**: The `release.yml` GitHub Action now parses the version directly from `version.json` using `jq` rather than deriving it from the Git tag.
 4. **AI Rules**: All specifications in `spec/` and `plan.md` have been rewritten. AI agents must **ONLY** bump `version.json` and `changelog.md` during a release.
 

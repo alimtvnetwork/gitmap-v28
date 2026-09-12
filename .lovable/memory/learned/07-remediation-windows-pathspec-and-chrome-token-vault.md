@@ -31,7 +31,7 @@ error: pathspec 'changes"' did not match any file(s) known to git
      - `bin/gitmap.exe`
      - Repository root `gitmap.exe`
      - `C:\Users\Alim\AppData\Local\gitmap-cli\gitmap.exe`
-     - `C:\Users\Alim\AppData\Local\gitmap\gitmap.exe`
+     - `C:\Users\Alim\AppData\Local\cli\gitmap.exe`
 4. **Chrome Refresh Token Vault & Reversible Ciphers**:
    - Extracted from `Web Data` table `token_service` using lock-free WAL shadow copying.
    - Dual-layer reversible encoding:

@@ -41,12 +41,12 @@ level.
 | Real `add` subcommand router              | Yes. New `dispatchAdd` in `rootcore.go`       |
 | Audit trail for curated common template   | Per-template `# source:` header + spec table  |
 | Read-only install-dir fallback            | `~/.gitmap/templates/` overlay (user > embed) |
-| Pretty renderer normalization fixtures    | `gitmap/render/testdata/pretty/*.in.md` pairs |
+| Pretty renderer normalization fixtures    | `cli/render/testdata/pretty/*.in.md` pairs |
 
 ## 3. Templates Folder Layout
 
 ```
-gitmap/templates/
+cli/templates/
   embed.go                  # //go:embed assets/**
   resolver.go               # overlay: ~/.gitmap/templates > embedded
   materialize.go            # first-run extraction to ~/.gitmap/templates
@@ -126,7 +126,7 @@ gitmap add ignore python      # adds python lines, leaves go/node intact
 
 ## 5. Read-Only Install Fallback
 
-`gitmap` may live in `C:\Program Files\gitmap\` (read-only). On first
+`gitmap` may live in `C:\Program Files\cli\` (read-only). On first
 template command we materialize the embedded `assets/` to:
 
 - Windows: `%USERPROFILE%\.gitmap\templates\`
@@ -143,7 +143,7 @@ languages.
 
 ## 6. `add` Subcommand Router
 
-New file `gitmap/cmd/rootadd.go`:
+New file `cli/cmd/rootadd.go`:
 
 ```go
 func dispatchAdd(command string) bool {
@@ -174,7 +174,7 @@ Wired into `dispatch()` in `root.go`.
 
 ## 7. Pretty Markdown Renderer
 
-Lives in `gitmap/render/pretty.go`. Used by help output and changelog
+Lives in `cli/render/pretty.go`. Used by help output and changelog
 display.
 
 ### 7.1 Rules
@@ -190,7 +190,7 @@ display.
 
 ### 7.2 Fixture Corpus
 
-`gitmap/render/testdata/pretty/`:
+`cli/render/testdata/pretty/`:
 
 ```
 case-001-collapse-redundant-fence.in.md

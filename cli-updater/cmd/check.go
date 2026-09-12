@@ -32,6 +32,6 @@ func RunCheck() {
 	}
 
 	fmt.Printf(MsgUpdateAvail, current, latest)
-	fmt.Println("\n  → Run 'gitmap-updater run' to update.")
+	fmt.Println("\n  → Run 'cli-updater run' to update.")
 	fmt.Println()
 }

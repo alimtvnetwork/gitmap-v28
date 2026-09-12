@@ -6,7 +6,7 @@ description: >-
 
 # Cluster & SSH Delegation Skill
 
-Autonomously implement, maintain, and audit SSH lifecycle and cluster command delegation in `gitmap/cluster/` and `gitmap/cmd/` adhering to `.lovable/spec/commands/07-cluster-command-delegation.md`, `spec/01-app/`, and `.lovable/cicd-issues/05-cluster-tls-dial-timeout-and-test-env-race.md`.
+Autonomously implement, maintain, and audit SSH lifecycle and cluster command delegation in `cli/cluster/` and `cli/cmd/` adhering to `.lovable/spec/commands/07-cluster-command-delegation.md`, `spec/01-app/`, and `.lovable/cicd-issues/05-cluster-tls-dial-timeout-and-test-env-race.md`.
 
 ## Core Checkpoints & Invariants
 

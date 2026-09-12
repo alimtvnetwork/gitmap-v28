@@ -8,7 +8,7 @@
 
 ## 2. How it happened
 
-When CI ran `smoke-installer.sh source`, `awk` searched for `^const Version` in `gitmap/constants/constants.go`. Because it found nothing, `$EXPECTED` was empty and the script threw `::error::Could not determine expected version`.
+When CI ran `smoke-installer.sh source`, `awk` searched for `^const Version` in `cli/constants/constants.go`. Because it found nothing, `$EXPECTED` was empty and the script threw `::error::Could not determine expected version`.
 
 ---
 

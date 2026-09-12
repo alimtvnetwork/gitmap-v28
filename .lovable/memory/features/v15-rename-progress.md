@@ -30,15 +30,15 @@ PascalCase + **singular** table names + `{TableName}Id` primary keys + FKs match
 
 ### New shared infrastructure
 
-- **`gitmap/store/migrate_v15rebuild.go`** — generic `runV15Rebuild(spec)` helper using a `v15RebuildSpec` struct (OldTable, NewTable, NewCreateSQL, OldColumnList, NewColumnList, StartMsg, DoneMsg). Handles PRAGMA foreign_keys toggle, CREATE → INSERT SELECT → row-count parity check → DROP. Idempotent via `tableExists()` detect-then-act.
+- **`cli/store/migrate_v15rebuild.go`** — generic `runV15Rebuild(spec)` helper using a `v15RebuildSpec` struct (OldTable, NewTable, NewCreateSQL, OldColumnList, NewColumnList, StartMsg, DoneMsg). Handles PRAGMA foreign_keys toggle, CREATE → INSERT SELECT → row-count parity check → DROP. Idempotent via `tableExists()` detect-then-act.
 
 ### Phase 1.2 migrator
 
-- **`gitmap/store/migrate_v15phase2.go`** — `migrateV15Phase2()` runs four `runV15Rebuild` specs in dependency-safe order: Group → Release → Alias → Bookmark. Then calls `rebuildGroupRepoFK()` to rewrite the GroupRepo CREATE so its FK text references the new singular `"Group"(GroupId)` and `Repo(RepoId)` (SQLite stores FK clauses as text in sqlite_master and does NOT auto-update them when parent tables rename).
+- **`cli/store/migrate_v15phase2.go`** — `migrateV15Phase2()` runs four `runV15Rebuild` specs in dependency-safe order: Group → Release → Alias → Bookmark. Then calls `rebuildGroupRepoFK()` to rewrite the GroupRepo CREATE so its FK text references the new singular `"Group"(GroupId)` and `Repo(RepoId)` (SQLite stores FK clauses as text in sqlite_master and does NOT auto-update them when parent tables rename).
 
 ### Phase 1.3 migrator
 
-- **`gitmap/store/migrate_v15phase3.go`** — `migrateV15Phase3()` runs six `runV15Rebuild` specs: Amendment, CommitTemplate, Setting (Key PK preserved), SshKey (also fixes SSH→Ssh abbreviation), InstalledTool, TempRelease. Setting uses `Key`/`Value` for both old and new column lists since there is no Id column.
+- **`cli/store/migrate_v15phase3.go`** — `migrateV15Phase3()` runs six `runV15Rebuild` specs: Amendment, CommitTemplate, Setting (Key PK preserved), SshKey (also fixes SSH→Ssh abbreviation), InstalledTool, TempRelease. Setting uses `Key`/`Value` for both old and new column lists since there is no Id column.
 
 ### Pre-Phase-2 column patch
 
@@ -61,15 +61,15 @@ PascalCase + **singular** table names + `{TableName}Id` primary keys + FKs match
 - **`store.go::Migrate()`** order: `migrateLegacyIDs` → `migrateV15Repo` → `preV15Phase2EnsureReleaseColumns` → `migrateV15Phase2` → `migrateTRCommitSha` → `migrateV15Phase3` → standard CREATE TABLE pass (now uses all v15 singular names) → ALTER pass → seeds.
 - **`store.go::Reset()`** — drop list now lists v15 singulars first, then legacy plurals. Each plural drop is a safe no-op when the table is absent. Covers all 10 newly renamed tables.
 - **`store.go::migrateNotesColumn`** docstring updated (now says `Release` not `Releases`).
-- **`gitmap/store/import.go`** — uses `constants.SQLImportInsertGroup` and `constants.SQLImportInsertBookmark` instead of inline SQL strings.
+- **`cli/store/import.go`** — uses `constants.SQLImportInsertGroup` and `constants.SQLImportInsertBookmark` instead of inline SQL strings.
 
 ### Tests touched
 
-- `gitmap/tests/constants_test/seo_constants_test.go` — `TableCommitTemplates` → `TableCommitTemplate`, `SQLCreateCommitTemplates` → `SQLCreateCommitTemplate`, expected column `Id` → `CommitTemplateId`.
+- `cli/tests/constants_test/seo_constants_test.go` — `TableCommitTemplates` → `TableCommitTemplate`, `SQLCreateCommitTemplates` → `SQLCreateCommitTemplate`, expected column `Id` → `CommitTemplateId`.
 
 ### Version
 
-- `gitmap/constants/constants.go` → `v3.3.0`.
+- `cli/constants/constants.go` → `v3.3.0`.
 
 ## Migration safety contract
 
@@ -102,8 +102,8 @@ PascalCase + **singular** table names + `{TableName}Id` primary keys + FKs match
 
 **NOT done this turn (next turn must finish before bumping version):**
 1. **Store-side scan order updates** — every store/*.go file that does `rows.Scan(&r.ID, ...)` for these 14 tables needs to keep working with the new column order. Most are already correct because `{Table}Id` is still the first column, but verify: `store/zipgroup.go`, `store/project.go`, `store/csharpmetadata.go`, `store/gometadata.go`, `store/history.go`, `store/version_history.go`, `store/pendingtask.go`, `store/pendingtaskscan.go`. No code edits expected, just verification.
-2. **Constant-name callsite fixes** — the constants file rewrites RENAMED some Go-side identifiers (`SQLCreateZipGroups` → `SQLCreateZipGroup`, `SQLCreateProjectTypes` → `SQLCreateProjectType`, `SQLCreateDetectedProjects` → `SQLCreateDetectedProject`, `SQLCreateGoRunnableFiles` → `SQLCreateGoRunnableFile`, `SQLCreateCsharpProjectFiles` → `SQLCreateCsharpProjectFile`, `SQLCreateCsharpKeyFiles` → `SQLCreateCsharpKeyFile`, `SQLCreateZipGroupItems` → `SQLCreateZipGroupItem`, `SQLDeleteStaleCsharpFiles`/`SQLDeleteStaleCsharpKeyFiles` already match, and `ErrCSharp*` → `ErrCsharp*` from sed). Callsites in `gitmap/store/store.go::Migrate()` and `Reset()` and `gitmap/store/migrateids.go::dropProjectTables()` reference the OLD names and will fail to compile. Must update.
-3. **Migrator** — create `gitmap/store/migrate_v15phase4.go` with 14 `runV15Rebuild` specs (incl. CSharp-to-Csharp legacy detection: `OldTable: "CSharpProjectMetadata"` → `NewTable: "CsharpProjectMetadata"`). Wire into `store.go::Migrate()` between Phase 1.3 and the standard CREATE pass.
+2. **Constant-name callsite fixes** — the constants file rewrites RENAMED some Go-side identifiers (`SQLCreateZipGroups` → `SQLCreateZipGroup`, `SQLCreateProjectTypes` → `SQLCreateProjectType`, `SQLCreateDetectedProjects` → `SQLCreateDetectedProject`, `SQLCreateGoRunnableFiles` → `SQLCreateGoRunnableFile`, `SQLCreateCsharpProjectFiles` → `SQLCreateCsharpProjectFile`, `SQLCreateCsharpKeyFiles` → `SQLCreateCsharpKeyFile`, `SQLCreateZipGroupItems` → `SQLCreateZipGroupItem`, `SQLDeleteStaleCsharpFiles`/`SQLDeleteStaleCsharpKeyFiles` already match, and `ErrCSharp*` → `ErrCsharp*` from sed). Callsites in `cli/store/store.go::Migrate()` and `Reset()` and `cli/store/migrateids.go::dropProjectTables()` reference the OLD names and will fail to compile. Must update.
+3. **Migrator** — create `cli/store/migrate_v15phase4.go` with 14 `runV15Rebuild` specs (incl. CSharp-to-Csharp legacy detection: `OldTable: "CSharpProjectMetadata"` → `NewTable: "CsharpProjectMetadata"`). Wire into `store.go::Migrate()` between Phase 1.3 and the standard CREATE pass.
 4. **Version bump** — `constants.go::Version` from `3.3.0` to `3.4.0` AFTER above completes and a clean compile is plausible.
 5. **`migrateZipGroupItemPaths()`** in store.go — its constants `SQLMigrateZGI*` still target legacy plural `ZipGroupItems` (correct, these are pre-rename ALTERs that must run BEFORE the v15 rebuild copies the table — same pattern as `preV15Phase2EnsureReleaseColumns`).
 

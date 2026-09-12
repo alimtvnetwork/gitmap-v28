@@ -66,4 +66,4 @@
 - All 16 quality gates in CI/CD local runner suite passed.
 - 0 nested ifs verified via `python linter-scripts/check-nested-ifs.py`.
 - 0 error management violations via `python linter-scripts/check-error-management.py`.
-- Comprehensive unit tests in `gitmap/cmd/chromeprofile_reconcile_test.go` and `gitmap/cmd/chromeprofile_smart_import_test.go`.
+- Comprehensive unit tests in `cli/cmd/chromeprofile_reconcile_test.go` and `cli/cmd/chromeprofile_smart_import_test.go`.

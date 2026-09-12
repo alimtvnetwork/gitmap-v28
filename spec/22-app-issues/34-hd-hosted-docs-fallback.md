@@ -54,10 +54,10 @@ local `docs-site/` source → `serveDev`) are unchanged.
 
 ## Files
 
-- `gitmap/cmd/helpdashboard.go` — `runHelpDashboard`, new helpers
+- `cli/cmd/helpdashboard.go` — `runHelpDashboard`, new helpers
   `openHostedDocsFallback` + `openURL` (extracted from `openBrowser`).
-- `gitmap/constants/constants_helpdashboard.go` — `MsgHDHostedFallback`.
-- `gitmap/constants/constants_messages.go` — `DocsURL` (reused, unchanged).
+- `cli/constants/constants_helpdashboard.go` — `MsgHDHostedFallback`.
+- `cli/constants/constants_messages.go` — `DocsURL` (reused, unchanged).
 
 ## Verification Checklist
 

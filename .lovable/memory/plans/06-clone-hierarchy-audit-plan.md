@@ -14,7 +14,7 @@ exact folder hierarchy described by each record's `RelativePath`, under
 nested groups, leading `./`, Windows paths, missing fields, etc.).
 
 The current code path *should* do this already (see
-`gitmap/cloner/cloner.go::cloneOne` joining `targetDir` with
+`cli/cloner/cloner.go::cloneOne` joining `targetDir` with
 `rec.RelativePath`), but there is no end-to-end test that asserts the
 on-disk tree, and the parsers do no path normalisation. This plan closes
 both gaps without introducing a new sub-command.
@@ -52,7 +52,7 @@ Plan moves to Phase 1 only after the user confirms or overrides Q1–Q4.
 
 ---
 
-## Phase 1 — Parser hardening (`gitmap/formatter/`)
+## Phase 1 — Parser hardening (`cli/formatter/`)
 
 1. Add `normaliseRelativePath(string) (string, error)` in a new
    `formatter/relpath.go`:
@@ -64,10 +64,10 @@ Plan moves to Phase 1 only after the user confirms or overrides Q1–Q4.
    loop). Per-row failures bubble up as a `ManifestError` with row index
    and field — added to `model.CloneSummary.Errors` rather than aborting
    the run.
-3. Tests in `gitmap/formatter/relpath_test.go` covering each Q2 case +
+3. Tests in `cli/formatter/relpath_test.go` covering each Q2 case +
    mixed slashes + non-ASCII path segments.
 
-## Phase 2 — Cloner contract tests (`gitmap/cloner/`)
+## Phase 2 — Cloner contract tests (`cli/cloner/`)
 
 End-to-end tree assertion using a stub `git` binary on `$PATH` that just
 `mkdir`s the destination + writes a sentinel file. No network.
@@ -94,7 +94,7 @@ End-to-end tree assertion using a stub `git` binary on `$PATH` that just
 
 ## Phase 4 — Docs, helptext, changelog
 
-- Update `gitmap/helptext/clone.md` with the hierarchy guarantee, the
+- Update `cli/helptext/clone.md` with the hierarchy guarantee, the
   normalisation rules, and the new `--dry-run` flag.
 - Append a changelog entry in both `changelog.md` and
   `src/data/changelog.ts` (Plan-06-Clone-Hierarchy-Hardening).
@@ -104,7 +104,7 @@ End-to-end tree assertion using a stub `git` binary on `$PATH` that just
 ## Phase 5 — QA pass
 
 1. `go build ./...`
-2. `go test ./gitmap/formatter/... ./gitmap/cloner/... ./gitmap/cmd/...`
+2. `go test ./cli/formatter/... ./cli/cloner/... ./cli/cmd/...`
 3. `bash .github/scripts/check-constants-naming.sh`
 4. `golangci-lint run` (pinned v1.64.x as per `mem://tech/static-analysis-security`).
 5. Manual smoke:

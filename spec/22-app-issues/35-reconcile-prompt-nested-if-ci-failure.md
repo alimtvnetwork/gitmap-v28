@@ -2,9 +2,9 @@
 
 **Status:** Resolved in local working tree (ready for release)
 **Affects:** GitHub Actions CI run `#33837801657` (`Nested If Linter` and `Boolean & Enum Linter` jobs)
-**Component:** `gitmap/cmd/reconcile_prompt.go` (`executeAllAction`)
+**Component:** `cli/cmd/reconcile_prompt.go` (`executeAllAction`)
 **Associated Commit:** `44009a3` (`feat(reconcile): display modified and dirty files in interactive prompt`)
-**Audience:** All engineers and autonomous agents modifying Go source code in `gitmap/`
+**Audience:** All engineers and autonomous agents modifying Go source code in `cli/`
 
 ---
 
@@ -18,7 +18,7 @@ In GitHub Actions CI run `#33837801657` triggered by commit `44009a3`, two polic
 
 ❌ FAIL: Found 1 nested-if / anti-compression violation(s) across 1 file(s):
 
-  gitmap/cmd/reconcile_prompt.go:32: Nested if statement found (depth 2 inside conditional block): if err != nil {
+  cli/cmd/reconcile_prompt.go:32: Nested if statement found (depth 2 inside conditional block): if err != nil {
 ##[error]Process completed with exit code 1.
 ```
 
@@ -27,7 +27,7 @@ In GitHub Actions CI run `#33837801657` triggered by commit `44009a3`, two polic
 Scanned 2210 source files for boolean, enum, and conditional compliance.
 
 ❌ FAILED: Found 1 violation(s):
-  - /home/runner/work/gitmap-v28/gitmap-v28/gitmap/cmd/reconcile_prompt.go:32: Nested 'if' detected (depth 2): 'if err != nil {'
+  - /home/runner/work/gitmap-v28/gitmap-v28/cli/cmd/reconcile_prompt.go:32: Nested 'if' detected (depth 2): 'if err != nil {'
 ##[error]Process completed with exit code 1.
 ```
 
@@ -67,7 +67,7 @@ The conditional `if err != nil` was placed inside the `if idx >= 0 && idx < len(
 
 ## 4. Fix Applied
 
-The nested conditional in `gitmap/cmd/reconcile_prompt.go` was flattened by inverting the bounds check into an early return guard:
+The nested conditional in `cli/cmd/reconcile_prompt.go` was flattened by inverting the bounds check into an early return guard:
 
 ```go
 // Clean implementation: depth 1 flat execution

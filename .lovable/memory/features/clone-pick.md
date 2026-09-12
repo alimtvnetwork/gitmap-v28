@@ -56,11 +56,11 @@ Columns: SelectionId PK, Name (optional, unique-non-empty enforced in store laye
 
 ## Where it lives
 
-- `gitmap/clonepick/` (parse, plan, sparse, picker, persist, render)
-- `gitmap/cmd/clonepick.go` (dispatcher entry, registered in `rootcore.go` coreDispatchEntries)
-- `gitmap/constants/constants_clonepick.go` (flags, messages, autoExclude defaults)
-- `gitmap/helptext/clone-pick.md`
-- `gitmap/store/cloneinteractiveselection.go` + entry in `Migrate()` statements list
+- `cli/clonepick/` (parse, plan, sparse, picker, persist, render)
+- `cli/cmd/clonepick.go` (dispatcher entry, registered in `rootcore.go` coreDispatchEntries)
+- `cli/constants/constants_clonepick.go` (flags, messages, autoExclude defaults)
+- `cli/helptext/clone-pick.md`
+- `cli/store/cloneinteractiveselection.go` + entry in `Migrate()` statements list
 
 ## Why sparse-checkout over tarball/copy
 

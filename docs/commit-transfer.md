@@ -146,7 +146,7 @@ when you want to re-land cleaned-up versions of already-replayed commits.
 best-effort `git checkout <originalRef>` on the source working dir
 before the process exits with `128+signo`. You will not be left on a
 detached HEAD pointing at some intermediate replay SHA. (See
-`gitmap/committransfer/signal.go`.)
+`cli/committransfer/signal.go`.)
 
 ## See also
 

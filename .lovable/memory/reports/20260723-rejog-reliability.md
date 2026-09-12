@@ -65,7 +65,7 @@ Duplicates observed at prefixes: `26-`, `27-` (three files), `89-`, `90-` (three
 
 | Source | Version |
 |---|---|
-| `gitmap/constants/constants.go` (source of truth) | v6.79.0 |
+| `cli/constants/constants.go` (source of truth) | v6.79.0 |
 | `.lovable/memory/index.md` | v5.9.0 |
 | `.lovable/overview.md` | v3.1.0 |
 | `.lovable/suggestions.md` | v3.12.1 |
@@ -108,7 +108,7 @@ Priority = P0 (blocker), P1 (should fix before large work), P2 (hygiene).
 
 | # | Priority | Action | Where | Reliability gain |
 |---|---|---|---|---|
-| 1 | P0 | Sync current version in `.lovable/overview.md` and `.lovable/memory/index.md` to the value in `gitmap/constants/constants.go` and document the source of truth. | 2 files | Removes onboarding lie; unblocks tier 3 and 4 correctly. |
+| 1 | P0 | Sync current version in `.lovable/overview.md` and `.lovable/memory/index.md` to the value in `cli/constants/constants.go` and document the source of truth. | 2 files | Removes onboarding lie; unblocks tier 3 and 4 correctly. |
 | 2 | P0 | Add a `spec/01-app/README.md` mapping numeric prefixes to canonical files, and renumber or namespace duplicates (26, 27, 89, 90, 95, 96, 100, 108, 109, 110, 111). | `spec/01-app/`, `spec/02-app-issues/` | Removes ambiguity in every future spec reference. |
 | 3 | P0 | Resolve function-length contradiction between `spec/05-coding-guidelines/01-*` (25) and `spec/05/02-go-code-style.md` + `spec/12/02-go-code-style.md` (15). Publish one number and delete the other. | 2 files | Stops PR/lint churn. |
 | 4 | P1 | Split Core rules in `mem://index.md` into "Permanent" and "Session flags" so `NO-QUESTIONS MODE` and its 40-task budget cannot leak into future sessions. | `index.md` | Prevents future AI sessions from silently inheriting a mode. |
@@ -118,7 +118,7 @@ Priority = P0 (blocker), P1 (should fix before large work), P2 (hygiene).
 | 8 | P1 | Formalize suggestions workflow (see Deliverable 2) so no new work uses the legacy log. | `.lovable/memory/suggestions/` | Deterministic backlog capture. |
 | 9 | P2 | Document contract tests that guard high-risk invariants (`TestHostedDocsFallbackContract`, wrapper marker separation, stablejson encoding) in one page so refactors see them. | new file under `spec/01-app/` | Guards against regressions in complex tier. |
 | 10 | P2 | Note open bug `.lovable/issues/01-ssh-repo-cloned-as-https.md` explicitly in the root plan so it is not lost. | `plan.md` | Prevents shipped SSH bug from being forgotten. |
-| 11 | P2 | Add missing unit tests for `task`, `env`, `install` (flagged in `pending-issues/`). | `gitmap/cmd/*_test.go` | Restores CI baseline. |
+| 11 | P2 | Add missing unit tests for `task`, `env`, `install` (flagged in `pending-issues/`). | `cli/cmd/*_test.go` | Restores CI baseline. |
 | 12 | P2 | Delete `spec/03-general/10-strictly-prohibited.md` duplication with `.lovable/strictly-avoid.md` OR make one a link to the other. | 2 files | Single source for prohibitions. |
 
 ## 5. Readiness decision

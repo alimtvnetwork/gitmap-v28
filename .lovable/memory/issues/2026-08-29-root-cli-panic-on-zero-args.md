@@ -2,13 +2,13 @@
 
 ## 1. Why it happened
 
-`gitmap/cmd/root.go` had `panic("fatal error")` in `len(os.Args) < 2` branch, causing `gitmap` without subcommands to panic instead of displaying usage.
+`cli/cmd/root.go` had `panic("fatal error")` in `len(os.Args) < 2` branch, causing `gitmap` without subcommands to panic instead of displaying usage.
 
 ---
 
 ## 2. How it happened
 
-A prior refactor converted `Run()` into a non-returning function and placed temporary `panic("fatal error")` calls across `gitmap/cmd/*.go`.
+A prior refactor converted `Run()` into a non-returning function and placed temporary `panic("fatal error")` calls across `cli/cmd/*.go`.
 
 ---
 

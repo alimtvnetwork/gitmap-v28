@@ -84,7 +84,7 @@ func reconcileImportPaths(opts *macroImportOpts) {
 	cleanImportTargetKeywords(opts)
 }
 
-func shouldSwapImportPaths(opts *macroImportOpts) bool {
+func isImportPathSwapNeeded(opts *macroImportOpts) bool {
 	neitherFileExists := !fileExists(opts.FilePath) && !fileExists(opts.TargetName)
 	hasTargetExtOnly := hasKnownImportExtension(opts.TargetName) && !hasKnownImportExtension(opts.FilePath)
 
@@ -92,7 +92,7 @@ func shouldSwapImportPaths(opts *macroImportOpts) bool {
 }
 
 func disambiguateImportFileExtensions(opts *macroImportOpts) {
-	if shouldSwapImportPaths(opts) {
+	if isImportPathSwapNeeded(opts) {
 		opts.FilePath, opts.TargetName = opts.TargetName, opts.FilePath
 	}
 }

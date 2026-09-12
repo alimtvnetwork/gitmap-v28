@@ -1,7 +1,7 @@
 # Learned Conventions: CLI & CLI-Updater Folder Architecture Refactoring
 
 ## 1. Context & Architectural Motivation
-To eliminate ambiguity between the repository root (`gitmap`) and inner Go packages, the core CLI package folder was refactored from `gitmap/` to `cli/`, and the standalone updater was refactored from `gitmap-updater/` to `cli-updater/`.
+To eliminate ambiguity between the repository root (`gitmap`) and inner Go packages, the core CLI package folder was refactored from `cli/` to `cli/`, and the standalone updater was refactored from `cli-updater/` to `cli-updater/`.
 
 ## 2. Core Conventions & Invariants
 - **Go Module Paths**:

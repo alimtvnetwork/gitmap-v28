@@ -135,7 +135,7 @@ All HTTP requests MUST include a `User-Agent` header:
 User-Agent: <binary>-updater/<version>
 ```
 
-Example: `User-Agent: gitmap-updater/1.3.0`
+Example: `User-Agent: cli-updater/1.3.0`
 
 **Why**: GitHub API rate limits are more generous for requests with a User-Agent. Requests without one may be deprioritized or blocked.
 

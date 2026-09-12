@@ -22,7 +22,7 @@ canonical layout). The smoke harness then asserted on `…/install/gitmap`
 ## Root cause
 
 `smoke-installer.sh#load_deploy_manifest` parsed `gitmap-cli` and `gitmap`
-out of `gitmap/constants/deploy-manifest.json` using awk with `-F'"'`:
+out of `cli/constants/deploy-manifest.json` using awk with `-F'"'`:
 
 ```bash
 APP_SUBDIR="$(awk -F'"' '/"appSubdir"/ {print $4; exit}' "$manifest_path")"

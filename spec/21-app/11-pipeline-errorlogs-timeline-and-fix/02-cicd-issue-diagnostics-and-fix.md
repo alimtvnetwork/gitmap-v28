@@ -21,7 +21,7 @@ GitMap embeds a local execution harness for internal repository checks:
 
 | Probe Name | Target Script / Tool | Description | Auto-Fix Capability |
 |---|---|---|---|
-| `gofmt formatting` | `gofmt -l .` in `gitmap/` | Checks for unformatted Go code | `gofmt -w .` |
+| `gofmt formatting` | `gofmt -l .` in `cli/` | Checks for unformatted Go code | `gofmt -w .` |
 | `Nested If Linter` | `linter-scripts/check-nested-ifs.py` | Enforces zero nested `if` statements | Manual / Flattening |
 | `Boolean & Enum Linter` | `linter-scripts/check-enum-and-boolean.py` | Enforces positive prefixes and enum suffixes | Manual / Renaming |
 | `Relative Paths Linter` | `linter-scripts/check-relative-paths.py` | Prevents absolute drive letter paths | Manual / Path fix |

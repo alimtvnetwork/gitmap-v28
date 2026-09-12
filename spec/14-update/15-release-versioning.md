@@ -598,7 +598,7 @@ Maintain a `.release/latest.json` file for programmatic version queries. This fi
     "Assets": [
         "gitmap-linux-amd64.tar.gz",
         "gitmap-windows-amd64.zip",
-        "gitmap-updater-linux-amd64.tar.gz",
+        "cli-updater-linux-amd64.tar.gz",
         "docs-site.zip",
         "checksums.txt",
         "install.ps1",

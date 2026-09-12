@@ -2,7 +2,7 @@
 """scripts/format_go.py — Auto-format Go files with gofmt (cross-platform).
 
 Modes:
-  python scripts/format_go.py                # format every .go file under gitmap/
+  python scripts/format_go.py                # format every .go file under cli/
   python scripts/format_go.py --staged       # format only staged .go files (hook mode)
   python scripts/format_go.py path/a.go ...  # format an explicit file list
 

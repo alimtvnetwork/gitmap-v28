@@ -75,7 +75,7 @@ def main() -> int:
     repo_root = Path(__file__).resolve().parent.parent
     gitmap_dir = repo_root / "cli"
     if not gitmap_dir.is_dir():
-        print(f"✗ preflight-ci: 'gitmap/' not found at {repo_root}", file=sys.stderr)
+        print(f"✗ preflight-ci: 'cli/' not found at {repo_root}", file=sys.stderr)
         return 1
 
     phase = sys.argv[1] if len(sys.argv) > 1 else "all"

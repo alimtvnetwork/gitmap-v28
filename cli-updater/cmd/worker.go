@@ -11,10 +11,10 @@ import (
 )
 
 // RunWorker is the hidden command that performs the actual update.
-// It is invoked by the handoff copy: gitmap-updater-tmp update-worker <version>
+// It is invoked by the handoff copy: cli-updater-tmp update-worker <version>
 func RunWorker() {
 	if len(os.Args) < 3 {
-		fmt.Fprintln(os.Stderr, "Usage: gitmap-updater update-worker <version>")
+		fmt.Fprintln(os.Stderr, "Usage: cli-updater update-worker <version>")
 		os.Exit(1)
 	}
 
@@ -112,7 +112,7 @@ func cleanupSelf() {
 	}
 
 	for _, e := range entries {
-		if strings.HasPrefix(e.Name(), "gitmap-updater-tmp-") {
+		if strings.HasPrefix(e.Name(), "cli-updater-tmp-") {
 			os.Remove(filepath.Join(dir, e.Name()))
 		}
 	}

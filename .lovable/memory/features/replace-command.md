@@ -33,13 +33,13 @@ Binary files (null-byte sniff in first 8 KiB).
 
 ## Files
 
-- `gitmap/cmd/replace.go` — entrypoint + mode classifier.
-- `gitmap/cmd/replaceflags.go` — flag parsing (`--audit` stripped pre-Parse).
-- `gitmap/cmd/replacewalk.go` — repo walk, exclusions, binary sniff.
-- `gitmap/cmd/replaceapply.go` — scan + atomic temp+rename writer.
-- `gitmap/cmd/replaceversion.go` — remote slug parser → `(base, K)`.
-- `gitmap/cmd/replaceversionrun.go` — `-N` and `all` runners.
-- `gitmap/cmd/replaceaudit.go` — `--audit` line-level reporter.
-- `gitmap/constants/constants_replace.go` — all messages/flags.
-- `gitmap/helptext/replace.md` — embedded help.
+- `cli/cmd/replace.go` — entrypoint + mode classifier.
+- `cli/cmd/replaceflags.go` — flag parsing (`--audit` stripped pre-Parse).
+- `cli/cmd/replacewalk.go` — repo walk, exclusions, binary sniff.
+- `cli/cmd/replaceapply.go` — scan + atomic temp+rename writer.
+- `cli/cmd/replaceversion.go` — remote slug parser → `(base, K)`.
+- `cli/cmd/replaceversionrun.go` — `-N` and `all` runners.
+- `cli/cmd/replaceaudit.go` — `--audit` line-level reporter.
+- `cli/constants/constants_replace.go` — all messages/flags.
+- `cli/helptext/replace.md` — embedded help.
 - `spec/04-generic-cli/15-replace-command.md` — canonical spec.

@@ -5,8 +5,8 @@ Generated: 2026-07-23 14:06 UTC. Companion to `.lovable/memory/reports/20260723-
 This roadmap is written for hand-off to another AI. Every task is scoped to a specific project, has explicit dependencies, and lists acceptance criteria. Do not implement anything from here until the user selects a task from the "Next task selection" section.
 
 Projects:
-- **gitmap-cli**: Go CLI under `gitmap/`.
-- **gitmap-updater**: standalone updater under `gitmap-updater/`.
+- **gitmap-cli**: Go CLI under `cli/`.
+- **cli-updater**: standalone updater under `cli-updater/`.
 - **docs-site**: React docs site under `src/`.
 - **ci-pipeline**: workflows under `.github/`.
 - **spec-hygiene**: everything under `spec/` and `.lovable/`.
@@ -23,9 +23,9 @@ Phases:
 ### P0-1: Sync current-version references
 
 - **Project**: spec-hygiene
-- **Objective**: Make `.lovable/overview.md` and `.lovable/memory/index.md` state the same version as `gitmap/constants/constants.go`.
+- **Objective**: Make `.lovable/overview.md` and `.lovable/memory/index.md` state the same version as `cli/constants/constants.go`.
 - **Dependencies**: none.
-- **Expected outputs**: edits to `.lovable/overview.md` and `.lovable/memory/index.md`. A one-line note naming `gitmap/constants/constants.go` as the source of truth.
+- **Expected outputs**: edits to `.lovable/overview.md` and `.lovable/memory/index.md`. A one-line note naming `cli/constants/constants.go` as the source of truth.
 - **Acceptance criteria**:
   - Grep for the old versions (v3.1.0, v5.9.0) returns 0 matches in `.lovable/`.
   - Both files display the version currently in `constants.go`.

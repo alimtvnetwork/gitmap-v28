@@ -93,13 +93,13 @@ external integration keeps working.
 
 ## Files
 
-- `gitmap/probe/probe.go` — `RunOne` (legacy shim), `RunOneWithDepth`, `tryLsRemote`, `parseFirstTag`, `parseSemverInt`, `Result.AsModel`
-- `gitmap/probe/clone.go` — `tryShallowClone(url, depth)`, `summarize`
-- `gitmap/probe/background.go` — `BackgroundRunner` + `SetCloneDepth`, `SetFailureHook`
-- `gitmap/store/version_probe.go` — DB methods
-- `gitmap/cmd/probe.go` — dispatcher + `runProbePool` / `probeWorker`
-- `gitmap/cmd/probeflags.go` — `parseProbeArgs`, `--probe-workers` / `--workers` (deprecated) / `--probe-depth`
-- `gitmap/cmd/probereport.go` — `executeOneProbe(db, repo, depth)`, JSON shaping, `tallyProbe`
-- `gitmap/cmd/rootflags.go` — `parseScanFlags` + `resolveScanProbeOptions` reconciles deprecated alias
-- `gitmap/cmd/scanbackgroundprobe.go` — calls `runner.SetCloneDepth(opts.Depth)` before enqueue
-- `gitmap/constants/constants_probe.go` — `ProbeDefaultWorkers=2`, `ProbeMaxWorkers=3`, `ProbeDefaultDepth=1`, all flag tokens + deprecation messages
+- `cli/probe/probe.go` — `RunOne` (legacy shim), `RunOneWithDepth`, `tryLsRemote`, `parseFirstTag`, `parseSemverInt`, `Result.AsModel`
+- `cli/probe/clone.go` — `tryShallowClone(url, depth)`, `summarize`
+- `cli/probe/background.go` — `BackgroundRunner` + `SetCloneDepth`, `SetFailureHook`
+- `cli/store/version_probe.go` — DB methods
+- `cli/cmd/probe.go` — dispatcher + `runProbePool` / `probeWorker`
+- `cli/cmd/probeflags.go` — `parseProbeArgs`, `--probe-workers` / `--workers` (deprecated) / `--probe-depth`
+- `cli/cmd/probereport.go` — `executeOneProbe(db, repo, depth)`, JSON shaping, `tallyProbe`
+- `cli/cmd/rootflags.go` — `parseScanFlags` + `resolveScanProbeOptions` reconciles deprecated alias
+- `cli/cmd/scanbackgroundprobe.go` — calls `runner.SetCloneDepth(opts.Depth)` before enqueue
+- `cli/constants/constants_probe.go` — `ProbeDefaultWorkers=2`, `ProbeMaxWorkers=3`, `ProbeDefaultDepth=1`, all flag tokens + deprecation messages

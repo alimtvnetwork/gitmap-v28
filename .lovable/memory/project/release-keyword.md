@@ -8,7 +8,7 @@ type: preference
 
 When the user says **"release"**, **"mark this as release"**, or similar shorthand, treat it as a request to:
 
-1. Bump MINOR in `gitmap/constants/constants.go` (`Version`)
+1. Bump MINOR in `cli/constants/constants.go` (`Version`)
 2. Mirror to `src/constants/index.ts` (`VERSION`, with `v` prefix)
 3. Add a new `## vX.Y.Z — (YYYY-MM-DD) — <summary>` entry at the top of `changelog.md`
 4. Pin the new version everywhere it appears in root `README.md` (sed replace of the previous pinned version)

@@ -1,5 +1,5 @@
 # misspell-local.ps1 — Windows-first wrapper around scripts/misspell-local.sh.
-# Mirrors the CI `spell-check` job filters loaded from gitmap/data/config.json.
+# Mirrors the CI `spell-check` job filters loaded from cli/data/config.json.
 #
 # Usage:
 #   .\scripts\misspell-local.ps1                   # diff vs origin/main

@@ -138,8 +138,8 @@ type DialectCompiler interface {
 | **Oracle** | `:1, :2, ...` | `"ColumnName"` | `OFFSET {offset} ROWS FETCH NEXT {limit} ROWS ONLY` |
 | **MongoDB** | BSON Filter | Document Key | `{"$limit": N, "$skip": M}` |
 
-### 2.4 Dedicated SQLite Engine Section (`gitmap/dbengine/sqlite/`)
-Each database dialect implementation resides in its own package section under `gitmap/dbengine/<dialect>/`:
+### 2.4 Dedicated SQLite Engine Section (`cli/dbengine/sqlite/`)
+Each database dialect implementation resides in its own package section under `cli/dbengine/<dialect>/`:
 - `compiler.go`: SQLite-specific query compilation (`INSTR(field, ?) > 0` for `CompileLocate`, `LIMIT/OFFSET`, parameterized search, counts, deletes).
 - `views.go`: View lifecycle (`CREATE VIEW IF NOT EXISTS`, `DROP VIEW IF EXISTS`, and ad-hoc CTE `CompileAdHocCTE` via `WITH "ViewName" AS (...)`).
 - `functions.go`: Scalar function invocation and execution (`CompileFunctionCall`, `CompileScalarFunctionExpression`).
@@ -379,10 +379,10 @@ activeView := pipelineRepo.EnsureActiveErrorsView(ctx)      // BoolResult
 The database code generator (`03-ai-scripts/30-db-struct-enum-generator.py`) automatically generates typed repository structs, dedicated single data type query builders, null-safe row scanners, and places all enums in their own dedicated package with standard `gofmt` tab-aligned formatting:
 
 1. **Dedicated Enums Package (`enums/`)**:
-   - All column field enums, receiver methods, O(1) validation maps, registry singletons (`PipelineRunRecordDb`), and canonical table constants live in a dedicated subpackage `package enums` under `<db_package>/enums/` (e.g., `gitmap/pipelinedb/enums`):
+   - All column field enums, receiver methods, O(1) validation maps, registry singletons (`PipelineRunRecordDb`), and canonical table constants live in a dedicated subpackage `package enums` under `<db_package>/enums/` (e.g., `cli/pipelinedb/enums`):
      - `enums/consts.go`: Canonical table name constants (`PipelineSplitDbTable`, `PipelineRunRecordTable`, etc.).
      - `enums/{model_snake_case}.go`: Dedicated field enums (`PipelineRunRecordFieldType`), registry structs, and scoped variables (`PipelineRunRecordDb`, `PipelineRunDb`).
-   - Callers can import directly: `import "github.com/alimtvnetwork/gitmap-v28/gitmap/pipelinedb/enums"` and reference `enums.PipelineRunRecordDb.RunId`.
+   - Callers can import directly: `import "github.com/alimtvnetwork/gitmap-v28/cli/pipelinedb/enums"` and reference `enums.PipelineRunRecordDb.RunId`.
 
 2. **Standard Go Formatting (`gofmt`) Enforcement**:
    - The generator automatically executes `gofmt -w` on all generated output files and directories.

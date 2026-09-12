@@ -6,12 +6,12 @@ Owners: committransfer package
 
 ## Problem
 
-Two latent bugs in `gitmap/committransfer` were identified during the
+Two latent bugs in `cli/committransfer` were identified during the
 v5.52.0 commit-transfer post-mortem but never tracked in a spec.
 
 ### Gap A — `recentLogSubjectsAndBodies` 200-commit cap
 
-`gitmap/committransfer/plan.go:27` calls:
+`cli/committransfer/plan.go:27` calls:
 
     recentLogSubjectsAndBodies(targetDir, 200)
 
@@ -26,7 +26,7 @@ any source subject; source range includes that same subject.
 
 ### Gap B — Planner default `IncludeMerges=false`
 
-`gitmap/committransfer/git.go:50-54` appends `--no-merges` when
+`cli/committransfer/git.go:50-54` appends `--no-merges` when
 `opts.IncludeMerges == false`, which is the zero-value default in
 `types.go:81`. The CLI surface therefore silently drops merge commits
 during transfer. This is the safe v1 default but is a footgun for users
@@ -54,7 +54,7 @@ deprecation window.
    (e.g. mirrored monorepos in the tens of millions of commits) where
    the unbounded `git log` of the v5.78.0 fix is prohibitive. Default
    behavior is unchanged; the knob is opt-in. Pinned by
-   `gitmap/committransfer/maxhistoryscan_test.go`.
+   `cli/committransfer/maxhistoryscan_test.go`.
 
 ### Gap B — Default flip with deprecation
 
@@ -75,16 +75,16 @@ deprecation window.
 
 ## Files touched
 
-- `gitmap/committransfer/plan.go` — call-site change
-- `gitmap/committransfer/git.go` — `--max-count` branch
-- `gitmap/committransfer/types.go` — doc updates only in v5.62.0
-- `gitmap/cmd/committransfer.go` — `--include-merges` flag wiring
-- `gitmap/helptext/commit-in.md`, `commit-out.md` — doc the flag
-- `gitmap/committransfer/plan_idempotence_test.go` — NEW regression test
+- `cli/committransfer/plan.go` — call-site change
+- `cli/committransfer/git.go` — `--max-count` branch
+- `cli/committransfer/types.go` — doc updates only in v5.62.0
+- `cli/cmd/committransfer.go` — `--include-merges` flag wiring
+- `cli/helptext/commit-in.md`, `commit-out.md` — doc the flag
+- `cli/committransfer/plan_idempotence_test.go` — NEW regression test
 
 ## Acceptance
 
-- `go test ./gitmap/committransfer/...` green including the new
+- `go test ./cli/committransfer/...` green including the new
   beyond-200 regression test.
 - Manual smoke: cherry-pick a commit 500 entries deep into target,
   re-run `gitmap commit-in`, observe `AlreadyApplied` (not duplicated).

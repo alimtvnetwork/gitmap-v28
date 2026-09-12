@@ -10,7 +10,7 @@ import (
 // the requested shell, with `dir` injected as the resolved deploy
 // directory and `manager` shown in the header line.
 //
-// Output is byte-identical to what run.sh and gitmap/scripts/install.sh
+// Output is byte-identical to what run.sh and cli/scripts/install.sh
 // would produce — those scripts shell out to `gitmap setup
 // print-path-snippet` and pipe the bytes into the user's rc file.
 //

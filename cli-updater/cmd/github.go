@@ -22,7 +22,7 @@ func fetchLatestTag() (string, error) {
 	}
 
 	req.Header.Set("Accept", "application/vnd.github+json")
-	req.Header.Set("User-Agent", "gitmap-updater/"+Version)
+	req.Header.Set("User-Agent", "cli-updater/"+Version)
 
 	resp, err := http.DefaultClient.Do(req)
 	if err != nil {

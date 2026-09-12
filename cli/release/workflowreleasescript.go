@@ -18,7 +18,7 @@ import (
 
 // releaseScriptSnapshot describes one snapshot to generate.
 type releaseScriptSnapshot struct {
-	embeddedName string // file inside gitmap/scripts/ embed FS
+	embeddedName string // file inside cli/scripts/ embed FS
 	outputName   string // filename written into the staging dir
 	bakeLine     string // single line to inject at the top of the body
 }

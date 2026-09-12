@@ -24,11 +24,11 @@ A comprehensive, deep-dive read of all institutional memory files (132 files), c
 
 ## 3. Core Architectural Pillars
 
-### 3.1 Go CLI Toolchain (`gitmap/`)
+### 3.1 Go CLI Toolchain (`cli/`)
 
 - Go 1.24.13 with strict linting (`golangci-lint` v1.64.8, `govulncheck` v1.1.4).
-- Over 60 subcommands organized in `gitmap/cmd/` with AST parity enforced via `TestTopLevelCmdRegistryMatchesAST` against `gitmap/constants/constants_cli.go`.
-- Maximum 120 lines for command help markdown files (`gitmap/helptext/`) with 3–8 line realistic simulations and mandatory fenced code blocks.
+- Over 60 subcommands organized in `cli/cmd/` with AST parity enforced via `TestTopLevelCmdRegistryMatchesAST` against `cli/constants/constants_cli.go`.
+- Maximum 120 lines for command help markdown files (`cli/helptext/`) with 3–8 line realistic simulations and mandatory fenced code blocks.
 - Centralized error and exit handling via `apperror` and `cliexit.Reportf` / `cliexit.Fail`. Bare `fmt.Fprintln(os.Stderr, err)` is strictly prohibited.
 
 ### 3.2 Database Conventions (`store/`, SQLite)

@@ -6,10 +6,10 @@ During the implementation of the pipeline-ai command suite and stack trace forma
 
 ## 2. How it happened
 
-- In gitmap/apperror/apperror.go, captureStackTrace inspected runtime frames and contained if strings.Contains(...) { if !more { break } continue }.
-- In gitmap/cmd/pipeline_ai.go, parsePipelineAIDelay contained if isPipelineAIDelayFlag(...) { if v, err := strconv.Atoi(...); err == nil ... }.
-- In gitmap/cmd/pipeline_status.go, sumCompletedRunDurations contained if r.Status == "completed" ... { if dur >= 10 { ... } }.
-- In gitmap/helptext/examples_golden_test.go, the golden test requires every help file to have a section starting with ## Examples followed by code blocks.
+- In cli/apperror/apperror.go, captureStackTrace inspected runtime frames and contained if strings.Contains(...) { if !more { break } continue }.
+- In cli/cmd/pipeline_ai.go, parsePipelineAIDelay contained if isPipelineAIDelayFlag(...) { if v, err := strconv.Atoi(...); err == nil ... }.
+- In cli/cmd/pipeline_status.go, sumCompletedRunDurations contained if r.Status == "completed" ... { if dur >= 10 { ... } }.
+- In cli/helptext/examples_golden_test.go, the golden test requires every help file to have a section starting with ## Examples followed by code blocks.
 
 ## 3. Root Cause
 
@@ -21,5 +21,5 @@ During the implementation of the pipeline-ai command suite and stack trace forma
 - Refactored captureStackTrace to delegate frame appending to appendStackFrame, eliminating the nested if.
 - Flattened parsePipelineAIDelay by extracting extractDelaySecondz helper and using guard checks.
 - Flattened sumCompletedRunDurations using early continue guard clauses.
-- Renamed the section heading in helptext/llm.md, llm.md, gitmap/llm.md, and gitmap/cmd/llm/llm.go to ## Examples (Step-by-Step AI Workflows).
+- Renamed the section heading in helptext/llm.md, llm.md, cli/llm.md, and cli/cmd/llm/llm.go to ## Examples (Step-by-Step AI Workflows).
 - Verified all linters (check-enum-and-boolean.py, go-format-check.py) and all tests (go test ./...) pass 100%.

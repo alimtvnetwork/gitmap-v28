@@ -30,18 +30,18 @@ below the documented 32,767 characters.
 
 ## Files touched
 
-- `gitmap/cmd/fixrepo.go`, `gitmap/cmd/fixrepo_flags.go`,
-  `gitmap/cmd/fixrepo_gofmt.go`
-- `gitmap/cmd/doctor_run.go`, `gitmap/cmd/doctor_fixrepo.go`
-- `gitmap/cmd/rootusageflags.go`
-- `gitmap/constants/constants_fixrepo.go`,
-  `gitmap/constants/constants_fixrepohelp.go`
-- `gitmap/helptext/doctor-fix-repo.md`
-- Tests: `gitmap/cmd/fixrepo_gofmt_test.go`
+- `cli/cmd/fixrepo.go`, `cli/cmd/fixrepo_flags.go`,
+  `cli/cmd/fixrepo_gofmt.go`
+- `cli/cmd/doctor_run.go`, `cli/cmd/doctor_fixrepo.go`
+- `cli/cmd/rootusageflags.go`
+- `cli/constants/constants_fixrepo.go`,
+  `cli/constants/constants_fixrepohelp.go`
+- `cli/helptext/doctor-fix-repo.md`
+- Tests: `cli/cmd/fixrepo_gofmt_test.go`
 
 ## Validation
 
-- `go test ./gitmap/cmd/... ./gitmap/constants/...` green.
+- `go test ./cli/cmd/... ./cli/constants/...` green.
 - `bunx vitest run src/test/version-sync.test.ts` green.
 - Manual on Windows: `gitmap doctor fix-repo` reports measured cap;
   `gitmap fix-repo --all --dry-run --verbose --gofmt-max-cmd-len 8000`

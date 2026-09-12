@@ -39,10 +39,10 @@ and `cd`s the parent shell to the recorded path.
 
 | Command | Path written | File |
 |---------|--------------|------|
-| `clone-next` | `targetPath` (flattened folder) | `gitmap/cmd/clonenext.go` |
-| `as` | repo top-level (`gitTopLevel()`) | `gitmap/cmd/as.go` |
-| `cd <name>` | resolved repo path | `gitmap/cmd/cdops.go::runCDLookup` |
-| `cd repos` | picked repo path | `gitmap/cmd/cdops.go::runCDRepos` |
+| `clone-next` | `targetPath` (flattened folder) | `cli/cmd/clonenext.go` |
+| `as` | repo top-level (`gitTopLevel()`) | `cli/cmd/as.go` |
+| `cd <name>` | resolved repo path | `cli/cmd/cdops.go::runCDLookup` |
+| `cd repos` | picked repo path | `cli/cmd/cdops.go::runCDRepos` |
 
 `cd` already used a stdout-capture mechanism via the wrapper. It now
 **also** writes the handoff file for parity, so any future wrapper
@@ -57,12 +57,12 @@ upgrade can drop the stdout dance.
 
 ## Files
 
-- `gitmap/cmd/shellhandoff.go` — `WriteShellHandoff(path)` helper
-- `gitmap/cmd/shellhandoff_test.go` — 3 unit tests (no-op / writes / empty)
-- `gitmap/constants/constants_cd.go` — `EnvGitmapHandoffFile` constant + updated `CDFunc*` wrappers
-- `gitmap/cmd/clonenext.go` — replaced broken `os.Setenv` line
-- `gitmap/cmd/as.go` — added handoff after `registerAlias`
-- `gitmap/cmd/cdops.go` — added handoff in `runCDLookup` + `runCDRepos`
+- `cli/cmd/shellhandoff.go` — `WriteShellHandoff(path)` helper
+- `cli/cmd/shellhandoff_test.go` — 3 unit tests (no-op / writes / empty)
+- `cli/constants/constants_cd.go` — `EnvGitmapHandoffFile` constant + updated `CDFunc*` wrappers
+- `cli/cmd/clonenext.go` — replaced broken `os.Setenv` line
+- `cli/cmd/as.go` — added handoff after `registerAlias`
+- `cli/cmd/cdops.go` — added handoff in `runCDLookup` + `runCDRepos`
 
 ## Why not extend to `update`?
 

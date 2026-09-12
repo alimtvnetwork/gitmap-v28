@@ -81,7 +81,7 @@ The root `gitmap help` footer displays the active Primary Master SQLite database
   ────────────────────────────────────────────────────────────
   gitmap binary
   ● Version:     v6.166.0
-  ● Database:    D:\wp-work\riseup-asia\gitmap\bin\data\gitmap.db
+  ● Database:    D:\wp-work\riseup-asia\cli\bin\data\gitmap.db
 ```
 
 ---

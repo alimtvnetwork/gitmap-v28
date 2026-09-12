@@ -341,7 +341,7 @@ sed -i "s|VERSION_PLACEHOLDER|${VERSION}|g; s|REPO_PLACEHOLDER|${GITHUB_REPOSITO
 ```text
 === Running Nested If Linter (check-nested-ifs.py) in /home/runner/work/gitmap-v28/gitmap-v28 ===
 ❌ FAIL: Found 1 nested-if / anti-compression violation(s) across 1 file(s):
-  gitmap/cmd/reconcile_prompt.go:32: Nested if statement found (depth 2 inside conditional block): if err != nil {
+  cli/cmd/reconcile_prompt.go:32: Nested if statement found (depth 2 inside conditional block): if err != nil {
 ```
 
 **Trigger:**

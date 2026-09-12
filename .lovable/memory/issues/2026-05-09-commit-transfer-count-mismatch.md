@@ -14,7 +14,7 @@ silent-skip behaviors and is included below.
 
 ### 1. `--no-merges` is the planner default
 
-`gitmap/committransfer/git.go::revListReverse` adds `--no-merges`
+`cli/committransfer/git.go::revListReverse` adds `--no-merges`
 unless `IncludeMerges` is set. The CLI default (`Options.IncludeMerges
 = false`) silently strips every merge commit from the source list
 before the plan is even printed. The user's `git log` count is the
@@ -49,7 +49,7 @@ contributor; not the cause of the 212→150 case but worth fixing.
 
 ### 4. commit-in: stage-level skips are logged but not totaled
 
-`gitmap/cmd/commitin/orchestrator/conflict.go` and the walk stages
+`cli/cmd/commitin/orchestrator/conflict.go` and the walk stages
 log per-commit skip rows ("DuplicateSourceSha", "EmptyDiff", etc.),
 and the final summary prints `skipped=N`. The bug class is the same
 shape but lower severity: the user already sees the row.
@@ -71,7 +71,7 @@ shape but lower severity: the user already sees the row.
    (or ✗ — discrepancy)`. The `✗` path also writes to os.Stderr
    so CI scripts can detect drift.
 5. **E2E test** —
-   `gitmap/committransfer/count_parity_e2e_test.go` builds two real
+   `cli/committransfer/count_parity_e2e_test.go` builds two real
    git repos via plumbing, runs `RunRight`, and asserts:
    - Pure-mainline 5-commit source → 5 target commits.
    - Source with 1 merge commit → MergeExcluded=1 reported, 0 merge
@@ -86,11 +86,11 @@ shape but lower severity: the user already sees the row.
 
 ## Files touched
 
-- gitmap/committransfer/types.go — `ReplayPlan.MergeExcluded`
-- gitmap/committransfer/plan.go — count merges-excluded
-- gitmap/committransfer/replay.go — per-commit empty log + signature
-- gitmap/committransfer/log.go — reconciliation summary
-- gitmap/committransfer/count_parity_e2e_test.go — new E2E
+- cli/committransfer/types.go — `ReplayPlan.MergeExcluded`
+- cli/committransfer/plan.go — count merges-excluded
+- cli/committransfer/replay.go — per-commit empty log + signature
+- cli/committransfer/log.go — reconciliation summary
+- cli/committransfer/count_parity_e2e_test.go — new E2E
 - .lovable/memory/issues/2026-05-09-commit-transfer-count-mismatch.md
 
 **Status:** All root causes addressed. Issue closed as of v6.0.0.

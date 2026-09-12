@@ -26,7 +26,7 @@ existing directory wins.
 because the intent is explicit. The path is saved to the DB for
 future runs.
 
-If all four tiers fail, the command delegates to `gitmap-updater`
+If all four tiers fail, the command delegates to `cli-updater`
 (if on PATH) or prints the `ErrNoRepoPath` recovery guide.
 
 ---

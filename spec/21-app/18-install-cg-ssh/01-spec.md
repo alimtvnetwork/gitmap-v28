@@ -18,9 +18,9 @@ This specification details the implementation of several new features for the Gi
 
 ### Phase 1: Database and Data Model
 
-1. Define `SSHConnection` struct in `gitmap/data/models.go` (ID, Alias, IP, Username, EncryptedPassword, KeyPath, OS).
-2. Create SQLite migration file (`gitmap/db/migrations/005_ssh_connections.sql`) to create `ssh_connections` table.
-3. Update `gitmap/db/schema.go` to include the new table.
+1. Define `SSHConnection` struct in `cli/data/models.go` (ID, Alias, IP, Username, EncryptedPassword, KeyPath, OS).
+2. Create SQLite migration file (`cli/db/migrations/005_ssh_connections.sql`) to create `ssh_connections` table.
+3. Update `cli/db/schema.go` to include the new table.
 4. Implement `db.InsertSSHConnection(ctx, conn)`.
 5. Implement `db.GetSSHConnections(ctx)`.
 6. Implement `db.DeleteSSHConnection(ctx, alias)`.
@@ -32,10 +32,10 @@ This specification details the implementation of several new features for the Gi
 
 ### Phase 2: Crypto & Security Utilities
 
-12. Create `gitmap/crypto/encrypt.go` for symmetric encryption (AES-GCM) of SSH passwords.
+12. Create `cli/crypto/encrypt.go` for symmetric encryption (AES-GCM) of SSH passwords.
 13. Implement `crypto.Encrypt(plaintext, key)` using a machine-specific key or user-provided passphrase.
 14. Implement `crypto.Decrypt(ciphertext, key)`.
-15. Create `gitmap/crypto/ssh_client.go` to wrap `golang.org/x/crypto/ssh`.
+15. Create `cli/crypto/ssh_client.go` to wrap `golang.org/x/crypto/ssh`.
 16. Implement `ssh_client.ConnectWithPassword(ip, user, password)`.
 17. Implement `ssh_client.ConnectWithKey(ip, user, keyPath)`.
 18. Implement `ssh_client.RunCommand(session, cmd, shellType)`.
@@ -44,25 +44,25 @@ This specification details the implementation of several new features for the Gi
 
 ### Phase 3: `gitmap install` Extensions
 
-21. Locate `gitmap/cmd/install.go` and `gitmap/cmd/installtools.go`.
+21. Locate `cli/cmd/install.go` and `cli/cmd/installtools.go`.
 22. Define a map/registry of custom install scripts (Scripts Fixer, Coding Guidelines, Macro AHK) with their Windows and Unix URLs.
-23. Create `gitmap/cmd/install_custom.go`.
+23. Create `cli/cmd/install_custom.go`.
 24. Implement `installCustomTool(name, osType)` to download and pipe to `iex` or `bash`.
 25. Integrate custom tools into the main `runInstall` switch statement.
 26. Add `ls` / `list` subcommand to `install`.
 27. Implement `checkInstalledStatus(name)` to verify if a tool is already on the machine (check PATH or default directories).
 28. Design the `gitmap install ls` UI using `charmbracelet/lipgloss` for tabular, colorful output.
-29. Implement the Lipgloss rendering function in `gitmap/tui/install_list.go`.
+29. Implement the Lipgloss rendering function in `cli/tui/install_list.go`.
 30. Add end-to-end test for `gitmap install ls`.
 31. Add end-to-end test for installing custom tools (mocking the HTTP endpoints).
 
 ### Phase 4: `gitmap cg` (Coding Guidelines Manager)
 
-32. Create `gitmap/cmd/cg.go` and register aliases (`coding-guide`, `coding-guidelines`, `cg`).
+32. Create `cli/cmd/cg.go` and register aliases (`coding-guide`, `coding-guidelines`, `cg`).
 33. Parse subcommands: `install`, `update`.
 34. Parse flags: `--all`, `--exclude`, and variadic positional arguments (repo aliases/paths).
 35. Implement `resolveRepos(args, allFlag, excludeCSV)` to fetch target repositories from the database.
-36. Create `gitmap/cmd/cg_worker.go` for concurrent execution.
+36. Create `cli/cmd/cg_worker.go` for concurrent execution.
 37. Implement a worker pool pattern (e.g., `errgroup.Group`) to run installations in parallel.
 38. For each repo, detect OS, construct the install command (`irm ... | iex` or `curl ... | bash`), and set `exec.Command` Dir to the repo path.
 39. Capture stdout/stderr from each parallel execution.
@@ -74,7 +74,7 @@ This specification details the implementation of several new features for the Gi
 
 ### Phase 5: `gitmap sj` (SSH Joiner)
 
-45. Create `gitmap/cmd/sshjoin.go` and register aliases (`ssh-joiner`, `ssh-join`, `sj`).
+45. Create `cli/cmd/sshjoin.go` and register aliases (`ssh-joiner`, `ssh-join`, `sj`).
 46. Parse flags: `--import`, `--export`, and positional args.
 47. Implement `runSSHJoinLs(args)` to fetch and display connections from the DB.
 48. Design Lipgloss UI for `sj ls` (table showing Alias, IP, User, OS, Status).
@@ -87,7 +87,7 @@ This specification details the implementation of several new features for the Gi
 
 ### Phase 6: `gitmap se` (SSH Executor)
 
-55. Create `gitmap/cmd/sshexec.go` and register aliases (`ssh-exec`, `ssh-execute`, `se`).
+55. Create `cli/cmd/sshexec.go` and register aliases (`ssh-exec`, `ssh-execute`, `se`).
 56. Parse shell type (`ps`, `sh`, `cmd`) and the command string.
 57. Parse `--exclude` flag.
 58. Fetch active SSH connections from the DB, applying exclusions.
@@ -107,7 +107,7 @@ This specification details the implementation of several new features for the Gi
 69. Add metadata for `gitmap sj` (joiner, ls, import, export).
 70. Add metadata for `gitmap se` (shell types, exclusion, examples).
 71. Ensure search indexes these new commands.
-72. Update Markdown help files in `gitmap/helptext/`:
+72. Update Markdown help files in `cli/helptext/`:
     - `install.md` (add custom scripts and `ls`).
     - `coding-guidelines.md` (new file).
     - `ssh-join.md` (new file).

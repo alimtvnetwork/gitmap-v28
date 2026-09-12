@@ -25,7 +25,7 @@ existing in-place / cross-dir-alias forms:
       `v++` and `v+N` (currently only matches `v?N.N.N`).
       Verify `looksLikeVersion("v+1") == true` via existing
       `releaserebase_test.go` style test.
-- [ ] New file `gitmap/cmd/clonenextfolderdispatch.go`:
+- [ ] New file `cli/cmd/clonenextfolderdispatch.go`:
   - `tryFolderArgCloneNext(args []string) bool` — runs BEFORE
     `tryCrossDirCloneNext` in `runCloneNext`. Handles the three
     new forms, returns true when it dispatched, false to fall
@@ -41,14 +41,14 @@ existing in-place / cross-dir-alias forms:
 
 ### Phase 3 — Tests
 
-- [ ] `gitmap/cmd/clonenextfolderdispatch_test.go` covering the
+- [ ] `cli/cmd/clonenextfolderdispatch_test.go` covering the
       eight cases enumerated in the spec test matrix.
-- [ ] `gitmap/clonenext/version_test.go` extended to assert
+- [ ] `cli/clonenext/version_test.go` extended to assert
       `looksLikeVersion("v++")` and `looksLikeVersion("v+1")`.
 
 ### Phase 4 — Help + docs
 
-- [ ] Update `gitmap/helptext/clone-next.md` to document the two
+- [ ] Update `cli/helptext/clone-next.md` to document the two
       new forms with realistic example simulations.
 - [ ] Add a "Folder-arg forms" subsection to `README.md` Command
       Reference → Cloning & Sync block.
@@ -57,7 +57,7 @@ existing in-place / cross-dir-alias forms:
 
 ### Phase 5 — QA + tag
 
-- [ ] `go test ./gitmap/...`
+- [ ] `go test ./cli/...`
 - [ ] `golangci-lint run`
 - [ ] Bump `constants.Version` to `3.117.0` (done in implementation
       session) and add CHANGELOG entry.

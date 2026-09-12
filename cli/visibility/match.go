@@ -1,6 +1,6 @@
 // Package visibility — match.go: combines compiled patterns against an
 // already-fetched list of repo names. Pure function, zero I/O — the
-// provider CLI call lives in gitmap/cmd/visibilityownerlist.go.
+// provider CLI call lives in cli/cmd/visibilityownerlist.go.
 //
 // Spec: 02-spec/01-app/116-bulk-visibility-mapub-mapri.md §3.
 package visibility

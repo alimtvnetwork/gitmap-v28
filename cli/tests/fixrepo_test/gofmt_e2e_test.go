@@ -105,7 +105,7 @@ func buildGitmapBinary(t *testing.T) string {
 
 	bin := filepath.Join(t.TempDir(), binName)
 	cmd := exec.Command("go", "build", "-o", bin, ".")
-	cmd.Dir = filepath.Join(repoRoot, "gitmap")
+	cmd.Dir = filepath.Join(repoRoot, "cli")
 	cmd.Stderr = os.Stderr
 	if err := cmd.Run(); err != nil {
 		t.Fatalf("go build gitmap: %v", err)
@@ -114,7 +114,7 @@ func buildGitmapBinary(t *testing.T) string {
 	return bin
 }
 
-// findRepoRoot walks up from CWD until it finds a `gitmap/` directory
+// findRepoRoot walks up from CWD until it finds a `cli/` directory
 // (the project's canonical layout). Required because t.TempDir() does
 // not give the test its source-relative location.
 func findRepoRoot(t *testing.T) string {
@@ -125,7 +125,7 @@ func findRepoRoot(t *testing.T) string {
 	}
 
 	for i := 0; i < 8; i++ {
-		if _, err := os.Stat(filepath.Join(dir, "gitmap", "go.mod")); err == nil {
+		if _, err := os.Stat(filepath.Join(dir, "cli", "go.mod")); err == nil {
 			return dir
 		}
 

@@ -35,7 +35,7 @@ Fails during the `go-winres make` step before any cross-compilation begins.
 
 ### Root Cause
 
-Windows `.ico` resource format hard-limits each image frame to **256x256 pixels**. `go-winres` reads `gitmap/winres/winres.json`, opens the referenced PNG, and converts it to `.ico` — refusing any image larger than the limit.
+Windows `.ico` resource format hard-limits each image frame to **256x256 pixels**. `go-winres` reads `cli/winres/winres.json`, opens the referenced PNG, and converts it to `.ico` — refusing any image larger than the limit.
 
 The project shipped a 512x512 `icon.png` for web/docs use, then mistakenly referenced it from `winres.json`.
 
@@ -48,12 +48,12 @@ The project shipped a 512x512 `icon.png` for web/docs use, then mistakenly refer
 ### Fix (v2.81.0)
 
 ```diff
-  // gitmap/winres/winres.json
+  // cli/winres/winres.json
 - "Path": "../assets/icon.png"
 + "Path": "../assets/icon-256.png"
 ```
 
-Created `gitmap/assets/icon-256.png` (256x256). Kept original 512x512 `icon.png` for non-Windows uses.
+Created `cli/assets/icon-256.png` (256x256). Kept original 512x512 `icon.png` for non-Windows uses.
 
 ### Prevention Rules
 
@@ -61,14 +61,14 @@ Created `gitmap/assets/icon-256.png` (256x256). Kept original 512x512 `icon.png`
 2. **Maintain separate files** by purpose: `icon.png` (web/docs), `icon-256.png` (Windows resource).
 3. **Add a pre-check in CI** before `go-winres make`:
    ```bash
-   python3 -c "from PIL import Image; img=Image.open('gitmap/assets/icon-256.png'); assert max(img.size)<=256"
+   python3 -c "from PIL import Image; img=Image.open('cli/assets/icon-256.png'); assert max(img.size)<=256"
    ```
-4. **Document the constraint inline** in `gitmap/winres/winres.json` via a `_comment` field.
+4. **Document the constraint inline** in `cli/winres/winres.json` via a `_comment` field.
 
 ### Related Files
 
-- `gitmap/winres/winres.json`
-- `gitmap/assets/icon-256.png` / `icon.png`
+- `cli/winres/winres.json`
+- `cli/assets/icon-256.png` / `icon.png`
 - `.github/workflows/release.yml`
 - `spec/14-update/09-winres-icon-constraint.md`
 
@@ -87,17 +87,17 @@ Fails during the compress/checksum step.
 
 ### Root Cause
 
-In a monorepo with `gitmap/` and `gitmap-updater/`, each `run:` step in GitHub Actions starts at the repository root unless `working-directory:` is set. A `cd dist` command assumed the previous step's CWD persisted — it doesn't.
+In a monorepo with `cli/` and `cli-updater/`, each `run:` step in GitHub Actions starts at the repository root unless `working-directory:` is set. A `cd dist` command assumed the previous step's CWD persisted — it doesn't.
 
 ### Why It Wasn't Caught
 
-Locally, `run.ps1` always executes from `gitmap/`, so the relative path resolves. CI is the only environment with the root-relative behavior.
+Locally, `run.ps1` always executes from `cli/`, so the relative path resolves. CI is the only environment with the root-relative behavior.
 
 ### Fix (v2.54.0)
 
 ```yaml
 - name: Compress and checksum
-  working-directory: gitmap/dist
+  working-directory: cli/dist
   run: |
     for f in gitmap-*; do
       [ -f "$f" ] || continue
@@ -108,7 +108,7 @@ Locally, `run.ps1` always executes from `gitmap/`, so the relative path resolves
 ### Prevention Rules
 
 1. **NEVER use `cd` inside CI scripts.** Use the YAML `working-directory:` field.
-2. **Guard with `test -d`** before operating on directories: `test -d gitmap/dist || { echo "::error::dist missing"; exit 1; }`.
+2. **Guard with `test -d`** before operating on directories: `test -d cli/dist || { echo "::error::dist missing"; exit 1; }`.
 3. **Test on `release/test-*` branch** before promoting.
 
 ### Related Files
@@ -254,7 +254,7 @@ Local invocations of `gitmap release --bin` produced binaries but no GitHub Rele
 
 ### Root Cause
 
-`gitmap/release/workflowgithub.go::uploadToGitHub` checks for `GITHUB_TOKEN` and **returns early without erroring** if absent. This is intentional for non-CI use, but the silence misled users.
+`cli/release/workflowgithub.go::uploadToGitHub` checks for `GITHUB_TOKEN` and **returns early without erroring** if absent. This is intentional for non-CI use, but the silence misled users.
 
 ### Fix
 
@@ -269,7 +269,7 @@ if len(token) == 0 {
 }
 ```
 
-(See `gitmap/release/workflowgithub.go` lines 13–20.)
+(See `cli/release/workflowgithub.go` lines 13–20.)
 
 ### Prevention Rules
 
@@ -279,8 +279,8 @@ if len(token) == 0 {
 
 ### Related Files
 
-- `gitmap/release/workflowgithub.go`
-- `gitmap/constants/constants_release.go` (Err* messages)
+- `cli/release/workflowgithub.go`
+- `cli/constants/constants_release.go` (Err* messages)
 
 ---
 

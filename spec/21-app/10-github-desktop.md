@@ -63,8 +63,8 @@ GitHub Desktop: 2 added, 1 failed
 
 | Component | File | Responsibility |
 |-----------|------|----------------|
-| `desktop` package | `gitmap/desktop/desktop.go` | Core integration logic |
-| `constants` | `gitmap/constants/constants.go` | CLI binary name, messages |
+| `desktop` package | `cli/desktop/desktop.go` | Core integration logic |
+| `constants` | `cli/constants/constants.go` | CLI binary name, messages |
 | `cmd/scan.go` | `addToDesktop()` | Wires flag to scan workflow |
 | `cmd/clone.go` | `registerCloned()` | Wires flag to clone workflow |
 

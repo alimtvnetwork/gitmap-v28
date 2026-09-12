@@ -1,10 +1,10 @@
 ---
 name: stable-json-encoding
-description: gitmap/stablejson package — guaranteed-stable field order for consumer-facing JSON outputs, no reflection on struct shape
+description: cli/stablejson package — guaranteed-stable field order for consumer-facing JSON outputs, no reflection on struct shape
 type: feature
 ---
 
-# Stable JSON Encoding (`gitmap/stablejson`)
+# Stable JSON Encoding (`cli/stablejson`)
 
 Tiny package providing `Field{Key, Value}` + `WriteArray(w, [][]Field)`.
 Encodes JSON arrays of objects with field order pinned by the
@@ -34,7 +34,7 @@ Migrating an existing caller does NOT require regenerating goldens.
 
 Any new `--format=json` CLI surface that downstream scripts will
 parse. First adopter (v3.152.0): `gitmap startup-list --format=json`
-via `encodeStartupListJSON` in `gitmap/cmd/startuplistrender.go`.
+via `encodeStartupListJSON` in `cli/cmd/startuplistrender.go`.
 
 ## When NOT to use
 

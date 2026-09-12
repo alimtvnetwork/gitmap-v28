@@ -6,11 +6,11 @@ Modes:
            `<tempdir>/gitmap version` and assert it matches v$EXPECTED.
            Used by ci.yml on every PR — no network release dependency.
 
-  release  Run gitmap/scripts/install.sh (or install.ps1 on Windows) against a
+  release  Run cli/scripts/install.sh (or install.ps1 on Windows) against a
            published GitHub release (--version "v$EXPECTED" --no-discovery),
            then run the installed binary and assert. Used by release.yml.
 
-Reads EXPECTED from env or falls back to gitmap/constants/constants.go.
+Reads EXPECTED from env or falls back to cli/constants/constants.go.
 Exits 0 on success, non-zero with diagnostic on failure.
 """
 import hashlib

@@ -53,9 +53,9 @@ gitmap pull --group backend --parallel 4            # group + parallel
 
 ## Files
 
-- `gitmap/cmd/pullparallel.go` — worker pool: `runPullParallel`, `startPullWorkers`, `dispatchPullJobs`, `pullWorker`, `runOnePullJob`
-- `gitmap/cmd/pullfilter.go` — `filterByAvailableUpdates`, `loadAvailableRepoIDs`, `intersectByID`
-- `gitmap/cmd/pull.go` — refactored `runPull` + new `pullOptions` struct, `beginPullTask`, `executePull`
-- `gitmap/cmd/flags_test.go` — migrated tests + new flag coverage
-- `gitmap/constants/constants_pull.go` — `FlagDescPullParallel`, `FlagDescPullOnlyAvailable`, `MsgPullNoAvailable`, `WarnPullFilterFallback`
-- `gitmap/helptext/pull.md` — flag table extended, new Example 5 added
+- `cli/cmd/pullparallel.go` — worker pool: `runPullParallel`, `startPullWorkers`, `dispatchPullJobs`, `pullWorker`, `runOnePullJob`
+- `cli/cmd/pullfilter.go` — `filterByAvailableUpdates`, `loadAvailableRepoIDs`, `intersectByID`
+- `cli/cmd/pull.go` — refactored `runPull` + new `pullOptions` struct, `beginPullTask`, `executePull`
+- `cli/cmd/flags_test.go` — migrated tests + new flag coverage
+- `cli/constants/constants_pull.go` — `FlagDescPullParallel`, `FlagDescPullOnlyAvailable`, `MsgPullNoAvailable`, `WarnPullFilterFallback`
+- `cli/helptext/pull.md` — flag table extended, new Example 5 added

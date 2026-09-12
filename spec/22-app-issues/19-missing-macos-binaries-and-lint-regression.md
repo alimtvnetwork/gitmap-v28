@@ -10,7 +10,7 @@ v2.64.0 release shipped without macOS (darwin) gitmap-v28 binaries and with
 1. GitHub Release v2.64.0 shows only 8 assets instead of the expected ~14.
    Missing: `gitmap-v28.64.0-darwin-amd64.tar.gz`,
    `gitmap-v28.64.0-darwin-arm64.tar.gz`, and several other platform
-   binaries. The `gitmap-updater-v2.64.0-darwin-amd64.tar.gz` IS present.
+   binaries. The `cli-updater-v2.64.0-darwin-amd64.tar.gz` IS present.
 2. CI fails with 5 lint errors:
    - `paramTypeCombine` on `autocommit.go` (gocritic)
    - 3× `S1039` unnecessary `fmt.Sprintf` on `installtools.go` (gosimple)

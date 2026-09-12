@@ -17,11 +17,11 @@ emits the canonical bootstrap one-liners for both platforms:
 - Tool name: `constants.ToolGitmapOneliner = "gitmap-oneliner"`
 - Description registered in `InstallToolDescriptions` and listed in the
   Core `InstallToolCategories` group so `gitmap install --list` shows it.
-- Dispatch: `specialInstallHandler` in `gitmap/cmd/install.go` returns
+- Dispatch: `specialInstallHandler` in `cli/cmd/install.go` returns
   `runInstallGitmapOneliner`, bypassing the detect/confirm/install pipe.
-- Handler: `gitmap/cmd/installgitmaponeliner.go` reuses the existing
+- Handler: `cli/cmd/installgitmaponeliner.go` reuses the existing
   `MsgInstallHintHeader/Windows/Unix` constants from
-  `gitmap/constants/constants_release.go` — single source of truth for
+  `cli/constants/constants_release.go` — single source of truth for
   the install URLs.
 
 ## Contract

@@ -13,8 +13,8 @@ environment-variable conventions, and exit-code semantics. Wiring
 them into a workflow means remembering six different invocations:
 
 ```yaml
-- run: bash check-cmd-naming.sh gitmap/cmd
-- run: CONST_DIR=gitmap/constants bash check-naming.sh
+- run: bash check-cmd-naming.sh cli/cmd
+- run: CONST_DIR=cli/constants bash check-naming.sh
 - run: python3 check-collisions.py
 - run: python3 lint-diff.py --current cur.json --baseline base.json
 - run: python3 lint-suggest.py --current cur.json --baseline base.json --out $GITHUB_STEP_SUMMARY
@@ -139,7 +139,7 @@ the right scripts:
 ### Go repo
 
 ```yaml
-- run: bash scripts/ci-runner.sh --phase all --source-dir gitmap/constants --baseline .github/scripts/constants-baseline.txt --results-dir ./test-artifacts --json $RUNNER_TEMP/ci.json
+- run: bash scripts/ci-runner.sh --phase all --source-dir cli/constants --baseline .github/scripts/constants-baseline.txt --results-dir ./test-artifacts --json $RUNNER_TEMP/ci.json
 ```
 
 ### Node / TypeScript repo

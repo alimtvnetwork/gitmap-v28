@@ -12,7 +12,7 @@ type: feature
 MUST check the cloned Git remote repo name for the `-vN` suffix, not
 the flattened local destination folder. Example: cloning
 `https://github.com/alimtvnetwork/gitmap-v28` into local folder
-`gitmap/` MUST still run `fix-repo --all` because the remote repo is
+`cli/` MUST still run `fix-repo --all` because the remote repo is
 versioned.
 
 ## Behavior
@@ -32,8 +32,8 @@ there's nothing to rewrite — so the correct default is "skip silently
 
 ## Files
 
-- `gitmap/cmd/clonefixrepo.go::maybeRunFixRepoStep` — gates the chained step on remote-derived repo identity, falling back to local folder only if remote lookup fails.
-- `gitmap/constants/constants_clonefixrepo.go` — `FlagRequireVersion`, `MsgCloneFixRepoSkipNoVer`, `ErrCloneFixRepoNeedVersion`.
+- `cli/cmd/clonefixrepo.go::maybeRunFixRepoStep` — gates the chained step on remote-derived repo identity, falling back to local folder only if remote lookup fails.
+- `cli/constants/constants_clonefixrepo.go` — `FlagRequireVersion`, `MsgCloneFixRepoSkipNoVer`, `ErrCloneFixRepoNeedVersion`.
 
 ## Spec
 

@@ -37,11 +37,11 @@ wrong repo as assets.
 
 ## Code
 
-- `gitmap/release/workflowfinalize.go::pushAndFinalize` — wraps
+- `cli/release/workflowfinalize.go::pushAndFinalize` — wraps
   `buildReleaseVersionSnapshots` in the gate.
-- `gitmap/release/workflowgithub.go::uploadToGitHub` — body stays `""`
+- `cli/release/workflowgithub.go::uploadToGitHub` — body stays `""`
   unless the gate fires.
-- `gitmap/release/releaseinstallhint.go::ShouldPrintInstallHint` — the
+- `cli/release/releaseinstallhint.go::ShouldPrintInstallHint` — the
   matcher.
 
 ## Spec

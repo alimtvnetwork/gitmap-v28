@@ -46,13 +46,6 @@ func openDB() (*store.DB, error) {
 	return store.OpenDefault()
 }
 
-func max(a, b int) int {
-	if a > b {
-		return a
-	}
-	return b
-}
-
 func reorderFlagsBeforeArgs(args []string) []string {
 	flags := make([]string, 0, len(args))
 	positional := make([]string, 0, len(args))

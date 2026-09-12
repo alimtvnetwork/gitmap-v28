@@ -100,7 +100,7 @@ GitMap already has built-in URL, browser, and path opening implementations:
 - `browser.OpenURL(url)` / `exec.Command("rundll32", "url.dll,FileProtocolHandler", url)`
 
 ### C. Architectural Options for Macro Execution Engine
-When the user provides their explanation, the macro execution engine in `gitmap/cmd/` can be extended with one of the following architectural patterns:
+When the user provides their explanation, the macro execution engine in `cli/cmd/` can be extended with one of the following architectural patterns:
 1. **Built-in `open` Command Interceptor / Shim:**
    If a macro step starts with `open <args>`:
    - On Windows: parse the target. If target is a known app (e.g. `chrome`), launch `chrome.exe` or `gitmap chrome open`. If target is a URL or file path, invoke Windows `explorer.exe` or `rundll32.exe url.dll,FileProtocolHandler`.
@@ -120,14 +120,14 @@ Prior to the macro session, the Chrome profile picker visibility desynchronizati
 1. **Specification:**
    - Authored formal specification under `spec/25-chrome-profile-management/` (`00-overview.md`, `01-profile-registration-and-picker.md`, `97-acceptance-criteria.md`, `99-consistency-report.md`).
 2. **Local State 13-Attribute Registration Schema:**
-   - Implemented `registerChromeProfileWithFullSchema` and `applyChromeInfoEntryDefaults` in `gitmap/cmd/chromeprofile_register.go`.
+   - Implemented `registerChromeProfileWithFullSchema` and `applyChromeInfoEntryDefaults` in `cli/cmd/chromeprofile_register.go`.
    - Populated all required Chromium UI properties (`name`, `shortcut_name`, `user_name`, `avatar_icon`, `default_avatar_fill_color`, `default_avatar_stroke_color`, `profile_highlight_color`, `profile_color_seed`, `active_time`, `is_using_default_avatar`, `is_using_default_name`, `is_ephemeral`, `is_consented_primary_account`, `signin.with_credential_provider`).
 3. **Process Concurrency Protection:**
    - Added `isChromeRunning()` check and user advisory warning that Chrome overwrites `Local State` from memory on exit.
 4. **Preferences Sanitization:**
    - Stripped parental lock / `managed` keys while preserving user email identity in `patchImportedChromeProfilePreferences`.
 5. **Orphan Reconcile Command:**
-   - Added `gitmap chrome profile reconcile` (`gitmap/cmd/chromeprofile_reconcile.go`) to scan disk and re-register unlinked profiles.
+   - Added `gitmap chrome profile reconcile` (`cli/cmd/chromeprofile_reconcile.go`) to scan disk and re-register unlinked profiles.
 6. **Commit & Push:**
    - Committed as `9f7f24ce` (`feat(chrome): add profile picker registration schema and reconcile engine`) and pushed to `main`.
 
@@ -138,12 +138,12 @@ Prior to the macro session, the Chrome profile picker visibility desynchronizati
 1. **Root Cause:**
    On Windows, PowerShell commands invoked via `powershell -NoProfile -Command "open ..."` fail because `open` is not a native Windows binary or PowerShell cmdlet.
 2. **Implementation:**
-   - Authored `gitmap/macro/open.go` with `ParseOpenCommand` and `executeOpenStep`.
+   - Authored `cli/macro/open.go` with `ParseOpenCommand` and `executeOpenStep`.
    - Built platform openers without nested ifs:
      - Windows: `launchChromeWindows` (checks App Paths / Program Files or `Start-Process chrome`), `launchURLWindows` (`rundll32 url.dll,FileProtocolHandler` with `Start-Process` fallback), `explorer.exe` for local paths.
      - macOS: `/usr/bin/open`.
      - Linux: `xdg-open` or `google-chrome`.
-   - Intercepted `open` in `gitmap/macro/execute.go` within `executeSingleStep` (adjacent to `DirTracker.ProcessCd`).
+   - Intercepted `open` in `cli/macro/execute.go` within `executeSingleStep` (adjacent to `DirTracker.ProcessCd`).
 3. **Verification:**
-   - Comprehensive unit test suite in `gitmap/macro/open_test.go` verifying parsing, target normalization, and mock command dispatch.
+   - Comprehensive unit test suite in `cli/macro/open_test.go` verifying parsing, target normalization, and mock command dispatch.
    - All 16 CI/CD quality gates pass 100% green.

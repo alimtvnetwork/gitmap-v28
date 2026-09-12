@@ -40,13 +40,13 @@ in `~/.ssh/config` and continue to use the explicit `ssh://` URL.
 
 ## Implementation
 
-- Flag wiring lives in `gitmap/cmd/rootflags.go` (`UseSSH` + `UseHTTPS`
+- Flag wiring lives in `cli/cmd/rootflags.go` (`UseSSH` + `UseHTTPS`
   on `CloneFlags`, both registered against the existing clone
   `flag.FlagSet`).
-- Conversion helpers live in `gitmap/cmd/cloneurlconvert.go`:
+- Conversion helpers live in `cli/cmd/cloneurlconvert.go`:
   `ConvertURLToSSH(url)` and `ConvertURLToHTTPS(url)`, both returning
   `(string, bool)` so callers can detect unrecognized inputs.
-- Dispatch lives in `gitmap/cmd/clone.go` (`applyURLSchemeFlags` runs
+- Dispatch lives in `cli/cmd/clone.go` (`applyURLSchemeFlags` runs
   after `applySSHKey` and before the multi-URL / direct-URL routers).
   Non-URL positionals (`json`, folder names) are skipped via the same
   `isDirectURL` predicate used for the multi-URL detector — so a stray

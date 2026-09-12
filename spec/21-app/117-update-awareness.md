@@ -153,7 +153,7 @@ This hint is suppressed by `--quiet`, or when `stderr` is not a terminal.
 - `src/data/commands.ts`: add entries for `list --update`, `update apply`,
   `update all`, `hd`. Category `tools` for the update commands, `scanning`
   for `list --update` and `hd`.
-- `gitmap/helptext/`: new files `list-update.md`, `update-apply.md`,
+- `cli/helptext/`: new files `list-update.md`, `update-apply.md`,
   `update-all.md`, `hd.md`. Cross-links added to `scan.md`, `stats.md`,
   `pending.md`, `do-pending.md`.
 - `src/pages/FlagReference.tsx`: include the new flags.

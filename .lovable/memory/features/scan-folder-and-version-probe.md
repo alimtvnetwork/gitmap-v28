@@ -51,14 +51,14 @@ type: feature
 
 | File | Change |
 |---|---|
-| `gitmap/constants/constants_scan_folder.go` (new) | Tables, indexes, CRUD SQL, error/message strings, CLI tokens |
-| `gitmap/model/scan_folder.go` (new) | `ScanFolder` + `VersionProbe` types |
-| `gitmap/store/scan_folder.go` (new) | `EnsureScanFolder`, `ListScanFolders`, `CountReposInScanFolder`, `RemoveScanFolderByPath/ByID` |
-| `gitmap/store/store.go` | Wired `SQLCreateScanFolder/...PathIndex/VersionProbe/...RepoIndex` into `Migrate()` statement list; added `migrateRepoScanFolderID` ALTER step; added drops to `Reset()` |
-| `gitmap/cmd/sf.go` (new) | `runSf` dispatcher, `runSfAdd/List/Remove`, helper `extractSfFlags`, `openSfDB` |
-| `gitmap/cmd/rootutility.go` | Routes `CmdSf` to `runSf` |
-| `gitmap/cmd/rootusage.go` | `printGroupNavigation` includes `HelpSf` |
-| `gitmap/constants/constants_cli.go` | `CmdSf = "sf"` (top-level marker), `HelpSf` line |
+| `cli/constants/constants_scan_folder.go` (new) | Tables, indexes, CRUD SQL, error/message strings, CLI tokens |
+| `cli/model/scan_folder.go` (new) | `ScanFolder` + `VersionProbe` types |
+| `cli/store/scan_folder.go` (new) | `EnsureScanFolder`, `ListScanFolders`, `CountReposInScanFolder`, `RemoveScanFolderByPath/ByID` |
+| `cli/store/store.go` | Wired `SQLCreateScanFolder/...PathIndex/VersionProbe/...RepoIndex` into `Migrate()` statement list; added `migrateRepoScanFolderID` ALTER step; added drops to `Reset()` |
+| `cli/cmd/sf.go` (new) | `runSf` dispatcher, `runSfAdd/List/Remove`, helper `extractSfFlags`, `openSfDB` |
+| `cli/cmd/rootutility.go` | Routes `CmdSf` to `runSf` |
+| `cli/cmd/rootusage.go` | `printGroupNavigation` includes `HelpSf` |
+| `cli/constants/constants_cli.go` | `CmdSf = "sf"` (top-level marker), `HelpSf` line |
 
 ## What's NOT in this phase
 

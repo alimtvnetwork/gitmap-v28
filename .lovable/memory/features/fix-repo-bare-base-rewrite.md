@@ -19,14 +19,14 @@ identifiers, brand strings, and unrelated repo URLs. The pre-versioned
 origin only matters for the v1→v2 transition; at v3+ any bare token is
 overwhelmingly NOT the old origin and must be preserved.
 
-**Guard rules** (`isBareBaseBoundary` in `gitmap/cmd/fixrepo_rewrite.go`):
+**Guard rules** (`isBareBaseBoundary` in `cli/cmd/fixrepo_rewrite.go`):
 prev byte AND next byte must NOT be a "word char" — defined as ASCII
 alnum, `_`, `-`, or `.`.
 
 The bare-base pass runs ONLY when `n == 1 && current == 2` inside
 `applyAllTargets`.
 
-Tests: `gitmap/cmd/fixrepo_rewrite_barebase_test.go` —
+Tests: `cli/cmd/fixrepo_rewrite_barebase_test.go` —
 `TestApplyAllTargets_BareBase_SkippedAtV3Plus` and
 `TestApplyAllTargets_BareBase_SkippedAtV4WithV1InTargets` lock in the
 v5.38.0 scope.

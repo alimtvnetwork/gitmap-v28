@@ -155,9 +155,9 @@ Tradeoffs:
 `--interleave` is rejected (exit 2) for `commit-left` / `commit-right`.
 
 Implementation: `committransfer.RunBothInterleaved` in
-`gitmap/committransfer/interleave.go`. Sort invariant + tie-breaking
+`cli/committransfer/interleave.go`. Sort invariant + tie-breaking
 pinned by `TestBuildInterleavedStream*` in
-`gitmap/committransfer/interleave_test.go`.
+`cli/committransfer/interleave_test.go`.
 
 ## 6. Commit-message normalization pipeline
 
@@ -183,7 +183,7 @@ commit. Override with `--no-drop-merges` etc. or the config knob below.
 
 ### 6.2 Strip rules (regex-based prefix/suffix removal)
 
-Configurable via `gitmap/data/config.json`:
+Configurable via `cli/data/config.json`:
 
 ```json
 {
@@ -362,7 +362,7 @@ Final summary:
 
 ## 13. Constants surface (planned)
 
-A new `gitmap/constants/constants_committransfer.go` file will own:
+A new `cli/constants/constants_committransfer.go` file will own:
 
 - `CmdCommitLeft`, `CmdCommitLeftA` (`"commit-left"`, `"cl"`)
 - `CmdCommitRight`, `CmdCommitRgtA` (`"commit-right"`, `"cr"`)
@@ -385,7 +385,7 @@ Marked `// gitmap:cmd top-level` so the completion generator picks up
 Mirrors `movemerge/`:
 
 ```
-gitmap/committransfer/
+cli/committransfer/
   types.go         # ReplaySpec, ReplayPlan, ReplayResult, MessagePolicy
   resolve.go       # endpoint resolution (delegates to movemerge.ResolveEndpoint)
   plan.go          # build replay set: merge-base → rev-list → drop filter
@@ -396,7 +396,7 @@ gitmap/committransfer/
   push.go          # final-push helper (reuses release/autocommitgit primitives)
 ```
 
-Dispatcher: extend `gitmap/cmd/dispatchmovemerge.go` (or a new
+Dispatcher: extend `cli/cmd/dispatchmovemerge.go` (or a new
 `dispatchcommittransfer.go`) so `cmd/root.go` routes the three new commands.
 
 ## 15. Testing strategy
@@ -404,7 +404,7 @@ Dispatcher: extend `gitmap/cmd/dispatchmovemerge.go` (or a new
 - Unit tests for the message pipeline with a table of (input, config) →
   expected cleaned message.
 - Unit tests for the drop filter (default patterns + custom regex).
-- Integration tests in `gitmap/tests/cmd_test/committransfer_test.go`
+- Integration tests in `cli/tests/cmd_test/committransfer_test.go`
   using local-folder endpoints (no network):
   1. `commit-right` from a 5-commit source onto an empty target →
      verify 5 cleaned commits land in order.
@@ -419,9 +419,9 @@ Dispatcher: extend `gitmap/cmd/dispatchmovemerge.go` (or a new
 
 ## 16. Help text (planned files)
 
-- `gitmap/helptext/commit-left.md`
-- `gitmap/helptext/commit-right.md`
-- `gitmap/helptext/commit-both.md`
+- `cli/helptext/commit-left.md`
+- `cli/helptext/commit-right.md`
+- `cli/helptext/commit-both.md`
 
 Following the existing helptext template (Alias, Usage, Flags table,
 Prerequisites, Examples, Exit Codes, Notes, See Also).
@@ -449,5 +449,5 @@ Prerequisites, Examples, Exit Codes, Notes, See Also).
 3. **Phase 3 — commit-both.** Adds the interleave-by-timestamp planner
    and idempotence-across-both-sides handling.
 4. **Phase 4 — config knobs.** Wire `commitTransfer` block in
-   `gitmap/data/config.json` and the three-layer merge pattern (defaults
+   `cli/data/config.json` and the three-layer merge pattern (defaults
    → config → CLI flags) per the project's standard config-pattern.

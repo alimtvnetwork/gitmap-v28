@@ -12,12 +12,12 @@ When `cmdchromeprofile` was modularized into its own standalone package, its tes
 6. The test asserted `strings.Contains(stderr, "skipped volatile Chrome lock file")`, which failed because `stderr` was `""`.
 
 ## 3. Root Cause
-- File: `gitmap/cmdchromeprofile/testhelpers_test.go`
+- File: `cli/cmdchromeprofile/testhelpers_test.go`
 - Lines: 11-33
 - Premature `r.Close()` invocation before waiting for `<-outC`, lack of channel buffering `make(chan string, 1)`, and absence of mutex synchronization (`stdIOMutex`).
 
 ## 4. Code Fix
-Updated `captureStderr` in `gitmap/cmdchromeprofile/testhelpers_test.go` to match the canonical synchronized pattern in `gitmap/cmd/capturestderr_testhelper_test.go`:
+Updated `captureStderr` in `cli/cmdchromeprofile/testhelpers_test.go` to match the canonical synchronized pattern in `cli/cmd/capturestderr_testhelper_test.go`:
 - Added `stdIOMutex sync.Mutex` protection across stdout/stderr redirection.
 - Used buffered channel `make(chan string, 1)`.
 - Waited for `res := <-outC` before closing `r`.

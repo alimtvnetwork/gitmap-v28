@@ -163,7 +163,7 @@ The tool maintains an `env-registry.json` file to track all managed variables:
     },
     {
       "key": "GITMAP_DATA",
-      "value": "E:\\gitmap\\data",
+      "value": "E:\\cli\\data",
       "createdAt": "2026-04-09T14:30:00Z",
       "platforms": ["registry", "powershell-profile"]
     }

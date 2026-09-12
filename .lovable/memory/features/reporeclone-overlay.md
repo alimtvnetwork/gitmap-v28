@@ -30,10 +30,10 @@ Spec: `spec/04-generic-cli/32-repo-reclone.md`.
 
 ## Code map
 
-- Entry split: `runCloneNow` in `gitmap/cmd/clonenow.go` calls `splitRepoRecloneArgs` + `resolveRepoRecloneTarget`; on overlay match dispatches to `runRepoReclone`.
-- Overlay: `gitmap/cmd/reporeclone.go` (pipeline) + `reporeclone_test.go` (helpers) + `reporeclone_e2e_test.go` (in-process round-trip against a local bare repo).
-- Constants: `gitmap/constants/constants_reporeclone.go` (messages + exit codes, no magic strings).
-- Help: `gitmap/helptext/reclone.md` — canonical page; `clone-now.md` is a stub redirect.
+- Entry split: `runCloneNow` in `cli/cmd/clonenow.go` calls `splitRepoRecloneArgs` + `resolveRepoRecloneTarget`; on overlay match dispatches to `runRepoReclone`.
+- Overlay: `cli/cmd/reporeclone.go` (pipeline) + `reporeclone_test.go` (helpers) + `reporeclone_e2e_test.go` (in-process round-trip against a local bare repo).
+- Constants: `cli/constants/constants_reporeclone.go` (messages + exit codes, no magic strings).
+- Help: `cli/helptext/reclone.md` — canonical page; `clone-now.md` is a stub redirect.
 
 ## Invariants
 

@@ -53,11 +53,11 @@ CLI guard: `--interleave` is rejected (exit 2) for `commit-left` and
 
 ## Files
 
-- `gitmap/committransfer/runleftboth.go` — RunLeft, RunBoth, runOneDirection, withDirectionLabel
-- `gitmap/committransfer/interleave.go` — RunBothInterleaved + helpers (v3.104.0)
-- `gitmap/committransfer/runleftboth_test.go` — direction-label + immutability tests
-- `gitmap/committransfer/interleave_test.go` — sort invariant + tie-breaking + empty cases
-- `gitmap/committransfer/run.go` — RunRight (now a 1-line wrapper)
-- `gitmap/cmd/committransfer.go` — `dispatchDirection` routes spec.Name → RunX, validates --interleave
+- `cli/committransfer/runleftboth.go` — RunLeft, RunBoth, runOneDirection, withDirectionLabel
+- `cli/committransfer/interleave.go` — RunBothInterleaved + helpers (v3.104.0)
+- `cli/committransfer/runleftboth_test.go` — direction-label + immutability tests
+- `cli/committransfer/interleave_test.go` — sort invariant + tie-breaking + empty cases
+- `cli/committransfer/run.go` — RunRight (now a 1-line wrapper)
+- `cli/cmd/committransfer.go` — `dispatchDirection` routes spec.Name → RunX, validates --interleave
 - `spec/01-app/106-commit-left-right-both.md` — §5 split into 5.1 sequential + 5.2 --interleave
-- `gitmap/helptext/commit-{left,both}.md` — status updated, examples added
+- `cli/helptext/commit-{left,both}.md` — status updated, examples added

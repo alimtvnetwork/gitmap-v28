@@ -1,7 +1,7 @@
 // Package transport centralizes HTTPS/SSH URL classification so every
 // consumer (mapper, probe, clone-from, reclone, scan) shares one rule
 // set. Replaces the historically-duplicated `classifyTransport` in
-// gitmap/mapper and `looksLikeSCP` in gitmap/clonefrom (#15 of the
+// cli/mapper and `looksLikeSCP` in cli/clonefrom (#15 of the
 // post-v6.53.0 improvements list).
 //
 // The buckets match `constants.ScanTransport*` so existing consumers

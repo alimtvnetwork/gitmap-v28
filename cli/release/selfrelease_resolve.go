@@ -118,7 +118,7 @@ func normalizeSourceRepoRoot(path string) string {
 }
 
 func isGitmapSourceRepo(root string) bool {
-	if fileExists(filepath.Join(root, "gitmap", "constants", "constants.go")) {
+	if fileExists(filepath.Join(root, "cli", "constants", "constants.go")) || fileExists(filepath.Join(root, "gitmap", "constants", "constants.go")) {
 		return true
 	}
 

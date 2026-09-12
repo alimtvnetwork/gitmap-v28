@@ -38,11 +38,11 @@ script-safe.
 
 ## File layout
 
-- `gitmap/startup/startup.go` — public API: `Entry`, `AutostartDir`, `List`
-- `gitmap/startup/desktop.go` — .desktop parser + manage filter
-- `gitmap/startup/remove.go` — `Remove` + `RemoveStatus` enum
-- `gitmap/startup/scanner.go` — bufio shim
-- `gitmap/cmd/startup.go` — CLI runners
-- `gitmap/constants/constants_startup.go` — Cmd*, marker, messages
+- `cli/startup/startup.go` — public API: `Entry`, `AutostartDir`, `List`
+- `cli/startup/desktop.go` — .desktop parser + manage filter
+- `cli/startup/remove.go` — `Remove` + `RemoveStatus` enum
+- `cli/startup/scanner.go` — bufio shim
+- `cli/cmd/startup.go` — CLI runners
+- `cli/constants/constants_startup.go` — Cmd*, marker, messages
 
 Shipped in v3.133.0.

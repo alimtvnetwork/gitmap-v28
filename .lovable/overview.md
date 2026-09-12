@@ -27,8 +27,8 @@
 
 | Directory | Purpose |
 |-----------|---------|
-| `gitmap/` | Go source code for the CLI |
-| `gitmap-updater/` | Standalone updater binary |
+| `cli/` | Go source code for the CLI |
+| `cli-updater/` | Standalone updater binary |
 | `spec/01-app/` | App-specific specification documents |
 | `spec/02-app-issues/` | App issue post-mortems and resolutions |
 | `spec/03-general/` | Reusable design patterns and guidelines |

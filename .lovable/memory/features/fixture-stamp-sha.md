@@ -8,7 +8,7 @@ type: feature
 
 The `// fixture-stamp:` marker accepts an optional `sha=<12-hex>` field — the first 12 hex chars of SHA-256 over the fixture body **with all fixture-stamp lines stripped** (so the hash is stable across marker edits).
 
-## Public surface (`gitmap/fixtureversion/hash.go`)
+## Public surface (`cli/fixtureversion/hash.go`)
 
 - `BodyHashExcludingMarker(body) string` — full 64-hex SHA-256 of body minus stamp lines.
 - `ShortHash(full) string` — first `HashShortLen` (12) chars.
@@ -30,7 +30,7 @@ The `// fixture-stamp:` marker accepts an optional `sha=<12-hex>` field — the 
 
 Existing markers without `sha=` keep validating (opt-out). To enable drift detection on a fixture, add `sha=<12-hex>` to its marker — the first `make fixtures-bump RUN=...` after that will keep it fresh.
 
-First consumer: `fixRepoV9ToV12FixtureBody` in `gitmap/cmd/fixrepo_rewrite_v9tov12_test.go` (sha=7e1463d1eae6).
+First consumer: `fixRepoV9ToV12FixtureBody` in `cli/cmd/fixrepo_rewrite_v9tov12_test.go` (sha=7e1463d1eae6).
 
 ## Why hash-with-marker-stripped
 

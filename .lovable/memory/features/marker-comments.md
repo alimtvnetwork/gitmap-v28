@@ -8,11 +8,11 @@ type: feature
 
 ## Why
 
-Replaces the centralized `sourceFiles` allowlist + `skipNames` map in `gitmap/completion/internal/gencommands/main.go`. Domain owners now control inclusion **locally**, without ever editing the generator.
+Replaces the centralized `sourceFiles` allowlist + `skipNames` map in `cli/completion/internal/gencommands/main.go`. Domain owners now control inclusion **locally**, without ever editing the generator.
 
 ## How
 
-1. In any `gitmap/constants/*.go`, add `// gitmap:cmd top-level` to the **doc comment** immediately above a `const (...)` block.
+1. In any `cli/constants/*.go`, add `// gitmap:cmd top-level` to the **doc comment** immediately above a `const (...)` block.
 2. To exclude a single spec inside an opted-in block, append `// gitmap:cmd skip` as a trailing line comment.
 
 ```go
@@ -25,7 +25,7 @@ const (
 )
 ```
 
-3. Run `go generate ./...` in `gitmap/` to regenerate `allcommands_generated.go`.
+3. Run `go generate ./...` in `cli/` to regenerate `allcommands_generated.go`.
 
 ## CI enforcement
 
@@ -36,7 +36,7 @@ A `generate-check` job in `.github/workflows/ci.yml` runs `go generate ./...` an
 - 40 const blocks across 34 constants files annotated `// gitmap:cmd top-level`.
 - 52 `// gitmap:cmd skip` annotations mirror the previous policy exactly.
 - `allcommands_generated.go` regenerates byte-for-byte identically (143 entries).
-- `gitmap/completion/completion.go::manualExtras` is now empty with a doc comment pointing future contributors at the marker convention.
+- `cli/completion/completion.go::manualExtras` is now empty with a doc comment pointing future contributors at the marker convention.
 
 ## Migration guide
 

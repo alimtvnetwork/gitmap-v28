@@ -12,7 +12,7 @@ Gitmap intercepts Git LFS smudge filter failures (404s when pointers point to mi
 
 ## File Locations
 
-- `gitmap/clonefrom/execute.go` (Integration point inside `runGitClone`)
-- `gitmap/clonefrom/execute_lfs_fix.go` (Regex detection and Git execution logic)
-- `gitmap/clonefrom/prompt.go` (Isolated confirmation prompt)
+- `cli/clonefrom/execute.go` (Integration point inside `runGitClone`)
+- `cli/clonefrom/execute_lfs_fix.go` (Regex detection and Git execution logic)
+- `cli/clonefrom/prompt.go` (Isolated confirmation prompt)
 - `.lovable/memory/specs/02-lfs-smudge-rca.md` (Original bug report and RCA)

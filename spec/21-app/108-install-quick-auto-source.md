@@ -1,7 +1,7 @@
 # 108 — `install-quick.sh` Auto-Source Wrapper
 
 **Status:** Implemented (2026-04-22)
-**Companion:** `install-quick.sh`, `gitmap/scripts/install.sh`, spec 95 (versioned repo discovery)
+**Companion:** `install-quick.sh`, `cli/scripts/install.sh`, spec 95 (versioned repo discovery)
 
 ## Problem
 
@@ -111,6 +111,6 @@ curl -fsSL https://raw.githubusercontent.com/alimtvnetwork/gitmap-v28/main/insta
 
 ## See also
 
-- `gitmap/scripts/install.sh::add_to_path` — writes PATH entries to rc files
-- `gitmap/scripts/install.sh::detect_active_pwsh` — picks the right reload command per shell
+- `cli/scripts/install.sh::add_to_path` — writes PATH entries to rc files
+- `cli/scripts/install.sh::detect_active_pwsh` — picks the right reload command per shell
 - `spec/01-app/95-installer-script-find-latest-repo.md` — versioned repo discovery

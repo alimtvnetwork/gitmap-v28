@@ -61,7 +61,7 @@ keywords like `WHERE`, `FROM`) are NOT treated as identifiers.
 
 | Variable | Purpose | Example |
 |----------|---------|---------|
-| `SOURCE_DIR` | Where identifiers live | `gitmap/constants/`, `src/lib/constants/` |
+| `SOURCE_DIR` | Where identifiers live | `cli/constants/`, `src/lib/constants/` |
 | `BASELINE_FILE` | Path to grandfathered list | `.github/scripts/constants-baseline.txt` |
 | `ALLOWED_PREFIX_REGEX` | Regex matching legal new names | `^(Cmd\|Msg\|Err\|Flag\|Default)` |
 | `EXTRACT_FN` | Language-specific identifier extractor | See per-language section |

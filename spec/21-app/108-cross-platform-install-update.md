@@ -24,7 +24,7 @@ copy-paste-safe one-liners everywhere.
 
 | Action            | Windows (PowerShell)                                                                                                                          | macOS / Linux (bash / zsh)                                                                                                                |
 |-------------------|------------------------------------------------------------------------------------------------------------------------------------------------|--------------------------------------------------------------------------------------------------------------------------------------------|
-| Install (default) | `irm https://raw.githubusercontent.com/alimtvnetwork/gitmap-v28/main/gitmap/scripts/install.ps1 \| iex`                                         | `curl -fsSL https://raw.githubusercontent.com/alimtvnetwork/gitmap-v28/main/gitmap/scripts/install.sh \| sh`                                |
+| Install (default) | `irm https://raw.githubusercontent.com/alimtvnetwork/gitmap-v28/main/cli/scripts/install.ps1 \| iex`                                         | `curl -fsSL https://raw.githubusercontent.com/alimtvnetwork/gitmap-v28/main/cli/scripts/install.sh \| sh`                                |
 | Install (prompt)  | `irm https://raw.githubusercontent.com/alimtvnetwork/gitmap-v28/main/install-quick.ps1 \| iex`                                                  | `curl -fsSL https://raw.githubusercontent.com/alimtvnetwork/gitmap-v28/main/install-quick.sh \| bash`                                       |
 | Install (pinned)  | `$ver='vX.Y.Z'; & ([scriptblock]::Create((irm .../install.ps1))) -Version $ver -NoDiscovery`                                                   | `curl -fsSL .../install.sh \| bash -s -- --version vX.Y.Z --no-discovery`                                                                  |
 | Update (in-place) | `gitmap update`                                                                                                                                | `gitmap update`                                                                                                                            |
@@ -40,7 +40,7 @@ missing tag exits 1.
 ## Install resolution flow
 
 Both installers follow the same algorithm (kept in lockstep by
-`gitmap/clonenext/remoteupdate.go` and the install scripts):
+`cli/clonenext/remoteupdate.go` and the install scripts):
 
 1. **Strict mode** — if `--version <tag>` is supplied, fetch that tag
    verbatim. Missing → `exit 1`. No `latest`, no sibling probe.
@@ -67,7 +67,7 @@ snippet into the user's shell profile(s). The exact targets depend on
 | `zsh` / `bash` / `pwsh` / `fish` | Only that shell family                                          |
 | `<a>+<b>` combos    | Strict union of listed families (no `~/.profile`, no auto-detect)         |
 
-Snippet templates live in `gitmap/constants/constants_pathsnippet.go`
+Snippet templates live in `cli/constants/constants_pathsnippet.go`
 so `install.sh`, `install.ps1`, and `gitmap setup print-path-snippet`
 emit byte-identical bytes.
 
@@ -76,10 +76,10 @@ emit byte-identical bytes.
 `gitmap update` handles three scenarios in this order:
 
 1. **Linked source repo present** — `git pull` + `go build` + redeploy.
-2. **No source repo, `gitmap-updater` installed** — delegate to the
+2. **No source repo, `cli-updater` installed** — delegate to the
    updater (downloads the matching release asset).
 3. **No source repo, no updater** — print the four-option fallback
-   panel documented in `gitmap/helptext/update.md` (re-install
+   panel documented in `cli/helptext/update.md` (re-install
    one-liner, clone+build, manual download, `--repo-path`).
 
 The Phase 3 cleanup handoff always writes a structured durable log to

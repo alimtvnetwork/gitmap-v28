@@ -12,7 +12,7 @@ import (
 //go:embed install.ps1 install.sh uninstall.ps1 release-version.ps1 release-version.sh
 var files embed.FS
 
-// FS returns the embedded read-only filesystem rooted at gitmap/scripts/.
+// FS returns the embedded read-only filesystem rooted at cli/scripts/.
 // Callers should use fs.ReadFile to extract a script's bytes.
 func FS() fs.FS {
 	return files

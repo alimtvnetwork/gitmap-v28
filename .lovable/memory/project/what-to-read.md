@@ -28,7 +28,7 @@
 /                                      repo root
 ├── README.md                          product README + pinned version
 ├── changelog.md                       version-by-version changes
-├── gitmap/                            Go CLI source (the product)
+├── cli/                            Go CLI source (the product)
 │   ├── cmd/                           command handlers + contract tests
 │   ├── constants/                     ALL string constants (no magic strings)
 │   ├── model/                         shared structs (JSON record shapes)
@@ -39,7 +39,7 @@
 │   ├── formatter/                     human/JSON/CSV output formatters
 │   ├── helptext/                      embedded markdown help files
 │   └── scripts/                       embedded install/uninstall scripts
-├── gitmap-updater/                    standalone updater binary
+├── cli-updater/                    standalone updater binary
 ├── spec/                              specifications (source of truth)
 │   ├── 03-general/                    cross-cutting rules (logging, build, prohibited)
 │   ├── 04-generic-cli/                per-command specs
@@ -68,11 +68,11 @@ Every JSON-emitting command in gitmap follows the same triangle:
 ```
 spec/08-json-schemas/<name>.schema.json    ← contract (JSON Schema draft-07)
         │
-        ├── gitmap/model/<name>.go         ← Go struct mirroring the schema
+        ├── cli/model/<name>.go         ← Go struct mirroring the schema
         │
-        ├── gitmap/cmd/<name>render.go     ← stablejson encoder (key order = wire contract)
+        ├── cli/cmd/<name>render.go     ← stablejson encoder (key order = wire contract)
         │
-        └── gitmap/cmd/<name>_jsonschema_contract_test.go  ← drift guard:
+        └── cli/cmd/<name>_jsonschema_contract_test.go  ← drift guard:
                                               schema ↔ encoder ↔ golden bytes
 ```
 
@@ -81,12 +81,12 @@ spec/08-json-schemas/<name>.schema.json    ← contract (JSON Schema draft-07)
 | Layer | File |
 |---|---|
 | Schema | `spec/08-json-schemas/amend-audit.schema.json` |
-| Model  | `gitmap/model/amendment.go` (`AmendmentRecord`, `AmendAuthor`) |
-| Encoder | `gitmap/cmd/amendauditrender.go` (`encodeAmendAuditJSON` + `amendAuditKey*` constants) |
-| Writer | `gitmap/cmd/amendaudit.go` (`writeAmendAudit` → file on disk) |
-| Schema contract test | `gitmap/cmd/amendaudit_jsonschema_contract_test.go` |
-| Golden-bytes contract test | `gitmap/cmd/amendauditjson_contract_test.go` |
-| Golden fixture | `gitmap/cmd/testdata/amend_audit_canonical.json` |
+| Model  | `cli/model/amendment.go` (`AmendmentRecord`, `AmendAuthor`) |
+| Encoder | `cli/cmd/amendauditrender.go` (`encodeAmendAuditJSON` + `amendAuditKey*` constants) |
+| Writer | `cli/cmd/amendaudit.go` (`writeAmendAudit` → file on disk) |
+| Schema contract test | `cli/cmd/amendaudit_jsonschema_contract_test.go` |
+| Golden-bytes contract test | `cli/cmd/amendauditjson_contract_test.go` |
+| Golden fixture | `cli/cmd/testdata/amend_audit_canonical.json` |
 
 ### Existing JSON surfaces (all live in `spec/08-json-schemas/`)
 
@@ -106,37 +106,37 @@ the order declared by the matching `<name>Key*` constants.
 
 1. **Author the schema** → `spec/08-json-schemas/<new-name>.schema.json`
    (draft-07, list `required` alphabetically, declare every `properties` key).
-2. **Add the Go struct** → `gitmap/model/<new-name>.go`.
-3. **Add wire-key constants** → top of `gitmap/cmd/<new-name>render.go`
+2. **Add the Go struct** → `cli/model/<new-name>.go`.
+3. **Add wire-key constants** → top of `cli/cmd/<new-name>render.go`
    (`<newName>Key<Field> = "<jsonKey>"`). Order of these constants IS the wire order.
-4. **Write the encoder** using `gitmap/stablejson.WriteObject` with one
+4. **Write the encoder** using `cli/stablejson.WriteObject` with one
    `stablejson.Field{Key, Value}` per constant. Pre-render nested objects /
    arrays via `WriteObjectIndent` / `WriteArrayIndent` and embed as
    `json.RawMessage` — never call `json.MarshalIndent`.
-5. **Add a JSON Schema contract test** → `gitmap/cmd/<newname>_jsonschema_contract_test.go`
+5. **Add a JSON Schema contract test** → `cli/cmd/<newname>_jsonschema_contract_test.go`
    modeled on `amendaudit_jsonschema_contract_test.go`:
    - assert `type == "object"`
    - assert sorted `required` matches a hard-coded slice
    - run the encoder and assert every emitted key is in `properties`.
-6. **Add a golden-bytes test** → `gitmap/cmd/<newname>json_contract_test.go`
+6. **Add a golden-bytes test** → `cli/cmd/<newname>json_contract_test.go`
    modeled on `amendauditjson_contract_test.go`, using
    `assertGoldenBytesDeterministic` + `assertSchemaKeysFirstObject`.
 7. **Generate the golden fixture**:
    ```
    GITMAP_UPDATE_GOLDEN=1 GITMAP_ALLOW_GOLDEN_UPDATE=1 \
-     go test ./gitmap/cmd -run <NewName>JSONContract
+     go test ./cli/cmd -run <NewName>JSONContract
    ```
-8. **Wire the command** → add CLI handler in `gitmap/cmd/`, register in
-   `dispatch`, add help in `gitmap/helptext/`, add constants ID in
-   `gitmap/constants/constants_cli.go`.
-9. **Bump version** (minor for new feature) → `gitmap/constants/constants.go`
+8. **Wire the command** → add CLI handler in `cli/cmd/`, register in
+   `dispatch`, add help in `cli/helptext/`, add constants ID in
+   `cli/constants/constants_cli.go`.
+9. **Bump version** (minor for new feature) → `cli/constants/constants.go`
    `Version`, `src/constants/index.ts`, `changelog.md`, pin in `README.md`.
 
 ---
 
 ## 5. Constants & Magic-String Discipline
 
-- **Never** inline a user-visible string. All go in `gitmap/constants/constants_*.go`.
+- **Never** inline a user-visible string. All go in `cli/constants/constants_*.go`.
 - CLI IDs (command names + aliases) live **only** in `constants_cli.go`.
 - Domain-specific bundles: `constants_cd.go`, `constants_clone.go`, etc.
 - Error format strings end in `Fmt` or start with `Err`. See existing files.
@@ -146,13 +146,13 @@ the order declared by the matching `<name>Key*` constants.
 ## 6. Tests You Must Run Before Saying "Done"
 
 ```
-nix run nixpkgs#go_1_24 -- test ./gitmap/... -count=1
-nix run nixpkgs#go_1_24 -- vet ./gitmap/...
+nix run nixpkgs#go_1_24 -- test ./cli/... -count=1
+nix run nixpkgs#go_1_24 -- vet ./cli/...
 ```
 
 For JSON contract changes also run the targeted contract suite:
 ```
-nix run nixpkgs#go_1_24 -- test ./gitmap/cmd -run 'JSONContract|JSONSchema'
+nix run nixpkgs#go_1_24 -- test ./cli/cmd -run 'JSONContract|JSONSchema'
 ```
 
 ---
@@ -160,7 +160,7 @@ nix run nixpkgs#go_1_24 -- test ./gitmap/cmd -run 'JSONContract|JSONSchema'
 ## 7. When Stuck — Memory Cross-References
 
 - Encoder pattern & key-order rule → `mem://features/stablejson-usage` (if absent, see `amendauditrender.go`).
-- Contract-test pattern → `gitmap/cmd/amendaudit_jsonschema_contract_test.go`.
+- Contract-test pattern → `cli/cmd/amendaudit_jsonschema_contract_test.go`.
 - Version bump procedure → `.lovable/memory/project/version-bump-procedure.md`.
 - Strictly prohibited actions → `.lovable/memory/constraints/strictly-prohibited.md`.
 - Code style limits → `.lovable/memory/style/code-constraints.md`.

@@ -51,8 +51,8 @@ type: feature
 
 | File | What |
 |------|------|
-| `gitmap/scripts/release-version.ps1` | New, embedded via `go:embed` |
-| `gitmap/scripts/release-version.sh` | New, embedded via `go:embed` |
+| `cli/scripts/release-version.ps1` | New, embedded via `go:embed` |
+| `cli/scripts/release-version.sh` | New, embedded via `go:embed` |
 | `cmd/release.go` | Snapshot generation step in release pipeline |
 | `constants/constants_install.go` | `ScriptReleaseVersionPS1`, `ScriptReleaseVersionSh`, snapshot filename format |
 | `src/pages/Release.tsx` (docs site) | Render two install boxes per `/release/:version` |

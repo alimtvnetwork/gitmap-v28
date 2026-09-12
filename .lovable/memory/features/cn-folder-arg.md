@@ -35,5 +35,5 @@ All flags forwarded via `extractFlagArgs`. No new flags introduced.
 
 - Spec: `spec/01-app/111-cn-folder-arg.md`
 - Plan: `.lovable/memory/plans/08-cn-folder-arg-plan.md`
-- Dispatcher: `gitmap/cmd/clonenextfolderdispatch.go`
-- Cross-dir reuse: `gitmap/cmd/clonenextcrossdir.go`
+- Dispatcher: `cli/cmd/clonenextfolderdispatch.go`
+- Cross-dir reuse: `cli/cmd/clonenextcrossdir.go`

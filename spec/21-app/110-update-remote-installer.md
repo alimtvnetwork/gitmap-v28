@@ -47,7 +47,7 @@ source of truth stays in the installer.
 
 ## Constants
 
-Declared in `gitmap/constants/constants_update.go`:
+Declared in `cli/constants/constants_update.go`:
 
 | Constant | Purpose |
 |----------|---------|
@@ -65,14 +65,14 @@ Declared in `gitmap/constants/constants_update.go`:
 
 | File | Role |
 |------|------|
-| `gitmap/cmd/update.go` | `runUpdate()` dispatcher; chooses remote vs source-rebuild |
-| `gitmap/cmd/updateremoteinstall.go` | `runUpdateRemoteInstall()`, download + exec helpers |
-| `gitmap/constants/constants_update.go` | URL + flag + message constants |
+| `cli/cmd/update.go` | `runUpdate()` dispatcher; chooses remote vs source-rebuild |
+| `cli/cmd/updateremoteinstall.go` | `runUpdateRemoteInstall()`, download + exec helpers |
+| `cli/constants/constants_update.go` | URL + flag + message constants |
 | `install.ps1`, `install.sh` (repo root) | Canonical installers downloaded at runtime |
 
 ## Migration notes
 
-- The `gitmap-updater` sidecar binary is **unchanged** and still works
+- The `cli-updater` sidecar binary is **unchanged** and still works
   for source-rebuild deployments — it is the second-tier fallback when
   the remote install fails AND no local repo path can be resolved.
 - No flag/positional changes for users: `gitmap update` with no args

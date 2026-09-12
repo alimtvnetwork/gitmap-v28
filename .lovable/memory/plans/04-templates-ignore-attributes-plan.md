@@ -8,22 +8,22 @@ Memory: `mem://features/templates-ignore-attributes`
 | Question                                  | Decision                                      |
 |-------------------------------------------|-----------------------------------------------|
 | Alias names                               | `ai` / `aa` / `alfs` / `tl` / `ts`            |
-| Real `add` subcommand router              | Yes — `gitmap/cmd/rootadd.go` + dispatchAdd   |
+| Real `add` subcommand router              | Yes — `cli/cmd/rootadd.go` + dispatchAdd   |
 | Audit trail for curated common template   | Per-file `# source:` header + version int     |
 | Read-only install fallback                | `~/.gitmap/templates/` overlay materialized   |
-| Pretty renderer fixture corpus            | `gitmap/render/testdata/pretty/*.{in.md,want.txt}` |
+| Pretty renderer fixture corpus            | `cli/render/testdata/pretty/*.{in.md,want.txt}` |
 
 ## Phases
 
 ### Phase 0 — Scaffolding (THIS PR)
 
 - [x] Spec, memory, plan written
-- [ ] `gitmap/templates/embed.go` — `//go:embed assets/**`
-- [ ] `gitmap/templates/resolver.go` — overlay > embed lookup
-- [ ] `gitmap/templates/materialize.go` — first-run extract to `~/.gitmap/templates/`
-- [ ] `gitmap/templates/paths.go` — user-templates dir per OS
-- [ ] `gitmap/templates/assets/.keep` placeholder (Phase 1 fills it)
-- [ ] `gitmap/constants/constants_templates.go` — kind/lang/marker constants
+- [ ] `cli/templates/embed.go` — `//go:embed assets/**`
+- [ ] `cli/templates/resolver.go` — overlay > embed lookup
+- [ ] `cli/templates/materialize.go` — first-run extract to `~/.gitmap/templates/`
+- [ ] `cli/templates/paths.go` — user-templates dir per OS
+- [ ] `cli/templates/assets/.keep` placeholder (Phase 1 fills it)
+- [ ] `cli/constants/constants_templates.go` — kind/lang/marker constants
 - [ ] No CLI wiring yet (next phase)
 
 ### Phase 1 — Seed corpus
@@ -34,9 +34,9 @@ Memory: `mem://features/templates-ignore-attributes`
 
 ### Phase 2 — `add` router + `add ignore` ✅ (v3.105.0)
 
-- [x] `gitmap/cmd/rootadd.go` with `dispatchAdd`
-- [x] `gitmap/cmd/addignoreattrs.go` (shared engine for ignore + attributes)
-- [x] `gitmap/templates/merge.go` marker-block engine (already shipped)
+- [x] `cli/cmd/rootadd.go` with `dispatchAdd`
+- [x] `cli/cmd/addignoreattrs.go` (shared engine for ignore + attributes)
+- [x] `cli/templates/merge.go` marker-block engine (already shipped)
 - [x] Single-pass dedupe with blank-line preservation
 - [x] Sorted-tag invariant: `go,node` and `node,go` share `ignore/go+node`
 - [x] Idempotence pinned by tests + by `templates.Merge`'s
@@ -56,8 +56,8 @@ Memory: `mem://features/templates-ignore-attributes`
 
 ### Phase 5 — Pretty renderer
 
-- `gitmap/render/pretty.go` with the 4 rules
-- `gitmap/render/testdata/pretty/case-001..NNN`
+- `cli/render/pretty.go` with the 4 rules
+- `cli/render/testdata/pretty/case-001..NNN`
 - Table-driven test that loops fixtures
 
 ### Phase 6 — Wire pretty into CLI

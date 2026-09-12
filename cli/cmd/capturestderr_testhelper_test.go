@@ -102,11 +102,3 @@ func assertContains(t *testing.T, content, substr string) {
 
 	t.Errorf("expected content to contain %q", substr)
 }
-
-func assertNotContains(t *testing.T, content, substr string) {
-	t.Helper()
-	hasSub := strings.Contains(content, substr)
-	if hasSub {
-		t.Errorf("expected content NOT to contain %q", substr)
-	}
-}

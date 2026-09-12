@@ -123,17 +123,17 @@ Repeat for each Windows target (amd64 and arm64).
 
 ### 6. Updater Binary
 
-The `gitmap-updater` Windows binaries should also be signed:
+The `cli-updater` Windows binaries should also be signed:
 
 ```yaml
 
-# Sign both gitmap-v28 and gitmap-updater Windows builds
+# Sign both gitmap-v28 and cli-updater Windows builds
 
 WINDOWS_BINARIES=(
   "dist/gitmap-windows-amd64.exe"
   "dist/gitmap-windows-arm64.exe"
-  "dist/gitmap-updater-windows-amd64.exe"
-  "dist/gitmap-updater-windows-arm64.exe"
+  "dist/cli-updater-windows-amd64.exe"
+  "dist/cli-updater-windows-arm64.exe"
 )
 ```
 
@@ -227,7 +227,7 @@ release with real downloads increases trust.
 - **Sign before compress** — checksums must cover the signed binary
 - **Never store private keys in CI** — SignPath handles key management
 - **Always timestamp** — prevents expiry-related failures
-- **Sign all Windows binaries** — gitmap-v28 + gitmap-updater
+- **Sign all Windows binaries** — gitmap-v28 + cli-updater
 - **Verify after signing** — CI must validate the signature
 - **Build-once rule** — sign the same binary that was built, never rebuild
 

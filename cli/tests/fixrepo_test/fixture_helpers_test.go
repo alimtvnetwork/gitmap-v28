@@ -105,7 +105,7 @@ var AlignedKeys = map[string]string{
 }
 
 // alignedConstSource exercises the same regression inside a const
-// block (the most common shape inside gitmap/constants/).
+// block (the most common shape inside cli/constants/).
 func alignedConstSource(base string) string {
 	return fmt.Sprintf(`package fixture
 

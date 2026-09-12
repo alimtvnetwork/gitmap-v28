@@ -36,8 +36,8 @@ install gitmap itself. Distinct concerns, distinct pages.
 
 `gitmap update` falls back in this order:
 1. Linked source repo → `git pull` + build.
-2. `gitmap-updater` binary → release asset download.
-3. Manual one-liner panel from `gitmap/helptext/update.md`.
+2. `cli-updater` binary → release asset download.
+3. Manual one-liner panel from `cli/helptext/update.md`.
 
 Phase 3 cleanup always writes a durable handoff log
 (`<TMP>/gitmap-update-handoff-YYYYMMDD.log`) so failures stay

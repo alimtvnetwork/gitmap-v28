@@ -72,13 +72,13 @@ the `$Version` line, upload as a release asset.
 1. **Validate** `$Version` matches `^v\d+\.\d+\.\d+(-[a-z0-9.]+)?$`. Reject otherwise.
 2. **Detect OS/arch** (`windows-amd64`, `linux-amd64`, `darwin-arm64`, etc.).
 3. **Resolve the GitHub release**:
-   `GET https://api.github.com/repos/<owner>/gitmap/releases/tags/<version>`.
+   `GET https://api.github.com/repos/<owner>/cli/releases/tags/<version>`.
    - On 404 → trigger the [Missing-version flow](#missing-version-flow).
    - On 200 → pick the asset matching the detected OS/arch.
 4. **Download** the asset to a temp directory with a SHA256 verification step
    (checksums file is also a release asset).
 5. **Extract** the zip into the install directory
-   (`$env:LOCALAPPDATA\gitmap\bin` on Windows, `~/.local/bin` on Unix).
+   (`$env:LOCALAPPDATA\cli\bin` on Windows, `~/.local/bin` on Unix).
 6. **Add to PATH** if not already present. Persist to user shell profile.
 7. **Chain `gitmap self-install`** — the freshly-installed binary takes over
    to set up completion, profiles, etc. The script's job ends here.
@@ -161,8 +161,8 @@ The front-page Get Started box continues to use the existing `install.ps1`
 
 | Component | File | Responsibility |
 |-----------|------|----------------|
-| Generic script | `gitmap/scripts/release-version.ps1` | Source of truth; embedded via `go:embed` |
-| Generic script | `gitmap/scripts/release-version.sh` | Bash counterpart |
+| Generic script | `cli/scripts/release-version.ps1` | Source of truth; embedded via `go:embed` |
+| Generic script | `cli/scripts/release-version.sh` | Bash counterpart |
 | Snapshot generator | `cmd/release.go` | At release time, write snapshot copies + upload as assets |
 | Docs site | `src/pages/Release.tsx` | Render both install boxes; resolve `:version` from route |
 | Constants | `constants/constants_install.go` | `ScriptReleaseVersionPS1`, `ScriptReleaseVersionSh`, asset name format |

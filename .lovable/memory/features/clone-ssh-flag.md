@@ -13,12 +13,12 @@ the multi-URL form (`clone url1,url2,url3 --ssh`).
 
 ## Wiring
 
-- `UseSSH` / `UseHTTPS` on `CloneFlags` in `gitmap/cmd/rootflags.go`.
-- Conversion helpers in `gitmap/cmd/cloneurlconvert.go`:
+- `UseSSH` / `UseHTTPS` on `CloneFlags` in `cli/cmd/rootflags.go`.
+- Conversion helpers in `cli/cmd/cloneurlconvert.go`:
   `ConvertURLToSSH(url)` and `ConvertURLToHTTPS(url)`. Both return
   `(string, bool)` — `ok=false` means the input wasn't a recognized
   Git URL and is returned unchanged so callers can fall through.
-- Dispatch in `gitmap/cmd/clone.go::applyURLSchemeFlags` runs after
+- Dispatch in `cli/cmd/clone.go::applyURLSchemeFlags` runs after
   `applySSHKey` and BEFORE the multi-URL / direct-URL routers, so the
   multi-URL detector sees the converted URLs.
 

@@ -86,4 +86,4 @@ Projects with active conversations (`steps > 2` or `user_steps > 0`) are classif
 ## Cross-References
 
 - Cross-Platform Duplicate Audit: [`121-cross-platform-duplicate-audit-and-remediation.md`](./121-cross-platform-duplicate-audit-and-remediation.md)
-- CLI Help Document: [`../../gitmap/helptext/agy-empty-conversations.md`](../../gitmap/helptext/agy-empty-conversations.md)
+- CLI Help Document: [`../../cli/helptext/agy-empty-conversations.md`](../../cli/helptext/agy-empty-conversations.md)

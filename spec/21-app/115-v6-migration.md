@@ -81,17 +81,17 @@ confirmation ("you explicitly opted out").
 
 ## Files to touch for the v6.0.0 flip
 
-- `gitmap/committransfer/types.go` — update `Options.IncludeMerges` doc
-- `gitmap/cmd/committransfer.go` — flip the flag default wiring
-- `gitmap/committransfer/plan.go` — verify `countMergeExcluded` logic still
+- `cli/committransfer/types.go` — update `Options.IncludeMerges` doc
+- `cli/cmd/committransfer.go` — flip the flag default wiring
+- `cli/committransfer/plan.go` — verify `countMergeExcluded` logic still
   reports correctly under the new default
-- `gitmap/helptext/commit-in.md`, `commit-out.md` — update help text
+- `cli/helptext/commit-in.md`, `commit-out.md` — update help text
 - `changelog.md` — breaking-change section
 - `README.md` — commit-transfer command table if it mentions merge handling
 
 ## Acceptance
 
-- [x] `go test ./gitmap/committransfer/...` green with the flipped default.
+- [x] `go test ./cli/committransfer/...` green with the flipped default.
 - [x] `TestPrintPlanNoticeV6` asserts correct notice under both `--include-merges` and `--no-include-merges`.
 - [x] `TestCommitTransferIncludeMergesDefault` + `TestCommitTransferIncludeMergesExplicit` assert CLI wiring.
 - [x] Manual smoke: run `gitmap commit-in` on a source with merge commits,

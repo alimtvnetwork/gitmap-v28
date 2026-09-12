@@ -4,14 +4,14 @@
 
 The project uses a single PowerShell script (`run.ps1`) at the repo root
 to pull, build, deploy, and optionally run the gitmap CLI.
-Build configuration lives in `gitmap/powershell.json`.
+Build configuration lives in `cli/powershell.json`.
 
 ## Build Script — `run.ps1`
 
 | Step | Description |
 |------|-------------|
 | 1. Git Pull | Pulls latest changes from remote |
-| 2. Resolve Deps | Runs `go mod tidy` in `gitmap/` |
+| 2. Resolve Deps | Runs `go mod tidy` in `cli/` |
 | 2b. Win Resources | Runs `go-winres make` to embed icon + metadata (Windows only, optional) |
 | 3. Build | Compiles binary to `./bin/gitmap.exe` |
 | 3b. Version | Runs the built binary with `version` and prints result |
@@ -61,7 +61,7 @@ Build configuration lives in `gitmap/powershell.json`.
 .\run.ps1 -DeployPath "D:\tools"
 ```
 
-## Configuration — `gitmap/powershell.json`
+## Configuration — `cli/powershell.json`
 
 ```json
 {
@@ -106,17 +106,17 @@ deploy there — no manual path configuration needed.
 
 ## Deploy Structure
 
-The deploy target uses a nested `gitmap/` subfolder:
+The deploy target uses a nested `cli/` subfolder:
 
 ```
 <deploy-target>\
-└── gitmap\
+└── cli\
     ├── gitmap.exe
     └── data\
         └── config.json
 ```
 
-The `<deploy-target>\gitmap\` directory must be on the system `PATH` so
+The `<deploy-target>\cli\` directory must be on the system `PATH` so
 the user can run `gitmap` from any terminal.
 
 ## Rename-First Deploy Strategy
@@ -146,7 +146,7 @@ The build step embeds the **absolute path of the source repo** into the
 binary via Go `-ldflags`:
 
 ```powershell
-$ldflags = "-X 'github.com/alimtvnetwork/gitmap-v28/gitmap/constants.RepoPath=$absRepoRoot'"
+$ldflags = "-X 'github.com/alimtvnetwork/gitmap-v28/cli/constants.RepoPath=$absRepoRoot'"
 go build -ldflags $ldflags -o $outPath .
 ```
 
@@ -214,7 +214,7 @@ Before executing gitmap, the script prints diagnostic context:
 
 The deploy target is resolved via the 3-tier priority described in
 **Deploy Target Resolution** above. The resolved directory contains a
-`gitmap/` subfolder with the binary and data. That subfolder must be on
+`cli/` subfolder with the binary and data. That subfolder must be on
 the system `PATH` so the tool can be run from any terminal.
 
 ## Logging
@@ -274,7 +274,7 @@ file handle when deploy starts.
 
 ## Last Release Detection — `Get-LastRelease.ps1`
 
-A standalone PowerShell script at `gitmap/scripts/Get-LastRelease.ps1`
+A standalone PowerShell script at `cli/scripts/Get-LastRelease.ps1`
 resolves and displays the latest released version. It is invoked
 automatically by both `run.ps1` (after "All done!") and the generated
 update script (in the version-verify block).

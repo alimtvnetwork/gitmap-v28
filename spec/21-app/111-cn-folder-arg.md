@@ -20,7 +20,7 @@ forms eliminate the `cd` step:
     gitmap cn "/repos/macro-ahk-v11"       # folder only — defaults to v++
 
 Both forms reuse the existing `clonenext` pipeline; only the
-dispatcher in `gitmap/cmd/clonenext.go` changes.
+dispatcher in `cli/cmd/clonenext.go` changes.
 
 ## Forms (additive — existing forms unchanged)
 
@@ -112,7 +112,7 @@ new flags.
 - Batch mode interaction: `--csv` and `--all` continue to take
   precedence over positional args, exactly as today.
 - Help text auto-generation: the help file
-  `gitmap/helptext/clone-next.md` is updated by hand in the same PR.
+  `cli/helptext/clone-next.md` is updated by hand in the same PR.
 
 ## Error contract
 
@@ -125,7 +125,7 @@ new flags.
 
 ## Test matrix
 
-`gitmap/cmd/clonenextfolderdispatch_test.go` covers:
+`cli/cmd/clonenextfolderdispatch_test.go` covers:
 
 - single-positional folder → resolved + dispatched with `v++`
 - two-positional version-then-folder → resolved + dispatched with version
@@ -139,6 +139,6 @@ new flags.
 ## References
 
 - Existing cross-dir form: `spec/01-app/107-cn-find-next-bridge.md`
-- `looksLikeVersion`: `gitmap/cmd/releaserebase.go:22-28`
-- Pipeline reuse: `gitmap/cmd/clonenextcrossdir.go:39-57`
-- Version resolver: `gitmap/clonenext/version.go:37-58`
+- `looksLikeVersion`: `cli/cmd/releaserebase.go:22-28`
+- Pipeline reuse: `cli/cmd/clonenextcrossdir.go:39-57`
+- Version resolver: `cli/clonenext/version.go:37-58`

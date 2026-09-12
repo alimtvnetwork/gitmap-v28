@@ -65,32 +65,6 @@ func groupListHints() []hintEntry {
 	}
 }
 
-// zipGroupListHints returns hints shown after gitmap z list.
-func zipGroupListHints() []hintEntry {
-	return []hintEntry{
-		{constants.HintZGCreate, constants.HintZGCreateDesc},
-		{constants.HintZGShow, constants.HintZGShowDesc},
-		{constants.HintZGDelete, constants.HintZGDeleteDesc},
-	}
-}
-
-// zipGroupCreateHints returns hints shown after gitmap z create.
-func zipGroupCreateHints() []hintEntry {
-	return []hintEntry{
-		{constants.HintZGAdd, constants.HintZGAddDesc},
-		{constants.HintZGRelease, constants.HintZGReleaseDesc},
-	}
-}
-
-// zipGroupShowHints returns hints shown after gitmap z show.
-func zipGroupShowHints() []hintEntry {
-	return []hintEntry{
-		{constants.HintZGAdd, constants.HintZGAddDesc},
-		{constants.HintZGRelease, constants.HintZGReleaseDesc},
-		{constants.HintZGDelete, constants.HintZGDeleteDesc},
-	}
-}
-
 // aliasListHints returns hints shown after gitmap a list.
 func aliasListHints() []hintEntry {
 	return []hintEntry{

@@ -36,9 +36,9 @@ func writeLLMCodingConventions(sb *strings.Builder) {
 	sb.WriteString("10. **Positive logic** in `if` conditions\n\n")
 }
 
-// writeLLMGitmapTree writes the internal gitmap package tree.
-func writeLLMGitmapTree(sb *strings.Builder) {
-	sb.WriteString("├── gitmap/                    # Main CLI (Go module)\n")
+// writeLLMCliTree writes the internal cli package tree.
+func writeLLMCliTree(sb *strings.Builder) {
+	sb.WriteString("├── cli/                       # Main CLI (Go module)\n")
 	sb.WriteString("│   ├── cmd/                   # Command handlers\n")
 	sb.WriteString("│   ├── constants/             # All string constants\n")
 	sb.WriteString("│   ├── model/                 # Data types\n")
@@ -51,9 +51,9 @@ func writeLLMGitmapTree(sb *strings.Builder) {
 	sb.WriteString("│   └── helptext/              # Embedded help (go:embed)\n")
 }
 
-// writeLLMTopLevelTree writes top-level project tree entries outside gitmap/.
+// writeLLMTopLevelTree writes top-level project tree entries outside cli/.
 func writeLLMTopLevelTree(sb *strings.Builder) {
-	sb.WriteString("├── gitmap-updater/            # Standalone updater (Go module)\n")
+	sb.WriteString("├── cli-updater/               # Standalone updater (Go module)\n")
 	sb.WriteString("├── spec/                      # Specifications & design docs\n")
 	sb.WriteString("├── docs-site/                 # Documentation website\n")
 	sb.WriteString("├── changelog.md\n")
@@ -64,7 +64,7 @@ func writeLLMTopLevelTree(sb *strings.Builder) {
 // writeLLMProjectStructure writes the project structure section.
 func writeLLMProjectStructure(sb *strings.Builder) {
 	sb.WriteString("## Project Structure\n\n```\n/\n")
-	writeLLMGitmapTree(sb)
+	writeLLMCliTree(sb)
 	writeLLMTopLevelTree(sb)
 	sb.WriteString("```\n\n")
 }

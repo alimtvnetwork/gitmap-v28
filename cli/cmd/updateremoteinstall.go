@@ -140,7 +140,7 @@ func fetchGitHubLatestReleaseVersion(slug string) string {
 		return ""
 	}
 
-	req.Header.Set("User-Agent", "gitmap-updater")
+	req.Header.Set("User-Agent", "cli-updater")
 	resp, err := client.Do(req)
 	if err != nil || resp.StatusCode != http.StatusOK {
 		closeResponse(resp)

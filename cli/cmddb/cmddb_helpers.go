@@ -5,8 +5,6 @@ import (
 	"encoding/json"
 	"flag"
 	"fmt"
-	"github.com/alimtvnetwork/gitmap-v28/cli/cliexit"
-	"github.com/alimtvnetwork/gitmap-v28/cli/helptext"
 	"os"
 	"path/filepath"
 	"strings"
@@ -190,13 +188,4 @@ func printJSON(v any) error {
 	fmt.Println(string(b))
 
 	return nil
-}
-
-func checkHelp(command string, args []string) {
-	for _, a := range args {
-		if a == "--help" || a == "-h" || a == "help" {
-			helptext.Print(command)
-			cliexit.Exit(0)
-		}
-	}
 }

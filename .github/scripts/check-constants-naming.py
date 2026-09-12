@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Cross-platform check for constants naming conventions in gitmap/constants/."""
+"""Cross-platform check for constants naming conventions in cli/constants/."""
 import argparse
 import os
 import re

@@ -21,5 +21,5 @@ During GitHub Actions CI execution of the `Spell Check (misspell, US locale)` jo
 ## 4. Verification
 
 - Ran `python .github/scripts/misspell-changed.py` directly (passed on all files).
-- Ran `golangci-lint run ./...` in `gitmap/` (passed with 0 errors).
+- Ran `golangci-lint run ./...` in `cli/` (passed with 0 errors).
 - Ran `python .lovable/ai-fix-scripts/03-cicd-local-runner.py` and confirmed all 20 gates passed (exit code 0).

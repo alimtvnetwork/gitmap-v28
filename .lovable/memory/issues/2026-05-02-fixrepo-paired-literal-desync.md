@@ -22,7 +22,7 @@ Both failures present the same shape: the `{base}-vN` token half of a paired lit
 
 `fix-repo` only rewrites `{base}-vN` tokens (and the slash form `{base}/vN`). It is intentionally narrow — it cannot rewrite arbitrary integer literals because doing so would produce thousands of false positives in normal code (port numbers, indexes, bit widths…).
 
-But test fixtures in `gitmap/cmd/replaceaudit_test.go` and `gitmap/cmd/replaceversionparse_test.go` paired a `{base}-vN` string with a sibling digit literal that conceptually represents the **same** version:
+But test fixtures in `cli/cmd/replaceaudit_test.go` and `cli/cmd/replaceversionparse_test.go` paired a `{base}-vN` string with a sibling digit literal that conceptually represents the **same** version:
 
 ```go
 // replaceversionparse_test.go (BROKEN)
@@ -34,7 +34,7 @@ But test fixtures in `gitmap/cmd/replaceaudit_test.go` and `gitmap/cmd/replaceve
 got := buildAuditNeedles("gitmap", []int{8, 9, 10, 12})  // ← 12 stays
 want := []string{
     ...
-    "gitmap-v28", "gitmap/v12",  // ← only "gitmap-v28" got bumped
+    "gitmap-v28", "cli/v12",  // ← only "gitmap-v28" got bumped
 }
 ```
 
@@ -65,7 +65,7 @@ needleWants := []string{}
 for _, t := range targets {
     needleWants = append(needleWants,
         fmt.Sprintf("gitmap-v%d", t),
-        fmt.Sprintf("gitmap/v%d", t))
+        fmt.Sprintf("cli/v%d", t))
 }
 ```
 
@@ -79,11 +79,11 @@ This catches the desync in CI before it lands. The audit is gated on `*_test.go`
 
 ## Files touched (this fix)
 
-- `gitmap/cmd/replaceversionparse_test.go` — derive `num` from the same int as the `-vN` token.
-- `gitmap/cmd/replaceaudit_test.go` — derive needle list from `targets` slice via `fmt.Sprintf`.
+- `cli/cmd/replaceversionparse_test.go` — derive `num` from the same int as the `-vN` token.
+- `cli/cmd/replaceaudit_test.go` — derive needle list from `targets` slice via `fmt.Sprintf`.
 - `scripts/fix-repo/Rewrite-Engine.ps1` — added `Invoke-PairedLiteralAudit`.
 - `scripts/fix-repo/rewrite.sh` — added `paired_literal_audit`.
-- `gitmap/constants/constants_fixrepo.go` — `FixRepoExitPairedLiteral = 10` (if not already defined).
+- `cli/constants/constants_fixrepo.go` — `FixRepoExitPairedLiteral = 10` (if not already defined).
 
 ## Why the Go-native rewriter was not the right place
 

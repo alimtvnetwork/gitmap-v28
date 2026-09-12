@@ -23,10 +23,10 @@ curl -fsSL https://raw.githubusercontent.com/alimtvnetwork/gitmap-v28/main/unins
 
 ## Strategy (both scripts)
 
-1. **Try canonical `gitmap self-uninstall -y` first.** This is the best path — the binary itself knows about marker-block PATH cleanup, scheduled-task removal, etc. (See `gitmap/cmd/selfuninstall.go`.)
+1. **Try canonical `gitmap self-uninstall -y` first.** This is the best path — the binary itself knows about marker-block PATH cleanup, scheduled-task removal, etc. (See `cli/cmd/selfuninstall.go`.)
 2. **Manual sweep fallback** (when `gitmap` is no longer on PATH):
    - Auto-detect deploy root by walking the active binary's grandparent, then probing common defaults (`E:\bin-run`, `D:\gitmap`, `$LOCALAPPDATA\gitmap` on Windows; `~/.local/bin`, `~/bin`, `/opt/gitmap` on Unix).
-   - Delete BOTH `<root>/gitmap-cli/` (current v3.6+ layout) AND `<root>/gitmap/` (legacy pre-rename layout) AND any flat `<root>/gitmap.exe` for very old installs.
+   - Delete BOTH `<root>/gitmap-cli/` (current v3.6+ layout) AND `<root>/cli/` (legacy pre-rename layout) AND any flat `<root>/gitmap.exe` for very old installs.
    - Strip the deploy root from User PATH (Windows) or shell rc files (Unix: `~/.bashrc`, `~/.zshrc`, `~/.profile`, `~/.bash_profile` — backed up to `*.gitmap-uninstall.bak`).
 3. **Always prompt before deleting user data** (`%APPDATA%\gitmap` on Windows, `${XDG_CONFIG_HOME:-$HOME/.config}/gitmap` on Unix). `-KeepData`/`--keep-data` skips the prompt and keeps; `-Yes`/`-y --yes` skips the prompt and deletes.
 
@@ -40,7 +40,7 @@ curl -fsSL https://raw.githubusercontent.com/alimtvnetwork/gitmap-v28/main/unins
 
 ## Why both layout names?
 
-The deploy folder rename `gitmap/` → `gitmap-cli/` (v3.6+) means the uninstaller MUST handle both layouts to clean up legacy installs and current installs alike. The sweep deletes both unconditionally — neither existing is a no-op.
+The deploy folder rename `cli/` → `gitmap-cli/` (v3.6+) means the uninstaller MUST handle both layouts to clean up legacy installs and current installs alike. The sweep deletes both unconditionally — neither existing is a no-op.
 
 ## Documentation
 

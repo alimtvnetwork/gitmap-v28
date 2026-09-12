@@ -8,7 +8,7 @@ crossing a digit-width boundary (v9→v10, v99→v100, …)
 
 ## Symptom
 
-Test failure in `gitmap/cmd`:
+Test failure in `cli/cmd`:
 
 ```
 TestRemoteSlugRegex
@@ -64,7 +64,7 @@ non-`-v`-prefixed digits.
 
 ## Fix (this commit)
 
-`gitmap/cmd/replaceversionparse_test.go` line 37:
+`cli/cmd/replaceversionparse_test.go` line 37:
 `{true, "gitmap", "9"}` → `{true, "gitmap", "12"}`.
 
 ## Permanent Fix (next release — tracked separately)
@@ -97,7 +97,7 @@ defenses are needed in combination:
 Acceptance:
 - After `gitmap fix-repo --all`, `go test ./...` is green on the
   gitmap repo without manual edits.
-- A regression test in `gitmap/cmd/fixrepo_test.go` writes a fixture
+- A regression test in `cli/cmd/fixrepo_test.go` writes a fixture
   with a `{base}-v9` key paired with `"9"`, runs fix-repo to bump to
   v12, and asserts the test it just modified still compiles AND
   passes — failing the harness loudly when (1) is violated.

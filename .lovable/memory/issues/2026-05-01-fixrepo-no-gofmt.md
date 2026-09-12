@@ -52,9 +52,9 @@ with no language-aware post-processing.
 
 Manual gofmt-equivalent edits applied to the two failing files:
 
-- `gitmap/cmd/replaceversionparse_test.go` — re-aligned both map literals
+- `cli/cmd/replaceversionparse_test.go` — re-aligned both map literals
   in `TestSlugFromRemote` and `TestRemoteSlugRegex`.
-- `gitmap/constants/cmd_constants_test.go` — re-aligned the
+- `cli/constants/cmd_constants_test.go` — re-aligned the
   Audit/inject/replace/regoldens/templates block so every key in the
   contiguous group pads to the width of the longest one
   (`CmdCloneFixRepoPubAlias`, 23 chars).
@@ -68,7 +68,7 @@ they actually rewrote, immediately after the rewrite phase, before the
 Acceptance:
 - After `gitmap fix-repo --all`, `gofmt -l .` returns empty on a clean
   worktree.
-- An end-to-end test in `gitmap/cmd/fixrepo_test.go` writes a
+- An end-to-end test in `cli/cmd/fixrepo_test.go` writes a
   column-aligned map literal containing `{base}-v9`, runs fix-repo to
   bump to `v12`, and asserts `gofmt -l` returns empty.
 - `fix-repo.ps1` shells out to `gofmt -w <file>` for each `.go` file it

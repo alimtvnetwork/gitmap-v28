@@ -55,7 +55,7 @@ func TestCommitInMigrationCreatesAllTables(t *testing.T) {
 
 // TestCommitInMigrationSeedsEnumMirrors verifies that every enum-mirror
 // table is seeded with the spec's exact member set (and nothing extra).
-// The Go-side parity test in gitmap/cmd/commitin/enums_test.go locks
+// The Go-side parity test in cli/cmd/commitin/enums_test.go locks
 // the typed enums; this test locks the SQL seeds. Both must agree.
 func TestCommitInMigrationSeedsEnumMirrors(t *testing.T) {
 	db := openTempDB(t)

@@ -29,9 +29,9 @@ To codify operational expertise for previously unrepresented domains, 2 new skil
 
 ## 3. Architectural Domains Covered
 
-### 3.1 Go CLI Core (`gitmap/`)
-- Over 60 subcommands in `gitmap/cmd/` with strict AST parity enforced by `TestTopLevelCmdRegistryMatchesAST` against `gitmap/constants/constants_cli.go`.
-- Maximum 120 lines for command help markdown in `gitmap/helptext/` with 3–8 line simulations.
+### 3.1 Go CLI Core (`cli/`)
+- Over 60 subcommands in `cli/cmd/` with strict AST parity enforced by `TestTopLevelCmdRegistryMatchesAST` against `cli/constants/constants_cli.go`.
+- Maximum 120 lines for command help markdown in `cli/helptext/` with 3–8 line simulations.
 - Mandatory `cliexit.Reportf` / `cliexit.Fail` error handling; zero bare `os.Stderr` prints.
 - SQLite connection pooling locked to `SetMaxOpenConns(1)` with binary path anchoring via `filepath.EvalSymlinks`.
 
@@ -40,7 +40,7 @@ To codify operational expertise for previously unrepresented domains, 2 new skil
 - Semantic design tokens with amber gold `--primary` (`38 92% 50%` light, `41 96% 56%` dark).
 - Strict TypeScript rules: Enum suffix `*Type`, custom hook object returns (no tuple returns), Result envelopes, and component size cap <= 100 lines.
 
-### 3.3 Cluster & Multi-Host SSH (`gitmap/cluster/`, `gitmap/cmd/ssh.go`)
+### 3.3 Cluster & Multi-Host SSH (`cli/cluster/`, `cli/cmd/ssh.go`)
 - Distributed cluster node management, SSH key discovery, and config generation.
 - Transport preservation across reclone/clone operations.
 - Worker pool delegation with explicit TLS dial timeouts.

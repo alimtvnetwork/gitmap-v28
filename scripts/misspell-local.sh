@@ -1,7 +1,7 @@
 #!/usr/bin/env bash
 # misspell-local.sh — run the same misspell check as the CI `spell-check`
 # job, locally, against the same file filters loaded from
-# gitmap/data/config.json (misspell.exclude / misspell.include).
+# cli/data/config.json (misspell.exclude / misspell.include).
 #
 # Usage:
 #   scripts/misspell-local.sh                 # diff vs origin/main

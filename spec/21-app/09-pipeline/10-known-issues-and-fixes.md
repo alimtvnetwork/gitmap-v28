@@ -142,9 +142,9 @@ Failed in the compress/checksum step of `release.yml`.
 
 ### Root Cause
 
-The compress step ran inside `gitmap-updater/` (which has no `dist/` folder) instead of `gitmap-v28/dist/` where cross-compiled binaries are output. The script used `cd dist` which assumed the working directory was `gitmap-v28/`, but GitHub Actions defaults to the repository root for every `run:` step unless `working-directory` is explicitly set.
+The compress step ran inside `cli-updater/` (which has no `dist/` folder) instead of `gitmap-v28/dist/` where cross-compiled binaries are output. The script used `cd dist` which assumed the working directory was `gitmap-v28/`, but GitHub Actions defaults to the repository root for every `run:` step unless `working-directory` is explicitly set.
 
-In a monorepo with multiple Go modules (`gitmap-v28/`, `gitmap-updater/`), the previous step's working directory does **not** carry over to the next step.
+In a monorepo with multiple Go modules (`gitmap-v28/`, `cli-updater/`), the previous step's working directory does **not** carry over to the next step.
 
 ### Why It Wasn't Caught
 

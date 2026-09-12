@@ -27,12 +27,12 @@ the existing `pull` cwd short-circuit.
 
 ## Wiring
 
-- `gitmap/cmd/remotetransport.go` — `ApplyTransportFlag(dir, useSSH, useHTTPS)`.
-- `gitmap/cmd/push.go` — `runPush`, `parseTransportFlags` shared with pull.
-- `gitmap/cmd/pull.go::runPullCWD` — accepts the same flags.
+- `cli/cmd/remotetransport.go` — `ApplyTransportFlag(dir, useSSH, useHTTPS)`.
+- `cli/cmd/push.go` — `runPush`, `parseTransportFlags` shared with pull.
+- `cli/cmd/pull.go::runPullCWD` — accepts the same flags.
 - Dispatch in `rootcore.go`: `{CmdPush, CmdPushAlias}` → `runPush`.
 - `CmdPush="push"`, `CmdPushAlias="ph"` (avoid clash with `p`=pull).
-- E2E in `gitmap/cmd/pushpull_transport_e2e_test.go` (skipped when
+- E2E in `cli/cmd/pushpull_transport_e2e_test.go` (skipped when
   `git` missing from PATH).
 
 ## Spec

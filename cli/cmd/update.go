@@ -70,7 +70,7 @@ func runUpdate() error {
 }
 
 // resolveRepoPath returns the repo path from --repo-path flag or embedded constant.
-// If neither is available, it attempts to delegate to gitmap-updater.
+// If neither is available, it attempts to delegate to cli-updater.
 func resolveRepoPath() (string, error) {
 	for _, path := range []string{
 		resolveRepoPathFromFlag(),
@@ -90,7 +90,7 @@ func resolveRepoPath() (string, error) {
 		return prompted, nil
 	}
 
-	// Try to fall back to gitmap-updater for release-based update
+	// Try to fall back to cli-updater for release-based update
 	if tryUpdaterFallback() {
 		cliexit.HandleError(nil, 0)
 
@@ -100,7 +100,7 @@ func resolveRepoPath() (string, error) {
 	return "", apperror.NewSimple("no repo path resolved", "E9024")
 }
 
-// tryUpdaterFallback looks for gitmap-updater on PATH and launches it.
+// tryUpdaterFallback looks for cli-updater on PATH and launches it.
 func tryUpdaterFallback() bool {
 	updaterPath, err := exec.LookPath(constants.UpdaterBin)
 	if err != nil {
@@ -119,7 +119,7 @@ func tryUpdaterFallback() bool {
 		appErr := apperror.NewWithDetails(
 			"cmd.update.updaterFallback",
 			"E1132",
-			fmt.Sprintf("gitmap-updater failed with exit code %d", exitErr.ExitCode()),
+			fmt.Sprintf("cli-updater failed with exit code %d", exitErr.ExitCode()),
 			"cmd.update",
 			apperror.ErrorTypeExecution,
 			apperror.SeverityError,

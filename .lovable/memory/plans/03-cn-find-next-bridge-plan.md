@@ -16,12 +16,12 @@ User-locked decisions:
 Spec 103 (`probe --depth N`) is currently planned/unshipped. The bridge
 cannot work without it. This phase ships spec 103 verbatim:
 
-- `gitmap/probe/walk.go` — new file: `WalkRemote(url, currentTag string,
+- `cli/probe/walk.go` — new file: `WalkRemote(url, currentTag string,
   depth int) ([]VerifiedTag, error)`. Implements `ls-remote
   --sort=-v:refname` + shallow-clone-verify loop, stop on first failure.
-- `gitmap/cmd/probe.go` — add `--depth N` flag, clamp to
+- `cli/cmd/probe.go` — add `--depth N` flag, clamp to
   `[1, ProbeMaxDepth=10]`, default `1` (back-compat).
-- `gitmap/store/version_probe.go` — keep insert API; bridge will call
+- `cli/store/version_probe.go` — keep insert API; bridge will call
   it once per verified tag.
 - Migration: `ALTER TABLE VersionProbe ADD COLUMN IsPreRelease INTEGER
   NOT NULL DEFAULT 0` (idempotent).
@@ -32,10 +32,10 @@ cannot work without it. This phase ships spec 103 verbatim:
 
 ### Phase 1 — Path-type detection
 
-- `gitmap/cmd/cnscope.go` — new file: `detectCnScope(cwd string,
+- `cli/cmd/cnscope.go` — new file: `detectCnScope(cwd string,
   db *store.DB) (cnScope, error)`. Order: git-repo first, then
   ScanFolder lookup, then `none`.
-- `gitmap/store/scan_folder.go` — add `FindScanFolderByPath(abs
+- `cli/store/scan_folder.go` — add `FindScanFolderByPath(abs
   string) (*model.ScanFolder, error)` if not already present.
 - Constants: `ErrCnBridgeNoScope` in `constants_messages.go`.
 
@@ -44,12 +44,12 @@ in-memory SQLite.
 
 ### Phase 2 — Cache hydration + staleness
 
-- `gitmap/store/find_next.go` — extend `FindNext` to also return the
+- `cli/store/find_next.go` — extend `FindNext` to also return the
   set of repos with **no** probe row or **stale** probe row, so the
   bridge can compute the probe set in one query.
 - New constant: `FindNextStaleAfter = 24 * time.Hour` in
   `constants_cn_bridge.go`.
-- `gitmap/cmd/cnbridge.go` — new file: `resolveProbeSet(scope cnScope,
+- `cli/cmd/cnbridge.go` — new file: `resolveProbeSet(scope cnScope,
   flags cnBridgeFlags) (toProbe []model.ScanRecord, fromCache
   []model.FindNextRow, error)`.
 
@@ -58,7 +58,7 @@ mixed-stale cache, `--no-probe`, `--refresh`.
 
 ### Phase 3 — Parallel probe execution
 
-- `gitmap/probe/pool.go` — new file: `RunWalkPool(targets
+- `cli/probe/pool.go` — new file: `RunWalkPool(targets
   []model.ScanRecord, depth, workers int) <-chan WalkResult`.
   Outer parallel, inner sequential (per spec 103).
 - Wire from the bridge; persist each `VerifiedTag` via
@@ -69,7 +69,7 @@ fakes return predictable timings, asserts wall-time < sequential).
 
 ### Phase 4 — Interactive TUI summary
 
-- `gitmap/tui/cnbridge_model.go` — new Bubble Tea model based on the
+- `cli/tui/cnbridge_model.go` — new Bubble Tea model based on the
   existing `interactive` infra (spec 43).
 - Keys: `↑/↓ j/k space a n enter r q esc`.
 - Non-TTY fallback: print plain summary, require `--yes` to act.
@@ -79,7 +79,7 @@ covering toggle, select-all, one-by-one, refresh, cancel.
 
 ### Phase 5 — Parallel update execution
 
-- `gitmap/cmd/cnbridgeupdate.go` — new file: `runUpdates(selected
+- `cli/cmd/cnbridgeupdate.go` — new file: `runUpdates(selected
   []bridgeRow, workers int) updateSummary`. Each worker shells out
   to the existing `runCloneNext` path with `v++` resolved against the
   highest verified tag (no need to re-derive).
@@ -114,9 +114,9 @@ fails, asserts other two succeed and summary is accurate).
 
 ### Phase 8 — Help + completion + memory
 
-- `gitmap/helptext/find-next.md` — extend with bridge mention.
-- `gitmap/helptext/clone-next.md` — document `cn` no-args bridge.
-- `gitmap/completion/powershell.go` — extend `cn` completion with
+- `cli/helptext/find-next.md` — extend with bridge mention.
+- `cli/helptext/clone-next.md` — document `cn` no-args bridge.
+- `cli/completion/powershell.go` — extend `cn` completion with
   `--yes --select --refresh --no-probe --probe-workers --update-workers`.
 - `mem://features/cn-find-next-bridge` — feature memory file (this plan
   links to it on completion).

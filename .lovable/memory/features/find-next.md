@@ -39,11 +39,11 @@ Aliases: `fn` is registered alongside `find-next` in the dispatcher.
 
 ## Files
 
-- `gitmap/cmd/findnext.go` — `runFindNext`, `parseFindNextFlags`, `emitFindNextJSON`, `emitFindNextText`
-- `gitmap/store/find_next.go` — `(*DB).FindNext(scanFolderID int64) ([]FindNextRow, error)`
-- `gitmap/model/find_next.go` — `FindNextRow` struct (embeds `ScanRecord`, adds tag/method/probedAt)
-- `gitmap/constants/constants_find_next.go` — SQL, error/message strings, CLI tokens
-- `gitmap/helptext/find-next.md` — `gitmap help find-next` content
+- `cli/cmd/findnext.go` — `runFindNext`, `parseFindNextFlags`, `emitFindNextJSON`, `emitFindNextText`
+- `cli/store/find_next.go` — `(*DB).FindNext(scanFolderID int64) ([]FindNextRow, error)`
+- `cli/model/find_next.go` — `FindNextRow` struct (embeds `ScanRecord`, adds tag/method/probedAt)
+- `cli/constants/constants_find_next.go` — SQL, error/message strings, CLI tokens
+- `cli/helptext/find-next.md` — `gitmap help find-next` content
 
 ## Phase 2.5 readiness
 

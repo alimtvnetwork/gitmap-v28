@@ -129,7 +129,7 @@ holding each verified row.
 
 ## Constants (per `mem://style/code-constraints`)
 
-`gitmap/constants/constants_probe.go`:
+`cli/constants/constants_probe.go`:
 
 ```go
 const (
@@ -140,7 +140,7 @@ const (
 )
 ```
 
-`gitmap/constants/constants_messages.go`:
+`cli/constants/constants_messages.go`:
 
 ```go
 const (

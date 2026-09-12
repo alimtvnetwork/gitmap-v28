@@ -57,8 +57,8 @@ SQLite unique index uses `COLLATE NOCASE`.
 - Shallow + read-only + deterministic order (`constants.AutoTagOrder`).
 - UNION with existing on-disk `tags`. Never deletes user-added tags.
 - Opt-out per scan via `gitmap scan --no-auto-tags`.
-- Marker registry: `gitmap/constants/constants_vscode_pm_autotags.go`.
-- Detector: `gitmap/vscodepm/autotags.go`.
+- Marker registry: `cli/constants/constants_vscode_pm_autotags.go`.
+- Detector: `cli/vscodepm/autotags.go`.
 
 ## Behavior rules
 

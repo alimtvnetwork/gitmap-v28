@@ -235,7 +235,7 @@ def render_entry(number: int, findings: list[Finding], fingerprint: str,
                  "auto-promotes and this entry can be marked **FIXED in "
                  "vX.Y.Z** with a short root-cause note.")
     lines.append("- **Prevention**: All flagged rules are already enabled "
-                 "in `gitmap/.golangci.yml`. The diff-vs-baseline gate is "
+                 "in `cli/.golangci.yml`. The diff-vs-baseline gate is "
                  "the catch-net; this entry exists so the regression is "
                  "tracked in-repo until resolved.")
     return "\n".join(lines) + "\n"

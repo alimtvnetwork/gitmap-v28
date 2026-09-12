@@ -24,10 +24,10 @@ machine.
   ─────────────────────
 
   🪟  Windows · PowerShell
-     irm https://raw.githubusercontent.com/alimtvnetwork/gitmap-v28/main/gitmap/scripts/install.ps1 | iex
+     irm https://raw.githubusercontent.com/alimtvnetwork/gitmap-v28/main/cli/scripts/install.ps1 | iex
 
   🐧  Linux / macOS
-     curl -fsSL https://raw.githubusercontent.com/alimtvnetwork/gitmap-v28/main/gitmap/scripts/install.sh | sh
+     curl -fsSL https://raw.githubusercontent.com/alimtvnetwork/gitmap-v28/main/cli/scripts/install.sh | sh
 ```
 
 ## Implementation contract
@@ -35,18 +35,18 @@ machine.
 - **URLs are fixed.** They always point at the canonical
   `alimtvnetwork/gitmap-v28` repo on the `main` branch. The same URLs
   are already used by `MsgInstallHintWindows` / `MsgInstallHintUnix` in
-  `gitmap/constants/constants_release.go` — this command reuses those
+  `cli/constants/constants_release.go` — this command reuses those
   constants verbatim so there is exactly one source of truth.
 - **Rendering is dynamic.** The header, icons, and section ordering are
   produced by Go (`runInstallGitmapOneliner` in
-  `gitmap/cmd/installgitmaponeliner.go`) using the current
+  `cli/cmd/installgitmaponeliner.go`) using the current
   `constants.Version`, not a baked-in literal.
 - **Dispatch** wires through `specialInstallHandler` in
-  `gitmap/cmd/install.go` so it bypasses the generic
+  `cli/cmd/install.go` so it bypasses the generic
   detect → confirm → install pipeline.
 
 ## Related
 
 - `spec/01-app/108-cross-platform-install-update.md` — full matrix.
-- `gitmap/scripts/install.ps1` / `install.sh` — the scripts the
+- `cli/scripts/install.ps1` / `install.sh` — the scripts the
   one-liners actually fetch.

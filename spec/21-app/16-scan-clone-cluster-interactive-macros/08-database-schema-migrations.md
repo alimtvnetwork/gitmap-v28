@@ -2,7 +2,7 @@
 
 ## 1. Migration Overview
 
-To support default work directory tracking, interactive macro recordings, and cluster node diagnostics, the SQLite database layer (`gitmap/db/`) defines the following unified tables.
+To support default work directory tracking, interactive macro recordings, and cluster node diagnostics, the SQLite database layer (`cli/db/`) defines the following unified tables.
 
 ## 2. Table Definitions
 

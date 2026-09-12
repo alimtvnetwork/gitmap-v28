@@ -21,10 +21,10 @@ CONST_GUARD="$REPO_ROOT/.github/scripts/check-constants-naming.sh"
 DEPLOY_GUARD="$REPO_ROOT/.github/scripts/check-deploy-layout.sh"
 
 # 1. cmd/ naming guard — only when staged files touch gitmap/cmd/
-if echo "$STAGED" | grep -qE '^gitmap/cmd/'; then
+if echo "$STAGED" | grep -qE '^cli/cmd/'; then
   if [ -x "$CMD_GUARD" ]; then
     echo "Running cmd/ naming guard..."
-    if ! bash "$CMD_GUARD" "$REPO_ROOT/gitmap/cmd"; then
+    if ! bash "$CMD_GUARD" "$REPO_ROOT/cli/cmd"; then
       echo ""
       echo "✗ Pre-commit blocked: rename helpers above, then re-stage and re-commit."
       exit 1
@@ -34,7 +34,7 @@ if echo "$STAGED" | grep -qE '^gitmap/cmd/'; then
 fi
 
 # 2. constants/ naming guard — only when staged files touch gitmap/constants/
-if echo "$STAGED" | grep -qE '^gitmap/constants/'; then
+if echo "$STAGED" | grep -qE '^cli/constants/'; then
   if [ -x "$CONST_GUARD" ]; then
     echo "Running constants/ naming guard..."
     if ! (cd "$REPO_ROOT" && bash "$CONST_GUARD"); then

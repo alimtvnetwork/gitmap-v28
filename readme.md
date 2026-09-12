@@ -299,12 +299,12 @@ map as a single object. Every command flows from that idea.
 
 - `gitmap self-install` / `self-uninstall` manage the binary itself
   on every supported platform.
-- Canonical installers (`gitmap/scripts/install.ps1` /
+- Canonical installers (`cli/scripts/install.ps1` /
   `install.sh`) are the **default** one-liners — no prompts, sensible
   defaults, full PATH + data-folder setup. Quick installers
   (`install-quick.ps1` / `install-quick.sh`) layer a drive-picker
   prompt on top for users who want to install on a specific drive.
-- `gitmap-updater` keeps the binary fresh; `self-uninstall` cleans
+- `cli-updater` keeps the binary fresh; `self-uninstall` cleans
   up the PATH marker block and (optionally) the user data folder.
 
 #### 🔀 Workspace operations
@@ -566,7 +566,7 @@ The setup script installs the pre-commit hook (golangci-lint), verifies your Go 
 
 If you have an existing local checkout, **always pull the latest source before
 building**. Three releases (v3.92.0, v3.113.0, v3.114.0) eliminated a
-`fileExists` symbol collision in `gitmap/cmd/`. A pre-v3.92.0 checkout
+`fileExists` symbol collision in `cli/cmd/`. A pre-v3.92.0 checkout
 will fail to compile with:
 
 ```
@@ -594,26 +594,26 @@ three must pass before you run `./run.sh` / `./run.ps1`:
 **1. The declared version is v3.92.0 or newer:**
 
 ```bash
-grep '^const Version = ' gitmap/constants/constants.go
+grep '^const Version = ' cli/constants/constants.go
 
 # expected: const Version = "3.115.0"   (or higher)
 
 ```
 
-**2. `gitmap/cmd/updatedebugwindows.go` does NOT declare a local helper:**
+**2. `cli/cmd/updatedebugwindows.go` does NOT declare a local helper:**
 
 ```bash
-grep -nE '^func (fileExists|fileExistsLoose)\(' gitmap/cmd/updatedebugwindows.go
+grep -nE '^func (fileExists|fileExistsLoose)\(' cli/cmd/updatedebugwindows.go
 
-# expected: (no output — the helper moved to gitmap/fsutil in v3.113.0)
+# expected: (no output — the helper moved to cli/fsutil in v3.113.0)
 
 ```
 
 **3. The shared `fsutil` package exists and is imported by `cmd/`:**
 
 ```bash
-test -f gitmap/fsutil/exists.go && echo "fsutil package present"
-grep -l 'gitmap/fsutil' gitmap/cmd/updaterepo.go gitmap/cmd/updatedebugwindows.go
+test -f cli/fsutil/exists.go && echo "fsutil package present"
+grep -l 'cli/fsutil' cli/cmd/updaterepo.go cli/cmd/updatedebugwindows.go
 
 # expected: both file paths printed
 
@@ -720,13 +720,13 @@ gitmap ls go                    # list Go projects
 gitmap rescan                   # re-scan all known directories
 ```
 
-→ [scan](gitmap/helptext/scan.md) · [rescan](gitmap/helptext/rescan.md) · [list](gitmap/helptext/list.md)
+→ [scan](cli/helptext/scan.md) · [rescan](cli/helptext/rescan.md) · [list](cli/helptext/list.md)
 
 #### Scan rules — what counts as a repo, and how deep we walk
 
 The scanner is intentionally strict so the catalog stays trustworthy.
 These rules are stable across releases and are enforced by
-[`gitmap/scanner/scanner.go`](gitmap/scanner/scanner.go) (see also
+[`cli/scanner/scanner.go`](cli/scanner/scanner.go) (see also
 [`spec/01-app/03-scanner.md`](spec/01-app/03-scanner.md)).
 
 **1. Repo markers — what makes a directory a "repo".** A directory is
@@ -792,7 +792,7 @@ value) keeps `DefaultMaxDepth = 4`.
 
 **Excluded directory names** are skipped before the depth check fires
 — see the per-scan `--config` exclude list and the project defaults
-documented in [`gitmap/helptext/scan.md`](gitmap/helptext/scan.md).
+documented in [`cli/helptext/scan.md`](cli/helptext/scan.md).
 
 #### Scan examples — markers, worktrees, and the depth cap in action
 
@@ -1114,14 +1114,14 @@ in CI where re-rooting per subtree is awkward), the library-level
 override is `ScanOptions.MaxDepth = -1` for unbounded walks; this
 is intentionally not exposed as a CLI flag so casual `gitmap scan`
 invocations stay fast and bounded by default. See the
-[scanner package docs](gitmap/scanner/scanner.go) for the call
+[scanner package docs](cli/scanner/scanner.go) for the call
 shape.
 
 #### CSV column reference — the 10 columns, in order
 
 The CSV header is **stable across releases** (locked by
-[`gitmap/formatter/csv_header_contract_test.go`](gitmap/formatter/csv_header_contract_test.go))
-and produced by [`ScanRecord` in `gitmap/model/record.go`](gitmap/model/record.go).
+[`cli/formatter/csv_header_contract_test.go`](cli/formatter/csv_header_contract_test.go))
+and produced by [`ScanRecord` in `cli/model/record.go`](cli/model/record.go).
 Line endings are always `\r\n` (RFC 4180), the separator is a comma,
 and fields containing commas, quotes, or newlines are double-quoted
 per RFC 4180 — never escaped with backslashes.
@@ -1482,7 +1482,7 @@ gitmap ssh create my-alias                      # generate + copy a new keypair
 gitmap install gitmap-oneliner
 ```
 
-→ [clone](gitmap/helptext/clone.md) · [clone-next](gitmap/helptext/clone-next.md) · [clone-fix-repo](gitmap/helptext/clone-fix-repo.md) · [clone-fix-repo-pub](gitmap/helptext/clone-fix-repo-pub.md) · [push](gitmap/helptext/push.md) · [pull](gitmap/helptext/pull.md) · [pull-release-cd](gitmap/helptext/pull-release-cd.md) · [ssh](gitmap/helptext/ssh.md) · [desktop-sync](gitmap/helptext/desktop-sync.md)
+→ [clone](cli/helptext/clone.md) · [clone-next](cli/helptext/clone-next.md) · [clone-fix-repo](cli/helptext/clone-fix-repo.md) · [clone-fix-repo-pub](cli/helptext/clone-fix-repo-pub.md) · [push](cli/helptext/push.md) · [pull](cli/helptext/pull.md) · [pull-release-cd](cli/helptext/pull-release-cd.md) · [ssh](cli/helptext/ssh.md) · [desktop-sync](cli/helptext/desktop-sync.md)
 
 ---
 
@@ -1494,8 +1494,8 @@ gitmap install gitmap-oneliner
 
 Concrete, copy-pasteable examples for the three flags you'll reach for most.
 Defaults are `--config ./data/config.json`, `--mode https`, and
-`--output terminal`. Source of truth: [`gitmap/helptext/scan.md`](gitmap/helptext/scan.md)
-and [`gitmap/helptext/clone.md`](gitmap/helptext/clone.md).
+`--output terminal`. Source of truth: [`cli/helptext/scan.md`](cli/helptext/scan.md)
+and [`cli/helptext/clone.md`](cli/helptext/clone.md).
 
 #### `--config <path>` — point scan at a non-default config
 
@@ -1511,11 +1511,11 @@ gitmap scan ~/projects --config ./gitmap.config.json
 
 # CI: point at a profile that excludes vendored & node_modules trees
 
-gitmap scan /workspace --config /etc/gitmap/ci-profile.json --quiet
+gitmap scan /workspace --config /etc/cli/ci-profile.json --quiet
 
 # different config for a different drive on Windows
 
-gitmap scan D:\wp-work --config D:\gitmap\configs\wp.json
+gitmap scan D:\wp-work --config D:\cli\configs\wp.json
 ```
 
 The `--config` path is recorded in the scan cache, so a follow-up
@@ -1586,7 +1586,7 @@ gitmap scan ~/projects --config ~/.gitmap/personal.json --mode https --output js
 
 # 2. CI snapshot for SSH-keyed runners: SSH + CSV
 
-gitmap scan /workspace --config /etc/gitmap/ci.json --mode ssh --output csv
+gitmap scan /workspace --config /etc/cli/ci.json --mode ssh --output csv
 
 # 3. Quick one-off sanity check (no files, no config tweaks)
 
@@ -1647,7 +1647,7 @@ warning is logged; exit code is unchanged).
 ##### Windows path canonicalization & EvalSymlinks soft-fail
 
 Every `rootPath` written to `projects.json` is run through a single
-canonicalization helper (`canonicalizePMPath` in `gitmap/cmd/clonepmsync.go`)
+canonicalization helper (`canonicalizePMPath` in `cli/cmd/clonepmsync.go`)
 before it reaches disk. This is what stops the same physical clone target
 from producing two distinct VS Code sidebar entries when reached through
 different shells, drive mappings, or path spellings on Windows.
@@ -1679,7 +1679,7 @@ pass will re-canonicalize once the symlink is resolvable.
 
 **Manifest-mode `RelativePath` joins** apply the same defensive
 normalization at the source: every join site routes through
-`model.CleanRelativePath` (`gitmap/model/relativepath.go`), which
+`model.CleanRelativePath` (`cli/model/relativepath.go`), which
 runs `filepath.Clean(filepath.FromSlash(rel))` so cross-platform
 manifests produce identical `AbsolutePath` strings on Windows and
 POSIX.
@@ -1882,7 +1882,7 @@ gitmap watch --interval 10 --group work
 gitmap lb 5 --format csv
 ```
 
-→ [pull](gitmap/helptext/pull.md) · [exec](gitmap/helptext/exec.md) · [status](gitmap/helptext/status.md) · [watch](gitmap/helptext/watch.md) · [latest-branch](gitmap/helptext/latest-branch.md)
+→ [pull](cli/helptext/pull.md) · [exec](cli/helptext/exec.md) · [status](cli/helptext/status.md) · [watch](cli/helptext/watch.md) · [latest-branch](cli/helptext/latest-branch.md)
 
 ---
 
@@ -1922,7 +1922,7 @@ gitmap as                   # uses the folder basename as the alias
 gitmap alias suggest --apply
 ```
 
-→ [cd](gitmap/helptext/cd.md) · [group](gitmap/helptext/group.md) · [multi-group](gitmap/helptext/multi-group.md) · [alias](gitmap/helptext/alias.md) · [as](gitmap/helptext/as.md) · [diff-profiles](gitmap/helptext/diff-profiles.md)
+→ [cd](cli/helptext/cd.md) · [group](cli/helptext/group.md) · [multi-group](cli/helptext/multi-group.md) · [alias](cli/helptext/alias.md) · [as](cli/helptext/as.md) · [diff-profiles](cli/helptext/diff-profiles.md)
 
 ---
 
@@ -1947,7 +1947,7 @@ The table below is the **authoritative** mapping between menu item and
 the exact command + flags gitmap runs. It mirrors
 [`spec/04-generic-cli/30-install-ctx.md`](spec/04-generic-cli/30-install-ctx.md)
 §3 and the Go source of truth in
-[`gitmap/cmd/installctxentries.go`](gitmap/cmd/installctxentries.go).
+[`cli/cmd/installctxentries.go`](cli/cmd/installctxentries.go).
 
 | Menu path                       | Command run                          | Mode     | Notes |
 |---------------------------------|--------------------------------------|----------|-------|
@@ -2205,7 +2205,7 @@ gitmap r       [version] [flags]
 | `<version>` **and** `--bump` | Either explicit or auto-bump — pick one. |
 | `--commit` **and** `--branch` | A release has exactly one source commit. |
 
-→ Detailed help: [release](gitmap/helptext/release.md) · [release-alias](gitmap/helptext/release-alias.md) · [release-self](gitmap/helptext/release-self.md) · [release-pending](gitmap/helptext/release-pending.md) · [changelog](gitmap/helptext/changelog.md)
+→ Detailed help: [release](cli/helptext/release.md) · [release-alias](cli/helptext/release-alias.md) · [release-self](cli/helptext/release-self.md) · [release-pending](cli/helptext/release-pending.md) · [changelog](cli/helptext/changelog.md)
 
 ### Changelog (recent versions)
 
@@ -2242,7 +2242,7 @@ Concise, grouped per version. Each entry calls out **💥 Breaking**, **✨ Enha
   - Three-stage progress layout (Prepare → Clone → Finalize) now shown when `gitmap cn -f` is used; default `cn` output is unchanged.
   - `MsgForceReleasing` rewritten to plainly describe the Windows file-lock release ("Stepping out of … to release the file lock").
 - 🐛 **Fixes:**
-  - `gitmap cn v+1 -f` no longer silently dropped the `-f` flag when it followed a positional version arg. Fixed via `reorderFlagsBeforeArgs(args)` in `gitmap/cmd/clonenextflags.go` and an updated value-flag map in `gitmap/cmd/releaseargs.go` (covers `--csv`, `--ssh-key`, `-K`, `--target-dir`).
+  - `gitmap cn v+1 -f` no longer silently dropped the `-f` flag when it followed a positional version arg. Fixed via `reorderFlagsBeforeArgs(args)` in `cli/cmd/clonenextflags.go` and an updated value-flag map in `cli/cmd/releaseargs.go` (covers `--csv`, `--ssh-key`, `-K`, `--target-dir`).
   - `Force` now implies `Keep` for the prior-folder cleanup, suppressing the redundant "Remove current folder?" prompt.
   - `MsgInstallHintUnix` gained a trailing blank line so the post-release shell prompt no longer sits flush against the `curl … | sh` line.
 
@@ -2284,7 +2284,7 @@ Concise, grouped per version. Each entry calls out **💥 Breaking**, **✨ Enha
 
 #### v3.26.0 — 2026-04-20 — Constants collision audit + CI guard
 
-- ✨ **Enhancements:** new CI guard rejects PRs that introduce duplicate `Cmd*` / `Msg*` / `Err*` identifiers across `gitmap/constants/`. Backfilled audit caught 0 collisions on `main`.
+- ✨ **Enhancements:** new CI guard rejects PRs that introduce duplicate `Cmd*` / `Msg*` / `Err*` identifiers across `cli/constants/`. Backfilled audit caught 0 collisions on `main`.
 
 #### v3.25.0 — 2026-04-20 — `github-desktop` (`gd`) command
 
@@ -2545,8 +2545,8 @@ gitmap clone gitmap.json --target-dir D:\wp-work --github-desktop --safe-pull
 After every `gitmap clone` run on a structured input file, a per-row
 report is written to `./.gitmap/clone-from-report-<unixts>.<ext>`.
 Both formats carry the **same field set**, sourced 1:1 from
-`clonefrom.Result` (see `gitmap/clonefrom/execute.go` and
-`gitmap/clonefrom/summary.go`). The schema is pinned by
+`clonefrom.Result` (see `cli/clonefrom/execute.go` and
+`cli/clonefrom/summary.go`). The schema is pinned by
 `constants.CloneFromReportSchemaVersion` and guarded by
 `TestCloneFromReportJSON_SchemaVersion_Pinned`.
 
@@ -2592,7 +2592,7 @@ The `transport` tally matches the terminal `transport: N ssh, N https, N other`
 line emitted by `RenderSummary` byte-for-byte, so JSON consumers never
 have to re-derive it from the row URLs.
 
-→ Detailed help: [scan](gitmap/helptext/scan.md) · [rescan](gitmap/helptext/rescan.md) · [clone](gitmap/helptext/clone.md) · [clone-next](gitmap/helptext/clone-next.md)
+→ Detailed help: [scan](cli/helptext/scan.md) · [rescan](cli/helptext/rescan.md) · [clone](cli/helptext/clone.md) · [clone-next](cli/helptext/clone-next.md)
 
 <div align="center">
 
@@ -2653,7 +2653,7 @@ gitmap tr 10 v1.$$ -s 5
 > Dirty trees are auto-stashed before `release-alias` runs and restored on
 > exit. Pass `--no-stash` to abort instead, or `--dry-run` to preview.
 
-→ [release](gitmap/helptext/release.md) · [pull-release](gitmap/helptext/pull-release.md) · [release-alias](gitmap/helptext/release-alias.md) · [release-alias-pull](gitmap/helptext/release-alias-pull.md) · [release-self](gitmap/helptext/release-self.md) · [release-branch](gitmap/helptext/release-branch.md) · [temp-release](gitmap/helptext/temp-release.md)
+→ [release](cli/helptext/release.md) · [pull-release](cli/helptext/pull-release.md) · [release-alias](cli/helptext/release-alias.md) · [release-alias-pull](cli/helptext/release-alias-pull.md) · [release-self](cli/helptext/release-self.md) · [release-branch](cli/helptext/release-branch.md) · [temp-release](cli/helptext/temp-release.md)
 
 ---
 
@@ -2682,7 +2682,7 @@ gitmap cg --from v2.22.0 --to v2.24.0 --write
 gitmap revert v2.48.0
 ```
 
-→ [changelog](gitmap/helptext/changelog.md) · [list-versions](gitmap/helptext/list-versions.md) · [list-releases](gitmap/helptext/list-releases.md) · [release-pending](gitmap/helptext/release-pending.md) · [revert](gitmap/helptext/revert.md) · [clear-release-json](gitmap/helptext/clear-release-json.md) · [prune](gitmap/helptext/prune.md)
+→ [changelog](cli/helptext/changelog.md) · [list-versions](cli/helptext/list-versions.md) · [list-releases](cli/helptext/list-releases.md) · [release-pending](cli/helptext/release-pending.md) · [revert](cli/helptext/revert.md) · [clear-release-json](cli/helptext/clear-release-json.md) · [prune](cli/helptext/prune.md)
 
 > **CI Pipeline:** Pushing a `release/*` branch or `v*` tag triggers GitHub Actions to cross-compile 6 targets, generate checksums, and create a GitHub release with changelog and install instructions.
 
@@ -2711,7 +2711,7 @@ gitmap bookmark run daily
 gitmap del old-repo
 ```
 
-→ [export](gitmap/helptext/export.md) · [import](gitmap/helptext/import.md) · [profile](gitmap/helptext/profile.md) · [bookmark](gitmap/helptext/bookmark.md) · [rm](gitmap/helptext/rm.md) · [db-reset](gitmap/helptext/db-reset.md)
+→ [export](cli/helptext/export.md) · [import](cli/helptext/import.md) · [profile](cli/helptext/profile.md) · [bookmark](cli/helptext/bookmark.md) · [rm](cli/helptext/rm.md) · [db-reset](cli/helptext/db-reset.md)
 
 #### Chrome bookmarks export (`--root` / `--folder`, md / html / json)
 
@@ -2735,7 +2735,7 @@ gitmap chrome export-bookmarks Default --root other  --format md
 gitmap chrome export-bookmarks Default --root synced --format html --out synced.html
 ```
 
-`--root` ∈ `bookmark_bar | other | synced` (case-insensitive). `--folder` is slash-delimited and case-insensitive. See [chrome](gitmap/helptext/chrome.md) for `--match` / `--title` filters.
+`--root` ∈ `bookmark_bar | other | synced` (case-insensitive). `--folder` is slash-delimited and case-insensitive. See [chrome](cli/helptext/chrome.md) for `--match` / `--title` filters.
 
 
 ---
@@ -2760,7 +2760,7 @@ gitmap stats --json
 gitmap amend --name "John Doe" --email "john@example.com" --dry-run
 ```
 
-→ [history](gitmap/helptext/history.md) · [stats](gitmap/helptext/stats.md) · [amend](gitmap/helptext/amend.md) · [amend-list](gitmap/helptext/amend-list.md)
+→ [history](cli/helptext/history.md) · [stats](cli/helptext/stats.md) · [amend](cli/helptext/amend.md) · [amend-list](cli/helptext/amend-list.md)
 
 ---
 
@@ -2783,7 +2783,7 @@ gitmap go-repos
 gitmap csharp-repos --json
 ```
 
-→ [go-repos](gitmap/helptext/go-repos.md) · [node-repos](gitmap/helptext/node-repos.md) · [react-repos](gitmap/helptext/react-repos.md) · [cpp-repos](gitmap/helptext/cpp-repos.md) · [csharp-repos](gitmap/helptext/csharp-repos.md)
+→ [go-repos](cli/helptext/go-repos.md) · [node-repos](cli/helptext/node-repos.md) · [react-repos](cli/helptext/react-repos.md) · [cpp-repos](cli/helptext/cpp-repos.md) · [csharp-repos](cli/helptext/csharp-repos.md)
 
 ---
 
@@ -2868,7 +2868,7 @@ gitmap uninstall redis
 
 Override in `config.json` → `install.defaultManager` or per-command with `--manager`.
 
-→ [install](gitmap/helptext/install.md)
+→ [install](cli/helptext/install.md)
 
 ---
 
@@ -2889,7 +2889,7 @@ gitmap ssh list
 gitmap ssh config
 ```
 
-→ [ssh](gitmap/helptext/ssh.md)
+→ [ssh](cli/helptext/ssh.md)
 
 ---
 
@@ -2910,7 +2910,7 @@ gitmap z show docs-bundle
 gitmap release v3.0.0 --zip-group docs-bundle
 ```
 
-→ [zip-group](gitmap/helptext/zip-group.md)
+→ [zip-group](cli/helptext/zip-group.md)
 
 ---
 
@@ -2933,7 +2933,7 @@ gitmap task create my-sync --src ./src --dest ./backup
 gitmap tk run my-sync --interval 10
 ```
 
-→ [env](gitmap/helptext/env.md) · [task](gitmap/helptext/task.md)
+→ [env](cli/helptext/env.md) · [task](cli/helptext/task.md)
 
 ---
 
@@ -2947,7 +2947,7 @@ gitmap tk run my-sync --interval 10
 |---------|-------|-------------|
 | `setup` | — | Interactive first-time configuration wizard |
 | `doctor` | — | Diagnose PATH, deploy, and version issues |
-| `update` | — | Self-update from source repo or gitmap-updater |
+| `update` | — | Self-update from source repo or cli-updater |
 | `version` | `v` | Show version number |
 | `completion` | `cmp` | Generate shell tab-completion scripts |
 | `interactive` | `i` | Launch full-screen interactive TUI |
@@ -2964,7 +2964,7 @@ gitmap interactive --refresh 10
 gitmap dashboard --limit 100 --open
 ```
 
-→ [setup](gitmap/helptext/setup.md) · [doctor](gitmap/helptext/doctor.md) · [update](gitmap/helptext/update.md) · [completion](gitmap/helptext/completion.md) · [interactive](gitmap/helptext/interactive.md) · [dashboard](gitmap/helptext/dashboard.md)
+→ [setup](cli/helptext/setup.md) · [doctor](cli/helptext/doctor.md) · [update](cli/helptext/update.md) · [completion](cli/helptext/completion.md) · [interactive](cli/helptext/interactive.md) · [dashboard](cli/helptext/dashboard.md)
 
 ---
 
@@ -3024,7 +3024,7 @@ gitmap macro import deploy-flow.json
 gitmap macro import macros.db --force
 ```
 
-→ [macro](gitmap/helptext/macro.md)
+→ [macro](cli/helptext/macro.md)
 
 ---
 
@@ -3067,7 +3067,7 @@ gitmap touch src/features/new-flow.ts
 gitmap cat src/features/new-flow.ts
 ```
 
-→ [copy](gitmap/helptext/copy.md) · [paste](gitmap/helptext/paste.md) · [explorer](gitmap/helptext/explorer.md) · [browse](gitmap/helptext/browse.md) · [cat](gitmap/helptext/cat.md) · [touch](gitmap/helptext/touch.md)
+→ [copy](cli/helptext/copy.md) · [paste](cli/helptext/paste.md) · [explorer](cli/helptext/explorer.md) · [browse](cli/helptext/browse.md) · [cat](cli/helptext/cat.md) · [touch](cli/helptext/touch.md)
 
 ---
 
@@ -3091,10 +3091,10 @@ gitmap cat src/features/new-flow.ts
 
 ### Fixture Stamps & Auto-Bump
 
-Test fixtures across `gitmap/` carry a `// fixture-stamp:` marker that
+Test fixtures across `cli/` carry a `// fixture-stamp:` marker that
 pins both a `gen=N` generation counter and a `sha=<hex>` hash of the
 fixture body (excluding the marker line). On every test run,
-`MustValidateBody` (in `gitmap/fixtureversion`) verifies that:
+`MustValidateBody` (in `cli/fixtureversion`) verifies that:
 
 1. The recorded `gen=` matches the current generation.
 2. The recorded `sha=` matches `BodyHashExcludingMarker(body)`.
@@ -3141,7 +3141,7 @@ regression.
 
 make fixtures-bump \
   RUN='TestFixRepoRewriteV9ToV12Fixture' \
-  PKG='./gitmap/cmd/...'
+  PKG='./cli/cmd/...'
 ```
 
 The first pass rewrites the `// fixture-stamp:` line in the test
@@ -3188,7 +3188,7 @@ PowerShell flags are case-insensitive, so `-uninstall`, `-Uninstall`, and
 /                                repo root
 ├── README.md                    this file (pinned version + install)
 ├── changelog.md                 version-by-version history
-├── gitmap/                      Go CLI source (the product)
+├── cli/                         Go CLI source (the product)
 │   ├── cmd/                     command handlers + JSON contract tests
 │   ├── constants/               ALL string constants (no magic strings)
 │   ├── model/                   shared Go structs (mirror JSON schemas)
@@ -3199,7 +3199,7 @@ PowerShell flags are case-insensitive, so `-uninstall`, `-Uninstall`, and
 │   ├── formatter/               human / JSON / CSV output formatters
 │   ├── helptext/                embedded markdown help files
 │   └── scripts/                 embedded install / uninstall scripts
-├── gitmap-updater/              standalone updater binary
+├── cli-updater/              standalone updater binary
 ├── spec/                        specifications (source of truth)
 │   ├── 03-general/              cross-cutting rules (logging, build, prohibited)
 │   ├── 04-generic-cli/          per-command specs
@@ -3227,7 +3227,7 @@ project, the JSON output contracts, and how to add a new JSON surface:
 4. [`.lovable/coding-guidelines/centralized-error-handling-architecture.md`](./.lovable/coding-guidelines/centralized-error-handling-architecture.md) — Centralized error management & anti-pattern elimination.
 5. `.lovable/overview.md` and `.lovable/strictly-avoid.md` — invariants & hard NOs.
 5. `spec/08-json-schemas/` — every JSON output's schema.
-6. `gitmap/cmd/amendauditrender.go` + `amendaudit_jsonschema_contract_test.go`
+6. `cli/cmd/amendauditrender.go` + `amendaudit_jsonschema_contract_test.go`
    — canonical example of the encoder + contract-test pattern to copy.
 
 ### How JSON Outputs Are Structured
@@ -3236,9 +3236,9 @@ Every JSON-emitting command follows the same four-layer contract:
 
 ```
 spec/08-json-schemas/<name>.schema.json          ← contract (draft-07)
-gitmap/model/<name>.go                           ← Go struct
-gitmap/cmd/<name>render.go                       ← stablejson encoder (key order = wire contract)
-gitmap/cmd/<name>_jsonschema_contract_test.go    ← drift guard
+cli/model/<name>.go                           ← Go struct
+cli/cmd/<name>render.go                       ← stablejson encoder (key order = wire contract)
+cli/cmd/<name>_jsonschema_contract_test.go    ← drift guard
 ```
 
 See `.lovable/memory/project/what-to-read.md` §3–4 for the full recipe.
@@ -3327,15 +3327,15 @@ Alternatively, use the built-in CLI: gitmap cg install or gitmap cg help.
 For repository versioning and propagation design, see [.lovable/memory/release-architecture-map.md](.lovable/memory/release-architecture-map.md).
 
 
-- [Folder Command Logic](gitmap/cmd/folder/folder.go)
-- [Git-Rm Command Logic](gitmap/cmd/gitrm/gitrm.go)
+- [Folder Command Logic](cli/cmd/folder/folder.go)
+- [Git-Rm Command Logic](cli/cmd/gitrm/gitrm.go)
 
-- [Ignore Command Logic](gitmap/cmd/ignore/ignore.go)
-- [Add Command Logic](gitmap/cmd/add/add.go)
+- [Ignore Command Logic](cli/cmd/ignore/ignore.go)
+- [Add Command Logic](cli/cmd/add/add.go)
 
-- [Antigravity Command Logic](gitmap/cmd/ag/ag.go)
+- [Antigravity Command Logic](cli/cmd/ag/ag.go)
 
-- [Install Tools Logic](gitmap/cmd/installtools.go)
+- [Install Tools Logic](cli/cmd/installtools.go)
 
 - [Search and LLM Specs](.lovable/plans/pending/06-search-and-llm-feature.md)
 

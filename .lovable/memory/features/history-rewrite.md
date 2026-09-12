@@ -31,9 +31,9 @@ Multi-form: separate args, comma, or comma-space all accepted. Folders and files
 
 ## Files
 
-- `gitmap/cmd/historyrewrite.go` + `_paths.go` + `_flags.go` + `_sandbox.go` + `_pin.go` + `_verify.go` + `_push.go`
-- `gitmap/constants/constants_historyrewrite.go`
-- `gitmap/helptext/history-purge.md`, `history-pin.md`
+- `cli/cmd/historyrewrite.go` + `_paths.go` + `_flags.go` + `_sandbox.go` + `_pin.go` + `_verify.go` + `_push.go`
+- `cli/constants/constants_historyrewrite.go`
+- `cli/helptext/history-purge.md`, `history-pin.md`
 - `src/pages/HistoryRewrite.tsx` (`/history-rewrite`)
 - `.github/workflows/history-rewrite-smoke.yml` + `.github/scripts/smoke-history-{purge,pin}.sh`
 

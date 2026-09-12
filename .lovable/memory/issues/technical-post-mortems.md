@@ -20,7 +20,7 @@ Recent critical issues and their resolutions:
 16. **Redundant Newline**: Switched to `fmt.Fprint` for constants with trailing newlines.
 17. **Constant Redeclaration**: Resolved by centralizing all command IDs in `constants_cli.go`.
 18. **Unchecked Errors**: Added lint-compliant error checking for `db.RemoveInstalledTool`, `dev.Process.Kill()`, and `cmd.Start()`.
-19. **Release Pipeline Directory Error**: Resolved `cd: dist` failure by setting explicit `working-directory: gitmap/dist`.
+19. **Release Pipeline Directory Error**: Resolved `cd: dist` failure by setting explicit `working-directory: cli/dist`.
 20. **G305 Zip Path Traversal**: Fixed `installnpp.go` to validate extracted file paths stay within target directory.
 21. **G110 Decompression Bomb**: Replaced `io.Copy` with `io.LimitReader` capped at 10 MB.
 22. **Format Verb Mismatch**: Fixed `fmt.Fprintf` argument count at `tasksync.go:138`; audited ~140 call sites.

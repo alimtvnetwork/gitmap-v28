@@ -10,7 +10,7 @@
 
 Today the only way to flip many repos under an owner/org is to loop
 `gitmap make-public <url>` by hand. The existing single-target commands
-(`gitmap/cmd/visibility.go`, `gitmap/cmd/visibilitybulk.go`) cannot:
+(`cli/cmd/visibility.go`, `cli/cmd/visibilitybulk.go`) cannot:
 
 - enumerate every repo under a given owner;
 - filter that list with wildcard patterns (`exact`, `prefix*`,
@@ -141,7 +141,7 @@ GitMapRun (1) ────< (n) GitMapRepoResult
 | 1    | Usage error (bad args, bad pattern, bad target)  |
 | 2    | At least one per-repo failure                    |
 
-Matches the convention in `gitmap/cmd/visibility.go`.
+Matches the convention in `cli/cmd/visibility.go`.
 
 ---
 
@@ -156,16 +156,16 @@ Matches the convention in `gitmap/cmd/visibility.go`.
   `"Error: failed to open audit db at %s: %v (operation: begin tx, reason: %s)"`
   and continues without persistence.
 - All user-facing strings live in
-  `gitmap/constants/constants_visibilitybulk.go` (no magic strings).
+  `cli/constants/constants_visibilitybulk.go` (no magic strings).
 
 ---
 
 ## 8. Acceptance checklist
 
-- [ ] `rg "make-all-public|make-all-private|MAPUB|MAPRI" gitmap/` → 4 CLI
+- [ ] `rg "make-all-public|make-all-private|MAPUB|MAPRI" cli/` → 4 CLI
       ID constants in `constants_cli.go`, 4 help MDs, dispatcher entries,
       handler, tests.
-- [ ] `go test ./gitmap/cmd/... ./gitmap/visibility/... ./gitmap/db/... -race -count=1` green.
+- [ ] `go test ./cli/cmd/... ./cli/visibility/... ./cli/db/... -race -count=1` green.
 - [ ] `golangci-lint run ./...` zero findings (v1.64.8).
 - [ ] `gitmap regoldens` clean (help fixtures regenerated).
 - [ ] Migration applies on a fresh `:memory:` DB and FK cascade works.

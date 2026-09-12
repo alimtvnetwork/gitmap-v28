@@ -4,10 +4,11 @@ Master directory of architectural and execution plans.
 
 ## Pending Plans
 
-(None currently pending)
+None currently pending.
 
 ## Completed Plans (Consolidated Milestones)
 
+- [128-rename-gitmap-to-cli-and-cleanup.md](completed/128-rename-gitmap-to-cli-and-cleanup.md): Remove gitmap.json, Rename Folder References to cli & cli-updater, and Fix Paths
 - [127-smart-test-runner-and-inventory-v2.md](completed/127-smart-test-runner-and-inventory-v2.md): Smart Test Runner, Centralized Inventory V2, Failure Isolation & Dual-Queue Dispatch
 - [126-nuclear-package-modularization-phase6.md](completed/126-nuclear-package-modularization-phase6.md): Nuclear Package Modularization (cmdssh, cmdcg, cmdfixgit), Heavy Test Isolation & Test Inventory Duration Estimation
 - [125-nuclear-package-modularization-phase5.md](completed/125-nuclear-package-modularization-phase5.md): Nuclear Package Modularization (cmdfixrepo, cmddb, cmdpipeline), Heavy Test Isolation & Test Inventory Duration Estimation

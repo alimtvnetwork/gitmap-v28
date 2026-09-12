@@ -34,10 +34,10 @@ per record:
 
 ## Source map
 
-- `gitmap/cloner/audit.go` — planner + report printer.
-- `gitmap/cloner/audit_path.go` — stat-only existence helper.
-- `gitmap/cloner/audit_test.go` — coverage for classification, command
+- `cli/cloner/audit.go` — planner + report printer.
+- `cli/cloner/audit_path.go` — stat-only existence helper.
+- `cli/cloner/audit_test.go` — coverage for classification, command
   shape, marker mapping, and printer formatting.
-- `gitmap/cmd/cloneaudit.go` — CLI dispatcher invoked from `runClone`
+- `cli/cmd/cloneaudit.go` — CLI dispatcher invoked from `runClone`
   before `requireOnline`.
-- `gitmap/constants/constants_clone_audit.go` — every user-facing string.
+- `cli/constants/constants_clone_audit.go` — every user-facing string.

@@ -9,7 +9,7 @@ The `update` command employs a robust 4-tier repository resolution strategy to m
 
 Every candidate path is validated to ensure it is a legitimate gitmap source root by verifying the existence of `run.ps1` and the `constants/constants.go` marker; the system can automatically traverse upward to find the root if a subfolder is provided.
 
-If no repository can be resolved across all four tiers, the command delegates to the standalone `gitmap-updater` tool (if on PATH), or prints the `ErrNoRepoPath` recovery guide with manual fix options.
+If no repository can be resolved across all four tiers, the command delegates to the standalone `cli-updater` tool (if on PATH), or prints the `ErrNoRepoPath` recovery guide with manual fix options.
 
 ## Key Constants
 

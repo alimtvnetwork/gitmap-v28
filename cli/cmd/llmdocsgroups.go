@@ -195,7 +195,7 @@ func buildUtilityGroup() llmCmdGroup {
 		commands: []llmCmdEntry{
 			{"setup", "—", "Interactive first-time configuration wizard", "gitmap setup"},
 			{"doctor", "—", "Diagnose PATH, deploy, and version issues", "gitmap doctor --fix-path"},
-			{"update", "—", "Self-update from source repo or via gitmap-updater", "gitmap update"},
+			{"update", "—", "Self-update from source repo or via cli-updater", "gitmap update"},
 			{"version", "v", "Show version number", "gitmap version"},
 			{"completion", "cmp", "Generate shell tab-completion (PowerShell, Bash, Zsh)", "gitmap completion"},
 			{"interactive", "i", "Full-screen interactive TUI", "gitmap interactive"},

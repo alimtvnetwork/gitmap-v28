@@ -75,7 +75,7 @@ All 7 gated phases complete (2026-05-06, v4.18.0):
    (`commitin/{funcintel,finalize}` + `cmd/commitin.go` + helptext).
 
 Closeout (2026-05-06): full E2E harness + 9 pipeline tests live at
-`gitmap/cmd/commitin/e2e/` (happy-path, dedupe, sibling `all`/`-N`,
+`cli/cmd/commitin/e2e/` (happy-path, dedupe, sibling `all`/`-N`,
 auto-init, profile precedence, Prompt abort, ForceMerge clobber,
 lock-busy). `// gitmap:cmd top-level` marker confirmed already-active
 on the parent const block in `constants/constants_cli.go` (line 3 →

@@ -1,7 +1,7 @@
 // Package vscodepm — mergemode_test.go: pure-function tests for
 // the MergeMode enum, ParseMergeMode validator, and the strategy
 // dispatcher (mergeTags). End-to-end CLI coverage lives in
-// gitmap/cmd/vscodepmsync_mode_test.go; this file only asserts the
+// cli/cmd/vscodepmsync_mode_test.go; this file only asserts the
 // internal logic so the dispatcher stays correct even when the CLI
 // surface is refactored.
 package vscodepm

@@ -62,24 +62,24 @@ keeps `gitmap` honest as a thin convenience layer over git.
 
 ## Wiring
 
-- New module `gitmap/cmd/remotetransport.go`:
+- New module `cli/cmd/remotetransport.go`:
   - `ApplyTransportFlag(dir string, useSSH, useHTTPS bool) (changed bool, err error)`
   - Internal helpers: `currentOriginURL(dir)`, `setOriginURL(dir, url)`.
-- New module `gitmap/cmd/push.go`:
+- New module `cli/cmd/push.go`:
   - `runPush(args []string)` — parses flags via `parseTransportFlags`,
     short-circuits to `git push` in cwd, propagates exit code.
-- Updated `gitmap/cmd/pull.go::runPullCWD`:
+- Updated `cli/cmd/pull.go::runPullCWD`:
   - Accepts the same flags; applies transport rewrite before
     `git pull`. Existing non-cwd batch behavior unchanged.
-- Updated dispatch table `gitmap/cmd/rootcore.go`:
+- Updated dispatch table `cli/cmd/rootcore.go`:
   - Adds `{CmdPush, CmdPushAlias}` route.
-- New constants in `gitmap/constants/constants_cli.go`:
+- New constants in `cli/constants/constants_cli.go`:
   - `CmdPush = "push"`, `CmdPushAlias = "ph"` (NOT `p` — collides
     with `CmdPullAlias`).
 
 ## E2E test plan
 
-`gitmap/cmd/pushpull_transport_e2e_test.go` exercises the full
+`cli/cmd/pushpull_transport_e2e_test.go` exercises the full
 loop using temp directories, a local bare repo as origin, and the
 real `git` binary (skipped when `git` is missing from PATH):
 
@@ -98,7 +98,7 @@ runs against a local bare remote so no network is required.
 
 ## Help text
 
-`gitmap/helptext/push.md` (new) and `gitmap/helptext/pull.md` (edit)
+`cli/helptext/push.md` (new) and `cli/helptext/pull.md` (edit)
 document the flags with realistic simulations following the
 120-line / 3–8-line conventions.
 

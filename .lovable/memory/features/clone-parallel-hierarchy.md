@@ -12,7 +12,7 @@ Every record clones into `filepath.Join(targetDir, rec.RelativePath)` —
 no flattening, no path rewriting. Holds for CSV, JSON, and text inputs
 and for both runner modes. Locked in by
 `TestCloneAllPreservesNestedHierarchy` in
-`gitmap/cloner/concurrent_test.go` (sequential + parallel subtests).
+`cli/cloner/concurrent_test.go` (sequential + parallel subtests).
 
 ## --max-concurrency flag
 
@@ -20,7 +20,7 @@ Opt-in parallel runner. Default `1` keeps the legacy sequential
 ordering for stderr progress lines. When `N > 1`:
 
 - A bounded worker pool of N goroutines drains a buffered job channel
-  (`gitmap/cloner/concurrent.go`).
+  (`cli/cloner/concurrent.go`).
 - Cache hits short-circuit before workers receive them (so a fully
   cached run is a no-op regardless of N).
 - A single `↪ parallel clone enabled: N workers` header line lands
@@ -42,7 +42,7 @@ never silently degrade to a default.
 
 ## File layout (post-split)
 
-`gitmap/cloner/` package now splits into:
+`cli/cloner/` package now splits into:
 - `cloner.go` — entry points (`CloneFromFile*`), parsers, `cloneOne`/`runClone`
 - `runners.go` — `cloneAll` dispatcher, `runSequential`, `normalizeWorkers`
 - `concurrent.go` — `runConcurrent` worker pool + collector

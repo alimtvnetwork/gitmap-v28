@@ -25,10 +25,10 @@ type: feature
 
 ## Files
 
-- `gitmap/cmd/{as.go, asops.go, releasealias.go, releasealias_git.go, dbmigrate.go}`
-- `gitmap/constants/{constants_as.go, constants_releasealias.go, constants_dbmigrate.go}`
-- `gitmap/store/migrations.go` (shared helpers: `columnExists`, `tableExists`, `isBenignAlterError`, `logMigrationFailure`)
-- `gitmap/helptext/{as.md, release-alias.md, release-alias-pull.md, db-migrate.md}`
+- `cli/cmd/{as.go, asops.go, releasealias.go, releasealias_git.go, dbmigrate.go}`
+- `cli/constants/{constants_as.go, constants_releasealias.go, constants_dbmigrate.go}`
+- `cli/store/migrations.go` (shared helpers: `columnExists`, `tableExists`, `isBenignAlterError`, `logMigrationFailure`)
+- `cli/helptext/{as.md, release-alias.md, release-alias-pull.md, db-migrate.md}`
 - `spec/01-app/98-as-and-release-alias.md`
 
 ## Exit codes

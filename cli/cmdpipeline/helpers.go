@@ -39,4 +39,3 @@ func findRepoRoot(path string) string {
 
 var formatBytes = cmddb.FormatBytes
 var confirmOrSkip = cmddb.ConfirmOrSkip
-var runDB = cmddb.RunDB

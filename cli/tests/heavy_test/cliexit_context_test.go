@@ -26,7 +26,7 @@ func skipOnWindowsSubprocess(_ *testing.T) {}
 
 // Integration tests asserting that user-facing failure stderr from
 // scan and clone-family commands carries the standardized context
-// fields produced by gitmap/cliexit:
+// fields produced by cli/cliexit:
 //
 //   - the command attempted (e.g. "gitmap scan", "gitmap clone-from")
 //   - the subject path the command was operating on (the failing

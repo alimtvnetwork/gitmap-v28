@@ -26,10 +26,10 @@ without typing the path. Inject-style flow but cwd-based and Desktop+VSCode-only
 
 ## Files
 
-- `gitmap/cmd/open.go` — entrypoint `runOpen`.
-- `gitmap/constants/constants_open.go` — `CmdOpen`, `CmdOpenAlias`, `HelpOpen`, messages.
-- `gitmap/cmd/rootcore.go` — dispatch entry.
-- `gitmap/helptext/open.md` — user-facing help.
+- `cli/cmd/open.go` — entrypoint `runOpen`.
+- `cli/constants/constants_open.go` — `CmdOpen`, `CmdOpenAlias`, `HelpOpen`, messages.
+- `cli/cmd/rootcore.go` — dispatch entry.
+- `cli/helptext/open.md` — user-facing help.
 
 ## Future
 

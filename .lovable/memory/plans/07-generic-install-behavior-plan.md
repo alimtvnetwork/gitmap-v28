@@ -19,17 +19,17 @@ canonical contract, and provide a reusable plan that any sibling repo
 |-----------------------------------|--------------------------------------|---------------------------------------------------------------------------------|
 | `install-quick.sh`                | Sequential `-v<N+i>` probe, fail-fast, ceiling 30 | Replace probe with 20-parallel max-hit-wins. Add `--source` flag.       |
 | `install-quick.ps1`               | Same as above (PowerShell mirror)    | Mirror change. Use `Start-Job` or `ForEach-Object -Parallel` (PS 7+) with PS 5.1 fallback to `Invoke-WebRequest -Method Head` in a runspace pool. |
-| `gitmap/scripts/install.sh`       | Honors `--version` (skips probe + latest) — already strict-mode-compliant. Discovery still sequential. | Strengthen strict-mode error message to canonical wording (§3.7). Replace probe with 20-parallel. Add Phase C `main` HEAD fallback. |
-| `gitmap/scripts/install.ps1`      | Same as above                        | Same as above; PowerShell mirror.                                               |
+| `cli/scripts/install.sh`       | Honors `--version` (skips probe + latest) — already strict-mode-compliant. Discovery still sequential. | Strengthen strict-mode error message to canonical wording (§3.7). Replace probe with 20-parallel. Add Phase C `main` HEAD fallback. |
+| `cli/scripts/install.ps1`      | Same as above                        | Same as above; PowerShell mirror.                                               |
 
 ## Auxiliary files
 
 | File                                                  | Change                                                                                |
 |-------------------------------------------------------|---------------------------------------------------------------------------------------|
-| `gitmap/release/installsnippet.go` + `constants_release.go` | No code change required — snippet already passes `--version`, which triggers §3 correctly. Add a comment pointing at spec/07-generic-release/09. |
+| `cli/release/installsnippet.go` + `constants_release.go` | No code change required — snippet already passes `--version`, which triggers §3 correctly. Add a comment pointing at spec/07-generic-release/09. |
 | `spec/01-app/95-installer-script-find-latest-repo.md` | Add a banner at the top: "§4 fail-fast clause superseded by spec/07-generic-release/09 §4.1 (20-parallel max-hit-wins). This document remains valid for context." |
 | `spec/07-generic-release/08-pinned-version-install-snippet.md` | Add a "See also" pointer to spec 09. No semantic change. |
-| `gitmap/cmd/` install-related help text                | Audit for stale flag names; add `--discovery-window`, `--source` to help if user-facing. |
+| `cli/cmd/` install-related help text                | Audit for stale flag names; add `--discovery-window`, `--source` to help if user-facing. |
 
 ## Phased rollout
 
@@ -62,7 +62,7 @@ prior one is verified.
 * `bash install-quick.sh --discovery-window 5` issues exactly 5 HEADs
   concurrently (verify with `tcpdump`/`mitmproxy` in a sandbox, or by
   asserting `[discovery]` line count).
-* New unit tests in `gitmap/cmd/` (or a fresh `gitmap/install/` package
+* New unit tests in `cli/cmd/` (or a fresh `cli/install/` package
   if logic is extracted) cover the §3 fail-closed contract.
 
 ## Generic application to other repos

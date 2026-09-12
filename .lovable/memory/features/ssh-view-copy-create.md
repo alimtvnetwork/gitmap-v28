@@ -20,5 +20,5 @@ command exits 0. Tool errors (e.g. clip.exe failed) print
 `ErrSSHClipboard` to stderr but the command still exits 0 because the
 key already reached stdout.
 
-Files: `gitmap/cmd/sshcopy.go`, `gitmap/cmd/ssh.go`,
-`gitmap/constants/constants_ssh.go`, `gitmap/helptext/ssh.md`.
+Files: `cli/cmd/sshcopy.go`, `cli/cmd/ssh.go`,
+`cli/constants/constants_ssh.go`, `cli/helptext/ssh.md`.

@@ -12,9 +12,9 @@ the action; non-empty == skip with one-line notice ("already injected
 (<ts>) — pass --force to re-register"). `--force` (`-f`) zeros both
 gates and re-stamps to CURRENT_TIMESTAMP after the side effects run.
 
-Helpers live in `gitmap/cmd/inject_idempotency.go` (parseInjectForceFlag,
+Helpers live in `cli/cmd/inject_idempotency.go` (parseInjectForceFlag,
 loadInjectStamps, markInjected, shouldRunDesktop, shouldRunVSCode) and
-`gitmap/store/inject_idempotency.go` (GetInjectTimestamps, MarkInjected
+`cli/store/inject_idempotency.go` (GetInjectTimestamps, MarkInjected
 + typed `constants.InjectKind`). All best-effort: DB hiccups degrade to
 "never injected" so the user-visible Desktop/VS Code calls always run.
 

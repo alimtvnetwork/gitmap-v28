@@ -10,12 +10,12 @@ Spec: `spec/04-generic-cli/15-replace-command.md`.
 
 ## Phase 2 — Engine (DONE this session)
 
-- `gitmap/cmd/replace.go` — entrypoint, mode detection, delegates.
-- `gitmap/cmd/replaceflags.go` — flag parsing (`--yes`, `--dry-run`, `--quiet`).
-- `gitmap/cmd/replacewalk.go` — repo walk, dir exclusions, binary detection.
-- `gitmap/cmd/replaceapply.go` — atomic temp+rename rewrite, summary print.
-- `gitmap/cmd/replaceversion.go` — remote URL parse → `(base, K)`.
-- `gitmap/cmd/replaceaudit.go` — report-only scan, line-level output.
+- `cli/cmd/replace.go` — entrypoint, mode detection, delegates.
+- `cli/cmd/replaceflags.go` — flag parsing (`--yes`, `--dry-run`, `--quiet`).
+- `cli/cmd/replacewalk.go` — repo walk, dir exclusions, binary detection.
+- `cli/cmd/replaceapply.go` — atomic temp+rename rewrite, summary print.
+- `cli/cmd/replaceversion.go` — remote URL parse → `(base, K)`.
+- `cli/cmd/replaceaudit.go` — report-only scan, line-level output.
 
 ## Phase 3 — Bump version + memory (DONE this session)
 
@@ -27,7 +27,7 @@ Spec: `spec/04-generic-cli/15-replace-command.md`.
 - Generate Go unit tests (`replace_test.go`) covering: literal happy
   path, binary skip, `.gitmap/release-assets` exclusion, version-suffix
   detection, `-N` clamp, `all` on v1 no-op, audit-no-write.
-- Add `gitmap/helptext/replace.md` simulation block (per Command Help
+- Add `cli/helptext/replace.md` simulation block (per Command Help
   System standard, 3-8 line realistic example).
 - Add a marker-comment `// gitmap:cmd top-level` is already on the
   const block; CI generate-check should catch the new constant — verify

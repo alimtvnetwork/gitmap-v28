@@ -10,7 +10,7 @@ Five-step plan. Each step is executed on the user's `next` signal.
 blocks so the user always knows (a) which gitmap build they're using
 and (b) which repo they're currently inside.
 
-- Extend `gitmap/constants/constants.go` with build-time vars:
+- Extend `cli/constants/constants.go` with build-time vars:
   `BuildCommit`, `BuildBranch`, `BuildRepo`, `BuildDate` (already have
   `Version`, `RepoPath`).
 - Wire `-ldflags "-X ..."` injection in:
@@ -19,13 +19,13 @@ and (b) which repo they're currently inside.
   - GitHub Actions `cross-platform.yml` build step
   Fallback: when unset, read from embedded `.gitmap/release/latest.json`
   at runtime so dev builds still show *something*.
-- New package `gitmap/identity/`:
+- New package `cli/identity/`:
   - `Self()` → struct {Version, Repo, Branch, Commit, CommitShort, BuiltAt}
   - `Current(cwd)` → same struct, sourced from `git rev-parse` in cwd
-- New renderer `gitmap/render/identityfooter.go`:
+- New renderer `cli/render/identityfooter.go`:
   - Prints `gitmap` block (magenta header) then a **blank line + thin
     rule** then `current repo` block (cyan header).
-  - Reuses the color palette from `gitmap/glyphs` / `gitmap/theme`.
+  - Reuses the color palette from `cli/glyphs` / `cli/theme`.
 - Hook into the post-command footer path (same place the existing
   version/repo/branch lines from the screenshot are emitted).
 
@@ -39,17 +39,17 @@ on a release build and on `go run .`.
 **Goal.** From any git repo, `gitmap pull` pulls the current repo
 after rewriting the `origin` URL to SSH or HTTPS on demand.
 
-- New `gitmap/cmd/pull.go` + `gitmap/pullcmd/` package.
+- New `cli/cmd/pull.go` + `cli/pullcmd/` package.
 - Flags:
   - `--ssh`   → rewrite origin to `git@host:owner/repo.git`
   - `--pub`   → rewrite origin to `https://host/owner/repo.git`
     (alias `--https`)
   - bare `gitmap pull` → no rewrite, just `git pull --ff-only` with
     safe-pull retry policy from `constants.SafePullRetry*`.
-- URL rewriter reuses `gitmap/clonefrom/summary_scheme.go` classifier
+- URL rewriter reuses `cli/clonefrom/summary_scheme.go` classifier
   + a new `pullcmd/rewriteurl.go` mapper (full unit-test coverage).
 - Register alias `pl`. Add `// gitmap:cmd top-level` marker.
-- Help file `gitmap/helptext/pull.md` with examples.
+- Help file `cli/helptext/pull.md` with examples.
 
 **Deliverable.** `gitmap pull --pub` and `gitmap pull --ssh` round-trip
 correctly on a test repo. Existing `safepull` helper reused.
@@ -61,13 +61,13 @@ correctly on a test repo. Existing `safepull` helper reused.
 **Goal.** `gitmap help` and `gitmap help <cmd>` become scannable at a
 glance.
 
-- Extend `gitmap/render/prettypost.go` (added in earlier turn):
+- Extend `cli/render/prettypost.go` (added in earlier turn):
   - Flag tokens (`--foo`, `-f`) → cyan/bold.
   - Default values (`(default: ...)`) → dim.
   - In top-level command list, **shorthand aliases in parens** (e.g.
     `clone (cl)`) → yellow/bold, command name → green/bold.
   - Section headers (`## Flags`, `## Examples`) → magenta underline.
-- Snapshot tests under `gitmap/render/prettypost_test.go` pinning the
+- Snapshot tests under `cli/render/prettypost_test.go` pinning the
   ANSI sequences for: a flag line, an alias line, a header line.
 - No content changes — purely the post-processor's regex table grows.
 
@@ -86,7 +86,7 @@ visible without scrolling back up.
   - `gitmap help`            — already present, verify
   - `gitmap clone`           — filter the row table before clone
   - `gitmap list-*` family   — wire through `prettypost`
-- New `gitmap/render/filterhighlight.go`:
+- New `cli/render/filterhighlight.go`:
   - Wraps matched substrings in inverse-video ANSI.
   - Appends a `── matches for "<q>" ──` block at end with the matched
     lines repeated (max 10), so the user sees them after scrolling.
@@ -101,7 +101,7 @@ prints a summary block at the bottom.
 
 **Goal.** Ship the four feature steps as `v5.58.0`.
 
-- `gitmap/constants/constants.go` → `Version = "5.58.0"`
+- `cli/constants/constants.go` → `Version = "5.58.0"`
 - `src/constants/index.ts` → `VERSION = "v5.58.0"`
 - `changelog.md` → new top entry covering steps 1–4.
 - `src/data/changelog.ts` → matching entry.

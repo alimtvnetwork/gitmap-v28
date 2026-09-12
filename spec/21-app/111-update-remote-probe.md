@@ -69,7 +69,7 @@ Once a slug is resolved:
 | 2 | Installer download failed |
 | (installer exit) | Propagated from `install.{ps1,sh}` |
 
-## Constants (`gitmap/constants/constants_update.go`)
+## Constants (`cli/constants/constants_update.go`)
 
 | Constant | Value |
 |----------|-------|
@@ -95,8 +95,8 @@ Once a slug is resolved:
 
 | File | Role |
 |------|------|
-| `gitmap/cmd/updateprobe.go` | `resolveLatestRepoSlug`, `probeSiblings`, fallback chain |
-| `gitmap/cmd/updateremoteinstall.go` | Calls probe, then download+exec |
-| `gitmap/cmd/update.go` | Flag dispatch (`--probe-only`, `--no-probe`) |
-| `gitmap/cmd/updateprobe_test.go` | httptest coverage |
-| `gitmap/constants/constants_update.go` | All probe + URL constants |
+| `cli/cmd/updateprobe.go` | `resolveLatestRepoSlug`, `probeSiblings`, fallback chain |
+| `cli/cmd/updateremoteinstall.go` | Calls probe, then download+exec |
+| `cli/cmd/update.go` | Flag dispatch (`--probe-only`, `--no-probe`) |
+| `cli/cmd/updateprobe_test.go` | httptest coverage |
+| `cli/constants/constants_update.go` | All probe + URL constants |

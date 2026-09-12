@@ -22,7 +22,7 @@ When a pipeline status or wait-time check detects that the most recent run compl
   ● Error Diagnostics:
     ──────────────────────────────────────────────────────────────────────
     ❌ FAIL: Found 5 absolute path / URI violation(s):
-      gitmap/cmd/agy_test.go:109: Absolute file:/// URI with drive letter
+      cli/cmd/agy_test.go:109: Absolute file:/// URI with drive letter
     --- FAIL: TestTopLevelCmdConstantsAreUnique (0.02s)
 ```
 

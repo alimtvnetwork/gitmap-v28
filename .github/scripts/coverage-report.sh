@@ -12,7 +12,7 @@
 #                      (default: "results", matching the workflow step)
 #
 # Side effects:
-#   Writes a merged "combined-coverage.out" inside the gitmap/ Go module
+#   Writes a merged "combined-coverage.out" inside the cli/ Go module
 #   directory (cwd at call time) so `go tool cover -func` can read it.
 #
 # Exits 0 even when no coverage data is present (matrix legs may opt

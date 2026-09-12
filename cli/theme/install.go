@@ -75,7 +75,7 @@ func Drain() {
 
 // IsStdoutTTY reports whether the *original* stdout (before any
 // theme pipe interception) is a real terminal. Callers in
-// gitmap/render gate ANSI pretty-rendering on this so the
+// cli/render gate ANSI pretty-rendering on this so the
 // monochrome / standard pipe wrappers don't break TTY detection.
 func IsStdoutTTY() bool { return stdoutIsTTY }
 

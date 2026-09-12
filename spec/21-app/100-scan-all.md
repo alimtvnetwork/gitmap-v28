@@ -125,7 +125,7 @@ visible in the summary count.
 
 ## Constants (per `mem://style/code-constraints`)
 
-Add to `gitmap/constants/constants_cli.go`:
+Add to `cli/constants/constants_cli.go`:
 
 ```go
 const (
@@ -138,7 +138,7 @@ const (
 )
 ```
 
-Add to `gitmap/constants/constants_messages.go`:
+Add to `cli/constants/constants_messages.go`:
 
 ```go
 const (

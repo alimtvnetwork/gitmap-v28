@@ -35,28 +35,28 @@ The original 2026-05-06 user message ("Complete it in 7 iterations…") is the s
 ## Progress
 
 - 2026-05-06 — **Phase 1 ✅** Constants + typed enums + parity tests landed.
-  Files: gitmap/constants/constants_commitin.go, gitmap/cmd/commitin/enums.go,
-  gitmap/cmd/commitin/enums_test.go; edits to constants_cli.go and
+  Files: cli/constants/constants_commitin.go, cli/cmd/commitin/enums.go,
+  cli/cmd/commitin/enums_test.go; edits to constants_cli.go and
   cmd_constants_test.go.
 - Next phases (in order): 2 DB migrations · 3 CLI parsing · 4 Workspace+source
   resolution · 5 Walk+dedupe+replay · 6 Profiles+message pipeline ·
   7 Function-intel+finalize.
 - 2026-05-06 — **Phase 2 ✅** DB migrations + enum-mirror seeds landed.
-  Files: gitmap/constants/constants_commitin_sql.go,
-  gitmap/store/migrate_commitin.go, gitmap/store/migrate_commitin_test.go;
-  edits to gitmap/store/store.go (wire-in) and
-  gitmap/constants/constants_settings.go (SchemaVersionCurrent 23→24).
+  Files: cli/constants/constants_commitin_sql.go,
+  cli/store/migrate_commitin.go, cli/store/migrate_commitin_test.go;
+  edits to cli/store/store.go (wire-in) and
+  cli/constants/constants_settings.go (SchemaVersionCurrent 23→24).
   Tables: 18 (8 enum mirrors + Profile + 2 profile children + CommitInRun,
   InputRepo, SourceCommit, SourceCommitFile, RewrittenCommit, SkipLog,
   ShaMap). Tests: presence, seed parity, idempotence.
 - 2026-05-06 — **Phase 3 ✅** Pure CLI parser landed (5 files under
-  gitmap/cmd/commitin/parse*.go + parse_test.go). RawArgs/ParseError,
+  cli/cmd/commitin/parse*.go + parse_test.go). RawArgs/ParseError,
   separator+quote split, -N keyword classifier, CSV/enum/author-pair
   validators, flag re-orderer that treats `-N` as positional. Tests
   cover AC #1, AC #4, author-pair, enum rejects, message-rule shape,
   flags-after-positionals.
 - 2026-05-06 — **Phase 4 ✅** Workspace + source resolution landed
-  under gitmap/cmd/commitin/workspace/ (paths.go, lock.go, source.go,
+  under cli/cmd/commitin/workspace/ (paths.go, lock.go, source.go,
   expand.go, clone.go, runner.go + workspace_test.go). EnsureWorkspace
   is idempotent; AcquireLock reclaims stale-PID locks; EnsureSource
   implements all four §2.3 cases via a swappable gitRunner;
@@ -65,7 +65,7 @@ The original 2026-05-06 user message ("Complete it in 7 iterations…") is the s
   <TempRoot>/<runId>/<idx>-<basename> with local folders reused in
   place. Hermetic tests (no real git) cover all branches.
 - 2026-05-06 — **Phase 5 ✅** Walk + dedupe + replay + runlog landed
-  as four sibling packages under gitmap/cmd/commitin/.
+  as four sibling packages under cli/cmd/commitin/.
   walk/: first-parent oldest→newest via rev-list, \x1f-delimited
   hydrate (author+committer dates + files), empty-repo path returns
   nil. dedupe/: ShaMap lookup; miss is non-error. replay/: byte-perfect
@@ -77,7 +77,7 @@ The original 2026-05-06 user message ("Complete it in 7 iterations…") is the s
   RecordSkip. All hooks are swappable; tests use in-memory SQLite +
   fake git runners — no real git or filesystem required.
 - 2026-05-06 — **Phase 6 ✅** Profile + message + prompt packages
-  under gitmap/cmd/commitin/. profile/: strict JSON decode (rejects
+  under cli/cmd/commitin/. profile/: strict JSON decode (rejects
   unknown fields, gates SchemaVersion=1), canonical encode with §5.2
   key order + trailing newline, atomic SaveToDisk with overwrite
   refusal, ProfilePath under <root>/.gitmap/commit-in/profiles/,
@@ -109,7 +109,7 @@ The original 2026-05-06 user message ("Complete it in 7 iterations…") is the s
   // gitmap:cmd top-level marker on CmdCommitIn const block,
   CHANGELOG v4.18.0 entry.
 - 2026-05-06 — **Step 2 ✅** End-to-end orchestration glue landed.
-  New gitmap/cmd/commitin/orchestrator/ package (7 files, all <200
+  New cli/cmd/commitin/orchestrator/ package (7 files, all <200
   lines, all funcs ≤15 lines): run.go owns top-level Run + setUp +
   finalRunStatus mapping; setup.go threads resolveSource → workspace
   → lock → store.OpenAt+Migrate → loadProfile via new exported

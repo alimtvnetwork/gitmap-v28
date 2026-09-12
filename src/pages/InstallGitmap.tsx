@@ -127,7 +127,7 @@ const InstallGitmapPage = () => {
           <SectionHeader
             icon={RefreshCw}
             title="Update"
-            kicker="Self-updates from the linked source repo. Falls back to gitmap-updater, then to the manual one-liner."
+            kicker="Self-updates from the linked source repo. Falls back to cli-updater, then to the manual one-liner."
           />
           <Card className="p-4 mb-4">
             <h3 className="text-sm font-semibold mb-2 docs-h3">In-place update</h3>
