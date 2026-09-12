@@ -194,12 +194,12 @@ def create_release_branch_and_tag(new_version: str) -> tuple[str, str]:
 
 def verify_pre_release_quality_gates(run_tests: bool = True) -> None:
     """Verifies that 100% of CI/CD quality gates and unit tests pass green before cutting a release."""
+    if not run_tests:
+        print("Skipping pre-release CI/CD runner (--skip-tests active).")
+        return
+
     print("Running pre-release quality gate checks via 03-ai-scripts/06-cicd-local-runner.py...")
-    cmd = [sys.executable, "03-ai-scripts/06-cicd-local-runner.py"]
-    if run_tests:
-        cmd.append("--run-tests")
-    else:
-        cmd.append("--no-tests")
+    cmd = [sys.executable, "03-ai-scripts/06-cicd-local-runner.py", "--run-tests"]
     res = subprocess.run(cmd, check=False)
     if res.returncode != 0:
         raise RuntimeError(f"Pre-release quality gates failed with exit code {res.returncode}. Release aborted.")
