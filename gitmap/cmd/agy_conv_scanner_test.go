@@ -32,7 +32,7 @@ func initTestConvTables(t *testing.T, conn *sql.DB) {
 	schema := `CREATE TABLE steps (id INTEGER PRIMARY KEY, step_type INTEGER);
 	INSERT INTO steps (step_type) VALUES (1), (2);
 	CREATE TABLE trajectory_metadata_blob (id TEXT PRIMARY KEY, data BLOB);
-	INSERT INTO trajectory_metadata_blob (id, data) VALUES ('main', 'file:///c:/projects/myrepo');`
+	INSERT INTO trajectory_metadata_blob (id, data) VALUES ('main', 'repo/projects/myrepo');`
 	if _, err := conn.Exec(schema); err != nil {
 		t.Fatalf("init test conv tables failed: %v", err)
 	}

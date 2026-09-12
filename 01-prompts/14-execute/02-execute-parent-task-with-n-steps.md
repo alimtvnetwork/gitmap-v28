@@ -79,7 +79,7 @@ Before writing any source code changes, you MUST execute Phase 1:
    - Rollback dirty changes and write the failure error log to `.lovable/plan.md` and `.lovable/memory/issues/xx-failure.md`.
    - The next subagent spawned MUST read the previous failure log first, record it as a pending memory task, and implement the necessary fix.
 5. **Progress & Completion:** Move completed subtasks to `.lovable/plans/completed/` and update `.lovable/plans/01-index.md`.
-6. **Local CI Verification:** Run `python 03-ai-scripts/06-cicd-local-runner.py` and ensure all quality gates exit with code 0 (`exit 0`).
+7. **Local Verification:** Run targeted linters on modified files and ensure code compiles / passes lint checks with exit code 0 (`exit 0`). DO NOT run the full CI/CD runner (`06-cicd-local-runner.py`) during routine task steps.
 
 ---
 
@@ -144,7 +144,7 @@ To guarantee full execution without stopping after planning mode, the master orc
 - **Failure Memory & Feedback Loop:** If a subagent fails:
   - Rollback dirty working tree and log error details to `.lovable/plan.md` and `.lovable/memory/issues/xx-failure.md`.
   - The next subagent spawned MUST read the previous failure log first, record it as a pending memory task, and implement the necessary fix.
-- Execute local linters and `python 03-ai-scripts/06-cicd-local-runner.py --no-tests` ensuring `exit 0` before concluding.
+- Execute targeted local linters on modified files ensuring `exit 0` before concluding. DO NOT run the full CI/CD pipeline runner (`06-cicd-local-runner.py`) during routine loops.
 - Record all modified files to `.lovable/temp/recent-file-changes.json` under lock (`python 03-ai-scripts/33-test-inventory-generator.py --record <files...>`).
 
 ## Task Consolidation & File Reduction (End of Loop)

@@ -51,7 +51,7 @@ PHASE_2_STEPS = N / 2   (Parallel Execution & QA)
 2. **Execution & Coding Guidelines:** Subagents refactor code following all coding guidelines (<= 8–15 line functions, single return types, Unix LF line endings).
 3. **Failure Memory & Error Recovery:** If a subagent fails, record the failure log in `.lovable/plan.md` and `.lovable/memory/issues/xx-failure.md`; subsequent agents MUST read the failure log first to remediate root causes.
 4. **Atomic Change Tracking:** Append all modified files to `.lovable/temp/recent-file-changes.json` under lock (`python 03-ai-scripts/33-test-inventory-generator.py --record <files...>`), mapping to associated tests in `.lovable/test-inventory.json`.
-5. **Local CI Verification:** Run `python 03-ai-scripts/06-cicd-local-runner.py --no-tests` and ensure all quality gates exit with code 0 (`exit 0`) (test execution is disabled unless explicitly commanded by the repository owner).
+7. **Local Verification:** Run targeted linters on modified files and ensure code compiles / passes lint checks with exit code 0 (`exit 0`). DO NOT run the full CI/CD runner (`06-cicd-local-runner.py`) during routine task steps.
 
 ### Phase 3: Task Consolidation & File Reduction (End of Loop)
 

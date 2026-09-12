@@ -39,9 +39,13 @@ This skill governs autonomous execution for boolean conventions, semantic naming
 ## Validation Linters
 
 - Linter: `python linter-scripts/check-enum-and-boolean.py`
-- Local Runner: `python 03-ai-scripts/06-cicd-local-runner.py --no-tests --no-tests`
+- **Targeted Verification:** Run `python linter-scripts/check-boolean-guidelines.py <files>` and `python 03-ai-scripts/08-naming-autofixer.py <files>`. DO NOT run the full `06-cicd-local-runner.py` during routine fixes.
 
 
 ## Change Tracking & Test Avoidance
 - Test execution disabled; pass `--no-tests` to local runner.
 - Append modified files to `.lovable/temp/recent-file-changes.json` under lock (`python 03-ai-scripts/33-test-inventory-generator.py --record <files...>`).
+
+
+## Routine Execution Policy
+- **NO FULL CI/CD RUNNER (Strict Policy):** DO NOT run `python 03-ai-scripts/06-cicd-local-runner.py` during routine coding guideline execution turns or micro-batch loops. Running the heavy 28-38 gate pipeline across the entire repository wastes massive amounts of time. Verify code strictly using targeted file-level linters / autofixers on the specific modified files.

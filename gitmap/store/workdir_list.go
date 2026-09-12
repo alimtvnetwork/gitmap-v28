@@ -19,6 +19,8 @@ func (db *DB) EnsureWorkDirsTable() error {
 		return apperror.WrapSimple(err, "EnsureWorkDirsTable")
 	}
 
+	_, _ = ExecWrapper(db.conn, SQLCreateWorkDirectoryView).Destruct()
+
 	return nil
 }
 

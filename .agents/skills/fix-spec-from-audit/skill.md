@@ -76,7 +76,7 @@ You MUST execute this task via a strict 4-Phase continuous loop. Do not skip ste
 
 1. **Cross-Link Integrity:** Run `python linter-scripts/check-spec-cross-links.py` to ensure no internal links were broken by the spec edits.
 2. **Markdown Standards:** Run `python 03-ai-scripts/31-md-gap-fixer.py --fix` and verify spacing.
-3. **Full CI Runner:** Run `python 03-ai-scripts/06-cicd-local-runner.py --no-tests` ensuring all quality gates exit with code 0 (`exit 0`) (test execution is disabled unless explicitly commanded by the repository owner).
+3. **Targeted Verification:** Run targeted linters and doc path checks on modified files (`exit 0`). DO NOT run `06-cicd-local-runner.py` during routine turns.
 4. **Atomic Change Tracking:** Append all modified files to `.lovable/temp/recent-file-changes.json` under lock (`python 03-ai-scripts/33-test-inventory-generator.py --record <files...>`), mapping to associated tests in `.lovable/test-inventory.json`.
 
 ### Phase 4: Audit Gap Removal & Final Archive (End of Loop)
@@ -109,11 +109,11 @@ To prevent cross-task pollution and ensure seamless agent communication, every t
 
 ---
 
-## Strictly Avoid: No Automatic Releases & No Test Running (Strict Policy)
+## Strictly Avoid: No Automatic Releases, No Test Running & No Full CI/CD Runner in Routine Turns (Strict Policy)
 
 - **NO RELEASES (Strict Policy):** You MUST NOT bump versions, update changelogs, or cut a release at the end of this task. Commits must remain standard development commits. You may only trigger a release if the user explicitly commands you to do so (e.g., "cut a release" or "bump the version").
 - **NO TEST RUNNING (Strict Policy):** Test execution is strictly disabled. You MUST NOT execute unit tests, integration tests, or test suites unless explicitly commanded by the repository owner.
-- **CI/CD Quality Gates:** Execute local CI quality gates via `python 03-ai-scripts/06-cicd-local-runner.py --no-tests` ensuring all quality gates exit with code 0 (`exit 0`).
+- **Targeted Quality Verification:** Execute targeted linters on modified files (`exit 0`). DO NOT run `python 03-ai-scripts/06-cicd-local-runner.py` during routine task steps.
 - **Test Inventory & Recent Changes Tracking:** Whenever any file is modified, append its repository-relative path to `.lovable/temp/recent-file-changes.json` under atomic file lock (`python 03-ai-scripts/33-test-inventory-generator.py --record <path>`), cross-referencing `.lovable/test-inventory.json` so associated tests are known for future release verification.
 
 ---

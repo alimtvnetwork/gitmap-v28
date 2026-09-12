@@ -77,3 +77,4 @@ tmp/
 *.db-shm
 *.db-wal
 *.lock
+.lovable/cicd/

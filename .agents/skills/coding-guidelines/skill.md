@@ -620,7 +620,7 @@ When tasked with auditing, reviewing, or fixing coding guidelines across a codeb
    - Address remaining non-autofixable violations (R5 param structs, R6 dead params, R7 error context, R8 magic constants) file by file.
    - Respect the 15-line function cap and flatten all nested conditionals.
 4. **Step 4: Local CI/CD Pipeline Quality Gate:**
-   - Execute `python 03-ai-scripts/06-cicd-local-runner.py --no-tests --no-tests` ensuring all 19 quality gates pass 100% green (`exit 0`).
+   - Execute targeted file linters / autofixers on modified files ensuring `exit 0`. DO NOT run the full `06-cicd-local-runner.py` during routine guideline turns.
 5. **Step 5: File Change Summary:**
    - Output a detailed summary in chat listing exactly which files changed, what changed, and why.
 
@@ -660,7 +660,7 @@ When tasked with auditing, reviewing, or fixing coding guidelines across a codeb
 - [ ] **No Magic Constants (R8):** All magic strings/numbers are extracted to named constants.
 - [ ] **Strict Lowercase Filenames:** All generated or modified files use strictly lowercase naming (`readme.md`, `agents.md`, `skill.md`).
 - [ ] **Tooling Execution:** I ran `03-ai-scripts/05-guideline-autofixer.py` and verified clean output with `python linter-scripts/validate-guidelines.py`.
-- [ ] **Local CI Runner:** All 19 quality gates pass cleanly via `python 03-ai-scripts/06-cicd-local-runner.py --no-tests --no-tests` with `exit 0`.
+- [ ] **Targeted Verification:** All modified files pass targeted linters / autofixers cleanly with exit 0. (Full CI runner `06-cicd-local-runner.py` is banned in routine turns).
 - [ ] **File Change Summary:** I provided a detailed summary in chat of what files changed, what changed inside them, and why.
 
 ---

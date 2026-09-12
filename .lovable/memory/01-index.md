@@ -31,6 +31,9 @@ Updated: 2026-04-27
 - 🔴 Strict `Id` / `id` naming: TOTAL BAN on uppercase acronym `ID` in struct fields and variables (`UserId`, `OrderId`, `TraceId`).
 - 🔴 Strict positive boolean prefixes: ALL boolean fields and variables MUST have positive prefixes (`isActive`, `isSuccess`, `isValid`).
 - 🔴 Parallel CI/CD Local Runner: Worker group concurrency via `ThreadPoolExecutor` with selective log filtering (`--failed` suppresses noisy logs on pass; isolates failures).
+- 🔴 Running tests without owner explicit command: TOTAL BAN. Never execute unit tests or CI test jobs during standard development or prompt execution unless explicitly commanded by repository owner. Always pass `--no-tests` to `06-cicd-local-runner.py`. See [Avoid Running Tests](avoid/04-running-tests-without-owner-command.md).
+- 🔴 Running full CI/CD runner during routine tasks: TOTAL BAN. Never execute `06-cicd-local-runner.py` during routine development or coding guideline turns; verify code using targeted single-file linters/autofixers. See [Avoid Running Full CI/CD Runner in Routine Tasks](avoid/05-running-full-cicd-runner-in-routine-tasks.md).
+- 🔴 Test Inventory & Atomic Locking: Centralized `.lovable/test-inventory.json` and atomic file locking via `recent-file-changes.lock` when updating `.lovable/temp/recent-file-changes.json` using `33-test-inventory-generator.py`. See [Test Inventory & Atomic Change Tracking](learned/11-test-inventory-and-atomic-file-change-tracking.md).
 - 🔴 Cross-Platform Macro Execution: Shell commands like `open` require OS-aware adapters (`explorer.exe` / `start` on Windows, `xdg-open` on Linux, `/usr/bin/open` on macOS).
 
 - [Project Context & Learned Guidelines](learned/01-project-context-and-guidelines.md) — Comprehensive ingestion of repo identity, CODE RED rules, coding guidelines, error philosophy, and active plans.
@@ -43,6 +46,9 @@ Updated: 2026-04-27
 - [Nginx, WordPress, and Laravel Setup, VHost & Perms Engine](learned/08-nginx-wordpress-laravel-setup-and-vhost-engine.md) — Universal package installation, vhost configuration/reloading, wp-config salts generation, .env synthesis, and cross-platform permissions engine.
 - [VMware Mount Resilience, Install Command & Root Help](learned/09-vmware-mount-resilience-install-and-root-help.md) — Pre-mount FUSE cleanup, open-vm-tools-desktop requirement, fallback mounting, Error -107 diagnostic guidance, and root CLI help integration.
 - [Interactive Macro Builder PWD Header & In-Builder Commands](learned/10-interactive-macro-builder-pwd-ls-commands.md) — Dynamic PWD header display, in-builder ls/find/search/replace helpers, and offline mock release testing architecture.
+- [Avoid Running Tests Without Owner Command](avoid/04-running-tests-without-owner-command.md) — Absolute ban on running unit tests in standard development turns unless explicitly requested by owner.
+- [Avoid Running Full CI/CD Runner in Routine Tasks](avoid/05-running-full-cicd-runner-in-routine-tasks.md) — Total ban on running the 28-38 gate CI runner during routine edits and coding guideline fixes.
+- [Test Inventory & Atomic File Change Tracking](learned/11-test-inventory-and-atomic-file-change-tracking.md) — Centralized test cataloging, cross-platform locking, and targeted test resolution for releases.
 
 - [Fast File Indexing & Caching Strategy](standards/05-fast-file-indexing-and-caching.md) — Pre-computed file scanning and index caching in `tmp/` via `08-fast-file-scanner.py` for rapid multi-step lookups.
 - [Prompt Synchronization Architecture](standards/04-prompt-synchronization-architecture.md) — All prompts authored in `01-prompts/` and compiled to flat `01-prompts/*.md` via `scripts/update-prompts.ps1` without external Git clones.

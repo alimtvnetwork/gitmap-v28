@@ -192,7 +192,7 @@ PHASE_2_STEPS = N / 2   (Parallel Execution & QA)
 1. **Parallel Dispatch:** Use the `invoke_subagent` tool to spawn exactly 2 execution subagents (max 2 threads each) assigned to disjoint subtasks from `.lovable/plans/subtasks/xx-<slug>/`. Provide subagents with minimal instructions (e.g., "Read `.lovable/plans/subtasks/xx-slug/01-task.md` and execute it").
 2. **Execution & Coding Guidelines:** Subagents refactor code following all coding guidelines (<= 8–15 line functions, single return types, Unix LF line endings).
 3. **Failure Memory & Error Recovery:** If a subagent fails, record the failure log in `.lovable/plan.md` and `.lovable/memory/issues/xx-failure.md`; subsequent agents MUST read the failure log first to remediate root causes.
-4. **Local CI Verification:** Run `python 03-ai-scripts/06-cicd-local-runner.py --no-tests` and ensure all quality gates exit with code 0 (`exit 0`).
+4. **Local Verification:** Run targeted linters on modified files ensuring `exit 0`. (Full CI/CD runner `--run-tests` runs ONLY at the final release ceremony).
 5. **Atomic Change Tracking:** Append all modified files to `.lovable/temp/recent-file-changes.json` under lock (`python 03-ai-scripts/33-test-inventory-generator.py --record <files...>`), mapping to associated tests in `.lovable/test-inventory.json`.
 
 ### Phase 3: Task Consolidation & File Reduction (End of Loop)

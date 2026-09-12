@@ -128,6 +128,7 @@ CICD_CHANGELOG_LOG = CICD_DIR / "changelog.log"
 CICD_SUMMARY_JSON = CICD_DIR / "summary.json"
 CICD_STATE_JSON = CICD_DIR / "state.json"
 CICD_POINTER_FILE = CICD_DIR / "latest_run.txt"
+CICD_LAST_RUN_CACHE = CICD_DIR / "last_run_cache.json"
 
 TIMING_FILE_PATH = CICD_DIR / "timings.json"
 TEST_INVENTORY_PATH = Path(".lovable/test-inventory.json")
@@ -147,6 +148,7 @@ JOB_BATCHES: list[dict[str, Any]] = [
             "Boolean & Enum Linter": [sys.executable, "linter-scripts/check-enum-and-boolean.py"],
             "Boolean Guidelines Linter": [sys.executable, "linter-scripts/check-boolean-guidelines.py"],
             "Enum Guidelines Linter": [sys.executable, "linter-scripts/check-enum-guidelines.py"],
+            "Schema Guidelines Linter": [sys.executable, "linter-scripts/check-schema-guidelines.py"],
             "Error Management Check": [sys.executable, "linter-scripts/check-error-management.py"],
             "Relative Path Check": [sys.executable, "linter-scripts/check-relative-paths.py"],
             "Newline Styling Check": [sys.executable, "linter-scripts/check-newline-styling.py"],
@@ -2485,10 +2487,58 @@ def ensure_manifest_if_changed_only(args: argparse.Namespace, repo_root: Path) -
         subprocess.run(cmd, cwd=str(repo_root), check=True)
 
 
+def check_recent_run_cache(cache_file: Path, signature: str, is_force: bool = False, normal_ttl: float = 15.0, force_ttl: float = 5.0) -> int | None:
+    """Returns cached exit code if an identical runner run occurred within the debounce window."""
+    if not cache_file.exists():
+        return None
+    ttl_sec = force_ttl if is_force else normal_ttl
+    try:
+        data = json.loads(cache_file.read_text(encoding=DEFAULT_ENCODING))
+        last_time = float(data.get("timestamp", 0.0))
+        elapsed = time.time() - last_time
+        if elapsed < ttl_sec and data.get("signature") == signature:
+            print("================================================================")
+            print("Here is the result from the previous run.")
+            print("================================================================")
+            print(f"⏱️  Cached from previous run {elapsed:.1f}s ago (debounce TTL: {ttl_sec:.0f}s).")
+            status_text = "PASSED (exit 0)" if data.get("exit_code") == 0 else f"FAILED (exit {data.get('exit_code')})"
+            print(f"📋 Status: {status_text}")
+            summary = data.get("summary")
+            if summary:
+                print(f"📊 Summary: {summary}")
+            print("================================================================")
+            return int(data.get("exit_code", 0))
+    except Exception:
+        return None
+    return None
+
+
+def save_recent_run_cache(cache_file: Path, signature: str, exit_code: int, summary: str = "") -> None:
+    """Persists recent run result to debounce cache."""
+    try:
+        cache_file.parent.mkdir(parents=True, exist_ok=True)
+        data = {
+            "timestamp": time.time(),
+            "signature": signature,
+            "exit_code": exit_code,
+            "summary": summary,
+        }
+        cache_file.write_text(json.dumps(data, indent=2), encoding=DEFAULT_ENCODING)
+    except Exception:
+        pass
+
+
 def main() -> None:
     """Primary entry point for local CI/CD quality gate runner."""
     args = parse_args()
     repo_root = Path(__file__).resolve().parent.parent
+
+    # Fast Debounce Cache Check: return prior result if invoked in quick succession
+    sig = f"no_tests={getattr(args, 'no_tests', False)},run_tests={getattr(args, 'run_tests', False)},filter={getattr(args, 'filter', '') or ''},pkg={getattr(args, 'package_filter', [])}"
+    cached_code = check_recent_run_cache(CICD_LAST_RUN_CACHE, sig, is_force=bool(getattr(args, "force_run", False)))
+    if cached_code is not None:
+        sys.exit(cached_code)
+
     ensure_manifest_if_changed_only(args, repo_root)
 
     # Step 1: Discover all existing tests, build/update test inventory JSON with code-to-test mapping & timings
@@ -2519,6 +2569,8 @@ def main() -> None:
     timings = load_cicd_timings(TIMING_FILE_PATH)
     total_est = calculate_total_eta(batches, timings)
     code = run_pipeline_with_eta(args, batches, repo_root, timings, total_est)
+    summary_str = f"Executed {len(batches)} batches | Result code: {code}"
+    save_recent_run_cache(CICD_LAST_RUN_CACHE, sig, code, summary_str)
     sys.exit(code)
 
 

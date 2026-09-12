@@ -380,3 +380,22 @@ Allowed work:
 
 **Why:** Concurrent multi-agent orchestration and asynchronous script runs will corrupt `recent-file-changes.json` if writes are uncoordinated. Centralized test inventory mapping guarantees reproducible test discovery when an authorized release or targeted test fix is executed.
 
+---
+
+## Running Full CI/CD Runner During Routine Development or Coding Guideline Turns — TOTAL BAN
+
+🔴 **NEVER run `python 03-ai-scripts/06-cicd-local-runner.py` during routine development tasks, coding guideline fixes (`15-cg-execute/*`), micro-loops, or sub-agent turns.**
+
+Forbidden:
+- ❌ Running `python 03-ai-scripts/06-cicd-local-runner.py` (with or without `--no-tests`) during routine task execution loops, coding standard audits, single-file refactoring, or micro-batches.
+- ❌ Re-running the heavy 28-38 gate pipeline repeatedly for routine edits, wasting minutes across unrelated files and packages.
+- ❌ Using the full pipeline runner to verify a single guideline edit (e.g. nested-if or boolean condition) when a targeted linter is available.
+
+Allowed work:
+- ✅ Run targeted file-level linters/autofixers directly on the modified file(s) (e.g., `python linter-scripts/check-nested-ifs.py <file>`, `python 03-ai-scripts/08-naming-autofixer.py <file>`, `python linter-scripts/check-boolean-guidelines.py <file>`).
+- ✅ **Owner Explicit Command:** Run the runner if and only if the repository owner explicitly requests running the pipeline.
+- ✅ **CI/CD Fix Tasks (`ci-cd-fix`, `16-ci-cd/*`):** May run `python 03-ai-scripts/06-cicd-local-runner.py` because the primary goal of those tasks is specifically repairing CI/CD infrastructure.
+- ✅ **Release Ceremonies (`release-orchestrator`, `01`, `03`, `07`, `16-ci-cd/04`):** Run `python 03-ai-scripts/06-cicd-local-runner.py --run-tests` as the mandatory final pre-release gate before cutting a release.
+
+**Why:** The local CI/CD runner runs up to 38 segments (linters, cross-OS compilation, snapshot builds, web builds) across the entire codebase. Executing this massive suite on every micro-turn or coding guideline edit causes immense latency, hits unrelated files, and wastes substantial developer and compute time.
+

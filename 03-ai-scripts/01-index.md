@@ -62,6 +62,7 @@ Follow this sequence before and during any repository modification task:
 | **32** | `32-deep-consolidator.py` | Deep plans and subtasks consolidator preserving 100% technical detail, subtask ledgers, and verified outcomes | ~15ms | `plans`, `consolidator`, `milestone`, `subtasks`, `safety-backup` |
 | **33** | `33-git-history-tracer-and-purger.py` | Traces deleted files in Git, pre-flight inspection with selective exclusion, workspace restoration, and deep history purging | ~20ms | `git`, `history`, `tracer`, `restore`, `purge`, `filter-repo`, `deleted-files` |
 | **33** | `33-test-inventory-generator.py` | Generates `.lovable/test-inventory.json` and manages atomic file change tracking under lock | ~15ms | `test-inventory`, `tracking`, `locking`, `changes` |
+| **34** | `34-schema-scanner.py` | Scans SQL table definitions for PascalCase, PK conventions, and affirmative booleans | ~15ms | `schema`, `database`, `sqlite`, `scanner`, `linter`, `erd` |
 
 ---
 

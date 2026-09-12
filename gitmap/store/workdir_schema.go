@@ -12,6 +12,17 @@ CREATE TABLE IF NOT EXISTS work_directories (
     updated_at TEXT DEFAULT CURRENT_TIMESTAMP
 );`
 
+	SQLCreateWorkDirectoryView = `
+CREATE VIEW IF NOT EXISTS WorkDirectory AS
+SELECT
+    id AS WorkDirectoryId,
+    absolute_path AS AbsolutePath,
+    label AS Label,
+    is_default AS IsDefault,
+    created_at AS CreatedAt,
+    updated_at AS UpdatedAt
+FROM work_directories;`
+
 	SQLUpsertWorkDir = `
 INSERT INTO work_directories (absolute_path, label, is_default, updated_at)
 VALUES (?, ?, ?, CURRENT_TIMESTAMP)
