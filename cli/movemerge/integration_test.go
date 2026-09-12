@@ -42,7 +42,7 @@ func TestRunMerge_PreferNewer_BothSidesByteEqual(t *testing.T) {
 	leftEP := Endpoint{DisplayName: left, WorkingDir: left, Kind: EndpointFolder, IsExisted: true}
 	rightEP := Endpoint{DisplayName: right, WorkingDir: right, Kind: EndpointFolder, IsExisted: true}
 	opts := Options{
-		IsYes: true, Prefer: PreferNewer, IsNoCommit: true, IsNoPush: true,
+		IsYes: true, Prefer: PreferNewer, IsSkipCommit: true, IsSkipPush: true,
 		CommandName: constants.CmdMergeBoth, LogPrefix: constants.LogPrefixMergeBoth,
 	}
 
@@ -75,7 +75,7 @@ func TestRunMerge_PreferNewer_LeftOnlyDoesNotTouchRight(t *testing.T) {
 	leftEP := Endpoint{DisplayName: left, WorkingDir: left, Kind: EndpointFolder, IsExisted: true}
 	rightEP := Endpoint{DisplayName: right, WorkingDir: right, Kind: EndpointFolder, IsExisted: true}
 	opts := Options{
-		IsYes: true, Prefer: PreferNewer, IsNoCommit: true, IsNoPush: true,
+		IsYes: true, Prefer: PreferNewer, IsSkipCommit: true, IsSkipPush: true,
 		CommandName: constants.CmdMergeLeft, LogPrefix: constants.LogPrefixMergeLeft,
 	}
 

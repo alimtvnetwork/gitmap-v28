@@ -56,10 +56,10 @@ func runCloneFixRepoPipeline(args []string, makePublic bool) error {
 		makePublic = true
 	}
 
-	url, folder, noVSCodeSync, reqVer, useSSH, useHTTPS, autoYes, dryRun, noCommit, noPush := parseCloneFixRepoArgs(args)
-	modifiers.NoCommit = modifiers.NoCommit || noCommit
-	modifiers.NoPush = modifiers.NoPush || noPush
-	f := cloneFixRepoFlags{url, folder, noVSCodeSync, reqVer, useSSH, useHTTPS, autoYes, dryRun, noCommit, noPush}
+	url, folder, isSkipVSCodeSync, reqVer, useSSH, useHTTPS, autoYes, dryRun, isSkipCommit, isSkipPush := parseCloneFixRepoArgs(args)
+	modifiers.IsSkipCommit = modifiers.IsSkipCommit || isSkipCommit
+	modifiers.IsSkipPush = modifiers.IsSkipPush || isSkipPush
+	f := cloneFixRepoFlags{url, folder, isSkipVSCodeSync, reqVer, useSSH, useHTTPS, autoYes, dryRun, isSkipCommit, isSkipPush}
 	if dispatchCFRMultiURL(f, makePublic, modifiers, parallel) {
 		return nil
 	}
@@ -80,7 +80,7 @@ func dispatchCFRMultiURL(
 		return false
 	}
 
-	runParallelCloneFixRepo(urls, makePublic, f.noVSCodeSync, f.requireVersion, f.useSSH, f.useHTTPS, f.autoYes, f.dryRun, modifiers, parallel)
+	runParallelCloneFixRepo(urls, makePublic, f.isSkipVSCodeSync, f.requireVersion, f.useSSH, f.useHTTPS, f.autoYes, f.dryRun, modifiers, parallel)
 
 	return true
 }
@@ -120,7 +120,7 @@ func executeCFRClone(url, folderName, absPath string, f cloneFixRepoFlags) {
 	url = preferExistingFolderTransport(url, absPath)
 	url = coerceURLToStoredTransport(url)
 	requireOnline()
-	executeDirectClone(url, folderName, true, false, "", f.noVSCodeSync)
+	executeDirectClone(url, folderName, true, false, "", f.isSkipVSCodeSync)
 	if !f.dryRun {
 		persistRecloneTransport(url)
 	}
@@ -151,7 +151,7 @@ func executeCFRPostSteps(
 func runParallelCloneFixRepo(
 	urls []string,
 	makePublic bool,
-	noVSCodeSync bool,
+	isSkipVSCodeSync bool,
 	requireVersion bool,
 	useSSH bool,
 	useHTTPS bool,
@@ -165,7 +165,7 @@ func runParallelCloneFixRepo(
 		subcmd = constants.CmdCloneFixRepoPub
 	}
 
-	passthrough := buildCFRPassthroughFlags(noVSCodeSync, requireVersion, useSSH, useHTTPS, autoYes, dryRun, modifiers.NoCommit, modifiers.NoPush)
+	passthrough := buildCFRPassthroughFlags(isSkipVSCodeSync, requireVersion, useSSH, useHTTPS, autoYes, dryRun, modifiers.IsSkipCommit, modifiers.IsSkipPush)
 	leadingMods := buildCFRLeadingModifiers(modifiers)
 	failed := runCloneFixRepoParallel(urls, subcmd, leadingMods, passthrough, parallel)
 	if failed > 0 {
@@ -199,9 +199,7 @@ func buildCFRLeadingModifiers(m CfrModifierFlags) []string {
 	return out
 }
 
-// dispatchCodingGuidelinesModifier invokes the v24 Coding Guidelines
-// installer against the freshly cloned working tree when the `cg`
-// modifier is present, then auto-commits (and optionally pushes) any
+// dispatchCodingGuidelinesModifier runs the installer and auto-commits the
 // files the installer produced. Errors are already logged by the
 // underlying helpers (zero-swallow policy); we surface a non-zero
 // exit so the pipeline halts.
@@ -214,7 +212,7 @@ func dispatchCodingGuidelinesModifier(absPath string, m CfrModifierFlags) {
 		cliexit.HandleError(nil, constants.ExitCloneFixRepoChainFailed)
 	}
 
-	commitOpts := CGCommitOpts{WorkingDir: absPath, NoCommit: m.NoCommit, NoPush: m.NoPush}
+	commitOpts := CGCommitOpts{WorkingDir: absPath, IsSkipCommit: m.IsSkipCommit, IsSkipPush: m.IsSkipPush}
 	if err := CommitCodingGuidelines(commitOpts); err != nil {
 		cliexit.HandleError(nil, constants.ExitCloneFixRepoChainFailed)
 	}
@@ -320,22 +318,22 @@ func ResolveCloneFixRepoName(absPath string) string {
 }
 
 type cloneFixRepoFlags struct {
-	url            string
-	folder         string
-	noVSCodeSync   bool
-	requireVersion bool
-	useSSH         bool
-	useHTTPS       bool
-	autoYes        bool
-	dryRun         bool
-	noCommit       bool
-	noPush         bool
+	url              string
+	folder           string
+	isSkipVSCodeSync bool
+	requireVersion   bool
+	useSSH           bool
+	useHTTPS         bool
+	autoYes          bool
+	dryRun           bool
+	isSkipCommit     bool
+	isSkipPush       bool
 }
 
 func applyCFRFlag(name string, f *cloneFixRepoFlags) bool {
 	switch name {
 	case constants.FlagNoVSCodeSync:
-		f.noVSCodeSync = true
+		f.isSkipVSCodeSync = true
 	case constants.FlagRequireVersion:
 		f.requireVersion = true
 	case "ssh", "sh":
@@ -356,9 +354,9 @@ func applyCFRFlagExtra(name string, f *cloneFixRepoFlags) bool {
 	case constants.FlagCloneDryRun, constants.FlagCloneDryRunShort:
 		f.dryRun = true
 	case constants.FlagCGNoCommit:
-		f.noCommit = true
+		f.isSkipCommit = true
 	case constants.FlagCGNoPush:
-		f.noPush = true
+		f.isSkipPush = true
 	default:
 		return false
 	}
@@ -387,9 +385,9 @@ func assignCFRPositionals(positional []string, f *cloneFixRepoFlags) {
 	}
 }
 
-// parseCloneFixRepoArgs returns (url, folderName, noVSCodeSync,
-// requireVersion, useSSH, useHTTPS, autoYes, dryRun, noCommit,
-// noPush). First non-flag arg is the URL; second non-flag is the
+// parseCloneFixRepoArgs returns (url, folderName, isSkipVSCodeSync,
+// requireVersion, useSSH, useHTTPS, autoYes, dryRun, isSkipCommit,
+// isSkipPush). First non-flag arg is the URL; second non-flag is the
 // destination folder. Recognized flags:
 // --no-vscode-sync, --require-version, --ssh/-ssh/--sh,
 // --https/-https/--ht, --no-commit, --no-push. Single-dash forms are
@@ -400,7 +398,7 @@ func parseCloneFixRepoArgs(args []string) (string, string, bool, bool, bool, boo
 	positional := extractCFRPositionals(args, &f)
 	assignCFRPositionals(positional, &f)
 
-	return f.url, f.folder, f.noVSCodeSync, f.requireVersion, f.useSSH, f.useHTTPS, f.autoYes, f.dryRun, f.noCommit, f.noPush
+	return f.url, f.folder, f.isSkipVSCodeSync, f.requireVersion, f.useSSH, f.useHTTPS, f.autoYes, f.dryRun, f.isSkipCommit, f.isSkipPush
 }
 
 // resolveCloneTargetFolder mirrors the folder-naming logic in

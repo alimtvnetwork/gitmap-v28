@@ -1,6 +1,7 @@
 package cmd
 
 import (
+	"errors"
 	"flag"
 	"fmt"
 	"os"
@@ -73,7 +74,11 @@ func printChangelogPreview(section string) {
 // writeChangelogSection prepends the section to changelog.md.
 func writeChangelogSection(section string) *apperror.AppError {
 	existing, err := os.ReadFile(constants.ChangelogFile)
-	if err != nil && !os.IsNotExist(err) {
+	if errors.Is(err, os.ErrNotExist) {
+		err = nil
+	}
+
+	if err != nil {
 		return apperror.WrapSimple(err, constants.ErrChangelogGenRead)
 	}
 

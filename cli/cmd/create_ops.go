@@ -18,9 +18,9 @@ type createRepoParams struct {
 	Name        string
 	LocalDir    string
 	Description string
-	IsPublic    bool
-	NoRemote    bool
-	IsJSON      bool
+	IsPublic     bool
+	IsSkipRemote bool
+	IsJSON       bool
 	Profile     model.GitProfile
 }
 
@@ -47,7 +47,7 @@ func executeCreateRepo(args []string) error {
 func parseCreateParams(args []string) (createRepoParams, error) {
 	name := args[0]
 	isPublic := hasArgFlag(args, "--public")
-	noRemote := hasArgFlag(args, "--no-remote")
+	isSkipRemote := hasArgFlag(args, "--no-remote")
 	isJSON := hasArgFlag(args, "--json")
 	desc := extractFlagVal(args, "--description")
 	if desc == "" {
@@ -66,7 +66,7 @@ func parseCreateParams(args []string) (createRepoParams, error) {
 
 	return createRepoParams{
 		Name: name, LocalDir: dir, Description: desc,
-		IsPublic: isPublic, NoRemote: noRemote, IsJSON: isJSON, Profile: prof,
+		IsPublic: isPublic, IsSkipRemote: isSkipRemote, IsJSON: isJSON, Profile: prof,
 	}, nil
 }
 
@@ -144,7 +144,7 @@ func commitInitialFiles(absDir string) error {
 }
 
 func pushRemoteRepo(p createRepoParams) (string, error) {
-	if p.NoRemote {
+	if p.IsSkipRemote {
 		return "", nil
 	}
 

@@ -28,11 +28,11 @@ func executeMove(db *store.DB, rec model.ScanRecord, destPath string, opts moveO
 }
 
 func syncExternalMove(oldPath, newPath, newName string, opts moveOpts) {
-	if !opts.noVSCode {
+	if !opts.isSkipVSCode {
 		_ = vscodepm.UpdateRootPath(oldPath, newPath, newName)
 	}
 
-	if !opts.noDesktop {
+	if !opts.isSkipDesktop {
 		_ = desktop.UpdateRepoPath(oldPath, newPath)
 	}
 }

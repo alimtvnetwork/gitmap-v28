@@ -13,7 +13,7 @@ import (
 // historyOpts is the parsed flag bundle for both history-* commands.
 type historyOpts struct {
 	yes         bool
-	noPush      bool
+	isSkipPush  bool
 	dryRun      bool
 	keepSandbox bool
 	quiet       bool
@@ -42,8 +42,8 @@ func parseHistoryArgs(args []string) (historyOpts, []string) {
 
 // rawHistoryFlags holds the pointers from FlagSet.* registrations.
 type rawHistoryFlags struct {
-	yes, yesShort, noPush, dryRun, keep, quiet, quietShort *bool
-	message                                                *string
+	yes, yesShort, isSkipPush, dryRun, keep, quiet, quietShort *bool
+	message                                                    *string
 }
 
 // registerHistoryFlags wires every flag onto fs and returns pointers.
@@ -51,7 +51,7 @@ func registerHistoryFlags(fs *flag.FlagSet) rawHistoryFlags {
 	return rawHistoryFlags{
 		yes:        fs.Bool(constants.HistoryFlagYes, false, constants.HistoryDescYes),
 		yesShort:   fs.Bool(constants.HistoryFlagYesShort, false, constants.HistoryDescYes),
-		noPush:     fs.Bool(constants.HistoryFlagNoPush, false, constants.HistoryDescNoPush),
+		isSkipPush: fs.Bool(constants.HistoryFlagNoPush, false, constants.HistoryDescNoPush),
 		dryRun:     fs.Bool(constants.HistoryFlagDryRun, false, constants.HistoryDescDryRun),
 		keep:       fs.Bool(constants.HistoryFlagKeepSandbox, false, constants.HistoryDescKeepSandbox),
 		quiet:      fs.Bool(constants.HistoryFlagQuiet, false, constants.HistoryDescQuiet),
@@ -64,7 +64,7 @@ func registerHistoryFlags(fs *flag.FlagSet) rawHistoryFlags {
 func assembleHistoryOpts(r rawHistoryFlags) historyOpts {
 	return historyOpts{
 		yes:         *r.yes || *r.yesShort,
-		noPush:      *r.noPush,
+		isSkipPush:  *r.isSkipPush,
 		dryRun:      *r.dryRun,
 		keepSandbox: *r.keep,
 		quiet:       *r.quiet || *r.quietShort,
@@ -80,7 +80,7 @@ func validateHistoryOpts(opts historyOpts, paths []string) {
 		cliexit.HandleError(nil, constants.HistoryExitBadArgs)
 	}
 
-	if opts.yes && opts.noPush {
+	if opts.yes && opts.isSkipPush {
 		fmt.Fprintf(os.Stderr, constants.HistoryErrBadArgs, constants.HistoryErrConflictFlags)
 		cliexit.HandleError(nil, constants.HistoryExitBadArgs)
 	}

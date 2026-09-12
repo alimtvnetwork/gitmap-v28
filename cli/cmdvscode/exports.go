@@ -66,8 +66,8 @@ func CanonicalizePMPath(absPath string) string {
 }
 
 // SyncRecordsToVSCodePM syncs scan records to VS Code PM.
-func SyncRecordsToVSCodePM(records []model.ScanRecord, noVSCodeSync, noAutoTags bool) {
-	syncRecordsToVSCodePM(records, noVSCodeSync, noAutoTags)
+func SyncRecordsToVSCodePM(records []model.ScanRecord, isSkipVSCodeSync, isSkipAutoTags bool) {
+	syncRecordsToVSCodePM(records, isSkipVSCodeSync, isSkipAutoTags)
 }
 
 // RenameVSCodePMByPath renames a project manager entry by its path.

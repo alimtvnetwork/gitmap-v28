@@ -76,7 +76,7 @@ func TestParseGoModFlags_Defaults(t *testing.T) {
 		t.Errorf("expected newPath=github.com/new/path, got %q", opts.newPath)
 	}
 
-	if opts.dryRun || opts.noMerge || opts.noTidy || opts.verbose {
+	if opts.isDryRun || opts.isSkipMerge || opts.isSkipTidy || opts.isVerbose {
 		t.Error("expected all flags false by default")
 	}
 
@@ -91,7 +91,8 @@ func TestParseGoModFlags_AllFlags(t *testing.T) {
 		"--ext", "*.go,*.md",
 		"github.com/new/path",
 	})
-	if !opts.dryRun || !opts.noMerge || !opts.noTidy || !opts.verbose {
+	isAllSet := opts.isDryRun && opts.isSkipMerge && opts.isSkipTidy && opts.isVerbose
+	if !isAllSet {
 		t.Error("expected all flags true")
 	}
 

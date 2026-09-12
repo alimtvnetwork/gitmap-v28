@@ -29,13 +29,15 @@ func ParseSubCommands(tokens []string) ([]cluster.ClusterSubCommand, error) {
 
 		isGit := cmdToken == "git"
 		isProj := cmdToken == "proj"
-		hasMinTokens := len(currentTokens) >= 2
+		hasTokensMissing := len(currentTokens) < 2
 
-		if isGit && !hasMinTokens {
+		isGitMissing := isGit && hasTokensMissing
+		if isGitMissing {
 			return fmt.Errorf("missing git sub-command")
 		}
 
-		if isProj && !hasMinTokens {
+		isProjMissing := isProj && hasTokensMissing
+		if isProjMissing {
 			return fmt.Errorf("missing proj sub-command")
 		}
 
@@ -117,9 +119,9 @@ func ParseSubCommands(tokens []string) ([]cluster.ClusterSubCommand, error) {
 
 		hasCommaSuffix := strings.HasSuffix(token, ",")
 		stripped := strings.TrimSuffix(token, ",")
-		isStrippedEmpty := stripped == ""
+		hasStrippedContent := stripped != ""
 
-		if hasCommaSuffix && !isStrippedEmpty {
+		if hasCommaSuffix && hasStrippedContent {
 			currentTokens = append(currentTokens, stripped)
 		}
 

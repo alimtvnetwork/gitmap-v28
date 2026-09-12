@@ -16,17 +16,15 @@ import (
 
 // latestBranchConfig holds parsed flags for the latest-branch command.
 type latestBranchConfig struct {
-	remote           string
-	filterByRemote   bool
-	containsFallback bool
-	top              int
-	format           string
-	shouldFetch      bool
-	sortBy           string
-	filter           string
-	// shouldSwitch toggles the post-report `git checkout` performed by
-	// maybeSwitchToLatest. Wired to `--switch` and its short form `-s`.
-	shouldSwitch bool
+	remote              string
+	isRemoteFiltered    bool
+	hasContainsFallback bool
+	top                 int
+	format              string
+	isFetchEnabled      bool
+	sortBy              string
+	filter              string
+	isSwitchEnabled     bool
 }
 
 // runLatestBranch handles the 'latest-branch' / 'lb' command.
@@ -55,7 +53,7 @@ func validateLatestBranchRepo() {
 
 // fetchLatestBranchRefs fetches remotes when shouldFetch is enabled.
 func fetchLatestBranchRefs(cfg latestBranchConfig) {
-	if !cfg.shouldFetch {
+	if !cfg.isFetchEnabled {
 		return
 	}
 
@@ -86,7 +84,7 @@ func loadFilteredRefs(cfg latestBranchConfig) []string {
 
 // printNoRefsError prints the appropriate "no refs" error message.
 func printNoRefsError(cfg latestBranchConfig) {
-	if cfg.filterByRemote {
+	if cfg.isRemoteFiltered {
 		fmt.Fprintf(os.Stderr, constants.ErrLatestBranchNoRefs, cfg.remote)
 
 		return
@@ -97,7 +95,7 @@ func printNoRefsError(cfg latestBranchConfig) {
 
 // applyRemoteFilter filters refs by remote when filterByRemote is set.
 func applyRemoteFilter(refs []string, cfg latestBranchConfig) []string {
-	if !cfg.filterByRemote {
+	if !cfg.isRemoteFiltered {
 		return refs
 	}
 
@@ -144,38 +142,38 @@ func readAndSortBranches(refs []string, sortBy string) []gitutil.RemoteBranchInf
 func parseLatestBranchFlags(args []string) latestBranchConfig {
 	fs := flag.NewFlagSet(constants.CmdLatestBranch, flag.ExitOnError)
 	var cfg latestBranchConfig
-	var allRemotes, noFetch, jsonOut, switchLong, switchShort bool
+	var isAllRemotes, isSkipFetch, isJSONOut, isSwitchLong, isSwitchShort bool
 	fs.StringVar(&cfg.remote, "remote", "origin", constants.FlagDescLBRemote)
-	fs.BoolVar(&allRemotes, "all-remotes", false, constants.FlagDescLBAllRemotes)
-	fs.BoolVar(&cfg.containsFallback, "contains-fallback", false, constants.FlagDescLBContains)
+	fs.BoolVar(&isAllRemotes, "all-remotes", false, constants.FlagDescLBAllRemotes)
+	fs.BoolVar(&cfg.hasContainsFallback, "contains-fallback", false, constants.FlagDescLBContains)
 	fs.IntVar(&cfg.top, "top", 0, constants.FlagDescLBTop)
 	fs.StringVar(&cfg.format, "format", constants.OutputTerminal, constants.FlagDescLBFormat)
-	fs.BoolVar(&jsonOut, "json", false, constants.FlagDescLBJSON)
-	fs.BoolVar(&noFetch, "no-fetch", false, constants.FlagDescLBNoFetch)
+	fs.BoolVar(&isJSONOut, "json", false, constants.FlagDescLBJSON)
+	fs.BoolVar(&isSkipFetch, "no-fetch", false, constants.FlagDescLBNoFetch)
 	fs.StringVar(&cfg.sortBy, "sort", constants.SortByDate, constants.FlagDescLBSort)
 	fs.StringVar(&cfg.filter, "filter", "", constants.FlagDescLBFilter)
 	// --switch / -s. Both registered against the same effect; either
-	// being true flips cfg.shouldSwitch on. Go's flag package doesn't
+	// being true flips cfg.isSwitchEnabled on. Go's flag package doesn't
 	// natively support aliases so we OR them in resolveLatestBranchConfig.
-	fs.BoolVar(&switchLong, "switch", false, constants.FlagDescLBSwitch)
-	fs.BoolVar(&switchShort, "s", false, constants.FlagDescLBSwitchShort)
+	fs.BoolVar(&isSwitchLong, "switch", false, constants.FlagDescLBSwitch)
+	fs.BoolVar(&isSwitchShort, "s", false, constants.FlagDescLBSwitchShort)
 	fs.Parse(args)
-	cfg.shouldSwitch = switchLong || switchShort
+	cfg.isSwitchEnabled = isSwitchLong || isSwitchShort
 
-	return resolveLatestBranchConfig(fs, cfg, allRemotes, noFetch, jsonOut)
+	return resolveLatestBranchConfig(fs, cfg, isAllRemotes, isSkipFetch, isJSONOut)
 }
 
 // resolveLatestBranchConfig converts parsed flags into positive-logic config.
 func resolveLatestBranchConfig(
 	fs *flag.FlagSet,
 	cfg latestBranchConfig,
-	allRemotes,
-	noFetch,
-	jsonOut bool,
+	isAllRemotes,
+	isSkipFetch,
+	isJSONOut bool,
 ) latestBranchConfig {
-	cfg.filterByRemote = !allRemotes
-	cfg.shouldFetch = !noFetch
-	if jsonOut {
+	cfg.isRemoteFiltered = !isAllRemotes
+	cfg.isFetchEnabled = !isSkipFetch
+	if isJSONOut {
 		cfg.format = constants.OutputJSON
 	}
 

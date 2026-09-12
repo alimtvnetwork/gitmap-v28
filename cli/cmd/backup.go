@@ -201,9 +201,15 @@ func DirSize(path string) int64 {
 func dirSize(path string) int64 {
 	var total int64
 	_ = filepath.Walk(path, func(_ string, info os.FileInfo, err error) error {
-		if err == nil && !info.IsDir() {
-			total += info.Size()
+		if err != nil {
+			return nil
 		}
+
+		if info.IsDir() {
+			return nil
+		}
+
+		total += info.Size()
 
 		return nil
 	})

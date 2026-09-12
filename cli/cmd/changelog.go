@@ -26,7 +26,10 @@ func runChangelog(args []string) error {
 		return err
 	}
 
-	if !latest && len(version) == 0 && openFile {
+	isVersionOmitted := len(version) == 0
+	isLatestOmitted := !latest
+	isOnlyOpenFile := openFile && isVersionOmitted && isLatestOmitted
+	if isOnlyOpenFile {
 		return nil
 	}
 
@@ -57,14 +60,6 @@ func handleChangelogOpen(latest bool, version string) *apperror.AppError {
 	err := openChangelogFile()
 	if err != nil {
 		return apperror.WrapSimple(err, constants.ErrChangelogOpen)
-	}
-
-	if !latest && len(version) == 0 {
-		return nil
-	}
-
-	if !latest && len(version) == 0 {
-		return nil
 	}
 
 	return nil

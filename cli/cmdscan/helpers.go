@@ -32,9 +32,9 @@ func failPendingTask(db *store.DB, taskID int64, reason string) {
 	}
 }
 
-func syncRecordsToVSCodePM(records []model.ScanRecord, noVSCodeSync, noAutoTags bool) {
+func syncRecordsToVSCodePM(records []model.ScanRecord, isSkipVSCodeSync, isSkipAutoTags bool) {
 	if SyncRecordsToVSCodePMFn != nil {
-		SyncRecordsToVSCodePMFn(records, noVSCodeSync, noAutoTags)
+		SyncRecordsToVSCodePMFn(records, isSkipVSCodeSync, isSkipAutoTags)
 	}
 }
 

@@ -57,7 +57,7 @@ func executeIPChange(ctx context.Context, newIP string, doPing bool) error {
 		return apperror.Wrap(swapErr, "executeIPChange", map[string]any{"ip": newIP})
 	}
 
-	if doPing && !validatePing(ctx, "8.8.8.8", 3) {
+	if isIPChangeRollbackNeeded(ctx, doPing) {
 		fmt.Println("reverting")
 		_ = swapIP(ctx, interfaceName, newIP, "192.168.1.100") // rollback
 
@@ -65,6 +65,14 @@ func executeIPChange(ctx context.Context, newIP string, doPing bool) error {
 	}
 
 	return nil
+}
+
+func isIPChangeRollbackNeeded(ctx context.Context, doPing bool) bool {
+	if !doPing {
+		return false
+	}
+
+	return !validatePing(ctx, "8.8.8.8", 3)
 }
 
 func init() {

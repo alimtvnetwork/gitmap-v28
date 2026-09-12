@@ -293,9 +293,9 @@ func atoiSafe(s string) int {
 	return n
 }
 
-func buildCFRTransportAndSyncFlags(noVSCodeSync, requireVersion, useSSH, useHTTPS bool) []string {
+func buildCFRTransportAndSyncFlags(isSkipVSCodeSync, requireVersion, useSSH, useHTTPS bool) []string {
 	out := make([]string, 0, 4)
-	if noVSCodeSync {
+	if isSkipVSCodeSync {
 		out = append(out, "--"+constants.FlagNoVSCodeSync)
 	}
 
@@ -314,7 +314,7 @@ func buildCFRTransportAndSyncFlags(noVSCodeSync, requireVersion, useSSH, useHTTP
 	return out
 }
 
-func buildCFRActionFlags(autoYes, dryRun, noCommit, noPush bool) []string {
+func buildCFRActionFlags(autoYes, dryRun, isSkipCommit, isSkipPush bool) []string {
 	out := make([]string, 0, 4)
 	if autoYes {
 		out = append(out, "--yes")
@@ -324,11 +324,11 @@ func buildCFRActionFlags(autoYes, dryRun, noCommit, noPush bool) []string {
 		out = append(out, "--"+constants.FlagCloneDryRun)
 	}
 
-	if noCommit {
+	if isSkipCommit {
 		out = append(out, "--"+constants.FlagCGNoCommit)
 	}
 
-	if noPush {
+	if isSkipPush {
 		out = append(out, "--"+constants.FlagCGNoPush)
 	}
 
@@ -341,18 +341,18 @@ func buildCFRActionFlags(autoYes, dryRun, noCommit, noPush bool) []string {
 // --parallel flag is intentionally NOT forwarded — workers run a
 // single URL and must not recurse into another fan-out.
 func buildCFRPassthroughFlags(
-	noVSCodeSync,
+	isSkipVSCodeSync,
 	requireVersion,
 	useSSH,
 	useHTTPS,
 	autoYes,
 	dryRun,
-	noCommit,
-	noPush bool,
+	isSkipCommit,
+	isSkipPush bool,
 ) []string {
-	flags := buildCFRTransportAndSyncFlags(noVSCodeSync, requireVersion, useSSH, useHTTPS)
+	flags := buildCFRTransportAndSyncFlags(isSkipVSCodeSync, requireVersion, useSSH, useHTTPS)
 
-	return append(flags, buildCFRActionFlags(autoYes, dryRun, noCommit, noPush)...)
+	return append(flags, buildCFRActionFlags(autoYes, dryRun, isSkipCommit, isSkipPush)...)
 }
 
 func handleSingleURLSplit(raw string) []string {

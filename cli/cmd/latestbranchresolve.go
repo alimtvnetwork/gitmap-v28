@@ -21,7 +21,7 @@ type latestBranchResult struct {
 func resolveLatestResult(items []gitutil.RemoteBranchInfo, cfg latestBranchConfig) latestBranchResult {
 	latest := items[0]
 	selectedRemote := extractRemoteName(latest.RemoteRef)
-	branchNames := resolveBranchNames(latest.Sha, selectedRemote, cfg.containsFallback)
+	branchNames := resolveBranchNames(latest.Sha, selectedRemote, cfg.hasContainsFallback)
 
 	return latestBranchResult{
 		branchNames:    branchNames,
@@ -43,13 +43,13 @@ func extractRemoteName(remoteRef string) string {
 }
 
 // resolveBranchNames resolves human-readable branch names from a SHA.
-func resolveBranchNames(sha, remote string, containsFallback bool) []string {
+func resolveBranchNames(sha, remote string, hasContainsFallback bool) []string {
 	names := gitutil.ResolvePointsAt(sha, remote)
 	if len(names) > 0 {
 		return names
 	}
 
-	if !containsFallback {
+	if !hasContainsFallback {
 		return []string{constants.LBUnknownBranch}
 	}
 

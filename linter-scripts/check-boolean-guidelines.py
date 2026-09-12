@@ -24,7 +24,7 @@ EXCLUDE_DIRS = {
 EXPLICIT_BOOL_REGEX = re.compile(r'\b(==\s*true|===\s*true|==\s*false|===\s*false)\b')
 NEGATIVE_BOOL_NAME_REGEX = re.compile(r'\b(isNot[A-Z]\w*|hasNo[A-Z]\w*)\b')
 INVERTED_SUCCESS_REGEX = re.compile(r'!\s*(?:[a-zA-Z0-9_$.->]+\.)?[iI]sSuccess\b')
-BANNED_FUNC_PREFIX_REGEX = re.compile(r'\bfunc\s+(?:(?:\([a-zA-Z0-9_*]+\)\s+)?)(can[A-Z]\w*|should[A-Z]\w*)\s*\([^)]*\)\s*bool\b')
+BANNED_FUNC_PREFIX_REGEX = re.compile(r'\bfunc\s+(?:(?:\([a-zA-Z0-9_*]+\)\s+)?)(can[A-Z]\w*|should[A-Z]\w*|was[A-Z]\w*|will[A-Z]\w*|did[A-Z]\w*|must[A-Z]\w*)\s*\([^)]*\)\s*bool\b')
 MIXED_POLARITY_REGEX = re.compile(r'\bif\b[^;{}]*?(?:&&|\band\b)\s*![a-zA-Z0-9_$.->]+')
 
 

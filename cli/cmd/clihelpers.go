@@ -88,8 +88,8 @@ func runFindDuplicatesVSCode() error {
 	return cmdvscode.RunFindDuplicates()
 }
 
-func syncRecordsToVSCodePM(records []model.ScanRecord, noVSCodeSync, noAutoTags bool) {
-	cmdvscode.SyncRecordsToVSCodePM(records, noVSCodeSync, noAutoTags)
+func syncRecordsToVSCodePM(records []model.ScanRecord, isSkipVSCodeSync, isSkipAutoTags bool) {
+	cmdvscode.SyncRecordsToVSCodePM(records, isSkipVSCodeSync, isSkipAutoTags)
 }
 
 func reportVSCodePMSoftError(err error) {
@@ -814,8 +814,8 @@ func init() {
 	cmdclone.RunCodingGuidelinesInstallFn = func(dir string) error {
 		return RunCodingGuidelinesInstall(CodingGuidelinesOpts{WorkingDir: dir})
 	}
-	cmdclone.CommitCodingGuidelinesFn = func(dir string, noCommit, noPush bool) error {
-		return CommitCodingGuidelines(CGCommitOpts{WorkingDir: dir, NoCommit: noCommit, NoPush: noPush})
+	cmdclone.CommitCodingGuidelinesFn = func(dir string, isSkipCommit, isSkipPush bool) error {
+		return CommitCodingGuidelines(CGCommitOpts{WorkingDir: dir, IsSkipCommit: isSkipCommit, IsSkipPush: isSkipPush})
 	}
 	cmdclone.RunCFRPPriorVersionPrivatizeFn = runCFRPPriorVersionPrivatize
 	cmdclone.RunGitHubDesktopOptimizeFn = runGitHubDesktopOptimize

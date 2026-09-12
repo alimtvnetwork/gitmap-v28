@@ -4,10 +4,11 @@ Master directory of architectural and execution plans.
 
 ## Pending Plans
 
-None.
+*(No pending plans)*
 
 ## Completed Plans (Consolidated Milestones)
 
+- [142-boolean-principles-negatives-and-complex-conditions.md](completed/142-boolean-principles-negatives-and-complex-conditions.md): Boolean Principles, Negatives & Complex Conditions Coding Guideline Audit
 - [141-result-wrapper-and-slice-returns.md](completed/141-result-wrapper-and-slice-returns.md): Result Wrapper Types, Collections & AppError Returns Architecture (Phase 2 - ResultSlice)
 - [140-constants-and-enums-architecture.md](completed/140-constants-and-enums-architecture.md): Constants & Enums Architecture Audit (*Type Suffix & Rune Cast Elimination)
 - [139-nested-if-elimination-and-guard-clauses.md](completed/139-nested-if-elimination-and-guard-clauses.md): Nested If Elimination & Guard Clauses Coding Guideline Audit

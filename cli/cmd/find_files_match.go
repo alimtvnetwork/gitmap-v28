@@ -21,7 +21,10 @@ func parseExtensionList(raw string) []string {
 }
 
 func isFileMatching(opts FindFilesOptions, baseName, relPath string) bool {
-	if len(opts.Exts) > 0 && !hasAllowedExtension(baseName, opts.Exts) {
+	hasExtFilter := len(opts.Exts) > 0
+	isExtDisallowed := !hasAllowedExtension(baseName, opts.Exts)
+	isFilterRejected := hasExtFilter && isExtDisallowed
+	if isFilterRejected {
 		return false
 	}
 

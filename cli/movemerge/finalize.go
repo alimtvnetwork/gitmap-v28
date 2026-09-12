@@ -9,7 +9,7 @@ import (
 // finalizeURLSides commits + pushes any URL endpoint that should
 // receive the change. DirectionType decides which side(s) are written.
 func finalizeURLSides(left, right Endpoint, dir DirectionType, opts Options) error {
-	if opts.IsNoCommit || opts.IsDryRun {
+	if opts.IsSkipCommit || opts.IsDryRun {
 		return nil
 	}
 
@@ -53,7 +53,7 @@ func otherDisplay(other, _ Endpoint) string {
 func commitAndPushOne(ep Endpoint, otherDisp string, opts Options) error {
 	logf(opts.LogPrefix, "committing in %s ...", ep.DisplayName)
 	msg := fmt.Sprintf(opts.CommitMsgFmt, otherDisp)
-	isPush := !opts.IsNoPush
+	isPush := !opts.IsSkipPush
 	sha, err := AddCommitPush(ep.WorkingDir, msg, isPush)
 	if err != nil {
 		logErr(opts.LogPrefix, fmt.Sprintf(constants.ErrMMPushFailFmt, sha))

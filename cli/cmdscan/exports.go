@@ -11,7 +11,7 @@ var (
 	CreatePendingTaskFn     func(typeName, targetPath, workDir, sourceCmd, cmdArgs string) (int64, *store.DB)
 	CompletePendingTaskFn   func(db *store.DB, taskID int64)
 	FailPendingTaskFn       func(db *store.DB, taskID int64, reason string)
-	SyncRecordsToVSCodePMFn func(records []model.ScanRecord, noVSCodeSync, noAutoTags bool)
+	SyncRecordsToVSCodePMFn func(records []model.ScanRecord, isSkipVSCodeSync, isSkipAutoTags bool)
 	RunPruneStaleDBFn       func(absDir string, records []model.ScanRecord) error
 	CheckHelpFn             func(subcmd string, args []string)
 )

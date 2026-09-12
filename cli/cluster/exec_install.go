@@ -85,8 +85,8 @@ func ExecInstall(
 		_, stderr, exitCode, cmdErr := ExecCmd(ctx, node, cmdStr)
 
 		isSuccessExit := exitCode == constants.ExitCodeSuccess
-		noCmdErr := cmdErr == nil
-		succeeded := isSuccessExit && noCmdErr
+		isCmdSuccess := cmdErr == nil
+		succeeded := isSuccessExit && isCmdSuccess
 
 		res := PackageResult{
 			PackageName: pkg,

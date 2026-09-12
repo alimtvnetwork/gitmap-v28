@@ -28,20 +28,20 @@ import (
 // CGCommitOpts controls a single post-install commit/push run.
 // Zero-value opts default to real exec + os stdio.
 type CGCommitOpts struct {
-	WorkingDir string
-	NoCommit   bool
-	NoPush     bool
-	Runner     func(name string, args ...string) *exec.Cmd
-	Stdout     io.Writer
-	Stderr     io.Writer
+	WorkingDir   string
+	IsSkipCommit bool
+	IsSkipPush   bool
+	Runner       func(name string, args ...string) *exec.Cmd
+	Stdout       io.Writer
+	Stderr       io.Writer
 }
 
 // CommitCodingGuidelines stages, commits, and (optionally) pushes any
 // working-tree changes produced by the v24 installer.
 func CommitCodingGuidelines(opts CGCommitOpts) error {
 	opts = withCGCommitDefaults(opts)
-	if opts.NoCommit {
-		emitCGSkipNotes(opts, true, opts.NoPush)
+	if opts.IsSkipCommit {
+		emitCGSkipNotes(opts, true, opts.IsSkipPush)
 
 		return nil
 	}
@@ -118,7 +118,7 @@ func commitAndMaybePush(opts CGCommitOpts) error {
 	}
 
 	fmt.Fprintf(opts.Stderr, constants.MsgCGCommitted, constants.CodingGuidelinesCommitMessage)
-	if opts.NoPush {
+	if opts.IsSkipPush {
 		emitCGSkipNotes(opts, false, true)
 
 		return nil
@@ -168,13 +168,13 @@ func detectUpstream(opts CGCommitOpts) (string, bool) {
 // races. The notes are mirrored to Stdout as well because they are
 // user-facing status, not errors, and some CI runners buffer stderr
 // separately from stdout when interleaving through a merged pipe.
-func emitCGSkipNotes(opts CGCommitOpts, noCommit, noPush bool) {
+func emitCGSkipNotes(opts CGCommitOpts, isSkipCommit, isSkipPush bool) {
 	var b strings.Builder
-	if noCommit {
+	if isSkipCommit {
 		b.WriteString(constants.MsgCGSkipCommit)
 	}
 
-	if noPush {
+	if isSkipPush {
 		b.WriteString(constants.MsgCGSkipPush)
 	}
 

@@ -25,7 +25,7 @@ import (
 // errors from git are passed through verbatim — we don't try to be
 // clever about stashing.
 func maybeSwitchToLatest(result latestBranchResult, cfg latestBranchConfig) {
-	if !cfg.shouldSwitch {
+	if !cfg.isSwitchEnabled {
 		return
 	}
 

@@ -219,8 +219,9 @@ func resolveSnapshotTarget(snapsDir string, args []string) (string, error) {
 		return "", apperror.NewSimple("no snapshots available to restore", "E1080")
 	}
 
-	if len(args) > 0 && !strings.HasPrefix(args[0], "-") {
-		return pickSnapshotByNameOrIndex(entries, args[0])
+	targetArg := extractSnapshotArg(args)
+	if targetArg != "" {
+		return pickSnapshotByNameOrIndex(entries, targetArg)
 	}
 
 	if !isInteractiveStdin() {
@@ -230,10 +231,22 @@ func resolveSnapshotTarget(snapsDir string, args []string) (string, error) {
 	return promptSnapshotSelection(entries)
 }
 
+func extractSnapshotArg(args []string) string {
+	if len(args) == 0 {
+		return ""
+	}
+
+	if strings.HasPrefix(args[0], "-") {
+		return ""
+	}
+
+	return args[0]
+}
+
 func pickSnapshotByNameOrIndex(entries []os.DirEntry, val string) (string, error) {
-	num, err := strconv.Atoi(val)
-	if err == nil && num >= 1 && num <= len(entries) {
-		return entries[num-1].Name(), nil
+	name, ok := pickSnapshotByIndex(entries, val)
+	if ok {
+		return name, nil
 	}
 
 	for _, e := range entries {
@@ -243,6 +256,19 @@ func pickSnapshotByNameOrIndex(entries []os.DirEntry, val string) (string, error
 	}
 
 	return "", apperror.NewSimple("snapshot not found: "+val, "E1081")
+}
+
+func pickSnapshotByIndex(entries []os.DirEntry, val string) (string, bool) {
+	num, err := strconv.Atoi(val)
+	if err != nil {
+		return "", false
+	}
+
+	if num < 1 || num > len(entries) {
+		return "", false
+	}
+
+	return entries[num-1].Name(), true
 }
 
 func promptSnapshotSelection(entries []os.DirEntry) (string, error) {

@@ -110,8 +110,12 @@ func resolveCDPath(name string, records []model.ScanRecord, pick bool) (string, 
 		return records[0].AbsolutePath, nil
 	}
 
+	if pick {
+		return promptCDPick(name, records)
+	}
+
 	dflt := loadCDDefault(name)
-	if len(dflt) > 0 && !pick {
+	if len(dflt) > 0 {
 		return dflt, nil
 	}
 

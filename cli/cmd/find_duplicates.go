@@ -33,11 +33,15 @@ func resolveDuplicatePlatform(platform string, args []string) string {
 		return strings.ToLower(strings.TrimSpace(platform))
 	}
 
-	if len(args) > 0 && !strings.HasPrefix(args[0], "-") {
-		return strings.ToLower(strings.TrimSpace(args[0]))
+	if len(args) == 0 {
+		return "all"
 	}
 
-	return "all"
+	if strings.HasPrefix(args[0], "-") {
+		return "all"
+	}
+
+	return strings.ToLower(strings.TrimSpace(args[0]))
 }
 
 func printUnknownDupPlatform(platform string) error {

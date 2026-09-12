@@ -72,7 +72,10 @@ func retryReplayTask(db *store.DB, taskID int64, workDir, cmdArgs string) {
 		return
 	}
 
-	if workDir != "" && !pathExists(workDir) {
+	hasWorkDir := workDir != ""
+	isDirMissing := !pathExists(workDir)
+	isWorkDirNotFound := hasWorkDir && isDirMissing
+	if isWorkDirNotFound {
 		reason := fmt.Sprintf(constants.ReasonWorkDirNotFound, workDir)
 		failTaskAndLog(db, taskID, reason)
 

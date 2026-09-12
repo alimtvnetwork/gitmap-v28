@@ -13,12 +13,12 @@ import (
 
 // goModOpts holds parsed flags for the gomod command.
 type goModOpts struct {
-	newPath string
-	dryRun  bool
-	noMerge bool
-	noTidy  bool
-	verbose bool
-	exts    []string
+	newPath     string
+	isDryRun    bool
+	isSkipMerge bool
+	isSkipTidy  bool
+	isVerbose   bool
+	exts        []string
 }
 
 // runGoMod is the entry point for the gomod command.
@@ -37,7 +37,7 @@ func runGoMod(args []string) error {
 		return err
 	}
 
-	if opts.dryRun {
+	if opts.isDryRun {
 		runGoModDryRun(oldPath, opts.newPath, opts.exts)
 
 		return nil
@@ -47,11 +47,11 @@ func runGoMod(args []string) error {
 	slug := deriveSlug(opts.newPath)
 	backupBranch, featureBranch := createGoModBranches(slug)
 
-	fileCount := replaceModulePath(oldPath, opts.newPath, opts.verbose, opts.exts)
-	runGoModTidy(opts.noTidy)
+	fileCount := replaceModulePath(oldPath, opts.newPath, opts.isVerbose, opts.exts)
+	runGoModTidy(opts.isSkipTidy)
 	commitGoModChanges(oldPath, opts.newPath, fileCount)
 
-	if opts.noMerge {
+	if opts.isSkipMerge {
 		printGoModSummaryNoMerge(oldPath, opts.newPath, fileCount, backupBranch, featureBranch)
 
 		return nil
@@ -66,10 +66,10 @@ func runGoMod(args []string) error {
 // parseGoModFlags parses flags for the gomod command.
 func parseGoModFlags(args []string) goModOpts {
 	fs := flag.NewFlagSet(constants.CmdGoMod, flag.ExitOnError)
-	dryRun := fs.Bool(constants.FlagGoModDryRun, false, constants.FlagDescGoModDryRun)
-	noMerge := fs.Bool(constants.FlagGoModNoMerge, false, constants.FlagDescGoModNoMerge)
-	noTidy := fs.Bool(constants.FlagGoModNoTidy, false, constants.FlagDescGoModNoTidy)
-	verbose := fs.Bool("verbose", false, constants.FlagDescVerbose)
+	isDryRun := fs.Bool(constants.FlagGoModDryRun, false, constants.FlagDescGoModDryRun)
+	isSkipMerge := fs.Bool(constants.FlagGoModNoMerge, false, constants.FlagDescGoModNoMerge)
+	isSkipTidy := fs.Bool(constants.FlagGoModNoTidy, false, constants.FlagDescGoModNoTidy)
+	isVerbose := fs.Bool("verbose", false, constants.FlagDescVerbose)
 	extFlag := fs.String(constants.FlagGoModExt, "", constants.FlagDescGoModExt)
 	fs.Parse(args)
 
@@ -81,12 +81,12 @@ func parseGoModFlags(args []string) goModOpts {
 	exts := parseExtFlag(*extFlag)
 
 	return goModOpts{
-		newPath: newPath,
-		dryRun:  *dryRun,
-		noMerge: *noMerge,
-		noTidy:  *noTidy,
-		verbose: *verbose,
-		exts:    exts,
+		newPath:     newPath,
+		isDryRun:    *isDryRun,
+		isSkipMerge: *isSkipMerge,
+		isSkipTidy:  *isSkipTidy,
+		isVerbose:   *isVerbose,
+		exts:        exts,
 	}
 }
 
@@ -146,8 +146,8 @@ func printGoModSummaryNoMerge(oldPath, newPath string, fileCount int, backup, fe
 }
 
 // runGoModTidy runs go mod tidy unless --no-tidy is set.
-func runGoModTidy(noTidy bool) error {
-	if noTidy {
+func runGoModTidy(isSkipTidy bool) error {
+	if isSkipTidy {
 		return nil
 	}
 

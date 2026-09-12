@@ -62,8 +62,8 @@ const (
 type Options struct {
 	IsYes             bool
 	Prefer            PreferPolicyType
-	IsNoPush          bool
-	IsNoCommit        bool
+	IsSkipPush        bool
+	IsSkipCommit      bool
 	IsForceFolder     bool
 	IsPullFolder      bool
 	IsInitNewRight    bool

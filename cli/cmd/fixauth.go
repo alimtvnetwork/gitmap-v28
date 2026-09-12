@@ -110,22 +110,8 @@ func fixAuthGenerate(keyPath, email string, assumeYes, force bool) {
 		keyExists = true
 	}
 
-	if keyExists && !force {
-		fmt.Printf("• key already exists, reusing: %s\n", keyPath)
-
+	if !validateKeyGeneration(keyExists, keyPath, assumeYes, force) {
 		return
-	}
-
-	if keyExists && !assumeYes && !confirmOverwrite(keyPath) {
-		fmt.Println("• aborted; existing key kept")
-		cliexit.HandleSuccess()
-
-		return
-	}
-
-	if keyExists {
-		_ = os.Remove(keyPath)
-		_ = os.Remove(keyPath + ".pub")
 	}
 
 	if err := validateSSHKeygen(); err != nil {
@@ -136,6 +122,31 @@ func fixAuthGenerate(keyPath, email string, assumeYes, force bool) {
 	}
 
 	runSSHKeygenEd25519(keyPath, email)
+}
+
+func validateKeyGeneration(keyExists bool, keyPath string, assumeYes, force bool) bool {
+	if !keyExists {
+		return true
+	}
+
+	if !force {
+		fmt.Printf("• key already exists, reusing: %s\n", keyPath)
+
+		return false
+	}
+
+	isConfirmed := assumeYes || confirmOverwrite(keyPath)
+	if !isConfirmed {
+		fmt.Println("• aborted; existing key kept")
+		cliexit.HandleSuccess()
+
+		return false
+	}
+
+	_ = os.Remove(keyPath)
+	_ = os.Remove(keyPath + ".pub")
+
+	return true
 }
 
 // runSSHKeygenEd25519 invokes ssh-keygen with an empty passphrase.

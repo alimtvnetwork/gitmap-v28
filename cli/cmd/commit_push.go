@@ -151,7 +151,11 @@ func parseRewriteFlags(args []string) (string, bool) {
 			continue
 		}
 
-		if targetSha == "" && !strings.HasPrefix(arg, "-") {
+		if strings.HasPrefix(arg, "-") {
+			continue
+		}
+
+		if targetSha == "" {
 			targetSha = arg
 		}
 	}

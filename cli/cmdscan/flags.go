@@ -123,9 +123,12 @@ func parseScanFlags(args []string) (dir, configPath, mode, output, outFile, outp
 }
 
 func resolveScanWorkers(fs *flag.FlagSet, workers, concurrency *int) int {
-	isWorkersSet := wasFlagPassed(fs, constants.FlagScanWorkers)
-	isConcSet := wasFlagPassed(fs, constants.FlagScanWorkersConcurrencyAlias)
-	if !isWorkersSet && isConcSet {
+	isWorkersSet := isFlagPassed(fs, constants.FlagScanWorkers)
+	isConcSet := isFlagPassed(fs, constants.FlagScanWorkersConcurrencyAlias)
+	isWorkersMissing := !isWorkersSet
+	isFallbackNeeded := isWorkersMissing && isConcSet
+
+	if isFallbackNeeded {
 		fmt.Fprint(os.Stderr, constants.MsgScanWorkersConcurrencyAlias)
 
 		return *concurrency
@@ -135,9 +138,12 @@ func resolveScanWorkers(fs *flag.FlagSet, workers, concurrency *int) int {
 }
 
 func resolveProbeConcurrency(fs *flag.FlagSet, probeConc, probeWorkers *int) (int, bool) {
-	isConcSet := wasFlagPassed(fs, constants.ScanProbeFlagConcurrency)
-	isWorkersSet := wasFlagPassed(fs, constants.ScanProbeFlagProbeWorkers)
-	if !isWorkersSet && isConcSet {
+	isConcSet := isFlagPassed(fs, constants.ScanProbeFlagConcurrency)
+	isWorkersSet := isFlagPassed(fs, constants.ScanProbeFlagProbeWorkers)
+	isWorkersMissing := !isWorkersSet
+	isFallbackNeeded := isWorkersMissing && isConcSet
+
+	if isFallbackNeeded {
 		fmt.Fprint(os.Stderr, constants.MsgScanProbeConcurrencyAlias)
 
 		return *probeConc, true
@@ -159,7 +165,7 @@ func resolveScanProbeOptions(fs *flag.FlagSet, noProbe, noWait *bool,
 	}
 }
 
-func wasFlagPassed(fs *flag.FlagSet, flagName string) bool {
+func isFlagPassed(fs *flag.FlagSet, flagName string) bool {
 	hasSeen := false
 	fs.Visit(func(flagItem *flag.Flag) {
 		if flagItem.Name == flagName {

@@ -34,7 +34,7 @@ func TestCommitCodingGuidelinesNoCommitNoPushPrintsBothNotes(t *testing.T) {
 	t.Parallel()
 
 	var stdout, stderr bytes.Buffer
-	err := CommitCodingGuidelines(CGCommitOpts{NoCommit: true, NoPush: true, Stdout: &stdout, Stderr: &stderr})
+	err := CommitCodingGuidelines(CGCommitOpts{IsSkipCommit: true, IsSkipPush: true, Stdout: &stdout, Stderr: &stderr})
 	if err != nil {
 		t.Fatalf("expected success, got %v", err)
 	}

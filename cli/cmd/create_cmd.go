@@ -12,7 +12,10 @@ import (
 
 func runCreate(args []string) error {
 	checkHelp("create", args)
-	if len(args) == 0 && !isInteractiveStdin() {
+	isNoArgs := len(args) == 0
+	isNonInteractive := !isInteractiveStdin()
+	isHeadlessError := isNoArgs && isNonInteractive
+	if isHeadlessError {
 		return apperror.NewSimple("usage: gitmap create [repo] <name> [flags]", "E1076")
 	}
 

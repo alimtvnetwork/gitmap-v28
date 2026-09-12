@@ -1,10 +1,10 @@
 package cmd
 
 type moveOpts struct {
-	yes       bool
-	dryRun    bool
-	noVSCode  bool
-	noDesktop bool
+	yes           bool
+	dryRun        bool
+	isSkipVSCode  bool
+	isSkipDesktop bool
 }
 
 func parseMoveFlags(args []string) (moveOpts, []string) {
@@ -17,9 +17,9 @@ func parseMoveFlags(args []string) (moveOpts, []string) {
 		case "--dry-run":
 			opts.dryRun = true
 		case "--no-vscode":
-			opts.noVSCode = true
+			opts.isSkipVSCode = true
 		case "--no-desktop":
-			opts.noDesktop = true
+			opts.isSkipDesktop = true
 		default:
 			positional = append(positional, a)
 		}

@@ -11,8 +11,8 @@ import (
 type movemergeFlagSet struct {
 	yes, accept                                   bool
 	prefL, prefR, prefNewer, prefSkip             bool
-	noPush, noCommit, forceFold, pullFold, dryRun bool
-	initNew, includeVCS, includeNM                bool
+	isSkipPush, isSkipCommit, forceFold, pullFold, dryRun bool
+	initNew, includeVCS, includeNM                        bool
 }
 
 // bindFlags wires every flag onto the provided FlagSet.
@@ -25,8 +25,8 @@ func (m *movemergeFlagSet) bindFlags(fs *flag.FlagSet) {
 	fs.BoolVar(&m.prefR, constants.FlagMMPreferR, false, "RIGHT always wins on conflict")
 	fs.BoolVar(&m.prefNewer, constants.FlagMMPreferNew, false, "newer mtime wins on conflict")
 	fs.BoolVar(&m.prefSkip, constants.FlagMMPreferSkip, false, "skip every conflict")
-	fs.BoolVar(&m.noPush, constants.FlagMMNoPush, false, "skip git push on URL endpoints")
-	fs.BoolVar(&m.noCommit, constants.FlagMMNoCommit, false, "skip commit + push on URL endpoints")
+	fs.BoolVar(&m.isSkipPush, constants.FlagMMNoPush, false, "skip git push on URL endpoints")
+	fs.BoolVar(&m.isSkipCommit, constants.FlagMMNoCommit, false, "skip commit + push on URL endpoints")
 	fs.BoolVar(&m.forceFold, constants.FlagMMForceFold, false, "replace folder whose origin doesn't match URL")
 	fs.BoolVar(&m.pullFold, constants.FlagMMPullFold, false, "force git pull --ff-only on a folder endpoint")
 	fs.BoolVar(&m.dryRun, constants.FlagMMDryRun, false, "print every action; perform none")
@@ -40,8 +40,8 @@ func (m *movemergeFlagSet) toOptions(cmd, prefix, msgFmt string) movemerge.Optio
 	return movemerge.Options{
 		IsYes:             m.yes || m.accept,
 		Prefer:            pickPolicy(m),
-		IsNoPush:          m.noPush,
-		IsNoCommit:        m.noCommit,
+		IsSkipPush:        m.isSkipPush,
+		IsSkipCommit:      m.isSkipCommit,
 		IsForceFolder:     m.forceFold,
 		IsPullFolder:      m.pullFold,
 		IsInitNewRight:    m.initNew,

@@ -15,20 +15,32 @@ import (
 // finalizePush handles the final phase: --no-push prints the manual
 // command, --yes pushes immediately, otherwise prompts.
 func finalizePush(sandbox, originURL string, opts historyOpts) {
-	if opts.noPush {
+	if opts.isSkipPush {
 		fmt.Fprintf(os.Stdout, constants.HistoryMsgManualPush, sandbox, originURL)
 
 		return
 	}
 
-	if !opts.yes && !confirmHistoryPush(sandbox, originURL, opts) {
-		fmt.Fprintf(os.Stderr, constants.HistoryMsgUserAborted, sandbox)
-		fmt.Fprintf(os.Stdout, constants.HistoryMsgManualPush, sandbox, originURL)
-
+	if !checkPromptConfirmation(sandbox, originURL, opts) {
 		return
 	}
 
 	pushSandbox(sandbox, originURL, opts)
+}
+
+func checkPromptConfirmation(sandbox, originURL string, opts historyOpts) bool {
+	if opts.yes {
+		return true
+	}
+
+	if !confirmHistoryPush(sandbox, originURL, opts) {
+		fmt.Fprintf(os.Stderr, constants.HistoryMsgUserAborted, sandbox)
+		fmt.Fprintf(os.Stdout, constants.HistoryMsgManualPush, sandbox, originURL)
+
+		return false
+	}
+
+	return true
 }
 
 // confirmHistoryPush prints the verification banner and blocks on

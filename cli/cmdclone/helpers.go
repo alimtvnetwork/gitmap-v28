@@ -119,9 +119,9 @@ type CodingGuidelinesOpts struct {
 }
 
 type CGCommitOpts struct {
-	WorkingDir string
-	NoCommit   bool
-	NoPush     bool
+	WorkingDir   string
+	IsSkipCommit bool
+	IsSkipPush   bool
 }
 
 func RunCodingGuidelinesInstall(opts CodingGuidelinesOpts) error {
@@ -133,7 +133,7 @@ func RunCodingGuidelinesInstall(opts CodingGuidelinesOpts) error {
 
 func CommitCodingGuidelines(opts CGCommitOpts) error {
 	if CommitCodingGuidelinesFn != nil {
-		return CommitCodingGuidelinesFn(opts.WorkingDir, opts.NoCommit, opts.NoPush)
+		return CommitCodingGuidelinesFn(opts.WorkingDir, opts.IsSkipCommit, opts.IsSkipPush)
 	}
 	return nil
 }
