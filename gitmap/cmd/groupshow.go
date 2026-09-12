@@ -7,6 +7,7 @@ import (
 	"github.com/alimtvnetwork/gitmap-v28/gitmap/apperror"
 	"github.com/alimtvnetwork/gitmap-v28/gitmap/constants"
 	"github.com/alimtvnetwork/gitmap-v28/gitmap/model"
+	"github.com/alimtvnetwork/gitmap-v28/gitmap/store"
 )
 
 // runGroupShow handles "group show <name>".
@@ -15,30 +16,42 @@ func runGroupShow(args []string) error {
 		return apperror.NewSimple(constants.ErrGroupNameReq, "E9000")
 	}
 	name := args[0]
-	executeGroupShow(name)
+	if appErr := executeGroupShow(name); appErr != nil {
+		return appErr
+	}
+
 	return nil
 }
 
-// executeGroupShow opens the DB and displays group repos.
-func executeGroupShow(name string) {
-	db, err := openDB()
-	if err != nil {
-		apperror.WrapSimple(err, constants.ErrListDBFailed)
-		return
-	}
-	defer db.Close()
-
+func fetchGroupRepos(db *store.DB, name string) ([]model.ScanRecord, *apperror.AppError) {
 	repos, err := db.ShowGroup(name)
 	if err != nil && isLegacyDataError(err) {
 		fmt.Fprint(os.Stderr, constants.MsgLegacyProjectData)
-		apperror.NewSimple("fatal error", "E9000")
-		return
+
+		return nil, apperror.NewSimple("legacy data error", "E9000")
 	}
 	if err != nil {
-		apperror.WrapSimple(err, constants.ErrBareFmt)
-		return
+		return nil, apperror.WrapSimple(err, constants.ErrBareFmt)
+	}
+
+	return repos, nil
+}
+
+// executeGroupShow opens the DB and displays group repos.
+func executeGroupShow(name string) *apperror.AppError {
+	db, err := openDB()
+	if err != nil {
+		return apperror.WrapSimple(err, constants.ErrListDBFailed)
+	}
+	defer db.Close()
+
+	repos, appErr := fetchGroupRepos(db, name)
+	if appErr != nil {
+		return appErr
 	}
 	printGroupShowOutput(name, repos)
+
+	return nil
 }
 
 // printGroupShowOutput renders repos in a group with header and rows.

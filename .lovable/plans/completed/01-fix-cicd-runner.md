@@ -5,7 +5,7 @@ Completed in 2 Steps/Loops.
 1. **OS Temp Directory Migration**: Updated `03-ai-scripts/06-cicd-local-runner.py` to store test execution logs, states, and errors directly in `Path(tempfile.gettempdir()) / ".lovable" / "cicd"`.
 2. **Multiple Custom Output Paths**: Added support for `--output-paths` taking multiple file destinations for JSON reports.
 3. **Accurate Parallel ETA Calculation**: Refactored `calculate_total_eta` to compute realistic execution estimates by accounting for parallel workers per batch.
-4. **Hashed Run Directories & Isolated Failure Logs**: 
+4. **Hashed Run Directories & Isolated Failure Logs**:
    - Every run now creates a unique directory tagged with an 8-character hash and timestamp (`<run_hash>-<timestamp>`).
    - Any failing test creates a dedicated file inside `<session_dir>/failed_tests/<sanitized_name>.log` containing the test name, command, exit code, and full stack trace.
    - The AI Remediation Banner displays exact absolute paths to these failed test logs.

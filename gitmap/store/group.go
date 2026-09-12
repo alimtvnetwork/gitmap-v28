@@ -28,9 +28,8 @@ func (db *DB) ListGroups() ([]model.Group, error) {
 	return scanGroupRows(rows)
 }
 
-// FindGroupByName returns the group matching the given name.
-func (db *DB) findGroupByName(name string) (model.Group, error) {
-	row := QueryRowWrapper(db.conn, constants.SQLSelectGroupByName, name)
+func findGroupByNameRunner(runner sqlRowQueryer, name string) (model.Group, error) {
+	row := QueryRowWrapper(runner, constants.SQLSelectGroupByName, name)
 	var g model.Group
 	err := row.Scan(&g.ID, &g.Name, &g.Description, &g.Color, &g.CreatedAt)
 	if err != nil {
@@ -38,6 +37,11 @@ func (db *DB) findGroupByName(name string) (model.Group, error) {
 	}
 
 	return g, nil
+}
+
+// FindGroupByName returns the group matching the given name.
+func (db *DB) findGroupByName(name string) (model.Group, error) {
+	return findGroupByNameRunner(db.conn, name)
 }
 
 // AddRepoToGroup links a repo to a group (silent no-op if already linked).

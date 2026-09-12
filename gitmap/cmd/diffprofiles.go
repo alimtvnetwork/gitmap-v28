@@ -17,7 +17,9 @@ import (
 func runDiffProfiles(args []string) error {
 	checkHelp("diff-profiles", args)
 	nameA, nameB, showAll, jsonMode := parseDPFlags(args)
-	validateDPProfiles(nameA, nameB)
+	if err := validateDPProfiles(nameA, nameB); err != nil {
+		return err
+	}
 
 	reposA := loadProfileRepos(nameA)
 	reposB := loadProfileRepos(nameB)
@@ -31,6 +33,7 @@ func runDiffProfiles(args []string) error {
 	}
 
 	printDPOutput(nameA, nameB, result, showAll)
+
 	return nil
 }
 
@@ -50,15 +53,16 @@ func parseDPFlags(args []string) (string, string, bool, bool) {
 }
 
 // validateDPProfiles checks both profiles exist.
-func validateDPProfiles(nameA, nameB string) {
+func validateDPProfiles(nameA, nameB string) *apperror.AppError {
 	cfg := store.LoadProfileConfig(constants.DefaultOutputFolder)
 
 	for _, name := range []string{nameA, nameB} {
 		if !profileExists(cfg.Profiles, name) {
-			apperror.NewSimple(constants.ErrDPProfileMissing, "E9000")
-			return
+			return apperror.NewSimple(constants.ErrDPProfileMissing, "E9000")
 		}
 	}
+
+	return nil
 }
 
 // loadProfileRepos opens a profile's DB and returns all repos.

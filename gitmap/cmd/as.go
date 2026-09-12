@@ -9,12 +9,11 @@ import (
 	"strings"
 
 	"github.com/alimtvnetwork/gitmap-v28/gitmap/apperror"
+	"github.com/alimtvnetwork/gitmap-v28/gitmap/cliexit"
 	"github.com/alimtvnetwork/gitmap-v28/gitmap/constants"
 	"github.com/alimtvnetwork/gitmap-v28/gitmap/mapper"
 	"github.com/alimtvnetwork/gitmap-v28/gitmap/model"
 	"github.com/alimtvnetwork/gitmap-v28/gitmap/scanner"
-
-	"github.com/alimtvnetwork/gitmap-v28/gitmap/cliexit"
 )
 
 // runAs implements `gitmap as [alias-name] [--force]`.
@@ -33,13 +32,15 @@ func runAs(args []string) *apperror.AppError {
 	if err != nil {
 		cwd, _ := os.Getwd()
 		fmt.Fprintf(os.Stderr, constants.ErrAsNotInRepoFmt, cwd)
+
 		return apperror.NewSimple("fatal error", "E9000")
 	}
 
-	if aliasName == "" {
-		aliasName = filepath.Base(root)
-	}
+	return executeAs(root, aliasName, force)
+}
 
+func executeAs(root, aliasName string, force bool) *apperror.AppError {
+	resolvedAlias := resolveTargetAlias(aliasName, root)
 	rec, buildErr := buildSingleRepoRecord(root)
 	if buildErr != nil {
 		return buildErr
@@ -47,14 +48,20 @@ func runAs(args []string) *apperror.AppError {
 	if upsertErr := upsertSingleRepo(rec); upsertErr != nil {
 		return upsertErr
 	}
-	if regErr := registerAlias(aliasName, rec, force); regErr != nil {
+	if regErr := registerAlias(resolvedAlias, rec, force); regErr != nil {
 		return regErr
 	}
-
-	// Shell handoff: cd the parent shell to the alias root if invoked
-	// via the wrapper function (e.g. `gitmap as foo` from elsewhere).
 	WriteShellHandoff(root)
+
 	return nil
+}
+
+func resolveTargetAlias(aliasName, root string) string {
+	if aliasName != "" {
+		return aliasName
+	}
+
+	return filepath.Base(root)
 }
 
 // parseAsArgs extracts the optional alias-name positional and --force flag.
@@ -64,20 +71,22 @@ func parseAsArgs(args []string) (string, bool) {
 	fs.BoolVar(force, constants.FlagAsForceS, false, "overwrite an existing alias (short)")
 
 	if err := fs.Parse(reorderFlagsBeforeArgs(args)); err != nil {
-		cliexit.HandleError(nil, 2)
+		cliexit.HandleUsageError(err)
 	}
 
-	rest := fs.Args()
+	return extractAsAliasArg(fs.Args(), *force)
+}
+
+func extractAsAliasArg(rest []string, force bool) (string, bool) {
 	if len(rest) > 1 {
 		fmt.Fprintln(os.Stderr, constants.ErrAsUsage)
-		cliexit.HandleError(nil, 2)
+		cliexit.HandleUsageError(fmt.Errorf("%s", constants.ErrAsUsage))
 	}
-
 	if len(rest) == 1 {
-		return rest[0], *force
+		return rest[0], force
 	}
 
-	return "", *force
+	return "", force
 }
 
 // gitTopLevel returns the absolute path of the current repo's top-level dir.
@@ -105,6 +114,7 @@ func buildSingleRepoRecord(absPath string) (model.ScanRecord, *apperror.AppError
 	records := mapper.BuildRecords(repos, constants.ModeHTTPS, "")
 	if len(records) == 0 {
 		fmt.Fprintf(os.Stderr, constants.ErrAsResolveFmt, absPath, "no record built")
+
 		return model.ScanRecord{}, apperror.NewSimple("fatal error", "E9000")
 	}
 

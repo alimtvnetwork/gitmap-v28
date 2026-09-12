@@ -130,7 +130,9 @@ func runPull(args []string) error {
 
 	if code := prog.ExitCodeForBatch(); code != 0 {
 		failPendingTask(taskDB, taskID, fmt.Sprintf("pull batch failed with exit code %d", code))
-		exitWith(code)
+		cliexit.HandleError(apperror.NewExecutionError(fmt.Sprintf("pull batch failed with exit code %d", code)), code)
+
+		return nil
 	}
 
 	completePendingTask(taskDB, taskID)
@@ -207,7 +209,8 @@ func runPullCWDWithTransport(useSSH, useHTTPS bool, extraArgs []string) error {
 	}
 	if _, _, _, err := ApplyTransportFlag(cwd, useSSH, useHTTPS); err != nil {
 		fmt.Fprintf(os.Stderr, "✗ %v\n", err)
-		exitWith(1)
+		cliexit.HandleGeneralError(apperror.WrapSimple(err, "apply transport flag"))
+
 		return nil
 	}
 	gitArgs := append([]string{"pull"}, extraArgs...)
@@ -221,11 +224,15 @@ func runPullCWDWithTransport(useSSH, useHTTPS bool, extraArgs []string) error {
 	isExitErr := err != nil && errors.As(err, &exitErr)
 
 	if isExitErr {
-		exitWith(exitErr.ExitCode())
+		cliexit.HandleError(apperror.WrapSimple(exitErr, "git pull"), exitErr.ExitCode())
+
+		return nil
 	}
 	if err != nil {
 		fmt.Fprintf(os.Stderr, "git pull failed: %v\n", err)
-		exitWith(1)
+		cliexit.HandleGeneralError(apperror.WrapSimple(err, "git pull failed"))
+
+		return nil
 	}
 	return nil
 }
@@ -551,7 +558,8 @@ func handleNonGitPull(cwd string, extraArgs []string) error {
 		return pullDiscoveredChildren(cwd, childRepos, extraArgs)
 	}
 	fmt.Fprintln(os.Stderr, "✗ not a git repository (run `gitmap pull` inside a repo)")
-	exitWith(1)
+	cliexit.HandleValidationError(apperror.NewValidationError("not a git repository (run `gitmap pull` inside a repo)"))
+
 	return nil
 }
 

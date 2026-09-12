@@ -4,6 +4,8 @@ import (
 	"context"
 	"database/sql"
 	"time"
+
+	"github.com/alimtvnetwork/gitmap-v28/gitmap/apperror"
 )
 
 type SSHConnection struct {
@@ -16,8 +18,8 @@ type SSHConnection struct {
 	CreatedAt         time.Time `json:"created_at"`
 }
 
-func InsertOrUpdateSSHConnection(ctx context.Context, db *sql.DB, conn SSHConnection) error {
-	query := `
+const (
+	sqlUpsertSSHConnection = `
 		INSERT INTO SSHConnection (
 			Alias, IPAddress, Username, EncryptedPassword, KeyPath, OS, CreatedAt
 		) VALUES (?, ?, ?, ?, ?, ?, ?)
@@ -28,7 +30,12 @@ func InsertOrUpdateSSHConnection(ctx context.Context, db *sql.DB, conn SSHConnec
 			KeyPath = excluded.KeyPath,
 			OS = excluded.OS
 	`
-	_, err := db.ExecContext(ctx, query,
+	sqlSelectSSHConnections = `SELECT Alias, IPAddress, Username, EncryptedPassword, KeyPath, OS, CreatedAt FROM SSHConnection`
+	sqlDeleteSSHConnection  = `DELETE FROM SSHConnection WHERE Alias = ?`
+)
+
+func InsertOrUpdateSSHConnection(ctx context.Context, db *sql.DB, conn SSHConnection) *apperror.AppError {
+	_, err := db.ExecContext(ctx, sqlUpsertSSHConnection,
 		conn.Alias,
 		conn.IPAddress,
 		conn.Username,
@@ -37,30 +44,44 @@ func InsertOrUpdateSSHConnection(ctx context.Context, db *sql.DB, conn SSHConnec
 		conn.OS,
 		conn.CreatedAt,
 	)
-	return err
+	if err != nil {
+		return apperror.WrapSimple(err, "InsertOrUpdateSSHConnection.Exec")
+	}
+
+	return nil
 }
 
-func GetSSHConnections(ctx context.Context, db *sql.DB) ([]SSHConnection, error) {
-	query := `SELECT Alias, IPAddress, Username, EncryptedPassword, KeyPath, OS, CreatedAt FROM SSHConnection`
-	rows, err := db.QueryContext(ctx, query)
+func GetSSHConnections(ctx context.Context, db *sql.DB) ([]SSHConnection, *apperror.AppError) {
+	rows, err := db.QueryContext(ctx, sqlSelectSSHConnections)
 	if err != nil {
-		return nil, err
+		return nil, apperror.WrapSimple(err, "GetSSHConnections.Query")
 	}
 	defer rows.Close()
 
+	return scanSSHConnectionRows(rows)
+}
+
+func scanSSHConnectionRows(rows *sql.Rows) ([]SSHConnection, *apperror.AppError) {
 	var conns []SSHConnection
 	for rows.Next() {
 		var c SSHConnection
 		if err := rows.Scan(&c.Alias, &c.IPAddress, &c.Username, &c.EncryptedPassword, &c.KeyPath, &c.OS, &c.CreatedAt); err != nil {
-			return nil, err
+			return nil, apperror.WrapSimple(err, "scanSSHConnectionRows.Scan")
 		}
 		conns = append(conns, c)
 	}
-	return conns, rows.Err()
+	if err := rows.Err(); err != nil {
+		return nil, apperror.WrapSimple(err, "scanSSHConnectionRows.Rows")
+	}
+
+	return conns, nil
 }
 
-func DeleteSSHConnection(ctx context.Context, db *sql.DB, alias string) error {
-	query := `DELETE FROM SSHConnection WHERE Alias = ?`
-	_, err := db.ExecContext(ctx, query, alias)
-	return err
+func DeleteSSHConnection(ctx context.Context, db *sql.DB, alias string) *apperror.AppError {
+	_, err := db.ExecContext(ctx, sqlDeleteSSHConnection, alias)
+	if err != nil {
+		return apperror.WrapSimple(err, "DeleteSSHConnection.Exec")
+	}
+
+	return nil
 }

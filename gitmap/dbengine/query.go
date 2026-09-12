@@ -2,6 +2,7 @@ package dbengine
 
 import (
 	"context"
+	"errors"
 	"fmt"
 	"strings"
 
@@ -506,18 +507,38 @@ func (b *QueryBuilder[T, F]) CompileRaw() (string, []any) {
 	return cq.SQL, cq.Args
 }
 
+// ViewCreator defines methods for creating or reusing database views.
+type ViewCreator interface {
+	CreateViewOrUseViewWithHash(ctx context.Context, name string, selectSql string, queryHash string) BoolResult
+	CreateViewOrUseView(ctx context.Context, name string, selectSql string, requiredColumns ...string) BoolResult
+}
+
 // CreateViewOrUseView checks if a view exists and contains the required columns (or matches query hash if omitted).
 // If valid, it reuses the view. If missing or schema differs, it validates SQL, drops old view, creates updated view, and saves metadata.
 func (b *QueryBuilder[T, F]) CreateViewOrUseView(ctx context.Context, viewName string, requiredColumns ...string) BoolResult {
 	if b.err != nil {
 		return FailureBool(b.err)
 	}
+	vc, isViewCreator := b.repo.db.(ViewCreator)
+	if !isViewCreator {
+		return FailureBool(apperror.WrapSimple(errors.New("executor does not support view creation"), "create view"))
+	}
+
+	return b.dispatchCreateView(ctx, vc, viewName, requiredColumns)
+}
+
+func (b *QueryBuilder[T, F]) dispatchCreateView(
+	ctx context.Context,
+	vc ViewCreator,
+	viewName string,
+	requiredColumns []string,
+) BoolResult {
 	viewSql := b.BuildSelectForView()
 	if len(requiredColumns) == 0 {
-		hash := b.QueryHash()
-		return b.repo.db.CreateViewOrUseViewWithHash(ctx, viewName, viewSql, hash)
+		return vc.CreateViewOrUseViewWithHash(ctx, viewName, viewSql, b.QueryHash())
 	}
-	return b.repo.db.CreateViewOrUseView(ctx, viewName, viewSql, requiredColumns...)
+
+	return vc.CreateViewOrUseView(ctx, viewName, viewSql, requiredColumns...)
 }
 
 // BuildSelect compiles the current query builder state into a SQL string and arguments slice.
@@ -1029,7 +1050,7 @@ func (b *QueryBuilder[T, F]) Delete(ctx context.Context) RowsAffectedResult {
 }
 
 // SelectTable creates a dynamic QueryBuilder starting with a table name and projected fields.
-func SelectTable(db *DbWrapper, tableName string, fields ...string) *QueryBuilder[map[string]any, string] {
+func SelectTable(db SqlExecutor, tableName string, fields ...string) *QueryBuilder[map[string]any, string] {
 	repo := NewRepository[map[string]any, string](db, tableName, func(row RowScanner) (*map[string]any, error) {
 		res := make(map[string]any)
 		return &res, nil

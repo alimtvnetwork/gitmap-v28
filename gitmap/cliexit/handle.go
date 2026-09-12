@@ -23,26 +23,45 @@ func SetExitFunc(fn func(int)) func(int) {
 // HandleError processes an error through centralized logging, flushing,
 // and process exit (or panic if debug mode is active).
 func HandleError(err error, defaultCode ...int) {
-	if err == nil && len(defaultCode) > 0 {
-		runFlushers()
-		exitFunc(defaultCode[0])
+	if err == nil {
+		handleNilError(defaultCode...)
 
 		return
 	}
-	if err == nil {
-		return
-	}
-	code := 1
-	if len(defaultCode) > 0 {
-		code = defaultCode[0]
-	}
-	var appErr *apperror.AppError
-	if !errors.As(err, &appErr) || appErr == nil {
-		appErr = apperror.WrapSimple(err, "cli")
-	}
+	code := resolveExitCode(defaultCode...)
+	appErr := ensureAppError(err)
 	if appErr == nil {
 		return
 	}
+	dispatchError(appErr, code)
+}
+
+func handleNilError(defaultCode ...int) {
+	if len(defaultCode) > 0 {
+		runFlushers()
+		exitFunc(defaultCode[0])
+	}
+}
+
+func resolveExitCode(defaultCode ...int) int {
+	if len(defaultCode) > 0 {
+		return defaultCode[0]
+	}
+
+	return int(ExitCodeGeneralError)
+}
+
+func ensureAppError(err error) *apperror.AppError {
+	var appErr *apperror.AppError
+	hasAppError := errors.As(err, &appErr) && appErr != nil
+	if !hasAppError {
+		return apperror.WrapSimple(err, "cli")
+	}
+
+	return appErr
+}
+
+func dispatchError(appErr *apperror.AppError, code int) {
 	WriteAppErrorReport(os.Stderr, appErr)
 	runFlushers()
 	if os.Getenv("GITMAP_ERROR_PANIC") == "1" {
@@ -61,11 +80,22 @@ func WriteAppErrorReport(w io.Writer, e *apperror.AppError) {
 	if e == nil {
 		return
 	}
-	if e.Message != "" {
+	writeErrorHeader(w, e)
+	writeErrorMetadata(w, e)
+	writeErrorStack(w, e)
+}
+
+func writeErrorHeader(w io.Writer, e *apperror.AppError) {
+	hasMessage := e.Message != ""
+	if hasMessage {
 		fmt.Fprintf(w, "gitmap: [%s:%s] %s: %s\n", e.Code, e.Type, e.Op, e.Message)
-	} else {
-		fmt.Fprintf(w, "gitmap: [%s:%s] %s\n", e.Code, e.Type, e.Op)
+
+		return
 	}
+	fmt.Fprintf(w, "gitmap: [%s:%s] %s\n", e.Code, e.Type, e.Op)
+}
+
+func writeErrorMetadata(w io.Writer, e *apperror.AppError) {
 	if e.Caller != "" {
 		fmt.Fprintf(w, "  origin: %s\n", e.Caller)
 	}
@@ -78,16 +108,22 @@ func WriteAppErrorReport(w io.Writer, e *apperror.AppError) {
 	if e.Cause != nil {
 		fmt.Fprintf(w, "  cause: %v\n", e.Cause)
 	}
-	if shouldPrintStackTrace(e) && e.Stack != "" {
+}
+
+func writeErrorStack(w io.Writer, e *apperror.AppError) {
+	hasStack := shouldPrintStackTrace(e) && e.Stack != ""
+	if hasStack {
 		fmt.Fprintf(w, "  stack trace:\n%s\n", indentLines(e.Stack, "    "))
 	}
 }
 
 func shouldPrintStackTrace(e *apperror.AppError) bool {
-	if os.Getenv("GITMAP_DEBUG") == "1" || os.Getenv("DEBUG") == "1" {
+	isDebug := os.Getenv("GITMAP_DEBUG") == "1" || os.Getenv("DEBUG") == "1"
+	if isDebug {
 		return true
 	}
-	if e.Code == "E9000" || e.Type == apperror.ErrorTypeExecution || e.Severity == apperror.SeverityFatal {
+	isFatal := e.Code == "E9000" || e.Type == apperror.ErrorTypeExecution || e.Severity == apperror.SeverityFatal
+	if isFatal {
 		return true
 	}
 

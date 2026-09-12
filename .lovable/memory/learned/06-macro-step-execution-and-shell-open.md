@@ -1,9 +1,9 @@
 # 06 — Macro Step Execution Engine & Cross-Platform Shell Open Behavior
 
-**Status:** Resolved & Implemented  
-**Date:** 2026-09-05  
-**Category:** CLI / Macro Execution Engine / Cross-Platform Shims  
-**Related Plan:** [`.lovable/plans/completed/64-macro-step-open-chrome-failure.md`](../../plans/completed/64-macro-step-open-chrome-failure.md)  
+**Status:** Resolved & Implemented
+**Date:** 2026-09-05
+**Category:** CLI / Macro Execution Engine / Cross-Platform Shims
+**Related Plan:** [`.lovable/plans/completed/64-macro-step-open-chrome-failure.md`](../../plans/completed/64-macro-step-open-chrome-failure.md)
 
 ---
 
@@ -147,4 +147,3 @@ Prior to the macro session, the Chrome profile picker visibility desynchronizati
 3. **Verification:**
    - Comprehensive unit test suite in `gitmap/macro/open_test.go` verifying parsing, target normalization, and mock command dispatch.
    - All 16 CI/CD quality gates pass 100% green.
-

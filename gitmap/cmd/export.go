@@ -33,8 +33,11 @@ func runExport(args []string) error {
 	outFile := resolveExportFile(args)
 	export := loadExportData()
 
-	writeExportFile(outFile, export)
+	if err := writeExportFile(outFile, export); err != nil {
+		return err
+	}
 	printExportSummary(outFile, export)
+
 	return nil
 }
 
@@ -59,10 +62,8 @@ func loadExportData() model.DatabaseExport {
 	export, err := db.ExportAll()
 	if err != nil && isLegacyDataError(err) {
 		fmt.Fprint(os.Stderr, constants.MsgLegacyProjectData)
-		fmt.Fprintln(os.Stderr, apperror.NewSimple("fatal error", "E9000").Error())
-		cliexit.HandleError(nil, 1)
-	}
-	if err != nil {
+		cliexit.HandleError(apperror.NewSimple("legacy project data", "E9000"), 1)
+	} else if err != nil {
 		fmt.Fprintln(os.Stderr, apperror.WrapSimple(err, constants.MsgExportFailed).Error())
 		cliexit.HandleError(nil, 1)
 	}
@@ -72,17 +73,17 @@ func loadExportData() model.DatabaseExport {
 
 // writeExportFile marshals the export data to a JSON file using the
 // stablejson-backed encoder so the top-level key order is contractual.
-func writeExportFile(path string, export model.DatabaseExport) {
+func writeExportFile(path string, export model.DatabaseExport) *apperror.AppError {
 	var buf bytes.Buffer
 	if err := encodeDatabaseExportJSON(&buf, export); err != nil {
-		apperror.WrapSimple(err, constants.MsgExportFailed)
-		return
+		return apperror.WrapSimple(err, constants.MsgExportFailed)
 	}
 
 	if err := os.WriteFile(path, buf.Bytes(), constants.DirPermission); err != nil {
-		apperror.WrapSimple(err, constants.MsgExportFailed)
-		return
+		return apperror.WrapSimple(err, constants.MsgExportFailed)
 	}
+
+	return nil
 }
 
 // printExportSummary prints the export result summary.

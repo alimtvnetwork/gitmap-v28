@@ -1553,6 +1553,3 @@ def extract_git_changed_files(
     metadata = build_checkpoint_metadata(current_head, prev_hash, commit_range, is_inc, commit_count, len(result))
 
     return result, metadata
-
-
-

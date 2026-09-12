@@ -13,27 +13,36 @@ import (
 	"github.com/alimtvnetwork/gitmap-v28/gitmap/constants"
 )
 
-var openLauncherFn = defaultOpenLauncher
+var (
+	openLauncherFn  = defaultOpenLauncher
+	launchPathFn    = launchPath
+	launchURLFn     = launchURL
+	launchGenericFn = launchGeneric
+	launchChromeFn  = launchChrome
+)
 
 // ParseOpenCommand checks if a macro step is an 'open' command.
 func ParseOpenCommand(cmdText string) (bool, string) {
 	trimmed := strings.TrimSpace(cmdText)
 	fields := strings.Fields(trimmed)
-	if len(fields) == 0 {
-		return false, ""
-	}
-	if strings.ToLower(fields[0]) != "open" {
+	if len(fields) == 0 || strings.ToLower(fields[0]) != "open" {
 		return false, ""
 	}
 	if len(fields) == 1 {
 		return true, "."
 	}
-	target := strings.TrimSpace(trimmed[len(fields[0]):])
+
+	return true, extractOpenTarget(trimmed, len(fields[0]))
+}
+
+func extractOpenTarget(trimmed string, prefixLen int) string {
+	target := strings.TrimSpace(trimmed[prefixLen:])
 	target = strings.Trim(target, "\"'")
 	if len(target) == 0 {
-		return true, "."
+		return "."
 	}
-	return true, target
+
+	return target
 }
 
 func executeOpenStep(ctx context.Context, step MacroStep, cmdText, target, currentDir string, start time.Time, opts ExecOptions, idx int) (StepExecution, error) {
@@ -42,9 +51,12 @@ func executeOpenStep(ctx context.Context, step MacroStep, cmdText, target, curre
 	if err != nil {
 		return handleStepFailure(step, cmdText, currentDir, elapsed, 1, err, opts, idx, []string{}, []string{err.Error()})
 	}
-	if !isStructuredOutput(opts) {
-		fmt.Printf("%s✔ ok (%.1fs)%s\n", constants.ColorGreen, elapsed.Seconds(), constants.ColorReset)
-	}
+	printStepSuccess(opts, elapsed)
+
+	return createOpenStepSuccess(step, cmdText, currentDir, target, elapsed), nil
+}
+
+func createOpenStepSuccess(step MacroStep, cmdText, currentDir, target string, elapsed time.Duration) StepExecution {
 	return StepExecution{
 		StepNum:        step.StepNum,
 		CommandLine:    cmdText,
@@ -54,25 +66,27 @@ func executeOpenStep(ctx context.Context, step MacroStep, cmdText, target, curre
 		ElapsedSeconds: elapsed.Seconds(),
 		Logs:           []string{fmt.Sprintf("Opened %s", target)},
 		ErrorLogs:      []string{},
-	}, nil
+	}
 }
 
 func defaultOpenLauncher(ctx context.Context, target, currentDir string) error {
 	if isChromeTarget(target) {
-		return launchChrome(ctx)
-	}
-	if isURL, urlStr := parseURLTarget(target); isURL {
-		return launchURL(ctx, urlStr)
+		return launchChromeFn(ctx)
 	}
 	resolvedPath := resolveTargetPath(target, currentDir)
 	if isPathExists(resolvedPath) {
-		return launchPath(ctx, resolvedPath)
+		return launchPathFn(ctx, resolvedPath)
 	}
-	return launchGeneric(ctx, target)
+	if isURL, urlStr := parseURLTarget(target); isURL {
+		return launchURLFn(ctx, urlStr)
+	}
+
+	return launchGenericFn(ctx, target)
 }
 
 func isChromeTarget(target string) bool {
 	lower := strings.ToLower(strings.TrimSpace(target))
+
 	return lower == "chrome" || lower == "google-chrome" || lower == "google chrome" || lower == "chromium"
 }
 
@@ -82,24 +96,38 @@ func parseURLTarget(target string) (bool, string) {
 	if strings.HasPrefix(lower, "http://") || strings.HasPrefix(lower, "https://") {
 		return true, trimmed
 	}
-	if strings.Contains(trimmed, ".") && !strings.ContainsAny(trimmed, "/\\") && !strings.HasPrefix(trimmed, ".") {
-		return true, "https://" + trimmed
-	}
 	if strings.HasPrefix(lower, "www.") {
 		return true, "https://" + trimmed
 	}
+	if hasDomainTLD(lower) {
+		return true, "https://" + trimmed
+	}
+
 	return false, ""
+}
+
+func hasDomainTLD(target string) bool {
+	tlds := []string{".com", ".org", ".net", ".io", ".dev", ".co", ".app", ".ai", ".tv", ".me", ".edu", ".gov"}
+	for _, tld := range tlds {
+		if strings.HasSuffix(target, tld) || strings.Contains(target, tld+"/") || strings.Contains(target, tld+":") {
+			return true
+		}
+	}
+
+	return false
 }
 
 func resolveTargetPath(target, currentDir string) string {
 	if filepath.IsAbs(target) {
 		return filepath.Clean(target)
 	}
+
 	return filepath.Clean(filepath.Join(currentDir, target))
 }
 
 func isPathExists(path string) bool {
 	_, err := os.Stat(path)
+
 	return err == nil
 }
 
@@ -110,6 +138,7 @@ func launchChrome(ctx context.Context) error {
 	if runtime.GOOS == "darwin" {
 		return exec.CommandContext(ctx, "open", "-a", "Google Chrome").Run()
 	}
+
 	return launchChromeLinux(ctx)
 }
 
@@ -124,6 +153,7 @@ func findExistingChromeWindowsPath() (string, bool) {
 	if err == nil {
 		return p, true
 	}
+
 	return "", false
 }
 
@@ -133,6 +163,7 @@ func launchChromeWindows(ctx context.Context) error {
 		cmd := exec.CommandContext(ctx, p)
 		return cmd.Start()
 	}
+
 	return exec.CommandContext(ctx, "powershell", "-NoProfile", "-Command", "Start-Process", "chrome").Run()
 }
 
@@ -151,6 +182,7 @@ func findExistingChromeLinuxPath() (string, bool) {
 			return p, true
 		}
 	}
+
 	return "", false
 }
 
@@ -160,6 +192,7 @@ func launchChromeLinux(ctx context.Context) error {
 		cmd := exec.CommandContext(ctx, p)
 		return cmd.Start()
 	}
+
 	return exec.CommandContext(ctx, "xdg-open", "https://www.google.com").Start()
 }
 
@@ -170,6 +203,7 @@ func launchURL(ctx context.Context, urlStr string) error {
 	if runtime.GOOS == "darwin" {
 		return exec.CommandContext(ctx, "open", urlStr).Run()
 	}
+
 	return exec.CommandContext(ctx, "xdg-open", urlStr).Start()
 }
 
@@ -179,6 +213,7 @@ func launchURLWindows(ctx context.Context, urlStr string) error {
 	if err == nil {
 		return nil
 	}
+
 	return exec.CommandContext(ctx, "powershell", "-NoProfile", "-Command", "Start-Process", fmt.Sprintf("'%s'", urlStr)).Run()
 }
 
@@ -190,6 +225,7 @@ func launchPath(ctx context.Context, pathStr string) error {
 	if runtime.GOOS == "darwin" {
 		return exec.CommandContext(ctx, "open", pathStr).Run()
 	}
+
 	return exec.CommandContext(ctx, "xdg-open", pathStr).Start()
 }
 
@@ -200,5 +236,6 @@ func launchGeneric(ctx context.Context, target string) error {
 	if runtime.GOOS == "darwin" {
 		return exec.CommandContext(ctx, "open", target).Run()
 	}
+
 	return exec.CommandContext(ctx, "xdg-open", target).Start()
 }

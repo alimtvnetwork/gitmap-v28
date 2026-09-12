@@ -27,29 +27,35 @@ import (
 	"github.com/alimtvnetwork/gitmap-v28/gitmap/cliexit"
 )
 
-func initDownloaderConfigDB() *store.DB {
+func initDownloaderConfigDB() (*store.DB, *apperror.AppError) {
 	db, err := openDB()
 	if err != nil {
-		fmt.Fprintln(os.Stderr, apperror.WrapSimple(err, "✗").Error())
-		cliexit.HandleError(nil, 1)
+		return nil, apperror.WrapSimple(err, "✗ open DB failed")
 	}
 	if err := db.Migrate(); err != nil {
-		fmt.Fprintln(os.Stderr, apperror.WrapSimple(err, "✗ Migrate:").Error())
-		cliexit.HandleError(nil, 1)
+		return nil, apperror.WrapSimple(err, "✗ Migrate failed")
 	}
-	return db
+
+	return db, nil
 }
 
-func saveAndReportDownloaderConfig(db *store.DB, doc downloaderconfig.Document, source string) {
+func saveAndReportDownloaderConfig(db *store.DB, doc downloaderconfig.Document, source string) *apperror.AppError {
 	if err := db.SetDownloaderConfig(doc); err != nil {
-		apperror.WrapSimple(err, "✗ Could not save downloader config:")
-		return
+		return apperror.WrapSimple(err, "✗ Could not save downloader config:")
 	}
 	if source != "" {
 		fmt.Fprintf(os.Stderr, constants.MsgDownloaderConfigLoaded+"\n", source)
 	}
 	fmt.Fprintf(os.Stderr, constants.MsgDownloaderConfigSaved+"\n", constants.SettingDownloaderConfig)
 	fmt.Fprintf(os.Stderr, constants.MsgDownloaderConfigDBVersion+"\n", doc.DatabaseVersion.LastKnownVersion)
+
+	return nil
+}
+
+func executeDownloaderConfig(db *store.DB, args []string) *apperror.AppError {
+	doc, source := loadDocOrPrompt(db, args)
+
+	return saveAndReportDownloaderConfig(db, doc, source)
 }
 
 // runDownloaderConfig is the dispatch entrypoint.
@@ -57,11 +63,16 @@ func runDownloaderConfig(args []string) error {
 	checkHelp(constants.CmdDownloaderConfig, args)
 	fmt.Fprintf(os.Stderr, constants.MsgDownloaderConfigBanner+"\n", constants.Version)
 
-	db := initDownloaderConfigDB()
+	db, appErr := initDownloaderConfigDB()
+	if appErr != nil {
+		return appErr
+	}
 	defer db.Close()
 
-	doc, source := loadDocOrPrompt(db, args)
-	saveAndReportDownloaderConfig(db, doc, source)
+	if appErr := executeDownloaderConfig(db, args); appErr != nil {
+		return appErr
+	}
+
 	return nil
 }
 
@@ -85,8 +96,9 @@ func loadDocOrPrompt(db *store.DB, args []string) (downloaderconfig.Document, st
 func loadDocFromFile(path string) (downloaderconfig.Document, string) {
 	res := downloaderconfig.LoadFile(path)
 	if res.IsFailure() {
-		cliexit.HandleError(res.Err, 1)
+		cliexit.HandleValidationError(res.Err)
 	}
+
 	return res.Value, path
 }
 
@@ -96,6 +108,7 @@ func promptCoreConfig(reader *bufio.Reader, dc downloaderconfig.DownloaderConfig
 	dc.ParallelDownloads = promptInt(reader, "ParallelDownloads", dc.ParallelDownloads)
 	dc.SplitConnections = promptInt(reader, "SplitConnections", dc.SplitConnections)
 	dc.DefaultSplitSize = promptString(reader, "DefaultSplitSize", dc.DefaultSplitSize)
+
 	return dc
 }
 
@@ -105,20 +118,22 @@ func promptSplitThresholdConfig(reader *bufio.Reader, dc downloaderconfig.Downlo
 	dc.TinyFileThreshold = promptString(reader, "TinyFileThreshold", dc.TinyFileThreshold)
 	dc.TinyFileSplitSize = promptString(reader, "TinyFileSplitSize", dc.TinyFileSplitSize)
 	dc.TinyFileSplits = promptInt(reader, "TinyFileSplits", dc.TinyFileSplits)
+
 	return dc
 }
 
 func promptFlagConfig(reader *bufio.Reader, dc downloaderconfig.DownloaderConfig) downloaderconfig.DownloaderConfig {
 	dc.AllowFallback = promptBool(reader, "AllowFallback", dc.AllowFallback)
 	dc.OverwriteUserConfig = promptBool(reader, "OverwriteUserConfig", dc.OverwriteUserConfig)
+
 	return dc
 }
 
 func validatePromptedDoc(doc downloaderconfig.Document) downloaderconfig.Document {
 	if err := downloaderconfig.Validate(doc); err != nil {
-		fmt.Fprintln(os.Stderr, err.Error())
-		cliexit.HandleError(nil, 1)
+		cliexit.HandleValidationError(err)
 	}
+
 	return doc
 }
 

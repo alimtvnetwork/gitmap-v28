@@ -8,6 +8,7 @@ import (
 	"io"
 	"os"
 	"os/exec"
+	"path/filepath"
 	"runtime"
 	"strings"
 	"time"
@@ -24,6 +25,7 @@ func Execute(ctx context.Context, m *Macro, opts ExecOptions) error {
 	initialDir, _ := os.Getwd()
 	dt := NewDirTracker(initialDir)
 	rep := NewExecutionReport(m.Name, len(m.Steps), start)
+
 	return runExecuteSteps(ctx, m, opts, dt, rep, start)
 }
 
@@ -39,20 +41,27 @@ func printExecutionHeader(m *Macro) {
 func runExecuteSteps(ctx context.Context, m *Macro, opts ExecOptions, dt *DirTracker, rep *ExecutionReport, start time.Time) error {
 	var lastErr error
 	for i, step := range m.Steps {
-		stepExec, err := executeSingleStep(ctx, step, i+1, len(m.Steps), opts, dt)
-		rep.Steps = append(rep.Steps, stepExec)
-		rep.ExecutedSteps++
-		if err == nil {
-			continue
-		}
-		rep.FailedSteps++
-		lastErr = err
-		if !step.ContinueOnError {
+		var shouldBreak bool
+		lastErr, shouldBreak = executeReportStep(ctx, step, i+1, len(m.Steps), opts, dt, rep)
+		if shouldBreak {
 			break
 		}
 	}
 	rep.Finalize(time.Now(), lastErr != nil)
+
 	return handleExecutionFinish(m, opts, rep, start, lastErr)
+}
+
+func executeReportStep(ctx context.Context, step MacroStep, idx, total int, opts ExecOptions, dt *DirTracker, rep *ExecutionReport) (error, bool) {
+	stepExec, err := executeSingleStep(ctx, step, idx, total, opts, dt)
+	rep.Steps = append(rep.Steps, stepExec)
+	rep.ExecutedSteps++
+	if err == nil {
+		return nil, false
+	}
+	rep.FailedSteps++
+
+	return err, !step.ContinueOnError
 }
 
 func handleExecutionFinish(m *Macro, opts ExecOptions, rep *ExecutionReport, start time.Time, lastErr error) error {
@@ -63,6 +72,7 @@ func handleExecutionFinish(m *Macro, opts ExecOptions, rep *ExecutionReport, sta
 	if lastErr != nil {
 		return lastErr
 	}
+
 	return printMacroCompletion(m, start)
 }
 
@@ -71,6 +81,7 @@ func printMacroCompletion(m *Macro, start time.Time) error {
 	fmt.Println()
 	fmt.Printf("  %s✔ Macro %q completed (%d steps) · Elapsed: %.1fs%s\n\n",
 		constants.ColorGreen, m.Name, len(m.Steps), elapsed.Seconds(), constants.ColorReset)
+
 	return nil
 }
 
@@ -79,9 +90,7 @@ func executeSingleStep(ctx context.Context, step MacroStep, idx, total int, opts
 		return executeDryRunStep(step, idx, total, opts, dt), nil
 	}
 	expandedCmd := ExpandPathAndEnv(step.CommandLine)
-	if !isStructuredOutput(opts) {
-		fmt.Printf("  [%2d/%d] ➜ %s\n", idx, total, expandedCmd)
-	}
+	printStepHeader(opts, idx, total, expandedCmd)
 	start := time.Now()
 	if isDirChange := dt.ProcessCd(expandedCmd); isDirChange {
 		return handleDirChangeStep(step, expandedCmd, dt.CurrentDir, start, opts), nil
@@ -93,10 +102,17 @@ func executeSingleStep(ctx context.Context, step MacroStep, idx, total int, opts
 	return runStepProcess(ctx, expandedCmd, step, opts, dt, start, idx)
 }
 
+func printStepHeader(opts ExecOptions, idx, total int, cmd string) {
+	if !isStructuredOutput(opts) {
+		fmt.Printf("  [%2d/%d] ➜ %s\n", idx, total, cmd)
+	}
+}
+
 func executeDryRunStep(step MacroStep, idx, total int, opts ExecOptions, dt *DirTracker) StepExecution {
 	if !isStructuredOutput(opts) {
 		fmt.Printf("  [%2d/%d] ➜ (dry-run) %s\n", idx, total, step.CommandLine)
 	}
+
 	return StepExecution{
 		StepNum:        step.StepNum,
 		CommandLine:    step.CommandLine,
@@ -111,9 +127,8 @@ func executeDryRunStep(step MacroStep, idx, total int, opts ExecOptions, dt *Dir
 
 func handleDirChangeStep(step MacroStep, expandedCmd, currentDir string, start time.Time, opts ExecOptions) StepExecution {
 	elapsed := time.Since(start)
-	if !isStructuredOutput(opts) {
-		fmt.Printf("%s✔ ok (%.1fs)%s\n", constants.ColorGreen, elapsed.Seconds(), constants.ColorReset)
-	}
+	printStepSuccess(opts, elapsed)
+
 	return StepExecution{
 		StepNum:        step.StepNum,
 		CommandLine:    expandedCmd,
@@ -127,20 +142,38 @@ func handleDirChangeStep(step MacroStep, expandedCmd, currentDir string, start t
 }
 
 func runStepProcess(ctx context.Context, cmdText string, step MacroStep, opts ExecOptions, dt *DirTracker, start time.Time, idx int) (StepExecution, error) {
+	if step.TimeoutSeconds > 0 {
+		var cancel context.CancelFunc
+		ctx, cancel = context.WithTimeout(ctx, time.Duration(step.TimeoutSeconds)*time.Second)
+		defer cancel()
+	}
 	targetDir := resolveTargetDir(dt.CurrentDir, step.WorkingDir)
 	outBuf, errBuf := &bytes.Buffer{}, &bytes.Buffer{}
 	cmd := buildStepCmd(ctx, cmdText, targetDir, opts, outBuf, errBuf)
 	err := cmd.Run()
 	elapsed := time.Since(start)
-	exitCode := resolveExitCode(err)
+
+	return evaluateStepProcessResult(step, cmdText, targetDir, elapsed, err, opts, idx, outBuf, errBuf)
+}
+
+func evaluateStepProcessResult(step MacroStep, cmdText, targetDir string, elapsed time.Duration, err error, opts ExecOptions, idx int, outBuf, errBuf *bytes.Buffer) (StepExecution, error) {
 	logs := splitToLines(outBuf.String())
 	errLogs := splitToLines(errBuf.String())
 	if err != nil {
-		return handleStepFailure(step, cmdText, targetDir, elapsed, exitCode, err, opts, idx, logs, errLogs)
+		return handleStepFailure(step, cmdText, targetDir, elapsed, resolveExitCode(err), err, opts, idx, logs, errLogs)
 	}
+	printStepSuccess(opts, elapsed)
+
+	return createStepSuccess(step, cmdText, targetDir, elapsed, logs, errLogs), nil
+}
+
+func printStepSuccess(opts ExecOptions, elapsed time.Duration) {
 	if !isStructuredOutput(opts) {
-		fmt.Printf("%s✔ ok (%.1fs)%s\n", constants.ColorGreen, elapsed.Seconds(), constants.ColorReset)
+		fmt.Printf("  %s✔ ok (%.1fs)%s\n", constants.ColorGreen, elapsed.Seconds(), constants.ColorReset)
 	}
+}
+
+func createStepSuccess(step MacroStep, cmdText, targetDir string, elapsed time.Duration, logs, errLogs []string) StepExecution {
 	return StepExecution{
 		StepNum:        step.StepNum,
 		CommandLine:    cmdText,
@@ -150,7 +183,7 @@ func runStepProcess(ctx context.Context, cmdText string, step MacroStep, opts Ex
 		ElapsedSeconds: elapsed.Seconds(),
 		Logs:           logs,
 		ErrorLogs:      errLogs,
-	}, nil
+	}
 }
 
 func handleStepFailure(step MacroStep, cmdText, targetDir string, elapsed time.Duration, exitCode int, err error, opts ExecOptions, idx int, logs, errLogs []string) (StepExecution, error) {
@@ -207,11 +240,42 @@ func splitToLines(raw string) []string {
 }
 
 func resolveTargetDir(currentDir, stepDir string) string {
-	if len(currentDir) > 0 {
-		return currentDir
+	stepWorkingDir := resolveStepWorkingDir(currentDir, stepDir)
+	if len(stepWorkingDir) > 0 {
+		return stepWorkingDir
 	}
 
-	return ExpandPathAndEnv(stepDir)
+	return currentDir
+}
+
+func resolveStepWorkingDir(currentDir, stepDir string) string {
+	expanded := ExpandPathAndEnv(strings.TrimSpace(stepDir))
+	if len(expanded) == 0 {
+		return ""
+	}
+	target := resolveAbsCandidate(currentDir, expanded)
+	if isDirExists(target) {
+		return target
+	}
+
+	return ""
+}
+
+func resolveAbsCandidate(currentDir, candidate string) string {
+	if filepath.IsAbs(candidate) || len(currentDir) == 0 {
+		return candidate
+	}
+
+	return filepath.Join(currentDir, candidate)
+}
+
+func isDirExists(path string) bool {
+	info, err := os.Stat(path)
+	if err != nil {
+		return false
+	}
+
+	return info.IsDir()
 }
 
 func resolveExitCode(err error) int {

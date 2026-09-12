@@ -4,9 +4,18 @@ Master directory of architectural and execution plans.
 
 ## Pending Plans
 
-- [87-install-antigravity-fix.md](pending/87-install-antigravity-fix.md): Antigravity CLI and Desktop Installer Endpoints
+- [96-booleans-and-complex-conditions-audit.md](pending/96-booleans-and-complex-conditions-audit.md): Boolean Principles, Negatives & Complex Conditions Coding Guideline Refactoring
+- [97-db-transaction-mechanism-and-package-unification.md](pending/97-db-transaction-mechanism-and-package-unification.md): DB Transaction Mechanism & Package Repo-Wide Unification
 
 ## Completed Plans (Consolidated Milestones)
+
+- [95-nested-if-elimination-and-guard-clauses.md](completed/95-nested-if-elimination-and-guard-clauses.md): Nested If Elimination & Guard Clauses Coding Guideline Refactoring
+- [94-error-management-and-apperror-architecture.md](completed/94-error-management-and-apperror-architecture.md): Repo-wide Error Management & Architecture Coding Guideline Refactoring
+- [93-db-transaction-mechanism-repo-wide-confirmation.md](completed/93-db-transaction-mechanism-repo-wide-confirmation.md): Repo-wide Database Transaction Package & Mechanism Confirmation
+- [92-sync-prompts-and-skills-from-coding-guidelines.md](completed/92-sync-prompts-and-skills-from-coding-guidelines.md): Sync Canonical Skills, Rules, and 21-Category Prompts Catalog from coding-guidelines
+- [91-macro-interactive-streaming-and-execution-audit.md](completed/91-macro-interactive-streaming-and-execution-audit.md): Macro Interactive Creation, Live Execution Streaming & Stdin Feedback
+- [90-db-transaction-mechanism-and-package-audit.md](completed/90-db-transaction-mechanism-and-package-audit.md): Database Transaction Mechanisms, Connection Pooling & Spec 21-App Parity
+- [89-scripts-fixer-installers-audit-and-parity.md](completed/89-scripts-fixer-installers-audit-and-parity.md): scripts-fixer Installers Audit, Workstation Profiles, CLI & UI Help Text Parity
 
 - [88-pipeline-errorlogs-incremental-db-and-history.md](completed/88-pipeline-errorlogs-incremental-db-and-history.md): Pipeline Error Logs, Incremental DB Caching & Historical Analysis
 - [01-coding-guidelines-and-style-audits.md](completed/01-coding-guidelines-and-style-audits.md): Coding Guidelines, Function Sizing, Boolean Refactoring & Style Quality
@@ -21,4 +30,3 @@ Master directory of architectural and execution plans.
 - [10-installers-multios-setup-and-web-stacks.md](completed/10-installers-multios-setup-and-web-stacks.md): Multi-OS Installers, Corrupted Directory Sanitization, VMware Mounts & Web Stacks
 - [11-completed-plans-consolidation.md](completed/11-completed-plans-consolidation.md): Memory Consolidation, Safety Backup & Milestone Resequencing
 - [12-git-deleted-files-tracer-and-purger.md](completed/12-git-deleted-files-tracer-and-purger.md): Git Historical Deleted Files Tracer, Restorer & Deep Purger
-

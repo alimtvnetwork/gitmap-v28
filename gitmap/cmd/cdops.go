@@ -11,15 +11,9 @@ import (
 	"github.com/alimtvnetwork/gitmap-v28/gitmap/constants"
 	"github.com/alimtvnetwork/gitmap-v28/gitmap/model"
 	"github.com/alimtvnetwork/gitmap-v28/gitmap/store"
-
-	"github.com/alimtvnetwork/gitmap-v28/gitmap/cliexit"
 )
 
 // runCDLookup finds a repo by name and prints its path to stdout.
-// If extra positional args follow the name, they are treated as a
-// gitmap subcommand to execute inside the resolved repo directory
-// (e.g. `gitmap cd myrepo cn v++` clones the next version of myrepo
-// and hands off to the new folder via the inner command's handoff).
 func runCDLookup(name string, args []string) error {
 	if HasAlias() {
 		fmt.Print(GetAliasPath())
@@ -28,43 +22,50 @@ func runCDLookup(name string, args []string) error {
 	}
 
 	pick, rest := parseCDPickFlag(args)
-	records := lookupCDRecords(name)
+	records, err := lookupCDRecords(name)
+	if err != nil {
+		return err
+	}
 
 	if len(records) == 0 {
 		return handleWorkDirOrNotFound(name, rest)
 	}
 
-	path := resolveCDPath(name, records, pick)
+	return dispatchCDPath(name, records, rest, pick)
+}
+
+func dispatchCDPath(name string, records []model.ScanRecord, rest []string, pick bool) error {
+	path, err := resolveCDPath(name, records, pick)
+	if err != nil {
+		return err
+	}
 
 	if len(rest) > 0 {
-		runCDInner(path, rest)
-
-		return nil
+		return runCDInner(path, rest)
 	}
 
 	fmt.Print(path)
 	WriteShellHandoff(path)
 	warnIfNoWrapper()
+
 	return nil
 }
 
-// runCDInner chdirs into path and dispatches the inner subcommand
-// (the args after `gitmap cd <name>`). The inner command is
-// responsible for writing its own shell handoff if it relocates the
-// caller — `cn`, `cfr`, `cfrp`, etc. already do this.
+// runCDInner chdirs into path and dispatches the inner subcommand.
 func runCDInner(path string, innerArgs []string) error {
 	if err := os.Chdir(path); err != nil {
 		fmt.Fprintf(os.Stderr, constants.ErrCDChdirFmt, path, err)
-		cliexit.HandleError(nil, 1)
+
+		return fmt.Errorf(constants.ErrCDChdirFmt, path, err)
 	}
 
 	os.Args = append([]string{os.Args[0]}, innerArgs...)
 	dispatch(innerArgs[0])
+
 	return nil
 }
 
-// parseCDPickFlag extracts --pick and returns it plus any remaining
-// positional args (the inner subcommand + its args, if any).
+// parseCDPickFlag extracts --pick and returns it plus any remaining positional args.
 func parseCDPickFlag(args []string) (bool, []string) {
 	fs := flag.NewFlagSet("cd-lookup", flag.ContinueOnError)
 	pick := fs.Bool("pick", false, constants.FlagDescCDPick)
@@ -74,19 +75,22 @@ func parseCDPickFlag(args []string) (bool, []string) {
 }
 
 // lookupCDRecords finds repos matching the given name via DB.
-func lookupCDRecords(name string) []model.ScanRecord {
+func lookupCDRecords(name string) ([]model.ScanRecord, error) {
 	db, err := openDB()
 	if err != nil {
 		fmt.Fprintf(os.Stderr, constants.ErrListDBFailed, err)
-		cliexit.HandleError(nil, 1)
+
+		return nil, fmt.Errorf(constants.ErrListDBFailed, err)
 	}
 	defer db.Close()
 
-	cleanName := strings.TrimRight(name, "/\\")
+	return findCDRecords(db, name), nil
+}
 
+func findCDRecords(db *store.DB, name string) []model.ScanRecord {
+	cleanName := strings.TrimRight(name, "/\\")
 	repos, err := db.FindBySlug(strings.ToLower(cleanName))
 	hasValidRepos := err == nil && len(repos) > 0
-
 	if hasValidRepos {
 		return repos
 	}
@@ -100,21 +104,21 @@ func lookupCDRecords(name string) []model.ScanRecord {
 }
 
 // resolveCDPath picks the correct path from matches.
-func resolveCDPath(name string, records []model.ScanRecord, pick bool) string {
+func resolveCDPath(name string, records []model.ScanRecord, pick bool) (string, error) {
 	if len(records) == 1 {
-		return records[0].AbsolutePath
+		return records[0].AbsolutePath, nil
 	}
 
 	dflt := loadCDDefault(name)
 	if len(dflt) > 0 && !pick {
-		return dflt
+		return dflt, nil
 	}
 
 	return promptCDPick(name, records)
 }
 
 // promptCDPick shows a numbered list and reads user selection.
-func promptCDPick(name string, records []model.ScanRecord) string {
+func promptCDPick(name string, records []model.ScanRecord) (string, error) {
 	fmt.Fprintf(os.Stderr, constants.MsgCDMultipleHeader, name)
 
 	for i, r := range records {
@@ -127,20 +131,22 @@ func promptCDPick(name string, records []model.ScanRecord) string {
 }
 
 // readCDSelection reads and validates the user's numeric choice.
-func readCDSelection(records []model.ScanRecord) string {
+func readCDSelection(records []model.ScanRecord) (string, error) {
 	scanner := bufio.NewScanner(os.Stdin)
 	if !scanner.Scan() {
 		fmt.Fprint(os.Stderr, constants.ErrCDInvalidPick)
-		cliexit.HandleError(nil, 1)
+
+		return "", fmt.Errorf("%s", constants.ErrCDInvalidPick)
 	}
 
 	idx, err := strconv.Atoi(strings.TrimSpace(scanner.Text()))
 	if err != nil || idx < 1 || idx > len(records) {
 		fmt.Fprint(os.Stderr, constants.ErrCDInvalidPick)
-		cliexit.HandleError(nil, 1)
+
+		return "", fmt.Errorf("%s", constants.ErrCDInvalidPick)
 	}
 
-	return records[idx-1].AbsolutePath
+	return records[idx-1].AbsolutePath, nil
 }
 
 // runCDRepos shows an interactive numbered list of all repos.
@@ -149,19 +155,30 @@ func runCDRepos(args []string) error {
 	db, err := openDB()
 	if err != nil {
 		fmt.Fprintf(os.Stderr, constants.ErrListDBFailed, err)
-		cliexit.HandleError(nil, 1)
+
+		return fmt.Errorf(constants.ErrListDBFailed, err)
 	}
 	defer db.Close()
 
 	records := loadCDReposList(db, groupFilter)
 	if len(records) == 0 {
 		fmt.Fprintln(os.Stderr, constants.MsgListEmpty)
-		cliexit.HandleError(nil, 1)
+
+		return fmt.Errorf("%s", constants.MsgListEmpty)
 	}
 
-	path := promptCDReposPick(records)
+	return executeCDReposPick(records)
+}
+
+func executeCDReposPick(records []model.ScanRecord) error {
+	path, pickErr := promptCDReposPick(records)
+	if pickErr != nil {
+		return pickErr
+	}
+
 	fmt.Print(path)
 	WriteShellHandoff(path)
+
 	return nil
 }
 
@@ -178,7 +195,6 @@ func parseCDReposFlags(args []string) string {
 // loadCDReposList loads repos optionally filtered by group.
 func loadCDReposList(db *store.DB, group string) []model.ScanRecord {
 	hasGroup := len(group) > 0
-
 	if hasGroup {
 		return loadCDGroupRepos(db, group)
 	}
@@ -201,7 +217,7 @@ func loadCDGroupRepos(db *store.DB, group string) []model.ScanRecord {
 }
 
 // promptCDReposPick shows all repos and reads user selection.
-func promptCDReposPick(records []model.ScanRecord) string {
+func promptCDReposPick(records []model.ScanRecord) (string, error) {
 	fmt.Fprint(os.Stderr, constants.MsgCDReposHeader)
 
 	for i, r := range records {

@@ -2,7 +2,8 @@
 name: read-memory-enhanced
 description: >-
   Executes the enhanced "Read Memory" protocol. Use this skill BEFORE touching the codebase to
-  aggressively and defensively load the project's identity, CODE RED rules, specs, pending plans,
+  aggressively and defensively load the project's identity, inspect the last 10 git commits to
+  understand recent file changes, follow what-to-read.md, CODE RED rules, specs, pending plans,
   and ambiguities.
 ---
 
@@ -10,15 +11,19 @@ description: >-
 
 ## Ambiguity folder path (non-negotiable)
 
-- Open questions: `.lovable/ambiguous-questions/01-new-ambiguity/XX-<slug>.md`
-- Answered questions: `.lovable/ambiguous-questions/02-ambiguity-resolved/XX-<slug>.md`
+- Open questions: `.lovable/ambiguous-questions/01-new-ambiguity/xx-<slug>.md`
+- Answered questions: `.lovable/ambiguous-questions/02-ambiguity-resolved/xx-<slug>.md`
 Read both folders in full during Phase 1. Surface open-ambiguity counts and slugs in the Completion Confirmation block. Treat resolved-ambiguity files as binding project decisions, do not re-litigate them. If an open ambiguity is relevant to the incoming task, stop and surface it before doing work; never guess past it.
 
 ## Goal
 
-Before you touch this project, load its identity into your head: who it is, what it forbids, what it has already decided, and what work is in flight.
+Before you touch this project, load its identity into your head: who it is, what it forbids, what it has already decided, what work is in flight, and what recent changes were made.
+Inspect the last 10 git commits (`git log -n 10 --stat`) to understand the latest file changes and working context.
+Read `.lovable/what-to-read.md` first as the authoritative reading priority order.
 The specs and the `.lovable/` folder are the single source of truth. Your training data is not. If the two disagree, the repo wins, every time.
 You are done reading when you can, without guessing:
+- summarize the last 10 git commits, what files were changed, and their architectural intent,
+- confirm `.lovable/what-to-read.md` was read first and followed in full,
 - name the CODE RED rules,
 - name the naming, error-handling, and DB conventions,
 - list what is currently in `.lovable/plans/pending/`,
@@ -32,32 +37,38 @@ The `.lovable/` folder, specs, and codebase can be massive. To process this info
 - **Specific Titling:** When spawning a sub-agent for reading, you must give it a highly specific title reflecting exactly what it is reading (e.g., `Reading Auth Specs` or `Scanning API Memory`). Do not use generic names. If an agent switches tasks, its title must change.
 - **Micro-Tasking:** Assign sub-agents small, granular folders/files to read rather than asking one agent to read the entire codebase.
 - You are allowed to write to the `.lovable/` directory to enhance project memory after reading. This includes:
-  - Writing summaries of what you learned and understood into `.lovable/memory/learned/XX-<slug>.md` (or `.lovable/learned.md`), including the number of files read, to maintain context.
+  - Writing summaries of what you learned and understood into `.lovable/memory/learned/xx-<slug>.md` (or `.lovable/01-index.md`), including the number of files read, to maintain context.
   - Updating `.lovable/what-to-read.md` based on your progress to guide future reading workflows.
   - Documenting any problems or issues you discover in the codebase into `.lovable/issues/` or `.lovable/suggestions.md`.
   - Updating existing memory files, capturing open ambiguities, or updating plans.
 - CRITICAL: You MUST NOT refactor, edit, or write any application source code. This is a read and analysis phase only.
 ---
 
-## Phase 1 - Load the project
+## Phase 1 - Load the project & git history
 
-### 1.1 Read the whole `.lovable/` folder
+### 1.0 Read the last 10 git commits & file changes (MANDATORY)
+Run `git log -n 10 --stat` to view the last 10 commits, their commit messages, and the exact files modified, added, or deleted. Analyze what was touched recently and the architectural intent behind recent changes so you do not revert recent progress or repeat past bugs.
+
+### 1.1 Read what-to-read.md first (Authoritative Order)
+Read `.lovable/what-to-read.md` first. Follow every file and priority sequence it specifies before reading other files.
+
+### 1.2 Read the whole `.lovable/` folder
 
 Walk `.lovable/` recursively. Every file matters. Missing files are noted, not silently skipped. In particular:
 | # | Path | What you get |
 | --- | ----------------------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------- |
-| 1 | `.lovable/overview.md` | Project summary, stack, nav map |
+| 1 | `.lovable/01-index.md` | Project summary, stack, nav map |
 | 2 | `.lovable/strictly-avoid.md` | Hard prohibitions (CODE RED) |
 | 3 | `.lovable/user-preferences` | How the human wants you to behave |
 | 4 | `.lovable/what-to-read.md` | Authoritative reading order for this project. If it exists, it overrides the generic order in this prompt. Read it first and follow it. |
-| 5 | `.lovable/prompt.md` + `.lovable/prompts/` | Canonical prompts (Read, Plan, etc.). "Read memory" = run this prompt. |
-| 6 | `.lovable/memory/index.md` | Index of institutional knowledge. Then read every file it references, recursively. |
-| 7 | `.lovable/plans/index.md` | Roll-up of all plans (pending + completed + subtasks). Read this before touching individual plan files. |
-| 8 | `.lovable/plans/pending/` | Active plans, `XX-<slug>.md` |
+| 5 | `.lovable/prompt.md` + `01-prompts/` | Canonical prompts (Read, Plan, etc.). "Read memory" = run this prompt. |
+| 6 | `.lovable/memory/01-index.md` | Index of institutional knowledge. Then read every file it references, recursively. |
+| 7 | `.lovable/plans/01-index.md` | Roll-up of all plans (pending + completed + subtasks). Read this before touching individual plan files. |
+| 8 | `.lovable/plans/pending/` | Active plans, `xx-<slug>.md` |
 | 9 | `.lovable/plans/completed/` | Recent history, skim only |
-| 10 | `.lovable/plans/subtasks/XX-<slug>/` | Depth files linked from a parent plan |
+| 10 | `.lovable/plans/subtasks/xx-<slug>/` | Depth files linked from a parent plan |
 | 11 | `.lovable/suggestions.md` | Ideas not yet approved |
-| 12 | `.lovable/spec/commands/` | User commands and conventions, `XX-<slug>.md` |
+| 12 | `.lovable/spec/commands/` | User commands and conventions, `xx-<slug>.md` |
 | 13 | `.lovable/issues/` | General bugs and regressions |
 | 14 | `.lovable/cicd-issues/` | CI/CD-specific failures. Read ALL of these before any code change so you do not repeat the same mistakes. |
 | 15 | `.lovable/ambiguous-questions/01-new-ambiguity/` | Open questions currently blocking work. If any exist, surface them in the completion block, do NOT guess past them. |
@@ -67,8 +78,8 @@ Walk `.lovable/` recursively. Every file matters. Missing files are noted, not s
 ### 1.2 The two index files
 
 Two indexes decide what you read next. Treat them as required entry points, not as summaries:
-- `.lovable/memory/index.md` lists every institutional-knowledge file. If it points at 12 files, you read 12 files.
-- `.lovable/plans/index.md` lists every plan (pending, completed, subtasks) with its slug, status, and one-line intent. Use it to pick which plan files to open in full. If it is missing, create it as part of the next code change (see Memory Update Protocol).
+- `.lovable/memory/01-index.md` lists every institutional-knowledge file. If it points at 12 files, you read 12 files.
+- `.lovable/plans/01-index.md` lists every plan (pending, completed, subtasks) with its slug, status, and one-line intent. Use it to pick which plan files to open in full. If it is missing, create it as part of the next code change (see Memory Update Protocol).
 
 ### 1.3 Self-check (internal, before Phase 2)
 
@@ -82,7 +93,7 @@ If any answer is fuzzy, go back and reread. Do not proceed.
 
 ## Phase 2 - Consolidated guidelines
 
-Read `spec/12-consolidated-guidelines/` in numeric order (`01-*.md` through `18-*.md`). Each file is a self-contained policy document. Missing folder: note it and continue.
+Read `spec/17-consolidated-guidelines/` in numeric order (`01-*.md` through `18-*.md`). Each file is a self-contained policy document. Missing folder: note it and continue.
 ---
 
 ## Phase 3 - Spec authoring rules
@@ -107,16 +118,16 @@ Only open a spec folder when the current task needs it.
 | UI theming, CSS variables, design tokens | `spec/07-design-system/` |
 | Documentation viewer features | `spec/08-docs-viewer-ui/` |
 | Code block rendering | `spec/09-code-block-system/` |
-| PowerShell scripts | `spec/10-powershell-integration/` |
-| CI/CD pipelines | `spec/13-cicd-pipeline-workflows/` |
-| CLI self-update | `spec/14-self-update-app-update/` |
-| WordPress plugins | `spec/15-wp-plugin-how-to/` |
+| PowerShell scripts | `spec/11-powershell-integration/` |
+| CI/CD pipelines | `spec/12-cicd-pipeline-workflows/` |
+| CLI self-update | `spec/14-update/` |
+| WordPress plugins | `spec/18-wp-plugin-how-to/` |
 | App-specific features | `spec/21-app/` |
 | Known app bugs | `spec/22-app-issues/` |
-| App-specific DB schema | `spec/23-app-database/` |
-| App-specific UI + design system | `spec/24-app-design-system-and-ui/` |
+| App-specific DB schema | `spec/23-app-db/` |
+| App-specific UI + design system | `spec/24-app-ui-design-system/` |
 Inside each folder: `00-overview.md` → numbered files → `99-consistency-report.md`.
-Fallbacks when the canonical numbered folder is absent: `.lovable/coding-guidelines.md`, `spec/coding-guidelines/`, `coding-guidelines/`, `spec/XX-error-manage/`. Numbered folder wins on conflict; call the conflict out in the plan's Context.
+Fallbacks when the canonical numbered folder is absent: `.lovable/coding-guidelines.md`, `spec/02-coding-guidelines/`, `coding-guidelines/`, `spec/03-error-manage/`. Numbered folder wins on conflict; call the conflict out in the plan's Context.
 ---
 
 ## Anti-Hallucination Contract
@@ -134,28 +145,28 @@ Fallbacks when the canonical numbered folder is absent: `.lovable/coding-guideli
 ```
 New info discovered
 ├─ Institutional knowledge (pattern / convention / decision)?
-│ YES → .lovable/memory/<slug>.md + update .lovable/memory/index.md
+│ YES → .lovable/memory/<slug>.md + update .lovable/memory/01-index.md
 ├─ Must never happen again?
 │ YES → .lovable/strictly-avoid.md
 ├─ Idea, not yet approved?
 │ YES → .lovable/suggestions.md
 ├─ New user command / convention?
-│ YES → .lovable/spec/commands/XX-<slug>.md
+│ YES → .lovable/spec/commands/xx-<slug>.md
 ├─ Bug / regression?
-│ YES → .lovable/issues/XX-<slug>.md (or .lovable/cicd-issues/ if CI/CD)
+│ YES → .lovable/issues/xx-<slug>.md (or .lovable/cicd-issues/ if CI/CD)
 ├─ New or changed plan?
-│ YES → .lovable/plans/pending/XX-<slug>.md + update .lovable/plans/index.md
+│ YES → .lovable/plans/pending/xx-<slug>.md + update .lovable/plans/01-index.md
 ├─ Ambiguity / unclear requirement blocking progress?
-│ YES → .lovable/ambiguous-questions/01-new-ambiguity/XX-<slug>.md
+│ YES → .lovable/ambiguous-questions/01-new-ambiguity/xx-<slug>.md
 ├─ User just answered a previously-open ambiguity?
-│ YES → mv the file to .lovable/ambiguous-questions/02-ambiguity-resolved/XX-<slug>.md,
+│ YES → mv the file to .lovable/ambiguous-questions/02-ambiguity-resolved/xx-<slug>.md,
 │ append `## Resolution` (answer + applied solution), flip Status: resolved
 └─ None of the above → do not persist.
 ```
 Hard rules:
 - Folder is `.lovable/memory/`, never `memories/`.
-- Adding a memory file always updates `.lovable/memory/index.md`.
-- Adding, moving, or completing a plan always updates `.lovable/plans/index.md`.
+- Adding a memory file always updates `.lovable/memory/01-index.md`.
+- Adding, moving, or completing a plan always updates `.lovable/plans/01-index.md`.
 - Ambiguity folders: `01-new-ambiguity/` for open, `02-ambiguity-resolved/` for answered. On answer, MOVE the file (never copy) so it exists in exactly one place. Every resolved file carries a `## Resolution` section.
 - Never guess past an open ambiguity. If one exists and is relevant to the current task, stop and surface it before doing work.
 - Editing existing memory or index files preserves unrelated content. No silent truncation.
@@ -167,14 +178,17 @@ Hard rules:
 After Phases 1-3, reply exactly:
 ```
 ✅ Onboarding complete.
+- Recent git commits inspected: [10] (from git log -n 10 --stat)
+- What-to-read followed: [yes] (from .lovable/what-to-read.md)
 - Memory files read: [X]
 - Consolidated guidelines read: [Y]
 - Spec authoring files read: [Z]
-- Pending plans: [N] (from .lovable/plans/index.md)
+- Pending plans: [N] (from .lovable/plans/01-index.md)
 - CI/CD issues absorbed: [M] (from .lovable/cicd-issues/)
 - Open ambiguities: [K] (from .lovable/ambiguous-questions/01-new-ambiguity/)
 - Resolved ambiguities on file: [R] (from .lovable/ambiguous-questions/02-ambiguity-resolved/)
 I understand:
+- Latest commit changes: [brief summary of recent file changes and architectural intent from the last 10 commits]
 - CODE RED rules: [top 3-5]
 - Naming conventions: [brief]
 - Error handling: [one sentence]
@@ -188,15 +202,16 @@ Then stop. No next-step suggestions, no exploratory questions.
 
 ## Pre-reply checklist (all must be true)
 
+- [ ] Inspected the last 10 git commits via `git log -n 10 --stat` to understand recent file changes
 - [ ] Read `.lovable/what-to-read.md` first if it exists, followed its order
 - [ ] Walked `.lovable/` recursively, no folder skipped silently
-- [ ] Read `.lovable/memory/index.md` and every file it points at
-- [ ] Read `.lovable/plans/index.md` and every file in `pending/`
+- [ ] Read `.lovable/memory/01-index.md` and every file it points at
+- [ ] Read `.lovable/plans/01-index.md` and every file in `pending/`
 - [ ] Skimmed `.lovable/plans/completed/` for recent history
 - [ ] Read every file in `.lovable/spec/commands/`
 - [ ] Read every file in `.lovable/issues/` and `.lovable/cicd-issues/`
 - [ ] Read every file in `.lovable/ambiguous-questions/01-new-ambiguity/` and `02-ambiguity-resolved/`
-- [ ] Read `spec/12-consolidated-guidelines/` in numeric order (or noted missing)
+- [ ] Read `spec/17-consolidated-guidelines/` in numeric order (or noted missing)
 - [ ] Read `spec/01-spec-authoring-guide/` in numeric order (or noted missing)
 - [ ] Can name CODE RED rules, naming conventions, error-handling philosophy without guessing
 - [ ] Can list every pending plan slug from memory

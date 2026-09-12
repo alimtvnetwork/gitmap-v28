@@ -87,8 +87,7 @@ func runInstallScripts() error {
 	}
 	tmpDir, err := cloneRepoToTemp()
 	if err != nil {
-		fmt.Fprintf(os.Stderr, constants.ErrScriptsClone, err)
-		exitWith(1)
+		return apperror.WrapSimple(err, "clone repo to temp")
 	}
 	defer os.RemoveAll(tmpDir)
 	copied := copyScriptFiles(tmpDir, targetDir)

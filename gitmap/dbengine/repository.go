@@ -14,17 +14,26 @@ type ModelScanner[T any] func(s RowScanner) (*T, error)
 
 // Repository provides a type-safe generic data access repository.
 type Repository[T any, F ~string] struct {
-	db        *DbWrapper
+	db        SqlExecutor
 	tableName string
 	scanner   ModelScanner[T]
 }
 
 // NewRepository initializes a Repository for a table and model scanner.
-func NewRepository[T any, F ~string](db *DbWrapper, tableName string, scanner ModelScanner[T]) *Repository[T, F] {
+func NewRepository[T any, F ~string](db SqlExecutor, tableName string, scanner ModelScanner[T]) *Repository[T, F] {
 	return &Repository[T, F]{
 		db:        db,
 		tableName: tableName,
 		scanner:   scanner,
+	}
+}
+
+// WithExecutor returns a shallow clone of the repository bound to the provided SqlExecutor (e.g. within a transaction).
+func (r *Repository[T, F]) WithExecutor(exec SqlExecutor) *Repository[T, F] {
+	return &Repository[T, F]{
+		db:        exec,
+		tableName: r.tableName,
+		scanner:   r.scanner,
 	}
 }
 

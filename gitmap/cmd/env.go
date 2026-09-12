@@ -15,69 +15,60 @@ func runEnv(args []string) error {
 	sub := args[0]
 	rest := args[1:]
 
-	routeEnvSub(sub, rest)
-	return nil
+	return routeEnvSub(sub, rest)
+}
+
+func routeEnvVariableSub(sub string, args []string) (error, bool) {
+	if sub == constants.CmdEnvSet {
+		return runEnvSet(args), true
+	}
+	if sub == constants.CmdEnvGet {
+		return runEnvGet(args), true
+	}
+	if sub == constants.CmdEnvDelete {
+		return runEnvDelete(args), true
+	}
+	if sub == constants.CmdEnvList {
+		return runEnvList(), true
+	}
+
+	return nil, false
 }
 
 // routeEnvSub routes to the appropriate env subcommand.
-func routeEnvSub(sub string, args []string) {
-	if sub == constants.CmdEnvSet {
-		runEnvSet(args)
-
-		return
-	}
-	if sub == constants.CmdEnvGet {
-		runEnvGet(args)
-
-		return
-	}
-	if sub == constants.CmdEnvDelete {
-		runEnvDelete(args)
-
-		return
-	}
-	if sub == constants.CmdEnvList {
-		runEnvList()
-
-		return
+func routeEnvSub(sub string, args []string) error {
+	if err, isHandled := routeEnvVariableSub(sub, args); isHandled {
+		return err
 	}
 	if sub == constants.CmdEnvPathAdd {
-		routeEnvPath(args)
-
-		return
+		return routeEnvPath(args)
 	}
 
-	apperror.NewSimple(constants.ErrEnvSubcommand, "E9000")
-	return
+	return apperror.NewSimple(constants.ErrEnvSubcommand, "E9000")
 }
 
 // routeEnvPath routes path subcommands (path add, path remove, path list).
-func routeEnvPath(args []string) {
+func routeEnvPath(args []string) error {
 	if len(args) < 1 {
-		runEnvPathList()
-
-		return
+		return runEnvPathList()
 	}
 
 	sub := args[0]
 	rest := args[1:]
 
-	if sub == constants.CmdEnvPathSub {
-		runEnvPathAdd(rest)
+	return dispatchEnvPath(sub, rest)
+}
 
-		return
+func dispatchEnvPath(sub string, rest []string) error {
+	if sub == constants.CmdEnvPathSub {
+		return runEnvPathAdd(rest)
 	}
 	if sub == constants.CmdEnvPathRemove {
-		runEnvPathRemove(rest)
-
-		return
+		return runEnvPathRemove(rest)
 	}
 	if sub == constants.CmdEnvPathList {
-		runEnvPathList()
-
-		return
+		return runEnvPathList()
 	}
 
-	apperror.NewSimple("constants.ErrEnvSubcommand "+"path "+sub, "E9000")
-	return
+	return apperror.NewSimple("constants.ErrEnvSubcommand "+"path "+sub, "E9000")
 }

@@ -12,6 +12,7 @@ import (
 
 	"github.com/pterm/pterm"
 
+	"github.com/alimtvnetwork/gitmap-v28/gitmap/apperror"
 	"github.com/alimtvnetwork/gitmap-v28/gitmap/db"
 )
 
@@ -140,7 +141,8 @@ func RunPool(
 				res.ClusterRunId = runId
 				lastRes = res
 
-				id, dbErr := int64(0), error(nil)
+				var id int64
+				var dbErr *apperror.AppError
 				if dbConn != nil {
 					id, dbErr = db.InsertClusterExecResult(ctx, dbConn, res)
 				}

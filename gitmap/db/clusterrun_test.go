@@ -81,12 +81,12 @@ func TestClusterRunAndExecResult(t *testing.T) {
 	}
 
 	// 4. Insert ClusterNode for FK constraints
-	_, err = db.ExecContext(ctx, `
+	_, execErr := db.ExecContext(ctx, `
 		INSERT INTO ClusterNode (NodeId, Alias, DisplayId, IPAddress, NodeRole, OS, Status)
 		VALUES ('node1', 'node-1', 1, '10.0.0.1', 'worker', 'windows', 'online')
 	`)
-	if err != nil {
-		t.Fatalf("Failed to insert mock ClusterNode: %v", err)
+	if execErr != nil {
+		t.Fatalf("Failed to insert mock ClusterNode: %v", execErr)
 	}
 
 	// 5. Insert 5 ClusterExecResults
@@ -119,9 +119,9 @@ func TestClusterRunAndExecResult(t *testing.T) {
 	}
 
 	// 7. Verify FK cascade on run delete
-	_, err = db.ExecContext(ctx, "DELETE FROM ClusterRun WHERE ClusterRunId = ?", runId)
-	if err != nil {
-		t.Fatalf("Failed to delete ClusterRun: %v", err)
+	_, delErr := db.ExecContext(ctx, "DELETE FROM ClusterRun WHERE ClusterRunId = ?", runId)
+	if delErr != nil {
+		t.Fatalf("Failed to delete ClusterRun: %v", delErr)
 	}
 
 	// Check if results are deleted

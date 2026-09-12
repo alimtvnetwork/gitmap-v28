@@ -2,61 +2,57 @@ package cmd
 
 import (
 	"encoding/json"
-	"fmt"
 	"os"
 	"path/filepath"
 
 	"github.com/alimtvnetwork/gitmap-v28/gitmap/apperror"
 	"github.com/alimtvnetwork/gitmap-v28/gitmap/constants"
 	"github.com/alimtvnetwork/gitmap-v28/gitmap/model"
-
-	"github.com/alimtvnetwork/gitmap-v28/gitmap/cliexit"
 )
 
+func emptyEnvRegistry() model.EnvRegistry {
+	return model.EnvRegistry{
+		Variables: []model.EnvVariable{},
+		Paths:     []model.EnvPathEntry{},
+	}
+}
+
 // loadEnvRegistry reads and parses the env-registry.json file.
-func loadEnvRegistry() model.EnvRegistry {
+func loadEnvRegistry() (model.EnvRegistry, *apperror.AppError) {
 	path := constants.EnvRegistryFilePath
 	data, err := os.ReadFile(path)
-
 	if err != nil {
-		return model.EnvRegistry{
-			Variables: []model.EnvVariable{},
-			Paths:     []model.EnvPathEntry{},
-		}
+		return emptyEnvRegistry(), nil
 	}
 
 	var registry model.EnvRegistry
-
-	err = json.Unmarshal(data, &registry)
-	if err != nil {
-		fmt.Fprintln(os.Stderr, apperror.NewSimple(constants.ErrEnvRegistryLoad, "E9000").Error())
-		cliexit.HandleError(nil, 1)
+	if err = json.Unmarshal(data, &registry); err != nil {
+		return model.EnvRegistry{}, apperror.WrapSimple(err, constants.ErrEnvRegistryLoad)
 	}
 
-	return registry
+	return registry, nil
+}
+
+func writeEnvRegistryFile(path string, registry model.EnvRegistry) error {
+	data, err := json.MarshalIndent(registry, "", constants.JSONIndent)
+	if err != nil {
+		return err
+	}
+
+	return os.WriteFile(path, data, constants.FilePermission)
 }
 
 // saveEnvRegistry writes the env-registry.json file.
-func saveEnvRegistry(registry model.EnvRegistry) {
+func saveEnvRegistry(registry model.EnvRegistry) *apperror.AppError {
 	path := constants.EnvRegistryFilePath
-
-	err := os.MkdirAll(filepath.Dir(path), constants.DirPermission)
-	if err != nil {
-		apperror.NewSimple(constants.ErrEnvRegistrySave, "E9000")
-		return
+	if err := os.MkdirAll(filepath.Dir(path), constants.DirPermission); err != nil {
+		return apperror.WrapSimple(err, constants.ErrEnvRegistrySave)
+	}
+	if err := writeEnvRegistryFile(path, registry); err != nil {
+		return apperror.WrapSimple(err, constants.ErrEnvRegistrySave)
 	}
 
-	data, err := json.MarshalIndent(registry, "", constants.JSONIndent)
-	if err != nil {
-		apperror.NewSimple(constants.ErrEnvRegistrySave, "E9000")
-		return
-	}
-
-	err = os.WriteFile(path, data, constants.FilePermission)
-	if err != nil {
-		apperror.NewSimple(constants.ErrEnvRegistrySave, "E9000")
-		return
-	}
+	return nil
 }
 
 // upsertEnvVariable adds or updates a variable in the registry.
@@ -74,18 +70,15 @@ func upsertEnvVariable(registry model.EnvRegistry, name, value string) model.Env
 	return registry
 }
 
-// findEnvVariable returns the variable or exits with error.
-func findEnvVariable(registry model.EnvRegistry, name string) model.EnvVariable {
+// findEnvVariable returns the variable or an error if not found.
+func findEnvVariable(registry model.EnvRegistry, name string) (model.EnvVariable, *apperror.AppError) {
 	for _, v := range registry.Variables {
 		if v.Name == name {
-			return v
+			return v, nil
 		}
 	}
 
-	fmt.Fprintln(os.Stderr, apperror.NewSimple(constants.ErrEnvNotFound, "E9000").Error())
-	cliexit.HandleError(nil, 1)
-
-	return model.EnvVariable{}
+	return model.EnvVariable{}, apperror.NewSimple(constants.ErrEnvNotFound, "E9000")
 }
 
 // removeEnvVariable removes a variable from the registry.
@@ -122,12 +115,13 @@ func removeEnvPath(registry model.EnvRegistry, dir string) model.EnvRegistry {
 	return registry
 }
 
-// checkEnvPathNotDuplicate exits if the path already exists.
-func checkEnvPathNotDuplicate(registry model.EnvRegistry, dir string) {
+// checkEnvPathNotDuplicate returns an error if the path already exists.
+func checkEnvPathNotDuplicate(registry model.EnvRegistry, dir string) *apperror.AppError {
 	for _, p := range registry.Paths {
 		if p.Path == dir {
-			apperror.NewSimple(constants.ErrEnvPathDuplicate, "E9000")
-			return
+			return apperror.NewSimple(constants.ErrEnvPathDuplicate, "E9000")
 		}
 	}
+
+	return nil
 }

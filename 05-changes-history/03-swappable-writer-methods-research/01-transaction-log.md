@@ -1,9 +1,9 @@
 # Transaction Log: Swappable Writer Methods & Functional Injection Research
 
-> **Directory:** `05-changes-history/03-swappable-writer-methods-research/`  
-> **Date:** 2026-09-03  
-> **Topic:** Swappable Write Methods, Higher-Order Function Injection via Options, and Log-Agnostic Payloads  
-> **Status:** Completed  
+> **Directory:** `05-changes-history/03-swappable-writer-methods-research/`
+> **Date:** 2026-09-03
+> **Topic:** Swappable Write Methods, Higher-Order Function Injection via Options, and Log-Agnostic Payloads
+> **Status:** Completed
 
 ---
 

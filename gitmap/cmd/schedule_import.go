@@ -87,25 +87,32 @@ func parseImportYAML(filePath string) ([]scheduleExportBundle, error) {
 }
 
 func parseImportSQLite(filePath string) ([]scheduleExportBundle, error) {
-	conn, err := sql.Open("sqlite", filePath)
-	if err != nil {
-		return nil, apperror.WrapSimple(err, "open import sqlite db")
+	conn, appErr := store.OpenSQLiteDB(filePath)
+	if appErr != nil {
+		return nil, apperror.WrapSimple(appErr, "open import sqlite db")
 	}
 	defer conn.Close()
+
 	tasks, err := queryImportTasksFromDB(conn)
 	if err != nil {
 		return nil, err
 	}
+
+	return buildImportBundles(conn, tasks), nil
+}
+
+func buildImportBundles(conn *sql.DB, tasks []store.SchedulerTask) []scheduleExportBundle {
 	var bundles []scheduleExportBundle
 	for _, t := range tasks {
 		runs := queryImportRunsFromDB(conn, t.Name)
 		bundles = append(bundles, scheduleExportBundle{Task: t, Runs: runs})
 	}
-	return bundles, nil
+
+	return bundles
 }
 
 func queryImportTasksFromDB(conn *sql.DB) ([]store.SchedulerTask, error) {
-	q := `SELECT id, name, COALESCE(slug,''), COALESCE(db_path,''), COALESCE(macro_name,''), COALESCE(command_line,''), interval_val, delay_val, is_enabled, is_scheduled, has_delay, is_startup, run_count, COALESCE(last_run_at,''), created_at 
+	q := `SELECT id, name, COALESCE(slug,''), COALESCE(db_path,''), COALESCE(macro_name,''), COALESCE(command_line,''), interval_val, delay_val, is_enabled, is_scheduled, has_delay, is_startup, run_count, COALESCE(last_run_at,''), created_at
 	      FROM scheduler_tasks`
 	rows, err := conn.Query(q)
 	if err != nil {
@@ -130,7 +137,7 @@ func parseImportTaskRows(rows *sql.Rows) []store.SchedulerTask {
 }
 
 func queryImportRunsFromDB(conn *sql.DB, taskName string) []store.ScheduleRunRecord {
-	q := `SELECT id, run_number, trigger_type, runner_user, started_at, finished_at, duration_ms, is_success, exit_code, output, error_msg, created_at 
+	q := `SELECT id, run_number, trigger_type, runner_user, started_at, finished_at, duration_ms, is_success, exit_code, output, error_msg, created_at
 	      FROM schedule_logs WHERE schedule_name = ? ORDER BY id ASC`
 	rows, err := conn.Query(q, taskName)
 	if err != nil {

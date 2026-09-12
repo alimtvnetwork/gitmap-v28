@@ -22,7 +22,9 @@ func runImport(args []string) error {
 	}
 
 	data := readImportFile(inFile)
-	executeImport(data)
+	if err := executeImport(data); err != nil {
+		return err
+	}
 	printImportSummary(inFile, data)
 
 	return nil
@@ -63,19 +65,19 @@ func readImportFile(path string) model.DatabaseExport {
 }
 
 // executeImport restores all data into the database.
-func executeImport(data model.DatabaseExport) {
+func executeImport(data model.DatabaseExport) error {
 	db, err := openDb()
 	if err != nil {
-		apperror.WrapSimple(err, constants.MsgImportFailed)
-
-		return
+		return apperror.WrapSimple(err, constants.MsgImportFailed)
 	}
 	defer db.Close()
 
 	err = db.ImportAll(data)
 	if err != nil {
-		cliexit.HandleError(err, 1)
+		return apperror.WrapSimple(err, "import all")
 	}
+
+	return nil
 }
 
 // printImportSummary prints the import result summary.

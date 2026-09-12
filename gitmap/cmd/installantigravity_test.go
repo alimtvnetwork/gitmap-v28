@@ -12,16 +12,16 @@ func TestAntigravityDesktopDownloadUrl(t *testing.T) {
 	if !strings.Contains(winUrl, "Antigravity-x64.exe") {
 		t.Fatalf("expected windows URL to point to Antigravity-x64.exe, got %s", winUrl)
 	}
-	if !strings.Contains(winUrl, "storage.googleapis.com") {
-		t.Fatalf("expected windows URL from storage.googleapis.com, got %s", winUrl)
+	if !strings.Contains(winUrl, "antigravity.google") {
+		t.Fatalf("expected windows URL from antigravity.google, got %s", winUrl)
 	}
 
 	linuxUrl := getAntigravityDesktopDownloadUrl("linux")
 	if !strings.Contains(linuxUrl, "Antigravity.tar.gz") {
 		t.Fatalf("expected linux URL to point to Antigravity.tar.gz, got %s", linuxUrl)
 	}
-	if !strings.Contains(linuxUrl, "storage.googleapis.com") {
-		t.Fatalf("expected linux URL from storage.googleapis.com, got %s", linuxUrl)
+	if !strings.Contains(linuxUrl, "antigravity.google") {
+		t.Fatalf("expected linux URL from antigravity.google, got %s", linuxUrl)
 	}
 }
 

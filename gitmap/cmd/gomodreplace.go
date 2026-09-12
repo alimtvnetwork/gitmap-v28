@@ -64,15 +64,15 @@ func replaceModulePath(oldPath, newPath string, verbose bool, exts []string) int
 }
 
 // replaceInGoMod replaces the module line in go.mod.
-func replaceInGoMod(oldPath, newPath string) {
+func replaceInGoMod(oldPath, newPath string) error {
 	data, err := os.ReadFile(constants.GoModFile)
 	if err != nil {
-		apperror.NewSimple("constants.ErrGoModReadFailed "+constants.GoModFile, "E9000")
-		return
+		return apperror.WrapSimple(err, "read "+constants.GoModFile)
 	}
 
 	updated := strings.ReplaceAll(string(data), oldPath, newPath)
-	writeFileContent(constants.GoModFile, updated)
+
+	return writeFileContent(constants.GoModFile, updated)
 }
 
 // findFilesWithPath walks the repo and returns files containing oldPath.
@@ -182,16 +182,16 @@ func replaceInFile(path, oldPath, newPath string) {
 }
 
 // writeFileContent writes content to a file preserving its permissions.
-func writeFileContent(path, content string) {
+func writeFileContent(path, content string) error {
 	info, err := os.Stat(path)
 	if err != nil {
-		apperror.NewSimple(constants.ErrGoModWriteFailed, "E9000")
-		return
+		return apperror.WrapSimple(err, "stat "+path)
 	}
 
 	err = os.WriteFile(path, []byte(content), info.Mode())
 	if err != nil {
-		apperror.NewSimple(constants.ErrGoModWriteFailed, "E9000")
-		return
+		return apperror.WrapSimple(err, "write "+path)
 	}
+
+	return nil
 }

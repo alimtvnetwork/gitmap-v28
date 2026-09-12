@@ -72,4 +72,3 @@ All 95 completed plan files and 76 subtask folders are grouped into 10 unified, 
 1. **Mandatory Audit Folder Purge:** When architectural audits are completed, temporary audit directories (`spec/21-app/25-app-spec-audit/`, `spec/19-main-worker-service/audit/`, `spec/21-app/26-coding-guideline-audit/`, `.lovable/audits/`) must be backed up to OS temp directory and recycled/purged via `03-ai-scripts/33-git-history-tracer-and-purger.py`.
 2. **Guideline Checklist Consolidation:** Milestone files must never re-copy entire coding guideline sections. Milestones reference `.lovable/coding-guidelines.md` as a single source of truth.
 3. **Pruning Non-Business-Logic Tasks:** Tasks whose sole function was re-formatting, boolean renaming, or line spacing without business logic impact are omitted from the active milestone ledger to keep domain features clean.
-

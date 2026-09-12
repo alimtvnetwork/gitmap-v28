@@ -26,12 +26,46 @@ type TxWrapper struct {
 	compiler DialectCompiler
 }
 
+var sqlitePragmas = []string{
+	"PRAGMA busy_timeout = 5000",
+	"PRAGMA journal_mode = WAL",
+	"PRAGMA synchronous = NORMAL",
+	"PRAGMA foreign_keys = ON",
+}
+
+func applySQLitePragmas(conn *sql.DB) *apperror.AppError {
+	for _, pragma := range sqlitePragmas {
+		if _, err := conn.Exec(pragma); err != nil {
+			_ = conn.Close()
+
+			return apperror.WrapSimple(err, "configure sqlite pragma: "+pragma)
+		}
+	}
+
+	return nil
+}
+
+func configureConnForDialect(dialect DatabaseDialectType, conn *sql.DB) *apperror.AppError {
+	if dialect != DbSQLite {
+		return nil
+	}
+
+	conn.SetMaxOpenConns(1)
+
+	return applySQLitePragmas(conn)
+}
+
 // OpenDb opens a database connection for the specified dialect.
 func OpenDb(dialect DatabaseDialectType, dsn string) (*DbWrapper, *apperror.AppError) {
 	conn, err := sql.Open(string(dialect), dsn)
 	if err != nil {
 		return nil, apperror.WrapSimple(err, fmt.Sprintf("open database for dialect %s", dialect))
 	}
+
+	if appErr := configureConnForDialect(dialect, conn); appErr != nil {
+		return nil, appErr
+	}
+
 	return WrapDb(conn, dialect)
 }
 
@@ -84,44 +118,121 @@ func (w *DbWrapper) Exec(ctx context.Context, query string, args ...any) (sql.Re
 	if err != nil {
 		return nil, apperror.WrapSimple(err, "execute exec: "+query)
 	}
+
 	return result, nil
+}
+
+// Prepare creates a prepared statement on the database connection.
+func (w *DbWrapper) Prepare(ctx context.Context, query string) (*sql.Stmt, *apperror.AppError) {
+	stmt, err := w.conn.PrepareContext(ctx, query)
+	if err != nil {
+		return nil, apperror.WrapSimple(err, "prepare statement: "+query)
+	}
+
+	return stmt, nil
 }
 
 func handleRollback(tx *sql.Tx, txErr *apperror.AppError) *apperror.AppError {
 	rbErr := tx.Rollback()
-	if rbErr != nil {
-		return apperror.WrapWithDetails(
-			rbErr,
-			"rollback transaction",
-			"E9000",
-			"rollback failed after: "+txErr.Error(),
-			"dbengine",
-			apperror.ErrorTypeExecution,
-			apperror.SeverityError,
-			nil,
-		)
+	if rbErr == nil {
+		return txErr
 	}
-	return txErr
+
+	msg := "rollback failed after: " + txErr.Error()
+
+	return apperror.WrapWithDetails(
+		rbErr, "rollback transaction", "E9000", msg,
+		"dbengine", apperror.ErrorTypeExecution, apperror.SeverityError, nil,
+	)
 }
 
-// WithTransaction runs a function within a database transaction.
-func (w *DbWrapper) WithTransaction(ctx context.Context, fn func(tx *TxWrapper) *apperror.AppError) *apperror.AppError {
-	tx, err := w.conn.BeginTx(ctx, nil)
+var (
+	immediateTxOptions = &sql.TxOptions{
+		Isolation: sql.LevelSerializable,
+	}
+	readOnlyTxOptions = &sql.TxOptions{
+		ReadOnly: true,
+	}
+	exclusiveTxOptions = &sql.TxOptions{
+		Isolation: sql.LevelLinearizable,
+	}
+)
+
+func recoverTxPanic(tx *sql.Tx) {
+	p := recover()
+	if p == nil {
+		return
+	}
+
+	rbErr := tx.Rollback()
+	if rbErr != nil && !errors.Is(rbErr, sql.ErrTxDone) {
+		panic(fmt.Sprintf("%v (rollback failed: %v)", p, rbErr)) // lint-allow: panic
+	}
+
+	panic(p) // lint-allow: panic
+}
+
+func (w *DbWrapper) executeTx(
+	ctx context.Context,
+	opts *sql.TxOptions,
+	fn func(tx *TxWrapper) *apperror.AppError,
+) *apperror.AppError {
+	tx, err := w.conn.BeginTx(ctx, opts)
 	if err != nil {
 		return apperror.WrapSimple(err, "begin transaction")
 	}
 
+	defer recoverTxPanic(tx)
+
+	return w.runTxFunc(tx, fn)
+}
+
+func (w *DbWrapper) runTxFunc(tx *sql.Tx, fn func(tx *TxWrapper) *apperror.AppError) *apperror.AppError {
 	txWrap := &TxWrapper{tx: tx, compiler: w.compiler}
-	txErr := fn(txWrap)
-	if txErr != nil {
+	if txErr := fn(txWrap); txErr != nil {
 		return handleRollback(tx, txErr)
 	}
 
-	commitErr := tx.Commit()
-	if commitErr != nil {
+	if commitErr := tx.Commit(); commitErr != nil {
 		return apperror.WrapSimple(commitErr, "commit transaction")
 	}
+
 	return nil
+}
+
+// WithTransaction runs a function within a database transaction.
+func (w *DbWrapper) WithTransaction(ctx context.Context, fn func(tx *TxWrapper) *apperror.AppError) *apperror.AppError {
+	return w.executeTx(ctx, nil, fn)
+}
+
+// WithImmediateTransaction runs a function within an immediate (serializable) database transaction.
+func (w *DbWrapper) WithImmediateTransaction(ctx context.Context, fn func(tx *TxWrapper) *apperror.AppError) *apperror.AppError {
+	return w.executeTx(ctx, immediateTxOptions, fn)
+}
+
+// WithTxOptions runs a function within a database transaction using the provided options.
+func (w *DbWrapper) WithTxOptions(
+	ctx context.Context,
+	opts *sql.TxOptions,
+	fn func(tx *TxWrapper) *apperror.AppError,
+) *apperror.AppError {
+	return w.executeTx(ctx, opts, fn)
+}
+
+// WithReadOnlyTransaction runs a function within a read-only database transaction.
+func (w *DbWrapper) WithReadOnlyTransaction(
+	ctx context.Context,
+	fn func(tx *TxWrapper) *apperror.AppError,
+) *apperror.AppError {
+	return w.executeTx(ctx, readOnlyTxOptions, fn)
+}
+
+// WithExclusiveTransaction runs a function within an exclusive database transaction.
+func (w *DbWrapper) WithExclusiveTransaction(
+	ctx context.Context,
+	fn func(tx *TxWrapper) *apperror.AppError,
+) *apperror.AppError {
+	return w.executeTx(ctx, exclusiveTxOptions, fn)
 }
 
 // Compiler returns the active DialectCompiler.

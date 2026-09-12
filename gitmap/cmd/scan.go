@@ -33,8 +33,7 @@ func runScan(args []string) error {
 		OutFile: outFile, OutputPath: outputPath,
 		IsGithubDesktop: ghDesktop, IsOpenFolder: openFolder, IsQuiet: quiet,
 	}
-	executeScan(dir, cfg, outFile, ghDesktop, openFolder, quiet, noVSCodeSync, noAutoTags, reportErrors, compact, fix, workers, maxDepth, cache, probeOpts, relativeRoot, defaultBranch)
-	return nil
+	return executeScan(dir, cfg, outFile, ghDesktop, openFolder, quiet, noVSCodeSync, noAutoTags, reportErrors, compact, fix, workers, maxDepth, cache, probeOpts, relativeRoot, defaultBranch)
 }
 
 // executeScan performs the directory scan and outputs results.
@@ -62,7 +61,7 @@ func executeScan(
 	probeOpts ScanProbeOptions,
 	relativeRoot,
 	defaultBranch string,
-) {
+) error {
 	absDir := resolveScanTarget(dir)
 
 	bench := newScanBenchmark(absDir)
@@ -97,7 +96,8 @@ func executeScan(
 	if err != nil {
 		failPendingTask(taskDB, taskID, fmt.Sprintf(constants.ErrScanFailed, absDir, err))
 		fmt.Fprintf(os.Stderr, constants.ErrScanFailed, absDir, err)
-		exitWith(1)
+
+		return apperror.WrapSimple(err, fmt.Sprintf(constants.ErrScanFailed, absDir, err))
 	}
 	var records []model.ScanRecord
 	relRootBase := resolveRelativeRoot(relativeRoot, absDir, quiet)
@@ -175,6 +175,8 @@ func executeScan(
 
 	// Mark scan task as completed after all steps succeed.
 	completePendingTask(taskDB, taskID)
+
+	return nil
 }
 
 // autoRegisterFirstWorkDir checks if any work directories are registered.

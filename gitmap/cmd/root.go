@@ -85,13 +85,22 @@ func Run() {
 		os.Args = append([]string{os.Args[0], constants.CmdClone}, os.Args[1:]...)
 	}
 
-	aliasName, cleaned := extractAliasFlag(os.Args[2:])
-	if len(aliasName) > 0 {
-		resolveAliasContext(aliasName)
-		os.Args = append(os.Args[:2], cleaned...)
-	}
+	os.Args = applyAliasContextIfPresent(os.Args[1], os.Args)
 
 	runDispatch(os.Args[1])
+}
+
+func applyAliasContextIfPresent(command string, args []string) []string {
+	aliasName, cleaned := extractAliasFlag(args[2:])
+	if len(aliasName) == 0 {
+		return args
+	}
+
+	if err := resolveAliasContext(aliasName); err != nil {
+		handleGlobalError(command, err)
+	}
+
+	return append(args[:2], cleaned...)
 }
 
 // runDispatch is the single entry point every CLI invocation flows

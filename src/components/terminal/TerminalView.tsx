@@ -6,7 +6,13 @@ import { ResizablePanelGroup, ResizablePanel, ResizableHandle } from "@/componen
 import { Tabs, TabsList, TabsTrigger, TabsContent } from "@/components/ui/tabs";
 import { cn } from "@/lib/utils";
 
-export type OsTheme = "win" | "ubuntu" | "linux";
+export enum OsThemeType {
+  Win = "win",
+  Ubuntu = "ubuntu",
+  Linux = "linux",
+}
+
+export type OsTheme = OsThemeType | "win" | "ubuntu" | "linux";
 
 export interface TerminalTab {
   id: string;

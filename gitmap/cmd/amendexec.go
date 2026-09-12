@@ -7,10 +7,9 @@ import (
 	"os/exec"
 	"strings"
 
+	"github.com/alimtvnetwork/gitmap-v28/gitmap/apperror"
 	"github.com/alimtvnetwork/gitmap-v28/gitmap/constants"
 	"github.com/alimtvnetwork/gitmap-v28/gitmap/model"
-
-	"github.com/alimtvnetwork/gitmap-v28/gitmap/cliexit"
 )
 
 func getAmendLogArgs(f amendFlags) []string {
@@ -30,8 +29,10 @@ func listCommitsForAmend(f amendFlags) []model.CommitEntry {
 	out, err := exec.Command("git", args...).Output()
 	if err != nil {
 		fmt.Fprintf(os.Stderr, constants.ErrAmendListCommits, err)
+
 		return nil
 	}
+
 	return parseCommitLines(string(out))
 }
 
@@ -44,6 +45,7 @@ func parseCommitLines(output string) []model.CommitEntry {
 			entries = append(entries, e)
 		}
 	}
+
 	return entries
 }
 
@@ -56,6 +58,7 @@ func parseSingleCommitLine(line string) (model.CommitEntry, bool) {
 	if len(parts) > 1 {
 		msg = parts[1]
 	}
+
 	return model.CommitEntry{SHA: parts[0], Message: msg}, true
 }
 
@@ -63,8 +66,10 @@ func getGitAuthorField(sha, format string) string {
 	out, err := exec.Command("git", "log", "-1", format, sha).Output()
 	if err != nil {
 		fmt.Fprintf(os.Stderr, "  ⚠ Could not read author info for %s: %v\n", sha, err)
+
 		return ""
 	}
+
 	return strings.TrimSpace(string(out))
 }
 
@@ -74,6 +79,7 @@ func detectPreviousAuthor(commits []model.CommitEntry) (string, string) {
 		return "", ""
 	}
 	sha := commits[0].SHA
+
 	return getGitAuthorField(sha, "--format=%an"), getGitAuthorField(sha, "--format=%ae")
 }
 
@@ -83,17 +89,21 @@ func getCurrentBranch() string {
 	if err != nil {
 		return constants.DefaultBranch
 	}
+
 	return strings.TrimSpace(string(out))
 }
 
 // switchBranch checks out the specified branch.
-func switchBranch(branch string) {
+func switchBranch(branch string) *apperror.AppError {
 	fmt.Printf(constants.MsgAmendCheckout, branch)
 	cmd := exec.Command("git", "checkout", branch)
 	if err := cmd.Run(); err != nil {
 		fmt.Fprintf(os.Stderr, constants.ErrAmendCheckout, branch, err)
-		cliexit.HandleError(nil, 1)
+
+		return apperror.WrapSimple(err, fmt.Sprintf(constants.ErrAmendCheckout, branch, err))
 	}
+
+	return nil
 }
 
 func buildFilterBranchArgs(f amendFlags) []string {
@@ -101,34 +111,42 @@ func buildFilterBranchArgs(f amendFlags) []string {
 	if f.commitHash == "" {
 		return []string{"filter-branch", "-f", "--env-filter", envFilter, "--", constants.GitHEAD}
 	}
+
 	return []string{"filter-branch", "-f", "--env-filter", envFilter, f.commitHash + "^.." + constants.GitHEAD}
 }
 
 // runFilterBranch executes the git filter-branch command.
-func runFilterBranch(f amendFlags, commits []model.CommitEntry) error {
+func runFilterBranch(f amendFlags, commits []model.CommitEntry) *apperror.AppError {
 	if f.commitHash == constants.GitHEAD {
-		runAmendHead(f)
-		return nil
+		return runAmendHead(f)
 	}
-	args := buildFilterBranchArgs(f)
+
+	return execFilterBranch(buildFilterBranchArgs(f))
+}
+
+func execFilterBranch(args []string) *apperror.AppError {
 	cmd := exec.Command("git", args...)
 	cmd.Stdout = os.Stdout
 	cmd.Stderr = os.Stderr
 	if err := cmd.Run(); err != nil {
 		fmt.Fprintf(os.Stderr, constants.ErrAmendFilter, err)
-		cliexit.HandleError(nil, 1)
+
+		return apperror.WrapSimple(err, fmt.Sprintf(constants.ErrAmendFilter, err))
 	}
+
 	return nil
 }
 
 // runAmendHead uses git commit --amend for single HEAD commit.
-func runAmendHead(f amendFlags) error {
+func runAmendHead(f amendFlags) *apperror.AppError {
 	author := buildAuthorString(f)
 	args := []string{"commit", "--amend", "--no-edit", "--author", author}
 	cmd := exec.Command("git", args...)
 	if err := cmd.Run(); err != nil {
 		fmt.Fprintf(os.Stderr, constants.ErrAmendCommitAmend, err)
-		cliexit.HandleError(nil, 1)
+
+		return apperror.WrapSimple(err, fmt.Sprintf(constants.ErrAmendCommitAmend, err))
 	}
+
 	return nil
 }

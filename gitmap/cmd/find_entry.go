@@ -67,9 +67,9 @@ func runFindRegex(args []string) error {
 	defer mainDB.Close()
 	defer db.Close()
 
-	res, err := searcher.FindFileRegex(ctx, db, query, limit, true)
-	if err != nil {
-		pterm.Error.Println(err)
+	res, findErr := searcher.FindFileRegex(ctx, db, query, limit, true)
+	if findErr != nil {
+		pterm.Error.Println(findErr)
 		return nil
 	}
 
@@ -104,9 +104,9 @@ func runFindRead(args []string) error {
 	defer mainDB.Close()
 	defer db.Close()
 
-	res, err := searcher.FindAndRead(ctx, db, query, false, limit, true)
-	if err != nil {
-		pterm.Error.Println(err)
+	res, findErr := searcher.FindAndRead(ctx, db, query, false, limit, true)
+	if findErr != nil {
+		pterm.Error.Println(findErr)
 		return nil
 	}
 
@@ -136,8 +136,8 @@ func runFindReadJson(args []string) error {
 	defer mainDB.Close()
 	defer db.Close()
 
-	res, err := searcher.FindAndRead(ctx, db, query, false, limit, true)
-	if err != nil {
+	res, findErr := searcher.FindAndRead(ctx, db, query, false, limit, true)
+	if findErr != nil {
 		fmt.Println("[]")
 		return nil
 	}
@@ -171,9 +171,9 @@ func runFindRegexRead(args []string) error {
 	defer mainDB.Close()
 	defer db.Close()
 
-	res, err := searcher.FindAndRead(ctx, db, query, true, limit, true)
-	if err != nil {
-		pterm.Error.Println(err)
+	res, findErr := searcher.FindAndRead(ctx, db, query, true, limit, true)
+	if findErr != nil {
+		pterm.Error.Println(findErr)
 		return nil
 	}
 
@@ -203,8 +203,8 @@ func runFindRegexReadJson(args []string) error {
 	defer mainDB.Close()
 	defer db.Close()
 
-	res, err := searcher.FindAndRead(ctx, db, query, true, limit, true)
-	if err != nil {
+	res, findErr := searcher.FindAndRead(ctx, db, query, true, limit, true)
+	if findErr != nil {
 		fmt.Println("[]")
 		return nil
 	}

@@ -4,7 +4,6 @@ import (
 	"fmt"
 
 	"github.com/alimtvnetwork/gitmap-v28/gitmap/apperror"
-	"github.com/alimtvnetwork/gitmap-v28/gitmap/cliexit"
 	"github.com/alimtvnetwork/gitmap-v28/gitmap/constants"
 )
 
@@ -13,15 +12,29 @@ func runHistoryReset(args []string) error {
 	checkHelp(constants.CmdHistoryReset, args)
 	isConfirm := parseHistoryResetFlags(args)
 	if !isConfirm {
-		printHistoryResetNoConfirm()
-		cliexit.Exit(1)
-
-		return nil
+		return abortHistoryReset()
 	}
 
-	executeHistoryReset()
+	appErr := executeHistoryReset()
+	if appErr != nil {
+		return appErr
+	}
 
 	return nil
+}
+
+func abortHistoryReset() *apperror.AppError {
+	printHistoryResetNoConfirm()
+
+	return apperror.NewWithDetails(
+		"historyreset",
+		"E4001",
+		"history reset canceled: --confirm flag required",
+		"cli",
+		apperror.ErrorTypeAbort,
+		apperror.SeverityWarn,
+		nil,
+	)
 }
 
 func printHistoryResetNoConfirm() {
@@ -37,21 +50,19 @@ func parseHistoryResetFlags(args []string) bool {
 }
 
 // executeHistoryReset opens the database and clears all history.
-func executeHistoryReset() {
+func executeHistoryReset() *apperror.AppError {
 	db, err := openDb()
 	if err != nil {
-		apperror.WrapSimple(err, constants.ErrHistoryResetFailed)
-
-		return
+		return apperror.WrapSimple(err, constants.ErrHistoryResetFailed)
 	}
 	defer db.Close()
 
 	err = db.ClearHistory()
 	if err != nil {
-		apperror.WrapSimple(err, constants.ErrHistoryResetFailed)
-
-		return
+		return apperror.WrapSimple(err, constants.ErrHistoryResetFailed)
 	}
 
 	fmt.Print(constants.MsgHistoryResetDone)
+
+	return nil
 }

@@ -37,8 +37,7 @@ func runGitHubDesktop(args []string) error {
 		return apperror.NewSimple(constants.ErrGHDesktopNotRepo, "E9000")
 	}
 
-	registerGHDesktop(target)
-	return nil
+	return registerGHDesktop(target)
 }
 
 // resolveGHDesktopTarget returns the absolute path to register: cwd by
@@ -66,20 +65,20 @@ func isGitRepo(dir string) bool {
 
 // registerGHDesktop verifies the GitHub Desktop CLI is on PATH, then invokes
 // it with the target path. Exits non-zero on missing CLI or invocation error.
-func registerGHDesktop(target string) {
+func registerGHDesktop(target string) *apperror.AppError {
 	cli := desktop.ResolveCLI()
 	if cli == "" {
-		apperror.NewSimple(constants.MsgDesktopNotFound, "E9000")
-		return
+		return apperror.NewSimple(constants.MsgDesktopNotFound, "E9000")
 	}
 
 	fmt.Printf(constants.MsgGHDesktopRegister, target)
 	cmd := exec.Command(cli, target)
 	_, runErr := cmd.CombinedOutput()
 	if runErr != nil {
-		apperror.NewSimple(constants.ErrGHDesktopInvoke, "E9000")
-		return
+		return apperror.NewSimple(constants.ErrGHDesktopInvoke, "E9000")
 	}
 
 	fmt.Printf(constants.MsgGHDesktopDone, target)
+
+	return nil
 }

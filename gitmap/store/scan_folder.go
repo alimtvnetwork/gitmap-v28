@@ -1,11 +1,14 @@
 package store
 
 import (
+	"context"
 	"database/sql"
 	"errors"
 	"fmt"
 
+	"github.com/alimtvnetwork/gitmap-v28/gitmap/apperror"
 	"github.com/alimtvnetwork/gitmap-v28/gitmap/constants"
+	"github.com/alimtvnetwork/gitmap-v28/gitmap/dbengine"
 	"github.com/alimtvnetwork/gitmap-v28/gitmap/model"
 )
 
@@ -73,15 +76,36 @@ func (db *DB) removeScanFolderRow(folder model.ScanFolder) (model.ScanFolder, in
 		return folder, 0, err
 	}
 
-	if _, err := ExecWrapper(db.conn, constants.SQLDetachReposFromScanFolder, folder.ID).Destruct(); err != nil {
-		return folder, 0, fmt.Errorf(constants.ErrSFDetachRepos, err)
+	wrap, appErr := dbengine.WrapDb(db.conn, dbengine.DbSQLite)
+	if appErr != nil {
+		return folder, 0, appErr
 	}
 
-	if _, err := ExecWrapper(db.conn, constants.SQLDeleteScanFolderByID, folder.ID).Destruct(); err != nil {
-		return folder, 0, fmt.Errorf(constants.ErrSFRemove, err)
+	if appErr := runDetachAndDeleteTx(wrap, folder.ID); appErr != nil {
+		return folder, 0, appErr
 	}
 
 	return folder, count, nil
+}
+
+func runDetachAndDeleteTx(wrap *dbengine.DbWrapper, folderID int64) *apperror.AppError {
+	ctx := context.Background()
+
+	return wrap.WithTransaction(ctx, func(tx *dbengine.TxWrapper) *apperror.AppError {
+		return executeDetachAndDeleteSF(tx.Tx(), folderID)
+	})
+}
+
+func executeDetachAndDeleteSF(tx *sql.Tx, folderID int64) *apperror.AppError {
+	if _, err := ExecWrapper(tx, constants.SQLDetachReposFromScanFolder, folderID).Destruct(); err != nil {
+		return apperror.WrapSimple(err, fmt.Sprintf(constants.ErrSFDetachRepos, err))
+	}
+
+	if _, err := ExecWrapper(tx, constants.SQLDeleteScanFolderByID, folderID).Destruct(); err != nil {
+		return apperror.WrapSimple(err, fmt.Sprintf(constants.ErrSFRemove, err))
+	}
+
+	return nil
 }
 
 // findScanFolderByPath returns the row matching AbsolutePath.

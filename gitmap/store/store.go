@@ -63,8 +63,7 @@ func retainMemAnchor(connPath string) {
 		return
 	}
 
-	anchor.SetMaxOpenConns(1)
-	_ = enableFK(anchor)
+	_ = ConfigureSQLiteConn(anchor)
 	memAnchors[connPath] = anchor
 }
 
@@ -99,6 +98,13 @@ func openDBAt(dbPath string) (*DB, error) {
 	return openDBConnection(connPath, dbPath, dbDir, isMem)
 }
 
+func closeOnConfigError(conn *sql.DB, dbDir string, isMem bool, err error) (*DB, error) {
+	conn.Close()
+	releaseLockIfNotMem(dbDir, isMem)
+
+	return nil, err
+}
+
 func openDBConnection(connPath, dbPath, dbDir string, isMem bool) (*DB, error) {
 	conn, err := sql.Open("sqlite", connPath)
 	if err != nil {
@@ -107,20 +113,11 @@ func openDBConnection(connPath, dbPath, dbDir string, isMem bool) (*DB, error) {
 		return nil, fmt.Errorf(constants.ErrDBOpen, dbPath, err)
 	}
 
-	conn.SetMaxOpenConns(1)
-
-	if err := enableFK(conn); err != nil {
-		conn.Close()
-		releaseLockIfNotMem(dbDir, isMem)
-
-		return nil, err
+	if err := ConfigureSQLiteConn(conn); err != nil {
+		return closeOnConfigError(conn, dbDir, isMem, err)
 	}
 
-	return &DB{
-		conn:  conn,
-		dbDir: dbDir,
-		isMem: isMem,
-	}, nil
+	return &DB{conn: conn, dbDir: dbDir, isMem: isMem}, nil
 }
 
 // Migrate creates all required tables if they don't exist.
@@ -525,29 +522,13 @@ func (db *DB) Conn() *sql.DB {
 func ensureDir(dir string) error {
 	return os.MkdirAll(dir, constants.DirPermission)
 }
-
-// enableFK turns on SQLite foreign key enforcement and applies the
-// WAL + relaxed-sync pragmas. WAL + synchronous=NORMAL eliminates the
-// per-commit FlushFileBuffers stall that caused 10-min Windows CI
-// timeouts in store/ and cmd/ test packages (see panic stacks in
-// _winSync → FlushFileBuffers). busy_timeout gives concurrent test
-// connections a 5s grace window instead of immediate SQLITE_BUSY.
-func enableFK(conn *sql.DB) error {
-	for _, pragma := range []string{
-		constants.SQLPragmaBusyTimeout5s,
-		constants.SQLPragmaJournalWAL,
-		constants.SQLPragmaSynchronousNor,
-		constants.SQLEnableFK,
-	} {
-		if _, err := conn.Exec(pragma); err != nil {
-			return fmt.Errorf("apply pragma %q: %w", pragma, err)
-		}
-	}
-
-	return nil
+func (db *DB) SQL() *sql.DB {
+	return db.conn
 }
-func (db *DB) SQL() *sql.DB             { return db.conn }
-func (db *DB) Context() context.Context { return context.Background() }
+
+func (db *DB) Context() context.Context {
+	return context.Background()
+}
 
 func releaseLockIfNotMem(dbDir string, isMem bool) {
 	if !isMem {

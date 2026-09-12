@@ -1,10 +1,10 @@
 # Transaction Log 17: Parallel Multi-Worker CI/CD Runner and Selective Log Filtering
 
-> **Directory:** `05-changes-history/17-parallel-cicd-local-runner-and-log-filtering/`  
-> **Date:** 2026-09-05  
-> **Author/Agent:** Antigravity AI  
-> **Module Affected:** `03-ai-scripts/06-cicd-local-runner.py`, `05-changes-history/`  
-> **Status:** Completed & Verified  
+> **Directory:** `05-changes-history/17-parallel-cicd-local-runner-and-log-filtering/`
+> **Date:** 2026-09-05
+> **Author/Agent:** Antigravity AI
+> **Module Affected:** `03-ai-scripts/06-cicd-local-runner.py`, `05-changes-history/`
+> **Status:** Completed & Verified
 
 ---
 
@@ -14,9 +14,9 @@ The user requested an enhancement to the local CI/CD test runner (`03-ai-scripts
 ```text
 python 03-ai-scripts/06-cicd-local-runner.py
 
-in this script make it parallel workgroup run the tests parallellky and only show the failed test info if failed if not then all ok and passing hsould be prininted 
+in this script make it parallel workgroup run the tests parallellky and only show the failed test info if failed if not then all ok and passing hsould be prininted
 
-now there should be flags to display thing ebtter wya like 
+now there should be flags to display thing ebtter wya like
 
 python 03-ai-scripts/06-cicd-local-runner.py --all # should show al logs
 python 03-ai-scripts/06-cicd-local-runner.py --failed # should show al logs or empty should log fialed ones onlhy, ckear??

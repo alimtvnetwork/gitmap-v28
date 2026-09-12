@@ -10,6 +10,8 @@ import (
 	"os"
 	"os/exec"
 	"strings"
+
+	"github.com/alimtvnetwork/gitmap-v28/gitmap/apperror"
 )
 
 // runSSHBind sets core.sshCommand for the cwd repo to the given key.
@@ -19,35 +21,32 @@ func runSSHBind(args []string) error {
 	isNonGitRepoCWD := !isGitRepoCWD()
 	if isNonGitRepoCWD {
 		fmt.Fprintln(os.Stderr, "✗ not a git repository (run `gitmap ssh-bind` inside a repo)")
-		exitWith(1)
 
-		return nil
+		return apperror.NewSimple("not a git repository (run `gitmap ssh-bind` inside a repo)", "E_NOT_GIT_REPO")
 	}
 	if len(args) == 0 {
 		fmt.Fprintln(os.Stderr, "usage: gitmap ssh-bind <key-filename-or-path>")
 		fmt.Fprintln(os.Stderr, "  tip: run `gitmap whoami` to list available keys under ~/.ssh")
-		exitWith(1)
 
-		return nil
+		return apperror.NewSimple("missing key argument", "E_USAGE")
 	}
 	keyRef, keyPath := resolveSSHKeyPath(args[0])
 	if _, err := os.Stat(keyPath); err != nil {
 		fmt.Fprintf(os.Stderr, "✗ key not found: %s (%v)\n", keyPath, err)
-		exitWith(1)
 
-		return nil
+		return apperror.WrapSimple(err, fmt.Sprintf("key not found: %s", keyPath))
 	}
 	cmdStr := fmt.Sprintf("ssh -i %s -F /dev/null -o IdentitiesOnly=yes", keyRef)
 	out, err := exec.Command("git", "config", "core.sshCommand", cmdStr).CombinedOutput()
 	if err != nil {
 		fmt.Fprintf(os.Stderr, "✗ git config failed: %v\n%s", err, out)
-		exitWith(1)
 
-		return nil
+		return apperror.WrapSimple(err, "git config core.sshCommand")
 	}
 	fmt.Printf("✓ pinned SSH key for this repo: %s\n", keyPath)
 	fmt.Printf("  core.sshCommand = %s\n", cmdStr)
 	fmt.Println("  test with: git push")
+
 	return nil
 }
 

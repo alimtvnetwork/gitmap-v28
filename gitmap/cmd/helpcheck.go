@@ -46,6 +46,5 @@ func requireOnline() {
 	}
 
 	gitutil.PrintOfflineWarning()
-	apperror.NewSimple("fatal error", "E9000")
-	return
+	cliexit.HandleGeneralError(apperror.NewSimple("network offline", "E9000"))
 }

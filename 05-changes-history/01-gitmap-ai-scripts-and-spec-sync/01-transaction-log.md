@@ -1,10 +1,10 @@
 # Transaction Log: Gitmap AI Scripts & Spec Synchronization
 
-> **Directory:** `05-changes-history/01-gitmap-ai-scripts-and-spec-sync/`  
-> **Date:** 2026-09-03  
-> **Source Repo:** `d:\wp-work\riseup-asia\coding-guidelines` (`coding-guidelines-v24`)  
-> **External Target:** `D:\wp-work\riseup-asia\gitmap` (`gitmap`)  
-> **Status:** Completed  
+> **Directory:** `05-changes-history/01-gitmap-ai-scripts-and-spec-sync/`
+> **Date:** 2026-09-03
+> **Source Repo:** `d:\wp-work\riseup-asia\coding-guidelines` (`coding-guidelines-v24`)
+> **External Target:** `D:\wp-work\riseup-asia\gitmap` (`gitmap`)
+> **Status:** Completed
 
 ---
 

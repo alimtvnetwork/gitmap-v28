@@ -71,9 +71,9 @@ func runSSHJoinLs() error {
 	}
 	defer dbConn.Close()
 
-	conns, err := db.GetSSHConnections(dbConn.Context(), dbConn.SQL())
-	if err != nil {
-		fmt.Printf("Failed to get connections: %v\n", err)
+	conns, connErr := db.GetSSHConnections(dbConn.Context(), dbConn.SQL())
+	if connErr != nil {
+		fmt.Printf("Failed to get connections: %v\n", connErr)
 		return nil
 	}
 
@@ -198,9 +198,9 @@ func runSSHJoinExport(file string) error {
 	}
 	defer dbConn.Close()
 
-	conns, err := db.GetSSHConnections(dbConn.Context(), dbConn.SQL())
-	if err != nil {
-		fmt.Printf("Failed to get connections: %v\n", err)
+	conns, connErr := db.GetSSHConnections(dbConn.Context(), dbConn.SQL())
+	if connErr != nil {
+		fmt.Printf("Failed to get connections: %v\n", connErr)
 		return nil
 	}
 

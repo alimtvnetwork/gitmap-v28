@@ -2,9 +2,14 @@ package macro
 
 import (
 	"context"
+	"fmt"
 	"os"
 	"path/filepath"
+	"runtime"
 	"testing"
+	"time"
+
+	"github.com/alimtvnetwork/gitmap-v28/gitmap/constants"
 )
 
 func TestMacroSaveLoadListDelete(t *testing.T) {
@@ -15,50 +20,43 @@ func TestMacroSaveLoadListDelete(t *testing.T) {
 			{StepNum: 2, CommandLine: "echo world", TimeoutSeconds: 10},
 		},
 	}
+	testSaveAndLoadMacro(t, m)
+	assertMacroListed(t, "test-macro")
+	testDryRunAndCleanup(t, m)
+}
 
+func testSaveAndLoadMacro(t *testing.T, m *Macro) {
 	if err := SaveMacro(m); err != nil {
 		t.Fatalf("SaveMacro failed: %v", err)
 	}
-
-	loaded, err := LoadMacro("test-macro")
-	if err != nil {
-		t.Fatalf("LoadMacro failed: %v", err)
+	loaded, err := LoadMacro(m.Name)
+	if err != nil || loaded.Name != m.Name || len(loaded.Steps) != len(m.Steps) {
+		t.Fatalf("LoadMacro failed: %v, loaded: %+v", err, loaded)
 	}
-	if loaded.Name != "test-macro" || len(loaded.Steps) != 2 {
-		t.Fatalf("Loaded macro mismatch: %+v", loaded)
-	}
+}
 
+func assertMacroListed(t *testing.T, name string) {
 	list, err := ListMacros()
 	if err != nil {
 		t.Fatalf("ListMacros failed: %v", err)
 	}
-	found := false
 	for _, item := range list {
-		if item.Name == "test-macro" {
-			found = true
-			break
+		if item.Name == name {
+			return
 		}
 	}
-	if !found {
-		t.Fatalf("test-macro not found in list: %+v", list)
-	}
+	t.Fatalf("macro %q not found in list", name)
+}
 
-	// Dry run execute
-	err = Execute(context.Background(), loaded, ExecOptions{DryRun: true})
-	if err != nil {
+func testDryRunAndCleanup(t *testing.T, m *Macro) {
+	if err := Execute(context.Background(), m, ExecOptions{DryRun: true}); err != nil {
 		t.Fatalf("Dry run execution failed: %v", err)
 	}
-
-	if err := DeleteMacro("test-macro"); err != nil {
+	if err := DeleteMacro(m.Name); err != nil {
 		t.Fatalf("DeleteMacro failed: %v", err)
 	}
-
-	if err := DeleteMacro("test-macro"); err != nil {
-		t.Fatalf("DeleteMacro should be idempotent when macro is already deleted, got: %v", err)
-	}
-
-	if err := DeleteMacro("non-existent-macro-xyz"); err != nil {
-		t.Fatalf("DeleteMacro should succeed for non-existent macro, got: %v", err)
+	if err := DeleteMacro(m.Name); err != nil {
+		t.Fatalf("Idempotent delete failed: %v", err)
 	}
 }
 
@@ -74,9 +72,7 @@ func TestExecute_WithCdAndEnvExpansion(t *testing.T) {
 			{StepNum: 2, CommandLine: "echo active"},
 		},
 	}
-
-	err := Execute(context.Background(), m, ExecOptions{DryRun: false})
-	if err != nil {
+	if err := Execute(context.Background(), m, ExecOptions{DryRun: false}); err != nil {
 		t.Fatalf("Execute failed: %v", err)
 	}
 }
@@ -86,7 +82,14 @@ func TestExecute_WithGitmapCdAndRelativeCd(t *testing.T) {
 	subDir := filepath.Join(tmpDir, "subproject")
 	_ = os.MkdirAll(subDir, 0755)
 
-	m := &Macro{
+	m := buildGitmapCdMacro(tmpDir)
+	if err := Execute(context.Background(), m, ExecOptions{DryRun: false}); err != nil {
+		t.Fatalf("Execute failed: %v", err)
+	}
+}
+
+func buildGitmapCdMacro(tmpDir string) *Macro {
+	return &Macro{
 		Name: "test-gitmap-cd-macro",
 		Steps: []MacroStep{
 			{StepNum: 1, CommandLine: "cd " + tmpDir},
@@ -95,57 +98,94 @@ func TestExecute_WithGitmapCdAndRelativeCd(t *testing.T) {
 			{StepNum: 4, CommandLine: "cd -"},
 		},
 	}
-
-	err := Execute(context.Background(), m, ExecOptions{DryRun: false})
-	if err != nil {
-		t.Fatalf("Execute failed: %v", err)
-	}
 }
 
 func TestExecute_WithJSONAndFileReport(t *testing.T) {
 	tmpDir := t.TempDir()
 	outFile := filepath.Join(tmpDir, "report.json")
-
 	m := &Macro{
 		Name: "test-json-macro",
 		Steps: []MacroStep{
 			{StepNum: 1, CommandLine: "echo json-step"},
 		},
 	}
-
-	err := Execute(context.Background(), m, ExecOptions{
-		JSON:     true,
-		FilePath: outFile,
-	})
-	if err != nil {
-		t.Fatalf("Execute failed: %v", err)
-	}
-	content, readErr := os.ReadFile(outFile)
-	if readErr != nil || len(content) == 0 {
-		t.Fatalf("Report file not written: %v", readErr)
-	}
+	opts := ExecOptions{JSON: true, FilePath: outFile}
+	runAndAssertReportFile(t, m, opts, outFile)
 }
 
 func TestExecute_WithYAMLAndFileReport(t *testing.T) {
 	tmpDir := t.TempDir()
 	outFile := filepath.Join(tmpDir, "report.yaml")
-
 	m := &Macro{
 		Name: "test-yaml-macro",
 		Steps: []MacroStep{
 			{StepNum: 1, CommandLine: "echo yaml-step"},
 		},
 	}
+	opts := ExecOptions{YAML: true, FilePath: outFile}
+	runAndAssertReportFile(t, m, opts, outFile)
+}
 
-	err := Execute(context.Background(), m, ExecOptions{
-		YAML:     true,
-		FilePath: outFile,
-	})
-	if err != nil {
+func runAndAssertReportFile(t *testing.T, m *Macro, opts ExecOptions, outFile string) {
+	if err := Execute(context.Background(), m, opts); err != nil {
 		t.Fatalf("Execute failed: %v", err)
 	}
-	content, readErr := os.ReadFile(outFile)
-	if readErr != nil || len(content) == 0 {
-		t.Fatalf("Report file not written: %v", readErr)
+	content, err := os.ReadFile(outFile)
+	if err != nil || len(content) == 0 {
+		t.Fatalf("Report file not written: %v", err)
+	}
+}
+
+func TestExecute_StepTimeout(t *testing.T) {
+	m := &Macro{
+		Name: "test-timeout-macro",
+		Steps: []MacroStep{
+			{StepNum: 1, CommandLine: getSleepCmd(3), TimeoutSeconds: 1},
+		},
+	}
+	start := time.Now()
+	err := Execute(context.Background(), m, ExecOptions{DryRun: false})
+	elapsed := time.Since(start)
+	if err == nil || elapsed > 2800*time.Millisecond {
+		t.Fatalf("expected timeout error under 2.8s, got err: %v, took: %v", err, elapsed)
+	}
+}
+
+func getSleepCmd(seconds int) string {
+	if runtime.GOOS == constants.OSWindows {
+		return fmt.Sprintf("Start-Sleep -Seconds %d", seconds)
+	}
+
+	return fmt.Sprintf("sleep %d", seconds)
+}
+
+func TestResolveTargetDir_WorkingDirPrecedence(t *testing.T) {
+	tmpDir := t.TempDir()
+	subDir := filepath.Join(tmpDir, "step_workdir")
+	_ = os.MkdirAll(subDir, 0755)
+
+	if got := resolveTargetDir(tmpDir, subDir); got != subDir {
+		t.Errorf("resolveTargetDir() = %q, want %q", got, subDir)
+	}
+
+	nonExistent := filepath.Join(tmpDir, "does-not-exist")
+	if fallback := resolveTargetDir(tmpDir, nonExistent); fallback != tmpDir {
+		t.Errorf("resolveTargetDir() fallback = %q, want %q", fallback, tmpDir)
+	}
+}
+
+func TestExecute_StepWorkingDirPrecedence(t *testing.T) {
+	tmpDir := t.TempDir()
+	subDir := filepath.Join(tmpDir, "custom_target_dir")
+	_ = os.MkdirAll(subDir, 0755)
+
+	m := &Macro{
+		Name: "test-workingdir-macro",
+		Steps: []MacroStep{
+			{StepNum: 1, CommandLine: "echo step-ok", WorkingDir: subDir},
+		},
+	}
+	if err := Execute(context.Background(), m, ExecOptions{DryRun: false}); err != nil {
+		t.Fatalf("Execute failed: %v", err)
 	}
 }

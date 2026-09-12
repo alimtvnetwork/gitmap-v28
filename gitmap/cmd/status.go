@@ -26,13 +26,19 @@ func runStatus(args []string) error {
 	}
 	if onlyDirty && len(records) == 0 {
 		fmt.Println("✨ All repositories are !clean")
+
 		return nil
 	}
 
+	return renderStatusView(records)
+}
+
+func renderStatusView(records []model.ScanRecord) error {
 	printStatusBanner(len(records))
 	prog := cloner.NewBatchProgress(len(records), "Status", true)
 	summary := printStatusTableTracked(records, prog)
 	printStatusSummary(summary)
+
 	return nil
 }
 
@@ -44,6 +50,7 @@ func filterDirtyRecords(records []model.ScanRecord) []model.ScanRecord {
 			dirty = append(dirty, rec)
 		}
 	}
+
 	return dirty
 }
 
@@ -83,26 +90,37 @@ func loadStatusByScope(groupName string, all bool) []model.ScanRecord {
 func loadRecordsByGroup(groupName string) []model.ScanRecord {
 	db, err := openDB()
 	if err != nil {
-		appErr := apperror.WrapWithDetails(
-			err,
-			"cmd.status.loadGroup.openDB",
-			"E1083",
-			"failed to open database for status group load",
-			"cmd.status",
-			apperror.ErrorTypeExecution,
-			apperror.SeverityFatal,
-			map[string]any{"group": groupName},
-		)
-		cliexit.HandleError(appErr, 1)
+		appErr := buildStatusDBOpenError("loadGroup", groupName, err)
+		cliexit.HandleGeneralError(appErr)
+
 		return nil
 	}
 	defer db.Close()
+
 	records, err := db.ShowGroup(groupName)
 	if err != nil {
 		handleStatusDBError(err)
 	}
 
 	return records
+}
+
+func buildStatusDBOpenError(op, group string, err error) *apperror.AppError {
+	ctx := map[string]any(nil)
+	if group != "" {
+		ctx = map[string]any{"group": group}
+	}
+
+	return apperror.WrapWithDetails(
+		err,
+		"cmd.status."+op+".openDB",
+		"E1083",
+		"failed to open database for status group load",
+		"cmd.status",
+		apperror.ErrorTypeExecution,
+		apperror.SeverityFatal,
+		ctx,
+	)
 }
 
 // loadAllRecordsDB loads all repos from the database.
@@ -119,10 +137,12 @@ func loadAllRecordsDB() []model.ScanRecord {
 			apperror.SeverityFatal,
 			nil,
 		)
-		cliexit.HandleError(appErr, 1)
+		cliexit.HandleGeneralError(appErr)
+
 		return nil
 	}
 	defer db.Close()
+
 	records, err := db.ListRepos()
 	if err != nil {
 		handleStatusDBError(err)
@@ -132,14 +152,6 @@ func loadAllRecordsDB() []model.ScanRecord {
 }
 
 // loadRecordsJSONFallback loads records from .gitmap/output/gitmap.json.
-// If the JSON file is missing (e.g. user has not run `gitmap scan` from this
-// exact directory), fall through to the database — the DB is the source of
-// truth post-v2 and usually has every repo the user has ever scanned.
-//
-// Bug fix (v3.32.0): previously this looked at the legacy bare "output/"
-// path AND exited with an error when the file was missing, even though the
-// DB had perfectly good data. Users hit this whenever they ran `gitmap status`
-// from a directory they had never scanned (e.g. a parent shell prompt).
 func loadRecordsJSONFallback() []model.ScanRecord {
 	jsonPath := filepath.Join(constants.DefaultOutputDir, constants.DefaultJSONFile)
 	if _, statErr := os.Stat(jsonPath); os.IsNotExist(statErr) {
@@ -157,7 +169,8 @@ func loadRecordsJSONFallback() []model.ScanRecord {
 			apperror.SeverityError,
 			map[string]any{"path": jsonPath},
 		)
-		cliexit.HandleError(appErr, 1)
+		cliexit.HandleGeneralError(appErr)
+
 		return nil
 	}
 
@@ -169,38 +182,35 @@ func loadRecordsJSONFallback() []model.ScanRecord {
 func loadAllRecordsDBOrEmpty() []model.ScanRecord {
 	db, err := openDB()
 	if err != nil {
-		appErr := apperror.NewWithDetails(
-			"cmd.status.openDB",
-			"E1086",
-			constants.MsgStatusNoData,
-			"cmd.status",
-			apperror.ErrorTypePrecondition,
-			apperror.SeverityError,
-			nil,
-		)
-		cliexit.HandleError(appErr, 1)
+		cliexit.HandleGeneralError(newStatusNoDataError("openDB", "E1086"))
+
 		return nil
 	}
 	defer db.Close()
+
 	records, err := db.ListRepos()
 	if err != nil {
 		handleStatusDBError(err)
 	}
 	if len(records) == 0 {
-		appErr := apperror.NewWithDetails(
-			"cmd.status.noRepos",
-			"E1087",
-			constants.MsgStatusNoData,
-			"cmd.status",
-			apperror.ErrorTypePrecondition,
-			apperror.SeverityError,
-			nil,
-		)
-		cliexit.HandleError(appErr, 1)
+		cliexit.HandleGeneralError(newStatusNoDataError("noRepos", "E1087"))
+
 		return nil
 	}
 
 	return records
+}
+
+func newStatusNoDataError(op, code string) *apperror.AppError {
+	return apperror.NewWithDetails(
+		"cmd.status."+op,
+		code,
+		constants.MsgStatusNoData,
+		"cmd.status",
+		apperror.ErrorTypePrecondition,
+		apperror.SeverityError,
+		nil,
+	)
 }
 
 // loadStatusRecords reads ScanRecords from gitmap.json.
@@ -238,7 +248,8 @@ func handleStatusDBError(err error) {
 			apperror.SeverityError,
 			nil,
 		)
-		cliexit.HandleError(appErr, 1)
+		cliexit.HandleGeneralError(appErr)
+
 		return
 	}
 	appErr := apperror.WrapWithDetails(
@@ -251,5 +262,5 @@ func handleStatusDBError(err error) {
 		apperror.SeverityError,
 		nil,
 	)
-	cliexit.HandleError(appErr, 1)
+	cliexit.HandleGeneralError(appErr)
 }

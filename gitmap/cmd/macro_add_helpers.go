@@ -282,7 +282,7 @@ func handleSearchOrReplace(line string, state *interactiveSessionState) bool {
 	}
 
 	if strings.HasPrefix(low, "replace ") || strings.HasPrefix(low, ":replace ") {
-		return handleReplaceCmd(line)
+		return handleReplaceCmd(line, state)
 	}
 
 	return false
@@ -316,7 +316,8 @@ func handleSearchCmd(line string, state *interactiveSessionState) bool {
 	return true
 }
 
-func handleReplaceCmd(line string) bool {
+func handleReplaceCmd(line string, state *interactiveSessionState) bool {
+	state.lastInspectedCmd = line
 	rawArgs := extractCommandArgument(line)
 	if rawArgs == "" {
 		fmt.Printf("  %s▲ Usage: replace <old> <new> [glob]%s\n\n", constants.ColorYellow, constants.ColorReset)

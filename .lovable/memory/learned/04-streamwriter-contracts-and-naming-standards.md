@@ -1,8 +1,8 @@
 # Learned: StreamWriter Contracts, Idiomatic Naming, and Object Self-Context
 
-> **Path:** `.lovable/memory/learned/04-streamwriter-contracts-and-naming-standards.md`  
-> **Topic:** Go StreamWriter contracts, idiomatic `-er` interfaces, reentrant locking, monadic Bytes[T], JsonResult multi-source architecture, and boolean/Id naming standards  
-> **Updated:** 2026-09-05  
+> **Path:** `.lovable/memory/learned/04-streamwriter-contracts-and-naming-standards.md`
+> **Topic:** Go StreamWriter contracts, idiomatic `-er` interfaces, reentrant locking, monadic Bytes[T], JsonResult multi-source architecture, and boolean/Id naming standards
+> **Updated:** 2026-09-05
 
 ---
 
@@ -26,7 +26,7 @@ writer needs to have Lock, Unlock methods, avoid interfacer what is the value or
 ```
 
 ```text
-creare as WrappedBytes have status flag as well, all the types must have 
+creare as WrappedBytes have status flag as well, all the types must have
 
 type Bytes[T any] struct {
 	data     []byte
@@ -44,7 +44,7 @@ func (b Bytes[T]) HasError() bool                      { return b.appError != ni
 func (b Bytes[T]) IsValid() bool                       { return b.appError == nil }
 func (b Bytes[T]) Unwrap() ([]byte, *appfault.AppError) { return b.data, b.appError }
 
-Value() T 
+Value() T
 Error() appError
 ```
 

@@ -21,6 +21,8 @@ import (
 	"path/filepath"
 	"strings"
 
+	"github.com/alimtvnetwork/gitmap-v28/gitmap/apperror"
+	"github.com/alimtvnetwork/gitmap-v28/gitmap/cliexit"
 	"github.com/alimtvnetwork/gitmap-v28/gitmap/constants"
 )
 
@@ -30,27 +32,25 @@ func runFixAuth(args []string) error {
 	if user == "" {
 		fmt.Fprintln(os.Stderr, "✗ --user <github-username> is required")
 		fmt.Fprintln(os.Stderr, "  example: gitmap fix-auth --user aukgit --email me@example.com")
-		exitWith(1)
 
-		return nil
+		return apperror.NewSimple("--user <github-username> is required", "E_FIXAUTH_USER")
 	}
 	isNonGitRepoCWD := !isGitRepoCWD()
 	if isNonGitRepoCWD {
 		fmt.Fprintln(os.Stderr, "✗ not a git repository (run inside the repo you want to fix)")
-		exitWith(1)
 
-		return nil
+		return apperror.NewSimple("not a git repository (run inside the repo you want to fix)", "E_NOT_GIT_REPO")
 	}
 	keyPath := fixAuthKeyPath(user)
 	if err := ensureSSHDir(filepath.Dir(keyPath)); err != nil {
 		fmt.Fprintf(os.Stderr, "✗ mkdir ~/.ssh failed: %v\n", err)
-		exitWith(1)
 
-		return nil
+		return apperror.WrapSimple(err, "mkdir ~/.ssh")
 	}
 	fixAuthGenerate(keyPath, resolveFixAuthEmail(email), assumeYes, force)
 	fixAuthBind(keyPath)
 	fixAuthAnnounce(user, keyPath)
+
 	return nil
 }
 
@@ -113,7 +113,7 @@ func fixAuthGenerate(keyPath, email string, assumeYes, force bool) {
 	}
 	if keyExists && !assumeYes && !confirmOverwrite(keyPath) {
 		fmt.Println("• aborted; existing key kept")
-		exitWith(0)
+		cliexit.HandleSuccess()
 
 		return
 	}
@@ -123,7 +123,7 @@ func fixAuthGenerate(keyPath, email string, assumeYes, force bool) {
 	}
 	if err := validateSSHKeygen(); err != nil {
 		fmt.Fprint(os.Stderr, constants.ErrSSHKeygenMissing)
-		exitWith(1)
+		cliexit.HandleError(apperror.NewSimple(constants.ErrSSHKeygenMissing, "E_KEYGEN_MISSING"))
 
 		return
 	}
@@ -138,7 +138,7 @@ func runSSHKeygenEd25519(keyPath, email string) error {
 	cmd.Stderr = os.Stderr
 	if err := cmd.Run(); err != nil {
 		fmt.Fprintf(os.Stderr, "✗ ssh-keygen failed: %v\n", err)
-		exitWith(1)
+		cliexit.HandleError(apperror.WrapSimple(err, "ssh-keygen"))
 	}
 	return nil
 }
@@ -159,7 +159,7 @@ func fixAuthBind(keyPath string) {
 	out, err := exec.Command("git", "config", "core.sshCommand", cmdStr).CombinedOutput()
 	if err != nil {
 		fmt.Fprintf(os.Stderr, "✗ git config core.sshCommand failed: %v\n%s", err, out)
-		exitWith(1)
+		cliexit.HandleError(apperror.WrapSimple(err, "git config core.sshCommand"))
 
 		return
 	}
@@ -185,7 +185,7 @@ func fixAuthAnnounce(user, keyPath string) {
 	pub, err := os.ReadFile(keyPath + ".pub")
 	if err != nil {
 		fmt.Fprintf(os.Stderr, "✗ read public key failed: %v\n", err)
-		exitWith(1)
+		cliexit.HandleError(apperror.WrapSimple(err, "read public key"))
 
 		return
 	}

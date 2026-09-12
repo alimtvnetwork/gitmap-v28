@@ -81,11 +81,24 @@ func OpenScheduleSplitDB(slug string) (*ScheduleSplitDB, error) {
 	if err != nil {
 		return nil, apperror.WrapSimple(err, "open schedule split db "+slug)
 	}
+
+	return initScheduleSplitConn(conn, slug, dbPath)
+}
+
+func initScheduleSplitConn(conn *sql.DB, slug, dbPath string) (*ScheduleSplitDB, error) {
+	if err := ConfigureSQLiteConn(conn); err != nil {
+		_ = conn.Close()
+
+		return nil, apperror.WrapSimple(err, "configure schedule split db "+slug)
+	}
+
 	s := &ScheduleSplitDB{conn: conn, Slug: slug, Path: dbPath}
 	if err := s.InitSchema(); err != nil {
 		_ = conn.Close()
+
 		return nil, err
 	}
+
 	return s, nil
 }
 

@@ -14,28 +14,49 @@ type QueryResult[T any] struct {
 	Error     error
 }
 
+type sqlExecutor interface {
+	Exec(query string, args ...any) (sql.Result, error)
+}
+
+type sqlQueryer interface {
+	Query(query string, args ...any) (*sql.Rows, error)
+}
+
+type sqlRowQueryer interface {
+	QueryRow(query string, args ...any) *sql.Row
+}
+
+type sqlQueryerExecutor interface {
+	sqlQueryer
+	sqlExecutor
+}
+
 // ExecWrapper wraps db.Exec, explicitly logging failures to os.Stderr.
-func ExecWrapper(db *sql.DB, query string, args ...any) QueryResult[sql.Result] {
+func ExecWrapper(db sqlExecutor, query string, args ...any) QueryResult[sql.Result] {
 	res, err := db.Exec(query, args...)
 	if err != nil {
 		fmt.Fprintf(os.Stderr, "[QueryWrapper Error]: exec failed: %v\nquery: %s\n", err, query)
+
 		return QueryResult[sql.Result]{IsSuccess: false, IsFailure: true, Error: err}
 	}
+
 	return QueryResult[sql.Result]{IsSuccess: true, IsFailure: false, Data: res}
 }
 
 // QueryWrapper wraps db.Query, explicitly logging failures to os.Stderr.
-func QueryWrapper(db *sql.DB, query string, args ...any) QueryResult[*sql.Rows] {
+func QueryWrapper(db sqlQueryer, query string, args ...any) QueryResult[*sql.Rows] {
 	rows, err := db.Query(query, args...)
 	if err != nil {
 		fmt.Fprintf(os.Stderr, "[QueryWrapper Error]: query failed: %v\nquery: %s\n", err, query)
+
 		return QueryResult[*sql.Rows]{IsSuccess: false, IsFailure: true, Error: err}
 	}
+
 	return QueryResult[*sql.Rows]{IsSuccess: true, IsFailure: false, Data: rows}
 }
 
 // QueryRowWrapper delegates to QueryRow. The error is deferred until Scan is called.
-func QueryRowWrapper(db *sql.DB, query string, args ...any) *sql.Row {
+func QueryRowWrapper(db sqlRowQueryer, query string, args ...any) *sql.Row {
 	return db.QueryRow(query, args...)
 }
 

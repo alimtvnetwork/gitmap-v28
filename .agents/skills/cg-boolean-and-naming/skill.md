@@ -39,4 +39,9 @@ This skill governs autonomous execution for boolean conventions, semantic naming
 ## Validation Linters
 
 - Linter: `python linter-scripts/check-enum-and-boolean.py`
-- Local Runner: `python .lovable/ai-fix-scripts/03-cicd-local-runner.py`
+- Local Runner: `python 03-ai-scripts/06-cicd-local-runner.py --no-tests`
+
+
+## Change Tracking & Test Avoidance
+- Test execution disabled; pass `--no-tests` to local runner.
+- Append modified files to `.lovable/temp/recent-file-changes.json` under lock (`python 03-ai-scripts/33-test-inventory-generator.py --record <files...>`).

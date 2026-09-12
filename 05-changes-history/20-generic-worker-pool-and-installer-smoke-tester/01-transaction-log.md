@@ -1,10 +1,10 @@
 # Transaction Log 20: Generic Worker Pool Base Engine and Installer Smoke Tester Modernization
 
-> **Directory:** `05-changes-history/20-generic-worker-pool-and-installer-smoke-tester/`  
-> **Date:** 2026-09-05  
-> **Author/Agent:** Antigravity AI  
-> **Module Affected:** `03-ai-scripts/02-shared-engine.py`, `03-ai-scripts/16-installer-smoke-tester.py`, `03-ai-scripts/28-go-preflight-ci.py`, `research/`, `05-changes-history/`  
-> **Status:** Completed & Verified  
+> **Directory:** `05-changes-history/20-generic-worker-pool-and-installer-smoke-tester/`
+> **Date:** 2026-09-05
+> **Author/Agent:** Antigravity AI
+> **Module Affected:** `03-ai-scripts/02-shared-engine.py`, `03-ai-scripts/16-installer-smoke-tester.py`, `03-ai-scripts/28-go-preflight-ci.py`, `research/`, `05-changes-history/`
+> **Status:** Completed & Verified
 
 ---
 

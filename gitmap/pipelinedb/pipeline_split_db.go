@@ -60,12 +60,24 @@ func OpenPipelineSplitDb(repoSlug string) (*PipelineSplitDb, error) {
 	if err != nil {
 		return nil, apperror.WrapSimple(err, "open pipeline split db "+repoSlug)
 	}
-	conn.SetMaxOpenConns(1)
+
+	return initPipelineSplitConn(conn, repoSlug, dbPath)
+}
+
+func initPipelineSplitConn(conn *sql.DB, repoSlug, dbPath string) (*PipelineSplitDb, error) {
+	if err := store.ConfigureSQLiteConn(conn); err != nil {
+		_ = conn.Close()
+
+		return nil, apperror.WrapSimple(err, "configure pipeline split db "+repoSlug)
+	}
+
 	p := &PipelineSplitDb{conn: conn, RepoSlug: repoSlug, Path: dbPath}
 	if err := p.InitSchema(); err != nil {
 		_ = conn.Close()
+
 		return nil, err
 	}
+
 	return p, nil
 }
 

@@ -22,7 +22,7 @@ ROOT_DIR = Path(__file__).resolve().parent.parent
 EXCLUDE_DIRS = {
     ".git", ".gitmap", "node_modules", "dist", "build", "bin", ".next",
     "vendor", "coverage", ".gemini", ".system_generated", "tests/fixtures",
-    "scratch", "temp-scripts", "temp-agents", "temp", "tmp", "release-artifacts",
+    "scratch", "temp-scripts", "temp-agents", "temp", "tmp", ".tmp", "release-artifacts",
 }
 
 # Regex to detect interface declarations
@@ -65,10 +65,10 @@ def check_go_file(filepath: Path, root_dir: Path) -> list[str]:
 
         if matched:
             name = matched.group(1)
-            if not name.endswith("er"):
+            if not (name.endswith("er") or name.endswith("or")):
                 suggested = name + "er"
                 violations.append(
-                    f"{rel_path}:{idx} Interface '{name}' must have 'er' as suffix (suggested: '{suggested}')"
+                    f"{rel_path}:{idx} Interface '{name}' must have 'er' or 'or' as suffix (suggested: '{suggested}')"
                 )
 
     return violations

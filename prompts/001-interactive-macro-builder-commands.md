@@ -1,7 +1,7 @@
 # Rewrite: Interactive Macro Builder PWD Header, In-Builder LS, and Helper Commands
 
-**Title:** Interactive Macro Builder: Dynamic PWD Header, In-Builder File Listing, and Helper Commands (replace, find, search)  
-**Task ID:** Plan 83  
+**Title:** Interactive Macro Builder: Dynamic PWD Header, In-Builder File Listing, and Helper Commands (replace, find, search)
+**Task ID:** Plan 83
 **Target Files:**
 - `gitmap/cmd/macro_add_interactive.go`
 - `gitmap/cmd/macro_add_helpers.go` [NEW]
@@ -33,7 +33,7 @@ When users launch `gitmap macro add <name>` in an interactive terminal session:
 - [ ] Display current working directory above each `Step N> ` prompt:
   ```text
   [PWD: /path/to/current/dir]
-  Step 1> 
+  Step 1>
   ```
 - [ ] Support toggling PWD visibility on and off:
   - Command `pwd on` or `pwd off` directly inside the interactive prompt toggles display.

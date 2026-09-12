@@ -17,6 +17,7 @@ import (
 	"github.com/alimtvnetwork/gitmap-v28/gitmap/lockfile"
 	"github.com/alimtvnetwork/gitmap-v28/gitmap/scripts"
 
+	"github.com/alimtvnetwork/gitmap-v28/gitmap/apperror"
 	"github.com/alimtvnetwork/gitmap-v28/gitmap/cliexit"
 )
 
@@ -320,7 +321,7 @@ func writeScriptBody(f *os.File, name string, body []byte) {
 	if _, err := f.Write(body); err != nil {
 		fmt.Fprintf(os.Stderr, constants.ErrSelfInstallScriptWrite, err)
 		_ = f.Close()
-		exitWith(constants.ExitCodeError)
+		cliexit.HandleError(apperror.WrapSimple(err, "write script body"), constants.ExitCodeError)
 	}
 }
 
@@ -335,7 +336,7 @@ func writeBOM(f *os.File) {
 	if err != nil {
 		fmt.Fprintf(os.Stderr, constants.ErrSelfInstallScriptWrite, err)
 		_ = f.Close()
-		exitWith(constants.ExitCodeError)
+		cliexit.HandleError(apperror.WrapSimple(err, "write UTF8 BOM"), constants.ExitCodeError)
 	}
 }
 

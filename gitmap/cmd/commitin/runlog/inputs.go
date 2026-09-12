@@ -36,19 +36,34 @@ func InsertSourceCommit(db *sql.DB, inputRepoID int64, c SourceCommitRow) (int64
 	if err != nil {
 		return 0, fmt.Errorf("runlog: begin tx: %w", err)
 	}
+	defer tx.Rollback()
+
+	id, err := executeCommitInsertTx(tx, inputRepoID, c)
+	if err != nil {
+		return 0, err
+	}
+
+	return id, commitRunlogTx(tx)
+}
+
+func executeCommitInsertTx(tx *sql.Tx, inputRepoID int64, c SourceCommitRow) (int64, error) {
 	id, err := insertSourceCommitTx(tx, inputRepoID, c)
 	if err != nil {
-		_ = tx.Rollback()
 		return 0, err
 	}
 	if err := insertSourceFilesTx(tx, id, c.Files); err != nil {
-		_ = tx.Rollback()
 		return 0, err
 	}
-	if err := tx.Commit(); err != nil {
-		return 0, fmt.Errorf("runlog: commit tx: %w", err)
-	}
+
 	return id, nil
+}
+
+func commitRunlogTx(tx *sql.Tx) error {
+	if err := tx.Commit(); err != nil {
+		return fmt.Errorf("runlog: commit tx: %w", err)
+	}
+
+	return nil
 }
 
 // insertSourceCommitTx writes the SourceCommit row only.

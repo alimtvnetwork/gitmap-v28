@@ -40,18 +40,17 @@ func runFindNext(args []string) error {
 		return apperror.WrapSimple(err, constants.ErrFindNextQueryFmt)
 	}
 
-	emitFindNext(rows, jsonOut)
-	return nil
+	return emitFindNext(rows, jsonOut)
 }
 
 // emitFindNext writes either JSON or the human-readable summary.
-func emitFindNext(rows []model.FindNextRow, jsonOut bool) {
+func emitFindNext(rows []model.FindNextRow, jsonOut bool) error {
 	if jsonOut {
-		emitFindNextJSON(rows)
-
-		return
+		return emitFindNextJSON(rows)
 	}
 	emitFindNextText(rows)
+
+	return nil
 }
 
 // emitFindNextJSON dumps the result array as stablejson to stdout.
@@ -59,11 +58,12 @@ func emitFindNext(rows []model.FindNextRow, jsonOut bool) {
 // order is pinned by gitmap/cmd/findnextjson_contract_test.go AND
 // gitmap/cmd/findnext_jsonschema_contract_test.go (the latter
 // cross-checks against spec/08-json-schemas/find-next.schema.json).
-func emitFindNextJSON(rows []model.FindNextRow) {
+func emitFindNextJSON(rows []model.FindNextRow) *apperror.AppError {
 	if err := encodeFindNextJSON(os.Stdout, rows); err != nil {
-		apperror.WrapSimple(err, constants.ErrFindNextJSONEncodeFmt)
-		return
+		return apperror.WrapSimple(err, constants.ErrFindNextJSONEncodeFmt)
 	}
+
+	return nil
 }
 
 // emitFindNextText prints the human summary (header + per-repo rows + hint).

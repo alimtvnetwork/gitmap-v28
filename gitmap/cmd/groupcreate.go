@@ -14,25 +14,28 @@ func runGroupCreate(args []string) error {
 	if len(name) == 0 {
 		return apperror.NewSimple(constants.ErrGroupNameReq, "E9000")
 	}
-	executeGroupCreate(name, desc, color)
+	if appErr := executeGroupCreate(name, desc, color); appErr != nil {
+		return appErr
+	}
+
 	return nil
 }
 
 // executeGroupCreate opens the DB and creates the group.
-func executeGroupCreate(name, desc, color string) {
+func executeGroupCreate(name, desc, color string) *apperror.AppError {
 	db, err := openDB()
 	if err != nil {
-		apperror.WrapSimple(err, constants.ErrListDBFailed)
-		return
+		return apperror.WrapSimple(err, constants.ErrListDBFailed)
 	}
 	defer db.Close()
 
 	_, err = db.CreateGroup(name, desc, color)
 	if err != nil {
-		apperror.WrapSimple(err, constants.ErrBareFmt)
-		return
+		return apperror.WrapSimple(err, constants.ErrBareFmt)
 	}
 	fmt.Printf(constants.MsgGroupCreated, name)
+
+	return nil
 }
 
 // parseGroupCreateFlags parses flags for group create.

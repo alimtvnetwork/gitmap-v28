@@ -16,18 +16,18 @@ Topic: Interactive Macro Builder PWD display, LS inspection, helper commands & C
 ### 2.
 
 > # Conversation Log & Context Wrapper — Engineering Workflow (must follow)
-> 
+>
 > > **Prompt Version:** 2.1.0
 > > **Synchronization:** Main Meta-Repo & Connected Workspaces
-> 
+>
 > > Purpose: Before acting on the *next* prompt the user pastes, the AI must (a) persist the full chat so far to disk as a numbered Markdown log, (b) rewrite and improve the user's follow-up prompt in place, (c) confirm that the project's coding guidelines are captured in memory, and (d) surface any ambiguity. The AI does NOT execute the follow-up prompt yet.
-> 
+>
 > > When to run: The user pastes this prompt and says some variant of "here is the prompt, don't act on it yet" or "rewrite it first". After the AI completes all steps below and the user explicitly says "go" / "now act" / "execute", the AI may then run the rewritten prompt.
-> 
+>
 > ---
-> 
+>
 > ## STRICT AVOIDANCE: Never Disable CI/CD
-> 
+>
 > > [!CAUTION]
 > > **NEVER disable any CI/CD checks, GitHub Actions, or validation workflows.**
 > > Strictly avoid commenting out, bypassing, or deleting CI/CD steps to force a pipeline to pass. Your job is to fix the underlying code so that the CI/CD pipeline passes legitimately. Disabling CI/CD is an auto-reject failure.
@@ -35,12 +35,12 @@ Topic: Interactive Macro Builder PWD display, LS inspection, helper commands & C
 ### 3.
 
 > # Memory Persistence & Issue Logging — Workflow (must follow)
-> 
+>
 > > **Prompt Version:** 2.1.0
 > > **Synchronization:** Main Meta-Repo & Connected Workspaces
-> 
+>
 > /goal Persist what happened this turn so the next AI knows everything without guessing. Every decision, plan change, unresolved ambiguity, newly discovered pattern, and fixed bug must be written to `.lovable/` before this turn ends.
-> 
+>
 > /learn Persist all user corrections, resolved setups, directives, learned architectural decisions, and mistakes avoided into `.lovable/memory/learned/01-<slug>.md` and `.lovable/strictly-avoid.md` so Antigravity learns permanently and never repeats past errors.
 
 ---
@@ -73,4 +73,3 @@ Topic: Interactive Macro Builder PWD display, LS inspection, helper commands & C
 ## Open Threads (carry-over)
 
 - All user requests for interactive macro builder commands (`ls`, `pwd` toggle, `find`, `search`, `replace`) are implemented, tested, and passing all quality gates.
-

@@ -73,7 +73,9 @@ func runPush(args []string) error {
 
 	if code := prog.ExitCodeForBatch(); code != 0 {
 		failPendingTask(taskDB, taskID, fmt.Sprintf("push batch failed with exit code %d", code))
-		exitWith(code)
+		cliexit.HandleError(apperror.NewExecutionError(fmt.Sprintf("push batch failed with exit code %d", code)), code)
+
+		return nil
 	}
 
 	completePendingTask(taskDB, taskID)
@@ -150,18 +152,20 @@ func parsePushFlags(args []string) pushOptions {
 
 func runPushCWDWithTransport(useSSH, useHTTPS bool, extraArgs []string) error {
 	cwd, _ := os.Getwd()
-	isNonGitRepoCWD := !isGitRepoCWD()
-	if isNonGitRepoCWD {
+	if !isGitRepoCWD() {
 		fmt.Fprintln(os.Stderr, "✗ not a git repository (run `gitmap push` inside a repo)")
-		exitWith(1)
+		cliexit.HandleValidationError(apperror.NewValidationError("not a git repository (run `gitmap push` inside a repo)"))
+
 		return nil
 	}
 	if _, _, _, err := ApplyTransportFlag(cwd, useSSH, useHTTPS); err != nil {
 		fmt.Fprintf(os.Stderr, "✗ %v\n", err)
-		exitWith(1)
+		cliexit.HandleGeneralError(apperror.WrapSimple(err, "apply transport flag"))
+
 		return nil
 	}
 	pushWithAutoRebase(cwd, extraArgs)
+
 	return nil
 }
 
@@ -236,8 +240,8 @@ func pushWithAutoRebase(cwd string, rest []string) {
 	if runErr == nil {
 		return
 	}
-	isNonNonFastForwardRejection := !isNonFastForwardRejection(stderr)
-	if isNonNonFastForwardRejection {
+	isDirectRejection := !isNonFastForwardRejection(stderr)
+	if isDirectRejection {
 		handleGitExit("git push", runErr)
 		return
 	}
@@ -282,11 +286,12 @@ func isNonFastForwardRejection(stderr string) bool {
 func handleGitExit(label string, runErr error) {
 	var exitErr *exec.ExitError
 	if errors.As(runErr, &exitErr) {
-		exitWith(exitErr.ExitCode())
+		cliexit.HandleError(apperror.WrapSimple(exitErr, label), exitErr.ExitCode())
+
 		return
 	}
 	fmt.Fprintf(os.Stderr, "%s failed: %v\n", label, runErr)
-	exitWith(1)
+	cliexit.HandleGeneralError(apperror.WrapSimple(runErr, label))
 }
 
 func joinForLog(args []string) string {

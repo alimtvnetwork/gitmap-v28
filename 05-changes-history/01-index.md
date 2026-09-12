@@ -1,7 +1,7 @@
 # Transaction History & Task Log Index
 
-> **Location:** `05-changes-history/`  
-> **Purpose:** Canonical persistent audit trail of all repository modifications, architectural tasks, cross-repo synchronizations, and system changes.  
+> **Location:** `05-changes-history/`
+> **Purpose:** Canonical persistent audit trail of all repository modifications, architectural tasks, cross-repo synchronizations, and system changes.
 > **Rule:** Every AI work session must record its operations in a dedicated, numbered subfolder so that subsequent AI agents can immediately understand the project trajectory, decisions made, and pending steps.
 
 ---
@@ -72,4 +72,3 @@ Each task transaction log must contain:
 | 25 | [`25-lazy-regex-compile-locking-result-wrap-and-group-data-types`](25-lazy-regex-compile-locking-result-wrap-and-group-data-types/01-transaction-log.md) | Lazy regex compile locking, CompileResult wrapper, and GroupMap/GroupList fluent data types | Completed | 2026-09-06 |
 | 26 | [`26-release-v6-190-0`](26-release-v6-190-0/01-transaction-log.md) | Release v6.190.0 minor version bump across all SSoT manifests, changelog, and release notes | Completed | 2026-09-06 |
 | 27 | [`27-release-v6-191-0`](27-release-v6-191-0/01-transaction-log.md) | Release v6.191.0 minor version bump across all SSoT manifests, changelog, and release notes | Completed | 2026-09-06 |
-

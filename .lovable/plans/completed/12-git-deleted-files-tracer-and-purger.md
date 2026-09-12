@@ -1,16 +1,16 @@
 # 12-git-deleted-files-tracer-and-purger.md
 
-**Title:** Git Historical Deleted Files Tracer, Restorer & Deep Purger  
-**Status:** COMPLETED  
-**Parent Task:** User Request (Git History Recovery & Deep Purging Engine)  
-**Target Script:** `03-ai-scripts/33-git-history-tracer-and-purger.py`  
-**Shared Engine:** `03-ai-scripts/02-shared-engine.py`  
+**Title:** Git Historical Deleted Files Tracer, Restorer & Deep Purger
+**Status:** COMPLETED
+**Parent Task:** User Request (Git History Recovery & Deep Purging Engine)
+**Target Script:** `03-ai-scripts/33-git-history-tracer-and-purger.py`
+**Shared Engine:** `03-ai-scripts/02-shared-engine.py`
 
 ---
 
 ## 1. Executive Summary & Problem Statement
 
-As repositories evolve and undergo major file consolidations (such as reducing hundreds of micro-plans and subtasks into high-density milestones), historical commits retain copies of every deleted file in Git's object database (`.git/objects/`). 
+As repositories evolve and undergo major file consolidations (such as reducing hundreds of micro-plans and subtasks into high-density milestones), historical commits retain copies of every deleted file in Git's object database (`.git/objects/`).
 
 Users face two complementary challenges:
 1. **Tracing & Recovery:** Identifying exactly what files were removed across historical commits and recovering specific lost files back to the working directory without having to manually search through `git log` commit hashes.
@@ -145,7 +145,7 @@ options:
 ---
 
 ## 5. Implementation Steps (Phased) & Outcomes
- 
+
 - [x] **Step 1:** Create `03-ai-scripts/33-git-history-tracer-and-purger.py` with CLI argument parser, preset handlers, and shared engine integration.
 - [x] **Step 2:** Implement `trace_deleted_files()` to query git log diff-filter plumbing, parse commit metadata, and filter current HEAD tracked files.
 - [x] **Step 3:** Implement pre-flight table renderer and interactive/flag-based exclusion parser (`parse_exclusion_indices()`).

@@ -1,10 +1,10 @@
 # 35 — Reconcile Prompt Nested If CI Failure: Root Cause Analysis & Prevention
 
-**Status:** Resolved in local working tree (ready for release)  
-**Affects:** GitHub Actions CI run `#33837801657` (`Nested If Linter` and `Boolean & Enum Linter` jobs)  
-**Component:** `gitmap/cmd/reconcile_prompt.go` (`executeAllAction`)  
-**Associated Commit:** `44009a3` (`feat(reconcile): display modified and dirty files in interactive prompt`)  
-**Audience:** All engineers and autonomous agents modifying Go source code in `gitmap/`  
+**Status:** Resolved in local working tree (ready for release)
+**Affects:** GitHub Actions CI run `#33837801657` (`Nested If Linter` and `Boolean & Enum Linter` jobs)
+**Component:** `gitmap/cmd/reconcile_prompt.go` (`executeAllAction`)
+**Associated Commit:** `44009a3` (`feat(reconcile): display modified and dirty files in interactive prompt`)
+**Audience:** All engineers and autonomous agents modifying Go source code in `gitmap/`
 
 ---
 

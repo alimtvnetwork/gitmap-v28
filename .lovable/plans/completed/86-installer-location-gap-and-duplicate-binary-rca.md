@@ -1,6 +1,6 @@
 # Plan 86: Installer Location Alignment, Terminal Spacing Gaps, Duplicate Binary Migration & Release Orchestration (Completed)
 
-> **Task Origin & Problem Initiation:**  
+> **Task Origin & Problem Initiation:**
 > Initiated from user session report and screenshot (`media_1789063713788.png`):
 > 1. `gitmap update` update summary (`→ Source: ...`) ended with zero line gap, flush against the PowerShell command prompt.
 > 2. `gitmap update` deposited binaries into `%LOCALAPPDATA%\gitmap\gitmap.exe` instead of `%LOCALAPPDATA%\gitmap-cli\gitmap.exe`.

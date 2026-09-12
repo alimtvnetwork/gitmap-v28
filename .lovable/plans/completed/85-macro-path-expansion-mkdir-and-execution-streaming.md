@@ -1,12 +1,12 @@
 # Plan 85: Macro Path Expansion, Enhanced Mkdir Engine, Stray Binary RCA & Live Execution Streaming (Consolidated)
 
-> **Task Origin & Problem Initiation:**  
-> Initiated from user session report demonstrating four distinct operational failures in Gitmap CLI:  
-> 1. `cd %temp%` in interactive macro builder failed with `chdir %temp%: The system cannot find the file specified`.  
-> 2. `gitmap mkdir` lacked deep path synthesis, file creation (`-f`), slash normalization, and step-by-step progress output.  
-> 3. An obsolete 29.35 MB binary `gitmap.exe` resided in the workspace parent directory (`../gitmap.exe`).  
-> 4. Interactive macro builder and macro runner (`gitmap macro run`) suppressed stdout/stderr output unless `--verbose` was passed, leaving commands like `gitmap install vscode` without visible feedback.  
->  
+> **Task Origin & Problem Initiation:**
+> Initiated from user session report demonstrating four distinct operational failures in Gitmap CLI:
+> 1. `cd %temp%` in interactive macro builder failed with `chdir %temp%: The system cannot find the file specified`.
+> 2. `gitmap mkdir` lacked deep path synthesis, file creation (`-f`), slash normalization, and step-by-step progress output.
+> 3. An obsolete 29.35 MB binary `gitmap.exe` resided in the workspace parent directory (`../gitmap.exe`).
+> 4. Interactive macro builder and macro runner (`gitmap macro run`) suppressed stdout/stderr output unless `--verbose` was passed, leaving commands like `gitmap install vscode` without visible feedback.
+>
 > **Execution Lifecycle:** Completed across 5 subtasks in Phase 1 planning and Phase 2 execution with 100% test pass rate and 0 linter violations.
 
 ---

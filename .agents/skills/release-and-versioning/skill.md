@@ -34,3 +34,7 @@ Autonomously execute and audit version bumps, changelog synchronization, and rel
 
 5. **Legacy Reference Annotation:**
    - Any historical mentions of legacy version names in documentation or changelogs MUST be annotated with `<!-- gitmap-legacy-ref-allow -->` to pass automated linter scans.
+
+6. **Mandatory Pre-Release Unit Tests & CI/CD Verification:**
+   - Execute `python 03-ai-scripts/06-cicd-local-runner.py --run-tests` and verify all unit test suites, AST checks, and quality gates pass 100% green (`exit 0`).
+   - Validate `.lovable/temp/recent-file-changes.json` against `.lovable/test-inventory.json` ensuring all associated tests pass prior to cutting the release.

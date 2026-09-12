@@ -18,9 +18,7 @@ func runCD(args []string) error {
 	sub := args[0]
 	rest := args[1:]
 
-	routeCDSub(sub, rest)
-
-	return nil
+	return routeCDSub(sub, rest)
 }
 
 func handleBareCD() error {
@@ -39,22 +37,16 @@ func handleBareCD() error {
 }
 
 // routeCDSub routes to the appropriate cd handler.
-func routeCDSub(sub string, args []string) {
+func routeCDSub(sub string, args []string) error {
 	if sub == constants.CmdCDRepos {
-		runCDRepos(args)
-
-		return
+		return runCDRepos(args)
 	}
 	if sub == constants.CmdCDSetDefault {
-		runCDSetDefault(args)
-
-		return
+		return runCDSetDefault(args)
 	}
 	if sub == constants.CmdCDClearDefault {
-		runCDClearDefault(args)
-
-		return
+		return runCDClearDefault(args)
 	}
 
-	runCDLookup(sub, args)
+	return runCDLookup(sub, args)
 }

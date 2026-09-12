@@ -1,8 +1,8 @@
 # Learned: Parallel Multi-Worker CI/CD Runner & Selective Log Filtering
 
-> **Path:** `.lovable/memory/learned/03-parallel-cicd-runner-and-log-filtering.md`  
-> **Topic:** Local CI/CD pipeline concurrency, process workgroups, selective log suppression, and duration metrics  
-> **Updated:** 2026-09-05  
+> **Path:** `.lovable/memory/learned/03-parallel-cicd-runner-and-log-filtering.md`
+> **Topic:** Local CI/CD pipeline concurrency, process workgroups, selective log suppression, and duration metrics
+> **Updated:** 2026-09-05
 
 ---
 
@@ -11,9 +11,9 @@
 ```text
 python 03-ai-scripts/06-cicd-local-runner.py
 
-in this script make it parallel workgroup run the tests parallellky and only show the failed test info if failed if not then all ok and passing hsould be prininted 
+in this script make it parallel workgroup run the tests parallellky and only show the failed test info if failed if not then all ok and passing hsould be prininted
 
-now there should be flags to display thing ebtter wya like 
+now there should be flags to display thing ebtter wya like
 
 python 03-ai-scripts/06-cicd-local-runner.py --all # should show al logs
 python 03-ai-scripts/06-cicd-local-runner.py --failed # should show al logs or empty should log fialed ones onlhy, ckear??

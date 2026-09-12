@@ -7,19 +7,18 @@ import (
 
 	"github.com/alimtvnetwork/gitmap-v28/gitmap/apperror"
 	"github.com/alimtvnetwork/gitmap-v28/gitmap/constants"
-
-	"github.com/alimtvnetwork/gitmap-v28/gitmap/cliexit"
+	"github.com/alimtvnetwork/gitmap-v28/gitmap/model"
 )
 
 // runBookmarkRun loads a bookmark by name and dispatches the saved command.
 func runBookmarkRun(args []string) *apperror.AppError {
 	if len(args) < 1 {
 		fmt.Fprint(os.Stderr, constants.ErrBookmarkRunUsage)
-		cliexit.HandleError(nil, 1)
+
+		return apperror.NewValidationError(constants.ErrBookmarkRunUsage)
 	}
 
-	name := args[0]
-	return loadAndDispatchBookmark(name)
+	return loadAndDispatchBookmark(args[0])
 }
 
 // loadAndDispatchBookmark fetches the bookmark and runs it.
@@ -27,19 +26,30 @@ func loadAndDispatchBookmark(name string) *apperror.AppError {
 	db, err := openDB()
 	if err != nil {
 		fmt.Fprintf(os.Stderr, constants.ErrBookmarkQuery+"\n", err)
-		cliexit.HandleError(nil, 1)
+
+		return apperror.WrapSimple(err, constants.ErrBookmarkQuery)
 	}
 	defer db.Close()
 
+	return findAndReplayBookmark(db, name)
+}
+
+func findAndReplayBookmark(db storeBookmarkReader, name string) *apperror.AppError {
 	bk, err := db.FindBookmarkByName(name)
 	if err != nil {
 		fmt.Fprintf(os.Stderr, constants.ErrBookmarkNotFound, name)
-		cliexit.HandleError(nil, 1)
+
+		return apperror.NewSimple(fmt.Sprintf(constants.ErrBookmarkNotFound, name), "E9000")
 	}
 
 	fmt.Printf(constants.MsgBookmarkRunning, bk.Name, bk.Command, bk.Args, bk.Flags)
 	replayBookmark(bk.Command, bk.Args, bk.Flags)
+
 	return nil
+}
+
+type storeBookmarkReader interface {
+	FindBookmarkByName(string) (model.BookmarkRecord, error)
 }
 
 // replayBookmark reconstructs os.Args and dispatches the command.

@@ -164,11 +164,23 @@ func recordStepLine(line, name string, state *interactiveSessionState, steps *[]
 
 		return loopActionBreak
 	}
-	if state.isExecEnabled {
-		_ = executeLiveCommand(line)
-	}
+	runLiveStepIfEnabled(line, state.isExecEnabled)
 
 	return appendRecordedStep(line, steps, stepNum)
+}
+
+func runLiveStepIfEnabled(line string, isExecEnabled bool) {
+	if !isExecEnabled {
+		return
+	}
+	if err := executeLiveCommand(line); err != nil {
+		ensureTerminalVisibility()
+	}
+}
+
+func ensureTerminalVisibility() {
+	_ = os.Stdout.Sync()
+	_ = os.Stderr.Sync()
 }
 
 func appendRecordedStep(line string, steps *[]macro.MacroStep, stepNum *int) interactiveLoopAction {
@@ -186,6 +198,17 @@ func appendRecordedStep(line string, steps *[]macro.MacroStep, stepNum *int) int
 }
 
 func executeLiveCommand(cmdText string) error {
+	cmd := buildLiveExecCmd(cmdText)
+	err := cmd.Run()
+	if err != nil {
+		fmt.Fprintf(os.Stderr, "  %s▲ Live command returned error: %v%s\n\n",
+			constants.ColorYellow, err, constants.ColorReset)
+	}
+
+	return err
+}
+
+func buildLiveExecCmd(cmdText string) *exec.Cmd {
 	exeCmd := resolveLiveCommandText(cmdText)
 	var cmd *exec.Cmd
 	if runtime.GOOS == constants.OSWindows {
@@ -193,13 +216,51 @@ func executeLiveCommand(cmdText string) error {
 	} else {
 		cmd = exec.Command("sh", "-c", exeCmd)
 	}
+	cmd.Stdin = os.Stdin
 	cmd.Stdout = os.Stdout
 	cmd.Stderr = os.Stderr
 
-	return cmd.Run()
+	return cmd
 }
 
 func resolveLiveCommandText(cmdText string) string {
+	trimmed := strings.TrimSpace(cmdText)
+	if !strings.Contains(trimmed, "&&") {
+		return resolveSingleLiveCmd(trimmed)
+	}
+	parts := splitAndResolveParts(trimmed)
+	if runtime.GOOS == constants.OSWindows {
+		return chainWindowsCompoundCommands(parts)
+	}
+
+	return strings.Join(parts, " && ")
+}
+
+func splitAndResolveParts(cmdText string) []string {
+	rawParts := strings.Split(cmdText, "&&")
+	parts := make([]string, 0, len(rawParts))
+	for _, raw := range rawParts {
+		if sub := strings.TrimSpace(raw); sub != "" {
+			parts = append(parts, resolveSingleLiveCmd(sub))
+		}
+	}
+
+	return parts
+}
+
+func chainWindowsCompoundCommands(parts []string) string {
+	if len(parts) == 0 {
+		return ""
+	}
+	res := parts[len(parts)-1]
+	for i := len(parts) - 2; i >= 0; i-- {
+		res = fmt.Sprintf("%s; if ($?) { %s }", parts[i], res)
+	}
+
+	return res
+}
+
+func resolveSingleLiveCmd(cmdText string) string {
 	trimmed := strings.TrimSpace(cmdText)
 	lower := strings.ToLower(trimmed)
 	if !strings.HasPrefix(lower, "gitmap ") && lower != "gitmap" {
@@ -209,11 +270,33 @@ func resolveLiveCommandText(cmdText string) string {
 	if err != nil {
 		return trimmed
 	}
+	args := strings.TrimSpace(trimmed[len("gitmap"):])
+
+	return formatLiveExeCmd(exe, args)
+}
+
+func formatLiveExeCmd(exe, args string) string {
 	if runtime.GOOS == constants.OSWindows {
-		return fmt.Sprintf("& %q %s", exe, trimmed[len("gitmap"):])
+		return formatWindowsLiveExe(exe, args)
 	}
 
-	return fmt.Sprintf("%q %s", exe, trimmed[len("gitmap"):])
+	return formatUnixLiveExe(exe, args)
+}
+
+func formatWindowsLiveExe(exe, args string) string {
+	if args == "" {
+		return fmt.Sprintf("& %q", exe)
+	}
+
+	return fmt.Sprintf("& %q %s", exe, args)
+}
+
+func formatUnixLiveExe(exe, args string) string {
+	if args == "" {
+		return fmt.Sprintf("%q", exe)
+	}
+
+	return fmt.Sprintf("%q %s", exe, args)
 }
 
 func printNoCommandsEntered(name string) {

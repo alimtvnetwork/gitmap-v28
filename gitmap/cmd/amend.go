@@ -66,15 +66,15 @@ func extractAmendSHA(args []string, f *amendFlags) []string {
 func validateAmendFlags(f amendFlags) {
 	if f.name == "" && f.email == "" {
 		fmt.Fprint(os.Stderr, constants.ErrAmendNoFlags)
-		cliexit.HandleError(nil, 1)
+		cliexit.HandleValidationError(fmt.Errorf("%s", constants.ErrAmendNoFlags))
 	}
 }
 
 // executeAmend runs the main amend workflow.
 func executeAmend(f amendFlags) *apperror.AppError {
 	originalBranch := getCurrentBranch()
-	if f.branch != "" {
-		switchBranch(f.branch)
+	if err := prepareAmendBranch(f.branch); err != nil {
+		return err
 	}
 	commits, err := requireAmendCommits(f)
 	if err != nil {
@@ -83,10 +83,29 @@ func executeAmend(f amendFlags) *apperror.AppError {
 	prevName, prevEmail := detectPreviousAuthor(commits)
 	if f.dryRun {
 		handleAmendDryRun(f, commits, originalBranch, prevName, prevEmail)
+
 		return nil
 	}
+
+	return runTargetAmendWorkflow(f, commits, prevName, prevEmail, originalBranch)
+}
+
+func prepareAmendBranch(branch string) *apperror.AppError {
+	if branch != "" {
+		return switchBranch(branch)
+	}
+
+	return nil
+}
+
+func runTargetAmendWorkflow(
+	f amendFlags,
+	commits []model.CommitEntry,
+	prevName, prevEmail, originalBranch string,
+) *apperror.AppError {
 	targetBranch := resolveTargetBranch(f)
 	mode := resolveAmendMode(f)
+
 	return runAmendWorkflow(f, commits, targetBranch, mode, prevName, prevEmail, originalBranch)
 }
 
@@ -95,6 +114,7 @@ func requireAmendCommits(f amendFlags) ([]model.CommitEntry, *apperror.AppError)
 	if len(commits) == 0 {
 		return nil, apperror.NewSimple(constants.ErrAmendNoCommits, "E9000")
 	}
+
 	return commits, nil
 }
 
@@ -120,13 +140,28 @@ func runAmendWorkflow(
 ) *apperror.AppError {
 	fmt.Print(constants.MsgAmendWarnRewrite)
 	printAmendHeader(f, commits, targetBranch, prevName, prevEmail)
-	runFilterBranch(f, commits)
+	if err := runFilterBranch(f, commits); err != nil {
+		return err
+	}
+	finishAmendWorkflow(f, commits, targetBranch, mode, prevName, prevEmail, originalBranch)
+
+	return nil
+}
+
+func finishAmendWorkflow(
+	f amendFlags,
+	commits []model.CommitEntry,
+	targetBranch,
+	mode,
+	prevName,
+	prevEmail,
+	originalBranch string,
+) {
 	printAmendProgress(commits)
 	auditPath := writeAmendAudit(f, commits, targetBranch, mode, prevName, prevEmail)
 	saveAmendToDB(f, commits, targetBranch, mode, prevName, prevEmail)
 	printAmendSummary(len(commits), auditPath, f.forcePush)
 	returnToBranch(f, originalBranch)
-	return nil
 }
 
 func printAmendSummary(commitCount int, auditPath string, forcePush bool) {
@@ -135,6 +170,7 @@ func printAmendSummary(commitCount int, auditPath string, forcePush bool) {
 	fmt.Print(constants.MsgAmendAuditDB)
 	if forcePush {
 		runForcePush()
+
 		return
 	}
 	fmt.Print(constants.MsgAmendWarnPush)
@@ -145,6 +181,7 @@ func resolveTargetBranch(f amendFlags) string {
 	if f.branch != "" {
 		return f.branch
 	}
+
 	return getCurrentBranch()
 }
 
@@ -156,6 +193,7 @@ func resolveAmendMode(f amendFlags) string {
 	if f.commitHash == constants.GitHEAD {
 		return constants.AmendModeHead
 	}
+
 	return constants.AmendModeRange
 }
 
@@ -169,5 +207,7 @@ func returnToBranch(f amendFlags, original string) {
 		return
 	}
 	fmt.Printf(constants.MsgAmendReturn, original)
-	switchBranch(original)
+	if err := switchBranch(original); err != nil {
+		fmt.Fprintf(os.Stderr, "failed to return to branch %s: %v\n", original, err)
+	}
 }

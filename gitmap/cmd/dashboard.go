@@ -12,55 +12,71 @@ import (
 	"github.com/alimtvnetwork/gitmap-v28/gitmap/constants"
 	"github.com/alimtvnetwork/gitmap-v28/gitmap/dashboard"
 	"github.com/alimtvnetwork/gitmap-v28/gitmap/model"
-
-	"github.com/alimtvnetwork/gitmap-v28/gitmap/cliexit"
 )
+
+func openDashboardIfRequested(outDir string, openFlag bool) {
+	if openFlag {
+		openDashboard(filepath.Join(outDir, constants.DashboardHTMLFile))
+	}
+}
 
 // runDashboard handles the "dashboard" subcommand.
 func runDashboard(args []string) error {
 	checkHelp("dashboard", args)
 	opts, outDir, openFlag := parseDashboardFlags(args)
 	fmt.Println(constants.MsgDashCollecting)
-	data := collectDashboardData(opts)
-	emitDashboardOutputs(outDir, data)
-	if openFlag {
-		openDashboard(filepath.Join(outDir, constants.DashboardHTMLFile))
+	data, appErr := collectDashboardData(opts)
+	if appErr != nil {
+		return appErr
 	}
+	if appErr := emitDashboardOutputs(outDir, data); appErr != nil {
+		return appErr
+	}
+	openDashboardIfRequested(outDir, openFlag)
+
 	return nil
 }
 
-func collectDashboardData(opts dashboard.CollectOptions) model.DashboardData {
+func collectDashboardData(opts dashboard.CollectOptions) (model.DashboardData, *apperror.AppError) {
 	data, err := dashboard.Collect(opts)
 	if err != nil {
-		fmt.Fprintln(os.Stderr, apperror.WrapSimple(err, constants.ErrDashCollect).Error())
-		cliexit.HandleError(nil, 1)
+		return model.DashboardData{}, apperror.WrapSimple(err, constants.ErrDashCollect)
 	}
-	return data
+
+	return data, nil
 }
 
-func emitDashboardOutputs(outDir string, data model.DashboardData) {
-	writeDashboardJSON(outDir, data)
-	writeDashboardHTML(outDir, data)
+func emitDashboardOutputs(outDir string, data model.DashboardData) *apperror.AppError {
+	if appErr := writeDashboardJSON(outDir, data); appErr != nil {
+		return appErr
+	}
+	if appErr := writeDashboardHTML(outDir, data); appErr != nil {
+		return appErr
+	}
 	fmt.Printf(constants.MsgDashGenerated, outDir)
+
+	return nil
 }
 
-func writeDashboardJSON(outDir string, data model.DashboardData) {
+func writeDashboardJSON(outDir string, data model.DashboardData) *apperror.AppError {
 	jsonPath, err := dashboard.WriteJSON(outDir, data)
 	if err != nil {
-		apperror.NewSimple(constants.ErrDashWriteJSON, "E9000")
-		return
+		return apperror.WrapSimple(err, constants.ErrDashWriteJSON)
 	}
 	fmt.Printf(constants.MsgDashWriteJSON, dashboard.Summary(jsonPath),
 		data.Meta.TotalCommits, len(data.Authors))
+
+	return nil
 }
 
-func writeDashboardHTML(outDir string, data model.DashboardData) {
+func writeDashboardHTML(outDir string, data model.DashboardData) *apperror.AppError {
 	htmlPath, err := dashboard.WriteHTML(outDir, data)
 	if err != nil {
-		apperror.NewSimple(constants.ErrDashWriteHTML, "E9000")
-		return
+		return apperror.WrapSimple(err, constants.ErrDashWriteHTML)
 	}
 	fmt.Printf(constants.MsgDashWriteHTML, dashboard.Summary(htmlPath))
+
+	return nil
 }
 
 type dashFlagSet struct {
@@ -89,6 +105,7 @@ func parseDashboardFlags(args []string) (dashboard.CollectOptions, string, bool)
 	flags := setupDashboardFlagSet(fs)
 	fs.Parse(args)
 	opts := buildDashboardCollectOpts(flags)
+
 	return opts, *flags.outDir, *flags.openFlag
 }
 

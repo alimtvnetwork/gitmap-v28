@@ -123,7 +123,7 @@ func Reportf(command, op, subject string, err error) {
 func Fail(command, op, subject string, err error, code int) {
 	Reportf(command, op, subject, err)
 	runFlushers()
-	os.Exit(code)
+	exitFunc(code)
 }
 
 // Exit flushes any registered output pipes and exits with the given
@@ -133,7 +133,7 @@ func Fail(command, op, subject string, err error, code int) {
 // glyphs/theme forwarding goroutines never get scheduled.
 func Exit(code int) {
 	runFlushers()
-	os.Exit(code)
+	exitFunc(code)
 }
 
 // writeReport is the format core. Extracted so the test suite can

@@ -13,6 +13,8 @@ import (
 	"path/filepath"
 	"runtime"
 	"strings"
+
+	"github.com/alimtvnetwork/gitmap-v28/gitmap/apperror"
 )
 
 // runWhoAmI prints the effective git identity + transport + probable
@@ -22,9 +24,8 @@ func runWhoAmI(_ []string) error {
 	isNonGitRepoCWD := !isGitRepoCWD()
 	if isNonGitRepoCWD {
 		fmt.Fprintln(os.Stderr, "✗ not a git repository (run `gitmap whoami` inside a repo)")
-		exitWith(1)
 
-		return nil
+		return apperror.NewSimple("not a git repository (run gitmap whoami inside a repo)", "E_NOT_GIT_REPO")
 	}
 
 	printWhoAmIIdentity()

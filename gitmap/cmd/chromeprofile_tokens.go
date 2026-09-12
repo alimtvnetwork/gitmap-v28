@@ -252,8 +252,11 @@ func restoreChromeTokenService(profilePath string, vault *ChromeTokenVault) erro
 		if decErr != nil {
 			continue
 		}
-		_, _ = db.Exec("INSERT OR REPLACE INTO token_service (service, encrypted_token) VALUES (?, ?)", entry.Service, rawBytes)
+		if _, err := db.Exec("INSERT OR REPLACE INTO token_service (service, encrypted_token) VALUES (?, ?)", entry.Service, rawBytes); err != nil {
+			return fmt.Errorf("insert token_service: %w", err)
+		}
 	}
+
 	return nil
 }
 

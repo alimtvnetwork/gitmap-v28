@@ -14,4 +14,9 @@ This skill provides autonomous audit, refactoring, and validation of repository-
 2. **Context-Rich `AppError` Wrappers**: All errors MUST be wrapped with `Op`, `Code`, `Type`, `Severity`, `Creator`, `Message`, `Ctx`, and `Cause`.
 3. **Universal Response Envelope**: All API endpoints return `{ "data": ..., "errors": [...], "meta": ... }`.
 4. **Never Swallow Errors**: Every catch block and error return must be recorded and handled explicitly.
-5. **CI/CD Linter Hook**: Continuous verification via `linter-scripts/check-error-management.py` and `.lovable/ai-fix-scripts/03-cicd-local-runner.py`.
+5. **CI/CD Linter Hook**: Continuous verification via `linter-scripts/check-error-management.py` and `03-ai-scripts/06-cicd-local-runner.py`.
+
+
+## Change Tracking & Test Avoidance
+- Test execution disabled; pass `--no-tests` to local runner.
+- Append modified files to `.lovable/temp/recent-file-changes.json` under lock (`python 03-ai-scripts/33-test-inventory-generator.py --record <files...>`).

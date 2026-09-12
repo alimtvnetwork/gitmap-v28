@@ -15,6 +15,7 @@
 package store
 
 import (
+	"database/sql"
 	"fmt"
 
 	"github.com/alimtvnetwork/gitmap-v28/gitmap/constants"
@@ -44,11 +45,10 @@ func (db *DB) InsertMakeAllVisibilityPendingResults(runID int64, rows []model.Ma
 	if err != nil {
 		return nil, fmt.Errorf(constants.ErrMakeAllResultInsertFmt, err, err.Error())
 	}
+	defer tx.Rollback()
 
 	ids, err := insertPendingResultsInTx(tx, runID, rows)
 	if err != nil {
-		_ = tx.Rollback()
-
 		return nil, err
 	}
 
@@ -95,15 +95,23 @@ func (db *DB) MarkMakeAllVisibilityResultsExcluded(ids []int64, finishedAt strin
 	if err != nil {
 		return fmt.Errorf(constants.ErrMakeAllResultExcludeFmt, err, err.Error())
 	}
+	defer tx.Rollback()
+
+	if err := markIdsExcludedInTx(tx, ids, finishedAt); err != nil {
+		return err
+	}
+
+	return commitOrWrap(tx, constants.ErrMakeAllResultExcludeFmt)
+}
+
+func markIdsExcludedInTx(tx *sql.Tx, ids []int64, finishedAt string) error {
 	for _, id := range ids {
 		if _, execErr := tx.Exec(constants.SQLUpdateMakeAllVisibilityResultExcluded, finishedAt, id); execErr != nil {
-			_ = tx.Rollback()
-
 			return fmt.Errorf(constants.ErrMakeAllResultExcludeFmt, execErr, execErr.Error())
 		}
 	}
 
-	return commitOrWrap(tx, constants.ErrMakeAllResultExcludeFmt)
+	return nil
 }
 
 // UpdateMakeAllVisibilityResult writes the terminal status for one

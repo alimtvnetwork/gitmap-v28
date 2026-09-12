@@ -1,26 +1,45 @@
 package store
 
 import (
+	"context"
+	"database/sql"
 	"fmt"
 
+	"github.com/alimtvnetwork/gitmap-v28/gitmap/apperror"
 	"github.com/alimtvnetwork/gitmap-v28/gitmap/constants"
+	"github.com/alimtvnetwork/gitmap-v28/gitmap/dbengine"
 	"github.com/alimtvnetwork/gitmap-v28/gitmap/model"
 )
 
 // UpsertRepos inserts or updates all records by absolute_path.
 func (db *DB) UpsertRepos(records []model.ScanRecord) error {
+	wrap, appErr := dbengine.WrapDb(db.conn, dbengine.DbSQLite)
+	if appErr != nil {
+		return appErr
+	}
+
+	appErr = wrap.WithTransaction(context.Background(), func(tx *dbengine.TxWrapper) *apperror.AppError {
+		return db.upsertReposTx(tx.Tx(), records)
+	})
+	if appErr != nil {
+		return fmt.Errorf(constants.ErrDBUpsert, appErr)
+	}
+
+	return nil
+}
+
+func (db *DB) upsertReposTx(tx *sql.Tx, records []model.ScanRecord) *apperror.AppError {
 	for _, r := range records {
-		if err := db.upsertOne(r); err != nil {
-			return fmt.Errorf(constants.ErrDBUpsert, err)
+		if err := upsertOneRepo(tx, r); err != nil {
+			return apperror.WrapSimple(err, "upsertOneRepo")
 		}
 	}
 
 	return nil
 }
 
-// upsertOne inserts or updates a single repo by absolute_path.
-func (db *DB) upsertOne(r model.ScanRecord) error {
-	_, err := ExecWrapper(db.conn, constants.SQLUpsertRepoByPath,
+func upsertOneRepo(runner sqlExecutor, r model.ScanRecord) error {
+	_, err := ExecWrapper(runner, constants.SQLUpsertRepoByPath,
 		r.Slug, r.RepoName, r.HTTPSUrl, r.SSHUrl,
 		r.Branch, r.RelativePath, r.AbsolutePath,
 		r.CloneInstruction, r.Notes, r.IdentifiedTransport,
@@ -73,15 +92,19 @@ func (db *DB) FindByID(id int64) ([]model.ScanRecord, error) {
 	return scanRows(rows)
 }
 
-// FindBySlug returns all repos matching the given slug.
-func (db *DB) FindBySlug(slug string) ([]model.ScanRecord, error) {
-	rows, err := QueryWrapper(db.conn, constants.SQLSelectRepoBySlug, slug).Destruct()
+func findBySlugRunner(runner sqlQueryer, slug string) ([]model.ScanRecord, error) {
+	rows, err := QueryWrapper(runner, constants.SQLSelectRepoBySlug, slug).Destruct()
 	if err != nil {
 		return nil, fmt.Errorf(constants.ErrDBQuery, err)
 	}
 	defer rows.Close()
 
 	return scanRows(rows)
+}
+
+// FindBySlug returns all repos matching the given slug.
+func (db *DB) FindBySlug(slug string) ([]model.ScanRecord, error) {
+	return findBySlugRunner(db.conn, slug)
 }
 
 // FindByPath returns the repo at the given absolute path.

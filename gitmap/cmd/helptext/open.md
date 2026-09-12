@@ -1,6 +1,6 @@
 # `gitmap open`
 
-Opens the current repository (or a specified target directory) using your operating system's native file explorer or default handler. 
+Opens the current repository (or a specified target directory) using your operating system's native file explorer or default handler.
 
 ## Usage
 
@@ -11,7 +11,7 @@ gitmap open [target]
 
 ## Behavior
 
-* **No arguments**: 
+* **No arguments**:
   Discovers the root of the Git repository for the current working directory and opens it. If you are not in a Git repository, it falls back to opening the current working directory.
 * **With `[target]`**:
   Opens the exact file or directory path provided.

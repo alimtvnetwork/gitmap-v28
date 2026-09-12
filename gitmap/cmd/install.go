@@ -93,8 +93,8 @@ func handleMissingInstallTool() error {
 
 func printInstallUsageHints() {
 	fmt.Fprintf(os.Stderr, "Usage:\n  gitmap install <tool|profile> [flags]\n  gitmap in <tool|profile> [flags]\n\n")
-	fmt.Fprintf(os.Stderr, "Options:\n  --list, ls, list       List all available developer tools & profiles\n  profile <name>         Run an installation profile (dev, ubuntu, ai, minimal)\n  --tree, -t             Preview full tool tree of a profile before installing\n  --logs, logs           View installation execution logs\n  --help                 Show detailed install help and examples\n\n")
-	fmt.Fprintf(os.Stderr, "Examples:\n  $ gitmap install qtorrent\n  $ gitmap install utorrent\n  $ gitmap export-config qtorrent\n  $ gitmap import-config uttorrent\n  $ gitmap install profile dev --tree\n  $ gitmap in dev\n  $ gitmap in logs\n\n")
+	fmt.Fprintf(os.Stderr, "Options:\n  --list, ls, list       List all available developer tools & profiles\n  profile <name>         Run an installation profile (dev, ubuntu, ai, minimal, base, fullstack...)\n  --tree, -t             Preview full tool tree of a profile before installing\n  --logs, logs           View installation execution logs\n  --help                 Show detailed install help and examples\n\n")
+	fmt.Fprintf(os.Stderr, "Examples:\n  $ gitmap install qtorrent\n  $ gitmap install utorrent\n  $ gitmap export-config qtorrent\n  $ gitmap import-config utorrent\n  $ gitmap install profile dev --tree\n  $ gitmap in dev\n  $ gitmap in logs\n\n")
 }
 
 // installOptions holds parsed install flags.
@@ -131,8 +131,14 @@ func isInstallProfileCommand(args []string) bool {
 	return low == "profile" || low == "profiles"
 }
 
+func isProfileListKeyword(arg string) bool {
+	low := strings.ToLower(strings.TrimSpace(arg))
+
+	return low == "" || low == "--list" || low == "list" || low == "ls"
+}
+
 func runInstallProfileCommand(args []string) error {
-	if len(args) <= 1 {
+	if len(args) <= 1 || isProfileListKeyword(args[1]) {
 		printInstallProfilesOnly()
 
 		return nil
@@ -141,7 +147,17 @@ func runInstallProfileCommand(args []string) error {
 
 		return handleProfileTreeCommand(args[1:])
 	}
-	opts, _ := parseInstallFlags(args[1:])
+
+	return dispatchInstallProfile(args[1:])
+}
+
+func dispatchInstallProfile(args []string) error {
+	opts, list := parseInstallFlags(args)
+	if list || opts.Tool == "" || isProfileListKeyword(opts.Tool) {
+		printInstallProfilesOnly()
+
+		return nil
+	}
 
 	return runInstallProfile(opts.Tool, opts)
 }

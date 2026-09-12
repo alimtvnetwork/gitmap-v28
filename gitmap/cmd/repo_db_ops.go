@@ -39,10 +39,10 @@ func handleRepoDBStatus(args []string) error {
 		stats.Size = info.Size()
 	}
 
-	_ = db.QueryRow("SELECT COUNT(*) FROM RepoFile;").Scan(&stats.RepoFiles)
-	_ = db.QueryRow("SELECT COUNT(*) FROM SearchCache;").Scan(&stats.SearchCache)
-	_ = db.QueryRow("SELECT COUNT(*) FROM FileSequence;").Scan(&stats.FileSeqs)
-	_ = db.QueryRow("SELECT COUNT(*) FROM RepoScanLog;").Scan(&stats.ScanLogs)
+	stats.RepoFiles = queryTableRowCount(db, "SELECT COUNT(*) FROM RepoFile;")
+	stats.SearchCache = queryTableRowCount(db, "SELECT COUNT(*) FROM SearchCache;")
+	stats.FileSeqs = queryTableRowCount(db, "SELECT COUNT(*) FROM FileSequence;")
+	stats.ScanLogs = queryTableRowCount(db, "SELECT COUNT(*) FROM RepoScanLog;")
 
 	if hasArgFlag(args, "--json") {
 		return printJSON(stats)
@@ -222,4 +222,14 @@ func resolveCurrentRepoSplitDB() (*sql.DB, string, int64, string, error) {
 		return nil, "", 0, "", openErr
 	}
 	return db, dbPath, repoID, slug, nil
+}
+
+func queryTableRowCount(db *sql.DB, query string) int {
+	var count int
+	err := db.QueryRow(query).Scan(&count)
+	if err != nil {
+		return 0
+	}
+
+	return count
 }

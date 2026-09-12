@@ -25,6 +25,11 @@ All release operations (version bumping, commit creation, release branching, git
 python 03-ai-scripts/29-release-orchestrator.py --tier <minor|patch|major>
 ```
 
+## Pre-Release Validation & Quality Gates (Mandatory)
+
+1. **Mandatory Pre-Release Unit Tests & CI/CD Verification:** Execute `python 03-ai-scripts/06-cicd-local-runner.py --run-tests` and verify all unit test suites, AST checks, and quality gates pass 100% green (`exit 0`).
+2. **Test Inventory Validation:** Validate `.lovable/temp/recent-file-changes.json` against `.lovable/test-inventory.json` ensuring all associated tests pass prior to cutting the release.
+
 ## Git Release Lifecycle & Original Branch Invariant
 
 1. Record original branch (`git rev-parse --abbrev-ref HEAD`).

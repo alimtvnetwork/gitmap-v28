@@ -192,16 +192,32 @@ def create_release_branch_and_tag(new_version: str) -> tuple[str, str]:
     return release_branch, tag_name
 
 
+def verify_pre_release_quality_gates(run_tests: bool = True) -> None:
+    """Verifies that 100% of CI/CD quality gates and unit tests pass green before cutting a release."""
+    print("Running pre-release quality gate checks via 03-ai-scripts/06-cicd-local-runner.py...")
+    cmd = [sys.executable, "03-ai-scripts/06-cicd-local-runner.py"]
+    if run_tests:
+        cmd.append("--run-tests")
+    else:
+        cmd.append("--no-tests")
+    res = subprocess.run(cmd, check=False)
+    if res.returncode != 0:
+        raise RuntimeError(f"Pre-release quality gates failed with exit code {res.returncode}. Release aborted.")
+    print("Pre-release quality gates passed 100% green.")
+
+
 def parse_cli_args() -> argparse.Namespace:
     parser = argparse.ArgumentParser(description="Release Orchestrator")
     parser.add_argument("--tier", choices=["major", "minor", "patch"], default="minor")
     parser.add_argument("--scope", default="Automated release orchestration")
     parser.add_argument("--bullet", dest="bullets", action="append", default=[])
+    parser.add_argument("--skip-tests", dest="skip_tests", action="store_true", help="Skip running pre-release unit tests.")
 
     return parser.parse_args()
 
 
-def execute_release(tier: str, scope: str, bullets: list[str], original_branch: str) -> None:
+def execute_release(tier: str, scope: str, bullets: list[str], original_branch: str, skip_tests: bool = False) -> None:
+    verify_pre_release_quality_gates(run_tests=not skip_tests)
     cur_ver = read_canonical_version()
     new_ver = bump_version_string(cur_ver, tier)
     print(f"Bumping version from {cur_ver} to {new_ver}")
@@ -229,7 +245,7 @@ def main() -> None:
     orig_branch = get_current_branch()
     print(f"Original Branch: {orig_branch}")
     try:
-        execute_release(args.tier, args.scope, args.bullets, orig_branch)
+        execute_release(args.tier, args.scope, args.bullets, orig_branch, skip_tests=args.skip_tests)
     finally:
         run_cmd(f"git checkout {orig_branch}")
         print(f"Reverted to original branch: {orig_branch}")
@@ -237,5 +253,3 @@ def main() -> None:
 
 if __name__ == "__main__":
     main()
-
-

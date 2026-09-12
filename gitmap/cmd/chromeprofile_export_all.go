@@ -255,7 +255,9 @@ func insertProfileToSQLite(db *sql.DB, name string, exp chromeExport) error {
 	if err := insertProfileMetaToSQLite(db, name, exp); err != nil {
 		return err
 	}
-	insertTokensToSQLite(db, name, exp.TokenVault)
+	if err := insertTokensToSQLite(db, name, exp.TokenVault); err != nil {
+		return err
+	}
 
 	return insertExtensionsAndBlobsToSQLite(db, name, exp.ExtensionIDs)
 }
@@ -275,16 +277,21 @@ func insertProfileMetaToSQLite(db *sql.DB, name string, exp chromeExport) error 
 	return nil
 }
 
-func insertTokensToSQLite(db *sql.DB, name string, vault *ChromeTokenVault) {
+func insertTokensToSQLite(db *sql.DB, name string, vault *ChromeTokenVault) error {
 	if vault == nil || len(vault.Tokens) == 0 {
-		return
+		return nil
 	}
 	for _, t := range vault.Tokens {
-		_, _ = db.Exec(
+		_, err := db.Exec(
 			"INSERT OR REPLACE INTO chrome_tokens (profile_name, service, account_id, raw_base64, double_base64) VALUES (?, ?, ?, ?, ?)",
 			name, t.Service, t.AccountID, t.RawBase64, t.DoubleBase64,
 		)
+		if err != nil {
+			return err
+		}
 	}
+
+	return nil
 }
 
 func insertOptionalJSONToSQLite(db *sql.DB, table, col, name string, raw json.RawMessage) error {
@@ -293,21 +300,37 @@ func insertOptionalJSONToSQLite(db *sql.DB, table, col, name string, raw json.Ra
 	}
 	query := fmt.Sprintf("INSERT OR REPLACE INTO %s (profile_name, %s) VALUES (?, ?)", table, col)
 	_, err := db.Exec(query, name, string(raw))
+
 	return err
 }
 
 func insertExtensionsAndBlobsToSQLite(db *sql.DB, name string, extIDs []string) error {
 	for _, id := range extIDs {
-		_, _ = db.Exec("INSERT OR REPLACE INTO chrome_extensions (profile_name, extension_id) VALUES (?, ?)", name, id)
-	}
-	srcPath, _ := resolveChromeProfileDir(name)
-	for _, blobFile := range constants.ChromeProfileSQLiteEntries {
-		filePath := filepath.Join(srcPath, blobFile)
-		if bytes, readErr := os.ReadFile(filePath); readErr == nil && len(bytes) > 0 {
-			_, _ = db.Exec("INSERT OR REPLACE INTO chrome_blobs (profile_name, file_name, payload) VALUES (?, ?, ?)", name, blobFile, bytes)
+		if _, err := db.Exec("INSERT OR REPLACE INTO chrome_extensions (profile_name, extension_id) VALUES (?, ?)", name, id); err != nil {
+			return err
 		}
 	}
+
+	srcPath, _ := resolveChromeProfileDir(name)
+	for _, blobFile := range constants.ChromeProfileSQLiteEntries {
+		if err := saveBlobEntry(db, name, srcPath, blobFile); err != nil {
+			return err
+		}
+	}
+
 	return nil
+}
+
+func saveBlobEntry(db *sql.DB, name, srcPath, blobFile string) error {
+	filePath := filepath.Join(srcPath, blobFile)
+	bytes, err := os.ReadFile(filePath)
+	if err != nil || len(bytes) == 0 {
+		return nil
+	}
+
+	_, execErr := db.Exec("INSERT OR REPLACE INTO chrome_blobs (profile_name, file_name, payload) VALUES (?, ?, ?)", name, blobFile, bytes)
+
+	return execErr
 }
 
 func writeAllChromeProfilesZIP(names []string, outPath string) (int, error) {

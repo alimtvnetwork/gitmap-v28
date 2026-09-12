@@ -51,8 +51,7 @@ func OpenSitesSplitDB() (*SitesSplitDB, error) {
 
 // OpenSitesSplitDBAt opens or creates a split sites database at a specific path.
 func OpenSitesSplitDBAt(dbPath string) (*SitesSplitDB, error) {
-	parentDir := filepath.Dir(dbPath)
-	if err := os.MkdirAll(parentDir, 0755); err != nil {
+	if err := os.MkdirAll(filepath.Dir(dbPath), 0755); err != nil {
 		return nil, apperror.WrapSimple(err, "sites_split.mkdir")
 	}
 
@@ -61,7 +60,15 @@ func OpenSitesSplitDBAt(dbPath string) (*SitesSplitDB, error) {
 		return nil, apperror.WrapSimple(err, "sites_split.open")
 	}
 
-	conn.SetMaxOpenConns(1)
+	return initSitesSplitConn(conn, dbPath)
+}
+
+func initSitesSplitConn(conn *sql.DB, dbPath string) (*SitesSplitDB, error) {
+	if err := ConfigureSQLiteConn(conn); err != nil {
+		_ = conn.Close()
+
+		return nil, apperror.WrapSimple(err, "sites_split.config")
+	}
 
 	db := &SitesSplitDB{conn: conn, Path: dbPath}
 	if err := db.InitSchema(); err != nil {

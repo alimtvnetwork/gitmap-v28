@@ -3,8 +3,10 @@ package db
 import (
 	"context"
 	"database/sql"
-	"fmt"
+	"strconv"
 	"time"
+
+	"github.com/alimtvnetwork/gitmap-v28/gitmap/apperror"
 )
 
 type ClusterRun struct {
@@ -22,33 +24,45 @@ type ClusterRun struct {
 	SkippedNodes   *int
 }
 
-func InsertClusterRun(ctx context.Context, db *sql.DB, run ClusterRun) (int64, error) {
-	query := `
+const (
+	sqlInsertClusterRun = `
 		INSERT INTO ClusterRun (
 			RunRef, CommandKind, RawCommand, TargetSelector, ExceptClause,
 			StartedAt, FinishedAt, TotalNodes, SucceededNodes, FailedNodes, SkippedNodes
 		) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
 	`
-	res, err := db.ExecContext(ctx, query,
-		run.RunRef,
-		run.CommandKind,
-		run.RawCommand,
-		run.TargetSelector,
-		run.ExceptClause,
-		run.StartedAt,
-		run.FinishedAt,
-		run.TotalNodes,
-		run.SucceededNodes,
-		run.FailedNodes,
-		run.SkippedNodes,
+	sqlUpdateClusterRun = `
+		UPDATE ClusterRun
+		SET FinishedAt = ?, TotalNodes = ?, SucceededNodes = ?, FailedNodes = ?, SkippedNodes = ?
+		WHERE ClusterRunId = ?
+	`
+	sqlSelectClusterRunByRef = `
+		SELECT 
+			ClusterRunId, RunRef, CommandKind, RawCommand, TargetSelector, ExceptClause,
+			StartedAt, FinishedAt, TotalNodes, SucceededNodes, FailedNodes, SkippedNodes
+		FROM ClusterRun
+		WHERE RunRef = ?
+	`
+	sqlSelectListClusterRuns = `
+		SELECT 
+			ClusterRunId, RunRef, CommandKind, RawCommand, TargetSelector, ExceptClause,
+			StartedAt, FinishedAt, TotalNodes, SucceededNodes, FailedNodes, SkippedNodes
+		FROM ClusterRun
+		ORDER BY StartedAt DESC
+	`
+)
+
+func InsertClusterRun(ctx context.Context, db *sql.DB, run ClusterRun) (int64, *apperror.AppError) {
+	res, err := db.ExecContext(ctx, sqlInsertClusterRun,
+		run.RunRef, run.CommandKind, run.RawCommand, run.TargetSelector, run.ExceptClause,
+		run.StartedAt, run.FinishedAt, run.TotalNodes, run.SucceededNodes, run.FailedNodes, run.SkippedNodes,
 	)
 	if err != nil {
-		return 0, fmt.Errorf("failed to insert ClusterRun: %w", err)
+		return 0, apperror.WrapSimple(err, "InsertClusterRun.Exec")
 	}
-
-	id, err := res.LastInsertId()
-	if err != nil {
-		return 0, fmt.Errorf("failed to get last insert id: %w", err)
+	id, errId := res.LastInsertId()
+	if errId != nil {
+		return 0, apperror.WrapSimple(errId, "InsertClusterRun.LastInsertId")
 	}
 
 	return id, nil
@@ -59,102 +73,67 @@ func UpdateClusterRun(
 	db *sql.DB,
 	id int64,
 	finishedAt *time.Time,
-	totalNodes,
-	succeededNodes,
-	failedNodes,
-	skippedNodes *int,
-) error {
-	query := `
-		UPDATE ClusterRun
-		SET FinishedAt = ?, TotalNodes = ?, SucceededNodes = ?, FailedNodes = ?, SkippedNodes = ?
-		WHERE ClusterRunId = ?
-	`
-	_, err := db.ExecContext(ctx, query, finishedAt, totalNodes, succeededNodes, failedNodes, skippedNodes, id)
+	totalNodes, succeededNodes, failedNodes, skippedNodes *int,
+) *apperror.AppError {
+	_, err := db.ExecContext(ctx, sqlUpdateClusterRun, finishedAt, totalNodes, succeededNodes, failedNodes, skippedNodes, id)
 	if err != nil {
-		return fmt.Errorf("failed to update ClusterRun %d: %w", id, err)
+		return apperror.WrapSimple(err, "UpdateClusterRun.Exec")
 	}
 
 	return nil
 }
 
-func SelectClusterRun(ctx context.Context, db *sql.DB, runRef string) (ClusterRun, error) {
-	query := `
-		SELECT 
-			ClusterRunId, RunRef, CommandKind, RawCommand, TargetSelector, ExceptClause,
-			StartedAt, FinishedAt, TotalNodes, SucceededNodes, FailedNodes, SkippedNodes
-		FROM ClusterRun
-		WHERE RunRef = ?
-	`
-	row := db.QueryRowContext(ctx, query, runRef)
-
+func SelectClusterRun(ctx context.Context, db *sql.DB, runRef string) (ClusterRun, *apperror.AppError) {
+	row := db.QueryRowContext(ctx, sqlSelectClusterRunByRef, runRef)
 	var run ClusterRun
 	err := row.Scan(
-		&run.ClusterRunId,
-		&run.RunRef,
-		&run.CommandKind,
-		&run.RawCommand,
-		&run.TargetSelector,
-		&run.ExceptClause,
-		&run.StartedAt,
-		&run.FinishedAt,
-		&run.TotalNodes,
-		&run.SucceededNodes,
-		&run.FailedNodes,
-		&run.SkippedNodes,
+		&run.ClusterRunId, &run.RunRef, &run.CommandKind, &run.RawCommand, &run.TargetSelector,
+		&run.ExceptClause, &run.StartedAt, &run.FinishedAt, &run.TotalNodes, &run.SucceededNodes,
+		&run.FailedNodes, &run.SkippedNodes,
 	)
 	if err == sql.ErrNoRows {
-		return ClusterRun{}, fmt.Errorf("ClusterRun not found for RunRef %s: %w", runRef, err)
+		return ClusterRun{}, apperror.NewWithDetails(
+			"SelectClusterRun", "E4004", "ClusterRun not found for RunRef: "+runRef, "db",
+			apperror.ErrorTypeNotFound, apperror.SeverityError, map[string]any{"runRef": runRef},
+		)
 	}
 	if err != nil {
-		return ClusterRun{}, fmt.Errorf("failed to scan ClusterRun: %w", err)
+		return ClusterRun{}, apperror.WrapSimple(err, "SelectClusterRun.Scan")
 	}
 
 	return run, nil
 }
 
-func ListClusterRuns(ctx context.Context, db *sql.DB, limit int) ([]ClusterRun, error) {
-	query := `
-		SELECT 
-			ClusterRunId, RunRef, CommandKind, RawCommand, TargetSelector, ExceptClause,
-			StartedAt, FinishedAt, TotalNodes, SucceededNodes, FailedNodes, SkippedNodes
-		FROM ClusterRun
-		ORDER BY StartedAt DESC
-	`
+func ListClusterRuns(ctx context.Context, db *sql.DB, limit int) ([]ClusterRun, *apperror.AppError) {
+	query := sqlSelectListClusterRuns
 	if limit > 0 {
-		query += fmt.Sprintf(" LIMIT %d", limit)
+		query += " LIMIT " + strconv.Itoa(limit)
 	}
-
 	rows, err := db.QueryContext(ctx, query)
 	if err != nil {
-		return nil, fmt.Errorf("failed to query ClusterRuns: %w", err)
+		return nil, apperror.WrapSimple(err, "ListClusterRuns.Query")
 	}
 	defer rows.Close()
 
+	return scanClusterRunRows(rows)
+}
+
+func scanClusterRunRows(rows *sql.Rows) ([]ClusterRun, *apperror.AppError) {
 	var runs []ClusterRun
 	for rows.Next() {
 		var run ClusterRun
 		err := rows.Scan(
-			&run.ClusterRunId,
-			&run.RunRef,
-			&run.CommandKind,
-			&run.RawCommand,
-			&run.TargetSelector,
-			&run.ExceptClause,
-			&run.StartedAt,
-			&run.FinishedAt,
-			&run.TotalNodes,
-			&run.SucceededNodes,
-			&run.FailedNodes,
-			&run.SkippedNodes,
+			&run.ClusterRunId, &run.RunRef, &run.CommandKind, &run.RawCommand, &run.TargetSelector,
+			&run.ExceptClause, &run.StartedAt, &run.FinishedAt, &run.TotalNodes, &run.SucceededNodes,
+			&run.FailedNodes, &run.SkippedNodes,
 		)
 		if err != nil {
-			return nil, fmt.Errorf("failed to scan ClusterRun: %w", err)
+			return nil, apperror.WrapSimple(err, "scanClusterRunRows.Scan")
 		}
 		runs = append(runs, run)
 	}
-
 	if err := rows.Err(); err != nil {
-		return nil, fmt.Errorf("error iterating over ClusterRuns: %w", err)
+		return nil, apperror.WrapSimple(err, "scanClusterRunRows.Rows")
 	}
 
 	return runs, nil

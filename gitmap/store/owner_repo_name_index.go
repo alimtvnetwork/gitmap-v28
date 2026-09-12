@@ -6,8 +6,10 @@
 package store
 
 import (
+	"database/sql"
 	"time"
 
+	"github.com/alimtvnetwork/gitmap-v28/gitmap/apperror"
 	"github.com/alimtvnetwork/gitmap-v28/gitmap/constants"
 	"github.com/alimtvnetwork/gitmap-v28/gitmap/visibility"
 )
@@ -23,22 +25,50 @@ func (db *DB) UpsertOwnerRepoNameIndex(
 ) error {
 	tx, err := db.conn.Begin()
 	if err != nil {
+		return apperror.WrapSimple(err, "begin tx owner repo index")
+	}
+	defer tx.Rollback()
+
+	if err := populateOwnerRepoIndexTx(tx, provider, owner, names, fetchedAt); err != nil {
 		return err
 	}
-	defer func() { _ = tx.Rollback() }()
 
+	if commitErr := tx.Commit(); commitErr != nil {
+		return apperror.WrapSimple(commitErr, "commit owner repo name index")
+	}
+
+	return nil
+}
+
+func populateOwnerRepoIndexTx(
+	tx *sql.Tx,
+	provider,
+	owner string,
+	names []string,
+	fetchedAt time.Time,
+) error {
 	if _, err := tx.Exec(`DELETE FROM OwnerRepoNameIndex WHERE Provider=? AND Owner=?`, provider, owner); err != nil {
-		return err
+		return apperror.WrapSimple(err, "delete existing owner repo index")
 	}
 
 	stmt, err := tx.Prepare(`INSERT INTO OwnerRepoNameIndex
 		(Provider, Owner, RepoName, BaseName, VersionNumber, FetchedAt)
 		VALUES (?, ?, ?, ?, ?, ?)`)
 	if err != nil {
-		return err
+		return apperror.WrapSimple(err, "prepare insert owner repo index")
 	}
 	defer stmt.Close()
 
+	return insertOwnerRepoNames(stmt, provider, owner, names, fetchedAt)
+}
+
+func insertOwnerRepoNames(
+	stmt *sql.Stmt,
+	provider,
+	owner string,
+	names []string,
+	fetchedAt time.Time,
+) error {
 	ts := fetchedAt.UTC().Format(time.RFC3339Nano)
 	for _, n := range names {
 		base, ver, ok := visibility.ParseRepoNameMeta(n)
@@ -47,11 +77,11 @@ func (db *DB) UpsertOwnerRepoNameIndex(
 			ver = -1
 		}
 		if _, err := stmt.Exec(provider, owner, n, base, ver, ts); err != nil {
-			return err
+			return apperror.WrapSimple(err, "insert owner repo index row")
 		}
 	}
 
-	return tx.Commit()
+	return nil
 }
 
 // LookupHighestVersion returns (RepoName, VersionNumber, true) for

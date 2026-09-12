@@ -66,8 +66,7 @@ func OpenInstallationSplitDB() (*InstallationSplitDB, error) {
 
 // OpenInstallationSplitDBAt opens or creates a split database at a specific path.
 func OpenInstallationSplitDBAt(dbPath string) (*InstallationSplitDB, error) {
-	parentDir := filepath.Dir(dbPath)
-	if err := os.MkdirAll(parentDir, 0755); err != nil {
+	if err := os.MkdirAll(filepath.Dir(dbPath), 0755); err != nil {
 		return nil, apperror.WrapSimple(err, "installation_split.mkdir")
 	}
 
@@ -76,7 +75,15 @@ func OpenInstallationSplitDBAt(dbPath string) (*InstallationSplitDB, error) {
 		return nil, apperror.WrapSimple(err, "installation_split.open")
 	}
 
-	conn.SetMaxOpenConns(1)
+	return initInstallationSplitConn(conn, dbPath)
+}
+
+func initInstallationSplitConn(conn *sql.DB, dbPath string) (*InstallationSplitDB, error) {
+	if err := ConfigureSQLiteConn(conn); err != nil {
+		_ = conn.Close()
+
+		return nil, apperror.WrapSimple(err, "installation_split.config")
+	}
 
 	db := &InstallationSplitDB{conn: conn, Path: dbPath}
 	if err := db.InitSchema(); err != nil {

@@ -190,26 +190,38 @@ func writeScheduleExportYAML(bundles []scheduleExportBundle, filePath string) er
 }
 
 func writeScheduleExportSQLite(bundles []scheduleExportBundle, filePath string) error {
-	if filePath == "" {
-		filePath = "schedules_export.db"
-	}
-	_ = os.Remove(filePath)
-	_ = os.MkdirAll(filepath.Dir(filePath), constants.DirPermission)
-	conn, err := sql.Open("sqlite", filePath)
-	if err != nil {
-		return apperror.WrapSimple(err, "create export sqlite db")
+	outPath := resolveExportSQLitePath(filePath)
+	_ = os.Remove(outPath)
+	_ = os.MkdirAll(filepath.Dir(outPath), constants.DirPermission)
+
+	conn, appErr := store.OpenSQLiteDB(outPath)
+	if appErr != nil {
+		return apperror.WrapSimple(appErr, "create export sqlite db")
 	}
 	defer conn.Close()
+
 	if err := populateExportSQLite(conn, bundles); err != nil {
 		return err
 	}
-	printExportSuccessBanner(filePath, len(bundles), "SQLite")
+
+	printExportSuccessBanner(outPath, len(bundles), "SQLite")
+
 	return nil
 }
 
+func resolveExportSQLitePath(filePath string) string {
+	if filePath == "" {
+		return "schedules_export.db"
+	}
+
+	return filePath
+}
+
 func populateExportSQLite(conn *sql.DB, bundles []scheduleExportBundle) error {
-	_, _ = conn.Exec(store.SQLCreateSchedulerTasksTable)
-	_, _ = conn.Exec(`CREATE TABLE IF NOT EXISTS schedule_logs (
+	if _, err := conn.Exec(store.SQLCreateSchedulerTasksTable); err != nil {
+		return err
+	}
+	createLogTable := `CREATE TABLE IF NOT EXISTS schedule_logs (
 	    id INTEGER PRIMARY KEY AUTOINCREMENT,
 	    schedule_name TEXT,
 	    run_number INTEGER,
@@ -223,17 +235,25 @@ func populateExportSQLite(conn *sql.DB, bundles []scheduleExportBundle) error {
 	    output TEXT,
 	    error_msg TEXT,
 	    created_at TEXT
-	);`)
-	for _, b := range bundles {
-		insertBundleIntoSQLite(conn, b)
+	);`
+	if _, err := conn.Exec(createLogTable); err != nil {
+		return err
 	}
+	for _, b := range bundles {
+		if err := insertBundleIntoSQLite(conn, b); err != nil {
+			return err
+		}
+	}
+
 	return nil
 }
 
-func insertBundleIntoSQLite(conn *sql.DB, b scheduleExportBundle) {
+func insertBundleIntoSQLite(conn *sql.DB, b scheduleExportBundle) error {
 	qTask := `INSERT INTO scheduler_tasks (name, slug, db_path, macro_name, command_line, interval_val, delay_val, is_enabled, is_scheduled, has_delay, is_startup, run_count, last_run_at)
 	          VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`
-	_, _ = conn.Exec(qTask, b.Task.Name, b.Task.Slug, b.Task.DBPath, b.Task.MacroName, b.Task.CommandLine, b.Task.IntervalVal, b.Task.DelayVal, b.Task.IsEnabled, b.Task.IsScheduled, b.Task.HasDelay, b.Task.IsStartup, b.Task.RunCount, b.Task.LastRunAt)
+	if _, err := conn.Exec(qTask, b.Task.Name, b.Task.Slug, b.Task.DBPath, b.Task.MacroName, b.Task.CommandLine, b.Task.IntervalVal, b.Task.DelayVal, b.Task.IsEnabled, b.Task.IsScheduled, b.Task.HasDelay, b.Task.IsStartup, b.Task.RunCount, b.Task.LastRunAt); err != nil {
+		return err
+	}
 
 	qRun := `INSERT INTO schedule_logs (schedule_name, run_number, trigger_type, runner_user, started_at, finished_at, duration_ms, is_success, exit_code, output, error_msg, created_at)
 	         VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`
@@ -242,8 +262,12 @@ func insertBundleIntoSQLite(conn *sql.DB, b scheduleExportBundle) {
 		if r.IsSuccess {
 			isSuccessInt = 1
 		}
-		_, _ = conn.Exec(qRun, b.Task.Name, r.RunNumber, r.TriggerType, r.RunnerUser, r.StartedAt, r.FinishedAt, r.DurationMS, isSuccessInt, r.ExitCode, r.Output, r.ErrorMsg, r.CreatedAt)
+		if _, err := conn.Exec(qRun, b.Task.Name, r.RunNumber, r.TriggerType, r.RunnerUser, r.StartedAt, r.FinishedAt, r.DurationMS, isSuccessInt, r.ExitCode, r.Output, r.ErrorMsg, r.CreatedAt); err != nil {
+			return err
+		}
 	}
+
+	return nil
 }
 
 func writeScheduleExportZIP(bundles []scheduleExportBundle, filePath string) error {

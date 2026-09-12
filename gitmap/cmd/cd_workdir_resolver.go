@@ -7,7 +7,7 @@ import (
 	"path/filepath"
 	"strings"
 
-	"github.com/alimtvnetwork/gitmap-v28/gitmap/cliexit"
+	"github.com/alimtvnetwork/gitmap-v28/gitmap/apperror"
 	"github.com/alimtvnetwork/gitmap-v28/gitmap/constants"
 	"github.com/alimtvnetwork/gitmap-v28/gitmap/store"
 )
@@ -19,9 +19,8 @@ func handleWorkDirOrNotFound(name string, rest []string) error {
 	}
 
 	fmt.Fprintf(os.Stderr, constants.ErrCDNotFound, name)
-	cliexit.HandleError(nil, 1)
 
-	return nil
+	return apperror.NewWithDetails("cd", "E1004", fmt.Sprintf(constants.ErrCDNotFound, name), "cmd.cd", apperror.ErrorTypeNotFound, apperror.SeverityError, nil)
 }
 
 func dispatchCDWorkPath(workPath string, rest []string) error {

@@ -108,7 +108,7 @@ func termStreamHandler(httpWriter http.ResponseWriter, httpRequest *http.Request
 	sessionID := httpRequest.URL.Query().Get("session_id")
 	termSess, startErr := startTerminal(sessionID)
 	if startErr != nil {
-		http.Error(httpWriter, startErr.Error(), http.StatusInternalServerError)
+		writeTermJSONError(httpWriter, http.StatusInternalServerError, startErr.Error())
 		return
 	}
 	setStreamHeaders(httpWriter)
@@ -150,17 +150,17 @@ func termInputHandler(httpWriter http.ResponseWriter, httpRequest *http.Request)
 	sessionID := httpRequest.URL.Query().Get("session_id")
 	termSess, startErr := startTerminal(sessionID)
 	if startErr != nil {
-		http.Error(httpWriter, startErr.Error(), http.StatusInternalServerError)
+		writeTermJSONError(httpWriter, http.StatusInternalServerError, startErr.Error())
 		return
 	}
 	reqBody, readErr := readInputBody(httpRequest)
 	if readErr != nil {
-		http.Error(httpWriter, readErr.Error(), http.StatusBadRequest)
+		writeTermJSONError(httpWriter, http.StatusBadRequest, readErr.Error())
 		return
 	}
 	writeErr := writeTermInput(termSess, reqBody)
 	if writeErr != nil {
-		http.Error(httpWriter, writeErr.Error(), http.StatusInternalServerError)
+		writeTermJSONError(httpWriter, http.StatusInternalServerError, writeErr.Error())
 		return
 	}
 	httpWriter.WriteHeader(http.StatusOK)
@@ -184,6 +184,19 @@ func writeTermInput(termSess *termSession, reqBody []byte) error {
 	return nil
 }
 
+func writeTermJSONError(w http.ResponseWriter, status int, msg string) {
+	resp := commandExecResp{
+		Status:   "error",
+		Success:  false,
+		ExitCode: 1,
+		Errors:   []string{msg},
+		Error:    msg,
+	}
+	w.Header().Set("Content-Type", "application/json")
+	w.WriteHeader(status)
+	_ = json.NewEncoder(w).Encode(resp)
+}
+
 func termAutocompleteHandler(httpWriter http.ResponseWriter, httpRequest *http.Request) {
 	queryText := httpRequest.URL.Query().Get("q")
 	completions := []string{}
@@ -191,9 +204,8 @@ func termAutocompleteHandler(httpWriter http.ResponseWriter, httpRequest *http.R
 	if isGitmap {
 		completions = completion.AllCommands()
 	}
-	jsonBytes, _ := json.Marshal(completions)
 	httpWriter.Header().Set("Content-Type", "application/json")
-	httpWriter.Write(jsonBytes)
+	_ = json.NewEncoder(httpWriter).Encode(completions)
 }
 
 type commandExecReq struct {
@@ -201,20 +213,22 @@ type commandExecReq struct {
 }
 
 type commandExecResp struct {
-	Success  bool   `json:"success"`
-	Output   string `json:"output"`
-	ExitCode int    `json:"exitCode"`
-	Error    string `json:"error,omitempty"`
+	Status   string   `json:"status,omitempty"`
+	Success  bool     `json:"success"`
+	Output   string   `json:"output"`
+	ExitCode int      `json:"exitCode"`
+	Errors   []string `json:"errors,omitempty"`
+	Error    string   `json:"error,omitempty"`
 }
 
 func termCommandExecHandler(w http.ResponseWriter, r *http.Request) {
 	if r.Method != http.MethodPost {
-		http.Error(w, "POST required", http.StatusMethodNotAllowed)
+		writeTermJSONError(w, http.StatusMethodNotAllowed, "POST required")
 		return
 	}
 	var req commandExecReq
 	if err := json.NewDecoder(r.Body).Decode(&req); err != nil {
-		http.Error(w, err.Error(), http.StatusBadRequest)
+		writeTermJSONError(w, http.StatusBadRequest, err.Error())
 		return
 	}
 	resp := executeCLIForAPI(req.Command)
@@ -223,25 +237,38 @@ func termCommandExecHandler(w http.ResponseWriter, r *http.Request) {
 }
 
 func executeCLIForAPI(cmdStr string) commandExecResp {
-	var cmd *exec.Cmd
-	if runtime.GOOS == "windows" {
-		cmd = exec.Command("cmd.exe", "/C", cmdStr)
-	} else {
-		cmd = exec.Command("sh", "-c", cmdStr)
-	}
+	cmd := buildPlatformCmd(cmdStr)
 	out, err := cmd.CombinedOutput()
 	if err == nil {
-		return commandExecResp{Success: true, Output: string(out), ExitCode: 0}
+		return commandExecResp{
+			Status:   "success",
+			Success:  true,
+			Output:   string(out),
+			ExitCode: 0,
+		}
 	}
-	exitCode := 1
-	exitErr, ok := err.(*exec.ExitError)
-	if ok {
-		exitCode = exitErr.ExitCode()
-	}
+	exitCode := resolveExitCode(err)
 	return commandExecResp{
+		Status:   "error",
 		Success:  false,
 		Output:   string(out),
 		ExitCode: exitCode,
+		Errors:   []string{err.Error()},
 		Error:    err.Error(),
 	}
+}
+
+func buildPlatformCmd(cmdStr string) *exec.Cmd {
+	if runtime.GOOS == "windows" {
+		return exec.Command("cmd.exe", "/C", cmdStr)
+	}
+	return exec.Command("sh", "-c", cmdStr)
+}
+
+func resolveExitCode(err error) int {
+	exitErr, isExit := err.(*exec.ExitError)
+	if isExit {
+		return exitErr.ExitCode()
+	}
+	return 1
 }

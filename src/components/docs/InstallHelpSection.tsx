@@ -3,6 +3,9 @@ import { BadgeCheck, ClipboardList, HelpCircle, ListChecks, Route, ShieldCheck }
 
 const HELP_COMMAND = `gitmap install --help
 gitmap install --list
+gitmap install profile dev --tree
+gitmap in dev -y
+gitmap in logs
 gitmap install node --dry-run
 gitmap install node --manager choco --version 22.5.0`;
 
@@ -13,9 +16,9 @@ const HELP_BLOCKS = [
 ] as const;
 
 const FLAG_GROUPS = [
-  ["Inspect", "--help", "--list", "--status", "--check"],
-  ["Control", "--manager", "--version", "--upgrade"],
-  ["Safety", "--dry-run", "--verbose"],
+  ["Inspect", "--help", "--list", "--status", "--check", "--tree"],
+  ["Control", "--manager", "--version", "--upgrade", "--yes"],
+  ["Safety", "--dry-run", "--verbose", "--explain"],
 ] as const;
 
 const COLOR_CLASS = {

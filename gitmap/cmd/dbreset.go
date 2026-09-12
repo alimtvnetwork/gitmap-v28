@@ -4,7 +4,6 @@ import (
 	"fmt"
 
 	"github.com/alimtvnetwork/gitmap-v28/gitmap/apperror"
-	"github.com/alimtvnetwork/gitmap-v28/gitmap/cliexit"
 	"github.com/alimtvnetwork/gitmap-v28/gitmap/constants"
 )
 
@@ -13,15 +12,29 @@ func runDbReset(args []string) error {
 	checkHelp(constants.CmdDbReset, args)
 	isConfirm := parseDbResetFlags(args)
 	if !isConfirm {
-		printDbResetNoConfirm()
-		cliexit.Exit(1)
-
-		return nil
+		return abortDbReset()
 	}
 
-	executeDbReset()
+	appErr := executeDbReset()
+	if appErr != nil {
+		return appErr
+	}
 
 	return nil
+}
+
+func abortDbReset() *apperror.AppError {
+	printDbResetNoConfirm()
+
+	return apperror.NewWithDetails(
+		"dbreset",
+		"E4001",
+		"db reset canceled: --confirm flag required",
+		"cli",
+		apperror.ErrorTypeAbort,
+		apperror.SeverityWarn,
+		nil,
+	)
 }
 
 func printDbResetNoConfirm() {
@@ -37,23 +50,21 @@ func parseDbResetFlags(args []string) bool {
 }
 
 // executeDbReset opens the database, resets it, and prints confirmation.
-func executeDbReset() {
+func executeDbReset() *apperror.AppError {
 	db, err := openDb()
 	if err != nil {
-		apperror.WrapSimple(err, constants.ErrDBResetFailed)
-
-		return
+		return apperror.WrapSimple(err, constants.ErrDBResetFailed)
 	}
 	defer db.Close()
 
 	err = db.Reset()
 	if err != nil {
-		apperror.WrapSimple(err, constants.ErrDBResetFailed)
-
-		return
+		return apperror.WrapSimple(err, constants.ErrDBResetFailed)
 	}
 
 	fmt.Print(constants.MsgDBResetDone)
+
+	return nil
 }
 
 // Backwards-compatible aliases for PascalCase callers

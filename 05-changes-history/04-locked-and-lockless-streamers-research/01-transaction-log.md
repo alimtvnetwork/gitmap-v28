@@ -1,9 +1,9 @@
 # Transaction Log: Locked & Lockless Streamers and Self-Binding Interfacer Research
 
-> **Directory:** `05-changes-history/04-locked-and-lockless-streamers-research/`  
-> **Date:** 2026-09-03  
-> **Topic:** 2 Types of Streamers (Locked vs Lockless), Swappable StreamFunc, and Self-Binding `AsInterfacer()`  
-> **Status:** Completed  
+> **Directory:** `05-changes-history/04-locked-and-lockless-streamers-research/`
+> **Date:** 2026-09-03
+> **Topic:** 2 Types of Streamers (Locked vs Lockless), Swappable StreamFunc, and Self-Binding `AsInterfacer()`
+> **Status:** Completed
 
 ---
 

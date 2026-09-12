@@ -27,7 +27,9 @@ func (db *DB) EnsureWorkDir(absPath, label string, isDefault bool) (*model.WorkD
 	if db == nil || db.conn == nil {
 		return nil, apperror.New("EnsureWorkDir", "E_NIL_DB", map[string]any{"path": absPath})
 	}
-	_ = db.EnsureWorkDirsTable()
+	if err := db.EnsureWorkDirsTable(); err != nil {
+		return nil, apperror.Wrap(err, "EnsureWorkDir.EnsureWorkDirsTable", map[string]any{"path": absPath})
+	}
 
 	defInt := 0
 	if isDefault {
@@ -47,7 +49,9 @@ func (db *DB) ListWorkDirs() ([]model.WorkDir, error) {
 	if db == nil || db.conn == nil {
 		return nil, apperror.NewSimple("ListWorkDirs", "E_NIL_DB")
 	}
-	_ = db.EnsureWorkDirsTable()
+	if err := db.EnsureWorkDirsTable(); err != nil {
+		return nil, apperror.WrapSimple(err, "ListWorkDirs.EnsureWorkDirsTable")
+	}
 
 	rows, err := QueryWrapper(db.conn, SQLSelectAllWorkDirs).Destruct()
 	if err != nil {
@@ -64,11 +68,16 @@ func scanWorkDirRows(rows *sql.Rows) ([]model.WorkDir, error) {
 		var wd model.WorkDir
 		var defInt int
 		var label sql.NullString
-		if errScan := rows.Scan(&wd.ID, &wd.AbsolutePath, &label, &defInt, &wd.CreatedAt, &wd.UpdatedAt); errScan == nil {
-			wd.Label = label.String
-			wd.IsDefault = (defInt == 1)
-			results = append(results, wd)
+		errScan := rows.Scan(&wd.ID, &wd.AbsolutePath, &label, &defInt, &wd.CreatedAt, &wd.UpdatedAt)
+		if errScan != nil {
+			return nil, apperror.WrapSimple(errScan, "scanWorkDirRows.Scan")
 		}
+		wd.Label = label.String
+		wd.IsDefault = (defInt == 1)
+		results = append(results, wd)
+	}
+	if err := rows.Err(); err != nil {
+		return nil, apperror.WrapSimple(err, "scanWorkDirRows.Rows")
 	}
 
 	return results, nil
@@ -79,7 +88,9 @@ func (db *DB) GetWorkDirByPath(absPath string) (*model.WorkDir, error) {
 	if db == nil || db.conn == nil {
 		return nil, apperror.New("GetWorkDirByPath", "E_NIL_DB", map[string]any{"path": absPath})
 	}
-	_ = db.EnsureWorkDirsTable()
+	if err := db.EnsureWorkDirsTable(); err != nil {
+		return nil, apperror.Wrap(err, "GetWorkDirByPath.EnsureWorkDirsTable", map[string]any{"path": absPath})
+	}
 
 	row := db.conn.QueryRow("SELECT id, absolute_path, label, is_default, created_at, updated_at FROM work_directories WHERE absolute_path = ?", absPath)
 	var wd model.WorkDir

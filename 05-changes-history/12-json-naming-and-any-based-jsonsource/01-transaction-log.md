@@ -1,10 +1,10 @@
 # Transaction Log 12: Json Naming Convention & Any-Based JsonSource Architecture
 
-> **Directory:** `05-changes-history/12-json-naming-and-any-based-jsonsource/`  
-> **Date:** 2026-09-04  
-> **Author/Agent:** Antigravity AI  
-> **Module Affected:** `04-code/golang/pkg/streamwriter`, `research/`, `05-changes-history/`  
-> **Status:** Completed & Verified  
+> **Directory:** `05-changes-history/12-json-naming-and-any-based-jsonsource/`
+> **Date:** 2026-09-04
+> **Author/Agent:** Antigravity AI
+> **Module Affected:** `04-code/golang/pkg/streamwriter`, `research/`, `05-changes-history/`
+> **Status:** Completed & Verified
 
 ---
 

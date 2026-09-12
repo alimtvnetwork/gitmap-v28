@@ -8,23 +8,21 @@ import (
 	"github.com/alimtvnetwork/gitmap-v28/gitmap/apperror"
 	"github.com/alimtvnetwork/gitmap-v28/gitmap/constants"
 	"github.com/alimtvnetwork/gitmap-v28/gitmap/model"
-
-	"github.com/alimtvnetwork/gitmap-v28/gitmap/cliexit"
 )
 
 // runBookmarkSave saves a new bookmark from name + command + args/flags.
 func runBookmarkSave(args []string) *apperror.AppError {
 	if len(args) < 2 {
 		fmt.Fprint(os.Stderr, constants.ErrBookmarkSaveUsage)
-		cliexit.HandleError(nil, 1)
+
+		return apperror.NewValidationError(constants.ErrBookmarkSaveUsage)
 	}
 
 	name := args[0]
 	command := args[1]
 	flags, positional := splitBookmarkArgs(args[2:])
 
-	saveBookmarkToDB(name, command, positional, flags)
-	return nil
+	return saveBookmarkToDB(name, command, positional, flags)
 }
 
 // splitBookmarkArgs separates flags from positional arguments.
@@ -47,7 +45,8 @@ func saveBookmarkToDB(name, command, args, flags string) *apperror.AppError {
 	db, err := openDB()
 	if err != nil {
 		fmt.Fprintf(os.Stderr, constants.ErrBookmarkSave, err)
-		cliexit.HandleError(nil, 1)
+
+		return apperror.WrapSimple(err, fmt.Sprintf(constants.ErrBookmarkSave, err))
 	}
 	defer db.Close()
 
@@ -55,21 +54,30 @@ func saveBookmarkToDB(name, command, args, flags string) *apperror.AppError {
 		return err
 	}
 
+	return insertBookmarkRecord(db, name, command, args, flags)
+}
+
+func insertBookmarkRecord(db storeBookmarkWriter, name, command, args, flags string) *apperror.AppError {
 	record := model.BookmarkRecord{
 		Name:    name,
 		Command: command,
 		Args:    args,
 		Flags:   flags,
 	}
-
-	err = db.InsertBookmark(record)
+	err := db.InsertBookmark(record)
 	if err != nil {
 		fmt.Fprintf(os.Stderr, constants.ErrBookmarkSave, err)
-		cliexit.HandleError(nil, 1)
+
+		return apperror.WrapSimple(err, fmt.Sprintf(constants.ErrBookmarkSave, err))
 	}
 
 	fmt.Printf(constants.MsgBookmarkSaved, name, command, args, flags)
+
 	return nil
+}
+
+type storeBookmarkWriter interface {
+	InsertBookmark(model.BookmarkRecord) error
 }
 
 // checkBookmarkNotExists exits with error if a bookmark name is taken.

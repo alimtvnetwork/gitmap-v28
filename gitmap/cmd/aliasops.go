@@ -8,8 +8,6 @@ import (
 	"github.com/alimtvnetwork/gitmap-v28/gitmap/apperror"
 	"github.com/alimtvnetwork/gitmap-v28/gitmap/constants"
 	"github.com/alimtvnetwork/gitmap-v28/gitmap/store"
-
-	"github.com/alimtvnetwork/gitmap-v28/gitmap/cliexit"
 )
 
 // runAliasSet handles "alias set <alias> <slug>".
@@ -18,63 +16,66 @@ func runAliasSet(args []string) error {
 		return apperror.NewSimple(constants.ErrAliasEmpty, "E9000")
 	}
 
-	alias := args[0]
-	slug := args[1]
-
-	executeAliasSet(alias, slug)
-	return nil
+	return executeAliasSet(args[0], args[1])
 }
 
 // executeAliasSet resolves the slug and creates or updates the alias.
-func executeAliasSet(alias, slug string) {
-	if code := executeAliasSetCode(alias, slug); code != 0 {
-		cliexit.HandleError(nil, code)
-	}
-}
-
-// executeAliasSetCode performs the work and returns an exit code so
-// deferred db.Close runs before any process exit.
-func executeAliasSetCode(alias, slug string) int {
+func executeAliasSet(alias, slug string) error {
 	db, err := openDB()
 	if err != nil {
 		fmt.Fprintf(os.Stderr, constants.ErrListDBFailed, err)
-		return 1
+
+		return apperror.WrapSimple(err, fmt.Sprintf(constants.ErrListDBFailed, err))
 	}
 	defer db.Close()
 
+	return resolveAndPersistAlias(db, alias, slug)
+}
+
+func resolveAndPersistAlias(db *store.DB, alias, slug string) error {
 	repos, err := db.FindBySlug(slug)
 	if err != nil || len(repos) == 0 {
 		fmt.Fprintf(os.Stderr, constants.ErrAliasRepoMissing, slug)
-		return 1
+
+		return apperror.NewSimple(fmt.Sprintf(constants.ErrAliasRepoMissing, slug), "E9000")
 	}
 
-	repoID := repos[0].ID
+	return persistAliasMapping(db, alias, repos[0].ID, slug)
+}
 
-	if db.AliasExists(alias) {
+func persistAliasMapping(db *store.DB, alias string, repoID int64, slug string) error {
+	hasAlias := db.AliasExists(alias)
+	if hasAlias {
 		return updateAliasAndReturn(db, alias, repoID, slug)
 	}
 
-	return createAliasAndReturnCode(db, alias, repoID, slug)
+	return createAliasAndReturn(db, alias, repoID, slug)
 }
 
-func updateAliasAndReturn(db *store.DB, alias string, repoID int64, slug string) int {
+func updateAliasAndReturn(db *store.DB, alias string, repoID int64, slug string) error {
 	if err := db.UpdateAlias(alias, repoID); err != nil {
 		fmt.Fprintf(os.Stderr, constants.ErrBareFmt, err)
-		return 1
+
+		return apperror.WrapSimple(err, fmt.Sprintf(constants.ErrBareFmt, err))
 	}
+
 	fmt.Printf(constants.MsgAliasUpdated, alias, slug)
 	printHints(aliasSetHints())
-	return 0
+
+	return nil
 }
 
-func createAliasAndReturnCode(db *store.DB, alias string, repoID int64, slug string) int {
+func createAliasAndReturn(db *store.DB, alias string, repoID int64, slug string) error {
 	if _, err := db.CreateAlias(alias, repoID); err != nil {
 		fmt.Fprintf(os.Stderr, constants.ErrBareFmt, err)
-		return 1
+
+		return apperror.WrapSimple(err, fmt.Sprintf(constants.ErrBareFmt, err))
 	}
+
 	fmt.Printf(constants.MsgAliasCreated, alias, slug)
 	printHints(aliasSetHints())
-	return 0
+
+	return nil
 }
 
 // runAliasRemove handles "alias remove <alias>".
@@ -83,57 +84,50 @@ func runAliasRemove(args []string) error {
 		return apperror.NewSimple(constants.ErrAliasEmpty, "E9000")
 	}
 
-	alias := args[0]
-	if code := runAliasRemoveCode(alias); code != 0 {
-		cliexit.HandleError(nil, code)
-	}
-	return nil
+	return executeAliasRemove(args[0])
 }
 
-// runAliasRemoveCode returns an exit code so deferred db.Close runs
-// before any process exit.
-func runAliasRemoveCode(alias string) int {
+func executeAliasRemove(alias string) error {
 	db, err := openDB()
 	if err != nil {
 		fmt.Fprintf(os.Stderr, constants.ErrListDBFailed, err)
-		return 1
+
+		return apperror.WrapSimple(err, fmt.Sprintf(constants.ErrListDBFailed, err))
 	}
 	defer db.Close()
 
 	if err := db.DeleteAlias(alias); err != nil {
 		fmt.Fprintf(os.Stderr, constants.ErrBareFmt, err)
-		return 1
+
+		return apperror.WrapSimple(err, fmt.Sprintf(constants.ErrBareFmt, err))
 	}
+
 	fmt.Printf(constants.MsgAliasRemoved, alias)
-	return 0
+
+	return nil
 }
 
 // runAliasList handles "alias list".
 func runAliasList() error {
-	if code := runAliasListCode(); code != 0 {
-		cliexit.HandleError(nil, code)
-	}
-	return nil
-}
-
-// runAliasListCode returns an exit code so deferred db.Close runs
-// before any process exit.
-func runAliasListCode() int {
 	db, err := openDB()
 	if err != nil {
 		fmt.Fprintf(os.Stderr, constants.ErrListDBFailed, err)
-		return 1
+
+		return apperror.WrapSimple(err, fmt.Sprintf(constants.ErrListDBFailed, err))
 	}
 	defer db.Close()
 
 	aliases, err := db.ListAliasesWithRepo()
 	if err != nil {
 		fmt.Fprintf(os.Stderr, constants.ErrBareFmt, err)
-		return 1
+
+		return apperror.WrapSimple(err, fmt.Sprintf(constants.ErrBareFmt, err))
 	}
+
 	printAliasList(aliases)
 	printHints(aliasListHints())
-	return 0
+
+	return nil
 }
 
 // printAliasList renders the alias table to stdout.
@@ -157,8 +151,10 @@ func runAliasShow(args []string) error {
 		return apperror.NewSimple(constants.ErrAliasEmpty, "E9000")
 	}
 
-	alias := args[0]
+	return executeAliasShow(args[0])
+}
 
+func executeAliasShow(alias string) error {
 	db, err := openDB()
 	if err != nil {
 		return apperror.WrapSimple(err, constants.ErrListDBFailed)
@@ -168,10 +164,12 @@ func runAliasShow(args []string) error {
 	resolved, err := db.ResolveAlias(alias)
 	if err != nil {
 		fmt.Fprintf(os.Stderr, constants.ErrBareFmt, err)
-		exitWith(1)
+
+		return apperror.WrapSimple(err, fmt.Sprintf(constants.ErrBareFmt, err))
 	}
 
 	fmt.Printf(constants.MsgAliasResolved, resolved.Alias.Alias, resolved.AbsolutePath, resolved.Slug)
+
 	return nil
 }
 

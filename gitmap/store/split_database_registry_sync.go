@@ -115,7 +115,7 @@ func newDefaultSplitEntry(dbType, dbKey, path, desc string) SplitDatabaseEntry {
 }
 
 func inspectDBInternals(path string, entry *SplitDatabaseEntry) {
-	conn, err := sql.Open("sqlite", path)
+	conn, err := OpenSQLiteDB(path)
 	if err != nil {
 		entry.Status = "error"
 		entry.IsActive = false
@@ -123,7 +123,6 @@ func inspectDBInternals(path string, entry *SplitDatabaseEntry) {
 		return
 	}
 	defer conn.Close()
-	conn.SetMaxOpenConns(1)
 
 	tables := getTableNames(conn)
 	entry.TableCount = len(tables)

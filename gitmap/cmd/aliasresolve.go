@@ -5,10 +5,9 @@ import (
 	"os"
 
 	"github.com/alimtvnetwork/gitmap-v28/gitmap/apperror"
+	"github.com/alimtvnetwork/gitmap-v28/gitmap/cliexit"
 	"github.com/alimtvnetwork/gitmap-v28/gitmap/constants"
 	"github.com/alimtvnetwork/gitmap-v28/gitmap/store"
-
-	"github.com/alimtvnetwork/gitmap-v28/gitmap/cliexit"
 )
 
 // aliasContext holds the resolved alias information for the current command.
@@ -47,7 +46,8 @@ func extractStandaloneAliasFlag(args []string, index int) (string, []string) {
 	}
 
 	fmt.Fprintln(os.Stderr, constants.ErrAliasEmpty)
-	cliexit.HandleError(nil, 1)
+	cliexit.HandleValidationError(fmt.Errorf("%s", constants.ErrAliasEmpty))
+
 	return "", nil
 }
 
@@ -71,23 +71,32 @@ func resolveAliasContext(aliasName string) *apperror.AppError {
 	db, err := openDB()
 	if err != nil {
 		fmt.Fprintf(os.Stderr, constants.ErrListDBFailed, err)
-		cliexit.HandleError(nil, 1)
+
+		return apperror.WrapSimple(err, fmt.Sprintf(constants.ErrListDBFailed, err))
 	}
 	defer db.Close()
 
+	return queryAndSetAliasContext(db, aliasName)
+}
+
+func queryAndSetAliasContext(db *store.DB, aliasName string) *apperror.AppError {
 	resolved, err := db.ResolveAlias(aliasName)
 	if err != nil {
 		return apperror.WrapSimple(err, constants.ErrBareFmt)
 	}
 
+	setResolvedAliasContext(resolved)
+	fmt.Fprintf(os.Stderr, constants.MsgAliasResolved, resolved.Alias.Alias, resolved.AbsolutePath, resolved.Slug)
+
+	return nil
+}
+
+func setResolvedAliasContext(resolved store.AliasWithRepo) {
 	aliasContext = &resolvedAlias{
 		Alias:        resolved.Alias.Alias,
 		AbsolutePath: resolved.AbsolutePath,
 		Slug:         resolved.Slug,
 	}
-
-	fmt.Fprintf(os.Stderr, constants.MsgAliasResolved, resolved.Alias.Alias, resolved.AbsolutePath, resolved.Slug)
-	return nil
 }
 
 // GetAliasPath returns the resolved alias path if set, or empty string.

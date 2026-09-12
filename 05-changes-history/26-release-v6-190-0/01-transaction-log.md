@@ -1,10 +1,10 @@
 # Transaction Log 26: Release v6.190.0 Minor Version Bump
 
-> **Directory:** `05-changes-history/26-release-v6-190-0/`  
-> **Date:** 2026-09-06  
-> **Author/Agent:** Antigravity AI  
-> **Module Affected:** Repository-wide (`version.json`, `package.json`, `gitmap/constants/constants.go`, `changelog.md`, `readme.md`, `.lovable/`, `05-changes-history/`)  
-> **Status:** Completed & Verified  
+> **Directory:** `05-changes-history/26-release-v6-190-0/`
+> **Date:** 2026-09-06
+> **Author/Agent:** Antigravity AI
+> **Module Affected:** Repository-wide (`version.json`, `package.json`, `gitmap/constants/constants.go`, `changelog.md`, `readme.md`, `.lovable/`, `05-changes-history/`)
+> **Status:** Completed & Verified
 
 ---
 

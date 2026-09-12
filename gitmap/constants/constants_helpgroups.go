@@ -93,7 +93,7 @@ const (
 	CompactIntegrations = "  vscode (vsc), antigravity (agy/ag), schedule (sc), pipeline (pl/eta), ui, vmware (vm)"
 
 	CompactNoMatchFmt = "  No group matching '%s'. Showing all groups:\n"
-	HelpInstaller     = "  installer (in) <sub>        Manage developer tool installer scripts and history"
+	HelpInstaller     = "  installer <sub>             Manage developer tool installer scripts and history"
 	HelpMacro         = "  macro (m) <sub>             Record, manage, and replay task automation macros"
 	HelpSchedule      = "  schedule (sc) <sub>         Schedule background tasks, recurring jobs & triggers"
 	HelpVSCode        = "  vscode (vsc) <sub>          Manage VS Code Project Manager workspaces & repos"

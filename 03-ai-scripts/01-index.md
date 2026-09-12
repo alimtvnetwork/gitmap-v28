@@ -18,6 +18,8 @@ Follow this sequence before and during any repository modification task:
 - [ ] **/goal** Sanitize absolute filesystem paths and `file:///` URIs using `07-relative-path-fixer.py`.
 - [ ] **/goal** Safely remove accidental binary blobs, pycache, or test artifacts using `19-artifact-remover.py`.
 - [ ] **/goal** Consolidate, archive, and re-sequence Lovable plan files and subtasks using `20-plan-consolidator.py`.
+- [ ] **/goal** Audit repository error management and AppError compliance using `python linter-scripts/check-error-management.py`.
+- [ ] **/goal** Audit repository for nested if statements (nesting depth > 1) using `python linter-scripts/check-nested-ifs.py`.
 - [ ] **/goal** Validate all 18 quality gates in parallel before submitting using `06-cicd-local-runner.py`.
 
 ---
@@ -59,6 +61,7 @@ Follow this sequence before and during any repository modification task:
 | **31** | `31-db-migration-runner.py` | Standalone external SQLite and schema migration runner with introspection | ~15ms | `db`, `migrations`, `sqlite`, `runner`, `schema` |
 | **32** | `32-deep-consolidator.py` | Deep plans and subtasks consolidator preserving 100% technical detail, subtask ledgers, and verified outcomes | ~15ms | `plans`, `consolidator`, `milestone`, `subtasks`, `safety-backup` |
 | **33** | `33-git-history-tracer-and-purger.py` | Traces deleted files in Git, pre-flight inspection with selective exclusion, workspace restoration, and deep history purging | ~20ms | `git`, `history`, `tracer`, `restore`, `purge`, `filter-repo`, `deleted-files` |
+| **33** | `33-test-inventory-generator.py` | Generates `.lovable/test-inventory.json` and manages atomic file change tracking under lock | ~15ms | `test-inventory`, `tracking`, `locking`, `changes` |
 
 ---
 
@@ -108,12 +111,17 @@ DEFAULT_MAX_WORKERS = 4
 3. **Implicit Booleans:** Always evaluate positive booleans implicitly (`if is_valid:`, never `if is_valid == True:`).
 4. **Prefix Boolean Variables & Functions:** Use `is_` or `has_` prefix for all boolean variables and return functions (`is_ready`, `has_match`, `is_success`, `has_failures`).
 5. **Enums Format:** Python enums MUST use `PascalCase` class name ending in `Type`, `UPPER_CASE` members, and string values mirroring the member names.
-6. **Quality Gates:** Before completing any work session, execute `python 03-ai-scripts/06-cicd-local-runner.py` and verify all 18 checks pass.
+6. **Quality Gates:** Before completing any work session, execute `python 03-ai-scripts/06-cicd-local-runner.py --no-tests` and verify all quality gates pass (test execution is disabled unless explicitly commanded by repository owner).
+7. **Atomic Change Tracking:** Append all modified files under lock via `python 03-ai-scripts/33-test-inventory-generator.py --record <files...>`.
 
 - [29-release-orchestrator.py](29-release-orchestrator.py): Orchestrates git release, bump version, branches, tags, and commits.
 - [32-deep-consolidator.py](32-deep-consolidator.py): Deep plans and subtasks consolidator preserving 100% technical detail, subtask ledgers, and verified outcomes.
 - [33-git-history-tracer-and-purger.py](33-git-history-tracer-and-purger.py): Traces deleted and active files in Git, selective pre-flight exclusion, workspace restoration, Recycle Bin file deletion (`--delete`), and deep history purging (`--purge`). Features automatic OS temp directory backups (`%TEMP%` / `/tmp`) with instant rollback instructions. Built-in presets: `--spec-25-audit` (`spec/21-app/25-app-spec-audit`), `--spec-audit` (`spec/19-main-worker-service/audit`), `--audit` (repo-wide `*audit*`), `--lovable`, `--lovable-subtasks`, `--lovable-md`, `--spec`, `--spec-md`, and positional root/folder scans.
+- [33-test-inventory-generator.py](33-test-inventory-generator.py): Centralized test inventory manifest generator (`.lovable/test-inventory.json`) and atomic file change tracker with cross-platform mutex (`.lovable/temp/recent-file-changes.lock`).
 
+---
 
+## 🔍 Linters & AST Checks
 
-
+- [linter-scripts/check-error-management.py](../linter-scripts/check-error-management.py): Linter enforcing zero bare panics, zero bare exits, zero exitWith aliases, zero naked apperror statements, zero disguised HandleError(nil), and zero swallowed database errors.
+- [linter-scripts/check-nested-ifs.py](../linter-scripts/check-nested-ifs.py): AST linter enforcing zero nested if statements (nesting depth > 1), inverted early guard returns, and elimination of single-line collapsed if blocks across Go, TS/JS, Python, and PHP codebases.

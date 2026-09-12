@@ -9,6 +9,7 @@ import (
 
 	"github.com/alimtvnetwork/gitmap-v28/gitmap/apperror"
 	"github.com/alimtvnetwork/gitmap-v28/gitmap/dbengine"
+	"github.com/alimtvnetwork/gitmap-v28/gitmap/store"
 )
 
 // InitRepoSchema initializes the repository-specific SQLite DB tables.
@@ -53,18 +54,30 @@ func closeAndWrapInitError(db *sql.DB, initErr error) *apperror.AppError {
 			nil,
 		)
 	}
+
 	return apperror.WrapSimple(initErr, "init repo db schema")
 }
 
 // OpenRepoDB opens or creates the split DB for a specific repository.
-func OpenRepoDB(ctx context.Context, rootDbDir, absolutePath string, repoId int64) (*sql.DB, error) {
+func OpenRepoDB(
+	ctx context.Context,
+	rootDbDir string,
+	absolutePath string,
+	repoId int64,
+) (*sql.DB, error) {
 	dbPath := ResolveRepoDBPath(rootDbDir, absolutePath, repoId)
 	db, err := sql.Open("sqlite", dbPath)
 	if err != nil {
 		return nil, apperror.WrapSimple(err, "open repo db")
 	}
 
-	db.SetMaxOpenConns(1)
+	return configureAndInitRepoDB(ctx, db)
+}
+
+func configureAndInitRepoDB(ctx context.Context, db *sql.DB) (*sql.DB, error) {
+	if err := store.ConfigureSQLiteConn(db); err != nil {
+		return nil, closeAndWrapInitError(db, err)
+	}
 
 	if err := InitRepoSchema(ctx, db); err != nil {
 		return nil, closeAndWrapInitError(db, err)
@@ -78,15 +91,22 @@ func OpenRepoDB(ctx context.Context, rootDbDir, absolutePath string, repoId int6
 }
 
 // OpenRepoDbWrapper opens or creates the split DB returning a typed DbWrapper.
-func OpenRepoDbWrapper(ctx context.Context, rootDbDir, absolutePath string, repoId int64) (*dbengine.DbWrapper, error) {
+func OpenRepoDbWrapper(
+	ctx context.Context,
+	rootDbDir string,
+	absolutePath string,
+	repoId int64,
+) (*dbengine.DbWrapper, error) {
 	db, err := OpenRepoDB(ctx, rootDbDir, absolutePath, repoId)
 	if err != nil {
 		return nil, err
 	}
+
 	wrap, wrapErr := dbengine.WrapDb(db, dbengine.DbSQLite)
 	if wrapErr != nil {
 		return nil, wrapErr
 	}
+
 	return wrap, nil
 }
 

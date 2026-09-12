@@ -1444,7 +1444,7 @@ def append_failure_to_disk(res: JobResult, state: dict[str, Any], session_dir: P
     err_text = extract_stack_or_error(res)
     suspect_files = extract_failing_files(err_text)
     write_failure_markdown(format_error_log_entry(res, suspect_files, ts, err_text), session_dir)
-    
+
     # Save individual failure trace to separate file
     log_path_str = ""
     if session_dir is not None:
@@ -1455,7 +1455,7 @@ def append_failure_to_disk(res: JobResult, state: dict[str, Any], session_dir: P
         failure_content = f"Test Name: {res.name}\nCommand: {res.cmd}\nCode: {res.code}\n\nStack Trace / Output:\n{err_text}"
         failure_file.write_text(failure_content, encoding=DEFAULT_ENCODING)
         log_path_str = normalize_repo_rel(failure_file)
-    
+
     errors_list = state.setdefault("errors_list", [])
     errors_list.append({"name": res.name, "cmd": res.cmd, "code": res.code, "elapsed": res.elapsed, "suspect_files": suspect_files, "error": strip_ansi(err_text), "log_path": log_path_str})
     atomic_write_json(CICD_ERRORS_JSON, errors_list)
@@ -1673,6 +1673,12 @@ def filter_job_batches(batches: list[dict[str, Any]], query: str | None) -> list
     return filtered
 
 
+def is_test_batch(batch_name: str) -> bool:
+    """Detects whether an entire batch represents a test execution stage."""
+    b_lower = batch_name.lower()
+    return any(k in b_lower for k in ("smoke", "unit test", "coverage", "race"))
+
+
 def create_base_arg_parser() -> argparse.ArgumentParser:
     """Initializes ArgumentParser with basic description and epilog."""
     parser = argparse.ArgumentParser(
@@ -1691,6 +1697,18 @@ def add_execution_mode_arguments(parser: argparse.ArgumentParser) -> None:
     parser.add_argument("--io-workers", type=int, default=DEFAULT_IO_WORKERS, help="IO worker limit.")
     parser.add_argument("-t", "--timeout", type=int, default=DEFAULT_TIMEOUT_SEC, help="Job timeout.")
     parser.add_argument("--filter", type=str, default=None, help="Filter jobs by substring.")
+    parser.add_argument(
+        "--no-tests", "--skip-tests",
+        dest="no_tests",
+        action="store_true",
+        help="Skip all test execution suites (standard development mode; tests disabled by default unless commanded by owner)."
+    )
+    parser.add_argument(
+        "--run-tests", "--with-tests",
+        dest="run_tests",
+        action="store_true",
+        help="Explicitly execute all unit test suites, integration tests, and coverage checks."
+    )
     parser.add_argument(
         "--pkg", "--package", "-p", "--target-file", "--file",
         dest="package_filter", nargs="*", default=[],
@@ -2466,6 +2484,9 @@ def main() -> None:
         batches = filter_job_batches(JOB_BATCHES, "Go Smart Incremental Tests")
     else:
         batches = filter_job_batches(JOB_BATCHES, args.filter)
+
+    if getattr(args, "no_tests", False):
+        batches = [b for b in batches if not is_test_batch(b.get("name", ""))]
     timings = load_cicd_timings(TIMING_FILE_PATH)
     total_est = calculate_total_eta(batches, timings)
     code = run_pipeline_with_eta(args, batches, repo_root, timings, total_est)

@@ -101,7 +101,8 @@ func Report(ctx Context, mode OutputMode) {
 // pairing — same rationale as the existing Fail helper.
 func FailWith(ctx Context, mode OutputMode, code int) {
 	Report(ctx, mode)
-	os.Exit(code)
+	runFlushers()
+	exitFunc(code)
 }
 
 // writeStructured is the rendering core, extracted so tests can drive
@@ -157,11 +158,7 @@ func sortedExtraLines(extras map[string]string) []string {
 	if len(extras) == 0 {
 		return nil
 	}
-	keys := make([]string, 0, len(extras))
-	for k := range extras {
-		keys = append(keys, k)
-	}
-	sort.Strings(keys)
+	keys := sortedKeys(extras)
 	out := make([]string, 0, len(keys))
 	for _, k := range keys {
 		out = append(out, k+"="+extras[k])
@@ -170,9 +167,30 @@ func sortedExtraLines(extras map[string]string) []string {
 	return out
 }
 
+func sortedKeys(extras map[string]string) []string {
+	keys := make([]string, 0, len(extras))
+	for k := range extras {
+		keys = append(keys, k)
+	}
+	sort.Strings(keys)
+
+	return keys
+}
+
 // writeJSON emits a single-line JSON object. Trailing newline so
 // streaming consumers can split on \n without a sentinel.
 func writeJSON(w io.Writer, ctx Context) {
+	payload := buildJSONPayload(ctx)
+	encoded, err := json.Marshal(payload)
+	if err != nil {
+		writeHuman(w, ctx)
+
+		return
+	}
+	fmt.Fprintln(w, string(encoded))
+}
+
+func buildJSONPayload(ctx Context) map[string]any {
 	payload := map[string]any{
 		"command": ctx.Command,
 		"op":      ctx.Op,
@@ -186,15 +204,8 @@ func writeJSON(w io.Writer, ctx Context) {
 	if len(ctx.Extras) > 0 {
 		payload["extras"] = ctx.Extras
 	}
-	encoded, err := json.Marshal(payload)
-	if err != nil {
-		// Fall back to the human line — losing JSON shape is
-		// strictly better than swallowing the error entirely.
-		writeHuman(w, ctx)
 
-		return
-	}
-	fmt.Fprintln(w, string(encoded))
+	return payload
 }
 
 // addNonEmptyString keeps writeJSON readable by hiding the

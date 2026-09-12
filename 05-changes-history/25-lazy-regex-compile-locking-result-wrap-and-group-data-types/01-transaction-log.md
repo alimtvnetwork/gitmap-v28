@@ -1,10 +1,10 @@
 # Transaction Log 25: Lazy Regex Compile Locking, CompileResult Wrap, and GroupMap / GroupList Data Types
 
-> **Directory:** `05-changes-history/25-lazy-regex-compile-locking-result-wrap-and-group-data-types/`  
-> **Date:** 2026-09-06  
-> **Author/Agent:** Antigravity AI  
-> **Module Affected:** `04-code/golang/pkg/regexnew`, `gitmap/lazyregex`  
-> **Status:** Completed & Verified  
+> **Directory:** `05-changes-history/25-lazy-regex-compile-locking-result-wrap-and-group-data-types/`
+> **Date:** 2026-09-06
+> **Author/Agent:** Antigravity AI
+> **Module Affected:** `04-code/golang/pkg/regexnew`, `gitmap/lazyregex`
+> **Status:** Completed & Verified
 
 ---
 

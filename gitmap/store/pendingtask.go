@@ -91,31 +91,45 @@ func (db *DB) CompleteTask(taskID int64) error {
 	if err != nil {
 		return fmt.Errorf(constants.ErrPendingTaskComplete, err)
 	}
+	defer tx.Rollback()
 
-	task, err := findPendingTaskInTx(tx, taskID)
-	if err != nil {
-		_ = tx.Rollback()
+	if err := executeCompleteTaskTx(tx, taskID); err != nil {
+		return err
+	}
 
+	if err := tx.Commit(); err != nil {
 		return fmt.Errorf(constants.ErrPendingTaskComplete, err)
 	}
 
-	_, err = tx.Exec(constants.SQLInsertCompletedTask,
+	return nil
+}
+
+func executeCompleteTaskTx(tx *sql.Tx, taskID int64) error {
+	task, err := findPendingTaskInTx(tx, taskID)
+	if err != nil {
+		return fmt.Errorf(constants.ErrPendingTaskComplete, err)
+	}
+
+	if err := insertCompletedTaskInTx(tx, task); err != nil {
+		return err
+	}
+
+	return deletePendingTaskInTx(tx, taskID)
+}
+
+func insertCompletedTaskInTx(tx *sql.Tx, task model.PendingTaskRecord) error {
+	_, err := tx.Exec(constants.SQLInsertCompletedTask,
 		task.ID, task.TaskTypeId, task.TargetPath, task.WorkingDirectory,
 		task.SourceCommand, task.CommandArgs, task.CreatedAt)
 	if err != nil {
-		_ = tx.Rollback()
-
 		return fmt.Errorf(constants.ErrPendingTaskComplete, err)
 	}
 
-	_, err = tx.Exec(constants.SQLDeletePendingTask, taskID)
-	if err != nil {
-		_ = tx.Rollback()
+	return nil
+}
 
-		return fmt.Errorf(constants.ErrPendingTaskComplete, err)
-	}
-
-	err = tx.Commit()
+func deletePendingTaskInTx(tx *sql.Tx, taskID int64) error {
+	_, err := tx.Exec(constants.SQLDeletePendingTask, taskID)
 	if err != nil {
 		return fmt.Errorf(constants.ErrPendingTaskComplete, err)
 	}

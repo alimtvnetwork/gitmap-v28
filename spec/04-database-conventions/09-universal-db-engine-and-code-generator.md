@@ -1,8 +1,8 @@
 # Universal Database Engine, Dialect Compiler & Field Enum Generator
 
-**Version:** 1.0.0  
-**Updated:** 2026-09-05  
-**Category:** Database Architecture / Multi-Dialect Query Engine / Code Generation  
+**Version:** 1.0.0
+**Updated:** 2026-09-05
+**Category:** Database Architecture / Multi-Dialect Query Engine / Code Generation
 
 ---
 

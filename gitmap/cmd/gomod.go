@@ -32,7 +32,9 @@ func runGoMod(args []string) error {
 	}
 
 	oldPath := readModulePath()
-	validateGoModPreconditions(oldPath, opts.newPath)
+	if err := validateGoModPreconditions(oldPath, opts.newPath); err != nil {
+		return err
+	}
 
 	if opts.dryRun {
 		runGoModDryRun(oldPath, opts.newPath, opts.exts)
@@ -87,7 +89,7 @@ func parseGoModFlags(args []string) goModOpts {
 }
 
 // validateGoModPreconditions checks all prerequisites before starting.
-func validateGoModPreconditions(oldPath, newPath string) {
+func validateGoModPreconditions(oldPath, newPath string) *apperror.AppError {
 	if oldPath == newPath {
 		fmt.Printf(constants.MsgGoModNothingRename, oldPath)
 		cliexit.HandleError(nil, 0)
@@ -97,9 +99,11 @@ func validateGoModPreconditions(oldPath, newPath string) {
 
 	if isWorkTreeDirty() {
 		fmt.Fprint(os.Stderr, constants.ErrGoModDirtyTree)
-		apperror.NewSimple("fatal error", "E9000")
-		return
+
+		return apperror.NewSimple("worktree dirty", "E9000")
 	}
+
+	return nil
 }
 
 // runGoModDryRun previews changes without modifying files.

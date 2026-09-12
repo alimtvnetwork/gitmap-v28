@@ -343,6 +343,39 @@ Allowed work:
 - ✅ User deployment targets must strictly be `%LOCALAPPDATA%\gitmap-cli\gitmap.exe` or `/usr/local/bin/gitmap`.
 - ✅ Ensure `make clean` purges `bin/gitmap` and `bin/gitmap.exe`.
 
+---
 
+## Running Tests Without Owner Explicit Command — TOTAL BAN
 
+🔴 **NEVER run unit tests, test suites, or CI test jobs (`go test`, `pytest`, `npm test`, or test jobs in CI runners) during standard development tasks or prompt execution unless explicitly commanded by the repository owner.**
+
+Forbidden:
+- ❌ Executing `go test`, `pytest`, `npm test`, or `cargo test` during standard development tasks, prompt executions, coding guideline fixes, or refactoring loops.
+- ❌ Running `python 03-ai-scripts/06-cicd-local-runner.py` without `--no-tests` during standard development; always pass `--no-tests`.
+- ❌ Adding automatic test execution steps to non-release workflows or prompts.
+
+Allowed work:
+- ✅ Run tests ONLY when the repository owner explicitly requests it in their prompt (e.g., "run tests", "execute unit tests", "fix failing tests").
+- ✅ Mandatory test runs during release workflows (e.g. `03-ai-scripts/29-release-orchestrator.py` or explicit release prompts) where 100% test passing is a required pre-release quality gate.
+- ✅ Always use `--no-tests` (or `--skip-tests`) when running CI/CD quality gate checks (`06-cicd-local-runner.py`) unless running a release or explicitly instructed by the owner.
+
+**Why:** Unit test suites can be slow, resource-heavy, and disruptive during rapid iterative development loops. Running tests without explicit owner authorization wastes resources. Quality gates in standard turns focus on static analysis, linting, and structural integrity.
+
+---
+
+## Test Inventory & Atomic Recent File Changes Locking Mandate
+
+🔴 **NEVER record or modify recent file change logs without cross-platform atomic file locking, and NEVER bypass `.lovable/test-inventory.json`.**
+
+Forbidden:
+- ❌ Writing directly to `.lovable/temp/recent-file-changes.json` without acquiring `.lovable/temp/recent-file-changes.lock`.
+- ❌ Failing to release the lock or failing to handle stale locks properly.
+- ❌ Guessing or manually hard-coding test file relationships without checking `.lovable/test-inventory.json`.
+
+Allowed work:
+- ✅ Use `python 03-ai-scripts/33-test-inventory-generator.py --record <relative-path>...` to atomically record modified files and resolve associated tests.
+- ✅ Maintain and synchronize `.lovable/test-inventory.json` when adding, moving, or deleting test files by running `python 03-ai-scripts/33-test-inventory-generator.py`.
+- ✅ Ensure all recorded paths are distinct, lowercase, and strictly relative to the repository root.
+
+**Why:** Concurrent multi-agent orchestration and asynchronous script runs will corrupt `recent-file-changes.json` if writes are uncoordinated. Centralized test inventory mapping guarantees reproducible test discovery when an authorized release or targeted test fix is executed.
 

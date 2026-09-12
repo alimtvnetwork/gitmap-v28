@@ -342,9 +342,9 @@ sed -i "s|VERSION_PLACEHOLDER|${VERSION}|g; s|REPO_PLACEHOLDER|${GITHUB_REPOSITO
 
 ### Issue #13 — Nested `if` in Reconcile Prompt Breaks CI Linters
 
-**Date observed:** 2026-09-04  
-**Workflow:** `ci.yml` / `Nested If Linter` & `Boolean & Enum Linter` (CI run `#33837801657`)  
-**Commit:** `44009a3`  
+**Date observed:** 2026-09-04
+**Workflow:** `ci.yml` / `Nested If Linter` & `Boolean & Enum Linter` (CI run `#33837801657`)
+**Commit:** `44009a3`
 
 **Symptom:**
 ```text

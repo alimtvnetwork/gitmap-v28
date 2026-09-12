@@ -45,19 +45,37 @@ func (db *DB) SavePowerProfile(profile string, s power.Settings, isActive bool) 
 	if err := EnsurePowerTables(db.conn); err != nil {
 		return err
 	}
-
-	if isActive {
-		_, _ = db.conn.Exec("UPDATE PowerSetting SET IsActive = 0;")
+	if err := db.maybeDeactivateProfiles(isActive); err != nil {
+		return err
 	}
 
+	return db.insertPowerProfile(profile, s, isActive)
+}
+
+func (db *DB) maybeDeactivateProfiles(isActive bool) error {
+	if !isActive {
+		return nil
+	}
+
+	return db.deactivateAllProfiles()
+}
+
+func (db *DB) deactivateAllProfiles() error {
+	_, err := db.conn.Exec("UPDATE PowerSetting SET IsActive = 0;")
+	if err != nil {
+		return apperror.WrapSimple(err, "store.savePowerProfile.DeactivatePrior")
+	}
+
+	return nil
+}
+
+func (db *DB) insertPowerProfile(profile string, s power.Settings, isActive bool) error {
 	activeInt := 0
 	if isActive {
 		activeInt = 1
 	}
-
 	now := time.Now().UTC().Format(time.RFC3339)
 	neverInt, lockInt := boolToInt(s.IsNeverSleep), boolToInt(s.IsLockDisabled)
-
 	_, err := db.conn.Exec(sqlInsertPowerProfile, profile, s.Platform,
 		s.DisplayTimeoutMinutes, s.SleepTimeoutMinutes, s.DiskTimeoutMinutes,
 		neverInt, lockInt, activeInt, now, profile, now)

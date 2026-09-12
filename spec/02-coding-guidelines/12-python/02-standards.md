@@ -30,4 +30,3 @@
   - Affirmative boolean naming (`is_windows`, `is_valid_executable`).
   - Centralized constants for OS names, fallback commands, and candidate paths (no magic strings).
   - Function length <= 15 lines.
-

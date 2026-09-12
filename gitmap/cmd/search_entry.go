@@ -39,9 +39,9 @@ func runSearch(args []string) error {
 	defer mainDB.Close()
 	defer db.Close()
 
-	res, err := searcher.SearchRepoDB(ctx, db, query, limit, false)
-	if err != nil {
-		pterm.Error.Println(err)
+	res, searchErr := searcher.SearchRepoDB(ctx, db, query, limit, false)
+	if searchErr != nil {
+		pterm.Error.Println(searchErr)
 		return nil
 	}
 
@@ -100,9 +100,9 @@ func runRepoSearch(args []string) error {
 	defer mainDB.Close()
 	defer db.Close()
 
-	res, err := searcher.SearchRepoDB(ctx, db, query, limit, true)
-	if err != nil {
-		pterm.Error.Println(err)
+	res, searchErr := searcher.SearchRepoDB(ctx, db, query, limit, true)
+	if searchErr != nil {
+		pterm.Error.Println(searchErr)
 		return nil
 	}
 
@@ -139,9 +139,9 @@ func runRepoRegex(args []string) error {
 	defer mainDB.Close()
 	defer db.Close()
 
-	res, err := searcher.SearchRepoDBRegex(ctx, db, query, limit, true)
-	if err != nil {
-		pterm.Error.Println(err)
+	res, searchErr := searcher.SearchRepoDBRegex(ctx, db, query, limit, true)
+	if searchErr != nil {
+		pterm.Error.Println(searchErr)
 		return nil
 	}
 
@@ -171,8 +171,8 @@ func runRepoSearchJson(args []string) error {
 	defer mainDB.Close()
 	defer db.Close()
 
-	res, err := searcher.SearchRepoDB(ctx, db, query, limit, true)
-	if err != nil {
+	res, searchErr := searcher.SearchRepoDB(ctx, db, query, limit, true)
+	if searchErr != nil {
 		fmt.Println("[]")
 		return nil
 	}
@@ -200,8 +200,8 @@ func runRepoSearchRegexJson(args []string) error {
 	defer mainDB.Close()
 	defer db.Close()
 
-	res, err := searcher.SearchRepoDBRegex(ctx, db, query, limit, true)
-	if err != nil {
+	res, searchErr := searcher.SearchRepoDBRegex(ctx, db, query, limit, true)
+	if searchErr != nil {
 		fmt.Println("[]")
 		return nil
 	}

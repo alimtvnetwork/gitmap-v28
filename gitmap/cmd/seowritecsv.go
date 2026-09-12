@@ -42,7 +42,7 @@ func readCSVFile(path string) [][]string {
 	if err != nil {
 		fmt.Fprintf(os.Stderr, constants.ErrSEOCSVRead, path, err)
 		_ = f.Close()
-		exitWith(1)
+		cliexit.HandleError(apperror.WrapSimple(err, "read csv"), 1)
 	}
 
 	return records

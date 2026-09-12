@@ -1,10 +1,10 @@
 # Transaction Log 16: Boolean Prefixes, Id Standard, and Writer Self-Context Passing
 
-> **Directory:** `05-changes-history/16-boolean-prefixes-id-standard-and-writer-context/`  
-> **Date:** 2026-09-05  
-> **Author/Agent:** Antigravity AI  
-> **Module Affected:** `04-code/golang/pkg/streamwriter`, `04-code/golang/examples`, `05-changes-history/`  
-> **Status:** Completed & Verified  
+> **Directory:** `05-changes-history/16-boolean-prefixes-id-standard-and-writer-context/`
+> **Date:** 2026-09-05
+> **Author/Agent:** Antigravity AI
+> **Module Affected:** `04-code/golang/pkg/streamwriter`, `04-code/golang/examples`, `05-changes-history/`
+> **Status:** Completed & Verified
 
 ---
 

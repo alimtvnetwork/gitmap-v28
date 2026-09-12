@@ -1,9 +1,9 @@
 # Transaction Log: Streamer and Writer Full Flow Implementation
 
-> **Directory:** `05-changes-history/05-streamer-and-writer-full-flow/`  
-> **Date:** 2026-09-04  
-> **Topic:** End-to-End Implementation of Streamer and Writer with Locked/Lockless Engines and Self-Binding  
-> **Status:** Completed  
+> **Directory:** `05-changes-history/05-streamer-and-writer-full-flow/`
+> **Date:** 2026-09-04
+> **Topic:** End-to-End Implementation of Streamer and Writer with Locked/Lockless Engines and Self-Binding
+> **Status:** Completed
 
 ---
 

@@ -68,17 +68,20 @@ func buildRepoDBRows(splitDBs []DBFileInfo, repoMap map[int64]string) []repoDBRo
 			Status:    status,
 		})
 	}
+
 	return rows
 }
 
 func querySplitDBCounts(path string) (int, int) {
-	conn, err := sql.Open("sqlite", path)
+	conn, err := store.OpenSQLiteDB(path)
 	if err != nil {
 		return 0, 0
 	}
 	defer conn.Close()
+
 	fc := querySingleCount(conn, "SELECT COUNT(*) FROM RepoFile")
 	cc := querySingleCount(conn, "SELECT COUNT(*) FROM SearchCache")
+
 	return fc, cc
 }
 
@@ -88,6 +91,7 @@ func querySingleCount(conn *sql.DB, query string) int {
 	if err := row.Scan(&count); err != nil {
 		return 0
 	}
+
 	return count
 }
 

@@ -124,4 +124,3 @@ commit-in / cin (SPEC ONLY, spec 03-commit-in/, plan 2026-05-06): replays commit
 - [2026-08-29-docs-site-usetheme-syntax-error.md](.lovable/memory/issues/2026-08-29-docs-site-usetheme-syntax-error.md) - RCA on check!res typo in useTheme.ts breaking docs-site build
 - [2026-08-29-root-cli-panic-on-zero-args.md](.lovable/memory/issues/2026-08-29-root-cli-panic-on-zero-args.md) - RCA on panic("fatal error") in cmd/root.go and across command files
 - [04-full-codebase-architecture-and-skill-expansion.md](.lovable/memory/learned/04-full-codebase-architecture-and-skill-expansion.md) - Full codebase architecture load, memory synthesis, and frontend/cluster skill expansion
-

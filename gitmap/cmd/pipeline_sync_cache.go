@@ -2,6 +2,7 @@ package cmd
 
 import (
 	"fmt"
+	"os"
 	"path/filepath"
 	"strings"
 
@@ -79,23 +80,34 @@ func buildRunRecord(repo string, run ghRunItem) pipelinedb.PipelineRunRecord {
 	}
 }
 
-func recordRunInSplitDb(db *pipelinedb.PipelineSplitDb, repo string, run ghRunItem) {
+func recordRunInSplitDb(db *pipelinedb.PipelineSplitDb, repo string, run ghRunItem) error {
 	record := buildRunRecord(repo, run)
-	_ = db.RecordRun(record)
+	if err := db.RecordRun(record); err != nil {
+		fmt.Fprintf(os.Stderr, "  ⚠ Could not record pipeline run %d: %v\n", run.DatabaseId, err)
+		return err
+	}
+
+	return nil
 }
 
 func saveParsedFailedJobs(db *pipelinedb.PipelineSplitDb, repo string, run ghRunItem, jobs []FailedJobItem, rawLogs string) {
 	for _, job := range jobs {
-		rec := pipelinedb.PipelineErrorRecord{
-			RunId:        run.DatabaseId,
-			RepoSlug:     repo,
-			WorkflowName: run.Name,
-			StepName:     job.StepName,
-			ErrorText:    job.FailureSummary,
-			RawLogs:      rawLogs,
-			CreatedAt:    run.UpdatedAt,
+		rec := buildParsedFailedJobRecord(repo, run, job, rawLogs)
+		if err := db.RecordErrorLog(rec); err != nil {
+			fmt.Fprintf(os.Stderr, "  ⚠ Could not record pipeline error log for run %d: %v\n", run.DatabaseId, err)
 		}
-		_ = db.RecordErrorLog(rec)
+	}
+}
+
+func buildParsedFailedJobRecord(repo string, run ghRunItem, job FailedJobItem, rawLogs string) pipelinedb.PipelineErrorRecord {
+	return pipelinedb.PipelineErrorRecord{
+		RunId:        run.DatabaseId,
+		RepoSlug:     repo,
+		WorkflowName: run.Name,
+		StepName:     job.StepName,
+		ErrorText:    job.FailureSummary,
+		RawLogs:      rawLogs,
+		CreatedAt:    run.UpdatedAt,
 	}
 }
 
@@ -109,7 +121,9 @@ func saveFallbackErrorLog(db *pipelinedb.PipelineSplitDb, repo string, run ghRun
 		RawLogs:      rawLogs,
 		CreatedAt:    run.UpdatedAt,
 	}
-	_ = db.RecordErrorLog(rec)
+	if err := db.RecordErrorLog(rec); err != nil {
+		fmt.Fprintf(os.Stderr, "  ⚠ Could not record fallback error log for run %d: %v\n", run.DatabaseId, err)
+	}
 }
 
 func saveJobsOrFallback(db *pipelinedb.PipelineSplitDb, repo string, run ghRunItem, jobs []FailedJobItem, rawLogs string) {
@@ -132,13 +146,7 @@ func fetchAndStoreRunErrorLog(db *pipelinedb.PipelineSplitDb, repo string, run g
 	res.CachedErrors = append(res.CachedErrors, run.DatabaseId)
 }
 
-func processSyncRun(db *pipelinedb.PipelineSplitDb, repo string, run ghRunItem, cachedMap map[uint64]bool, res *PipelineSyncResult) {
-	recordRunInSplitDb(db, repo, run)
-	res.NewRuns++
-	isFailure := run.Conclusion == "failure"
-	if !isFailure {
-		return
-	}
+func handleSyncFailureLog(db *pipelinedb.PipelineSplitDb, repo string, run ghRunItem, cachedMap map[uint64]bool, res *PipelineSyncResult) {
 	res.FailedRuns = append(res.FailedRuns, run.DatabaseId)
 	hasCached := cachedMap[run.DatabaseId] || db.HasErrorLog(run.DatabaseId)
 	if hasCached {
@@ -148,8 +156,22 @@ func processSyncRun(db *pipelinedb.PipelineSplitDb, repo string, run ghRunItem, 
 	fetchAndStoreRunErrorLog(db, repo, run, res)
 }
 
+func processSyncRun(db *pipelinedb.PipelineSplitDb, repo string, run ghRunItem, cachedMap map[uint64]bool, res *PipelineSyncResult) {
+	if err := recordRunInSplitDb(db, repo, run); err != nil {
+		return
+	}
+	res.NewRuns++
+	isFailure := run.Conclusion == "failure"
+	if isFailure {
+		handleSyncFailureLog(db, repo, run, cachedMap, res)
+	}
+}
+
 func syncAllRunsIntoDb(db *pipelinedb.PipelineSplitDb, repo string, runs []ghRunItem, res *PipelineSyncResult) {
-	cachedMap, _ := db.QueryCachedErrorRunIdMap()
+	cachedMap, err := db.QueryCachedErrorRunIdMap()
+	if err != nil {
+		fmt.Fprintf(os.Stderr, "  ⚠ Could not query cached error run ID map for %s: %v\n", repo, err)
+	}
 	for _, run := range runs {
 		processSyncRun(db, repo, run, cachedMap, res)
 	}

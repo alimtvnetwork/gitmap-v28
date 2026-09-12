@@ -1,7 +1,7 @@
 # Interactive Macro Builder PWD Header, In-Builder LS & Helper Commands
 
-**Updated:** 2026-09-09  
-**Specification:** `spec/21-macro-builder-enhancements/`  
+**Updated:** 2026-09-09
+**Specification:** `spec/21-macro-builder-enhancements/`
 **Reference Plan:** `.lovable/plans/pending/83-interactive-macro-builder-pwd-ls-search.md`
 
 ---
@@ -26,7 +26,7 @@ During interactive macro creation (`gitmap macro add <name>`), users enter a seq
 Above each `Step N> ` input line, render:
 ```text
   [PWD: /path/to/current/workdir]
-  Step 1> 
+  Step 1>
 ```
 - Toggleable via command line flag `--pwd` / `--no-pwd`.
 - Toggleable in-session via `pwd on` and `pwd off`.

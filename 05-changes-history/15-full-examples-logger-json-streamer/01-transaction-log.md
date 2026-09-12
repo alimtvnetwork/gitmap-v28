@@ -1,10 +1,10 @@
 # Transaction Log 15: Full Runnable Code Examples for Logger, Json, and Streamer
 
-> **Directory:** `05-changes-history/15-full-examples-logger-json-streamer/`  
-> **Date:** 2026-09-05  
-> **Author/Agent:** Antigravity AI  
-> **Module Affected:** `04-code/golang/examples/`, `04-code/golang/cmd/`, `05-changes-history/`  
-> **Status:** Completed & Verified  
+> **Directory:** `05-changes-history/15-full-examples-logger-json-streamer/`
+> **Date:** 2026-09-05
+> **Author/Agent:** Antigravity AI
+> **Module Affected:** `04-code/golang/examples/`, `04-code/golang/cmd/`, `05-changes-history/`
+> **Status:** Completed & Verified
 
 ---
 

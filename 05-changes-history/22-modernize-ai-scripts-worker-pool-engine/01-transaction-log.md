@@ -1,8 +1,8 @@
 # Modernize 03-ai-scripts with Centralized Worker Pool Engine & Reusable CLI
 
-> **Location:** `05-changes-history/22-modernize-ai-scripts-worker-pool-engine/01-transaction-log.md`  
-> **Status:** Completed  
-> **Date:** 2026-09-05  
+> **Location:** `05-changes-history/22-modernize-ai-scripts-worker-pool-engine/01-transaction-log.md`
+> **Status:** Completed
+> **Date:** 2026-09-05
 
 ---
 

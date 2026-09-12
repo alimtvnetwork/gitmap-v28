@@ -143,9 +143,9 @@ func runClusterExport(args []string) error {
 		cliexit.HandleError(nil, 1)
 	}
 	defer storeDB.Close()
-	nodes, err := db.ListClusterNodes(ctx, storeDB.Conn())
-	if err != nil {
-		fmt.Fprintf(os.Stderr, "failed to list nodes: %v\n", err)
+	nodes, listErr := db.ListClusterNodes(ctx, storeDB.Conn())
+	if listErr != nil {
+		fmt.Fprintf(os.Stderr, "failed to list nodes: %v\n", listErr)
 		cliexit.HandleError(nil, 1)
 	}
 	data := formatClusterExportNodes(nodes, format)
@@ -351,9 +351,9 @@ func runClusterNodes(args []string) error {
 		cliexit.HandleError(nil, 1)
 	}
 	defer storeDB.Close()
-	nodes, err := db.ListClusterNodes(ctx, storeDB.Conn())
-	if err != nil {
-		fmt.Fprintf(os.Stderr, "failed to list nodes: %v\n", err)
+	nodes, listErr := db.ListClusterNodes(ctx, storeDB.Conn())
+	if listErr != nil {
+		fmt.Fprintf(os.Stderr, "failed to list nodes: %v\n", listErr)
 		cliexit.HandleError(nil, 1)
 	}
 	displayClusterNodes(nodes, hasClusterJSONFlag(args))
@@ -468,9 +468,9 @@ func cleanClusterAuditRecords(beforeStr string) {
 		cliexit.HandleError(nil, 1)
 	}
 	defer storeDB.Close()
-	count, err := db.DeleteClusterRunsBefore(ctx, storeDB.Conn(), before)
-	if err != nil {
-		fmt.Fprintf(os.Stderr, "failed to clean audit records: %v\n", err)
+	count, delErr := db.DeleteClusterRunsBefore(ctx, storeDB.Conn(), before)
+	if delErr != nil {
+		fmt.Fprintf(os.Stderr, "failed to clean audit records: %v\n", delErr)
 		cliexit.HandleError(nil, 1)
 	}
 	fmt.Printf("Cleaned %d cluster run records older than %s.\n", count, beforeStr)
@@ -484,9 +484,9 @@ func runClusterStats(args []string) error {
 		cliexit.HandleError(nil, 1)
 	}
 	defer storeDB.Close()
-	stats, err := db.GetClusterStats(ctx, storeDB.Conn())
-	if err != nil {
-		fmt.Fprintf(os.Stderr, "failed to get cluster stats: %v\n", err)
+	stats, statsErr := db.GetClusterStats(ctx, storeDB.Conn())
+	if statsErr != nil {
+		fmt.Fprintf(os.Stderr, "failed to get cluster stats: %v\n", statsErr)
 		cliexit.HandleError(nil, 1)
 	}
 	printClusterStatsReport(stats)

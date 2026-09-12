@@ -1,10 +1,14 @@
 package store
 
 import (
+	"context"
+	"database/sql"
 	"fmt"
 	"strings"
 
+	"github.com/alimtvnetwork/gitmap-v28/gitmap/apperror"
 	"github.com/alimtvnetwork/gitmap-v28/gitmap/constants"
+	"github.com/alimtvnetwork/gitmap-v28/gitmap/dbengine"
 	"github.com/alimtvnetwork/gitmap-v28/gitmap/model"
 )
 
@@ -15,22 +19,64 @@ func (db *DB) UpsertRelease(r model.ReleaseRecord) error {
 		return fmt.Errorf(constants.ErrReleaseNoRepo, "<unset>")
 	}
 
+	return db.runUpsertReleaseTx(r)
+}
+
+func (db *DB) runUpsertReleaseTx(r model.ReleaseRecord) error {
+	wrap, appErr := dbengine.WrapDb(db.conn, dbengine.DbSQLite)
+	if appErr != nil {
+		return appErr
+	}
+
+	appErr = wrap.WithTransaction(context.Background(), func(tx *dbengine.TxWrapper) *apperror.AppError {
+		return executeUpsertReleaseTx(tx.Tx(), r)
+	})
+	if appErr != nil {
+		return fmt.Errorf(constants.ErrDBReleaseUpsert, appErr)
+	}
+
+	return nil
+}
+
+func executeUpsertReleaseTx(tx *sql.Tx, r model.ReleaseRecord) *apperror.AppError {
+	if err := upsertReleaseTx(tx, r); err != nil {
+		return apperror.WrapSimple(err, "executeUpsertReleaseTx")
+	}
+
+	return nil
+}
+
+func syncLatestReleaseFlag(runner sqlExecutor, r model.ReleaseRecord) error {
+	if !r.IsLatest {
+		return nil
+	}
+
+	return clearLatestRunner(runner, r.RepoID)
+}
+
+func upsertReleaseTx(runner sqlExecutor, r model.ReleaseRecord) error {
+	if err := syncLatestReleaseFlag(runner, r); err != nil {
+		return err
+	}
+
+	return insertOrUpdateRelease(runner, r)
+}
+
+func insertOrUpdateRelease(runner sqlExecutor, r model.ReleaseRecord) error {
 	isDraft := boolToInt(r.IsDraft)
 	isPreRelease := boolToInt(r.IsPreRelease)
 	isLatest := boolToInt(r.IsLatest)
 
-	err := error(nil)
-	if r.IsLatest {
-		err = db.clearLatest(r.RepoID)
-	}
-	if err != nil {
-		return err
-	}
-
-	_, err = ExecWrapper(db.conn, constants.SQLUpsertRelease,
+	_, err := ExecWrapper(runner, constants.SQLUpsertRelease,
 		r.RepoID, r.Version, r.Tag, r.Branch, r.SourceBranch,
 		r.CommitSha, r.Changelog, r.Notes, isDraft, isPreRelease, isLatest, r.Source, r.CreatedAt,
 	).Destruct()
+
+	return err
+}
+
+func clearLatestRunner(runner sqlExecutor, repoID int64) error {
+	_, err := ExecWrapper(runner, constants.SQLClearLatestRelease, repoID).Destruct()
 	if err != nil {
 		return fmt.Errorf(constants.ErrDBReleaseUpsert, err)
 	}
@@ -54,16 +100,6 @@ func (db *DB) FindReleaseByTag(tag string) (model.ReleaseRecord, error) {
 	row := QueryRowWrapper(db.conn, constants.SQLSelectReleaseByTag, tag)
 
 	return scanOneRelease(row)
-}
-
-// clearLatest resets the IsLatest flag on releases for a given repo (v17: per-repo scope).
-func (db *DB) clearLatest(repoID int64) error {
-	_, err := ExecWrapper(db.conn, constants.SQLClearLatestRelease, repoID).Destruct()
-	if err != nil {
-		return fmt.Errorf(constants.ErrDBReleaseUpsert, err)
-	}
-
-	return nil
 }
 
 // scanReleaseRows reads ReleaseRecord values from query result rows.
