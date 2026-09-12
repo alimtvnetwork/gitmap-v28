@@ -14,19 +14,25 @@ import (
 	"github.com/alimtvnetwork/gitmap-v28/cli/cmdcg"
 	"github.com/alimtvnetwork/gitmap-v28/cli/cmdchrome"
 	"github.com/alimtvnetwork/gitmap-v28/cli/cmdclone"
+	"github.com/alimtvnetwork/gitmap-v28/cli/cmdconfig"
 	"github.com/alimtvnetwork/gitmap-v28/cli/cmddb"
+	"github.com/alimtvnetwork/gitmap-v28/cli/cmddoctor"
 	"github.com/alimtvnetwork/gitmap-v28/cli/cmdfixgit"
 	"github.com/alimtvnetwork/gitmap-v28/cli/cmdfixrepo"
 	"github.com/alimtvnetwork/gitmap-v28/cli/cmdinstall"
 	"github.com/alimtvnetwork/gitmap-v28/cli/cmdinstaller"
 	"github.com/alimtvnetwork/gitmap-v28/cli/cmdmacro"
+	"github.com/alimtvnetwork/gitmap-v28/cli/cmdos"
 	"github.com/alimtvnetwork/gitmap-v28/cli/cmdpipeline"
 	"github.com/alimtvnetwork/gitmap-v28/cli/cmdpull"
+	"github.com/alimtvnetwork/gitmap-v28/cli/cmdscan"
+	"github.com/alimtvnetwork/gitmap-v28/cli/cmdschedule"
 	"github.com/alimtvnetwork/gitmap-v28/cli/cmdsetup"
 	"github.com/alimtvnetwork/gitmap-v28/cli/cmdssh"
 	"github.com/alimtvnetwork/gitmap-v28/cli/cmdupdate"
 	"github.com/alimtvnetwork/gitmap-v28/cli/cmdvhost"
 	"github.com/alimtvnetwork/gitmap-v28/cli/cmdvscode"
+	"github.com/alimtvnetwork/gitmap-v28/cli/cmdworkdir"
 	"github.com/alimtvnetwork/gitmap-v28/cli/cmdzip"
 	"github.com/alimtvnetwork/gitmap-v28/cli/constants"
 	"github.com/alimtvnetwork/gitmap-v28/cli/macro"
@@ -233,16 +239,6 @@ func resolveFixRepoIdentity() fixRepoIdentity {
 
 func copyFileForBackup(src, dst string) error {
 	return cmdfixrepo.CopyFileForBackup(src, dst)
-}
-
-const gofmtArgvOverhead = cmdfixrepo.GofmtArgvOverhead
-
-func chunkPathsForGofmt(paths []string, maxCmdLen int) [][]string {
-	return cmdfixrepo.ChunkPathsForGofmt(paths, maxCmdLen)
-}
-
-func batchCmdLen(batch []string) int {
-	return cmdfixrepo.BatchCmdLen(batch)
 }
 
 var rewriteFixRepoFile = cmdfixrepo.RewriteFixRepoFile
@@ -859,7 +855,7 @@ func init() {
 	cmdclone.CheckHelpFn = checkHelp
 	cmdclone.WriteShellHandoffFn = WriteShellHandoff
 	cmdclone.EscapeCwdIfInsideFn = escapeCwdIfInside
-	cmdclone.FinalizeErrorReportFn = finalizeErrorReport
+	cmdclone.FinalizeErrorReportFn = cmdscan.FinalizeErrorReport
 	cmdclone.RunCodingGuidelinesInstallFn = func(dir string) error {
 		return RunCodingGuidelinesInstall(CodingGuidelinesOpts{WorkingDir: dir})
 	}
@@ -871,4 +867,87 @@ func init() {
 	cmdclone.ResolveEndpointStringFn = resolveEndpointString
 	cmdclone.ResolveReleaseAliasPathFn = resolveReleaseAliasPath
 	cmdclone.RunStatusFn = runStatus
+
+	cmdscan.CreatePendingTaskFn = createPendingTask
+	cmdscan.CompletePendingTaskFn = completePendingTask
+	cmdscan.FailPendingTaskFn = failPendingTask
+	cmdscan.SyncRecordsToVSCodePMFn = syncRecordsToVSCodePM
+	cmdscan.RunPruneStaleDBFn = runPruneStaleDB
+	cmdscan.CheckHelpFn = checkHelp
+
+	cmdos.RunPowerNeverSleepFn = runPowerNeverSleep
+	cmdos.RunPowerSetFn = runPowerSet
+	cmdos.RunPowerResetFn = runPowerReset
+	cmdos.CheckHelpFn = checkHelp
+
+	cmdschedule.CheckHelpFn = checkHelp
+
+	cmdworkdir.CheckHelpFn = checkHelp
+}
+
+func runScan(args []string) error {
+	return cmdscan.RunScan(args)
+}
+
+func runRescan() error {
+	return cmdscan.RunRescan()
+}
+
+func runRescanSubtree(args []string) error {
+	return cmdscan.RunRescanSubtree(args)
+}
+
+func autoRegisterFirstWorkDir(absDir string, quiet bool) bool {
+	return cmdscan.AutoRegisterFirstWorkDir(absDir, quiet)
+}
+
+func expandHome(p string) string {
+	return cmdscan.ExpandHome(p)
+}
+
+func resolveOutFile(outFile, outputDir, defaultName string) string {
+	return cmdscan.ResolveOutFile(outFile, outputDir, defaultName)
+}
+
+type CleanOptions = cmddoctor.CleanOptions
+type CleanResult = cmddoctor.CleanResult
+
+func runDoctor(args []string) error {
+	return cmddoctor.RunDoctorCmd(args)
+}
+
+func runCleanCorrupted(args []string) error {
+	return cmddoctor.RunCleanCorrupted(args)
+}
+
+func CleanCorruptedDirs(opts cmddoctor.CleanOptions) (cmddoctor.CleanResult, error) {
+	return cmddoctor.CleanCorruptedDirs(opts)
+}
+
+func runOS(args []string) error {
+	return cmdos.RunOS(args)
+}
+
+func runOSFixLink(args []string) error {
+	return cmdos.RunOSFixLink(args)
+}
+
+func RunOSCLI(args []string) error {
+	return cmdos.RunOSCLI(args)
+}
+
+func runSchedule(args []string) error {
+	return cmdschedule.RunSchedule(args)
+}
+
+func runExportConfig(args []string) error {
+	return cmdconfig.RunExportConfig(args)
+}
+
+func runImportConfig(args []string) error {
+	return cmdconfig.RunImportConfig(args)
+}
+
+func runWorkDir(args []string) error {
+	return cmdworkdir.RunWorkDir(args)
 }

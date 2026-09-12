@@ -40,20 +40,19 @@ type ImportResult struct {
 
 // ValidateMacro validates macro name against path traversal and verifies step count and commands.
 func ValidateMacro(m *Macro) error {
-	cleanName := strings.TrimSpace(m.Name)
-	if cleanName == "" {
+	if strings.TrimSpace(m.Name) == "" {
 		return apperror.NewValidationError("macro name cannot be empty")
 	}
 
-	if hasInvalidNameChars(cleanName) {
-		return apperror.NewValidationError("invalid characters in macro name: " + cleanName)
+	if hasInvalidNameChars(m.Name) {
+		return apperror.NewValidationError("invalid characters in macro name: " + m.Name)
 	}
 
 	if len(m.Steps) == 0 {
-		return apperror.NewValidationError("macro contains no steps: " + cleanName)
+		return apperror.NewValidationError("macro contains no steps: " + m.Name)
 	}
 
-	return validateMacroSteps(m.Steps, cleanName)
+	return validateMacroSteps(m.Steps, m.Name)
 }
 
 func validateMacroSteps(steps []MacroStep, macroName string) error {
@@ -235,7 +234,7 @@ func ImportMacros(macros []Macro, opts ImportOptions) (*ImportResult, error) {
 		return nil, err
 	}
 
-	res := &ImportResult{TotalFound: len(filtered)}
+	res := &ImportResult{TotalFound: len(macros)}
 	for _, m := range filtered {
 		if err := processSingleMacroImport(&m, opts, res); err != nil {
 			return nil, err

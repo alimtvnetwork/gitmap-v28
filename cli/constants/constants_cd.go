@@ -272,6 +272,6 @@ function gitm { gitmap @args }
 
 // CD function messages.
 const (
-	MsgCDFuncInstalled = "Installed 'gitmap'/'gcd' shell wrappers — restart your terminal or source your profile\n"
-	MsgCDFuncAlready   = "Shell wrappers for 'gitmap'/'gcd' already installed\n"
+	MsgCDFuncInstalled = "  " + ColorGreen + "✓" + ColorReset + " Installed 'gitmap'/'gcd' shell wrappers — restart your terminal or source your profile\n"
+	MsgCDFuncAlready   = "  " + ColorGreen + "✓" + ColorReset + " Shell wrappers for 'gitmap'/'gcd' already installed\n"
 )

@@ -32,9 +32,9 @@ const HelpCompletionLong = "  completion (cmp)    Generate or install shell tab-
 
 // Completion messages.
 const (
-	MsgCompInstalled    = "Shell completion installed for %s\n"
-	MsgCompAlreadyDone  = "Shell completion already configured for %s\n"
-	MsgCompProfileWrite = "Added source line to %s\n"
+	MsgCompInstalled    = "  " + ColorGreen + "✓" + ColorReset + " Shell completion installed for %s\n"
+	MsgCompAlreadyDone  = "  " + ColorGreen + "✓" + ColorReset + " Shell completion already configured for %s\n"
+	MsgCompProfileWrite = "  " + ColorGreen + "✓" + ColorReset + " Added source line to %s\n"
 	ErrCompUsage        = "usage: gitmap completion <powershell|bash|zsh> [--list-repos|--list-groups|--list-commands|--list-aliases|--list-zip-groups|--list-help-groups]\n"
 	ErrCompUnknownShell = "unknown shell: %s (use powershell, bash, or zsh)\n"
 	ErrCompProfileWrite = "failed to update profile at %s: %v (operation: write)\n"

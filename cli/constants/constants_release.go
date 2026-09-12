@@ -8,6 +8,8 @@ const (
 	SetupSectionCred  = "Credential Helper"
 	SetupSectionCore  = "Core Settings"
 	SetupSectionComp  = "■ Shell Completion —"
+	SetupSectionCD    = "■ Shell Wrapper (cd) —"
+	SetupSectionPath  = "■ PATH Snippet —"
 	SetupGlobalFlag   = "--global"
 )
 

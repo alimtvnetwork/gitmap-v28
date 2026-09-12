@@ -49,12 +49,8 @@ func runSetup(args []string) error {
 // the user's profile so future shells pick up the gitmap install dir.
 // Idempotent: rewrites the existing block if present, otherwise appends.
 func installPathSnippet(dryRun bool) {
-	shell := completion.DetectShell()
-	if shell == constants.ShellPowerShell {
-		shell = constants.PathSnippetShellPwsh
-	}
-
-	fmt.Printf("\n  %s%s%s\n", constants.ColorYellow, "PATH snippet:", constants.ColorReset)
+	shell := resolveSnippetShell()
+	fmt.Printf("\n  %s%s %s%s\n", constants.ColorYellow, constants.SetupSectionPath, shell, constants.ColorReset)
 
 	dir := resolveActiveBinaryDir()
 	if len(dir) == 0 {
@@ -64,6 +60,19 @@ func installPathSnippet(dryRun bool) {
 		return
 	}
 
+	applyPathSnippet(shell, dir, dryRun)
+}
+
+func resolveSnippetShell() string {
+	shell := completion.DetectShell()
+	if shell == constants.ShellPowerShell {
+		return constants.PathSnippetShellPwsh
+	}
+
+	return shell
+}
+
+func applyPathSnippet(shell, dir string, dryRun bool) {
 	if dryRun {
 		fmt.Printf("  %s[dry-run]%s would write PATH snippet for %s -> %s\n",
 			constants.ColorDim, constants.ColorReset, shell, dir)
@@ -78,7 +87,7 @@ func installPathSnippet(dryRun bool) {
 		return
 	}
 
-	fmt.Printf("  %s%s%s -> %s\n", constants.ColorGreen, res.Action, constants.ColorReset, res.Profile)
+	fmt.Printf("  %s✓ %s%s -> %s\n", constants.ColorGreen, res.Action, constants.ColorReset, res.Profile)
 }
 
 // resolveActiveBinaryDir returns the directory containing the running
@@ -112,17 +121,13 @@ func installShellCompletion(dryRun bool) {
 	err := completion.Install(shell)
 	if err != nil {
 		fmt.Fprintf(os.Stderr, "  %s%s%s\n", constants.ColorYellow, err, constants.ColorReset)
-
-		return
 	}
-
-	fmt.Fprintf(os.Stderr, constants.MsgCompInstalled, shell)
 }
 
 // installCDFunction detects the shell and installs the gcd wrapper.
 func installCDFunction(dryRun bool) {
 	shell := completion.DetectShell()
-	fmt.Printf("\n  %s%s %s%s\n", constants.ColorYellow, "cd function:", shell, constants.ColorReset)
+	fmt.Printf("\n  %s%s %s%s\n", constants.ColorYellow, constants.SetupSectionCD, shell, constants.ColorReset)
 
 	if dryRun {
 		fmt.Printf("  %s[dry-run]%s would install gcd function for %s\n",

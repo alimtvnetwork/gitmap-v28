@@ -324,7 +324,7 @@ jobs:
           LINTER: unused
           BASELINE: /tmp/lint-unused-baseline/report.json
           CURRENT_OUT: /tmp/lint-unused-current/report.json
-        run: bash .github/scripts/check-single-linter-diff.sh gitmap
+        run: bash .github/scripts/check-single-linter-diff.sh cli
 
       - name: Save unused baseline (main only)
         if: |
@@ -370,7 +370,7 @@ jobs:
           TEXT_FILTER: G115
           BASELINE: /tmp/lint-gosec-g115-baseline/report.json
           CURRENT_OUT: /tmp/lint-gosec-g115-current/report.json
-        run: bash .github/scripts/check-single-linter-diff.sh gitmap
+        run: bash .github/scripts/check-single-linter-diff.sh cli
 
       - name: Save gosec-G115 baseline (main only)
         if: |
@@ -424,7 +424,7 @@ jobs:
           LINTER: misspell
           BASELINE: /tmp/lint-misspell-baseline/report.json
           CURRENT_OUT: /tmp/lint-misspell-current/report.json
-        run: bash .github/scripts/check-single-linter-diff.sh gitmap
+        run: bash .github/scripts/check-single-linter-diff.sh cli
 
       - name: Save misspell baseline (main only)
         if: |
@@ -470,7 +470,7 @@ jobs:
           LINTER: gocritic
           BASELINE: /tmp/lint-gocritic-baseline/report.json
           CURRENT_OUT: /tmp/lint-gocritic-current/report.json
-        run: bash .github/scripts/check-single-linter-diff.sh gitmap
+        run: bash .github/scripts/check-single-linter-diff.sh cli
 
       - name: Save gocritic baseline (main only)
         if: |
@@ -515,7 +515,7 @@ jobs:
           LINTER: exhaustive
           BASELINE: /tmp/lint-exhaustive-baseline/report.json
           CURRENT_OUT: /tmp/lint-exhaustive-current/report.json
-        run: bash .github/scripts/check-single-linter-diff.sh gitmap
+        run: bash .github/scripts/check-single-linter-diff.sh cli
 
       - name: Save exhaustive baseline (main only)
         if: |
@@ -1226,7 +1226,7 @@ jobs:
           - name: store
             packages: ./tests/store_test/...
           - name: integration
-            packages: ./tests/cmd_test/... ./tests/constants_test/... ./tests/release_test/...
+            packages: ./tests/cmd_test/... ./tests/constants_test/... ./tests/scanclone_test/...
           - name: tui
             packages: ./tui/...
     steps:
@@ -1352,7 +1352,7 @@ jobs:
         if: needs.sha-check.outputs.already-built != 'true'
         shell: bash
         run: |
-          go -C gitmap build -ldflags="-s -w" -o ../bin/gitmap-bin .
+          go -C cli build -ldflags="-s -w" -o ../bin/gitmap-bin .
           chmod +x ./bin/gitmap-bin
           python3 .github/scripts/e2e-cli-smoke.py ./bin/gitmap-bin
 
@@ -1386,7 +1386,7 @@ jobs:
         if: needs.sha-check.outputs.already-built != 'true'
         shell: pwsh
         run: |
-          go -C gitmap build -ldflags="-s -w" -o ../bin/gitmap.exe .
+          go -C cli build -ldflags="-s -w" -o ../bin/gitmap.exe .
           python .github/scripts/e2e-cli-smoke.py ./bin/gitmap.exe
 
       - name: Run installer smoke (source mode)
@@ -1949,7 +1949,7 @@ jobs:
         uses: actions/upload-artifact@v4
         with:
           name: gitmap-${{ matrix.os }}-${{ matrix.arch }}
-          path: gitmap/gitmap-*
+          path: cli/gitmap-*
           retention-days: 14
 
   build-summary:

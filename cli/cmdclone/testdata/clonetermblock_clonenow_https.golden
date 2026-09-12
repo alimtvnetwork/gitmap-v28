@@ -1,0 +1,8 @@
+  3. scripts-fixer
+     branch:    develop (manifest)
+     transport: https
+     https:     https://github.com/owner/scripts-fixer.git
+     ssh:       (unknown)
+     from:      https://github.com/owner/scripts-fixer.git
+     to:        https://github.com/owner/scripts-fixer.git
+     command:   git clone -b develop https://github.com/owner/scripts-fixer.git repos/scripts-fixer

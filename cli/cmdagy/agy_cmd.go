@@ -69,6 +69,10 @@ func normalizeAgySubcommand(sub string) string {
 		return "install"
 	}
 
+	if low == "clean-cache" || low == "cleancache" || low == "clean_cache" || low == "cc" {
+		return "clean-cache"
+	}
+
 	return sub
 }
 
@@ -144,6 +148,7 @@ func init() {
 	AgyCmd.AddCommand(agyRedoCmd)
 	AgyCmd.AddCommand(agySettingsCmd)
 	AgyCmd.AddCommand(agyPinProjectsCmd)
+	AgyCmd.AddCommand(agyCleanCacheCmd)
 	initPlugins()
 	initAgyGroup()
 	initAgySettings()

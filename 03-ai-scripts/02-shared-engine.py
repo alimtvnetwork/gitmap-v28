@@ -1263,7 +1263,7 @@ class WorkerHeartbeatMonitor:
         self,
         total_items: int,
         item_noun: str = "files",
-        snapshot_interval_sec: float = 5.0,
+        snapshot_interval_sec: float = 25.0,
         worker_count: int = 10,
     ) -> None:
         self.total_items = total_items
@@ -1395,10 +1395,10 @@ def run_chunked_worker_pool(
     max_workers: int = 10,
     item_noun: str = "files",
     log_picks: bool = True,
-    snapshot_interval_sec: float = 5.0,
+    snapshot_interval_sec: float = 25.0,
     title: str = "CHUNKED PARALLEL EXECUTION",
 ) -> WorkerPoolSummary:
-    """Executes items in parallel chunks with 5-second snapshot heartbeats."""
+    """Executes items in parallel chunks with 25-second snapshot heartbeats."""
     total_count = len(items)
     start_time = time.perf_counter()
     chunks = chunk_items(items, chunk_size)

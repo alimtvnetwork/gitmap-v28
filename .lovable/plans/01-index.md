@@ -4,10 +4,12 @@ Master directory of architectural and execution plans.
 
 ## Pending Plans
 
-*None currently pending.*
+None
 
 ## Completed Plans (Consolidated Milestones)
 
+- [133-nuclear-package-modularization-phase10.md](completed/133-nuclear-package-modularization-phase10.md): Nuclear Package Modularization (cmdschedule, cmdconfig, cmdworkdir), Heavy Test Isolation & Test Inventory Duration Estimation
+- [132-nuclear-package-modularization-phase9.md](completed/132-nuclear-package-modularization-phase9.md): Nuclear Package Modularization (cmdscan, cmddoctor, cmdos), Heavy Test Isolation & Test Inventory Duration Estimation
 - [131-nuclear-package-modularization-phase8.md](completed/131-nuclear-package-modularization-phase8.md): Nuclear Package Modularization (cmdclone, cmdupdate, cmdpull), Heavy Test Isolation & Test Inventory Duration Estimation
 - [130-nuclear-package-modularization-phase7.md](completed/130-nuclear-package-modularization-phase7.md): Nuclear Package Modularization (cmdinstaller, cmdchrome, cmdsetup, cmdinstall), Heavy Test Isolation & Test Inventory Duration Estimation
 - [129-smart-test-runner-and-eta-sleep-sync.md](completed/129-smart-test-runner-and-eta-sleep-sync.md): Smart Test Runner, Dual-Queue Worker Pools, and Dynamic ETA Sleep Protocol Synchronization

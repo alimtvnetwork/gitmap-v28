@@ -120,7 +120,7 @@ func deriveDeployAppDir(selfPath string) string {
 	}
 
 	base := filepath.Base(selfDir)
-	if base == constants.GitMapCliSubdir || base == constants.GitMapSubdir {
+	if base == constants.GitMapCliSubdir || isLegacyAppSubdir(base) {
 		return selfDir
 	}
 
@@ -130,6 +130,15 @@ func deriveDeployAppDir(selfPath string) string {
 	}
 
 	return filepath.Join(parentDir, constants.GitMapCliSubdir)
+}
+
+func isLegacyAppSubdir(name string) bool {
+	for _, leg := range constants.LegacyAppSubdirs {
+		if name == leg {
+			return true
+		}
+	}
+	return false
 }
 
 // resolveConfigDeployAppDir returns the nested gitmap-cli deploy directory from config.

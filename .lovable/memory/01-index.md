@@ -64,6 +64,10 @@ Updated: 2026-04-27
 - [Nuclear Modularization Phase 6 & Heavy Test Isolation](learned/17-nuclear-package-modularization-phase6.md) — Monolith subpackage decomposition (cmdssh, cmdcg, cmdfixgit), 73 files extracted from cli/cmd, heavy test segregation, and test inventory duration estimation.
 - [CLI & Updater Path Refactoring](learned/19-rename-gitmap-to-cli-and-path-sync.md) — Directory structure refactoring from gitmap to cli, gitmap-updater to cli-updater, Go source path invariants, and relative path test inventory mapping.
 - [Smart Test Runner & Centralized Inventory V2](learned/18-smart-test-runner-and-inventory-v2.md) — Directory isolation (.lovable/temp/failures/), zero-trace passing tests, relative paths code-to-test mapping, configurable slow test threshold, dual worker queues (4w x 2 slow; 4w x 4 fast in 100-chunks), and runner-eta.json AI wait protocol.
+- [Smart Test Runner & ETA Sleep Sync](learned/20-smart-test-runner-and-eta-sleep-sync.md) — Dynamic wait protocol, in-flight heartbeats every 25 seconds, and 60s agent sleep discipline.
+- [Nuclear Modularization Phase 7](learned/21-nuclear-package-modularization-phase7.md) — Domain package extraction (cmdinstaller, cmdsetup, cmdchrome, cmdinstall), 66 files extracted from cli/cmd.
+- [Nuclear Modularization Phase 8](learned/22-nuclear-package-modularization-phase8.md) — Domain package extraction (cmdclone, cmdpull, cmdupdate), 127 files extracted from cli/cmd.
+- [Agy Clean-Cache & Boolean Linter Conventions](learned/23-agy-clean-cache-and-boolean-conventions.md) — Cross-platform Antigravity cache cleaning (10 targets), process detection/killing via tasklist/ps, zero data leak preservation, and strict positive boolean prefix enforcement.
 
 - [Fast File Indexing & Caching Strategy](standards/05-fast-file-indexing-and-caching.md) — Pre-computed file scanning and index caching in `tmp/` via `08-fast-file-scanner.py` for rapid multi-step lookups.
 - [Prompt Synchronization Architecture](standards/04-prompt-synchronization-architecture.md) — All prompts authored in `01-prompts/` and compiled to flat `01-prompts/*.md` via `scripts/update-prompts.ps1` without external Git clones.

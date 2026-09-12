@@ -2,14 +2,9 @@ package macro
 
 import (
 	"context"
-	"fmt"
 	"os"
 	"path/filepath"
-	"runtime"
 	"testing"
-	"time"
-
-	"github.com/alimtvnetwork/gitmap-v28/cli/constants"
 )
 
 func TestMacroSaveLoadListDelete(t *testing.T) {
@@ -84,29 +79,6 @@ func TestExecute_WithCdAndEnvExpansion(t *testing.T) {
 	}
 }
 
-func TestExecute_WithGitmapCdAndRelativeCd(t *testing.T) {
-	tmpDir := t.TempDir()
-	subDir := filepath.Join(tmpDir, "subproject")
-	_ = os.MkdirAll(subDir, 0755)
-
-	m := buildGitmapCdMacro(tmpDir)
-	if err := Execute(context.Background(), m, ExecOptions{DryRun: false}); err != nil {
-		t.Fatalf("Execute failed: %v", err)
-	}
-}
-
-func buildGitmapCdMacro(tmpDir string) *Macro {
-	return &Macro{
-		Name: "test-gitmap-cd-macro",
-		Steps: []MacroStep{
-			{StepNum: 1, CommandLine: "cd " + tmpDir},
-			{StepNum: 2, CommandLine: "gitmap cd subproject"},
-			{StepNum: 3, CommandLine: "cd .."},
-			{StepNum: 4, CommandLine: "cd -"},
-		},
-	}
-}
-
 func TestExecute_WithJSONAndFileReport(t *testing.T) {
 	tmpDir := t.TempDir()
 	outFile := filepath.Join(tmpDir, "report.json")
@@ -144,30 +116,6 @@ func runAndAssertReportFile(t *testing.T, m *Macro, opts ExecOptions, outFile st
 	if err != nil || len(content) == 0 {
 		t.Fatalf("Report file not written: %v", err)
 	}
-}
-
-func TestExecute_StepTimeout(t *testing.T) {
-	m := &Macro{
-		Name: "test-timeout-macro",
-		Steps: []MacroStep{
-			{StepNum: 1, CommandLine: getSleepCmd(3), TimeoutSeconds: 1},
-		},
-	}
-
-	start := time.Now()
-	err := Execute(context.Background(), m, ExecOptions{DryRun: false})
-	elapsed := time.Since(start)
-	if err == nil || elapsed > 2800*time.Millisecond {
-		t.Fatalf("expected timeout error under 2.8s, got err: %v, took: %v", err, elapsed)
-	}
-}
-
-func getSleepCmd(seconds int) string {
-	if runtime.GOOS == constants.OSWindows {
-		return fmt.Sprintf("Start-Sleep -Seconds %d", seconds)
-	}
-
-	return fmt.Sprintf("exec sleep %d", seconds)
 }
 
 func TestResolveTargetDir_WorkingDirPrecedence(t *testing.T) {

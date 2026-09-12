@@ -216,12 +216,22 @@ def collect_target_files() -> list[Path]:
     return target_files
 
 
-def print_scan_progress(completed: int, total: int, workers: int, start_time: float) -> None:
-    """Emits live scan percentage and throughput."""
+def print_scan_progress(completed: int, total: int, workers: int, start_time: float, last_print_time: list[float]) -> None:
+    """Emits live scan percentage and throughput, throttled to 25s when non-tty."""
+    now = time.time()
+    is_tty = sys.stdout.isatty()
+    is_done = completed >= total
+    if not is_tty and not is_done and (now - last_print_time[0] < 25.0):
+        return
+
+    last_print_time[0] = now
     pct = (completed / total * 100.0) if total > 0 else 100.0
-    elapsed = max(0.001, time.time() - start_time)
+    elapsed = max(0.001, now - start_time)
     fps = completed / elapsed
-    msg = f"\rScanning for nested ifs: [ {completed:4d}/{total:4d} ] {pct:5.1f}% | {workers} workers | {fps:5.1f} files/sec"
+    if is_tty:
+        msg = f"\rScanning for nested ifs: [ {completed:4d}/{total:4d} ] {pct:5.1f}% | {workers} workers | {fps:5.1f} files/sec"
+    else:
+        msg = f"Scanning for nested ifs: [ {completed:4d}/{total:4d} ] {pct:5.1f}% | {workers} workers | {fps:5.1f} files/sec\n"
     sys.stdout.write(msg)
     sys.stdout.flush()
 
@@ -286,6 +296,7 @@ def execute_chunked_scan(
     all_violations: dict[str, list[tuple[int, str]]] = {}
     completed_count = 0
     start_time = time.time()
+    last_print_time = [0.0]
     with ThreadPoolExecutor(max_workers=cpu_cores) as pool:
         futures = {pool.submit(scan_file_chunk, chunk): len(chunk) for chunk in chunks}
         for fut in as_completed(futures):
@@ -295,7 +306,7 @@ def execute_chunked_scan(
                 all_violations[p.relative_to(ROOT_DIR).as_posix()] = v
             completed_count += chunk_len
             monitor.increment_processed(chunk_len)
-            print_scan_progress(completed_count, total_files, cpu_cores, start_time)
+            print_scan_progress(completed_count, total_files, cpu_cores, start_time, last_print_time)
 
     return all_violations
 

@@ -65,4 +65,5 @@ Every time you return a response to the user or complete a loop iteration, you m
 - [ ] No end-to-end API tests were executed.
 - [ ] Completed task files were `mv`'d and `index.md` was updated.
 - [ ] The completed chunk was committed and pushed to git successfully without failure.
+- [ ] Runner In-Flight ETA Wait Protocol: Background runner heartbeats run strictly every 25 seconds; agents sleep/wait 1 minute (60s) or use estimated ETA delay without busy-polling.
 - [ ] The output window explicitly lists "Done", "Pending", and remaining task names.

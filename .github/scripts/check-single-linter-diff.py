@@ -16,7 +16,7 @@ import sys
 def parse_args():
     parser = argparse.ArgumentParser(description="Single linter baseline-diff checker")
     parser.add_argument("lint_dir", nargs="?", default=os.environ.get("LINT_DIR", "cli"),
-                        help="Directory to lint (default: gitmap)")
+                        help="Directory to lint (default: cli)")
     parser.add_argument("--linter", default=os.environ.get("LINTER", ""),
                         help="The single golangci-lint analyzer to enable")
     parser.add_argument("--baseline", default=os.environ.get("BASELINE", ""),
@@ -34,6 +34,9 @@ def parse_args():
 
 
 def run_linter(lint_dir, linter, current_out):
+    if not os.path.isdir(lint_dir):
+        print(f"ERROR: lint directory '{lint_dir}' does not exist", file=sys.stderr)
+        sys.exit(2)
     os.makedirs(os.path.dirname(os.path.abspath(current_out)), exist_ok=True)
     cmd = [
         "golangci-lint", "run",

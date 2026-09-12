@@ -3,7 +3,7 @@
 set -uo pipefail
 
 REPO_ROOT="$(cd "$(dirname "$0")/../.." && pwd)"
-GITMAP_DIR="${1:-$REPO_ROOT/gitmap}"
+GITMAP_DIR="${1:-$REPO_ROOT/cli}"
 
 if ! command -v golangci-lint >/dev/null 2>&1; then
     if command -v python3 >/dev/null 2>&1; then
