@@ -23,7 +23,14 @@ func TestPreflightBoxRender(t *testing.T) {
 	os.Stdout = w
 
 	// Run preflight with autoConfirm=true to avoid blocking
-	PrintPreflight(ServersClients, effective, `ps "echo hello"`, "RUN-20260819-001", true)
+	params := PreflightParams{
+		Selector:      ServersClients,
+		Effective:     effective,
+		Command:       `ps "echo hello"`,
+		RunRef:        "RUN-20260819-001",
+		IsAutoConfirm: true,
+	}
+	PrintPreflight(params)
 
 	w.Close()
 	os.Stdout = oldStdout

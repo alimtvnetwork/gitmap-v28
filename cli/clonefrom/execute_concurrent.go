@@ -30,15 +30,6 @@ type concurrentJob struct {
 	row Row
 }
 
-// ConcurrentExecutionParams encapsulates parameters for concurrent clone execution.
-type ConcurrentExecutionParams struct {
-	Plan      Plan
-	Cwd       string
-	Progress  io.Writer
-	BeforeRow BeforeRowHook
-	Workers   int
-}
-
 // ExecuteWithHooksConcurrent is the parallel sibling of
 // ExecuteWithHooks. See file header for the contract.
 func ExecuteWithHooksConcurrent(params ConcurrentExecutionParams) []Result {
@@ -48,7 +39,13 @@ func ExecuteWithHooksConcurrent(params ConcurrentExecutionParams) []Result {
 
 	params.Cwd = resolveCwd(params.Cwd)
 	out := make([]Result, len(params.Plan.Rows))
-	dispatchConcurrent(params.Plan, params.Cwd, params.BeforeRow, params.Workers, out)
+	dispatchConcurrent(CloneFromDispatchParams{
+		Plan:      params.Plan,
+		Cwd:       params.Cwd,
+		BeforeRow: params.BeforeRow,
+		Workers:   params.Workers,
+		Out:       out,
+	})
 	emitProgressInOrder(params.Progress, out)
 
 	return out
@@ -56,26 +53,29 @@ func ExecuteWithHooksConcurrent(params ConcurrentExecutionParams) []Result {
 
 // dispatchConcurrent runs the worker pool and fills `out` at each
 // row's input index.
-func dispatchConcurrent(plan Plan, cwd string, beforeRow BeforeRowHook,
-	workers int, out []Result) {
-	jobs := make(chan concurrentJob, len(plan.Rows))
+func dispatchConcurrent(params CloneFromDispatchParams) {
+	jobs := make(chan concurrentJob, len(params.Plan.Rows))
 	var wg sync.WaitGroup
-	wg.Add(workers)
-	for i := 0; i < workers; i++ {
-		go runConcurrentWorker(jobs, cwd, out, &wg)
+	wg.Add(params.Workers)
+	for i := 0; i < params.Workers; i++ {
+		go runConcurrentWorker(CloneFromWorkerParams{
+			Jobs: jobs,
+			Cwd:  params.Cwd,
+			Out:  params.Out,
+			Wg:   &wg,
+		})
 	}
 
-	enqueueConcurrentJobs(plan, beforeRow, jobs)
+	enqueueConcurrentJobs(params.Plan, params.BeforeRow, jobs)
 	close(jobs)
 	wg.Wait()
 }
 
 // runConcurrentWorker is the per-goroutine drain loop.
-func runConcurrentWorker(jobs <-chan concurrentJob, cwd string,
-	out []Result, wg *sync.WaitGroup) {
-	defer wg.Done()
-	for j := range jobs {
-		out[j.idx] = executeRow(j.row, cwd)
+func runConcurrentWorker(params CloneFromWorkerParams) {
+	defer params.Wg.Done()
+	for j := range params.Jobs {
+		params.Out[j.idx] = executeRow(j.row, params.Cwd)
 	}
 }
 
@@ -86,20 +86,25 @@ func enqueueConcurrentJobs(plan Plan, beforeRow BeforeRowHook,
 	total := len(plan.Rows)
 	for i, r := range plan.Rows {
 		if beforeRow != nil {
-			invokeBeforeRow(beforeRow, i, total, r)
+			invokeBeforeRow(BeforeRowInvokeParams{
+				Hook:         beforeRow,
+				CurrentIndex: i + 1,
+				TotalCount:   total,
+				Row:          r,
+			})
 		}
 
 		jobs <- concurrentJob{idx: i, row: r}
 	}
 }
 
-func invokeBeforeRow(hook BeforeRowHook, i, total int, r Row) {
-	dest := r.Dest
+func invokeBeforeRow(params BeforeRowInvokeParams) {
+	dest := params.Row.Dest
 	if len(dest) == 0 {
-		dest = DeriveDest(r.URL)
+		dest = DeriveDest(params.Row.URL)
 	}
 
-	hook(i+1, total, r, dest)
+	params.Hook(params.CurrentIndex, params.TotalCount, params.Row, dest)
 }
 
 // emitProgressInOrder prints progress lines in input order AFTER
@@ -111,6 +116,11 @@ func emitProgressInOrder(w io.Writer, out []Result) {
 
 	total := len(out)
 	for i, res := range out {
-		writeProgress(w, i+1, total, res)
+		writeProgress(ProgressWriteParams{
+			Writer:       w,
+			CurrentIndex: i + 1,
+			TotalCount:   total,
+			Result:       res,
+		})
 	}
 }

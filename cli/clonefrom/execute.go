@@ -56,7 +56,12 @@ func Execute(plan Plan, cwd string, progress io.Writer) []Result {
 	for i, r := range plan.Rows {
 		res := executeRow(r, cwd)
 		out = append(out, res)
-		writeProgress(progress, i+1, len(plan.Rows), res)
+		writeProgress(ProgressWriteParams{
+			Writer:       progress,
+			CurrentIndex: i + 1,
+			TotalCount:   len(plan.Rows),
+			Result:       res,
+		})
 	}
 
 	return out
@@ -302,11 +307,11 @@ func extractLastStderrLine(stderr string, err error) string {
 }
 
 // writeProgress emits one line per finished row.
-func writeProgress(w io.Writer, n, total int, res Result) {
-	isNilWriter := w == nil
+func writeProgress(params ProgressWriteParams) {
+	isNilWriter := params.Writer == nil
 	if isNilWriter {
 		return
 	}
 
-	fmt.Fprintf(w, "  [%d/%d] %-7s %s\n", n, total, res.Status, res.Row.URL)
+	fmt.Fprintf(params.Writer, "  [%d/%d] %-7s %s\n", params.CurrentIndex, params.TotalCount, params.Result.Status, params.Result.Row.URL)
 }

@@ -6,7 +6,7 @@ import (
 	"strings"
 )
 
-func RenderNodeTable(nodes []ClusterNode, showRole bool) string {
+func RenderNodeTable(nodes []ClusterNode, isShowRole bool) string {
 	if len(nodes) == 0 {
 		return ""
 	}
@@ -56,7 +56,7 @@ func RenderNodeTable(nodes []ClusterNode, showRole bool) string {
 	statusH := padRight("Status", statusLen)
 	hbH := padRight("Last Heartbeat", hbLen)
 
-	if showRole {
+	if isShowRole {
 		sb.WriteString(fmt.Sprintf("%s  %s  %s  %s  %s  %s  %s\n", idH, ipH, nameH, roleH, osH, statusH, hbH))
 	} else {
 		sb.WriteString(fmt.Sprintf("%s  %s  %s  %s  %s  %s\n", idH, ipH, nameH, osH, statusH, hbH))
@@ -76,7 +76,7 @@ func RenderNodeTable(nodes []ClusterNode, showRole bool) string {
 		cStatus := padRight("Online", statusLen)
 		cHb := padRight("-", hbLen)
 
-		if showRole {
+		if isShowRole {
 			sb.WriteString(fmt.Sprintf("%s  %s  %s  %s  %s  %s  %s\n", cId, cIp, cName, cRole, cOs, cStatus, cHb))
 		} else {
 			sb.WriteString(fmt.Sprintf("%s  %s  %s  %s  %s  %s\n", cId, cIp, cName, cOs, cStatus, cHb))

@@ -27,18 +27,18 @@ import (
 // directly so each branch's decision is auditable in one place
 // instead of being hidden behind state.IsX() helpers.
 type existingRepoState struct {
-	// Exists is true when the destination directory exists on disk.
+	// IsExists is true when the destination directory exists on disk.
 	// A false value is the trivial "no conflict, just clone" case.
-	Exists bool
+	IsExists bool
 	// IsRepo is true when the destination is a git work tree (we
 	// detect this by probing for a .git entry -- file or dir, since
 	// worktrees use a file). Reused by every on-exists branch.
 	IsRepo bool
-	// Empty is true when Exists && !IsRepo and the directory has
+	// IsEmpty is true when IsExists && !IsRepo and the directory has
 	// no children. An empty dir is safe to remove + clone into;
 	// a populated non-repo dir is treated as a hard failure under
 	// every policy (we never destroy unrelated user data).
-	Empty bool
+	IsEmpty bool
 	// RemoteURL is the origin remote URL as reported by `git config
 	// remote.origin.url`. Empty when IsRepo is false or when the
 	// repo has no origin remote configured.
@@ -60,9 +60,9 @@ func inspectExistingRepo(absDest string) existingRepoState {
 		return state
 	}
 
-	state.Exists = true
+	state.IsExists = true
 	entries, _ := os.ReadDir(absDest)
-	state.Empty = len(entries) == 0
+	state.IsEmpty = len(entries) == 0
 	if !isGitWorkTree(absDest) {
 		return state
 	}
@@ -102,34 +102,34 @@ func isGitWorkTree(absDest string) bool {
 //   - Mismatch under update -> fetch + checkout (status = ok/failed).
 //   - Force -> remove + reclone (status = ok/failed).
 //   - Non-repo populated dir -> hard failure under every policy.
-func dispatchOnExists(r Row, url, absDest, cwd, policy string, state existingRepoState) Result {
-	if !state.Exists || state.Empty {
-		return cloneFresh(r, url, absDest, cwd)
+func dispatchOnExists(params CloneIdempotentParams) Result {
+	if !params.State.IsExists || params.State.IsEmpty {
+		return cloneFresh(params)
 	}
 
-	if !state.IsRepo {
+	if !params.State.IsRepo {
 		return Result{
 			Status: constants.CloneNowStatusFailed,
 			Detail: constants.MsgCloneNowNotARepo,
 		}
 	}
 
-	if policy == constants.CloneNowOnExistsForce {
-		return forceReclone(r, url, absDest, cwd)
+	if params.Policy == constants.CloneNowOnExistsForce {
+		return forceReclone(params)
 	}
 
-	if repoMatches(r, url, state) {
+	if repoMatches(params.Row, params.URL, params.State) {
 		return Result{
 			Status: constants.CloneNowStatusSkipped,
 			Detail: constants.MsgCloneNowAlreadyMatches,
 		}
 	}
 
-	if policy == constants.CloneNowOnExistsUpdate {
-		return updateExisting(r, url, absDest, state)
+	if params.Policy == constants.CloneNowOnExistsUpdate {
+		return updateExisting(params.Row, params.URL, params.AbsDest, params.State)
 	}
 
-	return mismatchSkipResult(r, url, state)
+	return mismatchSkipResult(params.Row, params.URL, params.State)
 }
 
 // cloneFresh removes an empty leftover directory (so `git clone`
@@ -137,14 +137,19 @@ func dispatchOnExists(r Row, url, absDest, cwd, policy string, state existingRep
 // runs the clone. Empty-dir removal is bounded to the exact dest
 // path; we do NOT recursively remove anything we didn't just confirm
 // is empty.
-func cloneFresh(r Row, url, absDest, cwd string) Result {
-	if info, err := os.Stat(absDest); err == nil && info.IsDir() {
-		_ = os.Remove(absDest) // empty -> ok; non-empty -> git will error.
+func cloneFresh(params CloneIdempotentParams) Result {
+	if info, err := os.Stat(params.AbsDest); err == nil && info.IsDir() {
+		_ = os.Remove(params.AbsDest) // empty -> ok; non-empty -> git will error.
 	}
 
-	dest := relOrAbs(absDest, cwd)
-	detail, ok := runGitClone(r, url, dest, cwd)
-	if !ok {
+	dest := relOrAbs(params.AbsDest, params.Cwd)
+	detail, isOk := runGitClone(GitCloneParams{
+		Row:  params.Row,
+		URL:  params.URL,
+		Dest: dest,
+		Cwd:  params.Cwd,
+	})
+	if !isOk {
 		return Result{Status: constants.CloneNowStatusFailed, Detail: detail}
 	}
 
@@ -272,17 +277,22 @@ func updateExisting(r Row, url, absDest string, state existingRepoState) Result 
 // scratch. Guarded by the caller (dispatchOnExists) so we only
 // reach here when state.IsRepo is true -- we never blow away an
 // unrelated user directory.
-func forceReclone(r Row, url, absDest, cwd string) Result {
-	if err := os.RemoveAll(absDest); err != nil {
+func forceReclone(params CloneIdempotentParams) Result {
+	if err := os.RemoveAll(params.AbsDest); err != nil {
 		return Result{
 			Status: constants.CloneNowStatusFailed,
-			Detail: fmt.Sprintf(constants.MsgCloneNowForceRemoveFail, absDest, err),
+			Detail: fmt.Sprintf(constants.MsgCloneNowForceRemoveFail, params.AbsDest, err),
 		}
 	}
 
-	dest := relOrAbs(absDest, cwd)
-	detail, ok := runGitClone(r, url, dest, cwd)
-	if !ok {
+	dest := relOrAbs(params.AbsDest, params.Cwd)
+	detail, isOk := runGitClone(GitCloneParams{
+		Row:  params.Row,
+		URL:  params.URL,
+		Dest: dest,
+		Cwd:  params.Cwd,
+	})
+	if !isOk {
 		return Result{Status: constants.CloneNowStatusFailed, Detail: detail}
 	}
 

@@ -180,9 +180,17 @@ func performPreflight(
 		return nil
 	}
 
-	confirmed, err := cluster.PrintPreflight(selector, effective, cmdStr, runRef, flags.AutoConfirm)
+	params := cluster.PreflightParams{
+		Selector:      selector,
+		Effective:     effective,
+		Command:       cmdStr,
+		RunRef:        runRef,
+		IsAutoConfirm: flags.AutoConfirm,
+	}
+
+	confirmed, err := cluster.PrintPreflight(params)
 	if err != nil {
-		return apperror.WrapSimple(err, "Preflight error")
+		return err
 	}
 
 	isConfirmed := confirmed

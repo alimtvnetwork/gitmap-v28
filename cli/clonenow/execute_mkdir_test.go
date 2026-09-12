@@ -26,7 +26,12 @@ func TestRunGitClone_CreatesNestedParents(t *testing.T) {
 
 	// Intentionally let git fail (invalid host) -- we only care that
 	// the parent was created BEFORE git ran.
-	_, _ = runGitClone(row, row.HTTPSUrl, row.RelativePath, tmp)
+	_, _ = runGitClone(GitCloneParams{
+		Row:  row,
+		URL:  row.HTTPSUrl,
+		Dest: row.RelativePath,
+		Cwd:  tmp,
+	})
 
 	parent := filepath.Join(tmp, "org-a", "team-b")
 	info, err := os.Stat(parent)
@@ -53,8 +58,13 @@ func TestRunGitClone_PreExistingParentIsNoOp(t *testing.T) {
 
 	// MkdirAll on an existing dir must not error -- the call should
 	// proceed to git (which then fails on the invalid host, fine).
-	detail, ok := runGitClone(row, row.HTTPSUrl, row.RelativePath, tmp)
-	if ok {
+	detail, isOk := runGitClone(GitCloneParams{
+		Row:  row,
+		URL:  row.HTTPSUrl,
+		Dest: row.RelativePath,
+		Cwd:  tmp,
+	})
+	if isOk {
 		t.Fatalf("expected git to fail on invalid host, got ok=true")
 	}
 

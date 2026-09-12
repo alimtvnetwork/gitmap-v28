@@ -121,6 +121,7 @@ DEFAULT_MAX_WORKERS = 4
 - [33-git-history-tracer-and-purger.py](33-git-history-tracer-and-purger.py): Traces deleted and active files in Git, selective pre-flight exclusion, workspace restoration, Recycle Bin file deletion (`--delete`), and deep history purging (`--purge`). Features automatic OS temp directory backups (`%TEMP%` / `/tmp`) with instant rollback instructions. Built-in presets: `--spec-25-audit` (`spec/21-app/25-app-spec-audit`), `--spec-audit` (`spec/19-main-worker-service/audit`), `--audit` (repo-wide `*audit*`), `--lovable`, `--lovable-subtasks`, `--lovable-md`, `--spec`, `--spec-md`, and positional root/folder scans.
 - [33-test-inventory-generator.py](33-test-inventory-generator.py): Centralized test inventory manifest generator (`.lovable/test-inventory.json`) and atomic file change tracker with cross-platform mutex (`.lovable/temp/recent-file-changes.lock`).
 - [35-result-wrapper-auditor.py](35-result-wrapper-auditor.py): Audits Go functions returning multi-value map/slice error tuples for ResultMap and AppError compliance.
+- [36-param-struct-auditor.py](36-param-struct-auditor.py): Audits Go function signatures for argument reduction, dedicated parameter structs/DTOs, types.go declarations, and affirmative boolean naming.
 
 ---
 

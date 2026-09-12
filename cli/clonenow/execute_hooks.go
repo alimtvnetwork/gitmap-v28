@@ -49,7 +49,12 @@ func ExecuteWithHooks(plan Plan, cwd string, progress io.Writer,
 
 		res := executeRow(r, plan, cwd)
 		out = append(out, res)
-		writeProgress(progress, i+1, total, res)
+		writeProgress(ProgressWriteParams{
+			Writer:       progress,
+			CurrentIndex: i + 1,
+			TotalCount:   total,
+			Result:       res,
+		})
 	}
 
 	return out

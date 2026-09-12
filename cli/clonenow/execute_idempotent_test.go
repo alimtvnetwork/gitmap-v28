@@ -20,14 +20,14 @@ import (
 
 func TestInspectExistingRepo_Missing(t *testing.T) {
 	state := inspectExistingRepo(filepath.Join(t.TempDir(), "nope"))
-	if state.Exists || state.IsRepo {
+	if state.IsExists || state.IsRepo {
 		t.Errorf("missing dir reported as present: %+v", state)
 	}
 }
 
 func TestInspectExistingRepo_EmptyDir(t *testing.T) {
 	state := inspectExistingRepo(t.TempDir())
-	if !state.Exists || !state.Empty || state.IsRepo {
+	if !state.IsExists || !state.IsEmpty || state.IsRepo {
 		t.Errorf("empty dir misclassified: %+v", state)
 	}
 }
@@ -39,7 +39,7 @@ func TestInspectExistingRepo_NonRepoPopulated(t *testing.T) {
 	}
 
 	state := inspectExistingRepo(dir)
-	if !state.Exists || state.Empty || state.IsRepo {
+	if !state.IsExists || state.IsEmpty || state.IsRepo {
 		t.Errorf("populated non-repo misclassified: %+v", state)
 	}
 }
@@ -65,14 +65,21 @@ func TestUrlsMatch_HTTPSandSSHEquivalence(t *testing.T) {
 
 func TestDispatchOnExists_AlreadyMatchesIsSkip(t *testing.T) {
 	state := existingRepoState{
-		Exists: true, IsRepo: true,
+		IsExists:  true,
+		IsRepo:    true,
 		RemoteURL: "https://github.com/owner/repo.git",
 		Branch:    "main",
 	}
 
 	row := Row{HTTPSUrl: "https://github.com/owner/repo.git", Branch: "main"}
-	res := dispatchOnExists(row, row.HTTPSUrl, "/abs", "/cwd",
-		constants.CloneNowOnExistsSkip, state)
+	res := dispatchOnExists(CloneIdempotentParams{
+		Row:     row,
+		URL:     row.HTTPSUrl,
+		AbsDest: "/abs",
+		Cwd:     "/cwd",
+		Policy:  constants.CloneNowOnExistsSkip,
+		State:   state,
+	})
 	if res.Status != constants.CloneNowStatusSkipped {
 		t.Errorf("status = %q, want skipped", res.Status)
 	}
@@ -84,14 +91,21 @@ func TestDispatchOnExists_AlreadyMatchesIsSkip(t *testing.T) {
 
 func TestDispatchOnExists_URLMismatchSkipsWithReason(t *testing.T) {
 	state := existingRepoState{
-		Exists: true, IsRepo: true,
+		IsExists:  true,
+		IsRepo:    true,
 		RemoteURL: "https://github.com/old/repo.git",
 		Branch:    "main",
 	}
 
 	row := Row{HTTPSUrl: "https://github.com/new/repo.git", Branch: "main"}
-	res := dispatchOnExists(row, row.HTTPSUrl, "/abs", "/cwd",
-		constants.CloneNowOnExistsSkip, state)
+	res := dispatchOnExists(CloneIdempotentParams{
+		Row:     row,
+		URL:     row.HTTPSUrl,
+		AbsDest: "/abs",
+		Cwd:     "/cwd",
+		Policy:  constants.CloneNowOnExistsSkip,
+		State:   state,
+	})
 	if res.Status != constants.CloneNowStatusSkipped {
 		t.Errorf("status = %q, want skipped", res.Status)
 	}
@@ -103,14 +117,21 @@ func TestDispatchOnExists_URLMismatchSkipsWithReason(t *testing.T) {
 
 func TestDispatchOnExists_BranchMismatchSkipsWithReason(t *testing.T) {
 	state := existingRepoState{
-		Exists: true, IsRepo: true,
+		IsExists:  true,
+		IsRepo:    true,
 		RemoteURL: "https://github.com/owner/repo.git",
 		Branch:    "develop",
 	}
 
 	row := Row{HTTPSUrl: "https://github.com/owner/repo.git", Branch: "main"}
-	res := dispatchOnExists(row, row.HTTPSUrl, "/abs", "/cwd",
-		constants.CloneNowOnExistsSkip, state)
+	res := dispatchOnExists(CloneIdempotentParams{
+		Row:     row,
+		URL:     row.HTTPSUrl,
+		AbsDest: "/abs",
+		Cwd:     "/cwd",
+		Policy:  constants.CloneNowOnExistsSkip,
+		State:   state,
+	})
 	if res.Status != constants.CloneNowStatusSkipped {
 		t.Errorf("status = %q, want skipped", res.Status)
 	}
@@ -121,14 +142,21 @@ func TestDispatchOnExists_BranchMismatchSkipsWithReason(t *testing.T) {
 }
 
 func TestDispatchOnExists_NonRepoFailsUnderEveryPolicy(t *testing.T) {
-	state := existingRepoState{Exists: true, IsRepo: false, Empty: false}
+	state := existingRepoState{IsExists: true, IsRepo: false, IsEmpty: false}
 	row := Row{HTTPSUrl: "https://x/a.git"}
 	for _, policy := range []string{
 		constants.CloneNowOnExistsSkip,
 		constants.CloneNowOnExistsUpdate,
 		constants.CloneNowOnExistsForce,
 	} {
-		res := dispatchOnExists(row, row.HTTPSUrl, "/abs", "/cwd", policy, state)
+		res := dispatchOnExists(CloneIdempotentParams{
+			Row:     row,
+			URL:     row.HTTPSUrl,
+			AbsDest: "/abs",
+			Cwd:     "/cwd",
+			Policy:  policy,
+			State:   state,
+		})
 		if res.Status != constants.CloneNowStatusFailed {
 			t.Errorf("policy=%s: status = %q, want failed", policy, res.Status)
 		}

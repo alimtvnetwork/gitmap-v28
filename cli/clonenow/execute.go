@@ -71,7 +71,12 @@ func Execute(plan Plan, cwd string, progress io.Writer) []Result {
 	for i, r := range plan.Rows {
 		res := executeRow(r, plan, cwd)
 		out = append(out, res)
-		writeProgress(progress, i+1, len(plan.Rows), res)
+		writeProgress(ProgressWriteParams{
+			Writer:       progress,
+			CurrentIndex: i + 1,
+			TotalCount:   len(plan.Rows),
+			Result:       res,
+		})
 	}
 
 	return out
@@ -106,7 +111,14 @@ func executeRow(r Row, plan Plan, cwd string) Result {
 	}
 
 	state := inspectExistingRepo(absDest)
-	res := dispatchOnExists(r, url, absDest, cwd, plan.OnExists, state)
+	res := dispatchOnExists(CloneIdempotentParams{
+		Row:     r,
+		URL:     url,
+		AbsDest: absDest,
+		Cwd:     cwd,
+		Policy:  plan.OnExists,
+		State:   state,
+	})
 	if plan.PersistURL != nil && res.Status == constants.CloneNowStatusOK {
 		plan.PersistURL(url)
 	}
@@ -130,10 +142,10 @@ func executeRow(r Row, plan Plan, cwd string) Result {
 // safe under concurrent sibling clones. Failure is logged in the
 // project's Code Red format AND surfaced as the row Detail so the
 // per-row line + summary table carry the same diagnosis.
-func runGitClone(r Row, url, dest, cwd string) (string, bool) {
-	absDest := dest
+func runGitClone(params GitCloneParams) (string, bool) {
+	absDest := params.Dest
 	if !filepath.IsAbs(absDest) {
-		absDest = filepath.Join(cwd, dest)
+		absDest = filepath.Join(params.Cwd, params.Dest)
 	}
 
 	parent := filepath.Dir(absDest)
@@ -143,10 +155,10 @@ func runGitClone(r Row, url, dest, cwd string) (string, bool) {
 		return fmt.Sprintf(constants.MsgCloneNowMkdirParentFailFmt, err), false
 	}
 
-	args := buildGitArgs(r, url, dest)
+	args := buildGitArgs(params.Row, params.URL, params.Dest)
 	cmd := exec.Command(constants.GitBin, args...)
-	cmd.Dir = cwd
-	if isSSHCloneURL(url) {
+	cmd.Dir = params.Cwd
+	if isSSHCloneURL(params.URL) {
 		return runInteractiveGitClone(cmd)
 	}
 
@@ -196,10 +208,10 @@ func trimGitError(stderr string, err error) string {
 // writeProgress emits one line per finished row. nil writer is a
 // no-op so callers can pass io.Discard (or nothing at all in tests)
 // without sprinkling nil-checks at every call site.
-func writeProgress(w io.Writer, n, total int, res Result) {
-	if w == nil {
+func writeProgress(params ProgressWriteParams) {
+	if params.Writer == nil {
 		return
 	}
 
-	fmt.Fprintf(w, "  [%d/%d] %-7s %s -> %s\n", n, total, res.Status, res.URL, res.Dest)
+	fmt.Fprintf(params.Writer, "  [%d/%d] %-7s %s -> %s\n", params.CurrentIndex, params.TotalCount, params.Result.Status, params.Result.URL, params.Result.Dest)
 }

@@ -146,13 +146,13 @@ func snippet(b []byte) string {
 // runs incur zero cost. When trigger is true, the writer must
 // survive determinism BEFORE the gate is consulted — a flaky
 // writer cannot regenerate fixtures, period.
-func AllowUpdateAfterDeterminism(t *testing.T, trigger bool, label string, writer WriterFn) bool {
+func AllowUpdateAfterDeterminism(t *testing.T, isTrigger bool, label string, writer WriterFn) bool {
 	t.Helper()
-	if !trigger {
+	if !isTrigger {
 		return false
 	}
 
 	AssertWriterDeterministic(t, label, writer)
 
-	return AllowUpdate(t, trigger)
+	return AllowUpdate(t, isTrigger)
 }

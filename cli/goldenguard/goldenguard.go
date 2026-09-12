@@ -61,18 +61,18 @@ type fatalReporter interface {
 // trigger: the per-test signal (e.g. *flag.Bool("update") for the cmd
 // package, os.Getenv("GITMAP_UPDATE_GOLDEN")=="1" for the formatter
 // package). Caller computes it.
-func AllowUpdate(t *testing.T, trigger bool) bool {
+func AllowUpdate(t *testing.T, isTrigger bool) bool {
 	t.Helper()
 
-	return allowUpdate(t, trigger)
+	return allowUpdate(t, isTrigger)
 }
 
 // allowUpdate is the interface-typed core so internal tests can
 // inject a fake reporter; production code keeps the *testing.T
 // signature on AllowUpdate to avoid changing every caller.
-func allowUpdate(t fatalReporter, trigger bool) bool {
+func allowUpdate(t fatalReporter, isTrigger bool) bool {
 	t.Helper()
-	if !trigger {
+	if !isTrigger {
 		return false
 	}
 

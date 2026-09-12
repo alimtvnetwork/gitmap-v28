@@ -3,7 +3,6 @@ package cluster
 import (
 	"bytes"
 	"context"
-	"errors"
 	"fmt"
 	"os/exec"
 	"runtime"
@@ -11,22 +10,23 @@ import (
 
 	"golang.org/x/crypto/bcrypt"
 
+	"github.com/alimtvnetwork/gitmap-v28/cli/apperror"
 	"github.com/alimtvnetwork/gitmap-v28/cli/constants"
 )
 
 // ExecRestart triggers a machine restart.
 
-func ExecRestart(
-	ctx context.Context,
-	node ClusterNode,
-	forceLifecycle bool,
-	providedPassword string,
-) (string, string, int, error) {
-	if err := checkLifecycleGuards(node, forceLifecycle, providedPassword); err != nil {
+func ExecRestart(params LifecycleExecParams) (string, string, int, *apperror.AppError) {
+	if err := checkLifecycleGuards(params.Node, params.IsForceLifecycle, params.ProvidedPassword); err != nil {
 		return "", "", constants.ExitCodeError, err
 	}
 
-	return runCmd(buildRestartCmd(ctx))
+	stdout, stderr, code, rawErr := runCmd(buildRestartCmd(params.Context))
+	if rawErr != nil {
+		return stdout, stderr, code, apperror.WrapSimple(rawErr, "ExecRestart")
+	}
+
+	return stdout, stderr, code, nil
 }
 
 func buildRestartCmd(ctx context.Context) *exec.Cmd {
@@ -39,17 +39,17 @@ func buildRestartCmd(ctx context.Context) *exec.Cmd {
 
 // ExecShutdown triggers a machine shutdown.
 
-func ExecShutdown(
-	ctx context.Context,
-	node ClusterNode,
-	forceLifecycle bool,
-	providedPassword string,
-) (string, string, int, error) {
-	if err := checkLifecycleGuards(node, forceLifecycle, providedPassword); err != nil {
+func ExecShutdown(params LifecycleExecParams) (string, string, int, *apperror.AppError) {
+	if err := checkLifecycleGuards(params.Node, params.IsForceLifecycle, params.ProvidedPassword); err != nil {
 		return "", "", constants.ExitCodeError, err
 	}
 
-	return runCmd(buildShutdownCmd(ctx))
+	stdout, stderr, code, rawErr := runCmd(buildShutdownCmd(params.Context))
+	if rawErr != nil {
+		return stdout, stderr, code, apperror.WrapSimple(rawErr, "ExecShutdown")
+	}
+
+	return stdout, stderr, code, nil
 }
 
 func buildShutdownCmd(ctx context.Context) *exec.Cmd {
@@ -62,17 +62,17 @@ func buildShutdownCmd(ctx context.Context) *exec.Cmd {
 
 // ExecLogoff logs off the current user.
 
-func ExecLogoff(
-	ctx context.Context,
-	node ClusterNode,
-	forceLifecycle bool,
-	providedPassword string,
-) (string, string, int, error) {
-	if err := checkLifecycleGuards(node, forceLifecycle, providedPassword); err != nil {
+func ExecLogoff(params LifecycleExecParams) (string, string, int, *apperror.AppError) {
+	if err := checkLifecycleGuards(params.Node, params.IsForceLifecycle, params.ProvidedPassword); err != nil {
 		return "", "", constants.ExitCodeError, err
 	}
 
-	return runCmd(buildLogoffCmd(ctx))
+	stdout, stderr, code, rawErr := runCmd(buildLogoffCmd(params.Context))
+	if rawErr != nil {
+		return stdout, stderr, code, apperror.WrapSimple(rawErr, "ExecLogoff")
+	}
+
+	return stdout, stderr, code, nil
 }
 
 func buildLogoffCmd(ctx context.Context) *exec.Cmd {
@@ -83,29 +83,29 @@ func buildLogoffCmd(ctx context.Context) *exec.Cmd {
 	return exec.CommandContext(ctx, constants.UnixShell, constants.UnixShellArg, constants.LifecycleCmdUnixLogoffArgs)
 }
 
-func checkLifecycleGuards(node ClusterNode, forceLifecycle bool, providedPassword string) error {
+func checkLifecycleGuards(node ClusterNode, isForceLifecycle bool, providedPassword string) *apperror.AppError {
 	if node.NodeRole == constants.NodeRoleServer || node.IsServer {
-		return errors.New(constants.ErrClusterServerProtected)
+		return apperror.NewSimple(constants.ErrClusterServerProtected, "E8001")
 	}
 
-	if !forceLifecycle {
-		return errors.New(constants.ErrClusterLifecycleRequiresForce)
+	if !isForceLifecycle {
+		return apperror.NewSimple(constants.ErrClusterLifecycleRequiresForce, "E8002")
 	}
 
 	return checkPasswordAuth(node.PasswordHash, providedPassword)
 }
 
-func checkPasswordAuth(hash, password string) error {
+func checkPasswordAuth(hash, password string) *apperror.AppError {
 	if hash == "" {
 		return nil
 	}
 
 	if password == "" {
-		return errors.New(constants.ErrClusterPasswordRequired)
+		return apperror.NewSimple(constants.ErrClusterPasswordRequired, "E8003")
 	}
 
 	if err := bcrypt.CompareHashAndPassword([]byte(hash), []byte(password)); err != nil {
-		return errors.New(constants.ErrClusterInvalidPassword)
+		return apperror.NewSimple(constants.ErrClusterInvalidPassword, "E8004")
 	}
 
 	return nil

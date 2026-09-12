@@ -32,15 +32,6 @@ type concurrentJob struct {
 	row Row
 }
 
-// ConcurrentExecutionParams encapsulates parameters for concurrent clone execution.
-type ConcurrentExecutionParams struct {
-	Plan      Plan
-	Cwd       string
-	Progress  io.Writer
-	BeforeRow BeforeRowHook
-	Workers   int
-}
-
 // ExecuteWithHooksConcurrent is the parallel sibling of
 // ExecuteWithHooks. See file header for the contract.
 func ExecuteWithHooksConcurrent(params ConcurrentExecutionParams) []Result {
@@ -54,7 +45,13 @@ func ExecuteWithHooksConcurrent(params ConcurrentExecutionParams) []Result {
 	}
 
 	out := make([]Result, len(params.Plan.Rows))
-	dispatchConcurrent(params.Plan, params.Cwd, params.BeforeRow, params.Workers, out)
+	dispatchConcurrent(ConcurrentDispatchParams{
+		Plan:      params.Plan,
+		Cwd:       params.Cwd,
+		BeforeRow: params.BeforeRow,
+		Workers:   params.Workers,
+		Out:       out,
+	})
 	emitProgressInOrder(params.Progress, out)
 
 	return out
@@ -63,27 +60,31 @@ func ExecuteWithHooksConcurrent(params ConcurrentExecutionParams) []Result {
 // dispatchConcurrent runs the worker pool and fills `out` at each
 // row's input index. Split out so ExecuteWithHooksConcurrent stays
 // under the 15-line function cap.
-func dispatchConcurrent(plan Plan, cwd string, beforeRow BeforeRowHook,
-	workers int, out []Result) {
-	jobs := make(chan concurrentJob, len(plan.Rows))
+func dispatchConcurrent(params ConcurrentDispatchParams) {
+	jobs := make(chan concurrentJob, len(params.Plan.Rows))
 	var wg sync.WaitGroup
-	wg.Add(workers)
-	for i := 0; i < workers; i++ {
-		go runConcurrentWorker(jobs, plan, cwd, out, &wg)
+	wg.Add(params.Workers)
+	for i := 0; i < params.Workers; i++ {
+		go runConcurrentWorker(ConcurrentWorkerParams{
+			Jobs: jobs,
+			Plan: params.Plan,
+			Cwd:  params.Cwd,
+			Out:  params.Out,
+			Wg:   &wg,
+		})
 	}
 
-	enqueueConcurrentJobs(plan, beforeRow, jobs)
+	enqueueConcurrentJobs(params.Plan, params.BeforeRow, jobs)
 	close(jobs)
 	wg.Wait()
 }
 
 // runConcurrentWorker is the per-goroutine drain loop. Pulled out
 // so dispatchConcurrent stays under the function-length cap.
-func runConcurrentWorker(jobs <-chan concurrentJob, plan Plan, cwd string,
-	out []Result, wg *sync.WaitGroup) {
-	defer wg.Done()
-	for j := range jobs {
-		out[j.idx] = executeRow(j.row, plan, cwd)
+func runConcurrentWorker(params ConcurrentWorkerParams) {
+	defer params.Wg.Done()
+	for j := range params.Jobs {
+		params.Out[j.idx] = executeRow(j.row, params.Plan, params.Cwd)
 	}
 }
 
@@ -114,6 +115,11 @@ func emitProgressInOrder(w io.Writer, out []Result) {
 
 	total := len(out)
 	for i, res := range out {
-		writeProgress(w, i+1, total, res)
+		writeProgress(ProgressWriteParams{
+			Writer:       w,
+			CurrentIndex: i + 1,
+			TotalCount:   total,
+			Result:       res,
+		})
 	}
 }

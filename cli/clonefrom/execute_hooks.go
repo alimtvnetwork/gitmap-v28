@@ -38,22 +38,32 @@ func ExecuteWithHooks(plan Plan, cwd string, progress io.Writer,
 	total := len(plan.Rows)
 	for i, r := range plan.Rows {
 		if beforeRow != nil {
-			invokeBeforeRowHook(beforeRow, i, total, r)
+			invokeBeforeRowHook(BeforeRowInvokeParams{
+				Hook:         beforeRow,
+				CurrentIndex: i + 1,
+				TotalCount:   total,
+				Row:          r,
+			})
 		}
 
 		res := executeRow(r, cwd)
 		out = append(out, res)
-		writeProgress(progress, i+1, total, res)
+		writeProgress(ProgressWriteParams{
+			Writer:       progress,
+			CurrentIndex: i + 1,
+			TotalCount:   total,
+			Result:       res,
+		})
 	}
 
 	return out
 }
 
-func invokeBeforeRowHook(hook BeforeRowHook, i, total int, r Row) {
-	dest := r.Dest
+func invokeBeforeRowHook(params BeforeRowInvokeParams) {
+	dest := params.Row.Dest
 	if len(dest) == 0 {
-		dest = DeriveDest(r.URL)
+		dest = DeriveDest(params.Row.URL)
 	}
 
-	hook(i+1, total, r, dest)
+	params.Hook(params.CurrentIndex, params.TotalCount, params.Row, dest)
 }
