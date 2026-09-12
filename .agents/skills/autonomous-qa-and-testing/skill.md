@@ -11,6 +11,7 @@ description: Autonomously run test suites, verify quality gates, and prevent reg
 Executes comprehensive testing, linting verification, and quality gate validation.
 
 ## Checks
+
 1. **TypeScript / React:** `npm run test`, `npm run lint`
 2. **Go:** `go test ./...`
 3. **Targeted Verification (Routine):** Run targeted linters on modified files (full `06-cicd-local-runner.py` is strictly banned in routine turns).
