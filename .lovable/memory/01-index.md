@@ -53,6 +53,7 @@ Updated: 2026-04-27
 - [Avoid Running Full CI/CD Runner in Routine Tasks](avoid/05-running-full-cicd-runner-in-routine-tasks.md) — Total ban on running the 28-38 gate CI runner during routine edits and coding guideline fixes.
 - [Test Inventory & Atomic File Change Tracking](learned/11-test-inventory-and-atomic-file-change-tracking.md) — Centralized test cataloging, cross-platform locking, and targeted test resolution for releases.
 - [Consolidated Commits, Immediate Push, and Build Rules](learned/12-consolidated-commit-push-and-build-rules.md) — Mandatory atomic commit grouping, immediate remote push, and ban on uncommanded routine builds.
+- [CI Step Timeout Flakiness & Fixture Gofmt Dirtiness RCA](issues/2026-09-12-ci-step-timeout-and-fixture-gofmt-rca.md) — Root cause analysis for macro process timeout and fixrepo fixture gofmt backup filtering.
 
 - [Fast File Indexing & Caching Strategy](standards/05-fast-file-indexing-and-caching.md) — Pre-computed file scanning and index caching in `tmp/` via `08-fast-file-scanner.py` for rapid multi-step lookups.
 - [Prompt Synchronization Architecture](standards/04-prompt-synchronization-architecture.md) — All prompts authored in `01-prompts/` and compiled to flat `01-prompts/*.md` via `scripts/update-prompts.ps1` without external Git clones.

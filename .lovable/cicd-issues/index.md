@@ -29,3 +29,5 @@
 - [38-nested-if-and-help-examples.md](./38-nested-if-and-help-examples.md): Flatten nested if statements in apperror.go, pipeline_ai.go, and pipeline_status.go, and standardize help Examples section heading.
 - [39-pull-scan-agy-decouple-and-mutation-rca.md](./39-pull-scan-agy-decouple-and-mutation-rca.md): Decouple pull and scan from agy commands and eliminate unintended agy project mutations.
 - [40-nested-ifs-and-boolean-flattening.md](./40-nested-ifs-and-boolean-flattening.md): Flatten nested if conditionals across power management, VMware automation, and split installation DB.
+- [41-unused-queryrecentfailedruns-and-gofmt.md](./41-unused-queryrecentfailedruns-and-gofmt.md): Fix unused QueryRecentFailedRuns linter error and gofmt drift across pipeline files.
+- [42-step-timeout-and-fixture-gofmt.md](./42-step-timeout-and-fixture-gofmt.md): Fix step timeout pipe hanging on Unix and eliminate gofmt dirty file report in fixrepo e2e test.

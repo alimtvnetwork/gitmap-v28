@@ -312,6 +312,8 @@ func buildStepCmd(ctx context.Context, cmdText, dir string, opts ExecOptions, ou
 		cmd = exec.CommandContext(ctx, "sh", "-c", cmdText)
 	}
 
+	cmd.WaitDelay = 250 * time.Millisecond
+
 	if len(dir) > 0 {
 		cmd.Dir = dir
 	}

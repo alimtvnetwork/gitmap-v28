@@ -101,7 +101,6 @@ var AlignedKeys = map[string]string{
 	"%[1]s-v9":  "nine",
 	"%[1]s-v10": "ten",
 }
-
 `, base)
 }
 
@@ -142,7 +141,20 @@ func runGofmtList(t *testing.T, dir string) string {
 		t.Fatalf("gofmt -l .: %v", err)
 	}
 
-	return strings.TrimSpace(string(out))
+	return filterDirtyGofmtLines(string(out))
+}
+
+func filterDirtyGofmtLines(out string) string {
+	var dirty []string
+	for _, line := range strings.Split(strings.TrimSpace(out), "\n") {
+		trimmed := strings.TrimSpace(line)
+		clean := filepath.ToSlash(trimmed)
+		if len(trimmed) > 0 && !strings.HasPrefix(clean, ".gitmap/") && !strings.HasPrefix(clean, ".git/") {
+			dirty = append(dirty, trimmed)
+		}
+	}
+
+	return strings.Join(dirty, "\n")
 }
 
 // dumpGoFiles concatenates every .go file under dir with a header so

@@ -167,7 +167,7 @@ func getSleepCmd(seconds int) string {
 		return fmt.Sprintf("Start-Sleep -Seconds %d", seconds)
 	}
 
-	return fmt.Sprintf("sleep %d", seconds)
+	return fmt.Sprintf("exec sleep %d", seconds)
 }
 
 func TestResolveTargetDir_WorkingDirPrecedence(t *testing.T) {
