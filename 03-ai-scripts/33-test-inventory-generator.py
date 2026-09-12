@@ -158,9 +158,9 @@ def extract_go_declarations(filepath: Path) -> dict[str, str]:
     return funcs
 
 
-def extract_go_tests(filepath: Path) -> dict[str, str]:
-    """Extracts Go test functions (Test*) from a test file."""
-    tests: dict[str, str] = {}
+def extract_go_tests(filepath: Path) -> dict[str, tuple[str, str]]:
+    """Extracts Go test functions (Test*) from a test file: tname -> (hash, body)."""
+    tests: dict[str, tuple[str, str]] = {}
     if not filepath.is_file():
         return tests
 
@@ -176,16 +176,18 @@ def extract_go_tests(filepath: Path) -> dict[str, str]:
         m = TEST_START_RE.match(line)
         if m:
             if current_test:
-                chunk = "\n".join(current_lines).encode("utf-8")
-                tests[current_test] = hashlib.sha256(chunk).hexdigest()[:16]
+                body = "\n".join(current_lines)
+                chunk = body.encode("utf-8")
+                tests[current_test] = (hashlib.sha256(chunk).hexdigest()[:16], body)
             current_test = m.group(1)
             current_lines = [line]
         elif current_test:
             current_lines.append(line)
 
     if current_test:
-        chunk = "\n".join(current_lines).encode("utf-8")
-        tests[current_test] = hashlib.sha256(chunk).hexdigest()[:16]
+        body = "\n".join(current_lines)
+        chunk = body.encode("utf-8")
+        tests[current_test] = (hashlib.sha256(chunk).hexdigest()[:16], body)
 
     return tests
 
@@ -251,19 +253,24 @@ def estimate_test_duration(
     if "tests/heavy_test" in rel:
         return 5.0, "slow", True
 
+    # Strip single-line comments to avoid matching keywords in documentation
+    code_lines = [line for line in content.splitlines() if not line.strip().startswith("//")]
+    clean_code = "\n".join(code_lines)
+
     duration = 0.005
-    if "exec.Command" in content:
+    if "exec.Command" in clean_code:
         duration += 3.0
-    if "time.Sleep" in content:
+    if "time.Sleep" in clean_code:
         duration += 1.5
-    if "net.Listen" in content or "http.Get" in content or "http.Post" in content:
+    if "net.Listen" in clean_code or "http.Get" in clean_code or "http.Post" in clean_code:
         duration += 0.5
-    if "git" in test_name.lower() and ("subprocess" in content.lower() or "exec" in content.lower()):
+    if "git" in test_name.lower() and ("subprocess" in clean_code.lower() or "exec" in clean_code.lower()):
         duration += 2.0
 
     is_slow = (duration >= slow_threshold)
     tier = "slow" if is_slow else "fast"
     return round(duration, 3), tier, is_slow
+
 
 
 def resolve_target_file(tf: Path, pkg_dir: Path, repo_root: Path, rel_test_file: str) -> tuple[str, str]:
@@ -326,14 +333,15 @@ def scan_go_tests(
 
         rel_target, code_hash = resolve_target_file(tf, pkg_dir, repo_root, rel_test_file)
 
-        for tname, thash in test_funcs.items():
+        for tname, val in test_funcs.items():
+            thash, tbody = val
             tid = f"{rel_pkg}.{tname}"
             target_func = ""
             if tname.startswith("Test"):
                 cand = tname[4:].split("_")[0]
                 target_func = cand
 
-            dur, tier, is_slow = estimate_test_duration(tf, tname, file_content, slow_threshold)
+            dur, tier, is_slow = estimate_test_duration(tf, tname, tbody, slow_threshold)
 
             tests_dict[tid] = {
                 "id": tid,

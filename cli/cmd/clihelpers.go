@@ -2,12 +2,17 @@
 package cmd
 
 import (
+	"encoding/json"
+	"fmt"
 	"os"
 	"strings"
 	"time"
 
 	"github.com/alimtvnetwork/gitmap-v28/cli/apperror"
+	"github.com/alimtvnetwork/gitmap-v28/cli/cmddb"
+	"github.com/alimtvnetwork/gitmap-v28/cli/cmdfixrepo"
 	"github.com/alimtvnetwork/gitmap-v28/cli/cmdmacro"
+	"github.com/alimtvnetwork/gitmap-v28/cli/cmdpipeline"
 	"github.com/alimtvnetwork/gitmap-v28/cli/cmdvhost"
 	"github.com/alimtvnetwork/gitmap-v28/cli/cmdvscode"
 	"github.com/alimtvnetwork/gitmap-v28/cli/cmdzip"
@@ -209,4 +214,130 @@ func runUnzipCompact(args []string) error {
 
 func runZipGroup(args []string) error {
 	return cmdzip.RunZipGroup(args)
+}
+
+func runFixRepo(args []string) error {
+	return cmdfixrepo.RunFixRepo(args)
+}
+
+type fixRepoBackupManifest = cmdfixrepo.FixRepoBackupManifest
+
+type fixRepoIdentity struct {
+	root    string
+	host    string
+	owner   string
+	base    string
+	current int
+}
+
+func resolveFixRepoIdentity() fixRepoIdentity {
+	id := cmdfixrepo.ResolveFixRepoIdentity()
+	return fixRepoIdentity{
+		root:    id.Root,
+		host:    id.Host,
+		owner:   id.Owner,
+		base:    id.Base,
+		current: id.Current,
+	}
+}
+
+func copyFileForBackup(src, dst string) error {
+	return cmdfixrepo.CopyFileForBackup(src, dst)
+}
+
+const gofmtArgvOverhead = cmdfixrepo.GofmtArgvOverhead
+
+func chunkPathsForGofmt(paths []string, maxCmdLen int) [][]string {
+	return cmdfixrepo.ChunkPathsForGofmt(paths, maxCmdLen)
+}
+
+func batchCmdLen(batch []string) int {
+	return cmdfixrepo.BatchCmdLen(batch)
+}
+
+var rewriteFixRepoFile = cmdfixrepo.RewriteFixRepoFile
+
+var CountUnguardedTokenHits = cmdfixrepo.CountUnguardedTokenHits
+
+var ScanUnguardedTokenHits = cmdfixrepo.ScanUnguardedTokenHits
+
+func runDB(args []string) error {
+	return cmddb.RunDB(args)
+}
+
+func runStartFresh(args []string) error {
+	return cmddb.RunStartFresh(args)
+}
+
+var formatBytes = cmddb.FormatBytes
+var confirmOrSkip = cmddb.ConfirmOrSkip
+var isInteractiveStdin = cmddb.IsInteractiveStdin
+var hasConfirmFlag = cmddb.HasConfirmFlag
+var parseConfirmFlag = cmddb.ParseConfirmFlag
+var truncateStr = cmddb.TruncateStr
+
+func runPipeline(args []string) error {
+	return cmdpipeline.RunPipeline(args)
+}
+
+func runPipelineAI(args []string) error {
+	return cmdpipeline.RunPipelineAI(args)
+}
+
+var handlePipelineStatus = cmdpipeline.HandlePipelineStatus
+var handlePipelineErrorLogs = cmdpipeline.HandlePipelineErrorLogs
+var handlePipelineLastFailedLogs = cmdpipeline.HandlePipelineLastFailedLogs
+var HandlePipelineLastFailedLogs = cmdpipeline.HandlePipelineLastFailedLogs
+var handlePipelineDB = cmdpipeline.HandlePipelineDB
+var handlePipelineWaitTime = cmdpipeline.HandlePipelineWaitTime
+var isNegativeIndexToken = cmdpipeline.IsNegativeIndexToken
+var IsNegativeIndexToken = cmdpipeline.IsNegativeIndexToken
+var resolveTempDir = cmdpipeline.ResolveTempDir
+
+type PipelineStatusPayload = cmdpipeline.PipelineStatusPayload
+type PipelineErrorLogsPayload = cmdpipeline.PipelineErrorLogsPayload
+type ErrorLogOutputParams = cmdpipeline.ErrorLogOutputParams
+type SectionFailure = cmdpipeline.SectionFailure
+type FailedRunItem = cmdpipeline.FailedRunItem
+type FailedJobItem = cmdpipeline.FailedJobItem
+type CICDCheckResult = cmdpipeline.CICDCheckResult
+type ghRunItem = cmdpipeline.GhRunItem
+
+var buildErrorLogsPayload = cmdpipeline.BuildErrorLogsPayload
+var recordRunInSplitDb = cmdpipeline.RecordRunInSplitDb
+var saveParsedFailedJobs = cmdpipeline.SaveParsedFailedJobs
+
+func hasArgFlag(args []string, flagName string) bool {
+	for _, a := range args {
+		if a == flagName || strings.HasPrefix(a, flagName+"=") {
+			return true
+		}
+	}
+
+	return false
+}
+
+func extractFlagVal(args []string, flagName string) string {
+	for i, arg := range args {
+		if arg == flagName && i+1 < len(args) {
+			return args[i+1]
+		}
+
+		if strings.HasPrefix(arg, flagName+"=") {
+			return strings.TrimPrefix(arg, flagName+"=")
+		}
+	}
+
+	return ""
+}
+
+func printJSON(v any) error {
+	b, err := json.MarshalIndent(v, "", "  ")
+	if err != nil {
+		return err
+	}
+
+	fmt.Println(string(b))
+
+	return nil
 }
