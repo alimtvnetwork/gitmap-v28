@@ -103,7 +103,7 @@ func LoadMacro(name string) (*Macro, error) {
 }
 
 // ListMacros returns all saved macros.
-func ListMacros() result.ResultSlice[Macro] {
+func ListMacros() MacroSliceResult {
 	dir, err := getMacroDir()
 	if err != nil {
 		return result.FailSlice[Macro](apperror.WrapSimple(err, "get macro dir"))

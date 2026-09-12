@@ -4,12 +4,6 @@ import (
 	"github.com/alimtvnetwork/gitmap-v28/cli/apperror"
 )
 
-// ResultSlice encapsulates a slice computation outcome with typed item list or *apperror.AppError.
-type ResultSlice[T any] struct {
-	Value []T
-	Data  []T
-	Err   *apperror.AppError
-}
 
 // IsSuccess reports whether the slice operation succeeded without error.
 func (r *ResultSlice[T]) IsSuccess() bool {

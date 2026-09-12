@@ -19,19 +19,6 @@ import (
 	_ "modernc.org/sqlite"
 )
 
-type scheduleExportBundle struct {
-	Task store.SchedulerTask       `json:"task" yaml:"task"`
-	Runs []store.ScheduleRunRecord `json:"runs" yaml:"runs"`
-}
-
-type scheduleExportOpts struct {
-	TargetName string
-	FilePath   string
-	Format     string
-	ExceptList []string
-	IsAll      bool
-}
-
 func runScheduleExport(args []string) error {
 	opts := parseScheduleExportOpts(args)
 	db, err := openSchedulerDB()
@@ -48,8 +35,8 @@ func runScheduleExport(args []string) error {
 	return writeScheduleExportOutput(bundlesRes.Data, opts)
 }
 
-func parseScheduleExportOpts(args []string) scheduleExportOpts {
-	opts := scheduleExportOpts{Format: constants.OutputJSON}
+func parseScheduleExportOpts(args []string) ScheduleExportOpts {
+	opts := ScheduleExportOpts{Format: constants.OutputJSON}
 	for i := 0; i < len(args); i++ {
 		a := args[i]
 		switch {
@@ -78,7 +65,7 @@ func parseScheduleExportOpts(args []string) scheduleExportOpts {
 	return opts
 }
 
-func inferScheduleExportFormatFromPath(opts *scheduleExportOpts) {
+func inferScheduleExportFormatFromPath(opts *ScheduleExportOpts) {
 	if opts.FilePath == "" {
 		return
 	}
@@ -110,30 +97,30 @@ func parseExceptTokens(raw string) []string {
 	return list
 }
 
-func collectExportBundles(db *store.DB, opts scheduleExportOpts) result.ResultSlice[scheduleExportBundle] {
+func collectExportBundles(db *store.DB, opts ScheduleExportOpts) ScheduleExportBundleResult {
 	tasks, err := db.ListSchedules()
 	if err != nil {
-		return result.FailSlice[scheduleExportBundle](apperror.WrapSimple(err, "list schedules for export"))
+		return result.FailSlice[ScheduleExportBundle](apperror.WrapSimple(err, "list schedules for export"))
 	}
 
-	var bundles []scheduleExportBundle
+	var bundles []ScheduleExportBundle
 	for _, t := range tasks {
 		if isSkippableSchedule(t.Name, opts) {
 			continue
 		}
 
 		runs := fetchScheduleRunsSafe(t.Slug)
-		bundles = append(bundles, scheduleExportBundle{Task: t, Runs: runs})
+		bundles = append(bundles, ScheduleExportBundle{Task: t, Runs: runs})
 	}
 
 	if len(bundles) == 0 && !opts.IsAll {
-		return result.FailSlice[scheduleExportBundle](apperror.NewSimple("schedule "+opts.TargetName+" not found", "E6010"))
+		return result.FailSlice[ScheduleExportBundle](apperror.NewSimple("schedule "+opts.TargetName+" not found", "E6010"))
 	}
 
 	return result.OkSlice(bundles)
 }
 
-func isSkippableSchedule(name string, opts scheduleExportOpts) bool {
+func isSkippableSchedule(name string, opts ScheduleExportOpts) bool {
 	if !opts.IsAll && !strings.EqualFold(name, opts.TargetName) {
 		return true
 	}
@@ -159,7 +146,7 @@ func fetchScheduleRunsSafe(slug string) []store.ScheduleRunRecord {
 	return runs
 }
 
-func writeScheduleExportOutput(bundles []scheduleExportBundle, opts scheduleExportOpts) error {
+func writeScheduleExportOutput(bundles []ScheduleExportBundle, opts ScheduleExportOpts) error {
 	switch opts.Format {
 	case constants.OutputYAML:
 		return writeScheduleExportYAML(bundles, opts.FilePath)
@@ -172,7 +159,7 @@ func writeScheduleExportOutput(bundles []scheduleExportBundle, opts scheduleExpo
 	}
 }
 
-func writeScheduleExportJSON(bundles []scheduleExportBundle, filePath string) error {
+func writeScheduleExportJSON(bundles []ScheduleExportBundle, filePath string) error {
 	raw, err := json.MarshalIndent(bundles, "", constants.JSONIndent)
 	if err != nil {
 		return err
@@ -194,7 +181,7 @@ func writeScheduleExportJSON(bundles []scheduleExportBundle, filePath string) er
 	return nil
 }
 
-func writeScheduleExportYAML(bundles []scheduleExportBundle, filePath string) error {
+func writeScheduleExportYAML(bundles []ScheduleExportBundle, filePath string) error {
 	raw, err := yaml.Marshal(bundles)
 	if err != nil {
 		return err
@@ -216,7 +203,7 @@ func writeScheduleExportYAML(bundles []scheduleExportBundle, filePath string) er
 	return nil
 }
 
-func writeScheduleExportSQLite(bundles []scheduleExportBundle, filePath string) error {
+func writeScheduleExportSQLite(bundles []ScheduleExportBundle, filePath string) error {
 	outPath := resolveExportSQLitePath(filePath)
 	_ = os.Remove(outPath)
 	_ = os.MkdirAll(filepath.Dir(outPath), constants.DirPermission)
@@ -245,7 +232,7 @@ func resolveExportSQLitePath(filePath string) string {
 	return filePath
 }
 
-func populateExportSQLite(conn *sql.DB, bundles []scheduleExportBundle) error {
+func populateExportSQLite(conn *sql.DB, bundles []ScheduleExportBundle) error {
 	if _, err := conn.Exec(store.SQLCreateSchedulerTasksTable); err != nil {
 		return err
 	}
@@ -278,7 +265,7 @@ func populateExportSQLite(conn *sql.DB, bundles []scheduleExportBundle) error {
 	return nil
 }
 
-func insertBundleIntoSQLite(conn *sql.DB, b scheduleExportBundle) error {
+func insertBundleIntoSQLite(conn *sql.DB, b ScheduleExportBundle) error {
 	qTask := `INSERT INTO scheduler_tasks (name, slug, db_path, macro_name, command_line, interval_val, delay_val, is_enabled, is_scheduled, has_delay, is_startup, run_count, last_run_at)
 	          VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`
 	if _, err := conn.Exec(qTask, b.Task.Name, b.Task.Slug, b.Task.DBPath, b.Task.MacroName, b.Task.CommandLine, b.Task.IntervalVal, b.Task.DelayVal, b.Task.IsEnabled, b.Task.IsScheduled, b.Task.HasDelay, b.Task.IsStartup, b.Task.RunCount, b.Task.LastRunAt); err != nil {
@@ -301,7 +288,7 @@ func insertBundleIntoSQLite(conn *sql.DB, b scheduleExportBundle) error {
 	return nil
 }
 
-func writeScheduleExportZIP(bundles []scheduleExportBundle, filePath string) error {
+func writeScheduleExportZIP(bundles []ScheduleExportBundle, filePath string) error {
 	if filePath == "" {
 		filePath = "schedules_export.zip"
 	}
@@ -319,7 +306,7 @@ func writeScheduleExportZIP(bundles []scheduleExportBundle, filePath string) err
 	return addBundlesToZIP(zw, bundles, filePath)
 }
 
-func addBundlesToZIP(zw *zip.Writer, bundles []scheduleExportBundle, filePath string) error {
+func addBundlesToZIP(zw *zip.Writer, bundles []ScheduleExportBundle, filePath string) error {
 	for _, b := range bundles {
 		raw, _ := json.MarshalIndent(b, "", constants.JSONIndent)
 		f, err := zw.Create(b.Task.Slug + ".json")

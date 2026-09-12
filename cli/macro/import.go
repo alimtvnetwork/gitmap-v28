@@ -105,7 +105,7 @@ func isReservedDeviceName(name string) bool {
 }
 
 // ParseImportJSON deserializes JSON bytes using polymorphic dual-shape detection.
-func ParseImportJSON(data []byte) result.ResultSlice[Macro] {
+func ParseImportJSON(data []byte) MacroSliceResult {
 	var list []Macro
 	if err := json.Unmarshal(data, &list); err == nil && len(list) > 0 {
 		return result.OkSlice(list)
@@ -120,7 +120,7 @@ func ParseImportJSON(data []byte) result.ResultSlice[Macro] {
 }
 
 // ParseImportYAML deserializes YAML bytes using polymorphic dual-shape detection.
-func ParseImportYAML(data []byte) result.ResultSlice[Macro] {
+func ParseImportYAML(data []byte) MacroSliceResult {
 	var list []Macro
 	if err := yaml.Unmarshal(data, &list); err == nil && len(list) > 0 {
 		return result.OkSlice(list)
@@ -135,7 +135,7 @@ func ParseImportYAML(data []byte) result.ResultSlice[Macro] {
 }
 
 // ParseImportZIP unpacks and deserializes all JSON macro definitions inside a ZIP archive.
-func ParseImportZIP(filePath string) result.ResultSlice[Macro] {
+func ParseImportZIP(filePath string) MacroSliceResult {
 	zr, err := zip.OpenReader(filePath)
 	if err != nil {
 		return result.FailSlice[Macro](apperror.WrapSimple(err, "open zip macro archive"))
@@ -146,7 +146,7 @@ func ParseImportZIP(filePath string) result.ResultSlice[Macro] {
 	return extractMacrosFromZip(&zr.Reader)
 }
 
-func extractMacrosFromZip(zr *zip.Reader) result.ResultSlice[Macro] {
+func extractMacrosFromZip(zr *zip.Reader) MacroSliceResult {
 	var list []Macro
 	for _, f := range zr.File {
 		if !strings.HasSuffix(strings.ToLower(f.Name), ".json") {
@@ -202,7 +202,7 @@ func InferMacroFormat(filePath string) string {
 }
 
 // ParseImportFile loads and parses macros from disk with auto format inference.
-func ParseImportFile(filePath string, explicitFormat string) result.ResultSlice[Macro] {
+func ParseImportFile(filePath string, explicitFormat string) MacroSliceResult {
 	format := strings.ToLower(strings.TrimSpace(explicitFormat))
 	if format == "" {
 		format = InferMacroFormat(filePath)
@@ -245,7 +245,7 @@ func ImportMacros(macros []Macro, opts ImportOptions) (*ImportResult, error) {
 	return res, nil
 }
 
-func filterAndValidateImportTargets(macros []Macro, opts ImportOptions) result.ResultSlice[Macro] {
+func filterAndValidateImportTargets(macros []Macro, opts ImportOptions) MacroSliceResult {
 	matched := matchImportMacros(macros, opts)
 	if opts.TargetName != "" && len(matched) == 0 {
 		return result.FailSlice[Macro](apperror.NewValidationError("macro target " + opts.TargetName + " not found in import archive"))

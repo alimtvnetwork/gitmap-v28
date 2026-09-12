@@ -45,6 +45,16 @@ CLUMSY_CARDINALITY_CHECK = re.compile(
     r"(?:\.IsFailure\(\)\s*\|\|\s*[^.\s]+\.Count\(\)\s*!=\s*\d+|[^.\s]+\.Count\(\)\s*!=\s*\d+\s*\|\|\s*[^.\s]+\.IsFailure\(\))"
 )
 
+# Enforced subsystems that must define domain models & Result aliases in types.go
+ENFORCED_TYPES_GO_PACKAGES = (
+    "cli/result",
+    "cli/cmdschedule",
+    "cli/pipelinedb",
+    "cli/macro",
+)
+
+NON_AFFIRMATIVE_DEFINED = re.compile(r"\bdefined\s+bool\b")
+
 # Enforced subsystems/files that must strictly use ResultSlice[T]
 RESULT_SLICE_ENFORCED_PREFIXES = (
     "cli/macro/",
@@ -115,24 +125,57 @@ def audit_file(filepath: Path) -> tuple[list[str], int]:
     return violations, unmigrated_slices
 
 
+def check_types_go_centralization() -> list[str]:
+    violations = []
+    for pkg_rel in ENFORCED_TYPES_GO_PACKAGES:
+        pkg_dir = ROOT_DIR / pkg_rel
+        types_file = pkg_dir / "types.go"
+        if not types_file.exists():
+            violations.append(f"{pkg_rel}/types.go is missing; package must define domain models & Result aliases in types.go")
+
+    for rpath in ("cli/result/result.go", "cli/result/types.go"):
+        rfile = ROOT_DIR / rpath
+        if rfile.exists():
+            content = rfile.read_text(encoding="utf-8", errors="replace")
+            for lno, line in enumerate(content.splitlines(), 1):
+                if NON_AFFIRMATIVE_DEFINED.search(line):
+                    violations.append(f"{rpath}:{lno} non-affirmative boolean field `defined bool`; must be `isDefined bool`")
+
+    sched_export = ROOT_DIR / "cli/cmdschedule/schedule_export.go"
+    if sched_export.exists():
+        content = sched_export.read_text(encoding="utf-8", errors="replace")
+        for lno, line in enumerate(content.splitlines(), 1):
+            if "type scheduleExportBundle struct" in line or "type scheduleExportOpts struct" in line:
+                violations.append(f"cli/cmdschedule/schedule_export.go:{lno} unexported inline struct; must be exported in cli/cmdschedule/types.go")
+
+    return violations
+
+
 def main() -> None:
     if not CLI_DIR.exists():
         print(f"Error: {CLI_DIR} not found.")
         sys.exit(1)
 
     all_violations = []
+    all_violations.extend(check_types_go_centralization())
     total_unmigrated_slices = 0
     file_count = 0
 
     for root, dirs, files in os.walk(CLI_DIR):
         dirs[:] = [d for d in dirs if d not in EXCLUDE_DIRS]
         for f in files:
-            if f.endswith(".go") and not f.endswith("_test.go"):
+            if f.endswith(".go"):
+                is_test = f.endswith("_test.go")
                 file_count += 1
                 fp = Path(root) / f
                 violations, unmigrated = audit_file(fp)
-                all_violations.extend(violations)
-                total_unmigrated_slices += unmigrated
+                if is_test:
+                    # In test files, only report clumsy cardinality checks
+                    test_violations = [v for v in violations if "clumsy" in v]
+                    all_violations.extend(test_violations)
+                else:
+                    all_violations.extend(violations)
+                    total_unmigrated_slices += unmigrated
 
     print(f"Audited {file_count} Go files in {CLI_DIR.name}/ for ResultMap/ResultSlice compliance.")
     print(f"ResultSlice enforced subsystems: {', '.join(RESULT_SLICE_ENFORCED_PREFIXES)}")

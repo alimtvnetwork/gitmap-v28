@@ -1,6 +1,21 @@
 package macro
 
-import "time"
+import (
+	"time"
+
+	"github.com/alimtvnetwork/gitmap-v28/cli/result"
+)
+
+type (
+	// MacroSliceResult is the canonical single reusable result envelope for macro slices.
+	MacroSliceResult = result.ResultSlice[Macro]
+
+	// MacroResult is the canonical single reusable result envelope for a single macro.
+	MacroResult = result.Result[Macro]
+
+	// MacroStepsMapResult is the canonical single reusable result envelope for macro steps mapping.
+	MacroStepsMapResult = result.ResultMap[string, []MacroStep]
+)
 
 // Macro represents a named sequence of shell commands.
 type Macro struct {

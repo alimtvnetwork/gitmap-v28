@@ -46,7 +46,7 @@ func fileExists(path string) bool {
 	return err == nil && !info.IsDir()
 }
 
-func parseImportFileBundles(filePath string) result.ResultSlice[scheduleExportBundle] {
+func parseImportFileBundles(filePath string) ScheduleExportBundleResult {
 	ext := strings.ToLower(filepath.Ext(filePath))
 	switch ext {
 	case ".yaml", ".yml":
@@ -60,71 +60,71 @@ func parseImportFileBundles(filePath string) result.ResultSlice[scheduleExportBu
 	}
 }
 
-func parseImportJSON(filePath string) result.ResultSlice[scheduleExportBundle] {
+func parseImportJSON(filePath string) ScheduleExportBundleResult {
 	raw, err := os.ReadFile(filePath)
 	if err != nil {
-		return result.FailSlice[scheduleExportBundle](apperror.WrapSimple(err, "read import json"))
+		return result.FailSlice[ScheduleExportBundle](apperror.WrapSimple(err, "read import json"))
 	}
 
-	var bundles []scheduleExportBundle
+	var bundles []ScheduleExportBundle
 	if err := json.Unmarshal(raw, &bundles); err == nil && len(bundles) > 0 {
 		return result.OkSlice(bundles)
 	}
 
-	var single scheduleExportBundle
+	var single ScheduleExportBundle
 	if err := json.Unmarshal(raw, &single); err == nil && single.Task.Name != "" {
-		return result.OkSlice([]scheduleExportBundle{single})
+		return result.OkSlice([]ScheduleExportBundle{single})
 	}
 
-	return result.FailSlice[scheduleExportBundle](apperror.NewSimple("invalid json schedule export format", "E6012"))
+	return result.FailSlice[ScheduleExportBundle](apperror.NewSimple("invalid json schedule export format", "E6012"))
 }
 
-func parseImportYAML(filePath string) result.ResultSlice[scheduleExportBundle] {
+func parseImportYAML(filePath string) ScheduleExportBundleResult {
 	raw, err := os.ReadFile(filePath)
 	if err != nil {
-		return result.FailSlice[scheduleExportBundle](apperror.WrapSimple(err, "read import yaml"))
+		return result.FailSlice[ScheduleExportBundle](apperror.WrapSimple(err, "read import yaml"))
 	}
 
-	var bundles []scheduleExportBundle
+	var bundles []ScheduleExportBundle
 	if err := yaml.Unmarshal(raw, &bundles); err == nil && len(bundles) > 0 {
 		return result.OkSlice(bundles)
 	}
 
-	var single scheduleExportBundle
+	var single ScheduleExportBundle
 	if err := yaml.Unmarshal(raw, &single); err == nil && single.Task.Name != "" {
-		return result.OkSlice([]scheduleExportBundle{single})
+		return result.OkSlice([]ScheduleExportBundle{single})
 	}
 
-	return result.FailSlice[scheduleExportBundle](apperror.NewSimple("invalid yaml schedule export format", "E6013"))
+	return result.FailSlice[ScheduleExportBundle](apperror.NewSimple("invalid yaml schedule export format", "E6013"))
 }
 
-func parseImportSQLite(filePath string) result.ResultSlice[scheduleExportBundle] {
+func parseImportSQLite(filePath string) ScheduleExportBundleResult {
 	conn, appErr := store.OpenSQLiteDB(filePath)
 	if appErr != nil {
-		return result.FailSlice[scheduleExportBundle](apperror.WrapSimple(appErr, "open import sqlite db"))
+		return result.FailSlice[ScheduleExportBundle](apperror.WrapSimple(appErr, "open import sqlite db"))
 	}
 
 	defer conn.Close()
 
 	tasksRes := queryImportTasksFromDB(conn)
 	if tasksRes.IsFailure() {
-		return result.FailSlice[scheduleExportBundle](tasksRes.AppError())
+		return result.FailSlice[ScheduleExportBundle](tasksRes.AppError())
 	}
 
 	return result.OkSlice(buildImportBundles(conn, tasksRes.Data))
 }
 
-func buildImportBundles(conn *sql.DB, tasks []store.SchedulerTask) []scheduleExportBundle {
-	var bundles []scheduleExportBundle
+func buildImportBundles(conn *sql.DB, tasks []store.SchedulerTask) []ScheduleExportBundle {
+	var bundles []ScheduleExportBundle
 	for _, t := range tasks {
 		runs := queryImportRunsFromDB(conn, t.Name)
-		bundles = append(bundles, scheduleExportBundle{Task: t, Runs: runs})
+		bundles = append(bundles, ScheduleExportBundle{Task: t, Runs: runs})
 	}
 
 	return bundles
 }
 
-func queryImportTasksFromDB(conn *sql.DB) result.ResultSlice[store.SchedulerTask] {
+func queryImportTasksFromDB(conn *sql.DB) SchedulerTaskSliceResult {
 	q := `SELECT id, name, COALESCE(slug,''), COALESCE(db_path,''), COALESCE(macro_name,''), COALESCE(command_line,''), interval_val, delay_val, is_enabled, is_scheduled, has_delay, is_startup, run_count, COALESCE(last_run_at,''), created_at
 	      FROM scheduler_tasks`
 	rows, err := conn.Query(q)
@@ -180,14 +180,14 @@ func parseImportRunRows(rows *sql.Rows) []store.ScheduleRunRecord {
 	return list
 }
 
-func parseImportZIP(filePath string) result.ResultSlice[scheduleExportBundle] {
+func parseImportZIP(filePath string) ScheduleExportBundleResult {
 	zr, err := zip.OpenReader(filePath)
 	if err != nil {
-		return result.FailSlice[scheduleExportBundle](apperror.WrapSimple(err, "open zip file"))
+		return result.FailSlice[ScheduleExportBundle](apperror.WrapSimple(err, "open zip file"))
 	}
 
 	defer zr.Close()
-	var bundles []scheduleExportBundle
+	var bundles []ScheduleExportBundle
 	for _, f := range zr.File {
 		if !strings.HasSuffix(strings.ToLower(f.Name), ".json") {
 			continue
@@ -202,21 +202,21 @@ func parseImportZIP(filePath string) result.ResultSlice[scheduleExportBundle] {
 	return result.OkSlice(bundles)
 }
 
-func readBundleFromZipFile(f *zip.File) scheduleExportBundle {
+func readBundleFromZipFile(f *zip.File) ScheduleExportBundle {
 	rc, err := f.Open()
 	if err != nil {
-		return scheduleExportBundle{}
+		return ScheduleExportBundle{}
 	}
 
 	defer rc.Close()
 	data, _ := io.ReadAll(rc)
-	var b scheduleExportBundle
+	var b ScheduleExportBundle
 	_ = json.Unmarshal(data, &b)
 
 	return b
 }
 
-func importBundlesIntoStore(bundles []scheduleExportBundle, exceptList []string) error {
+func importBundlesIntoStore(bundles []ScheduleExportBundle, exceptList []string) error {
 	db, err := openSchedulerDB()
 	if err != nil {
 		return err
@@ -249,7 +249,7 @@ func isNameInExceptList(name string, exceptList []string) bool {
 	return false
 }
 
-func persistImportedBundle(db *store.DB, b scheduleExportBundle) error {
+func persistImportedBundle(db *store.DB, b ScheduleExportBundle) error {
 	if b.Task.Slug == "" {
 		b.Task.Slug = store.ScheduleSlug(b.Task.Name)
 	}

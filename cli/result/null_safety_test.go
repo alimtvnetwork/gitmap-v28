@@ -289,7 +289,7 @@ func TestCorePredicatesOnSuccessAndFailure(t *testing.T) {
 
 	// Success Slice
 	sliceOk := result.OkSlice([]string{"a", "b"})
-	if sliceOk.IsFailure() || sliceOk.Count() != 2 || sliceOk.IsCountOtherThan(2) {
+	if sliceOk.IsCountOtherThan(2) {
 		t.Errorf("sliceOk expected count 2")
 	}
 	if !sliceOk.HasRecord() || !sliceOk.IsDefined() {
@@ -301,7 +301,7 @@ func TestCorePredicatesOnSuccessAndFailure(t *testing.T) {
 
 	// Empty Slice
 	sliceEmpty := result.OkSlice([]string{})
-	if sliceEmpty.IsFailure() || sliceEmpty.Count() != 0 || !sliceEmpty.IsEmpty() {
+	if sliceEmpty.IsCountOtherThan(0) || !sliceEmpty.IsEmpty() {
 		t.Errorf("sliceEmpty expected count 0, IsEmpty=true")
 	}
 	if sliceEmpty.HasRecord() || sliceEmpty.IsDefined() {
@@ -310,7 +310,7 @@ func TestCorePredicatesOnSuccessAndFailure(t *testing.T) {
 
 	// Map Success
 	mapOk := result.OkMap(map[string]int{"k": 1})
-	if mapOk.IsFailure() || mapOk.Count() != 1 || mapOk.IsCountOtherThan(1) {
+	if mapOk.IsCountOtherThan(1) {
 		t.Errorf("mapOk expected count 1")
 	}
 	if !mapOk.HasRecord() || !mapOk.IsDefined() {

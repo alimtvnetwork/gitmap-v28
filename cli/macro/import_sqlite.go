@@ -12,7 +12,7 @@ import (
 )
 
 // ParseImportSQLite reads macros and their steps from a SQLite database file.
-func ParseImportSQLite(dbPath string) result.ResultSlice[Macro] {
+func ParseImportSQLite(dbPath string) MacroSliceResult {
 	if _, err := os.Stat(dbPath); err != nil {
 		return result.FailSlice[Macro](apperror.WrapSimple(err, "sqlite file not found"))
 	}
@@ -28,7 +28,7 @@ func ParseImportSQLite(dbPath string) result.ResultSlice[Macro] {
 	return queryAllMacrosWithSteps(db)
 }
 
-func queryAllMacrosWithSteps(db *sql.DB) result.ResultSlice[Macro] {
+func queryAllMacrosWithSteps(db *sql.DB) MacroSliceResult {
 	stepRes := queryAllMacroSteps(db)
 	if stepRes.IsFailure() {
 		return result.FailSlice[Macro](stepRes.AppError())
@@ -45,7 +45,7 @@ func queryAllMacrosWithSteps(db *sql.DB) result.ResultSlice[Macro] {
 	return scanMacroRows(rows, stepRes.Data)
 }
 
-func scanMacroRows(rows *sql.Rows, stepMap map[string][]MacroStep) result.ResultSlice[Macro] {
+func scanMacroRows(rows *sql.Rows, stepMap map[string][]MacroStep) MacroSliceResult {
 	var list []Macro
 	for rows.Next() {
 		m, err := scanSingleMacroRow(rows, stepMap)
@@ -83,7 +83,7 @@ func parseSQLiteTime(raw string) time.Time {
 	return time.Now()
 }
 
-func queryAllMacroSteps(db *sql.DB) result.ResultMap[string, []MacroStep] {
+func queryAllMacroSteps(db *sql.DB) MacroStepsMapResult {
 	query := `SELECT id, macro_name, step_num, command_line, COALESCE(working_dir, ''), continue_on_error, timeout_seconds FROM macro_steps ORDER BY step_num ASC`
 	rows, err := db.Query(query)
 	if err != nil {
@@ -97,7 +97,7 @@ func queryAllMacroSteps(db *sql.DB) result.ResultMap[string, []MacroStep] {
 	return scanMacroStepsMap(rows)
 }
 
-func scanMacroStepsMap(rows *sql.Rows) result.ResultMap[string, []MacroStep] {
+func scanMacroStepsMap(rows *sql.Rows) MacroStepsMapResult {
 	stepMap := make(map[string][]MacroStep)
 	for rows.Next() {
 		var s MacroStep

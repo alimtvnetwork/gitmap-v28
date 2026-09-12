@@ -7,12 +7,6 @@ import (
 	"github.com/alimtvnetwork/gitmap-v28/cli/apperror"
 )
 
-// ResultMap encapsulates a map computation outcome with typed key-value data or *apperror.AppError.
-type ResultMap[K comparable, V any] struct {
-	Value map[K]V
-	Data  map[K]V
-	Err   *apperror.AppError
-}
 
 // IsSuccess reports whether the map operation succeeded without error.
 func (r *ResultMap[K, V]) IsSuccess() bool {

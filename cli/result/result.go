@@ -6,13 +6,6 @@ import (
 	"github.com/alimtvnetwork/gitmap-v28/cli/apperror"
 )
 
-// Result encapsulates a computation outcome with typed value or *apperror.AppError.
-type Result[T any] struct {
-	Value   T
-	Data    T
-	Err     *apperror.AppError
-	defined bool
-}
 
 // IsSuccess reports whether the result represents a successful operation.
 func (r *Result[T]) IsSuccess() bool {
@@ -112,7 +105,7 @@ func (r *Result[T]) Count() int {
 		return 0
 	}
 
-	if r.defined {
+	if r.isDefined {
 		return 1
 	}
 
@@ -199,7 +192,7 @@ func Ok[T any](val T) Result[T] {
 	return Result[T]{
 		Value:   val,
 		Data:    val,
-		defined: true,
+		isDefined: true,
 	}
 }
 
