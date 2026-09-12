@@ -151,6 +151,14 @@ func executeCloneNextPipeline(cnFlags CloneNextFlags, cwd, remoteURL string) err
 	}
 
 	maybePrintCloneNextTermBlock(cnFlags, p.targetName, currentBranch(cwd), remoteURL, p.targetURL, p.targetPath)
+	if handleCloneNextDryRun(cnFlags.DryRun, p.targetURL, p.targetPath) {
+		return nil
+	}
+
+	return executeCloneNextSteps(cnFlags, cwd, remoteURL, p)
+}
+
+func executeCloneNextSteps(cnFlags CloneNextFlags, cwd, remoteURL string, p cloneNextTargetParams) error {
 	if cnFlags.Force {
 		fmt.Printf(constants.MsgCNStagePrepare, p.currentFolder, p.flattenedFolder)
 	}
@@ -180,10 +188,6 @@ func performCloneNextOperation(cnFlags CloneNextFlags, cwd, remoteURL string, p 
 	})
 	if remoteErr != nil {
 		return remoteErr
-	}
-
-	if cnFlags.DryRun {
-		printCloneNextDryRun(p.targetURL, p.targetPath)
 	}
 
 	return executeCloneAndFinalize(cnFlags, cwd, p)

@@ -31,6 +31,17 @@ func printCloneNextDryRun(url, dest string) {
 	cliexit.HandleError(nil, 0)
 }
 
+// handleCloneNextDryRun executes dry-run preview if requested and returns true.
+func handleCloneNextDryRun(isDryRun bool, url, dest string) bool {
+	if isDryRun {
+		printCloneNextDryRun(url, dest)
+
+		return true
+	}
+
+	return false
+}
+
 // previewDryRunBatch handles `--dry-run` for `cn --all` and
 // `cn --csv`. For each repo we resolve the same target version the
 // real batch path would (via processOneBatchRepo's helpers) so the

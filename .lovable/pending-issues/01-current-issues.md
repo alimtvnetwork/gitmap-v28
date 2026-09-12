@@ -29,12 +29,13 @@
 - **Impact**: Low — flag works but users won't know about it from `gitmap help env`
 - **Files Affected**: `helptext/env.md`
 
-## 05 — Clone-Next Missing --dry-run Support
+## 05 — Clone-Next Missing --dry-run Support (FIXED v6.220.0)
 
-- **Status**: Open (feature gap)
-- **Description**: The flatten spec (87-clone-next-flatten.md) mentions `--dry-run` for previewing clone-next actions but it's not implemented
-- **Impact**: Medium — users can't preview destructive folder removal before it happens
-- **Files Affected**: `cmd/clonenext.go`, `cmd/clonenextflags.go`, `constants/constants_clonenext.go`
+- **Status**: Fixed in v6.220.0 (Plan 112)
+- **Description**: In `gitmap/cmd/clonenext.go`, `executeCloneNextPipeline` previously invoked `prepareCloneNextTarget` (which physically deletes existing target folders on disk) and `handleCreateRemote` before checking `cnFlags.DryRun`.
+- **Root Cause**: Dry-run was checked too late in the single-repo clone-next pipeline, after destructive folder removal and remote creation hooks had already executed.
+- **Solution**: Added `handleCloneNextDryRun` in `cmd/clonenextdryrun.go` and wired it upfront in `executeCloneNextPipeline` before any target preparation or remote creation. Now `--dry-run` performs pure preview without touching filesystem or remote Git.
+- **Files Affected**: `gitmap/cmd/clonenext.go`, `gitmap/cmd/clonenextdryrun.go`, `gitmap/cmd/clonenextdryrun_test.go`
 
 ## 06 — Multi-URL Clone: PowerShell Comma-Splitting Crash (FIXED v3.80.0)
 
