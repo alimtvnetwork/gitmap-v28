@@ -3,7 +3,7 @@ package cmd_test
 import (
 	"testing"
 
-	"github.com/alimtvnetwork/gitmap-v28/gitmap/cmd"
+	"github.com/alimtvnetwork/gitmap-v28/gitmap/cmdprompt"
 	"github.com/alimtvnetwork/gitmap-v28/gitmap/model"
 )
 
@@ -11,7 +11,7 @@ func TestPromptE2ESuite(t *testing.T) {
 	tempDir := t.TempDir()
 
 	// 1. Dry run execution
-	res := cmd.ExecuteSinglePromptInstall(tempDir, true)
+	res := cmdprompt.ExecuteSinglePromptInstall(tempDir, true)
 	if res.IsFailed() {
 		t.Fatalf("expected dry-run to succeed, got %+v", res)
 	}
@@ -23,11 +23,11 @@ func TestPromptE2ESuite(t *testing.T) {
 		Status:      "active",
 	}
 
-	if err := cmd.WritePromptArchitectMetadata(tempDir, meta); err != nil {
+	if err := cmdprompt.WritePromptArchitectMetadata(tempDir, meta); err != nil {
 		t.Fatalf("WritePromptArchitectMetadata failed: %v", err)
 	}
 
-	read, errRead := cmd.ReadPromptArchitectMetadata(tempDir)
+	read, errRead := cmdprompt.ReadPromptArchitectMetadata(tempDir)
 	if errRead != nil || read.Version != "v2.0.0" {
 		t.Fatalf("unexpected read metadata: %+v", read)
 	}

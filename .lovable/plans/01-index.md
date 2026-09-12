@@ -4,10 +4,11 @@ Master directory of architectural and execution plans.
 
 ## Pending Plans
 
-- [116-nuclear-package-splitting-and-slow-tests.md](pending/116-nuclear-package-splitting-and-slow-tests.md): Nuclear Package Modularization, Heavy Test Segregation & Test Inventory Estimation
+(None - all master plans consolidated and verified)
 
 ## Completed Plans (Consolidated Milestones)
 
+- [116-nuclear-package-splitting-and-slow-tests.md](completed/116-nuclear-package-splitting-and-slow-tests.md): Nuclear Package Modularization, Heavy Test Segregation & Test Inventory Estimation
 - [115-macro-file-ops-docs-and-ui-help.md](completed/115-macro-file-ops-docs-and-ui-help.md): Macro File Operations (cat, touch, mkfile), Terminal Help, UI Help & Root Readme Command Docs
 - [114-macro-live-execution-copy-explorer-browser.md](completed/114-macro-live-execution-copy-explorer-browser.md): Macro Live Execution & Edit, Memory/Clipboard Copy-Paste, Explorer & Browser URL Openers
 - [113-enhanced-pipeline-error-logs.md](completed/113-enhanced-pipeline-error-logs.md): Enhanced Pipeline Error Logs, Zero-Error State, Metadata Embedding & Clipboard Integration

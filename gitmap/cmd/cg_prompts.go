@@ -5,12 +5,13 @@ import (
 	"fmt"
 	"path/filepath"
 
+	"github.com/alimtvnetwork/gitmap-v28/gitmap/cmdprompt"
 	"github.com/alimtvnetwork/gitmap-v28/gitmap/model"
 )
 
 func runCGInstallPrompts(targetDirs []string, isDryRun bool) error {
 	if len(targetDirs) == 0 {
-		targetDirs, _ = ResolvePromptTarget("")
+		targetDirs, _ = cmdprompt.ResolvePromptTarget("")
 	}
 
 	if len(targetDirs) == 0 {
@@ -25,7 +26,7 @@ func runCGInstallPrompts(targetDirs []string, isDryRun bool) error {
 	for _, dir := range targetDirs {
 		name := filepath.Base(dir)
 		fmt.Printf("  • %s (%s)... ", name, dir)
-		res := ExecuteSinglePromptInstall(dir, isDryRun)
+		res := cmdprompt.ExecuteSinglePromptInstall(dir, isDryRun)
 		results = append(results, res)
 		if res.IsSuccess {
 			fmt.Println("✓ Done")
@@ -34,8 +35,8 @@ func runCGInstallPrompts(targetDirs []string, isDryRun bool) error {
 		}
 	}
 
-	RenderPromptInstallSummary(results)
-	ReportPromptFailures(results)
+	cmdprompt.RenderPromptInstallSummary(results)
+	cmdprompt.ReportPromptFailures(results)
 
 	return nil
 }

@@ -12,6 +12,7 @@ import (
 
 	"github.com/alimtvnetwork/gitmap-v28/gitmap/apperror"
 	"github.com/alimtvnetwork/gitmap-v28/gitmap/cliexit"
+	"github.com/alimtvnetwork/gitmap-v28/gitmap/cmdprompt"
 	"github.com/alimtvnetwork/gitmap-v28/gitmap/config"
 	"github.com/alimtvnetwork/gitmap-v28/gitmap/constants"
 	"github.com/alimtvnetwork/gitmap-v28/gitmap/glyphs"
@@ -546,7 +547,7 @@ func dispatchExtraCommand(
 
 		return true
 	case "prompt", "prompts", "pmt":
-		executeAndAudit(dispatchPrompt, shouldAudit, auditID, auditStart)
+		executeAndAudit(cmdprompt.DispatchPrompt, shouldAudit, auditID, auditStart)
 
 		return true
 	default:

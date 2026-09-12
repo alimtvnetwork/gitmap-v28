@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"path/filepath"
 
+	"github.com/alimtvnetwork/gitmap-v28/gitmap/cmdprompt"
 	"github.com/alimtvnetwork/gitmap-v28/gitmap/model"
 )
 
@@ -12,22 +13,22 @@ import (
 //
 //nolint:unused
 func runCT(args []string) error {
-	opts := parsePromptArgs(args)
+	opts := cmdprompt.ParsePromptArgs(args)
 
 	switch opts.Action {
 	case "status", "prompts-status":
-		runPromptStatus(opts.Targets)
+		cmdprompt.RunPromptStatus(opts.Targets)
 
 		return nil
 	case "version", "prompts-version":
-		runPromptVersion(opts.Targets)
+		cmdprompt.RunPromptVersion(opts.Targets)
 
 		return nil
 	}
 
 	targetDirs := resolveCTTargetDirs(opts)
 
-	targetDirs = FilterPromptExclusions(targetDirs, opts.Exclude)
+	targetDirs = cmdprompt.FilterPromptExclusions(targetDirs, opts.Exclude)
 	if len(targetDirs) == 0 {
 		fmt.Println("No target repositories found to install Prompt Architect.")
 
@@ -40,7 +41,7 @@ func runCT(args []string) error {
 	for _, dir := range targetDirs {
 		name := filepath.Base(dir)
 		fmt.Printf("  • %s (%s)... ", name, dir)
-		res := ExecuteSinglePromptInstall(dir, opts.IsDryRun)
+		res := cmdprompt.ExecuteSinglePromptInstall(dir, opts.IsDryRun)
 		results = append(results, res)
 		if res.IsSuccess {
 			fmt.Println("✓ Done")
@@ -49,25 +50,25 @@ func runCT(args []string) error {
 		}
 	}
 
-	RenderPromptInstallSummary(results)
-	ReportPromptFailures(results)
+	cmdprompt.RenderPromptInstallSummary(results)
+	cmdprompt.ReportPromptFailures(results)
 
 	return nil
 }
 
 //nolint:unused
-func resolveCTTargetDirs(opts promptInstallOptions) []string {
+func resolveCTTargetDirs(opts cmdprompt.PromptInstallOptions) []string {
 	if len(opts.Targets) > 0 {
 		return resolvePromptTargetsList(opts.Targets)
 	}
 
 	if opts.IsAll {
-		resolved, _ := ResolveAllWorkDirPromptTargets()
+		resolved, _ := cmdprompt.ResolveAllWorkDirPromptTargets()
 
 		return resolved
 	}
 
-	resolved, _ := ResolvePromptTarget("")
+	resolved, _ := cmdprompt.ResolvePromptTarget("")
 
 	return resolved
 }
@@ -76,7 +77,7 @@ func resolveCTTargetDirs(opts promptInstallOptions) []string {
 func resolvePromptTargetsList(targets []string) []string {
 	var targetDirs []string
 	for _, t := range targets {
-		resolved, err := ResolvePromptTarget(t)
+		resolved, err := cmdprompt.ResolvePromptTarget(t)
 		if err == nil {
 			targetDirs = append(targetDirs, resolved...)
 		}

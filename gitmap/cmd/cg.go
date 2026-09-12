@@ -11,6 +11,7 @@ import (
 	"github.com/alimtvnetwork/gitmap-v28/gitmap/store"
 
 	"github.com/alimtvnetwork/gitmap-v28/gitmap/cliexit"
+	"github.com/alimtvnetwork/gitmap-v28/gitmap/cmdprompt"
 )
 
 var cgCommand = "cg"
@@ -101,9 +102,9 @@ func runCG(args []string) error {
 	case "install-prompts", "install-prompt", "prompts-install", "update-prompts", "update-prompt", "prompts-update":
 		runCGInstallPrompts(repos, opts.DryRun)
 	case "prompts-status", "prompts-ls", "prompt-status":
-		runPromptStatus(repos)
+		cmdprompt.RunPromptStatus(repos)
 	case "prompts-version", "prompt-version":
-		runPromptVersion(repos)
+		cmdprompt.RunPromptVersion(repos)
 	case "update":
 		runCGUpdateAction(repos)
 	case "install":

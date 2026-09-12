@@ -243,6 +243,31 @@ def resolve_go_package_rel(pkg_dir: Path, repo_root: Path) -> str:
     return rel
 
 
+def estimate_test_duration(filepath: Path, test_name: str, content: str) -> tuple[float, str]:
+    """Estimates test duration in seconds and categorizes tier (unit vs heavy)."""
+    rel = str(filepath).replace("\\", "/")
+    if "tests/heavy_test" in rel:
+        return 3.0, "heavy"
+
+    is_heavy = False
+    duration = 0.005
+    if "exec.Command" in content:
+        is_heavy = True
+        duration += 2.0
+    if "time.Sleep" in content:
+        is_heavy = True
+        duration += 1.0
+    if "net.Listen" in content or "http.Get" in content or "http.Post" in content:
+        is_heavy = True
+        duration += 0.5
+    if "git" in test_name.lower() and ("subprocess" in content.lower() or "exec" in content.lower()):
+        is_heavy = True
+        duration += 1.5
+
+    tier = "heavy" if is_heavy else "unit"
+    return round(duration, 3), tier
+
+
 def scan_go_tests(repo_root: Path) -> tuple[dict[str, Any], int, int]:
     """Scans and indexes all Go test files."""
     tests_dict: dict[str, Any] = {}
@@ -257,6 +282,12 @@ def scan_go_tests(repo_root: Path) -> tuple[dict[str, Any], int, int]:
         rel_pkg = normalize_repo_rel(pkg_dir)
         test_funcs = extract_go_tests(tf)
         test_file_hash = compute_file_hash(tf)
+        
+        file_content = ""
+        try:
+            file_content = tf.read_text(encoding="utf-8", errors="replace")
+        except Exception:
+            pass
 
         target_file_name = tf.name.replace("_test.go", ".go")
         target_path = pkg_dir / target_file_name
@@ -270,6 +301,8 @@ def scan_go_tests(repo_root: Path) -> tuple[dict[str, Any], int, int]:
                 cand = tname[4:].split("_")[0]
                 target_func = cand
 
+            dur, tier = estimate_test_duration(tf, tname, file_content)
+
             tests_dict[tid] = {
                 "id": tid,
                 "package": rel_pkg,
@@ -279,7 +312,8 @@ def scan_go_tests(repo_root: Path) -> tuple[dict[str, Any], int, int]:
                 "target_file": rel_target,
                 "target_func": target_func,
                 "code_hash": code_hash,
-                "duration_sec": 0.0,
+                "duration_sec": dur,
+                "tier": tier,
                 "last_status": "never_run",
                 "last_run_at": "",
                 "needs_run": True,
@@ -330,7 +364,8 @@ def scan_python_and_ts_tests(repo_root: Path) -> dict[str, Any]:
                         "target_file": target_file,
                         "target_func": "",
                         "code_hash": thash,
-                        "duration_sec": 0.0,
+                        "duration_sec": 0.005,
+                        "tier": "unit",
                         "last_status": "never_run",
                         "last_run_at": "",
                         "needs_run": True,
@@ -346,6 +381,11 @@ def build_test_inventory(repo_root: Path) -> dict[str, Any]:
     combined_tests = {**go_tests, **py_ts_tests}
     packages = set(t["package"] for t in combined_tests.values())
 
+    heavy_count = len([t for t in combined_tests.values() if t.get("tier") == "heavy"])
+    unit_count = len([t for t in combined_tests.values() if t.get("tier") == "unit"])
+    heavy_dur = round(sum(t.get("duration_sec", 0.0) for t in combined_tests.values() if t.get("tier") == "heavy"), 2)
+    unit_dur = round(sum(t.get("duration_sec", 0.0) for t in combined_tests.values() if t.get("tier") == "unit"), 2)
+
     inventory = {
         "version": 1,
         "updated_at": datetime.datetime.now(datetime.timezone.utc).strftime("%Y-%m-%dT%H:%M:%SZ"),
@@ -355,6 +395,10 @@ def build_test_inventory(repo_root: Path) -> dict[str, Any]:
             "cached": 0,
             "dirty": len(combined_tests),
             "packages": len(packages),
+            "heavy_tests": heavy_count,
+            "unit_tests": unit_count,
+            "estimated_heavy_sec": heavy_dur,
+            "estimated_unit_sec": unit_dur,
         },
         "tests": combined_tests,
     }

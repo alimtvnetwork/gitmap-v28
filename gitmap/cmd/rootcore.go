@@ -2,6 +2,7 @@ package cmd
 
 import (
 	"github.com/alimtvnetwork/gitmap-v28/gitmap/cluster"
+	"github.com/alimtvnetwork/gitmap-v28/gitmap/cmdpurge"
 	"github.com/alimtvnetwork/gitmap-v28/gitmap/constants"
 )
 
@@ -26,7 +27,7 @@ func coreDispatchEntries() []dispatchEntry {
 func coreBasicEntries() []dispatchEntry {
 	return []dispatchEntry{
 		{[]string{"clean-corrupted", "clean-corrupted-dirs"}, func() error { return runCleanCorrupted(argsTail()) }},
-		{[]string{"purge", "purge-history"}, func() error { return runPurge(argsTail()) }},
+		{[]string{"purge", "purge-history"}, func() error { return cmdpurge.RunPurge(argsTail()) }},
 		{[]string{constants.CmdScan, constants.CmdScanAlias}, func() error { return runScan(argsTail()) }},
 		{[]string{constants.CmdClone, constants.CmdCloneAlias}, func() error { return runClone(argsTail()) }},
 		{[]string{constants.CmdCreate, constants.CmdCreateAlias}, func() error { return runCreate(argsTail()) }},

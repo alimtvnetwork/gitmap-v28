@@ -47,7 +47,7 @@ func runPull(args []string) error {
 	// Transport flags (--ssh/--sh/--https/--ht) are only meaningful
 	// for the cwd short-circuit; when present we MUST take the cwd
 	// path regardless of other flags so the rewrite actually applies.
-	useSSH, useHTTPS, rest := extractTransportFlags(args)
+	useSSH, useHTTPS, rest := ExtractTransportFlags(args)
 	if useSSH || useHTTPS {
 		runPullCWDWithTransport(useSSH, useHTTPS, rest)
 
@@ -258,12 +258,12 @@ func runPullCWDWithTransport(useSSH, useHTTPS bool, extraArgs []string) error {
 	return nil
 }
 
-// extractTransportFlags scans args for --ssh/-ssh/--sh/--https/-https/--ht
+// ExtractTransportFlags scans args for --ssh/-ssh/--sh/--https/-https/--ht
 // and returns (useSSH, useHTTPS, remaining-args-with-those-removed).
 // Used to detect the cwd-transport intent BEFORE handing args to the
 // existing parsePullFlags (which doesn't know about transport flags).
 
-func extractTransportFlags(args []string) (bool, bool, []string) {
+func ExtractTransportFlags(args []string) (bool, bool, []string) {
 	var useSSH, useHTTPS bool
 	rest := make([]string, 0, len(args))
 	for _, a := range args {

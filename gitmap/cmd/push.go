@@ -39,7 +39,7 @@ func runPush(args []string) error {
 	fmt.Printf("→ gitmap push (cwd: %s)\n", cwd)
 	requireOnline()
 
-	useSSH, useHTTPS, rest := extractTransportFlags(args)
+	useSSH, useHTTPS, rest := ExtractTransportFlags(args)
 	if useSSH || useHTTPS {
 		runPushCWDWithTransport(useSSH, useHTTPS, rest)
 
