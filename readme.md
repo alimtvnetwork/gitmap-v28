@@ -4,7 +4,7 @@
 
 **Git repository scanner, manager, and navigator CLI**
 
-**Pinned version: v6.220.2**
+**Pinned version: v6.221.0**
 
 <!-- STAMP:PLATFORM_BADGES -->
 [![CI](https://github.com/alimtvnetwork/gitmap-v28/actions/workflows/ci.yml/badge.svg?branch=main)](https://github.com/alimtvnetwork/gitmap-v28/actions/workflows/ci.yml)
@@ -52,16 +52,16 @@ irm https://raw.githubusercontent.com/alimtvnetwork/gitmap-v28/main/install.ps1 
 curl -fsSL https://raw.githubusercontent.com/alimtvnetwork/gitmap-v28/main/install.sh | sh
 ```
 
-### 📌 Pinned version (v6.220.2)
+### 📌 Pinned version (v6.221.0)
 
 Install a specific version without auto-updating:
 
 ```bash
-curl -sL https://raw.githubusercontent.com/alimtvnetwork/gitmap-v28/v6.220.2/install.sh | bash -s -- ".lovable/prompts" "v6.220.2"
+curl -sL https://raw.githubusercontent.com/alimtvnetwork/gitmap-v28/v6.221.0/install.sh | bash -s -- ".lovable/prompts" "v6.221.0"
 ```
 
 ```powershell
-Invoke-WebRequest -Uri https://raw.githubusercontent.com/alimtvnetwork/gitmap-v28/v6.220.2/install.ps1 -OutFile install.ps1; .\install.ps1 -TargetDir ".lovable/prompts" -Version "v6.220.2"
+Invoke-WebRequest -Uri https://raw.githubusercontent.com/alimtvnetwork/gitmap-v28/v6.221.0/install.ps1 -OutFile install.ps1; .\install.ps1 -TargetDir ".lovable/prompts" -Version "v6.221.0"
 ```
 
 ### 🎯 Install — Quick (pick your install drive)
