@@ -26,11 +26,12 @@ Previously, tests and local runners defaulted `TMP_CACHE_DIR` to `.tmp/` at the 
   - Fast Test Pool: 4 dedicated workers running 4 tests at a time per worker, dispatched in chunks of 100 tests from inventory until drained.
   - Strict conditional execution: tests only run when corresponding code file or test file has changed (`needs_run == True`).
 
-### D. In-Flight ETA Calculation & AI Sleep/Wait Protocol
+### D. In-Flight Heartbeat (25s) & AI Sleep/Wait Protocol (1 Minute / ETA)
+- 25-Second Heartbeat Interval: In `03-ai-scripts/06-cicd-local-runner.py`, `TelemetryTracker` emits in-flight progress heartbeats strictly every 25 seconds or more (default `heartbeat_interval=25.0`, CLI `--heartbeat-interval`, env `RUNNER_HEARTBEAT_INTERVAL`), eliminating terminal spam and fast-loop chatter.
 - Dynamic ETA evaluation: computes aggregate duration of dirty tests from `.lovable/test-inventory.json` rather than static 5.0s constants.
 - ETA clamping: remaining ETA is clamped to `>= 1s` while jobs are in flight, preventing premature 0s display.
 - Live progress persistence: status, elapsed, total estimated, remaining ETA, and total/completed counts streamed to `.lovable/temp/runner-eta.json`.
-- AI Sleep Discipline: When an AI agent inspects an active background runner, it reads the remaining duration from `.lovable/temp/runner-eta.json` and sleeps/waits for that duration instead of busy-polling.
+- AI Sleep Discipline (1 Minute / Dynamic ETA): When an AI agent launches or checks an active background runner, the agent MUST sleep/wait for **1 minute (60 seconds) each time**, or dynamically sleep for the remaining ETA duration read from `.lovable/temp/runner-eta.json` (or based on previous total approximate delay) instead of busy-polling.
 
 ### E. Cross-Workspace Synchronization
 - Changes synchronized between `d:\wp-work\riseup-asia\gitmap` and `D:\wp-work\riseup-asia\coding-guidelines`.

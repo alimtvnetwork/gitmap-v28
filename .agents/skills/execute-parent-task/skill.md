@@ -76,7 +76,7 @@ Before doing anything else, you MUST write a highly detailed execution spec.
 - [ ] Code adheres to explicit booleans, `Type` suffixed Enums, and error wrapper rules.
 - [ ] Formatting & Acronyms: Spacing rules are strictly followed. Acronyms are strictly PascalCase (`SwapIpWindows` not `SwapIPWindows`).
 - [ ] Temp & Failure Folder Isolation: All temporary test files, caches, and runner artifacts are isolated within `.lovable/temp/`. Never create `.tmp/` at root. Failed tests/gates write to `.lovable/temp/failures/`; passing tests remain completely silent and produce zero disk files.
-- [ ] Runner In-Flight ETA Wait Protocol: When executing or checking background runners/tests, read remaining ETA from `.lovable/temp/runner-eta.json` and sleep/wait for that duration instead of busy-polling.
+- [ ] Runner In-Flight ETA Wait Protocol: When executing or checking background runners/tests (with runner heartbeats every 25 seconds), agents MUST sleep/wait for 1 minute (60s) each time, or dynamically sleep for the remaining ETA duration read from `.lovable/temp/runner-eta.json` (or based on previous total approximate delay) instead of busy-polling.
 - [ ] Fast-forward commits created and pushed without rewriting published git history.
 - [ ] Continuous loop maintained; only pausing to ask for "continue" on critical unrecoverable failures.
 

@@ -110,6 +110,7 @@ DEFAULT_IO_WORKERS = int(os.environ.get("CI_MAX_IO_WORKERS", min(8, CPU_CORES)))
 DEFAULT_TIMEOUT_SEC = int(os.environ.get("CI_TIMEOUT_SEC", 1200))
 DEFAULT_ENCODING = "utf-8"
 DEFAULT_JOB_ESTIMATE_SEC = 5.0
+DEFAULT_HEARTBEAT_INTERVAL = float(os.environ.get("RUNNER_HEARTBEAT_INTERVAL", 25.0))
 REPO_ROOT = Path(__file__).resolve().parent.parent
 TMP_CACHE_DIR = REPO_ROOT / ".lovable" / "temp"
 TMP_CACHE_DIR.mkdir(parents=True, exist_ok=True)
@@ -161,20 +162,20 @@ JOB_BATCHES: list[dict[str, Any]] = [
             "MWS Error Codes Check": [sys.executable, "linter-scripts/check-mws-error-codes.py"],
             "Interface Naming Check": [sys.executable, "linter-scripts/check-interface-naming.py"],
             "CLI Help Parity Check": [sys.executable, "03-ai-scripts/09-cli-help-auditor.py"],
-            "Constants Registry AST Check": ["go", "test", "-C", "gitmap", "./constants/...", "-run", "TestTopLevelCmdRegistryMatchesAST", "-count=1"],
-            "Constants Collision Check": ["go", "test", "-C", "gitmap", "./constants/...", "-run", "TestTopLevelCmdConstantsAreUnique", "-count=1"],
-            "Helptext Parity Check": ["go", "test", "-C", "gitmap", "./helptext/...", "-count=1"],
+            "Constants Registry AST Check": ["go", "test", "-C", "cli", "./constants/...", "-run", "TestTopLevelCmdRegistryMatchesAST", "-count=1"],
+            "Constants Collision Check": ["go", "test", "-C", "cli", "./constants/...", "-run", "TestTopLevelCmdConstantsAreUnique", "-count=1"],
+            "Helptext Parity Check": ["go", "test", "-C", "cli", "./helptext/...", "-count=1"],
             "govulncheck": [sys.executable, ".github/scripts/check-vulncheck.py"],
-            "Startup Build-Tags (linux)": {"cmd": ["go", "build", "./startup/..."], "cwd": "gitmap", "env": {"GOOS": "linux", "GOARCH": "amd64", "CGO_ENABLED": "0"}},
-            "Startup Build-Tags (darwin)": {"cmd": ["go", "build", "./startup/..."], "cwd": "gitmap", "env": {"GOOS": "darwin", "GOARCH": "amd64", "CGO_ENABLED": "0"}},
-            "Startup Build-Tags (windows)": {"cmd": ["go", "build", "./startup/..."], "cwd": "gitmap", "env": {"GOOS": "windows", "GOARCH": "amd64", "CGO_ENABLED": "0"}},
-            "golangci-lint (strict)": {"cmd": ["golangci-lint", "run", "--issues-exit-code=1", "--timeout=10m", "-c", ".golangci.yml", "--path-prefix", "gitmap", "./..."], "cwd": "gitmap"},
+            "Startup Build-Tags (linux)": {"cmd": ["go", "build", "./startup/..."], "cwd": "cli", "env": {"GOOS": "linux", "GOARCH": "amd64", "CGO_ENABLED": "0"}},
+            "Startup Build-Tags (darwin)": {"cmd": ["go", "build", "./startup/..."], "cwd": "cli", "env": {"GOOS": "darwin", "GOARCH": "amd64", "CGO_ENABLED": "0"}},
+            "Startup Build-Tags (windows)": {"cmd": ["go", "build", "./startup/..."], "cwd": "cli", "env": {"GOOS": "windows", "GOARCH": "amd64", "CGO_ENABLED": "0"}},
+            "golangci-lint (strict)": {"cmd": ["golangci-lint", "run", "--issues-exit-code=1", "--timeout=10m", "-c", ".golangci.yml", "--path-prefix", "cli", "./..."], "cwd": "cli"},
             "Unused Code Guard (unused)": [sys.executable, ".github/scripts/check-unused-diff.py"],
             "Gosec G115 Guard (overflow)": [sys.executable, ".github/scripts/check-gosec-diff.py"],
             "GoCritic Guard (style)": [sys.executable, ".github/scripts/check-gocritic-diff.py"],
-            "Cross-OS Vet (Windows)": {"cmd": ["go", "vet", "-C", "gitmap", "./..."], "env": {"GOOS": "windows", "GOARCH": "amd64"}},
-            "Cross-OS Vet (Darwin)": {"cmd": ["go", "vet", "-C", "gitmap", "./..."], "env": {"GOOS": "darwin", "GOARCH": "amd64"}},
-            "cmd/ Naming Check": [sys.executable, ".github/scripts/check-cmd-naming.py", "gitmap/cmd"],
+            "Cross-OS Vet (Windows)": {"cmd": ["go", "vet", "-C", "cli", "./..."], "env": {"GOOS": "windows", "GOARCH": "amd64"}},
+            "Cross-OS Vet (Darwin)": {"cmd": ["go", "vet", "-C", "cli", "./..."], "env": {"GOOS": "darwin", "GOARCH": "amd64"}},
+            "cmd/ Naming Check": [sys.executable, ".github/scripts/check-cmd-naming.py", "cli/cmd"],
             "Legacy Refs Check": [sys.executable, ".github/scripts/check-legacy-refs.py", "."],
             "Deploy Layout Check": [sys.executable, ".github/scripts/check-deploy-layout.py", "."],
             "constants/ Naming Check": [sys.executable, ".github/scripts/check-constants-naming.py"],
@@ -182,14 +183,14 @@ JOB_BATCHES: list[dict[str, Any]] = [
             "Bare Stderr Check": [sys.executable, ".github/scripts/check-bare-stderr-err.py"],
             "Changelog Version Sync": [sys.executable, ".github/scripts/check-changelog-version-sync.py"],
             "File Size Check": [sys.executable, ".github/scripts/file-size-check.py", "200"],
-            "JSON Snapshot Fast Check": ["go", "test", "-C", "gitmap", "./cmd/...", "./formatter/...", "-failfast", "-count=1", "-run", "^(TestStartupListJSON|TestFindNextJSONContract|TestLatestBranchJSONContract|TestSchemaRegistry|TestAssertGoldenBytesDeterministic|TestExpectDelim|TestScanEveryObjectKeysPure|TestWriteJSON|TestWriteCSV)"],
+            "JSON Snapshot Fast Check": ["go", "test", "-C", "cli", "./cmd/...", "./formatter/...", "-failfast", "-count=1", "-run", "^(TestStartupListJSON|TestFindNextJSONContract|TestLatestBranchJSONContract|TestSchemaRegistry|TestAssertGoldenBytesDeterministic|TestExpectDelim|TestScanEveryObjectKeysPure|TestWriteJSON|TestWriteCSV)"],
         },
     },
     {
         "name": "Compile Gates",
         "max_workers": DEFAULT_IO_WORKERS,
         "jobs": {
-            "Go Compile Gate": ["go", "build", "-C", "gitmap", "-o", "../bin/gitmap.exe", "."],
+            "Go Compile Gate": ["go", "build", "-C", "cli", "-o", "../bin/gitmap.exe", "."],
             "Web App Build": ["npm", "run", "build"],
         },
     },
@@ -197,7 +198,7 @@ JOB_BATCHES: list[dict[str, Any]] = [
         "name": "Packaging Gates",
         "max_workers": 1,
         "jobs": {
-            "GoReleaser Snapshot Build": {"cmd": ["goreleaser", "build", "--snapshot", "--clean", "--single-target"], "cwd": "gitmap"},
+            "GoReleaser Snapshot Build": {"cmd": ["goreleaser", "build", "--snapshot", "--clean", "--single-target"], "cwd": "cli"},
         },
     },
     {
@@ -215,8 +216,8 @@ JOB_BATCHES: list[dict[str, Any]] = [
         "name": "Smart Unit Tests & Coverage",
         "max_workers": DEFAULT_WORKERS,
         "jobs": {
-            "Go Smart Incremental Tests": {"type": "smart_go_tests", "cmd": ["go", "test", "smart-incremental"], "cwd": "gitmap"},
-            "Go Test Coverage Profile": {"cmd": ["go", "test", "-p", str(DEFAULT_WORKERS), "-parallel", str(DEFAULT_WORKERS), "-count=1", "-timeout=20m", "-coverprofile=../coverage.out", "./..."], "cwd": "gitmap"},
+            "Go Smart Incremental Tests": {"type": "smart_go_tests", "cmd": ["go", "test", "smart-incremental"], "cwd": "cli"},
+            "Go Test Coverage Profile": {"cmd": ["go", "test", "-p", str(DEFAULT_WORKERS), "-parallel", str(DEFAULT_WORKERS), "-count=1", "-timeout=20m", "-coverprofile=../coverage.out", "./..."], "cwd": "cli"},
         },
     },
     {
@@ -237,7 +238,7 @@ JOB_BATCHES: list[dict[str, Any]] = [
         "name": "Race Detection",
         "max_workers": 1,
         "jobs": {
-            "Go Test Race (Hot Packages)": {"cmd": ["go", "test", "-p", str(min(4, DEFAULT_WORKERS)), "-parallel", str(min(4, DEFAULT_WORKERS)), "-count=1", "-timeout=15m", "./cmd/...", "./cmdagy/...", "./cmdchromeprofile/...", "./cloneconcurrency/...", "./visibility/...", "./store/...", "./uipref/..."], "cwd": "gitmap", "env": {"GITMAP_IN_MEMORY_DB": "1"}},
+            "Go Test Race (Hot Packages)": {"cmd": ["go", "test", "-p", str(min(4, DEFAULT_WORKERS)), "-parallel", str(min(4, DEFAULT_WORKERS)), "-count=1", "-timeout=15m", "./cmd/...", "./cmdagy/...", "./cmdchromeprofile/...", "./cloneconcurrency/...", "./visibility/...", "./store/...", "./uipref/..."], "cwd": "cli", "env": {"GITMAP_IN_MEMORY_DB": "1"}},
         },
     },
 ]
@@ -1612,7 +1613,7 @@ def append_failure_to_disk(res: JobResult, state: dict[str, Any], session_dir: P
 class TelemetryTracker:
     """Thread-safe multi-slot in-flight progress tracker and reporter."""
 
-    def __init__(self, total_jobs: int, is_tty: bool, is_json: bool, show_all: bool, heartbeat_interval: float = 10.0):
+    def __init__(self, total_jobs: int, is_tty: bool, is_json: bool, show_all: bool, heartbeat_interval: float = DEFAULT_HEARTBEAT_INTERVAL):
         self.total_jobs = total_jobs
         self.is_tty = is_tty
         self.is_json = is_json
@@ -1682,11 +1683,11 @@ class TelemetryTracker:
         return f"[IN-FLIGHT] {act_count} active: [{items_str}] | {self.completed_count}/{self.total_jobs} done ({pct}%)"
 
     def tick(self, force: bool = False) -> None:
-        """Emits progress heartbeat if interval has elapsed (strictly every 10s or more)."""
+        """Emits progress heartbeat if interval has elapsed (strictly every 25s or more)."""
         if self.is_json:
             return
         now = time.monotonic()
-        if now - self.last_print < self.heartbeat_interval:
+        if not force and (now - self.last_print < self.heartbeat_interval):
             return
         self.last_print = now
         act_count, items, elapsed = self._format_active_summary(now)
@@ -1884,6 +1885,7 @@ def add_reporting_arguments(parser: argparse.ArgumentParser) -> None:
     parser.add_argument("-o", "--output-paths", dest="output_paths", nargs="*", type=str, default=[], help="Multiple output file paths.")
     parser.add_argument("--json", dest="json_mode", action="store_true", help="Output machine-readable JSON.")
     parser.add_argument("--eta-interval", type=int, default=120, help="Print ETA interval in seconds.")
+    parser.add_argument("--heartbeat-interval", type=float, default=DEFAULT_HEARTBEAT_INTERVAL, help="Heartbeat interval in seconds for in-flight progress (default: 25.0).")
     parser.add_argument("--inventory-only", dest="inventory_only", action="store_true", help="Discover and catalog all tests into JSON manifest and exit.")
 
 
@@ -2386,8 +2388,8 @@ def prepare_runner_context(args: argparse.Namespace, root: Path, total_jobs: int
     curr_dirty = get_dirty_files_map(root)
     last_head = prev_state.get("head", "")
     last_dirty = prev_state.get("dirty", {})
-    delta = compute_repo_delta(root, last_head, curr_head, last_dirty, curr_dirty)
-    telemetry = TelemetryTracker(total_jobs, sys.stdout.isatty(), bool(args.json_mode), args.show_all)
+    hb_interval = getattr(args, "heartbeat_interval", DEFAULT_HEARTBEAT_INTERVAL)
+    telemetry = TelemetryTracker(total_jobs, sys.stdout.isatty(), bool(args.json_mode), args.show_all, heartbeat_interval=hb_interval)
     state = setup_runner_state(total_jobs, bool(args.json_mode), curr_head, curr_dirty)
     update_cicd_summary(state, session_dir, is_finished=False)
     emit_telemetry_event("run_started", session_dir, {"total_gates": total_jobs, "session": session_dir.name})

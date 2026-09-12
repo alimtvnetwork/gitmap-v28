@@ -8,6 +8,7 @@ Master directory of architectural and execution plans.
 
 ## Completed Plans (Consolidated Milestones)
 
+- [124-runner-in-flight-heartbeat-and-ai-sleep-protocol.md](completed/124-runner-in-flight-heartbeat-and-ai-sleep-protocol.md): Runner 25s In-Flight Heartbeat & 1-Minute AI Agent Sleep/Wait Protocol
 - [123-rename-gitmap-to-cli-and-updater-folder-refactor.md](completed/123-rename-gitmap-to-cli-and-updater-folder-refactor.md): Rename gitmap to cli and gitmap-updater to cli-updater Folder Refactor
 - [122-smart-test-runner-and-inventory-architecture.md](completed/122-smart-test-runner-and-inventory-architecture.md): Smart Test Runner, Dual Worker Queues, Test Inventory Relative Path Mapping & ETA Sleep Protocol
 - [121-nuclear-package-modularization-phase4.md](completed/121-nuclear-package-modularization-phase4.md): Nuclear Monolith Subpackage Modularization (cmdmacro, cmdvscode, cmdvhost, cmdzip), Heavy Test Isolation & Test Inventory Duration Estimation
