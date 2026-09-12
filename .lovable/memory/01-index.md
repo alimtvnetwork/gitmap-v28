@@ -34,6 +34,9 @@ Updated: 2026-04-27
 - 🔴 Running tests without owner explicit command: TOTAL BAN. Never execute unit tests or CI test jobs during standard development or prompt execution unless explicitly commanded by repository owner. Always pass `--no-tests` to `06-cicd-local-runner.py`. See [Avoid Running Tests](avoid/04-running-tests-without-owner-command.md).
 - 🔴 Running full CI/CD runner during routine tasks: TOTAL BAN. Never execute `06-cicd-local-runner.py` during routine development or coding guideline turns; verify code using targeted single-file linters/autofixers. See [Avoid Running Full CI/CD Runner in Routine Tasks](avoid/05-running-full-cicd-runner-in-routine-tasks.md).
 - 🔴 Test Inventory & Atomic Locking: Centralized `.lovable/test-inventory.json` and atomic file locking via `recent-file-changes.lock` when updating `.lovable/temp/recent-file-changes.json` using `33-test-inventory-generator.py`. See [Test Inventory & Atomic Change Tracking](learned/11-test-inventory-and-atomic-file-change-tracking.md).
+- 🔴 Consolidated Commits: Never commit 1-2 plan/doc files piecemeal. Always commit all modified source files, tests, and plans together as a coherent atomic batch.
+- 🔴 Immediate Git Push: Always push immediately to remote (`git push origin <branch>`) after every commit. Never leave commits unpushed across turns.
+- 🔴 No Builds During Routine Turns: Never run `npm run build` or `go build` during routine styling, naming, or guideline verification turns.
 - 🔴 Cross-Platform Macro Execution: Shell commands like `open` require OS-aware adapters (`explorer.exe` / `start` on Windows, `xdg-open` on Linux, `/usr/bin/open` on macOS).
 
 - [Project Context & Learned Guidelines](learned/01-project-context-and-guidelines.md) — Comprehensive ingestion of repo identity, CODE RED rules, coding guidelines, error philosophy, and active plans.
@@ -49,6 +52,7 @@ Updated: 2026-04-27
 - [Avoid Running Tests Without Owner Command](avoid/04-running-tests-without-owner-command.md) — Absolute ban on running unit tests in standard development turns unless explicitly requested by owner.
 - [Avoid Running Full CI/CD Runner in Routine Tasks](avoid/05-running-full-cicd-runner-in-routine-tasks.md) — Total ban on running the 28-38 gate CI runner during routine edits and coding guideline fixes.
 - [Test Inventory & Atomic File Change Tracking](learned/11-test-inventory-and-atomic-file-change-tracking.md) — Centralized test cataloging, cross-platform locking, and targeted test resolution for releases.
+- [Consolidated Commits, Immediate Push, and Build Rules](learned/12-consolidated-commit-push-and-build-rules.md) — Mandatory atomic commit grouping, immediate remote push, and ban on uncommanded routine builds.
 
 - [Fast File Indexing & Caching Strategy](standards/05-fast-file-indexing-and-caching.md) — Pre-computed file scanning and index caching in `tmp/` via `08-fast-file-scanner.py` for rapid multi-step lookups.
 - [Prompt Synchronization Architecture](standards/04-prompt-synchronization-architecture.md) — All prompts authored in `01-prompts/` and compiled to flat `01-prompts/*.md` via `scripts/update-prompts.ps1` without external Git clones.

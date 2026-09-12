@@ -398,3 +398,52 @@ Allowed work:
 - ✅ **Release Ceremonies (`release-orchestrator`, `01`, `03`, `07`, `16-ci-cd/04`):** Run `python 03-ai-scripts/06-cicd-local-runner.py --run-tests` as the mandatory final pre-release gate before cutting a release.
 
 **Why:** The local CI/CD runner runs up to 38 segments (linters, cross-OS compilation, snapshot builds, web builds) across the entire codebase. Executing this massive suite on every micro-turn or coding guideline edit causes immense latency, hits unrelated files, and wastes substantial developer and compute time.
+
+---
+
+## Committing Isolated 1-2 Plan/Doc Files Piecemeal — TOTAL BAN
+
+🔴 **NEVER make piecemeal commits containing only 1-2 isolated markdown plan or doc files without code changes, and NEVER make repetitive single-file micro-commits.**
+
+Forbidden:
+- ❌ Committing a single completed plan markdown file by itself without the underlying work.
+- ❌ Creating dozens of tiny 2-file commits for individual guideline prompts.
+- ❌ Polluting git history with fragmented documentation-only commits.
+
+Allowed work:
+- ✅ Commit all modified files and plans together in a single, well-scoped atomic commit.
+- ✅ Stage related source code, test files, and plans as a single unit of work.
+
+**Why:** Piecemeal 1-2 file commits pollute git commit logs, make git history difficult to navigate, and separate documentation updates from their related functional work.
+
+---
+
+## Committing Without Immediate Git Push — TOTAL BAN
+
+🔴 **NEVER leave commits unpushed on local branches. Anytime a commit is created, it MUST be pushed to GitHub immediately.**
+
+Forbidden:
+- ❌ Creating git commits and leaving them unpushed across conversational turns.
+- ❌ Accumulating local commits without pushing to the remote repository.
+
+Allowed work:
+- ✅ Always execute `git push origin <branch>` immediately after creating any commit.
+- ✅ Ensure local and remote `main` branch heads remain 100% synchronized at all times.
+
+**Why:** Unpushed commits create discrepancies between local working states and remote CI/CD / GitHub Desktop viewers, risking sync conflicts and lost progress.
+
+---
+
+## Running Builds During Routine Guideline Turns — TOTAL BAN
+
+🔴 **NEVER run full builds (`npm run build`, `go build ./...`) or packaging suites during routine coding guideline turns unless explicitly commanded by the repository owner.**
+
+Forbidden:
+- ❌ Running `npm run build` or `go build` during routine styling, naming, or guideline verification turns.
+- ❌ Triggering expensive bundle transforms and minifications on routine audits.
+
+Allowed work:
+- ✅ Run targeted linters (`check-newline-styling.py`, `check-boolean-guidelines.py`, etc.) for fast validation.
+- ✅ Run builds ONLY when explicitly requested or at the final release stage (`01-prompts/16-ci-cd/04-ci-cd-fix-with-release.md`).
+
+**Why:** Running heavy frontend and backend builds repeatedly slows down feedback loops and consumes significant CPU/IO resources.
