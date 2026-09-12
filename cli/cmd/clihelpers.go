@@ -8,7 +8,6 @@ import (
 	"io"
 	"os"
 	"strings"
-	"time"
 
 	"github.com/alimtvnetwork/gitmap-v28/cli/apperror"
 	"github.com/alimtvnetwork/gitmap-v28/cli/cmdcg"
@@ -35,7 +34,6 @@ import (
 	"github.com/alimtvnetwork/gitmap-v28/cli/cmdworkdir"
 	"github.com/alimtvnetwork/gitmap-v28/cli/cmdzip"
 	"github.com/alimtvnetwork/gitmap-v28/cli/constants"
-	"github.com/alimtvnetwork/gitmap-v28/cli/macro"
 	"github.com/alimtvnetwork/gitmap-v28/cli/model"
 	"github.com/spf13/cobra"
 )
@@ -58,33 +56,6 @@ func isFileFlagWithArg(arg string) bool {
 	return arg == "--file" || arg == "--out" || arg == "-o" || arg == "-f"
 }
 
-func matchFlagWithVal(arg string, names ...string) bool {
-	for _, n := range names {
-		if arg == n || strings.HasPrefix(arg, n+"=") {
-			return true
-		}
-	}
-
-	return false
-}
-
-func extractFlagValue(idx *int, args []string) string {
-	a := args[*idx]
-	if strings.Contains(a, "=") {
-		parts := strings.SplitN(a, "=", 2)
-
-		return parts[1]
-	}
-
-	if *idx+1 < len(args) {
-		*idx++
-
-		return args[*idx]
-	}
-
-	return ""
-}
-
 func runCatCmd(args []string) error {
 	return cmdmacro.RunCatCmd(args)
 }
@@ -95,22 +66,6 @@ func runTouchCmd(args []string) error {
 
 func runMkfileCmd(args []string) error {
 	return cmdmacro.RunMkfileCmd(args)
-}
-
-func parseExecOptions(args []string) macro.ExecOptions {
-	return cmdmacro.ParseExecOptions(args)
-}
-
-func outputStructuredData(data interface{}, opts macro.ExecOptions) error {
-	return cmdmacro.OutputStructuredData(data, opts)
-}
-
-func extractMacroNameAndFlags(args []string) (string, []string) {
-	return cmdmacro.ExtractMacroNameAndFlags(args)
-}
-
-func parseDurationArg(val string, fallback time.Duration) time.Duration {
-	return cmdmacro.ParseDurationArg(val, fallback)
 }
 
 func runVSCode(args []string) error {
@@ -895,10 +850,6 @@ func runRescan() error {
 
 func runRescanSubtree(args []string) error {
 	return cmdscan.RunRescanSubtree(args)
-}
-
-func autoRegisterFirstWorkDir(absDir string, quiet bool) bool {
-	return cmdscan.AutoRegisterFirstWorkDir(absDir, quiet)
 }
 
 func expandHome(p string) string {
