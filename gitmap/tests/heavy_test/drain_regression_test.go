@@ -1,4 +1,4 @@
-package cmd
+package heavy_test
 
 // Regression test for the Windows drain fix (v6.74.0).
 //

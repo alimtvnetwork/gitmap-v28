@@ -1,4 +1,4 @@
-package cmd
+package heavy_test
 
 // Exit-code contract tests for the clone command family:
 //

@@ -1,4 +1,4 @@
-package cmd
+package heavy_test
 
 import (
 	"path/filepath"

@@ -4,7 +4,7 @@ Master directory of architectural and execution plans.
 
 ## Pending Plans
 
-None
+- [116-nuclear-package-splitting-and-slow-tests.md](pending/116-nuclear-package-splitting-and-slow-tests.md): Nuclear Package Modularization, Heavy Test Segregation & Test Inventory Estimation
 
 ## Completed Plans (Consolidated Milestones)
 

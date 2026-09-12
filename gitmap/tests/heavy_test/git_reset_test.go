@@ -1,4 +1,4 @@
-package cmd_test
+package heavy_test
 
 import (
 	"os"

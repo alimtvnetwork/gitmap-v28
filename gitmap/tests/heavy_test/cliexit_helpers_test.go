@@ -1,4 +1,4 @@
-package cmd
+package heavy_test
 
 // Shared subprocess test harness for the `cliexit_*_test.go` suite.
 //
