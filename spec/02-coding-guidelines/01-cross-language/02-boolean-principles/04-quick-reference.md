@@ -99,8 +99,8 @@ if _, err := os.Stat(dir); err == nil {
 }
 
 // ✅ CORRECT — separate computation from condition
-isProjectExists := pathutil.IsDir(dir)
-if isProjectExists {
+isProjectDirDefined := pathutil.IsDir(dir)
+if isProjectDirDefined {
     fmt.Println("exists")
 }
 ```
@@ -129,9 +129,9 @@ if _, err := os.Stat(projectDir); isProjectConflict {
 }
 
 // ✅ CORRECT — all rules applied
-isProjectExists := pathutil.IsDir(projectDir)
+isProjectDirDefined := pathutil.IsDir(projectDir)
 isReadOnly := !isOverwrite
-isProjectConflict := isProjectExists && isReadOnly
+isProjectConflict := isProjectDirDefined && isReadOnly
 
 if isProjectConflict {
     return apperror.FailNew[ProjectResult](

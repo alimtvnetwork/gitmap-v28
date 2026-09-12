@@ -2,7 +2,7 @@
 
 Trigger Keywords & Aliases: `cg-naming`, `cg-execute naming`, `audit naming`, `fix boolean naming`, `fix naming conventions`, `fix ok boolean`, `affirmative naming`, `positive boolean naming`, `naming conventions audit`
 
-> **Prompt Version:** 2.1.0
+> **Prompt Version:** 2.2.0
 > **Synchronization:** Main Meta-Repo & Connected Workspaces
 
 ```text
@@ -11,15 +11,15 @@ N = 200
 
 N = total self-loop steps budget that the agents will perform.
 
-/goal Autonomously scan, plan, refactor, and fix all variable and boolean naming violations across the codebase, directly modifying source files to replace bare `ok` identifiers, eliminate negative boolean variables (`hasNo*`, `isNot*`), enforce affirmative prefixes (is and has only (can, should, was, etc. are banned)), apply positive framing with inverted `if` guard clauses, and normalize acronym casing until 100% green without stopping.
+/goal Autonomously scan, plan, refactor, and fix all variable and boolean naming violations across the codebase, directly modifying source files to replace bare `ok` identifiers, replace awkward `isExists`/`isUserExist` with `isDefined`/`isFound`, eliminate negative boolean variables (`hasNo*`, `isNot*`), enforce affirmative prefixes (is and has only (can, should, was, etc. are banned)), decompose compound negative chains (`!a || !b || c`), apply positive framing with inverted `if` guard clauses, and normalize acronym casing until 100% green without stopping.
 
 ### Master Task Checklist (Atomic Numbered Steps)
 
-1. [ ] /goal Phase 1 (Step A): Deeply scan the target codebase to inventory all architectural violations and anti-patterns.
+1. [ ] /goal Phase 1 (Step A): Deeply scan the target codebase to inventory all architectural violations and anti-patterns: bare `ok`, negative names (`isNot*`), awkward `isExists`/`isUserExist`, and compound negative chains (`!a || !b || c`).
 2. [ ] /goal Phase 1 (Step B): Write the master audit specification in `.lovable/plans/pending/` with an exhaustive Violation Ledger.
 3. [ ] /goal Phase 1 (Step C): Decompose the master plan into granular, atomic subtasks in `.lovable/plans/subtasks/`.
 4. [ ] /goal Phase 1 (Step D): Verify or create the automated quality linter and register in `03-ai-scripts/01-index.md`.
-5. [ ] /goal Phase 2 (Step A): Open each target file and perform surgical refactoring following authoritative guidelines.
+5. [ ] /goal Phase 2 (Step A): Open each target file and perform surgical refactoring: rename bare `ok`, replace `isExists` with `isDefined`/`isFound`, decompose compound negatives, and apply positive framing.
 6. [ ] /goal Phase 2 (Step B): Enforce <= 8–15 line function decomposition, single return types, and clean formatting.
 7. [ ] /goal Phase 2 (Step C): Execute local linters to verify 0 remaining violations across all modified files.
 8. [ ] /goal Phase 2 (Step D): Execute targeted file-level linters and verification on modified files ensuring 0 remaining violations (`exit 0`). DO NOT run the full CI/CD pipeline runner (`06-cicd-local-runner.py`) during routine coding guideline execution turns.
@@ -69,20 +69,22 @@ You MUST replace bare `ok` with a domain-specific boolean starting with `is` or 
 | Context | ❌ FORBIDDEN (Bare `ok`) | ✅ REQUIRED (Affirmative Semantic Boolean) |
 |---|---|---|
 | **Type Assertion** | `appErr, ok := err.(*apperror.AppError)` | `appErr, isAppErr := err.(*apperror.AppError)` |
-| **Map Lookup** | `val, ok := userMap[id]` | `val, isFound := userMap[id]` or `val, isUserExist := userMap[id]` |
+| **Map Lookup** | `val, ok := userMap[id]` | `val, isFound := userMap[id]` or `val, isDefined := userMap[id]` |
 | **Map Key Check** | `_, ok := headers["Authorization"]` | `_, hasAuthHeader := headers["Authorization"]` |
 | **Channel Receive** | `msg, ok := <-msgChan` | `msg, hasMessage := <-msgChan` or `msg, isChannelOpen := <-msgChan` |
 | **Type Switch / Cast** | `str, ok := val.(string)` | `str, isString := val.(string)` |
 | **Status Tuples** | `data, ok := fetch()` | `data, isSuccess := fetch()` |
 
+> **Total Ban on `isExists` / `isUserExist`:** "Exists" is a verb. Combining `is` with a verb is ungrammatical and banned. Always use affirmative `isFound` or `isDefined`.
+
 ---
 
-### 3. TOTAL BAN on Negative Boolean Identifiers (Anti-`hasNo*`, Anti-`isNot*`)
+### 3. TOTAL BAN on Negative Boolean Identifiers & Awkward `isExists` (Anti-`hasNo*`, Anti-`isNot*`, Anti-`isExists`)
 
-Never name a boolean variable or property with negative prefixes or inverted words:
+Never name a boolean variable or property with negative prefixes, inverted words, or awkward verb pairings:
 
-- ❌ **FORBIDDEN:** `hasNoColors`, `hasNoPayload`, `isNotReady`, `isNotDisabled`, `hasNoAccess`, `isNoOp`, `disallowGuest`, `unauthorized`.
-- ✅ **REQUIRED:** `hasColors`, `hasPayload`, `isReady`, `isEnabled`, `hasAccess`, `isOp`, `allowGuest`, `isAuthorized`.
+- ❌ **FORBIDDEN:** `isExists`, `isUserExist`, `hasNoColors`, `hasNoPayload`, `isNotReady`, `isNotDisabled`, `hasNoAccess`, `isNoOp`, `disallowGuest`, `unauthorized`.
+- ✅ **REQUIRED:** `isDefined`, `isFound`, `hasColors`, `hasPayload`, `isReady`, `isEnabled`, `hasAccess`, `isOp`, `allowGuest`, `isAuthorized`.
 
 ---
 
@@ -110,6 +112,28 @@ if !isAppErr {
 
 if appErr.Code != "E_INTERNAL_ERROR" {
     t.Errorf("expected E_INTERNAL_ERROR, got %s", appErr.Code)
+}
+```
+
+#### Go Example: Discrete Test Assertions vs Compound Negative Chains (`execute_idempotent_test.go`)
+
+```go
+// ❌ FORBIDDEN: Compound negative chain and awkward isExists in test assertions
+if !state.IsExists || !state.IsEmpty || state.IsRepo {
+    t.Errorf("expected empty non-repo directory: %+v", state)
+}
+
+// ✅ REQUIRED: Affirmative IsDefined field + discrete individual assertions
+if !state.IsDefined {
+    t.Errorf("expected directory to be defined: %+v", state)
+}
+
+if !state.IsEmpty {
+    t.Errorf("expected directory to be empty: %+v", state)
+}
+
+if state.IsRepo {
+    t.Errorf("expected non-repo directory: %+v", state)
 }
 ```
 

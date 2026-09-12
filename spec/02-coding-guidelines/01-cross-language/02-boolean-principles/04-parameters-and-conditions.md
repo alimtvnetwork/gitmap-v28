@@ -64,13 +64,13 @@ if isCacheHit {
 
 ```go
 // ❌ FORBIDDEN — Mixed polarity: positive + negative
-if isProjectExists && !isOverwrite {
+if isProjectDirDefined && !isOverwrite {
     return fmt.Errorf("conflict")
 }
 
 // ✅ REQUIRED — Extract negation to positive counterpart, then compose
 isReadOnly := !isOverwrite
-isConflict := isProjectExists && isReadOnly
+isConflict := isProjectDirDefined && isReadOnly
 
 if isConflict {
     return fmt.Errorf("conflict")
@@ -121,8 +121,25 @@ if (isUnauthorized) {
 2. **Always extract** the combined condition into a named boolean with a positive semantic name
 3. The named boolean should express the **intent** (e.g., `isConflict`, `isAccessDenied`, `isPending`, `isCacheHit`) — not just restate the logic
 
----
+### Principle 6.1: Ban on Compound Negative Chains (`!a || !b || c`)
 
+Chaining inverted negative checks (such as `!state.IsDefined || !state.IsEmpty || state.IsRepo`) obscures which exact predicate failed and violates positive boolean design.
+
+- **In Test Assertions:** Never bundle assertions with `||`. Write discrete assertions with isolated error logs:
+  ```go
+  if !state.IsDefined { t.Errorf("expected defined: %+v", state) }
+  if !state.IsEmpty { t.Errorf("expected empty: %+v", state) }
+  if state.IsRepo { t.Errorf("expected non-repo: %+v", state) }
+  ```
+- **In Application Logic:** Extract an affirmative composite boolean or guard clause:
+  ```go
+  isCloneTargetFresh := !params.State.IsDefined || params.State.IsEmpty
+  if isCloneTargetFresh {
+      performFreshClone(params)
+  }
+  ```
+
+---
 
 ---
 
@@ -139,8 +156,8 @@ if _, err := os.Stat(dir); err == nil {
 }
 
 // ✅ REQUIRED — separate computation
-isProjectExists := pathutil.IsDir(dir)
-if isProjectExists {
+isProjectDirDefined := pathutil.IsDir(dir)
+if isProjectDirDefined {
     // exists
 }
 ```
@@ -198,7 +215,7 @@ if _, err := os.Stat(projectDir); err == nil {
 }
 
 // ✅ REQUIRED — pathutil wrapper
-isProjectExists := pathutil.IsDir(projectDir)
+isProjectDirDefined := pathutil.IsDir(projectDir)
 ```
 
 ```php
@@ -246,9 +263,9 @@ if _, err := os.Stat(projectDir); isProjectConflict {
 //   2. P7: no inline statement; all variables computed before if
 //   3. P6: mixed polarity extracted to single-intent boolean
 //   4. apperror.FailNew returns structured *apperror.AppError
-isProjectExists := pathutil.IsDir(projectDir)
+isProjectDirDefined := pathutil.IsDir(projectDir)
 isReadOnly := !isOverwrite
-isProjectConflict := isProjectExists && isReadOnly
+isProjectConflict := isProjectDirDefined && isReadOnly
 
 if isProjectConflict {
     return apperror.FailNew[ProjectResult](

@@ -20,15 +20,24 @@ import (
 
 func TestInspectExistingRepo_Missing(t *testing.T) {
 	state := inspectExistingRepo(filepath.Join(t.TempDir(), "nope"))
-	if state.IsExists || state.IsRepo {
+	if state.IsDefined || state.IsRepo {
 		t.Errorf("missing dir reported as present: %+v", state)
 	}
 }
 
 func TestInspectExistingRepo_EmptyDir(t *testing.T) {
 	state := inspectExistingRepo(t.TempDir())
-	if !state.IsExists || !state.IsEmpty || state.IsRepo {
-		t.Errorf("empty dir misclassified: %+v", state)
+
+	if !state.IsDefined {
+		t.Errorf("expected directory to be defined: %+v", state)
+	}
+
+	if !state.IsEmpty {
+		t.Errorf("expected directory to be empty: %+v", state)
+	}
+
+	if state.IsRepo {
+		t.Errorf("expected non-repo directory: %+v", state)
 	}
 }
 
@@ -39,8 +48,17 @@ func TestInspectExistingRepo_NonRepoPopulated(t *testing.T) {
 	}
 
 	state := inspectExistingRepo(dir)
-	if !state.IsExists || state.IsEmpty || state.IsRepo {
-		t.Errorf("populated non-repo misclassified: %+v", state)
+
+	if !state.IsDefined {
+		t.Errorf("expected directory to be defined: %+v", state)
+	}
+
+	if state.IsEmpty {
+		t.Errorf("expected populated directory: %+v", state)
+	}
+
+	if state.IsRepo {
+		t.Errorf("expected non-repo directory: %+v", state)
 	}
 }
 
@@ -65,7 +83,7 @@ func TestUrlsMatch_HTTPSandSSHEquivalence(t *testing.T) {
 
 func TestDispatchOnExists_AlreadyMatchesIsSkip(t *testing.T) {
 	state := existingRepoState{
-		IsExists:  true,
+		IsDefined: true,
 		IsRepo:    true,
 		RemoteURL: "https://github.com/owner/repo.git",
 		Branch:    "main",
@@ -91,7 +109,7 @@ func TestDispatchOnExists_AlreadyMatchesIsSkip(t *testing.T) {
 
 func TestDispatchOnExists_URLMismatchSkipsWithReason(t *testing.T) {
 	state := existingRepoState{
-		IsExists:  true,
+		IsDefined: true,
 		IsRepo:    true,
 		RemoteURL: "https://github.com/old/repo.git",
 		Branch:    "main",
@@ -117,7 +135,7 @@ func TestDispatchOnExists_URLMismatchSkipsWithReason(t *testing.T) {
 
 func TestDispatchOnExists_BranchMismatchSkipsWithReason(t *testing.T) {
 	state := existingRepoState{
-		IsExists:  true,
+		IsDefined: true,
 		IsRepo:    true,
 		RemoteURL: "https://github.com/owner/repo.git",
 		Branch:    "develop",
@@ -142,7 +160,7 @@ func TestDispatchOnExists_BranchMismatchSkipsWithReason(t *testing.T) {
 }
 
 func TestDispatchOnExists_NonRepoFailsUnderEveryPolicy(t *testing.T) {
-	state := existingRepoState{IsExists: true, IsRepo: false, IsEmpty: false}
+	state := existingRepoState{IsDefined: true, IsRepo: false, IsEmpty: false}
 	row := Row{HTTPSUrl: "https://x/a.git"}
 	for _, policy := range []string{
 		constants.CloneNowOnExistsSkip,

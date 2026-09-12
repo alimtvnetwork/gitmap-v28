@@ -68,18 +68,44 @@ When auditing, applying fixes, or creating skills, navigate and respect these ca
 
 ### A. Boolean Evaluation & Naming (P1–P6, R3)
 - **Rules:** Positive affirmative prefixes ONLY (`is` and `has`). TOTAL BAN on all other prefixes (`can`, `should`, `was`, `will`, `did`, `must` are strictly BANNED). TOTAL BAN on explicit `== true` / `=== true` checks. No mixed polarity (`if a && !b`). No inverted success checks (`!isSuccess`).
+- **Affirmative Parameter & Field Naming (Rule 5):** TOTAL BAN on single-letter parameters (`v bool`, `b bool`, `val bool`, `flag bool`) in function or method signatures (e.g. setters). TOTAL BAN on bare verbs, nouns, or adjectives (`stop bool`, `pause bool`, `force bool`, `dryRun bool`, `header bool`, `defined bool`). Every boolean identifier MUST carry an affirmative prefix (`is*` or `has*`): `stop` -> `isStopped`, `stopOnFail` -> `isStopOnFail` (e.g., `SetStopOnFail(isStopOnFail bool)`), `defined` -> `isDefined` (e.g. struct field `isDefined bool`, method `IsDefined() bool`), `pause` -> `isPaused`, `dryRun` -> `isDryRun`.
+- **IsDefined vs IsExists & Compound Negatives (Rule 6 & 7):** TOTAL BAN on awkward/ungrammatical `isExists` / `isUserExist`. Always use affirmative `isDefined` (or `isFound` for map lookups). TOTAL BAN on compound negative chains in conditions (`!state.IsDefined || !state.IsEmpty || state.IsRepo`). In tests, write discrete assertions per field. In app logic, extract an affirmative composite predicate (`isCloneTargetFresh := !params.State.IsDefined || params.State.IsEmpty`).
 
 ```go
-// ❌ BAD (Explicit true comparison, negative naming, mixed polarity)
+// ❌ BAD (Explicit true comparison, negative naming, mixed polarity, compound negatives, isExists)
 if isUserNotActive == true { ... }
 if !response.isSuccess { ... }
 if isReady && !hasToken { ... }
+if !state.IsExists || !state.IsEmpty || state.IsRepo { ... }
+func (p *Progress) SetStopOnFail(v bool) { p.stopOnFail = v }
+type Worker struct { stop bool }
+type Result[T any] struct { defined bool }
 
-// ✅ GOOD (Implicit evaluation, affirmative naming, extracted conflict)
+// ✅ GOOD (Implicit evaluation, affirmative naming, extracted conflict, discrete assertions)
 if !isUserActive { ... }
 if response.isFail { ... }
 isTokenMissing := isReady && !hasToken
 if isTokenMissing { ... }
+
+// Discrete assertions for compound states:
+if !state.IsDefined { t.Errorf("expected defined: %+v", state) }
+if !state.IsEmpty { t.Errorf("expected empty: %+v", state) }
+if state.IsRepo { t.Errorf("expected non-repo: %+v", state) }
+
+func (p *Progress) SetStopOnFail(isStopOnFail bool) {
+    p.stopOnFail = isStopOnFail
+}
+
+type Worker struct {
+    isStopped bool
+}
+func (w *Worker) SetStopped(isStopped bool) {
+    w.isStopped = isStopped
+}
+
+type Result[T any] struct {
+    isDefined bool
+}
 ```
 
 ```typescript

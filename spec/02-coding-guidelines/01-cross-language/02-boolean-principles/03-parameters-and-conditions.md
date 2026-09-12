@@ -63,13 +63,13 @@ if isCacheHit {
 
 ```go
 // ❌ FORBIDDEN — Mixed polarity: positive + negative
-if isProjectExists && !isOverwrite {
+if isProjectDirDefined && !isOverwrite {
     return fmt.Errorf("conflict")
 }
 
 // ✅ REQUIRED — Extract negation to positive counterpart, then compose
 isReadOnly := !isOverwrite
-isConflict := isProjectExists && isReadOnly
+isConflict := isProjectDirDefined && isReadOnly
 
 if isConflict {
     return fmt.Errorf("conflict")
@@ -138,8 +138,8 @@ if _, err := os.Stat(dir); err == nil {
 }
 
 // ✅ REQUIRED — separate computation
-isProjectExists := pathutil.IsDir(dir)
-if isProjectExists {
+isProjectDirDefined := pathutil.IsDir(dir)
+if isProjectDirDefined {
     // exists
 }
 ```
@@ -197,7 +197,7 @@ if _, err := os.Stat(projectDir); err == nil {
 }
 
 // ✅ REQUIRED — pathutil wrapper
-isProjectExists := pathutil.IsDir(projectDir)
+isProjectDirDefined := pathutil.IsDir(projectDir)
 ```
 
 ```php
@@ -245,9 +245,9 @@ if _, err := os.Stat(projectDir); isProjectConflict {
 //   2. P7: no inline statement; all variables computed before if
 //   3. P6: mixed polarity extracted to single-intent boolean
 //   4. apperror.FailNew returns structured *apperror.AppError
-isProjectExists := pathutil.IsDir(projectDir)
+isProjectDirDefined := pathutil.IsDir(projectDir)
 isReadOnly := !isOverwrite
-isProjectConflict := isProjectExists && isReadOnly
+isProjectConflict := isProjectDirDefined && isReadOnly
 
 if isProjectConflict {
     return apperror.FailNew[ProjectResult](

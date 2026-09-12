@@ -27,14 +27,14 @@ import (
 // directly so each branch's decision is auditable in one place
 // instead of being hidden behind state.IsX() helpers.
 type existingRepoState struct {
-	// IsExists is true when the destination directory exists on disk.
+	// IsDefined is true when the destination directory exists and is defined on disk.
 	// A false value is the trivial "no conflict, just clone" case.
-	IsExists bool
+	IsDefined bool
 	// IsRepo is true when the destination is a git work tree (we
 	// detect this by probing for a .git entry -- file or dir, since
 	// worktrees use a file). Reused by every on-exists branch.
 	IsRepo bool
-	// IsEmpty is true when IsExists && !IsRepo and the directory has
+	// IsEmpty is true when IsDefined && !IsRepo and the directory has
 	// no children. An empty dir is safe to remove + clone into;
 	// a populated non-repo dir is treated as a hard failure under
 	// every policy (we never destroy unrelated user data).
@@ -60,7 +60,7 @@ func inspectExistingRepo(absDest string) existingRepoState {
 		return state
 	}
 
-	state.IsExists = true
+	state.IsDefined = true
 	entries, _ := os.ReadDir(absDest)
 	state.IsEmpty = len(entries) == 0
 	if !isGitWorkTree(absDest) {
@@ -103,7 +103,8 @@ func isGitWorkTree(absDest string) bool {
 //   - Force -> remove + reclone (status = ok/failed).
 //   - Non-repo populated dir -> hard failure under every policy.
 func dispatchOnExists(params CloneIdempotentParams) Result {
-	if !params.State.IsExists || params.State.IsEmpty {
+	isCloneTargetFresh := !params.State.IsDefined || params.State.IsEmpty
+	if isCloneTargetFresh {
 		return cloneFresh(params)
 	}
 

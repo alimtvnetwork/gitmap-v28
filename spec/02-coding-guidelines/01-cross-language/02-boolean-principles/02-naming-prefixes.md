@@ -66,8 +66,55 @@ $user->isAdmin();
 
 This mirrors industry best practices. For example, .NET's `char` type exposes `IsLetter`, `IsDigit`, `IsUpper`, `IsLower`, `IsNumber`, `IsPunctuation`, `IsSeparator`, `IsSymbol`, `IsControl`, `IsLetterOrDigit` — all boolean methods with the `Is` prefix.
 
----
+### Function & Method Parameters: Total Ban on Single-Letter & Bare Names
 
+Boolean parameters in function and method signatures (such as setters) MUST NEVER use lazy single-letter identifiers (`v bool`, `b bool`, `flag bool`) or bare unprefixed verbs (`stop bool`, `pause bool`). They must always carry an affirmative prefix describing the exact state being set:
+
+```go
+// ❌ FORBIDDEN: Single-letter parameter `v bool` or bare verb `stop bool`
+func (p *BatchProgress) SetStopOnFail(v bool) {
+    p.stopOnFail = v
+}
+
+func (w *Worker) SetStopped(stop bool) {
+    w.stop = stop
+}
+
+// ✅ REQUIRED: Meaningful, affirmative boolean parameter and property
+func (p *BatchProgress) SetStopOnFail(isStopOnFail bool) {
+    p.stopOnFail = isStopOnFail
+}
+
+func (w *Worker) SetStopped(isStopped bool) {
+    w.isStopped = isStopped
+}
+```
+
+### Struct Fields & State Properties: Total Ban on Bare Names (e.g. `defined` -> `isDefined`)
+
+Struct fields, class properties, and state flags representing boolean states MUST ALWAYS use affirmative `is*` or `has*` prefixes. A bare name such as `defined bool`, `ready bool`, `active bool` is strictly FORBIDDEN:
+
+```go
+// ❌ FORBIDDEN: Bare boolean field name in struct
+type Result[T any] struct {
+    value   T
+    err     *AppError
+    defined bool // VIOLATION: bare boolean without is/has prefix
+}
+
+// ✅ REQUIRED: Explicit affirmative boolean prefix
+type Result[T any] struct {
+    value     T
+    err       *AppError
+    isDefined bool // COMPLIANT: starts with affirmative 'is'
+}
+```
+
+### Ban on Awkward `isExists` / `isUserExist` (Use `isDefined` / `isFound`)
+
+"Exists" is a verb. Combining `is` with a verb (`isExists`, `IsExists`, `isUserExist`) is grammatically malformed and strictly banned. Always use `isDefined` (or `IsDefined`) for state or resource presence, and `isFound` for map/cache lookup presence.
+
+---
 
 ---
 
@@ -81,6 +128,7 @@ Double negatives (`!isNot...`, `!isNotBlocked`) are the worst form and must neve
 
 | ❌ Forbidden Name | ✅ Required Name | Semantic Meaning |
 |---|---|---|
+| `isExists` / `isUserExist` | `isDefined` / `isFound` | The resource or entity exists and is defined |
 | `isNotReady` | `isPending` | The order is waiting |
 | `isNotInList` | `isAbsentFromList` | The item is absent |
 | `isNoRecentErrors` | `isErrorListClear` | The error list is clean |
