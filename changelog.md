@@ -1,3 +1,18 @@
+## [v6.226.0] 2026-09-13 Release v6.226.0
+
+### Install GitMap v6.226.0
+
+To pin your repository to this exact version, run the following one-liner:
+Unix/Bash: `curl -sL https://raw.githubusercontent.com/alimtvnetwork/gitmap-v28/v6.226.0/install.sh | bash -s -- ".lovable/prompts" "v6.226.0"`
+PowerShell: `Invoke-WebRequest -Uri https://raw.githubusercontent.com/alimtvnetwork/gitmap-v28/v6.226.0/install.ps1 -OutFile install.ps1; .\install.ps1 -TargetDir ".lovable/prompts" -Version "v6.226.0"`
+
+### Added / Changed / Fixed / Removed
+
+- Fixed unbalanced if statement syntax error in E2E GitHub Actions workflow
+- Guarded TypeScript AST imports in check-nested-ifs against missing node_modules
+- Auto-migrated and ensured ssh_hosts and ssh_history tables exist across cmdssh subcommands
+- Resolved relative path and nested-if lint violations
+
 ## [v6.225.0] 2026-09-13 Release v6.225.0
 
 ### Install GitMap v6.225.0
