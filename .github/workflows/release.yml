@@ -766,15 +766,15 @@ jobs:
           ### Install specific version (generic installer)
 
           \`\`\`powershell
-          irm https://raw.githubusercontent.com/$REPO/main/gitmap/scripts/install.ps1 | iex
+          irm https://raw.githubusercontent.com/$REPO/main/cli/scripts/install.ps1 | iex
           # Or pin this version:
-          & { \$Version = "$VERSION"; irm https://raw.githubusercontent.com/$REPO/main/gitmap/scripts/install.ps1 | iex }
+          & { \$Version = "$VERSION"; irm https://raw.githubusercontent.com/$REPO/main/cli/scripts/install.ps1 | iex }
           \`\`\`
 
           \`\`\`bash
-          curl -fsSL https://raw.githubusercontent.com/$REPO/main/gitmap/scripts/install.sh | bash
+          curl -fsSL https://raw.githubusercontent.com/$REPO/main/cli/scripts/install.sh | bash
           # Or pin this version:
-          curl -fsSL https://raw.githubusercontent.com/$REPO/main/gitmap/scripts/install.sh | bash -s -- --version $VERSION
+          curl -fsSL https://raw.githubusercontent.com/$REPO/main/cli/scripts/install.sh | bash -s -- --version $VERSION
           \`\`\`
 
           ### Manual download
@@ -806,7 +806,7 @@ jobs:
 
   installer-smoke:
     # Post-publish smoke test: pulls the freshly-released binary via
-    # gitmap/scripts/install.sh in strict --version mode and asserts
+    # cli/scripts/install.sh in strict --version mode and asserts
     # that `gitmap version` reports the just-released tag. Catches
     # broken assets, wrong filenames, or version-constant drift before
     # users hit it. Strict mode (--no-discovery) means no fallback.
@@ -835,7 +835,7 @@ jobs:
 
   installer-smoke-windows:
     # Windows post-publish smoke: pulls the freshly-released binary via
-    # gitmap/scripts/install.ps1 in strict -Version mode and asserts
+    # cli/scripts/install.ps1 in strict -Version mode and asserts
     # that `gitmap version` reports the just-released tag. Catches
     # broken Windows assets, wrong filenames, or PATH/extraction bugs.
     name: Installer Smoke Windows (release)
@@ -884,7 +884,7 @@ jobs:
           VERSION: ${{ needs.release.outputs.version }}
         run: |
           $log = Join-Path $env:RUNNER_TEMP 'dryrun.log'
-          pwsh -File gitmap/scripts/install.ps1 `
+          pwsh -File cli/scripts/install.ps1 `
             -DryRun -Version $env:VERSION -NoDiscovery -Arch amd64 `
             *>&1 | Tee-Object -FilePath $log
           if ($LASTEXITCODE -ne 0) {

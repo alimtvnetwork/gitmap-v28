@@ -59,7 +59,7 @@ param(
     # report, and exit 0 — without downloading, extracting, or
     # touching the install dir / PATH. Used by CI to validate that
     # the install.ps1 + release-pipeline asset-naming contract is
-    # honored before users hit it. Spec: spec/07-generic-release/
+    # honored before users hit it. Spec: 02-spec/07-generic-release/
     # 09-generic-install-script-behavior.md §6.
     [switch]$DryRun
 )
@@ -132,7 +132,7 @@ class InstallerFailure : System.Exception {
 }
 
 # ---------------------------------------------------------------------------
-# Versioned repo discovery (spec/01-app/95-installer-script-find-latest-repo.md)
+# Versioned repo discovery (02-spec/01-app/95-installer-script-find-latest-repo.md)
 # ---------------------------------------------------------------------------
 
 function Split-RepoSuffix([string]$repo) {
@@ -226,7 +226,7 @@ if ($env:INSTALLER_DELEGATED -eq "1") {
 } elseif ($NoDiscovery) {
     Write-Host "  [discovery] -NoDiscovery set; skipping probe"
 } elseif (-not [string]::IsNullOrWhiteSpace($Version)) {
-    # Pinned-version contract (spec/07-generic-release/08-pinned-version-install-snippet.md):
+    # Pinned-version contract (02-spec/07-generic-release/08-pinned-version-install-snippet.md):
     # When -Version is supplied, install EXACTLY that version from the embedded $Repo.
     # Skip versioned-repo discovery so a snippet copied from a v3.x release page
     # never silently jumps to the v4 repo's latest tag.
@@ -489,7 +489,7 @@ function Resolve-Version([string]$version) {
     }
 }
 
-# --- Strict-tag failure (spec/07-generic-release/09 section 3) ---
+# --- Strict-tag failure (02-spec/07-generic-release/09 section 3) ---
 # Print the canonical no-fallback message and exit 1. Called from
 # Get-Asset whenever -Version was supplied explicitly and the
 # requested release asset cannot be downloaded or verified.
@@ -497,7 +497,7 @@ function Stop-Strict([string]$detail) {
     Write-Err ""
     Write-Err "Error: requested release $Version not found in $Repo;"
     Write-Err "       refusing to fall back per strict-tag contract."
-    Write-Err "       See spec/07-generic-release/09-generic-install-script-behavior.md `$3."
+    Write-Err "       See 02-spec/07-generic-release/09-generic-install-script-behavior.md `$3."
     if ($detail) { Write-Err "       Detail: $detail" }
     throw [InstallerFailure]::new("Strict version install failed", 1)
 }
@@ -589,7 +589,11 @@ function Write-MissingAssetError([string]$version, [string]$arch,
 
 function Get-Asset([string]$version, [string]$arch) {
     $assetName = "gitmap-${version}-windows-${arch}.zip"
-    $baseUrl = "https://github.com/$Repo/releases/download/$version"
+    $baseUrl = if ($env:GITMAP_DOWNLOAD_URL) {
+        $env:GITMAP_DOWNLOAD_URL.TrimEnd('/')
+    } else {
+        "https://github.com/$Repo/releases/download/$version"
+    }
     $assetUrl = "$baseUrl/$assetName"
     $checksumUrl = "$baseUrl/checksums.txt"
 
@@ -786,9 +790,11 @@ function Install-SeedData([string]$version, [string]$installDir) {
     foreach ($name in $seedFiles) {
         $rawUrl = "https://raw.githubusercontent.com/$Repo/$version/cli/data/$name"
         $dest = Join-Path $dataDir $name
+        $downloaded = $false
         try {
             Invoke-WebRequest -Uri $rawUrl -OutFile $dest -UseBasicParsing -ErrorAction Stop
             $installed++
+            $downloaded = $true
         }
         catch {
             # Fallback to main branch if tag not yet published on GitHub
@@ -796,10 +802,28 @@ function Install-SeedData([string]$version, [string]$installDir) {
                 $fallbackUrl = "https://raw.githubusercontent.com/$Repo/main/cli/data/$name"
                 Invoke-WebRequest -Uri $fallbackUrl -OutFile $dest -UseBasicParsing -ErrorAction Stop
                 $installed++
+                $downloaded = $true
             }
             catch {
-                Write-Warning "[Install-SeedData] $_"
-                Write-Host ("    skip  {0} (not in {1} or main)" -f $name, $version) -ForegroundColor DarkGray
+                # Fallback to local checkout data folder if available
+                $localCandidates = @(
+                    Join-Path $PSScriptRoot "..\data\$name",
+                    Join-Path $PSScriptRoot "data\$name",
+                    Join-Path $PSScriptRoot "..\..\cli\data\$name",
+                    Join-Path $PSScriptRoot "cli\data\$name"
+                )
+                foreach ($candidate in $localCandidates) {
+                    if (Test-Path $candidate) {
+                        Copy-Item -Path $candidate -Destination $dest -Force
+                        $installed++
+                        $downloaded = $true
+                        break
+                    }
+                }
+                if (-not $downloaded) {
+                    Write-Warning "[Install-SeedData] $_"
+                    Write-Host ("    skip  {0} (not in {1} or main)" -f $name, $version) -ForegroundColor DarkGray
+                }
             }
         }
     }
@@ -823,6 +847,22 @@ function Assert-InstallSelfCheck([string]$installDir) {
     Write-Step "Running install self-check..."
 
     $seedPath = Join-Path (Join-Path $installDir "data") "downloader-config.json"
+
+    if (-not (Test-Path $seedPath)) {
+        # Fallback to local checkout data folder if available
+        $localCandidates = @(
+            Join-Path $PSScriptRoot "..\data\downloader-config.json",
+            Join-Path $PSScriptRoot "data\downloader-config.json",
+            Join-Path $PSScriptRoot "..\..\cli\data\downloader-config.json",
+            Join-Path $PSScriptRoot "cli\data\downloader-config.json"
+        )
+        foreach ($candidate in $localCandidates) {
+            if (Test-Path $candidate) {
+                Copy-Item -Path $candidate -Destination $seedPath -Force
+                break
+            }
+        }
+    }
 
     if (-not (Test-Path $seedPath)) {
         Write-Err ""
@@ -862,7 +902,12 @@ function Assert-InstallSelfCheck([string]$installDir) {
 # if the release does not bundle docs-site.zip (older versions).
 function Install-DocsSite([string]$version, [string]$installDir) {
     $assetName = "docs-site.zip"
-    $assetUrl = "https://github.com/$Repo/releases/download/$version/$assetName"
+    $baseUrl = if ($env:GITMAP_DOWNLOAD_URL) {
+        $env:GITMAP_DOWNLOAD_URL.TrimEnd('/')
+    } else {
+        "https://github.com/$Repo/releases/download/$version"
+    }
+    $assetUrl = "$baseUrl/$assetName"
     $tmpZip = Join-Path $env:TEMP "gitmap-docs-site-$(Get-Random).zip"
 
     Write-Step "Downloading docs-site.zip ($version)..."

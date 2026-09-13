@@ -8,16 +8,16 @@ import (
 )
 
 // deployManifestJSON is the SINGLE SOURCE OF TRUTH for deploy-target folder
-// names. Loaders in run.ps1, run.sh, and gitmap/scripts/install.sh read the
+// names. Loaders in run.ps1, run.sh, and cli/scripts/install.sh read the
 // same JSON file from disk; Go embeds it at build time so the binary stays
 // self-contained. Renaming the deploy folder ONLY requires editing
-// gitmap/constants/deploy-manifest.json — no other source change.
+// cli/constants/deploy-manifest.json — no other source change.
 //
 //go:embed deploy-manifest.json
 var deployManifestJSON []byte
 
 // DeployManifest mirrors the on-disk JSON layout. Keep field names in sync
-// with gitmap/constants/deploy-manifest.json.
+// with cli/constants/deploy-manifest.json.
 type DeployManifest struct {
 	SchemaVersion    int      `json:"schemaVersion"`
 	AppSubdir        string   `json:"appSubdir"`

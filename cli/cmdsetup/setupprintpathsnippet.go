@@ -14,7 +14,7 @@ import (
 // runPrintPathSnippet handles `gitmap setup print-path-snippet`.
 //
 // Renders the canonical marker-block PATH snippet for the requested
-// shell to stdout. Shell scripts (run.sh, gitmap/scripts/install.sh)
+// shell to stdout. Shell scripts (run.sh, cli/scripts/install.sh)
 // shell out to this command to obtain byte-identical snippet text,
 // guaranteeing single-source-of-truth across all three drivers.
 //

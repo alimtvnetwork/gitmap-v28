@@ -24,10 +24,10 @@ type scriptSource struct {
 
 func defaultScriptSources(tmpDir string) []scriptSource {
 	return []scriptSource{
-		{filepath.Join(tmpDir, "gitmap", "scripts", "install.ps1"), "install.ps1"},
-		{filepath.Join(tmpDir, "gitmap", "scripts", "install.sh"), "install.sh"},
-		{filepath.Join(tmpDir, "gitmap", "scripts", "uninstall.ps1"), "uninstall.ps1"},
-		{filepath.Join(tmpDir, "gitmap", "scripts", "Get-LastRelease.ps1"), "Get-LastRelease.ps1"},
+		{filepath.Join(tmpDir, "cli", "scripts", "install.ps1"), "install.ps1"},
+		{filepath.Join(tmpDir, "cli", "scripts", "install.sh"), "install.sh"},
+		{filepath.Join(tmpDir, "cli", "scripts", "uninstall.ps1"), "uninstall.ps1"},
+		{filepath.Join(tmpDir, "cli", "scripts", "Get-LastRelease.ps1"), "Get-LastRelease.ps1"},
 		{filepath.Join(tmpDir, "run.ps1"), "run.ps1"},
 		{filepath.Join(tmpDir, "run.sh"), "run.sh"},
 	}

@@ -22,9 +22,9 @@ None
 ## Subcommand: `print-path-snippet`
 
 Emits the canonical marker-block PATH snippet to stdout. `run.sh` and
-`gitmap/scripts/install.sh` shell out to this command so all three
+`cli/scripts/install.sh` shell out to this command so all three
 drivers produce **byte-identical** rc-file output. Single source of
-truth lives in `gitmap/constants/constants_pathsnippet.go`.
+truth lives in `cli/constants/constants_pathsnippet.go`.
 
 | Flag | Default | Description |
 |------|---------|-------------|

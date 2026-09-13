@@ -20,7 +20,7 @@ const (
 
 // Document is the top-level Seedable-Config envelope. Field names are
 // PascalCase to match the spec and the JSON file shipped under
-// gitmap/data/downloader-config.json.
+// cli/data/downloader-config.json.
 type Document struct {
 	DownloaderConfig DownloaderConfig `json:",omitempty"`
 	DatabaseVersion  DatabaseVersion  `json:",omitempty"`

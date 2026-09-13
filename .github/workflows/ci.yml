@@ -155,7 +155,7 @@ jobs:
         # Body extracted to .github/scripts/misspell-changed.sh — that
         # script emits per-finding GitHub annotations and exits 1 on
         # any finding, identical to the previous inline behavior. Path
-        # include/exclude globs come from gitmap/data/config.json
+        # include/exclude globs come from cli/data/config.json
         # (misspell.include / misspell.exclude).
         if: needs.sha-check.outputs.already-built != 'true'
         env:

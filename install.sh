@@ -722,14 +722,38 @@ install_seed_data() {
     for name in $seed_files; do
         local raw_url="https://raw.githubusercontent.com/${REPO}/${version}/cli/data/${name}"
         local dest="${data_dir}/${name}"
+        local downloaded=0
         if command -v curl >/dev/null 2>&1; then
             if curl -fsSL --max-time 10 "${raw_url}" -o "${dest}" 2>/dev/null; then
-                installed=$((installed + 1))
+                downloaded=1
+            else
+                local fallback_url="https://raw.githubusercontent.com/${REPO}/main/cli/data/${name}"
+                if curl -fsSL --max-time 10 "${fallback_url}" -o "${dest}" 2>/dev/null; then
+                    downloaded=1
+                fi
             fi
         elif command -v wget >/dev/null 2>&1; then
             if wget -qO "${dest}" "${raw_url}" 2>/dev/null; then
-                installed=$((installed + 1))
+                downloaded=1
+            else
+                local fallback_url="https://raw.githubusercontent.com/${REPO}/main/cli/data/${name}"
+                if wget -qO "${dest}" "${fallback_url}" 2>/dev/null; then
+                    downloaded=1
+                fi
             fi
+        fi
+
+        # Fallback to local checkout data folder if available
+        if [ "$downloaded" -eq 0 ]; then
+            for candidate in "${script_dir}/../data/${name}" "${script_dir}/data/${name}" "${script_dir}/../../cli/data/${name}" "${script_dir}/cli/data/${name}"; do
+                if [ -f "$candidate" ]; then
+                    cp -f "$candidate" "$dest" 2>/dev/null && downloaded=1 && break
+                fi
+            done
+        fi
+
+        if [ "$downloaded" -eq 1 ]; then
+            installed=$((installed + 1))
         fi
     done
 

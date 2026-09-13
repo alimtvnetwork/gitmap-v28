@@ -35,7 +35,7 @@ if [ -z "${BASH_VERSION:-}" ]; then
     # If the captured file is missing the shebang or is suspiciously short,
     # the parent `sh` already consumed most of it. Re-fetch from GitHub.
     if [ ! -s "$_gm_tmp" ] || ! head -1 "$_gm_tmp" 2>/dev/null | grep -q '^#!'; then
-        _gm_url="https://raw.githubusercontent.com/alimtvnetwork/gitmap-v28/main/gitmap/scripts/install.sh"
+        _gm_url="https://raw.githubusercontent.com/alimtvnetwork/gitmap-v28/main/cli/scripts/install.sh"
         if command -v curl >/dev/null 2>&1; then
             curl -fsSL "$_gm_url" -o "$_gm_tmp" || {
                 printf '\033[31m  Error: failed to re-fetch installer from %s\033[0m\n' "$_gm_url" >&2
@@ -66,7 +66,7 @@ fi
 # gitmap installer for Linux and macOS
 #
 # Usage:
-#   curl -fsSL https://raw.githubusercontent.com/alimtvnetwork/gitmap-v28/main/gitmap/scripts/install.sh | bash
+#   curl -fsSL https://raw.githubusercontent.com/alimtvnetwork/gitmap-v28/main/cli/scripts/install.sh | bash
 #
 # Options:
 #   --version <tag>    Install a specific version (e.g. v2.55.0). Default: latest.
@@ -125,13 +125,13 @@ warn()  { printf '  \033[33m%s\033[0m\n' "$*" >&2; }
 
 # ── Deploy manifest (single source of truth) ───────────────────────
 # Mirrors run.sh's load_deploy_manifest and run.ps1's Get-DeployManifest.
-# Fetches gitmap/constants/deploy-manifest.json from the install repo so
+# Fetches cli/constants/deploy-manifest.json from the install repo so
 # APP_SUBDIR / LEGACY_APP_SUBDIRS aren't hardcoded across scripts and Go.
 # Renaming the deploy folder ONLY requires editing that JSON file.
 APP_SUBDIR="gitmap-cli"
 LEGACY_APP_SUBDIRS=("gitmap")
 load_deploy_manifest() {
-    local manifest_url="https://raw.githubusercontent.com/${REPO}/main/gitmap/constants/deploy-manifest.json"
+    local manifest_url="https://raw.githubusercontent.com/${REPO}/main/cli/constants/deploy-manifest.json"
     local manifest
     manifest=$(curl -fsSL --max-time 5 "$manifest_url" 2>/dev/null || true)
     if [ -z "$manifest" ]; then
@@ -214,7 +214,7 @@ resolve_effective_repo() {
 invoke_delegated_full_installer() {
     local effective_repo="$1"
     shift
-    local delegated_url="https://raw.githubusercontent.com/${effective_repo}/main/gitmap/scripts/install.sh"
+    local delegated_url="https://raw.githubusercontent.com/${effective_repo}/main/cli/scripts/install.sh"
     printf '  [discovery] delegating to %s\n' "$delegated_url" >&2
 
     export INSTALLER_DELEGATED=1
@@ -240,7 +240,7 @@ detect_os() {
         Darwin*)    echo "darwin" ;;
         MINGW*|MSYS*|CYGWIN*)
             err "Windows detected. Use the PowerShell installer instead:"
-            err "  irm https://raw.githubusercontent.com/${REPO}/main/gitmap/scripts/install.ps1 | iex"
+            err "  irm https://raw.githubusercontent.com/${REPO}/main/cli/scripts/install.ps1 | iex"
             exit 1
             ;;
         *)
@@ -388,7 +388,7 @@ emit_missing_asset_error() {
 download_asset() {
     local version="$1" os="$2" arch="$3"
     local asset_name="${BINARY_NAME}-${version}-${os}-${arch}.tar.gz"
-    local base_url="${GITMAP_DOWNLOAD_URL:-https://github.com/${REPO}/releases/download/${version}}"
+    local base_url="https://github.com/${REPO}/releases/download/${version}"
     local asset_url="${base_url}/${asset_name}"
     local checksum_url="${base_url}/checksums.txt"
 
@@ -720,16 +720,40 @@ install_seed_data() {
     local seed_files="downloader-config.json config.json git-setup.json seo-templates.json"
     local installed=0
     for name in $seed_files; do
-        local raw_url="https://raw.githubusercontent.com/${REPO}/${version}/gitmap/data/${name}"
+        local raw_url="https://raw.githubusercontent.com/${REPO}/${version}/cli/data/${name}"
         local dest="${data_dir}/${name}"
+        local downloaded=0
         if command -v curl >/dev/null 2>&1; then
             if curl -fsSL --max-time 10 "${raw_url}" -o "${dest}" 2>/dev/null; then
-                installed=$((installed + 1))
+                downloaded=1
+            else
+                local fallback_url="https://raw.githubusercontent.com/${REPO}/main/cli/data/${name}"
+                if curl -fsSL --max-time 10 "${fallback_url}" -o "${dest}" 2>/dev/null; then
+                    downloaded=1
+                fi
             fi
         elif command -v wget >/dev/null 2>&1; then
             if wget -qO "${dest}" "${raw_url}" 2>/dev/null; then
-                installed=$((installed + 1))
+                downloaded=1
+            else
+                local fallback_url="https://raw.githubusercontent.com/${REPO}/main/cli/data/${name}"
+                if wget -qO "${dest}" "${fallback_url}" 2>/dev/null; then
+                    downloaded=1
+                fi
             fi
+        fi
+
+        # Fallback to local checkout data folder if available
+        if [ "$downloaded" -eq 0 ]; then
+            for candidate in "${script_dir}/../data/${name}" "${script_dir}/data/${name}" "${script_dir}/../../cli/data/${name}" "${script_dir}/cli/data/${name}"; do
+                if [ -f "$candidate" ]; then
+                    cp -f "$candidate" "$dest" 2>/dev/null && downloaded=1 && break
+                fi
+            done
+        fi
+
+        if [ "$downloaded" -eq 1 ]; then
+            installed=$((installed + 1))
         fi
     done
 
@@ -744,8 +768,7 @@ install_seed_data() {
 install_docs_site() {
     local version="$1" install_dir="$2"
     local asset_name="docs-site.zip"
-    local base_url="${GITMAP_DOWNLOAD_URL:-https://github.com/${REPO}/releases/download/${version}}"
-    local asset_url="${base_url}/${asset_name}"
+    local asset_url="https://github.com/${REPO}/releases/download/${version}/${asset_name}"
     local tmp_zip="${TMP_DIR}/${asset_name}"
 
     step "Downloading docs-site.zip (${version})..."

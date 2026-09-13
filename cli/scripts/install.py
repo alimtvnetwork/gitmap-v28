@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""gitmap/scripts/install.py — Canonical cross-platform installer entrypoint.
+"""cli/scripts/install.py — Canonical cross-platform installer entrypoint.
 
 Delegates directly to repository root install.py.
 """

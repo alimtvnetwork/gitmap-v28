@@ -4,7 +4,7 @@ package constants
 //
 // Spec: 02-spec/04-generic-cli/21-post-install-shell-activation/02-snippets.md
 //
-// SINGLE SOURCE OF TRUTH. run.sh, gitmap/scripts/install.sh, and the
+// SINGLE SOURCE OF TRUTH. run.sh, cli/scripts/install.sh, and the
 // `gitmap setup print-path-snippet` subcommand all render their rc-file
 // snippets from these constants. The shell scripts fetch the rendered
 // bytes by shelling out to the gitmap binary, so the three drivers are

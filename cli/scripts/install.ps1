@@ -26,7 +26,7 @@
     contract.
 
 .EXAMPLE
-    irm https://raw.githubusercontent.com/alimtvnetwork/gitmap-v28/main/gitmap/scripts/install.ps1 | iex
+    irm https://raw.githubusercontent.com/alimtvnetwork/gitmap-v28/main/cli/scripts/install.ps1 | iex
 
 .EXAMPLE
     & ./install.ps1 -Version v2.48.0
@@ -107,7 +107,7 @@ $script:AppSubdir = "gitmap-cli"
 $script:LegacyAppSubdirs = @("gitmap")
 
 function Load-DeployManifest {
-    $manifestUrl = "https://raw.githubusercontent.com/$Repo/main/gitmap/constants/deploy-manifest.json"
+    $manifestUrl = "https://raw.githubusercontent.com/$Repo/main/cli/constants/deploy-manifest.json"
     try {
         $resp = Invoke-WebRequest -Uri $manifestUrl -UseBasicParsing -TimeoutSec 5 -ErrorAction Stop
         $manifest = $resp.Content | ConvertFrom-Json
@@ -187,7 +187,7 @@ function Resolve-EffectiveRepo([string]$repo, [int]$ceiling) {
 }
 
 function Invoke-DelegatedFullInstaller([string]$effectiveRepo) {
-    $delegatedUrl = "https://raw.githubusercontent.com/$effectiveRepo/main/gitmap/scripts/install.ps1"
+    $delegatedUrl = "https://raw.githubusercontent.com/$effectiveRepo/main/cli/scripts/install.ps1"
     Write-Host "  [discovery] delegating to $delegatedUrl"
 
     $env:INSTALLER_DELEGATED = "1"
@@ -788,22 +788,42 @@ function Install-SeedData([string]$version, [string]$installDir) {
 
     $installed = 0
     foreach ($name in $seedFiles) {
-        $rawUrl = "https://raw.githubusercontent.com/$Repo/$version/gitmap/data/$name"
+        $rawUrl = "https://raw.githubusercontent.com/$Repo/$version/cli/data/$name"
         $dest = Join-Path $dataDir $name
+        $downloaded = $false
         try {
             Invoke-WebRequest -Uri $rawUrl -OutFile $dest -UseBasicParsing -ErrorAction Stop
             $installed++
+            $downloaded = $true
         }
         catch {
             # Fallback to main branch if tag not yet published on GitHub
             try {
-                $fallbackUrl = "https://raw.githubusercontent.com/$Repo/main/gitmap/data/$name"
+                $fallbackUrl = "https://raw.githubusercontent.com/$Repo/main/cli/data/$name"
                 Invoke-WebRequest -Uri $fallbackUrl -OutFile $dest -UseBasicParsing -ErrorAction Stop
                 $installed++
+                $downloaded = $true
             }
             catch {
-                Write-Warning "[Install-SeedData] $_"
-                Write-Host ("    skip  {0} (not in {1} or main)" -f $name, $version) -ForegroundColor DarkGray
+                # Fallback to local checkout data folder if available
+                $localCandidates = @(
+                    Join-Path $PSScriptRoot "..\data\$name",
+                    Join-Path $PSScriptRoot "data\$name",
+                    Join-Path $PSScriptRoot "..\..\cli\data\$name",
+                    Join-Path $PSScriptRoot "cli\data\$name"
+                )
+                foreach ($candidate in $localCandidates) {
+                    if (Test-Path $candidate) {
+                        Copy-Item -Path $candidate -Destination $dest -Force
+                        $installed++
+                        $downloaded = $true
+                        break
+                    }
+                }
+                if (-not $downloaded) {
+                    Write-Warning "[Install-SeedData] $_"
+                    Write-Host ("    skip  {0} (not in {1} or main)" -f $name, $version) -ForegroundColor DarkGray
+                }
             }
         }
     }
@@ -829,6 +849,22 @@ function Assert-InstallSelfCheck([string]$installDir) {
     $seedPath = Join-Path (Join-Path $installDir "data") "downloader-config.json"
 
     if (-not (Test-Path $seedPath)) {
+        # Fallback to local checkout data folder if available
+        $localCandidates = @(
+            Join-Path $PSScriptRoot "..\data\downloader-config.json",
+            Join-Path $PSScriptRoot "data\downloader-config.json",
+            Join-Path $PSScriptRoot "..\..\cli\data\downloader-config.json",
+            Join-Path $PSScriptRoot "cli\data\downloader-config.json"
+        )
+        foreach ($candidate in $localCandidates) {
+            if (Test-Path $candidate) {
+                Copy-Item -Path $candidate -Destination $seedPath -Force
+                break
+            }
+        }
+    }
+
+    if (-not (Test-Path $seedPath)) {
         Write-Err ""
         Write-Err "Install self-check FAILED: required seed file is missing."
         Write-Err "  Expected: $seedPath"
@@ -843,7 +879,7 @@ function Assert-InstallSelfCheck([string]$installDir) {
         Write-Err "  How to fix:"
         Write-Err "    1) Re-run the installer with a working network connection, OR"
         Write-Err "    2) Manually download the file from:"
-        Write-Err "         https://raw.githubusercontent.com/$Repo/main/gitmap/data/downloader-config.json"
+        Write-Err "         https://raw.githubusercontent.com/$Repo/main/cli/data/downloader-config.json"
         Write-Err "       and save it to:"
         Write-Err "         $seedPath"
         Write-Err ""

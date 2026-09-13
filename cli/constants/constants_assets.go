@@ -45,7 +45,7 @@ const (
 // Release-version snapshot install scripts (spec 105).
 //
 // The same `release-version.ps1` / `release-version.sh` source ships in
-// two forms: the always-current generic script under gitmap/scripts/, and
+// two forms: the always-current generic script under cli/scripts/, and
 // per-release snapshots uploaded as release assets with the version baked
 // in. The naming convention is `release-version-<tag>.<ext>` so each
 // release page can deep-link to a frozen, drift-proof installer.

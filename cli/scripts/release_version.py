@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""gitmap/scripts/release_version.py — version-pinned gitmap installer (cross-platform).
+"""cli/scripts/release_version.py — version-pinned gitmap installer (cross-platform).
 
 Installs EXACTLY the version requested via --version. Never resolves
 'latest', never auto-upgrades, never silently substitutes.
@@ -7,8 +7,8 @@ Installs EXACTLY the version requested via --version. Never resolves
 Spec: 02-spec/01-app/105-release-version-script.md
 
 Usage:
-  python gitmap/scripts/release_version.py --version v3.36.0
-  python gitmap/scripts/release_version.py --version v3.36.0 --dir /opt/gitmap
+  python cli/scripts/release_version.py --version v3.36.0
+  python cli/scripts/release_version.py --version v3.36.0 --dir /opt/gitmap
 """
 
 from __future__ import annotations

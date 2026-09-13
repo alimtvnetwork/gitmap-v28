@@ -223,7 +223,7 @@ const (
   How to fix:
 
     Option 1 — Re-install via the one-liner (recommended):
-      irm https://raw.githubusercontent.com/alimtvnetwork/gitmap-v28/main/gitmap/scripts/install.ps1 | iex
+      irm https://raw.githubusercontent.com/alimtvnetwork/gitmap-v28/main/cli/scripts/install.ps1 | iex
 
     Option 2 — Clone the repo and build from source:
       git clone https://github.com/alimtvnetwork/gitmap-v28.git C:\gitmap-src

@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""gitmap/scripts/check_duplicate_types.py — Detects duplicate type declarations across files in the same Go package (cross-platform).
+"""cli/scripts/check_duplicate_types.py — Detects duplicate type declarations across files in the same Go package (cross-platform).
 
 Exits code 1 if duplicates are found, 0 otherwise.
 """

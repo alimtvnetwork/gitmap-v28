@@ -105,7 +105,7 @@ const (
 `
 	MsgInstallHintWindows = `
   🪟  Windows · PowerShell
-     irm https://raw.githubusercontent.com/alimtvnetwork/gitmap-v28/main/gitmap/scripts/install.ps1 | iex
+     irm https://raw.githubusercontent.com/alimtvnetwork/gitmap-v28/main/cli/scripts/install.ps1 | iex
 `
 	// Trailing blank line (the second \n after the curl command) ensures
 	// the shell prompt (PS1) lands on its own visually-separated line
@@ -113,7 +113,7 @@ const (
 	// auto-register message convention (releaseautoregister.go line 48).
 	MsgInstallHintUnix = `
   🐧  Linux / macOS
-     curl -fsSL https://raw.githubusercontent.com/alimtvnetwork/gitmap-v28/main/gitmap/scripts/install.sh | sh
+     curl -fsSL https://raw.githubusercontent.com/alimtvnetwork/gitmap-v28/main/cli/scripts/install.sh | sh
 
 `
 )
@@ -134,12 +134,12 @@ const (
 		"**Windows (PowerShell)**\n" +
 		"```powershell\n" +
 		"$ver = '%s'\n" +
-		"$installer = irm https://raw.githubusercontent.com/alimtvnetwork/gitmap-v28/main/gitmap/scripts/install.ps1\n" +
+		"$installer = irm https://raw.githubusercontent.com/alimtvnetwork/gitmap-v28/main/cli/scripts/install.ps1\n" +
 		"& ([scriptblock]::Create($installer)) -Version $ver -NoDiscovery\n" +
 		"```\n\n" +
 		"**Linux / macOS (bash)**\n" +
 		"```bash\n" +
-		"curl -fsSL https://raw.githubusercontent.com/alimtvnetwork/gitmap-v28/main/gitmap/scripts/install.sh \\\n" +
+		"curl -fsSL https://raw.githubusercontent.com/alimtvnetwork/gitmap-v28/main/cli/scripts/install.sh \\\n" +
 		"  | bash -s -- --version %s --no-discovery\n" +
 		"```\n"
 )
