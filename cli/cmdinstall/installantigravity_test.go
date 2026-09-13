@@ -36,8 +36,10 @@ func TestAntigravityToolRoutingAndAliases(t *testing.T) {
 		{"antigravity-ide", constants.ToolAntigravity},
 		{"antigravity-desktop", constants.ToolAntigravity},
 		{"ag", constants.ToolAntigravity},
-		{"agy", constants.ToolAgy},
+		{"agy", constants.ToolAntigravity},
+		{"ide", constants.ToolAntigravity},
 		{"antigravity-cli", constants.ToolAgy},
+		{"agy-cli", constants.ToolAgy},
 	}
 
 	for _, tc := range tests {

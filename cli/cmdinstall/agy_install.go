@@ -63,9 +63,9 @@ func dispatchAgyInstallTarget(target string, opts installOptions) error {
 	switch target {
 	case "manager", "ag-manager", "gui":
 		return runInstallAgManagerWithOpts(opts)
-	case "cli", "agy":
+	case "cli", "agy-cli", "antigravity-cli":
 		return runInstallAgyWithOpts(opts)
-	case "ide", "desktop", "app", "antigravity":
+	case "ide", "desktop", "app", "antigravity", "agy":
 		return runInstallAntigravityWithOpts(opts)
 	case "all", "both":
 		return runInstallAgyAll(opts)

@@ -137,6 +137,12 @@ func resolveToolProbeCommand(tool string) (string, string) {
 		return probeGitLFSFallback()
 	}
 
+	if tool == constants.ToolAntigravity {
+		if path, isFound := findInstalledAntigravityDesktopPath(); isFound {
+			return path, "installed"
+		}
+	}
+
 	if fallbackBin != "" {
 		return fallbackBin, "installed"
 	}

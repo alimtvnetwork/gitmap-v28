@@ -8,29 +8,69 @@ import (
 	"os/exec"
 	"path/filepath"
 	"time"
+
+	"github.com/alimtvnetwork/gitmap-v28/cli/tempdir"
 )
 
-func getAntigravityDesktopWindowsExePath() string {
+func resolveLocalAppDataDir() string {
 	localAppData := os.Getenv("LOCALAPPDATA")
-	if localAppData == "" {
-		home, _ := os.UserHomeDir()
-		localAppData = filepath.Join(home, "AppData", "Local")
+	if localAppData != "" {
+		return localAppData
 	}
+
+	home, _ := os.UserHomeDir()
+
+	return filepath.Join(home, "AppData", "Local")
+}
+
+func getAntigravityDesktopWindowsExePath() string {
+	localAppData := resolveLocalAppDataDir()
 
 	return filepath.Join(localAppData, "Programs", "Antigravity", "Antigravity.exe")
 }
 
-func findInstalledAntigravityDesktopPath() (string, bool) {
-	exePath := getAntigravityDesktopWindowsExePath()
-	if _, err := os.Stat(exePath); err == nil {
-		return exePath, true
+func getWindowsAntigravityCandidatePaths(localAppData string) []string {
+	return []string{
+		filepath.Join(localAppData, "Programs", "Antigravity", "Antigravity.exe"),
+		filepath.Join(localAppData, "Programs", "antigravity", "Antigravity.exe"),
+		filepath.Join(localAppData, "Programs", "antigravity", "antigravity.exe"),
+		filepath.Join(os.Getenv("ProgramFiles"), "Antigravity", "Antigravity.exe"),
+		filepath.Join(os.Getenv("ProgramFiles(x86)"), "Antigravity", "Antigravity.exe"),
 	}
+}
 
-	if p, err := exec.LookPath("antigravity"); err == nil {
-		return p, true
+func checkCandidatePaths(paths []string) (string, bool) {
+	for _, candidate := range paths {
+		if candidate == "" {
+			continue
+		}
+
+		if _, err := os.Stat(candidate); err == nil {
+			return candidate, true
+		}
 	}
 
 	return "", false
+}
+
+func findAntigravityInPath() (string, bool) {
+	for _, name := range []string{"antigravity", "Antigravity", "agy"} {
+		if p, err := exec.LookPath(name); err == nil {
+			return p, true
+		}
+	}
+
+	return "", false
+}
+
+func findInstalledAntigravityDesktopPath() (string, bool) {
+	localAppData := resolveLocalAppDataDir()
+	candidates := getWindowsAntigravityCandidatePaths(localAppData)
+	if path, isFound := checkCandidatePaths(candidates); isFound {
+		return path, true
+	}
+
+	return findAntigravityInPath()
 }
 
 func runAntigravitySilentInstaller(installerPath string) error {
@@ -65,7 +105,7 @@ func executeAndVerifyWindowsInstall(installerPath, exePath string) error {
 
 func installAntigravityDesktopPlatform(opts installOptions) error {
 	url := getAntigravityDesktopDownloadUrl("windows")
-	tempInstaller := filepath.Join(os.TempDir(), "Antigravity-x64.exe")
+	tempInstaller := filepath.Join(tempdir.RepoTempDir("downloads"), "Antigravity-x64.exe")
 	defer os.Remove(tempInstaller)
 
 	if err := downloadFileToDest(url, tempInstaller); err != nil {
