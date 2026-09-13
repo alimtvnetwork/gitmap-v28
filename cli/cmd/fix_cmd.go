@@ -13,14 +13,7 @@ import (
 func runFix(args []string, aliasOverride string) error {
 	items := LoadRemediationState()
 	if len(items) == 0 {
-		if len(args) > 0 {
-			return runFixDirect(args, aliasOverride)
-		}
-
-		fmt.Printf("%s No pending repositories require remediation.\n", constants.ColorGreen+"✓"+constants.ColorReset)
-		fmt.Println("  Run 'gitmap pull' to pull all tracked repositories.")
-
-		return nil
+		return handleEmptyRemediationState(args, aliasOverride)
 	}
 
 	if len(args) == 0 && aliasOverride == "" {
@@ -38,6 +31,17 @@ func runFix(args []string, aliasOverride string) error {
 	}
 
 	return applyFixRecipe(item, action)
+}
+
+func handleEmptyRemediationState(args []string, aliasOverride string) error {
+	if len(args) > 0 {
+		return runFixDirect(args, aliasOverride)
+	}
+
+	fmt.Printf("%s No pending repositories require remediation.\n", constants.ColorGreen+"✓"+constants.ColorReset)
+	fmt.Println("  Run 'gitmap pull' to pull all tracked repositories.")
+
+	return nil
 }
 
 func runFixDirect(args []string, aliasOverride string) error {

@@ -21,10 +21,10 @@ func getAntigravityDesktopDownloadUrl(osName string) string {
 	if osName == "windows" {
 		return antigravityWindowsUrl
 	}
+	if osName == "darwin" && runtime.GOARCH == "arm64" {
+		return antigravityDarwinArmUrl
+	}
 	if osName == "darwin" {
-		if runtime.GOARCH == "arm64" {
-			return antigravityDarwinArmUrl
-		}
 		return antigravityDarwinUrl
 	}
 	if runtime.GOARCH == "arm64" || runtime.GOARCH == "arm" {

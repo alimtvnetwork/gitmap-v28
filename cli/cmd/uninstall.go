@@ -65,15 +65,19 @@ func executeStandardUninstall(db *store.DB, tool string, dryRun, purge bool) err
 
 	fmt.Printf(constants.MsgUninstallRemoving, tool)
 	runInstallCommand(uninstallCmd, installOptions{Tool: tool, Verbose: true})
-
-	if db != nil {
-		if errRemove := db.RemoveInstalledTool(tool); errRemove != nil {
-			fmt.Fprintf(os.Stderr, constants.ErrUninstallDBRemove, tool, errRemove)
-		}
-	}
+	removeToolFromDatabase(db, tool)
 
 	fmt.Printf(constants.MsgUninstallSuccess, tool)
 	return nil
+}
+
+func removeToolFromDatabase(db *store.DB, tool string) {
+	if db == nil {
+		return
+	}
+	if errRemove := db.RemoveInstalledTool(tool); errRemove != nil {
+		fmt.Fprintf(os.Stderr, constants.ErrUninstallDBRemove, tool, errRemove)
+	}
 }
 
 // confirmUninstall prompts the user for confirmation.

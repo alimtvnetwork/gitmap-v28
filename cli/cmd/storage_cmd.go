@@ -9,14 +9,19 @@ import (
 // RunStorageCmd handles gitmap storage inspection and database listing.
 func RunStorageCmd(args []string) error {
 	checkHelp(constants.CmdStorage, args)
-	if len(args) > 0 {
-		sub := strings.ToLower(args[0])
-		if isStorageListSubcommand(sub) {
-			return runStorageListDatabases()
-		}
+	if isStorageListRequested(args) {
+		return runStorageListDatabases()
 	}
 
 	return runStorageDriveReport(args)
+}
+
+func isStorageListRequested(args []string) bool {
+	if len(args) == 0 {
+		return false
+	}
+
+	return isStorageListSubcommand(strings.ToLower(args[0]))
 }
 
 func isStorageListSubcommand(sub string) bool {

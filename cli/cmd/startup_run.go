@@ -99,6 +99,7 @@ func parseStartupVal(flag, val string, opts *startupAddOpts) bool {
 
 func deriveStartupName(target string) string {
 	clean := strings.TrimPrefix(target, "macro:")
+	clean = strings.ReplaceAll(clean, "\\", "/")
 	base := filepath.Base(clean)
 	ext := filepath.Ext(base)
 	if ext != "" {

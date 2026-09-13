@@ -21,14 +21,20 @@ func ensureAgyUnixSymlink() {
 	}
 	localBin := filepath.Join(home, ".local", "bin")
 	agyBin := filepath.Join(localBin, "agy")
-	if info, errStat := os.Stat(agyBin); errStat == nil && !info.IsDir() {
-		_ = os.Chmod(agyBin, 0755)
-		antiBin := filepath.Join(localBin, "antigravity")
-		if _, errAnti := os.Stat(antiBin); os.IsNotExist(errAnti) {
-			_ = os.Symlink(agyBin, antiBin)
-		}
-	}
+	linkUnixAntigravity(localBin, agyBin)
 	ensureDirInPath(localBin)
+}
+
+func linkUnixAntigravity(localBin, agyBin string) {
+	info, errStat := os.Stat(agyBin)
+	if errStat != nil || info.IsDir() {
+		return
+	}
+	_ = os.Chmod(agyBin, 0755)
+	antiBin := filepath.Join(localBin, "antigravity")
+	if _, errAnti := os.Stat(antiBin); os.IsNotExist(errAnti) {
+		_ = os.Symlink(agyBin, antiBin)
+	}
 }
 
 func ensureAgyWindowsWrapper() {

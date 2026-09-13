@@ -100,13 +100,18 @@ func printScheduleLogSummary(runs []store.ScheduleRunRecord) {
 	fmt.Printf("    Last Duration : %d ms\n", last.DurationMS)
 	fmt.Printf("    Last Status   : %s\n", statusStr)
 	if last.Output != "" {
-		outExcerpt := strings.TrimSpace(last.Output)
-		if len(outExcerpt) > 80 {
-			outExcerpt = outExcerpt[:77] + "..."
-		}
-		fmt.Printf("    Last Output   : %s\n", outExcerpt)
+		fmt.Printf("    Last Output   : %s\n", truncateOutputExcerpt(last.Output))
 	}
 	fmt.Println()
+}
+
+func truncateOutputExcerpt(out string) string {
+	excerpt := strings.TrimSpace(out)
+	if len(excerpt) > 80 {
+		return excerpt[:77] + "..."
+	}
+
+	return excerpt
 }
 
 // runScheduleEdit modifies configuration for an existing schedule.

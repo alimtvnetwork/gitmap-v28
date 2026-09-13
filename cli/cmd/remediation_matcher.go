@@ -152,15 +152,18 @@ func RemoveRemediationItem(repoName string) {
 
 	hasNone := len(remaining) == 0
 	if hasNone {
-		statePath := getRemediationStateFile()
-		if err := os.Remove(statePath); err != nil && !os.IsNotExist(err) {
-			return
-		}
-
+		removeRemediationStateFile()
 		return
 	}
 
 	if err := SaveRemediationState(remaining); err != nil {
+		return
+	}
+}
+
+func removeRemediationStateFile() {
+	statePath := getRemediationStateFile()
+	if err := os.Remove(statePath); err != nil && !os.IsNotExist(err) {
 		return
 	}
 }

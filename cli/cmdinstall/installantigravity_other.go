@@ -81,24 +81,48 @@ func createAntigravityDesktopEntry(binPath, iconPath, desktopFile string) error 
 	return os.WriteFile(desktopFile, []byte(content), 0644)
 }
 
-func locateExtractedLinuxBinary(installDir string) (string, error) {
+func isValidBinaryCandidate(p string) bool {
+	info, err := os.Stat(p)
+	if err != nil || info.IsDir() {
+		return false
+	}
+
+	return info.Size() > 0
+}
+
+func searchDirBinary(dir string) string {
 	for _, name := range []string{"antigravity", "Antigravity"} {
-		p := filepath.Join(installDir, name)
-		if info, err := os.Stat(p); err == nil && !info.IsDir() && info.Size() > 0 {
-			return p, nil
+		p := filepath.Join(dir, name)
+		if isValidBinaryCandidate(p) {
+			return p
 		}
 	}
-	entries, _ := os.ReadDir(installDir)
+
+	return ""
+}
+
+func searchSubdirBinary(dir string) string {
+	entries, _ := os.ReadDir(dir)
 	for _, e := range entries {
-		if e.IsDir() {
-			for _, name := range []string{"antigravity", "Antigravity"} {
-				p := filepath.Join(installDir, e.Name(), name)
-				if info, err := os.Stat(p); err == nil && !info.IsDir() && info.Size() > 0 {
-					return p, nil
-				}
-			}
+		if !e.IsDir() {
+			continue
+		}
+		if p := searchDirBinary(filepath.Join(dir, e.Name())); p != "" {
+			return p
 		}
 	}
+
+	return ""
+}
+
+func locateExtractedLinuxBinary(installDir string) (string, error) {
+	if p := searchDirBinary(installDir); p != "" {
+		return p, nil
+	}
+	if p := searchSubdirBinary(installDir); p != "" {
+		return p, nil
+	}
+
 	return "", apperror.NewSimple("executable Antigravity binary not found in archive", "E9000")
 }
 
