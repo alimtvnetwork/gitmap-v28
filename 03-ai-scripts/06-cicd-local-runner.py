@@ -94,6 +94,7 @@ import os
 from pathlib import Path
 import re
 import shutil
+import stat
 import subprocess
 import sys
 import tempfile
@@ -179,14 +180,29 @@ def get_repo_os_temp_dir(*subdirs: str) -> Path:
     return target
 
 
+def remove_readonly(func: Any, path: str, exc_info: Any) -> None:
+    """Clears the Windows read-only attribute on files (such as git objects/packs) and retries removal."""
+    try:
+        os.chmod(path, stat.S_IWRITE)
+        func(path)
+    except Exception:
+        pass
+
+
+def robust_rmtree(path: Path | str) -> None:
+    """Removes a directory tree robustly, handling Windows read-only git pack files."""
+    p = Path(path)
+    if p.exists():
+        try:
+            shutil.rmtree(p, onerror=remove_readonly)
+        except OSError:
+            pass
+
+
 def clear_repo_build_temp() -> None:
     """Purges previous build artifacts and sweeps repo build temp to prevent disk waste."""
     build_dir = Path(tempfile.gettempdir()) / "gitmap" / "build"
-    if build_dir.exists():
-        try:
-            shutil.rmtree(build_dir, ignore_errors=True)
-        except OSError:
-            pass
+    robust_rmtree(build_dir)
     build_dir.mkdir(parents=True, exist_ok=True)
 
 
@@ -195,22 +211,14 @@ def clear_repo_test_temp() -> None:
     temp_base = Path(tempfile.gettempdir()) / "gitmap"
     for category in ("test", "sandbox", "purge", "downloads", "handoff"):
         cat_dir = temp_base / category
-        if cat_dir.exists():
-            try:
-                shutil.rmtree(cat_dir, ignore_errors=True)
-            except OSError:
-                pass
+        robust_rmtree(cat_dir)
         cat_dir.mkdir(parents=True, exist_ok=True)
 
 
 def clear_stale_failures_log() -> None:
     """Clears stale test failure logs before running tests to prevent storage accumulation."""
     failures_dir = REPO_ROOT / ".lovable" / "temp" / "failures"
-    if failures_dir.exists():
-        try:
-            shutil.rmtree(failures_dir, ignore_errors=True)
-        except OSError:
-            pass
+    robust_rmtree(failures_dir)
     failures_dir.mkdir(parents=True, exist_ok=True)
 
 
@@ -225,10 +233,7 @@ def prune_old_cicd_runs(keep_count: int = 5) -> None:
             return
         run_dirs.sort(key=lambda p: p.stat().st_mtime, reverse=True)
         for old_dir in run_dirs[keep_count:]:
-            try:
-                shutil.rmtree(old_dir, ignore_errors=True)
-            except OSError:
-                pass
+            robust_rmtree(old_dir)
     except Exception:
         pass
 
@@ -240,10 +245,7 @@ def clean_stale_temp_artifacts() -> None:
         return
     for item in lovable_temp.iterdir():
         if item.is_dir() and (item.name.startswith("go-build") or item.name in ("node-compile-cache", "gitmap", "cicd")):
-            try:
-                shutil.rmtree(item, ignore_errors=True)
-            except OSError:
-                pass
+            robust_rmtree(item)
         elif item.is_file() and item.name in ("gitmap", "gitmap.exe"):
             try:
                 item.unlink(missing_ok=True)
@@ -1463,11 +1465,7 @@ def run_job(
     elif name in ("Web App Build", "GoReleaser Snapshot Build"):
         clear_repo_build_temp()
         for dist_dir in (REPO_ROOT / "dist", REPO_ROOT / "cli" / "dist"):
-            if dist_dir.exists():
-                try:
-                    shutil.rmtree(dist_dir, ignore_errors=True)
-                except OSError:
-                    pass
+            robust_rmtree(dist_dir)
     if name in ("E2E Smoke Suite", "History Purge Smoke", "History Pin Smoke"):
         bin_exe = REPO_ROOT / "bin" / "gitmap.exe"
         if not bin_exe.exists():
