@@ -13,7 +13,6 @@ type asyncTaskOpts struct {
 	command   string
 	intervalS int
 	maxCount  int
-	taskName  string
 }
 
 // RunAsyncCmd handles gitmap async commands.

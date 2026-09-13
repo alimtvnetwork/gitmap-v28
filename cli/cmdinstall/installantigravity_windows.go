@@ -122,7 +122,3 @@ func updateDesktopDatabase(desktopDir string) {
 func resolveAppIconPath(installDir string) string {
 	return ""
 }
-
-func createAntigravityDesktopEntry(binPath, iconPath, desktopFile string) error {
-	return nil
-}
