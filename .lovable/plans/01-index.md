@@ -84,3 +84,4 @@ Master directory of architectural and execution plans.
 - [74-constants-and-enums-architecture.md](completed/74-constants-and-enums-architecture.md): 74-constants-and-enums-architecture
 - [147-argument-reduction-and-parameter-structs.md](completed/147-argument-reduction-and-parameter-structs.md): 147-argument-reduction-and-parameter-structs
 - [148-types-go-extraction-and-generic-result-centralization.md](completed/148-types-go-extraction-and-generic-result-centralization.md): 148-types-go-extraction-and-generic-result-centralization
+- [149-installer-urls-dryrun-path-and-v6-227-0-release.md](completed/149-installer-urls-dryrun-path-and-v6-227-0-release.md): 149-installer-urls-dryrun-path-and-v6-227-0-release

@@ -30,6 +30,12 @@ Tracks every CI/CD pipeline failure or hardening decision encountered, its root 
 | 35 | Exhaustive Switch Diff Failure & Complete Enum Handlers | CI Diff Gate / golangci-lint | ✅ Resolved | [35-exhaustive-switch-diff.md](cicd-issues/35-exhaustive-switch-diff.md) |
 | 36 | Misspell Changed Files & US English Standardization | Spell Check / misspell | ✅ Resolved | [36-misspell-changed-diff.md](cicd-issues/36-misspell-changed-diff.md) |
 | 37 | Installer Smoke Python Runner & Strict Relative Paths | Installer Smoke / Policy Gates | ✅ Resolved | [37-installer-smoke-release-diff.md](cicd-issues/37-installer-smoke-release-diff.md) |
+| 38 | Nested If Violations and Help Examples Heading | policy-check / go test | ✅ Resolved | [38-nested-if-and-help-examples.md](cicd-issues/38-nested-if-and-help-examples.md) |
+| 39 | Antigravity Project Mutation and Command Decoupling | CLI Execution / Integrity | ✅ Resolved | [39-pull-scan-agy-decouple-and-mutation-rca.md](cicd-issues/39-pull-scan-agy-decouple-and-mutation-rca.md) |
+| 40 | Nested If & Boolean Conditional Flattening | Nested If Linter / Boolean Linter | ✅ Resolved | [40-nested-ifs-and-boolean-flattening.md](cicd-issues/40-nested-ifs-and-boolean-flattening.md) |
+| 41 | Unused queryRecentFailedRuns & gofmt Formatting in CI | Lint Baseline Guard / Lint | ✅ Resolved | [41-unused-queryrecentfailedruns-and-gofmt.md](cicd-issues/41-unused-queryrecentfailedruns-and-gofmt.md) |
+| 42 | Step Timeout Flakiness and Fixture Gofmt Backup Dirtiness | Full Suite Guard / Matrix | ✅ Resolved | [42-step-timeout-and-fixture-gofmt.md](cicd-issues/42-step-timeout-and-fixture-gofmt.md) |
+| 43 | Installer Seed Data 404s & Release Dry-Run Script Path Drift | Installer Dry-Run / Smoke Windows | ✅ Resolved | [43-installer-seed-urls-and-release-dryrun-path.md](cicd-issues/43-installer-seed-urls-and-release-dryrun-path.md) |
 
 ## Patterns Learned
 
@@ -51,3 +57,4 @@ Tracks every CI/CD pipeline failure or hardening decision encountered, its root 
 - **Normalize Slashes with `filepath.ToSlash` for Cross-Platform Path Keys**: Always normalize backslashes before comparing filesystem keys across operating systems, since POSIX treats `\` as a regular character.
 - **Lock Out Exit-Triggering Hooks Exclusively During Tests**: When overriding `os.Exit` with a test stub, hold an exclusive mutex lock across the entire test to prevent concurrent tests from evaluating the exit trigger while the global handler transitions.
 - **Never use `*_linux.go` for multi-OS POSIX fallbacks**: In Go, file suffix `*_linux.go` forces `GOOS=linux` even with `//go:build !windows`. Always use `*_posix.go` or `*_unix.go` with `//go:build !windows` to include macOS (`darwin`), FreeBSD, etc.
+- **Installer Local Fallbacks & Layout Parity**: Never rely exclusively on remote CDN/GitHub URLs for installer seed assets during post-release smoke tests. Always provide local filesystem fallback candidates (e.g. `..\data\$name`, `cli\data\$name`) to guard against CDN cache propagation latency, and update all workflow steps when repo directory structure changes.

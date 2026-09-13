@@ -1,10 +1,11 @@
 # What to Read
 
 > Canonical map of what the AI must read before working on this project.
-> Last updated: 2026-09-05T01:46:30Z
+> Last updated: 2026-09-13T16:05:00Z
 
 ## Changelog
 
+- 2026-09-13T16:05:00Z, Memory write: Fixed installer dry-run and smoke test paths (migrated legacy gitmap/ to cli/), added local filesystem fallbacks in install scripts, bumped minor version to v6.227.0, and cut release.
 - 2026-09-09T05:07:00Z, Memory write: Interactive macro builder PWD header, in-builder ls/find/search/replace helpers, offline mock installer server, and parallel runner multi-agent section concurrency.
 - 2026-09-05T01:46:30Z, Memory write: Macro execution failure RCA, open command cross-platform shim requirement, and Chrome profile reconcile sync.
 - 2026-09-05T01:43:00Z, Recorded pending task: Macro step execution failure on 'open chrome' (E9000:EXECUTION).

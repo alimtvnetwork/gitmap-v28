@@ -458,3 +458,20 @@ Allowed work:
 - ✅ Run builds ONLY when explicitly requested or at the final release stage (`01-prompts/16-ci-cd/04-ci-cd-fix-with-release.md`).
 
 **Why:** Running heavy frontend and backend builds repeatedly slows down feedback loops and consumes significant CPU/IO resources.
+
+---
+
+## Stale gitmap/scripts/ or gitmap/data/ Paths — TOTAL BAN
+
+🔴 **NEVER reference legacy gitmap/scripts/, gitmap/data/, or gitmap/constants/ in workflows, installers, or Go constants.**
+
+Forbidden:
+- ❌ Referencing `gitmap/scripts/install.ps1` or `gitmap/scripts/install.sh` in `.github/workflows/` or documentation.
+- ❌ Hardcoding raw GitHub seed URLs pointing to `gitmap/data/` (e.g. `raw.githubusercontent.com/.../main/gitmap/data/...`).
+- ❌ Hardcoding `gitmap/constants/` or legacy package paths in Go code.
+
+Allowed work:
+- ✅ Use canonical `cli/scripts/install.ps1`, `cli/scripts/install.sh`, and `cli/data/`.
+- ✅ Include local relative fallbacks (`data/`, `cli/data/`, `../data/`) in installers before attempting remote network downloads.
+
+**Why:** Legacy path references cause silent remote 404s and CI installer dry-run / smoke failures during release validation.
