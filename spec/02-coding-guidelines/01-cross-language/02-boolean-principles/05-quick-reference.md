@@ -22,11 +22,11 @@
 | `fn(true)` | `fnWithOption()` | P5: Explicit params |
 | `isX && !isY` | `isConflict` (extracted) | P6: No mixed polarity |
 | `if x := fn(); x > 0` | Separate assignment | P7: No inline statements |
-| `os.Stat(path)` | `pathutil.IsDir(path)` | P8: No raw filesystem |
 | `if ($x == true)` | `if ($isX)` | P9: No explicit true checks |
+| `!isEmpty` / `!res.IsEmpty()` | `isDefined` / `res.IsDefined()` | Mandatory replacement for `!isEmpty` |
+| `val, ok := userMap[id]` | `val, isFound := userMap[id]` or `val, isUserExist := userMap[id]` | Map lookup canonical naming (do not use `isDefined`) |
 
 ---
-
 
 ---
 

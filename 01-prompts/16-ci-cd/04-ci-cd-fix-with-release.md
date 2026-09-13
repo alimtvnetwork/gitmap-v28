@@ -647,7 +647,7 @@ Include: previous version, new version, step number and name, command run, full 
 - [ ] **Return New Line (R13-R16):** Blank line before `return`/`throw` (unless sole statement). Blank line after `}`. Never two blank lines in a row.
 - [ ] **No Explicit True Checks:** Never `== true`. Write `if isReady`.
 - [ ] **No Mixed Polarity:** Never `if isA && !isB`. Extract to a named boolean.
-- [ ] **Boolean Prefixes:** All booleans start with is and has only (can, should, was, etc. are banned), `was`, `will`, `did`, or `must`. Use `isDefined` (or `res.IsDefined()`) instead of inverted empty checks (`!isEmpty`).
+- [ ] **Boolean Prefixes & IsDefined:** All booleans start with `is` or `has` only (all other prefixes banned). MANDATORY: Use `isDefined` (or `res.IsDefined()`) instead of inverted empty checks (`!isEmpty` / `!res.IsEmpty()`). Map lookups use `val, isFound := userMap[id]` or `val, isUserExist := userMap[id]`.
 - [ ] **Error Handling:** No swallowed errors. Wrap with `apperror.Wrap(err, "opName", ctx)`.
 - [ ] **Strict Lowercase Files:** All generated/modified files use strictly lowercase naming.
 - [ ] **Go Generate Sync:** If Go constants, enums, or stringers were modified, run `go generate ./...` and commit generated files.

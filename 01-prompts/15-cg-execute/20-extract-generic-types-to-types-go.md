@@ -38,7 +38,7 @@ N = total self-loop steps budget that the agents will perform.
 21. [ ] /learn Ingest `02-spec/03-error-manage/02-error-architecture/06-apperror-package/03-go-apperror-linter-spec.md` for Go AppError implementation specifications.
 22. [ ] /learn Ingest `02-spec/03-error-manage/02-error-architecture/06-apperror-package/01-apperror-reference/04-result-types.md` for Result[T], ResultSlice[T], and ResultMap[K, V] method specifications and Section 6.4 types.go mandate.
 23. [ ] /learn Ingest `.lovable/coding-guidelines.md` for master consolidated coding guidelines.
-24: [ ] /goal Create or update agent rules in the repository if missing from agent memory.
+24. [ ] /goal Create or update agent rules in the repository if missing from agent memory.
 
 ```text
 PHASE_1_STEPS = N / 2   (Steps 1 .. N/2: Scan Inline Structs & Raw Generics, Build Violation Ledger in .lovable/plans/pending/, Subtasks)
@@ -325,6 +325,7 @@ To survive large codebases without hitting step limits or context loss, execute 
 - **NO RAW `error` RETURNS:** Never leave bare `error` as a return type on domain or store functions; always use `*appfault.AppError` or `Result[T]`.
 - **NO COMPOUND CARDINALITY DISJUNCTIONS:** Never write `if res.IsFailure() || res.Count() != N` when `res.IsCountOtherThan(N)` can express the guard directly.
 - **NO CONFUSING `IsSuccess()` WITH `IsDefined()`:** Do not use `IsSuccess()` when you require actual data records to be present. Use `res.IsDefined()` or `res.HasRecord()`.
+- **NO INVERTED EMPTY CHECKS (`!isEmpty`):** Never write `!isEmpty` or `!res.IsEmpty()` when verifying presence or data. ALWAYS use `res.IsDefined()` or `res.HasRecord()`. Use `isEmpty` ONLY when handling the empty/missing failure branch in the affirmative: `if res.IsEmpty() { ... }`.
 - **NO ABSOLUTE PATHS:** Never write absolute filesystem paths (`C:\...`, `/home/...`) or `file:///` URIs. Use strict relative Git paths starting from the repository root.
 - **NO UPPERCASE FILENAMES:** Every file created or edited must be strictly lowercase.
 - **NO MULTI-VALUE TUPLES:** Eliminate `(T, error)` in favor of `Result[T]`, `ResultMap[K, V]`, or `ResultSlice[T]`.

@@ -38,7 +38,6 @@ See also: [function-naming.md](../10-function-naming.md)
 
 ---
 
-
 ---
 
 ## Principle 6: Never Mix Positive and Negative Booleans in a Single Condition
@@ -197,7 +196,6 @@ See [Go Boolean Standards P7](../../03-golang/02-boolean-standards.md#28--no-inl
 
 ---
 
-
 ---
 
 ## Principle 8: No Raw Filesystem / System Calls in Application Code
@@ -306,6 +304,17 @@ if (isReady && !isExpired) { ... }
 // ✅ REQUIRED - All positive
 if (isReady && isValid) { ... }
 ```
+
+## Principle 11: Mandatory `IsDefined` Replacement for Inverted `!isEmpty` (Total Ban on `!isEmpty`)
+
+Never check data, collections, or records presence using inverted empty checks (`!isEmpty`, `!res.IsEmpty()`). Negating an empty check forces mental double-negation and violates Affirmative Boolean Principles.
+
+- **The Anti-Pattern:** `if !isEmpty`, `if !res.IsEmpty()`, `if !state.IsEmpty`
+- **The Mandatory Replacement:** Always use `isDefined` or `res.IsDefined()`:
+  - ❌ **FORBIDDEN:** `if !res.IsEmpty() { process(res.Value()) }`
+  - ✅ **REQUIRED:** `if res.IsDefined() { process(res.Value()) }`
+- **When `isEmpty` is Allowed:** `isEmpty` is strictly reserved for affirmative handling of the empty or missing path: `if res.IsEmpty() { return ErrNotFound }`.
+- **Map Lookups vs `isDefined`:** For map lookups, the original canonical names are `val, isFound := userMap[id]` or `val, isUserExist := userMap[id]`. Do NOT use `isDefined` for map lookups; `isDefined` is strictly reserved for replacing inverted `!isEmpty`.
 
 
 ## Principle 9: No Explicit True Checks (TOTAL BAN)

@@ -88,7 +88,9 @@ func (c *Config) IsDefinedAndValid() bool {
 
 > **Note:** On `apperror.Result[T]`, `IsDefined()` is already built-in. `IsSafe()` serves the same purpose as `IsDefinedAndValid()` (value exists AND no error).
 >
-> **Total Ban on `IsExists` / `isExists`:** "Exists" is a verb. Combining `is` with a verb (`isExists`, `IsExists`, `isUserExist`) is grammatically malformed and strictly banned. Always name presence indicators `IsDefined()` / `isDefined bool` (or `isFound` for lookup checks).
+> **Mandatory `IsDefined` Replacement for `!isEmpty`:** NEVER use inverted negative empty checks (`!isEmpty`, `!res.IsEmpty()`). Always use affirmative `IsDefined()` / `isDefined` when asserting that data or records are present. Use `isEmpty` ONLY in the affirmative when explicitly handling the empty/missing case (`if isEmpty { return ErrEmpty }`).
+>
+> **Map Lookups vs `isDefined`:** For map lookups, the canonical original names are `val, isFound := userMap[id]` or `val, isUserExist := userMap[id]`. Do NOT use `isDefined` for map lookups; `isDefined` is strictly reserved for replacing inverted `!isEmpty`.
 
 ### 2.3 — Positive Counterpart Variables (Rule P3)
 
@@ -289,6 +291,7 @@ if !isValid {
 ```
 
 **Rule summary:**
+
 - `!isX` alone in a condition → ✅ Permitted
 - `!isX && isY` or `isY && !isX` → ❌ Prohibited — extract `!isX` to a named positive counterpart first
 - `!isX && !isY` → ❌ Prohibited — two negations is never acceptable
@@ -329,11 +332,12 @@ if isCloneTargetFresh {
 }
 ```
 
-See [Boolean Principles P6](../01-cross-language/02-boolean-principles/03-parameters-and-conditions.md#principle-6-never-mix-positive-and-negative-booleans-in-a-single-condition) for the cross-language rule.
+See [Boolean Principles P6](../01-cross-language/02-boolean-principles/04-parameters-and-conditions.md#principle-6-never-mix-positive-and-negative-booleans-in-a-single-condition) for the cross-language rule.
 
 ## 2.8 — No Inline Statements in `if` Conditions (Rule P7)
 
 Go allows semicolon-separated inline statements in `if` conditions (e.g., `if x := compute(); x > 0 {`). This pattern is **prohibited** in application code because it:
+
 - Hides variable assignment inside control flow
 - Makes the condition harder to read and debug
 - Encourages coupling unrelated operations (filesystem check + boolean logic)
@@ -566,7 +570,7 @@ The following patterns are **exempt** from negation elimination:
 
 ### 3.1 — Comma-ok Pattern
 
-The comma-ok return value **must** be renamed to a semantically meaningful positive boolean. The bare `ok` variable name is **prohibited** — always name it to describe what "ok" means in context (e.g., `isDefined`, `isFound`, `isLoaded`). Awkward/ungrammatical names like `isExists` or `isUserExist` are **strictly prohibited**.
+The comma-ok return value **must** be renamed to a semantically meaningful positive boolean. The bare `ok` variable name is **prohibited** — always name it to describe what "ok" means in context (e.g., `isFound`, `isLoaded`, `isUserExist`). Awkward/ungrammatical names like `isExists` are **strictly prohibited**. Never use `isDefined` for map lookups (`isDefined` is reserved for replacing `!isEmpty`).
 
 If the negative case is needed, create a positive counterpart on the next line:
 
@@ -578,17 +582,17 @@ if !ok {
 }
 
 // ✅ REQUIRED — semantic name describes the positive case
-value, isDefined := someMap[key]
-isMissing := !isDefined
+value, isFound := someMap[key]
+isMissing := !isFound
 
 if isMissing {
     return ErrNotFound
 }
 
 // ✅ Also acceptable — positive guard when you only need the positive path
-value, isDefined := someMap[key]
+value, isFound := someMap[key]
 
-if isDefined {
+if isFound {
     process(value)
 }
 ```
@@ -624,7 +628,7 @@ if isCacheMiss {
 }
 ```
 
-> **Note:** The inline comma-ok in `if` conditions (`if v, isDefined := m[k]; isDefined {`) remains exempt from Rule P7 but **must** still use a semantic name instead of `ok` (and never `isExists`).
+> **Note:** The inline comma-ok in `if` conditions (`if v, isFound := m[k]; isFound {`) remains exempt from Rule P7 but **must** still use a semantic name instead of `ok` (and never `isExists`).
 
 ### 3.2 — Handler Guard Returns
 
@@ -728,4 +732,20 @@ if isNonApiRoute {
 
 ## 7. Cross-Language Alignment
 
-This standard mirrors the cross-language [Boolean Principles](../01-cross-language/02-boolean-principles/00-overview.md) (P1–P6) and [No-Negatives](../01-cross-language/12-no-negatives.md) with Go-specific exemptions for idiomatic patterns (comma-ok, handler guards, error-nil checks) and Go-specific additions (P3b, P5, P7–P9). See [PHP Standards](../04-php/03-naming-conventions.md) for the PHP counterpart.
+This standard mirrors the cross-language [Boolean Principles](../01-cross-language/02-boolean-principles/01-index.md) (P1–P6) and [No-Negatives](../01-cross-language/12-no-negatives.md) with Go-specific exemptions for idiomatic patterns (comma-ok, handler guards, error-nil checks) and Go-specific additions (P3b, P5, P7–P9). See [PHP Standards](../../01-spec-authoring-guide/03-naming-conventions.md) for the PHP counterpart.
+
+## 8. Explicit `== true` Evaluation
+
+Never use `== true` for boolean conditions. If an explicit negative check (`== false`) is used to satisfy the ban on the `!` operator, **do not** erroneously generalize this to positive checks.
+
+```go
+// ❌ FORBIDDEN — redundant explicit check
+if hasMatch == true {
+    // ...
+}
+
+// ✅ REQUIRED — implicit evaluation
+if hasMatch {
+    // ...
+}
+```

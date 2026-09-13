@@ -40,7 +40,7 @@ This skill governs autonomous auditing, extraction, and centralization of scatte
      - `res.IsEmpty() bool`: Returns `true` if empty collection, nil/zero payload, or nil receiver.
      - `res.HasRecord() bool` (or `res.HasRecords()`): Returns `true` if succeeded and count > 0.
      - `res.IsDefined() bool`: Returns `true` if succeeded and payload is non-null/non-empty with count > 0.
-   - **Mandatory Replacement for `!isEmpty`:** NEVER use inverted negative empty checks (`!isEmpty`, `!res.IsEmpty()`). Always use affirmative `isDefined` / `res.IsDefined()` when asserting that data or records are present.
+   - **Mandatory Replacement for `!isEmpty`:** NEVER use inverted negative empty checks (`!isEmpty`, `!res.IsEmpty()`). Always use affirmative `isDefined` / `res.IsDefined()` when asserting that data or records are present. Map lookups use `val, isFound := userMap[id]` or `val, isUserExist := userMap[id]` (never bare `ok`, and never use `isDefined` for map lookups).
 
 5. **Clean Package Boundaries & Zero Dependency Cycles:**
    - `types.go` files are leaf definitions within their package.

@@ -520,7 +520,7 @@ Run `03-ai-scripts/05-guideline-autofixer.py` on all modified files, then verify
 - [ ] **Return New Line (R13-R16):** One blank line before every `return`/`throw` (unless sole statement). One blank line after closing `}`. Never two blank lines in a row.
 - [ ] **No Explicit True Checks:** NEVER write `== true` or `=== true`. Write `if isReady`, not `if isReady == true`.
 - [ ] **No Mixed Polarity:** NEVER write `if isA && !isB`. Extract to a named boolean.
-- [ ] **Boolean Prefixes:** All boolean variables start with is and has only (can, should, was, etc. are banned), `was`, `will`, `did`, or `must`.
+- [ ] **Boolean Prefixes & IsDefined:** All boolean variables start with `is` or `has` only (all other prefixes banned). MANDATORY: Use `isDefined` (or `res.IsDefined()`) instead of inverted empty checks (`!isEmpty` / `!res.IsEmpty()`). Map lookups use `val, isFound := userMap[id]` or `val, isUserExist := userMap[id]`.
 - [ ] **Error Handling:** No swallowed errors. Every propagated error is wrapped with `apperror.Wrap(err, "opName", ctx)`.
 - [ ] **Strict Lowercase Files:** All generated/modified files use strictly lowercase naming.
 - [ ] **Go Generate Sync:** If Go constants, enums, or stringers were modified, run `go generate ./...` and commit generated files.

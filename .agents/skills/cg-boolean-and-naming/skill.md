@@ -33,8 +33,7 @@ This skill governs autonomous execution for boolean conventions, semantic naming
      - `debug` -> `isDebug`
       - `verbose` -> `isVerbose`
       - `header` -> `hasHeader`
-      - `records` -> `hasRecords`
-    - **Total Ban on Awkward `isExists` / `isUserExist`:** "Exists" is a verb. Combining `is` with a verb (`isExists`, `IsExists`, `isUserExist`) is grammatically malformed and strictly banned. Always use `isDefined` (or `IsDefined`) for state or resource presence, and `isFound` for map/cache lookup presence.
+    - **Map Lookups vs `isDefined`:** For map lookups, always use `val, isFound := userMap[id]` or `val, isUserExist := userMap[id]`. NEVER use `isDefined` for map lookups; `isDefined` / `res.IsDefined()` is strictly reserved for replacing inverted `!isEmpty` / `!res.IsEmpty()`.
     - **Total Ban on Compound Negative Chains (`!a || !b || c`):** Chaining inverted negative checks (such as `!state.IsDefined || !state.IsEmpty || state.IsRepo`) violates both discrete assertion rules and positive logic standards. In tests, write discrete assertions; in app code, extract an affirmative composite predicate.
 
 ### Generic Code Patterns (Affirmative Naming)

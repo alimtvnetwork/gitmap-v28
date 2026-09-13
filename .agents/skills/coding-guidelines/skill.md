@@ -741,7 +741,7 @@ When tasked with auditing, reviewing, or fixing coding guidelines across a codeb
 - [ ] **No Explicit True Checks (P4):** Absolutely zero `== true`, `=== true`, `!= false`, `!== false` comparisons exist.
 - [ ] **No Mixed Polarity (P5):** No mixed positive and negative conditions in `if` statements.
 - [ ] **Acronyms & PascalCase (R1, R2):** All acronyms (`Id`, `Url`, `Ip`, `Json`) and serialization keys use PascalCase.
-- [ ] **Boolean Prefixes & Affirmative Parameters (R3):** All booleans start with is or has only (all other prefixes banned). No negative boolean names. Affirmative parameter and field naming enforced (`isStopOnFail`, `isStopped`, no single-letter `v bool` or bare `stop bool`).
+- [ ] **Boolean Prefixes & IsDefined (R3):** All booleans start with `is` or `has` only (all other prefixes banned). No negative boolean names. MANDATORY: Use `isDefined` (or `res.IsDefined()`) instead of inverted empty checks (`!isEmpty` / `!res.IsEmpty()`). Map lookups use `val, isFound := userMap[id]` or `val, isUserExist := userMap[id]`. Affirmative parameter and field naming enforced (`isStopOnFail`, `isStopped`, no single-letter `v bool` or bare `stop bool`).
 - [ ] **Function Decomposition & Signatures (R4, R5):** All functions <= 15 lines decomposed via 3-Stage Blueprint (Guard -> Core Logic -> Envelope) without logic drift; parameter structs for > 3 arguments.
 - [ ] **Circular Dependency Prevention:** All extracted types/enums reside in leaf packages (`domain/types` or `types/`) with zero circular dependency cycles.
 - [ ] **Polyglot & React Compliance:** Rust match expressions, C# Task/records, PHP BackedEnums, React structuredClone & object hook returns.

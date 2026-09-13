@@ -110,9 +110,9 @@ type Result[T any] struct {
 }
 ```
 
-### Ban on Awkward `isExists` / `isUserExist` (Use `isDefined` / `isFound`)
+### Ban on Awkward `isExists` (Use `isDefined` / `isFound`)
 
-"Exists" is a verb. Combining `is` with a verb (`isExists`, `IsExists`, `isUserExist`) is grammatically malformed and strictly banned. Always use `isDefined` (or `IsDefined`) for state or resource presence, and `isFound` for map/cache lookup presence.
+"Exists" is a verb. Combining `is` with a verb (`isExists`, `IsExists`) without context is grammatically malformed and strictly banned for struct state flags. For map lookups, the canonical original names are `val, isFound := userMap[id]` or `val, isUserExist := userMap[id]`. NEVER use `isDefined` for map lookups; `isDefined` / `res.IsDefined()` is strictly reserved for replacing inverted `!isEmpty` / `!res.IsEmpty()`.
 
 ---
 
@@ -128,7 +128,7 @@ Double negatives (`!isNot...`, `!isNotBlocked`) are the worst form and must neve
 
 | ❌ Forbidden Name | ✅ Required Name | Semantic Meaning |
 |---|---|---|
-| `isExists` / `isUserExist` | `isDefined` / `isFound` | The resource or entity exists and is defined |
+| `isExists` | `isDefined` / `isFound` | The resource or entity exists and is defined |
 | `isNotReady` | `isPending` | The order is waiting |
 | `isNotInList` | `isAbsentFromList` | The item is absent |
 | `isNoRecentErrors` | `isErrorListClear` | The error list is clean |
