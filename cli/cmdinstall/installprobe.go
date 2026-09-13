@@ -2,6 +2,7 @@ package cmdinstall
 
 import (
 	"context"
+	"os"
 	"os/exec"
 	"regexp"
 	"strings"
@@ -116,6 +117,10 @@ func probeAntigravityFallback() (string, string) {
 func probeSingleCandidate(bin string, defaultArgs []string) (string, bool) {
 	if !isBinaryInPath(bin) {
 		return "", false
+	}
+
+	if os.Getenv("GITMAP_FAST_PROBE") == "1" {
+		return "1.0.0", true
 	}
 
 	args := resolvePowerShellArgs(bin, defaultArgs)

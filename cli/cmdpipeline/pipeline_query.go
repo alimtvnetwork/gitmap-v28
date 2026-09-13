@@ -15,6 +15,10 @@ import (
 )
 
 func runGHCommandWithCustomTimeout(timeout time.Duration, args ...string) ([]byte, error) {
+	if os.Getenv("GITMAP_MOCK_GH") == "1" {
+		return []byte("[]"), nil
+	}
+
 	ctx, cancel := context.WithTimeout(context.Background(), timeout)
 	defer cancel()
 

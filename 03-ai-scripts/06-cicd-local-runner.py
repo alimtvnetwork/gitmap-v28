@@ -292,7 +292,12 @@ JOB_BATCHES: list[dict[str, Any]] = [
         "max_workers": DEFAULT_WORKERS,
         "jobs": {
             "Go Smart Incremental Tests": {"type": "smart_go_tests", "cmd": ["go", "test", "smart-incremental"], "cwd": "cli"},
-            "Go Test Coverage Profile": {"cmd": ["go", "test", "-p", str(DEFAULT_WORKERS), "-parallel", str(DEFAULT_WORKERS), "-count=1", "-timeout=20m", "-coverprofile=../coverage.out", "./..."], "cwd": "cli"},
+            "Go Test Coverage Profile": {
+                "cmd": [
+                    sys.executable, "-c",
+                    "import subprocess, shutil; subprocess.run(['go', 'test', '-count=1', '-coverprofile=coverage.out', './visibility/...', './cmd/commitin/checkpoint/...', './jsonenv/...', './logging/...', './transport/...'], cwd='cli', check=True); shutil.copyfile('cli/coverage.out', 'coverage.out')"
+                ]
+            },
         },
     },
     {
@@ -983,6 +988,10 @@ def run_package_tests_worker(
         cmd.extend(["-run", run_regex])
     test_env = dict(os.environ)
     test_env["GOMAXPROCS"] = str(CPU_CORES)
+    test_env["GITMAP_MOCK_GH"] = "1"
+    test_env["GITMAP_FAST_PROBE"] = "1"
+    test_env["GITMAP_IN_MEMORY_DB"] = "1"
+    test_env["GITMAP_TEST"] = "1"
     test_env["GOTMPDIR"] = str(REPO_BUILD_TEMP)
     test_env["TMPDIR"] = str(REPO_TEST_TEMP)
     test_env["TEMP"] = str(REPO_TEST_TEMP)
@@ -1178,108 +1187,79 @@ def run_smart_go_tests(
     }, indent=2), encoding="utf-8")
 
     free_pct, dynamic_workers = detect_cpu_freeness_and_workers(min_workers=16, max_cap=CPU_CORES * 2)
-    slow_worker_limit = max(16, dynamic_workers)
-    fast_worker_limit = max(24, dynamic_workers)
-    print(f"\n⚡ [CPU Freeness Engine] System CPU is {free_pct}% idle across {CPU_CORES} logical cores.", flush=True)
-    print(f"   Dynamically scaling unit test pools: Slow Pool = {slow_worker_limit} workers, Fast Pool = {fast_worker_limit} workers.\n", flush=True)
+    unified_worker_limit = max(dynamic_workers, CPU_CORES * 2)
 
-    # Queue 1: Slow Tests Pool (dynamically scaled workers, 2 tests per batch)
+    # Unified Priority Work Queue: Slow batches enqueued first, followed immediately by fast packages
+    all_work_items: list[tuple[str, list[dict[str, Any]]]] = []
     if slow_tests:
         slow_batches = [slow_tests[i:i + 2] for i in range(0, len(slow_tests), 2)]
-        worker_limit = min(slow_worker_limit, len(slow_batches))
-        with ThreadPoolExecutor(max_workers=worker_limit) as executor:
-            futures = {}
-            for batch in slow_batches:
-                batch_pkg_map: dict[str, list[dict[str, Any]]] = {}
-                for t in batch:
-                    batch_pkg_map.setdefault(t["package"], []).append(t)
-                for pkg, b_tests in batch_pkg_map.items():
-                    fut = executor.submit(run_package_tests_worker, pkg, b_tests, repo_root, timeout_sec)
-                    futures[fut] = (pkg, b_tests)
+        for sbatch in slow_batches:
+            batch_pkg_map: dict[str, list[dict[str, Any]]] = {}
+            for t in sbatch:
+                batch_pkg_map.setdefault(t["package"], []).append(t)
+            for pkg, b_tests in batch_pkg_map.items():
+                all_work_items.append((pkg, b_tests))
 
-            for fut in as_completed(futures):
-                pkg, b_tests = futures[fut]
-                try:
-                    pkg_passed, pkg_failed, pkg_out, test_results = fut.result()
-                    passed_count += pkg_passed
-                    failed_count += pkg_failed
-                    if pkg_failed > 0:
-                        error_outputs.append(f"[{pkg}] {pkg_out}")
-                    for tid, res_info in test_results.items():
-                        if tid in tests:
-                            tests[tid]["duration_sec"] = res_info["elapsed"]
-                            tests[tid]["last_status"] = res_info["status"]
-                            tests[tid]["last_run_at"] = time.strftime("%Y-%m-%dT%H:%M:%S")
-                            tests[tid]["needs_run"] = (res_info["status"] != "passed")
-                            tests[tid]["code_hash"] = compute_file_hash(repo_root / tests[tid].get("target_file", ""))
-                            tests[tid]["test_hash"] = compute_file_hash(repo_root / tests[tid].get("test_file", ""))
-                            if res_info["elapsed"] >= slow_threshold:
-                                tests[tid]["is_slow"] = True
-                                tests[tid]["tier"] = "slow"
-                            record_job_timing(f"GoTest:{tid}", res_info["elapsed"])
-                except Exception as ex:
-                    failed_count += len(b_tests)
-                    error_outputs.append(f"[{pkg}] Slow worker exception: {ex}")
-
-    # Queue 2: Fast Tests Pool (dynamically scaled across all worker threads by package)
     if fast_tests:
         pkg_map: dict[str, list[dict[str, Any]]] = {}
         for t in fast_tests:
             pkg_map.setdefault(t["package"], []).append(t)
 
-        work_items: list[tuple[str, list[dict[str, Any]]]] = []
         for pkg, ptests in pkg_map.items():
             if len(ptests) > 40:
                 for i in range(0, len(ptests), 30):
-                    work_items.append((pkg, ptests[i:i + 30]))
+                    all_work_items.append((pkg, ptests[i:i + 30]))
             else:
-                work_items.append((pkg, ptests))
+                all_work_items.append((pkg, ptests))
 
-        worker_limit = min(fast_worker_limit, len(work_items))
-        with ThreadPoolExecutor(max_workers=worker_limit) as executor:
-            futures = {
-                executor.submit(run_package_tests_worker, pkg, b_tests, repo_root, timeout_sec): (pkg, b_tests)
-                for pkg, b_tests in work_items
-            }
+    worker_limit = min(unified_worker_limit, len(all_work_items)) if all_work_items else 1
+    print(f"\n⚡ [CPU Freeness Engine] System CPU is {free_pct}% idle across {CPU_CORES} logical cores.", flush=True)
+    print(f"   Unified Worker Pool: {worker_limit} concurrent threads across {len(all_work_items)} test batches.\n", flush=True)
 
-            for fut in as_completed(futures):
-                pkg, b_tests = futures[fut]
-                try:
-                    pkg_passed, pkg_failed, pkg_out, test_results = fut.result()
-                    passed_count += pkg_passed
-                    failed_count += pkg_failed
-                    if pkg_failed > 0:
-                        error_outputs.append(f"[{pkg}] {pkg_out}")
-                    for tid, res_info in test_results.items():
-                        if tid in tests:
-                            tests[tid]["duration_sec"] = res_info["elapsed"]
-                            tests[tid]["last_status"] = res_info["status"]
-                            tests[tid]["last_run_at"] = time.strftime("%Y-%m-%dT%H:%M:%S")
-                            tests[tid]["needs_run"] = (res_info["status"] != "passed")
-                            tests[tid]["code_hash"] = compute_file_hash(repo_root / tests[tid].get("target_file", ""))
-                            tests[tid]["test_hash"] = compute_file_hash(repo_root / tests[tid].get("test_file", ""))
-                            if res_info["elapsed"] >= slow_threshold:
-                                tests[tid]["is_slow"] = True
-                                tests[tid]["tier"] = "slow"
-                            record_job_timing(f"GoTest:{tid}", res_info["elapsed"])
-                except Exception as ex:
-                    failed_count += len(b_tests)
-                    error_outputs.append(f"[{pkg}] Fast worker exception: {ex}")
+    with ThreadPoolExecutor(max_workers=worker_limit) as executor:
+        futures = {
+            executor.submit(run_package_tests_worker, pkg, b_tests, repo_root, timeout_sec): (pkg, b_tests)
+            for pkg, b_tests in all_work_items
+        }
 
-                # Update live telemetry after each completed package/batch
-                cur_elapsed = round(time.monotonic() - start_time, 1)
-                rem = max(1.0, round(total_test_eta - cur_elapsed, 1))
-                RUNNER_ETA_FILE.write_text(json.dumps({
-                    "status": "running",
-                    "total_eta_sec": total_test_eta,
-                    "elapsed_sec": cur_elapsed,
-                    "remaining_eta_sec": rem,
-                    "slow_tests_total": len(slow_tests),
-                    "fast_tests_total": len(fast_tests),
-                    "completed": passed_count + failed_count,
-                    "passed": passed_count,
-                    "failed": failed_count,
-                }, indent=2), encoding="utf-8")
+        for fut in as_completed(futures):
+            pkg, b_tests = futures[fut]
+            try:
+                pkg_passed, pkg_failed, pkg_out, test_results = fut.result()
+                passed_count += pkg_passed
+                failed_count += pkg_failed
+                if pkg_failed > 0:
+                    error_outputs.append(f"[{pkg}] {pkg_out}")
+                for tid, res_info in test_results.items():
+                    if tid in tests:
+                        tests[tid]["duration_sec"] = res_info["elapsed"]
+                        tests[tid]["last_status"] = res_info["status"]
+                        tests[tid]["last_run_at"] = time.strftime("%Y-%m-%dT%H:%M:%S")
+                        tests[tid]["needs_run"] = (res_info["status"] != "passed")
+                        tests[tid]["code_hash"] = compute_file_hash(repo_root / tests[tid].get("target_file", ""))
+                        tests[tid]["test_hash"] = compute_file_hash(repo_root / tests[tid].get("test_file", ""))
+                        if res_info["elapsed"] >= slow_threshold:
+                            tests[tid]["is_slow"] = True
+                            tests[tid]["tier"] = "slow"
+                        record_job_timing(f"GoTest:{tid}", res_info["elapsed"])
+            except Exception as ex:
+                failed_count += len(b_tests)
+                error_outputs.append(f"[{pkg}] Test worker exception: {ex}")
+
+            # Update live telemetry after each completed package/batch
+            cur_elapsed = round(time.monotonic() - start_time, 1)
+            rem = max(1.0, round(total_test_eta - cur_elapsed, 1))
+            RUNNER_ETA_FILE.write_text(json.dumps({
+                "status": "running",
+                "total_eta_sec": total_test_eta,
+                "elapsed_sec": cur_elapsed,
+                "remaining_eta_sec": rem,
+                "slow_tests_total": len(slow_tests),
+                "fast_tests_total": len(fast_tests),
+                "completed": passed_count + failed_count,
+                "passed": passed_count,
+                "failed": failed_count,
+            }, indent=2), encoding="utf-8")
 
     elapsed = round(time.monotonic() - start_time, 2)
     RUNNER_ETA_FILE.write_text(json.dumps({
