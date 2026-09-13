@@ -1,97 +1,60 @@
 package osuser
 
 import (
-	"fmt"
-	"os/exec"
-	"runtime"
+	"github.com/alimtvnetwork/gitmap-v28/cli/apperror"
 )
 
-// AddUser creates a new OS user across Windows and Linux.
+// AddUser creates a new OS user across Windows and Linux (backward compatibility).
 func AddUser(username, password string) error {
-	switch runtime.GOOS {
-	case "windows":
-		return addWindowsUser(username, password)
-	case "linux":
-		return addLinuxUser(username, password)
-	default:
-		return fmt.Errorf("unsupported operating system for user management: %s", runtime.GOOS)
+	opts := buildAddUserOptions(username, password)
+	appErr := CreateRootUser(opts)
+	if appErr != nil {
+		return appErr
 	}
-}
-
-func addWindowsUser(username, password string) error {
-	var cmd *exec.Cmd
-	if password != "" {
-		cmd = exec.Command("net", "user", username, password, "/ADD")
-	} else {
-		cmd = exec.Command("net", "user", username, "/ADD")
-	}
-
-	out, err := cmd.CombinedOutput()
-	if err != nil {
-		return fmt.Errorf("windows user add failed: %w\nOutput: %s", err, out)
-	}
-
 	return nil
 }
 
-func addLinuxUser(username, password string) error {
-	cmd := exec.Command("useradd", "-m", username)
-	out, err := cmd.CombinedOutput()
-	if err != nil {
-		return fmt.Errorf("linux useradd failed: %w\nOutput: %s", err, out)
+func buildAddUserOptions(username, password string) UserCreateOptions {
+	return UserCreateOptions{
+		Username: username,
+		Password: password,
 	}
-
-	if password != "" {
-		return setLinuxUserPassword(username, password)
-	}
-
-	return nil
 }
 
-func setLinuxUserPassword(username, password string) error {
-	chCmd := exec.Command("chpasswd")
-	stdin, err := chCmd.StdinPipe()
-	if err != nil {
-		return fmt.Errorf("failed to pipe chpasswd: %w", err)
-	}
-
-	if err := chCmd.Start(); err != nil {
-		return fmt.Errorf("failed to start chpasswd: %w", err)
-	}
-
-	if _, err := fmt.Fprintf(stdin, "%s:%s", username, password); err != nil {
-		return fmt.Errorf("failed to write to chpasswd: %w", err)
-	}
-
-	stdin.Close()
-	if err := chCmd.Wait(); err != nil {
-		return fmt.Errorf("chpasswd failed: %w", err)
-	}
-
-	return nil
-}
-
-// RemoveUser deletes an OS user and their profile/home directory.
+// RemoveUser deletes an OS user and their profile/home directory (backward compatibility).
 func RemoveUser(username string) error {
-	switch runtime.GOOS {
-	case "windows":
-		cmd := exec.Command("net", "user", username, "/DELETE")
-		out, err := cmd.CombinedOutput()
-		if err != nil {
-			return fmt.Errorf("windows user remove failed: %w\nOutput: %s", err, out)
-		}
-
-	case "linux":
-		// -r removes the home directory and mail spool
-		cmd := exec.Command("userdel", "-r", username)
-		out, err := cmd.CombinedOutput()
-		if err != nil {
-			return fmt.Errorf("linux userdel failed: %w\nOutput: %s", err, out)
-		}
-
-	default:
-		return fmt.Errorf("unsupported operating system for user management: %s", runtime.GOOS)
+	opts := buildRemoveUserOptions(username)
+	appErr := RemoveEnhancedUser(opts)
+	if appErr != nil {
+		return appErr
 	}
-
 	return nil
+}
+
+func buildRemoveUserOptions(username string) UserRemoveOptions {
+	return UserRemoveOptions{
+		Username:       username,
+		IsRemoveHome:   true,
+		IsCleanSudoers: true,
+	}
+}
+
+// CreateRoot provisions a root/administrative user with sudoers and optional ZSH.
+func CreateRoot(opts UserCreateOptions) *apperror.AppError {
+	return CreateRootUser(opts)
+}
+
+// Remove deletes an OS user with full cleanup of home directory and sudoers.
+func Remove(opts UserRemoveOptions) *apperror.AppError {
+	return RemoveEnhancedUser(opts)
+}
+
+// Kill terminates processes owned by the given user.
+func Kill(opts UserKillOptions) *apperror.AppError {
+	return KillUserProcesses(opts)
+}
+
+// InstallKey installs an SSH public key for the given user.
+func InstallKey(opts SSHKeyOptions) *apperror.AppError {
+	return InstallSSHKey(opts)
 }

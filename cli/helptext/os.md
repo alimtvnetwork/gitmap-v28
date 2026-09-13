@@ -12,6 +12,9 @@ gitmap os [subcommand] [flags]
 
 | Subcommand | Description |
 |------------|-------------|
+| ip [subcommand] | Inspect, set, change, switch, or revert network IP configuration |
+| zsh [subcommand] | Install, theme, switch, profile, and clean ZSH & Oh-My-Zsh |
+| user [subcommand] | Create root users, manage SSH keys, kill processes, and delete users |
 | display [subcommand] | Inspect and configure OS display settings, desktop session & timeouts |
 | fix-link [path] | Inspect and repair broken symlinks and shared directories |
 | status | Display operating system summary, platform details, and link health |

@@ -45,35 +45,20 @@ func validatePing(ctx context.Context, targetHost string, count int) bool {
 }
 
 func executeIPChange(ctx context.Context, newIP string, doPing bool) error {
-	var swapErr error
-	interfaceName := ""
-	if runtime.GOOS == "windows" {
-		interfaceName = "Ethernet"
+	mgr := createCMDNetIPManager()
+	opts, valOpts := parseCMDChangeOptions([]string{newIP}, false)
+	valOpts.IsValidationActive = doPing
+	res := mgr.ChangeIP(ctx, opts, valOpts)
+	if res.IsFailure() {
+		return res.AppError()
 	}
-
-	swapErr = swapIP(ctx, interfaceName, "", newIP)
-
-	if swapErr != nil {
-		return apperror.Wrap(swapErr, "executeIPChange", map[string]any{"ip": newIP})
-	}
-
-	if isIPChangeRollbackNeeded(ctx, doPing) {
-		fmt.Println("reverting")
-		_ = swapIP(ctx, interfaceName, newIP, "192.168.1.100") // rollback
-
-		return apperror.New("executeIPChange", "E_INTERNAL_ERROR", map[string]any{"msg": "ping failed, reverting"})
+	if res.Value.IsReverted {
+		return apperror.New("executeIPChange", "E_INTERNAL_ERROR", map[string]any{"msg": res.Value.Message})
 	}
 
 	return nil
 }
 
-func isIPChangeRollbackNeeded(ctx context.Context, doPing bool) bool {
-	if !doPing {
-		return false
-	}
-
-	return !validatePing(ctx, "8.8.8.8", 3)
-}
 
 func init() {
 	// Handled by root or dispatch

@@ -5,6 +5,7 @@ import (
 	"os"
 	"strings"
 
+	"github.com/alimtvnetwork/gitmap-v28/cli/cmdzsh"
 	"github.com/alimtvnetwork/gitmap-v28/cli/constants"
 	"github.com/alimtvnetwork/gitmap-v28/cli/helptext"
 )
@@ -93,11 +94,18 @@ func utilitySystemEntries() []dispatchEntry {
 	return []dispatchEntry{
 		{[]string{constants.CmdPower, constants.CmdPowerAlias, constants.CmdPowerAlias2}, func() error { return runPower(argsTail()) }},
 		{[]string{constants.CmdOS}, func() error { return runOS(argsTail()) }},
+		{[]string{"zsh"}, func() error { return runZsh(argsTail()) }},
 		{[]string{constants.CmdFixLink, constants.CmdFixLinkAlias, constants.CmdFixLinkAlias2}, func() error { return runOSFixLink(argsTail()) }},
 		{[]string{constants.CmdWhoAmI, constants.CmdWhoAmIAlias}, func() error { checkHelp("whoami", argsTail()); return runWhoAmI(argsTail()) }},
 		{[]string{constants.CmdSSHBind, constants.CmdSSHBindAlias}, func() error { checkHelp("ssh-bind", argsTail()); return runSSHBind(argsTail()) }},
 		{[]string{constants.CmdFixAuth, constants.CmdFixAuthAlias}, func() error { checkHelp("fix-auth", argsTail()); return runFixAuth(argsTail()) }},
 	}
+}
+
+func runZsh(args []string) error {
+	checkHelp("zsh", args)
+
+	return cmdzsh.RunZsh(args)
 }
 
 func utilityPipelineEntries() []dispatchEntry {

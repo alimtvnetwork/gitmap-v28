@@ -331,7 +331,12 @@ const (
 	SubCmdOSDisplayAlias  = "disp"     // gitmap:cmd skip
 	SubCmdOSDisplayAlias2 = "screen"   // gitmap:cmd skip
 	SubCmdOSStatus        = "status"   // gitmap:cmd skip
+	SubCmdOSIP            = "ip"       // gitmap:cmd skip
+	SubCmdOSZsh           = "zsh"      // gitmap:cmd skip
+	SubCmdOSUser          = "user"     // gitmap:cmd skip
 	SubCmdOSHelp          = "help"     // gitmap:cmd skip
+	CmdUser               = "user"     // gitmap:cmd skip
+	CmdZsh                = "zsh"      // gitmap:cmd skip
 	// CmdReleasePull is sugar for `release` that first runs
 	// `git pull --ff-only` in the current repo, then delegates to
 	// the regular release pipeline. Hard-fails on non-fast-forward

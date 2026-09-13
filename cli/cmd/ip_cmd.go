@@ -19,9 +19,12 @@ var IPCmd = &cobra.Command{
 	},
 }
 
-//nolint:revive
 func runIPCmd(cmd *cobra.Command, args []string, ctx context.Context) error {
-	return executeIPCmd(ctx, true, os.Stdout)
+	if len(args) == 0 {
+		return executeIPCmd(ctx, true, os.Stdout)
+	}
+
+	return dispatchIPSubcommand(ctx, args)
 }
 
 func executeIPCmd(ctx context.Context, skipLoopback bool, writer io.Writer) error {

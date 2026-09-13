@@ -36,6 +36,12 @@ func dispatchOSSubcommand(subCmd string, subArgs []string) error {
 		return runOSFixLink(subArgs)
 	case constants.SubCmdOSStatus, "st", "info":
 		return runOSStatus(subArgs)
+	case constants.SubCmdOSIP:
+		return runOSIP(subArgs)
+	case constants.SubCmdOSZsh:
+		return runOSZsh(subArgs)
+	case constants.SubCmdOSUser:
+		return runOSUser(subArgs)
 	case constants.SubCmdOSHelp:
 		return handleOSHelp()
 	default:
@@ -70,6 +76,9 @@ func runOSStatus(args []string) error {
 const osUsageText = `Usage: gitmap os [subcommand] [flags]
 
 Commands:
+  ip                  Inspect, set, change, switch, or revert network IP configuration
+  zsh                 Install, theme, switch, profile, and clean ZSH & Oh-My-Zsh
+  user                Create root users, manage SSH keys, kill processes, and delete users
   display (disp)      Inspect and configure OS display settings, resolution & timeouts
   fix-link (fixlink)  Inspect and repair broken symlinks and shared directories
   status (st)         Display operating system environment and link diagnostics
