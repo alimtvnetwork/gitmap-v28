@@ -1,3 +1,17 @@
+## [v6.225.0] 2026-09-13 Release v6.225.0
+
+### Install GitMap v6.225.0
+
+To pin your repository to this exact version, run the following one-liner:
+Unix/Bash: `curl -sL https://raw.githubusercontent.com/alimtvnetwork/gitmap-v28/v6.225.0/install.sh | bash -s -- ".lovable/prompts" "v6.225.0"`
+PowerShell: `Invoke-WebRequest -Uri https://raw.githubusercontent.com/alimtvnetwork/gitmap-v28/v6.225.0/install.ps1 -OutFile install.ps1; .\install.ps1 -TargetDir ".lovable/prompts" -Version "v6.225.0"`
+
+### Added / Changed / Fixed / Removed
+
+- Integrated robust_rmtree with Windows read-only file attribute unlinking across all build and test cleanup hooks
+- Guaranteed zero-byte temporary storage footprint in OS temp gitmap after test runs
+- Added --allow-serial-runners across all golangci-lint invocations to prevent parallel lock contention
+
 ## [v6.224.0] 2026-09-13 Release v6.224.0
 
 ### Install GitMap v6.224.0
