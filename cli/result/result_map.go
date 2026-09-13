@@ -7,7 +7,6 @@ import (
 	"github.com/alimtvnetwork/gitmap-v28/cli/apperror"
 )
 
-
 // IsSuccess reports whether the map operation succeeded without error.
 func (r *ResultMap[K, V]) IsSuccess() bool {
 	if r == nil {

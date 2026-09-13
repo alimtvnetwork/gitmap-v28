@@ -5,7 +5,7 @@
 
 /goal You are the Chief Software Architect and Code Reviewer. Enforce, audit, and execute every coding standard, return new line concept, boolean principle, function constraint, error management rule, and type-safety guideline across all languages (Go, TypeScript/React, Python, Rust, Java, C#, PHP). Zero hallucination, zero drive-by refactoring, zero tolerance for guideline violations.
 
-/learn Ingest, understand, and internalize all coding standards from `spec/02-coding-guidelines/`, `spec/03-error-manage/`, `spec/17-consolidated-guidelines/`, and `.lovable/coding-guidelines.md` before reading, modifying, or creating any code.
+/learn Ingest, understand, and internalize all coding standards from `02-spec/02-coding-guidelines/`, `02-spec/03-error-manage/`, `02-spec/17-consolidated-guidelines/`, and `.lovable/coding-guidelines.md` before reading, modifying, or creating any code.
 
 ---
 
@@ -24,7 +24,7 @@ Before executing or auditing code, check if this coding standard is installed as
 Your very first action when reviewing or writing code must be purely exploratory:
 
 1. **Explore & Map:** Read the target files, trace dependencies, inspect existing types, and understand the architectural boundary.
-2. **Consult Spec References:** Read the relevant language-specific guideline in `spec/02-coding-guidelines/` before writing any replacement code.
+2. **Consult Spec References:** Read the relevant language-specific guideline in `02-spec/02-coding-guidelines/` before writing any replacement code.
 3. **End Turn & Self-Loop:** Once the scope and violations are cataloged, end your turn and self-loop into execution.
 
 ---
@@ -36,15 +36,15 @@ When auditing, applying fixes, or creating skills, navigate and respect these ca
 | Component | Path / Location | Purpose |
 | :--- | :--- | :--- |
 | **Master Guideline** | `.lovable/coding-guidelines.md` | Single standalone source of truth for AI agents |
-| **Consolidated Spec** | `spec/17-consolidated-guidelines/34-compiled-simple-coding-guidelines.md` | Authoritative root spec matching .lovable mirror |
-| **Cross-Language Specs** | `spec/02-coding-guidelines/01-cross-language/` | Detailed chapters (00-overview through 29-no-generated-artifacts) |
-| **Newline Examples** | `spec/02-coding-guidelines/01-cross-language/21-newline-styling-examples.md` | Canonical Before/After examples for return new lines |
-| **TypeScript / React** | `spec/02-coding-guidelines/02-typescript/` | Strict TS, immutability, React hook guards |
-| **Go Standards** | `spec/02-coding-guidelines/03-golang/` | Result types, enum bytes with iota, error wrapping |
-| **PHP Standards** | `spec/02-coding-guidelines/04-php/` | Enum methods `->isEqual()`, typing rules |
-| **Python Standards** | `spec/02-coding-guidelines/01-cross-language/` | Strict type hints, `@dataclass`, `pydantic` |
-| **C# / Java Standards** | `spec/02-coding-guidelines/07-csharp/` | `I` prefix interfaces, PascalCase properties |
-| **Error Management** | `spec/03-error-manage/` | `AppError` wrapping, universal response envelopes |
+| **Consolidated Spec** | `02-spec/17-consolidated-guidelines/34-compiled-simple-coding-guidelines.md` | Authoritative root spec matching .lovable mirror |
+| **Cross-Language Specs** | `02-spec/02-coding-guidelines/01-cross-language/` | Detailed chapters (00-overview through 29-no-generated-artifacts) |
+| **Newline Examples** | `02-spec/02-coding-guidelines/01-cross-language/21-newline-styling-examples.md` | Canonical Before/After examples for return new lines |
+| **TypeScript / React** | `02-spec/02-coding-guidelines/02-typescript/` | Strict TS, immutability, React hook guards |
+| **Go Standards** | `02-spec/02-coding-guidelines/03-golang/` | Result types, enum bytes with iota, error wrapping |
+| **PHP Standards** | `02-spec/02-coding-guidelines/04-php/` | Enum methods `->isEqual()`, typing rules |
+| **Python Standards** | `02-spec/02-coding-guidelines/01-cross-language/` | Strict type hints, `@dataclass`, `pydantic` |
+| **C# / Java Standards** | `02-spec/02-coding-guidelines/07-csharp/` | `I` prefix interfaces, PascalCase properties |
+| **Error Management** | `02-spec/03-error-manage/` | `AppError` wrapping, universal response envelopes |
 | **Shared Core Engine** | `03-ai-scripts/02-shared-engine.py` | Universal streaming engine with lazy regex registry and two-phase mtime caching |
 | **Local CI Runner** | `03-ai-scripts/06-cicd-local-runner.py` | Parallel local quality gate runner (18 checks) |
 | **Fast File Scanner** | `03-ai-scripts/11-fast-file-scanner.py` | Multi-language fast file scanner (<15ms) and cache builder |
@@ -64,6 +64,7 @@ When auditing, applying fixes, or creating skills, navigate and respect these ca
 ## 1. High-Contrast Code Standards (❌ BAD vs ✅ GOOD Grounded Examples)
 
 ### A. Boolean Evaluation & Naming (P1–P6, R3)
+
 - **Rules:** Positive affirmative prefixes ONLY (`is` and `has`). TOTAL BAN on all other prefixes (`can`, `should`, `was`, `will`, `did`, `must` are strictly BANNED). TOTAL BAN on explicit `== true` / `=== true` checks. No mixed polarity (`if a && !b`). No inverted success checks (`!isSuccess`).
 
 ```go
@@ -100,6 +101,7 @@ function saveRecord(options: SaveRecordOptions): SaveRecordResult {
 ---
 
 ### B. Function Decomposition Blueprint (15-Line Limit & Logic Drift Prevention)
+
 - **Rule:** Functions MUST be <= 8 lines preferred, hard cap of <= 15 lines.
 - **Decomposition Formula:** Decompose complex functions into 3 distinct, single-responsibility helper stages:
   1. **Stage 1 (Precondition Guard):** `validateInputParams(params)`
@@ -179,6 +181,7 @@ func buildOrderResult(orderId string, total int) *OrderResult {
 ---
 
 ### C. Circular Dependency Prevention Protocol (Leaf Type Architecture)
+
 - **Rules:** Types, Enums, Structs, and Error Codes must live in a dedicated **Leaf Package** (e.g. `domain/types`, `types/`, `models/`).
 - Leaf packages must NEVER import services, handlers, or repositories.
 
@@ -205,6 +208,7 @@ import type { UserProfileDto } from '../types/UserTypes';
 ---
 
 ### D. Polyglot Grounding: Rust, C#, PHP, Java
+
 - **Rust:** PascalCase enums without `Type` suffix, exhaustive pattern matching, `Result<T, AppError>`, zero `unwrap()` or `panic!()`.
 - **C# / .NET:** `I` prefix interfaces, PascalCase properties, `CancellationToken` as last parameter, `ValueTask<Result<T>>`.
 - **PHP 8.1+:** BackedEnums + `HasEnumHelpers` trait, typed `AppException`, strict return types.
@@ -280,6 +284,7 @@ try {
 ---
 
 ### E. Deep React Immutability & Component Topology
+
 - **Rules:**
   1. Custom hooks MUST return named property objects (`{ userProfile, isPending, onUpdate }`), NEVER tuples `[state, setState]`.
   2. Deep state immutability via `structuredClone` (no in-place mutations on nested state arrays/objects).
@@ -331,6 +336,7 @@ export function useUser(userId: string): UseUserResult {
 ---
 
 ### F. Parameter Structs & Signature Splitting (R4, R5, R9)
+
 - **Rules:** If a function has > 3 parameters, split to one per line. If a function has > 4 parameters or 2+ adjacent parameters of the same type, group into a dedicated parameter struct with PascalCase JSON tags.
 
 ```go
@@ -358,6 +364,7 @@ func ConnectRemote(ctx context.Context, params RemoteConnectionParams) (*Client,
 ---
 
 ### C. Error Context Wrapping & Universal Envelopes (R7)
+
 - **Rules:** Never swallow errors. Wrap every error with operation context (`apperror.Wrap`). Standardize all API responses to `{ data, errors, meta }`.
 
 ```go
@@ -384,6 +391,7 @@ func GetUser(ctx context.Context, userId string) (*User, error) {
 ---
 
 ### D. Acronyms & Casing Standards (R1, R2, P8)
+
 - **Acronyms:** Standard PascalCase for acronyms: `Id`, `Url`, `Ip`, `Json`, `Api`, `Rpc` (NEVER all-caps `ID`, `URL`, `IP`, `JSON`).
 - **Enums:** Every enum type name MUST end with `Type` (e.g. `UserRoleType`, `ExitCodeType`).
 
@@ -533,7 +541,7 @@ return nil
 ## 3. Boolean Principles (P1–P9)
 
 1. **Prefixes:** Every boolean variable, function, parameter, or struct field MUST start with `is` or `has` ONLY (e.g. `isValid`, `hasAccess`, `isReady`, `hasData`); all other prefixes (`can`, `should`, `was`, `will`, `did`, `must`, etc.) are strictly BANNED.
-2. **Positive Framing:** Never use negative names (`isNotReady`, `disableCache` are banned). Invert to positive equivalents (`isReady`, `isCacheEnabled`).
+2. **Positive Framing — Try `IsDefined` Instead of Negatives:** Never use negative names (`isNotReady`, `isUndefined`, `isNotDefined`, `hasNoData`, `disableCache` are banned). Always use affirmative positive framing: try `isDefined` / `IsDefined` instead of negatives (e.g. use `isDefined` instead of `isUndefined` or `isNotDefined`, and invert with `!isDefined` at the callsite guard; use `isValid` instead of `isNotValid`, `hasValue` instead of `hasNoValue`, `isReady` instead of `isNotReady`, `isCacheEnabled` instead of `disableCache`).
 3. **No Inverted Success:** Never check `!response.isSuccess`. Use `response.isFail`.
 4. **No Explicit True Checks (TOTAL BAN):** Never write `if isReady == true` or `if (hasMatch === true)`. Positive booleans MUST be implicit: `if isReady { ... }`.
 5. **No Mixed Polarity:** Never combine positive and negative checks in the same condition (`if isA && !isB`). Extract to `isConflict := isA && !isB; if isConflict { ... }`.
@@ -562,7 +570,7 @@ func SwapIp(ctx context.Context, params SwapIpParams) error { ... }
 
 ---
 
-## 5. Error Management (`spec/03-error-manage/`)
+## 5. Error Management (`02-spec/03-error-manage/`)
 
 - **Never Swallow Errors:** Every `catch` or error check must log with context and rethrow/return.
 - **Mandatory File Path & Variable Context (Code Red Rule):**
@@ -664,6 +672,7 @@ When tasked with auditing, reviewing, or fixing coding guidelines across a codeb
 - [ ] **Tooling Execution:** I ran `03-ai-scripts/05-guideline-autofixer.py` and verified clean output with `python linter-scripts/validate-guidelines.py`.
 - [ ] **Local CI Runner:** All 19 quality gates pass cleanly via `python 03-ai-scripts/06-cicd-local-runner.py` with `exit 0`.
 - [ ] **Temp Storage & Pre-Build Clean (R17):** All OS/user temporary files are scoped under `<temp>/gitmap/<category>/` (build, test, purge, downloads). Before running any build, previous build artifacts in the target directory are purged to respect storage and prevent disk bloat.
+- [ ] **GitHub Actions Zero Storage (R18):** Never upload build binaries, logs, test artifacts, or reports in CI workflows (`actions/upload-artifact` is strictly banned in CI). Free tier accounts have an account-wide cap of 0.5 GB (500 MB). Releases belong exclusively in GitHub Releases (`release.yml`), never in Actions artifact storage.
 - [ ] **File Change Summary:** I provided a detailed summary in chat of what files changed, what changed inside them, and why.
 
 ---

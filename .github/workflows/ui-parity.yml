@@ -40,10 +40,14 @@ jobs:
           done
           node scripts/ui-parity.mjs
           kill $SERVER_PID || true
-      - name: Upload snapshots
+      - name: Report UI parity status
         if: always()
-        uses: actions/upload-artifact@v4
-        with:
-          name: ui-parity-snapshots
-          path: .ui-parity/
-          if-no-files-found: ignore
+        run: |
+          echo "### UI Parity Status" >> "$GITHUB_STEP_SUMMARY"
+          if [ -d .ui-parity ]; then
+            echo '```' >> "$GITHUB_STEP_SUMMARY"
+            ls -la .ui-parity >> "$GITHUB_STEP_SUMMARY"
+            echo '```' >> "$GITHUB_STEP_SUMMARY"
+          else
+            echo "No .ui-parity directory produced." >> "$GITHUB_STEP_SUMMARY"
+          fi

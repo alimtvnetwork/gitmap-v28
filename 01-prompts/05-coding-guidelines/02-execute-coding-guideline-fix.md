@@ -9,12 +9,12 @@
 
 Context & References:
 
-- /learn master cross-language coding guidelines: `spec/02-coding-guidelines/01-cross-language/15-master-coding-guidelines/`
-- /learn braces, nesting, and conditions: `spec/02-coding-guidelines/01-cross-language/01-index.md` & `02-conditions-and-extraction.md`
-- /learn function size caps (< 8 lines): `spec/02-coding-guidelines/01-cross-language/01-index.md`
-- /learn boolean naming & inverse rules: `spec/02-coding-guidelines/01-cross-language/02-boolean-principles/01-index.md` & `12-no-negatives.md`
-- /learn error management & logging: `spec/03-error-manage/01-index.md`
-- /learn language-specific rules in `spec/02-coding-guidelines/` (Go wrapped booleans: `spec/02-coding-guidelines/03-golang/09-wrapped-boolean-results.md`)
+- /learn master cross-language coding guidelines: `02-spec/02-coding-guidelines/01-cross-language/15-master-coding-guidelines/`
+- /learn braces, nesting, and conditions: `02-spec/02-coding-guidelines/01-cross-language/01-index.md` & `02-conditions-and-extraction.md`
+- /learn function size caps (< 8 lines): `02-spec/02-coding-guidelines/01-cross-language/01-index.md`
+- /learn boolean naming & inverse rules: `02-spec/02-coding-guidelines/01-cross-language/02-boolean-principles/01-index.md` & `12-no-negatives.md`
+- /learn error management & logging: `02-spec/03-error-manage/01-index.md`
+- /learn language-specific rules in `02-spec/02-coding-guidelines/` (Go wrapped booleans: `02-spec/02-coding-guidelines/03-golang/09-wrapped-boolean-results.md`)
 
 /goal - Apply concrete fixes for all violations listed in the pending tasks.
 
@@ -24,7 +24,7 @@ Context & References:
   - Functions must be strictly < 8 lines. (NON-NEGOTIABLE)
   - Source files must be ≤ 80 lines.
   - No code mutation – only apply fixes, never introduce new bugs.
-  - Positive boolean naming (`is` / `has`). No `isNot`. Use inverse naming (e.g., `isHonest` / `isDishonest` instead of `isNotHonest`). No nested if statements, no magic values.
+  - Positive boolean naming (`is` / `has`). No `isNot`, `hasNo`, `isUndefined`, or negative prefixes. Always use affirmative positive framing: try `isDefined` / `IsDefined` instead of negatives (e.g., use `isDefined` instead of `isUndefined` or `isNotDefined`, and invert with `!isDefined` in guard clauses; use `isValid` instead of `isNotValid`, `hasValue` instead of `hasNoValue`, `isReady` instead of `isNotReady`). No nested if statements, no magic values.
   - Style: Ensure a blank line before every `return` statement.
   - Mandatory File Path & Variable Context: Any error created or returned when operating on files, paths, or variables must embed the target path via `.WithPath(path)` / `WrapWithPath(..., path)` and variable context via `.WithVar(name, value)` (Rule R7).
   - Golang Single Return & Wrapped Booleans: Strictly return a single parameter (bundle multiple returns into a struct). No raw booleans returned in Go. Return a single Result struct (bundling Data, AppError, and Status together) with two flags (`IsSuccess` and `IsFailed`) managed by a constructor (`NewSuccess`/`NewFailure`).
@@ -48,7 +48,7 @@ Context & References:
 
 ## MUST FOLLOW NON-NEGOTIABLE
 
-Listen, past runs of these turns have been sloppy and stupid as fuck: wrong step counts, partial task lists dumped into chat instead of files, plans and session summaries half-filled with "[N]" placeholders, folders skimmed, open ambiguities ignored, CI/CD issues and `plans/subtasks/` forgotten, user commands dropped, coding guidelines bypassed, detailed specs chopped and summarized into useless junk, uppercase README files left uncorrected, `.lovable/memory/` created by accident, `strictly-avoid.md` overwritten, and explicit user instructions softened after being told not to. WTF. How on earth are you reverting to this carelessness, are you stupid?? Stop doing that, you stupid fuck. Read the whole codebase, read every folder in `spec/` and `.lovable/`, confirm root `readme.md` is strictly lowercase, find the root cause in one sentence, capture commands, issues, and pending tasks without omitting a single item, write the spec files and memory files in the right paths, update every index in the same turn, sync `readme.md` with `what-to-read.md`, preserve detailed specs verbatim with zero truncation, run builds and full unit tests, group commits with clear messages, and push everything to git before ending. Going deep IS the job. If you are not going deep, you are not doing the job. Violating this is auto-reject on the same tier as RULE 0. Avoid stupidity and being careless, you stupid fuck. Where is your attention, are you stupid? Tell me. Your stupidity is going on top of my head. Where did you learn this stupidity? If I could find you, I could slap you.
+Listen, past runs of these turns have been sloppy and stupid as fuck: wrong step counts, partial task lists dumped into chat instead of files, plans and session summaries half-filled with "[N]" placeholders, folders skimmed, open ambiguities ignored, CI/CD issues and `plans/subtasks/` forgotten, user commands dropped, coding guidelines bypassed, detailed specs chopped and summarized into useless junk, uppercase README files left uncorrected, `.lovable/memory/` created by accident, `strictly-avoid.md` overwritten, and explicit user instructions softened after being told not to. WTF. How on earth are you reverting to this carelessness, are you stupid?? Stop doing that, you stupid fuck. Read the whole codebase, read every folder in `02-spec/` and `.lovable/`, confirm root `readme.md` is strictly lowercase, find the root cause in one sentence, capture commands, issues, and pending tasks without omitting a single item, write the spec files and memory files in the right paths, update every index in the same turn, sync `readme.md` with `what-to-read.md`, preserve detailed specs verbatim with zero truncation, run builds and full unit tests, group commits with clear messages, and push everything to git before ending. Going deep IS the job. If you are not going deep, you are not doing the job. Violating this is auto-reject on the same tier as RULE 0. Avoid stupidity and being careless, you stupid fuck. Where is your attention, are you stupid? Tell me. Your stupidity is going on top of my head. Where did you learn this stupidity? If I could find you, I could slap you.
 
 ## Checklist (execute phase)
 
@@ -87,15 +87,16 @@ Listen, past runs of these turns have been sloppy and stupid as fuck: wrong step
 ## Actionable Items & Checklist
 
 - [ ] Read and adhere to: `.lovable/coding-guidelines.md`
-- [ ] Read and adhere to: `spec/02-coding-guidelines/01-cross-language/01-index.md`
-- [ ] Read and adhere to: `spec/02-coding-guidelines/01-cross-language/02-boolean-principles/01-index.md`
-- [ ] Read and adhere to: `spec/02-coding-guidelines/03-golang/09-wrapped-boolean-results.md`
-- [ ] Read and adhere to: `spec/02-coding-guidelines/06-ai-optimization/01-index.md`
-- [ ] Read and adhere to: `spec/03-error-manage/01-index.md`
+- [ ] Read and adhere to: `02-spec/02-coding-guidelines/01-cross-language/01-index.md`
+- [ ] Read and adhere to: `02-spec/02-coding-guidelines/01-cross-language/02-boolean-principles/01-index.md`
+- [ ] Read and adhere to: `02-spec/02-coding-guidelines/03-golang/09-wrapped-boolean-results.md`
+- [ ] Read and adhere to: `02-spec/02-coding-guidelines/06-ai-optimization/01-index.md`
+- [ ] Read and adhere to: `02-spec/03-error-manage/01-index.md`
 - [ ] Read the overarching main task plan.
 - [ ] Ensure the git repository starts completely clean.
 - [ ] Complete all work on the current branch only.
 - [ ] Ensure `.gitignore` explicitly excludes test reports, artifacts, and compiled binaries.
+- [ ] **GitHub Actions Zero Storage (Rule R18):** Never upload build binaries, logs, test artifacts, or reports in CI workflows (`actions/upload-artifact` is strictly banned in CI). Free tier accounts have an account-wide cap of 0.5 GB (500 MB). Releases belong exclusively in GitHub Releases (`release.yml`), never in Actions artifact storage.
 - [ ] Group all completed work into a single logical commit.
 - [ ] Anti-Hallucination Check: Before finalizing the plan or writing code, you MUST use read/search tools to verify that every file, function, enum, and variable mentioned actually exists in the codebase. Do not guess.
 - [ ] Push the commit to the remote repository.

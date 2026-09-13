@@ -4,7 +4,6 @@ import (
 	"github.com/alimtvnetwork/gitmap-v28/cli/apperror"
 )
 
-
 // IsSuccess reports whether the slice operation succeeded without error.
 func (r *ResultSlice[T]) IsSuccess() bool {
 	if r == nil {

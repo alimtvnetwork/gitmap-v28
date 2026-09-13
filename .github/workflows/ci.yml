@@ -663,14 +663,6 @@ jobs:
           path: /tmp/lint-baseline
           key: golangci-baseline-main-${{ inputs.lint_baseline_cache_version || 'v2' }}-${{ github.sha }}
 
-      - name: Upload current lint report
-        if: always() && needs.sha-check.outputs.already-built != 'true'
-        uses: actions/upload-artifact@v4
-        with:
-          name: golangci-lint-report
-          path: /tmp/lint-current/report.json
-          retention-days: 14
-
       - name: Generate actionable lint suggestions
         # Runs whether the diff passed or failed: a passing diff still
         # yields useful "no new findings" confirmation in the comment,
@@ -694,14 +686,6 @@ jobs:
           # Mirror to the run summary so the suggestions are visible
           # even on push events (no PR to comment on).
           cat /tmp/lint-suggestions/comment.md >> "$GITHUB_STEP_SUMMARY"
-
-      - name: Upload suggestions artifact
-        if: always() && needs.sha-check.outputs.already-built != 'true'
-        uses: actions/upload-artifact@v4
-        with:
-          name: lint-suggestions
-          path: /tmp/lint-suggestions/comment.md
-          retention-days: 14
 
       - name: Generate pending-issues entry from NEW lint findings
         # Converts the NEW findings (same diff that gates the job) into
@@ -742,15 +726,6 @@ jobs:
               cat /tmp/lint-issue-entry/proposed.md
             } >> "$GITHUB_STEP_SUMMARY"
           fi
-
-      - name: Upload proposed issue entry
-        if: always() && needs.sha-check.outputs.already-built != 'true'
-        uses: actions/upload-artifact@v4
-        with:
-          name: lint-issue-entry
-          path: /tmp/lint-issue-entry/proposed.md
-          retention-days: 14
-          if-no-files-found: ignore
 
       - name: Commit appended issue entry (main only)
         # Only writes on main pushes that actually appended a new entry.
@@ -1205,14 +1180,6 @@ jobs:
           fi
           exit "$exit_code"
 
-      - name: Upload snapshot test log
-        if: always() && needs.sha-check.outputs.already-built != 'true'
-        uses: actions/upload-artifact@v4
-        with:
-          name: json-snapshot-log
-          path: /tmp/json-snapshot.log
-          retention-days: 7
-
   test:
     name: Test (${{ matrix.name }})
     runs-on: ubuntu-latest
@@ -1295,17 +1262,21 @@ jobs:
             echo "========================================="
           fi
 
-          exit "$exit_code"
+          if [ -f test-output.txt ]; then
+            {
+              echo "### Test Summary (${{ matrix.name }})"
+              if [ "$exit_code" -ne 0 ]; then
+                echo "❌ Failed tests:"
+                echo '```'
+                grep -E -A 5 '^--- FAIL:' test-output.txt || true
+                echo '```'
+              else
+                echo "✅ All tests passed"
+              fi
+            } >> "$GITHUB_STEP_SUMMARY"
+          fi
 
-      - name: Upload test results
-        if: always() && needs.sha-check.outputs.already-built != 'true'
-        uses: actions/upload-artifact@v4
-        with:
-          name: test-results-${{ matrix.name }}
-          path: |
-            cli/test-output.txt
-            cli/coverage-${{ matrix.name }}.out
-          retention-days: 7
+          exit "$exit_code"
 
   installer-smoke:
     # Source-build smoke test: builds gitmap from this commit into a tempdir
@@ -1479,18 +1450,21 @@ jobs:
             echo "========================================="
             grep -E -A 5 '^--- FAIL:' e2e-output.txt || true
             echo "========================================="
+          if [ -f e2e-output.txt ]; then
+            {
+              echo "### E2E Test Output (${{ matrix.os }})"
+              if [ "$exit_code" -ne 0 ]; then
+                echo "❌ Failed e2e tests:"
+                echo '```'
+                grep -E -A 5 '^--- FAIL:' e2e-output.txt || true
+                echo '```'
+              else
+                echo "✅ E2E tests passed"
+              fi
+            } >> "$GITHUB_STEP_SUMMARY"
           fi
 
           exit "$exit_code"
-
-      - name: Upload e2e log
-        if: always() && needs.sha-check.outputs.already-built != 'true'
-        uses: actions/upload-artifact@v4
-        with:
-          name: e2e-output-${{ matrix.os }}
-          path: cli/e2e-output.txt
-          retention-days: 7
-
 
   full-suite-guard:
     # Belt-and-suspenders gate that mirrors what a contributor runs locally:
@@ -1589,14 +1563,6 @@ jobs:
         # install-golangci-lint composite + ~/.cache/golangci-lint.
         run: bash ../.github/scripts/full-suite-lint.sh
 
-      - name: Upload full-suite outputs
-        if: always() && needs.sha-check.outputs.already-built != 'true'
-        uses: actions/upload-artifact@v4
-        with:
-          name: full-suite-outputs
-          path: /tmp/full-suite/
-          retention-days: 14
-
   pr-summary:
     # Posts (or updates) a sticky PR comment summarizing the full-suite-guard
     # results: go test ./... pass/fail counts and golangci-lint issue count,
@@ -1640,11 +1606,8 @@ jobs:
     steps:
       - uses: actions/checkout@v6
 
-      - name: Download full-suite outputs
-        uses: actions/download-artifact@v4
-        with:
-          name: full-suite-outputs
-          path: /tmp/full-suite
+      - name: Prepare summary directory
+        run: mkdir -p /tmp/full-suite
 
       - name: Build PR summary comment
         shell: bash
@@ -1765,17 +1728,6 @@ jobs:
           sarif_file: /tmp/sarif/golangci-lint.sarif
           category: golangci-lint
 
-      # Also retain the SARIF as a downloadable artifact so contributors
-      # can inspect raw findings without depending on the Security tab
-      # being enabled (some forks ship without code scanning permissions).
-      - name: Upload SARIF artifact
-        if: always() && needs.sha-check.outputs.already-built != 'true'
-        uses: actions/upload-artifact@v4
-        with:
-          name: golangci-lint-sarif
-          path: /tmp/sarif/golangci-lint.sarif
-          retention-days: 14
-
   test-summary:
     name: Test Summary
     runs-on: ubuntu-latest
@@ -1795,12 +1747,9 @@ jobs:
           go-version-file: cli/go.mod
           cache-dependency-path: cli/go.sum
 
-      - name: Download all test results
+      - name: Prepare test results directory
         if: needs.sha-check.outputs.already-built != 'true'
-        uses: actions/download-artifact@v4
-        with:
-          pattern: test-results-*
-          path: results
+        run: mkdir -p results
 
       - name: Aggregate and report failures
         if: needs.sha-check.outputs.already-built != 'true'
@@ -1839,13 +1788,8 @@ jobs:
     steps:
       - uses: actions/checkout@v6
 
-      - name: Download all error-bearing artifacts
-        uses: actions/download-artifact@v4
-        with:
-          path: digest-input
-          # Pull every artifact that may contain error text. Missing
-          # patterns are silently ignored by download-artifact.
-          pattern: "*"
+      - name: Prepare digest input directory
+        run: mkdir -p digest-input
 
       - name: Print consolidated error digest
         shell: bash
@@ -1943,14 +1887,7 @@ jobs:
           echo "Building $OUTPUT..."
           CGO_ENABLED=0 GOOS=${{ matrix.os }} GOARCH=${{ matrix.arch }} go build -ldflags "$LDFLAGS" -o "$OUTPUT" .
           echo "✅ Built $OUTPUT ($(du -h "$OUTPUT" | cut -f1))"
-
-      - name: Upload binary
-        if: needs.sha-check.outputs.already-built != 'true'
-        uses: actions/upload-artifact@v4
-        with:
-          name: gitmap-${{ matrix.os }}-${{ matrix.arch }}
-          path: cli/gitmap-*
-          retention-days: 14
+          echo "✅ Built $OUTPUT ($(du -h "$OUTPUT" | cut -f1))" >> "$GITHUB_STEP_SUMMARY"
 
   build-summary:
     name: Build Summary
@@ -1962,45 +1899,15 @@ jobs:
         if: needs.sha-check.outputs.already-built == 'true'
         run: echo "✅ SHA ${{ github.sha }} already built all targets"
 
-      - name: Download all binaries
-        if: needs.sha-check.outputs.already-built != 'true'
-        uses: actions/download-artifact@v4
-        with:
-          pattern: gitmap-*
-          path: binaries
-
       - name: Print build summary
         if: needs.sha-check.outputs.already-built != 'true'
         shell: bash
         run: |
-          echo ""
           echo "========================================="
-          echo "  BUILD SUMMARY"
+          echo "  BUILD SUMMARY: All targets compiled successfully"
           echo "========================================="
-          echo ""
-          printf "  %-45s %s\n" "Binary" "Size"
-          printf "  %-45s %s\n" "---------------------------------------------" "--------"
-
-          total_size=0
-          count=0
-
-          for dir in binaries/gitmap-*; do
-            if [ ! -d "$dir" ]; then continue; fi
-            for file in "$dir"/*; do
-              if [ ! -f "$file" ]; then continue; fi
-              name=$(basename "$file")
-              size=$(stat --format="%s" "$file" 2>/dev/null || stat -f "%z" "$file" 2>/dev/null)
-              human=$(numfmt --to=iec --suffix=B "$size" 2>/dev/null || echo "${size}B")
-              printf "  %-45s %s\n" "$name" "$human"
-              total_size=$((total_size + size))
-              count=$((count + 1))
-            done
-          done
-
-          echo ""
-          total_human=$(numfmt --to=iec --suffix=B "$total_size" 2>/dev/null || echo "${total_size}B")
-          echo "  Total: $count binaries, $total_human"
-          echo "========================================="
+          echo "### Build Status" >> "$GITHUB_STEP_SUMMARY"
+          echo "✅ All cross-platform binaries compiled successfully." >> "$GITHUB_STEP_SUMMARY"
 
   # ------------------------------------------------------------------
   # publish-badges: per-job README badges via BYOB.

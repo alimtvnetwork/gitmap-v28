@@ -27,15 +27,23 @@ description: Enforce repository-scoped temporary directory isolation and mandato
    - For repository-internal temporary files, isolate strictly inside `.lovable/temp/` (e.g. `.lovable/temp/failures/`, `.lovable/temp/runner-eta.json`).
    - Root `.tmp/` creation is strictly banned.
 
+4. **GitHub Actions Zero Storage (Total Ban on `actions/upload-artifact` in CI)**:
+   - CI workflows (`ci.yml`, test runners, linter checks) MUST NEVER upload build artifacts, test logs, coverage files, or binaries using `actions/upload-artifact`.
+   - Free-tier accounts have a strict 0.5 GB shared quota across all repositories. Multi-platform matrix builds uploading binaries quickly cause account-wide storage exhaustion, blocking all subsequent workflow runs.
+   - Build binaries in CI solely to verify compilation (`go build`), keeping execution completely ephemeral with zero persistent storage.
+   - Release binaries belong exclusively in GitHub Releases (`release.yml`), which do not consume the Actions workflow artifact storage quota.
+
 ## Implementation Standard
 
-### Go Package (`cli/tempdir/tempdir.go`)
+### Go Package Convention
+
 - Use `tempdir.RepoTempDir(subdirs ...string)` for all OS temp paths.
 - Use `tempdir.BuildTempDir()` for build targets.
 - Use `tempdir.TestTempDir()` for test directories.
 - Always call `tempdir.ClearRepoBuildTempDir()` prior to building.
 
-### Python Scripts (`03-ai-scripts/06-cicd-local-runner.py`, `.github/scripts/`)
+### Python Scripts Convention
+
 - Define `get_repo_os_temp_dir(*subdirs: str) -> Path` targeting `Path(tempfile.gettempdir()) / "gitmap" / ...`.
 - Define `clear_repo_build_temp() -> None` wiping destination binaries and `<temp>/gitmap/build/` before compilation.
 - Direct `GOTMPDIR` to `<temp>/gitmap/build` and `TMPDIR`/`TEMP`/`TMP` to `<temp>/gitmap/test`.

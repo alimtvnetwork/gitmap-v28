@@ -25,11 +25,11 @@ N = total self-loop steps budget that the agents will perform.
 8. [ ] /goal Phase 2 (Step D): Execute targeted file-level linters and verification on modified files ensuring 0 remaining violations (`exit 0`). DO NOT run the full CI/CD pipeline runner (`06-cicd-local-runner.py`) during routine coding guideline execution turns.
 9. [ ] /learn Ingest `.lovable/memory/01-index.md` for project memory index and past learnings.
 10. [ ] /learn Ingest `.lovable/strictly-avoid.md` for banned anti-patterns and strict constraints.
-11. [ ] /learn Ingest `spec/02-coding-guidelines/02-canonical-size-tier.md` for canonical file and function size tiers.
-12. [ ] /learn Ingest `spec/02-coding-guidelines/01-cross-language/01-index.md` for hallucination prevention and micro-tasking.
-13. [ ] /learn Ingest `spec/02-coding-guidelines/01-cross-language/01-index.md` for strict relative path citation requirements.
-14. [ ] /learn Ingest `spec/02-coding-guidelines/08-file-folder-naming/` for lowercase naming and continuous file sequencing.
-15. [ ] /learn Ingest `spec/02-coding-guidelines/01-cross-language/04-code-style/` for domain-specific architectural specifications.
+11. [ ] /learn Ingest `02-spec/02-coding-guidelines/02-canonical-size-tier.md` for canonical file and function size tiers.
+12. [ ] /learn Ingest `02-spec/02-coding-guidelines/01-cross-language/01-index.md` for hallucination prevention and micro-tasking.
+13. [ ] /learn Ingest `02-spec/02-coding-guidelines/01-cross-language/01-index.md` for strict relative path citation requirements.
+14. [ ] /learn Ingest `02-spec/02-coding-guidelines/08-file-folder-naming/` for lowercase naming and continuous file sequencing.
+15. [ ] /learn Ingest `02-spec/02-coding-guidelines/01-cross-language/04-code-style/` for domain-specific architectural specifications.
 16. [ ] /learn Ingest `.lovable/coding-guidelines.md` for master consolidated coding guidelines.
 17. [ ] /goal Create or update agent rules in the repository if missing from agent memory.
 
@@ -144,7 +144,7 @@ func ProcessPayload(data []byte) {
 
 ## Canonical Size Tier Reference
 
-You MUST adhere to the single source of truth defined in `spec/02-coding-guidelines/02-canonical-size-tier.md`:
+You MUST adhere to the single source of truth defined in `02-spec/02-coding-guidelines/02-canonical-size-tier.md`:
 
 | Metric | Limit | Enforcement |
 |---|---|---|
@@ -202,9 +202,10 @@ To guarantee full execution without stopping after planning mode, the master orc
 >    - RCA & Issue Logs: `.lovable/memory/issues/` and `.lovable/cicd-issues/`.
 >    - Execution Plans & Subtasks: `.lovable/plans/pending/`, `.lovable/plans/subtasks/`.
 >    - Coding Guidelines Mirror: `.lovable/coding-guidelines.md`.
-> 3. **Worker Pool & Log Aggregation Architecture:** All local runners and test orchestrators must use a concurrent worker pool (2–3 workers via `ThreadPoolExecutor`), announce enqueued tasks upfront, show real-time progress, handle failures gracefully without cancelling sibling workers, and print a consolidated final summary with full stdout/stderr error logs for failed jobs.
+> 3. **Worker Pool & Log Aggregation Architecture:** All local runners and test orchestrators must use a concurrent worker pool (2–3 workers via `ThreadPoolExecutor`), announce enqueued tasks upfront, show real-time progress, handle failures gracefully without canceling sibling workers, and print a consolidated final summary with full stdout/stderr error logs for failed jobs.
 > 4. **`force` Keyword Support:** If the user wrote `force`, `force rebuild`, or `force create` on top of the prompt or trigger: **ALWAYS recreate/regenerate the Python runner script from scratch**, regardless of whether the file already exists on disk.
 > 5. **No External or Random File Creation:** NEVER write scripts, temporary test scripts, or scratch files to root, `/tmp`, global system paths, or outside the repository boundary.
+> 6. **GitHub Actions Zero Storage (Rule R18):** Never use `actions/upload-artifact` in CI workflows (`ci.yml`, matrix builds, linter runs). Free tier accounts have an account-wide cap of 0.5 GB (500 MB). CI runs must remain completely ephemeral. Releases belong exclusively in GitHub Releases (`release.yml`), never in Actions artifact storage.
 
 ---
 
@@ -235,7 +236,7 @@ To guarantee full execution without stopping after planning mode, the master orc
 - [ ] **Markdown Heading Spacing:** Exactly one blank line before and after headings (no leading blank line on line 1).
 - [ ] **File Size Caps:** All files <= 100 coding lines (recommended <= 80 lines).
 - [ ] **Function Sizing:** All functions <= 8 lines preferred (hard cap 15 lines).
-- [ ] Coding Guidelines & Master Consolidated File: I have fully read, checked, and strictly enforced every file in `spec/02-coding-guidelines/`, as well as the master consolidated coding guideline file at `.lovable/coding-guidelines.md`.
+- [ ] Coding Guidelines & Master Consolidated File: I have fully read, checked, and strictly enforced every file in `02-spec/02-coding-guidelines/`, as well as the master consolidated coding guideline file at `.lovable/coding-guidelines.md`.
 
 1. [ ] /learn and apply as a /goal `.lovable/coding-guidelines.md` and also make sure the agent rules are created in the repo to read in the future quickly.
 
@@ -249,9 +250,10 @@ To guarantee full execution without stopping after planning mode, the master orc
 /goal You MUST verify every item on this checklist before committing any code. If a subagent violated one of these rules, you must reject their work.
 
 - [ ] Strict Relative Git Paths: All file paths, markdown links, citations, and subtask references in plans, specs, and memory logs are strictly relative to the git repository root. Zero absolute paths or `file:///` URIs.
-- [ ] Master Guidelines: I have fully read and strictly enforced `spec/02-coding-guidelines/02-canonical-size-tier.md`, `spec/02-coding-guidelines/08-file-folder-naming/`, and `.lovable/coding-guidelines.md`.
+- [ ] Master Guidelines: I have fully read and strictly enforced `02-spec/02-coding-guidelines/02-canonical-size-tier.md`, `02-spec/02-coding-guidelines/08-file-folder-naming/`, and `.lovable/coding-guidelines.md`.
 - [ ] LF Line Endings & UTF-8 (No BOM): Verified Unix LF and UTF-8 across all files.
 - [ ] Zero Double Blank Lines: Zero `\n\n\n` in code and markdown files.
+- [ ] GitHub Actions Zero Storage (Rule R18): Never use `actions/upload-artifact` in CI workflows; maintain zero Actions storage usage.
 
 1. [ ] /learn the section as a /goal [AI Fix Scripts Memory](#ai-fix-scripts-memory)
 

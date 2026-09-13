@@ -27,3 +27,5 @@
 
 - **Repository Temp Scoping**: When writing to OS/user temporary directories (`os.TempDir()`, `tempfile.gettempdir()`, `$env:TEMP`), all paths MUST be scoped inside a repository-named directory: `<temp_dir>/gitmap/<category>/` (e.g. `build/`, `test/`, `purge/`, `downloads/`). Never place loose files or unstructured directories in the root of OS temp.
 - **Mandatory Pre-Build Cleanup**: Before any build command executes, the build directory MUST be cleared of existing binaries/artifacts. Orphaned binaries must never accumulate, respecting disk storage and guaranteeing clean storage reuse.
+- **GitHub Actions Zero Storage (Rule R18)**: Never upload build binaries, logs, SARIF reports, or test artifacts in CI workflows (`actions/upload-artifact` is strictly banned in CI). Free tier accounts have an account-wide cap of 0.5 GB (500 MB). Releases belong exclusively in GitHub Releases (`release.yml`), never in Actions artifact storage.
+

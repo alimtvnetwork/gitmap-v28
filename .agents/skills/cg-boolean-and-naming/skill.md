@@ -1,6 +1,6 @@
 ---
 name: cg-boolean-and-naming
-description: Autonomously audits, refactors, and validates repository-wide boolean conventions, positive prefixes, implicit checks, enum Type suffixes, and nested if flattening against spec/02-coding-guidelines/.
+description: Autonomously audits, refactors, and validates repository-wide boolean conventions, positive prefixes, implicit checks, enum Type suffixes, and nested if flattening against 02-spec/02-coding-guidelines/.
 ---
 
 # Skill: Coding Guidelines — Booleans, Naming & Enums (`cg-boolean`)
@@ -16,8 +16,10 @@ This skill governs autonomous execution for boolean conventions, semantic naming
 
 2. **Boolean Prefixes (`is`, `has`) & Affirmative Naming:**
    - `is`, `has` as prefix is only acceptable and nothing else acceptable including but not limited to `can`, `should`, `was`, `will`, `did`, `must`, etc.
-   - Every boolean identifier must begin with `is` or `has` (e.g. `isValid`, `hasAccess`).
-   - No negative boolean identifiers (`isNotValid`, `hasNoData` are banned).
+   - No negative boolean identifiers (`isNotValid`, `isUndefined`, `isNotDefined`, `isNotSet`, `hasNoData` are banned).
+   - **Try `IsDefined` instead of negatives:** When verifying presence, definition, or initialization, always use affirmative `isDefined` / `IsDefined` (or `isValid`, `hasValue`, `isReady`, `isFound`). Invert only once at the callsite guard clause (`if !isDefined { ... }`) if handling the missing case.
+   - **Mandatory Replacement for `!isEmpty`:** NEVER use inverted negative empty checks (`!isEmpty`, `!res.IsEmpty()`). Always use affirmative `isDefined` / `res.IsDefined()` when asserting that data or records are present.
+   - **Map Lookups (Canonical):** For map lookups, always use `val, isFound := map[k]` (or `val, isUserExist := map[k]`). Revert any improper usage of `isDefined` for map lookups.
    - **Total Ban on Single-Letter Parameters:** NEVER use single-letter boolean parameters (`v bool`, `b bool`, `val bool`, `flag bool`) in method and function signatures (e.g. setters).
    - **Total Ban on Bare Unprefixed Names:** NEVER use bare verbs, nouns, or adjectives (`stop bool`, `pause bool`, `force bool`, `dryRun bool`, `header bool`).
    - **Mandatory Affirmative Prefixes:** Every boolean parameter, struct field, property, and variable MUST carry an affirmative prefix (`is*` or `has*`):
@@ -29,11 +31,11 @@ This skill governs autonomous execution for boolean conventions, semantic naming
      - `enable` / `enabled` -> `isEnabled`
      - `dryRun` -> `isDryRun`
      - `debug` -> `isDebug`
-     - `verbose` -> `isVerbose`
-     - `header` -> `hasHeader`
-     - `records` -> `hasRecords`
-   - **Total Ban on Awkward `isExists` / `isUserExist`:** "Exists" is a verb. Combining `is` with a verb (`isExists`, `IsExists`, `isUserExist`) is grammatically malformed and strictly banned. Always use `isDefined` (or `IsDefined`) for state or resource presence, and `isFound` for map/cache lookup presence.
-   - **Total Ban on Compound Negative Chains (`!a || !b || c`):** Chaining inverted negative checks (such as `!state.IsDefined || !state.IsEmpty || state.IsRepo`) violates both discrete assertion rules and positive logic standards. In tests, write discrete assertions; in app code, extract an affirmative composite predicate.
+      - `verbose` -> `isVerbose`
+      - `header` -> `hasHeader`
+      - `records` -> `hasRecords`
+    - **Total Ban on Awkward `isExists` / `isUserExist`:** "Exists" is a verb. Combining `is` with a verb (`isExists`, `IsExists`, `isUserExist`) is grammatically malformed and strictly banned. Always use `isDefined` (or `IsDefined`) for state or resource presence, and `isFound` for map/cache lookup presence.
+    - **Total Ban on Compound Negative Chains (`!a || !b || c`):** Chaining inverted negative checks (such as `!state.IsDefined || !state.IsEmpty || state.IsRepo`) violates both discrete assertion rules and positive logic standards. In tests, write discrete assertions; in app code, extract an affirmative composite predicate.
 
 ### Generic Code Patterns (Affirmative Naming)
 
@@ -133,7 +135,11 @@ type Result[T any] struct {
 | Struct Field | `header bool` | `hasHeader bool` | Header presence indicator |
 | Option Parameter | `records bool` | `hasRecords bool` | Records presence requirement |
 | Struct Field | `exists bool` / `isExists bool` | `isDefined bool` | Presence/definition indicator (ban `isExists`) |
-| Map Comma-Ok | `val, ok` / `val, isExists` | `val, isFound` / `val, isDefined` | Map lookup presence boolean |
+| Missing Check | `isUndefined` / `isNotDefined` | `isDefined` (invert with `!isDefined`) | Try IsDefined instead of negatives |
+| Missing Value | `hasNoValue` / `isMissing` | `hasValue` / `isDefined` | Affirmative presence check |
+| Negative State | `isNotValid` / `isInvalid` | `isValid` (invert with `!isValid`) | Check positive validity |
+| Map Comma-Ok | `val, ok` / `val, isExists` | `val, isFound` / `val, isUserExist` | Map lookup presence boolean (revert original name) |
+| Non-Empty / Data Present | `!isEmpty` / `!res.IsEmpty()` | `isDefined` / `res.IsDefined()` | Mandatory: Affirmative IsDefined instead of inverted !isEmpty |
 
 #### Pattern E: `IsDefined` vs `IsExists` & Compound Negative Decomposition (`execute_idempotent_test.go`)
 
@@ -192,7 +198,7 @@ if isCloneTargetFresh {
 - **No Test Execution:** Test execution is disabled unless explicitly commanded by the repository owner.
 - **Atomic Change Tracking:** Append all modified files to `.lovable/temp/recent-file-changes.json` under lock (`python 03-ai-scripts/33-test-inventory-generator.py --record <files...>`), mapping to associated tests in `.lovable/test-inventory.json`.
 - **Linter:** `python linter-scripts/check-enum-and-boolean.py`
-- **Targeted Verification:** Run `python linter-scripts/check-boolean-guidelines.py <files>` and `python 03-ai-scripts/08-naming-autofixer.py <files>`. DO NOT run the full `06-cicd-local-runner.py` during routine fixes.
+- **Local Runner:** `python 03-ai-scripts/06-cicd-local-runner.py --no-tests`
 
 ## Routine Execution Policy
 

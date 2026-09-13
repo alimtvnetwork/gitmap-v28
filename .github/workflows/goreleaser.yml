@@ -48,10 +48,12 @@ jobs:
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
-      - name: Upload snapshot artifacts
+      - name: Report snapshot artifacts
         if: github.event_name == 'workflow_dispatch' && inputs.dry_run
-        uses: actions/upload-artifact@v4
-        with:
-          name: gitmap-snapshot-${{ github.sha }}
-          path: cli/dist/*
-          retention-days: 7
+        run: |
+          echo "### Goreleaser Snapshot Files" >> "$GITHUB_STEP_SUMMARY"
+          if [ -d cli/dist ]; then
+            echo '```' >> "$GITHUB_STEP_SUMMARY"
+            ls -lh cli/dist >> "$GITHUB_STEP_SUMMARY"
+            echo '```' >> "$GITHUB_STEP_SUMMARY"
+          fi

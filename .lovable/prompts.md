@@ -52,17 +52,19 @@ It is referenced from `.lovable/coding-guidelines.md` as a required read before 
 | `12-old-plan-prompts` | [`12-old-plan-prompts/03-plan-steps-by-groups.md`](../01-prompts/12-old-plan-prompts/03-plan-steps-by-groups.md) | Legacy Grouped Task Decomposition — Planning Spec (must follow) |
 | `12-old-plan-prompts` | [`12-old-plan-prompts/04-plan-maximum-enforcement-v5.md`](../01-prompts/12-old-plan-prompts/04-plan-maximum-enforcement-v5.md) | Legacy High-Discipline Planning Protocol (v5) — Planning Spec (must follow) |
 | `12-old-plan-prompts` | [`12-old-plan-prompts/05-plan-spec-steps.md`](../01-prompts/12-old-plan-prompts/05-plan-spec-steps.md) | Legacy Specification Planning Engine — Planning Spec (must follow) |
-| `12-old-plan-prompts` | [`12-old-plan-prompts/06-audit-app-spec-old.md`](../01-prompts/12-old-plan-prompts/06-audit-app-spec-old.md) | Legacy Application Specification Audit — Quality Protocol |
-| `12-old-plan-prompts` | [`12-old-plan-prompts/07-fix-spec-from-audit-old.md`](../01-prompts/12-old-plan-prompts/07-fix-spec-from-audit-old.md) | Legacy Specification Remediation from Audit — Planning Spec |
+| `12-old-plan-prompts` | [`12-old-plan-prompts/06-audit-app-spec-old.md`](../01-prompts/12-old-plan-prompts/06-audit-app-spec-old.md) | Application Specification Blind-AI Audit — Quality Protocol (must follow) |
+| `12-old-plan-prompts` | [`12-old-plan-prompts/07-fix-spec-from-audit-old.md`](../01-prompts/12-old-plan-prompts/07-fix-spec-from-audit-old.md) | Specification Remediation from Audit Findings — Planning Spec (must follow) |
 | `13-plan-audit` | [`13-plan-audit/01-inventory-pending-tasks.md`](../01-prompts/13-plan-audit/01-inventory-pending-tasks.md) | Inventory Audit of Pending Tasks — Read-Only Proposal (must follow) |
 | `13-plan-audit` | [`13-plan-audit/02-plan-spec-steps-v2.md`](../01-prompts/13-plan-audit/02-plan-spec-steps-v2.md) | Specification Decomposition & Subtask Planning (v2) — Planning Spec (must follow) |
 | `13-plan-audit` | [`13-plan-audit/03-audit-app-spec.md`](../01-prompts/13-plan-audit/03-audit-app-spec.md) | Application Specification Blind-AI Audit — Quality Protocol (must follow) |
-| `13-plan-audit` | [`13-plan-audit/04-fix-spec-from-audit.md`](../01-prompts/13-plan-audit/04-fix-spec-from-audit.md) | Specification Remediation from Audit Findings — Planning Spec (must follow) |
+| `13-plan-audit` | [`13-plan-audit/04-fix-spec-from-audit.md`](../01-prompts/13-plan-audit/04-fix-spec-from-audit.md) | Specification Remediation from Audit Findings — Execution Spec (must follow) |
 | `14-execute` | [`14-execute/01-execute-pending-tasks.md`](../01-prompts/14-execute/01-execute-pending-tasks.md) | Pending Tasks Continuous Loop & Multi-Agent Dispatch — Workflow (must follow) |
 | `14-execute` | [`14-execute/02-execute-parent-task-with-n-steps.md`](../01-prompts/14-execute/02-execute-parent-task-with-n-steps.md) | Parent Task N-Step Continuous Loop & Multi-Agent Orchestration — Workflow (must follow) |
 | `14-execute` | [`14-execute/03-execute-batched-loop.md`](../01-prompts/14-execute/03-execute-batched-loop.md) | Batched Loop Execution with 3 Sub-Agents — Workflow (must follow) |
 | `14-execute` | [`14-execute/04-execute-ai-instruction-writer.md`](../01-prompts/14-execute/04-execute-ai-instruction-writer.md) | AI Instruction Writer & Generic Spec Generator — Workflow (must follow) |
 | `14-execute` | [`14-execute/05-execute-batched-loop-wor.md`](../01-prompts/14-execute/05-execute-batched-loop-wor.md) | Batched Loop Execution Without Release (WOR) — Workflow (must follow) |
+| `14-execute` | [`14-execute/06-execute-parent-task-with-n-steps-v2.md`](../01-prompts/14-execute/06-execute-parent-task-with-n-steps-v2.md) | [V2] Parent Task N-Step Continuous Loop & Multi-Agent Orchestration — Workflow (must follow) |
+| `14-execute` | [`14-execute/07-execute-batched-loop-v2.md`](../01-prompts/14-execute/07-execute-batched-loop-v2.md) | [V2] Batched Loop & Execution Wave Orchestration — Workflow (must follow) |
 | `15-cg-execute` | [`15-cg-execute/01-index.md`](../01-prompts/15-cg-execute/01-index.md) | Coding Guideline Execution Suite (`cg-execute`) — Index & Catalog (must follow) |
 | `15-cg-execute` | [`15-cg-execute/02-error-management.md`](../01-prompts/15-cg-execute/02-error-management.md) | Error Management & Architecture — Coding Guideline (must follow) |
 | `15-cg-execute` | [`15-cg-execute/03-nested-if-and-guard-clauses.md`](../01-prompts/15-cg-execute/03-nested-if-and-guard-clauses.md) | Nested If Elimination & Guard Clauses — Coding Guideline (must follow) |
@@ -81,6 +83,8 @@ It is referenced from `.lovable/coding-guidelines.md` as a required read before 
 | `15-cg-execute` | [`15-cg-execute/16-multi-language-enums-and-traits.md`](../01-prompts/15-cg-execute/16-multi-language-enums-and-traits.md) | Multi-Language Enums, Traits & Pattern Matching — Coding Guideline (must follow) |
 | `15-cg-execute` | [`15-cg-execute/17-terminal-ui-and-cli-styling.md`](../01-prompts/15-cg-execute/17-terminal-ui-and-cli-styling.md) | Terminal UI, CLI Styling, Lipgloss & Animations — Coding Guideline (must follow) |
 | `15-cg-execute` | [`15-cg-execute/18-function-argument-reduction-and-params.md`](../01-prompts/15-cg-execute/18-function-argument-reduction-and-params.md) | Argument Reduction, Parameter Structs & Return Architecture — Coding Guideline (must follow) |
+| `15-cg-execute` | [`15-cg-execute/19-result-wrapper-and-apperror-returns.md`](../01-prompts/15-cg-execute/19-result-wrapper-and-apperror-returns.md) | Result Wrapper Types, Collections & AppError Returns — Coding Guideline (must follow) |
+| `15-cg-execute` | [`15-cg-execute/20-extract-generic-types-to-types-go.md`](../01-prompts/15-cg-execute/20-extract-generic-types-to-types-go.md) | Extracting Generic Types, Envelopes & Models to types.go — Coding Guideline (must follow) |
 | `16-ci-cd` | [`16-ci-cd/01-ci-cd-fix.md`](../01-prompts/16-ci-cd/01-ci-cd-fix.md) | CI/CD Fix Loop with 4-Part RCA & Local Runner — Workflow (must follow) |
 | `16-ci-cd` | [`16-ci-cd/02-cicd-run-ps1.md`](../01-prompts/16-ci-cd/02-cicd-run-ps1.md) | PowerShell CI/CD Pipeline & Runner Creation — Workflow (must follow) |
 | `16-ci-cd` | [`16-ci-cd/03-fix-ci-cd-and-run-scripts.md`](../01-prompts/16-ci-cd/03-fix-ci-cd-and-run-scripts.md) | Cross-Platform CI/CD & Run Scripts Fix — Workflow (must follow) |
@@ -102,5 +106,3 @@ It is referenced from `.lovable/coding-guidelines.md` as a required read before 
 
 - Every file under `01-prompts/` is indexed here.
 - Verified by `linter-scripts/check-prompts-loaded.py`.
-| `14-execute` | [`14-execute/06-execute-parent-task-with-n-steps-v2.md`](../01-prompts/14-execute/06-execute-parent-task-with-n-steps-v2.md) | [V2] Parent Task N-Step Continuous Loop & Multi-Agent Orchestration |
-| `14-execute` | [`14-execute/07-execute-batched-loop-v2.md`](../01-prompts/14-execute/07-execute-batched-loop-v2.md) | [V2] Batched Loop & Execution Wave Orchestration |

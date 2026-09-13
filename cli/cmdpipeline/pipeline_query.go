@@ -4,19 +4,53 @@ import (
 	"context"
 	"encoding/json"
 	"fmt"
+	"os"
 	"os/exec"
 	"strconv"
 	"strings"
 	"time"
 
 	"github.com/alimtvnetwork/gitmap-v28/cli/constants"
+	"github.com/alimtvnetwork/gitmap-v28/cli/ghtoken"
 )
 
 func runGHCommandWithCustomTimeout(timeout time.Duration, args ...string) ([]byte, error) {
 	ctx, cancel := context.WithTimeout(context.Background(), timeout)
 	defer cancel()
 
-	return exec.CommandContext(ctx, "gh", args...).CombinedOutput()
+	cmd := exec.CommandContext(ctx, "gh", args...)
+	attachGHTokenEnv(cmd)
+
+	return cmd.CombinedOutput()
+}
+
+func attachGHTokenEnv(cmd *exec.Cmd) {
+	tok, _, err := ghtoken.Resolve()
+	if err != nil || len(tok) == 0 {
+		return
+	}
+
+	cmd.Env = buildSubprocessEnvWithToken(tok)
+}
+
+func buildSubprocessEnvWithToken(tok string) []string {
+	var env []string
+	for _, entry := range os.Environ() {
+		if isGHTokenEnvKey(entry) {
+			continue
+		}
+
+		env = append(env, entry)
+	}
+
+	env = append(env, "GH_TOKEN="+tok)
+	env = append(env, "GITHUB_TOKEN="+tok)
+
+	return env
+}
+
+func isGHTokenEnvKey(entry string) bool {
+	return strings.HasPrefix(entry, "GH_TOKEN=") || strings.HasPrefix(entry, "GITHUB_TOKEN=")
 }
 
 func runGHCommandWithTimeout(args ...string) ([]byte, error) {
@@ -104,6 +138,10 @@ func queryFailedRunLogs(repo string, runId uint64) string {
 		return cached
 	}
 
+	return fetchAndCacheRunLogs(repo, runId)
+}
+
+func fetchAndCacheRunLogs(repo string, runId uint64) string {
 	idStr := strconv.FormatUint(runId, 10)
 	out, err := runGHCommandWithCustomTimeout(60*time.Second, "run", "view", idStr, "--repo", repo, "--log-failed")
 	if err == nil && len(out) > 0 {
@@ -113,11 +151,49 @@ func queryFailedRunLogs(repo string, runId uint64) string {
 		return logStr
 	}
 
+	return handleFailedRunLogsFallback(repo, runId, err, out)
+}
+
+func handleFailedRunLogsFallback(repo string, runId uint64, err error, out []byte) string {
+	fallback := buildFallbackRunLogs(repo, runId)
+	if len(fallback) > 0 {
+		_ = writeCachedPipelineLog(runId, fallback, repo)
+
+		return fallback
+	}
+
 	if err != nil {
 		return formatGHFailedError(err, out)
 	}
 
 	return "Unable to fetch failed logs via gh CLI."
+}
+
+func buildFallbackRunLogs(repo string, runId uint64) string {
+	jobs := queryRunJobs(repo, runId)
+	if len(jobs) == 0 {
+		return ""
+	}
+
+	var sb strings.Builder
+	for _, j := range jobs {
+		appendJobFallbackLogs(&sb, j)
+	}
+
+	return sb.String()
+}
+
+func appendJobFallbackLogs(sb *strings.Builder, j ghJobItem) {
+	if j.Conclusion != "failure" {
+		return
+	}
+
+	for _, s := range j.Steps {
+		if s.Conclusion == "failure" {
+			sb.WriteString(fmt.Sprintf("%s\t%s\tFAIL: Step '%s' (step #%d) failed\n",
+				j.Name, s.Name, s.Name, s.Number))
+		}
+	}
 }
 
 func formatGHFailedError(err error, out []byte) string {

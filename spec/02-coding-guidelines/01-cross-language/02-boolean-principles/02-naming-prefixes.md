@@ -138,7 +138,10 @@ Double negatives (`!isNot...`, `!isNotBlocked`) are the worst form and must neve
 | `isNotBlocked` | `isActive` | The entity is active |
 | `isClassNotLoaded` | `isClassUnregistered` | The class is unregistered |
 | `hasNoPermission` | `isUnauthorized` | The user lacks access |
-| `isNotHonest` | `isDishonest` | Use the inverse naming instead of 'not' |
+| `!isEmpty` / `!res.IsEmpty()` | `isDefined` / `res.IsDefined()` | Mandatory replacement: use affirmative `isDefined` instead of inverted `!isEmpty` |
+| `isUndefined` / `isNotDefined` | `isDefined` / `IsDefined` | Try `IsDefined` instead of negatives; invert with `!isDefined` at guard |
+| `hasNoValue` / `isMissing` | `hasValue` / `isDefined` | Affirmative presence check; invert with `!hasValue` at guard |
+| `isNotValid` | `isValid` | Check positive validity; invert with `!isValid` at guard |
 
 ```typescript
 // ❌ FORBIDDEN — "not" in the variable name

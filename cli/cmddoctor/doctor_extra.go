@@ -8,6 +8,8 @@ import (
 	"os"
 	"path/filepath"
 	"time"
+
+	"github.com/alimtvnetwork/gitmap-v28/cli/ghtoken"
 )
 
 const doctorHTTPTimeoutSecs = 5
@@ -50,20 +52,19 @@ func probeConfigPaths() DoctorCheck {
 	}
 }
 
-// probeGitHubToken checks for GITHUB_TOKEN or GH_TOKEN in the environment.
+// probeGitHubToken checks for GitHub token in system, env, or credentials.
 // Missing token is a warning (ok=true with note) so anonymous flows still pass.
 func probeGitHubToken() DoctorCheck {
 	return DoctorCheck{
 		Name:    "gh-token",
-		FixHint: "export GITHUB_TOKEN=<pat>  # needed for private repos & higher rate limits",
+		FixHint: "set GH_TOKEN or GITHUB_TOKEN, or run `gh auth login`",
 		Run: func() (bool, string) {
-			for _, k := range []string{"GITHUB_TOKEN", "GH_TOKEN"} {
-				if v := os.Getenv(k); v != "" {
-					return true, k + " set (" + maskToken(v) + ")"
-				}
+			tok, src, err := ghtoken.Resolve()
+			if err == nil && len(tok) > 0 {
+				return true, string(src) + " (" + maskToken(tok) + ")"
 			}
 
-			return false, "no GITHUB_TOKEN / GH_TOKEN in environment"
+			return false, "no GitHub token found in system, env, or credentials"
 		},
 	}
 }
@@ -75,7 +76,7 @@ func probeGitHubAPI() DoctorCheck {
 		FixHint: "Check internet / proxy / firewall; GitHub hosts must be reachable",
 		Run: func() (bool, string) {
 			client := &http.Client{Timeout: doctorHTTPTimeoutSecs * time.Second}
-			tok := firstEnv("GITHUB_TOKEN", "GH_TOKEN")
+			tok, _, _ := ghtoken.Resolve()
 			var oks, fails []string
 			for _, ep := range doctorGitHubEndpoints {
 				if ok, msg := probeGitHubEndpoint(client, ep.URL, tok); ok {

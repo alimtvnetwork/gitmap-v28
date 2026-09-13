@@ -438,16 +438,15 @@ jobs:
           [ $fail -eq 0 ] || exit 6
           echo 'OK: smoke-report.csv + smoke-report.json validated (exact match)'
 
-      - name: Upload smoke report
+      - name: Report smoke test results
         if: always()
-        uses: actions/upload-artifact@b4b15b8c7c6ac21ea08fcf65892d2ee8f75cf882 # v4.4.3
-        with:
-          name: cfr-cg-smoke-report-${{ matrix.os }}
-          path: |
-            ${{ runner.temp }}/cfr-cg-smoke/smoke-report.csv
-            ${{ runner.temp }}/cfr-cg-smoke/smoke-report.json
-            ${{ runner.temp }}/cfr-cg-smoke/cfrp-cg.log
-          if-no-files-found: warn
+        run: |
+          echo "### Smoke Report (${{ matrix.os }})" >> "$GITHUB_STEP_SUMMARY"
+          if [ -f "${{ runner.temp }}/cfr-cg-smoke/smoke-report.csv" ]; then
+            echo '```csv' >> "$GITHUB_STEP_SUMMARY"
+            cat "${{ runner.temp }}/cfr-cg-smoke/smoke-report.csv" >> "$GITHUB_STEP_SUMMARY"
+            echo '```' >> "$GITHUB_STEP_SUMMARY"
+          fi
 
   snapshot-smoke-windows:
     name: snapshot build + cfr cg smoke (windows-latest amd64)
@@ -813,13 +812,14 @@ jobs:
           if ($fail -ne 0) { exit 6 }
           Write-Host 'OK: smoke-report.csv + smoke-report.json validated (exact match)'
 
-      - name: Upload smoke report
+      - name: Report smoke test results (Windows)
         if: always()
-        uses: actions/upload-artifact@b4b15b8c7c6ac21ea08fcf65892d2ee8f75cf882 # v4.4.3
-        with:
-          name: cfr-cg-smoke-report-windows
-          path: |
-            ${{ runner.temp }}/cfr-cg-smoke/smoke-report.csv
-            ${{ runner.temp }}/cfr-cg-smoke/smoke-report.json
-            ${{ runner.temp }}/cfr-cg-smoke/cfrp-cg.log
-          if-no-files-found: warn
+        shell: pwsh
+        run: |
+          Add-Content -Path $env:GITHUB_STEP_SUMMARY -Value "### Smoke Report (Windows)"
+          $csv = "${{ runner.temp }}/cfr-cg-smoke/smoke-report.csv"
+          if (Test-Path $csv) {
+            Add-Content -Path $env:GITHUB_STEP_SUMMARY -Value '```csv'
+            Get-Content $csv | Add-Content -Path $env:GITHUB_STEP_SUMMARY
+            Add-Content -Path $env:GITHUB_STEP_SUMMARY -Value '```'
+          }

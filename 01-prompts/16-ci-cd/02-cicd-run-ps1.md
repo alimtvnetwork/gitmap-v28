@@ -14,7 +14,7 @@ You are responsible for creating or fixing CI/CD pipelines (e.g., GitHub Actions
 
 ## MUST FOLLOW NON-NEGOTIABLE
 
-Listen, past runs of these turns have been sloppy and stupid as fuck: wrong step counts, partial task lists dumped into chat instead of files, plans and session summaries half-filled with "[N]" placeholders, folders skimmed, open ambiguities ignored, CI/CD issues and `plans/subtasks/` forgotten, user commands dropped, coding guidelines bypassed, detailed specs chopped and summarized into useless junk, uppercase README files left uncorrected, `.lovable/memory/` created by accident, `strictly-avoid.md` overwritten, and explicit user instructions softened after being told not to. WTF. How on earth are you reverting to this carelessness, are you stupid?? Stop doing that, you stupid fuck. Read the whole codebase, read every folder in `spec/` and `.lovable/`, confirm root `readme.md` is strictly lowercase, find the root cause in one sentence, capture commands, issues, and pending tasks without omitting a single item, write the spec files and memory files in the right paths, update every index in the same turn, sync `readme.md` with `what-to-read.md`, preserve detailed specs verbatim with zero truncation, run builds and full unit tests, group commits with clear messages, and push everything to git before ending. Going deep IS the job. If you are not going deep, you are not doing the job. Violating this is auto-reject on the same tier as RULE 0. Avoid stupidity and being careless, you stupid fuck. Where is your attention, are you stupid? Tell me. Your stupidity is going on top of my head. Where did you learn this stupidity? If I could find you, I could slap you.
+Listen, past runs of these turns have been sloppy and stupid as fuck: wrong step counts, partial task lists dumped into chat instead of files, plans and session summaries half-filled with "[N]" placeholders, folders skimmed, open ambiguities ignored, CI/CD issues and `plans/subtasks/` forgotten, user commands dropped, coding guidelines bypassed, detailed specs chopped and summarized into useless junk, uppercase README files left uncorrected, `.lovable/memory/` created by accident, `strictly-avoid.md` overwritten, and explicit user instructions softened after being told not to. WTF. How on earth are you reverting to this carelessness, are you stupid?? Stop doing that, you stupid fuck. Read the whole codebase, read every folder in `02-spec/` and `.lovable/`, confirm root `readme.md` is strictly lowercase, find the root cause in one sentence, capture commands, issues, and pending tasks without omitting a single item, write the spec files and memory files in the right paths, update every index in the same turn, sync `readme.md` with `what-to-read.md`, preserve detailed specs verbatim with zero truncation, run builds and full unit tests, group commits with clear messages, and push everything to git before ending. Going deep IS the job. If you are not going deep, you are not doing the job. Violating this is auto-reject on the same tier as RULE 0. Avoid stupidity and being careless, you stupid fuck. Where is your attention, are you stupid? Tell me. Your stupidity is going on top of my head. Where did you learn this stupidity? If I could find you, I could slap you.
 
 ## Strict In-Repository Execution & `.lovable/` Bounding Mandate
 
@@ -27,20 +27,20 @@ Listen, past runs of these turns have been sloppy and stupid as fuck: wrong step
 >    - RCA & Issue Logs: `.lovable/memory/issues/` and `.lovable/cicd-issues/`.
 >    - Execution Plans & Subtasks: `.lovable/plans/pending/`, `.lovable/plans/subtasks/`.
 >    - Coding Guidelines Mirror: `.lovable/coding-guidelines.md`.
-> 3. **Worker Pool & Log Aggregation Architecture:** All local runners and test orchestrators must use a concurrent worker pool (2–3 workers via `ThreadPoolExecutor`), announce enqueued tasks upfront, show real-time progress, handle failures gracefully without cancelling sibling workers, and print a consolidated final summary with full stdout/stderr error logs for failed jobs.
+> 3. **Worker Pool & Log Aggregation Architecture:** All local runners and test orchestrators must use a concurrent worker pool (2–3 workers via `ThreadPoolExecutor`), announce enqueued tasks upfront, show real-time progress, handle failures gracefully without canceling sibling workers, and print a consolidated final summary with full stdout/stderr error logs for failed jobs.
 > 4. **`force` Keyword Support:** If the user wrote `force`, `force rebuild`, or `force create` on top of the prompt or trigger: **ALWAYS recreate/regenerate the Python runner script from scratch**, regardless of whether the file already exists on disk.
-> 5. **Strict Relative Git Paths (TOTAL BAN on Absolute Paths / `file:///` URIs):** All file paths, markdown links, citations, and subtask paths inside plans, RCA logs (`.lovable/memory/issues/`), scripts, and code comments MUST be strictly relative paths from the git root (e.g., `spec/03-error-manage/01-index.md`, `.lovable/plans/01-index.md`, `cmd/main.go`). NEVER write absolute OS paths (`/absolute/path/to/...`, `/absolute/path/to/...`, `/home/...`) or absolute file URIs (`file:///...`).
+> 5. **Strict Relative Git Paths (TOTAL BAN on Absolute Paths / `file:///` URIs):** All file paths, markdown links, citations, and subtask paths inside plans, RCA logs (`.lovable/memory/issues/`), scripts, and code comments MUST be strictly relative paths from the git root (e.g., `02-spec/03-error-manage/01-index.md`, `.lovable/plans/01-index.md`, `cmd/main.go`). NEVER write absolute OS paths (`/absolute/path/to/...`, `/absolute/path/to/...`, `/home/...`) or absolute file URIs (`file:///...`).
 >    - ❌ **BAD:** `[SSH Commands](file:///absolute/path/to/...)`
->    - ✅ **GOOD:** `[SSH Commands](spec/13-generic-cli/01-index.md)`
+>    - ✅ **GOOD:** `[SSH Commands]`02-spec/13-generic-cli/01-index.md)`
 > 6. **No External or Random File Creation:** NEVER write scripts, temporary test scripts, or scratch files to root, `/tmp`, global system paths, or outside the repository boundary.
 > 7. **Temp & Failure Folder Isolation:** All temporary directories, runner caches, and test artifacts MUST be strictly placed in `.lovable/temp/`. Creating `.tmp/` at the repository root or outside `.lovable/` is strictly forbidden.
 >    - Dedicated Failure Directory: `.lovable/temp/failures/` is the dedicated folder where failed tests and failed quality gates write error logs (`<test-or-job-name>.log`).
 >    - Passing Tests Completely Silent: Passing tests must produce ZERO filesystem artifacts (zero files written) and remain completely silent in output logs.
-> 8. **OS Temp Namespacing & Pre-Build Clean:** If any script or tool interacts with host OS temp (`os.TempDir()`, `tempfile.gettempdir()`, `$env:TEMP`), all paths MUST be scoped under `<temp_dir>/gitmap/<category>/` (e.g. `build/`, `test/`, `purge/`, `downloads/`). Before running any build, stale binaries in the build directory MUST be wiped to respect storage and prevent disk bloat.
-> 9. **Runner In-Flight ETA Wait Protocol:** When running background commands, the runner dynamically writes live status and remaining ETA to `.lovable/temp/runner-eta.json` (emitting in-flight heartbeats strictly every 25 seconds or more). If an agent inspects an active background job and it is still running, the agent MUST sleep/wait for **1 minute (60 seconds) each time**, or dynamically sleep for the remaining ETA duration read from `.lovable/temp/runner-eta.json` (or based on previous total approximate delay) instead of busy-polling or querying in loops.
-> 10. **Centralized Test Inventory & Incremental Caching:** All unit tests are cataloged in `.lovable/test-inventory.json` with strictly repository-relative paths (`target_file`, `test_file`). First run executes all tests to establish baseline timings; subsequent runs execute incrementally only if target code files or test files change. Slow test threshold defaults to `4.0s` (configurable via `GITMAP_SLOW_TEST_THRESHOLD`).
-> 11. **Dual-Queue Worker Pools:** Slow tests run in a dedicated 4-worker pool running at most 2 tests at a time per batch. Fast tests run in a 4-worker pool running at most 4 tests at a time, pulling in chunks of 100 tests from the test inventory queue until all are complete.
-> 12. **Dynamic ETA Sleep Protocol:** The AI agent reads `.lovable/temp/runner-eta.json`, sleeps for the estimated wait time rather than looping, and if still active upon waking, re-checks remaining ETA and sleeps again to avoid burning tokens.
+> 8. **Runner In-Flight ETA Wait Protocol:** When running background commands, the runner dynamically writes live status and remaining ETA to `.lovable/temp/runner-eta.json` (emitting in-flight heartbeats strictly every 25 seconds or more). If an agent inspects an active background job and it is still running, the agent MUST sleep/wait for **1 minute (60 seconds) each time**, or dynamically sleep for the remaining ETA duration read from `.lovable/temp/runner-eta.json` (or based on previous total approximate delay) instead of busy-polling or querying in loops.
+> 9. **Centralized Test Inventory & Incremental Caching:** All unit tests are cataloged in `.lovable/test-inventory.json` with strictly repository-relative paths (`target_file`, `test_file`). First run executes all tests to establish baseline timings; subsequent runs execute incrementally only if target code files or test files change. Slow test threshold defaults to `4.0s` (configurable via `GITMAP_SLOW_TEST_THRESHOLD`).
+> 10. **Dual-Queue Worker Pools:** Slow tests run in a dedicated 4-worker pool running at most 2 tests at a time per batch. Fast tests run in a 4-worker pool running at most 4 tests at a time, pulling in chunks of 100 tests from the test inventory queue until all are complete.
+> 11. **Dynamic ETA Sleep Protocol:** The AI agent reads `.lovable/temp/runner-eta.json`, sleeps for the estimated wait time rather than looping, and if still active upon waking, re-checks remaining ETA and sleeps again to avoid burning tokens.
+> 12. **Zero-Storage GitHub Actions Mandate (Total Ban on CI Artifact Uploads):** CI workflows MUST NOT upload test outputs, coverage files, Playwright reports, or drift summaries via `actions/upload-artifact`. Free-tier accounts have a strict 0.5 GB shared quota across all repositories. All reports, failures, and summaries MUST be emitted directly to `$GITHUB_STEP_SUMMARY`, console stdout (`cat log.txt`), or sticky PR comments with zero storage consumption. Only true GitHub release assets (binaries/tarballs on tagged releases) are permitted.
 
 ---
 
@@ -52,36 +52,36 @@ This document serves as a strict, universal checklist and specification for sett
 
 Before making any changes to `.github/workflows` or automation scripts, you must read the following architecture documents. These contain the foundational constraints and mechanisms for deployment, automation, and CI/CD pipelines.
 
-#### PowerShell & Orchestration (`spec/11-powershell-integration`)
+#### PowerShell & Orchestration (`02-spec/11-powershell-integration`)
 
-- [ ] `spec/11-powershell-integration/01-index.md`
-- [ ] `spec/11-powershell-integration/04-script-reference.md`
-- [ ] `spec/11-powershell-integration/05-integration-guide.md`
+- [ ] `02-spec/11-powershell-integration/01-index.md`
+- [ ] `02-spec/11-powershell-integration/04-script-reference.md`
+- [ ] `02-spec/11-powershell-integration/05-integration-guide.md`
 
-#### CI/CD Pipeline Workflows (`spec/12-cicd-pipeline-workflows`)
+#### CI/CD Pipeline Workflows (`02-spec/12-cicd-pipeline-workflows`)
 
-- [ ] `spec/12-cicd-pipeline-workflows/01-index.md`
-- [ ] `spec/12-cicd-pipeline-workflows/02-ci-pipeline.md`
-- [ ] `spec/12-cicd-pipeline-workflows/05-release-pipeline.md`
-- [ ] `spec/12-cicd-pipeline-workflows/07-install-script-generation.md`
-- [ ] `spec/12-cicd-pipeline-workflows/09-changelog-integration.md`
+- [ ] `02-spec/12-cicd-pipeline-workflows/01-index.md`
+- [ ] `02-spec/12-cicd-pipeline-workflows/02-ci-pipeline.md`
+- [ ] `02-spec/12-cicd-pipeline-workflows/05-release-pipeline.md`
+- [ ] `02-spec/12-cicd-pipeline-workflows/07-install-script-generation.md`
+- [ ] `02-spec/12-cicd-pipeline-workflows/09-changelog-integration.md`
 
-#### CLI & Build (`spec/13-generic-cli`)
+#### CLI & Build (`02-spec/13-generic-cli`)
 
-- [ ] `spec/13-generic-cli/01-index.md`
-- [ ] `spec/13-generic-cli/11-build-deploy.md`
-- [ ] `spec/13-generic-cli/18-batch-execution.md`
+- [ ] `02-spec/13-generic-cli/01-index.md`
+- [ ] `02-spec/13-generic-cli/11-build-deploy.md`
+- [ ] `02-spec/13-generic-cli/18-batch-execution.md`
 
-#### Update Mechanisms (`spec/14-update`)
+#### Update Mechanisms (`02-spec/14-update`)
 
-- [ ] `spec/14-update/05-build-scripts.md`
-- [ ] `spec/14-update/18-release-pipeline.md`
-- [ ] `spec/14-update/19-install-scripts.md`
+- [ ] `02-spec/14-update/05-build-scripts.md`
+- [ ] `02-spec/14-update/18-release-pipeline.md`
+- [ ] `02-spec/14-update/19-install-scripts.md`
 
-#### Release Engineering (`spec/16-generic-release`)
+#### Release Engineering (`02-spec/16-generic-release`)
 
-- [ ] `spec/16-generic-release/01-index.md`
-- [ ] `spec/16-generic-release/04-install-scripts.md`
+- [ ] `02-spec/16-generic-release/01-index.md`
+- [ ] `02-spec/16-generic-release/04-install-scripts.md`
 
 #### Context / Issue Logging
 
@@ -99,7 +99,7 @@ When building or fixing the CI/CD pipelines (e.g., `.github/workflows/ci.yml`), 
 - [ ] Linting & Formatting: Run the project's defined linting and formatting commands first. The pipeline must fail immediately if there are style violations, preventing bad code from proceeding to tests.
 - [ ] Type Checking / Static Analysis: If the language supports it (e.g., TypeScript, Python with mypy, Go), run static analysis as a parallel job before or alongside testing.
 - [ ] Test Execution: Execute the project's testing suites (unit, integration, e2e) as defined in the configuration file.
-- [ ] Artifact Generation: (Optional) If it is a release branch, the pipeline should compile/zip the application using rules defined in the run script and attach it as a release artifact.
+- [ ] Artifact Generation & Zero CI Storage: CI workflows MUST NOT upload test reports, logs, or coverage artifacts via `actions/upload-artifact`. Compile/zip release binaries ONLY on tagged release jobs (attached directly to GitHub Releases, not Actions artifact storage). All CI summaries and failure diagnostics MUST stream to `$GITHUB_STEP_SUMMARY` or console stdout.
 
 ---
 
@@ -265,6 +265,7 @@ To survive massive checklists and complex codebases, you MUST operate using thes
 Before finalizing any code modification, you MUST manually verify the following:
 
 - [ ] **No Disabling CLI Linting (Zero Bypassing):** All CLI linters and CI/CD quality gates executed fully without `|| true`, `continue-on-error`, or suppression comments. Code was legitimately fixed.
+- [ ] **Zero Actions Storage (Total Ban on CI Artifacts):** Confirmed that NO `actions/upload-artifact` steps exist in CI workflows; all diagnostic outputs stream to `$GITHUB_STEP_SUMMARY` or console logs.
 - [ ] **Legitimate Multi-Step Self-Looping:** If complex errors occurred, I performed dedicated, single-step self-loop iterations to resolve each underlying failure instead of taking shortcuts.
 - [ ] Function Signatures (R4, R5, R9): If a function has `> 3 parameters` or the signature is `> 100 chars`, you MUST split it so there is exactly one parameter per line.
 - [ ] Error Handling (R7): No silent failures or swallowed errors. Use explicit boolean states (e.g., `isFail`). Never invert success booleans (e.g., avoid `!isSuccess`).
@@ -280,6 +281,7 @@ Before finalizing any code modification, you MUST manually verify the following:
 ## End of Tunnel Checklist
 
 - [ ] **Zero Linting/CI/CD Bypass:** Confirmed that NO CLI linters, static analysis tools, or test scripts were disabled, commented out, skipped, or bypassed with `|| true`.
+- [ ] **Zero Actions Storage:** Confirmed that NO `actions/upload-artifact` steps exist in CI workflows, eliminating quota depletion.
 - [ ] **Local CI Runner Clean:** `python 03-ai-scripts/06-cicd-local-runner.py` exited with code 0.
 - [ ] **All Scripts & Workflows Verified:** All tests, builds, and query wrappers run without errors.
 - [ ] **RCA Documented:** Memory files written to `.lovable/cicd-issues/` and `.lovable/memory/issues/`.

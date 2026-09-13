@@ -6,7 +6,6 @@ import (
 	"github.com/alimtvnetwork/gitmap-v28/cli/apperror"
 )
 
-
 // IsSuccess reports whether the result represents a successful operation.
 func (r *Result[T]) IsSuccess() bool {
 	if r == nil {
@@ -190,8 +189,8 @@ func (r *Result[T]) UnwrapOr(defaultVal T) T {
 // Ok constructs a successful Result envelope with Value and Data.
 func Ok[T any](val T) Result[T] {
 	return Result[T]{
-		Value:   val,
-		Data:    val,
+		Value:     val,
+		Data:      val,
 		isDefined: true,
 	}
 }

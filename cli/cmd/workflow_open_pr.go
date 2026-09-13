@@ -7,12 +7,12 @@ import (
 	"encoding/json"
 	"fmt"
 	"net/http"
-	"os"
 	"os/exec"
 	"strings"
 
 	"github.com/alimtvnetwork/gitmap-v28/cli/apperror"
 	"github.com/alimtvnetwork/gitmap-v28/cli/constants"
+	"github.com/alimtvnetwork/gitmap-v28/cli/ghtoken"
 )
 
 func currentRepoOwnerRepo() (string, string, error) {
@@ -64,10 +64,10 @@ func runPR(args []string) error {
 		owner = o
 	}
 
-	token := os.Getenv("GITHUB_TOKEN")
+	token, _, _ := ghtoken.Resolve()
 	url := fmt.Sprintf("https://api.github.com/search/issues?q=is:pr+is:open+user:%s&per_page=50", owner)
 	req, _ := http.NewRequest(http.MethodGet, url, nil)
-	if token != "" {
+	if len(token) > 0 {
 		req.Header.Set("Authorization", "Bearer "+token)
 	}
 

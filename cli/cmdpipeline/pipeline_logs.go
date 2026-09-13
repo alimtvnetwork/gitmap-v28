@@ -265,7 +265,7 @@ func initFailedRunTopLevel(p *PipelineErrorLogsPayload, fr ghRunItem) {
 
 func fetchAndBuildFailedRunItem(repo string, fr ghRunItem) FailedRunItem {
 	rawLogs := queryFailedRunLogs(repo, fr.DatabaseId)
-	jobs := ParseFailedLogLines(rawLogs)
+	jobs := CorrelateRunFailedJobs(repo, fr.DatabaseId, rawLogs)
 	item := buildBaseFailedRunItem(fr, rawLogs)
 	item.FailedJobs = jobs
 
@@ -621,11 +621,33 @@ func renderSingleSectionFailureRow(sec SectionFailure, idx, total int) {
 	fmt.Printf("    %s[%d/%d] %s #%d ➔ Job: %s | Step: %s%s\n",
 		constants.ColorCyan, idx, total, sec.WorkflowName, sec.RunId, sec.JobName, sec.StepName, constants.ColorReset)
 	if len(sec.FailureSummary) > 0 {
-		fmt.Printf("      Error: %s%s%s\n", constants.ColorRed, sec.FailureSummary, constants.ColorReset)
+		fmt.Printf("      Error:   %s%s%s\n", constants.ColorRed, sec.FailureSummary, constants.ColorReset)
 	}
 
+	renderSectionErrorLines(sec.ErrorLines)
+
 	if len(sec.SavedLogFile) > 0 {
-		fmt.Printf("      Log:   %s\n", sec.SavedLogFile)
+		fmt.Printf("      Log:     %s\n", sec.SavedLogFile)
+	}
+}
+
+func renderSectionErrorLines(lines []string) {
+	if len(lines) == 0 {
+		return
+	}
+
+	fmt.Printf("      Details:\n")
+	capped := capErrorLines(lines, 12)
+	for _, l := range capped {
+		fmt.Printf("        %s%s%s\n", constants.ColorYellow, l, constants.ColorReset)
+	}
+
+	printRemainingLineCount(len(lines), len(capped))
+}
+
+func printRemainingLineCount(total, capped int) {
+	if total > capped {
+		fmt.Printf("        %s... (%d more lines in log)%s\n", constants.ColorDim, total-capped, constants.ColorReset)
 	}
 }
 

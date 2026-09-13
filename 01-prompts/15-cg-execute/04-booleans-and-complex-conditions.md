@@ -1,6 +1,6 @@
 # Boolean Principles, Negatives & Complex Conditions — Coding Guideline (must follow)
 
-Trigger Keywords & Aliases: `cg-boolean`, `cg-execute boolean`, `audit boolean`, `fix boolean negatives`, `fix complex conditions`, `affirmative booleans`
+Trigger Keywords & Aliases: `cg-boolean`, `cg-execute boolean`, `audit boolean`, `fix boolean negatives`, `fix complex conditions`, `affirmative booleans`, `boolean-parameter-naming`, `affirmative-boolean-parameters`, `is-stopped`, `fix-v-bool`
 
 > **Prompt Version:** 2.3.0
 > **Synchronization:** Main Meta-Repo & Connected Workspaces
@@ -15,7 +15,7 @@ N = total self-loop steps budget that the agents will perform.
 
 ### Master Task Checklist (Atomic Numbered Steps)
 
-1. [ ] /goal Phase 1 (Step A): Deeply scan the target codebase to inventory all architectural violations and anti-patterns: explicit `== true`/`== false`, negative names (`isNot*`), inverted success (`!isSuccess`), mixed polarity (`&& !`), single-letter boolean parameters (`v bool`, `b bool`), bare un-prefixed boolean identifiers (`stop`, `pause`, `force`, `dryRun`), awkward `isExists` identifiers, and compound negative chains (`!a || !b || c`).
+1. [ ] /goal Phase 1 (Step A): Deeply scan the target codebase using AST and ripgrep to inventory all architectural violations: explicit `== true`/`== false`, negative names (`isNot*`), inverted success (`!isSuccess`), mixed polarity (`&& !`), single-letter boolean parameters (`v bool`, `b bool`), bare un-prefixed boolean identifiers (`stop`, `pause`, `force`, `dryRun`), awkward `isExists` identifiers, and compound negative chains (`!a || !b || c`).
 2. [ ] /goal Phase 1 (Step B): Write the master audit specification in `.lovable/plans/pending/` with an exhaustive Violation Ledger.
 3. [ ] /goal Phase 1 (Step C): Decompose the master plan into granular, atomic subtasks in `.lovable/plans/subtasks/`.
 4. [ ] /goal Phase 1 (Step D): Verify or create the automated quality linter and register in `03-ai-scripts/01-index.md`.
@@ -25,12 +25,12 @@ N = total self-loop steps budget that the agents will perform.
 8. [ ] /goal Phase 2 (Step D): Execute targeted file-level linters and verification on modified files ensuring 0 remaining violations (`exit 0`). DO NOT run the full CI/CD pipeline runner (`06-cicd-local-runner.py`) during routine coding guideline execution turns.
 9. [ ] /learn Ingest `.lovable/memory/01-index.md` for project memory index and past learnings.
 10. [ ] /learn Ingest `.lovable/strictly-avoid.md` for banned anti-patterns and strict constraints.
-11. [ ] /learn Ingest `spec/02-coding-guidelines/02-canonical-size-tier.md` for canonical file and function size tiers.
-12. [ ] /learn Ingest `spec/02-coding-guidelines/01-cross-language/01-index.md` for hallucination prevention and micro-tasking.
-13. [ ] /learn Ingest `spec/02-coding-guidelines/01-cross-language/01-index.md` for strict relative path citation requirements.
-14. [ ] /learn Ingest `spec/02-coding-guidelines/01-cross-language/02-boolean-principles/01-index.md` for implicit positive booleans and anti-negative rules.
-15. [ ] /learn Ingest `spec/02-coding-guidelines/01-cross-language/12-no-negatives.md` for domain-specific architectural specifications.
-16. [ ] /learn Ingest `spec/02-coding-guidelines/` for domain-specific architectural specifications.
+11. [ ] /learn Ingest `02-spec/02-coding-guidelines/02-canonical-size-tier.md` for canonical file and function size tiers.
+12. [ ] /learn Ingest `02-spec/02-coding-guidelines/01-cross-language/01-index.md` for hallucination prevention and micro-tasking.
+13. [ ] /learn Ingest `02-spec/02-coding-guidelines/01-cross-language/01-index.md` for strict relative path citation requirements.
+14. [ ] /learn Ingest `02-spec/02-coding-guidelines/01-cross-language/02-boolean-principles/01-index.md` for implicit positive booleans and anti-negative rules.
+15. [ ] /learn Ingest `02-spec/02-coding-guidelines/01-cross-language/12-no-negatives.md` for domain-specific architectural specifications.
+16. [ ] /learn Ingest `02-spec/02-coding-guidelines/` for domain-specific architectural specifications.
 17. [ ] /learn Ingest `.lovable/coding-guidelines.md` for master consolidated coding guidelines.
 18. [ ] /goal Create or update agent rules in the repository if missing from agent memory.
 
@@ -54,8 +54,9 @@ Boolean logic must be simple, readable, and unambiguous. Complex boolean chains 
    - Positive booleans MUST ALWAYS be evaluated implicitly: `if isReady { ... }`.
    - Inverted checks MUST use standard negation or affirmative negative variables: `if !isReady { ... }` or `if isFail { ... }`.
 
-2. **No Double Negatives or Inverted Success Checks:**
-   - NEVER name variables with negative prefixes like `isNotValid`, `isNotReady`, `disableCache`. Use `isValid`, `isReady`, `enableCache`.
+2. **No Double Negatives or Inverted Success Checks — Try `IsDefined` Instead of Negatives:**
+   - NEVER name variables with negative prefixes like `isNotValid`, `isNotReady`, `isUndefined`, `isNotDefined`, `isNotSet`, `hasNoData`, `disableCache`.
+   - **Try `IsDefined` instead of negatives:** When verifying presence, definition, or initialization, always use affirmative `isDefined` / `IsDefined` (or `isValid`, `hasValue`, `isReady`, `isFound`). Invert only once at the callsite guard clause (`if !isDefined { ... }`) if handling the missing case.
    - NEVER check inverted success (`!response.isSuccess` is FORBIDDEN; use `response.isFail`).
 
 3. **No Mixed Polarity in Single If Conditions:**
@@ -81,10 +82,12 @@ Boolean logic must be simple, readable, and unambiguous. Complex boolean chains 
      - `header` -> `hasHeader`
      - `records` -> `hasRecords`
 
-6. **Total Ban on Awkward `IsExists` / `isExists` (Enforce `IsDefined` / `isDefined`):**
-   - **Grammatical Prohibition:** "Exists" is a verb. Combining `is` + verb `exists` (`isExists`, `isUserExist`) is grammatically broken and awkward.
-   - **Mandatory Standard:** Always use `IsDefined` / `isDefined` for existence/presence of structs, records, files, or states (or `isFound` for map lookups).
-   - Struct fields MUST be named `IsDefined bool` or `isDefined bool` (never `IsExists` or `Exists`).
+6. **Mandatory Standard: Use `IsDefined` Instead of `!isEmpty` (Total Ban on `!isEmpty` / `!IsEmpty()`):**
+   - **The Anti-Pattern:** Developers frequently write `if !isEmpty`, `if !res.IsEmpty()`, or `if !state.IsEmpty` to check whether data exists or records are present. This evaluates a negative condition (`isEmpty`) with negation (`!`), violating Affirmative Boolean Principles and Positive Framing.
+   - **The Mandatory Standard:** ALWAYS use `IsDefined` (or `res.IsDefined()`) instead of using `!isEmpty`.
+   - **Rule:** If checking empty state, use affirmative `if isEmpty` / `if res.IsEmpty()`. If checking non-empty / presence state, ALWAYS use affirmative `if isDefined` / `if res.IsDefined()`. NEVER write `if !isEmpty`!
+   - Struct fields for presence/populated records MUST be named `isDefined bool` or `IsDefined bool` (replacing awkward `isExists bool`).
+   - For map lookups, use `val, isFound := userMap[id]` or `val, isDefined := userMap[id]`.
 
 7. **Total Ban on Compound Negative Chains (`!a || !b || c`):**
    - NEVER chain multiple negated conditions in an `if` expression (e.g. `if !state.IsDefined || !state.IsEmpty || state.IsRepo`). Chained inverted conditions create high cognitive load and hide which specific invariant failed.
@@ -99,6 +102,7 @@ Boolean logic must be simple, readable, and unambiguous. Complex boolean chains 
 // -----------------------------------------------------------------------------
 // ❌ ANTI-PATTERN: Single-letter parameter `v bool` and un-prefixed field
 // -----------------------------------------------------------------------------
+// SetStopOnFail enables early termination after the first failure
 func (p *BatchProgress) SetStopOnFail(v bool) {
     p.mu.Lock()
     defer p.mu.Unlock()
@@ -108,6 +112,7 @@ func (p *BatchProgress) SetStopOnFail(v bool) {
 // -----------------------------------------------------------------------------
 // ✅ REQUIRED: Meaningful, affirmative boolean parameter and property
 // -----------------------------------------------------------------------------
+// SetStopOnFail enables early termination after the first failure
 func (p *BatchProgress) SetStopOnFail(isStopOnFail bool) {
     p.mu.Lock()
     defer p.mu.Unlock()
@@ -201,9 +206,9 @@ type Result[T any] struct {
 | Struct Field | `records bool` | `hasRecords bool` | Data presence flag |
 | Method Parameter | `SetEnabled(v bool)` | `SetEnabled(isEnabled bool)` | Feature toggle parameter |
 | Method Parameter | `SetAsync(flag bool)` | `SetAsync(isAsync bool)` | Asynchronous execution flag |
-| Struct Field | `exists bool` / `isExists bool` | `isDefined bool` | Presence/defined status indicator (ban `isExists`) |
-| Method Name | `Exists() bool` / `IsExists() bool` | `IsDefined() bool` | Presence verification predicate |
-| Map Comma-Ok | `val, ok` / `val, isExists` | `val, isFound` / `val, isDefined` | Map lookup presence boolean |
+| Struct Field | `exists bool` / `isExists bool` | `isDefined bool` | Presence/defined status indicator (replaces `!isEmpty` and `isExists`) |
+| Method Name | `Exists() bool` / `IsExists() bool` | `IsDefined() bool` | Presence verification predicate (replaces `!IsEmpty()`) |
+| Map Comma-Ok | `val, ok` / `val, isExists` | `val, isFound` / `val, isUserExist` | Map lookup presence boolean |
 
 #### Pattern E: Implicit Checks & Discrete Guard Clauses
 
@@ -361,6 +366,47 @@ func dispatchOnExists(params DispatchParams) {
 }
 ```
 
+#### Pattern G: `IsDefined` as Mandatory Replacement for Inverted `!isEmpty`
+
+```go
+// -----------------------------------------------------------------------------
+// ❌ ANTI-PATTERN: Using !isEmpty or !res.IsEmpty() to test for data presence
+// -----------------------------------------------------------------------------
+// Negative check inverted — violates positive framing and affirmative boolean rules
+if !res.IsEmpty() {
+    processPayload(res.Data())
+}
+
+if !users.IsEmpty() {
+    sendNotifications(users)
+}
+
+if !state.IsEmpty {
+    resumeTask()
+}
+
+// -----------------------------------------------------------------------------
+// ✅ REQUIRED: Affirmative IsDefined() / isDefined (Clean, Positive Evaluation)
+// -----------------------------------------------------------------------------
+// Affirmative check: IsDefined means no error AND has records/data
+if res.IsDefined() {
+    processPayload(res.Data())
+}
+
+if users.IsDefined() {
+    sendNotifications(users)
+}
+
+if state.IsDefined {
+    resumeTask()
+}
+
+// ✅ Also permitted: Affirmative isEmpty ONLY when handling the empty/missing case
+if res.IsEmpty() {
+    return appfault.New(appfault.ErrNotFound).WithMessage("no records found")
+}
+```
+
 ---
 
 ## 1. Ruthless Orchestration & Insult Protocol
@@ -383,7 +429,9 @@ Before modifying application code, you MUST thoroughly scan the repository and w
   3. Negative boolean variable declarations (`isNotActive`, `isNotReady`, `disableFeature`).
   4. Mixed polarity condition joins (`&& !`, `|| !`, `and not`).
   5. Functions accepting boolean flag parameters (`process(true)`).
-  6. Functions exceeding 8 lines (hard cap 15 lines) or files exceeding 100 coding lines (recommended <= 80).
+  6. Single-letter boolean parameters in signatures (`v bool`, `b bool`, `val bool`).
+  7. Bare un-prefixed boolean identifiers and fields (`stop bool`, `pause bool`, `force bool`, `dryRun bool`).
+  8. Functions exceeding 8 lines (hard cap 15 lines) or files exceeding 100 coding lines (recommended <= 80).
 - **Where to save it:** Save this master plan into `.lovable/plans/pending/XX-booleans-and-complex-conditions-audit.md` listing every affected file, exact line numbers, and refactoring plans.
 - **Create a Task-Specific Rule Set:** Analyze the specific domain and write 3-5 custom rules inside the spec file.
 - **Subtasks:** Break the plan down into granular subtask files inside `.lovable/plans/subtasks/XX-booleans/` (e.g. `01-implicit-booleans.md`, `02-negative-inversion.md`, `03-split-mixed-polarity.md`).
@@ -394,25 +442,25 @@ Before modifying application code, you MUST thoroughly scan the repository and w
 
 You MUST read, follow, and mechanically verify every single specification file below before and during execution:
 
-- [ ] **`spec/02-coding-guidelines/02-canonical-size-tier.md`**
+- [ ] **`02-spec/02-coding-guidelines/02-canonical-size-tier.md`**
   - **Why:** Universal size limits and boolean complexity rules.
   - **How:** Cognitive complexity <= 10. Functions <= 8 lines preferred (hard cap 15 lines). Files <= 100 lines coding max (recommended <= 80 lines).
-- [ ] **`spec/02-coding-guidelines/06-ai-optimization/01-index.md`**
+- [ ] **`02-spec/02-coding-guidelines/06-ai-optimization/01-index.md`**
   - **Why:** Comprehensive catalog of forbidden vs required generation patterns.
   - **How:** Strictly follow AH-N1 to AH-T2 rules. Zero ghost diffs, zero truncation stubs (`// ...`), zero unverified claims.
-- [ ] **`spec/02-coding-guidelines/06-ai-optimization/06-citation-requirement.md`**
+- [ ] **`02-spec/02-coding-guidelines/06-ai-optimization/06-citation-requirement.md`**
   - **Why:** Grounded rule enforcement and traceability.
   - **How:** Cite authoritative spec files for every code modification made.
-- [ ] **`spec/02-coding-guidelines/01-cross-language/02-boolean-principles/01-index.md`**
+- [ ] **`02-spec/02-coding-guidelines/01-cross-language/02-boolean-principles/01-index.md`**
   - **Why:** Absolute ban on explicit true comparisons and mixed polarity.
   - **How:** Evaluate booleans implicitly (`if isReady`). Never combine positive and negative checks in the same condition.
-- [ ] **`spec/02-coding-guidelines/01-cross-language/12-no-negatives.md`**
+- [ ] **`02-spec/02-coding-guidelines/01-cross-language/12-no-negatives.md`**
   - **Why:** Cognitive clarity through positive framing.
   - **How:** No negative variable names. No `!isSuccess` checks.
-- [ ] **`spec/02-coding-guidelines/01-cross-language/22-variable-naming-conventions.md`**
+- [ ] **`02-spec/02-coding-guidelines/01-cross-language/22-variable-naming-conventions.md`**
   - **Why:** Mandatory affirmative boolean prefixes.
   - **How:** All booleans MUST begin with is and has only (can, should, was, etc. are banned), `was`, `will`, `did`, `must`.
-- [ ] **`spec/02-coding-guidelines/01-cross-language/24-boolean-flag-methods.md`**
+- [ ] **`02-spec/02-coding-guidelines/01-cross-language/24-boolean-flag-methods.md`**
   - **Why:** Prevents cryptic boolean argument calls.
   - **How:** Split boolean flag methods into semantic distinct functions.
 
@@ -428,6 +476,28 @@ Code standards must be mechanically enforced by automated linters. You MUST veri
   2. Negative boolean naming (`isNot`, `hasNo`).
   3. Inverted `!isSuccess` checks.
   4. Mixed polarity chains (`&& !`, `|| !`).
+  5. Single-letter boolean parameters (`v bool`, `b bool`).
+  6. Bare unprefixed boolean parameters/fields (`stop bool`, `pause bool`, `force bool`).
+- [ ] **Automated Scanning Commands (ripgrep):**
+  ```bash
+  # 1. Single-letter boolean parameters in Go functions: e.g. (v bool), (b bool), (val bool)
+  rg --pcre2 "func\s+(?:\([^\)]+\)\s+)?\w+\([^\)]*\b[a-z]\s+bool\b"
+
+  # 2. Bare un-prefixed boolean parameters in Go: e.g. (stop bool), (pause bool), (force bool)
+  rg --pcre2 "func\s+(?:\([^\)]+\)\s+)?\w+\([^\)]*\b(stop|pause|force|verbose|debug|dryRun)\s+bool\b"
+
+  # 3. Bare boolean struct fields in Go: e.g. stop bool, paused bool
+  rg --pcre2 "^\s*(?:stop|pause|paused|force|dryRun|verbose|debug)\s+bool\b"
+
+  # 4. Explicit boolean comparisons:
+  rg --pcre2 "\b(==\s*true|===\s*true|==\s*false|===\s*false)\b"
+
+  # 5. Inverted success checks:
+  rg --pcre2 "!\s*[a-zA-Z0-9_$.->]*\bisSuccess\b"
+
+  # 6. Mixed polarity:
+  rg --pcre2 "(&&\s*!|\|\|\s*!)"
+  ```
 - [ ] **Local Linter Command:** Execute and verify the linter locally:
   ```bash
   python linter-scripts/check-boolean-guidelines.py
@@ -553,7 +623,7 @@ To guarantee full execution without stopping after planning mode, the master orc
 /goal You MUST verify every item on this checklist before committing any code. If a subagent violated one of these rules, you must reject their work.
 
 - [ ] Strict Relative Git Paths: All file paths, markdown links, citations, and subtask references in plans, specs, and memory logs are strictly relative to the git repository root. Zero absolute paths or `file:///` URIs.
-- [ ] Master Guidelines: I have fully read and strictly enforced `spec/02-coding-guidelines/01-cross-language/02-boolean-principles/01-index.md` and `.lovable/coding-guidelines.md`.
+- [ ] Master Guidelines: I have fully read and strictly enforced `02-spec/02-coding-guidelines/01-cross-language/02-boolean-principles/01-index.md` and `.lovable/coding-guidelines.md`.
 - [ ] Implicit Booleans: Positive booleans MUST ALWAYS be evaluated implicitly.
 - [ ] No Negatives: No `!isSuccess`, no `isNot*` variables.
 - [ ] No Mixed Polarity: Zero combined positive and negative checks in a single `if`.
@@ -576,7 +646,7 @@ Before you commit code or end your turn, you MUST mechanically check off these i
 - [ ] Pre-Commit Diff Proof (Disk Reality Check): I have executed `git status --porcelain` and `git diff --stat` and verified that every file I claim to have modified is actually listed as modified in the terminal output before committing.
 - [ ] Zero Truncation / No Placeholder Search: I ran a regex search for `TODO`, `FIXME`, `\[.*\]`, `// ...`, and `/* ... */` in my modified files and confirmed I left zero placeholders or truncated stubs behind. I actually wrote the complete implementation.
 - [ ] Verifiable Tool Execution: I did not fabricate test/linter passes. I executed the actual linter script and test runner via tool calls and captured `exit code 0`.
-- [ ] Spec Citation Grounding: Every refactoring action cites the exact authoritative rule in `spec/` (e.g. `spec/02-coding-guidelines/01-cross-language/01-index.md`).
+- [ ] Spec Citation Grounding: Every refactoring action cites the exact authoritative rule in `02-spec/` (e.g. `02-spec/02-coding-guidelines/01-cross-language/01-index.md`).
 - [ ] Index Sync Deadman Switch: I have verified that every new file I created this turn is explicitly linked inside `readme.md` and enqueued in `.lovable/what-to-read.md`. I did not leave any orphaned files.
 - [ ] Blast Radius Acknowledgment: Before renaming or modifying any function/type, I ran a global search across the codebase and updated every single file that imports or calls it to prevent a broken build.
 
@@ -584,6 +654,8 @@ Before you commit code or end your turn, you MUST mechanically check off these i
 
 ## Strictly Avoid: No Automatic Releases, No Test Running & No Full CI/CD Runner in Routine Turns (Strict Policy)
 
+- **NO SINGLE-LETTER BOOLEAN PARAMETERS:** NEVER name boolean parameters `v bool`, `b bool`, `val bool`, or `flag bool` in function or method signatures (e.g. setters). Always use descriptive, affirmative parameters like `isStopOnFail bool`, `isStopped bool`, `isEnabled bool`, `isDryRun bool`.
+- **NO BARE VERB OR ADJECTIVE BOOLEANS:** NEVER name a boolean variable, struct field, or parameter with a bare verb or adjective like `stop`, `pause`, `force`, or `dryRun`. Transform them to affirmative states like `isStopped`, `isPaused`, `isForced`, `isStopOnFail`, `isDryRun`.
 - **NO RELEASES (Strict Policy):** You MUST NOT bump versions, update changelogs, or cut a release at the end of this task. Commits must remain standard development commits. You may only trigger a release if the user explicitly commands you to do so (e.g., "cut a release" or "bump the version").
 - **NO TEST RUNNING (Strict Policy):** Test execution is strictly disabled. You MUST NOT execute unit tests, integration tests, or test suites unless explicitly commanded by the repository owner.
 - **NO FULL CI/CD RUNNER (Strict Policy):** DO NOT run `python 03-ai-scripts/06-cicd-local-runner.py` during routine coding guideline execution turns. Running the heavy 28-38 gate pipeline across the entire repository wastes massive amounts of time and scans unrelated files. Verify code strictly using targeted file-level linters / autofixers on the specific modified files.
@@ -591,7 +663,7 @@ Before you commit code or end your turn, you MUST mechanically check off these i
 
 ## MUST FOLLOW NON-NEGOTIABLE
 
-Listen, past runs of these turns have been sloppy and stupid as fuck: wrong step counts, partial task lists dumped into chat instead of files, plans and session summaries half-filled with "[N]" placeholders, folders skimmed, open ambiguities ignored, CI/CD issues and `plans/subtasks/` forgotten, user commands dropped, coding guidelines bypassed, detailed specs chopped and summarized into useless junk, uppercase README files left uncorrected, `.lovable/memory/` created by accident, `strictly-avoid.md` overwritten, and explicit user instructions softened after being told not to. WTF. How on earth are you reverting to this carelessness, are you stupid?? Stop doing that, you stupid fuck. Read the whole codebase, read every folder in `spec/` and `.lovable/`, confirm root `readme.md` is strictly lowercase, find the root cause in one sentence, capture commands, issues, and pending tasks without omitting a single item, write the spec files and memory files in the right paths, update every index in the same turn, sync `readme.md` with `what-to-read.md`, preserve detailed specs verbatim with zero truncation, run builds and linters with test execution disabled (--no-tests) unless explicitly commanded by the repository owner, group commits with clear messages, and push everything to git before ending. Going deep IS the job. If you are not going deep, you are not doing the job. Violating this is auto-reject on the same tier as RULE 0. Avoid stupidity and being careless, you stupid fuck. Where is your attention, are you stupid? Tell me. Your stupidity is going on top of my head. Where did you learn this stupidity? If I could find you, I could slap you.
+Listen, past runs of these turns have been sloppy and stupid as fuck: wrong step counts, partial task lists dumped into chat instead of files, plans and session summaries half-filled with "[N]" placeholders, folders skimmed, open ambiguities ignored, CI/CD issues and `plans/subtasks/` forgotten, user commands dropped, coding guidelines bypassed, detailed specs chopped and summarized into useless junk, uppercase README files left uncorrected, `.lovable/memory/` created by accident, `strictly-avoid.md` overwritten, and explicit user instructions softened after being told not to. WTF. How on earth are you reverting to this carelessness, are you stupid?? Stop doing that, you stupid fuck. Read the whole codebase, read every folder in `02-spec/` and `.lovable/`, confirm root `readme.md` is strictly lowercase, find the root cause in one sentence, capture commands, issues, and pending tasks without omitting a single item, write the spec files and memory files in the right paths, update every index in the same turn, sync `readme.md` with `what-to-read.md`, preserve detailed specs verbatim with zero truncation, run builds and linters with test execution disabled (--no-tests) unless explicitly commanded by the repository owner, group commits with clear messages, and push everything to git before ending. Going deep IS the job. If you are not going deep, you are not doing the job. Violating this is auto-reject on the same tier as RULE 0. Avoid stupidity and being careless, you stupid fuck. Where is your attention, are you stupid? Tell me. Your stupidity is going on top of my head. Where did you learn this stupidity? If I could find you, I could slap you.
 
 ---
 

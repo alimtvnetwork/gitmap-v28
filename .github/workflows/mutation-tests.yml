@@ -43,9 +43,14 @@ jobs:
             awk -v s="$score" -v f="$floor" 'BEGIN { if (s+0 < f+0) exit 1 }' || fail=1
           done
           exit $fail
-      - name: Upload logs
+      - name: Stream logs to summary
         if: always()
-        uses: actions/upload-artifact@v4
-        with:
-          name: mutation-logs
-          path: mutation-*.log
+        run: |
+          for log in mutation-*.log; do
+            if [ -f "$log" ]; then
+              echo "### $log" >> "$GITHUB_STEP_SUMMARY"
+              echo '```' >> "$GITHUB_STEP_SUMMARY"
+              cat "$log" >> "$GITHUB_STEP_SUMMARY"
+              echo '```' >> "$GITHUB_STEP_SUMMARY"
+            fi
+          done

@@ -89,7 +89,7 @@ func extractFailingStepsFromJob(j ghJobItem) []FailedJobItem {
 	var items []FailedJobItem
 	for _, s := range j.Steps {
 		if isStepFailing(s) {
-			items = append(items, buildStepFailureItem(j.Name, s.Name))
+			items = append(items, buildStepFailureFromGhStep(j.Name, s))
 		}
 	}
 
@@ -98,6 +98,16 @@ func extractFailingStepsFromJob(j ghJobItem) []FailedJobItem {
 	}
 
 	return items
+}
+
+func buildStepFailureFromGhStep(jobName string, s ghStepItem) FailedJobItem {
+	summary := fmt.Sprintf("Step '%s' (step #%d) failed in job '%s'", s.Name, s.Number, jobName)
+	return FailedJobItem{
+		JobName:        jobName,
+		StepName:       s.Name,
+		FailureSummary: summary,
+		ErrorLines:     []string{fmt.Sprintf("Failure detected in step #%d '%s'", s.Number, s.Name)},
+	}
 }
 
 func buildStepFailureItem(jobName, stepName string) FailedJobItem {

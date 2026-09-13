@@ -18,6 +18,10 @@ var failureMarkers = []string{
 	"FAILED",
 	"FAIL ",
 	"Expected",
+	"AssertionError",
+	"Error [",
+	"Traceback (most recent call last):",
+	"FAILED (failures=",
 	"fatal error:",
 	"syntax error:",
 	"exit status",
@@ -341,6 +345,9 @@ func isMatchingJobStep(p, target FailedJobItem) bool {
 }
 
 func isMatchingJobName(a, b string) bool {
+	if len(a) == 0 || len(b) == 0 {
+		return false
+	}
 	if a == b || strings.EqualFold(a, b) {
 		return true
 	}
@@ -351,6 +358,9 @@ func isMatchingJobName(a, b string) bool {
 }
 
 func isMatchingStepName(a, b string) bool {
+	if len(a) == 0 || len(b) == 0 {
+		return false
+	}
 	if a == b || strings.EqualFold(a, b) {
 		return true
 	}
@@ -441,12 +451,27 @@ func resolveRunCorrelatedJobs(run FailedRunItem) []FailedJobItem {
 		return run.FailedJobs
 	}
 
-	ghJobs := queryRunJobs("", run.RunId)
-	if len(ghJobs) == 0 {
-		return run.FailedJobs
+	rawLogs := run.RawErrors
+	if len(rawLogs) == 0 {
+		if cached, hasCached := readCachedPipelineLog(run.RunId); hasCached {
+			rawLogs = cached
+		}
 	}
 
-	return CorrelateFailedJobs(run.RawErrors, ghJobs)
+	ghJobs := queryRunJobs("", run.RunId)
+	if len(ghJobs) == 0 {
+		return resolveJobFallback(run.FailedJobs, rawLogs)
+	}
+
+	return CorrelateFailedJobs(rawLogs, ghJobs)
+}
+
+func resolveJobFallback(failedJobs []FailedJobItem, rawLogs string) []FailedJobItem {
+	if len(failedJobs) > 0 {
+		return failedJobs
+	}
+
+	return ParseFailedLogLines(rawLogs)
 }
 
 func buildSectionFailureFromRunJob(run FailedRunItem, job FailedJobItem) SectionFailure {
