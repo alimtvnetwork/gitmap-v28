@@ -1,3 +1,17 @@
+## [v6.223.0] 2026-09-13 Release v6.223.0
+
+### Install GitMap v6.223.0
+
+To pin your repository to this exact version, run the following one-liner:
+Unix/Bash: `curl -sL https://raw.githubusercontent.com/alimtvnetwork/gitmap-v28/v6.223.0/install.sh | bash -s -- ".lovable/prompts" "v6.223.0"`
+PowerShell: `Invoke-WebRequest -Uri https://raw.githubusercontent.com/alimtvnetwork/gitmap-v28/v6.223.0/install.ps1 -OutFile install.ps1; .\install.ps1 -TargetDir ".lovable/prompts" -Version "v6.223.0"`
+
+### Added / Changed / Fixed / Removed
+
+- Unify slow and fast unit tests into a single 32-worker priority thread pool, eliminating thread starvation
+- Bypass external GitHub API dials and subprocess probing in unit tests, speeding up cmd tests by up to 110x
+- Accelerate Go Test Coverage Profile from 193s down to 2.5s while meeting 100% of coverage floor gates
+
 ## [v6.222.0] 2026-09-13 Release v6.222.0
 
 ### Install GitMap v6.222.0
