@@ -1,3 +1,20 @@
+## [v6.224.0] 2026-09-13 Release v6.224.0
+
+### Install GitMap v6.224.0
+
+To pin your repository to this exact version, run the following one-liner:
+Unix/Bash: `curl -sL https://raw.githubusercontent.com/alimtvnetwork/gitmap-v28/v6.224.0/install.sh | bash -s -- ".lovable/prompts" "v6.224.0"`
+PowerShell: `Invoke-WebRequest -Uri https://raw.githubusercontent.com/alimtvnetwork/gitmap-v28/v6.224.0/install.ps1 -OutFile install.ps1; .\install.ps1 -TargetDir ".lovable/prompts" -Version "v6.224.0"`
+
+### Added / Changed / Fixed / Removed
+
+- Added dynamic CPU freeness detection to scale test workers dynamically from 16 to 32+ based on CPU idle headroom
+- Enforced wipe-before-write pre-build and pre-test temporary storage cleanup across all build, test, and packaging gates
+- Added ClearRepoTestTempDir, ClearRepoSandboxTempDir, and ClearAllRepoTempDirs to cli/tempdir package
+- Relocated e2e smoke test worker sandboxes to OS test temp with automatic post-run sweeping
+- Automated old CI/CD run pruning (capping at 5 runs) and loose coverage profile cleanup recovering 455+ MB of storage
+- Enabled --allow-serial-runners across concurrent golangci-lint invocations to eliminate race conditions
+
 ## [v6.223.0] 2026-09-13 Release v6.223.0
 
 ### Install GitMap v6.223.0
