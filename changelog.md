@@ -1,3 +1,17 @@
+## [v6.222.0] 2026-09-13 Release v6.222.0
+
+### Install GitMap v6.222.0
+
+To pin your repository to this exact version, run the following one-liner:
+Unix/Bash: `curl -sL https://raw.githubusercontent.com/alimtvnetwork/gitmap-v28/v6.222.0/install.sh | bash -s -- ".lovable/prompts" "v6.222.0"`
+PowerShell: `Invoke-WebRequest -Uri https://raw.githubusercontent.com/alimtvnetwork/gitmap-v28/v6.222.0/install.ps1 -OutFile install.ps1; .\install.ps1 -TargetDir ".lovable/prompts" -Version "v6.222.0"`
+
+### Added / Changed / Fixed / Removed
+
+- Route 'gitmap agy install' to Antigravity Desktop IDE and add 'gitmap agm install' for Antigravity Tools/Manager
+- Add dynamic CPU freeness and memory detection, scaling test worker pools to 32 threads for full CPU saturation
+- Resolve multi-module go.mod paths and pass 100% of all 46 CI/CD quality gates
+
 ## [v6.221.0] 2026-09-12 Release v6.221.0
 
 ### Install GitMap v6.221.0
