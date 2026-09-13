@@ -114,3 +114,15 @@ func installAntigravityDesktopPlatform(opts installOptions) error {
 
 	return executeAndVerifyWindowsInstall(tempInstaller, getAntigravityDesktopWindowsExePath())
 }
+
+func updateDesktopDatabase(desktopDir string) {
+	// No-op on Windows
+}
+
+func resolveAppIconPath(installDir string) string {
+	return ""
+}
+
+func createAntigravityDesktopEntry(binPath, iconPath, desktopFile string) error {
+	return nil
+}

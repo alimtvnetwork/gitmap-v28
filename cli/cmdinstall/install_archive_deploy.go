@@ -7,7 +7,6 @@ import (
 	"path/filepath"
 
 	"github.com/alimtvnetwork/gitmap-v28/cli/apperror"
-	"github.com/alimtvnetwork/gitmap-v28/cli/constants"
 )
 
 func resolveLinuxAppDirs(appName string) (string, string, string) {
@@ -69,7 +68,7 @@ func deployAppDesktopEntry(params ArchiveDeployParams, destAppDir, targetBin, de
 	_ = os.MkdirAll(desktopDir, 0755)
 	destDesktop := filepath.Join(desktopDir, params.Opts.AppName+".desktop")
 	if params.Inspection.DesktopPath != "" {
-		_ = copyFile(params.Inspection.DesktopPath, destDesktop, 0644)
+		_ = copyFile(params.Inspection.DesktopPath, destDesktop)
 		updateDesktopDatabase(desktopDir)
 		return
 	}
@@ -77,8 +76,13 @@ func deployAppDesktopEntry(params ArchiveDeployParams, destAppDir, targetBin, de
 	if icon == "" {
 		icon = resolveAppIconPath(destAppDir)
 	}
-	_ = createAntigravityDesktopEntry(targetBin, icon, destDesktop)
+	_ = createArchiveDesktopEntry(params.Opts.AppName, targetBin, icon, destDesktop)
 	updateDesktopDatabase(desktopDir)
+}
+
+func createArchiveDesktopEntry(appName, binPath, iconPath, desktopFile string) error {
+	content := fmt.Sprintf("[Desktop Entry]\nName=%s\nExec=%s %%U\nIcon=%s\nType=Application\nStartupNotify=true\nCategories=Utility;Development;\n", appName, binPath, iconPath)
+	return os.WriteFile(desktopFile, []byte(content), 0644)
 }
 
 func deployViaInstallScript(params ArchiveDeployParams) error {

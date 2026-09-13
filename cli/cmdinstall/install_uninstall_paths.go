@@ -114,4 +114,3 @@ func uninstallArchiveAppFiles(tool string) {
 		updateDesktopDatabase(filepath.Dir(desktopFile))
 	}
 }
-

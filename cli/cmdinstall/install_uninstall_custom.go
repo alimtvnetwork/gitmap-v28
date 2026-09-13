@@ -58,7 +58,6 @@ func dispatchCustomRemoval(canonical string, purge bool) {
 	}
 }
 
-
 // RunUninstallCustomTool removes files for custom tools and purges DB entries.
 func RunUninstallCustomTool(tool string, purge bool) error {
 	canonical := resolveToolAlias(tool)
