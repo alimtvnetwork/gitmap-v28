@@ -15,63 +15,116 @@ func getAgyCandidatePaths() []string {
 		filepath.Join(home, ".antigravity", "bin", "agy"),
 		filepath.Join(home, ".agy", "bin", "agy"),
 		"/usr/local/bin/agy",
+		"/usr/local/bin/antigravity",
 	}
-	if runtime.GOOS == "windows" {
-		localApp := os.Getenv("LOCALAPPDATA")
-		list = append(list,
-			filepath.Join(localApp, "agy", "bin", "agy.exe"),
-			filepath.Join(home, ".antigravity", "bin", "agy.exe"),
-		)
-	}
-	return list
+	return appendPlatformAgyPaths(list, home)
 }
 
-func uninstallAgyFiles(purge bool) {
+func getWindowsAgyPaths(home, binDir string) []string {
+	return []string{
+		filepath.Join(binDir, "agy.exe"),
+		filepath.Join(binDir, "agy.cmd"),
+		filepath.Join(binDir, "agy.ps1"),
+		filepath.Join(binDir, "antigravity.cmd"),
+		filepath.Join(binDir, "antigravity.ps1"),
+		filepath.Join(home, ".antigravity", "bin", "agy.exe"),
+		binDir,
+	}
+}
+
+func appendPlatformAgyPaths(list []string, home string) []string {
+	if runtime.GOOS != "windows" {
+		return list
+	}
+	binDir := filepath.Join(os.Getenv("LOCALAPPDATA"), "agy", "bin")
+	return append(list, getWindowsAgyPaths(home, binDir)...)
+}
+
+func uninstallAgyFiles(hasPurge bool) {
 	for _, p := range getAgyCandidatePaths() {
 		removeFileIfExists(p)
 	}
-	if !purge {
+	purgeAgyDirectories(hasPurge)
+	_ = PurgeAntigravityDualDatabase()
+}
+
+func purgeAgyDirectories(hasPurge bool) {
+	if !hasPurge {
 		return
 	}
 	home, _ := os.UserHomeDir()
 	removeDirIfExists(filepath.Join(home, ".cache", "antigravity"))
 	removeDirIfExists(filepath.Join(home, ".gemini", "antigravity-cli"))
-	if runtime.GOOS == "windows" {
-		removeDirIfExists(filepath.Join(os.Getenv("LOCALAPPDATA"), "antigravity"))
-		removeDirIfExists(filepath.Join(os.Getenv("LOCALAPPDATA"), "agy"))
+	purgeWindowsAgyDirs(os.Getenv("LOCALAPPDATA"))
+}
+
+func purgeWindowsAgyDirs(localApp string) {
+	if runtime.GOOS != "windows" {
+		return
 	}
+	removeDirIfExists(filepath.Join(localApp, "antigravity"))
+	removeDirIfExists(filepath.Join(localApp, "agy"))
 }
 
 func getAntigravityAppPaths() []string {
 	home, _ := os.UserHomeDir()
-	list := []string{
+	if runtime.GOOS == "windows" {
+		return getWindowsAntigravityAppPaths(os.Getenv("LOCALAPPDATA"), os.Getenv("ProgramFiles"))
+	}
+	if runtime.GOOS == "darwin" {
+		return getDarwinAntigravityAppPaths(home)
+	}
+	return getLinuxAntigravityAppPaths(home)
+}
+
+func getWindowsAntigravityAppPaths(localApp, progFiles string) []string {
+	binDir := filepath.Join(localApp, "agy", "bin")
+	return []string{
+		filepath.Join(localApp, "Programs", "Antigravity"),
+		filepath.Join(localApp, "Programs", "antigravity"),
+		filepath.Join(progFiles, "Antigravity"),
+		filepath.Join(binDir, "antigravity.cmd"),
+		filepath.Join(binDir, "antigravity.ps1"),
+		filepath.Join(binDir, "antigravity.exe"),
+	}
+}
+
+func getLinuxAntigravityAppPaths(home string) []string {
+	return []string{
 		"/opt/antigravity",
 		filepath.Join(home, ".local", "share", "antigravity"),
 		filepath.Join(home, ".local", "bin", "antigravity"),
+		"/usr/local/bin/antigravity",
 		filepath.Join(home, ".local", "share", "applications", "antigravity.desktop"),
+		"/usr/share/applications/antigravity.desktop",
 	}
-	if runtime.GOOS == "windows" {
-		localApp := os.Getenv("LOCALAPPDATA")
-		progFiles := os.Getenv("ProgramFiles")
-		list = append(list,
-			filepath.Join(localApp, "Programs", "Antigravity"),
-			filepath.Join(localApp, "Programs", "antigravity"),
-			filepath.Join(progFiles, "Antigravity"),
-		)
-	}
-	return list
 }
 
-func uninstallAntigravityFiles(purge bool) {
+func getDarwinAntigravityAppPaths(home string) []string {
+	return []string{
+		"/Applications/Antigravity.app",
+		filepath.Join(home, "Applications", "Antigravity.app"),
+		"/usr/local/bin/antigravity",
+		filepath.Join(home, ".local", "bin", "antigravity"),
+	}
+}
+
+func uninstallAntigravityFiles(hasPurge bool) {
 	for _, p := range getAntigravityAppPaths() {
 		removeDirIfExists(p)
 		removeFileIfExists(p)
 	}
-	if runtime.GOOS != "windows" {
-		home, _ := os.UserHomeDir()
-		desktopDir := filepath.Join(home, ".local", "share", "applications")
-		updateDesktopDatabase(desktopDir)
+	refreshLinuxDesktopDatabases()
+	_ = PurgeAntigravityDualDatabase()
+}
+
+func refreshLinuxDesktopDatabases() {
+	if runtime.GOOS != "linux" {
+		return
 	}
+	home, _ := os.UserHomeDir()
+	updateDesktopDatabase(filepath.Join(home, ".local", "share", "applications"))
+	updateDesktopDatabase("/usr/share/applications")
 }
 
 func uninstallScriptsDirectory() {

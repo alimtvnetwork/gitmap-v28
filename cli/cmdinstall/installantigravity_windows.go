@@ -3,13 +3,9 @@
 package cmdinstall
 
 import (
-	"fmt"
 	"os"
 	"os/exec"
 	"path/filepath"
-	"time"
-
-	"github.com/alimtvnetwork/gitmap-v28/cli/tempdir"
 )
 
 func resolveLocalAppDataDir() string {
@@ -71,48 +67,6 @@ func findInstalledAntigravityDesktopPath() (string, bool) {
 	}
 
 	return findAntigravityInPath()
-}
-
-func runAntigravitySilentInstaller(installerPath string) error {
-	cmd := exec.Command(installerPath, "/S")
-
-	return cmd.Run()
-}
-
-func waitForAntigravityExe(exePath string, maxSeconds int) bool {
-	for i := 0; i < maxSeconds; i++ {
-		if _, err := os.Stat(exePath); err == nil {
-			return true
-		}
-
-		time.Sleep(1 * time.Second)
-	}
-
-	return false
-}
-
-func executeAndVerifyWindowsInstall(installerPath, exePath string) error {
-	if err := runAntigravitySilentInstaller(installerPath); err != nil {
-		return err
-	}
-
-	if isCreated := waitForAntigravityExe(exePath, 30); !isCreated {
-		return fmt.Errorf("timeout waiting for Antigravity.exe to install")
-	}
-
-	return nil
-}
-
-func installAntigravityDesktopPlatform(opts installOptions) error {
-	url := getAntigravityDesktopDownloadUrl("windows")
-	tempInstaller := filepath.Join(tempdir.RepoTempDir("downloads"), "Antigravity-x64.exe")
-	defer os.Remove(tempInstaller)
-
-	if err := downloadFileToDest(url, tempInstaller); err != nil {
-		return err
-	}
-
-	return executeAndVerifyWindowsInstall(tempInstaller, getAntigravityDesktopWindowsExePath())
 }
 
 func updateDesktopDatabase(desktopDir string) {

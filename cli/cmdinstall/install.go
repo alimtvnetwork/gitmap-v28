@@ -24,6 +24,14 @@ func bindInstallFlags(fs *flag.FlagSet, opts *installOptions, list *bool) {
 	fs.BoolVar(&opts.Explain, constants.FlagInstallExplain, false, constants.FlagDescInstallExplain)
 	fs.BoolVar(&opts.Tree, "tree", false, "Preview full tool hierarchy of a profile before installing")
 	fs.BoolVar(&opts.Tree, "t", false, "Preview tree")
+	bindInstallAdvancedFlags(fs, opts)
+}
+
+func bindInstallAdvancedFlags(fs *flag.FlagSet, opts *installOptions) {
+	fs.BoolVar(&opts.Force, "force", false, "Force reinstallation even if already present")
+	fs.BoolVar(&opts.Force, "f", false, "Force reinstallation")
+	fs.StringVar(&opts.Prefix, "prefix", "", "Custom installation directory prefix")
+	fs.StringVar(&opts.Prefix, "dir", "", "Custom installation directory")
 }
 
 func parseInstallFlags(args []string) (installOptions, bool) {
@@ -109,6 +117,8 @@ type installOptions struct {
 	Tool    string
 	Manager string
 	Version string
+	Prefix  string
+	Force   bool
 	Verbose bool
 	DryRun  bool
 	Check   bool
