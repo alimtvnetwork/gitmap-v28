@@ -17,6 +17,7 @@ def main():
 
     cmd = [
         "golangci-lint", "run", "./...",
+        "--allow-serial-runners",
         "--timeout=5m",
         "--max-issues-per-linter=0",
         "--max-same-issues=0"

@@ -317,7 +317,7 @@ JOB_BATCHES: list[dict[str, Any]] = [
             "Startup Build-Tags (linux)": {"cmd": ["go", "build", "./startup/..."], "cwd": "cli", "env": {"GOOS": "linux", "GOARCH": "amd64", "CGO_ENABLED": "0"}},
             "Startup Build-Tags (darwin)": {"cmd": ["go", "build", "./startup/..."], "cwd": "cli", "env": {"GOOS": "darwin", "GOARCH": "amd64", "CGO_ENABLED": "0"}},
             "Startup Build-Tags (windows)": {"cmd": ["go", "build", "./startup/..."], "cwd": "cli", "env": {"GOOS": "windows", "GOARCH": "amd64", "CGO_ENABLED": "0"}},
-            "golangci-lint (strict)": {"cmd": ["golangci-lint", "run", "--issues-exit-code=1", "--timeout=10m", "-c", ".golangci.yml", "--path-prefix", "cli", "./..."], "cwd": "cli"},
+            "golangci-lint (strict)": {"cmd": ["golangci-lint", "run", "--allow-serial-runners", "--issues-exit-code=1", "--timeout=10m", "-c", ".golangci.yml", "--path-prefix", "cli", "./..."], "cwd": "cli"},
             "Unused Code Guard (unused)": [sys.executable, ".github/scripts/check-unused-diff.py"],
             "Gosec G115 Guard (overflow)": [sys.executable, ".github/scripts/check-gosec-diff.py"],
             "GoCritic Guard (style)": [sys.executable, ".github/scripts/check-gocritic-diff.py"],

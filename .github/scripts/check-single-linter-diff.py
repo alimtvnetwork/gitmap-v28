@@ -40,6 +40,7 @@ def run_linter(lint_dir, linter, current_out):
     os.makedirs(os.path.dirname(os.path.abspath(current_out)), exist_ok=True)
     cmd = [
         "golangci-lint", "run",
+        "--allow-serial-runners",
         "--no-config",
         "--disable-all",
         f"--enable={linter}",
