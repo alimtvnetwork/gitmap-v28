@@ -46,6 +46,11 @@ func RunInstallAntigravityWithOpts(opts installOptions) error {
 	return runInstallAntigravityWithOpts(opts)
 }
 
+// RunInstallTar installs an archive package on Linux.
+func RunInstallTar(args []string) error {
+	return runInstallTar(args)
+}
+
 // ResolvePowerShellBinaryWithLookPath resolves PowerShell binary with a custom lookPath.
 func ResolvePowerShellBinaryWithLookPath(lookPath func(string) (string, error)) string {
 	return resolvePowerShellBinaryWithLookPath(lookPath)

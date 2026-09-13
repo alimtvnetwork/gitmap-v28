@@ -3,6 +3,7 @@ package cmdinstall
 import (
 	"fmt"
 	"os"
+	"path/filepath"
 
 	"github.com/alimtvnetwork/gitmap-v28/cli/constants"
 	"github.com/alimtvnetwork/gitmap-v28/cli/store"
@@ -20,8 +21,23 @@ func IsCustomStandaloneTool(tool string) bool {
 		constants.ToolScripts:
 		return true
 	default:
-		return false
+		return hasInstalledArchiveFiles(canonical)
 	}
+}
+
+func hasInstalledArchiveFiles(tool string) bool {
+	home, _ := os.UserHomeDir()
+	candidates := []string{
+		filepath.Join(home, ".local", "share", tool),
+		filepath.Join("/opt", tool),
+		filepath.Join(home, ".local", "bin", tool),
+	}
+	for _, p := range candidates {
+		if _, err := os.Stat(p); err == nil {
+			return true
+		}
+	}
+	return false
 }
 
 func dispatchCustomRemoval(canonical string, purge bool) {
@@ -38,8 +54,10 @@ func dispatchCustomRemoval(canonical string, purge bool) {
 		uninstallScriptsDirectory()
 	default:
 		uninstallScriptToolFiles(canonical)
+		uninstallArchiveAppFiles(canonical)
 	}
 }
+
 
 // RunUninstallCustomTool removes files for custom tools and purges DB entries.
 func RunUninstallCustomTool(tool string, purge bool) error {

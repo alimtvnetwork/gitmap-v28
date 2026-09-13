@@ -10,6 +10,7 @@ in
 
 ```bash
 gitmap install <tool|profile> [flags]
+gitmap install tar <archive> [--name <app>]
 gitmap install profile [name] [--tree]
 gitmap in <tool|profile> [flags]
 ```
@@ -18,11 +19,13 @@ gitmap in <tool|profile> [flags]
 
 | Subcommand | Description |
 |------------|-------------|
+| `tar <file>` | Install `.tar`, `.tar.gz`, `.tgz`, `.gz`, or `.zip` archive on Linux with intelligent strategy detection |
 | `profile [name]` | Run an installation profile bundle, or list all profiles |
 | `logs [tool]` | View installer execution and error logs (`--tail N`, `--clear`) |
 | `add <name> [ver]` | Interactively create and register a custom tool installer |
 | `export <tool>` | Export custom installer definitions to YAML/JSON (`--all`) |
 | `import <file>` | Import custom installer configurations |
+
 
 ## Flags
 

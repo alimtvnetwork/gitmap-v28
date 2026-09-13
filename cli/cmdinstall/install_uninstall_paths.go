@@ -101,3 +101,17 @@ func uninstallScriptToolFiles(tool string) {
 		removeFileIfExists(filepath.Join(home, "bin", tool+".exe"))
 	}
 }
+
+func uninstallArchiveAppFiles(tool string) {
+	home, _ := os.UserHomeDir()
+	removeFileIfExists(filepath.Join(home, ".local", "bin", tool))
+	removeFileIfExists(filepath.Join("/usr/local/bin", tool))
+	removeDirIfExists(filepath.Join(home, ".local", "share", tool))
+	removeDirIfExists(filepath.Join("/opt", tool))
+	desktopFile := filepath.Join(home, ".local", "share", "applications", tool+".desktop")
+	removeFileIfExists(desktopFile)
+	if runtime.GOOS != "windows" {
+		updateDesktopDatabase(filepath.Dir(desktopFile))
+	}
+}
+

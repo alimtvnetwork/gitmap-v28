@@ -297,7 +297,7 @@ map as a single object. Every command flows from that idea.
 
 #### 🛠️ Self-managing installation
 
-- `gitmap install` / `uninstall` — install or uninstall Google Antigravity Desktop IDE (`agy`), developer tools, context menus, and packages across Ubuntu and Windows with universal coverage, dynamic cleanup, and AppError stack trace diagnostics.
+- `gitmap install` / `uninstall` — install or uninstall Google Antigravity Desktop IDE (`agy`), developer tools, Linux `.tar`/`.gz`/`.zip` archives (`gitmap install tar <archive>`), context menus, and packages across Ubuntu and Windows with universal coverage, dynamic cleanup, and AppError stack trace diagnostics.
 - `gitmap self-install` / `self-uninstall` manage the binary itself
   on every supported platform.
 - Canonical installers (`cli/scripts/install.ps1` /

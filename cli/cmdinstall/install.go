@@ -57,6 +57,10 @@ func runInstall(args []string) error {
 		return runInstallImport(args[1:])
 	}
 
+	if isInstallTarCommand(args) {
+		return runInstallTar(extractInstallTarArgs(args))
+	}
+
 	checkHelp("install", args)
 	opts, list := parseInstallFlags(args)
 	if list || opts.Tool == "ls" || opts.Tool == "list" {
@@ -94,9 +98,9 @@ func handleMissingInstallTool() error {
 }
 
 func printInstallUsageHints() {
-	fmt.Fprintf(os.Stderr, "Usage:\n  gitmap install <tool|profile> [flags]\n  gitmap in <tool|profile> [flags]\n\n")
-	fmt.Fprintf(os.Stderr, "Options:\n  --list, ls, list       List all available developer tools & profiles\n  profile <name>         Run an installation profile (dev, ubuntu, ai, minimal, base, fullstack...)\n  --tree, -t             Preview full tool tree of a profile before installing\n  --logs, logs           View installation execution logs\n  --help                 Show detailed install help and examples\n\n")
-	fmt.Fprintf(os.Stderr, "Examples:\n  $ gitmap install qtorrent\n  $ gitmap install utorrent\n  $ gitmap export-config qtorrent\n  $ gitmap import-config utorrent\n  $ gitmap install profile dev --tree\n  $ gitmap in dev\n  $ gitmap in logs\n\n")
+	fmt.Fprintf(os.Stderr, "Usage:\n  gitmap install <tool|profile> [flags]\n  gitmap in <tool|profile> [flags]\n  gitmap install tar <archive-file> [flags]\n\n")
+	fmt.Fprintf(os.Stderr, "Options:\n  --list, ls, list       List all available developer tools & profiles\n  tar <file>             Install .tar, .tar.gz, .tgz, .gz, or .zip archive on Linux\n  profile <name>         Run an installation profile (dev, ubuntu, ai, minimal, base, fullstack...)\n  --tree, -t             Preview full tool tree of a profile before installing\n  --logs, logs           View installation execution logs\n  --help                 Show detailed install help and examples\n\n")
+	fmt.Fprintf(os.Stderr, "Examples:\n  $ gitmap install tar ./myapp.tar.gz\n  $ gitmap install tar ./package.zip --name mytool\n  $ gitmap install qtorrent\n  $ gitmap install profile dev --tree\n  $ gitmap in logs\n\n")
 }
 
 // installOptions holds parsed install flags.
@@ -112,15 +116,52 @@ type installOptions struct {
 	Tree    bool
 }
 
+func isInstallTarCommand(args []string) bool {
+	if len(args) == 0 {
+		return false
+	}
+
+	low := strings.ToLower(args[0])
+
+	return low == "tar" || low == "archive" || isArchiveExtension(args[0])
+}
+
+func extractInstallTarArgs(args []string) []string {
+	if len(args) == 0 {
+		return args
+	}
+
+	low := strings.ToLower(args[0])
+	if low == "tar" || low == "archive" {
+		return args[1:]
+	}
+
+	return args
+}
+
 func isKnownInstallTool(tool string) bool {
 	canonical := resolveToolAlias(tool)
 	if isCleanCodeAlias(canonical) || isBuildEssentialAlias(canonical) || IsInstallProfile(canonical) {
 		return true
 	}
 
+	if IsCustomStandaloneTool(canonical) || isToolInDatabase(canonical, tool) {
+		return true
+	}
+
 	_, exists := constants.InstallToolDescriptions[canonical]
 
 	return exists
+}
+
+func isToolInDatabase(canonical, tool string) bool {
+	splitDB, err := store.OpenInstallationSplitDB()
+	if err != nil {
+		return false
+	}
+	defer splitDB.Close()
+
+	return splitDB.IsToolInstalled(canonical) || splitDB.IsToolInstalled(tool)
 }
 
 func isInstallProfileCommand(args []string) bool {
