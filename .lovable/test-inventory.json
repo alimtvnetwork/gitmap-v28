@@ -1,11 +1,11 @@
 {
   "version": 1,
-  "updated_at": "2026-09-13T12:08:21Z",
+  "updated_at": "2026-09-13T12:51:03Z",
   "total_tests": 3225,
   "summary": {
     "total": 3225,
     "cached": 2832,
-    "dirty": 393,
+    "dirty": 0,
     "packages": 145,
     "slow_tests": 84,
     "fast_tests": 3141,
@@ -23162,12 +23162,12 @@
       "test_hash": "dbf029f71e6dae5d",
       "target_file": "cli/constants/constants.go",
       "target_func": "TopLevelCmdRegistryMatchesAST",
-      "code_hash": "f24d6aa001234510",
-      "duration_sec": 0.02,
+      "code_hash": "d2625941bc603f6d",
+      "duration_sec": 0.03,
       "tier": "fast",
       "is_slow": false,
       "last_status": "passed",
-      "last_run_at": "2026-09-13T11:58:52",
+      "last_run_at": "2026-09-13T12:51:05",
       "needs_run": false
     },
     "cli/constants.TestNoUnmarkedTopLevelCmdBlocks": {
@@ -23178,12 +23178,12 @@
       "test_hash": "dbf029f71e6dae5d",
       "target_file": "cli/constants/constants.go",
       "target_func": "NoUnmarkedTopLevelCmdBlocks",
-      "code_hash": "f24d6aa001234510",
-      "duration_sec": 0.02,
+      "code_hash": "d2625941bc603f6d",
+      "duration_sec": 0.03,
       "tier": "fast",
       "is_slow": false,
       "last_status": "passed",
-      "last_run_at": "2026-09-13T11:58:52",
+      "last_run_at": "2026-09-13T12:51:05",
       "needs_run": false
     },
     "cli/constants.TestTopLevelCmdConstantsAreUnique": {
@@ -23194,12 +23194,12 @@
       "test_hash": "030e8ec6f9057950",
       "target_file": "cli/constants/constants.go",
       "target_func": "TopLevelCmdConstantsAreUnique",
-      "code_hash": "f24d6aa001234510",
+      "code_hash": "d2625941bc603f6d",
       "duration_sec": 0.0,
       "tier": "fast",
       "is_slow": false,
       "last_status": "passed",
-      "last_run_at": "2026-09-13T11:58:52",
+      "last_run_at": "2026-09-13T12:51:05",
       "needs_run": false
     },
     "cli/constants.TestTopLevelCmdAliasesAreUnique": {
@@ -23210,12 +23210,12 @@
       "test_hash": "030e8ec6f9057950",
       "target_file": "cli/constants/constants.go",
       "target_func": "TopLevelCmdAliasesAreUnique",
-      "code_hash": "f24d6aa001234510",
+      "code_hash": "d2625941bc603f6d",
       "duration_sec": 0.0,
       "tier": "fast",
       "is_slow": false,
       "last_status": "passed",
-      "last_run_at": "2026-09-13T11:58:52",
+      "last_run_at": "2026-09-13T12:51:05",
       "needs_run": false
     },
     "cli/constants.TestCanonicalCSVColumn": {

@@ -10,6 +10,7 @@ from pathlib import Path
 import re
 import subprocess
 import sys
+import time
 
 
 def run_cmd(cmd: str) -> str:
@@ -168,12 +169,24 @@ def stage_and_commit_release(new_version: str, scope: str, rn_path: str) -> None
         run_cmd(f'git commit -m "release: v{new_version} {scope}"')
 
 
+def push_with_retry(cmd: str, max_retries: int = 3) -> None:
+    for attempt in range(1, max_retries + 1):
+        try:
+            run_cmd(cmd)
+            return
+        except subprocess.CalledProcessError as exc:
+            if attempt == max_retries:
+                raise
+            print(f"[WARN] Push failed on attempt {attempt}/{max_retries} ({exc}), retrying in 2s...")
+            time.sleep(2)
+
+
 def push_release_artifacts(release_branch: str, tag_name: str, original_branch: str) -> None:
     remotes = run_cmd("git remote")
     if "origin" in remotes.split():
-        run_cmd(f"git push origin {original_branch}")
-        run_cmd(f"git push origin {release_branch}")
-        run_cmd(f"git push origin {tag_name}")
+        push_with_retry(f"git push origin {original_branch}")
+        push_with_retry(f"git push origin {release_branch}")
+        push_with_retry(f"git push origin {tag_name}")
 
 
 def create_release_branch_and_tag(new_version: str) -> tuple[str, str]:
