@@ -1,10 +1,11 @@
 # What to Read
 
 > Canonical map of what the AI must read before working on this project.
-> Last updated: 2026-09-13T16:05:00Z
+> Last updated: 2026-09-13T16:15:00Z
 
 ## Changelog
 
+- 2026-09-13T16:15:00Z, Memory write: Fast cached exploration via 17-fast-file-reader.py, mandatory 30-commit git history audit, recent 20-task register in plans/01-index.md, and prompt 2.2.0 standards.
 - 2026-09-13T16:05:00Z, Memory write: Fixed installer dry-run and smoke test paths (migrated legacy gitmap/ to cli/), added local filesystem fallbacks in install scripts, bumped minor version to v6.227.0, and cut release.
 - 2026-09-09T05:07:00Z, Memory write: Interactive macro builder PWD header, in-builder ls/find/search/replace helpers, offline mock installer server, and parallel runner multi-agent section concurrency.
 - 2026-09-05T01:46:30Z, Memory write: Macro execution failure RCA, open command cross-platform shim requirement, and Chrome profile reconcile sync.
@@ -23,10 +24,12 @@
 - `.lovable/memory/learned/05-chrome-profile-picker-registration-and-concurrency.md`, why: Chrome profile picker visibility contracts, Local State 13-attribute schema, Preferences sanitization, and reconcile engine
 - `.lovable/memory/learned/06-macro-step-execution-and-shell-open.md`, why: macro execution engine, Windows 'open' failure analysis, and cross-platform command shims
 - `.lovable/memory/learned/10-interactive-macro-builder-pwd-ls-commands.md`, why: interactive macro builder PWD header display, in-builder ls/find/search/replace helpers, and offline mock release testing architecture
+- `.lovable/memory/learned/24-installer-paths-seed-urls-and-v6-227-0-release.md`, why: elimination of legacy gitmap/ paths, installer seed fallbacks, and release dryrun contracts
+- `.lovable/memory/learned/25-fast-file-reader-and-30-commit-audit-workflow.md`, why: fast cached exploration via 17-fast-file-reader.py, mandatory 30-commit audit, and prompt 2.2.0 standards
 - `03-ai-scripts/01-index.md`, why: local automation tools and CI/CD parallel runner specifications
 - `.lovable/memory/standards/version-source-of-truth.md`, why: mandatory standard for version.json single source of truth, 'inherit' keyword for sub-packages, and release sync workflow
 - `.lovable/coding-guidelines.md`, why: baseline rules and coding standards
-- `.lovable/plans/01-index.md`, why: active roadmap and pending tasks
+- `.lovable/plans/01-index.md`, why: active roadmap, pending tasks, and the Recent Completed Tasks Register (last 20 tasks)
 - `.lovable/strictly-avoid.md`, why: hard constraints and anti-patterns
 - `.lovable/ambiguous-questions/01-new-ambiguity/`, why: open questions
 

@@ -19,6 +19,10 @@ Persist what happened this turn so the next AI knows everything without guessing
 8. Strict Lowercase File Naming: All files, scripts, documentation, and system files MUST use strictly lowercase naming.
 9. Root `readme.md` and `.lovable/what-to-read.md` stay in sync. Same file list, same order.
 10. Nothing executes this turn beyond writing to `.lovable/`, root `readme.md` lowercase fixing, and `mv`. No application source code changes.
+11. Fast Cached Exploration: Use `python 03-ai-scripts/17-fast-file-reader.py --list-folder <dir>` (<15ms via `tmp/cache/`) rather than slow raw recursive shell commands.
+12. Mandatory 30-Commit Git History Audit: Execute `git log -n 30 --oneline` before authoring memory to analyze recent changes, directives, and bug fixes.
+13. Recent 20-Task Tracking: Maintain the `Recent Completed Tasks Register` in `.lovable/plans/01-index.md` and reference in `what-to-read.md`.
+14. No Em Dashes: Completion confirmation block and responses must avoid Unicode em dashes; use standard hyphens or colons instead.
 
 ## Memory Routing Protocol
 

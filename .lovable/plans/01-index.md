@@ -6,6 +6,29 @@ Master directory of architectural and execution plans.
 
 *None*
 
+## Recent Completed Tasks Register (Last 20 Tasks)
+
+1. [Plan 130: 130-nuclear-package-modularization-phase7.md](completed/130-nuclear-package-modularization-phase7.md): Domain package extraction (cmdinstaller, cmdsetup, cmdchrome, cmdinstall)
+2. [Plan 131: 131-nuclear-package-modularization-phase8.md](completed/131-nuclear-package-modularization-phase8.md): Domain package extraction (cmdclone, cmdpull, cmdupdate)
+3. [Plan 132: 132-nuclear-package-modularization-phase9.md](completed/132-nuclear-package-modularization-phase9.md): Monolith subpackage decomposition and DAG decoupling
+4. [Plan 133: 133-nuclear-package-modularization-phase10.md](completed/133-nuclear-package-modularization-phase10.md): Final modularization phase, heavy test segregation
+5. [Plan 134: 134-pipeline-compact-error-logs.md](completed/134-pipeline-compact-error-logs.md): Pipeline compact error logs default filtering and verbose flags
+6. [Plan 135: 135-repo-scoped-temp-storage-and-prebuild-clean.md](completed/135-repo-scoped-temp-storage-and-prebuild-clean.md): Repository-scoped temporary storage and mandatory pre-build cleanup
+7. [Plan 136: 136-pipeline-repo-db-compact-and-detailed-logs.md](completed/136-pipeline-repo-db-compact-and-detailed-logs.md): Split pipeline database logging and detailed execution history
+8. [Plan 137: 137-repo-scoped-temp-storage-and-prebuild-clean-audit.md](completed/137-repo-scoped-temp-storage-and-prebuild-clean-audit.md): Verification and audit of repository-scoped temp hygiene
+9. [Plan 138: 138-result-wrapper-types-and-apperror-returns.md](completed/138-result-wrapper-types-and-apperror-returns.md): Result wrapper types and AppError structured error returns
+10. [Plan 139: 139-nested-if-elimination-and-guard-clauses.md](completed/139-nested-if-elimination-and-guard-clauses.md): Elimination of nested ifs and guard clause enforcement
+11. [Plan 140: 140-constants-and-enums-architecture.md](completed/140-constants-and-enums-architecture.md): Enums architecture and Type suffix standardization
+12. [Plan 141: 141-result-wrapper-and-slice-returns.md](completed/141-result-wrapper-and-slice-returns.md): ResultSlice wrapper types for Go functions returning slice tuples
+13. [Plan 142: 142-boolean-principles-negatives-and-complex-conditions.md](completed/142-boolean-principles-negatives-and-complex-conditions.md): Boolean conventions, positive prefixes, and condition extraction
+14. [Plan 143: 143-argument-reduction-and-parameter-structs.md](completed/143-argument-reduction-and-parameter-structs.md): Function argument reduction and parameter struct encapsulation
+15. [Plan 144: 144-result-wrapper-null-safety-and-single-return-audit.md](completed/144-result-wrapper-null-safety-and-single-return-audit.md): Null-safety predicates and single return envelope audit
+16. [Plan 145: 145-result-wrapper-and-types-go-centralization-audit.md](completed/145-result-wrapper-and-types-go-centralization-audit.md): Centralization of reusable Result aliases in types.go
+17. [Plan 146: 146-db-cluster-result-wrapper-and-types-go.md](completed/146-db-cluster-result-wrapper-and-types-go.md): DB cluster and SSH migration to Result wrappers
+18. [Plan 147: 147-argument-reduction-and-parameter-structs.md](completed/147-argument-reduction-and-parameter-structs.md): Parameter structs across cluster, clone, and visibility modules
+19. [Plan 148: 148-types-go-extraction-and-generic-result-centralization.md](completed/148-types-go-extraction-and-generic-result-centralization.md): Package types.go centralization and E2E install test segregation
+20. [Plan 149: 149-installer-urls-dryrun-path-and-v6-227-0-release.md](completed/149-installer-urls-dryrun-path-and-v6-227-0-release.md): Installer seed data URLs, release dryrun path fix, and v6.227.0 release
+
 ## Completed Plans
 
 - [01-coding-guidelines-and-style-audits.md](completed/01-coding-guidelines-and-style-audits.md): 01-coding-guidelines-and-style-audits
