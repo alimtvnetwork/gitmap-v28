@@ -9,6 +9,8 @@ import (
 	"sort"
 	"strconv"
 	"strings"
+
+	"github.com/alimtvnetwork/gitmap-v28/cli/lazyregex"
 )
 
 type lowercaseOptions struct {
@@ -303,7 +305,7 @@ func resolveNormPath(dir string) (string, error) {
 
 func parseSeqFiles(entries []os.DirEntry, absDir string) []*seqFile {
 	var parsedFiles []*seqFile
-	re := regexp.MustCompile(`^(\d+)[-_](.*)$`)
+	re := lazyregex.NumberPrefixRegex.Compiled()
 	for _, entry := range entries {
 		if sf := buildSeqFile(entry, absDir, re); sf != nil {
 			parsedFiles = append(parsedFiles, sf)

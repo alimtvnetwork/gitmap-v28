@@ -399,3 +399,55 @@ func TestLazyRegexp_CheckExistingCompiledFirst(t *testing.T) {
 		t.Errorf("expected role: admin after Put")
 	}
 }
+
+func TestCommonRegexesAndHarvestedConstants(t *testing.T) {
+	// Verify core general-purpose regexes
+	if !WhitespaceFinderRegex.IsMatch("hello world") {
+		t.Errorf("expected WhitespaceFinderRegex to match space")
+	}
+	if !SemverRegex.IsMatch("v1.2.3") {
+		t.Errorf("expected SemverRegex to match semver")
+	}
+	if !UUIDRegex.IsMatch("123e4567-e89b-12d3-a456-426614174000") {
+		t.Errorf("expected UUIDRegex to match general UUID")
+	}
+	if !UUID4Regex.IsMatch("123e4567-e89b-42d3-a456-426614174000") {
+		t.Errorf("expected UUID4Regex to match v4 UUID")
+	}
+
+	// Verify gitmap common regexes
+	if !NumberPrefixRegex.IsMatch("01-task-name") {
+		t.Errorf("expected NumberPrefixRegex to match '01-task-name'")
+	}
+	m := NumberPrefixRegex.FindStringSubmatch("02_my_spec.md")
+	if len(m) < 3 {
+		t.Fatalf("expected submatches for NumberPrefixRegex, got %v", m)
+	}
+	if m[1] != "02" || m[2] != "my_spec.md" {
+		t.Errorf("unexpected matches: %v", m)
+	}
+
+	if !SlugSanitizeRegex.IsMatch("my project@v1!") {
+		t.Errorf("expected SlugSanitizeRegex to match non-slug characters")
+	}
+	cleaned := SlugSanitizeRegex.ReplaceAllString("my project@v1!", "-")
+	if cleaned != "my-project-v1-" {
+		t.Errorf("unexpected sanitized string: %s", cleaned)
+	}
+
+	if !RepoVersionSuffixRegex.IsMatch("gitmap-v28") {
+		t.Errorf("expected RepoVersionSuffixRegex to match 'gitmap-v28'")
+	}
+
+	if !AnsiEscapeRegex.IsMatch("\x1b[31mRed Text\x1b[0m") {
+		t.Errorf("expected AnsiEscapeRegex to match ANSI escape codes")
+	}
+
+	if !FileUriRegex.IsMatch("file:///sample/path/to/file") {
+		t.Errorf("expected FileUriRegex to match file URI")
+	}
+
+	if !MdHeaderRegex.IsMatch("## Section Title") {
+		t.Errorf("expected MdHeaderRegex to match markdown header")
+	}
+}

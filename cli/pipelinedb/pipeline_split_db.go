@@ -4,10 +4,10 @@ import (
 	"database/sql"
 	"os"
 	"path/filepath"
-	"regexp"
 	"strings"
 
 	"github.com/alimtvnetwork/gitmap-v28/cli/apperror"
+	"github.com/alimtvnetwork/gitmap-v28/cli/lazyregex"
 	"github.com/alimtvnetwork/gitmap-v28/cli/store"
 	_ "modernc.org/sqlite"
 )
@@ -25,8 +25,7 @@ type PipelineSplitDB = PipelineSplitDb
 // SanitizeRepoSlug converts a repository slug into a valid safe filesystem name.
 func SanitizeRepoSlug(repo string) string {
 	lower := strings.ToLower(strings.TrimSpace(repo))
-	reg := regexp.MustCompile(`[^a-z0-9_-]+`)
-	slug := reg.ReplaceAllString(lower, "-")
+	slug := lazyregex.SlugSanitizeRegex.ReplaceAllString(lower, "-")
 	slug = strings.Trim(slug, "-")
 	if slug == "" {
 		return "pipeline-default"

@@ -237,6 +237,8 @@ func (db *DB) Migrate() error {
 		constants.SQLCreateClusterRun,
 		constants.SQLCreateClusterExecResult,
 		SQLCreateWorkDirsTable,
+		SQLCreateSSHHostsTable,
+		SQLCreateSSHHistoryTable,
 		constants.SQLCreateSplitDatabaseRegistry,
 		constants.SQLCreateSplitDatabaseRegistryTypeIndex,
 		constants.SQLCreateSplitDatabaseRegistryStatusIndex,

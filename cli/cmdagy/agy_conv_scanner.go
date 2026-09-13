@@ -5,9 +5,9 @@ import (
 	"net/url"
 	"os"
 	"path/filepath"
-	"regexp"
 	"strings"
 
+	"github.com/alimtvnetwork/gitmap-v28/cli/lazyregex"
 	"github.com/alimtvnetwork/gitmap-v28/cli/store"
 )
 
@@ -24,7 +24,7 @@ type AgyProjectConvs struct {
 	HasActive bool
 }
 
-var fileURIRegex = regexp.MustCompile(`file:///[^\x00-\x1f\x7f-\xff"'\s]+`)
+var fileURIRegex = lazyregex.FileUriRegex
 
 func getConversationsDirPath() (string, error) {
 	home, err := os.UserHomeDir()

@@ -1,0 +1,52 @@
+package lazyregex
+
+var (
+	// Core general-purpose pre-instantiated lazy regexes.
+	WhitespaceFinderRegex             = New(AllWhitespaces)
+	WhitespaceOrPipeFinderRegex       = New(AllWhitespacesOrPipe)
+	HashCommentWithSpaceOptionalRegex = New(HashCommentWithSpaceOptional)
+	DollarIdentifierRegex             = New(EachWordsWithDollarSymbolDefinition)
+	PercentIdentifierRegex            = New(EachWordsWithinPercentSymbolDefinition)
+	PrettyNameRegex                   = New(PrettyName)
+	ExactIdFieldMatchingRegex         = New(ExactIdFieldMatching)
+	ExactVersionIdFieldMatchingRegex  = New(ExactVersionIdFieldMatching)
+	UbuntuNameCheckerRegex            = New(UbuntuNameChecker)
+	CentOsNameCheckerRegex            = New(CentOsNameChecker)
+	RedHatNameCheckerRegex            = New(RedHatNameChecker)
+	FirstNumberAnyWhereCheckerRegex   = New(FirstNumberAnyWhere)
+	WindowsVersionNumberCheckerRegex  = FirstNumberAnyWhereCheckerRegex
+	SemverRegex                       = New(Semver)
+	UUIDRegex                         = New(UUIDAny)
+	UUID4Regex                        = New(UUID4)
+	UrlRegex                          = New(Url)
+	DateRegex                         = New(Date)
+
+	// GitMap common pre-instantiated lazy regexes.
+	NumberPrefixRegex      = New(NumberPrefix)
+	SlugSanitizeRegex      = New(SlugSanitize)
+	RepoVersionSuffixRegex = New(RepoVersionSuffix)
+	RepoVersionCiRegex     = New(RepoVersionCi)
+	SemverVersionRegex     = New(SemverVersion)
+	SemverLooseRegex       = New(SemverLoose)
+	IdentifierExactRegex   = New(IdentifierExact)
+	RemoteUrlScpRegex      = New(RemoteUrlScp)
+	RemoteUrlHttpRegex     = New(RemoteUrlHttp)
+	RemoteUrlSshRegex      = New(RemoteUrlSsh)
+	AnsiEscapeRegex        = New(AnsiEscape)
+	FileUriRegex           = New(FileUri)
+	SecretPatternRegex     = New(SecretPattern)
+	MdHeaderRegex          = New(MdHeader)
+	MdTableDividerRegex    = New(MdTableDivider)
+	MdLinkRegex            = New(MdLink)
+	MdBoldRegex            = New(MdBold)
+	MdInlineCodeRegex      = New(MdInlineCode)
+
+	// FuncIntel pre-instantiated lazy regexes.
+	FuncIntelGoRegex         = New(FuncIntelGo)
+	FuncIntelJavaRegex       = New(FuncIntelJava)
+	FuncIntelJavascriptRegex = New(FuncIntelJavascript)
+	FuncIntelPhpRegex        = New(FuncIntelPhp)
+	FuncIntelPythonRegex     = New(FuncIntelPython)
+	FuncIntelRustRegex       = New(FuncIntelRust)
+	FuncIntelTsRegex         = New(FuncIntelTs)
+)

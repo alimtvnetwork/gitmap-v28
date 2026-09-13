@@ -16,6 +16,7 @@ import (
 	"github.com/alimtvnetwork/gitmap-v28/cli/apperror"
 	"github.com/alimtvnetwork/gitmap-v28/cli/dbengine"
 	"github.com/alimtvnetwork/gitmap-v28/cli/helptext"
+	"github.com/alimtvnetwork/gitmap-v28/cli/lazyregex"
 )
 
 // SequenceItem represents a single file item with its sequence metadata.
@@ -242,7 +243,7 @@ func scanDirectorySequence(dir string) (*SequencePayload, error) {
 }
 
 func extractSequenceItems(dir string, entries []os.DirEntry) ([]SequenceItem, int) {
-	re := regexp.MustCompile(`^(\d+)[-_](.*)$`)
+	re := lazyregex.NumberPrefixRegex.Compiled()
 	var items []SequenceItem
 	sequencedCount := 0
 

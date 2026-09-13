@@ -348,6 +348,10 @@ def main() -> int:
 
     ts_mjs = ROOT_DIR / "linter-scripts" / "check-nested-ifs.mjs"
     if ts_mjs.exists():
+        node_ts = ROOT_DIR / "node_modules" / "typescript"
+        if not node_ts.exists():
+            print("▸ TypeScript AST check: skipped (node_modules/typescript not installed)")
+            return 0
         try:
             ts_res = subprocess.run(
                 ["node", str(ts_mjs)],
@@ -358,6 +362,9 @@ def main() -> int:
                 errors="replace",
             )
             if ts_res.returncode != 0:
+                if "ERR_MODULE_NOT_FOUND" in (ts_res.stderr or ""):
+                    print("▸ TypeScript AST check: skipped (typescript module not installed)")
+                    return 0
                 print(ts_res.stderr or ts_res.stdout)
                 return 1
             print(f"▸ TypeScript AST check: {ts_res.stdout.strip()}")

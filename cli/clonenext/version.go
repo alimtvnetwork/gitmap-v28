@@ -2,13 +2,14 @@ package clonenext
 
 import (
 	"fmt"
-	"regexp"
 	"strconv"
 	"strings"
+
+	"github.com/alimtvnetwork/gitmap-v28/cli/lazyregex"
 )
 
 // versionSuffixRe matches a trailing -vN or -vNN suffix.
-var versionSuffixRe = regexp.MustCompile(`^(.+)-v(\d+)$`)
+var versionSuffixRe = lazyregex.RepoVersionSuffixRegex
 
 // ParsedRepo holds the decomposed parts of a versioned repo name.
 type ParsedRepo struct {

@@ -324,6 +324,45 @@ func (it *LazyRegexp) ReplaceAllString(src, repl string) string {
 	return re.ReplaceAllString(src, repl)
 }
 
+// Find returns a slice holding the text of the leftmost match in b of the regular expression.
+func (it *LazyRegexp) Find(b []byte) []byte {
+	if it == nil {
+		return nil
+	}
+
+	re, err := it.compiledRegex()
+	if err != nil {
+		return nil
+	}
+	if re == nil {
+		return nil
+	}
+
+	return re.Find(b)
+}
+
+// FindBytes is an alias for Find.
+func (it *LazyRegexp) FindBytes(b []byte) []byte {
+	return it.Find(b)
+}
+
+// IsMatchBytes reports whether the byte slice b contains any match of the regular expression.
+func (it *LazyRegexp) IsMatchBytes(b []byte) bool {
+	if it == nil {
+		return false
+	}
+
+	re, err := it.compiledRegex()
+	if err != nil {
+		return false
+	}
+	if re == nil {
+		return false
+	}
+
+	return re.Match(b)
+}
+
 // CacheLen returns the number of uniquely cached regular expression instances in the global registry.
 func CacheLen() int {
 	globalLock.Lock()

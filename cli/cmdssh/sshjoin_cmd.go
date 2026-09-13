@@ -20,6 +20,10 @@ func executeSSHJoin(ctx context.Context, target string, history store.SSHHistory
 
 	defer dbConn.Close()
 
+	if err := dbConn.Migrate(); err != nil {
+		return apperror.New("executeSSHJoin", "E_INTERNAL_ERROR", map[string]any{"msg": "failed to migrate db", "err": err.Error()})
+	}
+
 	return runJoinTransaction(ctx, dbConn.SQL(), target, history)
 }
 

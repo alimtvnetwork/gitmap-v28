@@ -4,11 +4,12 @@ import (
 	"bufio"
 	"fmt"
 	"path/filepath"
-	"regexp"
 	"strings"
+
+	"github.com/alimtvnetwork/gitmap-v28/cli/lazyregex"
 )
 
-var ansiRegex = regexp.MustCompile(`(?:\x1b|\^\[)\[[0-9;]*[a-zA-Z]`)
+var ansiRegex = lazyregex.AnsiEscapeRegex
 
 var failureMarkers = []string{
 	"##[error]",

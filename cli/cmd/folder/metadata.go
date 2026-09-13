@@ -6,12 +6,13 @@ import (
 	"io"
 	"os"
 	"path/filepath"
-	"regexp"
 	"strconv"
 	"strings"
+
+	"github.com/alimtvnetwork/gitmap-v28/cli/lazyregex"
 )
 
-var seqRegex = regexp.MustCompile(`^(\d+)[-_](.*)$`)
+var seqRegex = lazyregex.NumberPrefixRegex
 
 // FileMeta holds rich analytical metadata for a scanned file.
 type FileMeta struct {

@@ -49,7 +49,17 @@ func InsertSSHHost(ctx context.Context, host SSHHost, tx any) error {
 	return executeSSHHostInsert(ctx, host, execer)
 }
 
+// EnsureSSHHostsTable ensures that the ssh_hosts table exists.
+func EnsureSSHHostsTable(db *sql.DB) error {
+	if db == nil {
+		return nil
+	}
+	_, err := db.Exec(SQLCreateSSHHostsTable)
+	return err
+}
+
 func executeSSHHostInsert(ctx context.Context, host SSHHost, execer sqlContextExecer) error {
+	_, _ = execer.ExecContext(ctx, SQLCreateSSHHostsTable)
 	_, err := execer.ExecContext(ctx, sqlInsertSSHHost,
 		sql.Named("id", host.ID),
 		sql.Named("alias", host.Alias),
@@ -75,6 +85,7 @@ func InsertSSHHostTx(ctx context.Context, host SSHHost, tx *dbengine.TxWrapper) 
 // GetHostByAlias retrieves an SSHHost by its alias.
 
 func GetHostByAlias(ctx context.Context, alias string, db *sql.DB) (SSHHost, error) {
+	_ = EnsureSSHHostsTable(db)
 	query := `SELECT id, alias, ip, username, created_at FROM ssh_hosts WHERE alias = ?`
 
 	var host SSHHost
@@ -101,6 +112,7 @@ func GetHostByAlias(ctx context.Context, alias string, db *sql.DB) (SSHHost, err
 // DeleteHostByIP deletes an SSHHost by its IP.
 
 func DeleteHostByIP(ctx context.Context, ip string, db *sql.DB) error {
+	_ = EnsureSSHHostsTable(db)
 	query := `DELETE FROM ssh_hosts WHERE ip = ?`
 	res, err := db.ExecContext(ctx, query, ip)
 	if err != nil {
@@ -119,6 +131,7 @@ func DeleteHostByIP(ctx context.Context, ip string, db *sql.DB) error {
 // ListHosts retrieves all SSH hosts from the database.
 
 func ListHosts(ctx context.Context, db *sql.DB) ([]SSHHost, error) {
+	_ = EnsureSSHHostsTable(db)
 	query := `SELECT id, alias, ip, username, created_at FROM ssh_hosts ORDER BY created_at DESC`
 
 	rows, err := db.QueryContext(ctx, query)

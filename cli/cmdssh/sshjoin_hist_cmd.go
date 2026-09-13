@@ -43,6 +43,10 @@ func printSJHistory(ctx context.Context, out io.Writer, filter string) error {
 
 	defer dbConn.Close()
 
+	if err := dbConn.Migrate(); err != nil {
+		return apperror.New("printSJHistory", "E_INTERNAL_ERROR", map[string]any{"msg": "failed to migrate db", "err": err.Error()})
+	}
+
 	// ListSSHHistory gets up to 100 history items for display
 	history, err := store.ListSSHHistory(ctx, 100, 0, dbConn.SQL())
 	if err != nil {

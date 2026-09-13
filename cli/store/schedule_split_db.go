@@ -6,10 +6,10 @@ import (
 	"database/sql"
 	"os"
 	"path/filepath"
-	"regexp"
 	"strings"
 
 	"github.com/alimtvnetwork/gitmap-v28/cli/apperror"
+	"github.com/alimtvnetwork/gitmap-v28/cli/lazyregex"
 	_ "modernc.org/sqlite"
 )
 
@@ -63,8 +63,7 @@ type ScheduleConfig struct {
 // ScheduleSlug converts a schedule name to a clean, lowercase filesystem slug.
 func ScheduleSlug(name string) string {
 	lower := strings.ToLower(strings.TrimSpace(name))
-	reg := regexp.MustCompile(`[^a-z0-9_-]+`)
-	slug := reg.ReplaceAllString(lower, "-")
+	slug := lazyregex.SlugSanitizeRegex.ReplaceAllString(lower, "-")
 	slug = strings.Trim(slug, "-")
 	if slug == "" {
 		return "schedule-default"

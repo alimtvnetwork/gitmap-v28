@@ -43,7 +43,15 @@ func isGitRepoCWD() bool {
 }
 
 func openDB() (*store.DB, error) {
-	return store.OpenDefault()
+	db, err := store.OpenDefault()
+	if err != nil {
+		return nil, err
+	}
+	if err := db.Migrate(); err != nil {
+		db.Close()
+		return nil, err
+	}
+	return db, nil
 }
 
 func reorderFlagsBeforeArgs(args []string) []string {

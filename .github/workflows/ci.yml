@@ -1450,6 +1450,8 @@ jobs:
             echo "========================================="
             grep -E -A 5 '^--- FAIL:' e2e-output.txt || true
             echo "========================================="
+          fi
+
           if [ -f e2e-output.txt ]; then
             {
               echo "### E2E Test Output (${{ matrix.os }})"
