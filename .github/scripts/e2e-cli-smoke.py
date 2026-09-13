@@ -413,10 +413,11 @@ async def async_main():
     for item in independent_items_2:
         queue.put_nowait(item)
 
-    workers_base = os.path.join(repo_root, ".lovable", "temp", "cicd", "e2e_workers")
-    os.makedirs(workers_base, exist_ok=True)
     import shutil
     import tempfile
+
+    workers_base = os.path.join(tempfile.gettempdir(), "gitmap", "test", "e2e_workers")
+    os.makedirs(workers_base, exist_ok=True)
 
     workers_dir = tempfile.mkdtemp(prefix=f"proc_{os.getpid()}_{int(time.time()*1000)%10000}_", dir=workers_base)
 

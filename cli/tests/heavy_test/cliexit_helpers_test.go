@@ -238,3 +238,10 @@ func extractTestExitCode(err error) int {
 
 	return -1
 }
+
+// TestMain runs the heavy test suite and cleans up all shared repo temp directories upon completion.
+func TestMain(m *testing.M) {
+	code := m.Run()
+	_ = tempdir.ClearAllRepoTempDirs()
+	os.Exit(code)
+}

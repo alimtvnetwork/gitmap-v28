@@ -180,7 +180,7 @@ def get_repo_os_temp_dir(*subdirs: str) -> Path:
 
 
 def clear_repo_build_temp() -> None:
-    """Sweeps repo build temp to prevent disk waste without unlinking compiled binaries."""
+    """Purges previous build artifacts and sweeps repo build temp to prevent disk waste."""
     build_dir = Path(tempfile.gettempdir()) / "gitmap" / "build"
     if build_dir.exists():
         try:
@@ -188,6 +188,77 @@ def clear_repo_build_temp() -> None:
         except OSError:
             pass
     build_dir.mkdir(parents=True, exist_ok=True)
+
+
+def clear_repo_test_temp() -> None:
+    """Sweeps repo test, sandbox, and auxiliary temporary directories to ensure test hygiene and free disk space."""
+    temp_base = Path(tempfile.gettempdir()) / "gitmap"
+    for category in ("test", "sandbox", "purge", "downloads", "handoff"):
+        cat_dir = temp_base / category
+        if cat_dir.exists():
+            try:
+                shutil.rmtree(cat_dir, ignore_errors=True)
+            except OSError:
+                pass
+        cat_dir.mkdir(parents=True, exist_ok=True)
+
+
+def clear_stale_failures_log() -> None:
+    """Clears stale test failure logs before running tests to prevent storage accumulation."""
+    failures_dir = REPO_ROOT / ".lovable" / "temp" / "failures"
+    if failures_dir.exists():
+        try:
+            shutil.rmtree(failures_dir, ignore_errors=True)
+        except OSError:
+            pass
+    failures_dir.mkdir(parents=True, exist_ok=True)
+
+
+def prune_old_cicd_runs(keep_count: int = 5) -> None:
+    """Prunes older session run directories in .lovable/cicd/runs to prevent disk waste."""
+    runs_dir = REPO_ROOT / ".lovable" / "cicd" / "runs"
+    if not runs_dir.exists():
+        return
+    try:
+        run_dirs = [p for p in runs_dir.iterdir() if p.is_dir()]
+        if len(run_dirs) <= keep_count:
+            return
+        run_dirs.sort(key=lambda p: p.stat().st_mtime, reverse=True)
+        for old_dir in run_dirs[keep_count:]:
+            try:
+                shutil.rmtree(old_dir, ignore_errors=True)
+            except OSError:
+                pass
+    except Exception:
+        pass
+
+
+def clean_stale_temp_artifacts() -> None:
+    """Removes orphaned build caches, old e2e sandboxes, and stale binaries from .lovable/temp to prevent bloat."""
+    lovable_temp = REPO_ROOT / ".lovable" / "temp"
+    if not lovable_temp.exists():
+        return
+    for item in lovable_temp.iterdir():
+        if item.is_dir() and (item.name.startswith("go-build") or item.name in ("node-compile-cache", "gitmap", "cicd")):
+            try:
+                shutil.rmtree(item, ignore_errors=True)
+            except OSError:
+                pass
+        elif item.is_file() and item.name in ("gitmap", "gitmap.exe"):
+            try:
+                item.unlink(missing_ok=True)
+            except OSError:
+                pass
+
+
+def clean_coverage_artifacts() -> None:
+    """Removes loose intermediate coverage profile files after verification."""
+    for cov_file in (REPO_ROOT / "coverage.out", REPO_ROOT / "cli" / "coverage.out"):
+        if cov_file.exists():
+            try:
+                cov_file.unlink(missing_ok=True)
+            except OSError:
+                pass
 
 
 REPO_OS_TEMP = get_repo_os_temp_dir()
@@ -1123,8 +1194,10 @@ def run_smart_go_tests(
     name: str, timeout_sec: int, max_workers: int, force: bool, repo_root: Path,
     tel: TelemetryTracker | None = None, package_filter: list[str] | str | None = None
 ) -> JobResult:
-    """Executes changed Go tests with dual worker queues (slow: 4w x 2 tests; fast: 4w x 4 tests in 100-chunks)."""
+    """Executes changed Go tests with unified priority worker pool."""
     start_time = time.monotonic()
+    clear_repo_test_temp()
+    clear_stale_failures_log()
     inventory = build_or_update_test_inventory(repo_root, force=force)
     all_tests = inventory.get("tests", {})
     tests = {tid: t for tid, t in all_tests.items() if t.get("test_file", "").endswith(".go")}
@@ -1279,6 +1352,7 @@ def run_smart_go_tests(
     atomic_write_json(TEST_INVENTORY_PATH, inventory)
     atomic_write_json(TEST_INVENTORY_CACHE_PATH, inventory)
 
+    clear_repo_test_temp()
     if failed_count > 0:
         err_text = "\n".join(error_outputs)
         return JobResult(
@@ -1286,7 +1360,7 @@ def run_smart_go_tests(
             out="", err=err_text, elapsed=elapsed
         )
 
-    out_msg = f"Passed {passed_count} tests ({len(slow_tests)} slow [4w x 2], {len(fast_tests)} fast [4w x 4 in 100-chunks]) in {elapsed}s ({len(tests) - total_dirty} tests cached)"
+    out_msg = f"Passed {passed_count} tests ({len(slow_tests)} slow, {len(fast_tests)} fast) in {elapsed}s ({len(tests) - total_dirty} tests cached)"
     return JobResult(
         name=name, cmd=["go", "test", "smart-incremental"], code=0,
         out=out_msg, err="", elapsed=elapsed
@@ -1378,8 +1452,22 @@ def run_job(
     name: str, cmd: list[str], timeout_sec: int, env: dict[str, str] | None = None, cwd: str | None = None
 ) -> JobResult:
     """Executes a single gate subprocess and records duration, return code, and streams."""
-    if name in ("Go Compile Gate", "Web App Build"):
+    if name == "Go Compile Gate":
         clear_repo_build_temp()
+        bin_exe = REPO_ROOT / "bin" / "gitmap.exe"
+        if bin_exe.exists():
+            try:
+                bin_exe.unlink(missing_ok=True)
+            except OSError:
+                pass
+    elif name in ("Web App Build", "GoReleaser Snapshot Build"):
+        clear_repo_build_temp()
+        for dist_dir in (REPO_ROOT / "dist", REPO_ROOT / "cli" / "dist"):
+            if dist_dir.exists():
+                try:
+                    shutil.rmtree(dist_dir, ignore_errors=True)
+                except OSError:
+                    pass
     if name in ("E2E Smoke Suite", "History Purge Smoke", "History Pin Smoke"):
         bin_exe = REPO_ROOT / "bin" / "gitmap.exe"
         if not bin_exe.exists():
@@ -2410,6 +2498,11 @@ def setup_runner_state(total_jobs: int, is_json: bool, curr_head: str, curr_dirt
 def prepare_runner_context(args: argparse.Namespace, root: Path, total_jobs: int) -> tuple[Path, dict, set, TelemetryTracker, dict]:
     """Prepares directories, git delta, and initial state machine."""
     clear_repo_build_temp()
+    clear_repo_test_temp()
+    clear_stale_failures_log()
+    clean_stale_temp_artifacts()
+    prune_old_cicd_runs(keep_count=5)
+    clean_coverage_artifacts()
     session_dir, prev_state = init_session_scaffolding(args.force_run, args.resume_mode)
     curr_head = get_head_commit(root)
     curr_dirty = get_dirty_files_map(root)
@@ -2568,6 +2661,10 @@ def execute_runner(args: argparse.Namespace, active_batches: list[dict[str, Any]
     elapsed = round(time.monotonic() - start, 2)
     update_cicd_summary(st, sdir, is_finished=True)
     counts = extract_runner_counts(total_jobs, st["results"])
+    clear_repo_test_temp()
+    clean_stale_temp_artifacts()
+    clean_coverage_artifacts()
+    prune_old_cicd_runs(keep_count=5)
 
     return emit_runner_report(args, st, counts, elapsed, sdir)
 
@@ -2659,6 +2756,10 @@ def run_pipeline_with_eta(args: argparse.Namespace, batches: list, root: Path, t
         stop_event.set()
         timings.update(GLOBAL_TIMINGS)
         save_cicd_timings(TIMING_FILE_PATH, timings)
+        clear_repo_test_temp()
+        clean_stale_temp_artifacts()
+        clean_coverage_artifacts()
+        prune_old_cicd_runs(keep_count=5)
 
 
 def ensure_manifest_if_changed_only(args: argparse.Namespace, repo_root: Path) -> None:

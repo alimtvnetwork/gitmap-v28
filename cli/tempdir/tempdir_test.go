@@ -51,3 +51,64 @@ func TestClearRepoBuildTempDir_WithExistingArtifacts_PurgesArtifacts(t *testing.
 		t.Errorf("expected dummyFile to be removed after clear, got err: %v", statErr)
 	}
 }
+
+func TestClearRepoTestTempDir_WithExistingArtifacts_PurgesArtifacts(t *testing.T) {
+	tDir := TestTempDir()
+	dummyFile := filepath.Join(tDir, "test-output.tmp")
+	_ = os.WriteFile(dummyFile, []byte("stale test output"), 0o644)
+
+	err := ClearRepoTestTempDir()
+	if err != nil {
+		t.Fatalf("unexpected error clearing test temp dir: %v", err)
+	}
+
+	_, statErr := os.Stat(dummyFile)
+	if !os.IsNotExist(statErr) {
+		t.Errorf("expected dummyFile to be removed after clear, got err: %v", statErr)
+	}
+}
+
+func TestSandboxTempDir_Always_ReturnsSandboxSubfolder(t *testing.T) {
+	path := SandboxTempDir()
+	expectedSub := filepath.Join("gitmap", "sandbox")
+	if !strings.Contains(path, expectedSub) {
+		t.Errorf("expected SandboxTempDir %q to contain %q", path, expectedSub)
+	}
+}
+
+func TestClearRepoSandboxTempDir_WithExistingArtifacts_PurgesArtifacts(t *testing.T) {
+	sDir := SandboxTempDir()
+	dummyFile := filepath.Join(sDir, "test-sandbox.tmp")
+	_ = os.WriteFile(dummyFile, []byte("stale sandbox file"), 0o644)
+
+	err := ClearRepoSandboxTempDir()
+	if err != nil {
+		t.Fatalf("unexpected error clearing sandbox temp dir: %v", err)
+	}
+
+	_, statErr := os.Stat(dummyFile)
+	if !os.IsNotExist(statErr) {
+		t.Errorf("expected dummyFile to be removed after clear, got err: %v", statErr)
+	}
+}
+
+func TestClearAllRepoTempDirs_WithArtifactsInMultipleDirs_PurgesAll(t *testing.T) {
+	bFile := filepath.Join(BuildTempDir(), "dummy-build.tmp")
+	tFile := filepath.Join(TestTempDir(), "dummy-test.tmp")
+	sFile := filepath.Join(SandboxTempDir(), "dummy-sandbox.tmp")
+
+	_ = os.WriteFile(bFile, []byte("b"), 0o644)
+	_ = os.WriteFile(tFile, []byte("t"), 0o644)
+	_ = os.WriteFile(sFile, []byte("s"), 0o644)
+
+	err := ClearAllRepoTempDirs()
+	if err != nil {
+		t.Fatalf("unexpected error running ClearAllRepoTempDirs: %v", err)
+	}
+
+	for _, f := range []string{bFile, tFile, sFile} {
+		if _, statErr := os.Stat(f); !os.IsNotExist(statErr) {
+			t.Errorf("expected file %q to be removed, got err: %v", f, statErr)
+		}
+	}
+}
