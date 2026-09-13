@@ -2,15 +2,15 @@ package cmdinstall
 
 import "context"
 
-// ArchiveInstallStrategy represents detected deployment mechanism.
-type ArchiveInstallStrategy string
+// ArchiveInstallStrategyType represents detected deployment mechanism.
+type ArchiveInstallStrategyType string
 
 const (
-	StrategyBinaryApp ArchiveInstallStrategy = "binary_app"
-	StrategyScript    ArchiveInstallStrategy = "install_script"
-	StrategySource    ArchiveInstallStrategy = "source_build"
-	StrategySingleGz  ArchiveInstallStrategy = "single_gzip"
-	StrategyUnknown   ArchiveInstallStrategy = "unknown"
+	StrategyBinaryApp ArchiveInstallStrategyType = "binary_app"
+	StrategyScript    ArchiveInstallStrategyType = "install_script"
+	StrategySource    ArchiveInstallStrategyType = "source_build"
+	StrategySingleGz  ArchiveInstallStrategyType = "single_gzip"
+	StrategyUnknown   ArchiveInstallStrategyType = "unknown"
 )
 
 // ArchiveInstallOptions holds options for archive installation.
@@ -26,7 +26,7 @@ type ArchiveInstallOptions struct {
 
 // ArchiveInspectionResult holds details discovered during archive analysis.
 type ArchiveInspectionResult struct {
-	Strategy       ArchiveInstallStrategy
+	Strategy       ArchiveInstallStrategyType
 	BinaryPath     string
 	ScriptPath     string
 	DesktopPath    string

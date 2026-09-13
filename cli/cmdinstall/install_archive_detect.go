@@ -120,7 +120,7 @@ func inspectExtractedPackage(extractDir, baseName string) ArchiveInspectionResul
 	return res
 }
 
-func resolvePackageStrategy(res ArchiveInspectionResult) ArchiveInstallStrategy {
+func resolvePackageStrategy(res ArchiveInspectionResult) ArchiveInstallStrategyType {
 	if res.BinaryPath != "" {
 		return StrategyBinaryApp
 	}

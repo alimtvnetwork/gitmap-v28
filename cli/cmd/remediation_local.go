@@ -62,8 +62,8 @@ func FindRemediationSuggestions(items []RemediationItem, query string) []string 
 		cleanQuery = strings.ToLower(strings.TrimSpace(query))
 	}
 
-	hasNoItems := cleanQuery == "" || len(items) == 0
-	if hasNoItems {
+	hasItems := cleanQuery != "" && len(items) > 0
+	if !hasItems {
 		return nil
 	}
 

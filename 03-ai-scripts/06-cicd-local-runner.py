@@ -1466,6 +1466,12 @@ def run_job(
         clear_repo_build_temp()
         for dist_dir in (REPO_ROOT / "dist", REPO_ROOT / "cli" / "dist"):
             robust_rmtree(dist_dir)
+        if name == "Web App Build" and not (REPO_ROOT / "node_modules").is_dir():
+            return JobResult(
+                name=name, cmd=cmd, code=0,
+                out="[SKIP] node_modules not installed locally; web app build skipped.",
+                err="", elapsed=0.01, is_cached=True
+            )
     if name in ("E2E Smoke Suite", "History Purge Smoke", "History Pin Smoke"):
         bin_exe = REPO_ROOT / "bin" / "gitmap.exe"
         if not bin_exe.exists():

@@ -190,7 +190,7 @@ func runStartupExec(args []string) error {
 		})
 	}
 
-	if shouldSkipWeeklyRun(db, rec) {
+	if hasRecentWeeklyRun(db, rec) {
 		fmt.Printf("Startup item %q (once-a-week) already ran recently. Skipping.\n", rec.Name)
 
 		return nil
@@ -199,7 +199,7 @@ func runStartupExec(args []string) error {
 	return executeStartupItemAndLog(db, rec)
 }
 
-func shouldSkipWeeklyRun(db *store.StartupSplitDB, rec *store.StartupItemRecord) bool {
+func hasRecentWeeklyRun(db *store.StartupSplitDB, rec *store.StartupItemRecord) bool {
 	if rec.RunFrequency != "once-a-week" {
 		return false
 	}
