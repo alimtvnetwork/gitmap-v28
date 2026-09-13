@@ -1,3 +1,18 @@
+## [v6.228.0] 2026-09-13 Release v6.228.0
+
+### Install GitMap v6.228.0
+
+To pin your repository to this exact version, run the following one-liner:
+Unix/Bash: `curl -sL https://raw.githubusercontent.com/alimtvnetwork/gitmap-v28/v6.228.0/install.sh | bash -s -- ".lovable/prompts" "v6.228.0"`
+PowerShell: `Invoke-WebRequest -Uri https://raw.githubusercontent.com/alimtvnetwork/gitmap-v28/v6.228.0/install.ps1 -OutFile install.ps1; .\install.ps1 -TargetDir ".lovable/prompts" -Version "v6.228.0"`
+
+### Added / Changed / Fixed / Removed
+
+- Add Linux archive package installation (tar, gz, zip) with intelligent strategy detection
+- Support automated strategy detection for ELF binaries, install scripts, and source builds
+- Integrate universal uninstaller for archive deployments with desktop database refresh
+- Add cross-platform compilation stubs and enforce strict boolean, enum, and lint guidelines
+
 ## [v6.227.0] 2026-09-13 Release v6.227.0
 
 ### Install GitMap v6.227.0
