@@ -66,18 +66,23 @@ When auditing, applying fixes, or creating skills, navigate and respect these ca
 ### A. Boolean Evaluation & Naming (P1–P6, R3)
 
 - **Rules:** Positive affirmative prefixes ONLY (`is` and `has`). TOTAL BAN on all other prefixes (`can`, `should`, `was`, `will`, `did`, `must` are strictly BANNED). TOTAL BAN on explicit `== true` / `=== true` checks. No mixed polarity (`if a && !b`). No inverted success checks (`!isSuccess`).
+- **Mandatory `IsDefined` Replacement for `!isEmpty`:** NEVER use inverted negative empty checks (`!isEmpty`, `!res.IsEmpty()`). Always use affirmative `isDefined` (or `res.IsDefined()`) when asserting that data or records are present. Use `isEmpty` ONLY in the affirmative when explicitly handling the empty/missing case (`if isEmpty { return ErrEmpty }`).
+- **Map Lookups:** Use `val, isFound := userMap[id]` or `val, isUserExist := userMap[id]` (never bare `ok`; do NOT use `isDefined` for map lookups; `isDefined` is strictly for replacing `!isEmpty`).
 
 ```go
-// ❌ BAD (Explicit true comparison, negative naming, mixed polarity)
+// ❌ BAD (Explicit true comparison, negative naming, mixed polarity, inverted !isEmpty)
 if isUserNotActive == true { ... }
 if !response.isSuccess { ... }
 if isReady && !hasToken { ... }
+if !res.IsEmpty() { ... }
 
-// ✅ GOOD (Implicit evaluation, affirmative naming, extracted conflict)
+// ✅ GOOD (Implicit evaluation, affirmative naming, extracted conflict, affirmative IsDefined)
 if !isUserActive { ... }
 if response.isFail { ... }
 isTokenMissing := isReady && !hasToken
 if isTokenMissing { ... }
+if res.IsDefined() { ... }
+val, isFound := userMap[id]
 ```
 
 ```typescript
@@ -662,7 +667,7 @@ When tasked with auditing, reviewing, or fixing coding guidelines across a codeb
 - [ ] **No Explicit True Checks (P4):** Absolutely zero `== true`, `=== true`, `!= false`, `!== false` comparisons exist.
 - [ ] **No Mixed Polarity (P5):** No mixed positive and negative conditions in `if` statements.
 - [ ] **Acronyms & PascalCase (R1, R2):** All acronyms (`Id`, `Url`, `Ip`, `Json`) and serialization keys use PascalCase.
-- [ ] **Boolean Prefixes (R3):** All booleans start with is or has only (all other prefixes banned). No negative boolean names.
+- [ ] **Boolean Prefixes (R3):** All booleans start with `is` or `has` only (all other prefixes banned). No negative boolean names. MANDATORY: Use `isDefined` (or `res.IsDefined()`) instead of inverted empty checks (`!isEmpty` / `!res.IsEmpty()`). Map lookups use `val, isFound := userMap[id]` or `val, isUserExist := userMap[id]`.
 - [ ] **Function Decomposition & Signatures (R4, R5):** All functions <= 15 lines decomposed via 3-Stage Blueprint (Guard -> Core Logic -> Envelope) without logic drift; parameter structs for > 3 arguments.
 - [ ] **Circular Dependency Prevention:** All extracted types/enums reside in leaf packages (`domain/types` or `types/`) with zero circular dependency cycles.
 - [ ] **Polyglot & React Compliance:** Rust match expressions, C# Task/records, PHP BackedEnums, React structuredClone & object hook returns.
