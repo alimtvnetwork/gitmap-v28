@@ -543,6 +543,10 @@ func dispatchExtraCommand(
 		executeAndAudit(cmdagy.DispatchAgy, shouldAudit, auditID, auditStart)
 
 		return true
+	case "agm", "ag-manager", "antigravity-manager":
+		executeAndAudit(dispatchAgm, shouldAudit, auditID, auditStart)
+
+		return true
 	case "sj", "ssh-join", "ssh-joined", "ssh-joiner":
 		executeAndAudit(dispatchSJ, shouldAudit, auditID, auditStart)
 

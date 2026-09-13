@@ -10,6 +10,7 @@ import (
 
 	"github.com/alimtvnetwork/gitmap-v28/cli/constants"
 	"github.com/alimtvnetwork/gitmap-v28/cli/store"
+	"github.com/alimtvnetwork/gitmap-v28/cli/tempdir"
 )
 
 func runInstallAgManagerWithOpts(opts installOptions) error {
@@ -78,7 +79,7 @@ func downloadAgManagerFile(url string) (string, error) {
 	defer resp.Body.Close()
 	parts := strings.Split(url, "/")
 	name := parts[len(parts)-1]
-	tmpPath := filepath.Join(os.TempDir(), name)
+	tmpPath := filepath.Join(tempdir.RepoTempDir("downloads"), name)
 	out, err := os.Create(tmpPath)
 	if err != nil {
 		return "", err

@@ -40,6 +40,9 @@ func TestAntigravityToolRoutingAndAliases(t *testing.T) {
 		{"ide", constants.ToolAntigravity},
 		{"antigravity-cli", constants.ToolAgy},
 		{"agy-cli", constants.ToolAgy},
+		{"agm", constants.ToolAgManager},
+		{"ag-tools", constants.ToolAgManager},
+		{"antigravity-tools", constants.ToolAgManager},
 	}
 
 	for _, tc := range tests {
@@ -67,5 +70,21 @@ func TestAntigravityBinaryAndProbeMapping(t *testing.T) {
 	cfgAgy, hasAgy := toolProbeMap[constants.ToolAgy]
 	if !hasAgy || len(cfgAgy.bins) == 0 {
 		t.Fatalf("expected ToolAgy in toolProbeMap")
+	}
+}
+
+func TestAgyInstallDefaultToIde(t *testing.T) {
+	opts := installOptions{DryRun: true}
+	err := dispatchAgyInstallTarget("ide", opts)
+	if err != nil {
+		t.Fatalf("expected nil error for ide dry-run, got %v", err)
+	}
+
+	agyInstallDryRun = true
+	defer func() { agyInstallDryRun = false }()
+
+	errDefault := runAgyInstallCmd(agyInstallCmd, []string{})
+	if errDefault != nil {
+		t.Fatalf("expected nil error for default agy install, got %v", errDefault)
 	}
 }

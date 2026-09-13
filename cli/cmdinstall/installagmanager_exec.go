@@ -4,25 +4,43 @@ import (
 	"fmt"
 	"os"
 	"os/exec"
+	"path/filepath"
 	"runtime"
 	"strings"
 )
 
 func isAgManagerInstalled() (string, bool) {
-	bin := resolveToolBinaryPath("ag-manager")
-	if bin == "" {
-		bin = resolveToolBinaryPath("Antigravity.Tools")
+	for _, name := range []string{"ag-manager", "Antigravity.Tools", "Antigravity-Manager"} {
+		if bin := resolveToolBinaryPath(name); bin != "" {
+			return "installed", true
+		}
 	}
 
-	if bin == "" {
-		bin = resolveToolBinaryPath("Antigravity-Manager")
+	if runtime.GOOS == "windows" {
+		if path := findAgManagerWindowsPath(); path != "" {
+			return "installed", true
+		}
 	}
 
-	if bin == "" {
-		return "", false
+	return "", false
+}
+
+func findAgManagerWindowsPath() string {
+	localAppData := resolveLocalAppDataDir()
+	candidates := []string{
+		filepath.Join(localAppData, "Programs", "Antigravity.Tools", "Antigravity.Tools.exe"),
+		filepath.Join(localAppData, "Programs", "antigravity-tools", "Antigravity.Tools.exe"),
+		filepath.Join(localAppData, "Programs", "Antigravity-Manager", "Antigravity-Manager.exe"),
+		filepath.Join(localAppData, "Programs", "ag-manager", "ag-manager.exe"),
 	}
 
-	return "installed", true
+	for _, c := range candidates {
+		if _, err := os.Stat(c); err == nil {
+			return c
+		}
+	}
+
+	return ""
 }
 
 func isAppImageFile(path string) bool {

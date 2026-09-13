@@ -625,7 +625,7 @@ var InstallToolDescriptions = map[string]string{
 	ToolScriptsFixer:     "Install Scripts Fixer tool",
 	ToolCodingGuidelines: "Install Coding Guidelines per repo",
 	ToolMacroAhk:         "Install Macro AHK scripts",
-	ToolAgManager:        "Antigravity Manager GUI desktop application (latest GitHub release)",
+	ToolAgManager:        "Antigravity Manager GUI and tools (latest GitHub release)",
 	ToolAgCtx:            "Add Antigravity to Windows right-click context menu",
 	ToolAntigravity:      "Google Antigravity Desktop IDE (AI-powered development environment)",
 	ToolAgy:              "Antigravity CLI autonomous coding assistant (agy-cli)",
