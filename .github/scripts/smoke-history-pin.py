@@ -10,6 +10,7 @@ Spec: spec/04-generic-cli/16-history-rewrite.md
 from __future__ import annotations
 
 import hashlib
+import os
 import re
 import shutil
 import subprocess

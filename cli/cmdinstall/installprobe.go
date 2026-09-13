@@ -104,6 +104,15 @@ func probeGitLFSFallback() (string, string) {
 	return "", ""
 }
 
+func probeAntigravityFallback() (string, string) {
+	path, isFound := findInstalledAntigravityDesktopPath()
+	if isFound {
+		return path, "installed"
+	}
+
+	return "", ""
+}
+
 func probeSingleCandidate(bin string, defaultArgs []string) (string, bool) {
 	if !isBinaryInPath(bin) {
 		return "", false
@@ -138,9 +147,7 @@ func resolveToolProbeCommand(tool string) (string, string) {
 	}
 
 	if tool == constants.ToolAntigravity {
-		if path, isFound := findInstalledAntigravityDesktopPath(); isFound {
-			return path, "installed"
-		}
+		return probeAntigravityFallback()
 	}
 
 	if fallbackBin != "" {

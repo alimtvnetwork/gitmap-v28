@@ -368,7 +368,7 @@ def scan_python_and_ts_tests(repo_root: Path, slow_threshold: float = 4.0) -> di
     tests_dict: dict[str, Any] = {}
     for root, _, files in os.walk(repo_root):
         rel_dir = normalize_repo_rel(root)
-        if ".git" in rel_dir or "node_modules" in rel_dir or ".lovable" in rel_dir or "dist" in rel_dir:
+        if any(ign in rel_dir for ign in (".git", "node_modules", ".lovable", "dist", "linter-scripts_old", ".tmp", "vendor", "temp")):
             continue
         for f in files:
             p = Path(root) / f

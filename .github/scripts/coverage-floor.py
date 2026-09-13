@@ -83,6 +83,24 @@ def aggregate_coverage(out: str) -> tuple[dict[str, float], dict[str, int]]:
     return pkg_totals, pkg_counts
 
 
+def resolve_pkg_stats(
+    pkg: str, pkg_totals: dict[str, float], pkg_counts: dict[str, int]
+) -> tuple[float, int]:
+    """Looks up total percent and statement count for a package, supporting module path aliases."""
+    if pkg in pkg_counts:
+        return pkg_totals[pkg], pkg_counts[pkg]
+
+    alt_cli = pkg.replace("/gitmap-v28/gitmap/", "/gitmap-v28/cli/")
+    if alt_cli in pkg_counts:
+        return pkg_totals[alt_cli], pkg_counts[alt_cli]
+
+    alt_gitmap = pkg.replace("/gitmap-v28/cli/", "/gitmap-v28/gitmap/")
+    if alt_gitmap in pkg_counts:
+        return pkg_totals[alt_gitmap], pkg_counts[alt_gitmap]
+
+    return 0.0, 0
+
+
 def check_coverage_floors(
     pkg_totals: dict[str, float],
     pkg_counts: dict[str, int],
@@ -91,8 +109,8 @@ def check_coverage_floors(
     """Validates packages against configured floors and prints violations."""
     is_failed = False
     for pkg, floor in floors.items():
-        count = pkg_counts.get(pkg, 0)
-        avg = pkg_totals.get(pkg, 0.0) / count if count > 0 else 0.0
+        tot, count = resolve_pkg_stats(pkg, pkg_totals, pkg_counts)
+        avg = tot / count if count > 0 else 0.0
         if avg < floor:
             print(f"coverage-floor: {pkg} below floor (avg={avg:.1f}%, floor={floor:.1f}%)", file=sys.stderr)
             is_failed = True

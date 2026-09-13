@@ -73,10 +73,12 @@ func TestResolveFromSystem(t *testing.T) {
 	os.Setenv("GITHUB_TOKEN", "")
 
 	tok, src, err := Resolve()
-	if err == nil {
-		t.Logf("System resolved token from source: %s (len=%d)", src, len(tok))
-		if len(tok) == 0 {
-			t.Fatalf("expected non-empty token when err is nil")
-		}
+	if err != nil {
+		return
+	}
+
+	t.Logf("System resolved token from source: %s (len=%d)", src, len(tok))
+	if len(tok) == 0 {
+		t.Fatalf("expected non-empty token when err is nil")
 	}
 }

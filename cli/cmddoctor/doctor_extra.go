@@ -132,16 +132,6 @@ func joinSemi(parts []string) string {
 	return out
 }
 
-func firstEnv(keys ...string) string {
-	for _, k := range keys {
-		if v := os.Getenv(k); v != "" {
-			return v
-		}
-	}
-
-	return ""
-}
-
 func maskToken(t string) string {
 	if len(t) <= 8 {
 		return "****"

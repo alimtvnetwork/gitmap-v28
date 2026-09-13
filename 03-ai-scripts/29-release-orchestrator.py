@@ -237,6 +237,13 @@ def execute_release(tier: str, scope: str, bullets: list[str], original_branch: 
     stage_and_commit_release(new_ver, scope, rn_path)
     rel_branch, tag_name = create_release_branch_and_tag(new_ver)
     push_release_artifacts(rel_branch, tag_name, original_branch)
+    try:
+        gh_cmd = f'gh release create "{tag_name}" --title "{tag_name}" --notes-file "{rn_path}"'
+        print(f"Creating GitHub release: {gh_cmd}")
+        gh_res = run_cmd(gh_cmd)
+        print(f"GitHub release published: {gh_res}")
+    except Exception as exc:
+        print(f"[NOTE] gh release create result: {exc}")
     print(f"Success! Released {tag_name} on branch {rel_branch}.")
 
 

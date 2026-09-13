@@ -107,8 +107,56 @@ if hasattr(sys.stderr, "reconfigure"):
     sys.stderr.reconfigure(encoding="utf-8")
 
 CPU_CORES = os.cpu_count() or 16
-DEFAULT_WORKERS = int(os.environ.get("CI_MAX_WORKERS", CPU_CORES))
-DEFAULT_IO_WORKERS = int(os.environ.get("CI_MAX_IO_WORKERS", min(8, CPU_CORES)))
+
+
+def resolve_cpu_scaling_multiplier(free_pct: float, mem_free_pct: float, aggressive: bool) -> float:
+    """Calculates thread pool multiplier based on CPU idle headroom and available memory."""
+    if free_pct >= 70.0 and mem_free_pct >= 20.0:
+        return 2.0 if aggressive else 1.5
+    if free_pct >= 45.0:
+        return 1.5 if aggressive else 1.25
+    if free_pct >= 25.0:
+        return 1.0
+
+    return 0.75
+
+
+def detect_cpu_freeness_and_workers(
+    min_workers: int = 8,
+    max_cap: int | None = None,
+    aggressive: bool = True,
+) -> tuple[float, int]:
+    """Inspects system CPU freeness and dynamically calculates optimal worker threads.
+
+    Evaluates idle capacity, physical vs logical core headroom, and memory availability
+    to maximize hardware saturation up to 85-95% CPU without system starvation.
+    """
+    logical_cores = os.cpu_count() or 16
+    free_pct = 75.0
+    mem_free_pct = 60.0
+    try:
+        import psutil
+        busy_pct = psutil.cpu_percent(interval=0.15)
+        free_pct = max(1.0, 100.0 - busy_pct)
+        mem = psutil.virtual_memory()
+        mem_free_pct = (mem.available / mem.total) * 100.0
+    except Exception:
+        pass
+
+    multiplier = resolve_cpu_scaling_multiplier(free_pct, mem_free_pct, aggressive)
+    scaled_workers = int(logical_cores * multiplier)
+    optimal = max(min_workers, scaled_workers)
+    if max_cap is not None:
+        optimal = min(optimal, max_cap)
+    else:
+        optimal = min(optimal, logical_cores * 3)
+
+    return round(free_pct, 1), optimal
+
+
+INITIAL_FREE_CPU_PCT, DYNAMIC_WORKERS = detect_cpu_freeness_and_workers(min_workers=12)
+DEFAULT_WORKERS = int(os.environ.get("CI_MAX_WORKERS", DYNAMIC_WORKERS))
+DEFAULT_IO_WORKERS = int(os.environ.get("CI_MAX_IO_WORKERS", min(24, CPU_CORES * 2)))
 DEFAULT_TIMEOUT_SEC = int(os.environ.get("CI_TIMEOUT_SEC", 1200))
 DEFAULT_ENCODING = "utf-8"
 DEFAULT_JOB_ESTIMATE_SEC = 5.0
@@ -132,13 +180,7 @@ def get_repo_os_temp_dir(*subdirs: str) -> Path:
 
 
 def clear_repo_build_temp() -> None:
-    """Purges previous build artifacts and sweeps repo build temp to prevent disk waste."""
-    bin_file = REPO_ROOT / "bin" / "gitmap.exe"
-    if bin_file.exists():
-        try:
-            bin_file.unlink()
-        except OSError:
-            pass
+    """Sweeps repo build temp to prevent disk waste without unlinking compiled binaries."""
     build_dir = Path(tempfile.gettempdir()) / "gitmap" / "build"
     if build_dir.exists():
         try:
@@ -906,26 +948,41 @@ def print_inventory_summary(inventory: dict[str, Any]) -> None:
     print("================================================================", flush=True)
 
 
+def resolve_package_test_target(pkg: str, repo_root: Path) -> tuple[Path, str]:
+    """Resolves module working directory and package argument for go test."""
+    if pkg.startswith("scripts/changelog"):
+        mod_dir = repo_root / "scripts" / "changelog"
+        sub = pkg[len("scripts/changelog"):].lstrip("/")
+        return mod_dir, f"./{sub}" if sub else "."
+    if pkg.startswith("04-code/golang"):
+        mod_dir = repo_root / "04-code" / "golang"
+        sub = pkg[len("04-code/golang"):].lstrip("/")
+        return mod_dir, f"./{sub}" if sub else "."
+    if pkg.startswith("cli-updater"):
+        mod_dir = repo_root / "cli-updater"
+        sub = pkg[len("cli-updater"):].lstrip("/")
+        return mod_dir, f"./{sub}" if sub else "."
+    if pkg.startswith("cli/"):
+        return repo_root / "cli", "./" + pkg[len("cli/"):]
+    if pkg == "cli":
+        return repo_root / "cli", "."
+
+    return repo_root / "cli", f"./{pkg}"
+
+
 def run_package_tests_worker(
     pkg: str, pkg_tests: list[dict[str, Any]], repo_root: Path, timeout_sec: int
 ) -> tuple[int, int, str, dict[str, dict[str, Any]]]:
     """Worker function executing a batch of tests within a package using go test -json."""
-    rel_in_gitmap = pkg
-    if rel_in_gitmap.startswith("cli/"):
-        rel_in_gitmap = "./" + rel_in_gitmap[len("cli/"):]
-    elif rel_in_gitmap == "cli":
-        rel_in_gitmap = "."
-    else:
-        rel_in_gitmap = f"./{rel_in_gitmap}"
-
-    cmd = ["go", "test", "-json", rel_in_gitmap, "-count=1"]
+    cwd, rel_in_gitmap = resolve_package_test_target(pkg, repo_root)
+    parallel_threads = max(4, min(16, CPU_CORES))
+    cmd = ["go", "test", "-json", f"-parallel={parallel_threads}", rel_in_gitmap, "-count=1"]
     test_funcs = [t["test_func"] for t in pkg_tests]
-    if len(test_funcs) <= 25:
+    if len(test_funcs) <= 50:
         run_regex = "^(" + "|".join(test_funcs) + ")$"
         cmd.extend(["-run", run_regex])
-
-    cwd = repo_root / "cli"
     test_env = dict(os.environ)
+    test_env["GOMAXPROCS"] = str(CPU_CORES)
     test_env["GOTMPDIR"] = str(REPO_BUILD_TEMP)
     test_env["TMPDIR"] = str(REPO_TEST_TEMP)
     test_env["TEMP"] = str(REPO_TEST_TEMP)
@@ -939,12 +996,14 @@ def run_package_tests_worker(
         )
     except subprocess.TimeoutExpired:
         for t in pkg_tests:
-            fail_log = FAILURES_DIR / f"{t['id'].replace('/', '_')}.log"
+            clean_tid = re.sub(r'[<>:"/\\|?*]', '_', t['id'])
+            fail_log = FAILURES_DIR / f"{clean_tid}.log"
             fail_log.write_text(f"Timeout expired after {timeout_sec}s for test {t['id']}", encoding="utf-8")
         return 0, len(pkg_tests), f"Timeout expired after {timeout_sec}s", {}
     except Exception as exc:
         for t in pkg_tests:
-            fail_log = FAILURES_DIR / f"{t['id'].replace('/', '_')}.log"
+            clean_tid = re.sub(r'[<>:"/\\|?*]', '_', t['id'])
+            fail_log = FAILURES_DIR / f"{clean_tid}.log"
             fail_log.write_text(f"Execution error: {exc}", encoding="utf-8")
         return 0, len(pkg_tests), str(exc), {}
 
@@ -988,7 +1047,8 @@ def run_package_tests_worker(
     failure_snippets: list[str] = []
     for tid, res_info in test_results.items():
         if res_info["status"] == "failed":
-            fail_log = FAILURES_DIR / f"{tid.replace('/', '_')}.log"
+            clean_tid = re.sub(r'[<>:"/\\|?*]', '_', tid)
+            fail_log = FAILURES_DIR / f"{clean_tid}.log"
             err_content = "".join(test_output_map.get(tid, [])) or f"Test {tid} failed with exit code {proc.returncode}"
             fail_log.write_text(err_content, encoding="utf-8")
             failure_snippets.append(f"[{tid}] {err_content.strip()}")
@@ -1057,7 +1117,8 @@ def run_smart_go_tests(
     """Executes changed Go tests with dual worker queues (slow: 4w x 2 tests; fast: 4w x 4 tests in 100-chunks)."""
     start_time = time.monotonic()
     inventory = build_or_update_test_inventory(repo_root, force=force)
-    tests = inventory.get("tests", {})
+    all_tests = inventory.get("tests", {})
+    tests = {tid: t for tid, t in all_tests.items() if t.get("test_file", "").endswith(".go")}
     if package_filter:
         queries = [package_filter] if isinstance(package_filter, str) else list(package_filter)
         target_tests = filter_tests_by_package_or_file(tests, queries, repo_root)
@@ -1116,10 +1177,16 @@ def run_smart_go_tests(
         "failed": 0,
     }, indent=2), encoding="utf-8")
 
-    # Queue 1: Slow Tests Pool (4 workers, 2 tests per batch)
+    free_pct, dynamic_workers = detect_cpu_freeness_and_workers(min_workers=16, max_cap=CPU_CORES * 2)
+    slow_worker_limit = max(16, dynamic_workers)
+    fast_worker_limit = max(24, dynamic_workers)
+    print(f"\n⚡ [CPU Freeness Engine] System CPU is {free_pct}% idle across {CPU_CORES} logical cores.", flush=True)
+    print(f"   Dynamically scaling unit test pools: Slow Pool = {slow_worker_limit} workers, Fast Pool = {fast_worker_limit} workers.\n", flush=True)
+
+    # Queue 1: Slow Tests Pool (dynamically scaled workers, 2 tests per batch)
     if slow_tests:
         slow_batches = [slow_tests[i:i + 2] for i in range(0, len(slow_tests), 2)]
-        worker_limit = min(4, len(slow_batches))
+        worker_limit = min(slow_worker_limit, len(slow_batches))
         with ThreadPoolExecutor(max_workers=worker_limit) as executor:
             futures = {}
             for batch in slow_batches:
@@ -1154,61 +1221,65 @@ def run_smart_go_tests(
                     failed_count += len(b_tests)
                     error_outputs.append(f"[{pkg}] Slow worker exception: {ex}")
 
-    # Queue 2: Fast Tests Pool (4 workers, 4 tests per batch, chunks of 100 tests from inventory queue)
+    # Queue 2: Fast Tests Pool (dynamically scaled across all worker threads by package)
     if fast_tests:
-        chunk_size = 100
-        for chunk_start in range(0, len(fast_tests), chunk_size):
-            chunk = fast_tests[chunk_start:chunk_start + chunk_size]
-            sub_batches = [chunk[i:i + 4] for i in range(0, len(chunk), 4)]
-            worker_limit = min(4, len(sub_batches))
-            with ThreadPoolExecutor(max_workers=worker_limit) as executor:
-                futures = {}
-                for sbatch in sub_batches:
-                    batch_pkg_map = {}
-                    for t in sbatch:
-                        batch_pkg_map.setdefault(t["package"], []).append(t)
-                    for pkg, b_tests in batch_pkg_map.items():
-                        fut = executor.submit(run_package_tests_worker, pkg, b_tests, repo_root, timeout_sec)
-                        futures[fut] = (pkg, b_tests)
+        pkg_map: dict[str, list[dict[str, Any]]] = {}
+        for t in fast_tests:
+            pkg_map.setdefault(t["package"], []).append(t)
 
-                for fut in as_completed(futures):
-                    pkg, b_tests = futures[fut]
-                    try:
-                        pkg_passed, pkg_failed, pkg_out, test_results = fut.result()
-                        passed_count += pkg_passed
-                        failed_count += pkg_failed
-                        if pkg_failed > 0:
-                            error_outputs.append(f"[{pkg}] {pkg_out}")
-                        for tid, res_info in test_results.items():
-                            if tid in tests:
-                                tests[tid]["duration_sec"] = res_info["elapsed"]
-                                tests[tid]["last_status"] = res_info["status"]
-                                tests[tid]["last_run_at"] = time.strftime("%Y-%m-%dT%H:%M:%S")
-                                tests[tid]["needs_run"] = (res_info["status"] != "passed")
-                                tests[tid]["code_hash"] = compute_file_hash(repo_root / tests[tid].get("target_file", ""))
-                                tests[tid]["test_hash"] = compute_file_hash(repo_root / tests[tid].get("test_file", ""))
-                                if res_info["elapsed"] >= slow_threshold:
-                                    tests[tid]["is_slow"] = True
-                                    tests[tid]["tier"] = "slow"
-                                record_job_timing(f"GoTest:{tid}", res_info["elapsed"])
-                    except Exception as ex:
-                        failed_count += len(b_tests)
-                        error_outputs.append(f"[{pkg}] Fast worker exception: {ex}")
+        work_items: list[tuple[str, list[dict[str, Any]]]] = []
+        for pkg, ptests in pkg_map.items():
+            if len(ptests) > 40:
+                for i in range(0, len(ptests), 30):
+                    work_items.append((pkg, ptests[i:i + 30]))
+            else:
+                work_items.append((pkg, ptests))
 
-            # Update live telemetry after each 100-test chunk
-            cur_elapsed = round(time.monotonic() - start_time, 1)
-            rem = max(1.0, round(total_test_eta - cur_elapsed, 1))
-            RUNNER_ETA_FILE.write_text(json.dumps({
-                "status": "running",
-                "total_eta_sec": total_test_eta,
-                "elapsed_sec": cur_elapsed,
-                "remaining_eta_sec": rem,
-                "slow_tests_total": len(slow_tests),
-                "fast_tests_total": len(fast_tests),
-                "completed": passed_count + failed_count,
-                "passed": passed_count,
-                "failed": failed_count,
-            }, indent=2), encoding="utf-8")
+        worker_limit = min(fast_worker_limit, len(work_items))
+        with ThreadPoolExecutor(max_workers=worker_limit) as executor:
+            futures = {
+                executor.submit(run_package_tests_worker, pkg, b_tests, repo_root, timeout_sec): (pkg, b_tests)
+                for pkg, b_tests in work_items
+            }
+
+            for fut in as_completed(futures):
+                pkg, b_tests = futures[fut]
+                try:
+                    pkg_passed, pkg_failed, pkg_out, test_results = fut.result()
+                    passed_count += pkg_passed
+                    failed_count += pkg_failed
+                    if pkg_failed > 0:
+                        error_outputs.append(f"[{pkg}] {pkg_out}")
+                    for tid, res_info in test_results.items():
+                        if tid in tests:
+                            tests[tid]["duration_sec"] = res_info["elapsed"]
+                            tests[tid]["last_status"] = res_info["status"]
+                            tests[tid]["last_run_at"] = time.strftime("%Y-%m-%dT%H:%M:%S")
+                            tests[tid]["needs_run"] = (res_info["status"] != "passed")
+                            tests[tid]["code_hash"] = compute_file_hash(repo_root / tests[tid].get("target_file", ""))
+                            tests[tid]["test_hash"] = compute_file_hash(repo_root / tests[tid].get("test_file", ""))
+                            if res_info["elapsed"] >= slow_threshold:
+                                tests[tid]["is_slow"] = True
+                                tests[tid]["tier"] = "slow"
+                            record_job_timing(f"GoTest:{tid}", res_info["elapsed"])
+                except Exception as ex:
+                    failed_count += len(b_tests)
+                    error_outputs.append(f"[{pkg}] Fast worker exception: {ex}")
+
+                # Update live telemetry after each completed package/batch
+                cur_elapsed = round(time.monotonic() - start_time, 1)
+                rem = max(1.0, round(total_test_eta - cur_elapsed, 1))
+                RUNNER_ETA_FILE.write_text(json.dumps({
+                    "status": "running",
+                    "total_eta_sec": total_test_eta,
+                    "elapsed_sec": cur_elapsed,
+                    "remaining_eta_sec": rem,
+                    "slow_tests_total": len(slow_tests),
+                    "fast_tests_total": len(fast_tests),
+                    "completed": passed_count + failed_count,
+                    "passed": passed_count,
+                    "failed": failed_count,
+                }, indent=2), encoding="utf-8")
 
     elapsed = round(time.monotonic() - start_time, 2)
     RUNNER_ETA_FILE.write_text(json.dumps({
@@ -1298,6 +1369,7 @@ def execute_subprocess(
     resolved = resolve_command_binary(cmd)
     sub_env = dict(os.environ) if env is None else dict(env)
     sub_env.setdefault("PYTHONUNBUFFERED", "1")
+    sub_env["GOMAXPROCS"] = str(CPU_CORES)
     sub_env["GOTMPDIR"] = str(REPO_BUILD_TEMP)
     sub_env["TMPDIR"] = str(REPO_TEST_TEMP)
     sub_env["TEMP"] = str(REPO_TEST_TEMP)
@@ -1326,8 +1398,12 @@ def run_job(
     name: str, cmd: list[str], timeout_sec: int, env: dict[str, str] | None = None, cwd: str | None = None
 ) -> JobResult:
     """Executes a single gate subprocess and records duration, return code, and streams."""
-    if name in ("Go Compile Gate", "Web App Build", "GoReleaser Snapshot Build"):
+    if name in ("Go Compile Gate", "Web App Build"):
         clear_repo_build_temp()
+    if name in ("E2E Smoke Suite", "History Purge Smoke", "History Pin Smoke"):
+        bin_exe = REPO_ROOT / "bin" / "gitmap.exe"
+        if not bin_exe.exists():
+            subprocess.run(["go", "build", "-C", "cli", "-o", "../bin/gitmap.exe", "."], check=False)
     start = time.monotonic()
     try:
         res = execute_subprocess(cmd, timeout_sec, env, cwd)

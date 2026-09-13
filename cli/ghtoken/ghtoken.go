@@ -155,19 +155,41 @@ func tokenFromHostsFile() (string, bool) {
 	return extractOauthTokenFromYAML(string(data))
 }
 
-func getGhHostsFilePath() string {
-	if appData := os.Getenv("APPDATA"); len(appData) > 0 {
-		winPath := filepath.Join(appData, "GitHub CLI", "hosts.yml")
-		if _, err := os.Stat(winPath); err == nil {
-			return winPath
-		}
+func resolveAppDataHostsPath() string {
+	appData := os.Getenv("APPDATA")
+	if len(appData) == 0 {
+		return ""
 	}
 
-	if homeDir, err := os.UserHomeDir(); err == nil {
-		unixPath := filepath.Join(homeDir, ".config", "gh", "hosts.yml")
-		if _, err := os.Stat(unixPath); err == nil {
-			return unixPath
-		}
+	winPath := filepath.Join(appData, "GitHub CLI", "hosts.yml")
+	if _, err := os.Stat(winPath); err == nil {
+		return winPath
+	}
+
+	return ""
+}
+
+func resolveHomeHostsPath() string {
+	homeDir, err := os.UserHomeDir()
+	if err != nil {
+		return ""
+	}
+
+	unixPath := filepath.Join(homeDir, ".config", "gh", "hosts.yml")
+	if _, err := os.Stat(unixPath); err == nil {
+		return unixPath
+	}
+
+	return ""
+}
+
+func getGhHostsFilePath() string {
+	if path := resolveAppDataHostsPath(); len(path) > 0 {
+		return path
+	}
+
+	if path := resolveHomeHostsPath(); len(path) > 0 {
+		return path
 	}
 
 	return ""

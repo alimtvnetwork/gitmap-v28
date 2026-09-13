@@ -446,18 +446,25 @@ func extractRunSectionFailures(run FailedRunItem) []SectionFailure {
 	return out
 }
 
+func resolveRunRawLogs(run FailedRunItem) string {
+	if len(run.RawErrors) > 0 {
+		return run.RawErrors
+	}
+
+	cached, hasCached := readCachedPipelineLog(run.RunId)
+	if hasCached {
+		return cached
+	}
+
+	return ""
+}
+
 func resolveRunCorrelatedJobs(run FailedRunItem) []FailedJobItem {
 	if run.RunId == 0 {
 		return run.FailedJobs
 	}
 
-	rawLogs := run.RawErrors
-	if len(rawLogs) == 0 {
-		if cached, hasCached := readCachedPipelineLog(run.RunId); hasCached {
-			rawLogs = cached
-		}
-	}
-
+	rawLogs := resolveRunRawLogs(run)
 	ghJobs := queryRunJobs("", run.RunId)
 	if len(ghJobs) == 0 {
 		return resolveJobFallback(run.FailedJobs, rawLogs)
