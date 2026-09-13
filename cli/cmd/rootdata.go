@@ -85,5 +85,9 @@ func dataExecutionEntries() []dispatchEntry {
 		{[]string{"record", "rec"}, func() error { return cmdmacro.RunMacroCmd(append([]string{"record"}, argsTail()...)) }},
 		{[]string{"retry", "loop", "until-success"}, func() error { return cmdmacro.RunMacroUntilSuccess(argsTail()) }},
 		{[]string{"mv", "move"}, func() error { return runMove(argsTail()) }},
+		{[]string{constants.CmdStartup, constants.CmdStartupAlias}, func() error { return RunStartupCmd(argsTail()) }},
+		{[]string{constants.CmdAsync, constants.CmdAsyncAlias}, func() error { return RunAsyncCmd(argsTail()) }},
+		{[]string{constants.CmdStorage, constants.CmdStorageAlias}, func() error { return RunStorageCmd(argsTail()) }},
+		{[]string{"schedule", "sc", "crontab", "cron"}, func() error { return runSchedule(argsTail()) }},
 	}
 }

@@ -445,6 +445,12 @@ func topLevelCmds() map[string]string {
 		"CmdExportConfigAlias":          CmdExportConfigAlias,
 		"CmdImportConfig":               CmdImportConfig,
 		"CmdImportConfigAlias":          CmdImportConfigAlias,
+		"CmdStartup":                    CmdStartup,
+		"CmdStartupAlias":               CmdStartupAlias,
+		"CmdAsync":                      CmdAsync,
+		"CmdAsyncAlias":                 CmdAsyncAlias,
+		"CmdStorage":                    CmdStorage,
+		"CmdStorageAlias":               CmdStorageAlias,
 	}
 }
 

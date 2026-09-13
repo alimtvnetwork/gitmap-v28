@@ -56,7 +56,7 @@ func allHelpRows() []helpRow {
 		constants.HelpNginx, constants.HelpVHost)
 	addGroup(&rows, constants.HelpGroupTasks,
 		constants.HelpTask, constants.HelpPending, constants.HelpDoPending,
-		constants.HelpMacro, constants.HelpExecute)
+		constants.HelpMacro, constants.HelpExecute, constants.HelpAsync)
 	addGroup(&rows, constants.HelpGroupVisualize, constants.HelpDashboard)
 	addGroup(&rows, constants.HelpGroupCommitXfer,
 		constants.HelpCommitRight, constants.HelpCommitLeft, constants.HelpCommitBoth)
@@ -76,7 +76,8 @@ func allHelpRows() []helpRow {
 	addGroup(&rows, constants.HelpGroupInstallers,
 		constants.HelpInstall, constants.HelpUninstall, constants.HelpInstaller, constants.HelpMacro, constants.HelpSetup)
 	addGroup(&rows, constants.HelpGroupIntegrations,
-		constants.HelpVSCode, constants.HelpAgy, constants.HelpSchedule, constants.HelpPipeline, constants.HelpUI, constants.HelpVmware)
+		constants.HelpVSCode, constants.HelpAgy, constants.HelpSchedule,
+		constants.HelpStartup, constants.HelpStorage, constants.HelpPipeline, constants.HelpUI, constants.HelpVmware)
 	addGroup(&rows, constants.HelpGroupCluster,
 		constants.HelpServersClients, constants.HelpClients, constants.HelpCluster, constants.HelpServe)
 	addGroup(&rows, constants.HelpGroupUtilities,

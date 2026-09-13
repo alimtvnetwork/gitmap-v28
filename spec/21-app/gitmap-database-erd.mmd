@@ -525,3 +525,35 @@ erDiagram
         INTEGER CreatedAt
         INTEGER UpdatedAt
     }
+
+    %% ============================================================
+    %% STARTUP MANAGEMENT (spec/150-startup-crontab-schedule-async-storage)
+    %% ============================================================
+
+    StartupItem {
+        INTEGER StartupItemId PK
+        TEXT Name UK
+        TEXT TargetType
+        TEXT TargetPath
+        TEXT TargetArgs
+        TEXT Frequency
+        TEXT IconPath
+        INTEGER RunCount
+        INTEGER LastRunAt
+        INTEGER LastExitCode
+        INTEGER IsEnabled
+        INTEGER CreatedAt
+        INTEGER UpdatedAt
+    }
+
+    StartupLog {
+        INTEGER StartupLogId PK
+        INTEGER StartupItemId FK
+        TEXT Name
+        INTEGER StartedAt
+        INTEGER DurationMs
+        INTEGER ExitCode
+        INTEGER IsSuccess
+        TEXT OutputSummary
+        TEXT ErrorMessage
+    }

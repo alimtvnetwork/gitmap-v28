@@ -86,12 +86,27 @@ func ResolvePackageManager(override, tool string) string {
 	return resolvePackageManager(override, tool)
 }
 
+// ResolveToolAlias normalizes known tool aliases.
+func ResolveToolAlias(tool string) string {
+	return resolveToolAlias(tool)
+}
+
 // ResolvePackageName resolves the package name for a tool.
 func ResolvePackageName(tool, manager string) string {
-	return resolvePackageName(tool, manager)
+	return resolvePackageName(manager, tool)
 }
 
 // RunInstallCommand executes the package manager install command.
 func RunInstallCommand(args []string, opts installOptions) error {
 	return runInstallCommand(args, opts)
+}
+
+// CheckCustomStandaloneTool reports whether a tool is a standalone custom tool.
+func CheckCustomStandaloneTool(tool string) bool {
+	return IsCustomStandaloneTool(tool)
+}
+
+// UninstallCustomTool removes custom tool binaries and records.
+func UninstallCustomTool(tool string, purge bool) error {
+	return RunUninstallCustomTool(tool, purge)
 }

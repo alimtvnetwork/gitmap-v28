@@ -28,11 +28,13 @@ func runInstallAgyWithOpts(opts installOptions) error {
 }
 
 func performAgyInstall() error {
-	fmt.Println("Installing Antigravity CLI (agy)...")
+	fmt.Printf("Installing Antigravity CLI (agy) for %s...\n", runtime.GOOS)
 	if err := executeAgyInstaller(); err != nil {
 		fmt.Fprintf(os.Stderr, "Installer failed: %v, trying npm fallback...\n", err)
 		_ = runAgyNpmFallback()
 	}
+
+	ensureAgySymlinksAndPath()
 
 	ver, isFound := verifyAndRecordAgy()
 	if isFound {
@@ -71,6 +73,7 @@ func buildScriptExecutionCmd(scriptPath string) *exec.Cmd {
 }
 
 func verifyAndRecordAgy() (string, bool) {
+	ensureAgySymlinksAndPath()
 	bin := resolveToolBinaryPath("agy")
 	if bin == "" {
 		return "", false
@@ -84,6 +87,9 @@ func verifyAndRecordAgy() (string, bool) {
 	ver := parseVersionFromOutput(string(out))
 	if ver == "" {
 		ver = strings.TrimSpace(string(out))
+	}
+	if ver == "" {
+		return "", false
 	}
 
 	recordAgyInstalled(ver)

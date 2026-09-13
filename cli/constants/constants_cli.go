@@ -440,6 +440,10 @@ const (
 	CmdImportConfig      = "import-config"
 	CmdImportConfigAlias = "config-import"
 	CmdImportConfigTypo  = "improt-config" // gitmap:cmd skip
+	CmdAsync             = "async"
+	CmdAsyncAlias        = "asyn"
+	CmdStorage           = "storage"
+	CmdStorageAlias      = "stor"
 )
 
 // vscode-pm-sync flag names + descriptions.

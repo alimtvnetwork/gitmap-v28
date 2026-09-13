@@ -50,11 +50,10 @@ PHASE_2_STEPS = N / 2   (Parallel Execution & QA)
 1. **Parallel Dispatch:** Use the `invoke_subagent` tool to spawn exactly 2 execution subagents (max 2 threads each) assigned to disjoint subtasks from `.lovable/plans/subtasks/xx-<slug>/`. Provide subagents with minimal instructions (e.g., "Read `.lovable/plans/subtasks/xx-slug/01-task.md` and execute it").
 2. **Execution & Coding Guidelines:** Subagents refactor code following all coding guidelines (<= 8–15 line functions, single return types, Unix LF line endings).
 3. **Failure Memory & Error Recovery:** If a subagent fails, record the failure log in `.lovable/plan.md` and `.lovable/memory/issues/xx-failure.md`; subsequent agents MUST read the failure log first to remediate root causes.
-4. **Atomic Change Tracking:** Append all modified files to `.lovable/temp/recent-file-changes.json` under lock (`python 03-ai-scripts/33-test-inventory-generator.py --record <files...>`), mapping to associated tests in `.lovable/test-inventory.json`.
-5. **Temp & Failure Folder Isolation:** All temporary test files and outputs must be strictly in `.lovable/temp/`. Failed tests write error logs to `.lovable/temp/failures/<test-id>.log`. Passing tests must be 100% silent (zero filesystem files, zero log lines).
-6. **Dual-Queue Worker Pools:** Slow tests (>= 4.0s, configurable via `GITMAP_SLOW_TEST_THRESHOLD`) run with 4 workers at most 2 tests per batch. Fast tests (< 4.0s) run with 4 workers at most 4 tests per batch, pulling in 100-test chunks from the inventory queue.
-7. **Dynamic ETA Sleep Protocol:** The AI agent reads `.lovable/temp/runner-eta.json` to sleep for the estimated duration rather than burning tokens in active loops. If the runner is still active upon waking, the agent re-checks remaining ETA and sleeps again.
-8. **Local Verification:** Run targeted linters on modified files and ensure code compiles / passes lint checks with exit code 0 (`exit 0`). DO NOT run the full CI/CD runner (`06-cicd-local-runner.py`) during routine task steps unless explicitly commanded by the repository owner.
+4. **Atomic Change Tracking:** Append all modified files to `.lovable/temp/recent-file-changes.json` under lock (`python 03-ai-scripts/33-test-inventory-generator.py --record <files...>`), mapping to associated tests in `.lovable/test-inventory.json` for subsequent CI/CD verification.
+5. **TOTAL BAN on Test Running:** DO NOT run any tests using Python scripts (`06-cicd-local-runner.py`, `pytest`), Go (`go test`), or any test runner during routine execution turns. All test execution is strictly deferred to CI/CD pipelines and dedicated fix workflows.
+6. **TOTAL BAN on Build Checking:** DO NOT run build verification commands (`go build`, `npm run build`, compiler invocations). Build compilation is checked later on in CI/CD.
+7. **Targeted Quality Linting Only:** Run only targeted, fast file-level linters/autofixers on specifically modified files (`exit 0`). DO NOT run `06-cicd-local-runner.py` or full test suites.
 
 ### Phase 3: Task Consolidation & File Reduction (End of Loop)
 
@@ -78,7 +77,16 @@ PHASE_2_STEPS = N / 2   (Parallel Execution & QA)
 
 ---
 
-## 2. Non-Negotiable Coding Guidelines Checklist (Auto-Reject on Violation)
+## 2. Banned Operations Checklist (TOTAL BAN — Auto-Reject on Violation)
+
+- [ ] **NO TEST RUNNING (TOTAL BAN):** NEVER run any tests using Python scripts (`06-cicd-local-runner.py`, `pytest`, runner scripts), Go (`go test ./...`), or any test runner during routine execution turns. Testing is strictly checked later on in CI/CD.
+- [ ] **NO BUILD CHECKING (TOTAL BAN):** NEVER run build commands (`go build`, `npm run build`, compiler checks) to verify compilation. Build verification is checked later on in CI/CD.
+- [ ] **NO RUNNER SCRIPTS (TOTAL BAN):** NEVER launch background test runners, worker pools, or test inventory loops during routine execution.
+- [ ] **NO AUTOMATIC RELEASES (TOTAL BAN):** NEVER bump versions, update changelogs, or trigger releases unless explicitly commanded by the user.
+
+---
+
+## 3. Non-Negotiable Coding Guidelines Checklist (Auto-Reject on Violation)
 
 /goal You MUST verify every item on this checklist before committing any code. If a subagent violated one of these rules, you must reject their work.
 
@@ -93,11 +101,11 @@ PHASE_2_STEPS = N / 2   (Parallel Execution & QA)
 
 ---
 
-## 3. Anti-Hallucination & Blast Radius Checklist
+## 4. Anti-Hallucination & Blast Radius Checklist
 
 - [ ] Echo Back the Spec: Verified Acceptance Criteria from the Spec file verbatim.
 - [ ] Pre-Commit Diff Proof: Verified `git status` shows actual modified files before committing.
 - [ ] No Placeholder Search: Confirmed zero `TODO` or `\[.*\]` placeholders remain in modified files.
 - [ ] Index Sync Deadman Switch: Every new file is explicitly linked in `readme.md` and enqueued in `.lovable/what-to-read.md`.
 - [ ] Blast Radius Acknowledgment: Global search across codebase performed to update all callers of modified symbols.
-- [ ] Continuous Loop Maintained: Continuous self-loop executed until 100% complete with local CI green.
+- [ ] Continuous Loop Maintained: Continuous self-loop executed until 100% complete without running banned test/build commands (all testing and build verification deferred to CI/CD).

@@ -86,3 +86,29 @@ func TestBuildAptUninstall(t *testing.T) {
 		t.Fatalf("purge apt should use 'purge': %v", pg)
 	}
 }
+
+func TestCheckUninstallEligibilityErrorFormatting(t *testing.T) {
+	err := checkUninstallEligibility(nil, "nonexistent-tool-xyz", "nonexistent-tool-xyz", false)
+	if err == nil {
+		t.Fatalf("expected error for nonexistent untracked tool")
+	}
+	msg := err.Error()
+	if !containsToken([]string{msg}, "nonexistent-tool-xyz") {
+		t.Fatalf("expected tool name in error message, got: %s", msg)
+	}
+	if containsToken([]string{msg}, "%s") {
+		t.Fatalf("error message contains unformatted literal %%s: %s", msg)
+	}
+}
+
+func TestIsCustomStandaloneTool(t *testing.T) {
+	customTools := []string{"agy", "antigravity", "ag-manager", "scripts-fixer", "coding-guidelines", "macro-ahk"}
+	for _, tool := range customTools {
+		if !isCustomStandaloneTool(tool) {
+			t.Errorf("expected %s to be recognized as custom standalone tool", tool)
+		}
+	}
+	if isCustomStandaloneTool("git") {
+		t.Errorf("expected git to NOT be recognized as custom standalone tool")
+	}
+}

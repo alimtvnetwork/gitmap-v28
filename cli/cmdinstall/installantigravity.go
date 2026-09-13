@@ -23,23 +23,31 @@ func runInstallAntigravityWithOpts(opts installOptions) error {
 	return performAntigravityDesktopInstall(opts)
 }
 
+func fallbackToAgyCli(opts installOptions, origErr error) error {
+	fmt.Printf("  ⚠ Antigravity desktop IDE package is unavailable (%v)\n", origErr)
+	fmt.Println("  → Falling back to Google Antigravity CLI (agy)...")
+	if cliErr := runInstallAgyWithOpts(opts); cliErr == nil {
+		recordAntigravityDesktopInstalled("antigravity-cli")
+		return nil
+	}
+	reportVerificationFailure(constants.ToolAntigravity, "antigravity")
+
+	return fmt.Errorf("antigravity desktop IDE installation failed: %w", origErr)
+}
+
 func performAntigravityDesktopInstall(opts installOptions) error {
 	fmt.Println("Installing Google Antigravity Desktop IDE...")
 	if err := installAntigravityDesktopPlatform(opts); err != nil {
-		reportVerificationFailure(constants.ToolAntigravity, "antigravity")
-
-		return fmt.Errorf("antigravity desktop IDE installation failed: %w", err)
+		return fallbackToAgyCli(opts, err)
 	}
 
 	path, isFound := findInstalledAntigravityDesktopPath()
-	if isFound {
-		fmt.Printf(constants.ColorGreen+"✓"+constants.ColorReset+" Google Antigravity Desktop IDE installed: %s\n", path)
-		recordAntigravityDesktopInstalled(path)
-
-		return nil
+	if !isFound {
+		return fallbackToAgyCli(opts, fmt.Errorf("desktop application binary not found"))
 	}
 
-	reportVerificationFailure(constants.ToolAntigravity, "antigravity")
+	fmt.Printf(constants.ColorGreen+"✓"+constants.ColorReset+" Google Antigravity Desktop IDE installed: %s\n", path)
+	recordAntigravityDesktopInstalled(path)
 
-	return fmt.Errorf("antigravity desktop IDE installation verification failed")
+	return nil
 }

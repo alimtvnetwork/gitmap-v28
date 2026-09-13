@@ -35,6 +35,8 @@ func executePipelineErrorLogs(args []string) error {
 	flags := ParsePipelineErrorFlags(args)
 	repo := resolveCurrentRepoSlug()
 	if flags.HasTimeline {
+		WaitForRunnerETAIfActive()
+
 		return runPipelineErrorLogsDynamicTimeline(ErrorLogsTimelineParams{
 			Repo: repo, IsJSON: flags.IsJSON, WantFix: flags.HasFix,
 			WantCheck: flags.HasCheck, IsDetailed: flags.IsDetailed,

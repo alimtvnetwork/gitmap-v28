@@ -353,22 +353,7 @@ func dispatch(command string) {
 		return
 	}
 
-	msg := fmt.Sprintf(constants.ErrUnknownCommand, command)
-	if looksLikeURLToken(command) {
-		msg = fmt.Sprintf(constants.ErrUnknownCommandURLHint, command)
-	}
-
-	printUsage()
-	dispatchErr := apperror.NewWithDetails(
-		"cmd.dispatch",
-		"E1001",
-		msg,
-		"cmd.root",
-		apperror.ErrorTypeValidation,
-		apperror.SeverityError,
-		map[string]any{"command": command},
-	)
-	cliexit.HandleError(dispatchErr, 1)
+	handleUnknownCommand(command)
 }
 
 // isCloneRewriteRequired returns true when the args (excluding argv[0])

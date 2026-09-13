@@ -54,7 +54,7 @@ func checkCandidatePaths(paths []string) (string, bool) {
 }
 
 func findAntigravityInPath() (string, bool) {
-	for _, name := range []string{"antigravity", "Antigravity", "agy"} {
+	for _, name := range []string{"antigravity", "Antigravity"} {
 		if p, err := exec.LookPath(name); err == nil {
 			return p, true
 		}

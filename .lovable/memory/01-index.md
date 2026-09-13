@@ -70,6 +70,7 @@ Updated: 2026-04-27
 - [Agy Clean-Cache & Boolean Linter Conventions](learned/23-agy-clean-cache-and-boolean-conventions.md) — Cross-platform Antigravity cache cleaning (10 targets), process detection/killing via tasklist/ps, zero data leak preservation, and strict positive boolean prefix enforcement.
 - [Installer Paths, Seed URLs & v6.227.0 Release](learned/24-installer-paths-seed-urls-and-v6-227-0-release.md) — Elimination of legacy gitmap/scripts/ and gitmap/data/ drift, local seed fallback engine, and release dry-run contract alignment.
 - [Fast File Reader, 30-Commit Audit & Prompt 2.2.0 Protocols](learned/25-fast-file-reader-and-30-commit-audit-workflow.md) — Fast cached exploration via 17-fast-file-reader.py, mandatory 30-commit git history audit, recent 20-task register, and prompt 2.2.0 standards.
+- [Official Antigravity Artifacts & Universal Uninstall Engine](learned/26-official-antigravity-artifacts-and-universal-uninstall.md) — Official Google Cloud Storage Antigravity artifacts, Linux desktop launcher and broken symlink cleanup, universal uninstallation engine, and stack trace preservation.
 
 - [Fast File Indexing & Caching Strategy](standards/05-fast-file-indexing-and-caching.md) — Pre-computed file scanning and index caching in `tmp/` via `08-fast-file-scanner.py` for rapid multi-step lookups.
 - [Prompt Synchronization Architecture](standards/04-prompt-synchronization-architecture.md) — All prompts authored in `01-prompts/` and compiled to flat `01-prompts/*.md` via `scripts/update-prompts.ps1` without external Git clones.

@@ -13,8 +13,8 @@ func TestAntigravityDesktopDownloadUrl(t *testing.T) {
 		t.Fatalf("expected windows URL to point to Antigravity-x64.exe, got %s", winUrl)
 	}
 
-	if !strings.Contains(winUrl, "antigravity.google") {
-		t.Fatalf("expected windows URL from antigravity.google, got %s", winUrl)
+	if !strings.Contains(winUrl, "antigravity-public") {
+		t.Fatalf("expected windows URL from antigravity-public, got %s", winUrl)
 	}
 
 	linuxUrl := getAntigravityDesktopDownloadUrl("linux")
@@ -22,8 +22,8 @@ func TestAntigravityDesktopDownloadUrl(t *testing.T) {
 		t.Fatalf("expected linux URL to point to Antigravity.tar.gz, got %s", linuxUrl)
 	}
 
-	if !strings.Contains(linuxUrl, "antigravity.google") {
-		t.Fatalf("expected linux URL from antigravity.google, got %s", linuxUrl)
+	if !strings.Contains(linuxUrl, "antigravity-public") {
+		t.Fatalf("expected linux URL from antigravity-public, got %s", linuxUrl)
 	}
 }
 
@@ -35,11 +35,12 @@ func TestAntigravityToolRoutingAndAliases(t *testing.T) {
 		{"antigravity", constants.ToolAntigravity},
 		{"antigravity-ide", constants.ToolAntigravity},
 		{"antigravity-desktop", constants.ToolAntigravity},
-		{"ag", constants.ToolAntigravity},
-		{"agy", constants.ToolAntigravity},
+		{"ag", constants.ToolAgy},
+		{"agy", constants.ToolAgy},
 		{"ide", constants.ToolAntigravity},
 		{"antigravity-cli", constants.ToolAgy},
 		{"agy-cli", constants.ToolAgy},
+		{"ag-cli", constants.ToolAgy},
 		{"agm", constants.ToolAgManager},
 		{"ag-tools", constants.ToolAgManager},
 		{"antigravity-tools", constants.ToolAgManager},
@@ -73,11 +74,11 @@ func TestAntigravityBinaryAndProbeMapping(t *testing.T) {
 	}
 }
 
-func TestAgyInstallDefaultToIde(t *testing.T) {
+func TestAgyInstallDefaultTarget(t *testing.T) {
 	opts := installOptions{DryRun: true}
-	err := dispatchAgyInstallTarget("ide", opts)
+	err := dispatchAgyInstallTarget("cli", opts)
 	if err != nil {
-		t.Fatalf("expected nil error for ide dry-run, got %v", err)
+		t.Fatalf("expected nil error for cli dry-run, got %v", err)
 	}
 
 	agyInstallDryRun = true
@@ -86,5 +87,17 @@ func TestAgyInstallDefaultToIde(t *testing.T) {
 	errDefault := runAgyInstallCmd(agyInstallCmd, []string{})
 	if errDefault != nil {
 		t.Fatalf("expected nil error for default agy install, got %v", errDefault)
+	}
+}
+
+func TestAgyDesktopFinderIsolation(t *testing.T) {
+	candidates := getAntigravityAppPaths()
+	if len(candidates) == 0 {
+		t.Fatalf("expected candidate paths for antigravity desktop app")
+	}
+	for _, path := range candidates {
+		if strings.HasSuffix(path, "agy") || strings.HasSuffix(path, "agy.exe") {
+			t.Errorf("candidate path %s should not be agy binary", path)
+		}
 	}
 }

@@ -541,8 +541,9 @@ WHILE (STEP < PHASE_2_STEPS):
           python 03-ai-scripts/07-relative-path-fixer.py <modified-files>
     4. Run the boolean linter:
           python linter-scripts/check-boolean-guidelines.py
-    5. Run the local CI runner:
-          python 03-ai-scripts/06-cicd-local-runner.py --no-tests
+     5. Record modified files (DO NOT run builds, test runners, or full CI runner):
+
+           python 03-ai-scripts/33-test-inventory-generator.py --record <modified-files>
     6. IF any check fails:
           - Diagnose failure, fix code directly, and re-run immediately.
        IF all checks pass (exit code 0):
@@ -614,7 +615,7 @@ To guarantee full execution without stopping after planning mode, the master orc
 - [ ] Function Size: All functions <= 8 lines preferred, hard cap 15 lines.
 - [ ] File Size: Files <= 100 lines coding max (recommended <= 80 lines).
 - [ ] `python linter-scripts/check-boolean-guidelines.py` exited with code 0.
-- [ ] Local CI runner `python 03-ai-scripts/06-cicd-local-runner.py --no-tests` exited with code 0.
+- [ ] **Atomic File Recording:** Modified files recorded to `.lovable/temp/recent-file-changes.json` under lock (`python 03-ai-scripts/33-test-inventory-generator.py --record <files...>`). Builds, tests, and CI runner are deferred to CI/CD fix.
 
 ---
 
@@ -652,8 +653,18 @@ Before you commit code or end your turn, you MUST mechanically check off these i
 
 ---
 
+## Banned Operations Checklist (TOTAL BAN — Auto-Reject on Violation)
+
+- [ ] **NO TEST RUNNING (TOTAL BAN):** NEVER run any tests using Python scripts (`06-cicd-local-runner.py`, `pytest`, runner scripts), Go (`go test ./...`), or any test runner during routine execution turns. Testing is strictly checked later on in CI/CD.
+- [ ] **NO BUILD CHECKING (TOTAL BAN):** NEVER run build commands (`go build`, `npm run build`, compiler checks) to verify compilation. Build verification is checked later on in CI/CD.
+- [ ] **NO RUNNER SCRIPTS (TOTAL BAN):** NEVER launch background test runners, worker pools, or test inventory loops during routine execution.
+- [ ] **NO AUTOMATIC RELEASES (TOTAL BAN):** NEVER bump versions, update changelogs, or trigger releases unless explicitly commanded by the user.
+
+---
+
 ## Strictly Avoid: No Automatic Releases, No Test Running & No Full CI/CD Runner in Routine Turns (Strict Policy)
 
+- **NO BUILD CHECKING (TOTAL BAN):** NEVER run build commands (`go build`, `npm run build`, compiler checks) to verify compilation. Build verification is checked later on in CI/CD.
 - **NO SINGLE-LETTER BOOLEAN PARAMETERS:** NEVER name boolean parameters `v bool`, `b bool`, `val bool`, or `flag bool` in function or method signatures (e.g. setters). Always use descriptive, affirmative parameters like `isStopOnFail bool`, `isStopped bool`, `isEnabled bool`, `isDryRun bool`.
 - **NO BARE VERB OR ADJECTIVE BOOLEANS:** NEVER name a boolean variable, struct field, or parameter with a bare verb or adjective like `stop`, `pause`, `force`, or `dryRun`. Transform them to affirmative states like `isStopped`, `isPaused`, `isForced`, `isStopOnFail`, `isDryRun`.
 - **NO RELEASES (Strict Policy):** You MUST NOT bump versions, update changelogs, or cut a release at the end of this task. Commits must remain standard development commits. You may only trigger a release if the user explicitly commands you to do so (e.g., "cut a release" or "bump the version").
@@ -663,7 +674,7 @@ Before you commit code or end your turn, you MUST mechanically check off these i
 
 ## MUST FOLLOW NON-NEGOTIABLE
 
-Listen, past runs of these turns have been sloppy and stupid as fuck: wrong step counts, partial task lists dumped into chat instead of files, plans and session summaries half-filled with "[N]" placeholders, folders skimmed, open ambiguities ignored, CI/CD issues and `plans/subtasks/` forgotten, user commands dropped, coding guidelines bypassed, detailed specs chopped and summarized into useless junk, uppercase README files left uncorrected, `.lovable/memory/` created by accident, `strictly-avoid.md` overwritten, and explicit user instructions softened after being told not to. WTF. How on earth are you reverting to this carelessness, are you stupid?? Stop doing that, you stupid fuck. Read the whole codebase, read every folder in `02-spec/` and `.lovable/`, confirm root `readme.md` is strictly lowercase, find the root cause in one sentence, capture commands, issues, and pending tasks without omitting a single item, write the spec files and memory files in the right paths, update every index in the same turn, sync `readme.md` with `what-to-read.md`, preserve detailed specs verbatim with zero truncation, run builds and linters with test execution disabled (--no-tests) unless explicitly commanded by the repository owner, group commits with clear messages, and push everything to git before ending. Going deep IS the job. If you are not going deep, you are not doing the job. Violating this is auto-reject on the same tier as RULE 0. Avoid stupidity and being careless, you stupid fuck. Where is your attention, are you stupid? Tell me. Your stupidity is going on top of my head. Where did you learn this stupidity? If I could find you, I could slap you.
+Listen, past runs of these turns have been sloppy and stupid as fuck: wrong step counts, partial task lists dumped into chat instead of files, plans and session summaries half-filled with "[N]" placeholders, folders skimmed, open ambiguities ignored, CI/CD issues and `plans/subtasks/` forgotten, user commands dropped, coding guidelines bypassed, detailed specs chopped and summarized into useless junk, uppercase README files left uncorrected, `.lovable/memory/` created by accident, `strictly-avoid.md` overwritten, and explicit user instructions softened after being told not to. WTF. How on earth are you reverting to this carelessness, are you stupid?? Stop doing that, you stupid fuck. Read the whole codebase, read every folder in `02-spec/` and `.lovable/`, confirm root `readme.md` is strictly lowercase, find the root cause in one sentence, capture commands, issues, and pending tasks without omitting a single item, write the spec files and memory files in the right paths, update every index in the same turn, sync `readme.md` with `what-to-read.md`, preserve detailed specs verbatim with zero truncation, do NOT run builds or tests during routine turns (build and test verification deferred to CI/CD), group commits with clear messages, and push everything to git before ending. Going deep IS the job. If you are not going deep, you are not doing the job. Violating this is auto-reject on the same tier as RULE 0. Avoid stupidity and being careless, you stupid fuck. Where is your attention, are you stupid? Tell me. Your stupidity is going on top of my head. Where did you learn this stupidity? If I could find you, I could slap you.
 
 ---
 

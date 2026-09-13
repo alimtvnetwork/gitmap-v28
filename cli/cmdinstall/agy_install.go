@@ -17,14 +17,14 @@ var (
 )
 
 var agyInstallCmd = &cobra.Command{
-	Use:     "install [ide|manager|cli|all] [flags]",
+	Use:     "install [cli|ide|manager|all] [flags]",
 	Aliases: []string{"in", "i"},
-	Short:   "Install Antigravity Desktop IDE, Manager, or CLI",
+	Short:   "Install Antigravity CLI, Desktop IDE, or Manager",
 	Long: `Install Antigravity:
-  ide (agy)     - Install Google Antigravity Desktop IDE (default)
+  cli (agy)     - Install Antigravity CLI coding assistant (default)
+  ide           - Install Google Antigravity Desktop IDE
   manager (agm) - Install latest release of Antigravity Manager GUI / Tools
-  cli (agy-cli) - Install Antigravity CLI coding assistant
-  all           - Install Antigravity Desktop IDE, Manager, and CLI`,
+  all           - Install Antigravity CLI, Desktop IDE, and Manager`,
 	RunE: runAgyInstallCmd,
 }
 
@@ -51,7 +51,7 @@ func buildAgyInstallOptions() installOptions {
 
 func runAgyInstallCmd(cmd *cobra.Command, args []string) error {
 	opts := buildAgyInstallOptions()
-	target := "ide"
+	target := "cli"
 	if len(args) > 0 {
 		target = strings.ToLower(args[0])
 	}
@@ -61,33 +61,33 @@ func runAgyInstallCmd(cmd *cobra.Command, args []string) error {
 
 func dispatchAgyInstallTarget(target string, opts installOptions) error {
 	switch target {
-	case "ide", "desktop", "app", "antigravity", "agy":
-		return runInstallAntigravityWithOpts(opts)
-	case "cli", "agy-cli", "antigravity-cli":
+	case "cli", "agy", "agy-cli", "antigravity-cli":
 		return runInstallAgyWithOpts(opts)
+	case "ide", "desktop", "app", "antigravity", "antigravity-ide":
+		return runInstallAntigravityWithOpts(opts)
 	case "manager", "ag-manager", "agm", "gui", "tools":
 		return runInstallAgManagerWithOpts(opts)
 	case "all", "both":
 		return runInstallAgyAll(opts)
 	default:
-		fmt.Printf("Unknown target '%s'. Installing Antigravity Desktop IDE (default)...\n", target)
+		fmt.Printf("Unknown target '%s'. Installing Antigravity CLI (default)...\n", target)
 
-		return runInstallAntigravityWithOpts(opts)
+		return runInstallAgyWithOpts(opts)
 	}
 }
 
 func runInstallAgyAll(opts installOptions) error {
-	fmt.Println("=== [1/3] Installing Antigravity Desktop IDE ===")
+	fmt.Println("=== [1/3] Installing Antigravity CLI ===")
+	if err := runInstallAgyWithOpts(opts); err != nil {
+		return err
+	}
+
+	fmt.Println("\n=== [2/3] Installing Antigravity Desktop IDE ===")
 	if err := runInstallAntigravityWithOpts(opts); err != nil {
 		return err
 	}
 
-	fmt.Println("\n=== [2/3] Installing Antigravity Manager / Tools ===")
-	if err := runInstallAgManagerWithOpts(opts); err != nil {
-		return err
-	}
+	fmt.Println("\n=== [3/3] Installing Antigravity Manager / Tools ===")
 
-	fmt.Println("\n=== [3/3] Installing Antigravity CLI ===")
-
-	return runInstallAgyWithOpts(opts)
+	return runInstallAgManagerWithOpts(opts)
 }

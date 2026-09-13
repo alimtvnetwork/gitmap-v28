@@ -184,6 +184,7 @@ func buildTaskGroup() llmCmdGroup {
 			{"task", "tk", "Create and run one-way folder synchronization tasks", "gitmap task create my-sync --src ./src --dest ./backup"},
 			{"pending", "—", "Show pending tasks awaiting execution", "gitmap pending"},
 			{"do-pending", "dp", "Execute pending tasks", "gitmap do-pending"},
+			{"async", "asyn", "Execute background command loop or periodic interval task", "gitmap async gitmap status -t 5"},
 		},
 	}
 }
@@ -204,6 +205,9 @@ func buildUtilityGroup() llmCmdGroup {
 			{"gomod", "gm", "Rename Go module path across repo", "gitmap gomod old/path new/path"},
 			{"seo-write", "sw", "Auto-commit SEO messages from CSV", "gitmap seo-write --csv data.csv"},
 			{"llm-docs", "ld", "Generate this LLM.md reference file", "gitmap llm-docs"},
+			{"startup", "su", "Manage and run OS startup items, scripts, and macros", "gitmap startup ls"},
+			{"storage", "stor", "Inspect storage drive capacity and SQLite DB inventory", "gitmap storage ls"},
+			{"schedule", "sc", "Schedule recurring jobs, crontab, and background tasks", "gitmap schedule ls"},
 		},
 	}
 }

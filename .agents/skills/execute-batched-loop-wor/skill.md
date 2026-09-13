@@ -15,7 +15,7 @@ Run again if said: go, continue, or next
 ## Non-Negotiable Rules (Auto-Reject on Violation)
 
 1. Maximum 3 sub-agents may run concurrently at any time. Never exceed this limit.
-2. No end-to-end tests that make live API calls. Only run local, isolated unit tests.
+2. TOTAL BAN on test running and build checking during routine execution: DO NOT run tests using Python scripts, Go (`go test`), or any test runner. DO NOT check builds (`go build`, compiler checks). All test execution and build verification is deferred to CI/CD.
 3. At the end of every loop, output explicit task statistics (done, pending, remaining list).
 
 ## AI Fix Scripts Memory (Reusable Tooling)
@@ -130,6 +130,13 @@ Every time you return a response or complete a loop iteration, explicitly output
 - [x] Magic strings/numbers extracted to constants.
 - [x] Action Summary Checklist (Anti-Hallucination): I have output a detailed `- [x]` checklist summarizing exactly what I accomplished this turn to ensure no steps were hallucinated or skipped (e.g. `- [x] Created schema`, `- [x] Pinned README`).
 
+## Banned Operations Checklist (TOTAL BAN — Auto-Reject on Violation)
+
+- [ ] **NO TEST RUNNING (TOTAL BAN):** NEVER run any tests using Python scripts (`06-cicd-local-runner.py`, `pytest`, runner scripts), Go (`go test ./...`), or any test runner during routine execution turns. Testing is strictly checked later on in CI/CD.
+- [ ] **NO BUILD CHECKING (TOTAL BAN):** NEVER run build commands (`go build`, `npm run build`, compiler checks) to verify compilation. Build verification is checked later on in CI/CD.
+- [ ] **NO RUNNER SCRIPTS (TOTAL BAN):** NEVER launch background test runners, worker pools, or test inventory loops during routine execution.
+- [ ] **NO AUTOMATIC RELEASES (TOTAL BAN):** NEVER bump versions, update changelogs, or trigger releases unless explicitly commanded by the user.
+
 ## Pre-Reply / Loop Checklist (Must Verify Every Loop Iteration)
 
 - [ ] `.gitignore` verified to exclude `.lovable/temp/` and garbage collection executed.
@@ -137,10 +144,10 @@ Every time you return a response or complete a loop iteration, explicitly output
 - [ ] Pre-flight state written to `.lovable/temp/` for every agent.
 - [ ] 3-Strike rollback honored with `git checkout` and logged to `last-failure.md`.
 - [ ] Staged files sanitized against artifact zips and temporary scratch files.
-- [ ] No end-to-end live API tests executed.
+- [ ] **NO TEST RUNNING & NO BUILD CHECKING (TOTAL BAN):** Zero tests or builds executed during routine loops.
 - [ ] Completed task files `mv`'d and `.lovable/plans/01-index.md` updated.
 - [ ] Fast-forward commit created grouping all modified files, and immediately pushed to remote without leaving unpushed commits.
-- [ ] No full builds or CI runners executed during routine turns; atomic file change cache updated in `.lovable/temp/recent-file-changes.json`.
+- [ ] **TOTAL BAN on Test Running & Build Checking:** Zero builds or test runners executed during routine turns; atomic file change cache updated in `.lovable/temp/recent-file-changes.json` under lock (`python 03-ai-scripts/33-test-inventory-generator.py --record <path>`).
 - [ ] Output window explicitly lists "Done", "Pending", and remaining task names.
 
 ## Actionable Items & Checklist
@@ -152,7 +159,7 @@ Every time you return a response or complete a loop iteration, explicitly output
 - [ ] Ensure `.gitignore` explicitly excludes test reports, artifacts, and compiled binaries.
 - [ ] Group all completed work into a single consolidated atomic commit (NEVER commit 1-2 files piecemeal).
 - [ ] Push the commit immediately to the remote repository (`git push origin <branch>`). Never leave unpushed commits.
-- [ ] NEVER run full builds (`npm run build`, `go build ./...`) or `06-cicd-local-runner.py` during routine loop tasks.
+- [ ] **TOTAL BAN on Test Running & Build Checking:** NEVER run builds (`npm run build`, `go build ./...`) or test runners (`06-cicd-local-runner.py`, `go test`) during routine loop tasks. Verification is deferred to CI/CD.
 
 ## Execution & Self-Looping Protocol
 

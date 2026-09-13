@@ -297,6 +297,7 @@ map as a single object. Every command flows from that idea.
 
 #### 🛠️ Self-managing installation
 
+- `gitmap install` / `uninstall` — install or uninstall Google Antigravity Desktop IDE (`agy`), developer tools, context menus, and packages across Ubuntu and Windows with universal coverage, dynamic cleanup, and AppError stack trace diagnostics.
 - `gitmap self-install` / `self-uninstall` manage the binary itself
   on every supported platform.
 - Canonical installers (`cli/scripts/install.ps1` /
@@ -306,6 +307,7 @@ map as a single object. Every command flows from that idea.
   prompt on top for users who want to install on a specific drive.
 - `cli-updater` keeps the binary fresh; `self-uninstall` cleans
   up the PATH marker block and (optionally) the user data folder.
+
 
 #### 🔀 Workspace operations
 
@@ -317,6 +319,14 @@ map as a single object. Every command flows from that idea.
   auto-stash/pop.
 - `regoldens` (`rg`) — automated two-pass golden-fixture
   regeneration with built-in determinism verification.
+
+#### 🚀 Startup & background operations
+
+- `startup` (`su`) — manage native OS autostart items, `.ps1`/`.sh` scripts, binaries, and macros with isolated split DB tracking (`startup.db`), execution history, and weekly run schedules.
+- `schedule` (`sc`) / `crontab` — background task and macro scheduler with per-schedule split DBs (`schedules/<slug>.db`), debug inspect, and edit workflows.
+- `async` (`asyn`) — run background monitor commands and periodic loops (`-t <seconds>`).
+- `storage` (`stor`) — inspect drive capacity, filesystem format, and full SQLite database inventory (`gitmap storage ls`) with table and record counts.
+- `pipeline error-logs -t` — live polling on runner ETA countdowns (`.lovable/temp/runner-eta.json`) before extracting CI/CD error diagnostics.
 
 #### 🖥️ Web docs UI
 

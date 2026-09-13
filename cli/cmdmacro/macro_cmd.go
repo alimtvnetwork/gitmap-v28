@@ -203,6 +203,14 @@ func routeExecSubcommand(sub string, rest []string) error {
 }
 
 func routeManagementSubcommand(sub string, rest []string) error {
+	if sub == "startup" {
+		return runMacroStartup(rest)
+	}
+
+	if sub == "schedule" || sub == "cron" || sub == "crontab" {
+		return runMacroSchedule(rest)
+	}
+
 	if isModifySubcommand(sub) {
 		return routeModifySubcommand(sub, rest)
 	}
@@ -397,6 +405,8 @@ func printMacroUsage() {
 	fmt.Println("  list [--json] [--yaml]              List all saved macros")
 	fmt.Println("  show <name> [--json] [--yaml]       Inspect steps of a macro")
 	fmt.Println("  rm <name>                           Delete a saved macro")
+	fmt.Println("  startup <subcommand> [name]         Manage macro execution on OS login/reboot")
+	fmt.Println("  schedule <subcommand> [name]        Manage recurring scheduled execution of macros")
 	fmt.Println("  export [name|all] [options]         Export macro(s) to JSON, YAML, SQLite DB, or ZIP")
 	fmt.Println("  export-all [options]                Export all macros (--json, --yaml, --sqlitedb, --zip)")
 	fmt.Println("  export-single <name> [options]      Export a single macro to JSON, YAML, or SQLite DB")

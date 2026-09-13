@@ -73,4 +73,31 @@ ORDER BY DatabaseType, DatabaseKey;`
     LastAccessedAt, LastSyncedAt, CreatedAt, UpdatedAt
 FROM SplitDatabaseRegistry
 ORDER BY DatabaseType, DatabaseKey;`
+
+	SQLCreateStartupItem = `CREATE TABLE IF NOT EXISTS StartupItem (
+    StartupItemId INTEGER PRIMARY KEY AUTOINCREMENT,
+    Name          TEXT UNIQUE NOT NULL,
+    TargetType    TEXT NOT NULL,
+    TargetPath    TEXT NOT NULL,
+    CommandArgs   TEXT NULL,
+    IconPath      TEXT NULL,
+    RunFrequency  TEXT NOT NULL DEFAULT 'everytime',
+    IsActive      INTEGER NOT NULL DEFAULT 1,
+    Description   TEXT NULL,
+    CreatedAt     INTEGER NOT NULL DEFAULT (unixepoch()),
+    UpdatedAt     INTEGER NOT NULL DEFAULT (unixepoch())
+);`
+
+	SQLCreateStartupLog = `CREATE TABLE IF NOT EXISTS StartupLog (
+    StartupLogId   INTEGER PRIMARY KEY AUTOINCREMENT,
+    StartupItemId  INTEGER NOT NULL,
+    RunAt          INTEGER NOT NULL DEFAULT (unixepoch()),
+    DurationMs     INTEGER NOT NULL DEFAULT 0,
+    IsSuccess      INTEGER NOT NULL DEFAULT 1,
+    ExitCode       INTEGER NOT NULL DEFAULT 0,
+    OutputSummary  TEXT NULL,
+    Notes          TEXT NULL,
+    Comments       TEXT NULL,
+    FOREIGN KEY(StartupItemId) REFERENCES StartupItem(StartupItemId) ON DELETE CASCADE
+);`
 )

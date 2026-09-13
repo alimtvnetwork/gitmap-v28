@@ -139,6 +139,7 @@ func printGroupTasks() {
 	renderLine(constants.HelpDoPending)
 	renderLine(constants.HelpMacro)
 	renderLine(constants.HelpExecute)
+	renderLine(constants.HelpAsync)
 }
 
 func printGroupVisualize() {
@@ -205,6 +206,8 @@ func printGroupIntegrations() {
 	renderLine(constants.HelpVSCode)
 	renderLine(constants.HelpAgy)
 	renderLine(constants.HelpSchedule)
+	renderLine(constants.HelpStartup)
+	renderLine(constants.HelpStorage)
 	renderLine(constants.HelpPipeline)
 	renderLine(constants.HelpUI)
 	renderLine(constants.HelpVmware)

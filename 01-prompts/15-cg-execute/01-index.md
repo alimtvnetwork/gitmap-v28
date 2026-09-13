@@ -128,7 +128,7 @@ Every prompt in this suite operates using a strict two-phase loop budget:
 
 1. **Autofixer-First Execution:** Run deterministic AST autofixers first on target files (`05-guideline-autofixer.py`, `08-naming-autofixer.py`, `04-newline-fixer.py`, `07-relative-path-fixer.py`) to automatically resolve 80-90% of mechanical violations.
 2. **Cognitive Refactoring:** Agent performs surgical architectural refactoring on the remaining complex logic (<= 8–15 line functions, single return types, `*AppError` envelopes).
-3. **Linter & CI Verification:** Execute the section's dedicated linter and run `python 03-ai-scripts/06-cicd-local-runner.py --no-tests` ensuring all 19 gates pass 100% green (`exit 0`).
+3. **Linter Verification & File Recording:** Execute targeted file-level linters/autofixers on specifically modified files (`exit 0`). Atomically record all modified files into `.lovable/temp/recent-file-changes.json` under lock (`python 03-ai-scripts/33-test-inventory-generator.py --record <files...>`). DO NOT run `06-cicd-local-runner.py`, build checks, or test suites during routine execution turns (deferred to CI/CD).
 4. **Automated Plan Consolidation:** Run `python 03-ai-scripts/20-plan-consolidator.py` to archive completed subtasks and update `.lovable/plans/01-index.md`.
 5. **Stage & Commit:** Group changes into clean commits (e.g. `refactor(guidelines): enforce <section> rules`).
 
@@ -145,8 +145,18 @@ Every prompt in this suite enforces that code standards must be mechanically ver
 
 ---
 
+## Banned Operations Checklist (TOTAL BAN — Auto-Reject on Violation)
+
+- [ ] **NO TEST RUNNING (TOTAL BAN):** NEVER run any tests using Python scripts (`06-cicd-local-runner.py`, `pytest`, runner scripts), Go (`go test ./...`), or any test runner during routine execution turns. Testing is strictly checked later on in CI/CD.
+- [ ] **NO BUILD CHECKING (TOTAL BAN):** NEVER run build commands (`go build`, `npm run build`, compiler checks) to verify compilation. Build verification is checked later on in CI/CD.
+- [ ] **NO RUNNER SCRIPTS (TOTAL BAN):** NEVER launch background test runners, worker pools, or test inventory loops during routine execution.
+- [ ] **NO AUTOMATIC RELEASES (TOTAL BAN):** NEVER bump versions, update changelogs, or trigger releases unless explicitly commanded by the user.
+
+---
+
 ## Strictly Avoid: No Automatic Releases, No Test Running & No Full CI/CD Runner in Routine Turns (Strict Policy)
 
+- **NO BUILD CHECKING (TOTAL BAN):** NEVER run build commands (`go build`, `npm run build`, compiler checks) to verify compilation. Build verification is checked later on in CI/CD.
 - **NO RELEASES (Strict Policy):** You MUST NOT bump versions, update changelogs, or cut a release at the end of this task. Commits must remain standard development commits. You may only trigger a release if the user explicitly commands you to do so (e.g., "cut a release" or "bump the version").
 - **NO TEST RUNNING (Strict Policy):** Test execution is strictly disabled. You MUST NOT execute unit tests, integration tests, or test suites unless explicitly commanded by the repository owner.
 - **NO FULL CI/CD RUNNER (Strict Policy):** DO NOT run `python 03-ai-scripts/06-cicd-local-runner.py` during routine coding guideline execution turns. Running the heavy 28-38 gate pipeline across the entire repository wastes massive amounts of time and scans unrelated files. Verify code strictly using targeted file-level linters / autofixers on the specific modified files.

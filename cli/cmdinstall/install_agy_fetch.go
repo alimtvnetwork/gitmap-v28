@@ -74,12 +74,15 @@ func runAgyNpmFallback() error {
 	return cmd.Run()
 }
 
-func recordAgyInstalled(ver string) {
+func recordToolInDatabases(tool, ver, manager string) {
 	splitDB, err := store.OpenInstallationSplitDB()
-	if err != nil {
-		return
+	if err == nil {
+		defer splitDB.Close()
+		_ = splitDB.SaveInstalledTool(tool, ver, manager)
 	}
+}
 
-	defer splitDB.Close()
-	_ = splitDB.SaveInstalledTool("agy", ver, "installer")
+func recordAgyInstalled(ver string) {
+	recordToolInDatabases("agy", ver, "installer")
+	recordToolInDatabases("antigravity", ver, "installer")
 }

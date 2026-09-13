@@ -21,9 +21,8 @@ func toolingDispatchEntries() []dispatchEntry {
 	entries = append(entries, toolingInstallEntries()...)
 	entries = append(entries, toolingUtilEntries()...)
 	entries = append(entries, toolingChromeEntries()...)
-	entries = append(entries, toolingNetworkEntries()...)
 
-	return entries
+	return append(entries, toolingNetworkEntries()...)
 }
 
 func toolingWorkspaceEntries() []dispatchEntry {
@@ -115,7 +114,7 @@ func toolingInstallEntries() []dispatchEntry {
 
 func toolingUtilEntries() []dispatchEntry {
 	return []dispatchEntry{
-		{[]string{"schedule", "sc"}, func() error { return runSchedule(argsTail()) }},
+		{[]string{"schedule", "sc", "crontab", "cron"}, func() error { return runSchedule(argsTail()) }},
 		{[]string{constants.CmdDownloaderConfig, constants.CmdDownloaderConfigAlias}, func() error { return runDownloaderConfig(argsTail()) }},
 		{[]string{constants.CmdUnzipCompact, constants.CmdUnzipCompactAlias}, func() error { return runUnzipCompact(argsTail()) }},
 		{[]string{constants.CmdFolder, "tree"}, func() error { return runFolder(argsTail()) }},

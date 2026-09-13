@@ -7,6 +7,9 @@ import (
 	"os"
 	"os/exec"
 	"path/filepath"
+
+	"github.com/alimtvnetwork/gitmap-v28/cli/apperror"
+	"github.com/alimtvnetwork/gitmap-v28/cli/tempdir"
 )
 
 func getAntigravityLinuxCandidatePaths() []string {
@@ -15,23 +18,28 @@ func getAntigravityLinuxCandidatePaths() []string {
 	return []string{
 		"/opt/antigravity/antigravity",
 		filepath.Join(home, ".local", "share", "antigravity", "antigravity"),
-		"/usr/local/bin/antigravity",
+		filepath.Join(home, ".local", "share", "antigravity", "Antigravity"),
 		filepath.Join(home, ".local", "bin", "antigravity"),
+		"/usr/local/bin/antigravity",
 	}
 }
 
-func findInstalledAntigravityDesktopPath() (string, bool) {
-	for _, p := range getAntigravityLinuxCandidatePaths() {
-		if _, err := os.Stat(p); err == nil {
-			return p, true
-		}
-	}
-
+func findAntigravityInPathLinux() (string, bool) {
 	if p, err := exec.LookPath("antigravity"); err == nil {
 		return p, true
 	}
 
 	return "", false
+}
+
+func findInstalledAntigravityDesktopPath() (string, bool) {
+	for _, p := range getAntigravityLinuxCandidatePaths() {
+		if info, err := os.Stat(p); err == nil && !info.IsDir() && info.Size() > 0 {
+			return p, true
+		}
+	}
+
+	return findAntigravityInPathLinux()
 }
 
 func resolveLinuxInstallDirs() (string, string, string) {
@@ -73,30 +81,59 @@ func createAntigravityDesktopEntry(binPath, iconPath, desktopFile string) error 
 	return os.WriteFile(desktopFile, []byte(content), 0644)
 }
 
+func locateExtractedLinuxBinary(installDir string) (string, error) {
+	for _, name := range []string{"antigravity", "Antigravity"} {
+		p := filepath.Join(installDir, name)
+		if info, err := os.Stat(p); err == nil && !info.IsDir() && info.Size() > 0 {
+			return p, nil
+		}
+	}
+	entries, _ := os.ReadDir(installDir)
+	for _, e := range entries {
+		if e.IsDir() {
+			for _, name := range []string{"antigravity", "Antigravity"} {
+				p := filepath.Join(installDir, e.Name(), name)
+				if info, err := os.Stat(p); err == nil && !info.IsDir() && info.Size() > 0 {
+					return p, nil
+				}
+			}
+		}
+	}
+	return "", apperror.NewSimple("executable Antigravity binary not found in archive", "E9000")
+}
+
 func deployAntigravityDesktopLinux(installDir, binDir, desktopDir, archivePath string) error {
+	cleanupBrokenLinuxArtifacts(installDir, binDir, desktopDir)
 	if err := extractAntigravityTarball(archivePath, installDir); err != nil {
+		cleanupBrokenLinuxArtifacts(installDir, binDir, desktopDir)
 		return err
 	}
 
-	binFile := filepath.Join(installDir, "antigravity")
+	binFile, err := locateExtractedLinuxBinary(installDir)
+	if err != nil {
+		cleanupBrokenLinuxArtifacts(installDir, binDir, desktopDir)
+		return err
+	}
+
 	_ = os.Chmod(binFile, 0755)
 	if err := os.MkdirAll(binDir, 0755); err != nil {
 		return err
 	}
 
-	if err := symlinkAntigravityBinary(binFile, filepath.Join(binDir, "antigravity")); err != nil {
-		return err
-	}
+	_ = symlinkAntigravityBinary(binFile, filepath.Join(binDir, "antigravity"))
+	_ = symlinkAntigravityBinary(binFile, filepath.Join(binDir, "agy"))
+	ensureDirInPath(binDir)
 
 	_ = os.MkdirAll(desktopDir, 0755)
-	icon := filepath.Join(installDir, "resources", "app", "resources", "icon.png")
-
-	return createAntigravityDesktopEntry(filepath.Join(binDir, "antigravity"), icon, filepath.Join(desktopDir, "antigravity.desktop"))
+	icon := resolveAppIconPath(installDir)
+	errDesktop := createAntigravityDesktopEntry(filepath.Join(binDir, "antigravity"), icon, filepath.Join(desktopDir, "antigravity.desktop"))
+	updateDesktopDatabase(desktopDir)
+	return errDesktop
 }
 
 func installAntigravityDesktopPlatform(opts installOptions) error {
 	url := getAntigravityDesktopDownloadUrl("linux")
-	tempArchive := filepath.Join(os.TempDir(), "Antigravity.tar.gz")
+	tempArchive := filepath.Join(tempdir.RepoTempDir("downloads"), "Antigravity.tar.gz")
 	defer os.Remove(tempArchive)
 
 	if err := downloadFileToDest(url, tempArchive); err != nil {
@@ -104,6 +141,5 @@ func installAntigravityDesktopPlatform(opts installOptions) error {
 	}
 
 	installDir, binDir, desktopDir := resolveLinuxInstallDirs()
-
 	return deployAntigravityDesktopLinux(installDir, binDir, desktopDir, tempArchive)
 }

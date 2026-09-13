@@ -3,6 +3,8 @@ package cmdinstall
 import (
 	"runtime"
 
+	"github.com/alimtvnetwork/gitmap-v28/cli/apperror"
+	"github.com/alimtvnetwork/gitmap-v28/cli/cliexit"
 	"github.com/alimtvnetwork/gitmap-v28/cli/constants"
 )
 
@@ -23,14 +25,38 @@ func specialToolHandler(tool string) func(installOptions) {
 		constants.ToolCtx:              func(opts installOptions) { runInstallCtx(opts.Explain) },
 		constants.ToolAllDevTools:      func(opts installOptions) { runAllDevTools(opts) },
 		constants.ToolGitmapOneliner:   func(installOptions) { runInstallGitmapOneliner() },
-		constants.ToolScriptsFixer:     func(installOptions) { runInstallCustomTool("scripts-fixer") },
-		constants.ToolCodingGuidelines: func(installOptions) { runInstallCustomTool("coding-guidelines") },
-		constants.ToolMacroAhk:         func(installOptions) { runInstallCustomTool("macro-ahk") },
-		constants.ToolAgManager:        func(opts installOptions) { _ = runInstallAgManagerWithOpts(opts) },
+		constants.ToolScriptsFixer:     func(installOptions) { handleCustomToolInstall("scripts-fixer") },
+		constants.ToolCodingGuidelines: func(installOptions) { handleCustomToolInstall("coding-guidelines") },
+		constants.ToolMacroAhk:         func(installOptions) { handleCustomToolInstall("macro-ahk") },
+		constants.ToolAgManager:        func(opts installOptions) { handleAgManagerInstall(opts) },
 		constants.ToolAgCtx:            func(opts installOptions) { runInstallCtx(opts.Explain) },
-		constants.ToolAntigravity:      func(opts installOptions) { _ = runInstallAntigravityWithOpts(opts) },
-		constants.ToolAgy:              func(opts installOptions) { _ = runInstallAgyWithOpts(opts) },
+		constants.ToolAntigravity:      func(opts installOptions) { handleAntigravityInstall(opts) },
+		constants.ToolAgy:              func(opts installOptions) { handleAgyInstall(opts) },
 	}[tool]
+}
+
+func handleAntigravityInstall(opts installOptions) {
+	if err := runInstallAntigravityWithOpts(opts); err != nil {
+		cliexit.HandleError(apperror.WrapSimple(err, "cmdinstall.installAntigravity"), 1)
+	}
+}
+
+func handleAgyInstall(opts installOptions) {
+	if err := runInstallAgyWithOpts(opts); err != nil {
+		cliexit.HandleError(apperror.WrapSimple(err, "cmdinstall.installAgy"), 1)
+	}
+}
+
+func handleAgManagerInstall(opts installOptions) {
+	if err := runInstallAgManagerWithOpts(opts); err != nil {
+		cliexit.HandleError(apperror.WrapSimple(err, "cmdinstall.installAgManager"), 1)
+	}
+}
+
+func handleCustomToolInstall(tool string) {
+	if err := runInstallCustomTool(tool); err != nil {
+		cliexit.HandleError(apperror.WrapSimple(err, "cmdinstall.installCustomTool"), 1)
+	}
 }
 
 func specialLinuxHandler(tool string) func(installOptions) {

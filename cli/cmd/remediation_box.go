@@ -6,7 +6,6 @@ import (
 	"fmt"
 	"os"
 	"path/filepath"
-	"strconv"
 	"strings"
 
 	"github.com/charmbracelet/lipgloss"
@@ -62,49 +61,6 @@ func LoadRemediationState() []RemediationItem {
 	}
 
 	return nil
-}
-
-func FindRemediationItem(items []RemediationItem, query string) *RemediationItem {
-	cleanQuery := strings.TrimSpace(query)
-	for i := range items {
-		if strings.EqualFold(items[i].RepoName, cleanQuery) {
-			return &items[i]
-		}
-
-		if strings.EqualFold(filepath.Base(items[i].RepoPath), cleanQuery) {
-			return &items[i]
-		}
-	}
-
-	for i := range items {
-		if strings.Contains(strings.ToLower(items[i].RepoName), strings.ToLower(cleanQuery)) {
-			return &items[i]
-		}
-	}
-
-	if num, err := strconv.Atoi(cleanQuery); err == nil && num > 0 && num <= len(items) {
-		return &items[num-1]
-	}
-
-	return nil
-}
-
-func RemoveRemediationItem(repoName string) {
-	items := LoadRemediationState()
-	var remaining []RemediationItem
-	for _, item := range items {
-		if !strings.EqualFold(item.RepoName, repoName) {
-			remaining = append(remaining, item)
-		}
-	}
-
-	if len(remaining) == 0 {
-		_ = os.Remove(getRemediationStateFile())
-
-		return
-	}
-
-	_ = SaveRemediationState(remaining)
 }
 
 func PrintRemediationBox(repoName, repoPath string, d gitutil.DirtyDiagnosis) {

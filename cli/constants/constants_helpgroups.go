@@ -85,12 +85,12 @@ const (
 	CompactSSH          = "  ssh, sj (ssh-join)"
 	CompactZip          = "  zip-group (z)"
 	CompactEnvTools     = "  env, install (in), uninstall (un), installer, cg, nginx (ngx), vhost"
-	CompactTasks        = "  task, macro"
+	CompactTasks        = "  task, macro, async (asyn)"
 	CompactVisualize    = "  dashboard (db)"
 	CompactCommitXfer   = "  commit-right (cmr) — LIVE,  commit-left (cml), commit-both (cmb) — scaffolds"
 	CompactCluster      = "  servers-clients (sc), clients, cluster"
 	CompactUtilities    = "  setup, doctor, update, update-cleanup, version (v), completion (cmp), interactive (i), docs (d), help-dashboard (hd), gomod (gm), seo-write (sw), fix-repo (fr), make-public, make-private, clone-fix-repo (cfr), clone-fix-repo-pub (cfrp), help"
-	CompactIntegrations = "  vscode (vsc), antigravity (agy/ag), schedule (sc), pipeline (pl/eta), ui, vmware (vm)"
+	CompactIntegrations = "  vscode (vsc), antigravity (agy/ag), schedule (sc/cron), startup (su), storage (stor), pipeline (pl/eta), ui, vmware (vm)"
 
 	CompactNoMatchFmt = "  No group matching '%s'. Showing all groups:\n"
 	HelpInstaller     = "  installer <sub>             Manage developer tool installer scripts and history"
@@ -101,6 +101,8 @@ const (
 	HelpPipeline      = "  pipeline (pl, eta) <sub>    Monitor CI/CD workflows, ETA, and error logs"
 	HelpUI            = "  ui <sub>                    Open interactive web settings and dashboard in browser"
 	HelpChrome        = "  chrome (cprof) <sub>        Manage Chrome installation, profiles, backup & sync (use --help to expand)"
+	HelpAsync         = "  async (asyn) <cmd>          Execute background jobs, monitor loops, and intervals"
+	HelpStorage       = "  storage (stor) [ls]         Inspect storage drive capacity and SQLite DB inventory"
 )
 
 // HelpGroupKeys returns short keywords for tab-completion of group filtering.

@@ -176,6 +176,32 @@ func (s *ScheduleSplitDB) SaveConfig(cfg ScheduleConfig) error {
 	return err
 }
 
+// GetConfig retrieves the schedule metadata from the split DB.
+func (s *ScheduleSplitDB) GetConfig() (*ScheduleConfig, error) {
+	q := `SELECT name, slug, macro_name, command_line, interval_val, delay_val, is_enabled, is_startup, created_at, updated_at
+	      FROM schedule_config LIMIT 1`
+	row := s.conn.QueryRow(q)
+	var c ScheduleConfig
+	var macroName, cmdLine, delayVal sql.NullString
+	var isEnabledInt, isStartupInt int
+
+	err := row.Scan(&c.Name, &c.Slug, &macroName, &cmdLine, &c.IntervalVal, &delayVal, &isEnabledInt, &isStartupInt, &c.CreatedAt, &c.UpdatedAt)
+	if err == sql.ErrNoRows {
+		return nil, nil
+	}
+	if err != nil {
+		return nil, err
+	}
+
+	c.MacroName = macroName.String
+	c.CommandLine = cmdLine.String
+	c.DelayVal = delayVal.String
+	c.IsEnabled = isEnabledInt == 1
+	c.IsStartup = isStartupInt == 1
+
+	return &c, nil
+}
+
 // RecordRun records a single execution event in the schedule logs table.
 func (s *ScheduleSplitDB) RecordRun(r ScheduleRunRecord) error {
 	q := `INSERT INTO schedule_logs (run_number, trigger_type, runner_user, started_at, finished_at, duration_ms, is_success, exit_code, output, error_msg)

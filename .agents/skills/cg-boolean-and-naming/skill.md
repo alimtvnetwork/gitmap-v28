@@ -197,7 +197,6 @@ if isCloneTargetFresh {
 - **No Test Execution:** Test execution is disabled unless explicitly commanded by the repository owner.
 - **Atomic Change Tracking:** Append all modified files to `.lovable/temp/recent-file-changes.json` under lock (`python 03-ai-scripts/33-test-inventory-generator.py --record <files...>`), mapping to associated tests in `.lovable/test-inventory.json`.
 - **Linter:** `python linter-scripts/check-enum-and-boolean.py`
-- **Local Runner:** `python 03-ai-scripts/06-cicd-local-runner.py --no-tests`
 
 ## Routine Execution Policy
 

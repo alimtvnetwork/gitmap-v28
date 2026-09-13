@@ -20,12 +20,17 @@ func RunReconcileCmd(args []string) error {
 		return runReconcileList(items)
 	}
 
+	return runReconcileTarget(args, items)
+}
+
+func runReconcileTarget(args []string, items []RemediationItem) error {
 	repoQuery, action := parseReconcileArgs(args)
-	matched := FindRemediationItem(items, repoQuery)
+	matched, err := resolveReconcileItem(items, repoQuery)
+	if err != nil {
+		return err
+	}
 	if matched == nil {
-		return apperror.New("reconcile", "E_NOT_FOUND", map[string]any{
-			"msg": fmt.Sprintf("Repository %q not found in pending reconciliation list.", repoQuery),
-		})
+		return nil
 	}
 
 	idx := parseRecipeIndex(action, matched.Recipes)
@@ -34,6 +39,35 @@ func RunReconcileCmd(args []string) error {
 	}
 
 	return executeFixRecipe(matched, matched.Recipes[idx])
+}
+
+func resolveReconcileItem(items []RemediationItem, repoQuery string) (*RemediationItem, error) {
+	matched := FindRemediationItem(items, repoQuery)
+	if matched != nil {
+		return matched, nil
+	}
+
+	localItem, cleanMsg := InspectLocalRepoItem(repoQuery)
+	if cleanMsg != "" {
+		fmt.Println(cleanMsg)
+
+		return nil, nil
+	}
+	if localItem != nil {
+		return localItem, nil
+	}
+
+	return nil, buildReconcileNotFoundError(items, repoQuery)
+}
+
+func buildReconcileNotFoundError(items []RemediationItem, repoQuery string) error {
+	suggestions := FindRemediationSuggestions(items, repoQuery)
+	msg := fmt.Sprintf("Repository %q not found in pending reconciliation list.", repoQuery)
+	if len(suggestions) > 0 {
+		msg += fmt.Sprintf("\n  Did you mean: %s?", strings.Join(suggestions, ", "))
+	}
+
+	return apperror.New("reconcile", "E_NOT_FOUND", map[string]any{"msg": msg})
 }
 
 func isReconcileAllRequested(args []string) bool {
@@ -91,25 +125,33 @@ func runReconcileAll(args []string, items []RemediationItem) error {
 		return nil
 	}
 
-	action := "stash"
-	for _, a := range args {
-		norm := strings.ToLower(a)
-		if norm == "wip" || norm == "discard" || norm == "clean" || norm == "stash" {
-			action = norm
-			break
-		}
-	}
-
+	action := resolveReconcileAllAction(args)
 	fmt.Printf("%s Reconciling %d repository(ies) with action: %s\n\n",
 		constants.ColorCyan+"ℹ"+constants.ColorReset, len(items), action)
+
 	for i := range items {
 		idx := parseRecipeIndex(action, items[i].Recipes)
 		if idx < 0 || idx >= len(items[i].Recipes) {
 			idx = 0
 		}
 
-		_ = executeFixRecipe(&items[i], items[i].Recipes[idx])
+		err := executeFixRecipe(&items[i], items[i].Recipes[idx])
+		if err != nil {
+			return err
+		}
 	}
 
 	return nil
+}
+
+func resolveReconcileAllAction(args []string) string {
+	action := "stash"
+	for _, a := range args {
+		norm := strings.ToLower(a)
+		if norm == "wip" || norm == "discard" || norm == "clean" || norm == "stash" {
+			return norm
+		}
+	}
+
+	return action
 }

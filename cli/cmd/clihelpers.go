@@ -558,12 +558,24 @@ func resolvePackageManager(override, tool string) string {
 	return cmdinstall.ResolvePackageManager(override, tool)
 }
 
+func resolveToolAlias(tool string) string {
+	return cmdinstall.ResolveToolAlias(tool)
+}
+
 func resolvePackageName(tool, manager string) string {
 	return cmdinstall.ResolvePackageName(tool, manager)
 }
 
 func runInstallCommand(args []string, opts installOptions) error {
 	return cmdinstall.RunInstallCommand(args, opts)
+}
+
+func isCustomStandaloneTool(tool string) bool {
+	return cmdinstall.CheckCustomStandaloneTool(tool)
+}
+
+func uninstallCustomTool(tool string, purge bool) error {
+	return cmdinstall.UninstallCustomTool(tool, purge)
 }
 
 func runUpdate() error {
@@ -836,6 +848,7 @@ func init() {
 	cmdos.CheckHelpFn = checkHelp
 
 	cmdschedule.CheckHelpFn = checkHelp
+	cmdmacro.RunScheduleFn = cmdschedule.RunSchedule
 
 	cmdworkdir.CheckHelpFn = checkHelp
 }

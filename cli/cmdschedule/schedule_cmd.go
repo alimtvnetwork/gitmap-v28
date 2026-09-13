@@ -56,6 +56,10 @@ func dispatchScheduleSubcommand(sub string, rest []string) error {
 		return runScheduleTest(rest)
 	case "rm", "delete", "del":
 		return runScheduleDelete(rest)
+	case "debug", "info":
+		return runScheduleDebug(rest)
+	case "edit":
+		return runScheduleEdit(rest)
 	case "startup":
 		return runScheduleStartup(rest)
 	case "restart":

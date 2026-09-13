@@ -15,7 +15,7 @@ Run again if said: go, continue, or next
 ## Non-Negotiable Rules (Auto-Reject on Violation)
 
 1. Maximum 3 sub-agents may run concurrently at any time. Never exceed this limit.
-2. No end-to-end tests that make live API calls. Only run local, isolated unit tests.
+2. TOTAL BAN on test running and build checking during routine execution: DO NOT run tests using Python scripts, Go (`go test`), or any test runner. DO NOT check builds (`go build`, compiler checks). All test execution and build verification is deferred to CI/CD.
 3. At the end of every loop, output explicit task statistics (done, pending, remaining list).
 
 ## AI Fix Scripts Memory (Reusable Tooling)
@@ -130,17 +130,21 @@ Every time you return a response or complete a loop iteration, explicitly output
 - [x] Magic strings/numbers extracted to constants.
 - [x] Action Summary Checklist (Anti-Hallucination): I have output a detailed `- [x]` checklist summarizing exactly what I accomplished this turn to ensure no steps were hallucinated or skipped (e.g. `- [x] Created schema`, `- [x] Pinned README`).
 
-## End of Tunnel Release (Anti-Hallucination Checklist)
+## Banned Operations Checklist (TOTAL BAN — Auto-Reject on Violation)
 
-Past execution turns were sloppy and failed to pin READMEs or bump versions. To prevent this hallucination, when EVERYTHING is completely finished (at the very end of the tunnel), you MUST trigger a release and physically check off these items in your final report:
+- [ ] **NO TEST RUNNING (TOTAL BAN):** NEVER run any tests using Python scripts (`06-cicd-local-runner.py`, `pytest`, runner scripts), Go (`go test ./...`), or any test runner during routine execution turns. Testing is strictly checked later on in CI/CD.
+- [ ] **NO BUILD CHECKING (TOTAL BAN):** NEVER run build commands (`go build`, `npm run build`, compiler checks) to verify compilation. Build verification is checked later on in CI/CD.
+- [ ] **NO RUNNER SCRIPTS (TOTAL BAN):** NEVER launch background test runners, worker pools, or test inventory loops during routine execution.
+- [ ] **NO AUTOMATIC RELEASES (TOTAL BAN):** NEVER bump versions, update changelogs, or trigger releases unless explicitly commanded by the user.
 
-- [ ] **Full Unit Test & CI/CD Verification (MANDATORY):** I have executed `python 03-ai-scripts/06-cicd-local-runner.py --run-tests` and verified that 100% of all unit tests and quality gates pass green (`exit 0`).
-- [ ] **Test Inventory Validation:** I have checked `.lovable/temp/recent-file-changes.json` against `.lovable/test-inventory.json` and verified all tests associated with modified files pass.
-- [ ] Minor Bump: I have bumped the MINOR version in the canonical `version.json` file.
-- [ ] Test File Ban: I have strictly excluded all test files (`*test*`, `*.spec.*`) from version scanning.
-- [ ] Root readme.md (lowercase always) Pinning (FATAL): I have pinned the latest release version into the root `readme.md` file! I have verified badges and install snippets match the new version.
-- [ ] Changelog Formatting: I have updated the changelog exactly according to the `version.json` format.
-- [ ] Release Architecture Map: I have maintained `.lovable/memory/01-index.md`, enqueued it in `what-to-read.md`, and linked it in the root `readme.md`.
+## Mark File Changes Only (Atomic Change Recording & Handoff to CI/CD & Release)
+
+Routine execution prompts MUST NOT build, test, or trigger releases. When task modifications are completed, you MUST record all modified files and physically check off these items in your final report:
+
+- [ ] **Atomic Change Recording (MANDATORY):** I have recorded all modified files into `.lovable/temp/recent-file-changes.json` under lock using `python 03-ai-scripts/33-test-inventory-generator.py --record <files...>`.
+- [ ] **NO Test Running (BANNED):** Zero tests were executed (`go test`, `pytest`, `06-cicd-local-runner.py`). Testing is strictly deferred to CI/CD fix prompts.
+- [ ] **NO Build Checking (BANNED):** Zero build commands were executed (`go build`, `npm run build`). Build compilation is strictly deferred to CI/CD fix prompts.
+- [ ] **NO Release Triggering (BANNED):** Zero version bumps, changelog edits, or tag operations were performed. Release operations are strictly deferred to Release prompts.
 - [ ] **File Change Summary:** Provide a highly detailed summary in the chat listing exactly which files were changed, what specific changes were made inside them, and why they were changed. The summary is VERY important.
 
 ## Pre-Reply / Loop Checklist (Must Verify Every Loop Iteration)
@@ -150,7 +154,7 @@ Past execution turns were sloppy and failed to pin READMEs or bump versions. To 
 - [ ] Pre-flight state written to `.lovable/temp/` for every agent.
 - [ ] 3-Strike rollback honored with `git checkout` and logged to `last-failure.md`.
 - [ ] Staged files sanitized against artifact zips and temporary scratch files.
-- [ ] No end-to-end live API tests executed.
+- [ ] **NO TEST RUNNING & NO BUILD CHECKING (TOTAL BAN):** Zero tests or builds executed during routine loops.
 - [ ] Completed task files `mv`'d and `.lovable/plans/01-index.md` updated.
 - [ ] Fast-forward commit created grouping all modified files, and immediately pushed to remote without leaving unpushed commits.
 - [ ] No full builds or CI runners executed during routine turns; atomic file change cache updated in `.lovable/temp/recent-file-changes.json`.
@@ -165,7 +169,7 @@ Past execution turns were sloppy and failed to pin READMEs or bump versions. To 
 - [ ] Ensure `.gitignore` explicitly excludes test reports, artifacts, and compiled binaries.
 - [ ] Group all completed work into a single consolidated atomic commit (NEVER commit 1-2 files piecemeal).
 - [ ] Push the commit immediately to the remote repository (`git push origin <branch>`). Never leave unpushed commits.
-- [ ] NEVER run full builds (`npm run build`, `go build ./...`) or `06-cicd-local-runner.py` during routine loop tasks.
+- [ ] **TOTAL BAN on Test Running & Build Checking:** NEVER run builds (`npm run build`, `go build ./...`) or test runners (`06-cicd-local-runner.py`, `go test`) during routine loop tasks. Verification is deferred to CI/CD.
 
 ## Execution & Self-Looping Protocol
 
