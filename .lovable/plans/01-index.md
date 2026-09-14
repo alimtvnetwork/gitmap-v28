@@ -31,6 +31,7 @@ None
 20. [Plan 160: 160-macro-run-until-tree-summary-direct-dispatch.md](completed/160-macro-run-until-tree-summary-direct-dispatch.md): Macro Resilience, Failure Logging, Execution Summary Trees & Direct Dispatch
 21. [Plan 161: 161-archive-url-download-caching-antigravity-icon.md](completed/161-archive-url-download-caching-antigravity-icon.md): Archive URL Downloader, Download Caching, --download-must & Antigravity Logo Visibility Suite
 22. [Plan 162: 162-apperror-stacktrace-skip-and-filtering.md](completed/162-apperror-stacktrace-skip-and-filtering.md): AppError Stack Trace Skip, Default Configuration & Defensive Filtering Suite
+23. [Plan 163: 163-github-desktop-missing-install-suggestions.md](completed/163-github-desktop-missing-install-suggestions.md): GitHub Desktop Missing Install Suggestions & CLI Parity Suite
 
 
 
@@ -126,3 +127,4 @@ None
 - [160-macro-run-until-tree-summary-direct-dispatch.md](completed/160-macro-run-until-tree-summary-direct-dispatch.md): 160-macro-run-until-tree-summary-direct-dispatch
 - [161-archive-url-download-caching-antigravity-icon.md](completed/161-archive-url-download-caching-antigravity-icon.md): 161-archive-url-download-caching-antigravity-icon
 - [162-apperror-stacktrace-skip-and-filtering.md](completed/162-apperror-stacktrace-skip-and-filtering.md): 162-apperror-stacktrace-skip-and-filtering
+- [163-github-desktop-missing-install-suggestions.md](completed/163-github-desktop-missing-install-suggestions.md): 163-github-desktop-missing-install-suggestions

@@ -14,7 +14,15 @@ import (
 )
 
 // runDesktopSync handles the "desktop-sync" subcommand.
-func runDesktopSync() error {
+func runDesktopSync(args []string) error {
+	if err := ensureGHDesktopInstalled(args); err != nil {
+		return err
+	}
+
+	return executeDesktopSync()
+}
+
+func executeDesktopSync() error {
 	outputDir := constants.DefaultOutputFolder
 	jsonPath := filepath.Join(outputDir, constants.DefaultJSONFile)
 	if appErr := validateDesktopSyncPaths(outputDir, jsonPath); appErr != nil {
@@ -26,11 +34,7 @@ func runDesktopSync() error {
 		return appErr
 	}
 
-	if appErr := syncToDesktop(records, jsonPath); appErr != nil {
-		return appErr
-	}
-
-	return nil
+	return syncToDesktop(records, jsonPath)
 }
 
 // validateDesktopSyncPaths checks that the output dir and JSON file exist.
@@ -68,7 +72,8 @@ func loadDesktopRecords(path string) ([]model.ScanRecord, *apperror.AppError) {
 func syncToDesktop(records []model.ScanRecord, source string) *apperror.AppError {
 	cli := desktop.ResolveCLI()
 	if cli == "" {
-		return apperror.NewSimple(constants.MsgDesktopNotFound, "E9000")
+		desktop.PrintInstallSuggestions()
+		return desktop.NewMissingCLIError()
 	}
 
 	fmt.Printf(constants.MsgDesktopSyncStart, source)

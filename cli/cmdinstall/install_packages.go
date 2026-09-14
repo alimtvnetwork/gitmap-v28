@@ -109,6 +109,9 @@ var toolAliasMap = map[string]string{
 
 // resolveToolAlias normalizes known tool aliases to their canonical tool name.
 func resolveToolAlias(tool string) string {
+	if canonical, isDesktop := desktopToolAliases[tool]; isDesktop {
+		return canonical
+	}
 	if canonical, isFound := toolAliasMap[tool]; isFound {
 		return canonical
 	}

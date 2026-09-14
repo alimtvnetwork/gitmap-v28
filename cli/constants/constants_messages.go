@@ -8,9 +8,11 @@ const (
 
 // GitHub Desktop.
 const (
-	GitHubDesktopBin     = "github"
-	OSWindows            = "windows"
-	MsgDesktopNotFound   = "GitHub Desktop CLI not found — skipping."
+	GitHubDesktopBin          = "github"
+	OSWindows                 = "windows"
+	FlagGHDesktopInstall      = "--install"
+	FlagGHDesktopInstallShort = "-i"
+	MsgDesktopNotFound        = "GitHub Desktop CLI not found — skipping."
 	MsgDesktopAdded      = "  ✓ Added to GitHub Desktop: %s\n"
 	MsgDesktopFailed     = "  ✗ Failed to add %s: %v\n"
 	MsgDesktopSummary    = "GitHub Desktop: %d added, %d failed\n"

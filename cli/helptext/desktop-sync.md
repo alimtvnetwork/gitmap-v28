@@ -15,17 +15,66 @@ ds (also: gd, github-desktop)
     gitmap gd                       # same thing
     gitmap ds D:\path\to\repo       # register an explicit folder
     gitmap ds --all                 # register every repo in the gitmap DB
+    gitmap ds --install             # auto-install GitHub Desktop if missing, then sync
 
 ## Flags
 
-    --all      Register every repo currently tracked in the gitmap database,
-               regardless of where you ran the command from.
+    --all           Register every repo currently tracked in the gitmap database,
+                    regardless of where you ran the command from.
+    -i, --install   Automatically invoke the GitMap installer to install GitHub Desktop
+                    if the CLI is missing before registering repositories.
 
 ## Prerequisites
 
 - GitHub Desktop installed with the `github` CLI on PATH.
 - A git repo at CWD, explicit path, or under a registered scan root.
 - **No prior `gitmap scan` is required.**
+
+## Missing CLI Remediation
+
+When GitHub Desktop is not installed or the `github` CLI cannot be found on PATH, GitMap provides several installation options:
+
+### Option 1: GitMap Installer (Recommended)
+
+```bash
+gitmap install github-desktop
+# Or use the short alias:
+gitmap in gd
+# Or pass --install directly to auto-install and register:
+gitmap ds --install
+```
+
+### Option 2: Native Package Managers
+
+Install via your operating system's native package manager:
+
+- **Linux / Ubuntu (APT - shiftkey repository):**
+  ```bash
+  wget -qO - https://mirror.mwt.me/ghd/gpgkey | sudo tee /etc/apt/keyrings/shiftkey-packages.asc > /dev/null
+  sudo sh -c 'echo "deb [arch=amd64 signed-by=/etc/apt/keyrings/shiftkey-packages.asc] https://mirror.mwt.me/ghd/deb/ any main" > /etc/apt/sources.list.d/shiftkey-packages.list'
+  sudo apt update && sudo apt install -y github-desktop
+  ```
+- **Linux (Snap):**
+  ```bash
+  sudo snap install github-desktop --beta
+  ```
+- **Windows (Winget):**
+  ```powershell
+  winget install --id GitHub.GitHubDesktop
+  ```
+- **Windows (Chocolatey):**
+  ```powershell
+  choco install github-desktop
+  ```
+- **macOS (Homebrew):**
+  ```bash
+  brew install --cask github-desktop
+  ```
+
+### Option 3: Official GUI Installer
+
+Download and install directly from the official website:
+- [GitHub Desktop Official Website](https://desktop.github.com)
 
 ## Resolution order (no args)
 
@@ -62,6 +111,15 @@ ds (also: gd, github-desktop)
 ### Example 3: Register every DB-tracked repo regardless of CWD
 
     gitmap ds --all
+
+### Example 4: Auto-install GitHub Desktop if missing
+
+    gitmap ds --install
+
+**Output:**
+
+    ✓ Installed: github-desktop
+    GitHub Desktop: 14 added · 0 skipped · 0 failed
 
 ## See Also
 

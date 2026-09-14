@@ -18,6 +18,7 @@ func AddRepos(records []model.ScanRecord) DesktopSummary {
 	}
 
 	fmt.Println(constants.MsgDesktopNotFound)
+	PrintInstallSuggestions()
 
 	return summary
 }
