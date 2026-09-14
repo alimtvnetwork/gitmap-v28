@@ -60,8 +60,7 @@ func handleOSIPShow(ctx context.Context, mgr *netip.Manager, args []string) erro
 }
 
 func printInterfaceList(ifaces []netip.InterfaceInfo) {
-	fmt.Printf("%-18s %-16s %-16s %-16s %-6s %-6s
-", "INTERFACE", "IP ADDRESS", "NETMASK", "GATEWAY", "DHCP", "STATUS")
+	fmt.Printf("%-18s %-16s %-16s %-16s %-6s %-6s\n", "INTERFACE", "IP ADDRESS", "NETMASK", "GATEWAY", "DHCP", "STATUS")
 	fmt.Println(strings.Repeat("-", 82))
 	for _, iface := range ifaces {
 		dhcpStr := "no"
@@ -72,8 +71,7 @@ func printInterfaceList(ifaces []netip.InterfaceInfo) {
 		if iface.IsUp {
 			statusStr = "up"
 		}
-		fmt.Printf("%-18s %-16s %-16s %-16s %-6s %-6s
-",
+		fmt.Printf("%-18s %-16s %-16s %-16s %-6s %-6s\n",
 			iface.Name, iface.IP, iface.Netmask, iface.Gateway, dhcpStr, statusStr)
 	}
 }
@@ -120,12 +118,10 @@ func handleRollbackResult(res netip.RollbackResultWrap) error {
 	}
 	val := res.Value
 	if val.IsReverted {
-		fmt.Printf("⚠️  Network change failed and was rolled back: %s
-", val.Message)
+		fmt.Printf("⚠️  Network change failed and was rolled back: %s\n", val.Message)
 		return apperror.NewSimple(val.Message, "E_IP_REVERTED")
 	}
-	fmt.Printf("✔ %s
-", val.Message)
+	fmt.Printf("✔ %s\n", val.Message)
 	return nil
 }
 
