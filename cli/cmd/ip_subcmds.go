@@ -39,9 +39,9 @@ func dispatchIPSubcommand(ctx context.Context, args []string) error {
 }
 
 func createCMDNetIPManager() *netip.Manager {
-	driver := netip.DetectDriver()
+	driver, _ := netip.DetectDriver()
 	var db *store.DB
-	if rootDb, err := store.OpenRootDB(); err == nil {
+	if rootDb, err := store.OpenDefault(); err == nil {
 		db = rootDb
 	}
 	return netip.NewManager(driver, db)
@@ -149,9 +149,9 @@ func parseCMDChangeOptions(args []string, isDHCP bool) (netip.ChangeOptions, net
 	}
 	valOpts := netip.ValidationOptions{
 		IsValidationActive: !hasCMDFlag(args, "--no-validate"),
-		TargetHost:         extractCMDArgFlagWithDefault(args, "--ping-target", "8.8.8.8"),
-		Count:              3,
-		TimeoutSec:         2,
+		TestIP:             extractCMDArgFlagWithDefault(args, "--ping-target", "8.8.8.8"),
+		PacketCount:        3,
+		TimeoutSeconds:     2,
 	}
 	return opts, valOpts
 }

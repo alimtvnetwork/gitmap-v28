@@ -73,7 +73,7 @@ func runUserRm(args []string) error {
 		Username:       args[0],
 		IsRemoveHome:   !hasUserFlag(args[1:], "--keep-home"),
 		IsCleanSudoers: true,
-		IsKillActive:   hasUserFlag(args[1:], "--kill") || hasUserFlag(args[1:], "-k"),
+		IsForceKill:    hasUserFlag(args[1:], "--kill") || hasUserFlag(args[1:], "-k"),
 	}
 	if err := osuser.Remove(opts); err != nil {
 		fmt.Fprintf(os.Stderr, "Error removing user: %v\n", err)
@@ -106,8 +106,7 @@ func buildCreateRootOptions(username string, args []string) osuser.UserCreateOpt
 		Password:       extractUserArgFlag(args, "--password"),
 		Theme:          extractUserArgFlagDefault(args, "--theme", "fletcherm"),
 		HomeDir:        extractUserArgFlag(args, "--homedir"),
-		SSHKeyData:     extractUserArgFlag(args, "--ssh-key"),
-		IsNoPasswd:     !hasUserFlag(args, "--require-passwd"),
+		IsSudoer:       true,
 		IsConfigureZsh: !hasUserFlag(args, "--no-zsh"),
 	}
 }
@@ -138,9 +137,8 @@ func runUserSSHKey(args []string) error {
 		return nil
 	}
 	opts := osuser.SSHKeyOptions{
-		Username:    args[0],
-		KeyData:     args[1],
-		IsOverwrite: hasUserFlag(args[2:], "--overwrite"),
+		Username:  args[0],
+		PublicKey: args[1],
 	}
 	if err := osuser.InstallKey(opts); err != nil {
 		fmt.Fprintf(os.Stderr, "Error installing SSH key: %v\n", err)
