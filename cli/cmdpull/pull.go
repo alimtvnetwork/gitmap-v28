@@ -583,7 +583,7 @@ func pullOneRepoTracked(rec model.ScanRecord, prog *cloner.BatchProgress) {
 	recordPullResult(rec.RepoName, result, prog)
 }
 
-func recordPullResult(repoName string, result cloner.PullResult, prog *cloner.BatchProgress) {
+func recordPullResult(repoName string, result model.CloneResult, prog *cloner.BatchProgress) {
 	if result.IsSuccess && result.Notes == "up-to-date" {
 		prog.UpToDate(repoName)
 	} else if result.IsSuccess {

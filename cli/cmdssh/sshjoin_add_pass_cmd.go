@@ -114,7 +114,7 @@ func executeEnrollWithPassCLI(ctx context.Context, args []string) error {
 	}
 	opts := &SSHJoinOptions{
 		Target:   target,
-		Alias:    resolveJoinAlias(params.alias, target.IP),
+		Alias:    resolveJoinAlias(params.alias, nil, target),
 		Password: password,
 	}
 	host, hist := buildHostAndHistory(opts)

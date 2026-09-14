@@ -29,10 +29,28 @@ func executeTableDDL(db *sql.DB, ddl string, op string) error {
 	return nil
 }
 
-func ensureHostColumns(db *sql.DB) {
-	_, _ = db.Exec("ALTER TABLE ssh_hosts ADD COLUMN port INTEGER DEFAULT 22;")
-	_, _ = db.Exec("ALTER TABLE ssh_hosts ADD COLUMN encrypted_password TEXT;")
-	_, _ = db.Exec("ALTER TABLE ssh_hosts ADD COLUMN cluster_role TEXT DEFAULT 'worker';")
+func execAlterColumn(db *sql.DB, stmt string) error {
+	_, err := db.Exec(stmt)
+	if err != nil && !isBenignAlterError(err) {
+		return apperror.WrapSimple(err, "ensureHostColumns")
+	}
+
+	return nil
+}
+
+func ensureHostColumns(db *sql.DB) error {
+	cols := []string{
+		"ALTER TABLE ssh_hosts ADD COLUMN port INTEGER DEFAULT 22;",
+		"ALTER TABLE ssh_hosts ADD COLUMN encrypted_password TEXT;",
+		"ALTER TABLE ssh_hosts ADD COLUMN cluster_role TEXT DEFAULT 'worker';",
+	}
+	for _, col := range cols {
+		if err := execAlterColumn(db, col); err != nil {
+			return err
+		}
+	}
+
+	return nil
 }
 
 // EnsureSSHTables creates both ssh_hosts and ssh_history tables if they do not exist.
@@ -44,7 +62,9 @@ func EnsureSSHTables(db *sql.DB) error {
 	if err := executeTableDDL(db, SQLCreateSSHHostsTable, "EnsureSSHTables_Hosts"); err != nil {
 		return err
 	}
-	ensureHostColumns(db)
+	if err := ensureHostColumns(db); err != nil {
+		return err
+	}
 
 	return executeTableDDL(db, SQLCreateSSHHistoryTable, "EnsureSSHTables_History")
 }

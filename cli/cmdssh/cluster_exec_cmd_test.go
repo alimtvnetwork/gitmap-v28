@@ -13,7 +13,7 @@ import (
 	_ "modernc.org/sqlite"
 )
 
-func setupClusterTestDB(t *testing.T) *sql.DB {
+func setupExecClusterTestDB(t *testing.T) *sql.DB {
 	db, err := sql.Open("sqlite", ":memory:")
 	if err != nil {
 		t.Fatalf("failed to open memory db: %v", err)
@@ -198,7 +198,7 @@ func TestFormatClusterScriptCleanup(t *testing.T) {
 }
 
 func TestTargetGroupExpansion_All(t *testing.T) {
-	db := setupClusterTestDB(t)
+	db := setupExecClusterTestDB(t)
 	defer db.Close()
 	ctx := context.Background()
 	seedClusterTestHosts(t, ctx, db)
@@ -209,7 +209,7 @@ func TestTargetGroupExpansion_All(t *testing.T) {
 }
 
 func TestTargetGroupExpansion_Roles(t *testing.T) {
-	db := setupClusterTestDB(t)
+	db := setupExecClusterTestDB(t)
 	defer db.Close()
 	ctx := context.Background()
 	seedClusterTestHosts(t, ctx, db)
@@ -224,7 +224,7 @@ func TestTargetGroupExpansion_Roles(t *testing.T) {
 }
 
 func TestTargetGroupExpansion_AliasAndComma(t *testing.T) {
-	db := setupClusterTestDB(t)
+	db := setupExecClusterTestDB(t)
 	defer db.Close()
 	ctx := context.Background()
 	seedClusterTestHosts(t, ctx, db)

@@ -1,7 +1,7 @@
 # Plan 172: Scripts-Fixer Parity — Antigravity Desktop Icon & Duplicate Purge, Installation Telemetry SQLite DB, and Cluster SSH Node Bootstrap
 
-> **Task Origin:** User request to align GitMap with the latest 20 commits of `D:\work\scripts-fixer` (up to `v1.47.0`), fixing Antigravity launcher duplicates and desktop icon trust, logging installation telemetry in SQLite, and integrating cluster SSH RSA bootstrap.  
-> **Execution Strategy:** 2-Phase Continuous Self-Loop (Planning & Subtask Generation -> Parallel Execution -> Minor Release Orchestration).  
+> **Task Origin:** User request to align GitMap with the latest 20 commits of `D:\work\scripts-fixer` (up to `v1.47.0`), fixing Antigravity launcher duplicates and desktop icon trust, logging installation telemetry in SQLite, and integrating cluster SSH RSA bootstrap.
+> **Execution Strategy:** 2-Phase Continuous Self-Loop (Planning & Subtask Generation -> Parallel Execution -> Minor Release Orchestration).
 > **Execution Steps Completed:** 3 Subtasks across 4 parallel subagents; total loops: 2.
 
 ---

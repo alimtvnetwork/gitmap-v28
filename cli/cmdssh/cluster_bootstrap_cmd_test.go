@@ -182,7 +182,7 @@ func TestBootstrapSingleTarget_VerifyFailure(t *testing.T) {
 	})
 }
 
-func assertHostEnrolled(t *testing.T, db *store.DB, ip string) {
+func assertBootstrapHostEnrolled(t *testing.T, db *store.DB, ip string) {
 	h, err := store.GetHostByIP(context.Background(), ip, db.Conn())
 	if err != nil || h.IP != ip {
 		t.Fatalf("host enrollment check failed: %v", err)
@@ -197,7 +197,7 @@ func TestRunClusterBootstrapCLI_Success(t *testing.T) {
 				if err != nil {
 					t.Fatalf("RunClusterBootstrapCLI failed: %v", err)
 				}
-				assertHostEnrolled(t, db, "192.168.1.200")
+				assertBootstrapHostEnrolled(t, db, "192.168.1.200")
 			})
 		})
 	})

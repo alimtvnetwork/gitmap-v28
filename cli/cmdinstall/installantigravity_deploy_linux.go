@@ -3,7 +3,6 @@
 package cmdinstall
 
 import (
-	"fmt"
 	"os"
 	"os/exec"
 	"path/filepath"

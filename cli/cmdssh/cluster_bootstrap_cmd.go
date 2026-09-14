@@ -30,14 +30,21 @@ var (
 	bootstrapVerifyKeyAuthFn = verifyKeyAuth
 )
 
+func resolveSSHDir() (string, error) {
+	if clusterKeypairDir != "" {
+		return clusterKeypairDir, nil
+	}
+	home, err := os.UserHomeDir()
+	if err != nil {
+		return "", apperror.WrapSimple(err, "os.UserHomeDir")
+	}
+	return filepath.Join(home, ".ssh"), nil
+}
+
 func resolveRSAKeyPaths() (string, string, error) {
-	dir := clusterKeypairDir
-	if dir == "" {
-		home, err := os.UserHomeDir()
-		if err != nil {
-			return "", "", apperror.WrapSimple(err, "os.UserHomeDir")
-		}
-		dir = filepath.Join(home, ".ssh")
+	dir, err := resolveSSHDir()
+	if err != nil {
+		return "", "", err
 	}
 	return filepath.Join(dir, "id_rsa"), filepath.Join(dir, "id_rsa.pub"), nil
 }
@@ -76,17 +83,21 @@ func writeKeyFiles(privPath, pubPath string, privPEM, pubBytes []byte) error {
 	return nil
 }
 
-func readExistingPubKey(privPath, pubPath string) (string, string, bool, error) {
+func hasExistingKeyFiles(privPath, pubPath string) bool {
 	_, privErr := os.Stat(privPath)
 	_, pubErr := os.Stat(pubPath)
-	if privErr == nil && pubErr == nil {
-		pubData, err := os.ReadFile(pubPath)
-		if err != nil {
-			return "", "", false, apperror.WrapSimple(err, "os.ReadFile_pub")
-		}
-		return privPath, strings.TrimSpace(string(pubData)), true, nil
+	return privErr == nil && pubErr == nil
+}
+
+func readExistingPubKey(privPath, pubPath string) (string, string, bool, error) {
+	if !hasExistingKeyFiles(privPath, pubPath) {
+		return "", "", false, nil
 	}
-	return "", "", false, nil
+	pubData, err := os.ReadFile(pubPath)
+	if err != nil {
+		return "", "", false, apperror.WrapSimple(err, "os.ReadFile_pub")
+	}
+	return privPath, strings.TrimSpace(string(pubData)), true, nil
 }
 
 func createNewRSAKeypair(privPath, pubPath string) (string, string, error) {
@@ -142,7 +153,7 @@ func isSudoToggleFlag(arg string) (bool, bool) {
 	return false, true
 }
 
-func parseStringFlag(args []string, idx int, long, short string) (string, int, bool) {
+func parseBootstrapStringFlag(args []string, idx int, long, short string) (string, int, bool) {
 	arg := args[idx]
 	prefix := long + "="
 	if strings.HasPrefix(arg, prefix) {
@@ -155,7 +166,7 @@ func parseStringFlag(args []string, idx int, long, short string) (string, int, b
 }
 
 func parseIntFlag(args []string, idx int, long, short string) (int, int, bool) {
-	valStr, consumed, isMatched := parseStringFlag(args, idx, long, short)
+	valStr, consumed, isMatched := parseBootstrapStringFlag(args, idx, long, short)
 	if !isMatched {
 		return 0, 0, false
 	}
@@ -179,7 +190,7 @@ func parseBoolFlag(arg string, opts *clusterBootstrapOptions) bool {
 }
 
 func parseUserOrPortFlag(args []string, idx int, opts *clusterBootstrapOptions) (int, bool) {
-	if val, c, isMatched := parseStringFlag(args, idx, "--user", "-u"); isMatched {
+	if val, c, isMatched := parseBootstrapStringFlag(args, idx, "--user", "-u"); isMatched {
 		opts.user = val
 		return c, true
 	}
@@ -191,7 +202,7 @@ func parseUserOrPortFlag(args []string, idx int, opts *clusterBootstrapOptions) 
 }
 
 func parsePassFlag(args []string, idx int, opts *clusterBootstrapOptions) (int, bool) {
-	if val, c, isMatched := parseStringFlag(args, idx, "--password", "-P"); isMatched {
+	if val, c, isMatched := parseBootstrapStringFlag(args, idx, "--password", "-P"); isMatched {
 		opts.password = val
 		return c, true
 	}
@@ -315,7 +326,7 @@ func resolveStoredPassword(host store.SSHHost) (string, error) {
 	return DecryptSSHPassword(host.EncryptedPassword)
 }
 
-func resolveTargetPassword(ctx context.Context, host store.SSHHost, cliPass string) (string, error) {
+func resolveBootstrapTargetPassword(ctx context.Context, host store.SSHHost, cliPass string) (string, error) {
 	if cliPass != "" {
 		return cliPass, nil
 	}
@@ -425,13 +436,13 @@ func runInjectionAndSudo(ctx context.Context, host store.SSHHost, pubKey, passwo
 	if err := bootstrapInjectKeyFn(ctx, host, pubKey, password); err != nil {
 		return false, err
 	}
-	if hasSudo {
-		if err := bootstrapInjectSudoersFn(ctx, host, password); err != nil {
-			return false, err
-		}
-		return true, nil
+	if !hasSudo {
+		return false, nil
 	}
-	return false, nil
+	if err := bootstrapInjectSudoersFn(ctx, host, password); err != nil {
+		return false, err
+	}
+	return true, nil
 }
 
 func verifyAndEnroll(ctx context.Context, host store.SSHHost, privKeyPath, encPass string, db *sql.DB, res *BootstrapResult) error {
@@ -469,7 +480,7 @@ func bootstrapSingleTarget(ctx context.Context, host store.SSHHost, privKeyPath,
 		Node: resolveHostAlias(host),
 		IP:   host.IP,
 	}
-	password, err := resolveTargetPassword(ctx, host, opts.password)
+	password, err := resolveBootstrapTargetPassword(ctx, host, opts.password)
 	if err != nil {
 		res.Status = "FAILED"
 		res.Duration = time.Since(start)

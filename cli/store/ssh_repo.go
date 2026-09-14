@@ -60,7 +60,7 @@ func resolveHostID(id string, ip string) string {
 	return fmt.Sprintf("host-%s", ip)
 }
 
-func resolveCreatedAt(t time.Time) time.Time {
+func resolveSSHHostCreatedAt(t time.Time) time.Time {
 	if t.IsZero() {
 		return time.Now().UTC()
 	}
@@ -106,7 +106,7 @@ func executeSSHHostInsert(ctx context.Context, host SSHHost, execer sqlContextEx
 	_, _ = execer.ExecContext(ctx, SQLCreateSSHHostsTable)
 	_, _ = execer.ExecContext(ctx, SQLCreateSSHHistoryTable)
 	host.ID = resolveHostID(host.ID, host.IP)
-	host.CreatedAt = resolveCreatedAt(host.CreatedAt)
+	host.CreatedAt = resolveSSHHostCreatedAt(host.CreatedAt)
 	args := buildHostNamedArgs(host)
 	_, err := execer.ExecContext(ctx, sqlInsertSSHHost, args...)
 	if err != nil {
@@ -175,7 +175,7 @@ func findHostByField(ctx context.Context, runner sqlContextQueryExecer, query st
 
 func updateHostForIP(ctx context.Context, runner sqlContextQueryExecer, id string, host SSHHost) error {
 	role := resolveClusterRole(host.ClusterRole)
-	createdAt := resolveCreatedAt(host.CreatedAt)
+	createdAt := resolveSSHHostCreatedAt(host.CreatedAt)
 	port := resolveHostPort(host.Port)
 	query := `UPDATE ssh_hosts SET alias = ?, username = ?, port = ?, encrypted_password = ?, cluster_role = ?, created_at = ? WHERE id = ?`
 	_, err := runner.ExecContext(ctx, query, host.Alias, host.Username, port, host.EncryptedPassword, role, createdAt, id)
@@ -188,7 +188,7 @@ func updateHostForIP(ctx context.Context, runner sqlContextQueryExecer, id strin
 
 func updateHostForAlias(ctx context.Context, runner sqlContextQueryExecer, id string, host SSHHost) error {
 	role := resolveClusterRole(host.ClusterRole)
-	createdAt := resolveCreatedAt(host.CreatedAt)
+	createdAt := resolveSSHHostCreatedAt(host.CreatedAt)
 	port := resolveHostPort(host.Port)
 	query := `UPDATE ssh_hosts SET ip = ?, username = ?, port = ?, encrypted_password = ?, cluster_role = ?, created_at = ? WHERE id = ?`
 	_, err := runner.ExecContext(ctx, query, host.IP, host.Username, port, host.EncryptedPassword, role, createdAt, id)
@@ -275,7 +275,7 @@ func resolveHistoryID(id string, hostIP string) string {
 
 func recordSSHHistory(ctx context.Context, execer sqlContextExecer, history SSHHistory) error {
 	history.ID = resolveHistoryID(history.ID, history.HostIP)
-	history.JoinedAt = resolveCreatedAt(history.JoinedAt)
+	history.JoinedAt = resolveSSHHostCreatedAt(history.JoinedAt)
 	query := `INSERT INTO ssh_history (id, host_ip, joined_at, user) VALUES (?, ?, ?, ?)`
 	_, err := execer.ExecContext(ctx, query, history.ID, history.HostIP, history.JoinedAt, history.User)
 	if err != nil {
