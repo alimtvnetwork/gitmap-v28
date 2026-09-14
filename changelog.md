@@ -1,3 +1,15 @@
+## [v6.238.0] 2026-09-14 Release v6.238.0
+
+### Install GitMap v6.238.0
+
+To pin your repository to this exact version, run the following one-liner:
+Unix/Bash: `curl -sL https://raw.githubusercontent.com/alimtvnetwork/gitmap-v28/v6.238.0/install.sh | bash -s -- ".lovable/prompts" "v6.238.0"`
+PowerShell: `Invoke-WebRequest -Uri https://raw.githubusercontent.com/alimtvnetwork/gitmap-v28/v6.238.0/install.ps1 -OutFile install.ps1; .\install.ps1 -TargetDir ".lovable/prompts" -Version "v6.238.0"`
+
+### Added / Changed / Fixed / Removed
+
+- Kubernetes cluster runner, Ubuntu provisioning, CRI-O runtime, Helm and NFS storage suite
+
 ## [v6.237.0] 2026-09-14 Release v6.237.0
 
 ### Install GitMap v6.237.0
