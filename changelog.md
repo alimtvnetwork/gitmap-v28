@@ -1,3 +1,17 @@
+## [v6.229.0] 2026-09-14 Release v6.229.0
+
+### Install GitMap v6.229.0
+
+To pin your repository to this exact version, run the following one-liner:
+Unix/Bash: `curl -sL https://raw.githubusercontent.com/alimtvnetwork/gitmap-v28/v6.229.0/install.sh | bash -s -- ".lovable/prompts" "v6.229.0"`
+PowerShell: `Invoke-WebRequest -Uri https://raw.githubusercontent.com/alimtvnetwork/gitmap-v28/v6.229.0/install.ps1 -OutFile install.ps1; .\install.ps1 -TargetDir ".lovable/prompts" -Version "v6.229.0"`
+
+### Added / Changed / Fixed / Removed
+
+- Gracefully handle gitmap cd and lookup commands when targets are not found without raw stack traces or duplicate stderr output
+- Add fuzzy repository and workdir suggestion engine (Did you mean: <repo>?) on cd lookup misses
+- Standardize ErrorTypeNotFound across apperror, cliexit, and cmd packages
+
 ## [v6.228.0] 2026-09-13 Release v6.228.0
 
 ### Install GitMap v6.228.0
