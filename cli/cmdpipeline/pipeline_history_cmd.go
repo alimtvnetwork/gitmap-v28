@@ -247,16 +247,21 @@ func calculateHistoryStats(groups []CommitPipelineGroup) historySummaryStats {
 	var s historySummaryStats
 	s.Total = len(groups)
 	for _, g := range groups {
-		if g.Conclusion == "success" {
-			s.Passed++
-		} else if g.Conclusion == "failure" {
-			s.Failed++
-		} else {
-			s.Running++
-		}
+		tallyGroupStat(&s, g.Conclusion)
 	}
 
 	return s
+}
+
+func tallyGroupStat(s *historySummaryStats, conclusion string) {
+	switch conclusion {
+	case "success":
+		s.Passed++
+	case "failure":
+		s.Failed++
+	default:
+		s.Running++
+	}
 }
 
 func printPipelineDbFooter(repo string) {
