@@ -351,3 +351,31 @@ func TestLogSSHHistory(t *testing.T) {
 
 	assertRowCount(t, db, "SELECT COUNT(*) FROM ssh_history WHERE id = 'hist-def-1'", 1)
 }
+
+func TestSSHHost_EncryptedPasswordAndPort(t *testing.T) {
+	db := setupSSHTestDB(t)
+	defer db.Close()
+
+	ctx := context.Background()
+	host := SSHHost{
+		ID:                "host-pass-1",
+		Alias:             "pass-server",
+		IP:                "192.168.1.199",
+		Username:          "deploy",
+		Port:              2222,
+		EncryptedPassword: "rsa:encrypted-secret-token",
+		CreatedAt:         time.Now().UTC(),
+	}
+	insertHostInTx(t, ctx, db, host)
+
+	found, err := GetHostByAlias(ctx, "pass-server", db)
+	if err != nil {
+		t.Fatalf("GetHostByAlias failed: %v", err)
+	}
+	if found.Port != 2222 {
+		t.Errorf("expected port 2222, got %d", found.Port)
+	}
+	if found.EncryptedPassword != "rsa:encrypted-secret-token" {
+		t.Errorf("expected encrypted password, got %s", found.EncryptedPassword)
+	}
+}

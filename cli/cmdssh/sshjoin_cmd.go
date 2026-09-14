@@ -25,6 +25,7 @@ const msgMissingJoinTarget = `missing target host
 Usage:
   gitmap ssh-join <user@ip|ip> [alias] [flags]
   gitmap ssh-join add <user@ip|ip> [alias] [flags]
+  gitmap ssh-join add-with-pass <user@ip|ip> [password] [alias] [flags]
   gitmap ssh join <user@ip|ip> [alias] [flags]
   gitmap sj <user@ip|ip> [alias] [flags]
 
@@ -32,6 +33,7 @@ Examples:
   gitmap ssh-join user@192.168.1.14
   gitmap ssh-join root@192.168.1.14 prod-server
   gitmap ssh-join add dev@192.168.1.50 devbox
+  gitmap ssh-join add-with-pass alim@192.168.1.14 secret123 devbox
   gitmap ssh-join 192.168.1.14
   gitmap ssh join alim@192.168.1.14 devbox
   gitmap ssh join ubuntu@192.168.1.14:2222 prod --auth`
@@ -91,6 +93,10 @@ func logSSHJoinInTx(ctx context.Context, tx *dbengine.TxWrapper, history store.S
 	return nil
 }
 
+func isSJAddWithPassSubcommand(sub string) bool {
+	return sub == "add-with-pass" || sub == "add-pass" || sub == "add-password"
+}
+
 func isSJAddSubcommand(sub string) bool {
 	return sub == "add" || sub == "join" || sub == "new" || sub == "enroll"
 }
@@ -98,6 +104,10 @@ func isSJAddSubcommand(sub string) bool {
 func routeSSHJoinCmd(cmd *cobra.Command, args []string) error {
 	if len(args) == 0 {
 		return RunSSHJoinCLI(args)
+	}
+
+	if isSJAddWithPassSubcommand(args[0]) {
+		return executeEnrollWithPassCLI(cmd.Context(), args[1:])
 	}
 
 	if isSJAddSubcommand(args[0]) {
@@ -143,7 +153,7 @@ func isSJStatusSubcommand(sub string) bool {
 }
 
 func isSJSubcommand(sub string) bool {
-	if isSJAddSubcommand(sub) || isSJScanSubcommand(sub) || isSJStatusSubcommand(sub) {
+	if isSJAddSubcommand(sub) || isSJAddWithPassSubcommand(sub) || isSJScanSubcommand(sub) || isSJStatusSubcommand(sub) {
 		return true
 	}
 
@@ -180,6 +190,9 @@ func executeSJList(ctx context.Context) error {
 }
 
 func dispatchSJSubcommand(ctx context.Context, sub string, args []string) error {
+	if isSJAddWithPassSubcommand(sub) {
+		return executeEnrollWithPassCLI(ctx, args)
+	}
 	if isSJAddSubcommand(sub) {
 		return executeEnrollCLI(ctx, args)
 	}
@@ -342,6 +355,7 @@ func runSSHJoinCLI(args []string) error {
 
 func init() {
 	SSHJoinCmd.AddCommand(SJAddCmd)
+	SSHJoinCmd.AddCommand(SJAddWithPassCmd)
 	SSHJoinCmd.AddCommand(SJRmCmd)
 	SSHJoinCmd.AddCommand(SJAddAuthCmd)
 	SSHJoinCmd.AddCommand(SJLsCmd)

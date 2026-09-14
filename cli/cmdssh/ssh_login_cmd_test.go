@@ -29,7 +29,7 @@ func hookTestDB(t *testing.T, db *store.DB) {
 func hookTestSpawner(t *testing.T) *int {
 	count := 0
 	orig := spawnSSHFn
-	spawnSSHFn = func(ctx context.Context, target SSHTarget, args []string) error {
+	spawnSSHFn = func(ctx context.Context, target SSHTarget, args []string, password string) error {
 		count++
 		return nil
 	}
@@ -39,7 +39,7 @@ func hookTestSpawner(t *testing.T) *int {
 
 func hookTargetSpawner(t *testing.T, out *SSHTarget) {
 	orig := spawnSSHFn
-	spawnSSHFn = func(ctx context.Context, target SSHTarget, args []string) error {
+	spawnSSHFn = func(ctx context.Context, target SSHTarget, args []string, password string) error {
 		*out = target
 		return nil
 	}

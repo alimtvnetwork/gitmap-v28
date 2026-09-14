@@ -35,6 +35,34 @@ Examples:
   gitmap ssh join admin@10.0.0.12:2222 gateway
   gitmap sj 192.168.1.50 devbox`
 
+const leafHelpAddWithPass = `Enroll remote SSH machine with RSA-encrypted password storage for seamless auto-login.
+
+Usage:
+  gitmap ssh-join add-with-pass <user@ip|ip> [password] [alias] [flags]
+  gitmap ssh join add-with-pass <user@ip|ip> [password] [alias] [flags]
+  gitmap sj add-with-pass <user@ip|ip> [password] [alias] [flags]
+  gitmap sj add-pass <user@ip|ip> [password] [alias] [flags]
+
+Aliases:
+  add-with-pass, add-pass, add-password
+
+Description:
+  Encrypts the provided password using the local SSH RSA key (~/.ssh/id_rsa).
+  If no password argument is supplied, GitMap will prompt securely for it.
+  When connecting later via 'gitmap ssh <alias>', GitMap uses AskPass to log in
+  automatically without prompting for the password.
+
+Examples:
+  # Provide password directly on CLI
+  gitmap ssh-join add-with-pass alim@192.168.1.14 secret123 devbox
+  gitmap sj add-pass root@192.168.1.14 P@ssw0rd! prod-server
+
+  # Prompt securely for password
+  gitmap ssh-join add-with-pass alim@192.168.1.14 devbox
+
+  # Output JSON result for scripting
+  gitmap ssh-join add-with-pass alim@192.168.1.14 secret123 devbox --json`
+
 const leafHelpScan = `Scan local subnet or CIDR network for active SSH machines on port 22.
 
 Usage:
@@ -138,26 +166,29 @@ Examples:
   gitmap sj hist ubuntu`
 
 var leafHelpCatalog = map[string]string{
-	"add":      leafHelpAdd,
-	"enroll":   leafHelpAdd,
-	"join":     leafHelpAdd,
-	"scan":     leafHelpScan,
-	"find":     leafHelpScan,
-	"discover": leafHelpScan,
-	"probe":    leafHelpScan,
-	"status":   leafHelpStatus,
-	"ping":     leafHelpStatus,
-	"health":   leafHelpStatus,
-	"check":    leafHelpStatus,
-	"ls":       leafHelpLs,
-	"list":     leafHelpLs,
-	"rm":       leafHelpRm,
-	"remove":   leafHelpRm,
-	"delete":   leafHelpRm,
-	"add-auth": leafHelpAuth,
-	"auth":     leafHelpAuth,
-	"history":  leafHelpHistory,
-	"hist":     leafHelpHistory,
+	"add":           leafHelpAdd,
+	"enroll":        leafHelpAdd,
+	"join":          leafHelpAdd,
+	"add-with-pass": leafHelpAddWithPass,
+	"add-pass":      leafHelpAddWithPass,
+	"add-password":  leafHelpAddWithPass,
+	"scan":          leafHelpScan,
+	"find":          leafHelpScan,
+	"discover":      leafHelpScan,
+	"probe":         leafHelpScan,
+	"status":        leafHelpStatus,
+	"ping":          leafHelpStatus,
+	"health":        leafHelpStatus,
+	"check":         leafHelpStatus,
+	"ls":            leafHelpLs,
+	"list":          leafHelpLs,
+	"rm":            leafHelpRm,
+	"remove":        leafHelpRm,
+	"delete":        leafHelpRm,
+	"add-auth":      leafHelpAuth,
+	"auth":          leafHelpAuth,
+	"history":       leafHelpHistory,
+	"hist":          leafHelpHistory,
 }
 
 func lookupLeafHelp(cmdName string) (string, bool) {
@@ -197,6 +228,7 @@ func AttachLeafHelp(cmd *cobra.Command, cmdName string) {
 
 func attachAllLeafCommandsHelp() {
 	AttachLeafHelp(SJAddCmd, "add")
+	AttachLeafHelp(SJAddWithPassCmd, "add-with-pass")
 	AttachLeafHelp(SJScanCmd, "scan")
 	AttachLeafHelp(SJStatusCmd, "status")
 	AttachLeafHelp(SJLsCmd, "ls")

@@ -12,9 +12,11 @@ import (
 )
 
 type SSHTarget struct {
-	Username string
-	IP       string
-	Port     int
+	Username          string
+	IP                string
+	Port              int
+	Password          string
+	EncryptedPassword string
 }
 
 func (t *SSHTarget) String() string {
@@ -25,6 +27,7 @@ type SSHJoinOptions struct {
 	RawTarget  string
 	Target     *SSHTarget
 	Alias      string
+	Password   string
 	IsPushAuth bool
 	IsShowHelp bool
 }

@@ -60,14 +60,32 @@ func buildSSHArgs(target SSHTarget, args []string) []string {
 	return cmdArgs
 }
 
-func SpawnSSH(ctx context.Context, target SSHTarget, args []string) error {
+func attachAskPass(cmd *exec.Cmd, password string) func() {
+	if password == "" {
+		return func() {}
+	}
+	scriptPath, cleanup, err := CreateAskPassScript()
+	if err != nil {
+		return func() {}
+	}
+	cmd.Env = BuildAskPassEnv(os.Environ(), scriptPath, password)
+	return cleanup
+}
+
+func SpawnSSHWithPassword(ctx context.Context, target SSHTarget, args []string, password string) error {
 	cmdArgs := buildSSHArgs(target, args)
 	cmd := SSHExecutor(ctx, "ssh", cmdArgs...)
+	cleanup := attachAskPass(cmd, password)
+	defer cleanup()
 	cmd.Stdin = os.Stdin
 	cmd.Stdout = os.Stdout
 	cmd.Stderr = os.Stderr
 
 	return executeClientCmd(cmd, "SpawnSSH", map[string]any{"target": target.String(), "args": args})
+}
+
+func SpawnSSH(ctx context.Context, target SSHTarget, args []string) error {
+	return SpawnSSHWithPassword(ctx, target, args, "")
 }
 
 func PromptSSHPassword(ctx context.Context, prompt string, fd int) (string, error) {

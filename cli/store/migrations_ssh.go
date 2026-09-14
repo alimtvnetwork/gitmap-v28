@@ -7,7 +7,15 @@ import (
 )
 
 // SQLCreateSSHHostsTable defines the DDL statement to initialize the ssh_hosts table.
-const SQLCreateSSHHostsTable = `CREATE TABLE IF NOT EXISTS ssh_hosts (id TEXT PRIMARY KEY, alias TEXT, ip TEXT, username TEXT, created_at DATETIME);`
+const SQLCreateSSHHostsTable = `CREATE TABLE IF NOT EXISTS ssh_hosts (
+	id TEXT PRIMARY KEY,
+	alias TEXT,
+	ip TEXT,
+	username TEXT,
+	port INTEGER DEFAULT 22,
+	encrypted_password TEXT,
+	created_at DATETIME
+);`
 
 func executeTableDDL(db *sql.DB, ddl string, op string) error {
 	if _, err := db.Exec(ddl); err != nil {
@@ -20,6 +28,11 @@ func executeTableDDL(db *sql.DB, ddl string, op string) error {
 	return nil
 }
 
+func ensureHostColumns(db *sql.DB) {
+	_, _ = db.Exec("ALTER TABLE ssh_hosts ADD COLUMN port INTEGER DEFAULT 22;")
+	_, _ = db.Exec("ALTER TABLE ssh_hosts ADD COLUMN encrypted_password TEXT;")
+}
+
 // EnsureSSHTables creates both ssh_hosts and ssh_history tables if they do not exist.
 func EnsureSSHTables(db *sql.DB) error {
 	if db == nil {
@@ -29,6 +42,7 @@ func EnsureSSHTables(db *sql.DB) error {
 	if err := executeTableDDL(db, SQLCreateSSHHostsTable, "EnsureSSHTables_Hosts"); err != nil {
 		return err
 	}
+	ensureHostColumns(db)
 
 	return executeTableDDL(db, SQLCreateSSHHistoryTable, "EnsureSSHTables_History")
 }

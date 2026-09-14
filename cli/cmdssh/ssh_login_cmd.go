@@ -14,7 +14,7 @@ import (
 
 var (
 	runSSHJoinFn = RunSSHJoinCLI
-	spawnSSHFn   = SpawnSSH
+	spawnSSHFn   = SpawnSSHWithPassword
 	openSSHDB    = openDB
 )
 
@@ -93,7 +93,19 @@ func applyEnrolledIPHost(ctx context.Context, target string, db *store.DB, sshTa
 	if err == nil {
 		sshTarget.Username = host.Username
 		sshTarget.Port = host.Port
+		sshTarget.EncryptedPassword = host.EncryptedPassword
 	}
+}
+
+func resolveTargetPassword(sshTarget *SSHTarget) string {
+	if sshTarget == nil || sshTarget.EncryptedPassword == "" {
+		return ""
+	}
+	plain, err := DecryptSSHPassword(sshTarget.EncryptedPassword)
+	if err == nil {
+		return plain
+	}
+	return ""
 }
 
 func executeSSHLogin(ctx context.Context, target string, force bool) error {
@@ -105,7 +117,8 @@ func executeSSHLogin(ctx context.Context, target string, force bool) error {
 	if err := checkAndResolveAlias(ctx, target, sshTarget); err != nil {
 		return err
 	}
-	return spawnSSHFn(ctx, *sshTarget, nil)
+	password := resolveTargetPassword(sshTarget)
+	return spawnSSHFn(ctx, *sshTarget, nil, password)
 }
 
 func checkAndResolveAlias(ctx context.Context, target string, sshTarget *SSHTarget) error {
@@ -130,6 +143,8 @@ func lookupSSHHostOrReport(ctx context.Context, target string, db *store.DB, ssh
 	if err == nil {
 		sshTarget.Username = host.Username
 		sshTarget.IP = host.IP
+		sshTarget.Port = host.Port
+		sshTarget.EncryptedPassword = host.EncryptedPassword
 		return nil
 	}
 	return reportAliasNotFound(ctx, target, db)

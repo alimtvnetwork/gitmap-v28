@@ -14,7 +14,9 @@ gitmap ssh join
 ```bash
 gitmap ssh-join <user@ip|ip> [alias] [flags]
 gitmap ssh-join add <user@ip|ip> [alias] [flags]
+gitmap ssh-join add-with-pass <user@ip|ip> [password] [alias] [flags]
 gitmap sj <user@ip|ip> [alias] [flags]
+gitmap sj add-pass <user@ip|ip> [password] [alias] [flags]
 gitmap ssh join <user@ip|ip> [alias] [flags]
 gitmap sj <subcommand> [flags]
 ```
@@ -36,6 +38,7 @@ Target format accepts:
 | Subcommand | Alias | Description |
 |------------|-------|-------------|
 | add | enroll, join | Enroll remote SSH machine with alias and optional key authorization |
+| add-with-pass | add-pass, add-password | Enroll remote SSH machine with RSA-encrypted password storage |
 | scan | find, discover, probe | Scan local subnet or CIDR network for active SSH machines on port 22 |
 | status | ping, health, check | Inspect connectivity, latency, and reachability of SSH machines |
 | ls | list | List all enrolled SSH machines and aliases |
@@ -78,7 +81,23 @@ gitmap ssh-join alim@192.168.1.14 devbox --auth
 gitmap ssh-join add dev@192.168.1.50 devbox
 ```
 
-### 2. Join Machine by Plain IP
+### 2. Join Machine with RSA-Encrypted Password (add-with-pass)
+
+Enroll a machine and store its password encrypted using your local SSH RSA key (`~/.ssh/id_rsa`). When connecting later via `gitmap ssh <alias>`, GitMap automatically supplies the password via OpenSSH AskPass with zero prompts:
+
+```bash
+# Pass password directly on the command line
+gitmap ssh-join add-with-pass alim@192.168.1.14 secret123 devbox
+gitmap sj add-pass root@192.168.1.14 P@ssw0rd! prod-server
+
+# Prompt securely for password without echoing to terminal
+gitmap ssh-join add-with-pass alim@192.168.1.14 devbox
+
+# Output JSON result for scripting
+gitmap ssh-join add-with-pass alim@192.168.1.14 secret123 devbox --json
+```
+
+### 3. Join Machine by Plain IP
 
 Enroll a server using default current OS username and generated alias:
 

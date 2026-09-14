@@ -118,6 +118,13 @@ printed and a one-line warning is emitted — never fails.
         Recall anytime: gitmap ssh devbox
         Or connect directly: gitmap ssh 192.168.1.14
 
+### Enroll with encrypted password (add-with-pass)
+
+    $ gitmap ssh join add-with-pass alim@192.168.1.14 secret123 devbox
+      ✓ Machine 'devbox' (alim@192.168.1.14) joined successfully with password.
+        Password encrypted and stored securely using SSH RSA key.
+        Recall anytime: gitmap ssh devbox (auto-login via AskPass)
+
 ## See Also
 
 - `gitmap ssh-join` - Machine enrollment, alias recall, and public key authorization

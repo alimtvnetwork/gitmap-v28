@@ -41,8 +41,8 @@ func resolveContextExecer(tx any) (sqlContextExecer, error) {
 }
 
 const sqlInsertSSHHost = `
-	INSERT INTO ssh_hosts (id, alias, ip, username, created_at)
-	VALUES (:id, :alias, :ip, :username, :created_at)
+	INSERT INTO ssh_hosts (id, alias, ip, username, port, encrypted_password, created_at)
+	VALUES (:id, :alias, :ip, :username, :port, :encrypted_password, :created_at)
 `
 
 const sqlSelectHostByIP = `SELECT id FROM ssh_hosts WHERE ip = ? LIMIT 1`
@@ -67,12 +67,21 @@ func resolveCreatedAt(t time.Time) time.Time {
 	return t
 }
 
+func resolveHostPort(port int) int {
+	if port > 0 {
+		return port
+	}
+	return 22
+}
+
 func buildHostNamedArgs(host SSHHost) []any {
 	return []any{
 		sql.Named("id", host.ID),
 		sql.Named("alias", host.Alias),
 		sql.Named("ip", host.IP),
 		sql.Named("username", host.Username),
+		sql.Named("port", resolveHostPort(host.Port)),
+		sql.Named("encrypted_password", host.EncryptedPassword),
 		sql.Named("created_at", host.CreatedAt),
 	}
 }
@@ -157,8 +166,9 @@ func findHostByField(ctx context.Context, runner sqlContextQueryExecer, query st
 
 func updateHostForIP(ctx context.Context, runner sqlContextQueryExecer, id string, host SSHHost) error {
 	createdAt := resolveCreatedAt(host.CreatedAt)
-	query := `UPDATE ssh_hosts SET alias = ?, username = ?, created_at = ? WHERE id = ?`
-	_, err := runner.ExecContext(ctx, query, host.Alias, host.Username, createdAt, id)
+	port := resolveHostPort(host.Port)
+	query := `UPDATE ssh_hosts SET alias = ?, username = ?, port = ?, encrypted_password = ?, created_at = ? WHERE id = ?`
+	_, err := runner.ExecContext(ctx, query, host.Alias, host.Username, port, host.EncryptedPassword, createdAt, id)
 	if err != nil {
 		return apperror.Wrap(err, "updateHostForIP", map[string]any{"id": id})
 	}
@@ -168,8 +178,9 @@ func updateHostForIP(ctx context.Context, runner sqlContextQueryExecer, id strin
 
 func updateHostForAlias(ctx context.Context, runner sqlContextQueryExecer, id string, host SSHHost) error {
 	createdAt := resolveCreatedAt(host.CreatedAt)
-	query := `UPDATE ssh_hosts SET ip = ?, username = ?, created_at = ? WHERE id = ?`
-	_, err := runner.ExecContext(ctx, query, host.IP, host.Username, createdAt, id)
+	port := resolveHostPort(host.Port)
+	query := `UPDATE ssh_hosts SET ip = ?, username = ?, port = ?, encrypted_password = ?, created_at = ? WHERE id = ?`
+	_, err := runner.ExecContext(ctx, query, host.IP, host.Username, port, host.EncryptedPassword, createdAt, id)
 	if err != nil {
 		return apperror.Wrap(err, "updateHostForAlias", map[string]any{"id": id})
 	}
@@ -317,14 +328,16 @@ func wrapHostScanError(err error, alias string) (SSHHost, error) {
 	return wrapHostByFieldScanError(err, "GetHostByAlias", "alias", alias)
 }
 
+const sqlSelectHostFields = `SELECT id, alias, ip, username, COALESCE(port, 22), COALESCE(encrypted_password, ''), created_at FROM ssh_hosts`
+
 // GetHostByAlias retrieves an SSHHost by its alias.
 func GetHostByAlias(ctx context.Context, alias string, db *sql.DB) (SSHHost, error) {
 	_ = EnsureSSHTables(db)
-	query := `SELECT id, alias, ip, username, created_at FROM ssh_hosts WHERE alias = ?`
+	query := sqlSelectHostFields + ` WHERE alias = ?`
 
 	var host SSHHost
 	err := db.QueryRowContext(ctx, query, alias).Scan(
-		&host.ID, &host.Alias, &host.IP, &host.Username, &host.CreatedAt,
+		&host.ID, &host.Alias, &host.IP, &host.Username, &host.Port, &host.EncryptedPassword, &host.CreatedAt,
 	)
 	if err != nil {
 		return wrapHostByFieldScanError(err, "GetHostByAlias", "alias", alias)
@@ -336,11 +349,11 @@ func GetHostByAlias(ctx context.Context, alias string, db *sql.DB) (SSHHost, err
 // GetHostByIP retrieves an SSHHost by its IP.
 func GetHostByIP(ctx context.Context, ip string, db *sql.DB) (SSHHost, error) {
 	_ = EnsureSSHTables(db)
-	query := `SELECT id, alias, ip, username, created_at FROM ssh_hosts WHERE ip = ?`
+	query := sqlSelectHostFields + ` WHERE ip = ?`
 
 	var host SSHHost
 	err := db.QueryRowContext(ctx, query, ip).Scan(
-		&host.ID, &host.Alias, &host.IP, &host.Username, &host.CreatedAt,
+		&host.ID, &host.Alias, &host.IP, &host.Username, &host.Port, &host.EncryptedPassword, &host.CreatedAt,
 	)
 	if err != nil {
 		return wrapHostByFieldScanError(err, "GetHostByIP", "ip", ip)
@@ -352,11 +365,11 @@ func GetHostByIP(ctx context.Context, ip string, db *sql.DB) (SSHHost, error) {
 // GetHostByID retrieves an SSHHost by its ID.
 func GetHostByID(ctx context.Context, id string, db *sql.DB) (SSHHost, error) {
 	_ = EnsureSSHTables(db)
-	query := `SELECT id, alias, ip, username, created_at FROM ssh_hosts WHERE id = ?`
+	query := sqlSelectHostFields + ` WHERE id = ?`
 
 	var host SSHHost
 	err := db.QueryRowContext(ctx, query, id).Scan(
-		&host.ID, &host.Alias, &host.IP, &host.Username, &host.CreatedAt,
+		&host.ID, &host.Alias, &host.IP, &host.Username, &host.Port, &host.EncryptedPassword, &host.CreatedAt,
 	)
 	if err != nil {
 		return wrapHostByFieldScanError(err, "GetHostByID", "id", id)
@@ -384,7 +397,7 @@ func scanHostRows(rows *sql.Rows) ([]SSHHost, error) {
 	var hosts []SSHHost
 	for rows.Next() {
 		var host SSHHost
-		if err := rows.Scan(&host.ID, &host.Alias, &host.IP, &host.Username, &host.CreatedAt); err != nil {
+		if err := rows.Scan(&host.ID, &host.Alias, &host.IP, &host.Username, &host.Port, &host.EncryptedPassword, &host.CreatedAt); err != nil {
 			return nil, apperror.WrapSimple(err, "ListHosts_Scan")
 		}
 
@@ -405,7 +418,7 @@ func ensureHostsSlice(hosts []SSHHost) []SSHHost {
 // ListHosts retrieves all SSH hosts from the database.
 func ListHosts(ctx context.Context, db *sql.DB) ([]SSHHost, error) {
 	_ = EnsureSSHTables(db)
-	query := `SELECT id, alias, ip, username, created_at FROM ssh_hosts ORDER BY created_at DESC`
+	query := sqlSelectHostFields + ` ORDER BY created_at DESC`
 	rows, err := db.QueryContext(ctx, query)
 	if err != nil {
 		return nil, apperror.WrapSimple(err, "ListHosts")
