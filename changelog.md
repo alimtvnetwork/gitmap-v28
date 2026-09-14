@@ -1,3 +1,15 @@
+## [v6.239.0] 2026-09-14 Release v6.239.0
+
+### Install GitMap v6.239.0
+
+To pin your repository to this exact version, run the following one-liner:
+Unix/Bash: `curl -sL https://raw.githubusercontent.com/alimtvnetwork/gitmap-v28/v6.239.0/install.sh | bash -s -- ".lovable/prompts" "v6.239.0"`
+PowerShell: `Invoke-WebRequest -Uri https://raw.githubusercontent.com/alimtvnetwork/gitmap-v28/v6.239.0/install.ps1 -OutFile install.ps1; .\install.ps1 -TargetDir ".lovable/prompts" -Version "v6.239.0"`
+
+### Added / Changed / Fixed / Removed
+
+- Antigravity launcher purge, install_logs SQLite telemetry, and cluster SSH node bootstrap
+
 ## [v6.238.0] 2026-09-14 Release v6.238.0
 
 ### Install GitMap v6.238.0
