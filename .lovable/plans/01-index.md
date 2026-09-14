@@ -4,6 +4,7 @@ Master directory of architectural and execution plans.
 
 ## Pending Plans
 
+
 None
 
 ## Recent Completed Tasks Register (Last 20 Tasks)
@@ -28,6 +29,7 @@ None
 18. [Plan 158: 158-macro-storage-permission-fallback-suite.md](completed/158-macro-storage-permission-fallback-suite.md): Macro Storage Permission & Fallback Suite
 19. [Plan 159: 159-macro-interactive-padding-table-alignment-os-help-parity.md](completed/159-macro-interactive-padding-table-alignment-os-help-parity.md): Macro Interactive Padding, Table Alignment, Self-Recursion & OS Help Parity
 20. [Plan 160: 160-macro-run-until-tree-summary-direct-dispatch.md](completed/160-macro-run-until-tree-summary-direct-dispatch.md): Macro Resilience, Failure Logging, Execution Summary Trees & Direct Dispatch
+21. [Plan 161: 161-archive-url-download-caching-antigravity-icon.md](completed/161-archive-url-download-caching-antigravity-icon.md): Archive URL Downloader, Download Caching, --download-must & Antigravity Logo Visibility Suite
 
 
 

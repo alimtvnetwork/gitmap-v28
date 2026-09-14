@@ -32,6 +32,13 @@ func bindInstallAdvancedFlags(fs *flag.FlagSet, opts *installOptions) {
 	fs.BoolVar(&opts.Force, "f", false, "Force reinstallation")
 	fs.StringVar(&opts.Prefix, "prefix", "", "Custom installation directory prefix")
 	fs.StringVar(&opts.Prefix, "dir", "", "Custom installation directory")
+	bindDownloadMustFlags(fs, opts)
+}
+
+func bindDownloadMustFlags(fs *flag.FlagSet, opts *installOptions) {
+	fs.BoolVar(&opts.IsDownloadMust, "download-must", false, "Force re-download and bypass cache")
+	fs.BoolVar(&opts.IsDownloadMust, "force-download", false, "Force re-download and bypass cache")
+	fs.BoolVar(&opts.IsDownloadMust, "redownload", false, "Force re-download and bypass cache")
 }
 
 func parseInstallFlags(args []string) (installOptions, bool) {
@@ -114,17 +121,22 @@ func printInstallUsageHints() {
 
 // installOptions holds parsed install flags.
 type installOptions struct {
-	Tool    string
-	Manager string
-	Version string
-	Prefix  string
-	Force   bool
-	Verbose bool
-	DryRun  bool
-	Check   bool
-	Yes     bool
-	Explain bool
-	Tree    bool
+	Tool           string
+	Manager        string
+	Version        string
+	Prefix         string
+	Force          bool
+	Verbose        bool
+	DryRun         bool
+	Check          bool
+	Yes            bool
+	Explain        bool
+	Tree           bool
+	IsDownloadMust bool
+}
+
+func isRemoteArchiveURL(raw string) bool {
+	return isRemoteURL(raw) && isArchiveExtension(raw)
 }
 
 func isInstallTarCommand(args []string) bool {
@@ -134,7 +146,7 @@ func isInstallTarCommand(args []string) bool {
 
 	low := strings.ToLower(args[0])
 
-	return low == "tar" || low == "archive" || isArchiveExtension(args[0])
+	return low == "tar" || low == "archive" || isArchiveExtension(args[0]) || isRemoteArchiveURL(args[0])
 }
 
 func extractInstallTarArgs(args []string) []string {

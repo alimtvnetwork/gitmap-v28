@@ -9,7 +9,6 @@ import (
 	"strings"
 
 	"github.com/alimtvnetwork/gitmap-v28/cli/apperror"
-	"github.com/alimtvnetwork/gitmap-v28/cli/tempdir"
 )
 
 func checkDarwinDirExists(dir string) bool {
@@ -214,14 +213,17 @@ func deployAntigravityDesktopDarwin(dmgPath, prefix string) error {
 
 func installAntigravityDesktopPlatform(opts installOptions) error {
 	url := getAntigravityDesktopDownloadUrl("darwin")
-	tempDmg := filepath.Join(tempdir.RepoTempDir("downloads"), "Antigravity.dmg")
-	defer os.Remove(tempDmg)
-
-	if err := downloadFileToDest(url, tempDmg); err != nil {
-		return apperror.WrapSimple(err, "download.darwinDmg")
+	params := ArchiveDownloadParams{
+		URL:            url,
+		IsDownloadMust: opts.IsDownloadMust,
+		Verbose:        opts.Verbose,
+	}
+	dmgPath, err := FetchOrReuseArchive(params)
+	if err != nil {
+		return apperror.WrapSimple(err, "fetch.darwinDmg")
 	}
 
-	return deployAntigravityDesktopDarwin(tempDmg, opts.Prefix)
+	return deployAntigravityDesktopDarwin(dmgPath, opts.Prefix)
 }
 
 func getDarwinAppPaths() []string {

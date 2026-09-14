@@ -12,12 +12,13 @@ import (
 const isDefaultFalse = false
 
 var (
-	agyInstallDryRun  bool
-	agyInstallYes     bool
-	agyInstallVerbose bool
-	agyInstallVersion string
-	agyInstallForce   bool
-	agyInstallPrefix  string
+	agyInstallDryRun       bool
+	agyInstallYes          bool
+	agyInstallVerbose      bool
+	agyInstallVersion      string
+	agyInstallForce        bool
+	agyInstallPrefix       string
+	agyInstallDownloadMust bool
 )
 
 var agyInstallCmd = &cobra.Command{
@@ -47,6 +48,13 @@ func bindAgyInstallAdvancedFlags() {
 	agyInstallCmd.Flags().StringVar(&agyInstallVersion, "version", "", "Specific release version to install (e.g. 2.13.0)")
 	agyInstallCmd.Flags().BoolVarP(&agyInstallForce, "force", "f", isDefaultFalse, "Force reinstallation even if already present")
 	agyInstallCmd.Flags().StringVar(&agyInstallPrefix, "prefix", "", "Custom installation directory prefix")
+	bindAgyInstallDownloadFlags()
+}
+
+func bindAgyInstallDownloadFlags() {
+	agyInstallCmd.Flags().BoolVar(&agyInstallDownloadMust, "download-must", isDefaultFalse, "Bypass download cache")
+	agyInstallCmd.Flags().BoolVar(&agyInstallDownloadMust, "force-download", isDefaultFalse, "Force re-download")
+	agyInstallCmd.Flags().BoolVar(&agyInstallDownloadMust, "redownload", isDefaultFalse, "Force re-download")
 }
 
 func bindAgyInstallFlags() {
@@ -56,12 +64,13 @@ func bindAgyInstallFlags() {
 
 func buildAgyInstallOptions() installOptions {
 	return installOptions{
-		DryRun:  agyInstallDryRun,
-		Yes:     agyInstallYes,
-		Verbose: agyInstallVerbose,
-		Version: agyInstallVersion,
-		Force:   agyInstallForce,
-		Prefix:  agyInstallPrefix,
+		DryRun:         agyInstallDryRun,
+		Yes:            agyInstallYes,
+		Verbose:        agyInstallVerbose,
+		Version:        agyInstallVersion,
+		Force:          agyInstallForce,
+		Prefix:         agyInstallPrefix,
+		IsDownloadMust: agyInstallDownloadMust,
 	}
 }
 

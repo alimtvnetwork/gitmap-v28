@@ -10,6 +10,7 @@ import (
 	"time"
 
 	"github.com/alimtvnetwork/gitmap-v28/cli/apperror"
+	"github.com/alimtvnetwork/gitmap-v28/cli/assets"
 	"github.com/alimtvnetwork/gitmap-v28/cli/tempdir"
 )
 
@@ -176,14 +177,25 @@ func createDualLinuxSymlinksWithFallback(binFile, preferredBinDir string) (strin
 	return fallbackBinDir, nil
 }
 
-func createAntigravityDesktopEntry(binPath, iconPath, desktopFile string) error {
-	content := fmt.Sprintf("[Desktop Entry]\nName=Google Antigravity\nComment=AI-First Development Platform & Agent Orchestration IDE\nGenericName=Text Editor / IDE\nExec=%s %%U\nIcon=%s\nType=Application\nStartupNotify=true\nStartupWMClass=Antigravity\nCategories=Development;IDE;Utility;\n", binPath, iconPath)
+func createAntigravityDesktopEntry(binPath, desktopFile string) error {
+	content := fmt.Sprintf("[Desktop Entry]\nName=Google Antigravity\nComment=AI-First Development Platform & Agent Orchestration IDE\nGenericName=Text Editor / IDE\nExec=%s %%U\nIcon=%s\nType=Application\nStartupNotify=true\nStartupWMClass=Antigravity\nCategories=Development;IDE;Utility;\n", binPath, AntigravityCanonicalIconName)
 
 	if err := os.WriteFile(desktopFile, []byte(content), 0644); err != nil {
 		return apperror.WrapSimple(err, "write.desktopEntry")
 	}
 
 	return nil
+}
+
+func deployAntigravityDesktopIcons(installDir string) {
+	opts := IconDeployOptions{
+		IconName:   AntigravityCanonicalIconName,
+		SourceDir:  installDir,
+		RawBytes:   assets.AntigravityDefaultIcon,
+		IsUserOnly: !isPrivilegedLinuxUser(),
+	}
+
+	_ = DeployMultiResolutionIcons(opts)
 }
 
 func installLinuxDesktopLauncher(binPath, installDir, desktopDir string) error {
@@ -193,9 +205,9 @@ func installLinuxDesktopLauncher(binPath, installDir, desktopDir string) error {
 		_ = os.MkdirAll(desktopDir, 0755)
 	}
 
-	icon := resolveAppIconPath(installDir)
+	deployAntigravityDesktopIcons(installDir)
 	desktopFile := filepath.Join(desktopDir, "antigravity.desktop")
-	err := createAntigravityDesktopEntry(binPath, icon, desktopFile)
+	err := createAntigravityDesktopEntry(binPath, desktopFile)
 	updateDesktopDatabase(desktopDir)
 
 	return err

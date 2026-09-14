@@ -15,10 +15,18 @@ var archiveExts = []string{
 	".tar", ".zip", ".gz",
 }
 
-func isArchiveExtension(path string) bool {
+func cleanArchiveExtPath(path string) string {
 	low := strings.ToLower(path)
+	if idx := strings.Index(low, "?"); idx != -1 {
+		return low[:idx]
+	}
+	return low
+}
+
+func isArchiveExtension(path string) bool {
+	cleaned := cleanArchiveExtPath(path)
 	for _, ext := range archiveExts {
-		if strings.HasSuffix(low, ext) {
+		if strings.HasSuffix(cleaned, ext) {
 			return true
 		}
 	}
@@ -66,40 +74,48 @@ func findMakefileInDir(dir string) (bool, bool) {
 	return hasMake, hasConf
 }
 
+func matchDesktopOrIcon(p string, desktop, icon *string) {
+	if *desktop == "" && strings.HasSuffix(p, ".desktop") {
+		*desktop = p
+	}
+	if *icon == "" && (strings.HasSuffix(p, ".png") || strings.HasSuffix(p, ".svg")) {
+		*icon = p
+	}
+}
+
 func findDesktopAndIcon(dir string) (string, string) {
 	var desktopPath, iconPath string
 	_ = filepath.Walk(dir, func(p string, info fs.FileInfo, err error) error {
-		if err != nil || info.IsDir() {
-			return nil
-		}
-		if desktopPath == "" && strings.HasSuffix(p, ".desktop") {
-			desktopPath = p
-		}
-		if iconPath == "" && (strings.HasSuffix(p, ".png") || strings.HasSuffix(p, ".svg")) {
-			iconPath = p
+		if err == nil && !info.IsDir() {
+			matchDesktopOrIcon(p, &desktopPath, &iconPath)
 		}
 		return nil
 	})
 	return desktopPath, iconPath
 }
 
+func evaluateBinaryMatch(p string, info fs.FileInfo, appName string, best *string) error {
+	if isCandidateMatch(p, info, appName) {
+		*best = p
+		return filepath.SkipAll
+	}
+	if *best == "" && (isElfBinary(p) || isExecutableFile(info)) {
+		*best = p
+	}
+	return nil
+}
+
 func findCandidateBinary(dir, appName string) string {
 	var bestCandidate string
 	_ = filepath.Walk(dir, func(p string, info fs.FileInfo, err error) error {
-		if err != nil || info.IsDir() || info.Size() == 0 {
-			return nil
-		}
-		if isCandidateMatch(p, info, appName) {
-			bestCandidate = p
-			return filepath.SkipAll
-		}
-		if bestCandidate == "" && (isElfBinary(p) || isExecutableFile(info)) {
-			bestCandidate = p
+		if err == nil && !info.IsDir() && info.Size() > 0 {
+			return evaluateBinaryMatch(p, info, appName, &bestCandidate)
 		}
 		return nil
 	})
 	return bestCandidate
 }
+
 
 func isCandidateMatch(p string, info fs.FileInfo, appName string) bool {
 	if !isElfBinary(p) && !isExecutableFile(info) {

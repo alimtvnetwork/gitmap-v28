@@ -13,7 +13,6 @@ import (
 	"golang.org/x/sys/windows/registry"
 
 	"github.com/alimtvnetwork/gitmap-v28/cli/apperror"
-	"github.com/alimtvnetwork/gitmap-v28/cli/tempdir"
 )
 
 func buildNsisInstallerArgs(customDir string) []string {
@@ -217,12 +216,15 @@ func deployAntigravityDesktopWindows(installerPath, customDir string) error {
 
 func installAntigravityDesktopPlatform(opts installOptions) error {
 	url := getAntigravityDesktopDownloadUrl("windows")
-	tempInstaller := filepath.Join(tempdir.RepoTempDir("downloads"), "Antigravity-x64.exe")
-	defer os.Remove(tempInstaller)
-
-	if err := downloadFileToDest(url, tempInstaller); err != nil {
-		return apperror.WrapSimple(err, "download.windowsInstaller")
+	params := ArchiveDownloadParams{
+		URL:            url,
+		IsDownloadMust: opts.IsDownloadMust,
+		Verbose:        opts.Verbose,
+	}
+	installerPath, err := FetchOrReuseArchive(params)
+	if err != nil {
+		return apperror.WrapSimple(err, "fetch.windowsInstaller")
 	}
 
-	return deployAntigravityDesktopWindows(tempInstaller, opts.Prefix)
+	return deployAntigravityDesktopWindows(installerPath, opts.Prefix)
 }

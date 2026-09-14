@@ -15,13 +15,30 @@ const (
 
 // ArchiveInstallOptions holds options for archive installation.
 type ArchiveInstallOptions struct {
-	ArchivePath string
-	AppName     string
-	DestDir     string
-	BinDir      string
-	DesktopDir  string
-	Verbose     bool
-	DryRun      bool
+	ArchivePath    string
+	AppName        string
+	DestDir        string
+	BinDir         string
+	DesktopDir     string
+	Verbose        bool
+	DryRun         bool
+	IsDownloadMust bool
+}
+
+// ArchiveDownloadParams holds parameters for fetching or caching an archive.
+type ArchiveDownloadParams struct {
+	URL            string
+	DestPath       string
+	IsDownloadMust bool
+	Verbose        bool
+}
+
+// ArchiveCacheValidationResult holds validation outcome of a cached archive file.
+type ArchiveCacheValidationResult struct {
+	IsValid       bool
+	Size          int64
+	HasValidMagic bool
+	ErrorMessage  string
 }
 
 // ArchiveInspectionResult holds details discovered during archive analysis.
