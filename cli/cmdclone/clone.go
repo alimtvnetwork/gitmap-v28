@@ -75,6 +75,10 @@ func runClone(args []string) error {
 		cliexit.HandleError(nil, 1)
 	}
 
+	if cf.IsListOnly {
+		return runCloneListTable(cf.Source)
+	}
+
 	initCloneVerbose(cf.Verbose)
 	SetCloneDryRun(cf.DryRun)
 	SetCloneAssumeYes(cf.IsAssumeYes)
@@ -115,7 +119,8 @@ func runClone(args []string) error {
 	}
 
 	source := resolveCloneShorthand(cf.Source)
-	executeClone(source, cf.TargetDir, cf.SafePull, cf.GHDesktop, cf.MaxConcurrency, cf.DefaultBranch, cf.NoVSCodeSync, cf.Clean, cf.MissingOnly)
+	cf.Source = source
+	executeClone(cf)
 	maybeExitOnCmdFaithfulMismatch()
 
 	return nil
@@ -492,73 +497,69 @@ func validateShorthandPath(resolved string) string {
 // in cloner.applyDefaultBranchFallback so they go through the
 // untrusted (detached, unknown) git clone is invoked without -b and
 // the remote's default HEAD decides the checkout.
-func executeClone(
-	source,
-	targetDir string,
-	safePull,
-	ghDesktop bool,
-	maxConcurrency int,
-	defaultBranch string,
-	noVSCodeSync bool,
-	clean bool,
-	missingOnly bool,
-) {
-	workers, ok := cloneconcurrency.Resolve(maxConcurrency)
+func executeClone(cf CloneFlags) {
+	workers, ok := cloneconcurrency.Resolve(cf.MaxConcurrency)
 	if !ok {
-		fmt.Fprintf(os.Stderr, constants.ErrCloneMaxConcurrencyInvalid, maxConcurrency)
+		fmt.Fprintf(os.Stderr, constants.ErrCloneMaxConcurrencyInvalid, cf.MaxConcurrency)
 		cliexit.HandleError(nil, 1)
 	}
+	cf.MaxConcurrency = workers
 
-	maxConcurrency = workers
-
-	// Enqueue clone as a pending task before execution.
-	absTarget, absErr := filepath.Abs(targetDir)
-	if absErr != nil {
-		fmt.Fprintf(os.Stderr, "  Warning: could not resolve absolute path for %s: %v\n", targetDir, absErr)
-		absTarget = targetDir
-	}
-
-	workDir, wdErr := os.Getwd()
-	if wdErr != nil {
-		fmt.Fprintf(os.Stderr, "  Warning: could not determine working directory: %v\n", wdErr)
-	}
-
+	absTarget, _ := filepath.Abs(cf.TargetDir)
+	workDir, _ := os.Getwd()
 	cmdArgs := buildCommandArgs(append([]string{"clone"}, os.Args[2:]...))
 	taskID, taskDB := createPendingTask(constants.TaskTypeClone, absTarget, workDir, "clone", cmdArgs)
 
-	summary, err := cloner.CloneFromFileWithOptions(source, targetDir, cloner.CloneOptions{
-		IsSafePull:     safePull,
-		MaxConcurrency: maxConcurrency,
-		DefaultBranch:  defaultBranch,
-		IsClean:        clean,
-		IsMissingOnly:  missingOnly,
-	})
+	summary, err := runCloneExecution(cf)
 	if err != nil {
-		failPendingTask(taskDB, taskID, fmt.Sprintf(constants.ErrCloneFailed, source, err))
+		failPendingTask(taskDB, taskID, fmt.Sprintf(constants.ErrCloneFailed, cf.Source, err))
 		closeTaskDB(taskDB)
-		fmt.Fprintf(os.Stderr, constants.ErrCloneFailed, source, err)
+		fmt.Fprintf(os.Stderr, constants.ErrCloneFailed, cf.Source, err)
 		cliexit.HandleError(nil, 1)
 	}
 
+	finalizeCloneExecution(summary, cf, taskDB, taskID)
+}
+
+func finalizeCloneExecution(summary model.CloneSummary, cf CloneFlags, taskDB *store.DB, taskID int64) {
 	fmt.Printf(constants.MsgCloneComplete, summary.Succeeded, summary.Failed)
 	printCloneFailures(summary)
-	registerCloned(summary, targetDir, ghDesktop)
-
-	// VS Code Project Manager: build one pair per successfully
-	// cloned repo and run a single Sync. Mirrors registerCloned's
-	// abs-path resolution so projects.json points at the same path
-	// the GitHub Desktop registration uses.
-	syncManifestClonedReposToVSCodePM(summary, targetDir, noVSCodeSync)
-
-	// Mark clone task as completed after all steps succeed.
+	registerCloned(summary, cf.TargetDir, cf.GHDesktop)
+	syncManifestClonedReposToVSCodePM(summary, cf.TargetDir, cf.NoVSCodeSync)
 	completePendingTask(taskDB, taskID)
 	closeTaskDB(taskDB)
 
-	// Trigger gitmap status (Step 4.32)
 	fmt.Println("\nRunning gitmap status on target directory...")
-	if err := os.Chdir(targetDir); err == nil {
+	if err := os.Chdir(cf.TargetDir); err == nil {
 		runStatus([]string{})
 	}
+}
+
+func runCloneExecution(cf CloneFlags) (model.CloneSummary, error) {
+	opts := cloner.CloneOptions{
+		IsSafePull:     cf.SafePull,
+		MaxConcurrency: cf.MaxConcurrency,
+		DefaultBranch:  cf.DefaultBranch,
+		IsClean:        cf.Clean,
+		IsMissingOnly:  cf.MissingOnly,
+	}
+	if cf.OnlyFilter != "" {
+		return runFilteredClone(cf, opts)
+	}
+	return cloner.CloneFromFileWithOptions(cf.Source, cf.TargetDir, opts)
+}
+
+func runFilteredClone(cf CloneFlags, opts cloner.CloneOptions) (model.CloneSummary, error) {
+	records, err := cloner.LoadRecords(cf.Source)
+	if err != nil {
+		return model.CloneSummary{}, err
+	}
+	filtered := filterRecordsByOnly(records, cf.OnlyFilter)
+	if len(filtered) == 0 {
+		fmt.Printf("Warning: no repositories matched filter --only %q\n", cf.OnlyFilter)
+		return model.CloneSummary{}, nil
+	}
+	return cloner.CloneRecords(filtered, cf.TargetDir, opts), nil
 }
 
 // syncManifestClonedReposToVSCodePM converts a manifest-style

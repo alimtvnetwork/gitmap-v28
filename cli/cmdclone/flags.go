@@ -34,6 +34,8 @@ type CloneFlags struct {
 	Clean                           bool
 	MissingOnly                     bool
 	Fix                             bool
+	IsListOnly                      bool
+	OnlyFilter                      string
 }
 
 type cloneFlagPointers struct {
@@ -59,6 +61,8 @@ type cloneFlagPointers struct {
 	dryRunFlag        *bool
 	yesFlag           *bool
 	fixFlag           *bool
+	listOnlyFlag      *bool
+	onlyFlag          *string
 }
 
 func registerCloneStringFlags(fs *flag.FlagSet, flagPtrs *cloneFlagPointers) {
@@ -69,6 +73,7 @@ func registerCloneStringFlags(fs *flag.FlagSet, flagPtrs *cloneFlagPointers) {
 	flagPtrs.outputFlag = fs.String(constants.FlagCloneTermOutput, "", constants.FlagDescCloneTermOutput)
 	flagPtrs.maxConcFlag = fs.Int(constants.CloneFlagMaxConcurrency,
 		constants.CloneDefaultMaxConcurrency, constants.FlagDescCloneMaxConcurrency)
+	flagPtrs.onlyFlag = fs.String("only", "", "Filter repositories to clone by 1-based sequential ID, slug, or prefix")
 }
 
 func registerCloneToggles(fs *flag.FlagSet, flagPtrs *cloneFlagPointers) {
@@ -83,6 +88,9 @@ func registerCloneToggles(fs *flag.FlagSet, flagPtrs *cloneFlagPointers) {
 	flagPtrs.debugPathsFlag = fs.Bool(constants.FlagDebugPaths, false, constants.FlagDescDebugPaths)
 	flagPtrs.fixFlag = fs.Bool("fix", false, "Remove repeated projects across tools")
 	fs.BoolVar(flagPtrs.fixFlag, "repeat-fix", false, "Alias for --fix")
+	flagPtrs.listOnlyFlag = fs.Bool("ls", false, "List repositories in candidate file as a formatted table with sequence IDs")
+	fs.BoolVar(flagPtrs.listOnlyFlag, "list", false, "Alias for --ls")
+	fs.BoolVar(flagPtrs.listOnlyFlag, "l", false, "Alias for --ls")
 }
 
 func registerCloneExecutionFlags(fs *flag.FlagSet, flagPtrs *cloneFlagPointers) {
@@ -124,6 +132,7 @@ func populateCloneToggles(cloneOpts *CloneFlags, flagPtrs *cloneFlagPointers) {
 	cloneOpts.Clean = *flagPtrs.cleanFlag
 	cloneOpts.MissingOnly = *flagPtrs.missingOnlyFlag
 	cloneOpts.Fix = *flagPtrs.fixFlag
+	cloneOpts.IsListOnly = *flagPtrs.listOnlyFlag
 }
 
 func populateCloneExecutionFlags(cloneOpts *CloneFlags, flagPtrs *cloneFlagPointers) {
@@ -145,6 +154,7 @@ func buildCloneFlags(fs *flag.FlagSet, flagPtrs *cloneFlagPointers) CloneFlags {
 		DefaultBranch: *flagPtrs.defaultBranchFlag,
 		Positional:    fs.Args(),
 		Output:        *flagPtrs.outputFlag,
+		OnlyFilter:    *flagPtrs.onlyFlag,
 	}
 
 	populateCloneToggles(&cloneOpts, flagPtrs)

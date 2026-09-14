@@ -225,14 +225,32 @@ func reorderFlagsBeforeArgs(args []string) []string {
 
 	for i := 0; i < len(args); i++ {
 		arg := args[i]
-		if strings.HasPrefix(arg, "-") {
-			flags = append(flags, arg)
-		} else {
+		if !strings.HasPrefix(arg, "-") {
 			positional = append(positional, arg)
+			continue
+		}
+		flags = append(flags, arg)
+		if shouldConsumeNextArg(arg, i, args) {
+			i++
+			flags = append(flags, args[i])
 		}
 	}
 
 	return append(flags, positional...)
+}
+
+func shouldConsumeNextArg(arg string, idx int, args []string) bool {
+	return isFlagWithParam(arg) && !strings.Contains(arg, "=") && idx+1 < len(args) && !strings.HasPrefix(args[idx+1], "-")
+}
+
+func isFlagWithParam(arg string) bool {
+	clean := strings.TrimLeft(arg, "-")
+	switch clean {
+	case "target-dir", "ssh-key", "K", "default-branch", "output", "max-concurrency", "only":
+		return true
+	default:
+		return false
+	}
 }
 
 func expandTilde(path string) string {

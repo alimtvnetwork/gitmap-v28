@@ -1,34 +1,64 @@
 package cmdos
 
 import (
+	"encoding/json"
 	"fmt"
+	"os"
+	"strings"
 
 	"github.com/alimtvnetwork/gitmap-v28/cli/apperror"
 	"github.com/alimtvnetwork/gitmap-v28/cli/osuser"
 )
 
 func runOSUser(args []string) error {
-	if len(args) == 0 || isOSHelpArg(args[0]) {
+	if len(args) == 0 || isOSHelpArg(args[0]) || args[0] == "help" {
 		printOSUserUsage()
 		return nil
 	}
+	return dispatchOSUserSubcommand(strings.ToLower(args[0]), args[1:])
+}
 
-	sub := args[0]
+func dispatchOSUserSubcommand(sub string, args []string) error {
 	switch sub {
+	case "ls", "list":
+		return runOSUserList()
 	case "add":
-		return handleOSUserAdd(args[1:])
+		return handleOSUserAdd(args)
+	case "edit":
+		return handleOSUserEdit(args)
+	case "export":
+		return handleOSUserExport(args)
+	case "export-all":
+		return handleOSUserExportAll(args)
+	case "import":
+		return handleOSUserImport(args)
+	case "import-all":
+		return handleOSUserImportAll(args)
 	case "rm", "delete", "remove", "del":
-		return handleOSUserRm(args[1:])
+		return handleOSUserRm(args)
 	case "create-root", "root":
-		return handleOSUserCreateRoot(args[1:])
+		return handleOSUserCreateRoot(args)
 	case "kill-processes", "kill":
-		return handleOSUserKill(args[1:])
+		return handleOSUserKill(args)
 	case "add-ssh-key", "key", "ssh-key":
-		return handleOSUserSSHKey(args[1:])
+		return handleOSUserSSHKey(args)
 	default:
 		printOSUserUsage()
 		return apperror.NewSimple("unknown os user subcommand: "+sub, "E_INVALID_USER_SUBCMD")
 	}
+}
+
+func runOSUserList() error {
+	res := osuser.ExportAllUsers()
+	if res.IsFailure() {
+		return res.AppError()
+	}
+	fmt.Printf("%-20s %-25s %-15s\n", "USERNAME", "HOMEDIR", "SHELL")
+	fmt.Println(strings.Repeat("-", 62))
+	for _, u := range res.Value {
+		fmt.Printf("%-20s %-25s %-15s\n", u.Username, u.HomeDir, u.Shell)
+	}
+	return nil
 }
 
 func handleOSUserAdd(args []string) error {
@@ -37,6 +67,105 @@ func handleOSUserAdd(args []string) error {
 	}
 	pwd := extractArgFlag(args[1:], "--password")
 	return osuser.AddUser(args[0], pwd)
+}
+
+func handleOSUserEdit(args []string) error {
+	if len(args) < 1 {
+		return apperror.NewSimple("usage: gitmap os user edit <username> [flags]", "E_MISSING_ARG")
+	}
+	sh := extractArgFlag(args[1:], "--shell")
+	home := extractArgFlag(args[1:], "--homedir")
+	res := osuser.EditUser(args[0], sh, home)
+	if res.IsFailure() {
+		return res.AppError()
+	}
+	fmt.Printf("✔ User %s updated successfully\n", args[0])
+	return nil
+}
+
+func handleOSUserExport(args []string) error {
+	if len(args) < 1 {
+		return apperror.NewSimple("usage: gitmap os user export <username> [file.json]", "E_MISSING_ARG")
+	}
+	res := osuser.ExportUser(args[0])
+	if res.IsFailure() {
+		return res.AppError()
+	}
+	data, _ := json.MarshalIndent(res.Value, "", "  ")
+	if len(args) >= 2 {
+		return writeUserExportFile(args[1], data, args[0])
+	}
+	fmt.Println(string(data))
+	return nil
+}
+
+func writeUserExportFile(destPath string, data []byte, username string) error {
+	if err := os.WriteFile(destPath, data, 0o644); err != nil {
+		return apperror.WrapSimple(err, "write exported user")
+	}
+	fmt.Printf("✔ Exported user %s to %s\n", username, destPath)
+	return nil
+}
+
+func handleOSUserExportAll(args []string) error {
+	res := osuser.ExportAllUsers()
+	if res.IsFailure() {
+		return res.AppError()
+	}
+	data, _ := json.MarshalIndent(res.Value, "", "  ")
+	if len(args) >= 1 {
+		return writeAllUsersExportFile(args[0], data, len(res.Value))
+	}
+	fmt.Println(string(data))
+	return nil
+}
+
+func writeAllUsersExportFile(destPath string, data []byte, count int) error {
+	if err := os.WriteFile(destPath, data, 0o644); err != nil {
+		return apperror.WrapSimple(err, "write exported users")
+	}
+	fmt.Printf("✔ Exported %d users to %s\n", count, destPath)
+	return nil
+}
+
+func handleOSUserImport(args []string) error {
+	if len(args) < 1 {
+		return apperror.NewSimple("usage: gitmap os user import <file.json>", "E_MISSING_ARG")
+	}
+	content, err := os.ReadFile(args[0])
+	if err != nil {
+		return apperror.WrapSimple(err, "read import user")
+	}
+	var pu osuser.PortableUser
+	if unmarshalErr := json.Unmarshal(content, &pu); unmarshalErr != nil {
+		return apperror.WrapSimple(unmarshalErr, "parse user json")
+	}
+	res := osuser.ImportUser(pu)
+	if res.IsFailure() {
+		return res.AppError()
+	}
+	fmt.Printf("✔ Successfully imported user: %s\n", pu.Username)
+	return nil
+}
+
+func handleOSUserImportAll(args []string) error {
+	if len(args) < 1 {
+		return apperror.NewSimple("usage: gitmap os user import-all <file.json>", "E_MISSING_ARG")
+	}
+	content, err := os.ReadFile(args[0])
+	if err != nil {
+		return apperror.WrapSimple(err, "read import-all users")
+	}
+	var users []osuser.PortableUser
+	if unmarshalErr := json.Unmarshal(content, &users); unmarshalErr != nil {
+		return apperror.WrapSimple(unmarshalErr, "parse users json")
+	}
+	res := osuser.ImportAllUsers(users)
+	if res.IsFailure() {
+		return res.AppError()
+	}
+	fmt.Printf("✔ Successfully imported %d users from %s\n", res.Value, args[0])
+	return nil
 }
 
 func handleOSUserRm(args []string) error {
@@ -89,39 +218,19 @@ func handleOSUserSSHKey(args []string) error {
 	return osuser.InstallKey(opts)
 }
 
-func extractArgFlag(args []string, flag string) string {
-	for i, a := range args {
-		if a == flag && i+1 < len(args) {
-			return args[i+1]
-		}
-	}
-	return ""
-}
-
-func extractArgFlagWithDefault(args []string, flag, defVal string) string {
-	val := extractArgFlag(args, flag)
-	if val != "" {
-		return val
-	}
-	return defVal
-}
-
-func hasFlag(args []string, flag string) bool {
-	for _, a := range args {
-		if a == flag {
-			return true
-		}
-	}
-	return false
-}
-
 func printOSUserUsage() {
 	fmt.Println("Usage: gitmap os user <command> [arguments]")
 	fmt.Println()
 	fmt.Println("Commands:")
+	fmt.Println("  ls, list                                     List all system users")
 	fmt.Println("  add <username> [--password <pwd>]            Create standard user")
-	fmt.Println("  create-root <username> [flags]               Create root/sudo user with ZSH & SSH keys")
-	fmt.Println("  rm <username> [--remove-home] [--kill]       Remove user account and cleanup sudoers")
-	fmt.Println("  kill <username> [--force]                    Terminate all processes owned by user")
-	fmt.Println("  add-ssh-key <username> <key-or-file>         Install public SSH key to authorized_keys")
+	fmt.Println("  edit <username> [--shell <sh>] [--homedir]   Update existing user")
+	fmt.Println("  export <username> [file.json]                Export user configuration")
+	fmt.Println("  export-all [file.json]                       Export all users to JSON")
+	fmt.Println("  import <file.json>                           Import user configuration")
+	fmt.Println("  import-all <file.json>                       Import multiple users")
+	fmt.Println("  create-root <username> [flags]               Create root/sudo user")
+	fmt.Println("  rm <username> [--remove-home] [--kill]       Remove user account")
+	fmt.Println("  kill <username> [--force]                    Terminate user processes")
+	fmt.Println("  add-ssh-key <username> <key-or-file>         Install public SSH key")
 }

@@ -12,16 +12,24 @@ import (
 )
 
 func runOSIP(args []string) error {
-	if len(args) == 0 || isOSHelpArg(args[0]) {
+	ctx := context.Background()
+	mgr := createNetIPManager()
+	if len(args) == 0 {
+		return handleOSIPShow(ctx, mgr, nil)
+	}
+	if isOSHelpArg(args[0]) {
 		printOSIPUsage()
 		return nil
 	}
+	return dispatchOSIP(ctx, mgr, args)
+}
 
+func dispatchOSIP(ctx context.Context, mgr *netip.Manager, args []string) error {
 	sub := strings.ToLower(args[0])
-	ctx := context.Background()
-	mgr := createNetIPManager()
-
 	switch sub {
+	case "help":
+		printOSIPUsage()
+		return nil
 	case "show", "get", "list", "ls", "status", "st":
 		return handleOSIPShow(ctx, mgr, args[1:])
 	case "set", "apply":
@@ -33,12 +41,16 @@ func runOSIP(args []string) error {
 	case "revert", "rollback", "undo":
 		return handleOSIPRevert(ctx, mgr, args[1:])
 	default:
-		if looksLikeIPv4(args[0]) {
-			return handleOSIPSet(ctx, mgr, args)
-		}
-		printOSIPUsage()
-		return apperror.NewSimple("unknown os ip subcommand: "+sub, "E_INVALID_IP_SUBCMD")
+		return handleOSIPFallback(ctx, mgr, args)
 	}
+}
+
+func handleOSIPFallback(ctx context.Context, mgr *netip.Manager, args []string) error {
+	if looksLikeIPv4(args[0]) {
+		return handleOSIPSet(ctx, mgr, args)
+	}
+	printOSIPUsage()
+	return apperror.NewSimple("unknown os ip subcommand: "+args[0], "E_INVALID_IP_SUBCMD")
 }
 
 func createNetIPManager() *netip.Manager {

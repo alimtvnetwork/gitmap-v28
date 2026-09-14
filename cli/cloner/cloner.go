@@ -67,6 +67,16 @@ func CloneFromFileWithOptions(
 	return cloneAll(records, targetDir, opts), nil
 }
 
+// LoadRecords reads and parses records from a clone manifest file.
+func LoadRecords(path string) ([]model.ScanRecord, error) {
+	return loadRecords(path)
+}
+
+// CloneRecords clones a pre-filtered slice of scan records under targetDir.
+func CloneRecords(records []model.ScanRecord, targetDir string, opts CloneOptions) model.CloneSummary {
+	return cloneAll(records, targetDir, opts)
+}
+
 // loadRecords detects file format and parses records.
 //
 // Errors are wrapped with the source path so the CLI can surface

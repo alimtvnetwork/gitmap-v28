@@ -65,6 +65,8 @@ func routeVSCodeMaintenanceAction(sub string, args []string) error {
 		fmt.Printf("Feature [vscode %s] is not yet implemented\n", sub)
 
 		return nil
+	case "profiles", "profile":
+		return runVSCodeProfiles(args[1:])
 	case "optimize-projects", "optimize", "--repeat-fix", "-r", "dedupe", "dedup":
 		return runVSCodeOptimize(args[1:])
 	case "clear", "clean":
@@ -137,7 +139,7 @@ func handleVSCodeRm(args []string) {
 }
 
 func printVSCodeUsage() {
-	fmt.Println("Usage: gitmap vscode [ls|add <path>|rm <path>|optimize-projects|clear] [flags]")
+	fmt.Println("Usage: gitmap vscode [ls|add <path>|rm <path>|profiles|optimize-projects|clear] [flags]")
 }
 
 func runVSCodeLs() error {

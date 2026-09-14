@@ -40,11 +40,15 @@ func dispatchOSSubcommand(subCmd string, subArgs []string) error {
 		return runOSIP(subArgs)
 	case constants.SubCmdOSZsh:
 		return runOSZsh(subArgs)
+	case "fix", "fixes":
+		return runOSFix(subArgs)
+	case "clean", "clear":
+		return runOSClean(subArgs)
 	case constants.SubCmdOSUser:
 		return runOSUser(subArgs)
 	case "vmware":
 		return cmdvmware.Run(subArgs)
-	case "group", "groups":
+	case "group", "groups", "user-group", "usergroup":
 		return runOSGroup(subArgs)
 	case "cron", "crontab":
 		return runOSCron(subArgs)
@@ -83,9 +87,11 @@ const osUsageText = `Usage: gitmap os [subcommand] [flags]
 
 Commands:
   ip                  Inspect, set, change, switch, or revert network IP configuration
+  fix                 Register, edit, run, export, and import system repair scripts
+  clean (clear)       Clean temporary and ephemeral system cache directories
   zsh                 Install, theme, switch, profile, and clean ZSH & Oh-My-Zsh
-  user                Create root users, manage SSH keys, kill processes, and delete users
-  group               List, create, and remove operating system user groups
+  user                Add, edit, export, import, or remove operating system users
+  group (user-group)  List, create, edit, export, import, and remove user groups
   vmware              Discover and mount VMware shared folders (/mnt/hgfs)
   cron                Inspect, append, and remove crontab scheduled jobs
   display (disp)      Inspect and configure OS display settings, resolution & timeouts
