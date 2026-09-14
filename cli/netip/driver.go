@@ -28,3 +28,14 @@ type Driver interface {
 	ListInterfaces(ctx context.Context) InterfaceSliceResult
 	GetInterface(ctx context.Context, name string) InterfaceResult
 }
+
+func snapshotToOptions(snap Snapshot) ChangeOptions {
+	return ChangeOptions{
+		InterfaceName: snap.InterfaceName,
+		IP:            snap.IP,
+		Netmask:       snap.Netmask,
+		Gateway:       snap.Gateway,
+		DNS:           snap.DNS,
+		IsDHCP:        snap.IsDHCP,
+	}
+}

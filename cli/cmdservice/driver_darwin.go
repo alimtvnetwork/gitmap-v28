@@ -12,6 +12,11 @@ import (
 
 type DarwinServiceDriver struct{}
 
+// ResolveServiceDriver returns the macOS launchd service driver.
+func ResolveServiceDriver() ServiceDriver {
+	return &DarwinServiceDriver{}
+}
+
 func (d *DarwinServiceDriver) ListServices() ([]ServiceInfo, error) {
 	cmd := exec.Command("launchctl", "list")
 	out, err := cmd.Output()

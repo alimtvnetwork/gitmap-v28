@@ -100,7 +100,7 @@ func parseDistroFallbackName(content string) string {
 	return "Linux"
 }
 
-func detectLinuxDistro() string {
+func detectAntigravityLinuxDistro() string {
 	content, hasRelease := readOSReleaseFile()
 	if !hasRelease {
 		return "Linux"
@@ -114,7 +114,7 @@ func detectLinuxDistro() string {
 
 func resolveDistroOrDetails(osName string) string {
 	if osName == "linux" {
-		return detectLinuxDistro()
+		return detectAntigravityLinuxDistro()
 	}
 	if osName == "windows" {
 		return "Windows"

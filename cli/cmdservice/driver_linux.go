@@ -12,6 +12,11 @@ import (
 
 type LinuxServiceDriver struct{}
 
+// ResolveServiceDriver returns the Linux systemd service driver.
+func ResolveServiceDriver() ServiceDriver {
+	return &LinuxServiceDriver{}
+}
+
 func (d *LinuxServiceDriver) ListServices() ([]ServiceInfo, error) {
 	cmd := exec.Command("systemctl", "list-unit-files", "--type=service", "--no-legend", "--no-pager")
 	out, err := cmd.Output()

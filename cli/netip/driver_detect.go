@@ -12,7 +12,7 @@ import (
 func ResolveDriverByName(name string) (Driver, *apperror.AppError) {
 	switch name {
 	case DriverNameWindows:
-		return NewWindowsDriver(), nil
+		return resolveWindowsDriver()
 	case DriverNameLinuxNetplan:
 		return NewLinuxNetplanDriver(), nil
 	case DriverNameLinuxNMCLI:
@@ -24,10 +24,19 @@ func ResolveDriverByName(name string) (Driver, *apperror.AppError) {
 	}
 }
 
+func resolveWindowsDriver() (Driver, *apperror.AppError) {
+	d := NewWindowsDriver()
+	if d == nil {
+		return nil, apperror.New("resolveWindowsDriver", "E_UNSUPPORTED_OS", map[string]any{"os": runtime.GOOS})
+	}
+
+	return d, nil
+}
+
 // DetectDriver auto-detects the appropriate driver for current OS environment.
 func DetectDriver() (Driver, *apperror.AppError) {
 	if runtime.GOOS == "windows" {
-		return NewWindowsDriver(), nil
+		return resolveWindowsDriver()
 	}
 
 	if runtime.GOOS == "linux" {

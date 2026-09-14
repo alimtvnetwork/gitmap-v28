@@ -164,7 +164,7 @@ func syncScheduleToMainDB(name string, cfg *store.ScheduleConfig) {
 		t.IntervalVal = cfg.IntervalVal
 		t.DelayVal = cfg.DelayVal
 		t.IsEnabled = cfg.IsEnabled
-		_ = db.SaveSchedule(*t)
+		_ = db.InsertSchedule(*t)
 	}
 }
 

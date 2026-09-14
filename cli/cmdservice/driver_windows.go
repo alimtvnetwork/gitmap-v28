@@ -9,6 +9,11 @@ import (
 
 type WindowsServiceDriver struct{}
 
+// ResolveServiceDriver returns the Windows service controller driver.
+func ResolveServiceDriver() ServiceDriver {
+	return &WindowsServiceDriver{}
+}
+
 func (d *WindowsServiceDriver) ListServices() ([]ServiceInfo, error) {
 	cmd := exec.Command("sc.exe", "query", "state=", "all")
 	out, err := cmd.Output()

@@ -47,13 +47,7 @@ func (d *WindowsDriver) RevertConfig(ctx context.Context, snap Snapshot) *apperr
 		return applyWindowsDHCP(ctx, snap.InterfaceName)
 	}
 
-	opts := snapshotToOptions(snap)
-
-	return applyWindowsStatic(ctx, opts)
-}
-
-func snapshotToOptions(snap Snapshot) ChangeOptions {
-	return ChangeOptions{
+	opts := ChangeOptions{
 		InterfaceName: snap.InterfaceName,
 		IP:            snap.IP,
 		Netmask:       snap.Netmask,
@@ -61,6 +55,8 @@ func snapshotToOptions(snap Snapshot) ChangeOptions {
 		DNS:           snap.DNS,
 		IsDHCP:        snap.IsDHCP,
 	}
+
+	return applyWindowsStatic(ctx, opts)
 }
 
 func applyWindowsStatic(ctx context.Context, opts ChangeOptions) *apperror.AppError {
