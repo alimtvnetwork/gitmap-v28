@@ -160,7 +160,7 @@ func (db *DB) checkSnapshotTable() *apperror.AppError {
 func scanIPSnapshotRows(rows *sql.Rows) ([]IPSnapshotRecord, *apperror.AppError) {
 	records := make([]IPSnapshotRecord, 0)
 	for rows.Next() {
-		rec, err := scanOneRow(rows)
+		rec, err := scanOneIPSnapshotRow(rows)
 		if err != nil {
 			return nil, err
 		}
@@ -170,11 +170,11 @@ func scanIPSnapshotRows(rows *sql.Rows) ([]IPSnapshotRecord, *apperror.AppError)
 	return records, nil
 }
 
-func scanOneRow(rows *sql.Rows) (*IPSnapshotRecord, *apperror.AppError) {
+func scanOneIPSnapshotRow(rows *sql.Rows) (*IPSnapshotRecord, *apperror.AppError) {
 	var rec IPSnapshotRecord
 	var isDHCP int
 	if err := scanFields(rows.Scan, &rec, &isDHCP); err != nil {
-		return nil, apperror.WrapSimple(err, "store.scanOneRow")
+		return nil, apperror.WrapSimple(err, "store.scanOneIPSnapshotRow")
 	}
 
 	rec.IsDHCP = isDHCP == 1

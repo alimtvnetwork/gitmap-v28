@@ -94,7 +94,10 @@ func ensureSSHDirectory(sshDir string) *apperror.AppError {
 	if err != nil {
 		return apperror.Wrap(err, "osuser.ensureSSHDirectory", map[string]any{"path": sshDir})
 	}
-	return os.Chmod(sshDir, 0700)
+	if chmodErr := os.Chmod(sshDir, 0700); chmodErr != nil {
+		return apperror.Wrap(chmodErr, "osuser.ensureSSHDirectory.chmod", map[string]any{"path": sshDir})
+	}
+	return nil
 }
 
 func writeDedupAuthorizedKeys(authKeysPath, keyText string) *apperror.AppError {
