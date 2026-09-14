@@ -48,3 +48,11 @@ func TestParse(t *testing.T) {
 		t.Error("auto label invalid")
 	}
 }
+
+func TestFilterString(t *testing.T) {
+	in := "✓ → 📦"
+	gotRich := FilterString(in)
+	if gotRich == "" {
+		t.Error("expected non-empty FilterString output")
+	}
+}

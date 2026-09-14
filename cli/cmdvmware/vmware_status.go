@@ -7,7 +7,7 @@ import (
 	"strings"
 )
 
-func runVmwareSharedStatus() error {
+func runVmwareSharedStatusLinux() error {
 	fmt.Println("▶ gitmap vmware shared status")
 	active := isMountActive(defaultMountPoint)
 	fmt.Printf("  Mount (%s): active=%t\n", defaultMountPoint, active)
@@ -34,6 +34,10 @@ func isMountActive(mountPoint string) bool {
 }
 
 func runVmwareStatus(args []string) error {
+	return runVmwareStatusPlatformFn()
+}
+
+func runVmwareStatusLinux() error {
 	fmt.Println("▶ gitmap vmware status")
 	fmt.Printf("  Linux Guest: %t\n", isLinuxOS())
 	fmt.Printf("  VMware Hypervisor: %t\n", isVMwareHypervisor())

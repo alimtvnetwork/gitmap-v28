@@ -9,6 +9,7 @@ import (
 	"github.com/alimtvnetwork/gitmap-v28/cli/cloner"
 	"github.com/alimtvnetwork/gitmap-v28/cli/cmdpull"
 	"github.com/alimtvnetwork/gitmap-v28/cli/constants"
+	"github.com/alimtvnetwork/gitmap-v28/cli/glyphs"
 	"github.com/alimtvnetwork/gitmap-v28/cli/model"
 )
 
@@ -57,7 +58,7 @@ func newStatusTableContext() *statusTableContext {
 }
 
 func visualWidth(s string) int {
-	return runewidth.StringWidth(stripANSI(s))
+	return runewidth.StringWidth(stripANSI(glyphs.FilterString(s)))
 }
 
 func (c *statusTableContext) addRow(r statusRow) {

@@ -4,8 +4,7 @@ Master directory of architectural and execution plans.
 
 ## Pending Plans
 
-
-None
+1. [Plan 164: 164-profile-vmware-installer-sqlite-parity.md](pending/164-profile-vmware-installer-sqlite-parity.md): Profile VMware & Shell Installer SQLite Parity Suite across common-linux-installer and GitMap
 
 ## Recent Completed Tasks Register (Last 20 Tasks)
 
@@ -128,3 +127,4 @@ None
 - [161-archive-url-download-caching-antigravity-icon.md](completed/161-archive-url-download-caching-antigravity-icon.md): 161-archive-url-download-caching-antigravity-icon
 - [162-apperror-stacktrace-skip-and-filtering.md](completed/162-apperror-stacktrace-skip-and-filtering.md): 162-apperror-stacktrace-skip-and-filtering
 - [163-github-desktop-missing-install-suggestions.md](completed/163-github-desktop-missing-install-suggestions.md): 163-github-desktop-missing-install-suggestions
+- [164-profile-vmware-installer-sqlite-parity.md](completed/164-profile-vmware-installer-sqlite-parity.md): 164-profile-vmware-installer-sqlite-parity

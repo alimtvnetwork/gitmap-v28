@@ -51,7 +51,7 @@ const (
 	StatusIconClean    = "✔ clean"
 	StatusIconDirty    = "● dirty"
 	StatusDash         = "—"
-	StatusSyncDash     = "  —"
+	StatusSyncDash     = "—"
 	StatusStashFmt     = "📦 %d"
 	StatusSyncUpFmt    = "↑%d"
 	StatusSyncDownFmt  = "↓%d"

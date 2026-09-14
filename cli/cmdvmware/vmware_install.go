@@ -16,14 +16,18 @@ func runVmwareInstall(args []string) error {
 		return simulateVmwareInstall()
 	}
 
-	if !isLinuxOS() {
-		return newUnsupportedOSError()
-	}
-
-	return executeVmwareInstall()
+	return executeVmwareInstallPlatformFn()
 }
 
 func simulateVmwareInstall() error {
+	if !isLinuxOS() {
+		fmt.Println("▶ gitmap vmware install (dry-run)")
+		fmt.Println("  [dry-run] Would check VMware Tools installation and VMTools service on Windows")
+		fmt.Println("  [dry-run] Would check vmrun utility path")
+
+		return nil
+	}
+
 	fmt.Println("▶ gitmap vmware install (dry-run)")
 	fmt.Println("  [dry-run] Would update apt index: sudo apt-get update")
 	fmt.Println("  [dry-run] Would install packages: sudo apt-get install -y open-vm-tools open-vm-tools-desktop")
@@ -45,7 +49,11 @@ func newUnsupportedOSError() error {
 	)
 }
 
-func executeVmwareInstall() error {
+func executeVmwareInstallLinux() error {
+	if !isLinuxOS() {
+		return newUnsupportedOSError()
+	}
+
 	fmt.Println("▶ gitmap vmware install")
 	if err := runAptInstallPackages("open-vm-tools", "open-vm-tools-desktop"); err != nil {
 		return err

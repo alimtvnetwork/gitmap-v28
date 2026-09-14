@@ -5,6 +5,8 @@ import (
 	"strings"
 
 	"github.com/mattn/go-runewidth"
+
+	"github.com/alimtvnetwork/gitmap-v28/cli/glyphs"
 )
 
 func stripBranchPrefix(branch string) string {
@@ -72,9 +74,18 @@ func formatCombinedBranch(branch, latest string, maxLength int) string {
 		return middleTruncate(cleanedBranch, maxLength, 4)
 	}
 
-	combined := cleanedBranch + "→" + cleanedLatest
+	arrow := resolveBranchArrow()
+	combined := cleanedBranch + arrow + cleanedLatest
 
 	return middleTruncate(combined, maxLength, 4)
+}
+
+func resolveBranchArrow() string {
+	if glyphs.Resolve() == glyphs.ModeSafe {
+		return "->"
+	}
+
+	return "→"
 }
 
 func formatRepoName(repo string, maxLength int) string {
@@ -97,16 +108,17 @@ func calcAnsiPadding(renderedText string, visibleWidth int) int {
 
 // PadVisual returns string s padded with trailing spaces until visual terminal width is targetWidth.
 func PadVisual(s string, targetWidth int) string {
-	plain := stripANSI(s)
+	filtered := glyphs.FilterString(s)
+	plain := stripANSI(filtered)
 	visWidth := runewidth.StringWidth(plain)
 	if visWidth == targetWidth {
-		return s
+		return filtered
 	}
 	if visWidth > targetWidth {
-		return truncateVisual(s, targetWidth)
+		return truncateVisual(filtered, targetWidth)
 	}
 
-	return s + strings.Repeat(" ", targetWidth-visWidth)
+	return filtered + strings.Repeat(" ", targetWidth-visWidth)
 }
 
 func truncateVisual(s string, targetWidth int) string {

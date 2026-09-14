@@ -46,6 +46,52 @@ CREATE UNIQUE INDEX IF NOT EXISTS IdxInstalledTool_Tool ON InstalledTool(Tool);`
 CREATE INDEX IF NOT EXISTS IdxInstallationLog_Tool ON InstallationLog(Tool);
 CREATE INDEX IF NOT EXISTS IdxInstallationLog_Action ON InstallationLog(Action);
 CREATE INDEX IF NOT EXISTS IdxInstallationLog_CreatedAt ON InstallationLog(CreatedAt);`
+
+	sqlCreateProfileInstallation = `CREATE TABLE IF NOT EXISTS ProfileInstallation (
+    ProfileInstallationId INTEGER PRIMARY KEY AUTOINCREMENT,
+    ProfileName           TEXT NOT NULL UNIQUE,
+    ProfileAlias          TEXT NOT NULL DEFAULT '',
+    Status                TEXT NOT NULL DEFAULT 'installed',
+    IsSuccess             INTEGER NOT NULL DEFAULT 1,
+    DurationMs            INTEGER NOT NULL DEFAULT 0,
+    TotalTools            INTEGER NOT NULL DEFAULT 0,
+    InstalledCount        INTEGER NOT NULL DEFAULT 0,
+    FailedCount           INTEGER NOT NULL DEFAULT 0,
+    StackTrace            TEXT NULL,
+    ErrorLog              TEXT NULL,
+    Description           TEXT NULL,
+    Notes                 TEXT NULL,
+    Comments              TEXT NULL,
+    InstalledAt           TEXT NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    UpdatedAt             TEXT NOT NULL DEFAULT CURRENT_TIMESTAMP
+);
+CREATE UNIQUE INDEX IF NOT EXISTS IdxProfileInstallation_ProfileName ON ProfileInstallation(ProfileName);
+CREATE INDEX IF NOT EXISTS IdxProfileInstallation_Status ON ProfileInstallation(Status);`
+
+	sqlCreatePackageInstallation = `CREATE TABLE IF NOT EXISTS PackageInstallation (
+    PackageInstallationId INTEGER PRIMARY KEY AUTOINCREMENT,
+    ProfileInstallationId INTEGER NULL REFERENCES ProfileInstallation(ProfileInstallationId) ON DELETE SET NULL,
+    PackageName           TEXT NOT NULL,
+    Version               TEXT NOT NULL DEFAULT '',
+    PackageManager        TEXT NOT NULL DEFAULT '',
+    InstallPath           TEXT NOT NULL DEFAULT '',
+    Status                TEXT NOT NULL DEFAULT 'installed',
+    IsSuccess             INTEGER NOT NULL DEFAULT 1,
+    ExitCode              INTEGER NOT NULL DEFAULT 0,
+    DurationMs            INTEGER NOT NULL DEFAULT 0,
+    Stdout                TEXT NULL,
+    Stderr                TEXT NULL,
+    StackTrace            TEXT NULL,
+    CommandLine           TEXT NULL,
+    Description           TEXT NULL,
+    Notes                 TEXT NULL,
+    Comments              TEXT NULL,
+    InstalledAt           TEXT NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    UpdatedAt             TEXT NOT NULL DEFAULT CURRENT_TIMESTAMP
+);
+CREATE INDEX IF NOT EXISTS IdxPackageInstallation_ProfileInstallationId ON PackageInstallation(ProfileInstallationId);
+CREATE INDEX IF NOT EXISTS IdxPackageInstallation_PackageName ON PackageInstallation(PackageName);
+CREATE INDEX IF NOT EXISTS IdxPackageInstallation_Status ON PackageInstallation(Status);`
 )
 
 // InstallationSplitDB wraps an isolated SQLite database connection for installations.
@@ -95,14 +141,34 @@ func initInstallationSplitConn(conn *sql.DB, dbPath string) (*InstallationSplitD
 	return db, nil
 }
 
-// InitSchema creates the InstalledTool and InstallationLog tables if absent.
+// InitSchema creates the InstalledTool, InstallationLog, ProfileInstallation, and PackageInstallation tables if absent.
 func (s *InstallationSplitDB) InitSchema() error {
+	if err := s.initBaseTables(); err != nil {
+		return err
+	}
+
+	return s.initProfileTables()
+}
+
+func (s *InstallationSplitDB) initBaseTables() error {
 	if _, err := s.conn.Exec(sqlCreateInstalledTool); err != nil {
 		return apperror.WrapSimple(err, "installation_split.initInstalledTool")
 	}
 
 	if _, err := s.conn.Exec(sqlCreateInstallationLog); err != nil {
 		return apperror.WrapSimple(err, "installation_split.initInstallationLog")
+	}
+
+	return nil
+}
+
+func (s *InstallationSplitDB) initProfileTables() error {
+	if _, err := s.conn.Exec(sqlCreateProfileInstallation); err != nil {
+		return apperror.WrapSimple(err, "installation_split.initProfileInstallation")
+	}
+
+	if _, err := s.conn.Exec(sqlCreatePackageInstallation); err != nil {
+		return apperror.WrapSimple(err, "installation_split.initPackageInstallation")
 	}
 
 	return nil

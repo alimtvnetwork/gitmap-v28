@@ -1,11 +1,11 @@
 {
   "version": 1,
-  "updated_at": "2026-09-14T16:08:05Z",
+  "updated_at": "2026-09-14T17:28:16Z",
   "total_tests": 3194,
   "summary": {
     "total": 3194,
-    "cached": 2437,
-    "dirty": 364,
+    "cached": 2416,
+    "dirty": 778,
     "packages": 139,
     "slow_tests": 84,
     "fast_tests": 3110,
@@ -19647,7 +19647,7 @@
       "tier": "fast",
       "is_slow": false,
       "last_status": "passed",
-      "last_run_at": "2026-09-14T15:43:34",
+      "last_run_at": "2026-09-14T16:43:11",
       "needs_run": false
     },
     "cli/cmdpull.TestIsPRCURL": {
@@ -19663,7 +19663,7 @@
       "tier": "fast",
       "is_slow": false,
       "last_status": "passed",
-      "last_run_at": "2026-09-14T15:43:34",
+      "last_run_at": "2026-09-14T16:43:11",
       "needs_run": false
     },
     "cli/cmdpull.TestSlugFromURL": {
@@ -19679,7 +19679,7 @@
       "tier": "fast",
       "is_slow": false,
       "last_status": "passed",
-      "last_run_at": "2026-09-14T15:43:34",
+      "last_run_at": "2026-09-14T16:43:11",
       "needs_run": false
     },
     "cli/cmdpull.TestParsePullFlags_NoFlags": {
@@ -19695,7 +19695,7 @@
       "tier": "fast",
       "is_slow": false,
       "last_status": "passed",
-      "last_run_at": "2026-09-14T15:43:34",
+      "last_run_at": "2026-09-14T16:43:11",
       "needs_run": false
     },
     "cli/cmdpull.TestParsePullFlags_GroupLong": {
@@ -19711,7 +19711,7 @@
       "tier": "fast",
       "is_slow": false,
       "last_status": "passed",
-      "last_run_at": "2026-09-14T15:43:34",
+      "last_run_at": "2026-09-14T16:43:11",
       "needs_run": false
     },
     "cli/cmdpull.TestParsePullFlags_GroupShort": {
@@ -19727,7 +19727,7 @@
       "tier": "fast",
       "is_slow": false,
       "last_status": "passed",
-      "last_run_at": "2026-09-14T15:43:34",
+      "last_run_at": "2026-09-14T16:43:11",
       "needs_run": false
     },
     "cli/cmdpull.TestParsePullFlags_All": {
@@ -19743,7 +19743,7 @@
       "tier": "fast",
       "is_slow": false,
       "last_status": "passed",
-      "last_run_at": "2026-09-14T15:43:34",
+      "last_run_at": "2026-09-14T16:43:11",
       "needs_run": false
     },
     "cli/cmdpull.TestParsePullFlags_AllWithVerbose": {
@@ -19759,7 +19759,7 @@
       "tier": "fast",
       "is_slow": false,
       "last_status": "passed",
-      "last_run_at": "2026-09-14T15:43:34",
+      "last_run_at": "2026-09-14T16:43:11",
       "needs_run": false
     },
     "cli/cmdpull.TestParsePullFlags_Parallel": {
@@ -19775,7 +19775,7 @@
       "tier": "fast",
       "is_slow": false,
       "last_status": "passed",
-      "last_run_at": "2026-09-14T15:43:34",
+      "last_run_at": "2026-09-14T16:43:11",
       "needs_run": false
     },
     "cli/cmdpull.TestParsePullFlags_OnlyAvailable": {
@@ -19791,7 +19791,7 @@
       "tier": "fast",
       "is_slow": false,
       "last_status": "passed",
-      "last_run_at": "2026-09-14T15:43:34",
+      "last_run_at": "2026-09-14T16:43:11",
       "needs_run": false
     },
     "cli/cmdpull.TestPullTableSuite": {
@@ -19799,7 +19799,7 @@
       "package": "cli/cmdpull",
       "test_file": "cli/cmdpull/pull_table_test.go",
       "test_func": "TestPullTableSuite",
-      "test_hash": "1742f0eb934368da",
+      "test_hash": "2ddb758c899117a8",
       "target_file": "cli/cmdpull/exports.go",
       "target_func": "PullTableSuite",
       "code_hash": "d9de33da8b1b0b8e",
@@ -19807,7 +19807,7 @@
       "tier": "fast",
       "is_slow": false,
       "last_status": "passed",
-      "last_run_at": "2026-09-14T15:43:34",
+      "last_run_at": "2026-09-14T16:43:11",
       "needs_run": false
     },
     "cli/cmdpull.TestFormatBranchNamePrefixOmission": {
@@ -19815,7 +19815,7 @@
       "package": "cli/cmdpull",
       "test_file": "cli/cmdpull/pull_table_test.go",
       "test_func": "TestFormatBranchNamePrefixOmission",
-      "test_hash": "1742f0eb934368da",
+      "test_hash": "2ddb758c899117a8",
       "target_file": "cli/cmdpull/exports.go",
       "target_func": "FormatBranchNamePrefixOmission",
       "code_hash": "d9de33da8b1b0b8e",
@@ -19823,7 +19823,7 @@
       "tier": "fast",
       "is_slow": false,
       "last_status": "passed",
-      "last_run_at": "2026-09-14T15:43:34",
+      "last_run_at": "2026-09-14T16:43:11",
       "needs_run": false
     },
     "cli/cmdpull.TestFormatBranchNameMiddleTruncate": {
@@ -19831,7 +19831,7 @@
       "package": "cli/cmdpull",
       "test_file": "cli/cmdpull/pull_table_test.go",
       "test_func": "TestFormatBranchNameMiddleTruncate",
-      "test_hash": "1742f0eb934368da",
+      "test_hash": "2ddb758c899117a8",
       "target_file": "cli/cmdpull/exports.go",
       "target_func": "FormatBranchNameMiddleTruncate",
       "code_hash": "d9de33da8b1b0b8e",
@@ -19839,7 +19839,7 @@
       "tier": "fast",
       "is_slow": false,
       "last_status": "passed",
-      "last_run_at": "2026-09-14T15:43:34",
+      "last_run_at": "2026-09-14T16:43:11",
       "needs_run": false
     },
     "cli/cmdpull.TestFormatRepoNameMiddleTruncate": {
@@ -19847,7 +19847,7 @@
       "package": "cli/cmdpull",
       "test_file": "cli/cmdpull/pull_table_test.go",
       "test_func": "TestFormatRepoNameMiddleTruncate",
-      "test_hash": "1742f0eb934368da",
+      "test_hash": "2ddb758c899117a8",
       "target_file": "cli/cmdpull/exports.go",
       "target_func": "FormatRepoNameMiddleTruncate",
       "code_hash": "d9de33da8b1b0b8e",
@@ -19855,7 +19855,7 @@
       "tier": "fast",
       "is_slow": false,
       "last_status": "passed",
-      "last_run_at": "2026-09-14T15:43:34",
+      "last_run_at": "2026-09-14T16:43:11",
       "needs_run": false
     },
     "cli/cmdpull.TestCalcAnsiPadding": {
@@ -19863,7 +19863,7 @@
       "package": "cli/cmdpull",
       "test_file": "cli/cmdpull/pull_table_test.go",
       "test_func": "TestCalcAnsiPadding",
-      "test_hash": "1742f0eb934368da",
+      "test_hash": "2ddb758c899117a8",
       "target_file": "cli/cmdpull/exports.go",
       "target_func": "CalcAnsiPadding",
       "code_hash": "d9de33da8b1b0b8e",
@@ -19871,7 +19871,7 @@
       "tier": "fast",
       "is_slow": false,
       "last_status": "passed",
-      "last_run_at": "2026-09-14T15:43:34",
+      "last_run_at": "2026-09-14T16:43:11",
       "needs_run": false
     },
     "cli/cmdpull.TestPullTableUserScreenshotSimulation": {
@@ -19879,7 +19879,7 @@
       "package": "cli/cmdpull",
       "test_file": "cli/cmdpull/pull_table_test.go",
       "test_func": "TestPullTableUserScreenshotSimulation",
-      "test_hash": "1742f0eb934368da",
+      "test_hash": "2ddb758c899117a8",
       "target_file": "cli/cmdpull/exports.go",
       "target_func": "PullTableUserScreenshotSimulation",
       "code_hash": "d9de33da8b1b0b8e",
@@ -19887,7 +19887,7 @@
       "tier": "fast",
       "is_slow": false,
       "last_status": "passed",
-      "last_run_at": "2026-09-14T15:43:34",
+      "last_run_at": "2026-09-14T16:43:11",
       "needs_run": false
     },
     "cli/cmdpull.TestPullTableNarrowWidth72": {
@@ -19895,7 +19895,7 @@
       "package": "cli/cmdpull",
       "test_file": "cli/cmdpull/pull_table_test.go",
       "test_func": "TestPullTableNarrowWidth72",
-      "test_hash": "1742f0eb934368da",
+      "test_hash": "2ddb758c899117a8",
       "target_file": "cli/cmdpull/exports.go",
       "target_func": "PullTableNarrowWidth72",
       "code_hash": "d9de33da8b1b0b8e",
@@ -19903,7 +19903,7 @@
       "tier": "fast",
       "is_slow": false,
       "last_status": "passed",
-      "last_run_at": "2026-09-14T15:43:34",
+      "last_run_at": "2026-09-14T16:43:11",
       "needs_run": false
     },
     "cli/cmdpull.TestPullTableStandardWidth80": {
@@ -19911,7 +19911,7 @@
       "package": "cli/cmdpull",
       "test_file": "cli/cmdpull/pull_table_test.go",
       "test_func": "TestPullTableStandardWidth80",
-      "test_hash": "1742f0eb934368da",
+      "test_hash": "2ddb758c899117a8",
       "target_file": "cli/cmdpull/exports.go",
       "target_func": "PullTableStandardWidth80",
       "code_hash": "d9de33da8b1b0b8e",
@@ -19919,7 +19919,7 @@
       "tier": "fast",
       "is_slow": false,
       "last_status": "passed",
-      "last_run_at": "2026-09-14T15:43:34",
+      "last_run_at": "2026-09-14T16:43:11",
       "needs_run": false
     },
     "cli/cmdpull.TestPullTableWideWidth120": {
@@ -19927,7 +19927,7 @@
       "package": "cli/cmdpull",
       "test_file": "cli/cmdpull/pull_table_test.go",
       "test_func": "TestPullTableWideWidth120",
-      "test_hash": "1742f0eb934368da",
+      "test_hash": "2ddb758c899117a8",
       "target_file": "cli/cmdpull/exports.go",
       "target_func": "PullTableWideWidth120",
       "code_hash": "d9de33da8b1b0b8e",
@@ -19935,7 +19935,7 @@
       "tier": "fast",
       "is_slow": false,
       "last_status": "passed",
-      "last_run_at": "2026-09-14T15:43:34",
+      "last_run_at": "2026-09-14T16:43:11",
       "needs_run": false
     },
     "cli/cmdpull.TestFormatCombinedBranch": {
@@ -19943,7 +19943,7 @@
       "package": "cli/cmdpull",
       "test_file": "cli/cmdpull/pull_table_test.go",
       "test_func": "TestFormatCombinedBranch",
-      "test_hash": "1742f0eb934368da",
+      "test_hash": "2ddb758c899117a8",
       "target_file": "cli/cmdpull/exports.go",
       "target_func": "FormatCombinedBranch",
       "code_hash": "d9de33da8b1b0b8e",
@@ -19951,7 +19951,7 @@
       "tier": "fast",
       "is_slow": false,
       "last_status": "passed",
-      "last_run_at": "2026-09-14T15:43:34",
+      "last_run_at": "2026-09-14T16:43:11",
       "needs_run": false
     },
     "cli/cmdpull.TestFormatPullStatusCheckmarks": {
@@ -19959,7 +19959,7 @@
       "package": "cli/cmdpull",
       "test_file": "cli/cmdpull/pull_table_test.go",
       "test_func": "TestFormatPullStatusCheckmarks",
-      "test_hash": "1742f0eb934368da",
+      "test_hash": "2ddb758c899117a8",
       "target_file": "cli/cmdpull/exports.go",
       "target_func": "FormatPullStatusCheckmarks",
       "code_hash": "d9de33da8b1b0b8e",
@@ -19967,7 +19967,7 @@
       "tier": "fast",
       "is_slow": false,
       "last_status": "passed",
-      "last_run_at": "2026-09-14T15:43:34",
+      "last_run_at": "2026-09-14T16:43:11",
       "needs_run": false
     },
     "cli/cmdpull.TestInitPullArrayUIPart1": {
@@ -19983,7 +19983,7 @@
       "tier": "fast",
       "is_slow": false,
       "last_status": "passed",
-      "last_run_at": "2026-09-14T15:43:34",
+      "last_run_at": "2026-09-14T16:43:11",
       "needs_run": false
     },
     "cli/cmdpull.TestInitFunc007": {
@@ -19999,7 +19999,7 @@
       "tier": "fast",
       "is_slow": false,
       "last_status": "passed",
-      "last_run_at": "2026-09-14T15:43:34",
+      "last_run_at": "2026-09-14T16:43:11",
       "needs_run": false
     },
     "cli/cmdpull.TestInitFunc008": {
@@ -20015,7 +20015,7 @@
       "tier": "fast",
       "is_slow": false,
       "last_status": "passed",
-      "last_run_at": "2026-09-14T15:43:34",
+      "last_run_at": "2026-09-14T16:43:11",
       "needs_run": false
     },
     "cli/cmdpurge.TestPurgeLovable": {
@@ -22240,7 +22240,7 @@
       "is_slow": false,
       "last_status": "passed",
       "last_run_at": "2026-09-14T15:43:34",
-      "needs_run": false
+      "needs_run": true
     },
     "cli/cmdvmware.TestCrontabE2EIdempotencyAndPreservation": {
       "id": "cli/cmdvmware.TestCrontabE2EIdempotencyAndPreservation",
@@ -22256,7 +22256,7 @@
       "is_slow": false,
       "last_status": "passed",
       "last_run_at": "2026-09-14T15:43:34",
-      "needs_run": false
+      "needs_run": true
     },
     "cli/cmdvmware.TestCrontabE2ENoBadMinuteError": {
       "id": "cli/cmdvmware.TestCrontabE2ENoBadMinuteError",
@@ -22272,7 +22272,7 @@
       "is_slow": false,
       "last_status": "passed",
       "last_run_at": "2026-09-14T15:43:34",
-      "needs_run": false
+      "needs_run": true
     },
     "cli/cmdvmware.TestCrontabE2EPreserveExistingJobs": {
       "id": "cli/cmdvmware.TestCrontabE2EPreserveExistingJobs",
@@ -22288,7 +22288,7 @@
       "is_slow": false,
       "last_status": "passed",
       "last_run_at": "2026-09-14T15:43:34",
-      "needs_run": false
+      "needs_run": true
     },
     "cli/cmdvmware.TestVmwareSubcommandDispatch": {
       "id": "cli/cmdvmware.TestVmwareSubcommandDispatch",
@@ -22304,7 +22304,7 @@
       "is_slow": false,
       "last_status": "passed",
       "last_run_at": "2026-09-14T15:43:34",
-      "needs_run": false
+      "needs_run": true
     },
     "cli/cmdvmware.TestVmwareStatus": {
       "id": "cli/cmdvmware.TestVmwareStatus",
@@ -22320,7 +22320,7 @@
       "is_slow": false,
       "last_status": "passed",
       "last_run_at": "2026-09-14T15:43:34",
-      "needs_run": false
+      "needs_run": true
     },
     "cli/cmdvmware.TestVmwareOSConstraint": {
       "id": "cli/cmdvmware.TestVmwareOSConstraint",
@@ -22336,7 +22336,7 @@
       "is_slow": false,
       "last_status": "passed",
       "last_run_at": "2026-09-14T15:43:34",
-      "needs_run": false
+      "needs_run": true
     },
     "cli/cmdvmware.TestVmwareInstallDryRun": {
       "id": "cli/cmdvmware.TestVmwareInstallDryRun",
@@ -22352,7 +22352,7 @@
       "is_slow": false,
       "last_status": "passed",
       "last_run_at": "2026-09-14T15:43:34",
-      "needs_run": false
+      "needs_run": true
     },
     "cli/cmdvmware.TestVmwareSharedEnableDryRun": {
       "id": "cli/cmdvmware.TestVmwareSharedEnableDryRun",
@@ -22368,7 +22368,7 @@
       "is_slow": false,
       "last_status": "passed",
       "last_run_at": "2026-09-14T15:43:34",
-      "needs_run": false
+      "needs_run": true
     },
     "cli/cmdvmware.TestFormatVmwareMountErrorDiagnostics": {
       "id": "cli/cmdvmware.TestFormatVmwareMountErrorDiagnostics",
@@ -22384,7 +22384,7 @@
       "is_slow": false,
       "last_status": "passed",
       "last_run_at": "2026-09-14T15:43:34",
-      "needs_run": false
+      "needs_run": true
     },
     "cli/cmdvscode.TestCanonicalizePMPathCleansMixedSeparators": {
       "id": "cli/cmdvscode.TestCanonicalizePMPathCleansMixedSeparators",
@@ -24032,7 +24032,7 @@
       "is_slow": false,
       "last_status": "passed",
       "last_run_at": "2026-09-14T16:08:31",
-      "needs_run": false
+      "needs_run": true
     },
     "cli/constants.TestNoUnmarkedTopLevelCmdBlocks": {
       "id": "cli/constants.TestNoUnmarkedTopLevelCmdBlocks",
@@ -24048,7 +24048,7 @@
       "is_slow": false,
       "last_status": "passed",
       "last_run_at": "2026-09-14T16:08:31",
-      "needs_run": false
+      "needs_run": true
     },
     "cli/constants.TestTopLevelCmdConstantsAreUnique": {
       "id": "cli/constants.TestTopLevelCmdConstantsAreUnique",
@@ -24064,7 +24064,7 @@
       "is_slow": false,
       "last_status": "passed",
       "last_run_at": "2026-09-14T16:08:31",
-      "needs_run": false
+      "needs_run": true
     },
     "cli/constants.TestTopLevelCmdAliasesAreUnique": {
       "id": "cli/constants.TestTopLevelCmdAliasesAreUnique",
@@ -24080,7 +24080,7 @@
       "is_slow": false,
       "last_status": "passed",
       "last_run_at": "2026-09-14T16:08:31",
-      "needs_run": false
+      "needs_run": true
     },
     "cli/constants.TestCanonicalCSVColumn": {
       "id": "cli/constants.TestCanonicalCSVColumn",
@@ -26496,7 +26496,7 @@
       "is_slow": false,
       "last_status": "passed",
       "last_run_at": "2026-09-14T15:43:38",
-      "needs_run": false
+      "needs_run": true
     },
     "cli/glyphs.TestFilterRichPassthrough": {
       "id": "cli/glyphs.TestFilterRichPassthrough",
@@ -26512,7 +26512,7 @@
       "is_slow": false,
       "last_status": "passed",
       "last_run_at": "2026-09-14T15:43:38",
-      "needs_run": false
+      "needs_run": true
     },
     "cli/glyphs.TestParse": {
       "id": "cli/glyphs.TestParse",
@@ -26528,7 +26528,7 @@
       "is_slow": false,
       "last_status": "passed",
       "last_run_at": "2026-09-14T15:43:38",
-      "needs_run": false
+      "needs_run": true
     },
     "cli/goldenguard.TestAssertWriterDeterministic_StableWriter_Passes": {
       "id": "cli/goldenguard.TestAssertWriterDeterministic_StableWriter_Passes",
@@ -32640,7 +32640,7 @@
       "is_slow": false,
       "last_status": "passed",
       "last_run_at": "2026-09-14T15:43:48",
-      "needs_run": false
+      "needs_run": true
     },
     "cli/store.TestSanitizeLogOutput": {
       "id": "cli/store.TestSanitizeLogOutput",
@@ -32656,7 +32656,7 @@
       "is_slow": false,
       "last_status": "passed",
       "last_run_at": "2026-09-14T15:43:48",
-      "needs_run": false
+      "needs_run": true
     },
     "cli/store.TestRecordExecutionAndGetFailedLogs": {
       "id": "cli/store.TestRecordExecutionAndGetFailedLogs",
@@ -32672,7 +32672,7 @@
       "is_slow": false,
       "last_status": "passed",
       "last_run_at": "2026-09-14T15:43:48",
-      "needs_run": false
+      "needs_run": true
     },
     "cli/store.TestMigrateInstalledToolsFromRoot": {
       "id": "cli/store.TestMigrateInstalledToolsFromRoot",
@@ -32688,7 +32688,7 @@
       "is_slow": false,
       "last_status": "passed",
       "last_run_at": "2026-09-14T15:43:48",
-      "needs_run": false
+      "needs_run": true
     },
     "cli/store.TestCreateInstallerSuccess": {
       "id": "cli/store.TestCreateInstallerSuccess",

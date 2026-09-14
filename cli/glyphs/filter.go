@@ -80,3 +80,14 @@ func Filter(p []byte, mode ModeType) []byte {
 
 	return out
 }
+
+// FilterString returns s with every glyph rewritten per table when
+// mode is ModeSafe. ModeRich returns s unchanged.
+func FilterString(s string) string {
+	mode := Resolve()
+	if mode == ModeRich {
+		return s
+	}
+
+	return string(Filter([]byte(s), mode))
+}

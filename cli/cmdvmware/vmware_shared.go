@@ -17,9 +17,16 @@ const (
 	crontabRebootLine = "@reboot /usr/bin/vmhgfs-fuse -o allow_other -o auto_unmount .host:/ /mnt/hgfs"
 )
 
+var (
+	executeVmwareInstallPlatformFn      = executeVmwareInstallLinux
+	executeVmwareSharedEnablePlatformFn = executeVmwareSharedEnableLinux
+	runVmwareSharedStatusPlatformFn     = runVmwareSharedStatusLinux
+	runVmwareStatusPlatformFn           = runVmwareStatusLinux
+)
+
 func runVmwareShared(args []string) error {
 	if len(args) == 0 {
-		return runVmwareSharedStatus()
+		return runVmwareSharedStatusPlatformFn()
 	}
 
 	sub := strings.ToLower(args[0])
@@ -27,7 +34,7 @@ func runVmwareShared(args []string) error {
 	case constants.SubCmdSharedEnable, "mount":
 		return runVmwareSharedEnable(args[1:])
 	case constants.SubCmdSharedStatus:
-		return runVmwareSharedStatus()
+		return runVmwareSharedStatusPlatformFn()
 	default:
 		return unknownVmwareSubcommandError(sub)
 	}
@@ -235,38 +242,53 @@ func createDesktopSymlink(mountPoint string) error {
 func runVmwareSharedEnable(args []string) error {
 	checkHelp(constants.CmdVmware, args)
 	isDryRun := hasDryRunFlag(args) || hasShortDryRunFlag(args)
+
+	return executeVmwareSharedEnablePlatformFn(isDryRun)
+}
+
+func executeVmwareSharedEnableLinux(isDryRun bool) error {
 	if err := checkVMwarePrerequisites(); err != nil {
 		return err
 	}
 
 	fmt.Println("▶ gitmap vmware shared enable")
 	if isDryRun {
-		fmt.Printf("  [dry-run] Would verify mount point %s\n", defaultMountPoint)
-		fmt.Printf("  [dry-run] Would mount .host:/ at %s (vmhgfs-fuse)\n", defaultMountPoint)
-		fmt.Printf("  [dry-run] Would create Desktop/SharedDirectories symlink -> %s\n", defaultMountPoint)
-		fmt.Printf("  [dry-run] Would register @reboot crontab persistence\n")
-
-		return nil
+		return simulateLinuxSharedEnable()
 	}
 
+	return performLinuxSharedEnable()
+}
+
+func simulateLinuxSharedEnable() error {
+	fmt.Printf("  [dry-run] Would verify mount point %s\n", defaultMountPoint)
+	fmt.Printf("  [dry-run] Would mount .host:/ at %s (vmhgfs-fuse)\n", defaultMountPoint)
+	fmt.Printf("  [dry-run] Would create Desktop/SharedDirectories symlink -> %s\n", defaultMountPoint)
+	fmt.Printf("  [dry-run] Would register @reboot crontab persistence\n")
+
+	return nil
+}
+
+func performLinuxSharedEnable() error {
 	if err := ensureMountDirectory(defaultMountPoint); err != nil {
 		return err
 	}
 
 	fmt.Printf("  ✓ Verified mount point %s\n", defaultMountPoint)
-
 	if err := mountHostShare(defaultMountPoint); err != nil {
 		return err
 	}
 
 	fmt.Printf("  ✓ Mounted .host:/ at %s\n", defaultMountPoint)
-
 	if err := createDesktopSymlink(defaultMountPoint); err != nil {
 		return err
 	}
 
 	fmt.Printf("  ✓ Created Desktop/SharedDirectories symlink\n")
 
+	return registerLinuxCrontab()
+}
+
+func registerLinuxCrontab() error {
 	if err := EnsureCrontabPersistence(); err != nil {
 		return err
 	}

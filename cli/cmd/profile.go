@@ -6,6 +6,7 @@ import (
 
 	"github.com/alimtvnetwork/gitmap-v28/cli/apperror"
 	"github.com/alimtvnetwork/gitmap-v28/cli/cmdchromeprofile"
+	"github.com/alimtvnetwork/gitmap-v28/cli/cmdinstall"
 	"github.com/alimtvnetwork/gitmap-v28/cli/constants"
 )
 
@@ -43,9 +44,21 @@ func routeProfileSub(subCmd string, tailArgs []string) error {
 		return err
 	}
 
+	if err, isHandled := routeInstallProfileSub(subCmd, tailArgs); isHandled {
+		return err
+	}
+
 	fmt.Fprint(os.Stderr, constants.ErrProfileUsage)
 
 	return apperror.NewSimple("fatal error", "E9000")
+}
+
+func routeInstallProfileSub(subCmd string, tailArgs []string) (error, bool) {
+	if subCmd == constants.CmdInstall || subCmd == constants.CmdInstallAlias {
+		return cmdinstall.RunInstall(append([]string{"profile"}, tailArgs...)), true
+	}
+
+	return nil, false
 }
 
 func routeGitProfileSub(subCmd string, tailArgs []string) (error, bool) {

@@ -4,6 +4,8 @@ import (
 	"strings"
 	"testing"
 
+	"github.com/mattn/go-runewidth"
+
 	"github.com/alimtvnetwork/gitmap-v28/cli/model"
 )
 
@@ -238,8 +240,17 @@ func TestFormatCombinedBranch(t *testing.T) {
 	}
 
 	diff := formatCombinedBranch("main", "release/v1.35.0", 20)
-	if diff != "main→v1.35.0" {
-		t.Errorf("expected 'main→v1.35.0', got %q", diff)
+	isExpectedDiff := diff == "main→v1.35.0" || diff == "main->v1.35.0"
+	if isExpectedDiff == false {
+		t.Errorf("expected 'main→v1.35.0' or 'main->v1.35.0', got %q", diff)
+	}
+}
+
+func TestPadVisualWithArrow(t *testing.T) {
+	padded := PadVisual("main→v1.35.0", 17)
+	visWidth := runewidth.StringWidth(stripANSI(padded))
+	if visWidth != 17 {
+		t.Errorf("expected visual width 17, got %d for %q", visWidth, padded)
 	}
 }
 
