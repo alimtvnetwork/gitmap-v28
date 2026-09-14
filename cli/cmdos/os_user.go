@@ -2,7 +2,6 @@ package cmdos
 
 import (
 	"fmt"
-	"os"
 
 	"github.com/alimtvnetwork/gitmap-v28/cli/apperror"
 	"github.com/alimtvnetwork/gitmap-v28/cli/osuser"
