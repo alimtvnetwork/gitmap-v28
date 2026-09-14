@@ -8,12 +8,12 @@ import (
 
 // SmartPaddedWriter buffers and pads process output with two spaces and smart newlines.
 type SmartPaddedWriter struct {
-	mu           sync.Mutex
-	dest         io.Writer
-	isFirstChunk bool
-	isLineStart  bool
-	hasWritten   bool
-	lastByte     byte
+	mu               sync.Mutex
+	dest             io.Writer
+	isFirstChunk     bool
+	isLineStart      bool
+	hasWritten       bool
+	trailingNewlines int
 }
 
 // NewSmartPaddedWriter creates an output writer with 2-space padding and smart gaps.
@@ -38,9 +38,19 @@ func (w *SmartPaddedWriter) Write(p []byte) (int, error) {
 	w.handleLeadingGap(p)
 	w.writePaddedBytes(p)
 	w.hasWritten = true
-	w.lastByte = p[len(p)-1]
+	w.updateTrailingNewlines(p)
 
 	return len(p), nil
+}
+
+func (w *SmartPaddedWriter) updateTrailingNewlines(p []byte) {
+	for _, b := range p {
+		if b == '\n' {
+			w.trailingNewlines++
+		} else if b != '\r' {
+			w.trailingNewlines = 0
+		}
+	}
 }
 
 func (w *SmartPaddedWriter) handleLeadingGap(p []byte) {
@@ -91,11 +101,14 @@ func (w *SmartPaddedWriter) Flush() {
 		return
 	}
 
-	if w.lastByte != '\n' {
-		_, _ = w.dest.Write([]byte("\n\n"))
-
+	if w.trailingNewlines >= 2 {
 		return
 	}
 
-	_, _ = w.dest.Write([]byte("\n"))
+	if w.trailingNewlines == 1 {
+		_, _ = w.dest.Write([]byte("\n"))
+		return
+	}
+
+	_, _ = w.dest.Write([]byte("\n\n"))
 }

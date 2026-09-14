@@ -915,3 +915,7 @@ func runImportConfig(args []string) error {
 func runWorkDir(args []string) error {
 	return cmdworkdir.RunWorkDir(args)
 }
+
+func runIP(args []string) error {
+	return runIPCmd(nil, args, context.Background())
+}

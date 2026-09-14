@@ -145,6 +145,7 @@ func applyScheduleEdit(sdb *store.ScheduleSplitDB, name, slug string, flags []st
 	if saveErr := sdb.SaveConfig(*cfg); saveErr != nil {
 		return saveErr
 	}
+	syncScheduleToMainDB(name, cfg)
 
 	fmt.Printf("%s Updated schedule %q (%s)\n",
 		constants.ColorGreen+"✓"+constants.ColorReset, name, slug)
@@ -152,16 +153,37 @@ func applyScheduleEdit(sdb *store.ScheduleSplitDB, name, slug string, flags []st
 	return nil
 }
 
+func syncScheduleToMainDB(name string, cfg *store.ScheduleConfig) {
+	db, err := openSchedulerDB()
+	if err != nil {
+		return
+	}
+	defer db.Close()
+	t, getErr := db.GetSchedule(name)
+	if getErr == nil && t != nil {
+		t.IntervalVal = cfg.IntervalVal
+		t.DelayVal = cfg.DelayVal
+		t.IsEnabled = cfg.IsEnabled
+		_ = db.SaveSchedule(*t)
+	}
+}
+
 func updateScheduleConfigFromFlags(cfg *store.ScheduleConfig, flags []string) {
 	for i := 0; i < len(flags); i++ {
 		f := flags[i]
 		if strings.HasPrefix(f, "--interval=") {
 			cfg.IntervalVal = strings.TrimPrefix(f, "--interval=")
+		} else if (f == "--interval" || f == "-i") && i+1 < len(flags) {
+			cfg.IntervalVal = flags[i+1]
+			i++
 		} else if strings.HasPrefix(f, "--delay=") {
 			cfg.DelayVal = strings.TrimPrefix(f, "--delay=")
-		} else if f == "--enable" {
+		} else if (f == "--delay" || f == "-d") && i+1 < len(flags) {
+			cfg.DelayVal = flags[i+1]
+			i++
+		} else if f == "--enable" || f == "enable" || f == "on" {
 			cfg.IsEnabled = true
-		} else if f == "--disable" {
+		} else if f == "--disable" || f == "disable" || f == "off" {
 			cfg.IsEnabled = false
 		}
 	}

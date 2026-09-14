@@ -16,7 +16,8 @@ var primaryTopCommands = []string{
 	"release", "pull-release", "changelog", "cd", "group", "open",
 	"history", "stats", "export", "import", "profile", "bookmark",
 	"dashboard", "version", "help", "diff", "amend", "sync",
-	"add", "rm", "mv", "prune", "revert",
+	"add", "rm", "mv", "prune", "revert", "ip", "zsh", "user",
+	"service", "schedule", "macro", "os",
 }
 
 type commandScore struct {

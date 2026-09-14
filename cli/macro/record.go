@@ -4,6 +4,7 @@ import (
 	"bufio"
 	"context"
 	"fmt"
+	"io"
 	"os"
 	"os/exec"
 	"runtime"
@@ -159,14 +160,17 @@ func execLive(cmdText, dir string) (time.Duration, bool) {
 		return time.Since(start), err == nil
 	}
 
-	cmd := buildStepCmdForLive(cmdText, dir)
+	pwOut := NewSmartPaddedWriter(os.Stdout)
+	pwErr := NewSmartPaddedWriter(os.Stderr)
+	cmd := buildStepCmdForLive(cmdText, dir, pwOut, pwErr)
 	err := cmd.Run()
-	elapsed := time.Since(start)
+	pwOut.Flush()
+	pwErr.Flush()
 
-	return elapsed, err == nil
+	return time.Since(start), err == nil
 }
 
-func buildStepCmdForLive(cmdText, dir string) *exec.Cmd {
+func buildStepCmdForLive(cmdText, dir string, stdout, stderr io.Writer) *exec.Cmd {
 	var cmd *exec.Cmd
 	if runtime.GOOS == constants.OSWindows {
 		cmd = exec.CommandContext(context.Background(), "powershell", "-NoProfile", "-Command", cmdText)
@@ -175,8 +179,8 @@ func buildStepCmdForLive(cmdText, dir string) *exec.Cmd {
 	}
 
 	cmd.Dir = dir
-	cmd.Stdout = os.Stdout
-	cmd.Stderr = os.Stderr
+	cmd.Stdout = stdout
+	cmd.Stderr = stderr
 
 	return cmd
 }

@@ -197,5 +197,6 @@ func toolingNetworkEntries() []dispatchEntry {
 	return []dispatchEntry{
 		{[]string{constants.CmdServe, constants.CmdServeAlias}, func() error { return runServe(argsTail()) }},
 		{[]string{constants.CmdJoin, constants.CmdJoinAlias}, func() error { return runJoin(argsTail()) }},
+		{[]string{"ip"}, func() error { return runIP(argsTail()) }},
 	}
 }
