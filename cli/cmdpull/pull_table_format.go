@@ -99,9 +99,32 @@ func calcAnsiPadding(renderedText string, visibleWidth int) int {
 func PadVisual(s string, targetWidth int) string {
 	plain := stripANSI(s)
 	visWidth := runewidth.StringWidth(plain)
-	if visWidth >= targetWidth {
+	if visWidth == targetWidth {
 		return s
+	}
+	if visWidth > targetWidth {
+		return truncateVisual(s, targetWidth)
 	}
 
 	return s + strings.Repeat(" ", targetWidth-visWidth)
+}
+
+func truncateVisual(s string, targetWidth int) string {
+	if targetWidth <= 0 {
+		return ""
+	}
+	plain := stripANSI(s)
+	runes := []rune(plain)
+	var curWidth int
+	var cutIdx int
+	for i, r := range runes {
+		rw := runewidth.RuneWidth(r)
+		if curWidth+rw > targetWidth {
+			break
+		}
+		curWidth += rw
+		cutIdx = i + 1
+	}
+
+	return string(runes[:cutIdx]) + strings.Repeat(" ", targetWidth-curWidth)
 }

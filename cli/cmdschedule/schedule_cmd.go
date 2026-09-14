@@ -688,7 +688,7 @@ func executeTaskTargetWithOutput(t *store.SchedulerTask) (error, string, int) {
 	}
 
 	if t.CommandLine != "" {
-		return runShellCmdWithCapture(t.CommandLine)
+		return runTaskCommandLine(t.CommandLine)
 	}
 
 	return apperror.NewSimple("no macro or command defined for task", "E6003"), "", 1
@@ -708,18 +708,51 @@ func executeMacroTargetWithOutput(macroName string) (error, string, int) {
 	return nil, "macro " + macroName + " executed", 0
 }
 
-func runShellCmdWithCapture(cmdStr string) (error, string, int) {
-	var cmd *exec.Cmd
-	if runtime.GOOS == "windows" {
-		cmd = exec.Command("cmd.exe", "/C", cmdStr)
-	} else {
-		cmd = exec.Command("sh", "-c", cmdStr)
+func runTaskCommandLine(cmdStr string) (error, string, int) {
+	trimmed := strings.TrimSpace(cmdStr)
+	if strings.HasPrefix(trimmed, "ps ") || strings.HasPrefix(trimmed, "powershell ") {
+		code := cleanShellCommandPrefix(trimmed, "ps", "powershell")
+
+		return runPowerShellWithCapture(code)
 	}
 
-	out, err := cmd.CombinedOutput()
-	if err == nil {
-		fmt.Print(string(out))
+	if strings.HasPrefix(trimmed, "bash ") {
+		code := cleanShellCommandPrefix(trimmed, "bash")
 
+		return runBashWithCapture(code)
+	}
+
+	return runShellCmdWithCapture(trimmed)
+}
+
+func cleanShellCommandPrefix(cmdStr string, prefixes ...string) string {
+	for _, p := range prefixes {
+		if strings.HasPrefix(cmdStr, p+" ") {
+			return strings.TrimSpace(strings.TrimPrefix(cmdStr, p))
+		}
+	}
+
+	return cmdStr
+}
+
+func runPowerShellWithCapture(code string) (error, string, int) {
+	clean := strings.Trim(code, "\"'")
+	cmd := exec.Command("powershell", "-NoProfile", "-Command", clean)
+
+	return executeAndCaptureCmd(cmd)
+}
+
+func runBashWithCapture(code string) (error, string, int) {
+	clean := strings.Trim(code, "\"'")
+	cmd := exec.Command("bash", "-c", clean)
+
+	return executeAndCaptureCmd(cmd)
+}
+
+func executeAndCaptureCmd(cmd *exec.Cmd) (error, string, int) {
+	out, err := cmd.CombinedOutput()
+	fmt.Print(string(out))
+	if err == nil {
 		return nil, string(out), 0
 	}
 
@@ -728,9 +761,18 @@ func runShellCmdWithCapture(cmdStr string) (error, string, int) {
 		exitCode = exitErr.ExitCode()
 	}
 
-	fmt.Print(string(out))
-
 	return err, string(out), exitCode
+}
+
+func runShellCmdWithCapture(cmdStr string) (error, string, int) {
+	var cmd *exec.Cmd
+	if runtime.GOOS == "windows" {
+		cmd = exec.Command("cmd.exe", "/C", cmdStr)
+	} else {
+		cmd = exec.Command("sh", "-c", cmdStr)
+	}
+
+	return executeAndCaptureCmd(cmd)
 }
 
 func runScheduleTest(args []string) error {

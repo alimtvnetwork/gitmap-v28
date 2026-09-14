@@ -22,7 +22,7 @@ func dispatchOSUserSubcommand(sub string, args []string) error {
 	switch sub {
 	case "ls", "list":
 		return runOSUserList()
-	case "add":
+	case "add", "create":
 		return handleOSUserAdd(args)
 	case "edit":
 		return handleOSUserEdit(args)

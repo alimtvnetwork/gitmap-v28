@@ -4,6 +4,7 @@ package cmdmacro
 import (
 	"bufio"
 	"fmt"
+	"io"
 	"os"
 	"os/exec"
 	"runtime"
@@ -225,9 +226,40 @@ func printChainedStepFeedback(isExecEnabled bool, stepNum int) {
 }
 
 func executeLiveCommand(cmdText string) error {
+	if isAsync, opts := macro.ParseAsyncMacroCommand(cmdText); isAsync {
+		return executeLiveAsync(opts, cmdText)
+	}
+	if isRecurse, opts := macro.ParseRecurseCommand(cmdText); isRecurse {
+		return executeLiveRecurse(opts, cmdText)
+	}
+
+	return runLivePaddedCmd(cmdText)
+}
+
+func executeLiveAsync(opts macro.AsyncStepOpts, cmdText string) error {
+	fmt.Printf("  %s▶ Starting background async monitor: %s%s\n",
+		constants.ColorCyan, cmdText, constants.ColorReset)
+	fmt.Printf("  %s✓ Async task active (interval: %ds)%s\n\n",
+		constants.ColorGreen, opts.IntervalSec, constants.ColorReset)
+
+	return nil
+}
+
+func executeLiveRecurse(opts macro.RecurseOpts, cmdText string) error {
+	fmt.Printf("  %s▶ Recorded recursive call: %s (delay: %v)%s\n\n",
+		constants.ColorCyan, cmdText, opts.Delay, constants.ColorReset)
+
+	return nil
+}
+
+func runLivePaddedCmd(cmdText string) error {
 	fmt.Printf("  %s▶ Executing: %s%s\n", constants.ColorCyan, cmdText, constants.ColorReset)
-	cmd := buildLiveExecCmd(cmdText)
+	pwOut := macro.NewSmartPaddedWriter(os.Stdout)
+	pwErr := macro.NewSmartPaddedWriter(os.Stderr)
+	cmd := buildLiveExecCmd(cmdText, pwOut, pwErr)
 	err := cmd.Run()
+	pwOut.Flush()
+	pwErr.Flush()
 	ensureTerminalVisibility()
 	if err != nil {
 		fmt.Fprintf(os.Stderr, "  %s▲ Command exited with error: %v%s\n\n",
@@ -237,7 +269,7 @@ func executeLiveCommand(cmdText string) error {
 	return err
 }
 
-func buildLiveExecCmd(cmdText string) *exec.Cmd {
+func buildLiveExecCmd(cmdText string, stdout, stderr io.Writer) *exec.Cmd {
 	exeCmd := resolveLiveCommandText(cmdText)
 	var cmd *exec.Cmd
 	if runtime.GOOS == constants.OSWindows {
@@ -247,8 +279,8 @@ func buildLiveExecCmd(cmdText string) *exec.Cmd {
 	}
 
 	cmd.Stdin = os.Stdin
-	cmd.Stdout = os.Stdout
-	cmd.Stderr = os.Stderr
+	cmd.Stdout = stdout
+	cmd.Stderr = stderr
 
 	return cmd
 }

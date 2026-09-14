@@ -125,8 +125,9 @@ func printStatusTableTracked(records []model.ScanRecord, prog *cloner.BatchProgr
 
 func printStatusTableHeader(c *statusTableContext) {
 	const colGap = "   "
+	dividerLen := calculateStatusDividerLen(c)
 
-	fmt.Printf("  %s%s%s%s%s%s%s%s%s%s%s\n",
+	fmt.Printf("  %s%s%s%s%s%s%s%s%s%s%s%s%s\n",
 		constants.ColorWhite,
 		cmdpull.PadVisual(constants.StatusTableColumns[0], c.MaxRepo), colGap,
 		cmdpull.PadVisual(constants.StatusTableColumns[1], c.MaxBranch), colGap,
@@ -136,7 +137,11 @@ func printStatusTableHeader(c *statusTableContext) {
 		cmdpull.PadVisual(constants.StatusTableColumns[5], c.MaxFiles),
 		constants.ColorReset)
 
-	fmt.Printf("  %s%s%s\n", constants.ColorDim, constants.TermTableRule, constants.ColorReset)
+	fmt.Printf("  %s%s%s\n", constants.ColorDim, strings.Repeat("-", dividerLen), constants.ColorReset)
+}
+
+func calculateStatusDividerLen(c *statusTableContext) int {
+	return c.MaxRepo + c.MaxBranch + c.MaxStatus + c.MaxSync + c.MaxStash + c.MaxFiles + (5 * 3)
 }
 
 func printStatusTableRow(c *statusTableContext, r statusRow, pastelColor string) {

@@ -12,7 +12,10 @@ import (
 
 type contextKey string
 
-const callStackKey contextKey = "macroCallStack"
+const (
+	callStackKey    contextKey = "macroCallStack"
+	currentMacroKey contextKey = "currentMacroName"
+)
 
 const maxMacroRecursionDepth = 10
 
@@ -87,20 +90,34 @@ func executeRecurseStep(
 	}
 
 	callStack := extractCallStack(ctx)
-	if err := validateRecursionSafety(callStack, recOpts.TargetMacro); err != nil {
+	target := resolveRecurseTarget(ctx, recOpts.TargetMacro)
+	if err := validateRecursionSafety(callStack, target, recOpts.Delay); err != nil {
 		return StepExecution{CommandLine: step.CommandLine, Status: "failed", Error: err.Error()}, err
 	}
 
 	applyRecurseDelay(recOpts.Delay, opts)
-	childMacro, err := LoadMacro(recOpts.TargetMacro)
+	childMacro, err := LoadMacro(target)
 	if err != nil {
 		return StepExecution{CommandLine: step.CommandLine, Status: "failed", Error: err.Error()}, apperror.WrapSimple(err, "load recursive macro")
 	}
 
-	childCtx := buildChildRecursionContext(ctx, callStack, recOpts.TargetMacro)
+	childCtx := buildChildRecursionContext(ctx, callStack, target)
 	execErr := Execute(childCtx, childMacro, opts)
 
-	return buildRecurseResult(step, recOpts.TargetMacro, dt.CurrentDir, time.Since(start), execErr)
+	return buildRecurseResult(step, target, dt.CurrentDir, time.Since(start), execErr)
+}
+
+func resolveRecurseTarget(ctx context.Context, target string) string {
+	if target != "self" && target != "" {
+		return target
+	}
+
+	cur, ok := ctx.Value(currentMacroKey).(string)
+	if ok && cur != "" {
+		return cur
+	}
+
+	return target
 }
 
 func extractCallStack(ctx context.Context) []string {
@@ -111,16 +128,20 @@ func extractCallStack(ctx context.Context) []string {
 	return []string{}
 }
 
-func validateRecursionSafety(stack []string, target string) error {
+func validateRecursionSafety(stack []string, target string, delay time.Duration) error {
 	if len(stack) >= maxMacroRecursionDepth {
 		msg := fmt.Sprintf("maximum macro recursion depth (%d) exceeded", maxMacroRecursionDepth)
 
 		return apperror.NewSimple(msg, "E_MACRO_RECURSION_DEPTH_EXCEEDED")
 	}
 
+	if delay > 0 {
+		return nil
+	}
+
 	for _, s := range stack {
 		if strings.EqualFold(s, target) {
-			msg := fmt.Sprintf("macro cycle detected: %s -> %s", strings.Join(stack, " -> "), target)
+			msg := fmt.Sprintf("macro cycle detected without delay: %s -> %s", strings.Join(stack, " -> "), target)
 
 			return apperror.NewSimple(msg, "E_MACRO_CYCLE_DETECTED")
 		}

@@ -18,6 +18,7 @@ import (
 
 // Execute runs all steps in a macro maintaining dynamic directory state and structured reporting.
 func Execute(ctx context.Context, m *Macro, opts ExecOptions) error {
+	ctx = context.WithValue(ctx, currentMacroKey, m.Name)
 	start := time.Now()
 	if !isStructuredOutput(opts) {
 		printExecutionHeader(m)
