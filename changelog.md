@@ -1,3 +1,20 @@
+## [v6.236.0] 2026-09-14 Release v6.236.0
+
+### Install GitMap v6.236.0
+
+To pin your repository to this exact version, run the following one-liner:
+Unix/Bash: `curl -sL https://raw.githubusercontent.com/alimtvnetwork/gitmap-v28/v6.236.0/install.sh | bash -s -- ".lovable/prompts" "v6.236.0"`
+PowerShell: `Invoke-WebRequest -Uri https://raw.githubusercontent.com/alimtvnetwork/gitmap-v28/v6.236.0/install.ps1 -OutFile install.ps1; .\install.ps1 -TargetDir ".lovable/prompts" -Version "v6.236.0"`
+
+### Added / Changed / Fixed / Removed
+
+- First-class user@ip SSH join syntax (gitmap ssh-join user@ip [alias]), default host-<ip> alias generation, and automatic IP login user resolution
+- Subnet discovery scanner (gitmap sj scan) probing port 22 and cross-referencing registered hosts
+- Machine health and latency ping (gitmap sj status) with online/offline diagnostics
+- Redesigned Git pull UI with 80ms active background ticker, animated Braille spinner, accurate Windows TTY detection, 4-step milestones, and worker slot concurrency
+- Scripts-fixer alignment: terminal profile utilities (jq, yq, zellij), OS-aware dev/small-dev partitioning, git-compact integration, and AI profile trees
+- Comprehensive leaf command help, mistake recovery guidance, and documentation parity across terminal UI, catalogs, and markdown docs
+
 ## [v6.235.0] 2026-09-14 Release v6.235.0
 
 ### Install GitMap v6.235.0
