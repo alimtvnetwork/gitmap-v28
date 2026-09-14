@@ -1,11 +1,11 @@
 {
   "version": 1,
-  "updated_at": "2026-09-14T17:32:48Z",
+  "updated_at": "2026-09-14T18:32:42Z",
   "total_tests": 3194,
   "summary": {
     "total": 3194,
-    "cached": 2485,
-    "dirty": 316,
+    "cached": 2453,
+    "dirty": 741,
     "packages": 139,
     "slow_tests": 84,
     "fast_tests": 3110,
@@ -10832,7 +10832,7 @@
       "is_slow": false,
       "last_status": "passed",
       "last_run_at": "2026-09-14T15:43:35",
-      "needs_run": false
+      "needs_run": true
     },
     "cli/cmd.TestStorageCmdList": {
       "id": "cli/cmd.TestStorageCmdList",
@@ -10848,7 +10848,7 @@
       "is_slow": false,
       "last_status": "passed",
       "last_run_at": "2026-09-14T15:43:35",
-      "needs_run": false
+      "needs_run": true
     },
     "cli/cmd.TestGetDiskSpaceMetrics": {
       "id": "cli/cmd.TestGetDiskSpaceMetrics",
@@ -10864,7 +10864,7 @@
       "is_slow": false,
       "last_status": "passed",
       "last_run_at": "2026-09-14T15:43:35",
-      "needs_run": false
+      "needs_run": true
     },
     "cli/cmd.TestIsStorageListSubcommand": {
       "id": "cli/cmd.TestIsStorageListSubcommand",
@@ -10880,7 +10880,7 @@
       "is_slow": false,
       "last_status": "passed",
       "last_run_at": "2026-09-14T15:43:35",
-      "needs_run": false
+      "needs_run": true
     },
     "cli/cmd.TestIsGitignoreCommentClassifies": {
       "id": "cli/cmd.TestIsGitignoreCommentClassifies",
@@ -19232,7 +19232,7 @@
       "is_slow": false,
       "last_status": "passed",
       "last_run_at": "2026-09-14T15:44:08",
-      "needs_run": false
+      "needs_run": true
     },
     "cli/cmdpipeline.TestNormalizeNegativeIndex": {
       "id": "cli/cmdpipeline.TestNormalizeNegativeIndex",
@@ -19248,7 +19248,7 @@
       "is_slow": false,
       "last_status": "passed",
       "last_run_at": "2026-09-14T15:44:08",
-      "needs_run": false
+      "needs_run": true
     },
     "cli/cmdpipeline.TestParseLastFailuresFlag": {
       "id": "cli/cmdpipeline.TestParseLastFailuresFlag",
@@ -19264,7 +19264,7 @@
       "is_slow": false,
       "last_status": "passed",
       "last_run_at": "2026-09-14T15:44:08",
-      "needs_run": false
+      "needs_run": true
     },
     "cli/cmdpipeline.TestIsErrorLogsSubcmd": {
       "id": "cli/cmdpipeline.TestIsErrorLogsSubcmd",
@@ -19280,7 +19280,7 @@
       "is_slow": false,
       "last_status": "passed",
       "last_run_at": "2026-09-14T15:44:08",
-      "needs_run": false
+      "needs_run": true
     },
     "cli/cmdpipeline.TestFormatRelativeDbPath": {
       "id": "cli/cmdpipeline.TestFormatRelativeDbPath",
@@ -19296,7 +19296,7 @@
       "is_slow": false,
       "last_status": "passed",
       "last_run_at": "2026-09-14T16:08:34",
-      "needs_run": false
+      "needs_run": true
     },
     "cli/cmdpipeline.TestInspectPositionalRunPassing": {
       "id": "cli/cmdpipeline.TestInspectPositionalRunPassing",
@@ -19312,7 +19312,7 @@
       "is_slow": false,
       "last_status": "passed",
       "last_run_at": "2026-09-14T16:08:34",
-      "needs_run": false
+      "needs_run": true
     },
     "cli/cmdpipeline.TestInspectPositionalRunFailing": {
       "id": "cli/cmdpipeline.TestInspectPositionalRunFailing",
@@ -19328,7 +19328,7 @@
       "is_slow": false,
       "last_status": "passed",
       "last_run_at": "2026-09-14T16:08:34",
-      "needs_run": false
+      "needs_run": true
     },
     "cli/cmdpipeline.TestRenderHistorySummaryTable": {
       "id": "cli/cmdpipeline.TestRenderHistorySummaryTable",
@@ -19344,7 +19344,7 @@
       "is_slow": false,
       "last_status": "passed",
       "last_run_at": "2026-09-14T16:08:34",
-      "needs_run": false
+      "needs_run": true
     },
     "cli/cmdpipeline.TestRenderLastCachedFailuresEmpty": {
       "id": "cli/cmdpipeline.TestRenderLastCachedFailuresEmpty",
@@ -19360,7 +19360,7 @@
       "is_slow": false,
       "last_status": "passed",
       "last_run_at": "2026-09-14T16:08:34",
-      "needs_run": false
+      "needs_run": true
     },
     "cli/cmdpipeline.TestPipelineSyncResultCount": {
       "id": "cli/cmdpipeline.TestPipelineSyncResultCount",
@@ -19376,7 +19376,7 @@
       "is_slow": false,
       "last_status": "passed",
       "last_run_at": "2026-09-14T16:08:34",
-      "needs_run": false
+      "needs_run": true
     },
     "cli/cmdpipeline.TestPipelineDBOpenAndIndexes": {
       "id": "cli/cmdpipeline.TestPipelineDBOpenAndIndexes",
@@ -19392,7 +19392,7 @@
       "is_slow": false,
       "last_status": "passed",
       "last_run_at": "2026-09-14T16:08:34",
-      "needs_run": false
+      "needs_run": true
     },
     "cli/cmdpipeline.TestSyncAllRunsIntoDbIncremental": {
       "id": "cli/cmdpipeline.TestSyncAllRunsIntoDbIncremental",
@@ -19408,7 +19408,7 @@
       "is_slow": false,
       "last_status": "passed",
       "last_run_at": "2026-09-14T16:08:34",
-      "needs_run": false
+      "needs_run": true
     },
     "cli/cmdpipeline.TestParsePipelineErrorFlags_Combined": {
       "id": "cli/cmdpipeline.TestParsePipelineErrorFlags_Combined",
@@ -19424,7 +19424,7 @@
       "is_slow": false,
       "last_status": "passed",
       "last_run_at": "2026-09-14T16:08:34",
-      "needs_run": false
+      "needs_run": true
     },
     "cli/cmdpipeline.TestParsePipelineErrorFlags_LastFailedLogs": {
       "id": "cli/cmdpipeline.TestParsePipelineErrorFlags_LastFailedLogs",
@@ -19440,7 +19440,7 @@
       "is_slow": false,
       "last_status": "passed",
       "last_run_at": "2026-09-14T16:08:34",
-      "needs_run": false
+      "needs_run": true
     },
     "cli/cmdpipeline.TestReadRunnerETAMissing": {
       "id": "cli/cmdpipeline.TestReadRunnerETAMissing",
@@ -19504,7 +19504,7 @@
       "is_slow": false,
       "last_status": "passed",
       "last_run_at": "2026-09-14T16:08:34",
-      "needs_run": false
+      "needs_run": true
     },
     "cli/cmdpipeline.TestBuildStatusPayload": {
       "id": "cli/cmdpipeline.TestBuildStatusPayload",
@@ -19520,7 +19520,7 @@
       "is_slow": false,
       "last_status": "passed",
       "last_run_at": "2026-09-14T16:08:34",
-      "needs_run": false
+      "needs_run": true
     },
     "cli/cmdpipeline.TestBuildErrorLogsPayload": {
       "id": "cli/cmdpipeline.TestBuildErrorLogsPayload",
@@ -19536,7 +19536,7 @@
       "is_slow": false,
       "last_status": "passed",
       "last_run_at": "2026-09-14T16:08:34",
-      "needs_run": false
+      "needs_run": true
     },
     "cli/cmdpipeline.TestWriteOrRenderErrorLogs_File": {
       "id": "cli/cmdpipeline.TestWriteOrRenderErrorLogs_File",
@@ -19552,7 +19552,7 @@
       "is_slow": false,
       "last_status": "passed",
       "last_run_at": "2026-09-14T16:08:34",
-      "needs_run": false
+      "needs_run": true
     },
     "cli/cmdpipeline.TestPipelineHelp": {
       "id": "cli/cmdpipeline.TestPipelineHelp",
@@ -19568,7 +19568,7 @@
       "is_slow": false,
       "last_status": "passed",
       "last_run_at": "2026-09-14T16:08:34",
-      "needs_run": false
+      "needs_run": true
     },
     "cli/cmdpipeline.TestCalculateETA_HistoricalAverage": {
       "id": "cli/cmdpipeline.TestCalculateETA_HistoricalAverage",
@@ -19584,7 +19584,7 @@
       "is_slow": false,
       "last_status": "passed",
       "last_run_at": "2026-09-14T16:08:34",
-      "needs_run": false
+      "needs_run": true
     },
     "cli/cmdprompt.TestPromptDashboardSuite": {
       "id": "cli/cmdprompt.TestPromptDashboardSuite",
@@ -24032,7 +24032,7 @@
       "is_slow": false,
       "last_status": "passed",
       "last_run_at": "2026-09-14T17:33:11",
-      "needs_run": false
+      "needs_run": true
     },
     "cli/constants.TestNoUnmarkedTopLevelCmdBlocks": {
       "id": "cli/constants.TestNoUnmarkedTopLevelCmdBlocks",
@@ -24048,7 +24048,7 @@
       "is_slow": false,
       "last_status": "passed",
       "last_run_at": "2026-09-14T17:33:11",
-      "needs_run": false
+      "needs_run": true
     },
     "cli/constants.TestTopLevelCmdConstantsAreUnique": {
       "id": "cli/constants.TestTopLevelCmdConstantsAreUnique",
@@ -24064,7 +24064,7 @@
       "is_slow": false,
       "last_status": "passed",
       "last_run_at": "2026-09-14T17:33:11",
-      "needs_run": false
+      "needs_run": true
     },
     "cli/constants.TestTopLevelCmdAliasesAreUnique": {
       "id": "cli/constants.TestTopLevelCmdAliasesAreUnique",
@@ -24080,7 +24080,7 @@
       "is_slow": false,
       "last_status": "passed",
       "last_run_at": "2026-09-14T17:33:11",
-      "needs_run": false
+      "needs_run": true
     },
     "cli/constants.TestCanonicalCSVColumn": {
       "id": "cli/constants.TestCanonicalCSVColumn",
@@ -29232,7 +29232,7 @@
       "is_slow": false,
       "last_status": "passed",
       "last_run_at": "2026-09-14T15:43:44",
-      "needs_run": false
+      "needs_run": true
     },
     "cli/pipelinedb.TestPipelineDbGeneratedFields": {
       "id": "cli/pipelinedb.TestPipelineDbGeneratedFields",
@@ -29248,7 +29248,7 @@
       "is_slow": false,
       "last_status": "passed",
       "last_run_at": "2026-09-14T15:43:44",
-      "needs_run": false
+      "needs_run": true
     },
     "cli/pipelinedb.TestPipelineDbScanError": {
       "id": "cli/pipelinedb.TestPipelineDbScanError",
@@ -29264,7 +29264,7 @@
       "is_slow": false,
       "last_status": "passed",
       "last_run_at": "2026-09-14T15:43:44",
-      "needs_run": false
+      "needs_run": true
     },
     "cli/pipelinedb.TestPipelineSplitDB_3ConnectedTables": {
       "id": "cli/pipelinedb.TestPipelineSplitDB_3ConnectedTables",
@@ -29280,7 +29280,7 @@
       "is_slow": false,
       "last_status": "passed",
       "last_run_at": "2026-09-14T15:43:44",
-      "needs_run": false
+      "needs_run": true
     },
     "cli/power.TestNewManager_Instantiation": {
       "id": "cli/power.TestNewManager_Instantiation",

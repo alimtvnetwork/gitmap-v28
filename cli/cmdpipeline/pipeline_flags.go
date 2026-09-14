@@ -18,6 +18,7 @@ type PipelineErrorFlags struct {
 	LastFailures      int
 	HasLastFailedLogs bool
 	IsDetailed        bool
+	CommitTarget      string
 	FilePath          string
 	TempFileName      string
 }
@@ -58,7 +59,7 @@ func parseIndexAndFailures(args []string, flags *PipelineErrorFlags) {
 	flags.Index, flags.HasIndex = scanNegativeIndex(args)
 	flags.LastFailures, flags.HasLastFailures = ParseLastFailuresFlag(args)
 	flags.HasLastFailedLogs = hasArgFlag(args, "last-failed-logs") || hasArgFlag(os.Args, "last-failed-logs")
-	if flags.HasLastFailedLogs && !flags.HasLastFailures {
+	if flags.HasLastFailedLogs && flags.LastFailures == 0 {
 		flags.LastFailures = 20
 		flags.HasLastFailures = true
 	}
@@ -95,6 +96,15 @@ func scanNegativeIndex(args []string) (int, bool) {
 func NormalizeNegativeIndex(offset int) int {
 	if offset < 0 {
 		return -offset - 1
+	}
+
+	return offset
+}
+
+// NormalizeCommitOffset converts a commit offset (0, -1, -2) to a 0-based commit history index.
+func NormalizeCommitOffset(offset int) int {
+	if offset < 0 {
+		return -offset
 	}
 
 	return offset

@@ -22,6 +22,7 @@ gitmap os [subcommand] [flags]
 | cron [subcommand] | Inspect, append, and remove crontab scheduled jobs |
 | display [subcommand] | Inspect and configure OS display settings, desktop session & timeouts |
 | fix-link [path] | Inspect and repair broken symlinks and shared directories |
+| storage [subcommand] | Inspect disk space, storage volumes, SQLite databases, and cleanup |
 | status | Display operating system summary, platform details, and link health |
 | help | Show usage information for OS commands |
 

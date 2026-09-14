@@ -23,7 +23,10 @@ CREATE TABLE IF NOT EXISTS PipelineRun (
 CREATE INDEX IF NOT EXISTS IdxPipelineRun_RepoSlug ON PipelineRun (RepoSlug);
 CREATE INDEX IF NOT EXISTS IdxPipelineRun_RunId ON PipelineRun (RunId);
 CREATE INDEX IF NOT EXISTS IdxPipelineRun_IsSuccess ON PipelineRun (IsSuccess);
-CREATE INDEX IF NOT EXISTS IdxPipelineRun_RepoSlug_RunId ON PipelineRun (RepoSlug, RunId);`
+CREATE INDEX IF NOT EXISTS IdxPipelineRun_RepoSlug_RunId ON PipelineRun (RepoSlug, RunId);
+CREATE INDEX IF NOT EXISTS IdxPipelineRun_Sha ON PipelineRun (Sha);
+CREATE INDEX IF NOT EXISTS IdxPipelineRun_Sha_RepoSlug ON PipelineRun (Sha, RepoSlug);
+CREATE INDEX IF NOT EXISTS IdxPipelineRun_Sha_CreatedAt ON PipelineRun (Sha, CreatedAt DESC);`
 
 	sqlCreatePipelineErrorLog = `
 CREATE TABLE IF NOT EXISTS PipelineErrorLog (

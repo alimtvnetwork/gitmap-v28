@@ -7,6 +7,7 @@ import (
 	"strings"
 
 	"github.com/alimtvnetwork/gitmap-v28/cli/apperror"
+	"github.com/alimtvnetwork/gitmap-v28/cli/gitutil"
 	"github.com/alimtvnetwork/gitmap-v28/cli/lazyregex"
 	"github.com/alimtvnetwork/gitmap-v28/cli/store"
 	_ "modernc.org/sqlite"
@@ -45,11 +46,69 @@ func PipelineDbDir() string {
 // PipelineDBDir is an alias to PipelineDbDir.
 var PipelineDBDir = PipelineDbDir
 
-// PipelineDbPath returns the full SQLite database file path for a repository.
-func PipelineDbPath(repoSlug string) string {
+// RepoScopedPipelineDbDir returns the repository-scoped data directory for pipeline db.
+func RepoScopedPipelineDbDir(repoRoot string) string {
+	return filepath.Join(repoRoot, ".gitmap", "data")
+}
+
+func isFileExisting(path string) bool {
+	info, err := os.Stat(path)
+	if err != nil {
+		return false
+	}
+	if info.IsDir() {
+		return false
+	}
+
+	return true
+}
+
+func resolveRepoScopedPath(repoRoot string) string {
+	primary := filepath.Join(RepoScopedPipelineDbDir(repoRoot), "pipeline.db")
+	if isFileExisting(primary) {
+		return primary
+	}
+	legacy := filepath.Join(repoRoot, ".gitmap", "pipeline.db")
+	if isFileExisting(legacy) {
+		return legacy
+	}
+
+	return primary
+}
+
+func fallbackBinaryPipelineDbPath(repoSlug string) string {
 	slug := SanitizeRepoSlug(repoSlug)
 
 	return filepath.Join(PipelineDbDir(), "pipeline_"+slug+".db")
+}
+
+func isTestRepoSlug(repoSlug string) bool {
+	if strings.HasPrefix(repoSlug, "test-") {
+		return true
+	}
+	if strings.Contains(repoSlug, "/test-") {
+		return true
+	}
+
+	return false
+}
+
+// ResolvePipelineDbPath resolves the repository-scoped or fallback SQLite database path.
+func ResolvePipelineDbPath(repoSlug string) string {
+	root, err := gitutil.RepoRoot(".")
+	if err != nil || root == "" {
+		return fallbackBinaryPipelineDbPath(repoSlug)
+	}
+	if isTestRepoSlug(repoSlug) {
+		return fallbackBinaryPipelineDbPath(repoSlug)
+	}
+
+	return resolveRepoScopedPath(root)
+}
+
+// PipelineDbPath returns the full SQLite database file path for a repository.
+func PipelineDbPath(repoSlug string) string {
+	return ResolvePipelineDbPath(repoSlug)
 }
 
 // PipelineDBPath is an alias to PipelineDbPath.
@@ -57,13 +116,24 @@ var PipelineDBPath = PipelineDbPath
 
 // OpenPipelineSplitDb opens or initializes the split SQLite database for a repo.
 func OpenPipelineSplitDb(repoSlug string) (*PipelineSplitDb, error) {
-	dbPath := PipelineDbPath(repoSlug)
+	dbPath := ResolvePipelineDbPath(repoSlug)
+	_ = os.MkdirAll(filepath.Dir(dbPath), 0755)
 	conn, err := sql.Open("sqlite", dbPath)
 	if err != nil {
 		return nil, apperror.WrapSimple(err, "open pipeline split db "+repoSlug)
 	}
 
 	return initPipelineSplitConn(conn, repoSlug, dbPath)
+}
+
+func (p *PipelineSplitDb) setupSchema() error {
+	if err := p.InitSchema(); err != nil {
+		_ = p.conn.Close()
+
+		return err
+	}
+
+	return nil
 }
 
 func initPipelineSplitConn(conn *sql.DB, repoSlug, dbPath string) (*PipelineSplitDb, error) {
@@ -74,28 +144,24 @@ func initPipelineSplitConn(conn *sql.DB, repoSlug, dbPath string) (*PipelineSpli
 	}
 
 	p := &PipelineSplitDb{conn: conn, RepoSlug: repoSlug, Path: dbPath}
-	if err := p.InitSchema(); err != nil {
-		_ = conn.Close()
 
-		return nil, err
-	}
-
-	return p, nil
+	return p, p.setupSchema()
 }
 
 // OpenPipelineSplitDB is an alias to OpenPipelineSplitDb.
 var OpenPipelineSplitDB = OpenPipelineSplitDb
 
-// InitSchema ensures all pipeline tables exist.
-func (p *PipelineSplitDb) InitSchema() error {
-	queries := []string{
+func pipelineSchemaQueries() []string {
+	return []string{
 		sqlCreatePipelineRun,
 		sqlCreatePipelineErrorLog,
 		sqlCreatePipelineDetailErrorLog,
 		sqlCreatePipelineCompactErrorLog,
 		sqlCreatePipelineSegment,
 	}
+}
 
+func (p *PipelineSplitDb) executeSchemaQueries(queries []string) error {
 	for _, q := range queries {
 		if _, err := p.conn.Exec(q); err != nil {
 			return apperror.WrapSimple(err, "init pipeline db schema")
@@ -103,6 +169,11 @@ func (p *PipelineSplitDb) InitSchema() error {
 	}
 
 	return nil
+}
+
+// InitSchema ensures all pipeline tables exist.
+func (p *PipelineSplitDb) InitSchema() error {
+	return p.executeSchemaQueries(pipelineSchemaQueries())
 }
 
 // Close closes the underlying SQLite connection.

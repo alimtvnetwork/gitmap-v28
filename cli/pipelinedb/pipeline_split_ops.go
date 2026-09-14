@@ -2,7 +2,10 @@ package pipelinedb
 
 import (
 	"database/sql"
+	"fmt"
 	"os"
+	"path/filepath"
+	"strings"
 	"time"
 
 	"github.com/alimtvnetwork/gitmap-v28/cli/apperror"
@@ -219,19 +222,26 @@ func scanPipelineRun(rows *sql.Rows) (PipelineRunRecord, *apperror.AppError) {
 	return r, nil
 }
 
-func collectRecentRuns(rows *sql.Rows) PipelineRunSliceResult {
+func iterateRunRows(rows *sql.Rows) ([]PipelineRunRecord, *apperror.AppError) {
 	var list []PipelineRunRecord
 	for rows.Next() {
 		r, scanErr := scanPipelineRun(rows)
 		if scanErr != nil {
-			return result.FailSlice[PipelineRunRecord](scanErr)
+			return nil, scanErr
 		}
-
 		list = append(list, r)
 	}
 
-	if err := rows.Err(); err != nil {
-		return result.FailSlice[PipelineRunRecord](apperror.WrapSimple(err, "iterate pipeline run rows"))
+	return list, nil
+}
+
+func collectRecentRuns(rows *sql.Rows) PipelineRunSliceResult {
+	list, err := iterateRunRows(rows)
+	if err != nil {
+		return result.FailSlice[PipelineRunRecord](err)
+	}
+	if rowsErr := rows.Err(); rowsErr != nil {
+		return result.FailSlice[PipelineRunRecord](apperror.WrapSimple(rowsErr, "iterate pipeline run rows"))
 	}
 
 	return result.OkSlice(list)
@@ -260,19 +270,26 @@ func scanPipelineError(rows *sql.Rows) (PipelineErrorRecord, *apperror.AppError)
 	return e, nil
 }
 
-func collectRecentErrors(rows *sql.Rows) PipelineErrorSliceResult {
+func iterateErrorRows(rows *sql.Rows) ([]PipelineErrorRecord, *apperror.AppError) {
 	var list []PipelineErrorRecord
 	for rows.Next() {
 		e, scanErr := scanPipelineError(rows)
 		if scanErr != nil {
-			return result.FailSlice[PipelineErrorRecord](scanErr)
+			return nil, scanErr
 		}
-
 		list = append(list, e)
 	}
 
-	if err := rows.Err(); err != nil {
-		return result.FailSlice[PipelineErrorRecord](apperror.WrapSimple(err, "iterate pipeline error log rows"))
+	return list, nil
+}
+
+func collectRecentErrors(rows *sql.Rows) PipelineErrorSliceResult {
+	list, err := iterateErrorRows(rows)
+	if err != nil {
+		return result.FailSlice[PipelineErrorRecord](err)
+	}
+	if rowsErr := rows.Err(); rowsErr != nil {
+		return result.FailSlice[PipelineErrorRecord](apperror.WrapSimple(rowsErr, "iterate pipeline error log rows"))
 	}
 
 	return result.OkSlice(list)
@@ -301,19 +318,26 @@ func scanPipelineCompactError(rows *sql.Rows) (PipelineCompactErrorRecord, *appe
 	return c, nil
 }
 
-func collectRecentCompactErrors(rows *sql.Rows) PipelineCompactErrorSliceResult {
+func iterateCompactErrorRows(rows *sql.Rows) ([]PipelineCompactErrorRecord, *apperror.AppError) {
 	var list []PipelineCompactErrorRecord
 	for rows.Next() {
 		c, scanErr := scanPipelineCompactError(rows)
 		if scanErr != nil {
-			return result.FailSlice[PipelineCompactErrorRecord](scanErr)
+			return nil, scanErr
 		}
-
 		list = append(list, c)
 	}
 
-	if err := rows.Err(); err != nil {
-		return result.FailSlice[PipelineCompactErrorRecord](apperror.WrapSimple(err, "iterate pipeline compact error rows"))
+	return list, nil
+}
+
+func collectRecentCompactErrors(rows *sql.Rows) PipelineCompactErrorSliceResult {
+	list, err := iterateCompactErrorRows(rows)
+	if err != nil {
+		return result.FailSlice[PipelineCompactErrorRecord](err)
+	}
+	if rowsErr := rows.Err(); rowsErr != nil {
+		return result.FailSlice[PipelineCompactErrorRecord](apperror.WrapSimple(rowsErr, "iterate pipeline compact error rows"))
 	}
 
 	return result.OkSlice(list)
@@ -345,17 +369,19 @@ func (p *PipelineSplitDb) QueryCompactErrors(limit int) PipelineCompactErrorSlic
 	return collectRecentCompactErrors(rows)
 }
 
-// Clear truncates all recorded runs, error logs, and segments.
-func (p *PipelineSplitDb) Clear() error {
-	queries := []string{
+func clearTableQueries() []string {
+	return []string{
 		"DELETE FROM PipelineCompactErrorLog;",
 		"DELETE FROM PipelineDetailErrorLog;",
 		"DELETE FROM PipelineErrorLog;",
 		"DELETE FROM PipelineSegment;",
 		"DELETE FROM PipelineRun;",
 	}
+}
 
-	for _, q := range queries {
+// Clear truncates all recorded runs, error logs, and segments.
+func (p *PipelineSplitDb) Clear() error {
+	for _, q := range clearTableQueries() {
 		if _, err := p.conn.Exec(q); err != nil {
 			return apperror.WrapSimple(err, "clear pipeline split db")
 		}
@@ -364,17 +390,19 @@ func (p *PipelineSplitDb) Clear() error {
 	return nil
 }
 
-// Reset drops all tables and re-initializes the schema.
-func (p *PipelineSplitDb) Reset() error {
-	queries := []string{
+func dropTableQueries() []string {
+	return []string{
 		"DROP TABLE IF EXISTS PipelineCompactErrorLog;",
 		"DROP TABLE IF EXISTS PipelineDetailErrorLog;",
 		"DROP TABLE IF EXISTS PipelineErrorLog;",
 		"DROP TABLE IF EXISTS PipelineSegment;",
 		"DROP TABLE IF EXISTS PipelineRun;",
 	}
+}
 
-	for _, q := range queries {
+// Reset drops all tables and re-initializes the schema.
+func (p *PipelineSplitDb) Reset() error {
+	for _, q := range dropTableQueries() {
 		if _, err := p.conn.Exec(q); err != nil {
 			return apperror.WrapSimple(err, "reset pipeline split db")
 		}
@@ -454,17 +482,33 @@ func queryLastUpdated(conn *sql.DB) (string, *apperror.AppError) {
 	return lastUpdated, nil
 }
 
+func (p *PipelineSplitDb) loadRunOutcomeCounts(stats *PipelineDbStats) *apperror.AppError {
+	var err *apperror.AppError
+	if stats.SuccessRuns, err = countQuery(p.conn, "SELECT COUNT(*) FROM PipelineRun WHERE IsSuccess = 1;"); err != nil {
+		return err
+	}
+	if stats.FailedRuns, err = countQuery(p.conn, "SELECT COUNT(*) FROM PipelineRun WHERE IsSuccess = 0;"); err != nil {
+		return err
+	}
+
+	return nil
+}
+
 func (p *PipelineSplitDb) loadRunStatsCounts(stats *PipelineDbStats) *apperror.AppError {
 	var err *apperror.AppError
 	if stats.TotalRuns, err = countQuery(p.conn, "SELECT COUNT(*) FROM PipelineRun;"); err != nil {
 		return err
 	}
 
-	if stats.SuccessRuns, err = countQuery(p.conn, "SELECT COUNT(*) FROM PipelineRun WHERE IsSuccess = 1;"); err != nil {
+	return p.loadRunOutcomeCounts(stats)
+}
+
+func (p *PipelineSplitDb) loadDetailStatsCounts(stats *PipelineDbStats) *apperror.AppError {
+	var err *apperror.AppError
+	if stats.ErrorLogCount, err = countQuery(p.conn, "SELECT COUNT(*) FROM PipelineErrorLog;"); err != nil {
 		return err
 	}
-
-	if stats.FailedRuns, err = countQuery(p.conn, "SELECT COUNT(*) FROM PipelineRun WHERE IsSuccess = 0;"); err != nil {
+	if stats.SegmentCount, err = countQuery(p.conn, "SELECT COUNT(*) FROM PipelineSegment;"); err != nil {
 		return err
 	}
 
@@ -476,14 +520,15 @@ func (p *PipelineSplitDb) loadStatsCounts(stats *PipelineDbStats) *apperror.AppE
 		return err
 	}
 
-	var err *apperror.AppError
-	if stats.ErrorLogCount, err = countQuery(p.conn, "SELECT COUNT(*) FROM PipelineErrorLog;"); err != nil {
-		return err
-	}
+	return p.loadDetailStatsCounts(stats)
+}
 
-	if stats.SegmentCount, err = countQuery(p.conn, "SELECT COUNT(*) FROM PipelineSegment;"); err != nil {
+func (p *PipelineSplitDb) populateLastUpdated(stats *PipelineDbStats) error {
+	lastUpdated, err := queryLastUpdated(p.conn)
+	if err != nil {
 		return err
 	}
+	stats.LastUpdated = lastUpdated
 
 	return nil
 }
@@ -497,29 +542,29 @@ func (p *PipelineSplitDb) GetStats() (PipelineDbStats, error) {
 		return stats, err
 	}
 
-	lastUpdated, err := queryLastUpdated(p.conn)
-	if err != nil {
-		return stats, err
-	}
-
-	stats.LastUpdated = lastUpdated
-
-	return stats, nil
+	return stats, p.populateLastUpdated(&stats)
 }
 
-func collectRunIdList(rows *sql.Rows) PipelineRunIdSliceResult {
+func iterateRunIdRows(rows *sql.Rows) ([]uint64, *apperror.AppError) {
 	var list []uint64
 	for rows.Next() {
 		var id uint64
 		if err := rows.Scan(&id); err != nil {
-			return result.FailSlice[uint64](apperror.WrapSimple(err, "scan cached run id"))
+			return nil, apperror.WrapSimple(err, "scan cached run id")
 		}
-
 		list = append(list, id)
 	}
 
-	if err := rows.Err(); err != nil {
-		return result.FailSlice[uint64](apperror.WrapSimple(err, "iterate cached run ids"))
+	return list, nil
+}
+
+func collectRunIdList(rows *sql.Rows) PipelineRunIdSliceResult {
+	list, err := iterateRunIdRows(rows)
+	if err != nil {
+		return result.FailSlice[uint64](err)
+	}
+	if rowsErr := rows.Err(); rowsErr != nil {
+		return result.FailSlice[uint64](apperror.WrapSimple(rowsErr, "iterate cached run ids"))
 	}
 
 	return result.OkSlice(list)
@@ -649,4 +694,145 @@ func (p *PipelineSplitDb) GetRunWorkflowName(runId uint64) string {
 	}
 
 	return name
+}
+
+func computeRelativeDbPath(absPath string) string {
+	cwd, err := os.Getwd()
+	if err != nil {
+		return absPath
+	}
+	rel, relErr := filepath.Rel(cwd, absPath)
+	if relErr != nil {
+		return absPath
+	}
+
+	return formatRelativePrefix(filepath.ToSlash(rel))
+}
+
+func formatRelativePrefix(slashRel string) string {
+	if strings.HasPrefix(slashRel, "./") || strings.HasPrefix(slashRel, "../") {
+		return slashRel
+	}
+
+	return "./" + slashRel
+}
+
+func formatUnitSize(val float64, unit string) string {
+	if val == float64(int64(val)) {
+		return fmt.Sprintf("%d %s", int64(val), unit)
+	}
+
+	return fmt.Sprintf("%.1f %s", val, unit)
+}
+
+func formatHumanSize(bytes int64) string {
+	if bytes < 1024 {
+		return fmt.Sprintf("%d B", bytes)
+	}
+	if bytes < 1024*1024 {
+		return formatUnitSize(float64(bytes)/1024.0, "KB")
+	}
+	if bytes < 1024*1024*1024 {
+		return formatUnitSize(float64(bytes)/(1024.0*1024.0), "MB")
+	}
+
+	return formatUnitSize(float64(bytes)/(1024.0*1024.0*1024.0), "GB")
+}
+
+func resolveSummaryPath(info PipelineDatabaseInfo) string {
+	if info.RelativePath != "" {
+		return info.RelativePath
+	}
+
+	return info.Path
+}
+
+func resolveRunCountLabel(totalRuns int) string {
+	if totalRuns == 1 {
+		return "run"
+	}
+
+	return "runs"
+}
+
+// FormatPipelineDbSummary formats a concise summary string for pipeline database telemetry.
+func FormatPipelineDbSummary(info PipelineDatabaseInfo) string {
+	pathStr := resolveSummaryPath(info)
+	lbl := resolveRunCountLabel(info.TotalRuns)
+	sizeStr := info.HumanSize
+	if sizeStr == "" {
+		sizeStr = formatHumanSize(info.SizeBytes)
+	}
+
+	return fmt.Sprintf("%s (%s, %d %s)", pathStr, sizeStr, info.TotalRuns, lbl)
+}
+
+func isRegularDbFile(fi os.FileInfo) bool {
+	if fi.IsDir() {
+		return false
+	}
+
+	return true
+}
+
+func (p *PipelineSplitDb) populateFileMetadata(info *PipelineDatabaseInfo) {
+	fi, err := os.Stat(p.Path)
+	if err != nil {
+		return
+	}
+	info.SizeBytes = fi.Size()
+	info.HumanSize = formatHumanSize(fi.Size())
+	info.IsExisting = isRegularDbFile(fi)
+}
+
+func (p *PipelineSplitDb) populateCounts(info *PipelineDatabaseInfo) {
+	if p.conn == nil {
+		return
+	}
+	info.TotalRuns, _ = countQuery(p.conn, "SELECT COUNT(*) FROM PipelineRun;")
+	info.FailedRuns, _ = countQuery(p.conn, "SELECT COUNT(*) FROM PipelineRun WHERE IsSuccess = 0;")
+	info.ErrorCount, _ = countQuery(p.conn, "SELECT COUNT(*) FROM PipelineErrorLog;")
+	last, _ := queryLastUpdated(p.conn)
+	info.LastUpdated = last
+}
+
+// GetDatabaseInfo returns diagnostic telemetry and metadata for the database.
+func (p *PipelineSplitDb) GetDatabaseInfo() PipelineDatabaseInfo {
+	var info PipelineDatabaseInfo
+	info.Path = p.Path
+	info.RelativePath = computeRelativeDbPath(p.Path)
+	p.populateFileMetadata(&info)
+	p.populateCounts(&info)
+
+	return info
+}
+
+// Vacuum executes SQLite VACUUM and returns reclaimed bytes.
+func (p *PipelineSplitDb) Vacuum() (int64, error) {
+	if p.conn == nil {
+		return 0, nil
+	}
+	beforeSize := resolveFileSize(p.Path)
+	if _, err := p.conn.Exec("VACUUM;"); err != nil {
+		return 0, apperror.WrapSimple(err, "vacuum pipeline db")
+	}
+
+	return calculateFreedBytes(beforeSize, resolveFileSize(p.Path)), nil
+}
+
+func resolveFileSize(path string) int64 {
+	fi, err := os.Stat(path)
+	if err != nil {
+		return 0
+	}
+
+	return fi.Size()
+}
+
+func calculateFreedBytes(before, after int64) int64 {
+	if before > after {
+		return before - after
+	}
+
+	return 0
 }

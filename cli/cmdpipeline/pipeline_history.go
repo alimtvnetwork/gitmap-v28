@@ -5,6 +5,7 @@ import (
 	"strconv"
 	"strings"
 
+	"github.com/alimtvnetwork/gitmap-v28/cli/apperror"
 	"github.com/alimtvnetwork/gitmap-v28/cli/constants"
 	"github.com/alimtvnetwork/gitmap-v28/cli/pipelinedb"
 )
@@ -21,16 +22,12 @@ func extractNegativeOffset(args []string) (int, bool) {
 }
 
 func tryParseNegativeOffset(arg string) (int, bool) {
-	if !strings.HasPrefix(arg, "-") || len(arg) <= 1 {
-		return 0, false
-	}
-
 	val, err := strconv.Atoi(arg)
-	if err != nil || val >= 0 {
-		return 0, false
+	if err == nil && val < 0 {
+		return val, true
 	}
 
-	return val, true
+	return 0, false
 }
 
 func extractLastFailuresFlag(args []string) (int, bool) {
@@ -45,47 +42,18 @@ func extractLastFailuresFlag(args []string) (int, bool) {
 	return 0, false
 }
 
-func capHistoryRuns(runs []ghRunItem, limit int) []ghRunItem {
-	if len(runs) > limit {
-		return runs[:limit]
-	}
-
-	return runs
-}
-
-func printHistoryTableHeader() {
-	fmt.Printf("    %-5s %-10s %-16s %-10s %-10s %-12s %-8s\n",
-		"Pos", "Run ID", "Workflow", "Status", "Duration", "Branch", "Commit")
-	fmt.Printf("    %-5s %-10s %-16s %-10s %-10s %-12s %-8s\n",
-		"---", "------", "--------", "------", "--------", "------", "------")
-}
-
 func formatStatusBadge(conclusion, status string) string {
-	if conclusion == "success" {
+	switch conclusion {
+	case "success":
 		return constants.ColorGreen + "PASS" + constants.ColorReset
-	}
-
-	if conclusion == "failure" {
+	case "failure":
 		return constants.ColorRed + "FAIL" + constants.ColorReset
 	}
-
 	if status == "in_progress" || status == "queued" {
 		return constants.ColorYellow + "RUNNING" + constants.ColorReset
 	}
 
 	return conclusion
-}
-
-func normalizeNegativeOffset(offset int) int {
-	if offset < 0 {
-		offset = -offset
-	}
-
-	if offset > 0 {
-		return offset - 1
-	}
-
-	return 0
 }
 
 func truncateHistoryStr(str string, maxLen int) string {
@@ -96,123 +64,285 @@ func truncateHistoryStr(str string, maxLen int) string {
 	return str[:maxLen]
 }
 
-func printHistoryTableRow(r ghRunItem, index int) {
-	posStr := fmt.Sprintf("-%d", index)
-	runIdStr := fmt.Sprintf("#%d", r.DatabaseId)
-	badge := formatStatusBadge(r.Conclusion, r.Status)
-	dur := formatDurationSeconds(calculateRunDuration(r.CreatedAt, r.UpdatedAt))
-	branch := truncateHistoryStr(r.HeadBranch, 11)
-	sha := truncateHistoryStr(r.HeadSha, 7)
-	wf := truncateHistoryStr(r.Name, 15)
-	fmt.Printf("    %-5s %-10s %-16s %-10s %-10s %-12s %-8s\n",
-		posStr, runIdStr, wf, badge, dur, branch, sha)
-}
-
-// RenderHistorySummaryTable outputs a formatted summary table of the last 5 pipeline runs.
+// RenderHistorySummaryTable outputs a formatted summary table of recent commit pipeline runs.
 func RenderHistorySummaryTable(runs []ghRunItem) {
 	if len(runs) == 0 {
 		return
 	}
 
-	limitRuns := capHistoryRuns(runs, 5)
-	fmt.Printf("  %s● Recent Pipeline Execution History (Last %d Runs):%s\n",
-		constants.ColorCyan, len(limitRuns), constants.ColorReset)
-	printHistoryTableHeader()
-	for i, r := range limitRuns {
-		printHistoryTableRow(r, i+1)
-	}
-
-	fmt.Println()
+	groups := GroupRunsByCommit(runs)
+	renderRecentCommitsSummaryTable(groups, 5)
 }
 
-func resolveRunByOffset(runs []ghRunItem, offset int) (ghRunItem, bool) {
-	absIdx := normalizeNegativeOffset(offset)
-	if absIdx < len(runs) {
-		return runs[absIdx], true
+func resolveInspectGroup(groups []CommitPipelineGroup, offset int) (*CommitPipelineGroup, bool) {
+	group, isFound := ResolveCommitGroupByOffset(groups, offset)
+	if isFound {
+		return group, true
+	}
+	if offset == -1 && len(groups) == 1 {
+		return &groups[0], true
 	}
 
-	return ghRunItem{}, false
+	return nil, false
 }
 
-func renderPassingPositionalRun(runs []ghRunItem, run ghRunItem, offset int) {
-	eta := calculateAverageDuration(runs, run.Name)
-	dur := calculateRunDuration(run.CreatedAt, run.UpdatedAt)
-	fmt.Printf("\n  %s● Positional Run Inspector [Offset %d, Run #%d]: PASSING (clean)%s\n",
-		constants.ColorGreen, offset, run.DatabaseId, constants.ColorReset)
-	fmt.Printf("    • Workflow:        %s\n", run.Name)
-	fmt.Printf("    • Status:          %s (conclusion: %s)\n", run.Status, run.Conclusion)
-	fmt.Printf("    • Duration:        %s\n", formatDurationSeconds(dur))
-	fmt.Printf("    • Historical ETA:  ~%ds\n", eta)
-	fmt.Printf("    • Branch / Commit: %s (%s)\n", run.HeadBranch, run.HeadSha)
-	fmt.Printf("    • Web Run URL:     %s\n", run.Url)
-	fmt.Printf("    %s✓ This historical pipeline run succeeded with zero errors.%s\n\n",
+// InspectPositionalRun renders positional commit details for passing, in-progress, or failing runs.
+func InspectPositionalRun(repo string, runs []ghRunItem, offset int, isJSON bool) error {
+	groups := GroupRunsByCommit(runs)
+	group, isFound := resolveInspectGroup(groups, offset)
+	if isFound {
+		return dispatchInspectGroupOutput(repo, runs, groups, group, offset, isJSON)
+	}
+
+	fmt.Printf("No pipeline commit found at offset %d for %s.\n", offset, repo)
+
+	return nil
+}
+
+func dispatchInspectGroupOutput(repo string, runs []ghRunItem, groups []CommitPipelineGroup, group *CommitPipelineGroup, offset int, isJSON bool) error {
+	if isJSON {
+		return printPositionalJSON(group)
+	}
+	renderPositionalCommitTerminal(repo, runs, groups, group, offset)
+
+	return nil
+}
+
+func printPositionalJSON(group *CommitPipelineGroup) error {
+	err := printJSON(group)
+	if err != nil {
+		return apperror.WrapSimple(err, "inspect_positional_run")
+	}
+
+	return nil
+}
+
+func renderPositionalCommitTerminal(repo string, runs []ghRunItem, groups []CommitPipelineGroup, group *CommitPipelineGroup, offset int) {
+	var sb strings.Builder
+	renderCommitInspectorContent(&sb, repo, runs, group, offset)
+	renderRecentCommitsSummaryToBuilder(&sb, groups, 5)
+	output := CollapseConsecutiveEmptyLines(sb.String())
+	fmt.Print(output)
+}
+
+func isCommitGroupFailure(group *CommitPipelineGroup) bool {
+	return group.Conclusion == "failure"
+}
+
+func isCommitGroupInProgress(group *CommitPipelineGroup) bool {
+	return group.Conclusion == "in_progress" || group.Status == "in_progress"
+}
+
+func renderCommitInspectorContent(sb *strings.Builder, repo string, runs []ghRunItem, group *CommitPipelineGroup, offset int) {
+	if isCommitGroupFailure(group) {
+		renderFailingPositionalCommit(sb, repo, group, offset)
+		return
+	}
+	if isCommitGroupInProgress(group) {
+		renderInProgressPositionalCommit(sb, runs, group, offset)
+		return
+	}
+	renderPassingPositionalCommit(sb, group, offset)
+}
+
+func renderPassingPositionalCommit(sb *strings.Builder, group *CommitPipelineGroup, offset int) {
+	shortSha := truncateHistoryStr(group.HeadSha, 7)
+	dur := formatDurationSeconds(group.TotalDuration)
+	fmt.Fprintf(sb, "\n  %s● Positional Commit Inspector [Offset %d, Commit %s]: PASSING (clean)%s\n",
+		constants.ColorGreen, offset, shortSha, constants.ColorReset)
+	fmt.Fprintf(sb, "    • Branch:          %s\n", group.HeadBranch)
+	fmt.Fprintf(sb, "    • Status:          %s (conclusion: %s)\n", group.Status, group.Conclusion)
+	fmt.Fprintf(sb, "    • Total Duration:  %s\n", dur)
+	renderPassingWorkflowsList(sb, group.Workflows)
+	fmt.Fprintf(sb, "    %s✓ All pipeline workflows for this commit succeeded with zero errors.%s\n\n",
 		constants.ColorGreen, constants.ColorReset)
 }
 
-func printFailedJobItem(j FailedJobItem) {
-	fmt.Printf("      %s[Job: %s | Step: %s]%s\n",
+func renderPassingWorkflowsList(sb *strings.Builder, workflows []CommitWorkflowItem) {
+	fmt.Fprintf(sb, "    • Workflows (%d):\n", len(workflows))
+	for _, wf := range workflows {
+		dur := formatDurationSeconds(wf.Duration)
+		fmt.Fprintf(sb, "      - %s (#%d): %s (%s)\n", wf.Name, wf.DatabaseId,
+			formatStatusBadge(wf.Conclusion, wf.Status), dur)
+	}
+}
+
+func renderInProgressPositionalCommit(sb *strings.Builder, runs []ghRunItem, group *CommitPipelineGroup, offset int) {
+	shortSha := truncateHistoryStr(group.HeadSha, 7)
+	dur := formatDurationSeconds(group.TotalDuration)
+	fmt.Fprintf(sb, "\n  %s● Positional Commit Inspector [Offset %d, Commit %s]: IN_PROGRESS%s\n",
+		constants.ColorYellow, offset, shortSha, constants.ColorReset)
+	fmt.Fprintf(sb, "    • Branch:          %s\n", group.HeadBranch)
+	fmt.Fprintf(sb, "    • Status:          in_progress\n")
+	fmt.Fprintf(sb, "    • Total Duration:  %s\n", dur)
+	fmt.Fprintf(sb, "    • Active Workflows:\n")
+	renderActiveWorkflowsList(sb, runs, group.Workflows)
+	fmt.Fprintln(sb)
+}
+
+func renderActiveWorkflowsList(sb *strings.Builder, runs []ghRunItem, workflows []CommitWorkflowItem) {
+	for _, wf := range workflows {
+		renderSingleWorkflowStatus(sb, runs, wf)
+	}
+}
+
+func renderSingleWorkflowStatus(sb *strings.Builder, runs []ghRunItem, wf CommitWorkflowItem) {
+	badge := formatStatusBadge(wf.Conclusion, wf.Status)
+	eta := calculateAverageDuration(runs, wf.Name)
+	etaStr := formatWorkflowETA(eta, wf.Status)
+	fmt.Fprintf(sb, "      - %s (#%d): %s %s\n", wf.Name, wf.DatabaseId, badge, etaStr)
+}
+
+func formatWorkflowETA(eta int, status string) string {
+	if (status == "in_progress" || status == "queued") && eta > 0 {
+		return fmt.Sprintf("(ETA: ~%ds)", eta)
+	}
+
+	return ""
+}
+
+func renderFailingPositionalCommit(sb *strings.Builder, repo string, group *CommitPipelineGroup, offset int) {
+	shortSha := truncateHistoryStr(group.HeadSha, 7)
+	dur := formatDurationSeconds(group.TotalDuration)
+	fmt.Fprintf(sb, "\n  %s● Positional Commit Inspector [Offset %d, Commit %s]: FAILING%s\n",
+		constants.ColorRed, offset, shortSha, constants.ColorReset)
+	fmt.Fprintf(sb, "    • Branch:          %s\n", group.HeadBranch)
+	fmt.Fprintf(sb, "    • Status:          %s (conclusion: %s)\n", group.Status, group.Conclusion)
+	fmt.Fprintf(sb, "    • Total Duration:  %s\n", dur)
+	renderFailingWorkflowsDiagnostics(sb, repo, group.Workflows)
+	renderPassingWorkflowsSummary(sb, group.Workflows)
+}
+
+func renderFailingWorkflowsDiagnostics(sb *strings.Builder, repo string, workflows []CommitWorkflowItem) {
+	for _, wf := range workflows {
+		if isWorkflowFailure(wf) {
+			renderSingleFailingWorkflowLogs(sb, repo, wf)
+		}
+	}
+}
+
+func renderSingleFailingWorkflowLogs(sb *strings.Builder, repo string, wf CommitWorkflowItem) {
+	fmt.Fprintf(sb, "    • Failed Workflow: %s (#%d) - %s\n", wf.Name, wf.DatabaseId, wf.Url)
+	rawLogs := queryFailedRunLogs(repo, wf.DatabaseId)
+	renderFailedJobItemsToBuilder(sb, ParseFailedLogLines(rawLogs))
+}
+
+func renderPassingWorkflowsSummary(sb *strings.Builder, workflows []CommitWorkflowItem) {
+	var passingNames []string
+	for _, wf := range workflows {
+		if wf.Conclusion == "success" {
+			passingNames = append(passingNames, fmt.Sprintf("%s (#%d)", wf.Name, wf.DatabaseId))
+		}
+	}
+	if len(passingNames) > 0 {
+		fmt.Fprintf(sb, "    • Passing Workflows: %s\n\n", strings.Join(passingNames, ", "))
+	}
+}
+
+func renderFailedJobItemsToBuilder(sb *strings.Builder, jobs []FailedJobItem) {
+	if len(jobs) == 0 {
+		fmt.Fprintln(sb, "    • No detailed failing steps could be parsed.")
+
+		return
+	}
+
+	fmt.Fprintln(sb, "    • Failing Steps & Diagnostics:")
+	for _, j := range jobs {
+		printFailedJobItemToBuilder(sb, j)
+	}
+	fmt.Fprintln(sb)
+}
+
+func printFailedJobItemToBuilder(sb *strings.Builder, j FailedJobItem) {
+	fmt.Fprintf(sb, "      %s[Job: %s | Step: %s]%s\n",
 		constants.ColorCyan, j.JobName, j.StepName, constants.ColorReset)
 	if len(j.FailureSummary) > 0 {
-		fmt.Printf("        Error: %s%s%s\n",
+		fmt.Fprintf(sb, "        Error: %s%s%s\n",
 			constants.ColorRed, j.FailureSummary, constants.ColorReset)
 	}
 }
 
-func renderFailedJobItems(jobs []FailedJobItem) {
-	if len(jobs) == 0 {
-		fmt.Println("    • No detailed failing steps could be parsed.")
-
+func renderRecentCommitsSummaryTable(groups []CommitPipelineGroup, limit int) {
+	if len(groups) == 0 {
 		return
 	}
 
-	fmt.Println("    • Failing Steps & Diagnostics:")
-	for _, j := range jobs {
-		printFailedJobItem(j)
-	}
-
-	fmt.Println()
+	var sb strings.Builder
+	renderRecentCommitsSummaryToBuilder(&sb, groups, limit)
+	fmt.Print(CollapseConsecutiveEmptyLines(sb.String()))
 }
 
-func renderFailingPositionalRun(repo string, run ghRunItem, offset int) {
-	dur := calculateRunDuration(run.CreatedAt, run.UpdatedAt)
-	fmt.Printf("\n  %s● Positional Run Inspector [Offset %d, Run #%d]: FAILING%s\n",
-		constants.ColorRed, offset, run.DatabaseId, constants.ColorReset)
-	fmt.Printf("    • Workflow:        %s\n", run.Name)
-	fmt.Printf("    • Status:          %s (conclusion: %s)\n", run.Status, run.Conclusion)
-	fmt.Printf("    • Duration:        %s\n", formatDurationSeconds(dur))
-	fmt.Printf("    • Branch / Commit: %s (%s)\n", run.HeadBranch, run.HeadSha)
-	fmt.Printf("    • Web Run URL:     %s\n", run.Url)
-	rawLogs := queryFailedRunLogs(repo, run.DatabaseId)
-	renderFailedJobItems(ParseFailedLogLines(rawLogs))
-}
-
-func renderPositionalRunTerminal(repo string, runs []ghRunItem, run ghRunItem, offset int) {
-	isFailure := run.Conclusion == "failure"
-	if isFailure {
-		renderFailingPositionalRun(repo, run, offset)
-
+func renderRecentCommitsSummaryToBuilder(sb *strings.Builder, groups []CommitPipelineGroup, limit int) {
+	if len(groups) == 0 {
 		return
 	}
 
-	renderPassingPositionalRun(runs, run, offset)
+	displayGroups := capCommitGroups(groups, limit)
+	printRecentCommitsHeader(sb, len(displayGroups))
+	for i, g := range displayGroups {
+		printRecentCommitRow(sb, g, i)
+	}
+	fmt.Fprintln(sb)
 }
 
-// InspectPositionalRun renders positional run details for passing or failing runs.
-func InspectPositionalRun(repo string, runs []ghRunItem, offset int, isJSON bool) error {
-	run, hasRun := resolveRunByOffset(runs, offset)
-	if !hasRun {
-		fmt.Printf("No pipeline run found at offset %d for %s.\n", offset, repo)
-
-		return nil
+func capCommitGroups(groups []CommitPipelineGroup, limit int) []CommitPipelineGroup {
+	if len(groups) > limit {
+		return groups[:limit]
 	}
 
-	if isJSON {
-		return printJSON(run)
+	return groups
+}
+
+func printRecentCommitsHeader(sb *strings.Builder, count int) {
+	fmt.Fprintf(sb, "  %s● Recent Commits Pipeline Summary (Last %d Commits):%s\n",
+		constants.ColorCyan, count, constants.ColorReset)
+	fmt.Fprintf(sb, "    %-8s %-9s %-14s %-10s %-32s %-8s\n",
+		"Offset", "Commit", "Branch", "Status", "Workflows", "Failures")
+	fmt.Fprintf(sb, "    %-8s %-9s %-14s %-10s %-32s %-8s\n",
+		"------", "------", "------", "------", "---------", "--------")
+}
+
+func printRecentCommitRow(sb *strings.Builder, g CommitPipelineGroup, index int) {
+	offsetStr := formatCommitOffsetLabel(index)
+	sha := truncateHistoryStr(g.HeadSha, 7)
+	branch := truncateHistoryStr(g.HeadBranch, 13)
+	badge := formatStatusBadge(g.Conclusion, g.Status)
+	wfSummary := truncateHistoryStr(summarizeGroupWorkflows(g.Workflows), 31)
+	failuresStr := strconv.Itoa(g.FailedWorkflows)
+	fmt.Fprintf(sb, "    %-8s %-9s %-14s %-10s %-32s %-8s\n",
+		offsetStr, sha, branch, badge, wfSummary, failuresStr)
+}
+
+func formatCommitOffsetLabel(index int) string {
+	if index == 0 {
+		return "latest"
 	}
 
-	renderPositionalRunTerminal(repo, runs, run, offset)
+	return fmt.Sprintf("-%d", index)
+}
 
-	return nil
+func summarizeGroupWorkflows(workflows []CommitWorkflowItem) string {
+	var parts []string
+	for _, wf := range workflows {
+		statusShort := formatWorkflowShortStatus(wf)
+		parts = append(parts, fmt.Sprintf("%s [%s]", wf.Name, statusShort))
+	}
+
+	return strings.Join(parts, ", ")
+}
+
+func formatWorkflowShortStatus(wf CommitWorkflowItem) string {
+	switch wf.Conclusion {
+	case "success":
+		return "PASS"
+	case "failure":
+		return "FAIL"
+	}
+	if wf.Status == "in_progress" || wf.Status == "queued" {
+		return "RUN"
+	}
+
+	return wf.Conclusion
 }
 
 func renderCachedErrorsList(errors []pipelinedb.PipelineErrorRecord) {
@@ -289,12 +419,20 @@ func renderCachedCompactErrorsList(errors []pipelinedb.PipelineCompactErrorRecor
 func renderCachedFailuresTerminal(db *pipelinedb.PipelineSplitDb, repo string, runs []pipelinedb.PipelineRunRecord, isDetailed bool) {
 	relDb := FormatRelativeDbPath(db.Path)
 	if len(runs) == 0 {
-		fmt.Printf("\n  No cached pipeline failures found in SQLite for %s.\n", repo)
-		fmt.Printf("  Pipeline DB: %s\n\n", relDb)
+		printEmptyCachedFailures(repo, relDb)
 
 		return
 	}
 
+	printCachedFailuresList(db, relDb, runs, isDetailed)
+}
+
+func printEmptyCachedFailures(repo, relDb string) {
+	fmt.Printf("\n  No cached pipeline failures found in SQLite for %s.\n", repo)
+	fmt.Printf("  Pipeline DB: %s\n\n", relDb)
+}
+
+func printCachedFailuresList(db *pipelinedb.PipelineSplitDb, relDb string, runs []pipelinedb.PipelineRunRecord, isDetailed bool) {
 	fmt.Printf("\n  %s● Last %d Cached Pipeline Failure(s) from SQLite (%s):%s\n",
 		constants.ColorRed, len(runs), relDb, constants.ColorReset)
 	for i, r := range runs {
@@ -305,34 +443,56 @@ func renderCachedFailuresTerminal(db *pipelinedb.PipelineSplitDb, repo string, r
 func fetchLastCachedFailures(repo string, count int) (*pipelinedb.PipelineSplitDb, []pipelinedb.PipelineRunRecord, error) {
 	db, err := pipelinedb.OpenPipelineSplitDb(repo)
 	if err != nil {
-		return nil, nil, err
+		return nil, nil, apperror.WrapSimple(err, "fetch_last_cached_failures")
 	}
 
+	runs, qErr := queryCachedFailedRuns(db, count)
+	if qErr != nil {
+		_ = db.Close()
+
+		return nil, nil, qErr
+	}
+
+	return db, runs, nil
+}
+
+func queryCachedFailedRuns(db *pipelinedb.PipelineSplitDb, count int) ([]pipelinedb.PipelineRunRecord, error) {
 	limit := resolveMaxSyncLimit(count)
 	runRes := db.QueryLastFailedRuns(limit)
 	if runRes.IsFailure() {
-		_ = db.Close()
-
-		return nil, nil, runRes.AppError()
+		return nil, runRes.AppError()
 	}
 
-	return db, runRes.Data, nil
+	return runRes.Data, nil
 }
 
 // RenderLastCachedFailures displays cached failure logs from SQLite up to count.
 func RenderLastCachedFailures(repo string, count int, isJSON bool, isDetailed ...bool) error {
-	detailed := len(isDetailed) > 0 && isDetailed[0]
+	detailed := isDetailedRequested(isDetailed)
 	db, runs, err := fetchLastCachedFailures(repo, count)
 	if err != nil {
 		return err
 	}
-
 	defer db.Close()
+
 	if isJSON {
-		return printJSON(runs)
+		return printCachedRunsJSON(runs)
 	}
 
 	renderCachedFailuresTerminal(db, repo, runs, detailed)
+
+	return nil
+}
+
+func isDetailedRequested(isDetailed []bool) bool {
+	return len(isDetailed) > 0 && isDetailed[0]
+}
+
+func printCachedRunsJSON(runs []pipelinedb.PipelineRunRecord) error {
+	err := printJSON(runs)
+	if err != nil {
+		return apperror.WrapSimple(err, "render_last_cached_failures")
+	}
 
 	return nil
 }
@@ -341,6 +501,15 @@ func RenderLastCachedFailures(repo string, count int, isJSON bool, isDetailed ..
 func HandlePipelineHistoryErrors(args []string) (bool, error) {
 	repo := resolveCurrentRepoSlug()
 	isJSON := hasArgFlag(args, "--json")
+
+	if isHandled, err := tryHandleOffsetInspection(repo, args, isJSON); isHandled {
+		return true, err
+	}
+
+	return tryHandleLastFailuresInspection(repo, args, isJSON)
+}
+
+func tryHandleOffsetInspection(repo string, args []string, isJSON bool) (bool, error) {
 	offset, hasOffset := extractNegativeOffset(args)
 	if hasOffset {
 		runs := queryWorkflowRuns(repo)
@@ -348,6 +517,10 @@ func HandlePipelineHistoryErrors(args []string) (bool, error) {
 		return true, InspectPositionalRun(repo, runs, offset, isJSON)
 	}
 
+	return false, nil
+}
+
+func tryHandleLastFailuresInspection(repo string, args []string, isJSON bool) (bool, error) {
 	count, hasLastFailures := extractLastFailuresFlag(args)
 	if hasLastFailures {
 		isDetailed := hasDetailedArg(args)

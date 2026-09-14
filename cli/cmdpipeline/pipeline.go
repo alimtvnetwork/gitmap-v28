@@ -166,6 +166,8 @@ func dispatchPipelineSubcmd(subcmd string, args []string) error {
 		return handlePipelineWaitTime(args[1:])
 	case "logs", "log", "l":
 		return handlePipelineLogs(args[1:])
+	case "history", "hist", "h":
+		return handlePipelineHistory(args[1:])
 	case "db":
 		return handlePipelineDB(args[1:])
 	case "help", "-h", "--help":
@@ -203,7 +205,8 @@ func printPipelineHelp() {
 	fmt.Println("  waittime               Output remaining ETA seconds for active pipeline (alias: eta)")
 	fmt.Println("  eta                    Output remaining ETA seconds for active pipeline")
 	fmt.Println("  error-logs             Display failure logs, rerun ETA, and internal CI/CD fix suite (alias: errorlogs, errors, last-failed-logs)")
-	fmt.Println("  logs                   Display all workflow logs in terminal")
+	fmt.Println("  history                Display recent commits pipeline execution tree (alias: hist, h)")
+	fmt.Println("  logs                   Display consolidated workflow logs for commit or offset (alias: log, l)")
 	fmt.Println("  pipeline-ai status     Auto-delay (default: 20s or -t <seconds>) then query status")
 	fmt.Println("  db                     Inspect or manage isolated pipeline split SQLite database")
 	printPipelineHelpFlags()

@@ -23,4 +23,20 @@ type (
 
 	// PipelineDbStatsResult is the canonical single reusable result envelope for database statistics.
 	PipelineDbStatsResult = result.Result[PipelineDbStats]
+
+	// PipelineDatabaseInfoResult is the canonical single reusable result envelope for database telemetry.
+	PipelineDatabaseInfoResult = result.Result[PipelineDatabaseInfo]
 )
+
+// PipelineDatabaseInfo encapsulates diagnostic telemetry and metadata for the pipeline SQLite database.
+type PipelineDatabaseInfo struct {
+	Path         string `json:"path"`
+	RelativePath string `json:"relativePath"`
+	SizeBytes    int64  `json:"sizeBytes"`
+	HumanSize    string `json:"humanSize"`
+	IsExisting   bool   `json:"isExisting"`
+	TotalRuns    int    `json:"totalRuns"`
+	FailedRuns   int    `json:"failedRuns"`
+	ErrorCount   int    `json:"errorCount"`
+	LastUpdated  string `json:"lastUpdated"`
+}

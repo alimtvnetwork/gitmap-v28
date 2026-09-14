@@ -4,7 +4,7 @@ Master directory of architectural and execution plans.
 
 ## Pending Plans
 
-1. [Plan 164: 164-profile-vmware-installer-sqlite-parity.md](pending/164-profile-vmware-installer-sqlite-parity.md): Profile VMware & Shell Installer SQLite Parity Suite across common-linux-installer and GitMap
+1. [Plan 165: 165-pipeline-commit-history-errors-storage-sqlite.md](pending/165-pipeline-commit-history-errors-storage-sqlite.md): Pipeline Commit-Based Errors, History, Logs, SQLite Telemetry & Storage Suite
 
 ## Recent Completed Tasks Register (Last 20 Tasks)
 
@@ -128,3 +128,4 @@ Master directory of architectural and execution plans.
 - [162-apperror-stacktrace-skip-and-filtering.md](completed/162-apperror-stacktrace-skip-and-filtering.md): 162-apperror-stacktrace-skip-and-filtering
 - [163-github-desktop-missing-install-suggestions.md](completed/163-github-desktop-missing-install-suggestions.md): 163-github-desktop-missing-install-suggestions
 - [164-profile-vmware-installer-sqlite-parity.md](completed/164-profile-vmware-installer-sqlite-parity.md): 164-profile-vmware-installer-sqlite-parity
+- [165-pipeline-commit-history-errors-storage-sqlite.md](completed/165-pipeline-commit-history-errors-storage-sqlite.md): 165-pipeline-commit-history-errors-storage-sqlite

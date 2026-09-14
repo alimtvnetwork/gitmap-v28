@@ -52,6 +52,8 @@ func dispatchOSSubcommand(subCmd string, subArgs []string) error {
 		return runOSGroup(subArgs)
 	case "cron", "crontab":
 		return runOSCron(subArgs)
+	case "storage", "disk", "space":
+		return runOSStorage(subArgs)
 	case constants.SubCmdOSHelp:
 		return handleOSHelp()
 	default:
@@ -94,6 +96,7 @@ Commands:
   group (user-group)  List, create, edit, export, import, and remove user groups
   vmware              Discover and mount VMware shared folders (/mnt/hgfs)
   cron                Inspect, append, and remove crontab scheduled jobs
+  storage (disk)      Inspect disk drive capacities, partitions, and storage metrics
   display (disp)      Inspect and configure OS display settings, resolution & timeouts
   fix-link (fixlink)  Inspect and repair broken symlinks and shared directories
   status (st)         Display operating system environment and link diagnostics

@@ -2,54 +2,11 @@ package cmdpipeline
 
 import (
 	"fmt"
-	"math"
 	"strings"
 
 	"github.com/alimtvnetwork/gitmap-v28/cli/constants"
 	"github.com/alimtvnetwork/gitmap-v28/cli/pipelinedb"
 )
-
-func safeUint64ToInt64(val uint64) int64 {
-	if val > math.MaxInt64 {
-		return math.MaxInt64
-	}
-
-	return int64(val)
-}
-
-func runPipelineDBStatus(args []string) error {
-	repo := resolveCurrentRepoSlug()
-	db, err := pipelinedb.OpenPipelineSplitDb(repo)
-	if err != nil {
-		return err
-	}
-
-	defer db.Close()
-
-	stats, err := db.GetStats()
-	if err != nil {
-		return err
-	}
-
-	if hasArgFlag(args, "--json") {
-		return printJSON(stats)
-	}
-
-	fmt.Println(constants.ColorCyan + "● Pipeline Split Database Summary:" + constants.ColorReset)
-	fmt.Printf("  • %-20s %s\n", "Repository:", repo)
-	fmt.Printf("  • %-20s %s\n", "Database File:", stats.Path)
-	fmt.Printf("  • %-20s %s\n", "File Size:", formatBytes(safeUint64ToInt64(stats.Size)))
-	fmt.Printf("  • %-20s %d\n", "Total Runs:", stats.TotalRuns)
-	fmt.Printf("  • %-20s %s%d%s\n", "Success Runs:", constants.ColorGreen, stats.SuccessRuns, constants.ColorReset)
-	fmt.Printf("  • %-20s %s%d%s\n", "Failed Runs:", constants.ColorRed, stats.FailedRuns, constants.ColorReset)
-	fmt.Printf("  • %-20s %d\n", "Error Logs:", stats.ErrorLogCount)
-	fmt.Printf("  • %-20s %d\n", "Tracked Segments:", stats.SegmentCount)
-	if stats.LastUpdated != "" {
-		fmt.Printf("  • %-20s %s\n", "Last Synced:", stats.LastUpdated)
-	}
-
-	return nil
-}
 
 func runPipelineDBClear(args []string) error {
 	repo := resolveCurrentRepoSlug()

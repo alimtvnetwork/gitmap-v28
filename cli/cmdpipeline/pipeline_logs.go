@@ -72,41 +72,6 @@ func applyPayloadOptions(p *PipelineErrorLogsPayload, runs []ghRunItem, flags Pi
 	}
 }
 
-func handlePipelineLogs(args []string) error {
-	if hasArgFlag(args, "--help") || hasArgFlag(args, "-h") {
-		printPipelineLogsHelp()
-
-		return nil
-	}
-
-	repo := resolveCurrentRepoSlug()
-	runs := queryWorkflowRuns(repo)
-
-	if len(runs) == 0 {
-		fmt.Printf("No recent pipeline runs found for %s.\n", repo)
-
-		return nil
-	}
-
-	latestRun := runs[0]
-	isRunning := latestRun.Status == "in_progress" || latestRun.Status == "queued"
-
-	if isRunning {
-		eta := calculateETA(runs)
-		fmt.Printf("● Pipeline [%s] is currently RUNNING (ETA: %ds)\n", latestRun.Name, eta)
-	}
-
-	rawLogs := queryAllRunLogs(repo, latestRun.DatabaseId)
-
-	if len(rawLogs) > 0 {
-		fmt.Println(rawLogs)
-	} else {
-		fmt.Printf("● Pipeline [%s] status: %s (conclusion: %s)\n", latestRun.Name, latestRun.Status, latestRun.Conclusion)
-	}
-
-	return nil
-}
-
 func buildErrorLogsPayload(repo string, runs []ghRunItem) PipelineErrorLogsPayload {
 	payload := initBaseErrorLogsPayload(repo)
 	if len(runs) == 0 {

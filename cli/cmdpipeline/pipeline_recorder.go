@@ -2,6 +2,7 @@ package cmdpipeline
 
 import (
 	"fmt"
+	"math"
 	"os"
 
 	"github.com/alimtvnetwork/gitmap-v28/cli/pipelinedb"
@@ -147,4 +148,12 @@ func insertSingleMasterRun(db *store.DB, p PipelineStatusPayload, r ghRunItem) {
 	if err := db.InsertOrUpdatePipelineRun(run); err != nil {
 		fmt.Fprintf(os.Stderr, "  ⚠ Could not record master pipeline run %d: %v\n", r.DatabaseId, err)
 	}
+}
+
+func safeUint64ToInt64(val uint64) int64 {
+	if val > math.MaxInt64 {
+		return math.MaxInt64
+	}
+
+	return int64(val)
 }
