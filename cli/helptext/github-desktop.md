@@ -47,16 +47,10 @@ gitmap in gd
 gitmap gd --install
 ```
 
-### Option 2: Native Package Managers
+### Option 2: Package Manager Fallback
 
-Install via your operating system's native package manager:
+Install via your operating system's standard package manager:
 
-- **Linux / Ubuntu (APT - shiftkey repository):**
-  ```bash
-  wget -qO - https://mirror.mwt.me/ghd/gpgkey | sudo tee /etc/apt/keyrings/shiftkey-packages.asc > /dev/null
-  sudo sh -c 'echo "deb [arch=amd64 signed-by=/etc/apt/keyrings/shiftkey-packages.asc] https://mirror.mwt.me/ghd/deb/ any main" > /etc/apt/sources.list.d/shiftkey-packages.list'
-  sudo apt update && sudo apt install -y github-desktop
-  ```
 - **Linux (Snap):**
   ```bash
   sudo snap install github-desktop --beta
@@ -64,10 +58,6 @@ Install via your operating system's native package manager:
 - **Windows (Winget):**
   ```powershell
   winget install --id GitHub.GitHubDesktop
-  ```
-- **Windows (Chocolatey):**
-  ```powershell
-  choco install github-desktop
   ```
 - **macOS (Homebrew):**
   ```bash

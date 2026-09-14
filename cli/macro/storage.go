@@ -14,10 +14,6 @@ import (
 	"github.com/alimtvnetwork/gitmap-v28/cli/result"
 )
 
-func getMacroDir() (string, error) {
-	return resolveWritableMacroDir()
-}
-
 // SaveMacro writes a macro to disk atomically.
 func SaveMacro(m *Macro) error {
 	dir, err := resolveWritableMacroDir()
@@ -283,4 +279,3 @@ func MacroExists(name string) bool {
 
 	return false
 }
-

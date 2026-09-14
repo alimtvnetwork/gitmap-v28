@@ -235,6 +235,8 @@ func topLevelCmds() map[string]string {
 		"CmdServerCmd":              CmdServerCmd,
 		"CmdServerCmds":             CmdServerCmds,
 		"CmdServerCmdAlias":         CmdServerCmdAlias,
+		"CmdService":                CmdService,
+		"CmdServiceAlias":           CmdServiceAlias,
 		"CmdPower":                  CmdPower,
 		"CmdPowerAlias":             CmdPowerAlias,
 		"CmdPowerAlias2":            CmdPowerAlias2,

@@ -21,7 +21,7 @@ import (
 func Execute(ctx context.Context, m *Macro, opts ExecOptions) error {
 	ctx = context.WithValue(ctx, currentMacroKey, m.Name)
 	start := time.Now()
-	if shouldPrintExecutionHeader(opts) {
+	if isExecutionHeaderVisible(opts) {
 		printExecutionHeader(m)
 	}
 
@@ -32,7 +32,7 @@ func Execute(ctx context.Context, m *Macro, opts ExecOptions) error {
 	return runExecuteSteps(ctx, m, opts, dt, rep, start)
 }
 
-func shouldPrintExecutionHeader(opts ExecOptions) bool {
+func isExecutionHeaderVisible(opts ExecOptions) bool {
 	return !isStructuredOutput(opts) && !opts.IsTerminalSuppressed && !opts.IsSummaryOnly
 }
 
@@ -88,13 +88,13 @@ func handleStepFailureLogging(macroName string, step StepExecution, opts ExecOpt
 		Step:       step,
 	}
 	logPath, err := RecordStepFailureLog(fCtx, opts.LogFilePath)
-	if err == nil && shouldPrintStepFailureNotice(opts) {
+	if err == nil && isStepFailureNoticeVisible(opts) {
 		printRunUntilStepNotice(step.StepNum, step.Error, logPath)
 	}
 	return logPath
 }
 
-func shouldPrintStepFailureNotice(opts ExecOptions) bool {
+func isStepFailureNoticeVisible(opts ExecOptions) bool {
 	return !isStructuredOutput(opts) && !opts.IsTerminalSuppressed && !opts.IsSummaryOnly
 }
 

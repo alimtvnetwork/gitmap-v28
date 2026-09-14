@@ -33,15 +33,26 @@ func printCloneRecordsTable(records []model.ScanRecord) {
 		if branch == "" {
 			branch = "-"
 		}
-		fmt.Printf("%-5d %-32s %-16s %s\n", i+1, slug, branch, r.RemoteURL)
+		fmt.Printf("%-5d %-32s %-16s %s\n", i+1, slug, branch, resolveRecordRemoteURL(r))
 	}
+}
+
+func resolveRecordRemoteURL(r model.ScanRecord) string {
+	if r.DiscoveredURL != "" {
+		return r.DiscoveredURL
+	}
+	if r.HTTPSUrl != "" {
+		return r.HTTPSUrl
+	}
+	return r.SSHUrl
 }
 
 func resolveRecordSlug(r model.ScanRecord) string {
 	if r.RelativePath != "" {
 		return filepath.ToSlash(r.RelativePath)
 	}
-	parts := strings.Split(strings.TrimSuffix(r.RemoteURL, ".git"), "/")
+	remoteURL := resolveRecordRemoteURL(r)
+	parts := strings.Split(strings.TrimSuffix(remoteURL, ".git"), "/")
 	if len(parts) >= 2 {
 		return parts[len(parts)-2] + "/" + parts[len(parts)-1]
 	}
@@ -81,7 +92,7 @@ func isRecordMatchTokens(seqID int, r model.ScanRecord, tokens []string) bool {
 	seqStr := strconv.Itoa(seqID)
 	slug := strings.ToLower(resolveRecordSlug(r))
 	rel := strings.ToLower(filepath.ToSlash(r.RelativePath))
-	url := strings.ToLower(r.RemoteURL)
+	url := strings.ToLower(resolveRecordRemoteURL(r))
 
 	for _, token := range tokens {
 		if token == seqStr || isPatternMatch(slug, rel, url, token) {

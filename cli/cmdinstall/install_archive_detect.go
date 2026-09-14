@@ -116,7 +116,6 @@ func findCandidateBinary(dir, appName string) string {
 	return bestCandidate
 }
 
-
 func isCandidateMatch(p string, info fs.FileInfo, appName string) bool {
 	if !isElfBinary(p) && !isExecutableFile(info) {
 		return false

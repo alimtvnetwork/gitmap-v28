@@ -134,5 +134,5 @@ func resolveWritableMacroDir() (string, error) {
 		}
 	}
 
-	return "", apperror.New("NO_WRITABLE_MACRO_DIR", "no writable macro directory found")
+	return "", apperror.NewSimple("no writable macro directory found", "E_NO_WRITABLE_MACRO_DIR")
 }

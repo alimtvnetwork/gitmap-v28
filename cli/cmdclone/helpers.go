@@ -230,7 +230,7 @@ func reorderFlagsBeforeArgs(args []string) []string {
 			continue
 		}
 		flags = append(flags, arg)
-		if shouldConsumeNextArg(arg, i, args) {
+		if isNextArgConsumed(arg, i, args) {
 			i++
 			flags = append(flags, args[i])
 		}
@@ -239,8 +239,15 @@ func reorderFlagsBeforeArgs(args []string) []string {
 	return append(flags, positional...)
 }
 
-func shouldConsumeNextArg(arg string, idx int, args []string) bool {
-	return isFlagWithParam(arg) && !strings.Contains(arg, "=") && idx+1 < len(args) && !strings.HasPrefix(args[idx+1], "-")
+func isNextArgConsumed(arg string, idx int, args []string) bool {
+	hasParam := isFlagWithParam(arg)
+	isInlineValue := strings.Contains(arg, "=")
+	hasMore := idx+1 < len(args)
+	if !hasParam || isInlineValue || !hasMore {
+		return false
+	}
+	isFlag := strings.HasPrefix(args[idx+1], "-")
+	return !isFlag
 }
 
 func isFlagWithParam(arg string) bool {

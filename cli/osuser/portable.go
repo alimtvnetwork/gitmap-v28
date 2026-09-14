@@ -1,7 +1,6 @@
 package osuser
 
 import (
-	"encoding/json"
 	"os"
 	"os/exec"
 	"path/filepath"
@@ -30,7 +29,7 @@ func ExportUser(username string) result.Result[PortableUser] {
 	}
 	pu := PortableUser{
 		Username: username,
-		HomeDir:  resolveUserHome(username),
+		HomeDir:  resolveUserHome(username, ""),
 		Shell:    DefaultLinuxShell,
 		IsSudoer: isUserSudoer(username),
 		SSHKeys:  readUserAuthorizedKeys(username),
@@ -116,13 +115,6 @@ func applyUserEditsLinux(username, newShell, newHome string) result.Result[bool]
 	return result.Ok(true)
 }
 
-func resolveUserHome(username string) string {
-	if runtime.GOOS == constants.OSWindows {
-		return filepath.Join(os.Getenv("SystemDrive")+"\\Users", username)
-	}
-	return "/home/" + username
-}
-
 func isUserSudoer(username string) bool {
 	if runtime.GOOS == constants.OSWindows {
 		return false
@@ -133,7 +125,7 @@ func isUserSudoer(username string) bool {
 }
 
 func readUserAuthorizedKeys(username string) []string {
-	keyPath := filepath.Join(resolveUserHome(username), ".ssh", "authorized_keys")
+	keyPath := filepath.Join(resolveUserHome(username, ""), ".ssh", "authorized_keys")
 	content, err := os.ReadFile(keyPath)
 	if err != nil {
 		return nil

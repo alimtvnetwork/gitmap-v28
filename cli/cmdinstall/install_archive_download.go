@@ -320,4 +320,3 @@ func FetchOrReuseArchive(params ArchiveDownloadParams) (string, error) {
 	purgeArchiveIfForced(targetPath, params.IsDownloadMust)
 	return executeArchiveDownloadFlow(params, targetPath)
 }
-

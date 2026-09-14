@@ -76,8 +76,8 @@ func (w *SmartPaddedWriter) writeSinglePaddedLine(line []byte, idx, total int) {
 		w.writeIndentedLineContent(line)
 	}
 
-	isNotLastLine := idx < total-1
-	if isNotLastLine {
+	hasRemainingLines := idx < total-1
+	if hasRemainingLines {
 		_, _ = w.dest.Write([]byte("\n"))
 		w.isLineStart = true
 	}

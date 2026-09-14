@@ -9,6 +9,7 @@ import (
 	"strings"
 
 	"github.com/alimtvnetwork/gitmap-v28/cli/apperror"
+	"github.com/alimtvnetwork/gitmap-v28/cli/constants"
 )
 
 // CreateRootUser provisions a new user on Windows or Linux with administrative privileges.
@@ -191,6 +192,9 @@ func resolveUserHome(username, homeDir string) string {
 	hasHome := len(homeDir) > 0
 	if hasHome {
 		return homeDir
+	}
+	if runtime.GOOS == constants.OSWindows {
+		return filepath.Join(os.Getenv("SystemDrive")+"\\Users", username)
 	}
 	return filepath.Join("/home", username)
 }

@@ -2,7 +2,6 @@ package cmd
 
 import (
 	"context"
-	"fmt"
 	"os/exec"
 	"runtime"
 	"strconv"
@@ -58,7 +57,6 @@ func executeIPChange(ctx context.Context, newIP string, doPing bool) error {
 
 	return nil
 }
-
 
 func init() {
 	// Handled by root or dispatch

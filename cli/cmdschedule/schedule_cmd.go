@@ -42,7 +42,7 @@ func dispatchScheduleSubcommand(sub string, rest []string) error {
 		return runScheduleImport(rest)
 	case "enable", "on", "e":
 		return runScheduleSetEnabled(rest, true)
-	case "disable", "off", "d", "disbale":
+	case "disable", "off", "d":
 		return runScheduleSetEnabled(rest, false)
 	case "logs", "log", "history":
 		return runScheduleLogs(rest)

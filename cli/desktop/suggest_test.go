@@ -12,14 +12,12 @@ func TestFormatInstallSuggestions_Windows(t *testing.T) {
 	out := FormatInstallSuggestions(constants.PlatformWindows)
 	assertContains(t, out, "gitmap install github-desktop")
 	assertContains(t, out, "winget install")
-	assertContains(t, out, "choco install")
 	assertContains(t, out, URLGitHubDesktopOfficial)
 }
 
 func TestFormatInstallSuggestions_Linux(t *testing.T) {
 	out := FormatInstallSuggestions(constants.PlatformLinux)
 	assertContains(t, out, "gitmap install github-desktop")
-	assertContains(t, out, "shiftkey")
 	assertContains(t, out, "snap install")
 	assertContains(t, out, URLGitHubDesktopOfficial)
 }
@@ -37,15 +35,15 @@ func TestFormatInstallSuggestions_Unknown(t *testing.T) {
 	assertContains(t, out, URLGitHubDesktopOfficial)
 }
 
-func TestResolveNativeCommands(t *testing.T) {
-	winCmds := resolveNativeCommands(constants.PlatformWindows)
-	linuxCmds := resolveNativeCommands(constants.PlatformLinux)
-	darwinCmds := resolveNativeCommands(constants.PlatformDarwin)
-	otherCmds := resolveNativeCommands("plan9")
-	assertCommandCount(t, len(winCmds), 2)
-	assertCommandCount(t, len(linuxCmds), 2)
-	assertCommandCount(t, len(darwinCmds), 1)
-	assertCommandCount(t, len(otherCmds), 0)
+func TestResolveNativeCommand(t *testing.T) {
+	winCmd := resolveNativeCommand(constants.PlatformWindows)
+	linuxCmd := resolveNativeCommand(constants.PlatformLinux)
+	darwinCmd := resolveNativeCommand(constants.PlatformDarwin)
+	otherCmd := resolveNativeCommand("plan9")
+	assertCommandMatch(t, winCmd, "winget install")
+	assertCommandMatch(t, linuxCmd, "snap install")
+	assertCommandMatch(t, darwinCmd, "brew install")
+	assertCommandMatch(t, otherCmd, "")
 }
 
 func TestNewMissingCLIError(t *testing.T) {
@@ -76,8 +74,20 @@ func assertContains(t *testing.T, content, substr string) {
 	}
 }
 
-func assertCommandCount(t *testing.T, got, want int) {
-	if got != want {
-		t.Errorf("command count = %d, want %d", got, want)
+func assertCommandMatch(t *testing.T, got, wantSubstr string) {
+	isEmptyExpected := wantSubstr == ""
+	if isEmptyExpected {
+		assertEmptyCommand(t, got)
+		return
+	}
+	hasSubstr := strings.Contains(got, wantSubstr)
+	if !hasSubstr {
+		t.Errorf("command %q does not contain %q", got, wantSubstr)
+	}
+}
+
+func assertEmptyCommand(t *testing.T, got string) {
+	if got != "" {
+		t.Errorf("command = %q, want empty", got)
 	}
 }

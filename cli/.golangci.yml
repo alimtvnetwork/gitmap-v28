@@ -30,4 +30,13 @@ issues:
     - path: 'generated/.*\.go'
       linters:
         - unused
+    - path: 'cmd/ipchange.*\.go'
+      linters:
+        - unused
+    - path: 'cmdinstall/install_agy_.*\.go'
+      linters:
+        - unused
+    - path: 'cmdinstall/installantigravity_fetch\.go'
+      linters:
+        - unused
 

@@ -63,7 +63,7 @@ func parseInstallTarArgs(args []string) (ArchiveInstallOptions, error) {
 		return opts, apperror.NewSimple("missing archive path. Usage: gitmap install tar <file|url>", "E9000")
 	}
 	opts.ArchivePath = fs.Arg(0)
-	applyDefaultAppName(&opts)
+	applyDefaultArchiveAppName(&opts)
 	return resolveArchiveDownloadOption(opts)
 }
 

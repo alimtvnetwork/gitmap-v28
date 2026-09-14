@@ -97,11 +97,6 @@ func RunMkfileCmd(args []string) error {
 	return runMkfileCmd(args)
 }
 
-// ParseExecOptions parses execution options.
-func ParseExecOptions(args []string) macro.ExecOptions {
-	return parseExecOptions(args)
-}
-
 // OutputStructuredData outputs data as JSON/YAML or saves to file.
 func OutputStructuredData(data interface{}, opts macro.ExecOptions) error {
 	return outputStructuredData(data, opts)

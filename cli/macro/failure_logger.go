@@ -41,7 +41,7 @@ func ResolveMacroLogsDir() MacroLogResult {
 		"E5002",
 		"no writable macro logs directory found",
 		"macro.logger",
-		apperror.ErrorTypeIO,
+		apperror.ErrorTypeExecution,
 		apperror.SeverityError,
 		nil,
 	)
