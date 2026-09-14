@@ -66,6 +66,7 @@ const (
 	ToolGitmap             = "gitmap"
 	ToolWpCli              = "wp-cli"
 	ToolComposer           = "composer"
+	ToolGitCompact         = "git-compact"
 )
 
 // Supported tool names — Databases.
@@ -117,6 +118,9 @@ const (
 	ToolVLC         = "vlc"
 	ToolQBittorrent = "qbittorrent"
 	ToolUTorrent    = "utorrent"
+	ToolJq          = "jq"
+	ToolYq          = "yq"
+	ToolZellij      = "zellij"
 )
 
 // Supported tool names — Additional & Profiles Parity Tools.
@@ -674,6 +678,10 @@ var InstallToolDescriptions = map[string]string{
 	ToolStarship:         "Starship cross-shell customizable prompt",
 	ToolOhMyPosh:         "Oh My Posh prompt theme engine for any shell",
 	ToolScoop:            "Scoop command-line package installer for Windows",
+	ToolGitCompact:       "git-compact repository compact tool and cleaner",
+	ToolJq:               "jq command-line JSON processor",
+	ToolYq:               "yq command-line YAML/JSON/XML processor",
+	ToolZellij:           "Zellij terminal workspace and multiplexer",
 }
 
 // InstallToolCategories groups tools by category for display.
@@ -681,7 +689,7 @@ var InstallToolCategories = map[string][]string{
 	ToolCategoryCore: {
 		ToolGitmap, ToolVSCode, ToolNodeJS, ToolYarn, ToolBun, ToolPnpm,
 		ToolPython, ToolGo, ToolGit, ToolGitLFS, ToolGHCLI,
-		ToolGitHubDesktop, ToolCPP, ToolPHP, ToolPowerShell,
+		ToolGitHubDesktop, ToolGitCompact, ToolCPP, ToolPHP, ToolPowerShell,
 		ToolChocolatey, ToolWinget, ToolScoop, ToolDbeaver, ToolOBS,
 		ToolStickyNotes, ToolVSCodeCtx, ToolPwshCtx, ToolCtx,
 		ToolNpp, ToolNppSettings, ToolNppInstall,
@@ -710,5 +718,6 @@ var InstallToolCategories = map[string][]string{
 		ToolUbuntuFont, ToolWhatsApp, ToolOneNote, ToolLightshot, ToolWindowsTerminal,
 		ToolAria2, Tool7Zip, ToolWinRAR, ToolXMind, ToolWordWeb, ToolBeyondCompare,
 		ToolVcRedist, ToolDirectX, ToolDirectXSdk, ToolStarship, ToolOhMyPosh,
+		ToolJq, ToolYq, ToolZellij,
 	},
 }

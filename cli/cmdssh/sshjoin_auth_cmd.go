@@ -7,9 +7,9 @@ import (
 	"path/filepath"
 	"strings"
 
-	"github.com/spf13/cobra"
-
 	"github.com/alimtvnetwork/gitmap-v28/cli/apperror"
+	"github.com/alimtvnetwork/gitmap-v28/cli/store"
+	"github.com/spf13/cobra"
 )
 
 var SJAddAuthCmd = &cobra.Command{
@@ -18,6 +18,38 @@ var SJAddAuthCmd = &cobra.Command{
 	RunE: func(cmd *cobra.Command, args []string) error {
 		return runSJAddAuth(cmd, args, cmd.Context())
 	},
+}
+
+const msgMissingAuthTarget = `missing target host or alias
+
+Usage:
+  gitmap ssh join add-auth <alias|ip|user@ip>
+  gitmap sj add-auth <alias|ip|user@ip>
+
+Examples:
+  gitmap sj add-auth devbox
+  gitmap sj add-auth 192.168.1.14
+  gitmap sj add-auth alim@192.168.1.14`
+
+func checkExistingKeyFile(candidate string) (string, bool) {
+	if _, err := os.Stat(candidate); err == nil {
+		return candidate, true
+	}
+	return "", false
+}
+
+func findDefaultPublicKey(homeDir string) string {
+	rsa := filepath.Join(homeDir, ".ssh", "id_rsa.pub")
+	if path, isFound := checkExistingKeyFile(rsa); isFound {
+		return path
+	}
+
+	ed := filepath.Join(homeDir, ".ssh", "id_ed25519.pub")
+	if path, isFound := checkExistingKeyFile(ed); isFound {
+		return path
+	}
+
+	return rsa
 }
 
 func resolveKeyPath(keyPath string) (string, error) {
@@ -30,32 +62,33 @@ func resolveKeyPath(keyPath string) (string, error) {
 		return "", err
 	}
 
-	return filepath.Join(homeDir, ".ssh", "id_rsa.pub"), nil
+	return findDefaultPublicKey(homeDir), nil
+}
+
+func readKeyFile(path string) (string, error) {
+	data, err := os.ReadFile(path)
+	if os.IsNotExist(err) {
+		return "", apperror.New("getLocalPublicKey", "E_NOT_FOUND", map[string]any{"msg": "key missing", "path": path})
+	}
+	if err != nil {
+		return "", apperror.New("getLocalPublicKey", "E_INTERNAL_ERROR", map[string]any{"err": err.Error(), "path": path})
+	}
+
+	keyStr := strings.TrimSpace(string(data))
+	if len(keyStr) == 0 {
+		return "", apperror.New("getLocalPublicKey", "E_NOT_FOUND", map[string]any{"msg": "key file empty", "path": path})
+	}
+	return keyStr, nil
 }
 
 // getLocalPublicKey reads the given public key path.
-
-func getLocalPublicKey(ctx context.Context, keyPath string, parse bool) (string, error) {
+func getLocalPublicKey(ctx context.Context, keyPath string, isParsed bool) (string, error) {
 	resolvedPath, err := resolveKeyPath(keyPath)
 	if err != nil {
 		return "", apperror.New("getLocalPublicKey", "E_INTERNAL_ERROR", map[string]any{"err": err.Error()})
 	}
 
-	data, err := os.ReadFile(resolvedPath)
-	if os.IsNotExist(err) {
-		return "", apperror.New("getLocalPublicKey", "E_NOT_FOUND", map[string]any{"msg": "key missing", "path": resolvedPath})
-	}
-
-	if err != nil {
-		return "", apperror.New("getLocalPublicKey", "E_INTERNAL_ERROR", map[string]any{"err": err.Error(), "path": resolvedPath})
-	}
-
-	keyStr := strings.TrimSpace(string(data))
-	if len(keyStr) == 0 {
-		return "", apperror.New("getLocalPublicKey", "E_NOT_FOUND", map[string]any{"msg": "key file empty", "path": resolvedPath})
-	}
-
-	return keyStr, nil
+	return readKeyFile(resolvedPath)
 }
 
 func buildAppendScript(pubKey string) string {
@@ -67,20 +100,59 @@ func buildSudoAppendScript(pubKey string) string {
 }
 
 // appendKeyRemote appends the key to ~/.ssh/authorized_keys on the remote target.
-
 func appendKeyRemote(ctx context.Context, pubKey string, target SSHTarget) error {
 	script := buildAppendScript(pubKey)
-	err := SpawnSSH(ctx, target, []string{script})
-	if err == nil {
+	if err := SpawnSSH(ctx, target, []string{script}); err == nil {
 		return nil
 	}
 
 	sudoScript := buildSudoAppendScript(pubKey)
-	sudoErr := SpawnSSH(ctx, target, []string{sudoScript})
-	if sudoErr != nil {
+	if sudoErr := SpawnSSH(ctx, target, []string{sudoScript}); sudoErr != nil {
 		return apperror.New("appendKeyRemote", "E_INTERNAL_ERROR", map[string]any{"err": sudoErr.Error()})
 	}
 
+	return nil
+}
+
+func validateAuthTarget(args []string) (string, error) {
+	if len(args) == 0 {
+		return "", apperror.NewValidationError(msgMissingAuthTarget)
+	}
+
+	target := strings.TrimSpace(args[0])
+	if target == "" {
+		return "", apperror.NewValidationError(msgMissingAuthTarget)
+	}
+
+	return target, nil
+}
+
+func resolveHostAliasTarget(ctx context.Context, target string) string {
+	dbConn, err := openSSHDBFunc()
+	if err != nil {
+		return target
+	}
+	defer dbConn.Close()
+
+	host, err := store.GetHostByAlias(ctx, target, dbConn.SQL())
+	if err != nil || host.IP == "" {
+		return target
+	}
+
+	return fmt.Sprintf("%s@%s", host.Username, host.IP)
+}
+
+func pushAuthToTarget(ctx context.Context, target SSHTarget) error {
+	pubKey, err := getLocalPublicKey(ctx, "", false)
+	if err != nil {
+		return err
+	}
+
+	if err := appendKeyRemote(ctx, pubKey, target); err != nil {
+		return err
+	}
+
+	fmt.Printf("Added auth to %s\n", target.String())
 	return nil
 }
 
@@ -88,26 +160,16 @@ func appendKeyRemote(ctx context.Context, pubKey string, target SSHTarget) error
 //
 //nolint:revive
 func runSJAddAuth(cmd *cobra.Command, args []string, ctx context.Context) error {
-	if len(args) < 1 {
-		return apperror.New("runSJAddAuth", "E_INVALID_ARGS", map[string]any{"msg": "target $ip@$user is required"})
-	}
-
-	targetStr := args[0]
-	target, err := ParseSSHTarget(targetStr, "root", 22)
+	rawTarget, err := validateAuthTarget(args)
 	if err != nil {
 		return err
 	}
 
-	pubKey, err := getLocalPublicKey(ctx, "", false)
+	resolvedTarget := resolveHostAliasTarget(ctx, rawTarget)
+	target, err := ParseSSHTarget(resolvedTarget, resolveDefaultUsername(), 22)
 	if err != nil {
 		return err
 	}
 
-	if err := appendKeyRemote(ctx, pubKey, *target); err != nil {
-		return err
-	}
-
-	fmt.Printf("Added auth to %s\n", target.String())
-
-	return nil
+	return pushAuthToTarget(ctx, *target)
 }

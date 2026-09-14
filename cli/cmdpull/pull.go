@@ -8,8 +8,11 @@ import (
 	"os"
 	"os/exec"
 	"path/filepath"
+	"sort"
 	"strings"
 
+	"github.com/alimtvnetwork/gitmap-v28/cli/apperror"
+	"github.com/alimtvnetwork/gitmap-v28/cli/cliexit"
 	"github.com/alimtvnetwork/gitmap-v28/cli/cloneconcurrency"
 	"github.com/alimtvnetwork/gitmap-v28/cli/cloner"
 	"github.com/alimtvnetwork/gitmap-v28/cli/constants"
@@ -18,9 +21,6 @@ import (
 	"github.com/alimtvnetwork/gitmap-v28/cli/model"
 	"github.com/alimtvnetwork/gitmap-v28/cli/store"
 	"github.com/alimtvnetwork/gitmap-v28/cli/verbose"
-
-	"github.com/alimtvnetwork/gitmap-v28/cli/apperror"
-	"github.com/alimtvnetwork/gitmap-v28/cli/cliexit"
 )
 
 // pullOptions holds parsed pull flags.
@@ -35,125 +35,189 @@ type pullOptions struct {
 	autoFix       bool
 	yes           bool
 	noFix         bool
+	isRaw         bool
+}
+
+// NormalizePullArgs converts positional "all" argument into "--all" flag.
+func NormalizePullArgs(args []string) []string {
+	normalized := make([]string, 0, len(args))
+	for _, a := range args {
+		if a == "all" {
+			normalized = append(normalized, "--all")
+		} else {
+			normalized = append(normalized, a)
+		}
+	}
+
+	return normalized
 }
 
 // runPull handles the "pull" subcommand.
-
 func runPull(args []string) error {
 	checkHelp("pull", args)
-	cwd, _ := os.Getwd()
-	fmt.Printf("→ gitmap pull (cwd: %s)\n", cwd)
+	args = NormalizePullArgs(args)
+	printPullInvocationHeader()
 	requireOnline()
-	// Transport flags (--ssh/--sh/--https/--ht) are only meaningful
-	// for the cwd short-circuit; when present we MUST take the cwd
-	// path regardless of other flags so the rewrite actually applies.
-	useSSH, useHTTPS, rest := ExtractTransportFlags(args)
-	if useSSH || useHTTPS {
-		runPullCWDWithTransport(useSSH, useHTTPS, rest)
-
+	if handleTransportPull(args) {
 		return nil
 	}
-
 	opts := parsePullFlags(args)
 	if opts.verbose {
 		initVerboseLog()
 	}
 
+	return dispatchPullExecution(opts)
+}
+
+func printPullInvocationHeader() {
+	cwd, _ := os.Getwd()
+	fmt.Printf("→ gitmap pull (cwd: %s)\n", cwd)
+}
+
+func dispatchPullExecution(opts pullOptions) error {
 	if isPullCWDEnabled(opts) {
 		fmt.Println("  ↳ cwd is a git repo — running plain `git pull` here")
-		runPullCWD()
 
-		return nil
+		return runPullCWD(opts.isRaw)
 	}
 
-	records, ok := resolvePullBatchRecords(opts)
-	if !ok {
-		return nil
+	return runPullBatch(opts)
+}
+
+func handleTransportPull(args []string) bool {
+	useSSH, useHTTPS, rest := ExtractTransportFlags(args)
+	if useSSH || useHTTPS {
+		runPullCWDWithTransport(useSSH, useHTTPS, rest)
+
+		return true
 	}
 
+	return false
+}
+
+func runPullBatch(opts pullOptions) error {
+	records, isFound := resolvePullBatchRecords(opts)
+	if !isFound {
+		return nil
+	}
 	fmt.Printf("  ↳ resolved %d repo(s) to pull\n", len(records))
-	if opts.onlyAvailable {
-		records = filterByAvailableUpdates(records)
-	}
-
-	isAvailableEmpty := opts.onlyAvailable && len(records) == 0
-	if isAvailableEmpty {
+	filtered := applyPullAvailableFilter(records, opts.onlyAvailable)
+	if opts.onlyAvailable && len(filtered) == 0 {
 		fmt.Print(constants.MsgPullNoAvailable)
 
 		return nil
 	}
 
+	return executePullBatchLifecycle(filtered, opts)
+}
+
+func applyPullAvailableFilter(records []model.ScanRecord, isOnlyAvailable bool) []model.ScanRecord {
+	if isOnlyAvailable {
+		return filterByAvailableUpdates(records)
+	}
+
+	return records
+}
+
+func executePullBatchLifecycle(records []model.ScanRecord, opts pullOptions) error {
 	taskID, taskDB := beginPullTask(records)
 	if taskDB != nil {
 		defer taskDB.Close()
 	}
+	bar := NewPullProgressBar(len(records), false, opts.stopOnFail)
+	bar.Start()
+	executePull(records, bar, opts)
+	bar.Stop()
+	sortedStates := sortStatesAlphabetically(bar.States())
+	renderPullBatchResults(sortedStates)
+	handlePullRemediationForRecords(records, opts)
 
-	prog := cloner.NewBatchProgress(len(records), "Pull", false)
-	prog.SetStopOnFail(opts.stopOnFail)
-	executePull(records, prog, opts)
-	prog.PrintSummary()
-	prog.PrintFailureReport()
+	return finalizePullBatchTask(taskDB, taskID, bar.Failed())
+}
 
+func sortStatesAlphabetically(states []*PullRepoState) []*PullRepoState {
+	sorted := make([]*PullRepoState, len(states))
+	copy(sorted, states)
+	sort.Slice(sorted, func(i, j int) bool {
+		return strings.ToLower(sorted[i].RepoName) < strings.ToLower(sorted[j].RepoName)
+	})
+
+	return sorted
+}
+
+func renderPullBatchResults(states []*PullRepoState) {
 	var tableRows []model.PullTableRow
-	for _, rec := range records {
-		sha := gitutil.GetLastCommitSHA(rec.AbsolutePath)
-		branch := gitutil.GetActiveBranch(rec.AbsolutePath)
-		pr := gitutil.DetectPRStatus(rec.AbsolutePath)
-		diag := gitutil.InspectDirtyState(rec.AbsolutePath)
-		status := "active"
-		if diag.IsDirty {
-			status = "DIRTY"
-		}
+	for _, state := range states {
+		tableRows = append(tableRows, buildPullTableRowFromState(state))
+	}
+	RenderPullBatchTable(tableRows)
+}
 
-		latestBranch := gitutil.GetLatestRemoteBranch(rec.AbsolutePath)
-		tableRows = append(tableRows, model.PullTableRow{
-			RepoName:     rec.RepoName,
-			Branch:       branch,
-			LatestBranch: latestBranch,
-			LastSHA:      sha,
-			PRStatus:     pr,
-			PullStatus:   status,
-			Duration:     "1.0s",
-			IsDirty:      diag.IsDirty,
-			Reason:       diag.SummaryReason,
-		})
+func buildPullTableRowFromState(state *PullRepoState) model.PullTableRow {
+	row := initBasePullTableRow(state)
+	row.LatestBranch = gitutil.GetLatestRemoteBranch(state.RepoPath)
+	row.PRStatus = gitutil.DetectPRStatus(state.RepoPath)
+	row.PullStatus = resolveStateStatus(state)
+
+	return row
+}
+
+func initBasePullTableRow(state *PullRepoState) model.PullTableRow {
+	return model.PullTableRow{
+		RepoName:    state.RepoName,
+		Branch:      state.Branch,
+		LastSHA:     ShortenSHA(state.NewSHA),
+		CommitRange: state.CommitRange,
+		Changes:     state.Changes,
+		Duration:    FormatPullDuration(state.Duration),
+		IsDirty:     state.IsDirty,
+		Reason:      state.ErrorMsg,
+	}
+}
+
+func resolveStateStatus(state *PullRepoState) string {
+	if state.IsDirty {
+		return "DIRTY"
 	}
 
-	RenderPullBatchTable(tableRows)
+	return string(state.Step)
+}
 
+func handlePullRemediationForRecords(records []model.ScanRecord, opts pullOptions) {
 	var remItems []RemediationItem
 	for _, rec := range records {
 		diag := gitutil.InspectDirtyState(rec.AbsolutePath)
 		if diag.IsDirty {
-			recipes := gitutil.GenerateRemediationRecipes(rec.AbsolutePath, diag)
-			remItems = append(remItems, RemediationItem{
-				RepoName:      rec.RepoName,
-				RepoPath:      rec.AbsolutePath,
-				SummaryReason: diag.SummaryReason,
-				Recipes:       recipes,
-				Files:         diag.AllFiles,
-			})
+			remItems = append(remItems, buildRemediationItem(rec, diag))
 		}
 	}
-
 	handlePullRemediation(remItems, opts)
+}
 
-	if code := prog.ExitCodeForBatch(); code != 0 {
-		failPendingTask(taskDB, taskID, fmt.Sprintf("pull batch failed with exit code %d", code))
-		cliexit.HandleError(apperror.NewExecutionError(fmt.Sprintf("pull batch failed with exit code %d", code)), code)
+func buildRemediationItem(rec model.ScanRecord, diag gitutil.DirtyDiagnosis) RemediationItem {
+	recipes := gitutil.GenerateRemediationRecipes(rec.AbsolutePath, diag)
+
+	return RemediationItem{
+		RepoName:      rec.RepoName,
+		RepoPath:      rec.AbsolutePath,
+		SummaryReason: diag.SummaryReason,
+		Recipes:       recipes,
+		Files:         diag.AllFiles,
+	}
+}
+
+func finalizePullBatchTask(taskDB *store.DB, taskID int64, failCount int) error {
+	if failCount > 0 {
+		errMsg := fmt.Sprintf("pull batch failed with %d failure(s)", failCount)
+		failPendingTask(taskDB, taskID, errMsg)
+		cliexit.HandleError(apperror.NewExecutionError(errMsg), 1)
 
 		return nil
 	}
-
 	completePendingTask(taskDB, taskID)
 
 	return nil
 }
-
-// isPullCWDEnabled reports whether `gitmap pull` was invoked with no
-// targeting flags AND the current working directory is itself a git
-// repo. In that case we short-circuit to a plain `git pull` so the
-// command behaves like the muscle-memory `git pull` users expect.
 
 func isPullCWDEnabled(opts pullOptions) bool {
 	if opts.slug != "" || opts.group != "" || opts.all || HasAlias() {
@@ -162,39 +226,6 @@ func isPullCWDEnabled(opts pullOptions) bool {
 
 	return isGitRepoCWD()
 }
-
-// pullNoTargetsHint prints an actionable message when the user runs
-// bare `gitmap pull` from a directory that is NOT a git repo and
-// without any targeting flag (slug/group/all/alias). Without this
-// the command would exit via resolvePullTargets' stderr error, which
-// is easy to miss in some terminals — leaving the user staring at a
-// blank prompt. Returns true when the hint was printed (caller stops).
-//
-//nolint:unused
-func pullNoTargetsHint(opts pullOptions) bool {
-	if opts.slug != "" || opts.group != "" || opts.all || HasAlias() {
-		return false
-	}
-
-	if isGitRepoCWD() {
-		return false
-	}
-
-	fmt.Println("  ↳ nothing to pull:")
-	fmt.Println("     • current directory is not a git repository")
-	fmt.Println("     • no <repo-name>, --group, --all, or -A alias provided")
-	fmt.Println("  Try one of:")
-	fmt.Println("     gitmap pull <repo-name>")
-	fmt.Println("     gitmap pull --all")
-	fmt.Println("     gitmap pull --group <group>")
-	fmt.Println("     cd <repo> && gitmap pull")
-
-	return true
-}
-
-// isGitRepoCWD returns true when the cwd (or an ancestor) is inside a
-// git work tree. Uses `git rev-parse --is-inside-work-tree` so worktrees
-// and submodules are honored.
 
 func isGitRepoCWD() bool {
 	out, err := exec.Command("git", "rev-parse", "--is-inside-work-tree").Output()
@@ -205,49 +236,79 @@ func isGitRepoCWD() bool {
 	return strings.TrimSpace(string(out)) == "true"
 }
 
-// runPullCWD streams `git pull` in the current directory, forwarding
-// stdout/stderr/stdin and propagating the underlying exit code.
+// runPullCWD streams pull in CWD, using progress bar unless isRaw is true.
+func runPullCWD(isRaw ...bool) error {
+	if len(isRaw) > 0 && isRaw[0] {
+		return runPullCWDWithTransport(false, false, nil)
+	}
 
-func runPullCWD() error {
-	runPullCWDWithTransport(false, false, nil)
+	return runPullCWDTracked()
+}
+
+func runPullCWDTracked() error {
+	cwd, err := os.Getwd()
+	if err != nil {
+		return apperror.WrapSimple(err, "getwd")
+	}
+
+	state := executeCWDTrackedPull(cwd)
+	row := buildPullTableRowFromState(state)
+	RenderPullBatchTable([]model.PullTableRow{row})
 
 	return nil
 }
 
-// runPullCWDWithTransport is the shared cwd runner. Applies the
-// optional transport rewrite (persisting via `git remote set-url`)
-// before invoking `git pull`. Extra positional args after the
-// transport flags are forwarded verbatim.
+func executeCWDTrackedPull(cwd string) *PullRepoState {
+	rec := model.ScanRecord{RepoName: filepath.Base(cwd), AbsolutePath: cwd}
+	bar := NewPullProgressBar(1, false, false)
+	bar.Start()
+	state := ExecuteTrackedPull(rec, bar)
+	bar.Stop()
+
+	return state
+}
 
 func runPullCWDWithTransport(useSSH, useHTTPS bool, extraArgs []string) error {
 	cwd, _ := os.Getwd()
 	if !isGitRepoCWD() {
 		return handleNonGitPull(cwd, extraArgs)
 	}
+	if !applyTransportSafe(cwd, useSSH, useHTTPS) {
+		return nil
+	}
 
+	return executeGitPullCommand(cwd, extraArgs)
+}
+
+func applyTransportSafe(cwd string, useSSH, useHTTPS bool) bool {
 	if _, _, _, err := ApplyTransportFlag(cwd, useSSH, useHTTPS); err != nil {
 		fmt.Fprintf(os.Stderr, "✗ %v\n", err)
 		cliexit.HandleGeneralError(apperror.WrapSimple(err, "apply transport flag"))
 
-		return nil
+		return false
 	}
 
+	return true
+}
+
+func executeGitPullCommand(cwd string, extraArgs []string) error {
 	gitArgs := append([]string{"pull"}, extraArgs...)
 	fmt.Printf("→ Running: git %s (cwd: %s)\n", joinForLog(gitArgs), cwd)
 	cmd := exec.Command("git", gitArgs...)
 	cmd.Stdin = os.Stdin
 	cmd.Stdout = os.Stdout
 	cmd.Stderr = os.Stderr
-	err := cmd.Run()
-	var exitErr *exec.ExitError
-	isExitErr := err != nil && errors.As(err, &exitErr)
 
-	if isExitErr {
+	return handleGitExecResult(cmd.Run())
+}
+
+func handleGitExecResult(err error) error {
+	var exitErr *exec.ExitError
+	if err != nil && errors.As(err, &exitErr) {
 		cliexit.HandleError(apperror.WrapSimple(exitErr, "git pull"), exitErr.ExitCode())
 
 		return nil
 	}
-
 	if err != nil {
 		fmt.Fprintf(os.Stderr, "git pull failed: %v\n", err)
 		cliexit.HandleGeneralError(apperror.WrapSimple(err, "git pull failed"))
@@ -257,11 +318,6 @@ func runPullCWDWithTransport(useSSH, useHTTPS bool, extraArgs []string) error {
 
 	return nil
 }
-
-// ExtractTransportFlags scans args for --ssh/-ssh/--sh/--https/-https/--ht
-// and returns (useSSH, useHTTPS, remaining-args-with-those-removed).
-// Used to detect the cwd-transport intent BEFORE handing args to the
-// existing parsePullFlags (which doesn't know about transport flags).
 
 func ExtractTransportFlags(args []string) (bool, bool, []string) {
 	var useSSH, useHTTPS bool
@@ -280,8 +336,6 @@ func ExtractTransportFlags(args []string) (bool, bool, []string) {
 	return useSSH, useHTTPS, rest
 }
 
-// beginPullTask records the pending task entry for this pull batch.
-
 func beginPullTask(records []model.ScanRecord) (int64, *store.DB) {
 	workDir, wdErr := os.Getwd()
 	if wdErr != nil {
@@ -297,29 +351,28 @@ func beginPullTask(records []model.ScanRecord) (int64, *store.DB) {
 	return createPendingTask(constants.TaskTypePull, targetPath, workDir, "pull", cmdArgs)
 }
 
-// executePull dispatches to either the serial or parallel runner.
-
-func executePull(records []model.ScanRecord, prog *cloner.BatchProgress, opts pullOptions) {
-	workers, ok := cloneconcurrency.Resolve(opts.parallel)
-	if !ok {
+func executePull(records []model.ScanRecord, bar *PullProgressBar, opts pullOptions) {
+	workers, isResolved := cloneconcurrency.Resolve(opts.parallel)
+	if !isResolved {
 		cliexit.HandleError(apperror.NewSimple("invalid concurrency", "E9000"), 1)
 	}
 
 	opts.parallel = workers
-
 	if opts.parallel > 1 {
-		runPullParallel(records, prog, opts.parallel, opts.stopOnFail)
+		runPullParallel(records, bar, opts.parallel)
 
 		return
 	}
 
+	runSerialPull(records, bar)
+}
+
+func runSerialPull(records []model.ScanRecord, bar *PullProgressBar) {
 	for _, rec := range records {
-		if prog.Stopped() {
+		if bar != nil && bar.IsStopped() {
 			break
 		}
-
-		prog.BeginItem(rec.RepoName)
-		pullOneRepoTracked(rec, prog)
+		ExecuteTrackedPull(rec, bar)
 	}
 }
 
@@ -327,46 +380,50 @@ func handlePullRemediation(remItems []RemediationItem, opts pullOptions) {
 	if len(remItems) == 0 {
 		return
 	}
-
 	if opts.noFix {
 		PrintRemediationSummaryNoPrompt(remItems)
 
 		return
 	}
-
 	if opts.yes || opts.autoFix {
 		PrintRemediationSummaryAutoFix(remItems)
 
 		return
 	}
-
 	PrintRemediationSummary(remItems)
 }
 
 type pullFlagHolders struct {
-	vFlag, aFlag, sFlag, oFlag, fixFlag, yFlag, noFixFlag *bool
-	gFlag                                                 *string
-	pFlag                                                 *int
+	vFlag, aFlag, sFlag, oFlag, fixFlag, yFlag, noFixFlag, rawFlag *bool
+	gFlag                                                          *string
+	pFlag                                                          *int
 }
 
 func initPullFlagSet() (*flag.FlagSet, *pullFlagHolders) {
 	fs := flag.NewFlagSet(constants.CmdPull, flag.ExitOnError)
-	h := &pullFlagHolders{
-		vFlag:     fs.Bool("verbose", false, constants.FlagDescVerbose),
-		gFlag:     fs.String("group", "", constants.FlagDescGroup),
-		aFlag:     fs.Bool("all", false, constants.FlagDescAll),
-		sFlag:     fs.Bool(constants.FlagStopOnFail, false, constants.FlagDescStopOnFail),
-		pFlag:     fs.Int("parallel", 0, constants.FlagDescPullParallel),
-		oFlag:     fs.Bool("only-available", false, constants.FlagDescPullOnlyAvailable),
-		fixFlag:   fs.Bool("fix", false, "Auto-remediate dirty repos"),
-		yFlag:     fs.Bool("yes", false, "Remediate without prompt"),
-		noFixFlag: fs.Bool("no-fix", false, "Skip remediation prompt"),
-	}
-
-	fs.StringVar(h.gFlag, "g", "", constants.FlagDescGroup)
-	fs.BoolVar(h.yFlag, "y", false, "Remediate without prompt")
+	h := &pullFlagHolders{}
+	registerPullCoreFlags(fs, h)
+	registerPullRemediationFlags(fs, h)
 
 	return fs, h
+}
+
+func registerPullCoreFlags(fs *flag.FlagSet, h *pullFlagHolders) {
+	h.vFlag = fs.Bool("verbose", false, constants.FlagDescVerbose)
+	h.gFlag = fs.String("group", "", constants.FlagDescGroup)
+	h.aFlag = fs.Bool("all", false, constants.FlagDescAll)
+	h.sFlag = fs.Bool(constants.FlagStopOnFail, false, constants.FlagDescStopOnFail)
+	h.pFlag = fs.Int("parallel", 0, constants.FlagDescPullParallel)
+	h.oFlag = fs.Bool("only-available", false, constants.FlagDescPullOnlyAvailable)
+	h.rawFlag = fs.Bool("raw", false, constants.FlagDescPullRaw)
+	fs.StringVar(h.gFlag, "g", "", constants.FlagDescGroup)
+}
+
+func registerPullRemediationFlags(fs *flag.FlagSet, h *pullFlagHolders) {
+	h.fixFlag = fs.Bool("fix", false, "Auto-remediate dirty repos")
+	h.yFlag = fs.Bool("yes", false, "Remediate without prompt")
+	h.noFixFlag = fs.Bool("no-fix", false, "Skip remediation prompt")
+	fs.BoolVar(h.yFlag, "y", false, "Remediate without prompt")
 }
 
 func buildPullOptions(h *pullFlagHolders) pullOptions {
@@ -380,10 +437,10 @@ func buildPullOptions(h *pullFlagHolders) pullOptions {
 		autoFix:       *h.fixFlag,
 		yes:           *h.yFlag,
 		noFix:         *h.noFixFlag,
+		isRaw:         *h.rawFlag,
 	}
 }
 
-// parsePullFlags parses flags for the pull command.
 func parsePullFlags(args []string) pullOptions {
 	fs, h := initPullFlagSet()
 	fs.Parse(args)
@@ -395,8 +452,6 @@ func parsePullFlags(args []string) pullOptions {
 	return opts
 }
 
-// initVerboseLog sets up verbose logging, warning on failure.
-
 func initVerboseLog() {
 	log, err := verbose.Init()
 	if err != nil {
@@ -404,29 +459,32 @@ func initVerboseLog() {
 
 		return
 	}
-
 	log.Close()
 }
 
-// resolvePullTargets returns records based on alias, group, all, or slug lookup.
-
 func resolvePullTargets(slug, groupName string, all bool) []model.ScanRecord {
 	if HasAlias() {
-		return []model.ScanRecord{{
-			RepoName:     GetAliasSlug(),
-			Slug:         GetAliasSlug(),
-			AbsolutePath: GetAliasPath(),
-		}}
+		return resolveAliasRecord()
 	}
-
 	if len(groupName) > 0 {
 		return loadRecordsByGroup(groupName)
 	}
-
 	if all {
 		return loadAllRecordsDB()
 	}
 
+	return resolveSlugTarget(slug)
+}
+
+func resolveAliasRecord() []model.ScanRecord {
+	return []model.ScanRecord{{
+		RepoName:     GetAliasSlug(),
+		Slug:         GetAliasSlug(),
+		AbsolutePath: GetAliasPath(),
+	}}
+}
+
+func resolveSlugTarget(slug string) []model.ScanRecord {
 	if len(slug) == 0 {
 		fmt.Fprintln(os.Stderr, constants.ErrPullSlugRequired)
 
@@ -436,17 +494,13 @@ func resolvePullTargets(slug, groupName string, all bool) []model.ScanRecord {
 	return lookupBySlugDBFirst(slug)
 }
 
-// lookupBySlugDBFirst tries the database first, then falls back to JSON.
-
 func lookupBySlugDBFirst(slug string) []model.ScanRecord {
 	db, err := openDB()
 	if err != nil {
 		return lookupBySlugJSON(slug)
 	}
-
 	defer db.Close()
 	repos, dbErr := db.FindBySlug(strings.ToLower(slug))
-
 	foundRepos := dbErr == nil && len(repos) > 0
 	if foundRepos {
 		return repos
@@ -454,8 +508,6 @@ func lookupBySlugDBFirst(slug string) []model.ScanRecord {
 
 	return lookupBySlugJSON(slug)
 }
-
-// lookupBySlugJSON loads gitmap.json and matches by repo name.
 
 func lookupBySlugJSON(slug string) []model.ScanRecord {
 	jsonPath := filepath.Join(constants.DefaultOutputFolder, constants.DefaultJSONFile)
@@ -467,28 +519,24 @@ func lookupBySlugJSON(slug string) []model.ScanRecord {
 	return findBySlug(records, slug)
 }
 
-// loadJSONRecords reads ScanRecords from a JSON file.
-
 func loadJSONRecords(path string) ([]model.ScanRecord, error) {
 	file, err := os.Open(path)
 	if err != nil {
-		return nil, err
+		return nil, apperror.WrapSimple(err, "open json records")
 	}
-
 	defer file.Close()
-
 	var records []model.ScanRecord
 	err = json.NewDecoder(file).Decode(&records)
+	if err != nil {
+		return nil, apperror.WrapSimple(err, "decode json records")
+	}
 
-	return records, err
+	return records, nil
 }
-
-// findBySlug finds records matching the slug (case-insensitive, partial match).
 
 func findBySlug(records []model.ScanRecord, slug string) []model.ScanRecord {
 	slugLower := strings.ToLower(slug)
 	exact, partial := partitionBySlug(records, slugLower)
-
 	if len(exact) > 0 {
 		return exact
 	}
@@ -496,11 +544,8 @@ func findBySlug(records []model.ScanRecord, slug string) []model.ScanRecord {
 	return partial
 }
 
-// partitionBySlug separates records into exact and partial matches.
-
 func partitionBySlug(records []model.ScanRecord, slugLower string) ([]model.ScanRecord, []model.ScanRecord) {
 	var exact, partial []model.ScanRecord
-
 	for _, r := range records {
 		nameLower := strings.ToLower(r.RepoName)
 		if nameLower == slugLower {
@@ -513,17 +558,13 @@ func partitionBySlug(records []model.ScanRecord, slugLower string) ([]model.Scan
 	return exact, partial
 }
 
-// pullOneRepo runs safe-pull on a single repo using its absolute path.
-
 func pullOneRepo(rec model.ScanRecord) {
 	fmt.Printf(constants.MsgPullStarting, rec.RepoName, rec.AbsolutePath)
-
 	if cloner.IsMissingRepo(rec.AbsolutePath) {
 		fmt.Fprintf(os.Stderr, constants.ErrPullNotRepo, rec.AbsolutePath)
 
 		return
 	}
-
 	result := cloner.SafePullOne(rec, rec.AbsolutePath)
 	if result.IsSuccess {
 		fmt.Printf(constants.MsgPullSuccess, rec.RepoName)
@@ -532,33 +573,26 @@ func pullOneRepo(rec model.ScanRecord) {
 	}
 }
 
-// pullOneRepoTracked runs safe-pull with progress tracking.
-
 func pullOneRepoTracked(rec model.ScanRecord, prog *cloner.BatchProgress) {
 	if cloner.IsMissingRepo(rec.AbsolutePath) {
 		prog.Skip(rec.RepoName)
 
 		return
 	}
-
 	result := cloner.SafePullOne(rec, rec.AbsolutePath)
-	isUpToDate := result.IsSuccess && result.Notes == "up-to-date"
-	isSucceed := result.IsSuccess && result.Notes != "up-to-date"
-
-	if isUpToDate {
-		prog.UpToDate(rec.RepoName)
-	}
-
-	if isSucceed {
-		prog.Succeed(rec.RepoName)
-	}
-
-	if result.IsFailed() {
-		prog.FailWithError(rec.RepoName, result.Error)
-	}
+	recordPullResult(rec.RepoName, result, prog)
 }
 
-// findChildrenOfCWD returns all tracked repos that are inside the given directory.
+func recordPullResult(repoName string, result cloner.PullResult, prog *cloner.BatchProgress) {
+	if result.IsSuccess && result.Notes == "up-to-date" {
+		prog.UpToDate(repoName)
+	} else if result.IsSuccess {
+		prog.Succeed(repoName)
+	}
+	if result.IsFailed() {
+		prog.FailWithError(repoName, result.Error)
+	}
+}
 
 func findChildrenOfCWD(cwd string) []model.ScanRecord {
 	all := loadAllRecordsDB()
@@ -567,7 +601,6 @@ func findChildrenOfCWD(cwd string) []model.ScanRecord {
 	if !strings.HasSuffix(prefix, string(os.PathSeparator)) {
 		prefix += string(os.PathSeparator)
 	}
-
 	for _, r := range all {
 		if strings.HasPrefix(r.AbsolutePath, prefix) || r.AbsolutePath == cwd {
 			children = append(children, r)
@@ -581,13 +614,11 @@ func resolvePullBatchRecords(opts pullOptions) ([]model.ScanRecord, bool) {
 	if opts.slug != "" || opts.group != "" || opts.all || HasAlias() {
 		return resolvePullTargets(opts.slug, opts.group, opts.all), true
 	}
-
 	cwd, _ := os.Getwd()
 	records := ResolvePullDirectoryTargets(cwd)
 	if len(records) == 0 {
 		records = findChildrenOfCWD(cwd)
 	}
-
 	if len(records) == 0 {
 		fmt.Println("  ↳ nothing to pull: no tracked repositories found in or under this directory.")
 
@@ -602,7 +633,6 @@ func handleNonGitPull(cwd string, extraArgs []string) error {
 	if err == nil && len(childRepos) > 0 {
 		return pullDiscoveredChildren(cwd, childRepos, extraArgs)
 	}
-
 	fmt.Fprintln(os.Stderr, "✗ not a git repository (run `gitmap pull` inside a repo)")
 	cliexit.HandleValidationError(apperror.NewValidationError("not a git repository (run `gitmap pull` inside a repo)"))
 

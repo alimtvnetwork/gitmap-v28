@@ -12,91 +12,122 @@ import (
 
 // runSSH handles the "ssh" subcommand and routes to sub-handlers.
 func runSSH(args []string) error {
-	checkHelp("ssh", args)
+	checkSSHHelp(args)
 	if len(args) == 0 {
 		runSSHGenerate(args)
 		fmt.Fprint(os.Stdout, constants.MsgSSHAvailableCommands)
-
 		return nil
 	}
+	return dispatchSSH(context.Background(), args, nil)
+}
 
-	_ = dispatchSSH(context.Background(), args, nil)
+func dispatchPrimarySSH(ctx context.Context, sub string, args []string, parent *cobra.Command) (error, bool) {
+	switch sub {
+	case "login", "login-install":
+		return runSSHLogin(parent, args, ctx), true
+	case "join", "sj":
+		return RunSSHJoinCLI(args), true
+	case "alias":
+		return runSSHAlias(parent, args, ctx), true
+	case "exec", "se":
+		return runSSHExec(args), true
+	case "profiles", "profile", "p":
+		return runSSHProfile(args), true
+	}
+	return nil, false
+}
 
+func runSSHProfile(args []string) error {
+	if ProfileRunner != nil {
+		return ProfileRunner(args)
+	}
+	return nil
+}
+
+func isSSHViewSub(sub string) bool {
+	return sub == constants.SubCmdSSHCat || sub == constants.SubCmdSSHView || sub == constants.SubCmdSSHViewS
+}
+
+func isSSHCopySub(sub string) bool {
+	return sub == constants.SubCmdSSHCopy || sub == constants.SubCmdSSHCopyS
+}
+
+func isSSHListSub(sub string) bool {
+	return sub == constants.SubCmdSSHList || sub == constants.SubCmdSSHListS
+}
+
+func isSSHDeleteSub(sub string) bool {
+	return sub == constants.SubCmdSSHDelete || sub == constants.SubCmdSSHDeleteS
+}
+
+func isSSHStatusSub(sub string) bool {
+	return sub == constants.SubCmdSSHStatus || sub == constants.SubCmdSSHStatusS
+}
+
+func dispatchConfigOrStatus(sub string, args []string) bool {
+	if sub == constants.SubCmdSSHConfig {
+		runSSHConfig()
+		return true
+	}
+	if isSSHStatusSub(sub) {
+		runSSHStatus(args)
+		return true
+	}
+	return false
+}
+
+func dispatchOtherFallbackSSH(sub string, args []string) bool {
+	if isSSHListSub(sub) {
+		runSSHList(args...)
+		return true
+	}
+	if isSSHDeleteSub(sub) {
+		runSSHDelete(args)
+		return true
+	}
+	return dispatchConfigOrStatus(sub, args)
+}
+
+func dispatchCreateSSH(sub string, args []string) bool {
+	if sub == constants.SubCmdSSHCreate {
+		runSSHGenerate(args)
+		fmt.Fprint(os.Stdout, constants.MsgSSHAvailableCommands)
+		return true
+	}
+	return false
+}
+
+func dispatchFallbackSSH(sub string, args []string) bool {
+	if isSSHViewSub(sub) {
+		runSSHCat(args)
+		return true
+	}
+	if isSSHCopySub(sub) {
+		runSSHCopy(args)
+		return true
+	}
+	if isCreated := dispatchCreateSSH(sub, args); isCreated {
+		return true
+	}
+	return dispatchOtherFallbackSSH(sub, args)
+}
+
+func handleEmptySSHArgs() error {
+	runSSHGenerate(nil)
+	fmt.Fprint(os.Stdout, constants.MsgSSHAvailableCommands)
 	return nil
 }
 
 func dispatchSSH(ctx context.Context, args []string, parent *cobra.Command) error {
 	if len(args) == 0 {
-		runSSHGenerate(args)
-		fmt.Fprint(os.Stdout, constants.MsgSSHAvailableCommands)
-
-		return nil
+		return handleEmptySSHArgs()
 	}
-
 	sub := args[0]
-	switch sub {
-	case "login", "login-install":
-		return runSSHLogin(parent, args[1:], ctx)
-	case "join", "sj":
-		if JoinRunner != nil {
-			return JoinRunner(args[1:])
-		}
-		return nil
-	case "alias":
-		return runSSHAlias(parent, args[1:], ctx)
-	case "exec", "se":
-		return runSSHExec(args[1:])
-	case "profiles", "profile", "p":
-		if ProfileRunner != nil {
-			return ProfileRunner(args[1:])
-		}
-		return nil
-	default:
-		// Fallback for $username@ip and implicit aliases
-		if sub == constants.SubCmdSSHCat || sub == constants.SubCmdSSHView || sub == constants.SubCmdSSHViewS {
-			runSSHCat(args[1:])
-
-			return nil
-		}
-
-		if sub == constants.SubCmdSSHCopy || sub == constants.SubCmdSSHCopyS {
-			runSSHCopy(args[1:])
-
-			return nil
-		}
-
-		if sub == constants.SubCmdSSHCreate {
-			runSSHGenerate(args[1:])
-			fmt.Fprint(os.Stdout, constants.MsgSSHAvailableCommands)
-
-			return nil
-		}
-
-		if sub == constants.SubCmdSSHList || sub == constants.SubCmdSSHListS {
-			runSSHList(args[1:]...)
-
-			return nil
-		}
-
-		if sub == constants.SubCmdSSHDelete || sub == constants.SubCmdSSHDeleteS {
-			runSSHDelete(args[1:])
-
-			return nil
-		}
-
-		if sub == constants.SubCmdSSHConfig {
-			runSSHConfig()
-
-			return nil
-		}
-
-		if sub == constants.SubCmdSSHStatus || sub == constants.SubCmdSSHStatusS {
-			runSSHStatus(args[1:])
-
-			return nil
-		}
-
-		// If it reaches here, treat as raw arguments for implicit alias or username@ip
-		return runSSHLogin(parent, args, ctx)
+	if err, isPrimary := dispatchPrimarySSH(ctx, sub, args[1:], parent); isPrimary {
+		return err
 	}
+	if isFallback := dispatchFallbackSSH(sub, args[1:]); isFallback {
+		return nil
+	}
+	return runSSHLogin(parent, args, ctx)
 }

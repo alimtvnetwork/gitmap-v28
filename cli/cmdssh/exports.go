@@ -57,6 +57,11 @@ func RunSSHJoin(cmd *cobra.Command, args []string, ctx context.Context) error {
 	return runSSHJoin(cmd, args, ctx)
 }
 
+// RunSSHJoinCLI executes unified ssh join CLI entrypoint.
+func RunSSHJoinCLI(args []string) error {
+	return runSSHJoinCLI(args)
+}
+
 // ParseSEFlags parses ssh exec flags.
 func ParseSEFlags(args []string) SEOptions {
 	return parseSEFlags(args)

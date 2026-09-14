@@ -105,6 +105,9 @@ var toolAliasMap = map[string]string{
 	"pwsh-ctx":            constants.ToolPwshCtx,
 	"ag-ctx":              constants.ToolAgCtx,
 	"scripts":             constants.ToolScripts,
+	"git-compact":         constants.ToolGitCompact,
+	"gitcompact":          constants.ToolGitCompact,
+	"git-c":               constants.ToolGitCompact,
 }
 
 // resolveToolAlias normalizes known tool aliases to their canonical tool name.

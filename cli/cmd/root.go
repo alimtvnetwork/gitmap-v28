@@ -15,6 +15,7 @@ import (
 	"github.com/alimtvnetwork/gitmap-v28/cli/cliexit"
 	"github.com/alimtvnetwork/gitmap-v28/cli/cmdagy"
 	"github.com/alimtvnetwork/gitmap-v28/cli/cmdprompt"
+	"github.com/alimtvnetwork/gitmap-v28/cli/cmdssh"
 	"github.com/alimtvnetwork/gitmap-v28/cli/config"
 	"github.com/alimtvnetwork/gitmap-v28/cli/constants"
 	"github.com/alimtvnetwork/gitmap-v28/cli/glyphs"
@@ -522,45 +523,24 @@ func runSJ(args []string) error {
 }
 
 func dispatchSJ(ctx context.Context, args []string, root *cobra.Command) error {
-	if len(args) == 0 {
-		return SSHJoinCmd.ExecuteContext(ctx)
-	}
-
 	cleanArgs := stripLeadingSJCommand(args)
-	if len(cleanArgs) == 0 {
-		SSHJoinCmd.SetArgs([]string{})
+	return cmdssh.RunSSHJoinCLI(cleanArgs)
+}
 
-		return SSHJoinCmd.ExecuteContext(ctx)
-	}
-
-	return routeSJSubcommand(ctx, cleanArgs, root)
+func isSJCommand(arg string) bool {
+	return arg == "sj" || arg == "ssh-join" || arg == "ssh-joined" || arg == "ssh-joiner"
 }
 
 func stripLeadingSJCommand(args []string) []string {
-	first := args[0]
-	if first == "sj" || first == "ssh-join" || first == "ssh-joined" || first == "ssh-joiner" {
+	if len(args) == 0 {
+		return args
+	}
+
+	if isSJCommand(args[0]) {
 		return args[1:]
 	}
 
 	return args
-}
-
-func routeSJSubcommand(ctx context.Context, args []string, root *cobra.Command) error {
-	subCmd := args[0]
-	switch subCmd {
-	case "ls", "list":
-		return runSJLs(root, args[1:], ctx)
-	case "rm", "remove":
-		return runSJRm(root, args[1:], ctx)
-	case "history", "hist":
-		return runSJHistory(root, args[1:], ctx)
-	case "add-auth", "auth":
-		return runSJAddAuth(root, args[1:], ctx)
-	default:
-		SSHJoinCmd.SetArgs(args)
-
-		return SSHJoinCmd.ExecuteContext(ctx)
-	}
 }
 
 func dispatchExtraCommand(

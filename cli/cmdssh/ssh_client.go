@@ -6,6 +6,7 @@ import (
 	"io"
 	"os"
 	"os/exec"
+	"strconv"
 
 	"golang.org/x/term"
 
@@ -21,43 +22,52 @@ type InteractiveSSHClient struct {
 	Stderr io.Writer
 }
 
-func (c *InteractiveSSHClient) Run(ctx context.Context, target string) error {
-	cmd := SSHExecutor(ctx, "ssh", target)
-	cmd.Stdin = c.Stdin
-	cmd.Stdout = c.Stdout
-	cmd.Stderr = c.Stderr
-
+func executeClientCmd(cmd *exec.Cmd, op string, ctx map[string]any) error {
 	if err := cmd.Run(); err != nil {
 		return &apperror.AppError{
-			Op:    "InteractiveSSHClient.Run",
+			Op:    op,
 			Code:  "E_INTERNAL_ERROR",
 			Cause: err,
-			Ctx:   map[string]any{"target": target},
+			Ctx:   ctx,
 		}
 	}
 
 	return nil
 }
 
-func SpawnSSH(ctx context.Context, target SSHTarget, args []string) error {
-	cmdArgs := []string{target.String()}
+func (c *InteractiveSSHClient) Run(ctx context.Context, target string) error {
+	cmd := SSHExecutor(ctx, "ssh", target)
+	cmd.Stdin = c.Stdin
+	cmd.Stdout = c.Stdout
+	cmd.Stderr = c.Stderr
+
+	return executeClientCmd(cmd, "InteractiveSSHClient.Run", map[string]any{"target": target})
+}
+
+func isCustomSSHPort(port int) bool {
+	return port > 0 && port != 22
+}
+
+func buildSSHArgs(target SSHTarget, args []string) []string {
+	var cmdArgs []string
+	if isCustomSSHPort(target.Port) {
+		cmdArgs = append(cmdArgs, "-p", strconv.Itoa(target.Port))
+	}
+
+	cmdArgs = append(cmdArgs, target.String())
 	cmdArgs = append(cmdArgs, args...)
 
+	return cmdArgs
+}
+
+func SpawnSSH(ctx context.Context, target SSHTarget, args []string) error {
+	cmdArgs := buildSSHArgs(target, args)
 	cmd := SSHExecutor(ctx, "ssh", cmdArgs...)
 	cmd.Stdin = os.Stdin
 	cmd.Stdout = os.Stdout
 	cmd.Stderr = os.Stderr
 
-	if err := cmd.Run(); err != nil {
-		return &apperror.AppError{
-			Op:    "SpawnSSH",
-			Code:  "E_INTERNAL_ERROR",
-			Cause: err,
-			Ctx:   map[string]any{"target": target.String(), "args": args},
-		}
-	}
-
-	return nil
+	return executeClientCmd(cmd, "SpawnSSH", map[string]any{"target": target.String(), "args": args})
 }
 
 func PromptSSHPassword(ctx context.Context, prompt string, fd int) (string, error) {

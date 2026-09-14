@@ -3,125 +3,67 @@ package cmdpull
 import (
 	"sync"
 
-	"github.com/alimtvnetwork/gitmap-v28/cli/cloner"
+	"github.com/alimtvnetwork/gitmap-v28/cli/apperror"
 	"github.com/alimtvnetwork/gitmap-v28/cli/model"
 )
 
-// runPullParallel pulls every record concurrently using a worker pool of
-// the given width. BatchProgress is not goroutine-safe by itself, so all
-// progress mutations happen under progMu.
-//
-// stopOnFail is honored: once any worker reports a failure, the dispatcher
-// drains the queue without spawning more work and returning workers exit
-// after their in-flight task finishes.
-func runPullParallel(
-	records []model.ScanRecord,
-	prog *cloner.BatchProgress,
-	parallel int,
-	stopOnFail bool,
-) error {
-	if parallel < 1 {
-		parallel = 1
-	}
-
-	if parallel > len(records) {
-		parallel = len(records)
-	}
-
+// runPullParallel pulls records concurrently using a worker pool.
+func runPullParallel(records []model.ScanRecord, bar *PullProgressBar, parallel int) *apperror.AppError {
+	limit := resolveParallelLimit(parallel, len(records))
 	jobs := make(chan model.ScanRecord, len(records))
-	var (
-		wg      sync.WaitGroup
-		progMu  sync.Mutex
-		stopped bool
-	)
+	var wg sync.WaitGroup
 
-	startPullWorkers(parallel, jobs, prog, &progMu, &wg, stopOnFail, &stopped)
-	dispatchPullJobs(records, jobs, &progMu, &stopped)
+	startParallelWorkers(limit, jobs, bar, &wg)
+	dispatchParallelJobs(records, jobs, bar)
 	wg.Wait()
 
 	return nil
 }
 
-// startPullWorkers spins up `count` workers, each draining the jobs channel
-// until it closes.
-func startPullWorkers(count int, jobs <-chan model.ScanRecord, prog *cloner.BatchProgress,
-	progMu *sync.Mutex, wg *sync.WaitGroup, stopOnFail bool, stopped *bool) {
-	for i := 0; i < count; i++ {
+func resolveParallelLimit(parallel, count int) int {
+	if parallel < 1 {
+		return 1
+	}
+	if parallel > count {
+		return count
+	}
+
+	return parallel
+}
+
+func startParallelWorkers(limit int, jobs <-chan model.ScanRecord, bar *PullProgressBar, wg *sync.WaitGroup) {
+	for workerID := 0; workerID < limit; workerID++ {
 		wg.Add(1)
-		go pullWorker(jobs, prog, progMu, wg, stopOnFail, stopped)
+		go parallelPullWorker(workerID, jobs, bar, wg)
 	}
 }
 
-// dispatchPullJobs feeds records into the jobs channel respecting stopOnFail.
-// Closes the channel when done so workers exit.
-func dispatchPullJobs(records []model.ScanRecord, jobs chan<- model.ScanRecord,
-	progMu *sync.Mutex, stopped *bool) {
+func dispatchParallelJobs(records []model.ScanRecord, jobs chan<- model.ScanRecord, bar *PullProgressBar) {
 	for _, rec := range records {
-		progMu.Lock()
-		halted := *stopped
-		progMu.Unlock()
-		if halted {
+		if bar != nil && bar.IsStopped() {
 			break
 		}
-
 		jobs <- rec
 	}
-
 	close(jobs)
 }
 
-// pullWorker drains the channel and runs SafePullOne on each record.
-// All BatchProgress mutations are guarded by progMu.
-func pullWorker(jobs <-chan model.ScanRecord, prog *cloner.BatchProgress,
-	progMu *sync.Mutex, wg *sync.WaitGroup, stopOnFail bool, stopped *bool) {
+func parallelPullWorker(workerID int, jobs <-chan model.ScanRecord, bar *PullProgressBar, wg *sync.WaitGroup) {
 	defer wg.Done()
-
 	for rec := range jobs {
-		runOnePullJob(rec, prog, progMu, stopOnFail, stopped)
+		if bar != nil && bar.IsStopped() {
+			return
+		}
+		runWorkerPull(workerID, rec, bar)
 	}
 }
 
-// runOnePullJob handles a single record under the progress mutex. Sets
-// *stopped when a failure occurs and stopOnFail is enabled.
-func runOnePullJob(rec model.ScanRecord, prog *cloner.BatchProgress,
-	progMu *sync.Mutex, stopOnFail bool, stopped *bool) error {
-	if cloner.IsMissingRepo(rec.AbsolutePath) {
-		progMu.Lock()
-		prog.BeginItem(rec.RepoName)
-		prog.Skip(rec.RepoName)
-		progMu.Unlock()
-
-		return nil
+func runWorkerPull(workerID int, rec model.ScanRecord, bar *PullProgressBar) {
+	if bar != nil {
+		bar.RegisterWorker(workerID, rec.RepoName)
 	}
-
-	progMu.Lock()
-	prog.BeginItem(rec.RepoName)
-	progMu.Unlock()
-
-	result := cloner.SafePullOne(rec, rec.AbsolutePath)
-
-	progMu.Lock()
-	isUpToDate := result.IsSuccess && result.Notes == "up-to-date"
-	isSucceed := result.IsSuccess && result.Notes != "up-to-date"
-
-	if isUpToDate {
-		prog.UpToDate(rec.RepoName)
+	ExecuteTrackedPullWithWorker(rec, bar, workerID)
+	if bar != nil {
+		bar.UnregisterWorker(workerID)
 	}
-
-	if isSucceed {
-		prog.Succeed(rec.RepoName)
-	}
-
-	if result.IsFailed() {
-		prog.FailWithError(rec.RepoName, result.Error)
-	}
-
-	isStopRequested := result.IsFailed() && stopOnFail
-	if isStopRequested {
-		*stopped = true
-	}
-
-	progMu.Unlock()
-
-	return nil
 }

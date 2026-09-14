@@ -30,12 +30,11 @@ func runInstallProfile(profileName string, opts installOptions) error {
 
 func handleProfileExecution(p InstallProfile, opts installOptions, installed map[string]string) error {
 	splitDB, _ := store.OpenInstallationSplitDB()
-	if splitDB == nil {
-		return executeProfileWorkflow(p, opts, installed, nil)
+	if splitDB != nil {
+		defer splitDB.Close()
 	}
 
-	defer splitDB.Close()
-	if isProfileAlreadyInstalled(p.Name, splitDB, opts) {
+	if isProfileAlreadyInstalled(p, splitDB, opts, installed) {
 		handleAlreadyInstalled(p, splitDB, installed)
 
 		return nil
@@ -44,19 +43,43 @@ func handleProfileExecution(p InstallProfile, opts installOptions, installed map
 	return executeProfileWorkflow(p, opts, installed, splitDB)
 }
 
-func isProfileAlreadyInstalled(name string, splitDB *store.InstallationSplitDB, opts installOptions) bool {
+func isProfileAlreadyInstalled(
+	p InstallProfile, splitDB *store.InstallationSplitDB,
+	opts installOptions, installed map[string]string,
+) bool {
 	if opts.Force {
 		return false
 	}
 
-	return splitDB.IsProfileInstalled(name)
+	if splitDB != nil && splitDB.IsProfileInstalled(p.Name) {
+		return true
+	}
+
+	return areAllProfileToolsInstalled(p, installed)
+}
+
+func areAllProfileToolsInstalled(p InstallProfile, installed map[string]string) bool {
+	if len(p.Tools) == 0 {
+		return false
+	}
+
+	return countProfileInstalledTools(p, installed) == len(p.Tools)
 }
 
 func handleAlreadyInstalled(p InstallProfile, splitDB *store.InstallationSplitDB, installed map[string]string) {
-	rec, _ := splitDB.GetProfileInstallation(p.Name)
-	installedAt := resolveInstalledTime(rec)
+	installedAt := resolveInstalledTimestamp(p.Name, splitDB)
 	fmt.Printf("[INFO] Profile '%s' is already installed (installed at: %s)\n", p.Name, installedAt)
 	renderProfileTree(p, installed)
+}
+
+func resolveInstalledTimestamp(name string, splitDB *store.InstallationSplitDB) string {
+	if splitDB == nil {
+		return "previously"
+	}
+
+	rec, _ := splitDB.GetProfileInstallation(name)
+
+	return resolveInstalledTime(rec)
 }
 
 func resolveInstalledTime(rec *store.ProfileInstallationRecord) string {

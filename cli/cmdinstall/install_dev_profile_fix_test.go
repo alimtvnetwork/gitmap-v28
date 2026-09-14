@@ -93,3 +93,44 @@ func TestBuildVerifyAppErrorHasStackTrace(t *testing.T) {
 		t.Fatalf("expected tool 'pnpm' in context, got %v", appErr.Ctx["tool"])
 	}
 }
+
+func TestDevProfileContainsGitCompactAndGitHubDesktop(t *testing.T) {
+	p := buildDevProfile()
+	hasGitCompact := false
+	hasGitHubDesktop := false
+	for _, tool := range p.Tools {
+		if tool == constants.ToolGitCompact {
+			hasGitCompact = true
+		}
+		if tool == constants.ToolGitHubDesktop {
+			hasGitHubDesktop = true
+		}
+	}
+	if !hasGitCompact || !hasGitHubDesktop {
+		t.Errorf("expected dev profile to contain git-compact and github-desktop, got %v", p.Tools)
+	}
+}
+
+func TestSmallDevProfileContainsGitCompact(t *testing.T) {
+	p := buildSmallDevProfile()
+	hasGitCompact := false
+	for _, tool := range p.Tools {
+		if tool == constants.ToolGitCompact {
+			hasGitCompact = true
+			break
+		}
+	}
+	if !hasGitCompact {
+		t.Errorf("expected small-dev profile to contain git-compact, got %v", p.Tools)
+	}
+}
+
+func TestGitCompactProfileCompositionInTree(t *testing.T) {
+	comp, isFound := resolveProfileTree("git-compact")
+	if !isFound {
+		t.Fatal("expected git-compact to resolve profile composition")
+	}
+	if len(comp.Tools) != 3 {
+		t.Fatalf("expected 3 tools in git-compact composition, got %d", len(comp.Tools))
+	}
+}

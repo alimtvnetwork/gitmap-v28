@@ -15,6 +15,10 @@ Manages SSH key pairs for Git authentication.
 | list       | ls    | List all stored SSH keys                  |
 | delete     | rm    | Delete a key record (optionally files)    |
 | config     |       | Regenerate ~/.ssh/config managed entries  |
+| join       | sj    | Enroll machine by user@ip or IP into SSH registry |
+| login      |       | Connect to a host by alias or user@host   |
+| as         |       | Create an SSH alias mapping for a host IP |
+| exec       | se    | Execute a remote command on a target host |
 
 ## Flags (generate)
 
@@ -107,8 +111,16 @@ printed and a one-line warning is emitted — never fails.
       default         ~/.ssh/id_rsa                   SHA256:abc123...           2026-03-22
       work            ~/.ssh/id_rsa_work              SHA256:def456...           2026-03-22
 
+### Enroll remote SSH machine (ssh-join / sj)
+
+    $ gitmap ssh join alim@192.168.1.14 devbox
+      ✓ Machine 'devbox' (alim@192.168.1.14) joined successfully.
+        Recall anytime: gitmap ssh devbox
+        Or connect directly: gitmap ssh 192.168.1.14
+
 ## See Also
 
+- `gitmap ssh-join` - Machine enrollment, alias recall, and public key authorization
 - `gitmap clone` - Clone repositories from structured files
 - `gitmap setup` - Configure Git global settings
 

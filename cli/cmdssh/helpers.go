@@ -10,13 +10,41 @@ import (
 	"github.com/alimtvnetwork/gitmap-v28/cli/store"
 )
 
-func checkHelp(command string, args []string) {
+func hasHelpToken(arg string) bool {
+	return arg == "--help" || arg == "-h" || arg == "help"
+}
+
+func hasHelpFlag(args []string) bool {
 	for _, a := range args {
-		if a == "--help" || a == "-h" || a == "help" {
-			helptext.Print(command)
-			cliexit.Exit(0)
+		if hasHelpToken(a) {
+			return true
 		}
 	}
+	return false
+}
+
+func hasJoinToken(args []string) bool {
+	for _, a := range args {
+		if a == "join" || a == "sj" {
+			return true
+		}
+	}
+	return false
+}
+
+func checkHelp(command string, args []string) {
+	if hasHelpFlag(args) {
+		helptext.Print(command)
+		cliexit.Exit(0)
+	}
+}
+
+func checkSSHHelp(args []string) {
+	if hasJoinToken(args) && hasHelpFlag(args) {
+		helptext.Print("ssh-join")
+		cliexit.Exit(0)
+	}
+	checkHelp("ssh", args)
 }
 
 func homeDir() string {

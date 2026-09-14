@@ -731,7 +731,7 @@ func RunRepoReclone(target string, yes bool) error {
 }
 
 func init() {
-	cmdssh.JoinRunner = runJoin
+	cmdssh.JoinRunner = cmdssh.RunSSHJoinCLI
 	cmdssh.ProfileRunner = runProfile
 
 	cmdinstaller.ResolveProfileTreeFn = func(s string) (any, bool) {

@@ -1,6 +1,6 @@
 # gitmap pull
 
-Pull a specific tracked repository by slug, group, or all at once.
+Pull a specific tracked repository by slug, group, or all at once with interactive progress bar tracking.
 
 ## Alias
 
@@ -8,7 +8,9 @@ p
 
 ## Usage
 
-    gitmap pull <repo-name> [flags]
+    gitmap pull [<repo-name> | all] [flags]
+    gitmap git pull [<repo-name>] [flags]
+    gitmap git pull-all [flags]
 
 ## Flags
 
@@ -17,10 +19,20 @@ p
 | -A, --alias \<name\> | — | Target a repo by its alias |
 | --group \<name\> | — | Pull all repos in a group |
 | --all | false | Pull all tracked repos |
+| --raw | false | Stream raw git output directly instead of using progress bar |
 | --verbose | false | Enable verbose logging |
 | --parallel \<N\> | 1 | Run up to N pulls concurrently (worker pool) |
 | --only-available | false | Skip repos whose latest probe reports no new tag |
 | --stop-on-fail | false | Halt the batch after the first failure |
+
+## Key Features
+
+- **Active 80ms Ticker**: Background ticker loop rendering an animated Braille spinner (`⠋⠙⠹⠸⠼⠴⠦⠧⠇⠏`), elapsed time, and live percentages.
+- **Single-Repo 4-Step UX**: Explicit milestone tracking: `[Step 1/4] Inspecting`, `[Step 2/4] Fetching remote objects`, `[Step 3/4] Fast-forwarding / Merging`, `[Step 4/4] Complete`.
+- **Live Stream Parser**: Automatically passes `--progress` to git pull subprocesses and extracts object events (`Counting`, `Compressing`, `Receiving`, `Resolving deltas`, `Fast-forward`).
+- **Concurrent Worker Slots**: Deterministic worker slot mapping (`0..limit-1`) ensuring thread-safe progress updates without parallel terminal line clobbering.
+- **Alphabetical Summary Table**: Final batch pull summary tables are consistently sorted alphabetically by repository name.
+- **Git Command Routing**: Transparent CLI command passthrough supports `gitmap git pull` and `gitmap git pull-all`.
 
 ## Prerequisites
 
@@ -28,71 +40,57 @@ p
 
 ## Examples
 
-### Example 1: Pull a single repo by slug
+### Example 1: Pull a single repo by slug (with animated progress bar)
 
     gitmap pull my-api
 
 **Output:**
 
-    Pulling my-api (main)...
-    remote: Enumerating objects: 5, done.
-    remote: Counting objects: 100% (5/5), done.
-    Already up to date.
+    ⠋ [████████████████████] 100% [Step 4/4] Complete (up-to-date) | ✔ my-api: up-to-date (0.4s)
 
-### Example 2: Pull all repos in a group
+      REPO      BRANCH   RANGE     CHANGES   STATUS     TIME
+      ------------------------------------------------------
+      my-api    main     a1b2c3d   -         ✔ active   0.4s
+      ------------------------------------------------------
+
+### Example 2: Pull all tracked repos using the `all` keyword
+
+    gitmap pull all
+
+**Output:**
+
+    ⠋ [████████████░░░░░░░░]  60% (3/5 repos) | [W0: auth-gateway: up-to-date], [W1: payments-api: Receiving (45%)] (1.8s)
+
+      REPO             BRANCH   COMMIT RANGE       CHANGES      PR/TRACK   STATUS      TIME
+      -------------------------------------------------------------------------------------
+      auth-gateway     main     9ff44cf            up-to-date   synced     ✔ active    0.5s
+      billing-svc      main     a1b2c3d..e5f6g7h   +24/-5 (3)   synced     ✔ updated   1.2s
+      notification-svc main     77c6edf            up-to-date   synced     ✔ active    0.5s
+      payments-api     main     03be798..f1d94df   +12/-2 (2)   synced     ✔ updated   0.8s
+      user-svc         develop  5e7599b            up-to-date   synced     ✔ active    0.6s
+      -------------------------------------------------------------------------------------
+
+### Example 3: Pull all repos in a group
 
     gitmap p --group backend
 
-**Output:**
+### Example 4: Pull in raw streaming mode (unbuffered git output)
 
-    Pulling 5 repos in group 'backend'...
-    [1/5] billing-svc (main)... updated (3 new commits)
-    [2/5] auth-gateway (main)... Already up to date.
-    [3/5] payments-api (main)... updated (1 new commit)
-    [4/5] user-svc (develop)... Already up to date.
-    [5/5] notification-svc (main)... Already up to date.
-    ✓ 5 repos pulled (2 updated, 3 up to date)
-
-### Example 3: Pull all tracked repos with verbose logging
-
-    gitmap pull --all --verbose
-
-**Output:**
-
-    [verbose] Log file: gitmap-debug-2025-03-10T14-30.log
-    Pulling 42 tracked repos...
-    [1/42] my-api (main)... updated (7 commits)
-    [2/42] web-app (develop)... Already up to date.
-    [3/42] billing-svc (main)... updated (2 commits)
-    ...
-    ✓ 42 repos pulled (12 updated, 30 up to date)
-    [verbose] Debug log written
-
-### Example 4: Pull by alias
-
-    gitmap pull -A api
-
-**Output:**
-
-    Pulling my-api (main)...
-    Already up to date.
+    gitmap pull --raw
 
 ### Example 5: Parallel pull, only what's actually new
 
 First refresh the probe so `--only-available` has fresh data:
 
     gitmap probe --all
-    gitmap pull --all --only-available --parallel 4
+    gitmap pull all --only-available --parallel 4
 
-**Output:**
+### Example 6: Git passthrough command aliases
 
-    [1/6] billing-svc (main)... updated (3 new commits)
-    [2/6] auth-gateway (main)... updated (1 new commit)
-    [3/6] payments-api (main)... updated (5 new commits)
-    [4/6] user-svc (develop)... updated (2 new commits)
-    [5/6] notification-svc (main)... updated (1 new commit)
-    [6/6] config-svc (main)... updated (4 new commits)
-    ✓ Pull complete: 6 succeeded, 0 failed (4-way parallel)
+Execute native GitMap pull workflows directly using standard `git` subcommands:
+
+    gitmap git pull
+    gitmap git pull-all
 
 ## See Also
 

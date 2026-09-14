@@ -3,28 +3,64 @@ package cmdssh
 import (
 	"context"
 	"fmt"
+	"strings"
 
 	"github.com/alimtvnetwork/gitmap-v28/cli/apperror"
 	"github.com/alimtvnetwork/gitmap-v28/cli/store"
+	"github.com/spf13/cobra"
 )
 
-func executeSJRm(ctx context.Context, target string, force bool) error {
-	dbConn, err := store.OpenDefault()
-	if err != nil {
-		return apperror.New("executeSJRm", "E_INTERNAL_ERROR", map[string]any{"msg": "failed to open db", "err": err.Error()})
+const msgMissingRmTarget = `missing machine alias or IP to remove
+
+Usage:
+  gitmap ssh join rm <alias|ip>
+  gitmap sj rm <alias|ip>
+
+Examples:
+  gitmap sj rm devbox
+  gitmap sj rm 192.168.1.14`
+
+func validateRmTarget(args []string) (string, error) {
+	if len(args) == 0 {
+		return "", apperror.NewValidationError(msgMissingRmTarget)
 	}
 
+	target := strings.TrimSpace(args[0])
+	if target == "" {
+		return "", apperror.NewValidationError(msgMissingRmTarget)
+	}
+
+	return target, nil
+}
+
+func deleteHostRecord(ctx context.Context, target string) error {
+	dbConn, err := openSSHDBFunc()
+	if err != nil {
+		return apperror.New("runSJRm", "E_INTERNAL_ERROR", map[string]any{"cause": err.Error()})
+	}
 	defer dbConn.Close()
 
-	if err := dbConn.Migrate(); err != nil {
-		return apperror.New("executeSJRm", "E_INTERNAL_ERROR", map[string]any{"msg": "failed to migrate db", "err": err.Error()})
+	_, err = store.DeleteHostByAliasOrIP(ctx, target, dbConn.SQL())
+	return err
+}
+
+// runSJRm handles removing an SSH host by alias or IP.
+//
+//nolint:revive
+func runSJRm(cmd *cobra.Command, args []string, ctx context.Context) error {
+	target, err := validateRmTarget(args)
+	if err != nil {
+		return err
 	}
 
-	if err := store.DeleteHostByIP(ctx, target, dbConn.SQL()); err != nil {
-		return apperror.New("executeSJRm", "E_INTERNAL_ERROR", map[string]any{"msg": "failed to delete host", "err": err.Error()})
+	if err := deleteHostRecord(ctx, target); err != nil {
+		return err
 	}
 
-	fmt.Println("Machine removed")
-
+	fmt.Printf("✓ Machine '%s' removed from SSH registry.\n", target)
 	return nil
+}
+
+func executeSJRm(ctx context.Context, target string, isForced bool) error {
+	return runSJRm(nil, []string{target}, ctx)
 }

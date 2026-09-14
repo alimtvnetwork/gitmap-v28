@@ -11,4 +11,6 @@ type PullTableRow struct {
 	Duration     string `json:"duration"`
 	IsDirty      bool   `json:"isDirty"`
 	Reason       string `json:"reason,omitempty"`
+	CommitRange  string `json:"commitRange,omitempty"`
+	Changes      string `json:"changes,omitempty"`
 }

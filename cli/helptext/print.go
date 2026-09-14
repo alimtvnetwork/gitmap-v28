@@ -81,20 +81,27 @@ func PrintRaw(command string) {
 	fmt.Print(string(data))
 }
 
+var helpAliases = map[string]string{
+	"cpi-all":             "import-all",
+	"all-profile-import":  "import-all",
+	"import-all-profiles": "import-all",
+	"cpe-all":             "export-all",
+	"all-profile-export":  "export-all",
+	"export-all-profiles": "export-all",
+	"cpc-all":             "copy-all",
+	"all-profile-copy":    "copy-all",
+	"copy-all-profiles":   "copy-all",
+	"inspect":             "import-check",
+	"import-ls":           "import-check",
+	"check":               "import-check",
+	"vm":                  "vmware",
+	"ngx":                 "nginx",
+	"sj":                  "ssh-join",
+}
+
 func resolveHelpAlias(cmd string) string {
-	switch strings.ToLower(cmd) {
-	case "cpi-all", "all-profile-import", "import-all-profiles":
-		return "import-all"
-	case "cpe-all", "all-profile-export", "export-all-profiles":
-		return "export-all"
-	case "cpc-all", "all-profile-copy", "copy-all-profiles":
-		return "copy-all"
-	case "inspect", "import-ls", "check":
-		return "import-check"
-	case "vm":
-		return "vmware"
-	case "ngx":
-		return "nginx"
+	if alias, hasAlias := helpAliases[strings.ToLower(cmd)]; hasAlias {
+		return alias
 	}
 
 	return cmd

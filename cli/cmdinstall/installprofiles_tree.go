@@ -7,11 +7,20 @@ import (
 )
 
 func renderProfileTree(p InstallProfile, installed map[string]string) {
-	fmt.Printf("\nProfile: %s (%s)\n", p.Name, p.Title)
+	badge := resolveProfileInstalledBadge(p, installed)
+	fmt.Printf("\nProfile: %s (%s)%s\n", p.Name, p.Title, badge)
 	fmt.Printf("Description: %s\n", p.Description)
 	fmt.Printf("Total Tools: %d\n", len(p.Tools))
 	renderProfileTreeNodes(p, installed)
 	fmt.Println()
+}
+
+func resolveProfileInstalledBadge(p InstallProfile, installed map[string]string) string {
+	if areAllProfileToolsInstalled(p, installed) {
+		return " [✔ Already Installed]"
+	}
+
+	return ""
 }
 
 func renderProfileTreeNodes(p InstallProfile, installed map[string]string) {

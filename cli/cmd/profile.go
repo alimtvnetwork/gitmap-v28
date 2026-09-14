@@ -54,11 +54,27 @@ func routeProfileSub(subCmd string, tailArgs []string) error {
 }
 
 func routeInstallProfileSub(subCmd string, tailArgs []string) (error, bool) {
-	if subCmd == constants.CmdInstall || subCmd == constants.CmdInstallAlias {
+	if isInstallSubCmd(subCmd) {
 		return cmdinstall.RunInstall(append([]string{"profile"}, tailArgs...)), true
 	}
 
+	if isProfileTreeSubCmd(subCmd) {
+		return cmdinstall.RunInstall(append([]string{"profile", "tree"}, tailArgs...)), true
+	}
+
+	if cmdinstall.IsInstallProfile(subCmd) {
+		return cmdinstall.RunInstall(append([]string{"profile", subCmd}, tailArgs...)), true
+	}
+
 	return nil, false
+}
+
+func isInstallSubCmd(subCmd string) bool {
+	return subCmd == constants.CmdInstall || subCmd == constants.CmdInstallAlias
+}
+
+func isProfileTreeSubCmd(subCmd string) bool {
+	return subCmd == "tree" || subCmd == "--tree" || subCmd == "-t"
 }
 
 func routeGitProfileSub(subCmd string, tailArgs []string) (error, bool) {

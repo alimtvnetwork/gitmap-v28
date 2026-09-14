@@ -52,6 +52,8 @@ func buildUserHomeCandidates(home, binary string) []string {
 		filepath.Join(home, ".agy", "bin", binary),
 		filepath.Join(home, "AppData", "Local", "agy", "bin", binary+".exe"),
 		filepath.Join(home, ".gemini", "antigravity", "bin", binary+".cmd"),
+		filepath.Join(home, "AppData", "Local", "git-compact", binary+".exe"),
+		filepath.Join(home, "AppData", "Local", "git-compact", binary),
 	}
 }
 
@@ -62,11 +64,19 @@ func buildFallbackCandidates(binary string) []string {
 	}
 
 	list = append(list, filepath.Join("/usr", "local", "bin", binary))
+	list = append(list, buildDevToolCandidates(binary)...)
 	if pnpmHome := os.Getenv("PNPM_HOME"); pnpmHome != "" {
 		list = append(list, filepath.Join(pnpmHome, binary))
 	}
 
 	return list
+}
+
+func buildDevToolCandidates(binary string) []string {
+	return []string{
+		filepath.Join("C:\\", "dev-tool", "GitCompact", binary+".exe"),
+		filepath.Join("C:\\", "dev-tool", "GitCompact", binary),
+	}
 }
 
 func findBinaryInFallbackPaths(binary string) string {

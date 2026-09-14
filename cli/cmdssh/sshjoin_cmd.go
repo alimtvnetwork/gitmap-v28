@@ -4,27 +4,53 @@ import (
 	"context"
 	"database/sql"
 	"fmt"
+	"io"
+	"os"
+	"text/tabwriter"
+	"time"
 
 	"github.com/spf13/cobra"
 
 	"github.com/alimtvnetwork/gitmap-v28/cli/apperror"
+	"github.com/alimtvnetwork/gitmap-v28/cli/cliexit"
 	"github.com/alimtvnetwork/gitmap-v28/cli/dbengine"
+	"github.com/alimtvnetwork/gitmap-v28/cli/helptext"
 	"github.com/alimtvnetwork/gitmap-v28/cli/store"
 )
 
+var openSSHDBFunc = openDB
+
+const msgMissingJoinTarget = `missing target host
+
+Usage:
+  gitmap ssh-join <user@ip|ip> [alias] [flags]
+  gitmap ssh-join add <user@ip|ip> [alias] [flags]
+  gitmap ssh join <user@ip|ip> [alias] [flags]
+  gitmap sj <user@ip|ip> [alias] [flags]
+
+Examples:
+  gitmap ssh-join user@192.168.1.14
+  gitmap ssh-join root@192.168.1.14 prod-server
+  gitmap ssh-join add dev@192.168.1.50 devbox
+  gitmap ssh-join 192.168.1.14
+  gitmap ssh join alim@192.168.1.14 devbox
+  gitmap ssh join ubuntu@192.168.1.14:2222 prod --auth`
+
 func executeSSHJoin(ctx context.Context, target string, history store.SSHHistory) error {
-	dbConn, err := store.OpenDefault()
+	dbConn, err := openSSHDBFunc()
 	if err != nil {
 		return apperror.New("executeSSHJoin", "E_INTERNAL_ERROR", map[string]any{"msg": "failed to open db", "err": err.Error()})
 	}
 
 	defer dbConn.Close()
 
-	if err := dbConn.Migrate(); err != nil {
-		return apperror.New("executeSSHJoin", "E_INTERNAL_ERROR", map[string]any{"msg": "failed to migrate db", "err": err.Error()})
-	}
-
 	return runJoinTransaction(ctx, dbConn.SQL(), target, history)
+}
+
+func executeJoinInTx(ctx context.Context, wrapper *dbengine.DbWrapper, target string, history store.SSHHistory) error {
+	return wrapper.WithTransaction(ctx, func(tx *dbengine.TxWrapper) *apperror.AppError {
+		return insertJoinRecords(ctx, tx, target, history)
+	})
 }
 
 func runJoinTransaction(ctx context.Context, db *sql.DB, target string, history store.SSHHistory) error {
@@ -33,15 +59,11 @@ func runJoinTransaction(ctx context.Context, db *sql.DB, target string, history 
 		return appErr
 	}
 
-	txErr := wrapper.WithTransaction(ctx, func(tx *dbengine.TxWrapper) *apperror.AppError {
-		return insertJoinRecords(ctx, tx, target, history)
-	})
-	if txErr != nil {
+	if txErr := executeJoinInTx(ctx, wrapper, target, history); txErr != nil {
 		return txErr
 	}
 
 	fmt.Println("Joined successfully")
-
 	return nil
 }
 
@@ -69,27 +91,39 @@ func logSSHJoinInTx(ctx context.Context, tx *dbengine.TxWrapper, history store.S
 	return nil
 }
 
+func isSJAddSubcommand(sub string) bool {
+	return sub == "add" || sub == "join" || sub == "new" || sub == "enroll"
+}
+
+func routeSSHJoinCmd(cmd *cobra.Command, args []string) error {
+	if len(args) == 0 {
+		return RunSSHJoinCLI(args)
+	}
+
+	if isSJAddSubcommand(args[0]) {
+		return executeEnrollCLI(cmd.Context(), args[1:])
+	}
+
+	if !isSJSubcommand(args[0]) {
+		return executeEnrollCLI(cmd.Context(), args)
+	}
+
+	return RunSSHJoinCLI(args)
+}
+
 var SSHJoinCmd = &cobra.Command{
-	Use:     "ssh-join",
+	Use:     "ssh-join [user@ip|ip] [alias]",
 	Aliases: []string{"sj", "ssh-joined", "ssh-joiner"},
-	Short:   "Join an SSH machine",
+	Short:   "Join an SSH machine by user@ip or IP address",
+	Args:    cobra.ArbitraryArgs,
 	RunE: func(cmd *cobra.Command, args []string) error {
-		return runSSHJoin(cmd, args, cmd.Context())
+		return routeSSHJoinCmd(cmd, args)
 	},
 }
 
 //nolint:revive
 func runSSHJoin(cmd *cobra.Command, args []string, ctx context.Context) error {
-	if len(args) > 0 {
-		switch args[0] {
-		case "add", "rm", "ls", "history", "add-auth":
-			// Handled by subcommands
-		default:
-			return apperror.New("runSSHJoin", "E_INTERNAL_ERROR", map[string]any{"arg": args[0]})
-		}
-	}
-
-	return nil
+	return RunSSHJoinCLI(args)
 }
 
 var SJRmCmd = &cobra.Command{
@@ -100,16 +134,214 @@ var SJRmCmd = &cobra.Command{
 	},
 }
 
-//nolint:revive
-func runSJRm(cmd *cobra.Command, args []string, ctx context.Context) error {
-	if len(args) != 1 {
-		return apperror.New("runSJRm", "E_INTERNAL_ERROR", map[string]any{"msg": "invalid argument count"})
+func isSJScanSubcommand(sub string) bool {
+	return sub == "scan" || sub == "find" || sub == "discover" || sub == "probe"
+}
+
+func isSJStatusSubcommand(sub string) bool {
+	return sub == "status" || sub == "ping" || sub == "health" || sub == "check"
+}
+
+func isSJSubcommand(sub string) bool {
+	if isSJAddSubcommand(sub) || isSJScanSubcommand(sub) || isSJStatusSubcommand(sub) {
+		return true
 	}
 
+	return sub == "ls" || sub == "list" || sub == "rm" || sub == "remove" || sub == "delete" ||
+		sub == "add-auth" || sub == "auth" || sub == "history" || sub == "hist"
+}
+
+func renderSJListTable(out io.Writer, hosts []store.SSHHost) error {
+	w := tabwriter.NewWriter(out, 0, 0, 2, ' ', 0)
+	fmt.Fprintln(w, "ID\tALIAS\tIP\tUSERNAME\tCREATED_AT")
+
+	for _, host := range hosts {
+		fmt.Fprintf(w, "%s\t%s\t%s\t%s\t%s\n",
+			host.ID, host.Alias, host.IP, host.Username, host.CreatedAt.Format("2006-01-02 15:04:05"))
+	}
+
+	return w.Flush()
+}
+
+func executeSJList(ctx context.Context) error {
+	dbConn, err := openSSHDBFunc()
+	if err != nil {
+		return printSJList(ctx, os.Stdout, 0)
+	}
+
+	defer dbConn.Close()
+
+	hosts, err := store.ListHosts(ctx, dbConn.SQL())
+	if err != nil {
+		return apperror.New("executeSJList", "E_INTERNAL_ERROR", map[string]any{"msg": "failed to list hosts", "err": err.Error()})
+	}
+
+	return renderSJListTable(os.Stdout, hosts)
+}
+
+func dispatchSJSubcommand(ctx context.Context, sub string, args []string) error {
+	if isSJAddSubcommand(sub) {
+		return executeEnrollCLI(ctx, args)
+	}
+	if isSJScanSubcommand(sub) {
+		return RunSJScan(SJScanCmd, args, ctx)
+	}
+	if isSJStatusSubcommand(sub) {
+		return RunSJStatus(SJStatusCmd, args, ctx)
+	}
+	if sub == "ls" || sub == "list" {
+		return executeSJList(ctx)
+	}
+	if sub == "rm" || sub == "remove" || sub == "delete" {
+		return runSJRm(nil, args, ctx)
+	}
+	if sub == "add-auth" || sub == "auth" {
+		return runSJAddAuth(nil, args, ctx)
+	}
+
+	return runSJHistory(nil, args, ctx)
+}
+
+func routeSJSubcommands(ctx context.Context, args []string) (bool, error) {
+	if len(args) == 0 {
+		return false, nil
+	}
+
+	if !isSJSubcommand(args[0]) {
+		return false, nil
+	}
+
+	return true, dispatchSJSubcommand(ctx, args[0], args[1:])
+}
+
+func buildHostRecord(opts *SSHJoinOptions, now time.Time) store.SSHHost {
+	return store.SSHHost{
+		ID:        fmt.Sprintf("host-%s", opts.Target.IP),
+		Alias:     opts.Alias,
+		IP:        opts.Target.IP,
+		Username:  opts.Target.Username,
+		CreatedAt: now,
+	}
+}
+
+func buildHistRecord(opts *SSHJoinOptions, now time.Time) store.SSHHistory {
+	return store.SSHHistory{
+		ID:       fmt.Sprintf("hist-%d", now.UnixNano()),
+		HostIP:   opts.Target.IP,
+		JoinedAt: now,
+		User:     opts.Target.Username,
+	}
+}
+
+func buildHostAndHistory(opts *SSHJoinOptions) (store.SSHHost, store.SSHHistory) {
+	now := time.Now().UTC()
+	return buildHostRecord(opts, now), buildHistRecord(opts, now)
+}
+
+func persistEnrollment(ctx context.Context, db *sql.DB, opts *SSHJoinOptions) error {
+	host, hist := buildHostAndHistory(opts)
+	return store.EnrollSSHHost(ctx, host, hist, db)
+}
+
+func pushAuthIfRequested(ctx context.Context, opts *SSHJoinOptions) error {
+	if !opts.IsPushAuth {
+		return nil
+	}
+
+	pubKey, err := getLocalPublicKey(ctx, "", false)
+	if err != nil {
+		return err
+	}
+
+	return appendKeyRemote(ctx, pubKey, *opts.Target)
+}
+
+func printEnrollSuccess(alias, target string) {
+	fmt.Printf("✓ Machine '%s' (%s) joined successfully.\n", alias, target)
+	fmt.Printf("  Recall anytime: gitmap ssh %s\n", alias)
+	fmt.Printf("  Or connect directly: gitmap ssh %s\n", target)
+}
+
+func completeEnrollment(ctx context.Context, opts *SSHJoinOptions) error {
+	if err := pushAuthIfRequested(ctx, opts); err != nil {
+		return err
+	}
+
+	printEnrollSuccess(opts.Alias, opts.Target.String())
 	return nil
 }
 
+func openAndPersist(ctx context.Context, opts *SSHJoinOptions) error {
+	dbConn, err := openSSHDBFunc()
+	if err != nil {
+		return apperror.New("enrollParsedTarget", "E_INTERNAL_ERROR", map[string]any{"cause": err.Error()})
+	}
+
+	defer dbConn.Close()
+
+	return persistEnrollment(ctx, dbConn.SQL(), opts)
+}
+
+func enrollParsedTarget(ctx context.Context, opts *SSHJoinOptions) error {
+	if opts.Target == nil {
+		return apperror.NewValidationError(msgMissingJoinTarget)
+	}
+
+	if err := openAndPersist(ctx, opts); err != nil {
+		return err
+	}
+
+	return completeEnrollment(ctx, opts)
+}
+
+func showJoinHelpAndExit() error {
+	helptext.Print("ssh-join")
+	cliexit.Exit(0)
+	return nil
+}
+
+func parseJoinArgs(args []string) (*SSHJoinOptions, error) {
+	if len(args) == 0 {
+		return nil, apperror.NewValidationError(msgMissingJoinTarget)
+	}
+
+	opts, err := parseSSHJoinOptions(args)
+	if err != nil {
+		return nil, apperror.NewValidationError(msgMissingJoinTarget)
+	}
+
+	return opts, nil
+}
+
+func executeEnrollCLI(ctx context.Context, args []string) error {
+	opts, err := parseJoinArgs(args)
+	if err != nil {
+		return err
+	}
+
+	if opts.IsShowHelp {
+		return showJoinHelpAndExit()
+	}
+
+	return enrollParsedTarget(ctx, opts)
+}
+
+func runSSHJoinCLI(args []string) error {
+	if hasHelpFlag(args) {
+		return showJoinHelpAndExit()
+	}
+
+	ctx := context.Background()
+	isHandled, err := routeSJSubcommands(ctx, args)
+	if isHandled {
+		return err
+	}
+
+	return executeEnrollCLI(ctx, args)
+}
+
 func init() {
+	SSHJoinCmd.AddCommand(SJAddCmd)
 	SSHJoinCmd.AddCommand(SJRmCmd)
 	SSHJoinCmd.AddCommand(SJAddAuthCmd)
 	SSHJoinCmd.AddCommand(SJLsCmd)

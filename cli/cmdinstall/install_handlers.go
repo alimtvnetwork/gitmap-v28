@@ -19,6 +19,10 @@ func specialSyncHandler(tool string) func(installOptions) {
 }
 
 func specialToolHandler(tool string) func(installOptions) {
+	return resolveSpecialToolsMap()[tool]
+}
+
+func resolveSpecialToolsMap() map[string]func(installOptions) {
 	return map[string]func(installOptions){
 		constants.ToolVSCodeCtx:        func(installOptions) { runVSCodeContextMenu() },
 		constants.ToolPwshCtx:          func(installOptions) { runPwshContextMenu() },
@@ -32,7 +36,8 @@ func specialToolHandler(tool string) func(installOptions) {
 		constants.ToolAgCtx:            func(opts installOptions) { runInstallCtx(opts.Explain) },
 		constants.ToolAntigravity:      func(opts installOptions) { handleAntigravityInstall(opts) },
 		constants.ToolAgy:              func(opts installOptions) { handleAgyInstall(opts) },
-	}[tool]
+		constants.ToolGitCompact:       func(opts installOptions) { handleGitCompactInstall(opts) },
+	}
 }
 
 func handleAntigravityInstall(opts installOptions) {

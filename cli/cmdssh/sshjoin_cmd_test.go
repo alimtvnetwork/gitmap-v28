@@ -3,6 +3,7 @@ package cmdssh
 import (
 	"context"
 	"database/sql"
+	"path/filepath"
 	"testing"
 	"time"
 
@@ -37,17 +38,21 @@ func initTestSSHTables(t *testing.T, db *sql.DB) {
 	}
 }
 
+func createTestHistory(id, ip, user string) store.SSHHistory {
+	return store.SSHHistory{
+		ID:       id,
+		HostIP:   ip,
+		JoinedAt: time.Now(),
+		User:     user,
+	}
+}
+
 func TestExecuteSSHJoinAtomicity(t *testing.T) {
 	db := setupTestSSHDB(t)
 	defer db.Close()
 
 	ctx := context.Background()
-	hist := store.SSHHistory{
-		ID:       "host-1",
-		HostIP:   "192.168.1.100",
-		JoinedAt: time.Now(),
-		User:     "admin",
-	}
+	hist := createTestHistory("host-1", "192.168.1.100", "admin")
 
 	if err := runJoinTransaction(ctx, db, "my-server", hist); err != nil {
 		t.Fatalf("runJoinTransaction failed: %v", err)
@@ -95,4 +100,223 @@ func seedCollisionHist(t *testing.T, db *sql.DB, id string) {
 
 func TestExecuteSSHJoinSkeleton(t *testing.T) {
 	_ = executeSSHJoin
+}
+
+func setupTestStoreDB(t *testing.T) *store.DB {
+	dbPath := filepath.Join(t.TempDir(), "test_ssh.db")
+	dbConn, err := store.OpenAt(dbPath)
+	if err != nil {
+		t.Fatalf("failed to open test db: %v", err)
+	}
+
+	if err := dbConn.Migrate(); err != nil {
+		t.Fatalf("failed to migrate test db: %v", err)
+	}
+
+	_ = store.EnsureSSHHostsTable(dbConn.SQL())
+	_ = store.EnsureSSHHistoryTable(dbConn.SQL())
+	return dbConn
+}
+
+func withMockSSHDB(t *testing.T, fn func(db *store.DB)) {
+	testDB := setupTestStoreDB(t)
+	defer testDB.Close()
+
+	prevOpener := openSSHDBFunc
+	openSSHDBFunc = func() (*store.DB, error) { return testDB, nil }
+	defer func() { openSSHDBFunc = prevOpener }()
+
+	fn(testDB)
+}
+
+func TestRunSSHJoinCLI_Validation(t *testing.T) {
+	if err := runSSHJoinCLI([]string{}); err == nil {
+		t.Fatal("expected error for empty args")
+	}
+
+	if err := runSSHJoinCLI([]string{"rm"}); err == nil {
+		t.Fatal("expected error for rm without target")
+	}
+
+	if err := runSSHJoinCLI([]string{"add-auth"}); err == nil {
+		t.Fatal("expected error for add-auth without target")
+	}
+}
+
+func assertEnrolledHost(t *testing.T, db *sql.DB, alias, ip string) {
+	ctx := context.Background()
+	host, err := store.GetHostByAlias(ctx, alias, db)
+	if err != nil {
+		t.Fatalf("expected host %q to exist: %v", alias, err)
+	}
+
+	if host.IP != ip {
+		t.Fatalf("expected IP %s, got %s", ip, host.IP)
+	}
+}
+
+func TestRunSSHJoinCLI_EnrollmentAndRecall(t *testing.T) {
+	withMockSSHDB(t, func(db *store.DB) {
+		args := []string{"10.0.10.1", "node-a"}
+		if err := runSSHJoinCLI(args); err != nil {
+			t.Fatalf("runSSHJoinCLI failed: %v", err)
+		}
+		assertEnrolledHost(t, db.SQL(), "node-a", "10.0.10.1")
+	})
+}
+
+func assertHostDeleted(t *testing.T, db *sql.DB, alias string) {
+	ctx := context.Background()
+	if _, err := store.GetHostByAlias(ctx, alias, db); err == nil {
+		t.Fatalf("expected host %q to be deleted", alias)
+	}
+}
+
+func TestRunSSHJoinCLI_Removal(t *testing.T) {
+	withMockSSHDB(t, func(db *store.DB) {
+		_ = runSSHJoinCLI([]string{"10.0.10.2", "rm-box"})
+		if err := runSSHJoinCLI([]string{"rm", "rm-box"}); err != nil {
+			t.Fatalf("rm failed: %v", err)
+		}
+		assertHostDeleted(t, db.SQL(), "rm-box")
+	})
+}
+
+func TestRunSSHJoinCLI_Subcommands(t *testing.T) {
+	withMockSSHDB(t, func(db *store.DB) {
+		if err := runSSHJoinCLI([]string{"ls"}); err != nil {
+			t.Fatalf("ls failed: %v", err)
+		}
+		if err := runSSHJoinCLI([]string{"history"}); err != nil {
+			t.Fatalf("history failed: %v", err)
+		}
+	})
+}
+
+func TestRunSSHJoinCLI_AddSubcommand(t *testing.T) {
+	withMockSSHDB(t, func(db *store.DB) {
+		args := []string{"add", "192.168.1.14", "box"}
+		if err := runSSHJoinCLI(args); err != nil {
+			t.Fatalf("runSSHJoinCLI 'add' failed: %v", err)
+		}
+		assertEnrolledHost(t, db.SQL(), "box", "192.168.1.14")
+	})
+}
+
+func TestRunSSHJoinCLI_DirectPositional(t *testing.T) {
+	withMockSSHDB(t, func(db *store.DB) {
+		args := []string{"192.168.1.14", "box"}
+		if err := runSSHJoinCLI(args); err != nil {
+			t.Fatalf("runSSHJoinCLI direct positional failed: %v", err)
+		}
+		assertEnrolledHost(t, db.SQL(), "box", "192.168.1.14")
+	})
+}
+
+func setupFreshStoreDB(t *testing.T) *store.DB {
+	dbPath := filepath.Join(t.TempDir(), "fresh_ssh.db")
+	dbConn, err := store.OpenAt(dbPath)
+	if err != nil {
+		t.Fatalf("failed to open fresh db: %v", err)
+	}
+
+	return dbConn
+}
+
+func withFreshSSHDB(t *testing.T, fn func(db *store.DB)) {
+	testDB := setupFreshStoreDB(t)
+	defer testDB.Close()
+
+	prevOpener := openSSHDBFunc
+	openSSHDBFunc = func() (*store.DB, error) { return testDB, nil }
+	defer func() { openSSHDBFunc = prevOpener }()
+
+	fn(testDB)
+}
+
+func TestRunSSHJoinCLI_LsFreshDB(t *testing.T) {
+	withFreshSSHDB(t, func(db *store.DB) {
+		if err := runSSHJoinCLI([]string{"ls"}); err != nil {
+			t.Fatalf("runSSHJoinCLI 'ls' failed on fresh db: %v", err)
+		}
+	})
+}
+
+func TestSJAddCmd_Execute(t *testing.T) {
+	withMockSSHDB(t, func(db *store.DB) {
+		cmd := SJAddCmd
+		args := []string{"192.168.1.20", "add-box"}
+		if err := cmd.RunE(cmd, args); err != nil {
+			t.Fatalf("SJAddCmd RunE failed: %v", err)
+		}
+		assertEnrolledHost(t, db.SQL(), "add-box", "192.168.1.20")
+	})
+}
+
+func TestSSHJoinCmd_RoutingAddAndPositional(t *testing.T) {
+	withMockSSHDB(t, func(db *store.DB) {
+		cmd := SSHJoinCmd
+		if err := cmd.RunE(cmd, []string{"add", "192.168.1.21", "box-add"}); err != nil {
+			t.Fatalf("SSHJoinCmd add routing failed: %v", err)
+		}
+		assertEnrolledHost(t, db.SQL(), "box-add", "192.168.1.21")
+
+		if err := cmd.RunE(cmd, []string{"192.168.1.22", "box-pos"}); err != nil {
+			t.Fatalf("SSHJoinCmd positional routing failed: %v", err)
+		}
+		assertEnrolledHost(t, db.SQL(), "box-pos", "192.168.1.22")
+	})
+}
+
+func assertEnrolledHostWithUser(t *testing.T, db *sql.DB, alias, ip, user string) {
+	ctx := context.Background()
+	host, err := store.GetHostByAlias(ctx, alias, db)
+	if err != nil {
+		t.Fatalf("expected host %q to exist: %v", alias, err)
+	}
+	if host.IP != ip || host.Username != user {
+		t.Fatalf("mismatch: got %s@%s, want %s@%s", host.Username, host.IP, user, ip)
+	}
+}
+
+func TestRunSSHJoinCLI_UserAtIP(t *testing.T) {
+	withMockSSHDB(t, func(db *store.DB) {
+		args := []string{"alim@192.168.1.14"}
+		if err := runSSHJoinCLI(args); err != nil {
+			t.Fatalf("runSSHJoinCLI failed: %v", err)
+		}
+		assertEnrolledHostWithUser(t, db.SQL(), "host-192.168.1.14", "192.168.1.14", "alim")
+	})
+}
+
+func TestRunSSHJoinCLI_UserAtIP_WithAlias(t *testing.T) {
+	withMockSSHDB(t, func(db *store.DB) {
+		args := []string{"alim@192.168.1.14", "mybox"}
+		if err := runSSHJoinCLI(args); err != nil {
+			t.Fatalf("runSSHJoinCLI failed: %v", err)
+		}
+		assertEnrolledHostWithUser(t, db.SQL(), "mybox", "192.168.1.14", "alim")
+	})
+}
+
+func TestSJAddCmd_UserAtIP(t *testing.T) {
+	withMockSSHDB(t, func(db *store.DB) {
+		cmd := SJAddCmd
+		args := []string{"root@192.168.1.30", "prod-server"}
+		if err := cmd.RunE(cmd, args); err != nil {
+			t.Fatalf("SJAddCmd RunE failed: %v", err)
+		}
+		assertEnrolledHostWithUser(t, db.SQL(), "prod-server", "192.168.1.30", "root")
+	})
+}
+
+func TestSSHJoinCmd_PositionalUserAtIP(t *testing.T) {
+	withMockSSHDB(t, func(db *store.DB) {
+		cmd := SSHJoinCmd
+		args := []string{"ubuntu@192.168.1.40"}
+		if err := cmd.RunE(cmd, args); err != nil {
+			t.Fatalf("SSHJoinCmd RunE failed: %v", err)
+		}
+		assertEnrolledHostWithUser(t, db.SQL(), "host-192.168.1.40", "192.168.1.40", "ubuntu")
+	})
 }

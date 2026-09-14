@@ -1,6 +1,7 @@
 package cmdinstall
 
 import (
+	"runtime"
 	"strings"
 
 	"github.com/alimtvnetwork/gitmap-v28/cli/constants"
@@ -17,7 +18,7 @@ type InstallProfile struct {
 
 // AllInstallProfiles returns the registered installation profiles.
 func AllInstallProfiles() []InstallProfile {
-	profiles := make([]InstallProfile, 0, 15)
+	profiles := make([]InstallProfile, 0, 18)
 	profiles = append(profiles, getCoreWorkstationProfiles()...)
 
 	return append(profiles, getSpecializedWorkstationProfiles()...)
@@ -65,8 +66,8 @@ func buildGitCompactProfile() InstallProfile {
 		Name:        "git-compact",
 		Title:       "Git compact workstation",
 		Description: "Git version control and GitHub Desktop",
-		Tools:       []string{constants.ToolGit, constants.ToolGitHubDesktop},
-		Aliases:     []string{"git", "gitcompact"},
+		Tools:       []string{constants.ToolGit, constants.ToolGitHubDesktop, constants.ToolGitCompact},
+		Aliases:     []string{"gitcompact", "profile-git", "profile-git-compact"},
 	}
 }
 
@@ -78,7 +79,7 @@ func buildAdvanceProfile() InstallProfile {
 		Tools: []string{
 			constants.ToolGit, constants.ToolVLC, constants.Tool7Zip, constants.ToolWinRAR,
 			constants.ToolUbuntuFont, constants.ToolXMind, constants.ToolNpp, constants.ToolChrome,
-			constants.ToolConemu, constants.ToolGitHubDesktop, constants.ToolWordWeb,
+			constants.ToolConemu, constants.ToolGitHubDesktop, constants.ToolGitCompact, constants.ToolWordWeb,
 			constants.ToolBeyondCompare, constants.ToolOBS, constants.ToolWhatsApp,
 			constants.ToolVSCode, constants.ToolVSCodeSync,
 		},
@@ -103,14 +104,35 @@ func buildSmallDevProfile() InstallProfile {
 		Name:        "small-dev",
 		Title:       "Small dev workstation",
 		Description: "Advance profile + Go programming language",
-		Tools: []string{
-			constants.ToolGit, constants.ToolVLC, constants.Tool7Zip, constants.ToolWinRAR,
-			constants.ToolUbuntuFont, constants.ToolXMind, constants.ToolNpp, constants.ToolChrome,
-			constants.ToolConemu, constants.ToolGitHubDesktop, constants.ToolWordWeb,
-			constants.ToolBeyondCompare, constants.ToolOBS, constants.ToolWhatsApp,
-			constants.ToolVSCode, constants.ToolVSCodeSync, constants.ToolGo,
-		},
-		Aliases: []string{"smalldev", "slim-dev"},
+		Tools:       resolveSmallDevTools(),
+		Aliases:     []string{"smalldev", "slim-dev", "simple-dev", "simpledev"},
+	}
+}
+
+func resolveSmallDevTools() []string {
+	if runtime.GOOS == "windows" {
+		return resolveWindowsSmallDevTools()
+	}
+
+	return resolveLinuxSmallDevTools()
+}
+
+func resolveWindowsSmallDevTools() []string {
+	return []string{
+		constants.ToolGit, constants.ToolVLC, constants.Tool7Zip, constants.ToolWinRAR,
+		constants.ToolUbuntuFont, constants.ToolXMind, constants.ToolNpp, constants.ToolChrome,
+		constants.ToolConemu, constants.ToolGitHubDesktop, constants.ToolGitCompact, constants.ToolWordWeb,
+		constants.ToolBeyondCompare, constants.ToolOBS, constants.ToolWhatsApp,
+		constants.ToolVSCode, constants.ToolVSCodeSync, constants.ToolGo,
+	}
+}
+
+func resolveLinuxSmallDevTools() []string {
+	return []string{
+		constants.ToolGit, constants.ToolZsh, constants.ToolAria2,
+		constants.ToolBuildEssential, constants.ToolVSCode, constants.ToolVSCodeSync,
+		constants.ToolGitHubDesktop, constants.ToolGitCompact, constants.ToolGo,
+		constants.ToolRust, constants.ToolPHP, constants.ToolPython,
 	}
 }
 
@@ -119,14 +141,36 @@ func buildDevProfile() InstallProfile {
 		Name:        "dev",
 		Title:       "Dev workstation with AI",
 		Description: "Standard dev workstation + runtimes + AI suite",
-		Tools: []string{
-			constants.ToolVSCode, constants.ToolGit, constants.ToolPython,
-			constants.ToolNodeJS, constants.ToolPnpm, constants.ToolGo,
-			constants.ToolRust, constants.ToolPHP, constants.ToolAntigravity,
-			constants.ToolAgManager,
-		},
-		Aliases: []string{"developer", "dev-stack"},
+		Tools:       resolveDevTools(),
+		Aliases:     []string{"developer", "dev-stack"},
 	}
+}
+
+func resolveDevTools() []string {
+	if runtime.GOOS == "windows" {
+		return resolveWindowsDevTools()
+	}
+
+	return resolveLinuxDevTools()
+}
+
+func resolveWindowsDevTools() []string {
+	extra := []string{
+		constants.ToolPython, constants.ToolNodeJS, constants.ToolPnpm,
+		constants.ToolRust, constants.ToolPHP, constants.ToolAntigravity,
+		constants.ToolAgManager,
+	}
+
+	return append(resolveSmallDevTools(), extra...)
+}
+
+func resolveLinuxDevTools() []string {
+	extra := []string{
+		constants.ToolNodeJS, constants.ToolPnpm, constants.ToolYarn,
+		constants.ToolAntigravity, constants.ToolAgManager,
+	}
+
+	return append(resolveSmallDevTools(), extra...)
 }
 
 func buildDevAdvanceProfile() InstallProfile {
@@ -158,17 +202,30 @@ func FindInstallProfile(name string) (InstallProfile, bool) {
 }
 
 func matchesProfile(p InstallProfile, low string) bool {
-	if strings.ToLower(p.Name) == low {
+	pName := strings.ToLower(p.Name)
+	if pName == low || pName == stripProfileAffixes(low) {
 		return true
 	}
 
-	for _, a := range p.Aliases {
-		if strings.ToLower(a) == low {
+	return matchesProfileAliases(p.Aliases, low)
+}
+
+func matchesProfileAliases(aliases []string, low string) bool {
+	for _, a := range aliases {
+		aLow := strings.ToLower(a)
+		if aLow == low || aLow == stripProfileAffixes(low) {
 			return true
 		}
 	}
 
 	return false
+}
+
+func stripProfileAffixes(s string) string {
+	s = strings.TrimPrefix(s, "profile-")
+	s = strings.TrimPrefix(s, "profile:")
+
+	return strings.TrimSuffix(s, "-profile")
 }
 
 // IsInstallProfile checks whether the given string names an installation profile.

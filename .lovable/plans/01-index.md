@@ -4,13 +4,17 @@ Master directory of architectural and execution plans.
 
 ## Pending Plans
 
-1. [Plan 165: 165-pipeline-commit-history-errors-storage-sqlite.md](pending/165-pipeline-commit-history-errors-storage-sqlite.md): Pipeline Commit-Based Errors, History, Logs, SQLite Telemetry & Storage Suite
+<!-- No pending plans -->
 
 ## Recent Completed Tasks Register (Last 20 Tasks)
 
-1. [Plan 141: 141-result-wrapper-and-slice-returns.md](completed/141-result-wrapper-and-slice-returns.md): ResultSlice wrapper types for Go functions returning slice tuples
-2. [Plan 142: 142-boolean-principles-negatives-and-complex-conditions.md](completed/142-boolean-principles-negatives-and-complex-conditions.md): Boolean conventions, positive prefixes, and condition extraction
-3. [Plan 143: 143-argument-reduction-and-parameter-structs.md](completed/143-argument-reduction-and-parameter-structs.md): Function argument reduction and parameter struct encapsulation
+1. [Plan 169: 169-scripts-fixer-profile-alignment-and-pull-progress-bar-redesign.md](completed/169-scripts-fixer-profile-alignment-and-pull-progress-bar-redesign.md): Scripts-Fixer Profile Alignment & Git Pull Progress Bar Redesign
+2. [Plan 168: 168-ssh-join-network-scan-health-status-and-help-parity.md](completed/168-ssh-join-network-scan-health-status-and-help-parity.md): SSH Machine Join, Network Scan Discovery, Health Status & Full Help Parity
+3. [Plan 167: 167-ssh-join-host-management-and-recall-examples.md](completed/167-ssh-join-host-management-and-recall-examples.md): SSH Machine Join, Host Management, Mistake Recovery & Recall Suite
+4. [Plan 166: 166-scripts-fixer-alignment-git-compact-profile-pull-progress-bar.md](completed/166-scripts-fixer-alignment-git-compact-profile-pull-progress-bar.md): Scripts-Fixer Intelligence Alignment, git-compact Profile & GitMap Pull Progress Bar Suite
+4. [Plan 165: 165-pipeline-commit-history-errors-storage-sqlite.md](completed/165-pipeline-commit-history-errors-storage-sqlite.md): Pipeline Commit-Based Errors, History, Logs, SQLite Telemetry & Storage Suite
+3. [Plan 164: 164-profile-vmware-installer-sqlite-parity.md](completed/164-profile-vmware-installer-sqlite-parity.md): Profile VMware & Shell/Go Installer SQLite Tracking Suite
+4. [Plan 163: 163-github-desktop-missing-install-suggestions.md](completed/163-github-desktop-missing-install-suggestions.md): GitHub Desktop Missing Install Suggestions & CLI Parity Suite
 4. [Plan 144: 144-result-wrapper-null-safety-and-single-return-audit.md](completed/144-result-wrapper-null-safety-and-single-return-audit.md): Null-safety predicates and single return envelope audit
 5. [Plan 145: 145-result-wrapper-and-types-go-centralization-audit.md](completed/145-result-wrapper-and-types-go-centralization-audit.md): Centralization of reusable Result aliases in types.go
 6. [Plan 146: 146-db-cluster-result-wrapper-and-types-go.md](completed/146-db-cluster-result-wrapper-and-types-go.md): DB cluster and SSH migration to Result wrappers

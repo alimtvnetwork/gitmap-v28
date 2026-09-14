@@ -25,9 +25,26 @@ func coreDispatchEntries() []dispatchEntry {
 }
 
 func coreBasicEntries() []dispatchEntry {
+	entries := make([]dispatchEntry, 0, 17)
+	entries = append(entries, coreBasicMaintenanceEntries()...)
+
+	return append(entries, coreBasicOpEntries()...)
+}
+
+func coreBasicMaintenanceEntries() []dispatchEntry {
 	return []dispatchEntry{
 		{[]string{"clean-corrupted", "clean-corrupted-dirs"}, func() error { return runCleanCorrupted(argsTail()) }},
 		{[]string{"purge", "purge-history"}, func() error { return cmdpurge.RunPurge(argsTail()) }},
+		{[]string{"fix"}, func() error { return runFix(argsTail(), "") }},
+		{[]string{"stash"}, func() error { return runFix(argsTail(), "stash") }},
+		{[]string{"wip"}, func() error { return runFix(argsTail(), "wip") }},
+		{[]string{"discard"}, func() error { return runFix(argsTail(), "discard") }},
+		{[]string{constants.CmdReconcile, constants.CmdReconcileAlias}, func() error { return RunReconcileCmd(argsTail()) }},
+	}
+}
+
+func coreBasicOpEntries() []dispatchEntry {
+	return []dispatchEntry{
 		{[]string{constants.CmdScan, constants.CmdScanAlias}, func() error { return runScan(argsTail()) }},
 		{[]string{constants.CmdClone, constants.CmdCloneAlias}, func() error { return runClone(argsTail()) }},
 		{[]string{constants.CmdCreate, constants.CmdCreateAlias}, func() error { return runCreate(argsTail()) }},
@@ -36,12 +53,7 @@ func coreBasicEntries() []dispatchEntry {
 		{[]string{constants.CmdPush, constants.CmdPushAlias}, func() error { return runPush(argsTail()) }},
 		{[]string{constants.CmdPullAll, constants.CmdPullAllAlias}, func() error { return runPullAll(argsTail()) }},
 		{[]string{constants.CmdStatus, constants.CmdStatusAlias}, func() error { return runStatus(argsTail()) }},
-		{[]string{constants.CmdReconcile, constants.CmdReconcileAlias}, func() error { return RunReconcileCmd(argsTail()) }},
-		{[]string{"fix"}, func() error { return runFix(argsTail(), "") }},
-		{[]string{"stash"}, func() error { return runFix(argsTail(), "stash") }},
-		{[]string{"wip"}, func() error { return runFix(argsTail(), "wip") }},
-		{[]string{"discard"}, func() error { return runFix(argsTail(), "discard") }},
-
+		{[]string{"git"}, func() error { return runGitSubcommand(argsTail()) }},
 		{[]string{constants.CmdExec, constants.CmdExecAlias}, func() error { return runExec(argsTail()) }},
 	}
 }

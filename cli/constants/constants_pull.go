@@ -11,6 +11,15 @@ package constants
 const (
 	FlagDescPullParallel      = "Run up to N pulls concurrently (0 = auto / NumCPU, 1 = sequential)"
 	FlagDescPullOnlyAvailable = "Skip repos whose latest probe reports no new tag (run `gitmap probe --all` first)"
+	FlagDescPullRaw           = "Stream raw git output directly instead of using progress bar"
+)
+
+// Progress bar visual glyphs.
+const (
+	ProgressBarFilledRich = "█"
+	ProgressBarEmptyRich  = "░"
+	ProgressBarFilledSafe = "="
+	ProgressBarEmptySafe  = "-"
 )
 
 // User-facing pull messages (Phase 2.5).

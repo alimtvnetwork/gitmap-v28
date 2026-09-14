@@ -1,6 +1,8 @@
 package cmdinstall
 
 import (
+	"runtime"
+
 	"github.com/alimtvnetwork/gitmap-v28/cli/constants"
 )
 
@@ -11,6 +13,8 @@ func getSpecializedWorkstationProfiles() []InstallProfile {
 		buildDevopsProfile(),
 		buildUbuntuProfile(),
 		buildAIProfile(),
+		buildAiToolsProfile(),
+		buildAntigravitySuiteProfile(),
 		buildBackendProfile(),
 		buildFullstackProfile(),
 	}
@@ -21,12 +25,35 @@ func buildTerminalProfile() InstallProfile {
 		Name:        "terminal",
 		Title:       "Terminal essentials workstation",
 		Description: "ConEmu, Notepad++, PowerShell, Chrome, Ubuntu font, 7-Zip, WinRAR",
-		Tools: []string{
-			constants.ToolConemu, constants.ToolNpp, constants.ToolPowerShell,
-			constants.ToolChrome, constants.ToolUbuntuFont, constants.Tool7Zip,
-			constants.ToolWinRAR,
+		Tools:       resolveTerminalProfileTools(),
+		Aliases: []string{
+			"term", "cli", "terminal-profile", "profile-terminal",
+			"terminalprofile", "terminal-essentials",
 		},
-		Aliases: []string{"term", "cli"},
+	}
+}
+
+func resolveTerminalProfileTools() []string {
+	if runtime.GOOS == "windows" {
+		return resolveWindowsTerminalTools()
+	}
+
+	return resolveUnixTerminalTools()
+}
+
+func resolveWindowsTerminalTools() []string {
+	return []string{
+		constants.ToolConemu, constants.ToolNpp, constants.ToolPowerShell,
+		constants.ToolChrome, constants.ToolUbuntuFont, constants.Tool7Zip,
+		constants.ToolWinRAR,
+	}
+}
+
+func resolveUnixTerminalTools() []string {
+	return []string{
+		constants.ToolZsh, constants.ToolPowerShell, constants.ToolChrome,
+		constants.ToolUbuntuFont, constants.ToolJq, constants.ToolYq,
+		constants.ToolZellij,
 	}
 }
 
@@ -78,6 +105,31 @@ func buildAIProfile() InstallProfile {
 			constants.ToolPythonLibs, constants.ToolAntigravity, constants.ToolAgManager,
 		},
 		Aliases: []string{"ai-dev", "ml", "llm"},
+	}
+}
+
+func buildAiToolsProfile() InstallProfile {
+	return InstallProfile{
+		Name:        "ai-tools",
+		Title:       "AI tools suite",
+		Description: "Local LLM runners, Python ML libs & Antigravity tools",
+		Tools: []string{
+			constants.ToolPython, constants.ToolOllama, constants.ToolLlamaCpp,
+			constants.ToolPythonLibs, constants.ToolAntigravity, constants.ToolAgManager,
+		},
+		Aliases: []string{"all-ai", "aitools"},
+	}
+}
+
+func buildAntigravitySuiteProfile() InstallProfile {
+	return InstallProfile{
+		Name:        "antigravity-suite",
+		Title:       "Antigravity workstation suite",
+		Description: "Antigravity Desktop IDE, Manager, and Agent CLI suite",
+		Tools: []string{
+			constants.ToolAntigravity, constants.ToolAgManager, constants.ToolAgy,
+		},
+		Aliases: []string{"ag-suite", "antigravitysuite"},
 	}
 }
 

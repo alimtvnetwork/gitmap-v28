@@ -1,6 +1,7 @@
 package cmdinstall
 
 import (
+	"runtime"
 	"strings"
 
 	"github.com/alimtvnetwork/gitmap-v28/cli/cmdinstaller"
@@ -58,9 +59,31 @@ func buildUbuntuSmallDevProfile() ProfileComposition {
 		Alias:       "ub+sdev",
 		Description: "Ubuntu lightweight development suite with runtime interpreters",
 		Base:        &baseProfile,
+		Tools:       buildUbuntuSmallDevTools(),
+	}
+}
+
+func buildUbuntuSmallDevTools() []ToolEntry {
+	return []ToolEntry{
+		{Slug: "github-desktop", Description: "GitHub Desktop application"},
+		{Slug: "git-compact", Description: "Git compact repository tool and cleaner"},
+		{Slug: "golang", Description: "Go programming language runtime and tools"},
+		{Slug: "rust", Description: "Rust programming language and Cargo toolchain"},
+		{Slug: "php", Description: "PHP programming language and interpreter"},
+		{Slug: "python3", Description: "Python 3 runtime environment"},
+	}
+}
+
+func buildGitCompactProfileComposition() ProfileComposition {
+	return ProfileComposition{
+		Name:        "git-compact",
+		Alias:       "gitcompact",
+		Description: "Git compact repository tool and version control suite",
+		Base:        nil,
 		Tools: []ToolEntry{
-			{Slug: "golang", Description: "Go programming language runtime and tools"},
-			{Slug: "nodejs", Description: "Node.js JavaScript runtime and npm"},
+			{Slug: "git", Description: "Fast, scalable, distributed revision control system"},
+			{Slug: "github-desktop", Description: "GitHub Desktop application"},
+			{Slug: "git-compact", Description: "Git compact repository tool and cleaner"},
 		},
 	}
 }
@@ -73,10 +96,17 @@ func buildUbuntuDevProfile() ProfileComposition {
 		Alias:       "ub+dev",
 		Description: "Full Ubuntu developer workstation suite",
 		Base:        &baseProfile,
-		Tools: []ToolEntry{
-			{Slug: "docker", Description: "Container runtime and management engine"},
-			{Slug: "python3", Description: "Python 3 runtime, pip, and venv tooling"},
-		},
+		Tools:       buildUbuntuDevTools(),
+	}
+}
+
+func buildUbuntuDevTools() []ToolEntry {
+	return []ToolEntry{
+		{Slug: "nodejs", Description: "Node.js JavaScript runtime and npm"},
+		{Slug: "pnpm", Description: "Fast, disk space efficient package manager"},
+		{Slug: "yarn", Description: "Fast, reliable, and secure dependency management"},
+		{Slug: "antigravity", Description: "Google Antigravity Desktop IDE environment"},
+		{Slug: "ag-manager", Description: "Antigravity manager GUI and toolchain"},
 	}
 }
 
@@ -87,9 +117,43 @@ func buildAntigravityProfile() ProfileComposition {
 		Description: "Antigravity IDE and Agent CLI Environment",
 		Base:        nil,
 		Tools: []ToolEntry{
-			{Slug: "python3", Description: "Python 3 runtime environment"},
-			{Slug: "gitmap", Description: "Gitmap core orchestration binary"},
-			{Slug: "ag-cli", Description: "Antigravity autonomous agent CLI"},
+			{Slug: "antigravity", Description: "Google Antigravity Desktop IDE environment"},
+			{Slug: "ag-manager", Description: "Antigravity manager GUI and toolchain"},
+		},
+	}
+}
+
+func buildAiToolsProfileTree() ProfileComposition {
+	return ProfileComposition{
+		Name:        "ai-tools",
+		Alias:       "all-ai",
+		Description: "Comprehensive AI development suite and local LLMs",
+		Base:        nil,
+		Tools:       buildAiToolsEntries(),
+	}
+}
+
+func buildAiToolsEntries() []ToolEntry {
+	return []ToolEntry{
+		{Slug: "python3", Description: "Python 3 runtime environment"},
+		{Slug: "ollama", Description: "Ollama local large language model runner"},
+		{Slug: "llama-cpp", Description: "llama.cpp LLM inference engine in C/C++"},
+		{Slug: "python-libs", Description: "Python AI, ML, and data science libraries"},
+		{Slug: "antigravity", Description: "Google Antigravity Desktop IDE environment"},
+		{Slug: "ag-manager", Description: "Antigravity manager GUI and toolchain"},
+	}
+}
+
+func buildAntigravitySuiteProfileTree() ProfileComposition {
+	return ProfileComposition{
+		Name:        "antigravity-suite",
+		Alias:       "ag-suite",
+		Description: "Antigravity Desktop IDE, Manager, and CLI suite",
+		Base:        nil,
+		Tools: []ToolEntry{
+			{Slug: "antigravity", Description: "Google Antigravity Desktop IDE environment"},
+			{Slug: "ag-manager", Description: "Antigravity manager GUI and toolchain"},
+			{Slug: "agy", Description: "Antigravity CLI autonomous coding assistant"},
 		},
 	}
 }
@@ -135,22 +199,102 @@ func buildUbuntuBuildEssentialProfile() ProfileComposition {
 }
 
 func resolveProfileTree(slug string) (ProfileComposition, bool) {
-	normalizedSlug := strings.ToLower(strings.TrimSpace(slug))
-	switch normalizedSlug {
+	norm := strings.ToLower(strings.TrimSpace(slug))
+	if prof, ok := resolveUbuntuProfileTree(norm); ok {
+		return prof, true
+	}
+
+	return resolveSpecialProfileTree(norm)
+}
+
+func resolveUbuntuProfileTree(norm string) (ProfileComposition, bool) {
+	switch norm {
 	case "ubuntu-basic", "ubuntu+basic", "ub":
 		return buildUbuntuBasicProfile(), true
 	case "ubuntu+vscode", "ubuntu-vscode", "ub+code":
 		return buildUbuntuVscodeProfile(), true
-	case "ubuntu+small-dev", "ubuntu-small-dev", "ub+sdev", "small-dev":
+	case "ubuntu+small-dev", "ubuntu-small-dev", "ub+sdev", "small-dev", "simple-dev", "simpledev":
 		return buildUbuntuSmallDevProfile(), true
 	case "ubuntu+dev", "ubuntu-dev", "ub+dev", "dev":
 		return buildUbuntuDevProfile(), true
-	case "ag", "antigravity":
-		return buildAntigravityProfile(), true
+	default:
+		return ProfileComposition{}, false
+	}
+}
+
+func buildTerminalProfileComposition() ProfileComposition {
+	return ProfileComposition{
+		Name:        "terminal",
+		Alias:       "term",
+		Description: "Terminal essentials: console emulators, editors, and modern shell",
+		Base:        nil,
+		Tools:       buildTerminalToolEntries(),
+	}
+}
+
+func buildTerminalToolEntries() []ToolEntry {
+	if runtime.GOOS == "windows" {
+		return buildWindowsTerminalToolEntries()
+	}
+
+	return buildUnixTerminalToolEntries()
+}
+
+func buildWindowsTerminalToolEntries() []ToolEntry {
+	return []ToolEntry{
+		{Slug: "conemu", Description: "ConEmu Windows console emulator with tabs and splits"},
+		{Slug: "notepad++", Description: "Notepad++ source code and text editor"},
+		{Slug: "powershell", Description: "PowerShell 7 cross-platform automation shell"},
+		{Slug: "chrome", Description: "Google Chrome web browser"},
+		{Slug: "ubuntu-font", Description: "Ubuntu typeface font family for programming"},
+		{Slug: "7zip", Description: "7-Zip high compression ratio file archiver"},
+		{Slug: "winrar", Description: "WinRAR archiver and RAR compression utility"},
+	}
+}
+
+func buildUnixTerminalToolEntries() []ToolEntry {
+	return []ToolEntry{
+		{Slug: "zsh", Description: "Z shell command environment"},
+		{Slug: "powershell", Description: "PowerShell 7 cross-platform automation shell"},
+		{Slug: "chrome", Description: "Google Chrome web browser"},
+		{Slug: "ubuntu-font", Description: "Ubuntu typeface font family for programming"},
+		{Slug: "jq", Description: "Command-line JSON processor"},
+		{Slug: "yq", Description: "Command-line YAML/JSON/XML processor"},
+		{Slug: "zellij", Description: "Terminal workspace and multiplexer"},
+	}
+}
+
+func resolveSpecialProfileTree(norm string) (ProfileComposition, bool) {
+	if prof, isFound := resolveWorkstationProfileTree(norm); isFound {
+		return prof, true
+	}
+
+	return resolveAiSuiteProfileTree(norm)
+}
+
+func resolveWorkstationProfileTree(norm string) (ProfileComposition, bool) {
+	switch norm {
+	case "terminal", "term", "cli", "terminal-profile", "profile-terminal", "terminalprofile", "terminal-essentials":
+		return buildTerminalProfileComposition(), true
+	case "git-compact", "gitcompact", "profile-git", "profile-git-compact":
+		return buildGitCompactProfileComposition(), true
 	case "vscode+settings", "vscode-settings", "vscode":
 		return buildVscodeSettingsProfile(), true
 	case "build-essential", "buildessential", "be", "ubuntu-common", "ub-common":
 		return buildUbuntuBuildEssentialProfile(), true
+	default:
+		return ProfileComposition{}, false
+	}
+}
+
+func resolveAiSuiteProfileTree(norm string) (ProfileComposition, bool) {
+	switch norm {
+	case "ag", "antigravity":
+		return buildAntigravityProfile(), true
+	case "ai-tools", "all-ai", "aitools":
+		return buildAiToolsProfileTree(), true
+	case "antigravity-suite", "ag-suite", "antigravitysuite":
+		return buildAntigravitySuiteProfileTree(), true
 	default:
 		return ProfileComposition{}, false
 	}
