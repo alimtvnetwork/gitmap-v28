@@ -2,6 +2,7 @@ package cmd
 
 import (
 	"github.com/alimtvnetwork/gitmap-v28/cli/cmdchromeprofile"
+	"github.com/alimtvnetwork/gitmap-v28/cli/cmdservice"
 	"github.com/alimtvnetwork/gitmap-v28/cli/cmdvmware"
 	"github.com/alimtvnetwork/gitmap-v28/cli/constants"
 )
@@ -78,6 +79,7 @@ func toolingOpsEntries() []dispatchEntry {
 		{[]string{constants.CmdTempRelease, constants.CmdTempReleaseShort}, func() error { return runTempRelease(argsTail()) }},
 		{[]string{constants.CmdTask, constants.CmdTaskAlias}, func() error { return runTask(argsTail()) }},
 		{[]string{constants.CmdEnv, constants.CmdEnvAlias}, func() error { return runEnv(argsTail()) }},
+		{[]string{constants.CmdService, constants.CmdServiceAlias, "services"}, func() error { return cmdservice.Run(argsTail()) }},
 	}
 }
 

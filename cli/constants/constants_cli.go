@@ -190,6 +190,8 @@ const (
 	CmdClusterExport         = "cluster export"                   // gitmap:cmd top-level
 	CmdClusterImport         = "cluster import"                   // gitmap:cmd top-level
 	CmdClusterSetPassword    = "cluster set-password"             // gitmap:cmd top-level
+	CmdService               = "service"                          // gitmap:cmd top-level
+	CmdServiceAlias          = "srv"
 	CmdGroupCreate           = "create"                           // gitmap:cmd skip
 	CmdGroupAdd              = "add"                              // gitmap:cmd skip
 	CmdGroupRemove           = "remove"                           // gitmap:cmd skip

@@ -8,26 +8,26 @@ None
 
 ## Recent Completed Tasks Register (Last 20 Tasks)
 
-1. [Plan 136: 136-pipeline-repo-db-compact-and-detailed-logs.md](completed/136-pipeline-repo-db-compact-and-detailed-logs.md): Split pipeline database logging and detailed execution history
-2. [Plan 137: 137-repo-scoped-temp-storage-and-prebuild-clean-audit.md](completed/137-repo-scoped-temp-storage-and-prebuild-clean-audit.md): Verification and audit of repository-scoped temp hygiene
-3. [Plan 138: 138-result-wrapper-types-and-apperror-returns.md](completed/138-result-wrapper-types-and-apperror-returns.md): Result wrapper types and AppError structured error returns
-4. [Plan 139: 139-nested-if-elimination-and-guard-clauses.md](completed/139-nested-if-elimination-and-guard-clauses.md): Elimination of nested ifs and guard clause enforcement
-5. [Plan 140: 140-constants-and-enums-architecture.md](completed/140-constants-and-enums-architecture.md): Enums architecture and Type suffix standardization
-6. [Plan 141: 141-result-wrapper-and-slice-returns.md](completed/141-result-wrapper-and-slice-returns.md): ResultSlice wrapper types for Go functions returning slice tuples
-7. [Plan 142: 142-boolean-principles-negatives-and-complex-conditions.md](completed/142-boolean-principles-negatives-and-complex-conditions.md): Boolean conventions, positive prefixes, and condition extraction
-8. [Plan 143: 143-argument-reduction-and-parameter-structs.md](completed/143-argument-reduction-and-parameter-structs.md): Function argument reduction and parameter struct encapsulation
-9. [Plan 144: 144-result-wrapper-null-safety-and-single-return-audit.md](completed/144-result-wrapper-null-safety-and-single-return-audit.md): Null-safety predicates and single return envelope audit
-10. [Plan 145: 145-result-wrapper-and-types-go-centralization-audit.md](completed/145-result-wrapper-and-types-go-centralization-audit.md): Centralization of reusable Result aliases in types.go
-11. [Plan 146: 146-db-cluster-result-wrapper-and-types-go.md](completed/146-db-cluster-result-wrapper-and-types-go.md): DB cluster and SSH migration to Result wrappers
-12. [Plan 147: 147-argument-reduction-and-parameter-structs.md](completed/147-argument-reduction-and-parameter-structs.md): Parameter structs across cluster, clone, and visibility modules
-13. [Plan 148: 148-types-go-extraction-and-generic-result-centralization.md](completed/148-types-go-extraction-and-generic-result-centralization.md): Package types.go centralization and E2E install test segregation
-14. [Plan 149: 149-installer-urls-dryrun-path-and-v6-227-0-release.md](completed/149-installer-urls-dryrun-path-and-v6-227-0-release.md): Installer seed data URLs, release dryrun path fix, and v6.227.0 release
-15. [Plan 150: 150-startup-crontab-schedule-async-storage.md](completed/150-startup-crontab-schedule-async-storage.md): Startup crontabs, schedule subcommands, async background worker, and storage display
-16. [Plan 151: 151-fix-antigravity-installer-and-aliases.md](completed/151-fix-antigravity-installer-and-aliases.md): Antigravity & Agy installer, alias mapping, and desktop fallback
-17. [Plan 152: 152-fix-antigravity-and-universal-uninstall.md](completed/152-fix-antigravity-and-universal-uninstall.md): Official GCS Antigravity installation, Linux desktop cleanup, universal uninstall engine, and stack traces
-18. [Plan 153: 153-install-tar-gz-zip-linux.md](completed/153-install-tar-gz-zip-linux.md): Linux archive package installer (`gitmap install tar <archive>`)
-19. [Plan 154: 154-os-ip-zsh-user-parity.md](completed/154-os-ip-zsh-user-parity.md): OS IP, ZSH, and User Management Parity Suite across Ubuntu, Debian, CentOS, and Windows
-20. [Plan 155: 155-antigravity-crossplatform-installer.md](completed/155-antigravity-crossplatform-installer.md): Antigravity Cross-Platform Installer Suite across Linux, Windows, and macOS
+1. [Plan 137: 137-repo-scoped-temp-storage-and-prebuild-clean-audit.md](completed/137-repo-scoped-temp-storage-and-prebuild-clean-audit.md): Verification and audit of repository-scoped temp hygiene
+2. [Plan 138: 138-result-wrapper-types-and-apperror-returns.md](completed/138-result-wrapper-types-and-apperror-returns.md): Result wrapper types and AppError structured error returns
+3. [Plan 139: 139-nested-if-elimination-and-guard-clauses.md](completed/139-nested-if-elimination-and-guard-clauses.md): Elimination of nested ifs and guard clause enforcement
+4. [Plan 140: 140-constants-and-enums-architecture.md](completed/140-constants-and-enums-architecture.md): Enums architecture and Type suffix standardization
+5. [Plan 141: 141-result-wrapper-and-slice-returns.md](completed/141-result-wrapper-and-slice-returns.md): ResultSlice wrapper types for Go functions returning slice tuples
+6. [Plan 142: 142-boolean-principles-negatives-and-complex-conditions.md](completed/142-boolean-principles-negatives-and-complex-conditions.md): Boolean conventions, positive prefixes, and condition extraction
+7. [Plan 143: 143-argument-reduction-and-parameter-structs.md](completed/143-argument-reduction-and-parameter-structs.md): Function argument reduction and parameter struct encapsulation
+8. [Plan 144: 144-result-wrapper-null-safety-and-single-return-audit.md](completed/144-result-wrapper-null-safety-and-single-return-audit.md): Null-safety predicates and single return envelope audit
+9. [Plan 145: 145-result-wrapper-and-types-go-centralization-audit.md](completed/145-result-wrapper-and-types-go-centralization-audit.md): Centralization of reusable Result aliases in types.go
+10. [Plan 146: 146-db-cluster-result-wrapper-and-types-go.md](completed/146-db-cluster-result-wrapper-and-types-go.md): DB cluster and SSH migration to Result wrappers
+11. [Plan 147: 147-argument-reduction-and-parameter-structs.md](completed/147-argument-reduction-and-parameter-structs.md): Parameter structs across cluster, clone, and visibility modules
+12. [Plan 148: 148-types-go-extraction-and-generic-result-centralization.md](completed/148-types-go-extraction-and-generic-result-centralization.md): Package types.go centralization and E2E install test segregation
+13. [Plan 149: 149-installer-urls-dryrun-path-and-v6-227-0-release.md](completed/149-installer-urls-dryrun-path-and-v6-227-0-release.md): Installer seed data URLs, release dryrun path fix, and v6.227.0 release
+14. [Plan 150: 150-startup-crontab-schedule-async-storage.md](completed/150-startup-crontab-schedule-async-storage.md): Startup crontabs, schedule subcommands, async background worker, and storage display
+15. [Plan 151: 151-fix-antigravity-installer-and-aliases.md](completed/151-fix-antigravity-installer-and-aliases.md): Antigravity & Agy installer, alias mapping, and desktop fallback
+16. [Plan 152: 152-fix-antigravity-and-universal-uninstall.md](completed/152-fix-antigravity-and-universal-uninstall.md): Official GCS Antigravity installation, Linux desktop cleanup, universal uninstall engine, and stack traces
+17. [Plan 153: 153-install-tar-gz-zip-linux.md](completed/153-install-tar-gz-zip-linux.md): Linux archive package installer (`gitmap install tar <archive>`)
+18. [Plan 154: 154-os-ip-zsh-user-parity.md](completed/154-os-ip-zsh-user-parity.md): OS IP, ZSH, and User Management Parity Suite across Ubuntu, Debian, CentOS, and Windows
+19. [Plan 155: 155-antigravity-crossplatform-installer.md](completed/155-antigravity-crossplatform-installer.md): Antigravity Cross-Platform Installer Suite across Linux, Windows, and macOS
+20. [Plan 156: 156-macro-schedule-service-table-os-suite.md](completed/156-macro-schedule-service-table-os-suite.md): Macro, Schedule, Service, OS & Terminal Table Alignment Suite
 
 
 ## Completed Plans

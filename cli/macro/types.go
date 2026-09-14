@@ -48,3 +48,16 @@ type ExecOptions struct {
 	YAML     bool
 	FilePath string
 }
+
+// AsyncStepOpts defines parameters for asynchronous step execution in macros.
+type AsyncStepOpts struct {
+	ShellType   string
+	Command     string
+	IntervalSec int
+}
+
+// RecurseOpts defines parameters for recursive macro invocation.
+type RecurseOpts struct {
+	TargetMacro string
+	Delay       time.Duration
+}

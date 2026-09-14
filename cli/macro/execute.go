@@ -98,15 +98,48 @@ func executeSingleStep(ctx context.Context, step MacroStep, idx, total int, opts
 	expandedCmd := ExpandPathAndEnv(step.CommandLine)
 	printStepHeader(opts, idx, total, expandedCmd)
 	start := time.Now()
-	if isDirChange := dt.ProcessCd(expandedCmd); isDirChange {
-		return handleDirChangeStep(step, expandedCmd, dt.CurrentDir, start, opts), nil
+
+	return dispatchStepExecution(ctx, step, expandedCmd, idx, opts, dt, start)
+}
+
+func dispatchStepExecution(ctx context.Context, step MacroStep, cmd string, idx int, opts ExecOptions, dt *DirTracker, start time.Time) (StepExecution, error) {
+	if isDirChange := dt.ProcessCd(cmd); isDirChange {
+		return handleDirChangeStep(step, cmd, dt.CurrentDir, start, opts), nil
 	}
 
-	if isOpen, target := ParseOpenCommand(expandedCmd); isOpen {
-		return executeOpenStep(ctx, step, expandedCmd, target, dt.CurrentDir, start, opts, idx)
+	if isOpen, target := ParseOpenCommand(cmd); isOpen {
+		return executeOpenStep(ctx, step, cmd, target, dt.CurrentDir, start, opts, idx)
 	}
 
-	return runStepProcess(ctx, expandedCmd, step, opts, dt, start, idx)
+	if isSpecial, res, err := tryDispatchSpecialStep(ctx, step, cmd, idx, opts, dt, start); isSpecial {
+		return res, err
+	}
+
+	return runStepProcess(ctx, cmd, step, opts, dt, start, idx)
+}
+
+func tryDispatchSpecialStep(
+	ctx context.Context,
+	step MacroStep,
+	cmd string,
+	idx int,
+	opts ExecOptions,
+	dt *DirTracker,
+	start time.Time,
+) (bool, StepExecution, error) {
+	if isRecurse, recOpts := ParseRecurseCommand(cmd); isRecurse {
+		res, err := executeRecurseStep(ctx, step, recOpts, dt, start, opts, idx)
+
+		return true, res, err
+	}
+
+	if isAsync, asyncOpts := ParseAsyncMacroCommand(cmd); isAsync {
+		res, err := executeAsyncMacroStep(ctx, step, asyncOpts, dt.CurrentDir, start, opts, idx)
+
+		return true, res, err
+	}
+
+	return false, StepExecution{}, nil
 }
 
 func printStepHeader(opts ExecOptions, idx, total int, cmd string) {
@@ -157,8 +190,9 @@ func runStepProcess(ctx context.Context, cmdText string, step MacroStep, opts Ex
 
 	targetDir := resolveTargetDir(dt.CurrentDir, step.WorkingDir)
 	outBuf, errBuf := &bytes.Buffer{}, &bytes.Buffer{}
-	cmd := buildStepCmd(ctx, cmdText, targetDir, opts, outBuf, errBuf)
+	cmd, flushStreams := buildStepCmd(ctx, cmdText, targetDir, opts, outBuf, errBuf)
 	err := cmd.Run()
+	flushStreams()
 	elapsed := time.Since(start)
 
 	return evaluateStepProcessResult(step, cmdText, targetDir, elapsed, err, opts, idx, outBuf, errBuf)
@@ -304,7 +338,7 @@ func resolveExitCode(err error) int {
 	return 1
 }
 
-func buildStepCmd(ctx context.Context, cmdText, dir string, opts ExecOptions, outBuf, errBuf io.Writer) *exec.Cmd {
+func buildStepCmd(ctx context.Context, cmdText, dir string, opts ExecOptions, outBuf, errBuf io.Writer) (*exec.Cmd, func()) {
 	var cmd *exec.Cmd
 	if runtime.GOOS == constants.OSWindows {
 		cmd = exec.CommandContext(ctx, "powershell", "-NoProfile", "-Command", cmdText)
@@ -318,20 +352,28 @@ func buildStepCmd(ctx context.Context, cmdText, dir string, opts ExecOptions, ou
 		cmd.Dir = dir
 	}
 
-	attachStepCmdStreams(cmd, opts, outBuf, errBuf)
+	flushFn := attachStepCmdStreams(cmd, opts, outBuf, errBuf)
 
-	return cmd
+	return cmd, flushFn
 }
 
-func attachStepCmdStreams(cmd *exec.Cmd, opts ExecOptions, outBuf, errBuf io.Writer) {
+func attachStepCmdStreams(cmd *exec.Cmd, opts ExecOptions, outBuf, errBuf io.Writer) func() {
 	if isStructuredOutput(opts) {
 		cmd.Stdout = outBuf
 		cmd.Stderr = errBuf
 
-		return
+		return func() {}
 	}
 
+	pwOut := NewSmartPaddedWriter(os.Stdout)
+	pwErr := NewSmartPaddedWriter(os.Stderr)
+
 	cmd.Stdin = os.Stdin
-	cmd.Stdout = io.MultiWriter(os.Stdout, outBuf)
-	cmd.Stderr = io.MultiWriter(os.Stderr, errBuf)
+	cmd.Stdout = io.MultiWriter(pwOut, outBuf)
+	cmd.Stderr = io.MultiWriter(pwErr, errBuf)
+
+	return func() {
+		pwOut.Flush()
+		pwErr.Flush()
+	}
 }

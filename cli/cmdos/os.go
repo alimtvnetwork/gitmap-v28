@@ -42,6 +42,12 @@ func dispatchOSSubcommand(subCmd string, subArgs []string) error {
 		return runOSZsh(subArgs)
 	case constants.SubCmdOSUser:
 		return runOSUser(subArgs)
+	case "vmware":
+		return cmdvmware.RunVMware(subArgs)
+	case "group", "groups":
+		return runOSGroup(subArgs)
+	case "cron", "crontab":
+		return runOSCron(subArgs)
 	case constants.SubCmdOSHelp:
 		return handleOSHelp()
 	default:
@@ -79,6 +85,9 @@ Commands:
   ip                  Inspect, set, change, switch, or revert network IP configuration
   zsh                 Install, theme, switch, profile, and clean ZSH & Oh-My-Zsh
   user                Create root users, manage SSH keys, kill processes, and delete users
+  group               List, create, and remove operating system user groups
+  vmware              Discover and mount VMware shared folders (/mnt/hgfs)
+  cron                Inspect, append, and remove crontab scheduled jobs
   display (disp)      Inspect and configure OS display settings, resolution & timeouts
   fix-link (fixlink)  Inspect and repair broken symlinks and shared directories
   status (st)         Display operating system environment and link diagnostics

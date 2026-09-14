@@ -4,7 +4,10 @@ import (
 	"fmt"
 	"strings"
 
+	"github.com/mattn/go-runewidth"
+
 	"github.com/alimtvnetwork/gitmap-v28/cli/cloner"
+	"github.com/alimtvnetwork/gitmap-v28/cli/cmdpull"
 	"github.com/alimtvnetwork/gitmap-v28/cli/constants"
 	"github.com/alimtvnetwork/gitmap-v28/cli/model"
 )
@@ -53,9 +56,13 @@ func newStatusTableContext() *statusTableContext {
 	}
 }
 
+func visualWidth(s string) int {
+	return runewidth.StringWidth(stripANSI(s))
+}
+
 func (c *statusTableContext) addRow(r statusRow) {
 	c.Rows = append(c.Rows, r)
-	if l := len(r.RepoName); l > c.MaxRepo {
+	if l := visualWidth(r.RepoName); l > c.MaxRepo {
 		c.MaxRepo = l
 	}
 
@@ -63,23 +70,23 @@ func (c *statusTableContext) addRow(r statusRow) {
 		return
 	}
 
-	if l := len(r.Branch); l > c.MaxBranch {
+	c.updateColumnWidths(r)
+}
+
+func (c *statusTableContext) updateColumnWidths(r statusRow) {
+	if l := visualWidth(r.Branch); l > c.MaxBranch {
 		c.MaxBranch = l
 	}
-
-	if l := len(stripANSI(r.StateIcon)); l > c.MaxStatus {
+	if l := visualWidth(r.StateIcon); l > c.MaxStatus {
 		c.MaxStatus = l
 	}
-
-	if l := len(stripANSI(r.SyncText)); l > c.MaxSync {
+	if l := visualWidth(r.SyncText); l > c.MaxSync {
 		c.MaxSync = l
 	}
-
-	if l := len(stripANSI(r.StashText)); l > c.MaxStash {
+	if l := visualWidth(r.StashText); l > c.MaxStash {
 		c.MaxStash = l
 	}
-
-	if l := len(stripANSI(r.FilesText)); l > c.MaxFiles {
+	if l := visualWidth(r.FilesText); l > c.MaxFiles {
 		c.MaxFiles = l
 	}
 }
@@ -116,46 +123,49 @@ func printStatusTableTracked(records []model.ScanRecord, prog *cloner.BatchProgr
 	return s
 }
 
-func printStatusTableWithContext(c *statusTableContext) {
+func printStatusTableHeader(c *statusTableContext) {
 	const colGap = "   "
 
-	fmt.Printf("  %s%-*s%s%-*s%s%-*s%s%-*s%s%-*s%s%-*s%s\n",
+	fmt.Printf("  %s%s%s%s%s%s%s%s%s%s%s\n",
 		constants.ColorWhite,
-		c.MaxRepo, constants.StatusTableColumns[0], colGap,
-		c.MaxBranch, constants.StatusTableColumns[1], colGap,
-		c.MaxStatus, constants.StatusTableColumns[2], colGap,
-		c.MaxSync, constants.StatusTableColumns[3], colGap,
-		c.MaxStash, constants.StatusTableColumns[4], colGap,
-		c.MaxFiles, constants.StatusTableColumns[5],
+		cmdpull.PadVisual(constants.StatusTableColumns[0], c.MaxRepo), colGap,
+		cmdpull.PadVisual(constants.StatusTableColumns[1], c.MaxBranch), colGap,
+		cmdpull.PadVisual(constants.StatusTableColumns[2], c.MaxStatus), colGap,
+		cmdpull.PadVisual(constants.StatusTableColumns[3], c.MaxSync), colGap,
+		cmdpull.PadVisual(constants.StatusTableColumns[4], c.MaxStash), colGap,
+		cmdpull.PadVisual(constants.StatusTableColumns[5], c.MaxFiles),
 		constants.ColorReset)
 
 	fmt.Printf("  %s%s%s\n", constants.ColorDim, constants.TermTableRule, constants.ColorReset)
+}
 
+func printStatusTableRow(c *statusTableContext, r statusRow, pastelColor string) {
+	const colGap = "   "
+	if r.Missing {
+		fmt.Printf("  %s%s%s%s%s✖ not found%s\n",
+			pastelColor, cmdpull.PadVisual(r.RepoName, c.MaxRepo), constants.ColorReset, colGap,
+			constants.ColorRed, constants.ColorReset)
+
+		return
+	}
+
+	branchStr := fmt.Sprintf("%s%s%s", constants.ColorCyan, r.Branch, constants.ColorReset)
+	repoStr := fmt.Sprintf("%s%s%s", pastelColor, r.RepoName, constants.ColorReset)
+
+	fmt.Printf("  %s%s%s%s%s%s%s%s%s%s%s\n",
+		cmdpull.PadVisual(repoStr, c.MaxRepo), colGap,
+		cmdpull.PadVisual(branchStr, c.MaxBranch), colGap,
+		cmdpull.PadVisual(r.StateIcon, c.MaxStatus), colGap,
+		cmdpull.PadVisual(r.SyncText, c.MaxSync), colGap,
+		cmdpull.PadVisual(r.StashText, c.MaxStash), colGap,
+		cmdpull.PadVisual(r.FilesText, c.MaxFiles))
+}
+
+func printStatusTableWithContext(c *statusTableContext) {
+	printStatusTableHeader(c)
 	for i, r := range c.Rows {
 		pastelColor := constants.ColorCycle[i%len(constants.ColorCycle)]
-		if r.Missing {
-			fmt.Printf("  %s%-*s%s%s%s✖ not found%s\n",
-				constants.ColorDim, c.MaxRepo, r.RepoName, constants.ColorReset, colGap,
-				constants.ColorRed, constants.ColorReset)
-			continue
-		}
-
-		branchStr := fmt.Sprintf("%s%s%s", constants.ColorCyan, r.Branch, constants.ColorReset)
-
-		padBranch := c.MaxBranch + (len(branchStr) - len(stripANSI(branchStr)))
-		padStatus := c.MaxStatus + (len(r.StateIcon) - len(stripANSI(r.StateIcon)))
-		padSync := c.MaxSync + (len(r.SyncText) - len(stripANSI(r.SyncText)))
-		padStash := c.MaxStash + (len(r.StashText) - len(stripANSI(r.StashText)))
-		padFiles := c.MaxFiles + (len(r.FilesText) - len(stripANSI(r.FilesText)))
-
-		fmt.Printf("  %s%-*s%s%s%-*s%s%-*s%s%-*s%s%-*s%s%-*s\n",
-			pastelColor,
-			c.MaxRepo, r.RepoName, constants.ColorReset, colGap,
-			padBranch, branchStr, colGap,
-			padStatus, r.StateIcon, colGap,
-			padSync, r.SyncText, colGap,
-			padStash, r.StashText, colGap,
-			padFiles, r.FilesText)
+		printStatusTableRow(c, r, pastelColor)
 	}
 
 	printMissingRepoRemediation(c)

@@ -3,6 +3,8 @@ package cmdpull
 
 import (
 	"strings"
+
+	"github.com/mattn/go-runewidth"
 )
 
 func stripBranchPrefix(branch string) string {
@@ -29,21 +31,21 @@ func stripBranchPrefix(branch string) string {
 }
 
 func middleTruncate(input string, maxLength int, endLength int) string {
-	if len(input) <= maxLength {
+	runes := []rune(input)
+	if len(runes) <= maxLength {
 		return input
 	}
 
 	minRequired := 3 + endLength + 1
 	if maxLength < minRequired {
-		return input[:maxLength]
+		return string(runes[:maxLength])
 	}
 
 	startLength := maxLength - 3 - endLength
-	startPart := input[:startLength]
-	endPart := input[len(input)-endLength:]
-	truncated := startPart + "..." + endPart
+	startPart := string(runes[:startLength])
+	endPart := string(runes[len(runes)-endLength:])
 
-	return truncated
+	return startPart + "..." + endPart
 }
 
 func formatBranchName(branch string, maxLength int) string {
@@ -91,4 +93,15 @@ func calcAnsiPadding(renderedText string, visibleWidth int) int {
 	targetPadding := visibleWidth + extraAnsiBytes
 
 	return targetPadding
+}
+
+// PadVisual returns string s padded with trailing spaces until visual terminal width is targetWidth.
+func PadVisual(s string, targetWidth int) string {
+	plain := stripANSI(s)
+	visWidth := runewidth.StringWidth(plain)
+	if visWidth >= targetWidth {
+		return s
+	}
+
+	return s + strings.Repeat(" ", targetWidth-visWidth)
 }

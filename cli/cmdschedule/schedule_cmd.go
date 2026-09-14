@@ -40,9 +40,9 @@ func dispatchScheduleSubcommand(sub string, rest []string) error {
 		return runScheduleExport(rest)
 	case "import", "import-all":
 		return runScheduleImport(rest)
-	case "enable":
+	case "enable", "on", "e":
 		return runScheduleSetEnabled(rest, true)
-	case "disable":
+	case "disable", "off", "d", "disbale":
 		return runScheduleSetEnabled(rest, false)
 	case "logs", "log", "history":
 		return runScheduleLogs(rest)
@@ -84,6 +84,10 @@ func parseScheduleAddOpts(args []string) scheduleAddOpts {
 	var opts scheduleAddOpts
 	for i := 0; i < len(args); i++ {
 		a := args[i]
+		if TryParseRunInterval(args, &i, &opts) {
+			continue
+		}
+
 		if matchScheduleFlag(a, &opts, &i, args) {
 			continue
 		}
@@ -173,6 +177,10 @@ func runScheduleAdd(args []string) error {
 		opts.Interval = "1h"
 	}
 
+	if err := checkScheduleInteractiveRecording(&opts); err != nil {
+		return err
+	}
+
 	db, err := openSchedulerDB()
 	if err != nil {
 		return err
@@ -181,6 +189,21 @@ func runScheduleAdd(args []string) error {
 	defer db.Close()
 
 	return saveScheduleTask(db, opts)
+}
+
+func checkScheduleInteractiveRecording(opts *scheduleAddOpts) error {
+	if len(opts.Commands) > 0 || opts.MacroName != "" {
+		return nil
+	}
+
+	fmt.Printf("ℹ No target command specified. Entering interactive macro recording for schedule %q...\n", opts.Name)
+	if err := macro.RecordInteractive(opts.Name); err != nil {
+		return err
+	}
+
+	opts.MacroName = opts.Name
+
+	return nil
 }
 
 func saveScheduleTask(db *store.DB, opts scheduleAddOpts) error {
@@ -297,6 +320,11 @@ func runScheduleSetEnabled(args []string, isEnabled bool) error {
 }
 
 func runScheduleList(args []string) error {
+	name, _ := extractMacroNameAndFlags(args)
+	if name != "" && name != "*" && name != "all" {
+		return runScheduleStatus(args)
+	}
+
 	db, err := openSchedulerDB()
 	if err != nil {
 		return err

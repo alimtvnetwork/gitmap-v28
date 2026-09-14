@@ -148,26 +148,30 @@ func (l *PullTableLayout) PrintHeader() {
 }
 
 func (l *PullTableLayout) printWideHeader() {
-	fmt.Printf("  %-*s   %-*s   %-*s   %-*s   %-*s   %-*s   %s\n",
-		l.MaxRepo, "REPO",
-		l.MaxBranch, "BRANCH",
-		l.MaxLatestBr, "LATEST BRANCH",
-		l.MaxPR, "PR/TRACK",
-		l.MaxStatus, "STATUS",
-		l.MaxSHA, "SHA",
-		"TIME",
-	)
+	sep := "   "
+	line := "  " +
+		PadVisual("REPO", l.MaxRepo) + sep +
+		PadVisual("BRANCH", l.MaxBranch) + sep +
+		PadVisual("LATEST BRANCH", l.MaxLatestBr) + sep +
+		PadVisual("PR/TRACK", l.MaxPR) + sep +
+		PadVisual("STATUS", l.MaxStatus) + sep +
+		PadVisual("SHA", l.MaxSHA) + sep +
+		"TIME"
+
+	fmt.Println(line)
 	fmt.Printf("  %s\n", strings.Repeat("-", l.DividerLen))
 }
 
 func (l *PullTableLayout) printCompactHeader() {
-	fmt.Printf("  %-*s  %-*s  %-*s  %-*s  %-*s  %s\n",
-		l.MaxRepo, "REPO",
-		l.MaxBranch, "BRANCH",
-		l.MaxPR, "PR/TRACK",
-		l.MaxStatus, "STATUS",
-		l.MaxSHA, "SHA",
-		"TIME",
-	)
+	sep := "  "
+	line := "  " +
+		PadVisual("REPO", l.MaxRepo) + sep +
+		PadVisual("BRANCH", l.MaxBranch) + sep +
+		PadVisual("PR/TRACK", l.MaxPR) + sep +
+		PadVisual("STATUS", l.MaxStatus) + sep +
+		PadVisual("SHA", l.MaxSHA) + sep +
+		"TIME"
+
+	fmt.Println(line)
 	fmt.Printf("  %s\n", strings.Repeat("-", l.DividerLen))
 }

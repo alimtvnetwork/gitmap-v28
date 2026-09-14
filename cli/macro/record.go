@@ -153,6 +153,20 @@ func finalizeSavedMacro(m *Macro) error {
 
 func execLive(cmdText, dir string) (time.Duration, bool) {
 	start := time.Now()
+	if isAsync, asyncOpts := ParseAsyncMacroCommand(cmdText); isAsync {
+		_, err := executeAsyncMacroStep(context.Background(), MacroStep{CommandLine: cmdText}, asyncOpts, dir, start, ExecOptions{}, 1)
+
+		return time.Since(start), err == nil
+	}
+
+	cmd := buildStepCmdForLive(cmdText, dir)
+	err := cmd.Run()
+	elapsed := time.Since(start)
+
+	return elapsed, err == nil
+}
+
+func buildStepCmdForLive(cmdText, dir string) *exec.Cmd {
 	var cmd *exec.Cmd
 	if runtime.GOOS == constants.OSWindows {
 		cmd = exec.CommandContext(context.Background(), "powershell", "-NoProfile", "-Command", cmdText)
@@ -163,11 +177,8 @@ func execLive(cmdText, dir string) (time.Duration, bool) {
 	cmd.Dir = dir
 	cmd.Stdout = os.Stdout
 	cmd.Stderr = os.Stderr
-	err := cmd.Run()
-	elapsed := time.Since(start)
-	isSuccess := err == nil
 
-	return elapsed, isSuccess
+	return cmd
 }
 
 func printRecorderHeader(name, initialDir string) {

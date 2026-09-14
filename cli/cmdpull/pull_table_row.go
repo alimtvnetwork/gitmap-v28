@@ -31,37 +31,41 @@ func (l *PullTableLayout) PrintRow(r model.PullTableRow) {
 }
 
 func (l *PullTableLayout) printWideRow(r model.PullTableRow) {
-	renderedRepo, padRepo := l.renderRepoCol(r.RepoName, r.IsDirty)
+	renderedRepo, _ := l.renderRepoCol(r.RepoName, r.IsDirty)
 	formattedBranch := formatBranchName(r.Branch, l.MaxBranch)
 	formattedLatestBr := formatBranchName(r.LatestBranch, l.MaxLatestBr)
-	renderedStatus, padStatus := l.renderStatusCol(r.PullStatus, r.IsDirty)
+	renderedStatus, _ := l.renderStatusCol(r.PullStatus, r.IsDirty)
 	formattedPR := middleTruncate(r.PRStatus, l.MaxPR, 3)
 
-	fmt.Printf("  %-*s   %-*s   %-*s   %-*s   %-*s   %-*s   %s\n",
-		padRepo, renderedRepo,
-		l.MaxBranch, formattedBranch,
-		l.MaxLatestBr, formattedLatestBr,
-		l.MaxPR, formattedPR,
-		padStatus, renderedStatus,
-		l.MaxSHA, r.LastSHA,
-		r.Duration,
-	)
+	sep := "   "
+	line := "  " +
+		PadVisual(renderedRepo, l.MaxRepo) + sep +
+		PadVisual(formattedBranch, l.MaxBranch) + sep +
+		PadVisual(formattedLatestBr, l.MaxLatestBr) + sep +
+		PadVisual(formattedPR, l.MaxPR) + sep +
+		PadVisual(renderedStatus, l.MaxStatus) + sep +
+		PadVisual(r.LastSHA, l.MaxSHA) + sep +
+		r.Duration
+
+	fmt.Println(line)
 }
 
 func (l *PullTableLayout) printCompactRow(r model.PullTableRow) {
-	renderedRepo, padRepo := l.renderRepoCol(r.RepoName, r.IsDirty)
+	renderedRepo, _ := l.renderRepoCol(r.RepoName, r.IsDirty)
 	formattedBranch := formatCombinedBranch(r.Branch, r.LatestBranch, l.MaxBranch)
-	renderedStatus, padStatus := l.renderStatusCol(r.PullStatus, r.IsDirty)
+	renderedStatus, _ := l.renderStatusCol(r.PullStatus, r.IsDirty)
 	formattedPR := middleTruncate(r.PRStatus, l.MaxPR, 3)
 
-	fmt.Printf("  %-*s  %-*s  %-*s  %-*s  %-*s  %s\n",
-		padRepo, renderedRepo,
-		l.MaxBranch, formattedBranch,
-		l.MaxPR, formattedPR,
-		padStatus, renderedStatus,
-		l.MaxSHA, r.LastSHA,
-		r.Duration,
-	)
+	sep := "  "
+	line := "  " +
+		PadVisual(renderedRepo, l.MaxRepo) + sep +
+		PadVisual(formattedBranch, l.MaxBranch) + sep +
+		PadVisual(formattedPR, l.MaxPR) + sep +
+		PadVisual(renderedStatus, l.MaxStatus) + sep +
+		PadVisual(r.LastSHA, l.MaxSHA) + sep +
+		r.Duration
+
+	fmt.Println(line)
 }
 
 func (l *PullTableLayout) renderRepoCol(name string, isDirty bool) (string, int) {
