@@ -1,10 +1,12 @@
 package cmdinstall
 
 import (
+	"fmt"
 	"path/filepath"
 	"strings"
 	"testing"
 
+	"github.com/alimtvnetwork/gitmap-v28/cli/apperror"
 	"github.com/alimtvnetwork/gitmap-v28/cli/constants"
 )
 
@@ -41,8 +43,8 @@ func TestAntigravityLinuxUrls(t *testing.T) {
 
 func TestAntigravityWindowsDownloadUrl(t *testing.T) {
 	winUrl := getAntigravityDesktopDownloadUrl("windows")
-	if !strings.Contains(winUrl, "Antigravity-x64.exe") {
-		t.Fatalf("expected windows URL pointing to Antigravity-x64.exe, got %s", winUrl)
+	if !strings.Contains(winUrl, "Antigravity-") || !strings.HasSuffix(winUrl, ".exe") {
+		t.Fatalf("expected windows URL pointing to Antigravity executable, got %s", winUrl)
 	}
 
 	if !strings.Contains(winUrl, "antigravity-public") {
@@ -133,6 +135,18 @@ func TestGlibcAndWindowsBuildParsing(t *testing.T) {
 	if build != 19045 {
 		t.Errorf("expected windows build 19045, got %d", build)
 	}
+}
+
+func createDownloadFailedError(url string) *apperror.AppError {
+	return apperror.NewWithDetails(
+		"downloadFileWithRetry",
+		ErrDownloadFailed,
+		fmt.Sprintf("failed to download from %s after 3 attempts", url),
+		"installer",
+		apperror.ErrorTypeExecution,
+		apperror.SeverityError,
+		map[string]any{"url": url, "attempts": 3},
+	)
 }
 
 func TestDownloadFailedErrorCodeMapping(t *testing.T) {

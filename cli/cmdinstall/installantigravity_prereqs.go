@@ -91,6 +91,7 @@ func checkRequiredTools(tools []string) *apperror.AppError {
 func extractGlibcVersion(output string) string {
 	for _, word := range strings.Fields(output) {
 		trimmed := strings.Trim(word, "(),;")
+		trimmed = strings.Split(trimmed, "-")[0]
 		parts := strings.Split(trimmed, ".")
 		if len(parts) >= 2 && parseVersionPart(parts[0]) > 0 {
 			return trimmed

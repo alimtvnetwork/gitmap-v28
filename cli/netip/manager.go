@@ -33,11 +33,19 @@ func (m *Manager) Driver() Driver {
 
 // ListInterfaces lists all network interfaces.
 func (m *Manager) ListInterfaces(ctx context.Context) InterfaceSliceResult {
+	if m.driver == nil {
+		return result.FailSlice[InterfaceInfo](apperror.NewExecutionError("network IP driver not available on this platform"))
+	}
+
 	return m.driver.ListInterfaces(ctx)
 }
 
 // GetInterface retrieves a specific network interface.
 func (m *Manager) GetInterface(ctx context.Context, name string) InterfaceResult {
+	if m.driver == nil {
+		return result.Fail[InterfaceInfo](apperror.NewExecutionError("network IP driver not available on this platform"))
+	}
+
 	return m.driver.GetInterface(ctx, name)
 }
 
@@ -47,6 +55,10 @@ func (m *Manager) ChangeIP(
 	opts ChangeOptions,
 	valOpts ValidationOptions,
 ) RollbackResultWrap {
+	if m.driver == nil {
+		return result.Fail[RollbackResult](apperror.NewExecutionError("network IP driver not available on this platform"))
+	}
+
 	if err := validateChangeOptions(opts); err != nil {
 		return result.Fail[RollbackResult](err)
 	}
@@ -168,6 +180,10 @@ func (m *Manager) orchestrateRollback(
 
 // RevertIP restores the network configuration from the latest snapshot.
 func (m *Manager) RevertIP(ctx context.Context, ifaceName string) RollbackResultWrap {
+	if m.driver == nil {
+		return result.Fail[RollbackResult](apperror.NewExecutionError("network IP driver not available on this platform"))
+	}
+
 	if ifaceName == "" {
 		return result.Fail[RollbackResult](apperror.NewValidationError("interface name is required"))
 	}

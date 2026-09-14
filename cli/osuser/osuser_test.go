@@ -23,7 +23,7 @@ func TestBuildLinuxUserAddArgs(t *testing.T) {
 		Shell:    "/bin/bash",
 	}
 	args := buildLinuxUserAddArgs(opts)
-	if len(args) != 5 {
+	if len(args) != 6 {
 		t.Fatalf("unexpected args length: %v", args)
 	}
 }

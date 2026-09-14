@@ -254,16 +254,19 @@ func deployAntigravityDesktopLinux(reqInstall, reqBin, reqDesktop, archivePath s
 
 func installAntigravityDesktopPlatform(opts installOptions) error {
 	url := getAntigravityDesktopDownloadUrl("linux")
-	tempArchive := filepath.Join(tempdir.RepoTempDir("downloads"), "Antigravity.tar.gz")
-	defer os.Remove(tempArchive)
-
-	if err := downloadFileToDest(url, tempArchive); err != nil {
-		return apperror.WrapSimple(err, "download.antigravity")
+	params := ArchiveDownloadParams{
+		URL:            url,
+		IsDownloadMust: opts.IsDownloadMust,
+		Verbose:        opts.Verbose,
+	}
+	archivePath, err := FetchOrReuseArchive(params)
+	if err != nil {
+		return apperror.WrapSimple(err, "fetch.linuxTarball")
 	}
 
 	reqInstall, reqBin, reqDesktop := resolveLinuxInstallDirs()
 
-	return deployAntigravityDesktopLinux(reqInstall, reqBin, reqDesktop, tempArchive)
+	return deployAntigravityDesktopLinux(reqInstall, reqBin, reqDesktop, archivePath)
 }
 
 func getAntigravityLinuxCandidatePaths() []string {
