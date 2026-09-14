@@ -189,7 +189,7 @@ func findTaskByName(tasks model.TaskFile, name string) (model.TaskEntry, error) 
 		}
 	}
 
-	return model.TaskEntry{}, apperror.NewSimple("task not found: "+name, "E9023")
+	return model.TaskEntry{}, apperror.NewNotFoundError(fmt.Sprintf("task %q not found", name))
 }
 
 // removeTaskByName removes a task and returns updated file.

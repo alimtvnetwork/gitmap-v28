@@ -3,12 +3,10 @@ package cmd
 
 import (
 	"fmt"
-	"os"
 	"path/filepath"
 	"strings"
 
 	"github.com/alimtvnetwork/gitmap-v28/cli/apperror"
-	"github.com/alimtvnetwork/gitmap-v28/cli/constants"
 	"github.com/alimtvnetwork/gitmap-v28/cli/store"
 )
 
@@ -18,9 +16,10 @@ func handleWorkDirOrNotFound(name string, rest []string) error {
 		return dispatchCDWorkPath(workPath, rest)
 	}
 
-	fmt.Fprintf(os.Stderr, constants.ErrCDNotFound, name)
+	suggestions := suggestCDRepos(name)
+	msg := formatCDNotFoundMessage(name, suggestions)
 
-	return apperror.NewWithDetails("cd", "E1004", fmt.Sprintf(constants.ErrCDNotFound, name), "cmd.cd", apperror.ErrorTypeNotFound, apperror.SeverityError, nil)
+	return apperror.NewNotFoundError(msg)
 }
 
 func dispatchCDWorkPath(workPath string, rest []string) error {

@@ -114,3 +114,21 @@ func TestAppError_NewAndWrapWithSkip(t *testing.T) {
 		t.Errorf("WrapWithSkip mismatch: %+v", err2)
 	}
 }
+
+func TestAppError_NewNotFoundError(t *testing.T) {
+	msg := "no repo found matching 'gitamp'"
+	err := NewNotFoundError(msg)
+
+	if err.Type != ErrorTypeNotFound {
+		t.Errorf("expected ErrorTypeNotFound, got %s", err.Type)
+	}
+	if err.Code != "E1004" {
+		t.Errorf("expected code E1004, got %s", err.Code)
+	}
+	if err.Message != msg {
+		t.Errorf("expected message %q, got %q", msg, err.Message)
+	}
+	if err.Stack != "" {
+		t.Errorf("expected empty stack trace for not found, got %s", err.Stack)
+	}
+}

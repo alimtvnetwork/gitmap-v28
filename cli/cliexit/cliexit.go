@@ -158,9 +158,21 @@ func writeReport(w io.Writer, params ReportParams) {
 // formatLine assembles the canonical line. Kept side-effect-free so
 // the unit test can assert byte-exact output.
 func formatLine(params ReportParams) string {
+	if params.Op == "not found" {
+		return formatNotFoundLine(params)
+	}
+
 	if params.Subject == "" {
 		return fmt.Sprintf("gitmap %s: %s failed: %v", params.Command, params.Op, params.Err)
 	}
 
 	return fmt.Sprintf("gitmap %s: %s on %s failed: %v", params.Command, params.Op, params.Subject, params.Err)
+}
+
+func formatNotFoundLine(params ReportParams) string {
+	if params.Subject == "" {
+		return fmt.Sprintf("gitmap %s: %v", params.Command, params.Err)
+	}
+
+	return fmt.Sprintf("gitmap %s: %s: %v", params.Command, params.Subject, params.Err)
 }

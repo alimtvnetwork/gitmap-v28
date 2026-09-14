@@ -57,9 +57,7 @@ func runFixDirect(args []string, aliasOverride string) error {
 		return nil
 	}
 	if item == nil {
-		return apperror.New("fix", "E_NOT_FOUND", map[string]any{
-			"msg": fmt.Sprintf("Repository %q not found or not a git repository.", repoQuery),
-		})
+		return apperror.NewNotFoundError(fmt.Sprintf("repository %q not found or not a git repository", repoQuery))
 	}
 
 	return applyFixRecipe(item, action)

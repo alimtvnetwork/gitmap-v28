@@ -239,28 +239,58 @@ func WrapWithSkip(skip int, err error, op string, code string) *AppError {
 	}
 }
 
+func resolveDefaultErrorType(code, op string) ErrorType {
+	if isMissingCode(code) || isMissingText(op) {
+		return ErrorTypeNotFound
+	}
+
+	return ErrorTypeExecution
+}
+
+func isMissingCode(code string) bool {
+	return code == "E_NOT_FOUND" || code == "E1004" || code == "E1075" || code == "E9023"
+}
+
+func isMissingText(s string) bool {
+	lower := strings.ToLower(s)
+
+	return strings.Contains(lower, "not found") || strings.Contains(lower, "not_found")
+}
+
+func resolveStack(errType ErrorType) string {
+	if errType == ErrorTypeNotFound || errType == ErrorTypeValidation {
+		return ""
+	}
+
+	return captureStackTrace(DefaultStackTraceSkip)
+}
+
 // New creates a new AppError without an underlying cause.
 func New(op string, code string, ctx map[string]any) *AppError {
+	errType := resolveDefaultErrorType(code, op)
+
 	return &AppError{
 		Op:       op,
 		Code:     code,
-		Type:     ErrorTypeExecution,
+		Type:     errType,
 		Severity: SeverityError,
 		Caller:   captureCaller(DefaultCallerSkip),
-		Stack:    captureStackTrace(DefaultStackTraceSkip),
+		Stack:    resolveStack(errType),
 		Ctx:      ctx,
 	}
 }
 
 // NewSimple creates a new AppError without an underlying cause and no context map.
 func NewSimple(op string, code string) *AppError {
+	errType := resolveDefaultErrorType(code, op)
+
 	return &AppError{
 		Op:       op,
 		Code:     code,
-		Type:     ErrorTypeExecution,
+		Type:     errType,
 		Severity: SeverityError,
 		Caller:   captureCaller(DefaultCallerSkip),
-		Stack:    captureStackTrace(DefaultStackTraceSkip),
+		Stack:    resolveStack(errType),
 	}
 }
 
@@ -274,8 +304,21 @@ func NewWithDetails(op, code, msg, creator string, errType ErrorType, sev Severi
 		Creator:  creator,
 		Message:  msg,
 		Caller:   captureCaller(DefaultCallerSkip),
-		Stack:    captureStackTrace(DefaultStackTraceSkip),
+		Stack:    resolveStack(errType),
 		Ctx:      ctx,
+	}
+}
+
+// NewNotFoundError creates an AppError specialized for missing items or lookup misses.
+func NewNotFoundError(msg string) *AppError {
+	return &AppError{
+		Op:       "lookup",
+		Code:     "E1004",
+		Type:     ErrorTypeNotFound,
+		Severity: SeverityError,
+		Message:  msg,
+		Caller:   captureCaller(DefaultCallerSkip),
+		Stack:    "",
 	}
 }
 

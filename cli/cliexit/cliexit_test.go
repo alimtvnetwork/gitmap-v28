@@ -38,6 +38,22 @@ var formatLineCases = []formatLineCase{
 		err:     errors.New("permission denied"),
 		want:    "gitmap scan: config-load failed: permission denied",
 	},
+	{
+		name:    "not_found_empty_subject",
+		command: "cd",
+		op:      "not found",
+		subject: "",
+		err:     errors.New("no repo found matching 'gitamp'"),
+		want:    "gitmap cd: no repo found matching 'gitamp'",
+	},
+	{
+		name:    "not_found_with_subject",
+		command: "profile",
+		op:      "not found",
+		subject: "work",
+		err:     errors.New("profile not found"),
+		want:    "gitmap profile: work: profile not found",
+	},
 }
 
 // TestFormatLine_Shape pins the documented format for both the

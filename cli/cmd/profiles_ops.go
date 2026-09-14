@@ -216,5 +216,5 @@ func pickProfileBySequenceOrName(
 		}
 	}
 
-	return -1, model.GitProfile{}, apperror.NewSimple(fmt.Sprintf("profile not found: %s", val), "E1075")
+	return -1, model.GitProfile{}, apperror.NewNotFoundError(fmt.Sprintf("profile not found: %s", val))
 }

@@ -67,7 +67,7 @@ func buildReconcileNotFoundError(items []RemediationItem, repoQuery string) erro
 		msg += fmt.Sprintf("\n  Did you mean: %s?", strings.Join(suggestions, ", "))
 	}
 
-	return apperror.New("reconcile", "E_NOT_FOUND", map[string]any{"msg": msg})
+	return apperror.NewNotFoundError(msg)
 }
 
 func isReconcileAllRequested(args []string) bool {

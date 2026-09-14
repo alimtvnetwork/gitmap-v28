@@ -6,6 +6,7 @@ import (
 	"encoding/json"
 	"fmt"
 	"os"
+	"strings"
 	"time"
 
 	"github.com/spf13/cobra"
@@ -151,6 +152,14 @@ func handleGlobalError(command string, err error) {
 		return
 	}
 
+	if isAppErr && appErr != nil && appErr.Type == apperror.ErrorTypeNotFound {
+		msg := getNotFoundErrorMessage(appErr)
+		cliexit.Reportf(command, "not found", "", fmt.Errorf("%s", msg))
+		cliexit.HandleError(nil, 1)
+
+		return
+	}
+
 	if display == "simple" && isAppErr && appErr != nil {
 		cliexit.Reportf(command, "execute", "", fmt.Errorf("%s: %w", appErr.Op, getRootCause(err)))
 		cliexit.HandleError(nil, 1)
@@ -172,7 +181,7 @@ func isPrintableStackTrace(appErr *apperror.AppError) bool {
 		return false
 	}
 
-	return appErr.Type != apperror.ErrorTypeValidation
+	return appErr.Type != apperror.ErrorTypeValidation && appErr.Type != apperror.ErrorTypeNotFound
 }
 
 func getValidationErrorMessage(appErr *apperror.AppError) string {
@@ -185,6 +194,47 @@ func getValidationErrorMessage(appErr *apperror.AppError) string {
 	}
 
 	return appErr.Op
+}
+
+func getNotFoundErrorMessage(appErr *apperror.AppError) string {
+	if appErr == nil {
+		return "item not found"
+	}
+
+	raw := resolveNotFoundRawMessage(appErr)
+	prefix := appErr.Op + ": "
+	if strings.HasPrefix(raw, prefix) {
+		return strings.TrimPrefix(raw, prefix)
+	}
+
+	return raw
+}
+
+func resolveNotFoundRawMessage(appErr *apperror.AppError) string {
+	if appErr.Message != "" {
+		return strings.TrimSpace(appErr.Message)
+	}
+	msg, hasCtx := getContextMessage(appErr)
+	if hasCtx {
+		return msg
+	}
+	if appErr.Cause != nil {
+		return strings.TrimSpace(appErr.Cause.Error())
+	}
+
+	return appErr.Op + " not found"
+}
+
+func getContextMessage(appErr *apperror.AppError) (string, bool) {
+	if appErr.Ctx == nil {
+		return "", false
+	}
+	ctxMsg, ok := appErr.Ctx["msg"].(string)
+	if ok && ctxMsg != "" {
+		return strings.TrimSpace(ctxMsg), true
+	}
+
+	return "", false
 }
 
 func persistLastError(command string, err error) {
