@@ -1,3 +1,19 @@
+## [v6.232.0] 2026-09-14 Release v6.232.0
+
+### Install GitMap v6.232.0
+
+To pin your repository to this exact version, run the following one-liner:
+Unix/Bash: `curl -sL https://raw.githubusercontent.com/alimtvnetwork/gitmap-v28/v6.232.0/install.sh | bash -s -- ".lovable/prompts" "v6.232.0"`
+PowerShell: `Invoke-WebRequest -Uri https://raw.githubusercontent.com/alimtvnetwork/gitmap-v28/v6.232.0/install.ps1 -OutFile install.ps1; .\install.ps1 -TargetDir ".lovable/prompts" -Version "v6.232.0"`
+
+### Added / Changed / Fixed / Removed
+
+- Commit-scoped offset resolution for gitmap pipeline errors (-1, -2, -3)
+- Added gitmap pipeline history command with tree visualization
+- Added gitmap pipeline logs command with clipboard and file export
+- Enriched repository SQLite database telemetry (.gitmap/data/pipeline.db)
+- Added gitmap storage and gitmap os storage command suite
+
 ## [v6.231.0] 2026-09-14 Release v6.231.0
 
 ### Install GitMap v6.231.0
