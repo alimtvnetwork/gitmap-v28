@@ -1,3 +1,18 @@
+## [v6.237.0] 2026-09-14 Release v6.237.0
+
+### Install GitMap v6.237.0
+
+To pin your repository to this exact version, run the following one-liner:
+Unix/Bash: `curl -sL https://raw.githubusercontent.com/alimtvnetwork/gitmap-v28/v6.237.0/install.sh | bash -s -- ".lovable/prompts" "v6.237.0"`
+PowerShell: `Invoke-WebRequest -Uri https://raw.githubusercontent.com/alimtvnetwork/gitmap-v28/v6.237.0/install.ps1 -OutFile install.ps1; .\install.ps1 -TargetDir ".lovable/prompts" -Version "v6.237.0"`
+
+### Added / Changed / Fixed / Removed
+
+- First-class add-with-pass subcommand (gitmap ssh-join add-with-pass <user>@ip password [alias]) with interactive password prompting and JSON output
+- SSH RSA password encryption at rest in SQLite database using RSA-OAEP with SHA-256 via local SSH key (~/.ssh/id_rsa)
+- Cross-platform OpenSSH AskPass password auto-supply (SSH_ASKPASS_REQUIRE=force), enabling seamless password logins without terminal prompts
+- Comprehensive leaf help, catalog topics, and command markdown documentation parity
+
 ## [v6.236.0] 2026-09-14 Release v6.236.0
 
 ### Install GitMap v6.236.0
