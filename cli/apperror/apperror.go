@@ -86,20 +86,81 @@ func (e *AppError) WithContext(key string, val any) *AppError {
 	return e
 }
 
-func captureCaller(skip int) string {
-	_, file, line, isCallerAvailable := runtime.Caller(skip)
-
-	if !isCallerAvailable {
-		return ""
+// WithSkip recalculates the Caller and Stack fields using an increased skip offset.
+// This allows intermediate helper functions or custom wrappers to pierce abstraction layers.
+func (e *AppError) WithSkip(additional int) *AppError {
+	if e == nil || additional <= 0 {
+		return e
 	}
 
+	e.Caller = captureCaller(DefaultCallerSkip + additional)
+	e.Stack = captureStackTrace(DefaultStackTraceSkip + additional)
+
+	return e
+}
+
+// WithAdditionalSkip is an alias for WithSkip.
+func (e *AppError) WithAdditionalSkip(additional int) *AppError {
+	return e.WithSkip(additional)
+}
+
+var (
+	// DefaultStackTraceSkip defines the default number of frames to skip when recording stack traces.
+	DefaultStackTraceSkip = 3
+
+	// DefaultCallerSkip defines the default number of frames to skip when recording callers.
+	DefaultCallerSkip = 2
+)
+
+// SetDefaultStackTraceSkip updates the default stack trace skip count.
+func SetDefaultStackTraceSkip(skip int) {
+	if skip >= 0 {
+		DefaultStackTraceSkip = skip
+	}
+}
+
+// SetDefaultCallerSkip updates the default caller skip count.
+func SetDefaultCallerSkip(skip int) {
+	if skip >= 0 {
+		DefaultCallerSkip = skip
+	}
+}
+
+// CaptureCaller records the caller location formatted as dir/file:line.
+func CaptureCaller(skip int) string {
+	return captureCaller(skip)
+}
+
+// CaptureStackTrace records the full formatted stack trace starting at skip frames.
+func CaptureStackTrace(skip int) string {
+	return captureStackTrace(skip)
+}
+
+func captureCaller(skip int) string {
+	for i := 0; i < 5; i++ {
+		_, file, line, isCallerAvailable := runtime.Caller(skip + i)
+		if !isCallerAvailable {
+			return ""
+		}
+		if isAppErrorFile(file) {
+			continue
+		}
+		return formatCallerLocation(file, line)
+	}
+	return ""
+}
+
+func isAppErrorFile(file string) bool {
+	shortFile := filepath.Base(file)
+	return shortFile == "apperror.go" || shortFile == "apperror_types.go"
+}
+
+func formatCallerLocation(file string, line int) string {
 	shortFile := filepath.Base(file)
 	parentDir := filepath.Base(filepath.Dir(file))
-
 	if parentDir != "." && parentDir != "/" && parentDir != "\\" && parentDir != "" {
 		return fmt.Sprintf("%s/%s:%d", parentDir, shortFile, line)
 	}
-
 	return fmt.Sprintf("%s:%d", shortFile, line)
 }
 
@@ -109,8 +170,11 @@ func captureStackTrace(skip int) string {
 	if n == 0 {
 		return ""
 	}
+	return buildFramesString(pcs[:n])
+}
 
-	frames := runtime.CallersFrames(pcs[:n])
+func buildFramesString(pcs []uintptr) string {
+	frames := runtime.CallersFrames(pcs)
 	var sb strings.Builder
 	for {
 		frame, more := frames.Next()
@@ -119,13 +183,11 @@ func captureStackTrace(skip int) string {
 			break
 		}
 	}
-
 	return sb.String()
 }
 
 func appendStackFrame(sb *strings.Builder, frame runtime.Frame) {
-	isRuntimeInternal := strings.Contains(frame.Function, "runtime.") && !strings.Contains(frame.Function, "gitmap")
-	if isRuntimeInternal {
+	if isRuntimeInternal(frame) || isAppErrorInternal(frame) {
 		return
 	}
 
@@ -135,6 +197,48 @@ func appendStackFrame(sb *strings.Builder, frame runtime.Frame) {
 	sb.WriteString(fmt.Sprintf("\n    at %s (%s)", frame.Function, fileLoc))
 }
 
+func isRuntimeInternal(frame runtime.Frame) bool {
+	return strings.Contains(frame.Function, "runtime.") && !strings.Contains(frame.Function, "gitmap")
+}
+
+func isAppErrorInternal(frame runtime.Frame) bool {
+	if isAppErrorFile(frame.File) {
+		return true
+	}
+	isAppErrorPkg := strings.Contains(frame.Function, "/cli/apperror.") || strings.HasPrefix(frame.Function, "apperror.")
+	isTestFrame := strings.HasSuffix(frame.File, "_test.go") || strings.Contains(frame.Function, "Test")
+	return isAppErrorPkg && !isTestFrame
+}
+
+// NewWithSkip creates a new AppError with an explicit frame skip increase.
+func NewWithSkip(skip int, op string, code string) *AppError {
+	callerSkip := DefaultCallerSkip + skip
+	stackSkip := DefaultStackTraceSkip + skip
+	return &AppError{
+		Op:       op,
+		Code:     code,
+		Type:     ErrorTypeExecution,
+		Severity: SeverityError,
+		Caller:   captureCaller(callerSkip),
+		Stack:    captureStackTrace(stackSkip),
+	}
+}
+
+// WrapWithSkip wraps an existing error with an explicit frame skip increase.
+func WrapWithSkip(skip int, err error, op string, code string) *AppError {
+	callerSkip := DefaultCallerSkip + skip
+	stackSkip := DefaultStackTraceSkip + skip
+	return &AppError{
+		Op:       op,
+		Code:     code,
+		Type:     ErrorTypeExecution,
+		Severity: SeverityError,
+		Caller:   captureCaller(callerSkip),
+		Stack:    captureStackTrace(stackSkip),
+		Cause:    err,
+	}
+}
+
 // New creates a new AppError without an underlying cause.
 func New(op string, code string, ctx map[string]any) *AppError {
 	return &AppError{
@@ -142,8 +246,8 @@ func New(op string, code string, ctx map[string]any) *AppError {
 		Code:     code,
 		Type:     ErrorTypeExecution,
 		Severity: SeverityError,
-		Caller:   captureCaller(2),
-		Stack:    captureStackTrace(2),
+		Caller:   captureCaller(DefaultCallerSkip),
+		Stack:    captureStackTrace(DefaultStackTraceSkip),
 		Ctx:      ctx,
 	}
 }
@@ -155,18 +259,13 @@ func NewSimple(op string, code string) *AppError {
 		Code:     code,
 		Type:     ErrorTypeExecution,
 		Severity: SeverityError,
-		Caller:   captureCaller(2),
-		Stack:    captureStackTrace(2),
+		Caller:   captureCaller(DefaultCallerSkip),
+		Stack:    captureStackTrace(DefaultStackTraceSkip),
 	}
 }
 
 // NewWithDetails creates a fully specified AppError without cause.
-func NewWithDetails(
-	op, code, msg, creator string,
-	errType ErrorType,
-	sev SeverityType,
-	ctx map[string]any,
-) *AppError {
+func NewWithDetails(op, code, msg, creator string, errType ErrorType, sev SeverityType, ctx map[string]any) *AppError {
 	return &AppError{
 		Op:       op,
 		Code:     code,
@@ -174,8 +273,8 @@ func NewWithDetails(
 		Severity: sev,
 		Creator:  creator,
 		Message:  msg,
-		Caller:   captureCaller(2),
-		Stack:    captureStackTrace(2),
+		Caller:   captureCaller(DefaultCallerSkip),
+		Stack:    captureStackTrace(DefaultStackTraceSkip),
 		Ctx:      ctx,
 	}
 }
@@ -188,8 +287,8 @@ func NewValidationError(msg string) *AppError {
 		Type:     ErrorTypeValidation,
 		Severity: SeverityError,
 		Message:  msg,
-		Caller:   captureCaller(2),
-		Stack:    captureStackTrace(2),
+		Caller:   captureCaller(DefaultCallerSkip),
+		Stack:    captureStackTrace(DefaultStackTraceSkip),
 	}
 }
 
@@ -201,8 +300,8 @@ func NewExecutionError(msg string) *AppError {
 		Type:     ErrorTypeExecution,
 		Severity: SeverityError,
 		Message:  msg,
-		Caller:   captureCaller(2),
-		Stack:    captureStackTrace(2),
+		Caller:   captureCaller(DefaultCallerSkip),
+		Stack:    captureStackTrace(DefaultStackTraceSkip),
 	}
 }
 
@@ -213,8 +312,8 @@ func Wrap(err error, op string, ctx map[string]any) *AppError {
 		Code:     "E9000",
 		Type:     ErrorTypeExecution,
 		Severity: SeverityError,
-		Caller:   captureCaller(2),
-		Stack:    captureStackTrace(2),
+		Caller:   captureCaller(DefaultCallerSkip),
+		Stack:    captureStackTrace(DefaultStackTraceSkip),
 		Ctx:      ctx,
 		Cause:    err,
 	}
@@ -227,20 +326,14 @@ func WrapSimple(err error, op string) *AppError {
 		Code:     "E9000",
 		Type:     ErrorTypeExecution,
 		Severity: SeverityError,
-		Caller:   captureCaller(2),
-		Stack:    captureStackTrace(2),
+		Caller:   captureCaller(DefaultCallerSkip),
+		Stack:    captureStackTrace(DefaultStackTraceSkip),
 		Cause:    err,
 	}
 }
 
 // WrapWithDetails wraps an existing error with full metadata.
-func WrapWithDetails(
-	err error,
-	op, code, msg, creator string,
-	errType ErrorType,
-	sev SeverityType,
-	ctx map[string]any,
-) *AppError {
+func WrapWithDetails(err error, op, code, msg, creator string, errType ErrorType, sev SeverityType, ctx map[string]any) *AppError {
 	return &AppError{
 		Op:       op,
 		Code:     code,
@@ -248,8 +341,8 @@ func WrapWithDetails(
 		Severity: sev,
 		Creator:  creator,
 		Message:  msg,
-		Caller:   captureCaller(2),
-		Stack:    captureStackTrace(2),
+		Caller:   captureCaller(DefaultCallerSkip),
+		Stack:    captureStackTrace(DefaultStackTraceSkip),
 		Ctx:      ctx,
 		Cause:    err,
 	}

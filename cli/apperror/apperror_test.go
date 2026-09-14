@@ -55,4 +55,62 @@ func TestAppError_StackTrace(t *testing.T) {
 	if !strings.Contains(appErr.Stack, "TestAppError_StackTrace") {
 		t.Errorf("expected stack trace to contain test function name: %s", appErr.Stack)
 	}
+
+	if strings.Contains(appErr.Stack, "apperror.NewSimple") {
+		t.Errorf("expected stack trace to omit apperror.NewSimple: %s", appErr.Stack)
+	}
+}
+
+func TestAppError_StackTraceOmission(t *testing.T) {
+	appErr := NewSimple("test.op", "E3001")
+	if strings.Contains(appErr.Stack, "apperror.go:") {
+		t.Errorf("stack trace must omit internal apperror.go frames: %s", appErr.Stack)
+	}
+
+	if !strings.Contains(appErr.Caller, "apperror_test.go") {
+		t.Errorf("caller must point to test caller: %s", appErr.Caller)
+	}
+}
+
+func testHelperCreateError(skip int) *AppError {
+	return NewSimple("helper.op", "E3002").WithSkip(skip)
+}
+
+func TestAppError_WithSkip(t *testing.T) {
+	errNoSkip := testHelperCreateError(0)
+	errWithSkip := testHelperCreateError(1)
+
+	if !strings.Contains(errNoSkip.Caller, "apperror_test.go") {
+		t.Errorf("expected helper caller in apperror_test.go: %s", errNoSkip.Caller)
+	}
+
+	if errWithSkip.Caller == "" {
+		t.Errorf("expected non-empty caller with skip: %s", errWithSkip.Caller)
+	}
+}
+
+func TestAppError_DefaultSkipSetters(t *testing.T) {
+	origStackSkip := DefaultStackTraceSkip
+	origCallerSkip := DefaultCallerSkip
+	defer SetDefaultStackTraceSkip(origStackSkip)
+	defer SetDefaultCallerSkip(origCallerSkip)
+
+	SetDefaultStackTraceSkip(4)
+	SetDefaultCallerSkip(3)
+	if DefaultStackTraceSkip != 4 || DefaultCallerSkip != 3 {
+		t.Fatalf("expected skip settings updated")
+	}
+}
+
+func TestAppError_NewAndWrapWithSkip(t *testing.T) {
+	err1 := NewWithSkip(1, "custom.op", "E4001")
+	if err1.Code != "E4001" || err1.Op != "custom.op" {
+		t.Errorf("NewWithSkip mismatch: %+v", err1)
+	}
+
+	cause := errors.New("underlying failure")
+	err2 := WrapWithSkip(1, cause, "wrapped.op", "E4002")
+	if err2.Cause != cause || err2.Code != "E4002" {
+		t.Errorf("WrapWithSkip mismatch: %+v", err2)
+	}
 }

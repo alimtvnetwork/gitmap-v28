@@ -30,6 +30,7 @@ None
 19. [Plan 159: 159-macro-interactive-padding-table-alignment-os-help-parity.md](completed/159-macro-interactive-padding-table-alignment-os-help-parity.md): Macro Interactive Padding, Table Alignment, Self-Recursion & OS Help Parity
 20. [Plan 160: 160-macro-run-until-tree-summary-direct-dispatch.md](completed/160-macro-run-until-tree-summary-direct-dispatch.md): Macro Resilience, Failure Logging, Execution Summary Trees & Direct Dispatch
 21. [Plan 161: 161-archive-url-download-caching-antigravity-icon.md](completed/161-archive-url-download-caching-antigravity-icon.md): Archive URL Downloader, Download Caching, --download-must & Antigravity Logo Visibility Suite
+22. [Plan 162: 162-apperror-stacktrace-skip-and-filtering.md](completed/162-apperror-stacktrace-skip-and-filtering.md): AppError Stack Trace Skip, Default Configuration & Defensive Filtering Suite
 
 
 
@@ -122,3 +123,6 @@ None
 - [157-os-fix-clean-profiles-clone-suite.md](completed/157-os-fix-clean-profiles-clone-suite.md): 157-os-fix-clean-profiles-clone-suite
 - [158-macro-storage-permission-fallback-suite.md](completed/158-macro-storage-permission-fallback-suite.md): 158-macro-storage-permission-fallback-suite
 - [159-macro-interactive-padding-table-alignment-os-help-parity.md](completed/159-macro-interactive-padding-table-alignment-os-help-parity.md): 159-macro-interactive-padding-table-alignment-os-help-parity
+- [160-macro-run-until-tree-summary-direct-dispatch.md](completed/160-macro-run-until-tree-summary-direct-dispatch.md): 160-macro-run-until-tree-summary-direct-dispatch
+- [161-archive-url-download-caching-antigravity-icon.md](completed/161-archive-url-download-caching-antigravity-icon.md): 161-archive-url-download-caching-antigravity-icon
+- [162-apperror-stacktrace-skip-and-filtering.md](completed/162-apperror-stacktrace-skip-and-filtering.md): 162-apperror-stacktrace-skip-and-filtering
