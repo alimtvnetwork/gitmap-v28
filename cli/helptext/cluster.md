@@ -26,6 +26,7 @@ gitmap cluster <subcommand> [args...] [flags]
 | Subcommand | Aliases | Description |
 |------------|---------|-------------|
 | `import` | `import-config`, `import-cluster` | Import cluster topology from JSON and enroll hosts |
+| `bootstrap` | `bs` | Bootstrap cluster nodes with RSA keys, passwordless sudo, and enrollment |
 | `exec` | `run` | Execute remote shell command across targeted nodes |
 | `run-script` | `script` | Deploy and execute local script file across targeted nodes |
 | `node` | | Execute Ubuntu node provisioning recipes (netplan, packages, user, zsh, purge) |
@@ -181,6 +182,40 @@ Removes unused dependencies, unneeded kernels, and cleans the apt download cache
 ```bash
 gitmap cluster node purge <target>
 ```
+
+---
+
+## Remote Node Bootstrap & Sudoers NOPASSWD (`bootstrap`)
+
+Gitmap provides an automated, idempotent remote node bootstrap command that configures SSH key authentication, grants passwordless sudo rules, verifies key access, and enrolls the node into the local SQLite topology database in a single step:
+
+```bash
+gitmap cluster bootstrap <target> [password] [flags]
+gitmap cluster bs <target> [password] [flags]
+gitmap sj bootstrap <target> [password] [flags]
+```
+
+### Bootstrap Lifecycle Contract
+
+1. **RSA Cluster Keypair Verification**: Discovers existing 4096-bit RSA cluster keypair at `~/.ssh/id_rsa` or automatically generates a new keypair if missing.
+2. **Target Resolution**: Supports semantic cluster groups (`all`, `control`, `workers`), host aliases, or direct IP addresses (`192.168.0.101` or `ubuntu@192.168.0.101`).
+3. **Password Resolution**: Resolves credentials in priority order: CLI argument -> encrypted database password -> secure interactive prompt (`PromptSSHPassword`).
+4. **Public Key Injection**: Pushes public key to remote `~/.ssh/authorized_keys` via `SSH_ASKPASS` (`attachAskPass`) with proper directory permissions (`0700` and `0600`).
+5. **Passwordless Sudo Configuration**: When `--sudo` is enabled (default true), creates `/etc/sudoers.d/<user>` with `<user> ALL=(ALL) NOPASSWD:ALL` and sets permissions to `0440`.
+6. **Key Authentication Verification**: Runs `ssh -i <key> -o BatchMode=yes <user>@<ip> "echo ssh_ok"` to verify passwordless SSH authentication without interactive prompts.
+7. **Memory Hygiene**: Immediately clears plaintext password bytes and strings from memory upon completion.
+8. **SQLite Host Enrollment**: Registers node credentials and aliases into `ssh_hosts` and records connection history into `ssh_history`.
+9. **Summary Telemetry**: Formats and prints an execution summary table detailing `NODE`, `IP`, `SUDO`, `KEY_AUTH`, `STATUS`, and `DURATION`.
+
+### Flags
+
+| Flag | Shorthand | Default | Description |
+|------|-----------|---------|-------------|
+| `--sudo` | `-s` | `true` | Configure `/etc/sudoers.d/<user>` with `NOPASSWD:ALL` (use `--sudo=false` or `--no-sudo` to skip) |
+| `--user` | `-u` | | Remote SSH username override |
+| `--port` | `-p` | `22` | Remote SSH port |
+| `--password` | `-P` | | Remote user password (optional CLI override) |
+| `--help` | `-h` | | Show bootstrap help message |
 
 ---
 
@@ -498,6 +533,14 @@ gitmap cluster k8s helm-nfs control --export-dir /nfsexport
 
 # 14. Inspect cluster nodes, pods, and runtime health
 gitmap cluster k8s status control
+
+# 15. Bootstrap remote nodes with SSH keys and passwordless sudo
+gitmap cluster bootstrap ubuntu@192.168.0.101 SecretPass123
+gitmap cluster bootstrap workers
+gitmap sj bootstrap k8s-w1
+
+# 16. Bootstrap without sudo elevation
+gitmap cluster bootstrap control --sudo=false
 ```
 
 See also: `gitmap ssh`, `gitmap ssh-join`

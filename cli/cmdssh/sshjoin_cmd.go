@@ -105,7 +105,14 @@ func isSJAddSubcommand(sub string) bool {
 	return sub == "add" || sub == "join" || sub == "new" || sub == "enroll"
 }
 
+func isSJBootstrapSubcommand(sub string) bool {
+	return sub == "bootstrap" || sub == "bs"
+}
+
 func routeSSHJoinSpecialSubcommand(cmd *cobra.Command, args []string) (bool, error) {
+	if isSJBootstrapSubcommand(args[0]) {
+		return true, RunClusterBootstrapCLI(args[1:])
+	}
 	if isSJClusterImportSubcommand(args[0]) {
 		return true, RunClusterImportCLI(args[1:])
 	}
@@ -163,7 +170,7 @@ func isSJStatusSubcommand(sub string) bool {
 }
 
 func isSJSubcommand(sub string) bool {
-	if isSJAddSubcommand(sub) || isSJAddWithPassSubcommand(sub) || isSJScanSubcommand(sub) || isSJStatusSubcommand(sub) || isSJClusterImportSubcommand(sub) {
+	if isSJAddSubcommand(sub) || isSJAddWithPassSubcommand(sub) || isSJScanSubcommand(sub) || isSJStatusSubcommand(sub) || isSJClusterImportSubcommand(sub) || isSJBootstrapSubcommand(sub) {
 		return true
 	}
 
@@ -252,11 +259,13 @@ func routeSJSubcommands(ctx context.Context, args []string) (bool, error) {
 	if len(args) == 0 {
 		return false, nil
 	}
-
+	switch args[0] {
+	case "bootstrap", "bs":
+		return true, RunClusterBootstrapCLI(args[1:])
+	}
 	if !isSJSubcommand(args[0]) {
 		return false, nil
 	}
-
 	return true, dispatchSJSubcommand(ctx, args[0], args[1:])
 }
 
@@ -394,4 +403,5 @@ func init() {
 	SSHJoinCmd.AddCommand(SJLsCmd)
 	SSHJoinCmd.AddCommand(SJHistCmd)
 	SSHJoinCmd.AddCommand(SJClusterImportCmd)
+	SSHJoinCmd.AddCommand(ClusterBootstrapCmd)
 }

@@ -27,7 +27,79 @@ func recordInstallationSplitDB(installPath string, durationMs int64, exitCode in
 	if errTools := saveSplitInstalledTools(splitDB, installPath); errTools != nil {
 		return errTools
 	}
+	if errLogs := recordSplitInstallTelemetry(splitDB, exitCode); errLogs != nil {
+		return errLogs
+	}
 	return saveSplitInstallationLog(splitDB, durationMs, exitCode)
+}
+
+func recordSplitInstallTelemetry(splitDB *store.InstallationSplitDB, exitCode int) error {
+	if exitCode == 0 {
+		return recordSplitTelemetrySuccess(splitDB)
+	}
+
+	return recordSplitTelemetryFailure(splitDB, exitCode)
+}
+
+func recordSplitTelemetrySuccess(splitDB *store.InstallationSplitDB) error {
+	if err := splitDB.RecordInstallSuccess("tool", constants.ToolAntigravity); err != nil {
+		return err
+	}
+
+	return splitDB.RecordInstallSuccess("tool", constants.ToolAgy)
+}
+
+func recordSplitTelemetryFailure(splitDB *store.InstallationSplitDB, exitCode int) error {
+	errMsg := "Antigravity installation failed"
+	if err := splitDB.RecordInstallFailure("tool", constants.ToolAntigravity, exitCode, errMsg); err != nil {
+		return err
+	}
+
+	return splitDB.RecordInstallFailure("tool", constants.ToolAgy, exitCode, errMsg)
+}
+
+// RecordAntigravityInstallStart logs the beginning of an Antigravity installation.
+func RecordAntigravityInstallStart() (string, error) {
+	splitDB, err := store.OpenInstallationSplitDB()
+	if err != nil {
+		return "", apperror.WrapSimple(err, "antigravity_install.openStart")
+	}
+	defer splitDB.Close()
+
+	return splitDB.RecordInstallStart("tool", constants.ToolAntigravity, "install")
+}
+
+// RecordAntigravityInstallSuccess logs the successful completion of an Antigravity installation.
+func RecordAntigravityInstallSuccess() error {
+	splitDB, err := store.OpenInstallationSplitDB()
+	if err != nil {
+		return apperror.WrapSimple(err, "antigravity_install.openSuccess")
+	}
+	defer splitDB.Close()
+
+	return recordSplitTelemetrySuccess(splitDB)
+}
+
+// RecordAntigravityInstallFailure logs a failed Antigravity installation.
+func RecordAntigravityInstallFailure(exitCode int, errorMsg string) error {
+	splitDB, err := store.OpenInstallationSplitDB()
+	if err != nil {
+		return apperror.WrapSimple(err, "antigravity_install.openFailure")
+	}
+	defer splitDB.Close()
+
+	return splitDB.RecordInstallFailure("tool", constants.ToolAntigravity, exitCode, errorMsg)
+}
+
+// RecordAntigravityInstallSkipped logs a skipped Antigravity installation.
+func RecordAntigravityInstallSkipped(reason string) error {
+	splitDB, err := store.OpenInstallationSplitDB()
+	if err != nil {
+		return apperror.WrapSimple(err, "antigravity_install.openSkipped")
+	}
+	defer splitDB.Close()
+
+	return splitDB.RecordInstallSkipped("tool", constants.ToolAntigravity, reason)
 }
 
 func saveSplitInstalledTools(splitDB *store.InstallationSplitDB, installPath string) error {
@@ -85,7 +157,6 @@ func syncGitmapRootDB(installPath string) error {
 	if errReg := rootDB.SyncKnownSplitDatabases(); errReg != nil {
 		return apperror.WrapSimple(errReg, "gitmap_root.syncRegistry")
 	}
-
 	return nil
 }
 

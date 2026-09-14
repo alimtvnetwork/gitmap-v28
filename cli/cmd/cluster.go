@@ -11,10 +11,19 @@ const (
 	unknownCmdMsg = "Unknown cluster command: %s\n"
 )
 
-func routeClusterSSH(sub string, rest []string) (error, bool) {
+func routeClusterBootstrapOrExec(sub string, rest []string) (error, bool) {
 	switch sub {
+	case "bootstrap", "bs":
+		return cmdssh.RunClusterBootstrapCLI(rest), true
 	case "exec", "run":
 		return cmdssh.RunClusterExecCLI(rest), true
+	default:
+		return nil, false
+	}
+}
+
+func routeClusterScriptOrNode(sub string, rest []string) (error, bool) {
+	switch sub {
 	case "run-script", "script":
 		return cmdssh.RunClusterScriptCLI(rest), true
 	case "node":
@@ -24,6 +33,13 @@ func routeClusterSSH(sub string, rest []string) (error, bool) {
 	default:
 		return nil, false
 	}
+}
+
+func routeClusterSSH(sub string, rest []string) (error, bool) {
+	if err, isMatched := routeClusterBootstrapOrExec(sub, rest); isMatched {
+		return err, true
+	}
+	return routeClusterScriptOrNode(sub, rest)
 }
 
 func routeClusterLegacyOps(sub string, rest []string) (error, bool) {
@@ -41,16 +57,26 @@ func routeClusterLegacyOps(sub string, rest []string) (error, bool) {
 	}
 }
 
+func routeClusterPasswordOps(sub string, rest []string) (error, bool) {
+	switch sub {
+	case "set-password":
+		return runClusterSetPassword(rest), true
+	case "reset-password":
+		return runClusterResetPassword(rest), true
+	default:
+		return nil, false
+	}
+}
+
 func routeClusterNodeOps(sub string, rest []string) (error, bool) {
+	if err, isMatched := routeClusterPasswordOps(sub, rest); isMatched {
+		return err, true
+	}
 	switch sub {
 	case "nodes", "ls":
 		return runClusterNodes(rest), true
 	case "remove", "rm":
 		return runClusterRemove(rest), true
-	case "set-password":
-		return runClusterSetPassword(rest), true
-	case "reset-password":
-		return runClusterResetPassword(rest), true
 	case "audit-clean":
 		return runClusterAuditClean(rest), true
 	default:

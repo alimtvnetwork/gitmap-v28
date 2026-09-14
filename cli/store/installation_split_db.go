@@ -92,6 +92,21 @@ CREATE INDEX IF NOT EXISTS IdxProfileInstallation_Status ON ProfileInstallation(
 CREATE INDEX IF NOT EXISTS IdxPackageInstallation_ProfileInstallationId ON PackageInstallation(ProfileInstallationId);
 CREATE INDEX IF NOT EXISTS IdxPackageInstallation_PackageName ON PackageInstallation(PackageName);
 CREATE INDEX IF NOT EXISTS IdxPackageInstallation_Status ON PackageInstallation(Status);`
+
+	sqlCreateInstallLogs = `CREATE TABLE IF NOT EXISTS install_logs (
+    id TEXT PRIMARY KEY,
+    target_type TEXT NOT NULL,
+    target_name TEXT NOT NULL,
+    action TEXT NOT NULL,
+    status TEXT NOT NULL,
+    exit_code INTEGER NOT NULL DEFAULT 0,
+    error_message TEXT,
+    log_path TEXT,
+    started_at TEXT NOT NULL,
+    ended_at TEXT
+);
+CREATE INDEX IF NOT EXISTS idx_install_logs_target ON install_logs(target_type, target_name);
+CREATE INDEX IF NOT EXISTS idx_install_logs_status ON install_logs(status);`
 )
 
 // InstallationSplitDB wraps an isolated SQLite database connection for installations.
@@ -127,27 +142,37 @@ func OpenInstallationSplitDBAt(dbPath string) (*InstallationSplitDB, error) {
 func initInstallationSplitConn(conn *sql.DB, dbPath string) (*InstallationSplitDB, error) {
 	if err := ConfigureSQLiteConn(conn); err != nil {
 		_ = conn.Close()
-
 		return nil, apperror.WrapSimple(err, "installation_split.config")
 	}
 
 	db := &InstallationSplitDB{conn: conn, Path: dbPath}
 	if err := db.InitSchema(); err != nil {
 		_ = conn.Close()
-
 		return nil, err
 	}
 
 	return db, nil
 }
 
-// InitSchema creates the InstalledTool, InstallationLog, ProfileInstallation, and PackageInstallation tables if absent.
+// InitSchema creates the InstalledTool, InstallationLog, ProfileInstallation, PackageInstallation, and install_logs tables if absent.
 func (s *InstallationSplitDB) InitSchema() error {
 	if err := s.initBaseTables(); err != nil {
 		return err
 	}
 
-	return s.initProfileTables()
+	if err := s.initProfileTables(); err != nil {
+		return err
+	}
+
+	return s.initInstallationDB()
+}
+
+func (s *InstallationSplitDB) initInstallationDB() error {
+	if _, err := s.conn.Exec(sqlCreateInstallLogs); err != nil {
+		return apperror.WrapSimple(err, "installation_split.initInstallLogs")
+	}
+
+	return nil
 }
 
 func (s *InstallationSplitDB) initBaseTables() error {

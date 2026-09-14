@@ -177,13 +177,9 @@ func createDualLinuxSymlinksWithFallback(binFile, preferredBinDir string) (strin
 }
 
 func createAntigravityDesktopEntry(binPath, desktopFile string) error {
-	content := fmt.Sprintf("[Desktop Entry]\nName=Google Antigravity\nComment=AI-First Development Platform & Agent Orchestration IDE\nGenericName=Text Editor / IDE\nExec=%s %%U\nIcon=%s\nType=Application\nStartupNotify=true\nStartupWMClass=Antigravity\nCategories=Development;IDE;Utility;\n", binPath, AntigravityCanonicalIconName)
+	content := buildAntigravityDesktopContent(binPath, AntigravityCanonicalIconName)
 
-	if err := os.WriteFile(desktopFile, []byte(content), 0644); err != nil {
-		return apperror.WrapSimple(err, "write.desktopEntry")
-	}
-
-	return nil
+	return writeDesktopFileWithChmod(desktopFile, content)
 }
 
 func deployAntigravityDesktopIcons(installDir string) {
@@ -197,19 +193,28 @@ func deployAntigravityDesktopIcons(installDir string) {
 	_ = DeployMultiResolutionIcons(opts)
 }
 
-func installLinuxDesktopLauncher(binPath, installDir, desktopDir string) error {
-	if err := os.MkdirAll(desktopDir, 0755); err != nil {
-		home, _ := os.UserHomeDir()
-		desktopDir = filepath.Join(home, ".local", "share", "applications")
-		_ = os.MkdirAll(desktopDir, 0755)
+func buildLauncherDeployConfig(binPath, desktopDir string) AntigravityLauncherDeployConfig {
+	home, _ := os.UserHomeDir()
+	userAppDir := filepath.Join(home, ".local", "share", "applications")
+	if desktopDir != "" && desktopDir != "/usr/share/applications" {
+		userAppDir = desktopDir
 	}
 
-	deployAntigravityDesktopIcons(installDir)
-	desktopFile := filepath.Join(desktopDir, "antigravity.desktop")
-	err := createAntigravityDesktopEntry(binPath, desktopFile)
-	updateDesktopDatabase(desktopDir)
+	return AntigravityLauncherDeployConfig{
+		BinPath:      binPath,
+		UserAppDir:   userAppDir,
+		DesktopDir:   filepath.Join(home, "Desktop"),
+		IconName:     AntigravityCanonicalIconName,
+		IsPrivileged: isPrivilegedLinuxUser(),
+	}
+}
 
-	return err
+func installLinuxDesktopLauncher(binPath, installDir, desktopDir string) error {
+	deployAntigravityDesktopIcons(installDir)
+	cfg := buildLauncherDeployConfig(binPath, desktopDir)
+	_ = os.MkdirAll(cfg.UserAppDir, 0755)
+
+	return DeployCanonicalAntigravityLauncher(cfg)
 }
 
 func linkAndLaunchLinuxDesktop(binFile, installDir, binDir, desktopDir string) error {
@@ -251,14 +256,18 @@ func deployAntigravityDesktopLinux(reqInstall, reqBin, reqDesktop, archivePath s
 	return completeLinuxDeployment(installDir, binDir, desktopDir)
 }
 
-func installAntigravityDesktopPlatform(opts installOptions) error {
-	url := getAntigravityDesktopDownloadUrl("linux")
+func fetchLinuxTarballArchive(opts installOptions) (string, error) {
 	params := ArchiveDownloadParams{
-		URL:            url,
+		URL:            getAntigravityDesktopDownloadUrl("linux"),
 		IsDownloadMust: opts.IsDownloadMust,
 		Verbose:        opts.Verbose,
 	}
-	archivePath, err := FetchOrReuseArchive(params)
+
+	return FetchOrReuseArchive(params)
+}
+
+func installAntigravityDesktopPlatform(opts installOptions) error {
+	archivePath, err := fetchLinuxTarballArchive(opts)
 	if err != nil {
 		return apperror.WrapSimple(err, "fetch.linuxTarball")
 	}
