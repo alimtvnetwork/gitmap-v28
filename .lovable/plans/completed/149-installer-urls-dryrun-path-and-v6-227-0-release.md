@@ -1,4 +1,4 @@
-﻿# Plan 149: Installer URLs, Release Dry-Run Path & v6.227.0 Release
+# Plan 149: Installer URLs, Release Dry-Run Path & v6.227.0 Release
 
 - Slug: 149-installer-urls-dryrun-path-and-v6-227-0-release
 - Date: 2026-09-13

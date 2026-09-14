@@ -16,7 +16,7 @@ os user-group add/edit/import/export/import-all/export-all
 
 os clean temp
 os clear temp
-vscode profiles export/export-all/import/import-all/ls #ls will list profiles, 
+vscode profiles export/export-all/import/import-all/ls #ls will list profiles,
 vscode profiles export <name>
 
 gitmap clone -ls file.json #it will list the repos as table to work later with sequence ids
@@ -44,7 +44,7 @@ os user-group add/edit/import/export/import-all/export-all
 
 os clean temp
 os clear temp
-vscode profiles export/export-all/import/import-all/ls #ls will list profiles, 
+vscode profiles export/export-all/import/import-all/ls #ls will list profiles,
 vscode profiles export <name>
 
 gitmap clone -ls file.json #it will list the repos as table to work later with sequence ids

@@ -1,4 +1,4 @@
-﻿# Installer Paths, Seed URLs & v6.227.0 Release
+# Installer Paths, Seed URLs & v6.227.0 Release
 
 - Slug: installer-paths-seed-urls-and-v6-227-0-release
 - Date: 2026-09-13

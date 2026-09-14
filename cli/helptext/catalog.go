@@ -38,6 +38,15 @@ var topicSummaries = map[string]string{
 	"sj-add-pass":            "Enroll an SSH machine with RSA-encrypted password storage for seamless auto-login.",
 	"sj-scan":                "Scan local subnet or CIDR network for machines with open SSH port 22.",
 	"sj-status":              "Inspect connectivity, latency, and health of registered SSH machines.",
+	"cluster":                "Comprehensive cluster management for multi-node topology, remote execution, script deployment, and Ubuntu provisioning.",
+	"cluster-import":         "Import cluster topology from JSON configuration and enroll control plane and worker nodes.",
+	"cluster-exec":           "Execute remote shell commands across cluster nodes in parallel with role targeting and sudo elevation.",
+	"cluster-run-script":     "Deploy and execute local scripts remotely across cluster nodes with base64 staging and automatic cleanup.",
+	"cluster-node":           "Provision and configure Ubuntu cluster nodes with static Netplan IP, base tools, oh-my-zsh users, and cleanup recipes.",
+	"cluster-k8s":            "Manage Kubernetes cluster lifecycle, runtime, and components",
+	"cluster-k8s-init":       "Initialize Kubernetes control plane",
+	"cluster-k8s-join":       "Join worker nodes to Kubernetes control plane",
+	"cluster-k8s-helm":       "Deploy Helm and storage class provisioners",
 }
 
 // GetTopicDetailedSummary returns documentation content for a specific command topic.

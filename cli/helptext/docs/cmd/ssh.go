@@ -19,7 +19,7 @@ Examples:
 - gitmap ssh 192.168.1.5
 
 ### Alias Resolution
-When you use a short alias like 'm1' or an IP, gitmap checks the local SQLite 'ssh_hosts' table. 
+When you use a short alias like 'm1' or an IP, gitmap checks the local SQLite 'ssh_hosts' table.
 If an alias is registered (e.g. via 'gitmap ssh <ip> as <alias>'), it will resolve to the stored username and IP, automatically connecting without requiring you to type the full credentials each time.
 `)
 	if err != nil {

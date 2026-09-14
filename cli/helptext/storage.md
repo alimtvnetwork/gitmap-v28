@@ -55,4 +55,3 @@ gitmap storage clean --force --verbose
 # Clean temporary logs and vacuum pipeline SQLite database
 gitmap storage clean --force --vacuum
 ```
-

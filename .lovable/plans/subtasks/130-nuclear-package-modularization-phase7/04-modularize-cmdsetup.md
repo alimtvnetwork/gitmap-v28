@@ -16,4 +16,3 @@ Extract ~21 setup command files from `cli/cmd` into dedicated `cli/cmdsetup` sub
 - Decoupled `warnIfNoWrapper`, `resolveSetupConfigPath`, `isWrapperActive` via `exports.go` and bridge forwarders in `cli/cmd/clihelpers.go`.
 - `go vet -C cli ./cmdsetup ./cmd` verified 100% clean.
 - `gitmap setup --help` verified working.
-

@@ -745,5 +745,3 @@ To survive large codebases without hitting step limits or context loss, execute 
 - **NO ABSOLUTE PATHS:** Never write absolute filesystem paths (`C:\...`, `/home/...`) or `file:///` URIs. Use strict relative Git paths starting from the repository root.
 - **NO UPPERCASE FILENAMES:** Every file created or edited must be strictly lowercase.
 - **NO MULTI-VALUE TUPLES:** Eliminate `(T, error)` in favor of `Result[T]`, `ResultMap[K, V]`, or `ResultSlice[T]`.
-
-

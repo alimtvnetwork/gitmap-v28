@@ -16,4 +16,3 @@ Update `.lovable/test-inventory.json` with duration estimates, run all 38 CI/CD 
 - Linters verified clean: `check-nested-ifs.py`, `check-enum-and-boolean.py`, `check-boolean-guidelines.py`, `check-relative-paths.py`.
 - CI/CD quality runner passed all 38/38 gates (`--no-tests`).
 - Consolidated Plan 130 into completed plans.
-

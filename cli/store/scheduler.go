@@ -83,9 +83,9 @@ func (db *DB) InsertSchedule(t SchedulerTask) error {
 		t.DBPath = ScheduleDBPath(t.Slug)
 	}
 
-	q := `INSERT INTO scheduler_tasks (name, slug, db_path, macro_name, command_line, interval_val, delay_val, is_enabled, is_scheduled, has_delay, is_startup) 
+	q := `INSERT INTO scheduler_tasks (name, slug, db_path, macro_name, command_line, interval_val, delay_val, is_enabled, is_scheduled, has_delay, is_startup)
 	      VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
-	      ON CONFLICT(name) DO UPDATE SET 
+	      ON CONFLICT(name) DO UPDATE SET
 	          slug=excluded.slug,
 	          db_path=excluded.db_path,
 	          macro_name=excluded.macro_name,
@@ -116,7 +116,7 @@ func (db *DB) SetScheduleEnabled(name string, isEnabled bool) error {
 
 // GetSchedule retrieves a scheduled task by name.
 func (db *DB) GetSchedule(name string) (*SchedulerTask, error) {
-	q := `SELECT id, name, COALESCE(slug,''), COALESCE(db_path,''), COALESCE(macro_name,''), COALESCE(command_line,''), interval_val, delay_val, is_enabled, is_scheduled, has_delay, is_startup, run_count, COALESCE(last_run_at,''), created_at 
+	q := `SELECT id, name, COALESCE(slug,''), COALESCE(db_path,''), COALESCE(macro_name,''), COALESCE(command_line,''), interval_val, delay_val, is_enabled, is_scheduled, has_delay, is_startup, run_count, COALESCE(last_run_at,''), created_at
 	      FROM scheduler_tasks WHERE name = ?`
 	row := db.conn.QueryRow(q, name)
 	var t SchedulerTask
@@ -149,7 +149,7 @@ func (db *DB) UpdateScheduleRun(name, timestamp string) error {
 
 // ListSchedules returns all tasks.
 func (db *DB) ListSchedules() ([]SchedulerTask, error) {
-	q := `SELECT id, name, COALESCE(slug,''), COALESCE(db_path,''), COALESCE(macro_name,''), COALESCE(command_line,''), interval_val, delay_val, is_enabled, is_scheduled, has_delay, is_startup, run_count, COALESCE(last_run_at,''), created_at 
+	q := `SELECT id, name, COALESCE(slug,''), COALESCE(db_path,''), COALESCE(macro_name,''), COALESCE(command_line,''), interval_val, delay_val, is_enabled, is_scheduled, has_delay, is_startup, run_count, COALESCE(last_run_at,''), created_at
 	      FROM scheduler_tasks ORDER BY id ASC`
 	rows, err := db.conn.Query(q)
 	if err != nil {

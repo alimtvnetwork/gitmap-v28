@@ -55,9 +55,9 @@ pf
 **Output:**
 
     PROFILE     REPOS   GROUPS  STATUS
-    default     42      3       
+    default     42      3
     work        18      2       ✓ active
-    personal    7       1       
+    personal    7       1
     3 profiles
 
 ### Example 3: Show current profile details

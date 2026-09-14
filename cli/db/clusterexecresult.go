@@ -34,7 +34,7 @@ const (
 	`
 	sqlUpdateClusterExecResult = `
 		UPDATE ClusterExecResult
-		SET 
+		SET
 			CommandText = ?,
 			ResultStatus = ?,
 			ExitCode = ?,
@@ -47,7 +47,7 @@ const (
 		WHERE ClusterExecResultId = ?
 	`
 	sqlSelectClusterExecResultsByRunId = `
-		SELECT 
+		SELECT
 			ClusterExecResultId, ClusterRunId, NodeId, SubCommand, CommandText,
 			ResultStatus, ExitCode, Stdout, Stderr, StartedAt, FinishedAt, DurationMs, ErrorMessage
 		FROM ClusterExecResult

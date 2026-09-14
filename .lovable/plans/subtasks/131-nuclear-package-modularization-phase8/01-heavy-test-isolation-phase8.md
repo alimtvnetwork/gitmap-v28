@@ -12,4 +12,3 @@ Segregate tests taking >= 1.0s or executing external subprocesses into `cli/test
 - Moved `cli/probe/background_test.go` to `cli/tests/heavy_test/probe_background_test.go` (`package heavy_test`).
 - Ensured all subprocess and sleep-dependent probe runner tests are isolated from unit tests.
 - `go vet -C cli ./tests/heavy_test ./probe` verified clean (`exit 0`).
-

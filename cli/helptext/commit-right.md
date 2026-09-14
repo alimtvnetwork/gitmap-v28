@@ -14,7 +14,7 @@ cmr
 > Spec §13 reserved `cr`, but `cr` is already taken by `cpp-repos`.
 > Use `cmr` instead. The long-form `commit-right` always works.
 
-> **Note on Endpoints:** 
+> **Note on Endpoints:**
 > The LEFT and RIGHT endpoints can be specified as any of the following: an absolute path, a relative path, a clone URL (HTTPS/SSH), a database Alias, a database Slug (e.g. prompt-architect-v2), or a Repo ID.
 
 

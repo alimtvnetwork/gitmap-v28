@@ -38,14 +38,14 @@ const (
 		WHERE ClusterRunId = ?
 	`
 	sqlSelectClusterRunByRef = `
-		SELECT 
+		SELECT
 			ClusterRunId, RunRef, CommandKind, RawCommand, TargetSelector, ExceptClause,
 			StartedAt, FinishedAt, TotalNodes, SucceededNodes, FailedNodes, SkippedNodes
 		FROM ClusterRun
 		WHERE RunRef = ?
 	`
 	sqlSelectListClusterRuns = `
-		SELECT 
+		SELECT
 			ClusterRunId, RunRef, CommandKind, RawCommand, TargetSelector, ExceptClause,
 			StartedAt, FinishedAt, TotalNodes, SucceededNodes, FailedNodes, SkippedNodes
 		FROM ClusterRun

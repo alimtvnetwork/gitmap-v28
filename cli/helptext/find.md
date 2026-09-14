@@ -55,4 +55,3 @@ gitmap find "*.go" --limit 5 --json
 - [find-files](find-files.md) — Dedicated exact, starts-with, and contains file search
 - [folder](folder.md) — Directory hierarchy visualization and metadata export
 - [search](search.md) — Content search across files
-

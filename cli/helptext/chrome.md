@@ -4,7 +4,7 @@ Unified CLI suite for managing Google Chrome installation, profile replication, 
 
 ## Aliases
 
-`gitmap cprof <subcommand>`  
+`gitmap cprof <subcommand>`
 `gitmap chrome-profile <subcommand>`
 
 ---

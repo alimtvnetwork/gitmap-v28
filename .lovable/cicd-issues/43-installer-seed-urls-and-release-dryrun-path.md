@@ -1,4 +1,4 @@
-﻿# CI/CD Issue 43: Installer Seed Data 404s & Release Dry-Run Script Path Drift
+# CI/CD Issue 43: Installer Seed Data 404s & Release Dry-Run Script Path Drift
 
 - **Job**: Installer Dry-Run Windows & Installer Smoke Windows (release)
 - **Type**: FAIL

@@ -1,4 +1,4 @@
-﻿# Macro Step Execution Behavior for `open <target>`
+# Macro Step Execution Behavior for `open <target>`
 
 Slug: macro-step-open-command-behavior
 Status: resolved

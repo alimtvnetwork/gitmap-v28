@@ -14,6 +14,7 @@ const SQLCreateSSHHostsTable = `CREATE TABLE IF NOT EXISTS ssh_hosts (
 	username TEXT,
 	port INTEGER DEFAULT 22,
 	encrypted_password TEXT,
+	cluster_role TEXT DEFAULT 'worker',
 	created_at DATETIME
 );`
 
@@ -31,6 +32,7 @@ func executeTableDDL(db *sql.DB, ddl string, op string) error {
 func ensureHostColumns(db *sql.DB) {
 	_, _ = db.Exec("ALTER TABLE ssh_hosts ADD COLUMN port INTEGER DEFAULT 22;")
 	_, _ = db.Exec("ALTER TABLE ssh_hosts ADD COLUMN encrypted_password TEXT;")
+	_, _ = db.Exec("ALTER TABLE ssh_hosts ADD COLUMN cluster_role TEXT DEFAULT 'worker';")
 }
 
 // EnsureSSHTables creates both ssh_hosts and ssh_history tables if they do not exist.

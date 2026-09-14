@@ -1,9 +1,9 @@
 # Plan 156: Macro, Schedule, Service, OS & Terminal Table Alignment Suite
 
-**Author**: Antigravity  
-**Status**: Completed  
-**Budget**: N = 300 steps  
-**Completed**: Single Continuous Loop  
+**Author**: Antigravity
+**Status**: Completed
+**Budget**: N = 300 steps
+**Completed**: Single Continuous Loop
 
 ---
 

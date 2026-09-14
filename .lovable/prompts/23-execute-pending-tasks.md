@@ -32,4 +32,3 @@ When running tests, linters, or CI/CD pipelines in the background:
 - **25-Second Heartbeat Cadence**: Runner progress heartbeats occur strictly every 25 seconds or more. Never spam or query status quickly.
 - **1-Minute AI Sleep Discipline**: When inspecting or waiting for background runner execution, agents MUST sleep/wait for **1 minute (60 seconds) each time**, or dynamically sleep based on the remaining ETA read from `.lovable/temp/runner-eta.json` (or based on previous total approximate delay) instead of busy-polling.
 - **Reactive Notification**: Once launched, allow background tasks to run and await the system's reactive message notification instead of looping on status calls.
-

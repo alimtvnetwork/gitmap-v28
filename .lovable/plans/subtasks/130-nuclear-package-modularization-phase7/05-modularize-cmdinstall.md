@@ -17,4 +17,3 @@ Extract ~81 tooling and shell context installation files from `cli/cmd` into ded
 - Added bridge forwarders and type aliases in `cli/cmd/clihelpers.go`.
 - `go vet -C cli ./cmdinstall ./cmd` and `go vet -C cli ./...` verified 100% clean.
 - `gitmap install --help` and `gitmap installer --help` verified working.
-

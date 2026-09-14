@@ -30,4 +30,3 @@ issues:
     - path: 'generated/.*\.go'
       linters:
         - unused
-

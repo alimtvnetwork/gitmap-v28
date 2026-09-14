@@ -5,6 +5,7 @@ import (
 	"database/sql"
 	"errors"
 	"fmt"
+	"strings"
 	"time"
 
 	"github.com/alimtvnetwork/gitmap-v28/cli/apperror"
@@ -41,8 +42,8 @@ func resolveContextExecer(tx any) (sqlContextExecer, error) {
 }
 
 const sqlInsertSSHHost = `
-	INSERT INTO ssh_hosts (id, alias, ip, username, port, encrypted_password, created_at)
-	VALUES (:id, :alias, :ip, :username, :port, :encrypted_password, :created_at)
+	INSERT INTO ssh_hosts (id, alias, ip, username, port, encrypted_password, cluster_role, created_at)
+	VALUES (:id, :alias, :ip, :username, :port, :encrypted_password, :cluster_role, :created_at)
 `
 
 const sqlSelectHostByIP = `SELECT id FROM ssh_hosts WHERE ip = ? LIMIT 1`
@@ -74,6 +75,13 @@ func resolveHostPort(port int) int {
 	return 22
 }
 
+func resolveClusterRole(role string) string {
+	if role != "" {
+		return role
+	}
+	return "worker"
+}
+
 func buildHostNamedArgs(host SSHHost) []any {
 	return []any{
 		sql.Named("id", host.ID),
@@ -82,6 +90,7 @@ func buildHostNamedArgs(host SSHHost) []any {
 		sql.Named("username", host.Username),
 		sql.Named("port", resolveHostPort(host.Port)),
 		sql.Named("encrypted_password", host.EncryptedPassword),
+		sql.Named("cluster_role", resolveClusterRole(host.ClusterRole)),
 		sql.Named("created_at", host.CreatedAt),
 	}
 }
@@ -165,10 +174,11 @@ func findHostByField(ctx context.Context, runner sqlContextQueryExecer, query st
 }
 
 func updateHostForIP(ctx context.Context, runner sqlContextQueryExecer, id string, host SSHHost) error {
+	role := resolveClusterRole(host.ClusterRole)
 	createdAt := resolveCreatedAt(host.CreatedAt)
 	port := resolveHostPort(host.Port)
-	query := `UPDATE ssh_hosts SET alias = ?, username = ?, port = ?, encrypted_password = ?, created_at = ? WHERE id = ?`
-	_, err := runner.ExecContext(ctx, query, host.Alias, host.Username, port, host.EncryptedPassword, createdAt, id)
+	query := `UPDATE ssh_hosts SET alias = ?, username = ?, port = ?, encrypted_password = ?, cluster_role = ?, created_at = ? WHERE id = ?`
+	_, err := runner.ExecContext(ctx, query, host.Alias, host.Username, port, host.EncryptedPassword, role, createdAt, id)
 	if err != nil {
 		return apperror.Wrap(err, "updateHostForIP", map[string]any{"id": id})
 	}
@@ -177,10 +187,11 @@ func updateHostForIP(ctx context.Context, runner sqlContextQueryExecer, id strin
 }
 
 func updateHostForAlias(ctx context.Context, runner sqlContextQueryExecer, id string, host SSHHost) error {
+	role := resolveClusterRole(host.ClusterRole)
 	createdAt := resolveCreatedAt(host.CreatedAt)
 	port := resolveHostPort(host.Port)
-	query := `UPDATE ssh_hosts SET ip = ?, username = ?, port = ?, encrypted_password = ?, created_at = ? WHERE id = ?`
-	_, err := runner.ExecContext(ctx, query, host.IP, host.Username, port, host.EncryptedPassword, createdAt, id)
+	query := `UPDATE ssh_hosts SET ip = ?, username = ?, port = ?, encrypted_password = ?, cluster_role = ?, created_at = ? WHERE id = ?`
+	_, err := runner.ExecContext(ctx, query, host.IP, host.Username, port, host.EncryptedPassword, role, createdAt, id)
 	if err != nil {
 		return apperror.Wrap(err, "updateHostForAlias", map[string]any{"id": id})
 	}
@@ -328,7 +339,7 @@ func wrapHostScanError(err error, alias string) (SSHHost, error) {
 	return wrapHostByFieldScanError(err, "GetHostByAlias", "alias", alias)
 }
 
-const sqlSelectHostFields = `SELECT id, alias, ip, username, COALESCE(port, 22), COALESCE(encrypted_password, ''), created_at FROM ssh_hosts`
+const sqlSelectHostFields = `SELECT id, alias, ip, username, COALESCE(port, 22), COALESCE(encrypted_password, ''), COALESCE(cluster_role, 'worker'), created_at FROM ssh_hosts`
 
 // GetHostByAlias retrieves an SSHHost by its alias.
 func GetHostByAlias(ctx context.Context, alias string, db *sql.DB) (SSHHost, error) {
@@ -337,7 +348,7 @@ func GetHostByAlias(ctx context.Context, alias string, db *sql.DB) (SSHHost, err
 
 	var host SSHHost
 	err := db.QueryRowContext(ctx, query, alias).Scan(
-		&host.ID, &host.Alias, &host.IP, &host.Username, &host.Port, &host.EncryptedPassword, &host.CreatedAt,
+		&host.ID, &host.Alias, &host.IP, &host.Username, &host.Port, &host.EncryptedPassword, &host.ClusterRole, &host.CreatedAt,
 	)
 	if err != nil {
 		return wrapHostByFieldScanError(err, "GetHostByAlias", "alias", alias)
@@ -353,7 +364,7 @@ func GetHostByIP(ctx context.Context, ip string, db *sql.DB) (SSHHost, error) {
 
 	var host SSHHost
 	err := db.QueryRowContext(ctx, query, ip).Scan(
-		&host.ID, &host.Alias, &host.IP, &host.Username, &host.Port, &host.EncryptedPassword, &host.CreatedAt,
+		&host.ID, &host.Alias, &host.IP, &host.Username, &host.Port, &host.EncryptedPassword, &host.ClusterRole, &host.CreatedAt,
 	)
 	if err != nil {
 		return wrapHostByFieldScanError(err, "GetHostByIP", "ip", ip)
@@ -369,7 +380,7 @@ func GetHostByID(ctx context.Context, id string, db *sql.DB) (SSHHost, error) {
 
 	var host SSHHost
 	err := db.QueryRowContext(ctx, query, id).Scan(
-		&host.ID, &host.Alias, &host.IP, &host.Username, &host.Port, &host.EncryptedPassword, &host.CreatedAt,
+		&host.ID, &host.Alias, &host.IP, &host.Username, &host.Port, &host.EncryptedPassword, &host.ClusterRole, &host.CreatedAt,
 	)
 	if err != nil {
 		return wrapHostByFieldScanError(err, "GetHostByID", "id", id)
@@ -397,7 +408,7 @@ func scanHostRows(rows *sql.Rows) ([]SSHHost, error) {
 	var hosts []SSHHost
 	for rows.Next() {
 		var host SSHHost
-		if err := rows.Scan(&host.ID, &host.Alias, &host.IP, &host.Username, &host.Port, &host.EncryptedPassword, &host.CreatedAt); err != nil {
+		if err := rows.Scan(&host.ID, &host.Alias, &host.IP, &host.Username, &host.Port, &host.EncryptedPassword, &host.ClusterRole, &host.CreatedAt); err != nil {
 			return nil, apperror.WrapSimple(err, "ListHosts_Scan")
 		}
 
@@ -429,6 +440,113 @@ func ListHosts(ctx context.Context, db *sql.DB) ([]SSHHost, error) {
 		return nil, apperror.WrapSimple(err, "ListHosts_Rows")
 	}
 	return ensureHostsSlice(hosts), nil
+}
+
+// ListHostsByRole retrieves SSH hosts matching the given cluster role.
+func ListHostsByRole(ctx context.Context, role string, db *sql.DB) ([]SSHHost, error) {
+	_ = EnsureSSHTables(db)
+	query := sqlSelectHostFields + ` WHERE cluster_role = ? ORDER BY created_at DESC`
+	rows, err := db.QueryContext(ctx, query, role)
+	if err != nil {
+		return nil, apperror.WrapSimple(err, "ListHostsByRole")
+	}
+	defer rows.Close()
+	hosts, err := scanHostRows(rows)
+	if err != nil {
+		return nil, apperror.WrapSimple(err, "ListHostsByRole_Rows")
+	}
+	return ensureHostsSlice(hosts), nil
+}
+
+func appendUniqueHost(hosts []SSHHost, seen map[string]bool, h SSHHost) []SSHHost {
+	_, isSeen := seen[h.ID]
+	if isSeen {
+		return hosts
+	}
+	seen[h.ID] = true
+	return append(hosts, h)
+}
+
+func mergeUniqueHosts(result []SSHHost, seen map[string]bool, additions []SSHHost) []SSHHost {
+	for _, host := range additions {
+		result = appendUniqueHost(result, seen, host)
+	}
+	return result
+}
+
+func resolveTargetPart(ctx context.Context, part string, db *sql.DB) ([]SSHHost, error) {
+	trimmed := strings.TrimSpace(part)
+	if trimmed == "" {
+		return nil, nil
+	}
+	return ListHostsByTarget(ctx, trimmed, db)
+}
+
+func resolveCommaTargets(ctx context.Context, target string, db *sql.DB) ([]SSHHost, error) {
+	seen := make(map[string]bool)
+	var result []SSHHost
+	for _, part := range strings.Split(target, ",") {
+		sub, err := resolveTargetPart(ctx, part, db)
+		if err != nil {
+			return nil, err
+		}
+		result = mergeUniqueHosts(result, seen, sub)
+	}
+	return ensureHostsSlice(result), nil
+}
+
+func resolveRoleTarget(ctx context.Context, target string, db *sql.DB) ([]SSHHost, bool, error) {
+	if target == "control" || target == "master" {
+		hosts, err := ListHostsByRole(ctx, "control", db)
+		return hosts, true, err
+	}
+	if target == "workers" || target == "worker" || target == "nodes" {
+		hosts, err := ListHostsByRole(ctx, "worker", db)
+		return hosts, true, err
+	}
+	return nil, false, nil
+}
+
+func resolveGroupTarget(ctx context.Context, target string, db *sql.DB) ([]SSHHost, bool, error) {
+	if target == "all" || target == "" {
+		hosts, err := ListHosts(ctx, db)
+		return hosts, true, err
+	}
+	return resolveRoleTarget(ctx, target, db)
+}
+
+func findHostByAliasOrIP(ctx context.Context, target string, db *sql.DB) ([]SSHHost, bool, error) {
+	host, err := GetHostByAlias(ctx, target, db)
+	if err == nil {
+		return []SSHHost{host}, true, nil
+	}
+	host, err = GetHostByIP(ctx, target, db)
+	if err == nil {
+		return []SSHHost{host}, true, nil
+	}
+	return nil, false, nil
+}
+
+func wrapHostNotFoundError(target string) *apperror.AppError {
+	appErr := apperror.Wrap(apperror.ErrNotFound, "ListHostsByTarget", map[string]any{"target": target})
+	appErr.Code = "E_INTERNAL_ERROR"
+	return appErr
+}
+
+// ListHostsByTarget resolves SSH hosts by target specifier (role, alias, IP, or comma list).
+func ListHostsByTarget(ctx context.Context, target string, db *sql.DB) ([]SSHHost, error) {
+	if strings.Contains(target, ",") {
+		return resolveCommaTargets(ctx, target, db)
+	}
+	hosts, isGroup, err := resolveGroupTarget(ctx, target, db)
+	if isGroup {
+		return hosts, err
+	}
+	hosts, isSingle, err := findHostByAliasOrIP(ctx, target, db)
+	if isSingle {
+		return hosts, err
+	}
+	return nil, wrapHostNotFoundError(target)
 }
 
 // LogSSHHistory logs an SSH connection into the database defensively.

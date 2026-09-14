@@ -12,7 +12,7 @@ cs
 
 ## Description
 
-The `clone-sync` (alias: `cs`) command functions exactly like the standard `clone` command, but automatically initiates the unified workspace synchronization engine immediately after a successful clone. 
+The `clone-sync` (alias: `cs`) command functions exactly like the standard `clone` command, but automatically initiates the unified workspace synchronization engine immediately after a successful clone.
 
 This ensures that the repository is instantly available across all your favorite IDEs and the Antigravity agent context.
 

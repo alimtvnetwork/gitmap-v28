@@ -87,6 +87,13 @@ func TestInsertSSHHost(t *testing.T) {
 	testDuplicateInsertError(t, ctx, db, host)
 }
 
+func assertInsertInternalError(t *testing.T, err error) {
+	appErr, isAppError := err.(*apperror.AppError)
+	if !isAppError || appErr.Code != "E_INTERNAL_ERROR" {
+		t.Fatalf("expected E_INTERNAL_ERROR AppError, got %v", err)
+	}
+}
+
 func testDuplicateInsertError(t *testing.T, ctx context.Context, db *sql.DB, host SSHHost) {
 	tx, _ := db.BeginTx(ctx, nil)
 	defer tx.Rollback()
@@ -95,15 +102,7 @@ func testDuplicateInsertError(t *testing.T, ctx context.Context, db *sql.DB, hos
 	if err == nil {
 		t.Fatal("expected error on duplicate insert, got nil")
 	}
-
-	appErr, isAppError := err.(*apperror.AppError)
-	if !isAppError {
-		t.Fatalf("expected AppError, got %T", err)
-	}
-
-	if appErr.Code != "E_INTERNAL_ERROR" {
-		t.Errorf("expected E_INTERNAL_ERROR, got %s", appErr.Code)
-	}
+	assertInsertInternalError(t, err)
 }
 
 func TestGetHostByAlias(t *testing.T) {
@@ -240,22 +239,22 @@ func seedTestHistory(t *testing.T, ctx context.Context, db *sql.DB, id string) {
 	}
 }
 
+func verifyEnrollRollback(t *testing.T, ctx context.Context, db *sql.DB) {
+	host := createTestHost("h-rb-1", "rollback-box", "10.0.4.1", "dev")
+	hist := SSHHistory{ID: "hist-rb-1", HostIP: "10.0.4.1", User: "dev", JoinedAt: time.Now().UTC()}
+	if err := EnrollSSHHost(ctx, host, hist, db); err == nil {
+		t.Fatal("expected error due to duplicate history id, got nil")
+	}
+	assertRowCount(t, db, "SELECT COUNT(*) FROM ssh_hosts WHERE id = 'h-rb-1'", 0)
+}
+
 func TestEnrollSSHHost_Rollback(t *testing.T) {
 	db := setupSSHTestDB(t)
 	defer db.Close()
 
 	ctx := context.Background()
 	seedTestHistory(t, ctx, db, "hist-rb-1")
-
-	host := createTestHost("h-rb-1", "rollback-box", "10.0.4.1", "dev")
-	hist := SSHHistory{ID: "hist-rb-1", HostIP: "10.0.4.1", User: "dev", JoinedAt: time.Now().UTC()}
-
-	err := EnrollSSHHost(ctx, host, hist, db)
-	if err == nil {
-		t.Fatal("expected error due to duplicate history id, got nil")
-	}
-
-	assertRowCount(t, db, "SELECT COUNT(*) FROM ssh_hosts WHERE id = 'h-rb-1'", 0)
+	verifyEnrollRollback(t, ctx, db)
 }
 
 func TestSSHRepoIntegration(t *testing.T) {
@@ -284,23 +283,23 @@ func assertTableExists(t *testing.T, db *sql.DB, tableName string) {
 	}
 }
 
-func TestListHosts_FreshDB(t *testing.T) {
+func setupFreshMemoryDB(t *testing.T) *sql.DB {
 	db, err := sql.Open("sqlite", ":memory:")
 	if err != nil {
 		t.Fatalf("failed to open memory db: %v", err)
 	}
+	return db
+}
+
+func TestListHosts_FreshDB(t *testing.T) {
+	db := setupFreshMemoryDB(t)
 	defer db.Close()
 
 	ctx := context.Background()
 	hosts, err := ListHosts(ctx, db)
-	if err != nil {
-		t.Fatalf("expected ListHosts on fresh db to succeed, got error: %v", err)
+	if err != nil || len(hosts) != 0 {
+		t.Fatalf("expected 0 hosts on fresh db, got %d (err: %v)", len(hosts), err)
 	}
-
-	if len(hosts) != 0 {
-		t.Errorf("expected 0 hosts on fresh db, got %d", len(hosts))
-	}
-
 	assertTableExists(t, db, "ssh_hosts")
 	assertTableExists(t, db, "ssh_history")
 }
@@ -310,15 +309,10 @@ func TestGetHostByIP(t *testing.T) {
 	defer db.Close()
 
 	ctx := context.Background()
-	host := createTestHost("host-ip-1", "ip-server", "192.168.1.150", "admin")
-	insertHostInTx(t, ctx, db, host)
-
+	insertHostInTx(t, ctx, db, createTestHost("host-ip-1", "ip-server", "192.168.1.150", "admin"))
 	found, err := GetHostByIP(ctx, "192.168.1.150", db)
-	if err != nil {
-		t.Fatalf("GetHostByIP failed: %v", err)
-	}
-	if found.ID != "host-ip-1" {
-		t.Errorf("expected id host-ip-1, got %s", found.ID)
+	if err != nil || found.ID != "host-ip-1" {
+		t.Fatalf("GetHostByIP failed: id=%s err=%v", found.ID, err)
 	}
 }
 
@@ -327,15 +321,10 @@ func TestGetHostByID(t *testing.T) {
 	defer db.Close()
 
 	ctx := context.Background()
-	host := createTestHost("host-id-1", "id-server", "192.168.1.151", "root")
-	insertHostInTx(t, ctx, db, host)
-
+	insertHostInTx(t, ctx, db, createTestHost("host-id-1", "id-server", "192.168.1.151", "root"))
 	found, err := GetHostByID(ctx, "host-id-1", db)
-	if err != nil {
-		t.Fatalf("GetHostByID failed: %v", err)
-	}
-	if found.Alias != "id-server" {
-		t.Errorf("expected alias id-server, got %s", found.Alias)
+	if err != nil || found.Alias != "id-server" {
+		t.Fatalf("GetHostByID failed: alias=%s err=%v", found.Alias, err)
 	}
 }
 
@@ -352,12 +341,8 @@ func TestLogSSHHistory(t *testing.T) {
 	assertRowCount(t, db, "SELECT COUNT(*) FROM ssh_history WHERE id = 'hist-def-1'", 1)
 }
 
-func TestSSHHost_EncryptedPasswordAndPort(t *testing.T) {
-	db := setupSSHTestDB(t)
-	defer db.Close()
-
-	ctx := context.Background()
-	host := SSHHost{
+func createEncryptedHost() SSHHost {
+	return SSHHost{
 		ID:                "host-pass-1",
 		Alias:             "pass-server",
 		IP:                "192.168.1.199",
@@ -366,16 +351,143 @@ func TestSSHHost_EncryptedPasswordAndPort(t *testing.T) {
 		EncryptedPassword: "rsa:encrypted-secret-token",
 		CreatedAt:         time.Now().UTC(),
 	}
-	insertHostInTx(t, ctx, db, host)
+}
 
+func TestSSHHost_EncryptedPasswordAndPort(t *testing.T) {
+	db := setupSSHTestDB(t)
+	defer db.Close()
+
+	ctx := context.Background()
+	insertHostInTx(t, ctx, db, createEncryptedHost())
 	found, err := GetHostByAlias(ctx, "pass-server", db)
+	if err != nil || found.Port != 2222 || found.EncryptedPassword != "rsa:encrypted-secret-token" {
+		t.Fatalf("expected port 2222 and encrypted token, got %+v (err: %v)", found, err)
+	}
+}
+
+func seedClusterHosts(t *testing.T, ctx context.Context, db *sql.DB) {
+	h1 := SSHHost{ID: "h-c1", Alias: "ctrl-1", IP: "10.1.0.1", Username: "root", ClusterRole: "control"}
+	h2 := SSHHost{ID: "h-w1", Alias: "work-1", IP: "10.1.0.2", Username: "root", ClusterRole: "worker"}
+	h3 := SSHHost{ID: "h-w2", Alias: "work-2", IP: "10.1.0.3", Username: "root", ClusterRole: "worker"}
+	insertHostInTx(t, ctx, db, h1)
+	insertHostInTx(t, ctx, db, h2)
+	insertHostInTx(t, ctx, db, h3)
+}
+
+func TestClusterRole_Persistence(t *testing.T) {
+	db := setupSSHTestDB(t)
+	defer db.Close()
+	ctx := context.Background()
+
+	host := SSHHost{ID: "h-role-1", Alias: "role-ctrl", IP: "10.2.0.1", Username: "root", ClusterRole: "control"}
+	insertHostInTx(t, ctx, db, host)
+	found, err := GetHostByAlias(ctx, "role-ctrl", db)
+	if err != nil || found.ClusterRole != "control" {
+		t.Fatalf("expected control role, got %s (err: %v)", found.ClusterRole, err)
+	}
+}
+
+func TestClusterRole_DefaultWorker(t *testing.T) {
+	db := setupSSHTestDB(t)
+	defer db.Close()
+	ctx := context.Background()
+
+	host := createTestHost("h-role-def", "role-def", "10.2.0.2", "root")
+	insertHostInTx(t, ctx, db, host)
+	found, err := GetHostByAlias(ctx, "role-def", db)
+	if err != nil || found.ClusterRole != "worker" {
+		t.Fatalf("expected default worker role, got %s (err: %v)", found.ClusterRole, err)
+	}
+}
+
+func TestClusterRole_Update(t *testing.T) {
+	db := setupSSHTestDB(t)
+	defer db.Close()
+	ctx := context.Background()
+
+	host := SSHHost{ID: "h-role-up", Alias: "role-up", IP: "10.2.0.3", Username: "root", ClusterRole: "control"}
+	_ = UpsertSSHHost(ctx, host, db)
+	host.ClusterRole = "worker"
+	_ = UpsertSSHHost(ctx, host, db)
+	found, err := GetHostByAlias(ctx, "role-up", db)
+	if err != nil || found.ClusterRole != "worker" {
+		t.Fatalf("expected updated worker role, got %s (err: %v)", found.ClusterRole, err)
+	}
+}
+
+func TestListHostsByRole(t *testing.T) {
+	db := setupSSHTestDB(t)
+	defer db.Close()
+	ctx := context.Background()
+	seedClusterHosts(t, ctx, db)
+
+	ctrls, err := ListHostsByRole(ctx, "control", db)
+	if err != nil || len(ctrls) != 1 {
+		t.Fatalf("expected 1 control host, got %d (err: %v)", len(ctrls), err)
+	}
+	workers, err := ListHostsByRole(ctx, "worker", db)
+	if err != nil || len(workers) != 2 {
+		t.Fatalf("expected 2 worker hosts, got %d (err: %v)", len(workers), err)
+	}
+}
+
+func assertTargetCount(t *testing.T, ctx context.Context, db *sql.DB, target string, expected int) {
+	hosts, err := ListHostsByTarget(ctx, target, db)
 	if err != nil {
-		t.Fatalf("GetHostByAlias failed: %v", err)
+		t.Fatalf("ListHostsByTarget %q failed: %v", target, err)
 	}
-	if found.Port != 2222 {
-		t.Errorf("expected port 2222, got %d", found.Port)
+	if len(hosts) != expected {
+		t.Errorf("target %q: expected %d hosts, got %d", target, expected, len(hosts))
 	}
-	if found.EncryptedPassword != "rsa:encrypted-secret-token" {
-		t.Errorf("expected encrypted password, got %s", found.EncryptedPassword)
+}
+
+func TestListHostsByTarget_Groups(t *testing.T) {
+	db := setupSSHTestDB(t)
+	defer db.Close()
+	ctx := context.Background()
+	seedClusterHosts(t, ctx, db)
+
+	assertTargetCount(t, ctx, db, "all", 3)
+	assertTargetCount(t, ctx, db, "", 3)
+	assertTargetCount(t, ctx, db, "control", 1)
+	assertTargetCount(t, ctx, db, "master", 1)
+	assertTargetCount(t, ctx, db, "workers", 2)
+	assertTargetCount(t, ctx, db, "worker", 2)
+	assertTargetCount(t, ctx, db, "nodes", 2)
+}
+
+func TestListHostsByTarget_AliasAndIP(t *testing.T) {
+	db := setupSSHTestDB(t)
+	defer db.Close()
+	ctx := context.Background()
+	seedClusterHosts(t, ctx, db)
+
+	assertTargetCount(t, ctx, db, "ctrl-1", 1)
+	assertTargetCount(t, ctx, db, "10.1.0.2", 1)
+}
+
+func TestListHostsByTarget_CommaAndDeduplication(t *testing.T) {
+	db := setupSSHTestDB(t)
+	defer db.Close()
+	ctx := context.Background()
+	seedClusterHosts(t, ctx, db)
+
+	assertTargetCount(t, ctx, db, "ctrl-1,work-1", 2)
+	assertTargetCount(t, ctx, db, "control,ctrl-1", 1)
+	assertTargetCount(t, ctx, db, "work-1, work-2", 2)
+}
+
+func TestListHostsByTarget_NotFound(t *testing.T) {
+	db := setupSSHTestDB(t)
+	defer db.Close()
+	ctx := context.Background()
+
+	_, err := ListHostsByTarget(ctx, "nonexistent-target", db)
+	if err == nil {
+		t.Fatal("expected error for nonexistent target, got nil")
+	}
+	appErr, isAppError := err.(*apperror.AppError)
+	if !isAppError || !errors.Is(appErr.Cause, apperror.ErrNotFound) {
+		t.Fatalf("expected ErrNotFound AppError, got %v", err)
 	}
 }

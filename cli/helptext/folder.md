@@ -118,4 +118,3 @@ gitmap folder . project-structure.md --md --details --except "vendor/**, *.png"
 - [sequence](sequence.md) — Sequence numbering and repo-scoped database caching
 - [find](find.md) — Fast indexed SQLite search across repository files
 - [llm](llm.md) — LLM integration capabilities
-

@@ -48,13 +48,13 @@ const (
 			PackageManager = excluded.PackageManager
 	`
 	sqlSelectListClusterNodes = `
-		SELECT 
+		SELECT
 			NodeId, Alias, DisplayId, IPAddress, NodeRole, OS, JoinedAt, LastHeartbeat, Status, PasswordHash, PackageManager
 		FROM ClusterNode
 		ORDER BY DisplayId ASC
 	`
 	sqlSelectClusterNodeById = `
-		SELECT 
+		SELECT
 			NodeId, Alias, DisplayId, IPAddress, NodeRole, OS, JoinedAt, LastHeartbeat, Status, PasswordHash, PackageManager
 		FROM ClusterNode
 		WHERE NodeId = ?

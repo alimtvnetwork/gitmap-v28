@@ -1,6 +1,6 @@
 # install-script
 
-Shows and copies the standard one-line `gitmap` installation script to your clipboard. 
+Shows and copies the standard one-line `gitmap` installation script to your clipboard.
 It automatically detects your current operating system (Windows vs Linux/macOS) and copies the correct command.
 
 ## Usage

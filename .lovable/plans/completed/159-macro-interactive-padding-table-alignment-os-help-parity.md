@@ -15,7 +15,7 @@ macro add alim1
 -> async bash ".." -t 5 # every 5 seconds
 -> async shell ".." -t 5 # every 5 seconds
 -> async "terminal command" -t 5 # every 5 seconds default terminal we are running from
--> schedule add "name" run daily(d)/weekly(w)/startup(s)/startup-once (so) /startup-weekly (sw)/startup-monthly(sm)/startup-yearly(sy)/yearly(y)/every-hour(eh / h)/every(e) [n - default 0] [hours(h)/daily(d)/weekly(w)/yearly(y) ps "..." # or also nothing means interactive mode same as macro 
+-> schedule add "name" run daily(d)/weekly(w)/startup(s)/startup-once (so) /startup-weekly (sw)/startup-monthly(sm)/startup-yearly(sy)/yearly(y)/every-hour(eh / h)/every(e) [n - default 0] [hours(h)/daily(d)/weekly(w)/yearly(y) ps "..." # or also nothing means interactive mode same as macro
 
 schedule ls # list the schedules
 edit/help/rm/export/import/export-all/import-all

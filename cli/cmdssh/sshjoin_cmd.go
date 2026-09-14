@@ -93,6 +93,10 @@ func logSSHJoinInTx(ctx context.Context, tx *dbengine.TxWrapper, history store.S
 	return nil
 }
 
+func isSJClusterImportSubcommand(sub string) bool {
+	return sub == "import-cluster" || sub == "import" || sub == "import-config"
+}
+
 func isSJAddWithPassSubcommand(sub string) bool {
 	return sub == "add-with-pass" || sub == "add-pass" || sub == "add-password"
 }
@@ -101,23 +105,29 @@ func isSJAddSubcommand(sub string) bool {
 	return sub == "add" || sub == "join" || sub == "new" || sub == "enroll"
 }
 
+func routeSSHJoinSpecialSubcommand(cmd *cobra.Command, args []string) (bool, error) {
+	if isSJClusterImportSubcommand(args[0]) {
+		return true, RunClusterImportCLI(args[1:])
+	}
+	if isSJAddWithPassSubcommand(args[0]) {
+		return true, executeEnrollWithPassCLI(cmd.Context(), args[1:])
+	}
+	if isSJAddSubcommand(args[0]) {
+		return true, executeEnrollCLI(cmd.Context(), args[1:])
+	}
+	return false, nil
+}
+
 func routeSSHJoinCmd(cmd *cobra.Command, args []string) error {
 	if len(args) == 0 {
 		return RunSSHJoinCLI(args)
 	}
-
-	if isSJAddWithPassSubcommand(args[0]) {
-		return executeEnrollWithPassCLI(cmd.Context(), args[1:])
+	if isHandled, err := routeSSHJoinSpecialSubcommand(cmd, args); isHandled {
+		return err
 	}
-
-	if isSJAddSubcommand(args[0]) {
-		return executeEnrollCLI(cmd.Context(), args[1:])
-	}
-
 	if !isSJSubcommand(args[0]) {
 		return executeEnrollCLI(cmd.Context(), args)
 	}
-
 	return RunSSHJoinCLI(args)
 }
 
@@ -153,7 +163,7 @@ func isSJStatusSubcommand(sub string) bool {
 }
 
 func isSJSubcommand(sub string) bool {
-	if isSJAddSubcommand(sub) || isSJAddWithPassSubcommand(sub) || isSJScanSubcommand(sub) || isSJStatusSubcommand(sub) {
+	if isSJAddSubcommand(sub) || isSJAddWithPassSubcommand(sub) || isSJScanSubcommand(sub) || isSJStatusSubcommand(sub) || isSJClusterImportSubcommand(sub) {
 		return true
 	}
 
@@ -189,29 +199,52 @@ func executeSJList(ctx context.Context) error {
 	return renderSJListTable(os.Stdout, hosts)
 }
 
-func dispatchSJSubcommand(ctx context.Context, sub string, args []string) error {
+func dispatchSJBasicSubcommand(ctx context.Context, sub string, args []string) (bool, error) {
+	if isSJClusterImportSubcommand(sub) {
+		return true, RunClusterImportCLI(args)
+	}
 	if isSJAddWithPassSubcommand(sub) {
-		return executeEnrollWithPassCLI(ctx, args)
+		return true, executeEnrollWithPassCLI(ctx, args)
 	}
 	if isSJAddSubcommand(sub) {
-		return executeEnrollCLI(ctx, args)
+		return true, executeEnrollCLI(ctx, args)
 	}
+	return false, nil
+}
+
+func dispatchSJQuerySubcommand(ctx context.Context, sub string, args []string) (bool, error) {
 	if isSJScanSubcommand(sub) {
-		return RunSJScan(SJScanCmd, args, ctx)
+		return true, RunSJScan(SJScanCmd, args, ctx)
 	}
 	if isSJStatusSubcommand(sub) {
-		return RunSJStatus(SJStatusCmd, args, ctx)
+		return true, RunSJStatus(SJStatusCmd, args, ctx)
 	}
 	if sub == "ls" || sub == "list" {
-		return executeSJList(ctx)
+		return true, executeSJList(ctx)
 	}
+	return false, nil
+}
+
+func dispatchSJActionSubcommand(ctx context.Context, sub string, args []string) (bool, error) {
 	if sub == "rm" || sub == "remove" || sub == "delete" {
-		return runSJRm(nil, args, ctx)
+		return true, runSJRm(nil, args, ctx)
 	}
 	if sub == "add-auth" || sub == "auth" {
-		return runSJAddAuth(nil, args, ctx)
+		return true, runSJAddAuth(nil, args, ctx)
 	}
+	return false, nil
+}
 
+func dispatchSJSubcommand(ctx context.Context, sub string, args []string) error {
+	if isHandled, err := dispatchSJBasicSubcommand(ctx, sub, args); isHandled {
+		return err
+	}
+	if isHandled, err := dispatchSJQuerySubcommand(ctx, sub, args); isHandled {
+		return err
+	}
+	if isHandled, err := dispatchSJActionSubcommand(ctx, sub, args); isHandled {
+		return err
+	}
 	return runSJHistory(nil, args, ctx)
 }
 
@@ -360,4 +393,5 @@ func init() {
 	SSHJoinCmd.AddCommand(SJAddAuthCmd)
 	SSHJoinCmd.AddCommand(SJLsCmd)
 	SSHJoinCmd.AddCommand(SJHistCmd)
+	SSHJoinCmd.AddCommand(SJClusterImportCmd)
 }
