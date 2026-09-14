@@ -1014,20 +1014,16 @@ add_to_path() {
     # zsh profiles (both, to cover login + interactive shells)
     if should_write_profile zsh && { [ "${shell_name}" = "zsh" ] || [ -f "${HOME}/.zshrc" ] || [ -f "${HOME}/.zprofile" ]; }; then
         # .zshrc — interactive shells (most terminal emulators)
-        add_path_to_profile "${dir}" "${HOME}/.zshrc" false
-        record_profile_outcome $? "~/.zshrc"
+        apply_profile_snippet "${dir}" "${HOME}/.zshrc" false "~/.zshrc"
         # .zprofile — login shells (macOS Terminal.app)
-        add_path_to_profile "${dir}" "${HOME}/.zprofile" false
-        record_profile_outcome $? "~/.zprofile"
+        apply_profile_snippet "${dir}" "${HOME}/.zprofile" false "~/.zprofile"
     fi
 
     # bash profiles
     if should_write_profile bash && { [ "${shell_name}" = "bash" ] || [ -f "${HOME}/.bashrc" ] || [ -f "${HOME}/.bash_profile" ]; }; then
-        add_path_to_profile "${dir}" "${HOME}/.bashrc" false
-        record_profile_outcome $? "~/.bashrc"
+        apply_profile_snippet "${dir}" "${HOME}/.bashrc" false "~/.bashrc"
         if [ -f "${HOME}/.bash_profile" ]; then
-            add_path_to_profile "${dir}" "${HOME}/.bash_profile" false
-            record_profile_outcome $? "~/.bash_profile"
+            apply_profile_snippet "${dir}" "${HOME}/.bash_profile" false "~/.bash_profile"
         fi
     fi
 
@@ -1036,15 +1032,13 @@ add_to_path() {
     # to honor the "only the listed families" strict contract. Only
     # `auto` (detect everything) and `both` (write everything) include it.
     if [ "${PROFILE_MODE}" = "auto" ] || [ "${PROFILE_MODE}" = "both" ]; then
-        add_path_to_profile "${dir}" "${HOME}/.profile" false
-        record_profile_outcome $? "~/.profile"
+        apply_profile_snippet "${dir}" "${HOME}/.profile" false "~/.profile"
     fi
 
     # fish (only if fish is installed or is the default shell)
     if should_write_profile fish && { [ "${shell_name}" = "fish" ] || command -v fish >/dev/null 2>&1; }; then
         local fish_config="${HOME}/.config/fish/config.fish"
-        add_path_to_profile "${dir}" "${fish_config}" fish
-        record_profile_outcome $? "~/.config/fish/config.fish"
+        apply_profile_snippet "${dir}" "${fish_config}" fish "~/.config/fish/config.fish"
     fi
 
     # PowerShell on Unix — detected when the installer was launched from
@@ -1068,8 +1062,7 @@ add_to_path() {
         fi
         local pwsh_profile
         pwsh_profile="$(pwsh_profile_path)"
-        add_path_to_profile "${dir}" "${pwsh_profile}" pwsh
-        record_profile_outcome $? "~/.config/powershell/Microsoft.PowerShell_profile.ps1"
+        apply_profile_snippet "${dir}" "${pwsh_profile}" pwsh "~/.config/powershell/Microsoft.PowerShell_profile.ps1"
     fi
 
     # If the user is actively in pwsh, the pwsh profile becomes the primary
@@ -1150,6 +1143,16 @@ add_to_path() {
 
     # Update current session (only effective when script is sourced, not piped)
     export PATH="${PATH}:${dir}"
+}
+
+# apply_profile_snippet invokes add_path_to_profile safely under set -e
+# (which would otherwise terminate the script on exit codes 1 or 2),
+# and records the resulting outcome (0=added, 1=unchanged, 2=updated).
+apply_profile_snippet() {
+    local dir="$1" profile_file="$2" shell_kind="$3" display_path="$4"
+    local outcome_code=0
+    add_path_to_profile "${dir}" "${profile_file}" "${shell_kind}" || outcome_code=$?
+    record_profile_outcome "${outcome_code}" "${display_path}"
 }
 
 # record_profile_outcome appends $2 to the appropriate per-status list
