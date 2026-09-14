@@ -162,6 +162,8 @@ def stage_and_commit_release(new_version: str, scope: str, rn_path: str) -> None
     ]
     if os.path.exists(".lovable/user-preferences"):
         manifests.append(".lovable/user-preferences")
+    if os.path.exists(".lovable/test-inventory.json"):
+        manifests.append(".lovable/test-inventory.json")
     manifests_str = " ".join(manifests)
     run_cmd(f"git add {manifests_str}")
     status = run_cmd("git status --porcelain")
@@ -191,11 +193,7 @@ def push_release_artifacts(release_branch: str, tag_name: str, original_branch: 
 
 def create_release_branch_and_tag(new_version: str) -> tuple[str, str]:
     release_branch = f"release/v{new_version}"
-    branches = run_cmd("git branch")
-    if release_branch in branches.split():
-        run_cmd(f"git checkout {release_branch}")
-    else:
-        run_cmd(f"git checkout -b {release_branch}")
+    run_cmd(f"git checkout -B {release_branch}")
 
     tag_name = f"v{new_version}"
     tags = run_cmd("git tag")
