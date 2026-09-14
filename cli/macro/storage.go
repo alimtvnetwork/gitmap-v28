@@ -8,6 +8,9 @@ import (
 	"strings"
 	"time"
 
+	"gopkg.in/yaml.v3"
+
+	"github.com/alimtvnetwork/gitmap-v28/cli/apperror"
 	"github.com/alimtvnetwork/gitmap-v28/cli/result"
 )
 
@@ -80,16 +83,118 @@ func replaceMacroFile(tmpPath, targetPath string) error {
 
 // LoadMacro loads a named macro from candidate directories.
 func LoadMacro(name string) (*Macro, error) {
-	filename := strings.TrimSuffix(name, ".json") + ".json"
+	return LoadMacroPolymorphic(name)
+}
+
+// LoadMacroPolymorphic searches candidate directories for .json, .yaml, .yml.
+func LoadMacroPolymorphic(name string) (*Macro, error) {
+	cleanName := stripMacroExtensions(name)
+	extensions := []string{".json", ".yaml", ".yml"}
 	for _, dir := range candidateMacroDirs() {
-		path := filepath.Join(dir, filename)
-		m, isFound := readMacroIfExists(path)
-		if isFound {
+		m, isFound, err := findMacroInDir(dir, cleanName, extensions)
+		if err != nil {
+			return nil, apperror.WrapSimple(err, "findMacroInDir")
+		}
+		if isFound && m != nil {
 			return m, nil
 		}
 	}
 
-	return nil, fmt.Errorf("macro %q not found", name)
+	return nil, createMacroNotFoundError(name)
+}
+
+func stripMacroExtensions(name string) string {
+	res := strings.TrimSuffix(name, ".json")
+	res = strings.TrimSuffix(res, ".yaml")
+
+	return strings.TrimSuffix(res, ".yml")
+}
+
+func findMacroInDir(dir, cleanName string, extensions []string) (*Macro, bool, error) {
+	for _, ext := range extensions {
+		targetPath := filepath.Join(dir, cleanName+ext)
+		m, isFound, err := readMacroAnyFormat(targetPath, ext)
+		if err != nil {
+			return nil, false, err
+		}
+		if isFound && m != nil {
+			return m, true, nil
+		}
+	}
+
+	return nil, false, nil
+}
+
+func handleReadFileError(err error) (*Macro, bool, error) {
+	if os.IsNotExist(err) {
+		return nil, false, nil
+	}
+
+	return nil, false, err
+}
+
+func readMacroAnyFormat(path, ext string) (*Macro, bool, error) {
+	data, err := os.ReadFile(path)
+	if err != nil {
+		return handleReadFileError(err)
+	}
+
+	m, parseErr := parseMacroData(data, ext)
+	if parseErr != nil {
+		return nil, true, parseErr
+	}
+
+	return m, true, nil
+}
+
+func parseMacroJSON(data []byte) (*Macro, error) {
+	var m Macro
+	if err := json.Unmarshal(data, &m); err != nil {
+		return nil, err
+	}
+
+	return &m, nil
+}
+
+func parseMacroYAML(data []byte) (*Macro, error) {
+	var m Macro
+	if err := yaml.Unmarshal(data, &m); err != nil {
+		return nil, err
+	}
+
+	return &m, nil
+}
+
+func parseMacroData(data []byte, ext string) (*Macro, error) {
+	if ext == ".json" {
+		return parseMacroJSON(data)
+	}
+
+	return parseMacroYAML(data)
+}
+
+func createMacroNotFoundError(name string) *apperror.AppError {
+	return apperror.NewWithDetails(
+		"macro.load",
+		"E3001",
+		fmt.Sprintf("macro %q not found", name),
+		"macro.storage",
+		apperror.ErrorTypeNotFound,
+		apperror.SeverityError,
+		map[string]any{"macro": name},
+	)
+}
+
+// IsMacroNotFound reports whether an error indicates a missing macro file.
+func IsMacroNotFound(err error) bool {
+	if err == nil {
+		return false
+	}
+	if appErr, ok := err.(*apperror.AppError); ok {
+		return appErr.Type == apperror.ErrorTypeNotFound || appErr.Code == "E3001"
+	}
+
+	return strings.Contains(err.Error(), "not found") || os.IsNotExist(err)
 }
 
 func readMacroIfExists(path string) (*Macro, bool) {

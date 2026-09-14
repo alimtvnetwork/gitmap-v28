@@ -15,34 +15,7 @@ import (
 )
 
 func parseExecOptions(flagArgs []string) macro.ExecOptions {
-	opts := macro.ExecOptions{}
-	for i := 0; i < len(flagArgs); i++ {
-		arg := flagArgs[i]
-		if arg == "--dry-run" {
-			opts.DryRun = true
-		}
-
-		if arg == "--verbose" || arg == "-v" {
-			opts.Verbose = true
-		}
-
-		if arg == "--json" {
-			opts.JSON = true
-		}
-
-		if arg == "--yaml" || arg == "--yml" || arg == "-y" {
-			opts.YAML = true
-		}
-
-		if isFileFlagWithArg(arg) && i+1 < len(flagArgs) {
-			opts.FilePath = flagArgs[i+1]
-			i++
-		}
-
-		checkInlineFileArg(arg, &opts)
-	}
-
-	return opts
+	return ParseExecOptions(flagArgs)
 }
 
 func checkInlineFileArg(arg string, opts *macro.ExecOptions) {
@@ -107,7 +80,7 @@ func executeMacroByName(macroName string, opts macro.ExecOptions) error {
 }
 
 func isStandardDisplay(opts macro.ExecOptions) bool {
-	return !opts.JSON && !opts.YAML && len(opts.FilePath) == 0
+	return !opts.JSON && !opts.YAML && len(opts.FilePath) == 0 && !opts.IsSummaryOnly && !opts.IsTerminalSuppressed
 }
 
 func runExecuteCmd(args []string) error {
@@ -182,7 +155,16 @@ func routeExportImportSubcommand(sub string, rest []string) error {
 }
 
 func isExecSubcommand(sub string) bool {
-	return sub == "run" || sub == "exec" || isRetrySubcommand(sub)
+	return sub == "run" || sub == "exec" || isRetrySubcommand(sub) || isRunUntilSubcommand(sub)
+}
+
+func isRunUntilSubcommand(sub string) bool {
+	switch sub {
+	case "run-until", "run-until-end", "keep-going", "continue-on-error":
+		return true
+	default:
+		return false
+	}
 }
 
 func isRetrySubcommand(sub string) bool {
@@ -199,7 +181,25 @@ func routeExecSubcommand(sub string, rest []string) error {
 		return runMacroUntilSuccess(rest)
 	}
 
+	if isRunUntilSubcommand(sub) {
+		return runMacroRunUntil(rest)
+	}
+
 	return runExecuteCmd(rest)
+}
+
+func runMacroRunUntil(args []string) error {
+	macroName, flagArgs := extractMacroNameAndFlags(args)
+	if macroName == "" {
+		fmt.Fprintf(os.Stderr, "Usage: gitmap macro run-until <name> [options]\n")
+
+		return apperror.NewValidationError("missing required macro name")
+	}
+
+	opts := ParseExecOptions(flagArgs)
+	opts.IsRunUntil = true
+
+	return executeMacroByName(macroName, opts)
 }
 
 func routeManagementSubcommand(sub string, rest []string) error {

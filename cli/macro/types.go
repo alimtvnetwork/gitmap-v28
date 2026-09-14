@@ -42,12 +42,28 @@ type MacroStep struct {
 
 // ExecOptions holds runtime options for macro execution.
 type ExecOptions struct {
-	DryRun   bool
-	Verbose  bool
-	JSON     bool
-	YAML     bool
-	FilePath string
+	DryRun               bool
+	Verbose              bool
+	JSON                 bool
+	YAML                 bool
+	FilePath             string
+	IsRunUntil           bool
+	IsTerminalSuppressed bool
+	IsSummaryOnly        bool
+	IsTreeSuppressed     bool
+	LogFilePath          string
 }
+
+// MacroFailureContext holds metadata and diagnostics for a failed macro step.
+type MacroFailureContext struct {
+	MacroName  string
+	TotalSteps int
+	Timestamp  time.Time
+	Step       StepExecution
+}
+
+// MacroLogResult is the canonical single reusable result envelope for log path operations.
+type MacroLogResult = result.Result[string]
 
 // AsyncStepOpts defines parameters for asynchronous step execution in macros.
 type AsyncStepOpts struct {

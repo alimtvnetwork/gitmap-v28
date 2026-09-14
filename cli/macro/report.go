@@ -24,6 +24,7 @@ type ExecutionReport struct {
 	StartedAt      time.Time       `json:"startedAt" yaml:"startedAt"`
 	CompletedAt    time.Time       `json:"completedAt" yaml:"completedAt"`
 	OutputFile     string          `json:"outputFile,omitempty" yaml:"outputFile,omitempty"`
+	FailureLogFile string          `json:"failureLogFile,omitempty" yaml:"failureLogFile,omitempty"`
 	Steps          []StepExecution `json:"steps" yaml:"steps"`
 }
 
@@ -38,6 +39,7 @@ type StepExecution struct {
 	Logs           []string `json:"logs" yaml:"logs"`
 	Error          string   `json:"error,omitempty" yaml:"error,omitempty"`
 	ErrorLogs      []string `json:"errorLogs,omitempty" yaml:"errorLogs,omitempty"`
+	FailureLogFile string   `json:"failureLogFile,omitempty" yaml:"failureLogFile,omitempty"`
 }
 
 // NewExecutionReport initializes an execution report.

@@ -13,6 +13,7 @@ import (
 	"strings"
 	"time"
 
+	"github.com/alimtvnetwork/gitmap-v28/cli/apperror"
 	"github.com/alimtvnetwork/gitmap-v28/cli/constants"
 )
 
@@ -20,7 +21,7 @@ import (
 func Execute(ctx context.Context, m *Macro, opts ExecOptions) error {
 	ctx = context.WithValue(ctx, currentMacroKey, m.Name)
 	start := time.Now()
-	if !isStructuredOutput(opts) {
+	if shouldPrintExecutionHeader(opts) {
 		printExecutionHeader(m)
 	}
 
@@ -29,6 +30,10 @@ func Execute(ctx context.Context, m *Macro, opts ExecOptions) error {
 	rep := NewExecutionReport(m.Name, len(m.Steps), start)
 
 	return runExecuteSteps(ctx, m, opts, dt, rep, start)
+}
+
+func shouldPrintExecutionHeader(opts ExecOptions) bool {
+	return !isStructuredOutput(opts) && !opts.IsTerminalSuppressed && !opts.IsSummaryOnly
 }
 
 func isStructuredOutput(opts ExecOptions) bool {
@@ -57,38 +62,79 @@ func runExecuteSteps(ctx context.Context, m *Macro, opts ExecOptions, dt *DirTra
 
 func executeReportStep(ctx context.Context, step MacroStep, idx, total int, opts ExecOptions, dt *DirTracker, rep *ExecutionReport) (error, bool) {
 	stepExec, err := executeSingleStep(ctx, step, idx, total, opts, dt)
+	if err != nil {
+		rep.FailedSteps++
+		stepExec.FailureLogFile = handleStepFailureLogging(rep.Macro, stepExec, opts, total)
+	}
 	rep.Steps = append(rep.Steps, stepExec)
 	rep.ExecutedSteps++
 	if err == nil {
 		return nil, false
 	}
 
-	rep.FailedSteps++
+	shouldBreak := !step.ContinueOnError && !opts.IsRunUntil
 
-	return err, !step.ContinueOnError
+	return err, shouldBreak
+}
+
+func handleStepFailureLogging(macroName string, step StepExecution, opts ExecOptions, total int) string {
+	if !opts.IsRunUntil {
+		return ""
+	}
+	fCtx := MacroFailureContext{
+		MacroName:  macroName,
+		TotalSteps: total,
+		Timestamp:  time.Now(),
+		Step:       step,
+	}
+	logPath, err := RecordStepFailureLog(fCtx, opts.LogFilePath)
+	if err == nil && shouldPrintStepFailureNotice(opts) {
+		printRunUntilStepNotice(step.StepNum, step.Error, logPath)
+	}
+	return logPath
+}
+
+func shouldPrintStepFailureNotice(opts ExecOptions) bool {
+	return !isStructuredOutput(opts) && !opts.IsTerminalSuppressed && !opts.IsSummaryOnly
+}
+
+func printRunUntilStepNotice(stepNum int, errStr, logPath string) {
+	fmt.Printf("  %s⚠ Step %d failed: %s%s\n", constants.ColorYellow, stepNum, errStr, constants.ColorReset)
+	if len(logPath) > 0 {
+		fmt.Printf("  %s📄 Failure log saved to:%s %s%s%s\n",
+			constants.ColorCyan, constants.ColorReset,
+			constants.ColorWhite, logPath, constants.ColorReset)
+	}
+	fmt.Printf("  %s➜ Continuing execution (--run-until active)...%s\n\n", constants.ColorDim, constants.ColorReset)
 }
 
 func handleExecutionFinish(m *Macro, opts ExecOptions, rep *ExecutionReport, start time.Time, lastErr error) error {
 	if isStructuredOutput(opts) {
 		_ = HandleReportOutput(rep, opts)
-
-		return lastErr
+		return evaluateFinalExecutionError(rep, opts, lastErr)
 	}
 
-	if lastErr != nil {
-		return lastErr
+	if !opts.IsTreeSuppressed {
+		PrintExecutionSummaryTree(rep)
 	}
 
-	return printMacroCompletion(m, start)
+	return evaluateFinalExecutionError(rep, opts, lastErr)
 }
 
-func printMacroCompletion(m *Macro, start time.Time) error {
-	elapsed := time.Since(start)
-	fmt.Println()
-	fmt.Printf("  %s✔ Macro %q completed (%d steps) · Elapsed: %.1fs%s\n\n",
-		constants.ColorGreen, m.Name, len(m.Steps), elapsed.Seconds(), constants.ColorReset)
+func evaluateFinalExecutionError(rep *ExecutionReport, opts ExecOptions, lastErr error) error {
+	if opts.IsRunUntil && rep.FailedSteps > 0 {
+		return apperror.NewWithDetails(
+			"macro.Execute",
+			"E5005",
+			fmt.Sprintf("macro %q completed with %d failed step(s)", rep.Macro, rep.FailedSteps),
+			"macro",
+			apperror.ErrorTypeExecution,
+			apperror.SeverityError,
+			map[string]any{"failedSteps": rep.FailedSteps, "totalSteps": rep.TotalSteps},
+		)
+	}
 
-	return nil
+	return lastErr
 }
 
 func executeSingleStep(ctx context.Context, step MacroStep, idx, total int, opts ExecOptions, dt *DirTracker) (StepExecution, error) {
@@ -144,13 +190,13 @@ func tryDispatchSpecialStep(
 }
 
 func printStepHeader(opts ExecOptions, idx, total int, cmd string) {
-	if !isStructuredOutput(opts) {
+	if !isStructuredOutput(opts) && !opts.IsTerminalSuppressed && !opts.IsSummaryOnly {
 		fmt.Printf("  [%2d/%d] ➜ %s\n", idx, total, cmd)
 	}
 }
 
 func executeDryRunStep(step MacroStep, idx, total int, opts ExecOptions, dt *DirTracker) StepExecution {
-	if !isStructuredOutput(opts) {
+	if !isStructuredOutput(opts) && !opts.IsTerminalSuppressed && !opts.IsSummaryOnly {
 		fmt.Printf("  [%2d/%d] ➜ (dry-run) %s\n", idx, total, step.CommandLine)
 	}
 
@@ -212,7 +258,7 @@ func evaluateStepProcessResult(step MacroStep, cmdText, targetDir string, elapse
 }
 
 func printStepSuccess(opts ExecOptions, elapsed time.Duration) {
-	if !isStructuredOutput(opts) {
+	if !isStructuredOutput(opts) && !opts.IsTerminalSuppressed && !opts.IsSummaryOnly {
 		fmt.Printf("  %s✔ ok (%.1fs)%s\n", constants.ColorGreen, elapsed.Seconds(), constants.ColorReset)
 	}
 }
@@ -231,7 +277,7 @@ func createStepSuccess(step MacroStep, cmdText, targetDir string, elapsed time.D
 }
 
 func handleStepFailure(step MacroStep, cmdText, targetDir string, elapsed time.Duration, exitCode int, err error, opts ExecOptions, idx int, logs, errLogs []string) (StepExecution, error) {
-	if !isStructuredOutput(opts) {
+	if !isStructuredOutput(opts) && !opts.IsTerminalSuppressed && !opts.IsSummaryOnly {
 		printStepFailureMsg(step, elapsed, err, idx, errLogs)
 	}
 
@@ -359,7 +405,7 @@ func buildStepCmd(ctx context.Context, cmdText, dir string, opts ExecOptions, ou
 }
 
 func attachStepCmdStreams(cmd *exec.Cmd, opts ExecOptions, outBuf, errBuf io.Writer) func() {
-	if isStructuredOutput(opts) {
+	if isStructuredOutput(opts) || opts.IsTerminalSuppressed || opts.IsSummaryOnly {
 		cmd.Stdout = outBuf
 		cmd.Stderr = errBuf
 

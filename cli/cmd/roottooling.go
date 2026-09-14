@@ -80,6 +80,8 @@ func toolingOpsEntries() []dispatchEntry {
 		{[]string{constants.CmdTask, constants.CmdTaskAlias}, func() error { return runTask(argsTail()) }},
 		{[]string{constants.CmdEnv, constants.CmdEnvAlias}, func() error { return runEnv(argsTail()) }},
 		{[]string{constants.CmdService, constants.CmdServiceAlias, "services"}, func() error { return cmdservice.Run(argsTail()) }},
+		{[]string{"run", "run-macro", "exec-macro"}, func() error { return runMacroRootRun(argsTail()) }},
+		{[]string{"run-until"}, func() error { return runMacroRootRunUntil(argsTail()) }},
 	}
 }
 

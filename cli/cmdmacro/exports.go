@@ -70,9 +70,13 @@ func RunMacroUntilSuccess(args []string) error {
 
 // ExecuteDynamicMacro executes a dynamic macro by name.
 func ExecuteDynamicMacro(name string) {
-	opts := parseExecOptions(os.Args[2:])
-	execErr := executeMacroByName(name, opts)
+	ExecuteDynamicMacroWithArgs(name, os.Args[2:])
+}
 
+// ExecuteDynamicMacroWithArgs parses flag arguments and executes the named macro.
+func ExecuteDynamicMacroWithArgs(name string, flagArgs []string) {
+	opts := ParseExecOptions(flagArgs)
+	execErr := executeMacroByName(name, opts)
 	if execErr != nil {
 		cliexit.HandleError(execErr, 1)
 	}

@@ -8,6 +8,7 @@ import (
 	"github.com/alimtvnetwork/gitmap-v28/cli/apperror"
 	"github.com/alimtvnetwork/gitmap-v28/cli/cliexit"
 	"github.com/alimtvnetwork/gitmap-v28/cli/constants"
+	"github.com/alimtvnetwork/gitmap-v28/cli/macro"
 )
 
 var primaryTopCommands = []string{
@@ -25,6 +26,19 @@ type commandScore struct {
 	dist int
 }
 
+func collectTopCommandCandidates() []string {
+	candidates := append([]string{}, primaryTopCommands...)
+	candidates = append(candidates, "run", "run-until")
+	macroList := macro.ListMacros()
+	if macroList.IsSuccess() {
+		for _, m := range macroList.Data {
+			candidates = append(candidates, m.Name)
+		}
+	}
+
+	return candidates
+}
+
 func suggestTopLevelCommands(command string) []string {
 	norm := strings.ToLower(strings.TrimSpace(command))
 	if norm == "" {
@@ -35,7 +49,8 @@ func suggestTopLevelCommands(command string) []string {
 		return []string{"pull", "release", "pull-release"}
 	}
 
-	scores := rankCandidateCommands(norm, primaryTopCommands)
+	candidates := collectTopCommandCandidates()
+	scores := rankCandidateCommands(norm, candidates)
 
 	return selectBestSuggestions(scores)
 }
