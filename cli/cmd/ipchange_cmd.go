@@ -26,8 +26,9 @@ func runIPChangeCmd(cmd *cobra.Command, args []string, ctx context.Context) erro
 	}
 
 	newIP := args[0]
+	isDryRun := hasCMDFlag(args, "--dry-run") || hasCMDFlag(args, "-n")
 
-	return executeIPChange(ctx, newIP, true)
+	return executeIPChange(ctx, newIP, !isDryRun, isDryRun)
 }
 
 func validatePing(ctx context.Context, targetHost string, count int) bool {
@@ -43,9 +44,10 @@ func validatePing(ctx context.Context, targetHost string, count int) bool {
 	return err == nil
 }
 
-func executeIPChange(ctx context.Context, newIP string, doPing bool) error {
+func executeIPChange(ctx context.Context, newIP string, doPing bool, isDryRun bool) error {
 	mgr := createCMDNetIPManager()
 	opts, valOpts := parseCMDChangeOptions([]string{newIP}, false)
+	opts.IsDryRun = isDryRun
 	valOpts.IsValidationActive = doPing
 	res := mgr.ChangeIP(ctx, opts, valOpts)
 	if res.IsFailure() {

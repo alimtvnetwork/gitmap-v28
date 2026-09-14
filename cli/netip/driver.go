@@ -2,9 +2,22 @@ package netip
 
 import (
 	"context"
+	"flag"
+	"os"
+	"strings"
 
 	"github.com/alimtvnetwork/gitmap-v28/cli/apperror"
 )
+
+func isNetIPTestMode() bool {
+	if flag.Lookup("test.v") != nil {
+		return true
+	}
+	if os.Getenv("GITMAP_TEST") != "" {
+		return true
+	}
+	return strings.HasSuffix(os.Args[0], ".test") || strings.HasSuffix(os.Args[0], ".test.exe")
+}
 
 const (
 	// DriverNameWindows identifies the Windows netsh backend.

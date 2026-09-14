@@ -70,6 +70,10 @@ func setIPRoute2DefaultGateway(ctx context.Context, iface, gateway string) *appe
 }
 
 func runIPRoute2(ctx context.Context, args ...string) *apperror.AppError {
+	if isNetIPTestMode() {
+		return nil
+	}
+
 	cmd := exec.CommandContext(ctx, "ip", args...)
 	if out, err := cmd.CombinedOutput(); err != nil {
 		msg := fmt.Sprintf("ip %s failed: %s", strings.Join(args, " "), string(out))

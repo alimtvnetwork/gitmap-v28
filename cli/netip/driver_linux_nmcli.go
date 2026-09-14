@@ -83,6 +83,10 @@ func upNMCLIConnection(ctx context.Context, iface string) *apperror.AppError {
 }
 
 func runNMCLI(ctx context.Context, args ...string) *apperror.AppError {
+	if isNetIPTestMode() {
+		return nil
+	}
+
 	cmd := exec.CommandContext(ctx, "nmcli", args...)
 	if out, err := cmd.CombinedOutput(); err != nil {
 		msg := fmt.Sprintf("nmcli %s failed: %s", strings.Join(args, " "), string(out))

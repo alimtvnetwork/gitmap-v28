@@ -26,5 +26,5 @@ func TestValidatePing(t *testing.T) {
 
 func TestExecuteIPChange(t *testing.T) {
 	ctx := context.Background()
-	_ = executeIPChange(ctx, "192.168.1.50", false)
+	_ = executeIPChange(ctx, "192.168.1.50", false, true)
 }

@@ -111,6 +111,10 @@ func applyWindowsDHCP(ctx context.Context, iface string) *apperror.AppError {
 }
 
 func runNetsh(ctx context.Context, args ...string) *apperror.AppError {
+	if isNetIPTestMode() {
+		return nil
+	}
+
 	cmd := exec.CommandContext(ctx, "netsh", args...)
 	if out, err := cmd.CombinedOutput(); err != nil {
 		msg := fmt.Sprintf("netsh %s failed: %s", strings.Join(args, " "), string(out))

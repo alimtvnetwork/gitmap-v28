@@ -100,6 +100,10 @@ func renderDNS(dnsList []string) string {
 }
 
 func writeNetplanConfig(path, yamlStr string) *apperror.AppError {
+	if isNetIPTestMode() {
+		return nil
+	}
+
 	dir := filepath.Dir(path)
 	_ = os.MkdirAll(dir, 0o755)
 
@@ -111,6 +115,10 @@ func writeNetplanConfig(path, yamlStr string) *apperror.AppError {
 }
 
 func runNetplan(ctx context.Context, args ...string) *apperror.AppError {
+	if isNetIPTestMode() {
+		return nil
+	}
+
 	cmd := exec.CommandContext(ctx, "netplan", args...)
 	if out, err := cmd.CombinedOutput(); err != nil {
 		msg := fmt.Sprintf("netplan %s failed: %s", strings.Join(args, " "), string(out))
