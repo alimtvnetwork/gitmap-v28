@@ -48,7 +48,7 @@ func handleOSUserRm(args []string) error {
 		Username:       args[0],
 		IsRemoveHome:   hasFlag(args[1:], "--remove-home") || !hasFlag(args[1:], "--keep-home"),
 		IsCleanSudoers: true,
-		IsKillActive:   hasFlag(args[1:], "--kill") || hasFlag(args[1:], "-k"),
+		IsForceKill:    hasFlag(args[1:], "--kill") || hasFlag(args[1:], "-k"),
 	}
 	return osuser.Remove(opts)
 }
@@ -62,8 +62,7 @@ func handleOSUserCreateRoot(args []string) error {
 		Password:       extractArgFlag(args[1:], "--password"),
 		Theme:          extractArgFlagWithDefault(args[1:], "--theme", "fletcherm"),
 		HomeDir:        extractArgFlag(args[1:], "--homedir"),
-		SSHKeyData:     extractArgFlag(args[1:], "--ssh-key"),
-		IsNoPasswd:     !hasFlag(args[1:], "--require-passwd"),
+		IsSudoer:       true,
 		IsConfigureZsh: !hasFlag(args[1:], "--no-zsh"),
 	}
 	return osuser.CreateRoot(opts)
@@ -85,9 +84,8 @@ func handleOSUserSSHKey(args []string) error {
 		return apperror.NewSimple("usage: gitmap os user add-ssh-key <user> <key-or-file>", "E_MISSING_ARG")
 	}
 	opts := osuser.SSHKeyOptions{
-		Username:    args[0],
-		KeyData:     args[1],
-		IsOverwrite: hasFlag(args[2:], "--overwrite"),
+		Username:  args[0],
+		PublicKey: args[1],
 	}
 	return osuser.InstallKey(opts)
 }

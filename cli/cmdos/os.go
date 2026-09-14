@@ -43,7 +43,7 @@ func dispatchOSSubcommand(subCmd string, subArgs []string) error {
 	case constants.SubCmdOSUser:
 		return runOSUser(subArgs)
 	case "vmware":
-		return cmdvmware.RunVMware(subArgs)
+		return cmdvmware.Run(subArgs)
 	case "group", "groups":
 		return runOSGroup(subArgs)
 	case "cron", "crontab":

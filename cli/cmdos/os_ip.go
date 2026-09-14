@@ -42,9 +42,9 @@ func runOSIP(args []string) error {
 }
 
 func createNetIPManager() *netip.Manager {
-	driver := netip.DetectDriver()
+	driver, _ := netip.DetectDriver()
 	var db *store.DB
-	if rootDb, err := store.OpenRootDB(); err == nil {
+	if rootDb, err := store.OpenDefault(); err == nil {
 		db = rootDb
 	}
 	return netip.NewManager(driver, db)
@@ -152,9 +152,9 @@ func parseChangeOptions(args []string, isDHCP bool) (netip.ChangeOptions, netip.
 	}
 	valOpts := netip.ValidationOptions{
 		IsValidationActive: !hasFlag(args, "--no-validate"),
-		TargetHost:         extractArgFlagWithDefault(args, "--ping-target", "8.8.8.8"),
-		Count:              3,
-		TimeoutSec:         2,
+		TestIP:             extractArgFlagWithDefault(args, "--ping-target", "8.8.8.8"),
+		PacketCount:        3,
+		TimeoutSeconds:     2,
 	}
 	return opts, valOpts
 }
