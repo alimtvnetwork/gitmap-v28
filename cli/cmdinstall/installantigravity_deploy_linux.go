@@ -11,7 +11,6 @@ import (
 
 	"github.com/alimtvnetwork/gitmap-v28/cli/apperror"
 	"github.com/alimtvnetwork/gitmap-v28/cli/assets"
-	"github.com/alimtvnetwork/gitmap-v28/cli/tempdir"
 )
 
 func isPrivilegedLinuxUser() bool {
