@@ -212,6 +212,8 @@ func StepSubStepIndex(step PullStepType) int {
 		return 2
 	case PullStepTypeMerging, PullStepTypeFastForward:
 		return 3
+	case PullStepTypeUpToDate, PullStepTypeConflict, PullStepTypeError, PullStepTypeSkipped:
+		return 4
 	default:
 		return 4
 	}

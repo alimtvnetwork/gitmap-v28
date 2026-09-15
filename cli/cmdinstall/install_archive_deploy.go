@@ -27,6 +27,8 @@ func deployArchiveApp(params ArchiveDeployParams) error {
 		return deployViaInstallScript(params)
 	case StrategySource:
 		return deployViaSourceBuild(params)
+	case StrategyUnknown:
+		return apperror.NewSimple("unrecognized archive package structure; no binary or install script found", "E9000")
 	default:
 		return apperror.NewSimple("unrecognized archive package structure; no binary or install script found", "E9000")
 	}

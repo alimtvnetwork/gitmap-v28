@@ -62,6 +62,8 @@ func assembleInstallArgs(prefix []string, mgr PackageManagerType, pkgs ...string
 		return append([]string{"brew", "install"}, pkgs...)
 	case PkgMgrPacman:
 		return append(append(prefix, "pacman", "-S", "--noconfirm"), pkgs...)
+	case PkgMgrUnknown:
+		return append(append(prefix, "apt-get", "install", "-y"), pkgs...)
 	default:
 		return append(append(prefix, "apt-get", "install", "-y"), pkgs...)
 	}

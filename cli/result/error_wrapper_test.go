@@ -148,8 +148,8 @@ func TestErrorWrapper_NilReceiver(t *testing.T) {
 		t.Fatal("expected nil receiver AsError and ErrOrNil to be nil")
 	}
 
-	if ew.ErrorType() != "" {
-		t.Fatal("expected nil receiver ErrorType to be empty")
+	if ew.ErrorType() != apperror.ErrorTypeNone {
+		t.Fatal("expected nil receiver ErrorType to be ErrorTypeNone")
 	}
 
 	if ew.IsErrorCode("E100") || ew.IsErrorType(apperror.ErrorTypeExecution) {
