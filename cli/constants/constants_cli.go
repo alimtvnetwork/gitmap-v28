@@ -175,8 +175,10 @@ const (
 	CmdClusterAlias          = "clst"
 	CmdClusterStatus         = "status"          // gitmap:cmd skip
 	CmdServersClients        = "servers-clients" // gitmap:cmd top-level
+	CmdServersClientsAlias   = "servers-client"
 	CmdSC                    = "sc"
-	CmdClients               = "clients"                          // gitmap:cmd top-level
+	CmdClients               = "clients" // gitmap:cmd top-level
+	CmdClientsAlias          = "client"
 	CmdServersLS             = "servers ls"                       // gitmap:cmd top-level
 	CmdClientsLS             = "clients ls"                       // gitmap:cmd top-level
 	CmdSCLS                  = "servers-clients ls"               // gitmap:cmd top-level

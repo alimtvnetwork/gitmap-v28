@@ -4,6 +4,8 @@ import (
 	"context"
 	"io"
 
+	"github.com/alimtvnetwork/gitmap-v28/cli/apperror"
+	"github.com/alimtvnetwork/gitmap-v28/cli/helptext"
 	"github.com/alimtvnetwork/gitmap-v28/cli/model"
 	"github.com/spf13/cobra"
 )
@@ -95,4 +97,30 @@ func ValidateSSHKeygen() error {
 // EncodeSSHListJSON encodes keys to JSON.
 func EncodeSSHListJSON(w io.Writer, keys []model.SSHKey) error {
 	return encodeSSHListJSON(w, keys)
+}
+
+// RunClusterAddCLI executes cluster add command.
+func RunClusterAddCLI(args []string) error {
+	if hasHelpFlag(args) {
+		helptext.Print("cluster-add")
+		return nil
+	}
+	if len(args) == 0 {
+		helptext.Print("cluster-add")
+		return apperror.NewValidationError("missing target host. Usage: gitmap cluster add <user@ip|ip> [alias] [flags]")
+	}
+	return RunSSHJoinCLI(append([]string{"add"}, args...))
+}
+
+// RunClusterJoinCLI executes cluster join command.
+func RunClusterJoinCLI(args []string) error {
+	if hasHelpFlag(args) {
+		helptext.Print("cluster-join")
+		return nil
+	}
+	if len(args) == 0 {
+		helptext.Print("cluster-join")
+		return apperror.NewValidationError("missing target host. Usage: gitmap cluster join <user@ip|ip> [alias] [flags]")
+	}
+	return RunSSHJoinCLI(args)
 }

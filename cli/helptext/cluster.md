@@ -25,21 +25,35 @@ gitmap cluster <subcommand> [args...] [flags]
 
 | Subcommand | Aliases | Description |
 |------------|---------|-------------|
-| `import` | `import-config`, `import-cluster` | Import cluster topology from JSON and enroll hosts |
-| `bootstrap` | `bs` | Bootstrap cluster nodes with RSA keys, passwordless sudo, and enrollment |
+| `nodes` | `ls` | List registered nodes in the cluster |
+| `add` | | Enroll new node into cluster topology |
+| `join` | | Join node to cluster using SSH enrollment |
+| `node` | | Manage cluster nodes and run Ubuntu provisioning recipes |
 | `exec` | `run` | Execute remote shell command across targeted nodes |
 | `run-script` | `script` | Deploy and execute local script file across targeted nodes |
-| `node` | | Execute Ubuntu node provisioning recipes (netplan, packages, user, zsh, purge) |
+| `bootstrap` | `bs` | Bootstrap nodes with RSA keys, passwordless sudo, and enrollment |
+| `import` | `import-config`, `import-cluster` | Import cluster topology from JSON and enroll hosts |
 | `k8s` | `kube`, `kubernetes` | Manage Kubernetes cluster lifecycle, runtime, CNI, Helm, and NFS |
-| `status` | | Display cluster health, active nodes, and ping latency |
-| `nodes` | `ls` | List registered nodes in the cluster |
+| `status` | `ping`, `health` | Display cluster health, active nodes, and ping latency |
+| `remove` | `rm` | Remove node from cluster registry |
 | `history` | `hi` | Inspect audit trail of past cluster executions |
 | `export` | | Export node registry to JSON or CSV |
 | `set-password` | | Set or update password credentials for nodes |
-| `reset-password`| | Reset or clear stored credentials |
-| `remove` | `rm` | Remove node from cluster registry |
+| `reset-password` | | Reset or clear stored credentials |
 | `audit-clean` | | Clean legacy execution logs and expired node records |
 | `stats` | | Show cluster statistics and execution metrics |
+
+---
+
+## Node Enrollment & Management (`add`, `join`, `nodes`, `status`, `remove`)
+
+Gitmap provides first-class subcommands to enroll, list, probe, and remove cluster nodes:
+
+- **Enroll Node (`add`)**: Register and enroll a new node into the cluster topology (`gitmap cluster add <user@ip|ip> [alias] [flags]`).
+- **Join Node (`join`)**: Join a node to the cluster via SSH enrollment (`gitmap cluster join <user@ip|ip> [alias] [flags]`).
+- **List Nodes (`nodes`, `ls`)**: List all registered cluster nodes with roles, OS, IPs, and status (`gitmap cluster nodes [--json]`).
+- **Health & Ping (`status`, `ping`)**: Display heartbeat records and ping round-trip latency (`gitmap cluster status`, `gitmap cluster ping [target]`).
+- **Remove Node (`remove`, `rm`)**: Unregister a node from the cluster topology (`gitmap cluster rm <alias|ip>`, `gitmap cluster node rm <alias|ip>`).
 
 ---
 
@@ -488,59 +502,82 @@ Executes `kubeadm reset --force`, purges `/etc/cni/net.d`, clears `$HOME/.kube`,
 ## Examples
 
 ```bash
-# 1. Import topology from JSON
+# 1. Enroll and join nodes into cluster topology
+gitmap cluster add ubuntu@192.168.0.101 k8s-w1
+gitmap cluster add 192.168.0.102
+gitmap cluster join kube@192.168.0.103 k8s-w3 --auth
+gitmap cluster node add 192.168.0.104 worker-4
+
+# 2. List all registered cluster nodes
+gitmap cluster nodes
+gitmap cluster ls
+gitmap cluster nodes --json
+gitmap cluster node ls
+
+# 3. Check cluster health, connectivity, and ping latency
+gitmap cluster status
+gitmap cluster ping
+gitmap cluster ping k8s-w1
+gitmap cluster health control
+
+# 4. Import cluster topology from JSON configuration
 gitmap cluster import 01-config.json
 
-# 2. Check cluster connectivity
-gitmap cluster status
+# 5. Bootstrap remote nodes with RSA keys, passwordless sudo, and enrollment
+gitmap cluster bootstrap ubuntu@192.168.0.101 SecretPass123
+gitmap cluster bootstrap workers
+gitmap cluster bs control --sudo=false
+gitmap sj bootstrap k8s-w1
 
-# 3. Configure static IP on a worker node
-gitmap cluster node set-ip k8s-w1 192.168.0.101 --route-ip 192.168.0.1
+# 6. Execute commands across targeted nodes in parallel with sudo elevation
+gitmap cluster exec all "uptime"
+gitmap cluster exec control "kubectl get nodes"
+gitmap cluster exec workers "apt-get update -y" --sudo --parallel 6
 
-# 4. Install base developer tools on all nodes in parallel
-gitmap cluster node install-base all
-
-# 5. Create kube user with zsh across all worker nodes
-gitmap cluster node create-user workers kube SecretPass123 --theme agnoster
-
-# 6. Run arbitrary commands in parallel with sudo
-gitmap cluster exec all "apt-get update -y" --sudo --parallel 6
-
-# 7. Upload and execute local Kubernetes install script
+# 7. Deploy and execute local script across targeted nodes
 gitmap cluster run-script control ./scripts/install-k8s-control.sh --sudo
 gitmap cluster run-script workers ./scripts/install-k8s-worker.sh --sudo
 
-# 8. Clean up unused packages and apt cache
+# 8. Ubuntu node provisioning recipes
+gitmap cluster node set-ip k8s-w1 192.168.0.101 --route-ip 192.168.0.1
+gitmap cluster node install-base all
+gitmap cluster node create-user workers kube SecretPass123 --theme agnoster
+gitmap cluster node set-theme all fletcherm
 gitmap cluster node purge all
 
-# 9. Prepare kernel modules and sysctl parameters on all nodes
+# 9. Kubernetes cluster lifecycle management
 gitmap cluster k8s prereq all
-
-# 10. Install CRI-O runtime and Kubernetes v1.31 across all nodes
 gitmap cluster k8s install all --version 1.31
-
-# 11. Initialize control-plane node and deploy Weave Net CNI
 gitmap cluster k8s init control
 gitmap cluster k8s cni control --plugin weave
-
-# 12. Automatically join all worker nodes using token auto-discovery
 gitmap cluster k8s join workers
-
-# 13. Set up NFS shared storage and deploy Helm dynamic provisioner
 gitmap cluster k8s nfs control --export-dir /nfsexport
 gitmap cluster k8s helm-install control --version 3.16.2
 gitmap cluster k8s helm-nfs control --export-dir /nfsexport
-
-# 14. Inspect cluster nodes, pods, and runtime health
 gitmap cluster k8s status control
+gitmap cluster k8s reset k8s-w1
 
-# 15. Bootstrap remote nodes with SSH keys and passwordless sudo
-gitmap cluster bootstrap ubuntu@192.168.0.101 SecretPass123
-gitmap cluster bootstrap workers
-gitmap sj bootstrap k8s-w1
+# 10. Remove nodes from cluster registry
+gitmap cluster rm k8s-w1
+gitmap cluster node rm worker-4
+gitmap cluster remove --id node-123 --confirm
 
-# 16. Bootstrap without sudo elevation
-gitmap cluster bootstrap control --sudo=false
+# 11. Inspect audit trail of past cluster executions
+gitmap cluster history
+gitmap cluster history RUN-20260817-001
+gitmap cluster history --limit 10
+
+# 12. Export node registry to JSON or CSV
+gitmap cluster export --format json --output cluster-nodes.json
+gitmap cluster export --format csv --output cluster-nodes.csv
+
+# 13. Set or reset node password credentials
+gitmap cluster set-password --id node-123
+gitmap cluster reset-password --id node-123 --confirm
+
+# 14. Clean legacy audit logs and inspect cluster statistics
+gitmap cluster audit-clean --before 2026-01-01T00:00:00Z --confirm
+gitmap cluster stats
 ```
 
 See also: `gitmap ssh`, `gitmap ssh-join`

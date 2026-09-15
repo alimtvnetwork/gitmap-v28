@@ -8,6 +8,7 @@ import (
 	"github.com/spf13/cobra"
 
 	"github.com/alimtvnetwork/gitmap-v28/cli/apperror"
+	"github.com/alimtvnetwork/gitmap-v28/cli/helptext"
 	"github.com/alimtvnetwork/gitmap-v28/cli/store"
 )
 
@@ -22,14 +23,25 @@ var ClusterNodeCmd = &cobra.Command{
 	},
 }
 
-func showClusterNodeHelp() error {
+func printClusterNodeLifecycle() {
 	fmt.Println("Usage: gitmap cluster node <subcommand> [args...]")
 	fmt.Println("\nSubcommands:")
+	fmt.Println("  add, join <user@ip|ip> [alias]                       Register and enroll a node into cluster")
+	fmt.Println("  rm, remove <alias|ip>                                Remove a node from cluster inventory")
+	fmt.Println("  ls, list, nodes                                      List all registered cluster nodes")
+}
+
+func printClusterNodeRecipes() {
 	fmt.Println("  set-ip <target> <new-ip> [--route-ip <gw>]           Configure static Netplan IP and gateway")
 	fmt.Println("  install-base <target>                                Install base packages (curl, git, zsh, etc.)")
 	fmt.Println("  create-user <target> <username> [pass] [--theme <t>] Create sudo user with zsh and oh-my-zsh")
 	fmt.Println("  set-theme <target> <theme>                           Update ZSH_THEME in ~/.zshrc")
 	fmt.Println("  purge <target>                                       Purge unneeded packages and clean apt cache")
+}
+
+func showClusterNodeHelp() error {
+	printClusterNodeLifecycle()
+	printClusterNodeRecipes()
 	fmt.Println("\nFlags:")
 	fmt.Println("  -h, --help    Show this help message")
 
@@ -81,15 +93,23 @@ func buildSetIPParams(pos []string, routeIP string) (string, string, string, err
 	return pos[0], pos[1], routeIP, nil
 }
 
+func stepRouteIP(args []string, idx int, routeIP *string) (int, bool) {
+	val, consumed := parseRouteIPFlag(args[idx], getNextArg(args, idx))
+	if consumed > 0 {
+		*routeIP = val
+		return idx + consumed, true
+	}
+	return idx, false
+}
+
 func parseSetIPArgs(args []string) (string, string, string, error) {
 	var positional []string
 	var routeIP string
 	idx := 0
 	for idx < len(args) {
-		val, consumed := parseRouteIPFlag(args[idx], getNextArg(args, idx))
-		if consumed > 0 {
-			routeIP = val
-			idx += consumed
+		nextIdx, isFlag := stepRouteIP(args, idx, &routeIP)
+		if isFlag {
+			idx = nextIdx
 			continue
 		}
 		positional = append(positional, args[idx])
@@ -131,15 +151,23 @@ func buildCreateUserParams(pos []string, theme string) (string, string, string, 
 	return pos[0], pos[1], password, theme, nil
 }
 
+func stepUserTheme(args []string, idx int, theme *string) (int, bool) {
+	val, consumed := parseThemeFlag(args[idx], getNextArg(args, idx))
+	if consumed > 0 {
+		*theme = val
+		return idx + consumed, true
+	}
+	return idx, false
+}
+
 func parseCreateUserArgs(args []string) (string, string, string, string, error) {
 	var positional []string
 	var theme string
 	idx := 0
 	for idx < len(args) {
-		val, consumed := parseThemeFlag(args[idx], getNextArg(args, idx))
-		if consumed > 0 {
-			theme = val
-			idx += consumed
+		nextIdx, isFlag := stepUserTheme(args, idx, &theme)
+		if isFlag {
+			idx = nextIdx
 			continue
 		}
 		positional = append(positional, args[idx])
@@ -242,7 +270,36 @@ func executeClusterNodeScript(ctx context.Context, target string, script string)
 	return nil
 }
 
-func routeClusterNodeCommand(ctx context.Context, sub string, rest []string) (error, bool) {
+func runNodeAdd(ctx context.Context, args []string) error {
+	if hasHelpFlag(args) {
+		helptext.Print("cluster-node-add")
+		return nil
+	}
+	return executeEnrollCLI(ctx, args)
+}
+
+func runNodeRm(ctx context.Context, args []string) error {
+	if hasHelpFlag(args) {
+		helptext.Print("cluster-remove")
+		return nil
+	}
+	return runSJRm(nil, args, ctx)
+}
+
+func routeClusterNodeLifecycle(ctx context.Context, sub string, rest []string) (error, bool) {
+	switch sub {
+	case "add", "join", "enroll", "new":
+		return runNodeAdd(ctx, rest), true
+	case "rm", "remove", "delete":
+		return runNodeRm(ctx, rest), true
+	case "ls", "list", "nodes":
+		return executeSJList(ctx), true
+	default:
+		return nil, false
+	}
+}
+
+func routeClusterNodeRecipes(ctx context.Context, sub string, rest []string) (error, bool) {
 	switch sub {
 	case "set-ip":
 		return runNodeSetIP(ctx, rest), true
@@ -257,6 +314,13 @@ func routeClusterNodeCommand(ctx context.Context, sub string, rest []string) (er
 	default:
 		return nil, false
 	}
+}
+
+func routeClusterNodeCommand(ctx context.Context, sub string, rest []string) (error, bool) {
+	if err, isLifecycle := routeClusterNodeLifecycle(ctx, sub, rest); isLifecycle {
+		return err, true
+	}
+	return routeClusterNodeRecipes(ctx, sub, rest)
 }
 
 // RunClusterNodeCLI dispatches cluster node provisioning recipes across target hosts.

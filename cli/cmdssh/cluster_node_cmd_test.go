@@ -6,6 +6,7 @@ import (
 	"strings"
 	"testing"
 
+	"github.com/alimtvnetwork/gitmap-v28/cli/cliexit"
 	"github.com/alimtvnetwork/gitmap-v28/cli/store"
 )
 
@@ -182,4 +183,71 @@ func TestRunClusterNodeCLI_MockExecution(t *testing.T) {
 			}
 		})
 	})
+}
+
+func TestShowClusterNodeHelp_Success(t *testing.T) {
+	err := showClusterNodeHelp()
+	if err != nil {
+		t.Fatalf("expected nil from showClusterNodeHelp, got: %v", err)
+	}
+}
+
+func TestRouteClusterNodeLifecycle(t *testing.T) {
+	prev := cliexit.SetExitFunc(func(code int) {})
+	defer cliexit.SetExitFunc(prev)
+
+	ctx := context.Background()
+	subs := []string{"add", "join", "enroll", "new", "rm", "remove", "delete"}
+	for _, sub := range subs {
+		_, isMatched := routeClusterNodeLifecycle(ctx, sub, []string{"--help"})
+		if !isMatched {
+			t.Errorf("expected subcommand %q to match lifecycle route", sub)
+		}
+	}
+}
+
+func TestRunNodeAdd_Help(t *testing.T) {
+	prev := cliexit.SetExitFunc(func(code int) {})
+	defer cliexit.SetExitFunc(prev)
+
+	ctx := context.Background()
+	err := runNodeAdd(ctx, []string{"--help"})
+	if err != nil {
+		t.Fatalf("expected nil from runNodeAdd on help, got: %v", err)
+	}
+}
+
+func TestRunNodeRm_Help(t *testing.T) {
+	prev := cliexit.SetExitFunc(func(code int) {})
+	defer cliexit.SetExitFunc(prev)
+
+	ctx := context.Background()
+	err := runNodeRm(ctx, []string{"--help"})
+	if err != nil {
+		t.Fatalf("expected nil from runNodeRm on help, got: %v", err)
+	}
+}
+
+func TestRunClusterAddCLI_Validation(t *testing.T) {
+	prev := cliexit.SetExitFunc(func(code int) {})
+	defer cliexit.SetExitFunc(prev)
+
+	if err := RunClusterAddCLI([]string{"--help"}); err != nil {
+		t.Fatalf("expected nil on help, got: %v", err)
+	}
+	if err := RunClusterAddCLI([]string{}); err == nil {
+		t.Fatal("expected validation error on empty args, got nil")
+	}
+}
+
+func TestRunClusterJoinCLI_Validation(t *testing.T) {
+	prev := cliexit.SetExitFunc(func(code int) {})
+	defer cliexit.SetExitFunc(prev)
+
+	if err := RunClusterJoinCLI([]string{"--help"}); err != nil {
+		t.Fatalf("expected nil on help, got: %v", err)
+	}
+	if err := RunClusterJoinCLI([]string{}); err == nil {
+		t.Fatal("expected validation error on empty args, got nil")
+	}
 }

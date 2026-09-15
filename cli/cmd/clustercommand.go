@@ -16,10 +16,32 @@ import (
 	"github.com/alimtvnetwork/gitmap-v28/cli/cliexit"
 )
 
+func resolveClusterHelpCmd(selector cluster.TargetSelectorType) string {
+	if selector == cluster.ClientsOnly {
+		return constants.CmdClients
+	}
+
+	return constants.CmdServersClients
+}
+
+func checkClusterCommandHelp(selector cluster.TargetSelectorType, args []string) bool {
+	if len(args) == 0 || hasHelpFlag(args) {
+		cmdName := resolveClusterHelpCmd(selector)
+		checkHelp(cmdName, []string{"--help"})
+		return true
+	}
+
+	return false
+}
+
 // runClusterCommand is the orchestrator for delegated cluster commands.
 // It parses flags, resolves nodes, prints preflight, confirms,
 // inserts a ClusterRun, and dispatches the sub-commands via the bounded worker pool.
 func runClusterCommand(selector cluster.TargetSelectorType, args []string) error {
+	if checkClusterCommandHelp(selector, args) {
+		return nil
+	}
+
 	flags, positional, err := ParseClusterFlags(args)
 	if err != nil {
 		fmt.Fprintf(os.Stderr, "Error parsing flags: %v\n", err)

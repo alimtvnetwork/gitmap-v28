@@ -6,18 +6,21 @@ import (
 	"encoding/csv"
 	"encoding/json"
 	"fmt"
+	"io"
 	"os"
 	"strconv"
 	"strings"
+	"text/tabwriter"
 	"time"
 
 	"golang.org/x/crypto/bcrypt"
 
+	"github.com/alimtvnetwork/gitmap-v28/cli/apperror"
+	"github.com/alimtvnetwork/gitmap-v28/cli/cliexit"
 	"github.com/alimtvnetwork/gitmap-v28/cli/constants"
 	"github.com/alimtvnetwork/gitmap-v28/cli/db"
+	"github.com/alimtvnetwork/gitmap-v28/cli/helptext"
 	"github.com/alimtvnetwork/gitmap-v28/cli/store"
-
-	"github.com/alimtvnetwork/gitmap-v28/cli/cliexit"
 )
 
 func runClusterHistory(args []string) error {
@@ -279,27 +282,27 @@ func updateClusterNodePasswordInDB(id string, hash *string) {
 
 func parseClusterConfirmArgs(args []string) (string, bool) {
 	id := ""
-	confirm := false
+	hasConfirm := false
 	for i := 0; i < len(args); i++ {
 		if args[i] == constants.FlagClusterID && i+1 < len(args) {
 			id = args[i+1]
 			i++
 		} else if args[i] == constants.FlagClusterConfirm {
-			confirm = true
+			hasConfirm = true
 		}
 	}
 
-	return id, confirm
+	return id, hasConfirm
 }
 
 func runClusterResetPassword(args []string) error {
-	id, confirm := parseClusterConfirmArgs(args)
+	id, hasConfirm := parseClusterConfirmArgs(args)
 	if id == "" {
 		fmt.Fprintln(os.Stderr, "missing --id")
 		cliexit.HandleError(nil, 1)
 	}
 
-	if !confirm {
+	if !hasConfirm {
 		fmt.Fprintln(os.Stderr, "missing --confirm")
 		cliexit.HandleError(nil, 1)
 	}
@@ -309,6 +312,8 @@ func runClusterResetPassword(args []string) error {
 
 	return nil
 }
+
+var openClusterStore = store.OpenDefault
 
 func hasClusterJSONFlag(args []string) bool {
 	for _, a := range args {
@@ -321,94 +326,131 @@ func hasClusterJSONFlag(args []string) bool {
 }
 
 func runClusterNodes(args []string) error {
+	if hasHelpFlag(args) {
+		helptext.Print("cluster-nodes")
+		return nil
+	}
 	ctx := context.Background()
-	storeDB, err := store.OpenDefault()
+	storeDB, err := openClusterStore()
 	if err != nil {
-		fmt.Fprintf(os.Stderr, "failed to open db: %v\n", err)
-		cliexit.HandleError(nil, 1)
+		return apperror.WrapSimple(err, "runClusterNodes_OpenDB")
 	}
-
 	defer storeDB.Close()
-	nodesRes := db.ListClusterNodes(ctx, storeDB.Conn())
-	if nodesRes.IsFailure() {
-		fmt.Fprintf(os.Stderr, "failed to list nodes: %v\n", nodesRes.AppError())
-		cliexit.HandleError(nil, 1)
+	return executeClusterNodesList(ctx, storeDB.Conn(), hasClusterJSONFlag(args))
+}
+
+func executeClusterNodesList(ctx context.Context, conn *sql.DB, isJSON bool) error {
+	hosts, err := store.ListHosts(ctx, conn)
+	if err != nil {
+		return apperror.WrapSimple(err, "executeClusterNodesList")
 	}
+	if isJSON {
+		return printClusterHostsJSON(hosts)
+	}
+	return printClusterHostsTable(hosts)
+}
 
-	displayClusterNodes(nodesRes.Data, hasClusterJSONFlag(args))
+func redactClusterHosts(hosts []store.SSHHost) []store.SSHHost {
+	redacted := make([]store.SSHHost, len(hosts))
+	copy(redacted, hosts)
+	for i := range redacted {
+		redacted[i].EncryptedPassword = ""
+	}
+	return redacted
+}
 
+func printClusterHostsJSON(hosts []store.SSHHost) error {
+	redacted := redactClusterHosts(hosts)
+	data, err := json.MarshalIndent(redacted, "", constants.JSONIndent)
+	if err != nil {
+		return apperror.WrapSimple(err, "printClusterHostsJSON")
+	}
+	fmt.Println(string(data))
 	return nil
 }
 
-func displayClusterNodes(nodes []db.ClusterNode, asJson bool) {
-	if asJson {
-		data, _ := json.MarshalIndent(nodes, "", constants.JSONIndent)
-		fmt.Println(string(data))
+const msgNoClusterNodes = "No nodes currently registered in cluster. Enroll with: gitmap cluster add <user@ip|ip> [alias]"
 
-		return
+func printClusterHostsTable(hosts []store.SSHHost) error {
+	if len(hosts) == 0 {
+		fmt.Println(msgNoClusterNodes)
+		return nil
 	}
-
-	printClusterNodesTable(nodes)
+	return renderClusterHostsASCII(os.Stdout, hosts)
 }
 
-func printClusterNodesTable(nodes []db.ClusterNode) {
-	fmt.Printf("%-10s | %-15s | %-15s | %-10s | %-10s | %-10s | %s\n", "DisplayId", "Alias", "IP", "OS", "Role", "Status", "LastHeartbeat")
-	var unreachable []db.ClusterNode
-	for _, n := range nodes {
-		hb := "-"
-		if n.LastHeartbeat != nil {
-			hb = n.LastHeartbeat.Format(time.RFC3339)
-		}
-
-		if strings.EqualFold(n.Status, constants.ClusterStatusOffline) || strings.EqualFold(n.Status, constants.ClusterStatusUnreachable) {
-			unreachable = append(unreachable, n)
-		}
-
-		fmt.Printf("%-10d | %-15s | %-15s | %-10s | %-10s | %-10s | %s\n", n.DisplayId, n.Alias, n.IPAddress, n.OS, n.NodeRole, n.Status, hb)
+func renderClusterHostsASCII(out io.Writer, hosts []store.SSHHost) error {
+	w := tabwriter.NewWriter(out, 0, 0, 2, ' ', 0)
+	fmt.Fprintln(w, "ALIAS\tIP\tUSER\tPORT\tROLE\tCREATED_AT")
+	for _, h := range hosts {
+		fmt.Fprintf(w, "%s\t%s\t%s\t%d\t%s\t%s\n",
+			h.Alias, h.IP, h.Username, h.Port, h.ClusterRole, h.CreatedAt.Format(time.RFC3339))
 	}
-
-	warnUnreachableNodes(unreachable)
+	return w.Flush()
 }
 
-func warnUnreachableNodes(unreachable []db.ClusterNode) {
-	if len(unreachable) == 0 {
-		return
-	}
-
-	fmt.Println()
-	fmt.Printf("  ▲ WARNING: %d cluster machine(s) offline or unreachable:\n", len(unreachable))
-	for _, u := range unreachable {
-		fmt.Printf("     • Node %d [%s] (%s) - status: %s\n", u.DisplayId, u.Alias, u.IPAddress, u.Status)
-	}
-
-	fmt.Println("  These are the machines that cannot connect or find.")
-	fmt.Println()
+func hasPositionalNodeTarget(args []string) bool {
+	return len(args) > 0 && !strings.HasPrefix(args[0], "-")
 }
 
-func runClusterRemove(args []string) error {
-	id, confirm := parseClusterConfirmArgs(args)
+func removeClusterHostByTarget(target string) error {
+	ctx := context.Background()
+	storeDB, err := openClusterStore()
+	if err != nil {
+		return apperror.WrapSimple(err, "removeClusterHostByTarget_OpenDB")
+	}
+	defer storeDB.Close()
+	_, err = store.DeleteHostByAliasOrIP(ctx, target, storeDB.Conn())
+	if err != nil {
+		return apperror.WrapSimple(err, "removeClusterHostByTarget_Delete")
+	}
+	fmt.Printf("✓ Node '%s' removed from cluster registry.\n", target)
+	return nil
+}
+
+func validateClusterRemoveLegacyArgs(args []string) (string, error) {
+	id, hasConfirm := parseClusterConfirmArgs(args)
 	if id == "" {
 		fmt.Fprintln(os.Stderr, "missing --id")
 		cliexit.HandleError(nil, 1)
+		return "", apperror.NewSimple("missing --id", "E1001")
 	}
-
-	if !confirm {
+	if !hasConfirm {
 		fmt.Fprintln(os.Stderr, "missing --confirm")
 		cliexit.HandleError(nil, 1)
+		return "", apperror.NewSimple("missing --confirm", "E1001")
 	}
+	return id, nil
+}
 
+func runClusterRemoveLegacy(args []string) error {
+	id, err := validateClusterRemoveLegacyArgs(args)
+	if err != nil {
+		return err
+	}
 	deleteClusterNodeInDB(id)
 	fmt.Println("Node deleted successfully.")
-
 	return nil
+}
+
+func runClusterRemove(args []string) error {
+	if hasHelpFlag(args) {
+		helptext.Print("cluster-remove")
+		return nil
+	}
+	if hasPositionalNodeTarget(args) {
+		return removeClusterHostByTarget(args[0])
+	}
+	return runClusterRemoveLegacy(args)
 }
 
 func deleteClusterNodeInDB(id string) {
 	ctx := context.Background()
-	storeDB, err := store.OpenDefault()
+	storeDB, err := openClusterStore()
 	if err != nil {
 		fmt.Fprintf(os.Stderr, "failed to open db: %v\n", err)
 		cliexit.HandleError(nil, 1)
+		return
 	}
 
 	defer storeDB.Close()
@@ -420,31 +462,34 @@ func deleteClusterNodeInDB(id string) {
 
 func parseClusterAuditCleanArgs(args []string) (string, bool) {
 	beforeStr := ""
-	confirm := false
+	hasConfirm := false
 	for i := 0; i < len(args); i++ {
 		if args[i] == constants.FlagClusterBefore && i+1 < len(args) {
 			beforeStr = args[i+1]
 			i++
 		} else if args[i] == constants.FlagClusterConfirm {
-			confirm = true
+			hasConfirm = true
 		}
 	}
 
-	return beforeStr, confirm
+	return beforeStr, hasConfirm
 }
 
-func runClusterAuditClean(args []string) error {
-	beforeStr, confirm := parseClusterAuditCleanArgs(args)
+func validateClusterAuditCleanArgs(beforeStr string, hasConfirm bool) {
 	if beforeStr == "" {
 		fmt.Fprintln(os.Stderr, "missing --before")
 		cliexit.HandleError(nil, 1)
 	}
 
-	if !confirm {
+	if !hasConfirm {
 		fmt.Fprintln(os.Stderr, "missing --confirm")
 		cliexit.HandleError(nil, 1)
 	}
+}
 
+func runClusterAuditClean(args []string) error {
+	beforeStr, hasConfirm := parseClusterAuditCleanArgs(args)
+	validateClusterAuditCleanArgs(beforeStr, hasConfirm)
 	cleanClusterAuditRecords(beforeStr)
 
 	return nil

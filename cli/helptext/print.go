@@ -97,6 +97,19 @@ var helpAliases = map[string]string{
 	"vm":                  "vmware",
 	"ngx":                 "nginx",
 	"sj":                  "ssh-join",
+	"servers-client":      "servers-clients",
+	"client":              "clients",
+	"cluster-ls":          "cluster-nodes",
+	"cluster-node-add":    "cluster-add",
+	"cluster-node-rm":     "cluster-remove",
+	"cluster-node-remove": "cluster-remove",
+	"cluster-rm":          "cluster-remove",
+	"cluster-ping":        "cluster-status",
+	"cluster-run":         "cluster-exec",
+	"cluster-script":      "cluster-run-script",
+	"cluster-bs":          "cluster-bootstrap",
+	"cluster-kube":        "cluster-k8s",
+	"cluster-kubernetes":  "cluster-k8s",
 }
 
 func resolveHelpAlias(cmd string) string {

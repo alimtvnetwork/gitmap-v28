@@ -1,6 +1,8 @@
 package cmd
 
 import (
+	"os"
+
 	"github.com/alimtvnetwork/gitmap-v28/cli/cluster"
 	"github.com/alimtvnetwork/gitmap-v28/cli/cmdpurge"
 	"github.com/alimtvnetwork/gitmap-v28/cli/constants"
@@ -105,18 +107,34 @@ func coreVisibilityHistoryEntries() []dispatchEntry {
 
 func coreClusterEntries() []dispatchEntry {
 	return []dispatchEntry{
-		{[]string{constants.CmdServersClients, constants.CmdSC}, func() error { dispatchServersClients(argsTail()); return nil }},
-		{[]string{constants.CmdClients}, func() error { dispatchClients(argsTail()); return nil }},
+		{[]string{constants.CmdServersClients, constants.CmdServersClientsAlias, constants.CmdSC}, func() error { dispatchServersClients(argsTail()); return nil }},
+		{[]string{constants.CmdClients, constants.CmdClientsAlias}, func() error { dispatchClients(argsTail()); return nil }},
 		{[]string{"servers"}, func() error { dispatchServers(argsTail()); return nil }},
 		{[]string{constants.CmdCluster, constants.CmdClusterAlias}, func() error { return runCluster(argsTail()) }},
 		{[]string{constants.CmdServerCmd, constants.CmdServerCmds, constants.CmdServerCmdAlias}, func() error { return runServerCmd(argsTail()) }},
 	}
 }
 
-func dispatchServersClients(args []string) {
-	if len(args) == 0 {
-		runClusterCommand(cluster.ServersClients, args)
+func resolveSCTopic() string {
+	isSC := len(os.Args) > 1 && os.Args[1] == constants.CmdSC
+	if isSC {
+		return constants.CmdSC
+	}
 
+	return constants.CmdServersClients
+}
+
+func dispatchServersClientsHelp(args []string) bool {
+	if len(args) == 0 || hasHelpFlag(args) {
+		checkHelp(resolveSCTopic(), []string{"--help"})
+		return true
+	}
+
+	return false
+}
+
+func dispatchServersClients(args []string) {
+	if dispatchServersClientsHelp(args) {
 		return
 	}
 
@@ -143,6 +161,24 @@ func dispatchServersClientsPathCmd(subCmd string, rest []string) bool {
 	}
 }
 
+func checkClusterLSHelp(selector cluster.TargetSelectorType, rest []string) {
+	if selector == cluster.ClientsOnly {
+		checkHelp(constants.CmdClientsLS, rest)
+		return
+	}
+
+	checkHelp(constants.CmdSCLS, rest)
+}
+
+func dispatchClusterLS(selector cluster.TargetSelectorType, rest []string) {
+	if hasHelpFlag(rest) {
+		checkClusterLSHelp(selector, rest)
+		return
+	}
+
+	runClusterLS(selector, rest)
+}
+
 func dispatchClusterReadWrite(
 	selector cluster.TargetSelectorType,
 	subCmd string,
@@ -150,7 +186,7 @@ func dispatchClusterReadWrite(
 ) bool {
 	switch subCmd {
 	case "ls":
-		runClusterLS(selector, rest)
+		dispatchClusterLS(selector, rest)
 	case "cat":
 		runClusterCat(selector, rest)
 	case "write":
@@ -177,10 +213,17 @@ func dispatchClusterMutate(selector cluster.TargetSelectorType, subCmd string, r
 	return true
 }
 
-func dispatchClients(args []string) {
-	if len(args) == 0 {
-		runClusterCommand(cluster.ClientsOnly, args)
+func dispatchClientsHelp(args []string) bool {
+	if len(args) == 0 || hasHelpFlag(args) {
+		checkHelp(constants.CmdClients, []string{"--help"})
+		return true
+	}
 
+	return false
+}
+
+func dispatchClients(args []string) {
+	if dispatchClientsHelp(args) {
 		return
 	}
 

@@ -1,9 +1,13 @@
 package cmd
 
 import (
+	"context"
+
 	"github.com/alimtvnetwork/gitmap-v28/cli/apperror"
 	"github.com/alimtvnetwork/gitmap-v28/cli/cmdssh"
 	"github.com/alimtvnetwork/gitmap-v28/cli/constants"
+	"github.com/alimtvnetwork/gitmap-v28/cli/helptext"
+	"github.com/alimtvnetwork/gitmap-v28/cli/render"
 )
 
 const (
@@ -40,6 +44,19 @@ func routeClusterSSH(sub string, rest []string) (error, bool) {
 		return err, true
 	}
 	return routeClusterScriptOrNode(sub, rest)
+}
+
+func routeClusterJoinOps(sub string, rest []string) (error, bool) {
+	switch sub {
+	case "add":
+		return cmdssh.RunClusterAddCLI(rest), true
+	case "join":
+		return cmdssh.RunClusterJoinCLI(rest), true
+	case "ping":
+		return cmdssh.RunSJStatus(nil, rest, context.Background()), true
+	default:
+		return nil, false
+	}
 }
 
 func routeClusterLegacyOps(sub string, rest []string) (error, bool) {
@@ -93,10 +110,14 @@ func routeClusterK8s(sub string, rest []string) (error, bool) {
 	}
 }
 
-func dispatchClusterSubcommand(sub string, rest []string) (error, bool) {
-	if err, isSSH := routeClusterSSH(sub, rest); isSSH {
+func routeClusterCore(sub string, rest []string) (error, bool) {
+	if err, isJoin := routeClusterJoinOps(sub, rest); isJoin {
 		return err, true
 	}
+	return routeClusterSSH(sub, rest)
+}
+
+func routeClusterExt(sub string, rest []string) (error, bool) {
 	if err, isK8s := routeClusterK8s(sub, rest); isK8s {
 		return err, true
 	}
@@ -106,17 +127,47 @@ func dispatchClusterSubcommand(sub string, rest []string) (error, bool) {
 	return routeClusterNodeOps(sub, rest)
 }
 
+func dispatchClusterSubcommand(sub string, rest []string) (error, bool) {
+	if err, isCore := routeClusterCore(sub, rest); isCore {
+		return err, true
+	}
+	return routeClusterExt(sub, rest)
+}
+
+func isClusterHelpToken(arg string) bool {
+	return arg == "--help" || arg == "-h" || arg == "help"
+}
+
+func isClusterRootHelp(args []string) bool {
+	isZero := len(args) == 0
+	isSingleHelp := len(args) == 1 && isClusterHelpToken(args[0])
+	return isZero || isSingleHelp
+}
+
+func dispatchInvertedClusterHelp(args []string) (error, bool) {
+	hasInverted := args[0] == "help" && len(args) > 1
+	if hasInverted {
+		err, isMatched := dispatchClusterSubcommand(args[1], append(args[2:], "--help"))
+		if isMatched {
+			return err, true
+		}
+		return apperror.NewSimple("unknown command", "E9000"), true
+	}
+	return nil, false
+}
+
 // runCluster handles the "cluster" subcommand and routes to sub-handlers.
 func runCluster(args []string) error {
-	checkHelp("cluster", args)
-	isEmptyArgs := len(args) == 0
-	if isEmptyArgs {
-		return apperror.NewSimple(usageMsg, "E9000")
+	if isClusterRootHelp(args) {
+		helptext.PrintWithMode("cluster", render.PrettyAuto)
+		return nil
+	}
+	if err, isHelp := dispatchInvertedClusterHelp(args); isHelp {
+		return err
 	}
 	err, isMatched := dispatchClusterSubcommand(args[0], args[1:])
 	if isMatched {
 		return err
 	}
-
 	return apperror.NewSimple("unknown command", "E9000")
 }
