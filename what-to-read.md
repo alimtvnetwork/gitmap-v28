@@ -3139,7 +3139,23 @@ To install or update the Coding Guidelines locally:
 **Unix:** curl -fsSL https://raw.githubusercontent.com/alimtvnetwork/coding-guidelines-v24/main/install.sh | bash
 Alternatively, use the built-in CLI: gitmap cg install or gitmap cg help.
 
+### Lazy Regex & Test Diagnostics (`lazyregex.MatchResult`)
+
+When matching patterns or authoring unit tests:
+- **Total Ban on Raw `regexp.MustCompile`**: Use `lazyregex.New(pattern)` for thread-safe lazy compilation and deduplication.
+- **Total Ban on Blind Test Assertions**: Never write `if !re.MatchString(content) { t.Error("expected match") }`.
+- **Mandatory `MatchResult` Wrapped Envelopes**:
+  ```go
+  var rsLazyRegex = lazyRegex.MatchResult(comparing)
+  if rsLazyRegex.IsFailed() {
+      t.Error(rsLazyRegex.AppError())
+  }
+  ```
+- **Fluent MatchGroup Accessors**: `rs.Items()`, `rs.Map()`, `rs.First()`, `rs.Last()`, `rs.FirstOrDefault("default")`.
+- **Informative Diagnostics**: On failure, `rs.AppError()` reports the exact pattern, comparing text preview, and byte length.
+
 - .lovable/memory/release-architecture-map.md
+
 
 - [.lovable/plans/pending/01-file-manipulation-spec.md](.lovable/plans/pending/01-file-manipulation-spec.md) - Generic AI Instruction spec for lowercase and file sequencing commands.
 

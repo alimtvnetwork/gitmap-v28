@@ -28,3 +28,32 @@ type CompileResult struct {
 
 // RegexpResult wraps a compiled regular expression in a Result envelope.
 type RegexpResult = result.Result[*regexp.Regexp]
+
+// MatchGroup represents a single matched pattern with all captured submatches and named groups.
+type MatchGroup struct {
+	Pattern     string
+	Content     string
+	Submatches  []string
+	NamedGroups GroupMap
+}
+
+// ResultGroup is an alias for MatchGroup providing fluent semantic access.
+type ResultGroup = MatchGroup
+
+// MatchResult encapsulates the outcome of a regular expression match against content.
+type MatchResult struct {
+	pattern    string
+	comparing  string
+	matchGroup *MatchGroup
+	isMatched  bool
+	appErr     *apperror.AppError
+}
+
+// MatchAllResult encapsulates the outcome of matching all occurrences of a regular expression.
+type MatchAllResult struct {
+	pattern   string
+	comparing string
+	groups    []*MatchGroup
+	isMatched bool
+	appErr    *apperror.AppError
+}

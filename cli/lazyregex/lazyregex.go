@@ -184,6 +184,97 @@ func (it *LazyRegexp) MatchString(s string) bool {
 	return it.IsMatch(s)
 }
 
+// MatchResult matches string s and returns a MatchResult with submatches and named groups.
+func (it *LazyRegexp) MatchResult(s string) *MatchResult {
+	if it == nil {
+		return NewMatchFailure("", s, apperror.NewSimple("nil LazyRegexp cannot match", "E9000"))
+	}
+
+	re, err := it.compiledRegex()
+	if err != nil || re == nil {
+		return NewMatchFailure(it.expression, s, FormatMatchFailureError(it.expression, s, err))
+	}
+
+	submatches := re.FindStringSubmatch(s)
+	if len(submatches) == 0 {
+		return NewMatchFailure(it.expression, s, FormatMatchFailureError(it.expression, s, nil))
+	}
+
+	named := it.extractNamedGroups(re, submatches)
+
+	return NewMatchSuccess(it.expression, s, submatches, named)
+}
+
+// MatchAllResults matches all non-overlapping occurrences of the pattern in s.
+func (it *LazyRegexp) MatchAllResults(s string) *MatchAllResult {
+	if it == nil {
+		return NewMatchAllFailure("", s, apperror.NewSimple("nil LazyRegexp cannot match", "E9000"))
+	}
+
+	re, err := it.compiledRegex()
+	if err != nil || re == nil {
+		return NewMatchAllFailure(it.expression, s, FormatMatchFailureError(it.expression, s, err))
+	}
+
+	allMatches := re.FindAllStringSubmatch(s, -1)
+	if len(allMatches) == 0 {
+		return NewMatchAllFailure(it.expression, s, FormatMatchFailureError(it.expression, s, nil))
+	}
+
+	groups := it.buildAllMatchGroups(re, allMatches, s)
+
+	return NewMatchAllSuccess(it.expression, s, groups)
+}
+
+func (it *LazyRegexp) buildAllMatchGroups(re *regexp.Regexp, allMatches [][]string, s string) []*MatchGroup {
+	groups := make([]*MatchGroup, 0, len(allMatches))
+	for _, match := range allMatches {
+		named := it.extractNamedGroups(re, match)
+		groups = append(groups, &MatchGroup{
+			Pattern:     it.expression,
+			Content:     s,
+			Submatches:  match,
+			NamedGroups: named,
+		})
+	}
+
+	return groups
+}
+
+func (it *LazyRegexp) extractNamedGroups(re *regexp.Regexp, match []string) GroupMap {
+	res := NewGroupMap()
+	names := re.SubexpNames()
+	for i, name := range names {
+		if name == "" || i >= len(match) {
+			continue
+		}
+
+		res[name] = match[i]
+	}
+
+	return res
+}
+
+// MatchError returns nil if s matches the regular expression, or an informative AppError on mismatch.
+func (it *LazyRegexp) MatchError(s string) error {
+	res := it.MatchResult(s)
+	if res.IsSuccess() {
+		return nil
+	}
+
+	return res.AppError()
+}
+
+// MatchPattern compiles or retrieves the pattern and matches against comparing string.
+func MatchPattern(pattern, comparing string) *MatchResult {
+	return New(pattern).MatchResult(comparing)
+}
+
+// MatchError returns nil on match or a descriptive AppError on mismatch.
+func MatchError(pattern, comparing string) error {
+	return New(pattern).MatchError(comparing)
+}
+
 // Count returns the number of non-overlapping matches of the regular expression in s.
 func (it *LazyRegexp) Count(s string) int {
 	if it == nil {

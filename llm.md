@@ -231,3 +231,33 @@ gitmap pipeline-ai status --json
 gitmap find-files "record_dir.go" -ext "go"
 gitmap find-regex-read "func ProcessCd" -ext "go"
 ```
+
+---
+
+## 7. Lazy Regex Pattern Matching & Test Diagnostics
+
+When authoring or refactoring Go code and unit tests that match text patterns or parse outputs, autonomous AI agents MUST follow the `cli/lazyregex` pattern matching architecture:
+
+- **Total Ban on Raw `regexp.MustCompile`**: Use `lazyregex.New(pattern)` for thread-safe lazy compilation and deduplication.
+- **Total Ban on Blind Test Assertions**: Never write `if !re.MatchString(content) { t.Error("expected match") }`. Opaque checks conceal failure context from AI agents and reviewers.
+- **Mandatory `MatchResult` Wrapped Envelopes**:
+  ```go
+  var rsLazyRegex = lazyRegex.MatchResult(comparing)
+  if rsLazyRegex.IsFailed() {
+      t.Error(rsLazyRegex.AppError())
+  }
+  ```
+- **Fluent MatchGroup Accessors**:
+  - `rs.Items()`: Returns `[]string` of all captured submatches (`[0]` = full match, `[1..N]` = groups).
+  - `rs.Map()`: Returns `GroupMap` containing named capture groups (`(?P<name>...)`).
+  - `rs.First()`: Returns full match or empty string.
+  - `rs.Last()`: Returns last captured submatch.
+  - `rs.FirstOrDefault("default")`: Returns first match or fallback default if empty.
+- **Diagnostic Output**: On failure, `rs.AppError()` reports:
+  ```text
+  [E1000:VALIDATION] validation: regex pattern does not match content
+    Pattern:   "^(?P<action>add|join|nodes)$"
+    Comparing: "gitmap cluster unknown-command"
+    Length:    29 bytes (at=lazyregex/match_error.go:32)
+  ```
+

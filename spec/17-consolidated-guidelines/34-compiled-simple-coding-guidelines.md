@@ -57,6 +57,7 @@ auto-reject on the same tier as RULE 0.
 23. **No Magic Strings**: Every state or status comparison must check against a named enum symbol. Never compare against raw strings like `status === 'ACTIVE'`.
 24. **Pattern Matching**: Switch or match statements on enums MUST be exhaustive (or include a default/fallback branch that throws or handles the error safely).
 25. **AI Trigger: Update Prompts**: If the user instructs to "update prompts from prompt architect" (or similar wording), you MUST immediately execute `pwsh scripts/update-prompts-from-architect.ps1` (or `.sh` on Unix) to pull the latest AI prompt files from the prompt-architect showcase into `01-prompts/`. After updating, you must run `npm run sync` and push the changes.
+26. **Lazy Regex & Test Diagnostics (`lazyregex.MatchResult`)**: Never use raw `regexp.MustCompile` outside `lazyregex`. In tests and pattern validation, blind boolean regex assertions (`if !re.MatchString(s)`) are strictly banned. Always use `rs := lazyRegex.MatchResult(s)` and assert with `if rs.IsFailed() { t.Error(rs.AppError()) }`. Extract capture groups via `rs.Items()`, `rs.Map()`, `rs.First()`, `rs.Last()`, and `rs.FirstOrDefault()`. On mismatch, `rs.AppError()` logs the exact pattern, compared text, and byte length.
 
 ---
 

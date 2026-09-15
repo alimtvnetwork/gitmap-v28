@@ -89,7 +89,38 @@ When regular expressions are conditionally or dynamically needed, use the **lazy
 4. **Zero Duplicate Compilation:**
    Once compiled, the underlying `*regexp.Regexp` is cached globally and shared across all consumers requesting the same pattern string.
 
+### Rule 6: MatchResult & Informative Test Diagnostics (`lazyregex.MatchResult`)
+
+In unit and integration tests, blind boolean regex checks (`if !re.MatchString(s) { t.Error(...) }`) are strictly banned because they conceal the failing pattern and compared text from developers and AI agents.
+
+Always execute matching using `lazyregex.MatchResult(content)`:
+
+```go
+// ✅ REQUIRED: Wrapped Result with affirmative evaluation and rich diagnostics
+var rsLazyRegex = lazyRegex.MatchResult(comparing)
+if rsLazyRegex.IsFailed() {
+    t.Error(rsLazyRegex.AppError())
+}
+
+// Fluent group and item extraction
+submatches := rsLazyRegex.Items()            // []string of all capture groups
+namedMap   := rsLazyRegex.Map()              // GroupMap (?P<name>...)
+fullMatch  := rsLazyRegex.First()            // full match string
+lastMatch  := rsLazyRegex.Last()             // last captured group
+firstOrDef := rsLazyRegex.FirstOrDefault("default")
+```
+
+On mismatch, `rsLazyRegex.AppError()` formats an extensive visual error:
+
+```text
+[E1000:VALIDATION] validation: regex pattern does not match content
+  Pattern:   "^(?P<action>add|join|nodes)$"
+  Comparing: "gitmap cluster unknown-command"
+  Length:    29 bytes (at=lazyregex/match_error.go:32)
+```
+
 ---
+
 
 ## 5. Cross-Language Applicability
 

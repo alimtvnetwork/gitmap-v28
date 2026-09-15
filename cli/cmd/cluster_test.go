@@ -4,6 +4,7 @@ import (
 	"testing"
 
 	"github.com/alimtvnetwork/gitmap-v28/cli/cliexit"
+	"github.com/alimtvnetwork/gitmap-v28/cli/lazyregex"
 )
 
 func TestIsClusterHelpToken(t *testing.T) {
@@ -97,5 +98,39 @@ func TestDispatchInvertedClusterHelp_Branches(t *testing.T) {
 	resUnknown := dispatchInvertedClusterHelp([]string{"help", "nonexistent"})
 	if !resUnknown.IsMatched() || resUnknown.AppError() == nil {
 		t.Error("expected unknown command under help to be matched with AppError")
+	}
+}
+
+func TestClusterSubcommands_LazyRegexMatching(t *testing.T) {
+	reSubcommand := lazyregex.New(`^(?P<action>add|join|ping|nodes|ls|remove|rm)$`)
+	commands := []string{"add", "join", "ping", "nodes", "ls", "remove", "rm"}
+
+	for _, cmd := range commands {
+		rs := reSubcommand.MatchResult(cmd)
+		if rs.IsFailed() {
+			t.Errorf("cluster command regex match failed: %v", rs.AppError())
+		}
+
+		if rs.Map().Get("action") != cmd {
+			t.Errorf("expected action %q, got: %q", cmd, rs.Map().Get("action"))
+		}
+	}
+}
+
+func TestClusterSubcommand_LazyRegexUnknownMismatch(t *testing.T) {
+	reSubcommand := lazyregex.New(`^(?P<action>add|join|ping|nodes|ls|remove|rm)$`)
+	unknownCmd := "unknown-cmd-xyz"
+	rs := reSubcommand.MatchResult(unknownCmd)
+
+	if rs.IsSuccess() {
+		t.Errorf("expected unknown command %q to fail regex match", unknownCmd)
+	}
+
+	if !rs.IsFailed() {
+		t.Error("expected IsFailed to be true for mismatch")
+	}
+
+	if rs.AppError() == nil {
+		t.Error("expected structured AppError on mismatch")
 	}
 }

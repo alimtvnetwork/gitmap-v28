@@ -94,7 +94,30 @@ Boolean logic must be simple, readable, and unambiguous. Complex boolean chains 
    - **In Test Assertions:** Break every condition into a discrete assertion (`if !state.IsDefined`, `if !state.IsEmpty`, `if state.IsRepo`) with its own distinct error message.
    - **In Application Logic:** Extract into an affirmative composite variable (`isCloneTargetFresh := !params.State.IsDefined || params.State.IsEmpty`) or use separate early return guard clauses.
 
+8. **Mandatory Standard: Wrapped Regex Match Result in Tests (`lazyregex.MatchResult`):**
+   - **The Anti-Pattern:** Writing blind boolean regex checks:
+     ```go
+     // ❌ ANTI-PATTERN: Opaque regex boolean check hiding pattern and content
+     if !re.MatchString(content) {
+         t.Error("expected match")
+     }
+     ```
+     When this test fails, neither the developer nor AI knows what failed, which pattern failed, or what content was compared.
+   - **The Mandatory Standard:** Always use `lazyregex.MatchResult(content)` returning a rich `*MatchResult` wrapper (`ResultGroup`):
+     ```go
+     // ✅ REQUIRED: Wrapped Result with affirmative evaluation and rich diagnostics
+     var rsLazyRegex = lazyRegex.MatchResult(comparing)
+     if rsLazyRegex.IsFailed() {
+         t.Error(rsLazyRegex.AppError())
+     }
+     ```
+   - **Affirmative Predicates & Groups:**
+     - Predicates: `rsLazyRegex.IsMatch()`, `rsLazyRegex.IsSuccess()`, `rsLazyRegex.IsFailed()`
+     - Diagnostic errors: `rsLazyRegex.AppError()` / `rsLazyRegex.Cause()` / `rsLazyRegex.AsError()`
+     - Group access: `rsLazyRegex.Items()`, `rsLazyRegex.Map()`, `rsLazyRegex.First()`, `rsLazyRegex.Last()`, `rsLazyRegex.FirstOrDefault("default")`
+
 ### Generic Code Patterns with Compliant Newline Gaps
+
 
 #### Pattern A: Setter Method Parameter & Field Assignment (`v bool` -> `isStopOnFail bool`)
 

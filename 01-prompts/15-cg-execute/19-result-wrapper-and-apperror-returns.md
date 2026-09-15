@@ -127,9 +127,33 @@ Under Prompt Architect coding guidelines, all multi-value returns are refactored
 - Key-Value Maps: `appfault.ResultMap[K, V]`
 - Lists & Slices: `appfault.ResultSlice[T]`
 - Scalar Values: `appfault.Result[T]`
+- Regex Pattern Matching: `lazyregex.MatchResult` (holding `*MatchGroup` / `ResultGroup`)
 - Pure Side-Effects: `*appfault.AppError` (zero bare `void` / empty returns)
 
+### Modern Pattern Matching Result Wrapper (`lazyregex.MatchResult` & `MatchGroup`)
+
+For regular expression evaluation and pattern validation, return a strongly-typed `*MatchResult` envelope wrapping `*MatchGroup` (`ResultGroup`) and diagnostic `*apperror.AppError`:
+
+```go
+// ✅ MODERN PATTERN: MatchResult wrapping ResultGroup with rich diagnostics
+var rsLazyRegex = lazyRegex.MatchResult(comparing)
+
+// Affirmative evaluation & rich error reporting in tests and callers
+if rsLazyRegex.IsFailed() {
+    t.Error(rsLazyRegex.AppError())
+}
+
+// Fluent group and item extraction
+matchGroups := rsLazyRegex.Group()       // *MatchGroup (or ResultGroup)
+allItems    := rsLazyRegex.Items()       // []string (all submatches)
+namedMap    := rsLazyRegex.Map()         // GroupMap of (?P<name>...)
+firstMatch  := rsLazyRegex.First()       // submatch[0] (full match)
+lastMatch   := rsLazyRegex.Last()        // submatch[len-1]
+firstOrDef  := rsLazyRegex.FirstOrDefault("default")
+```
+
 ### Modern Refactored Store Implementation
+
 
 ```go
 // ✅ MODERN PATTERN: Single ResultMap return envelope with structured AppError
