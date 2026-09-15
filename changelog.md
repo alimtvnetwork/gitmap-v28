@@ -1,3 +1,18 @@
+## [v6.241.0] 2026-09-15 Release v6.241.0
+
+### Install GitMap v6.241.0
+
+To pin your repository to this exact version, run the following one-liner:
+Unix/Bash: `curl -sL https://raw.githubusercontent.com/alimtvnetwork/gitmap-v28/v6.241.0/install.sh | bash -s -- ".lovable/prompts" "v6.241.0"`
+PowerShell: `Invoke-WebRequest -Uri https://raw.githubusercontent.com/alimtvnetwork/gitmap-v28/v6.241.0/install.ps1 -OutFile install.ps1; .\install.ps1 -TargetDir ".lovable/prompts" -Version "v6.241.0"`
+
+### Added / Changed / Fixed / Removed
+
+- Add non-Linux launcher stub for cross-platform compilation
+- Remove unused functions and fix SA4023 interface nilness
+- Fix SQLite DB mock reconnection in cmdssh tests
+- Correct unit test assertions across install, pull, and ssh suites
+
 ## [v6.240.0] 2026-09-14 Release v6.240.0
 
 ### Install GitMap v6.240.0
