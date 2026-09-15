@@ -426,7 +426,7 @@ func RunClusterK8sCLI(args []string) error {
 	ctx := context.Background()
 	res := routeClusterK8sCommand(ctx, args[0], args[1:])
 	if res.IsMatched() {
-		return res.AppError()
+		return res.AsError()
 	}
 
 	return apperror.NewValidationError(fmt.Sprintf("unknown cluster k8s subcommand: %s", args[0]))

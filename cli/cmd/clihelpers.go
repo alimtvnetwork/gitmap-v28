@@ -737,9 +737,7 @@ func init() {
 	cmdchrome.InstallToolFn = func(tool string, isDryRun bool) {
 		installTool(installOptions{Tool: tool, DryRun: isDryRun})
 	}
-	cmdchrome.RunFindDuplicatesFn = func(category string, args []string) error {
-		return runFindDuplicates(category, args)
-	}
+	cmdchrome.RunFindDuplicatesFn = runFindDuplicates
 	cmdchrome.CheckHelpFn = checkHelp
 	cmdinstall.CheckHelpFn = checkHelp
 

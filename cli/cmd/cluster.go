@@ -176,12 +176,12 @@ func runCluster(args []string) error {
 
 	resHelp := dispatchInvertedClusterHelp(args)
 	if resHelp.IsMatched() {
-		return resHelp.AppError()
+		return resHelp.AsError()
 	}
 
 	resSub := dispatchClusterSubcommand(args[0], args[1:])
 	if resSub.IsMatched() {
-		return resSub.AppError()
+		return resSub.AsError()
 	}
 
 	return apperror.NewSimple("unknown command", "E9000")

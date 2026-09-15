@@ -45,6 +45,11 @@ func TestResolveGHDesktopTarget_CwdFallback(t *testing.T) {
 }
 
 func TestRegisterGHDesktop_MissingCLIReturnsValidationError(t *testing.T) {
+	tmp := t.TempDir()
+	t.Setenv("LOCALAPPDATA", tmp)
+	t.Setenv("HOME", tmp)
+	t.Setenv("PATH", tmp)
+
 	err := registerGHDesktop("nonexistent/path")
 	if err == nil {
 		t.Fatal("expected error on missing CLI")

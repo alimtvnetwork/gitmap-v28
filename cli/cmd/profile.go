@@ -35,22 +35,22 @@ func runProfile(args []string) error {
 func routeProfileSub(subCmd string, tailArgs []string) error {
 	resGit := routeGitProfileSub(subCmd, tailArgs)
 	if resGit.IsMatched() {
-		return resGit.AppError()
+		return resGit.AsError()
 	}
 
 	resDB := routeDBProfileSub(subCmd, tailArgs)
 	if resDB.IsMatched() {
-		return resDB.AppError()
+		return resDB.AsError()
 	}
 
 	resChrome := routeChromeProfileSub(subCmd, tailArgs)
 	if resChrome.IsMatched() {
-		return resChrome.AppError()
+		return resChrome.AsError()
 	}
 
 	resInstall := routeInstallProfileSub(subCmd, tailArgs)
 	if resInstall.IsMatched() {
-		return resInstall.AppError()
+		return resInstall.AsError()
 	}
 
 	fmt.Fprint(os.Stderr, constants.ErrProfileUsage)

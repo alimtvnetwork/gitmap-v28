@@ -475,3 +475,19 @@ Allowed work:
 - ✅ Include local relative fallbacks (`data/`, `cli/data/`, `../data/`) in installers before attempting remote network downloads.
 
 **Why:** Legacy path references cause silent remote 404s and CI installer dry-run / smoke failures during release validation.
+
+---
+
+## Typed Nil Error Interface Return & ErrorWrapper Error() Implementation — TOTAL BAN
+
+🔴 **NEVER implement Error() string on Result/Envelope structs, and NEVER return (*apperror.AppError)(nil) directly to a standard error return.**
+
+Forbidden:
+- ❌ Implementing `func (ew *ErrorWrapper) Error() string` on `ErrorWrapper` or envelope structs (triggers `errname` linter).
+- ❌ Returning `res.AppError()` directly from functions returning `error` interface without checking `res.IsFailure()` (creates non-nil `error` interface containing typed nil pointer).
+
+Allowed work:
+- ✅ Call `res.AsError()` or `res.ErrOrNil()` when returning standard `error` interface from terminal command dispatchers.
+- ✅ Inspect `res.AppError()` or `res.Err` only when concrete `*apperror.AppError` pointer is required.
+
+**Why:** In Go, `(error)((*apperror.AppError)(nil)) != nil` evaluates to `true`, causing false-positive errors on successful commands. Additionally, `errname` linter flags non-Error types implementing `Error() string`.

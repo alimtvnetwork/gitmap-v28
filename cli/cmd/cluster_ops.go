@@ -139,10 +139,11 @@ func parseClusterExportArgs(args []string) (string, string) {
 	format := constants.FormatJSON
 	output := ""
 	for i := 0; i < len(args); i++ {
-		if args[i] == constants.FlagClusterFormat && i+1 < len(args) {
+		switch {
+		case args[i] == constants.FlagClusterFormat && i+1 < len(args):
 			format = args[i+1]
 			i++
-		} else if args[i] == constants.FlagClusterOutput && i+1 < len(args) {
+		case args[i] == constants.FlagClusterOutput && i+1 < len(args):
 			output = args[i+1]
 			i++
 		}
@@ -284,10 +285,11 @@ func parseClusterConfirmArgs(args []string) (string, bool) {
 	id := ""
 	hasConfirm := false
 	for i := 0; i < len(args); i++ {
-		if args[i] == constants.FlagClusterID && i+1 < len(args) {
+		switch {
+		case args[i] == constants.FlagClusterID && i+1 < len(args):
 			id = args[i+1]
 			i++
-		} else if args[i] == constants.FlagClusterConfirm {
+		case args[i] == constants.FlagClusterConfirm:
 			hasConfirm = true
 		}
 	}
@@ -464,10 +466,11 @@ func parseClusterAuditCleanArgs(args []string) (string, bool) {
 	beforeStr := ""
 	hasConfirm := false
 	for i := 0; i < len(args); i++ {
-		if args[i] == constants.FlagClusterBefore && i+1 < len(args) {
+		switch {
+		case args[i] == constants.FlagClusterBefore && i+1 < len(args):
 			beforeStr = args[i+1]
 			i++
-		} else if args[i] == constants.FlagClusterConfirm {
+		case args[i] == constants.FlagClusterConfirm:
 			hasConfirm = true
 		}
 	}

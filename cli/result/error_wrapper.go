@@ -97,13 +97,18 @@ func (ew *ErrorWrapper) Fault() *apperror.AppError {
 	return ew.AppError()
 }
 
-// Error returns the error message string or empty string.
-func (ew *ErrorWrapper) Error() string {
+// AsError returns the underlying error as standard error interface, or nil if no error occurred.
+func (ew *ErrorWrapper) AsError() error {
 	if ew == nil || ew.Err == nil {
-		return ""
+		return nil
 	}
 
-	return ew.Err.Error()
+	return ew.Err
+}
+
+// ErrOrNil returns the underlying error as standard error interface, or nil if no error occurred.
+func (ew *ErrorWrapper) ErrOrNil() error {
+	return ew.AsError()
 }
 
 // SuccessWrapper constructs an ErrorWrapper representing a successful matched operation.

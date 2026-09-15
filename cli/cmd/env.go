@@ -43,7 +43,7 @@ func routeEnvVariableSub(sub string, args []string) result.ErrorWrapper {
 func routeEnvSub(sub string, args []string) error {
 	resVar := routeEnvVariableSub(sub, args)
 	if resVar.IsMatched() {
-		return resVar.AppError()
+		return resVar.AsError()
 	}
 
 	if sub == constants.CmdEnvPathAdd {

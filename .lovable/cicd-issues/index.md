@@ -31,3 +31,5 @@
 - [40-nested-ifs-and-boolean-flattening.md](./40-nested-ifs-and-boolean-flattening.md): Flatten nested if conditionals across power management, VMware automation, and split installation DB.
 - [41-unused-queryrecentfailedruns-and-gofmt.md](./41-unused-queryrecentfailedruns-and-gofmt.md): Fix unused QueryRecentFailedRuns linter error and gofmt drift across pipeline files.
 - [42-step-timeout-and-fixture-gofmt.md](./42-step-timeout-and-fixture-gofmt.md): Fix step timeout pipe hanging on Unix and eliminate gofmt dirty file report in fixrepo e2e test.
+- [43-installer-seed-urls-and-release-dryrun-path.md](./43-installer-seed-urls-and-release-dryrun-path.md): Fix installer seed data 404s and release dry-run script path drift.
+- [44-errorwrapper-typed-nil-and-errname-linter.md](./44-errorwrapper-typed-nil-and-errname-linter.md): Fix ErrorWrapper typed nil interface bug, errname linter, Darwin build type, and gocritic findings.

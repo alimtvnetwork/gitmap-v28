@@ -148,9 +148,7 @@ var SSHJoinCmd = &cobra.Command{
 	Aliases: []string{"sj", "ssh-joined", "ssh-joiner"},
 	Short:   "Join an SSH machine by user@ip or IP address",
 	Args:    cobra.ArbitraryArgs,
-	RunE: func(cmd *cobra.Command, args []string) error {
-		return routeSSHJoinCmd(cmd, args)
-	},
+	RunE:    routeSSHJoinCmd,
 }
 
 //nolint:revive

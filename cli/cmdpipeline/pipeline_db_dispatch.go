@@ -56,7 +56,7 @@ func handlePipelineDB(args []string) error {
 	sub := strings.ToLower(strings.TrimSpace(args[0]))
 	res := dispatchPipelineDBSubcmd(sub, args[1:])
 	if res.IsMatched() {
-		return res.AppError()
+		return res.AsError()
 	}
 
 	printPipelineDBHelp()

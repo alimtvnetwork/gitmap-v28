@@ -4,6 +4,7 @@ import (
 	"flag"
 	"fmt"
 	"os"
+	"strings"
 
 	"github.com/alimtvnetwork/gitmap-v28/cli/apperror"
 	"github.com/alimtvnetwork/gitmap-v28/cli/cluster"
@@ -23,17 +24,55 @@ func runJoin(args []string) *apperror.AppError {
 }
 
 func parseJoinArgs(args []string) (string, string, *apperror.AppError) {
+	flags, positional := splitJoinArgs(args)
 	fs := flag.NewFlagSet(constants.CmdJoin, flag.ContinueOnError)
 	token := fs.String(constants.FlagJoinToken, "", constants.FlagDescJoinToken)
-	if err := fs.Parse(args); err != nil {
+	if err := fs.Parse(flags); err != nil {
 		return "", "", apperror.NewValidationError(err.Error())
 	}
 
-	if appErr := validateJoinInputs(fs.Args(), *token); appErr != nil {
+	allPositional := append(positional, fs.Args()...)
+	if appErr := validateJoinInputs(allPositional, *token); appErr != nil {
 		return "", "", appErr
 	}
 
-	return fs.Args()[0], *token, nil
+	return allPositional[0], *token, nil
+}
+
+func splitJoinArgs(args []string) ([]string, []string) {
+	var flags, positional []string
+	skipNext := false
+
+	for i, arg := range args {
+		if skipNext {
+			skipNext = false
+			continue
+		}
+
+		if isJoinFlagToken(arg) {
+			flags = append(flags, arg)
+			skipNext = appendJoinFlagValue(args, i, &flags)
+			continue
+		}
+
+		positional = append(positional, arg)
+	}
+
+	return flags, positional
+}
+
+func isJoinFlagToken(arg string) bool {
+	return strings.HasPrefix(arg, "-")
+}
+
+func appendJoinFlagValue(args []string, i int, flags *[]string) bool {
+	if (args[i] == "--token" || args[i] == "-token") && i+1 < len(args) {
+		*flags = append(*flags, args[i+1])
+
+		return true
+	}
+
+	return false
 }
 
 func validateJoinInputs(positional []string, token string) *apperror.AppError {

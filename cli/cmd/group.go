@@ -64,7 +64,7 @@ func dispatchGroupCRUD(sub string, args []string) result.ErrorWrapper {
 func dispatchGroup(sub string, args []string) error {
 	resCRUD := dispatchGroupCRUD(sub, args)
 	if resCRUD.IsMatched() {
-		return resCRUD.AppError()
+		return resCRUD.AsError()
 	}
 
 	if sub == constants.CmdGroupShow {
@@ -77,7 +77,7 @@ func dispatchGroup(sub string, args []string) error {
 
 	resScoped := dispatchGroupScoped(sub, args)
 	if resScoped.IsMatched() {
-		return resScoped.AppError()
+		return resScoped.AsError()
 	}
 
 	return activateGroup(sub)

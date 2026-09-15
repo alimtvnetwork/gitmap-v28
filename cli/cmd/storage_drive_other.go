@@ -43,7 +43,7 @@ func safeBlockSize(bsize int64) uint64 {
 }
 
 func calculateUnixMetrics(target string, stat unix.Statfs_t) *DiskSpaceInfo {
-	bsize := safeBlockSize(stat.Bsize)
+	bsize := safeBlockSize(int64(stat.Bsize))
 	total := stat.Blocks * bsize
 	free := stat.Bavail * bsize
 	used := total - free

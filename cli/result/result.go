@@ -166,6 +166,20 @@ func (r *Result[T]) Fault() *apperror.AppError {
 	return r.Err
 }
 
+// AsError returns the underlying error as standard error interface, or nil if no error occurred.
+func (r *Result[T]) AsError() error {
+	if r == nil || r.Err == nil {
+		return nil
+	}
+
+	return r.Err
+}
+
+// ErrOrNil returns the underlying error as standard error interface, or nil if no error occurred.
+func (r *Result[T]) ErrOrNil() error {
+	return r.AsError()
+}
+
 // Unwrap returns the value and AppError tuple.
 func (r *Result[T]) Unwrap() (T, *apperror.AppError) {
 	if r == nil {

@@ -336,7 +336,7 @@ func RunClusterNodeCLI(args []string) error {
 	ctx := context.Background()
 	res := routeClusterNodeCommand(ctx, args[0], args[1:])
 	if res.IsMatched() {
-		return res.AppError()
+		return res.AsError()
 	}
 
 	return apperror.NewValidationError(fmt.Sprintf("unknown cluster node subcommand: %s", args[0]))

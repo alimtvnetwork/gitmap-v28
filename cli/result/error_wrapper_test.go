@@ -42,8 +42,12 @@ func TestErrorWrapper_Success(t *testing.T) {
 		t.Fatal("expected nil AppError")
 	}
 
-	if ew.Error() != "" {
-		t.Fatal("expected empty Error string")
+	if ew.AsError() != nil {
+		t.Fatal("expected nil AsError")
+	}
+
+	if ew.ErrOrNil() != nil {
+		t.Fatal("expected nil ErrOrNil")
 	}
 }
 
@@ -71,8 +75,12 @@ func TestErrorWrapper_Failure(t *testing.T) {
 		t.Fatal("expected AppError to match")
 	}
 
-	if ew.Error() == "" {
-		t.Fatal("expected non-empty Error string")
+	if ew.AsError() == nil {
+		t.Fatal("expected non-nil AsError")
+	}
+
+	if ew.ErrOrNil() == nil {
+		t.Fatal("expected non-nil ErrOrNil")
 	}
 }
 
@@ -132,8 +140,12 @@ func TestErrorWrapper_NilReceiver(t *testing.T) {
 		t.Fatal("expected nil receiver AppError to be nil")
 	}
 
-	if ew.Error() != "" {
-		t.Fatal("expected nil receiver Error to be empty")
+	if ew.AsError() != nil {
+		t.Fatal("expected nil receiver AsError to be nil")
+	}
+
+	if ew.ErrOrNil() != nil {
+		t.Fatal("expected nil receiver ErrOrNil to be nil")
 	}
 }
 

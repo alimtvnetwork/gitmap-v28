@@ -127,7 +127,7 @@ func dispatchSSH(ctx context.Context, args []string, parent *cobra.Command) erro
 	sub := args[0]
 	resPrimary := dispatchPrimarySSH(ctx, sub, args[1:], parent)
 	if resPrimary.IsMatched() {
-		return resPrimary.AppError()
+		return resPrimary.AsError()
 	}
 
 	if isFallback := dispatchFallbackSSH(sub, args[1:]); isFallback {
