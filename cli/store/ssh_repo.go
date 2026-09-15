@@ -309,8 +309,17 @@ func runEnrollTransaction(ctx context.Context, tx *sql.Tx, host SSHHost, history
 	return commitEnrollTx(tx, host.ID)
 }
 
+func safeContext(ctx context.Context) context.Context {
+	if ctx == nil {
+		return context.Background()
+	}
+
+	return ctx
+}
+
 // EnrollSSHHost wraps host upsert and history logging into an atomic transaction.
 func EnrollSSHHost(ctx context.Context, host SSHHost, history SSHHistory, db *sql.DB) error {
+	ctx = safeContext(ctx)
 	_ = EnsureSSHTables(db)
 
 	tx, err := db.BeginTx(ctx, nil)
@@ -339,6 +348,7 @@ const sqlSelectHostFields = `SELECT id, alias, ip, username, COALESCE(port, 22),
 
 // GetHostByAlias retrieves an SSHHost by its alias.
 func GetHostByAlias(ctx context.Context, alias string, db *sql.DB) (SSHHost, error) {
+	ctx = safeContext(ctx)
 	_ = EnsureSSHTables(db)
 	query := sqlSelectHostFields + ` WHERE alias = ?`
 
@@ -355,6 +365,7 @@ func GetHostByAlias(ctx context.Context, alias string, db *sql.DB) (SSHHost, err
 
 // GetHostByIP retrieves an SSHHost by its IP.
 func GetHostByIP(ctx context.Context, ip string, db *sql.DB) (SSHHost, error) {
+	ctx = safeContext(ctx)
 	_ = EnsureSSHTables(db)
 	query := sqlSelectHostFields + ` WHERE ip = ?`
 
@@ -371,6 +382,7 @@ func GetHostByIP(ctx context.Context, ip string, db *sql.DB) (SSHHost, error) {
 
 // GetHostByID retrieves an SSHHost by its ID.
 func GetHostByID(ctx context.Context, id string, db *sql.DB) (SSHHost, error) {
+	ctx = safeContext(ctx)
 	_ = EnsureSSHTables(db)
 	query := sqlSelectHostFields + ` WHERE id = ?`
 
@@ -387,6 +399,7 @@ func GetHostByID(ctx context.Context, id string, db *sql.DB) (SSHHost, error) {
 
 // DeleteHostByIP deletes an SSHHost by its IP.
 func DeleteHostByIP(ctx context.Context, ip string, db *sql.DB) error {
+	ctx = safeContext(ctx)
 	_ = EnsureSSHTables(db)
 	query := `DELETE FROM ssh_hosts WHERE ip = ?`
 	_, err := db.ExecContext(ctx, query, ip)
@@ -424,6 +437,7 @@ func ensureHostsSlice(hosts []SSHHost) []SSHHost {
 
 // ListHosts retrieves all SSH hosts from the database.
 func ListHosts(ctx context.Context, db *sql.DB) ([]SSHHost, error) {
+	ctx = safeContext(ctx)
 	_ = EnsureSSHTables(db)
 	query := sqlSelectHostFields + ` ORDER BY created_at DESC`
 	rows, err := db.QueryContext(ctx, query)
@@ -440,6 +454,7 @@ func ListHosts(ctx context.Context, db *sql.DB) ([]SSHHost, error) {
 
 // ListHostsByRole retrieves SSH hosts matching the given cluster role.
 func ListHostsByRole(ctx context.Context, role string, db *sql.DB) ([]SSHHost, error) {
+	ctx = safeContext(ctx)
 	_ = EnsureSSHTables(db)
 	query := sqlSelectHostFields + ` WHERE cluster_role = ? ORDER BY created_at DESC`
 	rows, err := db.QueryContext(ctx, query, role)
@@ -531,6 +546,7 @@ func wrapHostNotFoundError(target string) *apperror.AppError {
 
 // ListHostsByTarget resolves SSH hosts by target specifier (role, alias, IP, or comma list).
 func ListHostsByTarget(ctx context.Context, target string, db *sql.DB) ([]SSHHost, error) {
+	ctx = safeContext(ctx)
 	if strings.Contains(target, ",") {
 		return resolveCommaTargets(ctx, target, db)
 	}
@@ -547,6 +563,7 @@ func ListHostsByTarget(ctx context.Context, target string, db *sql.DB) ([]SSHHos
 
 // LogSSHHistory logs an SSH connection into the database defensively.
 func LogSSHHistory(ctx context.Context, h SSHHistory, db *sql.DB) error {
+	ctx = safeContext(ctx)
 	_ = EnsureSSHTables(db)
 	return LogSSHJoin(ctx, h, db)
 }

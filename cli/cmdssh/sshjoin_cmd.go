@@ -122,10 +122,10 @@ func routeSSHJoinSpecialSubcommand(cmd *cobra.Command, args []string) (bool, err
 		return true, RunClusterImportCLI(args[1:])
 	}
 	if isSJAddWithPassSubcommand(args[0]) {
-		return true, executeEnrollWithPassCLI(cmd.Context(), args[1:])
+		return true, executeEnrollWithPassCLI(resolveContext(cmd.Context()), args[1:])
 	}
 	if isSJAddSubcommand(args[0]) {
-		return true, executeEnrollCLI(cmd.Context(), args[1:])
+		return true, executeEnrollCLI(resolveContext(cmd.Context()), args[1:])
 	}
 	return false, nil
 }
@@ -138,7 +138,7 @@ func routeSSHJoinCmd(cmd *cobra.Command, args []string) error {
 		return err
 	}
 	if !isSJSubcommand(args[0]) {
-		return executeEnrollCLI(cmd.Context(), args)
+		return executeEnrollCLI(resolveContext(cmd.Context()), args)
 	}
 	return RunSSHJoinCLI(args)
 }
@@ -331,7 +331,16 @@ func completeEnrollment(ctx context.Context, opts *SSHJoinOptions) error {
 	return nil
 }
 
+func resolveContext(ctx context.Context) context.Context {
+	if ctx == nil {
+		return context.Background()
+	}
+
+	return ctx
+}
+
 func openAndPersist(ctx context.Context, opts *SSHJoinOptions) error {
+	ctx = resolveContext(ctx)
 	dbConn, err := openSSHDBFunc()
 	if err != nil {
 		return apperror.New("enrollParsedTarget", "E_INTERNAL_ERROR", map[string]any{"cause": err.Error()})
@@ -343,6 +352,7 @@ func openAndPersist(ctx context.Context, opts *SSHJoinOptions) error {
 }
 
 func enrollParsedTarget(ctx context.Context, opts *SSHJoinOptions) error {
+	ctx = resolveContext(ctx)
 	if opts.Target == nil {
 		return apperror.NewValidationError(msgMissingJoinTarget)
 	}
@@ -374,6 +384,7 @@ func parseJoinArgs(args []string) (*SSHJoinOptions, error) {
 }
 
 func executeEnrollCLI(ctx context.Context, args []string) error {
+	ctx = resolveContext(ctx)
 	opts, err := parseJoinArgs(args)
 	if err != nil {
 		return err

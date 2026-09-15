@@ -23,18 +23,8 @@ func setupTestSSHDB(t *testing.T) *sql.DB {
 }
 
 func initTestSSHTables(t *testing.T, db *sql.DB) {
-	createHosts := `CREATE TABLE IF NOT EXISTS ssh_hosts (
-		id TEXT PRIMARY KEY, alias TEXT, ip TEXT, username TEXT, created_at DATETIME
-	);`
-	createHist := `CREATE TABLE IF NOT EXISTS ssh_history (
-		id TEXT PRIMARY KEY, host_ip TEXT, joined_at DATETIME, user TEXT
-	);`
-	if _, err := db.Exec(createHosts); err != nil {
-		t.Fatalf("failed to create ssh_hosts: %v", err)
-	}
-
-	if _, err := db.Exec(createHist); err != nil {
-		t.Fatalf("failed to create ssh_history: %v", err)
+	if err := store.EnsureSSHTables(db); err != nil {
+		t.Fatalf("failed to ensure ssh tables: %v", err)
 	}
 }
 

@@ -34,9 +34,18 @@ func resolveUnixPath(path string) string {
 	return path
 }
 
+func safeBlockSize(bsize int64) uint64 {
+	if bsize <= 0 {
+		return 0
+	}
+
+	return uint64(bsize) //nolint:gosec // G115: guarded by non-negative check
+}
+
 func calculateUnixMetrics(target string, stat unix.Statfs_t) *DiskSpaceInfo {
-	total := stat.Blocks * uint64(stat.Bsize)
-	free := stat.Bavail * uint64(stat.Bsize)
+	bsize := safeBlockSize(stat.Bsize)
+	total := stat.Blocks * bsize
+	free := stat.Bavail * bsize
 	used := total - free
 	var pct float64
 	if total > 0 {

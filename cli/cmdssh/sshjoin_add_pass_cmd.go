@@ -91,6 +91,9 @@ func completeAddPassEnrollment(alias, target string, isJSON bool) error {
 }
 
 func persistHostWithEncryptedPass(ctx context.Context, host store.SSHHost, hist store.SSHHistory) error {
+	if ctx == nil {
+		ctx = context.Background()
+	}
 	dbConn, err := openSSHDBFunc()
 	if err != nil {
 		return apperror.New("persistHostWithEncryptedPass", "E_INTERNAL_ERROR", map[string]any{"cause": err.Error()})
@@ -100,6 +103,9 @@ func persistHostWithEncryptedPass(ctx context.Context, host store.SSHHost, hist 
 }
 
 func executeEnrollWithPassCLI(ctx context.Context, args []string) error {
+	if ctx == nil {
+		ctx = context.Background()
+	}
 	params, err := parseAddPassParams(args)
 	if err != nil {
 		return err

@@ -10,6 +10,10 @@ var SJAddCmd = &cobra.Command{
 	Aliases: []string{"join", "new", "enroll"},
 	Short:   "Enroll an SSH machine by user@ip or IP address",
 	RunE: func(cmd *cobra.Command, args []string) error {
-		return executeEnrollCLI(cmd.Context(), args)
+		ctx := cmd.Context()
+		if ctx == nil {
+			ctx = context.Background()
+		}
+		return executeEnrollCLI(ctx, args)
 	},
 }
