@@ -104,7 +104,7 @@ func runMacroCmd(args []string) error {
 		return nil
 	}
 
-	return routeMacroSubcommand(args[0], args[1:]).AsError()
+	return result.AsError(routeMacroSubcommand(args[0], args[1:]))
 }
 
 func routeMacroSubcommand(sub string, rest []string) result.ErrorWrapper {

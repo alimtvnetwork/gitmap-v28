@@ -4,6 +4,8 @@ package apperror
 type ErrorType string
 
 const (
+	ErrorTypeNone         ErrorType = "NONE"
+	ErrorTypeNoError      ErrorType = "NO_ERROR"
 	ErrorTypeValidation   ErrorType = "VALIDATION"
 	ErrorTypePrecondition ErrorType = "PRECONDITION"
 	ErrorTypeNotFound     ErrorType = "NOT_FOUND"

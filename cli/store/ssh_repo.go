@@ -6,6 +6,7 @@ import (
 	"errors"
 	"fmt"
 	"strings"
+	"sync/atomic"
 	"time"
 
 	"github.com/alimtvnetwork/gitmap-v28/cli/apperror"
@@ -265,12 +266,15 @@ func DeleteHostByAliasOrIP(ctx context.Context, target string, db *sql.DB) (int6
 	return affected, nil
 }
 
+var fallbackHistCounter uint64
+
 func resolveHistoryID(id string, hostIP string) string {
 	if id != "" {
 		return id
 	}
 
-	return fmt.Sprintf("hist-%s", hostIP)
+	seq := atomic.AddUint64(&fallbackHistCounter, 1)
+	return fmt.Sprintf("hist-%s-%d-%d", hostIP, time.Now().UnixNano(), seq)
 }
 
 func recordSSHHistory(ctx context.Context, execer sqlContextExecer, history SSHHistory) error {

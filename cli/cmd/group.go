@@ -14,10 +14,10 @@ import (
 func runGroup(args []string) error {
 	checkHelp("group", args)
 	if len(args) == 0 {
-		return showActiveGroup().AsError()
+		return result.AsError(showActiveGroup())
 	}
 
-	return dispatchGroup(args[0], args[1:]).AsError()
+	return result.AsError(dispatchGroup(args[0], args[1:]))
 }
 
 func displayActiveGroup(value string) {

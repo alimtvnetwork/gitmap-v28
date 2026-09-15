@@ -35,10 +35,10 @@ func runVSCode(args []string) error {
 func dispatchVSCodeAction(args []string) error {
 	sub := strings.ToLower(args[0])
 	if isVSCodeProjectSubcommand(sub) {
-		return routeVSCodeProjectAction(sub, args).AsError()
+		return result.AsError(routeVSCodeProjectAction(sub, args))
 	}
 
-	return routeVSCodeMaintenanceAction(sub, args).AsError()
+	return result.AsError(routeVSCodeMaintenanceAction(sub, args))
 }
 
 func isVSCodeProjectSubcommand(sub string) bool {

@@ -10,7 +10,7 @@ func (r *ResultSlice[T]) IsSuccess() bool {
 		return false
 	}
 
-	return r.Err == nil
+	return r.Err == nil || r.Err.HasNoError()
 }
 
 // IsSafe reports whether the slice operation succeeded without error (alias).
@@ -19,7 +19,7 @@ func (r *ResultSlice[T]) IsSafe() bool {
 		return false
 	}
 
-	return r.Err == nil
+	return r.Err == nil || r.Err.HasNoError()
 }
 
 // IsFailed reports whether the slice operation encountered an error.
@@ -28,7 +28,7 @@ func (r *ResultSlice[T]) IsFailed() bool {
 		return true
 	}
 
-	return r.Err != nil
+	return r.Err != nil && r.Err.HasError()
 }
 
 // IsFailure reports whether the slice operation encountered an error.
@@ -37,7 +37,7 @@ func (r *ResultSlice[T]) IsFailure() bool {
 		return true
 	}
 
-	return r.Err != nil
+	return r.Err != nil && r.Err.HasError()
 }
 
 // HasError reports whether an active error is attached to the result.
@@ -46,7 +46,7 @@ func (r *ResultSlice[T]) HasError() bool {
 		return true
 	}
 
-	return r.Err != nil
+	return r.Err != nil && r.Err.HasError()
 }
 
 // IsEmptyError reports whether no active error exists.
@@ -55,7 +55,7 @@ func (r *ResultSlice[T]) IsEmptyError() bool {
 		return false
 	}
 
-	return r.Err == nil
+	return r.Err == nil || r.Err.HasNoError()
 }
 
 // HasNoError reports whether no active error exists.
@@ -64,12 +64,12 @@ func (r *ResultSlice[T]) HasNoError() bool {
 		return false
 	}
 
-	return r.Err == nil
+	return r.Err == nil || r.Err.HasNoError()
 }
 
 // IsEmpty reports whether the underlying slice has 0 items or is uninitialized.
 func (r *ResultSlice[T]) IsEmpty() bool {
-	if r == nil || r.Err != nil {
+	if r == nil || (r.Err != nil && r.Err.HasError()) {
 		return true
 	}
 
@@ -78,7 +78,7 @@ func (r *ResultSlice[T]) IsEmpty() bool {
 
 // Count returns the number of items in the slice, or 0 if uninitialized or failed.
 func (r *ResultSlice[T]) Count() int {
-	if r == nil || r.Err != nil {
+	if r == nil || (r.Err != nil && r.Err.HasError()) {
 		return 0
 	}
 
@@ -96,7 +96,7 @@ func (r *ResultSlice[T]) IsCountOtherThan(number int) bool {
 
 // HasRecord reports whether the operation succeeded AND contains more than 0 records.
 func (r *ResultSlice[T]) HasRecord() bool {
-	if r == nil || r.Err != nil {
+	if r == nil || (r.Err != nil && r.Err.HasError()) {
 		return false
 	}
 
@@ -110,7 +110,7 @@ func (r *ResultSlice[T]) HasRecords() bool {
 
 // IsDefined reports whether the operation succeeded AND has records.
 func (r *ResultSlice[T]) IsDefined() bool {
-	if r == nil || r.Err != nil {
+	if r == nil || (r.Err != nil && r.Err.HasError()) {
 		return false
 	}
 
@@ -128,7 +128,7 @@ func (r *ResultSlice[T]) Items() []T {
 
 // AppError returns the underlying AppError or nil.
 func (r *ResultSlice[T]) AppError() *apperror.AppError {
-	if r == nil {
+	if r == nil || r.Err == nil || r.Err.HasNoError() {
 		return nil
 	}
 
@@ -137,11 +137,56 @@ func (r *ResultSlice[T]) AppError() *apperror.AppError {
 
 // Fault returns the underlying AppError or nil.
 func (r *ResultSlice[T]) Fault() *apperror.AppError {
-	if r == nil {
+	if r == nil || r.Err == nil || r.Err.HasNoError() {
 		return nil
 	}
 
 	return r.Err
+}
+
+// AsError returns the underlying error as standard error interface, or nil if no error occurred.
+func (r *ResultSlice[T]) AsError() error {
+	if r == nil || r.Err == nil || r.Err.HasNoError() {
+		return nil
+	}
+
+	return r.Err
+}
+
+// ErrOrNil returns the underlying error as standard error interface, or nil if no error occurred.
+func (r *ResultSlice[T]) ErrOrNil() error {
+	if r == nil || r.Err == nil || r.Err.HasNoError() {
+		return nil
+	}
+
+	return r.Err
+}
+
+// ErrorType returns the error category type or empty if no error.
+func (r *ResultSlice[T]) ErrorType() apperror.ErrorType {
+	if r == nil || r.Err == nil || r.Err.HasNoError() {
+		return apperror.ErrorTypeNone
+	}
+
+	return r.Err.Type
+}
+
+// IsErrorCode reports whether the underlying AppError matches code.
+func (r *ResultSlice[T]) IsErrorCode(code string) bool {
+	if r == nil || r.Err == nil || r.Err.HasNoError() {
+		return false
+	}
+
+	return r.Err.IsErrorCode(code)
+}
+
+// IsErrorType reports whether the underlying AppError matches error type.
+func (r *ResultSlice[T]) IsErrorType(errType apperror.ErrorType) bool {
+	if r == nil || r.Err == nil || r.Err.HasNoError() {
+		return false
+	}
+
+	return r.Err.Type == errType
 }
 
 // Get safely retrieves an item by zero-based index.

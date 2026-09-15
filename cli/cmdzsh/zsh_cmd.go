@@ -14,10 +14,7 @@ func RunZsh(args []string) error {
 		return dispatchStatus([]string{})
 	}
 
-	subcmd := args[0]
-	subArgs := args[1:]
-
-	return routeZshSubcommand(subcmd, subArgs).AsError()
+	return result.AsError(routeZshSubcommand(args[0], args[1:]))
 }
 
 func routeZshSubcommand(subcmd string, args []string) result.ErrorWrapper {

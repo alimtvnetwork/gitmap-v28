@@ -411,12 +411,47 @@ download_asset() {
     # so users see WHAT was expected, WHERE we looked, and the
     # release page to inspect — not just "Download failed".
     if ! preflight_asset_exists "${asset_url}"; then
-        emit_missing_asset_error "${version}" "${os}" "${arch}" \
-            "${asset_name}" "${asset_url}"
         if [ "${strict}" = "1" ]; then
+            emit_missing_asset_error "${version}" "${os}" "${arch}" \
+                "${asset_name}" "${asset_url}"
             strict_fail "expected asset ${asset_name} not found at ${asset_url}"
         fi
-        exit 1
+
+        warn "Asset ${asset_name} not found for release ${version}. Probing recent releases with assets..."
+        local fallback_found=0
+        local releases_json=""
+        if command -v curl >/dev/null 2>&1; then
+            releases_json="$(curl -fsSL "https://api.github.com/repos/${REPO}/releases?per_page=10" 2>/dev/null || true)"
+        elif command -v wget >/dev/null 2>&1; then
+            releases_json="$(wget -qO- "https://api.github.com/repos/${REPO}/releases?per_page=10" 2>/dev/null || true)"
+        fi
+
+        if [ -n "${releases_json}" ]; then
+            local rel_tags
+            rel_tags="$(echo "${releases_json}" | grep '"tag_name"' | sed -E 's/.*"tag_name"[[:space:]]*:[[:space:]]*"([^"]+)".*/\1/' || true)"
+            for f_tag in ${rel_tags}; do
+                if [ "${f_tag}" = "${version}" ]; then continue; fi
+                local cand_name="${BINARY_NAME}-${f_tag}-${os}-${arch}.tar.gz"
+                local cand_url="https://github.com/${REPO}/releases/download/${f_tag}/${cand_name}"
+                if preflight_asset_exists "${cand_url}"; then
+                    step "Found working release asset: ${cand_name} (${f_tag})"
+                    version="${f_tag}"
+                    asset_name="${cand_name}"
+                    base_url="https://github.com/${REPO}/releases/download/${version}"
+                    asset_url="${cand_url}"
+                    checksum_url="${base_url}/checksums.txt"
+                    archive_path="${TMP_DIR}/${asset_name}"
+                    fallback_found=1
+                    break
+                fi
+            done
+        fi
+
+        if [ "${fallback_found}" = "0" ]; then
+            emit_missing_asset_error "${version}" "${os}" "${arch}" \
+                "${asset_name}" "${asset_url}"
+            exit 1
+        fi
     fi
 
     step "Downloading ${asset_name} (${version})..."

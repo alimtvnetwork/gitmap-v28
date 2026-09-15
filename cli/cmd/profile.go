@@ -25,10 +25,7 @@ func runProfile(args []string) error {
 		return nil
 	}
 
-	subCmd := args[0]
-	tailArgs := args[1:]
-
-	return routeProfileSub(subCmd, tailArgs).AsError()
+	return result.AsError(routeProfileSub(args[0], args[1:]))
 }
 
 // routeProfileSub routes to the appropriate profile subcommand.

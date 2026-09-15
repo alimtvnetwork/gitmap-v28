@@ -256,4 +256,3 @@ func TestFormatSectionMetadata_WithScriptAndFile_DisplaysThem(t *testing.T) {
 		t.Errorf("expected file in metadata, got: %s", out)
 	}
 }
-

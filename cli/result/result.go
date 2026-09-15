@@ -12,7 +12,7 @@ func (r *Result[T]) IsSuccess() bool {
 		return false
 	}
 
-	return r.Err == nil
+	return r.Err == nil || r.Err.HasNoError()
 }
 
 // IsSafe reports whether the result represents a successful operation (alias).
@@ -21,7 +21,7 @@ func (r *Result[T]) IsSafe() bool {
 		return false
 	}
 
-	return r.Err == nil
+	return r.Err == nil || r.Err.HasNoError()
 }
 
 // IsFailed reports whether the result represents a failed operation.
@@ -30,7 +30,7 @@ func (r *Result[T]) IsFailed() bool {
 		return true
 	}
 
-	return r.Err != nil
+	return r.Err != nil && r.Err.HasError()
 }
 
 // IsFailure reports whether the result represents a failed operation (alias).
@@ -39,7 +39,7 @@ func (r *Result[T]) IsFailure() bool {
 		return true
 	}
 
-	return r.Err != nil
+	return r.Err != nil && r.Err.HasError()
 }
 
 // IsInvalid reports whether the result is invalid or failed.
@@ -48,7 +48,7 @@ func (r *Result[T]) IsInvalid() bool {
 		return true
 	}
 
-	return r.Err != nil
+	return r.Err != nil && r.Err.HasError()
 }
 
 // HasError reports whether an error is present.
@@ -57,7 +57,7 @@ func (r *Result[T]) HasError() bool {
 		return true
 	}
 
-	return r.Err != nil
+	return r.Err != nil && r.Err.HasError()
 }
 
 // IsEmptyError reports whether no error is present.
@@ -66,7 +66,7 @@ func (r *Result[T]) IsEmptyError() bool {
 		return false
 	}
 
-	return r.Err == nil
+	return r.Err == nil || r.Err.HasNoError()
 }
 
 // HasNoError reports whether no error is present.
@@ -75,7 +75,7 @@ func (r *Result[T]) HasNoError() bool {
 		return false
 	}
 
-	return r.Err == nil
+	return r.Err == nil || r.Err.HasNoError()
 }
 
 // HasValidError reports whether an AppError exists and is properly structured.
@@ -84,12 +84,12 @@ func (r *Result[T]) HasValidError() bool {
 		return false
 	}
 
-	return r.Err.IsValid()
+	return r.Err.HasError() && r.Err.IsValid()
 }
 
 // IsEmpty reports whether the result represents an empty or zero value.
 func (r *Result[T]) IsEmpty() bool {
-	if r == nil || r.Err != nil {
+	if r == nil || (r.Err != nil && r.Err.HasError()) {
 		return true
 	}
 
@@ -100,7 +100,7 @@ func (r *Result[T]) IsEmpty() bool {
 
 // Count returns the number of records (1 if defined and no error, 0 otherwise).
 func (r *Result[T]) Count() int {
-	if r == nil || r.Err != nil {
+	if r == nil || (r.Err != nil && r.Err.HasError()) {
 		return 0
 	}
 
@@ -127,7 +127,7 @@ func (r *Result[T]) IsCountOtherThan(number int) bool {
 
 // HasRecord reports whether the operation succeeded AND contains a record.
 func (r *Result[T]) HasRecord() bool {
-	if r == nil || r.Err != nil {
+	if r == nil || (r.Err != nil && r.Err.HasError()) {
 		return false
 	}
 
@@ -141,7 +141,7 @@ func (r *Result[T]) HasRecords() bool {
 
 // IsDefined reports whether the operation succeeded AND has a defined payload.
 func (r *Result[T]) IsDefined() bool {
-	if r == nil || r.Err != nil {
+	if r == nil || (r.Err != nil && r.Err.HasError()) {
 		return false
 	}
 
@@ -150,7 +150,7 @@ func (r *Result[T]) IsDefined() bool {
 
 // AppError returns the underlying AppError or nil.
 func (r *Result[T]) AppError() *apperror.AppError {
-	if r == nil {
+	if r == nil || r.Err == nil || r.Err.HasNoError() {
 		return nil
 	}
 
@@ -159,7 +159,7 @@ func (r *Result[T]) AppError() *apperror.AppError {
 
 // Fault returns the underlying AppError or nil (alias).
 func (r *Result[T]) Fault() *apperror.AppError {
-	if r == nil {
+	if r == nil || r.Err == nil || r.Err.HasNoError() {
 		return nil
 	}
 
@@ -168,7 +168,7 @@ func (r *Result[T]) Fault() *apperror.AppError {
 
 // AsError returns the underlying error as standard error interface, or nil if no error occurred.
 func (r *Result[T]) AsError() error {
-	if r == nil || r.Err == nil {
+	if r == nil || r.Err == nil || r.Err.HasNoError() {
 		return nil
 	}
 
@@ -177,7 +177,38 @@ func (r *Result[T]) AsError() error {
 
 // ErrOrNil returns the underlying error as standard error interface, or nil if no error occurred.
 func (r *Result[T]) ErrOrNil() error {
-	return r.AsError()
+	if r == nil || r.Err == nil || r.Err.HasNoError() {
+		return nil
+	}
+
+	return r.Err
+}
+
+// ErrorType returns the error category type or empty if no error.
+func (r *Result[T]) ErrorType() apperror.ErrorType {
+	if r == nil || r.Err == nil || r.Err.HasNoError() {
+		return apperror.ErrorTypeNone
+	}
+
+	return r.Err.Type
+}
+
+// IsErrorCode reports whether the underlying AppError matches code.
+func (r *Result[T]) IsErrorCode(code string) bool {
+	if r == nil || r.Err == nil || r.Err.HasNoError() {
+		return false
+	}
+
+	return r.Err.IsErrorCode(code)
+}
+
+// IsErrorType reports whether the underlying AppError matches error type.
+func (r *Result[T]) IsErrorType(errType apperror.ErrorType) bool {
+	if r == nil || r.Err == nil || r.Err.HasNoError() {
+		return false
+	}
+
+	return r.Err.Type == errType
 }
 
 // Unwrap returns the value and AppError tuple.

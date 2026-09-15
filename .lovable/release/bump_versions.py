@@ -17,7 +17,7 @@ if hasattr(sys.stderr, "reconfigure"):
     sys.stderr.reconfigure(encoding="utf-8")
 
 ROOT_DIR = os.path.abspath(os.path.join(os.path.dirname(__file__), "..", ".."))
-GITMAP_DIR = os.path.join(ROOT_DIR, "gitmap")
+GITMAP_DIR = os.path.join(ROOT_DIR, "cli") if os.path.isdir(os.path.join(ROOT_DIR, "cli")) else os.path.join(ROOT_DIR, "gitmap")
 
 
 def run_cmd(cmd, cwd=ROOT_DIR):

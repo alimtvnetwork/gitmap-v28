@@ -13,10 +13,7 @@ func runEnv(args []string) error {
 		return apperror.NewSimple("constants.ErrEnvSubcommand "+"", "E9000")
 	}
 
-	sub := args[0]
-	rest := args[1:]
-
-	return routeEnvSub(sub, rest).AsError()
+	return result.AsError(routeEnvSub(args[0], args[1:]))
 }
 
 func routeEnvVariableSub(sub string, args []string) result.ErrorWrapper {

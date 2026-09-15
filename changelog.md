@@ -1,3 +1,20 @@
+## [v6.245.0] 2026-09-15 Release v6.245.0
+
+### Install GitMap v6.245.0
+
+To pin your repository to this exact version, run the following one-liner:
+Unix/Bash: `curl -sL https://raw.githubusercontent.com/alimtvnetwork/gitmap-v28/v6.245.0/install.sh | bash -s -- ".lovable/prompts" "v6.245.0"`
+PowerShell: `Invoke-WebRequest -Uri https://raw.githubusercontent.com/alimtvnetwork/gitmap-v28/v6.245.0/install.ps1 -OutFile install.ps1; .\install.ps1 -TargetDir ".lovable/prompts" -Version "v6.245.0"`
+
+### Added / Changed / Fixed / Removed
+
+- Added universal self-null first and error/noError type validation across all ErrorWrapper, Result, ResultSlice, ResultMap, and AppError methods.
+- Introduced package-level result.AsError(ew ErrorWrapper) error helper for clean one-line terminal returns (eliminating temporary variables).
+- Removed Error() method from generic container types to eliminate errname linter misclassifications while preserving AsError(), ErrOrNil(), and AppError().
+- Hardened install.ps1 and install.sh with automatic zero-asset probe fallback against GitHub 404 releases.
+- Fixed Windows low-resolution timer collision on ssh_history.id using atomic sequence counters.
+- Validated darwin/arm64 and linux/amd64 cross-compilation and 100% green quality gates.
+
 ## [v6.244.0] 2026-09-15 Release v6.244.0
 
 ### Install GitMap v6.244.0

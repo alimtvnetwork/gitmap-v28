@@ -64,6 +64,9 @@ param(
     [switch]$DryRun
 )
 
+$script:ExplicitVersion = $Version
+$script:IsExplicitVersion = $PSBoundParameters.ContainsKey('Version') -and (-not [string]::IsNullOrWhiteSpace($Version))
+
 $ErrorActionPreference = "Stop"
 $ProgressPreference = "SilentlyContinue"
 
@@ -440,8 +443,8 @@ function Resolve-Arch([string]$arch) {
 
 # --- Resolve version (latest or pinned) ---
 
-function Resolve-Version([string]$version) {
-    if ($version -ne "") { return $version }
+function Resolve-Version([string]$userVersion) {
+    if ($userVersion -ne "") { return $userVersion }
 
     $url = "https://api.github.com/repos/$Repo/releases/latest"
     Write-Step "Fetching latest release..."
@@ -450,6 +453,20 @@ function Resolve-Version([string]$version) {
     try {
         $response = Invoke-WebRequest -Uri $url -UseBasicParsing -ErrorAction Stop
         $release = $response.Content | ConvertFrom-Json
+        if ($release.assets -and @($release.assets).Count -gt 0) {
+            return $release.tag_name
+        }
+
+        Write-Warning "Latest release $($release.tag_name) has no assets; probing recent releases..."
+        $listUrl = "https://api.github.com/repos/$Repo/releases?per_page=10"
+        $listResp = Invoke-WebRequest -Uri $listUrl -UseBasicParsing -ErrorAction Stop
+        $releases = $listResp.Content | ConvertFrom-Json
+        foreach ($rel in $releases) {
+            if ($rel.assets -and @($rel.assets).Count -gt 0) {
+                Write-Step "  Resolved release $($rel.tag_name) with $(@($rel.assets).Count) assets"
+                return $rel.tag_name
+            }
+        }
         return $release.tag_name
     }
     catch {
@@ -495,7 +512,7 @@ function Resolve-Version([string]$version) {
 # requested release asset cannot be downloaded or verified.
 function Stop-Strict([string]$detail) {
     Write-Err ""
-    Write-Err "Error: requested release $Version not found in $Repo;"
+    Write-Err "Error: requested release $script:ExplicitVersion not found in $Repo;"
     Write-Err "       refusing to fall back per strict-tag contract."
     Write-Err "       See 02-spec/07-generic-release/09-generic-install-script-behavior.md `$3."
     if ($detail) { Write-Err "       Detail: $detail" }
@@ -587,19 +604,19 @@ function Write-MissingAssetError([string]$version, [string]$arch,
 
 # --- Download asset ---
 
-function Get-Asset([string]$version, [string]$arch) {
-    $assetName = "gitmap-${version}-windows-${arch}.zip"
+function Get-Asset([string]$assetVer, [string]$assetArch) {
+    $assetName = "gitmap-${assetVer}-windows-${assetArch}.zip"
     $baseUrl = if ($env:GITMAP_DOWNLOAD_URL) {
         $env:GITMAP_DOWNLOAD_URL.TrimEnd('/')
     } else {
-        "https://github.com/$Repo/releases/download/$version"
+        "https://github.com/$Repo/releases/download/$assetVer"
     }
     $assetUrl = "$baseUrl/$assetName"
     $checksumUrl = "$baseUrl/checksums.txt"
 
     # Strict mode: -Version was supplied explicitly. Any failure here
     # MUST exit 1 with the canonical message and MUST NOT fall back.
-    $strict = -not [string]::IsNullOrWhiteSpace($Version)
+    $strict = $script:IsExplicitVersion
     if ($strict) {
         Write-Step "  [strict] download: $assetUrl"
     }
@@ -615,24 +632,55 @@ function Get-Asset([string]$version, [string]$arch) {
     # so users see WHAT was expected, WHERE we looked, and the release
     # page to inspect — not just a generic "Download failed".
     if (-not (Test-AssetExists $assetUrl)) {
-        Write-MissingAssetError $version $arch $assetName $assetUrl
-        Remove-Item $tmpDir -Recurse -Force -ErrorAction SilentlyContinue
         if ($strict) {
+            Write-MissingAssetError $assetVer $assetArch $assetName $assetUrl
+            Remove-Item $tmpDir -Recurse -Force -ErrorAction SilentlyContinue
             Stop-Strict "expected asset $assetName not found at $assetUrl"
         }
-        throw [InstallerFailure]::new("Release asset not found", 1)
+
+        Write-Warning "Asset $assetName not found for release $assetVer. Probing previous releases with assets..."
+        $foundFallback = $false
+        try {
+            $listUrl = "https://api.github.com/repos/$Repo/releases?per_page=10"
+            $listResp = Invoke-WebRequest -Uri $listUrl -UseBasicParsing -ErrorAction Stop
+            $releases = $listResp.Content | ConvertFrom-Json
+            foreach ($rel in $releases) {
+                $fallbackTag = $rel.tag_name
+                if ($fallbackTag -eq $assetVer) { continue }
+                $candidateName = "gitmap-${fallbackTag}-windows-${assetArch}.zip"
+                $candidateUrl = "https://github.com/$Repo/releases/download/$fallbackTag/$candidateName"
+                if (Test-AssetExists $candidateUrl) {
+                    Write-Step "  Found working release asset: $candidateName ($fallbackTag)"
+                    $assetVer = $fallbackTag
+                    $assetName = $candidateName
+                    $assetUrl = $candidateUrl
+                    $checksumUrl = "https://github.com/$Repo/releases/download/$fallbackTag/checksums.txt"
+                    $zipPath = Join-Path $tmpDir $assetName
+                    $foundFallback = $true
+                    break
+                }
+            }
+        } catch {
+            Write-Warning "[Get-Asset.FallbackProbe] $_"
+        }
+
+        if (-not $foundFallback) {
+            Write-MissingAssetError $assetVer $assetArch $assetName $assetUrl
+            Remove-Item $tmpDir -Recurse -Force -ErrorAction SilentlyContinue
+            throw [InstallerFailure]::new("Release asset not found", 1)
+        }
     }
 
     # Dry-run short-circuit: the URL exists, the naming contract is
     # honored — print a machine-parseable report and exit before any
     # download. CI greps these lines to assert correctness.
     if ($DryRun) {
-        Write-DryRunReport $version $arch $assetName $assetUrl $checksumUrl
+        Write-DryRunReport $assetVer $assetArch $assetName $assetUrl $checksumUrl
         Remove-Item $tmpDir -Recurse -Force -ErrorAction SilentlyContinue
         exit 0
     }
 
-    Write-Step "Downloading $assetName ($version)..."
+    Write-Step "Downloading $assetName ($assetVer)..."
 
     try {
         Invoke-WebRequest -Uri $assetUrl -OutFile $zipPath -UseBasicParsing
@@ -654,7 +702,7 @@ function Get-Asset([string]$version, [string]$arch) {
     if (-not $expectedLine) {
         Remove-Item $tmpDir -Recurse -Force -ErrorAction SilentlyContinue
         if ($strict) {
-            Stop-Strict "asset $assetName not listed in checksums.txt for $version"
+            Stop-Strict "asset $assetName not listed in checksums.txt for $assetVer"
         }
         Write-Err "Asset not found in checksums.txt"
         throw [InstallerFailure]::new("Asset not found in checksums.txt", 1)
@@ -675,7 +723,7 @@ function Get-Asset([string]$version, [string]$arch) {
     }
 
     Write-OK "Checksum verified."
-    return @{ ZipPath = $zipPath; TmpDir = $tmpDir }
+    return @{ ZipPath = $zipPath; TmpDir = $tmpDir; Version = $assetVer }
 }
 
 # --- Extract and install ---
@@ -1397,6 +1445,9 @@ function Main {
         Write-Host ""
 
         $result = Get-Asset $resolvedVersion $resolvedArch
+        if ($result.Version -and $result.Version -ne $resolvedVersion) {
+            $resolvedVersion = $result.Version
+        }
 
         Repair-LegacyLayout $resolvedDir
 

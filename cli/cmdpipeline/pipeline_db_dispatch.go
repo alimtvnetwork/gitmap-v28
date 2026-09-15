@@ -66,7 +66,7 @@ func routePipelineDB(args []string) result.ErrorWrapper {
 
 // handlePipelineDB routes the gitmap pipeline db subcommands.
 func handlePipelineDB(args []string) error {
-	return routePipelineDB(args).AsError()
+	return result.AsError(routePipelineDB(args))
 }
 
 func printPipelineDBUsage() {

@@ -189,5 +189,5 @@ func routeCluster(args []string) result.ErrorWrapper {
 
 // runCluster handles the "cluster" subcommand and routes to sub-handlers.
 func runCluster(args []string) error {
-	return routeCluster(args).AsError()
+	return result.AsError(routeCluster(args))
 }

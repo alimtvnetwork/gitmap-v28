@@ -18,10 +18,7 @@ func runBookmark(args []string) error {
 		return apperror.NewSimple("fatal error", "E9000")
 	}
 
-	sub := args[0]
-	rest := args[1:]
-
-	return routeBookmarkSub(sub, rest).AsError()
+	return result.AsError(routeBookmarkSub(args[0], args[1:]))
 }
 
 // routeBookmarkSub routes to the appropriate bookmark subcommand.

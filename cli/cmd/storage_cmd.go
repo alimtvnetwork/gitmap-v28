@@ -19,7 +19,7 @@ func RunStorageCmd(args []string) error {
 		return runStorageDriveReport(args)
 	}
 
-	return routeStorageSubcommand(args).AsError()
+	return result.AsError(routeStorageSubcommand(args))
 }
 
 func routeStorageSubcommand(args []string) result.ErrorWrapper {

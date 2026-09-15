@@ -16,8 +16,7 @@ func runDb(args []string) error {
 	}
 
 	sub := strings.ToLower(strings.TrimSpace(args[0]))
-
-	return routeDbSubcommand(sub, args[1:]).AsError()
+	return result.AsError(routeDbSubcommand(sub, args[1:]))
 }
 
 // Backwards-compatible alias for runDb

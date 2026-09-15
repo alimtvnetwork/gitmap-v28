@@ -17,10 +17,7 @@ func RunStartupCmd(args []string) error {
 		return runStartupLs([]string{})
 	}
 
-	sub := strings.ToLower(args[0])
-	tail := args[1:]
-
-	return routeStartupSubcommand(sub, tail).AsError()
+	return result.AsError(routeStartupSubcommand(strings.ToLower(args[0]), args[1:]))
 }
 
 func routeStartupSubcommand(sub string, tail []string) result.ErrorWrapper {

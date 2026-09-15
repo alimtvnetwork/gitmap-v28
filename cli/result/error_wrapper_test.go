@@ -120,33 +120,43 @@ func TestErrorWrapper_Unmatched(t *testing.T) {
 
 func TestErrorWrapper_NilReceiver(t *testing.T) {
 	var ew *result.ErrorWrapper
-	if ew.IsSuccess() {
-		t.Fatal("expected nil receiver IsSuccess to be false")
+	if ew.IsSuccess() || ew.IsSafe() {
+		t.Fatal("expected nil receiver IsSuccess/IsSafe to be false")
 	}
 
-	if !ew.IsFailed() {
-		t.Fatal("expected nil receiver IsFailed to be true")
+	if !ew.IsFailed() || !ew.IsFailure() {
+		t.Fatal("expected nil receiver IsFailed/IsFailure to be true")
 	}
 
 	if !ew.IsInvalid() {
 		t.Fatal("expected nil receiver IsInvalid to be true")
 	}
 
-	if ew.IsMatched() {
-		t.Fatal("expected nil receiver IsMatched to be false")
+	if ew.IsMatched() || ew.IsHandled() {
+		t.Fatal("expected nil receiver IsMatched/IsHandled to be false")
 	}
 
-	if ew.AppError() != nil {
-		t.Fatal("expected nil receiver AppError to be nil")
+	if !ew.HasError() || ew.IsEmptyError() || ew.HasNoError() || ew.HasValidError() {
+		t.Fatal("expected nil receiver HasError=true, IsEmptyError=false, HasNoError=false, HasValidError=false")
 	}
 
-	if ew.AsError() != nil {
-		t.Fatal("expected nil receiver AsError to be nil")
+	if ew.AppError() != nil || ew.Fault() != nil {
+		t.Fatal("expected nil receiver AppError and Fault to be nil")
 	}
 
-	if ew.ErrOrNil() != nil {
-		t.Fatal("expected nil receiver ErrOrNil to be nil")
+	if ew.AsError() != nil || ew.ErrOrNil() != nil {
+		t.Fatal("expected nil receiver AsError and ErrOrNil to be nil")
 	}
+
+	if ew.ErrorType() != "" {
+		t.Fatal("expected nil receiver ErrorType to be empty")
+	}
+
+	if ew.IsErrorCode("E100") || ew.IsErrorType(apperror.ErrorTypeExecution) {
+		t.Fatal("expected nil receiver IsErrorCode/IsErrorType to be false")
+	}
+
+	ew.HandleError()
 }
 
 func TestErrorWrapper_AliasesAndPredicates(t *testing.T) {
@@ -174,5 +184,30 @@ func TestErrorWrapper_AliasesAndPredicates(t *testing.T) {
 	matchApp := result.MatchWrapperAppErr(appErr)
 	if !matchApp.IsFailed() || matchApp.AppError() != appErr {
 		t.Fatal("expected MatchWrapperAppErr to match appErr")
+	}
+}
+
+func TestErrorWrapper_AsErrorAndNoErrorType(t *testing.T) {
+	ok := result.OkWrapper()
+	if err := result.AsError(ok); err != nil {
+		t.Fatalf("expected result.AsError(ok) to be nil, got: %v", err)
+	}
+
+	appErr := apperror.NewSimple("failed op", "E500")
+	fail := result.FailWrapper(appErr)
+	if err := result.AsError(fail); err == nil {
+		t.Fatal("expected result.AsError(fail) to be non-nil")
+	}
+
+	// AppError with ErrorTypeNoError
+	noErrApp := &apperror.AppError{
+		Type: apperror.ErrorTypeNoError,
+	}
+	ewNoErr := result.FailureWrapper(noErrApp)
+	if ewNoErr.IsFailed() || ewNoErr.IsInvalid() || ewNoErr.HasError() {
+		t.Fatal("expected ErrorWrapper with ErrorTypeNoError to be success and have no error")
+	}
+	if err := result.AsError(ewNoErr); err != nil {
+		t.Fatalf("expected result.AsError(ewNoErr) to be nil, got: %v", err)
 	}
 }

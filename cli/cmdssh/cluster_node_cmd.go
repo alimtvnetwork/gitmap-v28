@@ -343,5 +343,5 @@ func RouteClusterNodeCLI(args []string) result.ErrorWrapper {
 
 // RunClusterNodeCLI dispatches cluster node provisioning recipes across target hosts.
 func RunClusterNodeCLI(args []string) error {
-	return RouteClusterNodeCLI(args).AsError()
+	return result.AsError(RouteClusterNodeCLI(args))
 }

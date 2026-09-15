@@ -391,14 +391,62 @@ func WrapWithDetails(err error, op, code, msg, creator string, errType ErrorType
 	}
 }
 
-// HasError reports whether an error exists.
+// HasError reports whether an active error exists.
 func (e *AppError) HasError() bool {
-	return e != nil
+	if e == nil {
+		return false
+	}
+
+	if e.Type == ErrorTypeNone || e.Type == ErrorTypeNoError {
+		return false
+	}
+
+	return e.Code != "" || e.Message != "" || e.Cause != nil || e.Type != ""
 }
 
-// IsSuccess reports whether no error exists (e == nil).
+// IsSuccess reports whether no error exists.
 func (e *AppError) IsSuccess() bool {
-	return e == nil
+	if e == nil {
+		return true
+	}
+
+	return !e.HasError()
+}
+
+// HasNoError reports whether no error exists.
+func (e *AppError) HasNoError() bool {
+	if e == nil {
+		return true
+	}
+
+	return !e.HasError()
+}
+
+// IsNoError reports whether no error exists (alias for HasNoError).
+func (e *AppError) IsNoError() bool {
+	if e == nil {
+		return true
+	}
+
+	return !e.HasError()
+}
+
+// IsEmptyError reports whether no error exists (alias for HasNoError).
+func (e *AppError) IsEmptyError() bool {
+	if e == nil {
+		return true
+	}
+
+	return !e.HasError()
+}
+
+// ErrorType returns the error category type or ErrorTypeNone if nil.
+func (e *AppError) ErrorType() ErrorType {
+	if e == nil {
+		return ErrorTypeNone
+	}
+
+	return e.Type
 }
 
 // HasValidError reports whether the AppError is non-nil and has a valid code.

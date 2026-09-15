@@ -434,5 +434,5 @@ func RouteClusterK8sCLI(args []string) result.ErrorWrapper {
 
 // RunClusterK8sCLI dispatches Kubernetes cluster lifecycle recipes across target hosts.
 func RunClusterK8sCLI(args []string) error {
-	return RouteClusterK8sCLI(args).AsError()
+	return result.AsError(RouteClusterK8sCLI(args))
 }

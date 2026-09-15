@@ -16,10 +16,7 @@ func runCD(args []string) error {
 		return handleBareCD()
 	}
 
-	sub := args[0]
-	rest := args[1:]
-
-	return routeCDSub(sub, rest).AsError()
+	return result.AsError(routeCDSub(args[0], args[1:]))
 }
 
 func handleBareCD() error {

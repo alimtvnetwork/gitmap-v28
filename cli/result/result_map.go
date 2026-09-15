@@ -13,7 +13,7 @@ func (r *ResultMap[K, V]) IsSuccess() bool {
 		return false
 	}
 
-	return r.Err == nil
+	return r.Err == nil || r.Err.HasNoError()
 }
 
 // IsSafe reports whether the map operation succeeded without error (alias).
@@ -22,7 +22,7 @@ func (r *ResultMap[K, V]) IsSafe() bool {
 		return false
 	}
 
-	return r.Err == nil
+	return r.Err == nil || r.Err.HasNoError()
 }
 
 // IsFailed reports whether the map operation encountered an error.
@@ -31,7 +31,7 @@ func (r *ResultMap[K, V]) IsFailed() bool {
 		return true
 	}
 
-	return r.Err != nil
+	return r.Err != nil && r.Err.HasError()
 }
 
 // IsFailure reports whether the map operation encountered an error.
@@ -40,7 +40,7 @@ func (r *ResultMap[K, V]) IsFailure() bool {
 		return true
 	}
 
-	return r.Err != nil
+	return r.Err != nil && r.Err.HasError()
 }
 
 // HasError reports whether an active error is attached to the result.
@@ -49,7 +49,7 @@ func (r *ResultMap[K, V]) HasError() bool {
 		return true
 	}
 
-	return r.Err != nil
+	return r.Err != nil && r.Err.HasError()
 }
 
 // IsEmptyError reports whether no active error exists.
@@ -58,7 +58,7 @@ func (r *ResultMap[K, V]) IsEmptyError() bool {
 		return false
 	}
 
-	return r.Err == nil
+	return r.Err == nil || r.Err.HasNoError()
 }
 
 // HasNoError reports whether no active error exists.
@@ -67,12 +67,12 @@ func (r *ResultMap[K, V]) HasNoError() bool {
 		return false
 	}
 
-	return r.Err == nil
+	return r.Err == nil || r.Err.HasNoError()
 }
 
 // IsEmpty reports whether the underlying map has 0 items or is uninitialized.
 func (r *ResultMap[K, V]) IsEmpty() bool {
-	if r == nil || r.Err != nil {
+	if r == nil || (r.Err != nil && r.Err.HasError()) {
 		return true
 	}
 
@@ -81,7 +81,7 @@ func (r *ResultMap[K, V]) IsEmpty() bool {
 
 // Count returns the number of entries in the map, or 0 if uninitialized or failed.
 func (r *ResultMap[K, V]) Count() int {
-	if r == nil || r.Err != nil || r.Data == nil {
+	if r == nil || (r.Err != nil && r.Err.HasError()) || r.Data == nil {
 		return 0
 	}
 
@@ -99,7 +99,7 @@ func (r *ResultMap[K, V]) IsCountOtherThan(number int) bool {
 
 // HasRecord reports whether the operation succeeded AND contains more than 0 entries.
 func (r *ResultMap[K, V]) HasRecord() bool {
-	if r == nil || r.Err != nil || r.Data == nil {
+	if r == nil || (r.Err != nil && r.Err.HasError()) || r.Data == nil {
 		return false
 	}
 
@@ -113,7 +113,7 @@ func (r *ResultMap[K, V]) HasRecords() bool {
 
 // IsDefined reports whether the operation succeeded AND has entries.
 func (r *ResultMap[K, V]) IsDefined() bool {
-	if r == nil || r.Err != nil || r.Data == nil {
+	if r == nil || (r.Err != nil && r.Err.HasError()) || r.Data == nil {
 		return false
 	}
 
@@ -122,7 +122,7 @@ func (r *ResultMap[K, V]) IsDefined() bool {
 
 // AppError returns the underlying AppError or nil.
 func (r *ResultMap[K, V]) AppError() *apperror.AppError {
-	if r == nil {
+	if r == nil || r.Err == nil || r.Err.HasNoError() {
 		return nil
 	}
 
@@ -131,11 +131,56 @@ func (r *ResultMap[K, V]) AppError() *apperror.AppError {
 
 // Fault returns the underlying AppError or nil.
 func (r *ResultMap[K, V]) Fault() *apperror.AppError {
-	if r == nil {
+	if r == nil || r.Err == nil || r.Err.HasNoError() {
 		return nil
 	}
 
 	return r.Err
+}
+
+// AsError returns the underlying error as standard error interface, or nil if no error occurred.
+func (r *ResultMap[K, V]) AsError() error {
+	if r == nil || r.Err == nil || r.Err.HasNoError() {
+		return nil
+	}
+
+	return r.Err
+}
+
+// ErrOrNil returns the underlying error as standard error interface, or nil if no error occurred.
+func (r *ResultMap[K, V]) ErrOrNil() error {
+	if r == nil || r.Err == nil || r.Err.HasNoError() {
+		return nil
+	}
+
+	return r.Err
+}
+
+// ErrorType returns the error category type or empty if no error.
+func (r *ResultMap[K, V]) ErrorType() apperror.ErrorType {
+	if r == nil || r.Err == nil || r.Err.HasNoError() {
+		return apperror.ErrorTypeNone
+	}
+
+	return r.Err.Type
+}
+
+// IsErrorCode reports whether the underlying AppError matches code.
+func (r *ResultMap[K, V]) IsErrorCode(code string) bool {
+	if r == nil || r.Err == nil || r.Err.HasNoError() {
+		return false
+	}
+
+	return r.Err.IsErrorCode(code)
+}
+
+// IsErrorType reports whether the underlying AppError matches error type.
+func (r *ResultMap[K, V]) IsErrorType(errType apperror.ErrorType) bool {
+	if r == nil || r.Err == nil || r.Err.HasNoError() {
+		return false
+	}
+
+	return r.Err.Type == errType
 }
 
 // Get safely retrieves a map entry by key without nil-map panics.

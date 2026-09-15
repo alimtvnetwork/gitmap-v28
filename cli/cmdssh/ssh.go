@@ -19,7 +19,7 @@ func runSSH(args []string) error {
 		fmt.Fprint(os.Stdout, constants.MsgSSHAvailableCommands)
 		return nil
 	}
-	return dispatchSSH(context.Background(), args, nil).AsError()
+	return result.AsError(dispatchSSH(context.Background(), args, nil))
 }
 
 func dispatchPrimarySSH(ctx context.Context, sub string, args []string, parent *cobra.Command) result.ErrorWrapper {

@@ -6,6 +6,7 @@ import (
 	"fmt"
 	"io"
 	"os"
+	"sync/atomic"
 	"text/tabwriter"
 	"time"
 
@@ -282,9 +283,12 @@ func buildHostRecord(opts *SSHJoinOptions, now time.Time) store.SSHHost {
 	}
 }
 
+var sshHistSeq uint64
+
 func buildHistRecord(opts *SSHJoinOptions, now time.Time) store.SSHHistory {
+	seq := atomic.AddUint64(&sshHistSeq, 1)
 	return store.SSHHistory{
-		ID:       fmt.Sprintf("hist-%d", now.UnixNano()),
+		ID:       fmt.Sprintf("hist-%s-%d-%d", opts.Target.IP, now.UnixNano(), seq),
 		HostIP:   opts.Target.IP,
 		JoinedAt: now,
 		User:     opts.Target.Username,

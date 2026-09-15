@@ -17,10 +17,7 @@ func runProfiles(args []string) error {
 		return runProfilesList(args)
 	}
 
-	sub := args[0]
-	rest := args[1:]
-
-	return routeProfilesSub(sub, rest).AsError()
+	return result.AsError(routeProfilesSub(args[0], args[1:]))
 }
 
 func routeProfilesSub(sub string, args []string) result.ErrorWrapper {
