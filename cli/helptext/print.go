@@ -110,6 +110,9 @@ var helpAliases = map[string]string{
 	"cluster-bs":          "cluster-bootstrap",
 	"cluster-kube":        "cluster-k8s",
 	"cluster-kubernetes":  "cluster-k8s",
+	"fix-pipeline":        "agy-fix-pipeline",
+	"agy-fix":             "agy-fix-pipeline",
+	"agy-fp":              "agy-fix-pipeline",
 }
 
 func resolveHelpAlias(cmd string) string {

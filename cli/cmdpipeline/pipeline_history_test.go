@@ -1,9 +1,12 @@
 package cmdpipeline
 
 import (
+	"os"
+	"path/filepath"
 	"strings"
 	"testing"
 
+	"github.com/alimtvnetwork/gitmap-v28/cli/constants"
 	"github.com/alimtvnetwork/gitmap-v28/cli/pipelinedb"
 )
 
@@ -245,5 +248,82 @@ func TestParsePipelineErrorFlags_LastFailedLogs(t *testing.T) {
 
 	if !flags.HasLastFailures || flags.LastFailures != 20 {
 		t.Fatalf("expected LastFailures=20 default, got %d", flags.LastFailures)
+	}
+}
+
+func TestVisibleLenAndPadRightVisible(t *testing.T) {
+	if visibleLen("PASS") != 4 {
+		t.Fatalf("expected visibleLen('PASS') == 4")
+	}
+	ansiPass := constants.ColorGreen + "PASS" + constants.ColorReset
+	if visibleLen(ansiPass) != 4 {
+		t.Fatalf("expected visibleLen(ansiPass) == 4, got %d", visibleLen(ansiPass))
+	}
+	padded := padRightVisible(ansiPass, 10)
+	if visibleLen(padded) != 10 {
+		t.Fatalf("expected visibleLen(padded) == 10, got %d", visibleLen(padded))
+	}
+}
+
+func TestFormatGroupWorkflowsSummary_FitsWithinLimit(t *testing.T) {
+	wfs := []CommitWorkflowItem{
+		{Name: "CI", Conclusion: "success"},
+		{Name: "Lint", Conclusion: "success"},
+	}
+	got := formatGroupWorkflowsSummary(wfs, 32)
+	want := "CI [PASS], Lint [PASS]"
+	if got != want {
+		t.Fatalf("expected %q, got %q", want, got)
+	}
+}
+
+func TestFormatGroupWorkflowsSummary_TruncatesSafely(t *testing.T) {
+	wfs := []CommitWorkflowItem{
+		{Name: "VeryLongWorkflowNameAlpha", Conclusion: "success"},
+		{Name: "VeryLongWorkflowNameBeta", Conclusion: "failure"},
+	}
+	got := formatGroupWorkflowsSummary(wfs, 32)
+	if strings.Contains(got, "[PASS") && !strings.Contains(got, "[PASS]") {
+		t.Fatalf("detected severed bracket in workflow summary: %q", got)
+	}
+	if !strings.Contains(got, "(+1)") {
+		t.Fatalf("expected remaining indicator (+1) in summary: %q", got)
+	}
+}
+
+func TestRecentCommitsSummaryTableAlignment(t *testing.T) {
+	g := CommitPipelineGroup{
+		HeadSha:         "a1b2c3d4e5",
+		HeadBranch:      "main",
+		Conclusion:      "success",
+		Status:          "completed",
+		FailedWorkflows: 0,
+		Workflows: []CommitWorkflowItem{
+			{Name: "CI", Conclusion: "success"},
+		},
+	}
+	var sb strings.Builder
+	printRecentCommitRow(&sb, g, 0)
+	plainRow := stripANSI(sb.String())
+	parts := strings.Fields(plainRow)
+	if len(parts) < 6 {
+		t.Fatalf("expected at least 6 columns, got %d in %q", len(parts), plainRow)
+	}
+	if parts[3] != "PASS" {
+		t.Fatalf("expected Status column to be PASS, got %s", parts[3])
+	}
+}
+
+func TestFormatDbPathWithSize_ExistingAndMissing(t *testing.T) {
+	tempFile := filepath.Join(t.TempDir(), "test_pipeline.db")
+	_ = os.WriteFile(tempFile, []byte("sqlite database test payload"), 0644)
+	withSize := FormatDbPathWithSize(tempFile)
+	if !strings.Contains(withSize, " B)") && !strings.Contains(withSize, " KB)") {
+		t.Fatalf("expected file size in formatted path, got %s", withSize)
+	}
+	missingPath := filepath.Join(t.TempDir(), "non_existent.db")
+	withoutSize := FormatDbPathWithSize(missingPath)
+	if strings.Contains(withoutSize, "(") {
+		t.Fatalf("expected no size for missing db file, got %s", withoutSize)
 	}
 }

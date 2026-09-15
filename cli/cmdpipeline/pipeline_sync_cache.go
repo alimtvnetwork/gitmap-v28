@@ -41,6 +41,43 @@ func FormatRelativeDbPath(fullPath string) string {
 	return slashRel
 }
 
+// FormatDbPathWithSize converts DB path to relative and appends file size if file exists.
+func FormatDbPathWithSize(dbPath string) string {
+	relPath := FormatRelativeDbPath(dbPath)
+	target := resolveDbStatTarget(dbPath)
+	if len(target) == 0 {
+		return relPath
+	}
+
+	fi, err := os.Stat(target)
+	if err != nil {
+		fi, err = statRelativeDbFallback(target)
+	}
+	if err != nil || fi.IsDir() {
+		return relPath
+	}
+
+	return fmt.Sprintf("%s (%s)", relPath, pipelinedb.FormatHumanSize(fi.Size()))
+}
+
+func resolveDbStatTarget(dbPath string) string {
+	if len(dbPath) > 0 {
+		return dbPath
+	}
+
+	return filepath.Join(resolveRepoRootDir(), ".gitmap", "pipeline_db", "pipeline-default.db")
+}
+
+func statRelativeDbFallback(target string) (os.FileInfo, error) {
+	if filepath.IsAbs(target) {
+		return nil, os.ErrNotExist
+	}
+
+	candidate := filepath.Join(resolveRepoRootDir(), target)
+
+	return os.Stat(candidate)
+}
+
 func resolveMaxSyncLimit(maxRuns int) int {
 	if maxRuns <= 0 {
 		return 20
@@ -239,7 +276,7 @@ func calculateAlreadyCachedCount(res *PipelineSyncResult) int {
 func renderSyncResultTerminal(res *PipelineSyncResult) {
 	fmt.Printf("\n  %s● Incremental Pipeline Cache Sync (%s):%s\n",
 		constants.ColorCyan, res.Repo, constants.ColorReset)
-	fmt.Printf("    • Pipeline Database: %s\n", res.RelativeDb)
+	fmt.Printf("    • Pipeline Database: %s\n", FormatDbPathWithSize(res.DbPath))
 	fmt.Printf("    • Runs Scanned:      %d (max 20)\n", res.ScannedRuns)
 	fmt.Printf("    • Failed Runs Found: %d\n", len(res.FailedRuns))
 	fmt.Printf("    • New Logs Cached:   %s%d%s\n",

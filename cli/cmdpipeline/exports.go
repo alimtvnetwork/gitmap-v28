@@ -56,3 +56,22 @@ func RecordRunInSplitDb(db *pipelinedb.PipelineSplitDb, repo string, run GhRunIt
 func SaveParsedFailedJobs(db *pipelinedb.PipelineSplitDb, repo string, run GhRunItem, jobs []FailedJobItem, rawLogs string) {
 	saveParsedFailedJobs(db, repo, run, jobs, rawLogs)
 }
+
+// FetchLatestPipelineErrorReport returns the formatted error report string and whether failures exist.
+func FetchLatestPipelineErrorReport(repo string, isDetailed bool) (string, bool) {
+	targetRepo := repo
+	if len(targetRepo) == 0 {
+		targetRepo = resolveCurrentRepoSlug()
+	}
+	runs := queryWorkflowRuns(targetRepo)
+	payload := buildErrorLogsPayload(targetRepo, runs)
+	if !isDetailed {
+		compactErrorPayload(&payload)
+	}
+	hasFailure := payload.Conclusion == "failure" || len(payload.FailedRuns) > 0
+	if hasFailure {
+		return buildClipboardErrorReport(payload), true
+	}
+
+	return buildClipboardCleanReport(payload), false
+}

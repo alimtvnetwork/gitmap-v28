@@ -53,6 +53,8 @@ var topicSummaries = map[string]string{
 	"cluster-k8s-init":       "Initialize Kubernetes control plane",
 	"cluster-k8s-join":       "Join worker nodes to Kubernetes control plane",
 	"cluster-k8s-helm":       "Deploy Helm and storage class provisioners",
+	"agy-fix-pipeline":       "Extract failing pipeline error logs and combine with CI/CD fix prompt for Antigravity IDE into clipboard and active temp file.",
+	"fix-pipeline":           "Extract failing pipeline error logs and combine with CI/CD fix prompt for Antigravity IDE into clipboard and active temp file.",
 }
 
 // GetTopicDetailedSummary returns documentation content for a specific command topic.

@@ -73,7 +73,16 @@ func normalizeAgySubcommand(sub string) string {
 		return "clean-cache"
 	}
 
+	if isFixPipelineAlias(low) {
+		return "fix-pipeline"
+	}
+
 	return sub
+}
+
+func isFixPipelineAlias(low string) bool {
+	return low == "fix-pipeline" || low == "fix" || low == "fp" ||
+		low == "pipeline-fix" || low == "fixpipeline"
 }
 
 func isCureDupsAlias(low string) bool {
@@ -149,6 +158,7 @@ func init() {
 	AgyCmd.AddCommand(agySettingsCmd)
 	AgyCmd.AddCommand(agyPinProjectsCmd)
 	AgyCmd.AddCommand(agyCleanCacheCmd)
+	AgyCmd.AddCommand(agyFixPipelineCmd)
 	initPlugins()
 	initAgyGroup()
 	initAgySettings()

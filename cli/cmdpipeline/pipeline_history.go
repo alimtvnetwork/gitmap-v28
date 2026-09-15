@@ -5,6 +5,8 @@ import (
 	"strconv"
 	"strings"
 
+	"github.com/mattn/go-runewidth"
+
 	"github.com/alimtvnetwork/gitmap-v28/cli/apperror"
 	"github.com/alimtvnetwork/gitmap-v28/cli/constants"
 	"github.com/alimtvnetwork/gitmap-v28/cli/pipelinedb"
@@ -62,6 +64,40 @@ func truncateHistoryStr(str string, maxLen int) string {
 	}
 
 	return str[:maxLen]
+}
+
+// stripANSI removes ANSI escape codes from string s.
+func stripANSI(s string) string {
+	var out strings.Builder
+	out.Grow(len(s))
+	for i := 0; i < len(s); i++ {
+		if s[i] == 0x1b && i+1 < len(s) && s[i+1] == '[' {
+			j := i + 2
+			for j < len(s) && s[j] != 'm' {
+				j++
+			}
+			i = j
+			continue
+		}
+		out.WriteByte(s[i])
+	}
+
+	return out.String()
+}
+
+// visibleLen returns the visible terminal width of s.
+func visibleLen(s string) int {
+	return runewidth.StringWidth(stripANSI(s))
+}
+
+// padRightVisible appends spaces to s until its visible terminal width reaches targetWidth.
+func padRightVisible(s string, targetWidth int) string {
+	vLen := visibleLen(s)
+	if vLen >= targetWidth {
+		return s
+	}
+
+	return s + strings.Repeat(" ", targetWidth-vLen)
 }
 
 // RenderHistorySummaryTable outputs a formatted summary table of recent commit pipeline runs.
@@ -307,10 +343,68 @@ func printRecentCommitRow(sb *strings.Builder, g CommitPipelineGroup, index int)
 	sha := truncateHistoryStr(g.HeadSha, 7)
 	branch := truncateHistoryStr(g.HeadBranch, 13)
 	badge := formatStatusBadge(g.Conclusion, g.Status)
-	wfSummary := truncateHistoryStr(summarizeGroupWorkflows(g.Workflows), 31)
+	paddedBadge := padRightVisible(badge, 10)
+	wfSummary := formatGroupWorkflowsSummary(g.Workflows, 32)
 	failuresStr := strconv.Itoa(g.FailedWorkflows)
-	fmt.Fprintf(sb, "    %-8s %-9s %-14s %-10s %-32s %-8s\n",
-		offsetStr, sha, branch, badge, wfSummary, failuresStr)
+	fmt.Fprintf(sb, "    %-8s %-9s %-14s %s %-32s %-8s\n",
+		offsetStr, sha, branch, paddedBadge, wfSummary, failuresStr)
+}
+
+func formatGroupWorkflowsSummary(workflows []CommitWorkflowItem, maxWidth int) string {
+	if len(workflows) == 0 {
+		return "-"
+	}
+	full := summarizeGroupWorkflows(workflows)
+	if visibleLen(full) <= maxWidth {
+		return full
+	}
+
+	return formatWorkflowsWithRemaining(workflows, maxWidth)
+}
+
+func formatWorkflowsWithRemaining(workflows []CommitWorkflowItem, maxWidth int) string {
+	var parts []string
+	for i, wf := range workflows {
+		item := fmt.Sprintf("%s [%s]", wf.Name, formatWorkflowShortStatus(wf))
+		remaining := len(workflows) - (i + 1)
+		candidate := buildWorkflowCandidate(parts, item, remaining)
+		if visibleLen(candidate) > maxWidth {
+			return finalizeTruncatedSummary(workflows, parts, remaining, maxWidth)
+		}
+		parts = append(parts, item)
+	}
+
+	return strings.Join(parts, ", ")
+}
+
+func buildWorkflowCandidate(parts []string, nextItem string, remaining int) string {
+	suffix := ""
+	if remaining > 0 {
+		suffix = fmt.Sprintf(" (+%d)", remaining)
+	}
+	if len(parts) == 0 {
+		return nextItem + suffix
+	}
+
+	return strings.Join(parts, ", ") + ", " + nextItem + suffix
+}
+
+func finalizeTruncatedSummary(workflows []CommitWorkflowItem, parts []string, remaining int, maxWidth int) string {
+	if len(parts) > 0 {
+		return strings.Join(parts, ", ") + fmt.Sprintf(" (+%d)", remaining)
+	}
+	if len(workflows) == 0 {
+		return "-"
+	}
+	first := fmt.Sprintf("%s [%s]", workflows[0].Name, formatWorkflowShortStatus(workflows[0]))
+	if len(workflows) > 1 {
+		first += fmt.Sprintf(" (+%d)", len(workflows)-1)
+	}
+	if visibleLen(first) > maxWidth && maxWidth > 3 {
+		return first[:maxWidth-3] + "..."
+	}
+
+	return first
 }
 
 func formatCommitOffsetLabel(index int) string {
@@ -417,7 +511,7 @@ func renderCachedCompactErrorsList(errors []pipelinedb.PipelineCompactErrorRecor
 }
 
 func renderCachedFailuresTerminal(db *pipelinedb.PipelineSplitDb, repo string, runs []pipelinedb.PipelineRunRecord, isDetailed bool) {
-	relDb := FormatRelativeDbPath(db.Path)
+	relDb := FormatDbPathWithSize(db.Path)
 	if len(runs) == 0 {
 		printEmptyCachedFailures(repo, relDb)
 

@@ -725,7 +725,8 @@ func formatUnitSize(val float64, unit string) string {
 	return fmt.Sprintf("%.1f %s", val, unit)
 }
 
-func formatHumanSize(bytes int64) string {
+// FormatHumanSize formats byte counts into human-readable strings (B, KB, MB, GB).
+func FormatHumanSize(bytes int64) string {
 	if bytes < 1024 {
 		return fmt.Sprintf("%d B", bytes)
 	}
@@ -737,6 +738,10 @@ func formatHumanSize(bytes int64) string {
 	}
 
 	return formatUnitSize(float64(bytes)/(1024.0*1024.0*1024.0), "GB")
+}
+
+func formatHumanSize(bytes int64) string {
+	return FormatHumanSize(bytes)
 }
 
 func resolveSummaryPath(info PipelineDatabaseInfo) string {
