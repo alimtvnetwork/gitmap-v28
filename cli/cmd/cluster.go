@@ -145,15 +145,15 @@ func isClusterRootHelp(args []string) bool {
 }
 
 func dispatchInvertedClusterHelp(args []string) (error, bool) {
-	hasInverted := args[0] == "help" && len(args) > 1
-	if hasInverted {
-		err, isMatched := dispatchClusterSubcommand(args[1], append(args[2:], "--help"))
-		if isMatched {
-			return err, true
-		}
-		return apperror.NewSimple("unknown command", "E9000"), true
+	hasInverted := len(args) > 1 && args[0] == "help"
+	if !hasInverted {
+		return nil, false
 	}
-	return nil, false
+	err, isMatched := dispatchClusterSubcommand(args[1], append(args[2:], "--help"))
+	if isMatched {
+		return err, true
+	}
+	return apperror.NewSimple("unknown command", "E9000"), true
 }
 
 // runCluster handles the "cluster" subcommand and routes to sub-handlers.

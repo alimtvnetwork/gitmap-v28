@@ -138,7 +138,7 @@ func queryFailedRunLogs(repo string, runId uint64) string {
 		return ""
 	}
 
-	if cached, ok := readCachedPipelineLog(runId); ok {
+	if cached, ok := readCachedPipelineLogForRepo(repo, runId); ok {
 		return cached
 	}
 

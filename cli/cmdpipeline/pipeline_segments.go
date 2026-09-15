@@ -48,12 +48,21 @@ func queryRunJobs(repo string, runId uint64) []ghJobItem {
 		return nil
 	}
 
+	if cached, ok := readCachedPipelineJobs(runId, repo); ok {
+		return cached
+	}
+
 	out, err := exec.Command("gh", buildRunJobsArgs(repo, runId)...).Output()
 	if err != nil || len(out) == 0 {
 		return nil
 	}
 
-	return parseGhJobsJSON(out)
+	jobs := parseGhJobsJSON(out)
+	if len(jobs) > 0 {
+		_ = writeCachedPipelineJobs(runId, repo, jobs)
+	}
+
+	return jobs
 }
 
 func parseGhJobsJSON(data []byte) []ghJobItem {

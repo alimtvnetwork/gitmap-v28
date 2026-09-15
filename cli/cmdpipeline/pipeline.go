@@ -100,10 +100,11 @@ type FailedJobItem struct {
 
 // ErrorLogOutputParams encapsulates parameters for outputting error logs.
 type ErrorLogOutputParams struct {
-	Payload  PipelineErrorLogsPayload
-	IsJSON   bool
-	FilePath string
-	TempFile string
+	Payload              PipelineErrorLogsPayload
+	IsJSON               bool
+	HasSuppressOutputLog bool
+	FilePath             string
+	TempFile             string
 }
 
 type ghRunItem struct {
@@ -224,6 +225,7 @@ func printPipelineHelpFlags() {
 	fmt.Println("  --file <path>           Write error logs to specified file path")
 	fmt.Println("  --tempfile <filename>   Write error logs to .lovable/temp/<filename>")
 	fmt.Println("  --last-failures <N>     Show logs for the last N failed runs")
+	fmt.Println("  -n, --no-output-log     Stage error logs to disk without displaying in terminal")
 	printPipelineHelpExamples()
 }
 

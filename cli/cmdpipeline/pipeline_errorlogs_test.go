@@ -288,3 +288,59 @@ func TestBuildErrorLogsPayloadCleanSuccess(t *testing.T) {
 		t.Fatalf("expected clean success payload, got %s", payload.Conclusion)
 	}
 }
+
+func TestParsePipelineErrorFlagsSuppressOutput(t *testing.T) {
+	flags1 := ParsePipelineErrorFlags([]string{"--no-output-log"})
+	if !flags1.HasSuppressOutputLog {
+		t.Errorf("expected HasSuppressOutputLog to be true for --no-output-log")
+	}
+
+	flags2 := ParsePipelineErrorFlags([]string{"-n"})
+	if !flags2.HasSuppressOutputLog {
+		t.Errorf("expected HasSuppressOutputLog to be true for -n")
+	}
+
+	flags3 := ParsePipelineErrorFlags([]string{"--json"})
+	if flags3.HasSuppressOutputLog {
+		t.Errorf("expected HasSuppressOutputLog to be false when flag is omitted")
+	}
+}
+
+func TestCachedPipelineJobsRoundTrip(t *testing.T) {
+	runId := uint64(99998888)
+	repo := "test-owner/test-repo"
+	jobs := []ghJobItem{
+		{
+			DatabaseId: 101,
+			Name:       "Build",
+			Status:     "completed",
+			Conclusion: "failure",
+		},
+	}
+
+	err := writeCachedPipelineJobs(runId, repo, jobs)
+	if err != nil {
+		t.Fatalf("expected writeCachedPipelineJobs to succeed, got %v", err)
+	}
+
+	loaded, ok := readCachedPipelineJobs(runId, repo)
+	if !ok || len(loaded) != 1 {
+		t.Fatalf("expected 1 cached job loaded, got ok=%v, len=%d", ok, len(loaded))
+	}
+
+	if loaded[0].Name != "Build" {
+		t.Errorf("expected job name 'Build', got %s", loaded[0].Name)
+	}
+}
+
+func TestResolveFetchConcurrency(t *testing.T) {
+	if resolveFetchConcurrency(0) != 0 {
+		t.Errorf("expected 0, got %d", resolveFetchConcurrency(0))
+	}
+	if resolveFetchConcurrency(2) != 2 {
+		t.Errorf("expected 2, got %d", resolveFetchConcurrency(2))
+	}
+	if resolveFetchConcurrency(10) != 4 {
+		t.Errorf("expected 4, got %d", resolveFetchConcurrency(10))
+	}
+}

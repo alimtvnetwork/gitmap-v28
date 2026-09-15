@@ -8,8 +8,9 @@ Master directory of architectural and execution plans.
 
 ## Recent Completed Tasks Register (Last 20 Tasks)
 
-1. [Plan 174: 174-apperror-join-and-dry-helpcheck.md](completed/174-apperror-join-and-dry-helpcheck.md): AppError Join Architecture & Centralized DRY Help Checking Suite
-2. [Plan 173: 173-cluster-and-sc-node-add-and-help-parity.md](completed/173-cluster-and-sc-node-add-and-help-parity.md): Cluster and Servers-Clients (SC) Node Add, Join Routing, and Help Text Parity
+1. [Plan 175: 175-pipeline-errors-perf-and-ci-fixes.md](completed/175-pipeline-errors-perf-and-ci-fixes.md): Pipeline Errors Performance Optimization & CI Failure Fixes
+2. [Plan 174: 174-apperror-join-and-dry-helpcheck.md](completed/174-apperror-join-and-dry-helpcheck.md): AppError Join Architecture & Centralized DRY Help Checking Suite
+3. [Plan 173: 173-cluster-and-sc-node-add-and-help-parity.md](completed/173-cluster-and-sc-node-add-and-help-parity.md): Cluster and Servers-Clients (SC) Node Add, Join Routing, and Help Text Parity
 
 1. [Plan 169: 169-scripts-fixer-profile-alignment-and-pull-progress-bar-redesign.md](completed/169-scripts-fixer-profile-alignment-and-pull-progress-bar-redesign.md): Scripts-Fixer Profile Alignment & Git Pull Progress Bar Redesign
 2. [Plan 168: 168-ssh-join-network-scan-health-status-and-help-parity.md](completed/168-ssh-join-network-scan-health-status-and-help-parity.md): SSH Machine Join, Network Scan Discovery, Health Status & Full Help Parity
@@ -136,3 +137,13 @@ Master directory of architectural and execution plans.
 - [163-github-desktop-missing-install-suggestions.md](completed/163-github-desktop-missing-install-suggestions.md): 163-github-desktop-missing-install-suggestions
 - [164-profile-vmware-installer-sqlite-parity.md](completed/164-profile-vmware-installer-sqlite-parity.md): 164-profile-vmware-installer-sqlite-parity
 - [165-pipeline-commit-history-errors-storage-sqlite.md](completed/165-pipeline-commit-history-errors-storage-sqlite.md): 165-pipeline-commit-history-errors-storage-sqlite
+- [166-scripts-fixer-alignment-git-compact-profile-pull-progress-bar.md](completed/166-scripts-fixer-alignment-git-compact-profile-pull-progress-bar.md): 166-scripts-fixer-alignment-git-compact-profile-pull-progress-bar
+- [167-ssh-join-host-management-and-recall-examples.md](completed/167-ssh-join-host-management-and-recall-examples.md): 167-ssh-join-host-management-and-recall-examples
+- [168-ssh-join-network-scan-health-status-and-help-parity.md](completed/168-ssh-join-network-scan-health-status-and-help-parity.md): 168-ssh-join-network-scan-health-status-and-help-parity
+- [169-scripts-fixer-profile-alignment-and-pull-progress-bar-redesign.md](completed/169-scripts-fixer-profile-alignment-and-pull-progress-bar-redesign.md): 169-scripts-fixer-profile-alignment-and-pull-progress-bar-redesign
+- [170-kubernetes-cluster-runner-and-ubuntu-provisioning-suite.md](completed/170-kubernetes-cluster-runner-and-ubuntu-provisioning-suite.md): 170-kubernetes-cluster-runner-and-ubuntu-provisioning-suite
+- [171-kubernetes-cluster-lifecycle-helm-and-nfs.md](completed/171-kubernetes-cluster-lifecycle-helm-and-nfs.md): 171-kubernetes-cluster-lifecycle-helm-and-nfs
+- [172-scripts-fixer-antigravity-icon-install-logs-cluster-bootstrap.md](completed/172-scripts-fixer-antigravity-icon-install-logs-cluster-bootstrap.md): 172-scripts-fixer-antigravity-icon-install-logs-cluster-bootstrap
+- [173-cluster-and-sc-node-add-and-help-parity.md](completed/173-cluster-and-sc-node-add-and-help-parity.md): 173-cluster-and-sc-node-add-and-help-parity
+- [174-apperror-join-and-dry-helpcheck.md](completed/174-apperror-join-and-dry-helpcheck.md): 174-apperror-join-and-dry-helpcheck
+- [175-pipeline-errors-perf-and-ci-fixes.md](completed/175-pipeline-errors-perf-and-ci-fixes.md): 175-pipeline-errors-perf-and-ci-fixes

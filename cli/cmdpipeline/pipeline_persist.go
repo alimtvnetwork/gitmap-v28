@@ -40,15 +40,33 @@ func resolveRepoRootDir() string {
 	return "."
 }
 
-func readCachedPipelineLog(runId uint64) (string, bool) {
-	dir := resolvePipelineDir()
-	filePath := filepath.Join(dir, fmt.Sprintf("%d.log", runId))
-	data, err := os.ReadFile(filePath)
-	if err != nil || len(data) == 0 {
-		return "", false
+func resolvePipelineDirForRepo(repo string) string {
+	baseDir := resolvePipelineDir()
+	if len(repo) == 0 {
+		return baseDir
 	}
 
-	return string(data), true
+	cleanRepo := strings.ReplaceAll(repo, "/", "_")
+	return filepath.Join(baseDir, cleanRepo)
+}
+
+func readCachedPipelineLog(runId uint64) (string, bool) {
+	return readCachedPipelineLogForRepo("", runId)
+}
+
+func readCachedPipelineLogForRepo(repo string, runId uint64) (string, bool) {
+	candidates := []string{
+		filepath.Join(resolvePipelineDirForRepo(repo), fmt.Sprintf("%d.log", runId)),
+		filepath.Join(resolvePipelineDir(), fmt.Sprintf("%d.log", runId)),
+	}
+	for _, p := range candidates {
+		data, err := os.ReadFile(p)
+		if err == nil && len(data) > 0 {
+			return string(data), true
+		}
+	}
+
+	return "", false
 }
 
 func writeCachedPipelineLog(runId uint64, logContent, repo string) error {
@@ -62,9 +80,74 @@ func writeCachedPipelineLog(runId uint64, logContent, repo string) error {
 		return err
 	}
 
+	stageRepoScopedLog(repo, runId, logContent)
 	persistLogToRepoSplitDb(repo, runId, logContent)
 
 	return writeCachedPipelineJSON(dir, runId, logFile, repo, len(logContent))
+}
+
+func stageRepoScopedLog(repo string, runId uint64, logContent string) {
+	if len(repo) == 0 {
+		return
+	}
+
+	repoDir := resolvePipelineDirForRepo(repo)
+	if err := os.MkdirAll(repoDir, 0755); err != nil {
+		return
+	}
+
+	repoLogFile := filepath.Join(repoDir, fmt.Sprintf("%d.log", runId))
+	_ = os.WriteFile(repoLogFile, []byte(logContent), 0644)
+}
+
+func readCachedPipelineJobs(runId uint64, repo string) ([]ghJobItem, bool) {
+	candidates := []string{
+		filepath.Join(resolvePipelineDirForRepo(repo), fmt.Sprintf("%d.jobs.json", runId)),
+		filepath.Join(resolvePipelineDir(), fmt.Sprintf("%d.jobs.json", runId)),
+	}
+	for _, p := range candidates {
+		if jobs, isLoaded := loadJobsFromFile(p); isLoaded {
+			return jobs, true
+		}
+	}
+
+	return nil, false
+}
+
+func loadJobsFromFile(path string) ([]ghJobItem, bool) {
+	data, err := os.ReadFile(path)
+	if err != nil || len(data) == 0 {
+		return nil, false
+	}
+
+	var jobs []ghJobItem
+	if err := json.Unmarshal(data, &jobs); err != nil || len(jobs) == 0 {
+		return nil, false
+	}
+
+	return jobs, true
+}
+
+func writeCachedPipelineJobs(runId uint64, repo string, jobs []ghJobItem) error {
+	if len(jobs) == 0 {
+		return nil
+	}
+
+	data, err := json.MarshalIndent(jobs, "", "  ")
+	if err != nil {
+		return err
+	}
+
+	dir := resolvePipelineDir()
+	_ = os.MkdirAll(dir, 0755)
+	_ = os.WriteFile(filepath.Join(dir, fmt.Sprintf("%d.jobs.json", runId)), data, 0644)
+	if len(repo) > 0 {
+		repoDir := resolvePipelineDirForRepo(repo)
+		_ = os.MkdirAll(repoDir, 0755)
+		_ = os.WriteFile(filepath.Join(repoDir, fmt.Sprintf("%d.jobs.json", runId)), data, 0644)
+	}
+
+	return nil
 }
 
 func buildPersistRecords(repo string, runId uint64, workflow, raw, clean string) (pipelinedb.PipelineErrorRecord, pipelinedb.PipelineCompactErrorRecord) {

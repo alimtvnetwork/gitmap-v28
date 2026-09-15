@@ -6,6 +6,7 @@ import (
 	"os"
 	"path/filepath"
 	"strings"
+	"sync"
 
 	"github.com/alimtvnetwork/gitmap-v28/cli/constants"
 	"github.com/alimtvnetwork/gitmap-v28/cli/gitutil"
@@ -48,16 +49,26 @@ func executePipelineErrorLogs(args []string) error {
 }
 
 func processAndRenderErrorLogs(repo string, flags PipelineErrorFlags) error {
+	printReadingProgress(flags)
 	runs := queryWorkflowRuns(repo)
 	payload := buildErrorLogsPayload(repo, runs)
 	applyPayloadOptions(&payload, runs, flags)
 
 	return writeOrRenderErrorLogs(ErrorLogOutputParams{
-		Payload:  payload,
-		IsJSON:   flags.IsJSON,
-		FilePath: flags.FilePath,
-		TempFile: flags.TempFileName,
+		Payload:              payload,
+		IsJSON:               flags.IsJSON,
+		HasSuppressOutputLog: flags.HasSuppressOutputLog,
+		FilePath:             flags.FilePath,
+		TempFile:             flags.TempFileName,
 	})
+}
+
+func printReadingProgress(flags PipelineErrorFlags) {
+	if flags.IsJSON || flags.HasSuppressOutputLog {
+		return
+	}
+
+	fmt.Println("Reading pipeline logs...")
 }
 
 func applyPayloadOptions(p *PipelineErrorLogsPayload, runs []ghRunItem, flags PipelineErrorFlags) {
@@ -208,13 +219,51 @@ func resolveFailedRunsForPayload(repo string, runs []ghRunItem) []ghRunItem {
 
 func populateFailedRunsPayload(repo string, failedRuns []ghRunItem, p *PipelineErrorLogsPayload) {
 	initFailedRunTopLevel(p, failedRuns[0])
-	for _, fr := range failedRuns {
-		p.FailedRuns = append(p.FailedRuns, fetchAndBuildFailedRunItem(repo, fr))
-	}
-
+	p.FailedRuns = fetchAllFailedRunsParallel(repo, failedRuns)
 	p.SectionFailures = extractAllSectionFailures(p.FailedRuns)
 	p.CombinedErrors = formatCombinedSectionFailures(p.SectionFailures)
 	p.ErrorLogs = formatAggregatedErrorLogs(p.FailedRuns)
+}
+
+func fetchAllFailedRunsParallel(repo string, failedRuns []ghRunItem) []FailedRunItem {
+	total := len(failedRuns)
+	if total == 0 {
+		return nil
+	}
+	if total == 1 {
+		return []FailedRunItem{fetchAndBuildFailedRunItem(repo, failedRuns[0])}
+	}
+
+	return executeParallelFetchWorkers(repo, failedRuns)
+}
+
+func executeParallelFetchWorkers(repo string, failedRuns []ghRunItem) []FailedRunItem {
+	results := make([]FailedRunItem, len(failedRuns))
+	sem := make(chan struct{}, resolveFetchConcurrency(len(failedRuns)))
+	var wg sync.WaitGroup
+
+	for i, fr := range failedRuns {
+		wg.Add(1)
+		go dispatchFetchRunWorker(&wg, sem, results, repo, fr, i)
+	}
+	wg.Wait()
+
+	return results
+}
+
+func dispatchFetchRunWorker(wg *sync.WaitGroup, sem chan struct{}, results []FailedRunItem, repo string, fr ghRunItem, idx int) {
+	defer wg.Done()
+	sem <- struct{}{}
+	results[idx] = fetchAndBuildFailedRunItem(repo, fr)
+	<-sem
+}
+
+func resolveFetchConcurrency(total int) int {
+	if total <= 4 {
+		return total
+	}
+
+	return 4
 }
 
 func initFailedRunTopLevel(p *PipelineErrorLogsPayload, fr ghRunItem) {
@@ -346,9 +395,25 @@ func writeOrRenderErrorLogs(params ErrorLogOutputParams) error {
 		return nil
 	}
 
+	if params.HasSuppressOutputLog {
+		printSuppressedStagingNotice(params.Payload.SavedReportFile)
+
+		return nil
+	}
+
 	renderErrorLogsTerminal(params.Payload)
 
 	return nil
+}
+
+func printSuppressedStagingNotice(reportFile string) {
+	if len(reportFile) > 0 {
+		fmt.Printf("  ✓ Error logs staged to %s (suppressed terminal output via --no-output-log)\n", reportFile)
+
+		return
+	}
+
+	fmt.Println("  ✓ Error logs staged to filesystem (suppressed terminal output via --no-output-log)")
 }
 
 func writeErrorLogsToDisk(params ErrorLogOutputParams, content string) error {
@@ -733,6 +798,7 @@ func printPipelineErrorLogsHelp() {
 	fmt.Println("  --json                  Output data in structured JSON format")
 	fmt.Println("  --file <path>           Write error logs to specified file path")
 	fmt.Println("  --tempfile <filename>   Write error logs to .lovable/temp/<filename>")
+	fmt.Println("  -n, --no-output-log     Stage error logs to disk without displaying in terminal")
 }
 
 func printPipelineLogsHelp() {

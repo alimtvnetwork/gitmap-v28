@@ -7,20 +7,21 @@ import (
 
 // PipelineErrorFlags holds parsed flags and positional options for pipeline error-logs.
 type PipelineErrorFlags struct {
-	IsJSON            bool
-	HasTimeline       bool
-	HasFix            bool
-	HasCheck          bool
-	HasHelp           bool
-	HasIndex          bool
-	Index             int
-	HasLastFailures   bool
-	LastFailures      int
-	HasLastFailedLogs bool
-	IsDetailed        bool
-	CommitTarget      string
-	FilePath          string
-	TempFileName      string
+	IsJSON               bool
+	HasTimeline          bool
+	HasFix               bool
+	HasCheck             bool
+	HasHelp              bool
+	HasIndex             bool
+	Index                int
+	HasLastFailures      bool
+	LastFailures         int
+	HasLastFailedLogs    bool
+	IsDetailed           bool
+	HasSuppressOutputLog bool
+	CommitTarget         string
+	FilePath             string
+	TempFileName         string
 }
 
 // ParsePipelineErrorFlags parses command-line arguments for pipeline error-logs.
@@ -39,8 +40,14 @@ func parseCommonErrorFlags(args []string, flags *PipelineErrorFlags) {
 	flags.HasFix = hasArgFlag(args, "--fix") || hasArgFlag(args, "-f")
 	flags.HasCheck = hasArgFlag(args, "--check") || hasArgFlag(args, "-c")
 	flags.IsDetailed = hasDetailedArg(args)
+	flags.HasSuppressOutputLog = hasSuppressOutputArg(args)
 	flags.FilePath = extractFlagVal(args, "--file")
 	flags.TempFileName = extractFlagVal(args, "--tempfile")
+}
+
+func hasSuppressOutputArg(args []string) bool {
+	return hasArgFlag(args, "--no-output-log") || hasArgFlag(args, "-n") ||
+		hasArgFlag(os.Args, "--no-output-log") || hasArgFlag(os.Args, "-n")
 }
 
 func hasDetailedArg(args []string) bool {
