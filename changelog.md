@@ -1,3 +1,17 @@
+## [v6.242.0] 2026-09-15 Release v6.242.0
+
+### Install GitMap v6.242.0
+
+To pin your repository to this exact version, run the following one-liner:
+Unix/Bash: `curl -sL https://raw.githubusercontent.com/alimtvnetwork/gitmap-v28/v6.242.0/install.sh | bash -s -- ".lovable/prompts" "v6.242.0"`
+PowerShell: `Invoke-WebRequest -Uri https://raw.githubusercontent.com/alimtvnetwork/gitmap-v28/v6.242.0/install.ps1 -OutFile install.ps1; .\install.ps1 -TargetDir ".lovable/prompts" -Version "v6.242.0"`
+
+### Added / Changed / Fixed / Removed
+
+- Fix test DDL for ssh_hosts port column
+- Resolve gosec G115 integer conversions in storage display and POSIX metrics
+- Safeguard nil context and avoid test deadlock in cmdssh
+
 ## [v6.241.0] 2026-09-15 Release v6.241.0
 
 ### Install GitMap v6.241.0
