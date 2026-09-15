@@ -8,6 +8,7 @@ import (
 	"github.com/spf13/cobra"
 
 	"github.com/alimtvnetwork/gitmap-v28/cli/constants"
+	"github.com/alimtvnetwork/gitmap-v28/cli/result"
 )
 
 // runSSH handles the "ssh" subcommand and routes to sub-handlers.
@@ -21,20 +22,21 @@ func runSSH(args []string) error {
 	return dispatchSSH(context.Background(), args, nil)
 }
 
-func dispatchPrimarySSH(ctx context.Context, sub string, args []string, parent *cobra.Command) (error, bool) {
+func dispatchPrimarySSH(ctx context.Context, sub string, args []string, parent *cobra.Command) result.Result[bool] {
 	switch sub {
 	case "login", "login-install":
-		return runSSHLogin(parent, args, ctx), true
+		return result.RouteMatched(runSSHLogin(parent, args, ctx))
 	case "join", "sj":
-		return RunSSHJoinCLI(args), true
+		return result.RouteMatched(RunSSHJoinCLI(args))
 	case "alias":
-		return runSSHAlias(parent, args, ctx), true
+		return result.RouteMatched(runSSHAlias(parent, args, ctx))
 	case "exec", "se":
-		return runSSHExec(args), true
+		return result.RouteMatched(runSSHExec(args))
 	case "profiles", "profile", "p":
-		return runSSHProfile(args), true
+		return result.RouteMatched(runSSHProfile(args))
 	}
-	return nil, false
+
+	return result.RouteUnmatched()
 }
 
 func runSSHProfile(args []string) error {
@@ -123,11 +125,14 @@ func dispatchSSH(ctx context.Context, args []string, parent *cobra.Command) erro
 		return handleEmptySSHArgs()
 	}
 	sub := args[0]
-	if err, isPrimary := dispatchPrimarySSH(ctx, sub, args[1:], parent); isPrimary {
-		return err
+	resPrimary := dispatchPrimarySSH(ctx, sub, args[1:], parent)
+	if resPrimary.Data {
+		return resPrimary.AppError()
 	}
+
 	if isFallback := dispatchFallbackSSH(sub, args[1:]); isFallback {
 		return nil
 	}
+
 	return runSSHLogin(parent, args, ctx)
 }

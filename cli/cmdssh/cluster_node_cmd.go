@@ -9,6 +9,7 @@ import (
 
 	"github.com/alimtvnetwork/gitmap-v28/cli/apperror"
 	"github.com/alimtvnetwork/gitmap-v28/cli/helptext"
+	"github.com/alimtvnetwork/gitmap-v28/cli/result"
 	"github.com/alimtvnetwork/gitmap-v28/cli/store"
 )
 
@@ -286,40 +287,42 @@ func runNodeRm(ctx context.Context, args []string) error {
 	return runSJRm(nil, args, ctx)
 }
 
-func routeClusterNodeLifecycle(ctx context.Context, sub string, rest []string) (error, bool) {
+func routeClusterNodeLifecycle(ctx context.Context, sub string, rest []string) result.Result[bool] {
 	switch sub {
 	case "add", "join", "enroll", "new":
-		return runNodeAdd(ctx, rest), true
+		return result.RouteMatched(runNodeAdd(ctx, rest))
 	case "rm", "remove", "delete":
-		return runNodeRm(ctx, rest), true
+		return result.RouteMatched(runNodeRm(ctx, rest))
 	case "ls", "list", "nodes":
-		return executeSJList(ctx), true
+		return result.RouteMatched(executeSJList(ctx))
 	default:
-		return nil, false
+		return result.RouteUnmatched()
 	}
 }
 
-func routeClusterNodeRecipes(ctx context.Context, sub string, rest []string) (error, bool) {
+func routeClusterNodeRecipes(ctx context.Context, sub string, rest []string) result.Result[bool] {
 	switch sub {
 	case "set-ip":
-		return runNodeSetIP(ctx, rest), true
+		return result.RouteMatched(runNodeSetIP(ctx, rest))
 	case "install-base":
-		return runNodeInstallBase(ctx, rest), true
+		return result.RouteMatched(runNodeInstallBase(ctx, rest))
 	case "create-user":
-		return runNodeCreateUser(ctx, rest), true
+		return result.RouteMatched(runNodeCreateUser(ctx, rest))
 	case "set-theme":
-		return runNodeSetTheme(ctx, rest), true
+		return result.RouteMatched(runNodeSetTheme(ctx, rest))
 	case "purge":
-		return runNodePurge(ctx, rest), true
+		return result.RouteMatched(runNodePurge(ctx, rest))
 	default:
-		return nil, false
+		return result.RouteUnmatched()
 	}
 }
 
-func routeClusterNodeCommand(ctx context.Context, sub string, rest []string) (error, bool) {
-	if err, isLifecycle := routeClusterNodeLifecycle(ctx, sub, rest); isLifecycle {
-		return err, true
+func routeClusterNodeCommand(ctx context.Context, sub string, rest []string) result.Result[bool] {
+	resLifecycle := routeClusterNodeLifecycle(ctx, sub, rest)
+	if resLifecycle.Data {
+		return resLifecycle
 	}
+
 	return routeClusterNodeRecipes(ctx, sub, rest)
 }
 
@@ -329,10 +332,11 @@ func RunClusterNodeCLI(args []string) error {
 	if isHelp {
 		return showClusterNodeHelp()
 	}
+
 	ctx := context.Background()
-	err, isMatched := routeClusterNodeCommand(ctx, args[0], args[1:])
-	if isMatched {
-		return err
+	res := routeClusterNodeCommand(ctx, args[0], args[1:])
+	if res.Data {
+		return res.AppError()
 	}
 
 	return apperror.NewValidationError(fmt.Sprintf("unknown cluster node subcommand: %s", args[0]))

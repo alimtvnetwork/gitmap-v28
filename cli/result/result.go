@@ -259,3 +259,36 @@ func (r *Result[T]) HandleError() {
 
 	r.Err.HandleError()
 }
+
+// RouteMatched constructs a Result[bool] representing a matched route with optional error.
+func RouteMatched(err error) Result[bool] {
+	if err == nil {
+		return Result[bool]{Value: true, Data: true, isDefined: true}
+	}
+
+	if appErr, isAppErr := err.(*apperror.AppError); isAppErr {
+		return Result[bool]{Value: true, Data: true, Err: appErr, isDefined: true}
+	}
+
+	return Result[bool]{Value: true, Data: true, Err: apperror.WrapSimple(err, "route"), isDefined: true}
+}
+
+// RouteMatchedAppErr constructs a Result[bool] representing a matched route with an *apperror.AppError.
+func RouteMatchedAppErr(appErr *apperror.AppError) Result[bool] {
+	return Result[bool]{
+		Value:     true,
+		Data:      true,
+		Err:       appErr,
+		isDefined: true,
+	}
+}
+
+// RouteUnmatched constructs a Result[bool] representing an unmatched route.
+func RouteUnmatched() Result[bool] {
+	return Result[bool]{
+		Value:     false,
+		Data:      false,
+		Err:       nil,
+		isDefined: true,
+	}
+}

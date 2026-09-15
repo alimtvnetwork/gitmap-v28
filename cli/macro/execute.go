@@ -15,6 +15,7 @@ import (
 
 	"github.com/alimtvnetwork/gitmap-v28/cli/apperror"
 	"github.com/alimtvnetwork/gitmap-v28/cli/constants"
+	"github.com/alimtvnetwork/gitmap-v28/cli/result"
 )
 
 // Execute runs all steps in a macro maintaining dynamic directory state and structured reporting.
@@ -48,9 +49,11 @@ func printExecutionHeader(m *Macro) {
 func runExecuteSteps(ctx context.Context, m *Macro, opts ExecOptions, dt *DirTracker, rep *ExecutionReport, start time.Time) error {
 	var lastErr error
 	for i, step := range m.Steps {
-		var shouldBreak bool
-		lastErr, shouldBreak = executeReportStep(ctx, step, i+1, len(m.Steps), opts, dt, rep)
-		if shouldBreak {
+		res := executeReportStep(ctx, step, i+1, len(m.Steps), opts, dt, rep)
+		if res.HasError() {
+			lastErr = res.AppError()
+		}
+		if res.Data {
 			break
 		}
 	}
@@ -60,7 +63,7 @@ func runExecuteSteps(ctx context.Context, m *Macro, opts ExecOptions, dt *DirTra
 	return handleExecutionFinish(m, opts, rep, start, lastErr)
 }
 
-func executeReportStep(ctx context.Context, step MacroStep, idx, total int, opts ExecOptions, dt *DirTracker, rep *ExecutionReport) (error, bool) {
+func executeReportStep(ctx context.Context, step MacroStep, idx, total int, opts ExecOptions, dt *DirTracker, rep *ExecutionReport) result.Result[bool] {
 	stepExec, err := executeSingleStep(ctx, step, idx, total, opts, dt)
 	if err != nil {
 		rep.FailedSteps++
@@ -69,12 +72,16 @@ func executeReportStep(ctx context.Context, step MacroStep, idx, total int, opts
 	rep.Steps = append(rep.Steps, stepExec)
 	rep.ExecutedSteps++
 	if err == nil {
-		return nil, false
+		return result.RouteUnmatched()
 	}
 
 	shouldBreak := !step.ContinueOnError && !opts.IsRunUntil
 
-	return err, shouldBreak
+	res := result.RouteMatchedAppErr(apperror.WrapSimple(err, "macro step"))
+	res.Value = shouldBreak
+	res.Data = shouldBreak
+
+	return res
 }
 
 func handleStepFailureLogging(macroName string, step StepExecution, opts ExecOptions, total int) string {

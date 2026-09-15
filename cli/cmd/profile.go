@@ -8,6 +8,7 @@ import (
 	"github.com/alimtvnetwork/gitmap-v28/cli/cmdchromeprofile"
 	"github.com/alimtvnetwork/gitmap-v28/cli/cmdinstall"
 	"github.com/alimtvnetwork/gitmap-v28/cli/constants"
+	"github.com/alimtvnetwork/gitmap-v28/cli/result"
 )
 
 // runProfile handles the "profile" subcommand routing.
@@ -32,20 +33,24 @@ func runProfile(args []string) error {
 
 // routeProfileSub routes to the appropriate profile subcommand.
 func routeProfileSub(subCmd string, tailArgs []string) error {
-	if err, isHandled := routeGitProfileSub(subCmd, tailArgs); isHandled {
-		return err
+	resGit := routeGitProfileSub(subCmd, tailArgs)
+	if resGit.Data {
+		return resGit.AppError()
 	}
 
-	if err, isHandled := routeDBProfileSub(subCmd, tailArgs); isHandled {
-		return err
+	resDB := routeDBProfileSub(subCmd, tailArgs)
+	if resDB.Data {
+		return resDB.AppError()
 	}
 
-	if err, isHandled := routeChromeProfileSub(subCmd, tailArgs); isHandled {
-		return err
+	resChrome := routeChromeProfileSub(subCmd, tailArgs)
+	if resChrome.Data {
+		return resChrome.AppError()
 	}
 
-	if err, isHandled := routeInstallProfileSub(subCmd, tailArgs); isHandled {
-		return err
+	resInstall := routeInstallProfileSub(subCmd, tailArgs)
+	if resInstall.Data {
+		return resInstall.AppError()
 	}
 
 	fmt.Fprint(os.Stderr, constants.ErrProfileUsage)
@@ -53,20 +58,20 @@ func routeProfileSub(subCmd string, tailArgs []string) error {
 	return apperror.NewSimple("fatal error", "E9000")
 }
 
-func routeInstallProfileSub(subCmd string, tailArgs []string) (error, bool) {
+func routeInstallProfileSub(subCmd string, tailArgs []string) result.Result[bool] {
 	if isInstallSubCmd(subCmd) {
-		return cmdinstall.RunInstall(append([]string{"profile"}, tailArgs...)), true
+		return result.RouteMatched(cmdinstall.RunInstall(append([]string{"profile"}, tailArgs...)))
 	}
 
 	if isProfileTreeSubCmd(subCmd) {
-		return cmdinstall.RunInstall(append([]string{"profile", "tree"}, tailArgs...)), true
+		return result.RouteMatched(cmdinstall.RunInstall(append([]string{"profile", "tree"}, tailArgs...)))
 	}
 
 	if cmdinstall.IsInstallProfile(subCmd) {
-		return cmdinstall.RunInstall(append([]string{"profile", subCmd}, tailArgs...)), true
+		return result.RouteMatched(cmdinstall.RunInstall(append([]string{"profile", subCmd}, tailArgs...)))
 	}
 
-	return nil, false
+	return result.RouteUnmatched()
 }
 
 func isInstallSubCmd(subCmd string) bool {
@@ -77,72 +82,69 @@ func isProfileTreeSubCmd(subCmd string) bool {
 	return subCmd == "tree" || subCmd == "--tree" || subCmd == "-t"
 }
 
-func routeGitProfileSub(subCmd string, tailArgs []string) (error, bool) {
+func routeGitProfileSub(subCmd string, tailArgs []string) result.Result[bool] {
 	if subCmd == "git" || subCmd == "accounts" || subCmd == "set-default" {
-		return runProfiles(append([]string{subCmd}, tailArgs...)), true
+		return result.RouteMatched(runProfiles(append([]string{subCmd}, tailArgs...)))
 	}
 
-	return nil, false
+	return result.RouteUnmatched()
 }
 
-func routeDBProfileSub(subCmd string, tailArgs []string) (error, bool) {
+func routeDBProfileSub(subCmd string, tailArgs []string) result.Result[bool] {
 	switch subCmd {
 	case constants.CmdProfileCreate:
-		return runProfileCreate(tailArgs), true
+		return result.RouteMatched(runProfileCreate(tailArgs))
 	case constants.CmdProfileList, "ls", "status":
-		return runProfileList(), true
+		return result.RouteMatched(runProfileList())
 	case constants.CmdProfileSwitch:
-		return runProfileSwitch(tailArgs), true
+		return result.RouteMatched(runProfileSwitch(tailArgs))
 	default:
 		return routeDBProfileExtra(subCmd, tailArgs)
 	}
 }
 
-func routeDBProfileExtra(subCmd string, tailArgs []string) (error, bool) {
+func routeDBProfileExtra(subCmd string, tailArgs []string) result.Result[bool] {
 	if subCmd == constants.CmdProfileDelete {
-		return runProfileDelete(tailArgs), true
+		return result.RouteMatched(runProfileDelete(tailArgs))
 	}
 
 	if subCmd == constants.CmdProfileShow {
-		return runProfileShow(), true
+		return result.RouteMatched(runProfileShow())
 	}
 
-	return nil, false
+	return result.RouteUnmatched()
 }
 
-func routeChromeProfileSub(subCmd string, tailArgs []string) (error, bool) {
-	if err, isHandled := routeChromeImportSub(subCmd, tailArgs); isHandled {
-		return err, true
+func routeChromeProfileSub(subCmd string, tailArgs []string) result.Result[bool] {
+	resImport := routeChromeImportSub(subCmd, tailArgs)
+	if resImport.Data {
+		return resImport
 	}
 
-	if err, isHandled := routeChromeExportSub(subCmd, tailArgs); isHandled {
-		return err, true
-	}
-
-	return nil, false
+	return routeChromeExportSub(subCmd, tailArgs)
 }
 
-func routeChromeImportSub(subCmd string, tailArgs []string) (error, bool) {
+func routeChromeImportSub(subCmd string, tailArgs []string) result.Result[bool] {
 	switch subCmd {
 	case constants.CmdProfileImport, "cpi", "profile-import":
-		return cmdchromeprofile.RunProfileImport(tailArgs), true
+		return result.RouteMatched(cmdchromeprofile.RunProfileImport(tailArgs))
 	case constants.CmdProfileImportAll, "cpi-all", "all-profile-import", "import-all-profiles":
-		return cmdchromeprofile.RunImportAll(tailArgs), true
+		return result.RouteMatched(cmdchromeprofile.RunImportAll(tailArgs))
 	case constants.CmdProfileInspect, constants.CmdProfilePreview, constants.CmdProfileCheck,
 		constants.CmdProfileImportCheck, "check-import":
-		return cmdchromeprofile.RunProfileImportCheck(tailArgs), true
+		return result.RouteMatched(cmdchromeprofile.RunProfileImportCheck(tailArgs))
 	}
 
-	return nil, false
+	return result.RouteUnmatched()
 }
 
-func routeChromeExportSub(subCmd string, tailArgs []string) (error, bool) {
+func routeChromeExportSub(subCmd string, tailArgs []string) result.Result[bool] {
 	switch subCmd {
 	case constants.CmdProfileExport, "cpe", "profile-export":
-		return cmdchromeprofile.RunProfileExport(tailArgs), true
+		return result.RouteMatched(cmdchromeprofile.RunProfileExport(tailArgs))
 	case constants.CmdProfileExportAll, "cpe-all", "all-profile-export", "export-all-profiles":
-		return cmdchromeprofile.RunExportAll(tailArgs), true
+		return result.RouteMatched(cmdchromeprofile.RunExportAll(tailArgs))
 	}
 
-	return nil, false
+	return result.RouteUnmatched()
 }

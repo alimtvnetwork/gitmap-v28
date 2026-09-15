@@ -8,6 +8,7 @@ import (
 	"github.com/spf13/cobra"
 
 	"github.com/alimtvnetwork/gitmap-v28/cli/apperror"
+	"github.com/alimtvnetwork/gitmap-v28/cli/result"
 	"github.com/alimtvnetwork/gitmap-v28/cli/store"
 )
 
@@ -347,66 +348,72 @@ func runK8sReset(ctx context.Context, args []string) error {
 	return executeClusterK8sScript(ctx, target, GenerateK8sResetScript())
 }
 
-func routeClusterK8sBootstrap(ctx context.Context, sub string, rest []string) (error, bool) {
+func routeClusterK8sBootstrap(ctx context.Context, sub string, rest []string) result.Result[bool] {
 	switch sub {
 	case "prereq":
-		return runK8sPrereq(ctx, rest), true
+		return result.RouteMatched(runK8sPrereq(ctx, rest))
 	case "install":
-		return runK8sInstall(ctx, rest), true
+		return result.RouteMatched(runK8sInstall(ctx, rest))
 	case "init":
-		return runK8sInit(ctx, rest), true
+		return result.RouteMatched(runK8sInit(ctx, rest))
 	default:
-		return nil, false
+		return result.RouteUnmatched()
 	}
 }
 
-func routeClusterK8sNetwork(ctx context.Context, sub string, rest []string) (error, bool) {
+func routeClusterK8sNetwork(ctx context.Context, sub string, rest []string) result.Result[bool] {
 	switch sub {
 	case "cni":
-		return runK8sCNI(ctx, rest), true
+		return result.RouteMatched(runK8sCNI(ctx, rest))
 	case "join-command":
-		return runK8sJoinCommand(ctx, rest), true
+		return result.RouteMatched(runK8sJoinCommand(ctx, rest))
 	case "join":
-		return runK8sJoin(ctx, rest), true
+		return result.RouteMatched(runK8sJoin(ctx, rest))
 	default:
-		return nil, false
+		return result.RouteUnmatched()
 	}
 }
 
-func routeClusterK8sAddons(ctx context.Context, sub string, rest []string) (error, bool) {
+func routeClusterK8sAddons(ctx context.Context, sub string, rest []string) result.Result[bool] {
 	switch sub {
 	case "nfs":
-		return runK8sNFS(ctx, rest), true
+		return result.RouteMatched(runK8sNFS(ctx, rest))
 	case "helm-install":
-		return runK8sHelmInstall(ctx, rest), true
+		return result.RouteMatched(runK8sHelmInstall(ctx, rest))
 	case "helm-nfs":
-		return runK8sHelmNFS(ctx, rest), true
+		return result.RouteMatched(runK8sHelmNFS(ctx, rest))
 	default:
-		return nil, false
+		return result.RouteUnmatched()
 	}
 }
 
-func routeClusterK8sAdmin(ctx context.Context, sub string, rest []string) (error, bool) {
+func routeClusterK8sAdmin(ctx context.Context, sub string, rest []string) result.Result[bool] {
 	switch sub {
 	case "status":
-		return runK8sStatus(ctx, rest), true
+		return result.RouteMatched(runK8sStatus(ctx, rest))
 	case "reset":
-		return runK8sReset(ctx, rest), true
+		return result.RouteMatched(runK8sReset(ctx, rest))
 	default:
-		return nil, false
+		return result.RouteUnmatched()
 	}
 }
 
-func routeClusterK8sCommand(ctx context.Context, sub string, rest []string) (error, bool) {
-	if err, isBoot := routeClusterK8sBootstrap(ctx, sub, rest); isBoot {
-		return err, true
+func routeClusterK8sCommand(ctx context.Context, sub string, rest []string) result.Result[bool] {
+	resBoot := routeClusterK8sBootstrap(ctx, sub, rest)
+	if resBoot.Data {
+		return resBoot
 	}
-	if err, isNet := routeClusterK8sNetwork(ctx, sub, rest); isNet {
-		return err, true
+
+	resNet := routeClusterK8sNetwork(ctx, sub, rest)
+	if resNet.Data {
+		return resNet
 	}
-	if err, isAddon := routeClusterK8sAddons(ctx, sub, rest); isAddon {
-		return err, true
+
+	resAddon := routeClusterK8sAddons(ctx, sub, rest)
+	if resAddon.Data {
+		return resAddon
 	}
+
 	return routeClusterK8sAdmin(ctx, sub, rest)
 }
 
@@ -415,9 +422,12 @@ func RunClusterK8sCLI(args []string) error {
 	if isClusterK8sHelp(args) {
 		return showClusterK8sHelp()
 	}
+
 	ctx := context.Background()
-	if err, isMatched := routeClusterK8sCommand(ctx, args[0], args[1:]); isMatched {
-		return err
+	res := routeClusterK8sCommand(ctx, args[0], args[1:])
+	if res.Data {
+		return res.AppError()
 	}
+
 	return apperror.NewValidationError(fmt.Sprintf("unknown cluster k8s subcommand: %s", args[0]))
 }

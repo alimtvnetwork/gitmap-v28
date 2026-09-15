@@ -6,6 +6,7 @@ import (
 
 	"github.com/alimtvnetwork/gitmap-v28/cli/apperror"
 	"github.com/alimtvnetwork/gitmap-v28/cli/constants"
+	"github.com/alimtvnetwork/gitmap-v28/cli/result"
 	"github.com/alimtvnetwork/gitmap-v28/cli/store"
 )
 
@@ -44,30 +45,31 @@ func showActiveGroup() *apperror.AppError {
 	return nil
 }
 
-func dispatchGroupCRUD(sub string, args []string) (error, bool) {
+func dispatchGroupCRUD(sub string, args []string) result.Result[bool] {
 	if sub == constants.CmdGroupCreate {
-		return runGroupCreate(args), true
+		return result.RouteMatched(runGroupCreate(args))
 	}
 
 	if sub == constants.CmdGroupAdd {
-		return runGroupAdd(args), true
+		return result.RouteMatched(runGroupAdd(args))
 	}
 
 	if sub == constants.CmdGroupRemove {
-		return runGroupRemove(args), true
+		return result.RouteMatched(runGroupRemove(args))
 	}
 
 	if sub == constants.CmdGroupList {
-		return runGroupList(), true
+		return result.RouteMatched(runGroupList())
 	}
 
-	return nil, false
+	return result.RouteUnmatched()
 }
 
 // dispatchGroup routes group subcommands to their handlers.
 func dispatchGroup(sub string, args []string) error {
-	if err, isHandled := dispatchGroupCRUD(sub, args); isHandled {
-		return err
+	resCRUD := dispatchGroupCRUD(sub, args)
+	if resCRUD.Data {
+		return resCRUD.AppError()
 	}
 
 	if sub == constants.CmdGroupShow {
@@ -78,32 +80,33 @@ func dispatchGroup(sub string, args []string) error {
 		return runGroupDelete(args)
 	}
 
-	if err, isHandled := dispatchGroupScoped(sub, args); isHandled {
-		return err
+	resScoped := dispatchGroupScoped(sub, args)
+	if resScoped.Data {
+		return resScoped.AppError()
 	}
 
 	return activateGroup(sub)
 }
 
 // dispatchGroupScoped handles pull/status/exec on the active group.
-func dispatchGroupScoped(sub string, args []string) (error, bool) {
+func dispatchGroupScoped(sub string, args []string) result.Result[bool] {
 	if sub == constants.CmdMGPull {
-		return runActiveGroupPull(), true
+		return result.RouteMatched(runActiveGroupPull())
 	}
 
 	if sub == constants.CmdMGStatus {
-		return runActiveGroupStatus(), true
+		return result.RouteMatched(runActiveGroupStatus())
 	}
 
 	if sub == constants.CmdMGExec {
-		return runActiveGroupExec(args), true
+		return result.RouteMatched(runActiveGroupExec(args))
 	}
 
 	if sub == constants.CmdMGClear {
-		return clearActiveGroup(), true
+		return result.RouteMatched(clearActiveGroup())
 	}
 
-	return nil, false
+	return result.RouteUnmatched()
 }
 
 func persistActiveGroupSetting(db *store.DB, name string) {

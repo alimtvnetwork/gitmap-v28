@@ -7,39 +7,41 @@ import (
 	"github.com/alimtvnetwork/gitmap-v28/cli/apperror"
 	"github.com/alimtvnetwork/gitmap-v28/cli/constants"
 	"github.com/alimtvnetwork/gitmap-v28/cli/pipelinedb"
+	"github.com/alimtvnetwork/gitmap-v28/cli/result"
 )
 
-func dispatchDbMutateSubcmd(sub string, rest []string) (error, bool) {
+func dispatchDbMutateSubcmd(sub string, rest []string) result.Result[bool] {
 	switch sub {
 	case "clear", "cl":
-		return runPipelineDBClear(rest), true
+		return result.RouteMatched(runPipelineDBClear(rest))
 	case "reset":
-		return runPipelineDBReset(rest), true
+		return result.RouteMatched(runPipelineDBReset(rest))
 	case "optimize", "opt":
-		return runPipelineDBOptimize(rest), true
+		return result.RouteMatched(runPipelineDBOptimize(rest))
 	default:
-		return nil, false
+		return result.RouteUnmatched()
 	}
 }
 
-func dispatchDbQuerySubcmd(sub string, rest []string) (error, bool) {
+func dispatchDbQuerySubcmd(sub string, rest []string) result.Result[bool] {
 	switch sub {
 	case "status", "st", "s", "info":
-		return runPipelineDBStatusWithTelemetry(rest), true
+		return result.RouteMatched(runPipelineDBStatusWithTelemetry(rest))
 	case "errorlogs", "error-logs", "errors", "err":
-		return runPipelineDBErrorLogs(rest), true
+		return result.RouteMatched(runPipelineDBErrorLogs(rest))
 	case "help", "-h", "--help":
 		printPipelineDBHelp()
 
-		return nil, true
+		return result.RouteMatched(nil)
 	default:
-		return nil, false
+		return result.RouteUnmatched()
 	}
 }
 
-func dispatchPipelineDBSubcmd(sub string, rest []string) (error, bool) {
-	if err, isHandled := dispatchDbQuerySubcmd(sub, rest); isHandled {
-		return err, true
+func dispatchPipelineDBSubcmd(sub string, rest []string) result.Result[bool] {
+	resQuery := dispatchDbQuerySubcmd(sub, rest)
+	if resQuery.Data {
+		return resQuery
 	}
 
 	return dispatchDbMutateSubcmd(sub, rest)
@@ -52,8 +54,9 @@ func handlePipelineDB(args []string) error {
 	}
 
 	sub := strings.ToLower(strings.TrimSpace(args[0]))
-	if err, isHandled := dispatchPipelineDBSubcmd(sub, args[1:]); isHandled {
-		return err
+	res := dispatchPipelineDBSubcmd(sub, args[1:])
+	if res.Data {
+		return res.AppError()
 	}
 
 	printPipelineDBHelp()

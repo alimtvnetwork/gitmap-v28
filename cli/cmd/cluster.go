@@ -8,129 +8,137 @@ import (
 	"github.com/alimtvnetwork/gitmap-v28/cli/constants"
 	"github.com/alimtvnetwork/gitmap-v28/cli/helptext"
 	"github.com/alimtvnetwork/gitmap-v28/cli/render"
+	"github.com/alimtvnetwork/gitmap-v28/cli/result"
 )
 
-const (
-	usageMsg      = "Usage: gitmap cluster [command]"
-	unknownCmdMsg = "Unknown cluster command: %s\n"
-)
-
-func routeClusterBootstrapOrExec(sub string, rest []string) (error, bool) {
+func routeClusterBootstrapOrExec(sub string, rest []string) result.Result[bool] {
 	switch sub {
 	case "bootstrap", "bs":
-		return cmdssh.RunClusterBootstrapCLI(rest), true
+		return result.RouteMatched(cmdssh.RunClusterBootstrapCLI(rest))
 	case "exec", "run":
-		return cmdssh.RunClusterExecCLI(rest), true
+		return result.RouteMatched(cmdssh.RunClusterExecCLI(rest))
 	default:
-		return nil, false
+		return result.RouteUnmatched()
 	}
 }
 
-func routeClusterScriptOrNode(sub string, rest []string) (error, bool) {
+func routeClusterScriptOrNode(sub string, rest []string) result.Result[bool] {
 	switch sub {
 	case "run-script", "script":
-		return cmdssh.RunClusterScriptCLI(rest), true
+		return result.RouteMatched(cmdssh.RunClusterScriptCLI(rest))
 	case "node":
-		return cmdssh.RunClusterNodeCLI(rest), true
+		return result.RouteMatched(cmdssh.RunClusterNodeCLI(rest))
 	case "import", "import-config", "import-cluster":
-		return cmdssh.RunClusterImportCLI(rest), true
+		return result.RouteMatched(cmdssh.RunClusterImportCLI(rest))
 	default:
-		return nil, false
+		return result.RouteUnmatched()
 	}
 }
 
-func routeClusterSSH(sub string, rest []string) (error, bool) {
-	if err, isMatched := routeClusterBootstrapOrExec(sub, rest); isMatched {
-		return err, true
+func routeClusterSSH(sub string, rest []string) result.Result[bool] {
+	res := routeClusterBootstrapOrExec(sub, rest)
+	if res.Data {
+		return res
 	}
+
 	return routeClusterScriptOrNode(sub, rest)
 }
 
-func routeClusterJoinOps(sub string, rest []string) (error, bool) {
+func routeClusterJoinOps(sub string, rest []string) result.Result[bool] {
 	switch sub {
 	case "add":
-		return cmdssh.RunClusterAddCLI(rest), true
+		return result.RouteMatched(cmdssh.RunClusterAddCLI(rest))
 	case "join":
-		return cmdssh.RunClusterJoinCLI(rest), true
+		return result.RouteMatched(cmdssh.RunClusterJoinCLI(rest))
 	case "ping":
-		return cmdssh.RunSJStatus(nil, rest, context.Background()), true
+		return result.RouteMatched(cmdssh.RunSJStatus(nil, rest, context.Background()))
 	default:
-		return nil, false
+		return result.RouteUnmatched()
 	}
 }
 
-func routeClusterLegacyOps(sub string, rest []string) (error, bool) {
+func routeClusterLegacyOps(sub string, rest []string) result.Result[bool] {
 	switch sub {
 	case constants.CmdClusterStatus:
-		return runClusterStatus(rest), true
+		return result.RouteMatched(runClusterStatus(rest))
 	case "history", "hi":
-		return runClusterHistory(rest), true
+		return result.RouteMatched(runClusterHistory(rest))
 	case "export":
-		return runClusterExport(rest), true
+		return result.RouteMatched(runClusterExport(rest))
 	case "stats":
-		return runClusterStats(rest), true
+		return result.RouteMatched(runClusterStats(rest))
 	default:
-		return nil, false
+		return result.RouteUnmatched()
 	}
 }
 
-func routeClusterPasswordOps(sub string, rest []string) (error, bool) {
+func routeClusterPasswordOps(sub string, rest []string) result.Result[bool] {
 	switch sub {
 	case "set-password":
-		return runClusterSetPassword(rest), true
+		return result.RouteMatched(runClusterSetPassword(rest))
 	case "reset-password":
-		return runClusterResetPassword(rest), true
+		return result.RouteMatched(runClusterResetPassword(rest))
 	default:
-		return nil, false
+		return result.RouteUnmatched()
 	}
 }
 
-func routeClusterNodeOps(sub string, rest []string) (error, bool) {
-	if err, isMatched := routeClusterPasswordOps(sub, rest); isMatched {
-		return err, true
+func routeClusterNodeOps(sub string, rest []string) result.Result[bool] {
+	resPass := routeClusterPasswordOps(sub, rest)
+	if resPass.Data {
+		return resPass
 	}
+
 	switch sub {
 	case "nodes", "ls":
-		return runClusterNodes(rest), true
+		return result.RouteMatched(runClusterNodes(rest))
 	case "remove", "rm":
-		return runClusterRemove(rest), true
+		return result.RouteMatched(runClusterRemove(rest))
 	case "audit-clean":
-		return runClusterAuditClean(rest), true
+		return result.RouteMatched(runClusterAuditClean(rest))
 	default:
-		return nil, false
+		return result.RouteUnmatched()
 	}
 }
 
-func routeClusterK8s(sub string, rest []string) (error, bool) {
+func routeClusterK8s(sub string, rest []string) result.Result[bool] {
 	switch sub {
 	case "k8s", "kube", "kubernetes":
-		return cmdssh.RunClusterK8sCLI(rest), true
+		return result.RouteMatched(cmdssh.RunClusterK8sCLI(rest))
 	default:
-		return nil, false
+		return result.RouteUnmatched()
 	}
 }
 
-func routeClusterCore(sub string, rest []string) (error, bool) {
-	if err, isJoin := routeClusterJoinOps(sub, rest); isJoin {
-		return err, true
+func routeClusterCore(sub string, rest []string) result.Result[bool] {
+	resJoin := routeClusterJoinOps(sub, rest)
+	if resJoin.Data {
+		return resJoin
 	}
+
 	return routeClusterSSH(sub, rest)
 }
 
-func routeClusterExt(sub string, rest []string) (error, bool) {
-	if err, isK8s := routeClusterK8s(sub, rest); isK8s {
-		return err, true
+func routeClusterExt(sub string, rest []string) result.Result[bool] {
+	resK8s := routeClusterK8s(sub, rest)
+	if resK8s.Data {
+		return resK8s
 	}
-	if err, isLegacy := routeClusterLegacyOps(sub, rest); isLegacy {
-		return err, true
+
+	resLegacy := routeClusterLegacyOps(sub, rest)
+	if resLegacy.Data {
+		return resLegacy
 	}
+
 	return routeClusterNodeOps(sub, rest)
 }
 
-func dispatchClusterSubcommand(sub string, rest []string) (error, bool) {
-	if err, isCore := routeClusterCore(sub, rest); isCore {
-		return err, true
+func dispatchClusterSubcommand(sub string, rest []string) result.Result[bool] {
+	resCore := routeClusterCore(sub, rest)
+	if resCore.Data {
+		return resCore
 	}
+
 	return routeClusterExt(sub, rest)
 }
 
@@ -141,19 +149,22 @@ func isClusterHelpToken(arg string) bool {
 func isClusterRootHelp(args []string) bool {
 	isZero := len(args) == 0
 	isSingleHelp := len(args) == 1 && isClusterHelpToken(args[0])
+
 	return isZero || isSingleHelp
 }
 
-func dispatchInvertedClusterHelp(args []string) (error, bool) {
+func dispatchInvertedClusterHelp(args []string) result.Result[bool] {
 	hasInverted := len(args) > 1 && args[0] == "help"
 	if !hasInverted {
-		return nil, false
+		return result.RouteUnmatched()
 	}
-	err, isMatched := dispatchClusterSubcommand(args[1], append(args[2:], "--help"))
-	if isMatched {
-		return err, true
+
+	res := dispatchClusterSubcommand(args[1], append(args[2:], "--help"))
+	if res.Data {
+		return res
 	}
-	return apperror.NewSimple("unknown command", "E9000"), true
+
+	return result.RouteMatchedAppErr(apperror.NewSimple("unknown command", "E9000"))
 }
 
 // runCluster handles the "cluster" subcommand and routes to sub-handlers.
@@ -162,12 +173,16 @@ func runCluster(args []string) error {
 		helptext.PrintWithMode("cluster", render.PrettyAuto)
 		return nil
 	}
-	if err, isHelp := dispatchInvertedClusterHelp(args); isHelp {
-		return err
+
+	resHelp := dispatchInvertedClusterHelp(args)
+	if resHelp.Data {
+		return resHelp.AppError()
 	}
-	err, isMatched := dispatchClusterSubcommand(args[0], args[1:])
-	if isMatched {
-		return err
+
+	resSub := dispatchClusterSubcommand(args[0], args[1:])
+	if resSub.Data {
+		return resSub.AppError()
 	}
+
 	return apperror.NewSimple("unknown command", "E9000")
 }

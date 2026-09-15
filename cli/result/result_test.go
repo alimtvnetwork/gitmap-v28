@@ -94,3 +94,21 @@ func TestNewFailureWithType(t *testing.T) {
 		t.Fatal("expected HasValidError to be true")
 	}
 }
+
+func TestRouteMatchedAndUnmatched(t *testing.T) {
+	unmatched := result.RouteUnmatched()
+	if unmatched.Data {
+		t.Fatal("expected Data to be false for RouteUnmatched")
+	}
+
+	matchedOk := result.RouteMatched(nil)
+	if !matchedOk.Data || matchedOk.Err != nil {
+		t.Fatal("expected Data to be true and Err to be nil for RouteMatched(nil)")
+	}
+
+	appErr := apperror.NewSimple("route failed", "E500")
+	matchedErr := result.RouteMatchedAppErr(appErr)
+	if !matchedErr.Data || matchedErr.AppError() != appErr {
+		t.Fatal("expected Data to be true and AppError to match for RouteMatchedAppErr")
+	}
+}

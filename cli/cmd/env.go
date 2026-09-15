@@ -3,6 +3,7 @@ package cmd
 import (
 	"github.com/alimtvnetwork/gitmap-v28/cli/apperror"
 	"github.com/alimtvnetwork/gitmap-v28/cli/constants"
+	"github.com/alimtvnetwork/gitmap-v28/cli/result"
 )
 
 // runEnv handles the "env" subcommand routing.
@@ -18,30 +19,31 @@ func runEnv(args []string) error {
 	return routeEnvSub(sub, rest)
 }
 
-func routeEnvVariableSub(sub string, args []string) (error, bool) {
+func routeEnvVariableSub(sub string, args []string) result.Result[bool] {
 	if sub == constants.CmdEnvSet {
-		return runEnvSet(args), true
+		return result.RouteMatched(runEnvSet(args))
 	}
 
 	if sub == constants.CmdEnvGet {
-		return runEnvGet(args), true
+		return result.RouteMatched(runEnvGet(args))
 	}
 
 	if sub == constants.CmdEnvDelete {
-		return runEnvDelete(args), true
+		return result.RouteMatched(runEnvDelete(args))
 	}
 
 	if sub == constants.CmdEnvList {
-		return runEnvList(), true
+		return result.RouteMatched(runEnvList())
 	}
 
-	return nil, false
+	return result.RouteUnmatched()
 }
 
 // routeEnvSub routes to the appropriate env subcommand.
 func routeEnvSub(sub string, args []string) error {
-	if err, isHandled := routeEnvVariableSub(sub, args); isHandled {
-		return err
+	resVar := routeEnvVariableSub(sub, args)
+	if resVar.Data {
+		return resVar.AppError()
 	}
 
 	if sub == constants.CmdEnvPathAdd {
