@@ -132,9 +132,16 @@ def main():
     new_keys = sorted(current_keys - baseline_keys)
     new_count = len(new_keys)
 
+    script_name = os.path.basename(sys.argv[0])
+    runner_cmd = f"python .github/scripts/check-single-linter-diff.py {args.lint_dir} --linter={args.linter}"
+
     print("========================================================================")
     print(f"  {label.upper()} DIFF (baseline-diff, full-path only)")
     print("========================================================================")
+    print(f"  script   : .github/scripts/check-single-linter-diff.py ({script_name})")
+    print(f"  analyzer : {label}")
+    print(f"  target   : {args.lint_dir}")
+    print(f"  command  : {runner_cmd}")
     print(f"  current  : {args.current_out}")
     print(f"  baseline : {args.baseline if not seeding else '<none — seeding mode>'}")
     print(f"  + NEW    : {new_count}")
@@ -144,18 +151,38 @@ def main():
         print(f"OK: no new {label} findings.")
         sys.exit(0)
 
-    for key in new_keys:
+    print(f"\n[CI/CD ERROR REPORT] New {label} Violations Detected ({new_count} finding(s)):")
+    for idx, key in enumerate(new_keys, start=1):
         filename, line, col, text = current_issues[key]
         if seeding:
             print(f"::warning file={filename},line={line},col={col}::[{label}] {text} (seeding baseline)")
+            print(f"  ⚠️  [{label}] {filename}:{line}:{col}: {text} (seeding baseline)")
         else:
+            # Emit GitHub Actions workflow annotation
             print(f"::error file={filename},line={line},col={col}::[{label}] {text} (NEW vs baseline)")
+            # Emit crystal-clear structured block for terminal and log inspection with exact file path
+            print(f"\n  ┌─ Error [{idx}/{new_count}]: [{label}]")
+            print(f"  │ File:     {filename}:{line}:{col}")
+            print(f"  │ Location: {filename} at line {line}, col {col}")
+            print(f"  │ Linter:   {label}")
+            print(f"  │ Message:  {text}")
+            print(f"  │ Context:  NEW finding vs baseline")
+            print(f"  │ Script:   .github/scripts/check-single-linter-diff.py")
+            print(f"  └──────────────────────────────────────────────────────────")
+            print(f"  ❌ {filename}:{line}:{col}: [{label}] {text}")
 
     if seeding:
-        print("Seeding mode — not failing the build.", file=sys.stderr)
+        print("\nSeeding mode — not failing the build.", file=sys.stderr)
         sys.exit(0)
 
-    print(f"\nFAIL: {new_count} new {label} finding(s). Fix the issues above.", file=sys.stderr)
+    print(f"\n========================================================================", file=sys.stderr)
+    print(f"FAIL: {new_count} new {label} finding(s) detected!", file=sys.stderr)
+    print(f"Script:   .github/scripts/check-single-linter-diff.py", file=sys.stderr)
+    print(f"Target:   {args.lint_dir}", file=sys.stderr)
+    print(f"To reproduce locally:", file=sys.stderr)
+    print(f"  golangci-lint run --no-config --disable-all --enable={args.linter} ./{args.lint_dir}/...", file=sys.stderr)
+    print(f"Inspect the exact files and lines listed above to resolve.", file=sys.stderr)
+    print(f"========================================================================\n", file=sys.stderr)
     sys.exit(1)
 
 

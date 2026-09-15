@@ -171,19 +171,20 @@ func syncScheduleToMainDB(name string, cfg *store.ScheduleConfig) {
 func updateScheduleConfigFromFlags(cfg *store.ScheduleConfig, flags []string) {
 	for i := 0; i < len(flags); i++ {
 		f := flags[i]
-		if strings.HasPrefix(f, "--interval=") {
+		switch {
+		case strings.HasPrefix(f, "--interval="):
 			cfg.IntervalVal = strings.TrimPrefix(f, "--interval=")
-		} else if (f == "--interval" || f == "-i") && i+1 < len(flags) {
+		case (f == "--interval" || f == "-i") && i+1 < len(flags):
 			cfg.IntervalVal = flags[i+1]
 			i++
-		} else if strings.HasPrefix(f, "--delay=") {
+		case strings.HasPrefix(f, "--delay="):
 			cfg.DelayVal = strings.TrimPrefix(f, "--delay=")
-		} else if (f == "--delay" || f == "-d") && i+1 < len(flags) {
+		case (f == "--delay" || f == "-d") && i+1 < len(flags):
 			cfg.DelayVal = flags[i+1]
 			i++
-		} else if f == "--enable" || f == "enable" || f == "on" {
+		case f == "--enable" || f == "enable" || f == "on":
 			cfg.IsEnabled = true
-		} else if f == "--disable" || f == "disable" || f == "off" {
+		case f == "--disable" || f == "disable" || f == "off":
 			cfg.IsEnabled = false
 		}
 	}

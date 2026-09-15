@@ -169,8 +169,85 @@ func cleanLogText(text string) string {
 	t := strings.TrimPrefix(text, "##[error]")
 	t = strings.TrimPrefix(t, "##[group]")
 	t = strings.TrimPrefix(t, "##[endgroup]")
+	t = cleanAnnotationError(t)
 
 	return strings.TrimSpace(t)
+}
+
+func cleanAnnotationError(text string) string {
+	idx := strings.Index(text, "::error")
+	if idx < 0 {
+		return text
+	}
+
+	return formatExtractedAnnotation(text[idx+len("::error"):])
+}
+
+func formatExtractedAnnotation(sub string) string {
+	sepIdx := strings.Index(sub, "::")
+	if sepIdx < 0 {
+		return sub
+	}
+
+	meta := strings.TrimSpace(sub[:sepIdx])
+	msg := strings.TrimSpace(sub[sepIdx+2:])
+	loc := formatAnnotationLocation(meta)
+	if len(loc) > 0 {
+		return loc + ": " + msg
+	}
+
+	return msg
+}
+
+func formatAnnotationLocation(meta string) string {
+	if len(meta) == 0 {
+		return ""
+	}
+
+	file, line, col := parseAnnotationParts(meta)
+	if len(file) == 0 {
+		return ""
+	}
+
+	return buildLocationString(file, line, col)
+}
+
+func buildLocationString(file, line, col string) string {
+	loc := file
+	if len(line) > 0 {
+		loc += ":" + line
+	}
+	if len(col) > 0 {
+		loc += ":" + col
+	}
+
+	return loc
+}
+
+func parseAnnotationParts(meta string) (string, string, string) {
+	var file, line, col string
+	for _, part := range strings.Split(meta, ",") {
+		k, v := parseKeyValue(part)
+		switch k {
+		case "file":
+			file = v
+		case "line":
+			line = v
+		case "col":
+			col = v
+		}
+	}
+
+	return file, line, col
+}
+
+func parseKeyValue(part string) (string, string) {
+	kv := strings.SplitN(strings.TrimSpace(part), "=", 2)
+	if len(kv) == 2 {
+		return kv[0], kv[1]
+	}
+
+	return "", ""
 }
 
 func isIgnoredLogLine(text string) bool {
@@ -231,6 +308,10 @@ func isStrongerSummary(candidate, current string) bool {
 		return false
 	}
 
+	if isLocationSummary(candidate) && !isLocationSummary(current) {
+		return true
+	}
+
 	if strings.Contains(candidate, "Expected ") || strings.Contains(candidate, "gofmt") {
 		return true
 	}
@@ -240,6 +321,10 @@ func isStrongerSummary(candidate, current string) bool {
 	}
 
 	return isGenericExitCode(current)
+}
+
+func isLocationSummary(s string) bool {
+	return strings.Contains(s, ".go:") || strings.Contains(s, ".py:") || strings.Contains(s, ".sh:")
 }
 
 func isGenericExitCode(s string) bool {
@@ -540,9 +625,37 @@ func formatSectionMetadata(sb *strings.Builder, sec SectionFailure) {
 		sb.WriteString(fmt.Sprintf("  │ Saved Log: %s\n", toRelativeGitPath(sec.SavedLogFile)))
 	}
 
+	formatExtractedScriptAndLocation(sb, sec.ErrorLines)
+
 	if len(sec.FailureSummary) > 0 {
 		sb.WriteString(fmt.Sprintf("  │ Summary:   %s\n", sec.FailureSummary))
 	}
+}
+
+func formatExtractedScriptAndLocation(sb *strings.Builder, lines []string) {
+	script := findPrefixedLine(lines, "Script:")
+	if len(script) > 0 {
+		sb.WriteString(fmt.Sprintf("  │ %s\n", script))
+	}
+
+	file := findPrefixedLine(lines, "File:")
+	if len(file) > 0 {
+		sb.WriteString(fmt.Sprintf("  │ %s\n", file))
+	}
+}
+
+func findPrefixedLine(lines []string, prefix string) string {
+	for _, l := range lines {
+		trimmed := strings.TrimSpace(l)
+		if strings.HasPrefix(trimmed, "│ "+prefix) {
+			return strings.TrimPrefix(trimmed, "│ ")
+		}
+		if strings.HasPrefix(trimmed, prefix) {
+			return trimmed
+		}
+	}
+
+	return ""
 }
 
 func formatSectionErrors(sb *strings.Builder, sec SectionFailure) {

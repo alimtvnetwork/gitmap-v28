@@ -216,3 +216,44 @@ func verifySplitDbDualLogs(t *testing.T, pipeDb *pipelinedb.PipelineSplitDb, run
 		t.Errorf("expected FilteredOkCount 1, got %d", compacts[0].FilteredOkCount)
 	}
 }
+
+func TestCleanAnnotationError_WithFileAndLine_FormatsLocation(t *testing.T) {
+	raw := "::error file=cli/cmd/join.go,line=34,col=2::[gocritic] appendAssign: append result not assigned"
+	got := cleanAnnotationError(raw)
+	want := "cli/cmd/join.go:34:2: [gocritic] appendAssign: append result not assigned"
+	if got != want {
+		t.Errorf("cleanAnnotationError() = %q, want %q", got, want)
+	}
+}
+
+func TestCleanAnnotationError_WithoutAnnotation_ReturnsOriginal(t *testing.T) {
+	raw := "regular error line without annotation"
+	got := cleanAnnotationError(raw)
+	if got != raw {
+		t.Errorf("cleanAnnotationError() = %q, want %q", got, raw)
+	}
+}
+
+func TestFormatSectionMetadata_WithScriptAndFile_DisplaysThem(t *testing.T) {
+	sec := SectionFailure{
+		WorkflowName:   "CI",
+		RunId:          12345,
+		JobName:        "gocritic",
+		StepName:       "Gocritic diff",
+		FailureSummary: "cli/cmd/join.go:34:2: [gocritic] appendAssign",
+		ErrorLines: []string{
+			"  │ File:     cli/cmd/join.go:34:2",
+			"  │ Script:   .github/scripts/check-single-linter-diff.py",
+		},
+	}
+	var sb strings.Builder
+	formatSectionMetadata(&sb, sec)
+	out := sb.String()
+	if !strings.Contains(out, "Script:   .github/scripts/check-single-linter-diff.py") {
+		t.Errorf("expected script in metadata, got: %s", out)
+	}
+	if !strings.Contains(out, "File:     cli/cmd/join.go:34:2") {
+		t.Errorf("expected file in metadata, got: %s", out)
+	}
+}
+

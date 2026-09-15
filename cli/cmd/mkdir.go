@@ -110,11 +110,12 @@ func parseMkdirArgs(args []string) (bool, bool, string) {
 	pathArg := ""
 
 	for _, arg := range args {
-		if arg == "-p" {
+		switch arg {
+		case "-p":
 			createParents = true
-		} else if arg == "-f" || arg == "--file" {
+		case "-f", "--file":
 			createFiles = true
-		} else {
+		default:
 			pathArg = arg
 		}
 	}

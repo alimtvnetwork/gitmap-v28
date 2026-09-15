@@ -10,8 +10,8 @@ func TestDispatchSSHLogin(t *testing.T) {
 	cancel()
 	args := []string{"login", "a@b"}
 
-	err := dispatchSSH(ctx, args, nil)
-	if err == nil {
-		t.Fatalf("expected error due to context cancellation, got nil")
+	res := dispatchSSH(ctx, args, nil)
+	if res.IsSuccess() {
+		t.Fatalf("expected error due to context cancellation, got success")
 	}
 }

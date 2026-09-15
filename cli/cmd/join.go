@@ -31,12 +31,12 @@ func parseJoinArgs(args []string) (string, string, *apperror.AppError) {
 		return "", "", apperror.NewValidationError(err.Error())
 	}
 
-	allPositional := append(positional, fs.Args()...)
-	if appErr := validateJoinInputs(allPositional, *token); appErr != nil {
+	positional = append(positional, fs.Args()...)
+	if appErr := validateJoinInputs(positional, *token); appErr != nil {
 		return "", "", appErr
 	}
 
-	return allPositional[0], *token, nil
+	return positional[0], *token, nil
 }
 
 func splitJoinArgs(args []string) ([]string, []string) {

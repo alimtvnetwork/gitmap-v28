@@ -68,6 +68,7 @@ def main() -> int:
             file, line, linter, message = f
             print(f"::error file={file},line={line}::"
                   f"[{linter}] {message} (NEW in {args.current})")
+            print(f"  ❌ {file}:{line}: [{linter}] {message}")
         return 1
 
     return 0

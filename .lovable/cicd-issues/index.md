@@ -33,3 +33,4 @@
 - [42-step-timeout-and-fixture-gofmt.md](./42-step-timeout-and-fixture-gofmt.md): Fix step timeout pipe hanging on Unix and eliminate gofmt dirty file report in fixrepo e2e test.
 - [43-installer-seed-urls-and-release-dryrun-path.md](./43-installer-seed-urls-and-release-dryrun-path.md): Fix installer seed data 404s and release dry-run script path drift.
 - [44-errorwrapper-typed-nil-and-errname-linter.md](./44-errorwrapper-typed-nil-and-errname-linter.md): Fix ErrorWrapper typed nil interface bug, errname linter, Darwin build type, and gocritic findings.
+- [45-gocritic-violations-and-ci-error-location-reporting.md](./45-gocritic-violations-and-ci-error-location-reporting.md): Fix gocritic appendAssign and ifElseChain violations, and enhance CI/CD & pipeline error reporting with explicit file paths, lines, and script context.

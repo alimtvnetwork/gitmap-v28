@@ -13,16 +13,17 @@ import (
 func parsePurgeArgs(args []string) (pat string, isRestore, isAutoConfirm, isLovable bool) {
 	for i := 0; i < len(args); i++ {
 		a := args[i]
-		if a == "--restore" {
+		switch {
+		case a == "--restore":
 			isRestore = true
-		} else if a == "--lovable-untracked" {
+		case a == "--lovable-untracked":
 			isLovable = true
-		} else if a == "-y" || a == "--confirm" {
+		case a == "-y" || a == "--confirm":
 			isAutoConfirm = true
-		} else if a == "--path" && i+1 < len(args) {
+		case a == "--path" && i+1 < len(args):
 			i++
 			pat = args[i]
-		} else if !strings.HasPrefix(a, "-") && pat == "" {
+		case !strings.HasPrefix(a, "-") && pat == "":
 			pat = a
 		}
 	}
