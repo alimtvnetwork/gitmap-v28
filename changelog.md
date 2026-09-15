@@ -1,3 +1,15 @@
+## [v6.246.0] 2026-09-15 Release v6.246.0
+
+### Install GitMap v6.246.0
+
+To pin your repository to this exact version, run the following one-liner:
+Unix/Bash: `curl -sL https://raw.githubusercontent.com/alimtvnetwork/gitmap-v28/v6.246.0/install.sh | bash -s -- ".lovable/prompts" "v6.246.0"`
+PowerShell: `Invoke-WebRequest -Uri https://raw.githubusercontent.com/alimtvnetwork/gitmap-v28/v6.246.0/install.ps1 -OutFile install.ps1; .\install.ps1 -TargetDir ".lovable/prompts" -Version "v6.246.0"`
+
+### Added / Changed / Fixed / Removed
+
+- align pipeline table, display db size, add agy fix-pipeline command
+
 ## [v6.245.1] 2026-09-15 Release v6.245.1
 
 ### Install GitMap v6.245.1
