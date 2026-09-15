@@ -327,3 +327,30 @@ func TestFormatDbPathWithSize_ExistingAndMissing(t *testing.T) {
 		t.Fatalf("expected no size for missing db file, got %s", withoutSize)
 	}
 }
+
+func TestResolveDbFileSize(t *testing.T) {
+	tempFile := filepath.Join(t.TempDir(), "test_size.db")
+	_ = os.WriteFile(tempFile, make([]byte, 2048), 0644)
+	size := ResolveDbFileSize(tempFile)
+	if !strings.Contains(size, "KB") && !strings.Contains(size, "B") {
+		t.Fatalf("expected valid size string, got %s", size)
+	}
+
+	missing := filepath.Join(t.TempDir(), "missing.db")
+	missingSize := ResolveDbFileSize(missing)
+	if missingSize != "0 B" {
+		t.Fatalf("expected '0 B' for missing file, got %s", missingSize)
+	}
+}
+
+func TestFormatRelativeDbPath_RepoScoped(t *testing.T) {
+	p1 := "D:/work/gitmap/.gitmap/data/pipeline.db"
+	if rel := FormatRelativeDbPath(p1); rel != ".gitmap/data/pipeline.db" {
+		t.Errorf("expected .gitmap/data/pipeline.db, got %s", rel)
+	}
+
+	p2 := "C:/Users/Administrator/projects/repo/.gitmap/pipeline.db"
+	if rel := FormatRelativeDbPath(p2); rel != ".gitmap/pipeline.db" {
+		t.Errorf("expected .gitmap/pipeline.db, got %s", rel)
+	}
+}

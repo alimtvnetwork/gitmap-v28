@@ -25,7 +25,12 @@ type PipelineSyncResult struct {
 // FormatRelativeDbPath converts an absolute DB path to a repo-relative path starting with ./.
 func FormatRelativeDbPath(fullPath string) string {
 	if len(fullPath) == 0 {
-		return "./.gitmap/pipeline_db/pipeline-default.db"
+		return ".gitmap/data/pipeline.db"
+	}
+
+	slashPath := filepath.ToSlash(fullPath)
+	if idx := strings.Index(slashPath, ".gitmap/"); idx != -1 {
+		return slashPath[idx:]
 	}
 
 	rel, err := filepath.Rel(resolveRepoRootDir(), fullPath)
@@ -41,12 +46,11 @@ func FormatRelativeDbPath(fullPath string) string {
 	return slashRel
 }
 
-// FormatDbPathWithSize converts DB path to relative and appends file size if file exists.
-func FormatDbPathWithSize(dbPath string) string {
-	relPath := FormatRelativeDbPath(dbPath)
+// ResolveDbFileSize returns the formatted human size for a pipeline database.
+func ResolveDbFileSize(dbPath string) string {
 	target := resolveDbStatTarget(dbPath)
 	if len(target) == 0 {
-		return relPath
+		return "0 B"
 	}
 
 	fi, err := os.Stat(target)
@@ -54,10 +58,21 @@ func FormatDbPathWithSize(dbPath string) string {
 		fi, err = statRelativeDbFallback(target)
 	}
 	if err != nil || fi.IsDir() {
+		return "0 B"
+	}
+
+	return pipelinedb.FormatHumanSize(fi.Size())
+}
+
+// FormatDbPathWithSize converts DB path to relative and appends file size if file exists.
+func FormatDbPathWithSize(dbPath string) string {
+	relPath := FormatRelativeDbPath(dbPath)
+	sizeStr := ResolveDbFileSize(dbPath)
+	if sizeStr == "" || sizeStr == "0 B" {
 		return relPath
 	}
 
-	return fmt.Sprintf("%s (%s)", relPath, pipelinedb.FormatHumanSize(fi.Size()))
+	return fmt.Sprintf("%s (%s)", relPath, sizeStr)
 }
 
 func resolveDbStatTarget(dbPath string) string {
@@ -65,7 +80,7 @@ func resolveDbStatTarget(dbPath string) string {
 		return dbPath
 	}
 
-	return filepath.Join(resolveRepoRootDir(), ".gitmap", "pipeline_db", "pipeline-default.db")
+	return filepath.Join(resolveRepoRootDir(), ".gitmap", "data", "pipeline.db")
 }
 
 func statRelativeDbFallback(target string) (os.FileInfo, error) {
@@ -276,7 +291,8 @@ func calculateAlreadyCachedCount(res *PipelineSyncResult) int {
 func renderSyncResultTerminal(res *PipelineSyncResult) {
 	fmt.Printf("\n  %s● Incremental Pipeline Cache Sync (%s):%s\n",
 		constants.ColorCyan, res.Repo, constants.ColorReset)
-	fmt.Printf("    • Pipeline Database: %s\n", FormatDbPathWithSize(res.DbPath))
+	fmt.Printf("    • Pipeline Database: %s\n", FormatRelativeDbPath(res.DbPath))
+	fmt.Printf("    • Database Size:     %s\n", ResolveDbFileSize(res.DbPath))
 	fmt.Printf("    • Runs Scanned:      %d (max 20)\n", res.ScannedRuns)
 	fmt.Printf("    • Failed Runs Found: %d\n", len(res.FailedRuns))
 	fmt.Printf("    • New Logs Cached:   %s%d%s\n",

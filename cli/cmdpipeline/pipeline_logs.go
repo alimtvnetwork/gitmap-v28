@@ -529,7 +529,8 @@ func renderPipelineMetaVersionAndPR(p PipelineErrorLogsPayload) {
 
 func renderCleanSuccessDbAndHistory(p PipelineErrorLogsPayload) {
 	if len(p.DbPath) > 0 {
-		fmt.Printf("  • Pipeline DB:     %s\n", FormatDbPathWithSize(p.DbPath))
+		fmt.Printf("  • Pipeline DB:     %s\n", FormatRelativeDbPath(p.DbPath))
+		fmt.Printf("  • DB Size:         %s\n", ResolveDbFileSize(p.DbPath))
 	}
 
 	runs := queryWorkflowRuns(p.Repo)
@@ -746,7 +747,8 @@ func renderSavedLocationsTerminal(p PipelineErrorLogsPayload) {
 	}
 
 	if len(p.DbPath) > 0 {
-		fmt.Printf("    • Pipeline DB:     %s\n", FormatDbPathWithSize(p.DbPath))
+		fmt.Printf("    • Pipeline DB:     %s\n", FormatRelativeDbPath(p.DbPath))
+		fmt.Printf("    • DB Size:         %s\n", ResolveDbFileSize(p.DbPath))
 	}
 
 	if len(p.Url) > 0 {

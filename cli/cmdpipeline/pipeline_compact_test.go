@@ -20,6 +20,12 @@ func TestIsOkLogLine_WithPassingInputs_ReturnsTrue(t *testing.T) {
 		"=== RUN   TestSample",
 		"✔ ok: macro verified",
 		"✔ Macro exported successfully",
+		"test proxy::opencode_sync::canonical_family_tests::canonical_families_match_ids_are_unique_globally_after_normalization ... ok",
+		"test proxy::opencode_sync::tests::apply_sync_keeps_non_conflicting_user_fields ... ok",
+		"test proxy::opencode_sync::tests::build_variants_flash_resolve_to_real_ids ... ok",
+		"test proxy::opencode_sync::tests::test_base_url_matches_different_urls ... ok",
+		"test proxy::opencode_sync::tests::catalog_marks_gemini_31_flash_lite_as_non_variant ... ignored",
+		"test result: ok. 12 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.05s",
 	}
 	assertAllOkLinesTrue(t, cases)
 }
@@ -41,6 +47,7 @@ func TestIsOkLogLine_WithFailingInputs_ReturnsFalse(t *testing.T) {
 		"exit status 1",
 		"Error: compilation failed",
 		"##[error]Process completed with exit code 1.",
+		"test proxy::mappers::tool_result_compressor::tests::test_sanitize_tool_result_blocks ... FAILED",
 	}
 	assertAllFailingLinesFalse(t, cases)
 }

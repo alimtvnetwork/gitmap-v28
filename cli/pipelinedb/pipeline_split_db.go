@@ -93,17 +93,109 @@ func isTestRepoSlug(repoSlug string) bool {
 	return false
 }
 
-// ResolvePipelineDbPath resolves the repository-scoped or fallback SQLite database path.
-func ResolvePipelineDbPath(repoSlug string) string {
-	root, err := gitutil.RepoRoot(".")
-	if err != nil || root == "" {
-		return fallbackBinaryPipelineDbPath(repoSlug)
+func isDirExisting(path string) bool {
+	fi, err := os.Stat(path)
+	if err != nil {
+		return false
 	}
+
+	return fi.IsDir()
+}
+
+func stripVersionSuffix(name string) string {
+	idx := strings.LastIndex(name, "-v")
+	if idx > 0 {
+		return name[:idx]
+	}
+
+	return name
+}
+
+func checkCandidateDir(candidate string) string {
+	if !isDirExisting(candidate) {
+		return ""
+	}
+	root, err := gitutil.RepoRoot(candidate)
+	if err == nil && root != "" {
+		return root
+	}
+
+	return ""
+}
+
+func findCandidateRepoRoot(repoSlug string) string {
+	base := filepath.Base(repoSlug)
+	candidates := []string{base, stripVersionSuffix(base)}
+	for _, cand := range candidates {
+		if root := checkCandidateDir(cand); root != "" {
+			return root
+		}
+	}
+
+	return ""
+}
+
+func isRepoMatchingSlug(repoRoot, repoSlug string) bool {
+	remote, err := gitutil.RemoteURL(repoRoot)
+	if err == nil && strings.Contains(strings.ToLower(remote), strings.ToLower(repoSlug)) {
+		return true
+	}
+	base := filepath.Base(repoRoot)
+	if strings.EqualFold(base, filepath.Base(repoSlug)) {
+		return true
+	}
+	trimmed := stripVersionSuffix(filepath.Base(repoSlug))
+
+	return strings.EqualFold(base, trimmed)
+}
+
+func findRepoRootInStore(repoSlug string) string {
+	db, err := store.OpenDefault()
+	if err != nil {
+		return ""
+	}
+	defer db.Close()
+
+	records, err := db.FindBySlug(repoSlug)
+	if err == nil && len(records) > 0 {
+		for _, rec := range records {
+			if isDirExisting(rec.AbsolutePath) {
+				return rec.AbsolutePath
+			}
+		}
+	}
+
+	return ""
+}
+
+func resolveTargetRepoRoot(repoSlug string) string {
+	root, err := gitutil.RepoRoot(".")
+	if err == nil && root != "" && isRepoMatchingSlug(root, repoSlug) {
+		return root
+	}
+	if cand := findCandidateRepoRoot(repoSlug); cand != "" {
+		return cand
+	}
+	if storeRoot := findRepoRootInStore(repoSlug); storeRoot != "" {
+		return storeRoot
+	}
+	if err == nil && root != "" {
+		return root
+	}
+
+	return ""
+}
+
+// ResolvePipelineDbPath resolves the repository-scoped SQLite database path.
+func ResolvePipelineDbPath(repoSlug string) string {
 	if isTestRepoSlug(repoSlug) {
 		return fallbackBinaryPipelineDbPath(repoSlug)
 	}
+	if root := resolveTargetRepoRoot(repoSlug); root != "" {
+		return resolveRepoScopedPath(root)
+	}
 
-	return resolveRepoScopedPath(root)
+	return resolveRepoScopedPath(".")
 }
 
 // PipelineDbPath returns the full SQLite database file path for a repository.

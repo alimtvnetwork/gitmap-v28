@@ -124,6 +124,9 @@ func recordErrorLine(jobMap map[string]*FailedJobItem, order *[]string, key, job
 
 func appendContextLine(jobMap map[string]*FailedJobItem, key, text string, ctxRem *int, lastKey *string) {
 	if *ctxRem > 0 && *lastKey == key {
+		if isOkLogLine(text) {
+			return
+		}
 		item := jobMap[key]
 		item.ErrorLines = append(item.ErrorLines, "    "+text)
 		*ctxRem--
@@ -739,6 +742,17 @@ func formatJobLines(sb *strings.Builder, job FailedJobItem) {
 
 func isOkLogLine(line string) bool {
 	trimmed := strings.TrimSpace(line)
+	if isStandardOkLine(trimmed) {
+		return true
+	}
+	if isRustOkLine(trimmed) {
+		return true
+	}
+
+	return strings.HasPrefix(trimmed, "✔ ok") || strings.HasPrefix(trimmed, "✔ Macro")
+}
+
+func isStandardOkLine(trimmed string) bool {
 	if trimmed == "PASS" || trimmed == "ok" || strings.HasPrefix(trimmed, "PASS:") {
 		return true
 	}
@@ -752,7 +766,23 @@ func isOkLogLine(line string) bool {
 		return true
 	}
 
-	return strings.HasPrefix(trimmed, "✔ ok") || strings.HasPrefix(trimmed, "✔ Macro")
+	return false
+}
+
+func isRustOkLine(trimmed string) bool {
+	if strings.HasPrefix(trimmed, "test ") {
+		if strings.HasSuffix(trimmed, " ... ok") || strings.HasSuffix(trimmed, "... ok") {
+			return true
+		}
+		if strings.HasSuffix(trimmed, " ... ignored") || strings.HasSuffix(trimmed, "... ignored") {
+			return true
+		}
+	}
+	if strings.HasPrefix(trimmed, "test result: ok.") {
+		return true
+	}
+
+	return false
 }
 
 func filterCompactLines(lines []string) []string {
