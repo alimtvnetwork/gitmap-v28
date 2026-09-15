@@ -12,7 +12,10 @@ import (
 
 // runJoin connects to an existing orchestrator daemon.
 func runJoin(args []string) error {
-	checkHelp("join", args)
+	if len(args) == 0 || hasHelpFlag(args) {
+		checkHelp("join", []string{"--help"})
+		return nil
+	}
 
 	fs := flag.NewFlagSet(constants.CmdJoin, flag.ExitOnError)
 	token := fs.String(constants.FlagJoinToken, "", constants.FlagDescJoinToken)
