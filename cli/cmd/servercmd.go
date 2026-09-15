@@ -6,6 +6,7 @@ import (
 	"strings"
 
 	"github.com/alimtvnetwork/gitmap-v28/cli/apperror"
+	"github.com/alimtvnetwork/gitmap-v28/cli/constants"
 )
 
 type serverCmdOptions struct {
@@ -21,11 +22,7 @@ type serverCmdOptions struct {
 
 // runServerCmd dispatches remote server commands across cluster and SSH nodes.
 func runServerCmd(args []string) error {
-	if len(args) == 0 || hasHelpFlag(args) {
-		printServerCmdUsage()
-
-		return nil
-	}
+	CheckHelpOrEmpty(constants.CmdServerCmd, args)
 
 	opts, err := parseServerCmdFlags(args)
 	if err != nil {
@@ -72,23 +69,4 @@ func missingServerCmdArgsError(args []string) error {
 		apperror.SeverityError,
 		nil,
 	)
-}
-
-func printServerCmdUsage() {
-	fmt.Println("Usage: gitmap server-cmd <target> \"<command>\" [flags]")
-	fmt.Println()
-	fmt.Println("Target Selectors:")
-	fmt.Println("  all                    Execute across all cluster nodes (control plane and workers)")
-	fmt.Println("  control, servers       Execute on control plane server nodes only")
-	fmt.Println("  workers, clients       Execute on worker client nodes only")
-	fmt.Println("  <node-id-or-ip>        Target a specific node by ID, display ID, or hostname")
-	fmt.Println()
-	fmt.Println("Flags:")
-	fmt.Println("  --sudo                 Run command with non-interactive sudo escalation")
-	fmt.Println("  --script               Stage and execute as /tmp/on-the-fly-cmd/script-<ts>.sh")
-	fmt.Println("  --config <path>        Custom cluster topology JSON file (fallback to DB)")
-	fmt.Println("  --exclude <nodes>      Comma-separated list of nodes to exclude")
-	fmt.Println("  --parallel <N>         Maximum parallel connections (default: 10)")
-	fmt.Println("  --dry-run              Display node plan without executing")
-	fmt.Println("  -h, --help             Show this help message")
 }

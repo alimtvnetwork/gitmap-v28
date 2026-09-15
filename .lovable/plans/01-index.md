@@ -8,7 +8,8 @@ Master directory of architectural and execution plans.
 
 ## Recent Completed Tasks Register (Last 20 Tasks)
 
-1. [Plan 173: 173-cluster-and-sc-node-add-and-help-parity.md](completed/173-cluster-and-sc-node-add-and-help-parity.md): Cluster and Servers-Clients (SC) Node Add, Join Routing, and Help Text Parity
+1. [Plan 174: 174-apperror-join-and-dry-helpcheck.md](completed/174-apperror-join-and-dry-helpcheck.md): AppError Join Architecture & Centralized DRY Help Checking Suite
+2. [Plan 173: 173-cluster-and-sc-node-add-and-help-parity.md](completed/173-cluster-and-sc-node-add-and-help-parity.md): Cluster and Servers-Clients (SC) Node Add, Join Routing, and Help Text Parity
 
 1. [Plan 169: 169-scripts-fixer-profile-alignment-and-pull-progress-bar-redesign.md](completed/169-scripts-fixer-profile-alignment-and-pull-progress-bar-redesign.md): Scripts-Fixer Profile Alignment & Git Pull Progress Bar Redesign
 2. [Plan 168: 168-ssh-join-network-scan-health-status-and-help-parity.md](completed/168-ssh-join-network-scan-health-status-and-help-parity.md): SSH Machine Join, Network Scan Discovery, Health Status & Full Help Parity

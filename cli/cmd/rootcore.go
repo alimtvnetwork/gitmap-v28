@@ -124,19 +124,8 @@ func resolveSCTopic() string {
 	return constants.CmdServersClients
 }
 
-func dispatchServersClientsHelp(args []string) bool {
-	if len(args) == 0 || hasHelpFlag(args) {
-		checkHelp(resolveSCTopic(), []string{"--help"})
-		return true
-	}
-
-	return false
-}
-
 func dispatchServersClients(args []string) {
-	if dispatchServersClientsHelp(args) {
-		return
-	}
+	CheckHelpOrEmpty(resolveSCTopic(), args)
 
 	subCmd, rest := args[0], args[1:]
 	if dispatchServersClientsPathCmd(subCmd, rest) || dispatchClusterReadWrite(cluster.ServersClients, subCmd, rest) || dispatchClusterMutate(cluster.ServersClients, subCmd, rest) {
@@ -213,19 +202,8 @@ func dispatchClusterMutate(selector cluster.TargetSelectorType, subCmd string, r
 	return true
 }
 
-func dispatchClientsHelp(args []string) bool {
-	if len(args) == 0 || hasHelpFlag(args) {
-		checkHelp(constants.CmdClients, []string{"--help"})
-		return true
-	}
-
-	return false
-}
-
 func dispatchClients(args []string) {
-	if dispatchClientsHelp(args) {
-		return
-	}
+	CheckHelpOrEmpty(constants.CmdClients, args)
 
 	subCmd, rest := args[0], args[1:]
 	if dispatchClusterReadWrite(cluster.ClientsOnly, subCmd, rest) || dispatchClusterMutate(cluster.ClientsOnly, subCmd, rest) {

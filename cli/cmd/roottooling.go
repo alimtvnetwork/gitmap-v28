@@ -198,7 +198,12 @@ func toolingChromeEntries() []dispatchEntry {
 func toolingNetworkEntries() []dispatchEntry {
 	return []dispatchEntry{
 		{[]string{constants.CmdServe, constants.CmdServeAlias}, func() error { return runServe(argsTail()) }},
-		{[]string{constants.CmdJoin, constants.CmdJoinAlias}, func() error { return runJoin(argsTail()) }},
+		{[]string{constants.CmdJoin, constants.CmdJoinAlias}, func() error {
+			if err := runJoin(argsTail()); err != nil {
+				return err
+			}
+			return nil
+		}},
 		{[]string{"ip"}, func() error { return runIP(argsTail()) }},
 	}
 }
