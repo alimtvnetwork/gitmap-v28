@@ -22,21 +22,21 @@ func runSSH(args []string) error {
 	return dispatchSSH(context.Background(), args, nil)
 }
 
-func dispatchPrimarySSH(ctx context.Context, sub string, args []string, parent *cobra.Command) result.Result[bool] {
+func dispatchPrimarySSH(ctx context.Context, sub string, args []string, parent *cobra.Command) result.ErrorWrapper {
 	switch sub {
 	case "login", "login-install":
-		return result.RouteMatched(runSSHLogin(parent, args, ctx))
+		return result.MatchWrapper(runSSHLogin(parent, args, ctx))
 	case "join", "sj":
-		return result.RouteMatched(RunSSHJoinCLI(args))
+		return result.MatchWrapper(RunSSHJoinCLI(args))
 	case "alias":
-		return result.RouteMatched(runSSHAlias(parent, args, ctx))
+		return result.MatchWrapper(runSSHAlias(parent, args, ctx))
 	case "exec", "se":
-		return result.RouteMatched(runSSHExec(args))
+		return result.MatchWrapper(runSSHExec(args))
 	case "profiles", "profile", "p":
-		return result.RouteMatched(runSSHProfile(args))
+		return result.MatchWrapper(runSSHProfile(args))
+	default:
+		return result.UnmatchedWrapper()
 	}
-
-	return result.RouteUnmatched()
 }
 
 func runSSHProfile(args []string) error {
@@ -126,7 +126,7 @@ func dispatchSSH(ctx context.Context, args []string, parent *cobra.Command) erro
 	}
 	sub := args[0]
 	resPrimary := dispatchPrimarySSH(ctx, sub, args[1:], parent)
-	if resPrimary.Data {
+	if resPrimary.IsMatched() {
 		return resPrimary.AppError()
 	}
 

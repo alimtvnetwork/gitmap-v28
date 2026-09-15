@@ -348,69 +348,69 @@ func runK8sReset(ctx context.Context, args []string) error {
 	return executeClusterK8sScript(ctx, target, GenerateK8sResetScript())
 }
 
-func routeClusterK8sBootstrap(ctx context.Context, sub string, rest []string) result.Result[bool] {
+func routeClusterK8sBootstrap(ctx context.Context, sub string, rest []string) result.ErrorWrapper {
 	switch sub {
 	case "prereq":
-		return result.RouteMatched(runK8sPrereq(ctx, rest))
+		return result.MatchWrapper(runK8sPrereq(ctx, rest))
 	case "install":
-		return result.RouteMatched(runK8sInstall(ctx, rest))
+		return result.MatchWrapper(runK8sInstall(ctx, rest))
 	case "init":
-		return result.RouteMatched(runK8sInit(ctx, rest))
+		return result.MatchWrapper(runK8sInit(ctx, rest))
 	default:
-		return result.RouteUnmatched()
+		return result.UnmatchedWrapper()
 	}
 }
 
-func routeClusterK8sNetwork(ctx context.Context, sub string, rest []string) result.Result[bool] {
+func routeClusterK8sNetwork(ctx context.Context, sub string, rest []string) result.ErrorWrapper {
 	switch sub {
 	case "cni":
-		return result.RouteMatched(runK8sCNI(ctx, rest))
+		return result.MatchWrapper(runK8sCNI(ctx, rest))
 	case "join-command":
-		return result.RouteMatched(runK8sJoinCommand(ctx, rest))
+		return result.MatchWrapper(runK8sJoinCommand(ctx, rest))
 	case "join":
-		return result.RouteMatched(runK8sJoin(ctx, rest))
+		return result.MatchWrapper(runK8sJoin(ctx, rest))
 	default:
-		return result.RouteUnmatched()
+		return result.UnmatchedWrapper()
 	}
 }
 
-func routeClusterK8sAddons(ctx context.Context, sub string, rest []string) result.Result[bool] {
+func routeClusterK8sAddons(ctx context.Context, sub string, rest []string) result.ErrorWrapper {
 	switch sub {
 	case "nfs":
-		return result.RouteMatched(runK8sNFS(ctx, rest))
+		return result.MatchWrapper(runK8sNFS(ctx, rest))
 	case "helm-install":
-		return result.RouteMatched(runK8sHelmInstall(ctx, rest))
+		return result.MatchWrapper(runK8sHelmInstall(ctx, rest))
 	case "helm-nfs":
-		return result.RouteMatched(runK8sHelmNFS(ctx, rest))
+		return result.MatchWrapper(runK8sHelmNFS(ctx, rest))
 	default:
-		return result.RouteUnmatched()
+		return result.UnmatchedWrapper()
 	}
 }
 
-func routeClusterK8sAdmin(ctx context.Context, sub string, rest []string) result.Result[bool] {
+func routeClusterK8sAdmin(ctx context.Context, sub string, rest []string) result.ErrorWrapper {
 	switch sub {
 	case "status":
-		return result.RouteMatched(runK8sStatus(ctx, rest))
+		return result.MatchWrapper(runK8sStatus(ctx, rest))
 	case "reset":
-		return result.RouteMatched(runK8sReset(ctx, rest))
+		return result.MatchWrapper(runK8sReset(ctx, rest))
 	default:
-		return result.RouteUnmatched()
+		return result.UnmatchedWrapper()
 	}
 }
 
-func routeClusterK8sCommand(ctx context.Context, sub string, rest []string) result.Result[bool] {
+func routeClusterK8sCommand(ctx context.Context, sub string, rest []string) result.ErrorWrapper {
 	resBoot := routeClusterK8sBootstrap(ctx, sub, rest)
-	if resBoot.Data {
+	if resBoot.IsMatched() {
 		return resBoot
 	}
 
 	resNet := routeClusterK8sNetwork(ctx, sub, rest)
-	if resNet.Data {
+	if resNet.IsMatched() {
 		return resNet
 	}
 
 	resAddon := routeClusterK8sAddons(ctx, sub, rest)
-	if resAddon.Data {
+	if resAddon.IsMatched() {
 		return resAddon
 	}
 
@@ -425,7 +425,7 @@ func RunClusterK8sCLI(args []string) error {
 
 	ctx := context.Background()
 	res := routeClusterK8sCommand(ctx, args[0], args[1:])
-	if res.Data {
+	if res.IsMatched() {
 		return res.AppError()
 	}
 

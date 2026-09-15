@@ -10,37 +10,37 @@ import (
 	"github.com/alimtvnetwork/gitmap-v28/cli/result"
 )
 
-func dispatchDbMutateSubcmd(sub string, rest []string) result.Result[bool] {
+func dispatchDbMutateSubcmd(sub string, rest []string) result.ErrorWrapper {
 	switch sub {
 	case "clear", "cl":
-		return result.RouteMatched(runPipelineDBClear(rest))
+		return result.MatchWrapper(runPipelineDBClear(rest))
 	case "reset":
-		return result.RouteMatched(runPipelineDBReset(rest))
+		return result.MatchWrapper(runPipelineDBReset(rest))
 	case "optimize", "opt":
-		return result.RouteMatched(runPipelineDBOptimize(rest))
+		return result.MatchWrapper(runPipelineDBOptimize(rest))
 	default:
-		return result.RouteUnmatched()
+		return result.UnmatchedWrapper()
 	}
 }
 
-func dispatchDbQuerySubcmd(sub string, rest []string) result.Result[bool] {
+func dispatchDbQuerySubcmd(sub string, rest []string) result.ErrorWrapper {
 	switch sub {
 	case "status", "st", "s", "info":
-		return result.RouteMatched(runPipelineDBStatusWithTelemetry(rest))
+		return result.MatchWrapper(runPipelineDBStatusWithTelemetry(rest))
 	case "errorlogs", "error-logs", "errors", "err":
-		return result.RouteMatched(runPipelineDBErrorLogs(rest))
+		return result.MatchWrapper(runPipelineDBErrorLogs(rest))
 	case "help", "-h", "--help":
 		printPipelineDBHelp()
 
-		return result.RouteMatched(nil)
+		return result.MatchWrapper(nil)
 	default:
-		return result.RouteUnmatched()
+		return result.UnmatchedWrapper()
 	}
 }
 
-func dispatchPipelineDBSubcmd(sub string, rest []string) result.Result[bool] {
+func dispatchPipelineDBSubcmd(sub string, rest []string) result.ErrorWrapper {
 	resQuery := dispatchDbQuerySubcmd(sub, rest)
-	if resQuery.Data {
+	if resQuery.IsMatched() {
 		return resQuery
 	}
 
@@ -55,7 +55,7 @@ func handlePipelineDB(args []string) error {
 
 	sub := strings.ToLower(strings.TrimSpace(args[0]))
 	res := dispatchPipelineDBSubcmd(sub, args[1:])
-	if res.Data {
+	if res.IsMatched() {
 		return res.AppError()
 	}
 

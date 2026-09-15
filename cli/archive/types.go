@@ -150,4 +150,4 @@ type Aria2cDownloadParams struct {
 }
 
 // BoolResult wraps a boolean in a Result envelope.
-type BoolResult = result.Result[bool]
+type BoolResult = result.BoolResult

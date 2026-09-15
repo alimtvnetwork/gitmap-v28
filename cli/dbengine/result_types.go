@@ -5,12 +5,12 @@ import (
 	"github.com/alimtvnetwork/gitmap-v28/cli/result"
 )
 
-// Exact typed result envelopes wrapping result.Result[T].
-type Uint64Result = result.Result[uint64]
-type Int64Result = result.Result[int64]
-type StringResult = result.Result[string]
-type BoolResult = result.Result[bool]
-type RowsAffectedResult = result.Result[int64]
+// Exact typed result envelopes wrapping canonical result types.
+type Uint64Result = result.Uint64Result
+type Int64Result = result.Int64Result
+type StringResult = result.StringResult
+type BoolResult = result.BoolResult
+type RowsAffectedResult = result.Int64Result
 type EntityResult[T any] = result.Result[*T]
 type ListResult[T any] = result.Result[[]T]
 

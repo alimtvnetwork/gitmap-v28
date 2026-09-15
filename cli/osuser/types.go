@@ -69,11 +69,11 @@ type (
 	UserResult = result.Result[UserInfo]
 
 	// UserBoolResult encapsulates a boolean outcome.
-	UserBoolResult = result.Result[bool]
+	UserBoolResult = result.BoolResult
 
 	// UserStringResult encapsulates a string outcome.
-	UserStringResult = result.Result[string]
+	UserStringResult = result.StringResult
 
 	// UserStringsResult encapsulates a slice of strings outcome.
-	UserStringsResult = result.ResultSlice[string]
+	UserStringsResult = result.StringSliceResult
 )

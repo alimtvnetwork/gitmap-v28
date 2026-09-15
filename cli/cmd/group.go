@@ -45,30 +45,25 @@ func showActiveGroup() *apperror.AppError {
 	return nil
 }
 
-func dispatchGroupCRUD(sub string, args []string) result.Result[bool] {
-	if sub == constants.CmdGroupCreate {
-		return result.RouteMatched(runGroupCreate(args))
+func dispatchGroupCRUD(sub string, args []string) result.ErrorWrapper {
+	switch sub {
+	case constants.CmdGroupCreate:
+		return result.MatchWrapper(runGroupCreate(args))
+	case constants.CmdGroupAdd:
+		return result.MatchWrapper(runGroupAdd(args))
+	case constants.CmdGroupRemove:
+		return result.MatchWrapper(runGroupRemove(args))
+	case constants.CmdGroupList:
+		return result.MatchWrapper(runGroupList())
+	default:
+		return result.UnmatchedWrapper()
 	}
-
-	if sub == constants.CmdGroupAdd {
-		return result.RouteMatched(runGroupAdd(args))
-	}
-
-	if sub == constants.CmdGroupRemove {
-		return result.RouteMatched(runGroupRemove(args))
-	}
-
-	if sub == constants.CmdGroupList {
-		return result.RouteMatched(runGroupList())
-	}
-
-	return result.RouteUnmatched()
 }
 
 // dispatchGroup routes group subcommands to their handlers.
 func dispatchGroup(sub string, args []string) error {
 	resCRUD := dispatchGroupCRUD(sub, args)
-	if resCRUD.Data {
+	if resCRUD.IsMatched() {
 		return resCRUD.AppError()
 	}
 
@@ -81,7 +76,7 @@ func dispatchGroup(sub string, args []string) error {
 	}
 
 	resScoped := dispatchGroupScoped(sub, args)
-	if resScoped.Data {
+	if resScoped.IsMatched() {
 		return resScoped.AppError()
 	}
 
@@ -89,24 +84,19 @@ func dispatchGroup(sub string, args []string) error {
 }
 
 // dispatchGroupScoped handles pull/status/exec on the active group.
-func dispatchGroupScoped(sub string, args []string) result.Result[bool] {
-	if sub == constants.CmdMGPull {
-		return result.RouteMatched(runActiveGroupPull())
+func dispatchGroupScoped(sub string, args []string) result.ErrorWrapper {
+	switch sub {
+	case constants.CmdMGPull:
+		return result.MatchWrapper(runActiveGroupPull())
+	case constants.CmdMGStatus:
+		return result.MatchWrapper(runActiveGroupStatus())
+	case constants.CmdMGExec:
+		return result.MatchWrapper(runActiveGroupExec(args))
+	case constants.CmdMGClear:
+		return result.MatchWrapper(clearActiveGroup())
+	default:
+		return result.UnmatchedWrapper()
 	}
-
-	if sub == constants.CmdMGStatus {
-		return result.RouteMatched(runActiveGroupStatus())
-	}
-
-	if sub == constants.CmdMGExec {
-		return result.RouteMatched(runActiveGroupExec(args))
-	}
-
-	if sub == constants.CmdMGClear {
-		return result.RouteMatched(clearActiveGroup())
-	}
-
-	return result.RouteUnmatched()
 }
 
 func persistActiveGroupSetting(db *store.DB, name string) {

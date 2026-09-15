@@ -55,7 +55,7 @@ func TestDispatchClusterSubcommand_Matches(t *testing.T) {
 	commands := []string{"add", "join", "ping", "nodes", "ls", "remove", "rm"}
 	for _, cmd := range commands {
 		res := dispatchClusterSubcommand(cmd, []string{})
-		if !res.Data {
+		if !res.IsMatched() {
 			t.Errorf("expected subcommand %q to be matched", cmd)
 		}
 	}
@@ -63,7 +63,7 @@ func TestDispatchClusterSubcommand_Matches(t *testing.T) {
 
 func TestDispatchClusterSubcommand_Unknown(t *testing.T) {
 	res := dispatchClusterSubcommand("unknown-cmd-xyz", []string{})
-	if res.Data {
+	if res.IsMatched() {
 		t.Error("expected unknown subcommand to not be matched")
 	}
 }
@@ -85,17 +85,17 @@ func TestDispatchInvertedClusterHelp_Branches(t *testing.T) {
 	defer cliexit.SetExitFunc(prev)
 
 	resUnmatched := dispatchInvertedClusterHelp([]string{"nodes"})
-	if resUnmatched.Data {
+	if resUnmatched.IsMatched() {
 		t.Error("expected non-inverted help to be unmatched")
 	}
 
 	resMatched := dispatchInvertedClusterHelp([]string{"help", "nodes"})
-	if !resMatched.Data {
+	if !resMatched.IsMatched() {
 		t.Error("expected help nodes to be matched")
 	}
 
 	resUnknown := dispatchInvertedClusterHelp([]string{"help", "nonexistent"})
-	if !resUnknown.Data || resUnknown.AppError() == nil {
+	if !resUnknown.IsMatched() || resUnknown.AppError() == nil {
 		t.Error("expected unknown command under help to be matched with AppError")
 	}
 }

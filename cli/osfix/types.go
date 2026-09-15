@@ -24,5 +24,5 @@ type (
 	FixSliceResult = result.ResultSlice[FixItem]
 
 	// FixBoolResult encapsulates a boolean result.
-	FixBoolResult = result.Result[bool]
+	FixBoolResult = result.BoolResult
 )

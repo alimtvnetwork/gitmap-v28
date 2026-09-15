@@ -200,7 +200,7 @@ func TestRouteClusterNodeLifecycle(t *testing.T) {
 	subs := []string{"add", "join", "enroll", "new", "rm", "remove", "delete"}
 	for _, sub := range subs {
 		res := routeClusterNodeLifecycle(ctx, sub, []string{"--help"})
-		if !res.Data {
+		if !res.IsMatched() {
 			t.Errorf("expected subcommand %q to match lifecycle route", sub)
 		}
 	}

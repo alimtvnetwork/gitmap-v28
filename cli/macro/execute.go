@@ -63,7 +63,7 @@ func runExecuteSteps(ctx context.Context, m *Macro, opts ExecOptions, dt *DirTra
 	return handleExecutionFinish(m, opts, rep, start, lastErr)
 }
 
-func executeReportStep(ctx context.Context, step MacroStep, idx, total int, opts ExecOptions, dt *DirTracker, rep *ExecutionReport) result.Result[bool] {
+func executeReportStep(ctx context.Context, step MacroStep, idx, total int, opts ExecOptions, dt *DirTracker, rep *ExecutionReport) result.BoolResult {
 	stepExec, err := executeSingleStep(ctx, step, idx, total, opts, dt)
 	if err != nil {
 		rep.FailedSteps++

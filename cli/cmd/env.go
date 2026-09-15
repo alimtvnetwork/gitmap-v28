@@ -19,30 +19,30 @@ func runEnv(args []string) error {
 	return routeEnvSub(sub, rest)
 }
 
-func routeEnvVariableSub(sub string, args []string) result.Result[bool] {
+func routeEnvVariableSub(sub string, args []string) result.ErrorWrapper {
 	if sub == constants.CmdEnvSet {
-		return result.RouteMatched(runEnvSet(args))
+		return result.MatchWrapper(runEnvSet(args))
 	}
 
 	if sub == constants.CmdEnvGet {
-		return result.RouteMatched(runEnvGet(args))
+		return result.MatchWrapper(runEnvGet(args))
 	}
 
 	if sub == constants.CmdEnvDelete {
-		return result.RouteMatched(runEnvDelete(args))
+		return result.MatchWrapper(runEnvDelete(args))
 	}
 
 	if sub == constants.CmdEnvList {
-		return result.RouteMatched(runEnvList())
+		return result.MatchWrapper(runEnvList())
 	}
 
-	return result.RouteUnmatched()
+	return result.UnmatchedWrapper()
 }
 
 // routeEnvSub routes to the appropriate env subcommand.
 func routeEnvSub(sub string, args []string) error {
 	resVar := routeEnvVariableSub(sub, args)
-	if resVar.Data {
+	if resVar.IsMatched() {
 		return resVar.AppError()
 	}
 

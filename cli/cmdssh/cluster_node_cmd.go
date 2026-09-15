@@ -287,39 +287,39 @@ func runNodeRm(ctx context.Context, args []string) error {
 	return runSJRm(nil, args, ctx)
 }
 
-func routeClusterNodeLifecycle(ctx context.Context, sub string, rest []string) result.Result[bool] {
+func routeClusterNodeLifecycle(ctx context.Context, sub string, rest []string) result.ErrorWrapper {
 	switch sub {
 	case "add", "join", "enroll", "new":
-		return result.RouteMatched(runNodeAdd(ctx, rest))
+		return result.MatchWrapper(runNodeAdd(ctx, rest))
 	case "rm", "remove", "delete":
-		return result.RouteMatched(runNodeRm(ctx, rest))
+		return result.MatchWrapper(runNodeRm(ctx, rest))
 	case "ls", "list", "nodes":
-		return result.RouteMatched(executeSJList(ctx))
+		return result.MatchWrapper(executeSJList(ctx))
 	default:
-		return result.RouteUnmatched()
+		return result.UnmatchedWrapper()
 	}
 }
 
-func routeClusterNodeRecipes(ctx context.Context, sub string, rest []string) result.Result[bool] {
+func routeClusterNodeRecipes(ctx context.Context, sub string, rest []string) result.ErrorWrapper {
 	switch sub {
 	case "set-ip":
-		return result.RouteMatched(runNodeSetIP(ctx, rest))
+		return result.MatchWrapper(runNodeSetIP(ctx, rest))
 	case "install-base":
-		return result.RouteMatched(runNodeInstallBase(ctx, rest))
+		return result.MatchWrapper(runNodeInstallBase(ctx, rest))
 	case "create-user":
-		return result.RouteMatched(runNodeCreateUser(ctx, rest))
+		return result.MatchWrapper(runNodeCreateUser(ctx, rest))
 	case "set-theme":
-		return result.RouteMatched(runNodeSetTheme(ctx, rest))
+		return result.MatchWrapper(runNodeSetTheme(ctx, rest))
 	case "purge":
-		return result.RouteMatched(runNodePurge(ctx, rest))
+		return result.MatchWrapper(runNodePurge(ctx, rest))
 	default:
-		return result.RouteUnmatched()
+		return result.UnmatchedWrapper()
 	}
 }
 
-func routeClusterNodeCommand(ctx context.Context, sub string, rest []string) result.Result[bool] {
+func routeClusterNodeCommand(ctx context.Context, sub string, rest []string) result.ErrorWrapper {
 	resLifecycle := routeClusterNodeLifecycle(ctx, sub, rest)
-	if resLifecycle.Data {
+	if resLifecycle.IsMatched() {
 		return resLifecycle
 	}
 
@@ -335,7 +335,7 @@ func RunClusterNodeCLI(args []string) error {
 
 	ctx := context.Background()
 	res := routeClusterNodeCommand(ctx, args[0], args[1:])
-	if res.Data {
+	if res.IsMatched() {
 		return res.AppError()
 	}
 

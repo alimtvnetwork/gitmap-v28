@@ -88,11 +88,11 @@ type (
 	ZshStatusResult = result.Result[ZshStatus]
 
 	// ZshStringResult encapsulates a string outcome.
-	ZshStringResult = result.Result[string]
+	ZshStringResult = result.StringResult
 
 	// ZshStringsResult encapsulates a slice of strings outcome.
-	ZshStringsResult = result.ResultSlice[string]
+	ZshStringsResult = result.StringSliceResult
 
 	// ZshBoolResult encapsulates a boolean outcome.
-	ZshBoolResult = result.Result[bool]
+	ZshBoolResult = result.BoolResult
 )
