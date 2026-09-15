@@ -8,7 +8,8 @@ Master directory of architectural and execution plans.
 
 ## Recent Completed Tasks Register (Last 20 Tasks)
 
-1. [Plan 180: 180-pipeline-db-repo-location-and-size-display.md](completed/180-pipeline-db-repo-location-and-size-display.md): Pipeline DB Repo Location Resolution, Next-Line Size Display & Rust Test Log Filtering
+1. [Plan 181: 181-sc-bash-shell-join-list-and-ssh-table-fix.md](completed/181-sc-bash-shell-join-list-and-ssh-table-fix.md): Servers-Clients (SC) Bash, Shell, Join, Nodes/List Commands, Rich Examples & SSH Connection Unification
+2. [Plan 180: 180-pipeline-db-repo-location-and-size-display.md](completed/180-pipeline-db-repo-location-and-size-display.md): Pipeline DB Repo Location Resolution, Next-Line Size Display & Rust Test Log Filtering
 2. [Plan 179: 179-pipeline-table-align-db-size-and-agy-feed.md](completed/179-pipeline-table-align-db-size-and-agy-feed.md): Pipeline Table Visual Alignment, DB Size Display & AGY Fix Pipeline Feed
 2. [Plan 178: 178-errorwrapper-subcommand-routing-and-null-safety.md](completed/178-errorwrapper-subcommand-routing-and-null-safety.md): Subcommand Routing ErrorWrapper Architecture & Universal AppError Returns
 3. [Plan 177: 177-errorwrapper-and-proper-result-types.md](completed/177-errorwrapper-and-proper-result-types.md): Result ErrorWrapper & Centralized Proper Result Types Suite

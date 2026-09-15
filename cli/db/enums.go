@@ -20,6 +20,8 @@ const (
 	CommandKindRestart        CommandKindType = 10
 	CommandKindShutdown       CommandKindType = 11
 	CommandKindLogoff         CommandKindType = 12
+	CommandKindBashCommand    CommandKindType = 13
+	CommandKindShellCommand   CommandKindType = 14
 )
 
 func (k CommandKindType) String() string {
@@ -48,6 +50,10 @@ func (k CommandKindType) String() string {
 		return "Shutdown"
 	case CommandKindLogoff:
 		return "Logoff"
+	case CommandKindBashCommand:
+		return "BashCommand"
+	case CommandKindShellCommand:
+		return "ShellCommand"
 	default:
 		return fmt.Sprintf("CommandKindType(%d)", int(k))
 	}
@@ -59,6 +65,10 @@ func ParseCommandKind(s string) (CommandKindType, error) {
 		return CommandKindPsCommand, nil
 	case "cmdcommand":
 		return CommandKindCmdCommand, nil
+	case "bashcommand", "bash":
+		return CommandKindBashCommand, nil
+	case "shellcommand", "shell", "sh":
+		return CommandKindShellCommand, nil
 	case "install":
 		return CommandKindInstall, nil
 	case "gitpull":

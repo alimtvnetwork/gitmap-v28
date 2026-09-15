@@ -52,7 +52,19 @@ func InsertOrUpdateSSHConnection(ctx context.Context, db *sql.DB, conn SSHConnec
 	return nil
 }
 
+const sqlCreateSSHConnectionTable = `CREATE TABLE IF NOT EXISTS SSHConnection (
+	Alias TEXT PRIMARY KEY,
+	IPAddress TEXT NOT NULL,
+	Username TEXT NOT NULL,
+	EncryptedPassword TEXT NOT NULL,
+	KeyPath TEXT,
+	OS TEXT DEFAULT 'linux',
+	CreatedAt TIMESTAMP NOT NULL
+);`
+
 func GetSSHConnections(ctx context.Context, db *sql.DB) SSHConnectionSliceResult {
+	_, _ = db.ExecContext(ctx, sqlCreateSSHConnectionTable)
+
 	rows, err := db.QueryContext(ctx, sqlSelectSSHConnections)
 	if err != nil {
 		return result.FailSlice[SSHConnection](apperror.WrapSimple(err, "GetSSHConnections.Query"))
@@ -60,7 +72,46 @@ func GetSSHConnections(ctx context.Context, db *sql.DB) SSHConnectionSliceResult
 
 	defer rows.Close()
 
-	return scanSSHConnectionRows(rows)
+	scanRes := scanSSHConnectionRows(rows)
+	if scanRes.IsFailure() {
+		return scanRes
+	}
+
+	return mergeSSHHostsConnections(ctx, db, scanRes.Data)
+}
+
+func mergeSSHHostsConnections(ctx context.Context, db *sql.DB, existing []SSHConnection) SSHConnectionSliceResult {
+	seen := make(map[string]bool)
+	for _, c := range existing {
+		seen[c.Alias] = true
+		seen[c.IPAddress] = true
+	}
+
+	rows, err := db.QueryContext(ctx, `SELECT alias, ip, username, COALESCE(encrypted_password, '') FROM ssh_hosts`)
+	if err != nil {
+		return result.OkSlice(existing)
+	}
+	defer rows.Close()
+
+	merged := append([]SSHConnection{}, existing...)
+	for rows.Next() {
+		var alias, ip, user, encPass string
+		if err := rows.Scan(&alias, &ip, &user, &encPass); err == nil {
+			if !seen[alias] && !seen[ip] {
+				seen[alias] = true
+				seen[ip] = true
+				merged = append(merged, SSHConnection{
+					Alias:             alias,
+					IPAddress:         ip,
+					Username:          user,
+					EncryptedPassword: encPass,
+					OS:                "linux",
+				})
+			}
+		}
+	}
+
+	return result.OkSlice(merged)
 }
 
 func scanSSHConnectionRows(rows *sql.Rows) SSHConnectionSliceResult {

@@ -76,6 +76,12 @@ func ParseSubCommands(tokens []string) ([]cluster.ClusterSubCommand, error) {
 		case "cmd":
 			kind = db.CommandKindCmdCommand
 			rawArgParts = currentTokens[1:]
+		case "bash":
+			kind = db.CommandKindBashCommand
+			rawArgParts = currentTokens[1:]
+		case "sh", "shell", "exec":
+			kind = db.CommandKindShellCommand
+			rawArgParts = currentTokens[1:]
 		case "install":
 			kind = db.CommandKindInstall
 			rawArgParts = currentTokens[1:]

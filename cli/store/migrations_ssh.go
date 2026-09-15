@@ -53,7 +53,18 @@ func ensureHostColumns(db *sql.DB) error {
 	return nil
 }
 
-// EnsureSSHTables creates both ssh_hosts and ssh_history tables if they do not exist.
+// SQLCreateSSHConnectionTable defines the DDL for legacy SSHConnection table compatibility.
+const SQLCreateSSHConnectionTable = `CREATE TABLE IF NOT EXISTS SSHConnection (
+	Alias TEXT PRIMARY KEY,
+	IPAddress TEXT NOT NULL,
+	Username TEXT NOT NULL,
+	EncryptedPassword TEXT NOT NULL,
+	KeyPath TEXT,
+	OS TEXT DEFAULT 'linux',
+	CreatedAt TIMESTAMP NOT NULL
+);`
+
+// EnsureSSHTables creates both ssh_hosts, ssh_history, and SSHConnection tables if they do not exist.
 func EnsureSSHTables(db *sql.DB) error {
 	if db == nil {
 		return nil
@@ -63,6 +74,9 @@ func EnsureSSHTables(db *sql.DB) error {
 		return err
 	}
 	if err := ensureHostColumns(db); err != nil {
+		return err
+	}
+	if err := executeTableDDL(db, SQLCreateSSHConnectionTable, "EnsureSSHTables_SSHConnection"); err != nil {
 		return err
 	}
 

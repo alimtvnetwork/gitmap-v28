@@ -14,6 +14,7 @@ import (
 	"github.com/alimtvnetwork/gitmap-v28/cli/db"
 
 	"github.com/alimtvnetwork/gitmap-v28/cli/cliexit"
+	"github.com/alimtvnetwork/gitmap-v28/cli/store"
 )
 
 func resolveClusterHelpCmd(selector cluster.TargetSelectorType) string {
@@ -53,11 +54,7 @@ func runClusterCommand(selector cluster.TargetSelectorType, args []string) error
 
 	var dbConn *sql.DB // Stub DB for now
 
-	// Stub node retrieval
-	allNodes := []cluster.ClusterNode{
-		{ID: "node-1", DisplayId: 1, IP: "192.168.1.10", IsServer: true},
-		{ID: "node-2", DisplayId: 2, IP: "192.168.1.11", IsServer: false},
-	}
+	allNodes := loadClusterNodes(ctx)
 
 	filter := cluster.NodeFilter{
 		Except: []string{},
@@ -242,5 +239,38 @@ func updateRunCounts(
 	err := db.UpdateClusterRun(ctx, dbConn, runId, &now, &totalNodes, &succeeded, &failed, &skipped)
 	if err != nil {
 		fmt.Fprintf(os.Stderr, "Error updating ClusterRun counts: %v\n", err)
+	}
+}
+
+func loadClusterNodes(ctx context.Context) []cluster.ClusterNode {
+	dbConn, err := store.OpenDefault()
+	if err != nil {
+		return defaultStubNodes()
+	}
+	defer dbConn.Close()
+
+	hosts, err := store.ListHosts(ctx, dbConn.SQL())
+	if err != nil || len(hosts) == 0 {
+		return defaultStubNodes()
+	}
+
+	nodes := make([]cluster.ClusterNode, 0, len(hosts))
+	for i, h := range hosts {
+		isServer := h.ClusterRole == "control" || h.ClusterRole == "server"
+		nodes = append(nodes, cluster.ClusterNode{
+			ID:        h.ID,
+			DisplayId: i + 1,
+			IP:        h.IP,
+			Hostname:  h.Alias,
+			IsServer:  isServer,
+		})
+	}
+
+	return nodes
+}
+
+func defaultStubNodes() []cluster.ClusterNode {
+	return []cluster.ClusterNode{
+		{ID: "node-1", DisplayId: 1, IP: "127.0.0.1", Hostname: "localhost", IsServer: true},
 	}
 }

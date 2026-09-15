@@ -1,10 +1,12 @@
 package cmd
 
 import (
+	"context"
 	"os"
 
 	"github.com/alimtvnetwork/gitmap-v28/cli/cluster"
 	"github.com/alimtvnetwork/gitmap-v28/cli/cmdpurge"
+	"github.com/alimtvnetwork/gitmap-v28/cli/cmdssh"
 	"github.com/alimtvnetwork/gitmap-v28/cli/constants"
 )
 
@@ -128,11 +130,33 @@ func dispatchServersClients(args []string) {
 	CheckHelpOrEmpty(resolveSCTopic(), args)
 
 	subCmd, rest := args[0], args[1:]
+	if dispatchSCNodeOps(subCmd, rest) {
+		return
+	}
 	if dispatchServersClientsPathCmd(subCmd, rest) || dispatchClusterReadWrite(cluster.ServersClients, subCmd, rest) || dispatchClusterMutate(cluster.ServersClients, subCmd, rest) {
 		return
 	}
 
 	runClusterCommand(cluster.ServersClients, args)
+}
+
+func dispatchSCNodeOps(subCmd string, rest []string) bool {
+	switch subCmd {
+	case "join", "add", "enroll":
+		_ = cmdssh.RunClusterJoinCLI(rest)
+		return true
+	case "nodes", "list", "machines", "joined":
+		_ = runClusterNodes(rest)
+		return true
+	case "rm", "remove", "delete":
+		_ = runClusterRemove(rest)
+		return true
+	case "ping", "health":
+		_ = cmdssh.RunSJStatus(nil, rest, context.Background())
+		return true
+	default:
+		return false
+	}
 }
 
 func dispatchServersClientsPathCmd(subCmd string, rest []string) bool {
@@ -165,7 +189,7 @@ func dispatchClusterLS(selector cluster.TargetSelectorType, rest []string) {
 		return
 	}
 
-	runClusterLS(selector, rest)
+	_ = runClusterNodes(rest)
 }
 
 func dispatchClusterReadWrite(
@@ -206,6 +230,9 @@ func dispatchClients(args []string) {
 	CheckHelpOrEmpty(constants.CmdClients, args)
 
 	subCmd, rest := args[0], args[1:]
+	if dispatchSCNodeOps(subCmd, rest) {
+		return
+	}
 	if dispatchClusterReadWrite(cluster.ClientsOnly, subCmd, rest) || dispatchClusterMutate(cluster.ClientsOnly, subCmd, rest) {
 		return
 	}

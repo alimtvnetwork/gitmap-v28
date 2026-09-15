@@ -27,6 +27,16 @@ func clusterSubCommandTestCases() []subCmdTestCase {
 			tokens:   []string{"ps", `"echo hi"`, ",", "install", `"pkg1,pkg2"`},
 			expected: []cluster.ClusterSubCommand{{Kind: db.CommandKindPsCommand, RawArg: `"echo hi"`}, {Kind: db.CommandKindInstall, RawArg: `"pkg1,pkg2"`}},
 		},
+		{
+			name:     "bash command",
+			tokens:   []string{"bash", `"uname -a"`},
+			expected: []cluster.ClusterSubCommand{{Kind: db.CommandKindBashCommand, RawArg: `"uname -a"`}},
+		},
+		{
+			name:     "sh and shell command",
+			tokens:   []string{"shell", `"df -h"`, ",", "sh", `"uptime"`},
+			expected: []cluster.ClusterSubCommand{{Kind: db.CommandKindShellCommand, RawArg: `"df -h"`}, {Kind: db.CommandKindShellCommand, RawArg: `"uptime"`}},
+		},
 		{name: "unknown subcommand", tokens: []string{"unknowncmd", `"foo"`}, wantErr: true},
 	}
 }

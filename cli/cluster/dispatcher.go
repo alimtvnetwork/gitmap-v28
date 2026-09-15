@@ -46,6 +46,10 @@ func Dispatch(
 		dispatchPSCommand(ctx, node, subCmd.RawArg, &res)
 	case db.CommandKindCmdCommand:
 		dispatchCmdCommand(ctx, node, subCmd.RawArg, &res)
+	case db.CommandKindBashCommand:
+		dispatchBashCommand(ctx, node, subCmd.RawArg, &res)
+	case db.CommandKindShellCommand:
+		dispatchShellCommand(ctx, node, subCmd.RawArg, &res)
 	case db.CommandKindInstall:
 		res.ResultStatus = db.ResultStatusSkipped
 		msg := "ExecInstall stubbed"
@@ -209,4 +213,44 @@ func applyReply(res *db.ClusterExecResult, reply AgentExecReply) {
 	res.Stdout = &reply.Stdout
 	res.Stderr = &reply.Stderr
 	res.ExitCode = &reply.ExitCode
+}
+
+func dispatchBashCommand(
+	ctx context.Context,
+	node ClusterNode,
+	rawArg string,
+	res *db.ClusterExecResult,
+) {
+	res.ResultStatus = db.ResultStatusSucceeded
+	stdout, stderr, exitCode, err := ExecBash(ctx, node, rawArg)
+	res.Stdout = &stdout
+	res.Stderr = &stderr
+	res.ExitCode = &exitCode
+	if err != nil {
+		setCommandError(res, err.Error())
+		return
+	}
+	if exitCode != 0 {
+		res.ResultStatus = db.ResultStatusFailed
+	}
+}
+
+func dispatchShellCommand(
+	ctx context.Context,
+	node ClusterNode,
+	rawArg string,
+	res *db.ClusterExecResult,
+) {
+	res.ResultStatus = db.ResultStatusSucceeded
+	stdout, stderr, exitCode, err := ExecShell(ctx, node, rawArg)
+	res.Stdout = &stdout
+	res.Stderr = &stderr
+	res.ExitCode = &exitCode
+	if err != nil {
+		setCommandError(res, err.Error())
+		return
+	}
+	if exitCode != 0 {
+		res.ResultStatus = db.ResultStatusFailed
+	}
 }
