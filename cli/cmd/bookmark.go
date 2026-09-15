@@ -6,10 +6,11 @@ import (
 
 	"github.com/alimtvnetwork/gitmap-v28/cli/apperror"
 	"github.com/alimtvnetwork/gitmap-v28/cli/constants"
+	"github.com/alimtvnetwork/gitmap-v28/cli/result"
 )
 
 // runBookmark handles the "bookmark" subcommand routing.
-func runBookmark(args []string) *apperror.AppError {
+func runBookmark(args []string) error {
 	checkHelp("bookmark", args)
 	if len(args) < 1 {
 		fmt.Fprint(os.Stderr, constants.ErrBookmarkUsage)
@@ -20,36 +21,28 @@ func runBookmark(args []string) *apperror.AppError {
 	sub := args[0]
 	rest := args[1:]
 
-	return routeBookmarkSub(sub, rest)
+	return routeBookmarkSub(sub, rest).AsError()
 }
 
 // routeBookmarkSub routes to the appropriate bookmark subcommand.
-func routeBookmarkSub(sub string, args []string) *apperror.AppError {
+func routeBookmarkSub(sub string, args []string) result.ErrorWrapper {
 	if sub == constants.CmdBookmarkSave {
-		runBookmarkSave(args)
-
-		return nil
+		return result.MatchWrapperAppErr(runBookmarkSave(args))
 	}
 
 	if sub == constants.CmdBookmarkList {
-		runBookmarkList(args)
-
-		return nil
+		return result.MatchWrapper(runBookmarkList(args))
 	}
 
 	if sub == constants.CmdBookmarkRun {
-		runBookmarkRun(args)
-
-		return nil
+		return result.MatchWrapperAppErr(runBookmarkRun(args))
 	}
 
 	if sub == constants.CmdBookmarkDelete {
-		runBookmarkDelete(args)
-
-		return nil
+		return result.MatchWrapper(runBookmarkDelete(args))
 	}
 
 	fmt.Fprint(os.Stderr, constants.ErrBookmarkUsage)
 
-	return apperror.NewSimple("fatal error", "E9000")
+	return result.FailureWrapper(apperror.NewSimple("fatal error", "E9000"))
 }

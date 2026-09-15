@@ -4,6 +4,8 @@ package cmdzsh
 import (
 	"fmt"
 	"strings"
+
+	"github.com/alimtvnetwork/gitmap-v28/cli/result"
 )
 
 // RunZsh executes zsh commands and routes to subcommands.
@@ -15,10 +17,10 @@ func RunZsh(args []string) error {
 	subcmd := args[0]
 	subArgs := args[1:]
 
-	return routeZshSubcommand(subcmd, subArgs)
+	return routeZshSubcommand(subcmd, subArgs).AsError()
 }
 
-func routeZshSubcommand(subcmd string, args []string) error {
+func routeZshSubcommand(subcmd string, args []string) result.ErrorWrapper {
 	router := map[string]func([]string) error{
 		"install": dispatchInstall,
 		"theme":   dispatchTheme,
@@ -30,18 +32,18 @@ func routeZshSubcommand(subcmd string, args []string) error {
 
 	fn, isFound := router[subcmd]
 	if isFound {
-		return fn(args)
+		return result.MatchWrapper(fn(args))
 	}
 
 	return routeFallback(subcmd, args)
 }
 
-func routeFallback(subcmd string, args []string) error {
+func routeFallback(subcmd string, args []string) result.ErrorWrapper {
 	if subcmd == "help" || subcmd == "-h" || subcmd == "--help" {
-		return printZshHelp()
+		return result.MatchWrapper(printZshHelp())
 	}
 
-	return handleUnknownSubcommand(subcmd, args)
+	return result.MatchWrapper(handleUnknownSubcommand(subcmd, args))
 }
 
 func handleUnknownSubcommand(subcmd string, args []string) error {

@@ -4,9 +4,12 @@ Master directory of architectural and execution plans.
 
 ## Pending Plans
 
+*(None)*
+
 ## Recent Completed Tasks Register (Last 20 Tasks)
 
-1. [Plan 177: 177-errorwrapper-and-proper-result-types.md](completed/177-errorwrapper-and-proper-result-types.md): Result ErrorWrapper & Centralized Proper Result Types Suite
+1. [Plan 178: 178-errorwrapper-subcommand-routing-and-null-safety.md](completed/178-errorwrapper-subcommand-routing-and-null-safety.md): Subcommand Routing ErrorWrapper Architecture & Universal AppError Returns
+2. [Plan 177: 177-errorwrapper-and-proper-result-types.md](completed/177-errorwrapper-and-proper-result-types.md): Result ErrorWrapper & Centralized Proper Result Types Suite
 2. [Plan 176: 176-wrapped-result-dispatch-and-apperror.md](completed/176-wrapped-result-dispatch-and-apperror.md): Wrapped Result Dispatch Architecture & Universal AppError Retention
 3. [Plan 175: 175-pipeline-errors-perf-and-ci-fixes.md](completed/175-pipeline-errors-perf-and-ci-fixes.md): Pipeline Errors Performance Optimization & CI Failure Fixes
 4. [Plan 174: 174-apperror-join-and-dry-helpcheck.md](completed/174-apperror-join-and-dry-helpcheck.md): AppError Join Architecture & Centralized DRY Help Checking Suite
@@ -44,6 +47,7 @@ Master directory of architectural and execution plans.
 
 ## Completed Plans
 
+- [178-errorwrapper-subcommand-routing-and-null-safety.md](completed/178-errorwrapper-subcommand-routing-and-null-safety.md): Subcommand Routing ErrorWrapper Architecture & Universal AppError Returns
 - [177-errorwrapper-and-proper-result-types.md](completed/177-errorwrapper-and-proper-result-types.md): Result ErrorWrapper & Centralized Proper Result Types Suite
 - [176-wrapped-result-dispatch-and-apperror.md](completed/176-wrapped-result-dispatch-and-apperror.md): Wrapped Result Dispatch Architecture & Universal AppError Retention
 - [01-coding-guidelines-and-style-audits.md](completed/01-coding-guidelines-and-style-audits.md): 01-coding-guidelines-and-style-audits

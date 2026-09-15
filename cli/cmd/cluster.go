@@ -27,7 +27,7 @@ func routeClusterScriptOrNode(sub string, rest []string) result.ErrorWrapper {
 	case "run-script", "script":
 		return result.FailureWrapperErr(cmdssh.RunClusterScriptCLI(rest))
 	case "node":
-		return result.FailureWrapperErr(cmdssh.RunClusterNodeCLI(rest))
+		return cmdssh.RouteClusterNodeCLI(rest)
 	case "import", "import-config", "import-cluster":
 		return result.FailureWrapperErr(cmdssh.RunClusterImportCLI(rest))
 	default:
@@ -104,7 +104,7 @@ func routeClusterNodeOps(sub string, rest []string) result.ErrorWrapper {
 func routeClusterK8s(sub string, rest []string) result.ErrorWrapper {
 	switch sub {
 	case "k8s", "kube", "kubernetes":
-		return result.FailureWrapperErr(cmdssh.RunClusterK8sCLI(rest))
+		return cmdssh.RouteClusterK8sCLI(rest)
 	default:
 		return result.UnmatchedWrapper()
 	}
@@ -167,22 +167,27 @@ func dispatchInvertedClusterHelp(args []string) result.ErrorWrapper {
 	return result.FailureWrapper(apperror.NewSimple("unknown command", "E9000"))
 }
 
-// runCluster handles the "cluster" subcommand and routes to sub-handlers.
-func runCluster(args []string) error {
+// routeCluster routes the cluster subcommand and returns ErrorWrapper.
+func routeCluster(args []string) result.ErrorWrapper {
 	if isClusterRootHelp(args) {
 		helptext.PrintWithMode("cluster", render.PrettyAuto)
-		return nil
+		return result.SuccessWrapper()
 	}
 
 	resHelp := dispatchInvertedClusterHelp(args)
 	if resHelp.IsMatched() {
-		return resHelp.AsError()
+		return resHelp
 	}
 
 	resSub := dispatchClusterSubcommand(args[0], args[1:])
 	if resSub.IsMatched() {
-		return resSub.AsError()
+		return resSub
 	}
 
-	return apperror.NewSimple("unknown command", "E9000")
+	return result.FailureWrapper(apperror.NewSimple("unknown command", "E9000"))
+}
+
+// runCluster handles the "cluster" subcommand and routes to sub-handlers.
+func runCluster(args []string) error {
+	return routeCluster(args).AsError()
 }

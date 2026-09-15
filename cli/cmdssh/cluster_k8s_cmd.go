@@ -417,17 +417,22 @@ func routeClusterK8sCommand(ctx context.Context, sub string, rest []string) resu
 	return routeClusterK8sAdmin(ctx, sub, rest)
 }
 
-// RunClusterK8sCLI dispatches Kubernetes cluster lifecycle recipes across target hosts.
-func RunClusterK8sCLI(args []string) error {
+// RouteClusterK8sCLI dispatches Kubernetes cluster lifecycle recipes and returns ErrorWrapper.
+func RouteClusterK8sCLI(args []string) result.ErrorWrapper {
 	if isClusterK8sHelp(args) {
-		return showClusterK8sHelp()
+		return result.MatchWrapper(showClusterK8sHelp())
 	}
 
 	ctx := context.Background()
 	res := routeClusterK8sCommand(ctx, args[0], args[1:])
 	if res.IsMatched() {
-		return res.AsError()
+		return res
 	}
 
-	return apperror.NewValidationError(fmt.Sprintf("unknown cluster k8s subcommand: %s", args[0]))
+	return result.FailureWrapper(apperror.NewValidationError(fmt.Sprintf("unknown cluster k8s subcommand: %s", args[0])))
+}
+
+// RunClusterK8sCLI dispatches Kubernetes cluster lifecycle recipes across target hosts.
+func RunClusterK8sCLI(args []string) error {
+	return RouteClusterK8sCLI(args).AsError()
 }

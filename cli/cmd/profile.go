@@ -28,34 +28,34 @@ func runProfile(args []string) error {
 	subCmd := args[0]
 	tailArgs := args[1:]
 
-	return routeProfileSub(subCmd, tailArgs)
+	return routeProfileSub(subCmd, tailArgs).AsError()
 }
 
 // routeProfileSub routes to the appropriate profile subcommand.
-func routeProfileSub(subCmd string, tailArgs []string) error {
+func routeProfileSub(subCmd string, tailArgs []string) result.ErrorWrapper {
 	resGit := routeGitProfileSub(subCmd, tailArgs)
 	if resGit.IsMatched() {
-		return resGit.AsError()
+		return resGit
 	}
 
 	resDB := routeDBProfileSub(subCmd, tailArgs)
 	if resDB.IsMatched() {
-		return resDB.AsError()
+		return resDB
 	}
 
 	resChrome := routeChromeProfileSub(subCmd, tailArgs)
 	if resChrome.IsMatched() {
-		return resChrome.AsError()
+		return resChrome
 	}
 
 	resInstall := routeInstallProfileSub(subCmd, tailArgs)
 	if resInstall.IsMatched() {
-		return resInstall.AsError()
+		return resInstall
 	}
 
 	fmt.Fprint(os.Stderr, constants.ErrProfileUsage)
 
-	return apperror.NewSimple("fatal error", "E9000")
+	return result.FailureWrapper(apperror.NewSimple("fatal error", "E9000"))
 }
 
 func routeInstallProfileSub(subCmd string, tailArgs []string) result.ErrorWrapper {

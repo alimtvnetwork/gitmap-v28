@@ -6,6 +6,7 @@ import (
 
 	"github.com/alimtvnetwork/gitmap-v28/cli/apperror"
 	"github.com/alimtvnetwork/gitmap-v28/cli/constants"
+	"github.com/alimtvnetwork/gitmap-v28/cli/result"
 )
 
 // runDb routes the gitmap db command to appropriate sub-handlers.
@@ -16,32 +17,32 @@ func runDb(args []string) error {
 
 	sub := strings.ToLower(strings.TrimSpace(args[0]))
 
-	return routeDbSubcommand(sub, args[1:])
+	return routeDbSubcommand(sub, args[1:]).AsError()
 }
 
 // Backwards-compatible alias for runDb
 var runDB = runDb
 
-func routeDbSubcommand(sub string, tail []string) error {
+func routeDbSubcommand(sub string, tail []string) result.ErrorWrapper {
 	switch sub {
 	case "status", "st", "info":
-		return runDBStatus(tail)
+		return result.MatchWrapper(runDBStatus(tail))
 	case "optimize", "opt":
-		return runDBOptimize(tail)
+		return result.MatchWrapper(runDBOptimize(tail))
 	case "ls", "list":
-		return runDBLs(tail)
+		return result.MatchWrapper(runDBLs(tail))
 	case "help", "-h", "--help":
-		return runDbHelp()
+		return result.MatchWrapper(runDbHelp())
 	case "repo-db", "repodb":
-		return runDBRepoDB(tail)
+		return result.MatchWrapper(runDBRepoDB(tail))
 	case "sizes", "size":
-		return runDBSizes(tail)
+		return result.MatchWrapper(runDBSizes(tail))
 	case "reset":
-		return runDbResetAction(tail)
+		return result.MatchWrapper(runDbResetAction(tail))
 	case "clear":
-		return runDBClearAction(tail)
+		return result.MatchWrapper(runDBClearAction(tail))
 	default:
-		return handleUnknownDbSub(sub)
+		return result.FailureWrapperErr(handleUnknownDbSub(sub))
 	}
 }
 

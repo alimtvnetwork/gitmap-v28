@@ -19,7 +19,7 @@ func runSSH(args []string) error {
 		fmt.Fprint(os.Stdout, constants.MsgSSHAvailableCommands)
 		return nil
 	}
-	return dispatchSSH(context.Background(), args, nil)
+	return dispatchSSH(context.Background(), args, nil).AsError()
 }
 
 func dispatchPrimarySSH(ctx context.Context, sub string, args []string, parent *cobra.Command) result.ErrorWrapper {
@@ -120,19 +120,19 @@ func handleEmptySSHArgs() error {
 	return nil
 }
 
-func dispatchSSH(ctx context.Context, args []string, parent *cobra.Command) error {
+func dispatchSSH(ctx context.Context, args []string, parent *cobra.Command) result.ErrorWrapper {
 	if len(args) == 0 {
-		return handleEmptySSHArgs()
+		return result.MatchWrapper(handleEmptySSHArgs())
 	}
 	sub := args[0]
 	resPrimary := dispatchPrimarySSH(ctx, sub, args[1:], parent)
 	if resPrimary.IsMatched() {
-		return resPrimary.AsError()
+		return resPrimary
 	}
 
 	if isFallback := dispatchFallbackSSH(sub, args[1:]); isFallback {
-		return nil
+		return result.SuccessWrapper()
 	}
 
-	return runSSHLogin(parent, args, ctx)
+	return result.MatchWrapper(runSSHLogin(parent, args, ctx))
 }

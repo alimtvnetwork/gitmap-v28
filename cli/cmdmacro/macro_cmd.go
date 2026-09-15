@@ -12,6 +12,7 @@ import (
 	"github.com/alimtvnetwork/gitmap-v28/cli/apperror"
 	"github.com/alimtvnetwork/gitmap-v28/cli/constants"
 	"github.com/alimtvnetwork/gitmap-v28/cli/macro"
+	"github.com/alimtvnetwork/gitmap-v28/cli/result"
 )
 
 func parseExecOptions(flagArgs []string) macro.ExecOptions {
@@ -103,10 +104,10 @@ func runMacroCmd(args []string) error {
 		return nil
 	}
 
-	return routeMacroSubcommand(args[0], args[1:])
+	return routeMacroSubcommand(args[0], args[1:]).AsError()
 }
 
-func routeMacroSubcommand(sub string, rest []string) error {
+func routeMacroSubcommand(sub string, rest []string) result.ErrorWrapper {
 	if isExecSubcommand(sub) {
 		return routeExecSubcommand(sub, rest)
 	}
@@ -137,20 +138,20 @@ func isExportImportSubcommand(sub string) bool {
 	}
 }
 
-func routeExportImportSubcommand(sub string, rest []string) error {
+func routeExportImportSubcommand(sub string, rest []string) result.ErrorWrapper {
 	switch sub {
 	case "export", "exp", "dump":
-		return runMacroExport(rest)
+		return result.MatchWrapper(runMacroExport(rest))
 	case "export-all":
-		return runMacroExport(append([]string{"--all"}, rest...))
+		return result.MatchWrapper(runMacroExport(append([]string{"--all"}, rest...)))
 	case "export-single":
-		return runMacroExport(append([]string{"--single"}, rest...))
+		return result.MatchWrapper(runMacroExport(append([]string{"--single"}, rest...)))
 	case "import-all":
-		return runMacroImport(append([]string{"--all"}, rest...))
+		return result.MatchWrapper(runMacroImport(append([]string{"--all"}, rest...)))
 	case "import-single":
-		return runMacroImport(append([]string{"--single"}, rest...))
+		return result.MatchWrapper(runMacroImport(append([]string{"--single"}, rest...)))
 	default:
-		return runMacroImport(rest)
+		return result.MatchWrapper(runMacroImport(rest))
 	}
 }
 
@@ -176,16 +177,16 @@ func isRetrySubcommand(sub string) bool {
 	}
 }
 
-func routeExecSubcommand(sub string, rest []string) error {
+func routeExecSubcommand(sub string, rest []string) result.ErrorWrapper {
 	if isRetrySubcommand(sub) {
-		return runMacroUntilSuccess(rest)
+		return result.MatchWrapper(runMacroUntilSuccess(rest))
 	}
 
 	if isRunUntilSubcommand(sub) {
-		return runMacroRunUntil(rest)
+		return result.MatchWrapper(runMacroRunUntil(rest))
 	}
 
-	return runExecuteCmd(rest)
+	return result.MatchWrapper(runExecuteCmd(rest))
 }
 
 func runMacroRunUntil(args []string) error {
@@ -202,13 +203,13 @@ func runMacroRunUntil(args []string) error {
 	return executeMacroByName(macroName, opts)
 }
 
-func routeManagementSubcommand(sub string, rest []string) error {
+func routeManagementSubcommand(sub string, rest []string) result.ErrorWrapper {
 	if sub == "startup" {
-		return runMacroStartup(rest)
+		return result.MatchWrapper(runMacroStartup(rest))
 	}
 
 	if sub == "schedule" || sub == "cron" || sub == "crontab" {
-		return runMacroSchedule(rest)
+		return result.MatchWrapper(runMacroSchedule(rest))
 	}
 
 	if isModifySubcommand(sub) {
@@ -227,30 +228,30 @@ func isModifySubcommand(sub string) bool {
 	}
 }
 
-func routeModifySubcommand(sub string, rest []string) error {
+func routeModifySubcommand(sub string, rest []string) result.ErrorWrapper {
 	switch sub {
 	case "add", "create", "new":
-		return handleMacroAdd(rest)
+		return result.MatchWrapper(handleMacroAdd(rest))
 	case "edit", "modify":
-		return handleMacroEdit(rest)
+		return result.MatchWrapper(handleMacroEdit(rest))
 	case "record", "rec":
-		return handleMacroRecord(rest)
+		return result.MatchWrapper(handleMacroRecord(rest))
 	default:
-		return handleMacroDelete(rest)
+		return result.MatchWrapper(handleMacroDelete(rest))
 	}
 }
 
-func routeInspectSubcommand(sub string, rest []string) error {
+func routeInspectSubcommand(sub string, rest []string) result.ErrorWrapper {
 	switch sub {
 	case "list", "ls":
-		return handleMacroList(rest)
+		return result.MatchWrapper(handleMacroList(rest))
 	case "show":
-		return handleMacroShow(rest)
+		return result.MatchWrapper(handleMacroShow(rest))
 	default:
 		printMacroUsage()
 	}
 
-	return nil
+	return result.SuccessWrapper()
 }
 
 func handleMacroRecord(args []string) error {

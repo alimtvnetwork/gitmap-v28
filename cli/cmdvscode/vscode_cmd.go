@@ -9,6 +9,7 @@ import (
 
 	"github.com/alimtvnetwork/gitmap-v28/cli/apperror"
 	"github.com/alimtvnetwork/gitmap-v28/cli/cliexit"
+	"github.com/alimtvnetwork/gitmap-v28/cli/result"
 	"github.com/alimtvnetwork/gitmap-v28/cli/vscodepm"
 )
 
@@ -18,9 +19,9 @@ func runVSCode(args []string) error {
 		printVSCodeUsage()
 
 		return apperror.NewWithDetails(
-			"cmd.vscode",
-			"E1023",
-			"missing required vscode subcommand",
+			"cmd.vscode.dispatch",
+			"E1024",
+			"no subcommand provided to vscode command",
 			"cmd.vscode",
 			apperror.ErrorTypeValidation,
 			apperror.SeverityError,
@@ -34,51 +35,51 @@ func runVSCode(args []string) error {
 func dispatchVSCodeAction(args []string) error {
 	sub := strings.ToLower(args[0])
 	if isVSCodeProjectSubcommand(sub) {
-		return routeVSCodeProjectAction(sub, args)
+		return routeVSCodeProjectAction(sub, args).AsError()
 	}
 
-	return routeVSCodeMaintenanceAction(sub, args)
+	return routeVSCodeMaintenanceAction(sub, args).AsError()
 }
 
 func isVSCodeProjectSubcommand(sub string) bool {
 	return sub == "ls" || sub == "list" || sub == "add" || sub == "add-project" || sub == "ap" || sub == "rm" || sub == "remove" || sub == "delete" || sub == "del"
 }
 
-func routeVSCodeProjectAction(sub string, args []string) error {
+func routeVSCodeProjectAction(sub string, args []string) result.ErrorWrapper {
 	switch sub {
 	case "ls", "list":
-		return runVSCodeLs()
+		return result.MatchWrapper(runVSCodeLs())
 	case "add", "add-project", "ap":
 		handleVSCodeAdd(args)
 
-		return nil
+		return result.SuccessWrapper()
 	default:
 		handleVSCodeRm(args)
 
-		return nil
+		return result.SuccessWrapper()
 	}
 }
 
-func routeVSCodeMaintenanceAction(sub string, args []string) error {
+func routeVSCodeMaintenanceAction(sub string, args []string) result.ErrorWrapper {
 	switch sub {
 	case "pap", "prompt-all-project", "plugins", "plugin":
 		fmt.Printf("Feature [vscode %s] is not yet implemented\n", sub)
 
-		return nil
+		return result.SuccessWrapper()
 	case "profiles", "profile":
-		return runVSCodeProfiles(args[1:])
+		return result.MatchWrapper(runVSCodeProfiles(args[1:]))
 	case "optimize-projects", "optimize", "--repeat-fix", "-r", "dedupe", "dedup":
-		return runVSCodeOptimize(args[1:])
+		return result.MatchWrapper(runVSCodeOptimize(args[1:]))
 	case "clear", "clean":
-		return runVSCodeClear(args[1:])
+		return result.MatchWrapper(runVSCodeClear(args[1:]))
 	case "group", "groups", "grp":
-		return runVSCodeGroup(args[1:])
+		return result.MatchWrapper(runVSCodeGroup(args[1:]))
 	case "find-duplicates", "duplicates", "dups", "find-dups":
-		return runFindDuplicatesVSCode()
+		return result.MatchWrapper(runFindDuplicatesVSCode())
 	default:
 		printVSCodeUsage()
 
-		return apperror.NewWithDetails(
+		return result.FailureWrapper(apperror.NewWithDetails(
 			"cmd.vscode.dispatch",
 			"E1024",
 			fmt.Sprintf("unknown vscode subcommand '%s'", sub),
@@ -86,7 +87,7 @@ func routeVSCodeMaintenanceAction(sub string, args []string) error {
 			apperror.ErrorTypeValidation,
 			apperror.SeverityError,
 			map[string]any{"subcommand": sub},
-		)
+		))
 	}
 }
 

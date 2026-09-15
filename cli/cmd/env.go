@@ -16,7 +16,7 @@ func runEnv(args []string) error {
 	sub := args[0]
 	rest := args[1:]
 
-	return routeEnvSub(sub, rest)
+	return routeEnvSub(sub, rest).AsError()
 }
 
 func routeEnvVariableSub(sub string, args []string) result.ErrorWrapper {
@@ -40,23 +40,23 @@ func routeEnvVariableSub(sub string, args []string) result.ErrorWrapper {
 }
 
 // routeEnvSub routes to the appropriate env subcommand.
-func routeEnvSub(sub string, args []string) error {
+func routeEnvSub(sub string, args []string) result.ErrorWrapper {
 	resVar := routeEnvVariableSub(sub, args)
 	if resVar.IsMatched() {
-		return resVar.AsError()
+		return resVar
 	}
 
 	if sub == constants.CmdEnvPathAdd {
 		return routeEnvPath(args)
 	}
 
-	return apperror.NewSimple(constants.ErrEnvSubcommand, "E9000")
+	return result.FailureWrapper(apperror.NewSimple(constants.ErrEnvSubcommand, "E9000"))
 }
 
 // routeEnvPath routes path subcommands (path add, path remove, path list).
-func routeEnvPath(args []string) error {
+func routeEnvPath(args []string) result.ErrorWrapper {
 	if len(args) < 1 {
-		return runEnvPathList()
+		return result.MatchWrapper(runEnvPathList())
 	}
 
 	sub := args[0]
@@ -65,18 +65,18 @@ func routeEnvPath(args []string) error {
 	return dispatchEnvPath(sub, rest)
 }
 
-func dispatchEnvPath(sub string, rest []string) error {
+func dispatchEnvPath(sub string, rest []string) result.ErrorWrapper {
 	if sub == constants.CmdEnvPathSub {
-		return runEnvPathAdd(rest)
+		return result.MatchWrapper(runEnvPathAdd(rest))
 	}
 
 	if sub == constants.CmdEnvPathRemove {
-		return runEnvPathRemove(rest)
+		return result.MatchWrapper(runEnvPathRemove(rest))
 	}
 
 	if sub == constants.CmdEnvPathList {
-		return runEnvPathList()
+		return result.MatchWrapper(runEnvPathList())
 	}
 
-	return apperror.NewSimple("constants.ErrEnvSubcommand "+"path "+sub, "E9000")
+	return result.FailureWrapper(apperror.NewSimple("constants.ErrEnvSubcommand "+"path "+sub, "E9000"))
 }

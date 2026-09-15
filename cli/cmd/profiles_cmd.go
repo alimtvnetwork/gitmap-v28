@@ -19,25 +19,25 @@ func runProfiles(args []string) error {
 	sub := args[0]
 	rest := args[1:]
 
-	return routeProfilesSub(sub, rest)
+	return routeProfilesSub(sub, rest).AsError()
 }
 
-func routeProfilesSub(sub string, args []string) error {
+func routeProfilesSub(sub string, args []string) result.ErrorWrapper {
 	switch sub {
 	case "ls", "list":
-		return runProfilesList(args)
+		return result.MatchWrapper(runProfilesList(args))
 	case "set-default", "default":
-		return runProfilesSetDefault(args)
+		return result.MatchWrapper(runProfilesSetDefault(args))
 	case "switch", "use":
-		return runProfilesSwitch(args)
+		return result.MatchWrapper(runProfilesSwitch(args))
 	case "add", "create":
-		return runProfilesAdd(args)
+		return result.MatchWrapper(runProfilesAdd(args))
 	case "rm", "remove", "delete":
-		return runProfilesRemove(args)
+		return result.MatchWrapper(runProfilesRemove(args))
 	case "status":
-		return runProfilesStatus(args)
+		return result.MatchWrapper(runProfilesStatus(args))
 	default:
-		return runProfilesList(append([]string{sub}, args...))
+		return result.MatchWrapper(runProfilesList(append([]string{sub}, args...)))
 	}
 }
 

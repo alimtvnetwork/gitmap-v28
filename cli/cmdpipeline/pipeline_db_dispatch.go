@@ -47,21 +47,26 @@ func dispatchPipelineDBSubcmd(sub string, rest []string) result.ErrorWrapper {
 	return dispatchDbMutateSubcmd(sub, rest)
 }
 
-// handlePipelineDB routes the gitmap pipeline db subcommands.
-func handlePipelineDB(args []string) error {
+// routePipelineDB routes the gitmap pipeline db subcommands and returns ErrorWrapper.
+func routePipelineDB(args []string) result.ErrorWrapper {
 	if len(args) == 0 {
-		return runPipelineDBStatusWithTelemetry(nil)
+		return result.MatchWrapper(runPipelineDBStatusWithTelemetry(nil))
 	}
 
 	sub := strings.ToLower(strings.TrimSpace(args[0]))
 	res := dispatchPipelineDBSubcmd(sub, args[1:])
 	if res.IsMatched() {
-		return res.AsError()
+		return res
 	}
 
 	printPipelineDBHelp()
 
-	return apperror.NewValidationError("unknown pipeline db subcommand: " + sub)
+	return result.FailureWrapper(apperror.NewValidationError("unknown pipeline db subcommand: " + sub))
+}
+
+// handlePipelineDB routes the gitmap pipeline db subcommands.
+func handlePipelineDB(args []string) error {
+	return routePipelineDB(args).AsError()
 }
 
 func printPipelineDBUsage() {

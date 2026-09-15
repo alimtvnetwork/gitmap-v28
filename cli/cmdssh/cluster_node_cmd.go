@@ -326,18 +326,22 @@ func routeClusterNodeCommand(ctx context.Context, sub string, rest []string) res
 	return routeClusterNodeRecipes(ctx, sub, rest)
 }
 
-// RunClusterNodeCLI dispatches cluster node provisioning recipes across target hosts.
-func RunClusterNodeCLI(args []string) error {
-	isHelp := isClusterNodeHelp(args)
-	if isHelp {
-		return showClusterNodeHelp()
+// RouteClusterNodeCLI dispatches cluster node provisioning recipes and returns ErrorWrapper.
+func RouteClusterNodeCLI(args []string) result.ErrorWrapper {
+	if isClusterNodeHelp(args) {
+		return result.MatchWrapper(showClusterNodeHelp())
 	}
 
 	ctx := context.Background()
 	res := routeClusterNodeCommand(ctx, args[0], args[1:])
 	if res.IsMatched() {
-		return res.AsError()
+		return res
 	}
 
-	return apperror.NewValidationError(fmt.Sprintf("unknown cluster node subcommand: %s", args[0]))
+	return result.FailureWrapper(apperror.NewValidationError(fmt.Sprintf("unknown cluster node subcommand: %s", args[0])))
+}
+
+// RunClusterNodeCLI dispatches cluster node provisioning recipes across target hosts.
+func RunClusterNodeCLI(args []string) error {
+	return RouteClusterNodeCLI(args).AsError()
 }

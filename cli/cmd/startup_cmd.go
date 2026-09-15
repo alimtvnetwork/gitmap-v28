@@ -6,6 +6,7 @@ import (
 
 	"github.com/alimtvnetwork/gitmap-v28/cli/apperror"
 	"github.com/alimtvnetwork/gitmap-v28/cli/constants"
+	"github.com/alimtvnetwork/gitmap-v28/cli/result"
 	"github.com/alimtvnetwork/gitmap-v28/cli/store"
 )
 
@@ -19,28 +20,28 @@ func RunStartupCmd(args []string) error {
 	sub := strings.ToLower(args[0])
 	tail := args[1:]
 
-	return routeStartupSubcommand(sub, tail)
+	return routeStartupSubcommand(sub, tail).AsError()
 }
 
-func routeStartupSubcommand(sub string, tail []string) error {
+func routeStartupSubcommand(sub string, tail []string) result.ErrorWrapper {
 	switch sub {
 	case "ls", "list":
-		return runStartupLs(tail)
+		return result.MatchWrapper(runStartupLs(tail))
 	case "add":
-		return runStartupAddCmd(tail)
+		return result.MatchWrapper(runStartupAddCmd(tail))
 	case "rm", "remove", "delete":
-		return runStartupRm(tail)
+		return result.MatchWrapper(runStartupRm(tail))
 	case "run", "exec":
-		return runStartupExec(tail)
+		return result.MatchWrapper(runStartupExec(tail))
 	case "logs", "log":
-		return runStartupLogs(tail)
+		return result.MatchWrapper(runStartupLogs(tail))
 	case "help", "-h", "--help":
 		printStartupHelp()
-		return nil
+		return result.SuccessWrapper()
 	default:
-		return apperror.New("startup", "E_UNKNOWN_SUBCMD", map[string]any{
+		return result.FailureWrapper(apperror.New("startup", "E_UNKNOWN_SUBCMD", map[string]any{
 			"msg": fmt.Sprintf("Unknown startup subcommand: %q (expected ls, add, rm, run, logs)", sub),
-		})
+		}))
 	}
 }
 

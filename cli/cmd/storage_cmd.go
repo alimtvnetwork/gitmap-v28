@@ -5,6 +5,7 @@ import (
 
 	"github.com/alimtvnetwork/gitmap-v28/cli/cmdos"
 	"github.com/alimtvnetwork/gitmap-v28/cli/constants"
+	"github.com/alimtvnetwork/gitmap-v28/cli/result"
 )
 
 func init() {
@@ -18,19 +19,19 @@ func RunStorageCmd(args []string) error {
 		return runStorageDriveReport(args)
 	}
 
-	return routeStorageSubcommand(args)
+	return routeStorageSubcommand(args).AsError()
 }
 
-func routeStorageSubcommand(args []string) error {
+func routeStorageSubcommand(args []string) result.ErrorWrapper {
 	sub := strings.ToLower(args[0])
 	if isStorageListSubcommand(sub) {
-		return runStorageListDatabases()
+		return result.MatchWrapper(runStorageListDatabases())
 	}
 	if isStorageCleanSubcommand(sub) {
-		return runStorageClean(args[1:])
+		return result.MatchWrapper(runStorageClean(args[1:]))
 	}
 
-	return runStorageDriveReport(stripFirstArgIfStatus(sub, args))
+	return result.MatchWrapper(runStorageDriveReport(stripFirstArgIfStatus(sub, args)))
 }
 
 func isStorageListSubcommand(sub string) bool {
