@@ -1,3 +1,15 @@
+## [v6.247.0] 2026-09-15 Release v6.247.0
+
+### Install GitMap v6.247.0
+
+To pin your repository to this exact version, run the following one-liner:
+Unix/Bash: `curl -sL https://raw.githubusercontent.com/alimtvnetwork/gitmap-v28/v6.247.0/install.sh | bash -s -- ".lovable/prompts" "v6.247.0"`
+PowerShell: `Invoke-WebRequest -Uri https://raw.githubusercontent.com/alimtvnetwork/gitmap-v28/v6.247.0/install.ps1 -OutFile install.ps1; .\install.ps1 -TargetDir ".lovable/prompts" -Version "v6.247.0"`
+
+### Added / Changed / Fixed / Removed
+
+- relocate pipeline db to repo location, display db size on next line, and filter rust test logs
+
 ## [v6.246.0] 2026-09-15 Release v6.246.0
 
 ### Install GitMap v6.246.0
