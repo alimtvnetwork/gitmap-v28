@@ -335,10 +335,6 @@ func wrapHostByFieldScanError(err error, op string, field string, val string) (S
 	return SSHHost{}, appErr
 }
 
-func wrapHostScanError(err error, alias string) (SSHHost, error) {
-	return wrapHostByFieldScanError(err, "GetHostByAlias", "alias", alias)
-}
-
 const sqlSelectHostFields = `SELECT id, alias, ip, username, COALESCE(port, 22), COALESCE(encrypted_password, ''), COALESCE(cluster_role, 'worker'), created_at FROM ssh_hosts`
 
 // GetHostByAlias retrieves an SSHHost by its alias.

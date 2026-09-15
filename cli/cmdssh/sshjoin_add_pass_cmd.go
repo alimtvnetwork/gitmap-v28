@@ -16,7 +16,11 @@ var SJAddWithPassCmd = &cobra.Command{
 	Aliases: []string{"add-pass", "add-password"},
 	Short:   "Enroll an SSH machine with RSA-encrypted password storage",
 	RunE: func(cmd *cobra.Command, args []string) error {
-		return executeEnrollWithPassCLI(cmd.Context(), args)
+		ctx := cmd.Context()
+		if ctx == nil {
+			ctx = context.Background()
+		}
+		return executeEnrollWithPassCLI(ctx, args)
 	},
 }
 

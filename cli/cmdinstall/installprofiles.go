@@ -161,7 +161,7 @@ func resolveWindowsDevTools() []string {
 		constants.ToolAgManager,
 	}
 
-	return append(resolveSmallDevTools(), extra...)
+	return append(resolveWindowsSmallDevTools(), extra...)
 }
 
 func resolveLinuxDevTools() []string {
@@ -170,7 +170,7 @@ func resolveLinuxDevTools() []string {
 		constants.ToolAntigravity, constants.ToolAgManager,
 	}
 
-	return append(resolveSmallDevTools(), extra...)
+	return append(resolveLinuxSmallDevTools(), extra...)
 }
 
 func buildDevAdvanceProfile() InstallProfile {

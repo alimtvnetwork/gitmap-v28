@@ -13,13 +13,13 @@ func Test_runSSHJoin(t *testing.T) {
 	ctx := context.Background()
 
 	err := runSSHJoin(cmd, []string{}, ctx)
-	if err != nil {
-		t.Errorf("expected no error, got %v", err)
+	if err == nil {
+		t.Errorf("expected error for empty args, got nil")
 	}
 
 	err = runSSHJoin(cmd, []string{"add"}, ctx)
-	if err != nil {
-		t.Errorf("expected no error, got %v", err)
+	if err == nil {
+		t.Errorf("expected error for missing add target, got nil")
 	}
 }
 

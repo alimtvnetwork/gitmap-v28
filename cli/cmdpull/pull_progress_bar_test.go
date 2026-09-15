@@ -9,9 +9,9 @@ import (
 
 func TestFormatVisualBarSafe(t *testing.T) {
 	bar := FormatVisualBar(5, 10, 10, true)
-	isExpected := bar == "[====-----]"
+	isExpected := bar == "[=====-----]"
 	if !isExpected {
-		t.Fatalf("expected [====-----], got %q", bar)
+		t.Fatalf("expected [=====-----], got %q", bar)
 	}
 
 	fullBar := FormatVisualBar(10, 10, 10, true)

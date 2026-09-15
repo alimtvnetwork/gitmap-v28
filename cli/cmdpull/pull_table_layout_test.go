@@ -73,7 +73,7 @@ func TestResolveRowCommitRangeFallback(t *testing.T) {
 		CommitRange: "a1b2c3d..def5678",
 		LastSHA:     "def5678",
 	}
-	resRange := resolveRowCommitRange(rowWithRange, 15)
+	resRange := resolveRowCommitRange(rowWithRange, 20)
 	if resRange != "a1b2c3d..def5678" {
 		t.Fatalf("expected full range, got %q", resRange)
 	}

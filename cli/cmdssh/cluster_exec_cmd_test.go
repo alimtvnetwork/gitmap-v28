@@ -22,7 +22,7 @@ func setupExecClusterTestDB(t *testing.T) *sql.DB {
 	return db
 }
 
-func setupClusterTestStoreDB(t *testing.T) *store.DB {
+func setupClusterTestStoreDB(t *testing.T) (string, *store.DB) {
 	dbPath := filepath.Join(t.TempDir(), "test_cluster_exec.db")
 	dbConn, err := store.OpenAt(dbPath)
 	if err != nil {
@@ -30,14 +30,14 @@ func setupClusterTestStoreDB(t *testing.T) *store.DB {
 	}
 	_ = dbConn.Migrate()
 	_ = store.EnsureSSHHostsTable(dbConn.SQL())
-	return dbConn
+	return dbPath, dbConn
 }
 
 func withMockClusterStoreDB(t *testing.T, fn func(db *store.DB)) {
-	testDB := setupClusterTestStoreDB(t)
+	dbPath, testDB := setupClusterTestStoreDB(t)
 	defer testDB.Close()
 	prevOpener := openClusterDBFunc
-	openClusterDBFunc = func() (*store.DB, error) { return testDB, nil }
+	openClusterDBFunc = func() (*store.DB, error) { return store.OpenAt(dbPath) }
 	defer func() { openClusterDBFunc = prevOpener }()
 	fn(testDB)
 }
@@ -74,7 +74,7 @@ func TestParseClusterExecArgs_SudoShort(t *testing.T) {
 }
 
 func TestParseClusterExecArgs_SudoLong(t *testing.T) {
-	args := []string{"workers", "df", "-h", "--sudo"}
+	args := []string{"workers", "df -h", "--sudo"}
 	opts, err := parseClusterExecArgs(args)
 	if err != nil || opts.target != "workers" || opts.command != "df -h" {
 		t.Fatalf("unexpected parse result: %+v err: %v", opts, err)

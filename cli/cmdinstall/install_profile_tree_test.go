@@ -108,9 +108,9 @@ func TestProfileToTreeNode(t *testing.T) {
 		t.Errorf("expected root title 'ubuntu+dev', got %q", treeNode.Title)
 	}
 
-	// Children should have BaseProfile node + 2 tools = 3 children
-	if len(treeNode.Children) != 3 {
-		t.Errorf("expected 3 children on root node, got %d", len(treeNode.Children))
+	// Children should have BaseProfile node + 5 tools = 6 children
+	if len(treeNode.Children) != 6 {
+		t.Errorf("expected 6 children on root node, got %d", len(treeNode.Children))
 	}
 }
 

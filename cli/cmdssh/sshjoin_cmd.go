@@ -50,9 +50,14 @@ func executeSSHJoin(ctx context.Context, target string, history store.SSHHistory
 }
 
 func executeJoinInTx(ctx context.Context, wrapper *dbengine.DbWrapper, target string, history store.SSHHistory) error {
-	return wrapper.WithTransaction(ctx, func(tx *dbengine.TxWrapper) *apperror.AppError {
+	appErr := wrapper.WithTransaction(ctx, func(tx *dbengine.TxWrapper) *apperror.AppError {
 		return insertJoinRecords(ctx, tx, target, history)
 	})
+	if appErr != nil {
+		return appErr
+	}
+
+	return nil
 }
 
 func runJoinTransaction(ctx context.Context, db *sql.DB, target string, history store.SSHHistory) error {

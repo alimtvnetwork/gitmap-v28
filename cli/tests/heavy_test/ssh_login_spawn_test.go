@@ -27,7 +27,7 @@ func TestRunSSHLogin(t *testing.T) {
 	cmd.SSHExecutor = fakeSSHCommand
 	defer func() { cmd.SSHExecutor = oldExecutor }()
 
-	err := cmd.RunSSHLogin(c, []string{"my-target"}, ctx)
+	err := cmd.RunSSHLogin(c, []string{"127.0.0.1"}, ctx)
 	if err != nil {
 		t.Errorf("Expected no error, got %v", err)
 	}

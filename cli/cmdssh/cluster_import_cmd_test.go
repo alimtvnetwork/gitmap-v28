@@ -122,7 +122,7 @@ func TestClusterImport_RSAEncryptionValidation(t *testing.T) {
 	})
 }
 
-func setupClusterTestDB(t *testing.T) *store.DB {
+func setupClusterTestDB(t *testing.T) (string, *store.DB) {
 	dbPath := filepath.Join(t.TempDir(), "cluster_test.db")
 	dbConn, err := store.OpenAt(dbPath)
 	if err != nil {
@@ -131,14 +131,14 @@ func setupClusterTestDB(t *testing.T) *store.DB {
 	_ = dbConn.Migrate()
 	_ = store.EnsureSSHHostsTable(dbConn.SQL())
 	_ = store.EnsureSSHHistoryTable(dbConn.SQL())
-	return dbConn
+	return dbPath, dbConn
 }
 
 func withClusterTestContext(t *testing.T, fn func(db *store.DB)) {
-	testDB := setupClusterTestDB(t)
+	dbPath, testDB := setupClusterTestDB(t)
 	defer testDB.Close()
 	prevOpener := openSSHDBFunc
-	openSSHDBFunc = func() (*store.DB, error) { return testDB, nil }
+	openSSHDBFunc = func() (*store.DB, error) { return store.OpenAt(dbPath) }
 	defer func() { openSSHDBFunc = prevOpener }()
 	fn(testDB)
 }

@@ -573,27 +573,6 @@ func pullOneRepo(rec model.ScanRecord) {
 	}
 }
 
-func pullOneRepoTracked(rec model.ScanRecord, prog *cloner.BatchProgress) {
-	if cloner.IsMissingRepo(rec.AbsolutePath) {
-		prog.Skip(rec.RepoName)
-
-		return
-	}
-	result := cloner.SafePullOne(rec, rec.AbsolutePath)
-	recordPullResult(rec.RepoName, result, prog)
-}
-
-func recordPullResult(repoName string, result model.CloneResult, prog *cloner.BatchProgress) {
-	if result.IsSuccess && result.Notes == "up-to-date" {
-		prog.UpToDate(repoName)
-	} else if result.IsSuccess {
-		prog.Succeed(repoName)
-	}
-	if result.IsFailed() {
-		prog.FailWithError(repoName, result.Error)
-	}
-}
-
 func findChildrenOfCWD(cwd string) []model.ScanRecord {
 	all := loadAllRecordsDB()
 	var children []model.ScanRecord

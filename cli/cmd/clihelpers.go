@@ -323,21 +323,6 @@ func runSSHBind(args []string) error {
 	return cmdssh.RunSSHBind(args)
 }
 
-// runSJAddAuth delegates to cmdssh.RunSJAddAuth.
-func runSJAddAuth(cmd *cobra.Command, args []string, ctx context.Context) error {
-	return cmdssh.RunSJAddAuth(cmd, args, ctx)
-}
-
-// runSJHistory delegates to cmdssh.RunSJHistory.
-func runSJHistory(cmd *cobra.Command, args []string, ctx context.Context) error {
-	return cmdssh.RunSJHistory(cmd, args, ctx)
-}
-
-// runSJLs delegates to cmdssh.RunSJLs.
-func runSJLs(cmd *cobra.Command, args []string, ctx context.Context) error {
-	return cmdssh.RunSJLs(cmd, args, ctx)
-}
-
 // runSJRm delegates to cmdssh.RunSJRm.
 func runSJRm(cmd *cobra.Command, args []string, ctx context.Context) error {
 	return cmdssh.RunSJRm(cmd, args, ctx)

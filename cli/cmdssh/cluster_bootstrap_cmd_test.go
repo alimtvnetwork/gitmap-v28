@@ -12,7 +12,7 @@ import (
 	_ "modernc.org/sqlite"
 )
 
-func setupBootstrapTestStore(t *testing.T) *store.DB {
+func setupBootstrapTestStore(t *testing.T) (string, *store.DB) {
 	dbPath := filepath.Join(t.TempDir(), "test_cluster_bs.db")
 	dbConn, err := store.OpenAt(dbPath)
 	if err != nil {
@@ -20,14 +20,14 @@ func setupBootstrapTestStore(t *testing.T) *store.DB {
 	}
 	_ = dbConn.Migrate()
 	_ = store.EnsureSSHHostsTable(dbConn.SQL())
-	return dbConn
+	return dbPath, dbConn
 }
 
 func withMockBootstrapStore(t *testing.T, fn func(db *store.DB)) {
-	testDB := setupBootstrapTestStore(t)
+	dbPath, testDB := setupBootstrapTestStore(t)
 	defer testDB.Close()
 	prevOpener := openClusterDBFunc
-	openClusterDBFunc = func() (*store.DB, error) { return testDB, nil }
+	openClusterDBFunc = func() (*store.DB, error) { return store.OpenAt(dbPath) }
 	defer func() { openClusterDBFunc = prevOpener }()
 	fn(testDB)
 }

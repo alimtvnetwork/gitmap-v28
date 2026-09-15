@@ -242,10 +242,6 @@ func buildFinalFailureResult(rec model.ScanRecord) model.CloneResult {
 	return model.CloneResult{Record: rec, IsSuccess: false, Error: "safe-pull failed after all retries"}
 }
 
-func runGitPull(repoDir string) (string, error) {
-	return runGitPullWithProgress(repoDir, nil)
-}
-
 func runGitPullWithProgress(repoDir string, onProgress func(string)) (string, error) {
 	cmd := exec.Command(constants.GitBin, constants.GitDirFlag, repoDir, constants.GitPull, "--progress", constants.GitFFOnlyFlag, "--autostash")
 	cmd.Env = append(os.Environ(),

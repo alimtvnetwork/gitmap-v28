@@ -102,7 +102,7 @@ func TestExecuteSSHJoinSkeleton(t *testing.T) {
 	_ = executeSSHJoin
 }
 
-func setupTestStoreDB(t *testing.T) *store.DB {
+func setupTestStoreDB(t *testing.T) (string, *store.DB) {
 	dbPath := filepath.Join(t.TempDir(), "test_ssh.db")
 	dbConn, err := store.OpenAt(dbPath)
 	if err != nil {
@@ -115,15 +115,15 @@ func setupTestStoreDB(t *testing.T) *store.DB {
 
 	_ = store.EnsureSSHHostsTable(dbConn.SQL())
 	_ = store.EnsureSSHHistoryTable(dbConn.SQL())
-	return dbConn
+	return dbPath, dbConn
 }
 
 func withMockSSHDB(t *testing.T, fn func(db *store.DB)) {
-	testDB := setupTestStoreDB(t)
+	dbPath, testDB := setupTestStoreDB(t)
 	defer testDB.Close()
 
 	prevOpener := openSSHDBFunc
-	openSSHDBFunc = func() (*store.DB, error) { return testDB, nil }
+	openSSHDBFunc = func() (*store.DB, error) { return store.OpenAt(dbPath) }
 	defer func() { openSSHDBFunc = prevOpener }()
 
 	fn(testDB)
@@ -213,22 +213,22 @@ func TestRunSSHJoinCLI_DirectPositional(t *testing.T) {
 	})
 }
 
-func setupFreshStoreDB(t *testing.T) *store.DB {
+func setupFreshStoreDB(t *testing.T) (string, *store.DB) {
 	dbPath := filepath.Join(t.TempDir(), "fresh_ssh.db")
 	dbConn, err := store.OpenAt(dbPath)
 	if err != nil {
 		t.Fatalf("failed to open fresh db: %v", err)
 	}
 
-	return dbConn
+	return dbPath, dbConn
 }
 
 func withFreshSSHDB(t *testing.T, fn func(db *store.DB)) {
-	testDB := setupFreshStoreDB(t)
+	dbPath, testDB := setupFreshStoreDB(t)
 	defer testDB.Close()
 
 	prevOpener := openSSHDBFunc
-	openSSHDBFunc = func() (*store.DB, error) { return testDB, nil }
+	openSSHDBFunc = func() (*store.DB, error) { return store.OpenAt(dbPath) }
 	defer func() { openSSHDBFunc = prevOpener }()
 
 	fn(testDB)

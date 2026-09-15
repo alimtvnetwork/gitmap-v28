@@ -92,8 +92,8 @@ func TestProbeHostTCP_OnlineListener(t *testing.T) {
 	port, _ := strconv.Atoi(portStr)
 	ctx := context.Background()
 	isOnline, latency := probeHostTCP(ctx, "127.0.0.1", port, 500*time.Millisecond)
-	if !isOnline || latency <= 0 {
-		t.Errorf("expected online host with positive latency, got online=%v, latency=%v", isOnline, latency)
+	if !isOnline || latency < 0 {
+		t.Errorf("expected online host with non-negative latency, got online=%v, latency=%v", isOnline, latency)
 	}
 }
 

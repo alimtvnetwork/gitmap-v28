@@ -176,6 +176,7 @@ func formatJoinExamples(target string) string {
 	sb.WriteString("  gitmap ssh-join user@<ip>\n")
 	sb.WriteString(fmt.Sprintf("  gitmap ssh-join <ip> %s\n", target))
 	sb.WriteString(fmt.Sprintf("  gitmap ssh-join add user@<ip> %s\n", target))
+	sb.WriteString(fmt.Sprintf("  gitmap ssh join user@<ip> %s\n", target))
 	sb.WriteString("\nTo recall an existing registered host:\n")
 	sb.WriteString("  gitmap ssh <alias>\n")
 	sb.WriteString("  gitmap ssh-join ls\n")
@@ -187,8 +188,4 @@ func formatAliasNotFoundMessage(target string, hosts []store.SSHHost) string {
 	table := formatRegisteredHostsTable(hosts)
 	examples := formatJoinExamples(target)
 	return header + table + "\n" + examples
-}
-
-func resolveSSHHostTarget(ctx context.Context, target string, sshTarget *SSHTarget) {
-	_ = resolveAliasOrReport(ctx, target, sshTarget)
 }

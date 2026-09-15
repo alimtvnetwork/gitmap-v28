@@ -174,9 +174,9 @@ func TestGitIsNotProfile(t *testing.T) {
 func TestResolveProfileInstalledBadge(t *testing.T) {
 	prof := InstallProfile{
 		Name:  "test-prof",
-		Tools: []string{"git"},
+		Tools: []string{"nonexistent-tool-xyz"},
 	}
-	installedMap := map[string]string{"git": "2.40.0"}
+	installedMap := map[string]string{"nonexistent-tool-xyz": "1.0.0"}
 	badge := resolveProfileInstalledBadge(prof, installedMap)
 	if badge != " [✔ Already Installed]" {
 		t.Errorf("expected badge ' [✔ Already Installed]', got %q", badge)

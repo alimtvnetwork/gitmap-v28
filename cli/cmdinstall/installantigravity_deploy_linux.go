@@ -175,12 +175,6 @@ func createDualLinuxSymlinksWithFallback(binFile, preferredBinDir string) (strin
 	return fallbackBinDir, nil
 }
 
-func createAntigravityDesktopEntry(binPath, desktopFile string) error {
-	content := buildAntigravityDesktopContent(binPath, AntigravityCanonicalIconName)
-
-	return writeDesktopFileWithChmod(desktopFile, content)
-}
-
 func deployAntigravityDesktopIcons(installDir string) {
 	opts := IconDeployOptions{
 		IconName:   AntigravityCanonicalIconName,
