@@ -134,3 +134,43 @@ func TestClusterSubcommand_LazyRegexUnknownMismatch(t *testing.T) {
 		t.Error("expected structured AppError on mismatch")
 	}
 }
+
+func TestClusterSubcommand_LazyRegexResultGroupMethods(t *testing.T) {
+	re := lazyregex.New(`^(?P<verb>add|join)\s+(?P<target>[\w@\.:]+)$`)
+	input := "add admin@192.168.1.10"
+	var rsLazyRegex = re.MatchResult(input)
+
+	if rsLazyRegex.IsFailed() {
+		t.Fatalf("expected match, got: %v", rsLazyRegex.Cause())
+	}
+
+	if rsLazyRegex.IsFailure() {
+		t.Error("expected match to not be failure")
+	}
+
+	if rsLazyRegex.First() != input || rsLazyRegex.Last() != "admin@192.168.1.10" {
+		t.Errorf("unexpected first or last: %q, %q", rsLazyRegex.First(), rsLazyRegex.Last())
+	}
+}
+
+func TestClusterSubcommand_LazyRegexGroupItemsAndMap(t *testing.T) {
+	re := lazyregex.New(`^(?P<verb>add|join)\s+(?P<target>[\w@\.:]+)$`)
+	rsLazyRegex := re.MatchResult("add admin@192.168.1.10")
+
+	if rsLazyRegex.FirstOrDefault("def") == "def" || rsLazyRegex.Count() != 3 {
+		t.Errorf("unexpected FirstOrDefault or Count: %d", rsLazyRegex.Count())
+	}
+
+	if len(rsLazyRegex.Items()) != 3 || rsLazyRegex.Map().Get("verb") != "add" {
+		t.Errorf("unexpected Items or Map: %v", rsLazyRegex.Items())
+	}
+}
+
+func TestClusterSubcommand_LazyRegexMatchError(t *testing.T) {
+	re := lazyregex.New(`^(?P<verb>add|join)$`)
+	err := re.MatchError("invalid-verb")
+
+	if err == nil {
+		t.Error("expected MatchError to return non-nil error on mismatch")
+	}
+}
