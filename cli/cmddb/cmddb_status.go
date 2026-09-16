@@ -72,7 +72,7 @@ func printUnifiedStatus(status dbUnifiedStatus) {
 	fmt.Printf("     • %-18s %d isolated database files\n", "Database Count:", status.SplitRepoCount)
 	fmt.Printf("     • %-18s %s\n", "Total Disk Size:", formatBytes(status.SplitRepoSize))
 	fmt.Println()
-	fmt.Printf("  %s3. Split Pipeline Databases (pipeline_db/):%s\n", constants.ColorWhite, constants.ColorReset)
+	fmt.Printf("  %s3. Split Pipeline Databases (pipeline/):%s\n", constants.ColorWhite, constants.ColorReset)
 	fmt.Printf("     • %-18s %s\n", "Directory:", status.PipelineDir)
 	fmt.Printf("     • %-18s %d isolated pipeline database files\n", "Database Count:", status.PipelineCount)
 	fmt.Printf("     • %-18s %s\n", "Total Disk Size:", formatBytes(status.PipelineSize))

@@ -6,11 +6,8 @@ import (
 	"path/filepath"
 	"strings"
 
-	"github.com/alimtvnetwork/gitmap-v28/cli/apperror"
-	"github.com/alimtvnetwork/gitmap-v28/cli/gitutil"
 	"github.com/alimtvnetwork/gitmap-v28/cli/lazyregex"
 	"github.com/alimtvnetwork/gitmap-v28/cli/store"
-	_ "modernc.org/sqlite"
 )
 
 // PipelineSplitDb encapsulates an isolated SQLite database connection for a single repository's pipeline data.
@@ -23,15 +20,20 @@ type PipelineSplitDb struct {
 // PipelineSplitDB is an alias to PipelineSplitDb for backward compatibility.
 type PipelineSplitDB = PipelineSplitDb
 
-// SanitizeRepoSlug converts a repository slug into a valid safe filesystem name.
-func SanitizeRepoSlug(repo string) string {
-	lower := strings.ToLower(strings.TrimSpace(repo))
-	if strings.Contains(lower, "://") || strings.Contains(lower, "@") {
-		canonical := gitutil.CanonicalRepoID(lower)
-		if idx := strings.Index(canonical, "/"); idx >= 0 {
-			lower = canonical[idx+1:]
+func cleanRepoURLPrefix(repo string) string {
+	clean := strings.TrimSuffix(strings.TrimSpace(repo), ".git")
+	for _, token := range []string{"github.com/", "github.com:", "gitlab.com/", "gitlab.com:"} {
+		if idx := strings.Index(clean, token); idx != -1 {
+			return clean[idx+len(token):]
 		}
 	}
+
+	return clean
+}
+
+// SanitizeRepoSlug converts a repository slug into a valid safe filesystem name.
+func SanitizeRepoSlug(repo string) string {
+	lower := strings.ToLower(cleanRepoURLPrefix(repo))
 	slug := lazyregex.SlugSanitizeRegex.ReplaceAllString(lower, "-")
 	slug = strings.Trim(slug, "-")
 	if slug == "" {
@@ -43,6 +45,12 @@ func SanitizeRepoSlug(repo string) string {
 
 // PipelineDbDir returns the dedicated directory where pipeline split DBs live.
 func PipelineDbDir() string {
+	binDir := filepath.Dir(store.BinaryDataDir())
+	altDir := filepath.Join(binDir, "pipeline")
+	if isDirExisting(altDir) {
+		return altDir
+	}
+
 	dir := filepath.Join(store.BinaryDataDir(), "pipeline")
 	_ = os.MkdirAll(dir, 0755)
 
@@ -52,9 +60,9 @@ func PipelineDbDir() string {
 // PipelineDBDir is an alias to PipelineDbDir.
 var PipelineDBDir = PipelineDbDir
 
-// RepoScopedPipelineDbDir returns the repository-scoped data directory for pipeline db.
-func RepoScopedPipelineDbDir(repoRoot string) string {
-	return filepath.Join(repoRoot, ".gitmap", "data")
+// RepoScopedPipelineDbDir returns the pipeline db directory co-located with the CLI installation.
+func RepoScopedPipelineDbDir(_ string) string {
+	return PipelineDbDir()
 }
 
 func isFileExisting(path string) bool {
@@ -62,41 +70,8 @@ func isFileExisting(path string) bool {
 	if err != nil {
 		return false
 	}
-	if info.IsDir() {
-		return false
-	}
 
-	return true
-}
-
-func resolveRepoScopedPath(repoRoot string) string {
-	primary := filepath.Join(RepoScopedPipelineDbDir(repoRoot), "pipeline.db")
-	if isFileExisting(primary) {
-		return primary
-	}
-	legacy := filepath.Join(repoRoot, ".gitmap", "pipeline.db")
-	if isFileExisting(legacy) {
-		return legacy
-	}
-
-	return primary
-}
-
-func fallbackBinaryPipelineDbPath(repoSlug string) string {
-	slug := SanitizeRepoSlug(repoSlug)
-
-	return filepath.Join(PipelineDbDir(), "pipeline_"+slug+".db")
-}
-
-func isTestRepoSlug(repoSlug string) bool {
-	if strings.HasPrefix(repoSlug, "test-") {
-		return true
-	}
-	if strings.Contains(repoSlug, "/test-") {
-		return true
-	}
-
-	return false
+	return !info.IsDir()
 }
 
 func isDirExisting(path string) bool {
@@ -108,105 +83,36 @@ func isDirExisting(path string) bool {
 	return fi.IsDir()
 }
 
-func stripVersionSuffix(name string) string {
-	idx := strings.LastIndex(name, "-v")
-	if idx > 0 {
-		return name[:idx]
-	}
-
-	return name
-}
-
-func checkCandidateDir(candidate string) string {
-	if !isDirExisting(candidate) {
-		return ""
-	}
-	root, err := gitutil.RepoRoot(candidate)
-	if err == nil && root != "" {
-		return root
-	}
-
-	return ""
-}
-
-func findCandidateRepoRoot(repoSlug string) string {
-	base := filepath.Base(repoSlug)
-	candidates := []string{base, stripVersionSuffix(base)}
-	for _, cand := range candidates {
-		if root := checkCandidateDir(cand); root != "" {
-			return root
+func migrateOrFallbackPipelineDb(dir, slug, targetPrefixed string) string {
+	legacyDir := filepath.Join(store.BinaryDataDir(), "pipeline_db")
+	legacyFile := filepath.Join(legacyDir, "pipeline_"+slug+".db")
+	if isFileExisting(legacyFile) {
+		if err := os.Rename(legacyFile, targetPrefixed); err == nil {
+			return targetPrefixed
 		}
+
+		return legacyFile
 	}
 
-	return ""
+	return targetPrefixed
 }
 
-func isRepoMatchingSlug(repoRoot, repoSlug string) bool {
-	remote, err := gitutil.RemoteURL(repoRoot)
-	if err == nil && strings.Contains(strings.ToLower(remote), strings.ToLower(repoSlug)) {
-		return true
-	}
-	base := filepath.Base(repoRoot)
-	if strings.EqualFold(base, filepath.Base(repoSlug)) {
-		return true
-	}
-	trimmed := stripVersionSuffix(filepath.Base(repoSlug))
-
-	return strings.EqualFold(base, trimmed)
-}
-
-func findRepoRootInStore(repoSlug string) string {
-	db, err := store.OpenDefault()
-	if err != nil {
-		return ""
-	}
-	defer db.Close()
-
-	records, err := db.FindBySlug(repoSlug)
-	if err != nil || len(records) == 0 {
-		return ""
-	}
-
-	for _, rec := range records {
-		if isDirExisting(rec.AbsolutePath) {
-			return rec.AbsolutePath
-		}
-	}
-
-	return ""
-}
-
-func resolveTargetRepoRoot(repoSlug string) string {
-	root, err := gitutil.RepoRoot(".")
-	if err == nil && root != "" && isRepoMatchingSlug(root, repoSlug) {
-		return root
-	}
-	if cand := findCandidateRepoRoot(repoSlug); cand != "" {
-		return cand
-	}
-	if storeRoot := findRepoRootInStore(repoSlug); storeRoot != "" {
-		return storeRoot
-	}
-	if err == nil && root != "" {
-		return root
-	}
-
-	return ""
-}
-
-// ResolvePipelineDbPath resolves the dedicated CLI-scoped SQLite database path for a repository.
+// ResolvePipelineDbPath resolves the CLI-anchored SQLite database path for a repository.
 func ResolvePipelineDbPath(repoSlug string) string {
 	slug := SanitizeRepoSlug(repoSlug)
-	primary := filepath.Join(PipelineDbDir(), "pipeline_"+slug+".db")
-	if isFileExisting(primary) {
-		return primary
-	}
-	legacyOldDir := filepath.Join(store.BinaryDataDir(), "pipeline_db", "pipeline_"+slug+".db")
-	if isFileExisting(legacyOldDir) {
-		return legacyOldDir
+	dir := PipelineDbDir()
+
+	direct := filepath.Join(dir, slug+".db")
+	if isFileExisting(direct) {
+		return direct
 	}
 
-	return primary
+	prefixed := filepath.Join(dir, "pipeline_"+slug+".db")
+	if isFileExisting(prefixed) {
+		return prefixed
+	}
+
+	return migrateOrFallbackPipelineDb(dir, slug, prefixed)
 }
 
 // PipelineDbPath returns the full SQLite database file path for a repository.
@@ -216,74 +122,3 @@ func PipelineDbPath(repoSlug string) string {
 
 // PipelineDBPath is an alias to PipelineDbPath.
 var PipelineDBPath = PipelineDbPath
-
-// OpenPipelineSplitDb opens or initializes the split SQLite database for a repo.
-func OpenPipelineSplitDb(repoSlug string) (*PipelineSplitDb, error) {
-	dbPath := ResolvePipelineDbPath(repoSlug)
-	_ = os.MkdirAll(filepath.Dir(dbPath), 0755)
-	conn, err := sql.Open("sqlite", dbPath)
-	if err != nil {
-		return nil, apperror.WrapSimple(err, "open pipeline split db "+repoSlug)
-	}
-
-	return initPipelineSplitConn(conn, repoSlug, dbPath)
-}
-
-func (p *PipelineSplitDb) setupSchema() error {
-	if err := p.InitSchema(); err != nil {
-		_ = p.conn.Close()
-
-		return err
-	}
-
-	return nil
-}
-
-func initPipelineSplitConn(conn *sql.DB, repoSlug, dbPath string) (*PipelineSplitDb, error) {
-	if err := store.ConfigureSQLiteConn(conn); err != nil {
-		_ = conn.Close()
-
-		return nil, apperror.WrapSimple(err, "configure pipeline split db "+repoSlug)
-	}
-
-	p := &PipelineSplitDb{conn: conn, RepoSlug: repoSlug, Path: dbPath}
-
-	return p, p.setupSchema()
-}
-
-// OpenPipelineSplitDB is an alias to OpenPipelineSplitDb.
-var OpenPipelineSplitDB = OpenPipelineSplitDb
-
-func pipelineSchemaQueries() []string {
-	return []string{
-		sqlCreatePipelineRun,
-		sqlCreatePipelineErrorLog,
-		sqlCreatePipelineDetailErrorLog,
-		sqlCreatePipelineCompactErrorLog,
-		sqlCreatePipelineSegment,
-	}
-}
-
-func (p *PipelineSplitDb) executeSchemaQueries(queries []string) error {
-	for _, q := range queries {
-		if _, err := p.conn.Exec(q); err != nil {
-			return apperror.WrapSimple(err, "init pipeline db schema")
-		}
-	}
-
-	return nil
-}
-
-// InitSchema ensures all pipeline tables exist.
-func (p *PipelineSplitDb) InitSchema() error {
-	return p.executeSchemaQueries(pipelineSchemaQueries())
-}
-
-// Close closes the underlying SQLite connection.
-func (p *PipelineSplitDb) Close() error {
-	if p.conn != nil {
-		return p.conn.Close()
-	}
-
-	return nil
-}

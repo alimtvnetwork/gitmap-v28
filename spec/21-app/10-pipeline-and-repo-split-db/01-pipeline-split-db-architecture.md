@@ -4,11 +4,11 @@
 
 Pipeline split databases are isolated per repository slug to ensure zero lock contention between concurrent CI/CD pipeline monitoring routines:
 
-- **Root Directory:** `<BinaryDataDir>/pipeline_db/`
+- **Root Directory:** `<BinaryDataDir>/pipeline/`
 - **File Naming Pattern:** `pipeline_<sanitized_slug>.db`
 - **Sanitization Rule:** Replaces forward slashes (`/`), colons (`:`), and backslashes (`\`) with hyphens (`-`).
   - Example: Repository `alimtvnetwork/gitmap-v28` resolves to:
-    `data/pipeline_db/pipeline_alimtvnetwork-gitmap-v28.db`
+    `data/pipeline/pipeline_alimtvnetwork-gitmap-v28.db`
 
 ## 2. Table Schemas
 

@@ -66,6 +66,17 @@ const (
 	UpdateCleanupSourceUnknown = "unknown"
 )
 
+// Update version resolution constants (no magic strings).
+const (
+	VersionUnknown  = "unknown"
+	VersionPrefixV  = "v"
+	VersionKeyUpper = "Version"
+	VersionKeyLower = "version"
+)
+
+// VersionKeys defines fallback JSON/map keys searched during version extraction.
+var VersionKeys = []string{VersionKeyUpper, VersionKeyLower}
+
 // Update UI messages.
 const (
 	MsgUpdateActive              = "  → Active: %s\n  → Handoff: %s\n"

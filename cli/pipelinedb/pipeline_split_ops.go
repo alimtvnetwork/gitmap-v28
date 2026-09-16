@@ -702,7 +702,7 @@ func computeRelativeDbPath(absPath string) string {
 		return absPath
 	}
 	rel, relErr := filepath.Rel(cwd, absPath)
-	if relErr != nil {
+	if relErr != nil || strings.HasPrefix(rel, "..") {
 		return absPath
 	}
 

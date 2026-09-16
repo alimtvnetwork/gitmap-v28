@@ -11,7 +11,9 @@ import (
 // fetchRemoteTargetVersion fetches the latest version from GitHub releases or version.json.
 func fetchRemoteTargetVersion(slug string) string {
 	ghVer := fetchGitHubLatestReleaseVersion(slug)
-	if len(ghVer) > 0 && ghVer != "unknown" {
+	hasValidVer := len(ghVer) > 0 && ghVer != constants.VersionUnknown
+
+	if hasValidVer {
 		return ghVer
 	}
 
@@ -22,7 +24,9 @@ func fetchGitHubLatestReleaseVersion(slug string) string {
 	url := fmt.Sprintf("https://api.github.com/repos/%s/%s/releases/latest", constants.UpdateRepoOwner, slug)
 	client := &http.Client{Timeout: 6 * time.Second}
 	resp, err := executeGitHubReleaseRequest(client, url)
-	if err != nil || resp.StatusCode != http.StatusOK {
+	isFailed := err != nil || resp.StatusCode != http.StatusOK
+
+	if isFailed {
 		closeResponse(resp)
 
 		return ""
@@ -39,7 +43,7 @@ func executeGitHubReleaseRequest(client *http.Client, url string) (*http.Respons
 		return nil, err
 	}
 
-	req.Header.Set("User-Agent", "cli-updater")
+	req.Header.Set("User-Agent", constants.UpdaterBin)
 
 	return client.Do(req)
 }
@@ -48,10 +52,12 @@ func fetchVersionJSON(slug string) string {
 	url := fmt.Sprintf("https://raw.githubusercontent.com/%s/%s/main/version.json", constants.UpdateRepoOwner, slug)
 	client := &http.Client{Timeout: 6 * time.Second}
 	resp, err := client.Get(url)
-	if err != nil || resp.StatusCode != http.StatusOK {
+	isFailed := err != nil || resp.StatusCode != http.StatusOK
+
+	if isFailed {
 		closeResponse(resp)
 
-		return "unknown"
+		return constants.VersionUnknown
 	}
 
 	defer resp.Body.Close()

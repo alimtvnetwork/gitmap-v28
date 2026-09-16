@@ -69,14 +69,18 @@ func (db *DB) syncSingleSchedule(dir string, e os.DirEntry) {
 }
 
 func (db *DB) syncPipelineDBs() {
-	pipeDir := filepath.Join(db.dataDir(), "pipeline_db")
-	entries, err := os.ReadDir(pipeDir)
+	db.syncPipelineDir(filepath.Join(db.dataDir(), "pipeline"))
+	db.syncPipelineDir(filepath.Join(db.dataDir(), "pipeline_db"))
+}
+
+func (db *DB) syncPipelineDir(dir string) {
+	entries, err := os.ReadDir(dir)
 	if err != nil {
 		return
 	}
 
 	for _, e := range entries {
-		db.syncSinglePipeline(pipeDir, e)
+		db.syncSinglePipeline(dir, e)
 	}
 }
 
