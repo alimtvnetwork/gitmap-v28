@@ -10,6 +10,7 @@ import (
 	"strings"
 	"time"
 
+	"github.com/alimtvnetwork/gitmap-v28/cli/apperror"
 	"github.com/alimtvnetwork/gitmap-v28/cli/constants"
 	"github.com/alimtvnetwork/gitmap-v28/cli/ghtoken"
 )
@@ -167,7 +168,7 @@ func handleFailedRunLogsFallback(repo string, runId uint64, err error, out []byt
 	}
 
 	if err != nil {
-		return formatGHFailedError(err, out)
+		return formatGHFailedError(err, out, repo, runId)
 	}
 
 	return "Unable to fetch failed logs via gh CLI."
@@ -200,13 +201,55 @@ func appendJobFallbackLogs(sb *strings.Builder, j ghJobItem) {
 	}
 }
 
-func formatGHFailedError(err error, out []byte) string {
-	msg := strings.TrimSpace(string(out))
-	if len(msg) > 0 {
-		return fmt.Sprintf("gh command failed (%v):\n%s", err, msg)
+func queryRunDiagnostic(repo string, runId uint64) string {
+	if runId == 0 || len(repo) == 0 {
+		return ""
 	}
 
-	return fmt.Sprintf("gh command failed: %v", err)
+	idStr := strconv.FormatUint(runId, 10)
+	out, err := runGHCommandWithTimeout("run", "view", idStr, "--repo", repo)
+	if err != nil || len(out) == 0 {
+		return ""
+	}
+
+	return extractDiagnosticFromRunView(string(out))
+}
+
+func extractDiagnosticFromRunView(text string) string {
+	for _, line := range strings.Split(text, "\n") {
+		trimmed := strings.TrimSpace(line)
+		if strings.Contains(trimmed, "workflow file issue") || strings.Contains(trimmed, "likely failed") {
+			return strings.TrimPrefix(trimmed, "X ")
+		}
+	}
+
+	return ""
+}
+
+func formatGHFailedError(err error, out []byte, repo string, runId uint64) string {
+	msg := strings.TrimSpace(string(out))
+	diag := queryRunDiagnostic(repo, runId)
+	stack := apperror.CaptureStackTrace(apperror.DefaultStackTraceSkip)
+
+	return buildGHFailedErrorMessage(err, msg, diag, stack)
+}
+
+func buildGHFailedErrorMessage(err error, rawMsg, diag, stack string) string {
+	var sb strings.Builder
+	sb.WriteString(fmt.Sprintf("gh command failed (%v):\n", err))
+	if len(rawMsg) > 0 {
+		sb.WriteString(fmt.Sprintf("  %s\n", rawMsg))
+	}
+	if len(diag) > 0 {
+		sb.WriteString(fmt.Sprintf("  Diagnostic: %s\n", diag))
+	}
+	if len(stack) > 0 {
+		sb.WriteString("  Stack Trace:\n")
+		sb.WriteString(stack)
+		sb.WriteString("\n")
+	}
+
+	return sb.String()
 }
 
 func queryAllRunLogs(repo string, runId uint64) string {

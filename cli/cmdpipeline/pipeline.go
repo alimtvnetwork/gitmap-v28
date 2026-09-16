@@ -70,6 +70,7 @@ type SectionFailure struct {
 	ErrorLines     []string `json:"errorLines"`
 	SavedLogFile   string   `json:"savedLogFile,omitempty"`
 	CreatedAt      string   `json:"createdAt,omitempty"`
+	StackTrace     string   `json:"stackTrace,omitempty"`
 }
 
 // FailedRunItem represents an individual failed workflow run.
@@ -88,6 +89,7 @@ type FailedRunItem struct {
 	Url             string          `json:"url"`
 	FailedJobs      []FailedJobItem `json:"failedJobs"`
 	RawErrors       string          `json:"rawErrors,omitempty"`
+	StackTrace      string          `json:"stackTrace,omitempty"`
 }
 
 // FailedJobItem represents a failed job and step within a workflow run.
@@ -96,6 +98,7 @@ type FailedJobItem struct {
 	StepName       string   `json:"stepName"`
 	FailureSummary string   `json:"failureSummary"`
 	ErrorLines     []string `json:"errorLines"`
+	StackTrace     string   `json:"stackTrace,omitempty"`
 }
 
 // ErrorLogOutputParams encapsulates parameters for outputting error logs.

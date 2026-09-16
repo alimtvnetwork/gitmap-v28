@@ -284,6 +284,7 @@ func fetchAndBuildFailedRunItem(repo string, fr ghRunItem) FailedRunItem {
 	jobs := CorrelateRunFailedJobs(repo, fr.DatabaseId, rawLogs)
 	item := buildBaseFailedRunItem(fr, rawLogs)
 	item.FailedJobs = jobs
+	item.StackTrace = extractStackTraceFromLog(rawLogs)
 
 	return item
 }
@@ -680,9 +681,21 @@ func renderSingleSectionFailureRow(sec SectionFailure, idx, total int) {
 	}
 
 	renderSectionErrorLines(sec.ErrorLines)
+	renderSectionStackTrace(sec.StackTrace)
 
 	if len(sec.SavedLogFile) > 0 {
 		fmt.Printf("      Log:     %s\n", sec.SavedLogFile)
+	}
+}
+
+func renderSectionStackTrace(stack string) {
+	if len(stack) == 0 {
+		return
+	}
+
+	fmt.Printf("      Stack Trace:\n")
+	for _, line := range strings.Split(strings.TrimSpace(stack), "\n") {
+		fmt.Printf("        %s%s%s\n", constants.ColorDim, line, constants.ColorReset)
 	}
 }
 
@@ -787,6 +800,18 @@ func renderFailedJobSection(job FailedJobItem) {
 
 	for _, line := range job.ErrorLines {
 		fmt.Printf("  │   %s\n", line)
+	}
+	renderJobStackTrace(job.StackTrace)
+}
+
+func renderJobStackTrace(stack string) {
+	if len(stack) == 0 {
+		return
+	}
+
+	fmt.Printf("  │ Stack Trace:\n")
+	for _, line := range strings.Split(strings.TrimSpace(stack), "\n") {
+		fmt.Printf("  │   %s%s%s\n", constants.ColorDim, line, constants.ColorReset)
 	}
 }
 

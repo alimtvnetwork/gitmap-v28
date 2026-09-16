@@ -280,6 +280,9 @@ func getOrCreateJobItem(jobMap map[string]*FailedJobItem, order *[]string, key, 
 		return item
 	}
 
+	if job == "" {
+		job = "Workflow Execution"
+	}
 	if step == "UNKNOWN STEP" || step == "" {
 		step = "Job Execution"
 	}
@@ -333,14 +336,39 @@ func isGenericExitCode(s string) bool {
 	return strings.Contains(s, "Process completed with exit code") || strings.Contains(s, "exit status 1")
 }
 
+func extractStackTraceFromLog(rawLogs string) string {
+	idx := strings.Index(rawLogs, "Stack Trace:")
+	if idx != -1 {
+		return strings.TrimSpace(rawLogs[idx+len("Stack Trace:"):])
+	}
+	if gIdx := strings.Index(rawLogs, "goroutine "); gIdx != -1 {
+		return strings.TrimSpace(rawLogs[gIdx:])
+	}
+
+	return ""
+}
+
+func attachStackToItems(items []FailedJobItem, stack string) {
+	if len(items) > 0 && len(stack) > 0 {
+		items[0].StackTrace = stack
+	}
+}
+
 func assembleJobItems(jobMap map[string]*FailedJobItem, order []string, rawLogs string) []FailedJobItem {
+	stack := extractStackTraceFromLog(rawLogs)
 	if len(order) == 0 {
-		return buildFallbackJobItems(rawLogs)
+		items := buildFallbackJobItems(rawLogs)
+		attachStackToItems(items, stack)
+		return items
 	}
 
 	var results []FailedJobItem
 	for _, k := range order {
-		results = append(results, *jobMap[k])
+		item := *jobMap[k]
+		if len(item.StackTrace) == 0 && len(stack) > 0 {
+			item.StackTrace = stack
+		}
+		results = append(results, item)
 	}
 
 	return results
@@ -459,17 +487,22 @@ func isMatchingStepName(a, b string) bool {
 }
 
 func mergeMatchedFailure(target, p FailedJobItem) FailedJobItem {
+	stack := target.StackTrace
+	if len(stack) == 0 {
+		stack = p.StackTrace
+	}
+
 	item := FailedJobItem{
 		JobName:        target.JobName,
 		StepName:       target.StepName,
 		FailureSummary: p.FailureSummary,
 		ErrorLines:     p.ErrorLines,
+		StackTrace:     stack,
 	}
 
 	if len(item.FailureSummary) == 0 {
 		item.FailureSummary = target.FailureSummary
 	}
-
 	if len(item.ErrorLines) == 0 {
 		item.ErrorLines = target.ErrorLines
 	}
@@ -486,6 +519,9 @@ func searchRawLogsForTarget(target FailedJobItem, rawLogs string) FailedJobItem 
 	if len(lines) > 0 {
 		target.ErrorLines = lines
 		target.FailureSummary = lines[0]
+	}
+	if len(target.StackTrace) == 0 {
+		target.StackTrace = extractStackTraceFromLog(rawLogs)
 	}
 
 	return target
@@ -570,6 +606,11 @@ func resolveJobFallback(failedJobs []FailedJobItem, rawLogs string) []FailedJobI
 }
 
 func buildSectionFailureFromRunJob(run FailedRunItem, job FailedJobItem) SectionFailure {
+	stack := job.StackTrace
+	if len(stack) == 0 {
+		stack = run.StackTrace
+	}
+
 	return SectionFailure{
 		WorkflowName:   run.WorkflowName,
 		RunId:          run.RunId,
@@ -579,6 +620,7 @@ func buildSectionFailureFromRunJob(run FailedRunItem, job FailedJobItem) Section
 		ErrorLines:     job.ErrorLines,
 		SavedLogFile:   toRelativeGitPath(run.SavedLogFile),
 		CreatedAt:      run.CreatedAt,
+		StackTrace:     stack,
 	}
 }
 
@@ -664,6 +706,18 @@ func formatSectionErrors(sb *strings.Builder, sec SectionFailure) {
 	for _, line := range sec.ErrorLines {
 		sb.WriteString(fmt.Sprintf("  │   %s\n", line))
 	}
+	formatSectionStackLines(sb, sec.StackTrace)
+}
+
+func formatSectionStackLines(sb *strings.Builder, stack string) {
+	if len(stack) == 0 {
+		return
+	}
+
+	sb.WriteString("  │   Stack Trace:\n")
+	for _, line := range strings.Split(strings.TrimSpace(stack), "\n") {
+		sb.WriteString(fmt.Sprintf("  │     %s\n", line))
+	}
 }
 
 // formatAggregatedErrorLogs generates a comprehensive human-readable summary of all failed runs.
@@ -736,6 +790,18 @@ func formatJobLines(sb *strings.Builder, job FailedJobItem) {
 
 	for _, l := range job.ErrorLines {
 		sb.WriteString(fmt.Sprintf("      %s\n", l))
+	}
+	formatJobStackLines(sb, job.StackTrace)
+}
+
+func formatJobStackLines(sb *strings.Builder, stack string) {
+	if len(stack) == 0 {
+		return
+	}
+
+	sb.WriteString("      Stack Trace:\n")
+	for _, line := range strings.Split(strings.TrimSpace(stack), "\n") {
+		sb.WriteString(fmt.Sprintf("        %s\n", line))
 	}
 }
 

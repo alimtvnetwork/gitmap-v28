@@ -3,7 +3,6 @@ package cmdpipeline
 import (
 	"encoding/json"
 	"fmt"
-	"os/exec"
 	"strings"
 	"time"
 
@@ -52,7 +51,7 @@ func queryRunJobs(repo string, runId uint64) []ghJobItem {
 		return cached
 	}
 
-	out, err := exec.Command("gh", buildRunJobsArgs(repo, runId)...).Output()
+	out, err := runGHCommandWithTimeout(buildRunJobsArgs(repo, runId)...)
 	if err != nil || len(out) == 0 {
 		return nil
 	}
