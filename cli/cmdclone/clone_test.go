@@ -1,6 +1,10 @@
 package cmdclone
 
-import "testing"
+import (
+	"testing"
+
+	"github.com/alimtvnetwork/gitmap-v28/cli/model"
+)
 
 // TestIsDirectURL_HTTPS verifies HTTPS URLs are detected.
 func TestIsDirectURL_HTTPS(t *testing.T) {
@@ -163,5 +167,66 @@ func TestRepoNameFromURL_TrailingSlash(t *testing.T) {
 		if got == "" {
 			t.Errorf("repoNameFromURL(%q) returned empty — would target CWD and trigger replace flow", tc.input)
 		}
+	}
+}
+
+func TestParseCloneFlags_ExcludeAndList(t *testing.T) {
+	cf := ParseCloneFlags([]string{"a.json", "ls", "--exclude", "repoStarts,repostarts2nd"})
+	if !cf.IsListOnly {
+		t.Errorf("expected IsListOnly=true, got false")
+	}
+	if cf.Source != "a.json" {
+		t.Errorf("expected Source='a.json', got %q", cf.Source)
+	}
+	if cf.ExcludeFilter != "repoStarts,repostarts2nd" {
+		t.Errorf("expected ExcludeFilter='repoStarts,repostarts2nd', got %q", cf.ExcludeFilter)
+	}
+}
+
+func TestParseCloneFlags_SSHAndPositional(t *testing.T) {
+	cf := ParseCloneFlags([]string{"--ssh", "my-manifest.json"})
+	if !cf.UseSSH {
+		t.Errorf("expected UseSSH=true, got false")
+	}
+	if cf.Source != "my-manifest.json" {
+		t.Errorf("expected Source='my-manifest.json', got %q", cf.Source)
+	}
+}
+
+func TestParseCloneFlags_BareListOnly(t *testing.T) {
+	cf := ParseCloneFlags([]string{"ls"})
+	if !cf.IsListOnly {
+		t.Errorf("expected IsListOnly=true, got false")
+	}
+	if cf.Source != "" {
+		t.Errorf("expected Source='', got %q", cf.Source)
+	}
+}
+
+func TestFilterRecordsByExclude(t *testing.T) {
+	records := []model.ScanRecord{
+		{RepoName: "repoStartsOne", RelativePath: "repoStartsOne"},
+		{RepoName: "repostarts2nd", RelativePath: "repostarts2nd"},
+		{RepoName: "keepThisRepo", RelativePath: "keepThisRepo"},
+	}
+	filtered := filterRecordsByExclude(records, "repoStarts,repostarts2nd")
+	if len(filtered) != 1 {
+		t.Fatalf("expected 1 record after exclude, got %d", len(filtered))
+	}
+	if filtered[0].RepoName != "keepThisRepo" {
+		t.Errorf("expected keepThisRepo, got %s", filtered[0].RepoName)
+	}
+}
+
+func TestConvertRecordsToSSH(t *testing.T) {
+	records := []model.ScanRecord{
+		{HTTPSUrl: "https://github.com/user/myrepo.git", RelativePath: "myrepo"},
+	}
+	converted := convertRecordsToSSH(records)
+	if converted[0].Transport != "ssh" {
+		t.Errorf("expected Transport='ssh', got %s", converted[0].Transport)
+	}
+	if converted[0].SSHUrl != "git@github.com:user/myrepo.git" {
+		t.Errorf("expected git@github.com:user/myrepo.git, got %s", converted[0].SSHUrl)
 	}
 }

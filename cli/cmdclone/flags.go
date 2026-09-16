@@ -36,6 +36,7 @@ type CloneFlags struct {
 	Fix                             bool
 	IsListOnly                      bool
 	OnlyFilter                      string
+	ExcludeFilter                   string
 }
 
 type cloneFlagPointers struct {
@@ -63,6 +64,7 @@ type cloneFlagPointers struct {
 	fixFlag           *bool
 	listOnlyFlag      *bool
 	onlyFlag          *string
+	excludeFlag       *string
 }
 
 func registerCloneStringFlags(fs *flag.FlagSet, flagPtrs *cloneFlagPointers) {
@@ -74,6 +76,8 @@ func registerCloneStringFlags(fs *flag.FlagSet, flagPtrs *cloneFlagPointers) {
 	flagPtrs.maxConcFlag = fs.Int(constants.CloneFlagMaxConcurrency,
 		constants.CloneDefaultMaxConcurrency, constants.FlagDescCloneMaxConcurrency)
 	flagPtrs.onlyFlag = fs.String("only", "", "Filter repositories to clone by 1-based sequential ID, slug, or prefix")
+	flagPtrs.excludeFlag = fs.String("exclude", "", "Exclude repositories matching comma-separated names, prefixes, or sequential IDs")
+	fs.StringVar(flagPtrs.excludeFlag, "E", "", "Short alias for --exclude")
 }
 
 func registerCloneToggles(fs *flag.FlagSet, flagPtrs *cloneFlagPointers) {
@@ -155,10 +159,14 @@ func buildCloneFlags(fs *flag.FlagSet, flagPtrs *cloneFlagPointers) CloneFlags {
 		Positional:    fs.Args(),
 		Output:        *flagPtrs.outputFlag,
 		OnlyFilter:    *flagPtrs.onlyFlag,
+		ExcludeFilter: *flagPtrs.excludeFlag,
 	}
 
 	populateCloneToggles(&cloneOpts, flagPtrs)
 	populateCloneExecutionFlags(&cloneOpts, flagPtrs)
+	if hasListArg(fs.Args()) {
+		cloneOpts.IsListOnly = true
+	}
 
 	return cloneOpts
 }
@@ -177,20 +185,37 @@ func parseCloneFlags(args []string) CloneFlags {
 	return ParseCloneFlags(args)
 }
 
+func hasListArg(args []string) bool {
+	for _, a := range args {
+		if a == "ls" || a == "list" {
+			return true
+		}
+	}
+	return false
+}
+
 func resolveCloneSource(fs *flag.FlagSet) string {
-	if fs.NArg() > 0 {
-		return fs.Arg(0)
+	for _, a := range fs.Args() {
+		if a != "ls" && a != "list" {
+			return a
+		}
 	}
 
 	return ""
 }
 
 func resolveCloneFolderName(fs *flag.FlagSet) string {
-	if fs.NArg() <= 1 {
+	var nonListArgs []string
+	for _, a := range fs.Args() {
+		if a != "ls" && a != "list" {
+			nonListArgs = append(nonListArgs, a)
+		}
+	}
+	if len(nonListArgs) <= 1 {
 		return ""
 	}
 
-	secondArg := fs.Arg(1)
+	secondArg := nonListArgs[1]
 	if IsLikelyURL(secondArg) {
 		return ""
 	}

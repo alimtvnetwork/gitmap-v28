@@ -62,6 +62,20 @@ func runCloneFixOptimization() {
 	_ = runGitHubDesktopOptimize(nil)
 }
 
+func resolveCloneManifest(source string) string {
+	if len(source) > 0 {
+		return source
+	}
+	discovered := discoverDefaultCloneManifest()
+	if len(discovered) > 0 {
+		return discovered
+	}
+	fmt.Fprintln(os.Stderr, "Error: no clone manifest found (searched *.json, gitmap.json, .gitmap/gitmap.json)")
+	fmt.Fprintln(os.Stderr, constants.ErrCloneUsage)
+	cliexit.HandleError(nil, 1)
+	return ""
+}
+
 // runClone handles the "clone" subcommand.
 func runClone(args []string) error {
 	checkHelp("clone", args)
@@ -70,14 +84,10 @@ func runClone(args []string) error {
 		return nil
 	}
 
-	if len(cf.Source) == 0 {
-		fmt.Fprintln(os.Stderr, constants.ErrSourceRequired)
-		fmt.Fprintln(os.Stderr, constants.ErrCloneUsage)
-		cliexit.HandleError(nil, 1)
-	}
+	cf.Source = resolveCloneManifest(cf.Source)
 
 	if cf.IsListOnly {
-		return runCloneListTable(cf.Source)
+		return runCloneListTable(cf.Source, cf.TargetDir, cf.UseSSH, cf.OnlyFilter, cf.ExcludeFilter)
 	}
 
 	initCloneVerbose(cf.Verbose)
@@ -544,23 +554,30 @@ func runCloneExecution(cf CloneFlags) (model.CloneSummary, error) {
 		IsClean:        cf.Clean,
 		IsMissingOnly:  cf.MissingOnly,
 	}
-	if cf.OnlyFilter != "" {
-		return runFilteredClone(cf, opts)
-	}
-	return cloner.CloneFromFileWithOptions(cf.Source, cf.TargetDir, opts)
-}
-
-func runFilteredClone(cf CloneFlags, opts cloner.CloneOptions) (model.CloneSummary, error) {
 	records, err := cloner.LoadRecords(cf.Source)
 	if err != nil {
 		return model.CloneSummary{}, err
 	}
-	filtered := filterRecordsByOnly(records, cf.OnlyFilter)
-	if len(filtered) == 0 {
-		fmt.Printf("Warning: no repositories matched filter --only %q\n", cf.OnlyFilter)
+	records = filterRecordsByOnly(records, cf.OnlyFilter)
+	records = filterRecordsByExclude(records, cf.ExcludeFilter)
+	if cf.UseSSH {
+		records = convertRecordsToSSH(records)
+	}
+	if len(records) == 0 {
+		fmt.Println("Warning: no repositories matched clone filters")
 		return model.CloneSummary{}, nil
 	}
-	return cloner.CloneRecords(filtered, cf.TargetDir, opts), nil
+	return cloner.CloneRecords(records, cf.TargetDir, opts), nil
+}
+
+func convertRecordsToSSH(records []model.ScanRecord) []model.ScanRecord {
+	for i, r := range records {
+		records[i].Transport = "ssh"
+		if sshURL, ok := ConvertURLToSSH(resolveRecordRemoteURL(r)); ok {
+			records[i].SSHUrl = sshURL
+		}
+	}
+	return records
 }
 
 // syncManifestClonedReposToVSCodePM converts a manifest-style

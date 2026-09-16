@@ -1,6 +1,7 @@
 package pipelinedb
 
 import (
+	"strings"
 	"testing"
 )
 

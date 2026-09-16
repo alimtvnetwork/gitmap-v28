@@ -91,11 +91,8 @@ func AssembleFixPipelinePayload(errorLogs, fixPrompt string) string {
 }
 
 func loadCicdFixPrompt(customPath string, isNoRelease bool) (string, string) {
-	if len(customPath) > 0 {
-		data, err := os.ReadFile(customPath)
-		if err == nil {
-			return string(data), customPath
-		}
+	if prompt, path, hasCustom := readCustomPrompt(customPath); hasCustom {
+		return prompt, path
 	}
 
 	targetPath := selectPromptPath(isNoRelease)
@@ -105,6 +102,18 @@ func loadCicdFixPrompt(customPath string, isNoRelease bool) (string, string) {
 	}
 
 	return defaultCicdFixWithReleasePromptFallback, "embedded-fallback"
+}
+
+func readCustomPrompt(customPath string) (string, string, bool) {
+	if len(customPath) == 0 {
+		return "", "", false
+	}
+	data, err := os.ReadFile(customPath)
+	if err != nil {
+		return "", "", false
+	}
+
+	return string(data), customPath, true
 }
 
 func selectPromptPath(isNoRelease bool) string {

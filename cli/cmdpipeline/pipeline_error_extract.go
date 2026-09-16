@@ -123,14 +123,13 @@ func recordErrorLine(jobMap map[string]*FailedJobItem, order *[]string, key, job
 }
 
 func appendContextLine(jobMap map[string]*FailedJobItem, key, text string, ctxRem *int, lastKey *string) {
-	if *ctxRem > 0 && *lastKey == key {
-		if isOkLogLine(text) {
-			return
-		}
-		item := jobMap[key]
-		item.ErrorLines = append(item.ErrorLines, "    "+text)
-		*ctxRem--
+	if *ctxRem <= 0 || *lastKey != key || isOkLogLine(text) {
+		return
 	}
+
+	item := jobMap[key]
+	item.ErrorLines = append(item.ErrorLines, "    "+text)
+	*ctxRem--
 }
 
 func parseLogLine(raw string) (string, string, string, bool) {
@@ -770,15 +769,16 @@ func isStandardOkLine(trimmed string) bool {
 }
 
 func isRustOkLine(trimmed string) bool {
-	if strings.HasPrefix(trimmed, "test ") {
-		if strings.HasSuffix(trimmed, " ... ok") || strings.HasSuffix(trimmed, "... ok") {
-			return true
-		}
-		if strings.HasSuffix(trimmed, " ... ignored") || strings.HasSuffix(trimmed, "... ignored") {
-			return true
-		}
-	}
 	if strings.HasPrefix(trimmed, "test result: ok.") {
+		return true
+	}
+	if !strings.HasPrefix(trimmed, "test ") {
+		return false
+	}
+	if strings.HasSuffix(trimmed, " ... ok") || strings.HasSuffix(trimmed, "... ok") {
+		return true
+	}
+	if strings.HasSuffix(trimmed, " ... ignored") || strings.HasSuffix(trimmed, "... ignored") {
 		return true
 	}
 

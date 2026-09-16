@@ -157,11 +157,13 @@ func findRepoRootInStore(repoSlug string) string {
 	defer db.Close()
 
 	records, err := db.FindBySlug(repoSlug)
-	if err == nil && len(records) > 0 {
-		for _, rec := range records {
-			if isDirExisting(rec.AbsolutePath) {
-				return rec.AbsolutePath
-			}
+	if err != nil || len(records) == 0 {
+		return ""
+	}
+
+	for _, rec := range records {
+		if isDirExisting(rec.AbsolutePath) {
+			return rec.AbsolutePath
 		}
 	}
 

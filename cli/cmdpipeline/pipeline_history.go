@@ -396,15 +396,17 @@ func finalizeTruncatedSummary(workflows []CommitWorkflowItem, parts []string, re
 	if len(workflows) == 0 {
 		return "-"
 	}
-	first := fmt.Sprintf("%s [%s]", workflows[0].Name, formatWorkflowShortStatus(workflows[0]))
+	sfx := ""
 	if len(workflows) > 1 {
-		first += fmt.Sprintf(" (+%d)", len(workflows)-1)
+		sfx = fmt.Sprintf(" (+%d)", len(workflows)-1)
 	}
-	if visibleLen(first) > maxWidth && maxWidth > 3 {
-		return first[:maxWidth-3] + "..."
+	first := fmt.Sprintf("%s [%s]", workflows[0].Name, formatWorkflowShortStatus(workflows[0]))
+	if visibleLen(first+sfx) > maxWidth && maxWidth > visibleLen(sfx)+3 {
+		avail := maxWidth - visibleLen(sfx) - 3
+		return first[:avail] + "..." + sfx
 	}
 
-	return first
+	return first + sfx
 }
 
 func formatCommitOffsetLabel(index int) string {

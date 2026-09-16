@@ -11,30 +11,64 @@ import (
 	"github.com/alimtvnetwork/gitmap-v28/cli/model"
 )
 
-func runCloneListTable(sourcePath string) error {
+func runCloneListTable(sourcePath, targetDir string, isSSH bool, onlyFilter, excludeFilter string) error {
 	records, err := cloner.LoadRecords(sourcePath)
 	if err != nil {
 		return apperror.WrapSimple(err, "load records from "+sourcePath)
 	}
+	records = filterRecordsByOnly(records, onlyFilter)
+	records = filterRecordsByExclude(records, excludeFilter)
 	if len(records) == 0 {
 		fmt.Printf("No repositories found in %s\n", sourcePath)
 		return nil
 	}
-	printCloneRecordsTable(records)
+	printCloneRecordsTable(records, targetDir, isSSH)
 	return nil
 }
 
-func printCloneRecordsTable(records []model.ScanRecord) {
-	fmt.Printf("%-5s %-32s %-16s %s\n", "ID", "SLUG / REPOSITORY", "BRANCH", "REMOTE URL")
-	fmt.Println(strings.Repeat("-", 80))
+func printCloneRecordsTable(records []model.ScanRecord, targetDir string, isSSH bool) {
+	fmt.Printf("%-5s %-32s %-16s %-8s %-8s %s\n", "ID", "SLUG / REPOSITORY", "BRANCH", "METHOD", "EXISTS", "REMOTE URL")
+	fmt.Println(strings.Repeat("-", 100))
 	for i, r := range records {
 		slug := resolveRecordSlug(r)
 		branch := r.Branch
 		if branch == "" {
 			branch = "-"
 		}
-		fmt.Printf("%-5d %-32s %-16s %s\n", i+1, slug, branch, resolveRecordRemoteURL(r))
+		method, remoteURL := resolveRecordMethodAndURL(r, isSSH)
+		exists := resolveRecordLocalExists(r, targetDir)
+		fmt.Printf("%-5d %-32s %-16s %-8s %-8s %s\n", i+1, slug, branch, method, exists, remoteURL)
 	}
+}
+
+func resolveRecordMethodAndURL(r model.ScanRecord, isSSH bool) (string, string) {
+	rawURL := resolveRecordRemoteURL(r)
+	if isSSH {
+		return "SSH", resolveRecordSSHURL(rawURL)
+	}
+	if r.Transport == "ssh" || isSSHCloneURL(rawURL) {
+		return "SSH", rawURL
+	}
+	return "HTTPS", rawURL
+}
+
+func resolveRecordSSHURL(rawURL string) string {
+	sshURL, ok := ConvertURLToSSH(rawURL)
+	if ok {
+		return sshURL
+	}
+	return rawURL
+}
+
+func resolveRecordLocalExists(r model.ScanRecord, targetDir string) string {
+	if targetDir == "" {
+		targetDir = "."
+	}
+	dest := filepath.Join(targetDir, model.CleanRelativePath(r.RelativePath))
+	if isGitRepo(dest) {
+		return "YES"
+	}
+	return "-"
 }
 
 func resolveRecordRemoteURL(r model.ScanRecord) string {
@@ -75,6 +109,22 @@ func filterRecordsByOnly(records []model.ScanRecord, onlyFilter string) []model.
 		}
 	}
 	return matched
+}
+
+func filterRecordsByExclude(records []model.ScanRecord, excludeFilter string) []model.ScanRecord {
+	if strings.TrimSpace(excludeFilter) == "" {
+		return records
+	}
+	tokens := splitFilterTokens(excludeFilter)
+	var filtered []model.ScanRecord
+	for i, r := range records {
+		seqID := i + 1
+		if isRecordMatchTokens(seqID, r, tokens) {
+			continue
+		}
+		filtered = append(filtered, r)
+	}
+	return filtered
 }
 
 func splitFilterTokens(filter string) []string {

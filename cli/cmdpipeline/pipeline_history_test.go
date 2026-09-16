@@ -344,12 +344,12 @@ func TestResolveDbFileSize(t *testing.T) {
 }
 
 func TestFormatRelativeDbPath_RepoScoped(t *testing.T) {
-	p1 := "D:/work/gitmap/.gitmap/data/pipeline.db"
+	p1 := filepath.Join("project", "repo", ".gitmap", "data", "pipeline.db")
 	if rel := FormatRelativeDbPath(p1); rel != ".gitmap/data/pipeline.db" {
 		t.Errorf("expected .gitmap/data/pipeline.db, got %s", rel)
 	}
 
-	p2 := "C:/Users/Administrator/projects/repo/.gitmap/pipeline.db"
+	p2 := filepath.Join("home", "user", "projects", "repo", ".gitmap", "pipeline.db")
 	if rel := FormatRelativeDbPath(p2); rel != ".gitmap/pipeline.db" {
 		t.Errorf("expected .gitmap/pipeline.db, got %s", rel)
 	}

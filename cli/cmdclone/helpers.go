@@ -253,7 +253,7 @@ func isNextArgConsumed(arg string, idx int, args []string) bool {
 func isFlagWithParam(arg string) bool {
 	clean := strings.TrimLeft(arg, "-")
 	switch clean {
-	case "target-dir", "ssh-key", "K", "default-branch", "output", "max-concurrency", "only":
+	case "target-dir", "ssh-key", "K", "default-branch", "output", "max-concurrency", "only", "exclude", "E":
 		return true
 	default:
 		return false
@@ -289,4 +289,43 @@ func currentOriginURL(dir string) (string, error) {
 	}
 
 	return strings.TrimSpace(string(out)), nil
+}
+
+func discoverDefaultCloneManifest() string {
+	if isRegularFile("gitmap.json") {
+		return "gitmap.json"
+	}
+	dotPath := filepath.Join(".gitmap", "gitmap.json")
+	if isRegularFile(dotPath) {
+		return dotPath
+	}
+	matches, _ := filepath.Glob("*.json")
+	for _, m := range matches {
+		if isCandidateCloneJSON(m) {
+			return m
+		}
+	}
+	return ""
+}
+
+func isRegularFile(path string) bool {
+	info, err := os.Stat(path)
+	return err == nil && !info.IsDir()
+}
+
+func isCandidateCloneJSON(name string) bool {
+	base := strings.ToLower(filepath.Base(name))
+	if isNonCloneManifestName(base) {
+		return false
+	}
+	return isRegularFile(name)
+}
+
+func isNonCloneManifestName(name string) bool {
+	switch name {
+	case "package.json", "package-lock.json", "tsconfig.json", "settings.json", "launch.json", "version.json":
+		return true
+	default:
+		return false
+	}
 }

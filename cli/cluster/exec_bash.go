@@ -91,15 +91,3 @@ func executeCmdBuffered(cmd *exec.Cmd) (string, string, int, error) {
 
 	return outBuf.String(), errBuf.String(), exitCode, err
 }
-
-func extractExitCode(err error) int {
-	if err == nil {
-		return 0
-	}
-	exitErr, isExitErr := err.(*exec.ExitError)
-	if isExitErr {
-		return exitErr.ExitCode()
-	}
-
-	return 1
-}

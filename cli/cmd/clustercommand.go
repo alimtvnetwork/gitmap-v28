@@ -261,7 +261,7 @@ func loadClusterNodes(ctx context.Context) []cluster.ClusterNode {
 			ID:        h.ID,
 			DisplayId: i + 1,
 			IP:        h.IP,
-			Hostname:  h.Alias,
+			Alias:     h.Alias,
 			IsServer:  isServer,
 		})
 	}
@@ -271,6 +271,6 @@ func loadClusterNodes(ctx context.Context) []cluster.ClusterNode {
 
 func defaultStubNodes() []cluster.ClusterNode {
 	return []cluster.ClusterNode{
-		{ID: "node-1", DisplayId: 1, IP: "127.0.0.1", Hostname: "localhost", IsServer: true},
+		{ID: "node-1", DisplayId: 1, IP: "127.0.0.1", Alias: "localhost", IsServer: true},
 	}
 }

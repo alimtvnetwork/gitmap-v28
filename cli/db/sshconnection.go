@@ -95,23 +95,30 @@ func mergeSSHHostsConnections(ctx context.Context, db *sql.DB, existing []SSHCon
 
 	merged := append([]SSHConnection{}, existing...)
 	for rows.Next() {
-		var alias, ip, user, encPass string
-		if err := rows.Scan(&alias, &ip, &user, &encPass); err == nil {
-			if !seen[alias] && !seen[ip] {
-				seen[alias] = true
-				seen[ip] = true
-				merged = append(merged, SSHConnection{
-					Alias:             alias,
-					IPAddress:         ip,
-					Username:          user,
-					EncryptedPassword: encPass,
-					OS:                "linux",
-				})
-			}
-		}
+		merged = scanAndAppendSSHHostRow(rows, seen, merged)
 	}
 
 	return result.OkSlice(merged)
+}
+
+func scanAndAppendSSHHostRow(rows *sql.Rows, seen map[string]bool, merged []SSHConnection) []SSHConnection {
+	var alias, ip, user, encPass string
+	if err := rows.Scan(&alias, &ip, &user, &encPass); err != nil {
+		return merged
+	}
+	if seen[alias] || seen[ip] {
+		return merged
+	}
+
+	seen[alias] = true
+	seen[ip] = true
+	return append(merged, SSHConnection{
+		Alias:             alias,
+		IPAddress:         ip,
+		Username:          user,
+		EncryptedPassword: encPass,
+		OS:                "linux",
+	})
 }
 
 func scanSSHConnectionRows(rows *sql.Rows) SSHConnectionSliceResult {
