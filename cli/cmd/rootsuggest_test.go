@@ -31,10 +31,7 @@ func TestSuggestTopLevelCommands_Please(t *testing.T) {
 }
 
 func TestSuggestTopLevelCommands_Typos(t *testing.T) {
-	cases := []struct {
-		input string
-		want  string
-	}{
+	cases := []struct{ input, want string }{
 		{"releas", "release"},
 		{"scna", "scan"},
 		{"fxi", "fix"},
@@ -42,56 +39,34 @@ func TestSuggestTopLevelCommands_Typos(t *testing.T) {
 	}
 
 	for _, tc := range cases {
-		suggestions := suggestTopLevelCommands(tc.input)
-		hasMatch := false
-		for _, s := range suggestions {
-			if s == tc.want {
-				hasMatch = true
-				break
-			}
-		}
-
-		if hasMatch == false {
-			t.Errorf("suggestTopLevelCommands(%q) = %v, expected to contain %q", tc.input, suggestions, tc.want)
-		}
+		verifyTypoSuggestion(t, tc.input, tc.want)
 	}
 }
 
-func TestFindRemediationItem_PathVariations(t *testing.T) {
-	items := []RemediationItem{
-		{RepoName: "scripts-fixer", RepoPath: "D:\\work\\scripts-fixer"},
-		{RepoName: "gitmap", RepoPath: "D:\\work\\gitmap"},
+func verifyTypoSuggestion(t *testing.T, input, want string) {
+	suggestions := suggestTopLevelCommands(input)
+	if !containsSuggestion(suggestions, want) {
+		t.Errorf("suggestTopLevelCommands(%q) = %v, expected %q", input, suggestions, want)
 	}
-
-	assertFoundRepo(t, items, ".\\scripts-fixer\\", "scripts-fixer")
-	assertFoundRepo(t, items, "./scripts-fixer/", "scripts-fixer")
-	assertFoundRepo(t, items, "scripts-fixer", "scripts-fixer")
-	assertFoundRepo(t, items, "scripts-fixer\\", "scripts-fixer")
 }
 
-func TestFindRemediationSuggestions(t *testing.T) {
-	items := []RemediationItem{
-		{RepoName: "scripts-fixer", RepoPath: "/path/to/scripts-fixer"},
-		{RepoName: "gitmap-engine", RepoPath: "/path/to/gitmap-engine"},
+func containsSuggestion(suggestions []string, target string) bool {
+	for _, s := range suggestions {
+		if s == target {
+			return true
+		}
 	}
 
-	suggs := FindRemediationSuggestions(items, "script-fix")
-	if len(suggs) == 0 {
-		t.Fatalf("expected suggestions for 'script-fix', got empty")
-	}
-
-	if suggs[0] != "scripts-fixer" {
-		t.Errorf("top suggestion = %q, want 'scripts-fixer'", suggs[0])
-	}
+	return false
 }
 
 func TestBuildUnknownCommandMessage(t *testing.T) {
 	msg := buildUnknownCommandMessage("pleae", []string{"pull", "release"})
-	if strings.Contains(msg, "Unknown command: pleae") == false {
+	if !strings.Contains(msg, "Unknown command: pleae") {
 		t.Errorf("expected unknown command in message, got %q", msg)
 	}
 
-	if strings.Contains(msg, "Did you mean: pull, release") == false {
+	if !strings.Contains(msg, "Did you mean: pull, release") {
 		t.Errorf("expected suggestion in message, got %q", msg)
 	}
 }

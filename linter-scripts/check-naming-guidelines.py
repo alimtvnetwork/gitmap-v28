@@ -18,7 +18,14 @@ def main():
         print(f"Error: {SCRIPT} not found.")
         sys.exit(1)
 
-    result = subprocess.run([sys.executable, str(SCRIPT)], capture_output=True, text=True, cwd=str(ROOT_DIR))
+    result = subprocess.run(
+        [sys.executable, str(SCRIPT)],
+        capture_output=True,
+        text=True,
+        encoding="utf-8",
+        errors="replace",
+        cwd=str(ROOT_DIR),
+    )
     print(result.stdout)
     if result.stderr:
         print(result.stderr, file=sys.stderr)

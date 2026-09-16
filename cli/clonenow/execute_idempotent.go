@@ -48,6 +48,11 @@ type existingRepoState struct {
 	Branch string
 }
 
+// HasEntries reports whether the existing directory contains child entries.
+func (s existingRepoState) HasEntries() bool {
+	return !s.IsEmpty
+}
+
 // inspectExistingRepo probes the destination and returns a populated
 // existingRepoState. Always returns a value (never errors): a probe
 // failure simply means fewer fields are populated, and downstream

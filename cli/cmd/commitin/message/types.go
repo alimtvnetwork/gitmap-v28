@@ -19,3 +19,8 @@ type Result struct {
 	Message string
 	IsEmpty bool
 }
+
+// IsDefined returns true if the resulting commit message is non-empty.
+func (r Result) IsDefined() bool {
+	return !r.IsEmpty
+}

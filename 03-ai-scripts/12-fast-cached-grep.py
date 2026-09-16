@@ -108,7 +108,7 @@ def main():
         formatter_class=argparse.RawDescriptionHelpFormatter,
         epilog="""
 Examples:
-  python 03-ai-scripts/12-fast-cached-grep.py --pattern "== true" --lang go --limit 50
+  python 03-ai-scripts/12-fast-cached-grep.py --pattern "isFound" --lang go --limit 50
   python 03-ai-scripts/12-fast-cached-grep.py --pattern "AppError" --ext .go -n 25
   python 03-ai-scripts/12-fast-cached-grep.py --pattern "MustCompile" --path cli/ --limit 10
   python 03-ai-scripts/12-fast-cached-grep.py --pattern "func.*Validate" --regex --limit 20

@@ -28,66 +28,41 @@ func stripThemeFlag(args []string) []string {
 	cleaned := make([]string, 0, len(args))
 
 	for i := 0; i < len(args); i++ {
-		a := args[i]
-		if val, ok := parseThemeEqual(a, short, long); ok {
-			applyThemeChoice(val)
+		nextIdx, isTheme := tryConsumeThemeArg(args, i, short, long)
+		if isTheme {
+			i = nextIdx
 			continue
 		}
 
-		if (a == short || a == long) && i+1 < len(args) {
-			applyThemeChoice(args[i+1])
-			i++
-			continue
-		}
-
-		if a == short || a == long {
-			applyThemeChoice("")
-			continue
-		}
-
-		cleaned = append(cleaned, a)
+		cleaned = append(cleaned, args[i])
 	}
 
 	return cleaned
-}
-
-// parseThemeEqual checks for `-theme=val` or `--theme=val`.
-func parseThemeEqual(a, short, long string) (string, bool) {
-	if val, ok := stripThemePrefix(a, short+"="); ok {
-		return val, true
-	}
-
-	return stripThemePrefix(a, long+"=")
-}
-
-// stripThemePrefix helper returns the remainder if a begins with prefix.
-func stripThemePrefix(a, prefix string) (string, bool) {
-	if len(a) < len(prefix) || a[:len(prefix)] != prefix {
-		return "", false
-	}
-
-	return a[len(prefix):], true
 }
 
 // applyThemeChoice validates choice and exports GITMAP_THEME, or
 // aborts with a friendly error listing the accepted values.
 func applyThemeChoice(choice string) {
 	if !theme.IsValidLabel(choice) {
-		err := apperror.NewWithDetails(
-			"cmd.themeflag.apply",
-			"E1152",
-			fmt.Sprintf("invalid --theme value %q (want: %s | %s | %s)",
-				choice,
-				constants.ThemeBright,
-				constants.ThemeStandard,
-				constants.ThemeMonochrome),
-			"cmd.themeflag",
-			apperror.ErrorTypeValidation,
-			apperror.SeverityError,
-			map[string]any{"choice": choice},
-		)
-		cliexit.HandleError(err, 2)
+		failInvalidThemeChoice(choice)
 	}
 
 	os.Setenv(constants.EnvTheme, choice)
+}
+
+func failInvalidThemeChoice(choice string) {
+	err := apperror.NewWithDetails(
+		"cmd.themeflag.apply",
+		"E1152",
+		fmt.Sprintf("invalid --theme value %q (want: %s | %s | %s)",
+			choice,
+			constants.ThemeBright,
+			constants.ThemeStandard,
+			constants.ThemeMonochrome),
+		"cmd.themeflag",
+		apperror.ErrorTypeValidation,
+		apperror.SeverityError,
+		map[string]any{"choice": choice},
+	)
+	cliexit.HandleError(err, 2)
 }

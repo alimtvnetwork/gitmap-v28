@@ -32,7 +32,7 @@ func TestInspectExistingRepo_EmptyDir(t *testing.T) {
 		t.Errorf("expected directory to be defined: %+v", state)
 	}
 
-	if !state.IsEmpty {
+	if state.HasEntries() {
 		t.Errorf("expected directory to be empty: %+v", state)
 	}
 

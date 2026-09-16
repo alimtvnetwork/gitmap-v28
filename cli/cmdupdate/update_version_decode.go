@@ -39,7 +39,7 @@ func decodeVersionFromMap(body io.Reader) string {
 
 func extractVersionValue(rawMap map[string]interface{}) string {
 	for _, key := range []string{"Version", "version"} {
-		if v, ok := rawMap[key].(string); ok && len(v) > 0 {
+		if v, isString := rawMap[key].(string); isString && len(v) > 0 {
 			return v
 		}
 	}

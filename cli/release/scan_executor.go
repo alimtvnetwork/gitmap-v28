@@ -1,8 +1,6 @@
 package release
 
 import (
-	"os/exec"
-
 	"github.com/alimtvnetwork/gitmap-v28/cli/apperror"
 )
 
@@ -54,12 +52,12 @@ func processCommit(repoDir string, commit ParsedCommit) (ScanCommitAction, error
 
 func processBranch(repoDir string, commit ParsedCommit, action *ScanCommitAction) error {
 	branchName := "release/" + commit.Version
-	isExists, err := isRefPresent(repoDir, "refs/heads/"+branchName)
+	isFound, err := isRefPresent(repoDir, "refs/heads/"+branchName)
 	if err != nil {
 		return apperror.WrapSimple(err, "processBranch")
 	}
 
-	if isExists {
+	if isFound {
 		action.IsBranchSkipped = true
 
 		return nil
@@ -68,56 +66,17 @@ func processBranch(repoDir string, commit ParsedCommit, action *ScanCommitAction
 	return createBranch(repoDir, branchName, commit.Hash, action)
 }
 
-func createBranch(repoDir, branchName, hash string, action *ScanCommitAction) error {
-	cmd := exec.Command("git", "branch", branchName, hash)
-	cmd.Dir = repoDir
-	if err := cmd.Run(); err != nil {
-		return apperror.Wrap(err, "createBranch", map[string]any{"branch": branchName})
-	}
-
-	action.IsBranchCreated = true
-
-	return nil
-}
-
 func processTag(repoDir string, commit ParsedCommit, action *ScanCommitAction) error {
-	isExists, err := isRefPresent(repoDir, "refs/tags/"+commit.Version)
+	isFound, err := isRefPresent(repoDir, "refs/tags/"+commit.Version)
 	if err != nil {
 		return apperror.WrapSimple(err, "processTag")
 	}
 
-	if isExists {
+	if isFound {
 		action.IsTagSkipped = true
 
 		return nil
 	}
 
 	return createTag(repoDir, commit.Version, commit.Hash, action)
-}
-
-func createTag(repoDir, tagName, hash string, action *ScanCommitAction) error {
-	cmd := exec.Command("git", "tag", tagName, hash)
-	cmd.Dir = repoDir
-	if err := cmd.Run(); err != nil {
-		return apperror.Wrap(err, "createTag", map[string]any{"tag": tagName})
-	}
-
-	action.IsTagCreated = true
-
-	return nil
-}
-
-func isRefPresent(repoDir, refPath string) (bool, error) {
-	cmd := exec.Command("git", "show-ref", "--verify", "--quiet", refPath)
-	cmd.Dir = repoDir
-	err := cmd.Run()
-	if err == nil {
-		return true, nil
-	}
-
-	if _, isExit := err.(*exec.ExitError); isExit {
-		return false, nil
-	}
-
-	return false, apperror.Wrap(err, "isRefPresent", map[string]any{"ref": refPath})
 }

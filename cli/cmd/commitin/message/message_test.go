@@ -99,7 +99,7 @@ func TestEmptyAfterStripFlagged(t *testing.T) {
 		{Kind: constants.CommitInMessageRuleKindStartsWith, Value: "x"},
 	}}
 	r := Build(Inputs{OriginalMessage: "x line 1\nx line 2", Resolved: res})
-	if !r.IsEmpty {
+	if r.IsDefined() {
 		t.Fatalf("expected IsEmpty=true, got %q", r.Message)
 	}
 }
