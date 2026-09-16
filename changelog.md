@@ -1,3 +1,17 @@
+## [v6.251.0] 2026-09-16 Release v6.251.0
+
+### Install GitMap v6.251.0
+
+To pin your repository to this exact version, run the following one-liner:
+Unix/Bash: `curl -sL https://raw.githubusercontent.com/alimtvnetwork/gitmap-v28/v6.251.0/install.sh | bash -s -- ".lovable/prompts" "v6.251.0"`
+PowerShell: `Invoke-WebRequest -Uri https://raw.githubusercontent.com/alimtvnetwork/gitmap-v28/v6.251.0/install.ps1 -OutFile install.ps1; .\install.ps1 -TargetDir ".lovable/prompts" -Version "v6.251.0"`
+
+### Added / Changed / Fixed / Removed
+
+- Co-locate pipeline split databases inside CLI installation data directory
+- Repository-isolated pipeline database resolution and metrics
+- Normalize workflow keys and prevent false-positive failures
+
 ## [v6.250.0] 2026-09-16 Release v6.250.0
 
 ### Install GitMap v6.250.0
