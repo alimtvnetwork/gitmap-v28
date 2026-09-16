@@ -77,6 +77,7 @@ Prompts are sequenced according to priority. Error management, control-flow flat
 - **React Components:** Recommended <= 80 lines; standard max <= 100 lines.
 - **Nested `if` Statements:** Zero tolerance (must be flattened with guard clauses).
 - **NO Line-Compression Cheating:** Never collapse `if/else` onto a single line or delete blank lines to fit under line caps. Reduce size by decomposing into separate files.
+- **NO Inline Compound Condition Cramming:** Never cram variable assignments and compound boolean conditions into an `if` header (e.g. `if v, isString := ...; isString && len(v) > 0`). Put assignments on separate lines, evaluate booleans affirmatively before `if`, and ensure `if` statements check only one simple variable.
 
 ---
 

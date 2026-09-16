@@ -138,6 +138,37 @@ if err != nil {
 }
 ```
 
+#### Pattern 4: No Inline Compound Init Cramming (Multi-Line Separation & Single-Variable Guard)
+
+Never cram type assertions, variable assignments, and compound conditions onto a single `if` line to fake size reduction:
+
+```go
+// ❌ FORBIDDEN: Cramming type assertion and compound conditions into if header:
+func extractVersionValue(rawMap map[string]interface{}) string {
+    for _, key := range []string{"Version", "version"} {
+        if v, isString := rawMap[key].(string); isString && len(v) > 0 {
+            return v
+        }
+    }
+
+    return ""
+}
+
+// ✅ REQUIRED: Separate lines, boolean evaluated before if, simple single-variable guard:
+func extractVersionValue(rawMap map[string]interface{}) string {
+    for _, key := range []string{"Version", "version"} {
+        v, isString := rawMap[key].(string)
+        hasContent := isString && len(v) > 0
+
+        if hasContent {
+            return v
+        }
+    }
+
+    return ""
+}
+```
+
 ---
 
 ## 1. Ruthless Orchestration & Insult Protocol

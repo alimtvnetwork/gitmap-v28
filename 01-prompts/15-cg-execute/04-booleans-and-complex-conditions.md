@@ -94,6 +94,12 @@ Boolean logic must be simple, readable, and unambiguous. Complex boolean chains 
    - **In Test Assertions:** Break every condition into a discrete assertion (`if !state.IsDefined`, `if !state.IsEmpty`, `if state.IsRepo`) with its own distinct error message.
    - **In Application Logic:** Extract into an affirmative composite variable (`isCloneTargetFresh := !params.State.IsDefined || params.State.IsEmpty`) or use separate early return guard clauses.
 
+8. **Boolean Evaluation Must Occur BEFORE the `if` Statement (Simple One-Variable `if` Checking):**
+   - **Total Ban on Inline Compound Assignments (`if init; cond`):** NEVER cram variable declarations, type assertions, or multi-part boolean checks into the `if` header (e.g. `if v, isString := rawMap[key].(string); isString && len(v) > 0 {`).
+   - **Evaluation Precedes Branching:** Execute variable assignments on their own line, then evaluate and name the boolean condition on its own line *before* the `if` statement.
+   - **One Variable Checking:** The `if` statement itself must be dead simple, evaluating exactly ONE clean, named affirmative boolean variable (`if hasContent { ... }`, `if isMatch { ... }`).
+   - **Multi-Line Separation:** Keep statements separated across several lines so that business logic and type safety are immediately clear and easy to grasp. Never compress logic onto one line to fake file size reduction.
+
 ### Generic Code Patterns with Compliant Newline Gaps
 
 #### Pattern A: Setter Method Parameter & Field Assignment (`v bool` -> `isStopOnFail bool`)
@@ -401,9 +407,46 @@ if state.IsDefined {
     resumeTask()
 }
 
-// ✅ Also permitted: Affirmative isEmpty ONLY when handling the empty/missing case
 if res.IsEmpty() {
     return appfault.New(appfault.ErrNotFound).WithMessage("no records found")
+}
+```
+
+#### Pattern H: Boolean Evaluation BEFORE the `if` Statement (Simple One-Variable `if` Checking)
+
+```go
+// -----------------------------------------------------------------------------
+// ❌ ANTI-PATTERN: Compound inline init + checks jammed into single if line
+// -----------------------------------------------------------------------------
+// Cramming type assertion assignment and compound condition into one line:
+func extractVersionValue(rawMap map[string]interface{}) string {
+    for _, key := range []string{"Version", "version"} {
+        if v, isString := rawMap[key].(string); isString && len(v) > 0 {
+            return v
+        }
+    }
+
+    return ""
+}
+
+// -----------------------------------------------------------------------------
+// ✅ REQUIRED: Separate lines, boolean evaluated before if, single variable check
+// -----------------------------------------------------------------------------
+// 1. Assignment on its own dedicated line.
+// 2. Boolean evaluated and named affirmatively BEFORE the if statement.
+// 3. Clean vertical spacing (blank line before if).
+// 4. if condition is dead-simple, evaluating exactly ONE variable.
+func extractVersionValue(rawMap map[string]interface{}) string {
+    for _, key := range []string{"Version", "version"} {
+        v, isString := rawMap[key].(string)
+        hasContent := isString && len(v) > 0
+
+        if hasContent {
+            return v
+        }
+    }
+
+    return ""
 }
 ```
 

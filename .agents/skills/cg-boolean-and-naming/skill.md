@@ -174,9 +174,43 @@ if isCloneTargetFresh {
 }
 ```
 
+#### Pattern F: Boolean Evaluation BEFORE the `if` Statement (Simple One-Variable `if` Checking)
+
+```go
+// ❌ ANTI-PATTERN: Squeezing type assertion and compound conditions into single if line:
+func extractVersionValue(rawMap map[string]interface{}) string {
+    for _, key := range []string{"Version", "version"} {
+        if v, isString := rawMap[key].(string); isString && len(v) > 0 {
+            return v
+        }
+    }
+
+    return ""
+}
+
+// ✅ REQUIRED: Separate lines, boolean evaluated before if, simple single-variable guard:
+func extractVersionValue(rawMap map[string]interface{}) string {
+    for _, key := range []string{"Version", "version"} {
+        v, isString := rawMap[key].(string)
+        hasContent := isString && len(v) > 0
+
+        if hasContent {
+            return v
+        }
+    }
+
+    return ""
+}
+```
+
 3. **No Inverted Success Checks:**
    - Never invert positive success checks (e.g. `!response.isSuccess`).
    - Use explicit failure states (e.g. `response.isFail`, `isError`).
+
+7. **Boolean Evaluation Must Occur BEFORE the `if` Statement (Simple One-Variable `if` Checking):**
+   - **Total Ban on Inline Compound Assignments (`if init; cond`):** NEVER cram variable declarations, type assertions, or multi-part boolean checks into the `if` header (e.g. `if v, isString := rawMap[key].(string); isString && len(v) > 0 {`).
+   - **Multi-Line Statement Separation:** Put assignments on their own dedicated line, evaluate booleans affirmatively on their own line *before* the `if`, and place a blank line before the `if`.
+   - **Simple One-Variable Checking:** The `if` statement itself must be dead simple, evaluating exactly ONE clean boolean variable (e.g. `if hasContent { ... }`).
 
 4. **Zero Tolerance for Nested `if` (Nesting Depth <= 1):**
    - No `if` statements inside another `if` block.

@@ -25,8 +25,9 @@ The following file categories are explicitly permitted to exceed 100 lines:
 
 All logic, services, controllers, handlers, utilities, hooks, CLI commands, and scripts MUST remain strictly under 100 lines.
 
-### 3. Total Ban on Line-Compression Cheating
+3. **Total Ban on Line-Compression Cheating:**
 - **Zero Whitespace Stripping:** NEVER delete blank lines, squash vertical spacing, or compress `if/else` statements onto a single line to reduce line count.
+- **No Inline Compound Condition Cramming:** NEVER cram variable declarations, type assertions, and compound conditions into the `if` header (e.g. `if v, isString := rawMap[key].(string); isString && len(v) > 0 {`). Put assignments on separate lines, evaluate booleans before `if`, and keep `if` conditions simple with one variable.
 - **Return New Line Concept (Mandatory):**
   - Exactly **ONE blank line BEFORE** every `return`, `throw`, or `break` statement.
   - Exactly **ONE blank line AFTER** every closing curly brace `}` of an `if`, `for`, `switch`, or helper block.
@@ -148,6 +149,35 @@ export function parseFileHeader(content: string): FileHeaderMeta {
     contentLength: content.length,
     isDraft,
   };
+}
+```
+
+### Pattern 3: No Inline Compound Init Cramming (Multi-Line Separation & Single-Variable Guard)
+
+```go
+// ❌ ANTI-PATTERN: Cramming type assertion assignment and compound condition into one line:
+func extractVersionValue(rawMap map[string]interface{}) string {
+    for _, key := range []string{"Version", "version"} {
+        if v, isString := rawMap[key].(string); isString && len(v) > 0 {
+            return v
+        }
+    }
+
+    return ""
+}
+
+// ✅ REQUIRED: Separate lines, boolean evaluated before if, simple single-variable guard:
+func extractVersionValue(rawMap map[string]interface{}) string {
+    for _, key := range []string{"Version", "version"} {
+        v, isString := rawMap[key].(string)
+        hasContent := isString && len(v) > 0
+
+        if hasContent {
+            return v
+        }
+    }
+
+    return ""
 }
 ```
 

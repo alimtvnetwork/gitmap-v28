@@ -495,9 +495,49 @@ Conditionals MUST NEVER exceed depth 1 (i.e., **no nested `if` statements inside
 
 ---
 
-### Rule 6: No Multi-Statement / Semicolon-Packed Lines
+### Rule 6: No Multi-Statement Lines & No Inline Compound Condition Cramming (Multi-Line Separation)
 
-Never compress multiple statements onto a single line using semicolons (`a = 1; b = 2; return a + b`). Each statement MUST occupy its own line.
+1. **No Semicolon Packing:** Never compress multiple statements onto a single line using semicolons (`a = 1; b = 2; return a + b`). Each statement MUST occupy its own line.
+2. **Total Ban on Inline Compound Assignments (`if init; cond`):** NEVER cram variable declarations, type assertions, or multi-part boolean checks into the `if` header (e.g. `if v, isString := rawMap[key].(string); isString && len(v) > 0 {`).
+3. **Multi-Line Statement Separation:**
+   - Execute variable assignments / lookups on their own dedicated line.
+   - Evaluate and assign the boolean condition to an affirmative variable (`is*` or `has*`) on its own dedicated line *before* the `if` statement.
+   - Maintain vertical breathing room (blank line before `if`).
+   - The `if` condition itself must be dead simple, checking **one single variable**.
+
+#### Canonical Example: What NOT to Do vs What to Do
+
+```go
+// ❌ BANNED ANTI-PATTERN:
+// Squeezing type assertion assignment and compound condition into one line to save vertical space:
+func extractVersionValue(rawMap map[string]interface{}) string {
+    for _, key := range []string{"Version", "version"} {
+        if v, isString := rawMap[key].(string); isString && len(v) > 0 {
+            return v
+        }
+    }
+
+    return ""
+}
+
+// ✅ MANDATORY CLEAN PATTERN:
+// 1. Assignment on its own dedicated line.
+// 2. Boolean evaluated and named affirmatively BEFORE the if statement.
+// 3. Clean vertical spacing (blank line before if).
+// 4. if condition is dead-simple, evaluating exactly ONE variable.
+func extractVersionValue(rawMap map[string]interface{}) string {
+    for _, key := range []string{"Version", "version"} {
+        v, isString := rawMap[key].(string)
+        hasContent := isString && len(v) > 0
+
+        if hasContent {
+            return v
+        }
+    }
+
+    return ""
+}
+```
 
 ---
 

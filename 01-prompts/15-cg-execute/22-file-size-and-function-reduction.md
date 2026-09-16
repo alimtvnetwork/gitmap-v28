@@ -104,6 +104,50 @@ All other source files (logic, services, controllers, handlers, utilities, hooks
 3. **No Squished Functions:** Every function body starts immediately on line 1 after `{` (no blank line on line 1), but must maintain clean vertical breathing room between logical steps.
 4. **Decomposition Over Compression:** If a file has 140 lines, you MUST extract cohesive logic into a sibling file (e.g., `parser.go` -> `parser_helpers.go` or `parser_validator.go`), NOT remove 40 blank lines!
 
+### Total Ban on Compound Inline `if init; cond` Cramming (The Multi-Line Separation Mandate)
+
+> [!CAUTION]
+> **NEVER CRAM ASSIGNMENTS AND COMPOUND CONDITIONS INTO THE `if` HEADER TO FAKE FILE SIZE REDUCTION:**
+> A frequent anti-pattern when attempting to meet the 100-line limit is compressing variable declarations, type assertions, and multiple boolean checks into a single compound line (e.g. `if v, isString := rawMap[key].(string); isString && len(v) > 0 {`).
+>
+> This is **strictly prohibited**. It severely obscures cognitive readability, mixes multiple concerns, and breaks the single-condition `if` rule. Statements MUST be placed on separate lines, booleans evaluated **BEFORE** the `if`, and the `if` condition kept simple with a single variable check.
+
+#### The Canonical Example: What NOT to Do vs What to Do
+
+```go
+// ❌ BANNED ANTI-PATTERN:
+// Cramming type assertion assignment and compound condition into one line to save vertical lines:
+func extractVersionValue(rawMap map[string]interface{}) string {
+    for _, key := range []string{"Version", "version"} {
+        if v, isString := rawMap[key].(string); isString && len(v) > 0 {
+            return v
+        }
+    }
+
+    return ""
+}
+
+// ✅ MANDATORY CLEAN PATTERN:
+// 1. Assignment on its own dedicated line.
+// 2. Boolean evaluation named affirmatively and computed BEFORE the if statement.
+// 3. Clean vertical spacing (blank line before if).
+// 4. if condition is dead-simple, checking exactly ONE variable.
+func extractVersionValue(rawMap map[string]interface{}) string {
+    for _, key := range []string{"Version", "version"} {
+        v, isString := rawMap[key].(string)
+        hasContent := isString && len(v) > 0
+
+        if hasContent {
+            return v
+        }
+    }
+
+    return ""
+}
+```
+
+File size and function size reduction MUST be achieved through **modular decomposition** (extracting cohesive helpers into sibling files), NEVER by squishing statements onto fewer lines.
+
 ---
 
 ## 3. Two-Part Decomposition Strategy

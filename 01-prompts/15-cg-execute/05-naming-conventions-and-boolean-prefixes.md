@@ -83,6 +83,42 @@ You MUST replace bare `ok` with a domain-specific boolean starting with `is` or 
   - ✅ **REQUIRED:** `if isDefined { ... }`, `if res.IsDefined() { ... }`, `if state.IsDefined { ... }`
 - **When `isEmpty` is Allowed:** `isEmpty` is ONLY evaluated positively when explicitly handling the empty or missing path: `if isEmpty { return ErrEmpty }`. When handling the populated, valid data path, ALWAYS use affirmative `isDefined`.
 
+### 2.2 Multi-Line Statement Separation & Simple If Condition (No Inline Compound Cramming)
+
+- **Total Ban on Inline Compound Assignments (`if init; cond`):** While replacing bare `ok` with affirmative names (`isString`, `isFound`), NEVER cram the type assertion and compound conditions into a single `if` line (e.g. `if v, isString := rawMap[key].(string); isString && len(v) > 0 {`).
+- **Separation onto Distinct Lines:**
+  1. Execute the type assertion / map lookup on its own dedicated line.
+  2. Evaluate and name the boolean condition affirmatively (`hasContent`, `isFound`) on its own dedicated line *before* the `if` statement.
+  3. Keep a blank line before the `if` statement.
+  4. Keep the `if` condition dead simple, checking exactly ONE variable.
+
+```go
+// ❌ FORBIDDEN: Squeezing type assertion and compound conditions into single if line:
+func extractVersionValue(rawMap map[string]interface{}) string {
+    for _, key := range []string{"Version", "version"} {
+        if v, isString := rawMap[key].(string); isString && len(v) > 0 {
+            return v
+        }
+    }
+
+    return ""
+}
+
+// ✅ REQUIRED: Multi-line separation, boolean evaluated before if, simple one-variable check:
+func extractVersionValue(rawMap map[string]interface{}) string {
+    for _, key := range []string{"Version", "version"} {
+        v, isString := rawMap[key].(string)
+        hasContent := isString && len(v) > 0
+
+        if hasContent {
+            return v
+        }
+    }
+
+    return ""
+}
+```
+
 ---
 
 ### 3. TOTAL BAN on Negative Boolean Identifiers & Awkward `isExists` (Anti-`hasNo*`, Anti-`isNot*`, Anti-`isExists`, Anti-`isUndefined`)
