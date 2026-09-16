@@ -17,7 +17,7 @@ func resolvePipelineDir() string {
 		return configuredDir
 	}
 
-	return filepath.Join(resolveRepoRootDir(), ".gitmap", "pipeline")
+	return pipelinedb.PipelineDbDir()
 }
 
 func getSettingPipelineDir() string {
@@ -231,15 +231,15 @@ func writeCombinedErrorReport(content string) (string, error) {
 }
 
 func writeLastErrorLog(content string) error {
-	gitmapDir := filepath.Join(resolveRepoRootDir(), ".gitmap")
-	_ = os.MkdirAll(gitmapDir, 0755)
-	lastErrFile := filepath.Join(gitmapDir, "last_error.log")
+	dir := resolvePipelineDir()
+	_ = os.MkdirAll(dir, 0755)
+	lastErrFile := filepath.Join(dir, "last_error.log")
 
 	return os.WriteFile(lastErrFile, []byte(content), 0644)
 }
 
 func clearLocalErrorLogs() {
 	_ = os.Remove(resolvePipelineErrorReportPath())
-	lastErrFile := filepath.Join(resolveRepoRootDir(), ".gitmap", "last_error.log")
+	lastErrFile := filepath.Join(resolvePipelineDir(), "last_error.log")
 	_ = os.Remove(lastErrFile)
 }

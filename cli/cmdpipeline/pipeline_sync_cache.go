@@ -80,7 +80,7 @@ func resolveDbStatTarget(dbPath string) string {
 		return dbPath
 	}
 
-	return filepath.Join(resolveRepoRootDir(), ".gitmap", "data", "pipeline.db")
+	return filepath.Join(pipelinedb.PipelineDbDir(), "pipeline.db")
 }
 
 func statRelativeDbFallback(target string) (os.FileInfo, error) {

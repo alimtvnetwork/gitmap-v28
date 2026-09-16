@@ -314,16 +314,40 @@ func collectFailedRuns(runs []ghRunItem) []ghRunItem {
 	return filterFailingRunsByTargetSha(activeFailed)
 }
 
+func normalizeWorkflowKey(name string) string {
+	lower := strings.ToLower(strings.TrimSpace(name))
+	lower = strings.TrimPrefix(lower, ".github/workflows/")
+	lower = strings.TrimPrefix(lower, "workflows/")
+	lower = strings.TrimSuffix(lower, ".yml")
+	lower = strings.TrimSuffix(lower, ".yaml")
+
+	return lower
+}
+
 func checkAndCollectRun(r ghRunItem, succeeded map[string]bool, active *[]ghRunItem) {
+	key := normalizeWorkflowKey(r.Name)
 	if r.Conclusion == "success" {
-		succeeded[r.Name] = true
+		if len(key) > 0 {
+			succeeded[key] = true
+		}
+		if len(r.Name) > 0 {
+			succeeded[r.Name] = true
+		}
 
 		return
 	}
 
-	if r.Conclusion == "failure" && !succeeded[r.Name] {
-		*active = append(*active, r)
+	if r.Conclusion != "failure" {
+		return
 	}
+	if len(key) > 0 && succeeded[key] {
+		return
+	}
+	if len(r.Name) > 0 && succeeded[r.Name] {
+		return
+	}
+
+	*active = append(*active, r)
 }
 
 func filterFailingRunsByTargetSha(runs []ghRunItem) []ghRunItem {
