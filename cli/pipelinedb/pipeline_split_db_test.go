@@ -269,12 +269,21 @@ func verifyCleanAndReset3Tables(t *testing.T, db *PipelineSplitDb) {
 func TestResolvePipelineDbPath(t *testing.T) {
 	testPath := ResolvePipelineDbPath("test-owner/test-repo")
 	if !strings.Contains(testPath, "pipeline") {
+<<<<<<< HEAD
 		t.Errorf("expected test slug to use pipeline directory, got %s", testPath)
 	}
 
 	repoPath := ResolvePipelineDbPath("alimtvnetwork/gitmap-v28")
 	if !strings.Contains(repoPath, "pipeline") || !strings.Contains(repoPath, "alimtvnetwork-gitmap-v28") {
 		t.Errorf("expected repo slug to resolve inside pipeline folder with repo slug, got %s", repoPath)
+=======
+		t.Errorf("expected test slug to use isolated test path, got %s", testPath)
+	}
+
+	repoPath := ResolvePipelineDbPath("alimtvnetwork/gitmap-v28")
+	if !strings.Contains(repoPath, "pipeline") {
+		t.Errorf("expected repo slug to resolve to pipeline dir path, got %s", repoPath)
+>>>>>>> ee457fe2ea6ccd129001691694fc9d207018a5a6
 	}
 }
 
