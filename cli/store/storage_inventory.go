@@ -22,6 +22,7 @@ func CollectAllDatabaseEntries() []SplitDatabaseEntry {
 
 	collectCoreDatabases(dataDir, addEntry)
 	collectSubdirDatabases(dataDir, "schedules", "schedule", addEntry)
+	collectSubdirDatabases(dataDir, "pipeline", "pipeline", addEntry)
 	collectSubdirDatabases(dataDir, "pipeline_db", "pipeline", addEntry)
 	collectLooseDatabases(dataDir, addEntry)
 

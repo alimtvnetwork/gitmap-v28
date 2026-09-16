@@ -22,28 +22,30 @@ type PipelineSyncResult struct {
 	FailedRuns     []uint64 `json:"failedRuns"`
 }
 
-// FormatRelativeDbPath converts an absolute DB path to a repo-relative path starting with ./.
-func FormatRelativeDbPath(fullPath string) string {
-	if len(fullPath) == 0 {
-		return ".gitmap/data/pipeline.db"
-	}
-
-	slashPath := filepath.ToSlash(fullPath)
-	if idx := strings.Index(slashPath, ".gitmap/"); idx != -1 {
-		return slashPath[idx:]
-	}
-
-	rel, err := filepath.Rel(resolveRepoRootDir(), fullPath)
-	if err != nil || len(rel) == 0 {
-		return filepath.ToSlash(fullPath)
-	}
-
+func formatRepoRelativeSlash(rel string) string {
 	slashRel := filepath.ToSlash(rel)
 	if !strings.HasPrefix(slashRel, ".") {
 		return "./" + slashRel
 	}
 
 	return slashRel
+}
+
+// FormatRelativeDbPath converts an absolute DB path to a display path.
+func FormatRelativeDbPath(fullPath string) string {
+	if len(fullPath) == 0 {
+		fullPath = pipelinedb.ResolvePipelineDbPath(resolveCurrentRepoSlug())
+	}
+	slashPath := filepath.ToSlash(fullPath)
+	if idx := strings.Index(slashPath, ".gitmap/"); idx != -1 {
+		return slashPath[idx:]
+	}
+	repoRoot := resolveRepoRootDir()
+	if rel, err := filepath.Rel(repoRoot, fullPath); err == nil && !strings.HasPrefix(rel, "..") && len(rel) > 0 {
+		return formatRepoRelativeSlash(rel)
+	}
+
+	return filepath.Clean(fullPath)
 }
 
 // ResolveDbFileSize returns the formatted human size for a pipeline database.
@@ -80,7 +82,7 @@ func resolveDbStatTarget(dbPath string) string {
 		return dbPath
 	}
 
-	return filepath.Join(resolveRepoRootDir(), ".gitmap", "data", "pipeline.db")
+	return pipelinedb.ResolvePipelineDbPath(resolveCurrentRepoSlug())
 }
 
 func statRelativeDbFallback(target string) (os.FileInfo, error) {

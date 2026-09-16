@@ -33,7 +33,7 @@ gitmap agy fp [repo] [flags]
 
 ## How It Works
 
-1. **Error Extraction**: Automatically queries the latest failing GitHub Actions workflow runs or cached errors from the repo-scoped SQLite database (`.gitmap/pipeline_db/`).
+1. **Error Extraction**: Automatically queries the latest failing GitHub Actions workflow runs or cached errors from the CLI pipeline SQLite database (`data/pipeline/`).
 2. **Two-Line Gap**: Appends two newlines (`\n\n`) as a distinct structural separator between error diagnostics and AI prompt instructions.
 3. **Prompt Loading**: Ingests the canonical CI/CD fix prompt from `01-prompts/16-ci-cd/04-ci-cd-fix-with-release.md` (or `01-ci-cd-fix.md` if `--no-release` is passed).
 4. **Clipboard & Disk Persistence**: Copies the assembled payload to the system clipboard via `clipboard.WriteAll` and saves a copy to `.lovable/temp/active-agy-pipeline-fix-prompt.txt`.

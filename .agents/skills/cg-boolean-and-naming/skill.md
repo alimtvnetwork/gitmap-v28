@@ -177,7 +177,10 @@ if isCloneTargetFresh {
 #### Pattern F: Boolean Evaluation BEFORE the `if` Statement (Simple One-Variable `if` Checking)
 
 ```go
-// ❌ ANTI-PATTERN: Squeezing type assertion and compound conditions into single if line:
+// ❌ BANNED ANTI-PATTERN:
+// 1. Cramming type assertion assignment and compound condition into one line.
+// 2. Hardcoding magic strings ("Version", "version", "unknown") inline.
+// 3. Returning raw fallback literal instead of a defined constant.
 func extractVersionValue(rawMap map[string]interface{}) string {
     for _, key := range []string{"Version", "version"} {
         if v, isString := rawMap[key].(string); isString && len(v) > 0 {
@@ -185,12 +188,27 @@ func extractVersionValue(rawMap map[string]interface{}) string {
         }
     }
 
-    return ""
+    return "unknown"
 }
 
-// ✅ REQUIRED: Separate lines, boolean evaluated before if, simple single-variable guard:
+// ✅ MANDATORY CLEAN PATTERN:
+// 1. Zero magic strings: extract lookup keys and defaults into constants.
+// 2. Merge repeated/related strings into reusable collections (versionKeys).
+// 3. Assignment on its own dedicated line.
+// 4. Affirmative boolean (hasContent) pre-evaluated BEFORE the if statement.
+// 5. Clean vertical breathing room (blank line before if).
+// 6. Dead-simple if statement evaluating exactly ONE variable.
+// 7. Return defined constant (VersionUnknown) instead of raw magic string literal.
+const (
+    VersionUnknown  = "unknown"
+    versionKeyUpper = "Version"
+    versionKeyLower = "version"
+)
+
+var versionKeys = []string{versionKeyUpper, versionKeyLower}
+
 func extractVersionValue(rawMap map[string]interface{}) string {
-    for _, key := range []string{"Version", "version"} {
+    for _, key := range versionKeys {
         v, isString := rawMap[key].(string)
         hasContent := isString && len(v) > 0
 
@@ -199,7 +217,7 @@ func extractVersionValue(rawMap map[string]interface{}) string {
         }
     }
 
-    return ""
+    return VersionUnknown
 }
 ```
 
@@ -211,6 +229,7 @@ func extractVersionValue(rawMap map[string]interface{}) string {
    - **Total Ban on Inline Compound Assignments (`if init; cond`):** NEVER cram variable declarations, type assertions, or multi-part boolean checks into the `if` header (e.g. `if v, isString := rawMap[key].(string); isString && len(v) > 0 {`).
    - **Multi-Line Statement Separation:** Put assignments on their own dedicated line, evaluate booleans affirmatively on their own line *before* the `if`, and place a blank line before the `if`.
    - **Simple One-Variable Checking:** The `if` statement itself must be dead simple, evaluating exactly ONE clean boolean variable (e.g. `if hasContent { ... }`).
+   - **Zero Magic Strings & Constant Returns:** Replace raw literals (`"unknown"`, `"Version"`, `"version"`) with named constants (`VersionUnknown`, `versionKeys`). Functions must return defined constants rather than raw string literals.
 
 4. **Zero Tolerance for Nested `if` (Nesting Depth <= 1):**
    - No `if` statements inside another `if` block.

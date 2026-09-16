@@ -28,6 +28,7 @@ All logic, services, controllers, handlers, utilities, hooks, CLI commands, and 
 3. **Total Ban on Line-Compression Cheating:**
 - **Zero Whitespace Stripping:** NEVER delete blank lines, squash vertical spacing, or compress `if/else` statements onto a single line to reduce line count.
 - **No Inline Compound Condition Cramming:** NEVER cram variable declarations, type assertions, and compound conditions into the `if` header (e.g. `if v, isString := rawMap[key].(string); isString && len(v) > 0 {`). Put assignments on separate lines, evaluate booleans before `if`, and keep `if` conditions simple with one variable.
+- **Zero Magic Strings & Constant Returns:** Never hardcode raw string literals (`"unknown"`, `"version"`) into function logic or return statements. Merge them into named constants/slices and return defined constants (`return VersionUnknown`).
 - **Return New Line Concept (Mandatory):**
   - Exactly **ONE blank line BEFORE** every `return`, `throw`, or `break` statement.
   - Exactly **ONE blank line AFTER** every closing curly brace `}` of an `if`, `for`, `switch`, or helper block.
@@ -155,7 +156,10 @@ export function parseFileHeader(content: string): FileHeaderMeta {
 ### Pattern 3: No Inline Compound Init Cramming (Multi-Line Separation & Single-Variable Guard)
 
 ```go
-// ❌ ANTI-PATTERN: Cramming type assertion assignment and compound condition into one line:
+// ❌ BANNED ANTI-PATTERN:
+// 1. Cramming type assertion assignment and compound condition into one line.
+// 2. Hardcoding magic strings ("Version", "version", "unknown") inline.
+// 3. Returning raw fallback literal instead of a defined constant.
 func extractVersionValue(rawMap map[string]interface{}) string {
     for _, key := range []string{"Version", "version"} {
         if v, isString := rawMap[key].(string); isString && len(v) > 0 {
@@ -163,12 +167,27 @@ func extractVersionValue(rawMap map[string]interface{}) string {
         }
     }
 
-    return ""
+    return "unknown"
 }
 
-// ✅ REQUIRED: Separate lines, boolean evaluated before if, simple single-variable guard:
+// ✅ MANDATORY CLEAN PATTERN:
+// 1. Zero magic strings: extract lookup keys and defaults into constants.
+// 2. Merge repeated/related strings into reusable collections (versionKeys).
+// 3. Assignment on its own dedicated line.
+// 4. Affirmative boolean (hasContent) pre-evaluated BEFORE the if statement.
+// 5. Clean vertical breathing room (blank line before if).
+// 6. Dead-simple if statement evaluating exactly ONE variable.
+// 7. Return defined constant (VersionUnknown) instead of raw magic string literal.
+const (
+    VersionUnknown  = "unknown"
+    versionKeyUpper = "Version"
+    versionKeyLower = "version"
+)
+
+var versionKeys = []string{versionKeyUpper, versionKeyLower}
+
 func extractVersionValue(rawMap map[string]interface{}) string {
-    for _, key := range []string{"Version", "version"} {
+    for _, key := range versionKeys {
         v, isString := rawMap[key].(string)
         hasContent := isString && len(v) > 0
 
@@ -177,7 +196,7 @@ func extractVersionValue(rawMap map[string]interface{}) string {
         }
     }
 
-    return ""
+    return VersionUnknown
 }
 ```
 

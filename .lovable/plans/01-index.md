@@ -8,8 +8,9 @@ Master directory of architectural and execution plans.
 
 ## Recent Completed Tasks Register (Last 20 Tasks)
 
-1. [Plan 187: 187-naming-conventions-bare-ok-and-boolean-prefixes.md](completed/187-naming-conventions-bare-ok-and-boolean-prefixes.md): Naming Conventions, Bare Ok Elimination & Boolean Prefixes
-2. [Plan 186: 186-pull-and-clone-ui-and-string-casefold-efficiency.md](completed/186-pull-and-clone-ui-and-string-casefold-efficiency.md): Pull & Clone UI Line Wrap Fix and String Case-Fold Efficiency
+1. [Plan 188: 188-pipeline-db-cli-storage-and-repo-isolation.md](completed/188-pipeline-db-cli-storage-and-repo-isolation.md): Pipeline Database CLI Co-Location, Directory Renaming & Repo-Slug Isolation
+2. [Plan 187: 187-naming-conventions-bare-ok-and-boolean-prefixes.md](completed/187-naming-conventions-bare-ok-and-boolean-prefixes.md): Naming Conventions, Bare Ok Elimination & Boolean Prefixes
+3. [Plan 186: 186-pull-and-clone-ui-and-string-casefold-efficiency.md](completed/186-pull-and-clone-ui-and-string-casefold-efficiency.md): Pull & Clone UI Line Wrap Fix and String Case-Fold Efficiency
 3. [Plan 185: 185-constants-and-enums-architecture.md](completed/185-constants-and-enums-architecture.md): Constants & Enums Architecture — Coding Guideline Execution
 4. [Plan 184: 184-naming-conventions-and-anti-ok-variables.md](completed/184-naming-conventions-and-anti-ok-variables.md): Naming Conventions, Boolean Prefixes & Anti-Ok Variables Coding Guideline Execution
 5. [Plan 183: 183-file-and-function-size-reduction.md](completed/183-file-and-function-size-reduction.md): File Size & Function Size Reduction — Coding Guideline Execution
