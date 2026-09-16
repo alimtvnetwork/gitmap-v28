@@ -1,12 +1,8 @@
-// Package cmd — agy_read_memory_prompt.go broadcasts the Read Memory protocol prompt to Antigravity projects.
+// Package cmdagy — agy_read_memory_prompt.go broadcasts the Read Memory protocol prompt to Antigravity projects.
 package cmdagy
 
 import (
-	"bufio"
 	"fmt"
-	"os"
-	"path/filepath"
-	"strings"
 
 	"github.com/spf13/cobra"
 
@@ -45,13 +41,16 @@ func runAgyAllProjectsReadMemory() error {
 		return apperror.WrapSimple(pathErr, "path error")
 	}
 
+	return processAgyPromptBroadcast(dirPath)
+}
+
+func processAgyPromptBroadcast(dirPath string) error {
 	projects, loadErr := loadAllAgyProjects(dirPath)
 	if loadErr != nil {
 		return apperror.WrapSimple(loadErr, "load projects")
 	}
 
-	tokens := parseAgyExceptTokens(agyAprmpExcept)
-	targets, excluded := partitionPromptProjects(projects, tokens)
+	targets, excluded := resolvePromptPartitions(projects)
 	if len(targets) == 0 {
 		fmt.Printf("%s No eligible active projects found to receive prompt.\n", constants.ColorYellow+"ℹ"+constants.ColorReset)
 
@@ -61,107 +60,8 @@ func runAgyAllProjectsReadMemory() error {
 	return executePromptBroadcast(targets, excluded)
 }
 
-func partitionPromptProjects(projects []AgyProject, tokens []string) ([]AgyProject, []AgyProject) {
-	targets := make([]AgyProject, 0)
-	excluded := make([]AgyProject, 0)
-	for _, p := range projects {
-		if p.ID == "outside-of-project" {
-			continue
-		}
+func resolvePromptPartitions(projects []AgyProject) ([]AgyProject, []AgyProject) {
+	tokens := parseAgyExceptTokens(agyAprmpExcept)
 
-		path := p.GetPath()
-		if path != "" && !checkDirExists(path) {
-			excluded = append(excluded, p)
-			continue
-		}
-
-		if isMatchPrefixOrSlugExcept(p, tokens) {
-			excluded = append(excluded, p)
-			continue
-		}
-
-		targets = append(targets, p)
-	}
-
-	return targets, excluded
-}
-
-func isMatchPrefixOrSlugExcept(p AgyProject, tokens []string) bool {
-	if len(tokens) == 0 {
-		return false
-	}
-
-	pID := strings.ToLower(p.ID)
-	pName := strings.ToLower(p.Name)
-	pSlug := strings.ToLower(filepath.Base(p.GetPath()))
-	pPath := strings.ToLower(filepath.Clean(p.GetPath()))
-	for _, t := range tokens {
-		if t == pID || t == pName || t == pSlug || t == pPath {
-			return true
-		}
-
-		if strings.HasPrefix(pID, t) || strings.HasPrefix(pName, t) || strings.HasPrefix(pSlug, t) {
-			return true
-		}
-	}
-
-	return false
-}
-
-func executePromptBroadcast(targets, excluded []AgyProject) error {
-	printPromptPlan(targets, excluded)
-	if agyAprmpDryRun {
-		fmt.Printf("\n%s [dry-run] %d project(s) would receive the prompt. %d project(s) excluded.\n",
-			constants.ColorYellow+"ℹ"+constants.ColorReset, len(targets), len(excluded))
-
-		return nil
-	}
-
-	if !agyAprmpYes && !askPromptConfirmation(len(targets)) {
-		fmt.Println("Broadcast canceled. No prompts sent.")
-
-		return nil
-	}
-
-	return dispatchPrompts(targets)
-}
-
-func printPromptPlan(targets, excluded []AgyProject) {
-	fmt.Printf("\n  %s── Antigravity Read Memory Broadcast Plan ──%s\n", constants.ColorCyan, constants.ColorReset)
-	fmt.Printf("  Prompt: %s%s%s\n\n", constants.ColorWhite, agyAprmpPrompt, constants.ColorReset)
-	fmt.Printf("  %sTarget Projects (%d):%s\n", constants.ColorGreen, len(targets), constants.ColorReset)
-	for _, p := range targets {
-		fmt.Printf("    %-32s (%s)\n", p.Name, p.ID)
-	}
-
-	if len(excluded) > 0 {
-		fmt.Printf("\n  %sExcluded Projects (%d):%s\n", constants.ColorDim, len(excluded), constants.ColorReset)
-		for _, p := range excluded {
-			fmt.Printf("    %-32s (%s) — excluded\n", p.Name, p.ID)
-		}
-	}
-}
-
-func askPromptConfirmation(count int) bool {
-	fmt.Printf("\n  %sSend prompt to %d active project session(s)? [y/N]: %s",
-		constants.ColorYellow, count, constants.ColorReset)
-	reader := bufio.NewReader(os.Stdin)
-	text, _ := reader.ReadString('\n')
-	text = strings.TrimSpace(strings.ToLower(text))
-
-	return text == "y" || text == "yes"
-}
-
-func dispatchPrompts(targets []AgyProject) error {
-	sent := 0
-	for _, p := range targets {
-		fmt.Printf("  %s Sent prompt to: %s (%s)\n",
-			constants.ColorGreen+"✓"+constants.ColorReset, p.Name, p.ID)
-		sent++
-	}
-
-	fmt.Printf("\n%s Successfully broadcast Read Memory prompt to %d Antigravity project(s).\n\n",
-		constants.ColorGreen+"✓"+constants.ColorReset, sent)
-
-	return nil
+	return partitionPromptProjects(projects, tokens)
 }

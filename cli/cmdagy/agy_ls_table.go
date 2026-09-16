@@ -1,11 +1,5 @@
-// Package cmd — agy_ls_table.go renders table formatting for antigravity projects.
+// Package cmdagy — agy_ls_table.go handles table row structures and dimensions for Antigravity projects.
 package cmdagy
-
-import (
-	"fmt"
-
-	"github.com/alimtvnetwork/gitmap-v28/cli/constants"
-)
 
 type agyTableRow struct {
 	ID        string
@@ -50,104 +44,44 @@ func truncateMiddle(s string, maxLen int) string {
 
 func (c *agyTableContext) addRow(r agyTableRow) {
 	c.Rows = append(c.Rows, r)
-	if l := len(r.Name); l > c.MaxProject {
-		c.MaxProject = l
-	}
+	c.updateMaxColumnWidths(r)
+}
 
-	if l := len(r.ID); l > c.MaxID {
-		c.MaxID = l
-	}
+func (c *agyTableContext) updateMaxColumnWidths(r agyTableRow) {
+	c.MaxProject = max(c.MaxProject, len(r.Name))
+	c.MaxID = max(c.MaxID, len(r.ID))
+	c.MaxBranch = max(c.MaxBranch, len(r.Branch))
+	c.MaxUpdated = max(c.MaxUpdated, len(r.Updated))
+}
 
-	if l := len(r.Branch); l > c.MaxBranch {
-		c.MaxBranch = l
-	}
+func buildAgyTableRow(p AgyProject) agyTableRow {
+	path := p.GetPath()
+	isMissing := path != "" && !checkDirExists(path)
+	status, displayPath := resolveRowStatusAndPath(path)
 
-	if l := len(r.Updated); l > c.MaxUpdated {
-		c.MaxUpdated = l
+	return agyTableRow{
+		ID:        shortProjectId(p.ID),
+		Name:      truncateMiddle(p.Name, 26),
+		Branch:    resolveRowBranch(p.GetBranch()),
+		Status:    status,
+		Updated:   formatRelativeTime(p.UpdatedAt),
+		Path:      truncateMiddle(displayPath, 42),
+		IsMissing: isMissing,
 	}
 }
 
-func printAgyBanner(count int, dirPath string) {
-	fmt.Println()
-	fmt.Printf("  %s╔══════════════════════════════════════╗%s\n", constants.ColorCyan, constants.ColorReset)
-	fmt.Printf("  %s║         antigravity projects         ║%s\n", constants.ColorCyan, constants.ColorReset)
-	fmt.Printf("  %s╚══════════════════════════════════════╝%s\n", constants.ColorCyan, constants.ColorReset)
-	fmt.Println()
-	fmt.Printf("  %s%d projects from %s%s\n", constants.ColorDim, count, dirPath, constants.ColorReset)
-	fmt.Printf("  %s%s%s\n", constants.ColorDim, constants.TermTableRule, constants.ColorReset)
-	fmt.Println()
-}
-
-func printAgyTableHeader(c *agyTableContext) {
-	const gap = "   "
-	fmt.Printf("  %s%-*s%s%-*s%s%-*s%s%-*s%s%-*s%s%s%s\n",
-		constants.ColorWhite,
-		c.MaxProject, "PROJECT", gap,
-		c.MaxID, "ID", gap,
-		c.MaxBranch, "BRANCH", gap,
-		c.MaxStatus, "STATUS", gap,
-		c.MaxUpdated, "UPDATED", gap,
-		"PATH",
-		constants.ColorReset)
-	fmt.Printf("  %s%s%s\n", constants.ColorDim, constants.TermTableRule, constants.ColorReset)
-}
-
-func printAgyTableRow(c *agyTableContext, r agyTableRow, index int) {
-	const gap = "   "
-	color := constants.ColorCycle[index%len(constants.ColorCycle)]
-	branchColor := constants.ColorCyan
-	if r.Branch == "—" {
-		branchColor = constants.ColorDim
+func resolveRowBranch(branch string) string {
+	if branch == "" {
+		return "—"
 	}
 
-	projectCol := fmt.Sprintf("%s%-*s%s", color, c.MaxProject, r.Name, constants.ColorReset)
-	idCol := fmt.Sprintf("%s%-*s%s", constants.ColorDim, c.MaxID, r.ID, constants.ColorReset)
-	branchCol := fmt.Sprintf("%s%-*s%s", branchColor, c.MaxBranch, r.Branch, constants.ColorReset)
-	statusCol := formatAgyStatus(r.Status, r.IsMissing, c.MaxStatus)
-	updatedCol := fmt.Sprintf("%s%-*s%s", constants.ColorDim, c.MaxUpdated, r.Updated, constants.ColorReset)
-
-	fmt.Printf("  %s%s%s%s%s%s%s%s%s%s%s\n",
-		projectCol, gap,
-		idCol, gap,
-		branchCol, gap,
-		statusCol, gap,
-		updatedCol, gap,
-		r.Path,
-	)
+	return branch
 }
 
-func formatAgyStatus(status string, isMissing bool, width int) string {
-	if isMissing {
-		return fmt.Sprintf("%s%-*s%s", constants.ColorRed, width, "✖   missing", constants.ColorReset)
+func resolveRowStatusAndPath(path string) (string, string) {
+	if path == "" {
+		return "global", "—"
 	}
 
-	if status == "global" {
-		return fmt.Sprintf("%s%-*s%s", constants.ColorDim, width, "—   global", constants.ColorReset)
-	}
-
-	return fmt.Sprintf("%s%-*s%s", constants.ColorGreen, width, "✔   active", constants.ColorReset)
-}
-
-func printAgySummary(total, active, missing int) {
-	fmt.Println()
-	fmt.Printf("  %s%s%s\n", constants.ColorDim, constants.TermTableRule, constants.ColorReset)
-	fmt.Printf("  %d projects · %s%d active%s · %s%d missing%s\n",
-		total,
-		constants.ColorGreen, active, constants.ColorReset,
-		constants.ColorRed, missing, constants.ColorReset)
-	if missing > 0 {
-		printAgyMissingTips()
-	}
-
-	fmt.Println()
-}
-
-func printAgyMissingTips() {
-	fmt.Printf("  %sReconciliation & Cleanup for Missing Projects:%s\n", constants.ColorYellow, constants.ColorReset)
-	fmt.Printf("    %s●%s Reconcile & re-link: %sgitmap agy reconcile%s (alias: recon)\n",
-		constants.ColorCyan, constants.ColorReset, constants.ColorCyan, constants.ColorReset)
-	fmt.Printf("    %s●%s Scan & discover:    %sgitmap agy scan [path]%s\n",
-		constants.ColorCyan, constants.ColorReset, constants.ColorCyan, constants.ColorReset)
-	fmt.Printf("    %s●%s Remove missing:     %sgitmap agy remove-missing-projects%s (alias: rm-missing)\n",
-		constants.ColorCyan, constants.ColorReset, constants.ColorCyan, constants.ColorReset)
+	return "active", path
 }

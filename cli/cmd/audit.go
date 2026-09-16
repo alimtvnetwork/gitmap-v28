@@ -21,22 +21,6 @@ func beginCommandAudit(command string, args []string) (int64, time.Time, bool) {
 	return recordAuditStart(command, args)
 }
 
-func finishCommandAudit(
-	shouldAudit bool,
-	id int64,
-	start time.Time,
-	exitCode int,
-	summary string,
-	repoCount int,
-) {
-	isNonAudit := !shouldAudit
-	if isNonAudit {
-		return
-	}
-
-	recordAuditEnd(id, start, exitCode, summary, repoCount)
-}
-
 func isAuditableCommand(command string) bool {
 	if command == constants.CmdVersion || command == constants.CmdVersionAlias {
 		return false
@@ -49,129 +33,53 @@ func isAuditableCommand(command string) bool {
 	return true
 }
 
-// recordAuditStart inserts a new history record at command start.
 func recordAuditStart(command string, args []string) (int64, time.Time, bool) {
 	start := time.Now()
+	id, isRecorded := executeAuditDBInsert(command, args, start)
+	if !isRecorded {
+		return 0, start, false
+	}
+
+	recordPendingTaskAudit(command, args)
+
+	return id, start, true
+}
+
+func executeAuditDBInsert(command string, args []string, start time.Time) (int64, bool) {
+	record := buildCommandAuditRecord(command, args, start)
+	db, err := openAuditDB()
+	if err != nil {
+		return 0, false
+	}
+
+	defer db.Close()
+
+	return insertAuditRecord(db, record), true
+}
+
+func buildCommandAuditRecord(command string, args []string, start time.Time) model.CommandHistoryRecord {
 	alias, flags, positional := classifyArgs(command, args)
 
-	record := model.CommandHistoryRecord{
+	return model.CommandHistoryRecord{
 		Command:   command,
 		Alias:     alias,
 		Args:      positional,
 		Flags:     flags,
 		StartedAt: start.Format(time.RFC3339),
 	}
+}
 
-	db, err := openAuditDB()
-	if err != nil {
-		return 0, start, false
-	}
-
-	defer db.Close()
-
+func insertAuditRecord(db *store.DB, record model.CommandHistoryRecord) int64 {
 	id, insertErr := db.InsertHistory(record)
 	if insertErr != nil {
 		fmt.Fprintf(os.Stderr, "  ⚠ Could not record command history: %v\n", insertErr)
 	}
 
+	return id
+}
+
+func recordPendingTaskAudit(command string, args []string) {
 	cwd, _ := os.Getwd()
 	cmdArgs := strings.Join(args, " ")
 	_, _ = createPendingTask(command, cwd, cwd, command, cmdArgs)
-
-	return id, start, true
-}
-
-// recordAuditEnd updates a history record with completion details.
-func recordAuditEnd(id int64, start time.Time, exitCode int, summary string, repoCount int) {
-	end := time.Now()
-	duration := end.Sub(start).Milliseconds()
-
-	record := model.CommandHistoryRecord{
-		ID:         id,
-		FinishedAt: end.Format(time.RFC3339),
-		DurationMs: duration,
-		ExitCode:   exitCode,
-		Summary:    summary,
-		RepoCount:  repoCount,
-	}
-
-	db, err := openAuditDB()
-	if err != nil {
-		return
-	}
-
-	defer db.Close()
-
-	if err := db.UpdateHistory(record); err != nil {
-		fmt.Fprintf(os.Stderr, "  ⚠ Could not update command history: %v\n", err)
-	}
-
-	completePendingCommandTask(db, exitCode, summary)
-}
-
-func completePendingCommandTask(db *store.DB, exitCode int, summary string) {
-	pending, err := db.ListPendingTasks()
-	if err != nil || len(pending) == 0 {
-		return
-	}
-
-	latest := pending[len(pending)-1]
-	if exitCode == 0 {
-		_ = db.CompleteTask(latest.ID)
-	} else {
-		_ = db.FailTask(latest.ID, summary)
-	}
-}
-
-// openAuditDB opens the database silently (no error output).
-func openAuditDB() (*store.DB, error) {
-	prevQuiet := os.Getenv(constants.EnvGitMapQuiet)
-	os.Setenv(constants.EnvGitMapQuiet, constants.EnvGitMapQuietTrue)
-	defer os.Setenv(constants.EnvGitMapQuiet, prevQuiet)
-
-	db, err := store.OpenDefault()
-	if err != nil {
-		return nil, err
-	}
-
-	if err := db.Migrate(); err != nil {
-		fmt.Fprintf(os.Stderr, "  ⚠ Audit DB migration failed: %v\n", err)
-	}
-
-	return db, nil
-}
-
-// classifyArgs separates flags from positional arguments.
-func classifyArgs(command string, args []string) (string, string, string) {
-	alias := resolveAlias(command)
-	var flags, positional []string
-
-	for _, arg := range args {
-		if fmt.Sprintf("%c", arg[0]) == "-" {
-			flags = append(flags, arg)
-		} else {
-			positional = append(positional, arg)
-		}
-	}
-
-	return alias, joinStrings(flags), joinStrings(positional)
-}
-
-// joinStrings joins string slices with spaces.
-func joinStrings(s []string) string {
-	result := ""
-	for i, v := range s {
-		if i > 0 {
-			result += " "
-		}
-
-		result += v
-	}
-
-	return result
-}
-
-// resolveAlias returns the alias if the command was invoked by alias.
-func resolveAlias(command string) string {
-	return command
 }

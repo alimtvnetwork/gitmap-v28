@@ -2,6 +2,7 @@
 package cmdagy
 
 import (
+	"path/filepath"
 	"testing"
 )
 
@@ -26,6 +27,26 @@ func TestTruncateMiddle(t *testing.T) {
 	}
 }
 
+func makeTestProject(id, name, path string) AgyProject {
+	if path == "" || path == "—" {
+		return AgyProject{ID: id, Name: name}
+	}
+
+	return AgyProject{
+		ID:   id,
+		Name: name,
+		ProjectResources: &AgyProjectResources{
+			Resources: []AgyResource{
+				{
+					GitFolder: &AgyGitFolder{
+						FolderURI: path,
+					},
+				},
+			},
+		},
+	}
+}
+
 func TestResolveProjectParentFolder(t *testing.T) {
 	tests := []struct {
 		path string
@@ -38,27 +59,20 @@ func TestResolveProjectParentFolder(t *testing.T) {
 	}
 
 	for _, tt := range tests {
-		p := AgyProject{Path: tt.path}
+		p := makeTestProject("1", "test", tt.path)
 		got := resolveProjectParentFolder(p)
-		if got != tt.want && got != filepathClean(tt.want) {
+		wantClean := filepath.Clean(tt.want)
+		if got != tt.want && got != wantClean {
 			t.Errorf("resolveProjectParentFolder(%q) = %q; want %q", tt.path, got, tt.want)
 		}
 	}
 }
 
-func filepathClean(p string) string {
-	if p == "[Global / Config]" {
-		return p
-	}
-
-	return p
-}
-
 func TestGroupProjectsByRootFolder(t *testing.T) {
 	projects := []AgyProject{
-		{ID: "1", Name: "repo1", Path: "d:/work/repo1"},
-		{ID: "2", Name: "repo2", Path: "d:/work/repo2"},
-		{ID: "3", Name: "tool", Path: "d:/tools/tool"},
+		makeTestProject("1", "repo1", "d:/work/repo1"),
+		makeTestProject("2", "repo2", "d:/work/repo2"),
+		makeTestProject("3", "tool", "d:/tools/tool"),
 	}
 
 	folders, groupMap := groupProjectsByRootFolder(projects)
