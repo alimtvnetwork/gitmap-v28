@@ -54,6 +54,13 @@ def parse_args():
     parser = argparse.ArgumentParser(
         description="High-performance repository file scanner and cache indexer.",
         formatter_class=argparse.RawDescriptionHelpFormatter,
+        epilog="""
+Examples:
+  python 03-ai-scripts/11-fast-file-scanner.py --lang go,ts --limit 50 --stats
+  python 03-ai-scripts/11-fast-file-scanner.py --path cli/ --ext .go -n 25
+  python 03-ai-scripts/11-fast-file-scanner.py --search "test" --limit 10
+  python 03-ai-scripts/11-fast-file-scanner.py --query-cache "component" --limit 20
+        """
     )
     parser.add_argument("--path", "-p", default=CURRENT_DIR, help="Subdirectory or root to scan (default: .)")
     parser.add_argument("--lang", "-l", help="Language filter alias (e.g. go, ts, py, md, or comma-separated go,ts)")
@@ -61,7 +68,7 @@ def parse_args():
     parser.add_argument("--search", "-s", help="Case-insensitive substring filter on file path")
     parser.add_argument("--out", "-o", help="Custom cache output path (default: auto-named in tmp/)")
     parser.add_argument("--format", "-f", choices=["json", "txt", "summary"], default="json", help="Output format (json, txt, summary)")
-    parser.add_argument("--limit", type=int, default=100, help="Max file lines to print to console (default: 100)")
+    parser.add_argument("--limit", "-n", type=int, default=100, help="Max file lines to print to console (default: 100, 0 for unlimited)")
     parser.add_argument("--stats", action="store_true", help="Display extension statistics breakdown")
     parser.add_argument("--no-cache", action="store_true", help="Skip saving results to tmp/ cache")
     parser.add_argument("--include-hidden", action="store_true", help="Include dot-files/folders (normally ignored)")
@@ -207,7 +214,7 @@ def write_caches(json_path, txt_path, all_txt_path, matched_files, ext_counts, a
                         for fp in matched_files:
                             f.write(fp + LINE_SEPARATOR)
 
-def query_cached_index(query_term: str):
+def query_cached_index(query_term: str, limit: int = 100):
     cache_paths = [PRIMARY_CACHE_FILE, LEGACY_CACHE_FILE]
     matched_files = []
     for cp in cache_paths:
@@ -231,17 +238,18 @@ def query_cached_index(query_term: str):
     q_re = re.compile(re.escape(query_term), re.IGNORECASE)
     results = [f for f in matched_files if q_re.search(f)]
     print(f"⚡ Instant Cache Query for `{query_term}`: found **{len(results)}** matches in pre-computed index:{LINE_SEPARATOR}")
-    for idx, r in enumerate(results[:100], 1):
+    effective_limit = limit if limit > 0 else len(results)
+    for idx, r in enumerate(results[:effective_limit], 1):
         print(f"   {idx:>3}. {r}")
-    if len(results) > 100:
-        print(f"   ... and {len(results) - 100} more matches.")
+    if len(results) > effective_limit:
+        print(f"   ... and {len(results) - effective_limit} more matches (use --limit 0 for all).")
     sys.exit(0)
 
 def main():
     args = parse_args()
 
     if args.query_cache:
-        query_cached_index(args.query_cache)
+        query_cached_index(args.query_cache, limit=args.limit)
         return
 
     start_time = time.perf_counter()

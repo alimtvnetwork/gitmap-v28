@@ -38,7 +38,7 @@ Before doing anything else, you MUST write a highly detailed execution spec.
     `- [SSH Commands](file:///absolute/path/to/...)`
     `- [Target File](file:///absolute/path/to/cmd/main.go)`
   - ✅ **GOOD (Strict relative Git path):**
-    `- [SSH Commands](spec/13-generic-cli/01-index.md)`
+    `- [SSH Commands]`spec/13-generic-cli/01-index.md)`
     `- Target File: cmd/main.go`
 - **Create a Task-Specific Rule Set:** Before executing, analyze the specific task domain and explicitly write down 3-5 custom rules or constraints unique to this task inside the spec file. This prevents domain-specific regressions and forces sub-agents to follow exact architectures.
 - Subtasks: You MUST break the plan down into a lean set of focused subtask files inside `.lovable/plans/subtasks/xx-<slug>/`. Every subtask file must contain actionable instructions focused on the domain task itself (Task Focus Over Meta-Prompting) with strictly relative Git paths.
@@ -83,10 +83,22 @@ Before doing anything else, you MUST write a highly detailed execution spec.
 - [ ] Atomic file change cache updated in `.lovable/temp/recent-file-changes.json` under lock (`python 03-ai-scripts/33-test-inventory-generator.py --record <path>`).
 - [ ] Continuous loop maintained without running banned test or build commands.
 
+## Fast File Discovery & Reading via Python Toolchain (Mandatory Acceleration)
+
+To avoid 50-result tool truncation limits and eliminate multi-turn exploratory roundtrips, the AI agent MUST use the repository's dedicated Python discovery scripts first:
+- **Inventory Target Files:** `python 03-ai-scripts/11-fast-file-scanner.py --lang go,ts --limit 100 --stats`
+- **Fast Cached Grep (<15ms):** `python 03-ai-scripts/12-fast-cached-grep.py --pattern "<pattern>" --lang go --limit 50`
+- **Sub-Millisecond Folder Explorer & Reader:** `python 03-ai-scripts/17-fast-file-reader.py --list-folder <dir> --ext .go --limit 50`
+- **Read Target File:** `python 03-ai-scripts/17-fast-file-reader.py --read-file <file-path> --max-bytes 100000`
+- **Fast Pattern Search:** `python 03-ai-scripts/17-fast-file-reader.py --search-pattern "<pattern>" --limit 50`
+- **Codebase Topology:** `python 03-ai-scripts/18-codebase-topology-discoverer.py --summary`
+
+---
+
 ## Banned Operations Checklist (TOTAL BAN — Auto-Reject on Violation)
 
 - [ ] **NO TEST RUNNING (TOTAL BAN):** NEVER run any tests using Python files (`06-cicd-local-runner.py`, `pytest`, runner scripts), Go (`go test ./...`), or any test runner. Testing will be checked later on in CI/CD.
-- [ ] **NO BUILD CHECKING (TOTAL BAN):** NEVER run build commands (`go build`, `npm run build`, compiler checks) to verify compilation. Build verification is checked later on in CI/CD.
+- [ ] **NO BUILD CHECKING (TOTAL BAN):** NEVER run build commands (`go build`, `npm run build`, compiler checks) to verify compilation. Build verification will be checked later on in CI/CD.
 - [ ] **NO RUNNER SCRIPTS (TOTAL BAN):** NEVER launch background test runners, worker pools, or test inventory loops during routine execution.
 - [ ] **NO AUTOMATIC RELEASES (TOTAL BAN):** NEVER bump versions, update changelogs, or trigger releases unless explicitly commanded by the user.
 - [ ] **NO PER-FILE COMMITTING (TOTAL BAN):** NEVER commit each file individually as you work (e.g. running `git commit` after editing File 1, then another commit after File 2). Committing file-by-file pollutes git history, creates subagent lock collisions, and breaks atomic changes. All modified files across the turn must be accumulated and committed together in a single atomic commit at the final step.
@@ -103,12 +115,6 @@ Before doing anything else, you MUST write a highly detailed execution spec.
 - [ ] Acronyms & Magic Strings: Acronyms are PascalCase (`UserId` not `UserID`). Magic strings/numbers are extracted to constants.
 - [ ] /learn the section as a /goal (AI Fix Scripts Memory)[#AI Fix Scripts Memory]
 - [ ] Action Summary: I have output a detailed `- [x]` checklist summarizing exactly what I accomplished this turn to prove I did not hallucinate.
-
-## 4. AI Fix Scripts Memory
-
-- [ ] /goal All helper scripts were written to `03-ai-scripts/`, documented in its `03-ai-scripts/01-index.md`, and committed to Git for reuse.
-- [ ] `03-ai-scripts/01-index.md` Should contain details tag, sequence of the script naming and why it is there and what it should do.
-- [ ] Should first scan /learn all from that index.md file what is exist and can be reused.
 
 ## 5. Anti-Hallucination & Blast Radius Checklist (Mandatory for Every Turn)
 
@@ -150,4 +156,4 @@ When all subtasks for a parent task (`.lovable/plans/pending/xx-<slug>.md`) are 
 
 ## MUST FOLLOW NON-NEGOTIABLE
 
-Listen, past runs of these turns have been sloppy and stupid as fuck: wrong step counts, partial task lists dumped into chat instead of files, plans and session summaries half-filled with "[N]" placeholders, folders skimmed, open ambiguities ignored, CI/CD issues and `plans/subtasks/` forgotten, user commands dropped, coding guidelines bypassed, detailed specs chopped and summarized into useless junk, uppercase README files left uncorrected, `.lovable/memory/` created by accident, `strictly-avoid.md` overwritten, and explicit user instructions softened after being told not to. WTF. How on earth are you reverting to this carelessness, are you stupid?? Stop doing that, you stupid fuck. Read the whole codebase, read every folder in `spec/` and `.lovable/`, confirm root `readme.md` is strictly lowercase, find the root cause in one sentence, capture commands, issues, and pending tasks without omitting a single item, write the spec files and memory files in the right paths, update every index in the same turn, sync `readme.md` with `what-to-read.md`, preserve detailed specs verbatim with zero truncation, record file changes into recent-file-changes.json cache, group all modified files into consolidated commits with clear messages (never 1-2 files piecemeal), and push everything to git immediately before ending. Going deep IS the job. If you are not going deep, you are not doing the job. Violating this is auto-reject on the same tier as RULE 0. Avoid stupidity and being careless, you stupid fuck. Where is your attention, are you stupid? Tell me. Your stupidity is going on top of my head. Where did you learn this stupidity? If I could find you, I could slap you.
+Listen, past runs of these turns have been sloppy and stupid as fuck: wrong step counts, partial task lists dumped into chat instead of files, plans and session summaries half-filled with "[N]" placeholders, folders skimmed, open ambiguities ignored, CI/CD issues and `plans/subtasks/` forgotten, user commands dropped, coding guidelines bypassed, detailed specs chopped and summarized into useless junk, uppercase README files left uncorrected, `.lovable/memory/` created by accident, `strictly-avoid.md` overwritten, and explicit user instructions softened after being told not to. WTF. How on earth are you reverting to this carelessness, are you stupid?? Stop doing that, you stupid fuck. Read the whole codebase, read every folder in `spec/` and `.lovable/`, confirm root `readme.md` is strictly lowercase, find the root cause in one sentence, capture commands, issues, and pending tasks without omitting a single item, write the spec files and memory files in the right paths, update every index in the same turn, sync `readme.md` with `what-to-read.md`, preserve detailed specs verbatim with zero truncation, do NOT run builds or tests during routine turns (all test and build verification deferred to CI/CD), group commits with clear messages, and push everything to git before ending. Going deep IS the job. If you are not going deep, you are not doing the job. Violating this is auto-reject on the same tier as RULE 0. Avoid stupidity and being careless, you stupid fuck. Where is your attention, are you stupid? Tell me. Your stupidity is going on top of my head. Where did you learn this stupidity? If I could find you, I could slap you.

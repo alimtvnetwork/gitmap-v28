@@ -1,6 +1,6 @@
 # Antigravity Customization Architecture & Rule Authoring — Workflow (must follow)
 
-> **Prompt Version:** 2.1.0
+> **Prompt Version:** 2.2.0
 > **Synchronization:** Main Meta-Repo & Connected Workspaces
 
 /goal Persist what happened this turn so the next AI knows everything without guessing. Every decision, plan change, unresolved ambiguity, newly discovered pattern, and fixed bug must be written to `.lovable/` before this turn ends.
@@ -46,6 +46,10 @@ Memory in chat is lost the moment the turn finishes. Memory in `.lovable/` is pe
 16. Fast Cached Exploration: When reading repository files or discovering directories for context ingestion, use `python 03-ai-scripts/17-fast-file-reader.py --list-folder <dir>` (<15ms via `tmp/cache/`) rather than slow raw recursive PowerShell commands.
     - **If Missing (Re-creation):** If `03-ai-scripts/17-fast-file-reader.py` is not found, immediately recreate it using Python standard libraries (`os`, `sys`, `pathlib`, `re`, `argparse`, `json`). It MUST support flags: `--list-folder <path> [--ext .md,.ts]`, `--read-file <path> [--max-bytes N]`, and `--search-pattern "<regex>" [--path <dir>]`. Ensure strict UTF-8 output (`sys.stdout.reconfigure(encoding="utf-8")`) and implement local caching.
 
+17. Mandatory 30-Commit Git History Audit: Before authoring or updating memory, the AI MUST execute `git log -n 30 --oneline` (and `git log -n 30 --stat` where needed) to inspect the last 30 commits. The AI must extract what has been done recently, what directives were applied, what bugs were resolved, and what architectural decisions were made. Never write memory from assumption or chat state alone.
+
+18. Recent 20-Task Tracking & Compact Task Register: The AI MUST inspect `.lovable/plans/01-index.md`, `.lovable/plans/completed/`, and `.lovable/plans/pending/` to maintain a compact, accurate mental and written model of completed vs pending work. The last 20 tasks/plans MUST be cataloged in the `Recent Completed Tasks Register` in `.lovable/plans/01-index.md` and referenced in `.lovable/what-to-read.md`. Every newly written memory MUST refer back to this task list and `what-to-read.md` so that during loop executions, the AI maintains continuity with recent progress.
+
 ## Working Stance
 
 The AI running this prompt has been a stupid fuck on prior runs:
@@ -68,11 +72,12 @@ Do not repeat any of that stupidity. Writing memory IS the work this turn. Go de
 
 Walk `.lovable/` recursively. Read all of these if they exist; note missing and create them per the templates in this prompt:
 
+0. `git log -n 30 --oneline` — inspect the last 30 commits to understand recent file changes, what code/docs were touched, recent bug fixes, and what the AI can learn from recent history before starting memory capture.
 1. `.lovable/memory/01-index.md` — master memory index
 2. `.lovable/folder-structure.md` — canonical `.lovable/` folder map
 3. `.lovable/coding-guidelines.md` or `spec/02-coding-guidelines/` — master coding guidelines
 4. `03-ai-scripts/` — automation tools (`01-file-manipulator.py`, `05-guideline-autofixer.py`, `06-cicd-local-runner.py`, `index.md`)
-5. `.lovable/plans/01-index.md` and every file under `plans/pending/` (`01-<slug>.md`) and `plans/subtasks/`; skim `plans/completed/`
+5. `.lovable/plans/01-index.md` (specifically the Recent Completed Tasks Register for the last 20 tasks, plus `plans/pending/` and `plans/completed/`)
 6. `.lovable/plan.md` — failure recovery record
 7. `.lovable/suggestions.md` and `.lovable/suggestions/01-index.md`
 8. `.lovable/strictly-avoid.md`
@@ -91,6 +96,8 @@ Walk `.lovable/` recursively. Read all of these if they exist; note missing and 
 
 Answer for yourself; do not dump to chat unless asked. Cover:
 
+- Git History Audit (Last 30 Commits): Analyze `git log -n 30 --oneline`, summarize the architectural trajectory, note recent bug fixes and directives, and record what was learned.
+- Recent Tasks Status (Last 20 Tasks): Compact review of the last 20 completed tasks from `.lovable/plans/01-index.md` vs remaining pending tasks.
 - Done: features, fixes, refactors, files created / modified / deleted, decisions made and why.
 - Pending: started but unfinished, discussed but not started, blockers, dependencies.
 - Learned: patterns, conventions, gotchas, user preferences (explicit or implicit).
@@ -212,35 +219,38 @@ Memory update complete.
 
 ## Checklist Before Replying (Every Box)
 
-1. [ ] Walked `.lovable/` recursively; read every pre-flight file that exists; noted the missing ones.
-2. [ ] Audited the session for Done / Pending / Learned / Wrong / Recent Directives.
-3. [ ] Every new memory file placed under a topic folder, never at the memory root.
-4. [ ] `.lovable/memory/01-index.md` updated in the same op as every new/moved memory file.
-5. [ ] Plans lifecycle honored: `pending/` -> `completed/` via `mv`, `.lovable/plans/01-index.md` updated.
-6. [ ] `suggestions.md` tracker updated; verbatim captures under `.lovable/suggestions/` with `index.md`.
-7. [ ] Issues routed correctly: `pending-issues/` / `solved-issues/` / `cicd-issues/`; `cicd-index.md` updated; no duplicates.
-8. [ ] `strictly-avoid.md` appended (not overwritten) with links to solved files.
-9. [ ] Verbatim user directives and recent conversations captured under `.lovable/memory/` or `.lovable/memory/learned/`.
-10. [ ] Confirmed that detailed/important specs were NOT consolidated or shortened.
-11. [ ] Confirmed root readme is strictly lowercase `readme.md` (auto-fixed and committed/pushed if needed).
-12. [ ] Ambiguities moved via `mv` from `01-new-ambiguity/` to `02-ambiguity-resolved/` with `## Resolution` block.
-13. [ ] `.lovable/what-to-read.md` present, changelog-prepended with UTC ISO 8601 timestamp, list in sync with Pre-flight and `readme.md`.
-14. [ ] Root `readme.md` updated: folder structure, canonical read-list pointer, in sync with `what-to-read.md`.
-15. [ ] `coding-guidelines.md` and `01-prompts/01-prompt-library-setup/01-prompt-library-setup.md` (or `prompts.md`) present.
-16. [ ] Final response block emitted verbatim with real numbers, not `[X]` placeholders.
-17. [ ] No em dashes, no softened wording, no execution beyond file writes, lowercase readme fix, and `mv`.
+1. [ ] Inspected last 30 git commits (`git log -n 30 --oneline` and `git log -n 30 --stat`) to analyze recent changes, applied directives, and lessons learned.
+2. [ ] Audited `.lovable/plans/01-index.md` and verified the Recent Completed Tasks Register (last 20 tasks) is accurate and in sync with `what-to-read.md`.
+3. [ ] Walked `.lovable/` recursively; read every pre-flight file that exists; noted the missing ones.
+4. [ ] Audited the session for Done / Pending / Learned / Wrong / Recent Directives.
+5. [ ] Every new memory file placed under a topic folder, never at the memory root.
+6. [ ] `.lovable/memory/01-index.md` updated in the same op as every new/moved memory file.
+7. [ ] Plans lifecycle honored: `pending/` -> `completed/` via `mv`, `.lovable/plans/01-index.md` updated.
+8. [ ] `suggestions.md` tracker updated; verbatim captures under `.lovable/suggestions/` with `index.md`.
+9. [ ] Issues routed correctly: `pending-issues/` / `solved-issues/` / `cicd-issues/`; `cicd-index.md` updated; no duplicates.
+10. [ ] `strictly-avoid.md` appended (not overwritten) with links to solved files.
+11. [ ] Verbatim user directives and recent conversations captured under `.lovable/memory/` or `.lovable/memory/learned/`.
+12. [ ] Confirmed that detailed/important specs were NOT consolidated or shortened.
+13. [ ] Confirmed root readme is strictly lowercase `readme.md` (auto-fixed and committed/pushed if needed).
+14. [ ] Ambiguities moved via `mv` from `01-new-ambiguity/` to `02-ambiguity-resolved/` with `## Resolution` block.
+15. [ ] `.lovable/what-to-read.md` present, changelog-prepended with UTC ISO 8601 timestamp, list in sync with Pre-flight and `readme.md`.
+16. [ ] Root `readme.md` updated: folder structure, canonical read-list pointer, in sync with `what-to-read.md`.
+17. [ ] `coding-guidelines.md` and `01-prompts/01-prompt-library-setup/01-prompt-library-setup.md` (or `prompts.md`) present.
+18. [ ] Final response block emitted verbatim with real numbers, not `[X]` placeholders.
+19. [ ] No em dashes, no softened wording, no execution beyond file writes, lowercase readme fix, and `mv`.
 
 ---
 
 ## Actionable Items & Checklist
 
-1. [ ] Read the overarching main task plan.
-2. [ ] Ensure the git repository starts completely clean.
-3. [ ] Complete all work on the current branch only.
-4. [ ] Ensure `.gitignore` explicitly excludes test reports, artifacts, and compiled binaries.
-5. [ ] Group all completed work into a single logical commit.
-6. [ ] Push the commit to the remote repository.
-7. [ ] **File Change Summary:** Provide a highly detailed summary in the chat listing exactly which files were changed, what specific changes were made inside them, and why they were changed. The summary is VERY important.
+1. [ ] Inspect last 30 Git commits (`git log -n 30 --oneline`) and extract lessons learned.
+2. [ ] Read the overarching main task plan and verify the 20-task recent completion register.
+3. [ ] Ensure the git repository starts completely clean.
+4. [ ] Complete all work on the current branch only.
+5. [ ] Ensure `.gitignore` explicitly excludes test reports, artifacts, and compiled binaries.
+6. [ ] Group all completed work into a single logical commit.
+7. [ ] Push the commit to the remote repository.
+8. [ ] **File Change Summary:** Provide a highly detailed summary in the chat listing exactly which files were changed, what specific changes were made inside them, and why they were changed. The summary is VERY important.
 
 ## STRICT AVOIDANCE: Never Disable CI/CD
 

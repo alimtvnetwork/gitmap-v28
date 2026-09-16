@@ -51,14 +51,14 @@ Before executing the tasks below, you must check if this prompt is already insta
 >
 > When generating plans, subtasks (`.lovable/plans/subtasks/`), memory issue logs (`.lovable/memory/issues/`), specs, code comments, or citations:
 >
-> 1. **Strictly Relative to Git Root:** All file paths, markdown links, citations, and task targets MUST be relative paths starting from the repository root (e.g. `spec/03-error-manage/01-index.md`, `[SSH Commands](spec/13-generic-cli/01-index.md)`, `cmd/main.go`).
+> 1. **Strictly Relative to Git Root:** All file paths, markdown links, citations, and task targets MUST be relative paths starting from the repository root (e.g. `spec/03-error-manage/01-index.md`, `[SSH Commands]`spec/13-generic-cli/01-index.md)`, `cmd/main.go`).
 > 2. **Total Ban on Absolute Paths:** NEVER write drive letters or absolute OS paths (`/absolute/path/to/...`, `/absolute/path/to/...`, `/home/...`) or absolute file URIs (`file:///absolute/path/to/...`, `file:///absolute/path/to/...`) into ANY file.
 >
 > **Examples:**
 >
 > - ❌ **BAD:** `[SSH Commands](file:///absolute/path/to/...) — Why: Defines behavior.`
 > - ❌ **BAD:** `Target File: /absolute/path/to/cmd\login.go`
-> - ✅ **GOOD:** `[SSH Commands](spec/13-generic-cli/01-index.md) — Why: Defines behavior.`
+> - ✅ **GOOD:** `[SSH Commands]`spec/13-generic-cli/01-index.md) — Why: Defines behavior.`
 > - ✅ **GOOD:** `Target File: cmd/login.go`
 
 - If a spec file, folder, or task is missing or ambiguous, do NOT guess or invent a rule.
@@ -142,7 +142,7 @@ Every time you return a response or complete a loop iteration, explicitly output
 
 ## Compliance Checklist (must follow non negociable)
 
-- [x] Coding Guidelines enforced (spec/02-coding-guidelines/ and follow explicitly every steps .lovable/coding-guidelines.md).
+- [x] Coding Guidelines enforced `spec/02-coding-guidelines/ and follow explicitly every steps .lovable/coding-guidelines.md).
 - [x] Boolean conventions used (is/has prefixes, no negatives).
 - [x] No garbage variable names used.
 - [x] No magic strings or numbers.

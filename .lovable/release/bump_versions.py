@@ -47,6 +47,9 @@ def update_version_json(new_version: str) -> str:
         vdata = json.load(f)
 
     current = vdata.get("Version", "0.0.0")
+    if args.version:
+        print(f"Current version: {current}")
+        sys.exit(0)
     vdata["Version"] = new_version
     vdata["version"] = new_version
     vdata["updated"] = datetime.datetime.now(datetime.timezone.utc).strftime("%Y-%m-%dT%H:%M:%SZ")
@@ -169,6 +172,7 @@ def main():
     parser = argparse.ArgumentParser(description="Bump gitmap release version")
     parser.add_argument("--type", choices=["major", "minor", "patch"], default="minor", help="Semver bump type")
     parser.add_argument("--create-release", action="store_true", help="Create branch, commit, tag, and GitHub release")
+    parser.add_argument("--version", "-v", action="store_true", help="Print current version and exit")
     args = parser.parse_args()
 
     v_path = os.path.join(ROOT_DIR, "version.json")
@@ -176,6 +180,9 @@ def main():
         vdata = json.load(f)
 
     current = vdata.get("Version", "0.0.0")
+    if args.version:
+        print(f"Current version: {current}")
+        sys.exit(0)
     new_version = bump_version(current, args.type)
 
     print(f"=== Bumping version from {current} to {new_version} (type: {args.type}) ===")

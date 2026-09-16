@@ -8,11 +8,26 @@ description: Plan a structured coding guideline audit across repository codebase
 Autonomously plans a comprehensive audit of repository codebases against the master coding guidelines.
 
 ## Audit Areas
-1. **Boolean Conventions:** `is` and `has` prefixes only, implicit positive checks, no mixed polarity.
+
+1. **Boolean Conventions & Affirmative Parameters/Fields:** `is` and `has` prefixes only, implicit positive checks, no mixed polarity, affirmative parameter/field naming (no single-letter `v bool` or bare `stop bool`, `defined bool` -> `isStopOnFail bool`, `isStopped bool`, `isDefined bool`).
 2. **Control Flow:** Maximum nesting depth 1, guard clauses, flattened conditionals.
 3. **Naming & Types:** Enum `Type` suffixes, PascalCase types, no underscores in Go.
-4. **Error Handling:** `*apperror.AppError` returns, no swallowed errors, typed error responses.
+4. **Error Handling & Result Containers:** Single Result return containers (`appfault.ResultMap[K, V]`, `appfault.ResultSlice[T]`, `appfault.Result[T]`), `*appfault.AppError` returns, pointer-attached null safety (`*Result[T]` with line-1 `if r == nil` guards), method composition, 4 core predicates (`IsCountOtherThan`, `IsEmpty`, `HasRecord`, `IsDefined`), mandatory `types.go` single reusable type definitions for domain structs and Result aliases, no swallowed errors, typed error responses.
 5. **Code Metrics:** Functions <= 15 lines, files <= 100 lines coding, blank line padding.
 
 ## Output
+
 Generates structured audit logs and phased remediation plans in `.lovable/plans/pending/` with subtask micro-batches.
+
+---
+
+## Fast File Discovery & Reading via Python Toolchain (Mandatory Acceleration)
+
+To avoid 50-result tool truncation limits and eliminate multi-turn exploratory roundtrips, the AI agent MUST use the repository's dedicated Python discovery scripts first:
+- **Inventory Target Files:** `python 03-ai-scripts/11-fast-file-scanner.py --lang go,ts --limit 100 --stats`
+- **Fast Cached Grep (<15ms):** `python 03-ai-scripts/12-fast-cached-grep.py --pattern "<pattern>" --lang go --limit 50`
+- **Sub-Millisecond Folder Explorer & Reader:** `python 03-ai-scripts/17-fast-file-reader.py --list-folder <dir> --ext .go --limit 50`
+- **Read Target File:** `python 03-ai-scripts/17-fast-file-reader.py --read-file <file-path> --max-bytes 100000`
+- **Fast Pattern Search:** `python 03-ai-scripts/17-fast-file-reader.py --search-pattern "<pattern>" --limit 50`
+- **Codebase Topology:** `python 03-ai-scripts/18-codebase-topology-discoverer.py --summary`
+

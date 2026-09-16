@@ -15,7 +15,7 @@ N = total self-loop steps budget that the agents will perform.
 
 ### Master Task Checklist (Atomic Numbered Steps)
 
-1. [ ] /goal Phase 1 (Step A): Deeply scan the target codebase to inventory all architectural violations and anti-patterns.
+1. [ ] /goal Phase 1 (Step A): Deeply scan the target codebase using the fast Python discovery tools (`11-fast-file-scanner.py`, `12-fast-cached-grep.py`, `17-fast-file-reader.py` with `--limit`) to inventory all architectural violations and anti-patterns without truncation.
 2. [ ] /goal Phase 1 (Step B): Write the master audit specification in `.lovable/plans/pending/` with an exhaustive Violation Ledger.
 3. [ ] /goal Phase 1 (Step C): Decompose the master plan into granular, atomic subtasks in `.lovable/plans/subtasks/`.
 4. [ ] /goal Phase 1 (Step D): Verify or create the automated quality linter and register in `03-ai-scripts/01-index.md`.
@@ -69,7 +69,7 @@ enum OrderStatusType: string
     case Pending    = 'pending';
     case Processing = 'processing';
     case Completed  = 'completed';
-    case Cancelled  = 'cancelled';
+    case canceled  = 'canceled';
 
     public function label(): string
     {
@@ -77,14 +77,14 @@ enum OrderStatusType: string
             self::Pending    => 'Pending Payment',
             self::Processing => 'Processing Shipment',
             self::Completed  => 'Order Completed',
-            self::Cancelled  => 'Order Cancelled',
+            self::canceled  => 'Order canceled',
         };
     }
 
     public function isTerminal(): bool
     {
         return match ($this) {
-            self::Completed, self::Cancelled => true,
+            self::Completed, self::canceled => true,
             self::Pending, self::Processing  => false,
         };
     }
@@ -179,11 +179,13 @@ In Go, enums MUST be scaffolded using `03-ai-scripts/30-enum-generator.py` into 
 4. **`readme.md`**: Package documentation detailing zero circular dependencies, direct Result returns, high-speed lookups, and DRY JSON marshaling.
 
 #### Automated Scaffolding Command:
+
 ```bash
-python 03-ai-scripts/30-enum-generator.py --name OrderStatus --type byte --items Pending,Processing,Completed,Cancelled --zero-value Invalid
+python 03-ai-scripts/30-enum-generator.py --name OrderStatus --type byte --items Pending,Processing,Completed,canceled --zero-value Invalid
 ```
 
 #### `variant.go` (Core Type, Constants, & Methods):
+
 ```go
 package orderstatustype
 
@@ -207,7 +209,7 @@ const (
     Pending
     Processing
     Completed
-    Cancelled
+    canceled
 )
 
 var (
@@ -224,14 +226,14 @@ func (v Variant) Bytes() []byte    { return []byte{byte(v)} }
 func (v Variant) Int() int         { return int(v) }
 func (v Variant) Code() uint16     { return uint16(v) }
 
-func (v Variant) IsValid() bool   { return baseenumer.IsBetween(v, Pending, Cancelled) }
-func (v Variant) IsInvalid() bool { return baseenumer.IsNotBetween(v, Pending, Cancelled) }
+func (v Variant) IsValid() bool   { return baseenumer.IsBetween(v, Pending, canceled) }
+func (v Variant) IsInvalid() bool { return baseenumer.IsNotBetween(v, Pending, canceled) }
 func (v Variant) IsEnum() bool    { return v.IsValid() }
 
 func (v Variant) IsPending() bool    { return v == Pending }
 func (v Variant) IsProcessing() bool { return v == Processing }
 func (v Variant) IsCompleted() bool  { return v == Completed }
-func (v Variant) IsCancelled() bool  { return v == Cancelled }
+func (v Variant) IsCancelled() bool  { return v == canceled }
 
 func (v Variant) Name() string {
     if int(v) < len(variantLabels) {
@@ -254,6 +256,7 @@ func (v *Variant) UnmarshalJSON(data []byte) error {
 ```
 
 #### `vars.go` (`BasicEnum` Engine & Monadic Parser):
+
 ```go
 package orderstatustype
 
@@ -271,7 +274,7 @@ var (
         Pending:    "Pending",
         Processing: "Processing",
         Completed:  "Completed",
-        Cancelled:  "Cancelled",
+        canceled:  "canceled",
     }
 
     basicEnum  = baseenumer.NewBasicInteger(variantLabels[:], Invalid)
@@ -305,13 +308,13 @@ export const OrderStatusType = {
     Pending: 'pending',
     Processing: 'processing',
     Completed: 'completed',
-    Cancelled: 'cancelled',
+    canceled: 'canceled',
 } as const;
 
 export type OrderStatusType = (typeof OrderStatusType)[keyof typeof OrderStatusType];
 
 export function isTerminalStatus(status: OrderStatusType): boolean {
-    return status === OrderStatusType.Completed || status === OrderStatusType.Cancelled;
+    return status === OrderStatusType.Completed || status === OrderStatusType.canceled;
 }
 ```
 
@@ -345,6 +348,30 @@ To guarantee full execution without stopping after planning mode, the master orc
 
 ### 2. Phase 1: Planning Mode & Subtask Generation (Steps 1 .. N/2)
 
+### Fast File Discovery & Reading via Python Toolchain (Mandatory Acceleration)
+
+To avoid 50-result tool truncation limits and eliminate multi-turn exploratory roundtrips, the AI agent MUST use the repository's dedicated Python discovery scripts first:
+
+1. **Inventory Target Files (with `--limit` option):**
+   ```bash
+   python 03-ai-scripts/11-fast-file-scanner.py --lang go,ts --limit 100 --stats
+   ```
+2. **Fast Cached Grep (<15ms, with `--limit` option):**
+   ```bash
+   python 03-ai-scripts/12-fast-cached-grep.py --pattern "<search-pattern>" --lang go --limit 50
+   ```
+3. **Sub-Millisecond Folder & File Exploration (with `--limit` option):**
+   ```bash
+   python 03-ai-scripts/17-fast-file-reader.py --list-folder <folder-path> --ext .go --limit 50
+   python 03-ai-scripts/17-fast-file-reader.py --read-file <file-path> --max-bytes 100000
+   python 03-ai-scripts/17-fast-file-reader.py --search-pattern "<pattern>" --path <folder-path> --limit 50
+   ```
+4. **Subsystem & Topology Overview:**
+   ```bash
+   python 03-ai-scripts/18-codebase-topology-discoverer.py --summary
+   ```
+Do not rely on standard search tools with 50-item truncation when discovering repository-wide violations.
+
 - Spawn 2 planning subagents to scan the codebase for target guideline violations.
 - Write the master architectural specification in `.lovable/plans/pending/xx-audit.md` with an exhaustive Violation Ledger table.
 - Decompose the master plan into granular subtasks in `.lovable/plans/subtasks/xx-<parent-slug>/01-<subtask-title>.md`, `02-<subtask-title>.md`, etc.
@@ -371,7 +398,7 @@ To guarantee full execution without stopping after planning mode, the master orc
 >    - RCA & Issue Logs: `.lovable/memory/issues/` and `.lovable/cicd-issues/`.
 >    - Execution Plans & Subtasks: `.lovable/plans/pending/`, `.lovable/plans/subtasks/`.
 >    - Coding Guidelines Mirror: `.lovable/coding-guidelines.md`.
-> 3. **Worker Pool & Log Aggregation Architecture:** All local runners and test orchestrators must use a concurrent worker pool (2–3 workers via `ThreadPoolExecutor`), announce enqueued tasks upfront, show real-time progress, handle failures gracefully without cancelling sibling workers, and print a consolidated final summary with full stdout/stderr error logs for failed jobs.
+> 3. **Worker Pool & Log Aggregation Architecture:** All local runners and test orchestrators must use a concurrent worker pool (2–3 workers via `ThreadPoolExecutor`), announce enqueued tasks upfront, show real-time progress, handle failures gracefully without canceling sibling workers, and print a consolidated final summary with full stdout/stderr error logs for failed jobs.
 > 4. **`force` Keyword Support:** If the user wrote `force`, `force rebuild`, or `force create` on top of the prompt or trigger: **ALWAYS recreate/regenerate the Python runner script from scratch**, regardless of whether the file already exists on disk.
 > 5. **No External or Random File Creation:** NEVER write scripts, temporary test scripts, or scratch files to root, `/tmp`, global system paths, or outside the repository boundary.
 

@@ -15,7 +15,7 @@ N = total self-loop steps budget that the agents will perform.
 
 ### Master Task Checklist (Atomic Numbered Steps)
 
-1. [ ] /goal Phase 1 (Step A): Deeply scan the target codebase using ripgrep to inventory all functions returning multi-value tuples `(T, error)`, `(map[K]V, error)`, `([]T, error)`, raw stdlib `error` returns, and any Result methods declared with value receivers `func (r Result[...])` lacking pointer-attached null safety. Also inventory clumsy caller checks like `err != nil || len(...) != N` and `IsFailure() || Count() != N`, and scattered inline structs or raw generic Result returns lacking centralized `types.go` definitions.
+1. [ ] /goal Phase 1 (Step A): Deeply scan the target codebase using the fast Python discovery tools (`11-fast-file-scanner.py`, `12-fast-cached-grep.py`, `17-fast-file-reader.py` with `--limit`) to inventory all architectural violations and anti-patterns without truncation.
 2. [ ] /goal Phase 1 (Step B): Write the master audit specification in `.lovable/plans/pending/XX-result-wrapper-audit.md` with an exhaustive Violation Ledger table.
 3. [ ] /goal Phase 1 (Step C): Decompose the master plan into granular, atomic subtasks in `.lovable/plans/subtasks/XX-result-wrapper/`.
 4. [ ] /goal Phase 1 (Step D): Verify or create the automated quality linter and register in `03-ai-scripts/01-index.md`.
@@ -28,15 +28,15 @@ N = total self-loop steps budget that the agents will perform.
 11. [ ] /goal Phase 2 (Step G): Execute targeted file-level linters (`python linter-scripts/check-function-lengths.py`, `check-mws-error-codes.py`, `check-newline-styling.py`) to verify 0 remaining violations. DO NOT run the full CI/CD pipeline runner (`06-cicd-local-runner.py`) during routine coding guideline execution turns.
 12. [ ] /learn Ingest `.lovable/memory/01-index.md` for project memory index and past learnings.
 13. [ ] /learn Ingest `.lovable/strictly-avoid.md` for banned anti-patterns and strict constraints.
-14. [ ] /learn Ingest `02-spec/02-coding-guidelines/02-canonical-size-tier.md` for canonical file and function size tiers.
-15. [ ] /learn Ingest `02-spec/02-coding-guidelines/01-cross-language/01-index.md` for single return type mandates and micro-tasking.
-16. [ ] /learn Ingest `02-spec/02-coding-guidelines/01-cross-language/27-types-folder-convention.md` for types.go and single type definitions.
-17. [ ] /learn Ingest `02-spec/03-error-manage/01-index.md` for universal AppError wrapping and error envelopes.
-18. [ ] /learn Ingest `02-spec/03-error-manage/02-error-architecture/02-error-handling-reference.md` for error handling architecture and Result wrappers.
-19. [ ] /learn Ingest `02-spec/03-error-manage/03-error-code-registry/02-registry.md` for structured error code catalog.
-20. [ ] /learn Ingest `02-spec/03-error-manage/02-error-architecture/05-response-envelope/05-response-envelope-reference.md` for response envelope schemas.
-21. [ ] /learn Ingest `02-spec/03-error-manage/02-error-architecture/06-apperror-package/03-go-apperror-linter-spec.md` for Go AppError implementation specifications.
-22. [ ] /learn Ingest `02-spec/03-error-manage/02-error-architecture/06-apperror-package/01-apperror-reference/04-result-types.md` for Result[T], ResultSlice[T], and ResultMap[K, V] method specifications and pointer null-safety rules.
+14. [ ] /learn Ingest `spec/02-coding-guidelines/02-canonical-size-tier.md` for canonical file and function size tiers.
+15. [ ] /learn Ingest `spec/02-coding-guidelines/01-cross-language/01-index.md` for single return type mandates and micro-tasking.
+16. [ ] /learn Ingest `spec/02-coding-guidelines/01-cross-language/27-types-folder-convention.md` for types.go and single type definitions.
+17. [ ] /learn Ingest `spec/03-error-manage/01-index.md` for universal AppError wrapping and error envelopes.
+18. [ ] /learn Ingest `spec/03-error-manage/02-error-architecture/02-error-handling-reference.md` for error handling architecture and Result wrappers.
+19. [ ] /learn Ingest `spec/03-error-manage/03-error-code-registry/02-registry.md` for structured error code catalog.
+20. [ ] /learn Ingest `spec/03-error-manage/02-error-architecture/05-response-envelope/05-response-envelope-reference.md` for response envelope schemas.
+21. [ ] /learn Ingest `spec/03-error-manage/02-error-architecture/06-apperror-package/03-go-apperror-linter-spec.md` for Go AppError implementation specifications.
+22. [ ] /learn Ingest `spec/03-error-manage/02-error-architecture/06-apperror-package/01-apperror-reference/04-result-types.md` for Result[T], ResultSlice[T], and ResultMap[K, V] method specifications and pointer null-safety rules.
 23. [ ] /learn Ingest `.lovable/coding-guidelines.md` for master consolidated coding guidelines.
 24. [ ] /goal Create or update agent rules in the repository if missing from agent memory.
 
@@ -127,33 +127,9 @@ Under Prompt Architect coding guidelines, all multi-value returns are refactored
 - Key-Value Maps: `appfault.ResultMap[K, V]`
 - Lists & Slices: `appfault.ResultSlice[T]`
 - Scalar Values: `appfault.Result[T]`
-- Regex Pattern Matching: `lazyregex.MatchResult` (holding `*MatchGroup` / `ResultGroup`)
 - Pure Side-Effects: `*appfault.AppError` (zero bare `void` / empty returns)
 
-### Modern Pattern Matching Result Wrapper (`lazyregex.MatchResult` & `MatchGroup`)
-
-For regular expression evaluation and pattern validation, return a strongly-typed `*MatchResult` envelope wrapping `*MatchGroup` (`ResultGroup`) and diagnostic `*apperror.AppError`:
-
-```go
-// ✅ MODERN PATTERN: MatchResult wrapping ResultGroup with rich diagnostics
-var rsLazyRegex = lazyRegex.MatchResult(comparing)
-
-// Affirmative evaluation & rich error reporting in tests and callers
-if rsLazyRegex.IsFailed() {
-    t.Error(rsLazyRegex.AppError())
-}
-
-// Fluent group and item extraction
-matchGroups := rsLazyRegex.Group()       // *MatchGroup (or ResultGroup)
-allItems    := rsLazyRegex.Items()       // []string (all submatches)
-namedMap    := rsLazyRegex.Map()         // GroupMap of (?P<name>...)
-firstMatch  := rsLazyRegex.First()       // submatch[0] (full match)
-lastMatch   := rsLazyRegex.Last()        // submatch[len-1]
-firstOrDef  := rsLazyRegex.FirstOrDefault("default")
-```
-
 ### Modern Refactored Store Implementation
-
 
 ```go
 // ✅ MODERN PATTERN: Single ResultMap return envelope with structured AppError
@@ -298,7 +274,7 @@ func parseImportSQLite(filePath string) ScheduleExportBundleResult {
 1. **Single Source of Truth:** All structs, enums, and Result aliases live in one predictable, standardized file (`types.go`).
 2. **Zero Generic Clutter at Call Sites:** Callers use `ScheduleExportBundleResult` instead of typing `result.ResultSlice[ScheduleExportBundle]` repeatedly across dozens of files.
 3. **Seamless Refactoring:** If the underlying envelope changes (e.g. from slice to pageable collection), modifying `types.go` updates the entire package and all callers without touching implementation files.
-4. **Strict Alignment with Specs:** Fully adheres to `02-spec/02-coding-guidelines/01-cross-language/27-types-folder-convention.md`.
+4. **Strict Alignment with Specs:** Fully adheres to `spec/02-coding-guidelines/01-cross-language/27-types-folder-convention.md`.
 
 ---
 
@@ -652,23 +628,23 @@ All methods below are declared on **pointer receivers** (`*Result[T]`, `*ResultS
 
 ---
 
-## Error Management Learning Checklist (`02-spec/03-error-manage/`)
+## Error Management Learning Checklist (`spec/03-error-manage/`)
 
 Before refactoring error handling in any package, the agent must study and enforce the repository error management specifications:
 
-- [ ] **Universal `*appfault.AppError` Standard (`02-spec/03-error-manage/01-index.md`):**
+- [ ] **Universal `*appfault.AppError` Standard (`spec/03-error-manage/01-index.md`):**
   - Never return bare `error` from domain services, repositories, or business logic.
   - Wrap third-party and standard library errors with `appfault.New()` or `appfault.Wrap()`.
-- [ ] **Structured Error Codes (`02-spec/03-error-manage/03-error-code-registry/02-registry.md`):**
+- [ ] **Structured Error Codes (`spec/03-error-manage/03-error-code-registry/02-registry.md`):**
   - All errors must carry a typed `ErrorCode` string identifying the fault category (e.g. `ErrDatabaseQuery`, `ErrValidationFailed`, `ErrNotFound`).
-- [ ] **Deterministic Error Handling & Envelopes (`02-spec/03-error-manage/02-error-architecture/02-error-handling-reference.md`):**
+- [ ] **Deterministic Error Handling & Envelopes (`spec/03-error-manage/02-error-architecture/02-error-handling-reference.md`):**
   - Use `appfault.Ok()`, `appfault.OkMap()`, and `appfault.OkSlice()` for successful results.
   - Use `appfault.Fail()`, `appfault.FailMap()`, and `appfault.FailSlice()` for failed results.
-- [ ] **Universal Response Envelopes (`02-spec/03-error-manage/02-error-architecture/05-response-envelope/05-response-envelope-reference.md`):**
+- [ ] **Universal Response Envelopes (`spec/03-error-manage/02-error-architecture/05-response-envelope/05-response-envelope-reference.md`):**
   - HTTP handlers and JSON serializers marshal `Result` and `ResultMap` into universal JSON response envelopes `{ "data": ..., "appError": ... }`.
-- [ ] **Go AppError Architecture (`02-spec/03-error-manage/02-error-architecture/06-apperror-package/03-go-apperror-linter-spec.md`):**
+- [ ] **Go AppError Architecture (`spec/03-error-manage/02-error-architecture/06-apperror-package/03-go-apperror-linter-spec.md`):**
   - Strict enforcement of `*appfault.AppError` return types and monadic helper methods across Go packages.
-- [ ] **Result Types Specification (`02-spec/03-error-manage/02-error-architecture/06-apperror-package/01-apperror-reference/04-result-types.md`):**
+- [ ] **Result Types Specification (`spec/03-error-manage/02-error-architecture/06-apperror-package/01-apperror-reference/04-result-types.md`):**
   - Mandatory implementation of pointer-attached null safety and the 4 core predicates (`IsCountOtherThan`, `IsEmpty`, `HasRecord`, `IsDefined`) on all result containers.
 
 ---
@@ -710,6 +686,30 @@ rg --pcre2 "func\s+[A-Za-z0-9_]+\([^\)]*\)\s+(?:result\.)?Result(?:Slice|Map)?\[
 ```
 
 ---
+
+### Fast File Discovery & Reading via Python Toolchain (Mandatory Acceleration)
+
+To avoid 50-result tool truncation limits and eliminate multi-turn exploratory roundtrips, the AI agent MUST use the repository's dedicated Python discovery scripts first:
+
+1. **Inventory Target Files (with `--limit` option):**
+   ```bash
+   python 03-ai-scripts/11-fast-file-scanner.py --lang go,ts --limit 100 --stats
+   ```
+2. **Fast Cached Grep (<15ms, with `--limit` option):**
+   ```bash
+   python 03-ai-scripts/12-fast-cached-grep.py --pattern "<search-pattern>" --lang go --limit 50
+   ```
+3. **Sub-Millisecond Folder & File Exploration (with `--limit` option):**
+   ```bash
+   python 03-ai-scripts/17-fast-file-reader.py --list-folder <folder-path> --ext .go --limit 50
+   python 03-ai-scripts/17-fast-file-reader.py --read-file <file-path> --max-bytes 100000
+   python 03-ai-scripts/17-fast-file-reader.py --search-pattern "<pattern>" --path <folder-path> --limit 50
+   ```
+4. **Subsystem & Topology Overview:**
+   ```bash
+   python 03-ai-scripts/18-codebase-topology-discoverer.py --summary
+   ```
+Do not rely on standard search tools with 50-item truncation when discovering repository-wide violations.
 
 ## 2-Agent Parallel Orchestration
 
@@ -777,3 +777,4 @@ To survive large codebases without hitting step limits or context loss, execute 
 - **NO ABSOLUTE PATHS:** Never write absolute filesystem paths (`C:\...`, `/home/...`) or `file:///` URIs. Use strict relative Git paths starting from the repository root.
 - **NO UPPERCASE FILENAMES:** Every file created or edited must be strictly lowercase.
 - **NO MULTI-VALUE TUPLES:** Eliminate `(T, error)` in favor of `Result[T]`, `ResultMap[K, V]`, or `ResultSlice[T]`.
+

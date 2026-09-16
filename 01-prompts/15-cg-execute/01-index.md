@@ -13,7 +13,7 @@ N = total self-loop steps budget that the agents will perform.
 
 ### Master Task Checklist (Atomic Numbered Steps)
 
-1. [ ] /goal Phase 1 (Step A): Deeply scan the target codebase to inventory all architectural violations and anti-patterns.
+1. [ ] /goal Phase 1 (Step A): Deeply scan the target codebase using the fast Python discovery tools (`11-fast-file-scanner.py`, `12-fast-cached-grep.py`, `17-fast-file-reader.py` with `--limit`) to inventory all architectural violations and anti-patterns without truncation.
 2. [ ] /goal Phase 1 (Step B): Write the master audit specification in `.lovable/plans/pending/` with an exhaustive Violation Ledger.
 3. [ ] /goal Phase 1 (Step C): Decompose the master plan into granular, atomic subtasks in `.lovable/plans/subtasks/`.
 4. [ ] /goal Phase 1 (Step D): Verify or create the automated quality linter and register in `03-ai-scripts/01-index.md`.
@@ -62,13 +62,12 @@ Prompts are sequenced according to priority. Error management, control-flow flat
 | **16** | [`16-multi-language-enums-and-traits.md`](./16-multi-language-enums-and-traits.md) | Multi-Language Enums, Traits & Pattern Matching | `cg-enums-traits`, `cg-enums`, `cg-execute enums`, `audit enums` | PHP 8.1+ Backed Enums + `HasEnumHelpers` trait, Rust ADT Enums + exhaustive `match`, Go custom enums + stringers, `*Type` suffixes | `check-enum-guidelines.py`, `05-guideline-autofixer.py` |
 | **17** | [`17-terminal-ui-and-cli-styling.md`](./17-terminal-ui-and-cli-styling.md) | Terminal UI, CLI Styling, Lipgloss & Animation Architecture | `cg-terminal-ui`, `cg-cli-style`, `cg-lipgloss`, `audit terminal ui` | Bright bold 9X ANSI palette, Catppuccin pastel cycling, 2-column width caps (max width 26), intent banners, clone spinners, version footers | `09-cli-help-auditor.py` |
 | **18** | [`18-function-argument-reduction-and-params.md`](./18-function-argument-reduction-and-params.md) | Argument Reduction, Parameter Structs & Return Architecture | `cg-argument-reduction`, `cg-params`, `cg-struct-params`, `cg-execute params` | Parameter structs (`*Params`) for >2–3 args, value-based passing, affirmative boolean fields (`is`/`has`), mandatory `*apperror.AppError` returns (zero void in Go), framework error conversion | `check-function-lengths.py`, `check-error-management.py` |
-| **19** | [`19-result-wrapper-and-apperror-returns.md`](./19-result-wrapper-and-apperror-returns.md) | Result Wrapper Types, Collections & AppError Returns | `cg-result-wrapper`, `cg-apperror-returns`, `cg-execute result-wrapper` | Eliminate multi-value error tuples, ResultMap/ResultSlice/Result wrappers, pointer null-safety, outer-layer inspection predicates (`IsSuccess`, `IsFailure`, `IsDefined`, `IsCountOtherThan`) | `check-error-management.py` |
-| **20** | [`20-extract-generic-types-to-types-go.md`](./20-extract-generic-types-to-types-go.md) | Extract Generic Types to `types.go` | `cg-extract-types`, `cg-execute types`, `audit types` | Centralize domain structs and repeated Result envelopes into package-level `types.go` as single reusable types everywhere | `check-function-lengths.py` |
+| **19** | [`19-result-wrapper-and-apperror-returns.md`](./19-result-wrapper-and-apperror-returns.md) | Result Wrapper Types, Collections & AppError Returns | `cg-result-wrapper`, `cg-apperror-returns`, `cg-execute result-wrapper` | Eliminate multi-value `(T, error)` tuples and `(map[K]V, error)`, return single `Result[T]`/`ResultMap[K, V]`/`ResultSlice[T]`, outer inspection methods (`IsSuccess`, `IsFailure`, `HasError`, `Data`, `AppError`), zero dual handling | `check-error-management.py`, `check-function-lengths.py` |
+| **20** | [`20-extract-generic-types-to-types-go.md`](./20-extract-generic-types-to-types-go.md) | Extracting Generic Types, Envelopes & Models to `types.go` | `cg-types-go`, `cg-extract-types`, `cg-execute types-go`, `extract-generic-types` | Centralize domain structs, repeated generic Result wrappers (`ResultSlice[T]`, `ResultMap[K, V]`, `Result[T]`), and enums into package-level `types.go` as single reusable named types everywhere | `check-error-management.py`, `check-function-lengths.py` |
 | **21** | [`21-lazy-regex-and-pattern-matching.md`](./21-lazy-regex-and-pattern-matching.md) | Lazy Regex, Centralized Pattern Caching & Match Result Diagnostics | `cg-lazyregex`, `cg-regex`, `cg-execute regex` | Total ban on raw `regexp.MustCompile`, thread-safe `lazyregex.New(...)`, wrapped `MatchResult` (`ResultGroup`) with rich `AppError` test diagnostics showing pattern, comparing text, and character length | `golangci-lint`, `check-boolean-guidelines.py` |
 | **22** | [`22-file-size-and-function-reduction.md`](./22-file-size-and-function-reduction.md) | File Size & Function Size Reduction | `cg-size-reduction`, `cg-file-reduction`, `cg-function-reduction`, `cg-execute size` | Two-part reduction (functions <= 8-15 lines first, then files < 100 lines), zero line compression / whitespace removal, wrapper objects, boolean conventions, build verification at end only | `check-file-sizes.py`, `check-function-lengths.py` |
 
 ---
-
 
 ## Canonical Sizing Tier & Formatting Rules
 
@@ -124,7 +123,7 @@ Every prompt in this suite operates using a strict two-phase loop budget:
 ### Phase 1: Scan, Spec & Subtasks (Steps 1 to N/2)
 
 1. **Memory Ingestion:** Ingest `.lovable/coding-guidelines.md`, `.lovable/strictly-avoid.md`, and recent issues in `.lovable/memory/issues/`.
-2. **High-Speed Violation Scan:** Run `python 03-ai-scripts/11-fast-file-scanner.py --check` and `python 03-ai-scripts/12-fast-cached-grep.py "<pattern>"` to detect AST violations across the codebase in milliseconds.
+2. **High-Speed Violation Scan:** Run `python 03-ai-scripts/11-fast-file-scanner.py --lang <lang> --limit 100 --stats`, `python 03-ai-scripts/12-fast-cached-grep.py --pattern "<pattern>" --limit 50`, `python 03-ai-scripts/17-fast-file-reader.py --list-folder <dir> --limit 50`, and `python 03-ai-scripts/18-codebase-topology-discoverer.py --summary` to detect AST violations and explore directory topologies in milliseconds without tool truncation.
 3. **Master Spec Creation:** Write `.lovable/plans/pending/xx-<slug>-audit.md` capturing the full violation ledger, affected files, line numbers, and acceptance criteria.
 4. **Subtask Decomposition:** Break down the master plan into granular subtasks in `.lovable/plans/subtasks/xx-<slug>/01-<subtask-title>.md`, `02-<subtask-title>.md`, etc.
 5. **Linter Hook Verification:** Check if the automated linter script exists in `linter-scripts/`. If missing, generate the linter script and connect it to `03-ai-scripts/06-cicd-local-runner.py` and CI/CD pipelines.

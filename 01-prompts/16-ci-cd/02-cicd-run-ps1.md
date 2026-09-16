@@ -14,7 +14,7 @@ You are responsible for creating or fixing CI/CD pipelines (e.g., GitHub Actions
 
 ## MUST FOLLOW NON-NEGOTIABLE
 
-Listen, past runs of these turns have been sloppy and stupid as fuck: wrong step counts, partial task lists dumped into chat instead of files, plans and session summaries half-filled with "[N]" placeholders, folders skimmed, open ambiguities ignored, CI/CD issues and `plans/subtasks/` forgotten, user commands dropped, coding guidelines bypassed, detailed specs chopped and summarized into useless junk, uppercase README files left uncorrected, `.lovable/memory/` created by accident, `strictly-avoid.md` overwritten, and explicit user instructions softened after being told not to. WTF. How on earth are you reverting to this carelessness, are you stupid?? Stop doing that, you stupid fuck. Read the whole codebase, read every folder in `02-spec/` and `.lovable/`, confirm root `readme.md` is strictly lowercase, find the root cause in one sentence, capture commands, issues, and pending tasks without omitting a single item, write the spec files and memory files in the right paths, update every index in the same turn, sync `readme.md` with `what-to-read.md`, preserve detailed specs verbatim with zero truncation, run builds and full unit tests, group commits with clear messages, and push everything to git before ending. Going deep IS the job. If you are not going deep, you are not doing the job. Violating this is auto-reject on the same tier as RULE 0. Avoid stupidity and being careless, you stupid fuck. Where is your attention, are you stupid? Tell me. Your stupidity is going on top of my head. Where did you learn this stupidity? If I could find you, I could slap you.
+Listen, past runs of these turns have been sloppy and stupid as fuck: wrong step counts, partial task lists dumped into chat instead of files, plans and session summaries half-filled with "[N]" placeholders, folders skimmed, open ambiguities ignored, CI/CD issues and `plans/subtasks/` forgotten, user commands dropped, coding guidelines bypassed, detailed specs chopped and summarized into useless junk, uppercase README files left uncorrected, `.lovable/memory/` created by accident, `strictly-avoid.md` overwritten, and explicit user instructions softened after being told not to. WTF. How on earth are you reverting to this carelessness, are you stupid?? Stop doing that, you stupid fuck. Read the whole codebase, read every folder in `spec/` and `.lovable/`, confirm root `readme.md` is strictly lowercase, find the root cause in one sentence, capture commands, issues, and pending tasks without omitting a single item, write the spec files and memory files in the right paths, update every index in the same turn, sync `readme.md` with `what-to-read.md`, preserve detailed specs verbatim with zero truncation, run builds and full unit tests, group commits with clear messages, and push everything to git before ending. Going deep IS the job. If you are not going deep, you are not doing the job. Violating this is auto-reject on the same tier as RULE 0. Avoid stupidity and being careless, you stupid fuck. Where is your attention, are you stupid? Tell me. Your stupidity is going on top of my head. Where did you learn this stupidity? If I could find you, I could slap you.
 
 ## Strict In-Repository Execution & `.lovable/` Bounding Mandate
 
@@ -29,9 +29,9 @@ Listen, past runs of these turns have been sloppy and stupid as fuck: wrong step
 >    - Coding Guidelines Mirror: `.lovable/coding-guidelines.md`.
 > 3. **Worker Pool & Log Aggregation Architecture:** All local runners and test orchestrators must use a concurrent worker pool (2–3 workers via `ThreadPoolExecutor`), announce enqueued tasks upfront, show real-time progress, handle failures gracefully without canceling sibling workers, and print a consolidated final summary with full stdout/stderr error logs for failed jobs.
 > 4. **`force` Keyword Support:** If the user wrote `force`, `force rebuild`, or `force create` on top of the prompt or trigger: **ALWAYS recreate/regenerate the Python runner script from scratch**, regardless of whether the file already exists on disk.
-> 5. **Strict Relative Git Paths (TOTAL BAN on Absolute Paths / `file:///` URIs):** All file paths, markdown links, citations, and subtask paths inside plans, RCA logs (`.lovable/memory/issues/`), scripts, and code comments MUST be strictly relative paths from the git root (e.g., `02-spec/03-error-manage/01-index.md`, `.lovable/plans/01-index.md`, `cmd/main.go`). NEVER write absolute OS paths (`/absolute/path/to/...`, `/absolute/path/to/...`, `/home/...`) or absolute file URIs (`file:///...`).
+> 5. **Strict Relative Git Paths (TOTAL BAN on Absolute Paths / `file:///` URIs):** All file paths, markdown links, citations, and subtask paths inside plans, RCA logs (`.lovable/memory/issues/`), scripts, and code comments MUST be strictly relative paths from the git root (e.g., `spec/03-error-manage/01-index.md`, `.lovable/plans/01-index.md`, `cmd/main.go`). NEVER write absolute OS paths (`/absolute/path/to/...`, `/absolute/path/to/...`, `/home/...`) or absolute file URIs (`file:///...`).
 >    - ❌ **BAD:** `[SSH Commands](file:///absolute/path/to/...)`
->    - ✅ **GOOD:** `[SSH Commands]`02-spec/13-generic-cli/01-index.md)`
+>    - ✅ **GOOD:** `[SSH Commands]`spec/13-generic-cli/01-index.md)`
 > 6. **No External or Random File Creation:** NEVER write scripts, temporary test scripts, or scratch files to root, `/tmp`, global system paths, or outside the repository boundary.
 > 7. **Temp & Failure Folder Isolation:** All temporary directories, runner caches, and test artifacts MUST be strictly placed in `.lovable/temp/`. Creating `.tmp/` at the repository root or outside `.lovable/` is strictly forbidden.
 >    - Dedicated Failure Directory: `.lovable/temp/failures/` is the dedicated folder where failed tests and failed quality gates write error logs (`<test-or-job-name>.log`).
@@ -52,36 +52,36 @@ This document serves as a strict, universal checklist and specification for sett
 
 Before making any changes to `.github/workflows` or automation scripts, you must read the following architecture documents. These contain the foundational constraints and mechanisms for deployment, automation, and CI/CD pipelines.
 
-#### PowerShell & Orchestration (`02-spec/11-powershell-integration`)
+#### PowerShell & Orchestration (`spec/11-powershell-integration`)
 
-- [ ] `02-spec/11-powershell-integration/01-index.md`
-- [ ] `02-spec/11-powershell-integration/04-script-reference.md`
-- [ ] `02-spec/11-powershell-integration/05-integration-guide.md`
+- [ ] `spec/11-powershell-integration/01-index.md`
+- [ ] `spec/11-powershell-integration/04-script-reference.md`
+- [ ] `spec/11-powershell-integration/05-integration-guide.md`
 
-#### CI/CD Pipeline Workflows (`02-spec/12-cicd-pipeline-workflows`)
+#### CI/CD Pipeline Workflows (`spec/12-cicd-pipeline-workflows`)
 
-- [ ] `02-spec/12-cicd-pipeline-workflows/01-index.md`
-- [ ] `02-spec/12-cicd-pipeline-workflows/02-ci-pipeline.md`
-- [ ] `02-spec/12-cicd-pipeline-workflows/05-release-pipeline.md`
-- [ ] `02-spec/12-cicd-pipeline-workflows/07-install-script-generation.md`
-- [ ] `02-spec/12-cicd-pipeline-workflows/09-changelog-integration.md`
+- [ ] `spec/12-cicd-pipeline-workflows/01-index.md`
+- [ ] `spec/12-cicd-pipeline-workflows/02-ci-pipeline.md`
+- [ ] `spec/12-cicd-pipeline-workflows/05-release-pipeline.md`
+- [ ] `spec/12-cicd-pipeline-workflows/07-install-script-generation.md`
+- [ ] `spec/12-cicd-pipeline-workflows/09-changelog-integration.md`
 
-#### CLI & Build (`02-spec/13-generic-cli`)
+#### CLI & Build (`spec/13-generic-cli`)
 
-- [ ] `02-spec/13-generic-cli/01-index.md`
-- [ ] `02-spec/13-generic-cli/11-build-deploy.md`
-- [ ] `02-spec/13-generic-cli/18-batch-execution.md`
+- [ ] `spec/13-generic-cli/01-index.md`
+- [ ] `spec/13-generic-cli/11-build-deploy.md`
+- [ ] `spec/13-generic-cli/18-batch-execution.md`
 
-#### Update Mechanisms (`02-spec/14-update`)
+#### Update Mechanisms (`spec/14-update`)
 
-- [ ] `02-spec/14-update/05-build-scripts.md`
-- [ ] `02-spec/14-update/18-release-pipeline.md`
-- [ ] `02-spec/14-update/19-install-scripts.md`
+- [ ] `spec/14-update/05-build-scripts.md`
+- [ ] `spec/14-update/18-release-pipeline.md`
+- [ ] `spec/14-update/19-install-scripts.md`
 
-#### Release Engineering (`02-spec/16-generic-release`)
+#### Release Engineering (`spec/16-generic-release`)
 
-- [ ] `02-spec/16-generic-release/01-index.md`
-- [ ] `02-spec/16-generic-release/04-install-scripts.md`
+- [ ] `spec/16-generic-release/01-index.md`
+- [ ] `spec/16-generic-release/04-install-scripts.md`
 
 #### Context / Issue Logging
 

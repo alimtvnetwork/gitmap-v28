@@ -27,7 +27,7 @@ PHASE_2_STEPS = N / 2   (Steps N/2+1 .. N: Parallel Function & File Extraction, 
 
 ### Master Task Checklist (Atomic Numbered Steps)
 
-1. [ ] /goal Phase 1 (Step A - Discovery & Inventory): Scan all codebase source files. Exclude allowed exceptions (JSON, types, definitions, maps, vars, consts). Identify all files exceeding 100 lines and all functions exceeding 8–15 lines. Record exact file paths and offending line ranges.
+1. [ ] /goal Phase 1 (Step A - Discovery & Inventory): Deeply scan the target codebase using the fast Python discovery tools (`11-fast-file-scanner.py`, `12-fast-cached-grep.py`, `17-fast-file-reader.py` with `--limit`) to inventory all architectural violations and anti-patterns without truncation.
 2. [ ] /goal Phase 1 (Step B - Master Plan Generation): Write the master architectural specification into `.lovable/plans/pending/xx-size-reduction.md` with an exhaustive Violation Ledger table (File, Initial Lines, Functions to Extract, Planned Destination Files, Wrapper Structs Needed).
 3. [ ] /goal Phase 1 (Step C - Subtask Decomposition): Decompose the master plan into lean, single-responsibility subtask files in `.lovable/plans/subtasks/xx-size-reduction/01-<subtask>.md`, `02-<subtask>.md`, etc.
 4. [ ] /goal Phase 1 (Step D - Mandatory Auto-Loop): As soon as Phase 1 planning completes, the master orchestrator **MUST NOT STOP or ask the user for permission**. It MUST immediately self-loop and transition directly into Phase 2 execution mode.
@@ -41,8 +41,35 @@ PHASE_2_STEPS = N / 2   (Steps N/2+1 .. N: Parallel Function & File Extraction, 
 12. [ ] /goal Phase 3 (Step B - Final Step Git Commit & Push): Stage all modified files, consolidated plans, and memory records (`git add -A`), commit them in a single clean grouped atomic commit, and push to git. Never commit per-file.
 13. [ ] /learn Ingest `.lovable/memory/01-index.md` for project memory index and past learnings.
 14. [ ] /learn Ingest `.lovable/strictly-avoid.md` for banned anti-patterns and strict constraints.
-15. [ ] /learn Ingest `02-spec/02-coding-guidelines/02-canonical-size-tier.md` for canonical size tiers.
+15. [ ] /learn Ingest `spec/02-coding-guidelines/02-canonical-size-tier.md` for canonical size tiers.
 16. [ ] /learn Ingest `.lovable/coding-guidelines.md` for master consolidated coding guidelines.
+
+---
+
+### Fast File Discovery & Reading via Python Toolchain (Mandatory Acceleration)
+
+To avoid 50-result tool truncation limits and eliminate multi-turn exploratory roundtrips, the AI agent MUST use the repository's dedicated Python discovery scripts first:
+
+1. **Inventory Target Files (with `--limit` option):**
+   ```bash
+   python 03-ai-scripts/11-fast-file-scanner.py --lang go,ts --limit 100 --stats
+   ```
+2. **Fast Cached Grep (<15ms, with `--limit` option):**
+   ```bash
+   python 03-ai-scripts/12-fast-cached-grep.py --pattern "<search-pattern>" --lang go --limit 50
+   ```
+3. **Sub-Millisecond Folder & File Exploration (with `--limit` option):**
+   ```bash
+   python 03-ai-scripts/17-fast-file-reader.py --list-folder <folder-path> --ext .go --limit 50
+   python 03-ai-scripts/17-fast-file-reader.py --read-file <file-path> --max-bytes 100000
+   python 03-ai-scripts/17-fast-file-reader.py --search-pattern "<pattern>" --path <folder-path> --limit 50
+   ```
+4. **Subsystem & Topology Overview:**
+   ```bash
+   python 03-ai-scripts/18-codebase-topology-discoverer.py --summary
+   python 03-ai-scripts/13-file-size-guard.py
+   ```
+Do not rely on standard search tools with 50-item truncation when discovering repository-wide violations.
 
 ---
 

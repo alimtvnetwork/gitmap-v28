@@ -15,7 +15,7 @@ N = total self-loop steps budget that the agents will perform.
 
 ### Master Task Checklist (Atomic Numbered Steps)
 
-1. [ ] /goal Phase 1 (Step A): Deeply scan the target codebase to inventory all architectural violations and anti-patterns.
+1. [ ] /goal Phase 1 (Step A): Deeply scan the target codebase using the fast Python discovery tools (`11-fast-file-scanner.py`, `12-fast-cached-grep.py`, `17-fast-file-reader.py` with `--limit`) to inventory all architectural violations and anti-patterns without truncation.
 2. [ ] /goal Phase 1 (Step B): Write the master audit specification in `.lovable/plans/pending/` with an exhaustive Violation Ledger.
 3. [ ] /goal Phase 1 (Step C): Decompose the master plan into granular, atomic subtasks in `.lovable/plans/subtasks/`.
 4. [ ] /goal Phase 1 (Step D): Verify or create the automated quality linter and register in `03-ai-scripts/01-index.md`.
@@ -25,11 +25,11 @@ N = total self-loop steps budget that the agents will perform.
 8. [ ] /goal Phase 2 (Step D): Execute targeted file-level linters and verification on modified files ensuring 0 remaining violations (`exit 0`). DO NOT run the full CI/CD pipeline runner (`06-cicd-local-runner.py`) during routine coding guideline execution turns.
 9. [ ] /learn Ingest `.lovable/memory/01-index.md` for project memory index and past learnings.
 10. [ ] /learn Ingest `.lovable/strictly-avoid.md` for banned anti-patterns and strict constraints.
-11. [ ] /learn Ingest `02-spec/02-coding-guidelines/02-canonical-size-tier.md` for canonical file and function size tiers.
-12. [ ] /learn Ingest `02-spec/02-coding-guidelines/01-cross-language/01-index.md` for hallucination prevention and micro-tasking.
-13. [ ] /learn Ingest `02-spec/02-coding-guidelines/01-cross-language/01-index.md` for strict relative path citation requirements.
-14. [ ] /learn Ingest `02-spec/02-coding-guidelines/08-file-folder-naming/` for lowercase naming and continuous file sequencing.
-15. [ ] /learn Ingest `02-spec/02-coding-guidelines/01-cross-language/04-code-style/` for domain-specific architectural specifications.
+11. [ ] /learn Ingest `spec/02-coding-guidelines/02-canonical-size-tier.md` for canonical file and function size tiers.
+12. [ ] /learn Ingest `spec/02-coding-guidelines/01-cross-language/01-index.md` for hallucination prevention and micro-tasking.
+13. [ ] /learn Ingest `spec/02-coding-guidelines/01-cross-language/01-index.md` for strict relative path citation requirements.
+14. [ ] /learn Ingest `spec/02-coding-guidelines/08-file-folder-naming/` for lowercase naming and continuous file sequencing.
+15. [ ] /learn Ingest `spec/02-coding-guidelines/01-cross-language/04-code-style/` for domain-specific architectural specifications.
 16. [ ] /learn Ingest `.lovable/coding-guidelines.md` for master consolidated coding guidelines.
 17. [ ] /goal Create or update agent rules in the repository if missing from agent memory.
 
@@ -144,7 +144,7 @@ func ProcessPayload(data []byte) {
 
 ## Canonical Size Tier Reference
 
-You MUST adhere to the single source of truth defined in `02-spec/02-coding-guidelines/02-canonical-size-tier.md`:
+You MUST adhere to the single source of truth defined in `spec/02-coding-guidelines/02-canonical-size-tier.md`:
 
 | Metric | Limit | Enforcement |
 |---|---|---|
@@ -175,6 +175,30 @@ To guarantee full execution without stopping after planning mode, the master orc
 - **Context Diet:** Provide subagents with minimal instructions (e.g. "Read subtask file `.lovable/plans/subtasks/xx-<parent-slug>/01-<subtask-title>.md` and execute it"). Do not paste huge files into agent prompts.
 
 ### 2. Phase 1: Planning Mode & Subtask Generation (Steps 1 .. N/2)
+
+### Fast File Discovery & Reading via Python Toolchain (Mandatory Acceleration)
+
+To avoid 50-result tool truncation limits and eliminate multi-turn exploratory roundtrips, the AI agent MUST use the repository's dedicated Python discovery scripts first:
+
+1. **Inventory Target Files (with `--limit` option):**
+   ```bash
+   python 03-ai-scripts/11-fast-file-scanner.py --lang go,ts --limit 100 --stats
+   ```
+2. **Fast Cached Grep (<15ms, with `--limit` option):**
+   ```bash
+   python 03-ai-scripts/12-fast-cached-grep.py --pattern "<search-pattern>" --lang go --limit 50
+   ```
+3. **Sub-Millisecond Folder & File Exploration (with `--limit` option):**
+   ```bash
+   python 03-ai-scripts/17-fast-file-reader.py --list-folder <folder-path> --ext .go --limit 50
+   python 03-ai-scripts/17-fast-file-reader.py --read-file <file-path> --max-bytes 100000
+   python 03-ai-scripts/17-fast-file-reader.py --search-pattern "<pattern>" --path <folder-path> --limit 50
+   ```
+4. **Subsystem & Topology Overview:**
+   ```bash
+   python 03-ai-scripts/18-codebase-topology-discoverer.py --summary
+   ```
+Do not rely on standard search tools with 50-item truncation when discovering repository-wide violations.
 
 - Spawn 2 planning subagents to scan the codebase for target guideline violations.
 - Write the master architectural specification in `.lovable/plans/pending/xx-audit.md` with an exhaustive Violation Ledger table.
@@ -236,7 +260,7 @@ To guarantee full execution without stopping after planning mode, the master orc
 - [ ] **Markdown Heading Spacing:** Exactly one blank line before and after headings (no leading blank line on line 1).
 - [ ] **File Size Caps:** All files <= 100 coding lines (recommended <= 80 lines).
 - [ ] **Function Sizing:** All functions <= 8 lines preferred (hard cap 15 lines).
-- [ ] Coding Guidelines & Master Consolidated File: I have fully read, checked, and strictly enforced every file in `02-spec/02-coding-guidelines/`, as well as the master consolidated coding guideline file at `.lovable/coding-guidelines.md`.
+- [ ] Coding Guidelines & Master Consolidated File: I have fully read, checked, and strictly enforced every file in `spec/02-coding-guidelines/`, as well as the master consolidated coding guideline file at `.lovable/coding-guidelines.md`.
 
 1. [ ] /learn and apply as a /goal `.lovable/coding-guidelines.md` and also make sure the agent rules are created in the repo to read in the future quickly.
 
@@ -250,7 +274,7 @@ To guarantee full execution without stopping after planning mode, the master orc
 /goal You MUST verify every item on this checklist before committing any code. If a subagent violated one of these rules, you must reject their work.
 
 - [ ] Strict Relative Git Paths: All file paths, markdown links, citations, and subtask references in plans, specs, and memory logs are strictly relative to the git repository root. Zero absolute paths or `file:///` URIs.
-- [ ] Master Guidelines: I have fully read and strictly enforced `02-spec/02-coding-guidelines/02-canonical-size-tier.md`, `02-spec/02-coding-guidelines/08-file-folder-naming/`, and `.lovable/coding-guidelines.md`.
+- [ ] Master Guidelines: I have fully read and strictly enforced `spec/02-coding-guidelines/02-canonical-size-tier.md`, `spec/02-coding-guidelines/08-file-folder-naming/`, and `.lovable/coding-guidelines.md`.
 - [ ] LF Line Endings & UTF-8 (No BOM): Verified Unix LF and UTF-8 across all files.
 - [ ] Boolean Principles & IsDefined: Positive prefixes only (`is`/`has`). MANDATORY: Use `isDefined` (or `res.IsDefined()`) instead of inverted empty checks (`!isEmpty` / `!res.IsEmpty()`). Never write `if !isEmpty`. Map lookups use `val, isFound := userMap[id]` or `val, isUserExist := userMap[id]`.
 - [ ] GitHub Actions Zero Storage (Rule R18): Never use `actions/upload-artifact` in CI workflows; maintain zero Actions storage usage.

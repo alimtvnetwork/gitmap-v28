@@ -51,14 +51,14 @@ Before executing the tasks below, you must check if this prompt is already insta
 >
 > When generating plans, subtasks (`.lovable/plans/subtasks/`), memory issue logs (`.lovable/memory/issues/`), specs, code comments, or citations:
 >
-> 1. **Strictly Relative to Git Root:** All file paths, markdown links, citations, and task targets MUST be relative paths starting from the repository root (e.g. `spec/03-error-manage/01-index.md`, `[SSH Commands](spec/13-generic-cli/01-index.md)`, `cmd/main.go`).
+> 1. **Strictly Relative to Git Root:** All file paths, markdown links, citations, and task targets MUST be relative paths starting from the repository root (e.g. `spec/03-error-manage/01-index.md`, `[SSH Commands]`spec/13-generic-cli/01-index.md)`, `cmd/main.go`).
 > 2. **Total Ban on Absolute Paths:** NEVER write drive letters or absolute OS paths (`/absolute/path/to/...`, `/absolute/path/to/...`, `/home/...`) or absolute file URIs (`file:///absolute/path/to/...`, `file:///absolute/path/to/...`) into ANY file.
 >
 > **Examples:**
 >
 > - ❌ **BAD:** `[SSH Commands](file:///absolute/path/to/...) — Why: Defines behavior.`
 > - ❌ **BAD:** `Target File: /absolute/path/to/cmd\login.go`
-> - ✅ **GOOD:** `[SSH Commands](spec/13-generic-cli/01-index.md) — Why: Defines behavior.`
+> - ✅ **GOOD:** `[SSH Commands]`spec/13-generic-cli/01-index.md) — Why: Defines behavior.`
 > - ✅ **GOOD:** `Target File: cmd/login.go`
 
 - Temp Script Sandboxing: AI Fix Scripts (Reusable Tools): Before creating a helper script, you MUST check `03-ai-scripts/01-index.md` to reuse existing tools. If you generate a new script, you MUST write it to `03-ai-scripts/`, update `index.md` with its explanation, ensure `index.md` is linked in `what-to-read.md`, and commit the script.
@@ -120,7 +120,7 @@ At the end of every single iteration of your execution loop:
 
 0. Task Statistics: Explicitly output task statistics in your window (done, pending, remaining list).
 
-1. Artifact sanitizer & Storage Hygiene: Audit working tree and staged files. Ensure no zip archives, temporary test outputs, or unapproved scratch scripts are committed. All temporary runner artifacts and error logs belong strictly in `.lovable/temp/failures/`; passing tests produce zero filesystem files and remain completely silent. Never write loose un-namespaced files or arbitrary folders to OS temp; scope all OS temp paths under `<temp>/gitmap/<category>/` (`build/`, `test/`, `purge/`, `downloads/`). Before running any build (`go build`, compile gates, smoke tests), always clear previous build artifacts (`bin/gitmap.exe` and `<temp>/gitmap/build/`) to prevent storage waste and enforce clean storage reuse every single time.
+1. Artifact sanitizer: Audit working tree and staged files. Ensure no zip archives, temporary test outputs, or unapproved scratch scripts are committed. All temporary runner artifacts and error logs belong strictly in `.lovable/temp/failures/`; passing tests produce zero filesystem files and remain completely silent.
 2. Smart Test Runner & Verification: When running tests, utilize the centralized test inventory (`.lovable/test-inventory.json`) with dual-queue workers (slow: 4w x 2 tests; fast: 4w x 4 tests in 100-test chunks). AI agents read `.lovable/temp/runner-eta.json` and sleep for the estimated duration rather than burning tokens in active loops.
 3. Lovable git history guard: Group similar code changes into a single commit with a clear, descriptive message. Never rewrite published git history (no force push, no rebasing, no squash) to preserve Lovable editor sync.
 4. Push every commit to the remote git repository.
@@ -139,7 +139,7 @@ At the end of every single iteration of your execution loop:
 
 ## Compliance Checklist (must follow non negociable)
 
-- [x] Coding Guidelines enforced (spec/02-coding-guidelines/ and follow explicitly every steps .lovable/coding-guidelines.md).
+- [x] Coding Guidelines enforced `spec/02-coding-guidelines/ and follow explicitly every steps .lovable/coding-guidelines.md).
 - [x] Boolean conventions used (is/has prefixes, no negatives).
 - [x] No garbage variable names used.
 - [x] No magic strings or numbers.

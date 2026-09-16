@@ -15,7 +15,7 @@ N = total self-loop steps budget that the agents will perform.
 
 ### Master Task Checklist (Atomic Numbered Steps)
 
-1. [ ] /goal Phase 1 (Step A): Deeply scan the target codebase to inventory all architectural violations and anti-patterns: bare `ok`, inverted `!isEmpty`, negative names (`isNot*`), awkward `isExists`, and compound negative chains (`!a || !b || c`).
+1. [ ] /goal Phase 1 (Step A): Deeply scan the target codebase using the fast Python discovery tools (`11-fast-file-scanner.py`, `12-fast-cached-grep.py`, `17-fast-file-reader.py` with `--limit`) to inventory all architectural violations and anti-patterns without truncation.
 2. [ ] /goal Phase 1 (Step B): Write the master audit specification in `.lovable/plans/pending/` with an exhaustive Violation Ledger.
 3. [ ] /goal Phase 1 (Step C): Decompose the master plan into granular, atomic subtasks in `.lovable/plans/subtasks/`.
 4. [ ] /goal Phase 1 (Step D): Verify or create the automated quality linter and register in `03-ai-scripts/01-index.md`.
@@ -25,14 +25,14 @@ N = total self-loop steps budget that the agents will perform.
 8. [ ] /goal Phase 2 (Step D): Execute targeted file-level linters and verification on modified files ensuring 0 remaining violations (`exit 0`). DO NOT run the full CI/CD pipeline runner (`06-cicd-local-runner.py`) during routine coding guideline execution turns.
 9. [ ] /learn Ingest `.lovable/memory/01-index.md` for project memory index and past learnings.
 10. [ ] /learn Ingest `.lovable/strictly-avoid.md` for banned anti-patterns and strict constraints.
-11. [ ] /learn Ingest `02-spec/02-coding-guidelines/02-canonical-size-tier.md` for canonical file and function size tiers.
-12. [ ] /learn Ingest `02-spec/02-coding-guidelines/01-cross-language/01-index.md` for hallucination prevention and micro-tasking.
-13. [ ] /learn Ingest `02-spec/02-coding-guidelines/01-cross-language/01-index.md` for strict relative path citation requirements.
-14. [ ] /learn Ingest `02-spec/02-coding-guidelines/01-cross-language/02-boolean-principles/01-index.md` for implicit positive booleans and anti-negative rules.
-15. [ ] /learn Ingest `02-spec/02-coding-guidelines/01-cross-language/10-function-naming.md` for semantic verb and predicate prefix standards.
-16. [ ] /learn Ingest `02-spec/02-coding-guidelines/01-cross-language/11-key-naming-pascalcase.md` for domain-specific architectural specifications.
-17. [ ] /learn Ingest `02-spec/02-coding-guidelines/01-cross-language/12-no-negatives.md` for domain-specific architectural specifications.
-18. [ ] /learn Ingest `02-spec/02-coding-guidelines/` for domain-specific architectural specifications.
+11. [ ] /learn Ingest `spec/02-coding-guidelines/02-canonical-size-tier.md` for canonical file and function size tiers.
+12. [ ] /learn Ingest `spec/02-coding-guidelines/01-cross-language/01-index.md` for hallucination prevention and micro-tasking.
+13. [ ] /learn Ingest `spec/02-coding-guidelines/01-cross-language/01-index.md` for strict relative path citation requirements.
+14. [ ] /learn Ingest `spec/02-coding-guidelines/01-cross-language/02-boolean-principles/01-index.md` for implicit positive booleans and anti-negative rules.
+15. [ ] /learn Ingest `spec/02-coding-guidelines/01-cross-language/10-function-naming.md` for semantic verb and predicate prefix standards.
+16. [ ] /learn Ingest `spec/02-coding-guidelines/01-cross-language/11-key-naming-pascalcase.md` for domain-specific architectural specifications.
+17. [ ] /learn Ingest `spec/02-coding-guidelines/01-cross-language/12-no-negatives.md` for domain-specific architectural specifications.
+18. [ ] /learn Ingest `spec/02-coding-guidelines/` for domain-specific architectural specifications.
 19. [ ] /learn Ingest `.lovable/coding-guidelines.md` for master consolidated coding guidelines.
 20. [ ] /goal Create or update agent rules in the repository if missing from agent memory.
 
@@ -220,6 +220,30 @@ To guarantee full execution without stopping after planning mode, the master orc
 
 ### 2. Phase 1: Planning Mode & Subtask Generation (Steps 1 .. N/2)
 
+### Fast File Discovery & Reading via Python Toolchain (Mandatory Acceleration)
+
+To avoid 50-result tool truncation limits and eliminate multi-turn exploratory roundtrips, the AI agent MUST use the repository's dedicated Python discovery scripts first:
+
+1. **Inventory Target Files (with `--limit` option):**
+   ```bash
+   python 03-ai-scripts/11-fast-file-scanner.py --lang go,ts --limit 100 --stats
+   ```
+2. **Fast Cached Grep (<15ms, with `--limit` option):**
+   ```bash
+   python 03-ai-scripts/12-fast-cached-grep.py --pattern "<search-pattern>" --lang go --limit 50
+   ```
+3. **Sub-Millisecond Folder & File Exploration (with `--limit` option):**
+   ```bash
+   python 03-ai-scripts/17-fast-file-reader.py --list-folder <folder-path> --ext .go --limit 50
+   python 03-ai-scripts/17-fast-file-reader.py --read-file <file-path> --max-bytes 100000
+   python 03-ai-scripts/17-fast-file-reader.py --search-pattern "<pattern>" --path <folder-path> --limit 50
+   ```
+4. **Subsystem & Topology Overview:**
+   ```bash
+   python 03-ai-scripts/18-codebase-topology-discoverer.py --summary
+   ```
+Do not rely on standard search tools with 50-item truncation when discovering repository-wide violations.
+
 - Spawn 2 planning subagents to scan the codebase for target guideline violations.
 - Write the master architectural specification in `.lovable/plans/pending/xx-audit.md` with an exhaustive Violation Ledger table.
 - Decompose the master plan into granular subtasks in `.lovable/plans/subtasks/xx-<parent-slug>/01-<subtask-title>.md`, `02-<subtask-title>.md`, etc.
@@ -276,7 +300,7 @@ To guarantee full execution without stopping after planning mode, the master orc
 - [ ] **Inverted Guard Clauses:** Negative checks handled via inverted guard returns (`if (!hasColors) return null;`).
 - [ ] **Boolean Prefixes:** All booleans begin with is or has ONLY (all other prefixes like can, should, was, will, did, must are banned).
 - [ ] **PascalCase Acronyms:** All acronyms formatted as `UserId`, `ApiUrl`, `JsonData`.
-- [ ] Coding Guidelines & Master Consolidated File: I have fully read, checked, and strictly enforced every file in `02-spec/02-coding-guidelines/`, as well as the master consolidated coding guideline file at `.lovable/coding-guidelines.md`.
+- [ ] Coding Guidelines & Master Consolidated File: I have fully read, checked, and strictly enforced every file in `spec/02-coding-guidelines/`, as well as the master consolidated coding guideline file at `.lovable/coding-guidelines.md`.
 
 1. [ ] /learn and apply as a /goal `.lovable/coding-guidelines.md` and also make sure the agent rules are created in the repo to read in the future quickly.
 
@@ -290,7 +314,7 @@ To guarantee full execution without stopping after planning mode, the master orc
 /goal You MUST verify every item on this checklist before committing any code. If a subagent violated one of these rules, you must reject their work.
 
 - [ ] Strict Relative Git Paths: All file paths, markdown links, citations, and subtask references in plans, specs, and memory logs are strictly relative to the git repository root. Zero absolute paths or `file:///` URIs.
-- [ ] Master Guidelines: I have fully read and strictly enforced `02-spec/02-coding-guidelines/01-cross-language/02-boolean-principles/01-index.md`, `02-spec/02-coding-guidelines/01-cross-language/10-function-naming.md`, `02-spec/02-coding-guidelines/01-cross-language/11-key-naming-pascalcase.md`, `02-spec/02-coding-guidelines/01-cross-language/12-no-negatives.md`, and `.lovable/coding-guidelines.md`.
+- [ ] Master Guidelines: I have fully read and strictly enforced `spec/02-coding-guidelines/01-cross-language/02-boolean-principles/01-index.md`, `spec/02-coding-guidelines/01-cross-language/10-function-naming.md`, `spec/02-coding-guidelines/01-cross-language/11-key-naming-pascalcase.md`, `spec/02-coding-guidelines/01-cross-language/12-no-negatives.md`, and `.lovable/coding-guidelines.md`.
 - [ ] Zero Bare `ok`: All type assertions and map lookups use affirmative boolean names (`isAppErr`, `isFound`).
 - [ ] Positive Booleans & Inverted Guards: All booleans use affirmative names (`hasColors`, `hasPayload`); guard clauses invert condition (`if (!hasColors)`).
 

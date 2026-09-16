@@ -11,7 +11,7 @@ description: Autonomously orchestrate smart incremental test execution, centrali
 
 ### 1. Centralized Test Inventory (`.lovable/test-inventory.json`)
 
-- **Strictly Relative Paths:** Both `target_file` and `test_file` MUST be stored as repository-relative forward-slash paths (e.g., `cli/cmd/root.go`, `cli/cmd/root_test.go`). Total ban on absolute paths or `file:///` URIs.
+- **Strictly Relative Paths:** Both `target_file` and `test_file` MUST be stored as repository-relative forward-slash paths (e.g., `04-code/golang/examples/converter_and_enum_examples.go`, `04-code/golang/examples/converter_and_enum_examples_test.go`). Total ban on absolute paths or `file:///` URIs.
 - **First-Time Profiling:** First-time run executes all cataloged tests to record baseline elapsed timings, file hashes, and classification tiers.
 - **Incremental Dirty Tracking:** Subsequent test execution is strictly dirty-driven. A test runs if and only if:
   - Its target source file hash has changed (`target_file`), or
@@ -49,10 +49,10 @@ description: Autonomously orchestrate smart incremental test execution, centrali
 python 03-ai-scripts/33-test-inventory-generator.py
 
 # Record modified files under lock
-python 03-ai-scripts/33-test-inventory-generator.py --record "cli/cmd/root.go"
+python 03-ai-scripts/33-test-inventory-generator.py --record "04-code/golang/examples/converter_and_enum_examples.go"
 
 # Run smart incremental tests
-python 03-ai-scripts/06-cicd-local-runner.py --pkg cli/cmd
+python 03-ai-scripts/06-cicd-local-runner.py --pkg 04-code/golang/examples
 
 # Run full CI suite with tests (explicit command only)
 python 03-ai-scripts/06-cicd-local-runner.py --run-tests

@@ -1,8 +1,3 @@
----
-name: fix-spec-from-audit
-description: Autonomously remediate specification audit gaps and findings across spec folders.
----
-
 # Specification Remediation from Audit Findings — Execution Spec (must follow)
 
 > **Prompt Version:** 2.2.0
@@ -124,8 +119,8 @@ To prevent cross-task pollution and ensure seamless agent communication, every t
 - [ ] No Lingering Audit Files: `spec/25-app-spec-audit/` must be clean of the resolved audit file.
 - [ ] Strictly Unix LF (`\n`) line endings and UTF-8 encoding.
 - [ ] No absolute file paths or `file:///` URIs.
-- [ ] All 36 CI/CD gates green.
+- [ ] All CI/CD gates green via `--no-tests`.
 
 ## MUST FOLLOW NON-NEGOTIABLE
 
-Read the whole codebase, read every folder in `spec/` and `.lovable/`, confirm root `readme.md` is strictly lowercase, capture commands, issues, and pending tasks without omitting a single item, write the spec files and memory files in the right paths, update every index in the same turn, sync `readme.md` with `what-to-read.md`, preserve detailed specs verbatim with zero truncation, run builds and full unit tests, group commits with clear messages, and push everything to git before ending. Going deep IS the job.
+Read the whole codebase, read every folder in `spec/` and `.lovable/`, confirm root `readme.md` is strictly lowercase, capture commands, issues, and pending tasks without omitting a single item, write the spec files and memory files in the right paths, update every index in the same turn, sync `readme.md` with `what-to-read.md`, preserve detailed specs verbatim with zero truncation, run builds and quality gates via `--no-tests`, group commits with clear messages, and push everything to git before ending. Going deep IS the job.

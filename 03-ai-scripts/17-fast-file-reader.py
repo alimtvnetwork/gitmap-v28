@@ -7,9 +7,15 @@ Leverages tmp/cache/ paths for instant lookups (<1ms) with automatic fallback to
 All Enums, Constants, and Functions are imported directly from 02-shared-engine.py.
 
 Usage:
-  python 03-ai-scripts/17-fast-file-reader.py --list-folder <folder_path> [--ext .md,.ts]
+  python 03-ai-scripts/17-fast-file-reader.py --list-folder <folder_path> [--ext .md,.ts] [--limit 50]
   python 03-ai-scripts/17-fast-file-reader.py --read-file <file_path> [--max-bytes 50000]
-  python 03-ai-scripts/17-fast-file-reader.py --search-pattern "<term>" [--path <dir>]
+  python 03-ai-scripts/17-fast-file-reader.py --search-pattern "<term>" [--path <dir>] [--limit 50]
+
+Examples:
+  python 03-ai-scripts/17-fast-file-reader.py --list-folder 01-prompts --ext .md --limit 20
+  python 03-ai-scripts/17-fast-file-reader.py --read-file 01-prompts/15-cg-execute/01-index.md
+  python 03-ai-scripts/17-fast-file-reader.py --search-pattern "AppError" --path cli/ --limit 25
+  python 03-ai-scripts/17-fast-file-reader.py --search-pattern "func " --regex --limit 10
 """
 
 import argparse
@@ -43,8 +49,12 @@ CURRENT_DIR = engine.CURRENT_DIR
 EMPTY_STRING = engine.EMPTY_STRING
 CACHE_KEY_FILES = engine.CACHE_KEY_FILES
 
-def list_folder_contents(folder_path: str = CURRENT_DIR, extensions: tuple | set | None = None) -> None:
-    """Lists files and child directories within a folder."""
+def list_folder_contents(
+    folder_path: str = CURRENT_DIR,
+    extensions: tuple | set | None = None,
+    limit: int = 50
+) -> None:
+    """Lists files and child directories within a folder with configurable display limit."""
     start_time = time.perf_counter()
     norm_folder = normalize_rel_path(folder_path).rstrip(PATH_SEPARATOR)
     ext_set = normalize_extensions(extensions)
@@ -59,6 +69,7 @@ def list_folder_contents(folder_path: str = CURRENT_DIR, extensions: tuple | set
             prefix = norm_folder + PATH_SEPARATOR if norm_folder and norm_folder != CURRENT_DIR else EMPTY_STRING
             if prefix and not norm_f.startswith(prefix):
                 continue
+
             rel_to_folder = norm_f[len(prefix):] if prefix else norm_f
             if PATH_SEPARATOR in rel_to_folder:
                 subfolders.add(rel_to_folder.split(PATH_SEPARATOR)[0])
@@ -66,6 +77,7 @@ def list_folder_contents(folder_path: str = CURRENT_DIR, extensions: tuple | set
                 p = Path(norm_f)
                 if ext_set and p.suffix.lower() not in ext_set:
                     continue
+
                 files_in_folder.append(norm_f)
     else:
         p_folder = Path(norm_folder if norm_folder else CURRENT_DIR)
@@ -73,11 +85,13 @@ def list_folder_contents(folder_path: str = CURRENT_DIR, extensions: tuple | set
             for item in p_folder.iterdir():
                 if is_ignored_directory(item.name):
                     continue
+
                 if item.is_dir():
                     subfolders.add(item.name)
                 elif item.is_file():
                     if ext_set and item.suffix.lower() not in ext_set:
                         continue
+
                     files_in_folder.append(normalize_rel_path(item))
 
     elapsed_ms = (time.perf_counter() - start_time) * 1000
@@ -87,11 +101,18 @@ def list_folder_contents(folder_path: str = CURRENT_DIR, extensions: tuple | set
         print("  📂 Subdirectories:")
         for sf in sorted(subfolders):
             print(f"    • {sf}/")
+
     has_files = bool(files_in_folder)
     if has_files:
         print(f"  📄 Files ({len(files_in_folder)}):")
-        for f in sorted(files_in_folder):
+        effective_limit = limit if limit > 0 else len(files_in_folder)
+        for f in sorted(files_in_folder)[:effective_limit]:
             print(f"    • {f}")
+
+        has_more = len(files_in_folder) > effective_limit
+        if has_more:
+            print(f"    ... and {len(files_in_folder) - effective_limit} more files (use --limit 0 for all).")
+
     if not has_subfolders and not has_files:
         print("  (Empty directory or no matching files)")
 
@@ -116,12 +137,19 @@ def read_single_file(file_path: str, max_bytes: int = 100000) -> None:
     print(content)
     print("-" * 80)
 
-def search_files_by_pattern(pattern: str, target_dir: str = CURRENT_DIR, is_regex: bool = False) -> None:
-    """Fast regex or literal content pattern search across target folder."""
+def search_files_by_pattern(
+    pattern: str,
+    target_dir: str = CURRENT_DIR,
+    extensions: tuple | set | None = None,
+    is_regex: bool = False,
+    limit: int = 50
+) -> None:
+    """Fast regex or literal content pattern search across target folder with limit."""
     start_time = time.perf_counter()
     cache = load_repo_cache()
     compiled_re = re.compile(pattern if is_regex else re.escape(pattern), re.IGNORECASE)
     norm_root = normalize_rel_path(target_dir).rstrip(PATH_SEPARATOR)
+    ext_set = normalize_extensions(extensions)
 
     matches = []
     file_list = cache.get(CACHE_KEY_FILES, []) if (cache and CACHE_KEY_FILES in cache) else []
@@ -138,9 +166,14 @@ def search_files_by_pattern(pattern: str, target_dir: str = CURRENT_DIR, is_rege
         prefix = norm_root + PATH_SEPARATOR if norm_root and norm_root != CURRENT_DIR else EMPTY_STRING
         if prefix and not norm_f.startswith(prefix):
             continue
+
         p = Path(norm_f)
         if is_binary_file(p):
             continue
+
+        if ext_set and p.suffix.lower() not in ext_set:
+            continue
+
         try:
             content = read_file_safe(p, encoding=DEFAULT_ENCODING)
             if content and compiled_re.search(content):
@@ -150,33 +183,52 @@ def search_files_by_pattern(pattern: str, target_dir: str = CURRENT_DIR, is_rege
 
     elapsed_ms = (time.perf_counter() - start_time) * 1000
     print(f"🔍 Pattern `{pattern}` matched in {len(matches)} file(s) ({elapsed_ms:.2f}ms):")
-    for m in matches[:25]:
+    effective_limit = limit if limit > 0 else len(matches)
+    for m in matches[:effective_limit]:
         print(f"  • {m}")
-    if len(matches) > 25:
-        print(f"  ... and {len(matches) - 25} more files.")
+
+    has_more = len(matches) > effective_limit
+    if has_more:
+        print(f"  ... and {len(matches) - effective_limit} more files (use --limit 0 for all).")
 
 def main():
     parser = argparse.ArgumentParser(
         description="Fast File Reader & Directory Explorer for AI Agents",
-        formatter_class=argparse.RawDescriptionHelpFormatter
+        formatter_class=argparse.RawDescriptionHelpFormatter,
+        epilog="""
+Examples:
+  python 03-ai-scripts/17-fast-file-reader.py --list-folder 01-prompts --ext .md --limit 20
+  python 03-ai-scripts/17-fast-file-reader.py --read-file 01-prompts/15-cg-execute/01-index.md
+  python 03-ai-scripts/17-fast-file-reader.py --search-pattern "AppError" --path cli/ --limit 25
+  python 03-ai-scripts/17-fast-file-reader.py --search-pattern "AppError" --ext .go --limit 25
+  python 03-ai-scripts/17-fast-file-reader.py --search-pattern "func " --regex --limit 10
+        """
     )
     parser.add_argument("--list-folder", "-l", help="List directory contents and subfolders")
     parser.add_argument("--read-file", "-r", help="Read target text file contents")
     parser.add_argument("--search-pattern", "-s", help="Search content pattern across files")
-    parser.add_argument("--path", "-p", default=CURRENT_DIR, help="Root directory for search or listing")
+    parser.add_argument("--path", "-p", default=CURRENT_DIR, help="Root directory for search or listing (default: .)")
     parser.add_argument("--ext", help="Comma-separated extensions filter (e.g. .md,.ts,.py)")
+    parser.add_argument("--limit", "-n", type=int, default=50, help="Max items or matches to print (default: 50, 0 for unlimited)")
     parser.add_argument("--max-bytes", type=int, default=100000, help="Maximum bytes to read (default 100KB)")
     parser.add_argument("--regex", action="store_true", help="Treat search pattern as regular expression")
     args = parser.parse_args()
 
     if args.list_folder:
-        list_folder_contents(args.list_folder, extensions=args.ext)
+        list_folder_contents(args.list_folder, extensions=args.ext, limit=args.limit)
     elif args.read_file:
         read_single_file(args.read_file, max_bytes=args.max_bytes)
     elif args.search_pattern:
-        search_files_by_pattern(args.search_pattern, target_dir=args.path, is_regex=args.regex)
+        search_files_by_pattern(
+            args.search_pattern,
+            target_dir=args.path,
+            extensions=args.ext,
+            is_regex=args.regex,
+            limit=args.limit
+        )
     else:
         parser.print_help()
 
 if __name__ == "__main__":
     main()
+

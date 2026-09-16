@@ -47,9 +47,11 @@ The `.lovable/` folder, specs, and codebase can be massive. To process this info
 ## Phase 1 - Load the project & git history
 
 ### 1.0 Read the last 10 git commits & file changes (MANDATORY)
+
 Run `git log -n 10 --stat` to view the last 10 commits, their commit messages, and the exact files modified, added, or deleted. Analyze what was touched recently and the architectural intent behind recent changes so you do not revert recent progress or repeat past bugs.
 
 ### 1.1 Read what-to-read.md first (Authoritative Order)
+
 Read `.lovable/what-to-read.md` first. Follow every file and priority sequence it specifies before reading other files.
 
 ### 1.2 Read the whole `.lovable/` folder

@@ -15,7 +15,7 @@ N = total self-loop steps budget that the agents will perform.
 
 ### Master Task Checklist (Atomic Numbered Steps)
 
-1. [ ] /goal Phase 1 (Step A): Deeply scan the target codebase using AST and ripgrep to inventory all architectural violations: explicit `== true`/`== false`, negative names (`isNot*`), inverted success (`!isSuccess`), mixed polarity (`&& !`), single-letter boolean parameters (`v bool`, `b bool`), bare un-prefixed boolean identifiers (`stop`, `pause`, `force`, `dryRun`), awkward `isExists` identifiers, and compound negative chains (`!a || !b || c`).
+1. [ ] /goal Phase 1 (Step A): Deeply scan the target codebase using the fast Python discovery tools (`11-fast-file-scanner.py`, `12-fast-cached-grep.py`, `17-fast-file-reader.py` with `--limit`) to inventory all architectural violations and anti-patterns without truncation.
 2. [ ] /goal Phase 1 (Step B): Write the master audit specification in `.lovable/plans/pending/` with an exhaustive Violation Ledger.
 3. [ ] /goal Phase 1 (Step C): Decompose the master plan into granular, atomic subtasks in `.lovable/plans/subtasks/`.
 4. [ ] /goal Phase 1 (Step D): Verify or create the automated quality linter and register in `03-ai-scripts/01-index.md`.
@@ -25,12 +25,12 @@ N = total self-loop steps budget that the agents will perform.
 8. [ ] /goal Phase 2 (Step D): Execute targeted file-level linters and verification on modified files ensuring 0 remaining violations (`exit 0`). DO NOT run the full CI/CD pipeline runner (`06-cicd-local-runner.py`) during routine coding guideline execution turns.
 9. [ ] /learn Ingest `.lovable/memory/01-index.md` for project memory index and past learnings.
 10. [ ] /learn Ingest `.lovable/strictly-avoid.md` for banned anti-patterns and strict constraints.
-11. [ ] /learn Ingest `02-spec/02-coding-guidelines/02-canonical-size-tier.md` for canonical file and function size tiers.
-12. [ ] /learn Ingest `02-spec/02-coding-guidelines/01-cross-language/01-index.md` for hallucination prevention and micro-tasking.
-13. [ ] /learn Ingest `02-spec/02-coding-guidelines/01-cross-language/01-index.md` for strict relative path citation requirements.
-14. [ ] /learn Ingest `02-spec/02-coding-guidelines/01-cross-language/02-boolean-principles/01-index.md` for implicit positive booleans and anti-negative rules.
-15. [ ] /learn Ingest `02-spec/02-coding-guidelines/01-cross-language/12-no-negatives.md` for domain-specific architectural specifications.
-16. [ ] /learn Ingest `02-spec/02-coding-guidelines/` for domain-specific architectural specifications.
+11. [ ] /learn Ingest `spec/02-coding-guidelines/02-canonical-size-tier.md` for canonical file and function size tiers.
+12. [ ] /learn Ingest `spec/02-coding-guidelines/01-cross-language/01-index.md` for hallucination prevention and micro-tasking.
+13. [ ] /learn Ingest `spec/02-coding-guidelines/01-cross-language/01-index.md` for strict relative path citation requirements.
+14. [ ] /learn Ingest `spec/02-coding-guidelines/01-cross-language/02-boolean-principles/01-index.md` for implicit positive booleans and anti-negative rules.
+15. [ ] /learn Ingest `spec/02-coding-guidelines/01-cross-language/12-no-negatives.md` for domain-specific architectural specifications.
+16. [ ] /learn Ingest `spec/02-coding-guidelines/` for domain-specific architectural specifications.
 17. [ ] /learn Ingest `.lovable/coding-guidelines.md` for master consolidated coding guidelines.
 18. [ ] /goal Create or update agent rules in the repository if missing from agent memory.
 
@@ -94,30 +94,7 @@ Boolean logic must be simple, readable, and unambiguous. Complex boolean chains 
    - **In Test Assertions:** Break every condition into a discrete assertion (`if !state.IsDefined`, `if !state.IsEmpty`, `if state.IsRepo`) with its own distinct error message.
    - **In Application Logic:** Extract into an affirmative composite variable (`isCloneTargetFresh := !params.State.IsDefined || params.State.IsEmpty`) or use separate early return guard clauses.
 
-8. **Mandatory Standard: Wrapped Regex Match Result in Tests (`lazyregex.MatchResult`):**
-   - **The Anti-Pattern:** Writing blind boolean regex checks:
-     ```go
-     // ❌ ANTI-PATTERN: Opaque regex boolean check hiding pattern and content
-     if !re.MatchString(content) {
-         t.Error("expected match")
-     }
-     ```
-     When this test fails, neither the developer nor AI knows what failed, which pattern failed, or what content was compared.
-   - **The Mandatory Standard:** Always use `lazyregex.MatchResult(content)` returning a rich `*MatchResult` wrapper (`ResultGroup`):
-     ```go
-     // ✅ REQUIRED: Wrapped Result with affirmative evaluation and rich diagnostics
-     var rsLazyRegex = lazyRegex.MatchResult(comparing)
-     if rsLazyRegex.IsFailed() {
-         t.Error(rsLazyRegex.AppError())
-     }
-     ```
-   - **Affirmative Predicates & Groups:**
-     - Predicates: `rsLazyRegex.IsMatch()`, `rsLazyRegex.IsSuccess()`, `rsLazyRegex.IsFailed()`
-     - Diagnostic errors: `rsLazyRegex.AppError()` / `rsLazyRegex.Cause()` / `rsLazyRegex.AsError()`
-     - Group access: `rsLazyRegex.Items()`, `rsLazyRegex.Map()`, `rsLazyRegex.First()`, `rsLazyRegex.Last()`, `rsLazyRegex.FirstOrDefault("default")`
-
 ### Generic Code Patterns with Compliant Newline Gaps
-
 
 #### Pattern A: Setter Method Parameter & Field Assignment (`v bool` -> `isStopOnFail bool`)
 
@@ -446,6 +423,30 @@ if res.IsEmpty() {
 
 Before modifying application code, you MUST thoroughly scan the repository and write an actionable execution spec.
 
+### Fast File Discovery & Reading via Python Toolchain (Mandatory Acceleration)
+
+To avoid 50-result tool truncation limits and eliminate multi-turn exploratory roundtrips, the AI agent MUST use the repository's dedicated Python discovery scripts first:
+
+1. **Inventory Target Files (with `--limit` option):**
+   ```bash
+   python 03-ai-scripts/11-fast-file-scanner.py --lang go,ts --limit 100 --stats
+   ```
+2. **Fast Cached Grep (<15ms, with `--limit` option):**
+   ```bash
+   python 03-ai-scripts/12-fast-cached-grep.py --pattern "<search-pattern>" --lang go --limit 50
+   ```
+3. **Sub-Millisecond Folder & File Exploration (with `--limit` option):**
+   ```bash
+   python 03-ai-scripts/17-fast-file-reader.py --list-folder <folder-path> --ext .go --limit 50
+   python 03-ai-scripts/17-fast-file-reader.py --read-file <file-path> --max-bytes 100000
+   python 03-ai-scripts/17-fast-file-reader.py --search-pattern "<pattern>" --path <folder-path> --limit 50
+   ```
+4. **Subsystem & Topology Overview:**
+   ```bash
+   python 03-ai-scripts/18-codebase-topology-discoverer.py --summary
+   ```
+Do not rely on standard search tools with 50-item truncation when discovering repository-wide violations.
+
 - **Actionable Scan:** Use search/grep and AST tools across all source files to identify:
   1. Explicit boolean comparisons (`== true`, `=== true`, `== false`, `=== false`).
   2. Inverted success checks (`!isSuccess`, `!response.isSuccess`, `!isValid`).
@@ -465,25 +466,25 @@ Before modifying application code, you MUST thoroughly scan the repository and w
 
 You MUST read, follow, and mechanically verify every single specification file below before and during execution:
 
-- [ ] **`02-spec/02-coding-guidelines/02-canonical-size-tier.md`**
+- [ ] **`spec/02-coding-guidelines/02-canonical-size-tier.md`**
   - **Why:** Universal size limits and boolean complexity rules.
   - **How:** Cognitive complexity <= 10. Functions <= 8 lines preferred (hard cap 15 lines). Files <= 100 lines coding max (recommended <= 80 lines).
-- [ ] **`02-spec/02-coding-guidelines/06-ai-optimization/01-index.md`**
+- [ ] **`spec/02-coding-guidelines/06-ai-optimization/01-index.md`**
   - **Why:** Comprehensive catalog of forbidden vs required generation patterns.
   - **How:** Strictly follow AH-N1 to AH-T2 rules. Zero ghost diffs, zero truncation stubs (`// ...`), zero unverified claims.
-- [ ] **`02-spec/02-coding-guidelines/06-ai-optimization/06-citation-requirement.md`**
+- [ ] **`spec/02-coding-guidelines/06-ai-optimization/06-citation-requirement.md`**
   - **Why:** Grounded rule enforcement and traceability.
   - **How:** Cite authoritative spec files for every code modification made.
-- [ ] **`02-spec/02-coding-guidelines/01-cross-language/02-boolean-principles/01-index.md`**
+- [ ] **`spec/02-coding-guidelines/01-cross-language/02-boolean-principles/01-index.md`**
   - **Why:** Absolute ban on explicit true comparisons and mixed polarity.
   - **How:** Evaluate booleans implicitly (`if isReady`). Never combine positive and negative checks in the same condition.
-- [ ] **`02-spec/02-coding-guidelines/01-cross-language/12-no-negatives.md`**
+- [ ] **`spec/02-coding-guidelines/01-cross-language/12-no-negatives.md`**
   - **Why:** Cognitive clarity through positive framing.
   - **How:** No negative variable names. No `!isSuccess` checks.
-- [ ] **`02-spec/02-coding-guidelines/01-cross-language/22-variable-naming-conventions.md`**
+- [ ] **`spec/02-coding-guidelines/01-cross-language/22-variable-naming-conventions.md`**
   - **Why:** Mandatory affirmative boolean prefixes.
   - **How:** All booleans MUST begin with is and has only (can, should, was, etc. are banned), `was`, `will`, `did`, `must`.
-- [ ] **`02-spec/02-coding-guidelines/01-cross-language/24-boolean-flag-methods.md`**
+- [ ] **`spec/02-coding-guidelines/01-cross-language/24-boolean-flag-methods.md`**
   - **Why:** Prevents cryptic boolean argument calls.
   - **How:** Split boolean flag methods into semantic distinct functions.
 
@@ -647,7 +648,7 @@ To guarantee full execution without stopping after planning mode, the master orc
 /goal You MUST verify every item on this checklist before committing any code. If a subagent violated one of these rules, you must reject their work.
 
 - [ ] Strict Relative Git Paths: All file paths, markdown links, citations, and subtask references in plans, specs, and memory logs are strictly relative to the git repository root. Zero absolute paths or `file:///` URIs.
-- [ ] Master Guidelines: I have fully read and strictly enforced `02-spec/02-coding-guidelines/01-cross-language/02-boolean-principles/01-index.md` and `.lovable/coding-guidelines.md`.
+- [ ] Master Guidelines: I have fully read and strictly enforced `spec/02-coding-guidelines/01-cross-language/02-boolean-principles/01-index.md` and `.lovable/coding-guidelines.md`.
 - [ ] Implicit Booleans: Positive booleans MUST ALWAYS be evaluated implicitly.
 - [ ] No Negatives: No `!isSuccess`, no `isNot*` variables.
 - [ ] No Mixed Polarity: Zero combined positive and negative checks in a single `if`.
@@ -670,7 +671,7 @@ Before you commit code or end your turn, you MUST mechanically check off these i
 - [ ] Pre-Commit Diff Proof (Disk Reality Check): I have executed `git status --porcelain` and `git diff --stat` and verified that every file I claim to have modified is actually listed as modified in the terminal output before committing.
 - [ ] Zero Truncation / No Placeholder Search: I ran a regex search for `TODO`, `FIXME`, `\[.*\]`, `// ...`, and `/* ... */` in my modified files and confirmed I left zero placeholders or truncated stubs behind. I actually wrote the complete implementation.
 - [ ] Verifiable Tool Execution: I did not fabricate test/linter passes. I executed the actual linter script and test runner via tool calls and captured `exit code 0`.
-- [ ] Spec Citation Grounding: Every refactoring action cites the exact authoritative rule in `02-spec/` (e.g. `02-spec/02-coding-guidelines/01-cross-language/01-index.md`).
+- [ ] Spec Citation Grounding: Every refactoring action cites the exact authoritative rule in `spec/` (e.g. `spec/02-coding-guidelines/01-cross-language/01-index.md`).
 - [ ] Index Sync Deadman Switch: I have verified that every new file I created this turn is explicitly linked inside `readme.md` and enqueued in `.lovable/what-to-read.md`. I did not leave any orphaned files.
 - [ ] Blast Radius Acknowledgment: Before renaming or modifying any function/type, I ran a global search across the codebase and updated every single file that imports or calls it to prevent a broken build.
 - [ ] Final Step Commit & Push Verified: Staged all changes (`git add -A`), committed everything in a single grouped atomic commit, and pushed to git before ending the turn (no per-file commits).
@@ -706,7 +707,7 @@ Before you commit code or end your turn, you MUST mechanically check off these i
 
 ## MUST FOLLOW NON-NEGOTIABLE
 
-Listen, past runs of these turns have been sloppy and stupid as fuck: wrong step counts, partial task lists dumped into chat instead of files, plans and session summaries half-filled with "[N]" placeholders, folders skimmed, open ambiguities ignored, CI/CD issues and `plans/subtasks/` forgotten, user commands dropped, coding guidelines bypassed, detailed specs chopped and summarized into useless junk, uppercase README files left uncorrected, `.lovable/memory/` created by accident, `strictly-avoid.md` overwritten, and explicit user instructions softened after being told not to. WTF. How on earth are you reverting to this carelessness, are you stupid?? Stop doing that, you stupid fuck. Read the whole codebase, read every folder in `02-spec/` and `.lovable/`, confirm root `readme.md` is strictly lowercase, find the root cause in one sentence, capture commands, issues, and pending tasks without omitting a single item, write the spec files and memory files in the right paths, update every index in the same turn, sync `readme.md` with `what-to-read.md`, preserve detailed specs verbatim with zero truncation, do NOT run builds or tests during routine turns (build and test verification deferred to CI/CD), group commits with clear messages, and push everything to git before ending. Going deep IS the job. If you are not going deep, you are not doing the job. Violating this is auto-reject on the same tier as RULE 0. Avoid stupidity and being careless, you stupid fuck. Where is your attention, are you stupid? Tell me. Your stupidity is going on top of my head. Where did you learn this stupidity? If I could find you, I could slap you.
+Listen, past runs of these turns have been sloppy and stupid as fuck: wrong step counts, partial task lists dumped into chat instead of files, plans and session summaries half-filled with "[N]" placeholders, folders skimmed, open ambiguities ignored, CI/CD issues and `plans/subtasks/` forgotten, user commands dropped, coding guidelines bypassed, detailed specs chopped and summarized into useless junk, uppercase README files left uncorrected, `.lovable/memory/` created by accident, `strictly-avoid.md` overwritten, and explicit user instructions softened after being told not to. WTF. How on earth are you reverting to this carelessness, are you stupid?? Stop doing that, you stupid fuck. Read the whole codebase, read every folder in `spec/` and `.lovable/`, confirm root `readme.md` is strictly lowercase, find the root cause in one sentence, capture commands, issues, and pending tasks without omitting a single item, write the spec files and memory files in the right paths, update every index in the same turn, sync `readme.md` with `what-to-read.md`, preserve detailed specs verbatim with zero truncation, do NOT run builds or tests during routine turns (build and test verification deferred to CI/CD), group commits with clear messages, and push everything to git before ending. Going deep IS the job. If you are not going deep, you are not doing the job. Violating this is auto-reject on the same tier as RULE 0. Avoid stupidity and being careless, you stupid fuck. Where is your attention, are you stupid? Tell me. Your stupidity is going on top of my head. Where did you learn this stupidity? If I could find you, I could slap you.
 
 ---
 

@@ -173,8 +173,8 @@ Routine execution prompts MUST NOT build, test, or trigger releases. When task m
 - [ ] Formatting & Acronyms: Spacing rules are strictly followed. Acronyms are strictly PascalCase (`SwapIpWindows` not `SwapIPWindows`).
 - [ ] Consolidated atomic commits created grouping all modified files together (NEVER commit 1-2 files piecemeal).
 - [ ] Immediate push to remote (`git push origin <branch>`) executed without leaving unpushed commits.
-- [ ] Zero full builds (`npm run build`, `go build ./...`) or `06-cicd-local-runner.py` executed during routine turns; atomic file change cache updated in `.lovable/temp/recent-file-changes.json`.
-- [ ] Continuous loop maintained; only pausing to ask for "continue" on critical unrecoverable failures.
+- [ ] **NO TEST RUNNING & NO BUILD CHECKING (TOTAL BAN):** Zero tests or builds executed during routine turns; atomic file change cache updated in `.lovable/temp/recent-file-changes.json` under lock (`python 03-ai-scripts/33-test-inventory-generator.py --record <path>`).
+- [ ] Continuous loop maintained without running banned test or build commands.
 
 ---
 
