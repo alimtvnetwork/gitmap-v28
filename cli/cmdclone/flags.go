@@ -75,6 +75,8 @@ func registerCloneStringFlags(fs *flag.FlagSet, flagPtrs *cloneFlagPointers) {
 	flagPtrs.outputFlag = fs.String(constants.FlagCloneTermOutput, "", constants.FlagDescCloneTermOutput)
 	flagPtrs.maxConcFlag = fs.Int(constants.CloneFlagMaxConcurrency,
 		constants.CloneDefaultMaxConcurrency, constants.FlagDescCloneMaxConcurrency)
+	fs.IntVar(flagPtrs.maxConcFlag, "w", constants.CloneDefaultMaxConcurrency, "Short alias for --max-concurrency")
+	fs.IntVar(flagPtrs.maxConcFlag, "workers", constants.CloneDefaultMaxConcurrency, "Alias for --max-concurrency")
 	flagPtrs.onlyFlag = fs.String("only", "", "Filter repositories to clone by 1-based sequential ID, slug, or prefix")
 	flagPtrs.excludeFlag = fs.String("exclude", "", "Exclude repositories matching comma-separated names, prefixes, or sequential IDs")
 	fs.StringVar(flagPtrs.excludeFlag, "E", "", "Short alias for --exclude")

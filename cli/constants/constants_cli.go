@@ -3,32 +3,32 @@ package constants
 // gitmap:cmd top-level
 // CLI commands.
 const (
-	CmdScan               = "scan"
-	CmdScanAlias          = "s"
-	CmdClone              = "clone"
-	CmdCloneAlias         = "c"
-	CmdCloneSync          = "clone-sync"
-	CmdCloneSyncAlias     = "cs"
+	CmdScan                  = "scan"
+	CmdScanAlias             = "s"
+	CmdClone                 = "clone"
+	CmdCloneAlias            = "c"
+	CmdCloneSync             = "clone-sync"
+	CmdCloneSyncAlias        = "cs"
 	CmdCloneOnlyMissing      = "clone-only-missing"
 	CmdCloneOnlyMissingAlias = "com"
-	CmdUpdate             = "update"
-	CmdUpdateRunner       = "update-runner"  // gitmap:cmd skip
-	CmdUpdateCleanup      = "update-cleanup" // gitmap:cmd skip
-	CmdInstalledDir       = "installed-dir"  // gitmap:cmd skip
-	CmdInstalledDirAlias  = "id"
-	CmdVersion            = "version"
-	CmdVersionAlias       = "v"
-	CmdHelp               = "help"
-	CmdDesktopSync        = "desktop-sync"
-	CmdDesktopSyncAlias   = "ds"
-	CmdGitHubDesktop      = "github-desktop"
-	CmdGitHubDesktopAlias = "gd"
-	CmdPull               = "pull"
-	CmdPullAlias          = "p"
-	CmdPullAll            = "pull-all"
-	CmdPullAllAlias       = "pa"
-	CmdReconcile          = "reconcile"
-	CmdReconcileAlias     = "recon"
+	CmdUpdate                = "update"
+	CmdUpdateRunner          = "update-runner"  // gitmap:cmd skip
+	CmdUpdateCleanup         = "update-cleanup" // gitmap:cmd skip
+	CmdInstalledDir          = "installed-dir"  // gitmap:cmd skip
+	CmdInstalledDirAlias     = "id"
+	CmdVersion               = "version"
+	CmdVersionAlias          = "v"
+	CmdHelp                  = "help"
+	CmdDesktopSync           = "desktop-sync"
+	CmdDesktopSyncAlias      = "ds"
+	CmdGitHubDesktop         = "github-desktop"
+	CmdGitHubDesktopAlias    = "gd"
+	CmdPull                  = "pull"
+	CmdPullAlias             = "p"
+	CmdPullAll               = "pull-all"
+	CmdPullAllAlias          = "pa"
+	CmdReconcile             = "reconcile"
+	CmdReconcileAlias        = "recon"
 	// CmdPush is the cwd-scoped `git push` wrapper added in v5.29.0.
 	// Alias is `ph` (NOT `p` — collides with CmdPullAlias). Supports
 	// shared `--ssh` / `--https` transport flags.

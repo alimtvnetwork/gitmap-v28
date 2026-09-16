@@ -16,12 +16,19 @@ func resolveAntigravityBinary() (string, bool) {
 	return checkKnownAntigravityPaths()
 }
 
+func isValidBinaryPath(path string) bool {
+	if path == "" {
+		return false
+	}
+	_, err := os.Stat(path)
+
+	return err == nil
+}
+
 func checkKnownAntigravityPaths() (string, bool) {
 	for _, candidate := range getCandidateAntigravityPaths() {
-		if candidate != "" {
-			if _, err := os.Stat(candidate); err == nil {
-				return candidate, true
-			}
+		if isValidBinaryPath(candidate) {
+			return candidate, true
 		}
 	}
 

@@ -222,29 +222,29 @@ func scanPipelineRun(rows *sql.Rows) (PipelineRunRecord, *apperror.AppError) {
 	return r, nil
 }
 
-func iterateRunRows(rows *sql.Rows) ([]PipelineRunRecord, *apperror.AppError) {
+func iterateRunRows(rows *sql.Rows) PipelineRunSliceResult {
 	var list []PipelineRunRecord
 	for rows.Next() {
 		r, scanErr := scanPipelineRun(rows)
 		if scanErr != nil {
-			return nil, scanErr
+			return result.FailSlice[PipelineRunRecord](scanErr)
 		}
 		list = append(list, r)
 	}
 
-	return list, nil
+	return result.OkSlice(list)
 }
 
 func collectRecentRuns(rows *sql.Rows) PipelineRunSliceResult {
-	list, err := iterateRunRows(rows)
-	if err != nil {
-		return result.FailSlice[PipelineRunRecord](err)
+	res := iterateRunRows(rows)
+	if res.IsFailure() {
+		return res
 	}
 	if rowsErr := rows.Err(); rowsErr != nil {
 		return result.FailSlice[PipelineRunRecord](apperror.WrapSimple(rowsErr, "iterate pipeline run rows"))
 	}
 
-	return result.OkSlice(list)
+	return res
 }
 
 // QueryRecentRuns retrieves recent pipeline executions.
@@ -270,29 +270,29 @@ func scanPipelineError(rows *sql.Rows) (PipelineErrorRecord, *apperror.AppError)
 	return e, nil
 }
 
-func iterateErrorRows(rows *sql.Rows) ([]PipelineErrorRecord, *apperror.AppError) {
+func iterateErrorRows(rows *sql.Rows) PipelineErrorSliceResult {
 	var list []PipelineErrorRecord
 	for rows.Next() {
 		e, scanErr := scanPipelineError(rows)
 		if scanErr != nil {
-			return nil, scanErr
+			return result.FailSlice[PipelineErrorRecord](scanErr)
 		}
 		list = append(list, e)
 	}
 
-	return list, nil
+	return result.OkSlice(list)
 }
 
 func collectRecentErrors(rows *sql.Rows) PipelineErrorSliceResult {
-	list, err := iterateErrorRows(rows)
-	if err != nil {
-		return result.FailSlice[PipelineErrorRecord](err)
+	res := iterateErrorRows(rows)
+	if res.IsFailure() {
+		return res
 	}
 	if rowsErr := rows.Err(); rowsErr != nil {
 		return result.FailSlice[PipelineErrorRecord](apperror.WrapSimple(rowsErr, "iterate pipeline error log rows"))
 	}
 
-	return result.OkSlice(list)
+	return res
 }
 
 // QueryRecentErrorLogs retrieves stored error diagnostics.
@@ -318,29 +318,29 @@ func scanPipelineCompactError(rows *sql.Rows) (PipelineCompactErrorRecord, *appe
 	return c, nil
 }
 
-func iterateCompactErrorRows(rows *sql.Rows) ([]PipelineCompactErrorRecord, *apperror.AppError) {
+func iterateCompactErrorRows(rows *sql.Rows) PipelineCompactErrorSliceResult {
 	var list []PipelineCompactErrorRecord
 	for rows.Next() {
 		c, scanErr := scanPipelineCompactError(rows)
 		if scanErr != nil {
-			return nil, scanErr
+			return result.FailSlice[PipelineCompactErrorRecord](scanErr)
 		}
 		list = append(list, c)
 	}
 
-	return list, nil
+	return result.OkSlice(list)
 }
 
 func collectRecentCompactErrors(rows *sql.Rows) PipelineCompactErrorSliceResult {
-	list, err := iterateCompactErrorRows(rows)
-	if err != nil {
-		return result.FailSlice[PipelineCompactErrorRecord](err)
+	res := iterateCompactErrorRows(rows)
+	if res.IsFailure() {
+		return res
 	}
 	if rowsErr := rows.Err(); rowsErr != nil {
 		return result.FailSlice[PipelineCompactErrorRecord](apperror.WrapSimple(rowsErr, "iterate pipeline compact error rows"))
 	}
 
-	return result.OkSlice(list)
+	return res
 }
 
 // QueryDetailedErrors retrieves stored uncompressed detailed error diagnostics.
@@ -545,29 +545,29 @@ func (p *PipelineSplitDb) GetStats() (PipelineDbStats, error) {
 	return stats, p.populateLastUpdated(&stats)
 }
 
-func iterateRunIdRows(rows *sql.Rows) ([]uint64, *apperror.AppError) {
+func iterateRunIdRows(rows *sql.Rows) PipelineRunIdSliceResult {
 	var list []uint64
 	for rows.Next() {
 		var id uint64
 		if err := rows.Scan(&id); err != nil {
-			return nil, apperror.WrapSimple(err, "scan cached run id")
+			return result.FailSlice[uint64](apperror.WrapSimple(err, "scan cached run id"))
 		}
 		list = append(list, id)
 	}
 
-	return list, nil
+	return result.OkSlice(list)
 }
 
 func collectRunIdList(rows *sql.Rows) PipelineRunIdSliceResult {
-	list, err := iterateRunIdRows(rows)
-	if err != nil {
-		return result.FailSlice[uint64](err)
+	res := iterateRunIdRows(rows)
+	if res.IsFailure() {
+		return res
 	}
 	if rowsErr := rows.Err(); rowsErr != nil {
 		return result.FailSlice[uint64](apperror.WrapSimple(rowsErr, "iterate cached run ids"))
 	}
 
-	return result.OkSlice(list)
+	return res
 }
 
 // QueryCachedErrorRunIds retrieves distinct RunIds cached in PipelineErrorLog.

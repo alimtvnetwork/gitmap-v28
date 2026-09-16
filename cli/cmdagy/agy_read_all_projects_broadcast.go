@@ -9,6 +9,16 @@ import (
 	"github.com/alimtvnetwork/gitmap-v28/cli/workspacesync"
 )
 
+func syncSingleMissingProject(r localRepo, isExisting bool) {
+	if isExisting {
+		return
+	}
+	if workspacesync.SyncAntigravity(r.Path, r.Name) {
+		fmt.Printf("  %s Registered into Antigravity: %s (%s)\n",
+			constants.ColorGreen+"✓"+constants.ColorReset, r.Name, r.Path)
+	}
+}
+
 func syncMissingAgyProjects(repos []localRepo, dirPath string) {
 	existing, _ := loadAllAgyProjects(dirPath)
 	pathMap := make(map[string]bool)
@@ -18,12 +28,7 @@ func syncMissingAgyProjects(repos []localRepo, dirPath string) {
 
 	for _, r := range repos {
 		clean := strings.ToLower(filepath.Clean(r.Path))
-		if !pathMap[clean] {
-			if workspacesync.SyncAntigravity(r.Path, r.Name) {
-				fmt.Printf("  %s Registered into Antigravity: %s (%s)\n",
-					constants.ColorGreen+"✓"+constants.ColorReset, r.Name, r.Path)
-			}
-		}
+		syncSingleMissingProject(r, pathMap[clean])
 	}
 }
 

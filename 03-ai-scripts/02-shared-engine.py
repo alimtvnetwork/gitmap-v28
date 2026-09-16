@@ -356,6 +356,10 @@ ALLOWED_LARGE_FILES = {
     "slides-app\\dist.zip",
     "docs/demo.gif",
     "docs\\demo.gif",
+    ".lovable/test-inventory.json",
+    ".lovable\\test-inventory.json",
+    ".lovable/cicd/test-inventory.json",
+    ".lovable\\cicd\\test-inventory.json",
 }
 
 # Language Extension Mapping
@@ -603,8 +607,8 @@ def is_binary_file(file_path: Path) -> bool:
 
 def is_allowed_large_file(file_path: str | Path) -> bool:
     """Checks if file is on the explicit waiver list for large generated assets."""
-    norm = normalize_rel_path(file_path).lstrip(f"{CURRENT_DIR}{PATH_SEPARATOR}")
-    allowed_set = {normalize_rel_path(f).lstrip(f"{CURRENT_DIR}{PATH_SEPARATOR}") for f in ALLOWED_LARGE_FILES}
+    norm = normalize_rel_path(file_path).removeprefix(f"{CURRENT_DIR}{PATH_SEPARATOR}")
+    allowed_set = {normalize_rel_path(f).removeprefix(f"{CURRENT_DIR}{PATH_SEPARATOR}") for f in ALLOWED_LARGE_FILES}
     if norm in allowed_set:
         return True
     try:

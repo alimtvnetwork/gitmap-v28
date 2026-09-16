@@ -37,12 +37,18 @@ func startAntigravity(exePath, absPath string) error {
 	return nil
 }
 
+func resolveCwdOrPath(path string) string {
+	cwd, err := os.Getwd()
+	if err == nil {
+		return cwd
+	}
+
+	return path
+}
+
 func resolveTargetPath(path string) string {
 	if path == "" || path == "." {
-		cwd, err := os.Getwd()
-		if err == nil {
-			return cwd
-		}
+		return resolveCwdOrPath(path)
 	}
 	abs, err := filepath.Abs(path)
 	if err == nil {

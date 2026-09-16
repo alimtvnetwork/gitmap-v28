@@ -120,4 +120,3 @@ func UninstallCustomTool(tool string, purge bool) error {
 func FindInstalledAntigravityDesktopPath() (string, bool) {
 	return findInstalledAntigravityDesktopPath()
 }
-
