@@ -65,38 +65,6 @@ func RepoScopedPipelineDbDir(_ string) string {
 	return PipelineDbDir()
 }
 
-func isFileExisting(path string) bool {
-	info, err := os.Stat(path)
-	if err != nil {
-		return false
-	}
-
-	return !info.IsDir()
-}
-
-func isDirExisting(path string) bool {
-	fi, err := os.Stat(path)
-	if err != nil {
-		return false
-	}
-
-	return fi.IsDir()
-}
-
-func migrateOrFallbackPipelineDb(dir, slug, targetPrefixed string) string {
-	legacyDir := filepath.Join(store.BinaryDataDir(), "pipeline_db")
-	legacyFile := filepath.Join(legacyDir, "pipeline_"+slug+".db")
-	if isFileExisting(legacyFile) {
-		if err := os.Rename(legacyFile, targetPrefixed); err == nil {
-			return targetPrefixed
-		}
-
-		return legacyFile
-	}
-
-	return targetPrefixed
-}
-
 // ResolvePipelineDbPath resolves the CLI-anchored SQLite database path for a repository.
 func ResolvePipelineDbPath(repoSlug string) string {
 	slug := SanitizeRepoSlug(repoSlug)

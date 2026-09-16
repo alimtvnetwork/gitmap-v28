@@ -7,22 +7,12 @@ import (
 // ReplaceModeType enumerates the invocation shapes the spec accepts.
 type ReplaceModeType int
 
-type replaceMode = ReplaceModeType
-
 const (
 	ReplaceModeTypeUnknown ReplaceModeType = iota
 	ReplaceModeTypeLiteral
 	ReplaceModeTypeVersionN
 	ReplaceModeTypeAll
 	ReplaceModeTypeAudit
-)
-
-const (
-	replaceModeUnknown  = ReplaceModeTypeUnknown
-	replaceModeLiteral  = ReplaceModeTypeLiteral
-	replaceModeVersionN = ReplaceModeTypeVersionN
-	replaceModeAll      = ReplaceModeTypeAll
-	replaceModeAudit    = ReplaceModeTypeAudit
 )
 
 // classifyReplaceMode picks the operating mode from positional args and audit flag.

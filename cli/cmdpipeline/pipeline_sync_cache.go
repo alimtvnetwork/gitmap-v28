@@ -45,7 +45,7 @@ func FormatRelativeDbPath(fullPath string) string {
 		return formatRepoRelativeSlash(rel)
 	}
 
-	return filepath.Clean(fullPath)
+	return filepath.ToSlash(filepath.Clean(fullPath))
 }
 
 // ResolveDbFileSize returns the formatted human size for a pipeline database.

@@ -12,18 +12,10 @@ import (
 // SyncResultType represents the outcome of syncing one repo.
 type SyncResultType int
 
-type syncResult = SyncResultType
-
 const (
 	SyncResultTypeAdded SyncResultType = iota
 	SyncResultTypeSkipped
 	SyncResultTypeFailed
-)
-
-const (
-	syncAdded   = SyncResultTypeAdded
-	syncSkipped = SyncResultTypeSkipped
-	syncFailed  = SyncResultTypeFailed
 )
 
 // syncOne attempts to register a single repo with GitHub Desktop.

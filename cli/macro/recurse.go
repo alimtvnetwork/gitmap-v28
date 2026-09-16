@@ -12,8 +12,6 @@ import (
 
 type ContextKeyType string
 
-type contextKey = ContextKeyType
-
 const (
 	callStackKey    ContextKeyType = "macroCallStack"
 	currentMacroKey ContextKeyType = "currentMacroName"

@@ -113,6 +113,8 @@ var helpAliases = map[string]string{
 	"fix-pipeline":        "agy-fix-pipeline",
 	"agy-fix":             "agy-fix-pipeline",
 	"agy-fp":              "agy-fix-pipeline",
+	"tasks":               "task",
+	"tk":                  "task",
 }
 
 func resolveHelpAlias(cmd string) string {

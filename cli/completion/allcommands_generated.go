@@ -397,6 +397,7 @@ var generatedCommands = []string{
 	"tag-rename",
 	"tail",
 	"task",
+	"tasks",
 	"td",
 	"temp-release",
 	"templates",

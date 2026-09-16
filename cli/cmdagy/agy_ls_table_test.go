@@ -14,7 +14,7 @@ func TestTruncateMiddle(t *testing.T) {
 	}{
 		{"short", 10, "short"},
 		{"exact-length", 12, "exact-length"},
-		{"ai-empathy-prompt-tuner", 15, "ai-emp...t-tuner"},
+		{"ai-empathy-prompt-tuner", 15, "ai-emp...-tuner"},
 		{"abcdefghij", 7, "ab...ij"},
 		{"tiny", 3, "tiny"},
 	}

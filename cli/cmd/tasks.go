@@ -9,7 +9,7 @@ import (
 
 // runTasks routes the "tasks" and "task" command suite.
 func runTasks(args []string) error {
-	checkHelp("tasks", args)
+	checkHelp("task", args)
 	if len(args) == 0 {
 		return runTasksList()
 	}

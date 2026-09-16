@@ -8,32 +8,6 @@ import (
 	"github.com/alimtvnetwork/gitmap-v28/cli/constants"
 )
 
-// runTask handles the "task" subcommand routing.
-func runTask(args []string) error {
-	checkHelp("task", args)
-	if len(args) < 1 {
-		err := apperror.NewWithDetails(
-			"cmd.task.run",
-			"E1090",
-			"missing required task subcommand; usage: gitmap task [create|list|run|show|delete]",
-			"cmd.task",
-			apperror.ErrorTypeValidation,
-			apperror.SeverityError,
-			nil,
-		)
-		cliexit.HandleError(err, 1)
-
-		return nil
-	}
-
-	sub := args[0]
-	rest := args[1:]
-
-	routeTaskSub(sub, rest)
-
-	return nil
-}
-
 // routeTaskSub routes to the appropriate task subcommand.
 func routeTaskSub(sub string, args []string) {
 	if sub == constants.CmdTaskCreate {
