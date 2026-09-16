@@ -4,6 +4,8 @@ import (
 	"encoding/json"
 	"io"
 	"strings"
+
+	"github.com/alimtvnetwork/gitmap-v28/cli/constants"
 )
 
 func decodeReleaseTagName(body io.Reader) string {
@@ -12,7 +14,8 @@ func decodeReleaseTagName(body io.Reader) string {
 		Name    string `json:"name"`
 	}
 
-	if err := json.NewDecoder(body).Decode(&releaseData); err != nil {
+	err := json.NewDecoder(body).Decode(&releaseData)
+	if err != nil {
 		return ""
 	}
 
@@ -20,29 +23,36 @@ func decodeReleaseTagName(body io.Reader) string {
 }
 
 func extractCleanTag(tagName, name string) string {
-	tag := strings.TrimPrefix(tagName, "v")
-	if len(tag) > 0 {
+	tag := strings.TrimPrefix(tagName, constants.VersionPrefixV)
+	hasTag := len(tag) > 0
+
+	if hasTag {
 		return tag
 	}
 
-	return strings.TrimPrefix(name, "v")
+	return strings.TrimPrefix(name, constants.VersionPrefixV)
 }
 
 func decodeVersionFromMap(body io.Reader) string {
 	var rawMap map[string]interface{}
-	if err := json.NewDecoder(body).Decode(&rawMap); err != nil {
-		return "unknown"
+	err := json.NewDecoder(body).Decode(&rawMap)
+	if err != nil {
+		return constants.VersionUnknown
 	}
 
 	return extractVersionValue(rawMap)
 }
 
 func extractVersionValue(rawMap map[string]interface{}) string {
-	for _, key := range []string{"Version", "version"} {
-		if v, isString := rawMap[key].(string); isString && len(v) > 0 {
+	for _, key := range constants.VersionKeys {
+		v, isString := rawMap[key].(string)
+		hasContent := isString && len(v) > 0
+
+		if hasContent {
 			return v
 		}
 	}
 
-	return "unknown"
+	return constants.VersionUnknown
 }
+
