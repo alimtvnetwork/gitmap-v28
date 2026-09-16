@@ -5,6 +5,8 @@ import (
 	"runtime"
 	"strings"
 	"testing"
+
+	"github.com/alimtvnetwork/gitmap-v28/cli/constants"
 )
 
 // TestInstallerURLFor verifies the raw.githubusercontent URL is composed
@@ -75,6 +77,12 @@ func TestDecodeVersionFromMap(t *testing.T) {
 	lowerJSON := `{"version": "6.158.0"}`
 	if got := decodeVersionFromMap(strings.NewReader(lowerJSON)); got != "6.158.0" {
 		t.Errorf("expected 6.158.0 for lowercase version, got %q", got)
+	}
+
+	// Missing or invalid JSON returns VersionUnknown
+	emptyJSON := `{}`
+	if got := decodeVersionFromMap(strings.NewReader(emptyJSON)); got != constants.VersionUnknown {
+		t.Errorf("expected %q for empty map, got %q", constants.VersionUnknown, got)
 	}
 }
 
