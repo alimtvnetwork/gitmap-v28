@@ -26,6 +26,12 @@ type PipelineSplitDB = PipelineSplitDb
 // SanitizeRepoSlug converts a repository slug into a valid safe filesystem name.
 func SanitizeRepoSlug(repo string) string {
 	lower := strings.ToLower(strings.TrimSpace(repo))
+	if strings.Contains(lower, "://") || strings.Contains(lower, "@") {
+		canonical := gitutil.CanonicalRepoID(lower)
+		if idx := strings.Index(canonical, "/"); idx >= 0 {
+			lower = canonical[idx+1:]
+		}
+	}
 	slug := lazyregex.SlugSanitizeRegex.ReplaceAllString(lower, "-")
 	slug = strings.Trim(slug, "-")
 	if slug == "" {
@@ -37,7 +43,7 @@ func SanitizeRepoSlug(repo string) string {
 
 // PipelineDbDir returns the dedicated directory where pipeline split DBs live.
 func PipelineDbDir() string {
-	dir := filepath.Join(store.BinaryDataDir(), "pipeline_db")
+	dir := filepath.Join(store.BinaryDataDir(), "pipeline")
 	_ = os.MkdirAll(dir, 0755)
 
 	return dir
@@ -188,16 +194,19 @@ func resolveTargetRepoRoot(repoSlug string) string {
 	return ""
 }
 
-// ResolvePipelineDbPath resolves the repository-scoped SQLite database path.
+// ResolvePipelineDbPath resolves the dedicated CLI-scoped SQLite database path for a repository.
 func ResolvePipelineDbPath(repoSlug string) string {
-	if isTestRepoSlug(repoSlug) {
-		return fallbackBinaryPipelineDbPath(repoSlug)
+	slug := SanitizeRepoSlug(repoSlug)
+	primary := filepath.Join(PipelineDbDir(), "pipeline_"+slug+".db")
+	if isFileExisting(primary) {
+		return primary
 	}
-	if root := resolveTargetRepoRoot(repoSlug); root != "" {
-		return resolveRepoScopedPath(root)
+	legacyOldDir := filepath.Join(store.BinaryDataDir(), "pipeline_db", "pipeline_"+slug+".db")
+	if isFileExisting(legacyOldDir) {
+		return legacyOldDir
 	}
 
-	return resolveRepoScopedPath(".")
+	return primary
 }
 
 // PipelineDbPath returns the full SQLite database file path for a repository.

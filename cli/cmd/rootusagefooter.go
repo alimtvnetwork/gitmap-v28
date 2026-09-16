@@ -11,6 +11,7 @@ import (
 	"time"
 
 	"github.com/alimtvnetwork/gitmap-v28/cli/constants"
+	"github.com/alimtvnetwork/gitmap-v28/cli/pipelinedb"
 	"github.com/alimtvnetwork/gitmap-v28/cli/store"
 )
 
@@ -510,6 +511,13 @@ func emitIdentityRows(params IdentityRowParams) {
 		fmt.Printf("  %s● Commit SHA:%s          %s%s%s\n",
 			constants.ColorCyan, constants.ColorReset,
 			constants.ColorYellow, sha, constants.ColorReset)
+	}
+
+	targetSlug := firstNonEmptyVar(params.RepoOverride, gitURL, repoName)
+	if pipelineDbPath := pipelinedb.ResolvePipelineDbPath(targetSlug); len(pipelineDbPath) > 0 {
+		fmt.Printf("  %s● Pipeline DB:%s         %s%s%s\n",
+			constants.ColorCyan, constants.ColorReset,
+			constants.ColorWhite, pipelineDbPath, constants.ColorReset)
 	}
 }
 
