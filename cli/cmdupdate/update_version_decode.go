@@ -55,4 +55,3 @@ func extractVersionValue(rawMap map[string]interface{}) string {
 
 	return constants.VersionUnknown
 }
-

@@ -277,4 +277,3 @@ func TestResolvePipelineDbPath(t *testing.T) {
 		t.Errorf("expected repo slug to resolve inside pipeline folder with repo slug, got %s", repoPath)
 	}
 }
-

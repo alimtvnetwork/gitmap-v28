@@ -77,7 +77,6 @@ const (
 // VersionKeys defines fallback JSON/map keys searched during version extraction.
 var VersionKeys = []string{VersionKeyUpper, VersionKeyLower}
 
-
 // Update UI messages.
 const (
 	MsgUpdateActive              = "  → Active: %s\n  → Handoff: %s\n"
