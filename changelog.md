@@ -1,3 +1,17 @@
+## [v6.252.0] 2026-09-16 Release v6.252.0
+
+### Install GitMap v6.252.0
+
+To pin your repository to this exact version, run the following one-liner:
+Unix/Bash: `curl -sL https://raw.githubusercontent.com/alimtvnetwork/gitmap-v28/v6.252.0/install.sh | bash -s -- ".lovable/prompts" "v6.252.0"`
+PowerShell: `Invoke-WebRequest -Uri https://raw.githubusercontent.com/alimtvnetwork/gitmap-v28/v6.252.0/install.ps1 -OutFile install.ps1; .\install.ps1 -TargetDir ".lovable/prompts" -Version "v6.252.0"`
+
+### Added / Changed / Fixed / Removed
+
+- Capture and display Go stack trace on pipeline command failures
+- Diagnose workflow initialization and syntax errors when GitHub Actions log archive is missing
+- Eliminate blank job labels and misleading synthetic step errors on failed gh runs
+
 ## [v6.251.0] 2026-09-16 Release v6.251.0
 
 ### Install GitMap v6.251.0
