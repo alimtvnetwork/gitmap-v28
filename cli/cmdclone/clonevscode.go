@@ -20,15 +20,22 @@ func isVSCodeAvailable() bool {
 	return resolveVSCodeExecutable() != ""
 }
 
+func printVSCodeNotFound() {
+	fmt.Println("  ✖ Visual Studio Code is not installed or not found on PATH.")
+	fmt.Println("    To install it, run:")
+	fmt.Println("      gitmap install vscode")
+	fmt.Println("    Or download from:")
+	fmt.Println("      https://code.visualstudio.com/Download")
+}
+
 // openInVSCode opens the given folder in VS Code.
 // Tries multiple strategies to bypass "Another instance running as administrator":
 // 1. code --reuse-window (standard)
 // 2. code --new-window (bypasses some admin conflicts)
 // 3. Launch Code.exe with an isolated user-data dir in a detached process.
 func openInVSCode(absPath string) {
-	isNonVSCodeAvailable := !isVSCodeAvailable()
-	if isNonVSCodeAvailable {
-		fmt.Fprintf(os.Stdout, constants.MsgVSCodeNotFound)
+	if !isVSCodeAvailable() {
+		printVSCodeNotFound()
 
 		return
 	}

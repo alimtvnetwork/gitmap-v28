@@ -115,3 +115,9 @@ func CheckCustomStandaloneTool(tool string) bool {
 func UninstallCustomTool(tool string, purge bool) error {
 	return RunUninstallCustomTool(tool, purge)
 }
+
+// FindInstalledAntigravityDesktopPath returns the desktop executable path if installed.
+func FindInstalledAntigravityDesktopPath() (string, bool) {
+	return findInstalledAntigravityDesktopPath()
+}
+

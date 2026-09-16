@@ -107,6 +107,7 @@ func handleExistingTargetDir(rec model.ScanRecord, dest string, dirExists bool, 
 	}
 	isStillExists := dirExists && !opts.IsClean
 	if isStillExists && opts.IsSafePull && isGitRepo(dest) {
+		rewriteRemoteToSSHIfNeeded(dest, opts.IsUseSSH)
 		return safePullRepo(rec, dest), true
 	}
 	if isStillExists && !isGitRepo(dest) {

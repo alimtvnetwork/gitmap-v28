@@ -80,57 +80,61 @@ func resolveCloneManifest(source string) string {
 func runClone(args []string) error {
 	checkHelp("clone", args)
 	cf := parseCloneFlags(args)
+
+	return executeParsedClone(cf)
+}
+
+func executeParsedClone(cf CloneFlags) error {
 	if handleCloneFixFlag(cf) {
 		return nil
 	}
-
 	cf.Source = resolveCloneManifest(cf.Source)
-
 	if cf.IsListOnly {
 		return runCloneListTable(cf.Source, cf.TargetDir, cf.UseSSH, cf.OnlyFilter, cf.ExcludeFilter)
 	}
-
-	initCloneVerbose(cf.Verbose)
-	SetCloneDryRun(cf.DryRun)
-	SetCloneAssumeYes(cf.IsAssumeYes)
-	setCmdFaithfulVerify(cf.VerifyCmdFaithful)
-	setCmdFaithfulExitOnMismatch(cf.VerifyCmdFaithfulExitOnMismatch)
-	setCmdPrintArgv(cf.PrintCloneArgv)
-
-	// Audit short-circuits all execution paths. It must run BEFORE
-	// requireOnline / SSH key application so users can audit a manifest
-	// while offline and without unlocking SSH agents.
+	prepareCloneEnv(cf)
 	if cf.Audit {
 		runCloneAudit(cf)
 		maybeExitOnCmdFaithfulMismatch()
 
 		return nil
 	}
+	cf = prepareCloneTransport(cf)
 
+	return dispatchCloneExecution(cf)
+}
+
+func prepareCloneEnv(cf CloneFlags) {
+	initCloneVerbose(cf.Verbose)
+	SetCloneDryRun(cf.DryRun)
+	SetCloneAssumeYes(cf.IsAssumeYes)
+	setCmdFaithfulVerify(cf.VerifyCmdFaithful)
+	setCmdFaithfulExitOnMismatch(cf.VerifyCmdFaithfulExitOnMismatch)
+	setCmdPrintArgv(cf.PrintCloneArgv)
+}
+
+func prepareCloneTransport(cf CloneFlags) CloneFlags {
 	requireOnline()
 	applySSHKey(cf.SSHKeyName)
-	applyCloneAssumeYesEnv(cf.IsAssumeYes)
-	cf = applyURLSchemeFlags(cf)
+	applyCloneAssumeYesEnv(cf.IsAssumeYes || cf.UseSSH)
 
-	// Multi-URL form: any positional arg containing a comma, OR 2+ positional
-	// args where the second one looks like a URL. This catches PowerShell's
-	// silent comma-splitting of unquoted args (root cause of v3.78 regression).
+	return applyURLSchemeFlags(cf)
+}
+
+func dispatchCloneExecution(cf CloneFlags) error {
 	if isMultiCloneEnabled(cf) {
 		runCloneMulti(cf)
 		maybeExitOnCmdFaithfulMismatch()
 
 		return nil
 	}
-
 	if isDirectURL(cf.Source) {
 		executeDirectClone(cf.Source, cf.FolderName, cf.GHDesktop, cf.NoReplace, cf.Output, cf.NoVSCodeSync)
 		maybeExitOnCmdFaithfulMismatch()
 
 		return nil
 	}
-
-	source := resolveCloneShorthand(cf.Source)
-	cf.Source = source
+	cf.Source = resolveCloneShorthand(cf.Source)
 	executeClone(cf)
 	maybeExitOnCmdFaithfulMismatch()
 
@@ -553,6 +557,7 @@ func runCloneExecution(cf CloneFlags) (model.CloneSummary, error) {
 		DefaultBranch:  cf.DefaultBranch,
 		IsClean:        cf.Clean,
 		IsMissingOnly:  cf.MissingOnly,
+		IsUseSSH:       cf.UseSSH,
 	}
 	records, err := cloner.LoadRecords(cf.Source)
 	if err != nil {

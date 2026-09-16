@@ -89,12 +89,20 @@ func parseCodeArgs(args []string) (alias, rootPath string, extras []string) {
 	case 0:
 		return "", "", nil
 	case 1:
+		if isCodePathArg(args[0]) {
+			return "", args[0], nil
+		}
 		return args[0], "", nil
 	case 2:
 		return args[0], args[1], nil
 	default:
 		return args[0], args[1], args[2:]
 	}
+}
+
+func isCodePathArg(arg string) bool {
+	return arg == "." || arg == ".." || strings.HasPrefix(arg, "./") ||
+		strings.HasPrefix(arg, ".\\") || strings.Contains(arg, string(filepath.Separator))
 }
 
 // resolveCodeRootPath picks the rootPath per the documented precedence.

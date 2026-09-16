@@ -21,22 +21,35 @@ func DispatchAgy(ctx context.Context, args []string, root *cobra.Command) error 
 	if len(args) > 0 && (args[0] == "agy" || args[0] == "ag" || args[0] == "antigravity") {
 		args = args[1:]
 	}
-
+	if len(args) > 0 && isAgyOpenPathArg(args[0]) {
+		return RunAgyOpen(args[0])
+	}
 	if len(args) > 0 {
 		args[0] = normalizeAgySubcommand(args[0])
 	}
-
 	if len(args) > 0 && isAgyFindDuplicatesArg(args[0]) {
 		return RunFindDuplicates()
 	}
-
 	if isAgyLsEmptyConvsArg(args) {
 		return runAgyLsEmptyConvs(args[1:])
 	}
-
 	AgyCmd.SetArgs(args)
 
 	return AgyCmd.ExecuteContext(ctx)
+}
+
+func isAgyOpenPathArg(arg string) bool {
+	if arg == "." || arg == ".." || strings.HasPrefix(arg, "./") || strings.HasPrefix(arg, ".\\") {
+		return true
+	}
+	if strings.HasPrefix(arg, "/") || strings.HasPrefix(arg, "\\") || strings.Contains(arg, string(filepath.Separator)) {
+		return true
+	}
+	if info, err := os.Stat(arg); err == nil && info.IsDir() {
+		return true
+	}
+
+	return false
 }
 
 func normalizeAgySubcommand(sub string) string {
@@ -51,6 +64,10 @@ func normalizeAgySubcommand(sub string) string {
 
 	if isReadMemoryAlias(low) {
 		return "all-projects-read-memory-prompt"
+	}
+
+	if isRprpAlias(low) {
+		return "read-all-projects-with-read-prompts"
 	}
 
 	if low == "reconcile" || low == "recon" || low == "reconcile-projects" {
@@ -99,6 +116,11 @@ func isRemoveMissingAlias(low string) bool {
 func isReadMemoryAlias(low string) bool {
 	return low == "all-projects-read-memory-prompt" || low == "aprmp" ||
 		low == "read-memory-all" || low == "rm-all-prompt"
+}
+
+func isRprpAlias(low string) bool {
+	return low == "read-all-projects-with-read-prompts" || low == "rprp" ||
+		low == "rapwrp" || low == "read-all-with-prompts"
 }
 
 func isAgyFindDuplicatesArg(sub string) bool {
@@ -152,6 +174,7 @@ func init() {
 	AgyCmd.AddCommand(agyRemoveMissingCmd)
 	AgyCmd.AddCommand(agyReconcileCmd)
 	AgyCmd.AddCommand(agyAllProjectsReadMemoryCmd)
+	AgyCmd.AddCommand(agyReadAllProjectsWithReadPromptsCmd)
 	AgyCmd.AddCommand(agyGroupCmd)
 	AgyCmd.AddCommand(agyUndoCmd)
 	AgyCmd.AddCommand(agyRedoCmd)

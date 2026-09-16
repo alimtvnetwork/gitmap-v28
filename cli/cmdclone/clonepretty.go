@@ -88,7 +88,7 @@ func newCloneCommand(url, dest string) *exec.Cmd {
 	cmd.Stdin = os.Stdin
 	cmd.Stdout = os.Stdout
 	cmd.Stderr = os.Stderr
-	if isCloneAssumeYes.Load() && isSSHCloneURL(url) {
+	if isSSHCloneURL(url) || isCloneAssumeYes.Load() {
 		cmd.Env = cloneEnvWithSSHAcceptNew()
 	}
 

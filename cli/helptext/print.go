@@ -115,6 +115,7 @@ var helpAliases = map[string]string{
 	"agy-fp":              "agy-fix-pipeline",
 	"tasks":               "task",
 	"tk":                  "task",
+	"com":                 "clone-only-missing",
 }
 
 func resolveHelpAlias(cmd string) string {

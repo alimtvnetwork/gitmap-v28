@@ -9,6 +9,8 @@ const (
 	CmdCloneAlias         = "c"
 	CmdCloneSync          = "clone-sync"
 	CmdCloneSyncAlias     = "cs"
+	CmdCloneOnlyMissing      = "clone-only-missing"
+	CmdCloneOnlyMissingAlias = "com"
 	CmdUpdate             = "update"
 	CmdUpdateRunner       = "update-runner"  // gitmap:cmd skip
 	CmdUpdateCleanup      = "update-cleanup" // gitmap:cmd skip

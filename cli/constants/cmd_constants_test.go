@@ -47,6 +47,8 @@ func topLevelCmds() map[string]string {
 		"CmdCloneAlias":             CmdCloneAlias,
 		"CmdCloneSync":              CmdCloneSync,
 		"CmdCloneSyncAlias":         CmdCloneSyncAlias,
+		"CmdCloneOnlyMissing":      CmdCloneOnlyMissing,
+		"CmdCloneOnlyMissingAlias": CmdCloneOnlyMissingAlias,
 		"CmdUpdate":                 CmdUpdate,
 		"CmdCommitPush":             CmdCommitPush,
 		"CmdCommitPushAlias":        CmdCommitPushAlias,

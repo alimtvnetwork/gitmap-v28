@@ -108,9 +108,12 @@ var agyOpenCmd = &cobra.Command{
 	Use:   "open [slug or path]",
 	Short: "Open Antigravity or a specific project",
 	RunE: func(cmd *cobra.Command, args []string) error {
-		fmt.Println("Feature [open] is not yet implemented")
+		target := "."
+		if len(args) > 0 {
+			target = args[0]
+		}
 
-		return nil
+		return RunAgyOpen(target)
 	},
 }
 

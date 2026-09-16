@@ -40,6 +40,7 @@ type CloneOptions struct {
 	DefaultBranch string
 	IsClean       bool
 	IsMissingOnly bool
+	IsUseSSH      bool
 }
 
 // CloneFromFile reads a source file and clones all repos under targetDir.
@@ -211,6 +212,7 @@ func runClone(rec model.ScanRecord, dest string) model.CloneResult {
 		constants.EnvGitAskpassEmpty,
 		constants.EnvSSHAskpassEmpty)
 	if isSSHCloneURL(url) {
+		cmd.Env = append(cmd.Env, "GIT_SSH_COMMAND=ssh -o StrictHostKeyChecking=accept-new")
 		return runInteractiveClone(InteractiveCloneParams{
 			Cmd:      cmd,
 			Record:   rec,

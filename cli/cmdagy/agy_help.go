@@ -10,6 +10,11 @@ import (
 )
 
 func renderAgyHelp(cmd *cobra.Command, args []string) {
+	if cmd != nil && cmd != AgyCmd {
+		_ = cmd.Usage()
+
+		return
+	}
 	fmt.Println()
 	printAgyHelpBanner()
 	printAgyHelpUsage()
@@ -33,6 +38,7 @@ func printAgyHelpUsage() {
 
 func printAgyHelpProjectMgmt() {
 	fmt.Printf("  %sProject Management:%s\n", constants.ColorYellow, constants.ColorReset)
+	printHelpLine("open [path]", "Open Antigravity Desktop IDE on path (default: .)")
 	printHelpLine("ls", "List projects in status table grouped by root folder")
 	printHelpLine("add <id> <name>", "Add an Antigravity project configuration")
 	printHelpLine("rm <id>", "Remove project configuration (files on disk preserved)")
@@ -58,6 +64,7 @@ func printAgyHelpDiagnostics() {
 
 func printAgyHelpAutomation() {
 	fmt.Printf("  %sProtocols & Automation:%s\n", constants.ColorYellow, constants.ColorReset)
+	printHelpLine("read-all-projects-with-read-prompts (rprp)", "Discover repos, sync, and broadcast Read Memory")
 	printHelpLine("all-projects-read-memory-prompt", "Broadcast Read Memory prompt to active projects")
 	printHelpLine("fix-pipeline (fp)", "Diagnose and fix CI/CD pipeline issues")
 	printHelpLine("prompt <text>", "Send prompt to active project session")

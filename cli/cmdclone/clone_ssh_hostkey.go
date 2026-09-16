@@ -8,8 +8,7 @@ import (
 )
 
 func applyCloneAssumeYesEnv(isAssumeYes bool) {
-	isNonAssumeYes := !isAssumeYes
-	if isNonAssumeYes {
+	if !isAssumeYes {
 		return
 	}
 
@@ -17,9 +16,11 @@ func applyCloneAssumeYesEnv(isAssumeYes bool) {
 	if err := os.Setenv(constants.EnvGitSSHCommand, cmd); err != nil {
 		fmtCloneEnvError(err)
 	}
+	ensureKnownHostsFile()
 }
 
 func cloneEnvWithSSHAcceptNew() []string {
+	ensureKnownHostsFile()
 	cmd := withSSHAcceptNew(os.Getenv(constants.EnvGitSSHCommand))
 
 	return envWithOverride(constants.EnvGitSSHCommand, cmd)

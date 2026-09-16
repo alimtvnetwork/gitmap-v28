@@ -10,7 +10,7 @@ import (
 )
 
 var primaryTopCommands = []string{
-	"scan", "clone", "create", "clone-sync", "pull", "push", "pull-all",
+	"scan", "clone", "clone-only-missing", "com", "create", "clone-sync", "pull", "push", "pull-all",
 	"status", "reconcile", "fix", "stash", "wip", "discard", "exec",
 	"release", "pull-release", "changelog", "cd", "group", "open",
 	"history", "stats", "export", "import", "profile", "bookmark",

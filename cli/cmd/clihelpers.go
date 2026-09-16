@@ -671,6 +671,10 @@ func runClone(args []string) error {
 	return cmdclone.RunClone(args)
 }
 
+func runCloneOnlyMissing(args []string) error {
+	return cmdclone.RunCloneOnlyMissing(args)
+}
+
 func runCloneFixRepo(args []string) error {
 	return cmdclone.RunCloneFixRepo(args)
 }

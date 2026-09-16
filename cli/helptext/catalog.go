@@ -7,6 +7,8 @@ import (
 
 var topicSummaries = map[string]string{
 	"commit-in":              "Comprehensive commit automation engine with JSON author rotation, SEO templates, deduplication heuristics, and AST function intelligence.",
+	"clone-only-missing":     "Clone only missing repositories from JSON manifests or URLs, skipping existing directories on disk without pulling.",
+	"com":                    "Clone only missing repositories from JSON manifests or URLs, skipping existing directories on disk without pulling.",
 	"commitin":               "Comprehensive commit automation engine with JSON author rotation, SEO templates, deduplication heuristics, and AST function intelligence.",
 	"commit-write":           "Comprehensive commit automation engine with JSON author rotation, SEO templates, deduplication heuristics, and AST function intelligence.",
 	"os":                     "Cross-platform OS configuration, updates, mirror auto-repair, and symlink diagnostic utilities.",
