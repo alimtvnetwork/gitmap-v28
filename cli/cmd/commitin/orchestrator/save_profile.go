@@ -59,7 +59,7 @@ func persistProfile(ctx *runContext, p *profile.Profile, stderr io.Writer) int {
 
 	saveErr := profile.SaveToDisk(ctx.Paths.SourceRoot, p, ctx.Raw.SaveProfileOverwrite)
 	// Distinguish "exists" (user fixable) from generic IO.
-	if isExistsError(saveErr) {
+	if isAlreadyExistsError(saveErr) {
 		fmt.Fprintf(stderr, constants.CommitInErrSaveProfileExists+"\n", p.Name)
 
 		return constants.CommitInExitBadArgs
@@ -74,10 +74,10 @@ func persistProfile(ctx *runContext, p *profile.Profile, stderr io.Writer) int {
 	return constants.CommitInExitOk
 }
 
-// isExistsError matches the sentinel string SaveToDisk uses when
+// isAlreadyExistsError matches the sentinel string SaveToDisk uses when
 // refusing to overwrite. Kept as a string check (rather than a typed
 // error) to avoid coupling the profile package to orchestrator
 // classification — this path is the ONLY caller that needs the split.
-func isExistsError(err error) bool {
+func isAlreadyExistsError(err error) bool {
 	return err != nil && strings.Contains(err.Error(), "already exists")
 }

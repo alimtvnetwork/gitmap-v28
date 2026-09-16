@@ -122,15 +122,13 @@ func runRowLifecycle(params RowLifecycleParams) Result {
 		Cwd:     params.Cwd,
 	}
 
-	detail, ok := prepareAndClone(cloneParams)
-	isFailed := !ok
-	if isFailed {
+	detail, isCloned := prepareAndClone(cloneParams)
+	if !isCloned {
 		return makeFailedResult(FailedResultParams{Row: params.Row, Dest: params.Dest, Detail: detail, Start: params.Start})
 	}
 
-	coDetail, coOK := runPostCloneCheckout(params.Row, params.Dest, params.Cwd)
-	isCheckoutFailed := !coOK
-	if isCheckoutFailed {
+	coDetail, isCheckedOut := runPostCloneCheckout(params.Row, params.Dest, params.Cwd)
+	if !isCheckedOut {
 		return makeFailedResult(FailedResultParams{Row: params.Row, Dest: params.Dest, Detail: coDetail, Start: params.Start})
 	}
 
@@ -139,9 +137,8 @@ func runRowLifecycle(params RowLifecycleParams) Result {
 }
 
 func prepareAndClone(params PrepareCloneParams) (string, bool) {
-	detail, ok := prepareDestParent(params.AbsDest)
-	isParentFailed := !ok
-	if isParentFailed {
+	detail, isParentPrepared := prepareDestParent(params.AbsDest)
+	if !isParentPrepared {
 		return detail, false
 	}
 

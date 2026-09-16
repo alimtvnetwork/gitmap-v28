@@ -69,12 +69,12 @@ func (db *DB) migratePurgeHistoryRestoredColumn() error {
 }
 
 func (db *DB) migratePurgeHistoryContextColumns() error {
-	isNotesMissing := !db.columnExists("PurgeHistoryLog", "Notes")
-	if err := db.execAlterIf(isNotesMissing, "ALTER TABLE PurgeHistoryLog ADD COLUMN Notes TEXT NULL"); err != nil {
+	hasNotes := db.columnExists("PurgeHistoryLog", "Notes")
+	if err := db.execAlterIf(!hasNotes, "ALTER TABLE PurgeHistoryLog ADD COLUMN Notes TEXT NULL"); err != nil {
 		return err
 	}
 
-	isCommentsMissing := !db.columnExists("PurgeHistoryLog", "Comments")
+	hasComments := db.columnExists("PurgeHistoryLog", "Comments")
 
-	return db.execAlterIf(isCommentsMissing, "ALTER TABLE PurgeHistoryLog ADD COLUMN Comments TEXT NULL")
+	return db.execAlterIf(!hasComments, "ALTER TABLE PurgeHistoryLog ADD COLUMN Comments TEXT NULL")
 }

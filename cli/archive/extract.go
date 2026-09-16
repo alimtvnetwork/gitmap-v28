@@ -107,9 +107,8 @@ func extractAllIntoDir(ctx context.Context, srcArchive, destDir string) (int, er
 		return 0, apperror.WrapSimple(err, "identify")
 	}
 
-	extractor, ok := format.(archives.Extractor)
-	isMissingExtractor := !ok
-	if isMissingExtractor {
+	extractor, isExtractor := format.(archives.Extractor)
+	if !isExtractor {
 		return 0, apperror.New("extract", "ERR_UNSUPPORTED_FORMAT", map[string]any{"format": format.Extension()})
 	}
 

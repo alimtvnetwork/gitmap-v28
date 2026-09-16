@@ -8,10 +8,11 @@ Master directory of architectural and execution plans.
 
 ## Recent Completed Tasks Register (Last 20 Tasks)
 
-1. [Plan 186: 186-pull-and-clone-ui-and-string-casefold-efficiency.md](completed/186-pull-and-clone-ui-and-string-casefold-efficiency.md): Pull & Clone UI Line Wrap Fix and String Case-Fold Efficiency
-2. [Plan 185: 185-constants-and-enums-architecture.md](completed/185-constants-and-enums-architecture.md): Constants & Enums Architecture — Coding Guideline Execution
-3. [Plan 184: 184-naming-conventions-and-anti-ok-variables.md](completed/184-naming-conventions-and-anti-ok-variables.md): Naming Conventions, Boolean Prefixes & Anti-Ok Variables Coding Guideline Execution
-4. [Plan 183: 183-file-and-function-size-reduction.md](completed/183-file-and-function-size-reduction.md): File Size & Function Size Reduction — Coding Guideline Execution
+1. [Plan 187: 187-naming-conventions-bare-ok-and-boolean-prefixes.md](completed/187-naming-conventions-bare-ok-and-boolean-prefixes.md): Naming Conventions, Bare Ok Elimination & Boolean Prefixes
+2. [Plan 186: 186-pull-and-clone-ui-and-string-casefold-efficiency.md](completed/186-pull-and-clone-ui-and-string-casefold-efficiency.md): Pull & Clone UI Line Wrap Fix and String Case-Fold Efficiency
+3. [Plan 185: 185-constants-and-enums-architecture.md](completed/185-constants-and-enums-architecture.md): Constants & Enums Architecture — Coding Guideline Execution
+4. [Plan 184: 184-naming-conventions-and-anti-ok-variables.md](completed/184-naming-conventions-and-anti-ok-variables.md): Naming Conventions, Boolean Prefixes & Anti-Ok Variables Coding Guideline Execution
+5. [Plan 183: 183-file-and-function-size-reduction.md](completed/183-file-and-function-size-reduction.md): File Size & Function Size Reduction — Coding Guideline Execution
 4. [Plan 182: 182-agy-table-grouping-tasks-suite-author-and-footer-fix.md](completed/182-agy-table-grouping-tasks-suite-author-and-footer-fix.md): AGY Table Grouping, Tasks Suite Author, and Footer Help Text Fix
 4. [Plan 181: 181-sc-bash-shell-join-list-and-ssh-table-fix.md](completed/181-sc-bash-shell-join-list-and-ssh-table-fix.md): Servers-Clients (SC) Bash, Shell, Join, Nodes/List Commands, Rich Examples & SSH Connection Unification
 2. [Plan 180: 180-pipeline-db-repo-location-and-size-display.md](completed/180-pipeline-db-repo-location-and-size-display.md): Pipeline DB Repo Location Resolution, Next-Line Size Display & Rust Test Log Filtering

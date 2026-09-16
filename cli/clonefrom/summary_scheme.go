@@ -51,7 +51,7 @@ func tallySchemes(results []Result) map[string]int {
 // the prefix table.
 func ClassifyScheme(url string) string {
 	url = strings.TrimSpace(url)
-	if hit, ok := matchKnownScheme(url); ok {
+	if hit, isKnown := matchKnownScheme(url); isKnown {
 		return hit
 	}
 

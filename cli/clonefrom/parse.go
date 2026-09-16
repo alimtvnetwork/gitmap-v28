@@ -109,7 +109,7 @@ func jsonRow(obj map[string]any) (Row, error) {
 	branch, _ := obj[constants.CSVColumnBranch].(string)
 	checkout, _ := obj[constants.CSVColumnCheckout].(string)
 	depth := 0
-	if d, ok := obj[constants.CSVColumnDepth].(float64); ok {
+	if d, isFloat := obj[constants.CSVColumnDepth].(float64); isFloat {
 		depth = int(d)
 	}
 

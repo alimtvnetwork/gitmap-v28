@@ -159,7 +159,7 @@ func dedupRows(rows []Row) []Row {
 	out := make([]Row, 0, len(rows))
 	for _, r := range rows {
 		key := r.URL + "\x00" + r.Dest
-		if i, ok := seen[key]; ok {
+		if i, isSeen := seen[key]; isSeen {
 			out[i] = mergeRows(out[i], r)
 			continue
 		}

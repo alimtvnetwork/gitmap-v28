@@ -40,8 +40,8 @@ func TestAppError_FormattingAndUnwrap(t *testing.T) {
 
 func TestAppError_WithContext(t *testing.T) {
 	appErr := NewSimple("fs.open", "E2001").WithContext("file", "test.txt")
-	val, ok := appErr.Ctx["file"]
-	if !ok || val != "test.txt" {
+	val, isFound := appErr.Ctx["file"]
+	if !isFound || val != "test.txt" {
 		t.Fatalf("expected context key to be set")
 	}
 }

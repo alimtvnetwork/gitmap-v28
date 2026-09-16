@@ -57,8 +57,8 @@ func RemoveRemediationItem(repoName string) {
 		}
 	}
 
-	hasNone := len(remaining) == 0
-	if hasNone {
+	hasRemaining := len(remaining) > 0
+	if !hasRemaining {
 		removeRemediationStateFile()
 
 		return

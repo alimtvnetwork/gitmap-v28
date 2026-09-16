@@ -32,8 +32,8 @@ func parseTextRows(r io.Reader) ([]Row, error) {
 			continue
 		}
 
-		row, ok := textRowFromLine(line)
-		if !ok {
+		row, isRowValid := textRowFromLine(line)
+		if !isRowValid {
 			continue
 		}
 
@@ -55,8 +55,8 @@ func parseTextRows(r io.Reader) ([]Row, error) {
 // metadata that aren't worth special-casing here.
 func textRowFromLine(line string) (Row, bool) {
 	fields := strings.Fields(line)
-	url, dest, ok := extractCloneArgs(fields)
-	if !ok {
+	url, dest, isExtracted := extractCloneArgs(fields)
+	if !isExtracted {
 		return Row{}, false
 	}
 

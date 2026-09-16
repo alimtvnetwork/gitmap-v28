@@ -221,8 +221,8 @@ func headerHasURL(idx map[string]int) bool {
 // field from its mapped column. Missing columns yield zero values.
 func recordFromIndexedRow(row []string, idx map[string]int) model.ScanRecord {
 	get := func(name string) string {
-		i, ok := idx[name]
-		if !ok || i >= len(row) {
+		i, isFound := idx[name]
+		if !isFound || i >= len(row) {
 			return ""
 		}
 
@@ -295,7 +295,7 @@ func dedupRows(rows []Row) []Row {
 	out := make([]Row, 0, len(rows))
 	for _, r := range rows {
 		key := r.RelativePath
-		if idx, ok := seen[key]; ok {
+		if idx, isSeen := seen[key]; isSeen {
 			out[idx] = r
 
 			continue
