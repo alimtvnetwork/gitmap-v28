@@ -43,7 +43,7 @@ func startCloneSpinner(label string) func() {
 				return
 			case <-ticker.C:
 				elapsed := time.Since(start).Truncate(time.Second)
-				fmt.Fprintf(os.Stderr, "\r%s%c%s %s %s(%s)%s ",
+				fmt.Fprintf(os.Stderr, "\r\033[K%s%c%s %s %s(%s)%s",
 					constants.ColorCyan, frames[i%len(frames)], constants.ColorReset,
 					label,
 					constants.ColorDim, elapsed, constants.ColorReset)

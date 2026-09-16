@@ -7,11 +7,16 @@ import (
 )
 
 func matchesFilter(name, path, filter string) bool {
-	term := strings.ToLower(filter)
-	matchesName := strings.Contains(strings.ToLower(name), term)
-	matchesPath := strings.Contains(strings.ToLower(path), term)
+	if strings.EqualFold(name, filter) || strings.EqualFold(path, filter) {
+		return true
+	}
 
-	return matchesName || matchesPath
+	term := strings.ToLower(filter)
+	if strings.Contains(strings.ToLower(name), term) {
+		return true
+	}
+
+	return strings.Contains(strings.ToLower(path), term)
 }
 
 func checkDirExists(path string) bool {

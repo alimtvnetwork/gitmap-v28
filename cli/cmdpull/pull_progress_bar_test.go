@@ -183,3 +183,32 @@ func TestPullProgressBarTTYRender(t *testing.T) {
 		t.Fatalf("expected escape sequence in TTY output, got %q", out)
 	}
 }
+
+func TestClampLineToTermWidth(t *testing.T) {
+	short := "hello world"
+	clamped := clampLineToTermWidth(short)
+	if clamped != short {
+		t.Fatalf("expected %q, got %q", short, clamped)
+	}
+
+	longLine := strings.Repeat("A", 200)
+	clampedLong := clampLineToTermWidth(longLine)
+	if len(clampedLong) >= 200 {
+		t.Fatalf("expected clamped line < 200, got len %d", len(clampedLong))
+	}
+	if !strings.HasSuffix(clampedLong, "...") {
+		t.Fatalf("expected ellipsis suffix, got %q", clampedLong)
+	}
+}
+
+func TestFormatActiveWorkersListBounded(t *testing.T) {
+	bar := NewPullProgressBar(5, false, false)
+	bar.RegisterWorker(0, "repo-1")
+	bar.RegisterWorker(1, "repo-2")
+	bar.RegisterWorker(2, "repo-3")
+
+	summary := bar.formatActiveWorkersList()
+	if !strings.Contains(summary, "(+1 more)") {
+		t.Fatalf("expected summary to contain '(+1 more)', got %q", summary)
+	}
+}

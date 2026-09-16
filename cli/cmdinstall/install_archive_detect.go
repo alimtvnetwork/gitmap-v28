@@ -120,8 +120,8 @@ func isCandidateMatch(p string, info fs.FileInfo, appName string) bool {
 	if !isElfBinary(p) && !isExecutableFile(info) {
 		return false
 	}
-	name := strings.ToLower(filepath.Base(p))
-	return name == strings.ToLower(appName)
+
+	return strings.EqualFold(filepath.Base(p), appName)
 }
 
 func inspectExtractedPackage(extractDir, baseName string) ArchiveInspectionResult {
