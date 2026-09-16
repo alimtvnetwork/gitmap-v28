@@ -1696,7 +1696,7 @@ try {
         }
     }
 
-    if (Test-Path -LiteralPath $binPath) {
+    if ($env:GITMAP_UPDATING -ne "1" -and (Test-Path -LiteralPath $binPath)) {
         Write-Host ""
         try {
             & $binPath binary

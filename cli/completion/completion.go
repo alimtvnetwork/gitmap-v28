@@ -37,6 +37,8 @@ func Generate(shell string) (string, error) {
 		return generateBash(), nil
 	case constants.ShellZsh:
 		return generateZsh(), nil
+	case constants.ShellFish:
+		return generateFish(), nil
 	default:
 		return "", fmt.Errorf(constants.ErrCompUnknownShell, shell)
 	}

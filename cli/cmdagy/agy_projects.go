@@ -11,6 +11,7 @@ import (
 	"github.com/spf13/cobra"
 
 	"github.com/alimtvnetwork/gitmap-v28/cli/apperror"
+	"github.com/alimtvnetwork/gitmap-v28/cli/constants"
 )
 
 var agyAddCmd = &cobra.Command{
@@ -62,7 +63,7 @@ func writeAgyProjectJson(projectsPath, projectID, projectName string) error {
 var agyRmCmd = &cobra.Command{
 	Use:     "rm [id]",
 	Aliases: []string{"del", "remove"},
-	Short:   "Remove a project",
+	Short:   "Remove a project configuration (files on disk preserved)",
 	RunE: func(cmd *cobra.Command, args []string) error {
 		return runAgyRm(args)
 	},
@@ -76,6 +77,9 @@ func runAgyRm(args []string) error {
 	if err := deleteProjectFile(args[0]); err != nil {
 		return apperror.WrapSimple(err, "delete")
 	}
+
+	fmt.Printf("  %s✓ Project '%s' removed from Antigravity configuration (files on disk preserved).%s\n",
+		constants.ColorGreen, args[0], constants.ColorReset)
 
 	return nil
 }

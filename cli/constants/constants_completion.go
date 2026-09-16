@@ -7,6 +7,7 @@ const (
 	ShellPowerShell = "powershell"
 	ShellBash       = "bash"
 	ShellZsh        = "zsh"
+	ShellFish       = "fish"
 )
 
 // Completion list flags.
@@ -24,6 +25,7 @@ const (
 	CompFilePS   = "completions.ps1"
 	CompFileBash = "completions.bash"
 	CompFileZsh  = "completions.zsh"
+	CompFileFish = "completions.fish"
 	CompDirName  = "gitmap"
 )
 
@@ -35,8 +37,8 @@ const (
 	MsgCompInstalled    = "  " + ColorGreen + "✓" + ColorReset + " Shell completion installed for %s\n"
 	MsgCompAlreadyDone  = "  " + ColorGreen + "✓" + ColorReset + " Shell completion already configured for %s\n"
 	MsgCompProfileWrite = "  " + ColorGreen + "✓" + ColorReset + " Added source line to %s\n"
-	ErrCompUsage        = "usage: gitmap completion <powershell|bash|zsh> [--list-repos|--list-groups|--list-commands|--list-aliases|--list-zip-groups|--list-help-groups]\n"
-	ErrCompUnknownShell = "unknown shell: %s (use powershell, bash, or zsh)\n"
+	ErrCompUsage        = "usage: gitmap completion <powershell|bash|zsh|fish> [--list-repos|--list-groups|--list-commands|--list-aliases|--list-zip-groups|--list-help-groups]\n"
+	ErrCompUnknownShell = "unknown shell: %s (use powershell, bash, zsh, or fish)\n"
 	ErrCompProfileWrite = "failed to update profile at %s: %v (operation: write)\n"
 )
 

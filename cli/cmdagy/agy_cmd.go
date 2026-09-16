@@ -163,6 +163,7 @@ func init() {
 	initAgyGroup()
 	initAgySettings()
 	initAgyPinProjects()
+	AgyCmd.SetHelpFunc(renderAgyHelp)
 }
 
 func getProjectsDirPath() (string, error) {

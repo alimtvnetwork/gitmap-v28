@@ -37,6 +37,17 @@ func newAgyTableContext() *agyTableContext {
 	}
 }
 
+func truncateMiddle(s string, maxLen int) string {
+	if len(s) <= maxLen || maxLen <= 5 {
+		return s
+	}
+
+	prefixLen := (maxLen - 3) / 2
+	suffixLen := maxLen - 3 - prefixLen
+
+	return s[:prefixLen] + "..." + s[len(s)-suffixLen:]
+}
+
 func (c *agyTableContext) addRow(r agyTableRow) {
 	c.Rows = append(c.Rows, r)
 	if l := len(r.Name); l > c.MaxProject {

@@ -77,7 +77,7 @@ func toolingOpsEntries() []dispatchEntry {
 		{[]string{constants.CmdGuard}, func() error { return runGuard(argsTail()) }},
 		{[]string{constants.CmdPrune, constants.CmdPruneAlias}, func() error { return runPrune(argsTail()) }},
 		{[]string{constants.CmdTempRelease, constants.CmdTempReleaseShort}, func() error { return runTempRelease(argsTail()) }},
-		{[]string{constants.CmdTask, constants.CmdTaskAlias}, func() error { return runTask(argsTail()) }},
+		{[]string{constants.CmdTask, constants.CmdTasks, constants.CmdTaskAlias}, func() error { return runTasks(argsTail()) }},
 		{[]string{constants.CmdEnv, constants.CmdEnvAlias}, func() error { return runEnv(argsTail()) }},
 		{[]string{constants.CmdService, constants.CmdServiceAlias, "services"}, func() error { return cmdservice.Run(argsTail()) }},
 		{[]string{"run", "run-macro", "exec-macro"}, func() error { return runMacroRootRun(argsTail()) }},
@@ -177,6 +177,9 @@ func toolingUtilEntries() []dispatchEntry {
 		{[]string{constants.CmdUndo, constants.CmdUndoAlias}, func() error { return runUndo(argsTail()) }},
 		{[]string{constants.CmdHistoryPurge, constants.CmdHistoryPurgeAlias}, func() error { return runHistoryPurge(argsTail()) }},
 		{[]string{constants.CmdHistoryPin, constants.CmdHistoryPinAlias}, func() error { return runHistoryPin(argsTail()) }},
+		{[]string{"author"}, func() error { return runAuthor(argsTail()) }},
+		{[]string{"sponsor"}, func() error { return runSponsor(argsTail()) }},
+		{[]string{"credits"}, func() error { return runCredits(argsTail()) }},
 	}
 }
 

@@ -55,6 +55,10 @@ var topicSummaries = map[string]string{
 	"cluster-k8s-helm":       "Deploy Helm and storage class provisioners",
 	"agy-fix-pipeline":       "Extract failing pipeline error logs and combine with CI/CD fix prompt for Antigravity IDE into clipboard and active temp file.",
 	"fix-pipeline":           "Extract failing pipeline error logs and combine with CI/CD fix prompt for Antigravity IDE into clipboard and active temp file.",
+	"author":                 "Display credentials, background, and innovations of GitMap's creator & system architect MD ALIM UL KARIM.",
+	"sponsor":                "Display information about GitMap's official sponsor and engineering partner RISE UP ASIA LLC.",
+	"credits":                "Display creator, sponsor, and engineering partner acknowledgments.",
+	"tasks":                  "Manage and inspect pending and completed task execution queues, history, and undo/redo operations.",
 }
 
 // GetTopicDetailedSummary returns documentation content for a specific command topic.

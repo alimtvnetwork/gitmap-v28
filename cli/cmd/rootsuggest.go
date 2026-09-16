@@ -20,7 +20,7 @@ var primaryTopCommands = []string{
 	"add", "rm", "mv", "prune", "revert", "ip", "zsh", "user",
 	"service", "schedule", "macro", "os", "storage", "pipeline",
 	"servers-clients", "servers-client", "sc", "clients", "cluster",
-	"agy", "fix-pipeline",
+	"agy", "fix-pipeline", "tasks", "task", "author", "sponsor", "credits",
 }
 
 type commandScore struct {

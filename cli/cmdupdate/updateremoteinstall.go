@@ -326,6 +326,7 @@ func buildUnixInstallerCmd(scriptPath, installDir string) *exec.Cmd {
 func runRemoteInstaller(scriptPath string) error {
 	installDir := resolveCurrentInstallDir()
 	cmd := buildRemoteInstallerCmd(scriptPath, installDir)
+	cmd.Env = append(os.Environ(), "GITMAP_UPDATING=1")
 	cmd.Stdout = os.Stdout
 	cmd.Stderr = os.Stderr
 	cmd.Stdin = os.Stdin

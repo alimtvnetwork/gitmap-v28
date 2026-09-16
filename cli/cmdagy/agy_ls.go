@@ -166,27 +166,10 @@ func sortAgyProjects(projects []AgyProject, sortBy string) {
 }
 
 func renderAgyProjectsTable(projects []AgyProject, dirPath string) {
-	ctx := newAgyTableContext()
-	activeCount, missingCount := 0, 0
-
-	for _, p := range projects {
-		row := buildAgyTableRow(p)
-		if row.IsMissing {
-			missingCount++
-		} else {
-			activeCount++
-		}
-
-		ctx.addRow(row)
-	}
-
 	printAgyBanner(len(projects), dirPath)
-	printAgyTableHeader(ctx)
-	for i, r := range ctx.Rows {
-		printAgyTableRow(ctx, r, i)
-	}
-
+	activeCount, missingCount := renderAgyProjectsGrouped(projects)
 	printAgySummary(len(projects), activeCount, missingCount)
+	printExternalAgyDuplicates(projects)
 }
 
 func buildAgyTableRow(p AgyProject) agyTableRow {
@@ -205,11 +188,11 @@ func buildAgyTableRow(p AgyProject) agyTableRow {
 
 	return agyTableRow{
 		ID:        shortProjectId(p.ID),
-		Name:      p.Name,
+		Name:      truncateMiddle(p.Name, 26),
 		Branch:    branch,
 		Status:    status,
 		Updated:   formatRelativeTime(p.UpdatedAt),
-		Path:      path,
+		Path:      truncateMiddle(path, 42),
 		IsMissing: isMissing,
 	}
 }

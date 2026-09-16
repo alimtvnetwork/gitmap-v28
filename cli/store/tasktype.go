@@ -30,3 +30,23 @@ func (db *DB) GetTaskTypeID(name string) (int64, error) {
 
 	return id, nil
 }
+
+// EnsureTaskTypeID returns the ID for a named task type, creating it if absent.
+func (db *DB) EnsureTaskTypeID(name string) (int64, error) {
+	id, err := db.GetTaskTypeID(name)
+	if err == nil {
+		return id, nil
+	}
+
+	res, insErr := ExecWrapper(db.conn, "INSERT OR IGNORE INTO TaskType (Name) VALUES (?)", name).Destruct()
+	if insErr != nil {
+		return 0, fmt.Errorf(constants.ErrPendingTaskInsert, insErr)
+	}
+
+	lastID, _ := res.LastInsertId()
+	if lastID > 0 {
+		return lastID, nil
+	}
+
+	return db.GetTaskTypeID(name)
+}

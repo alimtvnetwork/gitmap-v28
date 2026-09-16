@@ -322,6 +322,7 @@ func topLevelCmds() map[string]string {
 		"CmdStats":                  CmdStats,
 		"CmdStatsAlias":             CmdStatsAlias,
 		"CmdTask":                   CmdTask,
+		"CmdTasks":                  CmdTasks,
 		"CmdTaskAlias":              CmdTaskAlias,
 		"CmdTempRelease":            CmdTempRelease,
 		"CmdTempReleaseShort":       CmdTempReleaseShort,

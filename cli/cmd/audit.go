@@ -3,6 +3,7 @@ package cmd
 import (
 	"fmt"
 	"os"
+	"strings"
 	"time"
 
 	"github.com/alimtvnetwork/gitmap-v28/cli/constants"
@@ -73,6 +74,10 @@ func recordAuditStart(command string, args []string) (int64, time.Time, bool) {
 		fmt.Fprintf(os.Stderr, "  ⚠ Could not record command history: %v\n", insertErr)
 	}
 
+	cwd, _ := os.Getwd()
+	cmdArgs := strings.Join(args, " ")
+	_, _ = createPendingTask(command, cwd, cwd, command, cmdArgs)
+
 	return id, start, true
 }
 
@@ -99,6 +104,22 @@ func recordAuditEnd(id int64, start time.Time, exitCode int, summary string, rep
 
 	if err := db.UpdateHistory(record); err != nil {
 		fmt.Fprintf(os.Stderr, "  ⚠ Could not update command history: %v\n", err)
+	}
+
+	completePendingCommandTask(db, exitCode, summary)
+}
+
+func completePendingCommandTask(db *store.DB, exitCode int, summary string) {
+	pending, err := db.ListPendingTasks()
+	if err != nil || len(pending) == 0 {
+		return
+	}
+
+	latest := pending[len(pending)-1]
+	if exitCode == 0 {
+		_ = db.CompleteTask(latest.ID)
+	} else {
+		_ = db.FailTask(latest.ID, summary)
 	}
 }
 

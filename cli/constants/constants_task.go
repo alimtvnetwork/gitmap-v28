@@ -4,17 +4,22 @@ package constants
 // Task CLI commands.
 const (
 	CmdTask      = "task"
+	CmdTasks     = "tasks"
 	CmdTaskAlias = "tk"
 )
 
 // gitmap:cmd top-level
 // Task subcommands.
 const (
-	CmdTaskCreate = "create" // gitmap:cmd skip
-	CmdTaskList   = "list"   // gitmap:cmd skip
-	CmdTaskRun    = "run"    // gitmap:cmd skip
-	CmdTaskShow   = "show"   // gitmap:cmd skip
-	CmdTaskDelete = "delete" // gitmap:cmd skip
+	CmdTaskCreate  = "create"  // gitmap:cmd skip
+	CmdTaskList    = "list"    // gitmap:cmd skip
+	CmdTaskRun     = "run"     // gitmap:cmd skip
+	CmdTaskShow    = "show"    // gitmap:cmd skip
+	CmdTaskDelete  = "delete"  // gitmap:cmd skip
+	CmdTaskHistory = "history" // gitmap:cmd skip
+	CmdTaskUndo    = "undo"    // gitmap:cmd skip
+	CmdTaskRedo    = "redo"    // gitmap:cmd skip
+	CmdTaskClear   = "clear"   // gitmap:cmd skip
 )
 
 // Task help text.

@@ -26,7 +26,7 @@ const defaultReadMemoryPrompt = "Execute enhanced Read Memory protocol. Defensiv
 var agyAllProjectsReadMemoryCmd = &cobra.Command{
 	Use:     "all-projects-read-memory-prompt",
 	Aliases: []string{"aprmp", "read-memory-all", "all-read-memory"},
-	Short:   "Broadcast the Read Memory protocol prompt to all active Antigravity projects with prefix/slug exceptions",
+	Short:   "Broadcast Read Memory prompt to active projects",
 	RunE: func(cmd *cobra.Command, args []string) error {
 		return runAgyAllProjectsReadMemory()
 	},

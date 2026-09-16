@@ -26,7 +26,7 @@ func createPendingTask(
 		return 0, nil
 	}
 
-	typeID, err := db.GetTaskTypeID(typeName)
+	typeID, err := db.EnsureTaskTypeID(typeName)
 	if err != nil {
 		fmt.Fprintf(os.Stderr, constants.WarnPendingTypeLookup, err)
 		db.Close()
