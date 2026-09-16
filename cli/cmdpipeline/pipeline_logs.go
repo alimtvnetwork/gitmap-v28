@@ -324,30 +324,28 @@ func normalizeWorkflowKey(name string) string {
 	return lower
 }
 
+func markWorkflowSucceeded(name, key string, succeeded map[string]bool) {
+	if len(key) > 0 {
+		succeeded[key] = true
+	}
+	if len(name) > 0 {
+		succeeded[name] = true
+	}
+}
+
+func isWorkflowAlreadySucceeded(name, key string, succeeded map[string]bool) bool {
+	return (len(key) > 0 && succeeded[key]) || (len(name) > 0 && succeeded[name])
+}
+
 func checkAndCollectRun(r ghRunItem, succeeded map[string]bool, active *[]ghRunItem) {
 	key := normalizeWorkflowKey(r.Name)
 	if r.Conclusion == "success" {
-		if len(key) > 0 {
-			succeeded[key] = true
-		}
-		if len(r.Name) > 0 {
-			succeeded[r.Name] = true
-		}
-
+		markWorkflowSucceeded(r.Name, key, succeeded)
 		return
 	}
-
-	if r.Conclusion != "failure" {
-		return
+	if r.Conclusion == "failure" && !isWorkflowAlreadySucceeded(r.Name, key, succeeded) {
+		*active = append(*active, r)
 	}
-	if len(key) > 0 && succeeded[key] {
-		return
-	}
-	if len(r.Name) > 0 && succeeded[r.Name] {
-		return
-	}
-
-	*active = append(*active, r)
 }
 
 func filterFailingRunsByTargetSha(runs []ghRunItem) []ghRunItem {
