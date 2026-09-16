@@ -54,7 +54,7 @@ func TestResolveProjectParentFolder(t *testing.T) {
 	}{
 		{"", "[Global / Config]"},
 		{"—", "[Global / Config]"},
-		{"d:/work/gitmap", "d:/work"},
+		{"d:/repos/project1", "d:/repos"},
 		{"/home/user/project", "/home/user"},
 	}
 
