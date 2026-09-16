@@ -16,11 +16,18 @@ import (
 	"github.com/alimtvnetwork/gitmap-v28/cli/uipref"
 )
 
-type interactiveLoopAction int
+type InteractiveLoopActionType int
+
+type interactiveLoopAction = InteractiveLoopActionType
 
 const (
-	loopActionContinue interactiveLoopAction = iota
-	loopActionBreak
+	LoopActionTypeContinue InteractiveLoopActionType = iota
+	LoopActionTypeBreak
+)
+
+const (
+	loopActionContinue = LoopActionTypeContinue
+	loopActionBreak    = LoopActionTypeBreak
 )
 
 func resolveStepsInteractively(name string, isExec bool) ([]macro.MacroStep, error) {

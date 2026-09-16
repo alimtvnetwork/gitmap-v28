@@ -1,6 +1,7 @@
 package scanner
 
 import (
+	"fmt"
 	"os"
 	"path/filepath"
 	"sort"
@@ -118,7 +119,9 @@ func TestScanDirManyReposParallel(t *testing.T) {
 	root := t.TempDir()
 	const n = 50
 	for i := 0; i < n; i++ {
-		makeRepo(t, root, filepath.Join("group", filepath.FromSlash(string(rune('a'+i%5))), "repo", filepath.FromSlash(string(rune('0'+i%10))+"-"+string(rune('a'+i%26)))))
+		groupName := fmt.Sprintf("%c", 'a'+i%5)
+		repoName := fmt.Sprintf("%d-%c", i%10, 'a'+i%26)
+		makeRepo(t, root, filepath.Join("group", groupName, "repo", repoName))
 	}
 
 	got, err := ScanDir(root, nil)

@@ -2,16 +2,27 @@ package render
 
 import "strings"
 
-// blockKind identifies the type of a parsed block.
-type blockKind int
+// BlockKindType identifies the type of a parsed block.
+type BlockKindType int
+
+type blockKind = BlockKindType
 
 const (
-	bkParagraph blockKind = iota
-	bkHeading
-	bkSubtitle
-	bkFence
-	bkList
-	bkBlank
+	BlockKindTypeParagraph BlockKindType = iota
+	BlockKindTypeHeading
+	BlockKindTypeSubtitle
+	BlockKindTypeFence
+	BlockKindTypeList
+	BlockKindTypeBlank
+)
+
+const (
+	bkParagraph = BlockKindTypeParagraph
+	bkHeading   = BlockKindTypeHeading
+	bkSubtitle  = BlockKindTypeSubtitle
+	bkFence     = BlockKindTypeFence
+	bkList      = BlockKindTypeList
+	bkBlank     = BlockKindTypeBlank
 )
 
 const indentCodePrefix = "    "

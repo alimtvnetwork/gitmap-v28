@@ -23,8 +23,8 @@ EXCLUDE_DIRS = {
 TS_ENUM_MISSING_TYPE = re.compile(r'^\s*(?:export\s+)?enum\s+([A-Z]\w*?)(?<!Type)\s*\{')
 TS_CONST_ENUM_MISSING_TYPE = re.compile(r'^\s*(?:export\s+)?const\s+([A-Z]\w*?)(?<!Type)\s*=\s*\{.*?\}\s*as\s+const', re.DOTALL)
 PY_ENUM_MISSING_TYPE = re.compile(r'^\s*class\s+([A-Z]\w*?)(?<!Type)\s*\((?:StrEnum|IntEnum|Enum)\)\s*:')
-RAW_RUNE_NUM_CAST = re.compile(r'\brune\s*\(\s*(?:10|13|0|\d+)\s*\)')
-GO_ENUM_TYPE_DEF = re.compile(r'^\s*type\s+([A-Z]\w*?)(?<!Type)\s+(?:string|int|int8|int16|int32|int64|uint|uint8|uint16|uint32|uint64|byte)\b')
+RAW_RUNE_NUM_CAST = re.compile(r'\brune\s*\(\s*(?:\d+|\'[^\']+\'\s*\+\s*[^)]+)\s*\)')
+GO_ENUM_TYPE_DEF = re.compile(r'^\s*type\s+([A-Za-z]\w*?)(?<!Type)\s+(?:string|int|int8|int16|int32|int64|uint|uint8|uint16|uint32|uint64|byte)\b')
 
 
 def check_file(filepath: Path) -> list[str]:

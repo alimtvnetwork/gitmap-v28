@@ -4,7 +4,6 @@ import (
 	"encoding/json"
 	"fmt"
 	"os"
-	"os/exec"
 	"path/filepath"
 
 	"github.com/alimtvnetwork/gitmap-v28/cli/apperror"
@@ -91,64 +90,4 @@ func syncAll(records []model.ScanRecord, cli string) (added, skipped, failed int
 	}
 
 	return added, skipped, failed
-}
-
-// syncResult represents the outcome of syncing one repo.
-type syncResult int
-
-const (
-	syncAdded syncResult = iota
-	syncSkipped
-	syncFailed
-)
-
-// syncOne attempts to register a single repo with GitHub Desktop.
-func syncOne(r model.ScanRecord, cli string) syncResult {
-	if len(r.AbsolutePath) == 0 {
-		fmt.Printf(constants.MsgDesktopSyncFailed, r.RepoName, constants.ErrNoAbsPath)
-
-		return syncFailed
-	}
-
-	return syncExistingPath(r, cli)
-}
-
-// syncExistingPath checks path existence and registers with Desktop.
-func syncExistingPath(r model.ScanRecord, cli string) syncResult {
-	_, err := os.Stat(r.AbsolutePath)
-	if err == nil {
-		return registerOne(r.RepoName, r.AbsolutePath, cli)
-	}
-
-	fmt.Printf(constants.MsgDesktopSyncSkipped, r.RepoName)
-
-	return syncSkipped
-}
-
-// registerOne calls the GitHub Desktop CLI for a single repo.
-func registerOne(name, repoPath, cli string) syncResult {
-	cmd := exec.Command(cli, repoPath)
-	output, err := cmd.CombinedOutput()
-	if err != nil {
-		fmt.Printf(constants.MsgDesktopSyncFailed, name, fmt.Sprintf("%v: %s", err, output))
-
-		return syncFailed
-	}
-
-	fmt.Printf(constants.MsgDesktopSyncAdded, name)
-
-	return syncAdded
-}
-
-// tallyResult increments the appropriate counter.
-func tallyResult(r syncResult, added, skipped, failed int) (int, int, int) {
-	if r == syncAdded {
-		return added + 1, skipped, failed
-	}
-
-	if r == syncSkipped {
-		return added, skipped + 1, failed
-	}
-
-	return added, skipped, failed + 1
 }

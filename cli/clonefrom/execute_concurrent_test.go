@@ -14,6 +14,7 @@ package clonefrom
 
 import (
 	"bytes"
+	"fmt"
 	"io"
 	"os"
 	"path/filepath"
@@ -145,5 +146,5 @@ func TestExecuteWithHooksConcurrent_ProgressLinesEmitted(t *testing.T) {
 // padIdx produces a stable, sortable Dest path for ordering
 // assertions.
 func padIdx(i int) string {
-	return string(rune('a'+i)) + "-row"
+	return fmt.Sprintf("%c-row", 'a'+i)
 }

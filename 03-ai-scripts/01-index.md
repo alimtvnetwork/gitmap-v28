@@ -64,6 +64,7 @@ Follow this sequence before and during any repository modification task:
 | **33** | `33-test-inventory-generator.py` | Generates `.lovable/test-inventory.json` and manages atomic file change tracking under lock | ~15ms | `test-inventory`, `tracking`, `locking`, `changes` |
 | **34** | `34-schema-scanner.py` | Scans SQL table definitions for PascalCase, PK conventions, and affirmative booleans | ~15ms | `schema`, `database`, `sqlite`, `scanner`, `linter`, `erd` |
 | **35** | `35-result-wrapper-auditor.py` | Audits Go functions returning multi-value map/slice error tuples for ResultMap and AppError compliance | ~15ms | `result`, `result-wrapper`, `result-map`, `apperror`, `linter`, `audit` |
+| **37** | `37-enum-guideline-auditor.py` | Audits enums for *Type suffix and eliminates raw numeric rune casts | ~15ms | `enums`, `constants`, `rune-casts`, `type-suffix`, `linter` |
 
 ---
 

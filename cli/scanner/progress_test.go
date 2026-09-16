@@ -1,6 +1,7 @@
 package scanner
 
 import (
+	"fmt"
 	"path/filepath"
 	"sync"
 	"sync/atomic"
@@ -80,7 +81,7 @@ func TestScanProgressFinalSnapshotMatchesTotals(t *testing.T) {
 func TestScanProgressMonotonic(t *testing.T) {
 	root := t.TempDir()
 	for i := 0; i < 20; i++ {
-		makeRepo(t, root, filepath.Join("g", string(rune('a'+i%5)), "r"+string(rune('0'+i%10))))
+		makeRepo(t, root, filepath.Join("g", fmt.Sprintf("%c", 'a'+i%5), fmt.Sprintf("r%d", i%10)))
 	}
 
 	var (

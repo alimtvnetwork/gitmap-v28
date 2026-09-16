@@ -10,11 +10,13 @@ import (
 	"github.com/alimtvnetwork/gitmap-v28/cli/constants"
 )
 
-type contextKey string
+type ContextKeyType string
+
+type contextKey = ContextKeyType
 
 const (
-	callStackKey    contextKey = "macroCallStack"
-	currentMacroKey contextKey = "currentMacroName"
+	callStackKey    ContextKeyType = "macroCallStack"
+	currentMacroKey ContextKeyType = "currentMacroName"
 )
 
 const maxMacroRecursionDepth = 10

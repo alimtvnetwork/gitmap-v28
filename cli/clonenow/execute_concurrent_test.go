@@ -21,6 +21,7 @@ package clonenow
 
 import (
 	"bytes"
+	"fmt"
 	"io"
 	"sync"
 	"testing"
@@ -140,5 +141,5 @@ func TestExecuteWithHooksConcurrent_ProgressLinesEmittedInOrder(t *testing.T) {
 // padIdx produces a stable, sortable RelativePath for ordering
 // assertions. Avoids strconv import churn when used in tight loops.
 func padIdx(i int) string {
-	return string(rune('a'+i)) + "-row"
+	return fmt.Sprintf("%c-row", 'a'+i)
 }

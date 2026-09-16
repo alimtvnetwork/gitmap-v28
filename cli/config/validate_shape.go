@@ -49,17 +49,27 @@ var expectedRequiredKeyTypes = map[string]jsonKind{
 	"outputDir":     kindString,
 }
 
-// jsonKind enumerates the JSON value types we care about. Stringer-
+// JSONKindType enumerates the JSON value types we care about. Stringer-
 // style String() method exists so error messages can name the
 // expected type without a separate lookup table.
-type jsonKind int
+type JSONKindType int
+
+type jsonKind = JSONKindType
 
 const (
-	kindString jsonKind = iota
-	kindNumber
-	kindBool
-	kindObject
-	kindArray
+	JSONKindTypeString JSONKindType = iota
+	JSONKindTypeNumber
+	JSONKindTypeBool
+	JSONKindTypeObject
+	JSONKindTypeArray
+)
+
+const (
+	kindString = JSONKindTypeString
+	kindNumber = JSONKindTypeNumber
+	kindBool   = JSONKindTypeBool
+	kindObject = JSONKindTypeObject
+	kindArray  = JSONKindTypeArray
 )
 
 // String renders the human-readable JSON type name used in error
