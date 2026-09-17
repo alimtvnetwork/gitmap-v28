@@ -5,6 +5,7 @@
 
 ## Changelog
 
+- 2026-09-17T22:05:00Z, Memory write: Git commit history audit (last 10 commits), Coding Guideline 24 OS test isolation, hermetic mock runner decoupling, and full repository context ingestion.
 - 2026-09-13T20:25:00Z, Memory write: Linux archive package installation (gitmap install tar <archive>), intelligent package strategy detection (binary, script, source, single gz), step-by-step progress display, and dual-database uninstaller integration.
 - 2026-09-13T20:20:00Z, Memory write: Official Google Cloud Storage Antigravity artifacts, Linux desktop launcher and broken symlink cleanup, universal uninstallation engine, and stack trace preservation.
 - 2026-09-13T16:15:00Z, Memory write: Fast cached exploration via 17-fast-file-reader.py, mandatory 30-commit git history audit, recent 20-task register in plans/01-index.md, and prompt 2.2.0 standards.
@@ -30,6 +31,7 @@
 - `.lovable/memory/learned/25-fast-file-reader-and-30-commit-audit-workflow.md`, why: fast cached exploration via 17-fast-file-reader.py, mandatory 30-commit audit, and prompt 2.2.0 standards
 - `.lovable/memory/learned/26-official-antigravity-artifacts-and-universal-uninstall.md`, why: official GCS Antigravity artifacts, Linux desktop cleanup, universal uninstall engine, and stack traces
 - `.lovable/memory/learned/27-linux-archive-installer-intelligent-strategy.md`, why: Linux archive package installer, intelligent strategy detection, step-by-step progress, and uninstaller integration
+- `.lovable/memory/learned/28-git-commit-history-os-isolation-and-context-ingestion.md`, why: recent 10 commits, Coding Guideline 24 OS test isolation, hermetic mock runner decoupling, and context ingestion
 
 
 - `03-ai-scripts/01-index.md`, why: local automation tools and CI/CD parallel runner specifications
