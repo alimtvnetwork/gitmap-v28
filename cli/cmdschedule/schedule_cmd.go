@@ -85,6 +85,8 @@ func dispatchSchedulePowerOps(sub string, rest []string) (bool, error) {
 		return true, RunSchedulePowerCLI(OSActionShutdown, rest)
 	case "startup":
 		return true, runScheduleStartup(rest)
+	case "cancel":
+		return true, CancelSchedulePowerCLI(OSActionShutdown)
 	}
 	return false, nil
 }
@@ -390,6 +392,7 @@ func runScheduleList(args []string) error {
 	}
 
 	renderScheduleTable(tasks)
+	renderActivePowerSummaryIfPresent()
 
 	return nil
 }
@@ -397,41 +400,68 @@ func runScheduleList(args []string) error {
 func renderScheduleTable(tasks []store.SchedulerTask) {
 	if len(tasks) == 0 {
 		fmt.Println("  No scheduled tasks found. Create one with: gitmap schedule add <name> --every <interval>")
-
 		return
 	}
-
 	fmt.Println()
 	fmt.Printf("  %-18s %-10s %-10s %-20s %-8s %-6s %s\n", "NAME", "STATUS", "INTERVAL", "TARGET (MACRO/CMD)", "STARTUP", "RUNS", "SPLIT DB")
 	fmt.Printf("  %s\n", strings.Repeat("─", 88))
 	for _, t := range tasks {
-		target := t.MacroName
-		if target == "" {
-			target = t.CommandLine
-		}
-
-		if len(target) > 18 {
-			target = target[:15] + "..."
-		}
-
-		status := "\033[32menabled\033[0m"
-		if !t.IsEnabled {
-			status = "\033[31mdisabled\033[0m"
-		}
-
-		startup := "no"
-		if t.IsStartup {
-			startup = "yes"
-		}
-
-		fmt.Printf("  %-18s %-19s %-10s %-20s %-8s %-6d %s.db\n", t.Name, status, t.IntervalVal, target, startup, t.RunCount, t.Slug)
+		printScheduleTableRow(t)
 	}
-
 	fmt.Println()
+}
+
+func printScheduleTableRow(t store.SchedulerTask) {
+	target := resolveScheduleTarget(t)
+	status := resolveScheduleStatusColor(t.IsEnabled)
+	startup := resolveScheduleStartupStr(t.IsStartup)
+	fmt.Printf("  %-18s %-19s %-10s %-20s %-8s %-6d %s.db\n", t.Name, status, t.IntervalVal, target, startup, t.RunCount, t.Slug)
+}
+
+func resolveScheduleTarget(t store.SchedulerTask) string {
+	target := t.MacroName
+	if target == "" {
+		target = t.CommandLine
+	}
+	if len(target) > 18 {
+		return target[:15] + "..."
+	}
+	return target
+}
+
+func resolveScheduleStatusColor(isEnabled bool) string {
+	if isEnabled {
+		return "\033[32menabled\033[0m"
+	}
+	return "\033[31mdisabled\033[0m"
+}
+
+func resolveScheduleStartupStr(isStartup bool) string {
+	if isStartup {
+		return "yes"
+	}
+	return "no"
+}
+
+func renderActivePowerSummaryIfPresent() {
+	active, _ := GetActivePowerSchedule()
+	if active == nil {
+		return
+	}
+	rem := FormatRemainingDuration(active.TriggerAt)
+	fmt.Printf("  \033[1;96m⚡ Active Power Schedule:\033[0m %s in %s (Target: %s) — cancel: gitmap schedule %s cancel\n\n",
+		active.Action, rem, active.TriggerAt.Format("15:04:05"), active.Action)
+}
+
+func isPowerTargetName(name string) bool {
+	return name == "shutdown" || name == "restart" || name == "power"
 }
 
 func runScheduleStatus(args []string) error {
 	name, flagArgs := extractMacroNameAndFlags(args)
+	if isPowerTargetName(name) {
+		return ShowSchedulePowerStatus(OSActionType(name))
+	}
 	if name == "" || name == "*" || name == "all" {
 		return runScheduleList(args)
 	}
