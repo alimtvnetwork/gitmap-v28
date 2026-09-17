@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"os"
 	"strings"
+	"sync"
 
 	"github.com/alimtvnetwork/gitmap-v28/cli/apperror"
 	"github.com/alimtvnetwork/gitmap-v28/cli/pipelinedb"
@@ -110,7 +111,7 @@ func isAllDigits(s string) bool {
 
 func executePipelineLogsForTarget(repo string, runs []ghRunItem, opts PipelineLogsOptions) error {
 	groups := GroupRunsByCommit(runs)
-	targetGroup, hasGroup := ResolveCommitGroupByTarget(groups, opts.Target)
+	targetGroup, hasGroup := resolveTargetGroupWithFallback(groups, opts.Target)
 	if !hasGroup {
 		return reportTargetCommitNotFound(repo, opts.Target)
 	}
@@ -121,6 +122,18 @@ func executePipelineLogsForTarget(repo string, runs []ghRunItem, opts PipelineLo
 	return dispatchLogsOutput(combinedLogs, logItems, opts)
 }
 
+func resolveTargetGroupWithFallback(groups []*CommitPipelineGroup, target string) (*CommitPipelineGroup, bool) {
+	group, hasGroup := ResolveCommitGroupByTarget(groups, target)
+	if hasGroup {
+		return group, true
+	}
+	if target == "latest" || len(target) == 0 {
+		return ResolveFallbackTargetGroup(groups)
+	}
+
+	return nil, false
+}
+
 func reportTargetCommitNotFound(repo, target string) error {
 	msg := fmt.Sprintf("no pipeline commit found matching '%s' for %s", target, repo)
 
@@ -128,19 +141,99 @@ func reportTargetCommitNotFound(repo, target string) error {
 }
 
 func collectCommitWorkflowLogs(repo string, group *CommitPipelineGroup, opts PipelineLogsOptions) (string, []CommitWorkflowLogItem) {
-	var sb strings.Builder
-	var items []CommitWorkflowLogItem
-	for _, wf := range group.Workflows {
-		if isWorkflowLogSkipped(wf, opts) {
-			continue
+	targets := filterTargetWorkflows(group.Workflows, opts)
+	if len(targets) == 0 {
+		return "", nil
+	}
+	items := fetchTargetWorkflows(repo, targets, opts)
+
+	return assembleWorkflowLogs(items), items
+}
+
+func filterTargetWorkflows(workflows []CommitWorkflowItem, opts PipelineLogsOptions) []CommitWorkflowItem {
+	var targets []CommitWorkflowItem
+	for _, wf := range workflows {
+		if !isWorkflowLogSkipped(wf, opts) {
+			targets = append(targets, wf)
 		}
-		raw := queryAllRunLogs(repo, wf.DatabaseId)
-		processed := processWorkflowLogText(raw, opts.IsDetailed)
-		appendWorkflowLogSection(&sb, wf, processed)
-		items = append(items, buildWorkflowLogItem(wf, processed))
 	}
 
-	return CollapseConsecutiveEmptyLines(sb.String()), items
+	return targets
+}
+
+func fetchTargetWorkflows(repo string, targets []CommitWorkflowItem, opts PipelineLogsOptions) []CommitWorkflowItem {
+	if len(targets) == 1 {
+		return []CommitWorkflowLogItem{fetchSingleWorkflowLogItem(repo, targets[0], opts)}
+	}
+
+	return fetchWorkflowsParallel(repo, targets, opts)
+}
+
+func fetchWorkflowsParallel(repo string, targets []CommitWorkflowItem, opts PipelineLogsOptions) []CommitWorkflowLogItem {
+	items := make([]CommitWorkflowLogItem, len(targets))
+	concurrency := resolveWorkflowFetchLimit(len(targets))
+	sem := make(chan struct{}, concurrency)
+	var wg sync.WaitGroup
+
+	for i, wf := range targets {
+		wg.Add(1)
+		go dispatchWorkflowFetchWorker(&wg, sem, items, repo, wf, opts, i)
+	}
+	wg.Wait()
+
+	return items
+}
+
+func dispatchWorkflowFetchWorker(
+	wg *sync.WaitGroup,
+	sem chan struct{},
+	items []CommitWorkflowLogItem,
+	repo string,
+	wf CommitWorkflowItem,
+	opts PipelineLogsOptions,
+	idx int,
+) {
+	defer wg.Done()
+	sem <- struct{}{}
+	items[idx] = fetchSingleWorkflowLogItem(repo, wf, opts)
+	<-sem
+}
+
+func fetchSingleWorkflowLogItem(repo string, wf CommitWorkflowItem, opts PipelineLogsOptions) CommitWorkflowLogItem {
+	raw := queryAllRunLogs(repo, wf.DatabaseId)
+	processed := processWorkflowLogText(raw, opts.IsDetailed)
+
+	return buildWorkflowLogItem(wf, processed)
+}
+
+func resolveWorkflowFetchLimit(total int) int {
+	if total <= 4 {
+		return total
+	}
+
+	return 4
+}
+
+func assembleWorkflowLogs(items []CommitWorkflowLogItem) string {
+	var sb strings.Builder
+	for _, it := range items {
+		appendWorkflowLogItemSection(&sb, it)
+	}
+
+	return CollapseConsecutiveEmptyLines(sb.String())
+}
+
+func appendWorkflowLogItemSection(sb *strings.Builder, item CommitWorkflowLogItem) {
+	header := fmt.Sprintf("=== Workflow: %s (#%d) | Status: %s | Conclusion: %s ===\n",
+		item.Name, item.DatabaseId, item.Status, item.Conclusion)
+	sb.WriteString(header)
+	if len(strings.TrimSpace(item.Logs)) > 0 {
+		sb.WriteString(item.Logs)
+		sb.WriteString("\n\n")
+
+		return
+	}
+	sb.WriteString("(No log entries or errors recorded)\n\n")
 }
 
 func isWorkflowLogSkipped(wf CommitWorkflowItem, opts PipelineLogsOptions) bool {
@@ -160,18 +253,6 @@ func processWorkflowLogText(raw string, isDetailed bool) string {
 	}
 
 	return extractCleanErrorLines(raw)
-}
-
-func appendWorkflowLogSection(sb *strings.Builder, wf CommitWorkflowItem, logs string) {
-	header := fmt.Sprintf("=== Workflow: %s (#%d) | Status: %s | Conclusion: %s ===\n",
-		wf.Name, wf.DatabaseId, wf.Status, wf.Conclusion)
-	sb.WriteString(header)
-	if len(strings.TrimSpace(logs)) > 0 {
-		sb.WriteString(logs)
-		sb.WriteString("\n\n")
-	} else {
-		sb.WriteString("(No log entries or errors recorded)\n\n")
-	}
 }
 
 // CommitWorkflowLogItem captures structured logs for a workflow in a commit.

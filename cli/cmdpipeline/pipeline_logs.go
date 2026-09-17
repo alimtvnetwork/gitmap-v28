@@ -86,9 +86,7 @@ func applyPayloadOptions(p *PipelineErrorLogsPayload, runs []ghRunItem, flags Pi
 func buildErrorLogsPayload(repo string, runs []ghRunItem) PipelineErrorLogsPayload {
 	payload := initBaseErrorLogsPayload(repo)
 	if len(runs) == 0 {
-		enrichErrorLogsMetadata(&payload, repo, runs)
-
-		return buildLocalOrEmptyErrorPayload(payload)
+		return handleEmptyRunsPayload(repo, runs, payload)
 	}
 
 	populateRunsIntoPayload(repo, runs, &payload)
@@ -97,13 +95,27 @@ func buildErrorLogsPayload(repo string, runs []ghRunItem) PipelineErrorLogsPaylo
 	return payload
 }
 
+func handleEmptyRunsPayload(repo string, runs []ghRunItem, p PipelineErrorLogsPayload) PipelineErrorLogsPayload {
+	if ApplyPreviousDbFallbackToPayload(&p, repo) {
+		enrichErrorLogsMetadata(&p, repo, runs)
+
+		return p
+	}
+	enrichErrorLogsMetadata(&p, repo, runs)
+
+	return buildLocalOrEmptyErrorPayload(p)
+}
+
 func populateRunsIntoPayload(repo string, runs []ghRunItem, p *PipelineErrorLogsPayload) {
 	initLatestRunMeta(p, runs[0])
 	checkAndApplyRunningState(p, runs)
 	failedRuns := resolveFailedRunsForPayload(repo, runs)
 	if len(failedRuns) > 0 {
 		populateFailedRunsPayload(repo, failedRuns, p)
+
+		return
 	}
+	_ = ApplyPreviousRunFallbackToPayload(p, repo, runs)
 }
 
 func enrichErrorLogsMetadata(p *PipelineErrorLogsPayload, repo string, runs []ghRunItem) {

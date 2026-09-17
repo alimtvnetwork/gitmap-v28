@@ -851,15 +851,12 @@ func isRustOkLine(trimmed string) bool {
 	return false
 }
 
-func filterCompactLines(lines []string) []string {
-	var filtered []string
-	for _, line := range lines {
-		if !isOkLogLine(line) {
-			filtered = append(filtered, line)
-		}
-	}
+func isKeepLogLine(line string) bool {
+	return !isOkLogLine(line)
+}
 
-	return filtered
+func filterCompactLines(lines []string) []string {
+	return ParallelFilterLines(lines, isKeepLogLine)
 }
 
 // FilterCompactLogText strips passing ok lines from a text block and returns filtered count.
