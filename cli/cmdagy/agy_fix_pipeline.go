@@ -22,6 +22,7 @@ var (
 	agyFixNoClipboard  bool
 	agyFixOutputFile   string
 	agyFixDryRun       bool
+	agyFixForce        bool
 )
 
 const activeAgyPromptRelativePath = ".lovable/temp/active-agy-pipeline-fix-prompt.txt"
@@ -29,7 +30,7 @@ const activeAgyPromptRelativePath = ".lovable/temp/active-agy-pipeline-fix-promp
 // agyFixPipelineCmd represents the agy fix-pipeline CLI command.
 var agyFixPipelineCmd = &cobra.Command{
 	Use:     "fix-pipeline [repo]",
-	Aliases: []string{"fix", "fp", "pipeline-fix", "fixpipeline"},
+	Aliases: []string{"fix", "fp", "pipeline-fix", "fixpipeline", "aef", "agy-errors-fix"},
 	Short:   "Extract latest pipeline error logs and CI/CD fix prompt into clipboard and active temp prompt for Antigravity IDE",
 	RunE: func(cmd *cobra.Command, args []string) error {
 		return RunAgyFixPipelineCLI(args)
@@ -43,37 +44,250 @@ func init() {
 	agyFixPipelineCmd.Flags().BoolVar(&agyFixNoClipboard, "no-clipboard", false, "Skip writing to system clipboard")
 	agyFixPipelineCmd.Flags().StringVar(&agyFixOutputFile, "file", "", "Optional destination file path for prompt payload")
 	agyFixPipelineCmd.Flags().BoolVarP(&agyFixDryRun, "dry-run", "d", false, "Preview payload statistics without saving or copying")
+	agyFixPipelineCmd.Flags().BoolVarP(&agyFixForce, "force", "f", false, "Force resending even if previously sent")
+}
+
+func resolveTargetRepoArg(args []string) string {
+	opts := parseAgyFixArgs(args)
+
+	return opts.Repo
 }
 
 // RunAgyFixPipelineCLI parses arguments and executes the pipeline fix feed assembly.
 func RunAgyFixPipelineCLI(args []string) error {
-	repo := resolveTargetRepoArg(args)
-	errorReport, hasFailures := cmdpipeline.FetchLatestPipelineErrorReport(repo, agyFixDetailed)
-	promptContent, promptSource := loadCicdFixPrompt(agyFixCustomPrompt, agyFixNoRelease)
-	payload := AssembleFixPipelinePayload(errorReport, promptContent)
+	return RunPipelineFixAgyCLI(args)
+}
 
-	if agyFixDryRun {
-		renderAgyFixDryRun(repo, promptSource, errorReport, promptContent, payload, hasFailures)
+func checkAgyFixDuplicate(opts AgyFixOptions, payload cmdpipeline.PipelineErrorLogsPayload, errorReport string) (bool, string, string, string) {
+	sig, errHash := ComputeErrorSignature(payload.Repo, payload.RunId, payload.Sha, errorReport)
+	storePath := sentAgyErrorsStorePath()
+	store := LoadSentAgyErrorsStore(storePath)
+	isDuplicate, existingRecord := CheckSentErrorDuplicate(sig, store, opts.IsForce)
+	if isDuplicate {
+		renderDuplicateNotice(payload.Repo, payload.RunId, payload.Sha, existingRecord)
+
+		return true, storePath, sig, errHash
+	}
+
+	return false, storePath, sig, errHash
+}
+
+// RunPipelineFixAgyCLI is the unified entrypoint for pipeline fix errors agy / aef.
+func RunPipelineFixAgyCLI(args []string) error {
+	opts := parseAgyFixArgs(args)
+	payload, errorReport, hasFailures := cmdpipeline.FetchPipelineErrorReportWithMeta(opts.Repo, opts.IsDetailed)
+	isDup, storePath, sig, errHash := checkAgyFixDuplicate(opts, payload, errorReport)
+	if isDup {
+		return nil
+	}
+
+	params := AgyFixDispatchParams{
+		Opts: opts, StorePath: storePath, Sig: sig, ErrHash: errHash,
+		Payload: payload, ErrorReport: errorReport, HasFailures: hasFailures,
+	}
+
+	return dispatchAgyFixPrepared(params)
+}
+
+func assemblePrimaryAndFollowup(opts AgyFixOptions, payload cmdpipeline.PipelineErrorLogsPayload, errorReport string) (string, string, string) {
+	gitLog := ExtractGitLog("", 5)
+	promptContent, promptSource := LoadCanonicalRcaPrompt(opts.CustomPrompt, opts.IsNoRelease)
+	primary := AssembleRcaFixPayload(payload.Repo, payload.RunId, payload.Sha, gitLog, errorReport, promptContent)
+	followup := BuildVerificationFollowupPrompt(payload.Repo, payload.RunId, payload.Sha)
+
+	return primary, followup, promptSource
+}
+
+func dispatchAgyFixPrepared(p AgyFixDispatchParams) error {
+	primary, followup, promptSource := assemblePrimaryAndFollowup(p.Opts, p.Payload, p.ErrorReport)
+	if p.Opts.IsDryRun {
+		renderAgyFixDryRun(p.Payload.Repo, promptSource, p.ErrorReport, primary, primary, p.HasFailures)
 
 		return nil
 	}
 
-	writeErr := persistFixPromptPayload(payload, agyFixOutputFile, agyFixNoClipboard)
-	if writeErr != nil {
+	return executeFixPayloadDispatch(p, promptSource, primary, followup)
+}
+
+func finalizeFixFeedback(repo, promptSource, errorReport, promptContent, primaryPayload string, hasFailures bool) {
+	renderAgyFixFeedback(repo, promptSource, errorReport, promptContent, primaryPayload, hasFailures)
+	renderQueuedVerificationNotice()
+}
+
+func persistAndRecordAgyFix(p AgyFixDispatchParams, primary, followup string) error {
+	if writeErr := persistFixPromptPayload(primary, p.Opts.OutputFile, p.Opts.IsNoClipboard); writeErr != nil {
 		return apperror.WrapSimple(writeErr, "persist prompt payload")
 	}
 
-	renderAgyFixFeedback(repo, promptSource, errorReport, promptContent, payload, hasFailures)
+	_ = StageVerificationFollowupPrompt(primary, followup)
+	_ = RecordSentErrorSignature(p.StorePath, p.Sig, p.Payload.Repo, p.Payload.RunId, p.Payload.Sha, p.ErrHash)
 
 	return nil
 }
 
-func resolveTargetRepoArg(args []string) string {
-	if len(args) > 0 && !strings.HasPrefix(args[0], "-") {
-		return args[0]
+func executeFixPayloadDispatch(p AgyFixDispatchParams, promptSource, primary, followup string) error {
+	if err := persistAndRecordAgyFix(p, primary, followup); err != nil {
+		return err
 	}
 
-	return ""
+	finalizeFixFeedback(p.Payload.Repo, promptSource, p.ErrorReport, primary, primary, p.HasFailures)
+
+	return nil
+}
+
+func defaultAgyFixOptions() AgyFixOptions {
+	return AgyFixOptions{
+		IsDetailed:    agyFixDetailed,
+		IsNoRelease:   agyFixNoRelease,
+		CustomPrompt:  agyFixCustomPrompt,
+		IsNoClipboard: agyFixNoClipboard,
+		OutputFile:    agyFixOutputFile,
+		IsDryRun:      agyFixDryRun,
+		IsForce:       agyFixForce,
+	}
+}
+
+func parseAgyFixArgs(args []string) AgyFixOptions {
+	opts := defaultAgyFixOptions()
+	for i := 0; i < len(args); i++ {
+		parseSingleArg(args, &i, &opts)
+	}
+
+	return opts
+}
+
+func parseBehaviorToggle(arg string, opts *AgyFixOptions) bool {
+	if isAgyForceFlag(arg) {
+		opts.IsForce = true
+		return true
+	}
+	if isAgyDetailedFlag(arg) {
+		opts.IsDetailed = true
+		return true
+	}
+
+	return false
+}
+
+func parseOutputToggle(arg string, opts *AgyFixOptions) bool {
+	switch {
+	case arg == "--no-release":
+		opts.IsNoRelease = true
+		return true
+	case arg == "--no-clipboard":
+		opts.IsNoClipboard = true
+		return true
+	case isAgyDryRunFlag(arg):
+		opts.IsDryRun = true
+		return true
+	default:
+		return false
+	}
+}
+
+func parseToggleArg(arg string, opts *AgyFixOptions) bool {
+	return parseBehaviorToggle(arg, opts) || parseOutputToggle(arg, opts)
+}
+
+func parseSingleArg(args []string, idx *int, opts *AgyFixOptions) {
+	arg := args[*idx]
+	if parseToggleArg(arg, opts) {
+		return
+	}
+
+	parseArgWithParam(args, idx, opts, arg)
+}
+
+func isAgyForceFlag(arg string) bool {
+	return arg == "--force" || arg == "-f"
+}
+
+func isAgyDetailedFlag(arg string) bool {
+	return arg == "--detailed" || arg == "-v"
+}
+
+func isAgyDryRunFlag(arg string) bool {
+	return arg == "--dry-run" || arg == "-d"
+}
+
+func parseParamFlag(args []string, idx *int, opts *AgyFixOptions, arg string) bool {
+	hasNext := *idx+1 < len(args)
+	if (arg == "--prompt" || arg == "-p") && hasNext {
+		opts.CustomPrompt = args[*idx+1]
+		*idx++
+		return true
+	}
+	if arg == "--file" && hasNext {
+		opts.OutputFile = args[*idx+1]
+		*idx++
+		return true
+	}
+
+	return false
+}
+
+func parseArgWithParam(args []string, idx *int, opts *AgyFixOptions, arg string) {
+	if parseParamFlag(args, idx, opts, arg) || strings.HasPrefix(arg, "-") {
+		return
+	}
+
+	if !isSubcommandKeyword(strings.ToLower(arg)) && len(opts.Repo) == 0 {
+		opts.Repo = arg
+	}
+}
+
+func isSubcommandKeyword(word string) bool {
+	switch word {
+	case "fix", "errors", "error", "err", "agy", "aef",
+		"pipeline", "pipeline-fix", "fix-agy", "agy-errors-fix",
+		"fix-pipeline", "fixpipeline", "fp":
+		return true
+	}
+
+	return false
+}
+
+func renderDuplicateNotice(repo string, runID uint64, sha string, rec *SentAgyErrorRecord) {
+	desc := formatErrorRunDesc(repo, runID, sha)
+	fmt.Printf("\n  %s⚠ Pipeline errors for %s have already been sent to Antigravity!%s\n",
+		constants.ColorYellow, desc, constants.ColorReset)
+	if rec != nil && len(rec.SentAt) > 0 {
+		fmt.Printf("    Previously sent at: %s (dispatch count: %d)\n", rec.SentAt, rec.SentCount)
+	}
+	fmt.Printf("    %sDo you want to send again? Use --force or -f to send again.%s\n\n",
+		constants.ColorCyan, constants.ColorReset)
+}
+
+func formatErrorRunDesc(repo string, runID uint64, sha string) string {
+	if runID > 0 && len(sha) > 0 {
+		return fmt.Sprintf("run #%d (commit %s)", runID, truncateSHA(sha))
+	}
+	if runID > 0 {
+		return fmt.Sprintf("run #%d", runID)
+	}
+	if len(sha) > 0 {
+		return fmt.Sprintf("commit %s", truncateSHA(sha))
+	}
+
+	return formatDisplayRepo(repo)
+}
+
+func truncateSHA(sha string) string {
+	if len(sha) > 7 {
+		return sha[:7]
+	}
+
+	return sha
+}
+
+func renderQueuedVerificationNotice() {
+	fmt.Printf("  %s✓ Follow-up Verification Prompt Queued: %s (\"Is it fixed?\")%s\n",
+		constants.ColorGreen, queuedAgyPromptRelativePath, constants.ColorReset)
+	fmt.Printf("    • Queue Ledger:   %s\n", agyPromptQueueRelativePath)
+	if agyPath, hasAgy := resolveAntigravityBinary(); hasAgy {
+		fmt.Printf("    • Antigravity CLI: Detected at %s (run: agy -c)\n", agyPath)
+	}
+	fmt.Println()
 }
 
 // AssembleFixPipelinePayload combines error logs and fix prompt with mandatory two-line gap.
@@ -90,20 +304,6 @@ func AssembleFixPipelinePayload(errorLogs, fixPrompt string) string {
 	return cleanLogs + "\n\n" + cleanPrompt
 }
 
-func loadCicdFixPrompt(customPath string, isNoRelease bool) (string, string) {
-	if prompt, path, hasCustom := readCustomPrompt(customPath); hasCustom {
-		return prompt, path
-	}
-
-	targetPath := selectPromptPath(isNoRelease)
-	data, err := os.ReadFile(targetPath)
-	if err == nil {
-		return string(data), targetPath
-	}
-
-	return defaultCicdFixWithReleasePromptFallback, "embedded-fallback"
-}
-
 func readCustomPrompt(customPath string) (string, string, bool) {
 	if len(customPath) == 0 {
 		return "", "", false
@@ -116,29 +316,27 @@ func readCustomPrompt(customPath string) (string, string, bool) {
 	return string(data), customPath, true
 }
 
-func selectPromptPath(isNoRelease bool) string {
-	if isNoRelease {
-		return "01-prompts/16-ci-cd/01-ci-cd-fix.md"
+func saveCustomFileIfRequested(customFile, payload string) {
+	if len(customFile) > 0 {
+		_ = os.WriteFile(customFile, []byte(payload), 0644)
 	}
+}
 
-	return "01-prompts/16-ci-cd/04-ci-cd-fix-with-release.md"
+func copyClipboardIfNotSkipped(payload string, skipClipboard bool) {
+	if !skipClipboard {
+		_ = clipboard.WriteAll(payload)
+	}
 }
 
 func persistFixPromptPayload(payload, customFile string, skipClipboard bool) error {
 	tempPath := filepath.Join(resolveProjectRootDir(), activeAgyPromptRelativePath)
 	_ = os.MkdirAll(filepath.Dir(tempPath), 0755)
-	writeErr := os.WriteFile(tempPath, []byte(payload), 0644)
-	if writeErr != nil {
+	if writeErr := os.WriteFile(tempPath, []byte(payload), 0644); writeErr != nil {
 		return writeErr
 	}
 
-	if len(customFile) > 0 {
-		_ = os.WriteFile(customFile, []byte(payload), 0644)
-	}
-
-	if !skipClipboard {
-		_ = clipboard.WriteAll(payload)
-	}
+	saveCustomFileIfRequested(customFile, payload)
+	copyClipboardIfNotSkipped(payload, skipClipboard)
 
 	return nil
 }
@@ -199,16 +397,3 @@ func renderAgyFixDryRun(repo, promptSource, logs, prompt, payload string, hasFai
 	renderPayloadMetrics(repo, promptSource, logs, prompt, payload, hasFailures)
 	fmt.Println("\n  [dry-run] Skipping clipboard copy and disk persistence.")
 }
-
-const defaultCicdFixWithReleasePromptFallback = `# Release-Triggered CI/CD Fix Loop — Workflow (must follow)
-
-Trigger Keywords & Aliases: fix and release, ci release, fix CI/CD and release, cicd fix release
-
-N = 200
-
-### Master Task Checklist
-1. First N/2 steps: Review central CI/CD pipelines and local Python runner (03-ai-scripts/06-cicd-local-runner.py).
-2. Second N/2 steps: Run local runner (python 03-ai-scripts/06-cicd-local-runner.py --all) to catch all errors via 4-part RCA.
-3. Finalize CI/CD: Loop until all registered cases exit 0.
-4. Release: Perform version bump, changelog update, git tag, and release orchestration.
-`

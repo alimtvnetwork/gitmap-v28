@@ -112,6 +112,7 @@ func runZsh(args []string) error {
 
 func utilityPipelineEntries() []dispatchEntry {
 	return []dispatchEntry{
+		{[]string{"pipeline-fix", "fix-pipeline", "aef", "agy-errors-fix", "fix-agy"}, func() error { return cmdagy.RunPipelineFixAgyCLI(argsTail()) }},
 		{[]string{"pipeline-ai", "pl-ai", "plai", "pipeline_ai"}, func() error { return runPipelineAI(argsTail()) }},
 		{[]string{"pipeline", "pipelines", "pl"}, func() error { return runPipeline(argsTail()) }},
 		{[]string{"error-logs", "error-log", "errorlogs", "errorlog", "errors", "err", "errorslogs", "errors-log", "errors-logs", "last-failed-logs"}, func() error { return runPipeline(append([]string{os.Args[1]}, argsTail()...)) }},

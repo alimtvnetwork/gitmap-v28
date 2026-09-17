@@ -18,6 +18,7 @@ pl
 | status         | Live CI/CD execution state, active workflow, ETA, and pending PRs                     |
 | waittime, eta  | Remaining estimated wait time in seconds (machine-friendly integer)                   |
 | errors, err    | Aggregated failure logs for current or past commit by offset (`-1`, `-2`, `-3`)       |
+| fix errors agy | Feed errors & git log with RCA prompt to Antigravity and queue follow-up (alias: `aef`)|
 | history, hist  | Visual pipeline run tree and commit status summary for recent commits (`-n 5`)       |
 | logs           | Full step logs for target commit, offset, or latest workflow run                      |
 | help           | Show this pipeline command suite documentation                                        |
@@ -26,6 +27,7 @@ pl
 
 | Flag         | Type    | Default | Description                                                     |
 |--------------|---------|---------|-----------------------------------------------------------------|
+| -f, --force  | boolean | false   | Bypass duplicate check and resend errors previously dispatched  |
 | --json       | boolean | false   | Output structured JSON payload for scripting and AI agents      |
 | --file       | string  | ""      | Write error logs or telemetry to the specified file path        |
 | --tempfile   | string  | ""      | Write error logs to `.lovable/temp/<filename>` (configurable)   |
@@ -38,6 +40,8 @@ pl
 
 | Shortcut           | Equivalent Command                  |
 |--------------------|-------------------------------------|
+| gitmap aef         | gitmap pipeline fix errors agy      |
+| gitmap pipeline-fix| gitmap pipeline fix errors agy      |
 | gitmap error-logs  | gitmap pipeline error-logs          |
 | gitmap errors      | gitmap pipeline errors              |
 | gitmap logs        | gitmap pipeline logs                |

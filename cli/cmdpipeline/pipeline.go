@@ -128,6 +128,10 @@ func runPipeline(args []string) error {
 		return handlePipelineStatus(nil)
 	}
 
+	if IsPipelineFixAgyArgs(args) && PipelineAgyFixRunner != nil {
+		return PipelineAgyFixRunner(args)
+	}
+
 	subcmd := strings.ToLower(args[0])
 	if handled, err := checkErrorLogsSubcmd(subcmd, args); handled {
 		return err

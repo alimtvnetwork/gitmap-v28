@@ -59,19 +59,28 @@ func SaveParsedFailedJobs(db *pipelinedb.PipelineSplitDb, repo string, run GhRun
 
 // FetchLatestPipelineErrorReport returns the formatted error report string and whether failures exist.
 func FetchLatestPipelineErrorReport(repo string, isDetailed bool) (string, bool) {
+	_, report, hasFailures := FetchPipelineErrorReportWithMeta(repo, isDetailed)
+
+	return report, hasFailures
+}
+
+// FetchPipelineErrorReportWithMeta returns payload metadata, formatted error report, and failure status.
+func FetchPipelineErrorReportWithMeta(repo string, isDetailed bool) (PipelineErrorLogsPayload, string, bool) {
 	targetRepo := repo
 	if len(targetRepo) == 0 {
 		targetRepo = resolveCurrentRepoSlug()
 	}
+
 	runs := queryWorkflowRuns(targetRepo)
 	payload := buildErrorLogsPayload(targetRepo, runs)
 	if !isDetailed {
 		compactErrorPayload(&payload)
 	}
+
 	hasFailure := payload.Conclusion == "failure" || len(payload.FailedRuns) > 0
 	if hasFailure {
-		return buildClipboardErrorReport(payload), true
+		return payload, buildClipboardErrorReport(payload), true
 	}
 
-	return buildClipboardCleanReport(payload), false
+	return payload, buildClipboardCleanReport(payload), false
 }

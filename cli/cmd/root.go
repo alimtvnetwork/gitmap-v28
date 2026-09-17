@@ -558,9 +558,9 @@ func dispatchExtraCommand(
 		executeAndAudit(cmdagy.DispatchAgy, shouldAudit, auditID, auditStart)
 
 		return true
-	case "fix-pipeline", "fixpipeline":
+	case "fix-pipeline", "fixpipeline", "pipeline-fix", "aef", "agy-errors-fix", "fix-agy":
 		executeAndAudit(func(ctx context.Context, args []string, root *cobra.Command) error {
-			return cmdagy.RunAgyFixPipelineCLI(args)
+			return cmdagy.RunPipelineFixAgyCLI(args)
 		}, shouldAudit, auditID, auditStart)
 
 		return true

@@ -99,7 +99,9 @@ func normalizeAgySubcommand(sub string) string {
 
 func isFixPipelineAlias(low string) bool {
 	return low == "fix-pipeline" || low == "fix" || low == "fp" ||
-		low == "pipeline-fix" || low == "fixpipeline"
+		low == "pipeline-fix" || low == "fixpipeline" ||
+		low == "aef" || low == "agy-errors-fix" || low == "errors-fix" ||
+		low == "fix-errors" || low == "fix-agy"
 }
 
 func isCureDupsAlias(low string) bool {

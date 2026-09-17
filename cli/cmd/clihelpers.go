@@ -720,6 +720,7 @@ func RunRepoReclone(target string, yes bool) error {
 }
 
 func init() {
+	cmdpipeline.PipelineAgyFixRunner = cmdagy.RunPipelineFixAgyCLI
 	cmdssh.JoinRunner = cmdssh.RunSSHJoinCLI
 	cmdssh.ProfileRunner = runProfile
 
