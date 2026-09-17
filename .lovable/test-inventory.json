@@ -1,11 +1,11 @@
 {
   "version": 1,
-  "updated_at": "2026-09-17T12:10:26Z",
+  "updated_at": "2026-09-18T00:57:20Z",
   "total_tests": 3536,
   "summary": {
     "total": 3536,
-    "cached": 1222,
-    "dirty": 2314,
+    "cached": 1212,
+    "dirty": 2324,
     "packages": 139,
     "slow_tests": 84,
     "fast_tests": 3452,
@@ -4832,7 +4832,7 @@
       "is_slow": false,
       "last_status": "passed",
       "last_run_at": "2026-09-17T10:58:55",
-      "needs_run": false
+      "needs_run": true
     },
     "cli/cmd.TestDispatchClusterSubcommand_Matches": {
       "id": "cli/cmd.TestDispatchClusterSubcommand_Matches",
@@ -4848,7 +4848,7 @@
       "is_slow": false,
       "last_status": "passed",
       "last_run_at": "2026-09-17T10:58:55",
-      "needs_run": false
+      "needs_run": true
     },
     "cli/cmd.TestDispatchClusterSubcommand_Unknown": {
       "id": "cli/cmd.TestDispatchClusterSubcommand_Unknown",
@@ -4864,7 +4864,7 @@
       "is_slow": false,
       "last_status": "passed",
       "last_run_at": "2026-09-17T10:58:55",
-      "needs_run": false
+      "needs_run": true
     },
     "cli/cmd.TestRunCluster_InvertedHelp": {
       "id": "cli/cmd.TestRunCluster_InvertedHelp",
@@ -4880,7 +4880,7 @@
       "is_slow": false,
       "last_status": "passed",
       "last_run_at": "2026-09-17T10:58:55",
-      "needs_run": false
+      "needs_run": true
     },
     "cli/cmd.TestDispatchInvertedClusterHelp_Branches": {
       "id": "cli/cmd.TestDispatchInvertedClusterHelp_Branches",
@@ -4896,7 +4896,7 @@
       "is_slow": false,
       "last_status": "passed",
       "last_run_at": "2026-09-17T10:58:55",
-      "needs_run": false
+      "needs_run": true
     },
     "cli/cmd.TestClusterSubcommands_LazyRegexMatching": {
       "id": "cli/cmd.TestClusterSubcommands_LazyRegexMatching",
@@ -4912,7 +4912,7 @@
       "is_slow": false,
       "last_status": "passed",
       "last_run_at": "2026-09-17T10:58:55",
-      "needs_run": false
+      "needs_run": true
     },
     "cli/cmd.TestClusterSubcommand_LazyRegexUnknownMismatch": {
       "id": "cli/cmd.TestClusterSubcommand_LazyRegexUnknownMismatch",
@@ -4928,7 +4928,7 @@
       "is_slow": false,
       "last_status": "passed",
       "last_run_at": "2026-09-17T10:58:55",
-      "needs_run": false
+      "needs_run": true
     },
     "cli/cmd.TestClusterSubcommand_LazyRegexResultGroupMethods": {
       "id": "cli/cmd.TestClusterSubcommand_LazyRegexResultGroupMethods",
@@ -4944,7 +4944,7 @@
       "is_slow": false,
       "last_status": "passed",
       "last_run_at": "2026-09-17T10:58:55",
-      "needs_run": false
+      "needs_run": true
     },
     "cli/cmd.TestClusterSubcommand_LazyRegexGroupItemsAndMap": {
       "id": "cli/cmd.TestClusterSubcommand_LazyRegexGroupItemsAndMap",
@@ -4960,7 +4960,7 @@
       "is_slow": false,
       "last_status": "passed",
       "last_run_at": "2026-09-17T10:58:55",
-      "needs_run": false
+      "needs_run": true
     },
     "cli/cmd.TestClusterSubcommand_LazyRegexMatchError": {
       "id": "cli/cmd.TestClusterSubcommand_LazyRegexMatchError",
@@ -4976,7 +4976,7 @@
       "is_slow": false,
       "last_status": "passed",
       "last_run_at": "2026-09-17T10:58:55",
-      "needs_run": false
+      "needs_run": true
     },
     "cli/cmd.TestTopLevelCmdConstantsAreUnique": {
       "id": "cli/cmd.TestTopLevelCmdConstantsAreUnique",

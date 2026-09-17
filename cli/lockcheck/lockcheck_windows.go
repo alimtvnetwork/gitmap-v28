@@ -72,7 +72,7 @@ func parseHandleOutput(output string) []LockingProcess {
 		}
 
 		pid, err := strconv.Atoi(fields[0])
-		if err != nil || seen[pid] {
+		if err != nil || seen[pid] || IsProtectedProcess(name, pid) {
 			continue
 		}
 
@@ -120,7 +120,7 @@ func parseWMIOutput(output string) []LockingProcess {
 		}
 
 		pid, err := strconv.Atoi(parts[0])
-		if err != nil || seen[pid] {
+		if err != nil || seen[pid] || IsProtectedProcess(parts[1], pid) {
 			continue
 		}
 
@@ -133,6 +133,10 @@ func parseWMIOutput(output string) []LockingProcess {
 
 // KillProcess terminates a process by PID on Windows.
 func KillProcess(pid int) error {
+	if IsProtectedProcess("", pid) {
+		return fmt.Errorf("refusing to terminate protected process PID %d", pid)
+	}
+
 	cmd := exec.Command("taskkill", "/F", "/PID", strconv.Itoa(pid))
 	cmd.SysProcAttr = &syscall.SysProcAttr{HideWindow: true}
 

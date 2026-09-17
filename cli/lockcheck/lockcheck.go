@@ -34,3 +34,27 @@ func FormatProcessList(procs []LockingProcess) string {
 
 	return b.String()
 }
+
+// IsProtectedProcess returns true if a process PID or name belongs to protected IDE, editor, or current process.
+func IsProtectedProcess(name string, pid int) bool {
+	if pid <= 0 || pid == 4 { // PID 4 is Windows System
+		return true
+	}
+
+	return isProtectedName(name)
+}
+
+func isProtectedName(name string) bool {
+	lower := strings.ToLower(name)
+	protectedList := []string{
+		"antigravity", "code", "node", "electron",
+		"msedgewebview2", "python", "pwsh", "powershell", "bash",
+	}
+	for _, protected := range protectedList {
+		if strings.Contains(lower, protected) {
+			return true
+		}
+	}
+
+	return false
+}

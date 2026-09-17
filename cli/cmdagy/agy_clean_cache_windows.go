@@ -11,6 +11,8 @@ import (
 	"strconv"
 	"syscall"
 	"time"
+
+	"github.com/alimtvnetwork/gitmap-v28/cli/lockcheck"
 )
 
 // DiscoverCacheTargets discovers all Antigravity cache directories on Windows.
@@ -105,21 +107,35 @@ func TerminateProcesses(procs []AgyProcessInfo) (int, []string) {
 	var warnings []string
 
 	for _, p := range procs {
-		cmd := exec.Command("taskkill", "/F", "/PID", strconv.Itoa(p.PID))
-		cmd.SysProcAttr = &syscall.SysProcAttr{HideWindow: true}
-
-		runErr := cmd.Run()
-		if runErr != nil {
-			warnings = append(warnings, fmt.Sprintf("kill PID %d (%s): %v", p.PID, p.Name, runErr))
-			continue
+		success, warn := terminateSingleProcess(p)
+		if !success && warn != "" {
+			warnings = append(warnings, warn)
+		} else if success {
+			killed++
 		}
-
-		killed++
 	}
 
+	sleepAfterKills(killed)
+
+	return killed, warnings
+}
+
+func terminateSingleProcess(p AgyProcessInfo) (bool, string) {
+	if lockcheck.IsProtectedProcess(p.Name, p.PID) && os.Getenv("GITMAP_FORCE_IDE_KILL") != "1" {
+		return false, fmt.Sprintf("skipped protected process PID %d (%s)", p.PID, p.Name)
+	}
+
+	cmd := exec.Command("taskkill", "/F", "/PID", strconv.Itoa(p.PID))
+	cmd.SysProcAttr = &syscall.SysProcAttr{HideWindow: true}
+	if err := cmd.Run(); err != nil {
+		return false, fmt.Sprintf("kill PID %d (%s): %v", p.PID, p.Name, err)
+	}
+
+	return true, ""
+}
+
+func sleepAfterKills(killed int) {
 	if killed > 0 {
 		time.Sleep(600 * time.Millisecond)
 	}
-
-	return killed, warnings
 }

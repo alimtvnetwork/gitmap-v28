@@ -38,7 +38,7 @@ func parseLsofOutput(output string) []LockingProcess {
 
 		name := fields[0]
 		pid, err := strconv.Atoi(fields[1])
-		if err != nil || seen[pid] {
+		if err != nil || seen[pid] || IsProtectedProcess(name, pid) {
 			continue
 		}
 
@@ -51,5 +51,9 @@ func parseLsofOutput(output string) []LockingProcess {
 
 // KillProcess terminates a process by PID on Unix.
 func KillProcess(pid int) error {
+	if IsProtectedProcess("", pid) {
+		return fmt.Errorf("refusing to terminate protected process PID %d", pid)
+	}
+
 	return exec.Command("kill", "-9", strconv.Itoa(pid)).Run()
 }

@@ -152,17 +152,30 @@ def detect_cpu_freeness_and_workers(
     else:
         optimal = min(optimal, logical_cores * 3)
 
+    # Memory Safety Guard: On machines with limited memory (<=16GB RAM or <8GB available),
+    # cap worker threads to prevent Windows commit limit exhaustion (errno 1455)
+    # which crashes IDE language servers and background tasks.
+    try:
+        import psutil
+        vm = psutil.virtual_memory()
+        if vm.total <= 16 * 1024**3 or vm.available < 8 * 1024**3:
+            optimal = min(optimal, 4)
+    except Exception:
+        if os.name == "nt":
+            optimal = min(optimal, 4)
+
     return round(free_pct, 1), optimal
 
 
-INITIAL_FREE_CPU_PCT, DYNAMIC_WORKERS = detect_cpu_freeness_and_workers(min_workers=12)
+INITIAL_FREE_CPU_PCT, DYNAMIC_WORKERS = detect_cpu_freeness_and_workers(min_workers=4)
 DEFAULT_WORKERS = int(os.environ.get("CI_MAX_WORKERS", DYNAMIC_WORKERS))
-DEFAULT_IO_WORKERS = int(os.environ.get("CI_MAX_IO_WORKERS", min(24, CPU_CORES * 2)))
+DEFAULT_IO_WORKERS = int(os.environ.get("CI_MAX_IO_WORKERS", min(8, CPU_CORES)))
 DEFAULT_TIMEOUT_SEC = int(os.environ.get("CI_TIMEOUT_SEC", 1200))
 DEFAULT_ENCODING = "utf-8"
 DEFAULT_JOB_ESTIMATE_SEC = 5.0
 DEFAULT_HEARTBEAT_INTERVAL = float(os.environ.get("RUNNER_HEARTBEAT_INTERVAL", 25.0))
 REPO_ROOT = Path(__file__).resolve().parent.parent
+
 TMP_CACHE_DIR = REPO_ROOT / ".lovable" / "temp"
 TMP_CACHE_DIR.mkdir(parents=True, exist_ok=True)
 FAILURES_DIR = TMP_CACHE_DIR / "failures"
@@ -269,8 +282,9 @@ REPO_TEST_TEMP = get_repo_os_temp_dir("test")
 
 os.environ["GOTMPDIR"] = str(REPO_BUILD_TEMP)
 os.environ["TMPDIR"] = str(REPO_TEST_TEMP)
-os.environ["TEMP"] = str(REPO_TEST_TEMP)
-os.environ["TMP"] = str(REPO_TEST_TEMP)
+if os.name != "nt":
+    os.environ["TEMP"] = str(REPO_TEST_TEMP)
+    os.environ["TMP"] = str(REPO_TEST_TEMP)
 
 CICD_DIR = REPO_ROOT / ".lovable" / "cicd"
 CICD_DIR.mkdir(parents=True, exist_ok=True)
@@ -296,8 +310,9 @@ DISK_WRITE_LOCK = threading.RLock()
 JOB_BATCHES: list[dict[str, Any]] = [
     {
         "name": "Linters & AST Checks",
-        "max_workers": None,
+        "max_workers": min(4, DEFAULT_WORKERS),
         "jobs": {
+
             "Go Format Check": [sys.executable, ".github/scripts/go-format-check.py", "--no-commit"],
             "Spell Check (misspell)": [sys.executable, ".github/scripts/misspell-changed.py"],
             "Nested If Linter": [sys.executable, "linter-scripts/check-nested-ifs.py"],
@@ -1215,7 +1230,11 @@ def run_smart_go_tests(
             )
         dirty_tests = target_tests
     else:
-        dirty_tests = [t for t in tests.values() if t.get("needs_run", True) or force]
+        include_heavy = os.environ.get("GITMAP_RUN_HEAVY_TESTS") == "1"
+        dirty_tests = [
+            t for t in tests.values()
+            if (t.get("needs_run", True) or force) and (include_heavy or "tests/heavy_test" not in t.get("test_file", ""))
+        ]
 
     if not dirty_tests:
         elapsed = round(time.monotonic() - start_time, 2)
@@ -1261,8 +1280,9 @@ def run_smart_go_tests(
         "failed": 0,
     }, indent=2), encoding="utf-8")
 
-    free_pct, dynamic_workers = detect_cpu_freeness_and_workers(min_workers=16, max_cap=CPU_CORES * 2)
-    unified_worker_limit = max(dynamic_workers, CPU_CORES * 2)
+    free_pct, dynamic_workers = detect_cpu_freeness_and_workers(min_workers=4, max_cap=min(8, CPU_CORES))
+    unified_worker_limit = dynamic_workers
+
 
     # Unified Priority Work Queue: Slow batches enqueued first, followed immediately by fast packages
     all_work_items: list[tuple[str, list[dict[str, Any]]]] = []
