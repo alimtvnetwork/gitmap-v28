@@ -110,7 +110,21 @@ func routeClusterK8s(sub string, rest []string) result.ErrorWrapper {
 	}
 }
 
+func routeClusterInstall(sub string, rest []string) result.ErrorWrapper {
+	switch sub {
+	case "install":
+		return result.FailureWrapperErr(cmdssh.RunClusterInstallCLI(rest))
+	default:
+		return result.UnmatchedWrapper()
+	}
+}
+
 func routeClusterCore(sub string, rest []string) result.ErrorWrapper {
+	resInstall := routeClusterInstall(sub, rest)
+	if resInstall.IsMatched() {
+		return resInstall
+	}
+
 	resJoin := routeClusterJoinOps(sub, rest)
 	if resJoin.IsMatched() {
 		return resJoin

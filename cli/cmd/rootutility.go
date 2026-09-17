@@ -5,6 +5,7 @@ import (
 	"os"
 	"strings"
 
+	"github.com/alimtvnetwork/gitmap-v28/cli/cmdos"
 	"github.com/alimtvnetwork/gitmap-v28/cli/cmdzsh"
 	"github.com/alimtvnetwork/gitmap-v28/cli/constants"
 	"github.com/alimtvnetwork/gitmap-v28/cli/helptext"
@@ -99,6 +100,7 @@ func utilitySystemEntries() []dispatchEntry {
 		{[]string{constants.CmdWhoAmI, constants.CmdWhoAmIAlias}, func() error { checkHelp("whoami", argsTail()); return runWhoAmI(argsTail()) }},
 		{[]string{constants.CmdSSHBind, constants.CmdSSHBindAlias}, func() error { checkHelp("ssh-bind", argsTail()); return runSSHBind(argsTail()) }},
 		{[]string{constants.CmdFixAuth, constants.CmdFixAuthAlias}, func() error { checkHelp("fix-auth", argsTail()); return runFixAuth(argsTail()) }},
+		{[]string{"ai-clean", "aiclean", "clean-ai"}, func() error { return cmdos.RunOSAICleanCLI(argsTail()) }},
 	}
 }
 

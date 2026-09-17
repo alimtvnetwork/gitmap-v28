@@ -29,43 +29,91 @@ func runSchedule(args []string) error {
 }
 
 func dispatchScheduleSubcommand(sub string, rest []string) error {
+	if isHandled, err := dispatchScheduleDataOps(sub, rest); isHandled {
+		return err
+	}
+	if isHandled, err := dispatchScheduleStateOps(sub, rest); isHandled {
+		return err
+	}
+	return dispatchScheduleExecutionOps(sub, rest)
+}
+
+func dispatchScheduleDataOps(sub string, rest []string) (bool, error) {
 	switch sub {
 	case "add", "create", "new":
-		return runScheduleAdd(rest)
+		return true, runScheduleAdd(rest)
 	case "list", "ls":
-		return runScheduleList(rest)
+		return true, runScheduleList(rest)
 	case "status":
-		return runScheduleStatus(rest)
+		return true, runScheduleStatus(rest)
 	case "export", "export-all":
-		return runScheduleExport(rest)
+		return true, runScheduleExport(rest)
 	case "import", "import-all":
-		return runScheduleImport(rest)
+		return true, runScheduleImport(rest)
+	}
+	return false, nil
+}
+
+func dispatchScheduleStateOps(sub string, rest []string) (bool, error) {
+	switch sub {
 	case "enable", "on", "e":
-		return runScheduleSetEnabled(rest, true)
+		return true, runScheduleSetEnabled(rest, true)
 	case "disable", "off", "d":
-		return runScheduleSetEnabled(rest, false)
+		return true, runScheduleSetEnabled(rest, false)
 	case "logs", "log", "history":
-		return runScheduleLogs(rest)
+		return true, runScheduleLogs(rest)
 	case "reset":
-		return runScheduleReset(rest)
+		return true, runScheduleReset(rest)
 	case "reset-all":
-		return runScheduleResetAll(rest)
+		return true, runScheduleResetAll(rest)
+	}
+	return false, nil
+}
+
+func dispatchScheduleExecutionOps(sub string, rest []string) error {
+	if isHandled, err := dispatchSchedulePowerOps(sub, rest); isHandled {
+		return err
+	}
+	return dispatchScheduleTaskOps(sub, rest)
+}
+
+func dispatchSchedulePowerOps(sub string, rest []string) (bool, error) {
+	switch sub {
+	case "restart":
+		return true, RunSchedulePowerCLI(OSActionRestart, rest)
+	case "shutdown":
+		return true, RunSchedulePowerCLI(OSActionShutdown, rest)
+	case "startup":
+		return true, runScheduleStartup(rest)
+	}
+	return false, nil
+}
+
+func dispatchScheduleTaskOps(sub string, rest []string) error {
+	if isHandled, err := dispatchScheduleInspectOps(sub, rest); isHandled {
+		return err
+	}
+	return dispatchScheduleDefaultOps(sub, rest)
+}
+
+func dispatchScheduleInspectOps(sub string, rest []string) (bool, error) {
+	switch sub {
 	case "run", "exec":
-		return runScheduleRun(rest)
+		return true, runScheduleRun(rest)
 	case "test":
-		return runScheduleTest(rest)
+		return true, runScheduleTest(rest)
 	case "rm", "delete", "del":
-		return runScheduleDelete(rest)
+		return true, runScheduleDelete(rest)
+	}
+	return false, nil
+}
+
+func dispatchScheduleDefaultOps(sub string, rest []string) error {
+	switch sub {
 	case "debug", "info":
 		return runScheduleDebug(rest)
 	case "edit":
 		return runScheduleEdit(rest)
-	case "startup":
-		return runScheduleStartup(rest)
-	case "restart":
-		return runScheduleRestart()
-	case "shutdown":
-		return runScheduleShutdown()
 	default:
 		return runScheduleAdd(append([]string{sub}, rest...))
 	}

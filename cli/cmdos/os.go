@@ -44,6 +44,8 @@ func dispatchOSSubcommand(subCmd string, subArgs []string) error {
 		return runOSFix(subArgs)
 	case "clean", "clear":
 		return runOSClean(subArgs)
+	case "ai-clean", "aiclean", "clean-ai":
+		return RunOSAICleanCLI(subArgs)
 	case constants.SubCmdOSUser:
 		return runOSUser(subArgs)
 	case "vmware":
@@ -91,6 +93,7 @@ Commands:
   ip                  Inspect, set, change, switch, or revert network IP configuration
   fix                 Register, edit, run, export, and import system repair scripts
   clean (clear)       Clean temporary and ephemeral system cache directories
+  ai-clean (aiclean)  Scan and purge Antigravity brain, task, and temp AI cache dumps
   zsh                 Install, theme, switch, profile, and clean ZSH & Oh-My-Zsh
   user                Add, edit, export, import, or remove operating system users
   group (user-group)  List, create, edit, export, import, and remove user groups

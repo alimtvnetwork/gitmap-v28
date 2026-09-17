@@ -13,6 +13,41 @@ Gitmap Cluster provides an enterprise-grade orchestration layer directly over st
 
 ---
 
+## GitMap Cluster Triad Architecture
+
+GitMap orchestrates distributed multi-node infrastructure through a cohesive triad of complementary layers:
+
+```
++-----------------------------------------------------------------------------+
+|                          GITMAP CLUSTER TRIAD                               |
++-----------------------------------------------------------------------------+
+|                                                                             |
+|  1. ADMISSION & IDENTITY LAYER: `ssh-join` (`sj`)                           |
+|     * Machine discovery, credential enrollment, and SSH key authorization   |
+|     * Persistent host aliases (`devbox`, `prod-db`) and encrypted passwords |
+|     * Connectivity probing, latency monitoring, and zero-collision recall   |
+|                                                                             |
+|  2. TOPOLOGY & ORCHESTRATION LAYER: `cluster`                               |
+|     * Role-based cluster topology (`control` vs `worker`) & JSON imports   |
+|     * Ubuntu provisioning recipes (Netplan IP, users, sudoers, apt cache)   |
+|     * Complete Kubernetes lifecycle (CRI-O, kubeadm, Weave/Calico, Helm)    |
+|                                                                             |
+|  3. DISTRIBUTED FAN-OUT & BROADCAST LAYER: `servers-clients` (`sc`)         |
+|     * Parallel command fan-out across all nodes or targeted subsets         |
+|     * Multi-shell dispatch (Bash, POSIX sh, PowerShell, Windows cmd)        |
+|     * Distributed Git operations (pull, push, status) & remote automation   |
+|                                                                             |
++-----------------------------------------------------------------------------+
+```
+
+### Triad Roles & Workflow
+
+- **`ssh-join` (`sj`) — Admission & Identity Layer**: First-class entrypoint for server admission. Enrolls remote machines into SQLite (`ssh_hosts`), securely manages RSA credentials, authorizes public keys, and prevents OpenSSH hostname collisions.
+- **`cluster` — Topology & Orchestration Layer**: Manages multi-node architecture, control-plane vs worker roles, automated Ubuntu provisioning recipes, and full Kubernetes cluster setup.
+- **`servers-clients` (`sc`) — Distributed Fan-Out Layer**: High-speed broadcast execution engine. Fans out shell commands, package installations, and git sync operations across cluster nodes in parallel.
+
+---
+
 ## Usage
 
 ```bash
@@ -578,6 +613,21 @@ gitmap cluster reset-password --id node-123 --confirm
 # 14. Clean legacy audit logs and inspect cluster statistics
 gitmap cluster audit-clean --before 2026-01-01T00:00:00Z --confirm
 gitmap cluster stats
+
+# 15. GitMap Cluster Triad Operations
+# Remote bash/shell execution across cluster nodes
+gitmap sc bash "uname -a"
+gitmap cluster exec all "apt-get update" --sudo
+gitmap sc shell "df -h" --except control-plane
+
+# Remote GitMap installation & auto-bootstrapping
+gitmap cluster install gitmap all
+gitmap sj install gitmap devbox
+
+# Scheduled remote shutdown & restart
+gitmap sc restart --except control-plane
+gitmap schedule shutdown 1:45hr
+gitmap schedule restart 2h
 ```
 
-See also: `gitmap ssh`, `gitmap ssh-join`
+See also: `gitmap ssh`, `gitmap ssh-join`, `gitmap servers-clients`, `gitmap sc`

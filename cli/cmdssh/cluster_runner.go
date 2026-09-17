@@ -27,9 +27,14 @@ type ClusterRunResult struct {
 	Err      error
 }
 
+const gitmapProbeCmd = "command -v gitmap >/dev/null 2>&1 || where.exe gitmap >nul 2>&1"
+
 var (
-	executeNodeFn  = ExecuteNodeCommand
-	clusterPrintMu sync.Mutex
+	executeNodeFn            = ExecuteNodeCommand
+	runNodeProbeFn           = runNodeProbeProcess
+	runNodeOSProbeFn         = runNodeOSProbeProcess
+	executeRemoteBootstrapFn = executeRemoteBootstrapInstall
+	clusterPrintMu           sync.Mutex
 )
 
 func escapeSingleQuotes(s string) string {
@@ -219,6 +224,93 @@ func runNodeSSHProcess(ctx context.Context, host store.SSHHost, alias, shellCmd,
 	return runNodeDirectCmd(ctx, host, alias, formattedCmd, password, startTime)
 }
 
+func hasGitmapToken(token string) bool {
+	clean := strings.Trim(token, "'\"")
+	if clean == "gitmap" || clean == "gitmap.exe" {
+		return true
+	}
+	if strings.HasSuffix(clean, "/gitmap") || strings.HasSuffix(clean, "\\gitmap") {
+		return true
+	}
+	return strings.HasSuffix(clean, "/gitmap.exe") || strings.HasSuffix(clean, "\\gitmap.exe")
+}
+
+// RequiresGitmap reports whether the shell command invokes the gitmap binary.
+func RequiresGitmap(cmd string) bool {
+	for _, token := range strings.Fields(cmd) {
+		if hasGitmapToken(token) {
+			return true
+		}
+	}
+	return false
+}
+
+func printGitmapBootstrapping(alias string) {
+	fmt.Printf("ℹ [%s] GitMap not found. Auto-bootstrapping via official installer...\n", alias)
+}
+
+func printGitmapBootstrapSuccess(alias string) {
+	fmt.Printf("✓ [%s] GitMap installed successfully.\n", alias)
+}
+
+func runNodeProbeProcess(ctx context.Context, host store.SSHHost, probeCmd, password string) int {
+	formattedCmd := FormatClusterCommand(probeCmd, password, false)
+	sshArgs := BuildNodeSSHArgs(host, formattedCmd)
+	cmd := SSHExecutor(ctx, "ssh", sshArgs...)
+	cleanup := attachAskPass(cmd, password)
+	defer cleanup()
+	_, err := cmd.CombinedOutput()
+	return resolveProcessExitCode(err)
+}
+
+func resolveDetectedOSType(raw string) string {
+	trimmed := strings.ToLower(strings.TrimSpace(raw))
+	if strings.Contains(trimmed, "win") {
+		return "windows"
+	}
+	if strings.Contains(trimmed, "darwin") {
+		return "darwin"
+	}
+	return "linux"
+}
+
+func runNodeOSProbeProcess(ctx context.Context, host store.SSHHost, password string) string {
+	formattedCmd := FormatClusterCommand("uname -s 2>/dev/null || echo Windows", password, false)
+	sshArgs := BuildNodeSSHArgs(host, formattedCmd)
+	cmd := SSHExecutor(ctx, "ssh", sshArgs...)
+	cleanup := attachAskPass(cmd, password)
+	defer cleanup()
+	out, err := cmd.CombinedOutput()
+	if err != nil {
+		return "linux"
+	}
+	return resolveDetectedOSType(string(out))
+}
+
+func executeRemoteBootstrapInstall(ctx context.Context, host store.SSHHost, osType, password string, isSudo bool) int {
+	installCmd := BuildGitmapInstallOneLiner(osType, "latest")
+	formattedCmd := FormatClusterCommand(installCmd, password, isSudo)
+	sshArgs := BuildNodeSSHArgs(host, formattedCmd)
+	cmd := SSHExecutor(ctx, "ssh", sshArgs...)
+	cleanup := attachAskPass(cmd, password)
+	defer cleanup()
+	_, err := cmd.CombinedOutput()
+	return resolveProcessExitCode(err)
+}
+
+func ensureNodeGitmap(ctx context.Context, host store.SSHHost, alias, password string, isSudo bool) {
+	probeCode := runNodeProbeFn(ctx, host, gitmapProbeCmd, password)
+	if probeCode == 0 {
+		return
+	}
+	printGitmapBootstrapping(alias)
+	osType := runNodeOSProbeFn(ctx, host, password)
+	installCode := executeRemoteBootstrapFn(ctx, host, osType, password, isSudo)
+	if installCode == 0 {
+		printGitmapBootstrapSuccess(alias)
+	}
+}
+
 // ExecuteNodeCommand executes a shell command on an SSH host with live output streaming.
 func ExecuteNodeCommand(ctx context.Context, host store.SSHHost, shellCmd string, isSudo bool) ClusterRunResult {
 	startTime := time.Now()
@@ -226,6 +318,9 @@ func ExecuteNodeCommand(ctx context.Context, host store.SSHHost, shellCmd string
 	password, err := resolveNodePassword(host)
 	if err != nil {
 		return buildDecryptErrorResult(host, err, startTime)
+	}
+	if RequiresGitmap(shellCmd) {
+		ensureNodeGitmap(ctx, host, alias, password, isSudo)
 	}
 	return runNodeSSHProcess(ctx, host, alias, shellCmd, password, isSudo, startTime)
 }

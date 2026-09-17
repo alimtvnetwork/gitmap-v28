@@ -2,10 +2,8 @@ package cmdssh
 
 import (
 	"context"
-	"fmt"
 	"io"
 	"os"
-	"text/tabwriter"
 
 	"github.com/spf13/cobra"
 
@@ -25,48 +23,34 @@ var SJLsCmd = &cobra.Command{
 //
 //nolint:revive
 func runSJLs(cmd *cobra.Command, args []string, ctx context.Context) error {
-	return printSJList(ctx, os.Stdout, 0) // Passing 0 for no limit, though max is not strictly defined in requirements
+	return printSJList(ctx, os.Stdout, 0)
 }
 
-// printSJList fetches all hosts and formats them using text/tabwriter.
-
-func printSJList(ctx context.Context, out io.Writer, max int) error {
+func fetchSJHosts(ctx context.Context) ([]store.SSHHost, error) {
 	dbConn, err := store.OpenDefault()
 	if err != nil {
-		return apperror.New("printSJList", "E_INTERNAL_ERROR", map[string]any{"msg": "failed to open db", "err": err.Error()})
+		return nil, apperror.WrapSimple(err, "fetchSJHosts_OpenDB")
 	}
-
 	defer dbConn.Close()
-
 	if err := dbConn.Migrate(); err != nil {
-		return apperror.New("printSJList", "E_INTERNAL_ERROR", map[string]any{"msg": "failed to migrate db", "err": err.Error()})
+		return nil, apperror.WrapSimple(err, "fetchSJHosts_MigrateDB")
 	}
+	return store.ListHosts(ctx, dbConn.SQL())
+}
 
-	hosts, err := store.ListHosts(ctx, dbConn.SQL())
+func limitSJHosts(hosts []store.SSHHost, max int) []store.SSHHost {
+	if max > 0 && len(hosts) > max {
+		return hosts[:max]
+	}
+	return hosts
+}
+
+// printSJList fetches all hosts and formats them using RenderSSHHostsTable.
+func printSJList(ctx context.Context, out io.Writer, max int) error {
+	hosts, err := fetchSJHosts(ctx)
 	if err != nil {
 		return apperror.New("printSJList", "E_INTERNAL_ERROR", map[string]any{"msg": "failed to list hosts", "err": err.Error()})
 	}
-
-	if max > 0 && len(hosts) > max {
-		hosts = hosts[:max]
-	}
-
-	w := tabwriter.NewWriter(out, 0, 0, 2, ' ', 0)
-	fmt.Fprintln(w, "ID\tALIAS\tIP\tUSERNAME\tCREATED_AT")
-
-	for _, host := range hosts {
-		fmt.Fprintf(w, "%s\t%s\t%s\t%s\t%s\n",
-			host.ID,
-			host.Alias,
-			host.IP,
-			host.Username,
-			host.CreatedAt.Format("2006-01-02 15:04:05"),
-		)
-	}
-
-	if err := w.Flush(); err != nil {
-		return apperror.New("printSJList", "E_INTERNAL_ERROR", map[string]any{"msg": "failed to flush tabwriter", "err": err.Error()})
-	}
-
-	return nil
+	limitedHosts := limitSJHosts(hosts, max)
+	return RenderSSHHostsTable(out, limitedHosts)
 }

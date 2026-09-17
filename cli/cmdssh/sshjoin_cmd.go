@@ -115,12 +115,26 @@ func isSJBootstrapSubcommand(sub string) bool {
 	return sub == "bootstrap" || sub == "bs"
 }
 
-func routeSSHJoinSpecialSubcommand(cmd *cobra.Command, args []string) (bool, error) {
+func isSJInstallSubcommand(sub string) bool {
+	return sub == "install"
+}
+
+func routeSJClusterSpecialSubcommand(args []string) (bool, error) {
+	if isSJInstallSubcommand(args[0]) {
+		return true, RunClusterInstallCLI(args[1:])
+	}
 	if isSJBootstrapSubcommand(args[0]) {
 		return true, RunClusterBootstrapCLI(args[1:])
 	}
 	if isSJClusterImportSubcommand(args[0]) {
 		return true, RunClusterImportCLI(args[1:])
+	}
+	return false, nil
+}
+
+func routeSSHJoinSpecialSubcommand(cmd *cobra.Command, args []string) (bool, error) {
+	if isHandled, err := routeSJClusterSpecialSubcommand(args); isHandled {
+		return true, err
 	}
 	if isSJAddWithPassSubcommand(args[0]) {
 		return true, executeEnrollWithPassCLI(resolveContext(cmd.Context()), args[1:])
@@ -174,7 +188,7 @@ func isSJStatusSubcommand(sub string) bool {
 }
 
 func isSJSubcommand(sub string) bool {
-	if isSJAddSubcommand(sub) || isSJAddWithPassSubcommand(sub) || isSJScanSubcommand(sub) || isSJStatusSubcommand(sub) || isSJClusterImportSubcommand(sub) || isSJBootstrapSubcommand(sub) {
+	if isSJAddSubcommand(sub) || isSJAddWithPassSubcommand(sub) || isSJScanSubcommand(sub) || isSJStatusSubcommand(sub) || isSJClusterImportSubcommand(sub) || isSJBootstrapSubcommand(sub) || isSJInstallSubcommand(sub) {
 		return true
 	}
 
@@ -211,6 +225,9 @@ func executeSJList(ctx context.Context) error {
 }
 
 func dispatchSJBasicSubcommand(ctx context.Context, sub string, args []string) (bool, error) {
+	if isSJInstallSubcommand(sub) {
+		return true, RunClusterInstallCLI(args)
+	}
 	if isSJClusterImportSubcommand(sub) {
 		return true, RunClusterImportCLI(args)
 	}
@@ -266,6 +283,8 @@ func routeSJSubcommands(ctx context.Context, args []string) (bool, error) {
 	switch args[0] {
 	case "bootstrap", "bs":
 		return true, RunClusterBootstrapCLI(args[1:])
+	case "install":
+		return true, RunClusterInstallCLI(args[1:])
 	}
 	if !isSJSubcommand(args[0]) {
 		return false, nil
@@ -422,4 +441,5 @@ func init() {
 	SSHJoinCmd.AddCommand(SJHistCmd)
 	SSHJoinCmd.AddCommand(SJClusterImportCmd)
 	SSHJoinCmd.AddCommand(ClusterBootstrapCmd)
+	SSHJoinCmd.AddCommand(ClusterInstallCmd)
 }

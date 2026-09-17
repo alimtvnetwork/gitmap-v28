@@ -10,13 +10,13 @@ import (
 	"os"
 	"strconv"
 	"strings"
-	"text/tabwriter"
 	"time"
 
 	"golang.org/x/crypto/bcrypt"
 
 	"github.com/alimtvnetwork/gitmap-v28/cli/apperror"
 	"github.com/alimtvnetwork/gitmap-v28/cli/cliexit"
+	"github.com/alimtvnetwork/gitmap-v28/cli/cmdssh"
 	"github.com/alimtvnetwork/gitmap-v28/cli/constants"
 	"github.com/alimtvnetwork/gitmap-v28/cli/db"
 	"github.com/alimtvnetwork/gitmap-v28/cli/helptext"
@@ -382,13 +382,7 @@ func printClusterHostsTable(hosts []store.SSHHost) error {
 }
 
 func renderClusterHostsASCII(out io.Writer, hosts []store.SSHHost) error {
-	w := tabwriter.NewWriter(out, 0, 0, 2, ' ', 0)
-	fmt.Fprintln(w, "ALIAS\tIP\tUSER\tPORT\tROLE\tCREATED_AT")
-	for _, h := range hosts {
-		fmt.Fprintf(w, "%s\t%s\t%s\t%d\t%s\t%s\n",
-			h.Alias, h.IP, h.Username, h.Port, h.ClusterRole, h.CreatedAt.Format(time.RFC3339))
-	}
-	return w.Flush()
+	return cmdssh.RenderSSHHostsTable(out, hosts)
 }
 
 func hasPositionalNodeTarget(args []string) bool {
