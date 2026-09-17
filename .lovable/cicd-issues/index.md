@@ -37,5 +37,6 @@
 - [46-pipeline-ci-smoke-linter-drift-rca.md](./46-pipeline-ci-smoke-linter-drift-rca.md): Fix CI smoke and linter drift across pipeline files.
 - [47-pipeline-fix-agy-compilation-and-help-examples-rca.md](./47-pipeline-fix-agy-compilation-and-help-examples-rca.md): Fix undefined cmdagy imports, fix_cmd RemediationItem slice type mismatch, cluster_init_cmd_test unused import, servers-clients Examples heading, and gofmt formatting.
 - [48-exhaustive-switch-and-darwin-osuser-mock-rca.md](./48-exhaustive-switch-and-darwin-osuser-mock-rca.md): Fix exhaustive switch missing ReplaceModeTypeUnknown in replace.go and skip osuser mocked tests on unsupported darwin platform.
+- [49-agy-clean-cache-unix-syntax-error-rca.md](./49-agy-clean-cache-unix-syntax-error-rca.md): Fix orphaned statements outside function body in agy_clean_cache_unix.go breaking Unix builds.
 
 
