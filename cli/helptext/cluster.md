@@ -67,6 +67,7 @@ gitmap cluster <subcommand> [args...] [flags]
 | `exec` | `run` | Execute remote shell command across targeted nodes |
 | `run-script` | `script` | Deploy and execute local script file across targeted nodes |
 | `bootstrap` | `bs` | Bootstrap nodes with RSA keys, passwordless sudo, and enrollment |
+| `install` | | Install GitMap on remote target nodes via SSH (curl/PowerShell) |
 | `import` | `import-config`, `import-cluster` | Import cluster topology from JSON and enroll hosts |
 | `k8s` | `kube`, `kubernetes` | Manage Kubernetes cluster lifecycle, runtime, CNI, Helm, and NFS |
 | `status` | `ping`, `health` | Display cluster health, active nodes, and ping latency |
@@ -531,6 +532,28 @@ gitmap cluster k8s reset all
 ```
 
 Executes `kubeadm reset --force`, purges `/etc/cni/net.d`, clears `$HOME/.kube`, and cleans local IPVS/iptables rules.
+
+---
+
+## Remote GitMap Installation & Auto-Bootstrapping (`install`)
+
+Install or update GitMap on remote target nodes using official one-liners over SSH:
+
+```bash
+# Install GitMap across all cluster nodes in parallel
+gitmap cluster install gitmap all
+
+# Target specific node or alias
+gitmap cluster install gitmap devbox
+gitmap sj install gitmap k8s-w1
+
+# Pin a specific GitMap version with custom concurrency
+gitmap cluster install gitmap workers --version v6.256.0 --parallel 8
+```
+
+### Auto-Bootstrapping Engine
+When executing commands via `gitmap cluster exec` or `gitmap sc bash`:
+If a command requires `gitmap` and the binary is not present on the remote host (`command -v gitmap` fails), GitMap automatically detects this preflight condition, bootstraps and installs GitMap using curl (`install.sh`) or PowerShell (`install.ps1`), and then transparently runs the command.
 
 ---
 

@@ -14,7 +14,7 @@ gitmap os [subcommand] [flags]
 |------------|-------------|
 | ip [subcommand] | Inspect, set, change, switch, or revert network IP configuration |
 | fix [subcommand] | Register, edit, run, export, and import system repair scripts |
-| clean (clear) | Clean temporary and ephemeral system cache directories |
+| ai-clean (clean) | Scan and purge Antigravity Brain Caches, transcripts, system tasks, and installer caches |
 | zsh [subcommand] | Install, theme, switch, profile, and clean ZSH & Oh-My-Zsh |
 | user [subcommand] | Add, create, edit, export, import, or remove operating system users |
 | group (user-group) | List, create, edit, export, import, and remove user groups |
@@ -109,3 +109,17 @@ Output:
   ✓ Repaired: /home/developer/Desktop/SharedDirectories -> /mnt/hgfs (was dangling)
   • Summary: 1 checked, 1 repaired, 0 broken
 ```
+
+### Scan and Purge Antigravity & AI Caches
+
+```bash
+# Scan and purge with interactive confirmation
+gitmap os ai-clean
+
+# Simulate scan without deleting files
+gitmap os ai-clean --dry-run
+
+# Non-interactive cleanup for automated scripts
+gitmap os ai-clean -y
+```
+

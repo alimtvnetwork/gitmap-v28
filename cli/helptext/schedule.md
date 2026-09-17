@@ -27,9 +27,8 @@ Manage scheduled tasks, automated macro executions, interval runners, OS startup
 | `run` (`exec`) `<name>` | Execute a scheduled task immediately on demand and record execution history |
 | `test` `<name> [--delay 1s] [--times <N>]` | Test execution of a scheduled task (e.g. running 1, 2, or 3 times now) |
 | `rm` (`delete`, `del`) `<name>` | Remove a scheduled task from the root database and delete its split database file |
-| `startup` `<name> [--enable\|--disable]` | Register/link task execution to native OS startup (Windows Registry / Linux Autostart) |
-| `restart` | Trigger native OS restart (`shutdown /r` or `systemctl reboot`) |
-| `shutdown` | Trigger native OS shutdown (`shutdown /s` or `systemctl poweroff`) |
+| `restart` `[<duration>] [status\|cancel]` | Trigger native OS restart (`shutdown /r`), schedule with duration (`1:45hr`, `2h`, `1d`), inspect countdown `status`, or `cancel` |
+| `shutdown` `[<duration>] [status\|cancel]` | Trigger native OS shutdown (`shutdown /s`), schedule with duration (`1:45hr`, `2h`, `1d`), inspect countdown `status`, or `cancel` |
 
 ---
 
@@ -129,8 +128,13 @@ gitmap schedule restart 2h
 gitmap schedule restart 120m
 gitmap schedule restart 1d
 
-# 12. Remote scheduled shutdown and restart via cluster and servers-clients
+# 12. Inspect active power schedule status and abort/cancel countdown
+gitmap schedule shutdown status
+gitmap schedule shutdown cancel
+gitmap schedule restart status
+gitmap schedule restart cancel
 
+# 13. Remote scheduled shutdown and restart via cluster and servers-clients
 gitmap cluster exec all "gitmap schedule shutdown 1:45hr"
 gitmap sc bash "gitmap schedule restart 2h" --except control-plane
 ```

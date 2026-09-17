@@ -2,13 +2,13 @@ package cmdssh
 
 import (
 	"context"
-	"fmt"
 	"strconv"
 	"strings"
 
 	"github.com/spf13/cobra"
 
 	"github.com/alimtvnetwork/gitmap-v28/cli/apperror"
+	"github.com/alimtvnetwork/gitmap-v28/cli/helptext"
 )
 
 type clusterInstallOptions struct {
@@ -211,14 +211,7 @@ func isClusterInstallHelp(args []string) bool {
 }
 
 func showClusterInstallHelp() error {
-	fmt.Println("Usage: gitmap cluster install [component] [target] [flags]")
-	fmt.Println("       gitmap sj install [component] [target] [flags]")
-	fmt.Println("\nFlags:")
-	fmt.Println("  -s, --sudo        Execute installer with elevated privileges (default true)")
-	fmt.Println("  -p, --parallel    Number of concurrent worker threads (default 4)")
-	fmt.Println("  -v, --version     GitMap version to install (default latest)")
-	fmt.Println("      --os          Target operating system (linux, darwin, windows)")
-	fmt.Println("  -h, --help        Show this help message")
+	helptext.Print("cluster-install")
 	return nil
 }
 
