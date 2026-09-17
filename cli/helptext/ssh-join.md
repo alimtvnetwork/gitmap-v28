@@ -77,6 +77,7 @@ GitMap orchestrates distributed multi-node infrastructure through a cohesive tri
 | ls | list | List all enrolled SSH machines and aliases |
 | rm | remove, delete | Remove an enrolled machine from registry by alias or IP |
 | add-auth | auth | Authorize local public key on the target machine |
+| install | in | Install GitMap remotely on targeted machine via SSH (curl/PowerShell) |
 | history | hist | Display enrollment history audit logs |
 
 ## Flags

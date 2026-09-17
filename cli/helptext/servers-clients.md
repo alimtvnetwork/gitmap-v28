@@ -21,8 +21,9 @@ Aliases: `sc`, `servers-client`
 | `join <target> [alias]` | Join and enroll a machine into the cluster registry (`add`, `enroll`) |
 | `nodes` / `ls` / `list` | List all registered machines joined to the cluster (`joined`, `machines`) |
 | `remove <target>` / `rm` | Remove a machine from the cluster registry (`delete`) |
-| `ping` | Check reachability and ping latency for all cluster nodes (`health`) |
-| `install <pkgs>` | Install packages (comma-separated list) on all nodes |
+| `install <pkgs>` | Install packages (comma-separated list) or GitMap on all nodes |
+| `restart [duration]` | Trigger or schedule system restart across all cluster nodes |
+| `shutdown [duration]` | Trigger or schedule system shutdown across all cluster nodes |
 | `pull --all` | Run git pull --all on all nodes |
 | `push --all` | Run git push --all on all nodes |
 | `commit --all` | Run git commit --all on all nodes |
