@@ -15,7 +15,6 @@ import (
 	"github.com/alimtvnetwork/gitmap-v28/cli/lockcheck"
 )
 
-
 // DiscoverCacheTargets discovers all Antigravity cache directories on Linux and macOS.
 func DiscoverCacheTargets(includeTemp bool) []AgyCacheTarget {
 	var targets []AgyCacheTarget
@@ -162,8 +161,4 @@ func sleepAfterKillsUnix(killed int) {
 	if killed > 0 {
 		time.Sleep(600 * time.Millisecond)
 	}
-}
-
-
-	return killed, warnings
 }

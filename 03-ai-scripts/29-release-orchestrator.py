@@ -164,11 +164,11 @@ def stage_and_commit_release(new_version: str, scope: str, rn_path: str) -> None
         manifests.append(".lovable/user-preferences")
     if os.path.exists(".lovable/test-inventory.json"):
         manifests.append(".lovable/test-inventory.json")
-    manifests_str = " ".join(manifests)
-    run_cmd(f"git add {manifests_str}")
+    run_cmd("git add -A")
     status = run_cmd("git status --porcelain")
     if status:
         run_cmd(f'git commit -m "release: v{new_version} {scope}"')
+
 
 
 def push_with_retry(cmd: str, max_retries: int = 3) -> None:
