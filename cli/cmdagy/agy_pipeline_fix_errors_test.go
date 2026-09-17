@@ -204,4 +204,3 @@ func TestNormalizeAgyArgs_CompoundFixPhrases(t *testing.T) {
 		})
 	}
 }
-

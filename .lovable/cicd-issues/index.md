@@ -34,3 +34,6 @@
 - [43-installer-seed-urls-and-release-dryrun-path.md](./43-installer-seed-urls-and-release-dryrun-path.md): Fix installer seed data 404s and release dry-run script path drift.
 - [44-errorwrapper-typed-nil-and-errname-linter.md](./44-errorwrapper-typed-nil-and-errname-linter.md): Fix ErrorWrapper typed nil interface bug, errname linter, Darwin build type, and gocritic findings.
 - [45-gocritic-violations-and-ci-error-location-reporting.md](./45-gocritic-violations-and-ci-error-location-reporting.md): Fix gocritic appendAssign and ifElseChain violations, and enhance CI/CD & pipeline error reporting with explicit file paths, lines, and script context.
+- [46-pipeline-ci-smoke-linter-drift-rca.md](./46-pipeline-ci-smoke-linter-drift-rca.md): Fix CI smoke and linter drift across pipeline files.
+- [47-pipeline-fix-agy-compilation-and-help-examples-rca.md](./47-pipeline-fix-agy-compilation-and-help-examples-rca.md): Fix undefined cmdagy imports, fix_cmd RemediationItem slice type mismatch, cluster_init_cmd_test unused import, servers-clients Examples heading, and gofmt formatting.
+

@@ -77,7 +77,6 @@ func rewriteCompoundAgyFix(args []string) []string {
 	return append([]string{"fix-pipeline"}, args[2:]...)
 }
 
-
 func isAgyOpenPathArg(arg string) bool {
 	if arg == "." || arg == ".." || strings.HasPrefix(arg, "./") || strings.HasPrefix(arg, ".\\") {
 		return true

@@ -1,7 +1,6 @@
 package cmdssh
 
 import (
-	"os"
 	"path/filepath"
 	"testing"
 )

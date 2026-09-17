@@ -43,7 +43,7 @@ func runFix(args []string, aliasOverride string) error {
 	return executeFixTarget(args, aliasOverride, items)
 }
 
-func executeFixTarget(args []string, aliasOverride string, items []*RemediationItem) error {
+func executeFixTarget(args []string, aliasOverride string, items []RemediationItem) error {
 	item, action, err := resolveFixTarget(args, aliasOverride, items)
 	if err != nil {
 		return err

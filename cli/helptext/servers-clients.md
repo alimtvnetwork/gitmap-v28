@@ -108,7 +108,7 @@ GitMap orchestrates distributed multi-node infrastructure through a cohesive tri
 
 ---
 
-## Concrete Examples
+## Examples
 
 ### 1. Bash & POSIX Shell Fan-Out
 ```bash
