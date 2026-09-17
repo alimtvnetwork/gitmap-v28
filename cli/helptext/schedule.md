@@ -115,6 +115,24 @@ gitmap schedule test daily-clean --times 3
 # 10. Execute on demand
 
 gitmap schedule run backup-job
+
+# 11. Scheduled system shutdown and restart with flexible durations
+
+gitmap schedule shutdown 1:45hr
+gitmap schedule shutdown 1:45h
+gitmap schedule shutdown 2h
+gitmap schedule shutdown 120m
+gitmap schedule shutdown 1day
+gitmap schedule shutdown 1d
+gitmap schedule restart 1:45hr
+gitmap schedule restart 2h
+gitmap schedule restart 120m
+gitmap schedule restart 1d
+
+# 12. Remote scheduled shutdown and restart via cluster and servers-clients
+
+gitmap cluster exec all "gitmap schedule shutdown 1:45hr"
+gitmap sc bash "gitmap schedule restart 2h" --except control-plane
 ```
 
 ---

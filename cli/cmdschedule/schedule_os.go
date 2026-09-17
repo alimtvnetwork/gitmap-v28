@@ -135,10 +135,20 @@ func printSchedulePowerHelp(action OSActionType) error {
 	fmt.Printf("Schedules a system %s with flexible duration formats.\n\n", action)
 	fmt.Println("Supported duration formats:")
 	fmt.Println("  1:45hr, 1:45h, 01:30:00   Colon notation (hours:minutes[:seconds])")
-	fmt.Println("  1day, 2d                  Day notation")
+	fmt.Println("  1day, 1d, 2days, 2d       Day notation")
 	fmt.Println("  2h, 120m, 1s              Hour, minute, second notation")
 	fmt.Println("  now, 0                    Execute immediately")
+	printSchedulePowerExamples(action)
 	return nil
+}
+
+func printSchedulePowerExamples(action OSActionType) {
+	fmt.Printf("\nExamples:\n")
+	fmt.Printf("  gitmap schedule %s 1:45hr\n", action)
+	fmt.Printf("  gitmap schedule %s 2h\n", action)
+	fmt.Printf("  gitmap schedule %s 120m\n", action)
+	fmt.Printf("  gitmap schedule %s 1day\n", action)
+	fmt.Printf("  gitmap schedule %s 1d\n", action)
 }
 
 func resolveSchedulePowerDuration(args []string) (time.Duration, error) {
