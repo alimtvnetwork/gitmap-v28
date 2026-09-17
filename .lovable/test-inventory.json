@@ -1,11 +1,11 @@
 {
   "version": 1,
-  "updated_at": "2026-09-17T11:50:21Z",
+  "updated_at": "2026-09-17T12:00:25Z",
   "total_tests": 3536,
   "summary": {
     "total": 3536,
-    "cached": 1232,
-    "dirty": 2304,
+    "cached": 1229,
+    "dirty": 2307,
     "packages": 139,
     "slow_tests": 84,
     "fast_tests": 3452,
@@ -3648,7 +3648,7 @@
       "is_slow": false,
       "last_status": "passed",
       "last_run_at": "2026-09-17T10:58:43",
-      "needs_run": false
+      "needs_run": true
     },
     "cli/cluster.TestExecLifecycle_ForceLifecycleGuard": {
       "id": "cli/cluster.TestExecLifecycle_ForceLifecycleGuard",
@@ -3664,7 +3664,7 @@
       "is_slow": false,
       "last_status": "passed",
       "last_run_at": "2026-09-17T10:58:43",
-      "needs_run": false
+      "needs_run": true
     },
     "cli/cluster.TestExecLifecycle_Success": {
       "id": "cli/cluster.TestExecLifecycle_Success",
@@ -3680,7 +3680,7 @@
       "is_slow": false,
       "last_status": "passed",
       "last_run_at": "2026-09-17T10:58:43",
-      "needs_run": false
+      "needs_run": true
     },
     "cli/cluster.TestExecPS_Windows_Pwsh": {
       "id": "cli/cluster.TestExecPS_Windows_Pwsh",

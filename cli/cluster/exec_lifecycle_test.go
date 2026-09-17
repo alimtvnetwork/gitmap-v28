@@ -42,13 +42,7 @@ func TestExecLifecycle_Success(t *testing.T) {
 	defer func() { runCmdFunc = origRunCmd }()
 	runCmdFunc = func(cmd *exec.Cmd) error { return nil }
 
-	node := ClusterNode{NodeRole: "node", IsServer: false}
-	params := LifecycleExecParams{
-		Context:          context.Background(),
-		Node:             node,
-		IsForceLifecycle: true,
-		ProvidedPassword: "",
-	}
+	params := buildTestNodeParams()
 	_, _, code, err := ExecRestart(params)
 	if err != nil {
 		t.Errorf("unexpected error: %v", err)
@@ -56,5 +50,54 @@ func TestExecLifecycle_Success(t *testing.T) {
 
 	if code != 0 {
 		t.Errorf("expected exit code 0, got %d", code)
+	}
+}
+
+func TestExecShutdown_Success(t *testing.T) {
+	origRunCmd := runCmdFunc
+	defer func() { runCmdFunc = origRunCmd }()
+
+	var capturedCmd *exec.Cmd
+	runCmdFunc = func(cmd *exec.Cmd) error {
+		capturedCmd = cmd
+		return nil
+	}
+
+	params := buildTestNodeParams()
+	_, _, code, err := ExecShutdown(params)
+	if err != nil {
+		t.Errorf("unexpected error: %v", err)
+	}
+	if code != 0 || capturedCmd == nil {
+		t.Errorf("expected exit 0 and captured cmd, got code %d cmd %v", code, capturedCmd)
+	}
+}
+
+func TestExecLogoff_Success(t *testing.T) {
+	origRunCmd := runCmdFunc
+	defer func() { runCmdFunc = origRunCmd }()
+
+	var capturedCmd *exec.Cmd
+	runCmdFunc = func(cmd *exec.Cmd) error {
+		capturedCmd = cmd
+		return nil
+	}
+
+	params := buildTestNodeParams()
+	_, _, code, err := ExecLogoff(params)
+	if err != nil {
+		t.Errorf("unexpected error: %v", err)
+	}
+	if code != 0 || capturedCmd == nil {
+		t.Errorf("expected exit 0 and captured cmd, got code %d cmd %v", code, capturedCmd)
+	}
+}
+
+func buildTestNodeParams() LifecycleExecParams {
+	return LifecycleExecParams{
+		Context:          context.Background(),
+		Node:             ClusterNode{NodeRole: "node", IsServer: false},
+		IsForceLifecycle: true,
+		ProvidedPassword: "",
 	}
 }

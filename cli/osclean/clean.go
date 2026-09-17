@@ -9,9 +9,14 @@ import (
 	"github.com/alimtvnetwork/gitmap-v28/cli/result"
 )
 
+// TempDirResolver defines a function signature for resolving temporary directories.
+type TempDirResolver func() []string
+
+var defaultTempDirResolver TempDirResolver = resolveTempDirectories
+
 // CleanTempDirectories sweeps OS ephemeral directories.
 func CleanTempDirectories(opts CleanOptions) CleanResult {
-	dirs := resolveTempDirectories()
+	dirs := defaultTempDirResolver()
 	var totalStats CleanStats
 
 	for _, dir := range dirs {

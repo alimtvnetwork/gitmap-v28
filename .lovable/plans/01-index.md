@@ -8,7 +8,8 @@ No pending plans. All tasks are completed.
 
 ## Recent Completed Tasks Register (Last 20 Tasks)
 
-1. [Plan 189: 189-schedule-shutdown-restart-ssh-install-os-ai-clean-help-parity.md](completed/189-schedule-shutdown-restart-ssh-install-os-ai-clean-help-parity.md): Scheduled Shutdown & Restart, Remote GitMap SSH Installation, OS AI Cache Cleaning, SSH Table Formatting, and Help Parity Triad
+1. [Plan 190: 190-isolate-destructive-os-and-heavy-unit-tests.md](completed/190-isolate-destructive-os-and-heavy-unit-tests.md): Isolate Destructive OS & Heavy Unit Tests — Coding Guideline 24
+2. [Plan 189: 189-schedule-shutdown-restart-ssh-install-os-ai-clean-help-parity.md](completed/189-schedule-shutdown-restart-ssh-install-os-ai-clean-help-parity.md): Scheduled Shutdown & Restart, Remote GitMap SSH Installation, OS AI Cache Cleaning, SSH Table Formatting, and Help Parity Triad
 2. [Plan 188: 188-pipeline-db-cli-storage-and-repo-isolation.md](completed/188-pipeline-db-cli-storage-and-repo-isolation.md): Pipeline Database CLI Co-Location, Directory Renaming & Repo-Slug Isolation
 2. [Plan 187: 187-naming-conventions-bare-ok-and-boolean-prefixes.md](completed/187-naming-conventions-bare-ok-and-boolean-prefixes.md): Naming Conventions, Bare Ok Elimination & Boolean Prefixes
 3. [Plan 186: 186-pull-and-clone-ui-and-string-casefold-efficiency.md](completed/186-pull-and-clone-ui-and-string-casefold-efficiency.md): Pull & Clone UI Line Wrap Fix and String Case-Fold Efficiency

@@ -16,6 +16,7 @@ type OSActionType string
 const (
 	OSActionShutdown OSActionType = "shutdown"
 	OSActionRestart  OSActionType = "restart"
+	OSActionCancel   OSActionType = "cancel"
 )
 
 // OSActionParams specifies the execution context for an OS power action.
@@ -84,7 +85,7 @@ func executeNativeOSAction(params OSActionParams) error {
 }
 
 func performDelayCountdown(params OSActionParams) {
-	if params.Delay <= 0 || runtime.GOOS == "windows" {
+	if params.Action == OSActionCancel || params.Delay <= 0 || runtime.GOOS == "windows" {
 		return
 	}
 	remaining := params.Delay
@@ -191,10 +192,20 @@ func BuildCancelOSActionCommand() (string, []string) {
 func CancelSchedulePowerCLI(action OSActionType) error {
 	_ = CancelActivePowerSchedule()
 	exe, cmdArgs := BuildCancelOSActionCommand()
-	cmd := exec.Command(exe, cmdArgs...)
-	_ = cmd.Run()
+	params := buildCancelActionParams(exe, cmdArgs)
+	if err := DefaultOSActionExecutor(params); err != nil {
+		return err
+	}
 	fmt.Printf("✓ Canceled active scheduled %s.\n", action)
 	return nil
+}
+
+func buildCancelActionParams(exe string, cmdArgs []string) OSActionParams {
+	return OSActionParams{
+		Action:     OSActionCancel,
+		Executable: exe,
+		Args:       cmdArgs,
+	}
 }
 
 func isHelpArg(args []string) bool {

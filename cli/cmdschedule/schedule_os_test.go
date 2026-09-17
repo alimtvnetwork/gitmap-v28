@@ -66,6 +66,24 @@ func TestRunSchedulePowerCLIDurationIntegration(t *testing.T) {
 	}
 }
 
+func TestCancelSchedulePowerCLI_Mocked(t *testing.T) {
+	mock, cleanup := setupMockExecutor()
+	defer cleanup()
+
+	if err := CancelSchedulePowerCLI(OSActionShutdown); err != nil {
+		t.Fatalf("unexpected cancel error: %v", err)
+	}
+	if mock.calledCount != 1 {
+		t.Fatalf("expected 1 call, got %d", mock.calledCount)
+	}
+	if mock.lastParams.Action != OSActionCancel {
+		t.Errorf("expected OSActionCancel, got %v", mock.lastParams.Action)
+	}
+	if len(mock.lastParams.Args) == 0 {
+		t.Errorf("expected non-empty cancel args")
+	}
+}
+
 func TestRunSchedulePowerCLIHelp(t *testing.T) {
 	mock, cleanup := setupMockExecutor()
 	defer cleanup()

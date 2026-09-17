@@ -29,7 +29,13 @@ type aiCleanJSONPayload struct {
 	Categories []AICleanCategory `json:"categories"`
 }
 
-var promptAICleanConfirmFn = defaultPromptAICleanConfirm
+// FileRemover defines a function signature for deleting a single cache file.
+type FileRemover func(filePath string) (int, int64)
+
+var (
+	promptAICleanConfirmFn             = defaultPromptAICleanConfirm
+	defaultFileRemover     FileRemover = removeSingleFileSafely
+)
 
 // RunOSAICleanCLI handles scanning and purging AI cache directories.
 func RunOSAICleanCLI(args []string) error {
@@ -215,7 +221,7 @@ func purgeCategoryFiles(paths []string) (int, int64) {
 	var freedBytes int64
 
 	for _, p := range paths {
-		count, bytes := removeSingleFileSafely(p)
+		count, bytes := defaultFileRemover(p)
 		freedCount += count
 		freedBytes += bytes
 	}
