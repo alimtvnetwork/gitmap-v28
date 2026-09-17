@@ -8,11 +8,12 @@ import (
 func TestParallelFilterLines_RemovesOkAndPassLinesOnLargeSlice(t *testing.T) {
 	lines := make([]string, 1000)
 	for i := 0; i < 1000; i++ {
-		if i%3 == 0 {
+		switch i % 3 {
+		case 0:
 			lines[i] = fmt.Sprintf("PASS: step #%d passed successfully", i)
-		} else if i%3 == 1 {
+		case 1:
 			lines[i] = fmt.Sprintf("✔ ok: task %d finished", i)
-		} else {
+		default:
 			lines[i] = fmt.Sprintf("Error at line %d: syntax error", i)
 		}
 	}
