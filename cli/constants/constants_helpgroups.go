@@ -88,7 +88,7 @@ const (
 	CompactTasks        = "  task, macro, async (asyn)"
 	CompactVisualize    = "  dashboard (db)"
 	CompactCommitXfer   = "  commit-right (cmr) — LIVE,  commit-left (cml), commit-both (cmb) — scaffolds"
-	CompactCluster      = "  servers-clients (sc), clients, cluster"
+	CompactCluster      = "  servers-clients (sc), clients, cluster, ssh-join (sj)"
 	CompactUtilities    = "  setup, doctor, update, update-cleanup, version (v), completion (cmp), interactive (i), docs (d), help-dashboard (hd), gomod (gm), seo-write (sw), fix-repo (fr), make-public, make-private, clone-fix-repo (cfr), clone-fix-repo-pub (cfrp), help"
 	CompactIntegrations = "  vscode (vsc), antigravity (agy/ag), schedule (sc/cron), startup (su), storage (stor), pipeline (pl/eta), ui, vmware (vm)"
 

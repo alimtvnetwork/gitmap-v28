@@ -129,7 +129,15 @@ func dispatchCloneExecution(cf CloneFlags) error {
 		return nil
 	}
 	if isDirectURL(cf.Source) {
-		executeDirectClone(cf.Source, cf.FolderName, cf.GHDesktop, cf.NoReplace, cf.Output, cf.NoVSCodeSync)
+		executeDirectClone(DirectCloneParams{
+			URL:          cf.Source,
+			FolderName:   cf.FolderName,
+			GHDesktop:    cf.GHDesktop,
+			NoReplace:    cf.NoReplace,
+			Output:       cf.Output,
+			NoVSCodeSync: cf.NoVSCodeSync,
+			IsClean:      cf.Clean,
+		})
 		maybeExitOnCmdFaithfulMismatch()
 
 		return nil
@@ -210,6 +218,8 @@ func runCloneMulti(cf CloneFlags) error {
 		// repo's block after this one finishes. Mirrors the streamed
 		// emission contract locked in chat.
 		printCloneTermBlockForURL(cf.Output, idx+1, url, "")
+
+		maybeCleanMultiFolder(url, cf.Clean)
 
 		if err := executeDirectCloneOne(url, "", cf.GHDesktop, cf.NoReplace); err != nil {
 			fmt.Fprintf(os.Stderr, constants.ErrCloneMultiFailedFmt, idx+1, len(urls), url, err)
@@ -292,27 +302,44 @@ func repoNameFromURL(url string) string {
 	return name
 }
 
-// executeDirectClone clones a single repo from a direct URL.
-// When no folder name is given, versioned URLs are auto-flattened
-// (e.g., wp-onboarding-v13 clones into wp-onboarding/).
-// By default, an existing target folder is replaced via the two-strategy
-// flow in spec/01-app/96-clone-replace-existing-folder.md. Pass noReplace=true
-// to restore the strict abort-on-exists behavior.
-//
-// noVSCodeSync, when true, skips the post-clone update of the
-// alefragnani.project-manager projects.json file. See
-// spec/01-vscode-project-manager-sync/02-clone-sync.md.
-func executeDirectClone(
-	url,
-	folderName string,
-	ghDesktopFlag,
-	noReplace bool,
-	output string,
-	noVSCodeSync bool,
-) {
-	escapeNestedGitRepo()
-	repoName := repoNameFromURL(url)
+// DirectCloneParams encapsulates options for cloning a single repository.
+type DirectCloneParams struct {
+	URL          string
+	FolderName   string
+	GHDesktop    bool
+	NoReplace    bool
+	Output       string
+	NoVSCodeSync bool
+	IsClean      bool
+}
 
+func cleanDirectCloneTarget(absPath string, isClean bool) {
+	if !isClean || absPath == "" {
+		return
+	}
+	if _, err := os.Stat(absPath); err == nil {
+		fmt.Printf("  • Force/clean removing existing directory: %s\n", absPath)
+		_ = os.RemoveAll(absPath)
+	}
+}
+
+func maybeCleanMultiFolder(url string, isClean bool) {
+	if !isClean {
+		return
+	}
+	multiFolder := resolveCloneFolder(repoNameFromURL(url), "")
+	absFolder, errFolder := filepath.Abs(multiFolder)
+	if errFolder == nil {
+		cleanDirectCloneTarget(absFolder, true)
+	}
+}
+
+// executeDirectClone clones a single repo from a direct URL.
+func executeDirectClone(params DirectCloneParams) {
+	escapeNestedGitRepo()
+	repoName := repoNameFromURL(params.URL)
+
+	folderName := params.FolderName
 	if len(folderName) == 0 {
 		// Local folder mirrors the URL verbatim (including any `-vN`
 		// suffix). The previous behavior auto-flattened versioned
@@ -339,9 +366,11 @@ func executeDirectClone(
 		absPath = folderName
 	}
 
+	cleanDirectCloneTarget(absPath, params.IsClean)
+
 	// Strict mode: keep the original abort-on-exists behavior.
 	_, statErr := os.Stat(absPath)
-	if noReplace && statErr == nil {
+	if params.NoReplace && statErr == nil {
 		fmt.Fprintf(os.Stderr, constants.ErrCloneURLExists, absPath)
 		cliexit.HandleError(nil, 1)
 	}
@@ -357,19 +386,19 @@ func executeDirectClone(
 	cmdArgs := buildCommandArgs(append([]string{"clone"}, os.Args[2:]...))
 	taskID, taskDB := createPendingTask(constants.TaskTypeClone, absPath, workDir, "clone", cmdArgs)
 
-	url = coerceURLToStoredTransport(url)
+	url := coerceURLToStoredTransport(params.URL)
 
 	// `--output terminal`: emit the standardized per-repo block to
 	// stdout BEFORE the legacy "Cloning ..." line so the user sees
 	// branch/from/to/command up-front. No-op when output is empty,
 	// which preserves byte-identical legacy output.
-	printCloneTermBlockForURL(output, 1, url, absPath)
+	printCloneTermBlockForURL(params.Output, 1, url, absPath)
 
 	// Clone (default: replace; with --no-replace: clone into a guaranteed-empty target).
 	fmt.Printf(constants.MsgCloneURLCloning, repoName, folderName)
 
 	var cloneErr error
-	if noReplace {
+	if params.NoReplace {
 		cloneErr = runCloneCommand(url, absPath)
 	} else {
 		_, cloneErr = cloneReplacing(url, absPath)
@@ -404,7 +433,7 @@ func executeDirectClone(
 	// VS Code Project Manager: register the freshly-cloned repo so
 	// it appears in the sidebar without a separate `gitmap code`
 	// step. Soft-fails when VS Code or the extension is missing.
-	syncSingleClonedRepoToVSCodePM(absPath, repoName, noVSCodeSync)
+	syncSingleClonedRepoToVSCodePM(absPath, repoName, params.NoVSCodeSync)
 
 	completePendingTask(taskDB, taskID)
 	closeTaskDB(taskDB)

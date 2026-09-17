@@ -51,6 +51,8 @@ var topicSummaries = map[string]string{
 	"cluster-exec":           "Execute remote command across targeted cluster nodes",
 	"cluster-run-script":     "Deploy and execute local scripts remotely across cluster nodes with base64 staging and automatic cleanup.",
 	"cluster-import":         "Import cluster topology from JSON configuration and enroll control plane and worker nodes.",
+	"cluster-init":           "Generate starter cluster topology JSON configuration file (01-config.json) automatically from the terminal.",
+	"cluster-template":       "Generate starter cluster topology JSON configuration file (01-config.json) automatically from the terminal.",
 	"cluster-k8s":            "Manage Kubernetes cluster lifecycle, runtime, and components",
 	"cluster-k8s-init":       "Initialize Kubernetes control plane",
 	"cluster-k8s-join":       "Join worker nodes to Kubernetes control plane",

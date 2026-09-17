@@ -10,37 +10,74 @@ gitmap servers-clients <subcommand> [args] [flags]
 
 Aliases: `sc`, `servers-client`
 
-## Subcommands
+## Subcommands Overview
 
-| Subcommand | Description |
-|------------|-------------|
-| `bash <cmd>` | Execute a Bash command across all cluster nodes |
-| `sh <cmd>` / `shell <cmd>` | Execute a POSIX shell command across all cluster nodes |
-| `ps <cmd>` | Execute a PowerShell command on all nodes |
-| `cmd <cmd>` | Execute a Windows Command Prompt command on all nodes |
-| `join <target> [alias]` | Join and enroll a machine into the cluster registry (`add`, `enroll`) |
-| `nodes` / `ls` / `list` | List all registered machines joined to the cluster (`joined`, `machines`) |
-| `remove <target>` / `rm` | Remove a machine from the cluster registry (`delete`) |
-| `install <pkgs>` | Install packages (comma-separated list) or GitMap on all nodes |
-| `restart [duration]` | Trigger or schedule system restart across all cluster nodes |
-| `shutdown [duration]` | Trigger or schedule system shutdown across all cluster nodes |
-| `pull --all` | Run git pull --all on all nodes |
-| `push --all` | Run git push --all on all nodes |
-| `commit --all` | Run git commit --all on all nodes |
-| `status --all` | Show combined dirty/clean status across all nodes |
-| `proj <name> run` | Run project-level automation on all nodes |
+| Subcommand | Aliases | Description |
+|------------|---------|-------------|
+| `bash <cmd>` | | Execute a Bash command or script pipeline across all cluster nodes |
+| `sh <cmd>` | `shell` | Execute a POSIX shell command across all cluster nodes |
+| `ps <cmd>` | | Execute a PowerShell command on Windows cluster nodes |
+| `cmd <cmd>` | | Execute a Windows Command Prompt command on Windows nodes |
+| `join <target> [alias]` | `add`, `enroll` | Join and enroll a machine into the cluster registry with key auth |
+| `nodes` | `ls`, `list`, `joined`, `machines` | List all registered machines joined to the cluster topology |
+| `remove <target>` | `rm`, `delete` | Remove a machine from the cluster registry and key database |
+| `ping` | `status`, `health` | Check reachability and round-trip ping latency for all cluster nodes |
+| `install <pkgs>` | | Install packages (comma-separated list) or GitMap across all nodes |
+| `restart [duration]` | | Trigger or schedule system restart across all cluster nodes |
+| `shutdown [duration]` | | Trigger or schedule system shutdown across all cluster nodes |
+| `pull --all` | | Run git pull across all repositories on all nodes |
+| `push --all` | | Run git push across all repositories on all nodes |
+| `commit --all` | | Run automated git commit across all nodes |
+| `status --all` | | Show combined dirty/clean repository status across all nodes |
+| `proj <name> run` | | Run project-level automation or build scripts on all nodes |
 
 ## Flags
 
 | Flag | Description |
 |------|-------------|
-| `--except <list>` | Exclude nodes by ID, IP, or trailing IP octet |
-| `--ip <list>` | Target specific node IP addresses |
-| `--id <list>` | Target specific node Display IDs |
-| `--json` | Output machine list or results in JSON format |
-| `--yes`, `-Y` | Bypass preflight confirmation prompt |
-| `--dry-run` | Preview execution plan without running commands |
-| `--verbose` | Print detailed real-time execution logs |
+| `--except <list>` | Exclude nodes by ID, IP, or trailing IP octet (e.g. `--except 2,151`) |
+| `--ip <list>` | Target specific node IP addresses exclusively |
+| `--id <list>` | Target specific node Display IDs exclusively |
+| `--json` | Output machine list or results in JSON format for scripting |
+| `--yes`, `-Y` | Bypass preflight confirmation prompts |
+| `--dry-run` | Preview execution plan and target nodes without running commands |
+| `--verbose` | Print detailed real-time execution logs and SSH handshakes |
+
+---
+
+## Detailed Command Descriptions
+
+### `bash <cmd>` & `sh <cmd>` (Linux & macOS Execution)
+Dispatches remote shell commands across Linux and macOS cluster nodes in parallel. The command string is passed to `/bin/bash -c "<cmd>"` or `/bin/sh -c "<cmd>"` on each target host. Stdout and stderr from all machines are captured in real-time, prefixed by the target node's alias (e.g. `[worker-1] <output>`), and summarized at the end with process exit codes.
+
+### `ps <cmd>` & `cmd <cmd>` (Windows Node Execution)
+Dispatches native Windows commands to Windows cluster members. `ps` executes inside `powershell.exe -Command "<cmd>"`, while `cmd` executes inside `cmd.exe /c "<cmd>"`. Outputs are cleanly decoded and formatted.
+
+### `join <target> [alias]` (Admission & Identity Layer)
+Admits a remote machine into the cluster topology. Under the hood, `join`:
+1. Validates network connectivity and SSH port reachability.
+2. Authorizes local SSH public keys onto the remote host (`~/.ssh/authorized_keys`) if requested.
+3. Encrypts and securely stores passwords at rest using RSA/AES encryption.
+4. Registers the host record in GitMap's SQLite database (`ssh_hosts` table).
+5. Logs an immutable admission event into `ssh_history`.
+Once joined, you can address this machine in all future `sc`, `clients`, and `cluster` commands by its friendly alias or IP address.
+
+### `nodes` / `ls` / `list` (Cluster Registry Inspection)
+Queries the local SQLite database and renders an ASCII table of all enrolled cluster machines. Columns include Display ID, Host Alias, IP Address, SSH User, Cluster Role (`control` vs `worker`), and Admission Timestamp. Pass `--json` to stream structured data into pipelines.
+
+### `remove <target>` / `rm` (Machine Decommissioning)
+De-registers a node from the cluster topology and removes its cryptographic keys and credentials from the local database. Accepts host alias, IP, or display ID.
+
+### `ping` / `status` (Health & Latency Telemetry)
+Sends lightweight non-destructive SSH probes to every registered node simultaneously. Accurately measures round-trip latency (RTT in milliseconds), verifies SSH authentication, and highlights unreachable or offline nodes.
+
+### `install <packages>` (Multi-Node Package & GitMap Provisioning)
+Dispatches software package installation across all cluster nodes simultaneously. It automatically detects the remote package manager (`apt-get`, `dnf`, `yum`, or `winget`) and installs specified packages (e.g. `gitmap sc install "git,nodejs,curl"`). You can also run `gitmap sc install gitmap` to distribute and bootstrap GitMap itself across all cluster machines!
+
+### `pull --all`, `push --all`, `status --all` (Distributed Git Operations)
+Runs fleet-wide Git management across every joined machine. Allows synchronizing codebases, checking repository dirty states, and pushing commits across entire developer teams or build server clusters in a single command.
+
+---
 
 ## GitMap Cluster Triad Architecture
 
@@ -69,21 +106,13 @@ GitMap orchestrates distributed multi-node infrastructure through a cohesive tri
 +-----------------------------------------------------------------------------+
 ```
 
-### Triad Roles & Workflow
-
-- **`ssh-join` (`sj`) — Admission & Identity Layer**: First-class entrypoint for server admission. Enrolls remote machines into SQLite (`ssh_hosts`), securely manages RSA credentials, authorizes public keys, and prevents OpenSSH hostname collisions.
-- **`cluster` — Topology & Orchestration Layer**: Manages multi-node architecture, control-plane vs worker roles, automated Ubuntu provisioning recipes, and full Kubernetes cluster setup.
-- **`servers-clients` (`sc`) — Distributed Fan-Out Layer**: High-speed broadcast execution engine. Fans out shell commands, package installations, and git sync operations across cluster nodes in parallel.
-
 ---
 
-## Examples
+## Concrete Examples
 
-### Bash & POSIX Shell Execution
-
-Execute bash or shell commands across Linux and macOS cluster nodes:
+### 1. Bash & POSIX Shell Fan-Out
 ```bash
-# Check system kernel, release, and uptime across all nodes
+# Check system kernel and uptime across all nodes
 gitmap servers-clients bash "uname -a && uptime"
 
 # Check disk space across all machines, excluding node 2
@@ -96,85 +125,56 @@ gitmap sc bash "docker ps --format 'table {{.Names}}\t{{.Status}}'"
 gitmap sc sh "cat /etc/os-release | grep PRETTY_NAME"
 ```
 
-### Machine Joining & Enrollment (Join)
-
-Join and enroll target machines into the cluster:
+### 2. Machine Joining & Enrollment
 ```bash
-# Join a machine by IP address with custom alias 'u1'
-gitmap servers-clients join 192.168.1.14 u1
+# Join a machine by IP with alias 'worker-1'
+gitmap servers-clients join 192.168.1.14 worker-1
 
 # Join using SSH username, IP, and key authentication
-gitmap sc join alim@192.168.1.14 u1 --key ~/.ssh/id_rsa
+gitmap sc join alim@192.168.1.14 devbox --key ~/.ssh/id_rsa
 
 # Join with root credentials and password
-gitmap sc join root@192.168.1.50 worker-1 --password secret
+gitmap sc join root@192.168.1.50 control-plane --password secret
 
 # Enroll an additional node using the add alias
-gitmap sc add 10.0.0.5 dev-box
+gitmap sc add 10.0.0.5 worker-2
 ```
 
-### Listing Joined Machines (List / Nodes / LS)
-
-Inspect all registered machines currently joined to the cluster:
+### 3. Inspecting & Probing Joined Machines
 ```bash
 # View table of joined nodes (ID, ALIAS, IP, USER, ROLE, CREATED_AT)
-gitmap servers-clients nodes
+gitmap sc nodes
 gitmap sc ls
-gitmap sc list
-gitmap sc joined
 
-# Output joined machines in JSON format for scripts and automation
+# Output joined machines in JSON format for automation
 gitmap sc ls --json
-gitmap servers-clients list --json
-```
 
-### Machine Removal (Remove / RM)
-
-Remove a decommissioned machine from the cluster registry:
-```bash
-# Remove machine by alias
-gitmap sc rm u1
-
-# Remove machine by IP address
-gitmap servers-clients remove 192.168.1.14
-```
-
-### Node Reachability & Health Status (Ping)
-
-Check reachability and round-trip ping latency across all nodes:
-```bash
-gitmap servers-clients ping
+# Measure ping round-trip latency and health across all nodes
 gitmap sc ping
 ```
 
-### PowerShell & Windows Command Prompt
-
-Execute PowerShell and cmd commands on Windows nodes:
+### 4. Package Installation & Remote GitMap Setup
 ```bash
-# Query active services via PowerShell
-gitmap servers-clients ps "Get-Service | Where Status -eq Running"
-
-# Check IP configuration via Windows Command Prompt, excluding specific nodes
-gitmap sc cmd "ipconfig /all" --except 24,151
-
-# Query top 5 CPU-intensive processes
-gitmap sc ps "Get-Process | Sort-Object CPU -Descending | Select-Object -First 5"
-```
-
-### Package Installation
-
-Install software packages across all machines simultaneously:
-```bash
-# Install common developer tools across cluster
+# Install common developer tools across cluster simultaneously
 gitmap servers-clients install "git,nodejs,curl,htop" --except 2
+
+# Install backend container and web stack
+gitmap sc install "docker.io,build-essential,nginx"
+
+# Install GitMap remotely across all cluster nodes via SSH
+gitmap sc install gitmap
+
+# Run remote one-liner installation script directly
+gitmap sc bash "curl -fsSL https://raw.githubusercontent.com/alimtvnetwork/gitmap-v28/main/scripts/install.sh | bash"
 ```
 
-### Distributed Git Operations
-
-Delegate git synchronization across all joined machines:
+### 5. Running GitMap Commands Across Nodes
 ```bash
-# Pull latest changes on all repositories
-gitmap servers-clients pull --all
+# Check GitMap status across all remote nodes
+gitmap sc bash "gitmap status"
+
+# Run GitMap pull across all remote repositories
+gitmap sc pull --all
 
 # Push branches across all nodes, excluding node 3
 gitmap sc push --all --except 3
@@ -183,30 +183,25 @@ gitmap sc push --all --except 3
 gitmap sc status --all
 ```
 
-### Project Automation
-
-Run local build scripts and CI pipelines across nodes:
+### 6. Windows Node PowerShell & Command Prompt
 ```bash
-gitmap servers-clients proj "api-backend" run --except 2
+# Query active services via PowerShell
+gitmap sc ps "Get-Service | Where Status -eq Running"
+
+# Check IP configuration via Windows Command Prompt, excluding specific nodes
+gitmap sc cmd "ipconfig /all" --except 24,151
+
+# Query top 5 CPU-intensive processes
+gitmap sc ps "Get-Process | Sort-Object CPU -Descending | Select-Object -First 5"
 ```
 
-### Cluster Triad & Remote Operations
-
-Execute commands, install GitMap, or schedule power operations across the cluster triad:
+### 7. Scheduled System Power Management
 ```bash
-# 1. Remote bash/shell execution across cluster nodes
-gitmap sc bash "uname -a"
-gitmap cluster exec all "apt-get update" --sudo
-gitmap sc shell "df -h" --except control-plane
+# Schedule reboot in 15 minutes across workers
+gitmap sc restart 15m --except control-plane
 
-# 2. Remote GitMap installation & auto-bootstrapping
-gitmap cluster install gitmap all
-gitmap sj install gitmap devbox
-
-# 3. Scheduled remote shutdown & restart
-gitmap sc restart --except control-plane
-gitmap schedule shutdown 1:45hr
-gitmap schedule restart 2h
+# Schedule shutdown across all nodes at end of day
+gitmap sc shutdown 2h
 ```
 
 See also: `gitmap sc`, `gitmap clients`, `gitmap cluster`, `gitmap cluster exec`, `gitmap cluster nodes`, `gitmap ssh-join`, `gitmap sj`

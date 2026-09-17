@@ -183,6 +183,7 @@ func printGroupCluster() {
 	renderLine(constants.HelpServersClients)
 	renderLine(constants.HelpClients)
 	renderLine(constants.HelpCluster)
+	renderLine(constants.HelpSSHJoin)
 	renderLine(constants.HelpServe)
 }
 

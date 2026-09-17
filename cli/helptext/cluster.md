@@ -2,6 +2,23 @@
 
 Comprehensive multi-node cluster management, topology enrollment, parallel command execution, remote script deployment, and Ubuntu node provisioning suite.
 
+## What is GitMap Cluster?
+
+`gitmap cluster` is GitMap's orchestration and infrastructure management engine designed for managing multi-machine environments, control-plane and worker topologies, automated Ubuntu provisioning, and complete Kubernetes lifecycles directly over SSH without heavyweight external daemons.
+
+### Comparison: Local Git `exec` vs Macro `execute` vs Remote `cluster exec` / `sc`
+
+To eliminate command ambiguity:
+
+| Scope | Command | Purpose & Execution Context |
+|-------|---------|-----------------------------|
+| **Local Repos** | `gitmap exec <git-cmd>` (`x`) | Runs a `git` command locally across all indexed repositories on the current machine (e.g. `gitmap exec fetch --prune`). |
+| **Local Automation** | `gitmap execute <macro>` | Replays recorded multistep workflow automation scripts sequentially on the local workstation. |
+| **Remote Cluster** | `gitmap cluster exec <target> <cmd>` | Dispatches remote shell commands across role-targeted Kubernetes / Ubuntu cluster nodes (`all`, `control`, `workers`) over SSH. |
+| **Fleet Fan-Out** | `gitmap sc bash <cmd>` (`sc`) | High-speed broadcast fan-out across all enrolled servers and client nodes with concurrency pools. |
+
+---
+
 ## Architecture Overview
 
 Gitmap Cluster provides an enterprise-grade orchestration layer directly over standard SSH transport without requiring agent daemons on target nodes:
@@ -68,6 +85,7 @@ gitmap cluster <subcommand> [args...] [flags]
 | `run-script` | `script` | Deploy and execute local script file across targeted nodes |
 | `bootstrap` | `bs` | Bootstrap nodes with RSA keys, passwordless sudo, and enrollment |
 | `install` | | Install GitMap on remote target nodes via SSH (curl/PowerShell) |
+| `init` | `template`, `init-config` | Generate starter cluster JSON schema (01-config.json) automatically |
 | `import` | `import-config`, `import-cluster` | Import cluster topology from JSON and enroll hosts |
 | `k8s` | `kube`, `kubernetes` | Manage Kubernetes cluster lifecycle, runtime, CNI, Helm, and NFS |
 | `status` | `ping`, `health` | Display cluster health, active nodes, and ping latency |
@@ -90,6 +108,37 @@ Gitmap provides first-class subcommands to enroll, list, probe, and remove clust
 - **List Nodes (`nodes`, `ls`)**: List all registered cluster nodes with roles, OS, IPs, and status (`gitmap cluster nodes [--json]`).
 - **Health & Ping (`status`, `ping`)**: Display heartbeat records and ping round-trip latency (`gitmap cluster status`, `gitmap cluster ping [target]`).
 - **Remove Node (`remove`, `rm`)**: Unregister a node from the cluster topology (`gitmap cluster rm <alias|ip>`, `gitmap cluster node rm <alias|ip>`).
+
+---
+
+## Automated Cluster JSON Initialization (`init`, `template`)
+
+Generate a starter cluster JSON configuration file automatically right from the terminal:
+
+```bash
+# Generate default 01-config.json with control plane and 2 workers
+gitmap cluster init
+
+# Custom control plane and worker IPs with custom username
+gitmap cluster init --control 10.0.0.1 --workers 10.0.0.2,10.0.0.3 --user devadmin --out my-cluster.json
+
+# Force overwrite existing file
+gitmap cluster init --force
+```
+
+Terminal Output:
+```
+✓ Generated cluster topology configuration: 01-config.json
+  Control Plane:
+    • k8s-m1: 192.168.1.10
+  Worker Nodes:
+    • worker-1: 192.168.1.11
+    • worker-2: 192.168.1.12
+  SSH User: ubuntu
+
+  Next: Edit credentials, then import into cluster:
+    gitmap cluster import 01-config.json
+```
 
 ---
 

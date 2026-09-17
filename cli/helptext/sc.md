@@ -10,24 +10,52 @@ gitmap sc <subcommand> [args] [flags]
 
 Full command: `gitmap servers-clients <subcommand> [args] [flags]`
 
-## Subcommands
+## Subcommands Overview
 
-| Subcommand | Description |
-|------------|-------------|
-| `bash <cmd>` | Execute a Bash command across all cluster nodes |
-| `sh <cmd>` / `shell <cmd>` | Execute a POSIX shell command across all cluster nodes |
-| `ps <cmd>` | Execute a PowerShell command on all nodes |
-| `cmd <cmd>` | Execute a Windows Command Prompt command on all nodes |
-| `join <target> [alias]` | Join and enroll a machine into the cluster registry (`add`) |
-| `nodes` / `ls` / `list` | List all registered machines joined to the cluster (`joined`, `machines`) |
-| `remove <target>` / `rm` | Remove a machine from the cluster registry (`delete`) |
-| `ping` | Check reachability and ping latency for all cluster nodes (`health`) |
-| `install <pkgs>` | Install packages (comma-separated list) on all nodes |
-| `pull --all` | Run git pull --all on all nodes |
-| `push --all` | Run git push --all on all nodes |
-| `commit --all` | Run git commit --all on all nodes |
-| `status --all` | Show combined dirty/clean status across all nodes |
-| `proj <name> run` | Run project-level automation on all nodes |
+| Subcommand | Aliases | Description |
+|------------|---------|-------------|
+| `bash <cmd>` | | Execute a Bash command across all cluster nodes |
+| `sh <cmd>` | `shell` | Execute a POSIX shell command across all cluster nodes |
+| `ps <cmd>` | | Execute a PowerShell command on Windows cluster nodes |
+| `cmd <cmd>` | | Execute a Windows Command Prompt command on Windows nodes |
+| `join <target> [alias]` | `add`, `enroll` | Join and enroll a machine into the cluster registry with key auth |
+| `nodes` | `ls`, `list`, `joined`, `machines` | List all registered machines joined to the cluster |
+| `remove <target>` | `rm`, `delete` | Remove a machine from the cluster registry |
+| `ping` | `status`, `health` | Check reachability and ping latency for all cluster nodes |
+| `install <pkgs>` | | Install packages (comma-separated list) or GitMap across all nodes |
+| `restart [duration]` | | Trigger or schedule system restart across all cluster nodes |
+| `shutdown [duration]` | | Trigger or schedule system shutdown across all cluster nodes |
+| `pull --all` | | Run git pull --all across all repositories on all nodes |
+| `push --all` | | Run git push --all across all repositories on all nodes |
+| `commit --all` | | Run automated git commit across all nodes |
+| `status --all` | | Show combined dirty/clean status across all nodes |
+| `proj <name> run` | | Run project-level automation on all nodes |
+
+## Flags
+
+| Flag | Description |
+|------|-------------|
+| `--except <list>` | Exclude nodes by ID, IP, or trailing IP octet (e.g. `--except 2,151`) |
+| `--ip <list>` | Target specific node IP addresses |
+| `--id <list>` | Target specific node Display IDs |
+| `--json` | Output machine list or results in JSON format |
+| `--yes`, `-Y` | Bypass preflight confirmation prompt |
+| `--dry-run` | Preview execution plan without running commands |
+| `--verbose` | Print detailed real-time execution logs |
+
+---
+
+## Detailed Command Descriptions
+
+- **`bash <cmd>` / `sh <cmd>`**: Dispatches remote shell commands to Linux/macOS nodes in parallel. Stdout/stderr are streamed with node alias prefixes (`[worker-1] ...`).
+- **`ps <cmd>` / `cmd <cmd>`**: Dispatches PowerShell or CMD commands to Windows cluster nodes.
+- **`join <target> [alias]`**: Admits a node into the cluster topology, checks SSH connectivity, authorizes keys, encrypts credentials, and registers it in SQLite.
+- **`nodes` / `ls`**: Lists all enrolled machines with display ID, alias, IP, user, role, and registration date.
+- **`ping` / `status`**: Non-destructive network health check measuring round-trip latency in ms across all nodes.
+- **`install <packages>`**: Installs software packages simultaneously (e.g. `"git,nodejs,curl"`) or deploys GitMap itself via `gitmap sc install gitmap`.
+- **`pull --all` / `push --all` / `status --all`**: Synchronizes Git repositories across all machines in the cluster fleet.
+
+---
 
 ## Examples
 
@@ -40,12 +68,27 @@ gitmap sc sh "docker ps"
 
 ### Join & Manage Machines
 ```bash
-gitmap sc join 192.168.1.14 u1
-gitmap sc join root@192.168.1.50 worker-1 --password secret
+gitmap sc join 192.168.1.14 worker-1
+gitmap sc join root@192.168.1.50 control-plane --password secret
 gitmap sc nodes
 gitmap sc ls --json
-gitmap sc rm u1
+gitmap sc rm worker-1
 gitmap sc ping
+```
+
+### Running GitMap & Package Installation
+```bash
+# Install developer tools across all cluster nodes
+gitmap sc install "git,nodejs,curl" --except 2
+
+# Install GitMap remotely across all cluster nodes
+gitmap sc install gitmap
+
+# Run GitMap commands across remote fleet
+gitmap sc bash "gitmap status"
+gitmap sc pull --all
+gitmap sc push --all --except 3
+gitmap sc status --all
 ```
 
 ### PowerShell & Windows Cmd
@@ -55,12 +98,4 @@ gitmap sc cmd "whoami" --except 2
 gitmap sc ps "Get-Service | Where Status -eq Running"
 ```
 
-### Git & Package Automation
-```bash
-gitmap sc pull --all
-gitmap sc push --all --except 3
-gitmap sc status --all
-gitmap sc install "git,nodejs,curl" --except 2
-```
-
-See also: `gitmap servers-clients`, `gitmap clients`, `gitmap cluster`
+See also: `gitmap servers-clients`, `gitmap clients`, `gitmap cluster`, `gitmap cluster exec`, `gitmap ssh-join`

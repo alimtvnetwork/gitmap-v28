@@ -23,6 +23,7 @@ import (
 
 	"github.com/alimtvnetwork/gitmap-v28/cli/apperror"
 	"github.com/alimtvnetwork/gitmap-v28/cli/cliexit"
+	"github.com/alimtvnetwork/gitmap-v28/cli/cmdssh"
 	"github.com/alimtvnetwork/gitmap-v28/cli/constants"
 )
 
@@ -53,6 +54,7 @@ func runFixAuth(args []string) error {
 	fixAuthGenerate(keyPath, resolveFixAuthEmail(email), assumeYes, force)
 	fixAuthBind(keyPath)
 	fixAuthAnnounce(user, keyPath)
+	_, _ = cmdssh.SanitizeSSHConfigFile("")
 
 	return nil
 }

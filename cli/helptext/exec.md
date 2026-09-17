@@ -78,12 +78,20 @@ All other arguments are passed directly to git.
       ?? src/new-file.go
     ✓ 1 repo processed
 
+## Remote Cluster & Macro Execution Disambiguation
+
+- For **remote execution across multi-machine clusters**, use `gitmap cluster exec <target> <command>` or `gitmap sc bash <command>`.
+- For **replaying recorded automation workflows**, use `gitmap execute <macro>`.
+- `gitmap exec <git-cmd>` exclusively targets **local** git repositories on this workstation.
+
 ## See Also
 
 - [scan](scan.md) — Scan directories to populate the database
 - [pull](pull.md) — Pull repos (built-in alternative to exec fetch)
 - [status](status.md) — View repo statuses
 - [alias](alias.md) — Manage repo aliases
+- [cluster](cluster.md) — Remote multi-node execution and Kubernetes management
+- [servers-clients](servers-clients.md) — Distributed fan-out execution across cluster nodes
 
 ## Scripting (JSON)
 

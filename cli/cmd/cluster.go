@@ -30,6 +30,8 @@ func routeClusterScriptOrNode(sub string, rest []string) result.ErrorWrapper {
 		return cmdssh.RouteClusterNodeCLI(rest)
 	case "import", "import-config", "import-cluster":
 		return result.FailureWrapperErr(cmdssh.RunClusterImportCLI(rest))
+	case "init", "template", "init-config", "schema":
+		return result.FailureWrapperErr(cmdssh.RunClusterInitCLI(rest))
 	default:
 		return result.UnmatchedWrapper()
 	}

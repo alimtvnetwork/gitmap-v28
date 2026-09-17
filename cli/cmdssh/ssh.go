@@ -68,7 +68,7 @@ func isSSHStatusSub(sub string) bool {
 
 func dispatchConfigOrStatus(sub string, args []string) bool {
 	if sub == constants.SubCmdSSHConfig {
-		runSSHConfig()
+		runSSHConfig(args)
 		return true
 	}
 	if isSSHStatusSub(sub) {

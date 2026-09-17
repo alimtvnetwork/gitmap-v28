@@ -120,7 +120,15 @@ func executeCFRClone(url, folderName, absPath string, f cloneFixRepoFlags) {
 	url = preferExistingFolderTransport(url, absPath)
 	url = coerceURLToStoredTransport(url)
 	requireOnline()
-	executeDirectClone(url, folderName, true, false, "", f.isSkipVSCodeSync)
+	executeDirectClone(DirectCloneParams{
+		URL:          url,
+		FolderName:   folderName,
+		GHDesktop:    true,
+		NoReplace:    false,
+		Output:       "",
+		NoVSCodeSync: f.isSkipVSCodeSync,
+		IsClean:      false,
+	})
 	if !f.dryRun {
 		persistRecloneTransport(url)
 	}

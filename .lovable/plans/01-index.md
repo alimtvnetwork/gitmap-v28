@@ -4,11 +4,12 @@ Master directory of architectural and execution plans.
 
 ## Pending Plans
 
-No pending plans. All tasks are completed.
+No pending plans.
 
 ## Recent Completed Tasks Register (Last 20 Tasks)
 
-1. [Plan 190: 190-isolate-destructive-os-and-heavy-unit-tests.md](completed/190-isolate-destructive-os-and-heavy-unit-tests.md): Isolate Destructive OS & Heavy Unit Tests — Coding Guideline 24
+1. [Plan 191: 191-ssh-config-sanitize-clone-force-and-cluster-help-parity.md](completed/191-ssh-config-sanitize-clone-force-and-cluster-help-parity.md): SSH Config Sanitizer, Clone Force/Reclone Flag, Cluster SSH Join and SC Help Parity
+2. [Plan 190: 190-isolate-destructive-os-and-heavy-unit-tests.md](completed/190-isolate-destructive-os-and-heavy-unit-tests.md): Isolate Destructive OS & Heavy Unit Tests — Coding Guideline 24
 2. [Plan 189: 189-schedule-shutdown-restart-ssh-install-os-ai-clean-help-parity.md](completed/189-schedule-shutdown-restart-ssh-install-os-ai-clean-help-parity.md): Scheduled Shutdown & Restart, Remote GitMap SSH Installation, OS AI Cache Cleaning, SSH Table Formatting, and Help Parity Triad
 2. [Plan 188: 188-pipeline-db-cli-storage-and-repo-isolation.md](completed/188-pipeline-db-cli-storage-and-repo-isolation.md): Pipeline Database CLI Co-Location, Directory Renaming & Repo-Slug Isolation
 2. [Plan 187: 187-naming-conventions-bare-ok-and-boolean-prefixes.md](completed/187-naming-conventions-bare-ok-and-boolean-prefixes.md): Naming Conventions, Bare Ok Elimination & Boolean Prefixes
@@ -59,6 +60,8 @@ No pending plans. All tasks are completed.
 
 ## Completed Plans
 
+- [191-ssh-config-sanitize-clone-force-and-cluster-help-parity.md](completed/191-ssh-config-sanitize-clone-force-and-cluster-help-parity.md): SSH Config Sanitizer, Clone Force/Reclone Flag, Cluster SSH Join and SC Help Parity
+- [190-isolate-destructive-os-and-heavy-unit-tests.md](completed/190-isolate-destructive-os-and-heavy-unit-tests.md): Isolate Destructive OS & Heavy Unit Tests — Coding Guideline 24
 - [179-pipeline-table-align-db-size-and-agy-feed.md](completed/179-pipeline-table-align-db-size-and-agy-feed.md): Pipeline Table Visual Alignment, DB Size Display & AGY Fix Pipeline Feed
 - [178-errorwrapper-subcommand-routing-and-null-safety.md](completed/178-errorwrapper-subcommand-routing-and-null-safety.md): Subcommand Routing ErrorWrapper Architecture & Universal AppError Returns
 - [177-errorwrapper-and-proper-result-types.md](completed/177-errorwrapper-and-proper-result-types.md): Result ErrorWrapper & Centralized Proper Result Types Suite

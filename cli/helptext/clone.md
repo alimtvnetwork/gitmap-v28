@@ -16,6 +16,7 @@ c
 | Flag | Default | Description |
 |------|---------|-------------|
 | --target-dir \<dir\> | current directory | Base directory for clones |
+| --force, -f, --clean, --reclone | false | Forcefully delete existing destination directories on disk and re-clone fresh |
 | --safe-pull | false | Pull existing repos with retry + diagnostics |
 | --github-desktop | false | Auto-register with GitHub Desktop (no prompt) |
 | --audit | false | Validate planned git clone commands and print a diff-style summary; never executes |
