@@ -122,7 +122,7 @@ func executePipelineLogsForTarget(repo string, runs []ghRunItem, opts PipelineLo
 	return dispatchLogsOutput(combinedLogs, logItems, opts)
 }
 
-func resolveTargetGroupWithFallback(groups []*CommitPipelineGroup, target string) (*CommitPipelineGroup, bool) {
+func resolveTargetGroupWithFallback(groups []CommitPipelineGroup, target string) (*CommitPipelineGroup, bool) {
 	group, hasGroup := ResolveCommitGroupByTarget(groups, target)
 	if hasGroup {
 		return group, true
@@ -161,7 +161,7 @@ func filterTargetWorkflows(workflows []CommitWorkflowItem, opts PipelineLogsOpti
 	return targets
 }
 
-func fetchTargetWorkflows(repo string, targets []CommitWorkflowItem, opts PipelineLogsOptions) []CommitWorkflowItem {
+func fetchTargetWorkflows(repo string, targets []CommitWorkflowItem, opts PipelineLogsOptions) []CommitWorkflowLogItem {
 	if len(targets) == 1 {
 		return []CommitWorkflowLogItem{fetchSingleWorkflowLogItem(repo, targets[0], opts)}
 	}

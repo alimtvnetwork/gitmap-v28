@@ -55,6 +55,7 @@ type PipelineErrorLogsPayload struct {
 	ErrorLogs          string            `json:"errorLogs"`
 	CombinedErrors     string            `json:"combinedErrors,omitempty"`
 	Url                string            `json:"url,omitempty"`
+	Notes              string            `json:"notes,omitempty"`
 	FailedRuns         []FailedRunItem   `json:"failedRuns,omitempty"`
 	SectionFailures    []SectionFailure  `json:"sectionFailures,omitempty"`
 	CICDChecks         []CICDCheckResult `json:"cicdChecks,omitempty"`

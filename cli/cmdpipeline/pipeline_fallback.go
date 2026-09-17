@@ -27,7 +27,7 @@ func TryRetrievePreviousDbRun(repo string) (*pipelinedb.PipelineRunRecord, strin
 	defer db.Close()
 
 	runRes := db.QueryLastFailedRuns(1)
-	if runRes.IsFail || len(runRes.Data) == 0 {
+	if runRes.IsFailed() || len(runRes.Data) == 0 {
 		return nil, "", false
 	}
 
@@ -39,12 +39,12 @@ func TryRetrievePreviousDbRun(repo string) (*pipelinedb.PipelineRunRecord, strin
 
 func queryDbRunErrorText(db *pipelinedb.PipelineSplitDb, runId uint64) string {
 	errRes := db.QueryDetailedErrorLogsByRunId(runId)
-	if !errRes.IsFail && len(errRes.Data) > 0 {
+	if !errRes.IsFailed() && len(errRes.Data) > 0 {
 		return formatDbErrorRecords(errRes.Data)
 	}
 
 	compactRes := db.QueryCompactErrors(10)
-	if !compactRes.IsFail && len(compactRes.Data) > 0 {
+	if !compactRes.IsFailed() && len(compactRes.Data) > 0 {
 		return formatDbCompactRecords(compactRes.Data)
 	}
 
@@ -113,10 +113,11 @@ func ApplyPreviousDbFallbackToPayload(p *PipelineErrorLogsPayload, repo string) 
 }
 
 // ResolveFallbackTargetGroup finds the previous commit group when latest is empty.
-func ResolveFallbackTargetGroup(groups []*CommitPipelineGroup) (*CommitPipelineGroup, bool) {
+func ResolveFallbackTargetGroup(groups []CommitPipelineGroup) (*CommitPipelineGroup, bool) {
 	if len(groups) > 1 {
-		return groups[1], true
+		return &groups[1], true
 	}
 
 	return nil, false
 }
+

@@ -37,7 +37,7 @@ func TestFindPreviousFailingRunInHistory_ReturnsFalseWhenAllSuccess(t *testing.T
 }
 
 func TestResolveFallbackTargetGroup_ReturnsSecondGroupWhenAvailable(t *testing.T) {
-	groups := []*CommitPipelineGroup{
+	groups := []CommitPipelineGroup{
 		{CommitSha: "sha-latest", ShortSha: "latest"},
 		{CommitSha: "sha-prev", ShortSha: "prev"},
 	}
@@ -52,7 +52,7 @@ func TestResolveFallbackTargetGroup_ReturnsSecondGroupWhenAvailable(t *testing.T
 }
 
 func TestResolveFallbackTargetGroup_ReturnsFalseWhenSingleGroup(t *testing.T) {
-	groups := []*CommitPipelineGroup{
+	groups := []CommitPipelineGroup{
 		{CommitSha: "sha-only", ShortSha: "only"},
 	}
 
