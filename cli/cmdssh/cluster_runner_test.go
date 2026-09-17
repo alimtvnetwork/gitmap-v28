@@ -45,10 +45,6 @@ func TestResolveDetectedOSType(t *testing.T) {
 	}
 }
 
-func mockRunNodeSSHProcess(ctx context.Context, host store.SSHHost, alias, cmd, pwd string, isSudo bool, start time.Time) ClusterRunResult {
-	return ClusterRunResult{Host: host, ExitCode: 0, Stdout: "executed: " + cmd}
-}
-
 func TestExecuteNodeCommand_ProbeSkippedWhenNotGitmap(t *testing.T) {
 	probeInvoked := false
 	prevProbe := runNodeProbeFn

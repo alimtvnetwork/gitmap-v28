@@ -31,6 +31,9 @@ var ClusterInstallCmd = &cobra.Command{
 
 func isWindowsOS(osType string) bool {
 	lower := strings.ToLower(strings.TrimSpace(osType))
+	if strings.Contains(lower, "darwin") {
+		return false
+	}
 	return strings.Contains(lower, "win")
 }
 

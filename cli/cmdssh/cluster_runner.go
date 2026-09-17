@@ -265,11 +265,11 @@ func runNodeProbeProcess(ctx context.Context, host store.SSHHost, probeCmd, pass
 
 func resolveDetectedOSType(raw string) string {
 	trimmed := strings.ToLower(strings.TrimSpace(raw))
-	if strings.Contains(trimmed, "win") {
-		return "windows"
-	}
 	if strings.Contains(trimmed, "darwin") {
 		return "darwin"
+	}
+	if strings.Contains(trimmed, "win") {
+		return "windows"
 	}
 	return "linux"
 }

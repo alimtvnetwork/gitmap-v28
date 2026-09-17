@@ -193,7 +193,7 @@ func CancelSchedulePowerCLI(action OSActionType) error {
 	exe, cmdArgs := BuildCancelOSActionCommand()
 	cmd := exec.Command(exe, cmdArgs...)
 	_ = cmd.Run()
-	fmt.Printf("✓ Cancelled active scheduled %s.\n", action)
+	fmt.Printf("✓ Canceled active scheduled %s.\n", action)
 	return nil
 }
 
@@ -259,14 +259,4 @@ func printPowerScheduleConfirmation(action OSActionType, dur time.Duration) {
 	fmt.Printf("✓ Scheduled system %s in %v (%ds). Target time: %s\n", action, dur, secs, target)
 	fmt.Printf("  • Check status: gitmap schedule %s status\n", action)
 	fmt.Printf("  • Cancel:       gitmap schedule %s cancel\n", action)
-}
-
-// runScheduleRestart runs native OS restart without arguments.
-func runScheduleRestart() error {
-	return RunSchedulePowerCLI(OSActionRestart, nil)
-}
-
-// runScheduleShutdown runs native OS shutdown without arguments.
-func runScheduleShutdown() error {
-	return RunSchedulePowerCLI(OSActionShutdown, nil)
 }

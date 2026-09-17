@@ -46,7 +46,7 @@ INDEPENDENT_TESTS_PART1 = [
     (["find-regex"], [0], "Usage:", "find-regex zero-args help"),
     (["find-read"], [0], "Usage:", "find-read zero-args help"),
     (["find-regex-read"], [0], "Usage:", "find-regex-read zero-args help"),
-    (["doctor"], [0, 1], "gitmap doctor", "doctor command"),
+    (["doctor"], [0, 1], "[ok]", "doctor command"),
     (["pipeline", "status", "--json"], [0], "isRunning", "pipeline status --json"),
     (["pipeline", "eta"], [0], "", "pipeline eta"),
     (["pipeline-ai", "--help"], [0], "Usage", "pipeline-ai --help"),

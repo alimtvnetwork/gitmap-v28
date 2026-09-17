@@ -88,14 +88,14 @@ func GetActivePowerSchedule() (*PowerScheduleState, error) {
 	return s, nil
 }
 
-// CancelActivePowerSchedule marks the active power schedule as cancelled.
+// CancelActivePowerSchedule marks the active power schedule as canceled.
 func CancelActivePowerSchedule() error {
 	path := resolvePowerStateFilePath()
 	s, err := readPowerScheduleState(path)
 	if err != nil {
 		return nil
 	}
-	s.Status = "CANCELLED"
+	s.Status = "CANCELED"
 	return SavePowerScheduleState(*s)
 }
 
