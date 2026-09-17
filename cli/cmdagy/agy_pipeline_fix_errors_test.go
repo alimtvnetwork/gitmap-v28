@@ -156,3 +156,52 @@ func TestUpdatePromptQueueFile_Hermetic(t *testing.T) {
 		t.Fatalf("queue json missing status values: %s", content)
 	}
 }
+
+func TestNormalizeAgyArgs_CompoundFixPhrases(t *testing.T) {
+	testCases := []struct {
+		name     string
+		input    []string
+		expected []string
+	}{
+		{
+			name:     "errors_fix",
+			input:    []string{"errors", "fix", "--force"},
+			expected: []string{"fix-pipeline", "--force"},
+		},
+		{
+			name:     "fix_errors",
+			input:    []string{"fix", "errors", "-v"},
+			expected: []string{"fix-pipeline", "-v"},
+		},
+		{
+			name:     "fix_pipeline",
+			input:    []string{"fix", "pipeline"},
+			expected: []string{"fix-pipeline"},
+		},
+		{
+			name:     "aef_alias",
+			input:    []string{"aef"},
+			expected: []string{"fix-pipeline"},
+		},
+		{
+			name:     "clean_cache",
+			input:    []string{"clean-cache"},
+			expected: []string{"clean-cache"},
+		},
+	}
+
+	for _, tc := range testCases {
+		t.Run(tc.name, func(t *testing.T) {
+			actual := normalizeAgyArgs(tc.input)
+			if len(actual) != len(tc.expected) {
+				t.Fatalf("expected length %d, got %d: %v", len(tc.expected), len(actual), actual)
+			}
+			for i := range actual {
+				if actual[i] != tc.expected[i] {
+					t.Fatalf("at index %d: expected %s, got %s", i, tc.expected[i], actual[i])
+				}
+			}
+		})
+	}
+}
+

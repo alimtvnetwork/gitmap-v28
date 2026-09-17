@@ -18,15 +18,11 @@ var AgyCmd = &cobra.Command{
 
 // DispatchAgy routes CLI arguments to agy commands.
 func DispatchAgy(ctx context.Context, args []string, root *cobra.Command) error {
-	if len(args) > 0 && (args[0] == "agy" || args[0] == "ag" || args[0] == "antigravity") {
-		args = args[1:]
-	}
+	args = stripAgyPrefix(args)
 	if len(args) > 0 && isAgyOpenPathArg(args[0]) {
 		return RunAgyOpen(args[0])
 	}
-	if len(args) > 0 {
-		args[0] = normalizeAgySubcommand(args[0])
-	}
+	args = normalizeAgyArgs(args)
 	if len(args) > 0 && isAgyFindDuplicatesArg(args[0]) {
 		return RunFindDuplicates()
 	}
@@ -37,6 +33,50 @@ func DispatchAgy(ctx context.Context, args []string, root *cobra.Command) error 
 
 	return AgyCmd.ExecuteContext(ctx)
 }
+
+func stripAgyPrefix(args []string) []string {
+	if len(args) > 0 && (args[0] == "agy" || args[0] == "ag" || args[0] == "antigravity") {
+		return args[1:]
+	}
+
+	return args
+}
+
+func normalizeAgyArgs(args []string) []string {
+	if len(args) == 0 {
+		return args
+	}
+
+	if isCompoundAgyFix(args) {
+		return rewriteCompoundAgyFix(args)
+	}
+
+	args[0] = normalizeAgySubcommand(args[0])
+
+	return args
+}
+
+func isCompoundAgyFix(args []string) bool {
+	if len(args) < 2 {
+		return false
+	}
+
+	first := strings.ToLower(args[0])
+	second := strings.ToLower(args[1])
+	if first == "errors" || first == "error" || first == "err" {
+		return second == "fix" || second == "aef"
+	}
+	if first == "fix" {
+		return second == "errors" || second == "error" || second == "pipeline" || second == "agy"
+	}
+
+	return false
+}
+
+func rewriteCompoundAgyFix(args []string) []string {
+	return append([]string{"fix-pipeline"}, args[2:]...)
+}
+
 
 func isAgyOpenPathArg(arg string) bool {
 	if arg == "." || arg == ".." || strings.HasPrefix(arg, "./") || strings.HasPrefix(arg, ".\\") {

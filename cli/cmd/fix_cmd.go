@@ -6,22 +6,44 @@ import (
 	"strings"
 
 	"github.com/alimtvnetwork/gitmap-v28/cli/apperror"
+	"github.com/alimtvnetwork/gitmap-v28/cli/cmdagy"
 	"github.com/alimtvnetwork/gitmap-v28/cli/constants"
 	"github.com/alimtvnetwork/gitmap-v28/cli/gitutil"
 )
 
+func isFixAgyRequest(args []string) bool {
+	if len(args) == 0 {
+		return false
+	}
+
+	for _, arg := range args {
+		low := strings.ToLower(arg)
+		if low == "agy" || low == "aef" || low == "agy-errors-fix" {
+			return true
+		}
+	}
+
+	return false
+}
+
 func runFix(args []string, aliasOverride string) error {
+	if isFixAgyRequest(args) {
+		return cmdagy.RunPipelineFixAgyCLI(args)
+	}
+
 	items := LoadRemediationState()
 	if len(items) == 0 {
 		return handleEmptyRemediationState(args, aliasOverride)
 	}
-
 	if len(args) == 0 && aliasOverride == "" {
 		PrintRemediationSummary(items)
-
 		return nil
 	}
 
+	return executeFixTarget(args, aliasOverride, items)
+}
+
+func executeFixTarget(args []string, aliasOverride string, items []*RemediationItem) error {
 	item, action, err := resolveFixTarget(args, aliasOverride, items)
 	if err != nil {
 		return err
