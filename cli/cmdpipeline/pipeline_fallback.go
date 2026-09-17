@@ -120,4 +120,3 @@ func ResolveFallbackTargetGroup(groups []CommitPipelineGroup) (*CommitPipelineGr
 
 	return nil, false
 }
-

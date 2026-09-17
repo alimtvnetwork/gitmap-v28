@@ -38,22 +38,22 @@ func TestFindPreviousFailingRunInHistory_ReturnsFalseWhenAllSuccess(t *testing.T
 
 func TestResolveFallbackTargetGroup_ReturnsSecondGroupWhenAvailable(t *testing.T) {
 	groups := []CommitPipelineGroup{
-		{CommitSha: "sha-latest", ShortSha: "latest"},
-		{CommitSha: "sha-prev", ShortSha: "prev"},
+		{HeadSha: "sha-latest"},
+		{HeadSha: "sha-prev"},
 	}
 
 	fallback, isFound := ResolveFallbackTargetGroup(groups)
 	if !isFound || fallback == nil {
 		t.Fatalf("expected fallback group to be found")
 	}
-	if fallback.CommitSha != "sha-prev" {
-		t.Fatalf("expected sha-prev, got %s", fallback.CommitSha)
+	if fallback.HeadSha != "sha-prev" {
+		t.Fatalf("expected sha-prev, got %s", fallback.HeadSha)
 	}
 }
 
 func TestResolveFallbackTargetGroup_ReturnsFalseWhenSingleGroup(t *testing.T) {
 	groups := []CommitPipelineGroup{
-		{CommitSha: "sha-only", ShortSha: "only"},
+		{HeadSha: "sha-only"},
 	}
 
 	_, isFound := ResolveFallbackTargetGroup(groups)

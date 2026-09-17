@@ -39,3 +39,4 @@
 - [48-exhaustive-switch-and-darwin-osuser-mock-rca.md](./48-exhaustive-switch-and-darwin-osuser-mock-rca.md): Fix exhaustive switch missing ReplaceModeTypeUnknown in replace.go and skip osuser mocked tests on unsupported darwin platform.
 - [49-agy-clean-cache-unix-syntax-error-rca.md](./49-agy-clean-cache-unix-syntax-error-rca.md): Fix orphaned statements outside function body in agy_clean_cache_unix.go breaking Unix builds.
 - [50-pipeline-fallback-and-result-slice-typecheck-rca.md](./50-pipeline-fallback-and-result-slice-typecheck-rca.md): Fix ResultSlice method calls, Notes payload field, and commit group slice types.
+- [51-fallback-test-struct-fields-and-gofmt-rca.md](./51-fallback-test-struct-fields-and-gofmt-rca.md): Fix CommitPipelineGroup mock HeadSha fields in fallback test and clean gofmt trailing lines.
