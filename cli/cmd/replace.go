@@ -26,6 +26,11 @@ func runReplace(args []string) error {
 	return nil
 }
 
+func handleReplaceUnknown() {
+	fmt.Fprint(os.Stderr, constants.ErrReplaceNeedsArgs)
+	cliexit.HandleError(nil, constants.ExitCodeError)
+}
+
 // dispatchReplaceMode runs the right handler for a classified mode.
 func dispatchReplaceMode(mode ReplaceModeType, positional []string, opts replaceOpts) {
 	switch mode {
@@ -35,9 +40,10 @@ func dispatchReplaceMode(mode ReplaceModeType, positional []string, opts replace
 		runReplaceAudit(opts)
 	case ReplaceModeTypeAll, ReplaceModeTypeVersionN:
 		dispatchVersionMode(mode, positional, opts)
+	case ReplaceModeTypeUnknown:
+		handleReplaceUnknown()
 	default:
-		fmt.Fprint(os.Stderr, constants.ErrReplaceNeedsArgs)
-		cliexit.HandleError(nil, constants.ExitCodeError)
+		handleReplaceUnknown()
 	}
 }
 

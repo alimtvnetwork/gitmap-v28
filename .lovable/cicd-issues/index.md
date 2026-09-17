@@ -36,4 +36,6 @@
 - [45-gocritic-violations-and-ci-error-location-reporting.md](./45-gocritic-violations-and-ci-error-location-reporting.md): Fix gocritic appendAssign and ifElseChain violations, and enhance CI/CD & pipeline error reporting with explicit file paths, lines, and script context.
 - [46-pipeline-ci-smoke-linter-drift-rca.md](./46-pipeline-ci-smoke-linter-drift-rca.md): Fix CI smoke and linter drift across pipeline files.
 - [47-pipeline-fix-agy-compilation-and-help-examples-rca.md](./47-pipeline-fix-agy-compilation-and-help-examples-rca.md): Fix undefined cmdagy imports, fix_cmd RemediationItem slice type mismatch, cluster_init_cmd_test unused import, servers-clients Examples heading, and gofmt formatting.
+- [48-exhaustive-switch-and-darwin-osuser-mock-rca.md](./48-exhaustive-switch-and-darwin-osuser-mock-rca.md): Fix exhaustive switch missing ReplaceModeTypeUnknown in replace.go and skip osuser mocked tests on unsupported darwin platform.
+
 

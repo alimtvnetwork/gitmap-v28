@@ -2,6 +2,7 @@ package osuser
 
 import (
 	"os/exec"
+	"runtime"
 	"strings"
 	"testing"
 )
@@ -98,7 +99,15 @@ func setupMockRunner() (*mockCmdRunner, func()) {
 	}
 }
 
+func isSupportedUserPlatform() bool {
+	return runtime.GOOS == "windows" || runtime.GOOS == "linux"
+}
+
 func TestCreateRootUser_Mocked(t *testing.T) {
+	if !isSupportedUserPlatform() {
+		t.Skipf("skipping user operations on unsupported platform: %s", runtime.GOOS)
+	}
+
 	mock, cleanup := setupMockRunner()
 	defer cleanup()
 
@@ -112,6 +121,10 @@ func TestCreateRootUser_Mocked(t *testing.T) {
 }
 
 func TestRemoveEnhancedUser_Mocked(t *testing.T) {
+	if !isSupportedUserPlatform() {
+		t.Skipf("skipping user operations on unsupported platform: %s", runtime.GOOS)
+	}
+
 	mock, cleanup := setupMockRunner()
 	defer cleanup()
 
@@ -125,6 +138,10 @@ func TestRemoveEnhancedUser_Mocked(t *testing.T) {
 }
 
 func TestKillUserProcesses_Mocked(t *testing.T) {
+	if !isSupportedUserPlatform() {
+		t.Skipf("skipping user operations on unsupported platform: %s", runtime.GOOS)
+	}
+
 	mock, cleanup := setupMockRunner()
 	defer cleanup()
 
