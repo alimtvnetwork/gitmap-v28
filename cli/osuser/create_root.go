@@ -54,7 +54,7 @@ func createWindowsUser(opts UserCreateOptions) *apperror.AppError {
 func executeWindowsNetUser(username, password string) *apperror.AppError {
 	args := buildWindowsNetUserArgs(username, password)
 	cmd := exec.Command("net", args...)
-	out, err := cmd.CombinedOutput()
+	out, err := defaultOSCommandRunner(cmd)
 	if err != nil {
 		return apperror.Wrap(err, "osuser.executeWindowsNetUser", map[string]any{"output": string(out)})
 	}
@@ -74,7 +74,7 @@ func configureWindowsAdminIfRequested(opts UserCreateOptions) *apperror.AppError
 		return nil
 	}
 	cmd := exec.Command("net", "localgroup", "Administrators", opts.Username, "/ADD")
-	out, err := cmd.CombinedOutput()
+	out, err := defaultOSCommandRunner(cmd)
 	if err != nil {
 		return apperror.Wrap(err, "osuser.configureWindowsAdminIfRequested", map[string]any{"output": string(out)})
 	}
@@ -95,7 +95,7 @@ func executeLinuxUserAdd(opts UserCreateOptions) *apperror.AppError {
 	}
 	args := buildLinuxUserAddArgs(opts)
 	cmd := exec.Command("useradd", args...)
-	out, err := cmd.CombinedOutput()
+	out, err := defaultOSCommandRunner(cmd)
 	if err != nil {
 		return apperror.Wrap(err, "osuser.executeLinuxUserAdd", map[string]any{"output": string(out)})
 	}
@@ -154,7 +154,7 @@ func applyLinuxPassword(opts UserCreateOptions) *apperror.AppError {
 func pipePasswordToChpasswd(username, password string) *apperror.AppError {
 	cmd := exec.Command("chpasswd")
 	cmd.Stdin = strings.NewReader(fmt.Sprintf("%s:%s\n", username, password))
-	out, err := cmd.CombinedOutput()
+	out, err := defaultOSCommandRunner(cmd)
 	if err != nil {
 		return apperror.Wrap(err, "osuser.pipePasswordToChpasswd", map[string]any{"output": string(out)})
 	}

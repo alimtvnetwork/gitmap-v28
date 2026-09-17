@@ -1,6 +1,7 @@
 package osuser
 
 import (
+	"os/exec"
 	"strings"
 	"testing"
 )
@@ -78,5 +79,60 @@ func TestValidateCreateOptions(t *testing.T) {
 	validOpts := UserCreateOptions{Username: "valid"}
 	if err := validateCreateOptions(validOpts); err != nil {
 		t.Fatalf("unexpected error on valid options: %v", err)
+	}
+}
+
+type mockCmdRunner struct {
+	calls []*exec.Cmd
+}
+
+func setupMockRunner() (*mockCmdRunner, func()) {
+	orig := defaultOSCommandRunner
+	mock := &mockCmdRunner{}
+	defaultOSCommandRunner = func(cmd *exec.Cmd) ([]byte, error) {
+		mock.calls = append(mock.calls, cmd)
+		return []byte("success"), nil
+	}
+	return mock, func() {
+		defaultOSCommandRunner = orig
+	}
+}
+
+func TestCreateRootUser_Mocked(t *testing.T) {
+	mock, cleanup := setupMockRunner()
+	defer cleanup()
+
+	opts := UserCreateOptions{Username: "alice", Password: "pwd"}
+	if err := CreateRootUser(opts); err != nil {
+		t.Fatalf("unexpected error: %v", err)
+	}
+	if len(mock.calls) == 0 {
+		t.Fatal("expected mock runner calls, got 0")
+	}
+}
+
+func TestRemoveEnhancedUser_Mocked(t *testing.T) {
+	mock, cleanup := setupMockRunner()
+	defer cleanup()
+
+	opts := UserRemoveOptions{Username: "bob"}
+	if err := RemoveEnhancedUser(opts); err != nil {
+		t.Fatalf("unexpected error: %v", err)
+	}
+	if len(mock.calls) == 0 {
+		t.Fatal("expected mock runner calls for remove, got 0")
+	}
+}
+
+func TestKillUserProcesses_Mocked(t *testing.T) {
+	mock, cleanup := setupMockRunner()
+	defer cleanup()
+
+	opts := UserKillOptions{Username: "charlie", IsForce: true}
+	if err := KillUserProcesses(opts); err != nil {
+		t.Fatalf("unexpected error: %v", err)
+	}
+	if len(mock.calls) == 0 {
+		t.Fatal("expected mock runner calls for kill, got 0")
 	}
 }

@@ -47,7 +47,7 @@ func validateVisudoSyntax(filePath string) *apperror.AppError {
 		return nil
 	}
 	cmd := exec.Command(visudoPath, "-cf", filePath)
-	out, err := cmd.CombinedOutput()
+	out, err := defaultOSCommandRunner(cmd)
 	if err != nil {
 		return apperror.Wrap(err, "osuser.validateVisudoSyntax", map[string]any{"output": string(out)})
 	}
@@ -60,7 +60,7 @@ func AddUserToSudoGroup(username string, isDryRun bool) *apperror.AppError {
 		return nil
 	}
 	cmd := exec.Command("usermod", "-aG", "sudo", username)
-	out, err := cmd.CombinedOutput()
+	out, err := defaultOSCommandRunner(cmd)
 	if err != nil {
 		return apperror.Wrap(err, "osuser.AddUserToSudoGroup", map[string]any{"output": string(out)})
 	}

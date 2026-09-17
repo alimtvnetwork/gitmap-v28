@@ -11,9 +11,15 @@ import (
 	"github.com/alimtvnetwork/gitmap-v28/cli/store"
 )
 
+// NetIPManagerFactory defines the factory function to create a netip.Manager.
+type NetIPManagerFactory func() *netip.Manager
+
+// defaultNetIPManagerFactory is the active manager factory, customizable for hermetic testing.
+var defaultNetIPManagerFactory NetIPManagerFactory = createNetIPManager
+
 func runOSIP(args []string) error {
 	ctx := context.Background()
-	mgr := createNetIPManager()
+	mgr := defaultNetIPManagerFactory()
 	if len(args) == 0 {
 		return handleOSIPShow(ctx, mgr, nil)
 	}

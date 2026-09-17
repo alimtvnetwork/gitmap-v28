@@ -73,7 +73,7 @@ func dispatchPlatformKill(opts UserKillOptions) *apperror.AppError {
 func killWindowsUserProcesses(username string) *apperror.AppError {
 	filter := fmt.Sprintf("USERNAME eq %s", username)
 	cmd := exec.Command("taskkill", "/F", "/FI", filter)
-	out, err := cmd.CombinedOutput()
+	out, err := defaultOSCommandRunner(cmd)
 	if err != nil && !isWindowsTaskkillHarmless(string(out)) {
 		return apperror.Wrap(err, "osuser.killWindowsUserProcesses", map[string]any{"output": string(out)})
 	}
@@ -90,7 +90,7 @@ func isWindowsTaskkillHarmless(output string) bool {
 func killLinuxUserProcesses(username string, isForce bool) *apperror.AppError {
 	args := buildPkillArgs(username, isForce)
 	cmd := exec.Command("pkill", args...)
-	out, err := cmd.CombinedOutput()
+	out, err := defaultOSCommandRunner(cmd)
 	if err != nil && !isLinuxPkillHarmless(err) {
 		return apperror.Wrap(err, "osuser.killLinuxUserProcesses", map[string]any{"output": string(out)})
 	}

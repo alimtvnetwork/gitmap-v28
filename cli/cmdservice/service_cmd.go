@@ -56,7 +56,7 @@ func dispatchServiceSubcommand(sub string, rest []string) error {
 }
 
 func runServiceList(args []string) error {
-	driver := ResolveServiceDriver()
+	driver := DefaultServiceDriverResolver()
 	services, err := driver.ListServices()
 	if err != nil {
 		return err
@@ -108,17 +108,21 @@ func runServiceStatus(args []string) error {
 		return apperror.NewSimple("service name required", "E_SERVICE_NAME_REQUIRED")
 	}
 
-	driver := ResolveServiceDriver()
+	driver := DefaultServiceDriverResolver()
 	svc, err := driver.GetService(args[0])
 	if err != nil {
 		return err
 	}
 
+	renderServiceStatus(svc)
+
+	return nil
+}
+
+func renderServiceStatus(svc *ServiceInfo) {
 	fmt.Printf("\n  ▶ Service: %s\n", svc.Name)
 	fmt.Printf("  • Status:  %s\n", svc.Status)
 	fmt.Printf("  • Enabled: %t\n\n", svc.IsEnabled)
-
-	return nil
 }
 
 func runServiceStart(args []string) error {
@@ -126,7 +130,7 @@ func runServiceStart(args []string) error {
 		return apperror.NewSimple("service name required", "E_SERVICE_NAME_REQUIRED")
 	}
 
-	driver := ResolveServiceDriver()
+	driver := DefaultServiceDriverResolver()
 	if err := driver.StartService(args[0]); err != nil {
 		return err
 	}
@@ -141,7 +145,7 @@ func runServiceStop(args []string) error {
 		return apperror.NewSimple("service name required", "E_SERVICE_NAME_REQUIRED")
 	}
 
-	driver := ResolveServiceDriver()
+	driver := DefaultServiceDriverResolver()
 	if err := driver.StopService(args[0]); err != nil {
 		return err
 	}
@@ -151,20 +155,33 @@ func runServiceStop(args []string) error {
 	return nil
 }
 
+type serviceCreateParams struct {
+	name     string
+	execPath string
+	desc     string
+}
+
+func resolveServiceCreateParams(args []string) serviceCreateParams {
+	name := args[0]
+	return serviceCreateParams{
+		name:     name,
+		execPath: extractServiceFlagValue(args, "--exec", name),
+		desc:     extractServiceFlagValue(args, "--desc", "GitMap managed service: "+name),
+	}
+}
+
 func runServiceCreate(args []string) error {
 	if len(args) == 0 {
 		return apperror.NewSimple("service name required", "E_SERVICE_NAME_REQUIRED")
 	}
 
-	name := args[0]
-	execPath := extractServiceFlagValue(args, "--exec", name)
-	desc := extractServiceFlagValue(args, "--desc", "GitMap managed service: "+name)
-	driver := ResolveServiceDriver()
-	if err := driver.CreateService(name, execPath, desc); err != nil {
+	params := resolveServiceCreateParams(args)
+	driver := DefaultServiceDriverResolver()
+	if err := driver.CreateService(params.name, params.execPath, params.desc); err != nil {
 		return err
 	}
 
-	fmt.Printf("✔ Service %q created successfully (exec: %s)\n", name, execPath)
+	fmt.Printf("✔ Service %q created successfully (exec: %s)\n", params.name, params.execPath)
 
 	return nil
 }
@@ -174,7 +191,7 @@ func runServiceRemove(args []string) error {
 		return apperror.NewSimple("service name required", "E_SERVICE_NAME_REQUIRED")
 	}
 
-	driver := ResolveServiceDriver()
+	driver := DefaultServiceDriverResolver()
 	if err := driver.RemoveService(args[0]); err != nil {
 		return err
 	}
@@ -185,19 +202,23 @@ func runServiceRemove(args []string) error {
 }
 
 func runServiceExport(args []string) error {
-	driver := ResolveServiceDriver()
+	driver := DefaultServiceDriverResolver()
 	services, err := driver.ListServices()
 	if err != nil {
 		return err
 	}
 
-	schema := ServiceExportSchema{
+	schema := buildServiceExportSchema(services)
+
+	return writeServiceExportOutput(schema, args)
+}
+
+func buildServiceExportSchema(services []ServiceInfo) ServiceExportSchema {
+	return ServiceExportSchema{
 		ExportedAt: time.Now().Format(time.RFC3339),
 		Platform:   runtime.GOOS,
 		Services:   services,
 	}
-
-	return writeServiceExportOutput(schema, args)
 }
 
 func writeServiceExportOutput(schema ServiceExportSchema, args []string) error {
@@ -252,7 +273,7 @@ func unmarshalServiceExport(data []byte, filename string, schema *ServiceExportS
 }
 
 func applyImportedServices(services []ServiceInfo) error {
-	driver := ResolveServiceDriver()
+	driver := DefaultServiceDriverResolver()
 	count := 0
 	for _, s := range services {
 		if s.ExecPath != "" {

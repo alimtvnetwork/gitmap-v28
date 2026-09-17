@@ -1,11 +1,11 @@
 {
   "version": 1,
-  "updated_at": "2026-09-17T12:00:25Z",
+  "updated_at": "2026-09-17T12:10:26Z",
   "total_tests": 3536,
   "summary": {
     "total": 3536,
-    "cached": 1229,
-    "dirty": 2307,
+    "cached": 1222,
+    "dirty": 2314,
     "packages": 139,
     "slow_tests": 84,
     "fast_tests": 3452,
@@ -33952,7 +33952,7 @@
       "is_slow": false,
       "last_status": "passed",
       "last_run_at": "2026-09-17T10:59:11",
-      "needs_run": false
+      "needs_run": true
     },
     "cli/osuser.TestBuildLinuxUserAddArgs": {
       "id": "cli/osuser.TestBuildLinuxUserAddArgs",
@@ -33968,7 +33968,7 @@
       "is_slow": false,
       "last_status": "passed",
       "last_run_at": "2026-09-17T10:59:11",
-      "needs_run": false
+      "needs_run": true
     },
     "cli/osuser.TestFilterRetainedSudoersLines": {
       "id": "cli/osuser.TestFilterRetainedSudoersLines",
@@ -33984,7 +33984,7 @@
       "is_slow": false,
       "last_status": "passed",
       "last_run_at": "2026-09-17T10:59:11",
-      "needs_run": false
+      "needs_run": true
     },
     "cli/osuser.TestKeyDeduplication": {
       "id": "cli/osuser.TestKeyDeduplication",
@@ -34000,7 +34000,7 @@
       "is_slow": false,
       "last_status": "passed",
       "last_run_at": "2026-09-17T10:59:11",
-      "needs_run": false
+      "needs_run": true
     },
     "cli/osuser.TestIsProtectedUser": {
       "id": "cli/osuser.TestIsProtectedUser",
@@ -34016,7 +34016,7 @@
       "is_slow": false,
       "last_status": "passed",
       "last_run_at": "2026-09-17T10:59:11",
-      "needs_run": false
+      "needs_run": true
     },
     "cli/osuser.TestBuildDeluserAndUserdelArgs": {
       "id": "cli/osuser.TestBuildDeluserAndUserdelArgs",
@@ -34032,7 +34032,7 @@
       "is_slow": false,
       "last_status": "passed",
       "last_run_at": "2026-09-17T10:59:11",
-      "needs_run": false
+      "needs_run": true
     },
     "cli/osuser.TestValidateCreateOptions": {
       "id": "cli/osuser.TestValidateCreateOptions",
@@ -34048,7 +34048,7 @@
       "is_slow": false,
       "last_status": "passed",
       "last_run_at": "2026-09-17T10:59:11",
-      "needs_run": false
+      "needs_run": true
     },
     "cli/osutil.TestDetectHostOS": {
       "id": "cli/osutil.TestDetectHostOS",

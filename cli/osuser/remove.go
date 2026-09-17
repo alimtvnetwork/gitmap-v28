@@ -63,7 +63,7 @@ func removeWindowsUser(opts UserRemoveOptions) *apperror.AppError {
 		return nil
 	}
 	cmd := exec.Command("net", "user", opts.Username, "/DELETE")
-	out, err := cmd.CombinedOutput()
+	out, err := defaultOSCommandRunner(cmd)
 	if err != nil {
 		return apperror.Wrap(err, "osuser.removeWindowsUser", map[string]any{"output": string(out)})
 	}
@@ -94,7 +94,7 @@ func purgeUserSudoGroup(username string, isDryRun bool) *apperror.AppError {
 		return nil
 	}
 	cmd := exec.Command("gpasswd", "-d", username, "sudo")
-	_ = cmd.Run()
+	_, _ = defaultOSCommandRunner(cmd)
 	return nil
 }
 
@@ -113,7 +113,7 @@ func deleteLinuxUserAccount(opts UserRemoveOptions) *apperror.AppError {
 func runDeluserCommand(binary, username string, isRemoveHome bool) *apperror.AppError {
 	args := buildDeluserArgs(username, isRemoveHome)
 	cmd := exec.Command(binary, args...)
-	out, err := cmd.CombinedOutput()
+	out, err := defaultOSCommandRunner(cmd)
 	if err != nil {
 		return apperror.Wrap(err, "osuser.runDeluserCommand", map[string]any{"output": string(out)})
 	}
@@ -130,7 +130,7 @@ func buildDeluserArgs(username string, isRemoveHome bool) []string {
 func runUserdelCommand(username string, isRemoveHome bool) *apperror.AppError {
 	args := buildUserdelArgs(username, isRemoveHome)
 	cmd := exec.Command("userdel", args...)
-	out, err := cmd.CombinedOutput()
+	out, err := defaultOSCommandRunner(cmd)
 	if err != nil {
 		return apperror.Wrap(err, "osuser.runUserdelCommand", map[string]any{"output": string(out)})
 	}

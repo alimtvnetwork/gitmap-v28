@@ -14,6 +14,9 @@ This plan establishes strict repository-wide compliance with **Coding Guideline 
 | **V-03** | `cli/cmdos/os_ai_clean.go:226` | **MEDIUM** | `removeSingleFileSafely` executes direct `os.Remove(filePath)` on real system paths discovered during AI cache sweeps. | Decouple removal behind injectable `FileRemover` (`var defaultFileRemover FileRemover = removeSingleFileSafely`) and assert captured mock paths in tests. |
 | **V-04** | `cli/osclean/clean.go:13` | **MEDIUM** | `CleanTempDirectories` resolves host system temp roots (`os.TempDir()`, `TEMP`, `/tmp`) with direct `os.RemoveAll` on non-dry-run without mock hook. | Introduce injectable `TempDirResolver` (`var defaultTempDirResolver TempDirResolver = resolveTempDirectories`) and add hermetic unit tests in `clean_test.go` targeting `t.TempDir()`. |
 | **V-05** | `cli/cmdos/os_update.go`, `os_full_upgrade.go` | **MEDIUM** | `ExecuteOSUpdate` and `ExecuteOSFullUpgrade` execute direct `cmd.Run()` (`Get-WindowsUpdate`, `apt-get upgrade`, `do-release-upgrade`). | Introduce injectable `OSCommandRunner` and unit tests in `os_update_test.go` asserting command lines without spawning native updaters. |
+| **V-06** | `cli/cmdservice/driver.go`, `service_cmd.go` | **HIGH** | `runService*` invoked native `ResolveServiceDriver()` directly, interacting with real `sc.exe`, `systemctl`, `launchctl`. | Introduce injectable `DefaultServiceDriverResolver ServiceDriverResolver` and comprehensive mock-driven unit tests in `cli/cmdservice/service_cmd_test.go`. |
+| **V-07** | `cli/osuser/create_root.go`, `remove.go`, `kill.go`, `sudoers.go` | **HIGH** | `CreateRootUser`, `RemoveEnhancedUser`, and `KillUserProcesses` executed unmocked `net user`, `useradd`, `deluser`, `pkill`, `taskkill`. | Introduce injectable `defaultOSCommandRunner OSCommandRunner` and hermetic mock unit tests in `cli/osuser/osuser_test.go`. |
+| **V-08** | `cli/cmdos/os_ip.go` | **MEDIUM** | `runOSIP` created network IP manager directly without factory hook for mock drivers. | Introduce injectable `defaultNetIPManagerFactory NetIPManagerFactory` and hermetic unit tests in `cli/cmdos/os_ip_test.go`. |
 
 ---
 
@@ -116,6 +119,17 @@ var defaultOSCommandRunner OSCommandRunner = func(cmd *exec.Cmd) error { return 
 - **Subtask 04**: `.lovable/plans/subtasks/190-isolate-destructive-os-and-heavy-unit-tests/04-os-update-full-upgrade-runner-injection.md`
   - Refactor `os_update.go` and `os_full_upgrade.go` to use `defaultOSCommandRunner`.
   - Create unit tests in `cli/cmdos/os_update_test.go` asserting platform command construction.
+- **Subtask 05**: `.lovable/plans/subtasks/190-isolate-destructive-os-and-heavy-unit-tests/05-service-driver-resolution-decoupling.md`
+  - Decouple `DefaultServiceDriverResolver` in `cli/cmdservice/driver.go` and `service_cmd.go`.
+  - Decompose functions in `service_cmd.go` to stay <= 8-15 lines.
+  - Create `cli/cmdservice/service_cmd_test.go` with mock `ServiceDriver` covering all service subcommands.
+- **Subtask 06**: `.lovable/plans/subtasks/190-isolate-destructive-os-and-heavy-unit-tests/06-osuser-command-runner-decoupling.md`
+  - Introduce `defaultOSCommandRunner OSCommandRunner` in `cli/osuser/runner.go`.
+  - Wire `defaultOSCommandRunner` across `create_root.go`, `remove.go`, `kill.go`, and `sudoers.go`.
+  - Add hermetic mock unit tests in `cli/osuser/osuser_test.go`.
+- **Subtask 07**: `.lovable/plans/subtasks/190-isolate-destructive-os-and-heavy-unit-tests/07-netip-manager-factory-decoupling.md`
+  - Introduce `defaultNetIPManagerFactory NetIPManagerFactory` in `cli/cmdos/os_ip.go`.
+  - Add hermetic unit tests in `cli/cmdos/os_ip_test.go` verifying help, fallback, and show without touching network devices.
 
 ---
 
