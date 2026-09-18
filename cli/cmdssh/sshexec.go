@@ -20,6 +20,8 @@ var seCommand = "se"
 
 type seOptions struct {
 	Exclude string
+	Target  string
+	IP      string
 	Args    []string
 }
 
@@ -27,6 +29,9 @@ func parseSEFlags(args []string) seOptions {
 	fs := flag.NewFlagSet(seCommand, flag.ExitOnError)
 	var opts seOptions
 	fs.StringVar(&opts.Exclude, "exclude", "", "Exclude machines (comma separated)")
+	fs.StringVar(&opts.Target, "target", "", "Target machine alias or IP")
+	fs.StringVar(&opts.Target, "t", "", "Target machine alias or IP (shorthand)")
+	fs.StringVar(&opts.IP, "ip", "", "Target machine IP address")
 	fs.Parse(args)
 
 	opts.Args = fs.Args()
@@ -34,7 +39,7 @@ func parseSEFlags(args []string) seOptions {
 		err := apperror.NewWithDetails(
 			"cmd.sshexec.parseFlags",
 			"E1151",
-			"Usage: gitmap se [shell] <command> [--exclude m1,m2]",
+			"Usage: gitmap se [shell] <command> [--target <alias|ip>] [--exclude m1,m2]",
 			"cmd.sshexec",
 			apperror.ErrorTypeValidation,
 			apperror.SeverityError,
@@ -66,13 +71,14 @@ func runSSHExec(args []string) error {
 	}
 
 	conns := filterSSHConns(connsRes.Data, opts.Exclude)
+	conns, execArgs := resolveExecTargetAndArgs(conns, opts)
 	if len(conns) == 0 {
 		fmt.Println("No machines to execute on.")
 
 		return nil
 	}
 
-	executeOnAllSSH(conns, opts.Args)
+	executeOnAllSSH(conns, execArgs)
 
 	return nil
 }
@@ -208,42 +214,6 @@ func connectWithEncryptedPassword(c db.SSHConnection, header string) (*ssh.Clien
 	return client, true
 }
 
-func determineSSHCommand(osType string, args []string) (string, string, bool) {
-	if len(args) == 0 {
-		return "", "", false
-	}
-
-	first := args[0]
-	// Check if it's a known gitmap delegation command
-	if first == "mkdir" || first == "cat" || first == "ssh" {
-		return "", "", true
-	}
-
-	// Check if explicit shell
-	if isExplicitShell(first) {
-		return first, extractShellCommandArgs(args), false
-	}
-
-	// Default shell based on OS
-	shell := "bash"
-	if strings.EqualFold(osType, "windows") {
-		shell = "ps"
-	}
-
-	return shell, strings.Join(args, " "), false
-}
-
-func isExplicitShell(s string) bool {
-	return s == "ps" || s == "cmd" || s == "bash" || s == "sh"
-}
-
-func extractShellCommandArgs(args []string) string {
-	if len(args) > 1 {
-		return strings.Join(args[1:], " ")
-	}
-
-	return ""
-}
 
 func ensureGitmapInstalled(client *ssh.Client, osType, header string) error {
 	_, err := crypto.RunCommand(client, "gitmap --version", "")

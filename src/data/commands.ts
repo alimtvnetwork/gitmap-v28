@@ -2366,6 +2366,130 @@ export const commands: CommandDef[] = [
   },
   {
     category: "tools",
+    name: "ssh join", alias: "sj",
+    description: "Enroll a remote machine by user@ip or IP address into the SQLite SSH registry with encrypted password or key authentication.",
+    usage: "gitmap ssh join <user@ip|ip> [alias] [--password <pass>] [--key <path>] [--auth]",
+    flags: [
+      { flag: "--password, -P <pass>", description: "Remote user password (encrypted at rest)" },
+      { flag: "--key, -k <path>", description: "Path to private key for authentication" },
+      { flag: "--auth", description: "Authorize and inject local public key into remote authorized_keys" },
+      { flag: "--port, -p <port>", description: "SSH port (default: 22)" },
+    ],
+    examples: [
+      { command: "gitmap ssh join alim@192.168.1.14 devbox", description: "Enroll host with alias devbox" },
+      { command: "gitmap ssh join add-with-pass alim@192.168.1.14 secret devbox", description: "Enroll with encrypted password" },
+      { command: "gitmap ssh join 192.168.1.20 worker-1 --auth", description: "Enroll and authorize SSH key" },
+    ],
+    seeAlso: [
+      { name: "ssh exec", description: "Execute commands on enrolled machines" },
+      { name: "ssh scan", description: "Probe fleet reachability" },
+    ],
+  },
+  {
+    category: "tools",
+    name: "ssh exec", alias: "se",
+    description: "Execute a remote command across running SSH nodes in parallel with automatic reachability check, offline skip, and target filtering.",
+    usage: "gitmap ssh exec [shell] <command> [--target <alias|ip>] [--exclude m1,m2]",
+    flags: [
+      { flag: "--target, -t <alias|ip>", description: "Target a specific enrolled machine" },
+      { flag: "--ip <ip>", description: "Target a specific machine by IP address" },
+      { flag: "--exclude <list>", description: "Exclude specific machines (comma-separated)" },
+    ],
+    examples: [
+      { command: "gitmap ssh exec \"gitmap --version\"", description: "Run command across all online fleet nodes" },
+      { command: "gitmap ssh exec --target devbox \"uname -a\"", description: "Target specific host by alias" },
+      { command: "gitmap ssh exec 192.168.1.14 ip", description: "Inspect network IP on specific node" },
+      { command: "gitmap ssh exec bash \"df -h\" --exclude worker-2", description: "Run bash command excluding worker-2" },
+    ],
+    seeAlso: [
+      { name: "ssh scan", description: "Probe node liveness" },
+      { name: "ssh install", description: "Install GitMap on remote nodes" },
+      { name: "ssh compare", description: "Compare SSH vs Cluster vs SC" },
+    ],
+  },
+  {
+    category: "tools",
+    name: "ssh scan",
+    description: "Probe network reachability and TCP latency across all registered SSH fleet nodes in parallel, updating the in-memory liveness cache (45s TTL).",
+    usage: "gitmap ssh scan",
+    examples: [
+      { command: "gitmap ssh scan", description: "Scan all registered nodes and print summary table" },
+    ],
+    seeAlso: [
+      { name: "ssh exec", description: "Execute commands across online nodes" },
+      { name: "ssh join", description: "Enroll new machines into registry" },
+    ],
+  },
+  {
+    category: "tools",
+    name: "ssh install", alias: "i",
+    description: "Install GitMap on remote target node(s) via SSH. Checks if gitmap is already installed; if missing, runs cross-platform installer; if present, updates to latest version.",
+    usage: "gitmap ssh install [gitmap] [target]",
+    examples: [
+      { command: "gitmap ssh install gitmap devbox", description: "Install or update GitMap on devbox" },
+      { command: "gitmap ssh install gitmap all", description: "Install or update GitMap across all nodes" },
+    ],
+    seeAlso: [
+      { name: "ssh update", description: "Update GitMap binary across fleet" },
+      { name: "ssh exec", description: "Run commands on remote nodes" },
+    ],
+  },
+  {
+    category: "tools",
+    name: "ssh update", alias: "u",
+    description: "Update the GitMap binary to the latest release across specified remote SSH nodes or the entire fleet.",
+    usage: "gitmap ssh update [gitmap] [target]",
+    examples: [
+      { command: "gitmap ssh update gitmap all", description: "Update GitMap across all fleet machines" },
+      { command: "gitmap ssh update gitmap devbox", description: "Update GitMap on devbox" },
+    ],
+    seeAlso: [
+      { name: "ssh install", description: "Install or update GitMap remotely" },
+    ],
+  },
+  {
+    category: "tools",
+    name: "ssh agy",
+    description: "Run Google Antigravity CLI or open remote folder in AGY over SSH with structured AppError diagnostics and stack traces on failure.",
+    usage: "gitmap ssh agy <args> [--target <alias|ip>]",
+    examples: [
+      { command: "gitmap ssh agy open /var/www/my-project --target devbox", description: "Open remote folder in Antigravity" },
+      { command: "gitmap ssh agy \"agy --version\" --target devbox", description: "Run AGY CLI command remotely" },
+    ],
+    seeAlso: [
+      { name: "ssh code", description: "Open remote folder in VS Code" },
+      { name: "ssh exec", description: "Execute general shell command" },
+    ],
+  },
+  {
+    category: "tools",
+    name: "ssh code",
+    description: "Open a remote folder in VS Code via SSH Remote (code --remote ssh-remote+<user@ip> <path>) or run remote code CLI.",
+    usage: "gitmap ssh code [open] <path> [--target <alias|ip>]",
+    examples: [
+      { command: "gitmap ssh code open /opt/app --target devbox", description: "Launch VS Code Remote SSH session" },
+      { command: "gitmap ssh code devbox /home/user/workspace", description: "Open remote folder with positional target" },
+    ],
+    seeAlso: [
+      { name: "ssh agy", description: "Open remote folder in Antigravity" },
+    ],
+  },
+  {
+    category: "tools",
+    name: "ssh compare", alias: "matrix",
+    description: "Display comparative architecture matrix and workflow guidance between gitmap ssh, gitmap cluster, and gitmap sc (servers-clients).",
+    usage: "gitmap ssh compare",
+    examples: [
+      { command: "gitmap ssh compare", description: "Print Triad architecture comparison table" },
+      { command: "gitmap ssh matrix", description: "Alias shorthand" },
+    ],
+    seeAlso: [
+      { name: "cluster", description: "Multi-node cluster orchestration" },
+      { name: "sc", description: "Servers-Clients broadcast execution" },
+    ],
+  },
+  {
+    category: "tools",
     name: "fix-auth", alias: "fa",
     description: "One-shot fix for 'Permission denied to <wrong-user>' SSH push failures — generates a per-account ed25519 key, pins the current repo to it via core.sshCommand (IdentitiesOnly=yes), and copies the public key to your clipboard.",
     usage: "gitmap fix-auth --user <github-username> [--email <addr>] [-y] [-f]",
