@@ -71,7 +71,7 @@ func establishAgyClient(c db.SSHConnection, header string) (*ssh.Client, bool) {
 	client, isConnected := connectSSHClient(c, header)
 	if !isConnected {
 		appErr := apperror.NewExecutionError("ssh connection authentication failed for " + header)
-		fmt.Printf("  %s %sAuth Error:%s %v\n", header, constants.ColorRed, constants.ColorReset, appErr)
+		printAppErrorWithStack(header, "Auth Error", appErr)
 		return nil, false
 	}
 
@@ -83,7 +83,7 @@ func executeAgyRemoteCommand(client *ssh.Client, header, osType string, agyArgs 
 	out, err := crypto.RunCommand(client, cmdStr, resolveRemoteShell(osType))
 	if err != nil {
 		appErr := apperror.WrapSimple(err, "runAgyOnNode")
-		fmt.Printf("  %s %sAGY Error:%s %v\n%s\n", header, constants.ColorRed, constants.ColorReset, appErr, out)
+		printAppErrorWithStack(header, "AGY Error", appErr)
 		return
 	}
 

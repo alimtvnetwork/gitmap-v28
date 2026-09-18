@@ -155,30 +155,51 @@ are skipped immediately without hanging your terminal.
 
       Summary: 1/2 nodes online
 
-### Install GitMap on remote machine(s) (install / i)
+### Install GitMap or packages across fleet (install / i)
 
     $ gitmap ssh install gitmap devbox
-      Installing / Updating GitMap across SSH fleet (devbox):
+      Installing / Updating 'gitmap' across SSH fleet (devbox):
       [devbox|192.168.1.14] gitmap missing, installing fresh...
       [devbox|192.168.1.14] Installed successfully!
 
+    $ gitmap ssh install agy devbox
+      Installing / Updating 'agy' across SSH fleet (devbox):
+      [devbox|192.168.1.14] Installing package 'agy' via gitmap...
+      [devbox|192.168.1.14] Installed agy successfully!
+
     $ gitmap ssh install gitmap all
+      [devbox|192.168.1.14] gitmap found, updating to latest...
+      [worker-1|192.168.1.20] OFFLINE (skipped: connection timeout)
 
 Installs GitMap if missing or upgrades to the latest release if already present.
+Also installs any package supported by GitMap (e.g. `agy`, `devbox`).
 
-### Update GitMap across fleet (update / u)
+### Update GitMap or packages across fleet (update / u)
 
     $ gitmap ssh update gitmap all
-      Updating GitMap across SSH fleet (all):
-      [devbox|192.168.1.14] gitmap updated successfully to v6.260.0
+      Updating 'gitmap' across SSH fleet (all):
+      [devbox|192.168.1.14] Updated successfully!
+
+    $ gitmap ssh update agy devbox
+      Updating 'agy' across SSH fleet (devbox):
+      [devbox|192.168.1.14] Updated successfully!
 
 ### Antigravity (AGY) CLI & remote folder delegation (agy)
 
-    $ gitmap ssh agy open /var/www/my-project --target devbox
+    $ gitmap ssh agy devbox open /var/www/my-project
       ✓ Opening remote workspace in Google Antigravity: devbox:/var/www/my-project
 
-    $ gitmap ssh agy "agy --version" --target devbox
+    $ gitmap ssh agy devbox "agy --version"
       [devbox|192.168.1.14] Google Antigravity CLI v1.12.0
+
+    # Diagnostic AppError stack trace on failure or unreachable node:
+    $ gitmap ssh agy worker-1 "agy status"
+      [worker-1|192.168.1.20] Offline: [EXECUTION] node [worker-1|192.168.1.20] is unreachable: connection timeout (at=cmdssh/ssh_target_nodes.go:27)
+      Stack Trace:
+        at github.com/alimtvnetwork/gitmap-v28/cli/cmdssh.checkRemoteNodeOnline (cmdssh/ssh_target_nodes.go:27)
+        at github.com/alimtvnetwork/gitmap-v28/cli/cmdssh.establishAgyClient (cmdssh/ssh_agy_cmd.go:67)
+        at github.com/alimtvnetwork/gitmap-v28/cli/cmdssh.runAgyOnNode (cmdssh/ssh_agy_cmd.go:57)
+        at github.com/alimtvnetwork/gitmap-v28/cli/cmdssh.executeAgyOnFleet (cmdssh/ssh_agy_cmd.go:32)
 
 ### VS Code remote SSH integration (code)
 

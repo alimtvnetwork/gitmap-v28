@@ -1,6 +1,6 @@
 import DocsLayout from "@/components/docs/DocsLayout";
 import CodeBlock from "@/components/docs/CodeBlock";
-import { KeyRound, Terminal, Shield, FolderGit2, Settings, Network, Cpu, Download, RefreshCw, Layers } from "lucide-react";
+import { KeyRound, Terminal, Shield, Network, Cpu, Download, RefreshCw, Layers, AlertTriangle, CheckCircle2, Info, ArrowRight } from "lucide-react";
 
 const MOCK_KEYS = [
   { name: "default", path: "~/.ssh/id_rsa", fingerprint: "SHA256:abc123...", created: "2026-03-22" },
@@ -132,6 +132,62 @@ const ExecPreview = () => (
   </div>
 );
 
+const InstallPreview = () => (
+  <div className="rounded-lg border border-border overflow-hidden my-6">
+    <div className="bg-terminal px-4 py-2 flex items-center gap-2 border-b border-border">
+      <div className="flex gap-1.5">
+        <span className="w-3 h-3 rounded-full bg-red-500/80" />
+        <span className="w-3 h-3 rounded-full bg-yellow-500/80" />
+        <span className="w-3 h-3 rounded-full bg-green-500/80" />
+      </div>
+      <span className="text-xs font-mono text-muted-foreground ml-2">gitmap ssh install agy devbox</span>
+    </div>
+    <div className="bg-terminal p-4 font-mono text-xs leading-relaxed overflow-x-auto space-y-1">
+      <div className="text-cyan-400 font-semibold">
+        Installing / Updating 'agy' across SSH fleet (devbox):
+      </div>
+      <div className="mt-1">
+        <span className="text-cyan-400 font-bold">[devbox|192.168.1.14]</span>{" "}
+        <span className="text-cyan-400">Installing package 'agy' via gitmap...</span>
+      </div>
+      <div className="mt-1">
+        <span className="text-cyan-400 font-bold">[devbox|192.168.1.14]</span>{" "}
+        <span className="text-green-400">Installed agy successfully!</span>
+      </div>
+      <div className="text-muted-foreground pt-1">SSH Install 'agy' complete.</div>
+    </div>
+  </div>
+);
+
+const AppErrorPreview = () => (
+  <div className="rounded-lg border border-border overflow-hidden my-6">
+    <div className="bg-terminal px-4 py-2 flex items-center gap-2 border-b border-border">
+      <div className="flex gap-1.5">
+        <span className="w-3 h-3 rounded-full bg-red-500/80" />
+        <span className="w-3 h-3 rounded-full bg-yellow-500/80" />
+        <span className="w-3 h-3 rounded-full bg-green-500/80" />
+      </div>
+      <span className="text-xs font-mono text-muted-foreground ml-2">gitmap ssh agy worker-1 "agy status"</span>
+    </div>
+    <div className="bg-terminal p-4 font-mono text-xs leading-relaxed overflow-x-auto space-y-1">
+      <div>
+        <span className="text-cyan-400 font-bold">[worker-1|192.168.1.20]</span>{" "}
+        <span className="text-red-400 font-semibold">Offline:</span>{" "}
+        <span className="text-foreground">[EXECUTION] node [worker-1|192.168.1.20] is unreachable: connection timeout (at=cmdssh/ssh_target_nodes.go:27)</span>
+      </div>
+      <div className="text-yellow-400 font-semibold mt-2">
+        {"  "}Stack Trace:
+      </div>
+      <div className="text-muted-foreground pl-4 font-mono text-[11px] leading-relaxed">
+        <div>at github.com/alimtvnetwork/gitmap-v28/cli/cmdssh.checkRemoteNodeOnline (cmdssh/ssh_target_nodes.go:27)</div>
+        <div>at github.com/alimtvnetwork/gitmap-v28/cli/cmdssh.establishAgyClient (cmdssh/ssh_agy_cmd.go:67)</div>
+        <div>at github.com/alimtvnetwork/gitmap-v28/cli/cmdssh.runAgyOnNode (cmdssh/ssh_agy_cmd.go:57)</div>
+        <div>at github.com/alimtvnetwork/gitmap-v28/cli/cmdssh.executeAgyOnFleet (cmdssh/ssh_agy_cmd.go:32)</div>
+      </div>
+    </div>
+  </div>
+);
+
 const ComparePreview = () => (
   <div className="rounded-lg border border-border overflow-hidden my-6">
     <div className="bg-terminal px-4 py-2 flex items-center gap-2 border-b border-border">
@@ -196,28 +252,41 @@ const SSHPage = () => (
           <h1 className="text-3xl font-bold tracking-tight">SSH Management & Remote Execution</h1>
         </div>
         <p className="text-lg text-muted-foreground">
-          Generate SSH keys, enroll remote fleet machines, probe node liveness, execute commands, install GitMap, and delegate AGY / VS Code workspaces.
+          Generate SSH keys, enroll remote fleet machines, probe node liveness, execute commands, install GitMap or packages, and delegate AGY / VS Code workspaces.
         </p>
+      </div>
+
+      {/* Triad Guidance Notice */}
+      <div className="rounded-lg border border-primary/30 bg-primary/5 p-4 flex items-start gap-3">
+        <Info className="h-5 w-5 text-primary shrink-0 mt-0.5" />
+        <div className="text-sm">
+          <span className="font-semibold text-foreground">Understanding GitMap Remote Architecture: </span>
+          <span className="text-muted-foreground">
+            GitMap provides three distinct remote subsystems: <code className="text-primary font-mono text-xs">gitmap ssh</code> for direct terminal commands,
+            package installs, and AGY/VS Code launches; <code className="text-cyan-400 font-mono text-xs">gitmap cluster</code> for multi-node K8s and infrastructure recipes;
+            and <code className="text-yellow-400 font-mono text-xs">gitmap sc</code> for continuous daemon sync and high-speed broadcast fan-outs.
+          </span>
+        </div>
       </div>
 
       {/* Overview */}
       <section>
         <h2 className="text-xl font-semibold mb-3 flex items-center gap-2">
-          <Shield className="h-5 w-5 text-primary" /> Overview
+          <Shield className="h-5 w-5 text-primary" /> Overview & Key Capabilities
         </h2>
         <p className="text-muted-foreground mb-4">
           The <code className="text-primary">ssh</code> suite combines local SSH key lifecycle management with direct remote node execution.
           It provides automatic liveness caching (45s TTL), skips offline nodes gracefully, auto-discovers default SSH keys (<code className="text-xs">~/.ssh/id_ed25519</code>, <code className="text-xs">id_rsa</code>),
-          and enables one-command remote installation, AGY delegation, and VS Code remote sessions.
+          and enables one-command remote installation, AGY delegation, and VS Code remote sessions with full diagnostic AppError stack traces.
         </p>
         <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
           {[
             { icon: KeyRound, title: "Named Keys & Config", desc: "Automatic ~/.ssh/config generation and clone integration" },
             { icon: Network, title: "Liveness & Scan", desc: "In-memory reachability cache (45s) skipping offline nodes" },
             { icon: Cpu, title: "Remote Command Exec", desc: "Live terminal streaming with target filtering and default auth" },
-            { icon: Download, title: "Remote GitMap Install", desc: "Auto-detects missing binary; installs or updates to latest" },
-            { icon: RefreshCw, title: "AGY & VS Code Remote", desc: "Open remote folders directly in Google Antigravity or VS Code" },
-            { icon: Layers, title: "Triad Architecture", desc: "Subsystem comparison matrix: ssh vs cluster vs sc" },
+            { icon: Download, title: "Package Install & Update", desc: "Installs GitMap or packages (agy, devbox); skips offline nodes" },
+            { icon: RefreshCw, title: "AGY & VS Code Remote", desc: "Open remote folders in Antigravity or VS Code with AppError stack traces" },
+            { icon: Layers, title: "Triad Architecture", desc: "Terminal comparative matrix explaining ssh vs cluster vs sc" },
           ].map((f) => (
             <div key={f.title} className="rounded-lg border border-border p-4 bg-card">
               <f.icon className="h-5 w-5 text-primary mb-2" />
@@ -228,7 +297,7 @@ const SSHPage = () => (
         </div>
       </section>
 
-      {/* Subcommands */}
+      {/* Subcommands Reference Table */}
       <section>
         <h2 className="text-xl font-semibold mb-3 flex items-center gap-2">
           <Terminal className="h-5 w-5 text-primary" /> Complete Subcommands Reference
@@ -253,9 +322,9 @@ const SSHPage = () => (
                 { cmd: "join", alias: "sj", desc: "Enroll machine into SSH registry with encrypted password/key" },
                 { cmd: "exec", alias: "se", desc: "Execute command across online nodes with liveness check" },
                 { cmd: "scan", alias: "—", desc: "Probe reachability and latency across SSH fleet nodes" },
-                { cmd: "install", alias: "i", desc: "Install or update GitMap on remote node(s)" },
-                { cmd: "update", alias: "u", desc: "Update GitMap binary across remote fleet" },
-                { cmd: "agy", alias: "—", desc: "Run Antigravity CLI or open remote folder with AppError" },
+                { cmd: "install", alias: "i", desc: "Install or update GitMap or packages (agy, devbox) on remote node(s)" },
+                { cmd: "update", alias: "u", desc: "Update GitMap binary or packages across remote fleet" },
+                { cmd: "agy", alias: "—", desc: "Run Antigravity CLI or open remote folder with AppError stack traces" },
                 { cmd: "code", alias: "—", desc: "Open remote folder in VS Code via SSH Remote" },
                 { cmd: "compare", alias: "matrix", desc: "Display Triad comparison matrix: SSH vs Cluster vs SC" },
               ].map((s) => (
@@ -270,12 +339,36 @@ const SSHPage = () => (
         </div>
       </section>
 
+      {/* Machine Enrollment & Joining */}
+      <section>
+        <h2 className="text-xl font-semibold mb-3 flex items-center gap-2">
+          <Network className="h-5 w-5 text-primary" /> Machine Enrollment & Auto-Login (`join` / `sj`)
+        </h2>
+        <p className="text-muted-foreground mb-4">
+          Register remote servers into the local SQLite database. When enrolling with a password (<code className="text-xs">add-with-pass</code>),
+          the password is encrypted using your local SSH RSA key and stored securely. Future executions use the built-in AskPass engine to auto-authenticate without prompting.
+        </p>
+        <CodeBlock code={`# Enroll machine with key-based authentication
+gitmap ssh join alim@192.168.1.14 devbox
+
+# Enroll machine with encrypted password storage (auto-login)
+gitmap ssh join add-with-pass alim@192.168.1.14 secretPass devbox
+
+# List enrolled machines
+gitmap ssh join ls
+
+# Connect directly via alias
+gitmap ssh devbox`} />
+      </section>
+
       {/* Liveness & Scan Section */}
       <section>
-        <h2 className="text-xl font-semibold mb-3">Fleet Liveness Scan</h2>
+        <h2 className="text-xl font-semibold mb-3 flex items-center gap-2">
+          <Cpu className="h-5 w-5 text-primary" /> Fleet Liveness Scan (`scan`)
+        </h2>
         <p className="text-muted-foreground mb-4">
-          Probes all registered SSH nodes in parallel. Reachability results are stored in an in-memory TTL cache (45 seconds),
-          preventing consecutive command hangs on dead or suspended virtual machines.
+          Probes all registered SSH nodes in parallel using a rapid 2-second TCP dial. Reachability results are cached in memory for 45 seconds,
+          guaranteeing that commands will not hang when targeting dead, sleeping, or suspended nodes.
         </p>
         <ScanPreview />
         <CodeBlock code="gitmap ssh scan" />
@@ -283,18 +376,21 @@ const SSHPage = () => (
 
       {/* Remote Execution Section */}
       <section>
-        <h2 className="text-xl font-semibold mb-3">Remote Command Execution with Target Selection</h2>
+        <h2 className="text-xl font-semibold mb-3 flex items-center gap-2">
+          <Terminal className="h-5 w-5 text-primary" /> Remote Command Execution & IP Resolution (`exec` / `se`)
+        </h2>
         <p className="text-muted-foreground mb-4">
-          Commands run concurrently across running nodes. Offline machines are detected and skipped cleanly with status notices.
-          Target individual machines by alias (<code className="text-xs">--target devbox</code>), IP (<code className="text-xs">--ip 192.168.1.14</code>), or positional target (<code className="text-xs">gitmap ssh exec devbox "uptime"</code>).
+          Commands execute concurrently on online machines with output streaming and node headers (<code className="text-xs">[alias|ip]</code>).
+          Offline machines are skipped with explicit status notes. Target individual machines using <code className="text-xs">--target devbox</code>, <code className="text-xs">--ip 192.168.1.14</code>, or positional syntax.
+          Running <code className="text-primary">gitmap ssh exec ip</code> automatically queries remote network interfaces to return the node's IP address.
         </p>
         <ExecPreview />
         <CodeBlock code={`# Execute on all running machines
 gitmap ssh exec "gitmap --version"
 
-# Target specific machine by alias or IP
+# Target specific machine by alias or positional target
 gitmap ssh exec --target devbox "uname -a"
-gitmap ssh exec 192.168.1.14 "gitmap status"
+gitmap ssh exec devbox "uptime"
 
 # Run IP inspection across fleet
 gitmap ssh exec ip`} />
@@ -302,35 +398,48 @@ gitmap ssh exec ip`} />
 
       {/* Install & Update Section */}
       <section>
-        <h2 className="text-xl font-semibold mb-3">Remote GitMap Install & Update</h2>
+        <h2 className="text-xl font-semibold mb-3 flex items-center gap-2">
+          <Download className="h-5 w-5 text-primary" /> Remote GitMap & Package Installation (`install` / `update`)
+        </h2>
         <p className="text-muted-foreground mb-4">
-          The <code className="text-primary">ssh install</code> command checks if GitMap exists on the remote node via <code className="text-xs">gitmap --version</code>.
-          If missing, it runs the official cross-platform installer (curl bash on Linux/macOS, PowerShell on Windows). If already installed, it triggers an update.
+          The <code className="text-primary">ssh install</code> command checks if GitMap exists on the remote node. If missing, it installs the official release.
+          If present, it updates it. It can also install any package supported by GitMap (e.g. <code className="text-xs">agy</code>, <code className="text-xs">devbox</code>) remotely across the fleet.
+          Offline nodes are cleanly skipped, allowing installation to succeed on all active machines.
         </p>
-        <CodeBlock code={`# Install on a single machine
+        <InstallPreview />
+        <CodeBlock code={`# Install GitMap on a single machine
 gitmap ssh install gitmap devbox
 
 # Install across all fleet machines
 gitmap ssh install gitmap all
 
-# Update GitMap binary across fleet
-gitmap ssh update gitmap all`} />
+# Install specific package (e.g. Antigravity CLI, devbox) via GitMap
+gitmap ssh install agy devbox
+
+# Update GitMap binary across all online machines
+gitmap ssh update gitmap all
+
+# Update a specific package across fleet
+gitmap ssh update agy devbox`} />
       </section>
 
       {/* AGY & VS Code Remote Section */}
       <section>
-        <h2 className="text-xl font-semibold mb-3">Remote AGY & VS Code Delegation</h2>
+        <h2 className="text-xl font-semibold mb-3 flex items-center gap-2">
+          <RefreshCw className="h-5 w-5 text-primary" /> Antigravity (AGY) & VS Code Delegation with AppError Diagnostics
+        </h2>
         <p className="text-muted-foreground mb-4">
-          Open remote workspaces or run Antigravity CLI tools directly over SSH. If the remote connection fails or the machine is offline,
-          structured <code className="text-primary">AppError</code> diagnostics with full stack traces are displayed for immediate troubleshooting.
+          Launch Antigravity or VS Code directly onto remote workspaces. When a node is offline, authentication fails, or the CLI tool encounters an error,
+          structured <code className="text-primary">AppError</code> envelopes with detailed stack traces are displayed so you can diagnose the root cause immediately.
         </p>
-        <CodeBlock code={`# Open remote folder in Google Antigravity
-gitmap ssh agy open /var/www/my-project --target devbox
+        <AppErrorPreview />
+        <CodeBlock code={`# Open remote workspace in Google Antigravity
+gitmap ssh agy devbox open /var/www/my-project
 
-# Run AGY CLI tool remotely
-gitmap ssh agy "agy --version" --target devbox
+# Run Antigravity CLI command remotely
+gitmap ssh agy devbox "agy --version"
 
-# Open remote workspace in VS Code via SSH Remote
+# Open remote folder in VS Code via SSH Remote
 gitmap ssh code open /opt/app --target devbox`} />
       </section>
 
@@ -346,19 +455,25 @@ gitmap ssh code open /opt/app --target devbox`} />
         <ComparePreview />
         <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mt-4">
           <div className="rounded-lg border border-border p-4 bg-card">
-            <h3 className="font-semibold text-sm text-green-400 mb-1">gitmap ssh</h3>
+            <h3 className="font-semibold text-sm text-green-400 mb-1 flex items-center gap-1.5">
+              <CheckCircle2 className="h-4 w-4" /> gitmap ssh
+            </h3>
             <p className="text-xs text-muted-foreground">
-              Direct, lightweight node management over standard SSH. Best for workstations, ad-hoc maintenance, liveness scans, GitMap installation, and AGY / VS Code remote launches.
+              Direct, lightweight node management over standard SSH. Best for developer workstations, ad-hoc maintenance, liveness scans, GitMap package installation, and AGY / VS Code remote launches.
             </p>
           </div>
           <div className="rounded-lg border border-border p-4 bg-card">
-            <h3 className="font-semibold text-sm text-cyan-400 mb-1">gitmap cluster</h3>
+            <h3 className="font-semibold text-sm text-cyan-400 mb-1 flex items-center gap-1.5">
+              <CheckCircle2 className="h-4 w-4" /> gitmap cluster
+            </h3>
             <p className="text-xs text-muted-foreground">
               Role-based infrastructure orchestration (<code className="text-xs">control</code> vs <code className="text-xs">workers</code>), Netplan IP configuration, automated user provisioning, and end-to-end Kubernetes lifecycle.
             </p>
           </div>
           <div className="rounded-lg border border-border p-4 bg-card">
-            <h3 className="font-semibold text-sm text-yellow-400 mb-1">gitmap sc (servers-clients)</h3>
+            <h3 className="font-semibold text-sm text-yellow-400 mb-1 flex items-center gap-1.5">
+              <CheckCircle2 className="h-4 w-4" /> gitmap sc (servers-clients)
+            </h3>
             <p className="text-xs text-muted-foreground">
               High-speed broadcast fan-out across entire fleets with bounded concurrency pools, multi-shell support (bash/ps/cmd), and continuous daemon synchronization.
             </p>
@@ -368,7 +483,9 @@ gitmap ssh code open /opt/app --target devbox`} />
 
       {/* Key Management Preview */}
       <section>
-        <h2 className="text-xl font-semibold mb-3">SSH Key Generation & Stored Keys</h2>
+        <h2 className="text-xl font-semibold mb-3 flex items-center gap-2">
+          <KeyRound className="h-5 w-5 text-primary" /> SSH Key Generation & Stored Keys
+        </h2>
         <GenPreview />
         <CodeBlock code="gitmap ssh --name work --path ~/.ssh/id_rsa_work" />
         <ListPreview />

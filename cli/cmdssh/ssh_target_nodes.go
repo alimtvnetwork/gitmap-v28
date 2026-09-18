@@ -25,9 +25,20 @@ func checkRemoteNodeOnline(ip, header string) bool {
 	isOnline, reason := CheckConnLiveness(nil, ip, 22, 0)
 	if !isOnline {
 		appErr := apperror.NewExecutionError(fmt.Sprintf("node %s is unreachable: %s", header, reason))
-		fmt.Printf("  %s %sOffline:%s %v\n", header, constants.ColorRed, constants.ColorReset, appErr)
+		printAppErrorWithStack(header, "Offline", appErr)
 		return false
 	}
 
 	return true
+}
+
+func printAppErrorWithStack(header, prefix string, appErr *apperror.AppError) {
+	if appErr == nil {
+		return
+	}
+
+	fmt.Printf("  %s %s%s:%s %v\n", header, constants.ColorRed, prefix, constants.ColorReset, appErr)
+	if appErr.Stack != "" {
+		fmt.Printf("  %sStack Trace:%s%s\n", constants.ColorYellow, constants.ColorReset, appErr.Stack)
+	}
 }
