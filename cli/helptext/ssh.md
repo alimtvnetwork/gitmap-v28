@@ -125,8 +125,9 @@ printed and a one-line warning is emitted — never fails.
         Recall anytime: gitmap ssh devbox
         Or connect directly: gitmap ssh 192.168.1.14
 
-    # Enroll multiple machines simultaneously (comma-separated):
+    # Enroll multiple machines simultaneously (comma- or space-separated):
     $ gitmap ssh join 192.168.1.10,192.168.1.11,192.168.1.12
+    $ gitmap ssh join 192.168.1.10 192.168.1.11 192.168.1.12
 
 ### Enroll with encrypted password (add-with-pass)
 
@@ -174,8 +175,9 @@ are skipped immediately without hanging your terminal.
     $ gitmap ssh check devbox
       ONLINE    devbox      192.168.1.14   alim       22      10ms   reachable
 
-    # Check multiple targeted machines (comma-separated):
+    # Check multiple targeted machines (comma- or space-separated):
     $ gitmap ssh check devbox,192.168.1.20
+    $ gitmap ssh check 127.0.0.1 192.168.1.50
 
 ### Install GitMap or packages across fleet (install / i)
 

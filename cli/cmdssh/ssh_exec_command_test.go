@@ -130,3 +130,42 @@ func TestValidateSEArgs_EmptyExits(t *testing.T) {
 		t.Errorf("expected exit code 1 on empty args, got %d", exitCode)
 	}
 }
+
+func TestExtractFirstToken(t *testing.T) {
+	if got := extractFirstToken("gitmap status"); got != "gitmap" {
+		t.Errorf("expected 'gitmap', got %q", got)
+	}
+	if got := extractFirstToken("  status -v  "); got != "status" {
+		t.Errorf("expected 'status', got %q", got)
+	}
+	if got := extractFirstToken(""); got != "" {
+		t.Errorf("expected empty string, got %q", got)
+	}
+}
+
+func TestDetermineSSHCommand_QuotedGitmapMultiCommand(t *testing.T) {
+	cases := []struct {
+		input       string
+		wantCommand string
+	}{
+		{"gitmap status && gitmap pipeline", "gitmap status && gitmap pipeline"},
+		{"status --json", "gitmap status --json"},
+		{"pipeline errors agy fix", "gitmap pipeline errors agy fix"},
+	}
+
+	for _, tc := range cases {
+		shell, cmd, isDelegate := determineSSHCommand("linux", []string{tc.input})
+		if !isDelegate || shell != "" || cmd != tc.wantCommand {
+			t.Errorf("determineSSHCommand(%q) = (%q, %q, %v), want ('', %q, true)",
+				tc.input, shell, cmd, isDelegate, tc.wantCommand)
+		}
+	}
+}
+
+func TestDetermineSSHCommand_QuotedExplicitShell(t *testing.T) {
+	shell, cmd, isDelegate := determineSSHCommand("linux", []string{"bash echo hello"})
+	if isDelegate || shell != "bash" || cmd != "echo hello" {
+		t.Errorf("quoted explicit shell failed, got (%q, %q, %v)", shell, cmd, isDelegate)
+	}
+}
+

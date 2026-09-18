@@ -5,6 +5,7 @@ import (
 	"database/sql"
 	"fmt"
 	"io"
+	"net"
 	"os"
 	"strings"
 	"sync/atomic"
@@ -436,6 +437,50 @@ func executeMultiEnroll(ctx context.Context, args []string, targetIdx int) error
 	return nil
 }
 
+func isTargetAddress(s string) bool {
+	if strings.Contains(s, "@") {
+		return true
+	}
+	clean := stripPortOrBrackets(s)
+	return net.ParseIP(clean) != nil
+}
+
+func extractTargetPositions(args []string) []string {
+	var targets []string
+	for _, a := range args {
+		if !strings.HasPrefix(a, "-") && isTargetAddress(a) {
+			targets = append(targets, a)
+		}
+	}
+	return targets
+}
+
+func extractFlagArgs(args []string) []string {
+	var flags []string
+	for _, a := range args {
+		if strings.HasPrefix(a, "-") {
+			flags = append(flags, a)
+		}
+	}
+	return flags
+}
+
+func executeSpaceMultiEnroll(ctx context.Context, args []string) error {
+	targets := extractTargetPositions(args)
+	flags := extractFlagArgs(args)
+	for _, target := range targets {
+		singleArgs := append([]string{target}, flags...)
+		opts, err := parseJoinArgs(singleArgs)
+		if err != nil {
+			return err
+		}
+		if err := enrollParsedTarget(ctx, opts); err != nil {
+			return err
+		}
+	}
+	return nil
+}
+
 func executeEnrollCLI(ctx context.Context, args []string) error {
 	ctx = resolveContext(ctx)
 	if hasHelpFlag(args) {
@@ -445,6 +490,11 @@ func executeEnrollCLI(ctx context.Context, args []string) error {
 	targetIdx := findMultiTargetIndex(args)
 	if targetIdx != -1 {
 		return executeMultiEnroll(ctx, args, targetIdx)
+	}
+
+	targets := extractTargetPositions(args)
+	if len(targets) > 1 {
+		return executeSpaceMultiEnroll(ctx, args)
 	}
 
 	opts, err := parseJoinArgs(args)

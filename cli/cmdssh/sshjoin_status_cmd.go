@@ -3,6 +3,7 @@ package cmdssh
 import (
 	"context"
 	"os"
+	"strings"
 	"time"
 
 	"github.com/spf13/cobra"
@@ -24,10 +25,10 @@ var SJStatusCmd = &cobra.Command{
 }
 
 func extractTargetArg(args []string) string {
-	if len(args) > 0 {
-		return args[0]
+	if len(args) == 0 {
+		return ""
 	}
-	return ""
+	return strings.Join(args, ",")
 }
 
 func buildHealthOptions(args []string) SSHHealthOptions {

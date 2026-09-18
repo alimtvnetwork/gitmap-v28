@@ -39,3 +39,23 @@ func TestMatchMultipleTargets_EmptyTargets(t *testing.T) {
 		t.Errorf("expected 0 matches for empty targets list, got %d", len(matched))
 	}
 }
+
+func TestExtractTargetArg_MultiArgs(t *testing.T) {
+	cases := []struct {
+		input []string
+		want  string
+	}{
+		{[]string{}, ""},
+		{[]string{"devbox"}, "devbox"},
+		{[]string{"devbox", "192.168.1.50"}, "devbox,192.168.1.50"},
+		{[]string{"srv1", "srv2", "srv3"}, "srv1,srv2,srv3"},
+	}
+
+	for _, tc := range cases {
+		got := extractTargetArg(tc.input)
+		if got != tc.want {
+			t.Errorf("extractTargetArg(%v) = %q, want %q", tc.input, got, tc.want)
+		}
+	}
+}
+

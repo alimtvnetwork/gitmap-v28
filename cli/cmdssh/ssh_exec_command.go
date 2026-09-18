@@ -4,18 +4,26 @@ import (
 	"strings"
 )
 
+func extractFirstToken(arg string) string {
+	fields := strings.Fields(arg)
+	if len(fields) > 0 {
+		return fields[0]
+	}
+	return ""
+}
+
 func determineSSHCommand(osType string, args []string) (string, string, bool) {
 	if len(args) == 0 {
 		return "", "", false
 	}
 
-	first := args[0]
-	if isGitmapCommand(first) {
+	firstToken := extractFirstToken(args[0])
+	if isGitmapCommand(firstToken) {
 		return "", resolveGitmapCommandString(args), true
 	}
 
-	if isExplicitShell(first) {
-		return first, extractShellCommandArgs(args), false
+	if isExplicitShell(firstToken) {
+		return firstToken, extractShellCommandArgs(args), false
 	}
 
 	shell := "bash"
@@ -47,11 +55,12 @@ func resolveGitmapCommandString(args []string) string {
 	if len(args) == 0 {
 		return "gitmap"
 	}
-	if args[0] == "gitmap" {
-		return strings.Join(args, " ")
+	joined := strings.Join(args, " ")
+	if strings.HasPrefix(joined, "gitmap ") || joined == "gitmap" {
+		return joined
 	}
 
-	return "gitmap " + strings.Join(args, " ")
+	return "gitmap " + joined
 }
 
 func isExplicitShell(s string) bool {
@@ -61,6 +70,12 @@ func isExplicitShell(s string) bool {
 func extractShellCommandArgs(args []string) string {
 	if len(args) > 1 {
 		return strings.Join(args[1:], " ")
+	}
+	if len(args) == 1 {
+		fields := strings.Fields(args[0])
+		if len(fields) > 1 {
+			return strings.Join(fields[1:], " ")
+		}
 	}
 
 	return ""

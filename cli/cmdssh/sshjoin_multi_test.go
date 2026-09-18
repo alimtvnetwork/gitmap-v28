@@ -59,3 +59,46 @@ func TestRunSSHJoinCLI_MultiEnrollment(t *testing.T) {
 		}
 	})
 }
+
+func TestIsTargetAddress(t *testing.T) {
+	if !isTargetAddress("192.168.1.1") || !isTargetAddress("root@10.0.0.1") || !isTargetAddress("10.0.0.1:2222") {
+		t.Error("expected valid IP addresses to return true")
+	}
+	if isTargetAddress("devbox") || isTargetAddress("my-alias") || isTargetAddress("") {
+		t.Error("expected aliases and empty string to return false")
+	}
+}
+
+func TestExtractTargetPositionsAndFlags(t *testing.T) {
+	args := []string{"10.0.30.1", "10.0.30.2", "--auth", "-u", "ubuntu"}
+	targets := extractTargetPositions(args)
+	flags := extractFlagArgs(args)
+
+	if len(targets) != 2 || targets[0] != "10.0.30.1" || targets[1] != "10.0.30.2" {
+		t.Errorf("unexpected extracted targets: %v", targets)
+	}
+	if len(flags) != 2 || flags[0] != "--auth" || flags[1] != "-u" {
+		t.Errorf("unexpected extracted flags: %v", flags)
+	}
+}
+
+func TestRunSSHJoinCLI_SpaceMultiEnrollment(t *testing.T) {
+	withMockSSHDB(t, func(db *store.DB) {
+		args := []string{"10.0.40.1", "10.0.40.2"}
+		if err := runSSHJoinCLI(args); err != nil {
+			t.Fatalf("runSSHJoinCLI with space targets failed: %v", err)
+		}
+
+		ctx := context.Background()
+		h1, err1 := store.GetHostByAlias(ctx, "host-10.0.40.1", db.SQL())
+		if err1 != nil || h1.IP != "10.0.40.1" {
+			t.Errorf("failed to find first enrolled host: %v, %+v", err1, h1)
+		}
+
+		h2, err2 := store.GetHostByAlias(ctx, "host-10.0.40.2", db.SQL())
+		if err2 != nil || h2.IP != "10.0.40.2" {
+			t.Errorf("failed to find second enrolled host: %v, %+v", err2, h2)
+		}
+	})
+}
+
