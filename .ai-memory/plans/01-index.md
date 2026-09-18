@@ -247,3 +247,4 @@ No pending plans.
 - [98-naming-conventions-and-anti-ok-variables.md](completed/98-naming-conventions-and-anti-ok-variables.md): 98-naming-conventions-and-anti-ok-variables
 - [99-constants-and-enums-architecture.md](completed/99-constants-and-enums-architecture.md): 99-constants-and-enums-architecture
 - [54-terminal-help-table-framework-and-pipeline-rca.md](completed/54-terminal-help-table-framework-and-pipeline-rca.md): 54-terminal-help-table-framework-and-pipeline-rca
+- [196-storage-ls-ui-cleanup-and-relative-paths.md](completed/196-storage-ls-ui-cleanup-and-relative-paths.md): 196-storage-ls-ui-cleanup-and-relative-paths

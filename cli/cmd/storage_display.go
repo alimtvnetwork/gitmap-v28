@@ -63,32 +63,6 @@ func printDriveSummary(info *DiskSpaceInfo, dbBytes int64, dbCount int) {
 	fmt.Printf("  (run %sgitmap storage ls%s to list all SQLite database files)\n\n", constants.ColorGreen, constants.ColorReset)
 }
 
-func runStorageListDatabases() error {
-	entries := store.CollectAllDatabaseEntries()
-	printDatabaseHeader()
-
-	for _, e := range entries {
-		printDatabaseRow(e)
-	}
-
-	totalSize := calculateTotalDBSize(entries)
-	fmt.Printf("\n  Total: %d databases (%s)\n\n", len(entries), cmddb.FormatBytes(totalSize))
-
-	return nil
-}
-
-func printDatabaseHeader() {
-	fmt.Printf("\n%s Gitmap SQLite Database Inventory:%s\n\n", constants.ColorCyan, constants.ColorReset)
-	fmt.Printf("  %-12s %-8s %-10s %-8s %-8s %s\n", "NAME", "TYPE", "SIZE", "TABLES", "RECORDS", "PATH")
-	fmt.Println("  --------------------------------------------------------------------------------")
-}
-
-func printDatabaseRow(e store.SplitDatabaseEntry) {
-	sizeStr := cmddb.FormatBytes(e.SizeBytes)
-	fmt.Printf("  %-12s %-8s %-10s %-8d %-8d %s\n",
-		e.DatabaseKey, e.DatabaseType, sizeStr, e.TableCount, e.RecordCount, e.DatabasePath)
-}
-
 func stringsHasPrefix(s, prefix string) bool {
 	return len(s) >= len(prefix) && s[0:len(prefix)] == prefix
 }

@@ -2,6 +2,7 @@ package cmd
 
 import (
 	"os"
+	"path/filepath"
 	"testing"
 )
 
@@ -54,5 +55,20 @@ func TestIsStorageListSubcommand(t *testing.T) {
 
 	if isStorageListSubcommand("unknown") {
 		t.Errorf("expected unknown NOT to be storage list subcommand")
+	}
+}
+
+func TestResolveRelativeDBPath(t *testing.T) {
+	dataDir := filepath.Join(string(filepath.Separator), "base", "data")
+	fullPath := filepath.Join(dataDir, "installation.db")
+	rel := resolveRelativeDBPath(dataDir, fullPath)
+	if rel != "installation.db" {
+		t.Errorf("expected installation.db, got %s", rel)
+	}
+
+	outsidePath := filepath.Join(string(filepath.Separator), "outside", "store.db")
+	relOutside := resolveRelativeDBPath(dataDir, outsidePath)
+	if relOutside != outsidePath {
+		t.Errorf("expected %s, got %s", outsidePath, relOutside)
 	}
 }
