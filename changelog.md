@@ -1,3 +1,19 @@
+## [v6.259.0] 2026-09-18 Release v6.259.0
+
+### Install GitMap v6.259.0
+
+To pin your repository to this exact version, run the following one-liner:
+Unix/Bash: `curl -sL https://raw.githubusercontent.com/alimtvnetwork/gitmap-v28/v6.259.0/install.sh | bash -s -- ".lovable/prompts" "v6.259.0"`
+PowerShell: `Invoke-WebRequest -Uri https://raw.githubusercontent.com/alimtvnetwork/gitmap-v28/v6.259.0/install.ps1 -OutFile install.ps1; .\install.ps1 -TargetDir ".lovable/prompts" -Version "v6.259.0"`
+
+### Added / Changed / Fixed / Removed
+
+- feat(pipeline): parallel section and job log downloads for faster single-commit pipeline error inspection
+- feat(pipeline): two-pass non-mutating line execution and filtering algorithms for error log processing
+- feat(pipeline): resilient historical fallback retrieval for pipeline DB and commit logs
+- fix(pipeline): prevent historical fallback from overwriting clean success pipeline payloads
+- fix(ci): resolve gocritic switch statement violations and ResultSlice method wrappers
+
 ## [v6.258.0] 2026-09-17 Release v6.258.0
 
 ### Install GitMap v6.258.0
