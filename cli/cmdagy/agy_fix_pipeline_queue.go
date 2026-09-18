@@ -14,6 +14,14 @@ const (
 	agyPromptQueueRelativePath  = ".ai-memory/temp/agy-prompt-queue.json"
 )
 
+func resolveQueuedAgyPromptPath() string {
+	return filepath.Join(resolveProjectRootDir(), queuedAgyPromptRelativePath)
+}
+
+func resolveAgyPromptQueuePath() string {
+	return filepath.Join(resolveProjectRootDir(), agyPromptQueueRelativePath)
+}
+
 const verificationInstructions = `Please perform the following verification steps:
 1. Confirm all root causes identified in the 4-part RCA have been properly remediated.
 2. Verify that modified files strictly satisfy coding guidelines (<= 8-15 line functions, affirmative booleans, AppError envelopes).
@@ -38,15 +46,14 @@ func BuildVerificationFollowupPrompt(repo string, runID uint64, sha string) stri
 
 // StageVerificationFollowupPrompt stages the follow-up prompt to temp disk and queue file.
 func StageVerificationFollowupPrompt(primaryPayload, followupPrompt string) error {
-	rootDir := resolveProjectRootDir()
-	followupPath := filepath.Join(rootDir, queuedAgyPromptRelativePath)
+	followupPath := resolveQueuedAgyPromptPath()
 	_ = os.MkdirAll(filepath.Dir(followupPath), 0755)
 
 	if writeErr := os.WriteFile(followupPath, []byte(followupPrompt), 0644); writeErr != nil {
 		return writeErr
 	}
 
-	queuePath := filepath.Join(rootDir, agyPromptQueueRelativePath)
+	queuePath := resolveAgyPromptQueuePath()
 
 	return updatePromptQueueFile(queuePath, primaryPayload, followupPrompt)
 }

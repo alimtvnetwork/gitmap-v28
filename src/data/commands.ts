@@ -3521,6 +3521,36 @@ export const commands: CommandDef[] = [
       { name: "storage ls", description: "List all system and repository SQLite databases" },
     ],
   },
+  {
+    name: "pipeline errors agy fix",
+    alias: "pipeline fix errors agy, aef, agy fix-pipeline",
+    description: "Extract failing CI/CD pipeline error logs and commit history, embed 4-part RCA prompt, inject directly into Antigravity IDE, and queue follow-up verification",
+    usage: "gitmap pipeline errors agy fix [repo] [--all] [--projects <N>] [--limit <N>] [--reset-batch] [--no-inject]",
+    category: "pipeline",
+    flags: [
+      { flag: "--all", description: "Scan all tracked repositories for failing pipelines" },
+      { flag: "--projects <N>", description: "Number of failing projects to batch-fix (default: 3)" },
+      { flag: "--limit <N>", description: "Limit number of failing projects per batch run (default: 3)" },
+      { flag: "--reset-batch", description: "Reset multi-project batch cursor to the first project" },
+      { flag: "--no-inject", description: "Skip direct Antigravity CLI/IDE injection" },
+      { flag: "-v, --detailed", description: "Include verbose passing lines in error logs" },
+      { flag: "--no-release", description: "Feed CI/CD fix prompt without automated release" },
+      { flag: "-p, --prompt <path>", description: "Path to custom prompt template" },
+      { flag: "-f, --force", description: "Force resending even if previously sent" },
+      { flag: "-d, --dry-run", description: "Preview payload statistics without saving or copying" },
+    ],
+    examples: [
+      { command: "gitmap pipeline errors agy fix", description: "Fix pipeline errors for current repository with direct AGY injection" },
+      { command: "gitmap pipeline errors agy fix --all", description: "Batch fix failing pipelines across all projects (first 3 projects)" },
+      { command: "gitmap pipeline errors agy fix --all", description: "Process next batch of failing projects on subsequent run" },
+      { command: "gitmap pipeline errors agy fix --all --limit 5", description: "Specify custom batch limit of 5 projects" },
+    ],
+    seeAlso: [
+      { name: "pipeline status", description: "Check live CI/CD status and ETA" },
+      { name: "pipeline error-logs", description: "View raw failure logs" },
+      { name: "agy rerun", description: "Replay recent prompts with template prefixes" },
+    ],
+  },
 ];
 
 // Global flags applied by every command via the shared root parser.

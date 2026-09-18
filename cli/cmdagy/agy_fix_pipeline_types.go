@@ -47,6 +47,11 @@ type AgyFixOptions struct {
 	IsNoClipboard bool
 	OutputFile    string
 	IsDryRun      bool
+	IsAll         bool
+	ProjectsCount int
+	Limit         int
+	IsResetBatch  bool
+	IsNoInject    bool
 }
 
 // AgyFixDispatchParams packages parameters for executing prompt dispatch.

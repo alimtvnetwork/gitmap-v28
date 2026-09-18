@@ -137,6 +137,20 @@ export default function AGYPromptsPage() {
             language="bash"
           />
         </section>
+
+        <section className="space-y-4">
+          <h2 className="text-xl font-semibold text-foreground flex items-center gap-2">
+            <Terminal className="w-5 h-5 text-primary" />
+            Direct Antigravity Injection & Multi-Project Batching
+          </h2>
+          <p className="text-sm text-muted-foreground leading-relaxed">
+            Feed failing CI/CD pipeline error logs and 4-part RCA prompts directly into Antigravity IDE sessions, stage follow-up verification prompts in the queue ledger, and batch-fix across multiple tracked repositories:
+          </p>
+          <CodeBlock
+            code={`# Extract errors and inject fix task directly into Antigravity IDE\ngitmap pipeline errors agy fix\n\n# Scan all tracked repositories and batch-fix failing pipelines (default limit: 3)\ngitmap pipeline errors agy fix --all\n\n# Advance to next batch of failing projects on subsequent run\ngitmap pipeline errors agy fix --all\n\n# Reset multi-project batch cursor\ngitmap pipeline errors agy fix --all --reset-batch`}
+            language="bash"
+          />
+        </section>
       </div>
     </DocsLayout>
   );

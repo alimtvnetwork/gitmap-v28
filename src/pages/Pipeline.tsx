@@ -145,8 +145,12 @@ export default function PipelinePage() {
               <div className="text-muted-foreground text-[11px]">Fetch step-by-step failure output as structured JSON.</div>
             </div>
             <div className="p-3 rounded-lg border border-border bg-muted/40 space-y-1">
-              <div className="text-primary font-semibold">gitmap pipeline error-logs --tempfile ci-err.json</div>
-              <div className="text-muted-foreground text-[11px]">Save error log into .ai-memory/temp/ for LLM auto-fixes.</div>
+              <div className="text-primary font-semibold">gitmap pipeline errors agy fix</div>
+              <div className="text-muted-foreground text-[11px]">Directly inject pipeline error logs and RCA prompt into Antigravity IDE.</div>
+            </div>
+            <div className="p-3 rounded-lg border border-border bg-muted/40 space-y-1">
+              <div className="text-primary font-semibold">gitmap pipeline errors agy fix --all</div>
+              <div className="text-muted-foreground text-[11px]">Parallel scan all repos and batch-fix failing pipelines (3 projects/run).</div>
             </div>
           </div>
         </div>
