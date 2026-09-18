@@ -12,40 +12,55 @@ import (
 )
 
 func runSSHInstallCLI(args []string) error {
-	target := "all"
-	if len(args) > 0 && args[0] != "gitmap" {
-		target = args[0]
-	} else if len(args) > 1 {
-		target = args[1]
-	}
-
-	fmt.Printf("\n%s Installing / Updating GitMap across SSH fleet (%s):%s\n\n",
-		constants.ColorCyan, target, constants.ColorReset)
-
-	return executeSSHInstallOnTarget(target)
-}
-
-func executeSSHInstallOnTarget(target string) error {
-	conns, err := loadSSHConnectionsForTarget(target)
+	conns, err := loadSSHConnectionsForTarget("all")
 	if err != nil {
 		return err
 	}
 
-	for _, c := range conns {
-		installOrUpdateSingleNode(c)
-	}
-
-	fmt.Println("\nSSH Install & Update complete.")
-
+	pkg, target := parseInstallTargetAndPackage(conns, args)
+	executeFleetInstall(conns, target, pkg)
 	return nil
 }
 
-func installOrUpdateSingleNode(c db.SSHConnection) {
-	header := fmt.Sprintf("[%s|%s]", c.Alias, c.IPAddress)
+func executeFleetInstall(conns []db.SSHConnection, target, pkg string) {
+	fmt.Printf("\n%s Installing / Updating '%s' across SSH fleet (%s):%s\n\n",
+		constants.ColorCyan, pkg, target, constants.ColorReset)
 
-	isOnline, reason := CheckConnLiveness(nil, c.IPAddress, 22, 0)
-	if !isOnline {
-		fmt.Printf("  %s %sOFFLINE (skipped: %s)%s\n", header, constants.ColorYellow, reason, constants.ColorReset)
+	for _, c := range filterConnectionsByTarget(conns, target) {
+		installOrUpdateNodeWithPackage(c, pkg)
+	}
+
+	fmt.Printf("\nSSH Install '%s' complete.\n\n", pkg)
+}
+
+func parseInstallTargetAndPackage(conns []db.SSHConnection, args []string) (string, string) {
+	if len(args) == 0 {
+		return "gitmap", "all"
+	}
+	if len(args) == 1 {
+		return parseSingleArgInstall(conns, args[0])
+	}
+	if args[0] == "gitmap" {
+		return "gitmap", args[1]
+	}
+
+	return args[0], args[1]
+}
+
+func parseSingleArgInstall(conns []db.SSHConnection, arg string) (string, string) {
+	if arg == "gitmap" {
+		return "gitmap", "all"
+	}
+	if isKnownTarget(conns, arg) {
+		return "gitmap", arg
+	}
+
+	return arg, "all"
+}
+
+func installOrUpdateNodeWithPackage(c db.SSHConnection, pkg string) {
+	header := fmt.Sprintf("[%s|%s]", c.Alias, c.IPAddress)
+	if !isNodeAvailable(c.IPAddress, header) {
 		return
 	}
 
@@ -55,12 +70,20 @@ func installOrUpdateSingleNode(c db.SSHConnection) {
 	}
 	defer client.Close()
 
-	if isGitmapPresent(client) {
-		updateExistingGitmap(client, header, c.OS)
+	dispatchNodePackageAction(client, header, c.OS, pkg)
+}
+
+func dispatchNodePackageAction(client *ssh.Client, header, osType, pkg string) {
+	if !isGitmapPresent(client) {
+		installFreshGitmap(client, header, osType)
+	}
+
+	if pkg == "gitmap" {
+		updateExistingGitmap(client, header, osType)
 		return
 	}
 
-	installFreshGitmap(client, header, c.OS)
+	installRemotePackage(client, header, osType, pkg)
 }
 
 func isGitmapPresent(client *ssh.Client) bool {

@@ -2,7 +2,8 @@ package cmdssh
 
 import (
 	"fmt"
-	"strings"
+
+	"golang.org/x/crypto/ssh"
 
 	"github.com/alimtvnetwork/gitmap-v28/cli/constants"
 	"github.com/alimtvnetwork/gitmap-v28/cli/crypto"
@@ -10,36 +11,30 @@ import (
 )
 
 func runSSHUpdateCLI(args []string) error {
-	target := "all"
-	if len(args) > 0 && args[0] != "gitmap" {
-		target = args[0]
-	} else if len(args) > 1 {
-		target = args[1]
-	}
-
-	fmt.Printf("\n%s Updating GitMap across SSH fleet (%s):%s\n\n",
-		constants.ColorCyan, target, constants.ColorReset)
-
-	conns, err := loadSSHConnectionsForTarget(target)
+	conns, err := loadSSHConnectionsForTarget("all")
 	if err != nil {
 		return err
 	}
 
-	for _, c := range conns {
-		updateSingleSSHNode(c)
-	}
-
-	fmt.Println("\nSSH Fleet Update complete.")
-
+	pkg, target := parseInstallTargetAndPackage(conns, args)
+	executeFleetUpdate(conns, target, pkg)
 	return nil
 }
 
-func updateSingleSSHNode(c db.SSHConnection) {
-	header := fmt.Sprintf("[%s|%s]", c.Alias, c.IPAddress)
+func executeFleetUpdate(conns []db.SSHConnection, target, pkg string) {
+	fmt.Printf("\n%s Updating '%s' across SSH fleet (%s):%s\n\n",
+		constants.ColorCyan, pkg, target, constants.ColorReset)
 
-	isOnline, reason := CheckConnLiveness(nil, c.IPAddress, 22, 0)
-	if !isOnline {
-		fmt.Printf("  %s %sOFFLINE (skipped: %s)%s\n", header, constants.ColorYellow, reason, constants.ColorReset)
+	for _, c := range filterConnectionsByTarget(conns, target) {
+		updateSingleSSHNode(c, pkg)
+	}
+
+	fmt.Printf("\nSSH Fleet Update '%s' complete.\n\n", pkg)
+}
+
+func updateSingleSSHNode(c db.SSHConnection, pkg string) {
+	header := fmt.Sprintf("[%s|%s]", c.Alias, c.IPAddress)
+	if !isNodeAvailable(c.IPAddress, header) {
 		return
 	}
 
@@ -49,16 +44,15 @@ func updateSingleSSHNode(c db.SSHConnection) {
 	}
 	defer client.Close()
 
-	shell := "bash"
-	if isWindowsOS(c.OS) {
-		shell = "ps"
+	executeRemoteUpdate(client, header, c.OS, pkg)
+}
+
+func executeRemoteUpdate(client *ssh.Client, header, osType, pkg string) {
+	cmd := "gitmap update"
+	if pkg != "gitmap" {
+		cmd = "gitmap update " + pkg
 	}
 
-	out, err := crypto.RunCommand(client, "gitmap update", shell)
-	if err != nil {
-		fmt.Printf("  %s %sUpdate failed:%s %v\n", header, constants.ColorRed, constants.ColorReset, err)
-		return
-	}
-
-	fmt.Printf("  %s %sUpdated:%s\n%s\n", header, constants.ColorGreen, constants.ColorReset, strings.TrimSpace(out))
+	out, err := crypto.RunCommand(client, cmd, resolveRemoteShell(osType))
+	reportRemoteExecution(header, "Updated", out, err)
 }

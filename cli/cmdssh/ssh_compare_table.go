@@ -78,5 +78,6 @@ func printComparisonWorkflowGuidance() {
 	fmt.Printf("\n  %sWhen to use which remote command:%s\n", constants.ColorYellow, constants.ColorReset)
 	fmt.Println("    • Use 'ssh'     for instant terminal commands, checking liveness, or installing gitmap/AGY on remote machines.")
 	fmt.Println("    • Use 'cluster' for orchestrating multi-node infrastructure, running distributed recipes, and node control.")
-	fmt.Println("    • Use 'sc'      for continuous daemon monitoring, client-server sync, and central fleet management.\n")
+	fmt.Println("    • Use 'sc'      for continuous daemon monitoring, client-server sync, and central fleet management.")
+	fmt.Println()
 }
