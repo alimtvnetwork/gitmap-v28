@@ -52,8 +52,21 @@ func (r *batchProgressReporter) OnResult(row batchRowResult) {
 	fmt.Printf(constants.MsgCloneNextBatchProgressFmt,
 		r.done, r.total,
 		filepath.Base(row.RepoPath),
-		row.Status,
+		formatColorfulStatus(row.Status),
 		r.ok, r.failed, r.skipped)
+}
+
+func formatColorfulStatus(status string) string {
+	switch status {
+	case constants.BatchStatusOK:
+		return fmt.Sprintf("%s✔ %s%s", constants.ColorGreen, status, constants.ColorReset)
+	case constants.BatchStatusFailed:
+		return fmt.Sprintf("%s✖ %s%s", constants.ColorRed, status, constants.ColorReset)
+	case constants.BatchStatusSkipped:
+		return fmt.Sprintf("%s➜ %s%s", constants.ColorYellow, status, constants.ColorReset)
+	default:
+		return status
+	}
 }
 
 // tally increments the bucket matching this row's status. Unknown

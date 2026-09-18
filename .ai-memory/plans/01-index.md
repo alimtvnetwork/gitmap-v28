@@ -245,3 +245,4 @@ No pending plans.
 - [97-db-transaction-mechanism-and-package-unification.md](completed/97-db-transaction-mechanism-and-package-unification.md): 97-db-transaction-mechanism-and-package-unification
 - [98-naming-conventions-and-anti-ok-variables.md](completed/98-naming-conventions-and-anti-ok-variables.md): 98-naming-conventions-and-anti-ok-variables
 - [99-constants-and-enums-architecture.md](completed/99-constants-and-enums-architecture.md): 99-constants-and-enums-architecture
+- [54-terminal-help-table-framework-and-pipeline-rca.md](completed/54-terminal-help-table-framework-and-pipeline-rca.md): 54-terminal-help-table-framework-and-pipeline-rca

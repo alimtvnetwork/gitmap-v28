@@ -24,11 +24,12 @@ func (p *PullProgressBar) renderLocked() {
 }
 
 func (p *PullProgressBar) currentSpinner() string {
+	frame := brailleFrames[p.spinnerIdx%len(brailleFrames)]
 	if p.isSafe {
-		return asciiFrames[p.spinnerIdx%len(asciiFrames)]
+		frame = asciiFrames[p.spinnerIdx%len(asciiFrames)]
 	}
 
-	return brailleFrames[p.spinnerIdx%len(brailleFrames)]
+	return fmt.Sprintf("%s%s%s", constants.ColorCyan, frame, constants.ColorReset)
 }
 
 func (p *PullProgressBar) renderTTY() {

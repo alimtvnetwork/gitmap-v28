@@ -12,15 +12,14 @@ func isFixCompound(first string, rest []string) bool {
 }
 
 func isAgyCompound(first string, rest []string) bool {
-	if first == "agy" {
-		if len(rest) == 0 {
-			return true
-		}
-
-		return hasFixOrErrorsTarget(rest) || hasHelpToken(rest)
+	if first != "agy" {
+		return false
+	}
+	if len(rest) == 0 {
+		return true
 	}
 
-	return false
+	return hasFixOrErrorsTarget(rest) || hasHelpToken(rest)
 }
 
 func hasHelpToken(rest []string) bool {

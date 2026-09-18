@@ -2,31 +2,30 @@
 package cmdagy
 
 import (
-	"fmt"
-
 	"github.com/spf13/cobra"
 
-	"github.com/alimtvnetwork/gitmap-v28/cli/constants"
 	"github.com/alimtvnetwork/gitmap-v28/cli/helptext"
 	"github.com/alimtvnetwork/gitmap-v28/cli/render"
+	"github.com/alimtvnetwork/gitmap-v28/cli/termhelp"
 )
 
 func renderAgyHelp(cmd *cobra.Command, args []string) {
-	if cmd != nil && cmd != AgyCmd {
-		if renderSubcommandHelp(cmd) {
-			return
-		}
-		_ = cmd.Usage()
-
+	if handleAgySubcommandHelp(cmd) {
 		return
 	}
-	fmt.Println()
-	printAgyHelpBanner()
-	printAgyHelpUsage()
-	printAgyHelpProjectMgmt()
-	printAgyHelpDiagnostics()
-	printAgyHelpAutomation()
-	printAgyHelpFooter()
+	termhelp.RenderMenu(buildAgyHelpMenu())
+}
+
+func handleAgySubcommandHelp(cmd *cobra.Command) bool {
+	if cmd == nil || cmd == AgyCmd {
+		return false
+	}
+	if renderSubcommandHelp(cmd) {
+		return true
+	}
+	_ = cmd.Usage()
+
+	return true
 }
 
 func renderSubcommandHelp(cmd *cobra.Command) bool {
@@ -40,65 +39,70 @@ func renderSubcommandHelp(cmd *cobra.Command) bool {
 	return false
 }
 
-func printAgyHelpBanner() {
-	fmt.Printf("  %s╔══════════════════════════════════════════════════════════════════╗%s\n", constants.ColorCyan, constants.ColorReset)
-	fmt.Printf("  %s║             Antigravity CLI Management (gitmap agy)              ║%s\n", constants.ColorCyan, constants.ColorReset)
-	fmt.Printf("  %s╚══════════════════════════════════════════════════════════════════╝%s\n\n", constants.ColorCyan, constants.ColorReset)
+func buildAgyHelpMenu() termhelp.HelpMenu {
+	return termhelp.HelpMenu{
+		Title: "Antigravity CLI Management (gitmap agy)",
+		UsageLines: []string{
+			"gitmap agy [command] [flags]",
+			"agy [command] [flags]",
+		},
+		Sections: []termhelp.HelpSection{
+			buildProjectMgmtSection(),
+			buildDiagnosticsSection(),
+			buildAutomationSection(),
+		},
+		FooterFlags: []termhelp.CommandEntry{
+			{Command: "-h, --help", Description: "Show help for agy"},
+		},
+		Tips: []string{
+			"Run 'gitmap agy <command> --help' for details on any subcommand.",
+		},
+	}
 }
 
-func printAgyHelpUsage() {
-	fmt.Printf("  %sUsage:%s\n", constants.ColorWhite, constants.ColorReset)
-	fmt.Printf("    %sgitmap agy [command] [flags]%s\n", constants.ColorCyan, constants.ColorReset)
-	fmt.Printf("    %sagy [command] [flags]%s\n\n", constants.ColorCyan, constants.ColorReset)
+func buildProjectMgmtSection() termhelp.HelpSection {
+	return termhelp.HelpSection{
+		Title: "Project Management",
+		Entries: []termhelp.CommandEntry{
+			{Command: "open [path]", Description: "Open Antigravity Desktop IDE on path (default: .)"},
+			{Command: "ls", Description: "List projects in status table grouped by root folder"},
+			{Command: "add <id> <name>", Description: "Add an Antigravity project configuration"},
+			{Command: "rm <id>", Description: "Remove project configuration (files on disk preserved)"},
+			{Command: "update <id>", Description: "Update project updatedAt timestamp to now"},
+			{Command: "scan [path]", Description: "Scan directory and register Antigravity projects"},
+			{Command: "reconcile (recon)", Description: "Reconcile missing projects with active paths"},
+			{Command: "remove-missing", Description: "Remove stale references to missing directories"},
+			{Command: "pin-projects (pins)", Description: "Manage pinned priority projects"},
+			{Command: "group", Description: "Group and categorize projects by tag or folder", HasSubcommands: true},
+		},
+	}
 }
 
-func printAgyHelpProjectMgmt() {
-	fmt.Printf("  %sProject Management:%s\n", constants.ColorYellow, constants.ColorReset)
-	printHelpLine("open [path]", "Open Antigravity Desktop IDE on path (default: .)")
-	printHelpLine("ls", "List projects in status table grouped by root folder")
-	printHelpLine("add <id> <name>", "Add an Antigravity project configuration")
-	printHelpLine("rm <id>", "Remove project configuration (files on disk preserved)")
-	printHelpLine("update <id>", "Update project updatedAt timestamp to now")
-	printHelpLine("scan [path]", "Scan directory and register Antigravity projects")
-	printHelpLine("reconcile (recon)", "Reconcile missing projects with active paths")
-	printHelpLine("remove-missing", "Remove stale references to missing directories")
-	printHelpLine("pin-projects (pins)", "Manage pinned priority projects")
-	printHelpLine("group", "Group and categorize projects by tag or folder")
-	fmt.Println()
+func buildDiagnosticsSection() termhelp.HelpSection {
+	return termhelp.HelpSection{
+		Title: "Diagnostics & Optimization",
+		Entries: []termhelp.CommandEntry{
+			{Command: "find-duplicates (fdp)", Description: "Detect projects sharing identical filesystem paths"},
+			{Command: "optimize-projects", Description: "Deduplicate and keep newest project per path"},
+			{Command: "clean-cache (cc)", Description: "Clean runtime cache and orphan project artifacts"},
+			{Command: "remove-empty-convs", Description: "Purge projects with 0 conversation steps"},
+			{Command: "status", Description: "Show Antigravity installation and profile status"},
+			{Command: "stats", Description: "Display Antigravity workspace usage statistics"},
+		},
+	}
 }
 
-func printAgyHelpDiagnostics() {
-	fmt.Printf("  %sDiagnostics & Optimization:%s\n", constants.ColorYellow, constants.ColorReset)
-	printHelpLine("find-duplicates (fdp)", "Detect projects sharing identical filesystem paths")
-	printHelpLine("optimize-projects", "Deduplicate and keep newest project per path")
-	printHelpLine("clean-cache (cc)", "Clean runtime cache and orphan project artifacts")
-	printHelpLine("remove-empty-convs", "Purge projects with 0 conversation steps")
-	printHelpLine("status", "Show Antigravity installation and profile status")
-	printHelpLine("stats", "Display Antigravity workspace usage statistics")
-	fmt.Println()
-}
-
-func printAgyHelpAutomation() {
-	fmt.Printf("  %sProtocols & Automation:%s\n", constants.ColorYellow, constants.ColorReset)
-	printHelpLine("read-all-projects-with-read-prompts (rprp)", "Discover repos, sync, and broadcast Read Memory")
-	printHelpLine("all-projects-read-memory-prompt", "Broadcast Read Memory prompt to active projects")
-	printHelpLine("fix-pipeline (fp)", "Diagnose and fix CI/CD pipeline issues")
-	printHelpLine("prompt <text>", "Send prompt to active project session")
-	printHelpLine("sync", "Sync Antigravity settings and project states")
-	printHelpLine("export / import", "Export or import Antigravity projects JSON")
-	printHelpLine("plugins", "Inspect, enable, or disable Antigravity plugins")
-	fmt.Println()
-}
-
-func printHelpLine(cmd, desc string) {
-	fmt.Printf("    %s%-32s%s %s%s%s\n",
-		constants.ColorGreen, cmd, constants.ColorReset,
-		constants.ColorWhite, desc, constants.ColorReset)
-}
-
-func printAgyHelpFooter() {
-	fmt.Printf("  %sFlags:%s\n", constants.ColorWhite, constants.ColorReset)
-	fmt.Printf("    %s-h, --help%s   Show help for agy\n\n", constants.ColorGreen, constants.ColorReset)
-	fmt.Printf("  %s💡 Tip: Run 'gitmap agy <command> --help' for details on any subcommand.%s\n\n",
-		constants.ColorCyan, constants.ColorReset)
+func buildAutomationSection() termhelp.HelpSection {
+	return termhelp.HelpSection{
+		Title: "Protocols & Automation",
+		Entries: []termhelp.CommandEntry{
+			{Command: "read-all-projects-with-read-prompts (rprp)", Description: "Discover repos, sync, and broadcast Read Memory"},
+			{Command: "all-projects-read-memory-prompt", Description: "Broadcast Read Memory prompt to active projects"},
+			{Command: "fix-pipeline (fp)", Description: "Diagnose and fix CI/CD pipeline issues", HasSubcommands: true},
+			{Command: "prompt <text>", Description: "Send prompt to active project session"},
+			{Command: "sync", Description: "Sync Antigravity settings and project states"},
+			{Command: "export / import", Description: "Export or import Antigravity projects JSON", HasSubcommands: true},
+			{Command: "plugins", Description: "Inspect, enable, or disable Antigravity plugins", HasSubcommands: true},
+		},
+	}
 }

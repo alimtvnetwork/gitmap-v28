@@ -42,3 +42,4 @@
 - [51-fallback-test-struct-fields-and-gofmt-rca.md](./51-fallback-test-struct-fields-and-gofmt-rca.md): Fix CommitPipelineGroup mock HeadSha fields in fallback test and clean gofmt trailing lines.
 - [52-gocritic-ifelsechain-parallel-filter-test-rca.md](./52-gocritic-ifelsechain-parallel-filter-test-rca.md): Fix gocritic ifElseChain violation in pipeline_parallel_filter_test.go by rewriting to switch.
 - [53-clean-success-fallback-overwrite-rca.md](./53-clean-success-fallback-overwrite-rca.md): Fix historical pipeline fallback overwriting clean success payloads causing TestBuildErrorLogsPayloadCleanSuccess failure.
+- [54-nested-if-policy-check-rca.md](./54-nested-if-policy-check-rca.md): Fix nested if depth-2 violations in agy_help.go and pipeline_fix_agy_runner.go flagged by policy-check.
