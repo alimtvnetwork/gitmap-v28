@@ -2,7 +2,9 @@ package cmdagy
 
 import (
 	"fmt"
+	"os"
 	"os/exec"
+	"path/filepath"
 )
 
 // InjectAgyFixTask attempts direct background dispatch of the fix prompt to Antigravity CLI.
@@ -25,17 +27,24 @@ func buildAgyPromptArg(absPayloadPath string) string {
 
 func launchAgyBackground(binPath, repoDir, absPayloadPath string) (bool, string) {
 	promptArg := buildAgyPromptArg(absPayloadPath)
-	cmd := exec.Command(binPath, "-p", promptArg)
+	cmd := exec.Command(binPath, "--dangerously-skip-permissions", "-p", promptArg)
 	if len(repoDir) > 0 {
 		cmd.Dir = repoDir
+		logPath := filepath.Join(repoDir, ".ai-memory", "temp", "agy-injection.log")
+		_ = os.MkdirAll(filepath.Dir(logPath), 0755)
+		if logFile, err := os.OpenFile(logPath, os.O_CREATE|os.O_WRONLY|os.O_APPEND, 0644); err == nil {
+			cmd.Stdout = logFile
+			cmd.Stderr = logFile
+		}
 	}
+	configureBackgroundProcess(cmd)
 
 	if err := cmd.Start(); err != nil {
 		return false, fmt.Sprintf("failed to launch agy process: %v", err)
 	}
 
 	pid := cmd.Process.Pid
-	go func() { _ = cmd.Wait() }()
+	_ = cmd.Process.Release()
 
 	return true, fmt.Sprintf("Injected fix task directly into Antigravity IDE (PID: %d)", pid)
 }

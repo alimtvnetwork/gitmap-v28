@@ -258,3 +258,4 @@ None.
 - [99-constants-and-enums-architecture.md](completed/99-constants-and-enums-architecture.md): 99-constants-and-enums-architecture
 - [54-terminal-help-table-framework-and-pipeline-rca.md](completed/54-terminal-help-table-framework-and-pipeline-rca.md): 54-terminal-help-table-framework-and-pipeline-rca
 - [196-storage-ls-ui-cleanup-and-relative-paths.md](completed/196-storage-ls-ui-cleanup-and-relative-paths.md): 196-storage-ls-ui-cleanup-and-relative-paths
+- [206-pipeline-errors-agy-fix-and-multi-project-batch-hardening.md](completed/206-pipeline-errors-agy-fix-and-multi-project-batch-hardening.md): 206-pipeline-errors-agy-fix-and-multi-project-batch-hardening

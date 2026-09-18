@@ -179,3 +179,37 @@ gitmap sc exec agy scan
 # Execute agy command locally across all tracked repositories
 gitmap exec agy status
 ```
+
+---
+
+## 5. agy fix-pipeline (aef)
+
+Extract failing CI/CD pipeline error logs, recent git commits, embed complete error logs and 4-part RCA prompt into `.ai-memory/temp/active-agy-pipeline-fix-prompt.txt`, inject fix directly into Google Antigravity, and queue follow-up verification. Supports multi-project parallel batching across repositories with persistent batch cursor tracking.
+
+### Usage
+
+```bash
+gitmap agy fix-pipeline [repo] [flags]
+gitmap agy fix [repo] [flags]
+gitmap aef [repo] [flags]
+```
+
+### Examples
+
+```bash
+# Fix pipeline errors for current repository with direct AGY injection
+gitmap agy fix-pipeline
+
+# Batch fix failing pipelines across all projects (first 3 projects)
+gitmap agy fix-pipeline --all
+
+# Run again to automatically process the next batch of failing projects
+gitmap agy fix-pipeline --all
+
+# Specify custom batch limit of 5 projects
+gitmap agy fix-pipeline --all --limit 5
+
+# Reset batch cursor to start from the beginning
+gitmap agy fix-pipeline --reset-batch
+```
+
