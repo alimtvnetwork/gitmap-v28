@@ -8,7 +8,8 @@ None.
 
 ## Recent Completed Tasks Register (Last 20 Tasks)
 
-1. [Plan 203: 203-pipeline-errors-agy-fix-injection-and-multi-project-batching.md](completed/203-pipeline-errors-agy-fix-injection-and-multi-project-batching.md): Pipeline Errors AGY Fix Injection, Full Logs Embedding & Multi-Project Batching
+1. [Plan 204: 204-pipeline-errors-agy-fix-comprehensive-verification-and-hardening.md](completed/204-pipeline-errors-agy-fix-comprehensive-verification-and-hardening.md): Pipeline Errors AGY Fix Comprehensive Verification & Hardening
+2. [Plan 203: 203-pipeline-errors-agy-fix-injection-and-multi-project-batching.md](completed/203-pipeline-errors-agy-fix-injection-and-multi-project-batching.md): Pipeline Errors AGY Fix Injection, Full Logs Embedding & Multi-Project Batching
 2. [Plan 202: 202-agy-prompts-templates-and-rerun-suite.md](completed/202-agy-prompts-templates-and-rerun-suite.md): AGY Prompts Templates, Rerun Suite, Remote Triad Delegation & Storage Restore
 2. [Plan 201: 201-cluster-sc-compare-matrix-and-help-parity.md](completed/201-cluster-sc-compare-matrix-and-help-parity.md): Cluster & SC Compare Matrix Dispatch & Help Text Parity
 3. [Plan 198: 198-terminal-ssh-execution-audit-and-ui-help-parity.md](completed/198-terminal-ssh-execution-audit-and-ui-help-parity.md): Terminal SSH Execution Audit, Target Selection & UI Help Parity
