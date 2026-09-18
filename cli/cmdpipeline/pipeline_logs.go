@@ -115,6 +115,9 @@ func populateRunsIntoPayload(repo string, runs []ghRunItem, p *PipelineErrorLogs
 
 		return
 	}
+	if p.Conclusion == "success" || p.IsRunning {
+		return
+	}
 	_ = ApplyPreviousRunFallbackToPayload(p, repo, runs)
 }
 
