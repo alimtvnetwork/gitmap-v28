@@ -63,4 +63,5 @@ type AgyFixDispatchParams struct {
 	Payload     cmdpipeline.PipelineErrorLogsPayload
 	ErrorReport string
 	HasFailures bool
+	TargetDir   string
 }

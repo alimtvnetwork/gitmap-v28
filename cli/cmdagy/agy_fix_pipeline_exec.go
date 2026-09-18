@@ -39,8 +39,14 @@ func executeFixPayloadDispatch(p AgyFixDispatchParams, promptContent, promptSour
 	}
 
 	finalizeFixFeedback(p.Payload.Repo, promptSource, p.ErrorReport, promptContent, primary, p.HasFailures, p.Opts.IsNoClipboard)
-	if ok, msg := InjectAgyFixTask(".", toAbsPath(resolveActiveAgyPromptPath()), p.Opts.IsNoInject); ok {
+	repoDir := p.TargetDir
+	if len(repoDir) == 0 {
+		repoDir = resolveProjectRootDir()
+	}
+	if ok, msg := InjectAgyFixTask(repoDir, toAbsPath(resolveActiveAgyPromptPath()), p.Opts.IsNoInject); ok {
 		fmt.Printf("  %s✔ %s%s\n\n", constants.ColorGreen, msg, constants.ColorReset)
+	} else if !p.Opts.IsNoInject {
+		fmt.Printf("  %sℹ Antigravity Injection: %s%s\n\n", constants.ColorYellow, msg, constants.ColorReset)
 	}
 
 	return nil
@@ -66,6 +72,7 @@ func dispatchCandidateFix(cand ProjectFixCandidate, opts AgyFixOptions) error {
 	params := AgyFixDispatchParams{
 		Opts: opts, StorePath: storePath, Sig: sig, ErrHash: errHash,
 		Payload: payload, ErrorReport: cand.ErrorReport, HasFailures: cand.HasFailures,
+		TargetDir: cand.Path,
 	}
 
 	return dispatchAgyFixPrepared(params)
@@ -81,6 +88,7 @@ func executeSingleAgyFix(opts AgyFixOptions) error {
 	params := AgyFixDispatchParams{
 		Opts: opts, StorePath: storePath, Sig: sig, ErrHash: errHash,
 		Payload: payload, ErrorReport: errorReport, HasFailures: hasFailures,
+		TargetDir: resolveProjectRootDir(),
 	}
 
 	return dispatchAgyFixPrepared(params)

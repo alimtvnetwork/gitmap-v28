@@ -41,6 +41,7 @@ func getCandidateAntigravityPaths() []string {
 	progFiles := os.Getenv("ProgramFiles")
 
 	return []string{
+		filepath.Join(localApp, "agy", "bin", "agy.exe"),
 		filepath.Join(localApp, "Programs", "Antigravity", "Antigravity.exe"),
 		filepath.Join(progFiles, "Antigravity", "Antigravity.exe"),
 		filepath.Join(home, ".local", "share", "antigravity", "Antigravity"),
