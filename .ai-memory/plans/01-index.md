@@ -8,9 +8,10 @@ Zero pending plans. All planned work complete and verified.
 
 ## Recent Completed Tasks Register (Last 20 Tasks)
 
-1. [Plan 212: 212-ssh-multi-command-discovery-and-agy-terminal-verification.md](completed/212-ssh-multi-command-discovery-and-agy-terminal-verification.md): SSH Multi-Command Discovery, Multi-Machine Join, Terminal Display & AGY Parity Verification
-2. [Plan 211: 211-ssh-multi-command-discovery-and-agy-terminal-verification.md](completed/211-ssh-multi-command-discovery-and-agy-terminal-verification.md): SSH Multi-Command Space/Quoted Resolution, Space-Delimited Multi-Machine Join, Multi-Target Status & AGY Terminal Parity
-3. [Plan 210: 210-ssh-multi-command-discovery-and-agy-terminal-verification.md](completed/210-ssh-multi-command-discovery-and-agy-terminal-verification.md): SSH Multi-Command, Multi-Machine Join, Open Port 22 Discovery, Terminal Display Package & AGY Help Parity Verification
+1. [Plan 213: 213-ssh-multi-command-discovery-and-agy-terminal-verification.md](completed/213-ssh-multi-command-discovery-and-agy-terminal-verification.md): SSH Multi-Command Discovery, Multi-Machine Join, Terminal Display & AGY Parity Verification
+2. [Plan 212: 212-ssh-multi-command-discovery-and-agy-terminal-verification.md](completed/212-ssh-multi-command-discovery-and-agy-terminal-verification.md): SSH Multi-Command Discovery, Multi-Machine Join, Terminal Display & AGY Parity Verification
+3. [Plan 211: 211-ssh-multi-command-discovery-and-agy-terminal-verification.md](completed/211-ssh-multi-command-discovery-and-agy-terminal-verification.md): SSH Multi-Command Space/Quoted Resolution, Space-Delimited Multi-Machine Join, Multi-Target Status & AGY Terminal Parity
+4. [Plan 210: 210-ssh-multi-command-discovery-and-agy-terminal-verification.md](completed/210-ssh-multi-command-discovery-and-agy-terminal-verification.md): SSH Multi-Command, Multi-Machine Join, Open Port 22 Discovery, Terminal Display Package & AGY Help Parity Verification
 4. [Plan 209: 209-ssh-multi-command-discovery-and-agy-terminal-verification.md](completed/209-ssh-multi-command-discovery-and-agy-terminal-verification.md): SSH Multi-Command & Machine Discovery, Terminal Display Package, AGY Commands & Help Parity End-to-End Verification
 4. [Plan 208: 208-ssh-multi-machine-and-agy-terminal-verification.md](completed/208-ssh-multi-machine-and-agy-terminal-verification.md): SSH Multi-Command & Machine Discovery, Terminal Display Package, AGY Commands & Help Parity End-to-End Verification
 5. [Plan 207: 207-pipeline-errors-agy-fix-comprehensive-verification-and-audit.md](completed/207-pipeline-errors-agy-fix-comprehensive-verification-and-audit.md): Pipeline Errors AGY Fix Comprehensive Verification and Audit
