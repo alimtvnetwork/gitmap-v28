@@ -1,3 +1,18 @@
+## [v6.260.0] 2026-09-18 Release v6.260.0
+
+### Install GitMap v6.260.0
+
+To pin your repository to this exact version, run the following one-liner:
+Unix/Bash: `curl -sL https://raw.githubusercontent.com/alimtvnetwork/gitmap-v28/v6.260.0/install.sh | bash -s -- ".ai-memory/prompts" "v6.260.0"`
+PowerShell: `Invoke-WebRequest -Uri https://raw.githubusercontent.com/alimtvnetwork/gitmap-v28/v6.260.0/install.ps1 -OutFile install.ps1; .\install.ps1 -TargetDir ".ai-memory/prompts" -Version "v6.260.0"`
+
+### Added / Changed / Fixed / Removed
+
+- feat(storage): clean storage ls table UI with root folder header and relative database paths
+- feat(table): utilize reusable termtable auto-alignment and spacing framework
+- fix(ci): complete verification across all 46 CI/CD local quality gates and 5 remote workflows
+- refactor(storage): decompose database listing to storage_ls.go to maintain <100 line canonical file sizes
+
 ## [v6.259.1] 2026-09-18 Release v6.259.1
 
 ### Install GitMap v6.259.1
