@@ -70,3 +70,18 @@ func dispatchCandidateFix(cand ProjectFixCandidate, opts AgyFixOptions) error {
 
 	return dispatchAgyFixPrepared(params)
 }
+
+func executeSingleAgyFix(opts AgyFixOptions) error {
+	payload, errorReport, hasFailures := cmdpipeline.FetchPipelineErrorReportWithMeta(opts.Repo, opts.IsDetailed)
+	isDup, storePath, sig, errHash := checkAgyFixDuplicate(opts, payload, errorReport)
+	if isDup {
+		return nil
+	}
+
+	params := AgyFixDispatchParams{
+		Opts: opts, StorePath: storePath, Sig: sig, ErrHash: errHash,
+		Payload: payload, ErrorReport: errorReport, HasFailures: hasFailures,
+	}
+
+	return dispatchAgyFixPrepared(params)
+}

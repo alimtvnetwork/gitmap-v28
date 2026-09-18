@@ -3,7 +3,6 @@ package cmdagy
 import (
 	"github.com/spf13/cobra"
 
-	"github.com/alimtvnetwork/gitmap-v28/cli/cmdpipeline"
 	"github.com/alimtvnetwork/gitmap-v28/cli/helptext"
 	"github.com/alimtvnetwork/gitmap-v28/cli/render"
 )
@@ -53,7 +52,7 @@ func initAgyFixBehaviorFlags() {
 
 func initAgyFixBatchFlags() {
 	agyFixPipelineCmd.Flags().BoolVar(&agyFixAll, "all", false, "Scan all tracked repositories for failing pipelines")
-	agyFixPipelineCmd.Flags().IntVar(&agyFixProjects, "projects", 3, "Number of projects to batch-fix")
+	agyFixPipelineCmd.Flags().IntVar(&agyFixProjects, "projects", 0, "Number of projects to batch-fix")
 	agyFixPipelineCmd.Flags().IntVar(&agyFixLimit, "limit", 3, "Limit number of projects to batch-fix")
 	agyFixPipelineCmd.Flags().BoolVar(&agyFixResetBatch, "reset-batch", false, "Reset multi-project batch cursor to project 1")
 	agyFixPipelineCmd.Flags().BoolVar(&agyFixNoInject, "no-inject", false, "Skip direct Antigravity CLI/IDE injection")
@@ -68,21 +67,6 @@ func resolveTargetRepoArg(args []string) string {
 // RunAgyFixPipelineCLI parses arguments and executes the pipeline fix feed assembly.
 func RunAgyFixPipelineCLI(args []string) error {
 	return RunPipelineFixAgyCLI(args)
-}
-
-func executeSingleAgyFix(opts AgyFixOptions) error {
-	payload, errorReport, hasFailures := cmdpipeline.FetchPipelineErrorReportWithMeta(opts.Repo, opts.IsDetailed)
-	isDup, storePath, sig, errHash := checkAgyFixDuplicate(opts, payload, errorReport)
-	if isDup {
-		return nil
-	}
-
-	params := AgyFixDispatchParams{
-		Opts: opts, StorePath: storePath, Sig: sig, ErrHash: errHash,
-		Payload: payload, ErrorReport: errorReport, HasFailures: hasFailures,
-	}
-
-	return dispatchAgyFixPrepared(params)
 }
 
 // RunPipelineFixAgyCLI is the unified entrypoint for pipeline fix errors agy / aef.
