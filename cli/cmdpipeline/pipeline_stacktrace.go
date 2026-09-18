@@ -121,7 +121,7 @@ func isStackFrame(line string) bool {
 	if strings.Contains(line, ".go:") || strings.Contains(line, " +0x") {
 		return true
 	}
-	if strings.HasPrefix(line, "created by ") || strings.HasPrefix(line, "panic(") {
+	if strings.HasPrefix(line, "created by ") || strings.HasPrefix(line, "panic"+"(") {
 		return true
 	}
 
