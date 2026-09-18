@@ -158,14 +158,15 @@ def read_canonical_version() -> str:
 def stage_and_commit_release(new_version: str, scope: str, rn_path: str) -> None:
     manifests = [
         "version.json", "package.json", "readme.md", "changelog.md",
-        "cli/constants/constants.go", rn_path
+        "cli/constants/constants.go", rn_path, "03-ai-scripts/29-release-orchestrator.py"
     ]
     if os.path.exists(".ai-memory/user-preferences"):
         manifests.append(".ai-memory/user-preferences")
     if os.path.exists(".ai-memory/test-inventory.json"):
         manifests.append(".ai-memory/test-inventory.json")
-    run_cmd("git add -A")
-    status = run_cmd("git status --porcelain")
+    manifest_args = " ".join(f'"{m}"' for m in manifests)
+    run_cmd(f"git add {manifest_args}")
+    status = run_cmd("git diff --cached --name-only")
     if status:
         run_cmd(f'git commit -m "release: v{new_version} {scope}"')
 

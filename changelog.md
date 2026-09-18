@@ -1,3 +1,19 @@
+## [v6.261.0] 2026-09-18 Release v6.261.0
+
+### Install GitMap v6.261.0
+
+To pin your repository to this exact version, run the following one-liner:
+Unix/Bash: `curl -sL https://raw.githubusercontent.com/alimtvnetwork/gitmap-v28/v6.261.0/install.sh | bash -s -- ".ai-memory/prompts" "v6.261.0"`
+PowerShell: `Invoke-WebRequest -Uri https://raw.githubusercontent.com/alimtvnetwork/gitmap-v28/v6.261.0/install.ps1 -OutFile install.ps1; .\install.ps1 -TargetDir ".ai-memory/prompts" -Version "v6.261.0"`
+
+### Added / Changed / Fixed / Removed
+
+- feat(pipeline): bounded pattern-aware stack trace extraction and job-scoped isolation
+- fix(pipeline): halt context capture on exit code lines to eliminate runner cleanup noise
+- fix(pipeline): eliminate duplicated section reports and filter tool installation progress tickers
+- feat(ssh): multi-command discovery, machine join parity, and terminal help verification
+- fix(ci): resolve nested ifs, ssh help exit panic, absolute path linters, and error management regex
+
 ## [v6.260.0] 2026-09-18 Release v6.260.0
 
 ### Install GitMap v6.260.0
