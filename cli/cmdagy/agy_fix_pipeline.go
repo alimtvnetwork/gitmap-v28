@@ -13,6 +13,8 @@ import (
 	"github.com/alimtvnetwork/gitmap-v28/cli/apperror"
 	"github.com/alimtvnetwork/gitmap-v28/cli/cmdpipeline"
 	"github.com/alimtvnetwork/gitmap-v28/cli/constants"
+	"github.com/alimtvnetwork/gitmap-v28/cli/helptext"
+	"github.com/alimtvnetwork/gitmap-v28/cli/render"
 )
 
 var (
@@ -38,6 +40,9 @@ var agyFixPipelineCmd = &cobra.Command{
 }
 
 func init() {
+	agyFixPipelineCmd.SetHelpFunc(func(cmd *cobra.Command, args []string) {
+		helptext.PrintWithMode("agy-fix-pipeline", render.PrettyAuto)
+	})
 	agyFixPipelineCmd.Flags().BoolVarP(&agyFixDetailed, "detailed", "v", false, "Include verbose passing lines in error logs")
 	agyFixPipelineCmd.Flags().BoolVar(&agyFixNoRelease, "no-release", false, "Use CI/CD fix prompt without automated release")
 	agyFixPipelineCmd.Flags().StringVarP(&agyFixCustomPrompt, "prompt", "p", "", "Path to custom prompt template")
@@ -74,6 +79,12 @@ func checkAgyFixDuplicate(opts AgyFixOptions, payload cmdpipeline.PipelineErrorL
 
 // RunPipelineFixAgyCLI is the unified entrypoint for pipeline fix errors agy / aef.
 func RunPipelineFixAgyCLI(args []string) error {
+	if hasHelpFlag(args) {
+		helptext.PrintWithMode("agy-fix-pipeline", render.PrettyAuto)
+
+		return nil
+	}
+
 	opts := parseAgyFixArgs(args)
 	payload, errorReport, hasFailures := cmdpipeline.FetchPipelineErrorReportWithMeta(opts.Repo, opts.IsDetailed)
 	isDup, storePath, sig, errHash := checkAgyFixDuplicate(opts, payload, errorReport)
@@ -208,6 +219,16 @@ func isAgyDetailedFlag(arg string) bool {
 
 func isAgyDryRunFlag(arg string) bool {
 	return arg == "--dry-run" || arg == "-d"
+}
+
+func hasHelpFlag(args []string) bool {
+	for _, arg := range args {
+		if arg == "--help" || arg == "-h" || arg == "help" {
+			return true
+		}
+	}
+
+	return false
 }
 
 func parseParamFlag(args []string, idx *int, opts *AgyFixOptions, arg string) bool {

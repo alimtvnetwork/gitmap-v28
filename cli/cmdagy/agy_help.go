@@ -7,10 +7,15 @@ import (
 	"github.com/spf13/cobra"
 
 	"github.com/alimtvnetwork/gitmap-v28/cli/constants"
+	"github.com/alimtvnetwork/gitmap-v28/cli/helptext"
+	"github.com/alimtvnetwork/gitmap-v28/cli/render"
 )
 
 func renderAgyHelp(cmd *cobra.Command, args []string) {
 	if cmd != nil && cmd != AgyCmd {
+		if renderSubcommandHelp(cmd) {
+			return
+		}
 		_ = cmd.Usage()
 
 		return
@@ -22,6 +27,17 @@ func renderAgyHelp(cmd *cobra.Command, args []string) {
 	printAgyHelpDiagnostics()
 	printAgyHelpAutomation()
 	printAgyHelpFooter()
+}
+
+func renderSubcommandHelp(cmd *cobra.Command) bool {
+	helpName := cmd.Name()
+	if _, err := helptext.ReadRaw(helpName); err == nil {
+		helptext.PrintWithMode(helpName, render.PrettyAuto)
+
+		return true
+	}
+
+	return false
 }
 
 func printAgyHelpBanner() {

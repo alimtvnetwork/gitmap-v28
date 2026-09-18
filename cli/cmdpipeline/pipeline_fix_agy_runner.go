@@ -12,7 +12,26 @@ func isFixCompound(first string, rest []string) bool {
 }
 
 func isAgyCompound(first string, rest []string) bool {
-	return first == "agy" && hasFixOrErrorsTarget(rest)
+	if first == "agy" {
+		if len(rest) == 0 {
+			return true
+		}
+
+		return hasFixOrErrorsTarget(rest) || hasHelpToken(rest)
+	}
+
+	return false
+}
+
+func hasHelpToken(rest []string) bool {
+	for _, arg := range rest {
+		low := strings.ToLower(arg)
+		if low == "--help" || low == "-h" || low == "help" {
+			return true
+		}
+	}
+
+	return false
 }
 
 func isErrorLogsCompound(first string, rest []string) bool {
@@ -37,7 +56,7 @@ func IsPipelineFixAgyArgs(args []string) bool {
 func isDirectAgyFixToken(token string) bool {
 	switch token {
 	case "aef", "agy-errors-fix", "agy_errors_fix", "fix-errors-agy",
-		"fix-agy", "fixagy", "pipeline-fix", "fix-pipeline":
+		"fix-agy", "fixagy", "pipeline-fix", "fix-pipeline", "fix":
 		return true
 	}
 

@@ -51,6 +51,26 @@ func TestIsPipelineFixAgyArgs_UserRequestVariations(t *testing.T) {
 			expected: true,
 		},
 		{
+			name:     "pipeline_fix_alone",
+			args:     []string{"fix"},
+			expected: true,
+		},
+		{
+			name:     "pipeline_fix_help",
+			args:     []string{"fix", "--help"},
+			expected: true,
+		},
+		{
+			name:     "pipeline_agy_fix",
+			args:     []string{"agy", "fix"},
+			expected: true,
+		},
+		{
+			name:     "pipeline_agy_help",
+			args:     []string{"agy", "--help"},
+			expected: true,
+		},
+		{
 			name:     "pipeline_errors_agy",
 			args:     []string{"errors", "agy"},
 			expected: true,
