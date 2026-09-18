@@ -64,4 +64,3 @@ func matchesAnyTarget(c db.SSHConnection, targets []string) bool {
 	}
 	return false
 }
-

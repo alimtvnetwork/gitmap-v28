@@ -62,7 +62,7 @@ The orchestration ran autonomously through Phase 1 planning, lean subtask decomp
 ## 3. Live Verification Evidence
 
 ```text
-PS D:\work\gitmap> gitmap ssh check 127.0.0.1 127.0.0.1
+PS gitmap> gitmap ssh check 127.0.0.1 127.0.0.1
 STATUS  ALIAS  IP         USER  PORT  LATENCY  DETAILS
 ONLINE  -      127.0.0.1  -     22    1ms      reachable
 ONLINE  -      127.0.0.1  -     22    1ms      reachable

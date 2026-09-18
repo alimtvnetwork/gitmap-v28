@@ -20,10 +20,11 @@ import (
 var seCommand = "se"
 
 type seOptions struct {
-	Exclude string
-	Target  string
-	IP      string
-	Args    []string
+	Exclude    string
+	Target     string
+	IP         string
+	Args       []string
+	IsShowHelp bool
 }
 
 func printSSHExecHelp() {
@@ -78,7 +79,7 @@ func validateSEArgs(args []string) {
 func parseSEFlags(args []string) seOptions {
 	if hasHelpFlag(args) {
 		printSSHExecHelp()
-		cliexit.Exit(0)
+		return seOptions{IsShowHelp: true}
 	}
 	fs := flag.NewFlagSet(seCommand, flag.ExitOnError)
 	var opts seOptions
@@ -92,6 +93,9 @@ func parseSEFlags(args []string) seOptions {
 
 func runSSHExec(args []string) error {
 	opts := parseSEFlags(args)
+	if opts.IsShowHelp {
+		return nil
+	}
 
 	dbConn, err := store.OpenDefault()
 	if err != nil {

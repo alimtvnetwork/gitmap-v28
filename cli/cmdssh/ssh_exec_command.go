@@ -69,11 +69,12 @@ func extractShellCommandArgs(args []string) string {
 	if len(args) > 1 {
 		return strings.Join(args[1:], " ")
 	}
-	if len(args) == 1 {
-		fields := strings.Fields(args[0])
-		if len(fields) > 1 {
-			return strings.Join(fields[1:], " ")
-		}
+	if len(args) == 0 {
+		return ""
+	}
+	fields := strings.Fields(args[0])
+	if len(fields) > 1 {
+		return strings.Join(fields[1:], " ")
 	}
 
 	return ""

@@ -168,4 +168,3 @@ func TestDetermineSSHCommand_QuotedExplicitShell(t *testing.T) {
 		t.Errorf("quoted explicit shell failed, got (%q, %q, %v)", shell, cmd, isDelegate)
 	}
 }
-

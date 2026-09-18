@@ -192,4 +192,3 @@ func TestMatchOrAdhocHost(t *testing.T) {
 		t.Errorf("expected adhoc host for unlisted IP, got: %+v", adhoc)
 	}
 }
-

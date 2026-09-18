@@ -58,4 +58,3 @@ func TestExtractTargetArg_MultiArgs(t *testing.T) {
 		}
 	}
 }
-

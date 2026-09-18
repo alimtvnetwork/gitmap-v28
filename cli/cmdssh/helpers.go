@@ -5,7 +5,6 @@ import (
 	"path/filepath"
 	"strings"
 
-	"github.com/alimtvnetwork/gitmap-v28/cli/cliexit"
 	"github.com/alimtvnetwork/gitmap-v28/cli/helptext"
 	"github.com/alimtvnetwork/gitmap-v28/cli/store"
 )
@@ -32,19 +31,20 @@ func hasJoinToken(args []string) bool {
 	return false
 }
 
-func checkHelp(command string, args []string) {
+func checkHelp(command string, args []string) bool {
 	if hasHelpFlag(args) {
 		helptext.Print(command)
-		cliexit.Exit(0)
+		return true
 	}
+	return false
 }
 
-func checkSSHHelp(args []string) {
+func checkSSHHelp(args []string) bool {
 	if hasJoinToken(args) && hasHelpFlag(args) {
 		helptext.Print("ssh-join")
-		cliexit.Exit(0)
+		return true
 	}
-	checkHelp("ssh", args)
+	return checkHelp("ssh", args)
 }
 
 func homeDir() string {

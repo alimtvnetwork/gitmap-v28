@@ -13,7 +13,9 @@ import (
 
 // runSSH handles the "ssh" subcommand and routes to sub-handlers.
 func runSSH(args []string) error {
-	checkSSHHelp(args)
+	if checkSSHHelp(args) {
+		return nil
+	}
 	if len(args) == 0 {
 		runSSHGenerate(args)
 		fmt.Fprint(os.Stdout, constants.MsgSSHAvailableCommands)

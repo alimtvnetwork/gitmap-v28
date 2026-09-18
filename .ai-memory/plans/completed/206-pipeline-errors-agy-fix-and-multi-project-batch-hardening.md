@@ -50,6 +50,6 @@ The user encountered issues when running `gitmap pipeline errors agy fix` in tar
 
 ### 6. Binary Synchronization
 - Deployed freshly compiled binary to:
-  - `C:\Users\Administrator\AppData\Local\gitmap-cli\gitmap.exe`
-  - `d:\work\gitmap\bin\gitmap.exe`
-- Verified live runs in both `d:\work\gitmap` and `D:\work\Antigravity-Manager`.
+  - `%LOCALAPPDATA%\gitmap-cli\gitmap.exe`
+  - `./bin/gitmap.exe`
+- Verified live runs in both repo root and external project workspace.

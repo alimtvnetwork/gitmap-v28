@@ -101,4 +101,3 @@ func TestRunSSHJoinCLI_SpaceMultiEnrollment(t *testing.T) {
 		}
 	})
 }
-
