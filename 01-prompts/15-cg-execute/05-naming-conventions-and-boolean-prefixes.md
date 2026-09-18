@@ -91,9 +91,13 @@ You MUST replace bare `ok` with a domain-specific boolean starting with `is` or 
   2. Evaluate and name the boolean condition affirmatively (`hasContent`, `isFound`) on its own dedicated line *before* the `if` statement.
   3. Keep a blank line before the `if` statement.
   4. Keep the `if` condition dead simple, checking exactly ONE variable.
+  5. Define named constants for all lookup keys and fallback defaults (`versionKeyUpper`, `versionKeyLower`, `VersionUnknown`) and collect them into reusable slices (`versionKeys`), eliminating magic strings and raw string returns.
 
 ```go
-// ❌ FORBIDDEN: Squeezing type assertion and compound conditions into single if line:
+// ❌ BANNED ANTI-PATTERN:
+// 1. Cramming type assertion assignment and compound condition into one line.
+// 2. Hardcoding magic strings ("Version", "version", "unknown") inline.
+// 3. Returning raw fallback literal instead of a defined constant.
 func extractVersionValue(rawMap map[string]interface{}) string {
     for _, key := range []string{"Version", "version"} {
         if v, isString := rawMap[key].(string); isString && len(v) > 0 {
@@ -101,12 +105,27 @@ func extractVersionValue(rawMap map[string]interface{}) string {
         }
     }
 
-    return ""
+    return "unknown"
 }
 
-// ✅ REQUIRED: Multi-line separation, boolean evaluated before if, simple one-variable check:
+// ✅ MANDATORY CLEAN PATTERN:
+// 1. Zero magic strings: extract lookup keys and defaults into constants.
+// 2. Merge repeated/related strings into reusable collections (versionKeys).
+// 3. Assignment on its own dedicated line.
+// 4. Affirmative boolean (hasContent) pre-evaluated BEFORE the if statement.
+// 5. Clean vertical breathing room (blank line before if).
+// 6. Dead-simple if statement evaluating exactly ONE variable.
+// 7. Return defined constant (VersionUnknown) instead of raw magic string literal.
+const (
+    VersionUnknown  = "unknown"
+    versionKeyUpper = "Version"
+    versionKeyLower = "version"
+)
+
+var versionKeys = []string{versionKeyUpper, versionKeyLower}
+
 func extractVersionValue(rawMap map[string]interface{}) string {
-    for _, key := range []string{"Version", "version"} {
+    for _, key := range versionKeys {
         v, isString := rawMap[key].(string)
         hasContent := isString && len(v) > 0
 
@@ -115,7 +134,7 @@ func extractVersionValue(rawMap map[string]interface{}) string {
         }
     }
 
-    return ""
+    return VersionUnknown
 }
 ```
 

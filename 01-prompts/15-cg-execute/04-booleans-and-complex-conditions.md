@@ -415,10 +415,10 @@ if res.IsEmpty() {
 #### Pattern H: Boolean Evaluation BEFORE the `if` Statement (Simple One-Variable `if` Checking)
 
 ```go
-// -----------------------------------------------------------------------------
-// ❌ ANTI-PATTERN: Compound inline init + checks jammed into single if line
-// -----------------------------------------------------------------------------
-// Cramming type assertion assignment and compound condition into one line:
+// ❌ BANNED ANTI-PATTERN:
+// 1. Cramming type assertion assignment and compound condition into one line.
+// 2. Hardcoding magic strings ("Version", "version", "unknown") inline.
+// 3. Returning raw fallback literal instead of a defined constant.
 func extractVersionValue(rawMap map[string]interface{}) string {
     for _, key := range []string{"Version", "version"} {
         if v, isString := rawMap[key].(string); isString && len(v) > 0 {
@@ -426,18 +426,27 @@ func extractVersionValue(rawMap map[string]interface{}) string {
         }
     }
 
-    return ""
+    return "unknown"
 }
 
-// -----------------------------------------------------------------------------
-// ✅ REQUIRED: Separate lines, boolean evaluated before if, single variable check
-// -----------------------------------------------------------------------------
-// 1. Assignment on its own dedicated line.
-// 2. Boolean evaluated and named affirmatively BEFORE the if statement.
-// 3. Clean vertical spacing (blank line before if).
-// 4. if condition is dead-simple, evaluating exactly ONE variable.
+// ✅ MANDATORY CLEAN PATTERN:
+// 1. Zero magic strings: extract lookup keys and defaults into constants.
+// 2. Merge repeated/related strings into reusable collections (versionKeys).
+// 3. Assignment on its own dedicated line.
+// 4. Affirmative boolean (hasContent) pre-evaluated BEFORE the if statement.
+// 5. Clean vertical breathing room (blank line before if).
+// 6. Dead-simple if statement evaluating exactly ONE variable.
+// 7. Return defined constant (VersionUnknown) instead of raw magic string literal.
+const (
+    VersionUnknown  = "unknown"
+    versionKeyUpper = "Version"
+    versionKeyLower = "version"
+)
+
+var versionKeys = []string{versionKeyUpper, versionKeyLower}
+
 func extractVersionValue(rawMap map[string]interface{}) string {
-    for _, key := range []string{"Version", "version"} {
+    for _, key := range versionKeys {
         v, isString := rawMap[key].(string)
         hasContent := isString && len(v) > 0
 
@@ -446,7 +455,7 @@ func extractVersionValue(rawMap map[string]interface{}) string {
         }
     }
 
-    return ""
+    return VersionUnknown
 }
 ```
 

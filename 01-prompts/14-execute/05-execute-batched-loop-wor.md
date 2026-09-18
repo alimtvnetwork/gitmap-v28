@@ -139,6 +139,7 @@ Every time you return a response or complete a loop iteration, explicitly output
 - [ ] **NO RUNNER SCRIPTS (TOTAL BAN):** NEVER launch background test runners, worker pools, or test inventory loops during routine execution.
 - [ ] **NO AUTOMATIC RELEASES (TOTAL BAN):** NEVER bump versions, update changelogs, or trigger releases unless explicitly commanded by the user.
 - [ ] **NO PER-FILE COMMITTING (TOTAL BAN):** NEVER commit each file individually as you work (e.g. running `git commit` after editing File 1, then another commit after File 2). Committing file-by-file pollutes git history, creates subagent lock collisions, and breaks atomic changes. All modified files across the turn must be accumulated and committed together in a single atomic commit at the final step.
+- [ ] **NO RAPID CI/CD POLLING (TOTAL BAN):** NEVER query or loop rapidly (`gh run view` in tight loops) when inspecting remote CI/CD pipelines. Agents MUST query pipeline state using GitMap Pipeline-AI (`gitmap pipeline-ai status --json` or `gitmap pl-ai status -t <sec>`) and strictly wait/sleep based on `etaSeconds` to eliminate credit waste.
 
 ## Compliance Checklist (must follow non negociable)
 
@@ -153,6 +154,40 @@ Every time you return a response or complete a loop iteration, explicitly output
 - [x] Acronyms are PascalCased (e.g., `UserId`, not `UserID`).
 - [x] Magic strings/numbers extracted to constants.
 - [x] Action Summary Checklist (Anti-Hallucination): I have output a detailed `- [x]` checklist summarizing exactly what I accomplished this turn to ensure no steps were hallucinated or skipped (e.g. `- [x] Created schema`, `- [x] Pinned README`).
+- [x] Remote CI/CD pipeline monitored via GitMap Pipeline-AI (`gitmap pipeline-ai status --json`) with dynamic ETA waiting (no rapid polling).
+
+## Remote CI/CD Pipeline Monitoring & Dynamic Waiting Protocol (GitMap Pipeline-AI)
+
+When monitoring or checking remote CI/CD pipelines (e.g., following git push or during pipeline audits):
+
+1. **Mandatory GitMap Pipeline-AI Authority:** Agents MUST use GitMap CLI to retrieve remote CI/CD status:
+   ```bash
+   gitmap pipeline-ai status --json
+   # or using short alias:
+   gitmap pl-ai status --json
+   ```
+   Parse structured output fields: `is_running`, `status`, `etaSeconds`, and `nextAiCommand`.
+2. **Anti-Credit-Waste Waiting Mandate (TOTAL BAN on Rapid Polling):**
+   - NEVER loop rapidly or busy-poll (`gh run view` in tight loops). Rapid polling burns user credits, exhausts LLM tokens, and wastes rate limits.
+   - When a pipeline is in progress (`is_running: true`), agents MUST wait/sleep based on the estimated completion duration (`etaSeconds` or `-t <sec>`):
+     ```bash
+     gitmap pipeline-ai status -t <etaSeconds>
+     ```
+   - Proportional ETA sleep guidelines:
+     - `etaSeconds > 120`: wait 20s–30s before querying again.
+     - `60 < etaSeconds <= 120`: wait 10s–20s before querying again.
+     - `etaSeconds <= 60`: wait 5s–10s before querying again.
+3. **Targeted Failure Diagnostics:** Use GitMap's automated error extraction to isolate actionable failure lines (`##[error]`, `FAIL:`, compile errors) without fetching noisy passing step logs.
+
+## Mark File Changes Only (Atomic Change Recording & Handoff to CI/CD & Release)
+
+Routine execution prompts MUST NOT build, test, or trigger releases. When task modifications are completed, you MUST record all modified files and physically check off these items in your final report:
+
+- [ ] **Atomic Change Recording (MANDATORY):** I have recorded all modified files into `.ai-memory/temp/recent-file-changes.json` under lock using `python 03-ai-scripts/33-test-inventory-generator.py --record <files...>`.
+- [ ] **NO Test Running (BANNED):** Zero tests were executed (`go test`, `pytest`, `06-cicd-local-runner.py`). Testing is strictly deferred to CI/CD fix prompts.
+- [ ] **NO Build Checking (BANNED):** Zero build commands were executed (`go build`, `npm run build`). Build compilation is strictly deferred to CI/CD fix prompts.
+- [ ] **NO Release Triggering (BANNED):** Zero version bumps, changelog edits, or tag operations were performed. Release operations are strictly deferred to Release prompts.
+- [ ] **File Change Summary:** Provide a highly detailed summary in the chat listing exactly which files were changed, what specific changes were made inside them, and why they were changed. The summary is VERY important.
 
 ---
 

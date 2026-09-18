@@ -30,7 +30,7 @@ Read the overarching big plan of the main task from `.ai-memory/plans/pending/xx
 - The `<slug>` is derived directly from the plan filename. If the plan file is `03-auth-refactor.md`, then the corresponding spec task file is `.ai-memory/plans/01-index.md` and subtasks live under `.ai-memory/plans/subtasks/03-auth-refactor/SS-<subslug>.md`. Never guess or invent a slug — read the filename.
 - Use the maximum enforcement guidelines to execute this plan.
 - Loop through its defined subtasks and spawn sub-agents to speed up the work.
-- Do not just write randomly to `.ai-memory`. You must follow the exact plan and write protocols: tasks go into `.ai-memory/02-spec/tasks/xx-<slug>.md` and plans go into `.ai-memory/plans/pending/xx-<slug>.md`.
+- Do not just write randomly to `.ai-memory`. You must follow the exact plan and write protocols: tasks go into `.ai-memory/spec/tasks/xx-<slug>.md` and plans go into `.ai-memory/plans/pending/xx-<slug>.md`.
 
 ## 3. Ruthless Orchestration
 

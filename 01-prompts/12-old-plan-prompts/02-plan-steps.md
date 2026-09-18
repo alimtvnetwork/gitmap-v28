@@ -13,7 +13,7 @@ Produce EXACTLY `{{n}}` steps. Not `{{n}}-1`, not `{{n}}+1`. `{{n}}` is a positi
 
 1. Nothing executes this turn. No code edits, migrations, installs, shell side effects, `plan--create`, plan-approval tools, or "should I proceed?" prompts. Files only.
 2. Spec first, then plan. Order is fixed:
-   a. Verbatim requirements, directives, and user specifications go into `.ai-memory/memory/01-<slug>.md` (or domain specs in `spec/<NN>-<slug>/`).
+   a. Verbatim requirements, directives, and user specifications go into `.ai-memory/memory/01-<slug>.md` (or domain specs in `02-spec/<NN>-<slug>/`).
    b. Actionable plans go directly into `.ai-memory/plans/pending/01-<slug>.md` (with two-digit sequence prefixes `01-`, `02-`, etc.). Every step references the concrete files, acceptance criteria, and spec files it implements.
    c. For detailed tasks needing depth, spin out subtasks under `.ai-memory/plans/subtasks/01-<slug>/01-<subslug>.md`.
    d. Execution happens in a LATER turn.
@@ -69,7 +69,7 @@ Route user input into the correct file BEFORE writing the plan, then link it fro
 
 | Input                                                   | File                                          |
 | ------------------------------------------------------- | --------------------------------------------- |
-| Command, new convention, "always do X", new CLI         | `.ai-memory/02-spec/commands/01-<slug>.md`         |
+| Command, new convention, "always do X", new CLI         | `.ai-memory/spec/commands/01-<slug>.md`         |
 | Bug, regression, broken behavior                        | `.ai-memory/issues/01-<slug>.md`                |
 | CI/CD-specific failure                                  | `.ai-memory/cicd-issues/01-<slug>.md`           |
 | Institutional knowledge (pattern, convention, decision) | `.ai-memory/memory/` + update `.ai-memory/memory/01-index.md` |
@@ -121,7 +121,7 @@ Created: <YYYY-MM-DD>
 
 ## Task-type guideline sourcing
 
-Read every location that exists; skip silently when missing. On conflict, prefer numeric `spec/<NN>-<slug>/` folders over generic `.ai-memory/*.md` and call the conflict out in Context.
+Read every location that exists; skip silently when missing. On conflict, prefer numeric `02-spec/<NN>-<slug>/` folders over generic `.ai-memory/*.md` and call the conflict out in Context.
 
 Coding tasks (Go, Python, PHP, TS, any backend):
 
@@ -148,7 +148,7 @@ Coding tasks (Go, Python, PHP, TS, any backend):
 ## Checklist before replying (every box)
 
 - [ ] `{{n}}` resolved (integer > 0); read this prompt end-to-end
-- [ ] Scanned `.ai-memory/` recursively; read `.ai-memory/plans/01-index.md`, every `pending/` file, `.ai-memory/memory/01-index.md` and referenced files, every open ambiguity, relevant `spec/<NN>-<slug>/`, error-management specs for code tasks; skimmed `completed/`
+- [ ] Scanned `.ai-memory/` recursively; read `.ai-memory/plans/01-index.md`, every `pending/` file, `.ai-memory/memory/01-index.md` and referenced files, every open ambiguity, relevant `02-spec/<NN>-<slug>/`, error-management specs for code tasks; skimmed `completed/`
 - [ ] Listed prior unresolved pending tasks for the plan
 - [ ] Captured new commands / issues / cicd-issues / ambiguities / memory / strictly-avoid to their files; moved answered ambiguities to `02-ambiguity-resolved/` with `## Resolution`
 - [ ] Verified anti-hallucination: stopped and asked clarifying questions if files/specs were missing

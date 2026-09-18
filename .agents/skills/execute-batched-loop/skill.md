@@ -129,6 +129,7 @@ Every time you return a response or complete a loop iteration, explicitly output
 - [x] Acronyms are PascalCased (e.g., `UserId`, not `UserID`).
 - [x] Magic strings/numbers extracted to constants.
 - [x] Action Summary Checklist (Anti-Hallucination): I have output a detailed `- [x]` checklist summarizing exactly what I accomplished this turn to ensure no steps were hallucinated or skipped (e.g. `- [x] Created schema`, `- [x] Pinned README`).
+- [x] Remote CI/CD pipeline monitored via GitMap Pipeline-AI (`gitmap pipeline-ai status --json`) with dynamic ETA waiting (no rapid polling).
 
 ## Banned Operations Checklist (TOTAL BAN — Auto-Reject on Violation)
 
@@ -137,6 +138,30 @@ Every time you return a response or complete a loop iteration, explicitly output
 - [ ] **NO RUNNER SCRIPTS (TOTAL BAN):** NEVER launch background test runners, worker pools, or test inventory loops during routine execution.
 - [ ] **NO AUTOMATIC RELEASES (TOTAL BAN):** NEVER bump versions, update changelogs, or trigger releases unless explicitly commanded by the user.
 - [ ] **NO PER-FILE COMMITTING (TOTAL BAN):** NEVER commit each file individually as you work (e.g. running `git commit` after editing File 1, then another commit after File 2). Committing file-by-file pollutes git history, creates subagent lock collisions, and breaks atomic changes. All modified files across the turn must be accumulated and committed together in a single atomic commit at the final step.
+- [ ] **NO RAPID CI/CD POLLING (TOTAL BAN):** NEVER query or loop rapidly (`gh run view` in tight loops) when inspecting remote CI/CD pipelines. Agents MUST query pipeline state using GitMap Pipeline-AI (`gitmap pipeline-ai status --json` or `gitmap pl-ai status -t <sec>`) and strictly wait/sleep based on `etaSeconds` to eliminate credit waste.
+
+## Remote CI/CD Pipeline Monitoring & Dynamic Waiting Protocol (GitMap Pipeline-AI)
+
+When monitoring or checking remote CI/CD pipelines (e.g., following git push or during pipeline audits):
+
+1. **Mandatory GitMap Pipeline-AI Authority:** Agents MUST use GitMap CLI to retrieve remote CI/CD status:
+   ```bash
+   gitmap pipeline-ai status --json
+   # or using short alias:
+   gitmap pl-ai status --json
+   ```
+   Parse structured output fields: `is_running`, `status`, `etaSeconds`, and `nextAiCommand`.
+2. **Anti-Credit-Waste Waiting Mandate (TOTAL BAN on Rapid Polling):**
+   - NEVER loop rapidly or busy-poll (`gh run view` in tight loops). Rapid polling burns user credits, exhausts LLM tokens, and wastes rate limits.
+   - When a pipeline is in progress (`is_running: true`), agents MUST wait/sleep based on the estimated completion duration (`etaSeconds` or `-t <sec>`):
+     ```bash
+     gitmap pipeline-ai status -t <etaSeconds>
+     ```
+   - Proportional ETA sleep guidelines:
+     - `etaSeconds > 120`: wait 20s–30s before querying again.
+     - `60 < etaSeconds <= 120`: wait 10s–20s before querying again.
+     - `etaSeconds <= 60`: wait 5s–10s before querying again.
+3. **Targeted Failure Diagnostics:** Use GitMap's automated error extraction to isolate actionable failure lines (`##[error]`, `FAIL:`, compile errors) without fetching noisy passing step logs.
 
 ## Mark File Changes Only (Atomic Change Recording & Handoff to CI/CD & Release)
 
@@ -159,6 +184,7 @@ Routine execution prompts MUST NOT build, test, or trigger releases. When task m
 - [ ] Completed task files `mv`'d and `.ai-memory/plans/01-index.md` updated.
 - [ ] Fast-forward commit created grouping all modified files, and immediately pushed to remote without leaving unpushed commits.
 - [ ] **TOTAL BAN on Test Running & Build Checking:** Zero builds or test runners executed during routine turns; atomic file change cache updated in `.ai-memory/temp/recent-file-changes.json` under lock (`python 03-ai-scripts/33-test-inventory-generator.py --record <path>`).
+- [ ] Remote CI/CD pipeline monitored via GitMap Pipeline-AI (`gitmap pipeline-ai status --json` or `gitmap pl-ai status -t <sec>`) with dynamic ETA waiting (no rapid polling).
 - [ ] Output window explicitly lists "Done", "Pending", and remaining task names.
 
 ## Actionable Items & Checklist

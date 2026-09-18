@@ -1,8 +1,8 @@
-# Lovable Memory Consolidation, Safety Backup & Milestone Resequencing — Workflow (must follow)
+# AI Memory Consolidation, Reduction & Safety Backup — Workflow (must follow)
 
-Trigger Keywords & Aliases: `consolidate-plans`, `consolidate completed plans`, `clean completed plans`, `resequence completed plans`, `merge plans`, `archive completed plans`, `cleanup plans completed`, `memory consolidation`, `backup and consolidate plans`, `compact plans`, `reduce plan file count`, `compact completed plans`
+Trigger Keywords & Aliases: `ai-memory-consolidate-reduce`, `consolidate-plans`, `consolidate completed plans`, `clean completed plans`, `resequence completed plans`, `merge plans`, `archive completed plans`, `cleanup plans completed`, `memory consolidation`, `backup and consolidate plans`, `compact plans`, `reduce plan file count`, `compact completed plans`
 
-> **Prompt Version:** 2.1.0
+> **Prompt Version:** 2.2.0
 > **Synchronization:** Main Meta-Repo & Connected Workspaces
 
 ```text
@@ -47,6 +47,22 @@ N, PHASE_1_STEPS, and PHASE_2_STEPS are read-only after initialization. Never mo
 
 ---
 
+## Phase 0: Antigravity Skill Bootstrap (Memory Optimization)
+
+Before executing the tasks below, you must check if this prompt is already installed as a native Antigravity Skill.
+
+1. If `.agents/skills/ai-memory-consolidate-reduce/skill.md` does not exist in the workspace, you MUST create it now.
+2. Extract the core instructions of this prompt and save it into that `skill.md` using the standard YAML frontmatter:
+   ```yaml
+   ---
+   name: ai-memory-consolidate-reduce
+   description: Autonomously cluster, consolidate, and re-sequence completed plan files and subtasks in .ai-memory/plans/ to drastically reduce file count while preserving all verified outcomes.
+   ---
+   ```
+3. Once installed, you can rely on progressive disclosure for future runs. Do not keep the entire prompt in your active memory if you don't need it.
+
+---
+
 ## Dedicated Section: Mandatory Pre-Consolidation Backup Branch Protocol (Safety First)
 
 > [!IMPORTANT]
@@ -88,6 +104,7 @@ The primary directive of this workflow is **aggressive file count minimization**
 ### 1. The Core Compaction Principles
 
 #### A. Combine 2, 3, or More Related Tasks into Single Files
+
 - **Mandatory Clustering:** NEVER leave isolated, single-step micro-plans. If tasks relate to the same subsystem, package, or architectural theme, you MUST combine 2, 3, or more of them into a single consolidated milestone summary file.
 - **Example Clusters:**
   - *Logger Enhancements + Named Writers + Typed Streamers* $
@@ -100,16 +117,19 @@ ightarrow$ Merge Plans 35, 36 into `XX-fileutil-pathinfo-and-constants.md`.
 ightarrow$ Merge Subtasks 38.1, 38.2, 38.3 into `XX-result-dynamic-conversions-and-coredata-parity.md`.
 
 #### B. Compact Common Checklists into Single Consolidated Sections
+
 - **Checklist Deduplication:** Repetitive checklist items (e.g. unit tests passed, function size <= 15 lines, implicit booleans, zero CI/CD disablement, relative links) must NOT be duplicated across separate files.
 - **Single-File Checklist:** Consolidate all common verification, quality gate, and task acceptance checklists into a **single unified table or checklist** within the consolidated document.
 
 #### C. Collapse Subtask Sprawl into Single Files
+
 - **Eliminate Subtask Folder Bloat:** When a completed plan has a dedicated folder in `.ai-memory/plans/subtasks/` containing multiple individual files (`01-<subtask-title>.md`, `02-<subtask-title>.md`, `03-task.md`), you MUST:
   1. Fold the contents, code changes, and verification proof of all subtasks directly into the single consolidated milestone document in `.ai-memory/plans/completed/`.
   2. If subtask documentation is explicitly retained, compact all subtask steps into a **single consolidated subtask file** (`01-consolidated-tasks.md`) rather than keeping sprawling multi-file directories.
   3. Cleanly delete superseded micro-subtask files via `git rm`.
 
 #### D. Keep the Main Concept (Zero Concept Loss)
+
 Compaction is NOT deletion of knowledge. You must strictly preserve:
 1. **The Core Architectural Problem & Design:** Why the change was made and what design pattern was established.
 2. **Key Codebase Modifications:** Which packages, structs, interfaces, methods, or scripts were added or modified.
@@ -118,18 +138,22 @@ Compaction is NOT deletion of knowledge. You must strictly preserve:
 5. **Traceability Links:** Strictly relative Git paths to specifications (`02-spec/`) and RCA logs (`.ai-memory/memory/issues/`).
 
 #### E. Quantifiable Reduction Metric
+
 - Aim for a **60% to 80% reduction** in total plan and subtask file count.
 - Transforming 40 individual files into 6–8 dense, high-clarity milestone summaries is the benchmark of success.
 
 #### F. Prune Pure Coding Guideline Tasks (Zero Business Logic)
+
 - **Eliminate Housekeeping Clutter:** Historical micro-tasks whose sole purpose was fixing coding guidelines (e.g. whitespace formatting, adding blank lines around `if` conditions, renaming variables to add `is_`/`has_` prefixes, or adjusting function line counts with zero changes to business logic or architecture) **MUST BE COMPLETELY DROPPED/PRUNED** from the consolidated milestone execution ledgers.
 - **Why It Matters:** Consolidated milestone summaries exist to provide a dense, high-signal architectural record of domain features, error models, and business logic completed. Routine coding guideline adherence is enforced continuously by CI/CD linters—it does not warrant lingering historical task bloat.
 
 #### G. Single Master Coding Guideline Checklist (No Duplication)
+
 - **Single Authoritative Source:** NEVER duplicate verbose coding guideline checklists across multiple plan files.
 - **Reference Once:** All consolidated milestone summaries must verify compliance against the single consolidated master checklist in [`.ai-memory/coding-guidelines.md`](.ai-memory/coding-guidelines.md) (or `02-spec/02-coding-guidelines/`). A single unified checklist item pointing to this master file is sufficient for quality tracking.
 
 #### H. Purge Resolved Spec Audit Folders (`02-spec/25-app-spec-audit/`)
+
 - **Automated Audit Directory Cleanup:** Once architecture audits are resolved and incorporated into specifications or code, the audit reports folder `02-spec/25-app-spec-audit/` MUST be cleanly removed from the repository.
 - **Dedicated Cleanup Script:** Use `python 03-ai-scripts/32-git-history-file-tracer.py --preset-audit --delete` (or `--purge --confirm-purge`). The script automatically creates a complete backup in the OS temporary directory, moves on-disk files to the OS Recycle Bin / Trash, and prints the exact backup path for user safety.
 
@@ -278,7 +302,7 @@ You MUST verify and check off every item during Phase 2:
 >    - RCA & Issue Logs: `.ai-memory/memory/issues/` and `.ai-memory/cicd-issues/`.
 >    - Execution Plans & Subtasks: `.ai-memory/plans/pending/`, `.ai-memory/plans/subtasks/`.
 >    - Coding Guidelines Mirror: `.ai-memory/coding-guidelines.md`.
-> 3. **Worker Pool & Log Aggregation Architecture:** All local runners and test orchestrators must use a concurrent worker pool (2–3 workers via `ThreadPoolExecutor`), announce enqueued tasks upfront, show real-time progress, handle failures gracefully without cancelling sibling workers, and print a consolidated final summary with full stdout/stderr error logs for failed jobs.
+> 3. **Worker Pool & Log Aggregation Architecture:** All local runners and test orchestrators must use a concurrent worker pool (2–3 workers via `ThreadPoolExecutor`), announce enqueued tasks upfront, show real-time progress, handle failures gracefully without canceling sibling workers, and print a consolidated final summary with full stdout/stderr error logs for failed jobs.
 > 4. **`force` Keyword Support:** If the user wrote `force`, `force rebuild`, or `force create` on top of the prompt or trigger: **ALWAYS recreate/regenerate the Python runner script from scratch**, regardless of whether the file already exists on disk.
 > 5. **No External or Random File Creation:** NEVER write scripts, temporary test scripts, or scratch files to root, `/tmp`, global system paths, or outside the repository boundary.
 

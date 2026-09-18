@@ -53,7 +53,12 @@ To speed up the work, you may spawn sub-agents to handle independent chunks of t
 
 Once ALL pending tasks have been completed and marked `✅ Done`:
 
-- Final Verification: Check full build, run all local unit tests, and check CI/CD status. Fix any build failures or failing tests immediately.
+- **Atomic Change Recording (MANDATORY):** Record all modified files into `.ai-memory/temp/recent-file-changes.json` under lock using `python 03-ai-scripts/33-test-inventory-generator.py --record <files...>`. Routine turns strictly avoid running full test runners or build commands (testing is verified in CI/CD).
+- **Remote CI/CD Pipeline Monitoring & Dynamic Waiting Protocol (GitMap Pipeline-AI):**
+  When inspecting or checking remote CI/CD status:
+  1. Agents MUST query pipeline state using GitMap Pipeline-AI: `gitmap pipeline-ai status --json` (or short alias `gitmap pl-ai status -t <sec>`) to parse `is_running`, `status`, `etaSeconds`, and `nextAiCommand`.
+  2. **Anti-Credit-Waste Waiting Mandate:** NEVER loop rapidly or busy-poll (`gh run view` in tight loops). Strictly wait/sleep based on `etaSeconds` using `gitmap pipeline-ai status -t <etaSeconds>` (ETA > 120s: wait 20s-30s; 60s < ETA <= 120s: wait 10s-20s; ETA <= 60s: wait 5s-10s).
+  3. Use GitMap's targeted failure isolation (`##[error]`, `FAIL:`, compile errors) without fetching noisy passing step logs.
 - Artifact Sanitizer & Git History Guard: Ensure no zip archives, temporary scratch files, test data, or binaries are committed. Never rewrite published Git history (no force push, no rebase, no squash) to protect Lovable editor synchronization.
 - Commit: Group all completed work into a single logical Git commit with a clear, descriptive message summarizing executed tasks.
 - Push: Push the commit to the remote GitHub repository. Pushing after the commit is non-negotiable.
@@ -88,7 +93,9 @@ To survive massive checklists and complex codebases, you MUST operate using thes
 - [ ] Followed all high-stakes code standards (Enums with `Type` suffix, `PascalCase` values, explicit `isFail` checks, no magic strings, DRY code).
 - [ ] Root causes identified and logged in `.ai-memory/` before code was patched.
 - [ ] Sub-agents followed strict lifecycle with specific titles and never exceeded 3 concurrent instances.
-- [ ] End-of-loop verification passed: build is green, unit tests pass.
+- [ ] Atomic Change Recording: Recorded all modified files into `.ai-memory/temp/recent-file-changes.json` under lock using `python 03-ai-scripts/33-test-inventory-generator.py --record <files...>`.
+- [ ] Remote CI/CD Pipeline Protocol: Checked pipeline via GitMap Pipeline-AI (`gitmap pipeline-ai status --json` or `gitmap pl-ai status -t <sec>`) with dynamic ETA waiting (no rapid polling).
+- [ ] NO test running and NO build checking during routine execution turns (deferred to CI/CD).
 - [ ] Staged files sanitized of artifact zip bundles, temporary scripts, and test data.
 - [ ] Fast-forward commit created and pushed without rewriting Git history.
 - [ ] **File Change Summary:** Provide a highly detailed summary in the chat listing exactly which files were changed, what specific changes were made inside them, and why they were changed. The summary is VERY important.

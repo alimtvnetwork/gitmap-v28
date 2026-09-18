@@ -44,22 +44,28 @@ N = 200
 > 6. **Temp & Failure Folder Isolation:** All temporary directories, runner caches, and test artifacts MUST be strictly placed in `.ai-memory/temp/`. Creating `.tmp/` at the repository root or outside `.ai-memory/` is strictly forbidden.
 >    - Dedicated Failure Directory: `.ai-memory/temp/failures/` is the dedicated folder where failed tests and failed quality gates write error logs (`<test-or-job-name>.log`).
 >    - Passing Tests Completely Silent: Passing tests must produce ZERO filesystem artifacts (zero files written) and remain completely silent in output logs.
-> 7. **Runner In-Flight ETA Wait Protocol:** When running background commands, the runner dynamically writes live status and remaining ETA to `.ai-memory/temp/runner-eta.json` (emitting in-flight heartbeats strictly every 25 seconds or more). If an agent inspects an active background job and it is still running, the agent MUST sleep/wait for **1 minute (60 seconds) each time**, or dynamically sleep for the remaining ETA duration read from `.ai-memory/temp/runner-eta.json` (or based on previous total approximate delay) instead of busy-polling or querying in loops.
-> 8. **Centralized Test Inventory & Incremental Caching:** All unit tests are cataloged in `.ai-memory/test-inventory.json` with strictly repository-relative paths (`target_file`, `test_file`). First run executes all tests to establish baseline timings; subsequent runs execute incrementally only if target code files or test files change. Slow test threshold defaults to `4.0s` (configurable via `GITMAP_SLOW_TEST_THRESHOLD`).
+> 7. **Runner In-Flight ETA Wait & GitMap Dynamic Waiting Protocol:**
+>    - **Local Runner:** The runner dynamically writes live status and remaining ETA to `.ai-memory/temp/runner-eta.json` (emitting in-flight heartbeats strictly every 25 seconds or more). If an agent inspects an active background job and it is still running, the agent MUST sleep/wait for **1 minute (60 seconds) each time**, or dynamically sleep for the remaining ETA duration read from `.ai-memory/temp/runner-eta.json` instead of busy-polling or querying in loops.
+>    - **Remote CI/CD Pipelines (GitMap Mandate):** When checking remote pipeline workflows, the agent MUST use `gitmap pipeline-ai status --json` (or alias `gitmap pl-ai status --json`). To inspect running pipelines without burning tokens or user credits, use `gitmap pipeline-ai status -t <etaSeconds>` (or alias `gitmap pl-ai status -t <sec>`). Tight-loop polling (e.g. `gh run view` in rapid loops) is STRICTLY BANNED. Adaptive sleep intervals: ETA > 120s wait 20s-30s; 60s < ETA <= 120s wait 10s-20s; ETA <= 60s wait 5s-10s.
+>    - **Targeted Failure Extraction:** Extract targeted failure lines (`##[error]`, `FAIL:`, compile errors) from GitMap output directly into 4-part RCA files without reading noisy passing step logs.
+> 8. **Centralized Test Inventory & Incremental Caching:** All unit tests are cataloged in `.ai-memory/test-inventory.json` with strictly repository-relative paths (`target_file`, `test_file`). Modified files MUST be recorded safely under lock via `python 03-ai-scripts/33-test-inventory-generator.py --record <files...>`. First run executes all tests to establish baseline timings; subsequent runs execute incrementally only if target code files or test files change. Slow test threshold defaults to `4.0s` (configurable via `GITMAP_SLOW_TEST_THRESHOLD`).
 > 9. **Dual-Queue Worker Pools:** Slow tests run in a dedicated 4-worker pool running at most 2 tests at a time per batch. Fast tests run in a 4-worker pool running at most 4 tests at a time, pulling in chunks of 100 tests from the test inventory queue until all are complete.
-> 10. **Dynamic ETA Sleep Protocol:** The AI agent reads `.ai-memory/temp/runner-eta.json`, sleeps for the estimated wait time rather than looping, and if still active upon waking, re-checks remaining ETA and sleeps again to avoid burning tokens.
+> 10. **Dynamic ETA Sleep Protocol:** The AI agent reads `.ai-memory/temp/runner-eta.json` (or `gitmap pipeline-ai status --json`), sleeps for the estimated wait time rather than looping, and if still active upon waking, re-checks remaining ETA and sleeps again to avoid burning tokens.
 > 11. **Zero-Storage GitHub Actions Mandate (Total Ban on CI Artifact Uploads):** Workflows MUST NOT upload test outputs, coverage files, Playwright reports, or drift summaries via `actions/upload-artifact`. Free-tier accounts have a strict 0.5 GB shared quota across all repositories. All reports, failures, and summaries MUST be emitted directly to `$GITHUB_STEP_SUMMARY`, console stdout (`cat log.txt`), or sticky PR comments with zero storage consumption.
 
 ---
 
 ### Fast File Discovery & Diagnostic Toolchain (Mandatory Acceleration)
 
-To rapidly locate failing pipeline definitions, broken source files, test fixtures, and error logs without hitting 50-result tool caps, the AI agent MUST utilize the Python discovery scripts first:
+To rapidly locate failing pipeline definitions, broken source files, test fixtures, and error logs without hitting 50-result tool caps, the AI agent MUST utilize the diagnostic toolchain:
+- **Remote Pipeline AI Status (<50ms):** `gitmap pipeline-ai status --json` (or alias `gitmap pl-ai status --json`)
+- **Remote Dynamic Timeout Wait:** `gitmap pipeline-ai status -t <etaSeconds>` (or alias `gitmap pl-ai status -t <sec>`)
 - **Scan Source & Test Files:** `python 03-ai-scripts/11-fast-file-scanner.py --lang go,ts,py --limit 100 --stats`
 - **Fast Cached Pattern Search (<15ms):** `python 03-ai-scripts/12-fast-cached-grep.py --pattern "<error-or-symbol>" --limit 50`
 - **Sub-Millisecond Folder Listing & Reader:** `python 03-ai-scripts/17-fast-file-reader.py --list-folder .github/workflows --limit 20`
 - **Read Workflow or Log File:** `python 03-ai-scripts/17-fast-file-reader.py --read-file .github/workflows/ci.yml`
 - **Codebase Topology Overview:** `python 03-ai-scripts/18-codebase-topology-discoverer.py --summary`
+- **Record Modified Files Under Lock:** `python 03-ai-scripts/33-test-inventory-generator.py --record <files...>`
 
 > [!NOTE]
 > **NO ROUTINE UNIT TEST RUNNING (EXCLUSIVE TO CI-CD WITH RELEASE):** Routine heavy unit test execution is STRICTLY RESERVED for `04-ci-cd-fix-with-release.md` and release workflows! In standard CI/CD and run-scripts fixing, do NOT run full unit test suites or test runner pools (`go test ./...`, `06-cicd-local-runner.py --run-tests`). Instead, diagnose and verify fixes using targeted file-level linters, AST validators, and syntax checks on the specific modified files. ONLY `04-ci-cd-fix-with-release.md` will execute the full test suite (`--run-tests` / `--all`) before cutting the release!
@@ -78,8 +84,8 @@ To rapidly locate failing pipeline definitions, broken source files, test fixtur
 
 Every step must be **singly done** using bounded self-looping turns:
 
-- **Self-Loop Step 1 (Extract Pipeline Name from Screenshot):**
-  1. Read image to extract the pipeline name, failing job name, and error snippet.
+- **Self-Loop Step 1 (Extract Pipeline Name from Screenshot or GitMap):**
+  1. Read image or query `gitmap pipeline-ai status --json` (or alias `gitmap pl-ai status -t <etaSeconds>`) to extract the pipeline name, failing job name, and targeted failure diagnostics (`##[error]`, `FAIL:`, compile errors).
   2. Scan `.github/workflows/*.yml` to identify the corresponding shell commands and dependencies.
 
 - **Self-Loop Step 2 (FIRST ACTION: Update Python Runner Script):**
@@ -98,6 +104,7 @@ Every step must be **singly done** using bounded self-looping turns:
 - **Self-Loop Step 5 (Surgical Code Fix):**
   1. Open the specific file and line, apply minimal surgical fix.
   2. Run `python 03-ai-scripts/05-guideline-autofixer.py <modified-files>`.
+  3. Record modified files safely under lock via `python 03-ai-scripts/33-test-inventory-generator.py --record <modified-files>`.
 
 - **Self-Loop Step 6 (Re-Verify & Loop):**
   1. Re-run `python 03-ai-scripts/06-cicd-local-runner.py`.
@@ -135,7 +142,7 @@ Read and follow spec folders `02`, `03` and `04` before writing any code. Error 
 
 ## The 4-Part RCA Requirement (Mandatory Memory File)
 
-Before you write any code to fix the problem, you MUST document the issue in `.ai-memory/memory/issues/xx-<slug>.md` (where XX is the next available sequential number). The file MUST contain these exact four sections:
+Before you write any code to fix the problem, you MUST document the issue in `.ai-memory/memory/issues/xx-<slug>.md` (where XX is the next available sequential number). When diagnosing remote pipeline failures, query `gitmap pipeline-ai status --json` (or alias `gitmap pl-ai status -t <etaSeconds>`) and use GitMap's targeted failure extraction (`##[error]`, `FAIL:`, compile errors) to feed high-precision failure diagnostics into the document. The file MUST contain these exact four sections:
 
 1. **Why it happened:** The high-level business, logical, or architectural breakdown of the failure.
 2. **How it happened:** The technical execution flow that triggered the bug.
@@ -188,6 +195,8 @@ To survive massive checklists and complex codebases, you MUST operate using thes
 
 Before finalizing any code modification, you MUST manually verify the following:
 
+- [ ] **GitMap Pipeline-AI & Dynamic Waiting:** If diagnosing remote pipeline failures, used `gitmap pipeline-ai status --json` / `gitmap pl-ai status -t <sec>` with adaptive sleep to prevent credit waste, and extracted targeted diagnostics (`##[error]`, `FAIL:`, compile errors).
+- [ ] **Atomic Change Tracking:** All modified files were recorded safely under lock via `python 03-ai-scripts/33-test-inventory-generator.py --record <files...>`.
 - [ ] **No Disabling CLI Linting (Zero Bypassing):** All CLI linters and CI/CD quality gates executed fully without `|| true`, `continue-on-error`, or suppression comments. Code was legitimately fixed.
 - [ ] **Zero Actions Storage (Total Ban on CI Artifacts):** Confirmed that NO `actions/upload-artifact` steps exist in CI workflows; all diagnostic outputs stream to `$GITHUB_STEP_SUMMARY` or console logs.
 - [ ] **Legitimate Multi-Step Self-Looping:** If complex errors occurred, I performed dedicated, single-step self-loop iterations to resolve each underlying failure instead of taking shortcuts.
@@ -214,6 +223,7 @@ Before finalizing any code modification, you MUST manually verify the following:
 - [ ] **Local CI Runner Clean:** `python 03-ai-scripts/06-cicd-local-runner.py` exited with code 0.
 - [ ] **All Scripts & Workflows Verified:** All tests, builds, and query wrappers run without errors.
 - [ ] **RCA Documented:** Memory files written to `.ai-memory/cicd-issues/` and `.ai-memory/memory/issues/`.
+- [ ] **Modified Files Recorded:** Confirmed all modified files were tracked via `python 03-ai-scripts/33-test-inventory-generator.py --record <files...>`.
 - [ ] **Antigravity Skill Updated:** Verified `.agents/skills/ci-cd-fix/skill.md` is present and synchronized with the latest rules.
 - [ ] **Commit & Push:** Group changes into clean development commit and push to remote. No automatic release.
 - [ ] **File Change Summary:** Provide a detailed summary in chat listing exactly which files were changed, what was changed inside them, and why they were changed.

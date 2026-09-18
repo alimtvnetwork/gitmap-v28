@@ -157,6 +157,7 @@ All cache data is organized in structured, pluggable subdirectories under `tmp/c
 3. **`tmp/cache/files/`**: Cached tokenized contents or AST data.
 
 ### Dual-Platform Locking & Stale Lock Recovery
+
 - **POSIX (Linux/macOS):** Native kernel `fcntl.flock(LOCK_EX | LOCK_NB)` automatically cleaned up on crash or process kill.
 - **Windows (NTFS):** Atomic `os.O_CREAT | os.O_EXCL` with PID timestamp and automatic eviction for stale locks (>15s).
 
@@ -187,7 +188,7 @@ AI agents and subagents should avoid slow, recursive shell commands (`Get-ChildI
 | **List Folder Files** | `python 03-ai-scripts/17-fast-file-reader.py --list-folder <dir>` | **<1ms** |
 | **Fast Safe File Read** | `python 03-ai-scripts/17-fast-file-reader.py --read-file <path>` | **<1ms** |
 | **Search File Paths** | `python 03-ai-scripts/17-fast-file-reader.py --search-pattern "<term>"` | **<2ms** |
-| **Full Repo File Index** | `python 03-ai-scripts/11-fast-file-scanner.py --lang ts,go --path spec/` | **~14ms** |
+| **Full Repo File Index** | `python 03-ai-scripts/11-fast-file-scanner.py --lang ts,go --path 02-spec/` | **~14ms** |
 | **Parallel Content Grep** | `python 03-ai-scripts/12-fast-cached-grep.py --pattern "<text>"` | **~12ms** |
 | **File Manipulation CLI** | `python 03-ai-scripts/03-file-manipulator.py <cmd> <dir>` | **~15ms** |
 | **Codebase Topology Routing**| `python 03-ai-scripts/18-codebase-topology-discoverer.py --query <db\|backend\|go>` | **<1ms** |

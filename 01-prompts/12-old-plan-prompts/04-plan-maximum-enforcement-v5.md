@@ -13,7 +13,7 @@ Produce EXACTLY `[N=?]` steps. Not `[N=?]-1`, not `[N=?]+1`. `[N=?]` is a positi
 
 1. Nothing executes this turn. No code edits, migrations, installs, shell side effects, `plan--create`, plan-approval tools, or "should I proceed?" prompts. Files only.
 2. Spec first, then plan. Order is fixed:
-   a. Verbatim requirements, directives, and specifications go into `.ai-memory/memory/01-<slug>.md` (or domain specs in `spec/<NN>-<slug>/`).
+   a. Verbatim requirements, directives, and specifications go into `.ai-memory/memory/01-<slug>.md` (or domain specs in `02-spec/<NN>-<slug>/`).
    b. Actionable plans go directly into `.ai-memory/plans/pending/01-<slug>.md` (with two-digit sequence prefixes `01-`, `02-`, etc.). Every step references the concrete files, acceptance criteria, and spec files it implements.
    c. For detailed tasks needing depth, spin out subtasks under `.ai-memory/plans/subtasks/01-<slug>/01-<subslug>.md`.
    d. Execution happens in a LATER turn.
@@ -73,7 +73,7 @@ Route user input into the correct file BEFORE writing the plan, then link it fro
 
 | Input                                                   | File                                          |
 | ------------------------------------------------------- | --------------------------------------------- |
-| Command, new convention, "always do X", new CLI         | `.ai-memory/02-spec/commands/01-<slug>.md`         |
+| Command, new convention, "always do X", new CLI         | `.ai-memory/spec/commands/01-<slug>.md`         |
 | Bug, regression, broken behavior                        | `.ai-memory/issues/01-<slug>.md`                |
 | CI/CD-specific failure                                  | `.ai-memory/cicd-issues/01-<slug>.md`           |
 | Institutional knowledge (pattern, convention, decision) | `.ai-memory/memory/` + update `.ai-memory/memory/01-index.md` |
@@ -126,7 +126,7 @@ Created: <YYYY-MM-DD>
 ## Task-type guideline sourcing
 
 You MUST follow the project's strict coding guidelines and ensure your plans enforce them.
-For every task, you MUST check if the following files or folders exist. If they exist, they MUST be followed and included in the task's checklist for the executing AI to follow. If they do not exist, they can be skipped. On conflict, prefer numeric `spec/<NN>-<slug>/` folders over generic `.ai-memory/*.md` and call the conflict out in Context.
+For every task, you MUST check if the following files or folders exist. If they exist, they MUST be followed and included in the task's checklist for the executing AI to follow. If they do not exist, they can be skipped. On conflict, prefer numeric `02-spec/<NN>-<slug>/` folders over generic `.ai-memory/*.md` and call the conflict out in Context.
 
 ### Dynamic Required Reading / Reference Checklist (Non-Negotiable):
 
@@ -186,7 +186,7 @@ For every task, you MUST check if the following files or folders exist. If they 
 ## Checklist before replying (every box)
 
 - [ ] `[N=?]` steps resolved (integer > 0); read this prompt end-to-end
-- [ ] Scanned `.ai-memory/` recursively; read `.ai-memory/plans/01-index.md`, every `pending/` file, `.ai-memory/memory/01-index.md` and referenced files, every open ambiguity, relevant `spec/<NN>-<slug>/`, error-management specs for code tasks; skimmed `completed/`
+- [ ] Scanned `.ai-memory/` recursively; read `.ai-memory/plans/01-index.md`, every `pending/` file, `.ai-memory/memory/01-index.md` and referenced files, every open ambiguity, relevant `02-spec/<NN>-<slug>/`, error-management specs for code tasks; skimmed `completed/`
 - [ ] Listed prior unresolved pending tasks for the plan
 - [ ] Captured new commands / issues / cicd-issues / ambiguities / memory / strictly-avoid to their files; moved answered ambiguities to `02-ambiguity-resolved/` with `## Resolution`
 - [ ] Verified anti-hallucination: stopped and asked clarifying questions if files/specs were missing

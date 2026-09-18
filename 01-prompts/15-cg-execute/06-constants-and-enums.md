@@ -83,6 +83,63 @@ header := strings.Join(fields, DelimiterComma)
 
 ---
 
+### 2.1 Merging Magic Strings Into Constants & Returning Defined Constants
+
+> [!IMPORTANT]
+> **TOTAL BAN ON RAW MAGIC STRINGS AND RAW FALLBACK STRING RETURNS:**
+> 1. **Return Defined Constants:** NEVER return raw string literals (like `"unknown"`, `"error"`, `"default"`, `"pending"`) from functions. Functions returning fallback, uninitialized, or status values MUST always return a declared constant (e.g. `return VersionUnknown` or `return constants.VersionUnknown`).
+> 2. **Merge Magic Strings into Structured Constants:** When multiple string keys or tokens are checked (e.g. `"Version"`, `"version"`), NEVER hardcode raw slice literals like `[]string{"Version", "version"}`. Extract each token into a named constant and aggregate them into a typed/package-level slice (e.g. `var versionKeys = []string{versionKeyUpper, versionKeyLower}`).
+> 3. **Combine with Multi-Line Separation:** Always place assignments and type assertions on dedicated lines, evaluate affirmative booleans before branching, and keep `if` conditions simple with a single variable check.
+
+#### Canonical Example: Magic String Elimination, Constant Return & Clean If Checking
+
+```go
+// ❌ BANNED ANTI-PATTERN:
+// 1. Cramming type assertion assignment and compound condition into one line.
+// 2. Hardcoding magic strings ("Version", "version", "unknown") inline.
+// 3. Returning raw fallback literal instead of a defined constant.
+func extractVersionValue(rawMap map[string]interface{}) string {
+    for _, key := range []string{"Version", "version"} {
+        if v, isString := rawMap[key].(string); isString && len(v) > 0 {
+            return v
+        }
+    }
+
+    return "unknown"
+}
+
+// ✅ MANDATORY CLEAN PATTERN:
+// 1. Zero magic strings: extract lookup keys and defaults into constants.
+// 2. Merge repeated/related strings into reusable collections (versionKeys).
+// 3. Assignment on its own dedicated line.
+// 4. Affirmative boolean (hasContent) pre-evaluated BEFORE the if statement.
+// 5. Clean vertical breathing room (blank line before if).
+// 6. Dead-simple if statement evaluating exactly ONE variable.
+// 7. Return defined constant (VersionUnknown) instead of raw magic string literal.
+const (
+    VersionUnknown  = "unknown"
+    versionKeyUpper = "Version"
+    versionKeyLower = "version"
+)
+
+var versionKeys = []string{versionKeyUpper, versionKeyLower}
+
+func extractVersionValue(rawMap map[string]interface{}) string {
+    for _, key := range versionKeys {
+        v, isString := rawMap[key].(string)
+        hasContent := isString && len(v) > 0
+
+        if hasContent {
+            return v
+        }
+    }
+
+    return VersionUnknown
+}
+```
+
+---
+
 ### 3. The Logging & Test Assertion Exemption (What Is Allowed)
 
 To avoid useless boilerplate, the following strings are **EXEMPT** from being extracted to constants:

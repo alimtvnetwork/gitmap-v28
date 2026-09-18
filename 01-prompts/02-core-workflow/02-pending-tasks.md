@@ -33,7 +33,7 @@ Walk each of these recursively. Missing = note it, continue.
 5. `.ai-memory/memory/01-index.md` and every file it references, looking for pending work, TODOs, `⏳ Pending`, `🔄 In Progress`, `🚫 Blocked`
 6. `.ai-memory/memory/workflow/` current workflow state
 7. `.ai-memory/memory/` for verbatim user directives not yet implemented
-8. `.ai-memory/02-spec/commands/` for commands / conventions not yet enforced in code
+8. `.ai-memory/spec/commands/` for commands / conventions not yet enforced in code
 9. `.ai-memory/issues/` and `.ai-memory/pending-issues/` (every file)
 10. `.ai-memory/cicd-issues/` and `.ai-memory/cicd-index.md`
 11. `.ai-memory/ambiguous-questions/01-new-ambiguity/` (every open question ranked by blast radius)

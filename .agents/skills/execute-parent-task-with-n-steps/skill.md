@@ -14,6 +14,7 @@ N = 130
 
 N = is the number of steps that the agents will perform
 
+- [ ] /goal Phase 1 (Step 0 - Verbatim Prompt Recording & Task Extraction): Immediately capture the user's prompt verbatim into `.ai-memory/plans/pending/xx-<slug>.md` under `## User Request (Verbatim)`, extract actionable bullet-point tasks under `## Extracted Actionable Task List`, and output this confirmed task list directly in chat to confirm understanding.
 - [ ] /goal First N/2 steps will be given for spec writing for AI as given and then breaking down into parts as instruction as subtasks for N/2 steps.
 - [ ] /goal second N/2 steps will be given execute the created tasks with following coding guidelines and error manage properly.
 - [ ] /learn Ingest `.ai-memory/memory/01-index.md`, `.ai-memory/strictly-avoid.md`, `02-spec/02-coding-guidelines/`, and `02-spec/03-error-manage/`, `.ai-memory/coding-guidelines.md` before taking action and also create agent rules in the repo if required to or missing from rules set of agent memory.
@@ -31,6 +32,7 @@ N = is the number of steps that the agents will perform
 
 Before doing anything else, you MUST write a highly detailed execution spec.
 
+- **Verbatim Prompt Capture & Task Extraction (MANDATORY FIRST ACTION):** Directly write the user's prompt verbatim into the planning spec at `.ai-memory/plans/pending/xx-<slug>.md` under a dedicated `## User Request (Verbatim)` section. Extract the specific task list from this prompt as actionable bullet points / checklist items under `## Extracted Actionable Task List`. The AI MUST output this extracted checklist directly in chat confirming: *"Confirmed Task Deliverables: 1. [task 1], 2. [task 2]..."* before taking further actions.
 - What to write: Break down the parent task into a detailed architectural plan, code review guides, and embedded coding guidelines.
 - Where to save it: Save this master plan into `.ai-memory/plans/pending/xx-<slug>.md`. Do not hallucinate folders.
 - **Strict Relative Git Paths Mandate (TOTAL BAN on Absolute Paths / `file:///` URIs):**
@@ -82,6 +84,7 @@ Before doing anything else, you MUST write a highly detailed execution spec.
 - [ ] Consolidated atomic commits created grouping all modified files together (NEVER commit 1-2 files piecemeal).
 - [ ] Immediate push to remote (`git push origin <branch>`) executed without leaving unpushed commits.
 - [ ] Atomic file change cache updated in `.ai-memory/temp/recent-file-changes.json` under lock (`python 03-ai-scripts/33-test-inventory-generator.py --record <path>`).
+- [ ] Remote CI/CD pipeline monitored via GitMap Pipeline-AI (`gitmap pipeline-ai status --json` or `gitmap pl-ai status -t <sec>`) with dynamic ETA waiting (no rapid polling).
 - [ ] Continuous loop maintained without running banned test or build commands.
 
 ## Fast File Discovery & Reading via Python Toolchain (Mandatory Acceleration)
@@ -103,6 +106,7 @@ To avoid 50-result tool truncation limits and eliminate multi-turn exploratory r
 - [ ] **NO RUNNER SCRIPTS (TOTAL BAN):** NEVER launch background test runners, worker pools, or test inventory loops during routine execution.
 - [ ] **NO AUTOMATIC RELEASES (TOTAL BAN):** NEVER bump versions, update changelogs, or trigger releases unless explicitly commanded by the user.
 - [ ] **NO PER-FILE COMMITTING (TOTAL BAN):** NEVER commit each file individually as you work (e.g. running `git commit` after editing File 1, then another commit after File 2). Committing file-by-file pollutes git history, creates subagent lock collisions, and breaks atomic changes. All modified files across the turn must be accumulated and committed together in a single atomic commit at the final step.
+- [ ] **NO RAPID CI/CD POLLING (TOTAL BAN):** NEVER query or loop rapidly (`gh run view` in tight loops) when inspecting remote CI/CD pipelines. Agents MUST query pipeline state using GitMap Pipeline-AI (`gitmap pipeline-ai status --json` or `gitmap pl-ai status -t <sec>`) and strictly wait/sleep based on `etaSeconds` to eliminate credit waste.
 
 ## 4. Non-Negotiable Coding Guidelines Checklist (Auto-Reject on Violation)
 
@@ -135,6 +139,20 @@ Before you commit code or end your turn, you MUST mechanically check off these i
 - **NO RELEASES (TOTAL BAN):** You MUST NOT bump versions, update changelogs, or cut a release at the end of this task. Commits must remain standard development commits. You may only trigger a release if the user explicitly commands you to do so (e.g., "cut a release" or "bump the version").
 - **Targeted Quality Verification:** Execute targeted fast linters/autofixers on specifically modified files (`exit 0`). DO NOT run `python 03-ai-scripts/06-cicd-local-runner.py` or test runners during routine task steps.
 - **Test Inventory & Recent Changes Tracking:** Whenever any file is modified, append its repository-relative path to `.ai-memory/temp/recent-file-changes.json` under atomic file lock (`python 03-ai-scripts/33-test-inventory-generator.py --record <path>`), cross-referencing `.ai-memory/test-inventory.json` so associated tests are recorded for subsequent CI/CD runs.
+- **Remote CI/CD Monitoring & Dynamic Waiting Protocol (GitMap Pipeline-AI):** When monitoring or checking remote CI/CD pipelines, agents MUST follow GitMap (`gitmap pipeline-ai status --json` / `gitmap pl-ai status -t <sec>`) and strictly sleep based on `etaSeconds` (ETA > 120s: wait 20s-30s; 60s < ETA <= 120s: wait 10s-20s; ETA <= 60s: wait 5s-10s) rather than rapid polling to prevent credit waste.
+
+## Per-Task Agent Isolation & Workspace Subfolders (`.ai-memory/temp-agents/xx-<task-name>/`)
+
+To prevent cross-task pollution and ensure seamless agent communication, every task MUST create a dedicated subfolder in `.ai-memory/temp-agents/xx-<task-name>/`:
+1. **Per-Task Isolation:** On task start, the assigned subagent creates its isolated directory `.ai-memory/temp-agents/xx-<task-name>/`.
+2. **State & Progress Tracking:** Create `.ai-memory/temp-agents/xx-<task-name>/state.md` documenting:
+   - Task sequence and target deliverables.
+   - Files assigned for modification.
+   - Current subtask step and completion percentage.
+3. **Inter-Agent Communication & Scratch Space:**
+   - All intermediate findings, scratch outputs, and dependency handoffs between agents working on this task MUST be written inside `.ai-memory/temp-agents/xx-<task-name>/`.
+4. **On Error/Crash:** Append the exact error, root cause, and `STATUS: FAILED` to `.ai-memory/temp-agents/xx-<task-name>/state.md` before exiting.
+5. **On Success:** Mark `STATUS: DONE` in `.ai-memory/temp-agents/xx-<task-name>/state.md`, aggregate findings to the master plan, and clean up or archive the folder.
 
 ## Task Consolidation & File Reduction (End of Loop)
 

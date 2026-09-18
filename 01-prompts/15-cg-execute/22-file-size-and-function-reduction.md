@@ -116,7 +116,9 @@ All other source files (logic, services, controllers, handlers, utilities, hooks
 
 ```go
 // ❌ BANNED ANTI-PATTERN:
-// Cramming type assertion assignment and compound condition into one line to save vertical lines:
+// 1. Cramming type assertion assignment and compound condition into one line.
+// 2. Hardcoding magic strings ("Version", "version", "unknown") inline.
+// 3. Returning raw fallback literal instead of a defined constant.
 func extractVersionValue(rawMap map[string]interface{}) string {
     for _, key := range []string{"Version", "version"} {
         if v, isString := rawMap[key].(string); isString && len(v) > 0 {
@@ -124,16 +126,27 @@ func extractVersionValue(rawMap map[string]interface{}) string {
         }
     }
 
-    return ""
+    return "unknown"
 }
 
 // ✅ MANDATORY CLEAN PATTERN:
-// 1. Assignment on its own dedicated line.
-// 2. Boolean evaluation named affirmatively and computed BEFORE the if statement.
-// 3. Clean vertical spacing (blank line before if).
-// 4. if condition is dead-simple, checking exactly ONE variable.
+// 1. Zero magic strings: extract lookup keys and defaults into constants.
+// 2. Merge repeated/related strings into reusable collections (versionKeys).
+// 3. Assignment on its own dedicated line.
+// 4. Affirmative boolean (hasContent) pre-evaluated BEFORE the if statement.
+// 5. Clean vertical breathing room (blank line before if).
+// 6. Dead-simple if statement evaluating exactly ONE variable.
+// 7. Return defined constant (VersionUnknown) instead of raw magic string literal.
+const (
+    VersionUnknown  = "unknown"
+    versionKeyUpper = "Version"
+    versionKeyLower = "version"
+)
+
+var versionKeys = []string{versionKeyUpper, versionKeyLower}
+
 func extractVersionValue(rawMap map[string]interface{}) string {
-    for _, key := range []string{"Version", "version"} {
+    for _, key := range versionKeys {
         v, isString := rawMap[key].(string)
         hasContent := isString && len(v) > 0
 
@@ -142,9 +155,11 @@ func extractVersionValue(rawMap map[string]interface{}) string {
         }
     }
 
-    return ""
+    return VersionUnknown
 }
 ```
+
+- **Zero Magic Strings & Constant Returns:** Raw string literals (e.g. `"unknown"`, `"Version"`, `"version"`) MUST NOT be hardcoded inline. Define named constants (e.g. `VersionUnknown = "unknown"`, `versionKeyUpper = "Version"`, `versionKeyLower = "version"`) and aggregate key slices (`var versionKeys = []string{...}`). Always return defined constants instead of raw string literals.
 
 File size and function size reduction MUST be achieved through **modular decomposition** (extracting cohesive helpers into sibling files), NEVER by squishing statements onto fewer lines.
 

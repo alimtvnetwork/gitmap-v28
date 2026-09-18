@@ -20,6 +20,7 @@ Before modifying or creating any Python tool in `03-ai-scripts/` or `.agents/scr
 2. **`03-ai-scripts/01-index.md`**: The master registry of existing tools, parameters, and benchmark speeds.
 
 ### Canonical Library Import Pattern:
+
 ```python
 import sys
 from pathlib import Path

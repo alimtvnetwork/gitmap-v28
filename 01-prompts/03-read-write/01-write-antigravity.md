@@ -83,7 +83,7 @@ Walk `.ai-memory/` recursively. Read all of these if they exist; note missing an
 8. `.ai-memory/strictly-avoid.md`
 9. `.ai-memory/cicd-index.md` and every file under `.ai-memory/cicd-issues/`
 10. `.ai-memory/issues/`, `.ai-memory/pending-issues/`, `.ai-memory/solved-issues/`
-11. `.ai-memory/02-spec/commands/` — every file
+11. `.ai-memory/spec/commands/` — every file
 12. `.ai-memory/ambiguous-questions/01-new-ambiguity/` and `02-ambiguity-resolved/` — every file
 13. `.ai-memory/prompts.md` + `01-prompts/` (including `cg-execute/`, `execute/`, `ci-cd/`)
 14. `.ai-memory/what-to-read.md` (or `.ai-memory/what-to-read.md`)
@@ -170,7 +170,7 @@ Then edit `.ai-memory/question-and-ambiguity/01-index.md` to reflect the move.
    - Simple / minor tasks: Consolidation is encouraged for simple, repetitive, or ephemeral tasks into existing logs or overarching session files to prevent cluttering the repository.
    - Detailed / high-value specs: STRICTLY FORBIDDEN TO CONSOLIDATE. Any spec containing detailed requirements, edge cases, domain architecture (`02-spec/21-app/`), error-handling matrices (`02-spec/03-error-manage/`), coding rules (`02-spec/02-coding-guidelines/`), or user instructions must NEVER be merged, summarized, or shortened.
 
-3. New user command / convention: `.ai-memory/02-spec/commands/01-<slug>.md`.
+3. New user command / convention: `.ai-memory/spec/commands/01-<slug>.md`.
 
 ## Phase 6: `.ai-memory/what-to-read.md` and Root `readme.md`
 

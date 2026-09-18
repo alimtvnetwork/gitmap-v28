@@ -105,7 +105,7 @@ At the end of every single iteration of your execution loop:
 0. Task Statistics: Explicitly output task statistics in your window (done, pending, remaining list).
 
 1. Artifact sanitizer: Audit working tree and staged files. Ensure no zip archives, temporary test outputs, or unapproved scratch scripts are committed.
-2. Run tests and builds: Ensure code runs standalone locally and in CI/CD. Run full builds and unit test suites.
+2. Atomic Change Recording & Remote CI/CD Inspection: Record modified files using `python 03-ai-scripts/33-test-inventory-generator.py --record <files...>`. If remote CI/CD monitoring is required, use GitMap Pipeline-AI (`gitmap pipeline-ai status -t <sec>`) with dynamic ETA waiting. Never run local test runners or build verification during routine turns.
 3. Lovable git history guard: Group similar code changes into a single commit with a clear, descriptive message. Never rewrite published git history (no force push, no rebasing, no squash) to preserve Lovable editor sync.
 4. Push every commit to the remote git repository.
 5. Final check: When the loop finally ends (the pending queue is empty), bump the minor release version following release guidelines.
@@ -134,6 +134,7 @@ At the end of every single iteration of your execution loop:
 - [x] Acronyms are PascalCased (e.g., `UserId`, not `UserID`).
 - [x] Magic strings/numbers extracted to constants.
 - [x] Action Summary Checklist (Anti-Hallucination): I have output a detailed `- [x]` checklist summarizing exactly what I accomplished this turn to ensure no steps were hallucinated or skipped (e.g. `- [x] Created schema`, `- [x] Pinned README`).
+- [x] Remote CI/CD pipeline monitored via GitMap Pipeline-AI with dynamic ETA waiting (no rapid polling).
 
 ## Banned Operations Checklist (TOTAL BAN — Auto-Reject on Violation)
 
@@ -142,12 +143,30 @@ At the end of every single iteration of your execution loop:
 - [ ] **NO RUNNER SCRIPTS (TOTAL BAN):** NEVER launch background test runners, worker pools, or test inventory loops during routine execution.
 - [ ] **NO AUTOMATIC RELEASES (TOTAL BAN):** NEVER bump versions, update changelogs, or trigger releases unless explicitly commanded by the user.
 - [ ] **NO PER-FILE COMMITTING (TOTAL BAN):** NEVER commit each file individually as you work (e.g. running `git commit` after editing File 1, then another commit after File 2). Committing file-by-file pollutes git history, creates subagent lock collisions, and breaks atomic changes. All modified files across the turn must be accumulated and committed together in a single atomic commit at the final step.
+- [ ] **NO RAPID CI/CD POLLING (TOTAL BAN):** NEVER run rapid polling loops or busy-wait (`gh run view` in a loop) without waiting according to `etaSeconds`. Use GitMap Pipeline-AI (`gitmap pipeline-ai status -t <sec>` or `gitmap pl-ai status --json`) with dynamic backoff.
+
+## Remote CI/CD Pipeline Monitoring & Dynamic Waiting Protocol (GitMap Pipeline-AI)
+
+When monitoring or inspecting remote CI/CD status after pushing commits:
+1. **GitMap Pipeline-AI Query:** Agents MUST inspect remote pipelines using GitMap:
+   ```bash
+   gitmap pipeline-ai status --json
+   # or using short alias:
+   gitmap pl-ai status -t <sec>
+   ```
+   Parse `is_running`, `status`, `etaSeconds`, and `nextAiCommand`.
+2. **Anti-Credit-Waste Waiting Mandate:** NEVER loop rapidly or busy-poll (`gh run view` in tight loops). Strictly wait/sleep based on `etaSeconds` using `gitmap pipeline-ai status -t <etaSeconds>`:
+   - `etaSeconds > 120`: wait 20s–30s
+   - `60 < etaSeconds <= 120`: wait 10s–20s
+   - `etaSeconds <= 60`: wait 5s–10s
+3. **Targeted Failure Isolation:** Leverage GitMap Pipeline-AI to automatically extract targeted failure logs (`##[error]`, `FAIL:`, compile errors) without streaming voluminous raw logs.
 
 ## Mark File Changes Only (Atomic Change Recording & Handoff to CI/CD & Release)
 
 Routine execution prompts MUST NOT build, test, or trigger releases. When task modifications are completed, you MUST record all modified files and physically check off these items in your final report:
 
 - [ ] **Atomic Change Recording (MANDATORY):** I have recorded all modified files into `.ai-memory/temp/recent-file-changes.json` under lock using `python 03-ai-scripts/33-test-inventory-generator.py --record <files...>`.
+- [ ] **Remote CI/CD Pipeline Monitoring via GitMap:** If checking remote CI/CD pipelines, I used GitMap Pipeline-AI (`gitmap pipeline-ai status --json` or `gitmap pl-ai status -t <sec>`) with adaptive ETA waiting, never polling in tight loops.
 - [ ] **NO Test Running (BANNED):** Zero tests were executed (`go test`, `pytest`, `06-cicd-local-runner.py`). Testing is strictly deferred to CI/CD fix prompts.
 - [ ] **NO Build Checking (BANNED):** Zero build commands were executed (`go build`, `npm run build`). Build compilation is strictly deferred to CI/CD fix prompts.
 - [ ] **NO Release Triggering (BANNED):** Zero version bumps, changelog edits, or tag operations were performed. Release operations are strictly deferred to Release prompts.

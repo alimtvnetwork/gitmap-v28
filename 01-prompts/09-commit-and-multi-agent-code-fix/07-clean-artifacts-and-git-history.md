@@ -28,7 +28,7 @@ For EVERY detected candidate file, compile an explicit report detailing:
 
 ### Step 2: Present Positively Framed Questions to Developer
 
-Present the itemized list to the developer. All questions MUST be framed with strictly positive phrasing (following the project's boolean and coding standards in `spec/02`, with zero negative words, no `!`, no double negatives, and no inverted questions).
+Present the itemized list to the developer. All questions MUST be framed with strictly positive phrasing (following the project's boolean and coding standards in `02-spec/02`, with zero negative words, no `!`, no double negatives, and no inverted questions).
 
 Example positive review format:
 

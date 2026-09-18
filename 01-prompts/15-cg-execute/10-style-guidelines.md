@@ -504,12 +504,15 @@ Conditionals MUST NEVER exceed depth 1 (i.e., **no nested `if` statements inside
    - Evaluate and assign the boolean condition to an affirmative variable (`is*` or `has*`) on its own dedicated line *before* the `if` statement.
    - Maintain vertical breathing room (blank line before `if`).
    - The `if` condition itself must be dead simple, checking **one single variable**.
+4. **Zero Magic Strings & Constant Returns:** Never use raw string literals (`"unknown"`, `"pending"`, `"failed"`) as return or fallback values. Define named constants (`VersionUnknown = "unknown"`) and return constants directly. Merge related lookup strings into constants and package-level slices (`versionKeys`), eliminating inline slice allocations.
 
 #### Canonical Example: What NOT to Do vs What to Do
 
 ```go
 // ❌ BANNED ANTI-PATTERN:
-// Squeezing type assertion assignment and compound condition into one line to save vertical space:
+// 1. Cramming type assertion assignment and compound condition into one line.
+// 2. Hardcoding magic strings ("Version", "version", "unknown") inline.
+// 3. Returning raw fallback literal instead of a defined constant.
 func extractVersionValue(rawMap map[string]interface{}) string {
     for _, key := range []string{"Version", "version"} {
         if v, isString := rawMap[key].(string); isString && len(v) > 0 {
@@ -517,16 +520,27 @@ func extractVersionValue(rawMap map[string]interface{}) string {
         }
     }
 
-    return ""
+    return "unknown"
 }
 
 // ✅ MANDATORY CLEAN PATTERN:
-// 1. Assignment on its own dedicated line.
-// 2. Boolean evaluated and named affirmatively BEFORE the if statement.
-// 3. Clean vertical spacing (blank line before if).
-// 4. if condition is dead-simple, evaluating exactly ONE variable.
+// 1. Zero magic strings: extract lookup keys and defaults into constants.
+// 2. Merge repeated/related strings into reusable collections (versionKeys).
+// 3. Assignment on its own dedicated line.
+// 4. Affirmative boolean (hasContent) pre-evaluated BEFORE the if statement.
+// 5. Clean vertical breathing room (blank line before if).
+// 6. Dead-simple if statement evaluating exactly ONE variable.
+// 7. Return defined constant (VersionUnknown) instead of raw magic string literal.
+const (
+    VersionUnknown  = "unknown"
+    versionKeyUpper = "Version"
+    versionKeyLower = "version"
+)
+
+var versionKeys = []string{versionKeyUpper, versionKeyLower}
+
 func extractVersionValue(rawMap map[string]interface{}) string {
-    for _, key := range []string{"Version", "version"} {
+    for _, key := range versionKeys {
         v, isString := rawMap[key].(string)
         hasContent := isString && len(v) > 0
 
@@ -535,7 +549,7 @@ func extractVersionValue(rawMap map[string]interface{}) string {
         }
     }
 
-    return ""
+    return VersionUnknown
 }
 ```
 

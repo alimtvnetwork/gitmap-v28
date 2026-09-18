@@ -170,6 +170,7 @@ Spawn 2 to 3 sub-agents concurrently (max 2 threads each) to process the assigne
 Upon completion of all modular specifications, the master orchestrator synthesizes the top-level documentation:
 
 ### 1. Master Specification Index (`02-spec/21-app/01-index.md`)
+
 The index file must provide an executive synthesis:
 - **Application Overview:** Purpose of the software, high-level architecture, user flows, and core features.
 - **Language & Stack Matrix:** Exhaustive breakdown of languages, frameworks, runtimes, and libraries discovered.
@@ -178,6 +179,7 @@ The index file must provide an executive synthesis:
 - **Specification Directory Index:** Complete table of contents linking to all generated module specs.
 
 ### 2. Security Audit & Risk Evaluation (`02-spec/21-app/xx-security-and-risks.md`)
+
 Every reverse-engineered codebase must undergo a thorough security inspection:
 - **Hardcoded Secrets & Sensitive Data:** Scan for embedded API keys, JWT secrets, passwords, private keys, or exposed test tokens.
 - **Authentication & Authorization Posture:** Analyze session handling, token validation, permission checks, and privilege escalation risks.
@@ -186,6 +188,7 @@ Every reverse-engineered codebase must undergo a thorough security inspection:
 - **Project Risk Level:** Categorize overall risk as **LOW**, **MEDIUM**, **HIGH**, or **CRITICAL**, with immediate remediation recommendations.
 
 ### 3. Visual Tree Communication in Chat Response
+
 In the final turn after all files are generated, the orchestrator MUST output a clear, viewable ASCII folder tree in chat:
 
 ```text

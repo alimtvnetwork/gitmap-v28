@@ -81,6 +81,7 @@ Before doing anything else, you MUST write a highly detailed execution spec.
 - [ ] Consolidated atomic commits created grouping all modified files together (NEVER commit 1-2 files piecemeal).
 - [ ] Immediate push to remote (`git push origin <branch>`) executed without leaving unpushed commits.
 - [ ] Atomic file change cache updated in `.ai-memory/temp/recent-file-changes.json` under lock (`python 03-ai-scripts/33-test-inventory-generator.py --record <path>`).
+- [ ] Remote CI/CD pipeline monitored via GitMap Pipeline-AI (`gitmap pipeline-ai status --json` or `gitmap pl-ai status -t <sec>`) with dynamic ETA waiting (no rapid polling).
 - [ ] Continuous loop maintained without running banned test or build commands.
 
 ## Fast File Discovery & Reading via Python Toolchain (Mandatory Acceleration)
@@ -102,6 +103,7 @@ To avoid 50-result tool truncation limits and eliminate multi-turn exploratory r
 - [ ] **NO RUNNER SCRIPTS (TOTAL BAN):** NEVER launch background test runners, worker pools, or test inventory loops during routine execution.
 - [ ] **NO AUTOMATIC RELEASES (TOTAL BAN):** NEVER bump versions, update changelogs, or trigger releases unless explicitly commanded by the user.
 - [ ] **NO PER-FILE COMMITTING (TOTAL BAN):** NEVER commit each file individually as you work (e.g. running `git commit` after editing File 1, then another commit after File 2). Committing file-by-file pollutes git history, creates subagent lock collisions, and breaks atomic changes. All modified files across the turn must be accumulated and committed together in a single atomic commit at the final step.
+- [ ] **NO RAPID CI/CD POLLING (TOTAL BAN):** NEVER query or loop rapidly (`gh run view` in tight loops) when inspecting remote CI/CD pipelines. Agents MUST query pipeline state using GitMap Pipeline-AI (`gitmap pipeline-ai status --json` or `gitmap pl-ai status -t <sec>`) and strictly wait/sleep based on `etaSeconds` to eliminate credit waste.
 
 ## 4. Non-Negotiable Coding Guidelines Checklist (Auto-Reject on Violation)
 
@@ -134,6 +136,7 @@ Before you commit code or end your turn, you MUST mechanically check off these i
 - **NO RELEASES (TOTAL BAN):** You MUST NOT bump versions, update changelogs, or cut a release at the end of this task. Commits must remain standard development commits. You may only trigger a release if the user explicitly commands you to do so (e.g., "cut a release" or "bump the version").
 - **Targeted Quality Verification:** Execute targeted fast linters/autofixers on specifically modified files (`exit 0`). DO NOT run `python 03-ai-scripts/06-cicd-local-runner.py` or test runners during routine task steps.
 - **Test Inventory & Recent Changes Tracking:** Whenever any file is modified, append its repository-relative path to `.ai-memory/temp/recent-file-changes.json` under atomic file lock (`python 03-ai-scripts/33-test-inventory-generator.py --record <path>`), cross-referencing `.ai-memory/test-inventory.json` so associated tests are recorded for subsequent CI/CD runs.
+- **Remote CI/CD Monitoring & Dynamic Waiting Protocol (GitMap Pipeline-AI):** When monitoring or checking remote CI/CD pipelines, agents MUST follow GitMap (`gitmap pipeline-ai status --json` / `gitmap pl-ai status -t <sec>`) and strictly sleep based on `etaSeconds` (ETA > 120s: wait 20s-30s; 60s < ETA <= 120s: wait 10s-20s; ETA <= 60s: wait 5s-10s) rather than rapid polling to prevent credit waste.
 
 ## Task Consolidation & File Reduction (End of Loop)
 

@@ -21,7 +21,7 @@ Autonomously self-loop and read:
 - /learn all hard prohibitions in `.ai-memory/strictly-avoid.md`.
 - Read every pending task across `.ai-memory/plans/pending/01-<slug>.md`, `.ai-memory/plans/subtasks/01-<slug>/01-<subslug>.md`, `.ai-memory/issues/`, and `.ai-memory/cicd-issues/`, listing them out in full.
 
-Note on spec folder naming: Spec folders follow the hyphenated pattern `spec/<NN>-<slug>/` where `<NN>` is a sequence prefix and `<slug>` is the descriptive name. These numbers and folder placements are not rigidly fixed and may switch or be reorganized between projects. This canonical layout represents the general architecture the AI must dynamically discover, inspect, and read in full.
+Note on spec folder naming: Spec folders follow the hyphenated pattern `02-spec/<NN>-<slug>/` where `<NN>` is a sequence prefix and `<slug>` is the descriptive name. These numbers and folder placements are not rigidly fixed and may switch or be reorganized between projects. This canonical layout represents the general architecture the AI must dynamically discover, inspect, and read in full.
 
 You are done reading when you can, without guessing:
 
@@ -345,7 +345,7 @@ New info discovered
 ├─ Idea, not yet approved?
 │   YES → .ai-memory/suggestions.md
 ├─ New user command / convention?
-│   YES → .ai-memory/02-spec/commands/01-<slug>.md
+│   YES → .ai-memory/spec/commands/01-<slug>.md
 ├─ Bug / regression?
 │   YES → .ai-memory/issues/01-<slug>.md   (or .ai-memory/cicd-issues/ if CI/CD)
 ├─ New or changed plan?
@@ -416,7 +416,7 @@ Then stop. No next-step suggestions, no exploratory questions.
 6. [ ] /learn `.ai-memory/memory/01-index.md` and every file it points at.
 7. [ ] /learn `.ai-memory/plans/01-index.md`, every file in `pending/` (sequenced as `01-`, `02-`), and all active subtasks.
 8. [ ] Skimmed `.ai-memory/plans/completed/` for recent history.
-9. [ ] /learn every file in `.ai-memory/02-spec/commands/`.
+9. [ ] /learn every file in `.ai-memory/spec/commands/`.
 10. [ ] /learn every file in `.ai-memory/issues/` and `.ai-memory/cicd-issues/`.
 11. [ ] /learn every file in `.ai-memory/ambiguous-questions/01-new-ambiguity/` and `02-ambiguity-resolved/`.
 12. [ ] Scanned for broken links or missing docs and surfaced them under open ambiguities.

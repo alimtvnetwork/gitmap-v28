@@ -27,6 +27,24 @@ Before you write any code to fix the problem, you MUST document the issue in .ai
 3. **Root Cause:** The exact file, line, and dependency responsible for the failure.
 4. **Code Fix:** The exact code snippets showing what needed to be changed to fix the root cause.
 
+## GitMap Pipeline-AI & Dynamic Waiting Protocol (CI/CD Diagnostic Authority)
+
+> [!IMPORTANT]
+> **CI/CD Pipeline Failure Inspection via GitMap:**
+> Whenever diagnosing a bug, failure, or issue that involves a remote CI/CD pipeline, GitHub Action, or build/test workflow:
+> 1. **GitMap Pipeline Status Command:** The agent MUST use `gitmap pipeline-ai status --json` (or alias `gitmap pl-ai status --json`) to inspect pipeline status, active runs, ETA, and recommended next AI commands.
+> 2. **Targeted Failure Diagnostics Extraction:** GitMap automatically extracts targeted failure lines (`##[error]`, `FAIL:`, compile/syntax errors) while suppressing noisy passing step logs. Feed these extracted high-precision failure diagnostics directly into the 4-part RCA document (Why, How, Root Cause, Code Fix).
+> 3. **Dynamic Waiting & Adaptive Sleep (Anti-Credit-Waste Mandate):** Rapid tight-loop polling (e.g. `gh run view` in a loop) is STRICTLY BANNED as it burns user credits and API token quota.
+>    - When a pipeline is in-flight (`is_running: true`), query using `gitmap pipeline-ai status -t <etaSeconds>` (or alias `gitmap pl-ai status -t <sec>`) to wait dynamically based on historical completion ETA.
+>    - If scheduling waits manually, sleep adaptively based on the estimated remaining ETA:
+>      - ETA > 120s: sleep/wait 20s-30s
+>      - 60s < ETA <= 120s: sleep/wait 10s-20s
+>      - ETA <= 60s: sleep/wait 5s-10s
+> 4. **Record Modified Files:** After applying the code fix, record all modified files safely under lock via:
+>    ```bash
+>    python 03-ai-scripts/33-test-inventory-generator.py --record <files...>
+>    ```
+
 ## STRICT AVOIDANCE: Never Disable CI/CD
 
 > [!CAUTION]
@@ -48,23 +66,22 @@ To survive massive checklists and complex codebases, you MUST operate using thes
 ## Execution Checklist & Strict Guidelines
 
 - [ ] **RCA Document Generation:** I have created .ai-memory/memory/issues/xx-<slug>.md with the strict 4-part RCA structure (Why, How, Root Cause, Code Fix).
+- [ ] **GitMap Pipeline-AI Inspection:** If this bug is triggered by or related to a CI/CD pipeline, I used `gitmap pipeline-ai status --json` with dynamic waiting (`-t <seconds>`) and extracted targeted failure lines (`##[error]`, `FAIL:`, compile errors) for the 4-part RCA without tight-loop polling.
+- [ ] **Atomic Change Tracking:** I recorded all modified files under lock via `python 03-ai-scripts/33-test-inventory-generator.py --record <files...>` before final verification and commit.
 - [ ] **Coding Guidelines & Master Consolidated File:** I have fully read and strictly enforced every file in 02-spec/02-coding-guidelines/, as well as the master consolidated coding guideline file at .ai-memory/coding-guidelines.md.
 - [ ] **Error Manage Checklist:** I have fully read and enforced 02-spec/03-error-manage/. I understand which files to follow (architecture, response envelopes) and how to follow them (never swallow errors, always wrap with context).
-- [ ] **Boolean Fixations:** All boolean variables MUST begin with is and has only (can, should, was, etc. are banned). NEVER use explicit true/false comparisons (e.g., `if isReady == true` is FORBIDDEN, use `if isReady`). NEVER use negative booleans (isNotReady). NEVER invert success checks (!response.isSuccess is banned; use
-esponse.isFail).
-- [ ] **Anti-Garbage Naming:** I have verified that absolutely NO generic garbage variable names (	emp, data, obj) were written. All names are semantic.
+- [ ] **Boolean Fixations:** All boolean variables MUST begin with is and has only (can, should, was, etc. are banned). NEVER use explicit true/false comparisons (e.g., `if isReady == true` is FORBIDDEN, use `if isReady`). NEVER use negative booleans (isNotReady). NEVER invert success checks (!response.isSuccess is banned; use response.isFail).
+- [ ] **Anti-Garbage Naming:** I have verified that absolutely NO generic garbage variable names (temp, data, obj) were written. All names are semantic.
 - [ ] **Function Signatures:** If a function has > 3 parameters or is > 100 chars, I have split it so there is exactly one parameter per line.
 - [ ] **Magic Strings/Numbers:** Extracted all magic strings/numbers into named constants.
-- [ ] **Blank Lines:** One blank line before every
-eturn/	hrow. One blank line after closing }. Never two blank lines in a row.
+- [ ] **Blank Lines:** One blank line before every return/throw. One blank line after closing }. Never two blank lines in a row.
 - [ ] **Native File Manipulator:** If I needed to perform mass file renaming, .md lowercase enforcement, sequence number re-ordering, or encoding fixes, I natively used python 03-ai-scripts/03-file-manipulator.py <command>.
 - [ ] **Go Generate Sync:** If you modify Go constants, enums, or stringers, you MUST run `go generate ./...` in the relevant directory (e.g., `cd gitmap && go generate ./...`) and commit the resulting generated files to prevent CI drift.
-- [ ] **Verification:** I ran local tests and builds to ensure the fix actually resolves the issue.
+- [ ] **Targeted Verification:** I ran targeted file-level linters and checks to ensure the fix actually resolves the issue (avoiding broad banned test suites or builds).
 
 ## End of Tunnel
 
-- [ ] Once the fix is verified and the RCA document is written, commit using standard prefixes (e.g.,
-ix(core): ...).
+- [ ] Once the fix is verified and the RCA document is written, commit using standard prefixes (e.g., fix(core): ...).
 - [ ] Push changes to git.
 - [ ] Provide the user with a summary of the RCA and exactly what code was modified.
 

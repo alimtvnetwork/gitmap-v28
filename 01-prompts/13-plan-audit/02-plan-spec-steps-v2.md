@@ -232,7 +232,7 @@ link that file from the plan's `## Context`. Chat is not storage.
 
 | Input                                                | File                                          |
 | ---------------------------------------------------- | --------------------------------------------- |
-| Command, convention, "always do X", new CLI          | `.ai-memory/02-spec/commands/01-<slug>.md`         |
+| Command, convention, "always do X", new CLI          | `.ai-memory/spec/commands/01-<slug>.md`         |
 | Bug, regression, broken behavior                    | `.ai-memory/issues/01-<slug>.md`                |
 | CI/CD-specific failure                               | `.ai-memory/cicd-issues/01-<slug>.md`           |
 | Institutional knowledge (pattern, decision)          | `.ai-memory/memory/` + update `.ai-memory/memory/01-index.md` |
@@ -343,7 +343,7 @@ match this exactly:
 .ai-memory/ambiguous-questions/02-ambiguity-resolved/01-<slug>.md
 .ai-memory/issues/01-<slug>.md
 .ai-memory/cicd-issues/01-<slug>.md
-.ai-memory/02-spec/commands/01-<slug>.md
+.ai-memory/spec/commands/01-<slug>.md
 02-spec/25-app-spec-audit/NN-audit-<yyyy-mm-dd>-v<N>.md
 ```
 
@@ -617,7 +617,7 @@ similarity after the title and header lines are removed. Also sweep that every
 cited path resolves:
 
 ```bash
-rg -o --no-filename 'spec/[A-Za-z0-9/._-]+' .ai-memory/plans/subtasks/xx-plan-slug/*.md   | sed 's/[.,)`]*$//' | sort -u | while read p; do test -e "$p" || echo "MISSING $p"; done
+rg -o --no-filename `02-spec/[A-Za-z0-9/._-]+' .ai-memory/plans/subtasks/xx-plan-slug/*.md   | sed 's/[.,)`]*$//' | sort -u | while read p; do test -e "$p" || echo "MISSING $p"; done
 ```
 
 ---
@@ -774,3 +774,4 @@ To prevent cross-task pollution and ensure seamless agent communication, every t
    - Sibling or successor agents MUST inspect this dedicated folder before resuming work or fixing errors.
 4. **On Error/Crash:** Append the exact error, root cause, and `STATUS: FAILED` to `.ai-memory/temp-agents/xx-<task-name>/state.md` before exiting.
 5. **On Success:** Mark `STATUS: DONE` in `.ai-memory/temp-agents/xx-<task-name>/state.md`, aggregate findings to the master plan, and clean up or archive the folder.
+

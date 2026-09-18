@@ -1,14 +1,14 @@
 ---
-name: ci-cd-fix
+name: ci-cd-fix-with-release
 description: >-
-  Use this skill to autonomously diagnose, fix, and verify CI/CD pipelines using local runner scripts, 4-part RCA, and self-looping.
+  Use this skill to autonomously diagnose and fix CI/CD pipelines using local runner scripts, GitMap pipeline AI with dynamic waiting, 4-part RCA, and execute full release ceremony.
 ---
 
-# Instruction (must follow): Autonomous CI/CD Fix Loop (with Local Runner & RCA)
+# Instruction (must follow): Release-Triggered CI/CD Fix Loop & Release Orchestration
 
-Trigger Keywords & Aliases: `fix with RCA`, `fix`, `fix, fix`, `CI/CD fix`, `cicd fix`
+Trigger Keywords & Aliases: `fix and release`, `ci release`, `fix CI/CD and release`, `cicd fix release`
 
-/goal Autonomously diagnose, update or create the local Python CI/CD runner script (`03-ai-scripts/06-cicd-local-runner.py`) from repository workflows or screenshot pipeline names, and fix all failures by executing a singly-done self-looping sequence (zeroing in on one failure at a time) until the runner exits with code 0 without stopping.
+/goal Autonomously diagnose and repair CI/CD pipeline issues, execute full unit test suites and quality gates to verify green status, and perform complete automated release publication with version bump and changelog sync.
 
 /learn Ingest recent RCAs from `.ai-memory/cicd-issues/`, `.ai-memory/issues/`, `02-spec/02-coding-guidelines/02-canonical-size-tier.md`, `02-spec/02-coding-guidelines/01-cross-language/01-index.md`, `02-spec/02-coding-guidelines/01-cross-language/01-index.md`, and `02-spec/03-error-manage/` before touching any code so past mistakes are never repeated.
 
@@ -19,11 +19,15 @@ Trigger Keywords & Aliases: `fix with RCA`, `fix`, `fix, fix`, `CI/CD fix`, `cic
 ```text
 N = 200  (Total self-loop steps budget. The user may override this when triggering the prompt.)
 
-PHASE_1_STEPS = N / 2  (Steps 1 .. N/2: Screenshot Pipeline Discovery, Update 06-cicd-local-runner.py, Register New JOBS)
+PHASE_1_STEPS = N / 2  (Steps 1 .. N/2: Screenshot / GitMap Pipeline Discovery, Update 06-cicd-local-runner.py, Register New JOBS)
 PHASE_2_STEPS = N / 2  (Steps N/2+1 .. N: Singly-Done Self-Loop Fixing, Zero in on Errors, 4-Part RCA, Green Gate Verification)
 ```
 
 Both N, PHASE_1_STEPS, and PHASE_2_STEPS are read-only after the user sets them.
+
+> [!CAUTION]
+> **EXCLUSIVE TEST EXECUTION & RELEASE AUTHORITY:**
+> This skill (`ci-cd-fix-with-release`) IS the designated workflow authorized to run full unit test suites (`python 03-ai-scripts/06-cicd-local-runner.py --all` or `--run-tests`) and trigger automated version bumping, changelog assembly, tagging, and GitHub/GitLab release creation. Standard `ci-cd-fix` does NOT run unit tests; only `ci-cd-fix-with-release` runs full tests to verify complete green gates before releasing.
 
 ---
 
@@ -95,9 +99,11 @@ Every step must be **singly done** using bounded self-looping turns:
   2. If new jobs/steps are found in workflows, strip Docker wrappers and register the new commands in the `JOBS` dictionary.
   3. Save the runner script and verify syntax.
 
-- **Self-Loop Step 3 (Execute Runner & Baseline Failures):**
+- **Self-Loop Step 3 (Execute Runner & Establish Baseline Failures):**
   1. Run `python 03-ai-scripts/06-cicd-local-runner.py`.
-  2. If exit code = 0, proceed to End of Tunnel. If exit code != 0, zero in on the first specific failure.
+  2. Capture the full output and exit code.
+  3. If exit code = 0: All jobs pass! Proceed to Phase 3 (Final Verification Gate) and Phase 4 (Release Publication).
+  4. If exit code != 0: Zero in on the first specific failing job and its error output.
 
 - **Self-Loop Step 4 (RCA & Zero In on Error):**
   1. Write 4-part RCA in `.ai-memory/memory/issues/xx-<slug>.md`.
@@ -111,6 +117,9 @@ Every step must be **singly done** using bounded self-looping turns:
 - **Self-Loop Step 6 (Re-Verify & Loop):**
   1. Re-run `python 03-ai-scripts/06-cicd-local-runner.py`.
   2. If resolved and more errors remain, self-loop to Step 4 to zero in on the next error until exit code = 0.
+
+- **Self-Loop Step 7 (Proceed to Release):**
+  1. Once exit code is 0, proceed directly to Phase 3 (Final Verification Gate) and Phase 4 (Release Publication).
 
 ---
 
@@ -315,22 +324,283 @@ WHILE (STEP < PHASE_2_STEPS):
 
 IF STEP >= PHASE_2_STEPS AND exit_code != 0:
     Report remaining failures clearly in chat and ask the user for guidance.
+    DO NOT proceed to Phase 3 or Phase 4 until all failures are resolved.
 ```
 
-**Sub-Agent Parallelization:** If multiple unrelated jobs fail (e.g., lint + test + typecheck), spawn one dedicated sub-agent per failure with a single-file bounding box. Parent agent collects results and re-runs the runner.
+### Self-Looping Agent Rules
+
+- Each loop iteration = one AI tool call cycle. End your turn and immediately start the next.
+- Only print progress when a job status changes. Do not reprint passing jobs every iteration.
+- Spawn one sub-agent per independent failure (lint / test / typecheck failing separately). Give each sub-agent a single-file bounding box.
 
 ---
 
-## Phase 3: 4-Part RCA Requirement
+## Parallel Batch Execution Rules (Mandatory)
 
-For each distinct failure (encountered locally or extracted via `gitmap pipeline-ai status --json`), write `.ai-memory/memory/issues/xx-<slug>.md` with:
+- `BATCH_SIZE = 3`: at most 3 jobs run simultaneously per batch.
+- After each batch completes, wait for all futures before starting the next batch.
+- Non-order-dependent jobs (lint, typecheck, unit tests) run within the same batch.
+- Order-dependent jobs (install → build → test) must be placed in sequential batches.
+- After every batch, inspect results immediately. Do not wait for the full run.
 
-1. **Why it happened:** High-level architectural reason.
-2. **How it happened:** Exact execution flow that triggered the error (using GitMap targeted failure extraction `##[error]`, `FAIL:`, compile errors for remote pipelines).
-3. **Root Cause:** Exact file, line number, and dependency responsible.
-4. **Code Fix:** Before/after code snippet.
+---
 
-Also append any new forbidden patterns to `.ai-memory/strictly-avoid.md`.
+## Timeout Detection and Auto-Increase (Mandatory)
+
+If any job shows ⏱ TIMEOUT:
+
+1. Do NOT treat it as a code failure. Timeout means the job is slow, not broken.
+2. Diagnose: large input set? network dependency (`npm ci`)? hung subprocess or lock file?
+3. Increase `JOB_TIMEOUT_SEC` intelligently:
+   - Elapsed close to the limit → increase by 50%.
+   - Job hangs with no output for >30s → fix the subprocess call, not the timer.
+   - Open `06-cicd-local-runner.py`, update `JOB_TIMEOUT_SEC`, save, re-run.
+4. Re-run the runner. The timeout adjustment counts as one Phase 2 loop step.
+5. Document the timeout change in `.ai-memory/cicd-issues/`.
+
+---
+
+## Error Enqueuing — Plan Task & CI/CD Issue (Mandatory on Every Failure)
+
+On every ❌ FAIL or ⏱ TIMEOUT, BEFORE applying any code fix, do both:
+
+### A. Enqueue into Plan Tasks (`.ai-memory/plans/pending/XX-cicd-<slug>.md`)
+
+```markdown
+# CI/CD Task: <short failure description>
+
+## Source
+- Runner job: <job-name>
+- Error type: FAIL | TIMEOUT
+- Detected at: <timestamp>
+
+## Error Summary
+<exact error message>
+
+## Required Fix
+<one-sentence description>
+
+## Acceptance Criteria
+- [ ] `06-cicd-local-runner.py` reports ✅ PASS for job `<job-name>`
+- [ ] No regression in any other job
+
+## Status
+- [ ] pending
+```
+
+Update `.ai-memory/plans/01-index.md` immediately.
+
+### B. Record in CI/CD Issues (`.ai-memory/cicd-issues/xx-<slug>.md`)
+
+```markdown
+# CI/CD Issue: <short failure description>
+
+- Job: <job-name>
+- Type: FAIL | TIMEOUT
+- Detected: <timestamp>
+- Status: open | resolved
+
+## Error
+<exact error output>
+
+## Root Cause
+<one-sentence root cause>
+
+## Fix Applied
+<what was changed>
+
+## Plan Task
+Enqueued at `.ai-memory/plans/pending/XX-cicd-<slug>.md`
+```
+
+Update `.ai-memory/cicd-index.md` in the same operation. Never delete existing entries.
+
+---
+
+## Phase 3: Final Verification (Gate Before Release)
+
+> [!IMPORTANT]
+> Phase 3 is a hard gate. The release MUST NOT start until every item below is green.
+> If any item fails, loop back to Phase 2 immediately.
+
+- [ ] **Full Unit Test & CI/CD Verification (MANDATORY Before Release):** Run `python 03-ai-scripts/06-cicd-local-runner.py --run-tests` one final time. All unit test suites, AST checks, and quality gates MUST pass 100% green (`exit 0`). The release MUST NOT start if any test fails.
+- [ ] **Test Inventory Validation:** Check `.ai-memory/temp/recent-file-changes.json` against `.ai-memory/test-inventory.json` and verify all tests associated with modified files pass.
+- [ ] **No open plan tasks from this run:** All `.ai-memory/plans/pending/XX-cicd-*.md` files created in this run are marked `resolved` or closed.
+- [ ] **All RCA files written:** Every failure encountered has a `.ai-memory/memory/issues/xx-<slug>.md` with all 4 sections.
+- [ ] **Coding standards pass:** Run `python 03-ai-scripts/05-guideline-autofixer.py` on all modified files. Zero violations remain.
+- [ ] **Git working tree is clean:** Run `git status`. No untracked or unstaged files. Commit any remaining changes with `fix(ci): final pre-release fixes`.
+
+---
+
+## Phase 4: Release
+
+> [!IMPORTANT]
+> Only enter Phase 4 after Phase 3 passes 100%. No exceptions.
+
+### Step R-1: Pre-Flight Checks
+
+1. Run `git status`. If uncommitted changes remain: commit them now with `fix(ci): pre-release cleanup`.
+2. Run `git pull` to merge any upstream changes.
+3. Read the current version from `version.json` (canonical source). Print it.
+4. Idempotency guard: if the canonical version already equals the computed new version, STOP. Someone half-ran a release. Detect what is done, resume from the first incomplete step. Do NOT double-bump.
+5. Placeholder guard: if the previous version's changelog entry is empty or contains `TBD`/`WIP`, refuse to release until it is filled (or the user overrides).
+
+### Step R-2: Bump the Version & Assemble Release Body
+
+**Primary path — use the exact script at this path:**
+
+```text
+python .ai-memory/release/bump_versions.py --type minor --create-release
+```
+
+The `--create-release` flag handles:
+
+1. Creating the `release/vX.Y.Z` git branch
+2. Updating all version pin sites
+3. Assembling the release notes file with **Quick Install One-Liners** and changelog
+4. Committing, tagging `vX.Y.Z`, and pushing
+5. Creating the GitHub/GitLab release via `gh release create` (with `--notes-file`) or `glab release create`
+
+---
+
+### MANDATORY: Release Page Install One-Liners (FATAL IF MISSED ON GITHUB/GITLAB)
+
+> [!CAUTION]
+> **NEVER run `gh release create <tag> --generate-notes` ALONE.**
+> Running `--generate-notes` without a structured `--notes-file` is a FATAL DEFECT: GitHub will only display commit hashes (as seen in broken release pages) and completely omits the installation one-liners!
+>
+> Every published GitHub / GitLab release page MUST have the **Quick Install One-Liners** prominently placed right at the top of the release body!
+
+Before calling `gh release create` or `glab release create`, the release automation MUST assemble a release notes file (e.g. `.ai-memory/release/release-notes-vX.Y.Z.md` or `/tmp/release-body.md`) containing:
+
+#### 1. Quick Install One-Liners by Project Type
+
+**For Binary / Download Asset Repositories (e.g., Go/Rust/C CLI tools like `gitmap`):**
+
+```markdown
+## Quick Install vX.Y.Z
+
+### Windows (PowerShell 5.1+)
+```powershell
+irm https://github.com/<owner>/<repo>/releases/download/vX.Y.Z/install.ps1 | iex
+```
+
+### Linux / macOS (Bash)
+
+```bash
+curl -fsSL https://github.com/<owner>/<repo>/releases/download/vX.Y.Z/install.sh | bash
+```
+```
+
+**For Script / Meta-Repositories (e.g., `prompt-architect`):**
+
+```markdown
+## Quick Install vX.Y.Z
+
+### Windows (PowerShell)
+```powershell
+Invoke-WebRequest -Uri https://raw.githubusercontent.com/<owner>/<repo>/vX.Y.Z/install.ps1 -OutFile install.ps1; .\install.ps1 -TargetDir ".ai-memory/prompts" -Version "vX.Y.Z"
+```
+
+### Unix / Bash
+
+```bash
+curl -sL https://raw.githubusercontent.com/<owner>/<repo>/vX.Y.Z/install.sh | bash -s -- ".ai-memory/prompts" "vX.Y.Z"
+```
+```
+
+#### 2. Changelog Section for vX.Y.Z
+
+Directly below the Quick Install block, include the extracted `[vX.Y.Z]` section from `changelog.md`.
+
+#### 3. Platform Release Command
+
+Pass the generated notes file via `--notes-file`:
+
+```bash
+gh release create "vX.Y.Z" --title "vX.Y.Z" --notes-file ".ai-memory/release/release-notes-vX.Y.Z.md" --generate-notes
+```
+
+*(Note: `--generate-notes` may be appended so GitHub adds commit logs below the install one-liners and changelog, but `--notes-file` is MANDATORY).*
+
+---
+
+**Fallback chain (if `.ai-memory/release/bump_versions.py` is missing):**
+
+1. **Fallback 1:** Read `.ai-memory/release/release-method.md` to identify all version pin sites. Regenerate `bump_versions.py` from that documentation. Ensure it generates the release notes file with the Quick Install one-liners before running `gh release create`.
+2. **Fallback 2:** If `release-method.md` is also missing, walk the repository with Python `os.walk` (ignoring `.git`, `node_modules`, `.venv`) to discover all version pin sites. Write `release-method.md` documenting them. Generate `bump_versions.py` with the correct `FILES_TO_BUMP`, release notes generator, `git checkout -b`, `git commit`, `git tag`, `git push`, and `gh release create ... --notes-file` logic. Run it.
+3. **Fallback 3:** If discovery fails, stop and ask the user to specify the version pin sites explicitly.
+
+> [!CAUTION]
+> **NEVER use `rg`, `grep`, or `find` to globally search for version strings.** Follow the fallback chain above. Global searches on large repos are slow and error-prone.
+
+### Step R-3: Pin the New Version in `readme.md`
+
+Rewrite every occurrence of the previous version (`vX.Y.Z` and bare `X.Y.Z`) in badges, install snippets, and inline references. After this step, `grep "<previous-version>" readme.md` MUST return nothing.
+
+### Step R-4: Write the Changelog Entry
+
+Add the following block at the top of `changelog.md`, directly under `# Changelog`:
+
+```markdown
+## [vX.Y.Z] YYYY-MM-DD <short headline>
+
+### Install <Project Name> vX.Y.Z
+
+Unix/Bash:
+`curl -sL https://raw.githubusercontent.com/<owner>/<repo>/vX.Y.Z/install.sh | bash -s -- ".ai-memory/prompts" "vX.Y.Z"`
+
+PowerShell:
+`Invoke-WebRequest -Uri https://raw.githubusercontent.com/<owner>/<repo>/vX.Y.Z/install.ps1 -OutFile install.ps1; .\install.ps1 -TargetDir ".ai-memory/prompts" -Version "vX.Y.Z"`
+
+### Added / Changed / Fixed / Removed
+
+- <one bullet per real change, naming the exact file or behavior>
+
+### Issues (only if any step failed)
+
+- [xx-<slug>](.ai-memory/release/issues/XX-vX.Y.Z-<slug>.md) short description
+```
+
+Dynamically discover `<owner>/<repo>` by running `git config --get remote.origin.url`. Do NOT hardcode URLs.
+
+### Step R-5: Final Verification After Bump
+
+1. Run the version-sync check if one exists (`scripts/check-version-sync.*`, `scripts/verify-versions.*`). It MUST exit 0.
+2. Verify ALL pin sites reference the new version. No previous-version strings outside the historic allow-list (`changelog.md`, `release_notes.md`, `.ai-memory/release/`, dated archives).
+3. All markdown filenames in the repository MUST be strictly lowercase. Rename any uppercase files with `git mv` in the same turn.
+
+### Step R-6: Issue Logging (If Anything Goes Wrong)
+
+If any release step fails, write an issue file at:
+
+```text
+.ai-memory/release/issues/XX-vX.Y.Z-<slug>.md
+```
+
+Include: previous version, new version, step number and name, command run, full error output, files involved, resolution or `unresolved`. Link it from the `### Issues` bullet in the changelog entry.
+
+---
+
+## Phase 4 Release Checklist
+
+- [ ] Phase 3 (Final Verification) passed with exit code 0 legitimately (no CLI linters or tests bypassed).
+- [ ] Confirmed that NO CLI linting (`golangci-lint`, `eslint`, `markdownlint`, `tsc`, `pytest`), build steps, or test runs were skipped, commented out, or bypassed with `|| true`.
+- [ ] Git working tree was clean before release steps.
+- [ ] `git pull` completed with no conflicts.
+- [ ] Previous and new versions both stated explicitly.
+- [ ] `python .ai-memory/release/bump_versions.py --type minor --create-release` ran successfully (or fallback used and documented).
+- [ ] All version pin sites updated to the new version.
+- [ ] `readme.md` pinned to new version. No previous version strings remain.
+- [ ] Changelog entry added with real bullets. No `TBD` or empty entries.
+- [ ] All markdown filenames in repo are strictly lowercase.
+- [ ] `### Issues` block present in changelog if any step failed, with links.
+- [ ] Release notes file generated containing Quick Install One-Liners (PowerShell & Bash) and changelog.
+- [ ] Release commit tagged `vX.Y.Z` and pushed to remote.
+- [ ] GitHub/GitLab release created via `gh release create --notes-file` or `glab release create --notes-file` (NEVER bare `--generate-notes`).
+- [ ] Release description on GitHub/GitLab verified to contain the Quick Install one-liners, NOT just raw commit hashes.
+- [ ] Verified `.agents/skills/ci-cd-fix-with-release/skill.md` and `.agents/skills/ci-cd-fix/skill.md` are present and synchronized with the latest rules.
+- [ ] Report posted in chat: previous version, new version, bump tier, exact files changed.
 
 ---
 
@@ -346,18 +616,17 @@ Also append any new forbidden patterns to `.ai-memory/strictly-avoid.md`.
 
 ---
 
-## Strictly Avoid: No Automatic Releases & Run All Tests (Strict Policy)
+## Mandatory Pre-Release Full Unit Tests & CI/CD Verification (Strict Policy)
 
 > [!CAUTION]
-> **NO AUTOMATIC RELEASES (TOTAL BAN IN STANDARD CI-CD-FIX):** This is a development fix workflow. You MUST NOT bump versions, update changelogs, or cut a release. Releases are exclusively handled by `04-ci-cd-fix-with-release.md` or `release-orchestrator`.
-> **NO ROUTINE UNIT TEST RUNNING (EXCLUSIVE TO CI-CD WITH RELEASE):** Routine heavy unit test execution is STRICTLY RESERVED for `04-ci-cd-fix-with-release.md` and release workflows! In standard `ci-cd-fix`, do NOT run full unit test suites or test runner pools (`go test ./...`, `06-cicd-local-runner.py --run-tests`). Instead, diagnose and verify fixes using targeted file-level linters, AST validators, and syntax checks on the specific modified files. ONLY `04-ci-cd-fix-with-release.md` will execute the full test suite (`--run-tests` / `--all`) before cutting the release!
-> **NO PER-FILE COMMITTING (TOTAL BAN):** Never commit each file individually. All modified files across the turn must be accumulated in the working tree and committed together in a single atomic commit at the final step.
+> **ALL CI/CD FIXES & RELEASES MUST RUN TESTS PROPERLY:** This workflow repairs CI/CD pipelines and cuts a release. You MUST NOT skip or disable tests with `--no-tests`. All unit test suites, integration tests, AST checks, and quality gates MUST be executed and verified green (`python 03-ai-scripts/06-cicd-local-runner.py --run-tests`).
+> **ATOMIC CHANGE TRACKING:** Record all modified files under lock via `python 03-ai-scripts/33-test-inventory-generator.py --record <files...>`.
 
 ---
 
 ## Non-Negotiable Coding Standards
 
-- [ ] **GitMap Pipeline-AI & Dynamic Waiting:** If diagnosing remote pipeline failures, used `gitmap pipeline-ai status --json` / `gitmap pl-ai status -t <sec>` with adaptive sleep to prevent credit waste, and extracted targeted diagnostics (`##[error]`, `FAIL:`, compile errors).
+- [ ] **GitMap Pipeline-AI & Dynamic Waiting:** If inspecting remote pipeline status, used `gitmap pipeline-ai status --json` / `gitmap pl-ai status -t <sec>` with adaptive sleep to prevent credit waste, and extracted targeted diagnostics (`##[error]`, `FAIL:`, compile errors).
 - [ ] **Atomic Change Tracking:** All modified files were recorded safely under lock via `python 03-ai-scripts/33-test-inventory-generator.py --record <files...>`.
 - [ ] **No Disabling CLI Linting (Zero Bypassing):** All CLI linters and CI/CD quality gates executed fully without `|| true`, `continue-on-error`, or suppression comments. Code was legitimately fixed.
 - [ ] **Zero Actions Storage (Total Ban on CI Artifacts):** Confirmed that NO `actions/upload-artifact` steps exist in CI workflows; all diagnostic outputs stream to `$GITHUB_STEP_SUMMARY` or console logs.
@@ -365,43 +634,22 @@ Also append any new forbidden patterns to `.ai-memory/strictly-avoid.md`.
 - [ ] **Return New Line (R13-R16):** Blank line before `return`/`throw` (unless sole statement). Blank line after `}`. Never two blank lines in a row.
 - [ ] **No Explicit True Checks:** Never `== true`. Write `if isReady`.
 - [ ] **No Mixed Polarity:** Never `if isA && !isB`. Extract to a named boolean.
-- [ ] **Affirmative IsDefined:** Use `isDefined` (or `res.IsDefined()`) instead of inverted empty checks (`!isEmpty`).
-- [ ] **Strict Lowercase Files:** All generated/modified files use lowercase naming.
-
----
-
-## End of Tunnel Checklist
-
-- [ ] **Zero Linting/CI/CD Bypass:** Confirmed that NO CLI linters, static analysis tools, or test scripts were disabled, commented out, skipped, or bypassed with `|| true`.
-- [ ] **Zero Actions Storage:** Confirmed that NO `actions/upload-artifact` steps exist in CI workflows, eliminating quota depletion.
-- [ ] `python 03-ai-scripts/06-cicd-local-runner.py` exited with code 0 (with all quality gates and tests passing).
-- [ ] All failures documented in `.ai-memory/memory/issues/xx-<slug>.md`.
-- [ ] **Modified Files Recorded:** Confirmed all modified files were tracked via `python 03-ai-scripts/33-test-inventory-generator.py --record <files...>`.
-- [ ] Changes committed: `fix(ci): resolve <summary>`.
-- [ ] Pushed to the current branch.
-- [ ] File change summary posted in chat (file, what changed, why).
+- [ ] **Boolean Prefixes & IsDefined:** All booleans start with `is` or `has` only (all other prefixes banned). MANDATORY: Use `isDefined` (or `res.IsDefined()`) instead of inverted empty checks (`!isEmpty` / `!res.IsEmpty()`). Map lookups use `val, isFound := userMap[id]` or `val, isUserExist := userMap[id]`.
+- [ ] **Error Handling:** No swallowed errors. Wrap with `apperror.Wrap(err, "opName", ctx)`.
+- [ ] **Strict Lowercase Files:** All generated/modified files use strictly lowercase naming.
+- [ ] **Go Generate Sync:** If Go constants, enums, or stringers were modified, run `go generate ./...` and commit generated files.
 
 ---
 
 ## Metadata
 
-- slug: cicd-fix
+- slug: cicd-fix-with-release
 - status: active
-
----
-
-## Banned Operations Checklist (TOTAL BAN — Auto-Reject on Violation)
-
-- [ ] **NO ROUTINE UNIT TEST RUNNING (TOTAL BAN IN STANDARD CI-CD-FIX):** NEVER run heavy unit test suites (`go test ./...`, `06-cicd-local-runner.py --run-tests`, runner scripts) during standard CI/CD fix turns. All full test suite runs are strictly reserved for `04-ci-cd-fix-with-release.md` and release workflows.
-- [ ] **NO ROUTINE BUILD CHECKING (TOTAL BAN):** NEVER run broad build commands (`go build ./...`, `npm run build`) to verify compilation during intermediate micro-refactoring steps.
-- [ ] **NO RUNNER SCRIPTS (TOTAL BAN):** NEVER launch background test runners, worker pools, or test inventory loops during routine execution.
-- [ ] **NO AUTOMATIC RELEASES (TOTAL BAN IN STANDARD CI-CD-FIX):** NEVER bump versions, update changelogs, or trigger releases in standard `ci-cd-fix`. Releases are exclusively handled by `04-ci-cd-fix-with-release.md` or `release-orchestrator`.
-- [ ] **NO PER-FILE COMMITTING (TOTAL BAN):** NEVER commit each file individually as you work. Committing file-by-file pollutes git history, creates subagent lock collisions, and breaks atomic changes. All modified files across the turn must be accumulated and committed together in a single atomic commit at the final step.
 
 ---
 
 ## Final Step Git Commit & Push Mandate (Strict Checklist)
 
-- [ ] **MANDATORY FINAL COMMIT & PUSH TO GIT (ANYHOW):** At the FINAL step of the turn, after all targeted files have been refactored and verified with targeted linters, you MUST stage everything (`git add -A`), create a clean, descriptive conventional commit (`git commit -m "fix(ci): <description>"`), and push directly to the remote repository (`git push origin <branch>`). Leaving uncommitted changes or unpushed commits on the active branch at the end of a turn is an immediate failure.
+- [ ] **MANDATORY FINAL COMMIT & PUSH TO GIT (ANYHOW):** At the conclusion of Phase 4 Release, after version manifests, changelog entries, and release notes are updated, you MUST stage everything (`git add -A`), commit with clean semantic messages, and push directly to the remote repository. Leaving uncommitted changes or unpushed commits on the active branch at the end of a turn is an immediate failure.
 - [ ] **TOTAL BAN ON PER-FILE COMMITS (DO NOT COMMIT EACH FILE INDIVIDUALLY):** You MUST NOT create separate git commits for each individual file as you edit them. All modified files across the turn MUST be accumulated in the working tree and committed together in a SINGLE grouped atomic commit at the final step before pushing!
 

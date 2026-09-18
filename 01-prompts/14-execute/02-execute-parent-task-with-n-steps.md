@@ -1,6 +1,6 @@
 # Parent Task N-Step Continuous Loop & Multi-Agent Orchestration — Workflow (must follow)
 
-> **Prompt Version:** 2.1.0
+> **Prompt Version:** 2.2.0
 > **Synchronization:** Main Meta-Repo & Connected Workspaces
 
 /goal Autonomously orchestrate and execute the parent task by decomposing it into subtasks and running a continuous N-step self-loop until completion without a single failure.
@@ -13,19 +13,20 @@ N = total self-loop steps budget that the agents will perform.
 
 ### Master Task Checklist (Atomic Numbered Steps)
 
-1. [ ] /goal Phase 1 (Planning & Spec Generation, Steps 1..N/2): Spawn exactly 2 planning subagents (max 2 threads each) to scan the codebase and draft `.ai-memory/plans/pending/xx-<slug>.md`.
-2. [ ] /goal Phase 1 (Subtask Decomposition): Decompose the plan into a lean set of actionable subtasks. Do not over-prompt or generate excessive markdown files. Keep subtasks focused purely on execution and the domain task itself in `.ai-memory/plans/subtasks/xx-<slug>/*.md`.
-3. [ ] /goal Phase 1 (Strict Folder Bounding): Restrict all planning logs, active locks, and status reports strictly within `.ai-memory/` (`.ai-memory/plans/`, `.ai-memory/01-index.md`).
-4. [ ] /goal Phase 1 (Zero-Stop Transition): Immediately upon completing Phase 1, self-loop and transition directly into Phase 2 execution mode without pausing or stopping.
-5. [ ] /goal Phase 2 (Execution & Code Refactoring, Steps N/2+1..N): Spawn exactly 2 execution subagents (max 2 threads each) to execute subtasks on disjoint files in parallel.
-6. [ ] /goal Phase 2 (Failure Memory & Error Recovery): If a subagent fails, record the failure log in `.ai-memory/plan.md` and `.ai-memory/memory/issues/`; subsequent agents MUST read the failure log first to remediate root causes.
-7. [ ] /goal Phase 2 (Change Recording & Quality Linting): Record all modified files into `.ai-memory/temp/recent-file-changes.json` under lock (`python 03-ai-scripts/33-test-inventory-generator.py --record <files...>`) and run targeted file-level linters/autofixers on specifically modified files (`exit 0`). DO NOT run `06-cicd-local-runner.py`, unit tests, or build checks (deferred to CI/CD).
-8. [ ] /learn Ingest `.ai-memory/memory/01-index.md` for project memory index and past learnings.
-9. [ ] /learn Ingest `.ai-memory/strictly-avoid.md` for banned anti-patterns and strict constraints.
-10. [ ] /learn Ingest `02-spec/02-coding-guidelines/` for domain-specific architectural specifications.
-11. [ ] /learn Ingest `02-spec/03-error-manage/` for error handling architectures and AppError.
-12. [ ] /learn Ingest `.ai-memory/coding-guidelines.md` for master consolidated coding guidelines.
-13. [ ] /goal Create or update agent rules in the repository if missing from agent memory.
+1. [ ] /goal Phase 1 (Step 0 - Verbatim Prompt Recording & Task Extraction): Immediately capture the user's prompt verbatim into `.ai-memory/plans/pending/xx-<slug>.md` under `## User Request (Verbatim)`, extract actionable bullet-point tasks under `## Extracted Actionable Task List`, and output this confirmed task list directly in chat to confirm understanding.
+2. [ ] /goal Phase 1 (Planning & Spec Generation, Steps 1..N/2): Spawn exactly 2 planning subagents (max 2 threads each) to scan the codebase and draft `.ai-memory/plans/pending/xx-<slug>.md`.
+3. [ ] /goal Phase 1 (Subtask Decomposition): Decompose the plan into a lean set of actionable subtasks. Do not over-prompt or generate excessive markdown files. Keep subtasks focused purely on execution and the domain task itself in `.ai-memory/plans/subtasks/xx-<slug>/*.md`.
+4. [ ] /goal Phase 1 (Strict Folder Bounding): Restrict all planning logs, active locks, and status reports strictly within `.ai-memory/` (`.ai-memory/plans/`, `.ai-memory/01-index.md`).
+5. [ ] /goal Phase 1 (Zero-Stop Transition): Immediately upon completing Phase 1, self-loop and transition directly into Phase 2 execution mode without pausing or stopping.
+6. [ ] /goal Phase 2 (Execution & Code Refactoring, Steps N/2+1..N): Spawn exactly 2 execution subagents (max 2 threads each) to execute subtasks on disjoint files in parallel.
+7. [ ] /goal Phase 2 (Failure Memory & Error Recovery): If a subagent fails, record the failure log in `.ai-memory/plan.md` and `.ai-memory/memory/issues/`; subsequent agents MUST read the failure log first to remediate root causes.
+8. [ ] /goal Phase 2 (Change Recording & Quality Linting): Record all modified files into `.ai-memory/temp/recent-file-changes.json` under lock (`python 03-ai-scripts/33-test-inventory-generator.py --record <files...>`) and run targeted file-level linters/autofixers on specifically modified files (`exit 0`). DO NOT run `06-cicd-local-runner.py`, unit tests, or build checks (deferred to CI/CD).
+9. [ ] /learn Ingest `.ai-memory/memory/01-index.md` for project memory index and past learnings.
+10. [ ] /learn Ingest `.ai-memory/strictly-avoid.md` for banned anti-patterns and strict constraints.
+11. [ ] /learn Ingest `02-spec/02-coding-guidelines/` for domain-specific architectural specifications.
+12. [ ] /learn Ingest `02-spec/03-error-manage/` for error handling architectures and AppError.
+13. [ ] /learn Ingest `.ai-memory/coding-guidelines.md` for master consolidated coding guidelines.
+14. [ ] /goal Create or update agent rules in the repository if missing from agent memory.
 
 ```text
 PHASE_1_STEPS = N / 2   (Steps 1 .. N/2: 2-Agent Planning & Subtask Generation in .ai-memory/plans/)
@@ -61,12 +62,13 @@ Before executing the tasks below, you must check if this prompt is already insta
 
 Before writing any source code changes, you MUST execute Phase 1:
 
-1. **Scan & Discover:** Spawn 2 planning subagents to deeply scan the codebase for target changes or violations.
-2. **Master Spec Generation:** Save the master architectural plan into `.ai-memory/plans/pending/xx-<slug>.md`.
-3. **Task-Specific Rule Set:** Write down 3–5 custom rules or constraints unique to this task inside the spec file.
-4. **Lean Subtask Decomposition:** Break down the plan into a few highly focused subtask files in `.ai-memory/plans/subtasks/xx-<slug>/01-<subtask-title>.md`, `02-<subtask-title>.md`, etc. **Task Focus Over Meta-Prompting:** Your goal is to write code and solve the problem, not just generate more AI prompts. Subagent instructions should clearly define the domain task itself.
-5. **Strict Relative Git Paths:** All markdown links and file paths in subtasks MUST be strictly relative to the repository root (e.g. `.ai-memory/spec/...`, `src/...`). Zero absolute paths (`/absolute/path/to/...`, `/absolute/path/to/...`) or `file:///` URIs.
-6. **MANDATORY AUTO-LOOP (DO NOT STOP):** As soon as Phase 1 planning completes, the master orchestrator **MUST NOT STOP or ask the user for permission**. It MUST immediately self-loop and transition directly into Phase 2 execution mode.
+1. **Verbatim Prompt Capture & Task Extraction (First Action):** Directly write the user's prompt verbatim into the planning spec at `.ai-memory/plans/pending/xx-<slug>.md` under a dedicated `## User Request (Verbatim)` section. Extract the specific task list from this prompt as actionable bullet points / checklist items under `## Extracted Actionable Task List`. The AI MUST output this extracted checklist directly in chat confirming: *"Confirmed Task Deliverables: 1. [task 1], 2. [task 2]..."* before taking further actions.
+2. **Scan & Discover:** Spawn 2 planning subagents to deeply scan the codebase for target changes or violations.
+3. **Master Spec Generation:** Save the master architectural plan into `.ai-memory/plans/pending/xx-<slug>.md`.
+4. **Task-Specific Rule Set:** Write down 3–5 custom rules or constraints unique to this task inside the spec file.
+5. **Lean Subtask Decomposition:** Break down the plan into a few highly focused subtask files in `.ai-memory/plans/subtasks/xx-<slug>/01-<subtask-title>.md`, `02-<subtask-title>.md`, etc. **Task Focus Over Meta-Prompting:** Your goal is to write code and solve the problem, not just generate more AI prompts. Subagent instructions should clearly define the domain task itself.
+6. **Strict Relative Git Paths:** All markdown links and file paths in subtasks MUST be strictly relative to the repository root (e.g. `.ai-memory/spec/...`, `src/...`). Zero absolute paths (`/absolute/path/to/...`, `/absolute/path/to/...`) or `file:///` URIs.
+7. **MANDATORY AUTO-LOOP (DO NOT STOP):** As soon as Phase 1 planning completes, the master orchestrator **MUST NOT STOP or ask the user for permission**. It MUST immediately self-loop and transition directly into Phase 2 execution mode.
 
 ---
 
@@ -83,6 +85,29 @@ Before writing any source code changes, you MUST execute Phase 1:
 7. **TOTAL BAN on Test Running:** DO NOT run any tests using Python scripts (`06-cicd-local-runner.py`, `pytest`), Go (`go test`), or any test runner during routine execution turns. All test execution is strictly deferred to CI/CD pipelines and dedicated fix workflows.
 8. **TOTAL BAN on Build Checking:** DO NOT run build verification commands (`go build`, `npm run build`, compiler invocations). Build compilation is checked later on in CI/CD.
 9. **Targeted Quality Linting Only:** Run only targeted, fast file-level linters/autofixers on specifically modified files (`exit 0`). DO NOT run `06-cicd-local-runner.py` or full test suites.
+
+### Remote CI/CD Pipeline Monitoring & Dynamic Waiting Protocol (GitMap Pipeline-AI)
+
+When monitoring or checking remote CI/CD pipelines (e.g., following git push or during pipeline audits):
+
+1. **Mandatory GitMap Pipeline-AI Authority:** Agents MUST use GitMap CLI to retrieve remote CI/CD status:
+   ```bash
+   gitmap pipeline-ai status --json
+   # or alias:
+   gitmap pl-ai status --json
+   ```
+   Parse structured output fields: `is_running`, `status`, `etaSeconds`, and `nextAiCommand`.
+2. **Anti-Credit-Waste Waiting Mandate (TOTAL BAN on Rapid Polling):**
+   - NEVER loop rapidly or busy-poll (`gh run view` in tight loops). Rapid polling burns user credits, exhausts LLM tokens, and wastes rate limits.
+   - When a pipeline is in progress (`is_running: true`), agents MUST wait/sleep based on the estimated completion duration (`etaSeconds` or `-t <sec>`):
+     ```bash
+     gitmap pipeline-ai status -t <etaSeconds>
+     ```
+   - Proportional ETA sleep guidelines:
+     - `etaSeconds > 120`: wait 20s–30s before querying again.
+     - `60 < etaSeconds <= 120`: wait 10s–20s before querying again.
+     - `etaSeconds <= 60`: wait 5s–10s before querying again.
+3. **Targeted Failure Diagnostics:** Use GitMap's automated error extraction to isolate actionable failure lines (`##[error]`, `FAIL:`, compile errors) without fetching noisy passing step logs.
 
 ---
 
@@ -103,6 +128,7 @@ Before writing any source code changes, you MUST execute Phase 1:
 - [ ] **NO RUNNER SCRIPTS (TOTAL BAN):** NEVER launch background test runners, worker pools, or test inventory loops during routine execution.
 - [ ] **NO AUTOMATIC RELEASES (TOTAL BAN):** NEVER bump versions, update changelogs, or trigger releases unless explicitly commanded by the user.
 - [ ] **NO PER-FILE COMMITTING (TOTAL BAN):** NEVER commit each file individually as you work (e.g. running `git commit` after editing File 1, then another commit after File 2). Committing file-by-file pollutes git history, creates subagent lock collisions, and breaks atomic changes. All modified files across the turn must be accumulated and committed together in a single atomic commit at the final step.
+- [ ] **NO RAPID CI/CD POLLING (TOTAL BAN):** NEVER query or loop rapidly (`gh run view` in tight loops) when inspecting remote CI/CD pipelines. Agents MUST query pipeline state using GitMap Pipeline-AI (`gitmap pipeline-ai status --json` or `gitmap pl-ai status -t <sec>`) and strictly wait/sleep based on `etaSeconds` to eliminate credit waste.
 
 ---
 
@@ -145,6 +171,7 @@ To guarantee full execution without stopping after planning mode, the master orc
 
 ### 2. Phase 1: Planning Mode & Subtask Generation (Steps 1 .. N/2)
 
+- **Verbatim Prompt Recording & Task Extraction (First Action):** Write the user request verbatim into `.ai-memory/plans/pending/xx-<slug>.md` under `## User Request (Verbatim)`, extract the bulleted actionable deliverables under `## Extracted Actionable Task List`, and output the confirmed task deliverables directly in chat to verify understanding.
 - Spawn 2 planning subagents to scan the codebase for target guideline violations.
 - Write the master architectural specification in `.ai-memory/plans/pending/xx-audit.md` with an exhaustive Violation Ledger table.
 - **Lean Subtask Decomposition:** Break down the plan into a few highly focused subtask files in `.ai-memory/plans/subtasks/xx-<parent-slug>/01-<subtask-title>.md`, `02-<subtask-title>.md`, etc. **Task Focus Over Meta-Prompting:** Your goal is to write code and solve the problem, not just generate more AI prompts. Subagent instructions should clearly define the domain task itself.
@@ -160,7 +187,20 @@ To guarantee full execution without stopping after planning mode, the master orc
   - The next subagent spawned MUST read the previous failure log first, record it as a pending memory task, and implement the necessary fix.
 - Execute targeted local linters on modified files ensuring `exit 0` before concluding. DO NOT run `06-cicd-local-runner.py`, unit test suites, or build checks during routine loops.
 - **TOTAL BAN on Test Running & Build Checking:** All test runs (`go test`, `pytest`, python runners) and build checks (`go build`, compiler verification) are strictly banned during routine execution. Verification will be checked later on in CI/CD.
-- Record all modified files to `.ai-memory/temp/recent-file-changes.json` under lock (`python 03-ai-scripts/33-test-inventory-generator.py --record <files...>`) for subsequent CI/CD runs.
+- Record all modified files to `.ai-memory/temp/recent-file-changes.json` under lock (`python 03-ai-scripts/33-test-inventory-generator.py --record <files...>`) for subsequent CI/CD runs. When inspecting remote CI/CD pipelines, agents MUST follow GitMap (`gitmap pipeline-ai status --json` / `gitmap pl-ai status -t <sec>`) and adaptively wait based on `etaSeconds` to avoid credit waste.
+
+### 4. Per-Task Agent Isolation & Workspace Subfolders (`.ai-memory/temp-agents/xx-<task-name>/`)
+
+To prevent cross-task pollution and ensure seamless agent communication, every task MUST create a dedicated subfolder in `.ai-memory/temp-agents/xx-<task-name>/`:
+1. **Per-Task Isolation:** On task start, the assigned subagent creates its isolated directory `.ai-memory/temp-agents/xx-<task-name>/`.
+2. **State & Progress Tracking:** Create `.ai-memory/temp-agents/xx-<task-name>/state.md` documenting:
+   - Task sequence and target deliverables.
+   - Files assigned for modification.
+   - Current subtask step and completion percentage.
+3. **Inter-Agent Communication & Scratch Space:**
+   - All intermediate findings, scratch outputs, and dependency handoffs between agents working on this task MUST be written inside `.ai-memory/temp-agents/xx-<task-name>/`.
+4. **On Error/Crash:** Append the exact error, root cause, and `STATUS: FAILED` to `.ai-memory/temp-agents/xx-<task-name>/state.md` before exiting.
+5. **On Success:** Mark `STATUS: DONE` in `.ai-memory/temp-agents/xx-<task-name>/state.md`, aggregate findings to the master plan, and clean up or archive the folder.
 
 ## Task Consolidation & File Reduction (End of Loop)
 
