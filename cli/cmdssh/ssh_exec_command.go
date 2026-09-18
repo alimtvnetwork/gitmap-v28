@@ -36,15 +36,13 @@ func determineSSHCommand(osType string, args []string) (string, string, bool) {
 
 func isGitmapCommand(first string) bool {
 	switch first {
-	case "gitmap", "status", "pipeline", "pipe", "pl", "clone", "pull", "sync", "push":
+	case "gitmap", "status", "pipeline", "pipe", "pl", "clone", "pull", "sync", "push", "clean", "log", "branch", "diff":
 		return true
-	case "clean", "log", "branch", "diff", "storage", "macro", "install", "update", "setup":
+	case "storage", "macro", "install", "update", "setup", "chrome", "vscode", "vsc", "vhost", "zip", "service":
 		return true
-	case "chrome", "vscode", "vsc", "vhost", "zip", "service", "os", "schedule", "schedules":
+	case "os", "schedule", "schedules", "agy", "ag", "antigravity", "aef", "fix-pipeline", "prompts-template", "pt":
 		return true
-	case "agy", "ag", "antigravity", "aef", "fix-pipeline", "prompts-template", "prompt-template", "pt":
-		return true
-	case "ssh", "se", "sj", "cluster", "sc", "mkdir", "cat":
+	case "ssh", "se", "sj", "cluster", "sc", "mkdir", "cat", "prompt", "prompts", "pmt", "agm", "ip":
 		return true
 	default:
 		return false

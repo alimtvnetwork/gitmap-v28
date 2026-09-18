@@ -115,7 +115,7 @@ func TestNormalizeAgyArgs_CompoundAndSingle(t *testing.T) {
 	}
 }
 
-func TestIsAgyOpenPathArg(t *testing.T) {
+func TestIsAgyOpenPathArg_Extended(t *testing.T) {
 	if !isAgyOpenPathArg(".") || !isAgyOpenPathArg("..") {
 		t.Error("expected dot paths to be recognized as open paths")
 	}

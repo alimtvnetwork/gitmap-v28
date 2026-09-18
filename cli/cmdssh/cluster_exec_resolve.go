@@ -44,7 +44,7 @@ func resolveExecPositional(opts *clusterExecOptions, positional []string) (*clus
 	if len(positional) == 0 {
 		return nil, apperror.NewValidationError("usage: gitmap cluster exec <all|control|workers|<alias>> \"<command>\" [--sudo] [--parallel <n>]")
 	}
-	if isGitmapCommand(positional[0]) {
+	if isGitmapCommand(extractFirstToken(positional[0])) {
 		return applyAllGitmapCommand(opts, positional), nil
 	}
 
@@ -69,7 +69,7 @@ func resolveExplicitClusterTarget(opts *clusterExecOptions, positional []string)
 }
 
 func resolveClusterCommand(args []string) string {
-	if len(args) > 0 && isGitmapCommand(args[0]) {
+	if len(args) > 0 && isGitmapCommand(extractFirstToken(args[0])) {
 		return resolveGitmapCommandString(args)
 	}
 	return strings.Join(args, " ")
