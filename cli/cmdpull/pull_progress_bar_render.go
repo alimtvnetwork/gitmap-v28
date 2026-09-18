@@ -3,6 +3,8 @@ package cmdpull
 import (
 	"fmt"
 	"time"
+
+	"github.com/alimtvnetwork/gitmap-v28/cli/constants"
 )
 
 // Render redraws the bar immediately.
