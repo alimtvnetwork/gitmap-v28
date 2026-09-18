@@ -151,3 +151,45 @@ func TestHandleEmptyHostsList_Output(t *testing.T) {
 		t.Errorf("expected guidance text, got: %s", buf.String())
 	}
 }
+
+func TestBuildHealthResults(t *testing.T) {
+	host := store.SSHHost{Alias: "srv1", IP: "10.0.0.1", Username: "root"}
+	online := buildOnlineResult(host, 22, 5*time.Millisecond)
+	if !online.IsOnline || online.Status != "ONLINE" || online.Port != 22 || online.Latency != 5*time.Millisecond {
+		t.Errorf("unexpected online result: %+v", online)
+	}
+
+	offline := buildOfflineResult(host, 2222, "connection refused")
+	if offline.IsOnline || offline.Status != "OFFLINE" || offline.Port != 2222 || offline.Details != "connection refused" {
+		t.Errorf("unexpected offline result: %+v", offline)
+	}
+}
+
+func TestFormatLatencyString(t *testing.T) {
+	online := SSHHealthResult{IsOnline: true, Latency: 12 * time.Millisecond}
+	if formatLatencyString(online) != "12ms" {
+		t.Errorf("expected 12ms, got: %s", formatLatencyString(online))
+	}
+
+	offline := SSHHealthResult{IsOnline: false}
+	if formatLatencyString(offline) != "-" {
+		t.Errorf("expected '-', got: %s", formatLatencyString(offline))
+	}
+}
+
+func TestMatchOrAdhocHost(t *testing.T) {
+	hosts := []store.SSHHost{
+		{Alias: "web1", IP: "192.168.1.10", Username: "www"},
+	}
+
+	matched := matchOrAdhocHost(hosts, "web1")
+	if len(matched) != 1 || matched[0].Alias != "web1" {
+		t.Errorf("expected matched host web1, got: %+v", matched)
+	}
+
+	adhoc := matchOrAdhocHost(hosts, "192.168.1.99")
+	if len(adhoc) != 1 || adhoc[0].IP != "192.168.1.99" || adhoc[0].Alias != "-" {
+		t.Errorf("expected adhoc host for unlisted IP, got: %+v", adhoc)
+	}
+}
+
