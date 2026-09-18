@@ -23,7 +23,7 @@ GitHub Actions CI run `#35354190330` for commit `b9d9023` on `main` failed acros
      ```
 
 3. **Relative Path Linter (`check-relative-paths.py`)**:
-   - 12 hardcoded absolute repo paths (`D:\work\gitmap` and `d:\work\gitmap`) across:
+   - 12 hardcoded absolute repo paths across:
      - `.ai-memory/plans/completed/210-ssh-multi-command-discovery-and-agy-terminal-verification.md:64`
      - `.ai-memory/plans/completed/211-ssh-multi-command-discovery-and-agy-terminal-verification.md:65`
      - `.ai-memory/plans/completed/206-pipeline-errors-agy-fix-and-multi-project-batch-hardening.md:54, 55`
@@ -38,7 +38,7 @@ GitHub Actions CI run `#35354190330` for commit `b9d9023` on `main` failed acros
 
 1. **Nested Ifs**: In `cli/cmdagy/agy_fix_pipeline_inject.go`, an `os.OpenFile` check was enclosed directly within `if len(repoDir) > 0`, producing a nesting depth of 2. In `cli/cmdssh/ssh_exec_command.go:extractShellCommandArgs`, `if len(fields) > 1` was enclosed directly inside `if len(args) == 1`, violating the repository maximum nesting depth rule (depth <= 1).
 2. **Process Exit in Unit Tests**: `parseSEFlags` in `cli/cmdssh/sshexec.go` directly invoked `cliexit.Exit(0)` when `hasHelpFlag(args)` was true. In `ssh_test.go:TestDispatchPrimarySSH_MatchedSubcommands`, `dispatchPrimarySSH` is invoked with `[]string{"--help"}` across all matched subcommands to verify sub-routing. Calling `cliexit.Exit(0)` triggered `os.Exit(0)`, which the Go standard test runner recovers and panics on.
-3. **Absolute Windows Path Leakage**: Verbatim PowerShell terminal output (`PS D:\work\gitmap> ...`) and absolute file paths (`d:\work\gitmap\bin\gitmap.exe`) from local testing sessions were copied into completed plan documentation files in `.ai-memory/plans/completed/` and `.lovable/plans/completed/`.
+3. **Absolute Windows Path Leakage**: Verbatim PowerShell terminal output and absolute file paths from local testing sessions were copied into completed plan documentation files in `.ai-memory/plans/completed/` and `.lovable/plans/completed/`.
 4. **Gofmt Drift**: Files modified in Plans 212–214 under `cli/cmdssh/` were committed without running `gofmt -w`, resulting in minor whitespace and alignment drift detected by `.github/scripts/go-format-check.py`.
 
 ## 3. Resolution
@@ -60,5 +60,5 @@ GitHub Actions CI run `#35354190330` for commit `b9d9023` on `main` failed acros
 
 - **Never call `cliexit.Exit(0)` or `os.Exit` inside subcommand handlers**: Command routing handlers must return `nil` or an error, allowing the top-level CLI runner to control process termination and allowing unit tests to execute cleanly without panicking.
 - **Maintain Nesting Depth <= 1**: Always use early guard returns or decompose into small single-purpose helper functions (each <= 15 lines).
-- **Sanitize Plan Evidence Before Commit**: When documenting command output in plans, always strip absolute drive letters and user paths (`D:\work\gitmap`, `C:\Users\...`).
+- **Sanitize Plan Evidence Before Commit**: When documenting command output in plans, always strip absolute drive letters and local workspace paths.
 - **Always Run `gofmt -w cli/` and `check-relative-paths.py` Pre-Commit**: Verify all linters pass locally before pushing.
