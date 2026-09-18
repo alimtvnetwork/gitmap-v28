@@ -141,10 +141,23 @@ func matchOrAdhocHost(hosts []store.SSHHost, target string) []store.SSHHost {
 	return []store.SSHHost{createAdhocHost(target)}
 }
 
+func matchMultipleTargets(hosts []store.SSHHost, targets []string) []store.SSHHost {
+	var result []store.SSHHost
+	for _, t := range targets {
+		matched := matchOrAdhocHost(hosts, t)
+		result = append(result, matched...)
+	}
+	return result
+}
+
 func resolveTargetHosts(ctx context.Context, target string) ([]store.SSHHost, *apperror.AppError) {
 	hosts, err := loadAllRegisteredHosts(ctx)
 	if target == "" {
 		return hosts, err
+	}
+	targets := ParseMultiIPList(target)
+	if len(targets) > 1 {
+		return matchMultipleTargets(hosts, targets), nil
 	}
 	if err != nil {
 		return []store.SSHHost{createAdhocHost(target)}, nil

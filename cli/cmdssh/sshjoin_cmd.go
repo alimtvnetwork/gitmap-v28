@@ -6,6 +6,7 @@ import (
 	"fmt"
 	"io"
 	"os"
+	"strings"
 	"sync/atomic"
 	"text/tabwriter"
 	"time"
@@ -404,8 +405,48 @@ func parseJoinArgs(args []string) (*SSHJoinOptions, error) {
 	return opts, nil
 }
 
+func findMultiTargetIndex(args []string) int {
+	for i, a := range args {
+		if !strings.HasPrefix(a, "-") && strings.Contains(a, ",") {
+			return i
+		}
+	}
+	return -1
+}
+
+func buildSingleTargetArgs(args []string, idx int, target string) []string {
+	res := make([]string, len(args))
+	copy(res, args)
+	res[idx] = target
+	return res
+}
+
+func executeMultiEnroll(ctx context.Context, args []string, targetIdx int) error {
+	targets := ParseMultiIPList(args[targetIdx])
+	for _, target := range targets {
+		singleArgs := buildSingleTargetArgs(args, targetIdx, target)
+		opts, err := parseJoinArgs(singleArgs)
+		if err != nil {
+			return err
+		}
+		if err := enrollParsedTarget(ctx, opts); err != nil {
+			return err
+		}
+	}
+	return nil
+}
+
 func executeEnrollCLI(ctx context.Context, args []string) error {
 	ctx = resolveContext(ctx)
+	if hasHelpFlag(args) {
+		return showJoinHelpAndExit()
+	}
+
+	targetIdx := findMultiTargetIndex(args)
+	if targetIdx != -1 {
+		return executeMultiEnroll(ctx, args, targetIdx)
+	}
+
 	opts, err := parseJoinArgs(args)
 	if err != nil {
 		return err

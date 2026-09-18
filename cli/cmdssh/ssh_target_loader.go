@@ -28,12 +28,40 @@ func filterConnectionsByTarget(conns []db.SSHConnection, target string) []db.SSH
 		return conns
 	}
 
+	targets := ParseMultiIPList(target)
+	if len(targets) <= 1 {
+		return filterSingleTarget(conns, target)
+	}
+
+	return filterMultipleTargets(conns, targets)
+}
+
+func filterSingleTarget(conns []db.SSHConnection, target string) []db.SSHConnection {
 	var matched []db.SSHConnection
 	for _, c := range conns {
 		if strings.EqualFold(c.Alias, target) || strings.EqualFold(c.IPAddress, target) {
 			matched = append(matched, c)
 		}
 	}
-
 	return matched
 }
+
+func filterMultipleTargets(conns []db.SSHConnection, targets []string) []db.SSHConnection {
+	var matched []db.SSHConnection
+	for _, c := range conns {
+		if matchesAnyTarget(c, targets) {
+			matched = append(matched, c)
+		}
+	}
+	return matched
+}
+
+func matchesAnyTarget(c db.SSHConnection, targets []string) bool {
+	for _, t := range targets {
+		if strings.EqualFold(c.Alias, t) || strings.EqualFold(c.IPAddress, t) {
+			return true
+		}
+	}
+	return false
+}
+

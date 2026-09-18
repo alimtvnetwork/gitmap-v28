@@ -44,6 +44,7 @@ func printSSHExecExamples() {
 	fmt.Println("  gitmap ssh exec \"uptime\"")
 	fmt.Println("  gitmap ssh exec devbox \"uname -a && df -h\"")
 	fmt.Println("  gitmap ssh exec devbox \"cd /var/www && git status; ls -la\"")
+	fmt.Println("  gitmap ssh exec devbox,worker-1 \"free -m\"")
 	fmt.Println("  gitmap ssh exec devbox gitmap status")
 	fmt.Println("  gitmap ssh exec devbox \"gitmap status && gitmap pipeline\"")
 	fmt.Println("  gitmap ssh exec all gitmap --version")

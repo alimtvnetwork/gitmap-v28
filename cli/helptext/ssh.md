@@ -125,6 +125,9 @@ printed and a one-line warning is emitted — never fails.
         Recall anytime: gitmap ssh devbox
         Or connect directly: gitmap ssh 192.168.1.14
 
+    # Enroll multiple machines simultaneously (comma-separated):
+    $ gitmap ssh join 192.168.1.10,192.168.1.11,192.168.1.12
+
 ### Enroll with encrypted password (add-with-pass)
 
     $ gitmap ssh join add-with-pass alim@192.168.1.14 secret123 devbox
@@ -140,6 +143,9 @@ printed and a one-line warning is emitted — never fails.
 
     $ gitmap ssh exec --target devbox "uname -a"
       [devbox|192.168.1.14] Linux devbox 5.15.0-107-generic x86_64
+
+    # Execute across multiple targeted machines (comma-separated):
+    $ gitmap ssh exec devbox,worker-1 "free -m"
 
 Nodes are probed with an in-memory TTL reachability cache (45 seconds). Offline nodes
 are skipped immediately without hanging your terminal.
@@ -167,6 +173,9 @@ are skipped immediately without hanging your terminal.
     # Check a single targeted machine:
     $ gitmap ssh check devbox
       ONLINE    devbox      192.168.1.14   alim       22      10ms   reachable
+
+    # Check multiple targeted machines (comma-separated):
+    $ gitmap ssh check devbox,192.168.1.20
 
 ### Install GitMap or packages across fleet (install / i)
 
