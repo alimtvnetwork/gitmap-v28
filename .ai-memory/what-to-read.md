@@ -5,6 +5,7 @@
 
 ## Changelog
 
+- 2026-09-19T02:00:00Z, Memory write: Plans 208–214 SSH multi-target command resolution and machine join, and CI/CD pipeline bounded stack traces (RCA 58).
 - 2026-09-18T02:35:00Z, Memory write: Plan 194 parallel workflow/section log download for single commits, previous pipeline run/DB fallback, and two-pass non-mutating line execution and filtering.
 - 2026-09-17T22:05:00Z, Memory write: Git commit history audit (last 10 commits), Coding Guideline 24 OS test isolation, hermetic mock runner decoupling, and full repository context ingestion.
 - 2026-09-13T20:25:00Z, Memory write: Linux archive package installation (gitmap install tar <archive>), intelligent package strategy detection (binary, script, source, single gz), step-by-step progress display, and dual-database uninstaller integration.
@@ -33,6 +34,7 @@
 - `.ai-memory/memory/learned/26-official-antigravity-artifacts-and-universal-uninstall.md`, why: official GCS Antigravity artifacts, Linux desktop cleanup, universal uninstall engine, and stack traces
 - `.ai-memory/memory/learned/27-linux-archive-installer-intelligent-strategy.md`, why: Linux archive package installer, intelligent strategy detection, step-by-step progress, and uninstaller integration
 - `.ai-memory/memory/learned/28-git-commit-history-os-isolation-and-context-ingestion.md`, why: recent 10 commits, Coding Guideline 24 OS test isolation, hermetic mock runner decoupling, and context ingestion
+- `.ai-memory/memory/learned/29-ssh-multi-target-pipeline-bounded-stacktrace-ingestion.md`, why: Plans 208–214 SSH multi-target command resolution and machine join, and CI/CD pipeline bounded stack traces (RCA 58)
 
 
 - `03-ai-scripts/01-index.md`, why: local automation tools and CI/CD parallel runner specifications
