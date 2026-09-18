@@ -1,6 +1,7 @@
 package cmd
 
 import (
+	"database/sql"
 	"fmt"
 	"os"
 	"path/filepath"
@@ -39,15 +40,20 @@ func runAutoHealLocalDB() error {
 	}
 	defer conn.Close()
 
-	var checkResult string
-	row := conn.QueryRow("PRAGMA integrity_check;")
-	if scanErr := row.Scan(&checkResult); scanErr != nil {
-		checkResult = "ok"
-	}
-
+	checkResult := checkDBIntegrity(conn)
 	printAutoHealSuccess(dbPath, checkResult)
 
 	return nil
+}
+
+func checkDBIntegrity(conn *sql.DB) string {
+	var checkResult string
+	row := conn.QueryRow("PRAGMA integrity_check;")
+	if scanErr := row.Scan(&checkResult); scanErr != nil {
+		return "ok"
+	}
+
+	return checkResult
 }
 
 func printAutoHealSuccess(dbPath, checkResult string) {

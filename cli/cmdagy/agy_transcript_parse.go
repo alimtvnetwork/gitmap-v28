@@ -28,11 +28,16 @@ func parseTranscriptLine(line []byte, convID, ws string) (AgyPromptEntry, bool) 
 	if err := json.Unmarshal(line, &step); err != nil || step.Type != "USER_INPUT" {
 		return AgyPromptEntry{}, false
 	}
-	ts, _ := time.Parse(time.RFC3339, step.CreatedAt)
+
+	return buildPromptEntry(step, convID, ws)
+}
+
+func buildPromptEntry(step rawTranscriptStep, convID, ws string) (AgyPromptEntry, bool) {
 	cleanText := cleanPromptText(step.Content)
 	if cleanText == "" {
 		return AgyPromptEntry{}, false
 	}
+	ts, _ := time.Parse(time.RFC3339, step.CreatedAt)
 
 	return AgyPromptEntry{
 		StepIndex: step.StepIndex,

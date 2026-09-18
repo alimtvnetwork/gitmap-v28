@@ -6,12 +6,10 @@ import (
 	"strconv"
 	"strings"
 
-	"github.com/atotto/clipboard"
 	"github.com/spf13/cobra"
 
 	"github.com/alimtvnetwork/gitmap-v28/cli/cmdprompttemplate"
 	"github.com/alimtvnetwork/gitmap-v28/cli/constants"
-	"github.com/alimtvnetwork/gitmap-v28/cli/termpad"
 )
 
 var (

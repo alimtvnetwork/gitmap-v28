@@ -2,6 +2,7 @@ package cmdagy
 
 import (
 	"strconv"
+	"strings"
 
 	"github.com/spf13/cobra"
 )
@@ -39,11 +40,14 @@ func runAgyListPrompts(args []string) error {
 
 func parsePromptLimit(args []string) int {
 	if len(args) == 0 {
-		return 10
+		return 50
+	}
+	if strings.ToLower(args[0]) == "all" {
+		return 10000
 	}
 	val, err := strconv.Atoi(args[0])
 	if err != nil || val < 1 {
-		return 10
+		return 50
 	}
 
 	return val

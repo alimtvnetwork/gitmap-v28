@@ -41,10 +41,12 @@ func ExportAllTemplates(destPath string) error {
 	if err != nil {
 		return err
 	}
-	suite := TemplateSuite{
-		Version:   "1.0.0",
-		Templates: list,
-	}
+
+	return writeTemplateSuiteFile(list, destPath)
+}
+
+func writeTemplateSuiteFile(list []PromptTemplate, destPath string) error {
+	suite := TemplateSuite{Version: "1.0.0", Templates: list}
 	data, err := json.MarshalIndent(suite, "", "  ")
 	if err != nil {
 		return apperror.WrapSimple(err, "marshal template suite")
@@ -59,16 +61,26 @@ func ImportAllTemplates(srcPath string) (int, error) {
 	if err != nil {
 		return 0, apperror.WrapSimple(err, "read template suite file")
 	}
+
+	return parseAndImportSuite(data)
+}
+
+func parseAndImportSuite(data []byte) (int, error) {
 	var suite TemplateSuite
 	if parseErr := json.Unmarshal(data, &suite); parseErr != nil {
 		return 0, apperror.WrapSimple(parseErr, "parse template suite JSON")
 	}
+
+	return insertSuiteTemplates(suite.Templates), nil
+}
+
+func insertSuiteTemplates(templates []PromptTemplate) int {
 	count := 0
-	for _, item := range suite.Templates {
+	for _, item := range templates {
 		if _, addErr := AddTemplate(item.Name, item.Content); addErr == nil {
 			count++
 		}
 	}
 
-	return count, nil
+	return count
 }

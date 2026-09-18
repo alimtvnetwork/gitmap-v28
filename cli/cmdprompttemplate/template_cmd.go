@@ -14,23 +14,36 @@ func RunPromptsTemplateCLI(args []string) error {
 		return runListTemplates()
 	}
 	sub := strings.ToLower(args[0])
+	if sub == "-h" || sub == "--help" || sub == "help" {
+		return printTemplateHelp()
+	}
+
+	return dispatchTemplateSubcommand(sub, args[1:])
+}
+
+func dispatchTemplateSubcommand(sub string, rest []string) error {
 	switch sub {
 	case "add":
-		return runAddTemplate(args[1:])
+		return runAddTemplate(rest)
 	case "edit":
-		return runEditTemplate(args[1:])
+		return runEditTemplate(rest)
 	case "rm", "delete", "remove":
-		return runDeleteTemplate(args[1:])
+		return runDeleteTemplate(rest)
+	default:
+		return dispatchTemplateTransferSubcommand(sub, rest)
+	}
+}
+
+func dispatchTemplateTransferSubcommand(sub string, rest []string) error {
+	switch sub {
 	case "export":
-		return runExportTemplate(args[1:])
+		return runExportTemplate(rest)
 	case "import":
-		return runImportTemplate(args[1:])
+		return runImportTemplate(rest)
 	case "export-all", "exportall":
-		return runExportAllTemplates(args[1:])
+		return runExportAllTemplates(rest)
 	case "import-all", "importall":
-		return runImportAllTemplates(args[1:])
-	case "-h", "--help", "help":
-		return printTemplateHelp()
+		return runImportAllTemplates(rest)
 	default:
 		return apperror.NewValidationError("unknown prompts-template subcommand: " + sub)
 	}

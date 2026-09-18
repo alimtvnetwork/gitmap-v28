@@ -57,6 +57,15 @@ func CollectAllPrompts() []AgyPromptEntry {
 	if err != nil {
 		return nil
 	}
+	all := scanBrainDirPrompts(brainDir)
+	sort.Slice(all, func(i, j int) bool {
+		return all[i].CreatedAt.After(all[j].CreatedAt)
+	})
+
+	return all
+}
+
+func scanBrainDirPrompts(brainDir string) []AgyPromptEntry {
 	entries, readErr := os.ReadDir(brainDir)
 	if readErr != nil {
 		return nil
@@ -67,9 +76,6 @@ func CollectAllPrompts() []AgyPromptEntry {
 			all = append(all, readConvPrompts(brainDir, e.Name())...)
 		}
 	}
-	sort.Slice(all, func(i, j int) bool {
-		return all[i].CreatedAt.After(all[j].CreatedAt)
-	})
 
 	return all
 }
