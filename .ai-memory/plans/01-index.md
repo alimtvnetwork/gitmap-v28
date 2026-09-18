@@ -8,7 +8,9 @@ Master directory of architectural and execution plans.
 
 ## Recent Completed Tasks Register (Last 20 Tasks)
 
-1. [Plan 198: 198-terminal-ssh-execution-audit-and-ui-help-parity.md](completed/198-terminal-ssh-execution-audit-and-ui-help-parity.md): Terminal SSH Execution Audit, Target Selection & UI Help Parity
+1. [Plan 202: 202-agy-prompts-templates-and-rerun-suite.md](completed/202-agy-prompts-templates-and-rerun-suite.md): AGY Prompts Templates, Rerun Suite, Remote Triad Delegation & Storage Restore
+2. [Plan 201: 201-cluster-sc-compare-matrix-and-help-parity.md](completed/201-cluster-sc-compare-matrix-and-help-parity.md): Cluster & SC Compare Matrix Dispatch & Help Text Parity
+3. [Plan 198: 198-terminal-ssh-execution-audit-and-ui-help-parity.md](completed/198-terminal-ssh-execution-audit-and-ui-help-parity.md): Terminal SSH Execution Audit, Target Selection & UI Help Parity
 2. [Plan 197: 197-terminal-ssh-execution-install-and-cluster-parity.md](completed/197-terminal-ssh-execution-install-and-cluster-parity.md): Terminal SSH Execution, Liveness Scan, Remote Install & Cluster Parity
 3. [Plan 196: 196-storage-ls-ui-cleanup-and-relative-paths.md](completed/196-storage-ls-ui-cleanup-and-relative-paths.md): Storage List UI Cleanup & Relative Paths
 3. [Plan 195: 195-terminal-help-table-framework-and-pipeline-rca.md](completed/195-terminal-help-table-framework-and-pipeline-rca.md): Terminal Help & Table Display Frameworks, Nested-If & Undefined Constants Pipeline RCAs, and UI Animations

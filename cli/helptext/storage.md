@@ -17,7 +17,8 @@ gitmap storage [subcommand] [flags]
 | Subcommand | Description |
 |------------|-------------|
 | status (st, info) | Inspect drive capacity, filesystem metrics, and SQLite database summary |
-| ls (list, db, dbs) | List all repository-scoped and global Gitmap SQLite databases |
+| ls (list, db, dbs) | List all system and discovered repository SQLite databases (repo DBs) |
+| restore-db (restore) | Restore or auto-heal Gitmap SQLite databases from backup snapshot or schema |
 | clean (clear, prune) | Clean pipeline error logs, temporary files, and vacuum SQLite databases |
 
 ## Options
@@ -26,6 +27,11 @@ gitmap storage [subcommand] [flags]
 
     -a, --all      Include hidden, system, and virtual drives
     -j, --json     Output storage statistics in JSON format
+
+### Restore Flags
+
+    -f, --force    Bypass confirmation when restoring database from snapshot
+    -s, --snapshot Snapshot ID or relative index to restore (defaults to latest)
 
 ### Clean Flags
 
@@ -39,6 +45,15 @@ gitmap storage [subcommand] [flags]
 ```bash
 # View storage consumption across all physical volumes and SQLite DB count
 gitmap storage
+
+# List all system, split, and repository SQLite databases (repo DBs)
+gitmap storage ls
+
+# Restore or auto-heal database from the latest cloud backup snapshot
+gitmap storage restore-db
+
+# Restore database from a specific snapshot ID
+gitmap storage restore-db --snapshot 20260918-120000
 
 # List all SQLite databases tracked across Gitmap repositories
 gitmap storage ls

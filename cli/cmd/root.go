@@ -15,6 +15,7 @@ import (
 	"github.com/alimtvnetwork/gitmap-v28/cli/cliexit"
 	"github.com/alimtvnetwork/gitmap-v28/cli/cmdagy"
 	"github.com/alimtvnetwork/gitmap-v28/cli/cmdprompt"
+	"github.com/alimtvnetwork/gitmap-v28/cli/cmdprompttemplate"
 	"github.com/alimtvnetwork/gitmap-v28/cli/cmdssh"
 	"github.com/alimtvnetwork/gitmap-v28/cli/config"
 	"github.com/alimtvnetwork/gitmap-v28/cli/constants"
@@ -574,6 +575,12 @@ func dispatchExtraCommand(
 		return true
 	case "prompt", "prompts", "pmt":
 		executeAndAudit(cmdprompt.DispatchPrompt, shouldAudit, auditID, auditStart)
+
+		return true
+	case "prompts-template", "prompt-template", "prompts-templates", "prompt-templates", "pt":
+		executeAndAudit(func(ctx context.Context, args []string, root *cobra.Command) error {
+			return cmdprompttemplate.RunPromptsTemplateCLI(args[1:])
+		}, shouldAudit, auditID, auditStart)
 
 		return true
 	default:

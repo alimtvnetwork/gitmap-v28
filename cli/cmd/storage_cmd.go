@@ -30,8 +30,15 @@ func routeStorageSubcommand(args []string) result.ErrorWrapper {
 	if isStorageCleanSubcommand(sub) {
 		return result.MatchWrapper(runStorageClean(args[1:]))
 	}
+	if isStorageRestoreSubcommand(sub) {
+		return result.MatchWrapper(runStorageRestoreDB(args[1:]))
+	}
 
 	return result.MatchWrapper(runStorageDriveReport(stripFirstArgIfStatus(sub, args)))
+}
+
+func isStorageRestoreSubcommand(sub string) bool {
+	return sub == "restore-db" || sub == "restoredb" || sub == "restore"
 }
 
 func isStorageListSubcommand(sub string) bool {

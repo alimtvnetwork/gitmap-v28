@@ -178,6 +178,7 @@ func printAgyScanSummary(total, added, repeated, missing int) {
 	if repeated > 0 {
 		fmt.Println("  Tip: Run 'gitmap agy optimize-projects' to remove duplicate projects.")
 	}
+	printPromptScanSummary(computePromptScanStats())
 
 	fmt.Println()
 }

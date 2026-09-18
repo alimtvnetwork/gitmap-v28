@@ -53,6 +53,7 @@ export const Categories: CommandCategory[] = [
   { key: "cluster", label: "Cluster & Delegation", description: "Multi-machine clustering and command delegation", icon: "🕸️" },
   { key: "pipeline", label: "Pipeline & CI/CD", description: "Live CI/CD telemetry, ETA wait times, and failure logs", icon: "⚡" },
   { key: "tasks", label: "Automation & Macros", description: "Interactive macro step builder, live execution preview, and terminal automation", icon: "🤖" },
+  { key: "antigravity", label: "Antigravity (AGY)", description: "Workspaces, prompts templates, prompt replay, and AI agents orchestration", icon: "🧠" },
 ];
 
 export const commands: CommandDef[] = [
@@ -3406,6 +3407,118 @@ export const commands: CommandDef[] = [
       { command: "gitmap pipeline error-logs", description: "Display failure logs in terminal" },
       { command: 'gitmap pipeline error-logs --json --tempfile "ci-fail.json"', description: "Save structured failure report to temp file" },
       { command: "gitmap error-logs", description: "Top-level shortcut" },
+    ],
+  },
+  {
+    name: "agy rerun",
+    alias: "ag rerun, rerun last",
+    description: "Replay last N Antigravity user prompts with optional prefix prompt template (defaults to is-done verification prompt)",
+    usage: "gitmap agy rerun last [N] [-p <template>] [--no-clipboard] [--dry-run]",
+    category: "antigravity",
+    flags: [
+      { flag: "-p, --prompt <name|id>", description: "Prefix prompt template name or ID (default: is-done)" },
+      { flag: "--no-clipboard", description: "Skip copying the constructed prompt to system clipboard" },
+      { flag: "-d, --dry-run", description: "Preview prompt without triggering execution" },
+    ],
+    examples: [
+      { command: "gitmap agy rerun last 1", description: "Replay last prompt with default is-done verification prefix" },
+      { command: "gitmap agy rerun last 5 -p is-done", description: "Replay last 5 prompts prefixed with is-done verification" },
+      { command: "gitmap agy rerun last 3 --dry-run", description: "Preview prompt payload without clipboard copy" },
+      { command: "gitmap ssh exec agy rerun last 1 -p is-done", description: "Execute prompt replay across remote SSH node" },
+    ],
+    howToProceed: [
+      { step: 1, title: "Select Prompt Depth", action: "Specify how many recent prompts to capture (e.g. last 1, 5, 10)." },
+      { step: 2, title: "Choose Prefix Template", action: "Use -p is-done (default) or provide custom template name/ID." },
+      { step: 3, title: "Review or Dispatch", action: "Verify clipboard content or paste directly into AGY agent session." },
+    ],
+    seeAlso: [
+      { name: "prompts-template", description: "Manage reusable prompt templates in JSON" },
+      { name: "agy list-prompts", description: "List and diff historical prompts across projects" },
+    ],
+  },
+  {
+    name: "agy list-prompts",
+    alias: "ag list-prompts",
+    description: "List historical user prompts per project or across all projects with non-admin VS Code workspace inspection",
+    usage: "gitmap agy list-prompts [N] [--all-projects] [--projects <N>] [--project <prefix>] [--json]",
+    category: "antigravity",
+    flags: [
+      { flag: "--all-projects", description: "List prompts across all registered projects" },
+      { flag: "--projects <N>", description: "Showcase prompt changes across last N commit projects in a new non-admin VS Code window" },
+      { flag: "--project <prefix>", description: "Filter prompts by project name prefix" },
+      { flag: "-j, --json", description: "Output prompt history as structured JSON" },
+    ],
+    examples: [
+      { command: "gitmap agy list-prompts 10", description: "List last 10 prompts for current project" },
+      { command: "gitmap agy list-prompts 10 --all-projects", description: "List last 10 prompts across all projects" },
+      { command: "gitmap agy list-prompts 10 --projects 10", description: "Open prompt changes across last 10 commit projects in new VS Code window" },
+      { command: "gitmap agy list-prompts 10 --project gitmap", description: "Filter prompts for project starting with gitmap" },
+    ],
+    seeAlso: [
+      { name: "agy rerun", description: "Replay recent prompts with template prefixes" },
+      { name: "agy scan", description: "Scan repositories and prompt activity" },
+    ],
+  },
+  {
+    name: "agy scan",
+    alias: "ag scan",
+    description: "Scan directory trees for Git repositories, Antigravity workspaces, recent prompt activity counts, and archives",
+    usage: "gitmap agy scan [path]",
+    category: "antigravity",
+    flags: [
+      { flag: "[path]", description: "Root path to scan (defaults to current working directory)" },
+    ],
+    examples: [
+      { command: "gitmap agy scan", description: "Scan current directory for repositories and AGY prompt activity" },
+      { command: "gitmap agy scan d:/work", description: "Scan full work tree and display prompt counts" },
+    ],
+    seeAlso: [
+      { name: "agy list-prompts", description: "Inspect individual prompts per project" },
+    ],
+  },
+  {
+    name: "prompts-template",
+    alias: "prompt-template, pt",
+    description: "Manage reusable Antigravity prompt prefix and verification templates stored as JSON",
+    usage: "gitmap prompts-template <add|edit|ls|rm|import|export|import-all|export-all> [args]",
+    category: "antigravity",
+    flags: [
+      { flag: "add <name> <content>", description: "Create a new prompt template" },
+      { flag: "edit <name|id> <content>", description: "Update an existing template's content" },
+      { flag: "ls, list", description: "List all registered prompt templates" },
+      { flag: "rm, delete <name|id>", description: "Remove a prompt template" },
+      { flag: "export <name|id> <file.json>", description: "Export single template to JSON file" },
+      { flag: "import <file.json>", description: "Import a single template from JSON file" },
+      { flag: "export-all [file.json]", description: "Export all templates to a JSON file" },
+      { flag: "import-all <file.json>", description: "Bulk import multiple templates from a JSON file" },
+    ],
+    examples: [
+      { command: "gitmap prompts-template ls", description: "List all prompt templates including built-in is-done" },
+      { command: 'gitmap prompts-template add code-audit "Perform comprehensive code audit against spec"', description: "Add new template" },
+      { command: "gitmap prompts-template export is-done ./is-done.json", description: "Export template to JSON" },
+      { command: "gitmap prompts-template export-all ./templates.json", description: "Export all templates to JSON" },
+      { command: "gitmap prompts-template import-all ./templates.json", description: "Import all templates from JSON" },
+    ],
+    seeAlso: [
+      { name: "agy rerun", description: "Use template prefix when rerunning prompts" },
+    ],
+  },
+  {
+    name: "storage restore-db",
+    alias: "storage restore, restore-db",
+    description: "Restore or auto-heal Gitmap SQLite databases from cloud backup snapshots or schema migrations",
+    usage: "gitmap storage restore-db [--snapshot <id>] [--force]",
+    category: "maintenance",
+    flags: [
+      { flag: "-s, --snapshot <id>", description: "Snapshot ID or relative numeric index (defaults to latest)" },
+      { flag: "-f, --force", description: "Bypass confirmation prompt" },
+    ],
+    examples: [
+      { command: "gitmap storage restore-db", description: "Restore database from the latest snapshot" },
+      { command: "gitmap storage restore-db -s 20260918-120000 --force", description: "Restore specific snapshot without prompt" },
+    ],
+    seeAlso: [
+      { name: "storage ls", description: "List all system and repository SQLite databases" },
     ],
   },
 ];

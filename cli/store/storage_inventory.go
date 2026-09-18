@@ -24,6 +24,8 @@ func CollectAllDatabaseEntries() []SplitDatabaseEntry {
 	collectSubdirDatabases(dataDir, "schedules", "schedule", addEntry)
 	collectSubdirDatabases(dataDir, "pipeline", "pipeline", addEntry)
 	collectSubdirDatabases(dataDir, "pipeline_db", "pipeline", addEntry)
+	collectSubdirDatabases(dataDir, "repo_search", "repo", addEntry)
+	collectLocalRepoDatabases(addEntry)
 	collectLooseDatabases(dataDir, addEntry)
 
 	return list
@@ -78,5 +80,12 @@ func collectLooseDatabases(dataDir string, add func(SplitDatabaseEntry)) {
 		path := filepath.Join(dataDir, e.Name())
 		slug := strings.TrimSuffix(e.Name(), ".db")
 		add(inspectSplitDBFile("custom", slug, path, "Gitmap custom SQLite database"))
+	}
+}
+
+func collectLocalRepoDatabases(add func(SplitDatabaseEntry)) {
+	localDB := filepath.Join(".gitmap", "gitmap.db")
+	if _, err := os.Stat(localDB); err == nil {
+		add(inspectSplitDBFile("repo", "local-repo", localDB, "Local repository Gitmap SQLite database"))
 	}
 }

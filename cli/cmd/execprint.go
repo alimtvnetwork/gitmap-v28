@@ -2,6 +2,7 @@ package cmd
 
 import (
 	"fmt"
+	"os"
 	"os/exec"
 	"strings"
 
@@ -9,18 +10,28 @@ import (
 	"github.com/alimtvnetwork/gitmap-v28/cli/model"
 )
 
-// execInRepo runs a git command inside a single repo directory.
+// execInRepo runs a git or gitmap command inside a single repo directory.
 func execInRepo(rec model.ScanRecord, gitArgs []string) bool {
-	cmd := exec.Command(constants.GitBin, gitArgs...)
-	cmd.Dir = rec.AbsolutePath
-	cmd.Stdout = nil
-	cmd.Stderr = nil
-
+	cmd := resolveExecCmd(rec, gitArgs)
 	out, err := cmd.CombinedOutput()
 	output := strings.TrimSpace(string(out))
 	printExecResult(rec.RepoName, output, err)
 
 	return err == nil
+}
+
+func resolveExecCmd(rec model.ScanRecord, gitArgs []string) *exec.Cmd {
+	if len(gitArgs) > 0 && (gitArgs[0] == "agy" || gitArgs[0] == "ag") {
+		bin, _ := os.Executable()
+		cmd := exec.Command(bin, gitArgs...)
+		cmd.Dir = rec.AbsolutePath
+
+		return cmd
+	}
+	cmd := exec.Command(constants.GitBin, gitArgs...)
+	cmd.Dir = rec.AbsolutePath
+
+	return cmd
 }
 
 // printExecResult prints the success or failure line for one repo.

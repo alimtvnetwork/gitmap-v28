@@ -152,6 +152,9 @@ func dispatchSCMetaOps(subCmd string, rest []string) bool {
 	case "ping", "health":
 		_ = cmdssh.RunSJStatus(nil, rest, context.Background())
 		return true
+	case "exec", "run":
+		_ = cmdssh.RunClusterExecCLI(rest)
+		return true
 	default:
 		return false
 	}

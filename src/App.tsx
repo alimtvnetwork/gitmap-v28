@@ -41,6 +41,7 @@ import NotFound from "./pages/NotFound";
 import ZipGroupPage from "./pages/ZipGroup";
 import AliasPage from "./pages/Alias";
 import SSHPage from "./pages/SSH";
+import AGYPromptsPage from "./pages/AGYPrompts";
 import PrunePage from "./pages/Prune";
 import DoctorPage from "./pages/Doctor";
 import TempReleasePage from "./pages/TempRelease";
@@ -134,6 +135,8 @@ const App = () => (
           <Route path="/zip-group" element={<ZipGroupPage />} />
           <Route path="/alias" element={<AliasPage />} />
           <Route path="/ssh" element={<SSHPage />} />
+          <Route path="/agy-prompts" element={<AGYPromptsPage />} />
+          <Route path="/docs/agy-prompts" element={<AGYPromptsPage />} />
           <Route path="/prune" element={<PrunePage />} />
           <Route path="/doctor" element={<DoctorPage />} />
           <Route path="/temp-release" element={<TempReleasePage />} />

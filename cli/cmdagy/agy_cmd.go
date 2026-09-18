@@ -133,6 +133,14 @@ func normalizeAgySubcommand(sub string) string {
 		return "fix-pipeline"
 	}
 
+	if low == "list-prompts" || low == "listprompts" || low == "lp" || low == "list-prompt" {
+		return "list-prompts"
+	}
+
+	if low == "rerun" || low == "replay" || low == "rr" {
+		return "rerun"
+	}
+
 	return sub
 }
 
@@ -223,6 +231,8 @@ func init() {
 	AgyCmd.AddCommand(agyPinProjectsCmd)
 	AgyCmd.AddCommand(agyCleanCacheCmd)
 	AgyCmd.AddCommand(agyFixPipelineCmd)
+	AgyCmd.AddCommand(agyRerunCmd)
+	AgyCmd.AddCommand(agyListPromptsCmd)
 	initPlugins()
 	initAgyGroup()
 	initAgySettings()

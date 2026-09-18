@@ -27,7 +27,10 @@ func determineSSHCommand(osType string, args []string) (string, string, bool) {
 }
 
 func isGitmapCommand(first string) bool {
-	return first == "gitmap" || first == "mkdir" || first == "cat" || first == "ssh"
+	return first == "gitmap" || first == "mkdir" || first == "cat" || first == "ssh" ||
+		first == "agy" || first == "ag" || first == "antigravity" ||
+		first == "schedule" || first == "schedules" ||
+		first == "prompts-template" || first == "prompt-template" || first == "pt"
 }
 
 func resolveGitmapCommandString(args []string) string {
