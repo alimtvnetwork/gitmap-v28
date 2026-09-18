@@ -31,6 +31,27 @@ gitmap agy <subcommand> [flags]
 
 ---
 
+## Examples
+
+```bash
+# Rerun the last prompt with the default verification template
+gitmap agy rerun last 1
+
+# List prompts across all projects
+gitmap agy list-prompts 10 --all-projects
+
+# Inspect prompt changes for last 10 commit projects in VS Code
+gitmap agy list-prompts 10 --projects 10
+
+# Filter prompts for a specific project prefix
+gitmap agy list-prompts 10 --project my-project
+
+# Scan directory for repositories and prompt archives
+gitmap agy scan
+```
+
+---
+
 ## 1. agy rerun
 
 Replay the last N user prompts recorded in Antigravity conversation transcripts. Supports adding a prefix prompt template to verify or guide the execution.

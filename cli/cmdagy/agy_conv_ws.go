@@ -12,8 +12,8 @@ func resolveConvWorkspace(convID string) string {
 		return ""
 	}
 	dbPath := filepath.Join(convDir, convID+".db")
-	conn, err := store.OpenSQLiteDB(dbPath)
-	if err != nil {
+	conn, dbErr := store.OpenSQLiteDB(dbPath)
+	if dbErr != nil {
 		return ""
 	}
 	defer conn.Close()

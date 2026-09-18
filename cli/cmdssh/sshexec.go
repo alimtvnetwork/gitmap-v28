@@ -1,6 +1,7 @@
 package cmdssh
 
 import (
+	"context"
 	"flag"
 	"fmt"
 	"strings"
@@ -124,7 +125,7 @@ func runSSHWorker(c db.SSHConnection, args []string, wg *sync.WaitGroup) error {
 
 	header := lipgloss.NewStyle().Bold(true).Foreground(lipgloss.Color("#8be9fd")).Render(fmt.Sprintf("[%s|%s]", c.Alias, c.IPAddress))
 
-	isOnline, reason := CheckConnLiveness(nil, c.IPAddress, 22, 0)
+	isOnline, reason := CheckConnLiveness(context.Background(), c.IPAddress, 22, 0)
 	if !isOnline {
 		fmt.Printf("%s OFFLINE (skipped: %s)\n", header, reason)
 
@@ -213,7 +214,6 @@ func connectWithEncryptedPassword(c db.SSHConnection, header string) (*ssh.Clien
 
 	return client, true
 }
-
 
 func ensureGitmapInstalled(client *ssh.Client, osType, header string) error {
 	_, err := crypto.RunCommand(client, "gitmap --version", "")

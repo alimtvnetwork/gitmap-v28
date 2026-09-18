@@ -1,6 +1,7 @@
 package cmdssh
 
 import (
+	"context"
 	"fmt"
 
 	"github.com/alimtvnetwork/gitmap-v28/cli/apperror"
@@ -22,7 +23,7 @@ func loadTargetNodes(target string) ([]db.SSHConnection, error) {
 }
 
 func checkRemoteNodeOnline(ip, header string) bool {
-	isOnline, reason := CheckConnLiveness(nil, ip, 22, 0)
+	isOnline, reason := CheckConnLiveness(context.Background(), ip, 22, 0)
 	if !isOnline {
 		appErr := apperror.NewExecutionError(fmt.Sprintf("node %s is unreachable: %s", header, reason))
 		printAppErrorWithStack(header, "Offline", appErr)

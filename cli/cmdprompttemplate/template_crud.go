@@ -7,7 +7,6 @@ import (
 	"github.com/alimtvnetwork/gitmap-v28/cli/apperror"
 )
 
-
 // AddTemplate creates and saves a new prompt template.
 func AddTemplate(name, content string) (*PromptTemplate, error) {
 	list, err := LoadTemplates()

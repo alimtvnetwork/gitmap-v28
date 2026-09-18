@@ -8,7 +8,7 @@ import (
 )
 
 var (
-	listPromptsAllProjects bool
+	listPromptsAllProjects   bool
 	listPromptsProjectsCount int
 	listPromptsProjectPrefix string
 	listPromptsJSON          bool

@@ -1,6 +1,7 @@
 package cmdssh
 
 import (
+	"context"
 	"fmt"
 	"strings"
 
@@ -35,7 +36,7 @@ func installRemotePackage(client *ssh.Client, header, osType, pkg string) {
 }
 
 func isNodeAvailable(ip, header string) bool {
-	isOnline, reason := CheckConnLiveness(nil, ip, 22, 0)
+	isOnline, reason := CheckConnLiveness(context.Background(), ip, 22, 0)
 	if !isOnline {
 		fmt.Printf("  %s %sOFFLINE (skipped: %s)%s\n", header, constants.ColorYellow, reason, constants.ColorReset)
 		return false

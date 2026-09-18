@@ -13,9 +13,9 @@ import (
 )
 
 var (
-	rerunPromptTpl    string
-	rerunNoClipboard  bool
-	rerunDryRun       bool
+	rerunPromptTpl   string
+	rerunNoClipboard bool
+	rerunDryRun      bool
 )
 
 var agyRerunCmd = &cobra.Command{

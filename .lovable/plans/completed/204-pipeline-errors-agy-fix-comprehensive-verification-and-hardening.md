@@ -76,7 +76,7 @@ Here, the issues are very critical. So when we say errors AGY fix, it does not p
 ### Subtask 5: Build, Deploy & Live Verification Across Repositories
 - Updated `Test-SourceFiles` in `run.ps1` and `test_source_files` in `run.sh` to validate modular file paths (`cmdscan/scan.go`, `cmdclone/clone.go`, etc.).
 - Built and deployed the updated binary (`46.7 MB`) to `C:\Users\Administrator\AppData\Local\gitmap-cli\gitmap.exe`.
-- Successfully verified live runs in `D:\work\Antigravity-Manager` and `D:\work\gitmap`.
+- Successfully verified live runs in `D:\work\Antigravity-Manager` and local repository root.
 
 ---
 
