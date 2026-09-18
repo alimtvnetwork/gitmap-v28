@@ -7,9 +7,13 @@ import (
 	"github.com/alimtvnetwork/gitmap-v28/cli/termtable"
 )
 
-func runSSHCompareCLI(args []string) error {
+func RunSSHCompareCLI(args []string) error {
 	PrintArchitectureComparisonTable()
 	return nil
+}
+
+func runSSHCompareCLI(args []string) error {
+	return RunSSHCompareCLI(args)
 }
 
 // PrintArchitectureComparisonTable displays comparison matrix for ssh vs cluster vs sc.

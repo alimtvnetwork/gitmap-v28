@@ -702,5 +702,21 @@ gitmap schedule shutdown 1:45hr
 gitmap schedule restart 2h
 ```
 
+## Subsystems Architecture Comparison (compare / matrix)
+
+Display comparison table between `ssh`, `cluster`, and `sc` (`servers-clients`):
+
+    $ gitmap cluster compare
+
+| Subsystem | Primary Focus | Join Command | Exec Command | Monitoring | Best Used When |
+|---|---|---|---|---|---|
+| `gitmap ssh` | Direct node management | `gitmap ssh join <u@ip>` | `gitmap ssh exec <cmd>` | `gitmap ssh scan` | Ad-hoc terminal commands, install/update, AGY/code open |
+| `gitmap cluster` | Multi-node cluster orchestration | `gitmap cluster node add <ip>` | `gitmap cluster exec <target> <cmd>` | `gitmap cluster node ls` | K8s bootstrap, cluster recipes, distributed scripts |
+| `gitmap sc` | Servers-clients fleet daemon | `gitmap sc join <server-url>` | `gitmap sc exec <cmd>` | `gitmap sc status` | Master-worker topology, continuous sync, live telemetry |
+
+#### When to use which command:
+- **`ssh`**: Fast, lightweight, direct command execution over standard SSH. Ideal for developer workstations, ad-hoc maintenance, and AGY/VS Code remote opening.
+- **`cluster`**: Role-based infrastructure orchestration (`control` vs `workers`), provisioning recipes (Netplan IP, users, apt purge), and full Kubernetes lifecycle.
+- **`sc` (`servers-clients`)**: High-speed fan-out broadcasts across entire fleet with concurrency pools, multi-shell execution, and continuous daemon synchronization.
+
 See also: `gitmap ssh`, `gitmap ssh-join`, `gitmap servers-clients`, `gitmap sc`
-To view the full subsystems architecture matrix, run: `gitmap ssh compare`

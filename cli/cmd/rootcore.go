@@ -141,19 +141,32 @@ func dispatchServersClients(args []string) {
 	runClusterCommand(cluster.ServersClients, args)
 }
 
-func dispatchSCNodeOps(subCmd string, rest []string) bool {
+func dispatchSCMetaOps(subCmd string, rest []string) bool {
 	switch subCmd {
+	case "compare", "matrix":
+		_ = cmdssh.RunSSHCompareCLI(rest)
+		return true
 	case "join", "add", "enroll":
 		_ = cmdssh.RunClusterJoinCLI(rest)
 		return true
+	case "ping", "health":
+		_ = cmdssh.RunSJStatus(nil, rest, context.Background())
+		return true
+	default:
+		return false
+	}
+}
+
+func dispatchSCNodeOps(subCmd string, rest []string) bool {
+	if dispatchSCMetaOps(subCmd, rest) {
+		return true
+	}
+	switch subCmd {
 	case "nodes", "list", "machines", "joined":
 		_ = runClusterNodes(rest)
 		return true
 	case "rm", "remove", "delete":
 		_ = runClusterRemove(rest)
-		return true
-	case "ping", "health":
-		_ = cmdssh.RunSJStatus(nil, rest, context.Background())
 		return true
 	default:
 		return false
