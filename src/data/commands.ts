@@ -3551,6 +3551,77 @@ export const commands: CommandDef[] = [
       { name: "agy rerun", description: "Replay recent prompts with template prefixes" },
     ],
   },
+  {
+    name: "ssh exec",
+    alias: "se, ssh-exec",
+    description: "Execute remote single or chained commands across registered SSH machines with automatic liveness checks and GitMap subcommand routing",
+    usage: "gitmap ssh exec [target] \"<command>\" [--exclude <m1,m2>] [--ip <ip>]",
+    category: "tools",
+    flags: [
+      { flag: "-t, --target <alias|ip>", description: "Target machine alias or IP (default: all online machines)" },
+      { flag: "--exclude <list>", description: "Exclude specific machines by alias or IP (comma separated)" },
+      { flag: "--ip <address>", description: "Explicit IP address of target machine" },
+      { flag: "-h, --help", description: "Show detailed help for ssh exec" },
+    ],
+    examples: [
+      { command: 'gitmap ssh exec "uptime"', description: "Run command on all online machines in parallel" },
+      { command: 'gitmap ssh exec devbox "uname -a && df -h"', description: "Run multiple chained commands on target machine" },
+      { command: 'gitmap ssh exec devbox "cd /var/www && git status; ls -la"', description: "Execute sequential commands in remote workspace" },
+      { command: 'gitmap ssh exec devbox gitmap status', description: "Execute remote GitMap status command directly" },
+      { command: 'gitmap ssh exec devbox "gitmap status && gitmap pipeline"', description: "Execute multiple remote GitMap commands" },
+      { command: 'gitmap ssh exec all gitmap --version', description: "Check GitMap version across all fleet machines" },
+      { command: 'gitmap ssh exec --exclude worker-1,192.168.1.20 "free -m"', description: "Exclude specific machines from all-host run" },
+    ],
+    seeAlso: [
+      { name: "ssh join", description: "Enroll remote machines into SSH registry" },
+      { name: "ssh check", description: "Probe connectivity and open port 22 across machines" },
+      { name: "cluster exec", description: "Execute commands across role-based cluster nodes" },
+    ],
+  },
+  {
+    name: "ssh join",
+    alias: "sj, ssh-join",
+    description: "Enroll remote machines into GitMap SSH host registry, manage aliases, and authorize public keys",
+    usage: "gitmap ssh join <user@ip|ip> [alias] [--auth] [--port <port>]",
+    category: "tools",
+    flags: [
+      { flag: "--user, -u <user>", description: "Remote SSH username" },
+      { flag: "--name, --alias, -n <alias>", description: "Memorable alias name for host recall" },
+      { flag: "--port, -p <port>", description: "Target SSH port (default: 22)" },
+      { flag: "--auth", description: "Push local public key to remote authorized_keys" },
+      { flag: "--force, -f", description: "Overwrite existing alias or host mapping" },
+    ],
+    examples: [
+      { command: "gitmap ssh join alim@192.168.1.14 devbox", description: "Enroll remote host with alias devbox" },
+      { command: "gitmap ssh join ubuntu@192.168.1.20:2222 worker-1 --auth", description: "Enroll custom port and authorize key" },
+      { command: "gitmap ssh join add-with-pass alim@192.168.1.14 secret123 devbox", description: "Enroll with encrypted password" },
+    ],
+    seeAlso: [
+      { name: "ssh exec", description: "Execute commands on enrolled machines" },
+      { name: "ssh check", description: "Check machine health and reachability" },
+    ],
+  },
+  {
+    name: "ssh check",
+    alias: "ssh scan, ssh health, ssh ping",
+    description: "Probe fleet connectivity, open port 22 liveness, and round-trip latency across registered SSH machines",
+    usage: "gitmap ssh check [target] [--port <port>] [--timeout <duration>]",
+    category: "tools",
+    flags: [
+      { flag: "[target]", description: "Target machine alias or IP (omitted to check all machines)" },
+      { flag: "-p, --port <port>", description: "Target SSH port to probe (default: 22)" },
+      { flag: "-t, --timeout <duration>", description: "Probe timeout duration (default: 1.5s)" },
+    ],
+    examples: [
+      { command: "gitmap ssh check", description: "Check connectivity on port 22 across all registered machines" },
+      { command: "gitmap ssh check devbox", description: "Check connectivity and latency for single target machine" },
+      { command: "gitmap ssh scan", description: "Scan entire fleet and render detailed reachability table" },
+    ],
+    seeAlso: [
+      { name: "ssh exec", description: "Execute commands on reachable machines" },
+      { name: "ssh join", description: "Enroll new machines into registry" },
+    ],
+  },
 ];
 
 // Global flags applied by every command via the shared root parser.

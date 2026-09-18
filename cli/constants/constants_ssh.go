@@ -188,6 +188,7 @@ const MsgSSHAvailableCommands = "\n\nAvailable SSH subcommands:\n" +
 	"  ssh alias <sub>        Manage custom SSH host aliases\n" +
 	"  ssh exec <cmd>         Execute command on remote SSH nodes\n" +
 	"  ssh scan               Probe reachability across all registered SSH nodes\n" +
+	"  ssh check [target]     Check connectivity, open port 22 & health\n" +
 	"  ssh install [target]   Install or update GitMap on remote machine(s)\n" +
 	"  ssh update [target]    Update GitMap binary across remote fleet\n" +
 	"  ssh agy <args>         Run Antigravity CLI or open remote folder\n" +

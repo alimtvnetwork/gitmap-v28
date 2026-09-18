@@ -20,6 +20,7 @@ Manages SSH key pairs for Git authentication.
 | as         |       | Create an SSH alias mapping for a host IP |
 | exec       | se    | Execute a remote command on a target host |
 | scan       |       | Probe and test liveness across SSH fleet nodes |
+| check      | health, ping | Check connectivity, open port 22, and health across SSH machines |
 | install    | i     | Install or update GitMap on remote node(s) |
 | update     | u     | Update GitMap binary across remote node(s) |
 | agy        |       | Run Antigravity CLI or open remote folder |
@@ -154,6 +155,18 @@ are skipped immediately without hanging your terminal.
       worker-1    192.168.1.20   ubuntu     22   OFFLINE         -   connection timeout
 
       Summary: 1/2 nodes online
+
+### Check connectivity & open port 22 (check / health / ping)
+
+    $ gitmap ssh check
+      Checking SSH connectivity on port 22:
+      STATUS    ALIAS       IP             USER     PORT   LATENCY   DETAILS
+      ONLINE    devbox      192.168.1.14   alim       22      11ms   reachable
+      OFFLINE   worker-1    192.168.1.20   ubuntu     22         -   connection timed out
+
+    # Check a single targeted machine:
+    $ gitmap ssh check devbox
+      ONLINE    devbox      192.168.1.14   alim       22      10ms   reachable
 
 ### Install GitMap or packages across fleet (install / i)
 

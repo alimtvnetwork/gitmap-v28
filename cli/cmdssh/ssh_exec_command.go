@@ -27,13 +27,26 @@ func determineSSHCommand(osType string, args []string) (string, string, bool) {
 }
 
 func isGitmapCommand(first string) bool {
-	return first == "gitmap" || first == "mkdir" || first == "cat" || first == "ssh" ||
-		first == "agy" || first == "ag" || first == "antigravity" ||
-		first == "schedule" || first == "schedules" ||
-		first == "prompts-template" || first == "prompt-template" || first == "pt"
+	switch first {
+	case "gitmap", "status", "pipeline", "pipe", "pl", "clone", "pull", "sync", "push":
+		return true
+	case "clean", "log", "branch", "diff", "storage", "macro", "install", "update", "setup":
+		return true
+	case "chrome", "vscode", "vsc", "vhost", "zip", "service", "os", "schedule", "schedules":
+		return true
+	case "agy", "ag", "antigravity", "aef", "fix-pipeline", "prompts-template", "prompt-template", "pt":
+		return true
+	case "ssh", "se", "sj", "cluster", "sc", "mkdir", "cat":
+		return true
+	default:
+		return false
+	}
 }
 
 func resolveGitmapCommandString(args []string) string {
+	if len(args) == 0 {
+		return "gitmap"
+	}
 	if args[0] == "gitmap" {
 		return strings.Join(args, " ")
 	}

@@ -26,21 +26,45 @@ type seOptions struct {
 	Args    []string
 }
 
-func parseSEFlags(args []string) seOptions {
-	fs := flag.NewFlagSet(seCommand, flag.ExitOnError)
-	var opts seOptions
+func printSSHExecHelp() {
+	fmt.Println("Execute remote commands across SSH machines with automatic liveness checks.")
+	fmt.Println("\nUsage:")
+	fmt.Println("  gitmap ssh exec [target] \"<command>\" [flags]")
+	fmt.Println("  gitmap se [target] \"<command>\" [flags]")
+	fmt.Println("\nFlags:")
+	fmt.Println("  -t, --target string     Target machine alias or IP (default: all online machines)")
+	fmt.Println("      --exclude string    Exclude machines by alias or IP (comma separated)")
+	fmt.Println("      --ip string         Target machine IP address")
+	fmt.Println("  -h, --help              Show help for ssh exec")
+	printSSHExecExamples()
+}
+
+func printSSHExecExamples() {
+	fmt.Println("\nExamples:")
+	fmt.Println("  gitmap ssh exec \"uptime\"")
+	fmt.Println("  gitmap ssh exec devbox \"uname -a && df -h\"")
+	fmt.Println("  gitmap ssh exec devbox \"cd /var/www && git status; ls -la\"")
+	fmt.Println("  gitmap ssh exec devbox gitmap status")
+	fmt.Println("  gitmap ssh exec devbox \"gitmap status && gitmap pipeline\"")
+	fmt.Println("  gitmap ssh exec all gitmap --version")
+	fmt.Println("  gitmap ssh exec --target devbox \"docker ps\"")
+	fmt.Println("  gitmap ssh exec --exclude worker-1,192.168.1.20 \"free -m\"")
+}
+
+func configureSEFlags(fs *flag.FlagSet, opts *seOptions) {
 	fs.StringVar(&opts.Exclude, "exclude", "", "Exclude machines (comma separated)")
 	fs.StringVar(&opts.Target, "target", "", "Target machine alias or IP")
 	fs.StringVar(&opts.Target, "t", "", "Target machine alias or IP (shorthand)")
 	fs.StringVar(&opts.IP, "ip", "", "Target machine IP address")
-	fs.Parse(args)
+}
 
-	opts.Args = fs.Args()
-	if len(opts.Args) == 0 {
+func validateSEArgs(args []string) {
+	if len(args) == 0 {
+		printSSHExecHelp()
 		err := apperror.NewWithDetails(
 			"cmd.sshexec.parseFlags",
 			"E1151",
-			"Usage: gitmap se [shell] <command> [--target <alias|ip>] [--exclude m1,m2]",
+			"missing command to execute: gitmap se [target] \"<command>\"",
 			"cmd.sshexec",
 			apperror.ErrorTypeValidation,
 			apperror.SeverityError,
@@ -48,6 +72,19 @@ func parseSEFlags(args []string) seOptions {
 		)
 		cliexit.HandleError(err, 1)
 	}
+}
+
+func parseSEFlags(args []string) seOptions {
+	if hasHelpFlag(args) {
+		printSSHExecHelp()
+		cliexit.Exit(0)
+	}
+	fs := flag.NewFlagSet(seCommand, flag.ExitOnError)
+	var opts seOptions
+	configureSEFlags(fs, &opts)
+	fs.Parse(args)
+	opts.Args = fs.Args()
+	validateSEArgs(opts.Args)
 
 	return opts
 }
@@ -152,7 +189,7 @@ func runSSHWorker(c db.SSHConnection, args []string, wg *sync.WaitGroup) error {
 	}
 
 	if delegateToGitmap {
-		commandStr = "gitmap " + strings.Join(args, " ")
+		commandStr = resolveGitmapCommandString(args)
 		shellType = "" // default shell
 	}
 

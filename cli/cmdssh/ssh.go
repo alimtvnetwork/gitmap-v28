@@ -38,6 +38,8 @@ func dispatchPrimarySSH(ctx context.Context, sub string, args []string, parent *
 		return result.MatchWrapper(runSSHUpdateCLI(args))
 	case "scan":
 		return result.MatchWrapper(runSSHScanCLI(args))
+	case "check", "health", "ping":
+		return result.MatchWrapper(RunSJStatus(nil, args, ctx))
 	case "agy":
 		return result.MatchWrapper(runSSHAgyCLI(args))
 	case "code":

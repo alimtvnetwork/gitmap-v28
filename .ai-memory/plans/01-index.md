@@ -8,7 +8,10 @@ None.
 
 ## Recent Completed Tasks Register (Last 20 Tasks)
 
-1. [Plan 205: 205-pipeline-errors-agy-fix-injection-and-multi-project-batching.md](completed/205-pipeline-errors-agy-fix-injection-and-multi-project-batching.md): Pipeline Errors AGY Fix Direct Injection, Full Error Logs, Absolute Paths & Multi-Project Batching
+1. [Plan 208: 208-ssh-multi-machine-and-agy-terminal-verification.md](completed/208-ssh-multi-machine-and-agy-terminal-verification.md): SSH Multi-Command & Machine Discovery, Terminal Display Package, AGY Commands & Help Parity End-to-End Verification
+2. [Plan 207: 207-pipeline-errors-agy-fix-comprehensive-verification-and-audit.md](completed/207-pipeline-errors-agy-fix-comprehensive-verification-and-audit.md): Pipeline Errors AGY Fix Comprehensive Verification and Audit
+3. [Plan 206: 206-pipeline-errors-agy-fix-and-multi-project-batch-hardening.md](completed/206-pipeline-errors-agy-fix-and-multi-project-batch-hardening.md): Pipeline Errors AGY Fix and Multi-Project Batch Hardening
+4. [Plan 205: 205-pipeline-errors-agy-fix-injection-and-multi-project-batching.md](completed/205-pipeline-errors-agy-fix-injection-and-multi-project-batching.md): Pipeline Errors AGY Fix Direct Injection, Full Error Logs, Absolute Paths & Multi-Project Batching
 2. [Plan 204: 204-pipeline-errors-agy-fix-comprehensive-verification-and-hardening.md](completed/204-pipeline-errors-agy-fix-comprehensive-verification-and-hardening.md): Pipeline Errors AGY Fix Comprehensive Verification & Hardening
 2. [Plan 203: 203-pipeline-errors-agy-fix-injection-and-multi-project-batching.md](completed/203-pipeline-errors-agy-fix-injection-and-multi-project-batching.md): Pipeline Errors AGY Fix Injection, Full Logs Embedding & Multi-Project Batching
 2. [Plan 202: 202-agy-prompts-templates-and-rerun-suite.md](completed/202-agy-prompts-templates-and-rerun-suite.md): AGY Prompts Templates, Rerun Suite, Remote Triad Delegation & Storage Restore
@@ -260,3 +263,4 @@ None.
 - [196-storage-ls-ui-cleanup-and-relative-paths.md](completed/196-storage-ls-ui-cleanup-and-relative-paths.md): 196-storage-ls-ui-cleanup-and-relative-paths
 - [206-pipeline-errors-agy-fix-and-multi-project-batch-hardening.md](completed/206-pipeline-errors-agy-fix-and-multi-project-batch-hardening.md): 206-pipeline-errors-agy-fix-and-multi-project-batch-hardening
 - [207-pipeline-errors-agy-fix-comprehensive-verification-and-audit.md](completed/207-pipeline-errors-agy-fix-comprehensive-verification-and-audit.md): 207-pipeline-errors-agy-fix-comprehensive-verification-and-audit
+- [208-ssh-multi-machine-and-agy-terminal-verification.md](completed/208-ssh-multi-machine-and-agy-terminal-verification.md): 208-ssh-multi-machine-and-agy-terminal-verification
