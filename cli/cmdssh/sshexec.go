@@ -118,8 +118,15 @@ func runSSHWorker(c db.SSHConnection, args []string, wg *sync.WaitGroup) error {
 
 	header := lipgloss.NewStyle().Bold(true).Foreground(lipgloss.Color("#8be9fd")).Render(fmt.Sprintf("[%s|%s]", c.Alias, c.IPAddress))
 
-	client, ok := connectSSHClient(c, header)
-	if !ok {
+	isOnline, reason := CheckConnLiveness(nil, c.IPAddress, 22, 0)
+	if !isOnline {
+		fmt.Printf("%s OFFLINE (skipped: %s)\n", header, reason)
+
+		return nil
+	}
+
+	client, isConnected := connectSSHClient(c, header)
+	if !isConnected {
 		return nil
 	}
 
@@ -163,7 +170,11 @@ func connectSSHClient(c db.SSHConnection, header string) (*ssh.Client, bool) {
 		return connectWithKeyPath(c, header)
 	}
 
-	fmt.Printf("%s No password or key configured\n", header)
+	if client, isDefaultOk := connectWithDefaultKey(c.IPAddress, c.Username, header); isDefaultOk {
+		return client, true
+	}
+
+	fmt.Printf("%s %s\n", header, formatMissingAuthAdvice(c.Alias, c.IPAddress, c.Username))
 
 	return nil, false
 }

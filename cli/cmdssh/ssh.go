@@ -32,6 +32,18 @@ func dispatchPrimarySSH(ctx context.Context, sub string, args []string, parent *
 		return result.MatchWrapper(runSSHAlias(parent, args, ctx))
 	case "exec", "se":
 		return result.MatchWrapper(runSSHExec(args))
+	case "install", "i":
+		return result.MatchWrapper(runSSHInstallCLI(args))
+	case "update", "u":
+		return result.MatchWrapper(runSSHUpdateCLI(args))
+	case "scan":
+		return result.MatchWrapper(runSSHScanCLI(args))
+	case "agy":
+		return result.MatchWrapper(runSSHAgyCLI(args))
+	case "code":
+		return result.MatchWrapper(runSSHCodeCLI(args))
+	case "compare", "matrix":
+		return result.MatchWrapper(runSSHCompareCLI(args))
 	case "profiles", "profile", "p":
 		return result.MatchWrapper(runSSHProfile(args))
 	default:
@@ -44,74 +56,6 @@ func runSSHProfile(args []string) error {
 		return ProfileRunner(args)
 	}
 	return nil
-}
-
-func isSSHViewSub(sub string) bool {
-	return sub == constants.SubCmdSSHCat || sub == constants.SubCmdSSHView || sub == constants.SubCmdSSHViewS
-}
-
-func isSSHCopySub(sub string) bool {
-	return sub == constants.SubCmdSSHCopy || sub == constants.SubCmdSSHCopyS
-}
-
-func isSSHListSub(sub string) bool {
-	return sub == constants.SubCmdSSHList || sub == constants.SubCmdSSHListS
-}
-
-func isSSHDeleteSub(sub string) bool {
-	return sub == constants.SubCmdSSHDelete || sub == constants.SubCmdSSHDeleteS
-}
-
-func isSSHStatusSub(sub string) bool {
-	return sub == constants.SubCmdSSHStatus || sub == constants.SubCmdSSHStatusS
-}
-
-func dispatchConfigOrStatus(sub string, args []string) bool {
-	if sub == constants.SubCmdSSHConfig {
-		runSSHConfig(args)
-		return true
-	}
-	if isSSHStatusSub(sub) {
-		runSSHStatus(args)
-		return true
-	}
-	return false
-}
-
-func dispatchOtherFallbackSSH(sub string, args []string) bool {
-	if isSSHListSub(sub) {
-		runSSHList(args...)
-		return true
-	}
-	if isSSHDeleteSub(sub) {
-		runSSHDelete(args)
-		return true
-	}
-	return dispatchConfigOrStatus(sub, args)
-}
-
-func dispatchCreateSSH(sub string, args []string) bool {
-	if sub == constants.SubCmdSSHCreate {
-		runSSHGenerate(args)
-		fmt.Fprint(os.Stdout, constants.MsgSSHAvailableCommands)
-		return true
-	}
-	return false
-}
-
-func dispatchFallbackSSH(sub string, args []string) bool {
-	if isSSHViewSub(sub) {
-		runSSHCat(args)
-		return true
-	}
-	if isSSHCopySub(sub) {
-		runSSHCopy(args)
-		return true
-	}
-	if isCreated := dispatchCreateSSH(sub, args); isCreated {
-		return true
-	}
-	return dispatchOtherFallbackSSH(sub, args)
 }
 
 func handleEmptySSHArgs() error {

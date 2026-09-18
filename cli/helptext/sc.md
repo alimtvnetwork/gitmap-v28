@@ -98,4 +98,5 @@ gitmap sc cmd "whoami" --except 2
 gitmap sc ps "Get-Service | Where Status -eq Running"
 ```
 
-See also: `gitmap servers-clients`, `gitmap clients`, `gitmap cluster`, `gitmap cluster exec`, `gitmap ssh-join`
+See also: `gitmap servers-clients`, `gitmap clients`, `gitmap cluster`, `gitmap cluster exec`, `gitmap ssh`, `gitmap ssh-join`
+To view the full subsystems architecture matrix, run: `gitmap ssh compare`

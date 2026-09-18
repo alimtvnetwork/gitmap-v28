@@ -19,6 +19,12 @@ Manages SSH key pairs for Git authentication.
 | login      |       | Connect to a host by alias or user@host   |
 | as         |       | Create an SSH alias mapping for a host IP |
 | exec       | se    | Execute a remote command on a target host |
+| scan       |       | Probe and test liveness across SSH fleet nodes |
+| install    | i     | Install or update GitMap on remote node(s) |
+| update     | u     | Update GitMap binary across remote node(s) |
+| agy        |       | Run Antigravity CLI or open remote folder |
+| code       |       | Open remote folder in VS Code via SSH Remote |
+| compare    | matrix| Display comparison table: SSH vs Cluster vs SC |
 
 ## Flags (generate)
 
@@ -125,9 +131,82 @@ printed and a one-line warning is emitted — never fails.
         Password encrypted and stored securely using SSH RSA key.
         Recall anytime: gitmap ssh devbox (auto-login via AskPass)
 
+### Execute remote command with automatic liveness checks (exec / se)
+
+    $ gitmap ssh exec "gitmap --version"
+      [devbox|192.168.1.14] gitmap version v6.260.0 linux/amd64
+      [node2|192.168.1.20] OFFLINE (skipped: connection timeout)
+
+    $ gitmap ssh exec --target devbox "uname -a"
+      [devbox|192.168.1.14] Linux devbox 5.15.0-107-generic x86_64
+
+Nodes are probed with an in-memory TTL reachability cache (45 seconds). Offline nodes
+are skipped immediately without hanging your terminal.
+
+### Probe fleet liveness & reachability (scan)
+
+    $ gitmap ssh scan
+
+      SSH Fleet Liveness & Reachability Scan:
+
+      ALIAS       IP             USER     PORT   STATUS    LATENCY   DETAILS
+      devbox      192.168.1.14   alim       22   ONLINE       12ms   tcp reachable
+      worker-1    192.168.1.20   ubuntu     22   OFFLINE         -   connection timeout
+
+      Summary: 1/2 nodes online
+
+### Install GitMap on remote machine(s) (install / i)
+
+    $ gitmap ssh install gitmap devbox
+      Installing / Updating GitMap across SSH fleet (devbox):
+      [devbox|192.168.1.14] gitmap missing, installing fresh...
+      [devbox|192.168.1.14] Installed successfully!
+
+    $ gitmap ssh install gitmap all
+
+Installs GitMap if missing or upgrades to the latest release if already present.
+
+### Update GitMap across fleet (update / u)
+
+    $ gitmap ssh update gitmap all
+      Updating GitMap across SSH fleet (all):
+      [devbox|192.168.1.14] gitmap updated successfully to v6.260.0
+
+### Antigravity (AGY) CLI & remote folder delegation (agy)
+
+    $ gitmap ssh agy open /var/www/my-project --target devbox
+      ✓ Opening remote workspace in Google Antigravity: devbox:/var/www/my-project
+
+    $ gitmap ssh agy "agy --version" --target devbox
+      [devbox|192.168.1.14] Google Antigravity CLI v1.12.0
+
+### VS Code remote SSH integration (code)
+
+    $ gitmap ssh code open /opt/app --target devbox
+      ✓ Launched VS Code Remote: code --remote ssh-remote+alim@192.168.1.14 /opt/app
+
+### Subsystems Architecture Comparison (compare / matrix)
+
+Display comparison table between `ssh`, `cluster`, and `sc` (`servers-clients`):
+
+    $ gitmap ssh compare
+
+| Subsystem | Primary Focus | Join Command | Exec Command | Monitoring | Best Used When |
+|---|---|---|---|---|---|
+| `gitmap ssh` | Direct node management | `gitmap ssh join <u@ip>` | `gitmap ssh exec <cmd>` | `gitmap ssh scan` | Ad-hoc terminal commands, install/update, AGY/code open |
+| `gitmap cluster` | Multi-node cluster orchestration | `gitmap cluster node add <ip>` | `gitmap cluster exec <target> <cmd>` | `gitmap cluster node ls` | K8s bootstrap, cluster recipes, distributed scripts |
+| `gitmap sc` | Servers-clients fleet daemon | `gitmap sc join <server-url>` | `gitmap sc exec <cmd>` | `gitmap sc status` | Master-worker topology, continuous sync, live telemetry |
+
+#### When to use which command:
+- **`ssh`**: Fast, lightweight, direct command execution over standard SSH. Ideal for developer workstations, ad-hoc maintenance, and AGY/VS Code remote opening.
+- **`cluster`**: Role-based infrastructure orchestration (`control` vs `workers`), provisioning recipes (Netplan IP, users, apt purge), and full Kubernetes lifecycle.
+- **`sc` (`servers-clients`)**: High-speed fan-out broadcasts across entire fleet with concurrency pools, multi-shell execution, and continuous daemon synchronization.
+
 ## See Also
 
 - `gitmap ssh-join` - Machine enrollment, alias recall, and public key authorization
+- `gitmap cluster` - Multi-node orchestration, Kubernetes lifecycle, and node recipes
+- `gitmap sc` - Broadcast execution and servers-clients daemon topology
 - `gitmap clone` - Clone repositories from structured files
 - `gitmap setup` - Configure Git global settings
 

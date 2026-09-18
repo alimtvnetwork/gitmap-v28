@@ -4,11 +4,13 @@ Master directory of architectural and execution plans.
 
 ## Pending Plans
 
-No pending plans.
+*(None)*
 
 ## Recent Completed Tasks Register (Last 20 Tasks)
 
-1. [Plan 195: 195-terminal-help-table-framework-and-pipeline-rca.md](completed/195-terminal-help-table-framework-and-pipeline-rca.md): Terminal Help & Table Display Frameworks, Nested-If & Undefined Constants Pipeline RCAs, and UI Animations
+1. [Plan 197: 197-terminal-ssh-execution-install-and-cluster-parity.md](completed/197-terminal-ssh-execution-install-and-cluster-parity.md): Terminal SSH Execution, Liveness Scan, Remote Install & Cluster Parity
+2. [Plan 196: 196-storage-ls-ui-cleanup-and-relative-paths.md](completed/196-storage-ls-ui-cleanup-and-relative-paths.md): Storage List UI Cleanup & Relative Paths
+3. [Plan 195: 195-terminal-help-table-framework-and-pipeline-rca.md](completed/195-terminal-help-table-framework-and-pipeline-rca.md): Terminal Help & Table Display Frameworks, Nested-If & Undefined Constants Pipeline RCAs, and UI Animations
 2. [Plan 194: 194-parallel-pipeline-download-and-two-pass-log-processor.md](completed/194-parallel-pipeline-download-and-two-pass-log-processor.md): Parallel Pipeline Download, Previous Run Fallback, and Two-Pass Non-Mutating Log Processor
 3. [Plan 193: 193-pipeline-fix-errors-agy-suite.md](completed/193-pipeline-fix-errors-agy-suite.md): Pipeline Fix Errors AGY (AEF) Full Alias Suite, Direct Fix Routing, and Antigravity Queue Verification
 4. [Plan 192: 192-pipeline-fix-errors-agy-queue-and-force-flag.md](completed/192-pipeline-fix-errors-agy-queue-and-force-flag.md): Pipeline Fix Errors AGY (AEF), Duplicate Detection (--force), and Antigravity Queue Dispatch
@@ -64,6 +66,7 @@ No pending plans.
 
 ## Completed Plans
 
+- [197-terminal-ssh-execution-install-and-cluster-parity.md](completed/197-terminal-ssh-execution-install-and-cluster-parity.md): 197-terminal-ssh-execution-install-and-cluster-parity
 - [192-pipeline-fix-errors-agy-queue-and-force-flag.md](completed/192-pipeline-fix-errors-agy-queue-and-force-flag.md): Pipeline Fix Errors AGY (AEF), Duplicate Detection (--force), and Antigravity Queue Dispatch
 - [191-ssh-config-sanitize-clone-force-and-cluster-help-parity.md](completed/191-ssh-config-sanitize-clone-force-and-cluster-help-parity.md): SSH Config Sanitizer, Clone Force/Reclone Flag, Cluster SSH Join and SC Help Parity
 - [190-isolate-destructive-os-and-heavy-unit-tests.md](completed/190-isolate-destructive-os-and-heavy-unit-tests.md): Isolate Destructive OS & Heavy Unit Tests — Coding Guideline 24

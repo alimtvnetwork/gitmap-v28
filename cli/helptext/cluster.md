@@ -703,3 +703,4 @@ gitmap schedule restart 2h
 ```
 
 See also: `gitmap ssh`, `gitmap ssh-join`, `gitmap servers-clients`, `gitmap sc`
+To view the full subsystems architecture matrix, run: `gitmap ssh compare`
