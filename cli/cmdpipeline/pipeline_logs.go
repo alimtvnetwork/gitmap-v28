@@ -609,13 +609,15 @@ func renderFailureSectionsAndETA(p PipelineErrorLogsPayload) {
 func buildClipboardErrorReport(p PipelineErrorLogsPayload) string {
 	var sb strings.Builder
 	appendClipboardMetaHeader(&sb, "GITMAP PIPELINE ERROR REPORT", p)
-	if len(p.CombinedErrors) > 0 {
-		sb.WriteString(p.CombinedErrors)
-		sb.WriteString("\n\n")
+	if len(p.ErrorLogs) > 0 {
+		sb.WriteString(p.ErrorLogs)
+		sb.WriteString("\n")
+
+		return strings.TrimSpace(sb.String())
 	}
 
-	if len(p.ErrorLogs) > 0 && p.ErrorLogs != p.CombinedErrors {
-		sb.WriteString(p.ErrorLogs)
+	if len(p.CombinedErrors) > 0 {
+		sb.WriteString(p.CombinedErrors)
 		sb.WriteString("\n")
 	}
 

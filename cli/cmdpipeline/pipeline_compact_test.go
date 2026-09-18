@@ -1,6 +1,8 @@
 package cmdpipeline
 
 import (
+	"os"
+	"path/filepath"
 	"strings"
 	"testing"
 
@@ -261,5 +263,154 @@ func TestFormatSectionMetadata_WithScriptAndFile_DisplaysThem(t *testing.T) {
 	}
 	if !strings.Contains(out, "File:     cli/cmd/join.go:34:2") {
 		t.Errorf("expected file in metadata, got: %s", out)
+	}
+}
+
+func TestExtractBoundedStackTrace_StopsAtNonStackLine(t *testing.T) {
+	raw := "goroutine 1 [running]:\n" +
+		"testing.tRunner()\n" +
+		"\t/opt/go/testing.go:100 +0x12\n" +
+		"panic(0x123)\n" +
+		"\t/opt/go/panic.go:50 +0x4\n" +
+		"FAIL\tgithub.com/example/pkg\t0.1s\n" +
+		"ok\tgithub.com/example/other\t0.05s\n" +
+		"go: downloading github.com/foo/bar\n"
+
+	stack := extractStackTraceFromLog(raw)
+	if strings.Contains(stack, "FAIL") || strings.Contains(stack, "downloading") {
+		t.Errorf("stack trace captured lines past termination: %s", stack)
+	}
+	if !strings.Contains(stack, "goroutine 1 [running]:") || !strings.Contains(stack, "panic(0x123)") {
+		t.Errorf("stack trace missing frames: %s", stack)
+	}
+}
+
+func TestAssembleJobItems_DoesNotCrossContaminateStackTrace(t *testing.T) {
+	rawLogs := "JobA\tStep1\tFAIL: test_python_assert\n" +
+		"JobA\tStep1\tAssertionError: 1 != 0\n" +
+		"JobB\tStep2\tgoroutine 5 [running]:\n" +
+		"JobB\tStep2\t\t/opt/go/panic.go:10 +0x1\n" +
+		"JobB\tStep2\tFAIL\tgithub.com/pkg\t0.1s\n"
+
+	jobMap := make(map[string]*FailedJobItem)
+	var order []string
+	scanLogLinesIntoMap(rawLogs, jobMap, &order)
+	items := assembleJobItems(jobMap, order, rawLogs)
+
+	assertNoCrossContamination(t, items)
+}
+
+func assertNoCrossContamination(t *testing.T, items []FailedJobItem) {
+	if len(items) != 2 {
+		t.Fatalf("expected 2 items, got %d", len(items))
+	}
+	if len(items[0].StackTrace) != 0 {
+		t.Errorf("expected JobA to have empty stack trace, got: %s", items[0].StackTrace)
+	}
+	if !strings.Contains(items[1].StackTrace, "goroutine 5") {
+		t.Errorf("expected JobB to retain its stack trace, got: %s", items[1].StackTrace)
+	}
+}
+
+func TestIsIgnoredLogLine_FiltersRunnerAndCleanupNoise(t *testing.T) {
+	noise := []string{
+		"[command]/usr/bin/git config --local safe.directory",
+		"Removing includeIf entries pointing to credentials",
+		"includeif.gitdir:/home/runner/.git.path",
+		"git-credentials-12345.config",
+		"Checking boolean & enum compliance: [ 8/2370 ] 0.3%",
+		"go: downloading github.com/pelletier/go-toml v1.9.5",
+	}
+	for _, n := range noise {
+		if !isIgnoredLogLine(n) {
+			t.Errorf("expected %q to be ignored", n)
+		}
+	}
+}
+
+func TestResolveContextLimit_TerminalStepError(t *testing.T) {
+	if resolveContextLimit("Process completed with exit code 1.") != 0 {
+		t.Errorf("expected 0 for exit code line")
+	}
+	if resolveContextLimit("exit status 1") != 0 {
+		t.Errorf("expected 0 for exit status line")
+	}
+	if resolveContextLimit("FAILED (failures=1)") != 0 {
+		t.Errorf("expected 0 for failures line")
+	}
+	if resolveContextLimit("--- FAIL: TestSomething") != 25 {
+		t.Errorf("expected 25 for non-terminal failure marker")
+	}
+}
+
+func TestMultiJobLogParsing_BoundedAndNoiseFree(t *testing.T) {
+	rawLogs := "Lint Script Unit Tests\tRun tests\t2026-09-18T14:06:24Z FAIL: test_gofmt\n" +
+		"Lint Script Unit Tests\tRun tests\t2026-09-18T14:06:24Z AssertionError: 1 != 0\n" +
+		"Lint Script Unit Tests\tRun tests\t2026-09-18T14:06:24Z FAILED (failures=1)\n" +
+		"Lint Script Unit Tests\tRun tests\t2026-09-18T14:06:24Z Process completed with exit code 1.\n" +
+		"Lint Script Unit Tests\tRun tests\t2026-09-18T14:06:24Z [command]/usr/bin/git version\n" +
+		"Lint Script Unit Tests\tRun tests\t2026-09-18T14:06:24Z Adding repository directory\n" +
+		"Full Suite Guard\tRun suite\t2026-09-18T14:11:41Z goroutine 364 [running]:\n" +
+		"Full Suite Guard\tRun suite\t2026-09-18T14:11:41Z \t/opt/go/testing.go:100 +0x10\n" +
+		"Full Suite Guard\tRun suite\t2026-09-18T14:11:41Z panic(0x123)\n" +
+		"Full Suite Guard\tRun suite\t2026-09-18T14:11:41Z \t/opt/go/panic.go:20 +0x5\n" +
+		"Full Suite Guard\tRun suite\t2026-09-18T14:11:41Z FAIL\tgithub.com/pkg\t10s\n" +
+		"Full Suite Guard\tRun suite\t2026-09-18T14:11:41Z ok  \tgithub.com/other\t0.01s\n" +
+		"Full Suite Guard\tRun suite\t2026-09-18T14:11:41Z go: downloading github.com/foo\n" +
+		"Boolean & Enum Linter\tRun python\t2026-09-18T14:07:45Z Checking boolean & enum compliance: [ 8/2370 ] 0.3%\n" +
+		"Boolean & Enum Linter\tRun python\t2026-09-18T14:07:45Z ❌ FAILED: Found 2 violation(s):\n" +
+		"Boolean & Enum Linter\tRun python\t2026-09-18T14:07:45Z   - /repo/file.go:35: Nested 'if' detected\n"
+
+	jobs := ParseFailedLogLines(rawLogs)
+	assertMultiJobCleanOutput(t, jobs)
+}
+
+func assertMultiJobCleanOutput(t *testing.T, jobs []FailedJobItem) {
+	if len(jobs) < 2 {
+		t.Fatalf("expected at least 2 jobs, got %d", len(jobs))
+	}
+	for _, l := range jobs[0].ErrorLines {
+		if strings.Contains(l, "[command]") || strings.Contains(l, "Adding repository") {
+			t.Errorf("Job 0 captured runner cleanup lines: %s", l)
+		}
+	}
+	if len(jobs[0].StackTrace) != 0 {
+		t.Errorf("Job 0 leaked stack trace from Job 1: %s", jobs[0].StackTrace)
+	}
+	if strings.Contains(jobs[1].StackTrace, "ok  ") || strings.Contains(jobs[1].StackTrace, "downloading") {
+		t.Errorf("Job 1 stack trace contains post-termination lines: %s", jobs[1].StackTrace)
+	}
+}
+
+func TestCachedLogFile35354190330_CompactPayloadSize(t *testing.T) {
+	logPath := filepath.Join(os.Getenv("LOCALAPPDATA"), "gitmap-cli", "data", "pipeline", "35354190330.log")
+	content, err := os.ReadFile(logPath)
+	if err != nil {
+		t.Skip("skipping local log file test if not present")
+	}
+
+	jobs := ParseFailedLogLines(string(content))
+	sections := buildSectionsForRun(jobs)
+	combined := formatCombinedSectionFailures(sections)
+
+	assertCompactSectionsSize(t, combined, sections)
+}
+
+func buildSectionsForRun(jobs []FailedJobItem) []SectionFailure {
+	var sections []SectionFailure
+	run := FailedRunItem{WorkflowName: "CI", RunId: 35354190330, FailedJobs: jobs}
+	for _, j := range jobs {
+		sections = append(sections, buildSectionFailureFromRunJob(run, j))
+	}
+
+	return sections
+}
+
+func assertCompactSectionsSize(t *testing.T, combined string, sections []SectionFailure) {
+	if len(combined) > 50000 {
+		t.Errorf("combined sections size unexpectedly large: %d bytes (expected < 50KB)", len(combined))
+	}
+	if len(sections) > 0 && strings.Contains(sections[0].StackTrace, "goroutine") {
+		t.Errorf("Section 0 (Lint Script) leaked goroutine from Full Suite Guard")
 	}
 }

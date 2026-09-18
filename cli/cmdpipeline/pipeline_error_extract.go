@@ -118,8 +118,28 @@ func recordErrorLine(jobMap map[string]*FailedJobItem, order *[]string, key, job
 	item := getOrCreateJobItem(jobMap, order, key, job, step)
 	item.ErrorLines = append(item.ErrorLines, text)
 	updateJobSummary(item, text)
-	*ctxRem = 25
+	*ctxRem = resolveContextLimit(text)
 	*lastKey = key
+}
+
+func resolveContextLimit(text string) int {
+	if isTerminalStepError(text) {
+		return 0
+	}
+
+	return 25
+}
+
+func isTerminalStepError(text string) bool {
+	lower := strings.ToLower(text)
+	if strings.Contains(lower, "process completed with exit code") {
+		return true
+	}
+	if strings.Contains(lower, "exit status ") || strings.Contains(lower, "exit code ") {
+		return true
+	}
+
+	return strings.Contains(lower, "failed (failures=")
 }
 
 func appendContextLine(jobMap map[string]*FailedJobItem, key, text string, ctxRem *int, lastKey *string) {
@@ -253,16 +273,77 @@ func parseKeyValue(part string) (string, string) {
 }
 
 func isIgnoredLogLine(text string) bool {
-	lower := strings.ToLower(text)
+	trimmed := strings.TrimSpace(text)
+	if len(trimmed) == 0 {
+		return true
+	}
+	if isRunnerCleanupNoise(trimmed) || isRunnerSetupNoise(trimmed) {
+		return true
+	}
+
+	return isToolProgressNoise(trimmed)
+}
+
+func isRunnerCleanupNoise(trimmed string) bool {
+	lower := strings.ToLower(trimmed)
 	if strings.Contains(lower, "post job cleanup") || strings.Contains(lower, "safe.directory") {
 		return true
 	}
-
-	if strings.Contains(lower, "removing ssh command") {
+	if strings.Contains(lower, "removing ssh command") || strings.Contains(lower, "removing http extra header") {
+		return true
+	}
+	if strings.Contains(lower, "removing includeif") || strings.Contains(lower, "includeif.gitdir:") {
+		return true
+	}
+	if strings.Contains(lower, "git-credentials-") || strings.Contains(lower, "orphan process") {
+		return true
+	}
+	if strings.Contains(lower, "temporarily overriding home") || strings.Contains(lower, "adding repository directory") {
 		return true
 	}
 
-	return strings.Contains(lower, "terminate orphan process")
+	return strings.HasPrefix(trimmed, "[command]/usr/bin/git") || strings.HasPrefix(trimmed, "git version ")
+}
+
+func isRunnerSetupNoise(trimmed string) bool {
+	lower := strings.ToLower(trimmed)
+	if strings.Contains(lower, "runner image") || strings.Contains(lower, "hosted compute agent") {
+		return true
+	}
+	if strings.Contains(lower, "azure region:") || strings.Contains(lower, "github_token permissions") {
+		return true
+	}
+	if strings.Contains(lower, "secret source:") || strings.Contains(lower, "prepare workflow directory") {
+		return true
+	}
+	if strings.Contains(lower, "prepare all required actions") || strings.Contains(lower, "action download info") {
+		return true
+	}
+	if strings.Contains(lower, "syncing repository:") || strings.Contains(lower, "disabling automatic garbage collection") {
+		return true
+	}
+	if strings.Contains(lower, "setting up auth") || strings.Contains(lower, "fetching the repository") {
+		return true
+	}
+	if strings.Contains(lower, "checking out the ref") || strings.Contains(lower, "switched to a new branch") {
+		return true
+	}
+
+	return strings.HasPrefix(trimmed, "hint: ") || strings.Contains(lower, "node.js 20 is deprecated")
+}
+
+func isToolProgressNoise(trimmed string) bool {
+	if strings.HasPrefix(trimmed, "go: downloading ") || strings.HasPrefix(trimmed, "go install ") {
+		return true
+	}
+	if strings.Contains(trimmed, "Checking boolean & enum compliance:") {
+		return true
+	}
+	if strings.HasPrefix(trimmed, "Successfully set up CPython") || strings.HasPrefix(trimmed, "Complete job name:") {
+		return true
+	}
+
+	return strings.HasPrefix(trimmed, "Installed versions")
 }
 
 func hasFailureMarker(line string) bool {
@@ -336,18 +417,6 @@ func isGenericExitCode(s string) bool {
 	return strings.Contains(s, "Process completed with exit code") || strings.Contains(s, "exit status 1")
 }
 
-func extractStackTraceFromLog(rawLogs string) string {
-	idx := strings.Index(rawLogs, "Stack Trace:")
-	if idx != -1 {
-		return strings.TrimSpace(rawLogs[idx+len("Stack Trace:"):])
-	}
-	if gIdx := strings.Index(rawLogs, "goroutine "); gIdx != -1 {
-		return strings.TrimSpace(rawLogs[gIdx:])
-	}
-
-	return ""
-}
-
 func attachStackToItems(items []FailedJobItem, stack string) {
 	if len(items) > 0 && len(stack) > 0 {
 		items[0].StackTrace = stack
@@ -355,18 +424,18 @@ func attachStackToItems(items []FailedJobItem, stack string) {
 }
 
 func assembleJobItems(jobMap map[string]*FailedJobItem, order []string, rawLogs string) []FailedJobItem {
-	stack := extractStackTraceFromLog(rawLogs)
 	if len(order) == 0 {
 		items := buildFallbackJobItems(rawLogs)
-		attachStackToItems(items, stack)
+		attachStackToItems(items, extractStackTraceFromLog(rawLogs))
+
 		return items
 	}
 
 	var results []FailedJobItem
 	for _, k := range order {
 		item := *jobMap[k]
-		if len(item.StackTrace) == 0 && len(stack) > 0 {
-			item.StackTrace = stack
+		if len(item.StackTrace) == 0 {
+			item.StackTrace = extractJobStackTrace(rawLogs, item.JobName)
 		}
 		results = append(results, item)
 	}
@@ -521,7 +590,7 @@ func searchRawLogsForTarget(target FailedJobItem, rawLogs string) FailedJobItem 
 		target.FailureSummary = lines[0]
 	}
 	if len(target.StackTrace) == 0 {
-		target.StackTrace = extractStackTraceFromLog(rawLogs)
+		target.StackTrace = extractJobStackTrace(rawLogs, target.JobName)
 	}
 
 	return target
@@ -607,7 +676,7 @@ func resolveJobFallback(failedJobs []FailedJobItem, rawLogs string) []FailedJobI
 
 func buildSectionFailureFromRunJob(run FailedRunItem, job FailedJobItem) SectionFailure {
 	stack := job.StackTrace
-	if len(stack) == 0 {
+	if len(stack) == 0 && len(run.FailedJobs) <= 1 {
 		stack = run.StackTrace
 	}
 
@@ -852,7 +921,7 @@ func isRustOkLine(trimmed string) bool {
 }
 
 func isKeepLogLine(line string) bool {
-	return !isOkLogLine(line)
+	return !isOkLogLine(line) && !isIgnoredLogLine(line)
 }
 
 func filterCompactLines(lines []string) []string {
@@ -874,15 +943,26 @@ func FilterCompactLogText(rawText string) (string, int) {
 
 func compactErrorPayload(p *PipelineErrorLogsPayload) {
 	for i := range p.FailedRuns {
-		for j := range p.FailedRuns[i].FailedJobs {
-			p.FailedRuns[i].FailedJobs[j].ErrorLines = filterCompactLines(p.FailedRuns[i].FailedJobs[j].ErrorLines)
-		}
+		compactFailedRunItem(&p.FailedRuns[i])
 	}
 	for i := range p.SectionFailures {
-		p.SectionFailures[i].ErrorLines = filterCompactLines(p.SectionFailures[i].ErrorLines)
+		compactSectionFailureItem(&p.SectionFailures[i])
 	}
 	p.CombinedErrors = formatCombinedSectionFailures(p.SectionFailures)
 	updateCompactedErrorLogs(p)
+}
+
+func compactFailedRunItem(run *FailedRunItem) {
+	for j := range run.FailedJobs {
+		run.FailedJobs[j].ErrorLines = filterCompactLines(run.FailedJobs[j].ErrorLines)
+		run.FailedJobs[j].StackTrace = filterCompactStackTrace(run.FailedJobs[j].StackTrace)
+	}
+	run.StackTrace = filterCompactStackTrace(run.StackTrace)
+}
+
+func compactSectionFailureItem(sec *SectionFailure) {
+	sec.ErrorLines = filterCompactLines(sec.ErrorLines)
+	sec.StackTrace = filterCompactStackTrace(sec.StackTrace)
 }
 
 func updateCompactedErrorLogs(p *PipelineErrorLogsPayload) {
