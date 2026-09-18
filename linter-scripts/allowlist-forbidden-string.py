@@ -31,7 +31,7 @@ USAGE
     python3 linter-scripts/allowlist-forbidden-string.py \\
         --rule STALE-REPO-SLUG \\
         --reason "Audit trail of the v14 -> v17 rebrand." \\
-        .lovable/memory/sessions/2026-04-24-batch-cleanup-and-rebrand.md
+        .ai-memory/memory/sessions/2026-04-24-batch-cleanup-and-rebrand.md
 
     # Auto mode: scan the repo and waive every current finding under one reason
     python3 linter-scripts/allowlist-forbidden-string.py \\

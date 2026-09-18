@@ -2,7 +2,7 @@
 """
 Script 22: Doc & Prompt Path Integrity Linter
 Autonomously verifies all markdown links and path references across 01-prompts/,
-spec/, .lovable/, and .agents/ to guarantee zero dead path references and zero hallucinations.
+spec/, .ai-memory/, and .agents/ to guarantee zero dead path references and zero hallucinations.
 """
 
 import os

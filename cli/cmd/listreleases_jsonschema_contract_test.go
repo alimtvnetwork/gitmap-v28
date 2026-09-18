@@ -3,8 +3,8 @@ package cmd
 // Schema contract for `gitmap list-releases [--all-repos] --json`.
 // Pairs the runtime encoders (encodeListReleasesJSON +
 // encodeListReleasesAllReposJSON) with the published schemas at
-// spec/08-json-schemas/list-releases.schema.json and
-// spec/08-json-schemas/list-releases-all-repos.schema.json so a drift
+// 02-spec/08-json-schemas/list-releases.schema.json and
+// 02-spec/08-json-schemas/list-releases-all-repos.schema.json so a drift
 // in either side fails the build. Mirrors the structure of
 // startuplist_jsonschema_contract_test.go — same generic helpers
 // (findSchemaFile, loadSchemaFile, propertyOrder extraction) live in

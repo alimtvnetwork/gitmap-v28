@@ -210,7 +210,7 @@ class _Sandbox:
     def __init__(self, payload: str) -> None:
         self._tmp = tempfile.TemporaryDirectory()
         self.root = Path(self._tmp.name).resolve()
-        self.spec = self.root / "spec"
+        self.spec = self.root / "02-spec"
         self.spec.mkdir()
         self.changed = self.root / "changed.txt"
         self.changed.write_text(payload, encoding="utf-8")

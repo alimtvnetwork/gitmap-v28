@@ -43,7 +43,7 @@ Topic: Interactive macro builder commands implementation, test verification, and
 - Refactored `gitmap/cmd/macro_add_interactive.go` into concise functions ($\le 15$ lines, zero nested `if` blocks, positive booleans, blank line before returns).
 - Authored test suites in `gitmap/cmd/macro_add_helpers_test.go` and `gitmap/uipref/uipref_test.go`, verifying PWD toggling, directory listing formatting, find/search/replace utilities, and step line dispatching (all passing).
 - Verified repository linters (`check-nested-ifs.py`, `check-boolean-guidelines.py`, `check-relative-paths.py`, `check-error-management.py`) with 0 violations across all scanned files.
-- Completed Plan 83, moved it to `.lovable/plans/completed/83-interactive-macro-builder-pwd-ls-search.md`, and marked all 4 subtasks complete.
+- Completed Plan 83, moved it to `.ai-memory/plans/completed/83-interactive-macro-builder-pwd-ls-search.md`, and marked all 4 subtasks complete.
 - Updated `walkthrough.md` with complete documentation of delivered interactive commands and test logs.
 - Persisted conversation turn to `conversation/002-macro-builder-completion-and-context-wrapper.md` and staged prompt rewrite in `prompts/002-gitmap-interactive-builder-and-clean-sync.md`.
 
@@ -51,7 +51,7 @@ Topic: Interactive macro builder commands implementation, test verification, and
 
 ## Outcomes / Decisions
 
-- Plan 83 transitioned from pending to completed in `.lovable/plans/01-index.md`.
+- Plan 83 transitioned from pending to completed in `.ai-memory/plans/01-index.md`.
 - Interactive macro builder UX now provides real-time directory awareness and file manipulation helpers without corrupting the macro definition session.
 - Staged rewritten prompt and updated prompt library index at `01-prompts/01-prompt-library-setup/01-prompt-library-setup.md`.
 

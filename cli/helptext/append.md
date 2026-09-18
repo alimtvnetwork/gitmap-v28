@@ -6,12 +6,12 @@ Creates the file and parent directories if they don't exist.
 ## Why use this instead of shell commands?
 
 Instead of running:
-`Add-Content .lovable/cicd-issues/index.md "- [18-ci.md](...)"`
+`Add-Content .ai-memory/cicd-issues/index.md "- [18-ci.md](...)"`
 or:
 `echo "content" >> file.txt`
 
 Use `gitmap append` for cross-platform consistency:
-`gitmap append ".lovable/cicd-issues/index.md" "- [18-ci.md](...)"`
+`gitmap append ".ai-memory/cicd-issues/index.md" "- [18-ci.md](...)"`
 
 ## Examples
 

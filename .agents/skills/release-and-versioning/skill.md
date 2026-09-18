@@ -7,7 +7,7 @@ description: >-
 
 # Release Architecture & Versioning Management Skill
 
-Autonomously execute and audit version bumps, changelog synchronization, and release assets adhering to `.lovable/strictly-avoid.md`, `spec/17-consolidated-guidelines/17-self-update-app-update.md`, and `.lovable/memory/release-architecture-map.md`.
+Autonomously execute and audit version bumps, changelog synchronization, and release assets adhering to `.ai-memory/strictly-avoid.md`, `02-spec/17-consolidated-guidelines/17-self-update-app-update.md`, and `.ai-memory/memory/release-architecture-map.md`.
 
 ## Core Checkpoints & Mandatory Invariants
 
@@ -37,4 +37,4 @@ Autonomously execute and audit version bumps, changelog synchronization, and rel
 
 6. **Mandatory Pre-Release Unit Tests & CI/CD Verification:**
    - Execute `python 03-ai-scripts/06-cicd-local-runner.py --run-tests` and verify all unit test suites, AST checks, and quality gates pass 100% green (`exit 0`).
-   - Validate `.lovable/temp/recent-file-changes.json` against `.lovable/test-inventory.json` ensuring all associated tests pass prior to cutting the release.
+   - Validate `.ai-memory/temp/recent-file-changes.json` against `.ai-memory/test-inventory.json` ensuring all associated tests pass prior to cutting the release.

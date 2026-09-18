@@ -8,7 +8,7 @@ name: CI Diagnostics
 #
 # Why a separate workflow file: this header is identical on every push
 # and has zero coupling to other jobs — the cleanest split point for
-# the ci.yml break-up. See .lovable/plan.md (Step 2).
+# the ci.yml break-up. See .ai-memory/plan.md (Step 2).
 
 on:
   workflow_call:

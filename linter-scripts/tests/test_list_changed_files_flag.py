@@ -51,12 +51,12 @@ class ListChangedFilesAudit(unittest.TestCase):
     def test_all_five_statuses_via_changed_files(self) -> None:
         with tempfile.TemporaryDirectory() as td:
             root = Path(td)
-            spec = root / "spec"
+            spec = root / "02-spec"
             _write_clean_md(spec / "ok.md")
             # `outside.md` lives outside spec/ — out-of-root status.
             _write_clean_md(root / "outside.md")
             # `not-md.txt` exists but isn't in the extension allowlist.
-            (root / "spec" / "notes.txt").write_text("x", encoding="utf-8")
+            (root / "02-spec" / "notes.txt").write_text("x", encoding="utf-8")
 
             changed = root / "changed.txt"
             changed.write_text(
@@ -69,7 +69,7 @@ class ListChangedFilesAudit(unittest.TestCase):
             )
 
             rc, out, err = _run(
-                "--root", "spec",
+                "--root", "02-spec",
                 "--repo-root", str(root),
                 "--changed-files", str(changed),
                 "--list-changed-files",
@@ -94,13 +94,13 @@ class ListChangedFilesAudit(unittest.TestCase):
     def test_json_audit_goes_to_stderr_stdout_stays_parseable(self) -> None:
         with tempfile.TemporaryDirectory() as td:
             root = Path(td)
-            _write_clean_md(root / "spec" / "ok.md")
+            _write_clean_md(root / "02-spec" / "ok.md")
             changed = root / "changed.txt"
             changed.write_text(
                 "spec/ok.md\nD\tspec/gone.md\n", encoding="utf-8")
 
             rc, out, err = _run(
-                "--root", "spec",
+                "--root", "02-spec",
                 "--repo-root", str(root),
                 "--changed-files", str(changed),
                 "--list-changed-files",
@@ -127,12 +127,12 @@ class ListChangedFilesAudit(unittest.TestCase):
     def test_flag_omitted_means_no_audit_output(self) -> None:
         with tempfile.TemporaryDirectory() as td:
             root = Path(td)
-            _write_clean_md(root / "spec" / "ok.md")
+            _write_clean_md(root / "02-spec" / "ok.md")
             changed = root / "changed.txt"
             changed.write_text("spec/ok.md\n", encoding="utf-8")
 
             rc, out, err = _run(
-                "--root", "spec",
+                "--root", "02-spec",
                 "--repo-root", str(root),
                 "--changed-files", str(changed),
                 cwd=root,
@@ -144,9 +144,9 @@ class ListChangedFilesAudit(unittest.TestCase):
     def test_flag_outside_diff_mode_is_noop(self) -> None:
         with tempfile.TemporaryDirectory() as td:
             root = Path(td)
-            _write_clean_md(root / "spec" / "ok.md")
+            _write_clean_md(root / "02-spec" / "ok.md")
             rc, out, err = _run(
-                "--root", "spec",
+                "--root", "02-spec",
                 "--repo-root", str(root),
                 "--list-changed-files",
                 cwd=root,

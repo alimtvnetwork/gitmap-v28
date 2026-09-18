@@ -3,7 +3,7 @@
 // VisibilityRedo runs newest-first so users can select a `--run <id>`
 // for `vu` / `vr`.
 //
-// Spec: spec/01-app/116-bulk-visibility-mapub-mapri.md §history.
+// Spec: 02-spec/01-app/116-bulk-visibility-mapub-mapri.md §history.
 package cmd
 
 import (

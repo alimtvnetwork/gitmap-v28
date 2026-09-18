@@ -2,7 +2,7 @@
 """suggest-spec-cross-link-fixes.py
 
 Companion to ``check-spec-cross-links.py``. For every broken internal
-markdown link in ``spec/``, propose the closest matching fix by fuzzy
+markdown link in ``02-spec/``, propose the closest matching fix by fuzzy
 matching against:
 
   * existing markdown files (for ``missing-file`` failures), and
@@ -318,7 +318,7 @@ def apply_fixes(sugs: list[dict], min_conf: float) -> tuple[int, int]:
 
 def parse_args() -> argparse.Namespace:
     p = argparse.ArgumentParser(description="Suggest or auto-fix broken spec cross-references.")
-    p.add_argument("--root", default="spec")
+    p.add_argument("--root", default="02-spec")
     p.add_argument("--repo-root", default=".")
     p.add_argument("--apply", action="store_true", help="Rewrite files in place when confidence >= threshold")
     p.add_argument("--min-confidence", type=float, default=DEFAULT_MIN_CONFIDENCE)

@@ -332,7 +332,7 @@ func writeLogsToTempFile(name, content string) error {
 }
 
 func buildTempLogPath(name string) string {
-	_ = os.MkdirAll(".lovable/temp", 0755)
+	_ = os.MkdirAll(".ai-memory/temp", 0755)
 
-	return fmt.Sprintf(".lovable/temp/%s", name)
+	return fmt.Sprintf(".ai-memory/temp/%s", name)
 }

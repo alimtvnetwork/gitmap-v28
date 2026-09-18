@@ -1,5 +1,5 @@
 // Pure helpers for the /release/:version page. Extracted so they can be
-// unit-tested without mounting React. Spec: spec/01-app/105-release-version-script.md.
+// unit-tested without mounting React. Spec: 02-spec/01-app/105-release-version-script.md.
 
 export const RELEASE_REPO = "alimtvnetwork/gitmap-v28";
 export const RELEASE_DOCS_HOST = "https://gitmap.dev";

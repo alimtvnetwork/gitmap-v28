@@ -3,7 +3,7 @@
 check-file-sizes.py
 ===================
 
-Hard Rule #6 enforcement (spec/17-consolidated-guidelines/31-*.md):
+Hard Rule #6 enforcement (02-spec/17-consolidated-guidelines/31-*.md):
 
   - Any source file: max 300 lines
   - Any React component file (*.tsx): max 100 lines

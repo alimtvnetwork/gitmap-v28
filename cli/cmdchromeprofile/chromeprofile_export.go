@@ -1,6 +1,6 @@
 // Package cmd — chromeprofile_export.go: JSON snapshot serialization.
 // Captures bookmarks + extension IDs + preferences subset. See
-// spec/04-generic-cli/40-chrome-profile-copy.md §4 for schema.
+// 02-spec/04-generic-cli/40-chrome-profile-copy.md §4 for schema.
 package cmdchromeprofile
 
 import (

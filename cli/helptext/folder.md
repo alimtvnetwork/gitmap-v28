@@ -35,9 +35,9 @@ gitmap tree [directory] [flags]
 ### Clean ASCII Tree View
 
 ```bash
-$ gitmap folder .lovable
+$ gitmap folder .ai-memory
 
-.lovable/
+.ai-memory/
 ├── ai-fix-scripts/
 │   ├── 01-index.md
 │   ├── 02-shared-engine.py
@@ -48,9 +48,9 @@ $ gitmap folder .lovable
 ### Detailed ASCII Tree (Filename First, Details After)
 
 ```bash
-$ gitmap folder .lovable --tree --details
+$ gitmap folder .ai-memory --tree --details
 
-.lovable/
+.ai-memory/
 ├── ai-fix-scripts/
 │   ├── 01-index.md (seq: 01, 106 lines, 3.8 KB)
 │   ├── 02-shared-engine.py (seq: 02, 107 lines, 3.1 KB)
@@ -61,9 +61,9 @@ $ gitmap folder .lovable --tree --details
 ### Nested Markdown List with Metadata (No Backticks)
 
 ```bash
-$ gitmap folder .lovable --md --details
+$ gitmap folder .ai-memory --md --details
 
-- .lovable/
+- .ai-memory/
   - ai-fix-scripts/
     - 01-index.md (seq: 01, 106 lines, 3.8 KB)
     - 02-shared-engine.py (seq: 02, 107 lines, 3.1 KB)
@@ -82,18 +82,18 @@ gitmap folder . --except "vendor/**, node_modules/**, *.png, *.min.js" --tree --
 ### Machine-Readable JSON for AI Agents & UI Visualization
 
 ```bash
-$ gitmap folder .lovable/ai-fix-scripts --json
+$ gitmap folder .ai-memory/ai-fix-scripts --json
 {
-  "root": ".lovable/ai-fix-scripts",
+  "root": ".ai-memory/ai-fix-scripts",
   "totalFiles": 13,
   "totalLines": 1420,
   "totalSizeBytes": 48200,
   "totalSizeFormatted": "47.1 KB",
   "files": [
     {
-      "path": ".lovable/ai-fix-scripts/01-index.md",
+      "path": "03-ai-scripts/01-index.md",
       "filename": "01-index.md",
-      "directory": ".lovable/ai-fix-scripts",
+      "directory": ".ai-memory/ai-fix-scripts",
       "extension": ".md",
       "sizeBytes": 3828,
       "sizeFormatted": "3.8 KB",

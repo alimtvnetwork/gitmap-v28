@@ -5,7 +5,7 @@ description: Execute coding guideline refactoring, fixing booleans, nesting, nam
 
 # Execute Coding Guideline Fix
 
-Autonomously refactors code violations against `spec/02-coding-guidelines/` in strictly bounded 5-8 file micro-batches.
+Autonomously refactors code violations against `02-spec/02-coding-guidelines/` in strictly bounded 5-8 file micro-batches.
 
 ## Rules
 
@@ -20,7 +20,7 @@ Autonomously refactors code violations against `spec/02-coding-guidelines/` in s
 - **Fluent Predicates:** Enforce `IsCountOtherThan(N)`, `IsEmpty()`, `HasRecord()`, `IsDefined()` at call sites instead of compound checks (`err != nil || len(...) != N`).
 - **No Releases (Strict Policy):** Strictly forbidden from bumping versions or cutting releases at the end of this task.
 - **TOTAL BAN on Test Running & Build Checking:** Test execution (`go test`, `pytest`, python runners) and build checks (`go build`, compiler verification) are strictly banned. Testing and builds are verified later on in CI/CD.
-- **Atomic Change Tracking:** Append all modified files to `.lovable/temp/recent-file-changes.json` under lock (`python 03-ai-scripts/33-test-inventory-generator.py --record <files...>`), mapping to associated tests in `.lovable/test-inventory.json` for subsequent CI/CD verification.
+- **Atomic Change Tracking:** Append all modified files to `.ai-memory/temp/recent-file-changes.json` under lock (`python 03-ai-scripts/33-test-inventory-generator.py --record <files...>`), mapping to associated tests in `.ai-memory/test-inventory.json` for subsequent CI/CD verification.
 - **Targeted Batch Verification:** Run targeted linter / autofixer on the modified files in the batch (e.g. `python linter-scripts/check-nested-ifs.py <files>` or `08-naming-autofixer.py <files>`). DO NOT run `06-cicd-local-runner.py`, test runners, or full builds (`npm run build`, `go build ./...`) during routine batch fixes.
 - **Consolidated Commits:** NEVER commit isolated 1-2 plan/doc files alone. Commit all modified source files, tests, and plans together as a single atomic batch.
 - **Immediate Git Push:** Always push immediately to remote (`git push origin <branch>`) after every commit.

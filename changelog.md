@@ -3,8 +3,8 @@
 ### Install GitMap v6.259.0
 
 To pin your repository to this exact version, run the following one-liner:
-Unix/Bash: `curl -sL https://raw.githubusercontent.com/alimtvnetwork/gitmap-v28/v6.259.0/install.sh | bash -s -- ".lovable/prompts" "v6.259.0"`
-PowerShell: `Invoke-WebRequest -Uri https://raw.githubusercontent.com/alimtvnetwork/gitmap-v28/v6.259.0/install.ps1 -OutFile install.ps1; .\install.ps1 -TargetDir ".lovable/prompts" -Version "v6.259.0"`
+Unix/Bash: `curl -sL https://raw.githubusercontent.com/alimtvnetwork/gitmap-v28/v6.259.0/install.sh | bash -s -- ".ai-memory/prompts" "v6.259.0"`
+PowerShell: `Invoke-WebRequest -Uri https://raw.githubusercontent.com/alimtvnetwork/gitmap-v28/v6.259.0/install.ps1 -OutFile install.ps1; .\install.ps1 -TargetDir ".ai-memory/prompts" -Version "v6.259.0"`
 
 ### Added / Changed / Fixed / Removed
 
@@ -19,8 +19,8 @@ PowerShell: `Invoke-WebRequest -Uri https://raw.githubusercontent.com/alimtvnetw
 ### Install GitMap v6.258.0
 
 To pin your repository to this exact version, run the following one-liner:
-Unix/Bash: `curl -sL https://raw.githubusercontent.com/alimtvnetwork/gitmap-v28/v6.258.0/install.sh | bash -s -- ".lovable/prompts" "v6.258.0"`
-PowerShell: `Invoke-WebRequest -Uri https://raw.githubusercontent.com/alimtvnetwork/gitmap-v28/v6.258.0/install.ps1 -OutFile install.ps1; .\install.ps1 -TargetDir ".lovable/prompts" -Version "v6.258.0"`
+Unix/Bash: `curl -sL https://raw.githubusercontent.com/alimtvnetwork/gitmap-v28/v6.258.0/install.sh | bash -s -- ".ai-memory/prompts" "v6.258.0"`
+PowerShell: `Invoke-WebRequest -Uri https://raw.githubusercontent.com/alimtvnetwork/gitmap-v28/v6.258.0/install.ps1 -OutFile install.ps1; .\install.ps1 -TargetDir ".ai-memory/prompts" -Version "v6.258.0"`
 
 ### Added / Changed / Fixed / Removed
 
@@ -42,8 +42,8 @@ PowerShell: `Invoke-WebRequest -Uri https://raw.githubusercontent.com/alimtvnetw
 ### Install GitMap v6.257.0
 
 To pin your repository to this exact version, run the following one-liner:
-Unix/Bash: `curl -sL https://raw.githubusercontent.com/alimtvnetwork/gitmap-v28/v6.257.0/install.sh | bash -s -- ".lovable/prompts" "v6.257.0"`
-PowerShell: `Invoke-WebRequest -Uri https://raw.githubusercontent.com/alimtvnetwork/gitmap-v28/v6.257.0/install.ps1 -OutFile install.ps1; .\install.ps1 -TargetDir ".lovable/prompts" -Version "v6.257.0"`
+Unix/Bash: `curl -sL https://raw.githubusercontent.com/alimtvnetwork/gitmap-v28/v6.257.0/install.sh | bash -s -- ".ai-memory/prompts" "v6.257.0"`
+PowerShell: `Invoke-WebRequest -Uri https://raw.githubusercontent.com/alimtvnetwork/gitmap-v28/v6.257.0/install.ps1 -OutFile install.ps1; .\install.ps1 -TargetDir ".ai-memory/prompts" -Version "v6.257.0"`
 
 ### Added / Changed / Fixed / Removed
 
@@ -63,8 +63,8 @@ PowerShell: `Invoke-WebRequest -Uri https://raw.githubusercontent.com/alimtvnetw
 ### Install GitMap v6.256.0
 
 To pin your repository to this exact version, run the following one-liner:
-Unix/Bash: `curl -sL https://raw.githubusercontent.com/alimtvnetwork/gitmap-v28/v6.256.0/install.sh | bash -s -- ".lovable/prompts" "v6.256.0"`
-PowerShell: `Invoke-WebRequest -Uri https://raw.githubusercontent.com/alimtvnetwork/gitmap-v28/v6.256.0/install.ps1 -OutFile install.ps1; .\install.ps1 -TargetDir ".lovable/prompts" -Version "v6.256.0"`
+Unix/Bash: `curl -sL https://raw.githubusercontent.com/alimtvnetwork/gitmap-v28/v6.256.0/install.sh | bash -s -- ".ai-memory/prompts" "v6.256.0"`
+PowerShell: `Invoke-WebRequest -Uri https://raw.githubusercontent.com/alimtvnetwork/gitmap-v28/v6.256.0/install.ps1 -OutFile install.ps1; .\install.ps1 -TargetDir ".ai-memory/prompts" -Version "v6.256.0"`
 
 ### Added / Changed / Fixed / Removed
 
@@ -75,8 +75,8 @@ PowerShell: `Invoke-WebRequest -Uri https://raw.githubusercontent.com/alimtvnetw
 ### Install GitMap v6.255.0
 
 To pin your repository to this exact version, run the following one-liner:
-Unix/Bash: `curl -sL https://raw.githubusercontent.com/alimtvnetwork/gitmap-v28/v6.255.0/install.sh | bash -s -- ".lovable/prompts" "v6.255.0"`
-PowerShell: `Invoke-WebRequest -Uri https://raw.githubusercontent.com/alimtvnetwork/gitmap-v28/v6.255.0/install.ps1 -OutFile install.ps1; .\install.ps1 -TargetDir ".lovable/prompts" -Version "v6.255.0"`
+Unix/Bash: `curl -sL https://raw.githubusercontent.com/alimtvnetwork/gitmap-v28/v6.255.0/install.sh | bash -s -- ".ai-memory/prompts" "v6.255.0"`
+PowerShell: `Invoke-WebRequest -Uri https://raw.githubusercontent.com/alimtvnetwork/gitmap-v28/v6.255.0/install.ps1 -OutFile install.ps1; .\install.ps1 -TargetDir ".ai-memory/prompts" -Version "v6.255.0"`
 
 ### Added / Changed / Fixed / Removed
 
@@ -87,8 +87,8 @@ PowerShell: `Invoke-WebRequest -Uri https://raw.githubusercontent.com/alimtvnetw
 ### Install GitMap v6.254.0
 
 To pin your repository to this exact version, run the following one-liner:
-Unix/Bash: `curl -sL https://raw.githubusercontent.com/alimtvnetwork/gitmap-v28/v6.254.0/install.sh | bash -s -- ".lovable/prompts" "v6.254.0"`
-PowerShell: `Invoke-WebRequest -Uri https://raw.githubusercontent.com/alimtvnetwork/gitmap-v28/v6.254.0/install.ps1 -OutFile install.ps1; .\install.ps1 -TargetDir ".lovable/prompts" -Version "v6.254.0"`
+Unix/Bash: `curl -sL https://raw.githubusercontent.com/alimtvnetwork/gitmap-v28/v6.254.0/install.sh | bash -s -- ".ai-memory/prompts" "v6.254.0"`
+PowerShell: `Invoke-WebRequest -Uri https://raw.githubusercontent.com/alimtvnetwork/gitmap-v28/v6.254.0/install.ps1 -OutFile install.ps1; .\install.ps1 -TargetDir ".ai-memory/prompts" -Version "v6.254.0"`
 
 ### Added / Changed / Fixed / Removed
 
@@ -99,8 +99,8 @@ PowerShell: `Invoke-WebRequest -Uri https://raw.githubusercontent.com/alimtvnetw
 ### Install GitMap v6.253.0
 
 To pin your repository to this exact version, run the following one-liner:
-Unix/Bash: `curl -sL https://raw.githubusercontent.com/alimtvnetwork/gitmap-v28/v6.253.0/install.sh | bash -s -- ".lovable/prompts" "v6.253.0"`
-PowerShell: `Invoke-WebRequest -Uri https://raw.githubusercontent.com/alimtvnetwork/gitmap-v28/v6.253.0/install.ps1 -OutFile install.ps1; .\install.ps1 -TargetDir ".lovable/prompts" -Version "v6.253.0"`
+Unix/Bash: `curl -sL https://raw.githubusercontent.com/alimtvnetwork/gitmap-v28/v6.253.0/install.sh | bash -s -- ".ai-memory/prompts" "v6.253.0"`
+PowerShell: `Invoke-WebRequest -Uri https://raw.githubusercontent.com/alimtvnetwork/gitmap-v28/v6.253.0/install.ps1 -OutFile install.ps1; .\install.ps1 -TargetDir ".ai-memory/prompts" -Version "v6.253.0"`
 
 ### Added / Changed / Fixed / Removed
 
@@ -111,8 +111,8 @@ PowerShell: `Invoke-WebRequest -Uri https://raw.githubusercontent.com/alimtvnetw
 ### Install GitMap v6.252.0
 
 To pin your repository to this exact version, run the following one-liner:
-Unix/Bash: `curl -sL https://raw.githubusercontent.com/alimtvnetwork/gitmap-v28/v6.252.0/install.sh | bash -s -- ".lovable/prompts" "v6.252.0"`
-PowerShell: `Invoke-WebRequest -Uri https://raw.githubusercontent.com/alimtvnetwork/gitmap-v28/v6.252.0/install.ps1 -OutFile install.ps1; .\install.ps1 -TargetDir ".lovable/prompts" -Version "v6.252.0"`
+Unix/Bash: `curl -sL https://raw.githubusercontent.com/alimtvnetwork/gitmap-v28/v6.252.0/install.sh | bash -s -- ".ai-memory/prompts" "v6.252.0"`
+PowerShell: `Invoke-WebRequest -Uri https://raw.githubusercontent.com/alimtvnetwork/gitmap-v28/v6.252.0/install.ps1 -OutFile install.ps1; .\install.ps1 -TargetDir ".ai-memory/prompts" -Version "v6.252.0"`
 
 ### Added / Changed / Fixed / Removed
 
@@ -125,8 +125,8 @@ PowerShell: `Invoke-WebRequest -Uri https://raw.githubusercontent.com/alimtvnetw
 ### Install GitMap v6.251.0
 
 To pin your repository to this exact version, run the following one-liner:
-Unix/Bash: `curl -sL https://raw.githubusercontent.com/alimtvnetwork/gitmap-v28/v6.251.0/install.sh | bash -s -- ".lovable/prompts" "v6.251.0"`
-PowerShell: `Invoke-WebRequest -Uri https://raw.githubusercontent.com/alimtvnetwork/gitmap-v28/v6.251.0/install.ps1 -OutFile install.ps1; .\install.ps1 -TargetDir ".lovable/prompts" -Version "v6.251.0"`
+Unix/Bash: `curl -sL https://raw.githubusercontent.com/alimtvnetwork/gitmap-v28/v6.251.0/install.sh | bash -s -- ".ai-memory/prompts" "v6.251.0"`
+PowerShell: `Invoke-WebRequest -Uri https://raw.githubusercontent.com/alimtvnetwork/gitmap-v28/v6.251.0/install.ps1 -OutFile install.ps1; .\install.ps1 -TargetDir ".ai-memory/prompts" -Version "v6.251.0"`
 
 ### Added / Changed / Fixed / Removed
 
@@ -139,8 +139,8 @@ PowerShell: `Invoke-WebRequest -Uri https://raw.githubusercontent.com/alimtvnetw
 ### Install GitMap v6.250.0
 
 To pin your repository to this exact version, run the following one-liner:
-Unix/Bash: `curl -sL https://raw.githubusercontent.com/alimtvnetwork/gitmap-v28/v6.250.0/install.sh | bash -s -- ".lovable/prompts" "v6.250.0"`
-PowerShell: `Invoke-WebRequest -Uri https://raw.githubusercontent.com/alimtvnetwork/gitmap-v28/v6.250.0/install.ps1 -OutFile install.ps1; .\install.ps1 -TargetDir ".lovable/prompts" -Version "v6.250.0"`
+Unix/Bash: `curl -sL https://raw.githubusercontent.com/alimtvnetwork/gitmap-v28/v6.250.0/install.sh | bash -s -- ".ai-memory/prompts" "v6.250.0"`
+PowerShell: `Invoke-WebRequest -Uri https://raw.githubusercontent.com/alimtvnetwork/gitmap-v28/v6.250.0/install.ps1 -OutFile install.ps1; .\install.ps1 -TargetDir ".ai-memory/prompts" -Version "v6.250.0"`
 
 ### Added / Changed / Fixed / Removed
 
@@ -154,8 +154,8 @@ PowerShell: `Invoke-WebRequest -Uri https://raw.githubusercontent.com/alimtvnetw
 ### Install GitMap v6.249.0
 
 To pin your repository to this exact version, run the following one-liner:
-Unix/Bash: `curl -sL https://raw.githubusercontent.com/alimtvnetwork/gitmap-v28/v6.249.0/install.sh | bash -s -- ".lovable/prompts" "v6.249.0"`
-PowerShell: `Invoke-WebRequest -Uri https://raw.githubusercontent.com/alimtvnetwork/gitmap-v28/v6.249.0/install.ps1 -OutFile install.ps1; .\install.ps1 -TargetDir ".lovable/prompts" -Version "v6.249.0"`
+Unix/Bash: `curl -sL https://raw.githubusercontent.com/alimtvnetwork/gitmap-v28/v6.249.0/install.sh | bash -s -- ".ai-memory/prompts" "v6.249.0"`
+PowerShell: `Invoke-WebRequest -Uri https://raw.githubusercontent.com/alimtvnetwork/gitmap-v28/v6.249.0/install.ps1 -OutFile install.ps1; .\install.ps1 -TargetDir ".ai-memory/prompts" -Version "v6.249.0"`
 
 ### Added / Changed / Fixed / Removed
 
@@ -166,8 +166,8 @@ PowerShell: `Invoke-WebRequest -Uri https://raw.githubusercontent.com/alimtvnetw
 ### Install GitMap v6.248.0
 
 To pin your repository to this exact version, run the following one-liner:
-Unix/Bash: `curl -sL https://raw.githubusercontent.com/alimtvnetwork/gitmap-v28/v6.248.0/install.sh | bash -s -- ".lovable/prompts" "v6.248.0"`
-PowerShell: `Invoke-WebRequest -Uri https://raw.githubusercontent.com/alimtvnetwork/gitmap-v28/v6.248.0/install.ps1 -OutFile install.ps1; .\install.ps1 -TargetDir ".lovable/prompts" -Version "v6.248.0"`
+Unix/Bash: `curl -sL https://raw.githubusercontent.com/alimtvnetwork/gitmap-v28/v6.248.0/install.sh | bash -s -- ".ai-memory/prompts" "v6.248.0"`
+PowerShell: `Invoke-WebRequest -Uri https://raw.githubusercontent.com/alimtvnetwork/gitmap-v28/v6.248.0/install.ps1 -OutFile install.ps1; .\install.ps1 -TargetDir ".ai-memory/prompts" -Version "v6.248.0"`
 
 ### Added / Changed / Fixed / Removed
 
@@ -178,8 +178,8 @@ PowerShell: `Invoke-WebRequest -Uri https://raw.githubusercontent.com/alimtvnetw
 ### Install GitMap v6.247.0
 
 To pin your repository to this exact version, run the following one-liner:
-Unix/Bash: `curl -sL https://raw.githubusercontent.com/alimtvnetwork/gitmap-v28/v6.247.0/install.sh | bash -s -- ".lovable/prompts" "v6.247.0"`
-PowerShell: `Invoke-WebRequest -Uri https://raw.githubusercontent.com/alimtvnetwork/gitmap-v28/v6.247.0/install.ps1 -OutFile install.ps1; .\install.ps1 -TargetDir ".lovable/prompts" -Version "v6.247.0"`
+Unix/Bash: `curl -sL https://raw.githubusercontent.com/alimtvnetwork/gitmap-v28/v6.247.0/install.sh | bash -s -- ".ai-memory/prompts" "v6.247.0"`
+PowerShell: `Invoke-WebRequest -Uri https://raw.githubusercontent.com/alimtvnetwork/gitmap-v28/v6.247.0/install.ps1 -OutFile install.ps1; .\install.ps1 -TargetDir ".ai-memory/prompts" -Version "v6.247.0"`
 
 ### Added / Changed / Fixed / Removed
 
@@ -190,8 +190,8 @@ PowerShell: `Invoke-WebRequest -Uri https://raw.githubusercontent.com/alimtvnetw
 ### Install GitMap v6.246.0
 
 To pin your repository to this exact version, run the following one-liner:
-Unix/Bash: `curl -sL https://raw.githubusercontent.com/alimtvnetwork/gitmap-v28/v6.246.0/install.sh | bash -s -- ".lovable/prompts" "v6.246.0"`
-PowerShell: `Invoke-WebRequest -Uri https://raw.githubusercontent.com/alimtvnetwork/gitmap-v28/v6.246.0/install.ps1 -OutFile install.ps1; .\install.ps1 -TargetDir ".lovable/prompts" -Version "v6.246.0"`
+Unix/Bash: `curl -sL https://raw.githubusercontent.com/alimtvnetwork/gitmap-v28/v6.246.0/install.sh | bash -s -- ".ai-memory/prompts" "v6.246.0"`
+PowerShell: `Invoke-WebRequest -Uri https://raw.githubusercontent.com/alimtvnetwork/gitmap-v28/v6.246.0/install.ps1 -OutFile install.ps1; .\install.ps1 -TargetDir ".ai-memory/prompts" -Version "v6.246.0"`
 
 ### Added / Changed / Fixed / Removed
 
@@ -202,8 +202,8 @@ PowerShell: `Invoke-WebRequest -Uri https://raw.githubusercontent.com/alimtvnetw
 ### Install GitMap v6.245.1
 
 To pin your repository to this exact version, run the following one-liner:
-Unix/Bash: `curl -sL https://raw.githubusercontent.com/alimtvnetwork/gitmap-v28/v6.245.1/install.sh | bash -s -- ".lovable/prompts" "v6.245.1"`
-PowerShell: `Invoke-WebRequest -Uri https://raw.githubusercontent.com/alimtvnetwork/gitmap-v28/v6.245.1/install.ps1 -OutFile install.ps1; .\install.ps1 -TargetDir ".lovable/prompts" -Version "v6.245.1"`
+Unix/Bash: `curl -sL https://raw.githubusercontent.com/alimtvnetwork/gitmap-v28/v6.245.1/install.sh | bash -s -- ".ai-memory/prompts" "v6.245.1"`
+PowerShell: `Invoke-WebRequest -Uri https://raw.githubusercontent.com/alimtvnetwork/gitmap-v28/v6.245.1/install.ps1 -OutFile install.ps1; .\install.ps1 -TargetDir ".ai-memory/prompts" -Version "v6.245.1"`
 
 ### Added / Changed / Fixed / Removed
 
@@ -214,8 +214,8 @@ PowerShell: `Invoke-WebRequest -Uri https://raw.githubusercontent.com/alimtvnetw
 ### Install GitMap v6.245.0
 
 To pin your repository to this exact version, run the following one-liner:
-Unix/Bash: `curl -sL https://raw.githubusercontent.com/alimtvnetwork/gitmap-v28/v6.245.0/install.sh | bash -s -- ".lovable/prompts" "v6.245.0"`
-PowerShell: `Invoke-WebRequest -Uri https://raw.githubusercontent.com/alimtvnetwork/gitmap-v28/v6.245.0/install.ps1 -OutFile install.ps1; .\install.ps1 -TargetDir ".lovable/prompts" -Version "v6.245.0"`
+Unix/Bash: `curl -sL https://raw.githubusercontent.com/alimtvnetwork/gitmap-v28/v6.245.0/install.sh | bash -s -- ".ai-memory/prompts" "v6.245.0"`
+PowerShell: `Invoke-WebRequest -Uri https://raw.githubusercontent.com/alimtvnetwork/gitmap-v28/v6.245.0/install.ps1 -OutFile install.ps1; .\install.ps1 -TargetDir ".ai-memory/prompts" -Version "v6.245.0"`
 
 ### Added / Changed / Fixed / Removed
 
@@ -231,8 +231,8 @@ PowerShell: `Invoke-WebRequest -Uri https://raw.githubusercontent.com/alimtvnetw
 ### Install GitMap v6.244.0
 
 To pin your repository to this exact version, run the following one-liner:
-Unix/Bash: `curl -sL https://raw.githubusercontent.com/alimtvnetwork/gitmap-v28/v6.244.0/install.sh | bash -s -- ".lovable/prompts" "v6.244.0"`
-PowerShell: `Invoke-WebRequest -Uri https://raw.githubusercontent.com/alimtvnetwork/gitmap-v28/v6.244.0/install.ps1 -OutFile install.ps1; .\install.ps1 -TargetDir ".lovable/prompts" -Version "v6.244.0"`
+Unix/Bash: `curl -sL https://raw.githubusercontent.com/alimtvnetwork/gitmap-v28/v6.244.0/install.sh | bash -s -- ".ai-memory/prompts" "v6.244.0"`
+PowerShell: `Invoke-WebRequest -Uri https://raw.githubusercontent.com/alimtvnetwork/gitmap-v28/v6.244.0/install.ps1 -OutFile install.ps1; .\install.ps1 -TargetDir ".ai-memory/prompts" -Version "v6.244.0"`
 
 ### Added / Changed / Fixed / Removed
 
@@ -243,8 +243,8 @@ PowerShell: `Invoke-WebRequest -Uri https://raw.githubusercontent.com/alimtvnetw
 ### Install GitMap v6.243.0
 
 To pin your repository to this exact version, run the following one-liner:
-Unix/Bash: `curl -sL https://raw.githubusercontent.com/alimtvnetwork/gitmap-v28/v6.243.0/install.sh | bash -s -- ".lovable/prompts" "v6.243.0"`
-PowerShell: `Invoke-WebRequest -Uri https://raw.githubusercontent.com/alimtvnetwork/gitmap-v28/v6.243.0/install.ps1 -OutFile install.ps1; .\install.ps1 -TargetDir ".lovable/prompts" -Version "v6.243.0"`
+Unix/Bash: `curl -sL https://raw.githubusercontent.com/alimtvnetwork/gitmap-v28/v6.243.0/install.sh | bash -s -- ".ai-memory/prompts" "v6.243.0"`
+PowerShell: `Invoke-WebRequest -Uri https://raw.githubusercontent.com/alimtvnetwork/gitmap-v28/v6.243.0/install.ps1 -OutFile install.ps1; .\install.ps1 -TargetDir ".ai-memory/prompts" -Version "v6.243.0"`
 
 ### Added / Changed / Fixed / Removed
 
@@ -257,8 +257,8 @@ PowerShell: `Invoke-WebRequest -Uri https://raw.githubusercontent.com/alimtvnetw
 ### Install GitMap v6.242.0
 
 To pin your repository to this exact version, run the following one-liner:
-Unix/Bash: `curl -sL https://raw.githubusercontent.com/alimtvnetwork/gitmap-v28/v6.242.0/install.sh | bash -s -- ".lovable/prompts" "v6.242.0"`
-PowerShell: `Invoke-WebRequest -Uri https://raw.githubusercontent.com/alimtvnetwork/gitmap-v28/v6.242.0/install.ps1 -OutFile install.ps1; .\install.ps1 -TargetDir ".lovable/prompts" -Version "v6.242.0"`
+Unix/Bash: `curl -sL https://raw.githubusercontent.com/alimtvnetwork/gitmap-v28/v6.242.0/install.sh | bash -s -- ".ai-memory/prompts" "v6.242.0"`
+PowerShell: `Invoke-WebRequest -Uri https://raw.githubusercontent.com/alimtvnetwork/gitmap-v28/v6.242.0/install.ps1 -OutFile install.ps1; .\install.ps1 -TargetDir ".ai-memory/prompts" -Version "v6.242.0"`
 
 ### Added / Changed / Fixed / Removed
 
@@ -271,8 +271,8 @@ PowerShell: `Invoke-WebRequest -Uri https://raw.githubusercontent.com/alimtvnetw
 ### Install GitMap v6.241.0
 
 To pin your repository to this exact version, run the following one-liner:
-Unix/Bash: `curl -sL https://raw.githubusercontent.com/alimtvnetwork/gitmap-v28/v6.241.0/install.sh | bash -s -- ".lovable/prompts" "v6.241.0"`
-PowerShell: `Invoke-WebRequest -Uri https://raw.githubusercontent.com/alimtvnetwork/gitmap-v28/v6.241.0/install.ps1 -OutFile install.ps1; .\install.ps1 -TargetDir ".lovable/prompts" -Version "v6.241.0"`
+Unix/Bash: `curl -sL https://raw.githubusercontent.com/alimtvnetwork/gitmap-v28/v6.241.0/install.sh | bash -s -- ".ai-memory/prompts" "v6.241.0"`
+PowerShell: `Invoke-WebRequest -Uri https://raw.githubusercontent.com/alimtvnetwork/gitmap-v28/v6.241.0/install.ps1 -OutFile install.ps1; .\install.ps1 -TargetDir ".ai-memory/prompts" -Version "v6.241.0"`
 
 ### Added / Changed / Fixed / Removed
 
@@ -286,8 +286,8 @@ PowerShell: `Invoke-WebRequest -Uri https://raw.githubusercontent.com/alimtvnetw
 ### Install GitMap v6.240.0
 
 To pin your repository to this exact version, run the following one-liner:
-Unix/Bash: `curl -sL https://raw.githubusercontent.com/alimtvnetwork/gitmap-v28/v6.240.0/install.sh | bash -s -- ".lovable/prompts" "v6.240.0"`
-PowerShell: `Invoke-WebRequest -Uri https://raw.githubusercontent.com/alimtvnetwork/gitmap-v28/v6.240.0/install.ps1 -OutFile install.ps1; .\install.ps1 -TargetDir ".lovable/prompts" -Version "v6.240.0"`
+Unix/Bash: `curl -sL https://raw.githubusercontent.com/alimtvnetwork/gitmap-v28/v6.240.0/install.sh | bash -s -- ".ai-memory/prompts" "v6.240.0"`
+PowerShell: `Invoke-WebRequest -Uri https://raw.githubusercontent.com/alimtvnetwork/gitmap-v28/v6.240.0/install.ps1 -OutFile install.ps1; .\install.ps1 -TargetDir ".ai-memory/prompts" -Version "v6.240.0"`
 
 ### Added / Changed / Fixed / Removed
 
@@ -302,8 +302,8 @@ PowerShell: `Invoke-WebRequest -Uri https://raw.githubusercontent.com/alimtvnetw
 ### Install GitMap v6.239.0
 
 To pin your repository to this exact version, run the following one-liner:
-Unix/Bash: `curl -sL https://raw.githubusercontent.com/alimtvnetwork/gitmap-v28/v6.239.0/install.sh | bash -s -- ".lovable/prompts" "v6.239.0"`
-PowerShell: `Invoke-WebRequest -Uri https://raw.githubusercontent.com/alimtvnetwork/gitmap-v28/v6.239.0/install.ps1 -OutFile install.ps1; .\install.ps1 -TargetDir ".lovable/prompts" -Version "v6.239.0"`
+Unix/Bash: `curl -sL https://raw.githubusercontent.com/alimtvnetwork/gitmap-v28/v6.239.0/install.sh | bash -s -- ".ai-memory/prompts" "v6.239.0"`
+PowerShell: `Invoke-WebRequest -Uri https://raw.githubusercontent.com/alimtvnetwork/gitmap-v28/v6.239.0/install.ps1 -OutFile install.ps1; .\install.ps1 -TargetDir ".ai-memory/prompts" -Version "v6.239.0"`
 
 ### Added / Changed / Fixed / Removed
 
@@ -314,8 +314,8 @@ PowerShell: `Invoke-WebRequest -Uri https://raw.githubusercontent.com/alimtvnetw
 ### Install GitMap v6.238.0
 
 To pin your repository to this exact version, run the following one-liner:
-Unix/Bash: `curl -sL https://raw.githubusercontent.com/alimtvnetwork/gitmap-v28/v6.238.0/install.sh | bash -s -- ".lovable/prompts" "v6.238.0"`
-PowerShell: `Invoke-WebRequest -Uri https://raw.githubusercontent.com/alimtvnetwork/gitmap-v28/v6.238.0/install.ps1 -OutFile install.ps1; .\install.ps1 -TargetDir ".lovable/prompts" -Version "v6.238.0"`
+Unix/Bash: `curl -sL https://raw.githubusercontent.com/alimtvnetwork/gitmap-v28/v6.238.0/install.sh | bash -s -- ".ai-memory/prompts" "v6.238.0"`
+PowerShell: `Invoke-WebRequest -Uri https://raw.githubusercontent.com/alimtvnetwork/gitmap-v28/v6.238.0/install.ps1 -OutFile install.ps1; .\install.ps1 -TargetDir ".ai-memory/prompts" -Version "v6.238.0"`
 
 ### Added / Changed / Fixed / Removed
 
@@ -326,8 +326,8 @@ PowerShell: `Invoke-WebRequest -Uri https://raw.githubusercontent.com/alimtvnetw
 ### Install GitMap v6.237.0
 
 To pin your repository to this exact version, run the following one-liner:
-Unix/Bash: `curl -sL https://raw.githubusercontent.com/alimtvnetwork/gitmap-v28/v6.237.0/install.sh | bash -s -- ".lovable/prompts" "v6.237.0"`
-PowerShell: `Invoke-WebRequest -Uri https://raw.githubusercontent.com/alimtvnetwork/gitmap-v28/v6.237.0/install.ps1 -OutFile install.ps1; .\install.ps1 -TargetDir ".lovable/prompts" -Version "v6.237.0"`
+Unix/Bash: `curl -sL https://raw.githubusercontent.com/alimtvnetwork/gitmap-v28/v6.237.0/install.sh | bash -s -- ".ai-memory/prompts" "v6.237.0"`
+PowerShell: `Invoke-WebRequest -Uri https://raw.githubusercontent.com/alimtvnetwork/gitmap-v28/v6.237.0/install.ps1 -OutFile install.ps1; .\install.ps1 -TargetDir ".ai-memory/prompts" -Version "v6.237.0"`
 
 ### Added / Changed / Fixed / Removed
 
@@ -341,8 +341,8 @@ PowerShell: `Invoke-WebRequest -Uri https://raw.githubusercontent.com/alimtvnetw
 ### Install GitMap v6.236.0
 
 To pin your repository to this exact version, run the following one-liner:
-Unix/Bash: `curl -sL https://raw.githubusercontent.com/alimtvnetwork/gitmap-v28/v6.236.0/install.sh | bash -s -- ".lovable/prompts" "v6.236.0"`
-PowerShell: `Invoke-WebRequest -Uri https://raw.githubusercontent.com/alimtvnetwork/gitmap-v28/v6.236.0/install.ps1 -OutFile install.ps1; .\install.ps1 -TargetDir ".lovable/prompts" -Version "v6.236.0"`
+Unix/Bash: `curl -sL https://raw.githubusercontent.com/alimtvnetwork/gitmap-v28/v6.236.0/install.sh | bash -s -- ".ai-memory/prompts" "v6.236.0"`
+PowerShell: `Invoke-WebRequest -Uri https://raw.githubusercontent.com/alimtvnetwork/gitmap-v28/v6.236.0/install.ps1 -OutFile install.ps1; .\install.ps1 -TargetDir ".ai-memory/prompts" -Version "v6.236.0"`
 
 ### Added / Changed / Fixed / Removed
 
@@ -358,8 +358,8 @@ PowerShell: `Invoke-WebRequest -Uri https://raw.githubusercontent.com/alimtvnetw
 ### Install GitMap v6.235.0
 
 To pin your repository to this exact version, run the following one-liner:
-Unix/Bash: `curl -sL https://raw.githubusercontent.com/alimtvnetwork/gitmap-v28/v6.235.0/install.sh | bash -s -- ".lovable/prompts" "v6.235.0"`
-PowerShell: `Invoke-WebRequest -Uri https://raw.githubusercontent.com/alimtvnetwork/gitmap-v28/v6.235.0/install.ps1 -OutFile install.ps1; .\install.ps1 -TargetDir ".lovable/prompts" -Version "v6.235.0"`
+Unix/Bash: `curl -sL https://raw.githubusercontent.com/alimtvnetwork/gitmap-v28/v6.235.0/install.sh | bash -s -- ".ai-memory/prompts" "v6.235.0"`
+PowerShell: `Invoke-WebRequest -Uri https://raw.githubusercontent.com/alimtvnetwork/gitmap-v28/v6.235.0/install.ps1 -OutFile install.ps1; .\install.ps1 -TargetDir ".ai-memory/prompts" -Version "v6.235.0"`
 
 ### Added / Changed / Fixed / Removed
 
@@ -370,8 +370,8 @@ PowerShell: `Invoke-WebRequest -Uri https://raw.githubusercontent.com/alimtvnetw
 ### Install GitMap v6.234.0
 
 To pin your repository to this exact version, run the following one-liner:
-Unix/Bash: `curl -sL https://raw.githubusercontent.com/alimtvnetwork/gitmap-v28/v6.234.0/install.sh | bash -s -- ".lovable/prompts" "v6.234.0"`
-PowerShell: `Invoke-WebRequest -Uri https://raw.githubusercontent.com/alimtvnetwork/gitmap-v28/v6.234.0/install.ps1 -OutFile install.ps1; .\install.ps1 -TargetDir ".lovable/prompts" -Version "v6.234.0"`
+Unix/Bash: `curl -sL https://raw.githubusercontent.com/alimtvnetwork/gitmap-v28/v6.234.0/install.sh | bash -s -- ".ai-memory/prompts" "v6.234.0"`
+PowerShell: `Invoke-WebRequest -Uri https://raw.githubusercontent.com/alimtvnetwork/gitmap-v28/v6.234.0/install.ps1 -OutFile install.ps1; .\install.ps1 -TargetDir ".ai-memory/prompts" -Version "v6.234.0"`
 
 ### Added / Changed / Fixed / Removed
 
@@ -383,8 +383,8 @@ PowerShell: `Invoke-WebRequest -Uri https://raw.githubusercontent.com/alimtvnetw
 ### Install GitMap v6.233.0
 
 To pin your repository to this exact version, run the following one-liner:
-Unix/Bash: `curl -sL https://raw.githubusercontent.com/alimtvnetwork/gitmap-v28/v6.233.0/install.sh | bash -s -- ".lovable/prompts" "v6.233.0"`
-PowerShell: `Invoke-WebRequest -Uri https://raw.githubusercontent.com/alimtvnetwork/gitmap-v28/v6.233.0/install.ps1 -OutFile install.ps1; .\install.ps1 -TargetDir ".lovable/prompts" -Version "v6.233.0"`
+Unix/Bash: `curl -sL https://raw.githubusercontent.com/alimtvnetwork/gitmap-v28/v6.233.0/install.sh | bash -s -- ".ai-memory/prompts" "v6.233.0"`
+PowerShell: `Invoke-WebRequest -Uri https://raw.githubusercontent.com/alimtvnetwork/gitmap-v28/v6.233.0/install.ps1 -OutFile install.ps1; .\install.ps1 -TargetDir ".ai-memory/prompts" -Version "v6.233.0"`
 
 ### Added / Changed / Fixed / Removed
 
@@ -395,8 +395,8 @@ PowerShell: `Invoke-WebRequest -Uri https://raw.githubusercontent.com/alimtvnetw
 ### Install GitMap v6.232.0
 
 To pin your repository to this exact version, run the following one-liner:
-Unix/Bash: `curl -sL https://raw.githubusercontent.com/alimtvnetwork/gitmap-v28/v6.232.0/install.sh | bash -s -- ".lovable/prompts" "v6.232.0"`
-PowerShell: `Invoke-WebRequest -Uri https://raw.githubusercontent.com/alimtvnetwork/gitmap-v28/v6.232.0/install.ps1 -OutFile install.ps1; .\install.ps1 -TargetDir ".lovable/prompts" -Version "v6.232.0"`
+Unix/Bash: `curl -sL https://raw.githubusercontent.com/alimtvnetwork/gitmap-v28/v6.232.0/install.sh | bash -s -- ".ai-memory/prompts" "v6.232.0"`
+PowerShell: `Invoke-WebRequest -Uri https://raw.githubusercontent.com/alimtvnetwork/gitmap-v28/v6.232.0/install.ps1 -OutFile install.ps1; .\install.ps1 -TargetDir ".ai-memory/prompts" -Version "v6.232.0"`
 
 ### Added / Changed / Fixed / Removed
 
@@ -411,8 +411,8 @@ PowerShell: `Invoke-WebRequest -Uri https://raw.githubusercontent.com/alimtvnetw
 ### Install GitMap v6.231.0
 
 To pin your repository to this exact version, run the following one-liner:
-Unix/Bash: `curl -sL https://raw.githubusercontent.com/alimtvnetwork/gitmap-v28/v6.231.0/install.sh | bash -s -- ".lovable/prompts" "v6.231.0"`
-PowerShell: `Invoke-WebRequest -Uri https://raw.githubusercontent.com/alimtvnetwork/gitmap-v28/v6.231.0/install.ps1 -OutFile install.ps1; .\install.ps1 -TargetDir ".lovable/prompts" -Version "v6.231.0"`
+Unix/Bash: `curl -sL https://raw.githubusercontent.com/alimtvnetwork/gitmap-v28/v6.231.0/install.sh | bash -s -- ".ai-memory/prompts" "v6.231.0"`
+PowerShell: `Invoke-WebRequest -Uri https://raw.githubusercontent.com/alimtvnetwork/gitmap-v28/v6.231.0/install.ps1 -OutFile install.ps1; .\install.ps1 -TargetDir ".ai-memory/prompts" -Version "v6.231.0"`
 
 ### Added / Changed / Fixed / Removed
 
@@ -427,8 +427,8 @@ PowerShell: `Invoke-WebRequest -Uri https://raw.githubusercontent.com/alimtvnetw
 ### Install GitMap v6.230.0
 
 To pin your repository to this exact version, run the following one-liner:
-Unix/Bash: `curl -sL https://raw.githubusercontent.com/alimtvnetwork/gitmap-v28/v6.230.0/install.sh | bash -s -- ".lovable/prompts" "v6.230.0"`
-PowerShell: `Invoke-WebRequest -Uri https://raw.githubusercontent.com/alimtvnetwork/gitmap-v28/v6.230.0/install.ps1 -OutFile install.ps1; .\install.ps1 -TargetDir ".lovable/prompts" -Version "v6.230.0"`
+Unix/Bash: `curl -sL https://raw.githubusercontent.com/alimtvnetwork/gitmap-v28/v6.230.0/install.sh | bash -s -- ".ai-memory/prompts" "v6.230.0"`
+PowerShell: `Invoke-WebRequest -Uri https://raw.githubusercontent.com/alimtvnetwork/gitmap-v28/v6.230.0/install.ps1 -OutFile install.ps1; .\install.ps1 -TargetDir ".ai-memory/prompts" -Version "v6.230.0"`
 
 ### Added / Changed / Fixed / Removed
 
@@ -441,8 +441,8 @@ PowerShell: `Invoke-WebRequest -Uri https://raw.githubusercontent.com/alimtvnetw
 ### Install GitMap v6.229.0
 
 To pin your repository to this exact version, run the following one-liner:
-Unix/Bash: `curl -sL https://raw.githubusercontent.com/alimtvnetwork/gitmap-v28/v6.229.0/install.sh | bash -s -- ".lovable/prompts" "v6.229.0"`
-PowerShell: `Invoke-WebRequest -Uri https://raw.githubusercontent.com/alimtvnetwork/gitmap-v28/v6.229.0/install.ps1 -OutFile install.ps1; .\install.ps1 -TargetDir ".lovable/prompts" -Version "v6.229.0"`
+Unix/Bash: `curl -sL https://raw.githubusercontent.com/alimtvnetwork/gitmap-v28/v6.229.0/install.sh | bash -s -- ".ai-memory/prompts" "v6.229.0"`
+PowerShell: `Invoke-WebRequest -Uri https://raw.githubusercontent.com/alimtvnetwork/gitmap-v28/v6.229.0/install.ps1 -OutFile install.ps1; .\install.ps1 -TargetDir ".ai-memory/prompts" -Version "v6.229.0"`
 
 ### Added / Changed / Fixed / Removed
 
@@ -455,8 +455,8 @@ PowerShell: `Invoke-WebRequest -Uri https://raw.githubusercontent.com/alimtvnetw
 ### Install GitMap v6.228.0
 
 To pin your repository to this exact version, run the following one-liner:
-Unix/Bash: `curl -sL https://raw.githubusercontent.com/alimtvnetwork/gitmap-v28/v6.228.0/install.sh | bash -s -- ".lovable/prompts" "v6.228.0"`
-PowerShell: `Invoke-WebRequest -Uri https://raw.githubusercontent.com/alimtvnetwork/gitmap-v28/v6.228.0/install.ps1 -OutFile install.ps1; .\install.ps1 -TargetDir ".lovable/prompts" -Version "v6.228.0"`
+Unix/Bash: `curl -sL https://raw.githubusercontent.com/alimtvnetwork/gitmap-v28/v6.228.0/install.sh | bash -s -- ".ai-memory/prompts" "v6.228.0"`
+PowerShell: `Invoke-WebRequest -Uri https://raw.githubusercontent.com/alimtvnetwork/gitmap-v28/v6.228.0/install.ps1 -OutFile install.ps1; .\install.ps1 -TargetDir ".ai-memory/prompts" -Version "v6.228.0"`
 
 ### Added / Changed / Fixed / Removed
 
@@ -470,8 +470,8 @@ PowerShell: `Invoke-WebRequest -Uri https://raw.githubusercontent.com/alimtvnetw
 ### Install GitMap v6.227.0
 
 To pin your repository to this exact version, run the following one-liner:
-Unix/Bash: `curl -sL https://raw.githubusercontent.com/alimtvnetwork/gitmap-v28/v6.227.0/install.sh | bash -s -- ".lovable/prompts" "v6.227.0"`
-PowerShell: `Invoke-WebRequest -Uri https://raw.githubusercontent.com/alimtvnetwork/gitmap-v28/v6.227.0/install.ps1 -OutFile install.ps1; .\install.ps1 -TargetDir ".lovable/prompts" -Version "v6.227.0"`
+Unix/Bash: `curl -sL https://raw.githubusercontent.com/alimtvnetwork/gitmap-v28/v6.227.0/install.sh | bash -s -- ".ai-memory/prompts" "v6.227.0"`
+PowerShell: `Invoke-WebRequest -Uri https://raw.githubusercontent.com/alimtvnetwork/gitmap-v28/v6.227.0/install.ps1 -OutFile install.ps1; .\install.ps1 -TargetDir ".ai-memory/prompts" -Version "v6.227.0"`
 
 ### Added / Changed / Fixed / Removed
 
@@ -485,8 +485,8 @@ PowerShell: `Invoke-WebRequest -Uri https://raw.githubusercontent.com/alimtvnetw
 ### Install GitMap v6.226.0
 
 To pin your repository to this exact version, run the following one-liner:
-Unix/Bash: `curl -sL https://raw.githubusercontent.com/alimtvnetwork/gitmap-v28/v6.226.0/install.sh | bash -s -- ".lovable/prompts" "v6.226.0"`
-PowerShell: `Invoke-WebRequest -Uri https://raw.githubusercontent.com/alimtvnetwork/gitmap-v28/v6.226.0/install.ps1 -OutFile install.ps1; .\install.ps1 -TargetDir ".lovable/prompts" -Version "v6.226.0"`
+Unix/Bash: `curl -sL https://raw.githubusercontent.com/alimtvnetwork/gitmap-v28/v6.226.0/install.sh | bash -s -- ".ai-memory/prompts" "v6.226.0"`
+PowerShell: `Invoke-WebRequest -Uri https://raw.githubusercontent.com/alimtvnetwork/gitmap-v28/v6.226.0/install.ps1 -OutFile install.ps1; .\install.ps1 -TargetDir ".ai-memory/prompts" -Version "v6.226.0"`
 
 ### Added / Changed / Fixed / Removed
 
@@ -500,8 +500,8 @@ PowerShell: `Invoke-WebRequest -Uri https://raw.githubusercontent.com/alimtvnetw
 ### Install GitMap v6.225.0
 
 To pin your repository to this exact version, run the following one-liner:
-Unix/Bash: `curl -sL https://raw.githubusercontent.com/alimtvnetwork/gitmap-v28/v6.225.0/install.sh | bash -s -- ".lovable/prompts" "v6.225.0"`
-PowerShell: `Invoke-WebRequest -Uri https://raw.githubusercontent.com/alimtvnetwork/gitmap-v28/v6.225.0/install.ps1 -OutFile install.ps1; .\install.ps1 -TargetDir ".lovable/prompts" -Version "v6.225.0"`
+Unix/Bash: `curl -sL https://raw.githubusercontent.com/alimtvnetwork/gitmap-v28/v6.225.0/install.sh | bash -s -- ".ai-memory/prompts" "v6.225.0"`
+PowerShell: `Invoke-WebRequest -Uri https://raw.githubusercontent.com/alimtvnetwork/gitmap-v28/v6.225.0/install.ps1 -OutFile install.ps1; .\install.ps1 -TargetDir ".ai-memory/prompts" -Version "v6.225.0"`
 
 ### Added / Changed / Fixed / Removed
 
@@ -514,8 +514,8 @@ PowerShell: `Invoke-WebRequest -Uri https://raw.githubusercontent.com/alimtvnetw
 ### Install GitMap v6.224.0
 
 To pin your repository to this exact version, run the following one-liner:
-Unix/Bash: `curl -sL https://raw.githubusercontent.com/alimtvnetwork/gitmap-v28/v6.224.0/install.sh | bash -s -- ".lovable/prompts" "v6.224.0"`
-PowerShell: `Invoke-WebRequest -Uri https://raw.githubusercontent.com/alimtvnetwork/gitmap-v28/v6.224.0/install.ps1 -OutFile install.ps1; .\install.ps1 -TargetDir ".lovable/prompts" -Version "v6.224.0"`
+Unix/Bash: `curl -sL https://raw.githubusercontent.com/alimtvnetwork/gitmap-v28/v6.224.0/install.sh | bash -s -- ".ai-memory/prompts" "v6.224.0"`
+PowerShell: `Invoke-WebRequest -Uri https://raw.githubusercontent.com/alimtvnetwork/gitmap-v28/v6.224.0/install.ps1 -OutFile install.ps1; .\install.ps1 -TargetDir ".ai-memory/prompts" -Version "v6.224.0"`
 
 ### Added / Changed / Fixed / Removed
 
@@ -531,8 +531,8 @@ PowerShell: `Invoke-WebRequest -Uri https://raw.githubusercontent.com/alimtvnetw
 ### Install GitMap v6.223.0
 
 To pin your repository to this exact version, run the following one-liner:
-Unix/Bash: `curl -sL https://raw.githubusercontent.com/alimtvnetwork/gitmap-v28/v6.223.0/install.sh | bash -s -- ".lovable/prompts" "v6.223.0"`
-PowerShell: `Invoke-WebRequest -Uri https://raw.githubusercontent.com/alimtvnetwork/gitmap-v28/v6.223.0/install.ps1 -OutFile install.ps1; .\install.ps1 -TargetDir ".lovable/prompts" -Version "v6.223.0"`
+Unix/Bash: `curl -sL https://raw.githubusercontent.com/alimtvnetwork/gitmap-v28/v6.223.0/install.sh | bash -s -- ".ai-memory/prompts" "v6.223.0"`
+PowerShell: `Invoke-WebRequest -Uri https://raw.githubusercontent.com/alimtvnetwork/gitmap-v28/v6.223.0/install.ps1 -OutFile install.ps1; .\install.ps1 -TargetDir ".ai-memory/prompts" -Version "v6.223.0"`
 
 ### Added / Changed / Fixed / Removed
 
@@ -545,8 +545,8 @@ PowerShell: `Invoke-WebRequest -Uri https://raw.githubusercontent.com/alimtvnetw
 ### Install GitMap v6.222.0
 
 To pin your repository to this exact version, run the following one-liner:
-Unix/Bash: `curl -sL https://raw.githubusercontent.com/alimtvnetwork/gitmap-v28/v6.222.0/install.sh | bash -s -- ".lovable/prompts" "v6.222.0"`
-PowerShell: `Invoke-WebRequest -Uri https://raw.githubusercontent.com/alimtvnetwork/gitmap-v28/v6.222.0/install.ps1 -OutFile install.ps1; .\install.ps1 -TargetDir ".lovable/prompts" -Version "v6.222.0"`
+Unix/Bash: `curl -sL https://raw.githubusercontent.com/alimtvnetwork/gitmap-v28/v6.222.0/install.sh | bash -s -- ".ai-memory/prompts" "v6.222.0"`
+PowerShell: `Invoke-WebRequest -Uri https://raw.githubusercontent.com/alimtvnetwork/gitmap-v28/v6.222.0/install.ps1 -OutFile install.ps1; .\install.ps1 -TargetDir ".ai-memory/prompts" -Version "v6.222.0"`
 
 ### Added / Changed / Fixed / Removed
 
@@ -559,8 +559,8 @@ PowerShell: `Invoke-WebRequest -Uri https://raw.githubusercontent.com/alimtvnetw
 ### Install GitMap v6.221.0
 
 To pin your repository to this exact version, run the following one-liner:
-Unix/Bash: `curl -sL https://raw.githubusercontent.com/alimtvnetwork/gitmap-v28/v6.221.0/install.sh | bash -s -- ".lovable/prompts" "v6.221.0"`
-PowerShell: `Invoke-WebRequest -Uri https://raw.githubusercontent.com/alimtvnetwork/gitmap-v28/v6.221.0/install.ps1 -OutFile install.ps1; .\install.ps1 -TargetDir ".lovable/prompts" -Version "v6.221.0"`
+Unix/Bash: `curl -sL https://raw.githubusercontent.com/alimtvnetwork/gitmap-v28/v6.221.0/install.sh | bash -s -- ".ai-memory/prompts" "v6.221.0"`
+PowerShell: `Invoke-WebRequest -Uri https://raw.githubusercontent.com/alimtvnetwork/gitmap-v28/v6.221.0/install.ps1 -OutFile install.ps1; .\install.ps1 -TargetDir ".ai-memory/prompts" -Version "v6.221.0"`
 
 ### Added / Changed / Fixed / Removed
 
@@ -573,8 +573,8 @@ PowerShell: `Invoke-WebRequest -Uri https://raw.githubusercontent.com/alimtvnetw
 ### Install GitMap v6.220.2
 
 To pin your repository to this exact version, run the following one-liner:
-Unix/Bash: `curl -sL https://raw.githubusercontent.com/alimtvnetwork/gitmap-v28/v6.220.2/install.sh | bash -s -- ".lovable/prompts" "v6.220.2"`
-PowerShell: `Invoke-WebRequest -Uri https://raw.githubusercontent.com/alimtvnetwork/gitmap-v28/v6.220.2/install.ps1 -OutFile install.ps1; .\install.ps1 -TargetDir ".lovable/prompts" -Version "v6.220.2"`
+Unix/Bash: `curl -sL https://raw.githubusercontent.com/alimtvnetwork/gitmap-v28/v6.220.2/install.sh | bash -s -- ".ai-memory/prompts" "v6.220.2"`
+PowerShell: `Invoke-WebRequest -Uri https://raw.githubusercontent.com/alimtvnetwork/gitmap-v28/v6.220.2/install.ps1 -OutFile install.ps1; .\install.ps1 -TargetDir ".ai-memory/prompts" -Version "v6.220.2"`
 
 ### Added / Changed / Fixed / Removed
 
@@ -585,8 +585,8 @@ PowerShell: `Invoke-WebRequest -Uri https://raw.githubusercontent.com/alimtvnetw
 ### Install GitMap v6.220.1
 
 To pin your repository to this exact version, run the following one-liner:
-Unix/Bash: `curl -sL https://raw.githubusercontent.com/alimtvnetwork/gitmap-v28/v6.220.1/install.sh | bash -s -- ".lovable/prompts" "v6.220.1"`
-PowerShell: `Invoke-WebRequest -Uri https://raw.githubusercontent.com/alimtvnetwork/gitmap-v28/v6.220.1/install.ps1 -OutFile install.ps1; .\install.ps1 -TargetDir ".lovable/prompts" -Version "v6.220.1"`
+Unix/Bash: `curl -sL https://raw.githubusercontent.com/alimtvnetwork/gitmap-v28/v6.220.1/install.sh | bash -s -- ".ai-memory/prompts" "v6.220.1"`
+PowerShell: `Invoke-WebRequest -Uri https://raw.githubusercontent.com/alimtvnetwork/gitmap-v28/v6.220.1/install.ps1 -OutFile install.ps1; .\install.ps1 -TargetDir ".ai-memory/prompts" -Version "v6.220.1"`
 
 ### Added / Changed / Fixed / Removed
 
@@ -597,8 +597,8 @@ PowerShell: `Invoke-WebRequest -Uri https://raw.githubusercontent.com/alimtvnetw
 ### Install GitMap v6.220.0
 
 To pin your repository to this exact version, run the following one-liner:
-Unix/Bash: `curl -sL https://raw.githubusercontent.com/alimtvnetwork/gitmap-v28/v6.220.0/install.sh | bash -s -- ".lovable/prompts" "v6.220.0"`
-PowerShell: `Invoke-WebRequest -Uri https://raw.githubusercontent.com/alimtvnetwork/gitmap-v28/v6.220.0/install.ps1 -OutFile install.ps1; .\install.ps1 -TargetDir ".lovable/prompts" -Version "v6.220.0"`
+Unix/Bash: `curl -sL https://raw.githubusercontent.com/alimtvnetwork/gitmap-v28/v6.220.0/install.sh | bash -s -- ".ai-memory/prompts" "v6.220.0"`
+PowerShell: `Invoke-WebRequest -Uri https://raw.githubusercontent.com/alimtvnetwork/gitmap-v28/v6.220.0/install.ps1 -OutFile install.ps1; .\install.ps1 -TargetDir ".ai-memory/prompts" -Version "v6.220.0"`
 
 ### Added / Changed / Fixed / Removed
 
@@ -614,22 +614,22 @@ PowerShell: `Invoke-WebRequest -Uri https://raw.githubusercontent.com/alimtvnetw
 ### Install GitMap v6.219.0
 
 To pin your repository to this exact version, run the following one-liner:
-Unix/Bash: `curl -sL https://raw.githubusercontent.com/alimtvnetwork/gitmap-v28/v6.219.0/install.sh | bash -s -- ".lovable/prompts" "v6.219.0"`
-PowerShell: `Invoke-WebRequest -Uri https://raw.githubusercontent.com/alimtvnetwork/gitmap-v28/v6.219.0/install.ps1 -OutFile install.ps1; .\install.ps1 -TargetDir ".lovable/prompts" -Version "v6.219.0"`
+Unix/Bash: `curl -sL https://raw.githubusercontent.com/alimtvnetwork/gitmap-v28/v6.219.0/install.sh | bash -s -- ".ai-memory/prompts" "v6.219.0"`
+PowerShell: `Invoke-WebRequest -Uri https://raw.githubusercontent.com/alimtvnetwork/gitmap-v28/v6.219.0/install.ps1 -OutFile install.ps1; .\install.ps1 -TargetDir ".ai-memory/prompts" -Version "v6.219.0"`
 
 ### Added / Changed / Fixed / Removed
 
-- Relocate CI/CD runner temporary telemetry and session runs from OS temp directory to repository-internal .lovable/cicd
+- Relocate CI/CD runner temporary telemetry and session runs from OS temp directory to repository-internal .ai-memory/cicd
 - Ensure all failure banner stream paths and artifact locations are displayed as repository-relative paths
-- Add .lovable/cicd/ to .gitignore to avoid untracked working directory clutter
+- Add .ai-memory/cicd/ to .gitignore to avoid untracked working directory clutter
 
 ## [v6.218.0] 2026-09-11 Release v6.218.0
 
 ### Install GitMap v6.218.0
 
 To pin your repository to this exact version, run the following one-liner:
-Unix/Bash: `curl -sL https://raw.githubusercontent.com/alimtvnetwork/gitmap-v28/v6.218.0/install.sh | bash -s -- ".lovable/prompts" "v6.218.0"`
-PowerShell: `Invoke-WebRequest -Uri https://raw.githubusercontent.com/alimtvnetwork/gitmap-v28/v6.218.0/install.ps1 -OutFile install.ps1; .\install.ps1 -TargetDir ".lovable/prompts" -Version "v6.218.0"`
+Unix/Bash: `curl -sL https://raw.githubusercontent.com/alimtvnetwork/gitmap-v28/v6.218.0/install.sh | bash -s -- ".ai-memory/prompts" "v6.218.0"`
+PowerShell: `Invoke-WebRequest -Uri https://raw.githubusercontent.com/alimtvnetwork/gitmap-v28/v6.218.0/install.ps1 -OutFile install.ps1; .\install.ps1 -TargetDir ".ai-memory/prompts" -Version "v6.218.0"`
 
 ### Added / Changed / Fixed / Removed
 
@@ -642,8 +642,8 @@ PowerShell: `Invoke-WebRequest -Uri https://raw.githubusercontent.com/alimtvnetw
 ### Install GitMap v6.217.0
 
 To pin your repository to this exact version, run the following one-liner:
-Unix/Bash: `curl -sL https://raw.githubusercontent.com/alimtvnetwork/gitmap-v28/v6.217.0/install.sh | bash -s -- ".lovable/prompts" "v6.217.0"`
-PowerShell: `Invoke-WebRequest -Uri https://raw.githubusercontent.com/alimtvnetwork/gitmap-v28/v6.217.0/install.ps1 -OutFile install.ps1; .\install.ps1 -TargetDir ".lovable/prompts" -Version "v6.217.0"`
+Unix/Bash: `curl -sL https://raw.githubusercontent.com/alimtvnetwork/gitmap-v28/v6.217.0/install.sh | bash -s -- ".ai-memory/prompts" "v6.217.0"`
+PowerShell: `Invoke-WebRequest -Uri https://raw.githubusercontent.com/alimtvnetwork/gitmap-v28/v6.217.0/install.ps1 -OutFile install.ps1; .\install.ps1 -TargetDir ".ai-memory/prompts" -Version "v6.217.0"`
 
 ### Added / Changed / Fixed / Removed
 
@@ -655,8 +655,8 @@ PowerShell: `Invoke-WebRequest -Uri https://raw.githubusercontent.com/alimtvnetw
 ### Install GitMap v6.216.0
 
 To pin your repository to this exact version, run the following one-liner:
-Unix/Bash: `curl -sL https://raw.githubusercontent.com/alimtvnetwork/gitmap-v28/v6.216.0/install.sh | bash -s -- ".lovable/prompts" "v6.216.0"`
-PowerShell: `Invoke-WebRequest -Uri https://raw.githubusercontent.com/alimtvnetwork/gitmap-v28/v6.216.0/install.ps1 -OutFile install.ps1; .\install.ps1 -TargetDir ".lovable/prompts" -Version "v6.216.0"`
+Unix/Bash: `curl -sL https://raw.githubusercontent.com/alimtvnetwork/gitmap-v28/v6.216.0/install.sh | bash -s -- ".ai-memory/prompts" "v6.216.0"`
+PowerShell: `Invoke-WebRequest -Uri https://raw.githubusercontent.com/alimtvnetwork/gitmap-v28/v6.216.0/install.ps1 -OutFile install.ps1; .\install.ps1 -TargetDir ".ai-memory/prompts" -Version "v6.216.0"`
 
 ### Added / Changed / Fixed / Removed
 
@@ -669,8 +669,8 @@ PowerShell: `Invoke-WebRequest -Uri https://raw.githubusercontent.com/alimtvnetw
 ### Install GitMap v6.215.0
 
 To pin your repository to this exact version, run the following one-liner:
-Unix/Bash: `curl -sL https://raw.githubusercontent.com/alimtvnetwork/gitmap-v28/v6.215.0/install.sh | bash -s -- ".lovable/prompts" "v6.215.0"`
-PowerShell: `Invoke-WebRequest -Uri https://raw.githubusercontent.com/alimtvnetwork/gitmap-v28/v6.215.0/install.ps1 -OutFile install.ps1; .\install.ps1 -TargetDir ".lovable/prompts" -Version "v6.215.0"`
+Unix/Bash: `curl -sL https://raw.githubusercontent.com/alimtvnetwork/gitmap-v28/v6.215.0/install.sh | bash -s -- ".ai-memory/prompts" "v6.215.0"`
+PowerShell: `Invoke-WebRequest -Uri https://raw.githubusercontent.com/alimtvnetwork/gitmap-v28/v6.215.0/install.ps1 -OutFile install.ps1; .\install.ps1 -TargetDir ".ai-memory/prompts" -Version "v6.215.0"`
 
 ### Added / Changed / Fixed / Removed
 
@@ -683,8 +683,8 @@ PowerShell: `Invoke-WebRequest -Uri https://raw.githubusercontent.com/alimtvnetw
 ### Install GitMap v6.214.0
 
 To pin your repository to this exact version, run the following one-liner:
-Unix/Bash: `curl -sL https://raw.githubusercontent.com/alimtvnetwork/gitmap-v28/v6.214.0/install.sh | bash -s -- ".lovable/prompts" "v6.214.0"`
-PowerShell: `Invoke-WebRequest -Uri https://raw.githubusercontent.com/alimtvnetwork/gitmap-v28/v6.214.0/install.ps1 -OutFile install.ps1; .\install.ps1 -TargetDir ".lovable/prompts" -Version "v6.214.0"`
+Unix/Bash: `curl -sL https://raw.githubusercontent.com/alimtvnetwork/gitmap-v28/v6.214.0/install.sh | bash -s -- ".ai-memory/prompts" "v6.214.0"`
+PowerShell: `Invoke-WebRequest -Uri https://raw.githubusercontent.com/alimtvnetwork/gitmap-v28/v6.214.0/install.ps1 -OutFile install.ps1; .\install.ps1 -TargetDir ".ai-memory/prompts" -Version "v6.214.0"`
 
 ### Added / Changed / Fixed / Removed
 
@@ -696,8 +696,8 @@ PowerShell: `Invoke-WebRequest -Uri https://raw.githubusercontent.com/alimtvnetw
 ### Install GitMap v6.213.0
 
 To pin your repository to this exact version, run the following one-liner:
-Unix/Bash: `curl -sL https://raw.githubusercontent.com/alimtvnetwork/gitmap-v28/v6.213.0/install.sh | bash -s -- ".lovable/prompts" "v6.213.0"`
-PowerShell: `Invoke-WebRequest -Uri https://raw.githubusercontent.com/alimtvnetwork/gitmap-v28/v6.213.0/install.ps1 -OutFile install.ps1; .\install.ps1 -TargetDir ".lovable/prompts" -Version "v6.213.0"`
+Unix/Bash: `curl -sL https://raw.githubusercontent.com/alimtvnetwork/gitmap-v28/v6.213.0/install.sh | bash -s -- ".ai-memory/prompts" "v6.213.0"`
+PowerShell: `Invoke-WebRequest -Uri https://raw.githubusercontent.com/alimtvnetwork/gitmap-v28/v6.213.0/install.ps1 -OutFile install.ps1; .\install.ps1 -TargetDir ".ai-memory/prompts" -Version "v6.213.0"`
 
 ### Added / Changed / Fixed / Removed
 
@@ -712,8 +712,8 @@ PowerShell: `Invoke-WebRequest -Uri https://raw.githubusercontent.com/alimtvnetw
 ### Install GitMap v6.212.0
 
 To pin your repository to this exact version, run the following one-liner:
-Unix/Bash: `curl -sL https://raw.githubusercontent.com/alimtvnetwork/gitmap-v28/v6.212.0/install.sh | bash -s -- ".lovable/prompts" "v6.212.0"`
-PowerShell: `Invoke-WebRequest -Uri https://raw.githubusercontent.com/alimtvnetwork/gitmap-v28/v6.212.0/install.ps1 -OutFile install.ps1; .\install.ps1 -TargetDir ".lovable/prompts" -Version "v6.212.0"`
+Unix/Bash: `curl -sL https://raw.githubusercontent.com/alimtvnetwork/gitmap-v28/v6.212.0/install.sh | bash -s -- ".ai-memory/prompts" "v6.212.0"`
+PowerShell: `Invoke-WebRequest -Uri https://raw.githubusercontent.com/alimtvnetwork/gitmap-v28/v6.212.0/install.ps1 -OutFile install.ps1; .\install.ps1 -TargetDir ".ai-memory/prompts" -Version "v6.212.0"`
 
 ### Added / Changed / Fixed / Removed
 
@@ -726,8 +726,8 @@ PowerShell: `Invoke-WebRequest -Uri https://raw.githubusercontent.com/alimtvnetw
 ### Install GitMap v6.211.0
 
 To pin your repository to this exact version, run the following one-liner:
-Unix/Bash: `curl -sL https://raw.githubusercontent.com/alimtvnetwork/gitmap-v28/v6.211.0/install.sh | bash -s -- ".lovable/prompts" "v6.211.0"`
-PowerShell: `Invoke-WebRequest -Uri https://raw.githubusercontent.com/alimtvnetwork/gitmap-v28/v6.211.0/install.ps1 -OutFile install.ps1; .\install.ps1 -TargetDir ".lovable/prompts" -Version "v6.211.0"`
+Unix/Bash: `curl -sL https://raw.githubusercontent.com/alimtvnetwork/gitmap-v28/v6.211.0/install.sh | bash -s -- ".ai-memory/prompts" "v6.211.0"`
+PowerShell: `Invoke-WebRequest -Uri https://raw.githubusercontent.com/alimtvnetwork/gitmap-v28/v6.211.0/install.ps1 -OutFile install.ps1; .\install.ps1 -TargetDir ".ai-memory/prompts" -Version "v6.211.0"`
 
 ### Added / Changed / Fixed / Removed
 
@@ -741,8 +741,8 @@ PowerShell: `Invoke-WebRequest -Uri https://raw.githubusercontent.com/alimtvnetw
 ### Install GitMap v6.210.2
 
 To pin your repository to this exact version, run the following one-liner:
-Unix/Bash: `curl -sL https://raw.githubusercontent.com/alimtvnetwork/gitmap-v28/v6.210.2/install.sh | bash -s -- ".lovable/prompts" "v6.210.2"`
-PowerShell: `Invoke-WebRequest -Uri https://raw.githubusercontent.com/alimtvnetwork/gitmap-v28/v6.210.2/install.ps1 -OutFile install.ps1; .\install.ps1 -TargetDir ".lovable/prompts" -Version "v6.210.2"`
+Unix/Bash: `curl -sL https://raw.githubusercontent.com/alimtvnetwork/gitmap-v28/v6.210.2/install.sh | bash -s -- ".ai-memory/prompts" "v6.210.2"`
+PowerShell: `Invoke-WebRequest -Uri https://raw.githubusercontent.com/alimtvnetwork/gitmap-v28/v6.210.2/install.ps1 -OutFile install.ps1; .\install.ps1 -TargetDir ".ai-memory/prompts" -Version "v6.210.2"`
 
 ### Added / Changed / Fixed / Removed
 
@@ -753,8 +753,8 @@ PowerShell: `Invoke-WebRequest -Uri https://raw.githubusercontent.com/alimtvnetw
 ### Install GitMap v6.210.1
 
 To pin your repository to this exact version, run the following one-liner:
-Unix/Bash: `curl -sL https://raw.githubusercontent.com/alimtvnetwork/gitmap-v28/v6.210.1/install.sh | bash -s -- ".lovable/prompts" "v6.210.1"`
-PowerShell: `Invoke-WebRequest -Uri https://raw.githubusercontent.com/alimtvnetwork/gitmap-v28/v6.210.1/install.ps1 -OutFile install.ps1; .\install.ps1 -TargetDir ".lovable/prompts" -Version "v6.210.1"`
+Unix/Bash: `curl -sL https://raw.githubusercontent.com/alimtvnetwork/gitmap-v28/v6.210.1/install.sh | bash -s -- ".ai-memory/prompts" "v6.210.1"`
+PowerShell: `Invoke-WebRequest -Uri https://raw.githubusercontent.com/alimtvnetwork/gitmap-v28/v6.210.1/install.ps1 -OutFile install.ps1; .\install.ps1 -TargetDir ".ai-memory/prompts" -Version "v6.210.1"`
 
 ### Added / Changed / Fixed / Removed
 
@@ -765,8 +765,8 @@ PowerShell: `Invoke-WebRequest -Uri https://raw.githubusercontent.com/alimtvnetw
 ### Install GitMap v6.210.0
 
 To pin your repository to this exact version, run the following one-liner:
-Unix/Bash: `curl -sL https://raw.githubusercontent.com/alimtvnetwork/gitmap-v28/v6.210.0/install.sh | bash -s -- ".lovable/prompts" "v6.210.0"`
-PowerShell: `Invoke-WebRequest -Uri https://raw.githubusercontent.com/alimtvnetwork/gitmap-v28/v6.210.0/install.ps1 -OutFile install.ps1; .\install.ps1 -TargetDir ".lovable/prompts" -Version "v6.210.0"`
+Unix/Bash: `curl -sL https://raw.githubusercontent.com/alimtvnetwork/gitmap-v28/v6.210.0/install.sh | bash -s -- ".ai-memory/prompts" "v6.210.0"`
+PowerShell: `Invoke-WebRequest -Uri https://raw.githubusercontent.com/alimtvnetwork/gitmap-v28/v6.210.0/install.ps1 -OutFile install.ps1; .\install.ps1 -TargetDir ".ai-memory/prompts" -Version "v6.210.0"`
 
 ### Added / Changed / Fixed / Removed
 
@@ -777,8 +777,8 @@ PowerShell: `Invoke-WebRequest -Uri https://raw.githubusercontent.com/alimtvnetw
 ### Install GitMap v6.209.2
 
 To pin your repository to this exact version, run the following one-liner:
-Unix/Bash: `curl -sL https://raw.githubusercontent.com/alimtvnetwork/gitmap-v28/v6.209.2/install.sh | bash -s -- ".lovable/prompts" "v6.209.2"`
-PowerShell: `Invoke-WebRequest -Uri https://raw.githubusercontent.com/alimtvnetwork/gitmap-v28/v6.209.2/install.ps1 -OutFile install.ps1; .\install.ps1 -TargetDir ".lovable/prompts" -Version "v6.209.2"`
+Unix/Bash: `curl -sL https://raw.githubusercontent.com/alimtvnetwork/gitmap-v28/v6.209.2/install.sh | bash -s -- ".ai-memory/prompts" "v6.209.2"`
+PowerShell: `Invoke-WebRequest -Uri https://raw.githubusercontent.com/alimtvnetwork/gitmap-v28/v6.209.2/install.ps1 -OutFile install.ps1; .\install.ps1 -TargetDir ".ai-memory/prompts" -Version "v6.209.2"`
 
 ### Added / Changed / Fixed / Removed
 
@@ -789,8 +789,8 @@ PowerShell: `Invoke-WebRequest -Uri https://raw.githubusercontent.com/alimtvnetw
 ### Install GitMap v6.209.1
 
 To pin your repository to this exact version, run the following one-liner:
-Unix/Bash: `curl -sL https://raw.githubusercontent.com/alimtvnetwork/gitmap-v28/v6.209.1/install.sh | bash -s -- ".lovable/prompts" "v6.209.1"`
-PowerShell: `Invoke-WebRequest -Uri https://raw.githubusercontent.com/alimtvnetwork/gitmap-v28/v6.209.1/install.ps1 -OutFile install.ps1; .\install.ps1 -TargetDir ".lovable/prompts" -Version "v6.209.1"`
+Unix/Bash: `curl -sL https://raw.githubusercontent.com/alimtvnetwork/gitmap-v28/v6.209.1/install.sh | bash -s -- ".ai-memory/prompts" "v6.209.1"`
+PowerShell: `Invoke-WebRequest -Uri https://raw.githubusercontent.com/alimtvnetwork/gitmap-v28/v6.209.1/install.ps1 -OutFile install.ps1; .\install.ps1 -TargetDir ".ai-memory/prompts" -Version "v6.209.1"`
 
 ### Added / Changed / Fixed / Removed
 
@@ -801,8 +801,8 @@ PowerShell: `Invoke-WebRequest -Uri https://raw.githubusercontent.com/alimtvnetw
 ### Install GitMap v6.209.0
 
 To pin your repository to this exact version, run the following one-liner:
-Unix/Bash: `curl -sL https://raw.githubusercontent.com/alimtvnetwork/gitmap-v28/v6.209.0/install.sh | bash -s -- ".lovable/prompts" "v6.209.0"`
-PowerShell: `Invoke-WebRequest -Uri https://raw.githubusercontent.com/alimtvnetwork/gitmap-v28/v6.209.0/install.ps1 -OutFile install.ps1; .\install.ps1 -TargetDir ".lovable/prompts" -Version "v6.209.0"`
+Unix/Bash: `curl -sL https://raw.githubusercontent.com/alimtvnetwork/gitmap-v28/v6.209.0/install.sh | bash -s -- ".ai-memory/prompts" "v6.209.0"`
+PowerShell: `Invoke-WebRequest -Uri https://raw.githubusercontent.com/alimtvnetwork/gitmap-v28/v6.209.0/install.ps1 -OutFile install.ps1; .\install.ps1 -TargetDir ".ai-memory/prompts" -Version "v6.209.0"`
 
 ### Added / Changed / Fixed / Removed
 
@@ -813,8 +813,8 @@ PowerShell: `Invoke-WebRequest -Uri https://raw.githubusercontent.com/alimtvnetw
 ### Install GitMap v6.208.1
 
 To pin your repository to this exact version, run the following one-liner:
-Unix/Bash: `curl -sL https://raw.githubusercontent.com/alimtvnetwork/gitmap-v28/v6.208.1/install.sh | bash -s -- ".lovable/prompts" "v6.208.1"`
-PowerShell: `Invoke-WebRequest -Uri https://raw.githubusercontent.com/alimtvnetwork/gitmap-v28/v6.208.1/install.ps1 -OutFile install.ps1; .\install.ps1 -TargetDir ".lovable/prompts" -Version "v6.208.1"`
+Unix/Bash: `curl -sL https://raw.githubusercontent.com/alimtvnetwork/gitmap-v28/v6.208.1/install.sh | bash -s -- ".ai-memory/prompts" "v6.208.1"`
+PowerShell: `Invoke-WebRequest -Uri https://raw.githubusercontent.com/alimtvnetwork/gitmap-v28/v6.208.1/install.ps1 -OutFile install.ps1; .\install.ps1 -TargetDir ".ai-memory/prompts" -Version "v6.208.1"`
 
 ### Added / Changed / Fixed / Removed
 
@@ -825,8 +825,8 @@ PowerShell: `Invoke-WebRequest -Uri https://raw.githubusercontent.com/alimtvnetw
 ### Install GitMap v6.208.0
 
 To pin your repository to this exact version, run the following one-liner:
-Unix/Bash: `curl -sL https://raw.githubusercontent.com/alimtvnetwork/gitmap-v28/v6.208.0/install.sh | bash -s -- ".lovable/prompts" "v6.208.0"`
-PowerShell: `Invoke-WebRequest -Uri https://raw.githubusercontent.com/alimtvnetwork/gitmap-v28/v6.208.0/install.ps1 -OutFile install.ps1; .\install.ps1 -TargetDir ".lovable/prompts" -Version "v6.208.0"`
+Unix/Bash: `curl -sL https://raw.githubusercontent.com/alimtvnetwork/gitmap-v28/v6.208.0/install.sh | bash -s -- ".ai-memory/prompts" "v6.208.0"`
+PowerShell: `Invoke-WebRequest -Uri https://raw.githubusercontent.com/alimtvnetwork/gitmap-v28/v6.208.0/install.ps1 -OutFile install.ps1; .\install.ps1 -TargetDir ".ai-memory/prompts" -Version "v6.208.0"`
 
 ### Added / Changed / Fixed / Removed
 
@@ -843,8 +843,8 @@ PowerShell: `Invoke-WebRequest -Uri https://raw.githubusercontent.com/alimtvnetw
 ### Install GitMap v6.207.0
 
 To pin your repository to this exact version, run the following one-liner:
-Unix/Bash: `curl -sL https://raw.githubusercontent.com/alimtvnetwork/gitmap-v28/v6.207.0/install.sh | bash -s -- ".lovable/prompts" "v6.207.0"`
-PowerShell: `Invoke-WebRequest -Uri https://raw.githubusercontent.com/alimtvnetwork/gitmap-v28/v6.207.0/install.ps1 -OutFile install.ps1; .\install.ps1 -TargetDir ".lovable/prompts" -Version "v6.207.0"`
+Unix/Bash: `curl -sL https://raw.githubusercontent.com/alimtvnetwork/gitmap-v28/v6.207.0/install.sh | bash -s -- ".ai-memory/prompts" "v6.207.0"`
+PowerShell: `Invoke-WebRequest -Uri https://raw.githubusercontent.com/alimtvnetwork/gitmap-v28/v6.207.0/install.ps1 -OutFile install.ps1; .\install.ps1 -TargetDir ".ai-memory/prompts" -Version "v6.207.0"`
 
 ### Added / Changed / Fixed / Removed
 
@@ -855,8 +855,8 @@ PowerShell: `Invoke-WebRequest -Uri https://raw.githubusercontent.com/alimtvnetw
 ### Install GitMap v6.206.3
 
 To pin your repository to this exact version, run the following one-liner:
-Unix/Bash: `curl -sL https://raw.githubusercontent.com/alimtvnetwork/gitmap-v28/v6.206.3/install.sh | bash -s -- ".lovable/prompts" "v6.206.3"`
-PowerShell: `Invoke-WebRequest -Uri https://raw.githubusercontent.com/alimtvnetwork/gitmap-v28/v6.206.3/install.ps1 -OutFile install.ps1; .\install.ps1 -TargetDir ".lovable/prompts" -Version "v6.206.3"`
+Unix/Bash: `curl -sL https://raw.githubusercontent.com/alimtvnetwork/gitmap-v28/v6.206.3/install.sh | bash -s -- ".ai-memory/prompts" "v6.206.3"`
+PowerShell: `Invoke-WebRequest -Uri https://raw.githubusercontent.com/alimtvnetwork/gitmap-v28/v6.206.3/install.ps1 -OutFile install.ps1; .\install.ps1 -TargetDir ".ai-memory/prompts" -Version "v6.206.3"`
 
 ### Added / Changed / Fixed / Removed
 
@@ -867,8 +867,8 @@ PowerShell: `Invoke-WebRequest -Uri https://raw.githubusercontent.com/alimtvnetw
 ### Install GitMap v6.206.2
 
 To pin your repository to this exact version, run the following one-liner:
-Unix/Bash: `curl -sL https://raw.githubusercontent.com/alimtvnetwork/gitmap-v28/v6.206.2/install.sh | bash -s -- ".lovable/prompts" "v6.206.2"`
-PowerShell: `Invoke-WebRequest -Uri https://raw.githubusercontent.com/alimtvnetwork/gitmap-v28/v6.206.2/install.ps1 -OutFile install.ps1; .\install.ps1 -TargetDir ".lovable/prompts" -Version "v6.206.2"`
+Unix/Bash: `curl -sL https://raw.githubusercontent.com/alimtvnetwork/gitmap-v28/v6.206.2/install.sh | bash -s -- ".ai-memory/prompts" "v6.206.2"`
+PowerShell: `Invoke-WebRequest -Uri https://raw.githubusercontent.com/alimtvnetwork/gitmap-v28/v6.206.2/install.ps1 -OutFile install.ps1; .\install.ps1 -TargetDir ".ai-memory/prompts" -Version "v6.206.2"`
 
 ### Added / Changed / Fixed / Removed
 
@@ -879,8 +879,8 @@ PowerShell: `Invoke-WebRequest -Uri https://raw.githubusercontent.com/alimtvnetw
 ### Install GitMap v6.206.1
 
 To pin your repository to this exact version, run the following one-liner:
-Unix/Bash: `curl -sL https://raw.githubusercontent.com/alimtvnetwork/gitmap-v28/v6.206.1/install.sh | bash -s -- ".lovable/prompts" "v6.206.1"`
-PowerShell: `Invoke-WebRequest -Uri https://raw.githubusercontent.com/alimtvnetwork/gitmap-v28/v6.206.1/install.ps1 -OutFile install.ps1; .\install.ps1 -TargetDir ".lovable/prompts" -Version "v6.206.1"`
+Unix/Bash: `curl -sL https://raw.githubusercontent.com/alimtvnetwork/gitmap-v28/v6.206.1/install.sh | bash -s -- ".ai-memory/prompts" "v6.206.1"`
+PowerShell: `Invoke-WebRequest -Uri https://raw.githubusercontent.com/alimtvnetwork/gitmap-v28/v6.206.1/install.ps1 -OutFile install.ps1; .\install.ps1 -TargetDir ".ai-memory/prompts" -Version "v6.206.1"`
 
 ### Added / Changed / Fixed / Removed
 
@@ -891,8 +891,8 @@ PowerShell: `Invoke-WebRequest -Uri https://raw.githubusercontent.com/alimtvnetw
 ### Install GitMap v6.206.0
 
 To pin your repository to this exact version, run the following one-liner:
-Unix/Bash: `curl -sL https://raw.githubusercontent.com/alimtvnetwork/gitmap-v28/v6.206.0/install.sh | bash -s -- ".lovable/prompts" "v6.206.0"`
-PowerShell: `Invoke-WebRequest -Uri https://raw.githubusercontent.com/alimtvnetwork/gitmap-v28/v6.206.0/install.ps1 -OutFile install.ps1; .\install.ps1 -TargetDir ".lovable/prompts" -Version "v6.206.0"`
+Unix/Bash: `curl -sL https://raw.githubusercontent.com/alimtvnetwork/gitmap-v28/v6.206.0/install.sh | bash -s -- ".ai-memory/prompts" "v6.206.0"`
+PowerShell: `Invoke-WebRequest -Uri https://raw.githubusercontent.com/alimtvnetwork/gitmap-v28/v6.206.0/install.ps1 -OutFile install.ps1; .\install.ps1 -TargetDir ".ai-memory/prompts" -Version "v6.206.0"`
 
 ### Added / Changed / Fixed / Removed
 
@@ -903,8 +903,8 @@ PowerShell: `Invoke-WebRequest -Uri https://raw.githubusercontent.com/alimtvnetw
 ### Install GitMap v6.205.0
 
 To pin your repository to this exact version, run the following one-liner:
-Unix/Bash: `curl -sL https://raw.githubusercontent.com/alimtvnetwork/gitmap-v28/v6.205.0/install.sh | bash -s -- ".lovable/prompts" "v6.205.0"`
-PowerShell: `Invoke-WebRequest -Uri https://raw.githubusercontent.com/alimtvnetwork/gitmap-v28/v6.205.0/install.ps1 -OutFile install.ps1; .\install.ps1 -TargetDir ".lovable/prompts" -Version "v6.205.0"`
+Unix/Bash: `curl -sL https://raw.githubusercontent.com/alimtvnetwork/gitmap-v28/v6.205.0/install.sh | bash -s -- ".ai-memory/prompts" "v6.205.0"`
+PowerShell: `Invoke-WebRequest -Uri https://raw.githubusercontent.com/alimtvnetwork/gitmap-v28/v6.205.0/install.ps1 -OutFile install.ps1; .\install.ps1 -TargetDir ".ai-memory/prompts" -Version "v6.205.0"`
 
 ### Added / Changed / Fixed / Removed
 
@@ -918,8 +918,8 @@ PowerShell: `Invoke-WebRequest -Uri https://raw.githubusercontent.com/alimtvnetw
 ### Install GitMap v6.204.9
 
 To pin your repository to this exact version, run the following one-liner:
-Unix/Bash: `curl -sL https://raw.githubusercontent.com/alimtvnetwork/gitmap-v28/v6.204.9/install.sh | bash -s -- ".lovable/prompts" "v6.204.9"`
-PowerShell: `Invoke-WebRequest -Uri https://raw.githubusercontent.com/alimtvnetwork/gitmap-v28/v6.204.9/install.ps1 -OutFile install.ps1; .\install.ps1 -TargetDir ".lovable/prompts" -Version "v6.204.9"`
+Unix/Bash: `curl -sL https://raw.githubusercontent.com/alimtvnetwork/gitmap-v28/v6.204.9/install.sh | bash -s -- ".ai-memory/prompts" "v6.204.9"`
+PowerShell: `Invoke-WebRequest -Uri https://raw.githubusercontent.com/alimtvnetwork/gitmap-v28/v6.204.9/install.ps1 -OutFile install.ps1; .\install.ps1 -TargetDir ".ai-memory/prompts" -Version "v6.204.9"`
 
 ### Added / Changed / Fixed / Removed
 
@@ -930,8 +930,8 @@ PowerShell: `Invoke-WebRequest -Uri https://raw.githubusercontent.com/alimtvnetw
 ### Install GitMap v6.204.8
 
 To pin your repository to this exact version, run the following one-liner:
-Unix/Bash: `curl -sL https://raw.githubusercontent.com/alimtvnetwork/gitmap-v28/v6.204.8/install.sh | bash -s -- ".lovable/prompts" "v6.204.8"`
-PowerShell: `Invoke-WebRequest -Uri https://raw.githubusercontent.com/alimtvnetwork/gitmap-v28/v6.204.8/install.ps1 -OutFile install.ps1; .\install.ps1 -TargetDir ".lovable/prompts" -Version "v6.204.8"`
+Unix/Bash: `curl -sL https://raw.githubusercontent.com/alimtvnetwork/gitmap-v28/v6.204.8/install.sh | bash -s -- ".ai-memory/prompts" "v6.204.8"`
+PowerShell: `Invoke-WebRequest -Uri https://raw.githubusercontent.com/alimtvnetwork/gitmap-v28/v6.204.8/install.ps1 -OutFile install.ps1; .\install.ps1 -TargetDir ".ai-memory/prompts" -Version "v6.204.8"`
 
 ### Added / Changed / Fixed / Removed
 
@@ -944,8 +944,8 @@ PowerShell: `Invoke-WebRequest -Uri https://raw.githubusercontent.com/alimtvnetw
 ### Install GitMap v6.204.7
 
 To pin your repository to this exact version, run the following one-liner:
-Unix/Bash: `curl -sL https://raw.githubusercontent.com/alimtvnetwork/gitmap-v28/v6.204.7/install.sh | bash -s -- ".lovable/prompts" "v6.204.7"`
-PowerShell: `Invoke-WebRequest -Uri https://raw.githubusercontent.com/alimtvnetwork/gitmap-v28/v6.204.7/install.ps1 -OutFile install.ps1; .\install.ps1 -TargetDir ".lovable/prompts" -Version "v6.204.7"`
+Unix/Bash: `curl -sL https://raw.githubusercontent.com/alimtvnetwork/gitmap-v28/v6.204.7/install.sh | bash -s -- ".ai-memory/prompts" "v6.204.7"`
+PowerShell: `Invoke-WebRequest -Uri https://raw.githubusercontent.com/alimtvnetwork/gitmap-v28/v6.204.7/install.ps1 -OutFile install.ps1; .\install.ps1 -TargetDir ".ai-memory/prompts" -Version "v6.204.7"`
 
 ### Added / Changed / Fixed / Removed
 
@@ -956,8 +956,8 @@ PowerShell: `Invoke-WebRequest -Uri https://raw.githubusercontent.com/alimtvnetw
 ### Install GitMap v6.204.6
 
 To pin your repository to this exact version, run the following one-liner:
-Unix/Bash: `curl -sL https://raw.githubusercontent.com/alimtvnetwork/gitmap-v28/v6.204.6/install.sh | bash -s -- ".lovable/prompts" "v6.204.6"`
-PowerShell: `Invoke-WebRequest -Uri https://raw.githubusercontent.com/alimtvnetwork/gitmap-v28/v6.204.6/install.ps1 -OutFile install.ps1; .\install.ps1 -TargetDir ".lovable/prompts" -Version "v6.204.6"`
+Unix/Bash: `curl -sL https://raw.githubusercontent.com/alimtvnetwork/gitmap-v28/v6.204.6/install.sh | bash -s -- ".ai-memory/prompts" "v6.204.6"`
+PowerShell: `Invoke-WebRequest -Uri https://raw.githubusercontent.com/alimtvnetwork/gitmap-v28/v6.204.6/install.ps1 -OutFile install.ps1; .\install.ps1 -TargetDir ".ai-memory/prompts" -Version "v6.204.6"`
 
 ### Added / Changed / Fixed / Removed
 
@@ -968,8 +968,8 @@ PowerShell: `Invoke-WebRequest -Uri https://raw.githubusercontent.com/alimtvnetw
 ### Install GitMap v6.204.5
 
 To pin your repository to this exact version, run the following one-liner:
-Unix/Bash: `curl -sL https://raw.githubusercontent.com/alimtvnetwork/gitmap-v28/v6.204.5/install.sh | bash -s -- ".lovable/prompts" "v6.204.5"`
-PowerShell: `Invoke-WebRequest -Uri https://raw.githubusercontent.com/alimtvnetwork/gitmap-v28/v6.204.5/install.ps1 -OutFile install.ps1; .\install.ps1 -TargetDir ".lovable/prompts" -Version "v6.204.5"`
+Unix/Bash: `curl -sL https://raw.githubusercontent.com/alimtvnetwork/gitmap-v28/v6.204.5/install.sh | bash -s -- ".ai-memory/prompts" "v6.204.5"`
+PowerShell: `Invoke-WebRequest -Uri https://raw.githubusercontent.com/alimtvnetwork/gitmap-v28/v6.204.5/install.ps1 -OutFile install.ps1; .\install.ps1 -TargetDir ".ai-memory/prompts" -Version "v6.204.5"`
 
 ### Added / Changed / Fixed / Removed
 
@@ -982,8 +982,8 @@ PowerShell: `Invoke-WebRequest -Uri https://raw.githubusercontent.com/alimtvnetw
 ### Install GitMap v6.204.4
 
 To pin your repository to this exact version, run the following one-liner:
-Unix/Bash: `curl -sL https://raw.githubusercontent.com/alimtvnetwork/gitmap-v28/v6.204.4/install.sh | bash -s -- ".lovable/prompts" "v6.204.4"`
-PowerShell: `Invoke-WebRequest -Uri https://raw.githubusercontent.com/alimtvnetwork/gitmap-v28/v6.204.4/install.ps1 -OutFile install.ps1; .\install.ps1 -TargetDir ".lovable/prompts" -Version "v6.204.4"`
+Unix/Bash: `curl -sL https://raw.githubusercontent.com/alimtvnetwork/gitmap-v28/v6.204.4/install.sh | bash -s -- ".ai-memory/prompts" "v6.204.4"`
+PowerShell: `Invoke-WebRequest -Uri https://raw.githubusercontent.com/alimtvnetwork/gitmap-v28/v6.204.4/install.ps1 -OutFile install.ps1; .\install.ps1 -TargetDir ".ai-memory/prompts" -Version "v6.204.4"`
 
 ### Added / Changed / Fixed / Removed
 
@@ -997,8 +997,8 @@ PowerShell: `Invoke-WebRequest -Uri https://raw.githubusercontent.com/alimtvnetw
 ### Install GitMap v6.204.3
 
 To pin your repository to this exact version, run the following one-liner:
-Unix/Bash: `curl -sL https://raw.githubusercontent.com/alimtvnetwork/gitmap-v28/v6.204.3/install.sh | bash -s -- ".lovable/prompts" "v6.204.3"`
-PowerShell: `Invoke-WebRequest -Uri https://raw.githubusercontent.com/alimtvnetwork/gitmap-v28/v6.204.3/install.ps1 -OutFile install.ps1; .\install.ps1 -TargetDir ".lovable/prompts" -Version "v6.204.3"`
+Unix/Bash: `curl -sL https://raw.githubusercontent.com/alimtvnetwork/gitmap-v28/v6.204.3/install.sh | bash -s -- ".ai-memory/prompts" "v6.204.3"`
+PowerShell: `Invoke-WebRequest -Uri https://raw.githubusercontent.com/alimtvnetwork/gitmap-v28/v6.204.3/install.ps1 -OutFile install.ps1; .\install.ps1 -TargetDir ".ai-memory/prompts" -Version "v6.204.3"`
 
 ### Added / Changed / Fixed / Removed
 
@@ -1012,8 +1012,8 @@ PowerShell: `Invoke-WebRequest -Uri https://raw.githubusercontent.com/alimtvnetw
 ### Install GitMap v6.204.2
 
 To pin your repository to this exact version, run the following one-liner:
-Unix/Bash: `curl -sL https://raw.githubusercontent.com/alimtvnetwork/gitmap-v28/v6.204.2/install.sh | bash -s -- ".lovable/prompts" "v6.204.2"`
-PowerShell: `Invoke-WebRequest -Uri https://raw.githubusercontent.com/alimtvnetwork/gitmap-v28/v6.204.2/install.ps1 -OutFile install.ps1; .\install.ps1 -TargetDir ".lovable/prompts" -Version "v6.204.2"`
+Unix/Bash: `curl -sL https://raw.githubusercontent.com/alimtvnetwork/gitmap-v28/v6.204.2/install.sh | bash -s -- ".ai-memory/prompts" "v6.204.2"`
+PowerShell: `Invoke-WebRequest -Uri https://raw.githubusercontent.com/alimtvnetwork/gitmap-v28/v6.204.2/install.ps1 -OutFile install.ps1; .\install.ps1 -TargetDir ".ai-memory/prompts" -Version "v6.204.2"`
 
 ### Added / Changed / Fixed / Removed
 
@@ -1024,8 +1024,8 @@ PowerShell: `Invoke-WebRequest -Uri https://raw.githubusercontent.com/alimtvnetw
 ### Install GitMap v6.204.1
 
 To pin your repository to this exact version, run the following one-liner:
-Unix/Bash: `curl -sL https://raw.githubusercontent.com/alimtvnetwork/gitmap-v28/v6.204.1/install.sh | bash -s -- ".lovable/prompts" "v6.204.1"`
-PowerShell: `Invoke-WebRequest -Uri https://raw.githubusercontent.com/alimtvnetwork/gitmap-v28/v6.204.1/install.ps1 -OutFile install.ps1; .\install.ps1 -TargetDir ".lovable/prompts" -Version "v6.204.1"`
+Unix/Bash: `curl -sL https://raw.githubusercontent.com/alimtvnetwork/gitmap-v28/v6.204.1/install.sh | bash -s -- ".ai-memory/prompts" "v6.204.1"`
+PowerShell: `Invoke-WebRequest -Uri https://raw.githubusercontent.com/alimtvnetwork/gitmap-v28/v6.204.1/install.ps1 -OutFile install.ps1; .\install.ps1 -TargetDir ".ai-memory/prompts" -Version "v6.204.1"`
 
 ### Added / Changed / Fixed / Removed
 
@@ -1036,8 +1036,8 @@ PowerShell: `Invoke-WebRequest -Uri https://raw.githubusercontent.com/alimtvnetw
 ### Install GitMap v6.204.0
 
 To pin your repository to this exact version, run the following one-liner:
-Unix/Bash: `curl -sL https://raw.githubusercontent.com/alimtvnetwork/gitmap-v28/v6.204.0/install.sh | bash -s -- ".lovable/prompts" "v6.204.0"`
-PowerShell: `Invoke-WebRequest -Uri https://raw.githubusercontent.com/alimtvnetwork/gitmap-v28/v6.204.0/install.ps1 -OutFile install.ps1; .\install.ps1 -TargetDir ".lovable/prompts" -Version "v6.204.0"`
+Unix/Bash: `curl -sL https://raw.githubusercontent.com/alimtvnetwork/gitmap-v28/v6.204.0/install.sh | bash -s -- ".ai-memory/prompts" "v6.204.0"`
+PowerShell: `Invoke-WebRequest -Uri https://raw.githubusercontent.com/alimtvnetwork/gitmap-v28/v6.204.0/install.ps1 -OutFile install.ps1; .\install.ps1 -TargetDir ".ai-memory/prompts" -Version "v6.204.0"`
 
 ### Added / Changed / Fixed / Removed
 
@@ -1051,8 +1051,8 @@ PowerShell: `Invoke-WebRequest -Uri https://raw.githubusercontent.com/alimtvnetw
 ### Install GitMap v6.203.0
 
 To pin your repository to this exact version, run the following one-liner:
-Unix/Bash: `curl -sL https://raw.githubusercontent.com/alimtvnetwork/gitmap-v28/v6.203.0/install.sh | bash -s -- ".lovable/prompts" "v6.203.0"`
-PowerShell: `Invoke-WebRequest -Uri https://raw.githubusercontent.com/alimtvnetwork/gitmap-v28/v6.203.0/install.ps1 -OutFile install.ps1; .\install.ps1 -TargetDir ".lovable/prompts" -Version "v6.203.0"`
+Unix/Bash: `curl -sL https://raw.githubusercontent.com/alimtvnetwork/gitmap-v28/v6.203.0/install.sh | bash -s -- ".ai-memory/prompts" "v6.203.0"`
+PowerShell: `Invoke-WebRequest -Uri https://raw.githubusercontent.com/alimtvnetwork/gitmap-v28/v6.203.0/install.ps1 -OutFile install.ps1; .\install.ps1 -TargetDir ".ai-memory/prompts" -Version "v6.203.0"`
 
 ### Added / Changed / Fixed / Removed
 
@@ -1066,8 +1066,8 @@ PowerShell: `Invoke-WebRequest -Uri https://raw.githubusercontent.com/alimtvnetw
 ### Install GitMap v6.202.0
 
 To pin your repository to this exact version, run the following one-liner:
-Unix/Bash: `curl -sL https://raw.githubusercontent.com/alimtvnetwork/gitmap-v28/v6.202.0/install.sh | bash -s -- ".lovable/prompts" "v6.202.0"`
-PowerShell: `Invoke-WebRequest -Uri https://raw.githubusercontent.com/alimtvnetwork/gitmap-v28/v6.202.0/install.ps1 -OutFile install.ps1; .\install.ps1 -TargetDir ".lovable/prompts" -Version "v6.202.0"`
+Unix/Bash: `curl -sL https://raw.githubusercontent.com/alimtvnetwork/gitmap-v28/v6.202.0/install.sh | bash -s -- ".ai-memory/prompts" "v6.202.0"`
+PowerShell: `Invoke-WebRequest -Uri https://raw.githubusercontent.com/alimtvnetwork/gitmap-v28/v6.202.0/install.ps1 -OutFile install.ps1; .\install.ps1 -TargetDir ".ai-memory/prompts" -Version "v6.202.0"`
 
 ### Added / Changed / Fixed / Removed
 
@@ -1080,8 +1080,8 @@ PowerShell: `Invoke-WebRequest -Uri https://raw.githubusercontent.com/alimtvnetw
 ### Install GitMap v6.201.0
 
 To pin your repository to this exact version, run the following one-liner:
-Unix/Bash: `curl -sL https://raw.githubusercontent.com/alimtvnetwork/gitmap-v28/v6.201.0/install.sh | bash -s -- ".lovable/prompts" "v6.201.0"`
-PowerShell: `Invoke-WebRequest -Uri https://raw.githubusercontent.com/alimtvnetwork/gitmap-v28/v6.201.0/install.ps1 -OutFile install.ps1; .\install.ps1 -TargetDir ".lovable/prompts" -Version "v6.201.0"`
+Unix/Bash: `curl -sL https://raw.githubusercontent.com/alimtvnetwork/gitmap-v28/v6.201.0/install.sh | bash -s -- ".ai-memory/prompts" "v6.201.0"`
+PowerShell: `Invoke-WebRequest -Uri https://raw.githubusercontent.com/alimtvnetwork/gitmap-v28/v6.201.0/install.ps1 -OutFile install.ps1; .\install.ps1 -TargetDir ".ai-memory/prompts" -Version "v6.201.0"`
 
 ### Added / Changed / Fixed / Removed
 
@@ -1096,8 +1096,8 @@ PowerShell: `Invoke-WebRequest -Uri https://raw.githubusercontent.com/alimtvnetw
 ### Install GitMap v6.200.0
 
 To pin your repository to this exact version, run the following one-liner:
-Unix/Bash: `curl -sL https://raw.githubusercontent.com/alimtvnetwork/gitmap-v28/v6.200.0/install.sh | bash -s -- ".lovable/prompts" "v6.200.0"`
-PowerShell: `Invoke-WebRequest -Uri https://raw.githubusercontent.com/alimtvnetwork/gitmap-v28/v6.200.0/install.ps1 -OutFile install.ps1; .\install.ps1 -TargetDir ".lovable/prompts" -Version "v6.200.0"`
+Unix/Bash: `curl -sL https://raw.githubusercontent.com/alimtvnetwork/gitmap-v28/v6.200.0/install.sh | bash -s -- ".ai-memory/prompts" "v6.200.0"`
+PowerShell: `Invoke-WebRequest -Uri https://raw.githubusercontent.com/alimtvnetwork/gitmap-v28/v6.200.0/install.ps1 -OutFile install.ps1; .\install.ps1 -TargetDir ".ai-memory/prompts" -Version "v6.200.0"`
 
 ### Added / Changed / Fixed / Removed
 
@@ -1112,8 +1112,8 @@ PowerShell: `Invoke-WebRequest -Uri https://raw.githubusercontent.com/alimtvnetw
 ### Install GitMap v6.199.0
 
 To pin your repository to this exact version, run the following one-liner:
-Unix/Bash: `curl -sL https://raw.githubusercontent.com/alimtvnetwork/gitmap-v28/v6.199.0/install.sh | bash -s -- ".lovable/prompts" "v6.199.0"`
-PowerShell: `Invoke-WebRequest -Uri https://raw.githubusercontent.com/alimtvnetwork/gitmap-v28/v6.199.0/install.ps1 -OutFile install.ps1; .\install.ps1 -TargetDir ".lovable/prompts" -Version "v6.199.0"`
+Unix/Bash: `curl -sL https://raw.githubusercontent.com/alimtvnetwork/gitmap-v28/v6.199.0/install.sh | bash -s -- ".ai-memory/prompts" "v6.199.0"`
+PowerShell: `Invoke-WebRequest -Uri https://raw.githubusercontent.com/alimtvnetwork/gitmap-v28/v6.199.0/install.ps1 -OutFile install.ps1; .\install.ps1 -TargetDir ".ai-memory/prompts" -Version "v6.199.0"`
 
 ### Added / Changed / Fixed / Removed
 
@@ -1129,8 +1129,8 @@ PowerShell: `Invoke-WebRequest -Uri https://raw.githubusercontent.com/alimtvnetw
 ### Install GitMap v6.198.0
 
 To pin your repository to this exact version, run the following one-liner:
-Unix/Bash: `curl -sL https://raw.githubusercontent.com/alimtvnetwork/gitmap-v28/v6.198.0/install.sh | bash -s -- ".lovable/prompts" "v6.198.0"`
-PowerShell: `Invoke-WebRequest -Uri https://raw.githubusercontent.com/alimtvnetwork/gitmap-v28/v6.198.0/install.ps1 -OutFile install.ps1; .\install.ps1 -TargetDir ".lovable/prompts" -Version "v6.198.0"`
+Unix/Bash: `curl -sL https://raw.githubusercontent.com/alimtvnetwork/gitmap-v28/v6.198.0/install.sh | bash -s -- ".ai-memory/prompts" "v6.198.0"`
+PowerShell: `Invoke-WebRequest -Uri https://raw.githubusercontent.com/alimtvnetwork/gitmap-v28/v6.198.0/install.ps1 -OutFile install.ps1; .\install.ps1 -TargetDir ".ai-memory/prompts" -Version "v6.198.0"`
 
 ### Added / Changed / Fixed / Removed
 
@@ -1141,8 +1141,8 @@ PowerShell: `Invoke-WebRequest -Uri https://raw.githubusercontent.com/alimtvnetw
 ### Install GitMap v6.197.0
 
 To pin your repository to this exact version, run the following one-liner:
-Unix/Bash: `curl -sL https://raw.githubusercontent.com/alimtvnetwork/gitmap-v28/v6.197.0/install.sh | bash -s -- ".lovable/prompts" "v6.197.0"`
-PowerShell: `Invoke-WebRequest -Uri https://raw.githubusercontent.com/alimtvnetwork/gitmap-v28/v6.197.0/install.ps1 -OutFile install.ps1; .\install.ps1 -TargetDir ".lovable/prompts" -Version "v6.197.0"`
+Unix/Bash: `curl -sL https://raw.githubusercontent.com/alimtvnetwork/gitmap-v28/v6.197.0/install.sh | bash -s -- ".ai-memory/prompts" "v6.197.0"`
+PowerShell: `Invoke-WebRequest -Uri https://raw.githubusercontent.com/alimtvnetwork/gitmap-v28/v6.197.0/install.ps1 -OutFile install.ps1; .\install.ps1 -TargetDir ".ai-memory/prompts" -Version "v6.197.0"`
 
 ### Added / Changed / Fixed / Removed
 
@@ -1153,8 +1153,8 @@ PowerShell: `Invoke-WebRequest -Uri https://raw.githubusercontent.com/alimtvnetw
 ### Install GitMap v6.196.1
 
 To pin your repository to this exact version, run the following one-liner:
-Unix/Bash: `curl -sL https://raw.githubusercontent.com/alimtvnetwork/gitmap-v28/v6.196.1/install.sh | bash -s -- ".lovable/prompts" "v6.196.1"`
-PowerShell: `Invoke-WebRequest -Uri https://raw.githubusercontent.com/alimtvnetwork/gitmap-v28/v6.196.1/install.ps1 -OutFile install.ps1; .\install.ps1 -TargetDir ".lovable/prompts" -Version "v6.196.1"`
+Unix/Bash: `curl -sL https://raw.githubusercontent.com/alimtvnetwork/gitmap-v28/v6.196.1/install.sh | bash -s -- ".ai-memory/prompts" "v6.196.1"`
+PowerShell: `Invoke-WebRequest -Uri https://raw.githubusercontent.com/alimtvnetwork/gitmap-v28/v6.196.1/install.ps1 -OutFile install.ps1; .\install.ps1 -TargetDir ".ai-memory/prompts" -Version "v6.196.1"`
 
 ### Added / Changed / Fixed / Removed
 
@@ -1165,8 +1165,8 @@ PowerShell: `Invoke-WebRequest -Uri https://raw.githubusercontent.com/alimtvnetw
 ### Install GitMap v6.196.0
 
 To pin your repository to this exact version, run the following one-liner:
-Unix/Bash: `curl -sL https://raw.githubusercontent.com/alimtvnetwork/gitmap-v28/v6.196.0/install.sh | bash -s -- ".lovable/prompts" "v6.196.0"`
-PowerShell: `Invoke-WebRequest -Uri https://raw.githubusercontent.com/alimtvnetwork/gitmap-v28/v6.196.0/install.ps1 -OutFile install.ps1; .\install.ps1 -TargetDir ".lovable/prompts" -Version "v6.196.0"`
+Unix/Bash: `curl -sL https://raw.githubusercontent.com/alimtvnetwork/gitmap-v28/v6.196.0/install.sh | bash -s -- ".ai-memory/prompts" "v6.196.0"`
+PowerShell: `Invoke-WebRequest -Uri https://raw.githubusercontent.com/alimtvnetwork/gitmap-v28/v6.196.0/install.ps1 -OutFile install.ps1; .\install.ps1 -TargetDir ".ai-memory/prompts" -Version "v6.196.0"`
 
 ### Added / Changed / Fixed / Removed
 
@@ -1177,8 +1177,8 @@ PowerShell: `Invoke-WebRequest -Uri https://raw.githubusercontent.com/alimtvnetw
 ### Install GitMap v6.195.0
 
 To pin your repository to this exact version, run the following one-liner:
-Unix/Bash: `curl -sL https://raw.githubusercontent.com/alimtvnetwork/gitmap-v28/v6.195.0/install.sh | bash -s -- ".lovable/prompts" "v6.195.0"`
-PowerShell: `Invoke-WebRequest -Uri https://raw.githubusercontent.com/alimtvnetwork/gitmap-v28/v6.195.0/install.ps1 -OutFile install.ps1; .\install.ps1 -TargetDir ".lovable/prompts" -Version "v6.195.0"`
+Unix/Bash: `curl -sL https://raw.githubusercontent.com/alimtvnetwork/gitmap-v28/v6.195.0/install.sh | bash -s -- ".ai-memory/prompts" "v6.195.0"`
+PowerShell: `Invoke-WebRequest -Uri https://raw.githubusercontent.com/alimtvnetwork/gitmap-v28/v6.195.0/install.ps1 -OutFile install.ps1; .\install.ps1 -TargetDir ".ai-memory/prompts" -Version "v6.195.0"`
 
 ### Added / Changed / Fixed / Removed
 
@@ -1189,8 +1189,8 @@ PowerShell: `Invoke-WebRequest -Uri https://raw.githubusercontent.com/alimtvnetw
 ### Install GitMap v6.194.0
 
 To pin your repository to this exact version, run the following one-liner:
-Unix/Bash: `curl -sL https://raw.githubusercontent.com/alimtvnetwork/gitmap-v28/v6.194.0/install.sh | bash -s -- ".lovable/prompts" "v6.194.0"`
-PowerShell: `Invoke-WebRequest -Uri https://raw.githubusercontent.com/alimtvnetwork/gitmap-v28/v6.194.0/install.ps1 -OutFile install.ps1; .\install.ps1 -TargetDir ".lovable/prompts" -Version "v6.194.0"`
+Unix/Bash: `curl -sL https://raw.githubusercontent.com/alimtvnetwork/gitmap-v28/v6.194.0/install.sh | bash -s -- ".ai-memory/prompts" "v6.194.0"`
+PowerShell: `Invoke-WebRequest -Uri https://raw.githubusercontent.com/alimtvnetwork/gitmap-v28/v6.194.0/install.ps1 -OutFile install.ps1; .\install.ps1 -TargetDir ".ai-memory/prompts" -Version "v6.194.0"`
 
 ### Added / Changed / Fixed / Removed
 
@@ -1208,8 +1208,8 @@ PowerShell: `Invoke-WebRequest -Uri https://raw.githubusercontent.com/alimtvnetw
 ### Install GitMap v6.193.0
 
 To pin your repository to this exact version, run the following one-liner:
-Unix/Bash: `curl -sL https://raw.githubusercontent.com/alimtvnetwork/gitmap-v28/v6.193.0/install.sh | bash -s -- ".lovable/prompts" "v6.193.0"`
-PowerShell: `Invoke-WebRequest -Uri https://raw.githubusercontent.com/alimtvnetwork/gitmap-v28/v6.193.0/install.ps1 -OutFile install.ps1; .\install.ps1 -TargetDir ".lovable/prompts" -Version "v6.193.0"`
+Unix/Bash: `curl -sL https://raw.githubusercontent.com/alimtvnetwork/gitmap-v28/v6.193.0/install.sh | bash -s -- ".ai-memory/prompts" "v6.193.0"`
+PowerShell: `Invoke-WebRequest -Uri https://raw.githubusercontent.com/alimtvnetwork/gitmap-v28/v6.193.0/install.ps1 -OutFile install.ps1; .\install.ps1 -TargetDir ".ai-memory/prompts" -Version "v6.193.0"`
 
 ### Added / Changed / Fixed / Removed
 
@@ -1230,8 +1230,8 @@ PowerShell: `Invoke-WebRequest -Uri https://raw.githubusercontent.com/alimtvnetw
 ### Install GitMap v6.192.0
 
 To pin your repository to this exact version, run the following one-liner:
-Unix/Bash: `curl -sL https://raw.githubusercontent.com/alimtvnetwork/gitmap-v28/v6.192.0/install.sh | bash -s -- ".lovable/prompts" "v6.192.0"`
-PowerShell: `Invoke-WebRequest -Uri https://raw.githubusercontent.com/alimtvnetwork/gitmap-v28/v6.192.0/install.ps1 -OutFile install.ps1; .\install.ps1 -TargetDir ".lovable/prompts" -Version "v6.192.0"`
+Unix/Bash: `curl -sL https://raw.githubusercontent.com/alimtvnetwork/gitmap-v28/v6.192.0/install.sh | bash -s -- ".ai-memory/prompts" "v6.192.0"`
+PowerShell: `Invoke-WebRequest -Uri https://raw.githubusercontent.com/alimtvnetwork/gitmap-v28/v6.192.0/install.ps1 -OutFile install.ps1; .\install.ps1 -TargetDir ".ai-memory/prompts" -Version "v6.192.0"`
 
 ### Added / Changed / Fixed / Removed
 
@@ -1252,8 +1252,8 @@ PowerShell: `Invoke-WebRequest -Uri https://raw.githubusercontent.com/alimtvnetw
 ### Install GitMap v6.191.0
 
 To pin your repository to this exact version, run the following one-liner:
-Unix/Bash: `curl -sL https://raw.githubusercontent.com/alimtvnetwork/gitmap-v28/v6.191.0/install.sh | bash -s -- ".lovable/prompts" "v6.191.0"`
-PowerShell: `Invoke-WebRequest -Uri https://raw.githubusercontent.com/alimtvnetwork/gitmap-v28/v6.191.0/install.ps1 -OutFile install.ps1; .\install.ps1 -TargetDir ".lovable/prompts" -Version "v6.191.0"`
+Unix/Bash: `curl -sL https://raw.githubusercontent.com/alimtvnetwork/gitmap-v28/v6.191.0/install.sh | bash -s -- ".ai-memory/prompts" "v6.191.0"`
+PowerShell: `Invoke-WebRequest -Uri https://raw.githubusercontent.com/alimtvnetwork/gitmap-v28/v6.191.0/install.ps1 -OutFile install.ps1; .\install.ps1 -TargetDir ".ai-memory/prompts" -Version "v6.191.0"`
 
 ### Added / Changed / Fixed / Removed
 
@@ -1261,15 +1261,15 @@ PowerShell: `Invoke-WebRequest -Uri https://raw.githubusercontent.com/alimtvnetw
 - Aligned SSoT manifests and verified version propagation across version.json, package.json, constants.go, and readme.md
 - Enforced strict zero-tag policy delegating git tags to automated CI release orchestrators
 - Passed 100% test verification across lazyregex, regexnew, pipelinedb, and constants packages
-- Pinned active repository version to v6.191.0 in root readme.md and .lovable/user-preferences
+- Pinned active repository version to v6.191.0 in root readme.md and .ai-memory/user-preferences
 
 ## [v6.190.0] 2026-09-05 Release v6.190.0
 
 ### Install GitMap v6.190.0
 
 To pin your repository to this exact version, run the following one-liner:
-Unix/Bash: `curl -sL https://raw.githubusercontent.com/alimtvnetwork/gitmap-v28/v6.190.0/install.sh | bash -s -- ".lovable/prompts" "v6.190.0"`
-PowerShell: `Invoke-WebRequest -Uri https://raw.githubusercontent.com/alimtvnetwork/gitmap-v28/v6.190.0/install.ps1 -OutFile install.ps1; .\install.ps1 -TargetDir ".lovable/prompts" -Version "v6.190.0"`
+Unix/Bash: `curl -sL https://raw.githubusercontent.com/alimtvnetwork/gitmap-v28/v6.190.0/install.sh | bash -s -- ".ai-memory/prompts" "v6.190.0"`
+PowerShell: `Invoke-WebRequest -Uri https://raw.githubusercontent.com/alimtvnetwork/gitmap-v28/v6.190.0/install.ps1 -OutFile install.ps1; .\install.ps1 -TargetDir ".ai-memory/prompts" -Version "v6.190.0"`
 
 ### Added / Changed / Fixed / Removed
 
@@ -1284,8 +1284,8 @@ PowerShell: `Invoke-WebRequest -Uri https://raw.githubusercontent.com/alimtvnetw
 ### Install GitMap v6.189.0
 
 To pin your repository to this exact version, run the following one-liner:
-Unix/Bash: `curl -sL https://raw.githubusercontent.com/alimtvnetwork/gitmap-v28/v6.189.0/install.sh | bash -s -- ".lovable/prompts" "v6.189.0"`
-PowerShell: `Invoke-WebRequest -Uri https://raw.githubusercontent.com/alimtvnetwork/gitmap-v28/v6.189.0/install.ps1 -OutFile install.ps1; .\install.ps1 -TargetDir ".lovable/prompts" -Version "v6.189.0"`
+Unix/Bash: `curl -sL https://raw.githubusercontent.com/alimtvnetwork/gitmap-v28/v6.189.0/install.sh | bash -s -- ".ai-memory/prompts" "v6.189.0"`
+PowerShell: `Invoke-WebRequest -Uri https://raw.githubusercontent.com/alimtvnetwork/gitmap-v28/v6.189.0/install.ps1 -OutFile install.ps1; .\install.ps1 -TargetDir ".ai-memory/prompts" -Version "v6.189.0"`
 
 ### Added / Changed / Fixed / Removed
 
@@ -1300,8 +1300,8 @@ PowerShell: `Invoke-WebRequest -Uri https://raw.githubusercontent.com/alimtvnetw
 ### Install GitMap v6.188.0
 
 To pin your repository to this exact version, run the following one-liner:
-Unix/Bash: `curl -sL https://raw.githubusercontent.com/alimtvnetwork/gitmap-v28/v6.188.0/install.sh | bash -s -- ".lovable/prompts" "v6.188.0"`
-PowerShell: `Invoke-WebRequest -Uri https://raw.githubusercontent.com/alimtvnetwork/gitmap-v28/v6.188.0/install.ps1 -OutFile install.ps1; .\install.ps1 -TargetDir ".lovable/prompts" -Version "v6.188.0"`
+Unix/Bash: `curl -sL https://raw.githubusercontent.com/alimtvnetwork/gitmap-v28/v6.188.0/install.sh | bash -s -- ".ai-memory/prompts" "v6.188.0"`
+PowerShell: `Invoke-WebRequest -Uri https://raw.githubusercontent.com/alimtvnetwork/gitmap-v28/v6.188.0/install.ps1 -OutFile install.ps1; .\install.ps1 -TargetDir ".ai-memory/prompts" -Version "v6.188.0"`
 
 ### Added / Changed / Fixed / Removed
 
@@ -1316,8 +1316,8 @@ PowerShell: `Invoke-WebRequest -Uri https://raw.githubusercontent.com/alimtvnetw
 ### Install GitMap v6.187.0
 
 To pin your repository to this exact version, run the following one-liner:
-Unix/Bash: `curl -sL https://raw.githubusercontent.com/alimtvnetwork/gitmap-v28/v6.187.0/install.sh | bash -s -- ".lovable/prompts" "v6.187.0"`
-PowerShell: `Invoke-WebRequest -Uri https://raw.githubusercontent.com/alimtvnetwork/gitmap-v28/v6.187.0/install.ps1 -OutFile install.ps1; .\install.ps1 -TargetDir ".lovable/prompts" -Version "v6.187.0"`
+Unix/Bash: `curl -sL https://raw.githubusercontent.com/alimtvnetwork/gitmap-v28/v6.187.0/install.sh | bash -s -- ".ai-memory/prompts" "v6.187.0"`
+PowerShell: `Invoke-WebRequest -Uri https://raw.githubusercontent.com/alimtvnetwork/gitmap-v28/v6.187.0/install.ps1 -OutFile install.ps1; .\install.ps1 -TargetDir ".ai-memory/prompts" -Version "v6.187.0"`
 
 ### Added / Changed / Fixed / Removed
 
@@ -1334,8 +1334,8 @@ PowerShell: `Invoke-WebRequest -Uri https://raw.githubusercontent.com/alimtvnetw
 ### Install GitMap v6.186.0
 
 To pin your repository to this exact version, run the following one-liner:
-Unix/Bash: `curl -sL https://raw.githubusercontent.com/alimtvnetwork/gitmap-v28/v6.186.0/install.sh | bash -s -- ".lovable/prompts" "v6.186.0"`
-PowerShell: `Invoke-WebRequest -Uri https://raw.githubusercontent.com/alimtvnetwork/gitmap-v28/v6.186.0/install.ps1 -OutFile install.ps1; .\install.ps1 -TargetDir ".lovable/prompts" -Version "v6.186.0"`
+Unix/Bash: `curl -sL https://raw.githubusercontent.com/alimtvnetwork/gitmap-v28/v6.186.0/install.sh | bash -s -- ".ai-memory/prompts" "v6.186.0"`
+PowerShell: `Invoke-WebRequest -Uri https://raw.githubusercontent.com/alimtvnetwork/gitmap-v28/v6.186.0/install.ps1 -OutFile install.ps1; .\install.ps1 -TargetDir ".ai-memory/prompts" -Version "v6.186.0"`
 
 ### Added / Changed / Fixed / Removed
 
@@ -1352,8 +1352,8 @@ PowerShell: `Invoke-WebRequest -Uri https://raw.githubusercontent.com/alimtvnetw
 ### Install GitMap v6.185.0
 
 To pin your repository to this exact version, run the following one-liner:
-Unix/Bash: `curl -sL https://raw.githubusercontent.com/alimtvnetwork/gitmap-v28/v6.185.0/install.sh | bash -s -- ".lovable/prompts" "v6.185.0"`
-PowerShell: `Invoke-WebRequest -Uri https://raw.githubusercontent.com/alimtvnetwork/gitmap-v28/v6.185.0/install.ps1 -OutFile install.ps1; .\install.ps1 -TargetDir ".lovable/prompts" -Version "v6.185.0"`
+Unix/Bash: `curl -sL https://raw.githubusercontent.com/alimtvnetwork/gitmap-v28/v6.185.0/install.sh | bash -s -- ".ai-memory/prompts" "v6.185.0"`
+PowerShell: `Invoke-WebRequest -Uri https://raw.githubusercontent.com/alimtvnetwork/gitmap-v28/v6.185.0/install.ps1 -OutFile install.ps1; .\install.ps1 -TargetDir ".ai-memory/prompts" -Version "v6.185.0"`
 
 ### Added / Changed / Fixed / Removed
 
@@ -1368,8 +1368,8 @@ PowerShell: `Invoke-WebRequest -Uri https://raw.githubusercontent.com/alimtvnetw
 ### Install GitMap v6.184.0
 
 To pin your repository to this exact version, run the following one-liner:
-Unix/Bash: `curl -sL https://raw.githubusercontent.com/alimtvnetwork/gitmap-v28/v6.184.0/install.sh | bash -s -- ".lovable/prompts" "v6.184.0"`
-PowerShell: `Invoke-WebRequest -Uri https://raw.githubusercontent.com/alimtvnetwork/gitmap-v28/v6.184.0/install.ps1 -OutFile install.ps1; .\install.ps1 -TargetDir ".lovable/prompts" -Version "v6.184.0"`
+Unix/Bash: `curl -sL https://raw.githubusercontent.com/alimtvnetwork/gitmap-v28/v6.184.0/install.sh | bash -s -- ".ai-memory/prompts" "v6.184.0"`
+PowerShell: `Invoke-WebRequest -Uri https://raw.githubusercontent.com/alimtvnetwork/gitmap-v28/v6.184.0/install.ps1 -OutFile install.ps1; .\install.ps1 -TargetDir ".ai-memory/prompts" -Version "v6.184.0"`
 
 ### Added / Changed / Fixed / Removed
 
@@ -1383,8 +1383,8 @@ PowerShell: `Invoke-WebRequest -Uri https://raw.githubusercontent.com/alimtvnetw
 ### Install GitMap v6.183.0
 
 To pin your repository to this exact version, run the following one-liner:
-Unix/Bash: `curl -sL https://raw.githubusercontent.com/alimtvnetwork/gitmap-v28/v6.183.0/install.sh | bash -s -- ".lovable/prompts" "v6.183.0"`
-PowerShell: `Invoke-WebRequest -Uri https://raw.githubusercontent.com/alimtvnetwork/gitmap-v28/v6.183.0/install.ps1 -OutFile install.ps1; .\install.ps1 -TargetDir ".lovable/prompts" -Version "v6.183.0"`
+Unix/Bash: `curl -sL https://raw.githubusercontent.com/alimtvnetwork/gitmap-v28/v6.183.0/install.sh | bash -s -- ".ai-memory/prompts" "v6.183.0"`
+PowerShell: `Invoke-WebRequest -Uri https://raw.githubusercontent.com/alimtvnetwork/gitmap-v28/v6.183.0/install.ps1 -OutFile install.ps1; .\install.ps1 -TargetDir ".ai-memory/prompts" -Version "v6.183.0"`
 
 ### Added / Changed / Fixed / Removed
 
@@ -1401,8 +1401,8 @@ PowerShell: `Invoke-WebRequest -Uri https://raw.githubusercontent.com/alimtvnetw
 ### Install GitMap v6.182.0
 
 To pin your repository to this exact version, run the following one-liner:
-Unix/Bash: `curl -sL https://raw.githubusercontent.com/alimtvnetwork/gitmap-v28/v6.182.0/install.sh | bash -s -- ".lovable/prompts" "v6.182.0"`
-PowerShell: `Invoke-WebRequest -Uri https://raw.githubusercontent.com/alimtvnetwork/gitmap-v28/v6.182.0/install.ps1 -OutFile install.ps1; .\install.ps1 -TargetDir ".lovable/prompts" -Version "v6.182.0"`
+Unix/Bash: `curl -sL https://raw.githubusercontent.com/alimtvnetwork/gitmap-v28/v6.182.0/install.sh | bash -s -- ".ai-memory/prompts" "v6.182.0"`
+PowerShell: `Invoke-WebRequest -Uri https://raw.githubusercontent.com/alimtvnetwork/gitmap-v28/v6.182.0/install.ps1 -OutFile install.ps1; .\install.ps1 -TargetDir ".ai-memory/prompts" -Version "v6.182.0"`
 
 ### Added / Changed / Fixed / Removed
 
@@ -1420,8 +1420,8 @@ PowerShell: `Invoke-WebRequest -Uri https://raw.githubusercontent.com/alimtvnetw
 ### Install GitMap v6.179.0
 
 To pin your repository to this exact version, run the following one-liner:
-Unix/Bash: `curl -sL https://raw.githubusercontent.com/alimtvnetwork/gitmap-v28/v6.179.0/install.sh | bash -s -- ".lovable/prompts" "v6.179.0"`
-PowerShell: `Invoke-WebRequest -Uri https://raw.githubusercontent.com/alimtvnetwork/gitmap-v28/v6.179.0/install.ps1 -OutFile install.ps1; .\install.ps1 -TargetDir ".lovable/prompts" -Version "v6.179.0"`
+Unix/Bash: `curl -sL https://raw.githubusercontent.com/alimtvnetwork/gitmap-v28/v6.179.0/install.sh | bash -s -- ".ai-memory/prompts" "v6.179.0"`
+PowerShell: `Invoke-WebRequest -Uri https://raw.githubusercontent.com/alimtvnetwork/gitmap-v28/v6.179.0/install.ps1 -OutFile install.ps1; .\install.ps1 -TargetDir ".ai-memory/prompts" -Version "v6.179.0"`
 
 ### Added / Changed / Fixed / Removed
 
@@ -1437,17 +1437,17 @@ PowerShell: `Invoke-WebRequest -Uri https://raw.githubusercontent.com/alimtvnetw
 - Resolved `gitmap cd work` and `gitmap cd default` to seamlessly navigate to the default work directory
 - Suppressed internal Go runtime stack traces and line numbers on validation errors for clean user-facing error reporting
 - Added interactive step builder fallback when command steps are omitted in `gitmap macro add <name>`
-- Authored formal issue specification and 5-part RCA in `spec/22-app-issues/35-reconcile-prompt-nested-if-ci-failure.md`
+- Authored formal issue specification and 5-part RCA in `02-spec/22-app-issues/35-reconcile-prompt-nested-if-ci-failure.md`
 - Flattened nested conditionals in `cmd/reconcile_prompt.go` to maintain 0 nested if violations across the codebase
-- Verified 100% green pass across all 25 quality gates in `.lovable/ai-fix-scripts/06-cicd-local-runner.py`
+- Verified 100% green pass across all 25 quality gates in `03-ai-scripts/06-cicd-local-runner.py`
 
 ## [v6.178.0] 2026-09-04 Release v6.178.0
 
 ### Install GitMap v6.178.0
 
 To pin your repository to this exact version, run the following one-liner:
-Unix/Bash: `curl -sL https://raw.githubusercontent.com/alimtvnetwork/gitmap-v28/v6.178.0/install.sh | bash -s -- ".lovable/prompts" "v6.178.0"`
-PowerShell: `Invoke-WebRequest -Uri https://raw.githubusercontent.com/alimtvnetwork/gitmap-v28/v6.178.0/install.ps1 -OutFile install.ps1; .\install.ps1 -TargetDir ".lovable/prompts" -Version "v6.178.0"`
+Unix/Bash: `curl -sL https://raw.githubusercontent.com/alimtvnetwork/gitmap-v28/v6.178.0/install.sh | bash -s -- ".ai-memory/prompts" "v6.178.0"`
+PowerShell: `Invoke-WebRequest -Uri https://raw.githubusercontent.com/alimtvnetwork/gitmap-v28/v6.178.0/install.ps1 -OutFile install.ps1; .\install.ps1 -TargetDir ".ai-memory/prompts" -Version "v6.178.0"`
 
 ### Added / Changed / Fixed / Removed
 
@@ -1455,7 +1455,7 @@ PowerShell: `Invoke-WebRequest -Uri https://raw.githubusercontent.com/alimtvnetw
 - Added comprehensive file status categories (modified:, untracked:, deleted:, staged:) with 10-file display cap and overflow summary
 - Refactored porcelain dirty state inspection in gitutil/dirty_inspect.go to strictly adhere to coding guidelines (<=15 lines per function)
 - Flattened nested conditionals in cmd/reconcile_prompt.go using early return guard clauses to achieve 0 nested if violations
-- Fixed Windows cmd.exe escape character issue in .lovable/ai-fix-scripts/06-cicd-local-runner.py by quoting -run="^$" regex in Compile Gate
+- Fixed Windows cmd.exe escape character issue in 03-ai-scripts/06-cicd-local-runner.py by quoting -run="^$" regex in Compile Gate
 - Added unit test suites in gitutil/dirty_inspect_test.go and cmd/reconcile_cmd_test.go
 - Validated all 25 CI/CD quality gates with 100% green pass (exit code 0)
 
@@ -1465,8 +1465,8 @@ PowerShell: `Invoke-WebRequest -Uri https://raw.githubusercontent.com/alimtvnetw
 ### Install GitMap v6.177.0
 
 To pin your repository to this exact version, run the following one-liner:
-Unix/Bash: `curl -sL https://raw.githubusercontent.com/alimtvnetwork/gitmap-v28/v6.177.0/install.sh | bash -s -- ".lovable/prompts" "v6.177.0"`
-PowerShell: `Invoke-WebRequest -Uri https://raw.githubusercontent.com/alimtvnetwork/gitmap-v28/v6.177.0/install.ps1 -OutFile install.ps1; .\install.ps1 -TargetDir ".lovable/prompts" -Version "v6.177.0"`
+Unix/Bash: `curl -sL https://raw.githubusercontent.com/alimtvnetwork/gitmap-v28/v6.177.0/install.sh | bash -s -- ".ai-memory/prompts" "v6.177.0"`
+PowerShell: `Invoke-WebRequest -Uri https://raw.githubusercontent.com/alimtvnetwork/gitmap-v28/v6.177.0/install.ps1 -OutFile install.ps1; .\install.ps1 -TargetDir ".ai-memory/prompts" -Version "v6.177.0"`
 
 ### Added / Changed / Fixed / Removed
 
@@ -1482,8 +1482,8 @@ PowerShell: `Invoke-WebRequest -Uri https://raw.githubusercontent.com/alimtvnetw
 ### Install GitMap v6.176.0
 
 To pin your repository to this exact version, run the following one-liner:
-Unix/Bash: `curl -sL https://raw.githubusercontent.com/alimtvnetwork/gitmap-v28/v6.176.0/install.sh | bash -s -- ".lovable/prompts" "v6.176.0"`
-PowerShell: `Invoke-WebRequest -Uri https://raw.githubusercontent.com/alimtvnetwork/gitmap-v28/v6.176.0/install.ps1 -OutFile install.ps1; .\install.ps1 -TargetDir ".lovable/prompts" -Version "v6.176.0"`
+Unix/Bash: `curl -sL https://raw.githubusercontent.com/alimtvnetwork/gitmap-v28/v6.176.0/install.sh | bash -s -- ".ai-memory/prompts" "v6.176.0"`
+PowerShell: `Invoke-WebRequest -Uri https://raw.githubusercontent.com/alimtvnetwork/gitmap-v28/v6.176.0/install.ps1 -OutFile install.ps1; .\install.ps1 -TargetDir ".ai-memory/prompts" -Version "v6.176.0"`
 
 ### Added / Changed / Fixed / Removed
 
@@ -1505,8 +1505,8 @@ PowerShell: `Invoke-WebRequest -Uri https://raw.githubusercontent.com/alimtvnetw
 ### Install GitMap v6.175.0
 
 To pin your repository to this exact version, run the following one-liner:
-Unix/Bash: `curl -sL https://raw.githubusercontent.com/alimtvnetwork/gitmap-v28/v6.175.0/install.sh | bash -s -- ".lovable/prompts" "v6.175.0"`
-PowerShell: `Invoke-WebRequest -Uri https://raw.githubusercontent.com/alimtvnetwork/gitmap-v28/v6.175.0/install.ps1 -OutFile install.ps1; .\install.ps1 -TargetDir ".lovable/prompts" -Version "v6.175.0"`
+Unix/Bash: `curl -sL https://raw.githubusercontent.com/alimtvnetwork/gitmap-v28/v6.175.0/install.sh | bash -s -- ".ai-memory/prompts" "v6.175.0"`
+PowerShell: `Invoke-WebRequest -Uri https://raw.githubusercontent.com/alimtvnetwork/gitmap-v28/v6.175.0/install.ps1 -OutFile install.ps1; .\install.ps1 -TargetDir ".ai-memory/prompts" -Version "v6.175.0"`
 
 ### Added / Changed / Fixed / Removed
 
@@ -1527,8 +1527,8 @@ PowerShell: `Invoke-WebRequest -Uri https://raw.githubusercontent.com/alimtvnetw
 ### Install GitMap v6.174.0
 
 To pin your repository to this exact version, run the following one-liner:
-Unix/Bash: `curl -sL https://raw.githubusercontent.com/alimtvnetwork/gitmap-v28/v6.174.0/install.sh | bash -s -- ".lovable/prompts" "v6.174.0"`
-PowerShell: `Invoke-WebRequest -Uri https://raw.githubusercontent.com/alimtvnetwork/gitmap-v28/v6.174.0/install.ps1 -OutFile install.ps1; .\install.ps1 -TargetDir ".lovable/prompts" -Version "v6.174.0"`
+Unix/Bash: `curl -sL https://raw.githubusercontent.com/alimtvnetwork/gitmap-v28/v6.174.0/install.sh | bash -s -- ".ai-memory/prompts" "v6.174.0"`
+PowerShell: `Invoke-WebRequest -Uri https://raw.githubusercontent.com/alimtvnetwork/gitmap-v28/v6.174.0/install.ps1 -OutFile install.ps1; .\install.ps1 -TargetDir ".ai-memory/prompts" -Version "v6.174.0"`
 
 ### Added / Changed / Fixed / Removed
 
@@ -1550,8 +1550,8 @@ PowerShell: `Invoke-WebRequest -Uri https://raw.githubusercontent.com/alimtvnetw
 ### Install GitMap v6.173.0
 
 To pin your repository to this exact version, run the following one-liner:
-Unix/Bash: `curl -sL https://raw.githubusercontent.com/alimtvnetwork/gitmap-v28/v6.173.0/install.sh | bash -s -- ".lovable/prompts" "v6.173.0"`
-PowerShell: `Invoke-WebRequest -Uri https://raw.githubusercontent.com/alimtvnetwork/gitmap-v28/v6.173.0/install.ps1 -OutFile install.ps1; .\install.ps1 -TargetDir ".lovable/prompts" -Version "v6.173.0"`
+Unix/Bash: `curl -sL https://raw.githubusercontent.com/alimtvnetwork/gitmap-v28/v6.173.0/install.sh | bash -s -- ".ai-memory/prompts" "v6.173.0"`
+PowerShell: `Invoke-WebRequest -Uri https://raw.githubusercontent.com/alimtvnetwork/gitmap-v28/v6.173.0/install.ps1 -OutFile install.ps1; .\install.ps1 -TargetDir ".ai-memory/prompts" -Version "v6.173.0"`
 
 ### Added & Enhanced
 
@@ -1584,8 +1584,8 @@ PowerShell: `Invoke-WebRequest -Uri https://raw.githubusercontent.com/alimtvnetw
 ### Install GitMap v6.172.0
 
 To pin your repository to this exact version, run the following one-liner:
-Unix/Bash: `curl -sL https://raw.githubusercontent.com/alimtvnetwork/gitmap-v28/v6.172.0/install.sh | bash -s -- ".lovable/prompts" "v6.172.0"`
-PowerShell: `Invoke-WebRequest -Uri https://raw.githubusercontent.com/alimtvnetwork/gitmap-v28/v6.172.0/install.ps1 -OutFile install.ps1; .\install.ps1 -TargetDir ".lovable/prompts" -Version "v6.172.0"`
+Unix/Bash: `curl -sL https://raw.githubusercontent.com/alimtvnetwork/gitmap-v28/v6.172.0/install.sh | bash -s -- ".ai-memory/prompts" "v6.172.0"`
+PowerShell: `Invoke-WebRequest -Uri https://raw.githubusercontent.com/alimtvnetwork/gitmap-v28/v6.172.0/install.ps1 -OutFile install.ps1; .\install.ps1 -TargetDir ".ai-memory/prompts" -Version "v6.172.0"`
 
 ### Added & Enhanced
 
@@ -1643,7 +1643,7 @@ PowerShell: `Invoke-WebRequest -Uri https://raw.githubusercontent.com/alimtvnetw
     - Go test compile and typecheck gate (`go test -run=^$ ./... -count=1`).
   - Supports `--fix` (`-f`) for automated repair without prompts, `--check` (`-c`) for read-only audits, and interactive confirmation in terminal mode.
 
-- **Specification Module Added (`spec/21-app/11-pipeline-errorlogs-timeline-and-fix/`)**:
+- **Specification Module Added (`02-spec/21-app/11-pipeline-errorlogs-timeline-and-fix/`)**:
   - Authored complete specification module with overview, dynamic timeline contracts, CI/CD diagnostic engine specifications, acceptance criteria, and consistency reports.
 
 ## [v6.169.0] 2026-09-03 Release v6.169.0
@@ -1668,7 +1668,7 @@ PowerShell: `Invoke-WebRequest -Uri https://raw.githubusercontent.com/alimtvnetw
 - **Coding Guideline & CI/CD Compliance**:
   - Refactored and flattened all nested `if` statements across `gitmap/cmd/` and `gitmap/vscodepm/` to achieve 100% compliance with `check-nested-ifs.py` and `check-enum-and-boolean.py`.
   - Regenerated CLI command mappings via `go generate ./...` to prevent generate drift.
-  - Resolved legacy references in `spec/01-spec-authoring-guide/13-root-readme-conventions.md`.
+  - Resolved legacy references in `02-spec/01-spec-authoring-guide/13-root-readme-conventions.md`.
 
 ## [v6.168.0] 2026-09-03 Release v6.168.0
 
@@ -1705,8 +1705,8 @@ PowerShell: `Invoke-WebRequest -Uri https://raw.githubusercontent.com/alimtvnetw
   - Enriched all command reference documentation with detailed flag tables (Flag, Shorthand, Default, Description).
   - Authored actionable, copy-pasteable runnable command examples covering every single flag (e.g. `--missing`, `--active`, `--sort`, `--filter`, `--json`, `--except`, `--dry-run`, `--yes`, `--safe-pull`, `--fix`, `--delete`, `--create-remote`).
 
-- **`.lovable` AI Agent System Architecture Mapping**:
-  - Created `.lovable/folder-structure.md` formalizing the relationship between the codebase, canonical specifications (`spec/`), user documentation (`docs/commands/`), and `.lovable/` AI cognitive workspaces (`plans/`, `memory/`, `coding-guidelines/`, `prompts/`).
+- **`.ai-memory` AI Agent System Architecture Mapping**:
+  - Created `.ai-memory/folder-structure.md` formalizing the relationship between the codebase, canonical specifications (`02-spec/`), user documentation (`docs/commands/`), and `.ai-memory/` AI cognitive workspaces (`plans/`, `memory/`, `coding-guidelines/`, `prompts/`).
 
 ## [v6.166.0] 2026-09-03 Release v6.166.0
 
@@ -1794,15 +1794,15 @@ PowerShell: `Invoke-WebRequest -Uri https://raw.githubusercontent.com/alimtvnetw
   - Added full `docs-site` frontend Vite build verification (`npm run build`) in CI workflows.
   - Added comprehensive `e2e-cli-smoke.py` suite covering scheduled tasks, macros, retries, and Chrome management.
   - Fixed release workflow version resolution to dynamically bind to triggered git tags.
-  - Resolved `spec/21-app` relative import paths across documentation views.
+  - Resolved `02-spec/21-app` relative import paths across documentation views.
 
 ## [v6.158.1] 2026-09-01 Release v6.158.1
 
 ### Install gitmap v6.158.1
 
 To pin your repository to this exact version, run the following one-liner:
-Unix/Bash: `curl -sL https://raw.githubusercontent.com/alimtvnetwork/gitmap-v28/v6.158.1/install.sh | bash -s -- ".lovable/prompts" "v6.158.1"`
-PowerShell: `Invoke-WebRequest -Uri https://raw.githubusercontent.com/alimtvnetwork/gitmap-v28/v6.158.1/install.ps1 -OutFile install.ps1; .\install.ps1 -TargetDir ".lovable/prompts" -Version "v6.158.1"`
+Unix/Bash: `curl -sL https://raw.githubusercontent.com/alimtvnetwork/gitmap-v28/v6.158.1/install.sh | bash -s -- ".ai-memory/prompts" "v6.158.1"`
+PowerShell: `Invoke-WebRequest -Uri https://raw.githubusercontent.com/alimtvnetwork/gitmap-v28/v6.158.1/install.ps1 -OutFile install.ps1; .\install.ps1 -TargetDir ".ai-memory/prompts" -Version "v6.158.1"`
 
 ### Fixed
 
@@ -1817,8 +1817,8 @@ PowerShell: `Invoke-WebRequest -Uri https://raw.githubusercontent.com/alimtvnetw
 ### Install gitmap v6.158.0
 
 To pin your repository to this exact version, run the following one-liner:
-Unix/Bash: `curl -sL https://raw.githubusercontent.com/alimtvnetwork/gitmap-v28/v6.158.0/install.sh | bash -s -- ".lovable/prompts" "v6.158.0"`
-PowerShell: `Invoke-WebRequest -Uri https://raw.githubusercontent.com/alimtvnetwork/gitmap-v28/v6.158.0/install.ps1 -OutFile install.ps1; .\install.ps1 -TargetDir ".lovable/prompts" -Version "v6.158.0"`
+Unix/Bash: `curl -sL https://raw.githubusercontent.com/alimtvnetwork/gitmap-v28/v6.158.0/install.sh | bash -s -- ".ai-memory/prompts" "v6.158.0"`
+PowerShell: `Invoke-WebRequest -Uri https://raw.githubusercontent.com/alimtvnetwork/gitmap-v28/v6.158.0/install.ps1 -OutFile install.ps1; .\install.ps1 -TargetDir ".ai-memory/prompts" -Version "v6.158.0"`
 
 ### Added & Enhanced
 
@@ -1833,8 +1833,8 @@ PowerShell: `Invoke-WebRequest -Uri https://raw.githubusercontent.com/alimtvnetw
 ### Install gitmap v6.157.0
 
 To pin your repository to this exact version, run the following one-liner:
-Unix/Bash: `curl -sL https://raw.githubusercontent.com/alimtvnetwork/gitmap-v28/v6.157.0/install.sh | bash -s -- ".lovable/prompts" "v6.157.0"`
-PowerShell: `Invoke-WebRequest -Uri https://raw.githubusercontent.com/alimtvnetwork/gitmap-v28/v6.157.0/install.ps1 -OutFile install.ps1; .\install.ps1 -TargetDir ".lovable/prompts" -Version "v6.157.0"`
+Unix/Bash: `curl -sL https://raw.githubusercontent.com/alimtvnetwork/gitmap-v28/v6.157.0/install.sh | bash -s -- ".ai-memory/prompts" "v6.157.0"`
+PowerShell: `Invoke-WebRequest -Uri https://raw.githubusercontent.com/alimtvnetwork/gitmap-v28/v6.157.0/install.ps1 -OutFile install.ps1; .\install.ps1 -TargetDir ".ai-memory/prompts" -Version "v6.157.0"`
 
 ### Added & Enhanced
 
@@ -1850,8 +1850,8 @@ PowerShell: `Invoke-WebRequest -Uri https://raw.githubusercontent.com/alimtvnetw
 ### Install gitmap v6.156.4
 
 To pin your repository to this exact version, run the following one-liner:
-Unix/Bash: `curl -sL https://raw.githubusercontent.com/alimtvnetwork/gitmap-v28/v6.156.4/install.sh | bash -s -- ".lovable/prompts" "v6.156.4"`
-PowerShell: `Invoke-WebRequest -Uri https://raw.githubusercontent.com/alimtvnetwork/gitmap-v28/v6.156.4/install.ps1 -OutFile install.ps1; .\install.ps1 -TargetDir ".lovable/prompts" -Version "v6.156.4"`
+Unix/Bash: `curl -sL https://raw.githubusercontent.com/alimtvnetwork/gitmap-v28/v6.156.4/install.sh | bash -s -- ".ai-memory/prompts" "v6.156.4"`
+PowerShell: `Invoke-WebRequest -Uri https://raw.githubusercontent.com/alimtvnetwork/gitmap-v28/v6.156.4/install.ps1 -OutFile install.ps1; .\install.ps1 -TargetDir ".ai-memory/prompts" -Version "v6.156.4"`
 
 ### Fixed & Cleaned
 
@@ -1863,8 +1863,8 @@ PowerShell: `Invoke-WebRequest -Uri https://raw.githubusercontent.com/alimtvnetw
 ### Install gitmap v6.156.3
 
 To pin your repository to this exact version, run the following one-liner:
-Unix/Bash: `curl -sL https://raw.githubusercontent.com/alimtvnetwork/gitmap-v28/v6.156.3/install.sh | bash -s -- ".lovable/prompts" "v6.156.3"`
-PowerShell: `Invoke-WebRequest -Uri https://raw.githubusercontent.com/alimtvnetwork/gitmap-v28/v6.156.3/install.ps1 -OutFile install.ps1; .\install.ps1 -TargetDir ".lovable/prompts" -Version "v6.156.3"`
+Unix/Bash: `curl -sL https://raw.githubusercontent.com/alimtvnetwork/gitmap-v28/v6.156.3/install.sh | bash -s -- ".ai-memory/prompts" "v6.156.3"`
+PowerShell: `Invoke-WebRequest -Uri https://raw.githubusercontent.com/alimtvnetwork/gitmap-v28/v6.156.3/install.ps1 -OutFile install.ps1; .\install.ps1 -TargetDir ".ai-memory/prompts" -Version "v6.156.3"`
 
 ### Fixed & Enhanced
 
@@ -1878,8 +1878,8 @@ PowerShell: `Invoke-WebRequest -Uri https://raw.githubusercontent.com/alimtvnetw
 ### Install gitmap v6.156.2
 
 To pin your repository to this exact version, run the following one-liner:
-Unix/Bash: `curl -sL https://raw.githubusercontent.com/alimtvnetwork/gitmap-v28/v6.156.2/install.sh | bash -s -- ".lovable/prompts" "v6.156.2"`
-PowerShell: `Invoke-WebRequest -Uri https://raw.githubusercontent.com/alimtvnetwork/gitmap-v28/v6.156.2/install.ps1 -OutFile install.ps1; .\install.ps1 -TargetDir ".lovable/prompts" -Version "v6.156.2"`
+Unix/Bash: `curl -sL https://raw.githubusercontent.com/alimtvnetwork/gitmap-v28/v6.156.2/install.sh | bash -s -- ".ai-memory/prompts" "v6.156.2"`
+PowerShell: `Invoke-WebRequest -Uri https://raw.githubusercontent.com/alimtvnetwork/gitmap-v28/v6.156.2/install.ps1 -OutFile install.ps1; .\install.ps1 -TargetDir ".ai-memory/prompts" -Version "v6.156.2"`
 
 ### Added & Enhanced
 
@@ -1895,8 +1895,8 @@ PowerShell: `Invoke-WebRequest -Uri https://raw.githubusercontent.com/alimtvnetw
 ### Install gitmap v6.156.1
 
 To pin your repository to this exact version, run the following one-liner:
-Unix/Bash: `curl -sL https://raw.githubusercontent.com/alimtvnetwork/gitmap-v28/v6.156.1/install.sh | bash -s -- ".lovable/prompts" "v6.156.1"`
-PowerShell: `Invoke-WebRequest -Uri https://raw.githubusercontent.com/alimtvnetwork/gitmap-v28/v6.156.1/install.ps1 -OutFile install.ps1; .\install.ps1 -TargetDir ".lovable/prompts" -Version "v6.156.1"`
+Unix/Bash: `curl -sL https://raw.githubusercontent.com/alimtvnetwork/gitmap-v28/v6.156.1/install.sh | bash -s -- ".ai-memory/prompts" "v6.156.1"`
+PowerShell: `Invoke-WebRequest -Uri https://raw.githubusercontent.com/alimtvnetwork/gitmap-v28/v6.156.1/install.ps1 -OutFile install.ps1; .\install.ps1 -TargetDir ".ai-memory/prompts" -Version "v6.156.1"`
 
 ### Added & Enhanced
 
@@ -1915,8 +1915,8 @@ PowerShell: `Invoke-WebRequest -Uri https://raw.githubusercontent.com/alimtvnetw
 ### Install gitmap v6.156.0
 
 To pin your repository to this exact version, run the following one-liner:
-Unix/Bash: `curl -sL https://raw.githubusercontent.com/alimtvnetwork/gitmap-v28/v6.156.0/install.sh | bash -s -- ".lovable/prompts" "v6.156.0"`
-PowerShell: `Invoke-WebRequest -Uri https://raw.githubusercontent.com/alimtvnetwork/gitmap-v28/v6.156.0/install.ps1 -OutFile install.ps1; .\install.ps1 -TargetDir ".lovable/prompts" -Version "v6.156.0"`
+Unix/Bash: `curl -sL https://raw.githubusercontent.com/alimtvnetwork/gitmap-v28/v6.156.0/install.sh | bash -s -- ".ai-memory/prompts" "v6.156.0"`
+PowerShell: `Invoke-WebRequest -Uri https://raw.githubusercontent.com/alimtvnetwork/gitmap-v28/v6.156.0/install.ps1 -OutFile install.ps1; .\install.ps1 -TargetDir ".ai-memory/prompts" -Version "v6.156.0"`
 
 ### Added & Enhanced
 
@@ -1929,8 +1929,8 @@ PowerShell: `Invoke-WebRequest -Uri https://raw.githubusercontent.com/alimtvnetw
 ### Install gitmap v6.155.11
 
 To pin your repository to this exact version, run the following one-liner:
-Unix/Bash: `curl -sL https://raw.githubusercontent.com/alimtvnetwork/gitmap-v28/v6.155.11/install.sh | bash -s -- ".lovable/prompts" "v6.155.11"`
-PowerShell: `Invoke-WebRequest -Uri https://raw.githubusercontent.com/alimtvnetwork/gitmap-v28/v6.155.11/install.ps1 -OutFile install.ps1; .\install.ps1 -TargetDir ".lovable/prompts" -Version "v6.155.11"`
+Unix/Bash: `curl -sL https://raw.githubusercontent.com/alimtvnetwork/gitmap-v28/v6.155.11/install.sh | bash -s -- ".ai-memory/prompts" "v6.155.11"`
+PowerShell: `Invoke-WebRequest -Uri https://raw.githubusercontent.com/alimtvnetwork/gitmap-v28/v6.155.11/install.ps1 -OutFile install.ps1; .\install.ps1 -TargetDir ".ai-memory/prompts" -Version "v6.155.11"`
 
 ### Fixed & Enhanced
 
@@ -1946,8 +1946,8 @@ PowerShell: `Invoke-WebRequest -Uri https://raw.githubusercontent.com/alimtvnetw
 ### Install gitmap v6.155.10
 
 To pin your repository to this exact version, run the following one-liner:
-Unix/Bash: `curl -sL https://raw.githubusercontent.com/alimtvnetwork/gitmap-v28/v6.155.10/install.sh | bash -s -- ".lovable/prompts" "v6.155.10"`
-PowerShell: `Invoke-WebRequest -Uri https://raw.githubusercontent.com/alimtvnetwork/gitmap-v28/v6.155.10/install.ps1 -OutFile install.ps1; .\install.ps1 -TargetDir ".lovable/prompts" -Version "v6.155.10"`
+Unix/Bash: `curl -sL https://raw.githubusercontent.com/alimtvnetwork/gitmap-v28/v6.155.10/install.sh | bash -s -- ".ai-memory/prompts" "v6.155.10"`
+PowerShell: `Invoke-WebRequest -Uri https://raw.githubusercontent.com/alimtvnetwork/gitmap-v28/v6.155.10/install.ps1 -OutFile install.ps1; .\install.ps1 -TargetDir ".ai-memory/prompts" -Version "v6.155.10"`
 
 ### Added & Enhanced
 
@@ -1963,8 +1963,8 @@ PowerShell: `Invoke-WebRequest -Uri https://raw.githubusercontent.com/alimtvnetw
 ### Install gitmap v6.155.9
 
 To pin your repository to this exact version, run the following one-liner:
-Unix/Bash: `curl -sL https://raw.githubusercontent.com/alimtvnetwork/gitmap-v28/v6.155.9/install.sh | bash -s -- ".lovable/prompts" "v6.155.9"`
-PowerShell: `Invoke-WebRequest -Uri https://raw.githubusercontent.com/alimtvnetwork/gitmap-v28/v6.155.9/install.ps1 -OutFile install.ps1; .\install.ps1 -TargetDir ".lovable/prompts" -Version "v6.155.9"`
+Unix/Bash: `curl -sL https://raw.githubusercontent.com/alimtvnetwork/gitmap-v28/v6.155.9/install.sh | bash -s -- ".ai-memory/prompts" "v6.155.9"`
+PowerShell: `Invoke-WebRequest -Uri https://raw.githubusercontent.com/alimtvnetwork/gitmap-v28/v6.155.9/install.ps1 -OutFile install.ps1; .\install.ps1 -TargetDir ".ai-memory/prompts" -Version "v6.155.9"`
 
 ### Fixed & Enhanced
 
@@ -1978,8 +1978,8 @@ PowerShell: `Invoke-WebRequest -Uri https://raw.githubusercontent.com/alimtvnetw
 ### Install gitmap v6.155.8
 
 To pin your repository to this exact version, run the following one-liner:
-Unix/Bash: `curl -sL https://raw.githubusercontent.com/alimtvnetwork/gitmap-v28/v6.155.8/install.sh | bash -s -- ".lovable/prompts" "v6.155.8"`
-PowerShell: `Invoke-WebRequest -Uri https://raw.githubusercontent.com/alimtvnetwork/gitmap-v28/v6.155.8/install.ps1 -OutFile install.ps1; .\install.ps1 -TargetDir ".lovable/prompts" -Version "v6.155.8"`
+Unix/Bash: `curl -sL https://raw.githubusercontent.com/alimtvnetwork/gitmap-v28/v6.155.8/install.sh | bash -s -- ".ai-memory/prompts" "v6.155.8"`
+PowerShell: `Invoke-WebRequest -Uri https://raw.githubusercontent.com/alimtvnetwork/gitmap-v28/v6.155.8/install.ps1 -OutFile install.ps1; .\install.ps1 -TargetDir ".ai-memory/prompts" -Version "v6.155.8"`
 
 ### Fixed & Enhanced
 
@@ -1999,8 +1999,8 @@ PowerShell: `Invoke-WebRequest -Uri https://raw.githubusercontent.com/alimtvnetw
 ### Install gitmap v6.155.7
 
 To pin your repository to this exact version, run the following one-liner:
-Unix/Bash: `curl -sL https://raw.githubusercontent.com/alimtvnetwork/gitmap-v28/v6.155.7/install.sh | bash -s -- ".lovable/prompts" "v6.155.7"`
-PowerShell: `Invoke-WebRequest -Uri https://raw.githubusercontent.com/alimtvnetwork/gitmap-v28/v6.155.7/install.ps1 -OutFile install.ps1; .\install.ps1 -TargetDir ".lovable/prompts" -Version "v6.155.7"`
+Unix/Bash: `curl -sL https://raw.githubusercontent.com/alimtvnetwork/gitmap-v28/v6.155.7/install.sh | bash -s -- ".ai-memory/prompts" "v6.155.7"`
+PowerShell: `Invoke-WebRequest -Uri https://raw.githubusercontent.com/alimtvnetwork/gitmap-v28/v6.155.7/install.ps1 -OutFile install.ps1; .\install.ps1 -TargetDir ".ai-memory/prompts" -Version "v6.155.7"`
 
 ### Fixed & Enhanced
 
@@ -2016,8 +2016,8 @@ PowerShell: `Invoke-WebRequest -Uri https://raw.githubusercontent.com/alimtvnetw
 ### Install gitmap v6.155.6
 
 To pin your repository to this exact version, run the following one-liner:
-Unix/Bash: `curl -sL https://raw.githubusercontent.com/alimtvnetwork/gitmap-v28/v6.155.6/install.sh | bash -s -- ".lovable/prompts" "v6.155.6"`
-PowerShell: `Invoke-WebRequest -Uri https://raw.githubusercontent.com/alimtvnetwork/gitmap-v28/v6.155.6/install.ps1 -OutFile install.ps1; .\install.ps1 -TargetDir ".lovable/prompts" -Version "v6.155.6"`
+Unix/Bash: `curl -sL https://raw.githubusercontent.com/alimtvnetwork/gitmap-v28/v6.155.6/install.sh | bash -s -- ".ai-memory/prompts" "v6.155.6"`
+PowerShell: `Invoke-WebRequest -Uri https://raw.githubusercontent.com/alimtvnetwork/gitmap-v28/v6.155.6/install.ps1 -OutFile install.ps1; .\install.ps1 -TargetDir ".ai-memory/prompts" -Version "v6.155.6"`
 
 ### Fixed & Enhanced
 
@@ -2029,8 +2029,8 @@ PowerShell: `Invoke-WebRequest -Uri https://raw.githubusercontent.com/alimtvnetw
 ### Install gitmap v6.155.5
 
 To pin your repository to this exact version, run the following one-liner:
-Unix/Bash: `curl -sL https://raw.githubusercontent.com/alimtvnetwork/gitmap-v28/v6.155.5/install.sh | bash -s -- ".lovable/prompts" "v6.155.5"`
-PowerShell: `Invoke-WebRequest -Uri https://raw.githubusercontent.com/alimtvnetwork/gitmap-v28/v6.155.5/install.ps1 -OutFile install.ps1; .\install.ps1 -TargetDir ".lovable/prompts" -Version "v6.155.5"`
+Unix/Bash: `curl -sL https://raw.githubusercontent.com/alimtvnetwork/gitmap-v28/v6.155.5/install.sh | bash -s -- ".ai-memory/prompts" "v6.155.5"`
+PowerShell: `Invoke-WebRequest -Uri https://raw.githubusercontent.com/alimtvnetwork/gitmap-v28/v6.155.5/install.ps1 -OutFile install.ps1; .\install.ps1 -TargetDir ".ai-memory/prompts" -Version "v6.155.5"`
 
 ### Fixed & Enhanced
 
@@ -2050,8 +2050,8 @@ PowerShell: `Invoke-WebRequest -Uri https://raw.githubusercontent.com/alimtvnetw
 ### Install gitmap v6.155.4
 
 To pin your repository to this exact version, run the following one-liner:
-Unix/Bash: `curl -sL https://raw.githubusercontent.com/alimtvnetwork/gitmap-v28/v6.155.4/install.sh | bash -s -- ".lovable/prompts" "v6.155.4"`
-PowerShell: `Invoke-WebRequest -Uri https://raw.githubusercontent.com/alimtvnetwork/gitmap-v28/v6.155.4/install.ps1 -OutFile install.ps1; .\install.ps1 -TargetDir ".lovable/prompts" -Version "v6.155.4"`
+Unix/Bash: `curl -sL https://raw.githubusercontent.com/alimtvnetwork/gitmap-v28/v6.155.4/install.sh | bash -s -- ".ai-memory/prompts" "v6.155.4"`
+PowerShell: `Invoke-WebRequest -Uri https://raw.githubusercontent.com/alimtvnetwork/gitmap-v28/v6.155.4/install.ps1 -OutFile install.ps1; .\install.ps1 -TargetDir ".ai-memory/prompts" -Version "v6.155.4"`
 
 ### Fixed & Enhanced
 
@@ -2063,8 +2063,8 @@ PowerShell: `Invoke-WebRequest -Uri https://raw.githubusercontent.com/alimtvnetw
 ### Install gitmap v6.155.3
 
 To pin your repository to this exact version, run the following one-liner:
-Unix/Bash: `curl -sL https://raw.githubusercontent.com/alimtvnetwork/gitmap-v28/v6.155.3/install.sh | bash -s -- ".lovable/prompts" "v6.155.3"`
-PowerShell: `Invoke-WebRequest -Uri https://raw.githubusercontent.com/alimtvnetwork/gitmap-v28/v6.155.3/install.ps1 -OutFile install.ps1; .\install.ps1 -TargetDir ".lovable/prompts" -Version "v6.155.3"`
+Unix/Bash: `curl -sL https://raw.githubusercontent.com/alimtvnetwork/gitmap-v28/v6.155.3/install.sh | bash -s -- ".ai-memory/prompts" "v6.155.3"`
+PowerShell: `Invoke-WebRequest -Uri https://raw.githubusercontent.com/alimtvnetwork/gitmap-v28/v6.155.3/install.ps1 -OutFile install.ps1; .\install.ps1 -TargetDir ".ai-memory/prompts" -Version "v6.155.3"`
 
 ### Added
 
@@ -2080,8 +2080,8 @@ PowerShell: `Invoke-WebRequest -Uri https://raw.githubusercontent.com/alimtvnetw
 ### Install gitmap v6.155.2
 
 To pin your repository to this exact version, run the following one-liner:
-Unix/Bash: `curl -sL https://raw.githubusercontent.com/alimtvnetwork/gitmap-v28/v6.155.2/install.sh | bash -s -- ".lovable/prompts" "v6.155.2"`
-PowerShell: `Invoke-WebRequest -Uri https://raw.githubusercontent.com/alimtvnetwork/gitmap-v28/v6.155.2/install.ps1 -OutFile install.ps1; .\install.ps1 -TargetDir ".lovable/prompts" -Version "v6.155.2"`
+Unix/Bash: `curl -sL https://raw.githubusercontent.com/alimtvnetwork/gitmap-v28/v6.155.2/install.sh | bash -s -- ".ai-memory/prompts" "v6.155.2"`
+PowerShell: `Invoke-WebRequest -Uri https://raw.githubusercontent.com/alimtvnetwork/gitmap-v28/v6.155.2/install.ps1 -OutFile install.ps1; .\install.ps1 -TargetDir ".ai-memory/prompts" -Version "v6.155.2"`
 
 ### Added
 
@@ -2092,8 +2092,8 @@ PowerShell: `Invoke-WebRequest -Uri https://raw.githubusercontent.com/alimtvnetw
 ### Install gitmap v6.155.1
 
 To pin your repository to this exact version, run the following one-liner:
-Unix/Bash: `curl -sL https://raw.githubusercontent.com/alimtvnetwork/gitmap-v28/v6.155.1/install.sh | bash -s -- ".lovable/prompts" "v6.155.1"`
-PowerShell: `Invoke-WebRequest -Uri https://raw.githubusercontent.com/alimtvnetwork/gitmap-v28/v6.155.1/install.ps1 -OutFile install.ps1; .\install.ps1 -TargetDir ".lovable/prompts" -Version "v6.155.1"`
+Unix/Bash: `curl -sL https://raw.githubusercontent.com/alimtvnetwork/gitmap-v28/v6.155.1/install.sh | bash -s -- ".ai-memory/prompts" "v6.155.1"`
+PowerShell: `Invoke-WebRequest -Uri https://raw.githubusercontent.com/alimtvnetwork/gitmap-v28/v6.155.1/install.ps1 -OutFile install.ps1; .\install.ps1 -TargetDir ".ai-memory/prompts" -Version "v6.155.1"`
 
 ### Fixed
 
@@ -2105,8 +2105,8 @@ PowerShell: `Invoke-WebRequest -Uri https://raw.githubusercontent.com/alimtvnetw
 ### Install gitmap v6.155.0
 
 To pin your repository to this exact version, run the following one-liner:
-Unix/Bash: `curl -sL https://raw.githubusercontent.com/alimtvnetwork/gitmap-v28/v6.155.0/install.sh | bash -s -- ".lovable/prompts" "v6.155.0"`
-PowerShell: `Invoke-WebRequest -Uri https://raw.githubusercontent.com/alimtvnetwork/gitmap-v28/v6.155.0/install.ps1 -OutFile install.ps1; .\install.ps1 -TargetDir ".lovable/prompts" -Version "v6.155.0"`
+Unix/Bash: `curl -sL https://raw.githubusercontent.com/alimtvnetwork/gitmap-v28/v6.155.0/install.sh | bash -s -- ".ai-memory/prompts" "v6.155.0"`
+PowerShell: `Invoke-WebRequest -Uri https://raw.githubusercontent.com/alimtvnetwork/gitmap-v28/v6.155.0/install.ps1 -OutFile install.ps1; .\install.ps1 -TargetDir ".ai-memory/prompts" -Version "v6.155.0"`
 
 ### Added
 
@@ -2124,8 +2124,8 @@ PowerShell: `Invoke-WebRequest -Uri https://raw.githubusercontent.com/alimtvnetw
 ### Install gitmap v6.154.0
 
 To pin your repository to this exact version, run the following one-liner:
-Unix/Bash: `curl -sL https://raw.githubusercontent.com/alimtvnetwork/gitmap-v28/v6.154.0/install.sh | bash -s -- ".lovable/prompts" "v6.154.0"`
-PowerShell: `Invoke-WebRequest -Uri https://raw.githubusercontent.com/alimtvnetwork/gitmap-v28/v6.154.0/install.ps1 -OutFile install.ps1; .\install.ps1 -TargetDir ".lovable/prompts" -Version "v6.154.0"`
+Unix/Bash: `curl -sL https://raw.githubusercontent.com/alimtvnetwork/gitmap-v28/v6.154.0/install.sh | bash -s -- ".ai-memory/prompts" "v6.154.0"`
+PowerShell: `Invoke-WebRequest -Uri https://raw.githubusercontent.com/alimtvnetwork/gitmap-v28/v6.154.0/install.ps1 -OutFile install.ps1; .\install.ps1 -TargetDir ".ai-memory/prompts" -Version "v6.154.0"`
 
 ### Added
 
@@ -2141,8 +2141,8 @@ PowerShell: `Invoke-WebRequest -Uri https://raw.githubusercontent.com/alimtvnetw
 ### Install gitmap v6.137.0
 
 To pin your repository to this exact version, run the following one-liner:
-Unix/Bash: `curl -sL https://raw.githubusercontent.com/alimtvnetwork/gitmap-v28/v6.137.0/install.sh | bash -s -- ".lovable/prompts" "v6.137.0"`
-PowerShell: `Invoke-WebRequest -Uri https://raw.githubusercontent.com/alimtvnetwork/gitmap-v28/v6.137.0/install.ps1 -OutFile install.ps1; .\install.ps1 -TargetDir ".lovable/prompts" -Version "v6.137.0"`
+Unix/Bash: `curl -sL https://raw.githubusercontent.com/alimtvnetwork/gitmap-v28/v6.137.0/install.sh | bash -s -- ".ai-memory/prompts" "v6.137.0"`
+PowerShell: `Invoke-WebRequest -Uri https://raw.githubusercontent.com/alimtvnetwork/gitmap-v28/v6.137.0/install.ps1 -OutFile install.ps1; .\install.ps1 -TargetDir ".ai-memory/prompts" -Version "v6.137.0"`
 
 ### Added
 
@@ -2153,8 +2153,8 @@ PowerShell: `Invoke-WebRequest -Uri https://raw.githubusercontent.com/alimtvnetw
 ### Install gitmap v6.131.0
 
 To pin your repository to this exact version, run the following one-liner:
-Unix/Bash: `curl -sL https://raw.githubusercontent.com/alimtvnetwork/gitmap-v28/v6.131.0/install.sh | bash -s -- ".lovable/prompts" "v6.131.0"`
-PowerShell: `Invoke-WebRequest -Uri https://raw.githubusercontent.com/alimtvnetwork/gitmap-v28/v6.131.0/install.ps1 -OutFile install.ps1; .\install.ps1 -TargetDir ".lovable/prompts" -Version "v6.131.0"`
+Unix/Bash: `curl -sL https://raw.githubusercontent.com/alimtvnetwork/gitmap-v28/v6.131.0/install.sh | bash -s -- ".ai-memory/prompts" "v6.131.0"`
+PowerShell: `Invoke-WebRequest -Uri https://raw.githubusercontent.com/alimtvnetwork/gitmap-v28/v6.131.0/install.ps1 -OutFile install.ps1; .\install.ps1 -TargetDir ".ai-memory/prompts" -Version "v6.131.0"`
 
 ### Added
 
@@ -2165,8 +2165,8 @@ PowerShell: `Invoke-WebRequest -Uri https://raw.githubusercontent.com/alimtvnetw
 ### Install gitmap v6.130.0
 
 To pin your repository to this exact version, run the following one-liner:
-Unix/Bash: `curl -sL https://raw.githubusercontent.com/alimtvnetwork/gitmap-v28/v6.130.0/install.sh | bash -s -- ".lovable/prompts" "v6.130.0"`
-PowerShell: `Invoke-WebRequest -Uri https://raw.githubusercontent.com/alimtvnetwork/gitmap-v28/v6.130.0/install.ps1 -OutFile install.ps1; .\install.ps1 -TargetDir ".lovable/prompts" -Version "v6.130.0"`
+Unix/Bash: `curl -sL https://raw.githubusercontent.com/alimtvnetwork/gitmap-v28/v6.130.0/install.sh | bash -s -- ".ai-memory/prompts" "v6.130.0"`
+PowerShell: `Invoke-WebRequest -Uri https://raw.githubusercontent.com/alimtvnetwork/gitmap-v28/v6.130.0/install.ps1 -OutFile install.ps1; .\install.ps1 -TargetDir ".ai-memory/prompts" -Version "v6.130.0"`
 
 ### Fixed
 
@@ -2177,8 +2177,8 @@ PowerShell: `Invoke-WebRequest -Uri https://raw.githubusercontent.com/alimtvnetw
 ### Install gitmap v6.129.0
 
 To pin your repository to this exact version, run the following one-liner:
-Unix/Bash: `curl -sL https://raw.githubusercontent.com/alimtvnetwork/gitmap-v28/v6.129.0/install.sh | bash -s -- ".lovable/prompts" "v6.129.0"`
-PowerShell: `Invoke-WebRequest -Uri https://raw.githubusercontent.com/alimtvnetwork/gitmap-v28/v6.129.0/install.ps1 -OutFile install.ps1; .\install.ps1 -TargetDir ".lovable/prompts" -Version "v6.129.0"`
+Unix/Bash: `curl -sL https://raw.githubusercontent.com/alimtvnetwork/gitmap-v28/v6.129.0/install.sh | bash -s -- ".ai-memory/prompts" "v6.129.0"`
+PowerShell: `Invoke-WebRequest -Uri https://raw.githubusercontent.com/alimtvnetwork/gitmap-v28/v6.129.0/install.ps1 -OutFile install.ps1; .\install.ps1 -TargetDir ".ai-memory/prompts" -Version "v6.129.0"`
 
 ### Added
 
@@ -2195,8 +2195,8 @@ PowerShell: `Invoke-WebRequest -Uri https://raw.githubusercontent.com/alimtvnetw
 ### Install gitmap v6.128.0
 
 To pin your repository to this exact version, run the following one-liner:
-Unix/Bash: `curl -sL https://raw.githubusercontent.com/alimtvnetwork/gitmap-v28/v6.128.0/install.sh | bash -s -- ".lovable/prompts" "v6.128.0"`
-PowerShell: `Invoke-WebRequest -Uri https://raw.githubusercontent.com/alimtvnetwork/gitmap-v28/v6.128.0/install.ps1 -OutFile install.ps1; .\install.ps1 -TargetDir ".lovable/prompts" -Version "v6.128.0"`
+Unix/Bash: `curl -sL https://raw.githubusercontent.com/alimtvnetwork/gitmap-v28/v6.128.0/install.sh | bash -s -- ".ai-memory/prompts" "v6.128.0"`
+PowerShell: `Invoke-WebRequest -Uri https://raw.githubusercontent.com/alimtvnetwork/gitmap-v28/v6.128.0/install.ps1 -OutFile install.ps1; .\install.ps1 -TargetDir ".ai-memory/prompts" -Version "v6.128.0"`
 
 ### Added
 
@@ -2211,8 +2211,8 @@ PowerShell: `Invoke-WebRequest -Uri https://raw.githubusercontent.com/alimtvnetw
 ### Install gitmap v6.127.0
 
 To pin your repository to this exact version, run the following one-liner:
-Unix/Bash: `curl -sL https://raw.githubusercontent.com/alimtvnetwork/gitmap-v28/v6.127.0/install.sh | bash -s -- ".lovable/prompts" "v6.127.0"`
-PowerShell: `Invoke-WebRequest -Uri https://raw.githubusercontent.com/alimtvnetwork/gitmap-v28/v6.127.0/install.ps1 -OutFile install.ps1; .\install.ps1 -TargetDir ".lovable/prompts" -Version "v6.127.0"`
+Unix/Bash: `curl -sL https://raw.githubusercontent.com/alimtvnetwork/gitmap-v28/v6.127.0/install.sh | bash -s -- ".ai-memory/prompts" "v6.127.0"`
+PowerShell: `Invoke-WebRequest -Uri https://raw.githubusercontent.com/alimtvnetwork/gitmap-v28/v6.127.0/install.ps1 -OutFile install.ps1; .\install.ps1 -TargetDir ".ai-memory/prompts" -Version "v6.127.0"`
 
 ### Added
 
@@ -2262,10 +2262,10 @@ PowerShell: `Invoke-WebRequest -Uri https://raw.githubusercontent.com/alimtvnetw
 ### Install gitmap v6.153.0
 
 Unix/Bash:
-`curl -sL https://raw.githubusercontent.com/alimtvnetwork/gitmap-v28/v6.153.0/install.sh | bash -s -- ".lovable/prompts" "v6.153.0"`
+`curl -sL https://raw.githubusercontent.com/alimtvnetwork/gitmap-v28/v6.153.0/install.sh | bash -s -- ".ai-memory/prompts" "v6.153.0"`
 
 PowerShell:
-`Invoke-WebRequest -Uri https://raw.githubusercontent.com/alimtvnetwork/gitmap-v28/v6.153.0/install.ps1 -OutFile install.ps1; .\install.ps1 -TargetDir ".lovable/prompts" -Version "v6.153.0"`
+`Invoke-WebRequest -Uri https://raw.githubusercontent.com/alimtvnetwork/gitmap-v28/v6.153.0/install.ps1 -OutFile install.ps1; .\install.ps1 -TargetDir ".ai-memory/prompts" -Version "v6.153.0"`
 
 ### Added / Changed / Fixed / Removed
 
@@ -2281,10 +2281,10 @@ PowerShell:
 ### Install gitmap v6.152.0
 
 Unix/Bash:
-`curl -sL https://raw.githubusercontent.com/alimtvnetwork/gitmap-v28/v6.152.0/install.sh | bash -s -- ".lovable/prompts" "v6.152.0"`
+`curl -sL https://raw.githubusercontent.com/alimtvnetwork/gitmap-v28/v6.152.0/install.sh | bash -s -- ".ai-memory/prompts" "v6.152.0"`
 
 PowerShell:
-`Invoke-WebRequest -Uri https://raw.githubusercontent.com/alimtvnetwork/gitmap-v28/v6.152.0/install.ps1 -OutFile install.ps1; .\install.ps1 -TargetDir ".lovable/prompts" -Version "v6.152.0"`
+`Invoke-WebRequest -Uri https://raw.githubusercontent.com/alimtvnetwork/gitmap-v28/v6.152.0/install.ps1 -OutFile install.ps1; .\install.ps1 -TargetDir ".ai-memory/prompts" -Version "v6.152.0"`
 
 ### Added / Changed / Fixed / Removed
 
@@ -2300,10 +2300,10 @@ PowerShell:
 ### Install gitmap v6.151.0
 
 Unix/Bash:
-`curl -sL https://raw.githubusercontent.com/alimtvnetwork/gitmap-v28/v6.151.0/install.sh | bash -s -- ".lovable/prompts" "v6.151.0"`
+`curl -sL https://raw.githubusercontent.com/alimtvnetwork/gitmap-v28/v6.151.0/install.sh | bash -s -- ".ai-memory/prompts" "v6.151.0"`
 
 PowerShell:
-`Invoke-WebRequest -Uri https://raw.githubusercontent.com/alimtvnetwork/gitmap-v28/v6.151.0/install.ps1 -OutFile install.ps1; .\install.ps1 -TargetDir ".lovable/prompts" -Version "v6.151.0"`
+`Invoke-WebRequest -Uri https://raw.githubusercontent.com/alimtvnetwork/gitmap-v28/v6.151.0/install.ps1 -OutFile install.ps1; .\install.ps1 -TargetDir ".ai-memory/prompts" -Version "v6.151.0"`
 
 ### Added / Changed / Fixed / Removed
 
@@ -2319,10 +2319,10 @@ PowerShell:
 ### Install gitmap v6.150.0
 
 Unix/Bash:
-`curl -sL https://raw.githubusercontent.com/alimtvnetwork/gitmap-v28/v6.150.0/install.sh | bash -s -- ".lovable/prompts" "v6.150.0"`
+`curl -sL https://raw.githubusercontent.com/alimtvnetwork/gitmap-v28/v6.150.0/install.sh | bash -s -- ".ai-memory/prompts" "v6.150.0"`
 
 PowerShell:
-`Invoke-WebRequest -Uri https://raw.githubusercontent.com/alimtvnetwork/gitmap-v28/v6.150.0/install.ps1 -OutFile install.ps1; .\install.ps1 -TargetDir ".lovable/prompts" -Version "v6.150.0"`
+`Invoke-WebRequest -Uri https://raw.githubusercontent.com/alimtvnetwork/gitmap-v28/v6.150.0/install.ps1 -OutFile install.ps1; .\install.ps1 -TargetDir ".ai-memory/prompts" -Version "v6.150.0"`
 
 ### Added / Changed / Fixed / Removed
 
@@ -2338,10 +2338,10 @@ PowerShell:
 ### Install gitmap v6.149.0
 
 Unix/Bash:
-`curl -sL https://raw.githubusercontent.com/alimtvnetwork/gitmap-v28/v6.149.0/install.sh | bash -s -- ".lovable/prompts" "v6.149.0"`
+`curl -sL https://raw.githubusercontent.com/alimtvnetwork/gitmap-v28/v6.149.0/install.sh | bash -s -- ".ai-memory/prompts" "v6.149.0"`
 
 PowerShell:
-`Invoke-WebRequest -Uri https://raw.githubusercontent.com/alimtvnetwork/gitmap-v28/v6.149.0/install.ps1 -OutFile install.ps1; .\install.ps1 -TargetDir ".lovable/prompts" -Version "v6.149.0"`
+`Invoke-WebRequest -Uri https://raw.githubusercontent.com/alimtvnetwork/gitmap-v28/v6.149.0/install.ps1 -OutFile install.ps1; .\install.ps1 -TargetDir ".ai-memory/prompts" -Version "v6.149.0"`
 
 ### Added / Changed / Fixed / Removed
 
@@ -2357,10 +2357,10 @@ PowerShell:
 ### Install gitmap v6.148.0
 
 Unix/Bash:
-`curl -sL https://raw.githubusercontent.com/alimtvnetwork/gitmap-v28/v6.148.0/install.sh | bash -s -- ".lovable/prompts" "v6.148.0"`
+`curl -sL https://raw.githubusercontent.com/alimtvnetwork/gitmap-v28/v6.148.0/install.sh | bash -s -- ".ai-memory/prompts" "v6.148.0"`
 
 PowerShell:
-`Invoke-WebRequest -Uri https://raw.githubusercontent.com/alimtvnetwork/gitmap-v28/v6.148.0/install.ps1 -OutFile install.ps1; .\install.ps1 -TargetDir ".lovable/prompts" -Version "v6.148.0"`
+`Invoke-WebRequest -Uri https://raw.githubusercontent.com/alimtvnetwork/gitmap-v28/v6.148.0/install.ps1 -OutFile install.ps1; .\install.ps1 -TargetDir ".ai-memory/prompts" -Version "v6.148.0"`
 
 ### Added / Changed / Fixed / Removed
 
@@ -2376,10 +2376,10 @@ PowerShell:
 ### Install gitmap v6.147.0
 
 Unix/Bash:
-`curl -sL https://raw.githubusercontent.com/alimtvnetwork/gitmap-v28/v6.147.0/install.sh | bash -s -- ".lovable/prompts" "v6.147.0"`
+`curl -sL https://raw.githubusercontent.com/alimtvnetwork/gitmap-v28/v6.147.0/install.sh | bash -s -- ".ai-memory/prompts" "v6.147.0"`
 
 PowerShell:
-`Invoke-WebRequest -Uri https://raw.githubusercontent.com/alimtvnetwork/gitmap-v28/v6.147.0/install.ps1 -OutFile install.ps1; .\install.ps1 -TargetDir ".lovable/prompts" -Version "v6.147.0"`
+`Invoke-WebRequest -Uri https://raw.githubusercontent.com/alimtvnetwork/gitmap-v28/v6.147.0/install.ps1 -OutFile install.ps1; .\install.ps1 -TargetDir ".ai-memory/prompts" -Version "v6.147.0"`
 
 ### Added / Changed / Fixed / Removed
 
@@ -2395,10 +2395,10 @@ PowerShell:
 ### Install gitmap v6.146.0
 
 Unix/Bash:
-`curl -sL https://raw.githubusercontent.com/alimtvnetwork/gitmap-v28/v6.146.0/install.sh | bash -s -- ".lovable/prompts" "v6.146.0"`
+`curl -sL https://raw.githubusercontent.com/alimtvnetwork/gitmap-v28/v6.146.0/install.sh | bash -s -- ".ai-memory/prompts" "v6.146.0"`
 
 PowerShell:
-`Invoke-WebRequest -Uri https://raw.githubusercontent.com/alimtvnetwork/gitmap-v28/v6.146.0/install.ps1 -OutFile install.ps1; .\install.ps1 -TargetDir ".lovable/prompts" -Version "v6.146.0"`
+`Invoke-WebRequest -Uri https://raw.githubusercontent.com/alimtvnetwork/gitmap-v28/v6.146.0/install.ps1 -OutFile install.ps1; .\install.ps1 -TargetDir ".ai-memory/prompts" -Version "v6.146.0"`
 
 ### Added / Changed / Fixed / Removed
 
@@ -2414,10 +2414,10 @@ PowerShell:
 ### Install gitmap v6.145.0
 
 Unix/Bash:
-`curl -sL https://raw.githubusercontent.com/alimtvnetwork/gitmap-v28/v6.145.0/install.sh | bash -s -- ".lovable/prompts" "v6.145.0"`
+`curl -sL https://raw.githubusercontent.com/alimtvnetwork/gitmap-v28/v6.145.0/install.sh | bash -s -- ".ai-memory/prompts" "v6.145.0"`
 
 PowerShell:
-`Invoke-WebRequest -Uri https://raw.githubusercontent.com/alimtvnetwork/gitmap-v28/v6.145.0/install.ps1 -OutFile install.ps1; .\install.ps1 -TargetDir ".lovable/prompts" -Version "v6.145.0"`
+`Invoke-WebRequest -Uri https://raw.githubusercontent.com/alimtvnetwork/gitmap-v28/v6.145.0/install.ps1 -OutFile install.ps1; .\install.ps1 -TargetDir ".ai-memory/prompts" -Version "v6.145.0"`
 
 ### Added / Changed / Fixed / Removed
 
@@ -2473,23 +2473,23 @@ PowerShell:
 ### Install Prompt Architect v6.121.0
 
 To pin your repository to this exact version, run the following one-liner:
-Unix/Bash: `curl -sL https://raw.githubusercontent.com/alimtvnetwork/prompt-architect-v2/v6.121.0/install.sh | bash -s -- ".lovable/prompts" "v6.121.0"`
-PowerShell: `Invoke-WebRequest -Uri https://raw.githubusercontent.com/alimtvnetwork/prompt-architect-v2/v6.121.0/install.ps1 -OutFile install.ps1; .\install.ps1 -TargetDir ".lovable/prompts" -Version "v6.121.0"`
+Unix/Bash: `curl -sL https://raw.githubusercontent.com/alimtvnetwork/prompt-architect-v2/v6.121.0/install.sh | bash -s -- ".ai-memory/prompts" "v6.121.0"`
+PowerShell: `Invoke-WebRequest -Uri https://raw.githubusercontent.com/alimtvnetwork/prompt-architect-v2/v6.121.0/install.ps1 -OutFile install.ps1; .\install.ps1 -TargetDir ".ai-memory/prompts" -Version "v6.121.0"`
 
 ### Added
 
-- Added the MUST enforce `release` prompt definition to `.lovable/prompts/18-release.md`.
+- Added the MUST enforce `release` prompt definition to `01-prompts/18-release.md`.
 - Bounded AI agent to automatically trigger this prompt schema.
 
 ### Issues
 
-- [01-6.121.0-stale-readme-matrix](.lovable/release/issues/01-6.121.0-stale-readme-matrix.md) Failed to update severely outdated install snippets in `readme.md` during string-replace.
+- [01-6.121.0-stale-readme-matrix](.ai-memory/release/issues/01-6.121.0-stale-readme-matrix.md) Failed to update severely outdated install snippets in `readme.md` during string-replace.
 
 ## [v6.120.0] - 2026-08-27
 
 ### Fixed
 
-- Cleaned up AI agent temporary scripts from the root directory that were accidentally tracked in Git. Moved all scripts to the isolated `.lovable/temp-scripts/` directory to prevent pollution.
+- Cleaned up AI agent temporary scripts from the root directory that were accidentally tracked in Git. Moved all scripts to the isolated `.ai-memory/temp-scripts/` directory to prevent pollution.
 
 ## [v6.119.0] - 2026-08-27
 
@@ -2576,26 +2576,26 @@ PowerShell: `Invoke-WebRequest -Uri https://raw.githubusercontent.com/alimtvnetw
 ### Install Prompt Architect v6.111.0
 
 To pin your repository to this exact version, run the following one-liner:
-**Unix/Bash:** `curl -sL https://raw.githubusercontent.com/alimtvnetwork/prompt-architect-v2/v6.111.0/install.sh | bash -s -- ".lovable/prompts" "v6.111.0"`
-**PowerShell:** `Invoke-WebRequest -Uri https://raw.githubusercontent.com/alimtvnetwork/prompt-architect-v2/v6.111.0/install.ps1 -OutFile install.ps1; .\install.ps1 -TargetDir ".lovable/prompts" -Version "v6.111.0"`
+**Unix/Bash:** `curl -sL https://raw.githubusercontent.com/alimtvnetwork/prompt-architect-v2/v6.111.0/install.sh | bash -s -- ".ai-memory/prompts" "v6.111.0"`
+**PowerShell:** `Invoke-WebRequest -Uri https://raw.githubusercontent.com/alimtvnetwork/prompt-architect-v2/v6.111.0/install.ps1 -OutFile install.ps1; .\install.ps1 -TargetDir ".ai-memory/prompts" -Version "v6.111.0"`
 
 ### Added / Changed / Fixed / Removed
 
 - Formatted all Go packages across `gitmap/` with `gofmt -w .` and `goimports -w` to pass strict CI format gating.
-- Documented RCA in `.lovable/release/issues/14-v6.111.0-gofmt-and-constants-collision-ci-failure.md`.
+- Documented RCA in `.ai-memory/release/issues/14-v6.111.0-gofmt-and-constants-collision-ci-failure.md`.
 - Synchronized all release pins and platform matrix tables across `readme.md` and `what-to-read.md` to `v6.111.0`.
 
 ### Issues
 
-- [14-v6.111.0-gofmt-and-constants-collision-ci-failure](.lovable/release/issues/14-v6.111.0-gofmt-and-constants-collision-ci-failure.md) CI failure caused by unformatted Go source files and constants collision parser edge-case.
+- [14-v6.111.0-gofmt-and-constants-collision-ci-failure](.ai-memory/release/issues/14-v6.111.0-gofmt-and-constants-collision-ci-failure.md) CI failure caused by unformatted Go source files and constants collision parser edge-case.
 
 ## [v6.110.0] 2026-08-26 CI Constants Collision Fix, Generated Tab Completion Sync & Live Branch Badges
 
 ### Install Prompt Architect v6.110.0
 
 To pin your repository to this exact version, run the following one-liner:
-**Unix/Bash:** `curl -sL https://raw.githubusercontent.com/alimtvnetwork/prompt-architect-v2/v6.110.0/install.sh | bash -s -- ".lovable/prompts" "v6.110.0"`
-**PowerShell:** `Invoke-WebRequest -Uri https://raw.githubusercontent.com/alimtvnetwork/prompt-architect-v2/v6.110.0/install.ps1 -OutFile install.ps1; .\install.ps1 -TargetDir ".lovable/prompts" -Version "v6.110.0"`
+**Unix/Bash:** `curl -sL https://raw.githubusercontent.com/alimtvnetwork/prompt-architect-v2/v6.110.0/install.sh | bash -s -- ".ai-memory/prompts" "v6.110.0"`
+**PowerShell:** `Invoke-WebRequest -Uri https://raw.githubusercontent.com/alimtvnetwork/prompt-architect-v2/v6.110.0/install.ps1 -OutFile install.ps1; .\install.ps1 -TargetDir ".ai-memory/prompts" -Version "v6.110.0"`
 
 ### Added / Changed / Fixed / Removed
 
@@ -2609,15 +2609,15 @@ To pin your repository to this exact version, run the following one-liner:
 ### Install Prompt Architect v6.109.0
 
 To pin your repository to this exact version, run the following one-liner:
-**Unix/Bash:** `curl -sL https://raw.githubusercontent.com/alimtvnetwork/prompt-architect-v2/v6.109.0/install.sh | bash -s -- ".lovable/prompts" "v6.109.0"`
-**PowerShell:** `Invoke-WebRequest -Uri https://raw.githubusercontent.com/alimtvnetwork/prompt-architect-v2/v6.109.0/install.ps1 -OutFile install.ps1; .\install.ps1 -TargetDir ".lovable/prompts" -Version "v6.109.0"`
+**Unix/Bash:** `curl -sL https://raw.githubusercontent.com/alimtvnetwork/prompt-architect-v2/v6.109.0/install.sh | bash -s -- ".ai-memory/prompts" "v6.109.0"`
+**PowerShell:** `Invoke-WebRequest -Uri https://raw.githubusercontent.com/alimtvnetwork/prompt-architect-v2/v6.109.0/install.ps1 -OutFile install.ps1; .\install.ps1 -TargetDir ".ai-memory/prompts" -Version "v6.109.0"`
 
 ### Added / Changed / Fixed / Removed
 
-- Added `gitmap cg install-version-json` command to install root `version.json`, generate `.lovable` memory docs, and enqueue in `what-to-read.md`.
+- Added `gitmap cg install-version-json` command to install root `version.json`, generate `.ai-memory` memory docs, and enqueue in `what-to-read.md`.
 - Implemented component version inheritance engine (`backend`, `frontend`, `cli`) supporting `"inherit"` and explicit overrides in `gitmap/model/version_manifest.go`.
-- Added `.lovable/memory/release-architecture-map.md` detailing the Single Source of Truth versioning and propagation architecture.
-- Enqueued release architecture map in `.lovable/what-to-read.md` and linked in root `readme.md`.
+- Added `.ai-memory/memory/release-architecture-map.md` detailing the Single Source of Truth versioning and propagation architecture.
+- Enqueued release architecture map in `.ai-memory/what-to-read.md` and linked in root `readme.md`.
 - Enforced strict Test File Ban in release protocol prohibiting reading or modifying test files during version discovery.
 
 ## [v6.108.0] 2026-08-26 SSOT Versioning Directives & Test Isolation Hardening
@@ -2625,12 +2625,12 @@ To pin your repository to this exact version, run the following one-liner:
 ### Install Prompt Architect v6.108.0
 
 To pin your repository to this exact version, run the following one-liner:
-**Unix/Bash:** `curl -sL https://raw.githubusercontent.com/alimtvnetwork/prompt-architect-v2/v6.108.0/install.sh | bash -s -- ".lovable/prompts" "v6.108.0"`
-**PowerShell:** `Invoke-WebRequest -Uri https://raw.githubusercontent.com/alimtvnetwork/prompt-architect-v2/v6.108.0/install.ps1 -OutFile install.ps1; .\install.ps1 -TargetDir ".lovable/prompts" -Version "v6.108.0"`
+**Unix/Bash:** `curl -sL https://raw.githubusercontent.com/alimtvnetwork/prompt-architect-v2/v6.108.0/install.sh | bash -s -- ".ai-memory/prompts" "v6.108.0"`
+**PowerShell:** `Invoke-WebRequest -Uri https://raw.githubusercontent.com/alimtvnetwork/prompt-architect-v2/v6.108.0/install.ps1 -OutFile install.ps1; .\install.ps1 -TargetDir ".ai-memory/prompts" -Version "v6.108.0"`
 
 ### Added / Changed / Fixed / Removed
 
-- Added `docs/versioning.md` and `.lovable/versioning.md` defining the canonical `version.json` Single Source of Truth protocol.
+- Added `docs/versioning.md` and `.ai-memory/versioning.md` defining the canonical `version.json` Single Source of Truth protocol.
 - Added self-explaining schema metadata and documentation pointers inside `version.json`.
 - Added prominent AI and developer directives across test suites to strictly prohibit assuming test mocks (e.g. `v9.9.0`) as real versions.
 - Hardened `gitmap/release/autocommit_test.go` with strict `t.TempDir()` filesystem isolation to eliminate accidental Git commits during test runs.
@@ -2640,8 +2640,8 @@ To pin your repository to this exact version, run the following one-liner:
 ### Install Prompt Architect v6.107.0
 
 To pin your repository to this exact version, run the following one-liner:
-**Unix/Bash:** `curl -sL https://raw.githubusercontent.com/alimtvnetwork/prompt-architect-v2/v6.107.0/install.sh | bash -s -- ".lovable/prompts" "v6.107.0"`
-**PowerShell:** `Invoke-WebRequest -Uri https://raw.githubusercontent.com/alimtvnetwork/prompt-architect-v2/v6.107.0/install.ps1 -OutFile install.ps1; .\install.ps1 -TargetDir ".lovable/prompts" -Version "v6.107.0"`
+**Unix/Bash:** `curl -sL https://raw.githubusercontent.com/alimtvnetwork/prompt-architect-v2/v6.107.0/install.sh | bash -s -- ".ai-memory/prompts" "v6.107.0"`
+**PowerShell:** `Invoke-WebRequest -Uri https://raw.githubusercontent.com/alimtvnetwork/prompt-architect-v2/v6.107.0/install.ps1 -OutFile install.ps1; .\install.ps1 -TargetDir ".ai-memory/prompts" -Version "v6.107.0"`
 
 ### Added / Changed / Fixed / Removed
 
@@ -2653,7 +2653,7 @@ To pin your repository to this exact version, run the following one-liner:
 - Added `gitmap status --dirty` / `--only-dirty` filtering with rich remediation recipe generation.
 - Added Rich Pull Table displaying Repo, Branch, Short SHA, and Upstream tracking delta.
 - Fixed cross-platform compilation and `go vet` failure on macOS/Darwin (`undefined: swapIP`) by renaming `ipchange_linux.go` to `ipchange_posix.go` and removing platform-specific filename suffixes on installer commands.
-- Recorded CI/CD Issue 13 RCA in `.lovable/cicd-issues/13-undefined-swapip-cross-compile-filename-suffix.md` and updated `.lovable/strictly-avoid.md`.
+- Recorded CI/CD Issue 13 RCA in `.ai-memory/cicd-issues/13-undefined-swapip-cross-compile-filename-suffix.md` and updated `.ai-memory/strictly-avoid.md`.
 
 ## [6.104.0] - 2026-08-25
 
@@ -2785,8 +2785,8 @@ To pin your repository to this exact version, run the following one-liner:
 
 ### Issues
 
-- [02-6.30.0-double-v](.lovable/release/issues/02-6.30.0-double-v.md) Installer smoke test failed due to a double `v` prefix (`gitmap vv6.30.0`). Fixed `release.yml` `LDFLAGS` to inject the clean version instead of the `v`-prefixed version.
-- [01-6.30.0-sync-regex](.lovable/release/issues/01-6.30.0-sync-regex.md) Version sync scripts failed due to outdated regexes for `var Version` and bracketed changelog headings. Fixed regexes to pass.
+- [02-6.30.0-double-v](.ai-memory/release/issues/02-6.30.0-double-v.md) Installer smoke test failed due to a double `v` prefix (`gitmap vv6.30.0`). Fixed `release.yml` `LDFLAGS` to inject the clean version instead of the `v`-prefixed version.
+- [01-6.30.0-sync-regex](.ai-memory/release/issues/01-6.30.0-sync-regex.md) Version sync scripts failed due to outdated regexes for `var Version` and bracketed changelog headings. Fixed regexes to pass.
 
 ## [v6.29.0] 2026-08-19
 
@@ -2851,22 +2851,22 @@ To pin your repository to this exact version, run the following one-liner:
 - Converted `Version` from a `const` to a `var` inside `gitmap/constants/constants.go` to support dynamic compile-time overrides via `-ldflags`.
 - Refactored `release.yml` GitHub action to read exclusively from `version.json` rather than relying on Git tags for metadata extraction.
 - Refactored `src/constants/index.ts` to natively import `version.json`.
-- Modified all `spec/` AI blueprints and `.lovable/plan.md` tasks to prohibit multi-file version sweeping in favor of the new single source of truth.
+- Modified all `02-spec/` AI blueprints and `.ai-memory/plan.md` tasks to prohibit multi-file version sweeping in favor of the new single source of truth.
 
 ## [v6.90.0] 2026-08-09
 
 ### Added
 
-- Expanded the CI/CD Pipeline documentation into a comprehensive multi-file structure within `spec/09-pipeline-extend-v2/` mirroring the original architecture.
+- Expanded the CI/CD Pipeline documentation into a comprehensive multi-file structure within `02-spec/09-pipeline-extend-v2/` mirroring the original architecture.
 - Specifically documented the `awk` changelog integrations, strict TS Enum enforcement (`*Type`), and `query_wrapper` Python/TS explicit error rules for AI ingestion.
 
 ## [v6.89.0] 2026-08-09
 
 ### Added
 
-- Created `spec/09-pipeline-extend-v2/readme.md` detailing the RCA for release skew errors and standardizing AI release workflows.
+- Created `02-spec/09-pipeline-extend-v2/readme.md` detailing the RCA for release skew errors and standardizing AI release workflows.
 - Linked new pipeline specs into the main `spec/readme.md` TOC.
-- Injected strict release operating procedures into `.lovable/plan.md` to permanently guide AI execution on tagging.
+- Injected strict release operating procedures into `.ai-memory/plan.md` to permanently guide AI execution on tagging.
 
 ## [v6.88.0] 2026-08-09
 
@@ -2916,7 +2916,7 @@ To pin your repository to this exact version, run the following one-liner:
 - Updated `gitmap/helptext/print.go` and `gitmap/helptext/coverage_test.go` to support lowercase help files.
 - Refactored `gitmap/movemerge/merge.go` and `gitmap/movemerge/finalize.go` to use `switch` statements and clean positive boolean conditionals.
 - Refactored boolean assertions in `gitmap/movemerge/conflict_test.go`, `gitmap/movemerge/endpoint_test.go`, and `gitmap/cmd/historyrewrite_pin_test.go`.
-- Updated `.lovable/strictly-avoid.md`, `spec/12-consolidated-guidelines/02-go-code-style.md`, and `spec/12-consolidated-guidelines/04-error-handling.md` with branching standards and error handling guidelines.
+- Updated `.ai-memory/strictly-avoid.md`, `02-spec/12-consolidated-guidelines/02-go-code-style.md`, and `02-spec/12-consolidated-guidelines/04-error-handling.md` with branching standards and error handling guidelines.
 
 ## v6.83.0 (2026-07-25): clone keeps the folder name you typed
 
@@ -2926,7 +2926,7 @@ To pin your repository to this exact version, run the following one-liner:
 
 ### Changed
 
-- Folder naming for base `clone` is now documented as a rule in `spec/01-app/104-clone-multi.md`: repo name verbatim, explicit folder argument wins, no flattening. Version flattening and version bumping stay in `gitmap clone-next` / `cn`.
+- Folder naming for base `clone` is now documented as a rule in `02-spec/01-app/104-clone-multi.md`: repo name verbatim, explicit folder argument wins, no flattening. Version flattening and version bumping stay in `gitmap clone-next` / `cn`.
 
 ### Added
 
@@ -2967,7 +2967,7 @@ To pin your repository to this exact version, run the following one-liner:
 - **`gitmap fix-repo --dry-run`** now prints a per-batch preview showing cmdLen and percent-of-budget; tags NEAR-LIMIT (≥90%) and OVER-LIMIT (≥100%) batches so Windows users can spot argv overflow before running the real rewrite.
 - **`gitmap fix-repo --verbose`** now prints a batch header, per-batch start/done lines with cmdLen, and a rolling ETA computed from average per-batch wall time.
 - **`--gofmt-max-cmd-len N`** flag: overrides `constants.FixRepoGofmtMaxCmdLen` for the current run so Windows setups with a lower-than-documented CreateProcess cap can shrink each batch. Floor 512.
-- Spec: `spec/01-app/118-fix-repo-gofmt-tuning.md`. Helptext: `gitmap/helptext/doctor-fix-repo.md`.
+- Spec: `02-spec/01-app/118-fix-repo-gofmt-tuning.md`. Helptext: `gitmap/helptext/doctor-fix-repo.md`.
 
 ### Fixed
 
@@ -3516,14 +3516,14 @@ JSON-everywhere) will land in subsequent minors.
 ## v6.28.0 - (2026-06-07) - Planning artifact: next-task prompt 20 (Plan 03 Step 2 re-queued)
 
 - **Planning bump (no Go code changes).** v6.27.0 stamped the Step 2 scoping prompt but did not execute the migration. v6.28.0 re-queues the same work with prompt `20-next-task.md` and refreshes the README pin.
-- **Files:** `.lovable/prompts/20-next-task.md` (new), `gitmap/constants/constants.go` (`6.28.0`), `src/constants/index.ts` (`v6.28.0`), `README.md` (pin → v6.28.0), `changelog.md`.
+- **Files:** `01-prompts/20-next-task.md` (new), `gitmap/constants/constants.go` (`6.28.0`), `src/constants/index.ts` (`v6.28.0`), `README.md` (pin → v6.28.0), `changelog.md`.
 - **Plan 03 status:** Step 1 ✅ (v6.25.0), Step 3 `cfr`/`cfrp` half ✅ (v6.26.0). **Next: Step 2** - migration 007, `model.Repo.IdentifiedTransport`, `Select*` + `UpsertRepoByPath` extension, lazy URL-prefix backfill.
 
 
 ## v6.27.0 - (2026-06-07) - Planning artifact: next-task prompt 19 + plan 03 step-2 scoping
 
 - **Planning bump (no Go code changes).** Per the project rule "at the end of the task always bump the minor version", this release stamps the next-task report that scopes Plan 03 Step 2 (DB migration 007 adding `Repo.IdentifiedTransport`).
-- **Files:** `.lovable/prompts/19-next-task.md` (new), `gitmap/constants/constants.go` (`6.27.0`), `src/constants/index.ts` (`v6.27.0`), `README.md` (pin → v6.27.0), `changelog.md`.
+- **Files:** `01-prompts/19-next-task.md` (new), `gitmap/constants/constants.go` (`6.27.0`), `src/constants/index.ts` (`v6.27.0`), `README.md` (pin → v6.27.0), `changelog.md`.
 - **Plan 03 status:** Step 1 ✅ (v6.25.0), Step 3 `cfr`/`cfrp` half ✅ (v6.26.0). **Next: Step 2** - migration 007, `model.Repo.IdentifiedTransport`, `Select*` + `UpsertRepoByPath` extension, lazy backfill from URL prefix.
 
 
@@ -3545,7 +3545,7 @@ JSON-everywhere) will land in subsequent minors.
   - `clone-now` / `reclone` (manifest shape via `gitmap/cmd/clonenow.go:82`) - HONORS transport per-record through the shared `cloner.pickURL` (fixed in v6.20.0).
   - `clone` direct-URL (`gitmap/cmd/clone.go:337`) - HONORS trivially; clones the literal URL.
   - `cfr` / `cfrp` (`gitmap/cmd/clonefixrepo.go:33,39,46`) - **PARTIAL.** Honors only the user-supplied URL + `--ssh`/`--https` flags; does NOT consult the destination folder's existing `remote.origin.url` before issuing the clone. Plan 03 step 3 will close this.
-- **Files:** `.lovable/audits/2026-06-07-reclone-pickers.md` (new), `.lovable/plans/subtasks/03-reclone-transport-and-vscode-open/01-audit-reclone-pickers.md` (status → completed), `gitmap/constants/constants.go` (`6.25.0`), `src/constants/index.ts` (`v6.25.0`), `README.md` (pin → v6.25.0), `changelog.md`.
+- **Files:** `.ai-memory/audits/2026-06-07-reclone-pickers.md` (new), `.ai-memory/plans/subtasks/03-reclone-transport-and-vscode-open/01-audit-reclone-pickers.md` (status → completed), `gitmap/constants/constants.go` (`6.25.0`), `src/constants/index.ts` (`v6.25.0`), `README.md` (pin → v6.25.0), `changelog.md`.
 
 
 ## v6.24.0 - (2026-06-07) - `desktop-sync` finds GitHub Desktop without PATH config
@@ -3558,7 +3558,7 @@ JSON-everywhere) will land in subsequent minors.
 ## v6.23.0 - (2026-06-07) - Per-repo terminal block shows transport audit fields
 
 - **Bugfix / spec closure:** the standardized per-repo terminal block still rendered only `branch`, `from`, `to`, and `command`, so scan output could not explicitly show the repo's identified `transport`, `httpsUrl`, and `sshUrl` even though `model.ScanRecord` already carried those fields.
-- **Root cause (one sentence):** `render.FromScanRecord` mapped only branch/from/to/command into `RepoTermBlock`, so the shared renderer had no transport metadata available to print the explicit audit lines required by `.lovable/spec/commands/03-respect-identified-transport.md`.
+- **Root cause (one sentence):** `render.FromScanRecord` mapped only branch/from/to/command into `RepoTermBlock`, so the shared renderer had no transport metadata available to print the explicit audit lines required by `.ai-memory/02-spec/commands/03-respect-identified-transport.md`.
 - **Fix:** extended `render.RepoTermBlock` with `Transport`, `HTTPSUrl`, and `SSHUrl`; `FromScanRecord` now passes the scan record fields through, while clone/probe-style URL-only blocks infer transport from the displayed URL and show `(unknown)` for the missing alternate URL.
 - **Verification:** focused Go tests could not run in this sandbox because `go` is not installed (`go: command not found`); checked-in golden fixtures were updated to the deterministic new 8-line block shape.
 - **Files:** `gitmap/render/repotermblock.go`, `gitmap/render/adapters.go`, `gitmap/render/repotermblock_test.go`, `gitmap/cmd/testdata/clonetermblock_*.golden`, `gitmap/cmd/testdata/clonestream_blocks_3rows.stdout.golden`, `gitmap/constants/constants.go` (`6.23.0`), `src/constants/index.ts` (`v6.23.0`), `README.md` (pin → v6.23.0), `changelog.md`.
@@ -3612,42 +3612,42 @@ JSON-everywhere) will land in subsequent minors.
 
 
 - **Step 39 - `vh` SQL-side filter pushdown:** at thousands of historical runs, `vh --kind X --since 24h` was loading every row into memory and discarding 99% client-side. Added pure `store.BuildRecentRunsQuery(RecentRunsFilter)` builder (composes `WHERE CommandKind = ?` / `AND StartedAt >= ?` / `ORDER BY ... DESC LIMIT ?` from supplied filters, returns sql + positional args - no DB handle, fully unit-testable) and `(db *DB).SelectRecentMakeAllVisibilityRunsFiltered`. New SQL fragments (`SQLSelectRecentRunsBase`, `SQLWhereCommandKindEq`, `SQLWhereStartedAtGTE`, `SQLOrderRunIDDescLimit`, `SQLKeywordWHERE`, `SQLKeywordAND`) centralized in `constants_visibility_store_sql.go` to honor the no-magic-strings rule. `runVisibilityHistory` now routes through new `loadHistoryRuns` helper: zero-filter → original unfiltered SELECT (no behavior change for the default `vh`); any filter set → pushdown path with `--since` converted to ISO-8601 lower bound via `time.Now().Add(-d).UTC().Format(time.RFC3339)`. Step-36's `applyHistoryFilters` is retained as defense-in-depth second pass - SQL `>=` is a lexicographic text compare on ISO-8601 strings (works only for well-formed timestamps); the in-memory `time.Parse` pass still drops malformed `StartedAt` rows the SQL would let through. Tests: 4-case builder coverage (no-filter, kind-only, both-filters, suffix invariant) + 1 round-trip pushdown test confirming SQLite actually filters by `CommandKind`.
-- Files: `gitmap/store/makeallvisibility_history_filtered.go` (new), `gitmap/store/makeallvisibility_history_filtered_test.go` (new), `gitmap/cmd/visibilityhistory.go` (route via `loadHistoryRuns`, add `store` import), `gitmap/constants/constants_visibility_store_sql.go` (new SQL fragments), `gitmap/constants/constants.go` (`6.15.0`), `README.md` (pin), `changelog.md`, `.lovable/prompts/12-next-task.md` (new).
+- Files: `gitmap/store/makeallvisibility_history_filtered.go` (new), `gitmap/store/makeallvisibility_history_filtered_test.go` (new), `gitmap/cmd/visibilityhistory.go` (route via `loadHistoryRuns`, add `store` import), `gitmap/constants/constants_visibility_store_sql.go` (new SQL fragments), `gitmap/constants/constants.go` (`6.15.0`), `README.md` (pin), `changelog.md`, `01-prompts/12-next-task.md` (new).
 
 
 ## v6.14.0 - (2026-06-06) - `vu`/`vr` `--json` summary + rate-limit backoff helper (steps 37-38)
 
 - **Step 37 - `vu` / `vr` `--json` output (v5.43.0+ JSON contract parity):** `undoFlags` gains `JSON bool`; `parseUndoArgs` recognizes `--json`. New `gitmap/cmd/visibilityundojson.go` defines the canonical wire shape `undoJSONSummary` (command/runId/sourceRunId/provider/owner/matched/changed/skipped/failed/exitCode) - zero values are emitted explicitly so downstream JSON parsers never see missing keys. `reverseRunAndExit` now calls new `emitUndoJSON` after `audit.finalize`, writing one JSON line to stdout while preserving the human-readable summary above it (stdout doubles as both). JSON-render errors are surfaced to stderr but do not override the apply-outcome exit code (zero-swallow but non-fatal - the work succeeded, only the receipt failed). Added `(a *runAudit) RunID() int64` accessor in `visibilityallbulkaudit.go` so the new audit row's primary key can be included in the JSON without exposing the unexported `runID` field. Tests in `visibilityundojson_test.go` cover round-trip stability and explicit zero-key emission.
 - **Step 38 - Rate-limit backoff helper:** new `gitmap/visibility/backoff.go` ships `ErrRateLimited` sentinel + `RetryRateLimited(op, schedule, sleep)` - pure, no `time.Sleep` baked in (caller injects so tests run instantly). Default `backoffSchedule()` is 1s/2s/4s/8s/16s/32s (63s total, deliberately under GitHub's 60s secondary-rate-limit window per attempt) across 6 retries. `errors.Is` predicate distinguishes retryable rate-limits from non-retryable failures (404/auth/schema) so a typo in a repo slug exits in 1 call instead of burning the full backoff. Test file covers: succeed-first-try, recover-mid-schedule, non-retryable-exits-immediately, exhaust-schedule, and a contract test that the schedule sum stays under the 60s rate-limit ceiling (regression guard against accidental schedule bloat). Wiring into the actual `gh repo edit` call site is deferred to item 45 (provider mock harness); the policy + tests ship now so the contract is locked.
-- Files: `gitmap/cmd/visibilityundojson.go` (new), `gitmap/cmd/visibilityundojson_test.go` (new), `gitmap/visibility/backoff.go` (new), `gitmap/visibility/backoff_test.go` (new), `gitmap/cmd/visibilityundoflags.go` (`--json` parse), `gitmap/cmd/visibilityundo.go` (`JSON` field + `emitUndoJSON`), `gitmap/cmd/visibilityallbulkaudit.go` (`RunID()` accessor), `gitmap/constants/constants.go` (`6.14.0`), `README.md` (pin), `changelog.md`, `.lovable/prompts/11-next-task.md` (new).
+- Files: `gitmap/cmd/visibilityundojson.go` (new), `gitmap/cmd/visibilityundojson_test.go` (new), `gitmap/visibility/backoff.go` (new), `gitmap/visibility/backoff_test.go` (new), `gitmap/cmd/visibilityundoflags.go` (`--json` parse), `gitmap/cmd/visibilityundo.go` (`JSON` field + `emitUndoJSON`), `gitmap/cmd/visibilityallbulkaudit.go` (`RunID()` accessor), `gitmap/constants/constants.go` (`6.14.0`), `README.md` (pin), `changelog.md`, `01-prompts/11-next-task.md` (new).
 
 
 ## v6.13.0 - (2026-06-06) - `vh` round-trip test + `--kind` / `--since` filters (steps 35-36)
 
 - **Step 35 - Data-layer round-trip test:** new `gitmap/store/makeallvisibility_roundtrip_test.go` exercises the full `MakeAllPublic → VisibilityUndo → VisibilityRedo` lifecycle at the store layer. Inserts three runs with monotonically increasing `StartedAt`, asserts `SelectRecentMakeAllVisibilityRuns(10)` returns them newest-first (redo, undo, pub), and confirms `SelectMakeAllVisibilityRunByID(undoID)` resolves to the correct kind. Locks in the column-order + kind-routing contract that vu/vr depend on; provider-level e2e (real `gh` calls) still pending item 45 (mock harness).
 - **Step 36 - `vh --kind <K>` / `vh --since <dur>` filters:** new `gitmap/cmd/visibilityhistoryfilters.go` (37 lines) introduces pure `parseHistoryFilters` + `applyHistoryFilters` helpers - zero DB, zero I/O, fully table-testable. `runVisibilityHistory` now parses the two flags alongside `--limit` and applies them post-fetch. `--since` accepts any Go `time.ParseDuration` string (`24h`, `7d` → use `168h`, `30m`); bad values are silently ignored (limit-style strict-fail would break existing scripts that pipe extra tokens). Bogus `StartedAt` strings are dropped under `--since` (zero-swallow not applicable - these are data-side malformations, not user errors). New `gitmap/cmd/visibilityhistoryfilters_test.go` covers parse defaults, parse happy-path, bad `--since` ignored, kind-only filter, since-only filter, combined kind+since filter, and the no-op zero-value path.
-- Files: `gitmap/store/makeallvisibility_roundtrip_test.go` (new), `gitmap/cmd/visibilityhistoryfilters.go` (new), `gitmap/cmd/visibilityhistoryfilters_test.go` (new), `gitmap/cmd/visibilityhistory.go` (wire filters), `gitmap/constants/constants.go` (`6.13.0`), `README.md` (pin), `changelog.md`, `.lovable/prompts/10-next-task.md` (new).
+- Files: `gitmap/store/makeallvisibility_roundtrip_test.go` (new), `gitmap/cmd/visibilityhistoryfilters.go` (new), `gitmap/cmd/visibilityhistoryfilters_test.go` (new), `gitmap/cmd/visibilityhistory.go` (wire filters), `gitmap/constants/constants.go` (`6.13.0`), `README.md` (pin), `changelog.md`, `01-prompts/10-next-task.md` (new).
 
 
 ## v6.12.0 - (2026-06-06) - Drift-guard seam + marker-comment audit (steps 33-34)
 
 - **Step 33 - Marker-comment audit:** verified `CmdVisibilityUndo` / `CmdVisibilityUndoAlias` / `CmdVisibilityRedo` / `CmdVisibilityRedoAlias` / `CmdVisibilityHistory` / `CmdVisibilityHistoryAlias` in `gitmap/constants/constants_cli.go` (lines 187-205) correctly inherit the file-level `// gitmap:cmd top-level` marker on line 3 - they are intentionally NOT tagged `// gitmap:cmd skip` because all six are first-class top-level CLI tokens. No code change required; audit recorded here so the next CI `generate-check` drift run has a citable baseline.
 - **Step 34 - Drift-guard integration seam:** the drift policy used by `reverseOneRepo` was previously inlined as bare `if flags.Force` / `if current != r.NewVisibility` branches, untestable without a real GitHub/GitLab provider client. Extracted the total decision function `decideDriftAction(current, expected string, force bool) driftAction` into new `gitmap/cmd/visibilitydriftguard.go` (37 lines). `reverseOneRepo` now delegates to it on both branches - behavior is byte-identical, but the policy is now table-testable. Added `gitmap/cmd/visibilitydriftguard_test.go` covering: no-drift-no-force → proceed, drift-no-force → skip, no-drift-force → force, drift-force → force (override wins), empty-current → skip. Locks in the three-way contract so a future refactor cannot silently flip the guard direction.
-- Files: `gitmap/cmd/visibilitydriftguard.go` (new), `gitmap/cmd/visibilitydriftguard_test.go` (new), `gitmap/cmd/visibilityundo.go` (delegate to helper), `gitmap/constants/constants.go` (`6.12.0`), `README.md` (pin), `changelog.md`, `.lovable/prompts/09-next-task.md` (new).
+- Files: `gitmap/cmd/visibilitydriftguard.go` (new), `gitmap/cmd/visibilitydriftguard_test.go` (new), `gitmap/cmd/visibilityundo.go` (delegate to helper), `gitmap/constants/constants.go` (`6.12.0`), `README.md` (pin), `changelog.md`, `01-prompts/09-next-task.md` (new).
 
 
 ## v6.11.0 - (2026-06-06) - Store SELECT tests + 5 missing help files (unblocks CI)
 
 - **Step 31 - Store SELECT round-trip tests:** new `gitmap/store/makeallvisibility_undo_test.go` and `gitmap/store/makeallvisibility_history_test.go` seed a temp SQLite DB through the canonical `InsertMakeAllVisibilityRun` → `InsertMakeAllVisibilityPendingResults` → `UpdateMakeAllVisibilityResult` → `FinalizeMakeAllVisibilityRun` pipeline and then exercise every new SELECT (`SelectLatestUndoableMakeAllVisibilityRun`, `SelectMakeAllVisibilityRunByID`, `SelectLatestMakeAllVisibilityRunByKind`, `SelectUndoableResultsForRun`, `SelectRecentMakeAllVisibilityRuns`). Covers happy-path, empty-DB → `(zero, nil)` contract, unknown-id → `(zero, nil)`, newest-first ordering, kind-filter routing, and `--limit` honoring. Guards against a future column-order swap in the SQL silently routing the wrong field into `Provider`/`Owner`/`OkCount` - which would corrupt every undo decision without any error.
 - **Step 32 - Five missing help files:** `helptext/coverage_test.go::TestEveryCmdIDHasHelpFile` reflects every `Cmd*` constant in `constants_cli.go` and requires a matching `<id>.md`. The five visibility commands shipped without docs, leaving the test failing. Added `gitmap/helptext/make-all-public.md`, `make-all-private.md`, `visibility-undo.md`, `visibility-redo.md`, `visibility-history.md` - all under the 120-line cap, all documenting flags / examples / exit-code matrix / drift-guard behavior / `--force` semantics / `--run <id>` selector.
-- Files: `gitmap/store/makeallvisibility_undo_test.go` (new), `gitmap/store/makeallvisibility_history_test.go` (new), `gitmap/helptext/make-all-public.md` (new), `gitmap/helptext/make-all-private.md` (new), `gitmap/helptext/visibility-undo.md` (new), `gitmap/helptext/visibility-redo.md` (new), `gitmap/helptext/visibility-history.md` (new), `gitmap/constants/constants.go` (`6.11.0`), `README.md` (pin), `.lovable/prompts/08-next-task.md` (new).
+- Files: `gitmap/store/makeallvisibility_undo_test.go` (new), `gitmap/store/makeallvisibility_history_test.go` (new), `gitmap/helptext/make-all-public.md` (new), `gitmap/helptext/make-all-private.md` (new), `gitmap/helptext/visibility-undo.md` (new), `gitmap/helptext/visibility-redo.md` (new), `gitmap/helptext/visibility-history.md` (new), `gitmap/constants/constants.go` (`6.11.0`), `README.md` (pin), `01-prompts/08-next-task.md` (new).
 
 
 ## v6.10.0 - (2026-06-06) - Centralized undo/redo strings + unit tests for `parseUndoArgs` / `bulkExitCode`
 
 - **Step 29 - Centralized 3 magic strings in `visibilityundo.go`:** `audit DB open failed`, the reverse-loop header (`reversing run #N (provider/owner) - N repo(s)`), and the `<cmd>:source-run=<id>` `PatternList` template moved to `constants_visibility.go` as `ErrUndoAuditDBOpenFmt`, `MsgUndoReverseHeaderFmt`, `UndoPatternsRawFmt`. The patternsRaw template is the audit trail's only link back to the source run - a typo would silently break `vh` filtering - so it now lives behind a single named constant.
 - **Step 30 - Unit tests for `parseUndoArgs` + `matchesFromResults` + `bulkExitCode`:** new `gitmap/cmd/visibilityundoflags_test.go` covers defaults, all flags set together (`--verbose --dry-run --force --run 42`), `--force` in isolation, unknown-token tolerance, result→match adapter preservation, and the full bulk exit-code matrix (all-ok → 0, all-failed → 5, mixed → 9). Guards against the failure mode where a future refactor silently demotes `--force` to a no-op or mis-routes `--run <id>` - both of which would destroy real user data without any visible error.
-- Files: `gitmap/constants/constants_visibility.go` (+`ErrUndoAuditDBOpenFmt`, `MsgUndoReverseHeaderFmt`, `UndoPatternsRawFmt`), `gitmap/cmd/visibilityundo.go` (3 inline strings → constants), `gitmap/cmd/visibilityundoflags_test.go` (new), `gitmap/constants/constants.go` (`6.10.0`), `README.md` (pin), `.lovable/prompts/07-next-task.md` (new).
+- Files: `gitmap/constants/constants_visibility.go` (+`ErrUndoAuditDBOpenFmt`, `MsgUndoReverseHeaderFmt`, `UndoPatternsRawFmt`), `gitmap/cmd/visibilityundo.go` (3 inline strings → constants), `gitmap/cmd/visibilityundoflags_test.go` (new), `gitmap/constants/constants.go` (`6.10.0`), `README.md` (pin), `01-prompts/07-next-task.md` (new).
 
 
 ## v6.9.0 - (2026-06-06) - Drift guard + `--force` on `vu` / `vr` + preflight `gh`/`glab auth status`
@@ -3655,7 +3655,7 @@ JSON-everywhere) will land in subsequent minors.
 - **Drift guard (step 27):** `gitmap visibility-undo` and `visibility-redo` now read each repo's *current* visibility before reversing and skip with `DRIFT SKIP (current=… expected=…)` when the live state no longer matches the `NewVisibility` we persisted in the source run. Prevents the audit trail from silently overwriting out-of-band manual changes (someone flipped a repo via the GitHub UI after the original `make-all-*` run). New `--force` flag opts out of the guard with an audible `[--force] overriding drift guard for <repo>` log line.
 - **Preflight `auth status` (step 28):** `mustEnsureProviderAuth` runs `<cli> auth status` BEFORE any provider mutation (`make-all-*`, `vu`, `vr`) and fails fast with `ExitVisAuthFailed` and a Code Red message instructing the user to `gh auth login` / `glab auth login`. Previously an unauthenticated CLI passed the `exec.LookPath` gate and failed mid-loop on the first per-repo call, leaving a half-populated audit run.
 - Internal: drift loop extracted into `reverseOneRepo` (≤15 lines) so `applyUndoLoop` stays readable; auth preflight isolated to `visibilityauthstatus.go` (one file, one responsibility).
-- Files: `gitmap/cmd/visibilityauthstatus.go` (new), `gitmap/cmd/visibilityundo.go` (`Force` field, `reverseOneRepo` drift helper, auth-status call), `gitmap/cmd/visibilityundoflags.go` (`--force` parsing), `gitmap/cmd/visibilityallbulk.go` (auth-status preflight in `runMakeAllVisibility`), `gitmap/constants/constants_visibility.go` (+`ErrVisAuthStatusFailedFmt`, `MsgUndoDriftSkipFmt`, `MsgUndoForceOverrideFmt`), `gitmap/constants/constants.go` (`6.9.0`), `README.md` (pin), `.lovable/prompts/06-next-task.md` (new).
+- Files: `gitmap/cmd/visibilityauthstatus.go` (new), `gitmap/cmd/visibilityundo.go` (`Force` field, `reverseOneRepo` drift helper, auth-status call), `gitmap/cmd/visibilityundoflags.go` (`--force` parsing), `gitmap/cmd/visibilityallbulk.go` (auth-status preflight in `runMakeAllVisibility`), `gitmap/constants/constants_visibility.go` (+`ErrVisAuthStatusFailedFmt`, `MsgUndoDriftSkipFmt`, `MsgUndoForceOverrideFmt`), `gitmap/constants/constants.go` (`6.9.0`), `README.md` (pin), `01-prompts/06-next-task.md` (new).
 
 
 ## v6.8.0 - (2026-06-06) - `gitmap visibility-history` (`vh`) + `--dry-run` on `vu` / `vr`
@@ -3738,16 +3738,16 @@ New single-repo flow overlays the existing manifest-based `reclone`:
 - Added: `gitmap/constants/constants_committransfer.go` - `FlagCTNoIncludeMerges` + `FlagDescCTNoIncludeMerges` constants.
 - Added: `gitmap/cmd/committransfer_flags_test.go` - `TestCommitTransferIncludeMergesDefault` asserts all three directions default to `IncludeMerges = true`; `TestCommitTransferIncludeMergesExplicit` asserts `--include-merges` / `--no-include-merges` override correctly.
 - Added: `gitmap/committransfer/log_test.go` - `TestPrintPlanNoticeV6` asserts the confirmation notice is emitted when `IncludeMerges = false` and `MergeExcluded > 0`, and that the old advisory message is gone.
-- Updated: `spec/01-app/115-v6-migration.md` - acceptance criteria marked complete; manual-smoke section promoted to verified.
+- Updated: `02-spec/01-app/115-v6-migration.md` - acceptance criteria marked complete; manual-smoke section promoted to verified.
 
-**Migration:** Scripts that relied on the silent merge-stripping must add `--no-include-merges`. See `spec/01-app/115-v6-migration.md` for the full migration guide.
+**Migration:** Scripts that relied on the silent merge-stripping must add `--no-include-merges`. See `02-spec/01-app/115-v6-migration.md` for the full migration guide.
 
 ## v5.84.0 - (2026-05-26) - `scan-project` JSON-schema contract: per-type file shape pinned
 
-- Added: `spec/08-json-schemas/scan-project.schema.json` - draft-07 schema for the per-type JSON files emitted by `gitmap scan-project` (`go-projects.json`, `node-projects.json`, `react-projects.json`, `cpp-projects.json`, `csharp-projects.json`). Top-level is a JSON array; each record has PascalCase top-level keys (`Project`, `GoMeta`, `Csharp`) because `detector.DetectionResult` has no `json:` tags - pinned verbatim as the v1 on-the-wire contract. Nested objects use lowerCamel from the `model.*` struct tags. `GoMeta`/`Csharp` use `oneOf [null, object]` to capture the metadata-optional shape.
+- Added: `02-spec/08-json-schemas/scan-project.schema.json` - draft-07 schema for the per-type JSON files emitted by `gitmap scan-project` (`go-projects.json`, `node-projects.json`, `react-projects.json`, `cpp-projects.json`, `csharp-projects.json`). Top-level is a JSON array; each record has PascalCase top-level keys (`Project`, `GoMeta`, `Csharp`) because `detector.DetectionResult` has no `json:` tags - pinned verbatim as the v1 on-the-wire contract. Nested objects use lowerCamel from the `model.*` struct tags. `GoMeta`/`Csharp` use `oneOf [null, object]` to capture the metadata-optional shape.
 - Added: `gitmap/cmd/testdata/schemas/scan-project.v1.json` - registry entry listing the 5 advertised filenames and the 3 top-level record keys.
 - Added: `gitmap/cmd/scanproject_jsonschema_contract_test.go` - two tests: `TestScanProject_FileMapMatchesRegistry` asserts `projectTypeJSONMap` produces exactly the 5 filenames in registry order; `TestScanProject_RecordKeysSubsetOfSchema` runs the live `buildJSONRecords` over both shape variants (bare result + metadata-wrapped) and asserts every emitted top-level key is declared in `items.properties` - catches struct-tag drift or accidental key-name churn on every CI run.
-- Updated: `spec/08-json-schemas/_TODO.md` - `scan-project` row marked ✅ done.
+- Updated: `02-spec/08-json-schemas/_TODO.md` - `scan-project` row marked ✅ done.
 
 ## v5.83.0 - (2026-05-26) - Spec 114 Gap A follow-up: `--max-history-scan` escape hatch
 
@@ -3755,37 +3755,37 @@ New single-repo flow overlays the existing manifest-based `reclone`:
 - Wired: `gitmap/committransfer/plan.go` - `BuildPlan` now passes `opts.MaxHistoryScan` to `recentLogSubjectsAndBodies(targetDir, opts.MaxHistoryScan)` instead of the hard-coded `0`. The existing `<= 0` branch in `recentLogSubjectsAndBodies` keeps the unbounded default working with no other changes.
 - Added: `--max-history-scan N` CLI flag on all commit-transfer commands (`commit-in`, `commit-out`, `commit-left`, `commit-right`, `commit-both`). Constants: `FlagCTMaxHistoryScan` + `FlagDescCTMaxHistoryScan` in `gitmap/constants/constants_committransfer.go`. Wired in `registerCommitTransferStrings`.
 - Added: `gitmap/committransfer/maxhistoryscan_test.go` - pins the zero-value-means-unbounded contract and the struct-field round-trip so rename/removal triggers a compile failure here BEFORE it reaches CLI wiring or `plan.go`.
-- Updated: `spec/01-app/114-committransfer-idempotence-and-merge-default.md` - Gap A resolution gains an explicit step (4) documenting the v5.83.0 escape hatch.
+- Updated: `02-spec/01-app/114-committransfer-idempotence-and-merge-default.md` - Gap A resolution gains an explicit step (4) documenting the v5.83.0 escape hatch.
 - Verified: `TestPlanIdempotenceBeyond200Commits` continues to pass because the default (`MaxHistoryScan=0`) preserves the unbounded scan behavior added in v5.78.0.
 
 
 ## v5.82.0 - (2026-05-26) - `gitmap export` schema v2: per-record property pinning
 
-- Extended: `spec/08-json-schemas/export.schema.json` (now v2) - adds full `items.properties` + `items.required` declarations for all five nested arrays. Pinned record shapes: `repos` (`model.ScanRecord`, 15 keys), `groups` (`model.GroupExport` = `Group` + `repoSlugs`, 6 keys), `releases` (`model.ReleaseRecord`, 14 keys), `history` (`model.CommandHistoryRecord`, 12 keys with `alias`/`args`/`flags`/`finishedAt`/`summary`/`createdAt` flagged optional per `omitempty`), `bookmarks` (`model.BookmarkRecord`, 6 keys with `args`/`flags`/`createdAt` flagged optional per `omitempty`).
+- Extended: `02-spec/08-json-schemas/export.schema.json` (now v2) - adds full `items.properties` + `items.required` declarations for all five nested arrays. Pinned record shapes: `repos` (`model.ScanRecord`, 15 keys), `groups` (`model.GroupExport` = `Group` + `repoSlugs`, 6 keys), `releases` (`model.ReleaseRecord`, 14 keys), `history` (`model.CommandHistoryRecord`, 12 keys with `alias`/`args`/`flags`/`finishedAt`/`summary`/`createdAt` flagged optional per `omitempty`), `bookmarks` (`model.BookmarkRecord`, 6 keys with `args`/`flags`/`createdAt` flagged optional per `omitempty`).
 - Added: `gitmap/cmd/export_nested_jsonschema_contract_test.go` - `TestExportJSONSchema_NestedRecordKeysSubsetOfProperties` builds a deterministic non-empty export (one record per nested array), runs the live `encodeDatabaseExportJSON`, and asserts every key emitted on each per-record object is declared in that array's `items.properties` map. Catches struct-tag drift in either the model or the schema on every CI run.
-- Updated: `spec/08-json-schemas/_TODO.md` - `export` row updated to reflect schema v2 closure of the per-record property-set gap left open in v5.81.0.
+- Updated: `02-spec/08-json-schemas/_TODO.md` - `export` row updated to reflect schema v2 closure of the per-record property-set gap left open in v5.81.0.
 
 
 ## v5.81.0 - (2026-05-26) - JSON schema contract: `gitmap export`
 
-- Added: `spec/08-json-schemas/export.schema.json` - draft-07 schema pinning the top-level object shape (7 required keys in contractual order: `version`, `exportedAt`, `repos`, `groups`, `releases`, `history`, `bookmarks`). Per-record key order within the five nested arrays is explicitly NOT pinned in v1 - that scope (one schema per nested record type) is deferred.
+- Added: `02-spec/08-json-schemas/export.schema.json` - draft-07 schema pinning the top-level object shape (7 required keys in contractual order: `version`, `exportedAt`, `repos`, `groups`, `releases`, `history`, `bookmarks`). Per-record key order within the five nested arrays is explicitly NOT pinned in v1 - that scope (one schema per nested record type) is deferred.
 - Added: `gitmap/cmd/exportrender.go` - `encodeDatabaseExportJSON` builds the top-level object via `gitmap/stablejson` so the key order is a compile-time decision rather than struct-field-tag-defined. Nested arrays are pre-rendered with `json.MarshalIndent` (deterministic via Go struct field declaration order). Empty arrays emit `[]` (never `null`) so `jq '.repos | length'` style probes work on fresh databases.
 - Changed: `gitmap/cmd/export.go` - `writeExportFile` switched from `json.MarshalIndent(model.DatabaseExport)` to the new stablejson-backed encoder. Behavior is byte-equivalent for the top-level layout; the contractual difference is that re-ordering the struct tags can no longer silently re-order the wire output.
 - Added: `gitmap/cmd/testdata/schemas/export.v1.json` - schema-registry entry locking the 7-key top-level order so `assertSchemaKeysFirstObject` enforces drift on every CI run.
 - Added: `gitmap/cmd/testdata/export_empty.json` - golden fixture for an empty-database export (`version="1"`, `exportedAt="2026-05-26T12:00:00Z"`, all five arrays `[]`).
 - Added: `gitmap/cmd/exportjson_contract_test.go` - two contract tests: empty-arrays-not-null guarantee and top-level key-order against the schema registry.
 - Added: `gitmap/cmd/export_jsonschema_contract_test.go` - schema-shape pin: verifies the JSON Schema declares `type=object`, lists all 7 required keys, and that every key the live encoder emits is declared in the schema's `properties` map.
-- Updated: `spec/08-json-schemas/_TODO.md` - `export` marked ✅ done with the per-record-not-pinned caveat called out explicitly.
+- Updated: `02-spec/08-json-schemas/_TODO.md` - `export` marked ✅ done with the per-record-not-pinned caveat called out explicitly.
 
 
 ## v5.80.0 - (2026-05-26) - JSON schema contract: `llm-docs --format=json`
 
-- Added: `spec/08-json-schemas/llm-docs.schema.json` - draft-07 schema pinning the top-level object shape (8 optional sections in contractual order: `commands`, `architecture`, `flags`, `conventions`, `structure`, `database`, `installation`, `patterns`) plus the nested command-group (`title`, `commands`) and per-command (`name`, `alias`, `description`, optional `example`) structures.
+- Added: `02-spec/08-json-schemas/llm-docs.schema.json` - draft-07 schema pinning the top-level object shape (8 optional sections in contractual order: `commands`, `architecture`, `flags`, `conventions`, `structure`, `database`, `installation`, `patterns`) plus the nested command-group (`title`, `commands`) and per-command (`name`, `alias`, `description`, optional `example`) structures.
 - Added: `gitmap/cmd/testdata/schemas/llm-docs.v1.json` - schema-registry entry locking the 8-key top-level order so `assertSchemaKeysFirstObject` enforces drift on every CI run.
 - Added: `gitmap/cmd/testdata/llm_docs_empty.json` - golden fixture asserting an empty-sections filter emits `{}\n` (not `null`).
 - Added: `gitmap/cmd/llmdocsjson_contract_test.go` - three contract tests: empty-object guarantee, top-level key-order against the schema registry, and nested command-group/per-command key-order assertion (with optional `example` only appearing as the 4th key when non-empty).
 - Added: `gitmap/cmd/llmdocs_jsonschema_contract_test.go` - schema-shape pin: verifies the JSON Schema declares all 8 top-level properties + the nested `commands.items` group + per-command properties (`name`, `alias`, `description`, `example`), and that every key the live encoder emits is declared in the schema.
-- Updated: `spec/08-json-schemas/_TODO.md` - `llm-docs` confirmed migrated (renderer landed earlier; this release closes the missing schema + contract test gap).
+- Updated: `02-spec/08-json-schemas/_TODO.md` - `llm-docs` confirmed migrated (renderer landed earlier; this release closes the missing schema + contract test gap).
 
 
 ## v5.79.0 - (2026-05-26) - Spec 114 Gap A: hash-set idempotence for unbounded target log
@@ -3801,7 +3801,7 @@ New single-repo flow overlays the existing manifest-based `reclone`:
 
 ## v5.78.0 - (2026-05-26) - Fix Windows CI: restore CWD in `escapecwd` tests
 
-- Fixed: `TestEscapeCwdIfInside_NotInside` and `TestEscapeCwdIfInside_EscapesWhenInside` previously called `os.Chdir(t.TempDir())` without restoring the original working directory. On Windows, when the temp dir was later removed by `t.TempDir`'s cleanup, the process CWD became invalid (Windows reports it as `C:\`), cascading into ~40 unrelated failures in the same `cmd` package: every schema/golden test that walks up from CWD looking for `spec/08-json-schemas/*.json` or `testdata/*.json` aborted with `walking up from C:\` or `The system cannot find the path specified`.
+- Fixed: `TestEscapeCwdIfInside_NotInside` and `TestEscapeCwdIfInside_EscapesWhenInside` previously called `os.Chdir(t.TempDir())` without restoring the original working directory. On Windows, when the temp dir was later removed by `t.TempDir`'s cleanup, the process CWD became invalid (Windows reports it as `C:\`), cascading into ~40 unrelated failures in the same `cmd` package: every schema/golden test that walks up from CWD looking for `02-spec/08-json-schemas/*.json` or `testdata/*.json` aborted with `walking up from C:\` or `The system cannot find the path specified`.
 - Added: `restoreCwd(t)` helper in `gitmap/cmd/escapecwd_test.go` - snapshots `os.Getwd()` and registers a `t.Cleanup` that chdir's back. Registered BEFORE the test's chdir so it runs AFTER the chdir-out but BEFORE `t.TempDir`'s RemoveAll (Cleanup runs LIFO), eliminating both the cascade AND the Windows "file in use" RemoveAll warning seen in the same job.
 - Why this only blew up now: linux/macOS tolerate a deleted CWD by reporting the stale path string; Windows `GetCurrentDirectoryW` returns the volume root the moment the directory handle goes away. The leak existed for many releases but only became fatal once enough cmd-package tests started walking up from CWD (recent JSON-schema migration sprint).
 
@@ -3810,10 +3810,10 @@ New single-repo flow overlays the existing manifest-based `reclone`:
 
 - Migrated: `gitmap temp-releaselist --json` encoder onto `gitmap/stablejson` (new `gitmap/cmd/tempreleaselistrender.go`). Key order (`id`, `branch`, `versionPrefix`, `sequenceNumber`, `commit`, `commitMessage`, `createdAt`) is now a compile-time decision via package-level wire-key constants instead of a reflection accident on `model.TempRelease`.
 - Removed: legacy `json.MarshalIndent(releases, ...)` path in `tempreleaselist.go`; routed through the new stable encoder.
-- Added: `spec/08-json-schemas/temp-release-list.schema.json` - published JSON Schema for downstream consumers.
+- Added: `02-spec/08-json-schemas/temp-release-list.schema.json` - published JSON Schema for downstream consumers.
 - Added: `gitmap/cmd/tempreleaselist_jsonschema_contract_test.go` + `tempreleaselistjson_contract_test.go` - schema drift detection + golden fixtures (empty array + canonical two-row) + key-order contract.
 - Added: `gitmap/cmd/testdata/schemas/temp-release-list.v1.json` - schema registry entry for key-order drift detection.
-- Updated: `spec/08-json-schemas/_TODO.md` - `temp-releaselist` marked done.
+- Updated: `02-spec/08-json-schemas/_TODO.md` - `temp-releaselist` marked done.
 - Pinned: README + `gitmap/constants/constants.go` + `src/constants/index.ts` synced to **v5.77.0**.
 
 
@@ -3821,20 +3821,20 @@ New single-repo flow overlays the existing manifest-based `reclone`:
 
 - Migrated: `gitmap version-history --json` encoder onto `gitmap/stablejson` (new `gitmap/cmd/versionhistoryrender.go`). Key order (`fromVersionTag`, `fromVersionNum`, `toVersionTag`, `toVersionNum`, `flattenedPath`, `createdAt`, `id`, `repoId`) is now a compile-time decision via package-level wire-key constants instead of a reflection accident on `model.RepoVersionHistoryRecord`. Optional `flattenedPath` and `createdAt` are conditionally appended so the legacy omitempty wire shape is preserved (absent rather than null/empty).
 - Removed: legacy `json.MarshalIndent(records, ...)` path in `versionhistory.go`; routed through the new stable encoder.
-- Added: `spec/08-json-schemas/version-history.schema.json` - published JSON Schema for downstream consumers.
+- Added: `02-spec/08-json-schemas/version-history.schema.json` - published JSON Schema for downstream consumers.
 - Added: `gitmap/cmd/versionhistory_jsonschema_contract_test.go` + `versionhistoryjson_contract_test.go` - schema drift detection + golden fixtures (empty array + canonical two-row) + key-order contract.
 - Added: `gitmap/cmd/testdata/schemas/version-history.v1.json` - schema registry entry for key-order drift detection.
-- Updated: `spec/08-json-schemas/_TODO.md` - `version-history` marked done.
+- Updated: `02-spec/08-json-schemas/_TODO.md` - `version-history` marked done.
 - Pinned: README + `gitmap/constants/constants.go` + `src/constants/index.ts` synced to **v5.76.0**.
 
 ## v5.75.0 - (2026-05-26) - `stats --json` migrated to `stablejson` + published JSON schema
 
 - Migrated: `gitmap stats --json` encoder onto `gitmap/stablejson` (new `gitmap/cmd/statsrender.go`). Top-level object key order (`totalCommands`, `uniqueCommands`, `totalSuccess`, `totalFail`, `overallFailRate`, `avgDurationMs`, `commands`) AND nested per-command row key order (`command`, `totalRuns`, `successCount`, `failCount`, `failRate`, `avgDurationMs`, `minDurationMs`, `maxDurationMs`, `lastUsed`) are now compile-time decisions via package-level wire-key constants instead of reflection accidents on `model.OverallStats` / `model.CommandStats`. The nested array is pre-rendered in compact mode and embedded as `json.RawMessage`.
 - Removed: legacy `json.MarshalIndent(overall, ...)` path in `stats.go`; routed through the new stable encoder.
-- Added: `spec/08-json-schemas/stats.schema.json` - published JSON Schema (top-level object + nested items contract).
+- Added: `02-spec/08-json-schemas/stats.schema.json` - published JSON Schema (top-level object + nested items contract).
 - Added: `gitmap/cmd/stats_jsonschema_contract_test.go` + `statsjson_contract_test.go` - schema drift detection + golden fixture (empty commands array) + key-order contract.
 - Added: `gitmap/cmd/testdata/schemas/stats.v1.json` - schema registry entry for top-level key-order drift detection.
-- Updated: `spec/08-json-schemas/_TODO.md` - `stats` marked done.
+- Updated: `02-spec/08-json-schemas/_TODO.md` - `stats` marked done.
 - Pinned: README + `gitmap/constants/constants.go` + `src/constants/index.ts` synced to **v5.75.0**.
 
 
@@ -3842,127 +3842,127 @@ New single-repo flow overlays the existing manifest-based `reclone`:
 
 - Migrated: `gitmap ssh list --json` encoder onto `gitmap/stablejson` (new `gitmap/cmd/sshlistrender.go`). Key order (`id`, `name`, `privatePath`, `publicKey`, `fingerprint`, `email`, `createdAt`) is now a compile-time decision via package-level wire-key constants instead of a reflection accident on `model.SSHKey`.
 - Removed: legacy `json.MarshalIndent` path in `sshlist.go`; routed through the new stable encoder.
-- Added: `spec/08-json-schemas/ssh-list.schema.json` - published JSON Schema for downstream consumers.
+- Added: `02-spec/08-json-schemas/ssh-list.schema.json` - published JSON Schema for downstream consumers.
 - Added: `gitmap/cmd/sshlist_jsonschema_contract_test.go` + `sshlistjson_contract_test.go` - schema drift detection + golden fixture (empty array) + key-order contract.
 - Added: `gitmap/cmd/testdata/schemas/ssh-list.v1.json` - schema registry entry for key-order drift detection.
-- Updated: `spec/08-json-schemas/_TODO.md` - `ssh list` marked done; clarified `env-registry` has no actual `--json` stdout flag.
+- Updated: `02-spec/08-json-schemas/_TODO.md` - `ssh list` marked done; clarified `env-registry` has no actual `--json` stdout flag.
 - Pinned: README + `gitmap/constants/constants.go` + `src/constants/index.ts` synced to **v5.74.0**.
 
 
 - Migrated: `gitmap list-versions --json` encoder onto `gitmap/stablejson` (new `gitmap/cmd/listversionsrender.go`). Key order (`version`, `source`, `changelog`) is now a compile-time decision via package-level wire-key constants instead of a reflection accident on `lvJSONEntry`. Optional `source` and `changelog` are conditionally appended so the legacy omitempty wire shape is preserved (absent rather than null/empty).
 - Removed: legacy `lvJSONEntry` struct + `json.MarshalIndent` path in `listversionsutil.go`; routed through the new stable encoder.
-- Added: `spec/08-json-schemas/list-versions.schema.json` - published JSON Schema for downstream consumers.
+- Added: `02-spec/08-json-schemas/list-versions.schema.json` - published JSON Schema for downstream consumers.
 - Added: `gitmap/cmd/listversions_jsonschema_contract_test.go` + `listversionsjson_contract_test.go` - schema drift detection + golden fixtures (empty + canonical two-row) + key-order contract.
 - Added: `gitmap/cmd/testdata/schemas/list-versions.v1.json` - schema registry entry for key-order drift detection.
-- Updated: `spec/08-json-schemas/_TODO.md` - `list-versions` flipped from `med` to `done`.
+- Updated: `02-spec/08-json-schemas/_TODO.md` - `list-versions` flipped from `med` to `done`.
 - Pinned: README + `gitmap/constants/constants.go` + `src/constants/index.ts` synced to **v5.73.0**.
 
 
 ## v5.72.0 - (2026-05-26) - `latest-branch --json` migrated to `stablejson` + published JSON schema
 
 - Migrated: `gitmap latest-branch --json` encoder onto `gitmap/stablejson` (new `gitmap/cmd/latestbranchrender.go`). Key order (`branch`, `remote`, `sha`, `commitDate`, `subject`, `ref`, `top`) is now a compile-time decision via package-level wire-key constants instead of a reflection accident on `latestBranchJSON`. The nested `top` array is pre-rendered in compact mode and embedded as `json.RawMessage`.
-- Added: `spec/08-json-schemas/latest-branch.schema.json` - published JSON Schema for downstream consumers.
+- Added: `02-spec/08-json-schemas/latest-branch.schema.json` - published JSON Schema for downstream consumers.
 - Added: `gitmap/cmd/latestbranch_jsonschema_contract_test.go` - schema drift detection (top-level object shape, required key set, encoder-keys ⊂ schema.properties).
 - Updated: `gitmap/cmd/latestbranchjson_contract_test.go` - refreshed comments to reference `latestbranchrender.go` wire-key constants.
 - Updated: `gitmap/cmd/testdata/latest_branch_no_top.json` - regenerated golden fixture to match stablejson output.
-- Updated: `spec/08-json-schemas/_TODO.md` - `latest-branch` flipped from `med` to `done`.
+- Updated: `02-spec/08-json-schemas/_TODO.md` - `latest-branch` flipped from `med` to `done`.
 - Pinned: README + `gitmap/constants/constants.go` + `src/constants/index.ts` synced to **v5.72.0**.
 
 
 ## v5.71.0 - (2026-05-26) - `project-repos --json` migrated to `stablejson` + published JSON schema
 
 - Migrated: `gitmap <type>-repos --json` (go/node/react/cpp/csharp) encoder onto `gitmap/stablejson` (new `gitmap/cmd/projectreposrender.go`). Key order (`id`, `repoId`, `repoName`, `projectTypeId`, `projectType`, `projectName`, `absolutePath`, `repoPath`, `relativePath`, `primaryIndicator`, `detectedAt`) is now a compile-time decision via package-level wire-key constants.
-- Added: `spec/08-json-schemas/project-repos.schema.json` - published JSON Schema for downstream consumers.
+- Added: `02-spec/08-json-schemas/project-repos.schema.json` - published JSON Schema for downstream consumers.
 - Added: `gitmap/cmd/projectrepos_jsonschema_contract_test.go` + `projectreposjson_contract_test.go` - schema drift detection + golden fixture + key-order contract.
 - Added: `gitmap/cmd/testdata/schemas/project-repos.v1.json` - schema registry entry for key-order drift detection.
-- Updated: `spec/08-json-schemas/_TODO.md` - `project repos` flipped from `med` to `done`.
+- Updated: `02-spec/08-json-schemas/_TODO.md` - `project repos` flipped from `med` to `done`.
 - Pinned: README + `gitmap/constants/constants.go` + `src/constants/index.ts` synced to **v5.71.0**.
 
 
 ## v5.70.0 - (2026-05-26) - `bookmark list --json` migrated to `stablejson` + published JSON schema
 
 - Migrated: `gitmap bookmark list --json` encoder onto `gitmap/stablejson` (new `gitmap/cmd/bookmarklistrender.go`). Key order (`id`, `name`, `command`, `args`, `flags`, `createdAt`) is now a compile-time decision via package-level wire-key constants instead of a reflection accident on `model.BookmarkRecord`.
-- Added: `spec/08-json-schemas/bookmark-list.schema.json` - published JSON Schema for downstream consumers.
+- Added: `02-spec/08-json-schemas/bookmark-list.schema.json` - published JSON Schema for downstream consumers.
 - Added: `gitmap/cmd/bookmarklist_jsonschema_contract_test.go` - schema drift detection (top-level array shape, required key set, encoder-keys ⊂ schema.properties).
 - Added: `gitmap/cmd/bookmarklistjson_contract_test.go` - golden fixture + key-order contract for the stablejson output.
 - Added: `gitmap/cmd/testdata/schemas/bookmark-list.v1.json` - schema registry entry for key-order drift detection.
-- Updated: `spec/08-json-schemas/_TODO.md` - `bookmark list` flipped from `med` to `done`.
+- Updated: `02-spec/08-json-schemas/_TODO.md` - `bookmark list` flipped from `med` to `done`.
 - Pinned: README + `gitmap/constants/constants.go` + `src/constants/index.ts` synced to **v5.70.0**.
 
 
 ## v5.69.0 - (2026-05-26) - `diff-profiles --json` migrated to `stablejson` + published JSON schema
 
 - Migrated: `gitmap diff-profiles --json` encoder onto `gitmap/stablejson` (new `gitmap/cmd/diffprofilesrender.go`). Key order (`profileA`, `profileB`, `onlyInA`, `onlyInB`, `different`, `same`) is now a compile-time decision via package-level wire-key constants instead of a reflection accident on `map[string]any`. Nested `onlyInA`, `onlyInB`, and `different` arrays are pre-rendered in compact mode and embedded as `json.RawMessage` so key-order stability propagates through the entire document.
-- Added: `spec/08-json-schemas/diff-profiles.schema.json` - published JSON Schema for downstream consumers.
+- Added: `02-spec/08-json-schemas/diff-profiles.schema.json` - published JSON Schema for downstream consumers.
 - Added: `gitmap/cmd/diffprofiles_jsonschema_contract_test.go` - schema drift detection (top-level object shape, required key set, encoder-keys ⊂ schema.properties).
 - Added: `gitmap/cmd/diffprofilesjson_contract_test.go` - golden fixture + key-order contract for the stablejson output.
 - Added: `gitmap/cmd/testdata/schemas/diff-profiles.v1.json` - schema registry entry for key-order drift detection.
-- Updated: `spec/08-json-schemas/_TODO.md` - `diff-profiles` flipped from `med` to `done`.
+- Updated: `02-spec/08-json-schemas/_TODO.md` - `diff-profiles` flipped from `med` to `done`.
 - Pinned: README + `gitmap/constants/constants.go` + `src/constants/index.ts` synced to **v5.69.0**.
 
 
 ## v5.68.0 - (2026-05-26) - `amend audit` migrated to `stablejson` + published JSON schema
 
 - Migrated: `gitmap amend audit` file encoder onto `gitmap/stablejson` (new `gitmap/cmd/amendauditrender.go`). Key order (`id`, `timestamp`, `branch`, `fromCommit`, `toCommit`, `totalCommits`, `previousAuthor`, `newAuthor`, `mode`, `forcePushed`, `commits`) is now a compile-time decision via package-level wire-key constants instead of a reflection accident on `model.AmendmentRecord`. Nested `previousAuthor` / `newAuthor` objects and the `commits` array are pre-rendered in compact mode and embedded as `json.RawMessage` so key-order stability propagates through the entire document.
-- Added: `spec/08-json-schemas/amend-audit.schema.json` - published JSON Schema for downstream consumers.
+- Added: `02-spec/08-json-schemas/amend-audit.schema.json` - published JSON Schema for downstream consumers.
 - Added: `gitmap/cmd/amendaudit_jsonschema_contract_test.go` - schema drift detection (top-level object shape, required key set, encoder-keys ⊂ schema.properties).
 - Added: `gitmap/cmd/amendauditjson_contract_test.go` - golden fixture + key-order contract for the stablejson output.
 - Added: `gitmap/cmd/testdata/schemas/amend-audit.v1.json` - schema registry entry for key-order drift detection.
-- Updated: `spec/08-json-schemas/_TODO.md` - `amend audit` flipped from `med` to `done`.
+- Updated: `02-spec/08-json-schemas/_TODO.md` - `amend audit` flipped from `med` to `done`.
 - Pinned: README + `gitmap/constants/constants.go` + `src/constants/index.ts` synced to **v5.68.0**.
 
 
 ## v5.67.0 - (2026-05-26) - `amend list --json` migrated to `stablejson` + published JSON schema
 
 - Migrated: `gitmap amend list --json` encoder onto `gitmap/stablejson` (new `gitmap/cmd/amendlistrender.go`). Key order (`ID`, `Branch`, `FromCommit`, `ToCommit`, `TotalCommits`, `PreviousName`, `PreviousEmail`, `NewName`, `NewEmail`, `Mode`, `ForcePushed`, `CreatedAt`) is now a compile-time decision via package-level wire-key constants. PascalCase keys are preserved from the legacy `json.MarshalIndent` output for backward compatibility.
-- Added: `spec/08-json-schemas/amend-list.schema.json` - published JSON Schema for downstream consumers.
+- Added: `02-spec/08-json-schemas/amend-list.schema.json` - published JSON Schema for downstream consumers.
 - Added: `gitmap/cmd/amendlist_jsonschema_contract_test.go` - schema drift detection (top-level array shape, required key set, encoder-keys ⊂ schema.properties).
 - Added: `gitmap/cmd/amendlistjson_contract_test.go` - golden fixture + key-order contract for the stablejson output.
 - Added: `gitmap/cmd/testdata/schemas/amend-list.v1.json` - schema registry entry for key-order drift detection.
-- Updated: `spec/08-json-schemas/_TODO.md` - `amend list` flipped from `med` to `done`.
+- Updated: `02-spec/08-json-schemas/_TODO.md` - `amend list` flipped from `med` to `done`.
 - Pinned: README + `gitmap/constants/constants.go` + `src/constants/index.ts` synced to **v5.67.0**.
 
 
 ## v5.66.0 - (2026-05-26) - `probe --json` migrated to `stablejson` + published JSON schema
 
 - Migrated: `gitmap probe --json` encoder onto `gitmap/stablejson` (new `gitmap/cmd/proberender.go`). Key order (`repoId`, `slug`, `absolutePath`, `nextVersionTag`, `nextVersionNum`, `method`, `isAvailable`, `error`) is now a compile-time decision via package-level wire-key constants instead of a reflection accident on `probeJSONEntry`.
-- Added: `spec/08-json-schemas/probe-report.schema.json` - published JSON Schema for downstream consumers.
+- Added: `02-spec/08-json-schemas/probe-report.schema.json` - published JSON Schema for downstream consumers.
 - Added: `gitmap/cmd/proberepor_jsonschema_contract_test.go` - schema drift detection (top-level array shape, required key set, encoder-keys ⊂ schema.properties).
 - Added: `gitmap/cmd/probereporjson_contract_test.go` - golden fixture + key-order contract for the stablejson output.
 - Added: `gitmap/cmd/testdata/schemas/probe-report.v1.json` - schema registry entry for key-order drift detection.
-- Updated: `spec/08-json-schemas/_TODO.md` - `probe-report` flipped from `high` to `done`.
+- Updated: `02-spec/08-json-schemas/_TODO.md` - `probe-report` flipped from `high` to `done`.
 - Pinned: README + `gitmap/constants/constants.go` + `src/constants/index.ts` synced to **v5.66.0**.
 
 
 ## v5.65.0 - (2026-05-26) - `watch --json` migrated to `stablejson` + published JSON schema
 
 - Migrated: `gitmap watch --json` encoder onto `gitmap/stablejson` (new `gitmap/cmd/watchrender.go`). Top-level key order (`timestamp`, `repos`, `summary`) and nested repo/summary key orders are now compile-time decisions via package-level wire-key constants instead of reflection accidents. Nested repos array and summary object are pre-rendered in compact mode and embedded as `json.RawMessage` so key-order stability propagates through the entire document.
-- Added: `spec/08-json-schemas/watch.schema.json` - published JSON Schema for downstream consumers.
+- Added: `02-spec/08-json-schemas/watch.schema.json` - published JSON Schema for downstream consumers.
 - Added: `gitmap/cmd/watch_jsonschema_contract_test.go` - schema drift detection (top-level shape, repo item shape, summary shape, encoder-keys ⊂ schema.properties).
 - Added: `gitmap/cmd/watchjson_contract_test.go` - golden fixture + key-order contract for the stablejson output.
 - Added: `gitmap/cmd/testdata/schemas/watch.v1.json` - schema registry entry for key-order drift detection.
 - Added: `stablejson.WriteObject` / `WriteObjectIndent` - extends the package to top-level single-object outputs (previously only arrays were supported).
-- Updated: `spec/08-json-schemas/_TODO.md` - `watch` flipped from `high` to `done`.
+- Updated: `02-spec/08-json-schemas/_TODO.md` - `watch` flipped from `high` to `done`.
 - Pinned: README + `gitmap/constants/constants.go` + `src/constants/index.ts` synced to **v5.65.0**.
 
 
 ## v5.64.0 - (2026-05-26) - `history --json` migrated to `stablejson` + published JSON schema
 
 - Migrated: `gitmap history --json` encoder onto `gitmap/stablejson` (new `gitmap/cmd/historyrender.go`). Key order (`id`, `command`, `alias`, `args`, `flags`, `startedAt`, `finishedAt`, `durationMs`, `exitCode`, `summary`, `repoCount`, `createdAt`) is now a compile-time decision via package-level wire-key constants instead of a reflection accident on `model.CommandHistoryRecord`.
-- Added: `spec/08-json-schemas/history.schema.json` - published JSON Schema for downstream consumers.
+- Added: `02-spec/08-json-schemas/history.schema.json` - published JSON Schema for downstream consumers.
 - Added: `gitmap/cmd/history_jsonschema_contract_test.go` - pairs the runtime encoder with the published schema so drift in either side fails the build (top-level array shape, required key set, encoder-keys ⊂ schema.properties).
 - Added: `gitmap/cmd/historyjson_contract_test.go` - golden fixture + key-order contract for the stablejson output.
 - Added: `gitmap/cmd/testdata/schemas/history.v1.json` - schema registry entry for key-order drift detection.
-- Updated: `spec/08-json-schemas/_TODO.md` - `history` flipped from `high` to `done`.
+- Updated: `02-spec/08-json-schemas/_TODO.md` - `history` flipped from `high` to `done`.
 - Pinned: README + `gitmap/constants/constants.go` + `src/constants/index.ts` synced to **v5.64.0**.
 
 
 ## v5.63.0 - (2026-05-26) - `find-next --json` migrated to `stablejson` + published JSON schema
 
 - Migrated: `gitmap find-next --json` encoder onto `gitmap/stablejson` (new `gitmap/cmd/findnextrender.go`). Top-level key order (`repo`, `nextVersionTag`, `nextVersionNum`, `method`, `probedAt`) is now a compile-time decision via package-level wire-key constants instead of a reflection accident on `model.FindNextRow`. Byte output is unchanged thanks to the stablejson byte-compat contract with `json.Encoder.SetIndent("", "  ")`.
-- Added: `spec/08-json-schemas/find-next.schema.json` - published JSON Schema for downstream consumers. Nested `repo` allows passthrough so future `model.ScanRecord` column additions don't ripple-break every find-next consumer.
+- Added: `02-spec/08-json-schemas/find-next.schema.json` - published JSON Schema for downstream consumers. Nested `repo` allows passthrough so future `model.ScanRecord` column additions don't ripple-break every find-next consumer.
 - Added: `gitmap/cmd/findnext_jsonschema_contract_test.go` - pairs the runtime encoder with the published schema so drift in either side fails the build (top-level array shape, required key set, encoder-keys ⊂ schema.properties).
-- Updated: `spec/08-json-schemas/_TODO.md` - `find-next` flipped from `med` to `done` with cross-links.
+- Updated: `02-spec/08-json-schemas/_TODO.md` - `find-next` flipped from `med` to `done` with cross-links.
 - Pinned: README + `gitmap/constants/constants.go` + `src/constants/index.ts` synced to **v5.63.0**.
 
 
@@ -3972,8 +3972,8 @@ New single-repo flow overlays the existing manifest-based `reclone`:
 - Added: regression test `TestPlanIdempotenceBeyond200Commits` buries an already-replayed commit under 250 unrelated target commits and asserts `SkipCause == "already-replayed"`.
 - Noted: spec 114 Gap B v5.62.0 surface is already shipped - `--include-merges` flag is wired in `committransfer.go`, and `PrintPlan` emits a stderr "pass --include-merges" notice whenever merges were stripped. Default flip to `IncludeMerges=true` deferred to v6.0.0 per spec.
 - Added: `pullreleasecd_test.go` (parser + URL detection + slug derivation) and `updateremoteinstall_test.go` (installer-URL composition) - close two zero-test gaps inherited from earlier specs.
-- Drafted: `spec/01-app/114-committransfer-idempotence-and-merge-default.md`.
-- Archived: stale `.lovable/plan.md` → `.lovable/archive/plan-spec111-shipped-v5.52.0.md`.
+- Drafted: `02-spec/01-app/114-committransfer-idempotence-and-merge-default.md`.
+- Archived: stale `.ai-memory/plan.md` → `.ai-memory/archive/plan-spec111-shipped-v5.52.0.md`.
 - Pinned: README + `gitmap/constants/constants.go` + `src/constants/index.ts` synced to **v5.62.0**.
 
 
@@ -4039,7 +4039,7 @@ New single-repo flow overlays the existing manifest-based `reclone`:
 - Added: `gitmap help <name>` now falls back to the filter engine when `<name>` is not a known help topic - typing `gitmap help ssh` is equivalent to `gitmap help --filter ssh`, with the same group context, highlighting, and fuzzy suggestions as `-f`.
 - Added: help footer now prints the full commit SHA in addition to the short SHA / subject / age line, so users can copy the exact revision the binary was built from.
 - Changed: `gitmap update` now downloads the canonical install script (`install.ps1` on Windows, `install.sh` elsewhere) straight from the repo root and executes it, instead of rebuilding the source tree. The installer's own parallel `-v<N+i>` sibling-repo probe finds the latest published `gitmap-vN` release. The legacy in-tree rebuild flow stays available behind `--source-rebuild`.
-- Added: spec `spec/01-app/110-update-remote-installer.md` documenting the new update contract and fallback rules.
+- Added: spec `02-spec/01-app/110-update-remote-installer.md` documenting the new update contract and fallback rules.
 - Pinned: README pinned-version block + version matrix moved to **v5.51.0**. Synced `gitmap/constants/constants.go` and `src/constants/index.ts`.
 
 
@@ -4088,7 +4088,7 @@ New single-repo flow overlays the existing manifest-based `reclone`:
 ## v5.46.0 - (2026-05-22) - Help UX banner in Changelog page + `--json` examples in command help
 
 
-- **Docs UI:** the in-app `/changelog` page now leads with a Help UX tip card that surfaces `gitmap help --compact`, `--groups`, `--filter <q>` / `-f`, and `--json` (v5.43.0+), with a direct link to the published JSON Schema (`spec/08-json-schemas/help-json.schema.json`).
+- **Docs UI:** the in-app `/changelog` page now leads with a Help UX tip card that surfaces `gitmap help --compact`, `--groups`, `--filter <q>` / `-f`, and `--json` (v5.43.0+), with a direct link to the published JSON Schema (`02-spec/08-json-schemas/help-json.schema.json`).
 - **Per-command help backfilled with `--json` scripting examples** - `fix-repo`, `clone`, `push`, `pull`, `undo`, `alias`, `ssh`, `pull-release-cd`, `clone-fix-repo`, `clone-fix-repo-pub`, `setup`. Each now ends with a copy-paste `gitmap help --json --filter <cmd>` recipe so script authors can discover flags without screen-scraping.
 - Pinned: README pinned-version block + version matrix moved to **v5.46.0**. Synced `gitmap/constants/constants.go` (`Version = "5.46.0"`) and `src/constants/index.ts` (`VERSION = "v5.46.0"`).
 
@@ -4104,15 +4104,15 @@ New single-repo flow overlays the existing manifest-based `reclone`:
 
 ## v5.44.0 - (2026-05-22) - TypeScript types for `help --json` + installer probing confirmed
 
-- **New:** `src/types/helpJson.ts` ships TypeScript types + `isHelpJsonPayload` runtime guard generated from `spec/08-json-schemas/help-json.schema.json`. Vitest suite locks the shape (4 tests).
+- **New:** `src/types/helpJson.ts` ships TypeScript types + `isHelpJsonPayload` runtime guard generated from `02-spec/08-json-schemas/help-json.schema.json`. Vitest suite locks the shape (4 tests).
 - **README:** new "Help UX - discover commands fast" section documents `--compact`, `--groups`, `--filter`/`-f`, and `--json` with a direct link to the JSON Schema.
-- **Installer probing - confirmed already shipping** in `install.ps1` + `install.sh`: no `--version` → parallel `-v<N+i>` sibling-repo HEAD probe (ceiling 30, override via `--probe-ceiling N` / `-ProbeCeiling N`) → `releases/latest` → main HEAD. Explicit `--version <tag>` stays strict (no fallback ever, exit 1 on miss). Spec: `spec/07-generic-release/09-generic-install-script-behavior.md`.
+- **Installer probing - confirmed already shipping** in `install.ps1` + `install.sh`: no `--version` → parallel `-v<N+i>` sibling-repo HEAD probe (ceiling 30, override via `--probe-ceiling N` / `-ProbeCeiling N`) → `releases/latest` → main HEAD. Explicit `--version <tag>` stays strict (no fallback ever, exit 1 on miss). Spec: `02-spec/07-generic-release/09-generic-install-script-behavior.md`.
 - Pinned: README pinned-version block + version matrix moved to **v5.44.0**. Synced `gitmap/constants/constants.go` (`Version = "5.44.0"`) and `src/constants/index.ts` (`VERSION = "v5.44.0"`).
 
 
 ## v5.43.1 - (2026-05-22) - Published `help --json` JSON Schema
 
-- **New:** `spec/08-json-schemas/help-json.schema.json` formally defines the `gitmap help --json` payload (`version`, `count`, grouped `lines`). Contract test `helpjson_jsonschema_contract_test.go` validates runtime output against the schema to prevent drift.
+- **New:** `02-spec/08-json-schemas/help-json.schema.json` formally defines the `gitmap help --json` payload (`version`, `count`, grouped `lines`). Contract test `helpjson_jsonschema_contract_test.go` validates runtime output against the schema to prevent drift.
 - Cross-linked the schema from `gitmap/helptext/help.md` so integrators can discover it from `gitmap help help`.
 - Pinned: README pinned-version block + version matrix moved to **v5.43.1**. Synced `gitmap/constants/constants.go` (`Version = "5.43.1"`) and `src/constants/index.ts` (`VERSION = "v5.43.1"`).
 
@@ -4147,7 +4147,7 @@ New single-repo flow overlays the existing manifest-based `reclone`:
   ```
 - **Code:** new `gitmap/cmd/fixrepo_backup.go` (`fixRepoBackupSession`, lazy mkdir on first backup, idempotent per rel - first observation wins); new `gitmap/cmd/undo.go` (parse → list → restore). `rewriteOneFile` was split into a pure-compute step + new `persistRewrittenFile` so backup runs strictly BEFORE the disk write. New constants in `gitmap/constants/constants_undo.go`. New `CmdUndo` / `CmdUndoAlias` in `constants_cli.go`, wired in `roottooling.go`, registered in `cmd_constants_test.go`. Help text: `gitmap/helptext/undo.md`.
 - **Exit codes (`undo`):** `0` ok / `6` bad-flag / `7` write-failed / `8` bad-config (manifest missing/malformed).
-- **Spec updated:** `spec/04-generic-cli/27-fix-repo-command.md` adds a **Backup & undo (v5.40.0+)** section documenting the layout, scoping rule, and snapshot lifecycle.
+- **Spec updated:** `02-spec/04-generic-cli/27-fix-repo-command.md` adds a **Backup & undo (v5.40.0+)** section documenting the layout, scoping rule, and snapshot lifecycle.
 - Pinned: README pinned-version block + version matrix moved to **v5.40.0**. Synced `gitmap/constants/constants.go` (`Version = "5.40.0"`) and `src/constants/index.ts` (`VERSION = "v5.40.0"`).
 
 
@@ -4157,7 +4157,7 @@ New single-repo flow overlays the existing manifest-based `reclone`:
 - **Use case.** Projects whose first remote already used `{base}-v1` (no bare predecessor) can now bump v1→v2 without the bare-base sweep ever firing. Complements the v5.38.0 v3+ guard.
 - **Flag forms accepted:** `--restrict no-version`, `-restrict no-version`, `-r no-version`, `--restrict nv`, `-r nv`, and `=value` forms (`-r=nv`). Unknown values exit with `E_BAD_FLAG` (6).
 - **Help discoverability:** `gitmap help` now lists `--restrict <mode>` under "Fix-repo flags:" together with two copy-pasteable examples (full and short form).
-- **Spec updated:** `spec/04-generic-cli/27-fix-repo-command.md` has a new **Restrict modes (v5.39.0+)** section.
+- **Spec updated:** `02-spec/04-generic-cli/27-fix-repo-command.md` has a new **Restrict modes (v5.39.0+)** section.
 - **Code:** new constants `FixRepoFlagRestrict`, `FixRepoFlagRestrictShort`, `FixRepoRestrictNoVersion`, `FixRepoRestrictNoVersionShort` in `constants_fixrepo.go`. New `consumeFixRepoRestrictArg` + `applyRestrictValue` in `fixrepo_flags.go`. New `applyAllTargetsR` / `rewriteFixRepoFileR` variants in `fixrepo_rewrite.go`; `applyAllTargets` and `rewriteFixRepoFile` preserved as restrict=false wrappers so existing tests stay green.
 - Pinned: README pinned-version block + version matrix moved to **v5.39.0**. Synced `gitmap/constants/constants.go` (`Version = "5.39.0"`) and `src/constants/index.ts` (`VERSION = "v5.39.0"`).
 
@@ -4166,9 +4166,9 @@ New single-repo flow overlays the existing manifest-based `reclone`:
 - **Critical fix.** Running `gitmap fix-repo` inside a `-v3` (or higher) repo no longer rewrites bare `{base}` tokens. Before v5.38.0, `fix-repo` inside `gitmap-v28` would rewrite every standalone mention of `gitmap` (binary names, package identifiers, brand strings, unrelated `https://github.com/owner/gitmap` URLs) to `gitmap-v28` - silently corrupting the working tree.
 - **New scope rule:** the bare-base sweep in `applyAllTargets` (`gitmap/cmd/fixrepo_rewrite.go`) runs if and only if `n == 1 && current == 2`. At v3+ the bare token is overwhelmingly NOT the pre-versioned origin (most projects never shipped a bare `{base}` remote in the first place) and must be preserved. Only `{base}-vN` tokens - guarded by the existing digit-boundary check - are rewritten.
 - Concretely, in `gitmap-v28`: targets are `v1, v2`; `gitmap-v28` and `gitmap-v28` become `gitmap-v28`; bare `gitmap` is left untouched. In `gitmap-v28`: `gitmap-v28, v3` become `gitmap-v28`; bare `gitmap` is left untouched. Only in the v1→v2 transition is the bare token rewritten.
-- Spec updated: `spec/04-generic-cli/27-fix-repo-command.md` now has a dedicated **Bare-base scope rule (v5.38.0+)** section documenting the v1→v2 restriction with a worked `gitmap-v28` example.
+- Spec updated: `02-spec/04-generic-cli/27-fix-repo-command.md` now has a dedicated **Bare-base scope rule (v5.38.0+)** section documenting the v1→v2 restriction with a worked `gitmap-v28` example.
 - Regression tests: `TestApplyAllTargets_BareBase_SkippedAtV3Plus` and `TestApplyAllTargets_BareBase_SkippedAtV4WithV1InTargets` in `gitmap/cmd/fixrepo_rewrite_barebase_test.go` lock in the new behavior. The existing v1→v2 test (`TestApplyAllTargets_BareBase_V1To2`) is unchanged.
-- Memory updated: `.lovable/memory/features/fix-repo-bare-base-rewrite.md` reflects the new scope.
+- Memory updated: `.ai-memory/memory/features/fix-repo-bare-base-rewrite.md` reflects the new scope.
 - Pinned: README pinned-version block + version matrix moved to **v5.38.0**. Synced `gitmap/constants/constants.go` (`Version = "5.38.0"`) and `src/constants/index.ts` (`VERSION = "v5.38.0"`).
 
 ## v5.37.0 - (2026-05-19) - Colorful root help banner + build-info footer (version · repo · last commit)
@@ -4242,7 +4242,7 @@ New single-repo flow overlays the existing manifest-based `reclone`:
 
 ### Spec
 
-- New: `spec/01-app/112-pull-release-cd.md`.
+- New: `02-spec/01-app/112-pull-release-cd.md`.
 
 ### Pinned
 
@@ -4279,8 +4279,8 @@ New single-repo flow overlays the existing manifest-based `reclone`:
 
 ### Spec
 
-- New: `spec/01-app/111-push-pull-transport-flags.md`.
-- Memory: `.lovable/memory/features/push-pull-transport-flags.md`.
+- New: `02-spec/01-app/111-push-pull-transport-flags.md`.
+- Memory: `.ai-memory/memory/features/push-pull-transport-flags.md`.
 
 ### Pinned
 
@@ -4423,8 +4423,8 @@ gitmap clone git@github.com:alimtvnetwork/wp-onboarding.git --https
 
 ### Spec / Memory
 
-- Spec: `spec/01-app/110-clone-ssh-flag.md`
-- Memory: `.lovable/memory/features/clone-ssh-flag.md`
+- Spec: `02-spec/01-app/110-clone-ssh-flag.md`
+- Memory: `.ai-memory/memory/features/clone-ssh-flag.md`
 
 
 ## v5.19.0 - (2026-05-18) - `gitmap rp` (release-pending) rejects version args + canonical command banner
@@ -4489,8 +4489,8 @@ gitmap clone git@github.com:alimtvnetwork/wp-onboarding.git --https
 
 ### Docs
 
-- New spec `spec/02-app-issues/27-release-body-and-snapshots-gitmap-only.md` documents the contract: for any repo NOT matching `alimtvnetwork/gitmap-v<N>`, release body is empty and no `release-version.{ps1,sh}` snapshots are uploaded.
-- New memory `.lovable/memory/features/release-gitmap-only-body-and-snapshots.md` captures the gate rule and lists the two call sites.
+- New spec `02-spec/02-app-issues/27-release-body-and-snapshots-gitmap-only.md` documents the contract: for any repo NOT matching `alimtvnetwork/gitmap-v<N>`, release body is empty and no `release-version.{ps1,sh}` snapshots are uploaded.
+- New memory `.ai-memory/memory/features/release-gitmap-only-body-and-snapshots.md` captures the gate rule and lists the two call sites.
 
 ## v5.15.0 - (2026-05-18) - `gitmap install gitmap-oneliner`: print canonical Windows + macOS install one-liners in the terminal
 
@@ -4501,7 +4501,7 @@ gitmap clone git@github.com:alimtvnetwork/wp-onboarding.git --https
 
 ### Docs
 
-- New spec `spec/01-app/109-install-gitmap-oneliner.md` documents the command synopsis, output format, and implementation contract (fixed URLs, dynamic rendering, special-install dispatch).
+- New spec `02-spec/01-app/109-install-gitmap-oneliner.md` documents the command synopsis, output format, and implementation contract (fixed URLs, dynamic rendering, special-install dispatch).
 
 ## v5.14.0 - (2026-05-18) - Colorful help text: green comments, magenta keys, padded lists
 
@@ -4878,12 +4878,12 @@ gitmap clone git@github.com:alimtvnetwork/wp-onboarding.git --https
 
 ### Spec
 
-- New `spec/03-commit-in/09-commit-in-replay-map.md` defines the
+- New `02-spec/03-commit-in/09-commit-in-replay-map.md` defines the
   CommitInReplayMap schema, idempotency key, R1-R8 acceptance matrix,
   and the §9.5 cross-run lookup contract.
-- `spec/03-commit-in/README.md` index updated; ERD stub blocks added to
-  `spec/01-app/gitmap-database-erd.mmd`.
-- `spec/03-commit-in/08-tag-mirroring-and-release-branches.md` §3
+- `02-spec/03-commit-in/README.md` index updated; ERD stub blocks added to
+  `02-spec/01-app/gitmap-database-erd.mmd`.
+- `02-spec/03-commit-in/08-tag-mirroring-and-release-branches.md` §3
   reaffirms that release branches require an annotated source tag.
 
 
@@ -4992,7 +4992,7 @@ existing CI / scripts) gets the v4.36.0 union behavior unchanged.
 - New "Sample profile JSON" section ships a copy-pasteable
   `.gitmap/commit-in/profiles/Default.json` with every field populated and
   inline guidance on PascalCase strict decoding, save semantics, and the
-  absolute-path binding rule (per `spec/03-commit-in/05-profiles-and-json-shape.md`).
+  absolute-path binding rule (per `02-spec/03-commit-in/05-profiles-and-json-shape.md`).
 - Page split for the &lt;200-lines code-style rule:
   - `src/pages/commitInData.ts` - flag rows, exit codes, auto-init rows,
     canonical profile JSON string.
@@ -5089,7 +5089,7 @@ existing CI / scripts) gets the v4.36.0 union behavior unchanged.
   chronologically and replays every commit into `<source>` while
   preserving both `AuthorDate` AND `CommitterDate` byte-for-byte.
   Dedupe via `ShaMap` ensures the same source commit is never
-  replayed twice across runs. Spec: `spec/03-commit-in/`.
+  replayed twice across runs. Spec: `02-spec/03-commit-in/`.
 - Source resolution (`<source>`) is purely deterministic per
   spec §2.3: existing folder → open in place; missing folder with
   parent that exists → `git init` + initial empty commit; URL →
@@ -5200,7 +5200,7 @@ existing CI / scripts) gets the v4.36.0 union behavior unchanged.
 - New command `gitmap fix-repo` (alias `fr`) replaces the `fix-repo.ps1` script
   with a cross-platform Go implementation. Same exit codes (0–8), same
   `fix-repo.config.json` schema, same `--dry-run` / `--verbose` / `--config` flags.
-- Spec: `spec/04-generic-cli/27-fix-repo-command.md`.
+- Spec: `02-spec/04-generic-cli/27-fix-repo-command.md`.
 - Lint cleanup: removed unused `//nolint:gosec` directives flagged by `nolintlint`.
 - Installer warning fix: `downloaderconfig.LoadFile` now wraps errors with `%w`
   so `errors.Is(err, fs.ErrNotExist)` works on fresh installs.
@@ -5304,8 +5304,8 @@ Files: `gitmap/cmd/clonenextfolderdispatch.go` (new),
 `gitmap/cmd/releaserebase.go` (regex extension),
 `gitmap/cmd/clonenext.go` (dispatch wiring),
 `gitmap/constants/constants_v331.go` (new error/default messages).
-Spec: `spec/01-app/111-cn-folder-arg.md`.
-Plan: `.lovable/memory/plans/08-cn-folder-arg-plan.md`.
+Spec: `02-spec/01-app/111-cn-folder-arg.md`.
+Plan: `.ai-memory/memory/plans/08-cn-folder-arg-plan.md`.
 
 ### UI: hero terminal card polish
 
@@ -5698,7 +5698,7 @@ The source is correct. To clear CI:
 ### Plan status
 
 - Plan 05 Phase 1 marked **done** in
-  `.lovable/memory/plans/05-templates-polish-plan.md`.
+  `.ai-memory/memory/plans/05-templates-polish-plan.md`.
 - Phase 0 (spec) ✅, Phase 1 (langs) ✅, Phase 3 (`templates diff`) ✅.
 - Remaining: Phase 2 (`templates init`), Phase 4 finishing items
   (README snippet - deferred until `init` lands), Phase 5 (QA + tag).
@@ -5757,8 +5757,8 @@ The source is correct. To clear CI:
   `gitmap/cmd/templatesdiff.go`, `gitmap/helptext/templates-diff.md`
 - Edited: `gitmap/cmd/templatescli.go` (dispatch + usage banner),
   `gitmap/constants/constants.go` (v3.108.0), `changelog.md`,
-  `.lovable/memory/index.md`,
-  `.lovable/memory/plans/05-templates-polish-plan.md` (Phase 3 → done)
+  `.ai-memory/memory/index.md`,
+  `.ai-memory/memory/plans/05-templates-polish-plan.md` (Phase 3 → done)
 
 ## v3.107.0 - (2026-04-24) - Pretty renderer fixture corpus expansion
 
@@ -5793,7 +5793,7 @@ The source is correct. To clear CI:
   `case-008-consecutive-collapses.{in.md,want.txt}`,
   `case-009-blank-line-preservation.{in.md,want.txt}`
 - Edited: `gitmap/constants/constants.go` (v3.107.0), `changelog.md`,
-  `.lovable/memory/index.md`
+  `.ai-memory/memory/index.md`
 
 ## v3.106.0 - (2026-04-24) - `templates list` --kind / --lang filters
 
@@ -5828,7 +5828,7 @@ The source is correct. To clear CI:
 - Edited: `gitmap/cmd/templatescli.go` (filter parsing, validation,
   pure `filterTemplates` helper), `gitmap/helptext/templates.md`
   (Flags table + Example 5), `gitmap/constants/constants.go` (v3.106.0),
-  `changelog.md`, `.lovable/memory/index.md`
+  `changelog.md`, `.ai-memory/memory/index.md`
 - New: `gitmap/cmd/templatescli_filter_test.go`
 
 
@@ -5876,7 +5876,7 @@ The source is correct. To clear CI:
 - New: `gitmap/helptext/add-ignore.md`, `gitmap/helptext/add-attributes.md`
 - Edited: `gitmap/cmd/rootadd.go` (router + usage banner),
   `gitmap/constants/constants.go` (v3.105.0), `changelog.md`,
-  `.lovable/memory/{plans/04-templates-ignore-attributes-plan,index}.md`
+  `.ai-memory/memory/{plans/04-templates-ignore-attributes-plan,index}.md`
 
 
 ## v3.104.0 - (2026-04-24) - commit-both --interleave (author-date variant)
@@ -5918,7 +5918,7 @@ The source is correct. To clear CI:
 - **Wired into `clone-next`, `as`, `cd <name>`, `cd repos`** so all four commands hand a target directory back to the parent shell consistently.
 - **Updated `constants.CDFunc{Bash,Zsh,PowerShell}`** wrappers to consume `GITMAP_HANDOFF_FILE` for any subcommand (preserving the existing stdout-capture path for `cd`/`go` for backwards compatibility).
 - **Unit tests** in `gitmap/cmd/shellhandoff_test.go` covering the no-op (env unset), happy-path write, and empty-path safeguard cases.
-- **Spec & memory updates**: `spec/01-app/87-clone-next-flatten.md` rewritten, new memory `.lovable/memory/features/shell-handoff-file.md`.
+- **Spec & memory updates**: `02-spec/01-app/87-clone-next-flatten.md` rewritten, new memory `.ai-memory/memory/features/shell-handoff-file.md`.
 
 ### Backwards compatibility
 
@@ -5937,7 +5937,7 @@ The source is correct. To clear CI:
 ### Added
 
 - **Regression tests** in `gitmap/cmd/clone_stale_binary_test.go` pinning all three exact PowerShell argv shapes the user has reported (`url1,url2,url3` comma-glued, `url1 url2 url3` PowerShell-split, comma+space mixed). They prove `shouldUseMultiClone` routes every reported shape to `runCloneMulti` in current source, and the third test pins the recovery message contents so `gitmap update` / `gitmap doctor` / `gitmap pending clear` can never silently disappear from the guidance.
-- **Root Cause Analysis:** `spec/02-app-issues/33-stale-binary-clone-folder-url-guard.md` - full evidence trail proving the deployed binary is stale, why every retry hits the same code path, and the prevention rules.
+- **Root Cause Analysis:** `02-spec/02-app-issues/33-stale-binary-clone-folder-url-guard.md` - full evidence trail proving the deployed binary is stale, why every retry hits the same code path, and the prevention rules.
 
 ### Validation
 
@@ -5965,7 +5965,7 @@ The source is correct and the new guard ships in `v3.95.0`, but **the binary on 
 
 ### Added
 
-- **Root Cause Analysis:** `spec/02-app-issues/32-docs-ui-vscode-grading-missed-request.md` documents why the UI request kept being missed, what visual mismatch remained in the app, and how to prevent that process failure from recurring.
+- **Root Cause Analysis:** `02-spec/02-app-issues/32-docs-ui-vscode-grading-missed-request.md` documents why the UI request kept being missed, what visual mismatch remained in the app, and how to prevent that process failure from recurring.
 
 ## v3.93.0 - (2026-04-24) - update-cleanup Phase 3 now logs inner child failures durably
 
@@ -5986,7 +5986,7 @@ The source is correct and the new guard ships in `v3.95.0`, but **the binary on 
 
 ### Added
 
-- **Root Cause Analysis:** `spec/02-app-issues/31-update-cleanup-phase3-observability-gap.md` documents the repeated user report, the actual failure mode, the observability gap, the solution, and the validation steps.
+- **Root Cause Analysis:** `02-spec/02-app-issues/31-update-cleanup-phase3-observability-gap.md` documents the repeated user report, the actual failure mode, the observability gap, the solution, and the validation steps.
 - **Automated regression tests** in `gitmap/cmd/updatecleanup_handoff_test.go` covering:
   - stable `formatHandoffLogLine(...)` output for child failure events
   - forwarding of `--debug-windows` / `--debug-windows-json` in `buildCleanupChildArgs()`
@@ -6226,7 +6226,7 @@ Pure addition. The log file is at most a few KB per update run, daily-named, and
 
 ### Why
 
-Issues #09 and #10 in `.lovable/pending-issues/01-current-issues.md` covered the recurring "update appears to complete but cleanup ran on the wrong binary" loop on Windows. The earlier fixes added `→ Cleanup target resolved via:` / `→ Cleanup target path:` / `→ Cleanup process started (pid=…)` lines, but those only appear in the parent (Phase 3 dispatcher). When the child cleanup process itself misbehaved, users had no way to see *its* view of the world. `--debug-windows` closes that gap by printing the same structured dump from inside `update-cleanup` too.
+Issues #09 and #10 in `.ai-memory/pending-issues/01-current-issues.md` covered the recurring "update appears to complete but cleanup ran on the wrong binary" loop on Windows. The earlier fixes added `→ Cleanup target resolved via:` / `→ Cleanup target path:` / `→ Cleanup process started (pid=…)` lines, but those only appear in the parent (Phase 3 dispatcher). When the child cleanup process itself misbehaved, users had no way to see *its* view of the world. `--debug-windows` closes that gap by printing the same structured dump from inside `update-cleanup` too.
 
 ### Implementation
 
@@ -6290,7 +6290,7 @@ Pure addition. Without the flag (and without `GITMAP_DEBUG_WINDOWS=1`), behavior
 
 ### Changed
 
-- **`spec/09-pipeline/01-ci-pipeline.md`** now documents the two `workflow_dispatch` inputs that govern the golangci-lint baseline cache:
+- **`02-spec/09-pipeline/01-ci-pipeline.md`** now documents the two `workflow_dispatch` inputs that govern the golangci-lint baseline cache:
   - `lint_baseline_cache_version` *(string, default `"v1"`)* - bumps the cache key suffix to abandon a stale baseline. Free-form (`"v2"`, `"2026-04-21"`, …); old caches are evicted by GitHub after 7 days of inactivity. The `restore-keys` fallback also carries this version, so a pre-bump baseline is never accidentally restored.
   - `lint_baseline_disable` *(boolean, default `false`)* - skips both the cache restore and save steps for one run, forcing the diff job into seeding mode (exits 0, surfaces all current findings as warnings) without touching the cached baseline. Use to diagnose suspected stale-cache issues without losing history.
 - New **"Job: Lint Baseline Diff"** section explains the soft-gate cache strategy in a single table:
@@ -6302,7 +6302,7 @@ Pure addition. Without the flag (and without `GITMAP_DEBUG_WINDOWS=1`), behavior
 
 ### Implementation
 
-- `spec/09-pipeline/01-ci-pipeline.md` - extended `### Trigger` block to surface the two `workflow_dispatch` inputs alongside `push` / `pull_request`. Added the full **Job: Lint Baseline Diff** section between **Job: Lint** and **Job: Vulnerability Scan (In-CI)** - placement matches the actual job order in `.github/workflows/ci.yml`.
+- `02-spec/09-pipeline/01-ci-pipeline.md` - extended `### Trigger` block to surface the two `workflow_dispatch` inputs alongside `push` / `pull_request`. Added the full **Job: Lint Baseline Diff** section between **Job: Lint** and **Job: Vulnerability Scan (In-CI)** - placement matches the actual job order in `.github/workflows/ci.yml`.
 - `gitmap/constants/constants.go` - `Version = "3.52.0"`.
 
 ### Compatibility
@@ -6605,7 +6605,7 @@ Verified post-rename:
 
 ### Files (this section)
 
-- Edited: 404 files (391 `.go` files in `gitmap/`, plus `gitmap/go.mod`, `gitmap-updater/go.mod`, `gitmap-updater/main.go`, `Makefile`, `.github/workflows/ci.yml`, `.github/workflows/release.yml`, `run.ps1`, `run.sh`, multiple `spec/` docs, `changelog.md` history references, `src/data/changelog.ts`, `src/pages/GettingStarted.tsx`).
+- Edited: 404 files (391 `.go` files in `gitmap/`, plus `gitmap/go.mod`, `gitmap-updater/go.mod`, `gitmap-updater/main.go`, `Makefile`, `.github/workflows/ci.yml`, `.github/workflows/release.yml`, `run.ps1`, `run.sh`, multiple `02-spec/` docs, `changelog.md` history references, `src/data/changelog.ts`, `src/pages/GettingStarted.tsx`).
 - Edited: `gitmap/constants/constants.go` - bumped Version to 3.27.0.
 - Created: `.gitmap/release/v3.27.0.json` - release metadata.
 - Edited: `.gitmap/release/latest.json` - pointer to v3.27.0.
@@ -6916,7 +6916,7 @@ User reported `gitmap github-desktop` printing `Unknown command`. Root cause: th
 ### Schema (BREAKING)
 
 - **`Release.RepoId INTEGER NOT NULL REFERENCES Repo(RepoId) ON DELETE CASCADE`** - every release row is now anchored to its source repo. The previous global `Tag UNIQUE` constraint is replaced by composite `UNIQUE (RepoId, Tag)`. New index `IdxRelease_RepoId` for per-repo filtering.
-- **Migration `migrateV15Phase6`**: detects `Release` tables missing `RepoId`, drops them, and lets the standard CREATE pass rebuild with the new FK schema. Existing rows are wiped (user-approved policy: re-import from `.gitmap/release/v*.json` on next `gitmap list-releases`). See `spec/04-generic-cli/24-release-repo-relationship.md`.
+- **Migration `migrateV15Phase6`**: detects `Release` tables missing `RepoId`, drops them, and lets the standard CREATE pass rebuild with the new FK schema. Existing rows are wiped (user-approved policy: re-import from `.gitmap/release/v*.json` on next `gitmap list-releases`). See `02-spec/04-generic-cli/24-release-repo-relationship.md`.
 
 ### Code
 
@@ -6927,8 +6927,8 @@ User reported `gitmap github-desktop` printing `Unknown command`. Root cause: th
 
 ### Spec
 
-- New: `spec/04-generic-cli/24-release-repo-relationship.md`
-- New: `spec/04-generic-cli/images/release-repo-er.mmd` (Mermaid ER diagram)
+- New: `02-spec/04-generic-cli/24-release-repo-relationship.md`
+- New: `02-spec/04-generic-cli/images/release-repo-er.mmd` (Mermaid ER diagram)
 
 ### Recovery
 
@@ -6946,7 +6946,7 @@ If a user has legacy `Release` rows but no `.gitmap/release/v*.json` files on di
 
 ### Renamed
 
-- **All `gitmap-v28` references → `gitmap-v28`** across the entire repo (45 files, 567 occurrences). Includes install/uninstall one-liners, Go installer constants, helptext, spec docs, post-mortems, the React landing page, and `.lovable/memory/**`.
+- **All `gitmap-v28` references → `gitmap-v28`** across the entire repo (45 files, 567 occurrences). Includes install/uninstall one-liners, Go installer constants, helptext, spec docs, post-mortems, the React landing page, and `.ai-memory/memory/**`.
 - **Preserved**: release-asset filenames like `gitmap-v28.49.1-windows-amd64.zip` (where `v4.49.1` is the package version, not the repo name) - only the GitHub URL repo segment changed.
 
 ### Why
@@ -6976,7 +6976,7 @@ The previous v3.14.0 release had `gitmap-cli` hardcoded in **6+ places** across 
 
 ### Validation policy - `deploy-dfd` CI stays gone
 
-The `deploy-dfd` GitHub Actions job (removed in v3.13.9) is **intentionally not being reinstated**, even after the manifest refactor would make it easier to write. The decision is now documented in [`spec/04-generic-cli/22-data-folder-deploy-and-cleanup.md`](spec/04-generic-cli/22-data-folder-deploy-and-cleanup.md#validation-policy--no-deploy-dfd-ci-job-v3139). Deploy-layout regressions are now caught by:
+The `deploy-dfd` GitHub Actions job (removed in v3.13.9) is **intentionally not being reinstated**, even after the manifest refactor would make it easier to write. The decision is now documented in [`02-spec/04-generic-cli/22-data-folder-deploy-and-cleanup.md`](02-spec/04-generic-cli/22-data-folder-deploy-and-cleanup.md#validation-policy--no-deploy-dfd-ci-job-v3139). Deploy-layout regressions are now caught by:
 
 1. **`gitmap doctor`** on every user's first launch and after updates (PATH binary, deployed binary, version match, app-subdir vs. manifest).
 2. **Author smoke testing** - `./run.ps1` and `./run.sh` against clean sandboxes before each tag.
@@ -7002,7 +7002,7 @@ Targeted unit tests are preferred over broad CI sandbox-layout assertions when a
 
 ### Updated
 
-- **`spec/04-generic-cli/22-data-folder-deploy-and-cleanup.md`** - DFD-1/DFD-2/DFD-3 rows of the cross-platform parity table updated to reflect `gitmap-cli` on all three drivers (run.ps1, run.sh, install.sh).
+- **`02-spec/04-generic-cli/22-data-folder-deploy-and-cleanup.md`** - DFD-1/DFD-2/DFD-3 rows of the cross-platform parity table updated to reflect `gitmap-cli` on all three drivers (run.ps1, run.sh, install.sh).
 
 ### Why now
 
@@ -7013,7 +7013,7 @@ The Go side of the codebase (cleanup, doctor, binary location, upgrade script) h
 
 ### Removed
 
-- **`.github/workflows/ci.yml`** - Deleted the entire `deploy-dfd` job (Ubuntu + Windows matrix, ~135 lines, formerly lines 400–533) per user request. The job ran `run.sh` / `run.ps1` into a sandboxed HOME and asserted DFD-1/4/6/7 layout invariants from `spec/04-generic-cli/22-data-folder-deploy-and-cleanup.md`. It had become a recurring source of CI breakage every time the deploy layout evolved (most recently the Windows `gitmap` → `gitmap-cli` rename in v3.6.0, patched in v3.13.8). The DFD spec remains authoritative; layout regressions will now surface through the manual-install path or via `gitmap self-install` end-user testing rather than a synthetic sandbox harness.
+- **`.github/workflows/ci.yml`** - Deleted the entire `deploy-dfd` job (Ubuntu + Windows matrix, ~135 lines, formerly lines 400–533) per user request. The job ran `run.sh` / `run.ps1` into a sandboxed HOME and asserted DFD-1/4/6/7 layout invariants from `02-spec/04-generic-cli/22-data-folder-deploy-and-cleanup.md`. It had become a recurring source of CI breakage every time the deploy layout evolved (most recently the Windows `gitmap` → `gitmap-cli` rename in v3.6.0, patched in v3.13.8). The DFD spec remains authoritative; layout regressions will now surface through the manual-install path or via `gitmap self-install` end-user testing rather than a synthetic sandbox harness.
 
 
 ## v3.13.8 - (2026-04-20) - CI deploy-DFD Windows assertion aligned with gitmap-cli subdir
@@ -7094,15 +7094,15 @@ Production paths in `updatecleanup_paths.go` and `constants_update.go` were upda
 
 ### Changed
 
-- **`.lovable/prompts/01-read-prompt.md` overwrite** - New onboarding prompt with structured Phase 1–4 flow and mandatory deep-dive source specs lookup table.
+- **`01-prompts/01-read-prompt.md` overwrite** - New onboarding prompt with structured Phase 1–4 flow and mandatory deep-dive source specs lookup table.
 
 ## v3.12.1 - (2026-04-20) - AST registry parity + spec cross-links + legacy-field test cleanup
 
 ### Added
 
 - **AST-derived `topLevelCmds()` registry parity test** - `gitmap/constants/cmd_constants_parity_test.go` adds `TestTopLevelCmdRegistryMatchesAST`, which uses `go/parser` to walk every `gitmap/constants/constants_*.go`, collects every `Cmd*` constant declared inside a `// gitmap:cmd top-level` block (minus those tagged `// gitmap:cmd skip`), and asserts the resulting set is exactly equal to the manual `topLevelCmds()` registry consumed by `TestTopLevelCmdConstantsAreUnique` / `TestTopLevelCmdAliasesAreUnique`. The registry can no longer drift silently - adding a new top-level `Cmd*` without registering it (or vice versa) fails CI with a clear "missing from registry" / "registered but not declared" diff.
-- **Spec cross-links from CLI overview** - `spec/01-app/02-cli-interface.md` and `spec/01-app/38-command-help.md` gained a `> **Related:**` callout under the H1 pointing at `spec/01-app/99-cli-cmd-uniqueness-ci-guard.md`, so future contributors discover the uniqueness contract and the 6-step handoff checklist directly from the CLI overview and the help-system spec.
-- **Spec §5 implementation note** - `spec/01-app/99-cli-cmd-uniqueness-ci-guard.md` updated to mark the AST parity test as implemented (no longer "future hardening") with the file path and v3.12.1 history entry.
+- **Spec cross-links from CLI overview** - `02-spec/01-app/02-cli-interface.md` and `02-spec/01-app/38-command-help.md` gained a `> **Related:**` callout under the H1 pointing at `02-spec/01-app/99-cli-cmd-uniqueness-ci-guard.md`, so future contributors discover the uniqueness contract and the 6-step handoff checklist directly from the CLI overview and the help-system spec.
+- **Spec §5 implementation note** - `02-spec/01-app/99-cli-cmd-uniqueness-ci-guard.md` updated to mark the AST parity test as implemented (no longer "future hardening") with the file path and v3.12.1 history entry.
 
 ### Fixed
 
@@ -7119,11 +7119,11 @@ Production paths in `updatecleanup_paths.go` and `constants_update.go` were upda
 
 - **Pinned-version install snippet on the GitHub release page** - the release publisher (`gitmap/release/installsnippet.go`, wired into `workflowgithub.go::uploadToGitHub`) now auto-appends a markdown block containing PowerShell + bash one-liners that hard-code the just-published tag. Idempotent via a hidden `<!-- gitmap-pinned-install-snippet:<tag> -->` HTML marker. Anyone copying the snippet from `…/releases/tag/v3.12.0` installs exactly v3.12.0 - never "latest", never a `-v<N+1>` sibling repo. Template lives in `constants_release.go` as `ReleaseSnippetTemplate` / `ReleaseSnippetMarker`.
 - **Pinned-version short-circuit in installer scripts** - `gitmap/scripts/install.ps1` and `install.sh` gained a new branch in their discovery prelude: when `-Version <tag>` (PowerShell) or `--version <tag>` (bash) is supplied, the installer now skips both the `releases/latest` API call **and** the versioned-repo `-v<N>` discovery probe, downloading `…/releases/download/<tag>/…` directly. Closes the gap where a snippet copied from a v3.x release page could silently jump to the v4 repo's latest tag.
-- **Spec doc** `spec/07-generic-release/08-pinned-version-install-snippet.md` - full NEA/AI handoff contract: rendered snippets, installer-side flag matrix, release-cutting checklist, and a CI test contract for future work.
+- **Spec doc** `02-spec/07-generic-release/08-pinned-version-install-snippet.md` - full NEA/AI handoff contract: rendered snippets, installer-side flag matrix, release-cutting checklist, and a CI test contract for future work.
 
 ### Changed
 
-- **Repo rename `gitmap-v28` → `gitmap-v28` across the entire codebase** - every Go constant (`SourceRepoCloneURL`, `SelfInstallRemotePwsh/Bash`, `GitmapRepoPrefix`, install hint URLs), every install/uninstall script (`install.ps1`, `install.sh`, `install-quick.ps1`, `install-quick.sh`, `uninstall-quick.*`), every spec doc under `spec/01-app/` and `spec/07-generic-release/`, every helptext markdown, the README, the React `src/data/*.ts` files, GitHub workflows, and historical CHANGELOG entries were rewritten via `sed -i 's/gitmap-v28/gitmap-v28/g'`. The only remaining `gitmap-v28` references are inside `.gitmap/` artifacts, which are immutable per project policy.
+- **Repo rename `gitmap-v28` → `gitmap-v28` across the entire codebase** - every Go constant (`SourceRepoCloneURL`, `SelfInstallRemotePwsh/Bash`, `GitmapRepoPrefix`, install hint URLs), every install/uninstall script (`install.ps1`, `install.sh`, `install-quick.ps1`, `install-quick.sh`, `uninstall-quick.*`), every spec doc under `02-spec/01-app/` and `02-spec/07-generic-release/`, every helptext markdown, the README, the React `src/data/*.ts` files, GitHub workflows, and historical CHANGELOG entries were rewritten via `sed -i 's/gitmap-v28/gitmap-v28/g'`. The only remaining `gitmap-v28` references are inside `.gitmap/` artifacts, which are immutable per project policy.
 
 ## v3.11.1 - (2026-04-20) - Alias-collision CI guard
 
@@ -7156,7 +7156,7 @@ Production paths in `updatecleanup_paths.go` and `constants_update.go` were upda
 
 ### Changed
 
-- **Phase 1 of the v15 database naming migration is complete.** All 22 SQLite tables now follow the strict v15 convention from <https://github.com/alimtvnetwork/coding-guidelines-v15/blob/main/spec/04-database-conventions/01-naming-conventions.md>: PascalCase + **singular** table names, `{TableName}Id` primary keys, foreign keys that match the referenced PK name, `IsX` prefix for booleans, and abbreviations treated as words (`SshKey` not `SSHKey`, `CsharpProjectMetadata` not `CSharpProjectMetadata`).
+- **Phase 1 of the v15 database naming migration is complete.** All 22 SQLite tables now follow the strict v15 convention from <https://github.com/alimtvnetwork/coding-guidelines-v15/blob/main/02-spec/04-database-conventions/01-naming-conventions.md>: PascalCase + **singular** table names, `{TableName}Id` primary keys, foreign keys that match the referenced PK name, `IsX` prefix for booleans, and abbreviations treated as words (`SshKey` not `SSHKey`, `CsharpProjectMetadata` not `CSharpProjectMetadata`).
 - **Renamed tables** (legacy → v15): `Repos`→`Repo`, `Groups`→`Group`, `GroupRepos`→`GroupRepo`, `Releases`→`Release`, `Aliases`→`Alias`, `Bookmarks`→`Bookmark`, `Amendments`→`Amendment`, `CommitTemplates`→`CommitTemplate`, `Settings`→`Setting`, `SSHKeys`→`SshKey`, `InstalledTools`→`InstalledTool`, `TempReleases`→`TempRelease`, `ZipGroups`→`ZipGroup`, `ZipGroupItems`→`ZipGroupItem`, `ProjectTypes`→`ProjectType`, `DetectedProjects`→`DetectedProject`, `GoProjectMetadata` (kept), `GoRunnableFiles`→`GoRunnableFile`, `CSharpProjectMeta`→`CsharpProjectMetadata`, `CSharpProjectFiles`→`CsharpProjectFile`, `CSharpKeyFiles`→`CsharpKeyFile`. `RepoVersionHistory`, `CommandHistory`, `TaskType`, `PendingTask`, `CompletedTask` were already singular and only got `{TableName}Id` PK renames.
 - **Renamed columns**: every legacy `Id` PK is now `{TableName}Id` (e.g., `Repo.RepoId`, `Release.ReleaseId`, `CsharpProjectMetadata.CsharpProjectMetadataId`). Foreign keys updated to match (e.g., `GoRunnableFile.GoProjectMetadataId`, `CsharpProjectFile.CsharpProjectMetadataId`). `Release.Draft` → `Release.IsDraft` and `Release.PreRelease` → `Release.IsPreRelease` complete the IsX boolean-prefix consistency (`IsLatest` was already correct).
 - **Migration safety contract** (applies to every Phase 1.1–1.5 rebuild):
@@ -7177,8 +7177,8 @@ Production paths in `updatecleanup_paths.go` and `constants_update.go` were upda
   - `migrate_v15phase4.go` - ZipGroup family, Project family (incl. CSharp→Csharp), Task family, History tables.
   - `migrate_v15phase5.go` - `Release.Draft`→`IsDraft`, `Release.PreRelease`→`IsPreRelease` (column rename via the same rebuild infrastructure).
 - Pre-rename column patches for very old installs: `preV15Phase2EnsureReleaseColumns()` (Source/Notes on legacy `Releases`), `migrateZipGroupItemPaths()` and `migrateTRCommitSha()` already targeted legacy plurals before the v15 rebuilds copied the data.
-- Regenerated `spec/01-app/gitmap-database-erd.mmd` to reflect every v15 table name, PK, FK, and `IsDraft`/`IsPreRelease` boolean.
-- Updated `spec/12-consolidated-guidelines/11-database.md` with the v15 naming conventions table (singular + `{TableName}Id` + `IsX` boolean prefix + reserved-word quoting + abbreviation rules), with a link to the upstream v15 spec.
+- Regenerated `02-spec/01-app/gitmap-database-erd.mmd` to reflect every v15 table name, PK, FK, and `IsDraft`/`IsPreRelease` boolean.
+- Updated `02-spec/12-consolidated-guidelines/11-database.md` with the v15 naming conventions table (singular + `{TableName}Id` + `IsX` boolean prefix + reserved-word quoting + abbreviation rules), with a link to the upstream v15 spec.
 
 ### Notes
 
@@ -7195,7 +7195,7 @@ Production paths in `updatecleanup_paths.go` and `constants_update.go` were upda
 - **Auto-stash semantics for `release-alias`**: dirty working trees are auto-stashed (`git stash push --include-untracked -m "gitmap-release-alias autostash <alias>-<version>-<unix-ts>"`) before the release runs and popped on exit via `defer`, so the stash always fires - including when `runRelease` aborts. The pop locates the stash by **label match** against `git stash list` (not by `stash@{0}`), so a concurrent `git stash` from another process never causes us to pop the wrong entry. A failed pop warns only - the user's tree is still recoverable via `git stash list` / `git stash apply`. Bypass with `--no-stash` (intended for CI runners that always start clean and want to fail loudly on unexpected dirt).
 - `gitmap db-migrate` (alias `dbm`) - explicit, idempotent schema migration command. Re-runs every `CREATE TABLE IF NOT EXISTS` and column-migration step on the active profile DB. Now invoked automatically at the end of `gitmap update` so a freshly-updated binary never has to repair the database on its first real run. `--verbose` prints extra context.
 - New shared migration helpers in `gitmap/store/migrations.go`: `columnExists(table, column)`, `tableExists(table)`, `isBenignAlterError(err)`, and `logMigrationFailure(table, column, action, err, stmt)` - every warning now names the table, column, and action so issues can be diagnosed without trial-and-error.
-- New files: `gitmap/cmd/{as.go, asops.go, releasealias.go, releasealias_git.go, dbmigrate.go}`, `gitmap/constants/{constants_as.go, constants_releasealias.go, constants_dbmigrate.go}`, `gitmap/store/migrations.go`, `gitmap/helptext/{as.md, release-alias.md, release-alias-pull.md, db-migrate.md}`, `spec/01-app/98-as-and-release-alias.md`.
+- New files: `gitmap/cmd/{as.go, asops.go, releasealias.go, releasealias_git.go, dbmigrate.go}`, `gitmap/constants/{constants_as.go, constants_releasealias.go, constants_dbmigrate.go}`, `gitmap/store/migrations.go`, `gitmap/helptext/{as.md, release-alias.md, release-alias-pull.md, db-migrate.md}`, `02-spec/01-app/98-as-and-release-alias.md`.
 
 ### Changed
 
@@ -7335,7 +7335,7 @@ const (
 ### Fixed
 
 - `go-winres` CI icon size error - Windows `.ico` resources require images ≤256x256 but `icon.png` was 512x512. Created `icon-256.png` (LANCZOS resize) and updated `winres.json` to reference it.
-- Documented root cause and prevention in `spec/08-generic-update/09-winres-icon-constraint.md`.
+- Documented root cause and prevention in `02-spec/08-generic-update/09-winres-icon-constraint.md`.
 
 ## v2.80.0 - (2026-04-16)
 
@@ -7343,7 +7343,7 @@ const (
 
 - Hidden `set-source-repo` command - persists source repo path to DB so `gitmap update` always uses the correct location after repo moves.
 - Post-deploy repo path sync in `run.ps1` - automatically calls `set-source-repo` after every successful deploy to keep the DB current.
-- Repo path sync spec (`spec/08-generic-update/08-repo-path-sync.md`) - documents the post-deploy sync pattern for AI implementers.
+- Repo path sync spec (`02-spec/08-generic-update/08-repo-path-sync.md`) - documents the post-deploy sync pattern for AI implementers.
 - Help file for `set-source-repo` command (`gitmap/helptext/set-source-repo.md`).
 
 ### Fixed
@@ -7358,7 +7358,7 @@ const (
 
 ### Added
 
-- Console-safe handoff spec (`spec/08-generic-update/07-console-safe-handoff.md`) - documents the blocking `cmd.Run()` pattern that prevents terminal detachment during self-update on Windows.
+- Console-safe handoff spec (`02-spec/08-generic-update/07-console-safe-handoff.md`) - documents the blocking `cmd.Run()` pattern that prevents terminal detachment during self-update on Windows.
 - Installer banner now displays version number (`gitmap installer v1.0.0`).
 
 ### Changed
@@ -7376,8 +7376,8 @@ const (
 ### Added
 
 - New `gitmap version-history` (`vh`) command displays all version transitions for the current repo with `--limit N` and `--json` flags.
-- Full database ERD (Mermaid) added to `spec/01-app/gitmap-database-erd.mmd` covering all 22 tables including `RepoVersionHistory`.
-- Updated `spec/01-app/59-clone-next.md` and `spec/01-app/87-clone-next-flatten.md` to reflect flatten-by-default behavior (no `--flatten` flag required).
+- Full database ERD (Mermaid) added to `02-spec/01-app/gitmap-database-erd.mmd` covering all 22 tables including `RepoVersionHistory`.
+- Updated `02-spec/01-app/59-clone-next.md` and `02-spec/01-app/87-clone-next-flatten.md` to reflect flatten-by-default behavior (no `--flatten` flag required).
 
 ---
 
@@ -7433,7 +7433,7 @@ const (
 
 - `gitmap update` PATH sync now includes full 3-step fallback: direct `Copy-Item`, rename-then-copy (`Move-Item` to `.old` + `Copy-Item` with rollback), and kill stale `gitmap.exe` processes via `Stop-Process` before final retry.
 - Updated `UpdatePSSync` PowerShell block in `constants/constants_update.go` with rename and kill-process recovery strategies.
-- Updated `spec/01-app/89-update-path-sync.md` to document all sync fallback steps and error scenarios.
+- Updated `02-spec/01-app/89-update-path-sync.md` to document all sync fallback steps and error scenarios.
 
 ---
 
@@ -7472,7 +7472,7 @@ const (
 - Windows binaries now embed a custom emerald green terminal icon, application manifest, and version info via `go-winres`.
 - Added `gitmap/winres.json` and `gitmap/assets/icon.png` for Windows resource generation.
 - Release pipeline generates `.syso` resource files before compilation, injecting the release version into the binary metadata.
-- Added `spec/pipeline/09-binary-icon-branding.md` documenting the full `go-winres` workflow for AI/engineer handoff.
+- Added `02-spec/pipeline/09-binary-icon-branding.md` documenting the full `go-winres` workflow for AI/engineer handoff.
 - Added the gitmap icon to the README header.
 
 ### Fixed
@@ -7502,7 +7502,7 @@ const (
 - Install scripts (`install.ps1`, `install.sh`) automatically download and extract `docs-site.zip` alongside the binary.
 - `gitmap hd` auto-extracts `docs-site.zip` on first run if the `docs-site/` directory is missing - no manual setup needed.
 - Added 5 new pipeline specification files (`04`–`08`) covering installation flow, changelog integration, version/help system, environment variable setup, and terminal output standards.
-- Added AI Handoff Checklist to `spec/pipeline/README.md` with recommended reading order for onboarding.
+- Added AI Handoff Checklist to `02-spec/pipeline/README.md` with recommended reading order for onboarding.
 
 ## v2.67.0 - Smart Deploy & Rename-First (2026-04-08)
 
@@ -7514,9 +7514,9 @@ const (
 - Added `Resolve-DeployTarget` function to `run.ps1` and `resolve_deploy_target` function to `run.sh` for full cross-platform parity.
 - Deploy step now uses **rename-first strategy**: renames the existing binary to `.old` before copying the new one, avoiding Windows file-lock failures when deploying to a running binary.
 - Rollback restores the `.old` file via rename (not copy) for consistency.
-- Added "Build once, package once" constraint to `spec/05-coding-guidelines/17-cicd-patterns.md` and `spec/04-generic-cli/11-build-deploy.md`.
-- Updated `spec/01-app/09-build-deploy.md` with deploy target resolution and rename-first deploy documentation.
-- Added smart deploy path resolution and rename-first deploy to cross-platform parity table in `spec/01-app/42-cross-platform.md`.
+- Added "Build once, package once" constraint to `02-spec/05-coding-guidelines/17-cicd-patterns.md` and `02-spec/04-generic-cli/11-build-deploy.md`.
+- Updated `02-spec/01-app/09-build-deploy.md` with deploy target resolution and rename-first deploy documentation.
+- Added smart deploy path resolution and rename-first deploy to cross-platform parity table in `02-spec/01-app/42-cross-platform.md`.
 - Replaced hardcoded `E:\bin-run` path in `gitmap doctor` fix suggestion with dynamic guidance.
 
 ## v2.66.0 - CI Hardening & Pipeline Docs (2026-04-08)
@@ -7526,11 +7526,11 @@ const (
 - Pinned `govulncheck` to `v1.1.4` in CI and vulncheck workflows for reproducible builds.
 - Updated GitHub Actions to Node.js 24 compatible versions (`actions/checkout@v6`, `actions/setup-go@v6`).
 - Added `FORCE_JAVASCRIPT_ACTIONS_TO_NODE24: true` environment variable across all workflows.
-- Created portable `spec/pipeline/` documentation folder (CI, release, vulnerability scanning) for cross-AI shareability.
+- Created portable `02-spec/pipeline/` documentation folder (CI, release, vulnerability scanning) for cross-AI shareability.
 - Added CI Tool Versions pinning table to dependency specs (13, 17, 27) for consistency.
 - Aligned severity response times across all dependency management specs.
 - Updated stale action version examples in specs 17 and 27 from `@v4`/`@v5` to `@v6`.
-- Added cross-reference from `spec/03-general/08-ci-pipeline.md` to `spec/pipeline/`.
+- Added cross-reference from `02-spec/03-general/08-ci-pipeline.md` to `02-spec/pipeline/`.
 
 ### Bug Fixes
 
@@ -7593,7 +7593,7 @@ const (
 - Release branches (`release/**`) are no longer canceled by `cancel-in-progress` - every release commit now runs the full CI and release pipeline to completion.
 - CI workflow uses a conditional expression: `cancel-in-progress: ${{ !startsWith(github.ref, 'refs/heads/release/') }}` to protect release branches while still canceling superseded runs on `main` and feature branches.
 - Release workflow changed to `cancel-in-progress: false` unconditionally.
-- Updated CI pipeline spec (`spec/03-general/08-ci-pipeline.md`) with release branch protection documentation.
+- Updated CI pipeline spec (`02-spec/03-general/08-ci-pipeline.md`) with release branch protection documentation.
 
 ## v2.61.0 - Install Hint Polish & Post-Mortem #17 (2026-04-07)
 
@@ -7664,9 +7664,9 @@ const (
 
 ### Documentation
 
-- Updated `spec/01-app/82-install-script.md` - documented `install.sh` with CLI flags (`--version`, `--dir`, `--arch`, `--no-path`), version-pinned examples, `.tar.gz`/`.zip` fallback, 4-priority binary detection, and shell-aware auto-PATH append (bash/zsh/fish).
-- Updated `spec/01-app/12-release-command.md` - CI release pipeline section now mentions `install.sh` alongside `install.ps1` in both steps list and release body format.
-- Added "Known Behavior: Concurrency Cancellation" section to `spec/02-app-issues/16-ci-passthrough-gate-pattern.md` - documented and resolved by inlining cache write.
+- Updated `02-spec/01-app/82-install-script.md` - documented `install.sh` with CLI flags (`--version`, `--dir`, `--arch`, `--no-path`), version-pinned examples, `.tar.gz`/`.zip` fallback, 4-priority binary detection, and shell-aware auto-PATH append (bash/zsh/fish).
+- Updated `02-spec/01-app/12-release-command.md` - CI release pipeline section now mentions `install.sh` alongside `install.ps1` in both steps list and release body format.
+- Added "Known Behavior: Concurrency Cancellation" section to `02-spec/02-app-issues/16-ci-passthrough-gate-pattern.md` - documented and resolved by inlining cache write.
 - Updated post-release auto-commit memory to reflect the new `-y` flag behavior.
 
 ### Testing
@@ -7677,15 +7677,15 @@ const (
 
 ### Post-Mortems Documentation
 
-- Created `spec/02-app-issues/13-release-pipeline-dist-directory.md` - documents `cd: dist` CI failure root cause and 4 prevention rules.
-- Created `spec/02-app-issues/14-security-hardening-gosec-fixes.md` - documents G305, G110, format verb, and Code Red fixes with prevention rules.
+- Created `02-spec/02-app-issues/13-release-pipeline-dist-directory.md` - documents `cd: dist` CI failure root cause and 4 prevention rules.
+- Created `02-spec/02-app-issues/14-security-hardening-gosec-fixes.md` - documents G305, G110, format verb, and Code Red fixes with prevention rules.
 - Added Post-Mortems page (`/post-mortems`) to docs site with category filters, version tags, and color-coded icons for all 15 documented issues.
 
 ### Coding Guidelines Updates
 
-- Added "Lessons Learned" section to `spec/05-coding-guidelines/17-cicd-patterns.md` - never `cd` in CI, validate directories, pin tool versions.
-- Added Section 10 (Zip Extraction Security) to `spec/05-coding-guidelines/08-security-secrets.md` - mandatory G305/G110 checks.
-- Added Sections 7–8 to `spec/05-coding-guidelines/04-error-handling.md` - Code Red Rule and Format Verb Compliance.
+- Added "Lessons Learned" section to `02-spec/05-coding-guidelines/17-cicd-patterns.md` - never `cd` in CI, validate directories, pin tool versions.
+- Added Section 10 (Zip Extraction Security) to `02-spec/05-coding-guidelines/08-security-secrets.md` - mandatory G305/G110 checks.
+- Added Sections 7–8 to `02-spec/05-coding-guidelines/04-error-handling.md` - Code Red Rule and Format Verb Compliance.
 
 ### Installer Fixes
 
@@ -7698,7 +7698,7 @@ const (
 
 - Replaced job-level `if` skipping with step-level conditionals in `ci.yml` so all jobs always report ✅ Success.
 - Previously, SHA-deduplicated runs showed grey "skipped" status which looked like failures; now cached SHAs print "Already validated" and exit green.
-- Updated `spec/05-coding-guidelines/29-ci-sha-deduplication.md` with the passthrough pattern documentation.
+- Updated `02-spec/05-coding-guidelines/29-ci-sha-deduplication.md` with the passthrough pattern documentation.
 - Pinned `golangci-lint` to `v1.64.8` in `ci.yml` to match `setup.sh`.
 
 ### Release Command: Auto-Confirm (`-y` / `--yes`)
@@ -7952,7 +7952,7 @@ const (
 - No-suffix repos default to `-v2` on increment.
 - Added constants for all clone-next messages, errors, and flag descriptions.
 - Added unit tests for `ParseRepoName`, `ResolveTarget`, `TargetRepoName`, and `ReplaceRepoInURL`.
-- Spec: `spec/01-app/59-clone-next.md` with full workflow, examples, and acceptance criteria.
+- Spec: `02-spec/01-app/59-clone-next.md` with full workflow, examples, and acceptance criteria.
 
 ## v2.37.0 - v2.39.0
 
@@ -8030,7 +8030,7 @@ const (
   - `workflowzip.go` (~108 lines): zip group building, ad-hoc archives, and checksum collection.
   - `workflowgithub.go` (~104 lines): GitHub release uploads and Go cross-compilation.
 - All files comply with the 200-line limit; no functional changes.
-- Added refactoring specs: `spec/01-app/58-refactor-workflowfinalize.md`, `spec/01-app/59-refactor-root-dispatch.md`.
+- Added refactoring specs: `02-spec/01-app/58-refactor-workflowfinalize.md`, `02-spec/01-app/59-refactor-root-dispatch.md`.
 
 ## v2.36.3 (2026-03-26)
 
@@ -8171,7 +8171,7 @@ const (
 - **Fixed**: `OpenDefault()` double-nesting bug where profile config resolved to `<binary>/data/data/profiles.json`.
 - Added `DefaultDBPath()` diagnostic helper to `store/location.go`.
 - `gitmap ls` now prints resolved DB path when `--verbose` is passed or when zero repos are found.
-- Created `spec/01-app/44-list-db-diagnostic.md` for path resolution contract.
+- Created `02-spec/01-app/44-list-db-diagnostic.md` for path resolution contract.
 
 ## v2.19.0
 

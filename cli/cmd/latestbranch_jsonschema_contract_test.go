@@ -3,7 +3,7 @@ package cmd
 // JSON schema contract for `gitmap latest-branch --json`. Pairs the
 // runtime encoder (encodeLatestBranchJSON / renderLatestBranchTopRaw
 // in latestbranchrender.go) with the published schema at
-// spec/08-json-schemas/latest-branch.schema.json so drift in either
+// 02-spec/08-json-schemas/latest-branch.schema.json so drift in either
 // side fails the build.
 
 import (

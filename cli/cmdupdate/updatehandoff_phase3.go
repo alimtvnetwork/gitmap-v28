@@ -8,8 +8,8 @@
 //	run `update-cleanup`. Only the deployed binary can safely remove
 //	the still-locked handoff copy and the just-renamed *.exe.old.
 //
-// See spec/08-generic-update/06-cleanup.md and
-// spec/03-general/02f-self-update-orchestration.md for the full sequence.
+// See 02-spec/08-generic-update/06-cleanup.md and
+// 02-spec/03-general/02f-self-update-orchestration.md for the full sequence.
 package cmdupdate
 
 import (

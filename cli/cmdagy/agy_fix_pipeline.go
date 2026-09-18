@@ -25,7 +25,7 @@ var (
 	agyFixForce        bool
 )
 
-const activeAgyPromptRelativePath = ".lovable/temp/active-agy-pipeline-fix-prompt.txt"
+const activeAgyPromptRelativePath = ".ai-memory/temp/active-agy-pipeline-fix-prompt.txt"
 
 // agyFixPipelineCmd represents the agy fix-pipeline CLI command.
 var agyFixPipelineCmd = &cobra.Command{

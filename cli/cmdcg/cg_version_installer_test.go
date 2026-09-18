@@ -11,7 +11,7 @@ func TestInstallVersionJSONSuite(t *testing.T) {
 	tempDir := t.TempDir()
 
 	// Create dummy what-to-read.md files
-	lovableDir := filepath.Join(tempDir, ".lovable")
+	lovableDir := filepath.Join(tempDir, ".ai-memory")
 	_ = os.MkdirAll(lovableDir, 0755)
 	lovableWTR := filepath.Join(lovableDir, "what-to-read.md")
 	_ = os.WriteFile(lovableWTR, []byte("# What to Read\n\n## Before writing code\n- some item\n"), 0644)
@@ -27,14 +27,14 @@ func TestInstallVersionJSONSuite(t *testing.T) {
 		t.Fatalf("version.json missing or invalid: %s (err: %v)", string(vData), errRead)
 	}
 
-	// 2. Verify .lovable/versioning.md exists
-	docData, errDoc := os.ReadFile(filepath.Join(tempDir, ".lovable", "versioning.md"))
+	// 2. Verify .ai-memory/versioning.md exists
+	docData, errDoc := os.ReadFile(filepath.Join(tempDir, ".ai-memory", "versioning.md"))
 	if errDoc != nil || !strings.Contains(string(docData), "Single Source of Truth") {
-		t.Fatalf(".lovable/versioning.md missing or invalid: %v", errDoc)
+		t.Fatalf(".ai-memory/versioning.md missing or invalid: %v", errDoc)
 	}
 
-	// 3. Verify .lovable/memory/learned/01-versioning-ssot.md exists
-	memData, errMem := os.ReadFile(filepath.Join(tempDir, ".lovable", "memory", "learned", "01-versioning-ssot.md"))
+	// 3. Verify .ai-memory/memory/learned/01-versioning-ssot.md exists
+	memData, errMem := os.ReadFile(filepath.Join(tempDir, ".ai-memory", "memory", "learned", "01-versioning-ssot.md"))
 	if errMem != nil || !strings.Contains(string(memData), "SSOT") {
 		t.Fatalf("memory file missing or invalid: %v", errMem)
 	}

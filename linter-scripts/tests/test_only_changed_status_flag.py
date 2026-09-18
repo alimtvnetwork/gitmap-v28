@@ -50,7 +50,7 @@ def _setup_mixed_intake(root: Path) -> Path:
 
     Returns the path to the manifest file.
     """
-    spec = root / "spec"
+    spec = root / "02-spec"
     _write_clean_md(spec / "ok.md")
     _write_clean_md(root / "outside.md")
     (spec / "notes.txt").write_text("x", encoding="utf-8")
@@ -72,7 +72,7 @@ class OnlyChangedStatusJson(unittest.TestCase):
             root = Path(td)
             changed = _setup_mixed_intake(root)
             rc, out, err = _run(
-                "--root", "spec",
+                "--root", "02-spec",
                 "--repo-root", str(root),
                 "--changed-files", str(changed),
                 "--list-changed-files",
@@ -90,7 +90,7 @@ class OnlyChangedStatusJson(unittest.TestCase):
             root = Path(td)
             changed = _setup_mixed_intake(root)
             rc, _out, err = _run(
-                "--root", "spec",
+                "--root", "02-spec",
                 "--repo-root", str(root),
                 "--changed-files", str(changed),
                 "--list-changed-files",
@@ -111,7 +111,7 @@ class OnlyChangedStatusText(unittest.TestCase):
             root = Path(td)
             changed = _setup_mixed_intake(root)
             rc, _out, err = _run(
-                "--root", "spec",
+                "--root", "02-spec",
                 "--repo-root", str(root),
                 "--changed-files", str(changed),
                 "--list-changed-files",
@@ -132,13 +132,13 @@ class OnlyChangedStatusText(unittest.TestCase):
     def test_filter_hiding_everything_shows_explicit_message(self) -> None:
         with tempfile.TemporaryDirectory() as td:
             root = Path(td)
-            _write_clean_md(root / "spec" / "ok.md")
+            _write_clean_md(root / "02-spec" / "ok.md")
             changed = root / "changed.txt"
             # Only `matched` rows in the intake; filter for a status
             # that doesn't appear → empty visible table.
             changed.write_text("spec/ok.md\n", encoding="utf-8")
             rc, _out, err = _run(
-                "--root", "spec",
+                "--root", "02-spec",
                 "--repo-root", str(root),
                 "--changed-files", str(changed),
                 "--list-changed-files",
@@ -162,12 +162,12 @@ class OnlyChangedStatusComposesWithDedupe(unittest.TestCase):
         # and verify only one row survives BEFORE the filter sees it.
         with tempfile.TemporaryDirectory() as td:
             root = Path(td)
-            _write_clean_md(root / "spec" / "ok.md")
+            _write_clean_md(root / "02-spec" / "ok.md")
             changed = root / "changed.txt"
             changed.write_text(
                 "spec/ok.md\nspec/ok.md\n", encoding="utf-8")
             rc, _out, err = _run(
-                "--root", "spec",
+                "--root", "02-spec",
                 "--repo-root", str(root),
                 "--changed-files", str(changed),
                 "--list-changed-files",
@@ -186,9 +186,9 @@ class OnlyChangedStatusValidation(unittest.TestCase):
     def test_unknown_status_rejected_by_argparse(self) -> None:
         with tempfile.TemporaryDirectory() as td:
             root = Path(td)
-            _write_clean_md(root / "spec" / "ok.md")
+            _write_clean_md(root / "02-spec" / "ok.md")
             rc, _out, err = _run(
-                "--root", "spec",
+                "--root", "02-spec",
                 "--repo-root", str(root),
                 "--list-changed-files",
                 "--only-changed-status", "totally-bogus",
@@ -200,11 +200,11 @@ class OnlyChangedStatusValidation(unittest.TestCase):
     def test_noop_without_list_flag(self) -> None:
         with tempfile.TemporaryDirectory() as td:
             root = Path(td)
-            _write_clean_md(root / "spec" / "ok.md")
+            _write_clean_md(root / "02-spec" / "ok.md")
             changed = root / "changed.txt"
             changed.write_text("spec/ok.md\n", encoding="utf-8")
             rc, out, err = _run(
-                "--root", "spec",
+                "--root", "02-spec",
                 "--repo-root", str(root),
                 "--changed-files", str(changed),
                 "--only-changed-status", "matched",

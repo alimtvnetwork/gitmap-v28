@@ -10,16 +10,16 @@ type VersionInstallConfig struct {
 	InitialVersion    string
 }
 
-// DefaultVersionInstallConfig returns default configuration pointing to .lovable directory.
+// DefaultVersionInstallConfig returns default configuration pointing to .ai-memory directory.
 func DefaultVersionInstallConfig(initialVersion string) VersionInstallConfig {
 	if initialVersion == "" {
 		initialVersion = "1.0.0"
 	}
 
 	return VersionInstallConfig{
-		DocDir:            ".lovable",
-		MemoryDir:         ".lovable/memory/learned",
-		WhatToReadDoc:     ".lovable/what-to-read.md",
+		DocDir:            ".ai-memory",
+		MemoryDir:         ".ai-memory/memory/learned",
+		WhatToReadDoc:     ".ai-memory/what-to-read.md",
 		RootWhatToReadDoc: "what-to-read.md",
 		InitialVersion:    initialVersion,
 	}

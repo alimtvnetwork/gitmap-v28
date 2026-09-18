@@ -8,7 +8,7 @@ import (
 
 // dispatchDiff routes `gitmap diff` / `gitmap df`.
 //
-// Spec: companion to spec/01-app/97-move-and-merge.md
+// Spec: companion to 02-spec/01-app/97-move-and-merge.md
 func dispatchDiff(command string) (bool, error) {
 	if command == constants.CmdDiff || command == constants.CmdDiffAlias {
 		runDiff(os.Args[2:])

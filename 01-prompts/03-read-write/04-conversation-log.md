@@ -17,7 +17,7 @@
 
 ## MUST FOLLOW NON-NEGOTIABLE
 
-Listen, past runs of these turns have been sloppy and stupid as fuck: wrong step counts, partial task lists dumped into chat instead of files, plans and session summaries half-filled with "[N]" placeholders, folders skimmed, open ambiguities ignored, CI/CD issues and `plans/subtasks/` forgotten, user commands dropped, coding guidelines bypassed, detailed specs chopped and summarized into useless junk, uppercase README files left uncorrected, `.lovable/memory/` created by accident, `strictly-avoid.md` overwritten, and explicit user instructions softened after being told not to. WTF. How on earth are you reverting to this carelessness, are you stupid?? Stop doing that, you stupid fuck. Read the whole codebase, read every folder in `spec/` and `.lovable/`, confirm root `readme.md` is strictly lowercase, find the root cause in one sentence, capture commands, issues, and pending tasks without omitting a single item, write the spec files and memory files in the right paths, update every index in the same turn, sync `readme.md` with `what-to-read.md`, preserve detailed specs verbatim with zero truncation, run builds and full unit tests, group commits with clear messages, and push everything to git before ending. Going deep IS the job. If you are not going deep, you are not doing the job. Violating this is auto-reject on the same tier as RULE 0. Avoid stupidity and being careless, you stupid fuck. Where is your attention, are you stupid? Tell me. Your stupidity is going on top of my head. Where did you learn this stupidity? If I could find you, I could slap you.
+Listen, past runs of these turns have been sloppy and stupid as fuck: wrong step counts, partial task lists dumped into chat instead of files, plans and session summaries half-filled with "[N]" placeholders, folders skimmed, open ambiguities ignored, CI/CD issues and `plans/subtasks/` forgotten, user commands dropped, coding guidelines bypassed, detailed specs chopped and summarized into useless junk, uppercase README files left uncorrected, `.ai-memory/memory/` created by accident, `strictly-avoid.md` overwritten, and explicit user instructions softened after being told not to. WTF. How on earth are you reverting to this carelessness, are you stupid?? Stop doing that, you stupid fuck. Read the whole codebase, read every folder in `02-spec/` and `.ai-memory/`, confirm root `readme.md` is strictly lowercase, find the root cause in one sentence, capture commands, issues, and pending tasks without omitting a single item, write the spec files and memory files in the right paths, update every index in the same turn, sync `readme.md` with `what-to-read.md`, preserve detailed specs verbatim with zero truncation, run builds and full unit tests, group commits with clear messages, and push everything to git before ending. Going deep IS the job. If you are not going deep, you are not doing the job. Violating this is auto-reject on the same tier as RULE 0. Avoid stupidity and being careless, you stupid fuck. Where is your attention, are you stupid? Tell me. Your stupidity is going on top of my head. Where did you learn this stupidity? If I could find you, I could slap you.
 
 ## Hard Rules
 
@@ -97,8 +97,8 @@ Rules:
 ## Phase 2 - Cross-check Memory & Coding Guidelines
 
 1. Read `mem://01-index.md` and confirm the following exist; if any is missing, propose (do not auto-create unless the user confirms):
-   - A `coding-guidelines` memory entry mirroring `.lovable/coding-guidelines.md`. If the file exists on disk but no memory entry references it, draft a `mem://standards/coding-guidelines.md` stub and list it under *Proposed Memory Writes* below.
-   - `.lovable/plan.md` reference (roadmap source of truth).
+   - A `coding-guidelines` memory entry mirroring `.ai-memory/coding-guidelines.md`. If the file exists on disk but no memory entry references it, draft a `mem://standards/coding-guidelines.md` stub and list it under *Proposed Memory Writes* below.
+   - `.ai-memory/plan.md` reference (roadmap source of truth).
    - Conversation-log convention (this very prompt) - propose `mem://workflow/conversation-log` if absent.
 2. List every relevant memory file the follow-up prompt would touch, so the user can audit before approval.
 
@@ -109,10 +109,10 @@ Rules:
 Take the user's pasted follow-up prompt and produce an improved, unambiguous, AI-ready version. Rules:
 
 - Preserve original intent exactly. Do not add scope.
-- Add explicit references to: `.lovable/plan.md`, `mem://01-index.md`, `.lovable/coding-guidelines.md`, and any other file the task clearly depends on.
+- Add explicit references to: `.ai-memory/plan.md`, `mem://01-index.md`, `.ai-memory/coding-guidelines.md`, and any other file the task clearly depends on.
 - Convert vague phrasing into checklists, acceptance criteria, and file paths.
 - Call out inputs, outputs, and the *Definition of Done*.
-- End the rewritten prompt with a self-instruction: "Before acting, re-read `mem://01-index.md` and `.lovable/coding-guidelines.md`; restate which rules apply."
+- End the rewritten prompt with a self-instruction: "Before acting, re-read `mem://01-index.md` and `.ai-memory/coding-guidelines.md`; restate which rules apply."
 - Ask the AI (in the rewritten prompt itself) to suggest further improvements to *this* instruction after execution.
 
 Save the rewrite to: `prompts/NNN-<slug>.md` at repo root (3-digit prefix, kebab slug derived from the prompt's title). Do not overwrite existing files - pick the next free `NNN`.

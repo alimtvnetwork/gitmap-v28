@@ -13,7 +13,7 @@ import (
 // readout. The output is suppressed when --no-banner is in os.Args or when
 // the GITMAP_QUIET env var is set to "1".
 //
-// Definitions (see spec/01-app/89-deploy-layout-and-binary-readout.md):
+// Definitions (see 02-spec/01-app/89-deploy-layout-and-binary-readout.md):
 //
 //   - Active   = os.Executable() after filepath.EvalSymlinks. The file the
 //     OS actually loaded for this process.

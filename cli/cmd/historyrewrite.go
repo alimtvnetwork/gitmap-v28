@@ -3,7 +3,7 @@ package cmd
 // Entrypoints for `gitmap history-purge` (`hp`) and `gitmap history-pin`
 // (`hpin`). Both commands wrap `git filter-repo` in a mirror-clone
 // sandbox so the user's working repository is never rewritten in
-// place. Spec: spec/04-generic-cli/16-history-rewrite.md.
+// place. Spec: 02-spec/04-generic-cli/16-history-rewrite.md.
 
 import (
 	"fmt"

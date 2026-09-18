@@ -1,10 +1,10 @@
 # Canonical Folder Structure & Sizing Rules — Architecture Spec (must follow)
 
 > **Prompt Version:** 2.1.0
-> **Synchronization:** Single Source of Truth Mirror for `.lovable/folder-structure.md`
+> **Synchronization:** Single Source of Truth Mirror for `.ai-memory/folder-structure.md`
 > **Target:** `01-prompts/00-folder-structure/01-canonical-folder-structure.md`
 
-Every AI prompt and agent MUST strictly adhere to the central repository layout defined below and in `.lovable/folder-structure.md`. No invented folders, no alternate paths.
+Every AI prompt and agent MUST strictly adhere to the central repository layout defined below and in `.ai-memory/folder-structure.md`. No invented folders, no alternate paths.
 
 All dates are UTC. All filenames are lowercase kebab-case with a two-digit zero-padded `XX-` prefix where sequencing applies. `XX-` is monotonic within its folder scope.
 
@@ -32,7 +32,7 @@ All dates are UTC. All filenames are lowercase kebab-case with a two-digit zero-
     19-main-worker-service/            # Split-tier worker service & proxy nodes
     21-app/ ... 24-app-ui-design-system/ # Application-specific business features & schemas
 
-  .lovable/                            # AI metadata, cognitive memory, and automation layer
+  .ai-memory/                            # AI metadata, cognitive memory, and automation layer
     01-index.md                        # Master repository index and directory router
     02-user-preferences                # Explicit user communication preferences
     03-strictly-avoid.md               # Universal hard prohibitions & CODE RED constraints
@@ -100,7 +100,7 @@ All dates are UTC. All filenames are lowercase kebab-case with a two-digit zero-
 
 ## Hard Rules & Prohibitions
 
-- **Single Authority:** [`.lovable/folder-structure.md`](.lovable/folder-structure.md) is the absolute single source of truth.
-- **Strict Plurality:** Always `.lovable/memory/` (singular), `.lovable/plans/` (plural), `01-prompts/` (plural), `.lovable/suggestions/` (plural).
+- **Single Authority:** [`.ai-memory/folder-structure.md`](.ai-memory/folder-structure.md) is the absolute single source of truth.
+- **Strict Plurality:** Always `.ai-memory/memory/` (singular), `.ai-memory/plans/` (plural), `01-prompts/` (plural), `.ai-memory/suggestions/` (plural).
 - **No Orphaned Folders:** Never invent unapproved folders (e.g., `memories/`, `tasks/`, `todos/`).
 - **Relative Paths Only:** All file paths must be relative from the git root. Absolute paths (`C:\...`, `file:///...`) are banned.

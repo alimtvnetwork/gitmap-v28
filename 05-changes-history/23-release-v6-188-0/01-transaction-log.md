@@ -3,7 +3,7 @@
 > **Directory:** `05-changes-history/23-release-v6-188-0/`
 > **Date:** 2026-09-05
 > **Author/Agent:** Antigravity AI
-> **Module Affected:** Repository-wide (`version.json`, `package.json`, `gitmap/constants/constants.go`, `changelog.md`, `readme.md`, `.lovable/`)
+> **Module Affected:** Repository-wide (`version.json`, `package.json`, `gitmap/constants/constants.go`, `changelog.md`, `readme.md`, `.ai-memory/`)
 > **Status:** Completed & Verified
 
 ---
@@ -18,9 +18,9 @@ release minor update
 In accordance with the `release-and-versioning` skill:
 1. SSoT manifests (`version.json`, `package.json`, `gitmap/constants/constants.go`) were bumped from `6.187.0` to `6.188.0`.
 2. `changelog.md` was updated with the new `## [v6.188.0]` entry, install one-liners, and itemized release bullet points.
-3. Release notes were generated at `.lovable/release/release-notes-v6.188.0.md`.
+3. Release notes were generated at `.ai-memory/release/release-notes-v6.188.0.md`.
 4. Root `readme.md` was pinned to active version `v6.188.0`.
-5. `.lovable/user-preferences` was updated to reflect active version `v6.188.0`.
+5. `.ai-memory/user-preferences` was updated to reflect active version `v6.188.0`.
 6. Version synchronization was validated via `03-ai-scripts/14-version-sync-checker.py` (3/3 passing).
 
 ---
@@ -41,7 +41,7 @@ In accordance with the `release-and-versioning` skill:
   - Refactored `30-db-struct-enum-generator.py` to produce dedicated `enums` subpackages with `gofmt` tab-alignment.
   - Resolved unused imports and updated database model repositories across `pipelinedb` and `generated/db/pipelinedb`.
 - **Coding Guidelines Specification Updates**:
-  - Documented Rule 5 (Lazy Regex & Global Map Deduplication) in `spec/02-coding-guidelines/01-cross-language/17-regex-usage-guidelines.md`.
+  - Documented Rule 5 (Lazy Regex & Global Map Deduplication) in `02-spec/02-coding-guidelines/01-cross-language/17-regex-usage-guidelines.md`.
 
 ---
 
@@ -52,14 +52,14 @@ In accordance with the `release-and-versioning` skill:
 2. `package.json` — Bumped `version` from `6.187.0` to `6.188.0`.
 3. `gitmap/constants/constants.go` — Bumped `Version` from `6.187.0` to `6.188.0`.
 4. `readme.md` — Updated pinned version to `v6.188.0`.
-5. `.lovable/user-preferences` — Pinned active version `v6.188.0`.
+5. `.ai-memory/user-preferences` — Pinned active version `v6.188.0`.
 6. `changelog.md` — Added release header, install commands, and release notes for `v6.188.0`.
 7. `05-changes-history/01-index.md` — Registered transaction log 23.
 8. `gitmap/generated/db/pipelinedb/pipeline_split_db.go` — Removed unused imports.
 
 ### Created
 1. `05-changes-history/23-release-v6-188-0/01-transaction-log.md` — This transaction log.
-2. `.lovable/release/release-notes-v6.188.0.md` — Generated release notes.
+2. `.ai-memory/release/release-notes-v6.188.0.md` — Generated release notes.
 
 ---
 

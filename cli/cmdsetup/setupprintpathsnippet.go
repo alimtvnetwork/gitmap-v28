@@ -18,7 +18,7 @@ import (
 // shell out to this command to obtain byte-identical snippet text,
 // guaranteeing single-source-of-truth across all three drivers.
 //
-// Spec: spec/04-generic-cli/21-post-install-shell-activation/02-snippets.md
+// Spec: 02-spec/04-generic-cli/21-post-install-shell-activation/02-snippets.md
 func runPrintPathSnippet(args []string) error {
 	shell, dir, manager := parsePrintPathSnippetFlags(args)
 	out, err := setup.RenderPathSnippet(shell, dir, manager)

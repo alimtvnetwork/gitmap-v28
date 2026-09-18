@@ -333,14 +333,14 @@ def purge_selected_files(entries: list[DeletedFileEntry], targets: list[str], is
 def resolve_preset_target(args: argparse.Namespace) -> tuple[str, str]:
     """Resolves specific folder preset shortcuts to (path, ext) tuples."""
     preset_map = {
-        "is_spec_25_audit": ("spec/21-app/25-app-spec-audit", ""),
-        "is_spec_audit": ("spec/19-main-worker-service/audit", ""),
-        "is_lovable_subtasks": (".lovable/plans/subtasks", ""),
-        "is_lovable_audits": (".lovable/audits", ""),
-        "is_lovable_md": (".lovable", ".md"),
-        "is_lovable": (".lovable", ""),
-        "is_spec_md": ("spec", ".md"),
-        "is_spec": ("spec", ""),
+        "is_spec_25_audit": ("02-spec/21-app/25-app-spec-audit", ""),
+        "is_spec_audit": ("02-spec/19-main-worker-service/audit", ""),
+        "is_lovable_subtasks": (".ai-memory/plans/subtasks", ""),
+        "is_lovable_audits": (".ai-memory/audits", ""),
+        "is_lovable_md": (".ai-memory", ".md"),
+        "is_lovable": (".ai-memory", ""),
+        "is_spec_md": ("02-spec", ".md"),
+        "is_spec": ("02-spec", ""),
     }
     for flag, target in preset_map.items():
         if getattr(args, flag, False):
@@ -378,13 +378,13 @@ def add_action_args(parser: argparse.ArgumentParser) -> None:
 
 def add_preset_args(parser: argparse.ArgumentParser) -> None:
     """Registers folder and scope preset flags."""
-    parser.add_argument("--spec-25-audit", action="store_true", dest="is_spec_25_audit", help="Preset: spec/21-app/25-app-spec-audit")
-    parser.add_argument("--spec-audit", action="store_true", dest="is_spec_audit", help="Preset: spec/19-main-worker-service/audit")
+    parser.add_argument("--spec-25-audit", action="store_true", dest="is_spec_25_audit", help="Preset: 02-spec/21-app/25-app-spec-audit")
+    parser.add_argument("--spec-audit", action="store_true", dest="is_spec_audit", help="Preset: 02-spec/19-main-worker-service/audit")
     parser.add_argument("--audit", action="store_true", dest="is_audit", help="Preset: all audit files repo-wide (*audit*)")
-    parser.add_argument("--lovable-subtasks", action="store_true", dest="is_lovable_subtasks", help="Preset: .lovable/plans/subtasks/")
-    parser.add_argument("--lovable-audits", action="store_true", dest="is_lovable_audits", help="Preset: .lovable/audits/")
-    parser.add_argument("--lovable", action="store_true", dest="is_lovable", help="Preset: all files in .lovable/")
-    parser.add_argument("--lovable-md", action="store_true", dest="is_lovable_md", help="Preset: .md files in .lovable/")
+    parser.add_argument("--lovable-subtasks", action="store_true", dest="is_lovable_subtasks", help="Preset: .ai-memory/plans/subtasks/")
+    parser.add_argument("--lovable-audits", action="store_true", dest="is_lovable_audits", help="Preset: .ai-memory/audits/")
+    parser.add_argument("--lovable", action="store_true", dest="is_lovable", help="Preset: all files in .ai-memory/")
+    parser.add_argument("--lovable-md", action="store_true", dest="is_lovable_md", help="Preset: .md files in .ai-memory/")
     parser.add_argument("--spec", action="store_true", dest="is_spec", help="Preset: all files in spec/")
     parser.add_argument("--spec-md", action="store_true", dest="is_spec_md", help="Preset: .md files in spec/")
 
@@ -400,10 +400,10 @@ def add_filter_and_option_args(parser: argparse.ArgumentParser) -> None:
     parser.add_argument("--backup-only", action="store_true", dest="is_backup_only", help="Create safety backup branch only.")
 
 CLI_EPILOG = """Examples:
-  # 1. Preview files in spec folder 25 (spec/21-app/25-app-spec-audit)
+  # 1. Preview files in spec folder 25 (02-spec/21-app/25-app-spec-audit)
   python 03-ai-scripts/33-git-history-tracer-and-purger.py --spec-25-audit
 
-  # 2. Preview deleted files in spec/19-main-worker-service/audit
+  # 2. Preview deleted files in 02-spec/19-main-worker-service/audit
   python 03-ai-scripts/33-git-history-tracer-and-purger.py --spec-audit
 
   # 3. Preview all deleted audit files repo-wide

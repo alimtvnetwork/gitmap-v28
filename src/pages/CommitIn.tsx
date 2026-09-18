@@ -29,7 +29,7 @@ const CommitInPage = () => (
           rewriting an existing commit.
         </p>
         <p className="text-xs text-muted-foreground mt-2">
-          Spec: <code>spec/03-commit-in/</code>
+          Spec: <code>02-spec/03-commit-in/</code>
         </p>
       </div>
 

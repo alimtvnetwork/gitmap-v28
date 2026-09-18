@@ -19,8 +19,8 @@ in the root README. Do NOT run the release prompt. Do NOT invent a
 "minor bump because this felt important" step.
 
 The release happens ONLY when the ENTIRE plan is finished, meaning every
-task in `.lovable/plans/pending/01-<slug>.md` for that plan (and every
-subtask) has been moved to `.lovable/plans/completed/` with
+task in `.ai-memory/plans/pending/01-<slug>.md` for that plan (and every
+subtask) has been moved to `.ai-memory/plans/completed/` with
 `Status: completed`. Detection is mechanical:
 
 - If ANY task or subtask for the active plan still sits in `pending/`,
@@ -55,9 +55,9 @@ Releasing mid-plan is auto-reject on the same tier as RULE 0.
 
 When a task is completed this turn:
 
-- `mv .lovable/plans/pending/01-<slug>.md .lovable/plans/completed/01-<slug>.md`
+- `mv .ai-memory/plans/pending/01-<slug>.md .ai-memory/plans/completed/01-<slug>.md`
 - Flip `Status: completed` in the same move.
-- Update `.lovable/plans/01-index.md` in the same op.
+- Update `.ai-memory/plans/01-index.md` in the same op.
 - Subtasks follow the parent plan's convention (move to
   `subtasks/01-<slug>/completed/` or flip `Status:` in place).
 
@@ -93,7 +93,7 @@ You are NOT done until all of these are true:
 - [ ] You reported what changed and why.
 - [ ] The full remaining-tasks list is included after the `{{n}}` steps.
 - [ ] Every task completed this turn is MOVED from
-      `.lovable/plans/pending/` to `.lovable/plans/completed/` per the
+      `.ai-memory/plans/pending/` to `.ai-memory/plans/completed/` per the
       lifecycle section above.
 - [ ] Plan-completion check performed: released ONLY if the plan's
       `pending/` set is empty after this turn; otherwise NO release.
@@ -132,11 +132,11 @@ You are NOT done until all of these are true:
 
 Before touching code, verify guideline sources and follow them:
 
-1. Check `.lovable/coding-guidelines.md` or `spec/02-coding-guidelines/`. If present, follow it.
-2. Check `spec/03-error-manage/` for error management rules.
-3. Check `spec/04-database-conventions/` for schemas.
+1. Check `.ai-memory/coding-guidelines.md` or `02-spec/02-coding-guidelines/`. If present, follow it.
+2. Check `02-spec/03-error-manage/` for error management rules.
+3. Check `02-spec/04-database-conventions/` for schemas.
 4. If multiple guidelines apply, follow ALL of them.
-5. On conflict, prefer the folder-level spec (`spec/02-coding-guidelines/`) over flat summaries.
+5. On conflict, prefer the folder-level spec (`02-spec/02-coding-guidelines/`) over flat summaries.
 6. If this IS a coding task and guidelines are missing, STOP and ask the user to clarify before writing code. Do not invent a house style.
 
 ---
@@ -159,4 +159,4 @@ Before touching code, verify guideline sources and follow them:
 
 ## MUST FOLLOW NON-NEGOTIABLE
 
-Listen, past runs of these turns have been sloppy and stupid as fuck: wrong step counts, partial task lists dumped into chat instead of files, plans and session summaries half-filled with "[N]" placeholders, folders skimmed, open ambiguities ignored, CI/CD issues and `plans/subtasks/` forgotten, user commands dropped, coding guidelines bypassed, detailed specs chopped and summarized into useless junk, uppercase README files left uncorrected, `.lovable/memory/` created by accident, `strictly-avoid.md` overwritten, and explicit user instructions softened after being told not to. WTF. How on earth are you reverting to this carelessness, are you stupid?? Stop doing that, you stupid fuck. Read the whole codebase, read every folder in `spec/` and `.lovable/`, confirm root `readme.md` is strictly lowercase, find the root cause in one sentence, capture commands, issues, and pending tasks without omitting a single item, write the spec files and memory files in the right paths, update every index in the same turn, sync `readme.md` with `what-to-read.md`, preserve detailed specs verbatim with zero truncation, run builds and full unit tests, group commits with clear messages, and push everything to git before ending. Going deep IS the job. If you are not going deep, you are not doing the job. Violating this is auto-reject on the same tier as RULE 0. Avoid stupidity and being careless, you stupid fuck. Where is your attention, are you stupid? Tell me. Your stupidity is going on top of my head. Where did you learn this stupidity? If I could find you, I could slap you.
+Listen, past runs of these turns have been sloppy and stupid as fuck: wrong step counts, partial task lists dumped into chat instead of files, plans and session summaries half-filled with "[N]" placeholders, folders skimmed, open ambiguities ignored, CI/CD issues and `plans/subtasks/` forgotten, user commands dropped, coding guidelines bypassed, detailed specs chopped and summarized into useless junk, uppercase README files left uncorrected, `.ai-memory/memory/` created by accident, `strictly-avoid.md` overwritten, and explicit user instructions softened after being told not to. WTF. How on earth are you reverting to this carelessness, are you stupid?? Stop doing that, you stupid fuck. Read the whole codebase, read every folder in `02-spec/` and `.ai-memory/`, confirm root `readme.md` is strictly lowercase, find the root cause in one sentence, capture commands, issues, and pending tasks without omitting a single item, write the spec files and memory files in the right paths, update every index in the same turn, sync `readme.md` with `what-to-read.md`, preserve detailed specs verbatim with zero truncation, run builds and full unit tests, group commits with clear messages, and push everything to git before ending. Going deep IS the job. If you are not going deep, you are not doing the job. Violating this is auto-reject on the same tier as RULE 0. Avoid stupidity and being careless, you stupid fuck. Where is your attention, are you stupid? Tell me. Your stupidity is going on top of my head. Where did you learn this stupidity? If I could find you, I could slap you.

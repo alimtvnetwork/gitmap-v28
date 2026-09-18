@@ -15,7 +15,7 @@ CHUNK_SIZE = 40
 IGNORED_DIRS = {
     ".git", ".gitmap", "node_modules", "dist", "build", "bin",
     ".next", "vendor", "coverage", ".gemini", ".system_generated",
-    "scratch", "temp-scripts", "temp-agents", "temp", ".lovable", ".tmp"
+    "scratch", "temp-scripts", "temp-agents", "temp", ".ai-memory", ".tmp"
 }
 
 

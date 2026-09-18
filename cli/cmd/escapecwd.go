@@ -17,7 +17,7 @@ import (
 // we attempted to escape but Chdir failed — callers should treat that
 // as fatal because the follow-up remove will deadlock on Windows.
 //
-// Used by spec/01-app/113 to make every clone-family command tolerate
+// Used by 02-spec/01-app/113 to make every clone-family command tolerate
 // "I'm already inside the folder I'm about to re-clone".
 func escapeCwdIfInside(target string) (string, error) {
 	cwd, err := os.Getwd()

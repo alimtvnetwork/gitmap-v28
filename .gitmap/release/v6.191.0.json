@@ -10,7 +10,7 @@
     "Aligned SSoT manifests and verified version propagation across version.json, package.json, constants.go, and readme.md",
     "Enforced strict zero-tag policy delegating git tags to automated CI release orchestrators",
     "Passed 100% test verification across lazyregex, regexnew, pipelinedb, and constants packages",
-    "Pinned active repository version to v6.191.0 in root readme.md and .lovable/user-preferences"
+    "Pinned active repository version to v6.191.0 in root readme.md and .ai-memory/user-preferences"
   ],
   "isDraft": false,
   "isPreRelease": false,

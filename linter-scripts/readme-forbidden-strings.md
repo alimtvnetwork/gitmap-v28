@@ -49,7 +49,7 @@ exclude_files = ["forbidden-strings.toml", "check-forbidden-strings.py", "forbid
 allowlist = [
   # Repo-relative paths or globs that may legitimately contain the pattern.
   # Add via `allowlist-forbidden-string.py` to keep the justification comment.
-  "spec/14-update/23-install-script-version-probe.md",
+  "02-spec/14-update/23-install-script-version-probe.md",
 ]
 ```
 

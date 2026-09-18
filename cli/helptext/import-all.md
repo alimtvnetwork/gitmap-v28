@@ -23,7 +23,7 @@ Preflight inspection can be executed by running `gitmap chrome import-all ls <pa
 - `--json`: Format preview output as JSON.
 - `--file <path>`: Write preview output to specified file path.
 - `--fnf <path>`: Save to file or fail if no candidates match.
-- `--tempfile <filename>`: Write output to `.lovable/temp/<filename>`.
+- `--tempfile <filename>`: Write output to `.ai-memory/temp/<filename>`.
 
 ## Examples
 

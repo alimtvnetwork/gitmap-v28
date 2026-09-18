@@ -3,7 +3,7 @@ package cmd
 // JSON schema contract for `gitmap ssh list --json`. Pairs the
 // runtime encoder (encodeSSHListJSON / buildSSHListJSONItems
 // in sshlistrender.go) with the published schema at
-// spec/08-json-schemas/ssh-list.schema.json so drift in either
+// 02-spec/08-json-schemas/ssh-list.schema.json so drift in either
 // side fails the build.
 
 import (

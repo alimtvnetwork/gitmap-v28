@@ -1,7 +1,7 @@
 /**
  * TypeScript types for the `gitmap help --json` payload.
  *
- * Generated from spec/08-json-schemas/help-json.schema.json (draft-07).
+ * Generated from 02-spec/08-json-schemas/help-json.schema.json (draft-07).
  * Keep in sync with the schema — the Go contract test
  * `helpjson_jsonschema_contract_test.go` validates runtime output against
  * the schema on every build.

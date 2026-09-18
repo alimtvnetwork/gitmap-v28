@@ -30,7 +30,7 @@ _Scan, catalog, clone, and manage all your Git repositories from a single CLI._
 
 <div align="center">
 
-📖 **[Full Command & Subcommand Directory (docs/commands/)](./docs/commands/readme.md)** · 📚 **[Command Reference](#command-reference)** · 🧭 **[What to Read](.lovable/what-to-read.md)** · 🚀 **[Install](#-install)**
+📖 **[Full Command & Subcommand Directory (docs/commands/)](./docs/commands/readme.md)** · 📚 **[Command Reference](#command-reference)** · 🧭 **[What to Read](.ai-memory/what-to-read.md)** · 🚀 **[Install](#-install)**
 
 </div>
 
@@ -57,11 +57,11 @@ curl -fsSL https://raw.githubusercontent.com/alimtvnetwork/gitmap-v28/main/insta
 Install a specific version without auto-updating:
 
 ```bash
-curl -sL https://raw.githubusercontent.com/alimtvnetwork/gitmap-v28/v6.259.0/install.sh | bash -s -- ".lovable/prompts" "v6.259.0"
+curl -sL https://raw.githubusercontent.com/alimtvnetwork/gitmap-v28/v6.259.0/install.sh | bash -s -- ".ai-memory/prompts" "v6.259.0"
 ```
 
 ```powershell
-Invoke-WebRequest -Uri https://raw.githubusercontent.com/alimtvnetwork/gitmap-v28/v6.259.0/install.ps1 -OutFile install.ps1; .\install.ps1 -TargetDir ".lovable/prompts" -Version "v6.259.0"
+Invoke-WebRequest -Uri https://raw.githubusercontent.com/alimtvnetwork/gitmap-v28/v6.259.0/install.ps1 -OutFile install.ps1; .\install.ps1 -TargetDir ".ai-memory/prompts" -Version "v6.259.0"
 ```
 
 ### 🎯 Install — Quick (pick your install drive)
@@ -292,7 +292,7 @@ map as a single object. Every command flows from that idea.
   the agent can read, deterministic outputs that survive being
   diffed across runs, and command output formats designed to be
   pasted straight into a chat.
-- Built-in `LLM.md` + `spec/` directory makes the codebase itself
+- Built-in `LLM.md` + `02-spec/` directory makes the codebase itself
   legible to AI — an explicit design choice, not an accident.
 
 #### 🛠️ Self-managing installation
@@ -326,7 +326,7 @@ map as a single object. Every command flows from that idea.
 - `schedule` (`sc`) / `crontab` — background task and macro scheduler with per-schedule split DBs (`schedules/<slug>.db`), debug inspect, and edit workflows.
 - `async` (`asyn`) — run background monitor commands and periodic loops (`-t <seconds>`).
 - `storage` (`stor`) — inspect drive capacity, filesystem format, and full SQLite database inventory (`gitmap storage ls`) with table and record counts.
-- `pipeline error-logs -t` — live polling on runner ETA countdowns (`.lovable/temp/runner-eta.json`) before extracting CI/CD error diagnostics.
+- `pipeline error-logs -t` — live polling on runner ETA countdowns (`.ai-memory/temp/runner-eta.json`) before extracting CI/CD error diagnostics.
 
 #### 🖥️ Web docs UI
 
@@ -341,7 +341,7 @@ release metadata so the docs can never drift from the binary.
 > Git repository on your machine — born from a two-hour migration
 > hack, hardened into the author's daily driver.**
 
-> **One-stop install/update reference**: [`spec/01-app/108-cross-platform-install-update.md`](spec/01-app/108-cross-platform-install-update.md) — the full Windows / macOS / Linux install · update · uninstall · verify matrix is also rendered in the docs at `/install-gitmap`.
+> **One-stop install/update reference**: [`02-spec/01-app/108-cross-platform-install-update.md`](02-spec/01-app/108-cross-platform-install-update.md) — the full Windows / macOS / Linux install · update · uninstall · verify matrix is also rendered in the docs at `/install-gitmap`.
 
 ## Quick Start
 
@@ -659,7 +659,7 @@ error. The Windows equivalent is `pwsh scripts/build-stamp.ps1 -Strict`.
 The canonical, repository-agnostic contract that every installer in this
 project (and any sibling repo) MUST follow lives at:
 
-> **[`spec/07-generic-release/09-generic-install-script-behavior.md`](spec/07-generic-release/09-generic-install-script-behavior.md)**
+> **[`02-spec/07-generic-release/09-generic-install-script-behavior.md`](02-spec/07-generic-release/09-generic-install-script-behavior.md)**
 
 It defines the two install modes in one place:
 
@@ -704,7 +704,7 @@ gitmap help --json                # machine-readable JSON (ANSI stripped)
 gitmap help --json --filter ssh   # compose: scope JSON to matching rows
 ```
 
-> **JSON Schema:** the `--json` payload conforms to [`spec/08-json-schemas/help-json.schema.json`](spec/08-json-schemas/help-json.schema.json) (JSON Schema draft 2020-12). A contract test validates runtime output against the schema on every build to prevent drift. Glyph rendering follows `--glyphs auto|rich|safe` (auto-falls-back to ASCII on legacy PowerShell 5.1).
+> **JSON Schema:** the `--json` payload conforms to [`02-spec/08-json-schemas/help-json.schema.json`](02-spec/08-json-schemas/help-json.schema.json) (JSON Schema draft 2020-12). A contract test validates runtime output against the schema on every build to prevent drift. Glyph rendering follows `--glyphs auto|rich|safe` (auto-falls-back to ASCII on legacy PowerShell 5.1).
 
 ---
 
@@ -737,7 +737,7 @@ gitmap rescan                   # re-scan all known directories
 The scanner is intentionally strict so the catalog stays trustworthy.
 These rules are stable across releases and are enforced by
 [`cli/scanner/scanner.go`](cli/scanner/scanner.go) (see also
-[`spec/01-app/03-scanner.md`](spec/01-app/03-scanner.md)).
+[`02-spec/01-app/03-scanner.md`](02-spec/01-app/03-scanner.md)).
 
 **1. Repo markers — what makes a directory a "repo".** A directory is
 recorded as a repo when it contains a child entry literally named
@@ -1764,7 +1764,7 @@ Conflict prompt keys: **L**eft / **R**ight / **S**kip /
 bypass; combine with `--prefer-left` / `--prefer-right` /
 `--prefer-newer` / `--prefer-skip` to override the default policy.
 
-→ [spec/01-app/97-move-and-merge.md](spec/01-app/97-move-and-merge.md)
+→ [02-spec/01-app/97-move-and-merge.md](02-spec/01-app/97-move-and-merge.md)
 
 ---
 
@@ -1864,9 +1864,9 @@ gitmap commit-in ./canonical all --save-profile Default --set-default
 gitmap cin       ./canonical -3 --dry-run --function-intel on --languages Go,TypeScript
 ```
 
-→ Specs: [`spec/04-generic-cli/15-replace-command.md`](spec/04-generic-cli/15-replace-command.md) ·
-[`spec/04-generic-cli/27-fix-repo-command.md`](spec/04-generic-cli/27-fix-repo-command.md) ·
-[`spec/03-commit-in/`](spec/03-commit-in/)
+→ Specs: [`02-spec/04-generic-cli/15-replace-command.md`](02-spec/04-generic-cli/15-replace-command.md) ·
+[`02-spec/04-generic-cli/27-fix-repo-command.md`](02-spec/04-generic-cli/27-fix-repo-command.md) ·
+[`02-spec/03-commit-in/`](02-spec/03-commit-in/)
 
 ---
 
@@ -1902,7 +1902,7 @@ gitmap lb 5 --format csv
 
 ## 🤖 AI Onboarding
 
-If you are an AI assistant working on this repository, you **MUST** read [`.lovable/what-to-read.md`](.lovable/what-to-read.md) before starting any task. It is the authoritative read-list for the project architecture, constraints, and coding guidelines.
+If you are an AI assistant working on this repository, you **MUST** read [`.ai-memory/what-to-read.md`](.ai-memory/what-to-read.md) before starting any task. It is the authoritative read-list for the project architecture, constraints, and coding guidelines.
 
 ---
 
@@ -1955,7 +1955,7 @@ gitmap uninstall ctx            # remove every entry written by ctx (safe, idemp
 
 The table below is the **authoritative** mapping between menu item and
 the exact command + flags gitmap runs. It mirrors
-[`spec/04-generic-cli/30-install-ctx.md`](spec/04-generic-cli/30-install-ctx.md)
+[`02-spec/04-generic-cli/30-install-ctx.md`](02-spec/04-generic-cli/30-install-ctx.md)
 §3 and the Go source of truth in
 [`cli/cmd/installctxentries.go`](cli/cmd/installctxentries.go).
 
@@ -2243,7 +2243,7 @@ Concise, grouped per version. Each entry calls out **💥 Breaking**, **✨ Enha
 
 #### v3.52.0 — 2026-04-21 — CI lint baseline cache controls (docs)
 
-- ✨ **Enhancements:** `spec/09-pipeline/01-ci-pipeline.md` now documents the two `workflow_dispatch` inputs (`lint_baseline_cache_version`, `lint_baseline_disable`) that let operators rotate or bypass the golangci-lint baseline cache without editing the workflow. Includes copy-paste `gh workflow run` examples and a new "Job: Lint Baseline Diff" section covering cache keys, seeding mode, and sticky PR comment behavior.
+- ✨ **Enhancements:** `02-spec/09-pipeline/01-ci-pipeline.md` now documents the two `workflow_dispatch` inputs (`lint_baseline_cache_version`, `lint_baseline_disable`) that let operators rotate or bypass the golangci-lint baseline cache without editing the workflow. Includes copy-paste `gh workflow run` examples and a new "Job: Lint Baseline Diff" section covering cache keys, seeding mode, and sticky PR comment behavior.
 - 🐛 **Fixes:** none — documentation-only sync; no CI behavior change.
 
 #### v3.51.0 — 2026-04-21 — `cn v+1 -f` flag parsing + cleaner release trailer
@@ -3219,7 +3219,7 @@ PowerShell flags are case-insensitive, so `-uninstall`, `-Uninstall`, and
 ├── scripts/                     helper shell / PowerShell scripts
 ├── .github/workflows/           CI pipelines
 ├── .gitmap/                     runtime artifacts — do NOT hand-edit
-├── .lovable/                    AI memory + plans + prompts
+├── .ai-memory/                    AI memory + plans + prompts
 └── src/                         React docs site (Vite + shadcn)
 ```
 
@@ -3229,14 +3229,14 @@ A fresh AI session should open these files **in order** to understand the
 project, the JSON output contracts, and how to add a new JSON surface:
 
 1. This README — product overview + folder structure (you are here).
-2. **[`.lovable/memory/project/what-to-read.md`](./.lovable/memory/project/what-to-read.md)**
+2. **[`.ai-memory/memory/project/what-to-read.md`](./.ai-memory/memory/project/what-to-read.md)**
    — full onboarding map, JSON contract triangle
    (schema ↔ model ↔ encoder ↔ test ↔ fixture), and the step-by-step
    recipe for adding a new JSON output.
-3. `.lovable/memory/index.md` — master memory index (Core rules + topic links).
-4. [`.lovable/coding-guidelines/centralized-error-handling-architecture.md`](./.lovable/coding-guidelines/centralized-error-handling-architecture.md) — Centralized error management & anti-pattern elimination.
-5. `.lovable/overview.md` and `.lovable/strictly-avoid.md` — invariants & hard NOs.
-5. `spec/08-json-schemas/` — every JSON output's schema.
+3. `.ai-memory/memory/index.md` — master memory index (Core rules + topic links).
+4. [`.ai-memory/coding-guidelines.mdcentralized-error-handling-architecture.md`](./.ai-memory/coding-guidelines.mdcentralized-error-handling-architecture.md) — Centralized error management & anti-pattern elimination.
+5. `.ai-memory/overview.md` and `.ai-memory/strictly-avoid.md` — invariants & hard NOs.
+5. `02-spec/08-json-schemas/` — every JSON output's schema.
 6. `cli/cmd/amendauditrender.go` + `amendaudit_jsonschema_contract_test.go`
    — canonical example of the encoder + contract-test pattern to copy.
 
@@ -3245,13 +3245,13 @@ project, the JSON output contracts, and how to add a new JSON surface:
 Every JSON-emitting command follows the same four-layer contract:
 
 ```
-spec/08-json-schemas/<name>.schema.json          ← contract (draft-07)
+02-spec/08-json-schemas/<name>.schema.json          ← contract (draft-07)
 cli/model/<name>.go                           ← Go struct
 cli/cmd/<name>render.go                       ← stablejson encoder (key order = wire contract)
 cli/cmd/<name>_jsonschema_contract_test.go    ← drift guard
 ```
 
-See `.lovable/memory/project/what-to-read.md` §3–4 for the full recipe.
+See `.ai-memory/memory/project/what-to-read.md` §3–4 for the full recipe.
 
 ---
 
@@ -3334,7 +3334,7 @@ Alternatively, use the built-in CLI: gitmap cg install or gitmap cg help.
 
 ## Release Architecture
 
-For repository versioning and propagation design, see [.lovable/memory/release-architecture-map.md](.lovable/memory/release-architecture-map.md).
+For repository versioning and propagation design, see [.ai-memory/memory/release-architecture-map.md](.ai-memory/memory/release-architecture-map.md).
 
 
 - [Folder Command Logic](cli/cmd/folder/folder.go)
@@ -3347,16 +3347,16 @@ For repository versioning and propagation design, see [.lovable/memory/release-a
 
 - [Install Tools Logic](cli/cmd/installtools.go)
 
-- [Search and LLM Specs](.lovable/plans/pending/06-search-and-llm-feature.md)
+- [Search and LLM Specs](.ai-memory/plans/pending/06-search-and-llm-feature.md)
 
-- [.lovable/plans/pending/01-file-manipulation-spec.md](.lovable/plans/pending/01-file-manipulation-spec.md) - Generic AI Instruction spec for lowercase and file sequencing commands.
+- [.ai-memory/plans/pending/01-file-manipulation-spec.md](.ai-memory/plans/pending/01-file-manipulation-spec.md) - Generic AI Instruction spec for lowercase and file sequencing commands.
 
-- [.lovable/plans/pending/02-python-file-manipulation-spec.md](.lovable/plans/pending/02-python-file-manipulation-spec.md) - AI Instruction spec for generating the Python file manipulation script.
+- [.ai-memory/plans/pending/02-python-file-manipulation-spec.md](.ai-memory/plans/pending/02-python-file-manipulation-spec.md) - AI Instruction spec for generating the Python file manipulation script.
 
-- [.lovable/plans/pending/03-fix-release-tag-ordering.md](.lovable/plans/pending/03-fix-release-tag-ordering.md) - Master Plan to fix release tag commit ordering.
-- [.lovable/plans/subtasks/03-fix-release-tag-ordering/01-task.md](.lovable/plans/subtasks/03-fix-release-tag-ordering/01-task.md) - Subtask for release workflow step reordering.
+- [.ai-memory/plans/pending/03-fix-release-tag-ordering.md](.ai-memory/plans/pending/03-fix-release-tag-ordering.md) - Master Plan to fix release tag commit ordering.
+- [.ai-memory/plans/subtasks/03-fix-release-tag-ordering/01-task.md](.ai-memory/plans/subtasks/03-fix-release-tag-ordering/01-task.md) - Subtask for release workflow step reordering.
 
 
 ## Release Architecture
 
-For information on how releases are managed, see [.lovable/memory/release-architecture-map.md](.lovable/memory/release-architecture-map.md).
+For information on how releases are managed, see [.ai-memory/memory/release-architecture-map.md](.ai-memory/memory/release-architecture-map.md).

@@ -5,7 +5,7 @@
 //
 // Accepts `--run <id>` and `--dry-run`.
 //
-// Spec: spec/01-app/116-bulk-visibility-mapub-mapri.md §undo-redo.
+// Spec: 02-spec/01-app/116-bulk-visibility-mapub-mapri.md §undo-redo.
 package cmd
 
 import (

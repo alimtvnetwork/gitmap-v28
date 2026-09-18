@@ -10,7 +10,7 @@ import (
 
 // runReplace is the entrypoint for `gitmap replace`. It dispatches into
 // literal mode, version mode (-N / all), or audit mode based on the
-// shape of args. See spec/04-generic-cli/15-replace-command.md.
+// shape of args. See 02-spec/04-generic-cli/15-replace-command.md.
 func runReplace(args []string) error {
 	checkHelp(constants.CmdReplace, args)
 

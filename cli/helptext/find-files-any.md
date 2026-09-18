@@ -25,7 +25,7 @@ Find all files containing `runner` in Python and Go files:
 
 ```bash
 $ gitmap find-files-any "runner" -ext "py, go"
-.lovable/ai-fix-scripts/06-cicd-local-runner.py
+03-ai-scripts/06-cicd-local-runner.py
 ```
 
 ### JSON Format for Automation

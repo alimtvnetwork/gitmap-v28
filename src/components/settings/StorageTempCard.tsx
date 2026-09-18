@@ -25,7 +25,7 @@ export function StorageTempCard({ tempDir, onTempDirChange }: StorageTempCardPro
           value={tempDir}
           onChange={(e) => onTempDirChange(e.target.value)}
           className="w-full px-3 py-2 rounded-md border border-input bg-background text-foreground text-sm font-mono focus:outline-none focus:ring-2 focus:ring-primary"
-          placeholder=".lovable/temp"
+          placeholder=".ai-memory/temp"
         />
       </div>
     </div>

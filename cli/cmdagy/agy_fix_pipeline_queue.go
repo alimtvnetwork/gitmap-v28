@@ -10,8 +10,8 @@ import (
 )
 
 const (
-	queuedAgyPromptRelativePath = ".lovable/temp/queued-agy-followup-prompt.txt"
-	agyPromptQueueRelativePath  = ".lovable/temp/agy-prompt-queue.json"
+	queuedAgyPromptRelativePath = ".ai-memory/temp/queued-agy-followup-prompt.txt"
+	agyPromptQueueRelativePath  = ".ai-memory/temp/agy-prompt-queue.json"
 )
 
 const verificationInstructions = `Please perform the following verification steps:

@@ -58,7 +58,7 @@ func emitFindNext(rows []model.FindNextRow, jsonOut bool) error {
 // Encoder lives in findnextrender.go; CONTRACT for top-level key
 // order is pinned by gitmap/cmd/findnextjson_contract_test.go AND
 // gitmap/cmd/findnext_jsonschema_contract_test.go (the latter
-// cross-checks against spec/08-json-schemas/find-next.schema.json).
+// cross-checks against 02-spec/08-json-schemas/find-next.schema.json).
 func emitFindNextJSON(rows []model.FindNextRow) *apperror.AppError {
 	if err := encodeFindNextJSON(os.Stdout, rows); err != nil {
 		return apperror.WrapSimple(err, constants.ErrFindNextJSONEncodeFmt)

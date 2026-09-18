@@ -105,7 +105,7 @@ for root, dirs, files in os.walk(gitmap_dir):
         if f.endswith(".go") and not f.endswith(".pb.go"):
             audit_file(os.path.join(root, f))
 
-with open(".lovable/scratch/cg_violations.json", "w", encoding="utf-8") as f:
+with open(".ai-memory/scratch/cg_violations.json", "w", encoding="utf-8") as f:
     json.dump(violations, f, indent=2)
 
 print(f"Audit complete! Found {len(violations)} total violations.")

@@ -5,7 +5,7 @@ package cmd
 // Migrated off json.Encoder onto gitmap/stablejson so the top-level
 // key order (repo, nextVersionTag, nextVersionNum, method, probedAt)
 // becomes a compile-time decision rather than a reflection accident.
-// Schema: spec/08-json-schemas/find-next.schema.json.
+// Schema: 02-spec/08-json-schemas/find-next.schema.json.
 //
 // The nested `repo` value rides on encoding/json via stablejson's
 // per-value Marshal — model.ScanRecord's wire shape is pinned by the

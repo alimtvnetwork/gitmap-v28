@@ -1,6 +1,6 @@
 ---
 name: cg-nested-if
-description: Autonomously scan, audit, refactor, and verify repository-wide control flow flattening, eliminating nested if statements (nesting depth > 1) and enforcing guard clauses, early returns, and mandatory braces against spec/02-coding-guidelines/.
+description: Autonomously scan, audit, refactor, and verify repository-wide control flow flattening, eliminating nested if statements (nesting depth > 1) and enforcing guard clauses, early returns, and mandatory braces against 02-spec/02-coding-guidelines/.
 ---
 
 # Skill: Nested If Elimination & Guard Clauses (`cg-nested-if`)

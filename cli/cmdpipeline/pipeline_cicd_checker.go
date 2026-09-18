@@ -26,7 +26,7 @@ func runInternalCICDChecks(autoFix bool) []CICDCheckResult {
 
 	results := []CICDCheckResult{
 		probeGofmtFormat(autoFix),
-		probeScriptCheck("linter-scripts/check-nested-ifs.py", "Nested If Linter", "Flatten nested ifs per spec/02-coding-guidelines/"),
+		probeScriptCheck("linter-scripts/check-nested-ifs.py", "Nested If Linter", "Flatten nested ifs per 02-spec/02-coding-guidelines/"),
 		probeScriptCheck("linter-scripts/check-enum-and-boolean.py", "Boolean & Enum Linter", "Audit boolean conventions and enum Type suffixes"),
 		probeScriptCheck("linter-scripts/check-relative-paths.py", "Relative Paths Linter", "Replace absolute drive letters with relative paths"),
 		probeScriptCheck("linter-scripts/check-error-management.py", "Error Management Linter", "Wrap errors with AppError and avoid swallowed errors"),

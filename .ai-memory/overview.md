@@ -1,0 +1,70 @@
+# Project Overview
+
+## What is gitmap?
+
+**gitmap** is a portable Go CLI tool that scans directory trees for Git repositories, extracts clone URLs and branch information, and outputs structured data in multiple formats. It can re-clone repositories from that data, preserving the original folder hierarchy. It also manages releases, SSH keys, environment variables, developer tool installations, and provides an interactive TUI.
+
+## Current Version
+
+**v3.1.0** (defined in `gitmap/constants/constants.go`)
+
+## Tech Stack
+
+| Layer | Technology |
+|-------|-----------|
+| CLI | Go (compiled to `gitmap` / `gitmap.exe`) |
+| Database | SQLite via `modernc.org/sqlite` (CGo-free) |
+| Build/Deploy | PowerShell (`run.ps1`), Makefile, `run.sh` |
+| Frontend | React + Vite + Tailwind (documentation site) |
+| Config | JSON (`data/config.json`) |
+| CI/CD | GitHub Actions |
+
+## Repository
+
+`https://github.com/alimtvnetwork/gitmap-v28`
+
+## Key Directories
+
+| Directory | Purpose |
+|-----------|---------|
+| `cli/` | Go source code for the CLI |
+| `cli-updater/` | Standalone updater binary |
+| `02-spec/01-app/` | App-specific specification documents |
+| `02-spec/02-app-issues/` | App issue post-mortems and resolutions |
+| `02-spec/03-general/` | Reusable design patterns and guidelines |
+| `02-spec/04-generic-cli/` | Generic CLI implementation blueprint |
+| `02-spec/05-coding-guidelines/` | Code quality rules and conventions |
+| `02-spec/06-design-system/` | UI design system specs |
+| `02-spec/09-pipeline/` | CI/CD pipeline specifications |
+| `src/` | React frontend (documentation site) |
+| `.ai-memory/memory/` | AI memory and tracking |
+| `01-prompts/` | AI onboarding prompts |
+| `.gitmap/release/` | Release metadata JSON files (DO NOT TOUCH) |
+| `.gitmap/output/` | Scan output (CSV, JSON, scripts) |
+| `settings/` | Editor and terminal settings sync |
+
+## CLI Commands (60+)
+
+The CLI supports 60+ subcommands with aliases. Key commands include: `scan`, `clone`, `clone-next`, `pull`, `release`, `release-self`, `update`, `install`, `ssh`, `env`, `interactive`, `cd`, `watch`, `task`, `doctor`, `version`, `changelog`, `stats`, `export`, `import`, `profile`, `completion`.
+
+Full command list: `.ai-memory/memory/features/cli-commands.md`
+
+## Database
+
+SQLite with 22+ tables using strict PascalCase naming and INTEGER PRIMARY KEY AUTOINCREMENT. Connection pooling restricted to `SetMaxOpenConns(1)`. Database anchored to binary execution path via `filepath.EvalSymlinks`.
+
+## Code Style Summary
+
+- Files: max 200 lines
+- Functions: 8-15 lines
+- No negation in `if` conditions (no `!`, no `!=`)
+- No `switch` statements
+- No magic strings — all literals in `constants` package
+- PascalCase for DB tables/columns and exported constants
+- Boolean naming: always `is`/`has` prefix
+- Blank line before `return`
+- Zero-swallow error policy
+
+## Version Policy
+
+Bump on every code change. SemVer (`MAJOR.MINOR.PATCH`).

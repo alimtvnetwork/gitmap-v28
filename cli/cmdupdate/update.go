@@ -253,8 +253,8 @@ func handleHandoffError(err error) {
 // (a different file than this handoff copy) is invoked detached to
 // run `update-cleanup`. Only the deployed binary can safely remove
 // the still-locked handoff copy and the just-renamed *.exe.old.
-// See spec/08-generic-update/06-cleanup.md and
-// spec/03-general/02f-self-update-orchestration.md.
+// See 02-spec/08-generic-update/06-cleanup.md and
+// 02-spec/03-general/02f-self-update-orchestration.md.
 func runUpdateRunner() error {
 	repoPath, err := resolveRepoPath()
 	if err != nil {

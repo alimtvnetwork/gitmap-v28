@@ -5,7 +5,7 @@
 #   [external]  — Folders that physically exist in a sibling repository
 #                 (notably `gitmap-v3`) and are intentionally NOT imported
 #                 into this repo per the avoid-app-sync rule
-#                 (see .lovable/memory/constraints/avoid-app-sync).
+#                 (see .ai-memory/memory/constraints/avoid-app-sync).
 #                 References are real and resolvable in the other repo.
 #
 #   [doc-only]  — Illustrative or historical folder names that do NOT exist
@@ -62,7 +62,7 @@
 19-ai-reliability
 
 # --- Sibling-repo umbrella folder referenced only in CI/CD issue write-ups
-# (see .lovable/cicd-issues/07-cross-spec-missing-file-link-checker.md).
+# (see .ai-memory/cicd-issues/07-cross-spec-missing-file-link-checker.md).
 # Lives in gitmap-v3, not in this repo. Documentation-only here. ---
 26-spec-outsides
 
@@ -91,7 +91,7 @@
 12-payments
 
 # --- Prompts repository examples ---
-# These are referenced strictly inside .lovable/prompts/ example AI workflows
+# These are referenced strictly inside .ai-memory/prompts/ example AI workflows
 02-app
 05-failing-tests
 

@@ -2,10 +2,10 @@
 """
 check-tunable-constants.py — Tunable-constants linter (FU-15).
 
-Enforces the contract in `spec/19-main-worker-service/15-tunable-constants.md` §6:
+Enforces the contract in `02-spec/19-main-worker-service/15-tunable-constants.md` §6:
 
-  Rule T1 — Presence: every numeric literal in spec/19/ prose and
-            spec/14-update/28-worker-push-instruction.md that is followed
+  Rule T1 — Presence: every numeric literal in 02-spec/19/ prose and
+            02-spec/14-update/28-worker-push-instruction.md that is followed
             by a time/count unit (s, sec, seconds, min, minutes, h, hours,
             attempts, retries, times) MUST be either:
               (a) named in §2 of 15-tunable-constants.md (the catalog
@@ -36,10 +36,10 @@ import sys
 from pathlib import Path
 
 REPO_ROOT = Path(__file__).resolve().parent.parent
-TUNABLES_FILE = REPO_ROOT / "spec/19-main-worker-service/15-tunable-constants.md"
+TUNABLES_FILE = REPO_ROOT / "02-spec/19-main-worker-service/15-tunable-constants.md"
 SCAN_GLOBS = (
-    "spec/19-main-worker-service/*.md",
-    "spec/14-update/28-worker-push-instruction.md",
+    "02-spec/19-main-worker-service/*.md",
+    "02-spec/14-update/28-worker-push-instruction.md",
 )
 # Files exempt from T1 scanning (catalog + diagrams + JSON snippets).
 EXEMPT_NAMES = {"15-tunable-constants.md"}

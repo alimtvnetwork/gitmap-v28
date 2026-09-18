@@ -9,7 +9,7 @@ You MUST NOT bump versions, update changelogs, or cut a release at the end of th
 
 ## MUST FOLLOW NON-NEGOTIABLE
 
-Listen, past runs of these turns have been sloppy and stupid as fuck: wrong step counts, partial task lists dumped into chat instead of files, plans and session summaries half-filled with "[N]" placeholders, folders skimmed, open ambiguities ignored, CI/CD issues and `plans/subtasks/` forgotten, user commands dropped, coding guidelines bypassed, detailed specs chopped and summarized into useless junk, uppercase README files left uncorrected, `.lovable/memory/` created by accident, `strictly-avoid.md` overwritten, and explicit user instructions softened after being told not to. WTF. How on earth are you reverting to this carelessness, are you stupid?? Stop doing that, you stupid fuck. Read the whole codebase, read every folder in `spec/` and `.lovable/`, confirm root `readme.md` is strictly lowercase, find the root cause in one sentence, capture commands, issues, and pending tasks without omitting a single item, write the spec files and memory files in the right paths, update every index in the same turn, sync `readme.md` with `what-to-read.md`, preserve detailed specs verbatim with zero truncation, run builds and full unit tests, group commits with clear messages, and push everything to git before ending. Going deep IS the job. If you are not going deep, you are not doing the job. Violating this is auto-reject on the same tier as RULE 0. Avoid stupidity and being careless, you stupid fuck. Where is your attention, are you stupid? Tell me. Your stupidity is going on top of my head. Where did you learn this stupidity? If I could find you, I could slap you.
+Listen, past runs of these turns have been sloppy and stupid as fuck: wrong step counts, partial task lists dumped into chat instead of files, plans and session summaries half-filled with "[N]" placeholders, folders skimmed, open ambiguities ignored, CI/CD issues and `plans/subtasks/` forgotten, user commands dropped, coding guidelines bypassed, detailed specs chopped and summarized into useless junk, uppercase README files left uncorrected, `.ai-memory/memory/` created by accident, `strictly-avoid.md` overwritten, and explicit user instructions softened after being told not to. WTF. How on earth are you reverting to this carelessness, are you stupid?? Stop doing that, you stupid fuck. Read the whole codebase, read every folder in `02-spec/` and `.ai-memory/`, confirm root `readme.md` is strictly lowercase, find the root cause in one sentence, capture commands, issues, and pending tasks without omitting a single item, write the spec files and memory files in the right paths, update every index in the same turn, sync `readme.md` with `what-to-read.md`, preserve detailed specs verbatim with zero truncation, run builds and full unit tests, group commits with clear messages, and push everything to git before ending. Going deep IS the job. If you are not going deep, you are not doing the job. Violating this is auto-reject on the same tier as RULE 0. Avoid stupidity and being careless, you stupid fuck. Where is your attention, are you stupid? Tell me. Your stupidity is going on top of my head. Where did you learn this stupidity? If I could find you, I could slap you.
 
 ## 1. Initial State: Clean the Git Tree First
 
@@ -22,13 +22,13 @@ Before you do anything else, you must ensure the git repository is in a complete
 
 ## 2. Big Plan & Execution Routing
 
-Read the overarching big plan of the main task from `.lovable/plans/pending/xx-<slug>.md`. You must follow this plan strictly.
+Read the overarching big plan of the main task from `.ai-memory/plans/pending/xx-<slug>.md`. You must follow this plan strictly.
 
 - Make sure the plan is EXTREMELY extensive, explicitly detailing where to make changes and how to make changes, so that sub-agents can execute their tasks easily. This is non-negotiable.
-- The `<slug>` is derived directly from the plan filename. If the plan file is `03-auth-refactor.md`, then the corresponding spec task file is `.lovable/plans/01-index.md` and subtasks live under `.lovable/plans/subtasks/03-auth-refactor/SS-<subslug>.md`. Never guess or invent a slug — read the filename.
+- The `<slug>` is derived directly from the plan filename. If the plan file is `03-auth-refactor.md`, then the corresponding spec task file is `.ai-memory/plans/01-index.md` and subtasks live under `.ai-memory/plans/subtasks/03-auth-refactor/SS-<subslug>.md`. Never guess or invent a slug — read the filename.
 - Use the maximum enforcement guidelines to execute this plan.
 - Loop through its defined subtasks and spawn sub-agents to speed up the work.
-- Do not just write randomly to `.lovable`. You must follow the exact plan and write protocols: tasks go into `.lovable/spec/tasks/xx-<slug>.md` and plans go into `.lovable/plans/pending/xx-<slug>.md`.
+- Do not just write randomly to `.ai-memory`. You must follow the exact plan and write protocols: tasks go into `.ai-memory/02-spec/tasks/xx-<slug>.md` and plans go into `.ai-memory/plans/pending/xx-<slug>.md`.
 
 ## 3. Ruthless Orchestration
 
@@ -42,16 +42,16 @@ You are the orchestrator. If your sub-agents fail, hallucinate, or go into infin
 
 ## 4. Sub-Agent Lifecycle & Status Tracking (Non-negotiable)
 
-The plan file at `.lovable/plans/pending/xx-<slug>.md` and the subtask files under `.lovable/plans/subtasks/xx-<slug>/SS-<subslug>.md` are the SINGLE source of truth for all coordination between the main agent and sub-agents. Every status update MUST go there. This is how the main agent knows what is running, what is done, and when to proceed.
+The plan file at `.ai-memory/plans/pending/xx-<slug>.md` and the subtask files under `.ai-memory/plans/subtasks/xx-<slug>/SS-<subslug>.md` are the SINGLE source of truth for all coordination between the main agent and sub-agents. Every status update MUST go there. This is how the main agent knows what is running, what is done, and when to proceed.
 
 Every sub-agent that is spawned MUST follow this lifecycle without exception:
 
-- Step 1 — Read: The sub-agent reads its assigned subtask file at `.lovable/plans/subtasks/xx-<slug>/SS-<subslug>.md`. It must understand the full scope, acceptance criteria, and affected files before touching any code. It also checks the parent plan at `.lovable/plans/pending/xx-<slug>.md` for overall context.
+- Step 1 — Read: The sub-agent reads its assigned subtask file at `.ai-memory/plans/subtasks/xx-<slug>/SS-<subslug>.md`. It must understand the full scope, acceptance criteria, and affected files before touching any code. It also checks the parent plan at `.ai-memory/plans/pending/xx-<slug>.md` for overall context.
 - Step 2 — Mark In Progress: Immediately upon starting, the sub-agent updates its subtask file, flipping its status to `🔄 In Progress` and recording a timestamp. The main agent uses this to track which agents are actively running.
 - Step 3 — Work: The sub-agent executes its task. It may only run a MAXIMUM of 2-3 async operations at a time. No more.
 - Step 4 — Mark Done & Signal: Once the task is complete, the sub-agent MUST:
-  - Update its subtask file at `.lovable/plans/subtasks/xx-<slug>/SS-<subslug>.md` flipping status to `✅ Done`, listing every file it changed, and writing a one-line summary of what was done.
-  - Update the corresponding step in the parent plan file `.lovable/plans/pending/xx-<slug>.md` with `✅ Done` on that step entry.
+  - Update its subtask file at `.ai-memory/plans/subtasks/xx-<slug>/SS-<subslug>.md` flipping status to `✅ Done`, listing every file it changed, and writing a one-line summary of what was done.
+  - Update the corresponding step in the parent plan file `.ai-memory/plans/pending/xx-<slug>.md` with `✅ Done` on that step entry.
   - Explicitly signal completion to the main orchestrator. Silence is not completion. A sub-agent that does not update its file has NOT completed its task.
 - Sub-agents do NOT commit. They only write to the file system.
 - If a sub-agent stalls, gives garbage, or fails to update its status file, kill it immediately and spawn a new one.
@@ -69,7 +69,7 @@ Avoid stupidity, and being careless you stupid, WTF. If you're not going deep, y
 Before applying any fix, you must identify the root cause.
 
 - Do not blindly patch symptoms.
-- Write the root cause into `.lovable` memory per the write protocols before touching code.
+- Write the root cause into `.ai-memory` memory per the write protocols before touching code.
 - If sub-agents are fixing things without understanding root cause, they are doing garbage work. Stop them.
 
 ## 6. High-Stakes Code Standards & Coding Guidelines
@@ -81,31 +81,31 @@ You MUST follow the project's strict coding guidelines. These files are located 
 1. The Master Consolidated Guide
 *(The single source of truth containing summaries of all rules)*
 
-- spec/17-consolidated-guidelines/05-coding-guidelines.md
+- 02-spec/17-consolidated-guidelines/05-coding-guidelines.md
 
 2. Code Style & File Size Limits (80-100 lines max)
 *(Enforces strict size limitations: e.g., React components < 100 lines, functions < 15 lines, and basic formatting)*
 
-- spec/02-coding-guidelines/01-cross-language/04-code-style/01-index.md
-- spec/02-coding-guidelines/01-cross-language/20-nesting-resolution-patterns.md (Flatten logic to avoid nested ifs)
-- spec/02-coding-guidelines/01-cross-language/06-cyclomatic-complexity.md
+- 02-spec/02-coding-guidelines/01-cross-language/04-code-style/01-index.md
+- 02-spec/02-coding-guidelines/01-cross-language/20-nesting-resolution-patterns.md (Flatten logic to avoid nested ifs)
+- 02-spec/02-coding-guidelines/01-cross-language/06-cyclomatic-complexity.md
 
 3. Boolean Conditions & Samples
 *(Dictates strict is/has prefixes, absolute ban on negative words like
 ot/
 o, and extraction of complex logic)*
 
-- spec/02-coding-guidelines/01-cross-language/02-boolean-principles/01-index.md
-- spec/02-coding-guidelines/01-cross-language/12-no-negatives.md
-- spec/02-coding-guidelines/01-cross-language/24-boolean-flag-methods.md (Bans passing true/false as raw parameters)
+- 02-spec/02-coding-guidelines/01-cross-language/02-boolean-principles/01-index.md
+- 02-spec/02-coding-guidelines/01-cross-language/12-no-negatives.md
+- 02-spec/02-coding-guidelines/01-cross-language/24-boolean-flag-methods.md (Bans passing true/false as raw parameters)
 
 4. Variable Naming & Definitions
 *(Covers clean variable declaration, immutability, singular vs plural, and casing)*
 
-- spec/02-coding-guidelines/01-cross-language/22-variable-naming-conventions.md
-- spec/02-coding-guidelines/01-cross-language/11-key-naming-pascalcase.md
-- spec/02-coding-guidelines/01-cross-language/10-function-naming.md
-- spec/02-coding-guidelines/01-cross-language/18-code-mutation-avoidance.md
+- 02-spec/02-coding-guidelines/01-cross-language/22-variable-naming-conventions.md
+- 02-spec/02-coding-guidelines/01-cross-language/11-key-naming-pascalcase.md
+- 02-spec/02-coding-guidelines/01-cross-language/10-function-naming.md
+- 02-spec/02-coding-guidelines/01-cross-language/18-code-mutation-avoidance.md
 
 ### Additional Strict Standards:
 
@@ -135,12 +135,12 @@ function getUserFromDb(id): Result<User> {
 
 - The logger must be injected into the method or class — never imported or called from the outside caller.
 - Logging of failures must happen inside the data-fetching method, at the source of the failure. Not in the caller. This ensures we know exactly where and how it is failing.
-- This pattern must follow the error manage guideline inside the `spec/` folder. Read it. Follow it precisely.
+- This pattern must follow the error manage guideline inside the `02-spec/` folder. Read it. Follow it precisely.
 - Check the types section first to see if this wrapper already exists. If it exists, REUSE it. Do not duplicate it.
 
 ### Wrapper Memory Tracking
 
-Write the exact filepath of this generic wrapper into `.lovable/coding-guidelines.md` and create a spec file at `.lovable/memory/xx-response-wrapper.md` so that the next AI will know exactly where it exists.
+Write the exact filepath of this generic wrapper into `.ai-memory/coding-guidelines.md` and create a spec file at `.ai-memory/memory/xx-response-wrapper.md` so that the next AI will know exactly where it exists.
 
 ### Complex Conditions
 
@@ -159,15 +159,15 @@ if (canAccess) { ... }
 
 ### Boolean Naming
 
-Every boolean variable — including all intermediate constant variables created for complex conditions — MUST have an `is` or `has` prefix. Read the boolean coding guideline in the `spec/` folder and follow it precisely.
+Every boolean variable — including all intermediate constant variables created for complex conditions — MUST have an `is` or `has` prefix. Read the boolean coding guideline in the `02-spec/` folder and follow it precisely.
 
 ### Guideline Sync
 
-Ensure all boolean naming rules are also written in simple words inside `.lovable/coding-guidelines.md` so that the next AI can refer to them without having to dig into the spec folder every time.
+Ensure all boolean naming rules are also written in simple words inside `.ai-memory/coding-guidelines.md` so that the next AI can refer to them without having to dig into the spec folder every time.
 
 ## 8. Main Agent Delivery (Commit & Push)
 
-Once ALL sub-agents have signaled completion and updated their task entries in `.lovable/spec/tasks/`:
+Once ALL sub-agents have signaled completion and updated their task entries in `.ai-memory/02-spec/tasks/`:
 
 - YOU (the main agent) must group everything together into a logical commit.
 - RED FLAG: NEVER upload or commit test reports, test data, artifacts, or compiled binaries to Git. Check and update `.gitignore` to explicitly exclude them if needed.
@@ -210,11 +210,11 @@ To survive massive checklists and complex codebases, you MUST operate using thes
 ### 1. Pre-flight & Planning
 
 - [ ] Ensure the git repository starts completely clean. If dirty, commit, stash, or fix git issues before writing any new code.
-- [ ] Read the overarching main task plan from `.lovable/plans/pending/xx-<slug>.md` to understand what needs to be executed.
+- [ ] Read the overarching main task plan from `.ai-memory/plans/pending/xx-<slug>.md` to understand what needs to be executed.
 - [ ] Derive the `<slug>` from the plan filename itself (e.g., plan file `03-auth-refactor.md` → slug is `03-auth-refactor`). Never invent a slug.
-- [ ] Confirm subtask files exist under `.lovable/plans/subtasks/xx-<slug>/SS-<subslug>.md` for each step that needs parallel execution. Create them if missing, following the plan prompt structure.
+- [ ] Confirm subtask files exist under `.ai-memory/plans/subtasks/xx-<slug>/SS-<subslug>.md` for each step that needs parallel execution. Create them if missing, following the plan prompt structure.
 - [ ] Ensure the plan is highly extensive, explicitly detailing where and how to make changes so sub-agents can easily execute tasks (Non-negotiable).
-- [ ] Write the tasks as a spec file in `.lovable/spec/tasks/xx-<slug>.md` and update plans in `.lovable/plans/pending/xx-<slug>.md`.
+- [ ] Write the tasks as a spec file in `.ai-memory/02-spec/tasks/xx-<slug>.md` and update plans in `.ai-memory/plans/pending/xx-<slug>.md`.
 - [ ] Read the memory files, the boolean coding guidelines in the spec folder, and the error manage guidelines before touching code.
 - [ ] **File Change Summary:** Provide a highly detailed summary in the chat listing exactly which files were changed, what specific changes were made inside them, and why they were changed. The summary is VERY important.
 
@@ -229,7 +229,7 @@ To survive massive checklists and complex codebases, you MUST operate using thes
 ### 3. Root Cause
 
 - [ ] Find the root cause of the problem first, before applying any fix.
-- [ ] Record the root cause strictly into the `.lovable` memory structure per the write protocols.
+- [ ] Record the root cause strictly into the `.ai-memory` memory structure per the write protocols.
 
 ### 4. File System Writes & Main Agent Commit
 
@@ -245,11 +245,11 @@ To survive massive checklists and complex codebases, you MUST operate using thes
 
 - [ ] Ensure a generic result wrapper type exists that exposes both `isFail` and `isSuccess`. Reuse it if it exists; do not duplicate code.
 - [ ] Ensure logging happens INSIDE the data-fetching method, not in the caller. The logger must be injected, not globally imported.
-- [ ] Ensure the error manage guideline in the `spec/` folder is read and followed precisely for all logging.
-- [ ] Ensure the exact location of the generic wrapper is recorded in `.lovable/coding-guidelines.md` and `.lovable/memory/xx-response-wrapper.md`.
+- [ ] Ensure the error manage guideline in the `02-spec/` folder is read and followed precisely for all logging.
+- [ ] Ensure the exact location of the generic wrapper is recorded in `.ai-memory/coding-guidelines.md` and `.ai-memory/memory/xx-response-wrapper.md`.
 - [ ] Never mix `AND` and `OR` in the same condition. Break complex conditions into named intermediate constant variables.
 - [ ] Prefix every boolean and intermediate variable with `is` or `has`.
-- [ ] Ensure boolean naming rules are written in `.lovable/coding-guidelines.md` in simple, readable language.
+- [ ] Ensure boolean naming rules are written in `.ai-memory/coding-guidelines.md` in simple, readable language.
 - [ ] Ensure every Enum name ends with the `Type` suffix.
 - [ ] Ensure all Enum values use PascalCase (e.g., `enum StatusType { ActiveState = "ACTIVE" }`), avoiding `_camelCase`, except when language conventions dictate otherwise (e.g. Rust).
 - [ ] Revert every inverted success check `!response.isSuccess` to the direct failure check `response.isFail`.

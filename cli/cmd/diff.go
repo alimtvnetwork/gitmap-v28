@@ -16,7 +16,7 @@ import (
 // runDiff implements `gitmap diff LEFT RIGHT`: a read-only preview
 // of what `gitmap merge-*` would change between two folders.
 //
-// Spec: companion to spec/01-app/97-move-and-merge.md
+// Spec: companion to 02-spec/01-app/97-move-and-merge.md
 func runDiff(args []string) error {
 	checkHelp("diff", args)
 	left, right, walkOpts, printOpts := parseDiffArgs(args)

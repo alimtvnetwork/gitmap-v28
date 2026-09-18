@@ -6,7 +6,7 @@
 // abort the user's bulk action. Every error is logged to os.Stderr
 // with Code Red context (zero-swallow) but execution continues.
 //
-// Spec: spec/01-app/116-bulk-visibility-mapub-mapri.md §plan steps 19-20.
+// Spec: 02-spec/01-app/116-bulk-visibility-mapub-mapri.md §plan steps 19-20.
 package cmd
 
 import (

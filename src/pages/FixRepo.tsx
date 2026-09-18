@@ -41,7 +41,7 @@ const FixRepoPage = () => (
           and config schema.
         </p>
         <p className="text-xs text-muted-foreground mt-2">
-          Spec: <code>spec/04-generic-cli/27-fix-repo-command.md</code>
+          Spec: <code>02-spec/04-generic-cli/27-fix-repo-command.md</code>
         </p>
       </div>
 

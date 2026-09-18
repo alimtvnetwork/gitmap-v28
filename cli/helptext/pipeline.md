@@ -30,7 +30,7 @@ pl
 | -f, --force  | boolean | false   | Bypass duplicate check and resend errors previously dispatched  |
 | --json       | boolean | false   | Output structured JSON payload for scripting and AI agents      |
 | --file       | string  | ""      | Write error logs or telemetry to the specified file path        |
-| --tempfile   | string  | ""      | Write error logs to `.lovable/temp/<filename>` (configurable)   |
+| --tempfile   | string  | ""      | Write error logs to `.ai-memory/temp/<filename>` (configurable)   |
 | --split      | boolean | false   | Separate failure logs across multiple jobs into distinct files  |
 | --clip       | boolean | false   | Copy logs directly to system clipboard                         |
 | --all        | boolean | false   | Retain verbose and passing lines without noise filtering        |
@@ -85,7 +85,7 @@ $ gitmap pipeline status --json
 
 ```bash
 $ gitmap pipeline error-logs --json --tempfile "ci-failure.json"
-  ✓ Output written to .lovable\temp\ci-failure.json
+  ✓ Output written to .ai-memory\temp\ci-failure.json
 ```
 
 ### Inspect Errors for Previous Commit (-1, -2, -3)

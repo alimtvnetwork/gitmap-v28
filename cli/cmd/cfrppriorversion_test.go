@@ -6,7 +6,7 @@ import (
 	"github.com/alimtvnetwork/gitmap-v28/cli/constants"
 )
 
-// TestCFRPPriorMaxLookbackSane guards spec/01-app/113 §2.3 — the
+// TestCFRPPriorMaxLookbackSane guards 02-spec/01-app/113 §2.3 — the
 // lookback must stay bounded so a fresh `cfrp` on vN never fans out
 // dozens of API calls. Adjust this test deliberately if the spec
 // changes.

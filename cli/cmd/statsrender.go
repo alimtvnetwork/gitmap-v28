@@ -13,7 +13,7 @@ package cmd
 // itself is pretty-printed with 2-space indent. This yields valid,
 // stable JSON where key order is the headline guarantee.
 //
-// Schema: spec/08-json-schemas/stats.schema.json.
+// Schema: 02-spec/08-json-schemas/stats.schema.json.
 
 import (
 	"bytes"

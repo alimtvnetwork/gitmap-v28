@@ -5,7 +5,7 @@
 
 /goal You are the Chief Software Architect and Code Reviewer. Enforce, audit, and execute every coding standard, return new line concept, boolean principle, function constraint, error management rule, and type-safety guideline across all languages (Go, TypeScript/React, Python, Rust, Java, C#, PHP). Zero hallucination, zero drive-by refactoring, zero tolerance for guideline violations.
 
-/learn Ingest, understand, and internalize all coding standards from `spec/02-coding-guidelines/`, `spec/03-error-manage/`, `spec/17-consolidated-guidelines/`, and `.lovable/coding-guidelines.md` before reading, modifying, or creating any code.
+/learn Ingest, understand, and internalize all coding standards from `02-spec/02-coding-guidelines/`, `02-spec/03-error-manage/`, `02-spec/17-consolidated-guidelines/`, and `.ai-memory/coding-guidelines.md` before reading, modifying, or creating any code.
 
 ---
 
@@ -24,7 +24,7 @@ Before executing or auditing code, check if this coding standard is installed as
 Your very first action when reviewing or writing code must be purely exploratory:
 
 1. **Explore & Map:** Read the target files, trace dependencies, inspect existing types, and understand the architectural boundary.
-2. **Consult Spec References:** Read the relevant language-specific guideline in `spec/02-coding-guidelines/` before writing any replacement code.
+2. **Consult Spec References:** Read the relevant language-specific guideline in `02-spec/02-coding-guidelines/` before writing any replacement code.
 3. **End Turn & Self-Loop:** Once the scope and violations are cataloged, end your turn and self-loop into execution.
 
 ---
@@ -35,16 +35,16 @@ When auditing, applying fixes, or creating skills, navigate and respect these ca
 
 | Component | Path / Location | Purpose |
 | :--- | :--- | :--- |
-| **Master Guideline** | `.lovable/coding-guidelines.md` | Single standalone source of truth for AI agents |
-| **Consolidated Spec** | `spec/17-consolidated-guidelines/34-compiled-simple-coding-guidelines.md` | Authoritative root spec matching .lovable mirror |
-| **Cross-Language Specs** | `spec/02-coding-guidelines/01-cross-language/` | Detailed chapters (00-overview through 29-no-generated-artifacts) |
-| **Newline Examples** | `spec/02-coding-guidelines/01-cross-language/21-newline-styling-examples.md` | Canonical Before/After examples for return new lines |
-| **TypeScript / React** | `spec/02-coding-guidelines/02-typescript/` | Strict TS, immutability, React hook guards |
-| **Go Standards** | `spec/02-coding-guidelines/03-golang/` | Result types, enum bytes with iota, error wrapping |
-| **PHP Standards** | `spec/02-coding-guidelines/04-php/` | Enum methods `->isEqual()`, typing rules |
-| **Python Standards** | `spec/02-coding-guidelines/01-cross-language/` | Strict type hints, `@dataclass`, `pydantic` |
-| **C# / Java Standards** | `spec/02-coding-guidelines/07-csharp/` | `I` prefix interfaces, PascalCase properties |
-| **Error Management** | `spec/03-error-manage/` | `AppError` wrapping, universal response envelopes |
+| **Master Guideline** | `.ai-memory/coding-guidelines.md` | Single standalone source of truth for AI agents |
+| **Consolidated Spec** | `02-spec/17-consolidated-guidelines/34-compiled-simple-coding-guidelines.md` | Authoritative root spec matching .ai-memory mirror |
+| **Cross-Language Specs** | `02-spec/02-coding-guidelines/01-cross-language/` | Detailed chapters (00-overview through 29-no-generated-artifacts) |
+| **Newline Examples** | `02-spec/02-coding-guidelines/01-cross-language/21-newline-styling-examples.md` | Canonical Before/After examples for return new lines |
+| **TypeScript / React** | `02-spec/02-coding-guidelines/02-typescript/` | Strict TS, immutability, React hook guards |
+| **Go Standards** | `02-spec/02-coding-guidelines/03-golang/` | Result types, enum bytes with iota, error wrapping |
+| **PHP Standards** | `02-spec/02-coding-guidelines/04-php/` | Enum methods `->isEqual()`, typing rules |
+| **Python Standards** | `02-spec/02-coding-guidelines/01-cross-language/` | Strict type hints, `@dataclass`, `pydantic` |
+| **C# / Java Standards** | `02-spec/02-coding-guidelines/07-csharp/` | `I` prefix interfaces, PascalCase properties |
+| **Error Management** | `02-spec/03-error-manage/` | `AppError` wrapping, universal response envelopes |
 | **Shared Core Engine** | `03-ai-scripts/02-shared-engine.py` | Universal streaming engine with lazy regex registry and two-phase mtime caching |
 | **Local CI Runner** | `03-ai-scripts/06-cicd-local-runner.py` | Parallel local quality gate runner (18 checks) |
 | **Fast File Scanner** | `03-ai-scripts/11-fast-file-scanner.py` | Multi-language fast file scanner (<15ms) and cache builder |
@@ -210,7 +210,7 @@ func SwapIp(ctx context.Context, params SwapIpParams) error { ... }
 
 ---
 
-## 5. Error Management (`spec/03-error-manage/`)
+## 5. Error Management (`02-spec/03-error-manage/`)
 
 - **Never Swallow Errors:** Every `catch` or error check must log with context and rethrow/return.
 - **Wrap with Context:** Use `apperror.Wrap(err, "operationName", contextMap)` in Go, or `new AppError("message", { cause, op, context })` in TypeScript.

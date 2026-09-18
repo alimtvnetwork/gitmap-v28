@@ -4,7 +4,7 @@
 //
 // A Go port of validate-guidelines.py that validates Go, PHP, TypeScript,
 // and Rust source files against the coding guidelines defined in
-// spec/02-coding-guidelines/03-coding-guidelines-spec/.
+// 02-spec/02-coding-guidelines/03-coding-guidelines-spec/.
 //
 // Usage:
 //

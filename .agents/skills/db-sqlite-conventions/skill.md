@@ -7,7 +7,7 @@ description: >-
 
 # Gitmap SQLite & Database Conventions Skill
 
-Autonomously implement, migrate, and audit SQLite tables and database operations adhering to `spec/04-database-conventions/`, `spec/05-split-db-architecture/`, and `spec/17-consolidated-guidelines/18-database-conventions.md`.
+Autonomously implement, migrate, and audit SQLite tables and database operations adhering to `02-spec/04-database-conventions/`, `02-spec/05-split-db-architecture/`, and `02-spec/17-consolidated-guidelines/18-database-conventions.md`.
 
 ## Core Checkpoints & Mandatory Invariants
 

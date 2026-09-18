@@ -32,12 +32,12 @@ To rapidly locate failing pipeline definitions, broken source files, test fixtur
    - **Condition:** You must ensure that **every single CI/CD case** that needs to run in the pipeline can also be run locally from this Python script (with Docker stripped for native host execution). Improve the Python script to cover all cases if any are missing.
 2. [ ] /goal Second `N/2` steps (Phase 2): Run the local runner script (`python 03-ai-scripts/06-cicd-local-runner.py --all`) to catch all errors. Singly execute the script in an autonomous self-loop, zeroing in on one failing error per turn (4-part RCA -> surgical fix -> guideline autofixer -> re-verify).
 3. [ ] /goal Finalize CI/CD: Your ultimate goal is to fix and finalize the CI/CD. You must loop until the Python local runner script executes flawlessly with **no errors** (exit code 0) for all registered cases. Do not stop until this goal is met.
-4. [ ] /learn Ingest `.lovable/cicd-issues/` for domain-specific architectural specifications.
-5. [ ] /learn Ingest `.lovable/strictly-avoid.md` for banned anti-patterns and strict constraints.
-6. [ ] /learn Ingest `spec/02-coding-guidelines/02-canonical-size-tier.md` for canonical file and function size tiers.
-7. [ ] /learn Ingest `spec/02-coding-guidelines/01-cross-language/01-index.md` for hallucination prevention and micro-tasking.
-8. [ ] /learn Ingest `spec/02-coding-guidelines/01-cross-language/01-index.md` for strict relative path citation requirements.
-9. [ ] /learn Ingest `spec/03-error-manage/` for error handling architectures and AppError.
+4. [ ] /learn Ingest `.ai-memory/cicd-issues/` for domain-specific architectural specifications.
+5. [ ] /learn Ingest `.ai-memory/strictly-avoid.md` for banned anti-patterns and strict constraints.
+6. [ ] /learn Ingest `02-spec/02-coding-guidelines/02-canonical-size-tier.md` for canonical file and function size tiers.
+7. [ ] /learn Ingest `02-spec/02-coding-guidelines/01-cross-language/01-index.md` for hallucination prevention and micro-tasking.
+8. [ ] /learn Ingest `02-spec/02-coding-guidelines/01-cross-language/01-index.md` for strict relative path citation requirements.
+9. [ ] /learn Ingest `02-spec/03-error-manage/` for error handling architectures and AppError.
 10. [ ] /goal Create or update agent rules in the repository if missing from agent memory.
 
 ```text
@@ -66,29 +66,29 @@ Before any execution, check if this prompt is installed as a native Antigravity 
 
 ---
 
-## Strict In-Repository Execution & `.lovable/` Bounding Mandate
+## Strict In-Repository Execution & `.ai-memory/` Bounding Mandate
 
 > [!IMPORTANT]
-> **STRICT IN-REPOSITORY EXECUTION & `.lovable/` STORAGE CONTRACT:**
+> **STRICT IN-REPOSITORY EXECUTION & `.ai-memory/` STORAGE CONTRACT:**
 >
 > 1. **In-Codebase Execution Only:** Whenever a Python script (runner, autofixer, linter, test aggregator) is executed or created, it MUST be executed **strictly within the repository root** (current working directory), NEVER outside the codebase or against external arbitrary directories.
-> 2. **Strict Folder Bounding (`.lovable/`):** All AI scripts, local runners, autofixers, helper utilities, memory issue logs, and planning files MUST be created inside the `.lovable/` folder:
+> 2. **Strict Folder Bounding (`.ai-memory/`):** All AI scripts, local runners, autofixers, helper utilities, memory issue logs, and planning files MUST be created inside the `.ai-memory/` folder:
 >    - Python AI Scripts: `03-ai-scripts/` (e.g. `01-file-manipulator.py`, `05-guideline-autofixer.py`, `06-cicd-local-runner.py`).
->    - RCA & Issue Logs: `.lovable/memory/issues/` and `.lovable/cicd-issues/`.
->    - Execution Plans & Subtasks: `.lovable/plans/pending/`, `.lovable/plans/subtasks/`.
->    - Coding Guidelines Mirror: `.lovable/coding-guidelines.md`.
-> 3. **Strict Relative Git Paths (TOTAL BAN on Absolute Paths / `file:///` URIs):** All file paths, markdown links, citations, and subtask paths inside plans, RCA logs (`.lovable/memory/issues/`), scripts, and code comments MUST be strictly relative paths from the git root (e.g., `spec/03-error-manage/01-index.md`, `.lovable/plans/01-index.md`, `cmd/main.go`). NEVER write absolute OS paths (`/absolute/path/to/...`, `/absolute/path/to/...`, `/home/...`) or absolute file URIs (`file:///...`).
+>    - RCA & Issue Logs: `.ai-memory/memory/issues/` and `.ai-memory/cicd-issues/`.
+>    - Execution Plans & Subtasks: `.ai-memory/plans/pending/`, `.ai-memory/plans/subtasks/`.
+>    - Coding Guidelines Mirror: `.ai-memory/coding-guidelines.md`.
+> 3. **Strict Relative Git Paths (TOTAL BAN on Absolute Paths / `file:///` URIs):** All file paths, markdown links, citations, and subtask paths inside plans, RCA logs (`.ai-memory/memory/issues/`), scripts, and code comments MUST be strictly relative paths from the git root (e.g., `02-spec/03-error-manage/01-index.md`, `.ai-memory/plans/01-index.md`, `cmd/main.go`). NEVER write absolute OS paths (`/absolute/path/to/...`, `/absolute/path/to/...`, `/home/...`) or absolute file URIs (`file:///...`).
 >    - ❌ **BAD:** `[SSH Commands](file:///absolute/path/to/...)`
->    - ✅ **GOOD:** `[SSH Commands]`spec/13-generic-cli/01-index.md)`
+>    - ✅ **GOOD:** `[SSH Commands]`02-spec/13-generic-cli/01-index.md)`
 > 4. **No External or Random File Creation:** NEVER write scripts, temporary test scripts, or scratch files to root, `/tmp`, global system paths, or outside the repository boundary.
 > 5. **Cross-Platform Python CI Mandate (TOTAL BAN on new `.sh` scripts in CI):** All newly created or refactored CI/CD verification tools, determinism checks, fixtures, and linter jobs MUST be implemented in pure, cross-platform Python (`.py`). Legacy `.sh` scripts must be converted to `.py` scripts so all pipelines run natively across Linux, macOS, and Windows without relying on bash emulation.
-> 6. **Temp & Failure Folder Isolation:** All temporary directories, runner caches, and test artifacts MUST be strictly placed in `.lovable/temp/`. Creating `.tmp/` at the repository root or outside `.lovable/` is strictly forbidden.
->    - Dedicated Failure Directory: `.lovable/temp/failures/` is the dedicated folder where failed tests and failed quality gates write error logs (`<test-or-job-name>.log`).
+> 6. **Temp & Failure Folder Isolation:** All temporary directories, runner caches, and test artifacts MUST be strictly placed in `.ai-memory/temp/`. Creating `.tmp/` at the repository root or outside `.ai-memory/` is strictly forbidden.
+>    - Dedicated Failure Directory: `.ai-memory/temp/failures/` is the dedicated folder where failed tests and failed quality gates write error logs (`<test-or-job-name>.log`).
 >    - Passing Tests Completely Silent: Passing tests must produce ZERO filesystem artifacts (zero files written) and remain completely silent in output logs.
-> 7. **Runner In-Flight ETA Wait Protocol:** When running background commands, the runner dynamically writes live status and remaining ETA to `.lovable/temp/runner-eta.json` (emitting in-flight heartbeats strictly every 25 seconds or more). If an agent inspects an active background job and it is still running, the agent MUST sleep/wait for **1 minute (60 seconds) each time**, or dynamically sleep for the remaining ETA duration read from `.lovable/temp/runner-eta.json` (or based on previous total approximate delay) instead of busy-polling or querying in loops.
-> 8. **Centralized Test Inventory & Incremental Caching:** All unit tests are cataloged in `.lovable/test-inventory.json` with strictly repository-relative paths (`target_file`, `test_file`). First run executes all tests to establish baseline timings; subsequent runs execute incrementally only if target code files or test files change. Slow test threshold defaults to `4.0s` (configurable via `GITMAP_SLOW_TEST_THRESHOLD`).
+> 7. **Runner In-Flight ETA Wait Protocol:** When running background commands, the runner dynamically writes live status and remaining ETA to `.ai-memory/temp/runner-eta.json` (emitting in-flight heartbeats strictly every 25 seconds or more). If an agent inspects an active background job and it is still running, the agent MUST sleep/wait for **1 minute (60 seconds) each time**, or dynamically sleep for the remaining ETA duration read from `.ai-memory/temp/runner-eta.json` (or based on previous total approximate delay) instead of busy-polling or querying in loops.
+> 8. **Centralized Test Inventory & Incremental Caching:** All unit tests are cataloged in `.ai-memory/test-inventory.json` with strictly repository-relative paths (`target_file`, `test_file`). First run executes all tests to establish baseline timings; subsequent runs execute incrementally only if target code files or test files change. Slow test threshold defaults to `4.0s` (configurable via `GITMAP_SLOW_TEST_THRESHOLD`).
 > 9. **Dual-Queue Worker Pools:** Slow tests run in a dedicated 4-worker pool running at most 2 tests at a time per batch. Fast tests run in a 4-worker pool running at most 4 tests at a time, pulling in chunks of 100 tests from the test inventory queue until all are complete.
-> 10. **Dynamic ETA Sleep Protocol:** The AI agent reads `.lovable/temp/runner-eta.json`, sleeps for the estimated wait time rather than looping, and if still active upon waking, re-checks remaining ETA and sleeps again to avoid burning tokens.
+> 10. **Dynamic ETA Sleep Protocol:** The AI agent reads `.ai-memory/temp/runner-eta.json`, sleeps for the estimated wait time rather than looping, and if still active upon waking, re-checks remaining ETA and sleeps again to avoid burning tokens.
 > 11. **Zero-Storage GitHub Actions Mandate (Total Ban on CI Artifact Uploads):** Workflows MUST NOT upload test outputs, coverage files, Playwright reports, or drift summaries via `actions/upload-artifact`. Free-tier accounts have a strict 0.5 GB shared quota across all repositories. All reports, failures, and summaries MUST be emitted directly to `$GITHUB_STEP_SUMMARY`, console stdout (`cat log.txt`), or sticky PR comments with zero storage consumption.
 
 ---
@@ -128,10 +128,10 @@ Every step must be **singly done** using bounded self-looping turns. Do NOT try 
 
 - **Self-Loop Step 4 (RCA & Zero In on the Specific Error):**
   1. For the zeroed-in failure, write a mandatory 4-part RCA file:
-     - Path: `.lovable/memory/issues/xx-<slug>.md` (next sequential number)
+     - Path: `.ai-memory/memory/issues/xx-<slug>.md` (next sequential number)
      - Sections: **Why it happened / How it happened / Root Cause / Code Fix**
-  2. Update `.lovable/01-index.md` and `.lovable/cicd-index.md`.
-  3. Append any newly identified anti-pattern to `.lovable/strictly-avoid.md`.
+  2. Update `.ai-memory/01-index.md` and `.ai-memory/cicd-index.md`.
+  3. Append any newly identified anti-pattern to `.ai-memory/strictly-avoid.md`.
 
 - **Self-Loop Step 5 (Surgical Code Fix):**
   1. Open the specific offending source file and line identified in the RCA.
@@ -358,7 +358,7 @@ WHILE (STEP < PHASE_2_STEPS):
 
     ELSE:
         3. Parse the failure output: identify the exact failing job, error message, file, and line.
-        4. Document 4-part RCA in .lovable/memory/issues/xx-<slug>.md
+        4. Document 4-part RCA in .ai-memory/memory/issues/xx-<slug>.md
         5. Apply the minimal surgical code fix to the codebase.
         6. Run the guideline autofixer on modified files:
               python 03-ai-scripts/05-guideline-autofixer.py <modified-files>
@@ -402,7 +402,7 @@ If any job is marked ⏱ TIMEOUT in the runner output:
    - If the job appears to hang indefinitely (no output for >30s): look for a subprocess deadlock or missing stdin; fix the subprocess call, do not just increase the timer.
    - Open `06-cicd-local-runner.py`, update `JOB_TIMEOUT_SEC` to the new value, and save the file.
 4. Re-run the runner immediately after the timeout fix. The timeout adjustment counts as one Phase 2 loop step.
-5. Document the timeout increase in `.lovable/cicd-issues/` as a standard CI/CD issue entry.
+5. Document the timeout increase in `.ai-memory/cicd-issues/` as a standard CI/CD issue entry.
 
 ---
 
@@ -415,7 +415,7 @@ Every time the runner reports a ❌ FAIL or ⏱ TIMEOUT, you MUST do **both** of
 Create (or append to) a pending plan task file at:
 
 ```text
-.lovable/plans/pending/XX-cicd-<slug>.md
+.ai-memory/plans/pending/XX-cicd-<slug>.md
 ```
 
 Where `XX` is the next available sequential number and `<slug>` is a short kebab-case description of the failure (e.g., `03-cicd-lint-unused-import`).
@@ -444,14 +444,14 @@ The plan task file MUST contain:
 - [ ] pending
 ```
 
-Update `.lovable/plans/01-index.md` to register the new task entry immediately.
+Update `.ai-memory/plans/01-index.md` to register the new task entry immediately.
 
 ### B. Record in CI/CD Issues
 
 Create a CI/CD issue record at:
 
 ```text
-.lovable/cicd-issues/xx-<slug>.md
+.ai-memory/cicd-issues/xx-<slug>.md
 ```
 
 The CI/CD issue file MUST contain:
@@ -474,23 +474,23 @@ The CI/CD issue file MUST contain:
 <what was changed to fix it>
 
 ## Plan Task
-Enqueued at `.lovable/plans/pending/XX-cicd-<slug>.md`
+Enqueued at `.ai-memory/plans/pending/XX-cicd-<slug>.md`
 ```
 
-Update `.lovable/cicd-index.md` in the same operation. Never delete existing entries.
+Update `.ai-memory/cicd-index.md` in the same operation. Never delete existing entries.
 
 ---
 
 ## Phase 3: 4-Part RCA Requirement (Mandatory Memory File)
 
-For each distinct failure type encountered in Phase 2, write a memory file at `.lovable/memory/issues/xx-<slug>.md` with exactly four sections:
+For each distinct failure type encountered in Phase 2, write a memory file at `.ai-memory/memory/issues/xx-<slug>.md` with exactly four sections:
 
 1. **Why it happened:** High-level architectural reason for the failure.
 2. **How it happened:** Exact execution flow that triggered the error.
 3. **Root Cause:** Exact file, line number, and dependency responsible.
 4. **Code Fix:** Code snippet showing the before and after of the fix.
 
-Also append any new forbidden patterns to `.lovable/strictly-avoid.md`.
+Also append any new forbidden patterns to `.ai-memory/strictly-avoid.md`.
 
 ---
 
@@ -498,7 +498,7 @@ Also append any new forbidden patterns to `.lovable/strictly-avoid.md`.
 
 Before entering Phase 1 or Phase 2:
 
-- Read `.lovable/cicd-issues/` and `.lovable/strictly-avoid.md`.
+- Read `.ai-memory/cicd-issues/` and `.ai-memory/strictly-avoid.md`.
 - Read the provided CI/CD error log if the user supplied one.
 - These provide the known failure history and ensure you never repeat a past mistake.
 
@@ -547,7 +547,7 @@ When `06-cicd-local-runner.py` exits with code 0:
 
 - [ ] **Zero Linting/CI/CD Bypass:** Confirmed that NO CLI linters, static analysis tools, or test scripts were disabled, commented out, skipped, or bypassed with `|| true`.
 - [ ] **Local CI Runner 100% Green:** All jobs in `06-cicd-local-runner.py` (including all unit tests, linters, and quality gates) passed legitimately (exit code = 0).
-- [ ] **RCA Documented:** All encountered failures have memory files in `.lovable/memory/issues/`.
+- [ ] **RCA Documented:** All encountered failures have memory files in `.ai-memory/memory/issues/`.
 - [ ] **Antigravity Skill Updated:** Verified `.agents/skills/ci-cd-fix/skill.md` is present and synchronized with the latest rules.
 - [ ] **Stage & Commit:** Group all related fixes into a single descriptive commit: `fix(ci): resolve <summary>`.
 - [ ] **Push to Remote:** Push the commit to the current branch.

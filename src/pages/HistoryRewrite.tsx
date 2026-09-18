@@ -36,8 +36,8 @@ const HistoryRewritePage = () => (
           to make every past commit appear to contain the present-day bytes of a file.
         </p>
         <p className="text-xs text-muted-foreground mt-2">
-          Spec: <code>spec/04-generic-cli/16-history-rewrite.md</code> · Research:{" "}
-          <code>spec/15-research/git-history-rewrite-remove-and-pin-file.md</code>
+          Spec: <code>02-spec/04-generic-cli/16-history-rewrite.md</code> · Research:{" "}
+          <code>02-spec/15-research/git-history-rewrite-remove-and-pin-file.md</code>
         </p>
       </div>
 

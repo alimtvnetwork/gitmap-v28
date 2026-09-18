@@ -4,7 +4,7 @@
 // PATH, gofmt actually executes, argv budget sanity, and a self-test
 // of the chunker. Introduced in v6.80.1 after the Windows argv
 // overflow reported at
-// .lovable/memory/issues/2026-05-01-fixrepo-no-gofmt.md to give users
+// .ai-memory/memory/issues/2026-05-01-fixrepo-no-gofmt.md to give users
 // a one-shot health check before or after tuning
 // --gofmt-max-cmd-len.
 package cmddoctor

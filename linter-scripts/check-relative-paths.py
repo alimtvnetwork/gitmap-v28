@@ -41,7 +41,7 @@ EXCLUDE_EXTS = {
 ALLOWLIST_FILES = {
     ".github/workflows/goreleaser-smoke.yml",
     "linter-scripts/check-relative-paths.py",
-    ".lovable/ai-fix-scripts/07-relative-path-fixer.py",
+    "03-ai-scripts/07-relative-path-fixer.py",
 }
 
 
@@ -58,8 +58,8 @@ def parse_arguments() -> argparse.Namespace:
 
 
 def ensure_changed_files_manifest(repo_root: Path, commits: int) -> Path:
-    """Ensures git-changed-files.json is generated in .lovable/temp/."""
-    manifest = repo_root / ".lovable/temp/git-changed-files.json"
+    """Ensures git-changed-files.json is generated in .ai-memory/temp/."""
+    manifest = repo_root / ".ai-memory/temp/git-changed-files.json"
     is_fresh = manifest.is_file() and (time.time() - manifest.stat().st_mtime < 120.0)
     if not is_fresh:
         extractor = repo_root / "03-ai-scripts/27-git-changed-files.py"

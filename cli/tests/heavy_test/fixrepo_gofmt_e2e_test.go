@@ -5,7 +5,7 @@ package heavy_test
 // column-aligned map literals straddling the version-token width
 // boundary, then assert `gofmt -l .` reports zero output. This is the
 // regression test for the v4.8.0 / v4.9.0 post-rewrite gofmt step
-// (see .lovable/memory/issues/2026-05-01-fixrepo-no-gofmt.md).
+// (see .ai-memory/memory/issues/2026-05-01-fixrepo-no-gofmt.md).
 //
 // The test is skipped when go/gofmt/git aren't on PATH so it doesn't
 // false-fail in restricted CI environments. On standard ubuntu-latest
@@ -142,4 +142,4 @@ func findRepoRoot(t *testing.T) string {
 // bare-remote fixture whose URL ends in `<base>-vN.git` so fix-repo's
 // identity resolver picks the canonical version. Earlier stub copies
 // of these helpers used to live here and silently shadowed the real
-// ones — see .lovable/memory/issues/2026-05-02-fixrepo-helper-dup.md.
+// ones — see .ai-memory/memory/issues/2026-05-02-fixrepo-helper-dup.md.

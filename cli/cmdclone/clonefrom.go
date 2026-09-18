@@ -56,7 +56,7 @@ type cloneFromFlags struct {
 	// noVSCodeSync suppresses the post-clone update of the
 	// alefragnani.project-manager projects.json file. Mirrors
 	// `gitmap scan --no-vscode-sync`. Default false. See
-	// spec/01-vscode-project-manager-sync/02-clone-sync.md.
+	// 02-spec/01-vscode-project-manager-sync/02-clone-sync.md.
 	noVSCodeSync bool
 	// maxConcurrency is the resolved worker-pool size. The parser
 	// runs cloneconcurrency.Resolve so the value seen here is

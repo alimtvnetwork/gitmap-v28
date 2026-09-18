@@ -9,7 +9,7 @@
     Versioned repo discovery: if the source repo URL ends with -v<N>, this
     script probes for higher-numbered sibling repos (-v<N+1>, -v<N+2>, ...)
     and delegates to the latest available one. See:
-      spec/01-app/95-installer-script-find-latest-repo.md
+      02-spec/01-app/95-installer-script-find-latest-repo.md
 
     Run via one-liner:
       irm https://raw.githubusercontent.com/alimtvnetwork/gitmap-v28/main/install-quick.ps1 | iex
@@ -28,7 +28,7 @@ param(
     [switch]$Interactive,
     [string]$LogFile          = "",
     # Legacy fail-fast knob (retained for back-compat). The canonical knob
-    # per spec/07-generic-release/09 §6 is -DiscoveryWindow (default 20,
+    # per 02-spec/07-generic-release/09 §6 is -DiscoveryWindow (default 20,
     # capped at 20 anonymous / 50 with $env:GITHUB_TOKEN).
     [int]$ProbeCeiling        = 30,
     [int]$DiscoveryWindow     = 20
@@ -85,7 +85,7 @@ function Invoke-Safe {
 Write-Log "install-quick.ps1 started (Repo=$Repo, Interactive=$Interactive)"
 
 # ---------------------------------------------------------------------------
-# Versioned repo discovery (spec/01-app/95-installer-script-find-latest-repo.md)
+# Versioned repo discovery (02-spec/01-app/95-installer-script-find-latest-repo.md)
 # ---------------------------------------------------------------------------
 
 function Split-RepoSuffix([string]$repo) {
@@ -110,7 +110,7 @@ function Test-RepoExists([string]$url) {
     }
 }
 
-# Per spec/07-generic-release/09-generic-install-script-behavior.md §4.1:
+# Per 02-spec/07-generic-release/09-generic-install-script-behavior.md §4.1:
 # Probe -v<N+1>..-v<N+window> CONCURRENTLY (max 20, or 50 if
 # $env:GITHUB_TOKEN is set). Pick max(M) where HEAD returned 200.
 # Gaps are tolerated (no fail-fast on first MISS).
@@ -239,7 +239,7 @@ if ($alreadyDelegated) {
 } elseif ($NoDiscovery) {
     Write-Host "  [discovery] -NoDiscovery set; skipping probe"
 } elseif (-not [string]::IsNullOrWhiteSpace($Version)) {
-    # Strict-tag contract (spec/07-generic-release/09-generic-install-script-behavior.md §3):
+    # Strict-tag contract (02-spec/07-generic-release/09-generic-install-script-behavior.md §3):
     # An explicit -Version pins the install to that exact release.
     # MUST NOT probe -v<N+i> sibling repos. MUST NOT call releases/latest.
     # MUST NOT fall back to main on failure. The canonical installer

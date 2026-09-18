@@ -5,7 +5,7 @@
 // calling os.Exit so the outer loop can continue past per-repo
 // failures and tally a summary.
 //
-// Spec: spec/01-app/116-bulk-visibility-mapub-mapri.md §plan step 14.
+// Spec: 02-spec/01-app/116-bulk-visibility-mapub-mapri.md §plan step 14.
 package cmd
 
 import (

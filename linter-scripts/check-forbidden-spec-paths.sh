@@ -6,9 +6,9 @@
 #
 #   1. Re-appearance of the deprecated, pre-consolidation update
 #      folders under spec/:
-#        - spec/14-generic-update/
-#        - spec/15-self-update-app-update/
-#      (Both were merged into spec/14-update/ on 2026-04-17.)
+#        - 02-spec/14-generic-update/
+#        - 02-spec/15-self-update-app-update/
+#      (Both were merged into 02-spec/14-update/ on 2026-04-17.)
 #
 #   2. Any MERGE-PROPOSAL.md (any case variant) under spec/.
 #      It was a transient planning doc and must not be committed.
@@ -28,7 +28,7 @@
 
 set -uo pipefail
 
-SPEC_ROOT="spec"
+SPEC_ROOT="02-spec"
 RELEASE_ROOT="release-artifacts"
 EXIT_CODE=0
 
@@ -42,7 +42,7 @@ FORBIDDEN_DIRS=(
 
 for DIR in "${FORBIDDEN_DIRS[@]}"; do
   if [[ -e "$DIR" ]]; then
-    echo "::error file=$DIR::Forbidden folder present: $DIR (merged into spec/14-update/, must not re-appear)"
+    echo "::error file=$DIR::Forbidden folder present: $DIR (merged into 02-spec/14-update/, must not re-appear)"
     EXIT_CODE=1
   fi
 done
@@ -88,7 +88,7 @@ if [[ "$EXIT_CODE" -eq 0 ]]; then
   echo "✅ No forbidden paths or uppercase .md filenames detected."
 else
   echo "❌ Violations detected. See errors above."
-  echo "   - Consolidated update home: spec/14-update/"
+  echo "   - Consolidated update home: 02-spec/14-update/"
   echo "   - Markdown filenames must be all lowercase (e.g. readme.md)."
 fi
 

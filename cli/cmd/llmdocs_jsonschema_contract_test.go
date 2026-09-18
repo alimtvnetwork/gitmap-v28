@@ -2,7 +2,7 @@ package cmd
 
 // JSON schema contract for `gitmap llm-docs --format=json`. Pairs the
 // runtime encoder (encodeLLMDocsJSON in llmdocsrender.go) with the
-// published schema at spec/08-json-schemas/llm-docs.schema.json so
+// published schema at 02-spec/08-json-schemas/llm-docs.schema.json so
 // drift in either side fails the build.
 
 import (

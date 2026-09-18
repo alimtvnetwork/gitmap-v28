@@ -8,14 +8,14 @@ package cmd
 //   - encodeListReleasesJSON         → default per-repo view, fields
 //     mirror model.ReleaseRecord's `json:` tags exactly so the wire
 //     format stays byte-compatible with the legacy json.MarshalIndent
-//     output. Schema: spec/08-json-schemas/list-releases.schema.json.
+//     output. Schema: 02-spec/08-json-schemas/list-releases.schema.json.
 //
 //   - encodeListReleasesAllReposJSON → joined --all-repos view. The
 //     underlying store.ReleaseAcrossRepos struct historically had NO
 //     json tags, so encoding/json emitted PascalCase field names
 //     (ReleaseID, RepoSlug, …). We preserve that surface verbatim to
 //     avoid silently breaking downstream scripts. Schema:
-//     spec/08-json-schemas/list-releases-all-repos.schema.json.
+//     02-spec/08-json-schemas/list-releases-all-repos.schema.json.
 //
 // Both encoders take an io.Writer so the contract test in
 // listreleases_jsonschema_contract_test.go can capture bytes into a

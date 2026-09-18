@@ -34,7 +34,7 @@ func TestSlugFromRemote(t *testing.T) {
 // IMPORTANT: every {base}-vN literal here pairs with a SIBLING string
 // representing the same N. Both halves MUST be derived from the same
 // `int` (see fmt.Sprintf below) so a fix-repo bump cannot rewrite one
-// without the other. See .lovable/memory/issues/2026-05-02-fixrepo-
+// without the other. See .ai-memory/memory/issues/2026-05-02-fixrepo-
 // paired-literal-desync.md.
 func TestRemoteSlugRegex(t *testing.T) {
 	cases := buildSlugRegexCases()

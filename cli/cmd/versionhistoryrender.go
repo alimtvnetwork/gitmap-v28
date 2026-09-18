@@ -10,7 +10,7 @@ package cmd
 // fields (`flattenedPath`, `createdAt`) are omitted from the wire when
 // empty to preserve the legacy omitempty shape.
 //
-// Schema: spec/08-json-schemas/version-history.schema.json.
+// Schema: 02-spec/08-json-schemas/version-history.schema.json.
 
 import (
 	"io"

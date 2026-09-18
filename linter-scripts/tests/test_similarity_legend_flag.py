@@ -55,7 +55,7 @@ def _make_repo(td: Path) -> Path:
     """spec/intro.md + spec/copy.md, both clean — same shape as the
     --with-similarity test fixture so the rename payload below has
     a real post-state file to point at."""
-    spec = td / "spec"
+    spec = td / "02-spec"
     spec.mkdir()
     (spec / "intro.md").write_text("# spec\nplain prose.\n")
     (spec / "copy.md").write_text("# spec\nplain prose.\n")

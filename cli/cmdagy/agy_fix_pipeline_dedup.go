@@ -34,7 +34,7 @@ func sentAgyErrorsStorePath() string {
 		return primaryPath
 	}
 
-	return filepath.Join(rootDir, ".lovable", "temp", "sent_agy_errors.json")
+	return filepath.Join(rootDir, ".ai-memory", "temp", "sent_agy_errors.json")
 }
 
 func isDirWritable(dir string) bool {

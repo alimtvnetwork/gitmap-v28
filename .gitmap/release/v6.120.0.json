@@ -6,7 +6,7 @@
   "tag": "v6.120.0",
   "assets": [],
   "changelog": [
-    "Cleaned up AI agent temporary scripts from the root directory that were accidentally tracked in Git. Moved all scripts to the isolated `.lovable/temp-scripts/` directory to prevent pollution."
+    "Cleaned up AI agent temporary scripts from the root directory that were accidentally tracked in Git. Moved all scripts to the isolated `.ai-memory/temp-scripts/` directory to prevent pollution."
   ],
   "isDraft": false,
   "isPreRelease": false,

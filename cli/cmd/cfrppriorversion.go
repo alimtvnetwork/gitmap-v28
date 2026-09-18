@@ -1,4 +1,4 @@
-// Package cmd — cfrppriorversion.go: spec/01-app/113 §2.3.
+// Package cmd — cfrppriorversion.go: 02-spec/01-app/113 §2.3.
 //
 // After cfrp publishes vN, probe v(N-1), v(N-2), … on the same
 // provider+owner. Any that are currently `public` are offered up

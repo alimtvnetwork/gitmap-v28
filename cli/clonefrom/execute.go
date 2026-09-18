@@ -3,7 +3,7 @@ package clonefrom
 // Executor: walk Plan.Rows sequentially, shell out to `git clone`
 // for each, and accumulate per-row Results. Sequential by design
 // — parallel fan-out is a follow-up (see _TODO in
-// .lovable/question-and-ambiguity/03-clone-from-scope.md). Adding
+// .ai-memory/question-and-ambiguity/03-clone-from-scope.md). Adding
 // it later is a one-function change because Result has no shared
 // state between rows.
 //

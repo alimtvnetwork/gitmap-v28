@@ -18,7 +18,7 @@ import (
 // Unrecognized origin URLs fail-open: a warning is printed but no
 // error is returned, so the caller can still run git push/pull.
 //
-// Spec: spec/01-app/111-push-pull-transport-flags.md
+// Spec: 02-spec/01-app/111-push-pull-transport-flags.md
 func ApplyTransportFlag(dir string, useSSH, useHTTPS bool) (bool, string, string, error) {
 	if !useSSH && !useHTTPS {
 		return false, "", "", nil

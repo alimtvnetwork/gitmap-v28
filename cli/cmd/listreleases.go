@@ -151,7 +151,7 @@ func printReleaseRow(r model.ReleaseRecord) {
 
 // printReleasesJSON renders releases as JSON to stdout via the
 // stablejson encoder so key order is contractual (pinned by
-// spec/08-json-schemas/list-releases.schema.json + the matching
+// 02-spec/08-json-schemas/list-releases.schema.json + the matching
 // jsonschema_contract test). Keeps the legacy `_ = constants.JSONIndent`
 // 2-space layout byte-for-byte compatible with the prior MarshalIndent
 // output, so existing consumers see no diff.

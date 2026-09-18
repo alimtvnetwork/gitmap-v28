@@ -5,7 +5,7 @@
 
 Create a prompts folder in the root of the repo: `01-prompts`. Inside this you will have the general prompts. So inside this folder will be `01-general`, and afterwards you will have the project names, let's say `02-<project-name>`. Inside this you will always have the file as a sequence: `01`, `02` hyphen the prompt slug. So whatever prompt I give you, you create the slug or title for that and put it into that prompt folder specifically and make a commit.
 
-Update your `.lovable` folder with this memory in an MD file. Make sure you also create a "what to read" MD file that would resolve this. Also in the root of the repo, create the root readme file — all readme files should be in lowercase. Remember: hyphen and lowercase, that's the format. In the root of the repo, explain the folder structure and how the files need to be. Empty folders you create with a `.gitkeep` file so that they exist.
+Update your `.ai-memory` folder with this memory in an MD file. Make sure you also create a "what to read" MD file that would resolve this. Also in the root of the repo, create the root readme file — all readme files should be in lowercase. Remember: hyphen and lowercase, that's the format. In the root of the repo, explain the folder structure and how the files need to be. Empty folders you create with a `.gitkeep` file so that they exist.
 
 Make sure that any AI who reads the root readme file will know what the memory structure is, which file it needs to read, and where the prompt is and how the prompt is.
 
@@ -21,7 +21,7 @@ If any link or file is given, the AI should write that file into the specific fo
 
 Always before writing the code, the AI should read the coding guidelines, understand the coding guidelines, and error management must be followed. This needs to be added with every prompt — that is, inside the spec folder, folder `02`, folder `03` must be followed, and `04` as well. Just mention these folder numbers. That would be all right. These are very important when writing the code. Make sure the code needs to be DRY. If it is dealing with code and spec, every time the spec needs to add that.
 
-Inside the prompts folder, these prompts which I have shared here should go as a sample prompt inside the general prompts, in the prompt library setup. Inside the general folder there should be a prompt library setup, and it should have this MD file with this slug, like `01-prompt-library-setup.md`, that contains what we just discussed. Also refer to this from the root readme file and from inside the `.lovable` folder "what to read".
+Inside the prompts folder, these prompts which I have shared here should go as a sample prompt inside the general prompts, in the prompt library setup. Inside the general folder there should be a prompt library setup, and it should have this MD file with this slug, like `01-prompt-library-setup.md`, that contains what we just discussed. Also refer to this from the root readme file and from inside the `.ai-memory` folder "what to read".
 
 ## Action Items — Must Follow (Non-Negotiable)
 
@@ -37,9 +37,9 @@ Inside the prompts folder, these prompts which I have shared here should go as a
 - [ ] Add a "Folder Structure" section only if a folder structure was discussed.
 - [ ] Add a "Database" section at the end only if database design was discussed.
 - [ ] For any code-related prompt, add the standard footer: read spec folders `02`, `03`, `04` before writing code; error management must be followed; code must be DRY.
-- [ ] Files/links supplied with a prompt: assets/images -> `assets/`, specs -> `spec/` (app spec in `spec/`). Ask when placement is unclear.
+- [ ] Files/links supplied with a prompt: assets/images -> `assets/`, specs -> `02-spec/` (app spec in `02-spec/`). Ask when placement is unclear.
 - [ ] Commit after storing each prompt.
-- [ ] Keep the root `readme.md`, `.lovable/what-to-read.md`, and `.lovable/prompts.md` in sync so any AI can discover the structure.
+- [ ] Keep the root `readme.md`, `.ai-memory/what-to-read.md`, and `.ai-memory/prompts.md` in sync so any AI can discover the structure.
 
 ## Folder Structure
 
@@ -61,7 +61,7 @@ spec/
   04/                      additional mandatory rules
   21/                      app spec
 readme.md                  root, lowercase
-.lovable/memory/
+.ai-memory/memory/
   what-to-read.md
   prompt-library.md
 ```

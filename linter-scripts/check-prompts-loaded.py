@@ -1,8 +1,8 @@
 #!/usr/bin/env python3
 """
 check-prompts-loaded.py — Verify that the prompt-loading contract from
-``.lovable/coding-guidelines.md`` actually holds on
-disk: the index file ``.lovable/prompts.md`` must exist, and every
+``.ai-memory/coding-guidelines.md`` actually holds on
+disk: the index file ``.ai-memory/prompts.md`` must exist, and every
 prompt file under ``01-prompts/`` must be referenced by it.
 
 This is the on-disk equivalent of the AI-side "read all prompts before
@@ -27,8 +27,8 @@ Usage::
 
     python3 linter-scripts/check-prompts-loaded.py
     python3 linter-scripts/check-prompts-loaded.py \\
-        --index .lovable/prompts.md \\
-        --prompts-dir .lovable/prompts
+        --index .ai-memory/prompts.md \\
+        --prompts-dir .ai-memory/prompts
 """
 from __future__ import annotations
 
@@ -41,20 +41,20 @@ EXIT_PASS = 0
 EXIT_FAIL = 1
 EXIT_ERROR = 2
 
-DEFAULT_INDEX = ".lovable/prompts.md"
+DEFAULT_INDEX = ".ai-memory/prompts.md"
 DEFAULT_PROMPTS_DIR = "01-prompts"
 
 
 def parse_args() -> argparse.Namespace:
     parser = argparse.ArgumentParser(
-        description="Verify .lovable/prompts.md indexes every prompt file in 01-prompts/.",
+        description="Verify .ai-memory/prompts.md indexes every prompt file in 01-prompts/.",
     )
     parser.add_argument("--index", default=DEFAULT_INDEX,
                         help=f"Path to the prompt index (default: {DEFAULT_INDEX})")
     parser.add_argument("--prompts-dir", default=DEFAULT_PROMPTS_DIR,
                         help=f"Path to the prompts directory (default: {DEFAULT_PROMPTS_DIR})")
     parser.add_argument("--fix", action="store_true",
-                        help="Automatically regenerate .lovable/prompts.md index")
+                        help="Automatically regenerate .ai-memory/prompts.md index")
     return parser.parse_args()
 
 
@@ -88,7 +88,7 @@ def generate_index(prompts_dir: Path, prompt_files: list[str], index_path: Path)
         "**Updated:** 2026-09-01",
         "",
         "This index is the canonical entry point for the prompts under `01-prompts/`.",
-        "It is referenced from `.lovable/coding-guidelines.md` as a required read before generating code.",
+        "It is referenced from `.ai-memory/coding-guidelines.md` as a required read before generating code.",
         "",
         "## Prompts Matrix",
         "",

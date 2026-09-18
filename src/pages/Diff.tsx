@@ -55,7 +55,7 @@ const DiffPage = () => (
           Lists files present on only one side and files whose content differs on both sides. Writes nothing, commits nothing, pushes nothing.
         </p>
         <p className="text-xs text-muted-foreground mt-2">
-          Spec: companion to <code>spec/01-app/97-move-and-merge.md</code>
+          Spec: companion to <code>02-spec/01-app/97-move-and-merge.md</code>
         </p>
       </div>
 

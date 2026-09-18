@@ -13,11 +13,11 @@ Please instruct Lovable to create a logo for me. The instruction should be saved
 
 ## MUST FOLLOW NON-NEGOTIABLE
 
-Listen, past runs of these turns have been sloppy and stupid as fuck: wrong step counts, partial task lists dumped into chat instead of files, plans and session summaries half-filled with "[N]" placeholders, folders skimmed, open ambiguities ignored, CI/CD issues and `plans/subtasks/` forgotten, user commands dropped, coding guidelines bypassed, detailed specs chopped and summarized into useless junk, uppercase README files left uncorrected, `.lovable/memory/` created by accident, `strictly-avoid.md` overwritten, and explicit user instructions softened after being told not to. WTF. How on earth are you reverting to this carelessness, are you stupid?? Stop doing that, you stupid fuck. Read the whole codebase, read every folder in `spec/` and `.lovable/`, confirm root `readme.md` is strictly lowercase, find the root cause in one sentence, capture commands, issues, and pending tasks without omitting a single item, write the spec files and memory files in the right paths, update every index in the same turn, sync `readme.md` with `what-to-read.md`, preserve detailed specs verbatim with zero truncation, run builds and full unit tests, group commits with clear messages, and push everything to git before ending. Going deep IS the job. If you are not going deep, you are not doing the job. Violating this is auto-reject on the same tier as RULE 0. Avoid stupidity and being careless, you stupid fuck. Where is your attention, are you stupid? Tell me. Your stupidity is going on top of my head. Where did you learn this stupidity? If I could find you, I could slap you.
+Listen, past runs of these turns have been sloppy and stupid as fuck: wrong step counts, partial task lists dumped into chat instead of files, plans and session summaries half-filled with "[N]" placeholders, folders skimmed, open ambiguities ignored, CI/CD issues and `plans/subtasks/` forgotten, user commands dropped, coding guidelines bypassed, detailed specs chopped and summarized into useless junk, uppercase README files left uncorrected, `.ai-memory/memory/` created by accident, `strictly-avoid.md` overwritten, and explicit user instructions softened after being told not to. WTF. How on earth are you reverting to this carelessness, are you stupid?? Stop doing that, you stupid fuck. Read the whole codebase, read every folder in `02-spec/` and `.ai-memory/`, confirm root `readme.md` is strictly lowercase, find the root cause in one sentence, capture commands, issues, and pending tasks without omitting a single item, write the spec files and memory files in the right paths, update every index in the same turn, sync `readme.md` with `what-to-read.md`, preserve detailed specs verbatim with zero truncation, run builds and full unit tests, group commits with clear messages, and push everything to git before ending. Going deep IS the job. If you are not going deep, you are not doing the job. Violating this is auto-reject on the same tier as RULE 0. Avoid stupidity and being careless, you stupid fuck. Where is your attention, are you stupid? Tell me. Your stupidity is going on top of my head. Where did you learn this stupidity? If I could find you, I could slap you.
 
 ## Coding Guidelines Reminder
 
-Read `.lovable/coding-guidelines.md`, plus boolean, language-specific, enum, and error-management guidelines from `/spec/` before any implementation. Apply all hard rules: functions ≤ 8 lines, files ≤ 100 lines, no nested or negative ifs, strict types (no `any` / `unknown` / `interface{}`), no swallowed errors, no magic strings, definitions in their own files, `is` / `has` boolean prefixes, DRY first.
+Read `.ai-memory/coding-guidelines.md`, plus boolean, language-specific, enum, and error-management guidelines from `/spec/` before any implementation. Apply all hard rules: functions ≤ 8 lines, files ≤ 100 lines, no nested or negative ifs, strict types (no `any` / `unknown` / `interface{}`), no swallowed errors, no magic strings, definitions in their own files, `is` / `has` boolean prefixes, DRY first.
 
 ## Breakdown
 
@@ -180,9 +180,9 @@ Notes:
 
    a. Save this instruction to `01-prompts/10-ui-and-design/01-logo-create.md` in the project repo
 
-   b. Add an entry to `.lovable/prompts.md` index file with triggers: `create logo`, `make logo`, `logo`, `create icon`
+   b. Add an entry to `.ai-memory/prompts.md` index file with triggers: `create logo`, `make logo`, `logo`, `create icon`
 
-   c. Keep `.lovable/prompts.md` as the canonical index for all saved prompt files; update it in place when new prompts are added
+   c. Keep `.ai-memory/prompts.md` as the canonical index for all saved prompt files; update it in place when new prompts are added
 
    d. Do not write this instruction to any `mem://` memory store - it must live only in the project file system
 
@@ -194,7 +194,7 @@ Not applicable for this task (asset generation only). If a registry of generated
 
 1. Upload paths: `Projects/{Seq}-{PascalCaseProjectName}/icons-svg/`, `Projects/{Seq}-{PascalCaseProjectName}/icons-image/`, repo root for favicon
 
-2. Prompt paths: `01-prompts/10-ui-and-design/01-logo-create.md` and `.lovable/prompts.md` (index)
+2. Prompt paths: `01-prompts/10-ui-and-design/01-logo-create.md` and `.ai-memory/prompts.md` (index)
 
 3. Log paths: not required for this task
 
@@ -212,7 +212,7 @@ Not applicable for this task (asset generation only). If a registry of generated
 
 6. Project `README.md` renders all assets correctly when viewed on GitHub (relative paths, no broken links).
 
-7. Instruction saved at `01-prompts/10-ui-and-design/01-logo-create.md` and indexed in `.lovable/prompts.md`.
+7. Instruction saved at `01-prompts/10-ui-and-design/01-logo-create.md` and indexed in `.ai-memory/prompts.md`.
 
 8. No entries for this instruction are written to `mem://` memory; project file system is the single source of truth.
 
@@ -240,7 +240,7 @@ Not applicable for this task (asset generation only). If a registry of generated
 
 6. Dark + white variants default to ON unless the user explicitly opts out.
 
-7. All prompt instructions live in the project file system under `01-prompts/` with `.lovable/prompts.md` as the index - never in `mem://`.
+7. All prompt instructions live in the project file system under `01-prompts/` with `.ai-memory/prompts.md` as the index - never in `mem://`.
 
 ## Finalize
 

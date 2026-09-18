@@ -6,7 +6,7 @@
 // on every other gitmap CLI: stable key order, lowerCamel field names,
 // integer counters, ISO-8601 timestamps from the caller.
 //
-// Spec: spec/01-app/116-bulk-visibility-mapub-mapri.md §undo-redo.
+// Spec: 02-spec/01-app/116-bulk-visibility-mapub-mapri.md §undo-redo.
 package cmd
 
 import (

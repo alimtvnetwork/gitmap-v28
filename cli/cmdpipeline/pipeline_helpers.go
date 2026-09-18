@@ -13,7 +13,7 @@ import (
 func resolveTempDir() string {
 	db, err := openDB()
 	if err != nil {
-		return filepath.Join(".", ".lovable", "temp")
+		return filepath.Join(".", ".ai-memory", "temp")
 	}
 
 	defer db.Close()
@@ -22,7 +22,7 @@ func resolveTempDir() string {
 		return val
 	}
 
-	return filepath.Join(".", ".lovable", "temp")
+	return filepath.Join(".", ".ai-memory", "temp")
 }
 
 func writeContentToFile(targetPath, content string) error {

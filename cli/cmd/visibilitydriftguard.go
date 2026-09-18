@@ -3,7 +3,7 @@
 // (force-override vs drift-skip vs proceed) is unit-testable without
 // a real provider client.
 //
-// Spec: spec/01-app/116-bulk-visibility-mapub-mapri.md §undo-redo.
+// Spec: 02-spec/01-app/116-bulk-visibility-mapub-mapri.md §undo-redo.
 package cmd
 
 // DriftActionType answers: given the *current* visibility we just read

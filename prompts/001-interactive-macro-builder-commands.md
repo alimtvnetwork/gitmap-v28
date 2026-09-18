@@ -62,9 +62,9 @@ When users launch `gitmap macro add <name>` in an interactive terminal session:
 
 ## 3. Mandatory References
 
-- `.lovable/plan.md`: Failure recovery record and architectural state.
+- `.ai-memory/plan.md`: Failure recovery record and architectural state.
 - `mem://01-index.md`: Core memory index and CODE RED guidelines.
-- `.lovable/coding-guidelines.md`: Function length, nesting, and boolean naming requirements.
+- `.ai-memory/coding-guidelines.md`: Function length, nesting, and boolean naming requirements.
 - `gitmap/cmd/macro_add_interactive.go`: Current interactive prompt implementation.
 - `gitmap/cmd/macro_types.go`: Macro types and step data structures.
 
@@ -83,4 +83,4 @@ When users launch `gitmap macro add <name>` in an interactive terminal session:
 
 ## 5. Self-Instruction for AI Agent
 
-Before acting, re-read `mem://01-index.md` and `.lovable/coding-guidelines.md`; restate which rules apply. Suggest further improvements to this instruction after execution.
+Before acting, re-read `mem://01-index.md` and `.ai-memory/coding-guidelines.md`; restate which rules apply. Suggest further improvements to this instruction after execution.

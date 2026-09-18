@@ -2,10 +2,10 @@
 """
 check-mws-error-codes.py — MWS error-code linter (FU-9).
 
-Enforces the contract in `spec/19-main-worker-service/13-error-codes.md` §7:
+Enforces the contract in `02-spec/19-main-worker-service/13-error-codes.md` §7:
 
   Rule R1 — Presence: every WORKER-XYY-ZZ / MAIN-XYY-ZZ literal that
-            appears anywhere under spec/19/, spec/14-update/28-*,
+            appears anywhere under 02-spec/19/, 02-spec/14-update/28-*,
             and the source tree MUST be cataloged in 13-error-codes.md.
   Rule R2 — No orphans: every code cataloged in 13-error-codes.md MUST
             be referenced from at least one source location outside
@@ -32,9 +32,9 @@ import sys
 from pathlib import Path
 
 REPO_ROOT = Path(__file__).resolve().parent.parent
-SPEC_FILE = REPO_ROOT / "spec/19-main-worker-service/13-error-codes.md"
-INDEX_FILE = REPO_ROOT / "spec/19-main-worker-service/error-codes.json"
-MASTER_FILE = REPO_ROOT / "spec/03-error-manage/03-error-code-registry/error-codes-master.json"
+SPEC_FILE = REPO_ROOT / "02-spec/19-main-worker-service/13-error-codes.md"
+INDEX_FILE = REPO_ROOT / "02-spec/19-main-worker-service/error-codes.json"
+MASTER_FILE = REPO_ROOT / "02-spec/03-error-manage/03-error-code-registry/error-codes-master.json"
 WAIVER_FILE = REPO_ROOT / "linter-scripts/check-mws-error-codes.waivers.txt"
 UNALLOCATED_FILE = REPO_ROOT / "linter-scripts/check-mws-error-codes.unallocated.txt"
 
@@ -57,7 +57,7 @@ ROW_RX = re.compile(
     r"\|\s*`(?P<flat>\d{5})`\s*\|",
     re.MULTILINE,
 )
-SCAN_DIRS = ("spec/19-main-worker-service", "spec/14-update", "src", "linter-scripts/tests")
+SCAN_DIRS = ("02-spec/19-main-worker-service", "02-spec/14-update", "src", "linter-scripts/tests")
 SCAN_EXTS = {".md", ".py", ".ts", ".tsx", ".js", ".jsx", ".go", ".php", ".sql", ".json", ".yml", ".yaml"}
 
 

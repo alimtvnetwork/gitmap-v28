@@ -9,7 +9,7 @@ interface SpecPageProps {
   title: string;
   /** Short subtitle / lead paragraph. */
   subtitle?: string;
-  /** Repository-relative path of the source markdown (e.g. "spec/01-app/100-scan-all.md"). */
+  /** Repository-relative path of the source markdown (e.g. "02-spec/01-app/100-scan-all.md"). */
   sourcePath: string;
   /** Raw markdown content (import via `?raw`). */
   markdown: string;

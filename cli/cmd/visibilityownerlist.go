@@ -12,7 +12,7 @@
 // length equals the cap we log a stderr WARNING per spec §plan step 26
 // so users with >cap repos are not silently truncated.
 //
-// Spec: spec/01-app/116-bulk-visibility-mapub-mapri.md §plan step 9.
+// Spec: 02-spec/01-app/116-bulk-visibility-mapub-mapri.md §plan step 9.
 package cmd
 
 import (

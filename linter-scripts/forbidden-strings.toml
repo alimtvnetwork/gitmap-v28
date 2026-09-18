@@ -34,24 +34,24 @@ fix_hint = "python3 linter-scripts/forbidden-strings-summary.py --rule STALE-REP
 exclude_dirs = ["release-artifacts", ".gitmap"]
 exclude_files = ["forbidden-strings.toml", "check-forbidden-strings.py", "forbidden-strings-summary.py"]
 allowlist = [
-  "spec/06-seedable-config-architecture/97-changelog.md",
+  "02-spec/06-seedable-config-architecture/97-changelog.md",
   "changelog.md",
-  "spec/14-update/23-install-script-version-probe.md",
-  "spec/14-update/26-repo-major-version-migrator.md",
+  "02-spec/14-update/23-install-script-version-probe.md",
+  "02-spec/14-update/26-repo-major-version-migrator.md",
   "src/data/specTree.json",
-  ".lovable/memory/index.md",
-  ".lovable/strictly-avoid.md",
+  ".ai-memory/memory/index.md",
+  ".ai-memory/strictly-avoid.md",
   # Historical session log: documents the v14 → v17 rebrand itself, so
   # the old slug must remain literally for the audit trail to make sense.
-  ".lovable/memory/sessions/2026-04-24-batch-cleanup-and-rebrand.md",
+  ".ai-memory/memory/sessions/2026-04-24-batch-cleanup-and-rebrand.md",
   # Cites a path inside release-artifacts/coding-guidelines-v24.4.0/ —
   # that directory is a frozen snapshot of v1.4.0 (already excluded from
   # the scan); the prose reference to its path must be allowlisted too.
-  ".lovable/memory/constraints/standalone-script-standards.md",
+  ".ai-memory/memory/constraints/standalone-script-standards.md",
   # Tooling README that documents these rules; literal stale forms are required for accurate examples.
   "linter-scripts/readme-forbidden-strings.md",
   # Quickref 'Don't' table cell legitimately demonstrates the forbidden v1 slug to teach the rename; the literal stale form is required for the example to make sense.
-  "spec/17-consolidated-guidelines/00-strictly-avoid-quickref.md",
+  "02-spec/17-consolidated-guidelines/00-strictly-avoid-quickref.md",
   # fix-repo test fixture: intentionally contains stale slugs (v1, v15, v16, v19, v170)
   # as synthetic input to verify default vs --all rewrite behavior. Must remain literal.
   "linters-cicd/tests/fixtures/fix-repo/README.md",
@@ -71,7 +71,7 @@ fix_hint = "python3 linter-scripts/forbidden-strings-summary.py --rule STALE-MOD
 exclude_dirs = ["release-artifacts", ".gitmap"]
 exclude_files = ["forbidden-strings.toml", "check-forbidden-strings.py", "forbidden-strings-summary.py"]
 allowlist = [
-  "spec/14-update/23-install-script-version-probe.md",
+  "02-spec/14-update/23-install-script-version-probe.md",
   # Historical changelog entry that documents this very rule's introduction.
   "changelog.md",
   # Tooling README that documents these rules; literal stale forms are required for accurate examples.
@@ -95,23 +95,23 @@ exclude_files = ["forbidden-strings.toml", "check-forbidden-strings.py", "forbid
 allowlist = []
 
 # --- Rule: Spec/19 implementation suggestions (TOTAL BAN) ---
-# This repo is spec-only for spec/19-main-worker-service. Any phrase that
+# This repo is spec-only for 02-spec/19-main-worker-service. Any phrase that
 # proposes coding, scaffolding, or shipping the worker service is forbidden.
-# See `.lovable/strictly-avoid.md` and `mem://constraints/spec19-no-implementation`.
+# See `.ai-memory/strictly-avoid.md` and `mem://constraints/spec19-no-implementation`.
 [[rule]]
 id = "SPEC19-NO-IMPL"
-description = "Forbidden Spec/19 implementation phrases. spec/19-main-worker-service is spec-only — see linter-scripts/forbidden-strings.toml for the exact phrase list (kept only in this TOML to avoid self-trips)."
-summary_description = "Forbidden Spec/19 implementation phrases. spec/19-main-worker-service is spec-only."
+description = "Forbidden Spec/19 implementation phrases. 02-spec/19-main-worker-service is spec-only — see linter-scripts/forbidden-strings.toml for the exact phrase list (kept only in this TOML to avoid self-trips)."
+summary_description = "Forbidden Spec/19 implementation phrases. 02-spec/19-main-worker-service is spec-only."
 summary_pattern = "<redacted: see linter-scripts/forbidden-strings.toml>"
 pattern = '(?i)\b(phase\s*1\s*implementation|begin\s*coding|ship\s*the\s*service|starter\s*skeleton|begin\s*spec[/\s-]*19\s*phase\s*1|start\s*implementing\s*spec[/\s-]*19)\b'
-fix_hint = "Remove the phrase. spec/19-main-worker-service is spec-only — no implementation work is permitted in this repo. See .lovable/strictly-avoid.md."
+fix_hint = "Remove the phrase. 02-spec/19-main-worker-service is spec-only — no implementation work is permitted in this repo. See .ai-memory/strictly-avoid.md."
 exclude_dirs = ["release-artifacts", ".gitmap"]
 exclude_files = ["forbidden-strings.toml", "check-forbidden-strings.py", "forbidden-strings-summary.py", "changelog.md"]
 allowlist = [
   # Canonical ban definitions must cite the forbidden phrases verbatim.
-  ".lovable/strictly-avoid.md",
-  ".lovable/memory/constraints/spec19-no-implementation.md",
-  "spec/17-consolidated-guidelines/00-strictly-avoid-quickref.md",
+  ".ai-memory/strictly-avoid.md",
+  ".ai-memory/memory/constraints/spec19-no-implementation.md",
+  "02-spec/17-consolidated-guidelines/00-strictly-avoid-quickref.md",
   # Tooling README documenting the rule itself.
   "linter-scripts/readme-forbidden-strings.md",
   "linter-scripts/readme-forbidden-strings.md",

@@ -35,7 +35,7 @@ const ReplacePage = () => (
           excluded.
         </p>
         <p className="text-xs text-muted-foreground mt-2">
-          Spec: <code>spec/04-generic-cli/15-replace-command.md</code>
+          Spec: <code>02-spec/04-generic-cli/15-replace-command.md</code>
         </p>
       </div>
 

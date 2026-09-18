@@ -3,7 +3,7 @@
 > **Directory:** `05-changes-history/27-release-v6-191-0/`
 > **Date:** 2026-09-06
 > **Author/Agent:** Antigravity AI
-> **Module Affected:** Repository-wide (`version.json`, `package.json`, `gitmap/constants/constants.go`, `changelog.md`, `readme.md`, `.lovable/`, `01-prompts/`, `05-changes-history/`)
+> **Module Affected:** Repository-wide (`version.json`, `package.json`, `gitmap/constants/constants.go`, `changelog.md`, `readme.md`, `.ai-memory/`, `01-prompts/`, `05-changes-history/`)
 > **Status:** Completed & Verified
 
 ---
@@ -22,7 +22,7 @@ In accordance with the release management rules:
 4. SSoT manifests (`version.json`, `package.json`, `gitmap/constants/constants.go`) bumped to `6.191.0`.
 5. Root `readme.md` pinned version updated to `**Pinned version: v6.191.0**`.
 6. `changelog.md` updated with `## [v6.191.0] 2026-09-06 Release v6.191.0`, install one-liners, and itemized real work bullets.
-7. Generated release notes at `.lovable/release/release-notes-v6.191.0.md`.
+7. Generated release notes at `.ai-memory/release/release-notes-v6.191.0.md`.
 8. Executed `go generate ./...` in `gitmap/`.
 9. Validated version sync via `03-ai-scripts/14-version-sync-checker.py --all-paths` (3/3 passing).
 10. Preserved zero-tag policy where tags are delegated to external automated CI orchestrators.
@@ -35,7 +35,7 @@ In accordance with the release management rules:
   - Overwrote `01-prompts/01-release.md` with Release Deployment & Version Bump prompt Version 2.1.0 specifications.
   - Ensured all trigger phrases, pre-flight checks, and execution checklists are synchronized across workspaces.
 - **SSoT Manifest Alignment**:
-  - Bumped version from `6.190.0` to `6.191.0` across `version.json`, `package.json`, `gitmap/constants/constants.go`, and `.lovable/user-preferences`.
+  - Bumped version from `6.190.0` to `6.191.0` across `version.json`, `package.json`, `gitmap/constants/constants.go`, and `.ai-memory/user-preferences`.
   - Pinned active version in root `readme.md` to `v6.191.0`.
 - **Automated Quality Gates & Test Passing**:
   - 100% PASS on `go test -v -count=1 ./pkg/regexnew/...` in `04-code/golang`.
@@ -55,14 +55,14 @@ In accordance with the release management rules:
 2. `package.json` — Bumped `version` from `6.190.0` to `6.191.0`.
 3. `gitmap/constants/constants.go` — Bumped `Version` from `6.190.0` to `6.191.0`.
 4. `readme.md` — Updated pinned version to `v6.191.0`.
-5. `.lovable/user-preferences` — Pinned active version `v6.191.0`.
+5. `.ai-memory/user-preferences` — Pinned active version `v6.191.0`.
 6. `changelog.md` — Added release header, install commands, and release notes for `v6.191.0`.
 7. `01-prompts/01-release.md` — Synchronized release management prompt body.
 8. `05-changes-history/01-index.md` — Registered transaction log 27.
 
 ### Created
 1. `05-changes-history/27-release-v6-191-0/01-transaction-log.md` — This transaction log.
-2. `.lovable/release/release-notes-v6.191.0.md` — Generated release notes.
+2. `.ai-memory/release/release-notes-v6.191.0.md` — Generated release notes.
 
 ---
 

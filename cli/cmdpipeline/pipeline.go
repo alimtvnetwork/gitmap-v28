@@ -231,7 +231,7 @@ func printPipelineHelpFlags() {
 	fmt.Println("  -y, --yes               Auto-confirm prompts non-interactively")
 	fmt.Println("  --json                  Output data in structured JSON format")
 	fmt.Println("  --file <path>           Write error logs to specified file path")
-	fmt.Println("  --tempfile <filename>   Write error logs to .lovable/temp/<filename>")
+	fmt.Println("  --tempfile <filename>   Write error logs to .ai-memory/temp/<filename>")
 	fmt.Println("  --last-failures <N>     Show logs for the last N failed runs")
 	fmt.Println("  -n, --no-output-log     Stage error logs to disk without displaying in terminal")
 	printPipelineHelpExamples()

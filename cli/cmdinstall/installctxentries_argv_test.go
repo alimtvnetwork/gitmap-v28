@@ -147,7 +147,7 @@ func TestCtxReleaseNextUsesBumpConstants(t *testing.T) {
 	}
 
 	// Sanity: the resolved literals must match the contract documented in
-	// spec/04-generic-cli/30-install-ctx.md §3.
+	// 02-spec/04-generic-cli/30-install-ctx.md §3.
 	if got := strings.Join(entry.Args, " "); got != "release --bump minor" {
 		t.Fatalf("release-next composed argv = %q, want %q", got, "release --bump minor")
 	}

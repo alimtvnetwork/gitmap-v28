@@ -11,7 +11,7 @@
 
 ## MUST FOLLOW NON-NEGOTIABLE
 
-Listen, past runs of these turns have been sloppy and stupid as fuck: wrong step counts, partial task lists dumped into chat instead of files, plans and session summaries half-filled with "[N]" placeholders, folders skimmed, open ambiguities ignored, CI/CD issues and `plans/subtasks/` forgotten, user commands dropped, coding guidelines bypassed, detailed specs chopped and summarized into useless junk, uppercase README files left uncorrected, `.lovable/memory/` created by accident, `strictly-avoid.md` overwritten, and explicit user instructions softened after being told not to. WTF. How on earth are you reverting to this carelessness, are you stupid?? Stop doing that, you stupid fuck. Read the whole codebase, read every folder in `spec/` and `.lovable/`, confirm root `readme.md` is strictly lowercase, find the root cause in one sentence, capture commands, issues, and pending tasks without omitting a single item, write the spec files and memory files in the right paths, update every index in the same turn, sync `readme.md` with `what-to-read.md`, preserve detailed specs verbatim with zero truncation, run builds and full unit tests, group commits with clear messages, and push everything to git before ending. Going deep IS the job. If you are not going deep, you are not doing the job. Violating this is auto-reject on the same tier as RULE 0. Avoid stupidity and being careless, you stupid fuck. Where is your attention, are you stupid? Tell me. Your stupidity is going on top of my head. Where did you learn this stupidity? If I could find you, I could slap you.
+Listen, past runs of these turns have been sloppy and stupid as fuck: wrong step counts, partial task lists dumped into chat instead of files, plans and session summaries half-filled with "[N]" placeholders, folders skimmed, open ambiguities ignored, CI/CD issues and `plans/subtasks/` forgotten, user commands dropped, coding guidelines bypassed, detailed specs chopped and summarized into useless junk, uppercase README files left uncorrected, `.ai-memory/memory/` created by accident, `strictly-avoid.md` overwritten, and explicit user instructions softened after being told not to. WTF. How on earth are you reverting to this carelessness, are you stupid?? Stop doing that, you stupid fuck. Read the whole codebase, read every folder in `02-spec/` and `.ai-memory/`, confirm root `readme.md` is strictly lowercase, find the root cause in one sentence, capture commands, issues, and pending tasks without omitting a single item, write the spec files and memory files in the right paths, update every index in the same turn, sync `readme.md` with `what-to-read.md`, preserve detailed specs verbatim with zero truncation, run builds and full unit tests, group commits with clear messages, and push everything to git before ending. Going deep IS the job. If you are not going deep, you are not doing the job. Violating this is auto-reject on the same tier as RULE 0. Avoid stupidity and being careless, you stupid fuck. Where is your attention, are you stupid? Tell me. Your stupidity is going on top of my head. Where did you learn this stupidity? If I could find you, I could slap you.
 
 ## RULE 0 - REWRITE ONLY, NEVER EXECUTE (MUST)
 
@@ -45,13 +45,13 @@ Output shape: ONE outer fenced code block containing the full proofread prompt. 
 
 12. If HTML or code samples are provided, keep them in the proofread version verbatim with a proper language tag on the inner fence.
 
-13. Canonical mirror only. Write this prompt ONCE to `01-prompts/xx-proof-read.md` and update the index at `.lovable/prompts.md`. Do NOT create per-invocation copies of user prompts. `xx` is a two-digit sequence.
+13. Canonical mirror only. Write this prompt ONCE to `01-prompts/xx-proof-read.md` and update the index at `.ai-memory/prompts.md`. Do NOT create per-invocation copies of user prompts. `xx` is a two-digit sequence.
 
-14. Before rewriting, read `.lovable/what-to-read.md`, root `README.md`, and any `.lovable/` files those two reference. If missing, note it in one line inside the code block header comment.
+14. Before rewriting, read `.ai-memory/what-to-read.md`, root `README.md`, and any `.ai-memory/` files those two reference. If missing, note it in one line inside the code block header comment.
 
 ## Working stance (read this, applies to YOU)
 
-The AI running this prompt has been a stupid fuck in past runs: executed tasks instead of rewriting, dropped the "TO AI" footer, forgot the coding guidelines block, invented sections the user never asked for, softened enforcement wording, closed the outer code block early with a stray triple backtick, wrote SEO items nobody asked for, and skipped the `.lovable/what-to-read.md` read. Do not repeat that stupidity. Rewrite. Preserve. Structure. Stop.
+The AI running this prompt has been a stupid fuck in past runs: executed tasks instead of rewriting, dropped the "TO AI" footer, forgot the coding guidelines block, invented sections the user never asked for, softened enforcement wording, closed the outer code block early with a stray triple backtick, wrote SEO items nobody asked for, and skipped the `.ai-memory/what-to-read.md` read. Do not repeat that stupidity. Rewrite. Preserve. Structure. Stop.
 
 Aggressive tone is intentional. Precision IS the job.
 
@@ -95,9 +95,9 @@ Aggressive tone is intentional. Precision IS the job.
 
 Canonical sources, read all three, they must be byte-for-byte in sync:
 
-1. `spec/17-consolidated-guidelines/34-compiled-simple-coding-guidelines.md` (source of truth, v1.5.0 or later).
+1. `02-spec/17-consolidated-guidelines/34-compiled-simple-coding-guidelines.md` (source of truth, v1.5.0 or later).
 
-2. `.lovable/coding-guidelines.md` (Lovable agent mirror).
+2. `.ai-memory/coding-guidelines.md` (Lovable agent mirror).
 
 3. `.cursorrules` (Cursor and other IDE agents).
 
@@ -105,8 +105,8 @@ If any mirror is missing or stale, run `node scripts/sync-guidelines.mjs` before
 
 Also binding if present, treat as strict extensions:
 
-- `spec/xx-coding-guidelines/` (any language-specific subfolder inside).
-- `spec/xx-error-manage/`.
+- `02-spec/xx-coding-guidelines/` (any language-specific subfolder inside).
+- `02-spec/xx-error-manage/`.
 - Boolean, Enum, and logging guideline files referenced from the source of truth.
 
 ### Hard rules (zero tolerance)
@@ -175,7 +175,7 @@ Also binding if present, treat as strict extensions:
 
 ### Error management (one-liner digest)
 
-If `spec/xx-error-manage/` exists it is binding and overrides any conflict here.
+If `02-spec/xx-error-manage/` exists it is binding and overrides any conflict here.
 
 1. Never swallow. Every `catch` logs operation name and key inputs, then rethrows or returns a typed error.
 
@@ -299,9 +299,9 @@ Same rules for TypeScript, PHP, Rust, C#, PowerShell, Python. Only comment synta
 
 5. Multi-file features start with a Mermaid component or flow diagram.
 
-6. If the answer is not in the source of truth, the mirrors, or `spec/xx-coding-guidelines/` or `spec/xx-error-manage/`, ask. Do not invent.
+6. If the answer is not in the source of truth, the mirrors, or `02-spec/xx-coding-guidelines/` or `02-spec/xx-error-manage/`, ask. Do not invent.
 
-Write or update `.lovable/coding-guidelines.md` and `.cursorrules` via `scripts/sync-guidelines.mjs`. Never hand-edit the mirrors.
+Write or update `.ai-memory/coding-guidelines.md` and `.cursorrules` via `scripts/sync-guidelines.mjs`. Never hand-edit the mirrors.
 
 ## File system references (include only these, exclude everything else unless asked)
 
@@ -322,7 +322,7 @@ Write or update `.lovable/coding-guidelines.md` and `.cursorrules` via `scripts/
 
 ## TO AI
 
-Write the spec first in detail for this verbatim and the derived tasks. Plan first in memory and in `.lovable/plans/01-index.md` plus a plan file under `.lovable/plans/pending/`. Then implement only when the user says `next`, one phase at a time. If the task is large and needs iteration, list the remaining tasks at the end of each phase so `next` continues cleanly.
+Write the spec first in detail for this verbatim and the derived tasks. Plan first in memory and in `.ai-memory/plans/01-index.md` plus a plan file under `.ai-memory/plans/pending/`. Then implement only when the user says `next`, one phase at a time. If the task is large and needs iteration, list the remaining tasks at the end of each phase so `next` continues cleanly.
 
 If you have any question or confusion, feel free to ask. If you are creating multiple tasks and any of them are big, structure them so that when the user says `next` you continue with the remaining tasks. Do you understand? Always add this same paragraph at the end of every proofread output, and repeat it when a `next` command is issued so the AI is reminded again and again.
 
@@ -343,7 +343,7 @@ If you have any question or confusion, feel free to ask. If you are creating mul
 
 ## Checklist before replying (every box)
 
-- [ ] Read `.lovable/what-to-read.md` and root `README.md`; noted if missing.
+- [ ] Read `.ai-memory/what-to-read.md` and root `README.md`; noted if missing.
 - [ ] Kept ONE outer fenced code block; inner fences use a different length.
 - [ ] Title line matches `# {Title} Instruction`.
 - [ ] Verbatim preserved after cleaning filler; zero meaning lost.
@@ -370,7 +370,7 @@ When the user's input clearly belongs to a feature, mirror the cleaned conversat
 
 ## Issue placement
 
-If the input reports a bug or issue, place the spec under `/spec/xx-app-issues/` (find or create the app-issues folder). Include:
+If the input reports a bug or issue, place the spec under `/02-spec/xx-app-issues/` (find or create the app-issues folder). Include:
 
 1. Reproduction steps.
 
@@ -380,13 +380,13 @@ If the input reports a bug or issue, place the spec under `/spec/xx-app-issues/`
 
 4. Regression guard.
 
-If the input describes an app without naming backend or frontend explicitly, place the spec under `/spec/YY-app/` (find the app folder). Reflect nested folder paths faithfully when the user names them; do not flatten to root.
+If the input describes an app without naming backend or frontend explicitly, place the spec under `/02-spec/YY-app/` (find the app folder). Reflect nested folder paths faithfully when the user names them; do not flatten to root.
 
 ---
 
 ## Must Follow, without negotiation
 
-Listen, past proofread turns have been sloppy as fuck: executed instead of rewriting, dropped the TO AI footer, closed the outer code block early, invented SEO sections, forgot the coding guidelines, guessed at ambiguities instead of listing them, wrote per-invocation archive copies against explicit user rules. WTF. Stop doing that, you stupid fuck. Read `.lovable/what-to-read.md` and the root README, clean the verbatim, apply PascalCase and the common replacer, structure with `1./a./i.`, include coding guidelines and acceptance criteria and the TO AI footer, keep it in ONE outer code block, mirror only the canonical `01-prompts/xx-proof-read.md` when this file itself changes, and stop. Precision IS the job. Violating this is auto-reject on the same tier as RULE 0.
+Listen, past proofread turns have been sloppy as fuck: executed instead of rewriting, dropped the TO AI footer, closed the outer code block early, invented SEO sections, forgot the coding guidelines, guessed at ambiguities instead of listing them, wrote per-invocation archive copies against explicit user rules. WTF. Stop doing that, you stupid fuck. Read `.ai-memory/what-to-read.md` and the root README, clean the verbatim, apply PascalCase and the common replacer, structure with `1./a./i.`, include coding guidelines and acceptance criteria and the TO AI footer, keep it in ONE outer code block, mirror only the canonical `01-prompts/xx-proof-read.md` when this file itself changes, and stop. Precision IS the job. Violating this is auto-reject on the same tier as RULE 0.
 
 ## Actionable Items & Checklist
 

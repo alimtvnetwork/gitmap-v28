@@ -1,13 +1,13 @@
 ---
 name: spec-authoring
 description: >-
-  Autonomously author, structure, and validate specification modules adhering to spec/01-spec-authoring-guide/
+  Autonomously author, structure, and validate specification modules adhering to 02-spec/01-spec-authoring-guide/
   with mandatory overview, acceptance criteria, and consistency reports.
 ---
 
 # Specification Authoring & Quality Assurance Skill
 
-Autonomously create, maintain, and audit specification files and folders adhering to `spec/01-spec-authoring-guide/` and `spec/17-consolidated-guidelines/01-spec-authoring.md`.
+Autonomously create, maintain, and audit specification files and folders adhering to `02-spec/01-spec-authoring-guide/` and `02-spec/17-consolidated-guidelines/01-spec-authoring.md`.
 
 ## Core Checkpoints & Mandatory Invariants
 
@@ -33,5 +33,5 @@ Autonomously create, maintain, and audit specification files and folders adherin
    - Validate using `python3 linter-scripts/check-spec-cross-links.py --root spec --repo-root .` and `node linter-scripts/generate-dashboard-data.cjs`.
 
 5. **Institutional Memory Interaction:**
-   - Specs document formal system architecture and contracts (`spec/`).
-   - `.lovable/memory/` documents institutional knowledge, patterns, and decisions. Never duplicate full spec content in memory.
+   - Specs document formal system architecture and contracts (`02-spec/`).
+   - `.ai-memory/memory/` documents institutional knowledge, patterns, and decisions. Never duplicate full spec content in memory.

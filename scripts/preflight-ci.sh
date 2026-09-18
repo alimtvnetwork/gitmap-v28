@@ -5,7 +5,7 @@
 #   1. go test ./... -count=1                (every package, no cache)
 #   2. golangci-lint run --max-issues-per-linter=0 --max-same-issues=0
 #
-# Versions are pinned to match CI exactly (see .lovable/memory/tech/dependency-management.md):
+# Versions are pinned to match CI exactly (see .ai-memory/memory/tech/dependency-management.md):
 #   - golangci-lint v1.64.8
 #   - govulncheck   v1.1.4 (run separately by vulncheck.yml)
 #

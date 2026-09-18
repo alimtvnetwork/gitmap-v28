@@ -16,25 +16,25 @@ N = total self-loop steps budget that the agents will perform.
 ### Master Task Checklist (Atomic Numbered Steps)
 
 1. [ ] /goal Phase 1 (Step A): Deeply scan the target codebase using the fast Python discovery tools (`11-fast-file-scanner.py`, `12-fast-cached-grep.py`, `17-fast-file-reader.py` with `--limit`) to inventory all architectural violations and anti-patterns without truncation.
-2. [ ] /goal Phase 1 (Step B): Write the master audit specification in `.lovable/plans/pending/XX-lazy-regex-audit.md` with an exhaustive Violation Ledger.
-3. [ ] /goal Phase 1 (Step C): Decompose the master plan into granular, atomic subtasks in `.lovable/plans/subtasks/XX-lazy-regex/`.
+2. [ ] /goal Phase 1 (Step B): Write the master audit specification in `.ai-memory/plans/pending/XX-lazy-regex-audit.md` with an exhaustive Violation Ledger.
+3. [ ] /goal Phase 1 (Step C): Decompose the master plan into granular, atomic subtasks in `.ai-memory/plans/subtasks/XX-lazy-regex/`.
 4. [ ] /goal Phase 1 (Step D): Verify or create the automated quality linter and register in `03-ai-scripts/01-index.md`.
 5. [ ] /goal Phase 2 (Step A): Open each target file and refactor raw `regexp.MustCompile` / `regexp.Compile` to centralized `lazyregex.New(...)`.
 6. [ ] /goal Phase 2 (Step B): Modernize all test assertions from blind `if !re.MatchString(s) { t.Error(...) }` to `rs := lazyRegex.MatchResult(s); if rs.IsFailed() { t.Error(rs.AppError()) }`.
 7. [ ] /goal Phase 2 (Step C): Refactor group and submatch extraction to fluent methods: `rs.Items()`, `rs.Map()`, `rs.First()`, `rs.Last()`, `rs.FirstOrDefault()`, `rs.At()`.
 8. [ ] /goal Phase 2 (Step D): Enforce <= 8–15 line function decomposition and clean blank-line spacing.
 9. [ ] /goal Phase 2 (Step E): Execute targeted package tests and linters (`golangci-lint run -c .golangci.yml`) to verify 0 remaining violations. DO NOT run full CI runner during routine turns.
-10. [ ] /learn Ingest `.lovable/memory/01-index.md` for project memory index and past learnings.
-11. [ ] /learn Ingest `.lovable/strictly-avoid.md` for banned anti-patterns and strict constraints.
-12. [ ] /learn Ingest `spec/02-coding-guidelines/02-canonical-size-tier.md` for canonical file and function size tiers.
-13. [ ] /learn Ingest `spec/02-coding-guidelines/01-cross-language/01-index.md` for hallucination prevention and micro-tasking.
-14. [ ] /learn Ingest `spec/02-coding-guidelines/01-cross-language/17-regex-usage-guidelines.md` for lazy regex and pattern caching rules.
-15. [ ] /learn Ingest `spec/03-error-manage/` for error handling architectures and AppError.
-16. [ ] /learn Ingest `.lovable/coding-guidelines.md` for master consolidated coding guidelines.
+10. [ ] /learn Ingest `.ai-memory/memory/01-index.md` for project memory index and past learnings.
+11. [ ] /learn Ingest `.ai-memory/strictly-avoid.md` for banned anti-patterns and strict constraints.
+12. [ ] /learn Ingest `02-spec/02-coding-guidelines/02-canonical-size-tier.md` for canonical file and function size tiers.
+13. [ ] /learn Ingest `02-spec/02-coding-guidelines/01-cross-language/01-index.md` for hallucination prevention and micro-tasking.
+14. [ ] /learn Ingest `02-spec/02-coding-guidelines/01-cross-language/17-regex-usage-guidelines.md` for lazy regex and pattern caching rules.
+15. [ ] /learn Ingest `02-spec/03-error-manage/` for error handling architectures and AppError.
+16. [ ] /learn Ingest `.ai-memory/coding-guidelines.md` for master consolidated coding guidelines.
 17. [ ] /goal Create or update agent rules in the repository if missing from agent memory.
 
 ```text
-PHASE_1_STEPS = N / 2   (Steps 1 .. N/2: Scan Raw Regex & Blind Test Matches, Spec in .lovable/plans/pending/, Subtasks, Linter Hook)
+PHASE_1_STEPS = N / 2   (Steps 1 .. N/2: Scan Raw Regex & Blind Test Matches, Spec in .ai-memory/plans/pending/, Subtasks, Linter Hook)
 PHASE_2_STEPS = N / 2   (Steps N/2+1 .. N: Actively Edit Code, Refactor to lazyregex.MatchResult, Modernize Tests, Verify Local Linters)
 ```
 

@@ -8,7 +8,7 @@ package cmd
 // pre-rendered in compact mode and embedded as json.RawMessage so their
 // key order is also stable.
 //
-// Schema: spec/08-json-schemas/amend-audit.schema.json.
+// Schema: 02-spec/08-json-schemas/amend-audit.schema.json.
 
 import (
 	"bytes"

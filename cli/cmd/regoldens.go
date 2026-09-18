@@ -2,7 +2,7 @@ package cmd
 
 // CLI entry point for `gitmap regoldens`. Wraps the two-pass
 // golden-fixture regeneration workflow defined in
-// spec/05-coding-guidelines/21-golden-fixture-regeneration.md so
+// 02-spec/05-coding-guidelines/21-golden-fixture-regeneration.md so
 // contributors cannot forget the verify pass or leak the gate env
 // vars into their shell. The two-key safety gate values come from
 // the goldenguard package (single source of truth).

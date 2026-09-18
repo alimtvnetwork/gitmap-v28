@@ -10,7 +10,7 @@ import (
 // dispatchMoveMerge routes mv / move / merge-both / merge-left /
 // merge-right (and their short aliases mb / ml / mr).
 //
-// Spec: spec/01-app/97-move-and-merge.md
+// Spec: 02-spec/01-app/97-move-and-merge.md
 func dispatchMoveMerge(command string) (bool, error) {
 	if command == constants.CmdMv || command == constants.CmdMove {
 		runMove(os.Args[2:])

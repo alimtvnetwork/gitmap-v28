@@ -4,7 +4,7 @@
 Usage:
   python .github/scripts/smoke-history-pin.py <path-to-gitmap-binary>
 
-Spec: spec/04-generic-cli/16-history-rewrite.md
+Spec: 02-spec/04-generic-cli/16-history-rewrite.md
 """
 
 from __future__ import annotations

@@ -4,7 +4,7 @@ package cmd
 //
 // Migrated off json.MarshalIndent onto gitmap/stablejson so key order
 // becomes a compile-time decision rather than a reflection accident.
-// Schema: spec/08-json-schemas/history.schema.json.
+// Schema: 02-spec/08-json-schemas/history.schema.json.
 
 import (
 	"io"

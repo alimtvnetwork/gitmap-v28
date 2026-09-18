@@ -1,11 +1,11 @@
 ---
 name: cg-enums
-description: Autonomously scan, audit, refactor, and verify repository-wide constants, enums, magic literals, and rune conversions against spec/02-coding-guidelines/, enforcing *Type suffixes, constants centralization, and eliminating rune number conversions.
+description: Autonomously scan, audit, refactor, and verify repository-wide constants, enums, magic literals, and rune conversions against 02-spec/02-coding-guidelines/, enforcing *Type suffixes, constants centralization, and eliminating rune number conversions.
 ---
 
 # Skill: Constants & Enums Architecture (`cg-enums`)
 
-This skill governs autonomous scanning, auditing, refactoring, and verification of constants, enums, magic string/number literals, and rune conversions across Go, TypeScript, and Python codebases adhering to `spec/02-coding-guidelines/`.
+This skill governs autonomous scanning, auditing, refactoring, and verification of constants, enums, magic string/number literals, and rune conversions across Go, TypeScript, and Python codebases adhering to `02-spec/02-coding-guidelines/`.
 
 ## Core Architectural Directives
 

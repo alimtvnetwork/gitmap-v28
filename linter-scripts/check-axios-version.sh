@@ -61,6 +61,6 @@ if [[ "$IS_APPROVED" == true ]]; then
   echo "✅ PASS: Axios $CURRENT is an approved safe version"
 else
   echo "⚠️  WARNING: Axios $CURRENT is not in the approved list (${APPROVED_VERSIONS[*]})"
-  echo "   This version has not been verified. Please review spec/01-app/axios-version-control/"
+  echo "   This version has not been verified. Please review 02-spec/01-app/axios-version-control/"
   exit 1
 fi

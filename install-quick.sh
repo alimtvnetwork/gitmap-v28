@@ -1,7 +1,7 @@
 #!/usr/bin/env bash
 # Short interactive installer for gitmap on Linux / macOS.
 #
-# DUAL-MODE EXECUTION (spec/01-app/108-install-quick-auto-source.md):
+# DUAL-MODE EXECUTION (02-spec/01-app/108-install-quick-auto-source.md):
 #
 #   1. Eval-mode (RECOMMENDED — auto-activates PATH in current shell):
 #        eval "$(curl -fsSL https://raw.githubusercontent.com/alimtvnetwork/gitmap-v28/main/install-quick.sh)"
@@ -27,7 +27,7 @@
 # Versioned repo discovery: if the source repo URL ends with -v<N>, this
 # script probes for higher-numbered sibling repos (-v<N+1>, -v<N+2>, ...)
 # and delegates to the latest available one. See:
-#   spec/01-app/95-installer-script-find-latest-repo.md
+#   02-spec/01-app/95-installer-script-find-latest-repo.md
 
 # NOTE: We deliberately DO NOT `set -euo pipefail` at the top level when the
 # script is being eval'd inside the user's interactive shell — those options
@@ -193,7 +193,7 @@ __gitmap_quick_install_main() {
         local NO_DISCOVERY=0
         local INTERACTIVE=0
         # PROBE_CEILING retained for backward compat (legacy fail-fast upper
-        # bound). The canonical knob per spec/07-generic-release/09 §6 is
+        # bound). The canonical knob per 02-spec/07-generic-release/09 §6 is
         # --discovery-window <K> (default 20, cap 20, or 50 if GITHUB_TOKEN
         # is set).
         local PROBE_CEILING=30
@@ -237,7 +237,7 @@ __gitmap_quick_install_main() {
             curl -sfI --max-time 5 "$url" >/dev/null 2>&1
         }
 
-        # Per spec/07-generic-release/09-generic-install-script-behavior.md §4.1:
+        # Per 02-spec/07-generic-release/09-generic-install-script-behavior.md §4.1:
         # Probe -v<N+1>..-v<N+window> CONCURRENTLY (max 20, or 50 if
         # GITHUB_TOKEN is set). Pick max(M) where HEAD returned 200.
         # Gaps are tolerated (no fail-fast on first MISS).
@@ -341,7 +341,7 @@ __gitmap_quick_install_main() {
         elif [ "$NO_DISCOVERY" = "1" ]; then
             printf '  [discovery] --no-discovery set; skipping probe\n' >&2
         elif [ -n "$VERSION" ]; then
-            # Strict-tag contract (spec/07-generic-release/09-generic-install-script-behavior.md §3):
+            # Strict-tag contract (02-spec/07-generic-release/09-generic-install-script-behavior.md §3):
             # An explicit --version pins the install to that exact release.
             # MUST NOT probe -v<N+i> sibling repos. MUST NOT call releases/latest.
             # MUST NOT fall back to main on failure. The canonical installer

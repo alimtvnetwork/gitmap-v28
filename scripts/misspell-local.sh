@@ -64,7 +64,7 @@ if [ "${#Excludes[@]}" -eq 0 ]; then
     "*/testdata/*" "*/golden/*"
     "*/.gitmap/release/*" "*/.gitmap/release-assets/*"
     "cli/completion/allcommands_generated.go"
-    ".lovable/*"
+    ".ai-memory/*"
   )
 fi
 

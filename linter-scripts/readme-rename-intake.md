@@ -62,7 +62,7 @@ table, CSV export). Use it when wiring a dashboard, writing a
 |---|---|---|
 | `matched` | Path is under `--root`, has an allow-listed extension, and the post-state file exists on disk. Counted in the linted set. | `under --root, extension allowed, file present on disk` |
 | `ignored-extension` | Path is under `--root` but its suffix isn't in the allowlist (e.g. a `.txt` change while linting `.md`). | `extension '<.ext or (none)>' not in allowlist <sorted list>` |
-| `ignored-out-of-root` | Path resolves outside `--root` (e.g. a top-level `readme.md` change while linting `spec/`). | `path is outside --root <resolved-abs-path>` |
+| `ignored-out-of-root` | Path resolves outside `--root` (e.g. a top-level `readme.md` change while linting `02-spec/`). | `path is outside --root <resolved-abs-path>` |
 | `ignored-missing` | Post-state path no longer exists on disk — typically reverted in a later commit of the same push, or filtered out by `.gitignore` on checkout. | `post-state path is not on disk (reverted later in the push, or filtered by .gitignore on checkout)` |
 | `ignored-deleted` | A `D`-status row, **or** the OLD side of a rename/copy: there is no post-state file to scan. `reason` is per-source — see [next sub-section](#ignored-deleted-reason-format). | (per-source — see below) |
 

@@ -2,13 +2,13 @@
 """
 Fast Lovable Plans & Subtasks Consolidator
 Automates the consolidation, archiving, cleanup, and monotonic re-sequencing of
-Lovable execution plans and task lists (.lovable/plans/pending, completed, subtasks).
+Lovable execution plans and task lists (.ai-memory/plans/pending, completed, subtasks).
 
 Features:
 1. Safety Backup Branch Creation (backup/plans-consolidation-YYYYMMDD-HHMMSS).
-2. Moves completed pending plans to .lovable/plans/completed/.
+2. Moves completed pending plans to .ai-memory/plans/completed/.
 3. Removes superseded subtask directories and files from disk & Git index.
-4. Monotonically re-sequences plan files (01-, 02-, 03-) and synchronizes .lovable/plans/01-index.md.
+4. Monotonically re-sequences plan files (01-, 02-, 03-) and synchronizes .ai-memory/plans/01-index.md.
 5. Interactive confirmation, --dry-run preview, and --force execution.
 
 All Enums, Constants, and Functions are imported directly from 02-shared-engine.py.
@@ -52,7 +52,7 @@ read_file_lf = engine.read_file_lf
 write_file_lf = engine.write_file_lf
 
 # Plans Directory Paths
-PLANS_DIR = Path(".lovable/plans")
+PLANS_DIR = Path(".ai-memory/plans")
 PENDING_DIR = PLANS_DIR / "pending"
 COMPLETED_DIR = PLANS_DIR / "completed"
 SUBTASKS_DIR = PLANS_DIR / "subtasks"
@@ -109,7 +109,7 @@ def resequence_directory_plans(target_dir: Path, is_fix_mode: bool = False) -> l
     return changes
 
 def sync_plans_index() -> None:
-    """Regenerates .lovable/plans/01-index.md with current pending and completed catalogs."""
+    """Regenerates .ai-memory/plans/01-index.md with current pending and completed catalogs."""
     re_h1 = get_compiled_regex(RegexPatternType.H1_HEADER)
     lines = [
         "# Plans Index",
@@ -146,7 +146,7 @@ def sync_plans_index() -> None:
                 title = m.group(4).strip() if m else f.stem
                 lines.append(f"- [{f.name}](completed/{f.name}): {title}")
     else:
-        lines.append("*(Archived under `.lovable/plans/completed/`)*")
+        lines.append("*(Archived under `.ai-memory/plans/completed/`)*")
 
     lines.append("")
     write_file_lf(PLANS_INDEX_FILE, LINE_SEPARATOR.join(lines), encoding=DEFAULT_ENCODING)

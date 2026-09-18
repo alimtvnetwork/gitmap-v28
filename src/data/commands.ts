@@ -267,7 +267,7 @@ export const commands: CommandDef[] = [
     notes: [
       "The diagnostic classifier detects non-unlink git merge aborts (untracked local files preventing pull).",
       "Status output displays a synchronized table with current branch, latest remote branch, PR tracking, commit SHA, and duration.",
-      "See spec/21-app/119-git-pull-diagnostics-and-display.md for the full diagnostic grammar.",
+      "See 02-spec/21-app/119-git-pull-diagnostics-and-display.md for the full diagnostic grammar.",
     ],
     examples: [
       { command: "gitmap pull my-api-service", description: "Pull a single repo by exact name" },
@@ -707,7 +707,7 @@ export const commands: CommandDef[] = [
     name: "list --update", alias: "lu", description: "List every scanned repo whose local tag or HEAD is behind the latest known remote release. Read-only companion to update apply / update all. Also available as `gitmap update list`.",
     usage: "gitmap list --update [--json] [--source release|import|git-tag] [--limit N] [--stale-days N] [--only-behind] [--path-only]",
     flags: [
-      { flag: "--json", description: "Emit a JSON array (schema: spec/08-json-schemas/list-update.schema.json)." },
+      { flag: "--json", description: "Emit a JSON array (schema: 02-spec/08-json-schemas/list-update.schema.json)." },
       { flag: "--source <kind>", description: "Filter by origin of the `latest` value: release, import, or git-tag." },
       { flag: "--limit <n>", description: "Show only the top N upgradable repos, sorted by `behind` DESC." },
       { flag: "--stale-days <n>", description: "Re-probe rows older than N days before listing (0 = never)." },
@@ -737,7 +737,7 @@ export const commands: CommandDef[] = [
       { flag: "--tag <vX.Y.Z>", description: "Target a specific tag instead of the latest known." },
       { flag: "--strategy <mode>", description: "`fetch-checkout` (default) or `source-release` for repos with a release-self flow." },
       { flag: "--stash", description: "`git stash` local changes before checkout, restore on success." },
-      { flag: "--json", description: "Emit a structured result object (schema: spec/08-json-schemas/update-apply.schema.json)." },
+      { flag: "--json", description: "Emit a structured result object (schema: 02-spec/08-json-schemas/update-apply.schema.json)." },
     ],
     examples: [
       { command: "gitmap update apply acme/api", description: "Interactive upgrade, prompts before running." },
@@ -781,7 +781,7 @@ export const commands: CommandDef[] = [
     name: "hd", alias: "help-dashboard", description: "One-screen operator dashboard: pending tasks, upgradable repos, last scan, current gitmap version, and the tail of completed tasks. Read-only alias for `gitmap help --dashboard`.",
     usage: "gitmap hd [--json] [--refresh] [--tail N]",
     flags: [
-      { flag: "--json", description: "Emit the dashboard payload as JSON (schema: spec/08-json-schemas/hd.schema.json)." },
+      { flag: "--json", description: "Emit the dashboard payload as JSON (schema: 02-spec/08-json-schemas/hd.schema.json)." },
       { flag: "--refresh", description: "Re-probe upgrades before rendering (equivalent to `list --update --stale-days 0`)." },
       { flag: "--tail <n>", description: "How many recent completed tasks to show. Default 5." },
     ],
@@ -1534,7 +1534,7 @@ export const commands: CommandDef[] = [
     notes: [
       "Master Database stores global repositories, bookmarks, scans, and profiles.",
       "Split DBs (bin/data/repo_search/*.db) store file indices and search caches per repository to eliminate SQLite WAL write locks during parallel scans.",
-      "See spec/21-app/120-database-suite-and-start-fresh.md for full architecture specifications.",
+      "See 02-spec/21-app/120-database-suite-and-start-fresh.md for full architecture specifications.",
     ],
     examples: [
       { command: "gitmap db ls", description: "View architectural database overview and split DB list" },
@@ -1640,7 +1640,7 @@ export const commands: CommandDef[] = [
       "Outputs exact, copy-pasteable remediation commands directly below the duplicate findings table.",
       "Supports batch deduplication via 'optimize-projects' and '--repeat-fix'.",
       "Prevents duplicate paths from being registered during future 'scan' or 'clone' operations.",
-      "See spec/21-app/121-cross-platform-duplicate-audit-and-remediation.md for detection algorithms.",
+      "See 02-spec/21-app/121-cross-platform-duplicate-audit-and-remediation.md for detection algorithms.",
     ],
     examples: [
       { command: "gitmap find-duplicates", description: "Scan all platforms for duplicates with instant remediation commands" },
@@ -1675,7 +1675,7 @@ export const commands: CommandDef[] = [
       "Matches project workspace paths from ~/.gemini/config/projects/*.json.",
       "Projects with active user conversations are never touched.",
       "Supports importing whitelists from CSV files: --except preserved.csv.",
-      "See spec/21-app/122-antigravity-empty-conversations-pruner.md for full specification.",
+      "See 02-spec/21-app/122-antigravity-empty-conversations-pruner.md for full specification.",
     ],
     examples: [
       { command: "gitmap agy ls show-projects-with-empty-conversations", description: "List all Antigravity projects with zero or empty conversations" },
@@ -2627,7 +2627,7 @@ export const commands: CommandDef[] = [
   },
 
   // ═══════════════════════════════════════════
-  // Move & Merge (spec/01-app/97-move-and-merge.md)
+  // Move & Merge (02-spec/01-app/97-move-and-merge.md)
   // ═══════════════════════════════════════════
   {
     category: "movemerge",
@@ -3239,7 +3239,7 @@ export const commands: CommandDef[] = [
     flags: [
       { flag: "--json", description: "Output structured JSON payload for scripting and AI agents" },
       { flag: "--file <path>", description: "Write error logs or telemetry to the specified file path" },
-      { flag: "--tempfile <name>", description: "Write error logs to .lovable/temp/<filename> (configurable)" },
+      { flag: "--tempfile <name>", description: "Write error logs to .ai-memory/temp/<filename> (configurable)" },
       { flag: "--split", description: "Separate failure logs across multiple jobs into distinct files" },
     ],
     examples: [

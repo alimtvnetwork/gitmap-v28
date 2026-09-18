@@ -686,7 +686,7 @@ func registerCloned(s model.CloneSummary, targetDir string, enabled bool) {
 // `--ssh` wins and a one-line stderr warning is printed so the user
 // can spot the conflict.
 //
-// Spec: spec/01-app/110-clone-ssh-flag.md
+// Spec: 02-spec/01-app/110-clone-ssh-flag.md
 func applyURLSchemeFlags(cf CloneFlags) CloneFlags {
 	if !cf.UseSSH && !cf.UseHTTPS {
 		return cf

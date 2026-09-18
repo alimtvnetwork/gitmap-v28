@@ -375,7 +375,7 @@ gitmap profile delete personal
 
 ## Specs
 
-See [spec/01-app/](../spec/01-app/) for detailed specifications.
+See [02-spec/01-app/](../02-spec/01-app/) for detailed specifications.
 
 ## License
 

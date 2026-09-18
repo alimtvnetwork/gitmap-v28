@@ -97,12 +97,12 @@ class IterMarkdownFilesFollowsFileSymlinks(unittest.TestCase):
     def test_uppercase_md_via_file_symlink_is_yielded(self) -> None:
         # Real target lives OUTSIDE the scanned subdir but INSIDE
         # the repo root, mirroring a common monorepo layout where
-        # ``spec/`` links into a shared ``vendor/docs/`` tree.
+        # ``02-spec/`` links into a shared ``vendor/docs/`` tree.
         outside = self.root / "vendor"
         outside.mkdir()
         target = outside / "REAL.MD"
         target.write_text("# real\n", encoding="utf-8")
-        scanned = self.root / "spec"
+        scanned = self.root / "02-spec"
         scanned.mkdir()
         link = scanned / "LINKED.MD"
         link.symlink_to(target)
@@ -121,7 +121,7 @@ class IterMarkdownFilesFollowsFileSymlinks(unittest.TestCase):
         # semantics.
         target = self.root / "real.md"
         target.write_text("# real\n", encoding="utf-8")
-        scanned = self.root / "spec"
+        scanned = self.root / "02-spec"
         scanned.mkdir()
         (scanned / "Mirror.Md").symlink_to(target)
 
@@ -136,7 +136,7 @@ class IterMarkdownFilesFollowsFileSymlinks(unittest.TestCase):
         # for the non-symlink analog).
         target = self.root / "real.MD"
         target.write_text("# real\n", encoding="utf-8")
-        scanned = self.root / "spec"
+        scanned = self.root / "02-spec"
         scanned.mkdir()
         (scanned / "alias.txt").symlink_to(target)
 
@@ -148,12 +148,12 @@ class IterMarkdownFilesFollowsFileSymlinks(unittest.TestCase):
         # skips directory symlinks. We pin the current contract: an
         # uppercase .MD reachable ONLY through a directory symlink is
         # NOT walked. If we ever flip this, update both the test and
-        # add a memory under .lovable/memory/architecture/ so the
+        # add a memory under .ai-memory/memory/architecture/ so the
         # change is documented.
         outside = self.root / "vendor_dir"
         outside.mkdir()
         (outside / "DEEP.MD").write_text("# deep\n", encoding="utf-8")
-        scanned = self.root / "spec"
+        scanned = self.root / "02-spec"
         scanned.mkdir()
         (scanned / "linkdir").symlink_to(outside,
                                           target_is_directory=True)
@@ -197,7 +197,7 @@ class CliEndToEndSymlinkedUppercaseMd(unittest.TestCase):
 
     def test_violation_in_symlinked_md_is_reported(self) -> None:
         # Target file carries a real placeholder violation. The link
-        # sits under the scanned ``spec/`` root.
+        # sits under the scanned ``02-spec/`` root.
         vendor = self.root / "vendor"
         vendor.mkdir()
         target = vendor / "TARGET.MD"
@@ -208,11 +208,11 @@ class CliEndToEndSymlinkedUppercaseMd(unittest.TestCase):
             "(relative/path/to/spec.txt)\n",
             encoding="utf-8",
         )
-        spec = self.root / "spec"
+        spec = self.root / "02-spec"
         spec.mkdir()
         (spec / "LINKED.MD").symlink_to(target)
 
-        proc = _run("--root", "spec", "--repo-root", str(self.root),
+        proc = _run("--root", "02-spec", "--repo-root", str(self.root),
                     "--json", cwd=self.root)
         self.assertEqual(proc.returncode, 1,
             msg=f"stdout={proc.stdout!r} stderr={proc.stderr!r}")
@@ -242,11 +242,11 @@ class CliEndToEndSymlinkedUppercaseMd(unittest.TestCase):
         vendor.mkdir()
         (vendor / "CLEAN.MD").write_text(
             "# Clean\n\nNo placeholders.\n", encoding="utf-8")
-        spec = self.root / "spec"
+        spec = self.root / "02-spec"
         spec.mkdir()
         (spec / "MIRROR.MD").symlink_to(vendor / "CLEAN.MD")
 
-        proc = _run("--root", "spec", "--repo-root", str(self.root),
+        proc = _run("--root", "02-spec", "--repo-root", str(self.root),
                     "--json", cwd=self.root)
         self.assertEqual(proc.returncode, 0,
             msg=f"stdout={proc.stdout!r} stderr={proc.stderr!r}")

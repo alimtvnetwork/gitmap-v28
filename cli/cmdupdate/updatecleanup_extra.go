@@ -7,7 +7,7 @@
 //     inside a gitmap\ subfolder).
 //  2. *.gitmap-tmp-* swap directories left by interrupted clones.
 //
-// Both passes follow the spec/04-generic-cli/22-data-folder-deploy-and-cleanup.md
+// Both passes follow the 02-spec/04-generic-cli/22-data-folder-deploy-and-cleanup.md
 // contract (DFD-6, DFD-7).
 package cmdupdate
 

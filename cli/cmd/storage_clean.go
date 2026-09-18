@@ -71,7 +71,7 @@ func processPipelineLogEntry(dir string, e os.DirEntry, opts StorageCleanOptions
 }
 
 func cleanTempDirectory(repoRoot string, opts StorageCleanOptions, stats *StorageCleanStats) {
-	tempDir := filepath.Join(repoRoot, ".lovable", "temp")
+	tempDir := filepath.Join(repoRoot, ".ai-memory", "temp")
 	entries, err := os.ReadDir(tempDir)
 	if err != nil {
 		return

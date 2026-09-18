@@ -9,7 +9,7 @@ package cmdfixrepo
 // `gitmap-v28` in the past, which collapses any test using `gitmap-vN`
 // into "token == its own guarded neighbor" and silently breaks the
 // negative-lookahead logic. See mem://FIX-REPO DIGIT-CAPTURE GAP and
-// .lovable/memory/issues/2026-05-01-fixrepo-digit-capture-desync.md.
+// .ai-memory/memory/issues/2026-05-01-fixrepo-digit-capture-desync.md.
 
 import (
 	"fmt"

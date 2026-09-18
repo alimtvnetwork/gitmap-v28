@@ -3,7 +3,7 @@ package cmd
 // JSON schema contract for `gitmap temp-releaselist --json`. Pairs the
 // runtime encoder (encodeTempReleaseListJSON / buildTempReleaseListItems
 // in tempreleaselistrender.go) with the published schema at
-// spec/08-json-schemas/temp-release-list.schema.json so drift in either
+// 02-spec/08-json-schemas/temp-release-list.schema.json so drift in either
 // side fails the build.
 
 import (

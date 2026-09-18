@@ -7,7 +7,7 @@ package cmd
 // reflection accident. The nested `top` array is pre-rendered in
 // compact mode and embedded as json.RawMessage.
 //
-// Schema: spec/08-json-schemas/latest-branch.schema.json.
+// Schema: 02-spec/08-json-schemas/latest-branch.schema.json.
 
 import (
 	"bytes"

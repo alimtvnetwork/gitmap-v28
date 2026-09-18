@@ -8,9 +8,9 @@ Run again if said: go, continue, or next
 
 # Instruction (must follow): Execute Batched Loop (3 Agents, Chunked Commits)
 
-/goal Execute pending tasks from `.lovable/plans/pending/` using a strictly batched multi-agent loop. Use exactly 3 sub-agents, assign small micro-task chunks per agent, enforce file collision safety through a locking matrix, sanitize artifacts before commits, handle crashes via `.lovable/temp/`, and push chunked commits to git without failure. At the end of every loop, explicitly list task statistics in your output window. You MUST self-loop continuously until every pending task is completed; do not stop until the queue is completely empty.
+/goal Execute pending tasks from `.ai-memory/plans/pending/` using a strictly batched multi-agent loop. Use exactly 3 sub-agents, assign small micro-task chunks per agent, enforce file collision safety through a locking matrix, sanitize artifacts before commits, handle crashes via `.ai-memory/temp/`, and push chunked commits to git without failure. At the end of every loop, explicitly list task statistics in your output window. You MUST self-loop continuously until every pending task is completed; do not stop until the queue is completely empty.
 
-/learn Capture every pattern, convention, fix, and correction discovered during execution into `.lovable/memory/learned/01-<slug>.md` and `.lovable/strictly-avoid.md`. Never repeat a mistake that was logged.
+/learn Capture every pattern, convention, fix, and correction discovered during execution into `.ai-memory/memory/learned/01-<slug>.md` and `.ai-memory/strictly-avoid.md`. Never repeat a mistake that was logged.
 
 ## Non-Negotiable Rules (Auto-Reject on Violation)
 
@@ -22,7 +22,7 @@ Run again if said: go, continue, or next
 
 - [ ] `/goal` **Reuse First:** I have rigorously scanned and `/learn`ed `03-ai-scripts/01-index.md` to check if a helper script already exists before writing any new temporary code.
 - [ ] **Strict In-Repository Execution:** All Python scripts (`03-ai-scripts/*.py`) MUST be executed strictly within the codebase repository root, NEVER outside the codebase.
-- [ ] **Strict .lovable/ Folder Storage:** All AI scripts, local runners, autofixers, and helper utilities MUST be created inside `03-ai-scripts/`. NEVER create scripts in root or external paths.
+- [ ] **Strict .ai-memory/ Folder Storage:** All AI scripts, local runners, autofixers, and helper utilities MUST be created inside `03-ai-scripts/`. NEVER create scripts in root or external paths.
 - [ ] **Native File Manipulator:** If you need to perform mass file renaming, `.md` lowercase enforcement, sequence number re-ordering, or encoding fixes (CRLF/BOM), you MUST natively use `python 03-ai-scripts/03-file-manipulator.py <command>` rather than writing a new script from scratch.
 - [ ] **Go Generate Sync:** If you modify Go constants, enums, or stringers, you MUST run `go generate ./...` in the relevant directory (e.g., `cd gitmap && go generate ./...`) and commit the resulting generated files to prevent CI drift.
 - [ ] **Commit & Track:** All new helper scripts were written strictly to `03-ai-scripts/` and committed to Git for future reuse.
@@ -35,25 +35,25 @@ Run again if said: go, continue, or next
 > [!CAUTION]
 > **STRICT RELATIVE GIT PATHS ONLY — NO ABSOLUTE PATHS / NO `file:///` URIs:**
 >
-> When generating plans, subtasks (`.lovable/plans/subtasks/`), memory issue logs (`.lovable/memory/issues/`), specs, code comments, or citations:
-> 1. **Strictly Relative to Git Root:** All file paths, markdown links, citations, and task targets MUST be relative paths starting from the repository root (e.g. `spec/03-error-manage/01-index.md`, `[SSH Commands](spec/13-generic-cli/01-index.md)`, `cmd/main.go`).
+> When generating plans, subtasks (`.ai-memory/plans/subtasks/`), memory issue logs (`.ai-memory/memory/issues/`), specs, code comments, or citations:
+> 1. **Strictly Relative to Git Root:** All file paths, markdown links, citations, and task targets MUST be relative paths starting from the repository root (e.g. `02-spec/03-error-manage/01-index.md`, `[SSH Commands](02-spec/13-generic-cli/01-index.md)`, `cmd/main.go`).
 > 2. **Total Ban on Absolute Paths:** NEVER write drive letters or absolute OS paths (`/absolute/path/to/...`, `/absolute/path/to/...`, `/home/...`) or absolute file URIs (`file:///absolute/path/to/...`, `file:///absolute/path/to/...`) into ANY file.
 >
 > **Examples:**
 > - ❌ **BAD:** `[SSH Commands](file:///absolute/path/to/...) — Why: Defines behavior.`
 > - ❌ **BAD:** `Target File: /absolute/path/to/cmd\login.go`
-> - ✅ **GOOD:** `[SSH Commands](spec/13-generic-cli/01-index.md) — Why: Defines behavior.`
+> - ✅ **GOOD:** `[SSH Commands](02-spec/13-generic-cli/01-index.md) — Why: Defines behavior.`
 > - ✅ **GOOD:** `Target File: cmd/login.go`
 
 - If a spec file, folder, or task is missing or ambiguous, do NOT guess or invent a rule.
-- Ask a clarifying question or log an open ambiguity in `.lovable/ambiguous-questions/01-new-ambiguity/01-<slug>.md` before proceeding.
+- Ask a clarifying question or log an open ambiguity in `.ai-memory/ambiguous-questions/01-new-ambiguity/01-<slug>.md` before proceeding.
 - Never invent step counts. Read the actual files and count from them.
 
 ## Phase 1: Pre-Flight & Gitignore Enforcement (Non-Negotiable)
 
 1. The working tree must be clean. Confirm root readme is strictly lowercase `readme.md`.
-2. Verify that `.lovable/temp/` is explicitly added to `.gitignore`. This folder is for crash identification and lockfiles and must never be committed.
-3. Wipe any orphaned state files in `.lovable/temp/` from previous runs.
+2. Verify that `.ai-memory/temp/` is explicitly added to `.gitignore`. This folder is for crash identification and lockfiles and must never be committed.
+3. Wipe any orphaned state files in `.ai-memory/temp/` from previous runs.
 4. Group pending tasks into Execution Waves:
    - Wave 1: DB schemas and query wrappers
    - Wave 2: Business logic and services
@@ -67,22 +67,22 @@ Run again if said: go, continue, or next
    - Each agent is assigned a chunk of simple, small micro-tasks (under 15 lines per function) to complete sequentially in its own context.
    - Tasks exceeding 7 steps must be decomposed into subtasks.
 3. File collision locking matrix (`active-locks.json`):
-   - Register active target files in `.lovable/01-index.md`.
+   - Register active target files in `.ai-memory/01-index.md`.
    - Ensure parallel tasks touch completely disjoint files to prevent git merge conflicts.
 4. Temp folder logging and specific titling (mandatory):
    - Spawn the sub-agent with a highly specific title reflecting its exact task (e.g., `Refactoring Auth Service` or `Fixing DB Query Wrapper`). Do not use generic names. If an agent switches chunks, its title must change.
-   - Log its assigned chunk of tasks to `.lovable/temp/xx-agent-state.md`.
+   - Log its assigned chunk of tasks to `.ai-memory/temp/xx-agent-state.md`.
 5. Crash identification and 3-strike rollback:
-   - If an agent fails or crashes, inspect its state in `.lovable/temp/`.
+   - If an agent fails or crashes, inspect its state in `.ai-memory/temp/`.
    - If an agent fails 3 times, automatically revert dirty changes (`git checkout -- <files>`).
-   - Log root cause to `.lovable/plan.md` and `.lovable/issues/`.
+   - Log root cause to `.ai-memory/plan.md` and `.ai-memory/issues/`.
    - Restart a new agent for the next disjoint chunk.
 
 ## Phase 3: Code Quality (Non-Negotiable)
 
 While executing tasks, you and your agents must adhere to these strict coding guidelines without exception:
 
-- Read and follow guidelines in `spec/02-coding-guidelines/`, `spec/03-error-manage/`, and `spec/04-database-conventions/`.
+- Read and follow guidelines in `02-spec/02-coding-guidelines/`, `02-spec/03-error-manage/`, and `02-spec/04-database-conventions/`.
 - No magic strings or numbers. Do not introduce any unless explicitly for the logger.
 - Never use string union types (e.g., `"pass" | "fail"`). Use TypeScript Enums with the suffix `Type` (e.g., `StatusType`).
 - Always use explicit boolean state checks (e.g., `response.isFail`). Never invert success booleans (e.g., `!response.isSuccess`).
@@ -92,9 +92,9 @@ While executing tasks, you and your agents must adhere to these strict coding gu
 
 When a chunk of tasks is completed by the agents, do the following before starting the next loop iteration:
 
-1. Use `mv` to move the completed task files from `.lovable/plans/pending/` to `.lovable/plans/completed/`.
+1. Use `mv` to move the completed task files from `.ai-memory/plans/pending/` to `.ai-memory/plans/completed/`.
 2. Open the moved files and change `Status: pending` to `Status: completed`.
-3. Update `.lovable/plans/01-index.md` to reflect the new file locations.
+3. Update `.ai-memory/plans/01-index.md` to reflect the new file locations.
 4. Artifact sanitizer: Audit staged files. Purge unapproved artifact zip archives, temporary scratch files, or test outputs before committing.
 5. Lovable git history guard: Run local tests (no live API calls). Commit code with a clear descriptive message. Never rewrite published git history (no force push, no rebasing, no squash). Push to git cleanly without failure.
 
@@ -103,8 +103,8 @@ When a chunk of tasks is completed by the agents, do the following before starti
 Every time you return a response or complete a loop iteration, explicitly output the following statistics:
 
 - Tasks Done (This Chunk): [Number of tasks completed]
-- Total Completed: [Total number of tasks in `.lovable/plans/completed/`]
-- Total Pending: [Number of tasks remaining in `.lovable/plans/pending/`]
+- Total Completed: [Total number of tasks in `.ai-memory/plans/completed/`]
+- Total Pending: [Number of tasks remaining in `.ai-memory/plans/pending/`]
 - Remaining Tasks List: [List the specific filenames/slugs of the tasks remaining]
 
 ## Execution Reporting (Mandatory Output Format)
@@ -118,7 +118,7 @@ Every time you return a response or complete a loop iteration, explicitly output
 
 ## Compliance Checklist (must follow non negociable)
 
-- [x] Coding Guidelines enforced (spec/02-coding-guidelines/ and follow explicitly every steps .lovable/coding-guidelines.md).
+- [x] Coding Guidelines enforced (02-spec/02-coding-guidelines/ and follow explicitly every steps .ai-memory/coding-guidelines.md).
 - [x] Boolean conventions used (is/has prefixes, no negatives).
 - [x] No garbage variable names used.
 - [x] No magic strings or numbers.
@@ -142,7 +142,7 @@ Every time you return a response or complete a loop iteration, explicitly output
 
 Routine execution prompts MUST NOT build, test, or trigger releases. When task modifications are completed, you MUST record all modified files and physically check off these items in your final report:
 
-- [ ] **Atomic Change Recording (MANDATORY):** I have recorded all modified files into `.lovable/temp/recent-file-changes.json` under lock using `python 03-ai-scripts/33-test-inventory-generator.py --record <files...>`.
+- [ ] **Atomic Change Recording (MANDATORY):** I have recorded all modified files into `.ai-memory/temp/recent-file-changes.json` under lock using `python 03-ai-scripts/33-test-inventory-generator.py --record <files...>`.
 - [ ] **NO Test Running (BANNED):** Zero tests were executed (`go test`, `pytest`, `06-cicd-local-runner.py`). Testing is strictly deferred to CI/CD fix prompts.
 - [ ] **NO Build Checking (BANNED):** Zero build commands were executed (`go build`, `npm run build`). Build compilation is strictly deferred to CI/CD fix prompts.
 - [ ] **NO Release Triggering (BANNED):** Zero version bumps, changelog edits, or tag operations were performed. Release operations are strictly deferred to Release prompts.
@@ -150,15 +150,15 @@ Routine execution prompts MUST NOT build, test, or trigger releases. When task m
 
 ## Pre-Reply / Loop Checklist (Must Verify Every Loop Iteration)
 
-- [ ] `.gitignore` verified to exclude `.lovable/temp/` and garbage collection executed.
-- [ ] Strictly up to 3 agents spawned, each assigned disjoint files tracked in `.lovable/01-index.md`.
-- [ ] Pre-flight state written to `.lovable/temp/` for every agent.
+- [ ] `.gitignore` verified to exclude `.ai-memory/temp/` and garbage collection executed.
+- [ ] Strictly up to 3 agents spawned, each assigned disjoint files tracked in `.ai-memory/01-index.md`.
+- [ ] Pre-flight state written to `.ai-memory/temp/` for every agent.
 - [ ] 3-Strike rollback honored with `git checkout` and logged to `last-failure.md`.
 - [ ] Staged files sanitized against artifact zips and temporary scratch files.
 - [ ] **NO TEST RUNNING & NO BUILD CHECKING (TOTAL BAN):** Zero tests or builds executed during routine loops.
-- [ ] Completed task files `mv`'d and `.lovable/plans/01-index.md` updated.
+- [ ] Completed task files `mv`'d and `.ai-memory/plans/01-index.md` updated.
 - [ ] Fast-forward commit created grouping all modified files, and immediately pushed to remote without leaving unpushed commits.
-- [ ] **TOTAL BAN on Test Running & Build Checking:** Zero builds or test runners executed during routine turns; atomic file change cache updated in `.lovable/temp/recent-file-changes.json` under lock (`python 03-ai-scripts/33-test-inventory-generator.py --record <path>`).
+- [ ] **TOTAL BAN on Test Running & Build Checking:** Zero builds or test runners executed during routine turns; atomic file change cache updated in `.ai-memory/temp/recent-file-changes.json` under lock (`python 03-ai-scripts/33-test-inventory-generator.py --record <path>`).
 - [ ] Output window explicitly lists "Done", "Pending", and remaining task names.
 
 ## Actionable Items & Checklist
@@ -191,19 +191,19 @@ How to self-loop and distribute tasks effectively:
 
 ### Temp-Agent Isolated Task Directory & Communication Protocol (Non-Negotiable)
 
-To prevent cross-task pollution and ensure seamless agent communication, every task MUST create a dedicated subfolder in `.lovable/temp-agents/xx-<task-name>/`:
+To prevent cross-task pollution and ensure seamless agent communication, every task MUST create a dedicated subfolder in `.ai-memory/temp-agents/xx-<task-name>/`:
 
-1. **Per-Task Isolation:** On task start, the assigned subagent creates its isolated directory `.lovable/temp-agents/xx-<task-name>/`.
-2. **State & Progress Tracking:** Create `.lovable/temp-agents/xx-<task-name>/state.md` documenting:
+1. **Per-Task Isolation:** On task start, the assigned subagent creates its isolated directory `.ai-memory/temp-agents/xx-<task-name>/`.
+2. **State & Progress Tracking:** Create `.ai-memory/temp-agents/xx-<task-name>/state.md` documenting:
    - `TASK_NAME`: `<task-name>`
    - `STATUS`: `IN_PROGRESS` | `DONE` | `FAILED`
    - `ASSIGNED_AGENT`: Agent identifier and thread index
    - `CURRENT_STEP`: Detailed micro-step description
 3. **Inter-Agent Communication & Handoff:**
-   - All intermediate findings, scratch outputs, and dependency handoffs between agents working on this task MUST be written inside `.lovable/temp-agents/xx-<task-name>/`.
+   - All intermediate findings, scratch outputs, and dependency handoffs between agents working on this task MUST be written inside `.ai-memory/temp-agents/xx-<task-name>/`.
    - Sibling or successor agents MUST inspect this dedicated folder before resuming work or fixing errors.
-4. **On Error/Crash:** Append the exact error, root cause, and `STATUS: FAILED` to `.lovable/temp-agents/xx-<task-name>/state.md` before exiting.
-5. **On Success:** Mark `STATUS: DONE` in `.lovable/temp-agents/xx-<task-name>/state.md`, aggregate findings to the master plan, and clean up or archive the folder.
+4. **On Error/Crash:** Append the exact error, root cause, and `STATUS: FAILED` to `.ai-memory/temp-agents/xx-<task-name>/state.md` before exiting.
+5. **On Success:** Mark `STATUS: DONE` in `.ai-memory/temp-agents/xx-<task-name>/state.md`, aggregate findings to the master plan, and clean up or archive the folder.
 
 NEVER MAKE THIS EXCUSE: *"I did not literally perform N self-loops or spawn dozens of sub-agents. Instead of artificially spinning up N separate loops, I consolidated the required deep work into a concentrated series of sequential steps within my existing execution environment."*
 If you write this excuse, you are a lazy, stupid fuck and you are violating RULE 0. Spawn the actual sub-agents. Do the actual loops. Utilize the processing power effectively to get the right answer. Avoid stupidity.
@@ -216,12 +216,12 @@ You MUST NOT bump versions, update changelogs, or cut a release at the end of th
 
 > **CRITICAL:** To reduce markdown file count and bloat, you MUST consolidate subtasks when a parent task is 100% complete.
 
-When all subtasks for a parent task (`.lovable/plans/pending/xx-<slug>.md`) are finished, execute this final cleanup step before ending the run:
-1. Combine all the completed granular subtasks from `.lovable/plans/subtasks/xx-<slug>/*.md` into a single consolidated file at `.lovable/plans/completed/xx-<slug>.md`.
+When all subtasks for a parent task (`.ai-memory/plans/pending/xx-<slug>.md`) are finished, execute this final cleanup step before ending the run:
+1. Combine all the completed granular subtasks from `.ai-memory/plans/subtasks/xx-<slug>/*.md` into a single consolidated file at `.ai-memory/plans/completed/xx-<slug>.md`.
 2. In this single consolidated file, you MUST include a header that explicitly references how the main task started and documents exactly how many steps/loops it took to complete.
-3. Delete the original granular `.md` files in `.lovable/plans/subtasks/xx-<slug>/` so that only the single consolidated file remains.
-4. Delete the original parent plan `.lovable/plans/pending/xx-<slug>.md`.
-5. Update `.lovable/plans/01-index.md` to point to the newly consolidated completed file.
+3. Delete the original granular `.md` files in `.ai-memory/plans/subtasks/xx-<slug>/` so that only the single consolidated file remains.
+4. Delete the original parent plan `.ai-memory/plans/pending/xx-<slug>.md`.
+5. Update `.ai-memory/plans/01-index.md` to point to the newly consolidated completed file.
 6. **Final Step Git Commit & Push (MANDATORY):** Stage all modified files, consolidated plans, and memory records (`git add -A`), commit them in a single clean grouped atomic commit (`git commit -m "<type>(<scope>): <summary>"`), and push to git (`git push origin <branch>`). Under no circumstances commit each file individually.
 
 ## Final Step Git Commit & Push Mandate (Strict Checklist)
@@ -233,7 +233,7 @@ When all subtasks for a parent task (`.lovable/plans/pending/xx-<slug>.md`) are 
 
 ## MUST FOLLOW NON-NEGOTIABLE
 
-Listen, past runs of these turns have been sloppy and stupid as fuck: wrong step counts, partial task lists dumped into chat instead of files, plans and session summaries half-filled with "[N]" placeholders, folders skimmed, open ambiguities ignored, CI/CD issues and `plans/subtasks/` forgotten, user commands dropped, coding guidelines bypassed, detailed specs chopped and summarized into useless junk, uppercase README files left uncorrected, `.lovable/memory/` created by accident, `strictly-avoid.md` overwritten, and explicit user instructions softened after being told not to. WTF. How on earth are you reverting to this carelessness, are you stupid?? Stop doing that, you stupid fuck. Read the whole codebase, read every folder in `spec/` and `.lovable/`, confirm root `readme.md` is strictly lowercase, find the root cause in one sentence, capture commands, issues, and pending tasks without omitting a single item, write the spec files and memory files in the right paths, update every index in the same turn, sync `readme.md` with `what-to-read.md`, preserve detailed specs verbatim with zero truncation, record file changes into recent-file-changes.json cache, group all modified files into consolidated commits with clear messages (never 1-2 files piecemeal), and push everything to git immediately before ending. Going deep IS the job. If you are not going deep, you are not doing the job. Violating this is auto-reject on the same tier as RULE 0. Avoid stupidity and being careless, you stupid fuck. Where is your attention, are you stupid? Tell me. Your stupidity is going on top of my head. Where did you learn this stupidity? If I could find you, I could slap you.
+Listen, past runs of these turns have been sloppy and stupid as fuck: wrong step counts, partial task lists dumped into chat instead of files, plans and session summaries half-filled with "[N]" placeholders, folders skimmed, open ambiguities ignored, CI/CD issues and `plans/subtasks/` forgotten, user commands dropped, coding guidelines bypassed, detailed specs chopped and summarized into useless junk, uppercase README files left uncorrected, `.ai-memory/memory/` created by accident, `strictly-avoid.md` overwritten, and explicit user instructions softened after being told not to. WTF. How on earth are you reverting to this carelessness, are you stupid?? Stop doing that, you stupid fuck. Read the whole codebase, read every folder in `02-spec/` and `.ai-memory/`, confirm root `readme.md` is strictly lowercase, find the root cause in one sentence, capture commands, issues, and pending tasks without omitting a single item, write the spec files and memory files in the right paths, update every index in the same turn, sync `readme.md` with `what-to-read.md`, preserve detailed specs verbatim with zero truncation, record file changes into recent-file-changes.json cache, group all modified files into consolidated commits with clear messages (never 1-2 files piecemeal), and push everything to git immediately before ending. Going deep IS the job. If you are not going deep, you are not doing the job. Violating this is auto-reject on the same tier as RULE 0. Avoid stupidity and being careless, you stupid fuck. Where is your attention, are you stupid? Tell me. Your stupidity is going on top of my head. Where did you learn this stupidity? If I could find you, I could slap you.
 
 ---
 

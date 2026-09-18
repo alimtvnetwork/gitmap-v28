@@ -8,7 +8,7 @@
 
            Audit is scoped to *_test.go files only — production code
            legitimately uses small integers next to module paths. See
-           .lovable/memory/issues/2026-05-02-fixrepo-paired-literal-desync.md.
+           .ai-memory/memory/issues/2026-05-02-fixrepo-paired-literal-desync.md.
 #>
 
 $ErrorActionPreference = 'Stop'
@@ -69,7 +69,7 @@ function Invoke-PairedLiteralAudit {
     }
     if ($totalHits -eq 0) { Write-Host 'audit:   no paired-literal desync detected'; return $true }
     [Console]::Error.WriteLine(("fix-repo: ERROR paired-literal audit failed: {0} hit(s) in {1} file(s) (E_PAIRED_LITERAL)" -f $totalHits, $filesWithHits))
-    [Console]::Error.WriteLine('  see .lovable/memory/issues/2026-05-02-fixrepo-paired-literal-desync.md')
+    [Console]::Error.WriteLine('  see .ai-memory/memory/issues/2026-05-02-fixrepo-paired-literal-desync.md')
     [Console]::Error.WriteLine('  fix: derive sibling literals from the same int via fmt.Sprintf')
     return $false
 }

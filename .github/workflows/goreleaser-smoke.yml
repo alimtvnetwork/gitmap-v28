@@ -153,7 +153,7 @@ jobs:
             # installer expects. Without these the installer exits 1
             # at the "Merging: spec" step on a minimal fixture repo.
             for d in spec linters linter-scripts scripts/fix-repo \
-                     scripts/visibility-change .lovable/coding-guidelines; do
+                     scripts/visibility-change .ai-memory/coding-guidelines; do
               mkdir -p "$d"
               printf 'placeholder for cfr cg smoke\n' > "$d/.gitkeep"
             done
@@ -540,7 +540,7 @@ jobs:
           Set-Content -Path fixture-note.txt  -Value 'FIXTURE_NOTE_MARKER: cfr-cg smoke v1' -NoNewline:$false
           # Pre-create the merge target folders the upstream v24
           # installer expects; otherwise "Merging: spec" exits 1.
-          foreach ($d in @('spec','linters','linter-scripts','scripts/fix-repo','scripts/visibility-change','.lovable/coding-guidelines')) {
+          foreach ($d in @('spec','linters','linter-scripts','scripts/fix-repo','scripts/visibility-change','.ai-memory/coding-guidelines')) {
             New-Item -ItemType Directory -Force -Path $d | Out-Null
             Set-Content -Path (Join-Path $d '.gitkeep') -Value 'placeholder for cfr cg smoke' -NoNewline:$false
           }

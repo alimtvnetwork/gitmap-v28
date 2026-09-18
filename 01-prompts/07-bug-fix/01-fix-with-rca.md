@@ -15,12 +15,12 @@ You MUST NOT bump versions, update changelogs, or cut a release at the end of th
 
 ## MUST FOLLOW NON-NEGOTIABLE
 
-Listen, past runs of these turns have been sloppy and stupid as fuck: wrong step counts, partial task lists dumped into chat instead of files, folders skimmed, open ambiguities ignored, CI/CD issues forgotten, coding guidelines bypassed, detailed specs chopped into useless junk, uppercase README files left uncorrected, .lovable/memory/ created by accident, strictly-avoid.md overwritten, and explicit user instructions softened. WTF. How on earth are you reverting to this carelessness, are you stupid?? Stop doing that, you stupid fuck. Read the whole codebase, confirm root
+Listen, past runs of these turns have been sloppy and stupid as fuck: wrong step counts, partial task lists dumped into chat instead of files, folders skimmed, open ambiguities ignored, CI/CD issues forgotten, coding guidelines bypassed, detailed specs chopped into useless junk, uppercase README files left uncorrected, .ai-memory/memory/ created by accident, strictly-avoid.md overwritten, and explicit user instructions softened. WTF. How on earth are you reverting to this carelessness, are you stupid?? Stop doing that, you stupid fuck. Read the whole codebase, confirm root
 eadme.md is strictly lowercase, find the root cause in one sentence, write the memory files in the right paths, preserve detailed specs verbatim, run builds and full unit tests, group commits with clear messages, and push everything to git before ending. Going deep IS the job. If you are not going deep, you are not doing the job. Violating this is auto-reject on the same tier as RULE 0. Avoid stupidity and being careless. Where is your attention, are you stupid? Your stupidity is going on top of my head. If I could find you, I could slap you.
 
 ## The 4-Part RCA Requirement (Mandatory Memory File)
 
-Before you write any code to fix the problem, you MUST document the issue in .lovable/memory/issues/xx-<slug>.md (where XX is the next available sequential number). The file MUST contain these exact four sections:
+Before you write any code to fix the problem, you MUST document the issue in .ai-memory/memory/issues/xx-<slug>.md (where XX is the next available sequential number). The file MUST contain these exact four sections:
 
 1. **Why it happened:** The high-level business, logical, or architectural breakdown of the failure.
 2. **How it happened:** The technical execution flow that triggered the bug.
@@ -47,9 +47,9 @@ To survive massive checklists and complex codebases, you MUST operate using thes
 
 ## Execution Checklist & Strict Guidelines
 
-- [ ] **RCA Document Generation:** I have created .lovable/memory/issues/xx-<slug>.md with the strict 4-part RCA structure (Why, How, Root Cause, Code Fix).
-- [ ] **Coding Guidelines & Master Consolidated File:** I have fully read and strictly enforced every file in spec/02-coding-guidelines/, as well as the master consolidated coding guideline file at .lovable/coding-guidelines.md.
-- [ ] **Error Manage Checklist:** I have fully read and enforced spec/03-error-manage/. I understand which files to follow (architecture, response envelopes) and how to follow them (never swallow errors, always wrap with context).
+- [ ] **RCA Document Generation:** I have created .ai-memory/memory/issues/xx-<slug>.md with the strict 4-part RCA structure (Why, How, Root Cause, Code Fix).
+- [ ] **Coding Guidelines & Master Consolidated File:** I have fully read and strictly enforced every file in 02-spec/02-coding-guidelines/, as well as the master consolidated coding guideline file at .ai-memory/coding-guidelines.md.
+- [ ] **Error Manage Checklist:** I have fully read and enforced 02-spec/03-error-manage/. I understand which files to follow (architecture, response envelopes) and how to follow them (never swallow errors, always wrap with context).
 - [ ] **Boolean Fixations:** All boolean variables MUST begin with is and has only (can, should, was, etc. are banned). NEVER use explicit true/false comparisons (e.g., `if isReady == true` is FORBIDDEN, use `if isReady`). NEVER use negative booleans (isNotReady). NEVER invert success checks (!response.isSuccess is banned; use
 esponse.isFail).
 - [ ] **Anti-Garbage Naming:** I have verified that absolutely NO generic garbage variable names (	emp, data, obj) were written. All names are semantic.

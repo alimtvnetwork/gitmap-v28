@@ -31,7 +31,7 @@ DEFAULT_EXCLUDES = [
     "*/testdata/*", "*/golden/*",
     "*/.gitmap/release/*", "*/.gitmap/release-assets/*",
     "cli/completion/allcommands_generated.go",
-    ".lovable/*",
+    ".ai-memory/*",
 ]
 
 

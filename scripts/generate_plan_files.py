@@ -24,10 +24,10 @@ selected.extend(long_items[:25])
 
 assert len(selected) == 150, f"Expected 150 items, got {len(selected)}"
 
-os.makedirs(".lovable/plans/pending", exist_ok=True)
-os.makedirs(".lovable/plans/subtasks/01-coding-guideline-fixes", exist_ok=True)
+os.makedirs(".ai-memory/plans/pending", exist_ok=True)
+os.makedirs(".ai-memory/plans/subtasks/01-coding-guideline-fixes", exist_ok=True)
 
-# 1. Generate .lovable/plans/pending/01-coding-guideline-fixes.md
+# 1. Generate .ai-memory/plans/pending/01-coding-guideline-fixes.md
 plan_lines = [
     "# Plan: Coding Guideline Audit & Enforcement (v4)",
     "",
@@ -52,7 +52,7 @@ plan_lines = [
 for idx, item in enumerate(selected, 1):
     plan_lines.append(f"{idx}. **{item['category']}**: `{item['file']}:{item['line']}` - {item['desc']} **Fix**: {item['fix']}")
 
-with open(".lovable/plans/pending/01-coding-guideline-fixes.md", "w", encoding="utf-8") as f:
+with open(".ai-memory/plans/pending/01-coding-guideline-fixes.md", "w", encoding="utf-8") as f:
     f.write("\n".join(plan_lines) + "\n")
 
 # 2. Generate subtasks for 3 concurrent subagents
@@ -87,7 +87,7 @@ for fname, start_idx, end_idx, title in subtasks_def:
     for idx, item in enumerate(chunk, start_idx + 1):
         st_lines.append(f"{idx}. **{item['category']}**: `{item['file']}:{item['line']}` - {item['desc']}\n   - **Action**: {item['fix']}")
 
-    with open(f".lovable/plans/subtasks/01-coding-guideline-fixes/{fname}", "w", encoding="utf-8") as f:
+    with open(f".ai-memory/plans/subtasks/01-coding-guideline-fixes/{fname}", "w", encoding="utf-8") as f:
         f.write("\n".join(st_lines) + "\n")
 
 print("Generated 01-coding-guideline-fixes.md and 3 subtasks successfully.")

@@ -62,7 +62,7 @@ def _setup_intake(root: Path) -> Path:
     path so we get an ``ignored-deleted`` audit entry whose CSV
     cells must all be empty.
     """
-    spec = root / "spec"
+    spec = root / "02-spec"
     _write_clean_md(spec / "plain.md")
     _write_clean_md(spec / "new1.md")
     _write_clean_md(spec / "new2.md")
@@ -87,7 +87,7 @@ class TestCsvStderrParity(unittest.TestCase):
         cp = subprocess.run(
             [
                 sys.executable, str(_LINTER),
-                "--root", "spec",
+                "--root", "02-spec",
                 "--repo-root", str(root),
                 "--changed-files", str(manifest),
                 "--list-changed-files",

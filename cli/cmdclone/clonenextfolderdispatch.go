@@ -10,7 +10,7 @@
 // `performCrossDirCloneNext` helper in clonenextcrossdir.go.
 //
 // Disambiguation rules and the full test matrix are documented in
-// spec/01-app/111-cn-folder-arg.md. The two interceptor functions
+// 02-spec/01-app/111-cn-folder-arg.md. The two interceptor functions
 // here run BEFORE tryCrossDirCloneNext in runCloneNext so the
 // path-shaped tokens win over the release-alias fallback (the alias
 // resolver matches bare names like "gitmap" which would otherwise
@@ -39,7 +39,7 @@ var errCNFolderNotDir = errors.New("resolved path is not a directory")
 // existing tryCrossDirCloneNext / in-place flow.
 //
 // Order of the four classification branches matters — see the
-// truth table in spec/01-app/111-cn-folder-arg.md §Disambiguation.
+// truth table in 02-spec/01-app/111-cn-folder-arg.md §Disambiguation.
 func tryFolderArgCloneNext(args []string) bool {
 	positional := extractPositionalArgs(args)
 

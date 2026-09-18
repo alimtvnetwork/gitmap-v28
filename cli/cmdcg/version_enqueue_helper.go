@@ -7,7 +7,7 @@ import (
 	"strings"
 )
 
-const versioningQueueEntry = "- `.lovable/versioning.md`, why: Explains that `version.json` is the canonical Single Source of Truth (SSOT) and documents component inheritance."
+const versioningQueueEntry = "- `.ai-memory/versioning.md`, why: Explains that `version.json` is the canonical Single Source of Truth (SSOT) and documents component inheritance."
 
 // EnqueueVersioningInWhatToRead appends the versioning documentation link to target what-to-read file if missing.
 func EnqueueVersioningInWhatToRead(filePath string) error {
@@ -38,7 +38,7 @@ func EnqueueVersioningInWhatToRead(filePath string) error {
 	return os.WriteFile(filePath, []byte(content), 0644)
 }
 
-// EnqueueVersioningDocs enqueues versioning documentation in both .lovable and root what-to-read files.
+// EnqueueVersioningDocs enqueues versioning documentation in both .ai-memory and root what-to-read files.
 func EnqueueVersioningDocs(repoPath string, cfg VersionInstallConfig) {
 	lovableWTR := filepath.Join(repoPath, cfg.WhatToReadDoc)
 	_ = EnqueueVersioningInWhatToRead(lovableWTR)

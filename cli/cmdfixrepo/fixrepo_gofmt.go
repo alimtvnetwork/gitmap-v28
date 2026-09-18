@@ -6,7 +6,7 @@ package cmdfixrepo
 // produces gofmt-dirty files and trips the CI gofmt gate. Running
 // `gofmt -w` on every modified .go file restores deterministic
 // formatting before the command exits. See
-// .lovable/memory/issues/2026-05-01-fixrepo-no-gofmt.md.
+// .ai-memory/memory/issues/2026-05-01-fixrepo-no-gofmt.md.
 //
 // Windows CreateProcess caps the assembled command line at 32,767
 // characters. On a large repo where hundreds of touched .go files sit

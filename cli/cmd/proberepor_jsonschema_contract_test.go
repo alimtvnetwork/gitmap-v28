@@ -3,7 +3,7 @@ package cmd
 // JSON schema contract for `gitmap probe --json`. Pairs the runtime
 // encoder (encodeProbeJSON / buildProbeJSONItems in proberender.go)
 // with the published schema at
-// spec/08-json-schemas/probe-report.schema.json so drift in either
+// 02-spec/08-json-schemas/probe-report.schema.json so drift in either
 // side fails the build.
 
 import (

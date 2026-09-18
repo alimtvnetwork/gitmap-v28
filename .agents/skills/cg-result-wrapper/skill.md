@@ -48,7 +48,7 @@ This skill governs autonomous scanning, auditing, refactoring, and verification 
 6. **Targeted Verification & CI Protection:**
    - DO NOT run `06-cicd-local-runner.py` during routine refactoring turns.
    - Run targeted linters (`golangci-lint run <pkg>`, `go vet <pkg>`, `python linter-scripts/...`).
-   - Append modified files to `.lovable/temp/recent-file-changes.json` under lock.
+   - Append modified files to `.ai-memory/temp/recent-file-changes.json` under lock.
 
 ---
 

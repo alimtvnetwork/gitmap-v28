@@ -58,7 +58,7 @@ class DedupeChangedFilesCli(unittest.TestCase):
     def test_text_mode_collapses_duplicates_and_reports_count(self) -> None:
         with tempfile.TemporaryDirectory() as td:
             root = Path(td)
-            _write_clean_md(root / "spec" / "ok.md")
+            _write_clean_md(root / "02-spec" / "ok.md")
             changed = root / "changed.txt"
             # Same path listed three times → 2 dropped.
             changed.write_text(
@@ -66,7 +66,7 @@ class DedupeChangedFilesCli(unittest.TestCase):
                 encoding="utf-8",
             )
             rc, out, err = _run(
-                "--root", "spec",
+                "--root", "02-spec",
                 "--repo-root", str(root),
                 "--changed-files", str(changed),
                 "--list-changed-files",
@@ -84,7 +84,7 @@ class DedupeChangedFilesCli(unittest.TestCase):
     def test_json_mode_reflects_collapse_in_array_length(self) -> None:
         with tempfile.TemporaryDirectory() as td:
             root = Path(td)
-            _write_clean_md(root / "spec" / "ok.md")
+            _write_clean_md(root / "02-spec" / "ok.md")
             changed = root / "changed.txt"
             changed.write_text(
                 "spec/ok.md\nspec/ok.md\nD\tspec/old.md\n"
@@ -92,7 +92,7 @@ class DedupeChangedFilesCli(unittest.TestCase):
                 encoding="utf-8",
             )
             rc, out, err = _run(
-                "--root", "spec",
+                "--root", "02-spec",
                 "--repo-root", str(root),
                 "--changed-files", str(changed),
                 "--list-changed-files",
@@ -111,12 +111,12 @@ class DedupeChangedFilesCli(unittest.TestCase):
     def test_idempotent_when_no_duplicates(self) -> None:
         with tempfile.TemporaryDirectory() as td:
             root = Path(td)
-            _write_clean_md(root / "spec" / "ok.md")
+            _write_clean_md(root / "02-spec" / "ok.md")
             changed = root / "changed.txt"
             changed.write_text(
                 "spec/ok.md\nD\tspec/old.md\n", encoding="utf-8")
             rc, _out, err = _run(
-                "--root", "spec",
+                "--root", "02-spec",
                 "--repo-root", str(root),
                 "--changed-files", str(changed),
                 "--list-changed-files",
@@ -129,11 +129,11 @@ class DedupeChangedFilesCli(unittest.TestCase):
     def test_flag_without_list_changed_files_is_noop(self) -> None:
         with tempfile.TemporaryDirectory() as td:
             root = Path(td)
-            _write_clean_md(root / "spec" / "ok.md")
+            _write_clean_md(root / "02-spec" / "ok.md")
             changed = root / "changed.txt"
             changed.write_text("spec/ok.md\n", encoding="utf-8")
             rc, out, err = _run(
-                "--root", "spec",
+                "--root", "02-spec",
                 "--repo-root", str(root),
                 "--changed-files", str(changed),
                 "--dedupe-changed-files",

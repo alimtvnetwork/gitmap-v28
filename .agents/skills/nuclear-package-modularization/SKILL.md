@@ -19,7 +19,7 @@ Autonomously decompose large Go packages into small, acyclic packages (DAG archi
    - Tests invoking exec.Command, external git processes, sockets, or time.Sleep belong in cli/tests/heavy_test/ (package heavy_test).
    - Routine package tests must be 100% in-memory fast unit tests (<0.01s).
 3. **Test Inventory Synchronization**:
-   - Synchronize .lovable/test-inventory.json using 03-ai-scripts/33-test-inventory-generator.py.
+   - Synchronize .ai-memory/test-inventory.json using 03-ai-scripts/33-test-inventory-generator.py.
    - Record modified files under lock via --record.
 4. **Coding Guidelines & Quality Gates**:
    - Functions <= 15 lines, blank lines before return statements.

@@ -60,11 +60,11 @@ Pass `--force` or `-f` to bypass deduplication and send again.
    - **Automated Git Log**: Automatically runs `git log -n 5 --stat --no-merges` so the agent understands recent file and commit changes immediately.
    - **Pipeline Error Log**: Full diagnostic error output and step failures.
    - **Embedded RCA Prompt**: Ingests canonical 4-part RCA prompt (`01-prompts/07-bug-fix/01-fix-with-rca.md` or `01-prompts/16-ci-cd/01-ci-cd-fix.md`).
-   - **Delivery**: Written to `.lovable/temp/active-agy-pipeline-fix-prompt.txt` and copied to OS clipboard for instant pasting (`Ctrl+V` / `Cmd+V`).
+   - **Delivery**: Written to `.ai-memory/temp/active-agy-pipeline-fix-prompt.txt` and copied to OS clipboard for instant pasting (`Ctrl+V` / `Cmd+V`).
 
 2. **Prompt 2 (Queued Follow-up Verification: "Is it fixed?")**:
-   - Secondary verification prompt automatically generated and staged to `.lovable/temp/queued-agy-followup-prompt.txt`.
-   - Recorded in prompt queue ledger `.lovable/temp/agy-prompt-queue.json`.
+   - Secondary verification prompt automatically generated and staged to `.ai-memory/temp/queued-agy-followup-prompt.txt`.
+   - Recorded in prompt queue ledger `.ai-memory/temp/agy-prompt-queue.json`.
    - When the primary fix loop finishes, this queued prompt directs the agent to verify that all root causes have been fixed and all quality checks pass.
 
 ## Examples

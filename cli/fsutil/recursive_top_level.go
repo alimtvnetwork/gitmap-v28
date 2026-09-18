@@ -26,7 +26,7 @@ func DiscoverTopLevelGitRepos(rootDir string) ([]string, error) {
 			return nil
 		}
 
-		// Skip hidden tool directories (e.g. .git itself, .lovable, node_modules)
+		// Skip hidden tool directories (e.g. .git itself, .ai-memory, node_modules)
 		name := d.Name()
 		if path != rootDir && (name == ".git" || name == "node_modules" || name == ".cache" || name == "vendor") {
 			return filepath.SkipDir

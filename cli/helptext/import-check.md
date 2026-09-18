@@ -19,7 +19,7 @@ Discovers all Chrome profiles contained in a folder, ZIP archive, or snapshot fi
 - `--json`: Output discovered profile candidates as formatted JSON.
 - `--file <path>`: Write inspection report or JSON output to specified file path.
 - `--fnf <path>`: Save to file or fail if no candidates match.
-- `--tempfile <filename>`: Write inspection report to `.lovable/temp/<filename>`.
+- `--tempfile <filename>`: Write inspection report to `.ai-memory/temp/<filename>`.
 
 ## Examples
 

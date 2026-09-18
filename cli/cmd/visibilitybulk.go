@@ -1,4 +1,4 @@
-// Package cmd — visibilitybulk.go: spec/01-app/113 §2.2.
+// Package cmd — visibilitybulk.go: 02-spec/01-app/113 §2.2.
 //
 // Adds positional `make-public|make-private <repo-or-url> <count>`
 // form. When count >= 1, the command flips the N most recent

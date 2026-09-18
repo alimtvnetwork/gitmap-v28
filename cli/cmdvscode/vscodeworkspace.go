@@ -12,7 +12,7 @@
 // cross-repo search / refactor. Both surfaces stay in lockstep
 // because both read the same DB.
 //
-// Spec: spec/01-vscode-project-manager-sync/03-workspace-export.md
+// Spec: 02-spec/01-vscode-project-manager-sync/03-workspace-export.md
 package cmdvscode
 
 import (

@@ -34,7 +34,7 @@ func isCtxExplainEnabled() bool {
 }
 
 // runInstallCtx dispatches the right-click context-menu install to
-// the platform-specific implementation. Spec: spec/04-generic-cli/30-install-ctx.md.
+// the platform-specific implementation. Spec: 02-spec/04-generic-cli/30-install-ctx.md.
 // When explain=true, generated entries print their resolved invocation
 // before executing.
 func runInstallCtx(explain bool) error {

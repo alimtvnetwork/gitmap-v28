@@ -1,3 +1,0 @@
-Objective: Execute task 096
-STATUS: IN_PROGRESS
-STATUS: DONE

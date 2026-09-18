@@ -3,7 +3,7 @@
 // policy is unit-testable in isolation. SQL-side filtering is a
 // follow-up if `vh` ever paginates beyond MaxFilterBacklog rows.
 //
-// Spec: spec/01-app/116-bulk-visibility-mapub-mapri.md §history.
+// Spec: 02-spec/01-app/116-bulk-visibility-mapub-mapri.md §history.
 package cmd
 
 import (

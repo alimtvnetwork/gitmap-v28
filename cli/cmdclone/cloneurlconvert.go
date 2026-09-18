@@ -19,7 +19,7 @@ import (
 //	ssh://git@host[:port]/owner/repo(.git)?
 //	git@host:owner/repo(.git)?
 //
-// Spec: spec/01-app/110-clone-ssh-flag.md
+// Spec: 02-spec/01-app/110-clone-ssh-flag.md
 func ConvertURLToSSH(url string) (string, bool) {
 	trimmed := strings.TrimRight(strings.TrimSpace(url), "/\\")
 	if trimmed == "" {

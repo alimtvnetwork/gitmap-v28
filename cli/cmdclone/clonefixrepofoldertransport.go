@@ -11,7 +11,7 @@ import (
 )
 
 // preferExistingFolderTransport closes the cfr/cfrp gap documented in
-// .lovable/audits/2026-06-07-reclone-pickers.md: when the destination
+// .ai-memory/audits/2026-06-07-reclone-pickers.md: when the destination
 // folder already contains a `.git/` directory, the existing origin's
 // transport is the source of truth — re-cloning with a different
 // scheme silently downgrades SSH-origin repos to HTTPS and re-triggers

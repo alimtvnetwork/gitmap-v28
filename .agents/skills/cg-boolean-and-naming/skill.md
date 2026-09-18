@@ -1,6 +1,6 @@
 ---
 name: cg-boolean-and-naming
-description: Autonomously audits, refactors, and validates repository-wide boolean conventions, positive prefixes, implicit checks, enum Type suffixes, and nested if flattening against spec/02-coding-guidelines/.
+description: Autonomously audits, refactors, and validates repository-wide boolean conventions, positive prefixes, implicit checks, enum Type suffixes, and nested if flattening against 02-spec/02-coding-guidelines/.
 ---
 
 # Skill: Coding Guidelines — Booleans, Naming & Enums (`cg-boolean`)
@@ -248,7 +248,7 @@ func extractVersionValue(rawMap map[string]interface{}) string {
 
 - **No Releases:** Strictly forbidden from bumping versions or cutting releases.
 - **No Test Execution:** Test execution is disabled unless explicitly commanded by the repository owner.
-- **Atomic Change Tracking:** Append all modified files to `.lovable/temp/recent-file-changes.json` under lock (`python 03-ai-scripts/33-test-inventory-generator.py --record <files...>`), mapping to associated tests in `.lovable/test-inventory.json`.
+- **Atomic Change Tracking:** Append all modified files to `.ai-memory/temp/recent-file-changes.json` under lock (`python 03-ai-scripts/33-test-inventory-generator.py --record <files...>`), mapping to associated tests in `.ai-memory/test-inventory.json`.
 - **Linter:** `python linter-scripts/check-enum-and-boolean.py`
 
 ## Fast File Discovery & Reading via Python Toolchain (Mandatory Acceleration)

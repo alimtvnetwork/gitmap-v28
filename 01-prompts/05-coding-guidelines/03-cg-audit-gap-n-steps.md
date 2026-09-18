@@ -11,9 +11,9 @@ N = 400
 
 N = total self-loop steps budget across the codebase. The user may override this number when triggering the prompt (e.g., N = 100 or N = 200).
 
-- [ ] /goal First N/2 steps (Phase 1): Deeply scan the entire codebase file-by-file, dividing N steps across files with 30-50 nested atomic checks per file, scoring guideline compliance from 0 to 100, and writing the master audit report to `spec/01-spec-authoring-guide/01-index.md`.
-- [ ] /goal Second N/2 steps (Phase 2): Enqueue all identified gaps into `.lovable/plans/pending/XX-coding-guidelines-audit.md`, break them down into microscopic atomic subtasks inside `.lovable/plans/subtasks/XX-coding-guidelines/`, and register them in `.lovable/plans/01-index.md`.
-- [ ] /learn Ingest `.lovable/coding-guidelines.md` (HIGH PRIORITY FIRST), `spec/02-coding-guidelines/`, `spec/03-error-manage/`, `spec/17-consolidated-guidelines/`, and `.lovable/strictly-avoid.md` before taking action.
+- [ ] /goal First N/2 steps (Phase 1): Deeply scan the entire codebase file-by-file, dividing N steps across files with 30-50 nested atomic checks per file, scoring guideline compliance from 0 to 100, and writing the master audit report to `02-spec/01-spec-authoring-guide/01-index.md`.
+- [ ] /goal Second N/2 steps (Phase 2): Enqueue all identified gaps into `.ai-memory/plans/pending/XX-coding-guidelines-audit.md`, break them down into microscopic atomic subtasks inside `.ai-memory/plans/subtasks/XX-coding-guidelines/`, and register them in `.ai-memory/plans/01-index.md`.
+- [ ] /learn Ingest `.ai-memory/coding-guidelines.md` (HIGH PRIORITY FIRST), `02-spec/02-coding-guidelines/`, `02-spec/03-error-manage/`, `02-spec/17-consolidated-guidelines/`, and `.ai-memory/strictly-avoid.md` before taking action.
 
 ```text
 PHASE_1_STEPS = N / 2   (Steps 1 .. N/2: Deep File-by-File Gap Audit & 0-100 Scoring Report)
@@ -47,33 +47,33 @@ You MUST verify and audit every item on this checklist across every file and fun
 
 ### Tier 1: Master Consolidated Guidelines (Highest Priority)
 
-- [ ] **Master Consolidated File (`.lovable/coding-guidelines.md`):** Read and enforce all 29 cross-language chapters and language-specific sections.
-- [ ] **Consolidated Review Spec (`spec/17-consolidated-guidelines/34-compiled-simple-coding-guidelines.md`):** Cross-verify against root spec truth.
-- [ ] **Anti-Hallucination & AI Optimization (`spec/02-coding-guidelines/01-cross-language/01-index.md`):** Rule AH-N1 (Abbreviation casing: `Id`, `Url`, `Api`), AH-O1 (Zero placeholder/truncation stubs), AH-E1 (Implicit booleans).
-- [ ] **Citation Requirement (`spec/02-coding-guidelines/01-cross-language/01-index.md`):** Every audit finding MUST cite the exact rule code and spec file path.
+- [ ] **Master Consolidated File (`.ai-memory/coding-guidelines.md`):** Read and enforce all 29 cross-language chapters and language-specific sections.
+- [ ] **Consolidated Review Spec (`02-spec/17-consolidated-guidelines/34-compiled-simple-coding-guidelines.md`):** Cross-verify against root spec truth.
+- [ ] **Anti-Hallucination & AI Optimization (`02-spec/02-coding-guidelines/01-cross-language/01-index.md`):** Rule AH-N1 (Abbreviation casing: `Id`, `Url`, `Api`), AH-O1 (Zero placeholder/truncation stubs), AH-E1 (Implicit booleans).
+- [ ] **Citation Requirement (`02-spec/02-coding-guidelines/01-cross-language/01-index.md`):** Every audit finding MUST cite the exact rule code and spec file path.
 
 ### Tier 2: Sizing, Nesting & Code Hygiene
 
-- [ ] **Canonical Size Tiers (`spec/02-coding-guidelines/02-canonical-size-tier.md`):**
+- [ ] **Canonical Size Tiers (`02-spec/02-coding-guidelines/02-canonical-size-tier.md`):**
   - **Functions:** Ideal 8 lines or fewer, hard cap 15 coding lines max.
   - **Source Files:** Recommended 80 lines or fewer, standard cap 100 coding lines, absolute limit 200–300 lines max.
   - **React Components (`.tsx`):** Hard cap 100 lines max per component file.
   - **Class / Struct:** Hard cap 120 lines max.
   - **Anti-Line Compression Cheating:** STRICTLY BAN collapsing whitespace, removing indentation, merging if/else onto single lines, or stripping formatting to cheat line limits.
-- [ ] **Braces & Nesting (`spec/02-coding-guidelines/01-cross-language/01-index.md`):** Zero nested if statements. Invert conditions into guard clauses and early returns. Maximum cyclomatic complexity 5 or less.
+- [ ] **Braces & Nesting (`02-spec/02-coding-guidelines/01-cross-language/01-index.md`):** Zero nested if statements. Invert conditions into guard clauses and early returns. Maximum cyclomatic complexity 5 or less.
 - [ ] **Return New Line Standards (R13–R16):** Exactly one blank line before every `return`/`throw`/`raise` (unless sole statement in block). Exactly one blank line after closing `}`. Never two consecutive blank lines.
 - [ ] **Function Signatures (R4, R5, R9):** Functions with more than 3 parameters or signatures over 100 characters MUST be formatted with exactly one parameter per line.
 
 ### Tier 3: Boolean Principles & Logic
 
-- [ ] **Implicit Positive Booleans (`spec/02-coding-guidelines/01-cross-language/02-boolean-principles/01-index.md`):** NEVER evaluate `== true` or `== false`. Implicit checks only (`if isReady`).
+- [ ] **Implicit Positive Booleans (`02-spec/02-coding-guidelines/01-cross-language/02-boolean-principles/01-index.md`):** NEVER evaluate `== true` or `== false`. Implicit checks only (`if isReady`).
 - [ ] **No Mixed Polarity:** NEVER combine positive and negative checks in the same condition (e.g., `if isA && !isB` is FORBIDDEN; extract to named boolean `isAWithoutB`).
-- [ ] **No Inverted Success Checks (`spec/02-coding-guidelines/01-cross-language/12-no-negatives.md`):** Ban `!response.isSuccess` or `!isFound`. Always use positive/inverse naming: `response.isFail`, `isMissing`.
+- [ ] **No Inverted Success Checks (`02-spec/02-coding-guidelines/01-cross-language/12-no-negatives.md`):** Ban `!response.isSuccess` or `!isFound`. Always use positive/inverse naming: `response.isFail`, `isMissing`.
 - [ ] **Boolean Prefixes:** All booleans MUST start with is and has only (can, should, was, etc. are banned), `was`, `will`, `did`, or `must`.
 
 ### Tier 4: Error Management & Architecture
 
-- [ ] **Error Management Architecture (`spec/03-error-manage/`):**
+- [ ] **Error Management Architecture (`02-spec/03-error-manage/`):**
   - Zero swallowed errors (`catch (err) {}` or `_ = err` is a critical violation).
   - Universal `AppError` wrapping with operation context and key inputs.
   - Universal response envelopes with typed status codes.
@@ -82,11 +82,11 @@ You MUST verify and audit every item on this checklist across every file and fun
 
 ### Tier 5: Constants, Enums & Schema
 
-- [ ] **Centralized Enums & Constants (`spec/02-coding-guidelines/01-cross-language/02-boolean-principles/01-index.md`):**
+- [ ] **Centralized Enums & Constants (`02-spec/02-coding-guidelines/01-cross-language/02-boolean-principles/01-index.md`):**
   - Zero magic strings or raw numeric literals.
   - All Enum names MUST end with the suffix `Type` (e.g., `UserRoleType`, `PaymentStatusType`).
   - TypeScript string unions (`type Role = "admin" | "user"`) are banned.
-- [ ] **Database & Naming Conventions (`spec/04-database-conventions/`):** PascalCase table names, camelCase column names, `{TableName}Id` primary/foreign keys.
+- [ ] **Database & Naming Conventions (`02-spec/04-database-conventions/`):** PascalCase table names, camelCase column names, `{TableName}Id` primary/foreign keys.
 
 ---
 
@@ -129,7 +129,7 @@ To audit massive codebases quickly without context fatigue or hallucination:
    - Example Thread Allocation:
      - **Sub-Agent A:** Audits backend/Go/PHP/Python files (`internal/`, `pkg/`, `api/`, `src/backend/`).
      - **Sub-Agent B:** Audits frontend/React/TypeScript files (`src/components/`, `src/hooks/`, `src/pages/`).
-     - **Sub-Agent C:** Audits shared libraries, scripts, database schemas, and CI/CD pipelines (`scripts/`, `spec/`, `.github/`).
+     - **Sub-Agent C:** Audits shared libraries, scripts, database schemas, and CI/CD pipelines (`scripts/`, `02-spec/`, `.github/`).
 3. **Context Diet Protocol:**
    - Give each sub-agent a strictly bounded file list. Do NOT paste entire file contents or master specs into sub-agent prompts.
    - The sub-agent reads target files locally, calculates score deductions, and returns a structured JSON/Markdown violation table.
@@ -163,7 +163,7 @@ For every file, perform the exhaustive check sequence:
 ### Step 3: Write Master Audit Report
 
 Save the final comprehensive report to:
-`spec/01-spec-authoring-guide/01-index.md`
+`02-spec/01-spec-authoring-guide/01-index.md`
 
 #### Report Structure Template:
 
@@ -207,13 +207,13 @@ Save the final comprehensive report to:
 ## 5. Phase 2: Plan Task Enqueuing & Atomic Subtasks (Steps PHASE_1_STEPS+1 to N)
 
 1. **Master Plan Enqueuing:**
-   - Create `.lovable/plans/pending/XX-coding-guidelines-audit.md` (next sequential number).
+   - Create `.ai-memory/plans/pending/XX-coding-guidelines-audit.md` (next sequential number).
    - Document all findings, total score, and the structured execution plan.
-   - Update `.lovable/plans/01-index.md` with the new entry.
+   - Update `.ai-memory/plans/01-index.md` with the new entry.
 
-2. **Atomic Subtask Creation (`.lovable/plans/subtasks/XX-coding-guidelines/`):**
+2. **Atomic Subtask Creation (`.ai-memory/plans/subtasks/XX-coding-guidelines/`):**
    - For every offending file or closely coupled group of violations, create a dedicated subtask:
-     `.lovable/plans/subtasks/XX-coding-guidelines/01-<module>-<slug>.md`
+     `.ai-memory/plans/subtasks/XX-coding-guidelines/01-<module>-<slug>.md`
    - Each subtask file must be **atomic and microscopic** (bounded strictly to 1 file or 1 function).
    - Subtask Template:
      ```markdown
@@ -273,10 +273,10 @@ To survive massive checklists and complex codebases, you MUST operate using thes
 ## Pre-Reply / Loop Checklist (Must Verify Every Turn)
 
 - [ ] **Echo Back the Spec:** I have verified the exact acceptance criteria and rules.
-- [ ] **Master Guidelines Read:** I have consulted `.lovable/coding-guidelines.md` at high priority.
+- [ ] **Master Guidelines Read:** I have consulted `.ai-memory/coding-guidelines.md` at high priority.
 - [ ] **Exhaustive Violation Ledger:** Maintained the exact table `| Id | File Path | Line | Function / Component | Rule Code | Exact Snippet | Severity | Planned Remediation |`.
 - [ ] **0-100 Score Calculated:** Mathematically computed the score for every file and module.
-- [ ] **Audit Report Saved:** Report written to `spec/01-spec-authoring-guide/01-index.md`.
-- [ ] **Plans & Subtasks Enqueued:** Master plan written to `.lovable/plans/pending/` and atomic subtasks created in `.lovable/plans/subtasks/`.
+- [ ] **Audit Report Saved:** Report written to `02-spec/01-spec-authoring-guide/01-index.md`.
+- [ ] **Plans & Subtasks Enqueued:** Master plan written to `.ai-memory/plans/pending/` and atomic subtasks created in `.ai-memory/plans/subtasks/`.
 - [ ] **Strict Lowercase Filenames:** All generated files use strictly lowercase naming.
 - [ ] **No Code Modification in Audit Phase:** Ensured application source code was not modified during the audit.

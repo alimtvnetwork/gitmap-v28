@@ -8,7 +8,7 @@
 // Accepts `--run <id>` to target a specific historical run instead
 // of the latest one (step 24).
 //
-// Spec: spec/01-app/116-bulk-visibility-mapub-mapri.md §undo-redo.
+// Spec: 02-spec/01-app/116-bulk-visibility-mapub-mapri.md §undo-redo.
 package cmd
 
 import (

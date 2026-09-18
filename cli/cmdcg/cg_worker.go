@@ -126,6 +126,6 @@ func printModifiedFiles(stdout string) {
 	}
 
 	if !hasFiles {
-		fmt.Printf("    - version.json\n    - .lovable/coding-guidelines/\n")
+		fmt.Printf("    - version.json\n    - .ai-memory/coding-guidelines.md\n")
 	}
 }

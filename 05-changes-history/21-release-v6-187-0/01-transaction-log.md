@@ -3,7 +3,7 @@
 > **Directory:** `05-changes-history/21-release-v6-187-0/`
 > **Date:** 2026-09-05
 > **Author/Agent:** Antigravity AI
-> **Module Affected:** Repository-wide (`version.json`, `package.json`, `gitmap/constants/constants.go`, `changelog.md`, `.lovable/`)
+> **Module Affected:** Repository-wide (`version.json`, `package.json`, `gitmap/constants/constants.go`, `changelog.md`, `.ai-memory/`)
 > **Status:** Completed & Verified
 
 ---
@@ -18,8 +18,8 @@ release minor
 In accordance with the `release-and-versioning` skill:
 1. SSoT manifests (`version.json`, `package.json`, `gitmap/constants/constants.go`) were bumped from `6.186.0` to `6.187.0`.
 2. `changelog.md` was updated with the new `## [v6.187.0]` entry, install one-liners, and itemized release bullet points.
-3. Release notes were generated at `.lovable/release/release-notes-v6.187.0.md`.
-4. `.lovable/user-preferences` was updated to reflect active version `v6.187.0`.
+3. Release notes were generated at `.ai-memory/release/release-notes-v6.187.0.md`.
+4. `.ai-memory/user-preferences` was updated to reflect active version `v6.187.0`.
 5. Version synchronization was validated via `03-ai-scripts/14-version-sync-checker.py`.
 6. Complete 16-gate local CI/CD test runner verified 100% green pass.
 
@@ -55,12 +55,12 @@ In accordance with the `release-and-versioning` skill:
 1. `version.json` - Bumped `Version` from `6.186.0` to `6.187.0`.
 2. `package.json` - Bumped `version` from `6.186.0` to `6.187.0`.
 3. `gitmap/constants/constants.go` - Bumped `Version` from `6.186.0` to `6.187.0`.
-4. `.lovable/user-preferences` - Pinned active version `v6.187.0`.
+4. `.ai-memory/user-preferences` - Pinned active version `v6.187.0`.
 5. `changelog.md` - Added release header, quick install commands, and release notes for `v6.187.0`.
 6. `05-changes-history/01-index.md` - Registered transaction log 21.
 
 ### Created
-1. `.lovable/release/release-notes-v6.187.0.md` - Standalone release notes for `v6.187.0`.
+1. `.ai-memory/release/release-notes-v6.187.0.md` - Standalone release notes for `v6.187.0`.
 2. `05-changes-history/21-release-v6-187-0/01-transaction-log.md` - This transaction log.
 
 ---

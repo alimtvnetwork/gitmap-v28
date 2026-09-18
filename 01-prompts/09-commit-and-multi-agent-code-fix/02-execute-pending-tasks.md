@@ -10,10 +10,10 @@
 Before starting execution, you must ensure the queue of pending tasks is properly ordered, named, and structured into Execution Waves.
 
 - Verify root readme is strictly lowercase `readme.md`.
-- Read the `.lovable/plans/pending/` directory and `.lovable/plans/01-index.md`.
+- Read the `.ai-memory/plans/pending/` directory and `.ai-memory/plans/01-index.md`.
 - Count exactly how many pending tasks exist.
 - Naming Correction: Check if the pending task files are correctly sequenced with a 2-digit numerical prefix (e.g., `01-<slug>.md`, `02-<slug>.md`).
-- If naming is incorrect or missing prefixes, fix it immediately. Rename the files to follow sequential `01-`, `02-` format and update `.lovable/plans/01-index.md` to match in the same operation.
+- If naming is incorrect or missing prefixes, fix it immediately. Rename the files to follow sequential `01-`, `02-` format and update `.ai-memory/plans/01-index.md` to match in the same operation.
 
 - **Create a Task-Specific Rule Set:** Before executing, analyze the specific task domain and explicitly write down 3-5 custom rules or constraints unique to this task inside the spec file. This prevents domain-specific regressions and forces sub-agents to follow exact architectures.
 - Execution Waves: Group tasks into Execution Waves (Wave 1: Schemas/DB/wrappers; Wave 2: Business services; Wave 3: UI & docs).
@@ -24,16 +24,16 @@ You are the sole orchestrator. Your job is to complete ALL pending tasks without
 
 - Make a Great Plan: Analyze all pending tasks and devise a comprehensive execution plan. Tasks exceeding 7 steps must be decomposed into `plans/subtasks/xx-<slug>/`.
 - Do NOT Ask Questions: Do not stop to ask the user for permission. Do not stop to ask clarifying questions.
-- File Collision Locking Matrix (`active-locks.json`): Register active target files in `.lovable/01-index.md` so parallel tasks touch completely disjoint files.
+- File Collision Locking Matrix (`active-locks.json`): Register active target files in `.ai-memory/01-index.md` so parallel tasks touch completely disjoint files.
 - Self-Loop: Self-loop continuously until every single pending task in the queue is verifiably completed.
-- 3-Strike Rollback: If an agent fails unit tests or builds 3 consecutive times, automatically rollback dirty working tree (`git checkout -- <files>`), log failure context to `.lovable/plan.md`, and advance to the next disjoint task.
+- 3-Strike Rollback: If an agent fails unit tests or builds 3 consecutive times, automatically rollback dirty working tree (`git checkout -- <files>`), log failure context to `.ai-memory/plan.md`, and advance to the next disjoint task.
 
 ## 3. High-Stakes Code Standards & Root Cause Analysis
 
 While executing the pending tasks, you must adhere strictly to the project's code standards and root cause protocols:
 
-- Root Cause First: Find the root cause of every problem before applying any fix. Record the root cause into `.lovable/` memory before touching code.
-- Error Management: All caught errors must be explicitly logged following guidelines in `spec/03-error-manage/`. Use the established query wrapper that automatically logs failures.
+- Root Cause First: Find the root cause of every problem before applying any fix. Record the root cause into `.ai-memory/` memory before touching code.
+- Error Management: All caught errors must be explicitly logged following guidelines in `02-spec/03-error-manage/`. Use the established query wrapper that automatically logs failures.
 - No Magic Values: Do not introduce any magic strings or magic numbers anywhere unless explicitly for the logger.
 - Enums Over Unions: Replace TypeScript string union types (e.g., `"pass" | "fail"`) with Enums.
 - Enum Naming: Every Enum name must end with the `Type` suffix (e.g., `StatusType`). Enum values must use `PascalCase` (e.g., `ActiveState`).
@@ -81,12 +81,12 @@ To survive massive checklists and complex codebases, you MUST operate using thes
 ## Actionable Items & Checklist (All Must Be True)
 
 - [ ] Self-loop continuously until every pending task is completed; do not stop until the queue is completely empty.
-- [ ] Audited `.lovable/plans/pending/` and re-sequenced task filenames to `01-`, `02-`, etc., if incorrectly named.
-- [ ] Grouped tasks into Execution Waves and checked `.lovable/01-index.md` for file collisions.
+- [ ] Audited `.ai-memory/plans/pending/` and re-sequenced task filenames to `01-`, `02-`, etc., if incorrectly named.
+- [ ] Grouped tasks into Execution Waves and checked `.ai-memory/01-index.md` for file collisions.
 - [ ] Executed autonomously via continuous self-looping without stopping to ask user questions.
 - [ ] 3-strike rule respected: failed tasks cleanly rolled back with `git checkout` and logged to `last-failure.md`.
 - [ ] Followed all high-stakes code standards (Enums with `Type` suffix, `PascalCase` values, explicit `isFail` checks, no magic strings, DRY code).
-- [ ] Root causes identified and logged in `.lovable/` before code was patched.
+- [ ] Root causes identified and logged in `.ai-memory/` before code was patched.
 - [ ] Sub-agents followed strict lifecycle with specific titles and never exceeded 3 concurrent instances.
 - [ ] End-of-loop verification passed: build is green, unit tests pass.
 - [ ] Staged files sanitized of artifact zip bundles, temporary scripts, and test data.
@@ -101,7 +101,7 @@ You MUST NOT bump versions, update changelogs, or cut a release at the end of th
 
 ## MUST FOLLOW NON-NEGOTIABLE
 
-Listen, past runs of these turns have been sloppy and stupid as fuck: wrong step counts, partial task lists dumped into chat instead of files, plans and session summaries half-filled with "[N]" placeholders, folders skimmed, open ambiguities ignored, CI/CD issues and `plans/subtasks/` forgotten, user commands dropped, coding guidelines bypassed, detailed specs chopped and summarized into useless junk, uppercase README files left uncorrected, `.lovable/memory/` created by accident, `strictly-avoid.md` overwritten, and explicit user instructions softened after being told not to. WTF. How on earth are you reverting to this carelessness, are you stupid?? Stop doing that, you stupid fuck. Read the whole codebase, read every folder in `spec/` and `.lovable/`, confirm root `readme.md` is strictly lowercase, find the root cause in one sentence, capture commands, issues, and pending tasks without omitting a single item, write the spec files and memory files in the right paths, update every index in the same turn, sync `readme.md` with `what-to-read.md`, preserve detailed specs verbatim with zero truncation, run builds and full unit tests, group commits with clear messages, and push everything to git before ending. Going deep IS the job. If you are not going deep, you are not doing the job. Violating this is auto-reject on the same tier as RULE 0. Avoid stupidity and being careless, you stupid fuck. Where is your attention, are you stupid? Tell me. Your stupidity is going on top of my head. Where did you learn this stupidity? If I could find you, I could slap you.
+Listen, past runs of these turns have been sloppy and stupid as fuck: wrong step counts, partial task lists dumped into chat instead of files, plans and session summaries half-filled with "[N]" placeholders, folders skimmed, open ambiguities ignored, CI/CD issues and `plans/subtasks/` forgotten, user commands dropped, coding guidelines bypassed, detailed specs chopped and summarized into useless junk, uppercase README files left uncorrected, `.ai-memory/memory/` created by accident, `strictly-avoid.md` overwritten, and explicit user instructions softened after being told not to. WTF. How on earth are you reverting to this carelessness, are you stupid?? Stop doing that, you stupid fuck. Read the whole codebase, read every folder in `02-spec/` and `.ai-memory/`, confirm root `readme.md` is strictly lowercase, find the root cause in one sentence, capture commands, issues, and pending tasks without omitting a single item, write the spec files and memory files in the right paths, update every index in the same turn, sync `readme.md` with `what-to-read.md`, preserve detailed specs verbatim with zero truncation, run builds and full unit tests, group commits with clear messages, and push everything to git before ending. Going deep IS the job. If you are not going deep, you are not doing the job. Violating this is auto-reject on the same tier as RULE 0. Avoid stupidity and being careless, you stupid fuck. Where is your attention, are you stupid? Tell me. Your stupidity is going on top of my head. Where did you learn this stupidity? If I could find you, I could slap you.
 
 ---
 
@@ -117,5 +117,5 @@ Before you commit code or end your turn, you MUST mechanically check off these i
 - [ ] **Echo Back the Spec:** I have copy-pasted the exact Acceptance Criteria from the Spec file into my current memory/response to prove I read it verbatim.
 - [ ] **Pre-Commit Diff Proof:** I have executed `git status` or `git diff --stat` and verified that the files I claim to have modified are actually listed as modified in the terminal output before committing.
 - [ ] **No Placeholder Search:** I ran a regex search for `TODO` and `\[.*\]` in my modified files and confirmed I left zero placeholders behind. I actually wrote the implementation.
-- [ ] **Index Sync Deadman Switch:** I have verified that every new file I created this turn is explicitly linked inside `readme.md` and enqueued in `.lovable/what-to-read.md`. I did not leave any orphaned files.
+- [ ] **Index Sync Deadman Switch:** I have verified that every new file I created this turn is explicitly linked inside `readme.md` and enqueued in `.ai-memory/what-to-read.md`. I did not leave any orphaned files.
 - [ ] **Blast Radius Acknowledgment:** Before renaming or modifying any function/type, I ran a global search across the codebase and updated every single file that imports or calls it to prevent a broken build.

@@ -92,7 +92,7 @@ class DiffModeAuditTreatsCaseConsistently(unittest.TestCase):
     def test_uppercase_md_path_is_matched_and_linted(self) -> None:
         with tempfile.TemporaryDirectory() as td:
             root = Path(td)
-            spec = root / "spec"
+            spec = root / "02-spec"
             spec.mkdir()
             # Real file on disk under uppercase suffix.
             (spec / "README.MD").write_text(
@@ -103,7 +103,7 @@ class DiffModeAuditTreatsCaseConsistently(unittest.TestCase):
             changed.write_text("spec/README.MD\n", encoding="utf-8")
 
             rc, out, err = _run(
-                "--root", "spec",
+                "--root", "02-spec",
                 "--repo-root", str(root),
                 "--changed-files", str(changed),
                 "--list-changed-files",
@@ -121,14 +121,14 @@ class DiffModeAuditTreatsCaseConsistently(unittest.TestCase):
     def test_uppercase_txt_still_ignored_extension(self) -> None:
         with tempfile.TemporaryDirectory() as td:
             root = Path(td)
-            (root / "spec").mkdir()
-            (root / "spec" / "NOTES.TXT").write_text("x",
+            (root / "02-spec").mkdir()
+            (root / "02-spec" / "NOTES.TXT").write_text("x",
                 encoding="utf-8")
             changed = root / "changed.txt"
             changed.write_text("spec/NOTES.TXT\n", encoding="utf-8")
 
             rc, _out, err = _run(
-                "--root", "spec",
+                "--root", "02-spec",
                 "--repo-root", str(root),
                 "--changed-files", str(changed),
                 "--list-changed-files",

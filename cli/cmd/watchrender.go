@@ -13,7 +13,7 @@ package cmd
 // This yields valid, stable JSON where key order is the headline
 // guarantee.
 //
-// Schema: spec/08-json-schemas/watch.schema.json.
+// Schema: 02-spec/08-json-schemas/watch.schema.json.
 
 import (
 	"bytes"

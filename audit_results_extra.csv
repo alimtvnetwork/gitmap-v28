@@ -1,38 +1,38 @@
-.\.lovable\scratch\audit_rules.go|27|return without blank line|return nil
-.\.lovable\scratch\audit_rules.go|32|return without blank line|return nil
-.\.lovable\scratch\audit_rules.go|36|return without blank line|return nil
-.\.lovable\scratch\audit_rules.go|41|return without blank line|return nil
-.\.lovable\scratch\audit_rules.go|11|monolithic function|length 96
-.\.lovable\scratch\find_ignored_errs.go|19|return without blank line|return err
-.\.lovable\scratch\find_ignored_errs.go|22|return without blank line|return nil
-.\.lovable\scratch\find_ignored_errs.go|27|return without blank line|return nil
-.\.lovable\scratch\find_ignored_errs.go|58|return without blank line|return true
-.\.lovable\scratch\find_ignored_errs.go|60|return without blank line|return nil
-.\.lovable\scratch\find_ignored_errs.go|13|monolithic function|length 53
-.\.lovable\scratch\find_monolithic.go|19|return without blank line|return err
-.\.lovable\scratch\find_monolithic.go|22|return without blank line|return nil
-.\.lovable\scratch\find_monolithic.go|27|return without blank line|return nil
-.\.lovable\scratch\find_monolithic.go|39|return without blank line|return true
-.\.lovable\scratch\find_monolithic.go|41|return without blank line|return nil
-.\.lovable\scratch\find_monolithic.go|13|monolithic function|length 34
-.\.lovable\scratch\find_nested_ifs.go|19|return without blank line|return err
-.\.lovable\scratch\find_nested_ifs.go|22|return without blank line|return nil
-.\.lovable\scratch\find_nested_ifs.go|27|return without blank line|return nil // ignore parse errors
-.\.lovable\scratch\find_nested_ifs.go|44|return without blank line|return true
-.\.lovable\scratch\find_nested_ifs.go|49|return without blank line|return false
-.\.lovable\scratch\find_nested_ifs.go|51|return without blank line|return true
-.\.lovable\scratch\find_nested_ifs.go|64|return without blank line|return false
-.\.lovable\scratch\find_nested_ifs.go|67|return without blank line|return true
-.\.lovable\scratch\find_nested_ifs.go|70|return without blank line|return false
-.\.lovable\scratch\find_nested_ifs.go|72|return without blank line|return true
-.\.lovable\scratch\find_nested_ifs.go|77|return without blank line|return true
-.\.lovable\scratch\find_nested_ifs.go|13|monolithic function|length 73
-.\.lovable\scratch\find_single_chars.go|19|return without blank line|return err
-.\.lovable\scratch\find_single_chars.go|22|return without blank line|return nil
-.\.lovable\scratch\find_single_chars.go|27|return without blank line|return nil
-.\.lovable\scratch\find_single_chars.go|73|return without blank line|return true
-.\.lovable\scratch\find_single_chars.go|75|return without blank line|return nil
-.\.lovable\scratch\find_single_chars.go|13|monolithic function|length 68
+.\.ai-memory\scratch\audit_rules.go|27|return without blank line|return nil
+.\.ai-memory\scratch\audit_rules.go|32|return without blank line|return nil
+.\.ai-memory\scratch\audit_rules.go|36|return without blank line|return nil
+.\.ai-memory\scratch\audit_rules.go|41|return without blank line|return nil
+.\.ai-memory\scratch\audit_rules.go|11|monolithic function|length 96
+.\.ai-memory\scratch\find_ignored_errs.go|19|return without blank line|return err
+.\.ai-memory\scratch\find_ignored_errs.go|22|return without blank line|return nil
+.\.ai-memory\scratch\find_ignored_errs.go|27|return without blank line|return nil
+.\.ai-memory\scratch\find_ignored_errs.go|58|return without blank line|return true
+.\.ai-memory\scratch\find_ignored_errs.go|60|return without blank line|return nil
+.\.ai-memory\scratch\find_ignored_errs.go|13|monolithic function|length 53
+.\.ai-memory\scratch\find_monolithic.go|19|return without blank line|return err
+.\.ai-memory\scratch\find_monolithic.go|22|return without blank line|return nil
+.\.ai-memory\scratch\find_monolithic.go|27|return without blank line|return nil
+.\.ai-memory\scratch\find_monolithic.go|39|return without blank line|return true
+.\.ai-memory\scratch\find_monolithic.go|41|return without blank line|return nil
+.\.ai-memory\scratch\find_monolithic.go|13|monolithic function|length 34
+.\.ai-memory\scratch\find_nested_ifs.go|19|return without blank line|return err
+.\.ai-memory\scratch\find_nested_ifs.go|22|return without blank line|return nil
+.\.ai-memory\scratch\find_nested_ifs.go|27|return without blank line|return nil // ignore parse errors
+.\.ai-memory\scratch\find_nested_ifs.go|44|return without blank line|return true
+.\.ai-memory\scratch\find_nested_ifs.go|49|return without blank line|return false
+.\.ai-memory\scratch\find_nested_ifs.go|51|return without blank line|return true
+.\.ai-memory\scratch\find_nested_ifs.go|64|return without blank line|return false
+.\.ai-memory\scratch\find_nested_ifs.go|67|return without blank line|return true
+.\.ai-memory\scratch\find_nested_ifs.go|70|return without blank line|return false
+.\.ai-memory\scratch\find_nested_ifs.go|72|return without blank line|return true
+.\.ai-memory\scratch\find_nested_ifs.go|77|return without blank line|return true
+.\.ai-memory\scratch\find_nested_ifs.go|13|monolithic function|length 73
+.\.ai-memory\scratch\find_single_chars.go|19|return without blank line|return err
+.\.ai-memory\scratch\find_single_chars.go|22|return without blank line|return nil
+.\.ai-memory\scratch\find_single_chars.go|27|return without blank line|return nil
+.\.ai-memory\scratch\find_single_chars.go|73|return without blank line|return true
+.\.ai-memory\scratch\find_single_chars.go|75|return without blank line|return nil
+.\.ai-memory\scratch\find_single_chars.go|13|monolithic function|length 68
 .\gitmap\apperror\apperror.go|19|return without blank line|return fmt.Sprintf("[%s] %s (ctx: %v): %v", e.Code, e.Op, e.Ctx, e.Cause)
 .\gitmap\apperror\apperror.go|21|return without blank line|return fmt.Sprintf("[%s] %s (ctx: %v)", e.Code, e.Op, e.Ctx)
 .\gitmap\apperror\apperror.go|26|return without blank line|return e.Cause

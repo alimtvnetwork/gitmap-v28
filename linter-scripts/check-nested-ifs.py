@@ -29,7 +29,7 @@ EXCLUDE_DIRS = {
     '.git', 'node_modules', 'dist', 'build', 'bin', '.next', '.gitmap',
     'vendor', 'coverage', '.gemini', '.system_generated', 'tests/fixtures',
     'scratch', 'temp-scripts', 'temp-agents', 'temp', 'linter-scripts',
-    '.lovable/scratch', '.lovable/temp-agents', '03-ai-scripts', 'scripts',
+    '.ai-memory/scratch', '.ai-memory/temp-agents', '03-ai-scripts', 'scripts',
     '04-code', '.tmp'
 }
 
@@ -249,7 +249,7 @@ def parse_cli_args() -> argparse.Namespace:
 
 def load_changed_targets(commits: int) -> list[Path]:
     """Loads target files from git-changed-files.json."""
-    manifest = ROOT_DIR / ".lovable/temp/git-changed-files.json"
+    manifest = ROOT_DIR / ".ai-memory/temp/git-changed-files.json"
     is_fresh = manifest.is_file() and (time.time() - manifest.stat().st_mtime < 120.0)
     if not is_fresh:
         extractor = ROOT_DIR / "03-ai-scripts/27-git-changed-files.py"

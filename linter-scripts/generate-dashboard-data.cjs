@@ -7,7 +7,7 @@
  *   1. Validate all markdown cross-references (broken link detection)
  *   2. Check for required files (00-overview.md, 99-consistency-report.md)
  *   3. Count files per subfolder
- *   4. Output a JSON report to spec/dashboard-data.json
+ *   4. Output a JSON report to 02-02-spec/dashboard-data.json
  *
  * Usage:  node linter-scripts/generate-dashboard-data.cjs [--json] [--quiet]
  */
@@ -20,7 +20,7 @@ const args = process.argv.slice(2);
 const jsonOnly = args.includes("--json");
 const quiet = args.includes("--quiet");
 
-const SPEC_ROOT = path.resolve(__dirname, "..", "spec");
+const SPEC_ROOT = path.resolve(__dirname, "..", "02-spec");
 const ARCHIVE_SEGMENTS = ["_archive", "archive"];
 
 // ── Helpers ─────────────────────────────────────────────────

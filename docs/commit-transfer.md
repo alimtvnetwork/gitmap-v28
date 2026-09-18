@@ -1,7 +1,7 @@
 # Commit Transfer Family — `commit-left` / `commit-right` / `commit-both`
 
 > Replay one repo's commit history onto another as a fresh, cleaned, idempotent
-> sequence. Spec: [`spec/01-app/106-commit-left-right-both.md`](../spec/01-app/106-commit-left-right-both.md).
+> sequence. Spec: [`02-spec/01-app/106-commit-left-right-both.md`](../02-spec/01-app/106-commit-left-right-both.md).
 
 ## TL;DR
 
@@ -152,4 +152,4 @@ detached HEAD pointing at some intermediate replay SHA. (See
 
 - `gitmap help commit-right` — full flag table + examples in the CLI
 - [`merge-both` / `merge-left` / `merge-right`](../helptext/merge-both.md) — file-state mirrors (no commit replay)
-- [`spec/01-app/106-commit-left-right-both.md`](../spec/01-app/106-commit-left-right-both.md) — full design doc, message pipeline (§6), and phasing plan (§18)
+- [`02-spec/01-app/106-commit-left-right-both.md`](../02-spec/01-app/106-commit-left-right-both.md) — full design doc, message pipeline (§6), and phasing plan (§18)

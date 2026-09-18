@@ -4,7 +4,7 @@ check-spec-folder-refs.py
 =========================
 
 Fail CI if any markdown file references a numbered spec folder
-(e.g., `spec/12-cicd-pipeline-workflows/`) that does not exist on
+(e.g., `02-spec/12-cicd-pipeline-workflows/`) that does not exist on
 disk and is not allowlisted.
 
 The allowlist (`spec-folder-refs.allowlist`) supports two categories,
@@ -29,8 +29,8 @@ categorized error message that includes:
 Reference shapes detected
 -------------------------
 
-1. Absolute repo-relative   : `spec/NN-name/...`
-2. Relative inside `spec/`  : `./NN-name/...`, `../NN-name/...`, etc.
+1. Absolute repo-relative   : `02-spec/NN-name/...`
+2. Relative inside `02-spec/`  : `./NN-name/...`, `../NN-name/...`, etc.
 
 A "numbered spec folder" matches `^\\d{2}-[a-z0-9-]+$`.
 
@@ -48,7 +48,7 @@ import sys
 from pathlib import Path
 
 REPO_ROOT = Path(__file__).resolve().parent.parent
-SPEC_ROOT = REPO_ROOT / "spec"
+SPEC_ROOT = REPO_ROOT / "02-spec"
 ALLOWLIST_PATH = Path(__file__).resolve().parent / "spec-folder-refs.allowlist"
 
 NUMBERED_FOLDER_RE = re.compile(r"^\d{2}-[a-z0-9-]+$")
@@ -152,7 +152,7 @@ def collect_relative_refs(file_path: Path, text: str) -> set[str]:
     Only references that resolve back into spec/ are returned.
     """
     rel_targets: set[str] = set()
-    if "spec" not in file_path.parts:
+    if "02-spec" not in file_path.parts:
         return rel_targets
     base = file_path.parent
     for dots, name in RELATIVE_REF_RE.findall(text):
@@ -183,7 +183,7 @@ def find_stale_refs(
         refs = collect_absolute_refs(text) | collect_relative_refs(md_file, text)
         for folder in sorted(refs):
             rel_parts = md_file.relative_to(REPO_ROOT).parts
-            is_archive_doc = rel_parts[:2] == ("spec", "26-spec-outsides")
+            is_archive_doc = rel_parts[:2] == ("02-spec", "26-spec-outsides")
             if is_archive_doc and folder in ARCHIVE_LEGACY_DOC_ONLY:
                 continue
             if folder in existing or folder in allowed:

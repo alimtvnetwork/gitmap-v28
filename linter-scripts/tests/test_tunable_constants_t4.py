@@ -1,6 +1,6 @@
 """Tests for ``check-tunable-constants.py`` Rule T4 — session-TTL invariant.
 
-Rule T4 (defined in ``spec/19-main-worker-service/15-tunable-constants.md`` §6,
+Rule T4 (defined in ``02-spec/19-main-worker-service/15-tunable-constants.md`` §6,
 authored under FU-16) requires::
 
     MainWorker.Auth.MainSessionAbsoluteMaxSeconds

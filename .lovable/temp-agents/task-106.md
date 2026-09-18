@@ -1,3 +1,0 @@
-Objective: Execute task 106
-STATUS: IN_PROGRESS
-STATUS: DONE

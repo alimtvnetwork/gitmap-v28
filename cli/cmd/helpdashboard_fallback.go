@@ -12,7 +12,7 @@ import (
 // openHostedDocsFallback opens the hosted docs URL when the local docs site
 // is unavailable (release didn't bundle docs-site.zip and download failed).
 // Best-effort: prints the URL even if launching the browser fails so the user
-// can copy it manually. See spec/02-app-issues/34-hd-hosted-docs-fallback.md.
+// can copy it manually. See 02-spec/02-app-issues/34-hd-hosted-docs-fallback.md.
 func openHostedDocsFallback() {
 	fmt.Fprintf(os.Stderr, constants.MsgHDHostedFallback, constants.DocsURL)
 	openURL(constants.DocsURL)

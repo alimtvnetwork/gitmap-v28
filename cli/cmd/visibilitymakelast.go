@@ -12,7 +12,7 @@
 //     and retry step 2.
 //
 // Honors -Y / --yes to skip confirmation. Spec follow-up to
-// spec/01-app/116-bulk-visibility-mapub-mapri.md.
+// 02-spec/01-app/116-bulk-visibility-mapub-mapri.md.
 package cmd
 
 import (

@@ -21,7 +21,7 @@ You MUST execute this task via a strict 3-Phase pipeline governed by the N-step 
 
 ```text
 N = 200  (Total self-loop steps budget, read-only after initialization)
-PHASE_1_STEPS = N / 2   (Steps 1 .. N/2: Scan Codebase, Business Logic Analysis, Map Violations in .lovable/plans/pending/)
+PHASE_1_STEPS = N / 2   (Steps 1 .. N/2: Scan Codebase, Business Logic Analysis, Map Violations in .ai-memory/plans/pending/)
 PHASE_2_STEPS = N / 2   (Steps N/2+1 .. N: Parallel Subtasks, Logic-Safe String Optimizations, Guard Short-Circuiting)
 ```
 
@@ -29,8 +29,8 @@ PHASE_2_STEPS = N / 2   (Steps N/2+1 .. N: Parallel Subtasks, Logic-Safe String 
 
 1. [ ] /goal Phase 1 (Step A - Discovery & Inventory): Deeply scan the target codebase using the fast Python discovery tools (`11-fast-file-scanner.py`, `12-fast-cached-grep.py`, `17-fast-file-reader.py` with `--limit`) to inventory all string comparison, case conversion, and allocation anti-patterns without truncation.
 2. [ ] /goal Phase 1 (Step B - Business Logic Intent Analysis): For every discovered violation, inspect the surrounding context to understand the exact business logic intent: Was exact case-insensitive equality intended? Was substring containment intended? Was prefix/suffix matching intended?
-3. [ ] /goal Phase 1 (Step C - Master Plan Generation): Write the master architectural specification into `.lovable/plans/pending/xx-string-efficiency.md` with an exhaustive Violation Ledger table (File, Line, Current Pattern, Logic Intent, Safe Optimized Pattern, Status).
-4. [ ] /goal Phase 1 (Step D - Subtask Decomposition): Decompose the master plan into lean, bounded subtask files in `.lovable/plans/subtasks/xx-string-efficiency/01-<subtask>.md`, `02-<subtask>.md`, etc.
+3. [ ] /goal Phase 1 (Step C - Master Plan Generation): Write the master architectural specification into `.ai-memory/plans/pending/xx-string-efficiency.md` with an exhaustive Violation Ledger table (File, Line, Current Pattern, Logic Intent, Safe Optimized Pattern, Status).
+4. [ ] /goal Phase 1 (Step D - Subtask Decomposition): Decompose the master plan into lean, bounded subtask files in `.ai-memory/plans/subtasks/xx-string-efficiency/01-<subtask>.md`, `02-<subtask>.md`, etc.
 5. [ ] /goal Phase 1 (Step E - Mandatory Auto-Loop): As soon as Phase 1 planning completes, the master orchestrator **MUST NOT STOP or ask the user for permission**. It MUST immediately self-loop and transition directly into Phase 2 execution mode.
 6. [ ] /goal Phase 2 (Step A - Logic-Safe Refactoring): Execute each subtask, applying the safe optimized string pattern. Under NO circumstances change substring matching to equality checking or alter filtering behavior.
 7. [ ] /goal Phase 2 (Step B - Lazy Evaluation & Short-Circuiting): Replace eager boolean assignments with early-returning guard clauses to avoid unnecessary secondary case conversions and string evaluations.
@@ -39,13 +39,13 @@ PHASE_2_STEPS = N / 2   (Steps N/2+1 .. N: Parallel Subtasks, Logic-Safe String 
 10. [ ] /goal Phase 2 (Step E - Boolean & Style Conventions): Enforce affirmative boolean naming (`is*`, `has*`), zero explicit `== true`, zero negative polarity in conditionals, and flatten nested `if` statements to depth <= 1 using guard clauses.
 11. [ ] /goal Phase 2 (Step F - Banned Intermediate Verification): DO NOT run unit tests (`go test`, `pytest`, `npm test`) and DO NOT verify builds during intermediate micro-refactoring steps.
 12. [ ] /goal Phase 2 (Step G - Final Step Build Verification): At the conclusion of all refactoring subtasks, run targeted syntax/build checks to resolve any compilation errors or import issues across all modified files.
-13. [ ] /goal Phase 3 (Step A - Task Consolidation): Consolidate all completed subtasks into `.lovable/plans/completed/xx-string-efficiency.md`, delete granular subtask files, and update `.lovable/plans/01-index.md`.
+13. [ ] /goal Phase 3 (Step A - Task Consolidation): Consolidate all completed subtasks into `.ai-memory/plans/completed/xx-string-efficiency.md`, delete granular subtask files, and update `.ai-memory/plans/01-index.md`.
 14. [ ] /goal Phase 3 (Step B - Final Step Git Commit & Push): Stage all modified files, consolidated plans, and memory records (`git add -A`), commit them in a single clean grouped atomic commit, and push to git. Never commit per-file.
-15. [ ] /learn Ingest `.lovable/memory/01-index.md` for project memory index and past learnings.
-16. [ ] /learn Ingest `.lovable/strictly-avoid.md` for banned anti-patterns and strict constraints.
-17. [ ] /learn Ingest `spec/02-coding-guidelines/02-canonical-size-tier.md` for canonical size tiers.
-18. [ ] /learn Ingest `spec/02-coding-guidelines/03-golang/06-string-slice-internals.md` for string allocation internals.
-19. [ ] /learn Ingest `.lovable/coding-guidelines.md` for master consolidated coding guidelines.
+15. [ ] /learn Ingest `.ai-memory/memory/01-index.md` for project memory index and past learnings.
+16. [ ] /learn Ingest `.ai-memory/strictly-avoid.md` for banned anti-patterns and strict constraints.
+17. [ ] /learn Ingest `02-spec/02-coding-guidelines/02-canonical-size-tier.md` for canonical size tiers.
+18. [ ] /learn Ingest `02-spec/02-coding-guidelines/03-golang/06-string-slice-internals.md` for string allocation internals.
+19. [ ] /learn Ingest `.ai-memory/coding-guidelines.md` for master consolidated coding guidelines.
 
 ---
 
@@ -311,12 +311,12 @@ To maintain high throughput and avoid distracting CI noise during micro-refactor
 ## 7. Task Consolidation & Final Step Git Commit & Push Mandate
 
 ### Task Consolidation & File Reduction (End of Loop)
-When all subtasks for the parent task (`.lovable/plans/pending/xx-string-efficiency.md`) are finished:
-1. Combine all completed granular subtasks from `.lovable/plans/subtasks/xx-string-efficiency/*.md` into `.lovable/plans/completed/xx-string-efficiency.md`.
+When all subtasks for the parent task (`.ai-memory/plans/pending/xx-string-efficiency.md`) are finished:
+1. Combine all completed granular subtasks from `.ai-memory/plans/subtasks/xx-string-efficiency/*.md` into `.ai-memory/plans/completed/xx-string-efficiency.md`.
 2. Include a header explicitly documenting initial and optimized patterns, allocation reductions, and loop step metrics.
-3. Delete the original granular `.md` files in `.lovable/plans/subtasks/xx-string-efficiency/`.
-4. Delete the original parent plan `.lovable/plans/pending/xx-string-efficiency.md`.
-5. Update `.lovable/plans/01-index.md` to point to the newly consolidated completed file.
+3. Delete the original granular `.md` files in `.ai-memory/plans/subtasks/xx-string-efficiency/`.
+4. Delete the original parent plan `.ai-memory/plans/pending/xx-string-efficiency.md`.
+5. Update `.ai-memory/plans/01-index.md` to point to the newly consolidated completed file.
 
 ### Final Step Git Commit & Push Mandate (Strict Checklist)
 - [ ] **MANDATORY FINAL COMMIT & PUSH TO GIT (ANYHOW):** At the FINAL step of the turn, after all targeted files have been refactored, verified with targeted linters, and plans/subtasks consolidated, you MUST stage everything (`git add -A`), create a clean, descriptive conventional commit (`git commit -m "<type>(<scope>): <summary>"`), and push directly to the remote repository (`git push origin <branch>`). Leaving uncommitted changes or unpushed commits on the active branch at the end of a turn is an immediate failure.

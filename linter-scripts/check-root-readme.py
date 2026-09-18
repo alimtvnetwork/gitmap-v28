@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 """
-check-root-readme.py — Enforce §9 of spec/01-spec-authoring-guide/11-root-readme-conventions.md
+check-root-readme.py — Enforce §9 of 02-spec/01-spec-authoring-guide/11-root-readme-conventions.md
 against the root readme.md.
 
 Exit codes (stable contract):
@@ -149,7 +149,7 @@ def main() -> int:
         for v in violations:
             sys.stderr.write(f"  - {v}\n")
         sys.stderr.write(
-            "\nSee spec/01-spec-authoring-guide/11-root-readme-conventions.md §9 for the full checklist.\n"
+            "\nSee 02-spec/01-spec-authoring-guide/11-root-readme-conventions.md §9 for the full checklist.\n"
         )
         return EXIT_FAIL
 

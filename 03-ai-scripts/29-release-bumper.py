@@ -6,8 +6,8 @@ Autonomously bumps version across all SSoT manifests:
 - package.json
 - cli/constants/constants.go
 - changelog.md
-- .lovable/user-preferences
-- .lovable/release/release-notes-v<version>.md
+- .ai-memory/user-preferences
+- .ai-memory/release/release-notes-v<version>.md
 
 Usage:
   python 03-ai-scripts/29-release-bumper.py --bump minor
@@ -166,8 +166,8 @@ def update_changelog_and_release_notes(
 ### Install GitMap v{new_version}
 
 To pin your repository to this exact version, run the following one-liner:
-Unix/Bash: `curl -sL https://raw.githubusercontent.com/alimtvnetwork/gitmap-v28/v{new_version}/install.sh | bash -s -- ".lovable/prompts" "v{new_version}"`
-PowerShell: `Invoke-WebRequest -Uri https://raw.githubusercontent.com/alimtvnetwork/gitmap-v28/v{new_version}/install.ps1 -OutFile install.ps1; .\\install.ps1 -TargetDir ".lovable/prompts" -Version "v{new_version}"`
+Unix/Bash: `curl -sL https://raw.githubusercontent.com/alimtvnetwork/gitmap-v28/v{new_version}/install.sh | bash -s -- ".ai-memory/prompts" "v{new_version}"`
+PowerShell: `Invoke-WebRequest -Uri https://raw.githubusercontent.com/alimtvnetwork/gitmap-v28/v{new_version}/install.ps1 -OutFile install.ps1; .\\install.ps1 -TargetDir ".ai-memory/prompts" -Version "v{new_version}"`
 
 ### Added / Changed / Fixed / Removed
 
@@ -180,8 +180,8 @@ PowerShell: `Invoke-WebRequest -Uri https://raw.githubusercontent.com/alimtvnetw
     with open(changelog_path, "w", encoding=DEFAULT_ENCODING) as f:
         f.write(new_entry + existing_cl)
 
-    # Write .lovable/release/release-notes-v<version>.md
-    release_dir = repo_root / ".lovable" / "release"
+    # Write .ai-memory/release/release-notes-v<version>.md
+    release_dir = repo_root / ".ai-memory" / "release"
     release_dir.mkdir(parents=True, exist_ok=True)
     rn_path = release_dir / f"release-notes-v{new_version}.md"
 
@@ -212,7 +212,7 @@ def main():
     version_json_p = repo_root / "version.json"
     package_json_p = repo_root / "package.json"
     constants_go_p = repo_root / "cli" / "constants" / "constants.go"
-    user_prefs_p = repo_root / ".lovable" / "user-preferences"
+    user_prefs_p = repo_root / ".ai-memory" / "user-preferences"
 
     with open(version_json_p, "r", encoding=DEFAULT_ENCODING) as f:
         v_data = json.load(f)

@@ -2,8 +2,8 @@
 """
 Script 23: Coding Guideline Path Consolidator
 Autonomously consolidates all references from the old nested path
-(.lovable/coding-guidelines/coding-guidelines.md) to the single canonical path
-(.lovable/coding-guidelines.md) across all documentation, code, specs, and linters.
+(.ai-memory/coding-guidelines.md) to the single canonical path
+(.ai-memory/coding-guidelines.md) across all documentation, code, specs, and linters.
 """
 
 import sys
@@ -22,10 +22,10 @@ TARGET_EXTENSIONS = (
 )
 
 REPLACEMENTS = [
-    ('.lovable/coding-guidelines/coding-guidelines.md', '.lovable/coding-guidelines.md'),
-    ('.lovable\\coding-guidelines\\coding-guidelines.md', '.lovable\\coding-guidelines.md'),
-    ('.lovable/coding-guidelines/', '.lovable/coding-guidelines.md'),
-    ('lovable/coding-guidelines/coding-guidelines.md', '.lovable/coding-guidelines.md'),
+    ('.ai-memory/coding-guidelines.md', '.ai-memory/coding-guidelines.md'),
+    ('.ai-memory\\coding-guidelines\\coding-guidelines.md', '.ai-memory\\coding-guidelines.md'),
+    ('.ai-memory/coding-guidelines.md', '.ai-memory/coding-guidelines.md'),
+    ('lovable/coding-guidelines/coding-guidelines.md', '.ai-memory/coding-guidelines.md'),
 ]
 
 
@@ -51,7 +51,7 @@ def consolidate_paths() -> int:
             p.write_text(mod, encoding='utf-8')
             modified_files.append(p.relative_to(REPO_ROOT).as_posix())
 
-    print(f'Consolidated {len(modified_files)} file(s) to .lovable/coding-guidelines.md')
+    print(f'Consolidated {len(modified_files)} file(s) to .ai-memory/coding-guidelines.md')
     for f in modified_files:
         print(f'  - {f}')
     return 0

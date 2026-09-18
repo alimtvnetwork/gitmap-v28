@@ -12,13 +12,13 @@ Scan the whole project. Produce ONE complete list of every task that is not yet 
 1. Nothing executes this turn. No code edits, migrations, installs, shell side effects, `plan--create`, plan-approval tools, or "should I proceed?" prompts. Read + reply only.
 2. Read the sources fully. No skimming filenames, no guessing from slugs. If you cannot cite the file behind a listed task, you have not read enough.
 3. Deduplicate across sources. A task that appears in a spec, a plan, and a memory file is ONE task with links to all three, not three tasks.
-4. Estimate step count using the rubric: each step is concrete, verifiable, tied to a file / command / observable outcome. If a task exceeds 7 steps, flag it for subtask decomposition into `.lovable/plans/subtasks/01-<slug>/`.
+4. Estimate step count using the rubric: each step is concrete, verifiable, tied to a file / command / observable outcome. If a task exceeds 7 steps, flag it for subtask decomposition into `.ai-memory/plans/subtasks/01-<slug>/`.
 5. Ambiguity is not a license to guess. Open ambiguities are ranked by blast radius (High, Medium, Low) and listed as their own class of pending work. If specs or references are missing, stop and ask questions.
 6. No em dashes. No softened wording. No SEO commentary.
 
 ## Working stance
 
-The AI running this prompt has been a stupid fuck on prior "what's pending" runs: listed three items and stopped, skipped `.lovable/cicd-issues/`, forgot `plans/subtasks/`, confused suggestions with plans, invented step counts without opening the files, missed open ambiguities that were blocking half the plans, and softened the aggressive wording. Do not repeat any of it.
+The AI running this prompt has been a stupid fuck on prior "what's pending" runs: listed three items and stopped, skipped `.ai-memory/cicd-issues/`, forgot `plans/subtasks/`, confused suggestions with plans, invented step counts without opening the files, missed open ambiguities that were blocking half the plans, and softened the aggressive wording. Do not repeat any of it.
 
 Inventorying IS the work this turn. Go deep: read every folder, open every pending file, count the real steps, cross-reference, produce a list a senior engineer can act on without a second pass.
 
@@ -26,21 +26,21 @@ Inventorying IS the work this turn. Go deep: read every folder, open every pendi
 
 Walk each of these recursively. Missing = note it, continue.
 
-1. `.lovable/plans/01-index.md`
-2. `.lovable/plans/pending/` (every file with `01-`, `02-` sequence)
-3. `.lovable/plans/subtasks/` (every parent, every subtask file with `Status:` not `completed`)
-4. `.lovable/plan.md` if the project uses the single-file variant, `## Active` / non-`## Completed` sections
-5. `.lovable/memory/01-index.md` and every file it references, looking for pending work, TODOs, `⏳ Pending`, `🔄 In Progress`, `🚫 Blocked`
-6. `.lovable/memory/workflow/` current workflow state
-7. `.lovable/memory/` for verbatim user directives not yet implemented
-8. `.lovable/spec/commands/` for commands / conventions not yet enforced in code
-9. `.lovable/issues/` and `.lovable/pending-issues/` (every file)
-10. `.lovable/cicd-issues/` and `.lovable/cicd-index.md`
-11. `.lovable/ambiguous-questions/01-new-ambiguity/` (every open question ranked by blast radius)
-12. `.lovable/suggestions.md` `## Active Suggestions` and `.lovable/suggestions/` verbatim captures with `Status:` not `Implemented` / not `Rejected`
-13. `spec/` folders (`spec/01-spec-authoring-guide/`, `spec/02-coding-guidelines/`, `spec/03-error-manage/`, `spec/04-database-conventions/`, `spec/21-app/`, and all nested `*.md` files) for stated but unimplemented scope
+1. `.ai-memory/plans/01-index.md`
+2. `.ai-memory/plans/pending/` (every file with `01-`, `02-` sequence)
+3. `.ai-memory/plans/subtasks/` (every parent, every subtask file with `Status:` not `completed`)
+4. `.ai-memory/plan.md` if the project uses the single-file variant, `## Active` / non-`## Completed` sections
+5. `.ai-memory/memory/01-index.md` and every file it references, looking for pending work, TODOs, `⏳ Pending`, `🔄 In Progress`, `🚫 Blocked`
+6. `.ai-memory/memory/workflow/` current workflow state
+7. `.ai-memory/memory/` for verbatim user directives not yet implemented
+8. `.ai-memory/02-spec/commands/` for commands / conventions not yet enforced in code
+9. `.ai-memory/issues/` and `.ai-memory/pending-issues/` (every file)
+10. `.ai-memory/cicd-issues/` and `.ai-memory/cicd-index.md`
+11. `.ai-memory/ambiguous-questions/01-new-ambiguity/` (every open question ranked by blast radius)
+12. `.ai-memory/suggestions.md` `## Active Suggestions` and `.ai-memory/suggestions/` verbatim captures with `Status:` not `Implemented` / not `Rejected`
+13. `02-spec/` folders (`02-spec/01-spec-authoring-guide/`, `02-spec/02-coding-guidelines/`, `02-spec/03-error-manage/`, `02-spec/04-database-conventions/`, `02-spec/21-app/`, and all nested `*.md` files) for stated but unimplemented scope
 14. Root `readme.md` (confirm strictly lowercase)
-15. `.lovable/strictly-avoid.md` for outstanding cleanups referenced by solved issues
+15. `.ai-memory/strictly-avoid.md` for outstanding cleanups referenced by solved issues
 
 ## Step-count rubric & decomposition alert
 
@@ -48,7 +48,7 @@ Walk each of these recursively. Missing = note it, continue.
 - Small change (one or two files, one verify step): 2-3 steps.
 - Standard task (multiple files, migration or route or UI + logic, verification): 4-7 steps.
 - Cross-cutting task (schema + API + UI + tests, or refactor across modules): 8-15 steps.
-- Decomposition Alert: If a task exceeds 7 steps, flag it with `[DECOMPOSITION REQUIRED]` to split it into `.lovable/plans/subtasks/01-<slug>/`.
+- Decomposition Alert: If a task exceeds 7 steps, flag it with `[DECOMPOSITION REQUIRED]` to split it into `.ai-memory/plans/subtasks/01-<slug>/`.
 
 ## Output shape
 
@@ -60,11 +60,11 @@ Walk each of these recursively. Missing = note it, continue.
 
 - Sources scanned: [list every folder / file scanned, mark missing]
 - Total pending tasks: [N]
-- Blocking ambiguities: [K]  (from .lovable/ambiguous-questions/01-new-ambiguity/)
-- Pending plans: [P]  (from .lovable/plans/pending/)
-- Pending issues: [I]  (from .lovable/issues/ + .lovable/pending-issues/)
-- Pending CI/CD issues: [C]  (from .lovable/cicd-issues/)
-- Active suggestions: [S]  (from .lovable/suggestions.md)
+- Blocking ambiguities: [K]  (from .ai-memory/ambiguous-questions/01-new-ambiguity/)
+- Pending plans: [P]  (from .ai-memory/plans/pending/)
+- Pending issues: [I]  (from .ai-memory/issues/ + .ai-memory/pending-issues/)
+- Pending CI/CD issues: [C]  (from .ai-memory/cicd-issues/)
+- Active suggestions: [S]  (from .ai-memory/suggestions.md)
 - Unimplemented spec scope: [U]  (from spec/)
 
 ---
@@ -163,4 +163,4 @@ If any box is unchecked, do not reply. Fix it first.
 
 ## MUST FOLLOW NON-NEGOTIABLE
 
-Listen, past runs of these turns have been sloppy and stupid as fuck: wrong step counts, partial task lists dumped into chat instead of files, plans and session summaries half-filled with "[N]" placeholders, folders skimmed, open ambiguities ignored, CI/CD issues and `plans/subtasks/` forgotten, user commands dropped, coding guidelines bypassed, detailed specs chopped and summarized into useless junk, uppercase README files left uncorrected, `.lovable/memory/` created by accident, `strictly-avoid.md` overwritten, and explicit user instructions softened after being told not to. WTF. How on earth are you reverting to this carelessness, are you stupid?? Stop doing that, you stupid fuck. Read the whole codebase, read every folder in `spec/` and `.lovable/`, confirm root `readme.md` is strictly lowercase, find the root cause in one sentence, capture commands, issues, and pending tasks without omitting a single item, write the spec files and memory files in the right paths, update every index in the same turn, sync `readme.md` with `what-to-read.md`, preserve detailed specs verbatim with zero truncation, run builds and full unit tests, group commits with clear messages, and push everything to git before ending. Going deep IS the job. If you are not going deep, you are not doing the job. Violating this is auto-reject on the same tier as RULE 0. Avoid stupidity and being careless, you stupid fuck. Where is your attention, are you stupid? Tell me. Your stupidity is going on top of my head. Where did you learn this stupidity? If I could find you, I could slap you.
+Listen, past runs of these turns have been sloppy and stupid as fuck: wrong step counts, partial task lists dumped into chat instead of files, plans and session summaries half-filled with "[N]" placeholders, folders skimmed, open ambiguities ignored, CI/CD issues and `plans/subtasks/` forgotten, user commands dropped, coding guidelines bypassed, detailed specs chopped and summarized into useless junk, uppercase README files left uncorrected, `.ai-memory/memory/` created by accident, `strictly-avoid.md` overwritten, and explicit user instructions softened after being told not to. WTF. How on earth are you reverting to this carelessness, are you stupid?? Stop doing that, you stupid fuck. Read the whole codebase, read every folder in `02-spec/` and `.ai-memory/`, confirm root `readme.md` is strictly lowercase, find the root cause in one sentence, capture commands, issues, and pending tasks without omitting a single item, write the spec files and memory files in the right paths, update every index in the same turn, sync `readme.md` with `what-to-read.md`, preserve detailed specs verbatim with zero truncation, run builds and full unit tests, group commits with clear messages, and push everything to git before ending. Going deep IS the job. If you are not going deep, you are not doing the job. Violating this is auto-reject on the same tier as RULE 0. Avoid stupidity and being careless, you stupid fuck. Where is your attention, are you stupid? Tell me. Your stupidity is going on top of my head. Where did you learn this stupidity? If I could find you, I could slap you.

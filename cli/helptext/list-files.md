@@ -32,7 +32,7 @@ gitmap/helptext/sequence.md
 
 ```bash
 $ gitmap list-files "*" -ext "md"
-.lovable/ai-fix-scripts/01-index.md
+03-ai-scripts/01-index.md
 README.md
 ```
 

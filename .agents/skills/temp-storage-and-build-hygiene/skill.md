@@ -24,7 +24,7 @@ description: Enforce repository-scoped temporary directory isolation and mandato
    - Re-use storage paths cleanly with explicit wipe-before-write semantics.
 
 3. **In-Repository Temp Bounding**:
-   - For repository-internal temporary files, isolate strictly inside `.lovable/temp/` (e.g. `.lovable/temp/failures/`, `.lovable/temp/runner-eta.json`).
+   - For repository-internal temporary files, isolate strictly inside `.ai-memory/temp/` (e.g. `.ai-memory/temp/failures/`, `.ai-memory/temp/runner-eta.json`).
    - Root `.tmp/` creation is strictly banned.
 
 4. **GitHub Actions Zero Storage (Total Ban on `actions/upload-artifact` in CI)**:

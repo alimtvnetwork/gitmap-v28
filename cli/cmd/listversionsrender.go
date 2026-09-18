@@ -8,7 +8,7 @@ package cmd
 // changelog) are conditionally appended so they remain effectively
 // omitempty — absent rather than null/empty in the wire output.
 //
-// Schema: spec/08-json-schemas/list-versions.schema.json.
+// Schema: 02-spec/08-json-schemas/list-versions.schema.json.
 
 import (
 	"io"

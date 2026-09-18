@@ -6,7 +6,7 @@
 // Audit writes (a.updateResult) are serialized through the same
 // mutex because SQLite connections aren't safe for concurrent writers.
 //
-// Spec: spec/01-app/116-bulk-visibility-mapub-mapri.md §parallel.
+// Spec: 02-spec/01-app/116-bulk-visibility-mapub-mapri.md §parallel.
 package cmd
 
 import (

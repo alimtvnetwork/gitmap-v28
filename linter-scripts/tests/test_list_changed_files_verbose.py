@@ -213,7 +213,7 @@ def _run_changed_files(root: Path, manifest_text: str,
     cp = subprocess.run(
         [
             sys.executable, str(_LINTER),
-            "--root", "spec",
+            "--root", "02-spec",
             "--repo-root", str(root),
             "--changed-files", str(manifest),
             "--list-changed-files",
@@ -231,7 +231,7 @@ class TestEndToEndChangedFiles(unittest.TestCase):
     def test_changed_files_payload_d_row_surfaces_changed_files_d(self) -> None:
         with tempfile.TemporaryDirectory() as td:
             root = Path(td)
-            _write_clean_md(root / "spec" / "ok.md")
+            _write_clean_md(root / "02-spec" / "ok.md")
             rc, _out, err = _run_changed_files(
                 root,
                 "spec/ok.md\n"
@@ -257,7 +257,7 @@ class TestEndToEndChangedFiles(unittest.TestCase):
         # leaking out as ``null``) when the verbose flag is absent.
         with tempfile.TemporaryDirectory() as td:
             root = Path(td)
-            _write_clean_md(root / "spec" / "ok.md")
+            _write_clean_md(root / "02-spec" / "ok.md")
             rc, _out, err = _run_changed_files(
                 root,
                 "spec/ok.md\n"
@@ -278,7 +278,7 @@ class TestEndToEndChangedFiles(unittest.TestCase):
         # sub-object + top-level source key on every row.
         with tempfile.TemporaryDirectory() as td:
             root = Path(td)
-            _write_clean_md(root / "spec" / "new.md")
+            _write_clean_md(root / "02-spec" / "new.md")
             rc, _out, err = _run_changed_files(
                 root,
                 "R092\tspec/old.md\tspec/new.md\n"
@@ -306,7 +306,7 @@ class TestEndToEndChangedFiles(unittest.TestCase):
         # row still carries the tag.
         with tempfile.TemporaryDirectory() as td:
             root = Path(td)
-            _write_clean_md(root / "spec" / "ok.md")
+            _write_clean_md(root / "02-spec" / "ok.md")
             rc, _out, err = _run_changed_files(
                 root,
                 "spec/ok.md\n"
@@ -326,11 +326,11 @@ class TestEndToEndChangedFiles(unittest.TestCase):
         # must not produce a stray audit table.
         with tempfile.TemporaryDirectory() as td:
             root = Path(td)
-            (root / "spec").mkdir()
+            (root / "02-spec").mkdir()
             cp = subprocess.run(
                 [
                     sys.executable, str(_LINTER),
-                    "--root", "spec", "--repo-root", str(root),
+                    "--root", "02-spec", "--repo-root", str(root),
                     "--list-changed-files-verbose",
                 ],
                 cwd=root, capture_output=True, text=True,

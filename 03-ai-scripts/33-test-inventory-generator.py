@@ -2,8 +2,8 @@
 """
 33-test-inventory-generator.py
 ==============================
-Generates and maintains the centralized test inventory manifest at `.lovable/test-inventory.json`
-and provides safe, atomic file change recording into `.lovable/temp/recent-file-changes.json`
+Generates and maintains the centralized test inventory manifest at `.ai-memory/test-inventory.json`
+and provides safe, atomic file change recording into `.ai-memory/temp/recent-file-changes.json`
 with file locking to ensure concurrency safety across multi-agent turns.
 
 Usage:
@@ -38,7 +38,7 @@ if hasattr(sys.stderr, "reconfigure"):
     sys.stderr.reconfigure(encoding="utf-8")
 
 REPO_ROOT = Path(__file__).resolve().parent.parent
-LOVABLE_DIR = REPO_ROOT / ".lovable"
+LOVABLE_DIR = REPO_ROOT / ".ai-memory"
 TEMP_DIR = LOVABLE_DIR / "temp"
 TEST_INVENTORY_PATH = LOVABLE_DIR / "test-inventory.json"
 RECENT_CHANGES_PATH = TEMP_DIR / "recent-file-changes.json"
@@ -317,7 +317,7 @@ def scan_go_tests(
 
     for tf in go_test_files:
         rel_test_file = normalize_repo_rel(tf)
-        if ".git" in rel_test_file or "node_modules" in rel_test_file or ".lovable" in rel_test_file:
+        if ".git" in rel_test_file or "node_modules" in rel_test_file or ".ai-memory" in rel_test_file:
             continue
 
         pkg_dir = tf.parent
@@ -368,7 +368,7 @@ def scan_python_and_ts_tests(repo_root: Path, slow_threshold: float = 4.0) -> di
     tests_dict: dict[str, Any] = {}
     for root, _, files in os.walk(repo_root):
         rel_dir = normalize_repo_rel(root)
-        if any(ign in rel_dir for ign in (".git", "node_modules", ".lovable", "dist", "linter-scripts_old", ".tmp", "vendor", "temp")):
+        if any(ign in rel_dir for ign in (".git", "node_modules", ".ai-memory", "dist", "linter-scripts_old", ".tmp", "vendor", "temp")):
             continue
         for f in files:
             p = Path(root) / f

@@ -50,7 +50,7 @@ Follow the project coding standards:
 - **Positive conditionals** — `if ready` not `if !notReady`.
 - **Blank line before `return`** (except single-line bodies).
 - **Boolean names** start with `is` or `has`.
-- See [`spec/05-coding-guidelines/`](spec/05-coding-guidelines/) for the full ruleset.
+- See [`02-spec/05-coding-guidelines/`](02-spec/05-coding-guidelines/) for the full ruleset.
 
 ### 3. Make Targets
 
@@ -231,23 +231,23 @@ make release BUMP=major
 make release-dry          # preview without executing
 ```
 
-See the [release spec](spec/01-app/12-release-command.md) for details.
+See the [release spec](02-spec/01-app/12-release-command.md) for details.
 
 ---
 
 ## Specs and Architecture
 
 For significant features or architectural changes, create or update a
-specification in [`spec/`](spec/) for review **before** implementation. See
+specification in [`02-spec/`](spec/) for review **before** implementation. See
 the [spec README](spec/README.md) for structure and naming conventions.
 
 ---
 
 ## References
 
-- [Code Quality Guidelines](spec/05-coding-guidelines/01-code-quality-improvement.md)
-- [Go Code Style](spec/05-coding-guidelines/02-go-code-style.md)
-- [Naming Conventions](spec/05-coding-guidelines/03-naming-conventions.md)
-- [Git Workflow](spec/05-coding-guidelines/28-git-workflow.md)
-- [Code Review Standards](spec/05-coding-guidelines/25-code-review.md)
-- [CI/CD Patterns](spec/05-coding-guidelines/17-cicd-patterns.md)
+- [Code Quality Guidelines](02-spec/05-coding-guidelines/01-code-quality-improvement.md)
+- [Go Code Style](02-spec/05-coding-guidelines/02-go-code-style.md)
+- [Naming Conventions](02-spec/05-coding-guidelines/03-naming-conventions.md)
+- [Git Workflow](02-spec/05-coding-guidelines/28-git-workflow.md)
+- [Code Review Standards](02-spec/05-coding-guidelines/25-code-review.md)
+- [CI/CD Patterns](02-spec/05-coding-guidelines/17-cicd-patterns.md)

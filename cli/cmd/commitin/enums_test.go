@@ -101,7 +101,7 @@ func TestCommitInEnumsMatchSpec(t *testing.T) {
 
 	for _, tc := range cases {
 		if !equalSlices(tc.got, tc.want) {
-			t.Errorf("enum %s mismatch:\n  got : %v\n  want: %v\n  fix : update spec/03-commit-in/04-database-schema.md, constants_commitin.go, and enums.go together",
+			t.Errorf("enum %s mismatch:\n  got : %v\n  want: %v\n  fix : update 02-spec/03-commit-in/04-database-schema.md, constants_commitin.go, and enums.go together",
 				tc.name, tc.got, tc.want)
 		}
 

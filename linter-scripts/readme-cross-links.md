@@ -1,6 +1,6 @@
 # Spec Cross-Link Checker
 
-`check-spec-cross-links.py` walks `spec/`, parses every markdown link, and
+`check-spec-cross-links.py` walks `02-spec/`, parses every markdown link, and
 fails CI if any internal link points to a missing file or a non-existent
 heading anchor.
 
@@ -72,7 +72,7 @@ one waiver per line:
 
 # Comments start with `#` (only at line start; anchor `#` inside entries is preserved)
 
-spec/path/to/file.md:42:./missing-target.md
+02-spec/path/to/file.md:42:./missing-target.md
 spec/other.md:99:./file.md#missing-section
 ```
 
@@ -92,7 +92,7 @@ and pull request to `main`.
 same broken-link set as the checker, then proposes the closest match for
 each failure using `difflib.SequenceMatcher`:
 
-- `missing-file` → fuzzy-match against every `*.md` under `spec/` (basename
+- `missing-file` → fuzzy-match against every `*.md` under `02-spec/` (basename
   match wins ties).
 - `missing-section` → fuzzy-match the requested anchor against the slug of
   every heading in the resolved target file.

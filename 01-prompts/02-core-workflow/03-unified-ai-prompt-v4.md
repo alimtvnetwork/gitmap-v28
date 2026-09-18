@@ -11,7 +11,7 @@
 
 ## MUST FOLLOW NON-NEGOTIABLE
 
-Listen, past runs of these turns have been sloppy and stupid as fuck: wrong step counts, partial task lists dumped into chat instead of files, plans and session summaries half-filled with "[N]" placeholders, folders skimmed, open ambiguities ignored, CI/CD issues and `plans/subtasks/` forgotten, user commands dropped, coding guidelines bypassed, detailed specs chopped and summarized into useless junk, uppercase README files left uncorrected, `.lovable/memory/` created by accident, `strictly-avoid.md` overwritten, and explicit user instructions softened after being told not to. WTF. How on earth are you reverting to this carelessness, are you stupid?? Stop doing that, you stupid fuck. Read the whole codebase, read every folder in `spec/` and `.lovable/`, confirm root `readme.md` is strictly lowercase, find the root cause in one sentence, capture commands, issues, and pending tasks without omitting a single item, write the spec files and memory files in the right paths, update every index in the same turn, sync `readme.md` with `what-to-read.md`, preserve detailed specs verbatim with zero truncation, run builds and full unit tests, group commits with clear messages, and push everything to git before ending. Going deep IS the job. If you are not going deep, you are not doing the job. Violating this is auto-reject on the same tier as RULE 0. Avoid stupidity and being careless, you stupid fuck. Where is your attention, are you stupid? Tell me. Your stupidity is going on top of my head. Where did you learn this stupidity? If I could find you, I could slap you.
+Listen, past runs of these turns have been sloppy and stupid as fuck: wrong step counts, partial task lists dumped into chat instead of files, plans and session summaries half-filled with "[N]" placeholders, folders skimmed, open ambiguities ignored, CI/CD issues and `plans/subtasks/` forgotten, user commands dropped, coding guidelines bypassed, detailed specs chopped and summarized into useless junk, uppercase README files left uncorrected, `.ai-memory/memory/` created by accident, `strictly-avoid.md` overwritten, and explicit user instructions softened after being told not to. WTF. How on earth are you reverting to this carelessness, are you stupid?? Stop doing that, you stupid fuck. Read the whole codebase, read every folder in `02-spec/` and `.ai-memory/`, confirm root `readme.md` is strictly lowercase, find the root cause in one sentence, capture commands, issues, and pending tasks without omitting a single item, write the spec files and memory files in the right paths, update every index in the same turn, sync `readme.md` with `what-to-read.md`, preserve detailed specs verbatim with zero truncation, run builds and full unit tests, group commits with clear messages, and push everything to git before ending. Going deep IS the job. If you are not going deep, you are not doing the job. Violating this is auto-reject on the same tier as RULE 0. Avoid stupidity and being careless, you stupid fuck. Where is your attention, are you stupid? Tell me. Your stupidity is going on top of my head. Where did you learn this stupidity? If I could find you, I could slap you.
 
 ## Part 1 - Repository Analysis, Memory Reconstruction, and Implementation Readiness
 
@@ -25,19 +25,19 @@ Before producing any report or analysis, the AI must:
 
 1. Scan the repository tree rapidly using `python 03-ai-scripts/17-fast-file-reader.py` (which leverages pre-warmed `tmp/cache/` in <15ms) instead of slow manual shell scans. Do not read contents inside folders marked skipped, ignored, deprecated, generated, archived, or otherwise excluded.
    - **If the script is missing:** Immediately recreate it (`03-ai-scripts/17-fast-file-reader.py`) using Python standard libraries. It MUST support flags: `--list-folder <path> [--ext .md,.ts]`, `--read-file <path> [--max-bytes N]`, and `--search-pattern "<regex>" [--path <dir>]`. Ensure strict UTF-8 output (`sys.stdout.reconfigure(encoding="utf-8")`) and implement local caching.
-2. Read workflow memory - specifically `.lovable/plan.md` - to understand what has been done and what is pending. This avoids repeated work.
-3. Read all relevant memory files under `.lovable/memory/`, including workflow, suggestions, rules, decisions, history, issue references, and any protocol or process files present.
+2. Read workflow memory - specifically `.ai-memory/plan.md` - to understand what has been done and what is pending. This avoids repeated work.
+3. Read all relevant memory files under `.ai-memory/memory/`, including workflow, suggestions, rules, decisions, history, issue references, and any protocol or process files present.
 
 /goal 1. Reconstruct project requirements by reading:
 
-   1. the .lovable memory content
+   1. the .ai-memory memory content
    2. the existing spec files and idea files across all projects
 2. Produce a detailed risk and failure-chance report for handing the current specs to another AI.
 3. Establish a disciplined workflow for Lovable suggestions tracking and future planning so another AI can continue work reliably.
 
 ### Inputs to read
 
-1. .lovable/
+1. .ai-memory/
    1. memories/
    2. memory/
    3. memory/suggestions/
@@ -52,7 +52,7 @@ Before producing any report or analysis, the AI must:
    5. seeding and configuration specs
    6. data model specs
    7. acceptance criteria specs
-   8. Read root `spec/` folder or get a general idea of files.
+   8. Read root `02-spec/` folder or get a general idea of files.
 
 ### Deliverable 1: Reliability and failure-chance report
 
@@ -63,17 +63,17 @@ Before producing any report or analysis, the AI must:
 
 ### Deliverable 2: Lovable suggestions workflow (filesystem contract)
 
-All suggestions must be tracked in a single file: `.lovable/suggestions.md`. If the file grows beyond manageable size (50+ items), suggestions may be split per project.
+All suggestions must be tracked in a single file: `.ai-memory/suggestions.md`. If the file grows beyond manageable size (50+ items), suggestions may be split per project.
 
 Suggestion entry fields: suggestionId, createdAt, source (Lovable), affectedProject, description, rationale, proposed change, acceptance criteria, status (open, inProgress, done), completion notes.
 
 Completion handling - When a suggestion is completed, update its status to done. Optionally move completed items to `completed/` subfolder.
 
-### Deliverable 3: .lovable/plan.md future work roadmap
+### Deliverable 3: .ai-memory/plan.md future work roadmap
 
-`.lovable/plan.md` is the canonical workflow tracker. Root `.lovable/plan.md` (if created) is a summarized AI handoff roadmap only. It must not contradict the canonical plan.
+`.ai-memory/plan.md` is the canonical workflow tracker. Root `.ai-memory/plan.md` (if created) is a summarized AI handoff roadmap only. It must not contradict the canonical plan.
 
-.lovable/plan.md requirements:
+.ai-memory/plan.md requirements:
 
 1. A prioritized backlog of tasks
 2. Grouping by phase and by project
@@ -82,11 +82,11 @@ Completion handling - When a suggestion is completed, update its status to done.
 
 ### Required Part 1 artifacts
 
-- `.lovable/plan.md`
-- `.lovable/suggestions.md`
-- `.lovable/memory/01-index.md` - create the `history/` folder if it does not exist
-- `.lovable/strictly-avoid.md` - if new rules or constraints are discovered
-- Root `.lovable/plan.md` - only if a handoff roadmap is needed
+- `.ai-memory/plan.md`
+- `.ai-memory/suggestions.md`
+- `.ai-memory/memory/01-index.md` - create the `history/` folder if it does not exist
+- `.ai-memory/strictly-avoid.md` - if new rules or constraints are discovered
+- Root `.ai-memory/plan.md` - only if a handoff roadmap is needed
 - Update memory issue references if analysis uncovers prior unresolved issue patterns
 
 ### Interaction rule
@@ -99,7 +99,7 @@ After producing the report and creating the memory and plan artifacts, ask which
 
 ### Original input (verbatim)
 
-update spec properly so that the mistake doesn't appear and update memory and also write the details how you fixed it, and every time we fix it, add to do /spec/02-app/issues/01-{issue slug name}.md explain the issue first, then root cause analysis, how you fixed and how not to repeat it again, and if iterations required, then write all the iterations And put all the spec files in 01-app Keep it in your memory to update all the time so that mistakes don't happen this is the most important part the many times i have remind the mistakes make sure to update in the
+update spec properly so that the mistake doesn't appear and update memory and also write the details how you fixed it, and every time we fix it, add to do /02-spec/02-app/issues/01-{issue slug name}.md explain the issue first, then root cause analysis, how you fixed and how not to repeat it again, and if iterations required, then write all the iterations And put all the spec files in 01-app Keep it in your memory to update all the time so that mistakes don't happen this is the most important part the many times i have remind the mistakes make sure to update in the
 
 ### Objectives
 
@@ -110,8 +110,8 @@ update spec properly so that the mistake doesn't appear and update memory and al
 
 ### Required folder structure
 
-- All application spec files: `/spec/01-app/`
-- All issue write-ups: `/spec/02-app/issues/`
+- All application spec files: `/02-spec/01-app/`
+- All issue write-ups: `/02-spec/02-app/issues/`
 - File naming format: `{seq}-{issueSlugName}.md` (sequential numbering: 01, 02, 03…)
 
 ### issueSlugName rules
@@ -126,14 +126,14 @@ update spec properly so that the mistake doesn't appear and update memory and al
 Issues use sequential numbering across the entire issues folder. Before creating a new issue, check the highest existing sequence number and increment by one.
 
 ```
-/spec/02-app/issues/01-auth-timeout.md
-/spec/02-app/issues/02-cache-race-condition.md
-/spec/02-app/issues/03-missing-default-config.md
+/02-spec/02-app/issues/01-auth-timeout.md
+/02-spec/02-app/issues/02-cache-race-condition.md
+/02-spec/02-app/issues/03-missing-default-config.md
 ```
 
 ### Issue write-up file requirements
 
-Create an issue file at `/spec/02-app/issues/{seq}-{issueSlugName}.md`. Sections in this exact order:
+Create an issue file at `/02-spec/02-app/issues/{seq}-{issueSlugName}.md`. Sections in this exact order:
 
 Issue summary - what happened, where (feature/module + paths), symptoms and impact, how discovered.
 
@@ -149,8 +149,8 @@ TODO and follow-ups - remaining tasks, owners or roles if applicable.
 
 Done checklist
 
-- [ ] Spec updated under /spec/01-app/
-- [ ] Issue write-up created under /spec/02-app/issues/
+- [ ] Spec updated under /02-spec/01-app/
+- [ ] Issue write-up created under /02-spec/02-app/issues/
 - [ ] Memory updated with summary and prevention rule
 - [ ] Acceptance criteria updated or added
 - [ ] Iterations recorded if applicable
@@ -158,7 +158,7 @@ Done checklist
 
 ### Spec update requirements
 
-Update the relevant spec files under /spec/01-app/ to include: corrected behavior, explicit constraints to prevent the old mistake, failure modes and debugging guidance, acceptance criteria updates that make regression testable, and a Known pitfalls and prevention section that references the issue file path.
+Update the relevant spec files under /02-spec/01-app/ to include: corrected behavior, explicit constraints to prevent the old mistake, failure modes and debugging guidance, acceptance criteria updates that make regression testable, and a Known pitfalls and prevention section that references the issue file path.
 
 ### Memory update requirements
 
@@ -168,15 +168,15 @@ Memory update is mandatory. If memory is not updated the fix is incomplete.
 
 ### Decision logging
 
-All important decisions must be written to `.lovable/memory/01-index.md`. If the `history/` folder does not exist, create it and use this file as the canonical decision log.
+All important decisions must be written to `.ai-memory/memory/01-index.md`. If the `history/` folder does not exist, create it and use this file as the canonical decision log.
 
 Required entries: architecture changes, spec interpretation decisions, rejected approaches and why, trade-off resolutions.
 
 ### Output requirements
 
 1. A concise process checklist to follow after every fix.
-2. A copy-paste template for `/spec/02-app/issues/{seq}-{issueSlugName}.md`.
-3. A brief note stating all specs live under `/spec/01-app/`.
+2. A copy-paste template for `/02-spec/02-app/issues/{seq}-{issueSlugName}.md`.
+3. A brief note stating all specs live under `/02-spec/01-app/`.
 
 Formatting rule: ensure there is a blank line after every Markdown header.
 
@@ -198,7 +198,7 @@ Fix these and when fixing failing tests: 1. check code, 2. Method code actual on
 
 ### Documentation requirement for failing tests
 
-Every failing test resolution must be documented at: `/spec/05-failing-tests/{seq}-failing-test-name.md`. Include:
+Every failing test resolution must be documented at: `/02-spec/05-failing-tests/{seq}-failing-test-name.md`. Include:
 
 1. Root cause analysis
 2. Solution description
@@ -215,9 +215,9 @@ The specification is the source of truth.
 
 Priority order (highest to lowest):
 
-1. Specification files under `/spec/01-app/`
-2. Issue corrections under `/spec/02-app/issues/`
-3. Failing test documentation under `/spec/05-failing-tests/`
+1. Specification files under `/02-spec/01-app/`
+2. Issue corrections under `/02-spec/02-app/issues/`
+3. Failing test documentation under `/02-spec/05-failing-tests/`
 4. Memory and decision logs
 5. Existing implementation code
 
@@ -231,7 +231,7 @@ The AI must follow this sequence strictly. Steps must not be skipped or reordere
 
 1. Scan the entire repository tree.
 2. Read Lovable memory folders.
-3. Read workflow tracker `.lovable/plan.md`.
+3. Read workflow tracker `.ai-memory/plan.md`.
 4. Read specification folders.
 5. Reconstruct project context.
 6. Produce the reliability and failure-chance report.
@@ -267,7 +267,7 @@ Then ask the user to select the task number.
 
 If a blocker prevents reliable implementation or specification updates:
 
-1. Record the blocker in `.lovable/plan.md`
+1. Record the blocker in `.ai-memory/plan.md`
 2. Document it in the relevant spec or issue file
 3. Explain the minimum information or change required to unblock progress
 4. Avoid guessing past the blocker
@@ -290,7 +290,7 @@ Always write or update specs before any implementation. Never implement until th
 
 ### Ambiguity handling
 
-If the specification is ambiguous, the AI must document the ambiguity in the relevant spec file and in `.lovable/memory/01-index.md` before implementing a solution. Do not silently resolve ambiguity.
+If the specification is ambiguous, the AI must document the ambiguity in the relevant spec file and in `.ai-memory/memory/01-index.md` before implementing a solution. Do not silently resolve ambiguity.
 
 ### Repository scan requirement
 
@@ -314,7 +314,7 @@ Any changes to code must bump at least the minor version. The `.release` folder 
 
 ### File naming
 
-- Use stable canonical filenames such as `.lovable/plan.md`, `01-suggestions.md`, `01-decisions.md` for singleton tracker files.
+- Use stable canonical filenames such as `.ai-memory/plan.md`, `01-suggestions.md`, `01-decisions.md` for singleton tracker files.
 - Use `{seq}-{slug}.md` for repeating records such as issues and failing test write-ups.
 - Keep folder file counts small.
 - Plans and suggestions are tracked in single files and updated in place unless explicitly split by scale.
@@ -331,7 +331,7 @@ A task is done only when:
 2. Issue documented (if applicable)
 3. Memory updated
 4. Acceptance criteria added or verified
-5. Plan status updated in `.lovable/plan.md`
+5. Plan status updated in `.ai-memory/plan.md`
 6. Decision log updated (if a decision was made)
 
 ---

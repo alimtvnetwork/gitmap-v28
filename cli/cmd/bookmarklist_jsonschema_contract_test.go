@@ -3,7 +3,7 @@ package cmd
 // JSON schema contract for `gitmap bookmark list --json`. Pairs the
 // runtime encoder (encodeBookmarkListJSON / buildBookmarkListJSONItems
 // in bookmarklistrender.go) with the published schema at
-// spec/08-json-schemas/bookmark-list.schema.json so drift in either
+// 02-spec/08-json-schemas/bookmark-list.schema.json so drift in either
 // side fails the build.
 
 import (

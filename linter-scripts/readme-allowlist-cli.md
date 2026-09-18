@@ -29,7 +29,7 @@ The CLI hard-blocks all three.
 python3 linter-scripts/allowlist-forbidden-string.py \
     --rule STALE-REPO-SLUG \
     --reason "Documents the v14 → v17 rebrand for the audit trail." \
-    .lovable/memory/sessions/2026-04-24-batch-cleanup-and-rebrand.md
+    .ai-memory/memory/sessions/2026-04-24-batch-cleanup-and-rebrand.md
 ```
 
 ### Auto mode (waive every current finding under one reason)
@@ -78,7 +78,7 @@ needing to dig through git history:
 allowlist = [
   ...
   # Documents the v14 → v17 rebrand for the audit trail.
-  ".lovable/memory/sessions/2026-04-24-batch-cleanup-and-rebrand.md",
+  ".ai-memory/memory/sessions/2026-04-24-batch-cleanup-and-rebrand.md",
 ]
 ```
 

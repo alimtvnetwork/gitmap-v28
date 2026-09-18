@@ -51,7 +51,7 @@ Follow this sequence before and during any repository modification task:
 | **21** | `21-sequence-integrity-linter.py` | Verifies numeric sequences and headers across plans and subtasks | ~10ms | `sequence`, `linter`, `plans`, `integrity` |
 | **22** | `22-doc-path-linter.py` | Lints markdown references and verifies documentation paths | ~15ms | `paths`, `docs`, `linter`, `relative-paths` |
 | **23** | `23-coding-guideline-path-consolidator.py` | Consolidates coding guideline references to canonical specs | ~18ms | `guidelines`, `paths`, `consolidator` |
-| **24** | `24-spec-path-migrator.py` | Migrates legacy spec references to updated paths | ~15ms | `spec`, `migration`, `paths` |
+| **24** | `24-spec-path-migrator.py` | Migrates legacy spec references to updated paths | ~15ms | `02-spec`, `migration`, `paths` |
 | **25** | `25-repo-migrator.py` | Repository-wide asset and structural migration utility | ~25ms | `migrator`, `repo`, `assets` |
 | **26** | `26-go-code-formatter.py` | Cross-platform Go code formatter via gofmt with staged support | ~20ms | `go`, `gofmt`, `formatter`, `staged` |
 | **27** | `27-misspell-auditor.py` | Audits and auto-fixes British to American English spelling | ~15ms | `spelling`, `misspell`, `us-english`, `autofix` |
@@ -61,7 +61,7 @@ Follow this sequence before and during any repository modification task:
 | **31** | `31-db-migration-runner.py` | Standalone external SQLite and schema migration runner with introspection | ~15ms | `db`, `migrations`, `sqlite`, `runner`, `schema` |
 | **32** | `32-deep-consolidator.py` | Deep plans and subtasks consolidator preserving 100% technical detail, subtask ledgers, and verified outcomes | ~15ms | `plans`, `consolidator`, `milestone`, `subtasks`, `safety-backup` |
 | **33** | `33-git-history-tracer-and-purger.py` | Traces deleted files in Git, pre-flight inspection with selective exclusion, workspace restoration, and deep history purging | ~20ms | `git`, `history`, `tracer`, `restore`, `purge`, `filter-repo`, `deleted-files` |
-| **33** | `33-test-inventory-generator.py` | Generates `.lovable/test-inventory.json` and manages atomic file change tracking under lock | ~15ms | `test-inventory`, `tracking`, `locking`, `changes` |
+| **33** | `33-test-inventory-generator.py` | Generates `.ai-memory/test-inventory.json` and manages atomic file change tracking under lock | ~15ms | `test-inventory`, `tracking`, `locking`, `changes` |
 | **34** | `34-schema-scanner.py` | Scans SQL table definitions for PascalCase, PK conventions, and affirmative booleans | ~15ms | `schema`, `database`, `sqlite`, `scanner`, `linter`, `erd` |
 | **35** | `35-result-wrapper-auditor.py` | Audits Go functions returning multi-value map/slice error tuples for ResultMap and AppError compliance | ~15ms | `result`, `result-wrapper`, `result-map`, `apperror`, `linter`, `audit` |
 | **37** | `37-enum-guideline-auditor.py` | Audits enums for *Type suffix and eliminates raw numeric rune casts | ~15ms | `enums`, `constants`, `rune-casts`, `type-suffix`, `linter` |
@@ -119,8 +119,8 @@ DEFAULT_MAX_WORKERS = 4
 
 - [29-release-orchestrator.py](29-release-orchestrator.py): Orchestrates git release, bump version, branches, tags, and commits.
 - [32-deep-consolidator.py](32-deep-consolidator.py): Deep plans and subtasks consolidator preserving 100% technical detail, subtask ledgers, and verified outcomes.
-- [33-git-history-tracer-and-purger.py](33-git-history-tracer-and-purger.py): Traces deleted and active files in Git, selective pre-flight exclusion, workspace restoration, Recycle Bin file deletion (`--delete`), and deep history purging (`--purge`). Features automatic OS temp directory backups (`%TEMP%` / `/tmp`) with instant rollback instructions. Built-in presets: `--spec-25-audit` (`spec/21-app/25-app-spec-audit`), `--spec-audit` (`spec/19-main-worker-service/audit`), `--audit` (repo-wide `*audit*`), `--lovable`, `--lovable-subtasks`, `--lovable-md`, `--spec`, `--spec-md`, and positional root/folder scans.
-- [33-test-inventory-generator.py](33-test-inventory-generator.py): Centralized test inventory manifest generator (`.lovable/test-inventory.json`) and atomic file change tracker with cross-platform mutex (`.lovable/temp/recent-file-changes.lock`).
+- [33-git-history-tracer-and-purger.py](33-git-history-tracer-and-purger.py): Traces deleted and active files in Git, selective pre-flight exclusion, workspace restoration, Recycle Bin file deletion (`--delete`), and deep history purging (`--purge`). Features automatic OS temp directory backups (`%TEMP%` / `/tmp`) with instant rollback instructions. Built-in presets: `--spec-25-audit` (`02-spec/21-app/25-app-spec-audit`), `--spec-audit` (`02-spec/19-main-worker-service/audit`), `--audit` (repo-wide `*audit*`), `--lovable`, `--lovable-subtasks`, `--lovable-md`, `--spec`, `--spec-md`, and positional root/folder scans.
+- [33-test-inventory-generator.py](33-test-inventory-generator.py): Centralized test inventory manifest generator (`.ai-memory/test-inventory.json`) and atomic file change tracker with cross-platform mutex (`.ai-memory/temp/recent-file-changes.lock`).
 - [35-result-wrapper-auditor.py](35-result-wrapper-auditor.py): Audits Go functions returning multi-value map/slice error tuples for ResultMap and AppError compliance.
 - [36-param-struct-auditor.py](36-param-struct-auditor.py): Audits Go function signatures for argument reduction, dedicated parameter structs/DTOs, types.go declarations, and affirmative boolean naming.
 

@@ -46,7 +46,7 @@ _LINTER = (Path(__file__).resolve().parent.parent
 
 
 class _Sandbox:
-    """Tiny helper: a temp dir with a `spec/` subroot and a writable
+    """Tiny helper: a temp dir with a `02-spec/` subroot and a writable
     changed-files payload. Returned as a context-manager so the
     cleanup is guaranteed even when an assertion blows up mid-test.
     """
@@ -54,7 +54,7 @@ class _Sandbox:
     def __init__(self, payload: str) -> None:
         self._tmp = tempfile.TemporaryDirectory()
         self.root = Path(self._tmp.name).resolve()
-        self.spec = self.root / "spec"
+        self.spec = self.root / "02-spec"
         self.spec.mkdir()
         self.changed = self.root / "changed.txt"
         self.changed.write_text(payload, encoding="utf-8")
@@ -71,10 +71,10 @@ class _Sandbox:
         separate strings so tests can assert the stream contract.
 
         The linter's `--root` AND its `cwd` are both set to the
-        sandbox `root` (NOT `spec/`) so payload paths like
+        sandbox `root` (NOT `02-spec/`) so payload paths like
         ``spec/x.md`` resolve to ``<tmp>/spec/x.md`` — i.e. *under*
         the spec subroot, the way a real repo's relative paths
-        would. Setting `--root` to ``spec/`` would double-stack the
+        would. Setting `--root` to ``02-spec/`` would double-stack the
         prefix and every row would land as ``ignored-out-of-root``.
         """
         cmd = [

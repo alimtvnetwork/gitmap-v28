@@ -2,13 +2,13 @@ package cmd
 
 // Schema contract for `gitmap startup-list --json`. Pairs the
 // runtime encoder (encodeStartupListJSON) with the published schema
-// at spec/08-json-schemas/startup-list.schema.json so a drift in
+// at 02-spec/08-json-schemas/startup-list.schema.json so a drift in
 // either side fails the build.
 //
 // Generic helpers (findSchemaFile, loadSchemaFile, propertyOrder
 // extraction) live in jsonschema_helpers_test.go so future
 // `*_jsonschema_contract_test.go` files (see
-// spec/08-json-schemas/_TODO.md) can reuse them.
+// 02-spec/08-json-schemas/_TODO.md) can reuse them.
 //
 // Why a hand-rolled mini-validator instead of pulling in a real
 // JSON-Schema library?
@@ -21,7 +21,7 @@ package cmd
 //      objects with three required string keys and a fixed key
 //      order. A 60-line bespoke check covers the contract precisely
 //      and makes the assertions readable in the failure message.
-//   3. If/when the schema set in spec/08-json-schemas/ grows past
+//   3. If/when the schema set in 02-spec/08-json-schemas/ grows past
 //      ~5 commands, swapping this for github.com/santhosh-tekuri/
 //      jsonschema becomes worthwhile and is a one-file change.
 
@@ -33,7 +33,7 @@ import (
 )
 
 // startupListSchemaFilename is the on-disk name under
-// spec/08-json-schemas/. Centralized so a future rename touches one
+// 02-spec/08-json-schemas/. Centralized so a future rename touches one
 // line.
 const startupListSchemaFilename = "startup-list.schema.json"
 

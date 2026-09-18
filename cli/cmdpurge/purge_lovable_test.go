@@ -8,7 +8,7 @@ import (
 
 func TestPurgeLovable(t *testing.T) {
 	tempDir := t.TempDir()
-	lovableDir := filepath.Join(tempDir, ".lovable")
+	lovableDir := filepath.Join(tempDir, ".ai-memory")
 	os.MkdirAll(lovableDir, 0755)
 
 	trackedFile := filepath.Join(lovableDir, "tracked.txt")
@@ -18,7 +18,7 @@ func TestPurgeLovable(t *testing.T) {
 	os.WriteFile(untrackedFile, []byte("untracked"), 0644)
 
 	trackedMap := map[string]bool{
-		".lovable/tracked.txt": true,
+		".ai-memory/tracked.txt": true,
 	}
 
 	purged, err := removeUntrackedLovable(tempDir, trackedMap)

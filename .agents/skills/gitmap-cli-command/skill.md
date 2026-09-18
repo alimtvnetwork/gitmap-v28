@@ -7,7 +7,7 @@ description: >-
 
 # Gitmap CLI Command Authoring & AST Parity Skill
 
-Autonomously implement, refactor, and verify CLI commands in the Gitmap Go toolchain adhering to `spec/01-app/`, `spec/17-consolidated-guidelines/23-generic-cli.md`, and `.lovable/strictly-avoid.md`.
+Autonomously implement, refactor, and verify CLI commands in the Gitmap Go toolchain adhering to `02-spec/01-app/`, `02-spec/17-consolidated-guidelines/23-generic-cli.md`, and `.ai-memory/strictly-avoid.md`.
 
 ## Core Checkpoints & Mandatory Invariants
 

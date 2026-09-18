@@ -29,30 +29,30 @@
      - Parallelism: Dedicated worker for race condition detection across hot packages.
      - Scope: Go Test Race (Hot Packages).
 
-2. REAL-TIME TELEMETRY & ARTIFACT STREAMING (.lovable/cicd/):
+2. REAL-TIME TELEMETRY & ARTIFACT STREAMING (.ai-memory/cicd/):
    All telemetry is written immediately to disk with unbuffered os.fsync flushing:
-   • .lovable/cicd/errors.log          : Real-time append-only Markdown failure stream containing
+   • .ai-memory/cicd/errors.log          : Real-time append-only Markdown failure stream containing
                                          failing commands, cwd, env, suspect files, and stack traces.
-   • .lovable/cicd/errors.json         : Structured JSON array of all active failures:
+   • .ai-memory/cicd/errors.json         : Structured JSON array of all active failures:
                                          [{"name": ..., "cmd": ..., "code": ..., "suspect_files": [...]}]
-   • .lovable/cicd/events.jsonl        : Real-time append-only NDJSON event stream:
+   • .ai-memory/cicd/events.jsonl        : Real-time append-only NDJSON event stream:
                                          {"timestamp": ..., "event": "gate_started"|"gate_failed"|...}
-   • .lovable/cicd/changelog.log       : Chronological human-readable summary of pipeline events.
-   • .lovable/cicd/summary.json        : Live status metadata ("status": "running"|"completed"|"failed",
+   • .ai-memory/cicd/changelog.log       : Chronological human-readable summary of pipeline events.
+   • .ai-memory/cicd/summary.json        : Live status metadata ("status": "running"|"completed"|"failed",
                                          total, passed, failed, remaining, cached counts, active_failures).
-   • .lovable/cicd/state.json          : Persistent incremental cache fingerprinting Git HEAD SHA,
+   • .ai-memory/cicd/state.json          : Persistent incremental cache fingerprinting Git HEAD SHA,
                                          uncommitted dirty file hashes, tool script mtimes, and gate status.
-   • .lovable/cicd/run.log             : Chronological record of all executed, cached, and failed gates.
-   • .lovable/cicd/latest/             : Symlink / junction pointing directly to current session folder
-                                         under .lovable/cicd/runs/<timestamp>/.
+   • .ai-memory/cicd/run.log             : Chronological record of all executed, cached, and failed gates.
+   • .ai-memory/cicd/latest/             : Symlink / junction pointing directly to current session folder
+                                         under .ai-memory/cicd/runs/<timestamp>/.
 
 3. AI AGENT PARALLEL REMEDIATION PLAYBOOK:
    When executing tasks or autonomous repair loops, follow this protocol:
    • Step 1 (Early Interception): Do NOT wait for the entire 33-gate suite to finish. As soon as an
-     immediate failure banner appears or .lovable/cicd/errors.json contains an entry, begin remediation.
-   • Step 2 (Inspect Suspect Files): View .lovable/cicd/errors.log using view_file to examine
+     immediate failure banner appears or .ai-memory/cicd/errors.json contains an entry, begin remediation.
+   • Step 2 (Inspect Suspect Files): View .ai-memory/cicd/errors.log using view_file to examine
      extracted suspect files and the root-cause stack trace.
-   • Step 3 (Surgical Code Fix): Edit offending files following spec/02-coding-guidelines/ (functions <= 15
+   • Step 3 (Surgical Code Fix): Edit offending files following 02-spec/02-coding-guidelines/ (functions <= 15
      lines, blank line before returns, affirmative booleans, zero swallowed exceptions).
    • Step 4 (Targeted Verification): Validate the fix in isolation before running the full suite:
      python 03-ai-scripts/06-cicd-local-runner.py --filter "<Gate Name>"
@@ -176,7 +176,7 @@ DEFAULT_JOB_ESTIMATE_SEC = 5.0
 DEFAULT_HEARTBEAT_INTERVAL = float(os.environ.get("RUNNER_HEARTBEAT_INTERVAL", 25.0))
 REPO_ROOT = Path(__file__).resolve().parent.parent
 
-TMP_CACHE_DIR = REPO_ROOT / ".lovable" / "temp"
+TMP_CACHE_DIR = REPO_ROOT / ".ai-memory" / "temp"
 TMP_CACHE_DIR.mkdir(parents=True, exist_ok=True)
 FAILURES_DIR = TMP_CACHE_DIR / "failures"
 FAILURES_DIR.mkdir(parents=True, exist_ok=True)
@@ -230,14 +230,14 @@ def clear_repo_test_temp() -> None:
 
 def clear_stale_failures_log() -> None:
     """Clears stale test failure logs before running tests to prevent storage accumulation."""
-    failures_dir = REPO_ROOT / ".lovable" / "temp" / "failures"
+    failures_dir = REPO_ROOT / ".ai-memory" / "temp" / "failures"
     robust_rmtree(failures_dir)
     failures_dir.mkdir(parents=True, exist_ok=True)
 
 
 def prune_old_cicd_runs(keep_count: int = 5) -> None:
-    """Prunes older session run directories in .lovable/cicd/runs to prevent disk waste."""
-    runs_dir = REPO_ROOT / ".lovable" / "cicd" / "runs"
+    """Prunes older session run directories in .ai-memory/cicd/runs to prevent disk waste."""
+    runs_dir = REPO_ROOT / ".ai-memory" / "cicd" / "runs"
     if not runs_dir.exists():
         return
     try:
@@ -252,8 +252,8 @@ def prune_old_cicd_runs(keep_count: int = 5) -> None:
 
 
 def clean_stale_temp_artifacts() -> None:
-    """Removes orphaned build caches, old e2e sandboxes, and stale binaries from .lovable/temp to prevent bloat."""
-    lovable_temp = REPO_ROOT / ".lovable" / "temp"
+    """Removes orphaned build caches, old e2e sandboxes, and stale binaries from .ai-memory/temp to prevent bloat."""
+    lovable_temp = REPO_ROOT / ".ai-memory" / "temp"
     if not lovable_temp.exists():
         return
     for item in lovable_temp.iterdir():
@@ -286,7 +286,7 @@ if os.name != "nt":
     os.environ["TEMP"] = str(REPO_TEST_TEMP)
     os.environ["TMP"] = str(REPO_TEST_TEMP)
 
-CICD_DIR = REPO_ROOT / ".lovable" / "cicd"
+CICD_DIR = REPO_ROOT / ".ai-memory" / "cicd"
 CICD_DIR.mkdir(parents=True, exist_ok=True)
 CICD_TEMP_DIR = CICD_DIR
 CICD_RUNS_DIR = CICD_DIR / "runs"
@@ -302,7 +302,7 @@ CICD_POINTER_FILE = CICD_DIR / "latest_run.txt"
 CICD_LAST_RUN_CACHE = CICD_DIR / "last_run_cache.json"
 
 TIMING_FILE_PATH = CICD_DIR / "timings.json"
-TEST_INVENTORY_PATH = Path(".lovable/test-inventory.json")
+TEST_INVENTORY_PATH = Path(".ai-memory/test-inventory.json")
 TEST_INVENTORY_CACHE_PATH = CICD_DIR / "test-inventory.json"
 
 DISK_WRITE_LOCK = threading.RLock()
@@ -414,7 +414,7 @@ JOB_BATCHES: list[dict[str, Any]] = [
 ANSI_ESCAPE_REGEX = re.compile(r"\x1B(?:\[@-Z\\-_]|\[[0-?]*[ -/]*[@-~])")
 GLOBAL_TIMINGS: dict[str, float] = {}
 EXCLUDE_DEFAULTS = [
-    ".git/**", "node_modules/**", "dist/**", "bin/**", "vendor/**", ".lovable/**", ".tmp/**",
+    ".git/**", "node_modules/**", "dist/**", "bin/**", "vendor/**", ".ai-memory/**", ".tmp/**",
 ]
 
 CLUSTER_GO_ALL = ["cli/**", "cli-updater/**/*.go", "cli/go.mod", "cli/go.sum"]
@@ -426,7 +426,7 @@ CLUSTER_GO_RACE = ["cli/cmd/**/*.go", "cli/cmdagy/**/*.go", "cli/cmdchromeprofil
 CLUSTER_WEB_APP = ["src/**/*", "public/**/*", "index.html", "package.json", "package-lock.json", "vite.config.ts", "tsconfig*.json", "tailwind.config.ts", "postcss.config.js"]
 CLUSTER_LINTER_SCRIPTS = ["linter-scripts/**/*.py", ".github/scripts/**/*.py"]
 CLUSTER_REPO_TEXT = ["cli/**", "src/**", "spec/**", "docs/**", "03-ai-scripts/**", "linter-scripts/**", ".github/**", "*.md", "*.json", "*.yml", "*.yaml"]
-CLUSTER_MWS = ["spec/19-main-worker-service/**", "spec/14-update/**", "spec/03-error-manage/03-error-code-registry/**", "src/**/*.{ts,tsx}", "linter-scripts/check-mws-error-codes.*"]
+CLUSTER_MWS = ["02-spec/19-main-worker-service/**", "02-spec/14-update/**", "02-spec/03-error-manage/03-error-code-registry/**", "src/**/*.{ts,tsx}", "linter-scripts/check-mws-error-codes.*"]
 
 
 def strip_ansi(text: str) -> str:
@@ -565,12 +565,12 @@ GATE_SPECS: dict[str, GateSpec] = {
     "Nested If Linter": GateSpec("Nested If Linter", tool_scripts=["linter-scripts/check-nested-ifs.py"], relevant_patterns=["cli/**/*.go", "src/**/*.{ts,tsx,js,jsx}"]),
 
     "Boolean & Enum Linter": GateSpec("Boolean & Enum Linter", tool_scripts=["linter-scripts/check-enum-and-boolean.py"], relevant_patterns=["cli/**/*.go", "src/**/*.{ts,tsx}"]),
-    "Boolean Guidelines Linter": GateSpec("Boolean Guidelines Linter", tool_scripts=["linter-scripts/check-boolean-guidelines.py"], configs=["spec/02-coding-guidelines/**"], relevant_patterns=["cli/**/*.go", "src/**/*.{ts,tsx,js,jsx}"]),
-    "Enum Guidelines Linter": GateSpec("Enum Guidelines Linter", tool_scripts=["linter-scripts/check-enum-guidelines.py"], configs=["spec/02-coding-guidelines/**"], relevant_patterns=["cli/**/*.go", "src/**/*.{ts,tsx}"]),
-    "Error Management Check": GateSpec("Error Management Check", tool_scripts=["linter-scripts/check-error-management.py"], configs=["spec/03-error-manage/**"], relevant_patterns=["cli/**/*.go", "src/**/*.{ts,tsx}"]),
+    "Boolean Guidelines Linter": GateSpec("Boolean Guidelines Linter", tool_scripts=["linter-scripts/check-boolean-guidelines.py"], configs=["02-spec/02-coding-guidelines/**"], relevant_patterns=["cli/**/*.go", "src/**/*.{ts,tsx,js,jsx}"]),
+    "Enum Guidelines Linter": GateSpec("Enum Guidelines Linter", tool_scripts=["linter-scripts/check-enum-guidelines.py"], configs=["02-spec/02-coding-guidelines/**"], relevant_patterns=["cli/**/*.go", "src/**/*.{ts,tsx}"]),
+    "Error Management Check": GateSpec("Error Management Check", tool_scripts=["linter-scripts/check-error-management.py"], configs=["02-spec/03-error-manage/**"], relevant_patterns=["cli/**/*.go", "src/**/*.{ts,tsx}"]),
     "Relative Path Check": GateSpec("Relative Path Check", tool_scripts=["linter-scripts/check-relative-paths.py"], relevant_patterns=CLUSTER_REPO_TEXT, exclude_patterns=["*.png", "*.jpg", "*.exe", "*.zip", "*.sqlite"]),
     "Newline Styling Check": GateSpec("Newline Styling Check", tool_scripts=["linter-scripts/check-newline-styling.py"], relevant_patterns=["src/**/*.{ts,tsx,js}", "cli/**/*.go"]),
-    "MWS Error Codes Check": GateSpec("MWS Error Codes Check", tool_scripts=["linter-scripts/check-mws-error-codes.py"], configs=["spec/19-main-worker-service/13-error-codes.md", "spec/19-main-worker-service/error-codes.json", "spec/03-error-manage/03-error-code-registry/error-codes-master.json", "linter-scripts/check-mws-error-codes.waivers.txt", "linter-scripts/check-mws-error-codes.unallocated.txt"], relevant_patterns=CLUSTER_MWS),
+    "MWS Error Codes Check": GateSpec("MWS Error Codes Check", tool_scripts=["linter-scripts/check-mws-error-codes.py"], configs=["02-spec/19-main-worker-service/13-error-codes.md", "02-spec/19-main-worker-service/error-codes.json", "02-spec/03-error-manage/03-error-code-registry/error-codes-master.json", "linter-scripts/check-mws-error-codes.waivers.txt", "linter-scripts/check-mws-error-codes.unallocated.txt"], relevant_patterns=CLUSTER_MWS),
     "Interface Naming Check": GateSpec("Interface Naming Check", tool_scripts=["linter-scripts/check-interface-naming.py"], relevant_patterns=["cli/**/*.go"]),
     "CLI Help Parity Check": GateSpec("CLI Help Parity Check", tool_scripts=["03-ai-scripts/09-cli-help-auditor.py"], configs=["03-ai-scripts/02-shared-engine.py"], relevant_patterns=["cli/cmd/**/*.go", "cli/helptext/**/*.go", "03-ai-scripts/**/*.py"]),
     "Constants Registry AST Check": GateSpec("Constants Registry AST Check", configs=["cli/go.mod", "cli/go.sum"], relevant_patterns=CLUSTER_GO_CMD),
@@ -665,7 +665,7 @@ def get_commit_diff_files(repo_root: Path, old_head: str, new_head: str) -> set[
 
 def is_ignored_repo_path(path_str: str) -> bool:
     """Checks if path falls inside internal directories to ignore."""
-    ignored = (".git/", ".lovable/", ".tmp/", "node_modules/", "dist/", "bin/", "vendor/")
+    ignored = (".git/", ".ai-memory/", ".tmp/", "node_modules/", "dist/", "bin/", "vendor/")
     has_match = any(path_str.startswith(prefix) for prefix in ignored)
 
     return has_match
@@ -2351,7 +2351,7 @@ def format_remediation_banner_header(failed_count: int) -> list[str]:
 
 def format_log_locations_section(session_dir: Path | None) -> list[str]:
     """Formats exact relative log file locations for AI agent inspection."""
-    sdir_rel = normalize_repo_rel(session_dir) if session_dir else ".lovable/cicd/latest"
+    sdir_rel = normalize_repo_rel(session_dir) if session_dir else ".ai-memory/cicd/latest"
     sdir_rel = sdir_rel.rstrip("/")
     lines = [
         "📂 \033[1mLog Files & Artifact Locations\033[0m:",
@@ -2401,8 +2401,8 @@ def format_agent_next_steps_section() -> list[str]:
     """Formats actionable step-by-step guidance for autonomous AI agents."""
     lines = [
         "🛠️  \033[1mAI Agent Remediation Protocol\033[0m:",
-        "  1. Inspect Errors : Call view_file on .lovable/cicd/errors.log (or read errors.json)",
-        "  2. Surgical Fix   : Edit suspect files complying with spec/02-coding-guidelines/",
+        "  1. Inspect Errors : Call view_file on .ai-memory/cicd/errors.log (or read errors.json)",
+        "  2. Surgical Fix   : Edit suspect files complying with 02-spec/02-coding-guidelines/",
         "  3. Single Re-Test : Run targeted filter command above to confirm local fix",
         "  4. Suite Green    : Run python 03-ai-scripts/06-cicd-local-runner.py (unchanged gates skip in ~0.5ms)",
         "\033[1;91m" + "=" * 70 + "\033[0m",

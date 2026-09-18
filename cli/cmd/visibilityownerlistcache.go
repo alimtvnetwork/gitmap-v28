@@ -3,7 +3,7 @@
 // when users iterate on patterns within the cache window. The cache
 // is bypassed entirely when the resolved TTL is 0.
 //
-// Spec: spec/01-app/116-bulk-visibility-mapub-mapri.md §parallel.
+// Spec: 02-spec/01-app/116-bulk-visibility-mapub-mapri.md §parallel.
 package cmd
 
 import (

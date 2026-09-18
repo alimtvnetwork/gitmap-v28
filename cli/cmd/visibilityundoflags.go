@@ -2,7 +2,7 @@
 // rendering for `gitmap visibility-undo` / `visibility-redo`.
 // Extracted from visibilityundo.go to honor the 200-line per-file cap.
 //
-// Spec: spec/01-app/116-bulk-visibility-mapub-mapri.md §undo-redo.
+// Spec: 02-spec/01-app/116-bulk-visibility-mapub-mapri.md §undo-redo.
 package cmd
 
 import (

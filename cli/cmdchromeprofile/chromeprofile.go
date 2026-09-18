@@ -6,7 +6,7 @@
 //	cpi : import a JSON snapshot back into a profile dir
 //	cpl : list profiles discovered under Chrome User Data
 //
-// Full spec: spec/04-generic-cli/40-chrome-profile-copy.md.
+// Full spec: 02-spec/04-generic-cli/40-chrome-profile-copy.md.
 package cmdchromeprofile
 
 import (

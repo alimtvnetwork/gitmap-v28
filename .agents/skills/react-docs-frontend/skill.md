@@ -7,7 +7,7 @@ description: >-
 
 # React Docs Frontend Skill
 
-Autonomously implement, refactor, and audit frontend code in `src/` adhering to `spec/07-design-system/`, `spec/08-docs-viewer-ui/`, `spec/24-app-ui-design-system/`, and `spec/17-consolidated-guidelines/31-compiled-simple-coding-guidelines.md`.
+Autonomously implement, refactor, and audit frontend code in `src/` adhering to `02-spec/07-design-system/`, `02-spec/08-docs-viewer-ui/`, `02-spec/24-app-ui-design-system/`, and `02-spec/17-consolidated-guidelines/31-compiled-simple-coding-guidelines.md`.
 
 ## Core Checkpoints & Invariants
 

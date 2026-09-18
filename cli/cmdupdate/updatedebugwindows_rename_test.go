@@ -11,7 +11,7 @@
 // is always the same — call fsutil.FileExists / fsutil.FileOrDirExists
 // instead of adding a local helper.
 //
-// See spec/02-app-issues/33-stale-binary-clone-folder-url-guard.md for
+// See 02-spec/02-app-issues/33-stale-binary-clone-folder-url-guard.md for
 // the related stale-binary diagnostic pattern: when CI logs a
 // redeclaration at a line number that does not match this source, the
 // user is building an out-of-date snapshot — `git pull` is the actual fix.

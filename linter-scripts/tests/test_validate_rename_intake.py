@@ -257,7 +257,7 @@ class SchemaExport(unittest.TestCase):
 # ---------------------------------------------------------------
 class EndToEndAgainstRealLinter(unittest.TestCase):
     def _setup_repo(self, td: Path) -> tuple[Path, Path]:
-        spec = td / "spec"; spec.mkdir()
+        spec = td / "02-spec"; spec.mkdir()
         (spec / "intro.md").write_text("# spec\nplain prose.\n")
         (spec / "copy.md").write_text("# spec\nplain prose.\n")
         payload = td / "changed.txt"

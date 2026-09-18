@@ -6,7 +6,7 @@
 #
 # Usage: smoke-history-purge.sh <path-to-gitmap-binary>
 #
-# Spec: spec/04-generic-cli/16-history-rewrite.md
+# Spec: 02-spec/04-generic-cli/16-history-rewrite.md
 
 set -euo pipefail
 

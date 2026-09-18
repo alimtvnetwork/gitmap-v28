@@ -5,7 +5,7 @@ name: History Rewrite Smoke
 # mirror-clone sandbox; this workflow proves the full pipeline
 # (clone → filter-repo → verify → would-push) works on Ubuntu.
 #
-# Spec: spec/04-generic-cli/16-history-rewrite.md
+# Spec: 02-spec/04-generic-cli/16-history-rewrite.md
 #
 # Each scenario builds a temp Git repo from scratch, runs the
 # gitmap subcommand against it (with --no-push so we never need a

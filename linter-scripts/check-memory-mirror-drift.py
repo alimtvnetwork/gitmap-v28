@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 """
-check-memory-mirror-drift.py — Detect drift between .lovable/memory/index.md Core
-section and spec/17-consolidated-guidelines/21-lovable-folder-structure.md §X mirror.
+check-memory-mirror-drift.py — Detect drift between .ai-memory/memory/index.md Core
+section and 02-spec/17-consolidated-guidelines/21-lovable-folder-structure.md §X mirror.
 
 Exit codes:
   0  No drift — all Core keywords present in mirror
@@ -17,8 +17,8 @@ import re
 import sys
 from pathlib import Path
 
-MEMORY = Path(".lovable/memory/index.md")
-MIRROR = Path("spec/17-consolidated-guidelines/21-lovable-folder-structure.md")
+MEMORY = Path(".ai-memory/memory/index.md")
+MIRROR = Path("02-spec/17-consolidated-guidelines/21-lovable-folder-structure.md")
 SECTION_MARKER = "## §X Project Memory"
 
 # Distinctive tokens to search for. Each tuple is (description, keyword).
@@ -77,8 +77,8 @@ def main() -> int:
         for desc, token in missing:
             print(f"  - {desc!r}: token {token!r} not found", file=sys.stderr)
         print("", file=sys.stderr)
-        print("Action: update §X in spec/17-consolidated-guidelines/21-lovable-folder-structure.md", file=sys.stderr)
-        print("        to mirror the latest .lovable/memory/index.md Core rules.", file=sys.stderr)
+        print("Action: update §X in 02-spec/17-consolidated-guidelines/21-lovable-folder-structure.md", file=sys.stderr)
+        print("        to mirror the latest .ai-memory/memory/index.md Core rules.", file=sys.stderr)
         return 1
 
     print(f"[memory-mirror-drift] OK — all {len(EXPECTED_TOKENS)} core tokens present in §X mirror")

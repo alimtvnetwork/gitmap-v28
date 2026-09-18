@@ -168,7 +168,7 @@ const defaultRcaFixPromptFallback = `# Bug Fix with 4-Part RCA & Regression Veri
 /goal Autonomously fix the failing CI/CD pipeline errors, strictly enforcing coding guidelines, and document the complete RCA before pushing.
 
 ## The 4-Part RCA Requirement (Mandatory Memory File)
-Before modifying code, document the issue in .lovable/memory/issues/xx-<slug>.md:
+Before modifying code, document the issue in .ai-memory/memory/issues/xx-<slug>.md:
 1. Why it happened: High-level architectural breakdown of the failure.
 2. How it happened: Technical execution flow that triggered the error.
 3. Root Cause: Exact file, line, and dependency responsible.

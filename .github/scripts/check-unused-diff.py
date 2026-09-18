@@ -15,7 +15,7 @@ def resolve_default_paths():
         default_out = os.path.join("/tmp", "lint-unused-current", "report.json")
         default_base = os.path.join("/tmp", "lint-unused-baseline", "report.json")
     else:
-        temp_dir = os.path.join(".lovable", "temp", "cicd")
+        temp_dir = os.path.join(".ai-memory", "temp", "cicd")
         default_out = os.path.join(temp_dir, "lint-unused-current.json")
         default_base = os.path.join(temp_dir, "lint-unused-baseline.json")
     return default_out, default_base

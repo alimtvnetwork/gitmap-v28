@@ -6,7 +6,7 @@
 // for the same reason. -Y short-circuits BOTH prompts upstream in
 // visibilityallbulk.go (plan step 13).
 //
-// Spec: spec/01-app/116-bulk-visibility-mapub-mapri.md §4.
+// Spec: 02-spec/01-app/116-bulk-visibility-mapub-mapri.md §4.
 package cmd
 
 import (

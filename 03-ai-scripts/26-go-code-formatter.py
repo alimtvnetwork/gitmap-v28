@@ -144,7 +144,7 @@ def collect_target_files(args: argparse.Namespace, repo_root: Path) -> list[Path
 
     gitmap_dir = repo_root / "gitmap"
     search_root = gitmap_dir if gitmap_dir.is_dir() else repo_root
-    excludes = {".lovable", ".git", ".tmp", "temp-scripts", "scratch", "node_modules", "dist", "bin"}
+    excludes = {".ai-memory", ".git", ".tmp", "temp-scripts", "scratch", "node_modules", "dist", "bin"}
     return list(stream_directory_files(search_root, extensions=[".go"], custom_excludes=excludes))
 
 

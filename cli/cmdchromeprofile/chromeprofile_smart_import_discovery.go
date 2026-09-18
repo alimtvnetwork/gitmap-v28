@@ -72,7 +72,7 @@ func discoverDirCandidates(dir string) ([]DiscoveredProfileCandidate, error) {
 }
 
 func isIgnoredChromeProfileDir(name string) bool {
-	if strings.HasPrefix(name, ".") || name == "node_modules" || name == "dist" || name == "vendor" || name == "spec" || name == "tmp" {
+	if strings.HasPrefix(name, ".") || name == "node_modules" || name == "dist" || name == "vendor" || name == "02-spec" || name == "tmp" {
 		return true
 	}
 

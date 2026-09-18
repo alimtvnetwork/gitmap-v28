@@ -202,19 +202,19 @@ class TestCicdLocalRunnerPaths(unittest.TestCase):
 
     def test_cicd_dir_is_inside_repo(self):
         self.assertTrue(str(self.runner.CICD_DIR).startswith(str(self.runner.REPO_ROOT)))
-        self.assertEqual(self.runner.normalize_repo_rel(self.runner.CICD_DIR), ".lovable/cicd")
+        self.assertEqual(self.runner.normalize_repo_rel(self.runner.CICD_DIR), ".ai-memory/cicd")
 
     def test_normalize_repo_rel_converts_absolute_paths(self):
-        abs_path = os.path.join(str(self.runner.REPO_ROOT), ".lovable", "cicd", "errors.log")
+        abs_path = os.path.join(str(self.runner.REPO_ROOT), ".ai-memory", "cicd", "errors.log")
         rel = self.runner.normalize_repo_rel(abs_path)
-        self.assertEqual(rel, ".lovable/cicd/errors.log")
+        self.assertEqual(rel, ".ai-memory/cicd/errors.log")
 
     def test_format_banner_metadata_contains_no_temp_or_absolute_drive(self):
         res = self.runner.JobResult("MockGate", ["python", "mock.py"], 1, "out", "err", 0.1)
         meta = self.runner.format_banner_metadata(res, ["cli/cmd/root.go"])
-        self.assertIn("Stream Log    : .lovable/cicd/errors.log", meta)
-        self.assertIn("Stream JSON   : .lovable/cicd/errors.json", meta)
-        self.assertIn("Stream Events : .lovable/cicd/events.jsonl", meta)
+        self.assertIn("Stream Log    : .ai-memory/cicd/errors.log", meta)
+        self.assertIn("Stream JSON   : .ai-memory/cicd/errors.json", meta)
+        self.assertIn("Stream Events : .ai-memory/cicd/events.jsonl", meta)
         self.assertNotIn("AppData", meta)
         self.assertNotIn("Temp", meta)
 
@@ -222,9 +222,9 @@ class TestCicdLocalRunnerPaths(unittest.TestCase):
         session_dir = self.runner.CICD_DIR / "runs" / "test-session-123"
         lines = self.runner.format_log_locations_section(session_dir)
         text = "\n".join(lines)
-        self.assertIn("• Live Markdown Stream  : .lovable/cicd/errors.log", text)
-        self.assertIn("• Structured JSON Errors: .lovable/cicd/errors.json", text)
-        self.assertIn("• Session Run Directory : .lovable/cicd/runs/test-session-123/", text)
+        self.assertIn("• Live Markdown Stream  : .ai-memory/cicd/errors.log", text)
+        self.assertIn("• Structured JSON Errors: .ai-memory/cicd/errors.json", text)
+        self.assertIn("• Session Run Directory : .ai-memory/cicd/runs/test-session-123/", text)
         self.assertNotIn("AppData", text)
         self.assertNotIn("Temp", text)
 

@@ -1,9 +1,9 @@
-.\.lovable\scratch\find_ignored_errs.go|31|swallowed error|// Find assignments like _ = err
-.\.lovable\scratch\find_ignored_errs.go|38|swallowed error|fmt.Printf("%s:%d: Ignored error (_ = err)\n", pos.Filename, pos.Line)
-.\.lovable\scratch\find_ignored_errs.go|64|panic|panic(err)
-.\.lovable\scratch\find_monolithic.go|45|panic|panic(err)
-.\.lovable\scratch\find_nested_ifs.go|84|panic|panic(err)
-.\.lovable\scratch\find_single_chars.go|79|panic|panic(err)
+.\.ai-memory\scratch\find_ignored_errs.go|31|swallowed error|// Find assignments like _ = err
+.\.ai-memory\scratch\find_ignored_errs.go|38|swallowed error|fmt.Printf("%s:%d: Ignored error (_ = err)\n", pos.Filename, pos.Line)
+.\.ai-memory\scratch\find_ignored_errs.go|64|panic|panic(err)
+.\.ai-memory\scratch\find_monolithic.go|45|panic|panic(err)
+.\.ai-memory\scratch\find_nested_ifs.go|84|panic|panic(err)
+.\.ai-memory\scratch\find_single_chars.go|79|panic|panic(err)
 .\gitmap\apperror\apperror.go|25|raw error return|func (e *AppError) Unwrap() error {
 .\gitmap\apperror\apperror.go|30|raw error return|func Wrap(err error, op string, ctx map[string]any) *AppError {
 .\gitmap\archive\archive.go|126|raw error return|func IdentifyArchive(ctx context.Context, path string) (FormatType, error) {

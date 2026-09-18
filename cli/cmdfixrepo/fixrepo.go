@@ -3,7 +3,7 @@ package cmdfixrepo
 // CLI entry point for `gitmap fix-repo` (alias `fr`). This is the
 // Go-native re-implementation of fix-repo.ps1 / fix-repo.sh. Behavior,
 // exit codes, and config schema match the scripts 1:1. Spec:
-// spec/04-generic-cli/27-fix-repo-command.md.
+// 02-spec/04-generic-cli/27-fix-repo-command.md.
 
 import (
 	"fmt"

@@ -29,7 +29,7 @@ Find exact file names matching `01-index.md` restricted to Markdown files:
 
 ```bash
 $ gitmap find-files "01-index.md" -ext "md, go"
-.lovable/ai-fix-scripts/01-index.md
+03-ai-scripts/01-index.md
 ```
 
 ### Exact Go File Match

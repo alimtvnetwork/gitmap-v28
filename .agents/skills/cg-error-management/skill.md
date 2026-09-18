@@ -1,12 +1,12 @@
 ---
 name: cg-error-management
 description: >-
-  Autonomously audits, refactors, and validates repository-wide error management against spec/03-error-manage/ using AppError wrappers, universal response envelopes, and CI linters.
+  Autonomously audits, refactors, and validates repository-wide error management against 02-spec/03-error-manage/ using AppError wrappers, universal response envelopes, and CI linters.
 ---
 
 # Error Management & Architecture Coding Guidelines (`cg-error-management`)
 
-This skill provides autonomous audit, refactoring, and validation of repository-wide error handling based on `spec/03-error-manage/` and `.lovable/coding-guidelines.md`.
+This skill provides autonomous audit, refactoring, and validation of repository-wide error handling based on `02-spec/03-error-manage/` and `.ai-memory/coding-guidelines.md`.
 
 ## Core Invariants
 
@@ -42,7 +42,7 @@ This skill provides autonomous audit, refactoring, and validation of repository-
 7. **Never Swallow Errors**: Every catch block and error return must be recorded and handled explicitly.
 8. **Targeted Verification**: Continuous verification via `python linter-scripts/check-error-management.py <files>`. DO NOT run the full CI/CD pipeline runner (`06-cicd-local-runner.py`) during routine fixes.
 9. **No Releases**: Strictly forbidden from bumping versions or cutting releases at the end of this task.
-10. **Atomic Change Tracking**: Append all modified files to `.lovable/temp/recent-file-changes.json` under lock (`python 03-ai-scripts/33-test-inventory-generator.py --record <files...>`), mapping to associated tests in `.lovable/test-inventory.json`.
+10. **Atomic Change Tracking**: Append all modified files to `.ai-memory/temp/recent-file-changes.json` under lock (`python 03-ai-scripts/33-test-inventory-generator.py --record <files...>`), mapping to associated tests in `.ai-memory/test-inventory.json`.
 
 ## Fast File Discovery & Reading via Python Toolchain (Mandatory Acceleration)
 

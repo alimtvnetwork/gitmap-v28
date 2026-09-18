@@ -5,7 +5,7 @@
 // the user-supplied list is used verbatim — brand tag is NOT
 // auto-prepended). --mode (union|replace|intersection) governs the
 // reconciliation against whatever is already on disk. Soft-fails on
-// headless / no-VS-Code boxes. Spec: spec/01-vscode-project-manager-sync/04-tag-resync.md
+// headless / no-VS-Code boxes. Spec: 02-spec/01-vscode-project-manager-sync/04-tag-resync.md
 // Memory: mem://features VS Code PM Sync (v4.36.0; flags v4.37.0).
 package cmdvscode
 

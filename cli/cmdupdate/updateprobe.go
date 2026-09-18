@@ -26,7 +26,7 @@ type probeResult struct {
 
 // resolveLatestRepoSlug walks the probe → release → main fallback chain
 // and returns the winning repo slug plus the source label that produced
-// it. Spec: spec/01-app/111-update-remote-probe.md.
+// it. Spec: 02-spec/01-app/111-update-remote-probe.md.
 func resolveLatestRepoSlug(httpClient *http.Client) (string, string, error) {
 	base, currentN, err := parseCurrentRepoSlug(constants.UpdateCurrentRepoSlug)
 	if err != nil {

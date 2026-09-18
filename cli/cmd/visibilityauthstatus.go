@@ -3,7 +3,7 @@
 // Fails fast with a Code Red message BEFORE any provider mutation so
 // an unauthenticated CLI cannot leave a half-populated audit run.
 //
-// Spec: spec/01-app/116-bulk-visibility-mapub-mapri.md §preflight.
+// Spec: 02-spec/01-app/116-bulk-visibility-mapub-mapri.md §preflight.
 package cmd
 
 import (

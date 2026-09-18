@@ -65,10 +65,10 @@ __pycache__/
 *.pyc
 *.pyo
 
-.lovable/temp-scripts/
-.lovable/temp/
-.lovable/temp-agents/
-.lovable/cicd/
+.ai-memory/temp-scripts/
+.ai-memory/temp/
+.ai-memory/temp-agents/
+.ai-memory/cicd/
 /data
 /tmp/
 tmp/
@@ -80,4 +80,4 @@ tmp/
 *.db-shm
 *.db-wal
 *.lock
-.lovable/cicd/
+.ai-memory/cicd/

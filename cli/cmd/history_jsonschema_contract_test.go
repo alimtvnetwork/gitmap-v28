@@ -3,7 +3,7 @@ package cmd
 // JSON schema contract for `gitmap history --json`. Pairs the
 // runtime encoder (encodeHistoryJSON / buildHistoryJSONItems in
 // historyrender.go) with the published schema at
-// spec/08-json-schemas/history.schema.json so drift in either side
+// 02-spec/08-json-schemas/history.schema.json so drift in either side
 // fails the build.
 
 import (

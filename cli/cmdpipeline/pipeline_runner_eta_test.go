@@ -34,7 +34,7 @@ func TestIsRunnerActive(t *testing.T) {
 
 func TestWaitForRunnerETAActive(t *testing.T) {
 	tmpDir := t.TempDir()
-	lovableTemp := filepath.Join(tmpDir, ".lovable", "temp")
+	lovableTemp := filepath.Join(tmpDir, ".ai-memory", "temp")
 	if err := os.MkdirAll(lovableTemp, 0755); err != nil {
 		t.Fatalf("mkdir failed: %v", err)
 	}

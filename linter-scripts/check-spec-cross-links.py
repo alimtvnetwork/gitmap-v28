@@ -251,7 +251,7 @@ def emit_github_annotations(failures: list[dict]) -> None:
 
 def parse_args() -> argparse.Namespace:
     p = argparse.ArgumentParser(description="Verify spec/ internal cross-references.")
-    p.add_argument("--root", default="spec", help="Spec root directory (default: spec)")
+    p.add_argument("--root", default="02-spec", help="Spec root directory (default: spec)")
     p.add_argument("--repo-root", default=".", help="Repo root used to resolve absolute links")
     p.add_argument("--json", action="store_true", help="Emit JSON report to stdout")
     p.add_argument("--github", action="store_true", help="Emit GitHub Actions annotations")

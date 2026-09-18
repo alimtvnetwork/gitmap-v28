@@ -154,8 +154,8 @@ func parseImportSQLite(filePath string) ScheduleExportBundleResult {
    rg "result\.Wrap\[" -g "*.go" -g "!*types.go"
    rg "appfault\.ResultMap\[" -g "*.go" -g "!*types.go"
    ```
-2. Build the violation ledger in `.lovable/plans/pending/XX-types-go-extraction-audit.md` grouping violations by package.
-3. Decompose into granular subtasks in `.lovable/plans/subtasks/XX-types-go-extraction/`.
+2. Build the violation ledger in `.ai-memory/plans/pending/XX-types-go-extraction-audit.md` grouping violations by package.
+3. Decompose into granular subtasks in `.ai-memory/plans/subtasks/XX-types-go-extraction/`.
 
 ### Phase 2: Extraction & Verification
 
@@ -171,7 +171,7 @@ func parseImportSQLite(filePath string) ScheduleExportBundleResult {
    python linter-scripts/check-enum-and-boolean.py <modified_files>
    python linter-scripts/check-relative-paths.py
    ```
-4. Record modified files in `.lovable/temp/recent-file-changes.json`.
+4. Record modified files in `.ai-memory/temp/recent-file-changes.json`.
 
 ---
 

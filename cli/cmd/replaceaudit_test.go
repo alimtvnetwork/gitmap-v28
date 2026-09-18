@@ -50,7 +50,7 @@ func TestBuildAuditNeedles(t *testing.T) {
 //
 // IMPORTANT: every needle string is derived from the same `targets`
 // int slice via fmt.Sprintf so fix-repo cannot rewrite one half of
-// the pair without the other. See .lovable/memory/issues/2026-05-02-
+// the pair without the other. See .ai-memory/memory/issues/2026-05-02-
 // fixrepo-paired-literal-desync.md.
 func TestBuildAuditNeedlesWidthCrossing(t *testing.T) {
 	targets := []int{8, 9, 10, 12}

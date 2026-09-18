@@ -16,28 +16,28 @@ N = total self-loop steps budget that the agents will perform.
 ### Master Task Checklist (Atomic Numbered Steps)
 
 1. [ ] /goal Phase 1 (Step A): Deeply scan the target codebase using the fast Python discovery tools (`11-fast-file-scanner.py`, `12-fast-cached-grep.py`, `17-fast-file-reader.py` with `--limit`) to inventory all architectural violations and anti-patterns without truncation.
-2. [ ] /goal Phase 1 (Step B): Write the master audit specification in `.lovable/plans/pending/XX-style-guidelines-audit.md` with an exhaustive File Inventory Manifest and Violation Ledger.
-3. [ ] /goal Phase 1 (Step C): Decompose ALL source files into granular, bounded subtask batches of **5–8 files each** in `.lovable/plans/subtasks/XX-style/batch-01.md`, `batch-02.md`, etc.
+2. [ ] /goal Phase 1 (Step B): Write the master audit specification in `.ai-memory/plans/pending/XX-style-guidelines-audit.md` with an exhaustive File Inventory Manifest and Violation Ledger.
+3. [ ] /goal Phase 1 (Step C): Decompose ALL source files into granular, bounded subtask batches of **5–8 files each** in `.ai-memory/plans/subtasks/XX-style/batch-01.md`, `batch-02.md`, etc.
 4. [ ] /goal Phase 1 (Step D): Verify or create the automated style autofixer in `03-ai-scripts/05-guideline-autofixer.py` and register in `03-ai-scripts/01-index.md`.
 5. [ ] /goal Phase 2 (Step A): Spawn 2 execution subagents (max 2 threads each) to process subtasks concurrently, opening and surgically editing each 5–8 file batch line-by-line.
 6. [ ] /goal Phase 2 (Step B): Enforce Return New Line rules (R13-R16): blank line before `if`, blank line after `}`, blank line before `return`, blank lines around multiline struct calls, and zero clumped guard clauses.
 7. [ ] /goal Phase 2 (Step C): Decompose functions exceeding 8–15 lines into focused single-responsibility helpers and flatten nested conditionals (depth 0).
-8. [ ] /goal Phase 2 (Step D): Verify that actual source files (`*.go`, `*.ts`, etc.) have real modifications via `git diff --stat` (auto-reject if only `.lovable/` markdown files were changed).
-9. [ ] /goal Phase 2 (Step E): Move completed batch subtasks to `.lovable/plans/completed/` and immediately self-loop to dispatch the next pending batches until 0 batches remain.
+8. [ ] /goal Phase 2 (Step D): Verify that actual source files (`*.go`, `*.ts`, etc.) have real modifications via `git diff --stat` (auto-reject if only `.ai-memory/` markdown files were changed).
+9. [ ] /goal Phase 2 (Step E): Move completed batch subtasks to `.ai-memory/plans/completed/` and immediately self-loop to dispatch the next pending batches until 0 batches remain.
 10. [ ] /goal Phase 2 (Step F): Execute local linters (`python linter-scripts/check-newline-styling.py`, `check-function-lengths.py`) to verify 0 remaining violations.
 11. [ ] /goal Phase 2 (Step G): Execute targeted file-level linters and verification on modified files ensuring 0 remaining violations (`exit 0`). DO NOT run the full CI/CD pipeline runner (`06-cicd-local-runner.py`) during routine coding guideline execution turns.
-12. [ ] /learn Ingest `.lovable/memory/01-index.md` for project memory index and past learnings.
-13. [ ] /learn Ingest `.lovable/strictly-avoid.md` for banned anti-patterns and strict constraints.
-14. [ ] /learn Ingest `spec/02-coding-guidelines/02-canonical-size-tier.md` for canonical file and function size tiers.
-15. [ ] /learn Ingest `spec/02-coding-guidelines/01-cross-language/01-index.md` for hallucination prevention and micro-tasking.
-16. [ ] /learn Ingest `spec/02-coding-guidelines/01-cross-language/01-index.md` for strict relative path citation requirements.
-17. [ ] /learn Ingest `spec/02-coding-guidelines/01-cross-language/04-code-style/` for domain-specific architectural specifications.
-18. [ ] /learn Ingest `spec/02-coding-guidelines/01-cross-language/21-newline-styling-examples.md` for newline styling examples.
-19. [ ] /learn Ingest `.lovable/coding-guidelines.md` for master consolidated coding guidelines.
+12. [ ] /learn Ingest `.ai-memory/memory/01-index.md` for project memory index and past learnings.
+13. [ ] /learn Ingest `.ai-memory/strictly-avoid.md` for banned anti-patterns and strict constraints.
+14. [ ] /learn Ingest `02-spec/02-coding-guidelines/02-canonical-size-tier.md` for canonical file and function size tiers.
+15. [ ] /learn Ingest `02-spec/02-coding-guidelines/01-cross-language/01-index.md` for hallucination prevention and micro-tasking.
+16. [ ] /learn Ingest `02-spec/02-coding-guidelines/01-cross-language/01-index.md` for strict relative path citation requirements.
+17. [ ] /learn Ingest `02-spec/02-coding-guidelines/01-cross-language/04-code-style/` for domain-specific architectural specifications.
+18. [ ] /learn Ingest `02-spec/02-coding-guidelines/01-cross-language/21-newline-styling-examples.md` for newline styling examples.
+19. [ ] /learn Ingest `.ai-memory/coding-guidelines.md` for master consolidated coding guidelines.
 20. [ ] /goal Create or update agent rules in the repository if missing from agent memory.
 
 ```text
-PHASE_1_STEPS = N / 2   (Steps 1 .. N/2: Inventory ALL Source Files, Partition into 5-8 File Batches in .lovable/plans/subtasks/, Verify Autofixer)
+PHASE_1_STEPS = N / 2   (Steps 1 .. N/2: Inventory ALL Source Files, Partition into 5-8 File Batches in .ai-memory/plans/subtasks/, Verify Autofixer)
 PHASE_2_STEPS = N / 2   (Steps N/2+1 .. N: Unstoppable 2-Agent Loop over All Batches, Surgical Function Edits, Real Git Diffs, Local CI Runner)
 ```
 
@@ -60,7 +60,7 @@ N, PHASE_1_STEPS, and PHASE_2_STEPS are read-only after initialization. Never mo
 >
 > - You MUST partition the full list of codebase files into **batches of 5–8 files each**.
 > - Subagents MUST open and edit every single file in their assigned batch line-by-line.
-> - The master orchestrator MUST continuously self-loop across all batches until every single batch in `.lovable/plans/subtasks/` is completed.
+> - The master orchestrator MUST continuously self-loop across all batches until every single batch in `.ai-memory/plans/subtasks/` is completed.
 
 ---
 
@@ -553,11 +553,11 @@ func extractVersionValue(rawMap map[string]interface{}) string {
 
 To guarantee full execution without stopping after planning mode, the master orchestrator MUST enforce this continuous 2-phase loop:
 
-### 1. 2-Agent Concurrency & Strict `.lovable/` Bounding
+### 1. 2-Agent Concurrency & Strict `.ai-memory/` Bounding
 
 - **2-Agent Limit (Max 2 Threads Each):** When dispatching work, spawn **at most 2 sub-agents concurrently**, with **no more than 2 threads per agent**.
-- **Strict Folder Bounding (`.lovable/`):** Subagents can ONLY write planning files, subtasks, status reports, and logs inside `.lovable/` (`.lovable/plans/`, `.lovable/01-index.md`, `.lovable/memory/issues/`).
-- **Context Diet:** Provide subagents with minimal instructions (e.g. "Read subtask file `.lovable/plans/subtasks/xx-<parent-slug>/01-<subtask-title>.md` and execute it"). Do not paste huge files into agent prompts.
+- **Strict Folder Bounding (`.ai-memory/`):** Subagents can ONLY write planning files, subtasks, status reports, and logs inside `.ai-memory/` (`.ai-memory/plans/`, `.ai-memory/01-index.md`, `.ai-memory/memory/issues/`).
+- **Context Diet:** Provide subagents with minimal instructions (e.g. "Read subtask file `.ai-memory/plans/subtasks/xx-<parent-slug>/01-<subtask-title>.md` and execute it"). Do not paste huge files into agent prompts.
 
 ### 2. Phase 1: Planning Mode & Micro-Batch Subtask Partitioning (Steps 1 .. N/2)
 
@@ -587,9 +587,9 @@ Do not rely on standard search tools with 50-item truncation when discovering re
 
 1. **Comprehensive File Inventory:** Scan and list EVERY single source code file in the repository (`*.go`, `*.ts`, `*.py`, `*.php`).
 2. **Partition into 5–8 File Batches:** Group the file list into numbered subtasks:
-   - `.lovable/plans/subtasks/XX-style/batch-01.md`: Files 1–8
-   - `.lovable/plans/subtasks/XX-style/batch-02.md`: Files 9–16
-   - `.lovable/plans/subtasks/XX-style/batch-03.md`: Files 17–24
+   - `.ai-memory/plans/subtasks/XX-style/batch-01.md`: Files 1–8
+   - `.ai-memory/plans/subtasks/XX-style/batch-02.md`: Files 9–16
+   - `.ai-memory/plans/subtasks/XX-style/batch-03.md`: Files 17–24
    - ... (continue until all files in the codebase are assigned to a batch).
 3. **MANDATORY AUTO-LOOP (DO NOT STOP):** Once Phase 1 subtasks are written, the master orchestrator **MUST NOT STOP or ask the user for confirmation**. It MUST immediately self-loop and transition directly into Phase 2 execution mode.
 
@@ -605,7 +605,7 @@ Do not rely on standard search tools with 50-item truncation when discovering re
    - Subagents MUST verify that actual source files (`*.go`, `*.ts`, etc.) were edited via `git diff --stat`.
    - If 0 source code files were modified, the batch is rejected as a hallucination.
 4. **Continuous Self-Looping:**
-   - Move completed batch subtasks from `.lovable/plans/subtasks/` to `.lovable/plans/completed/`.
+   - Move completed batch subtasks from `.ai-memory/plans/subtasks/` to `.ai-memory/plans/completed/`.
    - Orchestrator checks for remaining pending batches. If any exist, immediately self-loop and dispatch the next 2 batches (`batch-03`, `batch-04`).
    - **DO NOT STOP until ALL batches are in `plans/completed/` and 0 pending batches remain.**
 5. **Quality Gate Verification:**
@@ -613,17 +613,17 @@ Do not rely on standard search tools with 50-item truncation when discovering re
 
 ---
 
-## Strict In-Repository Execution & `.lovable/` Bounding Mandate
+## Strict In-Repository Execution & `.ai-memory/` Bounding Mandate
 
 > [!IMPORTANT]
-> **STRICT IN-REPOSITORY EXECUTION & `.lovable/` STORAGE CONTRACT:**
+> **STRICT IN-REPOSITORY EXECUTION & `.ai-memory/` STORAGE CONTRACT:**
 >
 > 1. **In-Codebase Execution Only:** Whenever a Python script (runner, autofixer, linter, test aggregator) is executed or created, it MUST be executed **strictly within the repository root** (current working directory), NEVER outside the codebase or against external arbitrary directories.
-> 2. **Strict Folder Bounding (`.lovable/`):** All AI scripts, local runners, autofixers, helper utilities, memory issue logs, and planning files MUST be created inside the `.lovable/` folder:
+> 2. **Strict Folder Bounding (`.ai-memory/`):** All AI scripts, local runners, autofixers, helper utilities, memory issue logs, and planning files MUST be created inside the `.ai-memory/` folder:
 >    - Python AI Scripts: `03-ai-scripts/` (e.g. `01-file-manipulator.py`, `05-guideline-autofixer.py`, `06-cicd-local-runner.py`, `07-relative-path-fixer.py`, `05-naming-autofixer.py`).
->    - RCA & Issue Logs: `.lovable/memory/issues/` and `.lovable/cicd-issues/`.
->    - Execution Plans & Subtasks: `.lovable/plans/pending/`, `.lovable/plans/subtasks/`.
->    - Coding Guidelines Mirror: `.lovable/coding-guidelines.md`.
+>    - RCA & Issue Logs: `.ai-memory/memory/issues/` and `.ai-memory/cicd-issues/`.
+>    - Execution Plans & Subtasks: `.ai-memory/plans/pending/`, `.ai-memory/plans/subtasks/`.
+>    - Coding Guidelines Mirror: `.ai-memory/coding-guidelines.md`.
 > 3. **Worker Pool & Log Aggregation Architecture:** All local runners and test orchestrators must use a concurrent worker pool (2–3 workers via `ThreadPoolExecutor`), announce enqueued tasks upfront, show real-time progress, handle failures gracefully without canceling sibling workers, and print a consolidated final summary with full stdout/stderr error logs for failed jobs.
 > 4. **`force` Keyword Support:** If the user wrote `force`, `force rebuild`, or `force create` on top of the prompt or trigger: **ALWAYS recreate/regenerate the Python runner script from scratch**, regardless of whether the file already exists on disk.
 > 5. **No External or Random File Creation:** NEVER write scripts, temporary test scripts, or scratch files to root, `/tmp`, global system paths, or outside the repository boundary.
@@ -633,10 +633,10 @@ Do not rely on standard search tools with 50-item truncation when discovering re
 ## Pre-Reply / Loop Checklist (Must Verify Every Loop Iteration)
 
 - [ ] Git working tree is clean before new code changes.
-- [ ] Sub-agents are actively assigned disjoint batches verified against `.lovable/01-index.md`.
+- [ ] Sub-agents are actively assigned disjoint batches verified against `.ai-memory/01-index.md`.
 - [ ] **Micro-Batch Sizing:** Each subtask is bounded to exactly 5–8 files.
 - [ ] **Real Source Edits:** Verified with `git diff --stat` that actual source code files (`*.go`, `*.ts`, etc.) have newline insertions.
-- [ ] Completed batch tasks were `mv`'d to `plans/completed/` and `.lovable/plans/01-index.md` was updated.
+- [ ] Completed batch tasks were `mv`'d to `plans/completed/` and `.ai-memory/plans/01-index.md` was updated.
 - [ ] **Blank Line Before `if`:** Verified blank line before every `if` statement across all modified files.
 - [ ] **Blank Line After `}`:** Verified blank line after every closing brace `}` followed by code.
 - [ ] **Blank Line Before `return`:** Verified blank line before every `return`/`throw` in multi-line blocks.
@@ -646,7 +646,7 @@ Do not rely on standard search tools with 50-item truncation when discovering re
 - [ ] **LF Line Endings (`\n`):** All files use Unix LF line endings.
 - [ ] **UTF-8 Encoding (No BOM):** All files encoded in UTF-8 without BOM.
 - [ ] `python linter-scripts/check-newline-styling.py` and `python linter-scripts/check-function-lengths.py` exited with code 0.
-- [ ] **Atomic File Recording:** Modified files recorded to `.lovable/temp/recent-file-changes.json` under lock (`python 03-ai-scripts/33-test-inventory-generator.py --record <files...>`). Builds, tests, and CI runner are deferred to CI/CD fix.
+- [ ] **Atomic File Recording:** Modified files recorded to `.ai-memory/temp/recent-file-changes.json` under lock (`python 03-ai-scripts/33-test-inventory-generator.py --record <files...>`). Builds, tests, and CI runner are deferred to CI/CD fix.
 
 ---
 
@@ -697,4 +697,4 @@ Do not rely on standard search tools with 50-item truncation when discovering re
 - **NO RELEASES (Strict Policy):** You MUST NOT bump versions, update changelogs, or cut a release at the end of this task. Commits must remain standard development commits. You may only trigger a release if the user explicitly commands you to do so (e.g., "cut a release" or "bump the version").
 - **NO TEST RUNNING (Strict Policy):** Test execution is strictly disabled. You MUST NOT execute unit tests, integration tests, or test suites unless explicitly commanded by the repository owner.
 - **NO FULL CI/CD RUNNER (Strict Policy):** DO NOT run `python 03-ai-scripts/06-cicd-local-runner.py` during routine coding guideline execution turns. Running the heavy 28-38 gate pipeline across the entire repository wastes massive amounts of time and scans unrelated files. Verify code strictly using targeted file-level linters / autofixers on the specific modified files.
-- **Test Inventory & Recent Changes Tracking:** Whenever any file is modified, append its repository-relative path to `.lovable/temp/recent-file-changes.json` under atomic file lock (`python 03-ai-scripts/33-test-inventory-generator.py --record <path>`), cross-referencing `.lovable/test-inventory.json` so associated tests are known for future release verification.
+- **Test Inventory & Recent Changes Tracking:** Whenever any file is modified, append its repository-relative path to `.ai-memory/temp/recent-file-changes.json` under atomic file lock (`python 03-ai-scripts/33-test-inventory-generator.py --record <path>`), cross-referencing `.ai-memory/test-inventory.json` so associated tests are known for future release verification.

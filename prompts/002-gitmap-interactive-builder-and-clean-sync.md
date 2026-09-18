@@ -2,13 +2,13 @@
 
 ## 1. Objectives & Context
 
-Execute final review, git hygiene, repository status verification, and single-commit synchronization for the Interactive Macro Builder features delivered under Plan 83 ([.lovable/plans/completed/83-interactive-macro-builder-pwd-ls-search.md](../.lovable/plans/completed/83-interactive-macro-builder-pwd-ls-search.md)).
+Execute final review, git hygiene, repository status verification, and single-commit synchronization for the Interactive Macro Builder features delivered under Plan 83 ([.ai-memory/plans/completed/83-interactive-macro-builder-pwd-ls-search.md](../.ai-memory/plans/completed/83-interactive-macro-builder-pwd-ls-search.md)).
 
 ### Mandatory Reference Documents
-- `mem://01-index.md` / `.lovable/memory/01-index.md`: Core memory, CODE RED constraints, and zero-error-swallowing policy.
-- `.lovable/coding-guidelines.md`: Strict function length (≤15 lines), blank line before return, and positive boolean naming.
-- `.lovable/plans/01-index.md`: Active plans roadmap and completed milestone index.
-- `.lovable/strictly-avoid.md`: Prohibited patterns, CI/CD bypass bans, and absolute path prohibitions.
+- `mem://01-index.md` / `.ai-memory/memory/01-index.md`: Core memory, CODE RED constraints, and zero-error-swallowing policy.
+- `.ai-memory/coding-guidelines.md`: Strict function length (≤15 lines), blank line before return, and positive boolean naming.
+- `.ai-memory/plans/01-index.md`: Active plans roadmap and completed milestone index.
+- `.ai-memory/strictly-avoid.md`: Prohibited patterns, CI/CD bypass bans, and absolute path prohibitions.
 
 ---
 
@@ -54,5 +54,5 @@ Execute final review, git hygiene, repository status verification, and single-co
 ---
 
 ## 4. Self-Instruction & Post-Execution Feedback
-- **Before acting:** Re-read `mem://01-index.md` and `.lovable/coding-guidelines.md`; restate which rules apply before executing.
+- **Before acting:** Re-read `mem://01-index.md` and `.ai-memory/coding-guidelines.md`; restate which rules apply before executing.
 - **After execution:** Suggest any further refinements or automated assertions that could be added to this instruction for future runs.

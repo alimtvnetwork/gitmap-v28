@@ -16,7 +16,7 @@ import (
 // dynamically by Go so the output stays in sync with the current binary
 // version reported by constants.Version.
 //
-// Spec: spec/01-app/109-install-gitmap-oneliner.md
+// Spec: 02-spec/01-app/109-install-gitmap-oneliner.md
 func runInstallGitmapOneliner() error {
 	w := os.Stdout
 

@@ -39,9 +39,9 @@ Topic: Interactive Macro Builder PWD display, LS inspection, helper commands & C
 > > **Prompt Version:** 2.1.0
 > > **Synchronization:** Main Meta-Repo & Connected Workspaces
 >
-> /goal Persist what happened this turn so the next AI knows everything without guessing. Every decision, plan change, unresolved ambiguity, newly discovered pattern, and fixed bug must be written to `.lovable/` before this turn ends.
+> /goal Persist what happened this turn so the next AI knows everything without guessing. Every decision, plan change, unresolved ambiguity, newly discovered pattern, and fixed bug must be written to `.ai-memory/` before this turn ends.
 >
-> /learn Persist all user corrections, resolved setups, directives, learned architectural decisions, and mistakes avoided into `.lovable/memory/learned/01-<slug>.md` and `.lovable/strictly-avoid.md` so Antigravity learns permanently and never repeats past errors.
+> /learn Persist all user corrections, resolved setups, directives, learned architectural decisions, and mistakes avoided into `.ai-memory/memory/learned/01-<slug>.md` and `.ai-memory/strictly-avoid.md` so Antigravity learns permanently and never repeats past errors.
 
 ---
 
@@ -64,7 +64,7 @@ Topic: Interactive Macro Builder PWD display, LS inspection, helper commands & C
 
 ## Outcomes / Decisions
 
-- Plan 83 completed and moved to `.lovable/plans/completed/83-interactive-macro-builder-pwd-ls-search.md`.
+- Plan 83 completed and moved to `.ai-memory/plans/completed/83-interactive-macro-builder-pwd-ls-search.md`.
 - Stored user preference in `.gitmap/macro_pwd.pref` and exposed session toggle for interactive macro sessions.
 - In-builder `ls` inspection runs without corrupting entered macro steps, allowing users to inspect files and optionally record via `+add` or `add <cmd>`.
 

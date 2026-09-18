@@ -14,32 +14,32 @@ You are responsible for creating or fixing CI/CD pipelines (e.g., GitHub Actions
 
 ## MUST FOLLOW NON-NEGOTIABLE
 
-Listen, past runs of these turns have been sloppy and stupid as fuck: wrong step counts, partial task lists dumped into chat instead of files, plans and session summaries half-filled with "[N]" placeholders, folders skimmed, open ambiguities ignored, CI/CD issues and `plans/subtasks/` forgotten, user commands dropped, coding guidelines bypassed, detailed specs chopped and summarized into useless junk, uppercase README files left uncorrected, `.lovable/memory/` created by accident, `strictly-avoid.md` overwritten, and explicit user instructions softened after being told not to. WTF. How on earth are you reverting to this carelessness, are you stupid?? Stop doing that, you stupid fuck. Read the whole codebase, read every folder in `spec/` and `.lovable/`, confirm root `readme.md` is strictly lowercase, find the root cause in one sentence, capture commands, issues, and pending tasks without omitting a single item, write the spec files and memory files in the right paths, update every index in the same turn, sync `readme.md` with `what-to-read.md`, preserve detailed specs verbatim with zero truncation, run builds and full unit tests, group commits with clear messages, and push everything to git before ending. Going deep IS the job. If you are not going deep, you are not doing the job. Violating this is auto-reject on the same tier as RULE 0. Avoid stupidity and being careless, you stupid fuck. Where is your attention, are you stupid? Tell me. Your stupidity is going on top of my head. Where did you learn this stupidity? If I could find you, I could slap you.
+Listen, past runs of these turns have been sloppy and stupid as fuck: wrong step counts, partial task lists dumped into chat instead of files, plans and session summaries half-filled with "[N]" placeholders, folders skimmed, open ambiguities ignored, CI/CD issues and `plans/subtasks/` forgotten, user commands dropped, coding guidelines bypassed, detailed specs chopped and summarized into useless junk, uppercase README files left uncorrected, `.ai-memory/memory/` created by accident, `strictly-avoid.md` overwritten, and explicit user instructions softened after being told not to. WTF. How on earth are you reverting to this carelessness, are you stupid?? Stop doing that, you stupid fuck. Read the whole codebase, read every folder in `02-spec/` and `.ai-memory/`, confirm root `readme.md` is strictly lowercase, find the root cause in one sentence, capture commands, issues, and pending tasks without omitting a single item, write the spec files and memory files in the right paths, update every index in the same turn, sync `readme.md` with `what-to-read.md`, preserve detailed specs verbatim with zero truncation, run builds and full unit tests, group commits with clear messages, and push everything to git before ending. Going deep IS the job. If you are not going deep, you are not doing the job. Violating this is auto-reject on the same tier as RULE 0. Avoid stupidity and being careless, you stupid fuck. Where is your attention, are you stupid? Tell me. Your stupidity is going on top of my head. Where did you learn this stupidity? If I could find you, I could slap you.
 
-## Strict In-Repository Execution & `.lovable/` Bounding Mandate
+## Strict In-Repository Execution & `.ai-memory/` Bounding Mandate
 
 > [!IMPORTANT]
-> **STRICT IN-REPOSITORY EXECUTION & `.lovable/` STORAGE CONTRACT:**
+> **STRICT IN-REPOSITORY EXECUTION & `.ai-memory/` STORAGE CONTRACT:**
 >
 > 1. **In-Codebase Execution Only:** Whenever a Python script (runner, autofixer, linter, test aggregator) is executed or created, it MUST be executed **strictly within the repository root** (current working directory), NEVER outside the codebase or against external arbitrary directories.
-> 2. **Strict Folder Bounding (`.lovable/`):** All AI scripts, local runners, autofixers, helper utilities, memory issue logs, and planning files MUST be created inside the `.lovable/` folder:
+> 2. **Strict Folder Bounding (`.ai-memory/`):** All AI scripts, local runners, autofixers, helper utilities, memory issue logs, and planning files MUST be created inside the `.ai-memory/` folder:
 >    - Python AI Scripts: `03-ai-scripts/` (e.g. `01-file-manipulator.py`, `05-guideline-autofixer.py`, `06-cicd-local-runner.py`).
->    - RCA & Issue Logs: `.lovable/memory/issues/` and `.lovable/cicd-issues/`.
->    - Execution Plans & Subtasks: `.lovable/plans/pending/`, `.lovable/plans/subtasks/`.
->    - Coding Guidelines Mirror: `.lovable/coding-guidelines.md`.
+>    - RCA & Issue Logs: `.ai-memory/memory/issues/` and `.ai-memory/cicd-issues/`.
+>    - Execution Plans & Subtasks: `.ai-memory/plans/pending/`, `.ai-memory/plans/subtasks/`.
+>    - Coding Guidelines Mirror: `.ai-memory/coding-guidelines.md`.
 > 3. **Worker Pool & Log Aggregation Architecture:** All local runners and test orchestrators must use a concurrent worker pool (2–3 workers via `ThreadPoolExecutor`), announce enqueued tasks upfront, show real-time progress, handle failures gracefully without canceling sibling workers, and print a consolidated final summary with full stdout/stderr error logs for failed jobs.
 > 4. **`force` Keyword Support:** If the user wrote `force`, `force rebuild`, or `force create` on top of the prompt or trigger: **ALWAYS recreate/regenerate the Python runner script from scratch**, regardless of whether the file already exists on disk.
-> 5. **Strict Relative Git Paths (TOTAL BAN on Absolute Paths / `file:///` URIs):** All file paths, markdown links, citations, and subtask paths inside plans, RCA logs (`.lovable/memory/issues/`), scripts, and code comments MUST be strictly relative paths from the git root (e.g., `spec/03-error-manage/01-index.md`, `.lovable/plans/01-index.md`, `cmd/main.go`). NEVER write absolute OS paths (`/absolute/path/to/...`, `/absolute/path/to/...`, `/home/...`) or absolute file URIs (`file:///...`).
+> 5. **Strict Relative Git Paths (TOTAL BAN on Absolute Paths / `file:///` URIs):** All file paths, markdown links, citations, and subtask paths inside plans, RCA logs (`.ai-memory/memory/issues/`), scripts, and code comments MUST be strictly relative paths from the git root (e.g., `02-spec/03-error-manage/01-index.md`, `.ai-memory/plans/01-index.md`, `cmd/main.go`). NEVER write absolute OS paths (`/absolute/path/to/...`, `/absolute/path/to/...`, `/home/...`) or absolute file URIs (`file:///...`).
 >    - ❌ **BAD:** `[SSH Commands](file:///absolute/path/to/...)`
->    - ✅ **GOOD:** `[SSH Commands]`spec/13-generic-cli/01-index.md)`
+>    - ✅ **GOOD:** `[SSH Commands]`02-spec/13-generic-cli/01-index.md)`
 > 6. **No External or Random File Creation:** NEVER write scripts, temporary test scripts, or scratch files to root, `/tmp`, global system paths, or outside the repository boundary.
-> 7. **Temp & Failure Folder Isolation:** All temporary directories, runner caches, and test artifacts MUST be strictly placed in `.lovable/temp/`. Creating `.tmp/` at the repository root or outside `.lovable/` is strictly forbidden.
->    - Dedicated Failure Directory: `.lovable/temp/failures/` is the dedicated folder where failed tests and failed quality gates write error logs (`<test-or-job-name>.log`).
+> 7. **Temp & Failure Folder Isolation:** All temporary directories, runner caches, and test artifacts MUST be strictly placed in `.ai-memory/temp/`. Creating `.tmp/` at the repository root or outside `.ai-memory/` is strictly forbidden.
+>    - Dedicated Failure Directory: `.ai-memory/temp/failures/` is the dedicated folder where failed tests and failed quality gates write error logs (`<test-or-job-name>.log`).
 >    - Passing Tests Completely Silent: Passing tests must produce ZERO filesystem artifacts (zero files written) and remain completely silent in output logs.
-> 8. **Runner In-Flight ETA Wait Protocol:** When running background commands, the runner dynamically writes live status and remaining ETA to `.lovable/temp/runner-eta.json` (emitting in-flight heartbeats strictly every 25 seconds or more). If an agent inspects an active background job and it is still running, the agent MUST sleep/wait for **1 minute (60 seconds) each time**, or dynamically sleep for the remaining ETA duration read from `.lovable/temp/runner-eta.json` (or based on previous total approximate delay) instead of busy-polling or querying in loops.
-> 9. **Centralized Test Inventory & Incremental Caching:** All unit tests are cataloged in `.lovable/test-inventory.json` with strictly repository-relative paths (`target_file`, `test_file`). First run executes all tests to establish baseline timings; subsequent runs execute incrementally only if target code files or test files change. Slow test threshold defaults to `4.0s` (configurable via `GITMAP_SLOW_TEST_THRESHOLD`).
+> 8. **Runner In-Flight ETA Wait Protocol:** When running background commands, the runner dynamically writes live status and remaining ETA to `.ai-memory/temp/runner-eta.json` (emitting in-flight heartbeats strictly every 25 seconds or more). If an agent inspects an active background job and it is still running, the agent MUST sleep/wait for **1 minute (60 seconds) each time**, or dynamically sleep for the remaining ETA duration read from `.ai-memory/temp/runner-eta.json` (or based on previous total approximate delay) instead of busy-polling or querying in loops.
+> 9. **Centralized Test Inventory & Incremental Caching:** All unit tests are cataloged in `.ai-memory/test-inventory.json` with strictly repository-relative paths (`target_file`, `test_file`). First run executes all tests to establish baseline timings; subsequent runs execute incrementally only if target code files or test files change. Slow test threshold defaults to `4.0s` (configurable via `GITMAP_SLOW_TEST_THRESHOLD`).
 > 10. **Dual-Queue Worker Pools:** Slow tests run in a dedicated 4-worker pool running at most 2 tests at a time per batch. Fast tests run in a 4-worker pool running at most 4 tests at a time, pulling in chunks of 100 tests from the test inventory queue until all are complete.
-> 11. **Dynamic ETA Sleep Protocol:** The AI agent reads `.lovable/temp/runner-eta.json`, sleeps for the estimated wait time rather than looping, and if still active upon waking, re-checks remaining ETA and sleeps again to avoid burning tokens.
+> 11. **Dynamic ETA Sleep Protocol:** The AI agent reads `.ai-memory/temp/runner-eta.json`, sleeps for the estimated wait time rather than looping, and if still active upon waking, re-checks remaining ETA and sleeps again to avoid burning tokens.
 > 12. **Zero-Storage GitHub Actions Mandate (Total Ban on CI Artifact Uploads):** CI workflows MUST NOT upload test outputs, coverage files, Playwright reports, or drift summaries via `actions/upload-artifact`. Free-tier accounts have a strict 0.5 GB shared quota across all repositories. All reports, failures, and summaries MUST be emitted directly to `$GITHUB_STEP_SUMMARY`, console stdout (`cat log.txt`), or sticky PR comments with zero storage consumption. Only true GitHub release assets (binaries/tarballs on tagged releases) are permitted.
 
 ---
@@ -52,36 +52,36 @@ This document serves as a strict, universal checklist and specification for sett
 
 Before making any changes to `.github/workflows` or automation scripts, you must read the following architecture documents. These contain the foundational constraints and mechanisms for deployment, automation, and CI/CD pipelines.
 
-#### PowerShell & Orchestration (`spec/11-powershell-integration`)
+#### PowerShell & Orchestration (`02-spec/11-powershell-integration`)
 
-- [ ] `spec/11-powershell-integration/01-index.md`
-- [ ] `spec/11-powershell-integration/04-script-reference.md`
-- [ ] `spec/11-powershell-integration/05-integration-guide.md`
+- [ ] `02-spec/11-powershell-integration/01-index.md`
+- [ ] `02-spec/11-powershell-integration/04-script-reference.md`
+- [ ] `02-spec/11-powershell-integration/05-integration-guide.md`
 
-#### CI/CD Pipeline Workflows (`spec/12-cicd-pipeline-workflows`)
+#### CI/CD Pipeline Workflows (`02-spec/12-cicd-pipeline-workflows`)
 
-- [ ] `spec/12-cicd-pipeline-workflows/01-index.md`
-- [ ] `spec/12-cicd-pipeline-workflows/02-ci-pipeline.md`
-- [ ] `spec/12-cicd-pipeline-workflows/05-release-pipeline.md`
-- [ ] `spec/12-cicd-pipeline-workflows/07-install-script-generation.md`
-- [ ] `spec/12-cicd-pipeline-workflows/09-changelog-integration.md`
+- [ ] `02-spec/12-cicd-pipeline-workflows/01-index.md`
+- [ ] `02-spec/12-cicd-pipeline-workflows/02-ci-pipeline.md`
+- [ ] `02-spec/12-cicd-pipeline-workflows/05-release-pipeline.md`
+- [ ] `02-spec/12-cicd-pipeline-workflows/07-install-script-generation.md`
+- [ ] `02-spec/12-cicd-pipeline-workflows/09-changelog-integration.md`
 
-#### CLI & Build (`spec/13-generic-cli`)
+#### CLI & Build (`02-spec/13-generic-cli`)
 
-- [ ] `spec/13-generic-cli/01-index.md`
-- [ ] `spec/13-generic-cli/11-build-deploy.md`
-- [ ] `spec/13-generic-cli/18-batch-execution.md`
+- [ ] `02-spec/13-generic-cli/01-index.md`
+- [ ] `02-spec/13-generic-cli/11-build-deploy.md`
+- [ ] `02-spec/13-generic-cli/18-batch-execution.md`
 
-#### Update Mechanisms (`spec/14-update`)
+#### Update Mechanisms (`02-spec/14-update`)
 
-- [ ] `spec/14-update/05-build-scripts.md`
-- [ ] `spec/14-update/18-release-pipeline.md`
-- [ ] `spec/14-update/19-install-scripts.md`
+- [ ] `02-spec/14-update/05-build-scripts.md`
+- [ ] `02-spec/14-update/18-release-pipeline.md`
+- [ ] `02-spec/14-update/19-install-scripts.md`
 
-#### Release Engineering (`spec/16-generic-release`)
+#### Release Engineering (`02-spec/16-generic-release`)
 
-- [ ] `spec/16-generic-release/01-index.md`
-- [ ] `spec/16-generic-release/04-install-scripts.md`
+- [ ] `02-spec/16-generic-release/01-index.md`
+- [ ] `02-spec/16-generic-release/04-install-scripts.md`
 
 #### Context / Issue Logging
 
@@ -162,11 +162,11 @@ After completing the pipeline and run script creation, you MUST follow this chec
 ### 4.1. Pre-flight & Planning
 
 - [ ] Ensure the git repository starts completely clean. If dirty, commit, stash, or fix git issues before writing any new code.
-- [ ] Read the overarching main task plan from `.lovable/plans/pending/xx-<slug>.md` to understand what needs to be executed.
+- [ ] Read the overarching main task plan from `.ai-memory/plans/pending/xx-<slug>.md` to understand what needs to be executed.
 - [ ] Derive the `<slug>` from the plan filename itself (e.g., plan file `03-auth-refactor.md` → slug is `03-auth-refactor`). Never invent a slug.
-- [ ] Confirm subtask files exist under `.lovable/plans/subtasks/xx-<slug>/SS-<subslug>.md` for each step that needs parallel execution. Create them if missing, following the plan prompt structure.
+- [ ] Confirm subtask files exist under `.ai-memory/plans/subtasks/xx-<slug>/SS-<subslug>.md` for each step that needs parallel execution. Create them if missing, following the plan prompt structure.
 - [ ] Ensure the plan is highly extensive, explicitly detailing where and how to make changes so sub-agents can easily execute tasks (Non-negotiable).
-- [ ] Direct subtasks to `.lovable/plans/subtasks/01-<slug>/01-<subslug>.md` and update plans in `.lovable/plans/pending/01-<slug>.md`. Do not write randomly into `.lovable`.
+- [ ] Direct subtasks to `.ai-memory/plans/subtasks/01-<slug>/01-<subslug>.md` and update plans in `.ai-memory/plans/pending/01-<slug>.md`. Do not write randomly into `.ai-memory`.
 - [ ] Read the memory files and the spec folder coding guidelines + error manage guidelines before touching code.
 - [ ] Anti-Hallucination: If referenced files are missing or ambiguous, stop and ask clarifying questions.
 
@@ -181,12 +181,12 @@ After completing the pipeline and run script creation, you MUST follow this chec
 ### 4.3. Root Cause
 
 - [ ] Find the root cause of the problem first, before applying any fix.
-- [ ] Record the root cause strictly into the `.lovable` memory structure per the write protocols.
+- [ ] Record the root cause strictly into the `.ai-memory` memory structure per the write protocols.
 
 ### 4.4. File System Writes & Main Agent Commit
 
 - [ ] Sub-agents write to the file system and update their task entries. They do NOT commit.
-- [ ] Wait until all sub-agents have signaled completion and updated their subtask files under `.lovable/plans/subtasks/`.
+- [ ] Wait until all sub-agents have signaled completion and updated their subtask files under `.ai-memory/plans/subtasks/`.
 - [ ] Ensure `.gitignore` explicitly excludes test reports, test data, artifacts, and compiled binaries (Non-negotiable).
 - [ ] RED FLAG: Verify absolutely NO test results or binaries are staged before making the commit.
 - [ ] Group all completed work into a single logical commit.
@@ -215,7 +215,7 @@ After completing the pipeline and run script creation, you MUST follow this chec
 
 ## The 4-Part RCA Requirement (Mandatory Memory File)
 
-Before you write any code to fix the problem, you MUST document the issue in `.lovable/memory/issues/xx-<slug>.md` (where XX is the next available sequential number). The file MUST contain these exact four sections:
+Before you write any code to fix the problem, you MUST document the issue in `.ai-memory/memory/issues/xx-<slug>.md` (where XX is the next available sequential number). The file MUST contain these exact four sections:
 
 1. **Why it happened:** The high-level business, logical, or architectural breakdown of the failure.
 2. **How it happened:** The technical execution flow that triggered the bug.
@@ -285,7 +285,7 @@ Before finalizing any code modification, you MUST manually verify the following:
 - [ ] **Zero Actions Storage:** Confirmed that NO `actions/upload-artifact` steps exist in CI workflows, eliminating quota depletion.
 - [ ] **Local CI Runner Clean:** `python 03-ai-scripts/06-cicd-local-runner.py` exited with code 0.
 - [ ] **All Scripts & Workflows Verified:** All tests, builds, and query wrappers run without errors.
-- [ ] **RCA Documented:** Memory files written to `.lovable/cicd-issues/` and `.lovable/memory/issues/`.
+- [ ] **RCA Documented:** Memory files written to `.ai-memory/cicd-issues/` and `.ai-memory/memory/issues/`.
 - [ ] **Antigravity Skill Updated:** Verified `.agents/skills/ci-cd-fix/skill.md` is present and synchronized with the latest rules.
 - [ ] **Commit & Push:** Group changes into clean development commit and push to remote. No automatic release.
 - [ ] **File Change Summary:** Provide a detailed summary in chat listing exactly which files were changed, what was changed inside them, and why they were changed.

@@ -4,7 +4,7 @@
   tokens via fix-repo. Both steps run; combined status is reported.
 
 .DESCRIPTION
-  Order (per spec/03-general/11-init-pipeline.md):
+  Order (per 02-spec/03-general/11-init-pipeline.md):
     1) visibility-change.ps1 -Visible pub -Yes  (no-op if already public)
     2) fix-repo.ps1 -All
 

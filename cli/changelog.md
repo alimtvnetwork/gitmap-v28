@@ -92,7 +92,7 @@
 - `gitmap/cmd/clonepick_execute.go:70` was printing
   `fmt.Fprintln(os.Stderr, err)` after a `TouchAfterReplay` DB
   failure. The CI gate `.github/scripts/check-bare-stderr-err.sh`
-  (per spec/04-generic-cli/07-error-handling.md) forbids bare
+  (per 02-spec/04-generic-cli/07-error-handling.md) forbids bare
   `Fprintln(os.Stderr, err)` in `gitmap/cmd/*.go` because it
   drops three of four required context fields (command, op,
   subject, cause).
@@ -152,7 +152,7 @@ edits should keep files gofmt-clean on save.
   walks every `constants_*.go` in `gitmap/constants/`, extracts
   table names from `CREATE TABLE IF NOT EXISTS` blocks, and
   asserts the set equals the table blocks declared in
-  `spec/01-app/gitmap-database-erd.mmd`. Fails CI on either
+  `02-spec/01-app/gitmap-database-erd.mmd`. Fails CI on either
   direction of drift (missing-from-ERD or orphan-in-ERD) with a
   concrete fix recipe in the error message.
 - 24 commit-in / pipeline / transactions / archive / VSCode /
@@ -162,9 +162,9 @@ edits should keep files gofmt-clean on save.
 
 ### Changed
 
-- Renamed `spec/01-app/gitmap-database-erd-v3.12.1.mmd` →
-  `spec/01-app/gitmap-database-erd.mmd` (canonical, version-less).
-- Deleted stale `spec/01-app/gitmap-database-erd.mmd` (v3.5.0,
+- Renamed `02-spec/01-app/gitmap-database-erd-v3.12.1.mmd` →
+  `02-spec/01-app/gitmap-database-erd.mmd` (canonical, version-less).
+- Deleted stale `02-spec/01-app/gitmap-database-erd.mmd` (v3.5.0,
   missing 11 tables) and `gitmap-core-schema-simplified.mmd`
   (v15 Phase 1.2). Replaced by the canonical file above.
 - ERD frontmatter now points at the parity test as the
@@ -423,7 +423,7 @@ snippet, or that drops the version from a URL, fails CI.
 - **`gitmap commit-in <source> <inputs...>`** (alias **`cin`**) — replay every
   first-parent commit from one or more input repos (folders or Git URLs) into
   a single destination repo, deduped by source SHA, with byte-exact author
-  AND committer date replication. Spec: `spec/03-commit-in/`.
+  AND committer date replication. Spec: `02-spec/03-commit-in/`.
 
   | Capability                | Behavior                                                                              |
   |---------------------------|---------------------------------------------------------------------------------------|
@@ -586,7 +586,7 @@ snippet, or that drops the version from a URL, fails CI.
   `gitmap/cmd/{scan,vscodepmsync,code,rootflags}.go`,
   `gitmap/constants/constants.go`,
   `gitmap/helptext/{code,scan}.md`, `src/data/commands.ts`,
-  `spec/01-vscode-project-manager-sync/README.md`.
+  `02-spec/01-vscode-project-manager-sync/README.md`.
 
 ### Compatibility
 
@@ -690,8 +690,8 @@ This matches portable / non-standard installations automatically.
 
 ### Spec & memory
 
-- New spec: `spec/01-vscode-project-manager-sync/README.md` plus the captured
-  user fixture `spec/01-vscode-project-manager-sync/sample-projects.json`.
+- New spec: `02-spec/01-vscode-project-manager-sync/README.md` plus the captured
+  user fixture `02-spec/01-vscode-project-manager-sync/sample-projects.json`.
 - New memory: `mem://features/vscode-project-manager-sync` (path resolution
   rule promoted to a Core memory).
 
@@ -886,7 +886,7 @@ Verified post-rename:
 
 ### Files (this section)
 
-- Edited: 404 files (391 `.go` files in `gitmap/`, plus `gitmap/go.mod`, `gitmap-updater/go.mod`, `gitmap-updater/main.go`, `Makefile`, `.github/workflows/ci.yml`, `.github/workflows/release.yml`, `run.ps1`, `run.sh`, multiple `spec/` docs, `changelog.md` history references, `src/data/changelog.ts`, `src/pages/GettingStarted.tsx`).
+- Edited: 404 files (391 `.go` files in `gitmap/`, plus `gitmap/go.mod`, `gitmap-updater/go.mod`, `gitmap-updater/main.go`, `Makefile`, `.github/workflows/ci.yml`, `.github/workflows/release.yml`, `run.ps1`, `run.sh`, multiple `02-spec/` docs, `changelog.md` history references, `src/data/changelog.ts`, `src/pages/GettingStarted.tsx`).
 - Edited: `gitmap/constants/constants.go` — bumped Version to 3.27.0.
 - Created: `.gitmap/release/v3.27.0.json` — release metadata.
 - Edited: `.gitmap/release/latest.json` — pointer to v3.27.0.
@@ -1197,7 +1197,7 @@ User reported `gitmap github-desktop` printing `Unknown command`. Root cause: th
 ### Schema (BREAKING)
 
 - **`Release.RepoId INTEGER NOT NULL REFERENCES Repo(RepoId) ON DELETE CASCADE`** — every release row is now anchored to its source repo. The previous global `Tag UNIQUE` constraint is replaced by composite `UNIQUE (RepoId, Tag)`. New index `IdxRelease_RepoId` for per-repo filtering.
-- **Migration `migrateV15Phase6`**: detects `Release` tables missing `RepoId`, drops them, and lets the standard CREATE pass rebuild with the new FK schema. Existing rows are wiped (user-approved policy: re-import from `.gitmap/release/v*.json` on next `gitmap list-releases`). See `spec/04-generic-cli/24-release-repo-relationship.md`.
+- **Migration `migrateV15Phase6`**: detects `Release` tables missing `RepoId`, drops them, and lets the standard CREATE pass rebuild with the new FK schema. Existing rows are wiped (user-approved policy: re-import from `.gitmap/release/v*.json` on next `gitmap list-releases`). See `02-spec/04-generic-cli/24-release-repo-relationship.md`.
 
 ### Code
 
@@ -1208,8 +1208,8 @@ User reported `gitmap github-desktop` printing `Unknown command`. Root cause: th
 
 ### Spec
 
-- New: `spec/04-generic-cli/24-release-repo-relationship.md`
-- New: `spec/04-generic-cli/images/release-repo-er.mmd` (Mermaid ER diagram)
+- New: `02-spec/04-generic-cli/24-release-repo-relationship.md`
+- New: `02-spec/04-generic-cli/images/release-repo-er.mmd` (Mermaid ER diagram)
 
 ### Recovery
 
@@ -1227,7 +1227,7 @@ If a user has legacy `Release` rows but no `.gitmap/release/v*.json` files on di
 
 ### Renamed
 
-- **All `gitmap-v28` references → `gitmap-v28`** across the entire repo (45 files, 567 occurrences). Includes install/uninstall one-liners, Go installer constants, helptext, spec docs, post-mortems, the React landing page, and `.lovable/memory/**`.
+- **All `gitmap-v28` references → `gitmap-v28`** across the entire repo (45 files, 567 occurrences). Includes install/uninstall one-liners, Go installer constants, helptext, spec docs, post-mortems, the React landing page, and `.ai-memory/memory/**`.
 - **Preserved**: release-asset filenames like `gitmap-v28.49.1-windows-amd64.zip` (where `v4.49.1` is the package version, not the repo name) — only the GitHub URL repo segment changed.
 
 ### Why
@@ -1257,7 +1257,7 @@ The previous v3.14.0 release had `gitmap-cli` hardcoded in **6+ places** across 
 
 ### Validation policy — `deploy-dfd` CI stays gone
 
-The `deploy-dfd` GitHub Actions job (removed in v3.13.9) is **intentionally not being reinstated**, even after the manifest refactor would make it easier to write. The decision is now documented in [`spec/04-generic-cli/22-data-folder-deploy-and-cleanup.md`](spec/04-generic-cli/22-data-folder-deploy-and-cleanup.md#validation-policy--no-deploy-dfd-ci-job-v3139). Deploy-layout regressions are now caught by:
+The `deploy-dfd` GitHub Actions job (removed in v3.13.9) is **intentionally not being reinstated**, even after the manifest refactor would make it easier to write. The decision is now documented in [`02-spec/04-generic-cli/22-data-folder-deploy-and-cleanup.md`](02-spec/04-generic-cli/22-data-folder-deploy-and-cleanup.md#validation-policy--no-deploy-dfd-ci-job-v3139). Deploy-layout regressions are now caught by:
 
 1. **`gitmap doctor`** on every user's first launch and after updates (PATH binary, deployed binary, version match, app-subdir vs. manifest).
 2. **Author smoke testing** — `./run.ps1` and `./run.sh` against clean sandboxes before each tag.
@@ -1283,7 +1283,7 @@ Targeted unit tests are preferred over broad CI sandbox-layout assertions when a
 
 ### Updated
 
-- **`spec/04-generic-cli/22-data-folder-deploy-and-cleanup.md`** — DFD-1/DFD-2/DFD-3 rows of the cross-platform parity table updated to reflect `gitmap-cli` on all three drivers (run.ps1, run.sh, install.sh).
+- **`02-spec/04-generic-cli/22-data-folder-deploy-and-cleanup.md`** — DFD-1/DFD-2/DFD-3 rows of the cross-platform parity table updated to reflect `gitmap-cli` on all three drivers (run.ps1, run.sh, install.sh).
 
 ### Why now
 
@@ -1294,7 +1294,7 @@ The Go side of the codebase (cleanup, doctor, binary location, upgrade script) h
 
 ### Removed
 
-- **`.github/workflows/ci.yml`** — Deleted the entire `deploy-dfd` job (Ubuntu + Windows matrix, ~135 lines, formerly lines 400–533) per user request. The job ran `run.sh` / `run.ps1` into a sandboxed HOME and asserted DFD-1/4/6/7 layout invariants from `spec/04-generic-cli/22-data-folder-deploy-and-cleanup.md`. It had become a recurring source of CI breakage every time the deploy layout evolved (most recently the Windows `gitmap` → `gitmap-cli` rename in v3.6.0, patched in v3.13.8). The DFD spec remains authoritative; layout regressions will now surface through the manual-install path or via `gitmap self-install` end-user testing rather than a synthetic sandbox harness.
+- **`.github/workflows/ci.yml`** — Deleted the entire `deploy-dfd` job (Ubuntu + Windows matrix, ~135 lines, formerly lines 400–533) per user request. The job ran `run.sh` / `run.ps1` into a sandboxed HOME and asserted DFD-1/4/6/7 layout invariants from `02-spec/04-generic-cli/22-data-folder-deploy-and-cleanup.md`. It had become a recurring source of CI breakage every time the deploy layout evolved (most recently the Windows `gitmap` → `gitmap-cli` rename in v3.6.0, patched in v3.13.8). The DFD spec remains authoritative; layout regressions will now surface through the manual-install path or via `gitmap self-install` end-user testing rather than a synthetic sandbox harness.
 
 
 ## v3.13.8 — (2026-04-20) — CI deploy-DFD Windows assertion aligned with gitmap-cli subdir
@@ -1375,15 +1375,15 @@ Production paths in `updatecleanup_paths.go` and `constants_update.go` were upda
 
 ### Changed
 
-- **`.lovable/prompts/01-read-prompt.md` overwrite** — New onboarding prompt with structured Phase 1–4 flow and mandatory deep-dive source specs lookup table.
+- **`01-prompts/01-read-prompt.md` overwrite** — New onboarding prompt with structured Phase 1–4 flow and mandatory deep-dive source specs lookup table.
 
 ## v3.12.1 — (2026-04-20) — AST registry parity + spec cross-links + legacy-field test cleanup
 
 ### Added
 
 - **AST-derived `topLevelCmds()` registry parity test** — `gitmap/constants/cmd_constants_parity_test.go` adds `TestTopLevelCmdRegistryMatchesAST`, which uses `go/parser` to walk every `gitmap/constants/constants_*.go`, collects every `Cmd*` constant declared inside a `// gitmap:cmd top-level` block (minus those tagged `// gitmap:cmd skip`), and asserts the resulting set is exactly equal to the manual `topLevelCmds()` registry consumed by `TestTopLevelCmdConstantsAreUnique` / `TestTopLevelCmdAliasesAreUnique`. The registry can no longer drift silently — adding a new top-level `Cmd*` without registering it (or vice versa) fails CI with a clear "missing from registry" / "registered but not declared" diff.
-- **Spec cross-links from CLI overview** — `spec/01-app/02-cli-interface.md` and `spec/01-app/38-command-help.md` gained a `> **Related:**` callout under the H1 pointing at `spec/01-app/99-cli-cmd-uniqueness-ci-guard.md`, so future contributors discover the uniqueness contract and the 6-step handoff checklist directly from the CLI overview and the help-system spec.
-- **Spec §5 implementation note** — `spec/01-app/99-cli-cmd-uniqueness-ci-guard.md` updated to mark the AST parity test as implemented (no longer "future hardening") with the file path and v3.12.1 history entry.
+- **Spec cross-links from CLI overview** — `02-spec/01-app/02-cli-interface.md` and `02-spec/01-app/38-command-help.md` gained a `> **Related:**` callout under the H1 pointing at `02-spec/01-app/99-cli-cmd-uniqueness-ci-guard.md`, so future contributors discover the uniqueness contract and the 6-step handoff checklist directly from the CLI overview and the help-system spec.
+- **Spec §5 implementation note** — `02-spec/01-app/99-cli-cmd-uniqueness-ci-guard.md` updated to mark the AST parity test as implemented (no longer "future hardening") with the file path and v3.12.1 history entry.
 
 ### Fixed
 
@@ -1400,11 +1400,11 @@ Production paths in `updatecleanup_paths.go` and `constants_update.go` were upda
 
 - **Pinned-version install snippet on the GitHub release page** — the release publisher (`gitmap/release/installsnippet.go`, wired into `workflowgithub.go::uploadToGitHub`) now auto-appends a markdown block containing PowerShell + bash one-liners that hard-code the just-published tag. Idempotent via a hidden `<!-- gitmap-pinned-install-snippet:<tag> -->` HTML marker. Anyone copying the snippet from `…/releases/tag/v3.12.0` installs exactly v3.12.0 — never "latest", never a `-v<N+1>` sibling repo. Template lives in `constants_release.go` as `ReleaseSnippetTemplate` / `ReleaseSnippetMarker`.
 - **Pinned-version short-circuit in installer scripts** — `gitmap/scripts/install.ps1` and `install.sh` gained a new branch in their discovery prelude: when `-Version <tag>` (PowerShell) or `--version <tag>` (bash) is supplied, the installer now skips both the `releases/latest` API call **and** the versioned-repo `-v<N>` discovery probe, downloading `…/releases/download/<tag>/…` directly. Closes the gap where a snippet copied from a v3.x release page could silently jump to the v4 repo's latest tag.
-- **Spec doc** `spec/07-generic-release/08-pinned-version-install-snippet.md` — full NEA/AI handoff contract: rendered snippets, installer-side flag matrix, release-cutting checklist, and a CI test contract for future work.
+- **Spec doc** `02-spec/07-generic-release/08-pinned-version-install-snippet.md` — full NEA/AI handoff contract: rendered snippets, installer-side flag matrix, release-cutting checklist, and a CI test contract for future work.
 
 ### Changed
 
-- **Repo rename `gitmap-v28` → `gitmap-v28` across the entire codebase** — every Go constant (`SourceRepoCloneURL`, `SelfInstallRemotePwsh/Bash`, `GitmapRepoPrefix`, install hint URLs), every install/uninstall script (`install.ps1`, `install.sh`, `install-quick.ps1`, `install-quick.sh`, `uninstall-quick.*`), every spec doc under `spec/01-app/` and `spec/07-generic-release/`, every helptext markdown, the README, the React `src/data/*.ts` files, GitHub workflows, and historical CHANGELOG entries were rewritten via `sed -i 's/gitmap-v28/gitmap-v28/g'`. The only remaining `gitmap-v28` references are inside `.gitmap/` artifacts, which are immutable per project policy.
+- **Repo rename `gitmap-v28` → `gitmap-v28` across the entire codebase** — every Go constant (`SourceRepoCloneURL`, `SelfInstallRemotePwsh/Bash`, `GitmapRepoPrefix`, install hint URLs), every install/uninstall script (`install.ps1`, `install.sh`, `install-quick.ps1`, `install-quick.sh`, `uninstall-quick.*`), every spec doc under `02-spec/01-app/` and `02-spec/07-generic-release/`, every helptext markdown, the README, the React `src/data/*.ts` files, GitHub workflows, and historical CHANGELOG entries were rewritten via `sed -i 's/gitmap-v28/gitmap-v28/g'`. The only remaining `gitmap-v28` references are inside `.gitmap/` artifacts, which are immutable per project policy.
 
 ## v3.11.1 — (2026-04-20) — Alias-collision CI guard
 
@@ -1437,7 +1437,7 @@ Production paths in `updatecleanup_paths.go` and `constants_update.go` were upda
 
 ### Changed
 
-- **Phase 1 of the v15 database naming migration is complete.** All 22 SQLite tables now follow the strict v15 convention from <https://github.com/alimtvnetwork/coding-guidelines-v15/blob/main/spec/04-database-conventions/01-naming-conventions.md>: PascalCase + **singular** table names, `{TableName}Id` primary keys, foreign keys that match the referenced PK name, `IsX` prefix for booleans, and abbreviations treated as words (`SshKey` not `SSHKey`, `CsharpProjectMetadata` not `CSharpProjectMetadata`).
+- **Phase 1 of the v15 database naming migration is complete.** All 22 SQLite tables now follow the strict v15 convention from <https://github.com/alimtvnetwork/coding-guidelines-v15/blob/main/02-spec/04-database-conventions/01-naming-conventions.md>: PascalCase + **singular** table names, `{TableName}Id` primary keys, foreign keys that match the referenced PK name, `IsX` prefix for booleans, and abbreviations treated as words (`SshKey` not `SSHKey`, `CsharpProjectMetadata` not `CSharpProjectMetadata`).
 - **Renamed tables** (legacy → v15): `Repos`→`Repo`, `Groups`→`Group`, `GroupRepos`→`GroupRepo`, `Releases`→`Release`, `Aliases`→`Alias`, `Bookmarks`→`Bookmark`, `Amendments`→`Amendment`, `CommitTemplates`→`CommitTemplate`, `Settings`→`Setting`, `SSHKeys`→`SshKey`, `InstalledTools`→`InstalledTool`, `TempReleases`→`TempRelease`, `ZipGroups`→`ZipGroup`, `ZipGroupItems`→`ZipGroupItem`, `ProjectTypes`→`ProjectType`, `DetectedProjects`→`DetectedProject`, `GoProjectMetadata` (kept), `GoRunnableFiles`→`GoRunnableFile`, `CSharpProjectMeta`→`CsharpProjectMetadata`, `CSharpProjectFiles`→`CsharpProjectFile`, `CSharpKeyFiles`→`CsharpKeyFile`. `RepoVersionHistory`, `CommandHistory`, `TaskType`, `PendingTask`, `CompletedTask` were already singular and only got `{TableName}Id` PK renames.
 - **Renamed columns**: every legacy `Id` PK is now `{TableName}Id` (e.g., `Repo.RepoId`, `Release.ReleaseId`, `CsharpProjectMetadata.CsharpProjectMetadataId`). Foreign keys updated to match (e.g., `GoRunnableFile.GoProjectMetadataId`, `CsharpProjectFile.CsharpProjectMetadataId`). `Release.Draft` → `Release.IsDraft` and `Release.PreRelease` → `Release.IsPreRelease` complete the IsX boolean-prefix consistency (`IsLatest` was already correct).
 - **Migration safety contract** (applies to every Phase 1.1–1.5 rebuild):
@@ -1458,8 +1458,8 @@ Production paths in `updatecleanup_paths.go` and `constants_update.go` were upda
   - `migrate_v15phase4.go` — ZipGroup family, Project family (incl. CSharp→Csharp), Task family, History tables.
   - `migrate_v15phase5.go` — `Release.Draft`→`IsDraft`, `Release.PreRelease`→`IsPreRelease` (column rename via the same rebuild infrastructure).
 - Pre-rename column patches for very old installs: `preV15Phase2EnsureReleaseColumns()` (Source/Notes on legacy `Releases`), `migrateZipGroupItemPaths()` and `migrateTRCommitSha()` already targeted legacy plurals before the v15 rebuilds copied the data.
-- Regenerated `spec/01-app/gitmap-database-erd.mmd` to reflect every v15 table name, PK, FK, and `IsDraft`/`IsPreRelease` boolean.
-- Updated `spec/12-consolidated-guidelines/11-database.md` with the v15 naming conventions table (singular + `{TableName}Id` + `IsX` boolean prefix + reserved-word quoting + abbreviation rules), with a link to the upstream v15 spec.
+- Regenerated `02-spec/01-app/gitmap-database-erd.mmd` to reflect every v15 table name, PK, FK, and `IsDraft`/`IsPreRelease` boolean.
+- Updated `02-spec/12-consolidated-guidelines/11-database.md` with the v15 naming conventions table (singular + `{TableName}Id` + `IsX` boolean prefix + reserved-word quoting + abbreviation rules), with a link to the upstream v15 spec.
 
 ### Notes
 
@@ -1476,7 +1476,7 @@ Production paths in `updatecleanup_paths.go` and `constants_update.go` were upda
 - **Auto-stash semantics for `release-alias`**: dirty working trees are auto-stashed (`git stash push --include-untracked -m "gitmap-release-alias autostash <alias>-<version>-<unix-ts>"`) before the release runs and popped on exit via `defer`, so the stash always fires — including when `runRelease` aborts. The pop locates the stash by **label match** against `git stash list` (not by `stash@{0}`), so a concurrent `git stash` from another process never causes us to pop the wrong entry. A failed pop warns only — the user's tree is still recoverable via `git stash list` / `git stash apply`. Bypass with `--no-stash` (intended for CI runners that always start clean and want to fail loudly on unexpected dirt).
 - `gitmap db-migrate` (alias `dbm`) — explicit, idempotent schema migration command. Re-runs every `CREATE TABLE IF NOT EXISTS` and column-migration step on the active profile DB. Now invoked automatically at the end of `gitmap update` so a freshly-updated binary never has to repair the database on its first real run. `--verbose` prints extra context.
 - New shared migration helpers in `gitmap/store/migrations.go`: `columnExists(table, column)`, `tableExists(table)`, `isBenignAlterError(err)`, and `logMigrationFailure(table, column, action, err, stmt)` — every warning now names the table, column, and action so issues can be diagnosed without trial-and-error.
-- New files: `gitmap/cmd/{as.go, asops.go, releasealias.go, releasealias_git.go, dbmigrate.go}`, `gitmap/constants/{constants_as.go, constants_releasealias.go, constants_dbmigrate.go}`, `gitmap/store/migrations.go`, `gitmap/helptext/{as.md, release-alias.md, release-alias-pull.md, db-migrate.md}`, `spec/01-app/98-as-and-release-alias.md`.
+- New files: `gitmap/cmd/{as.go, asops.go, releasealias.go, releasealias_git.go, dbmigrate.go}`, `gitmap/constants/{constants_as.go, constants_releasealias.go, constants_dbmigrate.go}`, `gitmap/store/migrations.go`, `gitmap/helptext/{as.md, release-alias.md, release-alias-pull.md, db-migrate.md}`, `02-spec/01-app/98-as-and-release-alias.md`.
 
 ### Changed
 
@@ -1616,7 +1616,7 @@ const (
 ### Fixed
 
 - `go-winres` CI icon size error — Windows `.ico` resources require images ≤256x256 but `icon.png` was 512x512. Created `icon-256.png` (LANCZOS resize) and updated `winres.json` to reference it.
-- Documented root cause and prevention in `spec/08-generic-update/09-winres-icon-constraint.md`.
+- Documented root cause and prevention in `02-spec/08-generic-update/09-winres-icon-constraint.md`.
 
 ## v2.80.0 — (2026-04-16)
 
@@ -1624,7 +1624,7 @@ const (
 
 - Hidden `set-source-repo` command — persists source repo path to DB so `gitmap update` always uses the correct location after repo moves.
 - Post-deploy repo path sync in `run.ps1` — automatically calls `set-source-repo` after every successful deploy to keep the DB current.
-- Repo path sync spec (`spec/08-generic-update/08-repo-path-sync.md`) — documents the post-deploy sync pattern for AI implementers.
+- Repo path sync spec (`02-spec/08-generic-update/08-repo-path-sync.md`) — documents the post-deploy sync pattern for AI implementers.
 - Help file for `set-source-repo` command (`gitmap/helptext/set-source-repo.md`).
 
 ### Fixed
@@ -1639,7 +1639,7 @@ const (
 
 ### Added
 
-- Console-safe handoff spec (`spec/08-generic-update/07-console-safe-handoff.md`) — documents the blocking `cmd.Run()` pattern that prevents terminal detachment during self-update on Windows.
+- Console-safe handoff spec (`02-spec/08-generic-update/07-console-safe-handoff.md`) — documents the blocking `cmd.Run()` pattern that prevents terminal detachment during self-update on Windows.
 - Installer banner now displays version number (`gitmap installer v1.0.0`).
 
 ### Changed
@@ -1657,8 +1657,8 @@ const (
 ### Added
 
 - New `gitmap version-history` (`vh`) command displays all version transitions for the current repo with `--limit N` and `--json` flags.
-- Full database ERD (Mermaid) added to `spec/01-app/gitmap-database-erd.mmd` covering all 22 tables including `RepoVersionHistory`.
-- Updated `spec/01-app/59-clone-next.md` and `spec/01-app/87-clone-next-flatten.md` to reflect flatten-by-default behavior (no `--flatten` flag required).
+- Full database ERD (Mermaid) added to `02-spec/01-app/gitmap-database-erd.mmd` covering all 22 tables including `RepoVersionHistory`.
+- Updated `02-spec/01-app/59-clone-next.md` and `02-spec/01-app/87-clone-next-flatten.md` to reflect flatten-by-default behavior (no `--flatten` flag required).
 
 ---
 
@@ -1714,7 +1714,7 @@ const (
 
 - `gitmap update` PATH sync now includes full 3-step fallback: direct `Copy-Item`, rename-then-copy (`Move-Item` to `.old` + `Copy-Item` with rollback), and kill stale `gitmap.exe` processes via `Stop-Process` before final retry.
 - Updated `UpdatePSSync` PowerShell block in `constants/constants_update.go` with rename and kill-process recovery strategies.
-- Updated `spec/01-app/89-update-path-sync.md` to document all sync fallback steps and error scenarios.
+- Updated `02-spec/01-app/89-update-path-sync.md` to document all sync fallback steps and error scenarios.
 
 ---
 
@@ -1753,7 +1753,7 @@ const (
 - Windows binaries now embed a custom emerald green terminal icon, application manifest, and version info via `go-winres`.
 - Added `gitmap/winres.json` and `gitmap/assets/icon.png` for Windows resource generation.
 - Release pipeline generates `.syso` resource files before compilation, injecting the release version into the binary metadata.
-- Added `spec/pipeline/09-binary-icon-branding.md` documenting the full `go-winres` workflow for AI/engineer handoff.
+- Added `02-spec/pipeline/09-binary-icon-branding.md` documenting the full `go-winres` workflow for AI/engineer handoff.
 - Added the gitmap icon to the README header.
 
 ### Fixed
@@ -1783,7 +1783,7 @@ const (
 - Install scripts (`install.ps1`, `install.sh`) automatically download and extract `docs-site.zip` alongside the binary.
 - `gitmap hd` auto-extracts `docs-site.zip` on first run if the `docs-site/` directory is missing — no manual setup needed.
 - Added 5 new pipeline specification files (`04`–`08`) covering installation flow, changelog integration, version/help system, environment variable setup, and terminal output standards.
-- Added AI Handoff Checklist to `spec/pipeline/README.md` with recommended reading order for onboarding.
+- Added AI Handoff Checklist to `02-spec/pipeline/README.md` with recommended reading order for onboarding.
 
 ## v2.67.0 — Smart Deploy & Rename-First (2026-04-08)
 
@@ -1795,9 +1795,9 @@ const (
 - Added `Resolve-DeployTarget` function to `run.ps1` and `resolve_deploy_target` function to `run.sh` for full cross-platform parity.
 - Deploy step now uses **rename-first strategy**: renames the existing binary to `.old` before copying the new one, avoiding Windows file-lock failures when deploying to a running binary.
 - Rollback restores the `.old` file via rename (not copy) for consistency.
-- Added "Build once, package once" constraint to `spec/05-coding-guidelines/17-cicd-patterns.md` and `spec/04-generic-cli/11-build-deploy.md`.
-- Updated `spec/01-app/09-build-deploy.md` with deploy target resolution and rename-first deploy documentation.
-- Added smart deploy path resolution and rename-first deploy to cross-platform parity table in `spec/01-app/42-cross-platform.md`.
+- Added "Build once, package once" constraint to `02-spec/05-coding-guidelines/17-cicd-patterns.md` and `02-spec/04-generic-cli/11-build-deploy.md`.
+- Updated `02-spec/01-app/09-build-deploy.md` with deploy target resolution and rename-first deploy documentation.
+- Added smart deploy path resolution and rename-first deploy to cross-platform parity table in `02-spec/01-app/42-cross-platform.md`.
 - Replaced hardcoded `E:\bin-run` path in `gitmap doctor` fix suggestion with dynamic guidance.
 
 ## v2.66.0 — CI Hardening & Pipeline Docs (2026-04-08)
@@ -1807,11 +1807,11 @@ const (
 - Pinned `govulncheck` to `v1.1.4` in CI and vulncheck workflows for reproducible builds.
 - Updated GitHub Actions to Node.js 24 compatible versions (`actions/checkout@v6`, `actions/setup-go@v6`).
 - Added `FORCE_JAVASCRIPT_ACTIONS_TO_NODE24: true` environment variable across all workflows.
-- Created portable `spec/pipeline/` documentation folder (CI, release, vulnerability scanning) for cross-AI shareability.
+- Created portable `02-spec/pipeline/` documentation folder (CI, release, vulnerability scanning) for cross-AI shareability.
 - Added CI Tool Versions pinning table to dependency specs (13, 17, 27) for consistency.
 - Aligned severity response times across all dependency management specs.
 - Updated stale action version examples in specs 17 and 27 from `@v4`/`@v5` to `@v6`.
-- Added cross-reference from `spec/03-general/08-ci-pipeline.md` to `spec/pipeline/`.
+- Added cross-reference from `02-spec/03-general/08-ci-pipeline.md` to `02-spec/pipeline/`.
 
 ### Bug Fixes
 
@@ -1874,7 +1874,7 @@ const (
 - Release branches (`release/**`) are no longer canceled by `cancel-in-progress` — every release commit now runs the full CI and release pipeline to completion.
 - CI workflow uses a conditional expression: `cancel-in-progress: ${{ !startsWith(github.ref, 'refs/heads/release/') }}` to protect release branches while still canceling superseded runs on `main` and feature branches.
 - Release workflow changed to `cancel-in-progress: false` unconditionally.
-- Updated CI pipeline spec (`spec/03-general/08-ci-pipeline.md`) with release branch protection documentation.
+- Updated CI pipeline spec (`02-spec/03-general/08-ci-pipeline.md`) with release branch protection documentation.
 
 ## v2.61.0 — Install Hint Polish & Post-Mortem #17 (2026-04-07)
 
@@ -1945,9 +1945,9 @@ const (
 
 ### Documentation
 
-- Updated `spec/01-app/82-install-script.md` — documented `install.sh` with CLI flags (`--version`, `--dir`, `--arch`, `--no-path`), version-pinned examples, `.tar.gz`/`.zip` fallback, 4-priority binary detection, and shell-aware auto-PATH append (bash/zsh/fish).
-- Updated `spec/01-app/12-release-command.md` — CI release pipeline section now mentions `install.sh` alongside `install.ps1` in both steps list and release body format.
-- Added "Known Behavior: Concurrency Cancellation" section to `spec/02-app-issues/16-ci-passthrough-gate-pattern.md` — documented and resolved by inlining cache write.
+- Updated `02-spec/01-app/82-install-script.md` — documented `install.sh` with CLI flags (`--version`, `--dir`, `--arch`, `--no-path`), version-pinned examples, `.tar.gz`/`.zip` fallback, 4-priority binary detection, and shell-aware auto-PATH append (bash/zsh/fish).
+- Updated `02-spec/01-app/12-release-command.md` — CI release pipeline section now mentions `install.sh` alongside `install.ps1` in both steps list and release body format.
+- Added "Known Behavior: Concurrency Cancellation" section to `02-spec/02-app-issues/16-ci-passthrough-gate-pattern.md` — documented and resolved by inlining cache write.
 - Updated post-release auto-commit memory to reflect the new `-y` flag behavior.
 
 ### Testing
@@ -1958,15 +1958,15 @@ const (
 
 ### Post-Mortems Documentation
 
-- Created `spec/02-app-issues/13-release-pipeline-dist-directory.md` — documents `cd: dist` CI failure root cause and 4 prevention rules.
-- Created `spec/02-app-issues/14-security-hardening-gosec-fixes.md` — documents G305, G110, format verb, and Code Red fixes with prevention rules.
+- Created `02-spec/02-app-issues/13-release-pipeline-dist-directory.md` — documents `cd: dist` CI failure root cause and 4 prevention rules.
+- Created `02-spec/02-app-issues/14-security-hardening-gosec-fixes.md` — documents G305, G110, format verb, and Code Red fixes with prevention rules.
 - Added Post-Mortems page (`/post-mortems`) to docs site with category filters, version tags, and color-coded icons for all 15 documented issues.
 
 ### Coding Guidelines Updates
 
-- Added "Lessons Learned" section to `spec/05-coding-guidelines/17-cicd-patterns.md` — never `cd` in CI, validate directories, pin tool versions.
-- Added Section 10 (Zip Extraction Security) to `spec/05-coding-guidelines/08-security-secrets.md` — mandatory G305/G110 checks.
-- Added Sections 7–8 to `spec/05-coding-guidelines/04-error-handling.md` — Code Red Rule and Format Verb Compliance.
+- Added "Lessons Learned" section to `02-spec/05-coding-guidelines/17-cicd-patterns.md` — never `cd` in CI, validate directories, pin tool versions.
+- Added Section 10 (Zip Extraction Security) to `02-spec/05-coding-guidelines/08-security-secrets.md` — mandatory G305/G110 checks.
+- Added Sections 7–8 to `02-spec/05-coding-guidelines/04-error-handling.md` — Code Red Rule and Format Verb Compliance.
 
 ### Installer Fixes
 
@@ -1979,7 +1979,7 @@ const (
 
 - Replaced job-level `if` skipping with step-level conditionals in `ci.yml` so all jobs always report ✅ Success.
 - Previously, SHA-deduplicated runs showed grey "skipped" status which looked like failures; now cached SHAs print "Already validated" and exit green.
-- Updated `spec/05-coding-guidelines/29-ci-sha-deduplication.md` with the passthrough pattern documentation.
+- Updated `02-spec/05-coding-guidelines/29-ci-sha-deduplication.md` with the passthrough pattern documentation.
 - Pinned `golangci-lint` to `v1.64.8` in `ci.yml` to match `setup.sh`.
 
 ### Release Command: Auto-Confirm (`-y` / `--yes`)
@@ -2225,7 +2225,7 @@ const (
 - No-suffix repos default to `-v2` on increment.
 - Added constants for all clone-next messages, errors, and flag descriptions.
 - Added unit tests for `ParseRepoName`, `ResolveTarget`, `TargetRepoName`, and `ReplaceRepoInURL`.
-- Spec: `spec/01-app/59-clone-next.md` with full workflow, examples, and acceptance criteria.
+- Spec: `02-spec/01-app/59-clone-next.md` with full workflow, examples, and acceptance criteria.
 
 ## v2.37.0 — v2.39.0
 
@@ -2303,7 +2303,7 @@ const (
   - `workflowzip.go` (~108 lines): zip group building, ad-hoc archives, and checksum collection.
   - `workflowgithub.go` (~104 lines): GitHub release uploads and Go cross-compilation.
 - All files comply with the 200-line limit; no functional changes.
-- Added refactoring specs: `spec/01-app/58-refactor-workflowfinalize.md`, `spec/01-app/59-refactor-root-dispatch.md`.
+- Added refactoring specs: `02-spec/01-app/58-refactor-workflowfinalize.md`, `02-spec/01-app/59-refactor-root-dispatch.md`.
 
 ## v2.36.3 (2026-03-26)
 
@@ -2444,7 +2444,7 @@ const (
 - **Fixed**: `OpenDefault()` double-nesting bug where profile config resolved to `<binary>/data/data/profiles.json`.
 - Added `DefaultDBPath()` diagnostic helper to `store/location.go`.
 - `gitmap ls` now prints resolved DB path when `--verbose` is passed or when zero repos are found.
-- Created `spec/01-app/44-list-db-diagnostic.md` for path resolution contract.
+- Created `02-spec/01-app/44-list-db-diagnostic.md` for path resolution contract.
 
 ## v2.19.0
 

@@ -21,7 +21,7 @@ def main():
         re.compile(r"allcommands_generated\.go$"),
         re.compile(r"^\.git[/\\]"),
         re.compile(r"^node_modules[/\\]"),
-        re.compile(r"^\.lovable[/\\]"),
+        re.compile(r"^\.ai-memory[/\\]"),
     ]
 
     offenders = []

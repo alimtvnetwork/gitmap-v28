@@ -14,7 +14,7 @@ def load_config(config_path):
         "*/testdata/*", "*/golden/*",
         "*/.gitmap/release/*", "*/.gitmap/release-assets/*",
         "cli/completion/allcommands_generated.go",
-        ".lovable/*",
+        ".ai-memory/*",
         "conversation/*"
     ]
     if os.path.isfile(config_path):

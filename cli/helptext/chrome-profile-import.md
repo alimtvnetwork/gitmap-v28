@@ -17,7 +17,7 @@ gitmap profile import [file|dir|email] [flags]
 
 - `--json`: Output execution or preview report in JSON format.
 - `--file <path>`: Export execution or inspection report to specified file.
-- `--tempfile <name>`: Write report to `.lovable/temp/<name>`.
+- `--tempfile <name>`: Write report to `.ai-memory/temp/<name>`.
 - `--fnf <path>`: Save to file or fail if snapshot has no valid profiles.
 - `--except <rule>`: Exclude specific profiles by name or email.
 - `--limit <n>`: Limit number of imported profiles.

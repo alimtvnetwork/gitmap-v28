@@ -25,7 +25,7 @@ engine = import_module("02-shared-engine")
 
 extract_git_changed_files = engine.extract_git_changed_files
 DEFAULT_COMMITS = 20
-DEFAULT_OUT_DIR = ".lovable/temp"
+DEFAULT_OUT_DIR = ".ai-memory/temp"
 
 
 def parse_cli_args() -> argparse.Namespace:

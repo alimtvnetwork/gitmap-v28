@@ -21,15 +21,15 @@ You MUST execute this task via a strict 3-Phase pipeline governed by the N-step 
 
 ```text
 N = 200  (Total self-loop steps budget, read-only after initialization)
-PHASE_1_STEPS = N / 2   (Steps 1 .. N/2: Scan Codebase, Map Violations, Plan Decompositions in .lovable/plans/pending/)
+PHASE_1_STEPS = N / 2   (Steps 1 .. N/2: Scan Codebase, Map Violations, Plan Decompositions in .ai-memory/plans/pending/)
 PHASE_2_STEPS = N / 2   (Steps N/2+1 .. N: Parallel Function & File Extraction, Subtasks, Wrapper Objects, Final Build Fix)
 ```
 
 ### Master Task Checklist (Atomic Numbered Steps)
 
 1. [ ] /goal Phase 1 (Step A - Discovery & Inventory): Deeply scan the target codebase using the fast Python discovery tools (`11-fast-file-scanner.py`, `12-fast-cached-grep.py`, `17-fast-file-reader.py` with `--limit`) to inventory all architectural violations and anti-patterns without truncation.
-2. [ ] /goal Phase 1 (Step B - Master Plan Generation): Write the master architectural specification into `.lovable/plans/pending/xx-size-reduction.md` with an exhaustive Violation Ledger table (File, Initial Lines, Functions to Extract, Planned Destination Files, Wrapper Structs Needed).
-3. [ ] /goal Phase 1 (Step C - Subtask Decomposition): Decompose the master plan into lean, single-responsibility subtask files in `.lovable/plans/subtasks/xx-size-reduction/01-<subtask>.md`, `02-<subtask>.md`, etc.
+2. [ ] /goal Phase 1 (Step B - Master Plan Generation): Write the master architectural specification into `.ai-memory/plans/pending/xx-size-reduction.md` with an exhaustive Violation Ledger table (File, Initial Lines, Functions to Extract, Planned Destination Files, Wrapper Structs Needed).
+3. [ ] /goal Phase 1 (Step C - Subtask Decomposition): Decompose the master plan into lean, single-responsibility subtask files in `.ai-memory/plans/subtasks/xx-size-reduction/01-<subtask>.md`, `02-<subtask>.md`, etc.
 4. [ ] /goal Phase 1 (Step D - Mandatory Auto-Loop): As soon as Phase 1 planning completes, the master orchestrator **MUST NOT STOP or ask the user for permission**. It MUST immediately self-loop and transition directly into Phase 2 execution mode.
 5. [ ] /goal Phase 2 (Step A - Two-Part Decomposition): For each target file, execute Part 1 (decompose large functions to <= 8 lines, max 15 lines) and Part 2 (extract decomposed functions and helpers into separate sibling files to bring the file under 100 lines).
 6. [ ] /goal Phase 2 (Step B - Wrapper Objects & Clean Signatures): If an extracted function returns multiple interrelated values or requires >2–3 parameters, encapsulate them into a dedicated wrapper object/struct.
@@ -37,12 +37,12 @@ PHASE_2_STEPS = N / 2   (Steps N/2+1 .. N: Parallel Function & File Extraction, 
 8. [ ] /goal Phase 2 (Step D - Boolean & Control Flow Concurrency): Enforce positive boolean naming (`is*`, `has*`), zero explicit `== true`, zero negative polarity in conditionals, and flatten nested `if` statements to depth <= 1 using guard clauses.
 9. [ ] /goal Phase 2 (Step E - Banned Intermediate Verification): DO NOT run unit tests (`go test`, `pytest`, npm test) and DO NOT verify builds during intermediate micro-refactoring steps.
 10. [ ] /goal Phase 2 (Step F - Final Step Build Verification): At the conclusion of all refactoring subtasks, run targeted syntax/build checks to resolve any compilation errors or import issues across all modified files.
-11. [ ] /goal Phase 3 (Step A - Task Consolidation): Consolidate all completed subtasks into `.lovable/plans/completed/xx-size-reduction.md`, delete granular subtask files, and update `.lovable/plans/01-index.md`.
+11. [ ] /goal Phase 3 (Step A - Task Consolidation): Consolidate all completed subtasks into `.ai-memory/plans/completed/xx-size-reduction.md`, delete granular subtask files, and update `.ai-memory/plans/01-index.md`.
 12. [ ] /goal Phase 3 (Step B - Final Step Git Commit & Push): Stage all modified files, consolidated plans, and memory records (`git add -A`), commit them in a single clean grouped atomic commit, and push to git. Never commit per-file.
-13. [ ] /learn Ingest `.lovable/memory/01-index.md` for project memory index and past learnings.
-14. [ ] /learn Ingest `.lovable/strictly-avoid.md` for banned anti-patterns and strict constraints.
-15. [ ] /learn Ingest `spec/02-coding-guidelines/02-canonical-size-tier.md` for canonical size tiers.
-16. [ ] /learn Ingest `.lovable/coding-guidelines.md` for master consolidated coding guidelines.
+13. [ ] /learn Ingest `.ai-memory/memory/01-index.md` for project memory index and past learnings.
+14. [ ] /learn Ingest `.ai-memory/strictly-avoid.md` for banned anti-patterns and strict constraints.
+15. [ ] /learn Ingest `02-spec/02-coding-guidelines/02-canonical-size-tier.md` for canonical size tiers.
+16. [ ] /learn Ingest `.ai-memory/coding-guidelines.md` for master consolidated coding guidelines.
 
 ---
 
@@ -292,12 +292,12 @@ To maintain maximum focus and velocity during micro-tasking:
 ## 9. Task Consolidation & Final Step Git Commit & Push Mandate
 
 ### Task Consolidation & File Reduction (End of Loop)
-When all subtasks for the parent task (`.lovable/plans/pending/xx-size-reduction.md`) are finished:
-1. Combine all completed granular subtasks from `.lovable/plans/subtasks/xx-size-reduction/*.md` into `.lovable/plans/completed/xx-size-reduction.md`.
+When all subtasks for the parent task (`.ai-memory/plans/pending/xx-size-reduction.md`) are finished:
+1. Combine all completed granular subtasks from `.ai-memory/plans/subtasks/xx-size-reduction/*.md` into `.ai-memory/plans/completed/xx-size-reduction.md`.
 2. Include a header explicitly documenting the initial file sizes, final file sizes, and loop step metrics.
-3. Delete the original granular `.md` files in `.lovable/plans/subtasks/xx-size-reduction/`.
-4. Delete the original parent plan `.lovable/plans/pending/xx-size-reduction.md`.
-5. Update `.lovable/plans/01-index.md` to point to the newly consolidated completed file.
+3. Delete the original granular `.md` files in `.ai-memory/plans/subtasks/xx-size-reduction/`.
+4. Delete the original parent plan `.ai-memory/plans/pending/xx-size-reduction.md`.
+5. Update `.ai-memory/plans/01-index.md` to point to the newly consolidated completed file.
 
 ### Final Step Git Commit & Push Mandate (Strict Checklist)
 - [ ] **MANDATORY FINAL COMMIT & PUSH TO GIT (ANYHOW):** At the FINAL step of the turn, after all targeted files have been refactored, verified with targeted linters, and plans/subtasks consolidated, you MUST stage everything (`git add -A`), create a clean, descriptive conventional commit (`git commit -m "<type>(<scope>): <summary>"`), and push directly to the remote repository (`git push origin <branch>`). Leaving uncommitted changes or unpushed commits on the active branch at the end of a turn is an immediate failure.

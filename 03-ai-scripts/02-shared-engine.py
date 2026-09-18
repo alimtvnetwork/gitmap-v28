@@ -356,10 +356,10 @@ ALLOWED_LARGE_FILES = {
     "slides-app\\dist.zip",
     "docs/demo.gif",
     "docs\\demo.gif",
-    ".lovable/test-inventory.json",
-    ".lovable\\test-inventory.json",
-    ".lovable/cicd/test-inventory.json",
-    ".lovable\\cicd\\test-inventory.json",
+    ".ai-memory/test-inventory.json",
+    ".ai-memory\\test-inventory.json",
+    ".ai-memory/cicd/test-inventory.json",
+    ".ai-memory\\cicd\\test-inventory.json",
 }
 
 # Language Extension Mapping
@@ -412,8 +412,8 @@ SUBSYSTEM_DIR_HINTS: dict[SubsystemType, tuple[str, ...]] = {
     SubsystemType.DATABASE: ("db", "database", "migrations", "migration", "sql", "schemas", "schema", "prisma", "drizzle"),
     SubsystemType.BACKEND: ("cmd", "internal", "pkg", "api", "routes", "controllers", "handlers", "server", "services", "backend"),
     SubsystemType.FRONTEND: ("components", "views", "pages", "ui", "web", "frontend", "client", "app", "slides-app"),
-    SubsystemType.CICD: (".github", "workflows", "scripts", "linter-scripts", "linters-cicd", "ci", ".lovable"),
-    SubsystemType.DOCS: ("02-spec", "docs", "doc", "documentation", "prompts", ".lovable/prompts"),
+    SubsystemType.CICD: (".github", "workflows", "scripts", "linter-scripts", "linters-cicd", "ci", ".ai-memory"),
+    SubsystemType.DOCS: ("02-spec", "docs", "doc", "documentation", "prompts", ".ai-memory/prompts"),
     SubsystemType.TESTS: ("tests", "test", "02-spec", "__tests__", "testing", "fixtures"),
     SubsystemType.CLI: ("cli", "cmd", "commands", "bin"),
 }

@@ -2,7 +2,7 @@ package cmd
 
 // JSON schema contract for `gitmap export`. Pairs the runtime encoder
 // (encodeDatabaseExportJSON in exportrender.go) with the published
-// schema at spec/08-json-schemas/export.schema.json so drift in either
+// schema at 02-spec/08-json-schemas/export.schema.json so drift in either
 // side fails the build.
 
 import (

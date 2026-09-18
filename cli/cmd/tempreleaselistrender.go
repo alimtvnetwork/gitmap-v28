@@ -6,7 +6,7 @@ package cmd
 // gitmap/stablejson so every key has compile-time-stable order rather than
 // reflection-defined order.
 //
-// Schema: spec/08-json-schemas/temp-release-list.schema.json.
+// Schema: 02-spec/08-json-schemas/temp-release-list.schema.json.
 
 import (
 	"io"

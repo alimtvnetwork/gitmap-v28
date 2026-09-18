@@ -84,7 +84,7 @@ func printAllReposRow(r store.ReleaseAcrossRepos) {
 // stablejson encoder. PascalCase wire keys preserve the legacy
 // MarshalIndent surface (store.ReleaseAcrossRepos has no `json:`
 // tags). Schema:
-// spec/08-json-schemas/list-releases-all-repos.schema.json.
+// 02-spec/08-json-schemas/list-releases-all-repos.schema.json.
 func printAllReposJSON(records []store.ReleaseAcrossRepos) {
 	if err := encodeListReleasesAllReposJSON(os.Stdout, records); err != nil {
 		fmt.Fprintf(os.Stderr, "  ✗ Failed to marshal releases to JSON: %v\n", err)

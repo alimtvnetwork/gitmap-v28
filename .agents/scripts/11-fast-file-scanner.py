@@ -94,7 +94,7 @@ def scan_files(scan_root: str, allowed_exts: set[str] | None, search_term: str |
     matched_files = []
     ext_counts = {}
 
-    WHITELISTED_DOT_DIRS = {".lovable", ".github"}
+    WHITELISTED_DOT_DIRS = {".ai-memory", ".github"}
     search_re = re.compile(re.escape(search_term), re.IGNORECASE) if search_term else None
 
     for root, dirs, files in os.walk(scan_root):
@@ -109,7 +109,7 @@ def scan_files(scan_root: str, allowed_exts: set[str] | None, search_term: str |
         for filename in sorted(files):
             if not is_include_hidden:
                 if filename.startswith("."):
-                    if not filename.startswith(".lovable"):
+                    if not filename.startswith(".ai-memory"):
                         continue
 
             ext = os.path.splitext(filename)[1].lower()

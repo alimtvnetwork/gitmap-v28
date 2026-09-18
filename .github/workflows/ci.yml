@@ -690,7 +690,7 @@ jobs:
       - name: Generate pending-issues entry from NEW lint findings
         # Converts the NEW findings (same diff that gates the job) into
         # a properly-formatted "## NN — CI Lint Failures" entry for
-        # `.lovable/pending-issues/01-current-issues.md`. Idempotent via
+        # `.ai-memory/pending-issues/01-current-issues.md`. Idempotent via
         # a fingerprint marker so re-running CI on the same SHA never
         # appends duplicates. On PRs this is a dry run that uploads the
         # proposed entry as an artifact; on main pushes the entry is
@@ -712,7 +712,7 @@ jobs:
           python3 .github/scripts/lint-issue-summary.py \
             --current /tmp/lint-current/report.json \
             --baseline "$BASELINE" \
-            --issues-file .lovable/pending-issues/01-current-issues.md \
+            --issues-file .ai-memory/pending-issues/01-current-issues.md \
             --out-preview /tmp/lint-issue-entry/proposed.md \
             --run-url "${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}" \
             --sha "${{ github.sha }}" \
@@ -739,13 +739,13 @@ jobs:
         shell: bash
         run: |
           set -euo pipefail
-          if git diff --quiet -- .lovable/pending-issues/01-current-issues.md; then
+          if git diff --quiet -- .ai-memory/pending-issues/01-current-issues.md; then
             echo "no issues-file changes to commit"
             exit 0
           fi
           git config user.name  "github-actions[bot]"
           git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
-          git add .lovable/pending-issues/01-current-issues.md
+          git add .ai-memory/pending-issues/01-current-issues.md
           git commit -m "ci(lint): append pending-issues entry for NEW findings [skip ci]"
           git push origin HEAD:main
 
@@ -941,7 +941,7 @@ jobs:
     # Defends GITMAP_ALLOW_GOLDEN_UPDATE: this env var is the second of
     # two defense-in-depth keys guarding fixture regeneration, and
     # CI/shipped scripts must never set it. See
-    # spec/05-coding-guidelines/21-golden-fixture-regeneration.md §6.
+    # 02-spec/05-coding-guidelines/21-golden-fixture-regeneration.md §6.
     name: GITMAP_ALLOW_GOLDEN_UPDATE Leak Check
     runs-on: ubuntu-latest
     needs: sha-check

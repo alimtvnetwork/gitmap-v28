@@ -1,6 +1,6 @@
 ---
 name: plan-coding-guideline-audit
-description: Plan a structured coding guideline audit across repository codebases against spec/02-coding-guidelines/.
+description: Plan a structured coding guideline audit across repository codebases against 02-spec/02-coding-guidelines/.
 ---
 
 # Plan Coding Guideline Audit
@@ -17,7 +17,7 @@ Autonomously plans a comprehensive audit of repository codebases against the mas
 
 ## Output
 
-Generates structured audit logs and phased remediation plans in `.lovable/plans/pending/` with subtask micro-batches.
+Generates structured audit logs and phased remediation plans in `.ai-memory/plans/pending/` with subtask micro-batches.
 
 ---
 

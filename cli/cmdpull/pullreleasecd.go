@@ -18,7 +18,7 @@ import (
 // Syntax: `gitmap prc <name-or-url> <version>[, <name-or-url> <version> ...]`.
 // For each parsed entry it resolves the repo path (cloning URLs first),
 // then spawns `gitmap pull-release <version> -y` with cwd set to that
-// path. See spec/01-app/112-pull-release-cd.md.
+// path. See 02-spec/01-app/112-pull-release-cd.md.
 func runPullReleaseCD(args []string) error {
 	checkHelp(constants.CmdPullReleaseCD, args)
 	printCanonicalCmdBanner(constants.CmdPullReleaseCD, constants.CmdPullReleaseCDAlias)

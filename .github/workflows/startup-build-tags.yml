@@ -9,7 +9,7 @@ name: Startup Build-Tag Guard
 # while the other two stay green. This job cross-compiles the package
 # for all three GOOS targets so any leak fails fast in CI.
 #
-# History: see .lovable/memory/issues/ — `addWindowsRegistry` once
+# History: see .ai-memory/memory/issues/ — `addWindowsRegistry` once
 # leaked into the Linux build because the stub used the wrong tag.
 
 on:

@@ -93,7 +93,7 @@ class _MultiStatusSandbox:
     def __init__(self) -> None:
         self._tmp = tempfile.TemporaryDirectory()
         self.root = Path(self._tmp.name).resolve()
-        self.spec = self.root / "spec"
+        self.spec = self.root / "02-spec"
         self.spec.mkdir()
         # The MATCHED row needs an actual on-disk file.
         (self.spec / "present.md").write_text("# present\n",

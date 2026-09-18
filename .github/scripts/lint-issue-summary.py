@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 """
 lint-issue-summary.py — convert NEW golangci-lint findings into a formatted
-CI issue entry for `.lovable/pending-issues/01-current-issues.md`.
+CI issue entry for `.ai-memory/pending-issues/01-current-issues.md`.
 
 Pairs with lint-diff.py and lint-suggest.py:
   - lint-diff.py    : decides what is NEW vs the cached baseline (gating)
@@ -116,7 +116,7 @@ def parse_args() -> argparse.Namespace:
     parser.add_argument("--baseline", default="",
                         help="Path to baseline JSON (optional)")
     parser.add_argument("--issues-file",
-                        default=".lovable/pending-issues/01-current-issues.md",
+                        default=".ai-memory/pending-issues/01-current-issues.md",
                         help="Path to the pending-issues memory file")
     parser.add_argument("--out-preview", default="",
                         help="If set, also writes the proposed entry to "
@@ -191,7 +191,7 @@ def compute_fingerprint(findings: list[Finding]) -> str:
 
 # ---------------------------------------------------------------------------
 # Rendering — matches the in-repo entry style from
-# .lovable/pending-issues/01-current-issues.md (## NN — Title, Status,
+# .ai-memory/pending-issues/01-current-issues.md (## NN — Title, Status,
 # Reported, Root Cause, Files Affected, Prevention).
 # ---------------------------------------------------------------------------
 

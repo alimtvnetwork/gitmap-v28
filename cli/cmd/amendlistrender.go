@@ -9,7 +9,7 @@ package cmd
 // PascalCase keys matching the Go field names. The wire keys below
 // preserve that shape for backward compatibility.
 //
-// Schema: spec/08-json-schemas/amend-list.schema.json.
+// Schema: 02-spec/08-json-schemas/amend-list.schema.json.
 
 import (
 	"io"

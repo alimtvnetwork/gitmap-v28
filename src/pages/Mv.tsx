@@ -59,7 +59,7 @@ const MvPage = () => (
           optional <code className="text-primary">:branch</code> suffix. URL endpoints are auto-cloned (or re-pulled) and a commit + push is made on the URL side after the file copy.
         </p>
         <p className="text-xs text-muted-foreground mt-2">
-          Spec: <code>spec/01-app/97-move-and-merge.md</code>
+          Spec: <code>02-spec/01-app/97-move-and-merge.md</code>
         </p>
       </div>
 

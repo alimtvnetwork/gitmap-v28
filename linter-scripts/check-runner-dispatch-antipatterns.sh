@@ -4,7 +4,7 @@
 # Grep-based guard. Fails CI if run.sh or run.ps1 reintroduce forbidden
 # dispatch anti-patterns in the `fix-repo` branch specifically.
 #
-# Spec: spec/15-distribution-and-runner/06-fix-repo-forwarding.md
+# Spec: 02-spec/15-distribution-and-runner/06-fix-repo-forwarding.md
 #
 # Strategy: extract ONLY the fix-repo dispatch region from each runner,
 # then assert presence of required patterns and absence of forbidden
@@ -178,7 +178,7 @@ write_markdown_report() {
     printf '%s\n' "- **Violations:** $count"
     printf '%s\n' "- **Generated:** $(date -u +'%Y-%m-%dT%H:%M:%SZ')"
     printf '%s\n' "- **Guard:** \`linter-scripts/check-runner-dispatch-antipatterns.sh\`"
-    printf '%s\n\n' "- **Spec:** \`spec/15-distribution-and-runner/06-fix-repo-forwarding.md\` §7"
+    printf '%s\n\n' "- **Spec:** \`02-spec/15-distribution-and-runner/06-fix-repo-forwarding.md\` §7"
     if [ "$count" -eq 0 ]; then
       printf '✅ No anti-patterns found in `run.sh` or `run.ps1` `fix-repo` dispatch arms.\n'
       return 0

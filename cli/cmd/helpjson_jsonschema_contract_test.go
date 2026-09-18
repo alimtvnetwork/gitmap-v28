@@ -2,7 +2,7 @@ package cmd
 
 // Schema contract for `gitmap help --json`. Pairs the runtime
 // encoder (printUsageJSON / helpJSONDoc) with the published schema at
-// spec/08-json-schemas/help-json.schema.json so drift in either side
+// 02-spec/08-json-schemas/help-json.schema.json so drift in either side
 // fails the build. Uses the same generic helpers as
 // listreleases_jsonschema_contract_test.go (findSchemaFile,
 // loadSchemaFile, stringSliceFromAny) defined in

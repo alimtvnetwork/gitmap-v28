@@ -7,7 +7,7 @@ description: >-
 
 # Cross-Platform PowerShell & Shell Scripting Skill
 
-Autonomously author, review, and debug PowerShell (`.ps1`) and shell (`.sh`) scripts adhering to `spec/11-powershell-integration/`, `spec/17-consolidated-guidelines/10-powershell-integration.md`, and `.lovable/strictly-avoid.md`.
+Autonomously author, review, and debug PowerShell (`.ps1`) and shell (`.sh`) scripts adhering to `02-spec/11-powershell-integration/`, `02-spec/17-consolidated-guidelines/10-powershell-integration.md`, and `.ai-memory/strictly-avoid.md`.
 
 ## Core Checkpoints & Mandatory Invariants
 

@@ -3,7 +3,7 @@ package cmd
 // Schema contract for `gitmap find-next --json`. Pairs the runtime
 // encoder (encodeFindNextJSON / buildFindNextJSONItems in
 // findnextrender.go) with the published schema at
-// spec/08-json-schemas/find-next.schema.json so drift in either
+// 02-spec/08-json-schemas/find-next.schema.json so drift in either
 // side fails the build.
 //
 // The sibling `findnextjson_contract_test.go` already pins the

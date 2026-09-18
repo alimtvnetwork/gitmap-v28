@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 """
 Transactional Repository Layout Migrator & History Engine
-Migrates legacy repository layouts (spec/, .lovable/prompts/, .lovable/ai-fix-scripts/)
+Migrates legacy repository layouts (spec/, 01-prompts/, 03-ai-scripts/)
 to the standardized root layout (01-prompts/, 02-spec/, 03-ai-scripts/).
 
 Features:
@@ -80,26 +80,26 @@ PATTERN_SPEC_SLASH = re.compile(r"(?<![a-zA-Z0-9_-])spec/((?:[0-9]{2}-|[a-zA-Z0-
 PATTERN_SPEC_BACKSLASH = re.compile(r"(?<![a-zA-Z0-9_-])spec\\\\((?:[0-9]{2}-|[a-zA-Z0-9_.-]+\\\\)[a-zA-Z0-9_.-]*)")
 
 DIRECT_STRING_REPLACEMENTS = [
-    (".lovable/prompts/01-prompts-category/", "01-prompts/"),
-    (".lovable/prompts/", "01-prompts/"),
-    (".lovable\\prompts\\01-prompts-category\\", "01-prompts\\\\"),
-    (".lovable\\prompts\\", "01-prompts\\\\"),
-    (".lovable/ai-fix-scripts/", "03-ai-scripts/"),
-    (".lovable\\ai-fix-scripts\\", "03-ai-scripts\\\\"),
-    ("lovable/ai-fix-scripts/", "03-ai-scripts/"),
-    (".lovable/coding-guidelines/coding-guidelines.md", ".lovable/coding-guidelines.md"),
-    (".lovable\\coding-guidelines\\coding-guidelines.md", ".lovable\\coding-guidelines.md"),
-    (".lovable/coding-guidelines/", ".lovable/coding-guidelines.md"),
+    ("01-prompts/", "01-prompts/"),
+    ("01-prompts/", "01-prompts/"),
+    (".ai-memory\\prompts\\01-prompts-category\\", "01-prompts\\\\"),
+    (".ai-memory\\prompts\\", "01-prompts\\\\"),
+    ("03-ai-scripts/", "03-ai-scripts/"),
+    (".ai-memory\\ai-fix-scripts\\", "03-ai-scripts\\\\"),
+    ("03-ai-scripts/", "03-ai-scripts/"),
+    (".ai-memory/coding-guidelines.md", ".ai-memory/coding-guidelines.md"),
+    (".ai-memory\\coding-guidelines\\coding-guidelines.md", ".ai-memory\\coding-guidelines.md"),
+    (".ai-memory/coding-guidelines.md", ".ai-memory/coding-guidelines.md"),
     ("\"spec\"", "\"02-spec\""),
-    ("spec/01-index.md", "02-spec/01-index.md"),
-    ("spec/spec-index.md", "02-spec/spec-index.md"),
-    ("spec/health-dashboard.md", "02-spec/health-dashboard.md"),
-    ("spec/dashboard-data.json", "02-spec/dashboard-data.json"),
-    ("spec/folder-structure-root.md", "02-spec/folder-structure-root.md"),
-    ("spec/99-consistency-report.md", "02-spec/99-consistency-report.md"),
-    ("spec/02-_template.md", "02-spec/02-_template.md"),
-    ("`spec/`", "`02-spec/`"),
-    ("`spec`", "`02-spec`"),
+    ("02-02-spec/01-index.md", "02-02-spec/01-index.md"),
+    ("02-spec/spec-index.md", "02-02-spec/spec-index.md"),
+    ("02-spec/health-dashboard.md", "02-02-spec/health-dashboard.md"),
+    ("02-spec/dashboard-data.json", "02-02-spec/dashboard-data.json"),
+    ("02-spec/folder-structure-root.md", "02-02-spec/folder-structure-root.md"),
+    ("02-02-spec/99-consistency-report.md", "02-02-spec/99-consistency-report.md"),
+    ("02-02-spec/02-_template.md", "02-02-spec/02-_template.md"),
+    ("`02-spec/`", "`02-spec/`"),
+    ("`02-spec`", "`02-spec`"),
 ]
 
 
@@ -190,8 +190,8 @@ class MigrationPlanner:
 
     def plan(self) -> None:
         # 1. Plan Directory & Key File Moves
-        prompts_cat = self.repo_root / ".lovable" / "prompts" / "01-prompts-category"
-        prompts_root_dir = self.repo_root / ".lovable" / "prompts"
+        prompts_cat = self.repo_root / ".ai-memory" / "prompts" / "01-prompts-category"
+        prompts_root_dir = self.repo_root / ".ai-memory" / "prompts"
         target_prompts = self.repo_root / "01-prompts"
 
         if prompts_cat.exists() and not target_prompts.exists():
@@ -199,23 +199,23 @@ class MigrationPlanner:
         elif prompts_root_dir.exists() and not target_prompts.exists():
             self.moves.append((prompts_root_dir, target_prompts, "MOVE_DIR"))
 
-        spec_dir = self.repo_root / "spec"
+        spec_dir = self.repo_root / "02-spec"
         target_spec = self.repo_root / "02-spec"
         if spec_dir.exists() and not target_spec.exists():
             self.moves.append((spec_dir, target_spec, "MOVE_DIR"))
 
-        ai_scripts = self.repo_root / ".lovable" / "ai-fix-scripts"
+        ai_scripts = self.repo_root / ".ai-memory" / "ai-fix-scripts"
         target_ai_scripts = self.repo_root / "03-ai-scripts"
         if ai_scripts.exists() and not target_ai_scripts.exists():
             self.moves.append((ai_scripts, target_ai_scripts, "MOVE_DIR"))
 
-        nested_guidelines = self.repo_root / ".lovable" / "coding-guidelines" / "coding-guidelines.md"
-        target_guidelines = self.repo_root / ".lovable" / "coding-guidelines.md"
+        nested_guidelines = self.repo_root / ".ai-memory" / "coding-guidelines" / "coding-guidelines.md"
+        target_guidelines = self.repo_root / ".ai-memory" / "coding-guidelines.md"
         if nested_guidelines.exists() and not target_guidelines.exists():
             self.moves.append((nested_guidelines, target_guidelines, "MOVE_FILE"))
 
         # 2. Plan Stale Items Cleanup
-        nested_cg_dir = self.repo_root / ".lovable" / "coding-guidelines"
+        nested_cg_dir = self.repo_root / ".ai-memory" / "coding-guidelines"
         if nested_cg_dir.exists():
             self.stale_files.append(nested_cg_dir)
 

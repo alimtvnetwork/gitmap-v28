@@ -20,7 +20,7 @@ type mergeSpec struct {
 
 // runMerge implements merge-both / merge-left / merge-right.
 //
-// Spec: spec/01-app/97-move-and-merge.md
+// Spec: 02-spec/01-app/97-move-and-merge.md
 func runMerge(spec mergeSpec, args []string) error {
 	checkHelp(spec.cmd, args)
 	left, right, opts := parseMergeArgs(spec, args)

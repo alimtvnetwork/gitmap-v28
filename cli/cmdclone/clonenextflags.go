@@ -24,7 +24,7 @@ type CloneNextFlags struct {
 	// folder. Triggers a chdir-to-parent before the existence check (to
 	// release Windows file locks) and DISABLES the versioned-folder
 	// fallback so the user gets either a flat layout or a clear error.
-	// See spec/01-app/87-clone-next-flatten.md.
+	// See 02-spec/01-app/87-clone-next-flatten.md.
 	Force bool
 	// MaxConcurrency is the worker-pool size for batch mode (--all / --csv).
 	// 1 (the default) preserves the historical sequential behavior so
@@ -64,7 +64,7 @@ type CloneNextFlags struct {
 	// NoVSCodeSync suppresses the post-clone update of the
 	// alefragnani.project-manager projects.json file. Mirrors
 	// `gitmap scan --no-vscode-sync`. Default false. See
-	// spec/01-vscode-project-manager-sync/02-clone-sync.md.
+	// 02-spec/01-vscode-project-manager-sync/02-clone-sync.md.
 	NoVSCodeSync bool
 }
 

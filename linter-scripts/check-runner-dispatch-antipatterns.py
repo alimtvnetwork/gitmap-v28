@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 """linter-scripts/check-runner-dispatch-antipatterns.py — Guard against dispatch anti-patterns in runner scripts (cross-platform).
 
-Spec: spec/15-distribution-and-runner/06-fix-repo-forwarding.md
+Spec: 02-spec/15-distribution-and-runner/06-fix-repo-forwarding.md
 """
 
 from __future__ import annotations

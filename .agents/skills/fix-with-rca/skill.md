@@ -16,5 +16,5 @@ Solves bugs and pipeline failures through structured 4-part Root Cause Analysis.
 
 ## Logging
 
-- General bugs: `.lovable/issues/01-<slug>.md`
-- CI/CD failures: `.lovable/cicd-issues/01-<slug>.md`
+- General bugs: `.ai-memory/issues/01-<slug>.md`
+- CI/CD failures: `.ai-memory/cicd-issues/01-<slug>.md`

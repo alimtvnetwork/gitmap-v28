@@ -2,7 +2,7 @@
 // directories and reconciles unlinked profiles into Chrome's Local State
 // (`profile.info_cache` and `profile.profiles_order`).
 //
-// Spec: spec/25-chrome-profile-management/01-profile-registration-and-picker.md.
+// Spec: 02-spec/25-chrome-profile-management/01-profile-registration-and-picker.md.
 package cmdchromeprofile
 
 import (

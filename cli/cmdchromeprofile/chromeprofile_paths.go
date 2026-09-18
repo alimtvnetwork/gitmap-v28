@@ -1,5 +1,5 @@
 // Package cmd — chromeprofile_paths.go: cross-platform Chrome User
-// Data directory resolution. See spec/04-generic-cli/40-chrome-profile-copy.md.
+// Data directory resolution. See 02-spec/04-generic-cli/40-chrome-profile-copy.md.
 package cmdchromeprofile
 
 import (

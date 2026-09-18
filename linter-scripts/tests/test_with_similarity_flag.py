@@ -51,7 +51,7 @@ def _make_repo(td: Path) -> Path:
     """spec/intro.md + spec/copy.md, both clean. The second file
     exists so a rename/copy payload can name it as the post-state
     side without tripping the ``ignored-missing`` audit branch."""
-    spec = td / "spec"
+    spec = td / "02-spec"
     spec.mkdir()
     (spec / "intro.md").write_text("# spec\nplain prose.\n")
     (spec / "copy.md").write_text("# spec\nplain prose.\n")

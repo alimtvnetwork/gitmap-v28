@@ -16,7 +16,7 @@ def resolve_default_paths():
         default_out = os.path.join("/tmp", "lint-gosec-g115-current", "report.json")
         default_base = os.path.join("/tmp", "lint-gosec-g115-baseline", "report.json")
     else:
-        temp_dir = os.path.join(".lovable", "temp", "cicd")
+        temp_dir = os.path.join(".ai-memory", "temp", "cicd")
         default_out = os.path.join(temp_dir, "lint-gosec-g115-current.json")
         default_base = os.path.join(temp_dir, "lint-gosec-g115-baseline.json")
     return default_out, default_base

@@ -36,8 +36,8 @@ def run_check(index: Path, prompts_dir: Path) -> subprocess.CompletedProcess:
 
 def make_layout(tmp: Path, index_body: str | None,
                 prompt_names: list[str]) -> tuple[Path, Path]:
-    index = tmp / ".lovable" / "prompts.md"
-    prompts_dir = tmp / ".lovable" / "prompts"
+    index = tmp / ".ai-memory" / "prompts.md"
+    prompts_dir = tmp / ".ai-memory" / "prompts"
     prompts_dir.mkdir(parents=True, exist_ok=True)
     for name in prompt_names:
         write_file(prompts_dir / name, "# stub\n")
@@ -80,7 +80,7 @@ class CheckPromptsLoadedTests(unittest.TestCase):
         with tempfile.TemporaryDirectory() as raw:
             tmp = Path(raw)
             _, prompts_dir = make_layout(tmp, None, ["01-a.md"])
-            missing_index = tmp / ".lovable" / "prompts.md"
+            missing_index = tmp / ".ai-memory" / "prompts.md"
             result = run_check(missing_index, prompts_dir)
             self.assertEqual(result.returncode, 2)
             self.assertIn("prompt index not found", result.stderr)

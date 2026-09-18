@@ -11,7 +11,7 @@ Conducts the standardized release ceremony for coding-guidelines-v24.
 
 1. Determine bump tier (MINOR default, reset PATCH to 0).
 2. **Mandatory Pre-Release Unit Tests & CI/CD Verification:** Execute `python 03-ai-scripts/06-cicd-local-runner.py --run-tests` and verify all unit test suites, AST checks, and quality gates pass 100% green (`exit 0`).
-3. **Test Inventory Validation:** Cross-reference `.lovable/temp/recent-file-changes.json` with `.lovable/test-inventory.json` to verify that all test suites covering recently modified files pass completely.
+3. **Test Inventory Validation:** Cross-reference `.ai-memory/temp/recent-file-changes.json` with `.ai-memory/test-inventory.json` to verify that all test suites covering recently modified files pass completely.
 4. Update version in `package.json` and run `npm run sync`.
 5. Prepend entry to `changelog.md` with verified, concrete changes.
 6. Commit: `chore(release): bump version to X.Y.0`.
@@ -25,7 +25,7 @@ Conducts the standardized release ceremony for coding-guidelines-v24.
 To rapidly discover version manifests, changelog entries, release notes, and install scripts without hitting 50-result tool caps, the AI agent MUST utilize the Python discovery scripts first:
 - **Inventory Manifests & Version Files:** `python 03-ai-scripts/11-fast-file-scanner.py --search "version" --limit 20`
 - **Fast Grep Across Version Pins:** `python 03-ai-scripts/12-fast-cached-grep.py --pattern "<version>" --limit 20`
-- **Explore Release Artifacts & Folders:** `python 03-ai-scripts/17-fast-file-reader.py --list-folder .lovable/release --limit 20`
+- **Explore Release Artifacts & Folders:** `python 03-ai-scripts/17-fast-file-reader.py --list-folder .ai-memory/release --limit 20`
 - **Read Version Manifest:** `python 03-ai-scripts/17-fast-file-reader.py --read-file version.json`
 
 > [!NOTE]

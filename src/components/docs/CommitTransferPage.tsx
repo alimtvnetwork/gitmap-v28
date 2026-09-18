@@ -141,7 +141,7 @@ const CommitTransferPage = ({ direction }: CommitTransferPageProps) => {
           </div>
           <p className="text-lg text-muted-foreground">{m.short}.</p>
           <p className="text-xs text-muted-foreground mt-2">
-            Spec: <code>spec/01-app/106-commit-left-right-both.md</code>
+            Spec: <code>02-spec/01-app/106-commit-left-right-both.md</code>
           </p>
         </div>
 

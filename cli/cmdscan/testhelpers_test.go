@@ -57,12 +57,12 @@ func findSchemaFile(t *testing.T, filename string) string {
 	t.Helper()
 	dir := filepath.Dir(scanPackageDir())
 	for i := 0; i < 8; i++ {
-		candidateApp := filepath.Join(dir, "spec", "21-app", "08-json-schemas", filename)
+		candidateApp := filepath.Join(dir, "02-spec", "21-app", "08-json-schemas", filename)
 		if _, err := os.Stat(candidateApp); err == nil {
 			return candidateApp
 		}
 
-		candidateRoot := filepath.Join(dir, "spec", "08-json-schemas", filename)
+		candidateRoot := filepath.Join(dir, "02-spec", "08-json-schemas", filename)
 		if _, err := os.Stat(candidateRoot); err == nil {
 			return candidateRoot
 		}
@@ -75,7 +75,7 @@ func findSchemaFile(t *testing.T, filename string) string {
 		dir = parent
 	}
 
-	t.Fatalf("could not locate %s in spec/21-app/08-json-schemas or spec/08-json-schemas", filename)
+	t.Fatalf("could not locate %s in 02-spec/21-app/08-json-schemas or 02-spec/08-json-schemas", filename)
 	return ""
 }
 

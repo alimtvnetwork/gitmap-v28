@@ -20,14 +20,14 @@ type RunnerETAInfo struct {
 	UpdatedAt             int64  `json:"updated_at"`
 }
 
-// ReadRunnerETA attempts to read .lovable/temp/runner-eta.json from repo root.
+// ReadRunnerETA attempts to read .ai-memory/temp/runner-eta.json from repo root.
 func ReadRunnerETA() (*RunnerETAInfo, bool) {
 	root, err := gitutil.RepoRoot(".")
 	if err != nil {
 		root = "."
 	}
 
-	etaPath := filepath.Join(root, ".lovable", "temp", "runner-eta.json")
+	etaPath := filepath.Join(root, ".ai-memory", "temp", "runner-eta.json")
 	data, err := os.ReadFile(etaPath)
 	if err != nil {
 		return nil, false

@@ -2,7 +2,7 @@
 """
 32-deep-consolidator.py: Deep Plans & Subtasks Consolidator with Zero Information Loss.
 Aggressively consolidates 95 micro-plans and 76 subtask folders into 10 high-density
-milestone summaries in .lovable/plans/completed/, embedding full architectural details,
+milestone summaries in .ai-memory/plans/completed/, embedding full architectural details,
 subtask ledgers, and verification proofs.
 """
 
@@ -16,13 +16,13 @@ import sys
 sys.path.insert(0, str(Path(__file__).parent))
 engine = import_module("02-shared-engine")
 
-COMPLETED_DIR = Path(".lovable/plans/completed")
-PENDING_DIR = Path(".lovable/plans/pending")
-SUBTASKS_DIR = Path(".lovable/plans/subtasks")
+COMPLETED_DIR = Path(".ai-memory/plans/completed")
+PENDING_DIR = Path(".ai-memory/plans/pending")
+SUBTASKS_DIR = Path(".ai-memory/plans/subtasks")
 COMP_SUBTASKS_DIR = COMPLETED_DIR / "subtasks"
-INDEX_FILE = Path(".lovable/plans/01-index.md")
-LEGACY_INDEX_FILE = Path(".lovable/plans/index.md")
-WHAT_TO_READ = Path(".lovable/what-to-read.md")
+INDEX_FILE = Path(".ai-memory/plans/01-index.md")
+LEGACY_INDEX_FILE = Path(".ai-memory/plans/index.md")
+WHAT_TO_READ = Path(".ai-memory/what-to-read.md")
 
 CLUSTERS = [
     {
@@ -31,9 +31,9 @@ CLUSTERS = [
         "title": "Milestone Summary: Coding Guidelines, Sizing, Booleans & Style Quality",
         "domain": "Coding Guidelines, Function Sizing, Booleans, Naming Conventions & Code Hygiene",
         "specs": [
-            "spec/02-coding-guidelines/01-cross-language/01-index.md — Cross-language sizing, booleans, and error rules.",
-            "spec/02-coding-guidelines/02-canonical-size-tier.md — Canonical function (<=15 lines) and file size caps.",
-            "spec/02-coding-guidelines/03-boolean-rules.md — Affirmative boolean prefixes and implicit truth evaluations."
+            "02-spec/02-coding-guidelines/01-cross-language/01-index.md — Cross-language sizing, booleans, and error rules.",
+            "02-spec/02-coding-guidelines/02-canonical-size-tier.md — Canonical function (<=15 lines) and file size caps.",
+            "02-spec/02-coding-guidelines/03-boolean-rules.md — Affirmative boolean prefixes and implicit truth evaluations."
         ],
         "contracts": "All functions <=15 lines body cap. Mandatory blank line before returns. Affirmative boolean naming (is*, has*). Positive variable framing without bare ok. Strict relative git paths.",
         "plans": [
@@ -44,7 +44,7 @@ CLUSTERS = [
             "54-code-hygiene-and-file-standards-audit.md", "55-style-guidelines-audit.md", "56-relative-paths-audit.md"
         ],
         "subtask_patterns": ["01-coding-guideline-fixes", "17-boolean-and-naming", "18-coding-guidelines", "19-naming-conventions", "20-style-guidelines", "29-booleans", "30-naming", "33-hygiene", "34-style", "35-relative-paths"],
-        "rcas": [".lovable/memory/learned/01-project-context-and-guidelines.md", ".lovable/memory/learned/04-streamwriter-contracts-and-naming-standards.md"]
+        "rcas": [".ai-memory/memory/learned/01-project-context-and-guidelines.md", ".ai-memory/memory/learned/04-streamwriter-contracts-and-naming-standards.md"]
     },
     {
         "id": "02",
@@ -52,8 +52,8 @@ CLUSTERS = [
         "title": "Milestone Summary: Centralized Error Architecture & Cliexit Engine",
         "domain": "Application Error Wrapping, CLI Exit Handlers, Universal Envelopes & Zero Swallowed Errors",
         "specs": [
-            "spec/03-error-manage/01-overview.md — Universal AppError wrapping, error codes, and cause chains.",
-            "spec/03-error-manage/02-error-architecture/02-error-handling-reference.md — Error propagation and exit codes."
+            "02-spec/03-error-manage/01-overview.md — Universal AppError wrapping, error codes, and cause chains.",
+            "02-spec/03-error-manage/02-error-architecture/02-error-handling-reference.md — Error propagation and exit codes."
         ],
         "contracts": "Universal *apperror.AppError wrapping. cliexit.Fail / cliexit.Exit central handlers. Error code registries (E1001-E9000). Zero swallowed errors policy (err != nil must be wrapped or handled).",
         "plans": [
@@ -61,7 +61,7 @@ CLUSTERS = [
             "31-error-export-and-visibility.md", "44-01-cliexit-specialized-helpers.md", "49-error-management-audit.md"
         ],
         "subtask_patterns": ["15-centralized-error-handling", "16-error-management", "28-error-management"],
-        "rcas": [".lovable/memory/learned/01-project-context-and-guidelines.md", ".lovable/memory/issues/2026-08-25-cliexit-error-suppression.md"]
+        "rcas": [".ai-memory/memory/learned/01-project-context-and-guidelines.md", ".ai-memory/memory/issues/2026-08-25-cliexit-error-suppression.md"]
     },
     {
         "id": "03",
@@ -69,9 +69,9 @@ CLUSTERS = [
         "title": "Milestone Summary: Type Safety, Signatures, Enums & React Architecture",
         "domain": "TypeScript Strict Typing, Parameter Structs, Enums with *Type Suffixes & React Modularity",
         "specs": [
-            "spec/02-coding-guidelines/04-typescript-rules.md — Zero any, discriminated unions, Result envelopes.",
-            "spec/02-coding-guidelines/06-parameter-structs.md — Argument reduction (<=3 params) via DTO structs.",
-            "spec/02-coding-guidelines/07-enum-standards.md — Enum Type suffix standards across Go and TypeScript."
+            "02-spec/02-coding-guidelines/04-typescript-rules.md — Zero any, discriminated unions, Result envelopes.",
+            "02-spec/02-coding-guidelines/06-parameter-structs.md — Argument reduction (<=3 params) via DTO structs.",
+            "02-spec/02-coding-guidelines/07-enum-standards.md — Enum Type suffix standards across Go and TypeScript."
         ],
         "contracts": "Functions with >3 parameters must use parameter structs. Enums must end with *Type suffix. React custom hooks must return named object properties. Strict Result[T] envelope for frontend RPC.",
         "plans": [
@@ -81,7 +81,7 @@ CLUSTERS = [
             "60-multi-language-enums-and-traits-audit.md", "62-argument-reduction-audit.md"
         ],
         "subtask_patterns": ["24-function-signatures", "25-typescript-types", "26-enums-and-traits", "28-argument-reduction", "31-enums", "32-react-frontend", "37-function-signatures", "38-typescript", "40-enums", "42-argument-reduction"],
-        "rcas": [".lovable/memory/learned/04-streamwriter-contracts-and-naming-standards.md"]
+        "rcas": [".ai-memory/memory/learned/04-streamwriter-contracts-and-naming-standards.md"]
     },
     {
         "id": "04",
@@ -89,8 +89,8 @@ CLUSTERS = [
         "title": "Milestone Summary: CI/CD Pipelines, Multi-Worker Runners & Real-Time Streaming",
         "domain": "GitHub Actions Triggers, Multi-Worker Local Runner, Test Inventory Caching & Streaming Telemetry",
         "specs": [
-            "spec/11-cicd-and-quality-gates/01-overview.md — 7-segment local runner architecture.",
-            "spec/11-cicd-and-quality-gates/02-incremental-cache.md — Smart test inventory hashing and incremental skip rules."
+            "02-spec/11-cicd-and-quality-gates/01-overview.md — 7-segment local runner architecture.",
+            "02-spec/11-cicd-and-quality-gates/02-incremental-cache.md — Smart test inventory hashing and incremental skip rules."
         ],
         "contracts": "7-segment quality pipeline (Linters, Compile, Package, Smoke, Unit, Coverage, Race). Worker pool concurrency with ThreadPoolExecutor. Real-time in-flight ticker telemetry.",
         "plans": [
@@ -101,7 +101,7 @@ CLUSTERS = [
             "87-parallel-cpu-chunking-and-git-history-filter.md"
         ],
         "subtask_patterns": ["67-cicd-quality-gate-finalization-and-streaming", "68-smart-incremental-cicd-runner", "69-realtime-streaming-and-ai-orchestration-runner", "72-pipeline-error-logs-caching-and-cicd-fixes", "74-pipeline-errorlogs-details-and-cross-platform-ci-fixes", "81-cicd-smart-worker-groups-and-install-ls", "85-parallel-cpu-checkers-and-live-progress-engine", "87-parallel-cpu-chunking-and-git-history-filter"],
-        "rcas": [".lovable/memory/learned/03-parallel-cicd-runner-and-log-filtering.md", ".lovable/memory/issues/2026-09-02-cicd-runner-hang-macos.md"]
+        "rcas": [".ai-memory/memory/learned/03-parallel-cicd-runner-and-log-filtering.md", ".ai-memory/memory/issues/2026-09-02-cicd-runner-hang-macos.md"]
     },
     {
         "id": "05",
@@ -109,8 +109,8 @@ CLUSTERS = [
         "title": "Milestone Summary: Database Engine, SQLite Schema, Joins & Typed Scanners",
         "domain": "Universal DBEngine Joins, Query Builders, Safe Row Scanner Generators & Tesla ID Conventions",
         "specs": [
-            "spec/08-database-and-orm/01-overview.md — SQLite single-writer SetMaxOpenConns(1) and connection pooling.",
-            "spec/08-database-and-orm/02-naming-and-primary-keys.md — PascalCase <Entity>Id convention and typed scanners."
+            "02-spec/08-database-and-orm/01-overview.md — SQLite single-writer SetMaxOpenConns(1) and connection pooling.",
+            "02-spec/08-database-and-orm/02-naming-and-primary-keys.md — PascalCase <Entity>Id convention and typed scanners."
         ],
         "contracts": "PascalCase database schema. ID naming must follow Tesla standards (<Entity>Id, not id or ID). Zero-swallow database scanner returns. Fast search cache in SQLite with schema migrations.",
         "plans": [
@@ -119,7 +119,7 @@ CLUSTERS = [
             "91-purge-history-refactor-and-sqlite-tracking.md", "94-orm-code-generator-id-error-standards-and-fast-cache.md"
         ],
         "subtask_patterns": ["11-endpoint-resolver-db", "71-os-power-management-and-installation-split-db", "91-purge-history-refactor-and-sqlite-tracking", "94-orm-code-generator-id-error-standards-and-fast-cache"],
-        "rcas": [".lovable/memory/learned/08-sqlite-scanner-and-orm-evolution.md", ".lovable/memory/issues/2026-09-07-sqlite-database-locked.md"]
+        "rcas": [".ai-memory/memory/learned/08-sqlite-scanner-and-orm-evolution.md", ".ai-memory/memory/issues/2026-09-07-sqlite-database-locked.md"]
     },
     {
         "id": "06",
@@ -127,8 +127,8 @@ CLUSTERS = [
         "title": "Milestone Summary: Git Operations, Commit Engines & Interactive Remediation",
         "domain": "Workspace Git Operations, Commit-in Engine, Commit-right Path Resolution & Delta Extraction",
         "specs": [
-            "spec/04-git-engine/01-overview.md — Workspace management, submodules, and clean git operations.",
-            "spec/04-git-engine/02-commit-and-remediation.md — Atomic commit chunking, delta extraction, and repair flows."
+            "02-spec/04-git-engine/01-overview.md — Workspace management, submodules, and clean git operations.",
+            "02-spec/04-git-engine/02-commit-and-remediation.md — Atomic commit chunking, delta extraction, and repair flows."
         ],
         "contracts": "Interactive remediation without shell command concatenation. Path resolution supports relative and anchored paths. Commit checkpoints track changed file manifests.",
         "plans": [
@@ -140,7 +140,7 @@ CLUSTERS = [
             "88-incremental-git-commit-checkpointing-and-delta-extraction.md"
         ],
         "subtask_patterns": ["01-commit-commands-overhaul", "02-git-rm-and-folder", "03-fix-release-tag-ordering", "03-ignore-and-add", "06-auto-release-from-commits", "10-llm-guidelines-and-release", "14-commit-right-e2e-tests", "64-remediation-fix-and-chrome-token-export", "76-responsive-pull-batch-table-terminal-adaptive-layout", "84-profile-refresh-token-pull-status-checkmarks-and-dirty-remediation", "88-incremental-git-commit-checkpointing-and-delta-extraction"],
-        "rcas": [".lovable/memory/learned/06-macro-step-execution-and-shell-open.md", ".lovable/memory/issues/2026-09-04-commit-right-untracked-path.md"]
+        "rcas": [".ai-memory/memory/learned/06-macro-step-execution-and-shell-open.md", ".ai-memory/memory/issues/2026-09-04-commit-right-untracked-path.md"]
     },
     {
         "id": "07",
@@ -148,15 +148,15 @@ CLUSTERS = [
         "title": "Milestone Summary: SSH Nodes, Cluster Delegation & Remote Execution Engine",
         "domain": "SSH Key Lifecycles, Multi-Host Config Templating, Cluster Node Registration & Broadcast Delegation",
         "specs": [
-            "spec/01-app/05-ssh/01-ssh-key-management.md — Key generation, clipboard copying, and SQLite persistence.",
-            "spec/01-app/09-cluster/01-cluster-nodes.md — Node joining, heartbeat tracking, and distributed task broadcasting."
+            "02-spec/01-app/05-ssh/01-ssh-key-management.md — Key generation, clipboard copying, and SQLite persistence.",
+            "02-spec/01-app/09-cluster/01-cluster-nodes.md — Node joining, heartbeat tracking, and distributed task broadcasting."
         ],
         "contracts": "Non-blocking concurrent SSH command execution (gitmap se). Database tables SshKey and SSHHost. Rebuilding ~/.ssh/config for multi-key endpoints with TLS dial timeouts.",
         "plans": [
             "15-ssh-nodes-and-cluster-delegation.md", "21-ssh-commands-spec.md"
         ],
         "subtask_patterns": ["21-terminal-help-llm-and-ssh"],
-        "rcas": [".lovable/memory/issues/04-ssh-keygen-windows-path.md"]
+        "rcas": [".ai-memory/memory/issues/04-ssh-keygen-windows-path.md"]
     },
     {
         "id": "08",
@@ -164,8 +164,8 @@ CLUSTERS = [
         "title": "Milestone Summary: Terminal UI, Help Parity & Interactive Macro Builder",
         "domain": "Lipgloss Styling, High-Contrast ANSI Palettes, Subcommand Help AST Parity & Interactive Macros",
         "specs": [
-            "spec/07-design-system/01-overview.md — Box-drawing characters, Lipgloss banners, and responsive width calculations.",
-            "spec/13-generic-cli/01-overview.md — Subcommand registration, help text simulations, and flag validation."
+            "02-spec/07-design-system/01-overview.md — Box-drawing characters, Lipgloss banners, and responsive width calculations.",
+            "02-spec/13-generic-cli/01-overview.md — Subcommand registration, help text simulations, and flag validation."
         ],
         "contracts": "All registered Go subcommands must export verified --help AST parity. Interactive Macro Builder displays live PWD headers and supports in-builder ls, find, and replace commands.",
         "plans": [
@@ -176,7 +176,7 @@ CLUSTERS = [
             "57-cli-help-parity-audit.md", "61-terminal-ui-and-cli-styling-audit.md", "83-interactive-macro-builder-pwd-ls-search.md"
         ],
         "subtask_patterns": ["01-ui-terminal-and-agy-management", "02-terminal-help-scheduler-zsh", "06-search-and-llm", "07-file-find-commands", "07-implement-missing-commands", "08-search-replace-commands", "09-gitmap-open-and-error-refactor", "23-cli-commands-help", "27-terminal-ui", "29-terminal-ui", "36-cli-help", "41-terminal-ui", "83-interactive-macro-builder-pwd-ls-search"],
-        "rcas": [".lovable/memory/learned/10-interactive-macro-builder-pwd-ls-commands.md"]
+        "rcas": [".ai-memory/memory/learned/10-interactive-macro-builder-pwd-ls-commands.md"]
     },
     {
         "id": "09",
@@ -184,8 +184,8 @@ CLUSTERS = [
         "title": "Milestone Summary: Chrome Profile Management, Picker & Token Vault",
         "domain": "Chromium Local State Schema, Graphical Profile Picker Recognition, JSON/FNF Preflight & Vault",
         "specs": [
-            "spec/25-chrome-profile-management/01-profile-registration-and-picker.md — 13-attribute UI schema and ordering.",
-            "spec/25-chrome-profile-management/02-import-export-and-vault.md — Multi-profile discovery, ZIP extraction, and token cipher."
+            "02-spec/25-chrome-profile-management/01-profile-registration-and-picker.md — 13-attribute UI schema and ordering.",
+            "02-spec/25-chrome-profile-management/02-import-export-and-vault.md — Multi-profile discovery, ZIP extraction, and token cipher."
         ],
         "contracts": "Populate all 13 Chromium UI attributes in Local State. Sanitize Preferences on import. Preflight inspection supports --json, --file, --fnf, and --tempfile. Reversible 2-pass Base64 + Caesar cipher vault.",
         "plans": [
@@ -193,7 +193,7 @@ CLUSTERS = [
             "75-chrome-profile-import-routing-and-json-fnf-export.md"
         ],
         "subtask_patterns": ["73-chrome-profile-import-export-ubuntu-install-and-error-trace", "75-chrome-profile-import-routing-and-json-fnf-export"],
-        "rcas": [".lovable/memory/issues/2026-09-05-chrome-profile-picker-visibility-desync.md", ".lovable/memory/learned/11-chrome-profile-import-routing-and-fnf-export.md"]
+        "rcas": [".ai-memory/memory/issues/2026-09-05-chrome-profile-picker-visibility-desync.md", ".ai-memory/memory/learned/11-chrome-profile-import-routing-and-fnf-export.md"]
     },
     {
         "id": "10",
@@ -201,10 +201,10 @@ CLUSTERS = [
         "title": "Milestone Summary: Multi-OS Installers, Scripts & Web Stacks",
         "domain": "Cross-Platform Installers, Antigravity Desktop IDE Decoupling, Directory Sanitization & Web Stacks",
         "specs": [
-            "spec/15-installers-and-tooling/01-overview.md — Multi-OS package managers (Winget, APT, Homebrew).",
-            "spec/15-installers-and-tooling/02-antigravity-decoupling.md — Desktop IDE vs CLI agy decoupling.",
-            "spec/16-os-and-system-administration/01-directory-hygiene.md — Corrupted ANSI folder detection and safe recovery.",
-            "spec/16-os-and-system-administration/02-vmware-mounts.md — VMware shared folder fuse mounts and crontab survival."
+            "02-spec/15-installers-and-tooling/01-overview.md — Multi-OS package managers (Winget, APT, Homebrew).",
+            "02-spec/15-installers-and-tooling/02-antigravity-decoupling.md — Desktop IDE vs CLI agy decoupling.",
+            "02-spec/16-os-and-system-administration/01-directory-hygiene.md — Corrupted ANSI folder detection and safe recovery.",
+            "02-spec/16-os-and-system-administration/02-vmware-mounts.md — VMware shared folder fuse mounts and crontab survival."
         ],
         "contracts": "Google Antigravity Desktop IDE (official application) decoupled from Antigravity CLI (agy). Corrupted folder cleaner escapes CWD and rescues assets before removal. VMware shared folders persist across reboot via crontab @reboot.",
         "plans": [
@@ -218,7 +218,7 @@ CLUSTERS = [
             "92-linux-corrupted-install-folder-fix-and-server-check.md", "93-google-antigravity-desktop-ide-installer-fix.md"
         ],
         "subtask_patterns": ["03-tree-view-installer-help", "04-ag-vscode", "05-github-desktop-apt-fix", "22-completed-plans", "70-vmware-shared-folders-and-ubuntu-profiles", "77-scripts-fixer-installation-split-db-and-tooling-engine", "78-nginx-wordpress-laravel", "80-ubuntu-zsh-update-prompt-and-reinstall-root-cause-fix", "80-vmware-shared-mount-fix", "82-custom-installer-registry-and-export-import", "89-qtorrent-utorrent-installers-and-config-options", "90-vmware-shared-crontab-persistence-fix", "92-linux-corrupted-install-folder-fix-and-server-check", "93-google-antigravity-desktop-ide-installer-fix"],
-        "rcas": [".lovable/memory/issues/2026-09-08-linux-corrupted-ansi-install-directory.md", ".lovable/memory/issues/2026-09-09-antigravity-cli-vs-ide-conflation.md", ".lovable/memory/learned/12-vmware-shared-mount-and-crontab-persistence.md"]
+        "rcas": [".ai-memory/memory/issues/2026-09-08-linux-corrupted-ansi-install-directory.md", ".ai-memory/memory/issues/2026-09-09-antigravity-cli-vs-ide-conflation.md", ".ai-memory/memory/learned/12-vmware-shared-mount-and-crontab-persistence.md"]
     }
 ]
 
@@ -420,21 +420,21 @@ def sync_indexes() -> None:
         "",
         "## Pending Plans",
         "",
-        "- [87-install-antigravity-fix.md](.lovable/plans/pending/87-install-antigravity-fix.md) — Antigravity CLI and Desktop Installer Endpoints",
+        "- [87-install-antigravity-fix.md](.ai-memory/plans/pending/87-install-antigravity-fix.md) — Antigravity CLI and Desktop Installer Endpoints",
         "",
         "## Completed Plans (Consolidated Milestones)",
         "",
-        "- [x] [01-coding-guidelines-and-style-audits.md](.lovable/plans/completed/01-coding-guidelines-and-style-audits.md) — Coding Guidelines, Function Sizing, Boolean Refactoring & Style Quality.",
-        "- [x] [02-error-management-and-cliexit-architecture.md](.lovable/plans/completed/02-error-management-and-cliexit-architecture.md) — Centralized Error Architecture, AppError Wrappers & Cliexit Engine.",
-        "- [x] [03-type-safety-function-signatures-and-contracts.md](.lovable/plans/completed/03-type-safety-function-signatures-and-contracts.md) — Type Safety, Function Signatures, Enums & React Architecture.",
-        "- [x] [04-cicd-pipelines-runners-and-streaming-telemetry.md](.lovable/plans/completed/04-cicd-pipelines-runners-and-streaming-telemetry.md) — CI/CD Pipelines, Multi-Worker Runners & Real-Time Streaming Telemetry.",
-        "- [x] [05-database-engine-sqlite-joins-and-scanners.md](.lovable/plans/completed/05-database-engine-sqlite-joins-and-scanners.md) — Database Engine, SQLite Schema, Joins & Typed Scanners.",
-        "- [x] [06-git-operations-commit-engines-and-remediation.md](.lovable/plans/completed/06-git-operations-commit-engines-and-remediation.md) — Git Operations, Commit Engines, Delta Extraction & Interactive Remediation.",
-        "- [x] [07-ssh-nodes-cluster-delegation-and-remote-exec.md](.lovable/plans/completed/07-ssh-nodes-cluster-delegation-and-remote-exec.md) — SSH Nodes, Cluster Delegation & Remote Execution Engine.",
-        "- [x] [08-terminal-ui-help-parity-and-cli-commands.md](.lovable/plans/completed/08-terminal-ui-help-parity-and-cli-commands.md) — Terminal UI, Help Parity, CLI Styling & Interactive Macro Builder.",
-        "- [x] [09-chrome-profile-management-picker-and-token-vault.md](.lovable/plans/completed/09-chrome-profile-management-picker-and-token-vault.md) — Chrome Profile Management, Picker Visibility, Preflight Inspection & Token Vault.",
-        "- [x] [10-installers-multios-setup-and-web-stacks.md](.lovable/plans/completed/10-installers-multios-setup-and-web-stacks.md) — Multi-OS Installers, Corrupted Directory Sanitization, VMware Mounts & Web Stacks.",
-        "- [x] [11-completed-plans-consolidation.md](.lovable/plans/completed/11-completed-plans-consolidation.md) — Memory Consolidation, Safety Backup & Milestone Resequencing.",
+        "- [x] [01-coding-guidelines-and-style-audits.md](.ai-memory/plans/completed/01-coding-guidelines-and-style-audits.md) — Coding Guidelines, Function Sizing, Boolean Refactoring & Style Quality.",
+        "- [x] [02-error-management-and-cliexit-architecture.md](.ai-memory/plans/completed/02-error-management-and-cliexit-architecture.md) — Centralized Error Architecture, AppError Wrappers & Cliexit Engine.",
+        "- [x] [03-type-safety-function-signatures-and-contracts.md](.ai-memory/plans/completed/03-type-safety-function-signatures-and-contracts.md) — Type Safety, Function Signatures, Enums & React Architecture.",
+        "- [x] [04-cicd-pipelines-runners-and-streaming-telemetry.md](.ai-memory/plans/completed/04-cicd-pipelines-runners-and-streaming-telemetry.md) — CI/CD Pipelines, Multi-Worker Runners & Real-Time Streaming Telemetry.",
+        "- [x] [05-database-engine-sqlite-joins-and-scanners.md](.ai-memory/plans/completed/05-database-engine-sqlite-joins-and-scanners.md) — Database Engine, SQLite Schema, Joins & Typed Scanners.",
+        "- [x] [06-git-operations-commit-engines-and-remediation.md](.ai-memory/plans/completed/06-git-operations-commit-engines-and-remediation.md) — Git Operations, Commit Engines, Delta Extraction & Interactive Remediation.",
+        "- [x] [07-ssh-nodes-cluster-delegation-and-remote-exec.md](.ai-memory/plans/completed/07-ssh-nodes-cluster-delegation-and-remote-exec.md) — SSH Nodes, Cluster Delegation & Remote Execution Engine.",
+        "- [x] [08-terminal-ui-help-parity-and-cli-commands.md](.ai-memory/plans/completed/08-terminal-ui-help-parity-and-cli-commands.md) — Terminal UI, Help Parity, CLI Styling & Interactive Macro Builder.",
+        "- [x] [09-chrome-profile-management-picker-and-token-vault.md](.ai-memory/plans/completed/09-chrome-profile-management-picker-and-token-vault.md) — Chrome Profile Management, Picker Visibility, Preflight Inspection & Token Vault.",
+        "- [x] [10-installers-multios-setup-and-web-stacks.md](.ai-memory/plans/completed/10-installers-multios-setup-and-web-stacks.md) — Multi-OS Installers, Corrupted Directory Sanitization, VMware Mounts & Web Stacks.",
+        "- [x] [11-completed-plans-consolidation.md](.ai-memory/plans/completed/11-completed-plans-consolidation.md) — Memory Consolidation, Safety Backup & Milestone Resequencing.",
         ""
     ]
     LEGACY_INDEX_FILE.write_text("\n".join(legacy_content), encoding="utf-8")

@@ -65,7 +65,7 @@ def main() -> int:
         return 0
 
     print(f"⚠️  WARNING: Axios {current} is not in the approved list ({', '.join(sorted(APPROVED_VERSIONS))})", file=sys.stderr)
-    print("   This version has not been verified. Please review spec/01-app/axios-version-control/", file=sys.stderr)
+    print("   This version has not been verified. Please review 02-spec/01-app/axios-version-control/", file=sys.stderr)
     return 1
 
 

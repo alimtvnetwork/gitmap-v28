@@ -28,7 +28,7 @@ const ReleaseAliasPage = () => (
           <code>alias-version-unixts</code> so concurrent runs never pop each other&apos;s stash.
         </p>
         <p className="text-xs text-muted-foreground mt-2">
-          Available since v3.0.0 · Spec: <code>spec/04-generic-cli/15-release-alias.md</code>
+          Available since v3.0.0 · Spec: <code>02-spec/04-generic-cli/15-release-alias.md</code>
         </p>
       </div>
 

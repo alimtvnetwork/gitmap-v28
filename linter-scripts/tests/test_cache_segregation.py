@@ -52,7 +52,7 @@ def _run(*args: str, cwd: Path) -> tuple[int, str, str]:
 def _make_repo(td: Path) -> tuple[Path, Path]:
     """Two siblings so we can exercise both the .md and .mdx paths
     independently. Returns (root, cache_dir)."""
-    spec = td / "spec"
+    spec = td / "02-spec"
     spec.mkdir()
     # Both files are valid (no placeholder blocks at all) so every
     # run cleanly PASSes and writes a sentinel.

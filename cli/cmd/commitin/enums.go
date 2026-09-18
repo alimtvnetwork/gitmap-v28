@@ -1,5 +1,5 @@
 // Package commitin contains the typed enums and shared types for the
-// `gitmap commit-in` (cin) command. See spec/03-commit-in/.
+// `gitmap commit-in` (cin) command. See 02-spec/03-commit-in/.
 //
 // Enum design (per Core memory rules):
 //   - Each enum is its own named uint8 type with a String() returning

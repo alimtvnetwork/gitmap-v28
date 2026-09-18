@@ -11,7 +11,7 @@ package cmd
 // migrating every nested record type is out of scope for this
 // release; only the top-level shape is contractually pinned here.
 //
-// Schema: spec/08-json-schemas/export.schema.json.
+// Schema: 02-spec/08-json-schemas/export.schema.json.
 
 import (
 	"bytes"

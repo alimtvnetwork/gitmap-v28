@@ -44,7 +44,7 @@ def _make_repo(td: Path) -> tuple[Path, Path]:
     """spec/intro.md + spec/intro.mdx, both clean, plus a fresh
     cache dir. Mirrors the layout used by the cache-segregation
     suite so the two test files exercise the same fixture shape."""
-    spec = td / "spec"
+    spec = td / "02-spec"
     spec.mkdir()
     (spec / "intro.md").write_text("# spec\nplain prose.\n")
     (spec / "intro.mdx").write_text("# spec\nplain prose.\n")

@@ -21,15 +21,15 @@ func doPurgeLovable(repoPath string) error {
 		return err
 	}
 
-	fmt.Printf("Purged %d untracked files from .lovable directory.\n", purged)
+	fmt.Printf("Purged %d untracked files from .ai-memory directory.\n", purged)
 
 	return nil
 }
 
 func getTrackedLovableFiles(repoPath string) TrackedLovableFilesMapResult {
-	out, err := runPurgeCmd("git", "-C", repoPath, "ls-files", ".lovable")
+	out, err := runPurgeCmd("git", "-C", repoPath, "ls-files", ".ai-memory")
 	if err != nil {
-		appErr := apperror.WrapSimple(err, "git ls-files .lovable")
+		appErr := apperror.WrapSimple(err, "git ls-files .ai-memory")
 
 		return result.FailMap[string, bool](appErr)
 	}
@@ -47,7 +47,7 @@ func getTrackedLovableFiles(repoPath string) TrackedLovableFilesMapResult {
 }
 
 func removeUntrackedLovable(repoPath string, tracked map[string]bool) (int, error) {
-	lovableDir := filepath.Join(repoPath, ".lovable")
+	lovableDir := filepath.Join(repoPath, ".ai-memory")
 	if _, err := os.Stat(lovableDir); os.IsNotExist(err) {
 		return 0, nil
 	}

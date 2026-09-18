@@ -92,8 +92,8 @@ def generate_changelog_entry(new_version: str, today: str, bullets: list[str]) -
     header = f"## [v{new_version}] {today} Release v{new_version}\n\n"
     install_hdr = f"### Install GitMap v{new_version}\n\n"
     pin_text = "To pin your repository to this exact version, run the following one-liner:\n"
-    unix_cmd = f'Unix/Bash: `curl -sL https://raw.githubusercontent.com/alimtvnetwork/gitmap-v28/v{new_version}/install.sh | bash -s -- ".lovable/prompts" "v{new_version}"`\n'
-    ps_cmd = f'PowerShell: `Invoke-WebRequest -Uri https://raw.githubusercontent.com/alimtvnetwork/gitmap-v28/v{new_version}/install.ps1 -OutFile install.ps1; .\\install.ps1 -TargetDir ".lovable/prompts" -Version "v{new_version}"`\n\n'
+    unix_cmd = f'Unix/Bash: `curl -sL https://raw.githubusercontent.com/alimtvnetwork/gitmap-v28/v{new_version}/install.sh | bash -s -- ".ai-memory/prompts" "v{new_version}"`\n'
+    ps_cmd = f'PowerShell: `Invoke-WebRequest -Uri https://raw.githubusercontent.com/alimtvnetwork/gitmap-v28/v{new_version}/install.ps1 -OutFile install.ps1; .\\install.ps1 -TargetDir ".ai-memory/prompts" -Version "v{new_version}"`\n\n'
     changes_hdr = "### Added / Changed / Fixed / Removed\n\n"
     items = "\n".join(f"- {b}" for b in bullets) + "\n\n"
 
@@ -113,7 +113,7 @@ def update_changelog(filepath: str, new_version: str, bullets: list[str]) -> Non
 
 
 def update_release_notes(new_version: str, bullets: list[str]) -> str:
-    release_dir = Path(".lovable") / "release"
+    release_dir = Path(".ai-memory") / "release"
     release_dir.mkdir(parents=True, exist_ok=True)
     rn_path = release_dir / f"release-notes-v{new_version}.md"
     bullet_lines = "\n".join(f"- {b}" for b in bullets)
@@ -160,10 +160,10 @@ def stage_and_commit_release(new_version: str, scope: str, rn_path: str) -> None
         "version.json", "package.json", "readme.md", "changelog.md",
         "cli/constants/constants.go", rn_path
     ]
-    if os.path.exists(".lovable/user-preferences"):
-        manifests.append(".lovable/user-preferences")
-    if os.path.exists(".lovable/test-inventory.json"):
-        manifests.append(".lovable/test-inventory.json")
+    if os.path.exists(".ai-memory/user-preferences"):
+        manifests.append(".ai-memory/user-preferences")
+    if os.path.exists(".ai-memory/test-inventory.json"):
+        manifests.append(".ai-memory/test-inventory.json")
     run_cmd("git add -A")
     status = run_cmd("git status --porcelain")
     if status:
@@ -245,7 +245,7 @@ def execute_release(tier: str, scope: str, bullets: list[str], original_branch: 
     update_json_file("package.json", keys_to_update)
     update_constants_go("cli/constants/constants.go", new_ver)
     update_readme("readme.md", cur_ver, new_ver)
-    update_user_preferences(".lovable/user-preferences", new_ver)
+    update_user_preferences(".ai-memory/user-preferences", new_ver)
     update_changelog("changelog.md", new_ver, actual_bullets)
     rn_path = update_release_notes(new_ver, actual_bullets)
 

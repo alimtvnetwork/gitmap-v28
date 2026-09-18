@@ -25,7 +25,7 @@ Find all files starting with `01` in Markdown and Python files:
 
 ```bash
 $ gitmap find-files-startswith "01" -ext "md, py"
-.lovable/ai-fix-scripts/01-index.md
+03-ai-scripts/01-index.md
 ```
 
 ### Prefix Search in Code Files

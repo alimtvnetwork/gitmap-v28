@@ -3,7 +3,7 @@
 # {base}-v{Current} token was rewritten but a sibling bare digit
 # literal representing the previous version was left behind
 # (e.g. `"gitmap-v28", "12"`). Test-files only.
-# See .lovable/memory/issues/2026-05-02-fixrepo-paired-literal-desync.md.
+# See .ai-memory/memory/issues/2026-05-02-fixrepo-paired-literal-desync.md.
 
 # Look-ahead: number of lines after a {base}-v{Current} hit we scan
 # for a stale sibling digit. 2 covers the common Go map/slice layout.
@@ -66,7 +66,7 @@ run_paired_literal_audit() {
   done
   if [ "$total" -eq 0 ]; then echo "audit:   no paired-literal desync detected"; return 0; fi
   printf "fix-repo: ERROR paired-literal audit failed: %d hit(s) in %d file(s) (E_PAIRED_LITERAL)\n" "$total" "$files_with_hits" >&2
-  echo "  see .lovable/memory/issues/2026-05-02-fixrepo-paired-literal-desync.md" >&2
+  echo "  see .ai-memory/memory/issues/2026-05-02-fixrepo-paired-literal-desync.md" >&2
   echo "  fix: derive sibling literals from the same int via fmt.Sprintf" >&2
   return 1
 }

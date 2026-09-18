@@ -2,7 +2,7 @@ package heavy_test
 
 // Exit-code contract tests for `gitmap scan`.
 //
-// Asserts the documented codes from spec/04-generic-cli/07-error-handling.md:
+// Asserts the documented codes from 02-spec/04-generic-cli/07-error-handling.md:
 //
 //   0 -- IsSuccess: scan an empty tempdir (zero repos is still success)
 //   1 -- failure: scan a path that doesn't exist on disk

@@ -58,7 +58,7 @@ gitmap agy aprmp
 ### 4. Non-interactive immediate broadcast with custom prompt
 
 ```bash
-gitmap agy aprmp -p "Load pending plans in .lovable/plans/pending/ and execute self-loop." -y
+gitmap agy aprmp -p "Load pending plans in .ai-memory/plans/pending/ and execute self-loop." -y
 ```
 
 ### 5. Exclude using an external CSV or text list

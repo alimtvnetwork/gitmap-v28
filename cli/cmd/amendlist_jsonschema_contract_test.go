@@ -3,7 +3,7 @@ package cmd
 // JSON schema contract for `gitmap amend list --json`. Pairs the
 // runtime encoder (encodeAmendListJSON / buildAmendListJSONItems in
 // amendlistrender.go) with the published schema at
-// spec/08-json-schemas/amend-list.schema.json so drift in either
+// 02-spec/08-json-schemas/amend-list.schema.json so drift in either
 // side fails the build.
 
 import (

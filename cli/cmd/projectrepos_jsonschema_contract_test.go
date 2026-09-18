@@ -3,7 +3,7 @@ package cmd
 // JSON schema contract for `gitmap <type>-repos --json`. Pairs the
 // runtime encoder (encodeProjectReposJSON / buildProjectReposJSONItems
 // in projectreposrender.go) with the published schema at
-// spec/08-json-schemas/project-repos.schema.json so drift fails the build.
+// 02-spec/08-json-schemas/project-repos.schema.json so drift fails the build.
 
 import (
 	"bytes"

@@ -1,2 +1,0 @@
-STATUS: IN_PROGRESS
-CHUNK: Task 011, Task 014, Task 018 (Core SSH Structs)

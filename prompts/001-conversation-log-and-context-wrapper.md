@@ -3,10 +3,10 @@
 ## 1. Context & Purpose
 This prompt defines the execution workflow for persisting session conversation histories, auditing project memory against coding standards, staging follow-up instructions into `prompts/`, and generating comprehensive audit reports without prematurely executing unconfirmed work.
 
-- **Roadmap Source of Truth:** `.lovable/plan.md`
-- **Memory Index:** `mem://01-index.md` (`.lovable/memory/01-index.md`)
-- **Coding Guidelines:** `.lovable/coding-guidelines.md` and `spec/02-coding-guidelines/`
-- **Error Management Standard:** `spec/03-error-manage/`
+- **Roadmap Source of Truth:** `.ai-memory/plan.md`
+- **Memory Index:** `mem://01-index.md` (`.ai-memory/memory/01-index.md`)
+- **Coding Guidelines:** `.ai-memory/coding-guidelines.md` and `02-spec/02-coding-guidelines/`
+- **Error Management Standard:** `02-spec/03-error-manage/`
 
 ---
 
@@ -30,9 +30,9 @@ This prompt defines the execution workflow for persisting session conversation h
 - [ ] Document concrete outcomes/decisions and open threads.
 
 ### Phase 2: Memory & Standards Verification
-- [ ] Inspect `mem://01-index.md` (`.lovable/memory/01-index.md`).
-- [ ] Verify reference to `.lovable/coding-guidelines.md`; if missing, stage a proposed write for `mem://standards/coding-guidelines.md`.
-- [ ] Verify reference to `.lovable/plan.md`; if missing or referencing legacy paths, stage a proposed update.
+- [ ] Inspect `mem://01-index.md` (`.ai-memory/memory/01-index.md`).
+- [ ] Verify reference to `.ai-memory/coding-guidelines.md`; if missing, stage a proposed write for `mem://standards/coding-guidelines.md`.
+- [ ] Verify reference to `.ai-memory/plan.md`; if missing or referencing legacy paths, stage a proposed update.
 - [ ] Verify reference to `mem://workflow/conversation-log`; if missing, stage a proposed write.
 - [ ] List all memory files that the follow-up task will touch for user audit prior to execution.
 - [ ] **Do NOT** silently auto-create or overwrite memory files without user confirmation.
@@ -56,6 +56,6 @@ This prompt defines the execution workflow for persisting session conversation h
 
 ## 5. Mandatory Self-Instructions
 
-> **Self-Instruction:** Before acting, re-read `mem://01-index.md` and `.lovable/coding-guidelines.md`; restate which rules apply.
+> **Self-Instruction:** Before acting, re-read `mem://01-index.md` and `.ai-memory/coding-guidelines.md`; restate which rules apply.
 >
 > **Continuous Improvement:** After executing this task, analyze the workflow and suggest further structural improvements to this instruction file.

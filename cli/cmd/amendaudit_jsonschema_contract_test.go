@@ -3,7 +3,7 @@ package cmd
 // JSON schema contract for `gitmap amend audit` file output. Pairs
 // the runtime encoder (encodeAmendAuditJSON / buildAuditRecord in
 // amendaudit.go + amendauditrender.go) with the published schema at
-// spec/08-json-schemas/amend-audit.schema.json so drift in either
+// 02-spec/08-json-schemas/amend-audit.schema.json so drift in either
 // side fails the build.
 
 import (

@@ -13,7 +13,7 @@ package cmd
 // per-command `example` fields are conditionally appended so the legacy
 // omitempty wire shape is preserved (absent rather than null/empty).
 //
-// Schema: spec/08-json-schemas/llm-docs.schema.json.
+// Schema: 02-spec/08-json-schemas/llm-docs.schema.json.
 
 import (
 	"bytes"

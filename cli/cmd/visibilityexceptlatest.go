@@ -10,7 +10,7 @@
 //	  make-all-public  --except-latest → all → public, latest → PRIVATE
 //	  make-all-private --except-latest → all → private, latest → PUBLIC
 //
-// Spec: spec/01-app/116-bulk-visibility-mapub-mapri.md §except-latest.
+// Spec: 02-spec/01-app/116-bulk-visibility-mapub-mapri.md §except-latest.
 package cmd
 
 import (

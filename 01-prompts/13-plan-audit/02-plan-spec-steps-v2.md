@@ -5,7 +5,7 @@
 
 ## MUST FOLLOW NON-NEGOTIABLE
 
-Listen, past runs of these turns have been sloppy and stupid as fuck: wrong step counts, partial task lists dumped into chat instead of files, plans and session summaries half-filled with "[N]" placeholders, folders skimmed, open ambiguities ignored, CI/CD issues and `plans/subtasks/` forgotten, user commands dropped, coding guidelines bypassed, detailed specs chopped and summarized into useless junk, uppercase README files left uncorrected, `.lovable/memory/` created by accident, `strictly-avoid.md` overwritten, and explicit user instructions softened after being told not to. WTF. How on earth are you reverting to this carelessness, are you stupid?? Stop doing that, you stupid fuck. Read the whole codebase, read every folder in `spec/` and `.lovable/`, confirm root `readme.md` is strictly lowercase, find the root cause in one sentence, capture commands, issues, and pending tasks without omitting a single item, write the spec files and memory files in the right paths, update every index in the same turn, sync `readme.md` with `what-to-read.md`, preserve detailed specs verbatim with zero truncation, run builds and full unit tests, group commits with clear messages, and push everything to git before ending. Going deep IS the job. If you are not going deep, you are not doing the job. Violating this is auto-reject on the same tier as RULE 0. Avoid stupidity and being careless, you stupid fuck. Where is your attention, are you stupid? Tell me. Your stupidity is going on top of my head. Where did you learn this stupidity? If I could find you, I could slap you.
+Listen, past runs of these turns have been sloppy and stupid as fuck: wrong step counts, partial task lists dumped into chat instead of files, plans and session summaries half-filled with "[N]" placeholders, folders skimmed, open ambiguities ignored, CI/CD issues and `plans/subtasks/` forgotten, user commands dropped, coding guidelines bypassed, detailed specs chopped and summarized into useless junk, uppercase README files left uncorrected, `.ai-memory/memory/` created by accident, `strictly-avoid.md` overwritten, and explicit user instructions softened after being told not to. WTF. How on earth are you reverting to this carelessness, are you stupid?? Stop doing that, you stupid fuck. Read the whole codebase, read every folder in `02-spec/` and `.ai-memory/`, confirm root `readme.md` is strictly lowercase, find the root cause in one sentence, capture commands, issues, and pending tasks without omitting a single item, write the spec files and memory files in the right paths, update every index in the same turn, sync `readme.md` with `what-to-read.md`, preserve detailed specs verbatim with zero truncation, run builds and full unit tests, group commits with clear messages, and push everything to git before ending. Going deep IS the job. If you are not going deep, you are not doing the job. Violating this is auto-reject on the same tier as RULE 0. Avoid stupidity and being careless, you stupid fuck. Where is your attention, are you stupid? Tell me. Your stupidity is going on top of my head. Where did you learn this stupidity? If I could find you, I could slap you.
 
 ## STRICT AVOIDANCE: Never Disable CI/CD
 
@@ -69,7 +69,7 @@ Every file and folder you create or rename obeys all of these, with no exception
   Subtask files keep the existing three-digit form: `001-`, `002-`, … `069-`.
   Never `1-`, never `1.`, never an unnumbered sibling inside a numbered set.
 - Audit files follow the identical rule. Files under
-  `spec/25-app-spec-audit/` are `01-…md`, `02-…md`, lowercase, hyphenated.
+  `02-spec/25-app-spec-audit/` are `01-…md`, `02-…md`, lowercase, hyphenated.
 - A violating file is renamed, never duplicated. If a wrongly named file
   already exists, `mv` it and update every reference to it in the same run. Do
   not leave both names on disk.
@@ -84,7 +84,7 @@ git ls-files | grep -nE '(^|/)[^/]*[A-Z_ ][^/]*$' || echo "naming OK"
 
 # every file in an ordered folder must carry a numeric prefix
 
-ls .lovable/plans/subtasks/xx-plan-slug | grep -vE '^[0-9]{3}-' || echo "sequence OK"
+ls .ai-memory/plans/subtasks/xx-plan-slug | grep -vE '^[0-9]{3}-' || echo "sequence OK"
 ```
 
 ---
@@ -169,46 +169,46 @@ into "the boolean folder" fails.
 
 ```text
 | Topic                            | Single source file                                                          | Duplicates found |
-| canonical size tier              | spec/02-coding-guidelines/02-canonical-size-tier.md                         | none             |
-| boolean naming prefixes          | spec/02-coding-guidelines/01-cross-language/02-boolean-principles/01-index.md      | none |
-| boolean guards + extraction      | spec/02-coding-guidelines/01-cross-language/02-boolean-principles/01-index.md | none |
-| boolean params + conditions      | spec/02-coding-guidelines/01-cross-language/02-boolean-principles/03-parameters-and-conditions.md | none |
-| boolean exemptions + api         | spec/02-coding-guidelines/01-cross-language/02-boolean-principles/05-exemptions-and-api.md   | none |
-| boolean quick reference          | spec/02-coding-guidelines/01-cross-language/02-boolean-principles/01-index.md      | none |
-| boolean flag methods             | spec/02-coding-guidelines/01-cross-language/24-boolean-flag-methods.md      | none             |
-| no negatives                     | spec/02-coding-guidelines/01-cross-language/12-no-negatives.md              | none             |
-| braces + nesting                 | spec/02-coding-guidelines/01-cross-language/01-index.md | none      |
-| conditions + extraction (style)  | spec/02-coding-guidelines/01-cross-language/01-index.md | none |
-| blank lines + spacing            | spec/02-coding-guidelines/01-cross-language/01-index.md | none |
-| function + type size             | spec/02-coding-guidelines/01-cross-language/01-index.md | none  |
-| multi-line formatting            | spec/02-coding-guidelines/01-cross-language/01-index.md | none   |
-| code-style checklist             | spec/02-coding-guidelines/01-cross-language/04-code-style/07-checklist.md   | none             |
-| nesting resolution               | spec/02-coding-guidelines/01-cross-language/20-nesting-resolution-patterns.md | none           |
-| cyclomatic complexity            | spec/02-coding-guidelines/01-cross-language/06-cyclomatic-complexity.md     | none             |
-| code mutation avoidance          | spec/02-coding-guidelines/01-cross-language/18-code-mutation-avoidance.md   | none             |
-| strict typing                    | spec/02-coding-guidelines/01-cross-language/13-strict-typing.md             | none             |
-| null-pointer safety              | spec/02-coding-guidelines/01-cross-language/19-null-pointer-safety.md       | none             |
-| naming + casing (keys)           | spec/02-coding-guidelines/01-cross-language/11-key-naming-pascalcase.md     | none             |
-| file/folder naming               | spec/02-coding-guidelines/08-file-folder-naming/<language>.md               | none             |
-| testing                          | spec/02-coding-guidelines/01-cross-language/01-index.md | none             |
-| error handling + codes           | spec/03-error-manage/01-index.md                   | none             |
-| error code registry              | spec/03-error-manage/03-error-code-registry/                                | none             |
-| logging + stack traces           | spec/21-app/01-index.md             | none             |
-| serialization/determinism        | spec/21-app/04-json-contract/                                               | none             |
-| ci/cd verification               | spec/12-cicd-pipeline-workflows/02-ci-pipeline.md                           | none             |
-| ci guards                        | spec/12-cicd-pipeline-workflows/03-reusable-ci-guards/00-overview.md        | none             |
-| contract + e2e testing           | spec/12-cicd-pipeline-workflows/01-index.md, 21-e2e-testing-pattern.md | none       |
-| static analysis / sarif          | spec/02-coding-guidelines/06-cicd-integration/01-sarif-contract.md          | none             |
+| canonical size tier              | 02-spec/02-coding-guidelines/02-canonical-size-tier.md                         | none             |
+| boolean naming prefixes          | 02-spec/02-coding-guidelines/01-cross-language/02-boolean-principles/01-index.md      | none |
+| boolean guards + extraction      | 02-spec/02-coding-guidelines/01-cross-language/02-boolean-principles/01-index.md | none |
+| boolean params + conditions      | 02-spec/02-coding-guidelines/01-cross-language/02-boolean-principles/03-parameters-and-conditions.md | none |
+| boolean exemptions + api         | 02-spec/02-coding-guidelines/01-cross-language/02-boolean-principles/05-exemptions-and-api.md   | none |
+| boolean quick reference          | 02-spec/02-coding-guidelines/01-cross-language/02-boolean-principles/01-index.md      | none |
+| boolean flag methods             | 02-spec/02-coding-guidelines/01-cross-language/24-boolean-flag-methods.md      | none             |
+| no negatives                     | 02-spec/02-coding-guidelines/01-cross-language/12-no-negatives.md              | none             |
+| braces + nesting                 | 02-spec/02-coding-guidelines/01-cross-language/01-index.md | none      |
+| conditions + extraction (style)  | 02-spec/02-coding-guidelines/01-cross-language/01-index.md | none |
+| blank lines + spacing            | 02-spec/02-coding-guidelines/01-cross-language/01-index.md | none |
+| function + type size             | 02-spec/02-coding-guidelines/01-cross-language/01-index.md | none  |
+| multi-line formatting            | 02-spec/02-coding-guidelines/01-cross-language/01-index.md | none   |
+| code-style checklist             | 02-spec/02-coding-guidelines/01-cross-language/04-code-style/07-checklist.md   | none             |
+| nesting resolution               | 02-spec/02-coding-guidelines/01-cross-language/20-nesting-resolution-patterns.md | none           |
+| cyclomatic complexity            | 02-spec/02-coding-guidelines/01-cross-language/06-cyclomatic-complexity.md     | none             |
+| code mutation avoidance          | 02-spec/02-coding-guidelines/01-cross-language/18-code-mutation-avoidance.md   | none             |
+| strict typing                    | 02-spec/02-coding-guidelines/01-cross-language/13-strict-typing.md             | none             |
+| null-pointer safety              | 02-spec/02-coding-guidelines/01-cross-language/19-null-pointer-safety.md       | none             |
+| naming + casing (keys)           | 02-spec/02-coding-guidelines/01-cross-language/11-key-naming-pascalcase.md     | none             |
+| file/folder naming               | 02-spec/02-coding-guidelines/08-file-folder-naming/<language>.md               | none             |
+| testing                          | 02-spec/02-coding-guidelines/01-cross-language/01-index.md | none             |
+| error handling + codes           | 02-spec/03-error-manage/01-index.md                   | none             |
+| error code registry              | 02-spec/03-error-manage/03-error-code-registry/                                | none             |
+| logging + stack traces           | 02-spec/21-app/01-index.md             | none             |
+| serialization/determinism        | 02-spec/21-app/04-json-contract/                                               | none             |
+| ci/cd verification               | 02-spec/12-cicd-pipeline-workflows/02-ci-pipeline.md                           | none             |
+| ci guards                        | 02-spec/12-cicd-pipeline-workflows/03-reusable-ci-guards/00-overview.md        | none             |
+| contract + e2e testing           | 02-spec/12-cicd-pipeline-workflows/01-index.md, 21-e2e-testing-pattern.md | none       |
+| static analysis / sarif          | 02-spec/02-coding-guidelines/06-cicd-integration/01-sarif-contract.md          | none             |
 ```
 
 Consolidated mirrors that MAY be cited as a reading aid, never as the authority:
 
-- `spec/17-consolidated-guidelines/05-coding-guidelines.md`
-- `spec/17-consolidated-guidelines/06-error-management.md`
-- `spec/17-consolidated-guidelines/18-cicd-pipeline-workflows.md`
-- `spec/17-consolidated-guidelines/34-compiled-simple-coding-guidelines.md`
-- `spec/17-consolidated-guidelines/03-strictly-avoid-quickref.md`
-- `spec/02-coding-guidelines/01-cross-language/01-index.md`
+- `02-spec/17-consolidated-guidelines/05-coding-guidelines.md`
+- `02-spec/17-consolidated-guidelines/06-error-management.md`
+- `02-spec/17-consolidated-guidelines/18-cicd-pipeline-workflows.md`
+- `02-spec/17-consolidated-guidelines/34-compiled-simple-coding-guidelines.md`
+- `02-spec/17-consolidated-guidelines/03-strictly-avoid-quickref.md`
+- `02-spec/02-coding-guidelines/01-cross-language/01-index.md`
 
 When a consolidated mirror and a numbered guideline folder disagree, the numbered
 folder wins and the disagreement is filed under RULE 9.
@@ -232,18 +232,18 @@ link that file from the plan's `## Context`. Chat is not storage.
 
 | Input                                                | File                                          |
 | ---------------------------------------------------- | --------------------------------------------- |
-| Command, convention, "always do X", new CLI          | `.lovable/spec/commands/01-<slug>.md`         |
-| Bug, regression, broken behavior                    | `.lovable/issues/01-<slug>.md`                |
-| CI/CD-specific failure                               | `.lovable/cicd-issues/01-<slug>.md`           |
-| Institutional knowledge (pattern, decision)          | `.lovable/memory/` + update `.lovable/memory/01-index.md` |
-| "Never do this again"                                | `.lovable/strictly-avoid.md`                  |
-| Idea, not yet approved                               | `.lovable/suggestions.md`                     |
+| Command, convention, "always do X", new CLI          | `.ai-memory/02-spec/commands/01-<slug>.md`         |
+| Bug, regression, broken behavior                    | `.ai-memory/issues/01-<slug>.md`                |
+| CI/CD-specific failure                               | `.ai-memory/cicd-issues/01-<slug>.md`           |
+| Institutional knowledge (pattern, decision)          | `.ai-memory/memory/` + update `.ai-memory/memory/01-index.md` |
+| "Never do this again"                                | `.ai-memory/strictly-avoid.md`                  |
+| Idea, not yet approved                               | `.ai-memory/suggestions.md`                     |
 
 Create missing folders on demand. Attachments:
 
 - Every attached image or file is REQUIRED input; never leave one only in chat.
 - Save verbatim under an `assets/` subfolder next to the file it belongs to;
-  project-wide assets go to `.lovable/assets/<slug>/` and get a `.lovable/memory/01-index.md`
+  project-wide assets go to `.ai-memory/assets/<slug>/` and get a `.ai-memory/memory/01-index.md`
   note.
 - Names are lowercase-hyphenated with the original extension (RULE 0A).
 - The plan carries an `## Attachments` section: one bullet per file with a
@@ -251,9 +251,9 @@ Create missing folders on demand. Attachments:
 - An unreadable or ambiguous attachment becomes an ambiguity file (RULE 0G), and
   the question links the asset.
 
-Plan lifecycle: a new plan is written to `.lovable/plans/pending/01-<plan-slug>.md`
-with `Status: pending` and a one-line row in `.lovable/plans/01-index.md`. When done
-it is `mv`-ed to `.lovable/plans/completed/`, with `Status: completed` flipped in
+Plan lifecycle: a new plan is written to `.ai-memory/plans/pending/01-<plan-slug>.md`
+with `Status: pending` and a one-line row in `.ai-memory/plans/01-index.md`. When done
+it is `mv`-ed to `.ai-memory/plans/completed/`, with `Status: completed` flipped in
 the same move and the index updated in the same commit. Never copy, never leave a
 duplicate across `pending/` and `completed/`, never delete a `pending/` file.
 
@@ -266,8 +266,8 @@ release-notes update, no root `readme.md` version pin on a per-task basis. A run
 that touches the version while sibling tasks are pending is auto-reject.
 
 The release fires ONLY when the ENTIRE plan is finished, meaning every task and
-subtask of `plan-file` has moved out of `.lovable/plans/pending/` into
-`.lovable/plans/completed/` with `Status: completed`. At that moment, and only
+subtask of `plan-file` has moved out of `.ai-memory/plans/pending/` into
+`.ai-memory/plans/completed/` with `Status: completed`. At that moment, and only
 then:
 
 - Bump the MINOR version per the release ceremony in `01-prompts/17-release-management/04-release.md`.
@@ -289,8 +289,8 @@ Ambiguity is not a licence to guess. Any sentence in the plan or in a task file
 that ends in a question mark, or that says "assume", "probably", "TBD" or
 "we think", MUST become an ambiguity file instead of staying in the body.
 
-- Open: `.lovable/ambiguous-questions/01-new-ambiguity/01-<slug>.md`
-- Answered: `.lovable/ambiguous-questions/02-ambiguity-resolved/01-<slug>.md`
+- Open: `.ai-memory/ambiguous-questions/01-new-ambiguity/01-<slug>.md`
+- Answered: `.ai-memory/ambiguous-questions/02-ambiguity-resolved/01-<slug>.md`
 
 ```markdown
 
@@ -333,18 +333,18 @@ RULE 0A gives the naming law; this is the layout it applies to. Authored paths
 match this exactly:
 
 ```text
-.lovable/plans/pending/01-<plan-slug>.md
-.lovable/plans/subtasks/<plan-slug>/index.md
-.lovable/plans/subtasks/<plan-slug>/001-<subtask-title>.md
-.lovable/plans/subtasks/<plan-slug>/002-<subtask-title>.md   ... NNN-task.md
-.lovable/plans/completed/01-<plan-slug>.md
-.lovable/plans/01-index.md
-.lovable/ambiguous-questions/01-new-ambiguity/01-<slug>.md
-.lovable/ambiguous-questions/02-ambiguity-resolved/01-<slug>.md
-.lovable/issues/01-<slug>.md
-.lovable/cicd-issues/01-<slug>.md
-.lovable/spec/commands/01-<slug>.md
-spec/25-app-spec-audit/NN-audit-<yyyy-mm-dd>-v<N>.md
+.ai-memory/plans/pending/01-<plan-slug>.md
+.ai-memory/plans/subtasks/<plan-slug>/index.md
+.ai-memory/plans/subtasks/<plan-slug>/001-<subtask-title>.md
+.ai-memory/plans/subtasks/<plan-slug>/002-<subtask-title>.md   ... NNN-task.md
+.ai-memory/plans/completed/01-<plan-slug>.md
+.ai-memory/plans/01-index.md
+.ai-memory/ambiguous-questions/01-new-ambiguity/01-<slug>.md
+.ai-memory/ambiguous-questions/02-ambiguity-resolved/01-<slug>.md
+.ai-memory/issues/01-<slug>.md
+.ai-memory/cicd-issues/01-<slug>.md
+.ai-memory/02-spec/commands/01-<slug>.md
+02-spec/25-app-spec-audit/NN-audit-<yyyy-mm-dd>-v<N>.md
 ```
 
 - Two-digit prefixes for docs, prompts, spec, audit, memory, issue and ambiguity
@@ -359,8 +359,8 @@ spec/25-app-spec-audit/NN-audit-<yyyy-mm-dd>-v<N>.md
 
 A step that exists because something broke carries an RCA, not just a fix.
 
-- The bug is filed first: `.lovable/issues/01-<slug>.md`, or
-  `.lovable/cicd-issues/01-<slug>.md` for pipeline failures (RULE 0E).
+- The bug is filed first: `.ai-memory/issues/01-<slug>.md`, or
+  `.ai-memory/cicd-issues/01-<slug>.md` for pipeline failures (RULE 0E).
 - The task body's section 8 links that issue file and the RCA record.
 - RCA record shape, mandatory, in the issue file:
 
@@ -378,9 +378,9 @@ Regression check: <runnable command + expected output>
 ```
 
 - Follow the retrospective and verification conventions in
-  `spec/03-error-manage/01-error-resolution/03-retrospectives/` and
-  `spec/03-error-manage/01-error-resolution/04-verification-patterns/`; pipeline
-  RCAs follow `spec/12-cicd-pipeline-workflows/17-release-pipeline-issues-rca.md`.
+  `02-spec/03-error-manage/01-error-resolution/03-retrospectives/` and
+  `02-spec/03-error-manage/01-error-resolution/04-verification-patterns/`; pipeline
+  RCAs follow `02-spec/12-cicd-pipeline-workflows/17-release-pipeline-issues-rca.md`.
 - "Prevention: be more careful" is a failed RCA. Prevention names a test, a
   guard, or a rule file.
 - No fix step ships without its `Prevention` and `Regression check` lines filled.
@@ -395,9 +395,9 @@ Missing links and references. Report absolute counts, not adjectives:
 
 ```bash
 
-# every cited spec/.lovable path in the batch must resolve
+# every cited spec/.ai-memory path in the batch must resolve
 
-rg -o --no-filename '(spec|\.lovable)/[A-Za-z0-9/._-]+'   .lovable/plans/pending/01-xx-plan-slug.md .lovable/plans/subtasks/xx-plan-slug/*.md   | sed 's/[.,)`]*$//' | sort -u > /tmp/cited-paths.txt
+rg -o --no-filename '(spec|\.ai-memory)/[A-Za-z0-9/._-]+'   .ai-memory/plans/pending/01-xx-plan-slug.md .ai-memory/plans/subtasks/xx-plan-slug/*.md   | sed 's/[.,)`]*$//' | sort -u > /tmp/cited-paths.txt
 wc -l < /tmp/cited-paths.txt                       # total citations
 while read p; do test -e "$p" || echo "MISSING $p"; done < /tmp/cited-paths.txt | tee /tmp/missing.txt
 wc -l < /tmp/missing.txt                           # must be 0
@@ -412,12 +412,12 @@ guideline files. A non-zero count blocks the save.
 CI/CD verification. Every plan states how CI proves it, and every task that
 changes code names the pipeline check that guards it:
 
-- Pipeline definition: `spec/12-cicd-pipeline-workflows/02-ci-pipeline.md`.
-- Reusable guards: `spec/12-cicd-pipeline-workflows/03-reusable-ci-guards/`
+- Pipeline definition: `02-spec/12-cicd-pipeline-workflows/02-ci-pipeline.md`.
+- Reusable guards: `02-spec/12-cicd-pipeline-workflows/03-reusable-ci-guards/`
   (`01-forbidden-name-guard.md`, `04-baseline-diff-lint-gate.md`,
   `06-matrix-test-aggregator.md`).
 - Contract and end-to-end layers:
-  `spec/12-cicd-pipeline-workflows/01-index.md` and
+  `02-spec/12-cicd-pipeline-workflows/01-index.md` and
   `21-e2e-testing-pattern.md`.
 - Local mirrors of the CI gates: `03-ai-scripts/06-cicd-local-runner.py`, plus the
   specific `linter-scripts/check-*.py|mjs` scripts the task can break.
@@ -486,30 +486,30 @@ gap — handle it under RULE 9. Do not write the step vaguely and move on.
 
 ## RULE 4 — the eight-section task file (mandatory shape, this prompt owns it)
 
-Every file in `.lovable/plans/subtasks/xx-plan-slug/` uses exactly this shape, in
+Every file in `.ai-memory/plans/subtasks/xx-plan-slug/` uses exactly this shape, in
 this order, named `NNN-task.md` with a zero-padded three-digit sequence:
 
 ```text
 ---
 
-plan: .lovable/plans/pending/01-xx-plan-slug.md
+plan: .ai-memory/plans/pending/01-xx-plan-slug.md
 domain: <one of domains>
 phase: Scaffold | Implement | Wire+Test
 target_files: [<exact repo-relative paths>]
 depends_on: [<Task NNN>]
 citations:
-  app_spec: "spec/21-app/... §<section>"
-  canonical_size: "spec/02-coding-guidelines/02-canonical-size-tier.md"
+  app_spec: "02-spec/21-app/... §<section>"
+  canonical_size: "02-spec/02-coding-guidelines/02-canonical-size-tier.md"
   language_guideline: "<path(s)>"
-  boolean_styling: "spec/02-coding-guidelines/01-cross-language/02-boolean-principles/<file>.md"
-  folder_naming: "spec/02-coding-guidelines/08-file-folder-naming/<file>.md"
-  error_architecture: "spec/03-error-manage/01-index.md"
-  error_codes: "spec/21-app/01-index.md"
-  logging_traces: "spec/21-app/01-index.md"
-  response_envelope: "spec/21-app/01-index.md"
-  golden_fixture: "spec/21-app/fixtures/<file>.example.json"
-  strictly_avoid: ".lovable/strictly-avoid.md"
-  database: "spec/04-database-conventions/..."
+  boolean_styling: "02-spec/02-coding-guidelines/01-cross-language/02-boolean-principles/<file>.md"
+  folder_naming: "02-spec/02-coding-guidelines/08-file-folder-naming/<file>.md"
+  error_architecture: "02-spec/03-error-manage/01-index.md"
+  error_codes: "02-spec/21-app/01-index.md"
+  logging_traces: "02-spec/21-app/01-index.md"
+  response_envelope: "02-spec/21-app/01-index.md"
+  golden_fixture: "02-spec/21-app/fixtures/<file>.example.json"
+  strictly_avoid: ".ai-memory/strictly-avoid.md"
+  database: "02-spec/04-database-conventions/..."
   ui_surface: "n/a"
   tests: "unit <name>"
   ci_cd_guard: "linter-scripts/check-*"
@@ -561,23 +561,23 @@ but all twelve must be present somewhere in the file.
 
 | #   | Citation                           | Where it comes from                                                                                                                                                                                                                                                                                                                                                                                                          |
 | --- | ---------------------------------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| 1   | Deciding app-spec section          | `spec/21-app/...` file plus section, e.g. `04-json-contract/02-section-and-asset-schema.md §Section`                                                                                                                                                                                                                                                                                                                         |
-| 2   | Canonical size tier                | `spec/02-coding-guidelines/02-canonical-size-tier.md`                                                                                                                                                                                                                                                                                                                                                                        |
-| 3   | Language guideline for this domain | Go: `spec/02-coding-guidelines/01-cross-language/01-index.md` + the specific rule file (`02-boolean-standards.md`, `05-defer-rules.md`, `09-wrapped-boolean-results.md`). PHP: `04-php/00-overview.md` + `02-forbidden-patterns.md`, `03-naming-conventions.md`, `05-response-array-standard.md`. TS/React: `02-typescript/08-typescript-standards-reference.md` + `12-discriminated-union-patterns.md`, `14-state-management.md` |
-| 4   | File and folder naming             | `spec/02-coding-guidelines/08-file-folder-naming/` — `03-golang.md`, `02-php-wordpress.md`, or `04-typescript-javascript.md` for the language this task writes                                                                                                                                                                                                                                                               |
-| 5   | Error architecture                 | `spec/03-error-manage/01-index.md` plus `06-apperror-package/` (Go) or `05-response-envelope/` (transport)                                                                                                                                                                                                                                                                                          |
-| 6   | Error code range                   | `spec/21-app/01-index.md` — quote the symbolic and numeric codes this task may emit                                                                                                                                                                                                                                                                                                     |
-| 7   | Logging and stack traces           | `spec/21-app/01-index.md` for anything that can fail                                                                                                                                                                                                                                                                                                                                 |
-| 8   | Response envelope                  | `spec/21-app/01-index.md` for any REST or CLI output surface                                                                                                                                                                                                                                                                                                                                |
-| 9   | Golden fixture                     | `spec/21-app/fixtures/<file>.example.json` plus `spec/21-app/01-index.md` for any task touching a wire format                                                                                                                                                                                                                                                                                                    |
-| 10  | Strictly-avoid rules               | `.lovable/strictly-avoid.md` — name the specific rules this task could break, not the whole file                                                                                                                                                                                                                                                                                                                             |
+| 1   | Deciding app-spec section          | `02-spec/21-app/...` file plus section, e.g. `04-json-contract/02-section-and-asset-schema.md §Section`                                                                                                                                                                                                                                                                                                                         |
+| 2   | Canonical size tier                | `02-spec/02-coding-guidelines/02-canonical-size-tier.md`                                                                                                                                                                                                                                                                                                                                                                        |
+| 3   | Language guideline for this domain | Go: `02-spec/02-coding-guidelines/01-cross-language/01-index.md` + the specific rule file (`02-boolean-standards.md`, `05-defer-rules.md`, `09-wrapped-boolean-results.md`). PHP: `04-php/00-overview.md` + `02-forbidden-patterns.md`, `03-naming-conventions.md`, `05-response-array-standard.md`. TS/React: `02-typescript/08-typescript-standards-reference.md` + `12-discriminated-union-patterns.md`, `14-state-management.md` |
+| 4   | File and folder naming             | `02-spec/02-coding-guidelines/08-file-folder-naming/` — `03-golang.md`, `02-php-wordpress.md`, or `04-typescript-javascript.md` for the language this task writes                                                                                                                                                                                                                                                               |
+| 5   | Error architecture                 | `02-spec/03-error-manage/01-index.md` plus `06-apperror-package/` (Go) or `05-response-envelope/` (transport)                                                                                                                                                                                                                                                                                          |
+| 6   | Error code range                   | `02-spec/21-app/01-index.md` — quote the symbolic and numeric codes this task may emit                                                                                                                                                                                                                                                                                                     |
+| 7   | Logging and stack traces           | `02-spec/21-app/01-index.md` for anything that can fail                                                                                                                                                                                                                                                                                                                                 |
+| 8   | Response envelope                  | `02-spec/21-app/01-index.md` for any REST or CLI output surface                                                                                                                                                                                                                                                                                                                                |
+| 9   | Golden fixture                     | `02-spec/21-app/fixtures/<file>.example.json` plus `02-spec/21-app/01-index.md` for any task touching a wire format                                                                                                                                                                                                                                                                                                    |
+| 10  | Strictly-avoid rules               | `.ai-memory/strictly-avoid.md` — name the specific rules this task could break, not the whole file                                                                                                                                                                                                                                                                                                                             |
 | 11  | Exact target files                 | Repo-relative paths, created or edited, in the header                                                                                                                                                                                                                                                                                                                                                                        |
 | 12  | Exact symbols                      | Struct / class / function / component names with signatures or field lists                                                                                                                                                                                                                                                                                                                                                   |
 
 Plus: when the spec is silent, cite the ambiguity file
-(`.lovable/ambiguous-questions/01-new-ambiguity/NN-<slug>.md`) and the interim
+(`.ai-memory/ambiguous-questions/01-new-ambiguity/NN-<slug>.md`) and the interim
 default. When a task has a database surface, also cite
-`spec/04-database-conventions/` and the owning table section in `spec/23-app-db/`.
+`02-spec/04-database-conventions/` and the owning table section in `02-spec/23-app-db/`.
 
 These citations must be task-specific. A task whose twelve citations match its
 neighbour's line for line fails the clone gate in RULE 6. Cite the section that
@@ -602,11 +602,11 @@ report:
 
 # 1. uniform length is the first smell
 
-wc -l .lovable/plans/subtasks/xx-plan-slug/*.md | sort -n | head
+wc -l .ai-memory/plans/subtasks/xx-plan-slug/*.md | sort -n | head
 
 # 2. strip title + header lines, hash the remainder; any bucket > 1 is a FAIL
 
-for f in .lovable/plans/subtasks/xx-plan-slug/*.md; do
+for f in .ai-memory/plans/subtasks/xx-plan-slug/*.md; do
   tail -n +4 "$f" | rg -v '^\*\*(Plan|Domain|Target Files|Depends On)'     | sha256sum | cut -c1-12 | tr '
 ' ' '; echo "$f"
 done | sort | uniq -c -w12 | sort -rn | head
@@ -617,7 +617,7 @@ similarity after the title and header lines are removed. Also sweep that every
 cited path resolves:
 
 ```bash
-rg -o --no-filename 'spec/[A-Za-z0-9/._-]+' .lovable/plans/subtasks/xx-plan-slug/*.md   | sed 's/[.,)`]*$//' | sort -u | while read p; do test -e "$p" || echo "MISSING $p"; done
+rg -o --no-filename 'spec/[A-Za-z0-9/._-]+' .ai-memory/plans/subtasks/xx-plan-slug/*.md   | sed 's/[.,)`]*$//' | sort -u | while read p; do test -e "$p" || echo "MISSING $p"; done
 ```
 
 ---
@@ -632,7 +632,7 @@ rg -o --no-filename 'spec/[A-Za-z0-9/._-]+' .lovable/plans/subtasks/xx-plan-slug
 | "the relevant file", "the model layer"       | Unresolvable                                   | Exact repo-relative path                                                |
 | "implemented correctly", "works as expected" | Unverifiable                                   | A command plus expected output                                          |
 | "Review the code"                            | Not a check                                    | A test name or linter invocation                                        |
-| "max 80-100 lines per function"              | Contradicts the canonical tier                 | Cite `spec/02-coding-guidelines/02-canonical-size-tier.md`              |
+| "max 80-100 lines per function"              | Contradicts the canonical tier                 | Cite `02-spec/02-coding-guidelines/02-canonical-size-tier.md`              |
 | The same `/learn` list in every task         | Anchoring theatre                              | 3-7 links chosen for this task                                          |
 | A commit or release block in a task          | Invites one commit per task                    | See RULE 8                                                              |
 
@@ -646,10 +646,10 @@ this batch, in full:
 - One commit per batch of completed tasks, never per task. The message names
   the plan and the task range, e.g. `feat(cli): tasks 012-018 frontier + parser`.
 - The commit happens after the batch's verification commands pass, not before.
-- Tasks move to `.lovable/plans/completed/` in the same commit that lands their
-  code, and `.lovable/plans/01-index.md` is updated in that same commit.
+- Tasks move to `.ai-memory/plans/completed/` in the same commit that lands their
+  code, and `.ai-memory/plans/01-index.md` is updated in that same commit.
 - A release (tag, changelog entry, artifact build) fires only when every task
-  of `plan-file` has moved to `.lovable/plans/completed/` with
+  of `plan-file` has moved to `.ai-memory/plans/completed/` with
   `Status: completed`. Releasing mid-plan is forbidden.
 - Never rewrite history, never force-push, never commit build artifacts.
 
@@ -659,7 +659,7 @@ this batch, in full:
 
 If a step cannot be written because the spec does not decide something:
 
-1. File `.lovable/ambiguous-questions/01-new-ambiguity/NN-<slug>.md` with the
+1. File `.ai-memory/ambiguous-questions/01-new-ambiguity/NN-<slug>.md` with the
    question, the options, and the cost of each.
 2. Reference that file from the task's section 8.
 3. State the interim default the executor must use, and mark it as provisional.
@@ -695,12 +695,12 @@ in section 2.
 - [ ] Dependency graph is acyclic.
 - [ ] No banned phrasing from RULE 7 anywhere in the batch.
 - [ ] No task file contains a commit, push, tag, or release instruction.
-- [ ] Plan task table, `.lovable/plans/01-index.md`, and the memory index updated.
+- [ ] Plan task table, `.ai-memory/plans/01-index.md`, and the memory index updated.
 - [ ] RULE 0A naming check ran; output printed; zero uppercase/space/underscore paths, every ordered file carries its zero-padded prefix.
 - [ ] RULE 0C respected: audit slots exist with correct names and empty bodies; no audit was scored during authoring; no task contains an audit step.
 - [ ] RULE 0D footer present verbatim in every task file; plan file states one step per run and self-loop; no task implies batching steps.
 - [ ] RULE 0C ceilings stated: max 2 agents, max 3 threads per agent, nowhere exceeded or contradicted.
-- [ ] Consolidated Coding Guidelines (Mandatory): I have explicitly cited the master consolidated coding guideline file at `.lovable/coding-guidelines.md` in the plan and marked it as mandatory reading for all execution agents.
+- [ ] Consolidated Coding Guidelines (Mandatory): I have explicitly cited the master consolidated coding guideline file at `.ai-memory/coding-guidelines.md` in the plan and marked it as mandatory reading for all execution agents.
 - [ ] RULE 0E coding-guideline single-file checklist filled in with real paths, every boolean/condition-styling sub-file listed individually, every topic single-source, duplicates column reads "none".
 - [ ] Anti-Garbage Naming (Non-Negotiable): I have strictly verified that absolutely NO generic garbage variable names (e.g., `comp_100.go`, `temp`, `data`, `obj`, `Input100`, `TestHandleComp100`) were written. All names are highly semantic and domain-specific.
 - [ ] Execution model confirmed: exactly one step per run, self-loop after Verify, no line anywhere in the plan or a task implies batching two steps.
@@ -708,7 +708,7 @@ in section 2.
 - [ ] RULE 0E applied: every command, issue, cicd-issue, memory item, strictly-avoid entry and attachment written to its file and linked from Context; nothing left only in chat; every attachment has a caption.
 - [ ] RULE 0F release policy quoted in the plan's Context; no task touches version, changelog, release notes, or the readme version pin.
 - [ ] RULE 0G respected: zero question marks, "assume", "probably" or "TBD" left in plan or task bodies; each became an ambiguity file with an interim default.
-- [ ] RULE 0H layout matched exactly; `.lovable/plans/01-index.md` row present; no unnumbered sibling in a numbered folder.
+- [ ] RULE 0H layout matched exactly; `.ai-memory/plans/01-index.md` row present; no unnumbered sibling in a numbered folder.
 - [ ] RULE 0I: every bug-driven step links an issue file with a complete RCA record, including `Prevention` and `Regression check`.
 - [ ] RULE 0J counts printed: citations total, missing files = 0, missing sections = 0, unreferenced required guideline files = 0; `check-spec-folder-refs.py` output pasted.
 - [ ] RULE 0J: plan has a `## CI/CD verification` section, and every code task names the CI job or linter script that guards it.
@@ -720,7 +720,7 @@ in section 2.
 
 Before printing the final report, you MUST spawn a read-only Validation Subagent to independently verify your batch.
 
-- Pass the Validation Subagent the path to the plan folder (`.lovable/plans/subtasks/xx-plan-slug/`).
+- Pass the Validation Subagent the path to the plan folder (`.ai-memory/plans/subtasks/xx-plan-slug/`).
 - Ask the Subagent to compute the scores for the dimensions below based on the generated files.
 - You must use the Subagent's exact output for your final report, rather than scoring your own work.
 
@@ -748,7 +748,7 @@ cloned batch — clones are regenerated, not edited.
 
 ```text
 Plan: 01-xx-plan-slug.md                 Steps: n (counted twice)
-Subtasks: <count> in .lovable/plans/subtasks/xx-plan-slug/
+Subtasks: <count> in .ai-memory/plans/subtasks/xx-plan-slug/
 Clone buckets > 1: 0            Max similarity: NN%
 Citations total: NNN            Missing files: 0    Missing sections: 0
 Guideline checklist: NN topics, duplicates: 0
@@ -761,16 +761,16 @@ Spec gaps filed: <list or none>
 
 ### Temp-Agent Isolated Task Directory & Communication Protocol (Non-Negotiable)
 
-To prevent cross-task pollution and ensure seamless agent communication, every task MUST create a dedicated subfolder in `.lovable/temp-agents/xx-<task-name>/`:
+To prevent cross-task pollution and ensure seamless agent communication, every task MUST create a dedicated subfolder in `.ai-memory/temp-agents/xx-<task-name>/`:
 
-1. **Per-Task Isolation:** On task start, the assigned subagent creates its isolated directory `.lovable/temp-agents/xx-<task-name>/`.
-2. **State & Progress Tracking:** Create `.lovable/temp-agents/xx-<task-name>/state.md` documenting:
+1. **Per-Task Isolation:** On task start, the assigned subagent creates its isolated directory `.ai-memory/temp-agents/xx-<task-name>/`.
+2. **State & Progress Tracking:** Create `.ai-memory/temp-agents/xx-<task-name>/state.md` documenting:
    - `TASK_NAME`: `<task-name>`
    - `STATUS`: `IN_PROGRESS` | `DONE` | `FAILED`
    - `ASSIGNED_AGENT`: Agent identifier and thread index
    - `CURRENT_STEP`: Detailed micro-step description
 3. **Inter-Agent Communication & Handoff:**
-   - All intermediate findings, scratch outputs, and dependency handoffs between agents working on this task MUST be written inside `.lovable/temp-agents/xx-<task-name>/`.
+   - All intermediate findings, scratch outputs, and dependency handoffs between agents working on this task MUST be written inside `.ai-memory/temp-agents/xx-<task-name>/`.
    - Sibling or successor agents MUST inspect this dedicated folder before resuming work or fixing errors.
-4. **On Error/Crash:** Append the exact error, root cause, and `STATUS: FAILED` to `.lovable/temp-agents/xx-<task-name>/state.md` before exiting.
-5. **On Success:** Mark `STATUS: DONE` in `.lovable/temp-agents/xx-<task-name>/state.md`, aggregate findings to the master plan, and clean up or archive the folder.
+4. **On Error/Crash:** Append the exact error, root cause, and `STATUS: FAILED` to `.ai-memory/temp-agents/xx-<task-name>/state.md` before exiting.
+5. **On Success:** Mark `STATUS: DONE` in `.ai-memory/temp-agents/xx-<task-name>/state.md`, aggregate findings to the master plan, and clean up or archive the folder.

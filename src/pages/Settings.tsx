@@ -11,7 +11,7 @@ import { GitHubAuthCard } from "@/components/settings/GitHubAuthCard";
 
 export default function SettingsPage() {
   const { toast } = useToast();
-  const [tempDir, setTempDir] = useState(".lovable/temp");
+  const [tempDir, setTempDir] = useState(".ai-memory/temp");
   const [pollInterval, setPollInterval] = useState("10");
   const [terminalTheme, setTerminalTheme] = useState(TerminalThemeType.Dark);
   const [isSaved, setIsSaved] = useState(false);

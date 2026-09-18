@@ -3,7 +3,7 @@ package cmd
 // JSON schema contract for `gitmap watch --json`. Pairs the runtime
 // encoder (encodeWatchJSON / renderWatchReposRaw / renderWatchSummaryRaw
 // in watchrender.go) with the published schema at
-// spec/08-json-schemas/watch.schema.json so drift in either side fails
+// 02-spec/08-json-schemas/watch.schema.json so drift in either side fails
 // the build.
 
 import (

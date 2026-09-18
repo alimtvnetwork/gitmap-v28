@@ -46,7 +46,7 @@ const MergeBothPage = () => (
           different content trigger an interactive conflict prompt. Each side that originated from a URL is committed + pushed independently.
         </p>
         <p className="text-xs text-muted-foreground mt-2">
-          Spec: <code>spec/01-app/97-move-and-merge.md</code>
+          Spec: <code>02-spec/01-app/97-move-and-merge.md</code>
         </p>
       </div>
 

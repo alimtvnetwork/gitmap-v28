@@ -11,7 +11,7 @@
 // error. A failed sync NEVER turns a successful clone into a failed
 // exit code.
 //
-// Spec: spec/01-vscode-project-manager-sync/02-clone-sync.md
+// Spec: 02-spec/01-vscode-project-manager-sync/02-clone-sync.md
 // Memory: mem://features/clone-vscode-pm-sync
 package cmdvscode
 

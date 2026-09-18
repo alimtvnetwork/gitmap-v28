@@ -5,7 +5,7 @@ name: Cross-Platform Build
 # referenced from untagged files) that pass on the developer's host
 # OS but break the cross-compile matrix.
 #
-# Lessons learned: see .lovable/memory/issues/ — startup/win*.go leaked
+# Lessons learned: see .ai-memory/memory/issues/ — startup/win*.go leaked
 # `addWindowsRegistry` into the Linux build because the stub file used
 # the wrong build tag. A matrix CI job would have caught it pre-merge.
 

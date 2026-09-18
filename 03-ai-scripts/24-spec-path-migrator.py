@@ -15,14 +15,14 @@ PATTERN_SLASH = re.compile(r'(?<![a-zA-Z0-9_-])spec/((?:[0-9]{2}-|[a-zA-Z0-9_.-]
 PATTERN_BACKSLASH = re.compile(r'(?<![a-zA-Z0-9_-])spec\\\\((?:[0-9]{2}-|[a-zA-Z0-9_.-]+\\\\)[a-zA-Z0-9_.-]*)')
 
 REPLACEMENTS = [
-    ('"spec"', '"02-spec"'),
-    ('spec/01-index.md', '02-spec/01-index.md'),
-    ('spec/spec-index.md', '02-spec/spec-index.md'),
-    ('spec/health-dashboard.md', '02-spec/health-dashboard.md'),
-    ('spec/dashboard-data.json', '02-spec/dashboard-data.json'),
-    ('spec/folder-structure-root.md', '02-spec/folder-structure-root.md'),
-    ('spec/99-consistency-report.md', '02-spec/99-consistency-report.md'),
-    ('spec/02-_template.md', '02-spec/02-_template.md'),
+    ('"02-spec"', '"02-spec"'),
+    ('02-02-02-spec/01-index.md', '02-02-02-spec/01-index.md'),
+    ('02-02-spec/spec-index.md', '02-02-02-spec/spec-index.md'),
+    ('02-02-spec/health-dashboard.md', '02-02-02-spec/health-dashboard.md'),
+    ('02-02-spec/dashboard-data.json', '02-02-02-spec/dashboard-data.json'),
+    ('02-02-spec/folder-structure-root.md', '02-02-02-spec/folder-structure-root.md'),
+    ('02-02-02-spec/99-consistency-report.md', '02-02-02-spec/99-consistency-report.md'),
+    ('02-02-02-spec/02-_template.md', '02-02-02-spec/02-_template.md'),
 ]
 
 def migrate() -> int:

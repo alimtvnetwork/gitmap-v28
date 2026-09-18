@@ -58,7 +58,7 @@ WHITELISTED_GO_FILES = {
 def should_scan_dir(dirpath: Path) -> bool:
     for part in dirpath.parts:
         is_excluded = part in EXCLUDED_DIRS or part.startswith(".") or part.endswith("_old")
-        if is_excluded and part not in {".lovable", ".github", ".agents"}:
+        if is_excluded and part not in {".ai-memory", ".github", ".agents"}:
             return False
 
     return True

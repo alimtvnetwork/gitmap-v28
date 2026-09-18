@@ -41,12 +41,12 @@ Manually renaming dozens of sequential files in PowerShell or Bash is error-pron
 
 Instead of writing custom loops:
 ```powershell
-Get-ChildItem .lovable/ai-fix-scripts | ForEach-Object { ... }
+Get-ChildItem .ai-memory/ai-fix-scripts | ForEach-Object { ... }
 ```
 
 Use GitMap's atomic sequence manager with Git history preservation and SQLite tracking:
 ```bash
-gitmap seq fix .lovable/ai-fix-scripts --pin "index.md=01,shared-engine.py=02" --start 1
+gitmap seq fix .ai-memory/ai-fix-scripts --pin "index.md=01,shared-engine.py=02" --start 1
 ```
 
 ## Examples
@@ -54,9 +54,9 @@ gitmap seq fix .lovable/ai-fix-scripts --pin "index.md=01,shared-engine.py=02" -
 ### List Sequenced Files in Human-Readable Table
 
 ```bash
-$ gitmap sequence list .lovable/ai-fix-scripts
+$ gitmap sequence list .ai-memory/ai-fix-scripts
 
-Directory Sequence: .lovable/ai-fix-scripts (13 files, 11 sequenced)
+Directory Sequence: .ai-memory/ai-fix-scripts (13 files, 11 sequenced)
 SEQ     FILENAME                             BASE NAME
 ---------------------------------------------------------------------------
 01      01-index.md                          index.md
@@ -68,9 +68,9 @@ SEQ     FILENAME                             BASE NAME
 ### Inspect Sequences as Machine-Readable JSON for AI Agents
 
 ```bash
-$ gitmap seq list .lovable/ai-fix-scripts --json
+$ gitmap seq list .ai-memory/ai-fix-scripts --json
 {
-  "directory": ".lovable/ai-fix-scripts",
+  "directory": ".ai-memory/ai-fix-scripts",
   "totalFiles": 13,
   "sequencedFiles": 13,
   "files": [
@@ -79,14 +79,14 @@ $ gitmap seq list .lovable/ai-fix-scripts --json
       "filename": "01-index.md",
       "baseName": "index.md",
       "extension": ".md",
-      "path": ".lovable/ai-fix-scripts/01-index.md"
+      "path": "03-ai-scripts/01-index.md"
     },
     {
       "sequence": 2,
       "filename": "02-shared-engine.py",
       "baseName": "shared-engine.py",
       "extension": ".py",
-      "path": ".lovable/ai-fix-scripts/02-shared-engine.py"
+      "path": "03-ai-scripts/02-shared-engine.py"
     }
   ]
 }
@@ -97,19 +97,19 @@ $ gitmap seq list .lovable/ai-fix-scripts --json
 Pin `index.md` to `01` and `shared-engine.py` to `02`, with all other files sequentially numbered after them:
 
 ```bash
-gitmap seq fix .lovable/ai-fix-scripts --pin "index=01,shared-engine=02" --start 1
+gitmap seq fix .ai-memory/ai-fix-scripts --pin "index=01,shared-engine=02" --start 1
 ```
 
 ### Preview Renames with Dry Run
 
 ```bash
-gitmap seq fix .lovable/ai-fix-scripts --pin "index=01,shared-engine=02" --dry-run
+gitmap seq fix .ai-memory/ai-fix-scripts --pin "index=01,shared-engine=02" --dry-run
 ```
 
 ### Retrieve Saved Sequences from Repo-Scoped SQLite Database
 
 ```bash
-gitmap seq get .lovable/ai-fix-scripts
+gitmap seq get .ai-memory/ai-fix-scripts
 ```
 
 ## See Also

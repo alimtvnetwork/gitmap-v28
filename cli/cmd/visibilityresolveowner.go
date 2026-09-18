@@ -7,7 +7,7 @@
 //
 // Kept in its own file to honor the ≤200-line per-file rule and to keep
 // the existing single-repo resolver (visibilityresolve.go) untouched.
-// Spec: spec/01-app/116-bulk-visibility-mapub-mapri.md §2.
+// Spec: 02-spec/01-app/116-bulk-visibility-mapub-mapri.md §2.
 package cmd
 
 import (

@@ -2,7 +2,7 @@ package cmd
 
 // JSON schema contract for `gitmap stats --json`. Pairs the runtime
 // encoder (encodeStatsJSON / build*Items in statsrender.go) with the
-// published schema at spec/08-json-schemas/stats.schema.json so drift
+// published schema at 02-spec/08-json-schemas/stats.schema.json so drift
 // in either side fails the build.
 
 import (

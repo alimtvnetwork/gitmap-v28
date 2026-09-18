@@ -3,7 +3,7 @@
 // order is a compile-time decision pinned by the schema, not a
 // reflection accident on model.DetectedProject.
 //
-// Schema: spec/08-json-schemas/project-repos.schema.json.
+// Schema: 02-spec/08-json-schemas/project-repos.schema.json.
 package cmd
 
 import (

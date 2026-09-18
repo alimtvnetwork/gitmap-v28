@@ -16,7 +16,7 @@ import (
 // without the wrapper) this is a no-op — `cd` still prints the path to
 // stdout for legacy capture.
 //
-// Spec: spec/04-generic-cli/21-post-install-shell-activation/01-contract.md
+// Spec: 02-spec/04-generic-cli/21-post-install-shell-activation/01-contract.md
 func WriteShellHandoff(targetPath string) {
 	handoffFile := os.Getenv(constants.EnvGitmapHandoffFile)
 	if len(handoffFile) == 0 {

@@ -11,7 +11,7 @@ If the user requests a release, version bump with release branching, or automate
 
 ## MUST FOLLOW NON-NEGOTIABLE
 
-Listen, past runs of these turns have been sloppy: wrong step counts, partial task lists dumped into chat instead of files, plans and session summaries half-filled with placeholders, folders skimmed, open ambiguities ignored, CI/CD issues forgotten, user commands dropped, coding guidelines bypassed, detailed specs chopped, uppercase README files left uncorrected, `.lovable/memory/` created by accident, `strictly-avoid.md` overwritten, and explicit user instructions softened after being told not to. Read the whole codebase, confirm root `readme.md` is strictly lowercase, find the root cause in one sentence, capture commands, issues, and pending tasks without omitting a single item, write the spec files and memory files in the right paths, update every index in the same turn, sync `readme.md` with `what-to-read.md`, preserve detailed specs verbatim with zero truncation, run builds and full unit tests, group commits with clear messages, and push everything to git before ending. Going deep IS the job. Violating this is auto-reject on the same tier as RULE 0. Avoid stupidity and being careless.
+Listen, past runs of these turns have been sloppy: wrong step counts, partial task lists dumped into chat instead of files, plans and session summaries half-filled with placeholders, folders skimmed, open ambiguities ignored, CI/CD issues forgotten, user commands dropped, coding guidelines bypassed, detailed specs chopped, uppercase README files left uncorrected, `.ai-memory/memory/` created by accident, `strictly-avoid.md` overwritten, and explicit user instructions softened after being told not to. Read the whole codebase, confirm root `readme.md` is strictly lowercase, find the root cause in one sentence, capture commands, issues, and pending tasks without omitting a single item, write the spec files and memory files in the right paths, update every index in the same turn, sync `readme.md` with `what-to-read.md`, preserve detailed specs verbatim with zero truncation, run builds and full unit tests, group commits with clear messages, and push everything to git before ending. Going deep IS the job. Violating this is auto-reject on the same tier as RULE 0. Avoid stupidity and being careless.
 
 ---
 
@@ -47,7 +47,7 @@ Before any execution, check if this prompt is installed as a native Antigravity 
 To rapidly discover version manifests, changelog entries, release notes, and install scripts without hitting 50-result tool caps, the AI agent MUST utilize the Python discovery scripts first:
 - **Inventory Manifests & Version Files:** `python 03-ai-scripts/11-fast-file-scanner.py --search "version" --limit 20`
 - **Fast Grep Across Version Pins:** `python 03-ai-scripts/12-fast-cached-grep.py --pattern "<version>" --limit 20`
-- **Explore Release Artifacts & Folders:** `python 03-ai-scripts/17-fast-file-reader.py --list-folder .lovable/release --limit 20`
+- **Explore Release Artifacts & Folders:** `python 03-ai-scripts/17-fast-file-reader.py --list-folder .ai-memory/release --limit 20`
 - **Read Version Manifest:** `python 03-ai-scripts/17-fast-file-reader.py --read-file version.json`
 
 > [!NOTE]
@@ -80,7 +80,7 @@ python 03-ai-scripts/29-release-orchestrator.py --tier <minor|patch|major>
 
 ## Standalone Bump-Version Recovery
 
-If the repository does not have a project-level bump version script (such as `scripts/bump-version.mjs` or `.lovable/release/bump_versions.py`):
+If the repository does not have a project-level bump version script (such as `scripts/bump-version.mjs` or `.ai-memory/release/bump_versions.py`):
 1. **Autonomous Bootstrap:** The orchestrator script must not fail or halt. It MUST autonomously bootstrap `scripts/bump-version.mjs` (or perform in-place updates directly).
 2. **In-Place File Updates:** The orchestrator must update:
    - `version.json`: Update `"version"` to `next_version` and `"releaseDate"` to today's UTC date (`YYYY-MM-DD`).
@@ -145,7 +145,7 @@ The release orchestrator strictly implements this end-to-end Git workflow:
 - [ ] 1. Identify starting branch: `git rev-parse --abbrev-ref HEAD`.
 - [ ] 2. Resolve the Git state by committing any outstanding/current files on the working branch before proceeding.
 - [ ] 3. Check for `03-ai-scripts/29-release-orchestrator.py`. If missing, create it.
-- [ ] 4. Check for bump version script (`scripts/bump-version.mjs` or `.lovable/release/bump_versions.py`). If missing, bootstrap or let orchestrator handle in-place updates.
+- [ ] 4. Check for bump version script (`scripts/bump-version.mjs` or `.ai-memory/release/bump_versions.py`). If missing, bootstrap or let orchestrator handle in-place updates.
 - [ ] 5. Run `python 03-ai-scripts/29-release-orchestrator.py --tier <tier> --scope "<scope>"`.
 - [ ] 6. Verify that commit `release: vX.Y.Z` exists.
 - [ ] 7. Verify that branch `release/vX.Y.Z` points to the release commit.

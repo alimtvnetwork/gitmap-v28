@@ -3,27 +3,27 @@
 > **Prompt Version:** 2.1.0
 > **Synchronization:** Main Meta-Repo & Connected Workspaces
 
-/goal Your objective is to deeply audit the `.lovable/plans/` directory for any subtask files that incorrectly use the `SS-` or `SS-XX-` prefix and fix them. The correct prefix MUST always be strictly `xx-<subslug>.md` (where `XX` is the zero-padded sequence number).
+/goal Your objective is to deeply audit the `.ai-memory/plans/` directory for any subtask files that incorrectly use the `SS-` or `SS-XX-` prefix and fix them. The correct prefix MUST always be strictly `xx-<subslug>.md` (where `XX` is the zero-padded sequence number).
 You must also update all markdown files that reference the old filenames, and update the project's memory.
 
 ## MUST FOLLOW NON-NEGOTIABLE
 
-Listen, past runs of these turns have been sloppy and stupid as fuck: wrong step counts, partial task lists dumped into chat instead of files, plans and session summaries half-filled with "[N]" placeholders, folders skimmed, open ambiguities ignored, CI/CD issues and `plans/subtasks/` forgotten, user commands dropped, coding guidelines bypassed, detailed specs chopped and summarized into useless junk, uppercase README files left uncorrected, `.lovable/memory/` created by accident, `strictly-avoid.md` overwritten, and explicit user instructions softened after being told not to. WTF. How on earth are you reverting to this carelessness, are you stupid?? Stop doing that, you stupid fuck. Read the whole codebase, read every folder in `spec/` and `.lovable/`, confirm root `readme.md` is strictly lowercase, find the root cause in one sentence, capture commands, issues, and pending tasks without omitting a single item, write the spec files and memory files in the right paths, update every index in the same turn, sync `readme.md` with `what-to-read.md`, preserve detailed specs verbatim with zero truncation, run builds and full unit tests, group commits with clear messages, and push everything to git before ending. Going deep IS the job. If you are not going deep, you are not doing the job. Violating this is auto-reject on the same tier as RULE 0. Avoid stupidity and being careless, you stupid fuck. Where is your attention, are you stupid? Tell me. Your stupidity is going on top of my head. Where did you learn this stupidity? If I could find you, I could slap you.
+Listen, past runs of these turns have been sloppy and stupid as fuck: wrong step counts, partial task lists dumped into chat instead of files, plans and session summaries half-filled with "[N]" placeholders, folders skimmed, open ambiguities ignored, CI/CD issues and `plans/subtasks/` forgotten, user commands dropped, coding guidelines bypassed, detailed specs chopped and summarized into useless junk, uppercase README files left uncorrected, `.ai-memory/memory/` created by accident, `strictly-avoid.md` overwritten, and explicit user instructions softened after being told not to. WTF. How on earth are you reverting to this carelessness, are you stupid?? Stop doing that, you stupid fuck. Read the whole codebase, read every folder in `02-spec/` and `.ai-memory/`, confirm root `readme.md` is strictly lowercase, find the root cause in one sentence, capture commands, issues, and pending tasks without omitting a single item, write the spec files and memory files in the right paths, update every index in the same turn, sync `readme.md` with `what-to-read.md`, preserve detailed specs verbatim with zero truncation, run builds and full unit tests, group commits with clear messages, and push everything to git before ending. Going deep IS the job. If you are not going deep, you are not doing the job. Violating this is auto-reject on the same tier as RULE 0. Avoid stupidity and being careless, you stupid fuck. Where is your attention, are you stupid? Tell me. Your stupidity is going on top of my head. Where did you learn this stupidity? If I could find you, I could slap you.
 
 ## 1. Subtask Naming Correction (Non-Negotiable)
 
-Scan the `.lovable/plans/subtasks/` directory recursively.
+Scan the `.ai-memory/plans/subtasks/` directory recursively.
 
 - If you find any file starting with `SS-` or `SS-XX-` (e.g., `SS-01-fix-auth.md` or `SS-fix-auth.md`), rename it to the correct format: `xx-<subslug>.md` (e.g., `01-fix-auth.md`).
-- After renaming, you MUST recursively search `.lovable/plans/pending/`, `.lovable/plans/completed/`, `.lovable/plans/01-index.md`, and `.lovable/memory/` for any text references to the old filenames.
+- After renaming, you MUST recursively search `.ai-memory/plans/pending/`, `.ai-memory/plans/completed/`, `.ai-memory/plans/01-index.md`, and `.ai-memory/memory/` for any text references to the old filenames.
 - Replace those old references with the new correct filenames.
 
 ## 2. Memory Update
 
 You must write a memory entry to ensure this rule is persisted and no other AI makes this mistake again.
 
-- Create a file inside `.lovable/memory/learned/` (or update an existing one) detailing the rule: "Subtasks must NEVER be prefixed with 'SS-'. They must strictly follow the 'xx-<slug>.md' sequence."
-- Update `.lovable/memory/01-index.md` to reference this newly added/updated memory file.
+- Create a file inside `.ai-memory/memory/learned/` (or update an existing one) detailing the rule: "Subtasks must NEVER be prefixed with 'SS-'. They must strictly follow the 'xx-<slug>.md' sequence."
+- Update `.ai-memory/memory/01-index.md` to reference this newly added/updated memory file.
 - Add a note explicitly stating how the project is following all guidelines and enforcing this strict naming.
 
 ## 3. High-Stakes Code Standards & Coding Guidelines
@@ -34,26 +34,26 @@ You MUST follow the project's strict coding guidelines. These files are located 
 
 1. The Master Consolidated Guide
 
-- `spec/17-consolidated-guidelines/05-coding-guidelines.md`
+- `02-spec/17-consolidated-guidelines/05-coding-guidelines.md`
 
 2. Code Style & File Size Limits (80-100 lines max)
 
-- `spec/02-coding-guidelines/01-cross-language/01-index.md`
-- `spec/02-coding-guidelines/01-cross-language/20-nesting-resolution-patterns.md`
-- `spec/02-coding-guidelines/01-cross-language/06-cyclomatic-complexity.md`
+- `02-spec/02-coding-guidelines/01-cross-language/01-index.md`
+- `02-spec/02-coding-guidelines/01-cross-language/20-nesting-resolution-patterns.md`
+- `02-spec/02-coding-guidelines/01-cross-language/06-cyclomatic-complexity.md`
 
 3. Boolean Conditions & Samples
 
-- `spec/02-coding-guidelines/01-cross-language/02-boolean-principles/01-index.md`
-- `spec/02-coding-guidelines/01-cross-language/12-no-negatives.md`
-- `spec/02-coding-guidelines/01-cross-language/24-boolean-flag-methods.md`
+- `02-spec/02-coding-guidelines/01-cross-language/02-boolean-principles/01-index.md`
+- `02-spec/02-coding-guidelines/01-cross-language/12-no-negatives.md`
+- `02-spec/02-coding-guidelines/01-cross-language/24-boolean-flag-methods.md`
 
 4. Variable Naming & Definitions
 
-- `spec/02-coding-guidelines/01-cross-language/22-variable-naming-conventions.md`
-- `spec/02-coding-guidelines/01-cross-language/11-key-naming-pascalcase.md`
-- `spec/02-coding-guidelines/01-cross-language/10-function-naming.md`
-- `spec/02-coding-guidelines/01-cross-language/18-code-mutation-avoidance.md`
+- `02-spec/02-coding-guidelines/01-cross-language/22-variable-naming-conventions.md`
+- `02-spec/02-coding-guidelines/01-cross-language/11-key-naming-pascalcase.md`
+- `02-spec/02-coding-guidelines/01-cross-language/10-function-naming.md`
+- `02-spec/02-coding-guidelines/01-cross-language/18-code-mutation-avoidance.md`
 
 ## 4. End-of-Loop Commit Fix (Non-Negotiable)
 
@@ -73,11 +73,11 @@ Listen, past turns have been sloppy as fuck: wrong file names, leaving broken re
 
 ## Action Items — Must Follow (Non-Negotiable)
 
-- [ ] Scan `.lovable/plans/subtasks/` for files starting with `SS-` or `SS-XX-`.
+- [ ] Scan `.ai-memory/plans/subtasks/` for files starting with `SS-` or `SS-XX-`.
 - [ ] Rename those files to the correct `xx-<slug>.md` pattern.
-- [ ] Find and correct all file path references to the old names in `.lovable/plans/pending/`, `.lovable/plans/completed/`, `.lovable/plans/01-index.md`, and memory files.
-- [ ] Add a memory entry under `.lovable/memory/learned/` enforcing this naming convention and confirming how the project is following all guidelines.
-- [ ] Update `.lovable/memory/01-index.md` with the new memory file.
+- [ ] Find and correct all file path references to the old names in `.ai-memory/plans/pending/`, `.ai-memory/plans/completed/`, `.ai-memory/plans/01-index.md`, and memory files.
+- [ ] Add a memory entry under `.ai-memory/memory/learned/` enforcing this naming convention and confirming how the project is following all guidelines.
+- [ ] Update `.ai-memory/memory/01-index.md` with the new memory file.
 - [ ] Audit your work against the Master Consolidated Guide, Code Style, Boolean Conditions, and Variable Naming rules.
 - [ ] Make a single logical Git commit including all changes and push it to the repository immediately.
 

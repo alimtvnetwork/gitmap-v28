@@ -18,7 +18,7 @@ type cloneReplaceResult struct {
 	Note     string
 }
 
-// cloneReplacing implements spec/01-app/96-clone-replace-existing-folder.md.
+// cloneReplacing implements 02-spec/01-app/96-clone-replace-existing-folder.md.
 // It clones url into target, replacing any pre-existing folder via two
 // strategies: (1) direct remove + clone, (2) temp-clone then swap-in-place.
 func cloneReplacing(url, target string) (cloneReplaceResult, error) {

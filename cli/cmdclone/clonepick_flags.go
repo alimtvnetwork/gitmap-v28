@@ -32,7 +32,7 @@ type clonePickParsed struct {
 	// NoVSCodeSync suppresses the post-clone update of the
 	// alefragnani.project-manager projects.json file. Mirrors
 	// `gitmap scan --no-vscode-sync`. Default false. See
-	// spec/01-vscode-project-manager-sync/02-clone-sync.md.
+	// 02-spec/01-vscode-project-manager-sync/02-clone-sync.md.
 	NoVSCodeSync bool
 }
 

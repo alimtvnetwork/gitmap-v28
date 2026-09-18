@@ -80,7 +80,7 @@ func PrintSummary(w io.Writer, prefix string, res ReplayResult) {
 // source-considered != accounted, a `discrepancy` line is written to
 // errW so CI scripts can detect drift.
 //
-// Issue: .lovable/memory/issues/2026-05-09-commit-transfer-count-mismatch.md
+// Issue: .ai-memory/memory/issues/2026-05-09-commit-transfer-count-mismatch.md
 func PrintReconciliation(w, errW io.Writer, prefix string, plan ReplayPlan, res ReplayResult) {
 	considered := len(plan.Commits) + plan.MergeExcluded
 	accounted := res.Replayed + res.SkippedDrop + res.SkippedReplayed +

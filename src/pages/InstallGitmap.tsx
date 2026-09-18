@@ -5,7 +5,7 @@ import { Card } from "@/components/ui/card";
 import { Download, RefreshCw, Trash2, Stethoscope, Apple, Terminal, MonitorSmartphone } from "lucide-react";
 
 // Single source of truth for these one-liners is
-// spec/01-app/108-cross-platform-install-update.md.
+// 02-spec/01-app/108-cross-platform-install-update.md.
 // Keep these snippets byte-identical with the spec table so users
 // landing on README, web docs, or `--help` see the same commands.
 
@@ -83,7 +83,7 @@ const InstallGitmapPage = () => {
         </div>
         <p className="text-muted-foreground mb-8 text-lg">
           Cross-platform install, update, and uninstall reference. Same one-liners as{" "}
-          <code className="docs-inline-code">spec/01-app/108-cross-platform-install-update.md</code> and{" "}
+          <code className="docs-inline-code">02-spec/01-app/108-cross-platform-install-update.md</code> and{" "}
           <code className="docs-inline-code">README.md</code>.
         </p>
 
@@ -118,7 +118,7 @@ const InstallGitmapPage = () => {
           <p className="text-xs text-muted-foreground mt-3">
             Replace <code className="docs-inline-code">v3.99.0</code> with the release tag you need.
             Resolution contract:{" "}
-            <code className="docs-inline-code">spec/07-generic-release/09-generic-install-script-behavior.md</code>.
+            <code className="docs-inline-code">02-spec/07-generic-release/09-generic-install-script-behavior.md</code>.
           </p>
         </section>
 

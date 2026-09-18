@@ -16,7 +16,7 @@ import { VERSION } from "@/constants/index";
  * If this test fails: bump `VERSION` in `src/constants/index.ts` to
  * match the Go binary -- that file is the second half of every
  * release (the Go bump is the first half). See
- * `.lovable/memory/project/version-bump-procedure.md`.
+ * `.ai-memory/memory/project/version-bump-procedure.md`.
  */
 describe("VERSION sync between web and Go binary", () => {
   const goConstantsPath = resolve(__dirname, "../../cli/constants/constants.go");
