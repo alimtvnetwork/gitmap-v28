@@ -1,3 +1,9 @@
+## v6.266.0 — 2026-09-19 (Update Antigravity Manager installer and updater to canonical PowerShell and curl bash one-liners)
+
+**Scope:** Version bump. Update Antigravity Manager installer and updater to canonical PowerShell and curl bash one-liners.
+
+---
+
 ## v6.265.0 — 2026-09-19 (Fix CI lint, staticcheck, spell check, and boolean guideline issues)
 
 **Scope:** Version bump. Fix CI lint, staticcheck, spell check, and boolean guideline issues.

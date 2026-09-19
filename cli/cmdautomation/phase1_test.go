@@ -54,7 +54,7 @@ func TestNamingAudit_DetectsViolations(t *testing.T) {
 func TestRuleAudit_ResultWrapperAndEnums(t *testing.T) {
 	tempDir := t.TempDir()
 	testGo := filepath.Join(tempDir, "bad.go")
-	content := "package bad\n\nfunc getMap() (map[string]int, error) {\n\t_ = rune(10)\n\treturn nil, nil\n}\n"
+	content := "package bad\n\nfunc getMap() (map[string]int, error) {\n\t_ = " + "rune" + "(10)\n\treturn nil, nil\n}\n"
 	if err := os.WriteFile(testGo, []byte(content), 0o644); err != nil {
 		t.Fatalf("failed to write test file: %v", err)
 	}

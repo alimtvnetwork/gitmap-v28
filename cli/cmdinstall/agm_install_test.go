@@ -54,3 +54,28 @@ func TestDispatchAgmDryRun(t *testing.T) {
 		t.Errorf("expected nil error for agm dry-run dispatch, got %v", err)
 	}
 }
+
+func TestAgmUpdateCommandFlags(t *testing.T) {
+	dryFlag := agmUpdateCmd.Flags().Lookup("dry-run")
+	if dryFlag == nil {
+		t.Errorf("expected --dry-run flag on agmUpdateCmd")
+	}
+
+	yesFlag := agmUpdateCmd.Flags().Lookup("yes")
+	if yesFlag == nil {
+		t.Errorf("expected --yes flag on agmUpdateCmd")
+	}
+
+	verbFlag := agmUpdateCmd.Flags().Lookup("verbose")
+	if verbFlag == nil {
+		t.Errorf("expected --verbose flag on agmUpdateCmd")
+	}
+}
+
+func TestDispatchAgmUpdateDryRun(t *testing.T) {
+	args := []string{"agm", "update", "--dry-run"}
+	err := DispatchAgm(context.Background(), args, nil)
+	if err != nil {
+		t.Errorf("expected nil error for agm update dry-run dispatch, got %v", err)
+	}
+}

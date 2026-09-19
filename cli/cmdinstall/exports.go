@@ -36,6 +36,16 @@ func RunInstallAgManagerWithOpts(opts installOptions) error {
 	return runInstallAgManagerWithOpts(opts)
 }
 
+// RunUpdateAgManagerWithOpts updates Antigravity Manager with options.
+func RunUpdateAgManagerWithOpts(opts installOptions) error {
+	return runUpdateAgManagerWithOpts(opts)
+}
+
+// RunUpdateAgManager updates Antigravity Manager.
+func RunUpdateAgManager() error {
+	return runUpdateAgManagerWithOpts(installOptions{})
+}
+
 // RunInstallAgyWithOpts installs Antigravity CLI.
 func RunInstallAgyWithOpts(opts installOptions) error {
 	return runInstallAgyWithOpts(opts)

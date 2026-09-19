@@ -34,7 +34,7 @@ func getAgManagerAssetURL() (string, string, error) {
 }
 
 func fetchAgManagerFromAPI() (string, string, error) {
-	req, err := http.NewRequest(http.MethodGet, "https://api.github.com/repos/lbjlaq/Antigravity-Manager/releases/latest", nil)
+	req, err := http.NewRequest(http.MethodGet, "https://api.github.com/repos/alimtvnetwork/Antigravity-Manager/releases/latest", nil)
 	if err != nil {
 		return "", "", err
 	}
@@ -78,7 +78,7 @@ func fetchAgManagerFromRedirect() (string, string, error) {
 		Timeout: 8 * time.Second,
 	}
 
-	resp, err := client.Get("https://github.com/lbjlaq/Antigravity-Manager/releases/latest")
+	resp, err := client.Get("https://github.com/alimtvnetwork/Antigravity-Manager/releases/latest")
 	if err != nil {
 		return "", "", err
 	}
@@ -106,7 +106,7 @@ func parseTagFromLocation(loc string) (string, string, error) {
 }
 
 func constructAgManagerAssetURL(tag, ver string) string {
-	base := fmt.Sprintf("https://github.com/lbjlaq/Antigravity-Manager/releases/download/%s", tag)
+	base := fmt.Sprintf("https://github.com/alimtvnetwork/Antigravity-Manager/releases/download/%s", tag)
 	switch runtime.GOOS {
 	case "windows":
 		return fmt.Sprintf("%s/Antigravity.Tools_%s_x64-setup.exe", base, ver)

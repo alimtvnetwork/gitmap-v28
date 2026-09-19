@@ -10,7 +10,7 @@ import (
 	"github.com/alimtvnetwork/gitmap-v28/cli/release"
 )
 
-const agManagerGitURL = "https://github.com/lbjlaq/Antigravity-Manager.git"
+const agManagerGitURL = "https://github.com/alimtvnetwork/Antigravity-Manager.git"
 
 func fetchAgManagerFromGitTags() (string, string, error) {
 	ctx, cancel := context.WithTimeout(context.Background(), 10*time.Second)

@@ -3,6 +3,8 @@ package cmdinstall
 import (
 	"strings"
 	"testing"
+
+	"github.com/alimtvnetwork/gitmap-v28/cli/constants"
 )
 
 func TestParseTagFromGitLine(t *testing.T) {
@@ -99,5 +101,33 @@ func TestAgyInstallDryRunDispatch(t *testing.T) {
 	errCli := dispatchAgyInstallTarget("cli", opts)
 	if errCli != nil {
 		t.Errorf("expected nil error for cli dry-run dispatch, got %v", errCli)
+	}
+}
+
+func TestAgManagerCanonicalConstants(t *testing.T) {
+	expectedWin := "irm https://raw.githubusercontent.com/alimtvnetwork/Antigravity-Manager/main/install.ps1 | iex"
+	if constants.AgManagerWindowsInstallCmd != expectedWin {
+		t.Errorf("AgManagerWindowsInstallCmd = %q; want %q", constants.AgManagerWindowsInstallCmd, expectedWin)
+	}
+
+	expectedUnix := "curl -fsSL https://raw.githubusercontent.com/alimtvnetwork/Antigravity-Manager/main/install.sh | bash"
+	if constants.AgManagerUnixInstallCmd != expectedUnix {
+		t.Errorf("AgManagerUnixInstallCmd = %q; want %q", constants.AgManagerUnixInstallCmd, expectedUnix)
+	}
+}
+
+func TestRunInstallAgManagerDryRun(t *testing.T) {
+	opts := installOptions{DryRun: true}
+	err := runInstallAgManagerWithOpts(opts)
+	if err != nil {
+		t.Errorf("expected nil error for install dry-run, got %v", err)
+	}
+}
+
+func TestRunUpdateAgManagerDryRun(t *testing.T) {
+	opts := installOptions{DryRun: true}
+	err := runUpdateAgManagerWithOpts(opts)
+	if err != nil {
+		t.Errorf("expected nil error for update dry-run, got %v", err)
 	}
 }

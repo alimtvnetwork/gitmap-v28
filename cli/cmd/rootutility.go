@@ -6,6 +6,7 @@ import (
 	"strings"
 
 	"github.com/alimtvnetwork/gitmap-v28/cli/cmdagy"
+	"github.com/alimtvnetwork/gitmap-v28/cli/cmdinstall"
 	"github.com/alimtvnetwork/gitmap-v28/cli/cmdos"
 	"github.com/alimtvnetwork/gitmap-v28/cli/cmdzsh"
 	"github.com/alimtvnetwork/gitmap-v28/cli/constants"
@@ -71,8 +72,41 @@ func runInstalledDirHelp() error {
 
 func runUpdateHelp() error {
 	checkHelp("update", argsTail())
+	if isAgmUpdateTarget(argsTail()) {
+		return runUpdateAgManagerTarget(argsTail())
+	}
 
 	return runUpdate()
+}
+
+func isAgmUpdateTarget(args []string) bool {
+	for _, arg := range args {
+		if !strings.HasPrefix(arg, "-") && isAgmToken(arg) {
+			return true
+		}
+	}
+	return false
+}
+
+func isAgmToken(arg string) bool {
+	low := strings.ToLower(arg)
+	return low == "agm" || low == "ag-manager" || low == "antigravity-manager"
+}
+
+func runUpdateAgManagerTarget(args []string) error {
+	opts := cmdinstall.InstallOptions{
+		DryRun: hasDryRunArg(args),
+	}
+	return cmdinstall.RunUpdateAgManagerWithOpts(opts)
+}
+
+func hasDryRunArg(args []string) bool {
+	for _, a := range args {
+		if a == "--dry-run" || a == "-n" {
+			return true
+		}
+	}
+	return false
 }
 
 func utilityToolEntries() []dispatchEntry {

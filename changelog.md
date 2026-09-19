@@ -1,3 +1,20 @@
+## [v6.266.0] 2026-09-20 Release v6.266.0
+
+### Install GitMap v6.266.0
+
+To pin your repository to this exact version, run the following one-liner:
+Unix/Bash: `curl -sL https://raw.githubusercontent.com/alimtvnetwork/gitmap-v28/v6.266.0/install.sh | bash -s -- ".ai-memory/prompts" "v6.266.0"`
+PowerShell: `Invoke-WebRequest -Uri https://raw.githubusercontent.com/alimtvnetwork/gitmap-v28/v6.266.0/install.ps1 -OutFile install.ps1; .\install.ps1 -TargetDir ".ai-memory/prompts" -Version "v6.266.0"`
+
+### Added / Changed / Fixed / Removed
+
+- Update Antigravity Manager (agm, ag-manager, antigravity-manager) installer and updater to canonical one-liners: PowerShell script execution for Windows and curl | bash execution for UNIX
+- Add gitmap agm update subcommand with aliases (up, u) and support --dry-run
+- Route gitmap update agm (and aliases ag-manager, antigravity-manager) in root utility dispatcher directly to Antigravity Manager updater
+- Replace legacy lbjlaq/Antigravity-Manager repository URLs with canonical alimtvnetwork/Antigravity-Manager
+- Remove legacy binary installer helpers and unused executable copier functions from cli/cmdinstall
+- Fix 03-ai-scripts/09-cli-help-auditor.py concurrency argument passing
+
 ## [v6.265.0] 2026-09-19 Release v6.265.0
 
 ### Install GitMap v6.265.0
@@ -2364,6 +2381,12 @@ PowerShell: `Invoke-WebRequest -Uri https://raw.githubusercontent.com/alimtvnetw
 - Fixed spacing in help menu.
 
 # Changelog
+
+## [v6.266.0] - 2026-09-19
+
+### Added
+- Update Antigravity Manager installer and updater to canonical PowerShell and curl bash one-liners
+
 
 ## [v6.265.0] - 2026-09-19
 

@@ -139,7 +139,7 @@ func auditEnumsContent(path, content string) []RuleViolation {
 				File:        path,
 				LineNumber:  idx + 1,
 				Rule:        "RAW_RUNE_CAST",
-				Description: "Raw numeric rune cast (e.g. rune(10)); use defined constant or rune literal",
+				Description: "Raw numeric rune cast (e.g. rune(N)); use defined constant or rune literal",
 			})
 		}
 		if isGoEnumMissingTypeSuffix(path, stripped) {

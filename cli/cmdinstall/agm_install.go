@@ -24,13 +24,22 @@ var AgmCmd = &cobra.Command{
 var agmInstallCmd = &cobra.Command{
 	Use:     "install [flags]",
 	Aliases: []string{"in", "i"},
-	Short:   "Install Antigravity Manager GUI / Tools (latest GitHub release)",
+	Short:   "Install Antigravity Manager GUI / Tools",
 	RunE:    runAgmInstallCmd,
+}
+
+var agmUpdateCmd = &cobra.Command{
+	Use:     "update [flags]",
+	Aliases: []string{"up", "u"},
+	Short:   "Update Antigravity Manager GUI / Tools to latest",
+	RunE:    runAgmUpdateCmd,
 }
 
 func init() {
 	bindAgmInstallFlags()
+	bindAgmUpdateFlags()
 	AgmCmd.AddCommand(agmInstallCmd)
+	AgmCmd.AddCommand(agmUpdateCmd)
 }
 
 func bindAgmInstallFlags() {
@@ -38,6 +47,12 @@ func bindAgmInstallFlags() {
 	agmInstallCmd.Flags().BoolVarP(&agmInstallYes, "yes", "y", false, "Automatic yes to prompts")
 	agmInstallCmd.Flags().BoolVarP(&agmInstallVerbose, "verbose", "v", false, "Enable verbose output")
 	agmInstallCmd.Flags().StringVar(&agmInstallVersion, "version", "", "Specific release version to install (e.g. 4.7.1)")
+}
+
+func bindAgmUpdateFlags() {
+	agmUpdateCmd.Flags().BoolVarP(&agmInstallDryRun, "dry-run", "n", false, "Simulate update without downloading")
+	agmUpdateCmd.Flags().BoolVarP(&agmInstallYes, "yes", "y", false, "Automatic yes to prompts")
+	agmUpdateCmd.Flags().BoolVarP(&agmInstallVerbose, "verbose", "v", false, "Enable verbose output")
 }
 
 func buildAgmInstallOptions() installOptions {
@@ -53,6 +68,12 @@ func runAgmInstallCmd(cmd *cobra.Command, args []string) error {
 	opts := buildAgmInstallOptions()
 
 	return runInstallAgManagerWithOpts(opts)
+}
+
+func runAgmUpdateCmd(cmd *cobra.Command, args []string) error {
+	opts := buildAgmInstallOptions()
+
+	return runUpdateAgManagerWithOpts(opts)
 }
 
 // DispatchAgm routes CLI arguments to agm commands.
