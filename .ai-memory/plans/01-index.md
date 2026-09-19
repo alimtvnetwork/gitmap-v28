@@ -8,8 +8,9 @@ None.
 
 ## Recent Completed Tasks Register (Last 20 Tasks)
 
-1. [35-native-automation-engine-lazy-regex-and-benchmarks.md](completed/35-native-automation-engine-lazy-regex-and-benchmarks.md): Native Automation Engine, Lazy Regex, Polyglot Newline Normalizer & Side-by-Side Benchmarks
-2. [34-generic-ai-scripts-creator-and-scaffolding-engine.md](completed/34-generic-ai-scripts-creator-and-scaffolding-engine.md): Generic AI Scripts Creator, Scaffolding Engine & Dynamic Catalog Discovery
+1. [36-aum-polyglot-script-migration-and-llm-train-suite.md](completed/36-aum-polyglot-script-migration-and-llm-train-suite.md): AUM Polyglot Script Migration & LLM Train Chained Curriculum Suite
+2. [35-native-automation-engine-lazy-regex-and-benchmarks.md](completed/35-native-automation-engine-lazy-regex-and-benchmarks.md): Native Automation Engine, Lazy Regex, Polyglot Newline Normalizer & Side-by-Side Benchmarks
+3. [34-generic-ai-scripts-creator-and-scaffolding-engine.md](completed/34-generic-ai-scripts-creator-and-scaffolding-engine.md): Generic AI Scripts Creator, Scaffolding Engine & Dynamic Catalog Discovery
 3. [33-ai-scripts-engine-ssh-authkey-and-feature-parity.md](completed/33-ai-scripts-engine-ssh-authkey-and-feature-parity.md): AI Scripts Engine, SSH Authorized Key Deployment & Feature Parity
 3. [32-pipeline-deep-eta-and-repo-folder-parity.md](completed/32-pipeline-deep-eta-and-repo-folder-parity.md): Deep Pipeline ETA Decision Engine, Database Telemetry Persistence, and Repository Folder Parity
 3. [31-pipeline-repo-folder-forward-slash-clear-and-accurate-eta.md](completed/31-pipeline-repo-folder-forward-slash-clear-and-accurate-eta.md): Pipeline Repository Folder Architecture, Forward Slash Paths, Clear Commands & Accurate ETA
@@ -37,6 +38,7 @@ None.
 
 ## Completed Plans
 
+- [36-aum-polyglot-script-migration-and-llm-train-suite.md](completed/36-aum-polyglot-script-migration-and-llm-train-suite.md): AUM Polyglot Script Migration & LLM Train Chained Curriculum Suite
 - [01-coding-guidelines-and-style-audits.md](completed/01-coding-guidelines-and-style-audits.md): Coding Guidelines, Sizing, Booleans & Style Quality
 - [02-error-management-and-cliexit-architecture.md](completed/02-error-management-and-cliexit-architecture.md): Centralized Error Architecture & Cliexit Engine
 - [03-type-safety-function-signatures-and-contracts.md](completed/03-type-safety-function-signatures-and-contracts.md): Type Safety, Signatures, Enums & React Architecture

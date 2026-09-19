@@ -4,11 +4,12 @@ Master directory of architectural and execution plans.
 
 ## Pending Plans
 
-- [36-aum-polyglot-script-migration-and-llm-train-suite.md](pending/36-aum-polyglot-script-migration-and-llm-train-suite.md): Plan 36: AUM Polyglot Script Migration & LLM Train Chained Curriculum Suite (Phases 2-6)
+None.
 
 ## Recent Completed Tasks Register (Last 20 Tasks)
 
-1. [27-completed-plans-consolidation.md](completed/27-completed-plans-consolidation.md): Completed Plans Aggressive Consolidation & Memory Reduction (v2.2.0)
+1. [36-aum-polyglot-script-migration-and-llm-train-suite.md](completed/36-aum-polyglot-script-migration-and-llm-train-suite.md): AUM Polyglot Script Migration & LLM Train Chained Curriculum Suite
+2. [27-completed-plans-consolidation.md](completed/27-completed-plans-consolidation.md): Completed Plans Aggressive Consolidation & Memory Reduction (v2.2.0)
 2. [26-coding-guidelines-and-linter-audits.md](completed/26-coding-guidelines-and-linter-audits.md): Coding Guidelines & Linter Audits (Booleans, Nesting, Enums, Sizes, Paths)
 3. [25-terminal-ui-help-and-agy-prompts.md](completed/25-terminal-ui-help-and-agy-prompts.md): Terminal UI, Help Text Parity, Aligned Tables & AGY CLI Prompts
 4. [24-os-management-and-power-lifecycle.md](completed/24-os-management-and-power-lifecycle.md): OS Management, Clean Profiles, Service Scheduling & Power Lifecycle
@@ -31,6 +32,7 @@ Master directory of architectural and execution plans.
 
 ## Completed Plans
 
+- [36-aum-polyglot-script-migration-and-llm-train-suite.md](completed/36-aum-polyglot-script-migration-and-llm-train-suite.md): AUM Polyglot Script Migration & LLM Train Chained Curriculum Suite
 - [01-coding-guidelines-and-style-audits.md](completed/01-coding-guidelines-and-style-audits.md): Coding Guidelines, Sizing, Booleans & Style Quality
 - [02-error-management-and-cliexit-architecture.md](completed/02-error-management-and-cliexit-architecture.md): Centralized Error Architecture & Cliexit Engine
 - [03-type-safety-function-signatures-and-contracts.md](completed/03-type-safety-function-signatures-and-contracts.md): Type Safety, Signatures, Enums & React Architecture
