@@ -53,6 +53,8 @@ const sqlSelectHostByAlias = `SELECT id FROM ssh_hosts WHERE alias = ? LIMIT 1`
 
 const sqlDeleteHostByAliasOrIP = `DELETE FROM ssh_hosts WHERE alias = ? OR ip = ?`
 
+const sqlDeleteAllSSHHosts = `DELETE FROM ssh_hosts`
+
 func resolveHostID(id string, ip string) string {
 	if id != "" {
 		return id
@@ -261,6 +263,23 @@ func DeleteHostByAliasOrIP(ctx context.Context, target string, db *sql.DB) (int6
 	affected, err := res.RowsAffected()
 	if err != nil {
 		return 0, wrapDeleteError(err, "DeleteHostByAliasOrIP_Rows", target)
+	}
+
+	return affected, nil
+}
+
+// DeleteAllSSHHosts deletes all SSH hosts from the database and returns rows affected.
+func DeleteAllSSHHosts(ctx context.Context, db *sql.DB) (int64, error) {
+	ctx = safeContext(ctx)
+	_ = EnsureSSHTables(db)
+	res, err := db.ExecContext(ctx, sqlDeleteAllSSHHosts)
+	if err != nil {
+		return 0, wrapDeleteError(err, "DeleteAllSSHHosts", "all")
+	}
+
+	affected, err := res.RowsAffected()
+	if err != nil {
+		return 0, wrapDeleteError(err, "DeleteAllSSHHosts_Rows", "all")
 	}
 
 	return affected, nil

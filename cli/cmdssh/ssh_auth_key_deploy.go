@@ -293,6 +293,7 @@ func buildInjectAuthKeyScript(pubKey, osType string) string {
 	if strings.EqualFold(osType, "windows") {
 		return buildWindowsAuthKeyScript(escapedKey)
 	}
+
 	return buildUnixAuthKeyScript(escapedKey)
 }
 
@@ -300,6 +301,8 @@ func buildUnixAuthKeyScript(escapedKey string) string {
 	return fmt.Sprintf("mkdir -p ~/.ssh && chmod 700 ~/.ssh && touch ~/.ssh/authorized_keys && chmod 600 ~/.ssh/authorized_keys && (grep -qF '%s' ~/.ssh/authorized_keys || echo '%s' >> ~/.ssh/authorized_keys)", escapedKey, escapedKey)
 }
 
+const winAuthKeyDeployScript = `powershell -NoProfile -Command "$k = '%s'.Trim(); $tokens = $k -split '\s+'; if ($tokens.Length -lt 2) { exit 1 }; $keyBody = $tokens[1]; $isAdmin = ([Security.Principal.WindowsPrincipal][Security.Principal.WindowsIdentity]::GetCurrent()).IsInRole([Security.Principal.WindowsBuiltInRole]::Administrator); if (-not $isAdmin) { $members = net localgroup administrators 2>$null; if ($members -match $env:USERNAME) { $isAdmin = $true } }; if ($isAdmin) { $keysFile = Join-Path $env:ProgramData 'ssh\administrators_authorized_keys'; $sshDir = Join-Path $env:ProgramData 'ssh'; if (!(Test-Path $sshDir)) { New-Item -ItemType Directory -Path $sshDir -Force | Out-Null }; if (!(Test-Path $keysFile)) { New-Item -ItemType File -Path $keysFile -Force | Out-Null }; icacls $keysFile /inheritance:r /grant 'Administrators:F' /grant 'SYSTEM:F' | Out-Null } else { $sshDir = Join-Path $env:USERPROFILE '.ssh'; if (!(Test-Path $sshDir)) { New-Item -ItemType Directory -Path $sshDir -Force | Out-Null }; $keysFile = Join-Path $sshDir 'authorized_keys'; if (!(Test-Path $keysFile)) { New-Item -ItemType File -Path $keysFile -Force | Out-Null } }; $lines = Get-Content $keysFile -ErrorAction SilentlyContinue; $hasKey = $false; foreach ($line in $lines) { $t = $line.Trim() -split '\s+'; if ($t.Length -ge 2 -and $t[1] -eq $keyBody) { $hasKey = $true; break } }; if (-not $hasKey) { Add-Content -Path $keysFile -Value $k }; $svc = Get-Service sshd -ErrorAction SilentlyContinue; if ($svc) { if ($svc.StartType -ne 'Automatic') { Set-Service sshd -StartupType Automatic -ErrorAction SilentlyContinue }; if ($svc.Status -ne 'Running') { Start-Service sshd -ErrorAction SilentlyContinue } }"`
+
 func buildWindowsAuthKeyScript(escapedKey string) string {
-	return fmt.Sprintf(`powershell -NoProfile -Command "$dir = Join-Path $env:USERPROFILE '.ssh'; if (!(Test-Path $dir)) { New-Item -ItemType Directory -Path $dir -Force | Out-Null }; $file = Join-Path $dir 'authorized_keys'; if (!(Test-Path $file)) { New-Item -ItemType File -Path $file -Force | Out-Null }; $lines = Get-Content $file -ErrorAction SilentlyContinue; if ($lines -notcontains '%s') { Add-Content -Path $file -Value '%s' }"`, escapedKey, escapedKey)
+	return fmt.Sprintf(winAuthKeyDeployScript, escapedKey)
 }

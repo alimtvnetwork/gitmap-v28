@@ -303,8 +303,8 @@ func buildHostAndHistory(opts *SSHJoinOptions) (store.SSHHost, store.SSHHistory)
 }
 
 func persistEnrollment(ctx context.Context, db *sql.DB, opts *SSHJoinOptions) error {
-	host, hist := buildHostAndHistory(opts)
-	return store.EnrollSSHHost(ctx, host, hist, db)
+	pair := buildEnrollPair(opts, "linux")
+	return persistDualTables(ctx, db, pair)
 }
 
 func pushAuthIfRequested(ctx context.Context, opts *SSHJoinOptions) error {
@@ -327,12 +327,7 @@ func printEnrollSuccess(alias, target string) {
 }
 
 func completeEnrollment(ctx context.Context, opts *SSHJoinOptions) error {
-	if err := pushAuthIfRequested(ctx, opts); err != nil {
-		return err
-	}
-
-	printEnrollSuccess(opts.Alias, opts.Target.String())
-	return nil
+	return ExecuteEnrollmentCompletion(ctx, opts)
 }
 
 func resolveContext(ctx context.Context) context.Context {
@@ -345,14 +340,7 @@ func resolveContext(ctx context.Context) context.Context {
 
 func openAndPersist(ctx context.Context, opts *SSHJoinOptions) error {
 	ctx = resolveContext(ctx)
-	dbConn, err := openSSHDBFunc()
-	if err != nil {
-		return apperror.New("enrollParsedTarget", "E_INTERNAL_ERROR", map[string]any{"cause": err.Error()})
-	}
-
-	defer dbConn.Close()
-
-	return persistEnrollment(ctx, dbConn.SQL(), opts)
+	return persistEnrollmentDual(ctx, opts, "linux")
 }
 
 func enrollParsedTarget(ctx context.Context, opts *SSHJoinOptions) error {
@@ -361,11 +349,7 @@ func enrollParsedTarget(ctx context.Context, opts *SSHJoinOptions) error {
 		return apperror.NewValidationError(msgMissingJoinTarget)
 	}
 
-	if err := openAndPersist(ctx, opts); err != nil {
-		return err
-	}
-
-	return completeEnrollment(ctx, opts)
+	return ExecuteSSHJoinEnrollment(ctx, opts)
 }
 
 func showJoinHelpAndExit() error {

@@ -25,17 +25,30 @@ func runSSH(args []string) error {
 }
 
 func dispatchCoreSSH(ctx context.Context, sub string, args []string, parent *cobra.Command) result.ErrorWrapper {
+	if resNode := dispatchNodeSSH(ctx, sub, args, parent); resNode.IsMatched() {
+		return resNode
+	}
+
 	switch sub {
 	case "login", "login-install":
 		return result.MatchWrapper(runSSHLogin(parent, args, ctx))
-	case "join", "sj":
-		return result.MatchWrapper(RunSSHJoinCLI(args))
 	case "alias":
 		return result.MatchWrapper(runSSHAlias(parent, args, ctx))
 	case "exec", "se":
 		return result.MatchWrapper(runSSHExec(args))
+	default:
+		return result.UnmatchedWrapper()
+	}
+}
+
+func dispatchNodeSSH(ctx context.Context, sub string, args []string, parent *cobra.Command) result.ErrorWrapper {
+	switch sub {
+	case "join", "sj":
+		return result.MatchWrapper(RunSSHJoinCLI(args))
 	case "nodes", "node", "ls":
 		return result.MatchWrapper(RunSSHNodesCLI(ctx, args))
+	case "rm", "remove":
+		return result.MatchWrapper(runSJRm(parent, args, ctx))
 	default:
 		return result.UnmatchedWrapper()
 	}

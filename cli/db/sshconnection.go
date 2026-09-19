@@ -31,11 +31,14 @@ const (
 			KeyPath = excluded.KeyPath,
 			OS = excluded.OS
 	`
-	sqlSelectSSHConnections = `SELECT Alias, IPAddress, Username, EncryptedPassword, KeyPath, OS, CreatedAt FROM SSHConnection`
-	sqlDeleteSSHConnection  = `DELETE FROM SSHConnection WHERE Alias = ?`
+	sqlSelectSSHConnections        = `SELECT Alias, IPAddress, Username, EncryptedPassword, KeyPath, OS, CreatedAt FROM SSHConnection`
+	sqlDeleteSSHConnection         = `DELETE FROM SSHConnection WHERE Alias = ?`
+	sqlDeleteSSHConnectionByTarget = `DELETE FROM SSHConnection WHERE Alias = ? OR IPAddress = ?`
+	sqlDeleteAllSSHConnections     = `DELETE FROM SSHConnection`
 )
 
 func InsertOrUpdateSSHConnection(ctx context.Context, db *sql.DB, conn SSHConnection) *apperror.AppError {
+	_, _ = db.ExecContext(ctx, sqlCreateSSHConnectionTable)
 	_, err := db.ExecContext(ctx, sqlUpsertSSHConnection,
 		conn.Alias,
 		conn.IPAddress,
@@ -143,6 +146,28 @@ func DeleteSSHConnection(ctx context.Context, db *sql.DB, alias string) *apperro
 	_, err := db.ExecContext(ctx, sqlDeleteSSHConnection, alias)
 	if err != nil {
 		return apperror.WrapSimple(err, "DeleteSSHConnection.Exec")
+	}
+
+	return nil
+}
+
+// DeleteSSHConnectionByTarget deletes SSH connections matching alias or IP address.
+func DeleteSSHConnectionByTarget(ctx context.Context, db *sql.DB, target string) error {
+	_, _ = db.ExecContext(ctx, sqlCreateSSHConnectionTable)
+	_, err := db.ExecContext(ctx, sqlDeleteSSHConnectionByTarget, target, target)
+	if err != nil {
+		return apperror.WrapSimple(err, "DeleteSSHConnectionByTarget.Exec")
+	}
+
+	return nil
+}
+
+// DeleteAllSSHConnections removes all records from the SSHConnection table.
+func DeleteAllSSHConnections(ctx context.Context, db *sql.DB) error {
+	_, _ = db.ExecContext(ctx, sqlCreateSSHConnectionTable)
+	_, err := db.ExecContext(ctx, sqlDeleteAllSSHConnections)
+	if err != nil {
+		return apperror.WrapSimple(err, "DeleteAllSSHConnections.Exec")
 	}
 
 	return nil

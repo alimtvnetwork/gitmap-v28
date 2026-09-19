@@ -75,7 +75,14 @@ None.
 - [30-ssh-exec-copy-mv-env-and-rm-sync-resilience.md](completed/30-ssh-exec-copy-mv-env-and-rm-sync-resilience.md): SSH Exec Polish, Remote Copy/Move, Environment Management & CLI Resilience Suite
 - [31-pipeline-repo-folder-forward-slash-clear-and-accurate-eta.md](completed/31-pipeline-repo-folder-forward-slash-clear-and-accurate-eta.md): Pipeline Repository Folder Architecture, Forward Slash Paths, Clear Commands & Accurate ETA
 - [32-pipeline-deep-eta-and-repo-folder-parity.md](completed/32-pipeline-deep-eta-and-repo-folder-parity.md): Deep Pipeline ETA Decision Engine, Database Telemetry Persistence, and Repository Folder Parity
+- [33-ai-scripts-engine-ssh-authkey-and-feature-parity.md](completed/33-ai-scripts-engine-ssh-authkey-and-feature-parity.md): AI Scripts Engine, SSH AuthKey & Feature Parity
+- [34-generic-ai-scripts-creator-and-scaffolding-engine.md](completed/34-generic-ai-scripts-creator-and-scaffolding-engine.md): Generic AI Scripts Creator & Scaffolding Engine
+- [35-native-automation-engine-lazy-regex-and-benchmarks.md](completed/35-native-automation-engine-lazy-regex-and-benchmarks.md): Native Automation Engine, Lazy Regex & Benchmarks
+- [36-aum-polyglot-script-migration-and-llm-train-suite.md](completed/36-aum-polyglot-script-migration-and-llm-train-suite.md): AUM Polyglot Script Migration & LLM Train Suite
+- [37-aum-helptext-documentation-parity-and-cli-catalog.md](completed/37-aum-helptext-documentation-parity-and-cli-catalog.md): AUM Helptext Documentation Parity & CLI Catalog
+- [38-polyglot-worker-orchestrator-and-automation-runner.md](completed/38-polyglot-worker-orchestrator-and-automation-runner.md): Polyglot Worker Orchestrator & Automation Runner
+- [39-windows-ssh-authkey-join-automation-and-node-rm.md](completed/39-windows-ssh-authkey-join-automation-and-node-rm.md): Windows SSH Authorized Key Architecture, Interactive SSH Join Password Automation, GitMap Host-Node Bootstrapping, and Comprehensive Node Removal
 
 ## Subtasks
 
-Zero active subtask directories. All 16 historical subtask sets have been synthesized and folded directly into their parent consolidated milestone documents in completed/.
+Zero active subtask directories. All historical subtask sets have been synthesized and folded directly into their parent consolidated milestone documents in completed/.

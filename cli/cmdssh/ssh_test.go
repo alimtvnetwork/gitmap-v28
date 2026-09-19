@@ -12,6 +12,7 @@ func TestDispatchPrimarySSH_MatchedSubcommands(t *testing.T) {
 		"scan",
 		"exec", "se",
 		"join", "sj",
+		"rm", "remove",
 		"install", "i",
 		"update", "u",
 		"agy", "code",

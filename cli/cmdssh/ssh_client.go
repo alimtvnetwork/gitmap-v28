@@ -7,7 +7,9 @@ import (
 	"os"
 	"os/exec"
 	"strconv"
+	"time"
 
+	"golang.org/x/crypto/ssh"
 	"golang.org/x/term"
 
 	"github.com/alimtvnetwork/gitmap-v28/cli/apperror"
@@ -101,4 +103,14 @@ func PromptSSHPassword(ctx context.Context, prompt string, fd int) (string, erro
 	}
 
 	return string(password), nil
+}
+
+// NewAutoAcceptHostKeyConfig creates an ssh.ClientConfig that auto-accepts host keys on first join.
+func NewAutoAcceptHostKeyConfig(user string, auth []ssh.AuthMethod) *ssh.ClientConfig {
+	return &ssh.ClientConfig{
+		User:            user,
+		Auth:            auth,
+		HostKeyCallback: ssh.InsecureIgnoreHostKey(),
+		Timeout:         5 * time.Second,
+	}
 }

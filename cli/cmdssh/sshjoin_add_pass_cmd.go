@@ -99,7 +99,8 @@ func persistHostWithEncryptedPass(ctx context.Context, host store.SSHHost, hist 
 		return apperror.New("persistHostWithEncryptedPass", "E_INTERNAL_ERROR", map[string]any{"cause": err.Error()})
 	}
 	defer dbConn.Close()
-	return store.EnrollSSHHost(ctx, host, hist, dbConn.SQL())
+	pair := hostHistoryPair{host: host, hist: hist, osType: "linux"}
+	return persistDualTables(ctx, dbConn.SQL(), pair)
 }
 
 func executeEnrollWithPassCLI(ctx context.Context, args []string) error {
