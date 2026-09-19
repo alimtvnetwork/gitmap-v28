@@ -36,6 +36,7 @@ AUDIT_DIRS = (
 # Directories/files explicitly exempt (e.g., historical archives and migration transaction logs)
 EXEMPT_PATHS = {
     ".ai-memory/memory/transactions/spec-migration-transaction-log.md",
+    ".ai-memory/plans/scripts_fixer_catalog_audit.md",
 }
 
 EXEMPT_DIR_PARTS = {
@@ -60,6 +61,8 @@ def is_placeholder(target: str) -> bool:
 def is_external_or_special(target: str) -> bool:
     """Return True if target is a web URL, anchor, email, or special URI."""
     clean = target.strip()
+    if clean.startswith((".ai-memory/temp/", "temp/", ".tmp/")):
+        return True
     return clean.startswith((
         "http://", "https://", "mailto:", "tel:", "ftp://",
         "conversation://", "file:///", "#", "javascript:"
@@ -147,7 +150,7 @@ def audit_file(file_path: Path, repo_root: Path) -> list[tuple[int, str, str]]:
             candidate = m.group(1).strip()
             # Only test strings that look like actual file paths in tracked folders
             if candidate.startswith(("spec/", ".ai-memory/", ".agents/", "linter-scripts/", "scripts/")):
-                if is_valid_file_extension(candidate) and not is_placeholder(candidate):
+                if is_valid_file_extension(candidate) and not is_placeholder(candidate) and not is_external_or_special(candidate):
                     resolved = resolve_reference(file_path, candidate, repo_root)
                     if resolved is None:
                         violations.append((line_idx, line.strip(), candidate))

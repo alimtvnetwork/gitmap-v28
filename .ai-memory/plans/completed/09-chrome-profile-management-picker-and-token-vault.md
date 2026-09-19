@@ -304,7 +304,6 @@ This plan addresses critical runtime issues discovered during Chrome profile imp
 - `changelog.md`
 - `version.json`
 
-
 ### Merged Plan: `75-chrome-profile-import-routing-and-json-fnf-export.md`
 
 #### Plan 75: Chrome Profile Import Routing, JSON & FNF Export, and End-to-End Test Suite
@@ -462,7 +461,6 @@ Author and execute comprehensive unit and end-to-end tests validating profile su
 2. Test `import-check` with `--json`, `--file <path>`, `--fnf <path>`, and `--tempfile <filename>`.
 3. Verify files are created with valid JSON on disk.
 4. Run all local tests and CI quality gates.
-
 
 ## 4. Unified Quality Gates & Verification Checklist
 

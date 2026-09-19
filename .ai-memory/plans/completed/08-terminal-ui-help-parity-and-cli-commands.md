@@ -128,7 +128,6 @@ This specification details the implementation of a new web-based terminal UI wit
 - [ ] Formatting & Acronyms strictly PascalCase (e.g., `SwapIpWindows`).
 - [ ] Temp-Scripts ignored.
 
-
 ###### Task 7: Update Output Summary
 
 - **Files**: `gitmap/cmd/update.go`, `gitmap/cmd/release.go`
@@ -968,7 +967,6 @@ During interactive macro creation (`gitmap macro add <name>`), users enter steps
    - `python linter-scripts/check-error-management.py`
 3. Execute local CI/CD pipeline:
    - `python 03-ai-scripts/06-cicd-local-runner.py`
-
 
 ## 4. Unified Quality Gates & Verification Checklist
 

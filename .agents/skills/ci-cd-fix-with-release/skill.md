@@ -527,7 +527,7 @@ gh release create "vX.Y.Z" --title "vX.Y.Z" --notes-file ".ai-memory/release/rel
 
 **Fallback chain (if `.ai-memory/release/bump_versions.py` is missing):**
 
-1. **Fallback 1:** Read `.ai-memory/release/release-method.md` to identify all version pin sites. Regenerate `bump_versions.py` from that documentation. Ensure it generates the release notes file with the Quick Install one-liners before running `gh release create`.
+1. **Fallback 1:** Read `.ai-memory/memory/release-architecture-map.md` to identify all version pin sites. Regenerate `bump_versions.py` from that documentation. Ensure it generates the release notes file with the Quick Install one-liners before running `gh release create`.
 2. **Fallback 2:** If `release-method.md` is also missing, walk the repository with Python `os.walk` (ignoring `.git`, `node_modules`, `.venv`) to discover all version pin sites. Write `release-method.md` documenting them. Generate `bump_versions.py` with the correct `FILES_TO_BUMP`, release notes generator, `git checkout -b`, `git commit`, `git tag`, `git push`, and `gh release create ... --notes-file` logic. Run it.
 3. **Fallback 3:** If discovery fails, stop and ask the user to specify the version pin sites explicitly.
 

@@ -123,6 +123,8 @@ DEFAULT_MAX_WORKERS = 4
 - [33-test-inventory-generator.py](33-test-inventory-generator.py): Centralized test inventory manifest generator (`.ai-memory/test-inventory.json`) and atomic file change tracker with cross-platform mutex (`.ai-memory/temp/recent-file-changes.lock`).
 - [35-result-wrapper-auditor.py](35-result-wrapper-auditor.py): Audits Go functions returning multi-value map/slice error tuples for ResultMap and AppError compliance.
 - [36-param-struct-auditor.py](36-param-struct-auditor.py): Audits Go function signatures for argument reduction, dedicated parameter structs/DTOs, types.go declarations, and affirmative boolean naming.
+- [37-enum-guideline-auditor.py](37-enum-guideline-auditor.py): Audits constants and enums for *Type suffixes, elimination of rune conversions, and centralized definitions.
+- [38-milestone-consolidator.py](38-milestone-consolidator.py): Consolidates completed plans and subtasks into high-density milestone summaries with zero architectural loss.
 
 ---
 

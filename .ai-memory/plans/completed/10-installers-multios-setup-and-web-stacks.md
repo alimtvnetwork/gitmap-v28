@@ -706,7 +706,6 @@ Ensure complete documentation, help parity, and full CI/CD quality gate complian
 - `go test ./gitmap/helptext/... -run Golden -count=1` exits 0.
 - `python 03-ai-scripts/06-cicd-local-runner.py` exits 0 across all gates.
 
-
 ### Merged Plan: `77-scripts-fixer-installation-split-db-and-tooling-engine.md`
 
 #### 77-scripts-fixer-installation-split-db-and-tooling-engine.md
@@ -908,7 +907,6 @@ This plan fulfills the integration of cross-platform developer tools, package ma
 4. Run `python linter-scripts/check-enum-and-boolean.py`.
 5. Run `python .github/scripts/go-format-check.py`.
 6. Run full CI runner: `python 03-ai-scripts/06-cicd-local-runner.py`.
-
 
 ### Merged Plan: `78-nginx-wordpress-laravel-installation-and-configuration.md`
 
@@ -1672,7 +1670,6 @@ Every virtual host creation, `wp-config.php` generation, `.env` rewrite, Nginx r
 - Binary build & sync:
   - Compile `bin/gitmap.exe` and sync to all 4 executable locations.
 
-
 ### Merged Plan: `80-ubuntu-zsh-update-prompt-and-reinstall-root-cause-fix.md`
 
 #### Completed Specification: Ubuntu ZSH Update Prompt & Reinstall Root Cause Fix
@@ -1791,7 +1788,6 @@ Author comprehensive unit tests in `gitmap/cmd/setup_ubuntu_test.go`, run all li
    - `python linter-scripts/check-error-management.py --changed-only`
 3. **Release Execution**:
    - `python 03-ai-scripts/29-release-orchestrator.py --tier patch --scope "Fix Ubuntu ZSH update prompt and prevent unwanted re-install during update"`
-
 
 ### Merged Plan: `80-vmware-shared-mount-fix-install-and-root-help.md`
 
@@ -1961,7 +1957,6 @@ Author comprehensive unit tests in `gitmap/cmd/setup_ubuntu_test.go`, run all li
   - Sync to all 4 executable targets.
   - Verify `gitmap vmware -h`, `gitmap help --filter vmware`, and `gitmap install vmware --dry-run`.
 
-
 ### Merged Plan: `82-custom-installer-registry-and-export-import.md`
 
 #### Plan 82: Custom Installer Interactive Registry, Dual CLI Parity, JSON/ZIP Export & Import, and Dynamic Install LS
@@ -2118,7 +2113,6 @@ Execute comprehensive automated verification across all modified and new files:
 - Zero linter violations.
 - All Go tests pass.
 - Clean exit code 0.
-
 
 ### Merged Plan: `86-antigravity-manager-release-installer-and-profiles-engine.md`
 
@@ -2323,7 +2317,6 @@ Execute comprehensive automated verification across all modified and new files:
   - `python linter-scripts/check-enum-and-boolean.py --changed-only`
   - `python linter-scripts/check-error-management.py --changed-only`
 
-
 ### Merged Plan: `90-vmware-shared-crontab-persistence-fix.md`
 
 #### 90-vmware-shared-crontab-persistence-fix.md: VMware Shared Folder Crontab Persistence Root Cause Fix & Linux E2E Verification
@@ -2509,7 +2502,6 @@ Stack Trace:
    - `python 03-ai-scripts/29-release-orchestrator.py --tier patch --scope "Fix VMware shared crontab persistence bad minute error and add Linux E2E tests"`
 4. Push `main`, `release/v6.204.8`, and tags to `origin`.
 
-
 ### Merged Plan: `92-linux-corrupted-install-folder-fix-and-server-check.md`
 
 #### 92-linux-corrupted-install-folder-fix-and-server-check
@@ -2679,7 +2671,6 @@ Author comprehensive regression tests and verify against all repository quality 
 ##### Files Affected
 - `gitmap/cmd/corrupted_dirs_test.go`
 
-
 ### Merged Plan: `93-google-antigravity-desktop-ide-installer-fix.md`
 
 #### Plan 93: Google Antigravity Desktop IDE Installer Fix & CLI Decoupling
@@ -2841,7 +2832,6 @@ Verify all implementations with automated tests and CI quality gates.
 4. `check-nested-ifs.py` reports 0 violations across repository.
 5. `check-enum-and-boolean.py` reports 0 violations across repository.
 6. CI Go Compile Gate passes with code 0.
-
 
 ## 4. Unified Quality Gates & Verification Checklist
 

@@ -8,6 +8,6 @@ This skill provides autonomous audit and validation of repository-wide enum defi
 
 ## Core Invariants
 1. **Source of Truth**: Enums are defined ONCE in `02-spec/<module>/enums/<EnumName>.yaml`.
-2. **Generators**: Must use `scripts/codegen/gen-all-enums.mjs` to generate enums for Go, TS, PHP, Rust. Never hand-edit `*_generated.*` files.
+2. **Generators**: Must use `03-ai-scripts/30-db-struct-enum-generator.py` to generate enums for Go, TS, PHP, Rust. Never hand-edit `*_generated.*` files.
 3. **Naming**: Enums must use PascalCase. PHP enums must have `Type` suffix.
 4. **Rust Derives**: Rust enums must include `Debug, Clone, PartialEq, Serialize, Deserialize`.

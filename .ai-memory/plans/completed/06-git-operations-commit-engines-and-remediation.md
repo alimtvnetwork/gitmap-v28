@@ -677,7 +677,6 @@ Author automated test coverage for remediation step generation and execution, to
 4. Run `go test ./...` across modified packages.
 5. Run nested if and error management linters with 0 violations.
 
-
 ### Merged Plan: `76-responsive-pull-batch-table-terminal-adaptive-layout.md`
 
 #### Master Architectural Plan: Responsive Terminal-Adaptive Gitmap Pull Batch Table Layout
@@ -869,7 +868,6 @@ Author comprehensive unit tests in `pull_table_test.go` and `chromeprofile_prefe
    - Run `check-enum-and-boolean.py`.
    - Run `go test ./cmd/...`.
    - Run `python 03-ai-scripts/06-cicd-local-runner.py`.
-
 
 ### Merged Plan: `84-profile-refresh-token-pull-status-checkmarks-and-dirty-remediation.md`
 
@@ -1073,7 +1071,6 @@ Implement interactive user prompting in `gitmap pull` when dirty repositories ex
 2. Run unit tests across `cmd` and `gitutil`.
 3. Move completed plan to `.ai-memory/plans/completed/`.
 
-
 ### Merged Plan: `88-incremental-git-commit-checkpointing-and-delta-extraction.md`
 
 #### Plan 88: Incremental Git Commit Checkpointing & Delta Extraction Engine
@@ -1260,7 +1257,6 @@ Run verification tests for incremental commit checkpointing across all scenarios
 5. **Scenario 5: Local CI Runner**:
    - Run `python 03-ai-scripts/06-cicd-local-runner.py --changed-only`.
    - Ensure all gates exit 0 cleanly.
-
 
 ## 4. Unified Quality Gates & Verification Checklist
 

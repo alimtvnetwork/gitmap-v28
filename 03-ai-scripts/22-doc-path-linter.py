@@ -15,7 +15,7 @@ sys.path.insert(0, str(REPO_ROOT))
 
 
 def run() -> int:
-    linter_path = REPO_ROOT / 'linter-scripts' / 'check-prompt-and-spec-paths.py'
+    linter_path = REPO_ROOT / 'linter-scripts' / 'check-relative-paths.py'
     if not linter_path.exists():
         print(f'Error: Linter not found at {linter_path}')
         return 1

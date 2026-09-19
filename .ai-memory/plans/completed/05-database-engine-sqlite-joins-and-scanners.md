@@ -472,7 +472,6 @@ Completed
 - Golden helptext tests pass.
 - Local CI runner passes 100%.
 
-
 ### Merged Plan: `91-purge-history-refactor-and-sqlite-tracking.md`
 
 #### 91-purge-history-refactor-and-sqlite-tracking
@@ -609,7 +608,6 @@ Author comprehensive unit tests and verify against quality gates:
 ##### Files Affected
 - `gitmap/store/purge_history_test.go`
 - `gitmap/cmd/purge_test.go`
-
 
 ### Merged Plan: `94-orm-code-generator-id-error-standards-and-fast-cache.md`
 
@@ -771,7 +769,6 @@ Verify codebase alignment with `03-ai-scripts/14-version-sync-checker.py`, execu
 4. `go test -C gitmap ./cmd` and `./store` and `./repodb` pass.
 5. `06-cicd-local-runner.py --filter "Go Compile Gate"` passes with code 0.
 6. Consolidated walkthrough artifact generated.
-
 
 ## 4. Unified Quality Gates & Verification Checklist
 

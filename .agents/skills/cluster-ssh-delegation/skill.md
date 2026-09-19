@@ -6,7 +6,7 @@ description: >-
 
 # Cluster & SSH Delegation Skill
 
-Autonomously implement, maintain, and audit SSH lifecycle and cluster command delegation in `cli/cluster/` and `cli/cmd/` adhering to `.ai-memory/02-spec/commands/07-cluster-command-delegation.md`, `02-spec/01-app/`, and `.ai-memory/cicd-issues/05-cluster-tls-dial-timeout-and-test-env-race.md`.
+Autonomously implement, maintain, and audit SSH lifecycle and cluster command delegation in `cli/cluster/` and `cli/cmd/` adhering to `02-spec/21-app/16-scan-clone-cluster-interactive-macros/07-cluster-join-daemon-and-node-agent.md`, `02-spec/21-app/`, and `.ai-memory/cicd-issues/05-cluster-tls-dial-timeout-and-test-env-race.md`.
 
 ## Core Checkpoints & Invariants
 
