@@ -74,6 +74,7 @@ func PrintRemediationBox(repoName, repoPath string, d gitutil.DirtyDiagnosis) {
 		RepoName:      repoName,
 		SummaryReason: d.SummaryReason,
 		Recipes:       recipes,
+		Files:         d.AllFiles,
 	}
 
 	PrintRemediationSummary([]RemediationItem{item})
@@ -109,18 +110,18 @@ func printPendingRepoEntry(idx int, item RemediationItem) {
 	}
 
 	fmt.Printf("    %2d. %s %s\n", idx, titleStyle.Render(item.RepoName), dimStyle.Render("("+reason+")"))
-	cleanPath := gitutil.CleanRepoPath(item.RepoPath)
-	stashCmd := fmt.Sprintf("git -C %s stash -u && git -C %s pull && git -C %s stash pop", cleanPath, cleanPath, cleanPath)
-	fmt.Printf("        ↳ Direct Git:    %s\n", cmdStyle.Render(stashCmd))
-	fmt.Printf("        ↳ Gitmap Fix:    %s\n", cmdStyle.Render(fmt.Sprintf("gitmap fix %s 1", item.RepoName)))
+	fixCmd := fmt.Sprintf("gitmap fix %s 1  (or 2=wip, 3=discard)", item.RepoName)
+	fmt.Printf("        ↳ Gitmap Fix:    %s\n", cmdStyle.Render(fixCmd))
 }
 
 func printRemediationCLIHelp() {
 	cmdStyle := lipgloss.NewStyle().Foreground(lipgloss.Color("#8be9fd"))
-	fmt.Println("  To fix later:")
-	fmt.Printf("    %s\n", cmdStyle.Render("gitmap fix               (interactive walkthrough)"))
-	fmt.Printf("    %s\n", cmdStyle.Render("gitmap fix <repo> [1|2|3] (target specific repo)"))
-	fmt.Printf("    %s\n\n", cmdStyle.Render("gitmap fix --all stash    (apply stash to all)"))
+	fmt.Println("  To fix:")
+	fmt.Printf("    %-32s %s\n", cmdStyle.Render("gitmap fix"), "(interactive prompt walkthrough)")
+	fmt.Printf("    %-32s %s\n", cmdStyle.Render("gitmap fix all"), "(apply stash to all packages)")
+	fmt.Printf("    %-32s %s\n", cmdStyle.Render("gitmap fix all [1|2|3]"), "(apply specific strategy to all)")
+	fmt.Printf("    %-32s %s\n", cmdStyle.Render("gitmap fix --prompt"), "(step-by-step interactive prompt)")
+	fmt.Printf("    %-32s %s\n\n", cmdStyle.Render("gitmap fix <repo> [1|2|3]"), "(target specific repo)")
 }
 
 func promptForRemediation(items []RemediationItem) {

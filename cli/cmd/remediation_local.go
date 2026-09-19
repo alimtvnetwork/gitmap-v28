@@ -49,6 +49,7 @@ func buildLocalRemediationItem(absPath string) (*RemediationItem, string) {
 		RepoName:      repoName,
 		SummaryReason: diag.SummaryReason,
 		Recipes:       recipes,
+		Files:         diag.AllFiles,
 	}
 
 	return &item, ""

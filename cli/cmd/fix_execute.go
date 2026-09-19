@@ -77,8 +77,8 @@ func executeSingleStep(repoName string, idx, total int, step gitutil.Remediation
 	}
 
 	outStr := outBuf.String()
-	if isBenignCommitClean(step, outStr) {
-		fmt.Printf("%s clean (nothing to commit)\n", constants.ColorYellow+"•"+constants.ColorReset)
+	if isBenignCommitClean(step, outStr) || isBenignStashClean(step, outStr) {
+		fmt.Printf("%s clean (nothing to commit/apply)\n", constants.ColorYellow+"•"+constants.ColorReset)
 
 		return nil
 	}
@@ -87,6 +87,23 @@ func executeSingleStep(repoName string, idx, total int, step gitutil.Remediation
 	printBluntRemediationFailure(repoName, step, outStr, err)
 
 	return err
+}
+
+func isBenignStashClean(step gitutil.RemediationStep, output string) bool {
+	hasPop := false
+	for _, arg := range step.Args {
+		if arg == "pop" {
+			hasPop = true
+			break
+		}
+	}
+	if !hasPop {
+		return false
+	}
+
+	lower := strings.ToLower(output)
+
+	return strings.Contains(lower, "no stash entries found") || strings.Contains(lower, "no stash found")
 }
 
 func isBenignCommitClean(step gitutil.RemediationStep, output string) bool {

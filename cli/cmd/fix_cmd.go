@@ -26,6 +26,83 @@ func isFixAgyRequest(args []string) bool {
 	return false
 }
 
+func isFixAllRequested(args []string) bool {
+	for _, arg := range args {
+		low := strings.ToLower(arg)
+		if low == "all" || low == "--all" || low == "-all" || low == "-a" {
+			return true
+		}
+	}
+
+	return false
+}
+
+func isFixPromptRequested(args []string) bool {
+	for _, arg := range args {
+		low := strings.ToLower(arg)
+		if low == "--prompt" || low == "-p" || low == "prompt" || low == "--interactive" || low == "-i" || low == "interactive" {
+			return true
+		}
+	}
+
+	return false
+}
+
+func isFixActionWord(s string) bool {
+	switch s {
+	case "1", "stash", "s", "2", "wip", "w", "3", "discard", "clean", "d":
+		return true
+	}
+
+	return false
+}
+
+func resolveFixAllAction(args []string, aliasOverride string) string {
+	if aliasOverride != "" {
+		return aliasOverride
+	}
+
+	for _, a := range args {
+		low := strings.ToLower(a)
+		if isFixActionWord(low) {
+			return low
+		}
+	}
+
+	return "stash"
+}
+
+func runFixAll(action string, items []RemediationItem) error {
+	if len(items) == 0 {
+		fmt.Printf("%s No pending repositories require remediation.\n", constants.ColorGreen+"✓"+constants.ColorReset)
+
+		return nil
+	}
+
+	fmt.Printf("%s Remediating %d repository(ies) with action: %s\n\n",
+		constants.ColorCyan+"ℹ"+constants.ColorReset, len(items), action)
+
+	for i := range items {
+		idx := parseRecipeIndex(action, items[i].Recipes)
+		if idx < 0 || idx >= len(items[i].Recipes) {
+			idx = 0
+		}
+
+		err := executeFixRecipe(&items[i], items[i].Recipes[idx])
+		if err != nil {
+			return err
+		}
+		if i < len(items)-1 {
+			fmt.Println()
+		}
+	}
+
+	fmt.Printf("\n%s All %d repository(ies) remediated successfully.\n",
+		constants.ColorGreen+"✓"+constants.ColorReset, len(items))
+
+	return nil
+}
+
 func runFix(args []string, aliasOverride string) error {
 	if isFixAgyRequest(args) {
 		return cmdagy.RunPipelineFixAgyCLI(args)
@@ -35,6 +112,16 @@ func runFix(args []string, aliasOverride string) error {
 	if len(items) == 0 {
 		return handleEmptyRemediationState(args, aliasOverride)
 	}
+
+	if isFixPromptRequested(args) {
+		return runInteractiveRemediation(items)
+	}
+
+	if isFixAllRequested(args) {
+		action := resolveFixAllAction(args, aliasOverride)
+		return runFixAll(action, items)
+	}
+
 	if len(args) == 0 && aliasOverride == "" {
 		PrintRemediationSummary(items)
 		return nil
@@ -56,7 +143,7 @@ func executeFixTarget(args []string, aliasOverride string, items []RemediationIt
 }
 
 func handleEmptyRemediationState(args []string, aliasOverride string) error {
-	if len(args) > 0 {
+	if len(args) > 0 && !isFixAllRequested(args) && !isFixPromptRequested(args) {
 		return runFixDirect(args, aliasOverride)
 	}
 
