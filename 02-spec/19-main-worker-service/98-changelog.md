@@ -1,3 +1,9 @@
+## v6.271.0 — 2026-09-19 (fix(open,ssh): handle headless linux display in open and enhance ssh exec authentication)
+
+**Scope:** Version bump. fix(open,ssh): handle headless linux display in open and enhance ssh exec authentication.
+
+---
+
 ## v6.270.0 — 2026-09-19 (fix(open,ssh): handle headless linux display in open and enhance ssh exec authentication)
 
 **Scope:** Version bump. fix(open,ssh): handle headless linux display in open and enhance ssh exec authentication.
