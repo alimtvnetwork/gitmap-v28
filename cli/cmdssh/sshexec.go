@@ -1,13 +1,11 @@
 package cmdssh
 
 import (
-	"context"
 	"flag"
 	"fmt"
 	"strings"
 	"sync"
 
-	"github.com/charmbracelet/lipgloss"
 	"golang.org/x/crypto/ssh"
 
 	"github.com/alimtvnetwork/gitmap-v28/cli/apperror"
@@ -157,14 +155,13 @@ func filterSSHConns(conns []db.SSHConnection, excludeCSV string) []db.SSHConnect
 }
 
 func isConnExcluded(c db.SSHConnection, excludeList []string) bool {
-	idStr := fmt.Sprintf("%d", c.ID)
 	userHost := fmt.Sprintf("%s@%s", c.Username, c.IPAddress)
 	for _, ex := range excludeList {
 		ex = strings.TrimSpace(ex)
 		if ex == "" {
 			continue
 		}
-		if strings.EqualFold(c.Alias, ex) || c.IPAddress == ex || idStr == ex || strings.EqualFold(userHost, ex) {
+		if strings.EqualFold(c.Alias, ex) || c.IPAddress == ex || strings.EqualFold(userHost, ex) {
 			return true
 		}
 	}
@@ -220,16 +217,21 @@ func runSSHWorker(c db.SSHConnection, args []string, wg *sync.WaitGroup) error {
 	return nil
 }
 
-func connectSSHClient(c db.SSHConnection) (*ssh.Client, bool) {
+func connectSSHClient(c db.SSHConnection, headers ...string) (*ssh.Client, bool) {
+	header := ""
+	if len(headers) > 0 {
+		header = headers[0]
+	}
+
 	if c.EncryptedPassword != "" {
-		return connectWithEncryptedPassword(c, "")
+		return connectWithEncryptedPassword(c, header)
 	}
 
 	if c.KeyPath != "" {
-		return connectWithKeyPath(c, "")
+		return connectWithKeyPath(c, header)
 	}
 
-	if client, isDefaultOk := connectWithDefaultKey(c.IPAddress, c.Username, ""); isDefaultOk {
+	if client, isDefaultOk := connectWithDefaultKey(c.IPAddress, c.Username, header); isDefaultOk {
 		return client, true
 	}
 
