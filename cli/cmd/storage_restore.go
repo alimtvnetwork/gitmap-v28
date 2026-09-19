@@ -43,6 +43,7 @@ func hasDirectoryEntries(entries []os.DirEntry) bool {
 
 func runAutoHealLocalDB() error {
 	dbPath := store.DefaultDBPath()
+	_ = os.MkdirAll(filepath.Dir(dbPath), 0755)
 	conn, err := store.OpenSQLiteDB(dbPath)
 	if err != nil {
 		return apperror.WrapSimple(err, "storage.restore-db")

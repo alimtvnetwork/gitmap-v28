@@ -34,6 +34,24 @@ gitmap antigravity <subcommand> [flags]
 
 ---
 
+## Examples
+
+```bash
+# Rerun the last prompt with the default verification template
+gitmap agy rerun last 1
+
+# List prompt activity and open multi-project changes in VS Code
+gitmap agy list-prompts --projects 3
+
+# Scan repositories and prompt archives
+gitmap agy scan
+
+# Fix pipeline errors with Antigravity
+gitmap agy fix-pipeline
+```
+
+---
+
 ## 1. agy rerun
 
 Replay the last N user prompts recorded in Antigravity conversation transcripts (`transcript.jsonl`). Supports prepending a prefix template to verify or guide execution.

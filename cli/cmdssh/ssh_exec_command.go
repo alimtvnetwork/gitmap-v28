@@ -23,15 +23,15 @@ func determineSSHCommand(osType string, args []string) (string, string, bool) {
 	if len(args) == 0 {
 		return "", "", false
 	}
+	if isIPCommand(args) {
+		return resolveIPCommand(osType)
+	}
 	firstToken := extractFirstToken(args[0])
 	if isGitmapCommand(firstToken) {
 		return "", resolveGitmapCommandString(args), true
 	}
 	if isExplicitShell(firstToken) {
 		return firstToken, extractShellCommandArgs(args), false
-	}
-	if isIPCommand(args) {
-		return resolveIPCommand(osType)
 	}
 	cmdStr := normalizeMultiCommands(strings.Join(args, " "), isWindowsOS(osType))
 	return determineFallbackShell(osType), cmdStr, false

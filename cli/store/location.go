@@ -7,11 +7,22 @@ import (
 	"github.com/alimtvnetwork/gitmap-v28/cli/constants"
 )
 
+var binaryDataDirOverride string
+
+// SetBinaryDataDirForTesting overrides the binary data directory during tests.
+func SetBinaryDataDirForTesting(dir string) {
+	binaryDataDirOverride = dir
+}
+
 // BinaryDataDir returns the data directory relative to the running
 // executable's physical location. This ensures the SQLite database
 // is always co-located with the binary, regardless of the working
 // directory from which gitmap is invoked.
 func BinaryDataDir() string {
+	if binaryDataDirOverride != "" {
+		return binaryDataDirOverride
+	}
+
 	exe, err := os.Executable()
 	if err != nil {
 		return filepath.Join(".", constants.DBDir)

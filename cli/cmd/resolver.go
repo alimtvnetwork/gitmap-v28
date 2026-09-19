@@ -152,10 +152,6 @@ func resolveOneMulti(db *store.DB, target string, all []model.ScanRecord) []mode
 	return nil
 }
 
-func resolveBySlug(target string, all []model.ScanRecord) *model.ScanRecord {
-	return resolveByTarget(target, all)
-}
-
 func resolveByTarget(target string, all []model.ScanRecord) *model.ScanRecord {
 	for _, r := range all {
 		if matchesRepoTarget(r, target) {

@@ -398,14 +398,6 @@ func formatEtaDisplay(sec int) string {
 	return fmt.Sprintf("~%ds (%s)", sec, formatDurationSeconds(sec))
 }
 
-func safeInt64ToUint64(val int64) uint64 {
-	if val < 0 {
-		return 0
-	}
-
-	return uint64(val)
-}
-
 func resolveCurrentRepoSlug() string {
 	out, err := exec.Command("git", "config", "--get", "remote.origin.url").Output()
 	if err == nil && len(out) > 0 {

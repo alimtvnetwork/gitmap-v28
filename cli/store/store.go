@@ -9,6 +9,7 @@ import (
 	"os"
 	"path/filepath"
 	"sync"
+	"time"
 
 	"github.com/alimtvnetwork/gitmap-v28/cli/constants"
 
@@ -43,6 +44,14 @@ func OpenProfile(outputDir, profileName string) (*DB, error) {
 // other than the default <outputDir>/data layout.
 func OpenAt(dbPath string) (*DB, error) {
 	return openDBAt(dbPath)
+}
+
+// OpenInMemory opens an in-memory SQLite database instance for testing.
+func OpenInMemory() (*DB, error) {
+	connPath := fmt.Sprintf("file:mem_%d?mode=memory&cache=shared", time.Now().UnixNano())
+	retainMemAnchor(connPath)
+
+	return openDBConnection(connPath, ":memory:", "", true)
 }
 
 var (

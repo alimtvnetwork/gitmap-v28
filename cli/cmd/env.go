@@ -3,6 +3,7 @@ package cmd
 import (
 	"github.com/alimtvnetwork/gitmap-v28/cli/apperror"
 	"github.com/alimtvnetwork/gitmap-v28/cli/constants"
+	"github.com/alimtvnetwork/gitmap-v28/cli/helptext"
 	"github.com/alimtvnetwork/gitmap-v28/cli/result"
 )
 

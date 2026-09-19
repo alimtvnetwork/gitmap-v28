@@ -189,10 +189,6 @@ func isFileExisting(path string) bool {
 	return !info.IsDir()
 }
 
-func getCachedPipelineLogPath(runId uint64) string {
-	return getCachedPipelineLogPathForRepo("", runId)
-}
-
 func getCachedPipelineLogPathForRepo(repo string, runId uint64) string {
 	dir := resolvePipelineDirForRepo(repo)
 	repoFile := filepath.Join(dir, fmt.Sprintf("%d.log", runId))
@@ -210,18 +206,10 @@ func getCachedPipelineLogPathForRepo(repo string, runId uint64) string {
 	return filepath.ToSlash(repoFile)
 }
 
-func getCachedPipelineJSONPath(runId uint64) string {
-	return getCachedPipelineJSONPathForRepo("", runId)
-}
-
 func getCachedPipelineJSONPathForRepo(repo string, runId uint64) string {
 	dir := resolvePipelineDirForRepo(repo)
 
 	return filepath.ToSlash(filepath.Join(dir, fmt.Sprintf("%d.json", runId)))
-}
-
-func resolvePipelineErrorReportPath() string {
-	return resolvePipelineErrorReportPathForRepo("")
 }
 
 func resolvePipelineErrorReportPathForRepo(repo string) string {
@@ -254,10 +242,6 @@ func writeCombinedErrorReportForRepo(repo string, content string) (string, error
 	_ = writeLastErrorLogForRepo(repo, content)
 
 	return filepath.ToSlash(reportPath), nil
-}
-
-func writeLastErrorLog(content string) error {
-	return writeLastErrorLogForRepo("", content)
 }
 
 func writeLastErrorLogForRepo(repo string, content string) error {

@@ -159,4 +159,3 @@ func TestPrintSeparator_Suppression(t *testing.T) {
 	PrintSeparator("──────────")
 	ResetPaddingState()
 }
-

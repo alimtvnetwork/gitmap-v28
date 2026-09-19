@@ -31,7 +31,7 @@ func TestBuildPipelineRunRecord_PopulatesDurationAndSuccess(t *testing.T) {
 	if recSuccess.DurationSeconds != 125 {
 		t.Fatalf("expected DurationSeconds 125, got %d", recSuccess.DurationSeconds)
 	}
-	if !recSuccess.IsSuccess {
+	if recSuccess.IsFail() {
 		t.Fatalf("expected IsSuccess true for successful run")
 	}
 	if recSuccess.EtaSeconds != 0 {

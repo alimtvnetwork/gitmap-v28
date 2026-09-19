@@ -67,5 +67,9 @@ func isKnownTarget(conns []db.SSHConnection, candidate string) bool {
 }
 
 func resolveIPCommandArgs(args []string) []string {
+	if len(args) == 1 && strings.EqualFold(args[0], "ip") {
+		return []string{"sh", "-c", "ip -br a 2>/dev/null || ip a 2>/dev/null || hostname -I 2>/dev/null || ifconfig"}
+	}
+
 	return args
 }

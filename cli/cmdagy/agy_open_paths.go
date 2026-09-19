@@ -33,7 +33,8 @@ func ResolveAntigravityCLI() result.Result[string] {
 	return checkCandidatePaths(getCandidateAntigravityCLIPaths())
 }
 
-func resolveAntigravityBinary() result.Result[string] {
+// ResolveAntigravityBinary locates either the Antigravity IDE or CLI executable.
+func ResolveAntigravityBinary() result.Result[string] {
 	ideRes := ResolveAntigravityIDE()
 	if ideRes.IsSuccess() {
 		return ideRes

@@ -74,11 +74,7 @@ func printInjectedBanner(online []db.SSHConnection, cmdStr string) {
 func printNodeResultOutput(alias, ip, out string, err error) {
 	fmt.Printf("  %s─── [%s | %s] ───%s\n", constants.ColorCyan, alias, ip, constants.ColorReset)
 	if err != nil {
-		fmt.Printf("    %sExecute error: %v%s\n", constants.ColorRed, err, constants.ColorReset)
-		if strings.TrimSpace(out) != "" {
-			fmt.Printf("    %s\n", strings.ReplaceAll(strings.TrimSpace(out), "\n", "\n    "))
-		}
-		fmt.Println()
+		printNodeExecuteError(err, out)
 		return
 	}
 	trimmed := strings.TrimSpace(out)
@@ -87,6 +83,14 @@ func printNodeResultOutput(alias, ip, out string, err error) {
 		return
 	}
 	fmt.Printf("    %s\n\n", strings.ReplaceAll(trimmed, "\n", "\n    "))
+}
+
+func printNodeExecuteError(err error, out string) {
+	fmt.Printf("    %sExecute error: %v%s\n", constants.ColorRed, err, constants.ColorReset)
+	if strings.TrimSpace(out) != "" {
+		fmt.Printf("    %s\n", strings.ReplaceAll(strings.TrimSpace(out), "\n", "\n    "))
+	}
+	fmt.Println()
 }
 
 func printExecFinishSummary(onlineCount int, offline []db.SSHConnection) {

@@ -76,18 +76,6 @@ func executeRmTargets(db *store.DB, targets []string, isYes, isDbOnly bool) erro
 	return nil
 }
 
-func buildRmNotFoundError(missing []string) *apperror.AppError {
-	if len(missing) == 1 {
-		return apperror.NewNotFoundError(fmt.Sprintf("no repository matched %q", missing[0]))
-	}
-
-	if len(missing) > 1 {
-		return apperror.NewNotFoundError(fmt.Sprintf("no repository matched: %s", strings.Join(missing, ", ")))
-	}
-
-	return apperror.NewNotFoundError("no repository matched")
-}
-
 func resolveRmMatches(db *store.DB, targets []string) ([]model.ScanRecord, []string) {
 	matches, missing := ResolveMultiRepos(db, targets)
 	extraMatches, finalMissing := resolveDiskTargets(missing)
@@ -382,14 +370,15 @@ func removeRepoDisk(absPath string, isDbOnly bool) *apperror.AppError {
 		return nil
 	}
 
-	if err := safeRemoveWithRetry(absPath); err != nil {
-		if isProcessLockError(err) {
-			fmt.Fprintf(os.Stderr, "rm: warning: some files in %s are locked by another process; untracking repo\n", absPath)
-			return nil
-		}
-
-		return apperror.WrapSimple(err, "remove dir")
+	err := safeRemoveWithRetry(absPath)
+	if err == nil {
+		return nil
 	}
 
-	return nil
+	if isProcessLockError(err) {
+		fmt.Fprintf(os.Stderr, "rm: warning: some files in %s are locked by another process; untracking repo\n", absPath)
+		return nil
+	}
+
+	return apperror.WrapSimple(err, "remove dir")
 }

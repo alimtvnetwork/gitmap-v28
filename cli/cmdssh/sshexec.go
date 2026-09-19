@@ -241,10 +241,7 @@ func connectSSHClient(c db.SSHConnection, headers ...string) (*ssh.Client, bool)
 func connectWithKeyPath(c db.SSHConnection, header string) (*ssh.Client, bool) {
 	client, err := crypto.ConnectWithKey(c.IPAddress, c.Username, c.KeyPath)
 	if err != nil {
-		if header != "" {
-			fmt.Printf("%s Connect error: %v\n", header, err)
-		}
-
+		printHeaderError(header, "Connect error", err)
 		return nil, false
 	}
 
@@ -254,23 +251,23 @@ func connectWithKeyPath(c db.SSHConnection, header string) (*ssh.Client, bool) {
 func connectWithEncryptedPassword(c db.SSHConnection, header string) (*ssh.Client, bool) {
 	passBytes, decErr := crypto.Decrypt(c.EncryptedPassword, getEncryptionKey())
 	if decErr != nil {
-		if header != "" {
-			fmt.Printf("%s Decrypt error: %v\n", header, decErr)
-		}
-
+		printHeaderError(header, "Decrypt error", decErr)
 		return nil, false
 	}
 
 	client, err := crypto.ConnectWithPassword(c.IPAddress, c.Username, string(passBytes))
 	if err != nil {
-		if header != "" {
-			fmt.Printf("%s Connect error: %v\n", header, err)
-		}
-
+		printHeaderError(header, "Connect error", err)
 		return nil, false
 	}
 
 	return client, true
+}
+
+func printHeaderError(header, prefix string, err error) {
+	if header != "" {
+		fmt.Printf("%s %s: %v\n", header, prefix, err)
+	}
 }
 
 func ensureGitmapInstalled(client *ssh.Client, osType, header string) error {

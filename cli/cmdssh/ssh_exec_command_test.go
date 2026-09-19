@@ -1,6 +1,7 @@
 package cmdssh
 
 import (
+	"strings"
 	"testing"
 
 	"github.com/alimtvnetwork/gitmap-v28/cli/cliexit"

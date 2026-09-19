@@ -153,16 +153,23 @@ func transferWorker(c db.SSHConnection, srcPath, rawDest string, data []byte, wg
 func resolveRemoteDestPath(srcPath, rawDest, osType string) string {
 	expanded := ExpandUniversalPath(rawDest, osType)
 	base := filepath.Base(srcPath)
-	isWin := isWindowsOS(osType)
-
-	if strings.HasSuffix(rawDest, "/") || strings.HasSuffix(rawDest, "\\") || filepath.Ext(rawDest) == "" {
-		if isWin {
-			return filepath.Join(expanded, base)
-		}
-		return strings.TrimRight(expanded, "/") + "/" + base
+	if !isDirDestination(rawDest) {
+		return expanded
 	}
 
-	return expanded
+	return joinRemotePath(expanded, base, isWindowsOS(osType))
+}
+
+func isDirDestination(rawDest string) bool {
+	return strings.HasSuffix(rawDest, "/") || strings.HasSuffix(rawDest, "\\") || filepath.Ext(rawDest) == ""
+}
+
+func joinRemotePath(dir, base string, isWin bool) string {
+	if isWin {
+		return filepath.Join(dir, base)
+	}
+
+	return strings.TrimRight(dir, "/") + "/" + base
 }
 
 func buildRemoteWriteCmd(destPath string, data []byte, isWin bool) string {

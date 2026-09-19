@@ -62,18 +62,26 @@ func purgeRepoPipelineFolder(dir string) (int, int64) {
 	var count int
 	var totalBytes int64
 	for _, e := range entries {
-		if !e.IsDir() && isPurgeablePipelineFile(e.Name()) {
-			filePath := filepath.Join(dir, e.Name())
-			if fi, sErr := os.Stat(filePath); sErr == nil {
-				totalBytes += fi.Size()
-			}
-			if rErr := os.Remove(filePath); rErr == nil {
-				count++
-			}
+		if e.IsDir() || !isPurgeablePipelineFile(e.Name()) {
+			continue
 		}
+		c, b := purgeSinglePipelineFile(filepath.Join(dir, e.Name()))
+		count += c
+		totalBytes += b
 	}
 
 	return count, totalBytes
+}
+
+func purgeSinglePipelineFile(filePath string) (int, int64) {
+	var size int64
+	if fi, sErr := os.Stat(filePath); sErr == nil {
+		size = fi.Size()
+	}
+	if rErr := os.Remove(filePath); rErr == nil {
+		return 1, size
+	}
+	return 0, 0
 }
 
 func isPurgeablePipelineFile(name string) bool {

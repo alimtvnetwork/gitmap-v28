@@ -32,13 +32,14 @@ func migrateOrFallbackPipelineDb(dir, slug, targetPath string) string {
 		filepath.Join(store.BinaryDataDir(), "pipeline_db", "pipeline_"+slug+".db"),
 	}
 	for _, cand := range candidates {
-		if isFileExisting(cand) {
-			if err := os.Rename(cand, targetPath); err == nil {
-				return targetPath
-			}
-
-			return cand
+		if !isFileExisting(cand) {
+			continue
 		}
+		if err := os.Rename(cand, targetPath); err == nil {
+			return targetPath
+		}
+
+		return cand
 	}
 
 	return targetPath

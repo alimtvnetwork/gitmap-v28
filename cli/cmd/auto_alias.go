@@ -223,11 +223,12 @@ func splitCamelCaseAcronym(name string) string {
 
 func findCompoundAcronym(name string) string {
 	for _, p := range knownCompoundPrefixes {
-		if strings.HasPrefix(name, p) && len(name) > len(p) {
-			suffix := name[len(p):]
-			if isKnownCompoundSuffix(suffix) {
-				return string([]byte{p[0], suffix[0]})
-			}
+		if !strings.HasPrefix(name, p) || len(name) <= len(p) {
+			continue
+		}
+		suffix := name[len(p):]
+		if isKnownCompoundSuffix(suffix) {
+			return string([]byte{p[0], suffix[0]})
 		}
 	}
 

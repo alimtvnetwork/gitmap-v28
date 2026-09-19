@@ -29,9 +29,9 @@ func TestNormalizeMultiCommands(t *testing.T) {
 
 func TestFilterSSHConns_ExceptAndExclude(t *testing.T) {
 	conns := []db.SSHConnection{
-		{ID: 1, Alias: "main", IPAddress: "192.168.1.16", Username: "root"},
-		{ID: 2, Alias: "worker-1", IPAddress: "192.168.1.14", Username: "ubuntu"},
-		{ID: 3, Alias: "worker-2", IPAddress: "192.168.1.8", Username: "admin"},
+		{Alias: "main", IPAddress: "192.168.1.16", Username: "root"},
+		{Alias: "worker-1", IPAddress: "192.168.1.14", Username: "ubuntu"},
+		{Alias: "worker-2", IPAddress: "192.168.1.8", Username: "admin"},
 	}
 
 	filtered := filterSSHConns(conns, "worker-1,192.168.1.8")
@@ -39,8 +39,8 @@ func TestFilterSSHConns_ExceptAndExclude(t *testing.T) {
 		t.Fatalf("expected 1 connection (main), got %d", len(filtered))
 	}
 
-	byId := filterSSHConns(conns, "1")
-	if len(byId) != 2 || byId[0].Alias != "worker-1" {
-		t.Fatalf("expected exclusion by ID=1, got %d", len(byId))
+	byUserHost := filterSSHConns(conns, "root@192.168.1.16")
+	if len(byUserHost) != 2 || byUserHost[0].Alias != "worker-1" {
+		t.Fatalf("expected exclusion by userHost, got %d", len(byUserHost))
 	}
 }

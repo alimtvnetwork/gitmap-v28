@@ -69,6 +69,35 @@ gitmap pl <subcommand> [flags]
 
 ---
 
+## Examples
+
+```bash
+# Check live CI/CD pipeline status and ETA
+gitmap pipeline status
+
+# Machine-readable ETA in seconds
+gitmap pipeline waittime
+
+# View failure logs for the latest commit or specific offset
+gitmap pipeline errors
+gitmap pipeline errors -1
+
+# Clear pipeline logs and database for current repository
+gitmap pipeline clear -y
+
+# Clear pipeline data for a specific repository
+gitmap pipeline clear alimtvnetwork/gitmap-v28 -y
+
+# Batch fix failing pipelines with Google Antigravity
+gitmap pipeline errors agy fix
+gitmap aef
+
+# View pipeline history tree
+gitmap pipeline history -n 5
+```
+
+---
+
 ## Accurate Failure Detection Architecture
 
 GitMap pipeline telemetry prevents false-positive "clean status" masking:

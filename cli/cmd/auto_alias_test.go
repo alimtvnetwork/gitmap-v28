@@ -4,6 +4,7 @@ import (
 	"testing"
 
 	"github.com/alimtvnetwork/gitmap-v28/cli/cmdinstall"
+	"github.com/alimtvnetwork/gitmap-v28/cli/model"
 	"github.com/alimtvnetwork/gitmap-v28/cli/store"
 )
 
@@ -135,11 +136,29 @@ func TestAutoAlias_PopulateRepoAliases(t *testing.T) {
 		t.Fatalf("Migrate failed: %v", err)
 	}
 
-	repo, err := db.CreateRepo("/path/to/anti-gravity-manager", "agm-slug", "anti-gravity-manager", "main", "note")
+	repoID := seedTestRepo(t, db, "/path/to/anti-gravity-manager", "agm-slug", "anti-gravity-manager")
+	assertAutoAliasPopulated(t, db, repoID, "agm")
+}
+
+func seedTestRepo(t *testing.T, db *store.DB, path, slug, name string) int64 {
+	t.Helper()
+	err := db.UpsertRepos([]model.ScanRecord{
+		{AbsolutePath: path, Slug: slug, RepoName: name, Branch: "main", Notes: "note"},
+	})
 	if err != nil {
-		t.Fatalf("CreateRepo failed: %v", err)
+		t.Fatalf("UpsertRepos failed: %v", err)
 	}
 
+	repos, err := db.FindBySlug(slug)
+	if err != nil || len(repos) == 0 {
+		t.Fatalf("FindBySlug failed: %v", err)
+	}
+
+	return repos[0].ID
+}
+
+func assertAutoAliasPopulated(t *testing.T, db *store.DB, wantRepoID int64, wantAlias string) {
+	t.Helper()
 	count, appErr := PopulateRepoAliasesWithCount(db)
 	if appErr != nil {
 		t.Fatalf("PopulateRepoAliasesWithCount failed: %v", appErr)
@@ -148,12 +167,12 @@ func TestAutoAlias_PopulateRepoAliases(t *testing.T) {
 		t.Errorf("count = %d; want 1", count)
 	}
 
-	alias, err := db.FindAliasByName("agm")
+	alias, err := db.FindAliasByName(wantAlias)
 	if err != nil {
-		t.Fatalf("FindAliasByName(agm) failed: %v", err)
+		t.Fatalf("FindAliasByName(%s) failed: %v", wantAlias, err)
 	}
-	if alias.RepoID != repo.ID {
-		t.Errorf("alias.RepoID = %d; want %d", alias.RepoID, repo.ID)
+	if alias.RepoID != wantRepoID {
+		t.Errorf("alias.RepoID = %d; want %d", alias.RepoID, wantRepoID)
 	}
 }
 
@@ -168,11 +187,12 @@ func TestCmdInstall_EnsureTrackedRepoAliases(t *testing.T) {
 		t.Fatalf("Migrate failed: %v", err)
 	}
 
-	_, err = db.CreateRepo("/path/to/wp-git-log", "wpgl-slug", "wp-git-log", "main", "note")
-	if err != nil {
-		t.Fatalf("CreateRepo failed: %v", err)
-	}
+	seedTestRepo(t, db, "/path/to/wp-git-log", "wpgl-slug", "wp-git-log")
+	assertTrackedRepoAliasesEnsured(t, db)
+}
 
+func assertTrackedRepoAliasesEnsured(t *testing.T, db *store.DB) {
+	t.Helper()
 	count, err := cmdinstall.EnsureTrackedRepoAliases(db)
 	if err != nil {
 		t.Fatalf("EnsureTrackedRepoAliases failed: %v", err)

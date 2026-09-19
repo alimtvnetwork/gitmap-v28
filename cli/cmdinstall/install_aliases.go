@@ -48,14 +48,19 @@ func countCreatedFallbackAliases(db *store.DB, repos []store.UnaliasedRepo) int 
 	return created
 }
 
-func createSingleFallbackAlias(db *store.DB, r store.UnaliasedRepo) bool {
-	alias := r.RepoName
-	if GenerateAutoAliasFn != nil {
-		if gen := GenerateAutoAliasFn(r.RepoName); gen != "" {
-			alias = gen
-		}
+func resolveBaseAlias(repoName string) string {
+	if GenerateAutoAliasFn == nil {
+		return repoName
+	}
+	if gen := GenerateAutoAliasFn(repoName); gen != "" {
+		return gen
 	}
 
+	return repoName
+}
+
+func createSingleFallbackAlias(db *store.DB, r store.UnaliasedRepo) bool {
+	alias := resolveBaseAlias(r.RepoName)
 	unique := resolveUniqueCandidate(alias, db.AliasExists)
 	if unique == "" {
 		return false

@@ -116,4 +116,3 @@ func collectUserHomeDatabases(add func(SplitDatabaseEntry)) {
 	collectSubdirDatabases(gitmapDir, "pipeline", "pipeline", add)
 	collectSubdirDatabases(gitmapDir, "repodb", "repodb", add)
 }
-

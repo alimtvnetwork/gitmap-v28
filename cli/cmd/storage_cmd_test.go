@@ -124,4 +124,3 @@ func TestCollectStorageEntries(t *testing.T) {
 		t.Errorf("expected at least 1 database entry, got 0")
 	}
 }
-

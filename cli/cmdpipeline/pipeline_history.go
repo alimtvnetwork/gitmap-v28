@@ -2,6 +2,7 @@ package cmdpipeline
 
 import (
 	"fmt"
+	"path/filepath"
 	"strconv"
 	"strings"
 

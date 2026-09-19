@@ -56,12 +56,14 @@ func handlePromptAction(item *RemediationItem, action string) string {
 }
 
 func resolveDirtyFiles(item *RemediationItem) []string {
-	if len(item.RepoPath) > 0 {
-		diag := gitutil.InspectDirtyState(item.RepoPath)
-		if len(diag.AllFiles) > 0 {
-			item.Files = diag.AllFiles
-			return diag.AllFiles
-		}
+	if len(item.RepoPath) == 0 {
+		return item.Files
+	}
+
+	diag := gitutil.InspectDirtyState(item.RepoPath)
+	if len(diag.AllFiles) > 0 {
+		item.Files = diag.AllFiles
+		return diag.AllFiles
 	}
 
 	return item.Files

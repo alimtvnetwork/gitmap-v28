@@ -122,18 +122,22 @@ func populateRunsIntoPayload(repo string, runs []ghRunItem, p *PipelineErrorLogs
 
 		return
 	}
-	if shouldSkipFallback(p, runs) {
+	if isSkipFallback(p, runs) {
 		return
 	}
 	_ = ApplyPreviousRunFallbackToPayload(p, repo, runs)
 }
 
-func shouldSkipFallback(p *PipelineErrorLogsPayload, runs []ghRunItem) bool {
+func isSkipFallback(p *PipelineErrorLogsPayload, runs []ghRunItem) bool {
+	if p.Conclusion == "success" || p.IsRunning {
+		return true
+	}
+
 	if hasFailingRuns(runs) {
 		return false
 	}
 
-	return p.Conclusion == "success" || p.IsRunning
+	return true
 }
 
 func hasFailingRuns(runs []ghRunItem) bool {
@@ -147,8 +151,13 @@ func hasFailingRuns(runs []ghRunItem) bool {
 }
 
 func isFailingConclusion(conclusion string) bool {
-	switch strings.ToLower(strings.TrimSpace(conclusion)) {
-	case "failure", "timed_out", "cancelled", "startup_failure":
+	lower := strings.ToLower(strings.TrimSpace(conclusion))
+	if strings.HasPrefix(lower, "cancel") {
+		return true
+	}
+
+	switch lower {
+	case "failure", "timed_out", "startup_failure":
 		return true
 	default:
 		return false
@@ -386,22 +395,38 @@ func normalizeWorkflowKey(name string) string {
 func buildWorkflowScopeKey(r ghRunItem) string {
 	nameKey := normalizeWorkflowKey(r.Name)
 	branchKey := strings.ToLower(strings.TrimSpace(r.HeadBranch))
-	shaKey := strings.ToLower(strings.TrimSpace(r.HeadSha))
+	if len(nameKey) == 0 {
+		return ""
+	}
+	if len(branchKey) == 0 {
+		return nameKey
+	}
 
-	return branchKey + ":" + shaKey + ":" + nameKey
+	return branchKey + ":" + nameKey
 }
 
 func checkAndCollectRun(r ghRunItem, succeeded map[string]bool, active *[]ghRunItem) {
 	scopeKey := buildWorkflowScopeKey(r)
 	if r.Conclusion == "success" {
-		succeeded[scopeKey] = true
+		recordWorkflowSuccess(scopeKey, succeeded)
 
 		return
 	}
-	if isFailingConclusion(r.Conclusion) && !succeeded[scopeKey] {
-		succeeded[scopeKey] = true
-		*active = append(*active, r)
+	if !isFailingConclusion(r.Conclusion) || isWorkflowScopeSucceeded(scopeKey, succeeded) {
+		return
 	}
+
+	*active = append(*active, r)
+}
+
+func recordWorkflowSuccess(scopeKey string, succeeded map[string]bool) {
+	if len(scopeKey) > 0 {
+		succeeded[scopeKey] = true
+	}
+}
+
+func isWorkflowScopeSucceeded(scopeKey string, succeeded map[string]bool) bool {
+	return len(scopeKey) > 0 && succeeded[scopeKey]
 }
 
 func filterFailingRunsByTargetSha(runs []ghRunItem) []ghRunItem {

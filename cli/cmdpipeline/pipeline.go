@@ -150,15 +150,15 @@ func checkErrorLogsSubcmd(subcmd string, args []string) (bool, error) {
 		return true, handlePipelineErrorLogs(args)
 	}
 
-	if isErrorLogsSubcmd(subcmd) {
-		if len(args) > 1 && isPipelineClearAction(args[1]) {
-			return true, handlePipelineDB(append([]string{"clear"}, args[2:]...))
-		}
-
-		return true, handlePipelineErrorLogs(args[1:])
+	if !isErrorLogsSubcmd(subcmd) {
+		return false, nil
 	}
 
-	return false, nil
+	if len(args) > 1 && isPipelineClearAction(args[1]) {
+		return true, handlePipelineDB(append([]string{"clear"}, args[2:]...))
+	}
+
+	return true, handlePipelineErrorLogs(args[1:])
 }
 
 func isPipelineClearAction(action string) bool {

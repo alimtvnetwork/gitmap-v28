@@ -7,7 +7,6 @@ import (
 	"path/filepath"
 	"strings"
 
-	"github.com/alimtvnetwork/gitmap-v28/cli/apperror"
 	"github.com/alimtvnetwork/gitmap-v28/cli/cmddb"
 	"github.com/alimtvnetwork/gitmap-v28/cli/gitutil"
 	"github.com/alimtvnetwork/gitmap-v28/cli/store"
@@ -241,19 +240,25 @@ func executeErrorTableTruncates(db *sql.DB) int {
 func truncateOneErrorTable(db *sql.DB, tableName string) int {
 	count := countSingleTable(db, tableName)
 	query := fmt.Sprintf("DELETE FROM %s;", tableName)
-	_, _ = db.Exec(query)
+	if _, err := db.Exec(query); err != nil {
+		return 0
+	}
 
 	return count
 }
 
 func resetErrorSequence(db *sql.DB) {
 	q := "DELETE FROM sqlite_sequence WHERE name IN ('PipelineCompactErrorLog', 'PipelineDetailErrorLog', 'PipelineErrorLog', 'PipelineErrorRecord');"
-	_, _ = db.Exec(q)
+	if _, err := db.Exec(q); err != nil {
+		return
+	}
 }
 
 func runDbVacuum(db *sql.DB, path string) int64 {
 	beforeSize := fileSizeBytes(path)
-	_, _ = db.Exec("VACUUM;")
+	if _, err := db.Exec("VACUUM;"); err != nil {
+		return 0
+	}
 	afterSize := fileSizeBytes(path)
 	if beforeSize > afterSize {
 		return beforeSize - afterSize
@@ -269,14 +274,6 @@ func fileSizeBytes(path string) int64 {
 	}
 
 	return fi.Size()
-}
-
-func wrapStorageResetError(err error, op string) *apperror.AppError {
-	if err == nil {
-		return nil
-	}
-
-	return apperror.WrapSimple(err, op)
 }
 
 func printStorageResetSummary(stats StorageResetStats, isDryRun bool) {

@@ -3,6 +3,8 @@ package pipelinedb
 import (
 	"strings"
 	"testing"
+
+	"github.com/alimtvnetwork/gitmap-v28/cli/store"
 )
 
 func TestPipelineSplitDBLifecycle(t *testing.T) {
