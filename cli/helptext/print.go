@@ -136,6 +136,17 @@ var helpAliases = map[string]string{
 	"ag":                       "agy",
 	"antigravity":              "agy",
 	"scripts":                  "ai",
+	"ai-create":                "ai",
+	"ai-new":                   "ai",
+	"ai-scaffold":              "ai",
+	"ai-list":                  "ai",
+	"ai-run":                   "ai",
+	"ai-fix":                   "ai",
+	"scripts-create":           "ai",
+	"scripts-new":              "ai",
+	"scripts-list":             "ai",
+	"scripts-run":              "ai",
+	"scripts-fix":              "ai",
 }
 
 func resolveHelpAlias(cmd string) string {

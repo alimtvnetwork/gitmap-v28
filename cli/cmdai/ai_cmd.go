@@ -120,6 +120,7 @@ func isAiSubcommand(token string) bool {
 	clean := strings.ToLower(token)
 	isKnown := clean == "list" || clean == "ls" || clean == "catalog" ||
 		clean == "run" || clean == "exec" || clean == "fix" ||
+		clean == "create" || clean == "new" || clean == "scaffold" || clean == "gen" ||
 		clean == "help" || clean == "--help" || clean == "-h"
 
 	return isKnown
@@ -140,6 +141,7 @@ func init() {
 	AiCmd.AddCommand(fixCmd)
 
 	initListFlags()
+	initCreateCmd()
 }
 
 func initListFlags() {

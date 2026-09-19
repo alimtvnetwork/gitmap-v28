@@ -58,15 +58,16 @@ func MasterScriptCatalog() []ScriptMetadata {
 	return masterCatalog
 }
 
-// AllScripts returns all registered AI scripts in the master catalog.
+// AllScripts returns all registered AI scripts in the master catalog and dynamically discovered scripts.
 func AllScripts() []ScriptMetadata {
-	return masterCatalog
+	return GetAllScripts()
 }
 
 // FindScriptByToken searches the catalog by numeric prefix, slug, filename, or alias.
 func FindScriptByToken(token string) (ScriptMetadata, *apperror.AppError) {
 	clean := strings.ToLower(strings.TrimSpace(token))
-	for _, s := range masterCatalog {
+	scripts := GetAllScripts()
+	for _, s := range scripts {
 		isMatch := matchesScriptToken(s, clean)
 		if isMatch {
 			return s, nil

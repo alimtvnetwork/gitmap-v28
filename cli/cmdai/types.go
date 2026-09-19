@@ -76,6 +76,29 @@ type ScriptListOptions struct {
 	IsVerbose      bool   `json:"isVerbose"`
 }
 
+// ScriptTemplateType defines the archetype of script to scaffold.
+type ScriptTemplateType string
+
+const (
+	TemplateLinter    ScriptTemplateType = "linter"
+	TemplateFixer     ScriptTemplateType = "fixer"
+	TemplateAuditor   ScriptTemplateType = "auditor"
+	TemplateChecker   ScriptTemplateType = "checker"
+	TemplateGenerator ScriptTemplateType = "generator"
+	TemplateUtil      ScriptTemplateType = "util"
+)
+
+// CreateScriptOptions configures the generation of a new AI script.
+type CreateScriptOptions struct {
+	Name        string             `json:"name"`
+	Type        ScriptTemplateType `json:"type"`
+	Description string             `json:"description"`
+	IsParallel  bool               `json:"isParallel"`
+	HasFixMode  bool               `json:"hasFixMode"`
+	IsDryRun    bool               `json:"isDryRun"`
+	IsForce     bool               `json:"isForce"`
+}
+
 type (
 	// ScriptMetadataResult wraps a single ScriptMetadata outcome with an AppError.
 	ScriptMetadataResult = result.Result[ScriptMetadata]
@@ -88,4 +111,8 @@ type (
 
 	// FixTargetDefResult wraps a FixTargetDef outcome with an AppError.
 	FixTargetDefResult = result.Result[FixTargetDef]
+
+	// CreateScriptResult wraps the generated script path outcome with an AppError.
+	CreateScriptResult = result.Result[string]
 )
+

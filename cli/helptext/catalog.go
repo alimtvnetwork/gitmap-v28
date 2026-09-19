@@ -85,6 +85,10 @@ var topicSummaries = map[string]string{
 	"schedules":              "Manage scheduled tasks, macro schedules, OS startup tasks, isolated split SQLite databases, run history, and execution logs.",
 	"ai":                     "Native AI scripts automation catalog, streaming execution, and repository autofix engine.",
 	"scripts":                "Native AI scripts automation catalog, streaming execution, and repository autofix engine.",
+	"ai-create":              "Scaffold a new AI automation script skeleton with standard archetypes, flags, and error handling.",
+	"ai-list":                "List registered and dynamically discovered AI scripts with status and category filtering.",
+	"ai-run":                 "Execute a registered or dynamic AI automation script by number, slug, or alias with streaming output.",
+	"ai-fix":                 "Run standardized repository autofix targets for coding guidelines, newlines, naming, and paths.",
 }
 
 // GetTopicDetailedSummary returns documentation content for a specific command topic.

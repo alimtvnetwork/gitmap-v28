@@ -237,7 +237,8 @@ Gitmap embeds native discovery, live streaming execution, and repository autofix
 | **Commit Feature** | `gitmap commit-push-feature` | `gitmap cpf "<msg>"` | Stage, commit, and push feature branch |
 | **Commit Bug Fix** | `gitmap commit-push-bug` | `gitmap cpb "<msg>"` | Stage, commit, and push bugfix branch |
 | **Commit Release** | `gitmap commit-push-release` | `gitmap cpr "<msg>"` | Stage, commit, and push release chore |
-| **Pull & Push** | `gitmap pull-commit-push` | `gitmap pcp "<msg>"` | Pull latest, commit, and push |
+| **AI Scripts** | `gitmap ai [run/list/fix]` | `gitmap scripts` | Native AI scripts runner, catalog, and fix suite |
+| **AI Scaffolder** | `gitmap ai create <name>` | `gitmap scripts new <name>` | Scaffold new AI linter/fixer/auditor script skeleton |
 | **Antigravity** | `gitmap antigravity` | `gitmap agy`, `gitmap ag` | AI agent workspaces and config sync |
 | **VS Code PM** | `gitmap vscode` | `gitmap vsc` | VS Code Project Manager integrations |
 | **Scheduler** | `gitmap schedule` | `gitmap sc` | Background cron and interval scheduler |
@@ -266,9 +267,11 @@ gitmap pipeline-ai status --json
 gitmap find-files "record_dir.go" -ext "go"
 gitmap find-regex-read "func ProcessCd" -ext "go"
 
-# Workflow 4: AI Scripts Discovery, Execution and Standard Autofix
+# Workflow 4: AI Scripts Discovery, Execution, Scaffolding and Standard Autofix
 
 gitmap ai list --category guidelines
+gitmap ai create custom-linter --type linter --parallel
+gitmap ai new schema-validator --type auditor --dry-run
 gitmap ai run 01
 gitmap ai fix all
 ```

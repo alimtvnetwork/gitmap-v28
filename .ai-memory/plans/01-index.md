@@ -8,8 +8,9 @@ None.
 
 ## Recent Completed Tasks Register (Last 20 Tasks)
 
-1. [33-ai-scripts-engine-ssh-authkey-and-feature-parity.md](completed/33-ai-scripts-engine-ssh-authkey-and-feature-parity.md): AI Scripts Engine, SSH Authorized Key Deployment & Feature Parity
-2. [32-pipeline-deep-eta-and-repo-folder-parity.md](completed/32-pipeline-deep-eta-and-repo-folder-parity.md): Deep Pipeline ETA Decision Engine, Database Telemetry Persistence, and Repository Folder Parity
+1. [34-generic-ai-scripts-creator-and-scaffolding-engine.md](completed/34-generic-ai-scripts-creator-and-scaffolding-engine.md): Generic AI Scripts Creator, Scaffolding Engine & Dynamic Catalog Discovery
+2. [33-ai-scripts-engine-ssh-authkey-and-feature-parity.md](completed/33-ai-scripts-engine-ssh-authkey-and-feature-parity.md): AI Scripts Engine, SSH Authorized Key Deployment & Feature Parity
+3. [32-pipeline-deep-eta-and-repo-folder-parity.md](completed/32-pipeline-deep-eta-and-repo-folder-parity.md): Deep Pipeline ETA Decision Engine, Database Telemetry Persistence, and Repository Folder Parity
 3. [31-pipeline-repo-folder-forward-slash-clear-and-accurate-eta.md](completed/31-pipeline-repo-folder-forward-slash-clear-and-accurate-eta.md): Pipeline Repository Folder Architecture, Forward Slash Paths, Clear Commands & Accurate ETA
 4. [30-ssh-exec-copy-mv-env-and-rm-sync-resilience.md](completed/30-ssh-exec-copy-mv-env-and-rm-sync-resilience.md): SSH Exec Polish, Remote Copy/Move, Environment Management & CLI Resilience Suite
 4. [29-auto-aliasing-and-error-storage-reset.md](completed/29-auto-aliasing-and-error-storage-reset.md): Auto-Aliasing Engine, Scan Bracket/Tree Views & Error Storage Reset Suite
