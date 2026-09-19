@@ -115,7 +115,7 @@ func renderPipelineAIStatusTerminal(p PipelineStatusPayload) {
 		fmt.Println()
 		fmt.Printf("  %s🞠 AI Automation Next Action:%s\n", constants.ColorCyan, constants.ColorReset)
 		fmt.Printf("     Run: %s%s%s\n", constants.ColorGreen, p.NextAiCommand, constants.ColorReset)
-		fmt.Printf("     (Automatically delays %ds then queries status)\n", p.EtaSeconds)
+		fmt.Printf("     (Automatically delays %s then queries status)\n", formatEtaDisplay(p.EtaSeconds))
 		fmt.Println()
 	}
 }

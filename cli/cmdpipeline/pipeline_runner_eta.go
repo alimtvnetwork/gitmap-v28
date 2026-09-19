@@ -56,8 +56,8 @@ func isRunnerActive(info *RunnerETAInfo) bool {
 }
 
 func runRunnerCountdownLoop(info *RunnerETAInfo) {
-	fmt.Printf("%s⏳ [runner-eta] Waiting for runner completion (ETA ~%ds)...%s\n",
-		constants.ColorYellow, info.EtaSeconds, constants.ColorReset)
+	fmt.Printf("%s⏳ [runner-eta] Waiting for runner completion (ETA %s)...%s\n",
+		constants.ColorYellow, formatEtaDisplay(info.EtaSeconds), constants.ColorReset)
 
 	remaining := info.EtaSeconds
 	for remaining > 0 {

@@ -231,7 +231,7 @@ func renderSingleWorkflowStatus(sb *strings.Builder, runs []ghRunItem, wf Commit
 
 func formatWorkflowETA(eta int, status string) string {
 	if (status == "in_progress" || status == "queued") && eta > 0 {
-		return fmt.Sprintf("(ETA: ~%ds)", eta)
+		return fmt.Sprintf("(ETA: %s)", formatEtaDisplay(eta))
 	}
 
 	return ""
