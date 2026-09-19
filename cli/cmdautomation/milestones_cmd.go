@@ -93,10 +93,6 @@ func printMilestonesNotes(notes string) {
 		constants.ColorYellow, constants.ColorReset)
 }
 
-func getMilestonesOptions() MilestonesOptions {
-	return milestonesOpts
-}
-
 func init() {
 	AutomationCmd.AddCommand(milestonesCmd)
 	initMilestonesFlags()

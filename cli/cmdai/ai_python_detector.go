@@ -12,19 +12,19 @@ import (
 
 var (
 	cachedRuntime PythonRuntime
-	cachedErr     *apperror.AppError
+	errCached     *apperror.AppError
 	detectorOnce  sync.Once
 )
 
 // DetectPythonRuntime discovers a local Python 3 runtime with thread-safe memoization.
 func DetectPythonRuntime() (PythonRuntime, *apperror.AppError) {
 	detectorOnce.Do(func() {
-		cachedRuntime, cachedErr = detectRuntimeInternal()
+		cachedRuntime, errCached = detectRuntimeInternal()
 	})
 
-	hasErr := cachedErr != nil
+	hasErr := errCached != nil
 	if hasErr {
-		return PythonRuntime{}, cachedErr
+		return PythonRuntime{}, errCached
 	}
 
 	return cachedRuntime, nil
@@ -34,7 +34,7 @@ func DetectPythonRuntime() (PythonRuntime, *apperror.AppError) {
 func ResetPythonDetector() {
 	detectorOnce = sync.Once{}
 	cachedRuntime = PythonRuntime{}
-	cachedErr = nil
+	errCached = nil
 }
 
 func detectRuntimeInternal() (PythonRuntime, *apperror.AppError) {

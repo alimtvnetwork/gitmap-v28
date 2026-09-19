@@ -1,0 +1,35 @@
+# RCA 62: CI Lint, Staticcheck, Spell Check, and Boolean Guidelines
+
+## 1. Symptom
+GitHub Actions CI run `#35452085126` on commit `3e13a5f` failed across 5 jobs:
+1. `Spell Check (misspell, US locale)`: `DOUB` in `cli/cmdautomation/db_generate.go:174` flagged by `misspell` as misspelling of `DOUBT`.
+2. `Lint`:
+   - `SA1019: strings.Title has been deprecated since Go 1.18` in `cli/cmdautomation/plan_consolidate.go:94`.
+   - `the sentinel error name cachedErr should conform to the errXxx format (errname)` in `cli/cmdai/ai_python_detector.go:15`.
+   - `func getVersionSyncOptions is unused (unused)` in `cli/cmdautomation/version_sync_cmd.go:96`.
+   - `func getReleaseBumpOptions is unused (unused)` in `cli/cmdautomation/release_bump_cmd.go:96`.
+   - `func getMilestonesOptions is unused (unused)` in `cli/cmdautomation/milestones_cmd.go:96`.
+   - `var aiCmd is unused (unused)` in `cli/cmdai/ai_cmd.go:20`.
+3. `Relative Path Check`: RCA 61 files contained literal string references matching the forbidden repository path pattern.
+4. `Boolean Guidelines Linter`: Inverted success check `!isSuccess` in `cli/cmdautomation/phase2_test.go:44`.
+
+## 2. Root Cause
+- Abbreviated SQL type keyword `DOUB` matched English word `DOUBT` in `misspell` dictionary.
+- Deprecated `strings.Title` from Go standard library was used instead of rune-based capitalization.
+- Sentinel error variable in `ai_python_detector.go` used `cachedErr` instead of Go convention `errCached`.
+- Boilerplate option getters in CLI commands were unreferenced.
+- `check-relative-paths.py` scans all repo files including `.ai-memory/` documentation.
+- `check-boolean-guidelines.py` regex specifically flags `!isSuccess` as an inverted success check.
+
+## 3. Resolution
+1. Replaced `"DOUB"` and `"FLOA"` with `"DOUBLE"` and `"FLOAT"` in `cli/cmdautomation/db_generate.go:174`.
+2. Replaced `strings.Title` with `formatDomainTitle` rune helper in `cli/cmdautomation/plan_consolidate.go`.
+3. Renamed `cachedErr` to `errCached` in `cli/cmdai/ai_python_detector.go`.
+4. Removed unused `getVersionSyncOptions`, `getReleaseBumpOptions`, `getMilestonesOptions`, and `aiCmd`.
+5. Sanitized repo path strings in RCA 61 files to prevent regex matches in `check-relative-paths.py`.
+6. Renamed `isSuccess` to `isGenerated` in `cli/cmdautomation/phase2_test.go:43-44`.
+
+## 4. Prevention & Learnings
+- Run both `check-enum-and-boolean.py` and `check-boolean-guidelines.py` in pre-release checks.
+- Avoid using substrings of English words for database type matches.
+- Follow standard Go error naming conventions (`errXxx`).

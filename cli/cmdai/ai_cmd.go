@@ -17,8 +17,6 @@ var (
 		RunE:    runDefaultAiCmd,
 	}
 
-	aiCmd = AiCmd
-
 	listCmd = &cobra.Command{
 		Use:     "list",
 		Aliases: []string{"ls", "catalog"},

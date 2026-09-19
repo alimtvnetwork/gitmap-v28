@@ -171,7 +171,7 @@ func mapSqliteToGoType(sqlType string) string {
 	if strings.Contains(upper, "TEXT") || strings.Contains(upper, "CHAR") {
 		return "string"
 	}
-	if strings.Contains(upper, "REAL") || strings.Contains(upper, "FLOA") || strings.Contains(upper, "DOUB") {
+	if strings.Contains(upper, "REAL") || strings.Contains(upper, "FLOAT") || strings.Contains(upper, "DOUBLE") {
 		return "float64"
 	}
 	if strings.Contains(upper, "BLOB") {

@@ -7,6 +7,7 @@ import (
 	"sort"
 	"strings"
 	"time"
+	"unicode"
 
 	"github.com/alimtvnetwork/gitmap-v28/cli/apperror"
 	"github.com/alimtvnetwork/gitmap-v28/cli/result"
@@ -91,13 +92,22 @@ func clusterCompletedPlans(files []string, threshold int) []PlanCluster {
 	for domain, pList := range clusterMap {
 		clusters = append(clusters, PlanCluster{
 			Id:           fmt.Sprintf("cluster-%02d", len(clusters)+1),
-			Title:        fmt.Sprintf("Milestone: %s", strings.Title(domain)),
+			Title:        fmt.Sprintf("Milestone: %s", formatDomainTitle(domain)),
 			Domain:       domain,
 			MergedPlans:  pList,
 			SubtaskCount: len(pList),
 		})
 	}
 	return clusters
+}
+
+func formatDomainTitle(domain string) string {
+	if domain == "" {
+		return ""
+	}
+	r := []rune(domain)
+	r[0] = unicode.ToUpper(r[0])
+	return string(r)
 }
 
 func groupPlansByDomain(files []string) map[string][]string {

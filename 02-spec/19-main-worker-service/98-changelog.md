@@ -1,3 +1,9 @@
+## v6.265.0 — 2026-09-19 (Fix CI lint, staticcheck, spell check, and boolean guideline issues)
+
+**Scope:** Version bump. Fix CI lint, staticcheck, spell check, and boolean guideline issues.
+
+---
+
 ## v6.264.0 — 2026-09-19 (Fix CI pipeline errors and minor version bump)
 
 **Scope:** Version bump. Fix CI pipeline errors and minor version bump.

@@ -93,10 +93,6 @@ func printReleaseBumpStatus(res ReleaseBumpResult, isDryRun bool) {
 		constants.ColorGreen, res.NewVersion, constants.ColorReset)
 }
 
-func getReleaseBumpOptions() ReleaseBumpOptions {
-	return releaseBumpOpts
-}
-
 func init() {
 	AutomationCmd.AddCommand(releaseBumpCmd)
 	initReleaseBumpFlags()

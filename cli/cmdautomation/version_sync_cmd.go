@@ -93,10 +93,6 @@ func printVersionSyncSummary(res VersionSyncResult) {
 		constants.ColorYellow, res.MismatchCount, constants.ColorReset)
 }
 
-func getVersionSyncOptions() VersionSyncOptions {
-	return versionSyncOpts
-}
-
 func init() {
 	AutomationCmd.AddCommand(versionSyncCmd)
 	initVersionSyncFlags()

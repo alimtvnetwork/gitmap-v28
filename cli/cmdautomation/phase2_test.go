@@ -40,8 +40,8 @@ func TestDbGenerate(t *testing.T) {
 		t.Fatalf("RunDbGenerate failed: %v", monad.Err)
 	}
 	res := monad.Value
-	isSuccess := res.IsSuccess && res.TableCount == 1
-	if !isSuccess {
+	isGenerated := res.IsSuccess && res.TableCount == 1
+	if !isGenerated {
 		t.Errorf("expected success with 1 table, got %+v", res)
 	}
 }

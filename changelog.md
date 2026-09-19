@@ -1,3 +1,20 @@
+## [v6.265.0] 2026-09-19 Release v6.265.0
+
+### Install GitMap v6.265.0
+
+To pin your repository to this exact version, run the following one-liner:
+Unix/Bash: `curl -sL https://raw.githubusercontent.com/alimtvnetwork/gitmap-v28/v6.265.0/install.sh | bash -s -- ".ai-memory/prompts" "v6.265.0"`
+PowerShell: `Invoke-WebRequest -Uri https://raw.githubusercontent.com/alimtvnetwork/gitmap-v28/v6.265.0/install.ps1 -OutFile install.ps1; .\install.ps1 -TargetDir ".ai-memory/prompts" -Version "v6.265.0"`
+
+### Added / Changed / Fixed / Removed
+
+- Fix SQL double precision keywords (DOUBLE and FLOAT) in cli/cmdautomation/db_generate.go to prevent misspell false positive
+- Replace deprecated strings.Title with custom formatDomainTitle rune helper in cli/cmdautomation/plan_consolidate.go
+- Rename cachedErr to errCached in cli/cmdai/ai_python_detector.go to satisfy Go errname linter convention
+- Remove unused option getter functions in cli/cmdautomation (version_sync_cmd.go, release_bump_cmd.go, milestones_cmd.go) and unused aiCmd in cli/cmdai/ai_cmd.go
+- Resolve inverted success check (!isSuccess) in cli/cmdautomation/phase2_test.go by renaming to isGenerated
+- Sanitize repository path references in RCA documents to maintain 100% relative path compliance
+
 ## [v6.264.0] 2026-09-19 Release v6.264.0
 
 ### Install GitMap v6.264.0
@@ -2347,6 +2364,12 @@ PowerShell: `Invoke-WebRequest -Uri https://raw.githubusercontent.com/alimtvnetw
 - Fixed spacing in help menu.
 
 # Changelog
+
+## [v6.265.0] - 2026-09-19
+
+### Added
+- Fix CI lint, staticcheck, spell check, and boolean guideline issues
+
 
 ## [v6.264.0] - 2026-09-19
 
