@@ -111,10 +111,10 @@ func renderPipelineStatusTerminal(p PipelineStatusPayload) {
 	fmt.Printf("  %s● Repo:%s             %s\n", constants.ColorCyan, constants.ColorReset, p.Repo)
 
 	if p.IsRunning {
-		fmt.Printf("  %s● Status:%s           %sRUNNING%s (%s, ETA: %ds)\n",
+		fmt.Printf("  %s● Status:%s           %sRUNNING%s (%s, ETA: %s)\n",
 			constants.ColorCyan, constants.ColorReset,
 			constants.ColorYellow, constants.ColorReset,
-			p.ActiveWorkflow, p.EtaSeconds)
+			p.ActiveWorkflow, formatEtaDisplay(p.EtaSeconds))
 	} else {
 		renderCompletedStatusLine(p)
 	}

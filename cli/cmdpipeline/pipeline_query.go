@@ -387,6 +387,17 @@ func formatMinutesAndSeconds(m, s int) string {
 	return fmt.Sprintf("%dm %ds", m, s)
 }
 
+func formatEtaDisplay(sec int) string {
+	if sec <= 0 {
+		return "-"
+	}
+	if sec < 60 {
+		return fmt.Sprintf("~%ds", sec)
+	}
+
+	return fmt.Sprintf("~%ds (%s)", sec, formatDurationSeconds(sec))
+}
+
 func safeInt64ToUint64(val int64) uint64 {
 	if val < 0 {
 		return 0

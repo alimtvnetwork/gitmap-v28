@@ -41,20 +41,36 @@ func recordSingleSplitRun(pipeDb *pipelinedb.PipelineSplitDb, p PipelineStatusPa
 	}
 }
 
-func buildPipelineRunRecord(p PipelineStatusPayload, r ghRunItem) pipelinedb.PipelineRunRecord {
+func resolveRecordEta(status string, eta int) int {
+	if status == "in_progress" || status == "queued" {
+		return eta
+	}
+
+	return 0
+}
+
+func initBasicRunRecord(repo string, r ghRunItem) pipelinedb.PipelineRunRecord {
 	return pipelinedb.PipelineRunRecord{
 		RunId:        r.DatabaseId,
-		RepoSlug:     p.Repo,
+		RepoSlug:     repo,
 		WorkflowName: r.Name,
 		Status:       r.Status,
 		Conclusion:   r.Conclusion,
 		Branch:       r.HeadBranch,
 		Sha:          r.HeadSha,
-		EtaSeconds:   p.EtaSeconds,
 		RunUrl:       r.Url,
 		CreatedAt:    r.CreatedAt,
 		UpdatedAt:    r.UpdatedAt,
 	}
+}
+
+func buildPipelineRunRecord(p PipelineStatusPayload, r ghRunItem) pipelinedb.PipelineRunRecord {
+	rec := initBasicRunRecord(p.Repo, r)
+	rec.EtaSeconds = resolveRecordEta(r.Status, p.EtaSeconds)
+	rec.DurationSeconds = calculateRunDuration(r.CreatedAt, r.UpdatedAt)
+	rec.IsSuccess = r.Conclusion == "success"
+
+	return rec
 }
 
 func recordSingleFailedRun(pipeDb *pipelinedb.PipelineSplitDb, repo string, r ghRunItem) {
@@ -141,8 +157,10 @@ func insertSingleMasterRun(db *store.DB, p PipelineStatusPayload, r ghRunItem) {
 		Conclusion:   r.Conclusion,
 		Branch:       r.HeadBranch,
 		Sha:          r.HeadSha,
-		EtaSeconds:   p.EtaSeconds,
+		EtaSeconds:   resolveRecordEta(r.Status, p.EtaSeconds),
 		URL:          r.Url,
+		CreatedAt:    r.CreatedAt,
+		UpdatedAt:    r.UpdatedAt,
 	}
 
 	if err := db.InsertOrUpdatePipelineRun(run); err != nil {

@@ -93,10 +93,10 @@ func printPipelineDBFlagsAndExamples() {
 	fmt.Println("  gitmap pipeline db status")
 	fmt.Println("  gitmap pipeline db error-logs")
 	fmt.Println("  gitmap pipeline db optimize")
-	fmt.Println("  gitmap pipeline db clear -y")
-	fmt.Println("  gitmap pipeline clear -y")
-	fmt.Println("  gitmap pipeline clear alimtvnetwork/gitmap-v28 -y")
-	fmt.Println("  gitmap pipeline errors clear")
+	fmt.Println("  gitmap pipeline db clear -y                       # Clear DB & logs for current repo")
+	fmt.Println("  gitmap pipeline clear -y                          # Clear pipeline for current repo (run inside repo)")
+	fmt.Println("  gitmap pipeline clear alimtvnetwork/gitmap-v28 -y # Clear pipeline for target repo (run from anywhere)")
+	fmt.Println("  gitmap pipeline errors clear                      # Clear error reports & logs for current repo")
 }
 
 func printPipelineDBHelp() {

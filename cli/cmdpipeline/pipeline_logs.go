@@ -624,8 +624,8 @@ func renderCleanSuccessDbAndHistory(p PipelineErrorLogsPayload) {
 }
 
 func renderActiveRunningBanner(p PipelineErrorLogsPayload) {
-	fmt.Printf("  %s● Active Pipeline is RUNNING%s: [%s #%d] (ETA: %ds)\n",
-		constants.ColorYellow, constants.ColorReset, p.ActiveRunName, p.ActiveRunId, p.EtaSeconds)
+	fmt.Printf("  %s● Active Pipeline is RUNNING%s: [%s #%d] (ETA: %s)\n",
+		constants.ColorYellow, constants.ColorReset, p.ActiveRunName, p.ActiveRunId, formatEtaDisplay(p.EtaSeconds))
 	if len(p.ActiveRunUrl) > 0 {
 		fmt.Printf("    URL: %s\n\n", p.ActiveRunUrl)
 	}
@@ -903,8 +903,8 @@ func printRerunETA(eta int) {
 		return
 	}
 
-	fmt.Printf("\n  %s● Estimated pipeline rerun duration (ETA): ~%ds%s\n",
-		constants.ColorYellow, eta, constants.ColorReset)
+	fmt.Printf("\n  %s● Estimated pipeline rerun duration (ETA): %s%s\n",
+		constants.ColorYellow, formatEtaDisplay(eta), constants.ColorReset)
 	fmt.Println("    (Based on historical successful pipeline runs baseline)")
 }
 

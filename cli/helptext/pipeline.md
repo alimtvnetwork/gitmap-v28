@@ -208,6 +208,23 @@ gitmap pipeline errors agy fix --reset-batch
 
 ---
 
+## 6. Clear Pipeline Logs and Database (`clear`, `errors clear`)
+
+Clean and purge pipeline logs, run artifacts, error reports, and database records:
+
+```bash
+# Clear pipeline logs & database for current repo (run inside repo)
+gitmap pipeline clear -y
+
+# Clear pipeline logs & database for a specific repo (run from anywhere)
+gitmap pipeline clear alimtvnetwork/gitmap-v28 -y
+
+# Clear error reports & logs for current repo
+gitmap pipeline errors clear
+```
+
+---
+
 ## See Also
 
 - [agy](agy.md) — Comprehensive guide for Google Antigravity prompts, reruns, and workspaces

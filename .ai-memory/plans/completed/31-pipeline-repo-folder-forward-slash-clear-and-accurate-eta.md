@@ -22,9 +22,11 @@ The pipeline errors in Git map make sure that the folder, all the folder and fil
    - Implemented `purgeRepoPipelineFolder` and `printPipelineClearSummary` displaying cleaned directory paths in forward slashes with reclaimed space and purged file counts.
 4. **Accurate Pipeline Rerun Duration & ETA Engine**:
    - Redesigned `calculateAverageDuration` to filter out early-aborted, cancelled, and short skipped runs below a 45s threshold that skewed averages down to ~68s.
+   - Fixed `buildPipelineRunRecord` and `insertSingleMasterRun` in `cli/cmdpipeline/pipeline_recorder.go` to compute and persist true `DurationSeconds`, `IsSuccess` boolean, `CreatedAt`/`UpdatedAt` timestamps, and zero out remaining `EtaSeconds` for completed runs in SQLite.
    - Implemented `QuerySuccessfulRunDurations` in `PipelineSplitDb` to query historical successful runs from SQLite whenever recent GitHub API runs contain only failures.
    - Implemented `computeBaselineDuration` taking robust upper-median durations across valid runs.
    - Updated `fallbackWorkflowDuration` with realistic baselines (180s for CI/smoke/test, 95s for release, 120s default).
+   - Enhanced ETA formatting across CLI outputs via `formatEtaDisplay` providing human-friendly duration expressions (e.g. `~180s (3m)`, `~125s (2m 5s)`).
 5. **Documentation and Help Text Parity**:
    - Updated CLI help documentation in `cli/helptext/pipeline.md` and terminal help in `cli/cmdpipeline/pipeline.go` and `pipeline_db_dispatch.go`.
    - Added command examples and descriptions for `gitmap pipeline clear`, `gitmap pipeline clear <repo>`, and `gitmap pipeline errors clear`.
@@ -34,5 +36,5 @@ The pipeline errors in Git map make sure that the folder, all the folder and fil
 - Subtask 1: `01-forward-slash-normalization` - Verified all terminal renders and payloads use `filepath.ToSlash(...)`.
 - Subtask 2: `02-repo-scoped-pipeline-folder-architecture` - Implemented `RepoPipelineDir`, `<dataDir>/pipeline/<slug>/pipeline.db`, and automatic legacy file migration.
 - Subtask 3: `03-pipeline-clear-commands` - Registered `clear` and `errors clear`, supported repo args and `-y` flag, added `purgeRepoPipelineFolder`.
-- Subtask 4: `04-accurate-duration-eta-engine` - Added outlier filtering, DB duration queries, upper-median baseline calculation, and enhanced ETA displays.
+- Subtask 4: `04-accurate-duration-eta-engine` - Added outlier filtering, DB duration queries, upper-median baseline calculation, DB storage persistence fix, and enhanced ETA displays.
 - Subtask 5: `05-cli-help-and-documentation` - Documented new clear commands and examples in markdown and terminal help.
