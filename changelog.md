@@ -1,3 +1,21 @@
+## [v6.263.0] 2026-09-19 Release v6.263.0
+
+### Install GitMap v6.263.0
+
+To pin your repository to this exact version, run the following one-liner:
+Unix/Bash: `curl -sL https://raw.githubusercontent.com/alimtvnetwork/gitmap-v28/v6.263.0/install.sh | bash -s -- ".ai-memory/prompts" "v6.263.0"`
+PowerShell: `Invoke-WebRequest -Uri https://raw.githubusercontent.com/alimtvnetwork/gitmap-v28/v6.263.0/install.ps1 -OutFile install.ps1; .\install.ps1 -TargetDir ".ai-memory/prompts" -Version "v6.263.0"`
+
+### Added / Changed / Fixed / Removed
+
+- Fix function identifier collisions in cli/cmdautomation: rename collectSearchFiles to collectSpecMigrateFiles in spec_migrate.go and resolveThreshold to resolveSlowThreshold in test_inventory.go
+- Implement ListRuntimes, RefreshRuntimes, and reprobeRuntime in cli/cmdautomation/runtime_probe.go and update runtimes_cmd.go to use RuntimeRecord
+- Fix RunRelPathsAudit reference to RunRelPathAudit in cli/cmdautomation/preflight.go
+- Fix run_cmd.go type mismatch on RunWorkerPool(opts), map opts.Script = args[1], add IsJson to WorkerRunOptions, and render worker results
+- Rename cli/cmdautomation/smoke_test.go to cli/cmdautomation/smoke_runner.go to prevent Go compiler build exclusion
+- Align BuildFileContext, EncodeToStream, and DecodeFromStream in stream_encoding.go and worker_pool.go with result.Result[T] wrappers and Spec 124
+- Fix resolveSpecDir in cli/cmdautomation/spec_migrate.go to inspect 02-spec/21-app and 02-spec in base directory
+
 ## [v6.262.0] 2026-09-19 Release v6.262.0
 
 ### Install GitMap v6.262.0

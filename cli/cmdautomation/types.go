@@ -28,10 +28,10 @@ type SearchOptions struct {
 
 // SearchResult wraps the collected matches and execution metrics.
 type SearchResult struct {
-	Matches     []SearchMatch `json:"matches"`
-	TotalFiles  int           `json:"totalFiles"`
-	Duration    time.Duration `json:"duration"`
-	TotalHits   int           `json:"totalHits"`
+	Matches    []SearchMatch `json:"matches"`
+	TotalFiles int           `json:"totalFiles"`
+	Duration   time.Duration `json:"duration"`
+	TotalHits  int           `json:"totalHits"`
 }
 
 // NewlineOptions configures the polyglot newline normalizer.
@@ -98,12 +98,12 @@ type SequenceAuditorOptions struct {
 
 // SequenceDirResult captures sequence and title health for a folder.
 type SequenceDirResult struct {
-	Dir                 string   `json:"dir"`
-	NumberedFilesCount  int      `json:"numberedFilesCount"`
-	SequenceGaps        []string `json:"sequenceGaps"`
-	TitleMismatches     []string `json:"titleMismatches"`
-	FixedTitles         []string `json:"fixedTitles"`
-	IsClean             bool     `json:"isClean"`
+	Dir                string   `json:"dir"`
+	NumberedFilesCount int      `json:"numberedFilesCount"`
+	SequenceGaps       []string `json:"sequenceGaps"`
+	TitleMismatches    []string `json:"titleMismatches"`
+	FixedTitles        []string `json:"fixedTitles"`
+	IsClean            bool     `json:"isClean"`
 }
 
 // SequenceAuditorResult aggregates findings across all audited folders.

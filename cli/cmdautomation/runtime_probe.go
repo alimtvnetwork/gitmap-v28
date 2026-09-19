@@ -189,3 +189,43 @@ func runtimeMetaFor(norm string) runtimeMeta {
 	}
 	return runtimeMeta{InstallCmd: cmd, ProfileSuggestion: prof, FallbackCmd: formatFallbackCmd(norm)}
 }
+
+// ListRuntimes probes or reads all supported polyglot runtimes.
+func ListRuntimes() RuntimeListResultMonad {
+	known := []string{"python", "node", "go", "rust", "pwsh", "bash"}
+	var list []RuntimeRecord
+	for _, k := range known {
+		res := ProbeRuntime(k)
+		if res.IsSuccess() {
+			list = append(list, res.Value)
+		} else {
+			list = append(list, buildRuntimeRecord(k, "", "missing", false))
+		}
+	}
+	return result.Ok(list)
+}
+
+func reprobeRuntime(db *sql.DB, norm string) RuntimeRecord {
+	probed := probeSystemRuntime(norm)
+	persistProbeResult(db, norm, probed)
+	if probed.IsSuccess() {
+		return probed.Value
+	}
+	return buildRuntimeRecord(norm, "", "missing", false)
+}
+
+// RefreshRuntimes forces re-probing of all supported polyglot runtimes.
+func RefreshRuntimes() RuntimeListResultMonad {
+	known := []string{"python", "node", "go", "rust", "pwsh", "bash"}
+	var list []RuntimeRecord
+	dbRes := OpenAutomationDB("")
+	var db *sql.DB
+	if dbRes.IsSuccess() {
+		db = dbRes.Value
+		defer func() { _ = db.Close() }()
+	}
+	for _, k := range known {
+		list = append(list, reprobeRuntime(db, normalizeRuntimeKey(k)))
+	}
+	return result.Ok(list)
+}

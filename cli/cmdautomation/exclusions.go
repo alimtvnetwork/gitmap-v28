@@ -20,9 +20,9 @@ type ExclusionEntry struct {
 }
 
 var defaultAllowedLargeFiles = map[string]bool{
-	"src/data/specTree.json":             true,
-	"slides-app/dist.zip":                true,
-	"docs/demo.gif":                      true,
+	"src/data/specTree.json":              true,
+	"slides-app/dist.zip":                 true,
+	"docs/demo.gif":                       true,
 	".ai-memory/test-inventory.json":      true,
 	".ai-memory/cicd/test-inventory.json": true,
 }

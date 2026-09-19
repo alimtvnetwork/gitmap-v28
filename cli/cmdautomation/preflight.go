@@ -118,7 +118,7 @@ func runFormatCheck(opts PreflightOptions) PreflightCheck {
 
 func runRelPathsCheck(opts PreflightOptions) PreflightCheck {
 	start := time.Now()
-	monad := RunRelPathsAudit(RelPathOptions{Dir: opts.Dir})
+	monad := RunRelPathAudit(RelPathOptions{Dir: opts.Dir})
 	isFail := monad.IsFailure() || len(monad.Value.Violations) > 0
 	msg := "Zero forbidden absolute paths found"
 	if isFail {

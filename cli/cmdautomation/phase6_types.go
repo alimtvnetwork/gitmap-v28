@@ -114,12 +114,12 @@ type FormatGoOptions struct {
 
 // FormatGoItem records the formatting status of a single Go file.
 type FormatGoItem struct {
-	Path               string `json:"path"`
-	IsFormatted        bool   `json:"isFormatted"`
-	HasBom             bool   `json:"hasBom"`
-	HasCrlf            bool   `json:"hasCrlf"`
+	Path              string `json:"path"`
+	IsFormatted       bool   `json:"isFormatted"`
+	HasBom            bool   `json:"hasBom"`
+	HasCrlf           bool   `json:"hasCrlf"`
 	HasReorderImports bool   `json:"hasReorderImports"`
-	ErrorMessage       string `json:"errorMessage,omitempty"`
+	ErrorMessage      string `json:"errorMessage,omitempty"`
 }
 
 // FormatGoResult aggregates outcomes of Go formatting passes.

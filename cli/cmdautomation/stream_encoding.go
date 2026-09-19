@@ -6,6 +6,7 @@ import (
 	"unicode/utf16"
 
 	"github.com/alimtvnetwork/gitmap-v28/cli/apperror"
+	"github.com/alimtvnetwork/gitmap-v28/cli/result"
 )
 
 const (
@@ -39,15 +40,15 @@ func NegotiateEncoding(requested, runtimeName string) string {
 }
 
 // EncodeToStream encodes a FileContext into JSON bytes with the negotiated encoding.
-func EncodeToStream(ctx FileContext, encoding string) ([]byte, *apperror.AppError) {
+func EncodeToStream(ctx FileContext, encoding string) result.Result[[]byte] {
 	jsonData, err := json.Marshal(ctx)
 	if err != nil {
-		return nil, apperror.WrapSimple(err, "EncodeToStream")
+		return result.Fail[[]byte](apperror.WrapSimple(err, "EncodeToStream"))
 	}
 	if IsUTF16Encoding(encoding) {
-		return encodeUTF16LE(jsonData), nil
+		return result.Ok(encodeUTF16LE(jsonData))
 	}
-	return append(jsonData, '\n'), nil
+	return result.Ok(append(jsonData, '\n'))
 }
 
 func encodeUTF16LE(data []byte) []byte {
@@ -66,20 +67,24 @@ func encodeUTF16LE(data []byte) []byte {
 }
 
 // DecodeFromStream decodes raw stream bytes into a string, auto-detecting BOMs.
-func DecodeFromStream(data []byte, encoding string) string {
+func DecodeFromStream(data []byte, enc ...string) result.Result[string] {
 	if len(data) == 0 {
-		return ""
+		return result.Ok("")
+	}
+	encoding := ""
+	if len(enc) > 0 {
+		encoding = enc[0]
 	}
 	if hasUTF16LEBOM(data) {
-		return decodeUTF16LE(data[2:])
+		return result.Ok(decodeUTF16LE(data[2:]))
 	}
 	if hasUTF8BOM(data) {
-		return string(data[3:])
+		return result.Ok(string(data[3:]))
 	}
 	if IsUTF16Encoding(encoding) {
-		return decodeUTF16LE(data)
+		return result.Ok(decodeUTF16LE(data))
 	}
-	return string(data)
+	return result.Ok(string(data))
 }
 
 func hasUTF16LEBOM(data []byte) bool {

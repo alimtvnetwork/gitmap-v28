@@ -69,6 +69,7 @@ type WorkerRunOptions struct {
 	Dir              string `json:"dir"`
 	IncludeBinaries  bool   `json:"includeBinaries"`
 	IncludeLargeJson bool   `json:"includeLargeJson"`
+	IsJson           bool   `json:"isJson"`
 }
 
 // WorkerRunResult captures execution throughput, outputs, and exit status.

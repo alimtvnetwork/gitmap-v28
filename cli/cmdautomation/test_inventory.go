@@ -21,7 +21,7 @@ type testEstimate struct {
 func RunTestInventory(opts TestInventoryOptions) TestInventoryResultMonad {
 	start := time.Now()
 	root := resolveAuditDir(opts.Dir)
-	threshold := resolveThreshold(opts.SlowThreshold)
+	threshold := resolveSlowThreshold(opts.SlowThreshold)
 	tests := scanAllTests(root, threshold)
 	summary := summarizeInventory(tests, threshold)
 	outPath := resolveOutPath(opts.OutPath)
@@ -39,7 +39,7 @@ func RunTestInventory(opts TestInventoryOptions) TestInventoryResultMonad {
 	return result.Ok(res)
 }
 
-func resolveThreshold(val float64) float64 {
+func resolveSlowThreshold(val float64) float64 {
 	if val > 0.0 {
 		return val
 	}

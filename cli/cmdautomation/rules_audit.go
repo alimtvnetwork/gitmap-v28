@@ -10,9 +10,9 @@ import (
 )
 
 var (
-	reMapTuple = regexp.MustCompile(`func\s+(?:\([^)]+\)\s+)?\w+\s*\([^)]*\)\s*\(\s*map\[[^\]]+\][^,]+,\s*(?:error|\*apperror\.AppError)\s*\)`)
-	reSliceTuple = regexp.MustCompile(`func\s+(?:\([^)]+\)\s+)?\w+\s*\([^)]*\)\s*\(\s*\[\][a-zA-Z0-9_*.]+\s*,\s*(?:error|\*apperror\.AppError)\s*\)`)
-	reRawRuneCast = regexp.MustCompile(`\brune\s*\(\s*\d+\s*\)`)
+	reMapTuple     = regexp.MustCompile(`func\s+(?:\([^)]+\)\s+)?\w+\s*\([^)]*\)\s*\(\s*map\[[^\]]+\][^,]+,\s*(?:error|\*apperror\.AppError)\s*\)`)
+	reSliceTuple   = regexp.MustCompile(`func\s+(?:\([^)]+\)\s+)?\w+\s*\([^)]*\)\s*\(\s*\[\][a-zA-Z0-9_*.]+\s*,\s*(?:error|\*apperror\.AppError)\s*\)`)
+	reRawRuneCast  = regexp.MustCompile(`\brune\s*\(\s*\d+\s*\)`)
 	reGoEnumNoType = regexp.MustCompile(`type\s+([A-Za-z]\w*?)\s+(?:string|int|int32|int64|byte)\b`)
 )
 

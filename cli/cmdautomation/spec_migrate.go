@@ -34,16 +34,19 @@ func RunSpecMigrate(opts SpecMigrateOptions) SpecMigrateResultMonad {
 }
 
 func resolveSpecDir(root, customDir string) string {
-	hasCustom := len(customDir) > 0
-	if hasCustom {
-		return customDir
+	base := root
+	if len(customDir) > 0 {
+		base = customDir
 	}
-	appDir := filepath.Join(root, "02-spec", "21-app")
-	_, err := os.Stat(appDir)
-	if err == nil {
+	appDir := filepath.Join(base, "02-spec", "21-app")
+	if _, err := os.Stat(appDir); err == nil {
 		return appDir
 	}
-	return filepath.Join(root, "02-spec")
+	specDir := filepath.Join(base, "02-spec")
+	if _, err := os.Stat(specDir); err == nil {
+		return specDir
+	}
+	return base
 }
 
 func collectSpecFiles(specDir string) []string {
@@ -131,7 +134,7 @@ func executeSpecMigration(root string, change SpecMigrateChange, totalSpecs int,
 }
 
 func updateCrossReferences(root, oldBase, newBase string, isDryRun bool) int {
-	files := collectSearchFiles(root)
+	files := collectSpecMigrateFiles(root)
 	updated := 0
 	for _, f := range files {
 		hasRef := replaceInFileIfPresent(f, oldBase, newBase, isDryRun)
@@ -142,7 +145,7 @@ func updateCrossReferences(root, oldBase, newBase string, isDryRun bool) int {
 	return updated
 }
 
-func collectSearchFiles(root string) []string {
+func collectSpecMigrateFiles(root string) []string {
 	var files []string
 	searchDirs := []string{"02-spec", ".ai-memory", "cli"}
 	for _, d := range searchDirs {

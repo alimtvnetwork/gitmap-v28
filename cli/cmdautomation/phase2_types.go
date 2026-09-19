@@ -27,19 +27,19 @@ type SubsystemData struct {
 
 // TopologyResult captures the complete discovered topology of a repository.
 type TopologyResult struct {
-	Version      string                   `json:"version"`
-	GeneratedAt  string                   `json:"generatedAt"`
-	ExpiresAt    string                   `json:"expiresAt"`
-	TtlSeconds   int                      `json:"ttlSeconds"`
-	DurationMs   float64                  `json:"durationMs"`
-	TotalFiles   int                      `json:"totalFiles"`
-	RootPath     string                   `json:"rootPath"`
-	Manifests    map[string][]string      `json:"manifests"`
-	Languages    map[string]int           `json:"languages"`
-	LangRoots    map[string][]string      `json:"langRoots"`
-	Subsystems   map[string]SubsystemData `json:"subsystems"`
-	Duration     time.Duration            `json:"duration"`
-	IsValid      bool                     `json:"isValid"`
+	Version     string                   `json:"version"`
+	GeneratedAt string                   `json:"generatedAt"`
+	ExpiresAt   string                   `json:"expiresAt"`
+	TtlSeconds  int                      `json:"ttlSeconds"`
+	DurationMs  float64                  `json:"durationMs"`
+	TotalFiles  int                      `json:"totalFiles"`
+	RootPath    string                   `json:"rootPath"`
+	Manifests   map[string][]string      `json:"manifests"`
+	Languages   map[string]int           `json:"languages"`
+	LangRoots   map[string][]string      `json:"langRoots"`
+	Subsystems  map[string]SubsystemData `json:"subsystems"`
+	Duration    time.Duration            `json:"duration"`
+	IsValid     bool                     `json:"isValid"`
 }
 
 // DbGenerateOptions configures Go/TS struct and enum generation from SQLite.

@@ -49,7 +49,7 @@ func handleRuntimesRefresh() error {
 	return nil
 }
 
-func renderRuntimesTable(runtimes []RuntimeInfo) {
+func renderRuntimesTable(runtimes []RuntimeRecord) {
 	fmt.Printf("\n%s[Discovered Polyglot Runtimes]%s\n", constants.ColorBold, constants.ColorReset)
 	if len(runtimes) == 0 {
 		fmt.Printf("  %sNo language runtimes discovered or cached.%s\n\n", constants.ColorDim, constants.ColorReset)
@@ -67,7 +67,7 @@ func printRuntimesHeader() {
 	fmt.Println("-------------|--------------------|------------|---------------------------------------------")
 }
 
-func printRuntimeRow(rt RuntimeInfo) {
+func printRuntimeRow(rt RuntimeRecord) {
 	statusColor := getRuntimeStatusColor(rt.Status)
 	statusText := fmt.Sprintf("%s%-10s%s", statusColor, rt.Status, constants.ColorReset)
 	fmt.Printf("%-12s | %-18s | %s | %s\n", rt.Name, rt.Version, statusText, rt.BinaryPath)

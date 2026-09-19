@@ -37,13 +37,10 @@ func clampWorkerCount(requested, total int) int {
 }
 
 // BuildFileContext populates relative/absolute paths, sizes, and timestamps for a file.
-func BuildFileContext(relPath, repoRoot string) FileContext {
-	normRel, absPath := filepath.ToSlash(relPath), filepath.ToSlash(filepath.Join(repoRoot, relPath))
-	var size, modTime int64
-	if info, err := os.Stat(absPath); err == nil {
-		size, modTime = info.Size(), info.ModTime().Unix()
-	}
-	return FileContext{
+func BuildFileContext(path, encoding string, isPreRead bool) result.Result[FileContext] {
+	absPath, size, modTime := resolveFileStats(path)
+	normRel := filepath.ToSlash(path)
+	ctx := FileContext{
 		FilePath:                 normRel,
 		FileName:                 filepath.Base(normRel),
 		FileExtension:            filepath.Ext(normRel),
@@ -52,8 +49,36 @@ func BuildFileContext(relPath, repoRoot string) FileContext {
 		AbsoluteParentFolderPath: filepath.ToSlash(filepath.Dir(absPath)),
 		FileSize:                 size,
 		ModifiedTimestamp:        modTime,
-		Encoding:                 EncodingUTF8,
+		Content:                  resolveFileContent(absPath, isPreRead),
+		Encoding:                 resolveStreamEncoding(encoding),
 	}
+	return result.Ok(ctx)
+}
+
+func resolveFileStats(path string) (string, int64, int64) {
+	absPath, _ := filepath.Abs(path)
+	absPath = filepath.ToSlash(absPath)
+	var size, modTime int64
+	if info, err := os.Stat(absPath); err == nil {
+		size, modTime = info.Size(), info.ModTime().Unix()
+	}
+	return absPath, size, modTime
+}
+
+func resolveFileContent(absPath string, isPreRead bool) string {
+	if isPreRead {
+		if data, err := os.ReadFile(absPath); err == nil {
+			return string(data)
+		}
+	}
+	return ""
+}
+
+func resolveStreamEncoding(encoding string) string {
+	if encoding != "" {
+		return NormalizeEncoding(encoding)
+	}
+	return EncodingUTF8
 }
 
 // ExecuteWorkerGroup runs a single worker group process on a chunk of files.
@@ -82,33 +107,30 @@ func dispatchWorkerProcess(opts WorkerRunOptions, chunk []string, rec RuntimeRec
 }
 
 func formatWorkerResult(c []string, o WorkerRunOptions, out, errBuf *bytes.Buffer, st *os.ProcessState, err error, d time.Duration) WorkerRunResult {
+	stdout := DecodeFromStream(out.Bytes(), o.Encoding).Value
+	stderr := DecodeFromStream(errBuf.Bytes(), o.Encoding).Value
 	return WorkerRunResult{
 		FilesMatched: len(c), FilesProcessed: len(c), WorkersUsed: 1,
 		ThreadsUsed: resolveThreads(o.Threads), Duration: d, ExitCode: resolveExitCode(st, err),
-		Stdout: DecodeFromStream(out.Bytes(), o.Encoding), Stderr: DecodeFromStream(errBuf.Bytes(), o.Encoding), HasErrors: err != nil,
+		Stdout: stdout, Stderr: stderr, HasErrors: err != nil,
 	}
 }
 
 func buildWorkerStdin(chunk []string, opts WorkerRunOptions) ([]byte, *apperror.AppError) {
 	var buf bytes.Buffer
 	for _, file := range chunk {
-		encoded, err := EncodeToStream(buildContextForFile(file, opts), opts.Encoding)
-		if err != nil {
-			return nil, err
+		encRes := EncodeToStream(buildContextForFile(file, opts), opts.Encoding)
+		if encRes.IsFailure() {
+			return nil, encRes.AppError()
 		}
-		buf.Write(encoded)
+		buf.Write(encRes.Value)
 	}
 	return buf.Bytes(), nil
 }
 
 func buildContextForFile(file string, opts WorkerRunOptions) FileContext {
-	ctx := BuildFileContext(file, opts.Dir)
-	if opts.IsPreRead {
-		if data, err := os.ReadFile(ctx.AbsoluteFilePath); err == nil {
-			ctx.Content = string(data)
-		}
-	}
-	return ctx
+	res := BuildFileContext(file, opts.Encoding, opts.IsPreRead)
+	return res.Value
 }
 
 func buildWorkerCmd(ctx context.Context, opts WorkerRunOptions, rec RuntimeRecord) *exec.Cmd {

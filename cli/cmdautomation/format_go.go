@@ -90,10 +90,10 @@ func formatGoSource(content []byte) []byte {
 
 func buildFormatItem(path string, norm normalizedContent, hasReorder bool, isChanged bool) FormatGoItem {
 	return FormatGoItem{
-		Path:               path,
-		IsFormatted:        isChanged,
-		HasBom:             norm.hasBom,
-		HasCrlf:            norm.hasCrlf,
+		Path:              path,
+		IsFormatted:       isChanged,
+		HasBom:            norm.hasBom,
+		HasCrlf:           norm.hasCrlf,
 		HasReorderImports: hasReorder,
 	}
 }
