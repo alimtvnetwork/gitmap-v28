@@ -24,6 +24,9 @@ func RunStorageCmd(args []string) error {
 
 func routeStorageSubcommand(args []string) result.ErrorWrapper {
 	sub := strings.ToLower(args[0])
+	if isStorageSpaceSubcommand(sub) {
+		return routeStorageSpaceSubcommand(args[1:])
+	}
 	if isStorageListSubcommand(sub) {
 		return result.MatchWrapper(runStorageListDatabases())
 	}
@@ -35,6 +38,18 @@ func routeStorageSubcommand(args []string) result.ErrorWrapper {
 	}
 
 	return result.MatchWrapper(runStorageDriveReport(stripFirstArgIfStatus(sub, args)))
+}
+
+func routeStorageSpaceSubcommand(rest []string) result.ErrorWrapper {
+	if len(rest) == 0 {
+		return result.MatchWrapper(runStorageDriveReport(nil))
+	}
+
+	return routeStorageSubcommand(rest)
+}
+
+func isStorageSpaceSubcommand(sub string) bool {
+	return sub == "space"
 }
 
 func isStorageRestoreSubcommand(sub string) bool {
@@ -50,9 +65,13 @@ func isStorageCleanSubcommand(sub string) bool {
 }
 
 func stripFirstArgIfStatus(sub string, args []string) []string {
-	if sub == "status" || sub == "st" || sub == "info" {
+	if isStatusSubcommand(sub) {
 		return args[1:]
 	}
 
 	return args
+}
+
+func isStatusSubcommand(sub string) bool {
+	return sub == "status" || sub == "st" || sub == "info"
 }

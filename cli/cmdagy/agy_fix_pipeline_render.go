@@ -62,8 +62,8 @@ func renderQueuedVerificationNotice() {
 	fmt.Printf("  %s✓ Follow-up Verification Prompt Queued: %s (\"Is it fixed?\")%s\n",
 		constants.ColorGreen, queuedAbs, constants.ColorReset)
 	fmt.Printf("    • Queue Ledger:   %s\n", ledgerAbs)
-	if agyPath, hasAgy := resolveAntigravityBinary(); hasAgy {
-		fmt.Printf("    • Antigravity CLI: Detected at %s\n", agyPath)
+	if cliRes := ResolveAntigravityCLI(); cliRes.IsSuccess() {
+		fmt.Printf("    • Antigravity CLI: Detected at %s\n", cliRes.Value)
 	}
 	fmt.Println()
 }

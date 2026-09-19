@@ -6,6 +6,7 @@ import (
 	"os"
 	"path/filepath"
 
+	"github.com/alimtvnetwork/gitmap-v28/cli/apperror"
 	"github.com/alimtvnetwork/gitmap-v28/cli/constants"
 	"github.com/alimtvnetwork/gitmap-v28/cli/store"
 	"github.com/alimtvnetwork/gitmap-v28/cli/termpad"
@@ -14,12 +15,20 @@ import (
 func runStorageRestoreDB(args []string) error {
 	cloudDir := filepath.Join(store.BinaryDataDir(), "cloud-backup")
 	snapsDir := filepath.Join(cloudDir, "snapshots")
-	entries, err := os.ReadDir(snapsDir)
-	if err == nil && hasDirectoryEntries(entries) {
+	if hasCloudSnapshots(snapsDir) {
 		return runBackupCloudRestore(args)
 	}
 
 	return runAutoHealLocalDB()
+}
+
+func hasCloudSnapshots(snapsDir string) bool {
+	entries, err := os.ReadDir(snapsDir)
+	if err != nil {
+		return false
+	}
+
+	return hasDirectoryEntries(entries)
 }
 
 func hasDirectoryEntries(entries []os.DirEntry) bool {
@@ -36,7 +45,7 @@ func runAutoHealLocalDB() error {
 	dbPath := store.DefaultDBPath()
 	conn, err := store.OpenSQLiteDB(dbPath)
 	if err != nil {
-		return err
+		return apperror.WrapSimple(err, "storage.restore-db")
 	}
 	defer conn.Close()
 
@@ -49,7 +58,8 @@ func runAutoHealLocalDB() error {
 func checkDBIntegrity(conn *sql.DB) string {
 	var checkResult string
 	row := conn.QueryRow("PRAGMA integrity_check;")
-	if scanErr := row.Scan(&checkResult); scanErr != nil {
+	scanErr := row.Scan(&checkResult)
+	if scanErr != nil {
 		return "ok"
 	}
 

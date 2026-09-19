@@ -72,3 +72,56 @@ func TestResolveRelativeDBPath(t *testing.T) {
 		t.Errorf("expected %s, got %s", outsidePath, relOutside)
 	}
 }
+
+func TestIsStorageRestoreSubcommand(t *testing.T) {
+	if !isStorageRestoreSubcommand("restore-db") {
+		t.Errorf("expected restore-db to be storage restore subcommand")
+	}
+	if !isStorageRestoreSubcommand("restoredb") {
+		t.Errorf("expected restoredb to be storage restore subcommand")
+	}
+	if !isStorageRestoreSubcommand("restore") {
+		t.Errorf("expected restore to be storage restore subcommand")
+	}
+	if isStorageRestoreSubcommand("other") {
+		t.Errorf("expected other NOT to be storage restore subcommand")
+	}
+}
+
+func TestIsStorageSpaceSubcommand(t *testing.T) {
+	if !isStorageSpaceSubcommand("space") {
+		t.Errorf("expected space to be storage space subcommand")
+	}
+	if isStorageSpaceSubcommand("dbs") {
+		t.Errorf("expected dbs NOT to be storage space subcommand")
+	}
+}
+
+func TestStorageCmdSpaceList(t *testing.T) {
+	err := RunStorageCmd([]string{"space", "ls"})
+	if err != nil {
+		t.Fatalf("RunStorageCmd space ls returned error: %v", err)
+	}
+}
+
+func TestStorageCmdRestoreDB(t *testing.T) {
+	err := RunStorageCmd([]string{"restore-db"})
+	if err != nil {
+		t.Fatalf("RunStorageCmd restore-db returned error: %v", err)
+	}
+}
+
+func TestStorageCmdRestoreDbAlias(t *testing.T) {
+	err := RunStorageCmd([]string{"restoredb"})
+	if err != nil {
+		t.Fatalf("RunStorageCmd restoredb returned error: %v", err)
+	}
+}
+
+func TestCollectStorageEntries(t *testing.T) {
+	entries := collectStorageEntries()
+	if len(entries) == 0 {
+		t.Errorf("expected at least 1 database entry, got 0")
+	}
+}
+

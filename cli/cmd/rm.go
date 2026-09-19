@@ -3,6 +3,7 @@ package cmd
 import (
 	"bufio"
 	"context"
+	"encoding/json"
 	"fmt"
 	"os"
 	"path/filepath"
@@ -10,7 +11,7 @@ import (
 	"time"
 
 	"github.com/alimtvnetwork/gitmap-v28/cli/apperror"
-	"github.com/alimtvnetwork/gitmap-v28/cli/cliexit"
+	"github.com/alimtvnetwork/gitmap-v28/cli/constants"
 	"github.com/alimtvnetwork/gitmap-v28/cli/dbengine"
 	"github.com/alimtvnetwork/gitmap-v28/cli/desktop"
 	"github.com/alimtvnetwork/gitmap-v28/cli/fsutil"
@@ -43,7 +44,7 @@ Examples:
 
 // runRm handles `gitmap rm`. Supports globs, comma-joined targets,
 // the -y/--yes auto-confirm flag, and removes the on-disk folder in
-// addition to the DB row.
+// addition to the DB row and .gitmap/output/gitmap.json entry.
 func runRm(args []string) error {
 	checkHelp("rm", args)
 	yes, dbOnly, rest := parseRmFlags(args)
@@ -51,7 +52,7 @@ func runRm(args []string) error {
 	if len(targets) == 0 {
 		fmt.Fprint(os.Stderr, rmUsage)
 
-		return apperror.NewSimple("fatal error", "E9000")
+		return apperror.NewValidationError("target repository required")
 	}
 
 	db, err := openDB()
@@ -64,37 +65,68 @@ func runRm(args []string) error {
 	return executeRmTargets(db, targets, yes, dbOnly)
 }
 
-func executeRmTargets(db *store.DB, targets []string, yes, dbOnly bool) error {
+func executeRmTargets(db *store.DB, targets []string, isYes, isDbOnly bool) error {
 	matches, missing := resolveRmMatches(db, targets)
 	reportMissingRmTargets(db, missing)
 	if len(matches) == 0 {
-		return apperror.NewSimple("fatal error", "E9000")
+		return buildRmNotFoundError(missing)
 	}
 
-	if removeRmMatches(db, matches, yes, dbOnly) {
-		cliexit.HandleError(nil, 0)
+	isSuccess := removeRmMatches(db, matches, isYes, isDbOnly)
+	if isSuccess {
+		return nil
 	}
 
-	return apperror.NewSimple("fatal error", "E9000")
+	return apperror.NewExecutionError("failed to remove one or more repositories")
+}
+
+func buildRmNotFoundError(missing []string) *apperror.AppError {
+	if len(missing) == 1 {
+		return apperror.NewNotFoundError(fmt.Sprintf("no repository matched %q", missing[0]))
+	}
+
+	if len(missing) > 1 {
+		return apperror.NewNotFoundError(fmt.Sprintf("no repository matched: %s", strings.Join(missing, ", ")))
+	}
+
+	return apperror.NewNotFoundError("no repository matched")
 }
 
 func resolveRmMatches(db *store.DB, targets []string) ([]model.ScanRecord, []string) {
 	matches, missing := ResolveMultiRepos(db, targets)
-	var finalMissing []string
+	extraMatches, finalMissing := resolveDiskTargets(missing)
+	matches = append(matches, extraMatches...)
+
+	return matches, finalMissing
+}
+
+func resolveDiskTargets(missing []string) ([]model.ScanRecord, []string) {
+	var matches []model.ScanRecord
+	var stillMissing []string
 	for _, m := range missing {
-		abs, err := filepath.Abs(m)
-		if err == nil && fsutil.DirExists(abs) {
-			matches = append(matches, model.ScanRecord{
-				AbsolutePath: abs,
-				Slug:         filepath.Base(abs) + " (untracked)",
-			})
+		rec, isFound := checkUntrackedDir(m)
+		if isFound {
+			matches = append(matches, rec)
 			continue
 		}
 
-		finalMissing = append(finalMissing, m)
+		stillMissing = append(stillMissing, m)
 	}
 
-	return matches, finalMissing
+	return matches, stillMissing
+}
+
+func checkUntrackedDir(target string) (model.ScanRecord, bool) {
+	abs, err := filepath.Abs(target)
+	isDir := err == nil && fsutil.DirExists(abs)
+	if !isDir {
+		return model.ScanRecord{}, false
+	}
+
+	return model.ScanRecord{
+		AbsolutePath: abs,
+		Slug:         filepath.Base(abs) + " (untracked)",
+	}, true
 }
 
 func reportMissingRmTargets(db *store.DB, missing []string) {
@@ -124,23 +156,29 @@ func parseRmFlags(args []string) (bool, bool, []string) {
 func expandRmTargets(args []string) []string {
 	var out []string
 	for _, a := range args {
-		for _, p := range strings.Split(a, ",") {
-			if p = strings.TrimSpace(p); p != "" {
-				p = strings.TrimRight(p, "/\\")
-				out = append(out, p)
-			}
+		tokens := strings.Split(a, ",")
+		out = appendValidTargets(out, tokens)
+	}
+
+	return out
+}
+
+func appendValidTargets(out, tokens []string) []string {
+	for _, p := range tokens {
+		clean := strings.TrimRight(strings.TrimSpace(p), "/\\")
+		if clean != "" {
+			out = append(out, clean)
 		}
 	}
 
 	return out
 }
 
-func removeRmMatches(db *store.DB, matches []model.ScanRecord, yes, dbOnly bool) bool {
+func removeRmMatches(db *store.DB, matches []model.ScanRecord, isYes, isDbOnly bool) bool {
 	reader := bufio.NewReader(os.Stdin)
 	isSuccess := true
-
 	for _, r := range matches {
-		if !processSingleRm(db, reader, r, yes, dbOnly) {
+		if !processSingleRm(db, reader, r, isYes, isDbOnly) {
 			isSuccess = false
 		}
 	}
@@ -148,14 +186,15 @@ func removeRmMatches(db *store.DB, matches []model.ScanRecord, yes, dbOnly bool)
 	return isSuccess
 }
 
-func processSingleRm(db *store.DB, reader *bufio.Reader, r model.ScanRecord, yes, dbOnly bool) bool {
-	if !yes && !confirmRemove(reader, r, dbOnly) {
+func processSingleRm(db *store.DB, reader *bufio.Reader, r model.ScanRecord, isYes, isDbOnly bool) bool {
+	isConfirmed := isYes || confirmRemove(reader, r, isDbOnly)
+	if !isConfirmed {
 		fmt.Printf("skip: %s\n", r.Slug)
 
 		return true
 	}
 
-	if err := removeRepoFully(db, r, dbOnly); err != nil {
+	if err := removeRepoFully(db, r, isDbOnly); err != nil {
 		fmt.Fprintf(os.Stderr, "rm: %s: %v\n", r.Slug, err)
 
 		return false
@@ -166,12 +205,8 @@ func processSingleRm(db *store.DB, reader *bufio.Reader, r model.ScanRecord, yes
 	return true
 }
 
-func confirmRemove(r *bufio.Reader, rec model.ScanRecord, dbOnly bool) bool {
-	action := "Delete folder and untrack"
-	if dbOnly {
-		action = "Untrack from database"
-	}
-
+func confirmRemove(r *bufio.Reader, rec model.ScanRecord, isDbOnly bool) bool {
+	action := resolveConfirmAction(isDbOnly)
 	fmt.Printf("%s %s\n  %s ? [y/N] ", action, rec.Slug, rec.AbsolutePath)
 	line, _ := r.ReadString('\n')
 	ans := strings.ToLower(strings.TrimSpace(line))
@@ -179,33 +214,98 @@ func confirmRemove(r *bufio.Reader, rec model.ScanRecord, dbOnly bool) bool {
 	return ans == "y" || ans == "yes"
 }
 
-func removeRepoFully(db *store.DB, r model.ScanRecord, dbOnly bool) error {
-	if err := removeRepoDisk(r.AbsolutePath, dbOnly); err != nil {
+func resolveConfirmAction(isDbOnly bool) string {
+	if isDbOnly {
+		return "Untrack from database"
+	}
+
+	return "Delete folder and untrack"
+}
+
+func removeRepoFully(db *store.DB, r model.ScanRecord, isDbOnly bool) *apperror.AppError {
+	if err := removeRepoDisk(r.AbsolutePath, isDbOnly); err != nil {
 		return err
 	}
 
 	if err := removeRepoDB(db, r); err != nil {
-		return fmt.Errorf("db delete: %w", err)
+		return err
 	}
 
+	removeRepoFromJSON(r)
 	_ = vscodepm.RemoveEntry(r.AbsolutePath)
 	_ = desktop.RemoveRepo(r.AbsolutePath)
 
 	return nil
 }
 
-func removeRepoDB(db *store.DB, r model.ScanRecord) error {
+func removeRepoFromJSON(r model.ScanRecord) {
+	paths := []string{
+		filepath.Join(constants.DefaultOutputDir, constants.DefaultJSONFile),
+		filepath.Join(constants.DefaultOutputFolder, constants.DefaultJSONFile),
+	}
+	for _, p := range paths {
+		filterAndSaveJSON(p, r)
+	}
+}
+
+func filterAndSaveJSON(path string, r model.ScanRecord) {
+	if _, err := os.Stat(path); os.IsNotExist(err) {
+		return
+	}
+
+	records, err := model.LoadStatusRecords(path)
+	if err != nil {
+		return
+	}
+
+	filtered := filterOutRecord(records, r)
+	data, err := json.MarshalIndent(filtered, "", constants.JSONIndent)
+	if err != nil {
+		return
+	}
+
+	_ = os.WriteFile(path, append(data, '\n'), 0644)
+}
+
+func filterOutRecord(records []model.ScanRecord, target model.ScanRecord) []model.ScanRecord {
+	var out []model.ScanRecord
+	for _, rec := range records {
+		if !isMatchingScanRecord(rec, target) {
+			out = append(out, rec)
+		}
+	}
+
+	return out
+}
+
+func isMatchingScanRecord(a, b model.ScanRecord) bool {
+	if fsutil.EqualPaths(a.AbsolutePath, b.AbsolutePath) {
+		return true
+	}
+
+	if len(b.Slug) > 0 && strings.EqualFold(a.Slug, b.Slug) {
+		return true
+	}
+
+	if len(b.RepoName) > 0 && strings.EqualFold(a.RepoName, b.RepoName) {
+		return true
+	}
+
+	return false
+}
+
+func removeRepoDB(db *store.DB, r model.ScanRecord) *apperror.AppError {
+	if db == nil {
+		return nil
+	}
+
 	ctx := context.Background()
 	wrapper, appErr := dbengine.WrapDb(db.Conn(), dbengine.DbSQLite)
 	if appErr != nil {
 		return appErr
 	}
 
-	if txErr := runRemoveRepoTx(ctx, wrapper, r); txErr != nil {
-		return txErr
-	}
-
-	return nil
+	return runRemoveRepoTx(ctx, wrapper, r)
 }
 
 func runRemoveRepoTx(ctx context.Context, wrapper *dbengine.DbWrapper, r model.ScanRecord) *apperror.AppError {
@@ -281,13 +381,13 @@ func recordRmHistory(ctx context.Context, tx *dbengine.TxWrapper, absPath string
 	return nil
 }
 
-func removeRepoDisk(absPath string, dbOnly bool) error {
-	if dbOnly {
+func removeRepoDisk(absPath string, isDbOnly bool) *apperror.AppError {
+	if isDbOnly {
 		return nil
 	}
 
 	if err := fsutil.SafeRemoveAll(absPath); err != nil {
-		return fmt.Errorf("remove dir: %w", err)
+		return apperror.WrapSimple(err, "remove dir")
 	}
 
 	return nil

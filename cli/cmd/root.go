@@ -550,6 +550,19 @@ func dispatchExtraCommand(
 	auditID int64,
 	auditStart time.Time,
 ) bool {
+	if dispatchAgySubsystem(command, shouldAudit, auditID, auditStart) {
+		return true
+	}
+
+	return dispatchPromptSubsystem(command, shouldAudit, auditID, auditStart)
+}
+
+func dispatchAgySubsystem(
+	command string,
+	shouldAudit bool,
+	auditID int64,
+	auditStart time.Time,
+) bool {
 	switch command {
 	case "ip", "ip-change":
 		executeAndAudit(dispatchIP, shouldAudit, auditID, auditStart)
@@ -569,6 +582,18 @@ func dispatchExtraCommand(
 		executeAndAudit(dispatchAgm, shouldAudit, auditID, auditStart)
 
 		return true
+	default:
+		return false
+	}
+}
+
+func dispatchPromptSubsystem(
+	command string,
+	shouldAudit bool,
+	auditID int64,
+	auditStart time.Time,
+) bool {
+	switch command {
 	case "sj", "ssh-join", "ssh-joined", "ssh-joiner":
 		executeAndAudit(dispatchSJ, shouldAudit, auditID, auditStart)
 
@@ -580,6 +605,12 @@ func dispatchExtraCommand(
 	case "prompts-template", "prompt-template", "prompts-templates", "prompt-templates", "pt":
 		executeAndAudit(func(ctx context.Context, args []string, root *cobra.Command) error {
 			return cmdprompttemplate.RunPromptsTemplateCLI(args[1:])
+		}, shouldAudit, auditID, auditStart)
+
+		return true
+	case "rerun", "rr":
+		executeAndAudit(func(ctx context.Context, args []string, root *cobra.Command) error {
+			return cmdagy.RunRerunTopLevelCLI(args[1:])
 		}, shouldAudit, auditID, auditStart)
 
 		return true

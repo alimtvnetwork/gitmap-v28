@@ -155,6 +155,9 @@ func dispatchSCMetaOps(subCmd string, rest []string) bool {
 	case "exec", "run":
 		_ = cmdssh.RunClusterExecCLI(rest)
 		return true
+	case "schedule", "schedules":
+		_ = cmdssh.RunClusterExecCLI(append([]string{"schedule"}, rest...))
+		return true
 	default:
 		return false
 	}

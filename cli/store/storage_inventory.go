@@ -25,6 +25,10 @@ func CollectAllDatabaseEntries() []SplitDatabaseEntry {
 	collectSubdirDatabases(dataDir, "pipeline", "pipeline", addEntry)
 	collectSubdirDatabases(dataDir, "pipeline_db", "pipeline", addEntry)
 	collectSubdirDatabases(dataDir, "repo_search", "repo", addEntry)
+	collectSubdirDatabases(dataDir, "repodb", "repodb", addEntry)
+	collectParentSubdirDatabases(dataDir, "pipeline", "pipeline", addEntry)
+	collectParentSubdirDatabases(dataDir, "repodb", "repodb", addEntry)
+	collectUserHomeDatabases(addEntry)
 	collectLocalRepoDatabases(addEntry)
 	collectLooseDatabases(dataDir, addEntry)
 
@@ -88,4 +92,28 @@ func collectLocalRepoDatabases(add func(SplitDatabaseEntry)) {
 	if _, err := os.Stat(localDB); err == nil {
 		add(inspectSplitDBFile("repo", "local-repo", localDB, "Local repository Gitmap SQLite database"))
 	}
+	collectSubdirDatabases(".", "repodb", "repodb", add)
+	collectSubdirDatabases(".gitmap", "repodb", "repodb", add)
+	collectSubdirDatabases(".gitmap", "pipeline", "pipeline", add)
 }
+
+func collectParentSubdirDatabases(baseDir, subName, dbType string, add func(SplitDatabaseEntry)) {
+	parent := filepath.Dir(baseDir)
+	if parent == "" || parent == "." || parent == baseDir {
+		return
+	}
+
+	collectSubdirDatabases(parent, subName, dbType, add)
+}
+
+func collectUserHomeDatabases(add func(SplitDatabaseEntry)) {
+	home, err := os.UserHomeDir()
+	if err != nil {
+		return
+	}
+
+	gitmapDir := filepath.Join(home, ".gitmap")
+	collectSubdirDatabases(gitmapDir, "pipeline", "pipeline", add)
+	collectSubdirDatabases(gitmapDir, "repodb", "repodb", add)
+}
+

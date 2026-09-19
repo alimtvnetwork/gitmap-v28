@@ -16,14 +16,14 @@ func RunAgyOpen(path string) error {
 	absPath := resolveTargetPath(path)
 	_ = workspacesync.SyncAntigravity(absPath, filepath.Base(absPath))
 	backupAgyLocation(absPath)
-	exePath, isFound := resolveAntigravityBinary()
-	if !isFound {
+	ideRes := ResolveAntigravityIDE()
+	if ideRes.IsFailure() {
 		printAntigravityInstallSuggestion()
 
 		return nil
 	}
 
-	return startAntigravity(exePath, absPath)
+	return startAntigravity(ideRes.Value, absPath)
 }
 
 func startAntigravity(exePath, absPath string) error {

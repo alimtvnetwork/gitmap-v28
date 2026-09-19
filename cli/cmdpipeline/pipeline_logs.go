@@ -20,11 +20,14 @@ func handlePipelineErrorLogs(args []string) error {
 
 		return nil
 	}
-
 	if hasArgFlag(args, "last-failed-logs") {
 		return HandlePipelineLastFailedLogs(args)
 	}
 
+	return handlePipelineHistoryOrExecute(args)
+}
+
+func handlePipelineHistoryOrExecute(args []string) error {
 	if handled, err := HandlePipelineHistoryErrors(args); handled {
 		return err
 	}
@@ -36,16 +39,20 @@ func executePipelineErrorLogs(args []string) error {
 	flags := ParsePipelineErrorFlags(args)
 	repo := resolveCurrentRepoSlug()
 	if flags.HasTimeline {
-		WaitForRunnerETAIfActive()
-
-		return runPipelineErrorLogsDynamicTimeline(ErrorLogsTimelineParams{
-			Repo: repo, IsJSON: flags.IsJSON, WantFix: flags.HasFix,
-			WantCheck: flags.HasCheck, IsDetailed: flags.IsDetailed,
-			FilePath: flags.FilePath, TempFileName: flags.TempFileName, Args: args,
-		})
+		return executeTimelineErrorLogs(repo, flags, args)
 	}
 
 	return processAndRenderErrorLogs(repo, flags)
+}
+
+func executeTimelineErrorLogs(repo string, flags PipelineErrorFlags, args []string) error {
+	WaitForRunnerETAIfActive()
+
+	return runPipelineErrorLogsDynamicTimeline(ErrorLogsTimelineParams{
+		Repo: repo, IsJSON: flags.IsJSON, WantFix: flags.HasFix,
+		WantCheck: flags.HasCheck, IsDetailed: flags.IsDetailed,
+		FilePath: flags.FilePath, TempFileName: flags.TempFileName, Args: args,
+	})
 }
 
 func processAndRenderErrorLogs(repo string, flags PipelineErrorFlags) error {
@@ -115,10 +122,37 @@ func populateRunsIntoPayload(repo string, runs []ghRunItem, p *PipelineErrorLogs
 
 		return
 	}
-	if p.Conclusion == "success" || p.IsRunning {
+	if shouldSkipFallback(p, runs) {
 		return
 	}
 	_ = ApplyPreviousRunFallbackToPayload(p, repo, runs)
+}
+
+func shouldSkipFallback(p *PipelineErrorLogsPayload, runs []ghRunItem) bool {
+	if hasFailingRuns(runs) {
+		return false
+	}
+
+	return p.Conclusion == "success" || p.IsRunning
+}
+
+func hasFailingRuns(runs []ghRunItem) bool {
+	for _, r := range runs {
+		if isFailingConclusion(r.Conclusion) {
+			return true
+		}
+	}
+
+	return false
+}
+
+func isFailingConclusion(conclusion string) bool {
+	switch strings.ToLower(strings.TrimSpace(conclusion)) {
+	case "failure", "timed_out", "cancelled", "startup_failure":
+		return true
+	default:
+		return false
+	}
 }
 
 func enrichErrorLogsMetadata(p *PipelineErrorLogsPayload, repo string, runs []ghRunItem) {
@@ -155,11 +189,14 @@ func resolveLatestBranchName(p *PipelineErrorLogsPayload, runs []ghRunItem) stri
 	if len(runs) > 0 && len(runs[0].HeadBranch) > 0 {
 		return runs[0].HeadBranch
 	}
-
 	if len(p.Branch) > 0 {
 		return p.Branch
 	}
 
+	return resolveActiveOrMainBranch()
+}
+
+func resolveActiveOrMainBranch() string {
 	active := gitutil.GetActiveBranch(".")
 	if len(active) > 0 && active != "-" {
 		return active
@@ -172,11 +209,14 @@ func resolveLatestCommitHash(p *PipelineErrorLogsPayload, runs []ghRunItem) stri
 	if len(runs) > 0 && len(runs[0].HeadSha) > 0 {
 		return gitutil.TruncSha(runs[0].HeadSha)
 	}
-
 	if len(p.Sha) > 0 {
 		return gitutil.TruncSha(p.Sha)
 	}
 
+	return resolveLocalCommitSHA()
+}
+
+func resolveLocalCommitSHA() string {
 	sha := gitutil.GetLastCommitSHA(".")
 	if len(sha) > 0 && sha != "-" {
 		return sha
@@ -282,7 +322,10 @@ func resolveFetchConcurrency(total int) int {
 }
 
 func initFailedRunTopLevel(p *PipelineErrorLogsPayload, fr ghRunItem) {
-	p.Conclusion = "failure"
+	p.Conclusion = fr.Conclusion
+	if len(p.Conclusion) == 0 {
+		p.Conclusion = "failure"
+	}
 	p.WorkflowName = fr.Name
 	p.RunId = fr.DatabaseId
 	p.Url = fr.Url
@@ -340,26 +383,23 @@ func normalizeWorkflowKey(name string) string {
 	return lower
 }
 
-func markWorkflowSucceeded(name, key string, succeeded map[string]bool) {
-	if len(key) > 0 {
-		succeeded[key] = true
-	}
-	if len(name) > 0 {
-		succeeded[name] = true
-	}
-}
+func buildWorkflowScopeKey(r ghRunItem) string {
+	nameKey := normalizeWorkflowKey(r.Name)
+	branchKey := strings.ToLower(strings.TrimSpace(r.HeadBranch))
+	shaKey := strings.ToLower(strings.TrimSpace(r.HeadSha))
 
-func isWorkflowAlreadySucceeded(name, key string, succeeded map[string]bool) bool {
-	return (len(key) > 0 && succeeded[key]) || (len(name) > 0 && succeeded[name])
+	return branchKey + ":" + shaKey + ":" + nameKey
 }
 
 func checkAndCollectRun(r ghRunItem, succeeded map[string]bool, active *[]ghRunItem) {
-	key := normalizeWorkflowKey(r.Name)
+	scopeKey := buildWorkflowScopeKey(r)
 	if r.Conclusion == "success" {
-		markWorkflowSucceeded(r.Name, key, succeeded)
+		succeeded[scopeKey] = true
+
 		return
 	}
-	if r.Conclusion == "failure" && !isWorkflowAlreadySucceeded(r.Name, key, succeeded) {
+	if isFailingConclusion(r.Conclusion) && !succeeded[scopeKey] {
+		succeeded[scopeKey] = true
 		*active = append(*active, r)
 	}
 }
@@ -369,16 +409,18 @@ func filterFailingRunsByTargetSha(runs []ghRunItem) []ghRunItem {
 		return nil
 	}
 
-	targetSha := runs[0].HeadSha
-	var filtered []ghRunItem
+	return capFailedRuns(collectRunsMatchingSha(runs, runs[0].HeadSha), 5)
+}
 
+func collectRunsMatchingSha(runs []ghRunItem, targetSha string) []ghRunItem {
+	var filtered []ghRunItem
 	for _, r := range runs {
 		if len(targetSha) == 0 || r.HeadSha == targetSha {
 			filtered = append(filtered, r)
 		}
 	}
 
-	return capFailedRuns(filtered, 5)
+	return filtered
 }
 
 func capFailedRuns(runs []ghRunItem, limit int) []ghRunItem {
@@ -420,26 +462,32 @@ func writeOrRenderErrorLogs(params ErrorLogOutputParams) error {
 	if err != nil {
 		return err
 	}
-
 	_ = persistAutoErrorReport(params)
+
 	if len(params.TempFile) > 0 || len(params.FilePath) > 0 {
 		return writeErrorLogsToDisk(params, contentToWrite)
 	}
 
+	return dispatchErrorLogPresentation(params, contentToWrite)
+}
+
+func dispatchErrorLogPresentation(params ErrorLogOutputParams, content string) error {
 	if params.IsJSON {
-		fmt.Println(contentToWrite)
-		_ = clipboard.WriteAll(contentToWrite)
-
-		return nil
+		return outputJSONErrorLogs(content)
 	}
-
 	if params.HasSuppressOutputLog {
 		printSuppressedStagingNotice(params.Payload.SavedReportFile)
 
 		return nil
 	}
-
 	renderErrorLogsTerminal(params.Payload)
+
+	return nil
+}
+
+func outputJSONErrorLogs(content string) error {
+	fmt.Println(content)
+	_ = clipboard.WriteAll(content)
 
 	return nil
 }
@@ -466,7 +514,7 @@ func writeErrorLogsToDisk(params ErrorLogOutputParams, content string) error {
 }
 
 func persistAutoErrorReport(params ErrorLogOutputParams) error {
-	if params.Payload.Conclusion != "failure" && len(params.Payload.FailedRuns) == 0 {
+	if !isFailingConclusion(params.Payload.Conclusion) && len(params.Payload.FailedRuns) == 0 {
 		clearLocalErrorLogs()
 
 		return nil
@@ -519,7 +567,7 @@ func renderErrorLogsTerminal(p PipelineErrorLogsPayload) {
 }
 
 func renderAndCopyTerminalReport(p PipelineErrorLogsPayload) {
-	hasFailure := p.Conclusion == "failure" || len(p.FailedRuns) > 0
+	hasFailure := isFailingConclusion(p.Conclusion) || len(p.FailedRuns) > 0
 	if hasFailure {
 		renderFailureTerminal(p)
 		copyReportToClipboard(buildClipboardErrorReport(p), true)
@@ -609,19 +657,22 @@ func renderFailureSectionsAndETA(p PipelineErrorLogsPayload) {
 func buildClipboardErrorReport(p PipelineErrorLogsPayload) string {
 	var sb strings.Builder
 	appendClipboardMetaHeader(&sb, "GITMAP PIPELINE ERROR REPORT", p)
+	appendClipboardBodyContent(&sb, p)
+
+	return strings.TrimSpace(sb.String())
+}
+
+func appendClipboardBodyContent(sb *strings.Builder, p PipelineErrorLogsPayload) {
 	if len(p.ErrorLogs) > 0 {
 		sb.WriteString(p.ErrorLogs)
 		sb.WriteString("\n")
 
-		return strings.TrimSpace(sb.String())
+		return
 	}
-
 	if len(p.CombinedErrors) > 0 {
 		sb.WriteString(p.CombinedErrors)
 		sb.WriteString("\n")
 	}
-
-	return strings.TrimSpace(sb.String())
 }
 
 func buildClipboardCleanReport(p PipelineErrorLogsPayload) string {
@@ -667,6 +718,10 @@ func copyReportToClipboard(content string, isFailure bool) {
 		return
 	}
 
+	printClipboardNotice(isFailure)
+}
+
+func printClipboardNotice(isFailure bool) {
 	if isFailure {
 		fmt.Printf("\n  📋 Copied pipeline error logs to clipboard\n")
 
@@ -770,19 +825,19 @@ func renderRunCardMeta(fr FailedRunItem) {
 	if len(fr.CreatedAt) > 0 {
 		fmt.Printf("  │ When Run:  %s\n", formatRunTimestamp(fr.CreatedAt))
 	}
-
 	if fr.DurationSeconds > 0 {
 		fmt.Printf("  │ Duration:  %s\n", formatDurationSeconds(fr.DurationSeconds))
 	}
+	renderRunCardBranchAndLog(fr)
+}
 
+func renderRunCardBranchAndLog(fr FailedRunItem) {
 	if len(fr.Branch) > 0 {
 		fmt.Printf("  │ Branch:    %s | Commit: %s\n", fr.Branch, fr.Sha)
 	}
-
 	if len(fr.SavedLogFile) > 0 {
 		fmt.Printf("  │ Saved Log: %s\n", fr.SavedLogFile)
 	}
-
 	if len(fr.Url) > 0 {
 		fmt.Printf("  │ URL:       %s\n", fr.Url)
 	}
@@ -793,16 +848,17 @@ func renderSavedLocationsTerminal(p PipelineErrorLogsPayload) {
 	if len(p.SavedReportFile) > 0 {
 		fmt.Printf("    • Combined Report: %s\n", p.SavedReportFile)
 	}
-
 	if len(p.SavedLogFile) > 0 {
 		fmt.Printf("    • Latest Run Log:  %s\n", p.SavedLogFile)
 	}
+	renderSavedDbAndUrl(p)
+}
 
+func renderSavedDbAndUrl(p PipelineErrorLogsPayload) {
 	if len(p.DbPath) > 0 {
 		fmt.Printf("    • Pipeline DB:     %s\n", FormatRelativeDbPath(p.DbPath))
 		fmt.Printf("    • DB Size:         %s\n", ResolveDbFileSize(p.DbPath))
 	}
-
 	if len(p.Url) > 0 {
 		fmt.Printf("    • Web Run URL:     %s\n\n", p.Url)
 	}

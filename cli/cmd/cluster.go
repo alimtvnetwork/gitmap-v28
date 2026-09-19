@@ -19,6 +19,8 @@ func routeClusterBootstrapOrExec(sub string, rest []string) result.ErrorWrapper 
 		return result.FailureWrapperErr(cmdssh.RunClusterExecCLI(rest))
 	case "compare", "matrix":
 		return result.FailureWrapperErr(cmdssh.RunSSHCompareCLI(rest))
+	case "schedule", "schedules":
+		return result.FailureWrapperErr(cmdssh.RunClusterExecCLI(append([]string{"schedule"}, rest...)))
 	default:
 		return result.UnmatchedWrapper()
 	}

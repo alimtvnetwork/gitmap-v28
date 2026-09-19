@@ -50,9 +50,9 @@ func TestBatchCursor_SaveAndReset(t *testing.T) {
 }
 
 func TestInjectAgyFixTask_SkipInject(t *testing.T) {
-	ok, msg := InjectAgyFixTask(".", "some/path", true)
-	if ok || !strings.Contains(msg, "skipped by flag") {
-		t.Fatalf("expected skipped by flag, got ok=%v msg=%s", ok, msg)
+	res := InjectAgyFixTask(".", "some/path", true)
+	if res.IsSuccess || !strings.Contains(res.Message, "skipped by flag") {
+		t.Fatalf("expected skipped by flag, got ok=%v msg=%s", res.IsSuccess, res.Message)
 	}
 }
 

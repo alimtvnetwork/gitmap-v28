@@ -65,3 +65,30 @@ type AgyFixDispatchParams struct {
 	HasFailures bool
 	TargetDir   string
 }
+
+// AgyInjectionModeType indicates whether injection was routed via CLI, IDE, or skipped.
+type AgyInjectionModeType string
+
+const (
+	AgyInjectionModeNone AgyInjectionModeType = "none"
+	AgyInjectionModeCLI  AgyInjectionModeType = "cli"
+	AgyInjectionModeIDE  AgyInjectionModeType = "ide"
+)
+
+// AgyInjectionResult encapsulates the outcome of an Antigravity injection task.
+type AgyInjectionResult struct {
+	IsSuccess  bool                 `json:"IsSuccess"`
+	Mode       AgyInjectionModeType `json:"Mode"`
+	PID        int                  `json:"PID"`
+	Message    string               `json:"Message"`
+	PromptPath string               `json:"PromptPath"`
+	RepoDir    string               `json:"RepoDir"`
+}
+
+// AgyAssembledPromptPayload bundles assembled prompt components for pipeline fix dispatch.
+type AgyAssembledPromptPayload struct {
+	Primary       string `json:"Primary"`
+	Followup      string `json:"Followup"`
+	PromptContent string `json:"PromptContent"`
+	PromptSource  string `json:"PromptSource"`
+}

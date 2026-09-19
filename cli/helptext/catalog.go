@@ -72,6 +72,17 @@ var topicSummaries = map[string]string{
 	"credits":                "Display creator, sponsor, and engineering partner acknowledgments.",
 	"task":                   "Manage and inspect pending and completed task execution queues, history, and undo/redo operations.",
 	"tasks":                  "Manage and inspect pending and completed task execution queues, history, and undo/redo operations.",
+	"agy":                    "Manage Google Antigravity workspaces, rerun historical prompts with prefix verification templates, inspect prompt diffs across projects in non-admin VS Code, and orchestrate remote execution.",
+	"antigravity":            "Manage Google Antigravity workspaces, rerun historical prompts with prefix verification templates, inspect prompt diffs across projects in non-admin VS Code, and orchestrate remote execution.",
+	"pipeline":               "Query live CI/CD pipeline runs, calculate remaining wait times (ETA), fetch step failure logs, export telemetry, clear local databases, and feed errors to Antigravity.",
+	"pl":                     "Query live CI/CD pipeline runs, calculate remaining wait times (ETA), fetch step failure logs, export telemetry, clear local databases, and feed errors to Antigravity.",
+	"prompts-template":       "Manage reusable Antigravity prompt prefix and verification templates with JSON storage, add, edit, list, remove, export, and import operations.",
+	"prompt-template":        "Manage reusable Antigravity prompt prefix and verification templates with JSON storage, add, edit, list, remove, export, and import operations.",
+	"prompt_templates":       "Manage reusable Antigravity prompt prefix and verification templates with JSON storage, add, edit, list, remove, export, and import operations.",
+	"pt":                     "Manage reusable Antigravity prompt prefix and verification templates with JSON storage, add, edit, list, remove, export, and import operations.",
+	"storage":                "Display disk drives, storage volumes, mount points, filesystem space utilization, repository SQLite databases, and restore database from snapshots.",
+	"schedule":               "Manage scheduled tasks, macro schedules, OS startup tasks, isolated split SQLite databases, run history, and execution logs.",
+	"schedules":              "Manage scheduled tasks, macro schedules, OS startup tasks, isolated split SQLite databases, run history, and execution logs.",
 }
 
 // GetTopicDetailedSummary returns documentation content for a specific command topic.

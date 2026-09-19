@@ -2,10 +2,12 @@
 package cmdagy
 
 import (
+	"encoding/json"
 	"fmt"
 	"os"
 	"path/filepath"
 	"strings"
+	"time"
 
 	"github.com/spf13/cobra"
 
@@ -24,17 +26,26 @@ var agyScanCmd = &cobra.Command{
 	Use:   "scan [path]",
 	Short: "Scan path recursively for git repos and check Antigravity status",
 	RunE: func(cmd *cobra.Command, args []string) error {
-		return runAgyScan(args)
+		appErr := runAgyScan(args)
+		if appErr != nil {
+			return appErr
+		}
+
+		return nil
 	},
 }
 
-func runAgyScan(args []string) error {
+func runAgyScan(args []string) *apperror.AppError {
 	rootPath := resolveAgyScanRoot(args)
 	dirPath, pathErr := getProjectsDirPath()
 	if pathErr != nil {
 		return apperror.WrapSimple(pathErr, "path error")
 	}
 
+	return executeScanOnPath(rootPath, dirPath)
+}
+
+func executeScanOnPath(rootPath, dirPath string) *apperror.AppError {
 	projects, loadErr := loadAllAgyProjects(dirPath)
 	if loadErr != nil {
 		return apperror.WrapSimple(loadErr, "load projects")
@@ -43,6 +54,7 @@ func runAgyScan(args []string) error {
 	repos := discoverGitRepos(rootPath)
 	results := matchReposWithAgyProjects(repos, projects)
 	renderAgyScanResults(rootPath, results)
+	backupScannedPrompts()
 
 	return nil
 }
@@ -70,26 +82,40 @@ func resolveTargetAbs(raw string) string {
 
 func discoverGitRepos(root string) []string {
 	var repos []string
-	_ = filepath.Walk(root, func(path string, info os.FileInfo, err error) error {
-		if err != nil || !info.IsDir() {
-			return nil
-		}
-
-		name := info.Name()
-		if isSkippableScanDir(name) {
-			return filepath.SkipDir
-		}
-
-		if checkDirExists(filepath.Join(path, ".git")) {
-			repos = append(repos, path)
-
-			return filepath.SkipDir
-		}
-
-		return nil
-	})
+	_ = filepath.Walk(root, makeScanWalkFunc(&repos))
 
 	return repos
+}
+
+func makeScanWalkFunc(repos *[]string) filepath.WalkFunc {
+	return func(path string, info os.FileInfo, err error) error {
+		return handleScanWalkEntry(path, info, err, repos)
+	}
+}
+
+func handleScanWalkEntry(path string, info os.FileInfo, err error, repos *[]string) error {
+	if err != nil || info == nil {
+		return nil
+	}
+	if !info.IsDir() {
+		return nil
+	}
+	if isSkippableScanDir(info.Name()) {
+		return filepath.SkipDir
+	}
+
+	return checkGitRepoEntry(path, repos)
+}
+
+func checkGitRepoEntry(path string, repos *[]string) error {
+	gitDir := filepath.Join(path, ".git")
+	if checkDirExists(gitDir) {
+		*repos = append(*repos, path)
+
+		return filepath.SkipDir
+	}
+
+	return nil
 }
 
 func isSkippableScanDir(name string) bool {
@@ -106,27 +132,47 @@ func isSkippableScanDir(name string) bool {
 func matchReposWithAgyProjects(repos []string, projects []AgyProject) []agyScanRepoResult {
 	results := make([]agyScanRepoResult, 0, len(repos))
 	for _, r := range repos {
-		normRepo := strings.ToLower(filepath.Clean(r))
-		matchedIDs := make([]string, 0)
-		for _, p := range projects {
-			normProj := strings.ToLower(filepath.Clean(p.GetPath()))
-			if normProj == normRepo {
-				matchedIDs = append(matchedIDs, shortProjectId(p.ID))
-			}
-		}
-
-		results = append(results, agyScanRepoResult{
-			Name:       filepath.Base(r),
-			Path:       r,
-			MatchCount: len(matchedIDs),
-			ProjectIDs: matchedIDs,
-		})
+		results = append(results, matchSingleRepoWithProjects(r, projects))
 	}
 
 	return results
 }
 
+func matchSingleRepoWithProjects(repo string, projects []AgyProject) agyScanRepoResult {
+	normRepo := strings.ToLower(filepath.Clean(repo))
+	matchedIDs := findMatchedProjectIDs(normRepo, projects)
+
+	return agyScanRepoResult{
+		Name:       filepath.Base(repo),
+		Path:       repo,
+		MatchCount: len(matchedIDs),
+		ProjectIDs: matchedIDs,
+	}
+}
+
+func findMatchedProjectIDs(normRepo string, projects []AgyProject) []string {
+	matched := make([]string, 0)
+	for _, p := range projects {
+		normProj := strings.ToLower(filepath.Clean(p.GetPath()))
+		if normProj == normRepo {
+			matched = append(matched, shortProjectId(p.ID))
+		}
+	}
+
+	return matched
+}
+
 func renderAgyScanResults(root string, results []agyScanRepoResult) {
+	printAgyScanBanner(root)
+	added, repeated, missing := 0, 0, 0
+	for _, res := range results {
+		renderScanRow(res)
+		tallyScanResult(res.MatchCount, &added, &repeated, &missing)
+	}
+	printAgyScanSummary(len(results), added, repeated, missing)
+}
+
+func printAgyScanBanner(root string) {
 	fmt.Printf("\n  %s╔══════════════════════════════════════╗%s\n", constants.ColorCyan, constants.ColorReset)
 	fmt.Printf("  %s║       antigravity repo scan          ║%s\n", constants.ColorCyan, constants.ColorReset)
 	fmt.Printf("  %s╚══════════════════════════════════════╝%s\n\n", constants.ColorCyan, constants.ColorReset)
@@ -134,21 +180,17 @@ func renderAgyScanResults(root string, results []agyScanRepoResult) {
 	fmt.Println("  ──────────────────────────────────────────────────────────────────────────────────────")
 	fmt.Printf("  %-30s  %-15s  %s\n", "REPOSITORY", "AGY STATUS", "TARGET PATH")
 	fmt.Println("  ──────────────────────────────────────────────────────────────────────────────────────")
-	added, repeated, missing := 0, 0, 0
-	for _, res := range results {
-		statusStr := formatAgyScanStatus(res.MatchCount)
-		fmt.Printf("  %-30s  %-24s  %s\n", res.Name, statusStr, res.Path)
-		tallyScanResult(res.MatchCount, &added, &repeated, &missing)
-	}
+}
 
-	printAgyScanSummary(len(results), added, repeated, missing)
+func renderScanRow(res agyScanRepoResult) {
+	statusStr := formatAgyScanStatus(res.MatchCount)
+	fmt.Printf("  %-30s  %-24s  %s\n", res.Name, statusStr, res.Path)
 }
 
 func formatAgyScanStatus(count int) string {
 	if count == 1 {
 		return constants.ColorGreen + "✔ added (1)" + constants.ColorReset
 	}
-
 	if count > 1 {
 		return fmt.Sprintf("%s⚠ repeated (%d)%s", constants.ColorYellow, count, constants.ColorReset)
 	}
@@ -179,6 +221,45 @@ func printAgyScanSummary(total, added, repeated, missing int) {
 		fmt.Println("  Tip: Run 'gitmap agy optimize-projects' to remove duplicate projects.")
 	}
 	printPromptScanSummary(computePromptScanStats())
-
 	fmt.Println()
+}
+
+func backupScannedPrompts() {
+	allPrompts := CollectAllPrompts()
+	if len(allPrompts) == 0 {
+		return
+	}
+
+	backupPath := resolvePromptBackupPath()
+	if backupPath == "" {
+		return
+	}
+
+	data, err := json.MarshalIndent(allPrompts, "", "  ")
+	if err != nil {
+		return
+	}
+
+	writePromptBackupFile(backupPath, data, len(allPrompts))
+}
+
+func writePromptBackupFile(backupPath string, data []byte, count int) {
+	writeErr := os.WriteFile(backupPath, data, 0644)
+	if writeErr == nil {
+		fmt.Printf("  %s✔ Backed up %d project prompts to %s%s\n", constants.ColorGreen, count, backupPath, constants.ColorReset)
+	}
+}
+
+func resolvePromptBackupPath() string {
+	home, err := os.UserHomeDir()
+	if err != nil {
+		return ""
+	}
+
+	dir := filepath.Join(home, ".gemini", "config", "backup", "prompts")
+	if mkErr := os.MkdirAll(dir, 0755); mkErr != nil {
+		return ""
+	}
+
+	return filepath.Join(dir, fmt.Sprintf("prompts-backup-%d.json", time.Now().Unix()))
 }

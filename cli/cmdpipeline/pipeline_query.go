@@ -13,6 +13,7 @@ import (
 	"github.com/alimtvnetwork/gitmap-v28/cli/apperror"
 	"github.com/alimtvnetwork/gitmap-v28/cli/constants"
 	"github.com/alimtvnetwork/gitmap-v28/cli/ghtoken"
+	"github.com/alimtvnetwork/gitmap-v28/cli/pipelinedb"
 )
 
 func runGHCommandWithCustomTimeout(timeout time.Duration, args ...string) ([]byte, error) {
@@ -73,6 +74,10 @@ func queryWorkflowRuns(repo string) []ghRunItem {
 		return queryRunsFromDB(repo)
 	}
 
+	return parseRunsOrFallback(out, repo)
+}
+
+func parseRunsOrFallback(out []byte, repo string) []ghRunItem {
 	var runs []ghRunItem
 	if err := json.Unmarshal(out, &runs); err != nil {
 		return queryRunsFromDB(repo)
@@ -91,6 +96,10 @@ func queryPendingPRs(repo string) int {
 		return 0
 	}
 
+	return parseOpenPRsCount(out)
+}
+
+func parseOpenPRsCount(out []byte) int {
 	var prs []map[string]any
 	if err := json.Unmarshal(out, &prs); err != nil {
 		return 0
@@ -113,6 +122,10 @@ func queryLatestTagRelease(repo string) string {
 	return "v" + constants.Version
 }
 
+type ghReleaseTagItem struct {
+	TagName string `json:"tagName"`
+}
+
 func queryGHLatestTag(repo string) string {
 	if len(repo) == 0 {
 		return ""
@@ -123,10 +136,11 @@ func queryGHLatestTag(repo string) string {
 		return ""
 	}
 
-	var releases []struct {
-		TagName string `json:"tagName"`
-	}
+	return parseFirstReleaseTag(out)
+}
 
+func parseFirstReleaseTag(out []byte) string {
+	var releases []ghReleaseTagItem
 	if err := json.Unmarshal(out, &releases); err == nil && len(releases) > 0 {
 		return releases[0].TagName
 	}
@@ -267,34 +281,42 @@ func queryAllRunLogs(repo string, runId uint64) string {
 }
 
 func queryRunsFromDB(repo string) []ghRunItem {
-	db, err := openDB()
+	db, err := pipelinedb.OpenPipelineSplitDb(repo)
 	if err != nil {
 		return nil
 	}
 
 	defer db.Close()
 
-	dbRuns, err := db.ListRecentPipelineRuns(repo, 5)
-	if err != nil {
+	runRes := db.QueryRecentRuns(5)
+	if runRes.IsFailure() {
 		return nil
 	}
 
-	var runs []ghRunItem
+	return mapDbRunsToGhRuns(runRes.Data)
+}
+
+func mapDbRunsToGhRuns(dbRuns []pipelinedb.PipelineRunRecord) []ghRunItem {
+	runs := make([]ghRunItem, 0, len(dbRuns))
 	for _, r := range dbRuns {
-		runs = append(runs, ghRunItem{
-			DatabaseId: safeInt64ToUint64(r.RunID),
-			Name:       r.WorkflowName,
-			Status:     r.Status,
-			Conclusion: r.Conclusion,
-			HeadBranch: r.Branch,
-			HeadSha:    r.Sha,
-			CreatedAt:  r.CreatedAt,
-			UpdatedAt:  r.UpdatedAt,
-			Url:        r.URL,
-		})
+		runs = append(runs, convertDbRunToGhRun(r))
 	}
 
 	return runs
+}
+
+func convertDbRunToGhRun(r pipelinedb.PipelineRunRecord) ghRunItem {
+	return ghRunItem{
+		DatabaseId: r.RunId,
+		Name:       r.WorkflowName,
+		Status:     r.Status,
+		Conclusion: r.Conclusion,
+		HeadBranch: r.Branch,
+		HeadSha:    r.Sha,
+		CreatedAt:  r.CreatedAt,
+		UpdatedAt:  r.UpdatedAt,
+		Url:        r.RunUrl,
+	}
 }
 
 func formatRunTimestamp(raw string) string {
@@ -307,6 +329,10 @@ func formatRunTimestamp(raw string) string {
 		return raw
 	}
 
+	return formatParsedRunTime(t)
+}
+
+func formatParsedRunTime(t time.Time) string {
 	utcStr := t.UTC().Format("2006-01-02 15:04:05 UTC")
 	elapsed := time.Since(t)
 	if elapsed < 0 {
@@ -346,13 +372,14 @@ func formatDurationSeconds(sec int) string {
 	if sec <= 0 {
 		return "<1s"
 	}
-
 	if sec < 60 {
 		return fmt.Sprintf("%ds", sec)
 	}
 
-	m := sec / 60
-	s := sec % 60
+	return formatMinutesAndSeconds(sec/60, sec%60)
+}
+
+func formatMinutesAndSeconds(m, s int) string {
 	if s == 0 {
 		return fmt.Sprintf("%dm", m)
 	}

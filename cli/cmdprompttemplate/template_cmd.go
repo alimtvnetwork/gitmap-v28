@@ -10,15 +10,34 @@ import (
 
 // RunPromptsTemplateCLI routes gitmap prompts-template subcommands.
 func RunPromptsTemplateCLI(args []string) error {
-	if len(args) == 0 || args[0] == "ls" || args[0] == "list" {
+	if isListSubcommand(args) {
 		return runListTemplates()
 	}
+
 	sub := strings.ToLower(args[0])
-	if sub == "-h" || sub == "--help" || sub == "help" {
+	if isHelpSubcommand(sub) {
 		return printTemplateHelp()
 	}
 
 	return dispatchTemplateSubcommand(sub, args[1:])
+}
+
+func isListSubcommand(args []string) bool {
+	if len(args) == 0 {
+		return true
+	}
+
+	sub := strings.ToLower(args[0])
+
+	return sub == "ls" || sub == "list"
+}
+
+func isHelpSubcommand(sub string) bool {
+	if sub == "-h" || sub == "--help" {
+		return true
+	}
+
+	return sub == "help"
 }
 
 func dispatchTemplateSubcommand(sub string, rest []string) error {
@@ -50,8 +69,18 @@ func dispatchTemplateTransferSubcommand(sub string, rest []string) error {
 }
 
 func printTemplateHelp() error {
+	printTemplateHelpHeader()
+	printTemplateHelpCommands()
+
+	return nil
+}
+
+func printTemplateHelpHeader() {
 	fmt.Printf("\n%s  Usage: gitmap prompts-template <subcommand> [args]%s\n", constants.ColorCyan, constants.ColorReset)
 	fmt.Println("  Subcommands:")
+}
+
+func printTemplateHelpCommands() {
 	fmt.Println("    ls, list                         List all registered prompt templates")
 	fmt.Println("    add <name> <content>             Create a new prompt template")
 	fmt.Println("    edit <name|id> <content>         Edit existing template content")
@@ -61,6 +90,4 @@ func printTemplateHelp() error {
 	fmt.Println("    export-all [dest.json]           Export all templates to JSON")
 	fmt.Println("    import-all <src.json>            Bulk import templates from JSON")
 	fmt.Println()
-
-	return nil
 }

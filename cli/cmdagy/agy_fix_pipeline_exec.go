@@ -8,21 +8,38 @@ import (
 	"github.com/alimtvnetwork/gitmap-v28/cli/constants"
 )
 
-func assemblePrimaryAndFollowup(opts AgyFixOptions, payload cmdpipeline.PipelineErrorLogsPayload, errorReport string) (string, string, string, string) {
+func assemblePrimaryAndFollowup(
+	opts AgyFixOptions,
+	payload cmdpipeline.PipelineErrorLogsPayload,
+	errorReport string,
+) AgyAssembledPromptPayload {
 	gitLog := ExtractGitLog("", 5)
 	promptContent, promptSource := LoadCanonicalRcaPrompt(opts.CustomPrompt, opts.IsNoRelease)
 	primary := AssembleRcaFixPayload(payload.Repo, payload.RunId, payload.Sha, gitLog, errorReport, promptContent)
 	followup := BuildVerificationFollowupPrompt(payload.Repo, payload.RunId, payload.Sha)
 
-	return primary, followup, promptContent, promptSource
+	return AgyAssembledPromptPayload{
+		Primary:       primary,
+		Followup:      followup,
+		PromptContent: promptContent,
+		PromptSource:  promptSource,
+	}
 }
 
-func finalizeFixFeedback(repo, promptSource, errorReport, promptContent, primaryPayload string, hasFailures, noClip bool) {
-	renderAgyFixFeedback(repo, promptSource, errorReport, promptContent, primaryPayload, hasFailures, noClip)
+func finalizeFixFeedback(
+	repo string,
+	promptSource string,
+	errorReport string,
+	promptContent string,
+	primaryPayload string,
+	hasFailures bool,
+	isNoClipboard bool,
+) {
+	renderAgyFixFeedback(repo, promptSource, errorReport, promptContent, primaryPayload, hasFailures, isNoClipboard)
 	renderQueuedVerificationNotice()
 }
 
-func persistAndRecordAgyFix(p AgyFixDispatchParams, primary, followup string) error {
+func persistAndRecordAgyFix(p AgyFixDispatchParams, primary, followup string) *apperror.AppError {
 	if writeErr := persistFixPromptPayload(primary, p.Opts.OutputFile, p.Opts.IsNoClipboard); writeErr != nil {
 		return apperror.WrapSimple(writeErr, "persist prompt payload")
 	}
@@ -33,37 +50,51 @@ func persistAndRecordAgyFix(p AgyFixDispatchParams, primary, followup string) er
 	return nil
 }
 
-func executeFixPayloadDispatch(p AgyFixDispatchParams, promptContent, promptSource, primary, followup string) error {
-	if err := persistAndRecordAgyFix(p, primary, followup); err != nil {
+func renderInjectionFeedback(res AgyInjectionResult, isNoInject bool) {
+	if res.IsSuccess {
+		fmt.Printf("  %s✔ %s%s\n\n", constants.ColorGreen, res.Message, constants.ColorReset)
+
+		return
+	}
+
+	if !isNoInject {
+		fmt.Printf("  %sℹ Antigravity Injection: %s%s\n\n", constants.ColorYellow, res.Message, constants.ColorReset)
+	}
+}
+
+func executeFixPayloadDispatch(p AgyFixDispatchParams, assembled AgyAssembledPromptPayload) *apperror.AppError {
+	if err := persistAndRecordAgyFix(p, assembled.Primary, assembled.Followup); err != nil {
 		return err
 	}
 
-	finalizeFixFeedback(p.Payload.Repo, promptSource, p.ErrorReport, promptContent, primary, p.HasFailures, p.Opts.IsNoClipboard)
-	repoDir := p.TargetDir
-	if len(repoDir) == 0 {
-		repoDir = resolveProjectRootDir()
-	}
-	if ok, msg := InjectAgyFixTask(repoDir, toAbsPath(resolveActiveAgyPromptPath()), p.Opts.IsNoInject); ok {
-		fmt.Printf("  %s✔ %s%s\n\n", constants.ColorGreen, msg, constants.ColorReset)
-	} else if !p.Opts.IsNoInject {
-		fmt.Printf("  %sℹ Antigravity Injection: %s%s\n\n", constants.ColorYellow, msg, constants.ColorReset)
-	}
+	finalizeFixFeedback(p.Payload.Repo, assembled.PromptSource, p.ErrorReport, assembled.PromptContent, assembled.Primary, p.HasFailures, p.Opts.IsNoClipboard)
+	repoDir := resolveDispatchRepoDir(p.TargetDir)
+	injectRes := InjectAgyFixTask(repoDir, toAbsPath(resolveActiveAgyPromptPath()), p.Opts.IsNoInject)
+	renderInjectionFeedback(injectRes, p.Opts.IsNoInject)
 
 	return nil
 }
 
-func dispatchAgyFixPrepared(p AgyFixDispatchParams) error {
-	primary, followup, promptContent, promptSource := assemblePrimaryAndFollowup(p.Opts, p.Payload, p.ErrorReport)
+func resolveDispatchRepoDir(targetDir string) string {
+	if len(targetDir) > 0 {
+		return targetDir
+	}
+
+	return resolveProjectRootDir()
+}
+
+func dispatchAgyFixPrepared(p AgyFixDispatchParams) *apperror.AppError {
+	assembled := assemblePrimaryAndFollowup(p.Opts, p.Payload, p.ErrorReport)
 	if p.Opts.IsDryRun {
-		renderAgyFixDryRun(p.Payload.Repo, promptSource, p.ErrorReport, promptContent, primary, p.HasFailures)
+		renderAgyFixDryRun(p.Payload.Repo, assembled.PromptSource, p.ErrorReport, assembled.PromptContent, assembled.Primary, p.HasFailures)
 
 		return nil
 	}
 
-	return executeFixPayloadDispatch(p, promptContent, promptSource, primary, followup)
+	return executeFixPayloadDispatch(p, assembled)
 }
 
-func dispatchCandidateFix(cand ProjectFixCandidate, opts AgyFixOptions) error {
+func dispatchCandidateFix(cand ProjectFixCandidate, opts AgyFixOptions) *apperror.AppError {
 	payload := cmdpipeline.PipelineErrorLogsPayload{
 		Repo: cand.RepoSlug, RunId: cand.RunID, Sha: cand.SHA, ErrorLogs: cand.ErrorReport,
 	}
@@ -78,7 +109,7 @@ func dispatchCandidateFix(cand ProjectFixCandidate, opts AgyFixOptions) error {
 	return dispatchAgyFixPrepared(params)
 }
 
-func executeSingleAgyFix(opts AgyFixOptions) error {
+func executeSingleAgyFix(opts AgyFixOptions) *apperror.AppError {
 	payload, errorReport, hasFailures := cmdpipeline.FetchPipelineErrorReportWithMeta(opts.Repo, opts.IsDetailed)
 	isDup, storePath, sig, errHash := checkAgyFixDuplicate(opts, payload, errorReport)
 	if isDup {
@@ -88,7 +119,7 @@ func executeSingleAgyFix(opts AgyFixOptions) error {
 	params := AgyFixDispatchParams{
 		Opts: opts, StorePath: storePath, Sig: sig, ErrHash: errHash,
 		Payload: payload, ErrorReport: errorReport, HasFailures: hasFailures,
-		TargetDir: resolveProjectRootDir(),
+		TargetDir: resolveDispatchRepoDir(""),
 	}
 
 	return dispatchAgyFixPrepared(params)

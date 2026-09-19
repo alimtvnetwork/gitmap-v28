@@ -12,41 +12,63 @@ func extractFirstToken(arg string) string {
 	return ""
 }
 
+func determineFallbackShell(osType string) string {
+	if isWindowsOS(osType) {
+		return "ps"
+	}
+	return "bash"
+}
+
 func determineSSHCommand(osType string, args []string) (string, string, bool) {
 	if len(args) == 0 {
 		return "", "", false
 	}
-
 	firstToken := extractFirstToken(args[0])
 	if isGitmapCommand(firstToken) {
 		return "", resolveGitmapCommandString(args), true
 	}
-
 	if isExplicitShell(firstToken) {
 		return firstToken, extractShellCommandArgs(args), false
 	}
-
-	shell := "bash"
-	if isWindowsOS(osType) {
-		shell = "ps"
-	}
-
-	return shell, strings.Join(args, " "), false
+	return determineFallbackShell(osType), strings.Join(args, " "), false
 }
 
-func isGitmapCommand(first string) bool {
-	switch first {
+func isGitmapCoreCommand(cmd string) bool {
+	switch cmd {
 	case "gitmap", "status", "pipeline", "pipe", "pl", "clone", "pull", "sync", "push", "clean", "log", "branch", "diff":
 		return true
-	case "storage", "macro", "install", "update", "setup", "chrome", "vscode", "vsc", "vhost", "zip", "service":
+	default:
+		return false
+	}
+}
+
+func isGitmapSystemCommand(cmd string) bool {
+	switch cmd {
+	case "storage", "macro", "install", "update", "setup", "chrome", "vscode", "vsc", "vhost", "zip", "service", "os":
 		return true
-	case "os", "schedule", "schedules", "agy", "ag", "antigravity", "aef", "fix-pipeline", "prompts-template", "pt":
+	case "schedule", "schedules", "scheduled", "cron", "crontab", "restore-db", "restoredb":
+		return true
+	default:
+		return false
+	}
+}
+
+func isGitmapAgyOrRemote(cmd string) bool {
+	switch cmd {
+	case "agy", "ag", "antigravity", "aef", "fix-pipeline", "fixpipeline", "pipeline-fix":
+		return true
+	case "prompts-template", "prompt-template", "prompts-templates", "prompt-templates", "prompt_templates", "pt":
 		return true
 	case "ssh", "se", "sj", "cluster", "sc", "mkdir", "cat", "prompt", "prompts", "pmt", "agm", "ip":
 		return true
 	default:
 		return false
 	}
+}
+
+func isGitmapCommand(first string) bool {
+	low := strings.ToLower(first)
+	return isGitmapCoreCommand(low) || isGitmapSystemCommand(low) || isGitmapAgyOrRemote(low)
 }
 
 func resolveGitmapCommandString(args []string) string {

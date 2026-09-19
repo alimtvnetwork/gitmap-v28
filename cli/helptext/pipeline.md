@@ -1,59 +1,108 @@
-# Pipeline
+# pipeline
 
-Query live CI/CD pipeline runs, calculate remaining wait times (ETA), fetch step failure logs, and export telemetry.
+Query live CI/CD pipeline runs, calculate remaining wait times (ETA), fetch step failure logs, export telemetry, clear local databases, and feed errors directly into Google Antigravity.
 
-## Aliases
+## Synopsis
 
-pl
+```bash
+gitmap pipeline <subcommand> [flags]
+gitmap pl <subcommand> [flags]
+```
 
-## Usage
+## Aliases & Shorthands
 
-    gitmap pipeline <subcommand> [flags]
-    gitmap pl <subcommand> [flags]
+- `gitmap pipeline`
+- `gitmap pl`
+- `gitmap pipe`
 
 ## Subcommands
 
-| Subcommand     | Description                                                                           |
-|----------------|---------------------------------------------------------------------------------------|
-| status         | Live CI/CD execution state, active workflow, ETA, and pending PRs                     |
-| waittime, eta  | Remaining estimated wait time in seconds (machine-friendly integer)                   |
-| errors, err    | Aggregated failure logs for current or past commit by offset (`-1`, `-2`, `-3`)       |
-| fix errors agy | Feed errors, git log & RCA prompt to Antigravity, inject prompt & queue (alias: `aef`) |
-| history, hist  | Visual pipeline run tree and commit status summary for recent commits (`-n 5`)       |
-| logs           | Full step logs for target commit, offset, or latest workflow run                      |
-| help           | Show this pipeline command suite documentation                                        |
+| Subcommand | Description |
+|------------|-------------|
+| `status` | Live CI/CD execution state, active workflow, ETA, and pending PRs |
+| `waittime, eta` | Remaining estimated wait time in seconds (machine-friendly integer) |
+| `errors, err` | Aggregated failure logs for current or past commit by offset (`-1`, `-2`, `-3`) |
+| `fix errors agy` | Feed errors, git log & RCA prompt to Antigravity, inject prompt & queue (alias: `aef`) |
+| `clear-db, db clear` | Reset/purge local pipeline split SQLite database and telemetry error logs (`-y`) |
+| `history, hist` | Visual pipeline run tree and commit status summary for recent commits (`-n 5`) |
+| `logs` | Full step logs for target commit, offset, or latest workflow run |
+| `help` | Show this pipeline command suite documentation |
 
-## Flags
+---
 
-| Flag            | Type    | Default | Description                                                     |
-|-----------------|---------|---------|-----------------------------------------------------------------|
-| -f, --force     | boolean | false   | Bypass duplicate check and resend errors previously dispatched  |
-| --all           | boolean | false   | Scan all projects for failures (or retain verbose logs)         |
-| --projects <N>  | integer | 3       | Number of failing projects to batch-fix with Antigravity        |
-| --limit <N>     | integer | 3       | Limit number of failing projects per batch run (default: 3)     |
-| --reset-batch   | boolean | false   | Reset multi-project batch cursor to the first project           |
-| --no-inject     | boolean | false   | Skip direct Antigravity CLI/IDE injection                       |
-| --json          | boolean | false   | Output structured JSON payload for scripting and AI agents      |
-| --file          | string  | ""      | Write error logs or telemetry to the specified file path        |
-| --tempfile      | string  | ""      | Write error logs to `.ai-memory/temp/<filename>` (configurable) |
-| --split         | boolean | false   | Separate failure logs across multiple jobs into distinct files  |
-| --clip          | boolean | false   | Copy logs directly to system clipboard                         |
-| -n <count>      | integer | 5       | Number of recent commits to display in pipeline history         |
+## Options & Flags
+
+| Flag | Shorthand | Type | Default | Description |
+|------|-----------|------|---------|-------------|
+| `--force` | `-f` | boolean | `false` | Bypass duplicate check and resend errors previously dispatched |
+| `--all` | | boolean | `false` | Scan all projects for failures (or retain verbose logs) |
+| `--projects` | | integer | `3` | Number of failing projects to batch-fix with Antigravity |
+| `--limit` | | integer | `3` | Limit number of failing projects per batch run |
+| `--reset-batch` | | boolean | `false` | Reset multi-project batch cursor to the first project |
+| `--yes` | `-y` | boolean | `false` | Skip confirmation prompt when clearing pipeline database |
+| `--no-inject` | | boolean | `false` | Skip direct Antigravity CLI/IDE injection |
+| `--json` | `-j` | boolean | `false` | Output structured JSON payload for scripting and AI agents |
+| `--file` | | string | `""` | Write error logs or telemetry to the specified file path |
+| `--tempfile` | | string | `""` | Write error logs to `.ai-memory/temp/<filename>` |
+| `--split` | | boolean | `false` | Separate failure logs across multiple jobs into distinct files |
+| `--clip` | | boolean | `false` | Copy logs directly to system clipboard |
+| `--count` | `-n` | integer | `5` | Number of recent commits to display in pipeline history |
+| `--help` | `-h` | boolean | `false` | Show help for pipeline commands |
+
+---
 
 ## Top-Level Shortcuts
 
-| Shortcut           | Equivalent Command                  |
-|--------------------|-------------------------------------|
-| gitmap aef         | gitmap pipeline fix errors agy      |
-| gitmap pipeline-fix| gitmap pipeline fix errors agy      |
-| gitmap error-logs  | gitmap pipeline error-logs          |
-| gitmap errors      | gitmap pipeline errors              |
-| gitmap logs        | gitmap pipeline logs                |
-| gitmap history     | gitmap pipeline history             |
-| gitmap waittime    | gitmap pipeline waittime            |
-| gitmap eta         | gitmap pipeline eta                 |
+| Shortcut | Equivalent Command |
+|----------|-------------------|
+| `gitmap aef` | `gitmap pipeline fix errors agy` |
+| `gitmap pipeline-fix` | `gitmap pipeline fix errors agy` |
+| `gitmap error-logs` | `gitmap pipeline error-logs` |
+| `gitmap errors` | `gitmap pipeline errors` |
+| `gitmap logs` | `gitmap pipeline logs` |
+| `gitmap history` | `gitmap pipeline history` |
+| `gitmap waittime` | `gitmap pipeline waittime` |
+| `gitmap eta` | `gitmap pipeline eta` |
+| `gitmap pipeline clear-db` | `gitmap pipeline db clear` |
 
-## Examples
+---
+
+## Accurate Failure Detection Architecture
+
+GitMap pipeline telemetry prevents false-positive "clean status" masking:
+
+- **Branch and Commit Scoped Telemetry**: Pipeline error evaluation is strictly scoped to the active commit SHA and branch name. Workflow runs are never deduplicated globally by workflow title alone.
+- **Failures on Feature Branches**: Even if a parent or default branch (`main`) is passing, failure runs on the current commit (e.g. `cat-my-v12` commit `384f5d2`) will accurately be detected, evaluated, and presented with full step logs.
+
+---
+
+## 1. Clear Pipeline Database (`clear-db`)
+
+Purge recorded pipeline run history, cached step outputs, and aggregated failure logs from the repository-scoped SQLite split database (`.gitmap/repodb/pipeline.db` and global pipeline tables).
+
+### Usage
+
+```bash
+gitmap pipeline clear-db [-y]
+gitmap pipeline db clear [-y]
+```
+
+### Examples
+
+```bash
+# Interactively clear pipeline database with confirmation prompt
+gitmap pipeline clear-db
+
+# Non-interactively clear pipeline database without confirmation
+gitmap pipeline clear-db -y
+
+# Equivalent via db subcommand
+gitmap pipeline db clear -y
+```
+
+---
+
+## 2. Inspect Live Status & Telemetry
 
 ### Check Live Status in Human-Readable Format
 
@@ -85,58 +134,68 @@ $ gitmap pipeline status --json
 }
 ```
 
-### Extract Failure Logs Directly to Temp File
+---
+
+## 3. Negative Commit Offsets (`-1`, `-2`, `-3`)
+
+Inspect failure logs from earlier commits when diagnosing regressions across recent pushes:
 
 ```bash
-$ gitmap pipeline error-logs --json --tempfile "ci-failure.json"
-  ✓ Output written to .ai-memory\temp\ci-failure.json
+# Aggregate all workflow errors for the previous commit (-1)
+gitmap pipeline errors -1
+
+# Inspect errors for 2 commits prior (-2)
+gitmap pipeline errors -2
+
+# Inspect errors for 3 commits prior (-3)
+gitmap pipeline errors -3
 ```
 
-### Inspect Errors for Previous Commit (-1, -2, -3)
+---
+
+## 4. Pipeline History Tree
+
+Display a visual ASCII tree of recent commit statuses, run durations, and failure states:
 
 ```bash
-# Aggregate all workflow errors for the previous distinct commit
-$ gitmap pipeline errors -1
+# View pipeline history for the last 5 commits
+gitmap pipeline history
 
-# Inspect errors for 3 commits prior
-$ gitmap pipeline errors -3
+# View pipeline history for the last 10 commits
+gitmap pipeline history -n 10
 ```
 
-### View Pipeline History Tree Across Recent Commits
+---
+
+## 5. Feed Pipeline Errors to Antigravity (`agy fix`)
+
+Extract failure step logs and git history, generate 4-part Root Cause Analysis (RCA) prompt into `.ai-memory/temp/active-agy-pipeline-fix-prompt.txt`, inject prompt directly into Antigravity IDE/CLI, and copy to clipboard:
 
 ```bash
-$ gitmap pipeline history
+# Fix pipeline errors for current repository
+gitmap pipeline errors agy fix
+
+# Using top-level shortcut
+gitmap aef
+
+# Batch fix failing pipelines across all tracked projects (batch of 3)
+gitmap pipeline errors agy fix --all
+
+# Run again to automatically advance to the next batch of failing projects
+gitmap pipeline errors agy fix --all
+
+# Custom batch limit of 5 projects
+gitmap pipeline errors agy fix --all --limit 5
+
+# Reset batch cursor back to the start
+gitmap pipeline errors agy fix --reset-batch
 ```
 
-### Export Full Pipeline Logs to Clipboard or Temp File
-
-```bash
-# Copy latest workflow run logs directly to system clipboard
-$ gitmap pipeline logs --clip
-
-# Save logs for a specific commit to temp file
-$ gitmap pipeline logs 066e04b --tempfile "pipeline-run.log"
-```
-
-### Feed Pipeline Errors to Antigravity with Direct Injection & Follow-up Queue
-
-```bash
-# Extract failing logs, recent git commits, inject prompt to Antigravity, and copy to clipboard
-$ gitmap pipeline errors agy fix
-
-# Multi-project parallel batching: scan all tracked repos and fix failing pipelines (batch of 3)
-$ gitmap pipeline errors agy fix --all
-
-# Run again to automatically process the next batch of failing projects
-$ gitmap pipeline errors agy fix --all
-
-# Specify custom batch limit of 5 projects
-$ gitmap pipeline errors agy fix --all --limit 5
-```
+---
 
 ## See Also
 
-- [agy-fix-pipeline](agy-fix-pipeline.md) — Comprehensive guide for Antigravity pipeline error feeding and batching
+- [agy](agy.md) — Comprehensive guide for Google Antigravity prompts, reruns, and workspaces
 - [storage](storage.md) — Inspect disk space, pipeline logs, and SQLite database storage
-- [ui](ui.md) — Launch the browser dashboard to view pipeline telemetry and use the web terminal
+- [ui](ui.md) — Browser dashboard to view pipeline telemetry and use the web terminal
 - [llm](llm.md) — Guidance for autonomous AI agents monitoring CI/CD pipelines

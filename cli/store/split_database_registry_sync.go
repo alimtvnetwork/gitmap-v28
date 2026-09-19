@@ -95,6 +95,10 @@ func (db *DB) syncSinglePipeline(dir string, e os.DirEntry) {
 	entry := inspectSplitDBFile("pipeline", slug, path, "Pipeline execution split database")
 	_ = db.RegisterSplitDB(entry)
 }
+// InspectSplitDBFile inspects a database file and returns a SplitDatabaseEntry.
+func InspectSplitDBFile(dbType, dbKey, path, desc string) SplitDatabaseEntry {
+	return inspectSplitDBFile(dbType, dbKey, path, desc)
+}
 
 func inspectSplitDBFile(dbType, dbKey, path, desc string) SplitDatabaseEntry {
 	entry := newDefaultSplitEntry(dbType, dbKey, path, desc)

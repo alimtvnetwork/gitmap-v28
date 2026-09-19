@@ -167,7 +167,24 @@ func isErrorLogsSubcmd(subcmd string) bool {
 	return false
 }
 
+func isPipelineClearDbSubcmd(subcmd string) bool {
+	switch subcmd {
+	case "clear-db", "cleardb", "db-clear":
+		return true
+	default:
+		return false
+	}
+}
+
 func dispatchPipelineSubcmd(subcmd string, args []string) error {
+	if isPipelineClearDbSubcmd(subcmd) {
+		return handlePipelineDB(append([]string{"clear"}, args[1:]...))
+	}
+
+	return dispatchCorePipelineSubcmd(subcmd, args)
+}
+
+func dispatchCorePipelineSubcmd(subcmd string, args []string) error {
 	switch subcmd {
 	case "status", "st", "s":
 		return handlePipelineStatus(args[1:])
@@ -181,9 +198,9 @@ func dispatchPipelineSubcmd(subcmd string, args []string) error {
 		return handlePipelineDB(args[1:])
 	case "help", "-h", "--help":
 		return showPipelineHelp()
+	default:
+		return dispatchPipelineFallback(subcmd, args)
 	}
-
-	return dispatchPipelineFallback(subcmd, args)
 }
 
 func showPipelineHelp() error {
@@ -202,28 +219,37 @@ func dispatchPipelineFallback(subcmd string, args []string) error {
 	return fmt.Errorf("unknown pipeline subcommand: %s", subcmd)
 }
 
-func printPipelineHelp() {
+func printPipelineHelpHeader() {
 	fmt.Println(constants.ColorCyan + "Usage:" + constants.ColorReset)
 	fmt.Println("  gitmap pipeline [command] [flags]")
 	fmt.Println("  gitmap pipelines [command] [flags]")
 	fmt.Println("  gitmap pipeline-ai [status|eta] [-t <seconds>] [--json]")
 	fmt.Println("  gitmap pl [command] [flags]")
 	fmt.Println()
+}
+
+func printPipelineHelpCommands() {
 	fmt.Println(constants.ColorCyan + "Commands:" + constants.ColorReset)
 	fmt.Println("  status                 Check live CI/CD pipeline status, ETA, and pending PRs")
 	fmt.Println("  waittime               Output remaining ETA seconds for active pipeline (alias: eta)")
 	fmt.Println("  eta                    Output remaining ETA seconds for active pipeline")
-	fmt.Println("  error-logs             Display failure logs, rerun ETA, and internal CI/CD fix suite (alias: errorlogs, errors, last-failed-logs)")
-	fmt.Println("  fix                    Feed pipeline errors to Antigravity IDE (alias: fix errors agy, aef, pipeline-fix)")
+	fmt.Println("  error-logs             Display failure logs, rerun ETA, and internal CI/CD fix suite")
+	fmt.Println("  fix                    Feed pipeline errors to Antigravity IDE (alias: fix errors agy)")
 	fmt.Println("  history                Display recent commits pipeline execution tree (alias: hist, h)")
-	fmt.Println("  logs                   Display consolidated workflow logs for commit or offset (alias: log, l)")
+	fmt.Println("  logs                   Display consolidated workflow logs for commit or offset")
 	fmt.Println("  pipeline-ai status     Auto-delay (default: 20s or -t <seconds>) then query status")
 	fmt.Println("  db                     Inspect or manage isolated pipeline split SQLite database")
+	fmt.Println("  clear-db               Clear recorded pipeline runs and error logs (alias: cleardb, db-clear)")
+	fmt.Println("  help                   Show this pipeline command suite documentation")
+}
+
+func printPipelineHelp() {
+	printPipelineHelpHeader()
+	printPipelineHelpCommands()
 	printPipelineHelpFlags()
 }
 
 func printPipelineHelpFlags() {
-	fmt.Println("  help                   Show this pipeline command suite documentation")
 	fmt.Println()
 	fmt.Println(constants.ColorCyan + "Flags:" + constants.ColorReset)
 	fmt.Println("  -t, --timeline          Watch pipeline run until completion with dynamic ETA timeline")
@@ -251,6 +277,7 @@ func printPipelineHelpExamples() {
 	fmt.Println("  gitmap pipeline errors --last-failures 5")
 	fmt.Println("  gitmap pipeline last-failed-logs")
 	fmt.Println("  gitmap pipeline error-logs -t --fix")
+	fmt.Println("  gitmap pipeline clear-db -y")
 	fmt.Println("  gitmap pipeline errorlogs --check")
 	fmt.Println("  gitmap pipeline error-logs --json")
 }

@@ -8,6 +8,7 @@ import (
 
 	"github.com/spf13/cobra"
 
+	"github.com/alimtvnetwork/gitmap-v28/cli/apperror"
 	"github.com/alimtvnetwork/gitmap-v28/cli/cmdprompttemplate"
 	"github.com/alimtvnetwork/gitmap-v28/cli/constants"
 )
@@ -22,7 +23,12 @@ var agyRerunCmd = &cobra.Command{
 	Use:   "rerun [last] [N]",
 	Short: "Replay recent prompts with optional prefix template",
 	RunE: func(cmd *cobra.Command, args []string) error {
-		return runAgyRerun(args)
+		appErr := runAgyRerun(args)
+		if appErr != nil {
+			return appErr
+		}
+
+		return nil
 	},
 }
 
@@ -32,20 +38,39 @@ func init() {
 	agyRerunCmd.Flags().BoolVarP(&rerunDryRun, "dry-run", "d", false, "Preview constructed prompt without execution")
 }
 
-func runAgyRerun(args []string) error {
+// RunRerunTopLevelCLI executes agy rerun from top-level gitmap aliases.
+func RunRerunTopLevelCLI(args []string) error {
+	runArgs := append([]string{"rerun"}, args...)
+	AgyCmd.SetArgs(runArgs)
+
+	return AgyCmd.Execute()
+}
+
+func runAgyRerun(args []string) *apperror.AppError {
 	count := parseRerunCount(args)
-	tplContent := resolveRerunTemplate(rerunPromptTpl)
+	tplName := extractRerunTemplateName(args)
+	tplContent := resolveRerunTemplate(tplName)
 	cwd, _ := os.Getwd()
 	prompts := resolvePromptsForRerun(cwd, count)
 	if len(prompts) == 0 {
-		fmt.Printf("  %s⚠ No recent prompts found to rerun.%s\n\n", constants.ColorYellow, constants.ColorReset)
+		printNoPromptsWarning()
+
 		return nil
 	}
+
+	executeRerunPayload(tplContent, prompts)
+
+	return nil
+}
+
+func printNoPromptsWarning() {
+	fmt.Printf("  %s⚠ No recent prompts found to rerun.%s\n\n", constants.ColorYellow, constants.ColorReset)
+}
+
+func executeRerunPayload(tplContent string, prompts []AgyPromptEntry) {
 	payload := buildRerunPayload(tplContent, prompts)
 	renderRerunOutput(payload, len(prompts))
 	handleRerunClipboard(payload)
-
-	return nil
 }
 
 func parseRerunCount(args []string) int {
@@ -53,6 +78,7 @@ func parseRerunCount(args []string) int {
 	if len(cleanArgs) == 0 {
 		return 1
 	}
+
 	val, err := strconv.Atoi(cleanArgs[0])
 	if err != nil || val < 1 {
 		return 1
@@ -63,22 +89,72 @@ func parseRerunCount(args []string) int {
 
 func stripLeadingRerunTokens(args []string) []string {
 	var out []string
-	for _, a := range args {
-		low := strings.ToLower(a)
-		if low != "last" && low != "rerun" {
-			out = append(out, a)
+	for i := 0; i < len(args); i++ {
+		tok := args[i]
+		if isPromptFlag(tok) {
+			i++
+			continue
 		}
+
+		if isSkippableRerunToken(tok) {
+			continue
+		}
+
+		out = append(out, tok)
 	}
 
 	return out
+}
+
+func isPromptFlag(tok string) bool {
+	low := strings.ToLower(tok)
+
+	return low == "-p" || low == "--prompt"
+}
+
+func isSkippableRerunToken(tok string) bool {
+	low := strings.ToLower(tok)
+	if low == "last" || low == "rerun" || low == "rr" {
+		return true
+	}
+
+	return strings.HasPrefix(tok, "-")
+}
+
+func extractRerunTemplateName(args []string) string {
+	for i := 0; i < len(args); i++ {
+		tpl := matchPromptFlagAt(args, i)
+		if tpl != "" {
+			return tpl
+		}
+	}
+
+	return rerunPromptTpl
+}
+
+func matchPromptFlagAt(args []string, i int) string {
+	if isPromptFlag(args[i]) && i+1 < len(args) {
+		return args[i+1]
+	}
+
+	if strings.HasPrefix(args[i], "-p=") {
+		return strings.TrimPrefix(args[i], "-p=")
+	}
+
+	if strings.HasPrefix(args[i], "--prompt=") {
+		return strings.TrimPrefix(args[i], "--prompt=")
+	}
+
+	return ""
 }
 
 func resolveRerunTemplate(tplID string) string {
 	if tplID == "" {
 		tplID = cmdprompttemplate.DefaultTemplateID
 	}
-	tpl, found := cmdprompttemplate.FindTemplate(tplID)
-	if found {
+
+	tpl, isFound := cmdprompttemplate.FindTemplate(tplID)
+	if isFound {
 		return tpl.Content
 	}
 

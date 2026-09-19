@@ -124,6 +124,17 @@ var helpAliases = map[string]string{
 	"tasks":                    "task",
 	"tk":                       "task",
 	"com":                      "clone-only-missing",
+	"prompt_templates":         "prompts-template",
+	"prompt-templates":         "prompts-template",
+	"prompt-template":          "prompts-template",
+	"prompts-templates":        "prompts-template",
+	"pt":                       "prompts-template",
+	"pipe":                     "pipeline",
+	"pl":                       "pipeline",
+	"disk":                     "storage",
+	"df":                       "storage",
+	"ag":                       "agy",
+	"antigravity":              "agy",
 }
 
 func resolveHelpAlias(cmd string) string {

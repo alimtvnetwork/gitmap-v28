@@ -379,8 +379,42 @@ func clearTableQueries() []string {
 	}
 }
 
-// Clear truncates all recorded runs, error logs, and segments.
+// Clear truncates all recorded runs, error logs, and segments, resets sequences, vacuums, and purges cache files.
 func (p *PipelineSplitDb) Clear() error {
+	runIds := p.collectAllRunIds()
+	if err := p.truncateAllTables(); err != nil {
+		return err
+	}
+	_ = p.resetSqliteSequence()
+	_ = p.runVacuum()
+	p.purgeCacheFiles(runIds)
+
+	return nil
+}
+
+func (p *PipelineSplitDb) collectAllRunIds() []uint64 {
+	rows, err := p.conn.Query("SELECT RunId FROM PipelineRun;")
+	if err != nil {
+		return nil
+	}
+	defer rows.Close()
+
+	return extractRunIdsFromRows(rows)
+}
+
+func extractRunIdsFromRows(rows *sql.Rows) []uint64 {
+	var ids []uint64
+	for rows.Next() {
+		var id uint64
+		if err := rows.Scan(&id); err == nil {
+			ids = append(ids, id)
+		}
+	}
+
+	return ids
+}
+
+func (p *PipelineSplitDb) truncateAllTables() error {
 	for _, q := range clearTableQueries() {
 		if _, err := p.conn.Exec(q); err != nil {
 			return apperror.WrapSimple(err, "clear pipeline split db")
@@ -388,6 +422,82 @@ func (p *PipelineSplitDb) Clear() error {
 	}
 
 	return nil
+}
+
+func (p *PipelineSplitDb) resetSqliteSequence() error {
+	query := "DELETE FROM sqlite_sequence WHERE name IN ('PipelineCompactErrorLog', 'PipelineDetailErrorLog', 'PipelineErrorLog', 'PipelineSegment', 'PipelineRun');"
+	_, err := p.conn.Exec(query)
+	if err != nil && !strings.Contains(err.Error(), "no such table") {
+		return apperror.WrapSimple(err, "reset sqlite sequence")
+	}
+
+	return nil
+}
+
+func (p *PipelineSplitDb) runVacuum() error {
+	if _, err := p.conn.Exec("VACUUM;"); err != nil {
+		return apperror.WrapSimple(err, "vacuum pipeline db")
+	}
+
+	return nil
+}
+
+func (p *PipelineSplitDb) purgeCacheFiles(runIds []uint64) {
+	dir := filepath.Dir(p.Path)
+	purgeRunIdCacheFiles(dir, runIds)
+	purgeRepoCacheDir(filepath.Join(dir, strings.ReplaceAll(p.RepoSlug, "/", "_")))
+	purgeRepoCacheDir(filepath.Join(dir, SanitizeRepoSlug(p.RepoSlug)))
+	purgeRepoMatchingJsonFiles(dir, p.RepoSlug)
+}
+
+func purgeRunIdCacheFiles(dir string, runIds []uint64) {
+	for _, id := range runIds {
+		_ = os.Remove(filepath.Join(dir, fmt.Sprintf("%d.log", id)))
+		_ = os.Remove(filepath.Join(dir, fmt.Sprintf("%d.json", id)))
+		_ = os.Remove(filepath.Join(dir, fmt.Sprintf("%d.jobs.json", id)))
+	}
+}
+
+func purgeRepoCacheDir(dir string) {
+	entries, err := os.ReadDir(dir)
+	if err != nil {
+		return
+	}
+	for _, e := range entries {
+		if !e.IsDir() && isPurgeableCacheFile(e.Name()) {
+			_ = os.Remove(filepath.Join(dir, e.Name()))
+		}
+	}
+	_ = os.Remove(dir)
+}
+
+func isPurgeableCacheFile(name string) bool {
+	lower := strings.ToLower(name)
+
+	return strings.HasSuffix(lower, ".log") || strings.HasSuffix(lower, ".json")
+}
+
+func purgeRepoMatchingJsonFiles(dir, repoSlug string) {
+	entries, err := os.ReadDir(dir)
+	if err != nil {
+		return
+	}
+	for _, e := range entries {
+		if !e.IsDir() && strings.HasSuffix(strings.ToLower(e.Name()), ".json") {
+			purgeIfRepoMatches(filepath.Join(dir, e.Name()), repoSlug)
+		}
+	}
+}
+
+func purgeIfRepoMatches(jsonPath, repoSlug string) {
+	content, err := os.ReadFile(jsonPath)
+	if err != nil || !strings.Contains(string(content), repoSlug) {
+		return
+	}
+	_ = os.Remove(jsonPath)
+	baseNoExt := strings.TrimSuffix(jsonPath, ".json")
+	_ = os.Remove(baseNoExt + ".log")
+	_ = os.Remove(strings.TrimSuffix(baseNoExt, ".jobs") + ".log")
 }
 
 func dropTableQueries() []string {
@@ -611,13 +721,12 @@ func normalizeNegativeOffset(offset int) int {
 
 // QueryRunByNegativeOffset retrieves a run by 1-based negative offset (-1 = latest).
 func (p *PipelineSplitDb) QueryRunByNegativeOffset(offset int) (*PipelineRunRecord, error) {
-	sqlOffset := normalizeNegativeOffset(offset)
-	rows, err := p.conn.Query(sqlQueryRunByOffset, sqlOffset)
+	rows, err := p.conn.Query(sqlQueryRunByOffset, normalizeNegativeOffset(offset))
 	if err != nil {
 		return nil, apperror.WrapSimple(err, "query run by offset")
 	}
-
 	defer rows.Close()
+
 	runsRes := collectRecentRuns(rows)
 	if runsRes.IsFailure() || runsRes.IsEmpty() {
 		return nil, runsRes.AppError()

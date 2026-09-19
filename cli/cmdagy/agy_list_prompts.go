@@ -5,6 +5,8 @@ import (
 	"strings"
 
 	"github.com/spf13/cobra"
+
+	"github.com/alimtvnetwork/gitmap-v28/cli/apperror"
 )
 
 var (
@@ -18,7 +20,12 @@ var agyListPromptsCmd = &cobra.Command{
 	Use:   "list-prompts [N]",
 	Short: "List prompt history per project or across projects",
 	RunE: func(cmd *cobra.Command, args []string) error {
-		return runAgyListPrompts(args)
+		appErr := runAgyListPrompts(args)
+		if appErr != nil {
+			return appErr
+		}
+
+		return nil
 	},
 }
 
@@ -29,26 +36,45 @@ func init() {
 	agyListPromptsCmd.Flags().BoolVarP(&listPromptsJSON, "json", "j", false, "Output prompt list as structured JSON")
 }
 
-func runAgyListPrompts(args []string) error {
+func runAgyListPrompts(args []string) *apperror.AppError {
 	limit := parsePromptLimit(args)
 	if listPromptsProjectsCount > 0 {
 		return launchVSCodeForLastProjects(listPromptsProjectsCount, limit)
 	}
 
-	return displayPromptListing(limit)
+	err := displayPromptListing(limit)
+	if err != nil {
+		return apperror.WrapSimple(err, "display prompt listing")
+	}
+
+	return nil
 }
 
 func parsePromptLimit(args []string) int {
-	if len(args) == 0 {
+	cleanArgs := filterOutListPromptFlags(args)
+	if len(cleanArgs) == 0 {
 		return 50
 	}
-	if strings.ToLower(args[0]) == "all" {
+
+	if strings.ToLower(cleanArgs[0]) == "all" {
 		return 10000
 	}
-	val, err := strconv.Atoi(args[0])
+
+	val, err := strconv.Atoi(cleanArgs[0])
 	if err != nil || val < 1 {
 		return 50
 	}
 
 	return val
+}
+
+func filterOutListPromptFlags(args []string) []string {
+	var clean []string
+	for _, a := range args {
+		if !strings.HasPrefix(a, "-") {
+			clean = append(clean, a)
+		}
+	}
+
+	return clean
 }

@@ -98,3 +98,65 @@ func TestSmartPaddingWriter_Concurrent(t *testing.T) {
 		t.Error("expected non-empty buffer after concurrent writes")
 	}
 }
+
+func TestIsBoundaryRule(t *testing.T) {
+	if !IsBoundaryRule("──────") {
+		t.Error("expected ────── to be boundary rule")
+	}
+	if !IsBoundaryRule("\033[1;94m──────\033[0m") {
+		t.Error("expected colored rule to be boundary rule")
+	}
+	if !IsBoundaryRule("========") {
+		t.Error("expected ======== to be boundary rule")
+	}
+	if IsBoundaryRule("normal text line") {
+		t.Error("expected normal text line NOT to be boundary rule")
+	}
+}
+
+func TestHasExistingMargin(t *testing.T) {
+	if !HasExistingMargin("  indented") {
+		t.Error("expected 2-space indented to have margin")
+	}
+	if !HasExistingMargin("\tindented") {
+		t.Error("expected tab indented to have margin")
+	}
+	if !HasExistingMargin("\033[1;94m  colored-indented") {
+		t.Error("expected colored indented to have margin")
+	}
+	if HasExistingMargin("unindented") {
+		t.Error("expected unindented NOT to have margin")
+	}
+}
+
+func TestStripAnsi(t *testing.T) {
+	colored := "\033[1;94mhello world\033[0m"
+	plain := StripAnsi(colored)
+	if plain != "hello world" {
+		t.Errorf("StripAnsi(%q) = %q, want 'hello world'", colored, plain)
+	}
+}
+
+func TestFormatPadded_SuppressRepeatedRules(t *testing.T) {
+	input := "header\n──────────\n──────────\nfooter"
+	got := FormatPadded(input)
+	want := "  header\n  ──────────\n  footer"
+	if got != want {
+		t.Errorf("FormatPadded rule suppression got %q, want %q", got, want)
+	}
+}
+
+func TestPrintBlueRule_Suppression(t *testing.T) {
+	ResetPaddingState()
+	PrintBlueRule(10)
+	PrintBlueRule(10)
+	ResetPaddingState()
+}
+
+func TestPrintSeparator_Suppression(t *testing.T) {
+	ResetPaddingState()
+	PrintSeparator("──────────")
+	PrintSeparator("──────────")
+	ResetPaddingState()
+}
+

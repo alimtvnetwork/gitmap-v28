@@ -1,4 +1,4 @@
-# gitmap agy
+# agy
 
 Manage Google Antigravity (AGY) workspaces, rerun historical prompts with prefix verification templates, inspect and diff prompts across projects with non-admin VS Code, scan project activity, and orchestrate remote execution across SSH, Cluster, SC, and Local targets.
 
@@ -6,6 +6,8 @@ Manage Google Antigravity (AGY) workspaces, rerun historical prompts with prefix
 
 ```bash
 gitmap agy <subcommand> [flags]
+gitmap ag <subcommand> [flags]
+gitmap antigravity <subcommand> [flags]
 ```
 
 ## Aliases & Shorthands
@@ -18,43 +20,23 @@ gitmap agy <subcommand> [flags]
 
 | Subcommand | Description |
 |------------|-------------|
-| `rerun last [N]` | Replay last N prompts with optional prefix prompt template |
+| `rerun last [N]` | Replay last N prompts with optional prefix verification prompt template (`-p`) |
 | `list-prompts [N]` | List historical prompts for current project or across all projects |
-| `scan` | Scan repositories, recent prompt activity counts, and prompt archives |
-| `fix-pipeline [repo]` | Extract failing CI/CD pipeline errors and generate RCA prompt |
+| `scan [path]` | Scan repositories, recent prompt activity counts (24h/7d), and prompt archives |
+| `fix-pipeline [repo]` | Extract failing CI/CD pipeline errors and generate 4-part RCA prompt (alias: `aef`) |
+| `open [path]` | Locate Antigravity IDE and open target workspace |
 | `optimize-projects` | Remove stale or duplicate workspace configurations |
-| `clean-cache` | Clear temporary Antigravity cache files |
-| `open [path]` | Open target workspace in Antigravity |
+| `clean-cache` | Clear temporary Antigravity cache files and transcripts |
 | `pin-projects` | Manage pinned Antigravity projects |
 | `plugins` | Inspect and configure Antigravity plugins |
 | `reconcile` | Reconcile disk repositories with registered projects |
-
----
-
-## Examples
-
-```bash
-# Rerun the last prompt with the default verification template
-gitmap agy rerun last 1
-
-# List prompts across all projects
-gitmap agy list-prompts 10 --all-projects
-
-# Inspect prompt changes for last 10 commit projects in VS Code
-gitmap agy list-prompts 10 --projects 10
-
-# Filter prompts for a specific project prefix
-gitmap agy list-prompts 10 --project my-project
-
-# Scan directory for repositories and prompt archives
-gitmap agy scan
-```
+| `help` | Show this Antigravity command suite documentation |
 
 ---
 
 ## 1. agy rerun
 
-Replay the last N user prompts recorded in Antigravity conversation transcripts. Supports adding a prefix prompt template to verify or guide the execution.
+Replay the last N user prompts recorded in Antigravity conversation transcripts (`transcript.jsonl`). Supports prepending a prefix template to verify or guide execution.
 
 ### Usage
 
@@ -62,21 +44,28 @@ Replay the last N user prompts recorded in Antigravity conversation transcripts.
 gitmap agy rerun last [N] [flags]
 ```
 
-### Flags
+### Options & Flags
 
-```text
-  -p, --prompt string     Prompt template name, prefix, or ID (default: "is-done")
-      --no-clipboard      Do not copy the constructed prompt to clipboard
-  -d, --dry-run           Preview constructed prompt without triggering execution
-  -h, --help              Help for agy rerun
-```
+| Flag | Shorthand | Type | Default | Description |
+|------|-----------|------|---------|-------------|
+| `--prompt` | `-p` | string | `"is-done"` | Prompt template name, prefix, or ID |
+| `--no-clipboard` | | boolean | `false` | Do not copy constructed prompt to system clipboard |
+| `--dry-run` | `-d` | boolean | `false` | Preview constructed prompt without triggering execution |
+| `--help` | `-h` | boolean | `false` | Show help for agy rerun |
 
-### Default Template (`is-done`)
+### Default Verification Template (`is-done`)
 
 When `-p is-done` is specified (or used by default):
+
 ```text
 Is it done properly? Can we check properly the missing items from the task that is mentioned below? Please check it carefully. Do not make any mistakes.
 ```
+
+### Prompt Template Resolution Order
+
+1. **Exact Slug or ID Match**: Matches template ID (e.g., `-p is-done`, `-p code-review`).
+2. **Prefix Match**: Matches any registered template starting with the given string (e.g., `-p is` resolves to `is-done`).
+3. **Built-in Fallback**: Falls back to the canonical `is-done` verification prompt.
 
 ### Examples
 
@@ -87,7 +76,7 @@ gitmap agy rerun last 1
 # Rerun the last 5 prompts prefixed with a custom template
 gitmap agy rerun last 5 -p code-review
 
-# Preview constructed prompt without clipboard copy
+# Preview constructed prompt without copying to clipboard or dispatching
 gitmap agy rerun last 3 --dry-run
 ```
 
@@ -95,7 +84,7 @@ gitmap agy rerun last 3 --dry-run
 
 ## 2. agy list-prompts
 
-Inspect past user prompts per project or across all projects. When `--projects <N>` is used, prompt diffs for the last N commit projects are formatted and opened in a new non-admin VS Code window.
+Inspect past user prompts per project or across all projects. When `--projects <M>` is specified, prompt diffs and recent changes across the last M commit projects are aggregated into a temporary workspace document and opened in VS Code.
 
 ### Usage
 
@@ -103,29 +92,35 @@ Inspect past user prompts per project or across all projects. When `--projects <
 gitmap agy list-prompts [N] [flags]
 ```
 
-### Flags
+### Options & Flags
 
-```text
-      --all-projects      List historical prompts across all discovered projects
-      --projects int      Showcase prompt changes across last N commit projects in VS Code
-      --project string    Filter prompts by project name prefix
-  -j, --json              Output prompt history in structured JSON format
-  -h, --help              Help for agy list-prompts
-```
+| Flag | Shorthand | Type | Default | Description |
+|------|-----------|------|---------|-------------|
+| `--all-projects` | | boolean | `false` | List historical prompts across all discovered projects |
+| `--projects` | | integer | `0` | Showcase prompt changes across last M commit projects in VS Code |
+| `--project` | | string | `""` | Filter prompts by project name prefix |
+| `--json` | `-j` | boolean | `false` | Output prompt history in structured JSON format |
+| `--help` | `-h` | boolean | `false` | Show help for agy list-prompts |
 
-### Non-Admin VS Code Inspection (`--projects <N>`)
+### Non-Admin VS Code Opener Contract
 
-Running `gitmap agy list-prompts 10 --projects 10` aggregates prompt history and commit changes for the 10 most recently committed projects into a structured temporary workspace document and launches:
-```bash
-code -n <temp-file>
-```
-- **New Window Isolation (`-n`)**: Never disrupts or overwrites currently open VS Code editor windows or workspaces.
-- **Non-Admin Security**: Explicitly avoids administrative elevation for safe inspection.
+When `--projects <M>` is executed:
+
+1. Aggregates prompt history and recent commit changes for the M most recently active projects into `.ai-memory/temp/prompts-diff.md`.
+2. Launches VS Code using:
+   ```bash
+   code -n <path-to-temp-file>
+   ```
+3. **New Window Isolation (`-n`)**: Ensures the inspection session never disrupts or overwrites currently active editor windows.
+4. **Non-Admin Execution**: VS Code is never launched with administrative or elevated privileges, preventing accidental elevation risks.
 
 ### Examples
 
 ```bash
-# List last 10 prompts for the current active project
+# List all historical prompts for the current active project
+gitmap agy list-prompts
+
+# List last 10 prompts for the current project
 gitmap agy list-prompts 10
 
 # List last 10 prompts across all registered projects
@@ -150,6 +145,14 @@ Scan directory trees for Git repositories and Antigravity workspaces, reporting 
 gitmap agy scan [path] [flags]
 ```
 
+### Options & Flags
+
+| Flag | Shorthand | Type | Default | Description |
+|------|-----------|------|---------|-------------|
+| `--json` | `-j` | boolean | `false` | Output scan statistics in structured JSON format |
+| `--backup` | | boolean | `false` | Archive discovered project prompts to local backup storage |
+| `--help` | `-h` | boolean | `false` | Show help for agy scan |
+
 ### Examples
 
 ```bash
@@ -158,25 +161,37 @@ gitmap agy scan
 
 # Scan an explicit directory tree
 gitmap agy scan d:/work/projects
+
+# Output scan results in JSON format
+gitmap agy scan --json
 ```
 
 ---
 
-## 4. Remote Execution & Triad Parity
+## 4. Remote Delegation & Triad Parity
 
-Run Antigravity commands seamlessly across local and remote machines:
+Antigravity commands can be executed across local repositories and remote nodes seamlessly:
+
+| Transport | Command | Target |
+|-----------|---------|--------|
+| **SSH** | `gitmap ssh exec agy <command>` | Targeted or all online SSH machines |
+| **Cluster** | `gitmap cluster exec agy <command>` | Targeted or all cluster worker nodes |
+| **SC** | `gitmap sc exec agy <command>` | Distributed fan-out across server-client nodes |
+| **Local** | `gitmap exec agy <command>` | Uniform execution across all tracked local repositories |
+
+### Remote Delegation Examples
 
 ```bash
-# Execute agy command on SSH nodes
-gitmap ssh exec agy rerun last 1 -p is-done
+# Execute agy rerun on remote SSH host "devbox"
+gitmap ssh exec devbox agy rerun last 1 -p is-done
 
-# Execute agy command across all cluster nodes
+# Execute agy rerun across all cluster worker nodes
 gitmap cluster exec agy rerun last 1 -p is-done
 
-# Execute agy command via Servers-Clients (SC) delegation
+# Scan workspaces remotely via Servers-Clients (SC)
 gitmap sc exec agy scan
 
-# Execute agy command locally across all tracked repositories
+# Run agy status locally across all tracked repositories
 gitmap exec agy status
 ```
 
@@ -184,7 +199,7 @@ gitmap exec agy status
 
 ## 5. agy fix-pipeline (aef)
 
-Extract failing CI/CD pipeline error logs, recent git commits, embed complete error logs and 4-part RCA prompt into `.ai-memory/temp/active-agy-pipeline-fix-prompt.txt`, inject fix directly into Google Antigravity, and queue follow-up verification. Supports multi-project parallel batching across repositories with persistent batch cursor tracking.
+Extract failing CI/CD pipeline error logs, recent git commits, embed complete error logs and 4-part RCA prompt into `.ai-memory/temp/active-agy-pipeline-fix-prompt.txt`, inject fix directly into Google Antigravity, and queue follow-up verification.
 
 ### Usage
 
@@ -193,6 +208,19 @@ gitmap agy fix-pipeline [repo] [flags]
 gitmap agy fix [repo] [flags]
 gitmap aef [repo] [flags]
 ```
+
+### Options & Flags
+
+| Flag | Shorthand | Type | Default | Description |
+|------|-----------|------|---------|-------------|
+| `--all` | | boolean | `false` | Scan all tracked repositories and fix failing pipelines in batches |
+| `--projects` | | integer | `3` | Number of failing projects to process per batch |
+| `--limit` | | integer | `3` | Limit number of failing projects per batch run (synonym for `--projects`) |
+| `--reset-batch` | | boolean | `false` | Reset multi-project batch cursor to the first project |
+| `--no-inject` | | boolean | `false` | Skip direct Antigravity CLI/IDE injection |
+| `--clip` | | boolean | `false` | Copy generated prompt directly to system clipboard |
+| `--tempfile` | | string | `""` | Write prompt to custom `.ai-memory/temp/<filename>` |
+| `--help` | `-h` | boolean | `false` | Show help for fix-pipeline |
 
 ### Examples
 
@@ -213,3 +241,8 @@ gitmap agy fix-pipeline --all --limit 5
 gitmap agy fix-pipeline --reset-batch
 ```
 
+## See Also
+
+- [prompts-template](prompts-template.md) — Manage prompt prefix and verification templates
+- [pipeline](pipeline.md) — CI/CD pipeline status, logs, and database management
+- [storage](storage.md) — Inspect disk space, pipeline logs, and SQLite database storage
