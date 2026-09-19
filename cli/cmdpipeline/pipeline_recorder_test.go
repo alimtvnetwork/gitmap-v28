@@ -63,10 +63,19 @@ func TestFormatEtaDisplay(t *testing.T) {
 	if formatEtaDisplay(45) != "~45s" {
 		t.Errorf("expected '~45s', got %s", formatEtaDisplay(45))
 	}
-	if formatEtaDisplay(180) != "~180s (3m)" {
-		t.Errorf("expected '~180s (3m)', got %s", formatEtaDisplay(180))
+	if formatEtaDisplay(180) != "~3m (180s)" {
+		t.Errorf("expected '~3m (180s)', got %s", formatEtaDisplay(180))
 	}
-	if formatEtaDisplay(125) != "~125s (2m 5s)" {
-		t.Errorf("expected '~125s (2m 5s)', got %s", formatEtaDisplay(125))
+	if formatEtaDisplay(125) != "~2m 5s (125s)" {
+		t.Errorf("expected '~2m 5s (125s)', got %s", formatEtaDisplay(125))
+	}
+	if formatEtaDisplay(3600) != "~1h (3600s)" {
+		t.Errorf("expected '~1h (3600s)', got %s", formatEtaDisplay(3600))
+	}
+	if formatEtaDisplay(7350) != "~2h 2m 30s (7350s)" {
+		t.Errorf("expected '~2h 2m 30s (7350s)', got %s", formatEtaDisplay(7350))
+	}
+	if formatEtaDisplay(11700) != "~3h 15m (11700s)" {
+		t.Errorf("expected '~3h 15m (11700s)', got %s", formatEtaDisplay(11700))
 	}
 }

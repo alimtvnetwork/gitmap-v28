@@ -90,8 +90,8 @@ func computeAdaptiveInterval(eta int) int {
 }
 
 func printTimelineProgress(name string, eta, elapsed int) {
-	fmt.Printf("  %s⏳ [%s] in progress:%s ETA ~%ds (elapsed: %ds)\n",
-		constants.ColorYellow, name, constants.ColorReset, eta, elapsed)
+	fmt.Printf("  %s⏳ [%s] in progress:%s ETA %s (elapsed: %s)\n",
+		constants.ColorYellow, name, constants.ColorReset, formatEtaDisplay(eta), formatDurationSeconds(elapsed))
 }
 
 // ErrorLogsTimelineParams specifies parameters for running errorlogs with dynamic timeline watching.

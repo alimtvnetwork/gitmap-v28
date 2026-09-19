@@ -375,8 +375,11 @@ func formatDurationSeconds(sec int) string {
 	if sec < 60 {
 		return fmt.Sprintf("%ds", sec)
 	}
+	if sec < 3600 {
+		return formatMinutesAndSeconds(sec/60, sec%60)
+	}
 
-	return formatMinutesAndSeconds(sec/60, sec%60)
+	return formatHoursMinutesSeconds(sec/3600, (sec%3600)/60, sec%60)
 }
 
 func formatMinutesAndSeconds(m, s int) string {
@@ -387,6 +390,17 @@ func formatMinutesAndSeconds(m, s int) string {
 	return fmt.Sprintf("%dm %ds", m, s)
 }
 
+func formatHoursMinutesSeconds(h, m, s int) string {
+	if m == 0 && s == 0 {
+		return fmt.Sprintf("%dh", h)
+	}
+	if s == 0 {
+		return fmt.Sprintf("%dh %dm", h, m)
+	}
+
+	return fmt.Sprintf("%dh %dm %ds", h, m, s)
+}
+
 func formatEtaDisplay(sec int) string {
 	if sec <= 0 {
 		return "-"
@@ -395,7 +409,7 @@ func formatEtaDisplay(sec int) string {
 		return fmt.Sprintf("~%ds", sec)
 	}
 
-	return fmt.Sprintf("~%ds (%s)", sec, formatDurationSeconds(sec))
+	return fmt.Sprintf("~%s (%ds)", formatDurationSeconds(sec), sec)
 }
 
 func resolveCurrentRepoSlug() string {
