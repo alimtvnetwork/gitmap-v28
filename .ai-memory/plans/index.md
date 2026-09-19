@@ -4,7 +4,7 @@ Master directory of architectural and execution plans.
 
 ## Pending Plans
 
-Zero pending plans. All planned work complete and verified.
+- [36-aum-polyglot-script-migration-and-llm-train-suite.md](pending/36-aum-polyglot-script-migration-and-llm-train-suite.md): Plan 36: AUM Polyglot Script Migration & LLM Train Chained Curriculum Suite (Phases 2-6)
 
 ## Recent Completed Tasks Register (Last 20 Tasks)
 
