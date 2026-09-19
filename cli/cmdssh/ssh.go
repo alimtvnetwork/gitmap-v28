@@ -34,6 +34,8 @@ func dispatchCoreSSH(ctx context.Context, sub string, args []string, parent *cob
 		return result.MatchWrapper(runSSHAlias(parent, args, ctx))
 	case "exec", "se":
 		return result.MatchWrapper(runSSHExec(args))
+	case "nodes", "node", "ls":
+		return result.MatchWrapper(RunSSHNodesCLI(ctx, args))
 	default:
 		return result.UnmatchedWrapper()
 	}

@@ -190,3 +190,25 @@ func TestExecuteSSHLogin_UserAtHostSpawnsDirectly(t *testing.T) {
 		t.Errorf("unexpected target: %+v", spawnedTarget)
 	}
 }
+
+func TestRunSSHLogin_InterceptsNodes(t *testing.T) {
+	testDB := setupTestDB(t)
+	seedTestHost(t, testDB, "h3", "prod-node", "10.0.0.3", "admin")
+	hookTestDB(t, testDB)
+
+	err := runSSHLogin(nil, []string{"nodes"}, context.Background())
+	if err != nil {
+		t.Fatalf("expected nil error for nodes intercept, got: %v", err)
+	}
+}
+
+func TestRunSSHLogin_InterceptsLs(t *testing.T) {
+	testDB := setupTestDB(t)
+	seedTestHost(t, testDB, "h4", "worker-node", "10.0.0.4", "admin")
+	hookTestDB(t, testDB)
+
+	err := runSSHLogin(nil, []string{"ls"}, context.Background())
+	if err != nil {
+		t.Fatalf("expected nil error for ls intercept, got: %v", err)
+	}
+}

@@ -107,14 +107,20 @@ Examples:
 const leafHelpLs = `List all enrolled SSH machines, aliases, users, and creation timestamps.
 
 Usage:
+  gitmap ssh nodes [flags]
+  gitmap ssh ls [flags]
   gitmap ssh-join ls [flags]
+  gitmap ssh-join nodes [flags]
   gitmap ssh join ls [flags]
   gitmap sj ls [flags]
+  gitmap sj nodes [flags]
 
 Aliases:
-  list
+  nodes, node, ls, list
 
 Examples:
+  gitmap ssh nodes
+  gitmap ssh ls
   gitmap ssh-join ls
   gitmap sj ls
   gitmap ssh join ls`
@@ -162,13 +168,13 @@ Aliases:
 
 Examples:
   gitmap ssh-join history
-  gitmap ssh-join history 192.168.1.50
-  gitmap sj hist ubuntu`
+  gitmap sj hist prod-web`
 
 var leafHelpCatalog = map[string]string{
 	"add":           leafHelpAdd,
 	"enroll":        leafHelpAdd,
 	"join":          leafHelpAdd,
+	"new":           leafHelpAdd,
 	"add-with-pass": leafHelpAddWithPass,
 	"add-pass":      leafHelpAddWithPass,
 	"add-password":  leafHelpAddWithPass,
@@ -182,6 +188,8 @@ var leafHelpCatalog = map[string]string{
 	"check":         leafHelpStatus,
 	"ls":            leafHelpLs,
 	"list":          leafHelpLs,
+	"nodes":         leafHelpLs,
+	"node":          leafHelpLs,
 	"rm":            leafHelpRm,
 	"remove":        leafHelpRm,
 	"delete":        leafHelpRm,
@@ -232,6 +240,7 @@ func attachAllLeafCommandsHelp() {
 	AttachLeafHelp(SJScanCmd, "scan")
 	AttachLeafHelp(SJStatusCmd, "status")
 	AttachLeafHelp(SJLsCmd, "ls")
+	AttachLeafHelp(SJNodesCmd, "nodes")
 	AttachLeafHelp(SJRmCmd, "rm")
 	AttachLeafHelp(SJAddAuthCmd, "add-auth")
 	AttachLeafHelp(SJHistCmd, "history")

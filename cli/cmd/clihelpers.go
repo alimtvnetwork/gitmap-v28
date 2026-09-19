@@ -310,6 +310,9 @@ var SJHistCmd = cmdssh.SJHistCmd
 // SJLsCmd is re-exported from cmdssh.
 var SJLsCmd = cmdssh.SJLsCmd
 
+// SJNodesCmd is re-exported from cmdssh.
+var SJNodesCmd = cmdssh.SJNodesCmd
+
 // runSSH delegates to cmdssh.RunSSH.
 func runSSH(args []string) error {
 	return cmdssh.RunSSH(args)

@@ -1,3 +1,9 @@
+## v6.268.0 — 2026-09-19 (Improve SSH nodes and ls terminal view with rich color UI and add gitmap ssh nodes command)
+
+**Scope:** Version bump. Improve SSH nodes and ls terminal view with rich color UI and add gitmap ssh nodes command.
+
+---
+
 ## v6.267.0 — 2026-09-19 (Improve pipeline errors formatting with reading progress padding, recent commits summary padding, and DB cleanup command guidance)
 
 **Scope:** Version bump. Improve pipeline errors formatting with reading progress padding, recent commits summary padding, and DB cleanup command guidance.

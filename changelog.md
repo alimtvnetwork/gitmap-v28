@@ -1,3 +1,20 @@
+## [v6.268.0] 2026-09-20 Release v6.268.0
+
+### Install GitMap v6.268.0
+
+To pin your repository to this exact version, run the following one-liner:
+Unix/Bash: `curl -sL https://raw.githubusercontent.com/alimtvnetwork/gitmap-v28/v6.268.0/install.sh | bash -s -- ".ai-memory/prompts" "v6.268.0"`
+PowerShell: `Invoke-WebRequest -Uri https://raw.githubusercontent.com/alimtvnetwork/gitmap-v28/v6.268.0/install.ps1 -OutFile install.ps1; .\install.ps1 -TargetDir ".ai-memory/prompts" -Version "v6.268.0"`
+
+### Added / Changed / Fixed / Removed
+
+- Add gitmap ssh nodes command to list registered SSH nodes directly instead of failing with alias not found
+- Add gitmap ssh ls command to list registered SSH nodes
+- Improve SSH nodes and ls terminal view with rich ANSI colors (Cyan headers, Yellow roles for control-plane/master, Green bullet status, White aliases and host:port)
+- Add top and bottom newline padding and precise column alignment (100-char table layout) for terminal readability
+- Enhance alias-not-found suggestion view with the same rich colored registered hosts table and recall guidance
+- Add gitmap ssh-join nodes and gitmap sj nodes aliases for nodes listing
+
 ## [v6.267.0] 2026-09-20 Release v6.267.0
 
 ### Install GitMap v6.267.0
@@ -2397,6 +2414,12 @@ PowerShell: `Invoke-WebRequest -Uri https://raw.githubusercontent.com/alimtvnetw
 - Fixed spacing in help menu.
 
 # Changelog
+
+## [v6.268.0] - 2026-09-19
+
+### Added
+- Improve SSH nodes and ls terminal view with rich color UI and add gitmap ssh nodes command
+
 
 ## [v6.267.0] - 2026-09-19
 

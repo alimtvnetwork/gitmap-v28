@@ -5,8 +5,10 @@ import (
 	"io"
 	"strings"
 	"time"
+	"unicode/utf8"
 
 	"github.com/alimtvnetwork/gitmap-v28/cli/apperror"
+	"github.com/alimtvnetwork/gitmap-v28/cli/constants"
 	"github.com/alimtvnetwork/gitmap-v28/cli/store"
 )
 
@@ -16,8 +18,7 @@ const (
 	defaultHostAlias     = "-"
 	defaultHostStatus    = "ready"
 	defaultSSHPort       = 22
-	dividerLength        = 95
-	tableRowFormat       = "  %-16s %-10s %-22s %-14s %-10s %-19s\n"
+	dividerLength        = 100
 	msgNoNodesRegistered = "No nodes registered. Enroll with: gitmap sj add <user@ip|ip> [alias]\n"
 )
 
@@ -61,27 +62,87 @@ func formatEnrolledTime(t time.Time) string {
 	return t.Format("2006-01-02 15:04:05")
 }
 
+func padVisual(s string, width int) string {
+	rCount := utf8.RuneCountInString(s)
+	if rCount >= width {
+		return s
+	}
+	return s + strings.Repeat(" ", width-rCount)
+}
+
+func isControlPlaneRole(role string) bool {
+	return role == "control" || role == "control-plane" || role == "master" || role == "cp"
+}
+
+func formatRoleColored(role string, width int) string {
+	plain := padVisual(role, width)
+	if isControlPlaneRole(role) {
+		return constants.ColorYellow + plain + constants.ColorReset
+	}
+	if role == defaultHostRole {
+		return constants.ColorCyan + plain + constants.ColorReset
+	}
+	return constants.ColorDim + plain + constants.ColorReset
+}
+
+func formatStatusColored(status string, width int) string {
+	if status == "ready" || status == "active" {
+		text := "● " + status
+		plain := padVisual(text, width)
+		return constants.ColorGreen + plain + constants.ColorReset
+	}
+	return constants.ColorDim + padVisual(status, width) + constants.ColorReset
+}
+
+func formatAliasColored(alias string, width int) string {
+	plain := padVisual(alias, width)
+	return constants.ColorBold + constants.ColorWhite + plain + constants.ColorReset
+}
+
+func formatHostPortColored(hostPort string, width int) string {
+	plain := padVisual(hostPort, width)
+	return constants.ColorWhite + plain + constants.ColorReset
+}
+
+func formatUserColored(user string, width int) string {
+	plain := padVisual(user, width)
+	return constants.ColorDim + plain + constants.ColorReset
+}
+
+func formatEnrolledColored(enrolled string, width int) string {
+	plain := padVisual(enrolled, width)
+	return constants.ColorDim + plain + constants.ColorReset
+}
+
 func renderHostsTableHeader(out io.Writer) error {
-	_, err := fmt.Fprintf(out, tableRowFormat,
-		"ALIAS", "ROLE", "HOST (IP:PORT)", "USER", "STATUS", "ENROLLED")
-	if err != nil {
+	colAlias := padVisual("ALIAS", 16)
+	colRole := padVisual("ROLE", 14)
+	colHost := padVisual("HOST (IP:PORT)", 22)
+	colUser := padVisual("USER", 14)
+	colStatus := padVisual("STATUS", 10)
+	colEnrolled := padVisual("ENROLLED", 19)
+
+	headerLine := fmt.Sprintf("  %s %s %s %s %s %s\n",
+		colAlias, colRole, colHost, colUser, colStatus, colEnrolled)
+	if _, err := fmt.Fprintf(out, "\n%s%s%s", constants.ColorCyan, headerLine, constants.ColorReset); err != nil {
 		return apperror.WrapSimple(err, "renderHostsTableHeader")
 	}
 	divider := strings.Repeat("-", dividerLength)
-	if _, err := fmt.Fprintf(out, "  %s\n", divider); err != nil {
+	if _, err := fmt.Fprintf(out, "  %s%s%s\n", constants.ColorDim, divider, constants.ColorReset); err != nil {
 		return apperror.WrapSimple(err, "renderHostsTableDivider")
 	}
 	return nil
 }
 
 func renderHostTableRow(out io.Writer, h store.SSHHost) error {
-	alias := resolveTableAlias(h.Alias)
-	role := resolveTableRole(h.ClusterRole)
-	user := resolveTableUser(h.Username)
-	hostPort := formatTableHostPort(h.IP, h.Port)
-	enrolled := formatEnrolledTime(h.CreatedAt)
-	_, err := fmt.Fprintf(out, tableRowFormat,
-		alias, role, hostPort, user, defaultHostStatus, enrolled)
+	alias := formatAliasColored(resolveTableAlias(h.Alias), 16)
+	role := formatRoleColored(resolveTableRole(h.ClusterRole), 14)
+	hostPort := formatHostPortColored(formatTableHostPort(h.IP, h.Port), 22)
+	user := formatUserColored(resolveTableUser(h.Username), 14)
+	status := formatStatusColored(defaultHostStatus, 10)
+	enrolled := formatEnrolledColored(formatEnrolledTime(h.CreatedAt), 19)
+	_, err := fmt.Fprintf(out, "  %s %s %s %s %s %s\n",
+		alias, role, hostPort, user, status, enrolled)
 	if err != nil {
 		return apperror.WrapSimple(err, "renderHostTableRow")
 	}
@@ -89,7 +150,8 @@ func renderHostTableRow(out io.Writer, h store.SSHHost) error {
 }
 
 func renderHostsTableFooter(out io.Writer, count int) error {
-	_, err := fmt.Fprintf(out, "  Total: %d registered node(s)\n", count)
+	_, err := fmt.Fprintf(out, "\n  %sTotal: %d registered node(s)%s\n\n",
+		constants.ColorDim, count, constants.ColorReset)
 	if err != nil {
 		return apperror.WrapSimple(err, "renderHostsTableFooter")
 	}
@@ -97,14 +159,15 @@ func renderHostsTableFooter(out io.Writer, count int) error {
 }
 
 func renderEmptyHostsNotice(out io.Writer) error {
-	_, err := fmt.Fprint(out, msgNoNodesRegistered)
+	_, err := fmt.Fprintf(out, "\n  %s● No nodes registered. Enroll with: gitmap sj add <user@ip|ip> [alias]%s\n\n",
+		constants.ColorYellow, constants.ColorReset)
 	if err != nil {
 		return apperror.WrapSimple(err, "renderEmptyHostsNotice")
 	}
 	return nil
 }
 
-// RenderSSHHostsTable renders a fixed-width ASCII table of SSH hosts.
+// RenderSSHHostsTable renders a fixed-width colored table of SSH hosts.
 func RenderSSHHostsTable(out io.Writer, hosts []store.SSHHost) error {
 	if len(hosts) == 0 {
 		return renderEmptyHostsNotice(out)

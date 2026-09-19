@@ -4,12 +4,10 @@ import (
 	"context"
 	"database/sql"
 	"fmt"
-	"io"
 	"net"
 	"os"
 	"strings"
 	"sync/atomic"
-	"text/tabwriter"
 	"time"
 
 	"github.com/spf13/cobra"
@@ -193,37 +191,17 @@ func isSJSubcommand(sub string) bool {
 		return true
 	}
 
-	return sub == "ls" || sub == "list" || sub == "rm" || sub == "remove" || sub == "delete" ||
+	return sub == "ls" || sub == "list" || sub == "nodes" || sub == "node" || sub == "rm" || sub == "remove" || sub == "delete" ||
 		sub == "add-auth" || sub == "auth" || sub == "history" || sub == "hist" ||
 		sub == "auth-key" || sub == "copy-id"
 }
 
-func renderSJListTable(out io.Writer, hosts []store.SSHHost) error {
-	w := tabwriter.NewWriter(out, 0, 0, 2, ' ', 0)
-	fmt.Fprintln(w, "ID\tALIAS\tIP\tUSERNAME\tCREATED_AT")
-
-	for _, host := range hosts {
-		fmt.Fprintf(w, "%s\t%s\t%s\t%s\t%s\n",
-			host.ID, host.Alias, host.IP, host.Username, host.CreatedAt.Format("2006-01-02 15:04:05"))
-	}
-
-	return w.Flush()
+func isSJListSubcommand(sub string) bool {
+	return sub == "ls" || sub == "list" || sub == "nodes" || sub == "node"
 }
 
 func executeSJList(ctx context.Context) error {
-	dbConn, err := openSSHDBFunc()
-	if err != nil {
-		return printSJList(ctx, os.Stdout, 0)
-	}
-
-	defer dbConn.Close()
-
-	hosts, err := store.ListHosts(ctx, dbConn.SQL())
-	if err != nil {
-		return apperror.New("executeSJList", "E_INTERNAL_ERROR", map[string]any{"msg": "failed to list hosts", "err": err.Error()})
-	}
-
-	return renderSJListTable(os.Stdout, hosts)
+	return printSJList(ctx, os.Stdout, 0)
 }
 
 func dispatchSJBasicSubcommand(ctx context.Context, sub string, args []string) (bool, error) {
@@ -249,7 +227,7 @@ func dispatchSJQuerySubcommand(ctx context.Context, sub string, args []string) (
 	if isSJStatusSubcommand(sub) {
 		return true, RunSJStatus(SJStatusCmd, args, ctx)
 	}
-	if sub == "ls" || sub == "list" {
+	if isSJListSubcommand(sub) {
 		return true, executeSJList(ctx)
 	}
 	return false, nil
@@ -547,6 +525,7 @@ func init() {
 	SSHJoinCmd.AddCommand(SJRmCmd)
 	SSHJoinCmd.AddCommand(SJAddAuthCmd)
 	SSHJoinCmd.AddCommand(SJLsCmd)
+	SSHJoinCmd.AddCommand(SJNodesCmd)
 	SSHJoinCmd.AddCommand(SJHistCmd)
 	SSHJoinCmd.AddCommand(SJClusterImportCmd)
 	SSHJoinCmd.AddCommand(ClusterBootstrapCmd)

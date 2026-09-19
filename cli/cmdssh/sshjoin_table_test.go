@@ -6,6 +6,7 @@ import (
 	"testing"
 	"time"
 
+	"github.com/alimtvnetwork/gitmap-v28/cli/constants"
 	"github.com/alimtvnetwork/gitmap-v28/cli/store"
 )
 
@@ -88,4 +89,18 @@ func TestRenderSSHHostsTable_DefaultFallbacks(t *testing.T) {
 	assertTableContains(t, out, "root")
 	assertTableContains(t, out, "10.0.0.99:22")
 	assertTableContains(t, out, "Total: 1 registered node(s)")
+}
+
+func TestRenderSSHHostsTable_ColorsAndStyles(t *testing.T) {
+	h1 := sampleTestHost("cp-node", "control-plane", "192.168.1.10", 22, "root")
+	h2 := sampleTestHost("worker-node", "worker", "192.168.1.11", 22, "root")
+	out := renderTableToString(t, []store.SSHHost{h1, h2})
+
+	assertTableContains(t, out, constants.ColorCyan)
+	assertTableContains(t, out, constants.ColorGreen)
+	assertTableContains(t, out, constants.ColorYellow)
+	assertTableContains(t, out, constants.ColorReset)
+	assertTableContains(t, out, "● ready")
+	assertTableContains(t, out, "cp-node")
+	assertTableContains(t, out, "worker-node")
 }

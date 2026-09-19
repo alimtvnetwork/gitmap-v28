@@ -39,6 +39,10 @@ func isJoinSubcommand(cmd string) bool {
 	return cmd == "join" || cmd == "sj"
 }
 
+func isNodesSubcommand(cmd string) bool {
+	return cmd == "nodes" || cmd == "node" || cmd == "ls"
+}
+
 //nolint:revive
 func runSSHLogin(cmd *cobra.Command, args []string, ctx context.Context) error {
 	if len(args) < 1 {
@@ -47,6 +51,10 @@ func runSSHLogin(cmd *cobra.Command, args []string, ctx context.Context) error {
 
 	if isJoinSubcommand(args[0]) {
 		return runSSHJoinFn(args[1:])
+	}
+
+	if isNodesSubcommand(args[0]) {
+		return RunSSHNodesCLI(ctx, args[1:])
 	}
 
 	return executeSSHLogin(ctx, args[0], false)
@@ -162,10 +170,7 @@ func formatRegisteredHostsTable(hosts []store.SSHHost) string {
 	}
 	var sb strings.Builder
 	sb.WriteString("Currently registered hosts:\n")
-	sb.WriteString(fmt.Sprintf("  %-16s %-16s %-12s\n", "ALIAS", "IP", "USER"))
-	for _, h := range hosts {
-		sb.WriteString(fmt.Sprintf("  %-16s %-16s %-12s\n", h.Alias, h.IP, h.Username))
-	}
+	_ = RenderSSHHostsTable(&sb, hosts)
 	return sb.String()
 }
 
@@ -179,6 +184,8 @@ func formatJoinExamples(target string) string {
 	sb.WriteString(fmt.Sprintf("  gitmap ssh join user@<ip> %s\n", target))
 	sb.WriteString("\nTo recall an existing registered host:\n")
 	sb.WriteString("  gitmap ssh <alias>\n")
+	sb.WriteString("  gitmap ssh nodes\n")
+	sb.WriteString("  gitmap ssh ls\n")
 	sb.WriteString("  gitmap ssh-join ls\n")
 	return sb.String()
 }

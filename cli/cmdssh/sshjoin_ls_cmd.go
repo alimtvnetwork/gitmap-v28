@@ -19,6 +19,15 @@ var SJLsCmd = &cobra.Command{
 	},
 }
 
+var SJNodesCmd = &cobra.Command{
+	Use:     "nodes",
+	Aliases: []string{"node"},
+	Short:   "List joined SSH machines",
+	RunE: func(cmd *cobra.Command, args []string) error {
+		return runSJLs(cmd, args, cmd.Context())
+	},
+}
+
 // runSJLs handles the 'gitmap sj ls' command.
 //
 //nolint:revive
