@@ -3,7 +3,7 @@
 ## Overview
 
 **Module Number:** 128  
-**Version:** 1.0.0  
+**Version:** 1.1.0  
 **Updated:** 2026-09-19  
 **Status:** Strategic Architecture & Roadmap  
 **AI Confidence:** Production-Ready  
@@ -40,7 +40,7 @@ The `03-ai-scripts/` directory houses 44 specialized repository automation algor
 │   ├── 13-file-size-guard.py          ➔ Blob guard, size limits, binary probe, waiver check
 │   └── 15-sequence-and-title-auditor  ➔ Markdown numbering gap detector & H1 header fixer
 │
-├── [Phase 1: Code Quality, Naming & Coding Guidelines]
+├── [Phase 1: Code Quality, Naming & Coding Guidelines] (COMPLETED & VERIFIED)
 │   ├── 05-guideline-autofixer.py      ➔ Automated coding guideline auditor & autofixer
 │   ├── 07-relative-path-fixer.py      ➔ Detects absolute paths / file:/// links in docs
 │   ├── 08-naming-autofixer.py         ➔ PascalCase keys/columns, positive booleans
@@ -94,7 +94,7 @@ The `03-ai-scripts/` directory houses 44 specialized repository automation algor
 
 ## 3. Six-Phase Implementation Roadmap
 
-### Active Baseline (Complete & Verified)
+### Active Baseline (Complete & Verified in Production)
 | Command | Trigger | Core Functionality | Status |
 |---|---|---|---|
 | `gitmap aum search` | Search | Multi-core streaming search with lazy regex and binary filtering | ✅ Production |
@@ -107,25 +107,18 @@ The `03-ai-scripts/` directory houses 44 specialized repository automation algor
 
 ---
 
-### Phase 1: Code Quality, Naming & Coding Guidelines Checkers
-*Target: Transitioning rule-checking scripts to native Go with worker fallbacks.*
-
-1. **`gitmap aum relative-paths` (from `07-relative-path-fixer.py`):**
-   - Scans markdown, code, and comments for forbidden absolute filesystem paths (`D:\...`, `/home/...`) and `file:///` URIs.
-   - `--fix` automatically converts them to repository-relative paths.
-2. **`gitmap aum naming` (from `08-naming-autofixer.py`):**
-   - Enforces PascalCase keys for API responses and database tables across TypeScript, Go, and PHP.
-   - Enforces positive boolean prefixes (`is`, `has`, `can`).
-3. **`gitmap aum result-wrapper` (from `35-result-wrapper-auditor.py`):**
-   - Detects multi-value `(T, error)` Go functions and verifies `result.Result[T]` usage.
-4. **`gitmap aum params` (from `36-param-struct-auditor.py`):**
-   - Enforces clean function signatures by flagging methods with > 3–4 parameters.
-5. **`gitmap aum enums` (from `37-enum-guideline-auditor.py`):**
-   - Audits enum types across Go, TypeScript, PHP, and Rust for `*Type` suffixes.
+### Phase 1: Code Quality, Naming & Coding Guidelines (Complete & Verified in Production)
+| Command | Trigger | Source Script | Functionality | Status |
+|---|---|---|---|---|
+| `gitmap aum relative-paths` | Paths | `07-relative-path-fixer.py` | Scans for forbidden absolute filesystem paths (`D:\...`, `file:///`) and auto-sanitizes via `--fix` | ✅ Production |
+| `gitmap aum naming` | Naming | `08-naming-autofixer.py` | Audits explicit boolean comparisons (`== true`, `=== true`) and affirmative booleans (`is*`, `has*`) | ✅ Production |
+| `gitmap aum result-wrapper` | Results | `35-result-wrapper-auditor.py` | Detects multi-value `(map, error)` / `([]T, error)` tuples and enforces `ResultMap`/`ResultSlice` | ✅ Production |
+| `gitmap aum params` | Arity | `36-param-struct-auditor.py` | Flags functions with >4 parameters; recommends dedicated `*Params` structs in `types.go` | ✅ Production |
+| `gitmap aum enums` | Enums | `37-enum-guideline-auditor.py` | Audits enum definitions for mandatory `*Type` suffixes and bans raw numeric `rune(10)` casts | ✅ Production |
 
 ---
 
-### Phase 2: Topology, Schema & Database Generation
+### Phase 2: Topology, Schema & Database Generation (Planned & Next)
 *Target: Database automation, migrations, and code generation.*
 
 1. **`gitmap aum topology` (from `18-codebase-topology-discoverer.py`):**
@@ -134,10 +127,12 @@ The `03-ai-scripts/` directory houses 44 specialized repository automation algor
    - Inspects SQLite tables and generates strongly typed Go structs, TypeScript interfaces, and enum definitions adhering to PascalCase rules.
 3. **`gitmap aum db-migrate` (from `31-db-migration-runner.py`):**
    - Executes ordered SQL migration files with transaction rollback protection and migration history tracking.
+4. **`gitmap aum schema-audit` (from `34-schema-scanner.py`):**
+   - Audits SQLite split-db schemas against repository naming rules.
 
 ---
 
-### Phase 3: CI/CD, Local Pre-Flight & Multi-Core Checkers
+### Phase 3: CI/CD, Local Pre-Flight & Multi-Core Checkers (Planned)
 *Target: Eliminating CI feedback latency with parallel local verification.*
 
 1. **`gitmap aum preflight` (from `28-go-preflight-ci.py` & `06-cicd-local-runner.py`):**
@@ -149,17 +144,19 @@ The `03-ai-scripts/` directory houses 44 specialized repository automation algor
 
 ---
 
-### Phase 4: Release, SemVer & Version Synchronization
+### Phase 4: Release, SemVer & Version Synchronization (Planned)
 *Target: Unbreakable automated release ceremony.*
 
 1. **`gitmap aum version-sync` (from `14-version-sync-checker.py`):**
    - Verifies version alignment across `cli/constants/constants_version.go`, `package.json`, `Cargo.toml`, and docs.
 2. **`gitmap aum release-bump` (from `29-release-bumper.py` & `29-release-orchestrator.py`):**
    - Increments SemVer, updates changelog, synchronizes package files, and triggers release pipeline.
+3. **`gitmap aum milestones` (from `38-milestone-consolidator.py`):**
+   - Consolidates GitHub milestone issues into release notes.
 
 ---
 
-### Phase 5: Documentation, Spec Migration & Memory Consolidation
+### Phase 5: Documentation, Spec Migration & Memory Consolidation (Planned)
 *Target: Keeping 120+ specifications and AI memory compact and gapless.*
 
 1. **`gitmap aum help-audit` (from `09-cli-help-auditor.py`):**
@@ -171,20 +168,22 @@ The `03-ai-scripts/` directory houses 44 specialized repository automation algor
 
 ---
 
-### Phase 6: Git Hygiene, Cleanup & History Purging
+### Phase 6: Git Hygiene, Cleanup & History Purging (Planned)
 *Target: Fast cleanup of artifacts and git hygiene.*
 
 1. **`gitmap aum clean-artifacts` (from `19-artifact-remover.py`):**
    - Safely deletes compiled binaries, `.pytest_cache`, `__pycache__`, and temporary test dumps without touching tracked sources.
 2. **`gitmap aum changed-files` (from `27-git-changed-files.py`):**
    - Returns JSON list of modified and untracked files relative to `origin/main` for targeted linter passes.
+3. **`gitmap aum purge-history` (from `30-purge-history.py` & `33-git-history-tracer-and-purge.py`):**
+   - Safely cleans large historical git blobs without rewriting recent commit lineage.
 
 ---
 
 ## 4. Summary Table of `aum` Command Names
 
 ```bash
-# Core Active Commands
+# Core Active Commands (Production)
 gitmap aum search <pattern> [dir]       # Streaming search with lazy regex
 gitmap aum guard [dir]                  # Blob size guard and binary probe
 gitmap aum sequence [dir] [--fix]       # Sequence gap & title header auditor
@@ -193,19 +192,37 @@ gitmap aum newlines [paths...] [--fix]  # Polyglot CRLF/LF normalizer
 gitmap aum cache [status|warm|clear]    # In-memory file cache
 gitmap aum benchmark [target]           # Go vs Python benchmark comparison
 
-# Roadmap Subcommands
+# Phase 1 Code Quality Commands (Production)
 gitmap aum relative-paths [--fix]       # Absolute path & file:/// linter
-gitmap aum naming [--fix]               # PascalCase & boolean linter
+gitmap aum naming                       # Boolean & affirmative naming linter
 gitmap aum result-wrapper               # Result monad & AppError tuple audit
 gitmap aum params                       # Parameter count limit auditor
 gitmap aum enums                        # Enum *Type suffix auditor
+
+# Phase 2 Database & Topology (Planned)
 gitmap aum topology                     # Codebase entrypoints & schema graph
 gitmap aum db-generate                  # SQLite schema to Go/TS struct generator
+gitmap aum db-migrate                   # Ordered SQL migrations with rollback
+gitmap aum schema-audit                 # Split-db schema auditor
+
+# Phase 3 CI/CD & Multi-Core (Planned)
 gitmap aum preflight                    # Local multi-core preflight runner
+gitmap aum test-inventory               # Test inventory manifest generator
+gitmap aum purge-actions                # GitHub Actions 0.0 GB storage purger
+
+# Phase 4 Release & SemVer (Planned)
 gitmap aum version-sync                 # Multi-project version synchronization
+gitmap aum release-bump                 # SemVer bump & changelog synchronizer
+
+# Phase 5 Documentation & Memory (Planned)
 gitmap aum help-audit                   # CLI help AST parity auditor
 gitmap aum plan-consolidate             # Memory plan & subtask consolidator
+gitmap aum doc-links                    # Markdown relative link integrity auditor
+
+# Phase 6 Git Hygiene & Purge (Planned)
 gitmap aum clean-artifacts              # Temporary artifact and build purger
+gitmap aum changed-files                # Git changed and staged file detector
+gitmap aum purge-history                # Historical blob purger
 ```
 
 ---
