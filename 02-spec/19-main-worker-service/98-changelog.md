@@ -1,3 +1,9 @@
+## v6.270.0 — 2026-09-19 (fix(open,ssh): handle headless linux display in open and enhance ssh exec authentication)
+
+**Scope:** Version bump. fix(open,ssh): handle headless linux display in open and enhance ssh exec authentication.
+
+---
+
 ## v6.269.0 — 2026-09-19 (remove direct git command lines from remediation box and git fix execution)
 
 **Scope:** Version bump. remove direct git command lines from remediation box and git fix execution.

@@ -198,7 +198,7 @@ def create_and_checkout_release_branch(next_version, dry_run=False):
         return branch_name
 
     print(f"[*] Step 1: Creating and switching to release branch: '{branch_name}'...")
-    run_cmd(["git", "checkout", "-b", branch_name])
+    run_cmd(["git", "checkout", "-B", branch_name])
     current = get_current_branch()
     print(f"[*] Active branch is now: '{current}'")
 
@@ -297,7 +297,7 @@ def stage_and_commit_release(next_version, scope, dry_run=False):
     ]
     for vf in release_candidates:
         if vf.exists():
-            run_cmd(["git", "add", str(vf)])
+            run_cmd(["git", "add", str(vf)], check=False)
 
     # Commit
     run_cmd(["git", "commit", "-m", commit_msg])

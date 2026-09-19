@@ -2432,6 +2432,12 @@ PowerShell: `Invoke-WebRequest -Uri https://raw.githubusercontent.com/alimtvnetw
 
 # Changelog
 
+## [v6.270.0] - 2026-09-19
+
+### Added
+- fix(open,ssh): handle headless linux display in open and enhance ssh exec authentication
+
+
 ## [v6.269.0] - 2026-09-19
 
 ### Added
