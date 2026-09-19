@@ -20,7 +20,89 @@ func loadSSHConnectionsForTarget(target string) ([]db.SSHConnection, error) {
 		return nil, fmt.Errorf("retrieve ssh connections: %w", res.AppError())
 	}
 
-	return filterConnectionsByTarget(res.Data, target), nil
+	conns := filterConnectionsByTarget(res.Data, target)
+	if target == "" || target == "all" {
+		return conns, nil
+	}
+	return augmentMissingTargets(dbConn, target, conns), nil
+}
+
+func isTargetMatched(token string, conns []db.SSHConnection) bool {
+	for _, c := range conns {
+		if strings.EqualFold(c.Alias, token) || strings.EqualFold(c.IPAddress, token) {
+			return true
+		}
+	}
+	return false
+}
+
+func augmentMissingTargets(dbConn *store.DB, rawTarget string, existing []db.SSHConnection) []db.SSHConnection {
+	targets := ParseMultiIPList(rawTarget)
+	result := append([]db.SSHConnection{}, existing...)
+	for _, token := range targets {
+		if isTargetMatched(token, result) {
+			continue
+		}
+		conn, isFound := resolveSingleMissingTarget(dbConn, token)
+		if isFound {
+			result = append(result, conn)
+		}
+	}
+	return result
+}
+
+func findHostInStore(dbConn *store.DB, token string) (store.SSHHost, bool) {
+	ctx, sqlDB := dbConn.Context(), dbConn.SQL()
+	if host, err := store.GetHostByID(ctx, token, sqlDB); err == nil {
+		return host, true
+	}
+	if host, err := store.GetHostByAlias(ctx, token, sqlDB); err == nil {
+		return host, true
+	}
+	if host, err := store.GetHostByIP(ctx, token, sqlDB); err == nil {
+		return host, true
+	}
+	return store.SSHHost{}, false
+}
+
+func convertHostToConnection(h store.SSHHost) db.SSHConnection {
+	user := h.Username
+	if user == "" {
+		user = "root"
+	}
+	return db.SSHConnection{
+		Alias:             h.Alias,
+		IPAddress:         h.IP,
+		Username:          user,
+		EncryptedPassword: h.EncryptedPassword,
+		OS:                "linux",
+	}
+}
+
+func parseAdHocConnection(token string) (db.SSHConnection, bool) {
+	t, err := ParseSSHTarget(token, "root", 22)
+	isParsed := err == nil && t != nil && t.IP != ""
+	if isParsed {
+		user := t.Username
+		if user == "" {
+			user = "root"
+		}
+		return db.SSHConnection{
+			Alias:     token,
+			IPAddress: t.IP,
+			Username:  user,
+			OS:        "linux",
+		}, true
+	}
+	return db.SSHConnection{}, false
+}
+
+func resolveSingleMissingTarget(dbConn *store.DB, token string) (db.SSHConnection, bool) {
+	host, isHost := findHostInStore(dbConn, token)
+	if isHost {
+		return convertHostToConnection(host), true
+	}
+	return parseAdHocConnection(token)
 }
 
 func filterConnectionsByTarget(conns []db.SSHConnection, target string) []db.SSHConnection {

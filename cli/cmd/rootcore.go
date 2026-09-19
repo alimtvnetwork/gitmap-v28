@@ -203,7 +203,7 @@ func dispatchSCNetworkOps(subCmd string, rest []string) bool {
 
 func dispatchSCAuthOps(subCmd string, rest []string) bool {
 	switch subCmd {
-	case "auth-key", "copy-id":
+	case "auth-key", "copy-id", "fix-auth":
 		_ = cmdssh.RunSSHAuthKeyDeployCLI(rest)
 		return true
 	default:

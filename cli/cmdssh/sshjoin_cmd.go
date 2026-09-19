@@ -193,7 +193,7 @@ func isSJSubcommand(sub string) bool {
 
 	return sub == "ls" || sub == "list" || sub == "nodes" || sub == "node" || sub == "rm" || sub == "remove" || sub == "delete" ||
 		sub == "add-auth" || sub == "auth" || sub == "history" || sub == "hist" ||
-		sub == "auth-key" || sub == "copy-id"
+		sub == "auth-key" || sub == "copy-id" || sub == "fix-auth"
 }
 
 func isSJListSubcommand(sub string) bool {
@@ -240,7 +240,7 @@ func dispatchSJActionSubcommand(ctx context.Context, sub string, args []string) 
 	if sub == "add-auth" || sub == "auth" {
 		return true, runSJAddAuth(nil, args, ctx)
 	}
-	if sub == "auth-key" || sub == "copy-id" {
+	if sub == "auth-key" || sub == "copy-id" || sub == "fix-auth" {
 		return true, RunSSHAuthKeyDeployCLI(args)
 	}
 	return false, nil
@@ -503,6 +503,14 @@ var SJCopyIdCmd = &cobra.Command{
 	},
 }
 
+var SJFixAuthCmd = &cobra.Command{
+	Use:   "fix-auth [target] [flags]",
+	Short: "Deploy SSH public key to target machines as authorized key",
+	RunE: func(cmd *cobra.Command, args []string) error {
+		return RunSSHAuthKeyDeployCLI(args)
+	},
+}
+
 func init() {
 	SSHJoinCmd.AddCommand(SJAddCmd)
 	SSHJoinCmd.AddCommand(SJAddWithPassCmd)
@@ -516,4 +524,5 @@ func init() {
 	SSHJoinCmd.AddCommand(ClusterInstallCmd)
 	SSHJoinCmd.AddCommand(SJAuthKeyCmd)
 	SSHJoinCmd.AddCommand(SJCopyIdCmd)
+	SSHJoinCmd.AddCommand(SJFixAuthCmd)
 }

@@ -28,20 +28,22 @@ func RunSSHAuthKeyDeployCLI(args []string) error {
 func printAuthKeyHelp() {
 	fmt.Printf("\n%sDeploy SSH Public Key to Fleet or Node%s\n\n", constants.ColorCyan, constants.ColorReset)
 	fmt.Println("Usage:")
+	fmt.Println("  gitmap ssh fix-auth [target...] [-i <pubkey>] [--unix]")
 	fmt.Println("  gitmap ssh auth-key deploy [target] [-i <pubkey>]")
 	fmt.Println("  gitmap ssh copy-id [target] [-i <pubkey>]")
-	fmt.Println("  gitmap sj auth-key [target] [-i <pubkey>]")
-	fmt.Println("  gitmap cluster auth-key deploy [target] [-i <pubkey>]")
-	fmt.Println("  gitmap sc copy-id [target] [-i <pubkey>]")
+	fmt.Println("  gitmap sj fix-auth [target] [-i <pubkey>]")
+	fmt.Println("  gitmap cluster fix-auth [target] [-i <pubkey>]")
+	fmt.Println("  gitmap sc fix-auth [target] [-i <pubkey>]")
 	fmt.Println("\nExamples:")
-	fmt.Println("  gitmap ssh copy-id devbox")
+	fmt.Println("  gitmap ssh fix-auth machineid, ip, id")
+	fmt.Println("  gitmap ssh fix-auth devbox")
 	fmt.Println("  gitmap ssh copy-id user@192.168.1.14")
-	fmt.Println("  gitmap ssh auth-key deploy --all")
-	fmt.Println("  gitmap ssh auth-key deploy node1 -i ~/.ssh/id_ed25519.pub")
+	fmt.Println("  gitmap ssh fix-auth --all")
+	fmt.Println("  gitmap ssh fix-auth node1 -i ~/.ssh/id_ed25519.pub")
 }
 
 func executeAuthKeyDeploy(args []string) error {
-	target, identityPath, appErr := parseAuthKeyArgs(args)
+	target, identityPath, isForceUnix, appErr := parseAuthKeyArgs(args)
 	if appErr != nil {
 		return appErr
 	}
@@ -51,36 +53,50 @@ func executeAuthKeyDeploy(args []string) error {
 		return appErr
 	}
 
-	return runFleetKeyDeployment(target, pubKey, keyPath)
+	return runFleetKeyDeployment(target, pubKey, keyPath, isForceUnix)
 }
 
-func parseAuthKeyArgs(args []string) (string, string, *apperror.AppError) {
+func parseAuthKeyArgs(args []string) (string, string, bool, *apperror.AppError) {
 	filtered := stripSubcommandKeyword(args, "deploy")
-	target, identityPath := "all", ""
+	target, identityPath, isForceUnix := "all", "", false
 	for i := 0; i < len(filtered); i++ {
-		t, id, nextIdx, err := stepAuthKeyArg(filtered, i, target, identityPath)
+		t, id, unix, nextIdx, err := stepAuthKeyArg(filtered, i, target, identityPath, isForceUnix)
 		if err != nil {
-			return "", "", err
+			return "", "", false, err
 		}
-		target, identityPath, i = t, id, nextIdx
+		target, identityPath, isForceUnix, i = t, id, unix, nextIdx
 	}
-	return target, identityPath, nil
+	return target, identityPath, isForceUnix, nil
 }
 
-func stepAuthKeyArg(args []string, i int, curTarget, curID string) (string, string, int, *apperror.AppError) {
+func isUnixFlag(arg string) bool {
+	return arg == "--unix" || arg == "-u" || arg == "--linux"
+}
+
+func stepAuthKeyArg(args []string, i int, curTarget, curID string, curUnix bool) (string, string, bool, int, *apperror.AppError) {
 	arg := args[i]
+	if isUnixFlag(arg) {
+		return curTarget, curID, true, i, nil
+	}
 	if !isIdentityFlag(arg) {
-		return resolveTargetFromArg(arg, curTarget), curID, i, nil
+		return resolveTargetFromArg(arg, curTarget), curID, curUnix, i, nil
 	}
 	val, nextIdx, err := parseIdentityFlagVal(args, i)
 	if err != nil {
-		return "", "", i, err
+		return "", "", curUnix, i, err
 	}
-	return curTarget, val, nextIdx, nil
+	return curTarget, val, curUnix, nextIdx, nil
+}
+
+func isSubcommandKeyword(s string) bool {
+	return strings.EqualFold(s, "deploy") ||
+		strings.EqualFold(s, "fix-auth") ||
+		strings.EqualFold(s, "auth-key") ||
+		strings.EqualFold(s, "copy-id")
 }
 
 func stripSubcommandKeyword(args []string, keyword string) []string {
-	if len(args) > 0 && strings.EqualFold(args[0], keyword) {
+	if len(args) > 0 && (strings.EqualFold(args[0], keyword) || isSubcommandKeyword(args[0])) {
 		return args[1:]
 	}
 	return args
@@ -108,13 +124,16 @@ func resolveTargetFromArg(arg, currentTarget string) string {
 		return "all"
 	}
 	isPositional := !strings.HasPrefix(arg, "-")
-	if isPositional && currentTarget == "all" {
-		return arg
+	if isPositional {
+		if currentTarget == "all" {
+			return arg
+		}
+		return currentTarget + " " + arg
 	}
 	return currentTarget
 }
 
-func runFleetKeyDeployment(target, pubKey, keyPath string) error {
+func runFleetKeyDeployment(target, pubKey, keyPath string, isForceUnix bool) error {
 	conns, err := resolveAuthKeyTargets(target)
 	if err != nil {
 		return err
@@ -122,20 +141,27 @@ func runFleetKeyDeployment(target, pubKey, keyPath string) error {
 	if len(conns) == 0 {
 		return apperror.NewNotFoundError("no target SSH machines found for target: " + target)
 	}
-	executeFleetKeyDeployment(conns, target, pubKey, keyPath)
+	executeFleetKeyDeployment(conns, target, pubKey, keyPath, isForceUnix)
 	return nil
 }
 
-func executeFleetKeyDeployment(conns []db.SSHConnection, target, pubKey, keyPath string) {
+func executeFleetKeyDeployment(conns []db.SSHConnection, target, pubKey, keyPath string, isForceUnix bool) {
 	fmt.Printf("\n%s Deploying authorized key (%s) to SSH fleet (%s):%s\n\n",
 		constants.ColorCyan, filepath.Base(keyPath), target, constants.ColorReset)
 	for _, c := range conns {
-		deployAuthKeyToNode(c, pubKey)
+		deployAuthKeyToNode(c, pubKey, isForceUnix)
 	}
 	fmt.Printf("\nAuthorized key deployment complete.\n\n")
 }
 
-func deployAuthKeyToNode(c db.SSHConnection, pubKey string) {
+func resolveTargetOS(osType string, isForceUnix bool) string {
+	if isForceUnix || osType == "" {
+		return "linux"
+	}
+	return osType
+}
+
+func deployAuthKeyToNode(c db.SSHConnection, pubKey string, isForceUnix bool) {
 	header := fmt.Sprintf("[%s|%s]", c.Alias, c.IPAddress)
 	client, isConnected := connectAuthKeyNode(c, header)
 	if !isConnected {
@@ -143,7 +169,8 @@ func deployAuthKeyToNode(c db.SSHConnection, pubKey string) {
 	}
 	defer client.Close()
 
-	executeKeyInjection(client, header, c.OS, pubKey)
+	osType := resolveTargetOS(c.OS, isForceUnix)
+	executeKeyInjection(client, header, osType, pubKey)
 }
 
 func connectAuthKeyNode(c db.SSHConnection, header string) (*ssh.Client, bool) {

@@ -60,7 +60,7 @@ func dispatchPackageSSH(sub string, args []string) result.ErrorWrapper {
 		return result.MatchWrapper(runSSHInstallCLI(args))
 	case "update", "u":
 		return result.MatchWrapper(runSSHUpdateCLI(args))
-	case "auth-key", "copy-id":
+	case "auth-key", "copy-id", "fix-auth":
 		return result.MatchWrapper(RunSSHAuthKeyDeployCLI(args))
 	case "scan":
 		return result.MatchWrapper(runSSHScanCLI(args))

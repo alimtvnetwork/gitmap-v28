@@ -248,14 +248,29 @@ func connectWithKeyPath(c db.SSHConnection, header string) (*ssh.Client, bool) {
 	return client, true
 }
 
+func decryptPasswordCandidate(enc string) (string, error) {
+	plain, err := DecryptSSHPassword(enc)
+	if err == nil && plain != "" {
+		return plain, nil
+	}
+	passBytes, decErr := crypto.Decrypt(enc, getEncryptionKey())
+	if decErr == nil {
+		return string(passBytes), nil
+	}
+	if err != nil {
+		return "", err
+	}
+	return "", decErr
+}
+
 func connectWithEncryptedPassword(c db.SSHConnection, header string) (*ssh.Client, bool) {
-	passBytes, decErr := crypto.Decrypt(c.EncryptedPassword, getEncryptionKey())
+	plain, decErr := decryptPasswordCandidate(c.EncryptedPassword)
 	if decErr != nil {
 		printHeaderError(header, "Decrypt error", decErr)
 		return nil, false
 	}
 
-	client, err := crypto.ConnectWithPassword(c.IPAddress, c.Username, string(passBytes))
+	client, err := crypto.ConnectWithPassword(c.IPAddress, c.Username, plain)
 	if err != nil {
 		printHeaderError(header, "Connect error", err)
 		return nil, false

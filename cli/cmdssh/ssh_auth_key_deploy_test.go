@@ -8,17 +8,17 @@ import (
 )
 
 func TestParseAuthKeyArgs_Defaults(t *testing.T) {
-	target, keyPath, err := parseAuthKeyArgs([]string{})
+	target, keyPath, isUnix, err := parseAuthKeyArgs([]string{})
 	if err != nil {
 		t.Fatalf("unexpected error: %v", err)
 	}
-	if target != "all" || keyPath != "" {
-		t.Fatalf("expected all and empty keyPath, got target=%s, keyPath=%s", target, keyPath)
+	if target != "all" || keyPath != "" || isUnix {
+		t.Fatalf("expected all, empty keyPath, false unix, got target=%s, keyPath=%s, unix=%v", target, keyPath, isUnix)
 	}
 }
 
 func TestParseAuthKeyArgs_WithDeployAndTarget(t *testing.T) {
-	target, keyPath, err := parseAuthKeyArgs([]string{"deploy", "node1"})
+	target, keyPath, _, err := parseAuthKeyArgs([]string{"deploy", "node1"})
 	if err != nil {
 		t.Fatalf("unexpected error: %v", err)
 	}
@@ -28,7 +28,7 @@ func TestParseAuthKeyArgs_WithDeployAndTarget(t *testing.T) {
 }
 
 func TestParseAuthKeyArgs_WithIdentityFlag(t *testing.T) {
-	target, keyPath, err := parseAuthKeyArgs([]string{"-i", "/custom/key.pub", "node1"})
+	target, keyPath, _, err := parseAuthKeyArgs([]string{"-i", "/custom/key.pub", "node1"})
 	if err != nil {
 		t.Fatalf("unexpected error: %v", err)
 	}
@@ -38,7 +38,7 @@ func TestParseAuthKeyArgs_WithIdentityFlag(t *testing.T) {
 }
 
 func TestParseAuthKeyArgs_WithIdentityEqualsFlag(t *testing.T) {
-	target, keyPath, err := parseAuthKeyArgs([]string{"--identity=/custom/key.pub", "--all"})
+	target, keyPath, _, err := parseAuthKeyArgs([]string{"--identity=/custom/key.pub", "--all"})
 	if err != nil {
 		t.Fatalf("unexpected error: %v", err)
 	}
@@ -48,10 +48,34 @@ func TestParseAuthKeyArgs_WithIdentityEqualsFlag(t *testing.T) {
 }
 
 func TestParseAuthKeyArgs_MissingIdentityValue(t *testing.T) {
-	_, _, err := parseAuthKeyArgs([]string{"-i"})
+	_, _, _, err := parseAuthKeyArgs([]string{"-i"})
 	hasError := err != nil
 	if !hasError {
 		t.Fatal("expected error for missing identity value, got nil")
+	}
+}
+
+func TestParseAuthKeyArgs_FixAuthMultipleTargets(t *testing.T) {
+	target, _, _, err := parseAuthKeyArgs([]string{"fix-auth", "machineid,", "ip,", "id"})
+	if err != nil {
+		t.Fatalf("unexpected error: %v", err)
+	}
+	targets := ParseMultiIPList(target)
+	if len(targets) != 3 {
+		t.Fatalf("expected 3 targets, got %d: %v", len(targets), targets)
+	}
+	if targets[0] != "machineid" || targets[1] != "ip" || targets[2] != "id" {
+		t.Fatalf("unexpected targets: %v", targets)
+	}
+}
+
+func TestParseAuthKeyArgs_UnixFlag(t *testing.T) {
+	target, _, isUnix, err := parseAuthKeyArgs([]string{"node1", "--unix"})
+	if err != nil {
+		t.Fatalf("unexpected error: %v", err)
+	}
+	if target != "node1" || !isUnix {
+		t.Fatalf("expected node1 and isUnix=true, got %s / %v", target, isUnix)
 	}
 }
 
@@ -143,5 +167,34 @@ func TestResolveTargetFromArg(t *testing.T) {
 	}
 	if resolveTargetFromArg("node2", "all") != "node2" {
 		t.Fatal("expected node2 for positional target")
+	}
+}
+
+func TestStripSubcommandKeyword_FixAuth(t *testing.T) {
+	res := stripSubcommandKeyword([]string{"fix-auth", "m1"}, "deploy")
+	if len(res) != 1 || res[0] != "m1" {
+		t.Fatalf("expected [m1], got %v", res)
+	}
+}
+
+func TestResolveTargetFromArg_Multiple(t *testing.T) {
+	target := resolveTargetFromArg("m1,", "all")
+	target = resolveTargetFromArg("ip,", target)
+	target = resolveTargetFromArg("id", target)
+	targets := ParseMultiIPList(target)
+	if len(targets) != 3 {
+		t.Fatalf("expected 3 targets, got %d: %v", len(targets), targets)
+	}
+}
+
+func TestResolveTargetOS(t *testing.T) {
+	if resolveTargetOS("windows", false) != "windows" {
+		t.Fatal("expected windows when not forced")
+	}
+	if resolveTargetOS("windows", true) != "linux" {
+		t.Fatal("expected linux when forced")
+	}
+	if resolveTargetOS("", false) != "linux" {
+		t.Fatal("expected linux default")
 	}
 }
