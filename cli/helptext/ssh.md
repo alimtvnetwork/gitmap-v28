@@ -28,6 +28,10 @@ Manages SSH key pairs for Git authentication.
 | compare    | matrix| Display comparison table: SSH vs Cluster vs SC |
 | copy       | cp    | Transfer file to remote machines with path macro expansion |
 | mv         | move  | Move file from host to remote machines and remove source |
+| known-hosts| kh    | Manage, list, trust, and sync ~/.ssh/known_hosts & SQLite DB |
+| trust      |       | Auto-scan & trust remote host key in known_hosts and DB |
+| untrust    |       | Untrust and remove a machine from known_hosts and DB |
+| fix-auth   |       | Deploy SSH public key to remote authorized_keys (Unix/Windows) |
 
 ## Flags (generate)
 
@@ -248,6 +252,42 @@ Display comparison table between `ssh`, `cluster`, and `sc` (`servers-clients`):
 - **`ssh`**: Fast, lightweight, direct command execution over standard SSH. Ideal for developer workstations, ad-hoc maintenance, and AGY/VS Code remote opening.
 - **`cluster`**: Role-based infrastructure orchestration (`control` vs `workers`), provisioning recipes (Netplan IP, users, apt purge), and full Kubernetes lifecycle.
 - **`sc` (`servers-clients`)**: High-speed fan-out broadcasts across entire fleet with concurrency pools, multi-shell execution, and continuous daemon synchronization.
+
+### Known Hosts Management (`known-hosts` / `kh` / `trust` / `untrust`)
+
+List all tracked known hosts in a terminal UI table:
+
+    $ gitmap ssh known-hosts ls
+    Known SSH Hosts (3 tracked):
+    HOST / IP              KEY TYPE       FINGERPRINT                                        UPDATED
+    ----------------------------------------------------------------------------------------------------------
+    192.168.1.5            ssh-ed25519    SHA256:ROdbMLgtCZ47lGGUryHnDCpik9/G5V8H/ie6tuqai2k 2026-09-20 01:21
+    192.168.1.9            ssh-ed25519    SHA256:ROdbMLgtCZ47lGGUryHnDCpik9/G5V8H/ie6tuqai2k 2026-09-20 01:21
+    github.com             ssh-ed25519    SHA256:+DiY3wvvV6TuJJhbpZisF/zPTOZ736+Fnkas3BjZ7DA 2026-09-18 10:00
+
+Auto-scan and trust a new host without interactive prompts:
+
+    $ gitmap ssh trust 192.168.1.5
+      ✓ Host '192.168.1.5' trusted successfully!
+        Key Type:    ssh-ed25519
+        Fingerprint: SHA256:ROdbMLgtCZ47lGGUryHnDCpik9/G5V8H/ie6tuqai2k
+
+Untrust and remove a host from known_hosts and SQLite DB:
+
+    $ gitmap ssh untrust 192.168.1.5
+      ✓ Removed '192.168.1.5' from known_hosts and database.
+
+Synchronize `~/.ssh/known_hosts` into the SQLite database:
+
+    $ gitmap ssh known-hosts sync
+      ✓ Synchronized 3 known host(s) to database.
+
+### Deploy Authorized Keys to Remote Hosts (`fix-auth`)
+
+Deploy your local public SSH key to remote `authorized_keys` for single or multiple machines:
+
+    $ gitmap ssh fix-auth machineid, ip, id
+    $ gitmap ssh fix-auth devbox --unix
 
 ## See Also
 

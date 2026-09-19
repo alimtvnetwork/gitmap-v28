@@ -194,4 +194,8 @@ const MsgSSHAvailableCommands = "\n\nAvailable SSH subcommands:\n" +
 	"  ssh update [target]    Update GitMap binary across remote fleet\n" +
 	"  ssh agy <args>         Run Antigravity CLI or open remote folder\n" +
 	"  ssh code <args>        Open remote folder in VS Code via SSH Remote\n" +
-	"  ssh compare (matrix)   Display architecture matrix: SSH vs Cluster vs SC\n"
+	"  ssh compare (matrix)   Display architecture matrix: SSH vs Cluster vs SC\n" +
+	"  ssh known-hosts (kh)   Manage, list, trust, and sync known_hosts entries\n" +
+	"  ssh trust <target>     Auto-scan & trust remote host key in known_hosts & DB\n" +
+	"  ssh untrust <target>   Remove machine from known_hosts and database\n" +
+	"  ssh fix-auth <target>  Deploy SSH public key to remote authorized_keys\n"

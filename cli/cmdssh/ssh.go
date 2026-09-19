@@ -62,6 +62,12 @@ func dispatchPackageSSH(sub string, args []string) result.ErrorWrapper {
 		return result.MatchWrapper(runSSHUpdateCLI(args))
 	case "auth-key", "copy-id", "fix-auth":
 		return result.MatchWrapper(RunSSHAuthKeyDeployCLI(args))
+	case "known-hosts", "knownhosts", "kh", "trust-list":
+		return result.MatchWrapper(RunSSHKnownHostsCLI(args))
+	case "trust":
+		return result.MatchWrapper(RunSSHTrustCLI(args))
+	case "untrust":
+		return result.MatchWrapper(RunSSHUntrustCLI(args))
 	case "scan":
 		return result.MatchWrapper(runSSHScanCLI(args))
 	default:

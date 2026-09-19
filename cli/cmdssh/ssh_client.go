@@ -7,6 +7,7 @@ import (
 	"os"
 	"os/exec"
 	"strconv"
+	"strings"
 	"time"
 
 	"golang.org/x/crypto/ssh"
@@ -50,12 +51,21 @@ func isCustomSSHPort(port int) bool {
 	return port > 0 && port != 22
 }
 
+func appendHostKeyCheckingDefault(cmdArgs []string, args []string) []string {
+	for _, a := range args {
+		if strings.Contains(a, "StrictHostKeyChecking") {
+			return cmdArgs
+		}
+	}
+	return append(cmdArgs, "-o", "StrictHostKeyChecking=accept-new")
+}
+
 func buildSSHArgs(target SSHTarget, args []string) []string {
 	var cmdArgs []string
 	if isCustomSSHPort(target.Port) {
 		cmdArgs = append(cmdArgs, "-p", strconv.Itoa(target.Port))
 	}
-
+	cmdArgs = appendHostKeyCheckingDefault(cmdArgs, args)
 	cmdArgs = append(cmdArgs, target.String())
 	cmdArgs = append(cmdArgs, args...)
 

@@ -64,6 +64,20 @@ const SQLCreateSSHConnectionTable = `CREATE TABLE IF NOT EXISTS SSHConnection (
 	CreatedAt TIMESTAMP NOT NULL
 );`
 
+// SQLCreateSSHKnownHostsTable defines the DDL for the ssh_known_hosts table.
+const SQLCreateSSHKnownHostsTable = `CREATE TABLE IF NOT EXISTS ssh_known_hosts (
+	id TEXT PRIMARY KEY,
+	host TEXT NOT NULL,
+	key_type TEXT NOT NULL,
+	public_key TEXT NOT NULL,
+	fingerprint TEXT NOT NULL,
+	comment TEXT,
+	created_at DATETIME NOT NULL,
+	updated_at DATETIME NOT NULL
+);`
+
+const SQLCreateSSHKnownHostsIndex = `CREATE INDEX IF NOT EXISTS idx_ssh_known_hosts_host ON ssh_known_hosts (host);`
+
 // EnsureSSHTables creates both ssh_hosts, ssh_history, and SSHConnection tables if they do not exist.
 func EnsureSSHTables(db *sql.DB) error {
 	if db == nil {
@@ -79,6 +93,8 @@ func EnsureSSHTables(db *sql.DB) error {
 	if err := executeTableDDL(db, SQLCreateSSHConnectionTable, "EnsureSSHTables_SSHConnection"); err != nil {
 		return err
 	}
+	_ = executeTableDDL(db, SQLCreateSSHKnownHostsTable, "EnsureSSHTables_KnownHosts")
+	_ = executeTableDDL(db, SQLCreateSSHKnownHostsIndex, "EnsureSSHTables_KnownHosts_Index")
 
 	return executeTableDDL(db, SQLCreateSSHHistoryTable, "EnsureSSHTables_History")
 }
