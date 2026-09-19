@@ -8,7 +8,8 @@ None.
 
 ## Recent Completed Tasks Register (Last 20 Tasks)
 
-1. [36-aum-polyglot-script-migration-and-llm-train-suite.md](completed/36-aum-polyglot-script-migration-and-llm-train-suite.md): AUM Polyglot Script Migration & LLM Train Chained Curriculum Suite
+1. [37-aum-helptext-documentation-parity-and-cli-catalog.md](completed/37-aum-helptext-documentation-parity-and-cli-catalog.md): AUM Helptext Documentation Parity & CLI Catalog Alignment
+2. [36-aum-polyglot-script-migration-and-llm-train-suite.md](completed/36-aum-polyglot-script-migration-and-llm-train-suite.md): AUM Polyglot Script Migration & LLM Train Chained Curriculum Suite
 2. [27-completed-plans-consolidation.md](completed/27-completed-plans-consolidation.md): Completed Plans Aggressive Consolidation & Memory Reduction (v2.2.0)
 2. [26-coding-guidelines-and-linter-audits.md](completed/26-coding-guidelines-and-linter-audits.md): Coding Guidelines & Linter Audits (Booleans, Nesting, Enums, Sizes, Paths)
 3. [25-terminal-ui-help-and-agy-prompts.md](completed/25-terminal-ui-help-and-agy-prompts.md): Terminal UI, Help Text Parity, Aligned Tables & AGY CLI Prompts
@@ -32,6 +33,7 @@ None.
 
 ## Completed Plans
 
+- [37-aum-helptext-documentation-parity-and-cli-catalog.md](completed/37-aum-helptext-documentation-parity-and-cli-catalog.md): AUM Helptext Documentation Parity & CLI Catalog Alignment
 - [36-aum-polyglot-script-migration-and-llm-train-suite.md](completed/36-aum-polyglot-script-migration-and-llm-train-suite.md): AUM Polyglot Script Migration & LLM Train Chained Curriculum Suite
 - [01-coding-guidelines-and-style-audits.md](completed/01-coding-guidelines-and-style-audits.md): Coding Guidelines, Sizing, Booleans & Style Quality
 - [02-error-management-and-cliexit-architecture.md](completed/02-error-management-and-cliexit-architecture.md): Centralized Error Architecture & Cliexit Engine

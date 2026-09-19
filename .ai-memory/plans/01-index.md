@@ -8,8 +8,9 @@ None.
 
 ## Recent Completed Tasks Register (Last 20 Tasks)
 
-1. [36-aum-polyglot-script-migration-and-llm-train-suite.md](completed/36-aum-polyglot-script-migration-and-llm-train-suite.md): AUM Polyglot Script Migration & LLM Train Chained Curriculum Suite
-2. [35-native-automation-engine-lazy-regex-and-benchmarks.md](completed/35-native-automation-engine-lazy-regex-and-benchmarks.md): Native Automation Engine, Lazy Regex, Polyglot Newline Normalizer & Side-by-Side Benchmarks
+1. [37-aum-helptext-documentation-parity-and-cli-catalog.md](completed/37-aum-helptext-documentation-parity-and-cli-catalog.md): AUM Helptext Documentation Parity & CLI Catalog Alignment
+2. [36-aum-polyglot-script-migration-and-llm-train-suite.md](completed/36-aum-polyglot-script-migration-and-llm-train-suite.md): AUM Polyglot Script Migration & LLM Train Chained Curriculum Suite
+3. [35-native-automation-engine-lazy-regex-and-benchmarks.md](completed/35-native-automation-engine-lazy-regex-and-benchmarks.md): Native Automation Engine, Lazy Regex, Polyglot Newline Normalizer & Side-by-Side Benchmarks
 3. [34-generic-ai-scripts-creator-and-scaffolding-engine.md](completed/34-generic-ai-scripts-creator-and-scaffolding-engine.md): Generic AI Scripts Creator, Scaffolding Engine & Dynamic Catalog Discovery
 3. [33-ai-scripts-engine-ssh-authkey-and-feature-parity.md](completed/33-ai-scripts-engine-ssh-authkey-and-feature-parity.md): AI Scripts Engine, SSH Authorized Key Deployment & Feature Parity
 3. [32-pipeline-deep-eta-and-repo-folder-parity.md](completed/32-pipeline-deep-eta-and-repo-folder-parity.md): Deep Pipeline ETA Decision Engine, Database Telemetry Persistence, and Repository Folder Parity
@@ -38,6 +39,7 @@ None.
 
 ## Completed Plans
 
+- [37-aum-helptext-documentation-parity-and-cli-catalog.md](completed/37-aum-helptext-documentation-parity-and-cli-catalog.md): AUM Helptext Documentation Parity & CLI Catalog Alignment
 - [36-aum-polyglot-script-migration-and-llm-train-suite.md](completed/36-aum-polyglot-script-migration-and-llm-train-suite.md): AUM Polyglot Script Migration & LLM Train Chained Curriculum Suite
 - [01-coding-guidelines-and-style-audits.md](completed/01-coding-guidelines-and-style-audits.md): Coding Guidelines, Sizing, Booleans & Style Quality
 - [02-error-management-and-cliexit-architecture.md](completed/02-error-management-and-cliexit-architecture.md): Centralized Error Architecture & Cliexit Engine
