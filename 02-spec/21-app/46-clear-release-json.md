@@ -20,7 +20,7 @@ Remove a specific release metadata JSON file from the `.gitmap/release/` directo
 
 ## Version Resolution
 
-The `<version>` argument is parsed through `release.Parse`, which applies standard semver normalisation:
+The `<version>` argument is parsed through `release.Parse`, which applies standard semver normalization:
 
 1. A leading `v` prefix is optional — `2.20.0` and `v2.20.0` are equivalent.
 2. Partial versions are zero-padded — `v2` becomes `v2.0.0`, `v2.1` becomes `v2.1.0`.
@@ -55,7 +55,7 @@ The resolved version determines the file path: `.gitmap/release/vX.Y.Z.json`.
 | File exists but is read-only | `os.Remove` fails; print `Error: could not remove release file: <err>` and exit 1 |
 | `--dry-run` with missing file | Same as normal missing-file error — dry-run still validates existence |
 | `--dry-run` with valid file | Print preview message and exit 0; file is untouched |
-| Partial version `v2` | Normalised to `v2.0.0`; targets `.gitmap/release/v2.0.0.json` |
+| Partial version `v2` | normalized to `v2.0.0`; targets `.gitmap/release/v2.0.0.json` |
 
 ## Exit Codes
 
@@ -83,7 +83,7 @@ This command produces only terminal output. It does not support `--json` or `--c
 | `cmd/clearreleasejson.go` | Flag parsing (`parseClearReleaseJSONFlags`) and handler (`runClearReleaseJSON`) |
 | `constants/constants_messages.go` | All message and error format strings |
 | `release/metadata.go` | `ReleaseExists`, `metaFilePath` — shared path construction |
-| `release/semver.go` | `Parse` — version normalisation and validation |
+| `release/semver.go` | `Parse` — version normalization and validation |
 | `helptext/clear-release-json.md` | Embedded help text displayed with `--help` |
 
 ## See Also

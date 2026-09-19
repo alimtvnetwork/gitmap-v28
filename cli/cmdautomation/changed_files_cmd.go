@@ -60,14 +60,17 @@ func printChangedFilesHeader(res ChangedFilesResult) {
 		fmt.Printf("  Base Reference:  %s%s%s\n", constants.ColorCyan, res.BaseRef, constants.ColorReset)
 	}
 	if len(res.HeadHash) > 0 {
-		shortHash := res.HeadHash
-		if len(shortHash) > 10 {
-			shortHash = shortHash[:10]
-		}
-		fmt.Printf("  HEAD Commit:     %s%s%s\n", constants.ColorCyan, shortHash, constants.ColorReset)
+		fmt.Printf("  HEAD Commit:     %s%s%s\n", constants.ColorCyan, truncateHash(res.HeadHash), constants.ColorReset)
 	}
 	fmt.Printf("  Total Files:     %s%d%s\n", constants.ColorGreen, res.TotalFiles, constants.ColorReset)
 	fmt.Printf("  Duration:        %s\n\n", res.Duration)
+}
+
+func truncateHash(hash string) string {
+	if len(hash) > 10 {
+		return hash[:10]
+	}
+	return hash
 }
 
 func formatStatusColor(status string) string {

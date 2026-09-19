@@ -13,7 +13,7 @@ type: feature
 ## Behavior
 
 - **Both syntaxes accepted, mixable.** `gitmap clone a b c`, `gitmap clone a,b,c`, and `gitmap clone a,b c d,e` all work. Parser: for each positional arg, split on `,`, strip whitespace, drop empties, append to ordered list.
-- **Dedup case-insensitively** with trailing `.git` normalised, preserving first-seen order.
+- **Dedup case-insensitively** with trailing `.git` normalized, preserving first-seen order.
 - **Defensive folder-name guard:** the second positional is ignored as a folder name when it looks like a URL — prevents `clone url1 url2` from ever being interpreted as `<url1> <folder=url2>`.
 - **Existing flags unchanged:** `--target-dir`, `--github-desktop`, `--no-replace`, `--ssh-key/-K`, `--safe-pull`, `--verbose`.
 - **`--github-desktop` registers each successful clone immediately** (inline message, not at end of batch).

@@ -45,8 +45,8 @@ func renderReleaseBumpResult(res ReleaseBumpResult, isJson, isDryRun bool) {
 
 func printReleaseBumpJson(res ReleaseBumpResult) {
 	bytes, err := json.MarshalIndent(res, "", "  ")
-	hasNoErr := err == nil
-	if hasNoErr {
+	isSuccess := err == nil
+	if isSuccess {
 		fmt.Println(string(bytes))
 	}
 }

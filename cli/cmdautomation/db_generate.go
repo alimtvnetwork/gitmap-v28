@@ -93,19 +93,19 @@ func processTableGeneration(tables []TableSchemaInfo, opts DbGenerateOptions) Db
 	lang := strings.ToLower(opts.Lang)
 	for _, t := range tables {
 		if lang == "go" || lang == "all" || lang == "" {
-			file := emitGoArtifacts(t, opts, &res)
-			if file != "" {
-				res.GeneratedFiles = append(res.GeneratedFiles, file)
-			}
+			appendGeneratedFile(&res, emitGoArtifacts(t, opts, &res))
 		}
 		if lang == "ts" || lang == "all" {
-			file := emitTsArtifacts(t, opts, &res)
-			if file != "" {
-				res.GeneratedFiles = append(res.GeneratedFiles, file)
-			}
+			appendGeneratedFile(&res, emitTsArtifacts(t, opts, &res))
 		}
 	}
 	return res
+}
+
+func appendGeneratedFile(res *DbGenerateResult, file string) {
+	if file != "" {
+		res.GeneratedFiles = append(res.GeneratedFiles, file)
+	}
 }
 
 func emitGoArtifacts(t TableSchemaInfo, opts DbGenerateOptions, res *DbGenerateResult) string {

@@ -45,8 +45,8 @@ func renderPlanConsolidateResult(res PlanConsolidateResult, isJson, isDryRun boo
 
 func printPlanConsolidateJson(res PlanConsolidateResult) {
 	bytes, err := json.MarshalIndent(res, "", "  ")
-	hasNoErr := err == nil
-	if hasNoErr {
+	isSuccess := err == nil
+	if isSuccess {
 		fmt.Println(string(bytes))
 	}
 }

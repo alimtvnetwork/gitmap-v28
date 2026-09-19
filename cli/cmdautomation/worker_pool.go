@@ -66,12 +66,14 @@ func resolveFileStats(path string) (string, int64, int64) {
 }
 
 func resolveFileContent(absPath string, isPreRead bool) string {
-	if isPreRead {
-		if data, err := os.ReadFile(absPath); err == nil {
-			return string(data)
-		}
+	if !isPreRead {
+		return ""
 	}
-	return ""
+	data, err := os.ReadFile(absPath)
+	if err != nil {
+		return ""
+	}
+	return string(data)
 }
 
 func resolveStreamEncoding(encoding string) string {
@@ -144,15 +146,19 @@ func buildWorkerCmd(ctx context.Context, opts WorkerRunOptions, rec RuntimeRecor
 func resolveWorkerArgs(opts WorkerRunOptions, rec RuntimeRecord) []string {
 	name, script := normalizeRuntimeKey(rec.Name), opts.Script
 	if isScriptFile(opts.CommandType, script) {
-		if name == "pwsh" {
-			return []string{"-NoProfile", "-File", script}
-		}
-		if name == "go" || name == "rust" {
-			return []string{"run", script}
-		}
-		return []string{script}
+		return resolveScriptFileArgs(name, script)
 	}
 	return resolveInlineArgs(name, script, opts.Encoding)
+}
+
+func resolveScriptFileArgs(name, script string) []string {
+	if name == "pwsh" {
+		return []string{"-NoProfile", "-File", script}
+	}
+	if name == "go" || name == "rust" {
+		return []string{"run", script}
+	}
+	return []string{script}
 }
 
 func resolveInlineArgs(name, script, encoding string) []string {

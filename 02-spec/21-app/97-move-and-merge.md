@@ -59,7 +59,7 @@ The URL is mapped to a candidate working folder name:
    [88-clone-direct-url.md](88-clone-direct-url.md)).
 2. **Folder DOES exist:**
    a. Read its `origin` remote (`git remote get-url origin`).
-   b. If `origin` matches the requested URL (after normalising
+   b. If `origin` matches the requested URL (after normalizing
       `https/ssh` and trailing `.git`): treat it as the working
       folder. Run `git pull --ff-only` first; abort with a clear
       error if pull fails.

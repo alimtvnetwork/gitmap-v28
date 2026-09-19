@@ -28,7 +28,7 @@ const urlListSeparators = ",;"
 //	gitmap clone "a;b;c"        → [a, b, c]   (PowerShell quoted)
 //	gitmap clone a,b c d;e      → [a, b, c, d, e]
 //
-// Dedup is case-insensitive with trailing ".git" normalised; first-seen wins.
+// Dedup is case-insensitive with trailing ".git" normalized; first-seen wins.
 // See: 02-spec/01-app/104-clone-multi.md and mem://features/clone-multi.
 func flattenURLArgs(args []string) []string {
 	out := make([]string, 0, len(args))

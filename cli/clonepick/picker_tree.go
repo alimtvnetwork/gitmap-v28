@@ -8,7 +8,7 @@ package clonepick
 //
 // The temp clone is NOT reused for the final sparse-checkout in v1
 // (the executor re-clones into the user's --dest). Spec §"--ask
-// picker" calls for single-clone reuse as a follow-up optimisation;
+// picker" calls for single-clone reuse as a follow-up optimization;
 // today's behavior is "clone twice, but the first clone is metadata
 // only so the bytes-on-the-wire cost is negligible".
 

@@ -36,7 +36,7 @@ The pipeline errors in Git map make sure that the folder, all the folder and fil
 4. **Deep Pipeline ETA Decision Engine, Database Persistence & Human-Friendly Presentation**:
    - **Database Telemetry Storage**: Fixed `buildPipelineRunRecord` and `insertSingleMasterRun` in `cli/cmdpipeline/pipeline_recorder.go` to compute and record true `DurationSeconds` (`calculateRunDuration`), `IsSuccess` boolean flag (`r.Conclusion == "success"`), timestamps (`CreatedAt`, `UpdatedAt`), and zero out remaining `EtaSeconds` for completed runs.
    - **Historical Database Querying**: Implemented `QuerySuccessfulRunDurations` in `PipelineSplitDb` to pull historical successful run durations directly from SQLite when GitHub Actions runs contain only failures or recent aborts.
-   - **Outlier & Abort Filtering**: Redesigned `calculateAverageDuration` to filter out early-aborted, cancelled, and short skipped runs below a 45s threshold that skewed averages down to ~68s.
+   - **Outlier & Abort Filtering**: Redesigned `calculateAverageDuration` to filter out early-aborted, canceled, and short skipped runs below a 45s threshold that skewed averages down to ~68s.
    - **Upper-Median Baseline Decision**: Implemented `computeBaselineDuration` taking robust upper-median durations across valid runs rather than skewed arithmetic means.
    - **Human-Friendly Duration Presentation**: Added `formatEtaDisplay` in `cli/cmdpipeline/pipeline_query.go` providing human-readable duration strings (e.g. `~180s (3m)`, `~125s (2m 5s)`) in terminal banners, dynamic timeline, and status cards.
 

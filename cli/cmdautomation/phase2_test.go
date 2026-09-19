@@ -40,7 +40,8 @@ func TestDbGenerate(t *testing.T) {
 		t.Fatalf("RunDbGenerate failed: %v", monad.Err)
 	}
 	res := monad.Value
-	if !res.IsSuccess || res.TableCount != 1 {
+	isSuccess := res.IsSuccess && res.TableCount == 1
+	if !isSuccess {
 		t.Errorf("expected success with 1 table, got %+v", res)
 	}
 }
@@ -59,7 +60,8 @@ func TestDbMigrate(t *testing.T) {
 		t.Fatalf("RunDbMigrate failed: %v", monad.Err)
 	}
 	res := monad.Value
-	if !res.IsSuccess || res.TotalApplied != 1 {
+	isMigrated := res.IsSuccess && res.TotalApplied == 1
+	if !isMigrated {
 		t.Errorf("expected 1 applied migration, got %+v", res)
 	}
 }

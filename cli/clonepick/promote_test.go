@@ -1,7 +1,7 @@
 package clonepick
 
 // promote_test.go: tests the rename + cross-fs copy fallback path
-// used by the --ask clone-once optimisation. We can't easily force
+// used by the --ask clone-once optimization. We can't easily force
 // a real EXDEV in the test sandbox, so the cross-fs copy is exercised
 // via copyTreeThenRemove directly.
 

@@ -101,20 +101,25 @@ func scanCobraViolations(path, content, helpDir string) []HelpViolation {
 
 func checkSingleCobraCommand(path, cmdVar, body, helpDir string) []HelpViolation {
 	var vios []HelpViolation
-	hasShort := reShortProp.MatchString(body)
-	if !hasShort {
+	isShortMissing := !reShortProp.MatchString(body)
+	if isShortMissing {
 		vios = append(vios, HelpViolation{
 			File:    path,
 			Command: cmdVar,
 			Issue:   "Missing Short description in cobra.Command",
 		})
 	}
+	return appendDocParityViolation(vios, path, cmdVar, body, helpDir)
+}
+
+func appendDocParityViolation(vios []HelpViolation, path, cmdVar, body, helpDir string) []HelpViolation {
 	useMatch := reUseProp.FindStringSubmatch(body)
-	if len(useMatch) > 1 {
-		docVio := checkDocParity(path, cmdVar, useMatch[1], helpDir)
-		if docVio.Issue != "" {
-			vios = append(vios, docVio)
-		}
+	if len(useMatch) <= 1 {
+		return vios
+	}
+	docVio := checkDocParity(path, cmdVar, useMatch[1], helpDir)
+	if docVio.Issue != "" {
+		return append(vios, docVio)
 	}
 	return vios
 }

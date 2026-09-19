@@ -259,4 +259,3 @@ func TestNormalizePullArgsPa(t *testing.T) {
 		t.Fatalf("expected 'pull-all' normalized to '--all', got %v", res2)
 	}
 }
-

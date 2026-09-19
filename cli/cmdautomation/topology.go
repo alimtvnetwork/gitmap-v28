@@ -73,7 +73,9 @@ func loadCachedTopology(root string) (TopologyResult, bool) {
 }
 
 func queryTopologyCache(db *sql.DB, root string) (TopologyResult, bool) {
-	initTopologyCacheTable(db)
+	if appErr := initTopologyCacheTable(db); appErr != nil {
+		return TopologyResult{}, false
+	}
 	query := `SELECT data_json, expires_at FROM codebase_topology_cache WHERE root_path = ?;`
 	row := db.QueryRow(query, filepath.ToSlash(root))
 	var dataJson, expiresAtStr string
@@ -92,7 +94,7 @@ func queryTopologyCache(db *sql.DB, root string) (TopologyResult, bool) {
 	return res, true
 }
 
-func initTopologyCacheTable(db *sql.DB) {
+func initTopologyCacheTable(db *sql.DB) *apperror.AppError {
 	schema := `CREATE TABLE IF NOT EXISTS codebase_topology_cache (
 		id INTEGER PRIMARY KEY AUTOINCREMENT,
 		root_path TEXT NOT NULL UNIQUE,
@@ -100,7 +102,11 @@ func initTopologyCacheTable(db *sql.DB) {
 		expires_at DATETIME NOT NULL,
 		created_at DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP
 	);`
-	_, _ = db.Exec(schema)
+	if _, err := db.Exec(schema); err != nil {
+		return apperror.WrapSimple(err, "init topology cache table")
+	}
+
+	return nil
 }
 
 func persistTopologyCache(res TopologyResult) *apperror.AppError {
@@ -109,7 +115,9 @@ func persistTopologyCache(res TopologyResult) *apperror.AppError {
 		return apperror.WrapSimple(err, "open automation db for topology cache")
 	}
 	defer db.Close()
-	initTopologyCacheTable(db)
+	if appErr := initTopologyCacheTable(db); appErr != nil {
+		return appErr
+	}
 	bytes, err := json.Marshal(res)
 	if err != nil {
 		return apperror.WrapSimple(err, "serialize topology cache")

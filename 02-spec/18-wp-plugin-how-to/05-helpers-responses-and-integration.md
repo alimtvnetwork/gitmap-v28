@@ -38,7 +38,7 @@ Helpers/
 
 | Method | Returns |
 |--------|---------|
-| `join(string ...$segments)` | Normalised path from segments (forward slashes, no doubles) |
+| `join(string ...$segments)` | normalized path from segments (forward slashes, no doubles) |
 | `getBaseDir()` | `wp-content/uploads/{plugin-slug}` via `wp_upload_dir()` |
 | `getLogsDir()` | `{baseDir}/logs` — uses `PathSubdirType::Logs` enum |
 | `getTempDir()` | `{baseDir}/temp` — uses `PathSubdirType::Temp` enum |

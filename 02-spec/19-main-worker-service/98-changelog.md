@@ -1,3 +1,9 @@
+## v6.264.0 — 2026-09-19 (Fix CI pipeline errors and minor version bump)
+
+**Scope:** Version bump. Fix CI pipeline errors and minor version bump.
+
+---
+
 # 98 — Changelog
 
 **Spec:** `19-main-worker-service`
@@ -354,7 +360,7 @@
 
 - **`23-snapshot-storage-and-restore.md` → v1.2.0**
   - §14 retitled *Open Questions — formalized dispositions* (was *logged, non-blocking*).
-  - §14.1 OQ-23-1 (snapshot dedup pyramid): rationale matrix (restore complexity, failure modes, retention sweep, operator mental model, disk savings, CODE RED footprint, forward-secrecy interaction), 3 v2.0 reopen triggers (retention >180d AND p95 size >5GB; >90% no-change days + paid feature ask; per-byte tier crossover), 4 forbidden v1.0 patterns (no non-flat storage; no `BasedOnSnapshotCatalogId` FK; no skip-empty-day optimisation; no premature error-code allocation).
+  - §14.1 OQ-23-1 (snapshot dedup pyramid): rationale matrix (restore complexity, failure modes, retention sweep, operator mental model, disk savings, CODE RED footprint, forward-secrecy interaction), 3 v2.0 reopen triggers (retention >180d AND p95 size >5GB; >90% no-change days + paid feature ask; per-byte tier crossover), 4 forbidden v1.0 patterns (no non-flat storage; no `BasedOnSnapshotCatalogId` FK; no skip-empty-day optimization; no premature error-code allocation).
   - §14.2 OQ-23-2 (partial-table / per-tenant restore): rationale matrix (ownership, cross-row consistency, re-seal, watermark realignment, mental model, forward-secrecy), 2 reopen triggers (schema-level tenant isolation contract + per-tenant PITR regulatory regime), 3 forbidden patterns (no `TenantId` filter on BE-3; no `RestoreScope` column "leaving room"; no manual SQL bypass of BE-6 audit path), CODE RED reasoning against "operators sometimes ask for it".
   - §14.3 OQ-23-3 resolution preserved.
   - §14.4 Future-work catalog: 4 ordered v2.0 prerequisites including reservation of `24-threat-model.md` (shared with `12-jwt-delivery-contract.md` §11.3) and the `WORKER-940-05+` / `WORKER-940-10+` error-code ranges left explicitly unallocated.

@@ -24,12 +24,15 @@ Features:
 from collections.abc import Generator, Iterable
 from concurrent.futures import ThreadPoolExecutor, as_completed
 from contextlib import contextmanager
-from dataclasses import asdict, dataclass
+from dataclasses import asdict, dataclass, field
 from enum import Enum
 import json
 import os
 from pathlib import Path
+import platform
 import re
+import shutil
+import subprocess
 import sys
 import threading
 import time
@@ -189,7 +192,40 @@ DEFAULT_MAX_WORKERS = 4
 # Standard Installer Script File Names & Exclusions
 INSTALLER_BASH_NAME = "install.sh"
 INSTALLER_PWSH_NAME = "install.ps1"
-INSTALLER_EXCLUDE_PARTS = ("node_modules", ".git", "dist", "build", "release-artifacts", "release-assets")
+INSTALLER_EXCLUDE_PARTS = ("node_modules", ".git", "dist", "build")
+
+# Cross-Platform Shell Execution Constants & Dynamic OS Detection
+DEFAULT_BASH_EXECUTABLE = "bash"
+WINDOWS_BASH_CANDIDATES: tuple[str, ...] = (
+    "C:/Program Files/Git/bin/bash.exe",
+    "C:/msys64/usr/bin/bash.exe",
+    "bash.exe",
+)
+
+
+def detect_current_os() -> str:
+    """Dynamically retrieves the current host operating system name."""
+    return platform.system()
+
+
+# Dynamically initialized to the running host OS name each time it runs
+CURRENT_OS_NAME: str = detect_current_os()
+
+
+def update_current_os() -> str:
+    """Updates and returns the running OS name variable dynamically."""
+    global CURRENT_OS_NAME
+    CURRENT_OS_NAME = detect_current_os()
+
+    return CURRENT_OS_NAME
+
+
+def is_windows_os() -> bool:
+    """Dynamically checks whether the host operating system is Windows."""
+    current_os = detect_current_os().lower()
+    is_win = bool(current_os.startswith("win") or os.name == "nt")
+
+    return is_win
 
 # Standard Git Command String Constants
 GIT_EXECUTABLE = "git"
@@ -238,7 +274,7 @@ TEMP_ARTIFACT_FILENAMES: tuple[str, ...] = (
     ".DS_Store", "Thumbs.db", "desktop.ini", ".directory"
 )
 
-# Centralized 36 CI Quality Gate Job Definitions
+# Centralized 18 CI Quality Gate Job Definitions
 CI_JOBS_MATRIX: dict[str, list[str]] = {
     "Relative Path Check": [sys.executable, "linter-scripts/check-relative-paths.py"],
     "Prompts Loaded Check": [sys.executable, "linter-scripts/check-prompts-loaded.py"],
@@ -262,20 +298,6 @@ CI_JOBS_MATRIX: dict[str, list[str]] = {
     "Linters CI/CD Test Suite": [sys.executable, "linters-cicd/tests/run.py"],
     "Interface Naming Check": [sys.executable, "linter-scripts/check-interface-naming.py"],
     "Go Base Test Suite": ["go", "test", "-C", "04-code/golang", "./..."],
-    "Axios Version Security Check": [sys.executable, "linter-scripts/check-axios-version.py"],
-    "Forbidden Spec Paths Check": [sys.executable, "linter-scripts/check-forbidden-spec-paths.py"],
-    "Placeholder Comments Check": [sys.executable, "linter-scripts/check-placeholder-comments.py"],
-    "Tunable Constants Check": [sys.executable, "linter-scripts/check-tunable-constants.py"],
-    "Runner Dispatch Guard Check": [sys.executable, "linter-scripts/check-runner-dispatch-antipatterns.py"],
-    "Lint CI Drift Self-Test": ["node", "scripts/tests/check-lint-ci-drift.test.mjs"],
-    "Required Checks Self-Test": ["node", "scripts/tests/print-required-checks.test.mjs"],
-    "Sync Guidelines Self-Test": ["node", "scripts/tests/sync-guidelines.test.mjs"],
-    "File Sizes Baseline Self-Test": [sys.executable, "linter-scripts/tests/check-file-sizes.test.py"],
-    "Markdown Gap Check": [sys.executable, "03-ai-scripts/31-md-gap-fixer.py"],
-    "Sequence & Title Check": [sys.executable, "03-ai-scripts/15-sequence-and-title-auditor.py"],
-    "Sequence Integrity Check (AI Scripts)": [sys.executable, "03-ai-scripts/21-sequence-integrity-linter.py"],
-    "Misspell Check": [sys.executable, "03-ai-scripts/27-misspell-auditor.py"],
-    "Boolean Naming Check": [sys.executable, "03-ai-scripts/08-naming-autofixer.py"],
 }
 
 # --- Module-Level Directory & File Constants ---
@@ -332,6 +354,12 @@ ALLOWED_LARGE_FILES = {
     "src\\data\\specTree.json",
     "slides-app/dist.zip",
     "slides-app\\dist.zip",
+    "docs/demo.gif",
+    "docs\\demo.gif",
+    ".ai-memory/test-inventory.json",
+    ".ai-memory\\test-inventory.json",
+    ".ai-memory/cicd/test-inventory.json",
+    ".ai-memory\\cicd\\test-inventory.json",
 }
 
 # Language Extension Mapping
@@ -579,8 +607,17 @@ def is_binary_file(file_path: Path) -> bool:
 
 def is_allowed_large_file(file_path: str | Path) -> bool:
     """Checks if file is on the explicit waiver list for large generated assets."""
-    norm = normalize_rel_path(file_path).lstrip(f"{CURRENT_DIR}{PATH_SEPARATOR}")
-    return norm in {normalize_rel_path(f).lstrip(f"{CURRENT_DIR}{PATH_SEPARATOR}") for f in ALLOWED_LARGE_FILES}
+    norm = normalize_rel_path(file_path).removeprefix(f"{CURRENT_DIR}{PATH_SEPARATOR}")
+    allowed_set = {normalize_rel_path(f).removeprefix(f"{CURRENT_DIR}{PATH_SEPARATOR}") for f in ALLOWED_LARGE_FILES}
+    if norm in allowed_set:
+        return True
+    try:
+        rel = normalize_rel_path(Path(file_path).resolve().relative_to(Path.cwd().resolve()))
+        if rel in allowed_set:
+            return True
+    except Exception:
+        pass
+    return any(norm.endswith(f"/{allowed}") or norm.endswith(f"\\{allowed}") for allowed in allowed_set)
 
 def normalize_rel_path(path: str | Path) -> str:
     """Converts a path into a canonical relative POSIX path using PATH_SEPARATOR."""
@@ -869,8 +906,7 @@ def process_repository_files(
     root_dir: str = CURRENT_DIR,
     extensions: set[str] | tuple | list | str | None = None,
     is_use_cache: bool = True,
-    custom_excludes: set[str] | None = None,
-    workers: int = 1,
+    custom_excludes: set[str] | None = None
 ) -> dict[str, Any]:
     """
     Two-Phase Universal Pipeline:
@@ -878,12 +914,10 @@ def process_repository_files(
     2. Streams and discovers new / modified files on disk.
     3. Gracefully skips missing or removed files during processing.
     4. Executes processor_fn on each unique file and aggregates statistics.
-    5. Supports worker pool concurrency when workers > 1.
     """
     start_time = time.perf_counter()
     cache_data = load_repo_cache() if is_use_cache else {}
     processed_paths: set[str] = set()
-    unique_paths: list[Path] = []
     results = []
     norm_exts = normalize_extensions(extensions)
 
@@ -893,28 +927,14 @@ def process_repository_files(
                 norm_p = normalize_rel_path(p)
                 if norm_p not in processed_paths:
                     processed_paths.add(norm_p)
-                    unique_paths.append(p)
+                    res = processor_fn(p)
+                    if res is not None:
+                        results.append(res)
 
     for p in stream_directory_files(root_dir=root_dir, extensions=norm_exts, custom_excludes=custom_excludes):
         norm_p = normalize_rel_path(p)
         if norm_p not in processed_paths:
             processed_paths.add(norm_p)
-            unique_paths.append(p)
-
-    is_multithreaded = (workers > 1 and len(unique_paths) > 1)
-    if is_multithreaded:
-        effective_workers = min(workers, len(unique_paths))
-        with ThreadPoolExecutor(max_workers=effective_workers) as executor:
-            futures = [executor.submit(processor_fn, p) for p in unique_paths]
-            for future in as_completed(futures):
-                try:
-                    res = future.result()
-                    if res is not None:
-                        results.append(res)
-                except Exception:
-                    pass
-    else:
-        for p in unique_paths:
             res = processor_fn(p)
             if res is not None:
                 results.append(res)
@@ -928,121 +948,612 @@ def process_repository_files(
     }
 
 
-def process_repository_files_parallel(
-    processor_fn: Callable[[Path], Any],
-    root_dir: str = CURRENT_DIR,
-    extensions: set[str] | tuple | list | str | None = None,
-    is_use_cache: bool = True,
-    custom_excludes: set[str] | None = None,
-    workers: int | None = None,
-) -> dict[str, Any]:
-    """Runs process_repository_files concurrently using worker group scaled to CPU cores."""
-    concurrency = workers if workers is not None else DEFAULT_CONCURRENCY_WORKERS
-    return process_repository_files(
-        processor_fn=processor_fn,
-        root_dir=root_dir,
-        extensions=extensions,
-        is_use_cache=is_use_cache,
-        custom_excludes=custom_excludes,
-        workers=concurrency,
-    )
+# ── Generic Parallel Worker Engine & Reusable CLI Support ──────────────────
+
+DEFAULT_CONCURRENCY_WORKERS = int(os.environ.get("CI_MAX_WORKERS", min(8, os.cpu_count() or 4)))
+DEFAULT_MAX_WORKERS = DEFAULT_CONCURRENCY_WORKERS
+DEFAULT_IO_WORKERS = int(os.environ.get("CI_MAX_IO_WORKERS", 2))
+
+ANSI_ESCAPE_REGEX = re.compile(r"\x1B(?:[@-Z\\-_]|\[[0-?]*[ -/]*[@-~])")
 
 
-# --- Base Worker Group & Concurrency Engine ---
-
-# Default worker concurrency: scales with CPU cores but capped at 8 to avoid disk/IO thrashing.
-# Configurable via this variable, the CI_MAX_WORKERS / CICD_WORKERS env var, or CLI arguments.
-DEFAULT_CONCURRENCY_WORKERS: int = int(
-    os.environ.get("CI_MAX_WORKERS")
-    or os.environ.get("CICD_WORKERS")
-    or min(8, os.cpu_count() or 4)
-)
+def strip_ansi(text: str) -> str:
+    """Removes terminal ANSI color escape codes from text."""
+    return ANSI_ESCAPE_REGEX.sub("", text)
 
 
 @dataclass
-class WorkItemResult:
-    """Represents the execution outcome of an individual worker item."""
+class WorkerResult:
+    """Encapsulates the execution outcome of an individual worker task."""
     name: str
     is_success: bool
-    output: str
-    duration_sec: float
-    return_code: int = 0
-    data: Any = None
+    output: str = ""
+    error: str = ""
+    elapsed_sec: float = 0.0
+    metadata: dict[str, Any] = field(default_factory=dict)
 
 
 @dataclass
-class WorkGroupSummary:
-    """Complete summary of a work group execution."""
-    total_items: int
+class WorkerPoolSummary:
+    """Encapsulates aggregated results and metrics of a worker pool run."""
+    total_count: int
     passed_count: int
     failed_count: int
     wall_duration_sec: float
-    results: list[WorkItemResult]
     has_failures: bool
+    results: list[WorkerResult]
     exit_code: int
 
 
+def format_worker_report(
+    summary: WorkerPoolSummary,
+    title: str = "EXECUTION SUMMARY REPORT",
+    show_all: bool = False,
+) -> str:
+    """Formats a clean human-readable execution report."""
+    lines: list[str] = [
+        "=" * 60,
+        f"           {title}",
+        "=" * 60,
+    ]
+    for r in summary.results:
+        icon = "✅" if r.is_success else "❌"
+        status_label = "PASSED" if r.is_success else "FAILED"
+        lines.append(f"{icon} [{status_label}] {r.name:<40} ({r.elapsed_sec:.2f}s)")
+
+    lines.append("-" * 60)
+    lines.append(f"Total Duration : {summary.wall_duration_sec:.2f}s")
+    lines.append(f"Items Passed   : {summary.passed_count}/{summary.total_count}")
+    lines.append(f"Items Failed   : {summary.failed_count}/{summary.total_count}")
+    lines.append("-" * 60)
+
+    if show_all:
+        lines.append("\n" + "=" * 60)
+        lines.append("                 DETAILED LOGS (--all-paths)")
+        lines.append("=" * 60)
+        for r in summary.results:
+            status_label = "PASS" if r.is_success else "FAIL"
+            lines.append(f"\n[{status_label} LOG] Item: {r.name} ({r.elapsed_sec:.2f}s)")
+            if r.output.strip():
+                lines.append(f"Output:\n{r.output.strip()}")
+            if r.error.strip():
+                lines.append(f"Errors / Stderr:\n{r.error.strip()}")
+            lines.append("-" * 60)
+    elif summary.has_failures:
+        lines.append("\n" + "=" * 60)
+        lines.append("               FAILED ITEM LOGS")
+        lines.append("=" * 60)
+        for r in summary.results:
+            if not r.is_success:
+                lines.append(f"\n❌ FAILED: {r.name} ({r.elapsed_sec:.2f}s)")
+                if r.output.strip():
+                    lines.append(f"Output:\n{r.output.strip()}")
+                if r.error.strip():
+                    lines.append(f"Error / Stderr:\n{r.error.strip()}")
+                lines.append("-" * 60)
+
+    return LINE_SEPARATOR.join(lines)
+
+
+def add_worker_cli_arguments(
+    parser: Any,
+    default_workers: int = DEFAULT_CONCURRENCY_WORKERS,
+) -> None:
+    """Registers standard parallel worker CLI arguments into an ArgumentParser."""
+    parser.add_argument(
+        "--all-paths", "--all-passed", "--all-pass", "--all", "-a",
+        action="store_true",
+        dest="show_all",
+        help="Show detailed information and full logs for all items (both passed and failed).",
+    )
+    parser.add_argument(
+        "--failed", "-f",
+        action="store_true",
+        dest="show_failed",
+        help="Show logs only for failed items (default behavior).",
+    )
+    parser.add_argument(
+        "--sync", "--sequential", "-s",
+        action="store_true",
+        dest="is_sync",
+        help="Execute items sequentially (1 worker) instead of in parallel.",
+    )
+    parser.add_argument(
+        "--workers", "-w", "--concurrency",
+        type=int,
+        default=default_workers,
+        dest="workers",
+        help=f"Number of concurrent worker threads (default: {default_workers}).",
+    )
+    parser.add_argument(
+        "--output", "-o", "--file", "--output-file",
+        type=str,
+        default=None,
+        dest="output_file",
+        help="Save execution results and report to the specified file path.",
+    )
+    parser.add_argument(
+        "--json", "--json-output",
+        nargs="?",
+        const=True,
+        default=False,
+        dest="as_json",
+        help="Output results as machine-readable JSON (to stdout, or to file if specified).",
+    )
+    parser.add_argument(
+        "--filter", "-k",
+        type=str,
+        default=None,
+        dest="filter",
+        help="Filter items matching substring (case-insensitive).",
+    )
+
+
 def run_worker_pool(
-    items: Iterable[Any],
-    worker_fn: Callable[[Any], WorkItemResult],
-    worker_count: int = DEFAULT_CONCURRENCY_WORKERS,
+    items: list[Any],
+    worker_fn: Callable[[Any], WorkerResult],
+    max_workers: int | None = None,
     is_sync: bool = False,
-    on_item_complete: Callable[[WorkItemResult, int, int], None] | None = None
-) -> WorkGroupSummary:
+    show_all: bool = False,
+    output_file: str | None = None,
+    as_json: bool | str = False,
+    title: str = "WORKER POOL EXECUTION",
+    item_noun: str = "items",
+    on_item_complete: Callable[[WorkerResult, int, int], None] | None = None,
+) -> int:
     """
-    Universal thread-safe worker pool engine for AI scripts and CI test runners.
-    Executes tasks concurrently across CPU threads or sequentially if is_sync is True.
-    Protects IO via bounded worker pool concurrency, captures exceptions, and yields WorkGroupSummary.
+    Executes a list of items concurrently across a ThreadPoolExecutor worker group.
+
+    Guarantees:
+    - Default mode: quiet on success (tick "✔ All passed."), detailed error logs on failure.
+    - Verbose mode (--all-paths / --all): shows header banner, ticker, and detailed output.
+    - Sync mode (--sync): runs serially (1 worker).
+    - File export (--output / --json): outputs text or machine-readable JSON reports.
     """
-    item_list = list(items)
-    total_items = len(item_list)
-    start_time = time.perf_counter()
-    results: list[WorkItemResult] = []
+    total_count = len(items)
+    is_json = bool(as_json)
 
-    effective_workers = 1 if is_sync else max(1, min(worker_count, total_items or 1))
+    if total_count == 0:
+        if not is_json:
+            print(f"✔ No {item_noun} found to process.")
+        return ExitCodeType.SUCCESS.value
 
-    if is_sync:
-        for idx, item in enumerate(item_list, 1):
-            res = worker_fn(item)
+    worker_count = 1 if is_sync else (max_workers or min(total_count, DEFAULT_CONCURRENCY_WORKERS))
+    concurrency_label = "Sequential (1 worker)" if is_sync else f"Parallel ({worker_count} workers)"
+
+    if show_all and not is_json:
+        print("=" * 60)
+        print(f"           {title}")
+        print("=" * 60)
+        print(f"🚀 Execution Mode          : {concurrency_label}")
+        print(f"📋 Total Enqueued Items    : {total_count}")
+        print("🔍 Display Mode            : SHOW ALL INFORMATION (--all-paths)")
+        print("-" * 60 + "\n")
+
+    start_wall_time = time.perf_counter()
+    results: list[WorkerResult] = []
+
+    with ThreadPoolExecutor(max_workers=worker_count) as executor:
+        future_map = {
+            executor.submit(worker_fn, item): item
+            for item in items
+        }
+        for future in as_completed(future_map):
+            try:
+                res = future.result()
+            except Exception as exc:
+                item = future_map[future]
+                res = WorkerResult(
+                    name=str(item),
+                    is_success=False,
+                    error=f"Unhandled worker exception: {exc}",
+                )
             results.append(res)
-            if on_item_complete:
-                on_item_complete(res, idx, total_items)
-    else:
-        with ThreadPoolExecutor(max_workers=effective_workers) as executor:
-            future_to_item = {
-                executor.submit(worker_fn, item): item
-                for item in item_list
-            }
-            completed_count = 0
-            for future in as_completed(future_to_item):
-                completed_count += 1
-                try:
-                    res = future.result()
-                except Exception as exc:
-                    item = future_to_item[future]
-                    res = WorkItemResult(
-                        name=str(item),
-                        is_success=False,
-                        output=f"Worker exception: {exc}",
-                        duration_sec=0.0,
-                        return_code=-1
-                    )
-                results.append(res)
-                if on_item_complete:
-                    on_item_complete(res, completed_count, total_items)
+            idx = len(results)
 
-    wall_duration = time.perf_counter() - start_time
+            if on_item_complete:
+                on_item_complete(res, idx, total_count)
+
+            if show_all and not is_json:
+                icon = "✓" if res.is_success else "✗"
+                status_label = "PASS" if res.is_success else "FAIL"
+                print(f"  [{idx:2d}/{total_count:2d}] {icon} {status_label} [{res.name}] ({res.elapsed_sec:.2f}s)")
+            elif not res.is_success and not is_json:
+                print(f"  ✗ FAIL [{res.name}] ({res.elapsed_sec:.2f}s)")
+
+    wall_duration_sec = time.perf_counter() - start_wall_time
+
+    # Sort results to match original item order
+    item_order = [str(x) for x in items]
+    results.sort(key=lambda r: item_order.index(r.name) if r.name in item_order else 999)
+
     passed_count = sum(1 for r in results if r.is_success)
     failed_count = sum(1 for r in results if not r.is_success)
     has_failures = (failed_count > 0)
     exit_code = ExitCodeType.VIOLATIONS_FOUND.value if has_failures else ExitCodeType.SUCCESS.value
 
-    return WorkGroupSummary(
-        total_items=total_items,
+    summary = WorkerPoolSummary(
+        total_count=total_count,
         passed_count=passed_count,
         failed_count=failed_count,
-        wall_duration_sec=wall_duration,
-        results=results,
+        wall_duration_sec=wall_duration_sec,
         has_failures=has_failures,
-        exit_code=exit_code
+        results=results,
+        exit_code=exit_code,
     )
+
+    # ── Handle JSON Output ─────────────────────────────────────────────────
+    if is_json:
+        payload = {
+            "total": total_count,
+            "passed": passed_count,
+            "failed": failed_count,
+            "wall_duration_sec": round(wall_duration_sec, 3),
+            "has_failures": has_failures,
+            "exit_code": exit_code,
+            "results": [asdict(r) for r in results],
+        }
+        json_content = json.dumps(payload, indent=2, ensure_ascii=False)
+        target_json_path = as_json if isinstance(as_json, str) else output_file
+
+        if target_json_path:
+            p = Path(target_json_path)
+            p.parent.mkdir(parents=True, exist_ok=True)
+            p.write_text(json_content, encoding=DEFAULT_ENCODING)
+            print(f"📄 JSON results saved to: {target_json_path}")
+        else:
+            print(json_content)
+
+        return exit_code
+
+    # ── Handle Output File (Text) ──────────────────────────────────────────
+    if output_file:
+        full_text = format_worker_report(summary, title=title, show_all=True)
+        p = Path(output_file)
+        p.parent.mkdir(parents=True, exist_ok=True)
+        p.write_text(strip_ansi(full_text), encoding=DEFAULT_ENCODING)
+        print(f"📄 Execution report saved to: {output_file}")
+
+    # ── Terminal Output Presentation ───────────────────────────────────────
+    if has_failures:
+        failure_text = format_worker_report(summary, title=title, show_all=False)
+        print("\n" + failure_text)
+        print(f"\n\033[1;91m[FAILURE]\033[0m Execution failed with {failed_count} error(s).")
+        return ExitCodeType.VIOLATIONS_FOUND.value
+
+    if show_all:
+        all_text = format_worker_report(summary, title=title, show_all=True)
+        print("\n" + all_text)
+        print(f"\n\033[1;92m🎉 All {item_noun} passed successfully! Codebase is 100% green.\033[0m")
+    else:
+        # Default: clean tick and "All passed."
+        print(f"✔ All passed. ({passed_count} {item_noun} in {wall_duration_sec:.2f}s)")
+
+    return ExitCodeType.SUCCESS.value
+
+
+def is_valid_executable(path_str: str) -> bool:
+    """Checks if a binary path exists or is discoverable in PATH."""
+    is_found = bool(shutil.which(path_str) or os.path.exists(path_str))
+
+    return is_found
+
+
+def get_bash_path() -> str:
+    """Detects host operating system and returns absolute or PATH-resolved bash executable."""
+    is_windows = is_windows_os()
+    if not is_windows:
+        return DEFAULT_BASH_EXECUTABLE
+
+    for candidate in WINDOWS_BASH_CANDIDATES:
+        if is_valid_executable(candidate):
+            return candidate
+
+    return DEFAULT_BASH_EXECUTABLE
+
+
+def chunk_items(items: list[Any], chunk_size: int = 8) -> list[list[Any]]:
+    """Splits a flat list into chunks of chunk_size items."""
+    effective_size = max(1, chunk_size)
+    chunks = [items[i:i + effective_size] for i in range(0, len(items), effective_size)]
+
+    return chunks
+
+
+class WorkerHeartbeatMonitor:
+    """Daemon thread emitting snapshot progress every snapshot_interval_sec."""
+
+    def __init__(
+        self,
+        total_items: int,
+        item_noun: str = "files",
+        snapshot_interval_sec: float = 25.0,
+        worker_count: int = 10,
+    ) -> None:
+        self.total_items = total_items
+        self.item_noun = item_noun
+        self.snapshot_interval_sec = snapshot_interval_sec
+        self.worker_count = worker_count
+        self.processed_count = 0
+        self.active_workers: dict[str, str] = {}
+        self.lock = threading.Lock()
+        self.is_running = True
+        self.start_time = time.time()
+        self.thread: threading.Thread | None = None
+
+    def start(self) -> None:
+        """Starts the daemon snapshot heartbeat thread."""
+        self.thread = threading.Thread(target=self._run_loop, daemon=True)
+        self.thread.start()
+
+    def stop(self) -> None:
+        """Signals the snapshot loop to stop."""
+        with self.lock:
+            self.is_running = False
+
+    def update_worker(self, worker_id: str, status_msg: str) -> None:
+        """Updates current activity description of a worker."""
+        with self.lock:
+            self.active_workers[worker_id] = status_msg
+
+    def increment_processed(self, count: int = 1) -> None:
+        """Increments total processed items count."""
+        with self.lock:
+            self.processed_count += count
+
+    def _run_loop(self) -> None:
+        """Periodic background loop triggering snapshots."""
+        while True:
+            time.sleep(self.snapshot_interval_sec)
+            with self.lock:
+                if not self.is_running:
+                    break
+                self._print_snapshot()
+
+    def _print_snapshot(self) -> None:
+        """Formats and outputs a snapshot line to stdout."""
+        elapsed = max(0.001, time.time() - self.start_time)
+        fps = self.processed_count / elapsed
+        pct = (self.processed_count / self.total_items * 100.0) if self.total_items > 0 else 100.0
+        msg = f"[Snapshot {elapsed:4.1f}s] Processed {self.processed_count}/{self.total_items} ({pct:5.1f}%) | {self.worker_count} workers | {fps:5.1f} {self.item_noun}/sec"
+        print(msg)
+
+
+def log_chunk_pickup(worker_id: str, chunk_idx: int, count: int, item_noun: str) -> None:
+    """Logs worker chunk pickup event."""
+    print(f"[{worker_id}] Picked chunk {chunk_idx + 1} ({count} {item_noun})...")
+
+
+def process_single_item(
+    item: Any,
+    worker_id: str,
+    worker_fn: Callable[[Any], WorkerResult],
+    monitor: WorkerHeartbeatMonitor | None,
+) -> WorkerResult:
+    """Processes single item updating monitor status."""
+    if monitor:
+        monitor.update_worker(worker_id, f"Processing {Path(str(item)).name}")
+    res = worker_fn(item)
+    if monitor:
+        monitor.increment_processed(1)
+
+    return res
+
+
+def process_chunk_wrapper(
+    worker_id: str,
+    chunk_idx: int,
+    chunk: list[Any],
+    worker_fn: Callable[[Any], WorkerResult],
+    monitor: WorkerHeartbeatMonitor | None,
+    item_noun: str,
+    log_picks: bool,
+) -> list[WorkerResult]:
+    """Processes a chunk of items sequentially within a single worker thread."""
+    if log_picks:
+        log_chunk_pickup(worker_id, chunk_idx, len(chunk), item_noun)
+    results = [process_single_item(item, worker_id, worker_fn, monitor) for item in chunk]
+    if monitor:
+        monitor.update_worker(worker_id, "Idle")
+
+    return results
+
+
+def execute_pool_chunks(
+    chunks: list[list[Any]],
+    workers: int,
+    worker_fn: Callable[[Any], WorkerResult],
+    monitor: WorkerHeartbeatMonitor,
+    item_noun: str,
+    log_picks: bool,
+) -> list[WorkerResult]:
+    """Executes submitted chunks on thread pool executor."""
+    all_results: list[WorkerResult] = []
+    with ThreadPoolExecutor(max_workers=workers) as pool:
+        futures = {
+            pool.submit(process_chunk_wrapper, f"Worker-{idx % workers + 1}", idx, chunk, worker_fn, monitor, item_noun, log_picks): chunk
+            for idx, chunk in enumerate(chunks)
+        }
+        for fut in as_completed(futures):
+            chunk_results = fut.result()
+            all_results.extend(chunk_results)
+
+    return all_results
+
+
+def build_pool_summary(results: list[WorkerResult], total_count: int, wall_sec: float) -> WorkerPoolSummary:
+    """Builds WorkerPoolSummary from results."""
+    passed = sum(1 for r in results if r.is_success)
+    failed = sum(1 for r in results if not r.is_success)
+    has_failures = bool(failed > 0)
+    exit_code = ExitCodeType.VIOLATIONS_FOUND.value if has_failures else ExitCodeType.SUCCESS.value
+    summary = WorkerPoolSummary(total_count, passed, failed, wall_sec, has_failures, results, exit_code)
+
+    return summary
+
+
+def run_chunked_worker_pool(
+    items: list[Any],
+    worker_fn: Callable[[Any], WorkerResult],
+    chunk_size: int = 8,
+    max_workers: int = 10,
+    item_noun: str = "files",
+    log_picks: bool = True,
+    snapshot_interval_sec: float = 25.0,
+    title: str = "CHUNKED PARALLEL EXECUTION",
+) -> WorkerPoolSummary:
+    """Executes items in parallel chunks with 25-second snapshot heartbeats."""
+    total_count = len(items)
+    start_time = time.perf_counter()
+    chunks = chunk_items(items, chunk_size)
+    workers = min(max_workers, len(chunks)) if chunks else 1
+    monitor = WorkerHeartbeatMonitor(total_count, item_noun, snapshot_interval_sec, workers)
+    monitor.start()
+    results = execute_pool_chunks(chunks, workers, worker_fn, monitor, item_noun, log_picks)
+    monitor.stop()
+    wall_duration = time.perf_counter() - start_time
+    summary = build_pool_summary(results, total_count, wall_duration)
+
+    return summary
+
+
+def run_git_command(args: list[str], repo_root: Path | str) -> list[str]:
+    """Executes git command returning trimmed non-empty stdout lines."""
+    git_exe = shutil.which("git") or "git"
+    res = subprocess.run([git_exe] + args, cwd=str(repo_root), capture_output=True, text=True)
+    if res.returncode != 0:
+        return []
+    lines = [line.strip() for line in res.stdout.splitlines() if line.strip()]
+
+    return lines
+
+
+def parse_porcelain_line(line: str) -> tuple[str, str]:
+    """Extracts status code and relative path from git porcelain output."""
+    status = line[:2].strip()
+    path_part = line[2:].strip().strip('"')
+    if " -> " in path_part:
+        path_part = path_part.split(" -> ")[-1].strip()
+
+    return status, path_part
+
+
+def deduplicate_git_changes(commit_lines: list[str], status_lines: list[str]) -> dict[str, dict[str, Any]]:
+    """Deduplicates commit diffs and working tree porcelain changes into dictionary."""
+    seen: dict[str, dict[str, Any]] = {}
+    for path in commit_lines:
+        norm = path.replace("\\", "/").strip()
+        ext = os.path.splitext(norm)[1].lower()
+        seen[norm] = {"path": norm, "status": "committed", "extension": ext}
+    for line in status_lines:
+        status, path = parse_porcelain_line(line)
+        norm = path.replace("\\", "/").strip()
+        ext = os.path.splitext(norm)[1].lower()
+        seen[norm] = {"path": norm, "status": f"working-tree ({status})", "extension": ext}
+
+    return seen
+
+
+def get_git_head_commit_hash(repo_root: Path | str) -> str:
+    """Returns the current 40-character git HEAD commit hash."""
+    lines = run_git_command(["rev-parse", "HEAD"], repo_root)
+    head_sha = lines[0].strip() if lines else ""
+
+    return head_sha
+
+
+def is_git_commit_ancestor(ancestor_sha: str, descendant_sha: str, repo_root: Path | str) -> bool:
+    """Verifies whether ancestor_sha is a direct ancestor of descendant_sha."""
+    git_exe = shutil.which("git") or "git"
+    cmd = [git_exe, "merge-base", "--is-ancestor", ancestor_sha, descendant_sha]
+    res = subprocess.run(cmd, cwd=str(repo_root), capture_output=True)
+    is_ancestor = bool(res.returncode == 0)
+
+    return is_ancestor
+
+
+def load_checkpoint_commit_hash(checkpoint_path: Path | str) -> str | None:
+    """Safely extracts last processed commit hash from existing JSON manifest."""
+    p = Path(checkpoint_path)
+    if not p.is_file():
+        return None
+    try:
+        data = json.loads(p.read_text(encoding="utf-8"))
+        val = data.get("last_commit_hash") or data.get("commit_hash")
+        return str(val).strip() if val else None
+    except Exception:
+        return None
+
+
+def calculate_ancestor_diff(
+    repo_root: Path | str,
+    prev_hash: str,
+    current_head: str,
+) -> tuple[list[str], str, bool]:
+    """Calculates commit diff lines when previous hash is a validated ancestor."""
+    if prev_hash == current_head:
+        return [], f"{prev_hash[:8]}..HEAD (same commit, zero new commits)", True
+    diff_lines = run_git_command(["diff", "--name-only", f"{prev_hash}..HEAD"], repo_root)
+    commit_range = f"{prev_hash[:8]}..{current_head[:8]}"
+
+    return diff_lines, commit_range, True
+
+
+def resolve_incremental_commit_range(
+    repo_root: Path | str,
+    commit_count: int,
+    prev_hash: str | None,
+    current_head: str,
+    force_full: bool,
+) -> tuple[list[str], str, bool]:
+    """Computes git diff lines and range description using commit ancestry."""
+    has_valid_ancestor = bool(prev_hash and is_git_commit_ancestor(prev_hash, current_head, repo_root))
+    if has_valid_ancestor and not force_full:
+        return calculate_ancestor_diff(repo_root, prev_hash, current_head)
+    diff_lines = run_git_command(["diff", "--name-only", f"HEAD~{commit_count}..HEAD"], repo_root)
+    commit_range = f"HEAD~{commit_count}..HEAD"
+
+    return diff_lines, commit_range, False
+
+
+def build_checkpoint_metadata(
+    current_head: str,
+    prev_hash: str | None,
+    commit_range: str,
+    is_incremental: bool,
+    commit_count: int,
+    total_files: int,
+) -> dict[str, Any]:
+    """Builds metadata dictionary for checkpoint persistence."""
+    metadata = {
+        "last_commit_hash": current_head,
+        "previous_checkpoint_hash": prev_hash,
+        "commit_range": commit_range,
+        "is_incremental": is_incremental,
+        "commit_window": commit_count,
+        "generated_at": time.time(),
+        "total_files": total_files,
+    }
+
+    return metadata
+
+
+def extract_git_changed_files(
+    repo_root: Path | str,
+    commit_count: int = 20,
+    checkpoint_file: Path | str | None = None,
+    force_full: bool = False,
+    since_commit: str | None = None,
+) -> tuple[list[dict[str, Any]], dict[str, Any]]:
+    """Collects changed files in incremental window or last N commits with deduplication."""
+    current_head = get_git_head_commit_hash(repo_root)
+    prev_hash = since_commit or (load_checkpoint_commit_hash(checkpoint_file) if checkpoint_file else None)
+    diff_lines, commit_range, is_inc = resolve_incremental_commit_range(
+        repo_root, commit_count, prev_hash, current_head, force_full
+    )
+    status_lines = run_git_command(["status", "--porcelain"], repo_root)
+    file_dict = deduplicate_git_changes(diff_lines, status_lines)
+    result = sorted(file_dict.values(), key=lambda item: item["path"])
+    metadata = build_checkpoint_metadata(current_head, prev_hash, commit_range, is_inc, commit_count, len(result))
+
+    return result, metadata

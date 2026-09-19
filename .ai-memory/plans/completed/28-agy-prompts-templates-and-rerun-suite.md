@@ -50,7 +50,7 @@ In addition, the user specified a suite of AGY prompt management and rerun featu
 
 ### Subtask 03: Fix Pipeline "Clean Status" False Positive & Add `pipeline clear-db`
 - **Scoped Deduplication to Branch and Commit SHA:** Implemented `buildWorkflowScopeKey(r ghRunItem)` generating `branch:sha:workflowname`, ensuring passing runs on other branches or newer commits cannot mask failures on the target commit.
-- **Broadened Failure Conclusion Recognition:** Implemented `isFailingConclusion(conclusion string)` recognizing `"timed_out"`, `"cancelled"`, `"startup_failure"`, and `"failure"`.
+- **Broadened Failure Conclusion Recognition:** Implemented `isFailingConclusion(conclusion string)` recognizing `"timed_out"`, `"canceled"`, `"startup_failure"`, and `"failure"`.
 - **Eliminated Premature Clean Status Short-Circuiting:** Removed premature short-circuit on `p.Conclusion == "success"` when companion runs or other commits in the fetched runs have failed.
 - **Fixed DB Fallback to Isolated Split Database:** Replaced legacy `openDB()` call in `queryRunsFromDB` with `pipelinedb.OpenPipelineSplitDb(repo)` querying `db.QueryRecentRuns(5)`.
 - **Added `pipeline clear-db` Subcommands:** Added `clear-db`, `cleardb`, and `db-clear` aliases routed in `dispatchPipelineSubcmd`.

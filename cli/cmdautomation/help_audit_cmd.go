@@ -55,8 +55,8 @@ func renderHelpAuditResult(res HelpAuditResult, isJson bool) {
 
 func printHelpAuditJson(res HelpAuditResult) {
 	bytes, err := json.MarshalIndent(res, "", "  ")
-	hasNoErr := err == nil
-	if hasNoErr {
+	isSuccess := err == nil
+	if isSuccess {
 		fmt.Println(string(bytes))
 	}
 }

@@ -26,7 +26,6 @@ TARGET_REPOS = [
     Path(r"D:\work\kita-social-media-content-calender"),
     Path(r"D:\work\laravel-automation"),
     Path(r"D:\work\wp-exam"),
-    Path(r"D:\work\gitmap"),
 ]
 
 SYNC_DIRS = [

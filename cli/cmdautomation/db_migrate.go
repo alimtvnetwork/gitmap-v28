@@ -203,16 +203,24 @@ func handleRollback(db *sql.DB, steps int, isDryRun bool) (DbMigrateResult, *app
 func executeRollbackSteps(db *sql.DB, targets []string, isDryRun bool) (DbMigrateResult, *apperror.AppError) {
 	var res DbMigrateResult
 	for _, name := range targets {
-		if !isDryRun {
-			_, err := db.Exec(`DELETE FROM _migrations WHERE migration_name = ?;`, name)
-			if err != nil {
-				return res, apperror.WrapSimple(err, "delete migration record: "+name)
-			}
+		if err := deleteMigrationRecord(db, name, isDryRun); err != nil {
+			return res, err
 		}
 		res.AppliedMigrations = append(res.AppliedMigrations, "rollback:"+name)
 	}
 	res.TotalApplied = len(res.AppliedMigrations)
 	return res, nil
+}
+
+func deleteMigrationRecord(db *sql.DB, name string, isDryRun bool) *apperror.AppError {
+	if isDryRun {
+		return nil
+	}
+	_, err := db.Exec(`DELETE FROM _migrations WHERE migration_name = ?;`, name)
+	if err != nil {
+		return apperror.WrapSimple(err, "delete migration record: "+name)
+	}
+	return nil
 }
 
 func getMigrationStatus(db *sql.DB) (DbMigrateResult, *apperror.AppError) {

@@ -43,7 +43,7 @@ deprecation window.
    pass `n <= 0` to `recentLogSubjectsAndBodies` and skip the
    `--max-count` flag in that branch.
 2. Convert the substring scan in the caller to a hash-set keyed on the
-   full normalised subject+body block. Memory cost: O(N) strings; for a
+   full normalized subject+body block. Memory cost: O(N) strings; for a
    100k-commit target that is ~10 MB — acceptable for a one-shot CLI.
 3. Add a regression test `TestPlanIdempotenceBeyond200Commits` that
    builds a target with 250+ commits, cherry-picks subject at index 5,

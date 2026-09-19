@@ -43,7 +43,7 @@ gitmap clone-pick --replay <id|name> [flags]
 
 `<paths>` is a comma-separated list of repo-relative paths
 (e.g. `docs,examples/foo.md,scripts/release-version.ps1`). Folders and
-files both accepted. Leading `./` and trailing `/` are normalised away.
+files both accepted. Leading `./` and trailing `/` are normalized away.
 
 ### 3.1 Flags
 
@@ -197,7 +197,7 @@ CREATE TABLE IF NOT EXISTS CloneInteractiveSelection (
     Cone              INTEGER NOT NULL DEFAULT 1,      -- 0/1
     KeepGit           INTEGER NOT NULL DEFAULT 1,      -- 0/1
     DestDir           TEXT NOT NULL DEFAULT '.',
-    PathsCsv          TEXT NOT NULL,         -- normalised, sorted, comma-joined
+    PathsCsv          TEXT NOT NULL,         -- normalized, sorted, comma-joined
     UsedAsk           INTEGER NOT NULL DEFAULT 0,      -- 0/1
     CreatedAt         TEXT DEFAULT CURRENT_TIMESTAMP
 );
@@ -252,7 +252,7 @@ Skipped when `<dest> == "."` (already there) or `--dry-run`.
 
 | Layer | Test | File |
 |-------|------|------|
-| Parse | URL + paths normalisation | `clonepick/parse_test.go` |
+| Parse | URL + paths normalization | `clonepick/parse_test.go` |
 | Parse | Reject empty / abs / `..` paths | `clonepick/parse_test.go` |
 | Plan | Cone vs non-cone auto-detection | `clonepick/plan_test.go` |
 | DB | Insert + lookup by id + by name | `store/cloneinteractiveselection_test.go` |

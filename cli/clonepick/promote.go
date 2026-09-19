@@ -9,7 +9,7 @@ package clonepick
 //     live on the same filesystem AND dest is empty or removable.
 //  2. If rename fails (cross-filesystem on Linux returns EXDEV; on
 //     Windows it returns various errors when dest exists), fall back
-//     to copy-tree + remove-src so the optimisation degrades safely
+//     to copy-tree + remove-src so the optimization degrades safely
 //     instead of failing the whole clone.
 //
 // prepareDest already MkdirAll'd dest and verified emptiness, so the

@@ -54,7 +54,7 @@ This audit ran the same files through a literal reader. Every contradiction the 
 
 | # | File(s) | Failure mode for a dumb AI | One-line fix |
 |---|---------|----------------------------|--------------|
-| C-1 | `10-§8` vs `03-§2.1` — `WorkerNode` table | Two schemas with different column names (`WorkerNodeDisplayName` vs `WorkerNodeTitle`) and different normalisation (inline vs separate `WorkerVersion` table). AI builds the first one it reads. | Delete the `WorkerNode` definition from `10-` and reference `03-` as SoT. |
+| C-1 | `10-§8` vs `03-§2.1` — `WorkerNode` table | Two schemas with different column names (`WorkerNodeDisplayName` vs `WorkerNodeTitle`) and different normalization (inline vs separate `WorkerVersion` table). AI builds the first one it reads. | Delete the `WorkerNode` definition from `10-` and reference `03-` as SoT. |
 | C-2 | `04-§7.2` vs `06-` vs `10-` vs `18-` — `POST /API/V1/Workers/Register` | Four endpoint catalogs, each with a different request body. AI implements whichever file it parses first. | Make `06-core-api-endpoints.md` the only endpoint catalog; delete the others. |
 | C-3 | `06-§5.1` `EndpointAuthSetting.UpdatedByUserId REFERENCES User(UserId)` | The `User` table was deleted in `03-`; the FK is unresolvable and SQL DDL fails at create-time. | Repoint the FK to `UserDirectory(UserDirectoryId)`. |
 | C-4 | `15-§2` (prose keys) vs `15-§4` (JSON seed keys) | Prose says `MainWorker.RateLimit.AuthEndpointsPerMinutePerIp`; seed JSON says `RateAuthPerMinutePerIp`. Lookup at runtime returns nothing → AI silently uses hard-coded defaults. | Make the two key sets byte-identical. |

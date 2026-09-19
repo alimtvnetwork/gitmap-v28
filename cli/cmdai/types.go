@@ -115,4 +115,3 @@ type (
 	// CreateScriptResult wraps the generated script path outcome with an AppError.
 	CreateScriptResult = result.Result[string]
 )
-

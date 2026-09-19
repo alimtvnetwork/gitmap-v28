@@ -37,7 +37,7 @@ func printAuthKeyHelp() {
 	fmt.Println("  gitmap ssh copy-id devbox")
 	fmt.Println("  gitmap ssh copy-id user@192.168.1.14")
 	fmt.Println("  gitmap ssh auth-key deploy --all")
-	fmt.Println("  gitmap ssh auth-key deploy node1 -i ~/.ssh/id_ed25519.pub\n")
+	fmt.Println("  gitmap ssh auth-key deploy node1 -i ~/.ssh/id_ed25519.pub")
 }
 
 func executeAuthKeyDeploy(args []string) error {

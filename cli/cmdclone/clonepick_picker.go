@@ -19,7 +19,7 @@ import (
 // maybeRunClonePickPicker launches the --ask picker when requested,
 // replaces plan.Paths with the user's selection, attaches the
 // picker's metadata clone as plan.PreClonedSrc (clone-once
-// optimisation), and translates ErrPickerCancelled into the spec'd
+// optimization), and translates ErrPickerCancelled into the spec'd
 // exit-130 path. No-op when ask is false so the non-interactive
 // flow stays a single straight-line call from runClonePick.
 func maybeRunClonePickPicker(plan clonepick.Plan, ask bool) clonepick.Plan {

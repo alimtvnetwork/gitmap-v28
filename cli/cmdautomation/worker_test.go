@@ -136,10 +136,8 @@ func assertMissingRuntimeProbe(t *testing.T) {
 
 func assertValidRuntimeProbe(t *testing.T) {
 	res := ProbeRuntime("go")
-	if res.IsSuccess() {
-		if res.Value.Name != "go" {
-			t.Errorf("expected runtime name 'go', got: %s", res.Value.Name)
-		}
+	if res.IsSuccess() && res.Value.Name != "go" {
+		t.Errorf("expected runtime name 'go', got: %s", res.Value.Name)
 	}
 }
 

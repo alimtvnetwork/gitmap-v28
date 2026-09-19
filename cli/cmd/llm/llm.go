@@ -225,4 +225,3 @@ func runDefaultLlm(args []string) *apperror.AppError {
 	_ = isInstruction
 	return nil
 }
-

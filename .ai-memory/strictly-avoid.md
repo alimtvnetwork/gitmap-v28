@@ -121,7 +121,7 @@ Allowed work:
 Forbidden:
 - ❌ `behavior`
 - ❌ `recognise`
-- ❌ `colour`, `initialise`
+- ❌ `color`, `initialize`
 
 Allowed work:
 - ✅ US English spelling: `behavior`, `recognize`, `color`, `initialize`

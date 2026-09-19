@@ -45,8 +45,8 @@ func renderSpecMigrateResult(res SpecMigrateResult, isJson, isDryRun bool) {
 
 func printSpecMigrateJson(res SpecMigrateResult) {
 	bytes, err := json.MarshalIndent(res, "", "  ")
-	hasNoErr := err == nil
-	if hasNoErr {
+	isSuccess := err == nil
+	if isSuccess {
 		fmt.Println(string(bytes))
 	}
 }

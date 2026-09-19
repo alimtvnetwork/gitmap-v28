@@ -14,11 +14,11 @@ func TestGenerateScriptContent_Linter(t *testing.T) {
 	}
 
 	res := GenerateScriptContent(opts)
-	if res.IsError() {
-		t.Fatalf("unexpected error: %v", res.Error())
+	if res.IsFailure() {
+		t.Fatalf("unexpected error: %v", res.AppError())
 	}
 
-	code := res.Data()
+	code := res.Data
 	assertContains(t, code, "check_file")
 	assertContains(t, code, "--workers")
 	assertContains(t, code, "test-linter")
@@ -32,11 +32,11 @@ func TestGenerateScriptContent_Fixer(t *testing.T) {
 	}
 
 	res := GenerateScriptContent(opts)
-	if res.IsError() {
-		t.Fatalf("unexpected error: %v", res.Error())
+	if res.IsFailure() {
+		t.Fatalf("unexpected error: %v", res.AppError())
 	}
 
-	code := res.Data()
+	code := res.Data
 	assertContains(t, code, "fix_file")
 	assertContains(t, code, "--fix")
 }
@@ -48,11 +48,11 @@ func TestGenerateScriptContent_Auditor(t *testing.T) {
 	}
 
 	res := GenerateScriptContent(opts)
-	if res.IsError() {
-		t.Fatalf("unexpected error: %v", res.Error())
+	if res.IsFailure() {
+		t.Fatalf("unexpected error: %v", res.AppError())
 	}
 
-	code := res.Data()
+	code := res.Data
 	assertContains(t, code, "audit_component")
 	assertContains(t, code, "--strict")
 }

@@ -120,7 +120,7 @@ public contract.
 ### Short-circuit / cancellation
 
 After a result settles for the highest queued `N`, in-flight lower-N
-probes MAY be canceled to free sockets. This is an optimisation, not
+probes MAY be canceled to free sockets. This is an optimization, not
 required for correctness.
 
 ---

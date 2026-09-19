@@ -23,9 +23,9 @@ Git Credential Manager (`git-credential-manager.exe`) blocked indefinitely attem
 
 ## 3. Resolution
 
-1. **Killed Orphaned Processes & Cancelled Stalled Tasks:**
+1. **Killed Orphaned Processes & canceled Stalled Tasks:**
    - Terminated hanging `git-credential-manager.exe` and `git-remote-https.exe` processes.
-   - Cancelled background tasks `task-39315` and `task-39322`.
+   - canceled background tasks `task-39315` and `task-39322`.
 
 2. **Configured Anti-Hang & Timeout Guards in Repository Git Config:**
    ```bash

@@ -1015,7 +1015,7 @@ def main(argv: list[str] | None = None) -> int:
 
     # ---- Resolve --extension allowlist ---------------------------
     # ``--extension`` is repeatable; ``None`` (no flag passed) keeps
-    # the historical ``("md",)`` behavior. We normalise to lowercase,
+    # the historical ``("md",)`` behavior. We normalize to lowercase,
     # strip any leading dot the user typed by accident, and dedupe via
     # ``dict.fromkeys`` so the FIRST occurrence wins (preserves the
     # CLI order in error messages without affecting the cache segment,
@@ -2394,7 +2394,7 @@ def _normalise_changed_lines(lines: list[str],
 
     Plain paths (no tab, no ``=>``) pass through unchanged. Comments
     and blanks are *not* stripped here — the caller does that on the
-    normalised output so we don't lose alignment with the source line
+    normalized output so we don't lose alignment with the source line
     numbers in error messages.
 
     Hardened against the same whitespace + quoting edge cases as

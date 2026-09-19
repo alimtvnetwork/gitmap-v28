@@ -20,7 +20,7 @@ The end-to-end "actually run against a real git repo" path is
 covered indirectly: once the CLI normalises the ref, every
 downstream code path is the existing --diff-base codepath that's
 already exercised by the diff-mode test suites. We assert the
-normalisation, not git itself.
+normalization, not git itself.
 """
 
 from __future__ import annotations

@@ -21,7 +21,7 @@ The pipeline errors in Git map make sure that the folder, all the folder and fil
    - Added `extractTargetRepo` to parse target repository arguments and `-y` / `--yes` flag to bypass confirmation prompts.
    - Implemented `purgeRepoPipelineFolder` and `printPipelineClearSummary` displaying cleaned directory paths in forward slashes with reclaimed space and purged file counts.
 4. **Accurate Pipeline Rerun Duration & ETA Engine**:
-   - Redesigned `calculateAverageDuration` to filter out early-aborted, cancelled, and short skipped runs below a 45s threshold that skewed averages down to ~68s.
+   - Redesigned `calculateAverageDuration` to filter out early-aborted, canceled, and short skipped runs below a 45s threshold that skewed averages down to ~68s.
    - Fixed `buildPipelineRunRecord` and `insertSingleMasterRun` in `cli/cmdpipeline/pipeline_recorder.go` to compute and persist true `DurationSeconds`, `IsSuccess` boolean, `CreatedAt`/`UpdatedAt` timestamps, and zero out remaining `EtaSeconds` for completed runs in SQLite.
    - Implemented `QuerySuccessfulRunDurations` in `PipelineSplitDb` to query historical successful runs from SQLite whenever recent GitHub API runs contain only failures.
    - Implemented `computeBaselineDuration` taking robust upper-median durations across valid runs.

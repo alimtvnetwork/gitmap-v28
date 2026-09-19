@@ -16,7 +16,7 @@ nested groups, leading `./`, Windows paths, missing fields, etc.).
 The current code path *should* do this already (see
 `cli/cloner/cloner.go::cloneOne` joining `targetDir` with
 `rec.RelativePath`), but there is no end-to-end test that asserts the
-on-disk tree, and the parsers do no path normalisation. This plan closes
+on-disk tree, and the parsers do no path normalization. This plan closes
 both gaps without introducing a new sub-command.
 
 ## Why now
@@ -34,7 +34,7 @@ response.
 Files to add/update:
 
 - `02-spec/01-app/110-clone-hierarchy-guarantee.md` (new) — codify the
-  guarantee, the normalisation rules, and the failure modes.
+  guarantee, the normalization rules, and the failure modes.
 - Cross-link from `02-spec/01-app/05-cloner.md` (one-line "see also" footer).
 - Memory: `mem://features/clone-hierarchy-guarantee.md` summarizing the
   contract for future sessions.
@@ -43,7 +43,7 @@ Files to add/update:
 
 | # | Question | Proposed default |
 |---|----------|------------------|
-| Q1 | Path separator normalisation: should `\` in CSV/JSON `RelativePath` be rewritten to `/` on Unix and vice versa on Windows? | **Yes**, normalise to `filepath.FromSlash` at parse time. |
+| Q1 | Path separator normalization: should `\` in CSV/JSON `RelativePath` be rewritten to `/` on Unix and vice versa on Windows? | **Yes**, normalize to `filepath.FromSlash` at parse time. |
 | Q2 | Reject vs. sanitize absolute paths (`/foo`, `C:\foo`) and parent escapes (`../../etc`) inside `RelativePath`? | **Reject** with a per-row error; the rest of the manifest still runs. Mirrors G305 hardening already in place for zip extraction. |
 | Q3 | Empty `RelativePath` — fall back to `RepoName`, or treat as a manifest error? | **Fall back to `RepoName`**; if both are empty, error that row. Preserves current behavior for hand-written manifests. |
 | Q4 | Should the audit add a `--dry-run` that prints the planned tree without cloning? | **Yes** (cheap, very useful for hierarchy debugging). Behind a flag, default off. |
@@ -95,7 +95,7 @@ End-to-end tree assertion using a stub `git` binary on `$PATH` that just
 ## Phase 4 — Docs, helptext, changelog
 
 - Update `cli/helptext/clone.md` with the hierarchy guarantee, the
-  normalisation rules, and the new `--dry-run` flag.
+  normalization rules, and the new `--dry-run` flag.
 - Append a changelog entry in both `changelog.md` and
   `src/data/changelog.ts` (Plan-06-Clone-Hierarchy-Hardening).
 - Update spec `05-cloner.md` "Behavior → File-based clone" with explicit
@@ -121,7 +121,7 @@ End-to-end tree assertion using a stub `git` binary on `$PATH` that just
 - All tests in Phases 1–3 green.
 - Spec 110 + memory file in place; cross-links updated.
 - `gitmap clone <file>` documented as a hierarchy-preserving operation
-  with explicit normalisation and rejection rules.
+  with explicit normalization and rejection rules.
 - A future session reading `mem://features/clone-hierarchy-guarantee`
   can describe the contract without opening the source.
 

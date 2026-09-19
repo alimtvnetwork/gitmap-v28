@@ -16,8 +16,8 @@ func TestVersionSyncClean(t *testing.T) {
 		t.Fatalf("expected success, got error: %v", monad.Err)
 	}
 	res := monad.Value
-	isNotClean := res.IsClean == false
-	if isNotClean {
+	isClean := res.IsClean
+	if !isClean {
 		t.Errorf("expected clean sync, got mismatch count: %d", res.MismatchCount)
 	}
 }

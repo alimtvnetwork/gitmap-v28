@@ -33,7 +33,7 @@ func TestResolveCloneFolderPreservesVersionSuffix(t *testing.T) {
 
 // TestRepoNameFromURLKeepsVersionSuffix guards the upstream half of
 // the same promise: URL parsing must not strip `-vN` either, and
-// `.git` / trailing slashes still normalise away.
+// `.git` / trailing slashes still normalize away.
 func TestRepoNameFromURLKeepsVersionSuffix(t *testing.T) {
 	cases := []struct{ url, want string }{
 		{"https://github.com/owner/codex-june-6-v2.git", "codex-june-6-v2"},

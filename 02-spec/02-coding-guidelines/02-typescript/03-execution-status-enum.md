@@ -71,7 +71,7 @@ interface ExecutionResult {
 const TERMINAL_STATES = new Set([
   ExecutionStatus.Completed,
   ExecutionStatus.Failed,
-  ExecutionStatus.Cancelled,
+  ExecutionStatus.canceled,
 ]);
 
 function isTerminal(status: ExecutionStatus): boolean {

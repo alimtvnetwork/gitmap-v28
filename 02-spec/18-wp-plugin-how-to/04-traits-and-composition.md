@@ -199,7 +199,7 @@ The Plugin class composes traits via `use` statements at the top of the class bo
 5. Logging management traits
 6. Debug traits
 
-The Plugin class must **not** override or re-implement any method defined in a trait. If a trait method needs customisation, create a new trait or modify the existing one.
+The Plugin class must **not** override or re-implement any method defined in a trait. If a trait method needs customization, create a new trait or modify the existing one.
 
 ---
 

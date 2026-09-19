@@ -84,7 +84,7 @@ allowlist = [
 
 ## What this CLI deliberately does **not** do
 
-- It does not rewrite or "normalise" the existing TOML formatting.
+- It does not rewrite or "normalize" the existing TOML formatting.
 - It does not remove paths from the allowlist (do that by hand — removal
   should always be a deliberate, reviewed action).
 - It does not modify `exclude_dirs` or `exclude_files` (those are

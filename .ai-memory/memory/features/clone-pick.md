@@ -38,7 +38,7 @@ Cone mode is auto-flipped off when any path contains glob chars or a file extens
 
 ## Persistence: CloneInteractiveSelection table
 
-Columns: SelectionId PK, Name (optional, unique-non-empty enforced in store layer), RepoCanonicalId, RepoUrl, Mode, Branch, Depth, Cone, KeepGit, DestDir, PathsCsv (sorted+normalised), UsedAsk, CreatedAt. NO FK to Repo (picked repo may not be in any local scan). Indexed by RepoCanonicalId and by Name (partial index where Name <> '').
+Columns: SelectionId PK, Name (optional, unique-non-empty enforced in store layer), RepoCanonicalId, RepoUrl, Mode, Branch, Depth, Cone, KeepGit, DestDir, PathsCsv (sorted+normalized), UsedAsk, CreatedAt. NO FK to Repo (picked repo may not be in any local scan). Indexed by RepoCanonicalId and by Name (partial index where Name <> '').
 
 ## Replay rules
 

@@ -55,7 +55,7 @@ are silently skipped.
 ## Behavior
 
 1. Parse all URLs into a flat ordered list, deduplicate (case-insensitive,
-   trailing `.git` normalised), preserving first-seen order.
+   trailing `.git` normalized), preserving first-seen order.
 2. Validate each URL syntactically (must look like https://, git@, or
    ssh://). Invalid URLs are reported but the rest still run.
 3. Clone in parallel up to `--workers` concurrent jobs.

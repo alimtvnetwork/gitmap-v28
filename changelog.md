@@ -1,3 +1,23 @@
+## [v6.264.0] 2026-09-19 Release v6.264.0
+
+### Install GitMap v6.264.0
+
+To pin your repository to this exact version, run the following one-liner:
+Unix/Bash: `curl -sL https://raw.githubusercontent.com/alimtvnetwork/gitmap-v28/v6.264.0/install.sh | bash -s -- ".ai-memory/prompts" "v6.264.0"`
+PowerShell: `Invoke-WebRequest -Uri https://raw.githubusercontent.com/alimtvnetwork/gitmap-v28/v6.264.0/install.ps1 -OutFile install.ps1; .\install.ps1 -TargetDir ".ai-memory/prompts" -Version "v6.264.0"`
+
+### Added / Changed / Fixed / Removed
+
+- Restore missing worker pool, chunking, and git tracking functions in 03-ai-scripts/02-shared-engine.py to fix Python linters
+- Restore CICD_DIR, normalize_repo_rel, and JobResult 6-parameter constructor in 03-ai-scripts/06-cicd-local-runner.py
+- Flatten all depth-2 nested if statements across cli/cmdautomation (changed_files_cmd.go, db_generate.go, db_migrate.go, help_audit.go, run_cmd.go, worker_pool.go, worker_test.go) to comply with maximum depth-1 branching guidelines
+- Resolve 52 British English spelling violations across repository documentation and source files via 03-ai-scripts/27-misspell-auditor.py
+- Fix result.Result[T] monad method invocations in cli/cmdai/ai_create_test.go (res.IsFailure(), res.AppError(), res.Data)
+- Remove hardcoded absolute path to gitmap in 03-ai-scripts/38-sync-prompts-skills-scripts.py to comply with check-relative-paths policy
+- Fix redundant newline inside fmt.Println in cli/cmdssh/ssh_auth_key_deploy.go and handle database error in cli/cmdautomation/topology.go
+- Replace negative booleans with affirmative isSuccess checks across cmdautomation commands and tests
+- Run gofmt across all Go source files to ensure 100% gofmt compliance
+
 ## [v6.263.0] 2026-09-19 Release v6.263.0
 
 ### Install GitMap v6.263.0
@@ -2328,6 +2348,12 @@ PowerShell: `Invoke-WebRequest -Uri https://raw.githubusercontent.com/alimtvnetw
 
 # Changelog
 
+## [v6.264.0] - 2026-09-19
+
+### Added
+- Fix CI pipeline errors and minor version bump
+
+
 ## [6.192.0] - 2026-09-06
 
 ### Changed
@@ -3007,7 +3033,7 @@ To pin your repository to this exact version, run the following one-liner:
 
 ### Added
 
-- `gitmap/cmd/clonemulti_folder_test.go` pins the rule: `-v1` / `-v13` suffixes survive, explicit folder names win, `.git` and trailing slashes still normalise away.
+- `gitmap/cmd/clonemulti_folder_test.go` pins the rule: `-v1` / `-v13` suffixes survive, explicit folder names win, `.git` and trailing slashes still normalize away.
 
 
 ## v6.82.0 (2026-07-23): CI reliability
@@ -7141,9 +7167,9 @@ Production paths in `updatecleanup_paths.go` and `constants_update.go` were upda
 
 ### Fixed
 
-- **UK English residue eliminated across source files** - Audit scanned every `*.go`, `*.ts`, `*.tsx`, `*.js`, `*.jsx`, `*.sh`, `*.ps1` (excluding `node_modules`, `.git`, `.gitmap`, `dist`, `build`) for ~80 UK spelling patterns (color, optimize, organize, analyze, fiber, behavior, honor, favor, realize, recognize, normalise, summarize, finalize, utilize, customize, artifact, catalog, dialog, license, defense, traveler, etc.). Found 9 remaining hits and converted to US English:
+- **UK English residue eliminated across source files** - Audit scanned every `*.go`, `*.ts`, `*.tsx`, `*.js`, `*.jsx`, `*.sh`, `*.ps1` (excluding `node_modules`, `.git`, `.gitmap`, `dist`, `build`) for ~80 UK spelling patterns (color, optimize, organize, analyze, fiber, behavior, honor, favor, realize, recognize, normalize, summarize, finalize, utilize, customize, artifact, catalog, dialog, license, defense, traveler, etc.). Found 9 remaining hits and converted to US English:
   - `install-quick.ps1`, `install-quick.sh`, `run.ps1` (3 files): `behavior → behavior` in script comments.
-  - `src/pages/ClearReleaseJSON.tsx`: 7 occurrences of `behavior → behavior` (object keys + JSX accessor + heading + table column header), plus `Normalised → Normalized` in edge-case data row. Object keys, accessors, and visible UI text remain consistent.
+  - `src/pages/ClearReleaseJSON.tsx`: 7 occurrences of `behavior → behavior` (object keys + JSX accessor + heading + table column header), plus `normalized → Normalized` in edge-case data row. Object keys, accessors, and visible UI text remain consistent.
 - **Intentionally preserved**: `canceled` / `canceling` (GitHub Actions CI terminology - `cancel-in-progress` is the official feature name), `analyzes` (valid US English plural of "analysis"), `grey` (UI status descriptor matching GitHub's grey-icon convention), historical CHANGELOG/spec/memory entries (immutable record).
 
 ### Verified

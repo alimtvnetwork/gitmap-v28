@@ -323,7 +323,7 @@ snippet, or that drops the version from a URL, fails CI.
 ### Tests
 
 - `gitmap/clonepick/promote_test.go`: covers the rename fast path and
-  the copy-tree fallback against `t.TempDir()` so the optimisation has
+  the copy-tree fallback against `t.TempDir()` so the optimization has
   regression coverage even when CI can't trigger a real EXDEV.
 
 
@@ -1345,9 +1345,9 @@ Production paths in `updatecleanup_paths.go` and `constants_update.go` were upda
 
 ### Fixed
 
-- **UK English residue eliminated across source files** — Audit scanned every `*.go`, `*.ts`, `*.tsx`, `*.js`, `*.jsx`, `*.sh`, `*.ps1` (excluding `node_modules`, `.git`, `.gitmap`, `dist`, `build`) for ~80 UK spelling patterns (color, optimize, organize, analyze, fiber, behavior, honor, favor, realize, recognize, normalise, summarize, finalize, utilize, customize, artifact, catalog, dialog, license, defense, traveler, etc.). Found 9 remaining hits and converted to US English:
+- **UK English residue eliminated across source files** — Audit scanned every `*.go`, `*.ts`, `*.tsx`, `*.js`, `*.jsx`, `*.sh`, `*.ps1` (excluding `node_modules`, `.git`, `.gitmap`, `dist`, `build`) for ~80 UK spelling patterns (color, optimize, organize, analyze, fiber, behavior, honor, favor, realize, recognize, normalize, summarize, finalize, utilize, customize, artifact, catalog, dialog, license, defense, traveler, etc.). Found 9 remaining hits and converted to US English:
   - `install-quick.ps1`, `install-quick.sh`, `run.ps1` (3 files): `behavior → behavior` in script comments.
-  - `src/pages/ClearReleaseJSON.tsx`: 7 occurrences of `behavior → behavior` (object keys + JSX accessor + heading + table column header), plus `Normalised → Normalized` in edge-case data row. Object keys, accessors, and visible UI text remain consistent.
+  - `src/pages/ClearReleaseJSON.tsx`: 7 occurrences of `behavior → behavior` (object keys + JSX accessor + heading + table column header), plus `normalized → Normalized` in edge-case data row. Object keys, accessors, and visible UI text remain consistent.
 - **Intentionally preserved**: `canceled` / `canceling` (GitHub Actions CI terminology — `cancel-in-progress` is the official feature name), `analyzes` (valid US English plural of "analysis"), `grey` (UI status descriptor matching GitHub's grey-icon convention), historical CHANGELOG/spec/memory entries (immutable record).
 
 ### Verified

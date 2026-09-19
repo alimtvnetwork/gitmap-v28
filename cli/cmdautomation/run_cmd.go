@@ -52,12 +52,8 @@ func buildRunOptions(args []string) WorkerRunOptions {
 }
 
 func renderWorkerResult(res WorkerRunResult, opts WorkerRunOptions) {
-	if opts.IsJson {
-		data, err := json.MarshalIndent(res, "", "  ")
-		if err == nil {
-			fmt.Println(string(data))
-			return
-		}
+	if opts.IsJson && printWorkerResultJson(res) {
+		return
 	}
 	if res.Stdout != "" {
 		fmt.Print(res.Stdout)
@@ -65,6 +61,15 @@ func renderWorkerResult(res WorkerRunResult, opts WorkerRunOptions) {
 	if res.Stderr != "" {
 		fmt.Print(res.Stderr)
 	}
+}
+
+func printWorkerResultJson(res WorkerRunResult) bool {
+	data, err := json.MarshalIndent(res, "", "  ")
+	if err != nil {
+		return false
+	}
+	fmt.Println(string(data))
+	return true
 }
 
 func initRunFlags() {
