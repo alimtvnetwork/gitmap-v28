@@ -732,6 +732,7 @@ func init() {
 	cmdpipeline.PipelineAgyFixRunner = cmdagy.RunPipelineFixAgyCLI
 	cmdssh.JoinRunner = cmdssh.RunSSHJoinCLI
 	cmdssh.ProfileRunner = runProfile
+	cmdmacro.MacroSyncRunner = cmdssh.RunSSHMacroSyncCLI
 
 	cmdinstaller.ResolveProfileTreeFn = func(s string) (any, bool) {
 		p, ok := resolveProfileTree(s)

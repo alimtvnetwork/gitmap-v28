@@ -203,6 +203,9 @@ func runMacroRunUntil(args []string) error {
 	return executeMacroByName(macroName, opts)
 }
 
+// MacroSyncRunner is wired by cmd package to run SSH macro sync.
+var MacroSyncRunner func([]string) error
+
 func routeManagementSubcommand(sub string, rest []string) result.ErrorWrapper {
 	if sub == "startup" {
 		return result.MatchWrapper(runMacroStartup(rest))
@@ -212,11 +215,23 @@ func routeManagementSubcommand(sub string, rest []string) result.ErrorWrapper {
 		return result.MatchWrapper(runMacroSchedule(rest))
 	}
 
+	if sub == "sync" || sub == "s" {
+		return routeSyncSubcommand(rest)
+	}
+
 	if isModifySubcommand(sub) {
 		return routeModifySubcommand(sub, rest)
 	}
 
 	return routeInspectSubcommand(sub, rest)
+}
+
+func routeSyncSubcommand(rest []string) result.ErrorWrapper {
+	if MacroSyncRunner != nil {
+		return result.MatchWrapper(MacroSyncRunner(rest))
+	}
+
+	return result.MatchWrapper(apperror.NewSimple("macro sync runner not initialized", "E_MACRO_SYNC"))
 }
 
 func isModifySubcommand(sub string) bool {
@@ -411,6 +426,7 @@ func printMacroUsage() {
 	fmt.Println("  export [name|all] [options]         Export macro(s) to JSON, YAML, SQLite DB, or ZIP")
 	fmt.Println("  export-all [options]                Export all macros (--json, --yaml, --sqlitedb, --zip)")
 	fmt.Println("  export-single <name> [options]      Export a single macro to JSON, YAML, or SQLite DB")
+	fmt.Println("  sync [flags]                        Synchronize local macros to remote SSH machines")
 	fmt.Println("  import <file> [name] [options]      Import macro(s) safely with format auto-inference")
 	fmt.Println("  import-all <file> [options]         Import all macros from backup archive or database")
 	fmt.Println("  import-single <file> [options]      Import single macro from file with optional --as rename")

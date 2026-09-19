@@ -32,6 +32,7 @@ Manages SSH key pairs for Git authentication.
 | trust      |       | Auto-scan & trust remote host key in known_hosts and DB |
 | untrust    |       | Untrust and remove a machine from known_hosts and DB |
 | fix-auth   |       | Deploy SSH public key to remote authorized_keys (Unix/Windows) |
+| macro      | m     | Synchronize, export, or import macros across SSH machines |
 
 ## Flags (generate)
 

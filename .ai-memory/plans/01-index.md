@@ -82,6 +82,7 @@ None.
 - [37-aum-helptext-documentation-parity-and-cli-catalog.md](completed/37-aum-helptext-documentation-parity-and-cli-catalog.md): AUM Helptext Documentation Parity & CLI Catalog
 - [38-polyglot-worker-orchestrator-and-automation-runner.md](completed/38-polyglot-worker-orchestrator-and-automation-runner.md): Polyglot Worker Orchestrator & Automation Runner
 - [39-windows-ssh-authkey-join-automation-and-node-rm.md](completed/39-windows-ssh-authkey-join-automation-and-node-rm.md): Windows SSH Authorized Key Architecture, Interactive SSH Join Password Automation, GitMap Host-Node Bootstrapping, and Comprehensive Node Removal
+- [40-macro-fleet-export-import-and-interactive-resilience.md](completed/40-macro-fleet-export-import-and-interactive-resilience.md): Macro Fleet Export/Import, Multi-Node Sync & Interactive Resilience
 
 ## Subtasks
 

@@ -38,6 +38,7 @@ Record, replay, automate, and loop command sequences with environment variable e
 | `export` (`exp`, `dump`) `[all\|single] [name]` | Export macro(s) to JSON, YAML, SQLite DB, or ZIP bundle |
 | `export-all` | Export all stored macros to file or stdout |
 | `export-single <name>` | Export single macro to JSON, YAML, or SQLite DB |
+| `sync` (`s`) `[target]` | Synchronize local macros across remote SSH fleet nodes |
 | `import` (`imp`, `load`, `restore`) `[all\|single] <file> [name]` | Import macro(s) safely with format auto-inference and overwrite guards |
 | `import-all <file>` | Import all macros from archive or SQLite database |
 | `import-single <file> [name]` | Import single macro from file with optional `--as <name>` renaming |

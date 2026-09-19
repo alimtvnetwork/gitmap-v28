@@ -59,3 +59,58 @@ func TestResolveExecTargetAndArgs(t *testing.T) {
 		t.Fatalf("expected resArgs to be ['uptime'], got %v", resArgs)
 	}
 }
+
+func TestIsInteractiveMacroAdd_TrueBasic(t *testing.T) {
+	cases := [][]string{
+		{"macro", "add", "my-macro"},
+		{"macro add my-macro"},
+		{"gitmap", "macro", "add", "my-macro"},
+		{"gitmap macro add my-macro"},
+	}
+	assertAllInteractiveMacroAdd(t, cases, true)
+}
+
+func TestIsInteractiveMacroAdd_TrueFlags(t *testing.T) {
+	cases := [][]string{
+		{"devbox", "macro", "add", "my-macro"},
+		{"macro", "add", "my-macro", "--desc", "some desc"},
+		{"macro", "add", "my-macro", "--pwd"},
+		{"macro", "add", "my-macro", "--no-exec"},
+	}
+	assertAllInteractiveMacroAdd(t, cases, true)
+}
+
+func TestIsInteractiveMacroAdd_FalseCommands(t *testing.T) {
+	cases := [][]string{
+		{"macro", "add", "my-macro", "echo 1"},
+		{"macro add my-macro echo 1"},
+		{"gitmap", "macro", "add", "my-macro", "uptime"},
+		{"macro", "add", "my-macro", "--desc", "some desc", "go build"},
+	}
+	assertAllInteractiveMacroAdd(t, cases, false)
+}
+
+func TestIsInteractiveMacroAdd_FalseOther(t *testing.T) {
+	cases := [][]string{
+		{"macro", "add", "--help"},
+		{"macro", "add", "-h"},
+		{"status"},
+		{},
+	}
+	assertAllInteractiveMacroAdd(t, cases, false)
+}
+
+func assertAllInteractiveMacroAdd(t *testing.T, cases [][]string, expected bool) {
+	for _, c := range cases {
+		if isInteractiveMacroAdd(c) != expected {
+			t.Errorf("isInteractiveMacroAdd(%v) = %v; want %v", c, !expected, expected)
+		}
+	}
+}
+
+func TestRunSSHExec_InterceptsInteractiveMacroAdd(t *testing.T) {
+	err := runSSHExec([]string{"macro", "add", "my-macro"})
+	if err == nil {
+		t.Fatalf("expected runSSHExec to intercept interactive macro add and return error")
+	}
+}

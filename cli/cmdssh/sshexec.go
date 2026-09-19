@@ -108,34 +108,58 @@ func runSSHExec(args []string) error {
 	if opts.IsShowHelp {
 		return nil
 	}
+	if isInteractiveMacroAdd(opts.Args) {
+		printInteractiveMacroAdvice()
 
-	dbConn, err := store.OpenDefault()
+		return apperror.NewValidationError("interactive macro creation cannot run over non-interactive SSH exec")
+	}
+
+	return executeSSHFromOptions(opts)
+}
+
+func executeSSHFromOptions(opts seOptions) error {
+	conns, err := loadFilteredSSHConns(opts)
 	if err != nil {
-		fmt.Printf("Failed to open DB: %v\n", err)
-
-		return nil
+		return err
 	}
-
-	defer dbConn.Close()
-
-	connsRes := db.GetSSHConnections(dbConn.Context(), dbConn.SQL())
-	if connsRes.IsFailure() {
-		fmt.Printf("Failed to get connections: %v\n", connsRes.AppError())
-
-		return nil
-	}
-
-	conns := filterSSHConns(connsRes.Data, resolveExcludeCSV(opts))
 	conns, execArgs := resolveExecTargetAndArgs(conns, opts)
 	if len(conns) == 0 {
 		fmt.Println("No machines to execute on.")
-
 		return nil
 	}
+	return dispatchSSHExecIfAllowed(conns, execArgs)
+}
 
-	executeOnAllSSH(conns, execArgs)
-
+func dispatchSSHExecIfAllowed(conns []db.SSHConnection, args []string) error {
+	if isInteractiveMacroAdd(args) {
+		printInteractiveMacroAdvice()
+		return apperror.NewValidationError("interactive macro creation cannot run over non-interactive SSH exec")
+	}
+	executeOnAllSSH(conns, args)
 	return nil
+}
+
+func loadFilteredSSHConns(opts seOptions) ([]db.SSHConnection, error) {
+	data, err := fetchAllSSHConnections()
+	if err != nil {
+		return nil, nil
+	}
+	return filterSSHConns(data, resolveExcludeCSV(opts)), nil
+}
+
+func fetchAllSSHConnections() ([]db.SSHConnection, error) {
+	dbConn, err := store.OpenDefault()
+	if err != nil {
+		fmt.Printf("Failed to open DB: %v\n", err)
+		return nil, err
+	}
+	defer dbConn.Close()
+	connsRes := db.GetSSHConnections(dbConn.Context(), dbConn.SQL())
+	if connsRes.IsFailure() {
+		fmt.Printf("Failed to get connections: %v\n", connsRes.AppError())
+		return nil, connsRes.AppError()
+	}
+	return connsRes.Data, nil
 }
 
 func filterSSHConns(conns []db.SSHConnection, excludeCSV string) []db.SSHConnection {
@@ -223,24 +247,36 @@ func connectSSHClient(c db.SSHConnection, headers ...string) (*ssh.Client, bool)
 	if len(headers) > 0 {
 		header = headers[0]
 	}
-
-	if c.EncryptedPassword != "" {
-		if client, isPassOk := connectWithEncryptedPassword(c, header); isPassOk {
-			return client, true
-		}
+	if client, isPassOk := tryConnectWithPassword(c, header); isPassOk {
+		return client, true
 	}
-
-	if c.KeyPath != "" {
-		if client, isKeyOk := connectWithKeyPath(c, header); isKeyOk {
-			return client, true
-		}
+	if client, isKeyOk := tryConnectWithKey(c, header); isKeyOk {
+		return client, true
 	}
+	return connectClientDefaults(c, header)
+}
 
+func connectClientDefaults(c db.SSHConnection, header string) (*ssh.Client, bool) {
 	if client, isDefaultOk := connectWithDefaultKey(c.IPAddress, c.Username, header); isDefaultOk {
 		return client, true
 	}
-
 	return tryFallbackDBPassword(c, header)
+}
+
+func tryConnectWithPassword(c db.SSHConnection, header string) (*ssh.Client, bool) {
+	if c.EncryptedPassword == "" {
+		return nil, false
+	}
+
+	return connectWithEncryptedPassword(c, header)
+}
+
+func tryConnectWithKey(c db.SSHConnection, header string) (*ssh.Client, bool) {
+	if c.KeyPath == "" {
+		return nil, false
+	}
+
+	return connectWithKeyPath(c, header)
 }
 
 func tryFallbackDBPassword(c db.SSHConnection, header string) (*ssh.Client, bool) {
@@ -358,4 +394,161 @@ func ensurePowerShellInstalled(client *ssh.Client, osType, header string) error 
 	}
 
 	return nil
+}
+
+type quoteTokenScanner struct {
+	tokens    []string
+	cur       strings.Builder
+	inQuote   bool
+	quoteChar byte
+}
+
+func (s *quoteTokenScanner) processChar(c byte) {
+	if s.inQuote {
+		s.processInQuote(c)
+
+		return
+	}
+	s.processOutQuote(c)
+}
+
+func (s *quoteTokenScanner) processInQuote(c byte) {
+	if c == s.quoteChar {
+		s.inQuote = false
+
+		return
+	}
+	s.cur.WriteByte(c)
+}
+
+func (s *quoteTokenScanner) processOutQuote(c byte) {
+	if isQuoteChar(c) {
+		s.inQuote = true
+		s.quoteChar = c
+
+		return
+	}
+	if isWhitespaceChar(c) {
+		s.flushCurrentToken()
+
+		return
+	}
+	s.cur.WriteByte(c)
+}
+
+func isQuoteChar(c byte) bool {
+	return c == '"' || c == '\''
+}
+
+func isWhitespaceChar(c byte) bool {
+	return c == ' ' || c == '\t'
+}
+
+func (s *quoteTokenScanner) flushCurrentToken() {
+	if s.cur.Len() > 0 {
+		s.tokens = append(s.tokens, s.cur.String())
+		s.cur.Reset()
+	}
+}
+
+func splitTokensWithQuotes(raw string) []string {
+	scanner := &quoteTokenScanner{}
+	for i := 0; i < len(raw); i++ {
+		scanner.processChar(raw[i])
+	}
+	scanner.flushCurrentToken()
+
+	return scanner.tokens
+}
+
+func isSplittableMacroArg(a string) bool {
+	hasSpace := strings.Contains(a, " ")
+	hasQuote := strings.Contains(a, "\"") || strings.Contains(a, "'")
+	hasMacro := strings.Contains(a, "macro ") || strings.Contains(a, "gitmap ")
+
+	return (hasSpace && hasQuote) || hasMacro
+}
+
+func tokenizeMacroArg(a string) []string {
+	if isSplittableMacroArg(a) {
+		return splitTokensWithQuotes(a)
+	}
+
+	return []string{a}
+}
+
+func extractMacroTokens(args []string) []string {
+	var tokens []string
+	for _, a := range args {
+		tokens = append(tokens, tokenizeMacroArg(a)...)
+	}
+
+	return tokens
+}
+
+func findMacroAddTokenIndex(tokens []string) int {
+	for i := 0; i < len(tokens)-1; i++ {
+		if strings.EqualFold(tokens[i], "macro") && strings.EqualFold(tokens[i+1], "add") {
+			return i + 1
+		}
+	}
+
+	return -1
+}
+
+func isMacroHelpToken(token string) bool {
+	return token == "help" || token == "--help" || token == "-h"
+}
+
+func isMacroFlagWithArg(a string) bool {
+	return a == "--desc" || a == "--description" || a == "--tag"
+}
+
+func isFlagToken(a string) bool {
+	return strings.HasPrefix(a, "-")
+}
+
+func hasMacroCommands(args []string) bool {
+	for i := 0; i < len(args); i++ {
+		a := args[i]
+		if isMacroFlagWithArg(a) {
+			i++
+			continue
+		}
+		if isFlagToken(a) {
+			continue
+		}
+		return true
+	}
+	return false
+}
+
+func isInteractiveMacroAdd(args []string) bool {
+	tokens := extractMacroTokens(args)
+	addIdx := findMacroAddTokenIndex(tokens)
+	if addIdx < 0 {
+		return false
+	}
+
+	return isMacroAddPayloadInteractive(tokens, addIdx+1)
+}
+
+func isMacroAddPayloadInteractive(tokens []string, nameIdx int) bool {
+	if nameIdx >= len(tokens) {
+		return true
+	}
+	if isMacroHelpToken(tokens[nameIdx]) {
+		return false
+	}
+	if hasMacroCommands(tokens[nameIdx+1:]) {
+		return false
+	}
+
+	return true
+}
+
+func printInteractiveMacroAdvice() {
+	fmt.Println("Interactive macro creation cannot run over non-interactive SSH exec. Create locally and sync:")
+	fmt.Println("  1. gitmap macro add <name> <cmd1> [cmd2...] (non-interactive)")
+	fmt.Println("  2. gitmap macro sync --all (sync to all SSH nodes)")
 }

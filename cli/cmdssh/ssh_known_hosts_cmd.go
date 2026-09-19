@@ -74,7 +74,8 @@ func printKnownHostsHelp() {
 	fmt.Println("  gitmap ssh trust 192.168.1.5")
 	fmt.Println("  gitmap ssh trust u2")
 	fmt.Println("  gitmap ssh untrust 192.168.1.5")
-	fmt.Println("  gitmap ssh known-hosts sync\n")
+	fmt.Println("  gitmap ssh known-hosts sync")
+	fmt.Println()
 }
 
 func printTrustHelp() {

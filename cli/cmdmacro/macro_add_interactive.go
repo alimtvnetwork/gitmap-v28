@@ -34,19 +34,26 @@ func resolveStepsInteractively(name string, isExec bool) ([]macro.MacroStep, err
 	if isTerminalInput() {
 		return promptInteractiveMacroSteps(name, isExec)
 	}
-
 	steps, err := readPipedMacroSteps()
 	if err != nil {
 		return nil, apperror.WrapSimple(err, "read piped macro steps")
 	}
-
 	if len(steps) == 0 {
-		printMacroAddUsage()
-
-		return nil, apperror.NewValidationError("macro name and at least one command required")
+		return nil, handleZeroPipedSteps()
 	}
 
 	return steps, nil
+}
+
+func handleZeroPipedSteps() *apperror.AppError {
+	if isRemoteSSHSession() {
+		printRemoteSSHMacroAdvice()
+
+		return apperror.NewValidationError("interactive macro creation cannot run over non-interactive SSH exec")
+	}
+	printMacroAddUsage()
+
+	return apperror.NewValidationError("macro name and at least one command required")
 }
 
 func readPipedMacroSteps() ([]macro.MacroStep, error) {
@@ -87,19 +94,26 @@ func isTerminalInput() bool {
 
 func promptInteractiveMacroSteps(name string, isExec bool) ([]macro.MacroStep, error) {
 	printInteractiveMacroHeader(name)
-
 	steps, err := collectInteractiveMacroSteps(name, isExec)
 	if err != nil {
 		return nil, apperror.WrapSimple(err, "read interactive macro input")
 	}
-
 	if len(steps) == 0 {
-		printNoCommandsEntered(name)
-
-		return nil, nil
+		return nil, handleZeroInteractiveSteps(name)
 	}
 
 	return steps, nil
+}
+
+func handleZeroInteractiveSteps(name string) *apperror.AppError {
+	if isRemoteSSHSession() {
+		printRemoteSSHMacroAdvice()
+
+		return apperror.NewValidationError("interactive macro creation cannot run over non-interactive SSH exec")
+	}
+	printNoCommandsEntered(name)
+
+	return nil
 }
 
 func collectInteractiveMacroSteps(name string, isExec bool) ([]macro.MacroStep, error) {
@@ -438,4 +452,18 @@ func printMacroAddUsage() {
 	fmt.Println("  gitmap macro add deploy \"git push origin main\" --desc \"Deploy to main\"")
 	fmt.Println("  gitmap macro add alim               # enter commands interactively")
 	fmt.Println()
+}
+
+func isRemoteSSHSession() bool {
+	hasClient := os.Getenv("SSH_CLIENT") != ""
+	hasTty := os.Getenv("SSH_TTY") != ""
+	hasConnection := os.Getenv("SSH_CONNECTION") != ""
+
+	return hasClient || hasTty || hasConnection
+}
+
+func printRemoteSSHMacroAdvice() {
+	fmt.Println("Interactive macro creation cannot run over non-interactive SSH exec. Create locally and sync:")
+	fmt.Println("  1. gitmap macro add <name> <cmd1> [cmd2...] (non-interactive)")
+	fmt.Println("  2. gitmap macro sync --all (sync to all SSH nodes)")
 }

@@ -111,3 +111,8 @@ func ExtractMacroNameAndFlags(args []string) (string, []string) {
 func ParseDurationArg(val string, fallback time.Duration) time.Duration {
 	return parseDurationArg(val, fallback)
 }
+
+// IsRemoteSSHSession checks if current session is over remote SSH.
+func IsRemoteSSHSession() bool {
+	return isRemoteSSHSession()
+}

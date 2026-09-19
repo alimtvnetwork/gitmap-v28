@@ -76,3 +76,33 @@ func TestExecuteInteractiveMkdir(t *testing.T) {
 
 	defer os.RemoveAll(macro.ExpandPathAndEnv(tempSub))
 }
+
+func TestIsRemoteSSHSession(t *testing.T) {
+	t.Setenv("SSH_CLIENT", "")
+	t.Setenv("SSH_TTY", "")
+	t.Setenv("SSH_CONNECTION", "")
+	if isRemoteSSHSession() {
+		t.Fatalf("expected isRemoteSSHSession to be false when env unset")
+	}
+
+	t.Setenv("SSH_CLIENT", "192.168.1.50 54321 22")
+	if !isRemoteSSHSession() {
+		t.Fatalf("expected isRemoteSSHSession to be true when SSH_CLIENT set")
+	}
+}
+
+func TestHandleZeroPipedSteps_RemoteSSH(t *testing.T) {
+	t.Setenv("SSH_CLIENT", "10.0.0.1 12345 22")
+	err := handleZeroPipedSteps()
+	if err == nil {
+		t.Fatalf("expected error when zero piped steps in remote SSH session")
+	}
+}
+
+func TestHandleZeroInteractiveSteps_RemoteSSH(t *testing.T) {
+	t.Setenv("SSH_CONNECTION", "10.0.0.1 12345 10.0.0.2 22")
+	err := handleZeroInteractiveSteps("test-macro")
+	if err == nil {
+		t.Fatalf("expected error when zero interactive steps in remote SSH session")
+	}
+}

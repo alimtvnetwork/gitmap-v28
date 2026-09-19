@@ -134,3 +134,13 @@ func RunClusterJoinCLI(args []string) error {
 	}
 	return RunSSHJoinCLI(args)
 }
+
+// IsInteractiveMacroAdd checks if arguments represent an interactive macro add with zero commands.
+func IsInteractiveMacroAdd(args []string) bool {
+	return isInteractiveMacroAdd(args)
+}
+
+// PrintInteractiveMacroAdvice prints guidance for interactive macro over SSH.
+func PrintInteractiveMacroAdvice() {
+	printInteractiveMacroAdvice()
+}
