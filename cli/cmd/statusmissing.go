@@ -55,6 +55,8 @@ func printMissingRemediationSteps(slugs []string) {
 	fmt.Println("     $ gitmap scan-folder update <slug> <new-path>")
 	fmt.Println("  2. Untrack from database:")
 	fmt.Printf("     $ gitmap rm %s\n", slugList(slugs))
+	fmt.Println("  3. Clear or reset tracking database:")
+	fmt.Println("     $ gitmap db-reset  (or: $ gitmap storage reset-errors)")
 	fmt.Println()
 }
 

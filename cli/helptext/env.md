@@ -12,15 +12,16 @@ ev
 
 ## Subcommands
 
-| Subcommand  | Description                              |
-|-------------|------------------------------------------|
-| set         | Set a persistent environment variable    |
-| get         | Get a managed variable's value           |
-| delete      | Remove a managed variable                |
-| list        | List all managed variables               |
-| path add    | Add a directory to PATH                  |
-| path remove | Remove a directory from PATH             |
-| path list   | List managed PATH entries                |
+| Subcommand         | Description                              |
+|--------------------|------------------------------------------|
+| add, set           | Set a persistent environment variable    |
+| get                | Get a managed variable's value           |
+| rm, remove, delete | Remove a managed variable                |
+| ls, list           | List all managed variables               |
+| path add           | Add a directory to PATH                  |
+| path remove        | Remove a directory from PATH             |
+| path list          | List managed PATH entries                |
+| help               | Show this help message                   |
 
 ## Flags
 
