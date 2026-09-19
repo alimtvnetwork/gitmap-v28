@@ -49,6 +49,12 @@ func handleRepoDBStatus(args []string) error {
 		return printJSON(stats)
 	}
 
+	printRepoSplitStats(stats)
+
+	return nil
+}
+
+func printRepoSplitStats(stats repoSplitStats) {
 	fmt.Println(constants.ColorCyan + "● Repository Split Database Summary:" + constants.ColorReset)
 	fmt.Printf("  • %-20s %s (ID: %d)\n", "Repository:", stats.RepoSlug, stats.RepoID)
 	fmt.Printf("  • %-20s %s\n", "Database File:", stats.Path)
@@ -57,8 +63,13 @@ func handleRepoDBStatus(args []string) error {
 	fmt.Printf("  • %-20s %d\n", "Cached Searches:", stats.SearchCache)
 	fmt.Printf("  • %-20s %d\n", "File Sequences:", stats.FileSeqs)
 	fmt.Printf("  • %-20s %d\n", "Scan/Sync Logs:", stats.ScanLogs)
+	printRepoDBResetGuidance()
+}
 
-	return nil
+func printRepoDBResetGuidance() {
+	fmt.Printf("\n  %sTo reset or clear error records:%s\n", constants.ColorYellow, constants.ColorReset)
+	fmt.Printf("    %sgitmap storage reset-errors%s   (clear all pipeline & scan error records)\n", constants.ColorCyan, constants.ColorReset)
+	fmt.Printf("    %sgitmap repo db clear -y%s        (clear repo search cache & file sequences)\n", constants.ColorCyan, constants.ColorReset)
 }
 
 func handleRepoDBLog(args []string) error {

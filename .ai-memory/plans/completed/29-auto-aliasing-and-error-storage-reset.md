@@ -8,24 +8,24 @@
 
 ---
 
-## 1. Task Origin & Problem Statement
+## User Request (Verbatim)
 
-The user requested an auto-aliasing feature and error storage reset capabilities for GitMap:
-1. **Auto-Aliasing Generation**:
-   - Word boundary splitting: hyphens (`-`), underscores (`_`), and spaces (` `). First character of each word combined (e.g. `anti-gravity-manager` $\rightarrow$ `agm`).
-   - Compound words: Single words like `gitmap` decomposed by prefix/suffix roots $\rightarrow$ `gm`.
-   - Special prefix `wp-`: Packages prefixed with `wp` retain prefix (e.g. `wp-git-log` $\rightarrow$ `wp-gl`, `wp-html-automated` $\rightarrow$ `wp-ha`).
-   - Special prefix presentations: Presentation repositories formatted as `prep-` + short name (e.g. `presentations-repos/bsrm-presentation-hiltrax` $\rightarrow$ `prep-bsrm`).
-   - Single-word/core packages: Graceful fallback where abbreviations cannot be derived.
-2. **Dedicated Table Collection**:
-   - Stored in a separate table collection (`Alias` / `repo_aliases`) in SQLite, tracking `IsPrimary` and `Source`.
-   - Automatically checked and populated during `gitmap scan` and binary update/installation.
-3. **Scan Table Bracket & Multi-Alias Tree Display**:
-   - Display primary alias in brackets (e.g. `[gm]`, `[wp-gl]`) in scan outputs.
-   - Display a clean branch tree view when a repository has multiple registered aliases.
-4. **Error Storage Reset Command & Guidance**:
-   - Implement `gitmap storage reset-errors` (`error-reset`, `reset`, `clear-errors`) to purge error caches.
-   - Display reset command guidance in the storage inventory footer (`storage ls` and `storage space ls`).
+```text
+When, okay, so new, new, uh, let's say feature in, uh, in Git map, it would be auto aliasing. Uh, we can see the aliasing when you do the scan or see the table that show as a bracket. Uh, the default aliasing, if it has too much, then it would be as a tree view of multiple aliasing would, would show up. So this is how I want. So usually how it would, would go is that if the border has a space, every, uh, space first, I mean, uh, first words, first character, words first character would be considered as the, uh, I mean, characters to combine as the alias. For example, anti-gravity manager. So if it's written as hyphen or space, A-A and M would be considered as the, um, considered as the alias. Okay. Similar could go for the Git map. So Git map does not have two words, so it would have GM. Um, so in, in this way, it would try to find what would be the next word that two words combined, and it would try to find that, uh, aliasing. Do you understand this feature? Then we integrate this. And this would happen when we do the scan, and when we, let's say, uh, update the installation, the latest one, we would check the existing ones, and it would create those, um, let's say, aliasing. In some cases, the aliasing cannot be done. For example, the core package, the packages which are, let's say, very one word, uh, cannot have the other understanding. Any package that has a WP, then WP would be prefix. Okay. That would be, uh, not, not relevant or just W. So WP-GL would be Git log. WP-HA would be HTML automated. Uh, things like that. So this type of, uh, code you need to write. Um, also for the presentations, it would have like prep hyphen the short version of the name. So you know that. Mm. So these are the ways. So when it updates, first time it checks if this aliasing is there. Aliasing should have a separate table collection compared to connection with this. And also remember the error storage. We should be able to reset. That command needs to be show up when we do the reverse and see the database. We should have a reset command showing up there so that we can clear that error as well. Remember these few things. Is it clear? Do you have any question, confusion?
+```
+
+## Extracted Actionable Task List
+
+1. **Auto-Aliasing Word-Boundary Tokenization & Acronym Generation**: Tokenize on `-`, `_`, space; combine first characters of word tokens (e.g. `anti-gravity-manager` $\rightarrow$ `agm`).
+2. **Compound Word Splitting & Acronym Generation**: Sub-word dictionary heuristic for delimiter-less names (e.g. `gitmap` $\rightarrow$ `gm`, `scriptsfixer` $\rightarrow$ `sf`, `gitsync` $\rightarrow$ `gs`).
+3. **WordPress Package Prefix Rules**: Names starting with `wp-` preserve `wp-` prefix with abbreviated acronym remainder (e.g. `wp-git-log` $\rightarrow$ `wp-gl`, `wp-html-automated` $\rightarrow$ `wp-ha`).
+4. **Presentation Repository Prefix Rules**: Presentation repositories formatted as `prep-` + short name (e.g. `presentations-repos/bsrm-presentation-hiltrax` $\rightarrow$ `prep-bsrm`).
+5. **Fallback & Collision Handling**: Gracefully fallback on single-word core packages; resolve collisions against existing DB aliases with numeric suffixes (`agm2`, `gm2`, etc.).
+6. **Dedicated Table Collection & Auto-Population**: Store aliases in dedicated `Alias` / `repo_aliases` collection tracking `IsPrimary` and `Source`; auto-populate on `gitmap scan` and binary update/installation migrations.
+7. **Scan Table Bracket Display**: Render primary alias in brackets (e.g. `[gm]`, `[wp-gl]`) in scan output headers and block renders.
+8. **Multi-Alias Branch Tree View**: When a repository has $>1$ aliases, display a clean branch tree view (`├── ... (primary)`, `└── ... (secondary)`).
+9. **Error Storage Reset Command**: Implement `gitmap storage reset-errors` (`error-reset`, `reset`, `clear-errors`) to purge pipeline and scan error logs, error reports, and database error tables.
+10. **Database & Storage Reset Guidance**: Prominently display error storage reset guidance whenever inspecting the database (`gitmap storage ls`, `gitmap db`, `gitmap db ls`, `gitmap db status`, and `gitmap repo db status`).
 
 ---
 

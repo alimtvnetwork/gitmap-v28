@@ -113,17 +113,27 @@ func printProfileDBSection(profiles []DBFileInfo) {
 
 func printDBSummary(main DBFileInfo, splitDBs, profileDBs []DBFileInfo) {
 	totalCount := 1 + len(splitDBs) + len(profileDBs)
-	totalBytes := main.Size
-	for _, s := range splitDBs {
-		totalBytes += s.Size
-	}
-
-	for _, p := range profileDBs {
-		totalBytes += p.Size
-	}
-
+	totalBytes := calculateDBSummaryBytes(main.Size, splitDBs, profileDBs)
 	fmt.Println("  " + strings.Repeat("─", 78))
 	fmt.Printf("  Total: %s%d database file(s)%s, combined size: %s%s%s on disk\n\n",
 		constants.ColorWhite, totalCount, constants.ColorReset,
 		constants.ColorGreen, formatBytes(totalBytes), constants.ColorReset)
+	printDBResetGuidance()
+}
+
+func calculateDBSummaryBytes(base int64, splitDBs, profileDBs []DBFileInfo) int64 {
+	total := base
+	for _, s := range splitDBs {
+		total += s.Size
+	}
+	for _, p := range profileDBs {
+		total += p.Size
+	}
+
+	return total
+}
+
+func printDBResetGuidance() {
+	fmt.Printf("  %sTo reset or clear error records:%s\n", constants.ColorYellow, constants.ColorReset)
+	fmt.Printf("    %sgitmap storage reset-errors%s   (clear all pipeline & scan error records)\n\n", constants.ColorCyan, constants.ColorReset)
 }

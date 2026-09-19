@@ -61,23 +61,38 @@ func runDBStatus(args []string) error {
 func printUnifiedStatus(status dbUnifiedStatus) {
 	fmt.Println(constants.ColorCyan + "● Gitmap SQLite Unified Database Status:" + constants.ColorReset)
 	fmt.Println()
+	printMasterDBSection(status)
+	printSplitRepoSection(status)
+	printSplitPipelineSection(status)
+	printDBStatusTips()
+}
+
+func printMasterDBSection(status dbUnifiedStatus) {
 	fmt.Printf("  %s1. Primary Master Database (gitmap.db):%s\n", constants.ColorWhite, constants.ColorReset)
 	fmt.Printf("     • %-18s %s\n", "Location:", filepath.Dir(status.MasterPath))
 	fmt.Printf("     • %-18s %s\n", "Full Path:", status.MasterPath)
 	fmt.Printf("     • %-18s %s\n", "File Size:", formatBytes(status.MasterSize))
-	fmt.Printf("     • %-18s %d registered repository records\n", "Master Records:", status.MasterRepos)
-	fmt.Println()
+	fmt.Printf("     • %-18s %d registered repository records\n\n", "Master Records:", status.MasterRepos)
+}
+
+func printSplitRepoSection(status dbUnifiedStatus) {
 	fmt.Printf("  %s2. Split Repository Databases (repo_search/):%s\n", constants.ColorWhite, constants.ColorReset)
 	fmt.Printf("     • %-18s %s\n", "Directory:", status.SplitRepoDir)
 	fmt.Printf("     • %-18s %d isolated database files\n", "Database Count:", status.SplitRepoCount)
-	fmt.Printf("     • %-18s %s\n", "Total Disk Size:", formatBytes(status.SplitRepoSize))
-	fmt.Println()
+	fmt.Printf("     • %-18s %s\n\n", "Total Disk Size:", formatBytes(status.SplitRepoSize))
+}
+
+func printSplitPipelineSection(status dbUnifiedStatus) {
 	fmt.Printf("  %s3. Split Pipeline Databases (pipeline/):%s\n", constants.ColorWhite, constants.ColorReset)
 	fmt.Printf("     • %-18s %s\n", "Directory:", status.PipelineDir)
 	fmt.Printf("     • %-18s %d isolated pipeline database files\n", "Database Count:", status.PipelineCount)
-	fmt.Printf("     • %-18s %s\n", "Total Disk Size:", formatBytes(status.PipelineSize))
-	fmt.Println()
+	fmt.Printf("     • %-18s %s\n\n", "Total Disk Size:", formatBytes(status.PipelineSize))
+}
+
+func printDBStatusTips() {
 	fmt.Printf("  %sTip: Run 'gitmap db optimize' to vacuum and reclaim disk space across all databases.%s\n",
+		constants.ColorDim, constants.ColorReset)
+	fmt.Printf("  %sTip: Run 'gitmap storage reset-errors' to clear error records across pipeline and scan databases.%s\n",
 		constants.ColorDim, constants.ColorReset)
 }
 
