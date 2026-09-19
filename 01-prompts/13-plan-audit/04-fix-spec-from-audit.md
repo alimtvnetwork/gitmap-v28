@@ -22,7 +22,7 @@ Both the auditor and fixer agents MUST operate against these exact paths:
 - **Default Target Spec Directory:** `02-spec/21-app/` (or user-specified subfolder)
 - **Subtask Tracking:** `.ai-memory/plans/subtasks/xx-spec-fix/`
 - **Completed Archive:** `.ai-memory/plans/completed/`
-- **Agent State Directory:** `.ai-memory/temp-agents/`
+- **Agent State Directory:** `.agents/`
 
 ---
 
@@ -63,7 +63,7 @@ You MUST execute this task via a strict 4-Phase continuous loop. Do not skip ste
 
 1. **Parallel Dispatch:** Use the `invoke_subagent` tool to spawn up to 2 execution subagents concurrently (max 2 threads each), assigning disjoint subtasks from `.ai-memory/plans/subtasks/xx-spec-fix/`.
 2. **Minimal Context Diet:** Provide subagents with minimal instructions (e.g., "Read `.ai-memory/plans/subtasks/xx-spec-fix/01-<slug>.md` and execute the fixes on the specified spec file").
-3. **Isolated Agent State & Communication:** Each subagent MUST create `.ai-memory/temp-agents/xx-<task-name>/` and track its progress in `state.md`.
+3. **Isolated Agent State & Communication:** Each subagent MUST create `.agents/xx-<task-name>/` and track its progress in `state.md`.
 4. **Failure Protocol:** If a subagent fails, record the error in `.ai-memory/memory/issues/xx-spec-fix-failure.md`. The next subagent must read the failure log first to remediate.
 5. **Mark Reconciliation Ledger:** As subtasks finish, mark the corresponding findings in `.ai-memory/plans/pending/xx-spec-remediation.md` as `[x]`.
 
@@ -87,19 +87,19 @@ You MUST execute this task via a strict 4-Phase continuous loop. Do not skip ste
 
 ### Temp-Agent Isolated Task Directory & Communication Protocol (Non-Negotiable)
 
-To prevent cross-task pollution and ensure seamless agent communication, every task MUST create a dedicated subfolder in `.ai-memory/temp-agents/xx-<task-name>/`:
+To prevent cross-task pollution and ensure seamless agent communication, every task MUST create a dedicated subfolder in `.agents/xx-<task-name>/`:
 
-1. **Per-Task Isolation:** On task start, the assigned subagent creates its isolated directory `.ai-memory/temp-agents/xx-<task-name>/`.
-2. **State & Progress Tracking:** Create `.ai-memory/temp-agents/xx-<task-name>/state.md` documenting:
+1. **Per-Task Isolation:** On task start, the assigned subagent creates its isolated directory `.agents/xx-<task-name>/`.
+2. **State & Progress Tracking:** Create `.agents/xx-<task-name>/state.md` documenting:
    - `TASK_NAME`: `<task-name>`
    - `STATUS`: `IN_PROGRESS` | `DONE` | `FAILED`
    - `ASSIGNED_AGENT`: Agent identifier and thread index
    - `CURRENT_STEP`: Detailed micro-step description
 3. **Inter-Agent Communication & Handoff:**
-   - All intermediate findings, scratch outputs, and dependency handoffs between agents working on this task MUST be written inside `.ai-memory/temp-agents/xx-<task-name>/`.
+   - All intermediate findings, scratch outputs, and dependency handoffs between agents working on this task MUST be written inside `.agents/xx-<task-name>/`.
    - Sibling or successor agents MUST inspect this dedicated folder before resuming work or fixing errors.
-4. **On Error/Crash:** Append the exact error, root cause, and `STATUS: FAILED` to `.ai-memory/temp-agents/xx-<task-name>/state.md` before exiting.
-5. **On Success:** Mark `STATUS: DONE` in `.ai-memory/temp-agents/xx-<task-name>/state.md`, aggregate findings to the master plan, and clean up or archive the folder.
+4. **On Error/Crash:** Append the exact error, root cause, and `STATUS: FAILED` to `.agents/xx-<task-name>/state.md` before exiting.
+5. **On Success:** Mark `STATUS: DONE` in `.agents/xx-<task-name>/state.md`, aggregate findings to the master plan, and clean up or archive the folder.
 
 ---
 

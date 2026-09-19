@@ -12,7 +12,7 @@ description: >-
 N = 80
 ```
 
-Source Prompt Reference: `01-prompts/03-read-write/07-spec-write-from-reverse-engineering.md`
+Source Prompt Reference: `01-prompts/03-read-write/08-spec-write-from-reverse-engineering.md`
 
 ## Master Task Checklist (Atomic Numbered Steps)
 

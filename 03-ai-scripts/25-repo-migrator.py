@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 """
 Transactional Repository Layout Migrator & History Engine
-Migrates legacy repository layouts (spec/, 01-prompts/, 03-ai-scripts/)
+Migrates legacy repository layouts (spec/, .ai-memory/prompts/, .ai-memory/ai-fix-scripts/)
 to the standardized root layout (01-prompts/, 02-spec/, 03-ai-scripts/).
 
 Features:
@@ -80,26 +80,26 @@ PATTERN_SPEC_SLASH = re.compile(r"(?<![a-zA-Z0-9_-])spec/((?:[0-9]{2}-|[a-zA-Z0-
 PATTERN_SPEC_BACKSLASH = re.compile(r"(?<![a-zA-Z0-9_-])spec\\\\((?:[0-9]{2}-|[a-zA-Z0-9_.-]+\\\\)[a-zA-Z0-9_.-]*)")
 
 DIRECT_STRING_REPLACEMENTS = [
-    ("01-prompts/", "01-prompts/"),
-    ("01-prompts/", "01-prompts/"),
+    (".ai-memory/prompts/01-prompts-category/", "01-prompts/"),
+    (".ai-memory/prompts/", "01-prompts/"),
     (".ai-memory\\prompts\\01-prompts-category\\", "01-prompts\\\\"),
     (".ai-memory\\prompts\\", "01-prompts\\\\"),
-    ("03-ai-scripts/", "03-ai-scripts/"),
+    (".ai-memory/ai-fix-scripts/", "03-ai-scripts/"),
     (".ai-memory\\ai-fix-scripts\\", "03-ai-scripts\\\\"),
-    ("03-ai-scripts/", "03-ai-scripts/"),
-    (".ai-memory/coding-guidelines.md", ".ai-memory/coding-guidelines.md"),
+    ("lovable/ai-fix-scripts/", "03-ai-scripts/"),
+    (".ai-memory/coding-guidelines/coding-guidelines.md", ".ai-memory/coding-guidelines.md"),
     (".ai-memory\\coding-guidelines\\coding-guidelines.md", ".ai-memory\\coding-guidelines.md"),
-    (".ai-memory/coding-guidelines.md", ".ai-memory/coding-guidelines.md"),
+    (".ai-memory/coding-guidelines/", ".ai-memory/coding-guidelines.md"),
     ("\"spec\"", "\"02-spec\""),
-    ("02-02-02-spec/01-index.md", "02-02-02-spec/01-index.md"),
-    ("02-02-spec/spec-index.md", "02-02-02-spec/spec-index.md"),
-    ("02-02-spec/health-dashboard.md", "02-02-02-spec/health-dashboard.md"),
-    ("02-02-spec/dashboard-data.json", "02-02-02-spec/dashboard-data.json"),
-    ("02-02-spec/folder-structure-root.md", "02-02-02-spec/folder-structure-root.md"),
-    ("02-02-02-spec/99-consistency-report.md", "02-02-02-spec/99-consistency-report.md"),
-    ("02-02-02-spec/02-_template.md", "02-02-02-spec/02-_template.md"),
-    ("`02-spec/`", "`02-spec/`"),
-    ("`02-spec`", "`02-spec`"),
+    ("spec/01-index.md", "02-spec/01-index.md"),
+    ("spec/spec-index.md", "02-spec/spec-index.md"),
+    ("spec/health-dashboard.md", "02-spec/health-dashboard.md"),
+    ("spec/dashboard-data.json", "02-spec/dashboard-data.json"),
+    ("spec/folder-structure-root.md", "02-spec/folder-structure-root.md"),
+    ("spec/99-consistency-report.md", "02-spec/99-consistency-report.md"),
+    ("spec/02-_template.md", "02-spec/02-_template.md"),
+    ("`spec/`", "`02-spec/`"),
+    ("`spec`", "`02-spec`"),
 ]
 
 
@@ -199,7 +199,7 @@ class MigrationPlanner:
         elif prompts_root_dir.exists() and not target_prompts.exists():
             self.moves.append((prompts_root_dir, target_prompts, "MOVE_DIR"))
 
-        spec_dir = self.repo_root / "02-spec"
+        spec_dir = self.repo_root / "spec"
         target_spec = self.repo_root / "02-spec"
         if spec_dir.exists() and not target_spec.exists():
             self.moves.append((spec_dir, target_spec, "MOVE_DIR"))
@@ -322,6 +322,11 @@ def execute_migration(repo_root: Path, is_plan_only: bool = False, is_force: boo
             # 2. Execute File Modifications
             for p, old_txt, new_txt in planner.modifications:
                 seq += 1
+                # Adjust path if it was moved
+                for src, dst, kind in planner.moves:
+                    if str(p).startswith(str(src)):
+                        p = Path(str(p).replace(str(src), str(dst), 1))
+                        break
                 p.write_text(new_txt, encoding="utf-8")
                 conn.execute("""
                     INSERT INTO operations (transaction_id, seq_num, op_type, source_path, target_path, original_content, new_content, status)

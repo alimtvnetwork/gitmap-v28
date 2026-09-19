@@ -368,7 +368,7 @@ def scan_python_and_ts_tests(repo_root: Path, slow_threshold: float = 4.0) -> di
     tests_dict: dict[str, Any] = {}
     for root, _, files in os.walk(repo_root):
         rel_dir = normalize_repo_rel(root)
-        if any(ign in rel_dir for ign in (".git", "node_modules", ".ai-memory", "dist", "linter-scripts_old", ".tmp", "vendor", "temp")):
+        if ".git" in rel_dir or "node_modules" in rel_dir or ".ai-memory" in rel_dir or "dist" in rel_dir:
             continue
         for f in files:
             p = Path(root) / f
@@ -509,6 +509,81 @@ def record_recent_changes(changed_files: list[str]) -> dict[str, Any]:
         return recent_payload
 
 
+def check_inventory_age(max_age_days: float = 5.0) -> tuple[bool, dict[str, Any]]:
+    """Audits the freshness of .ai-memory/test-inventory.json against max_age_days."""
+    is_missing = bool(not TEST_INVENTORY_PATH.is_file())
+    if is_missing:
+        return False, {
+            "exists": False,
+            "is_fresh": False,
+            "age_days": None,
+            "message": f"Test inventory manifest missing at {TEST_INVENTORY_PATH}",
+        }
+
+    try:
+        inv = json.loads(TEST_INVENTORY_PATH.read_text(encoding="utf-8"))
+        raw_updated = inv.get("updated_at", "")
+        if raw_updated:
+            updated_dt = datetime.datetime.fromisoformat(raw_updated.replace("Z", "+00:00"))
+        else:
+            mtime = os.path.getmtime(TEST_INVENTORY_PATH)
+            updated_dt = datetime.datetime.fromtimestamp(mtime, datetime.timezone.utc)
+
+        now_dt = datetime.datetime.now(datetime.timezone.utc)
+        age_days = round((now_dt - updated_dt).total_seconds() / 86400.0, 2)
+        summary = inv.get("summary", {})
+        tests = inv.get("tests", {})
+
+        has_profiled = any(t.get("duration_sec", 0.0) > 0.0 for t in tests.values())
+        is_fresh = bool(age_days <= max_age_days and has_profiled)
+
+        audit_result = {
+            "exists": True,
+            "is_fresh": is_fresh,
+            "age_days": age_days,
+            "max_age_days": max_age_days,
+            "updated_at": raw_updated or updated_dt.isoformat(),
+            "total_tests": len(tests),
+            "slow_tests": summary.get("slow_tests", 0),
+            "fast_tests": summary.get("fast_tests", 0),
+            "has_profiled": has_profiled,
+        }
+        return is_fresh, audit_result
+    except Exception as err:
+        return False, {
+            "exists": True,
+            "is_fresh": False,
+            "age_days": None,
+            "error": str(err),
+        }
+
+
+def display_age_report(audit: dict[str, Any]) -> None:
+    """Formats and prints test inventory age audit report to console."""
+    print("=" * 80)
+    print("📦 TEST INVENTORY FRESHNESS AUDIT")
+    print("=" * 80)
+    is_missing = bool(not audit.get("exists", False))
+    if is_missing:
+        print(f"❌ Manifest Missing: {TEST_INVENTORY_PATH}")
+        print("💡 Action: Run `python 03-ai-scripts/33-test-inventory-generator.py` to build baseline.")
+        print("=" * 80)
+        return
+
+    is_fresh = bool(audit.get("is_fresh", False))
+    status_str = "✅ FRESH (<= threshold)" if is_fresh else "⚠️  STALE (> threshold or unprofiled)"
+    has_profiled = bool(audit.get("has_profiled", False))
+    profiled_str = "Yes" if has_profiled else "No (durations are 0.0s)"
+
+    print(f"📁 Manifest Path : {normalize_repo_rel(TEST_INVENTORY_PATH)}")
+    print(f"🕒 Last Updated  : {audit.get('updated_at')} ({audit.get('age_days')} days ago)")
+    print(f"⏱️  Max Age Cap   : {audit.get('max_age_days')} days")
+    print(f"🏷️  Status        : {status_str}")
+    print(f"📊 Tests Catalog : {audit.get('total_tests')} (Slow: {audit.get('slow_tests')}, Fast: {audit.get('fast_tests')})")
+    print(f"🎯 Profiled Data : {profiled_str}")
+    print("=" * 80)
+
+
 def main():
     default_threshold = float(os.environ.get("GITMAP_SLOW_TEST_THRESHOLD", "4.0"))
     parser = argparse.ArgumentParser(description="Test inventory generator & atomic change recorder.")
@@ -517,7 +592,18 @@ def main():
     parser.add_argument("--clear", action="store_true", help="Clear recent changes log.")
     parser.add_argument("--slow-threshold", type=float, default=default_threshold, help="Slow test threshold in seconds (default: 4.0s).")
     parser.add_argument("--force-run-all", action="store_true", help="Marks all tests as dirty for full profiling.")
+    parser.add_argument("--check-age", "--age", action="store_true", help="Audit whether test inventory is fresh (<= max-age-days) or stale.")
+    parser.add_argument("--max-age-days", type=float, default=5.0, help="Freshness threshold in days (default: 5.0).")
+    parser.add_argument("--json", action="store_true", help="Output results in JSON format.")
     args = parser.parse_args()
+
+    if args.check_age:
+        is_fresh, audit = check_inventory_age(max_age_days=args.max_age_days)
+        if args.json:
+            print(json.dumps(audit, indent=2))
+        else:
+            display_age_report(audit)
+        sys.exit(0 if is_fresh else 1)
 
     if args.clear:
         with file_lock(LOCK_FILE_PATH):

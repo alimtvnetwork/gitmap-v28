@@ -7,25 +7,14 @@ Multi-folder capable, customizable extensions, and thread-safe lazy regex engine
 Performance & Clean Architecture:
 1. Substring Pre-Filtering: Skips expensive AST / regex parsing when keywords are absent (10x-50x speedup).
 2. Flattened Conditionals: Zero deep-nested if statements; uses clean guard clauses and modular predicates.
-3. Concurrent Worker Pool: Audits files in parallel across CPU cores, quiet on success, detailed on failure.
-4. All Enums, Constants, and Functions are imported directly from 02-shared-engine.py.
+3. All Enums, Constants, and Functions are imported directly from 02-shared-engine.py.
 """
-
-from __future__ import annotations
 
 import argparse
 import ast
 from importlib import import_module
-import os
 from pathlib import Path
 import sys
-import time
-from typing import Any
-
-if hasattr(sys.stdout, "reconfigure"):
-    sys.stdout.reconfigure(encoding="utf-8")
-if hasattr(sys.stderr, "reconfigure"):
-    sys.stderr.reconfigure(encoding="utf-8")
 
 sys.path.insert(0, str(Path(__file__).parent))
 engine = import_module("02-shared-engine")
@@ -37,16 +26,11 @@ normalize_rel_path = engine.normalize_rel_path
 ExitCodeType = engine.ExitCodeType
 RegexPatternType = engine.RegexPatternType
 get_compiled_regex = engine.get_compiled_regex
-stream_directory_files = engine.stream_directory_files
-WorkerResult = engine.WorkerResult
-run_worker_pool = engine.run_worker_pool
-add_worker_cli_arguments = engine.add_worker_cli_arguments
 DEFAULT_CLI_EXTENSIONS = engine.DEFAULT_CLI_EXTENSIONS
 DEFAULT_ENCODING = engine.DEFAULT_ENCODING
 LINE_SEPARATOR = engine.LINE_SEPARATOR
 CURRENT_DIR = engine.CURRENT_DIR
 DEFAULT_CONCURRENCY_WORKERS = engine.DEFAULT_CONCURRENCY_WORKERS
-
 
 def is_command_decorator(decorator: ast.expr) -> bool:
     """Checks if an AST decorator node represents a CLI command (@cli.command)."""
@@ -58,7 +42,6 @@ def is_command_decorator(decorator: ast.expr) -> bool:
     if not is_attribute:
         return False
     return func.attr == "command"
-
 
 def audit_go_cobra_commands(content: str) -> list[tuple[str, str]]:
     """Detects Go Cobra commands missing Short or Example descriptions."""
@@ -89,7 +72,6 @@ def audit_go_cobra_commands(content: str) -> list[tuple[str, str]]:
 
     return violations
 
-
 def audit_python_cli_commands(file_path: Path, content: str) -> list[tuple[str, str]]:
     """Detects Python CLI commands missing docstrings or help text."""
     # Fast pre-filter: avoid expensive ast.parse when file has no CLI decorators
@@ -115,7 +97,6 @@ def audit_python_cli_commands(file_path: Path, content: str) -> list[tuple[str, 
         pass
     return violations
 
-
 def audit_single_file_cli(file_path: Path) -> list[tuple[str, str]]:
     """Audits a single file for CLI help compliance using fast dispatch and early exits."""
     suffix = file_path.suffix.lower()
@@ -135,126 +116,139 @@ def audit_single_file_cli(file_path: Path) -> list[tuple[str, str]]:
         pass
     return []
 
-
-def check_file_cli_help(file_path: Path, is_strict: bool = False) -> WorkerResult:
-    """Worker task auditing a single file for CLI help text compliance."""
-    start_time = time.perf_counter()
-    norm_path = normalize_rel_path(file_path)
-    try:
-        violations = audit_single_file_cli(file_path)
-        elapsed = round(time.perf_counter() - start_time, 3)
-        if violations:
-            err_lines = [f"::warning file={norm_path}::{cmd}: {msg}" for cmd, msg in violations]
-            return WorkerResult(
-                name=norm_path,
-                is_success=not is_strict,
-                error="\n".join(err_lines) if is_strict else "",
-                output="\n".join(err_lines) if not is_strict else "",
-                elapsed_sec=elapsed,
-            )
-        return WorkerResult(
-            name=norm_path,
-            is_success=True,
-            output=f"CLI help verified: {norm_path}",
-            elapsed_sec=elapsed,
-        )
-    except Exception as exc:
-        return WorkerResult(
-            name=norm_path,
-            is_success=False,
-            error=f"Exception auditing {norm_path}: {exc}",
-            elapsed_sec=round(time.perf_counter() - start_time, 3),
-        )
-
-
 def run_cli_auditor(
     target_dir: str = CURRENT_DIR,
     is_strict: bool = False,
     extensions: set[str] | tuple | None = None,
-    max_workers: int | None = None,
+    workers: int | None = None,
     is_sync: bool = False,
     show_all: bool = False,
+    as_json: bool = False,
     output_file: str | None = None,
-    as_json: bool | str = False,
-    filter_pattern: str | None = None,
 ) -> int:
-    """Runs repository CLI help audit using parallel worker pool."""
+    """Runs repository CLI help audit concurrently using worker group or sequentially."""
     exts = normalize_extensions(extensions) or DEFAULT_CLI_EXTENSIONS
-    target_path = Path(target_dir).resolve()
+    worker_count = 1 if is_sync else (workers or DEFAULT_CONCURRENCY_WORKERS)
 
-    files: list[Path] = []
-    for p in stream_directory_files(root_dir=str(target_path), extensions=exts):
-        if p.suffix.lower() in {".go", ".py"}:
-            files.append(p)
+    def handler(p: Path):
+        vios = audit_single_file_cli(p)
+        return (normalize_rel_path(p), vios) if vios else None
 
-    if filter_pattern:
-        filt = filter_pattern.lower().replace("\\", "/")
-        files = [f for f in files if filt in normalize_rel_path(f).lower()]
+    stats = process_repository_files(handler, root_dir=target_dir, extensions=exts, workers=worker_count)
+    all_violations = stats["results"]
+    has_violations = len(all_violations) > 0
+    duration_sec = stats["elapsed_ms"] / 1000
 
-    if not files:
-        print(f"✔ All passed. (0 CLI source file(s) in 0.00s)")
+    if as_json:
+        import json
+        payload = {
+            "total_files": stats["total_files"],
+            "violation_files_count": len(all_violations),
+            "duration_sec": round(duration_sec, 3),
+            "has_violations": has_violations,
+            "violations": [{"file": fp, "issues": [{"command": c, "message": m} for c, m in vios]} for fp, vios in all_violations]
+        }
+        json_str = json.dumps(payload, indent=2)
+        print(json_str)
+        if output_file:
+            try:
+                Path(output_file).write_text(json_str, encoding="utf-8")
+            except Exception as e:
+                print(f"⚠️ Failed to write JSON output to '{output_file}': {e}", file=sys.stderr)
+        if has_violations and is_strict:
+            return ExitCodeType.VIOLATIONS_FOUND.value
         return ExitCodeType.SUCCESS.value
 
-    exit_code = run_worker_pool(
-        items=files,
-        worker_fn=lambda f: check_file_cli_help(f, is_strict=is_strict),
-        max_workers=max_workers,
-        is_sync=is_sync,
-        show_all=show_all,
-        output_file=output_file,
-        as_json=as_json,
-        title="CLI COMMAND HELP & PARITY AUDITOR",
-        item_noun="CLI source file(s)",
-    )
-    return exit_code
+    report_lines = []
+    if show_all:
+        report_lines.append("============================================================")
+        report_lines.append("             CLI HELP TEXT PARITY AUDIT REPORT              ")
+        report_lines.append("============================================================")
+        report_lines.append(f"Total Files Scanned : {stats['total_files']}")
+        report_lines.append(f"Files with Issues   : {len(all_violations)}")
+        report_lines.append(f"Scan Duration       : {duration_sec:.2f}s")
+        report_lines.append(f"Concurrency Workers : {worker_count}")
+        report_lines.append("------------------------------------------------------------")
 
+    if has_violations:
+        report_lines.append(f"\n⚠️ Found CLI help description issues in {len(all_violations)} file(s) ({duration_sec:.2f}s):")
+        for fp, vios in all_violations:
+            for cmd, msg in vios:
+                report_lines.append(f"  ::warning file={fp}::{cmd}: {msg}")
+    else:
+        if not show_all:
+            report_lines.append(f"✔ All passed. ({stats['total_files']} files verified in {duration_sec:.2f}s)")
+        else:
+            report_lines.append(f"\n✅ All CLI commands in {stats['total_files']} files contain required help strings.")
 
-def main() -> None:
+    full_output = LINE_SEPARATOR.join(report_lines)
+    print(full_output)
+
+    if output_file:
+        try:
+            Path(output_file).write_text(full_output, encoding="utf-8")
+        except Exception as e:
+            print(f"⚠️ Failed to write report to '{output_file}': {e}", file=sys.stderr)
+
+    if has_violations and is_strict:
+        return ExitCodeType.VIOLATIONS_FOUND.value
+
+    return ExitCodeType.SUCCESS.value
+
+def main():
     parser = argparse.ArgumentParser(
-        prog="python 03-ai-scripts/09-cli-help-auditor.py",
-        description="Audit CLI commands for help descriptions across files using parallel worker pool.",
-        formatter_class=argparse.RawDescriptionHelpFormatter,
-        epilog="""
-Examples:
-  # 1. Default: run all CLI audits in parallel; quiet on success (tick), detailed on error:
-  python 03-ai-scripts/09-cli-help-auditor.py
-
-  # 2. Show all information (ticker, summary table, full logs):
-  python 03-ai-scripts/09-cli-help-auditor.py --all-paths
-  python 03-ai-scripts/09-cli-help-auditor.py --all
-
-  # 3. Run sequentially (1 worker):
-  python 03-ai-scripts/09-cli-help-auditor.py --sync
-
-  # 4. Save report to a file:
-  python 03-ai-scripts/09-cli-help-auditor.py -o tmp/cli-help-report.txt
-
-  # 5. Output results as machine-readable JSON:
-  python 03-ai-scripts/09-cli-help-auditor.py --json
-        """,
+        description="Audit CLI commands for help descriptions across folders",
+        formatter_class=argparse.RawDescriptionHelpFormatter
     )
     parser.add_argument("path", nargs="?", default=CURRENT_DIR, help="Directory to audit")
     parser.add_argument("--dir", "--path", "-p", dest="opt_dir", help="Directory to audit")
     parser.add_argument("--ext", help="Comma-separated extensions to scan (e.g. .go,.py)")
     parser.add_argument("--strict", action="store_true", help="Fail with exit code 1 on warnings")
-    add_worker_cli_arguments(parser)
+    parser.add_argument(
+        "--all-paths", "--all-passed", "--all", "-a",
+        dest="all_paths",
+        action="store_true",
+        help="Display detailed banners and scan statistics."
+    )
+    parser.add_argument(
+        "--sync", "--sequential", "-s",
+        dest="is_sync",
+        action="store_true",
+        help="Execute scan sequentially in 1 worker."
+    )
+    parser.add_argument(
+        "--workers", "-w", "--concurrency",
+        dest="max_workers",
+        type=int,
+        default=None,
+        help=f"Number of parallel worker threads (default: {DEFAULT_CONCURRENCY_WORKERS})."
+    )
+    parser.add_argument(
+        "--output", "-o", "--file",
+        dest="output_file",
+        type=str,
+        default=None,
+        help="Path to write execution report file."
+    )
+    parser.add_argument(
+        "--json",
+        dest="as_json",
+        action="store_true",
+        help="Output structured JSON summary."
+    )
     args = parser.parse_args()
 
     target_path = args.opt_dir or args.path or CURRENT_DIR
-    sys.exit(
-        run_cli_auditor(
-            target_dir=target_path,
-            is_strict=args.strict,
-            extensions=args.ext,
-            max_workers=args.workers,
-            is_sync=args.is_sync,
-            show_all=args.show_all,
-            output_file=args.output_file,
-            as_json=args.as_json,
-            filter_pattern=args.filter,
-        )
-    )
-
+    sys.exit(run_cli_auditor(
+        target_dir=target_path,
+        is_strict=args.strict,
+        extensions=args.ext,
+        workers=args.max_workers,
+        is_sync=args.is_sync,
+        show_all=args.all_paths,
+        as_json=args.as_json,
+        output_file=args.output_file,
+    ))
 
 if __name__ == "__main__":
     main()

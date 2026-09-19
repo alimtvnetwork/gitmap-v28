@@ -26,11 +26,14 @@ Ensure consistency across all documentation files. Do not miss any version refer
 ## Actionable Items & Checklist
 
 - [ ] Read the overarching main task plan.
-- [ ] Ensure the git repository starts completely clean.
-- [ ] Complete all work on the current branch only.
+- [ ] Step 1: Create dedicated release branch: `git checkout -b release/v<new_version>`.
+- [ ] Step 2: Bump version in documentation and standard files using repository-aware Python bump script (`03-ai-scripts/37-bump-version.py` or `.ai-memory/release/bump_versions.py`).
+- [ ] Pin the latest version into the root `readme.md` file (FATAL IF MISSED).
+- [ ] Update `changelog.md` with new version section and concrete changes.
+- [ ] Step 3: Stage and commit all release changes on release branch: `git commit -m "release: v<new_version> <scope>"`.
+- [ ] Step 4: Create annotated tag on release commit: `git tag -a v<new_version> -m "Release v<new_version>"`.
+- [ ] Step 5: Switch to `main`, merge `release/v<new_version>`, push `main`, `release/v<new_version>`, and tag `v<new_version>` to `origin`, then restore starting branch.
 - [ ] Ensure `.gitignore` explicitly excludes test reports, artifacts, and compiled binaries.
-- [ ] Group all completed work into a single logical commit.
-- [ ] Push the commit to the remote repository.
 - [ ] **File Change Summary:** Provide a highly detailed summary in the chat listing exactly which files were changed, what specific changes were made inside them, and why they were changed. The summary is VERY important.
 
 #
@@ -63,7 +66,8 @@ To survive massive checklists and complex codebases, you MUST operate using thes
 - [ ] Explicitly state previous and new version in the reply.
 - [ ] Update version in standard files (e.g., package.json, version.json, etc.).
 - [ ] AVOID: Do NOT touch or modify any files inside the .gitmap folder.
-- [ ] Execute git add .
-- [ ] Execute git commit -m 'chore(release): bump version to <new_version>'
-- [ ] Execute git push
-- [ ] AVOID: Do NOT create a git tag (e.g., git tag). Tags are managed externally by Git Map.
+- [ ] Step 1: Create dedicated release branch: `git checkout -b release/v<new_version>`.
+- [ ] Step 2: Bump version in documentation and standard files using repository-aware Python bump script (`03-ai-scripts/37-bump-version.py` or `.ai-memory/release/bump_versions.py`).
+- [ ] Step 3: Stage and commit on release branch: `git commit -m "release: v<new_version> <scope>"`.
+- [ ] Step 4: Create annotated tag on release commit: `git tag -a v<new_version> -m "Release v<new_version>"`.
+- [ ] Step 5: Switch to `main`, merge `release/v<new_version>`, push `main`, `release/v<new_version>`, and tag `v<new_version>` to `origin`, then restore starting branch.

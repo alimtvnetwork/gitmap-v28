@@ -10,7 +10,7 @@ Usage:
   python 03-ai-scripts/34-purge-github-actions-artifacts.py
 
   # Purge artifacts from a specific repository:
-  python 03-ai-scripts/34-purge-github-actions-artifacts.py --repo alimtvnetwork/gitmap-v28
+  python 03-ai-scripts/34-purge-github-actions-artifacts.py --repo alimtvnetwork/coding-guidelines-v24
 """
 
 import argparse

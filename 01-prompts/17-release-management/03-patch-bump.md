@@ -9,13 +9,19 @@ Only use this prompt when the user explicitly says "patch bump" or "patch releas
 
 Listen, past runs of these turns have been sloppy and stupid as fuck: wrong step counts, partial task lists dumped into chat instead of files, plans and session summaries half-filled with "[N]" placeholders, folders skimmed, open ambiguities ignored, CI/CD issues and `plans/subtasks/` forgotten, user commands dropped, coding guidelines bypassed, detailed specs chopped and summarized into useless junk, uppercase README files left uncorrected, `.ai-memory/memory/` created by accident, `strictly-avoid.md` overwritten, and explicit user instructions softened after being told not to. WTF. How on earth are you reverting to this carelessness, are you stupid?? Stop doing that, you stupid fuck. Read the whole codebase, read every folder in `02-spec/` and `.ai-memory/`, confirm root `readme.md` is strictly lowercase, find the root cause in one sentence, capture commands, issues, and pending tasks without omitting a single item, write the spec files and memory files in the right paths, update every index in the same turn, sync `readme.md` with `what-to-read.md`, preserve detailed specs verbatim with zero truncation, run builds and full unit tests, group commits with clear messages, and push everything to git before ending. Going deep IS the job. If you are not going deep, you are not doing the job. Violating this is auto-reject on the same tier as RULE 0. Avoid stupidity and being careless, you stupid fuck. Where is your attention, are you stupid? Tell me. Your stupidity is going on top of my head. Where did you learn this stupidity? If I could find you, I could slap you.
 
-## Required release action
+## Required release action & 5-Step Release Branching Mandate
 
-1. Update root `version.json` only: set `version` to the new PATCH version and `releaseDate` to today's UTC date.
-
-## Publish trigger
-
-2. If publishing is requested, create the matching `vX.Y.Z` Git tag after the `version.json` change is present on the target branch. The tag triggers the release workflow.
+When a PATCH bump or release is requested:
+1. **Step 1: Create & Switch to Release Branch:**
+   Create and switch to the release branch first: `git checkout -b release/vX.Y.Z`. Do NOT bump directly on `main`.
+2. **Step 2: Bump Version on Release Branch via Python Script:**
+   Execute the dedicated Python bump script (`03-ai-scripts/37-bump-version.py --tier patch` or `.ai-memory/release/bump_versions.py --type patch`), which must be adapted based on the target repository architecture to update `version.json`, `package.json`, `readme.md`, `changelog.md`, and install snippets.
+3. **Step 3: Commit in Release Branch:**
+   Stage and commit all bump changes on the release branch: `git commit -m "release: vX.Y.Z <scope>"`.
+4. **Step 4: Create Annotated Git Tag:**
+   Create the annotated tag on that release commit: `git tag -a vX.Y.Z -m "Release vX.Y.Z"`.
+5. **Step 5: Put Commit Back to Main Branch & Push:**
+   Switch to `main` (`git checkout main`), merge the release branch commit (`git merge release/vX.Y.Z`), push `main`, `release/vX.Y.Z`, and tag `vX.Y.Z` to `origin`, then restore the starting branch if different from `main`.
 
 ## Mandatory Pinning & Changelog (Fatal if missed)
 
@@ -27,15 +33,14 @@ You must update `version.json`, `changelog.md`, and `readme.md` at a minimum dur
 ## Actionable Items & Checklist
 
 - [ ] Read the overarching main task plan.
-- [ ] Update version in `version.json`.
-- [ ] Read `version.json` for Changelog formatting rules.
-- [ ] Add the changelog properly to the targeted changelog file.
+- [ ] Step 1: Create dedicated release branch: `git checkout -b release/vX.Y.Z`.
+- [ ] Step 2: Bump version on release branch using repository-aware Python bump script (`03-ai-scripts/37-bump-version.py --tier patch` or `.ai-memory/release/bump_versions.py --type patch`).
+- [ ] Read `version.json` for Changelog formatting rules and update changelog.
 - [ ] Pin the latest version into the root `readme.md` file (FATAL IF MISSED).
-- [ ] Ensure the git repository starts completely clean.
-- [ ] Complete all work on the current branch only.
+- [ ] Step 3: Stage and commit all release changes on release branch: `git commit -m "release: vX.Y.Z <scope>"`.
+- [ ] Step 4: Create annotated tag on release commit: `git tag -a vX.Y.Z -m "Release vX.Y.Z"`.
+- [ ] Step 5: Switch to `main`, merge `release/vX.Y.Z`, push `main`, `release/vX.Y.Z`, and tag `vX.Y.Z` to `origin`, then restore starting branch.
 - [ ] Ensure `.gitignore` explicitly excludes test reports, artifacts, and compiled binaries.
-- [ ] Group all completed work into a single logical commit.
-- [ ] Push the commit to the remote repository.
 - [ ] **File Change Summary:** Provide a highly detailed summary in the chat listing exactly which files were changed, what specific changes were made inside them, and why they were changed. The summary is VERY important.
 
 #
@@ -89,10 +94,11 @@ To survive massive checklists and complex codebases, you MUST operate using thes
 - [ ] Explicitly state previous and new version in the reply.
 - [ ] Update version in standard files (e.g., `package.json`, `version.json`, etc.).
 - [ ] AVOID: Do NOT touch or modify any files inside the `.gitmap` folder.
-- [ ] Execute `git add .`
-- [ ] Execute `git commit -m "chore(release): bump version to <new_version>"`
-- [ ] Execute `git push`
-- [ ] AVOID: Do NOT create a git tag (e.g., `git tag`). Tags are managed externally by Git Map.
+- [ ] Step 1: Create dedicated release branch: `git checkout -b release/v<new_version>`.
+- [ ] Step 2: Bump version on release branch using repository-aware Python bump script (`03-ai-scripts/37-bump-version.py --tier patch` or `.ai-memory/release/bump_versions.py --type patch`).
+- [ ] Step 3: Stage and commit on release branch: `git commit -m "release: v<new_version> <scope>"`.
+- [ ] Step 4: Create annotated tag on release commit: `git tag -a v<new_version> -m "Release v<new_version>"`.
+- [ ] Step 5: Switch to `main`, merge `release/v<new_version>`, push `main`, `release/v<new_version>`, and tag `v<new_version>` to `origin`, then restore starting branch.
 
 ## Install Section (Non-Negotiable)
 

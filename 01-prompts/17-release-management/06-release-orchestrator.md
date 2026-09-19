@@ -78,11 +78,11 @@ python 03-ai-scripts/29-release-orchestrator.py --tier <minor|patch|major>
 
 ---
 
-## Standalone Bump-Version Recovery
+## Standalone Bump-Version Recovery & Repository Adaptation
 
-If the repository does not have a project-level bump version script (such as `scripts/bump-version.mjs` or `.ai-memory/release/bump_versions.py`):
-1. **Autonomous Bootstrap:** The orchestrator script must not fail or halt. It MUST autonomously bootstrap `scripts/bump-version.mjs` (or perform in-place updates directly).
-2. **In-Place File Updates:** The orchestrator must update:
+If the repository does not have a project-level bump version script (such as `03-ai-scripts/37-bump-version.py` or `.ai-memory/release/bump_versions.py`):
+1. **Autonomous Bootstrap & Repository Adaptation:** The orchestrator script must not fail or halt. It MUST autonomously create or adapt `03-ai-scripts/37-bump-version.py` (or `.ai-memory/release/bump_versions.py`) based on how the target repository tracks versions and where files need to change.
+2. **In-Place File Updates:** The bump script must update:
    - `version.json`: Update `"version"` to `next_version` and `"releaseDate"` to today's UTC date (`YYYY-MM-DD`).
    - `package.json`: Update `"version"` to `next_version`.
    - `readme.md`: Pin the new release version in badges, install snippets, and header versions.
@@ -90,41 +90,52 @@ If the repository does not have a project-level bump version script (such as `sc
 
 ---
 
-## Git Release Lifecycle & Original Branch Invariant
+## Git Release Lifecycle & 5-Step Branching Mandate
 
-The release orchestrator strictly implements this end-to-end Git workflow:
+The release orchestrator and all release triggers MUST strictly execute this 5-step release lifecycle:
 
 ```
-[Start on original_branch (e.g. feature/my-work)]
+[Start on original_branch (e.g. main or feature/my-work)]
                    │
                    ▼
 1. Detect & Store original_branch (git rev-parse --abbrev-ref HEAD)
                    │
                    ▼
-2. Bump SemVer across version.json, package.json, changelog.md, readme.md
+[STEP 1] Create & Checkout Release Branch:
+         git checkout -b release/vX.Y.Z
                    │
                    ▼
-3. Stage & Commit on current branch: `release: vX.Y.Z <scope>`
+[STEP 2] Bump SemVer via Python Bump Script (repository-aware):
+         python 03-ai-scripts/37-bump-version.py --tier <tier> --scope "<scope>"
+         (or python .ai-memory/release/bump_versions.py)
+         Updates version.json, package.json, readme.md, changelog.md, and runs sync.
                    │
                    ▼
-4. Create Release Branch: `release/vX.Y.Z` pointing to the commit
+[STEP 3] Stage & Commit on Release Branch:
+         git commit -m "release: vX.Y.Z <scope>"
                    │
                    ▼
-5. Create Annotated Git Tag: `vX.Y.Z` on that release commit
+[STEP 4] Create Annotated Git Tag on Release Commit:
+         git tag -a vX.Y.Z -m "Release vX.Y.Z"
                    │
                    ▼
-6. Push: Push `release/vX.Y.Z` and `vX.Y.Z` to remote origin
+[STEP 5] Put Commit Back to Main Branch & Push:
+         git checkout main
+         git merge release/vX.Y.Z
+         git push origin main
+         git push origin release/vX.Y.Z
+         git push origin vX.Y.Z
                    │
                    ▼
-7. MANDATORY REVERT: Checkout back to `original_branch`
+[STEP 6] Revert Working Tree to original_branch (if different from main)
                    │
                    ▼
-[Finish: Active branch is verified to be `original_branch`]
+[Finish: Active branch is verified to be original_branch]
 ```
 
 ### Critical Rules for Branch Reversion:
 
-- **NEVER assume `main` or `master`:** Releases may be triggered from feature branches, bugfix branches, or release candidates. The script MUST record the starting branch and revert to that exact branch.
+- **NEVER assume `main` or `master`:** Releases may be triggered from feature branches, bugfix branches, or release candidates. The script MUST record the starting branch and revert to that exact branch after merging to main.
 - **Fail-Safe Restoration:** Even if pushing or downstream steps fail, the script's `finally:` block MUST ensure the working tree is safely checked back out to `original_branch`.
 
 ---
@@ -132,10 +143,15 @@ The release orchestrator strictly implements this end-to-end Git workflow:
 ## Hard Rules & Pre-Flight Checks
 
 - [ ] You MUST resolve the Git state by committing any outstanding/current files on the working branch BEFORE running the orchestrator script. The orchestrator script will NOT stage all changes; it will only stage version-related files (`version.json`, `package.json`, `changelog.md`, `readme.md`).
+- [ ] Step 1 is create the release branch FIRST: `git checkout -b release/vX.Y.Z`. Never bump directly on main.
+- [ ] Step 2 is bump version using the repository-adapted Python bump script on the release branch.
+- [ ] Step 3 is commit on the release branch.
+- [ ] Step 4 is tag on the release branch commit.
+- [ ] Step 5 is merge the release branch commit back into `main` and push `main`, `release/vX.Y.Z`, and tag `vX.Y.Z` to origin.
 - [ ] No explicit boolean checks (`if is_success == True:` is banned; use `if is_success:`).
 - [ ] All filenames must be strictly lowercase (e.g. `readme.md`, `changelog.md`).
 - [ ] Relative Git paths only (no `file:///` URIs or absolute filesystem paths).
-- [ ] The release commit and tag MUST be pushed to Git.
+- [ ] The release commit, release branch, and tag MUST be pushed to Git.
 - [ ] The working tree must be on the original branch when the task completes.
 
 ---
@@ -144,12 +160,11 @@ The release orchestrator strictly implements this end-to-end Git workflow:
 
 - [ ] 1. Identify starting branch: `git rev-parse --abbrev-ref HEAD`.
 - [ ] 2. Resolve the Git state by committing any outstanding/current files on the working branch before proceeding.
-- [ ] 3. Check for `03-ai-scripts/29-release-orchestrator.py`. If missing, create it.
-- [ ] 4. Check for bump version script (`scripts/bump-version.mjs` or `.ai-memory/release/bump_versions.py`). If missing, bootstrap or let orchestrator handle in-place updates.
-- [ ] 5. Run `python 03-ai-scripts/29-release-orchestrator.py --tier <tier> --scope "<scope>"`.
-- [ ] 6. Verify that commit `release: vX.Y.Z` exists.
-- [ ] 7. Verify that branch `release/vX.Y.Z` points to the release commit.
-- [ ] 8. Verify that tag `vX.Y.Z` exists on the release commit.
-- [ ] 9. Verify that release branch and tag were pushed to remote.
-- [ ] 10. Verify that the active git branch is restored to the starting branch (`git branch --show-current`).
-- [ ] 11. Output release summary detailing starting branch, version bump, release branch, tag, and restored active branch.
+- [ ] 3. Check for `03-ai-scripts/29-release-orchestrator.py` and bump version script (`03-ai-scripts/37-bump-version.py` or `.ai-memory/release/bump_versions.py`). If missing, create/adapt them based on repository structure.
+- [ ] 4. Step 1: Create and switch to release branch: `git checkout -b release/vX.Y.Z`.
+- [ ] 5. Step 2: Bump version on the release branch using the repository-aware Python bump script.
+- [ ] 6. Step 3: Commit version bump changes on the release branch: `release: vX.Y.Z <scope>`.
+- [ ] 7. Step 4: Create annotated tag on the release commit: `git tag -a vX.Y.Z -m "Release vX.Y.Z"`.
+- [ ] 8. Step 5: Switch to `main`, merge `release/vX.Y.Z`, and push `main`, `release/vX.Y.Z`, and tag `vX.Y.Z` to `origin`.
+- [ ] 9. Verify that the active git branch is restored to the starting branch (`git branch --show-current`).
+- [ ] 10. Output release summary detailing starting branch, version bump, release branch, tag, and restored active branch.

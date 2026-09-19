@@ -36,12 +36,33 @@ The `.ai-memory/` folder, specs, and codebase can be massive. To process this in
 - **Sub-Agents for Reading:** You ARE allowed to spawn sub-agents to read items and create memory in parallel.
 - **Specific Titling:** When spawning a sub-agent for reading, you must give it a highly specific title reflecting exactly what it is reading (e.g., `Reading Auth Specs` or `Scanning API Memory`). Do not use generic names. If an agent switches tasks, its title must change.
 - **Micro-Tasking:** Assign sub-agents small, granular folders/files to read rather than asking one agent to read the entire codebase.
-- You are allowed to write to the `.ai-memory/` directory to enhance project memory after reading. This includes:
-  - Writing summaries of what you learned and understood into `.ai-memory/memory/learned/xx-<slug>.md` (or `.ai-memory/01-index.md`), including the number of files read, to maintain context.
-  - Updating `.ai-memory/what-to-read.md` based on your progress to guide future reading workflows.
-  - Documenting any problems or issues you discover in the codebase into `.ai-memory/issues/` or `.ai-memory/suggestions.md`.
-  - Updating existing memory files, capturing open ambiguities, or updating plans.
-- CRITICAL: You MUST NOT refactor, edit, or write any application source code. This is a read and analysis phase only.
+- **TOTAL BAN ON REPOSITORY WRITES:** You are **STRICTLY FORBIDDEN** from modifying, creating, or deleting any files or folders in the repository during reading (no writing to `.ai-memory/`, no creating memory files, no updating indices, no writing skills/rules, no git commit/push).
+- **ISOLATED USER TEMP DIRECTORY (COMMUNICATION ONLY):** If sub-agents or the AI MUST write scratch data, caching, or messages to communicate during reading, it is **STRICTLY AND ONLY** permitted to write in the system **user temp directory** (`$TEMP`, `%TEMP%`, or `os.path.join(tempfile.gettempdir(), ...)`).
+  - Inside the user temp directory, create a dedicated folder named after the repository (e.g. `%TEMP%/<repo-name>/` or `$TEMP/<repo-name>/`), replicating the mirror pattern.
+  - Zero repository files may be created or changed.
+  - If agent communication via files is not strictly required, **DO NOT WRITE ANYTHING AT ALL**.
+- **3-TIER READING TOOL HIERARCHY & FALLBACK PROTOCOL:**
+  1. *Tier 1 (Fast Cached Python Tools):* Use `03-ai-scripts/17-fast-file-reader.py` and `03-ai-scripts/12-fast-cached-grep.py` when available for sub-millisecond cached lookups. Do NOT write or recreate scripts if missing.
+  2. *Tier 2 (GitMap Acceleration):* If Python scripts are absent or cannot be run, check if GitMap is installed (`gitmap`) and leverage GitMap CLI verbs to rapidly inspect, search, and read repository files with zero disk writes:
+     - **Directory & File Discovery:**
+       - `gitmap list-files` (alias `lf`) `[pattern] [-ext <extensions>]`: List tracked repository files with optional extension filtering (e.g. `gitmap lf "*" -ext "md"`, `gitmap list-files "02-spec/*"`).
+       - `gitmap find` (alias `f`) `<wildcard*>`: High-speed wildcard/glob file search (e.g. `gitmap find "01*" -ext "md"`).
+       - `gitmap find-files` (alias `ff`) `<exact-name>`: Exact filename lookup (e.g. `gitmap ff "what-to-read.md"`, `gitmap find-files "readme.md"`).
+       - `gitmap find-files-any` (alias `ffa`) `<substring>`: Substring filename search (e.g. `gitmap ffa "guide" -ext "md"`).
+       - `gitmap find-files-startswith` (alias `ffs`) `<prefix>`: Prefix filename search (e.g. `gitmap ffs "what-"`).
+       - `gitmap find-files-endswith` (alias `ffe`) `<suffix>`: Suffix filename search (e.g. `gitmap ffe "avoid.md"`).
+     - **File Reading & Content Inspection:**
+       - `gitmap cat <filepath>`: Stream raw file content directly to stdout without touching disk (e.g. `gitmap cat .ai-memory/what-to-read.md`, `gitmap cat 02-spec/01-index.md`, `gitmap cat readme.md`).
+     - **Repository Status & Changelog Context:**
+       - `gitmap status` (alias `st`): Display branch state, clean/dirty working tree, and ahead/behind counts (e.g. `gitmap status`).
+       - `gitmap changelog` (alias `cl`) `[--latest]`: Read concise release notes and version history (e.g. `gitmap changelog --latest`, `gitmap cl v2.24.0`).
+       - `gitmap list-versions` (alias `lv`): List tagged versions in descending order (e.g. `gitmap list-versions --limit 5`).
+     - **CI/CD Pipeline & Failure Diagnostics (RCA Context):**
+       - `gitmap pipeline status` (alias `pl status`): Check live CI/CD pipeline state and remaining ETA (e.g. `gitmap pipeline status`).
+       - `gitmap pipeline history` (alias `pl history`): Inspect recent commits pipeline execution tree and failure status (e.g. `gitmap pipeline history`).
+       - `gitmap pipeline errors` (alias `pl errors`): Fetch and inspect failed step error logs for Root Cause Analysis (e.g. `gitmap pipeline errors`).
+  3. *Tier 3 (Native Agent Process Fallback):* If GitMap is also not installed or available, smoothly fall back to native agent tools and process (`view_file`, `list_dir`, `grep_search`, `find_by_name`, `cat`, `ls`) without halting or writing files.
+- CRITICAL: The entire repository workspace is 100% read-only during this workflow.
 ---
 
 ## Phase 1 - Load the project & git history
@@ -220,7 +241,7 @@ Then stop. No next-step suggestions, no exploratory questions.
 - [ ] Checked whether the repo contains explicit tone, strictly-avoid, or prior-stupidity instructions and applied them without softening
 - [ ] Did not replace hard user wording with polite generic language
 - [ ] Emitted the Completion Confirmation block verbatim, then stopped
-- [ ] Confirmed that self-looping remained strictly read-only regarding the codebase (no source code refactored, only memory updated)
+- [ ] Confirmed that self-looping remained 100% read-only regarding the codebase and repository (zero repository files written, zero folder structure changes; any temporary agent communication isolated to user temp %TEMP%/<repo-name>/)
 
 ## Tone and stance
 

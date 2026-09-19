@@ -117,23 +117,20 @@ Past release turns were sloppy: guessed the version, bumped PATCH instead of MIN
 
 1. Read the current version from the canonical version source. Print previous and new version. Confirm PATCH digit is `0`.
 
-2. **Version Bumping (The Python Auto-Bumper Bootstrap)**:
-   You MUST NOT manually hunt and replace versions using `rg` in every release. Instead, rely on a dedicated python script: `.ai-memory/release/bump_versions.py`.
-
-   **First-Time Bootstrap (If `.ai-memory/release/bump_versions.py` or `.ai-memory/memory/01-index.md` do NOT exist, or user said `force`):**
-
-   ### CRITICAL PERFORMANCE RULE: NO GLOBAL RIPGREP SEARCHES
-
-   You MUST NEVER use `rg`, `grep`, or `find` to globally search the entire repository for version strings.
-
-   You MUST follow this strict chain:
-   1. **Primary:** Run `python 03-ai-scripts/29-release-orchestrator.py --tier <minor|patch|major>` (see `01-prompts/17-release-management/06-release-orchestrator.md`). This handles SemVer bumping, release commit, `release/vX.Y.Z` branch creation, tagging, pushing, and restores the original starting branch. Alternatively, run `.ai-memory/release/bump_versions.py --type <major|minor|patch> --create-release`.
-   2. **Fallback 1 (Read Docs):** If script is missing, read `.ai-memory/release/release-method.md` to learn which files contain versions. Generate `29-release-orchestrator.py` or `bump_versions.py` and run it.
-
-   - **CRITICAL ADAPTATION RULE:** The `bump_versions.py` script is shipped via the installer as a baseline. When you run this command on a NEW project for the first time, you MUST review and update its internal `FILES_TO_BUMP` array to match the target repository's architecture before running it.
-3. **Fallback 2 (Efficient Search):**
-   - **CRITICAL SCRIPT RECOVERY:** If you have to recreate `bump_versions.py` from scratch, you MUST include the `subprocess` logic that handles `git checkout -b release/vX.Y.Z`, `git commit`, `git tag`, `git push`, and detecting `gh` / `glab` CLI to create the platform release. If `release-method.md` is missing, perform a highly efficient, OS-agnostic search (e.g., Python `os.walk` ignoring `.git`, `node_modules`, `.venv`, `.ai-memory`). Create `release-method.md` documenting the pin sites, create `bump_versions.py`, and run it.
-   4. **Fallback 3 (Ask User):** If you cannot find the files, stop and ask the user to specify them.
+2. **Mandatory 5-Step Release Branching Lifecycle:**
+   All releases MUST follow this strict 5-step Git release lifecycle:
+   - **Step 1: Create & Switch to Release Branch:**
+     Create and checkout the dedicated release branch first: `git checkout -b release/vX.Y.Z`. Releases MUST NOT be committed directly to `main` without a release branch.
+   - **Step 2: Bump Version on Release Branch via Python Script:**
+     Execute the dedicated Python bump script (`03-ai-scripts/37-bump-version.py` or `.ai-memory/release/bump_versions.py`) on the release branch.
+     - **CRITICAL REPOSITORY ADAPTATION:** The bump version script MUST be created or adapted based on the target repository architecture (identifying where and how versions are tracked: `version.json`, `package.json`, `readme.md`, `changelog.md`, install snippets, etc.).
+     - **Execution:** Run `python 03-ai-scripts/29-release-orchestrator.py --tier <tier>` or `python 03-ai-scripts/37-bump-version.py --tier <tier>` or `.ai-memory/release/bump_versions.py --type <tier>`.
+   - **Step 3: Commit in Release Branch:**
+     Stage and commit all version bump and generated release files on the release branch: `git commit -m "release: vX.Y.Z <scope>"`.
+   - **Step 4: Create Annotated Git Tag:**
+     Create the annotated tag on that release commit: `git tag -a vX.Y.Z -m "Release vX.Y.Z"`.
+   - **Step 5: Put Commit Back to Main Branch & Push:**
+     Switch to `main` (`git checkout main`), merge the release branch commit (`git merge release/vX.Y.Z`), push `main`, `release/vX.Y.Z`, and tag `vX.Y.Z` to `origin`, then restore the starting branch if different from `main`.
 
 3. Pin the new version in `readme.md` (lowercase filename, MUST). Rewrite every occurrence of the previous version (`vX.Y.Z` and bare `X.Y.Z`) in badges, install snippets, "current version" lines, release-branch examples, zip filenames, inline references. After this step, `grep "<previous-version>" readme.md` MUST return nothing.
 
@@ -166,7 +163,13 @@ Past release turns were sloppy: guessed the version, bumped PATCH instead of MIN
 
 7. Verify version sync. Run the project's version-sync check script if one exists (discover: `scripts/check-version-sync.*`, `scripts/verify-versions.*`). It MUST exit 0. Non-zero = release is INVALID: log an issue, fix, re-run. If no such script exists, re-run the step 2 `rg` and confirm only historic files (see Hard rules allow-list) still reference the previous version.
 
-8. Tag, commit, and push (if git-tracked). Commit message: `release: vX.Y.Z <headline>`. Tag: `git tag vX.Y.Z`. You MUST push the commit and tag to the remote repository (e.g., `git push` followed by `git push origin vX.Y.Z`). Because you synced and committed pending changes in Pre-flight, the working tree should only contain release-related file changes.
+8. **Execute 5-Step Git Release Operations:**
+   Follow the 5-step release branching lifecycle:
+   - Checkout `release/vX.Y.Z`
+   - Bump version on release branch via Python script
+   - Commit on release branch: `git commit -m "release: vX.Y.Z <headline>"`
+   - Tag on release branch commit: `git tag -a vX.Y.Z -m "Release vX.Y.Z"`
+   - Checkout `main`, merge `release/vX.Y.Z`, push `main`, `release/vX.Y.Z`, and tag `vX.Y.Z` to `origin`. Restore starting branch.
 
 9. **Publish Platform Release with Quick Install One-Liners (FATAL IF MISSED ON GITHUB/GITLAB):**
    When creating the GitHub / GitLab release (via `bump_versions.py --create-release` or CLI):
@@ -302,10 +305,11 @@ To survive massive checklists and complex codebases, you MUST operate using thes
 - [ ] Explicitly state previous and new version in the reply.
 - [ ] Update version in standard files (e.g., `package.json`, `version.json`, etc.).
 - [ ] AVOID: Do NOT touch or modify any files inside the `.gitmap` folder.
-- [ ] Execute `git add .`
-- [ ] Execute `git commit -m "chore(release): bump version to <new_version>"`
-- [ ] Execute `git push`
-- [ ] AVOID: Do NOT create a git tag (e.g., `git tag`). Tags are managed externally by Git Map.
+- [ ] Step 1: Create dedicated release branch: `git checkout -b release/v<new_version>`.
+- [ ] Step 2: Bump version on release branch using repository-aware Python bump script (`03-ai-scripts/37-bump-version.py` or `.ai-memory/release/bump_versions.py`).
+- [ ] Step 3: Stage and commit on release branch: `git commit -m "release: v<new_version> <scope>"`.
+- [ ] Step 4: Create annotated tag on release commit: `git tag -a v<new_version> -m "Release v<new_version>"`.
+- [ ] Step 5: Switch to `main`, merge `release/v<new_version>`, push `main`, `release/v<new_version>`, and tag `v<new_version>` to `origin`, and restore starting branch.
 
 ---
 

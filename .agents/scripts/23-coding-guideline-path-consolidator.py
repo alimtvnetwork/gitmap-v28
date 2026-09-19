@@ -2,7 +2,7 @@
 """
 Script 23: Coding Guideline Path Consolidator
 Autonomously consolidates all references from the old nested path
-(.ai-memory/coding-guidelines.md) to the single canonical path
+(.ai-memory/coding-guidelines/coding-guidelines.md) to the single canonical path
 (.ai-memory/coding-guidelines.md) across all documentation, code, specs, and linters.
 """
 
@@ -22,9 +22,9 @@ TARGET_EXTENSIONS = (
 )
 
 REPLACEMENTS = [
-    ('.ai-memory/coding-guidelines.md', '.ai-memory/coding-guidelines.md'),
+    ('.ai-memory/coding-guidelines/coding-guidelines.md', '.ai-memory/coding-guidelines.md'),
     ('.ai-memory\\coding-guidelines\\coding-guidelines.md', '.ai-memory\\coding-guidelines.md'),
-    ('.ai-memory/coding-guidelines.md', '.ai-memory/coding-guidelines.md'),
+    ('.ai-memory/coding-guidelines/', '.ai-memory/coding-guidelines.md'),
     ('lovable/coding-guidelines/coding-guidelines.md', '.ai-memory/coding-guidelines.md'),
 ]
 

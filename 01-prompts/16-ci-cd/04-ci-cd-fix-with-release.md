@@ -483,23 +483,30 @@ Update `.ai-memory/cicd-index.md` in the same operation. Never delete existing e
 4. Idempotency guard: if the canonical version already equals the computed new version, STOP. Someone half-ran a release. Detect what is done, resume from the first incomplete step. Do NOT double-bump.
 5. Placeholder guard: if the previous version's changelog entry is empty or contains `TBD`/`WIP`, refuse to release until it is filled (or the user overrides).
 
-### Step R-2: Bump the Version
+### Step R-2: Bump the Version & Execute 5-Step Release Branching Lifecycle
 
-### Step R-2: Bump the Version & Assemble Release Body
+**Primary path — use the release orchestrator or dedicated bump script:**
 
-**Primary path — use the exact script at this path:**
+```bash
+# Option A (Recommended): Full automated release orchestrator
+python 03-ai-scripts/29-release-orchestrator.py --tier minor
 
-```text
+# Option B: Dedicated bump script with full release lifecycle
 python .ai-memory/release/bump_versions.py --type minor --create-release
+# or: python 03-ai-scripts/37-bump-version.py --tier minor
 ```
 
-The `--create-release` flag handles:
-
-1. Creating the `release/vX.Y.Z` git branch
-2. Updating all version pin sites
-3. Assembling the release notes file with **Quick Install One-Liners** and changelog
-4. Committing, tagging `vX.Y.Z`, and pushing
-5. Creating the GitHub/GitLab release via `gh release create` (with `--notes-file`) or `glab release create`
+All release execution MUST strictly enforce the **5-Step Release Branching Lifecycle**:
+1. **Step 1: Create & Switch to Release Branch:**
+   Create and switch to `release/vX.Y.Z` FIRST before modifying any version files (`git checkout -b release/vX.Y.Z`).
+2. **Step 2: Bump Version on Release Branch via Python Script:**
+   Execute the dedicated Python bump script (`03-ai-scripts/37-bump-version.py` or `.ai-memory/release/bump_versions.py`) on the release branch, adapting it to the target repository architecture (`version.json`, `package.json`, `readme.md`, `changelog.md`, install snippets).
+3. **Step 3: Commit in Release Branch:**
+   Stage and commit all version bump and generated release files on the release branch (`release: vX.Y.Z <scope>`).
+4. **Step 4: Create Annotated Git Tag:**
+   Create the annotated tag on the release commit: `git tag -a vX.Y.Z -m "Release vX.Y.Z"`.
+5. **Step 5: Put Commit Back to Main Branch & Push:**
+   Switch to `main` (`git checkout main`), merge the release branch commit (`git merge release/vX.Y.Z`), push `main`, `release/vX.Y.Z`, and tag `vX.Y.Z` to `origin`, then restore the starting branch if different from `main`.
 
 ---
 
@@ -629,14 +636,15 @@ Include: previous version, new version, step number and name, command run, full 
 - [ ] Git working tree was clean before release steps.
 - [ ] `git pull` completed with no conflicts.
 - [ ] Previous and new versions both stated explicitly.
-- [ ] `python .ai-memory/release/bump_versions.py --type minor --create-release` ran successfully (or fallback used and documented).
+- [ ] Executed 5-step release branching lifecycle: `release/vX.Y.Z` created first, bumped via repository-aware Python bump script, committed on release branch, tagged `vX.Y.Z`, merged back into `main`, and pushed to remote.
+- [ ] `python 03-ai-scripts/29-release-orchestrator.py` or `.ai-memory/release/bump_versions.py` or `03-ai-scripts/37-bump-version.py` ran successfully.
 - [ ] All version pin sites updated to the new version.
 - [ ] `readme.md` pinned to new version. No previous version strings remain.
 - [ ] Changelog entry added with real bullets. No `TBD` or empty entries.
 - [ ] All markdown filenames in repo are strictly lowercase.
 - [ ] `### Issues` block present in changelog if any step failed, with links.
 - [ ] Release notes file generated containing Quick Install One-Liners (PowerShell & Bash) and changelog.
-- [ ] Release commit tagged `vX.Y.Z` and pushed to remote.
+- [ ] Release branch, release tag `vX.Y.Z`, and merged `main` branch pushed to remote.
 - [ ] GitHub/GitLab release created via `gh release create --notes-file` or `glab release create --notes-file` (NEVER bare `--generate-notes`).
 - [ ] Release description on GitHub/GitLab verified to contain the Quick Install one-liners, NOT just raw commit hashes.
 - [ ] Verified `.agents/skills/ci-cd-fix-with-release/skill.md` and `.agents/skills/ci-cd-fix/skill.md` are present and synchronized with the latest rules.
