@@ -344,3 +344,15 @@ func TestResolveFetchConcurrency(t *testing.T) {
 		t.Errorf("expected 4, got %d", resolveFetchConcurrency(10))
 	}
 }
+
+func TestPrintRecentCommitsHeaderPadding(t *testing.T) {
+	var sb strings.Builder
+	printRecentCommitsHeader(&sb, 5)
+	output := sb.String()
+	if !strings.HasPrefix(output, "\n  ") {
+		t.Errorf("expected leading newline and indentation in recent commits header, got %q", output)
+	}
+	if !strings.Contains(output, "Recent Commits Pipeline Summary") {
+		t.Errorf("expected header text in output, got %q", output)
+	}
+}

@@ -75,7 +75,7 @@ func printReadingProgress(flags PipelineErrorFlags) {
 		return
 	}
 
-	fmt.Println("Reading pipeline logs...")
+	fmt.Printf("\n  Reading pipeline logs...\n\n")
 }
 
 func applyPayloadOptions(p *PipelineErrorLogsPayload, runs []ghRunItem, flags PipelineErrorFlags) {
@@ -642,6 +642,7 @@ func renderCleanSuccessDbAndHistory(p PipelineErrorLogsPayload) {
 	if len(p.DbPath) > 0 {
 		fmt.Printf("  • Pipeline DB:     %s\n", filepath.ToSlash(FormatRelativeDbPath(p.DbPath)))
 		fmt.Printf("  • DB Size:         %s\n", ResolveDbFileSize(p.DbPath))
+		fmt.Printf("  • Cleanup:         gitmap pipeline clear -y\n")
 	}
 
 	runs := queryWorkflowRuns(p.Repo)
@@ -883,6 +884,7 @@ func renderSavedDbAndUrl(p PipelineErrorLogsPayload) {
 	if len(p.DbPath) > 0 {
 		fmt.Printf("    • Pipeline DB:     %s\n", filepath.ToSlash(FormatRelativeDbPath(p.DbPath)))
 		fmt.Printf("    • DB Size:         %s\n", ResolveDbFileSize(p.DbPath))
+		fmt.Printf("    • Cleanup:         gitmap pipeline clear -y\n")
 	}
 	if len(p.Url) > 0 {
 		fmt.Printf("    • Web Run URL:     %s\n\n", p.Url)

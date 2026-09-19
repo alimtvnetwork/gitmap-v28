@@ -1,3 +1,9 @@
+## v6.267.0 — 2026-09-19 (Improve pipeline errors formatting with reading progress padding, recent commits summary padding, and DB cleanup command guidance)
+
+**Scope:** Version bump. Improve pipeline errors formatting with reading progress padding, recent commits summary padding, and DB cleanup command guidance.
+
+---
+
 ## v6.266.0 — 2026-09-19 (Update Antigravity Manager installer and updater to canonical PowerShell and curl bash one-liners)
 
 **Scope:** Version bump. Update Antigravity Manager installer and updater to canonical PowerShell and curl bash one-liners.

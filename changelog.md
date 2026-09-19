@@ -1,3 +1,19 @@
+## [v6.267.0] 2026-09-20 Release v6.267.0
+
+### Install GitMap v6.267.0
+
+To pin your repository to this exact version, run the following one-liner:
+Unix/Bash: `curl -sL https://raw.githubusercontent.com/alimtvnetwork/gitmap-v28/v6.267.0/install.sh | bash -s -- ".ai-memory/prompts" "v6.267.0"`
+PowerShell: `Invoke-WebRequest -Uri https://raw.githubusercontent.com/alimtvnetwork/gitmap-v28/v6.267.0/install.ps1 -OutFile install.ps1; .\install.ps1 -TargetDir ".ai-memory/prompts" -Version "v6.267.0"`
+
+### Added / Changed / Fixed / Removed
+
+- Improve gitmap pipeline errors visual hierarchy with top and bottom newline padding and 2-space indentation on the Reading pipeline logs... progress message
+- Add leading newline gap before Recent Commits Pipeline Summary cyan table header for cleaner visual spacing
+- Display actionable pipeline database cleanup guidance (• Cleanup: gitmap pipeline clear -y) directly below database metadata in both clean and failure reports
+- Update printEmptyCachedFailures to include pipeline cleanup command guidance
+- Add unit test TestPrintRecentCommitsHeaderPadding to verify consistent header padding
+
 ## [v6.266.0] 2026-09-20 Release v6.266.0
 
 ### Install GitMap v6.266.0
@@ -2381,6 +2397,12 @@ PowerShell: `Invoke-WebRequest -Uri https://raw.githubusercontent.com/alimtvnetw
 - Fixed spacing in help menu.
 
 # Changelog
+
+## [v6.267.0] - 2026-09-19
+
+### Added
+- Improve pipeline errors formatting with reading progress padding, recent commits summary padding, and DB cleanup command guidance
+
 
 ## [v6.266.0] - 2026-09-19
 

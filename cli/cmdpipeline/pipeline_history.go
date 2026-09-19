@@ -331,7 +331,7 @@ func capCommitGroups(groups []CommitPipelineGroup, limit int) []CommitPipelineGr
 }
 
 func printRecentCommitsHeader(sb *strings.Builder, count int) {
-	fmt.Fprintf(sb, "  %s● Recent Commits Pipeline Summary (Last %d Commits):%s\n",
+	fmt.Fprintf(sb, "\n  %s● Recent Commits Pipeline Summary (Last %d Commits):%s\n",
 		constants.ColorCyan, count, constants.ColorReset)
 	fmt.Fprintf(sb, "    %-8s %-9s %-14s %-10s %-32s %-8s\n",
 		"Offset", "Commit", "Branch", "Status", "Workflows", "Failures")
@@ -527,7 +527,8 @@ func renderCachedFailuresTerminal(db *pipelinedb.PipelineSplitDb, repo string, r
 func printEmptyCachedFailures(repo, dbPath string) {
 	fmt.Printf("\n  No cached pipeline failures found in SQLite for %s.\n", repo)
 	fmt.Printf("  Pipeline DB: %s\n", filepath.ToSlash(FormatRelativeDbPath(dbPath)))
-	fmt.Printf("  DB Size:     %s\n\n", ResolveDbFileSize(dbPath))
+	fmt.Printf("  DB Size:     %s\n", ResolveDbFileSize(dbPath))
+	fmt.Printf("  Cleanup:     gitmap pipeline clear -y\n\n")
 }
 
 func printCachedFailuresList(db *pipelinedb.PipelineSplitDb, relDb string, runs []pipelinedb.PipelineRunRecord, isDetailed bool) {
