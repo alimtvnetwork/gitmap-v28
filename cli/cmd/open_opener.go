@@ -2,11 +2,13 @@
 package cmd
 
 import (
+	"bytes"
 	"fmt"
 	"os"
 	"os/exec"
 	"path/filepath"
 	"runtime"
+	"strings"
 )
 
 func isHeadlessLinux() bool {
@@ -62,6 +64,40 @@ func handleHeadlessOpen(target string) error {
 	return nil
 }
 
+func isDisplayError(msg string) bool {
+	low := strings.ToLower(msg)
+	hasDisplayErr := strings.Contains(low, "missing x server") ||
+		strings.Contains(low, "no display") ||
+		strings.Contains(low, "cannot open display") ||
+		strings.Contains(low, "failed to initialize")
+	return hasDisplayErr
+}
+
+func tryDirectBrowser(target string) error {
+	candidates := []string{"google-chrome", "chromium-browser", "chromium", "firefox", "sensible-browser"}
+	for _, cand := range candidates {
+		if path, err := exec.LookPath(cand); err == nil {
+			cmd := exec.Command(path, target)
+			configureLinuxDisplay(cmd)
+			configureDetachedProcess(cmd)
+			if startErr := cmd.Start(); startErr == nil {
+				return nil
+			}
+		}
+	}
+	return handleHeadlessOpen(target)
+}
+
+func handleOpenerFailure(target, errStr string) error {
+	if isDisplayError(errStr) {
+		return handleHeadlessOpen(target)
+	}
+	if isWebTarget(target) {
+		return tryDirectBrowser(target)
+	}
+	return handleHeadlessOpen(target)
+}
+
 func launchNativeOpener(target string) error {
 	if isHeadlessLinux() {
 		return handleHeadlessOpen(target)
@@ -69,15 +105,16 @@ func launchNativeOpener(target string) error {
 
 	cmd := buildOpenerCommand(target)
 	configureLinuxDisplay(cmd)
-	cmd.Stdout = os.Stdout
-	cmd.Stderr = os.Stderr
+	configureDetachedProcess(cmd)
+	var errBuf bytes.Buffer
+	cmd.Stderr = &errBuf
 
 	if err := cmd.Start(); err != nil {
-		return handleHeadlessOpen(target)
+		return handleOpenerFailure(target, err.Error())
 	}
 
 	if err := cmd.Wait(); err != nil {
-		return handleHeadlessOpen(target)
+		return handleOpenerFailure(target, errBuf.String())
 	}
 
 	return nil

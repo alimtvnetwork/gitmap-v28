@@ -38,3 +38,15 @@ func TestIsHeadlessLinux(t *testing.T) {
 		t.Errorf("expected isHeadlessLinux = false on non-linux OS")
 	}
 }
+
+func TestIsDisplayError(t *testing.T) {
+	if !isDisplayError("Missing X server or $DISPLAY") {
+		t.Errorf("expected isDisplayError to be true for Missing X server")
+	}
+	if !isDisplayError("cannot open display :0") {
+		t.Errorf("expected isDisplayError to be true for cannot open display")
+	}
+	if isDisplayError("update.go:193: cannot change mount namespace") {
+		t.Errorf("expected isDisplayError to be false for snapd mount namespace error")
+	}
+}
