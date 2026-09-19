@@ -4,7 +4,7 @@
 
 **Git repository scanner, manager, and navigator CLI**
 
-**Pinned version: v6.261.0**
+**Pinned version: v6.262.0**
 
 <!-- STAMP:PLATFORM_BADGES -->
 [![CI](https://github.com/alimtvnetwork/gitmap-v28/actions/workflows/ci.yml/badge.svg?branch=main)](https://github.com/alimtvnetwork/gitmap-v28/actions/workflows/ci.yml)
@@ -52,16 +52,16 @@ irm https://raw.githubusercontent.com/alimtvnetwork/gitmap-v28/main/install.ps1 
 curl -fsSL https://raw.githubusercontent.com/alimtvnetwork/gitmap-v28/main/install.sh | sh
 ```
 
-### 📌 Pinned version (v6.261.0)
+### 📌 Pinned version (v6.262.0)
 
 Install a specific version without auto-updating:
 
 ```bash
-curl -sL https://raw.githubusercontent.com/alimtvnetwork/gitmap-v28/v6.261.0/install.sh | bash -s -- ".ai-memory/prompts" "v6.261.0"
+curl -sL https://raw.githubusercontent.com/alimtvnetwork/gitmap-v28/v6.262.0/install.sh | bash -s -- ".ai-memory/prompts" "v6.262.0"
 ```
 
 ```powershell
-Invoke-WebRequest -Uri https://raw.githubusercontent.com/alimtvnetwork/gitmap-v28/v6.261.0/install.ps1 -OutFile install.ps1; .\install.ps1 -TargetDir ".ai-memory/prompts" -Version "v6.261.0"
+Invoke-WebRequest -Uri https://raw.githubusercontent.com/alimtvnetwork/gitmap-v28/v6.262.0/install.ps1 -OutFile install.ps1; .\install.ps1 -TargetDir ".ai-memory/prompts" -Version "v6.262.0"
 ```
 
 ### 🎯 Install — Quick (pick your install drive)
@@ -3057,7 +3057,7 @@ Seamless cross-platform OS desktop integration, persistent clipboard memory, and
 
 ```bash
 # Copy text or file to OS clipboard and GitMap memory buffer
-gitmap copy "gitmap release --tag v6.261.0"
+gitmap copy "gitmap release --tag v6.262.0"
 gitmap copy --file ./config.json
 gitmap copy notes.txt
 

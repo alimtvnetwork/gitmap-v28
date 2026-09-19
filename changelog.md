@@ -1,3 +1,19 @@
+## [v6.262.0] 2026-09-19 Release v6.262.0
+
+### Install GitMap v6.262.0
+
+To pin your repository to this exact version, run the following one-liner:
+Unix/Bash: `curl -sL https://raw.githubusercontent.com/alimtvnetwork/gitmap-v28/v6.262.0/install.sh | bash -s -- ".ai-memory/prompts" "v6.262.0"`
+PowerShell: `Invoke-WebRequest -Uri https://raw.githubusercontent.com/alimtvnetwork/gitmap-v28/v6.262.0/install.ps1 -OutFile install.ps1; .\install.ps1 -TargetDir ".ai-memory/prompts" -Version "v6.262.0"`
+
+### Added / Changed / Fixed / Removed
+
+- Fix pipeline history import, typecheck fields, and store OpenInMemory test instance (RCA 60)
+- Flatten nested-if statements and guard clauses across pipeline, install, auto-alias, ssh, and storage commands
+- Enforce error handling on database vacuum and truncate commands, eliminating swallowed errors
+- Standardize top-level ## Examples sections across all Markdown help documentation (pipeline.md, agy.md)
+- Enhance pipeline error logs fallback logic and workflow success tracking across branches
+
 ## [v6.261.0] 2026-09-18 Release v6.261.0
 
 ### Install GitMap v6.261.0
