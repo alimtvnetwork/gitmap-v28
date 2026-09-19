@@ -457,6 +457,9 @@ const (
 	CmdStorageAlias      = "stor"
 	CmdAi                = "ai"
 	CmdAiAlias           = "scripts"
+	CmdAutomation        = "automation"
+	CmdAutomationAlias   = "auto"
+	CmdAutomationPyAlias = "py-auto"
 )
 
 // vscode-pm-sync flag names + descriptions.

@@ -89,6 +89,13 @@ var topicSummaries = map[string]string{
 	"ai-list":                "List registered and dynamically discovered AI scripts with status and category filtering.",
 	"ai-run":                 "Execute a registered or dynamic AI automation script by number, slug, or alias with streaming output.",
 	"ai-fix":                 "Run standardized repository autofix targets for coding guidelines, newlines, naming, and paths.",
+	"automation":             "High-performance native Go automation, multi-core search, polyglot newline normalization, and side-by-side execution benchmarks.",
+	"auto":                   "High-performance native Go automation, multi-core search, polyglot newline normalization, and side-by-side execution benchmarks.",
+	"py-auto":                "High-performance native Go automation, multi-core search, polyglot newline normalization, and side-by-side execution benchmarks.",
+	"automation-search":      "Multi-core streaming search across repository files with lazy regex or literal match.",
+	"automation-newlines":    "Polyglot CRLF to LF and trailing whitespace normalizer.",
+	"automation-cache":       "Manage sub-millisecond in-memory file cache with zero disk pollution.",
+	"automation-benchmark":   "Run side-by-side Go vs Python execution benchmarks.",
 }
 
 // GetTopicDetailedSummary returns documentation content for a specific command topic.

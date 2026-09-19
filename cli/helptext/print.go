@@ -147,6 +147,12 @@ var helpAliases = map[string]string{
 	"scripts-list":             "ai",
 	"scripts-run":              "ai",
 	"scripts-fix":              "ai",
+	"auto":                     "automation",
+	"py-auto":                  "automation",
+	"automation-search":        "automation",
+	"automation-newlines":      "automation",
+	"automation-cache":         "automation",
+	"automation-benchmark":     "automation",
 }
 
 func resolveHelpAlias(cmd string) string {

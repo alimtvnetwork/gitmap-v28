@@ -15,6 +15,7 @@ import (
 	"github.com/alimtvnetwork/gitmap-v28/cli/cliexit"
 	"github.com/alimtvnetwork/gitmap-v28/cli/cmdagy"
 	"github.com/alimtvnetwork/gitmap-v28/cli/cmdai"
+	"github.com/alimtvnetwork/gitmap-v28/cli/cmdautomation"
 	"github.com/alimtvnetwork/gitmap-v28/cli/cmdprompt"
 	"github.com/alimtvnetwork/gitmap-v28/cli/cmdprompttemplate"
 	"github.com/alimtvnetwork/gitmap-v28/cli/cmdssh"
@@ -557,9 +558,9 @@ func dispatchExtraCommand(cmd string, shouldAudit bool, id int64, start time.Tim
 
 func dispatchGeneralCommands(cmd string, shouldAudit bool, id int64, start time.Time) bool {
 	switch cmd {
-	case constants.CmdAi, constants.CmdAiAlias:
+	case constants.CmdAutomation, constants.CmdAutomationAlias, constants.CmdAutomationPyAlias, constants.CmdAi, constants.CmdAiAlias:
 		executeAndAudit(func(_ context.Context, args []string, _ *cobra.Command) error {
-			return cmdai.DispatchAi(args)
+			return cmdautomation.DispatchAutomation(args)
 		}, shouldAudit, id, start)
 		return true
 	default:

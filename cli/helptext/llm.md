@@ -239,6 +239,7 @@ Gitmap embeds native discovery, live streaming execution, and repository autofix
 | **Commit Release** | `gitmap commit-push-release` | `gitmap cpr "<msg>"` | Stage, commit, and push release chore |
 | **AI Scripts** | `gitmap ai [run/list/fix]` | `gitmap scripts` | Native AI scripts runner, catalog, and fix suite |
 | **AI Scaffolder** | `gitmap ai create <name>` | `gitmap scripts new <name>` | Scaffold new AI linter/fixer/auditor script skeleton |
+| **Automation Engine** | `gitmap automation <cmd>` | `gitmap auto`, `gitmap py-auto` | Native Go search (lazy regex), polyglot newlines, in-memory cache, and Go vs Py benchmarks |
 | **Antigravity** | `gitmap antigravity` | `gitmap agy`, `gitmap ag` | AI agent workspaces and config sync |
 | **VS Code PM** | `gitmap vscode` | `gitmap vsc` | VS Code Project Manager integrations |
 | **Scheduler** | `gitmap schedule` | `gitmap sc` | Background cron and interval scheduler |
@@ -274,4 +275,12 @@ gitmap ai create custom-linter --type linter --parallel
 gitmap ai new schema-validator --type auditor --dry-run
 gitmap ai run 01
 gitmap ai fix all
+
+# Workflow 5: Native Go Automation, Lazy Regex Search, Polyglot Newlines, and Benchmarks
+
+gitmap automation search "func Run" cli --ext .go
+gitmap automation newlines --fix
+gitmap automation cache warm cli
+gitmap automation cache status
+gitmap automation benchmark all
 ```
