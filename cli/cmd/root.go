@@ -614,6 +614,12 @@ func dispatchPromptSubsystem(
 		}, shouldAudit, auditID, auditStart)
 
 		return true
+	case "list-prompts", "listprompts", "lp":
+		executeAndAudit(func(ctx context.Context, args []string, root *cobra.Command) error {
+			return cmdagy.RunListPromptsTopLevelCLI(args[1:])
+		}, shouldAudit, auditID, auditStart)
+
+		return true
 	default:
 		return false
 	}

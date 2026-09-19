@@ -36,6 +36,14 @@ func init() {
 	agyListPromptsCmd.Flags().BoolVarP(&listPromptsJSON, "json", "j", false, "Output prompt list as structured JSON")
 }
 
+// RunListPromptsTopLevelCLI executes agy list-prompts from top-level gitmap aliases.
+func RunListPromptsTopLevelCLI(args []string) error {
+	runArgs := append([]string{"list-prompts"}, args...)
+	AgyCmd.SetArgs(runArgs)
+
+	return AgyCmd.Execute()
+}
+
 func runAgyListPrompts(args []string) *apperror.AppError {
 	limit := parsePromptLimit(args)
 	if listPromptsProjectsCount > 0 {
