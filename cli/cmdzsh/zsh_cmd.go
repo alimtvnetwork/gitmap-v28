@@ -17,17 +17,20 @@ func RunZsh(args []string) error {
 	return result.AsError(routeZshSubcommand(args[0], args[1:]))
 }
 
-func routeZshSubcommand(subcmd string, args []string) result.ErrorWrapper {
-	router := map[string]func([]string) error{
+func buildZshRouter() map[string]func([]string) error {
+	return map[string]func([]string) error{
 		"install": dispatchInstall,
 		"theme":   dispatchTheme,
+		"themes":  dispatchThemes,
 		"clean":   dispatchClean,
 		"switch":  dispatchSwitch,
 		"profile": dispatchProfile,
 		"status":  dispatchStatus,
 	}
+}
 
-	fn, isFound := router[subcmd]
+func routeZshSubcommand(subcmd string, args []string) result.ErrorWrapper {
+	fn, isFound := buildZshRouter()[subcmd]
 	if isFound {
 		return result.MatchWrapper(fn(args))
 	}
@@ -36,7 +39,8 @@ func routeZshSubcommand(subcmd string, args []string) result.ErrorWrapper {
 }
 
 func routeFallback(subcmd string, args []string) result.ErrorWrapper {
-	if subcmd == "help" || subcmd == "-h" || subcmd == "--help" {
+	isHelp := subcmd == "help" || subcmd == "-h" || subcmd == "--help"
+	if isHelp {
 		return result.MatchWrapper(printZshHelp())
 	}
 
@@ -44,7 +48,8 @@ func routeFallback(subcmd string, args []string) result.ErrorWrapper {
 }
 
 func handleUnknownSubcommand(subcmd string, args []string) error {
-	if strings.HasPrefix(subcmd, "-") {
+	hasDash := strings.HasPrefix(subcmd, "-")
+	if hasDash {
 		return printZshHelp()
 	}
 
@@ -69,6 +74,7 @@ func printZshCommands() {
 	fmt.Println("Commands:")
 	fmt.Println("  install   Install zsh, oh-my-zsh, plugins, and set theme")
 	fmt.Println("  theme     Change ZSH theme in ~/.zshrc")
+	fmt.Println("  themes    List 41 supported Oh-My-Zsh themes")
 	fmt.Println("  clean     Backup and remove Oh-My-Zsh, with optional reinstall")
 	fmt.Println("  switch    Switch default login shell to ZSH")
 	fmt.Println("  profile   Provision workspace directories (scripts, gitlab, github, .ssh)")

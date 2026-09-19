@@ -455,6 +455,8 @@ const (
 	CmdAsyncAlias        = "asyn"
 	CmdStorage           = "storage"
 	CmdStorageAlias      = "stor"
+	CmdAi                = "ai"
+	CmdAiAlias           = "scripts"
 )
 
 // vscode-pm-sync flag names + descriptions.
@@ -645,6 +647,7 @@ const (
 	HelpFixLink          = "  fix-link (fixlink)  Inspect and repair broken symlinks and shared directories (" + ColorCyan + "--target" + ColorReset + ", " + ColorCyan + "--recursive" + ColorReset + ", " + ColorCyan + "--force" + ColorReset + ", " + ColorCyan + "--dry-run" + ColorReset + ", " + ColorCyan + "--json" + ColorReset + ")"
 	HelpVmware           = "  vmware (vm)         Manage VMware shared folders, tools, and services (" + ColorCyan + "install" + ColorReset + ", " + ColorCyan + "shared" + ColorReset + ", " + ColorCyan + "status" + ColorReset + ")"
 	HelpNginx            = "  nginx (ngx)         Manage Nginx HTTP server, virtual hosts, syntax test & reload"
+	HelpAi               = "  ai (scripts)        Native AI scripts catalog, execution, and autofix engine"
 )
 
 // Help section headers and flag-line strings (HelpScanFlags, HelpCloneFlags,

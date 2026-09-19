@@ -135,6 +135,7 @@ var helpAliases = map[string]string{
 	"df":                       "storage",
 	"ag":                       "agy",
 	"antigravity":              "agy",
+	"scripts":                  "ai",
 }
 
 func resolveHelpAlias(cmd string) string {

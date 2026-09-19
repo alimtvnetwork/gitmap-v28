@@ -131,27 +131,49 @@ func dispatchServersClients(args []string) {
 	CheckHelpOrEmpty(resolveSCTopic(), args)
 
 	subCmd, rest := args[0], args[1:]
-	if dispatchSCNodeOps(subCmd, rest) {
+	isHandled := dispatchSCNodeOps(subCmd, rest)
+	if isHandled {
 		return
 	}
-	if dispatchServersClientsPathCmd(subCmd, rest) || dispatchClusterReadWrite(cluster.ServersClients, subCmd, rest) || dispatchClusterMutate(cluster.ServersClients, subCmd, rest) {
+	isCustom := dispatchSCCustomOps(subCmd, rest)
+	if isCustom {
 		return
 	}
 
 	runClusterCommand(cluster.ServersClients, args)
 }
 
-func dispatchSCMetaOps(subCmd string, rest []string) bool {
+func dispatchSCCustomOps(subCmd string, rest []string) bool {
+	isPath := dispatchServersClientsPathCmd(subCmd, rest)
+	if isPath {
+		return true
+	}
+	isRW := dispatchClusterReadWrite(cluster.ServersClients, subCmd, rest)
+	if isRW {
+		return true
+	}
+
+	return dispatchClusterMutate(cluster.ServersClients, subCmd, rest)
+}
+
+func dispatchSCClusterRecipes(subCmd string, rest []string) bool {
 	switch subCmd {
-	case "compare", "matrix":
-		_ = cmdssh.RunSSHCompareCLI(rest)
+	case "node":
+		_ = cmdssh.RouteClusterNodeCLI(rest)
 		return true
-	case "join", "add", "enroll":
-		_ = cmdssh.RunClusterJoinCLI(rest)
+	case "bootstrap", "bs":
+		_ = cmdssh.RunClusterBootstrapCLI(rest)
 		return true
-	case "ping", "health":
-		_ = cmdssh.RunSJStatus(nil, rest, context.Background())
+	case "k8s", "kube", "kubernetes":
+		_ = cmdssh.RouteClusterK8sCLI(rest)
 		return true
+	default:
+		return false
+	}
+}
+
+func dispatchSCExecOps(subCmd string, rest []string) bool {
+	switch subCmd {
 	case "exec", "run":
 		_ = cmdssh.RunClusterExecCLI(rest)
 		return true
@@ -163,10 +185,43 @@ func dispatchSCMetaOps(subCmd string, rest []string) bool {
 	}
 }
 
-func dispatchSCNodeOps(subCmd string, rest []string) bool {
-	if dispatchSCMetaOps(subCmd, rest) {
+func dispatchSCNetworkOps(subCmd string, rest []string) bool {
+	switch subCmd {
+	case "compare", "matrix":
+		_ = cmdssh.RunSSHCompareCLI(rest)
+		return true
+	case "join", "add", "enroll":
+		_ = cmdssh.RunClusterJoinCLI(rest)
+		return true
+	case "ping", "health":
+		_ = cmdssh.RunSJStatus(nil, rest, context.Background())
+		return true
+	default:
+		return false
+	}
+}
+
+func dispatchSCAuthOps(subCmd string, rest []string) bool {
+	switch subCmd {
+	case "auth-key", "copy-id":
+		_ = cmdssh.RunSSHAuthKeyDeployCLI(rest)
+		return true
+	default:
+		return false
+	}
+}
+
+func dispatchSCMetaOps(subCmd string, rest []string) bool {
+	if dispatchSCExecOps(subCmd, rest) {
 		return true
 	}
+	if dispatchSCNetworkOps(subCmd, rest) {
+		return true
+	}
+	return dispatchSCAuthOps(subCmd, rest)
+}
+
+func dispatchSCInventoryOps(subCmd string, rest []string) bool {
 	switch subCmd {
 	case "nodes", "list", "machines", "joined":
 		_ = runClusterNodes(rest)
@@ -177,6 +232,19 @@ func dispatchSCNodeOps(subCmd string, rest []string) bool {
 	default:
 		return false
 	}
+}
+
+func dispatchSCNodeOps(subCmd string, rest []string) bool {
+	isMeta := dispatchSCMetaOps(subCmd, rest)
+	if isMeta {
+		return true
+	}
+	isRecipe := dispatchSCClusterRecipes(subCmd, rest)
+	if isRecipe {
+		return true
+	}
+
+	return dispatchSCInventoryOps(subCmd, rest)
 }
 
 func dispatchServersClientsPathCmd(subCmd string, rest []string) bool {
@@ -246,14 +314,25 @@ func dispatchClusterMutate(selector cluster.TargetSelectorType, subCmd string, r
 	return true
 }
 
+func dispatchClientsCustom(subCmd string, rest []string) bool {
+	isRW := dispatchClusterReadWrite(cluster.ClientsOnly, subCmd, rest)
+	if isRW {
+		return true
+	}
+
+	return dispatchClusterMutate(cluster.ClientsOnly, subCmd, rest)
+}
+
 func dispatchClients(args []string) {
 	CheckHelpOrEmpty(constants.CmdClients, args)
 
 	subCmd, rest := args[0], args[1:]
-	if dispatchSCNodeOps(subCmd, rest) {
+	isNodeOp := dispatchSCNodeOps(subCmd, rest)
+	if isNodeOp {
 		return
 	}
-	if dispatchClusterReadWrite(cluster.ClientsOnly, subCmd, rest) || dispatchClusterMutate(cluster.ClientsOnly, subCmd, rest) {
+	isCustom := dispatchClientsCustom(subCmd, rest)
+	if isCustom {
 		return
 	}
 

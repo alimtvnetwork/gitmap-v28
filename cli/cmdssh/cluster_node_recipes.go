@@ -45,10 +45,13 @@ id -u %s >/dev/null 2>&1 || useradd -m -s /usr/bin/zsh %s
 chmod 0440 /etc/sudoers.d/%s
 usermod -aG sudo %s 2>/dev/null || true
 HOMEDIR=$(eval echo ~%s)
-mkdir -p "$HOMEDIR/.ssh"
+mkdir -p "$HOMEDIR/.ssh" "$HOMEDIR/scripts" "$HOMEDIR/gitlab" "$HOMEDIR/github"
 chmod 700 "$HOMEDIR/.ssh"
 if [ ! -d "$HOMEDIR/.oh-my-zsh" ]; then
   su - %s -c 'RUNZSH=no CHSH=no sh -c "$(curl -fsSL https://raw.githubusercontent.com/ohmyzsh/ohmyzsh/master/tools/install.sh || wget -qO- https://raw.githubusercontent.com/ohmyzsh/ohmyzsh/master/tools/install.sh)" "" --unattended' || true
+fi
+if [ ! -d "$HOMEDIR/.oh-my-zsh/custom/plugins/zsh-autosuggestions" ]; then
+  git clone https://github.com/zsh-users/zsh-autosuggestions "$HOMEDIR/.oh-my-zsh/custom/plugins/zsh-autosuggestions" || true
 fi
 if [ -f "$HOMEDIR/.zshrc" ]; then
   sed -i 's/^ZSH_THEME="[^"]*"/ZSH_THEME="%s"/' "$HOMEDIR/.zshrc"

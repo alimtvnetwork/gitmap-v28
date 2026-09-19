@@ -24,7 +24,7 @@ func runSSH(args []string) error {
 	return result.AsError(dispatchSSH(context.Background(), args, nil))
 }
 
-func dispatchPrimarySSH(ctx context.Context, sub string, args []string, parent *cobra.Command) result.ErrorWrapper {
+func dispatchCoreSSH(ctx context.Context, sub string, args []string, parent *cobra.Command) result.ErrorWrapper {
 	switch sub {
 	case "login", "login-install":
 		return result.MatchWrapper(runSSHLogin(parent, args, ctx))
@@ -34,12 +34,28 @@ func dispatchPrimarySSH(ctx context.Context, sub string, args []string, parent *
 		return result.MatchWrapper(runSSHAlias(parent, args, ctx))
 	case "exec", "se":
 		return result.MatchWrapper(runSSHExec(args))
+	default:
+		return result.UnmatchedWrapper()
+	}
+}
+
+func dispatchPackageSSH(sub string, args []string) result.ErrorWrapper {
+	switch sub {
 	case "install", "i":
 		return result.MatchWrapper(runSSHInstallCLI(args))
 	case "update", "u":
 		return result.MatchWrapper(runSSHUpdateCLI(args))
+	case "auth-key", "copy-id":
+		return result.MatchWrapper(RunSSHAuthKeyDeployCLI(args))
 	case "scan":
 		return result.MatchWrapper(runSSHScanCLI(args))
+	default:
+		return result.UnmatchedWrapper()
+	}
+}
+
+func dispatchToolsSSH(ctx context.Context, sub string, args []string) result.ErrorWrapper {
+	switch sub {
 	case "check", "health", "ping":
 		return result.MatchWrapper(RunSJStatus(nil, args, ctx))
 	case "agy":
@@ -48,6 +64,13 @@ func dispatchPrimarySSH(ctx context.Context, sub string, args []string, parent *
 		return result.MatchWrapper(runSSHCodeCLI(args))
 	case "compare", "matrix":
 		return result.MatchWrapper(runSSHCompareCLI(args))
+	default:
+		return result.UnmatchedWrapper()
+	}
+}
+
+func dispatchFilesSSH(sub string, args []string) result.ErrorWrapper {
+	switch sub {
 	case "profiles", "profile", "p":
 		return result.MatchWrapper(runSSHProfile(args))
 	case "copy", "cp":
@@ -59,6 +82,19 @@ func dispatchPrimarySSH(ctx context.Context, sub string, args []string, parent *
 	default:
 		return result.UnmatchedWrapper()
 	}
+}
+
+func dispatchPrimarySSH(ctx context.Context, sub string, args []string, parent *cobra.Command) result.ErrorWrapper {
+	if resCore := dispatchCoreSSH(ctx, sub, args, parent); resCore.IsMatched() {
+		return resCore
+	}
+	if resPkg := dispatchPackageSSH(sub, args); resPkg.IsMatched() {
+		return resPkg
+	}
+	if resTools := dispatchToolsSSH(ctx, sub, args); resTools.IsMatched() {
+		return resTools
+	}
+	return dispatchFilesSSH(sub, args)
 }
 
 func runSSHProfile(args []string) error {
@@ -74,19 +110,20 @@ func handleEmptySSHArgs() error {
 	return nil
 }
 
+func dispatchFallbackOrLogin(ctx context.Context, sub string, args []string, parent *cobra.Command) result.ErrorWrapper {
+	if isFallback := dispatchFallbackSSH(sub, args); isFallback {
+		return result.SuccessWrapper()
+	}
+	return result.MatchWrapper(runSSHLogin(parent, append([]string{sub}, args...), ctx))
+}
+
 func dispatchSSH(ctx context.Context, args []string, parent *cobra.Command) result.ErrorWrapper {
 	if len(args) == 0 {
 		return result.MatchWrapper(handleEmptySSHArgs())
 	}
-	sub := args[0]
-	resPrimary := dispatchPrimarySSH(ctx, sub, args[1:], parent)
+	resPrimary := dispatchPrimarySSH(ctx, args[0], args[1:], parent)
 	if resPrimary.IsMatched() {
 		return resPrimary
 	}
-
-	if isFallback := dispatchFallbackSSH(sub, args[1:]); isFallback {
-		return result.SuccessWrapper()
-	}
-
-	return result.MatchWrapper(runSSHLogin(parent, args, ctx))
+	return dispatchFallbackOrLogin(ctx, args[0], args[1:], parent)
 }

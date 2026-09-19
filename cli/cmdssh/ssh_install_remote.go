@@ -6,6 +6,7 @@ import (
 
 	"golang.org/x/crypto/ssh"
 
+	"github.com/alimtvnetwork/gitmap-v28/cli/apperror"
 	"github.com/alimtvnetwork/gitmap-v28/cli/constants"
 	"github.com/alimtvnetwork/gitmap-v28/cli/crypto"
 	"github.com/alimtvnetwork/gitmap-v28/cli/db"
@@ -14,7 +15,7 @@ import (
 func runSSHInstallCLI(args []string) error {
 	conns, err := loadSSHConnectionsForTarget("all")
 	if err != nil {
-		return err
+		return apperror.WrapSimple(err, "loadSSHConnectionsForTarget")
 	}
 
 	pkg, target := parseInstallTargetAndPackage(conns, args)
@@ -40,31 +41,58 @@ func parseInstallTargetAndPackage(conns []db.SSHConnection, args []string) (stri
 	if len(args) == 1 {
 		return parseSingleArgInstall(conns, args[0])
 	}
-	if args[0] == "gitmap" {
-		return "gitmap", args[1]
-	}
+	return parseMultiArgsInstall(conns, args)
+}
 
+func parseMultiArgsInstall(conns []db.SSHConnection, args []string) (string, string) {
+	if len(args) == 2 {
+		return parseTwoArgsInstall(conns, args[0], args[1])
+	}
+	return parseExcessArgsInstall(conns, args)
+}
+
+func parseExcessArgsInstall(conns []db.SSHConnection, args []string) (string, string) {
+	for _, arg := range args {
+		if isAllFlag(arg) {
+			return args[0], "all"
+		}
+	}
 	return args[0], args[1]
 }
 
+func parseTwoArgsInstall(conns []db.SSHConnection, first, second string) (string, string) {
+	if isAllFlag(first) {
+		return second, "all"
+	}
+	if isAllFlag(second) {
+		return first, "all"
+	}
+	if first == "gitmap" {
+		return "gitmap", second
+	}
+	if isKnownTarget(conns, first) {
+		return second, first
+	}
+	return first, second
+}
+
+func isAllFlag(arg string) bool {
+	return arg == "--all" || arg == "-a" || arg == "all"
+}
+
 func parseSingleArgInstall(conns []db.SSHConnection, arg string) (string, string) {
-	if arg == "gitmap" {
+	if isAllFlag(arg) || arg == "gitmap" {
 		return "gitmap", "all"
 	}
 	if isKnownTarget(conns, arg) {
 		return "gitmap", arg
 	}
-
 	return arg, "all"
 }
 
 func installOrUpdateNodeWithPackage(c db.SSHConnection, pkg string) {
 	header := fmt.Sprintf("[%s|%s]", c.Alias, c.IPAddress)
-	if !isNodeAvailable(c.IPAddress, header) {
-		return
-	}
-
-	client, isConnected := connectSSHClient(c, header)
+	client, isConnected := connectSSHNode(c, header)
 	if !isConnected {
 		return
 	}
@@ -74,7 +102,8 @@ func installOrUpdateNodeWithPackage(c db.SSHConnection, pkg string) {
 }
 
 func dispatchNodePackageAction(client *ssh.Client, header, osType, pkg string) {
-	if !isGitmapPresent(client) {
+	isMissing := !isGitmapPresent(client)
+	if isMissing {
 		installFreshGitmap(client, header, osType)
 	}
 

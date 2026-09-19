@@ -194,7 +194,8 @@ func isSJSubcommand(sub string) bool {
 	}
 
 	return sub == "ls" || sub == "list" || sub == "rm" || sub == "remove" || sub == "delete" ||
-		sub == "add-auth" || sub == "auth" || sub == "history" || sub == "hist"
+		sub == "add-auth" || sub == "auth" || sub == "history" || sub == "hist" ||
+		sub == "auth-key" || sub == "copy-id"
 }
 
 func renderSJListTable(out io.Writer, hosts []store.SSHHost) error {
@@ -260,6 +261,9 @@ func dispatchSJActionSubcommand(ctx context.Context, sub string, args []string) 
 	}
 	if sub == "add-auth" || sub == "auth" {
 		return true, runSJAddAuth(nil, args, ctx)
+	}
+	if sub == "auth-key" || sub == "copy-id" {
+		return true, RunSSHAuthKeyDeployCLI(args)
 	}
 	return false, nil
 }
@@ -521,6 +525,22 @@ func runSSHJoinCLI(args []string) error {
 	return executeEnrollCLI(ctx, args)
 }
 
+var SJAuthKeyCmd = &cobra.Command{
+	Use:   "auth-key [deploy] [target] [flags]",
+	Short: "Deploy SSH public key to target machines",
+	RunE: func(cmd *cobra.Command, args []string) error {
+		return RunSSHAuthKeyDeployCLI(args)
+	},
+}
+
+var SJCopyIdCmd = &cobra.Command{
+	Use:   "copy-id [target] [flags]",
+	Short: "Copy SSH public key to target machine",
+	RunE: func(cmd *cobra.Command, args []string) error {
+		return RunSSHAuthKeyDeployCLI(args)
+	},
+}
+
 func init() {
 	SSHJoinCmd.AddCommand(SJAddCmd)
 	SSHJoinCmd.AddCommand(SJAddWithPassCmd)
@@ -531,4 +551,6 @@ func init() {
 	SSHJoinCmd.AddCommand(SJClusterImportCmd)
 	SSHJoinCmd.AddCommand(ClusterBootstrapCmd)
 	SSHJoinCmd.AddCommand(ClusterInstallCmd)
+	SSHJoinCmd.AddCommand(SJAuthKeyCmd)
+	SSHJoinCmd.AddCommand(SJCopyIdCmd)
 }

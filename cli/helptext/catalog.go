@@ -83,6 +83,8 @@ var topicSummaries = map[string]string{
 	"storage":                "Display disk drives, storage volumes, mount points, filesystem space utilization, repository SQLite databases, and restore database from snapshots.",
 	"schedule":               "Manage scheduled tasks, macro schedules, OS startup tasks, isolated split SQLite databases, run history, and execution logs.",
 	"schedules":              "Manage scheduled tasks, macro schedules, OS startup tasks, isolated split SQLite databases, run history, and execution logs.",
+	"ai":                     "Native AI scripts automation catalog, streaming execution, and repository autofix engine.",
+	"scripts":                "Native AI scripts automation catalog, streaming execution, and repository autofix engine.",
 }
 
 // GetTopicDetailedSummary returns documentation content for a specific command topic.

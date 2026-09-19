@@ -14,6 +14,7 @@ import (
 	"github.com/alimtvnetwork/gitmap-v28/cli/apperror"
 	"github.com/alimtvnetwork/gitmap-v28/cli/cliexit"
 	"github.com/alimtvnetwork/gitmap-v28/cli/cmdagy"
+	"github.com/alimtvnetwork/gitmap-v28/cli/cmdai"
 	"github.com/alimtvnetwork/gitmap-v28/cli/cmdprompt"
 	"github.com/alimtvnetwork/gitmap-v28/cli/cmdprompttemplate"
 	"github.com/alimtvnetwork/gitmap-v28/cli/cmdssh"
@@ -544,17 +545,26 @@ func stripLeadingSJCommand(args []string) []string {
 	return args
 }
 
-func dispatchExtraCommand(
-	command string,
-	shouldAudit bool,
-	auditID int64,
-	auditStart time.Time,
-) bool {
-	if dispatchAgySubsystem(command, shouldAudit, auditID, auditStart) {
+func dispatchExtraCommand(cmd string, shouldAudit bool, id int64, start time.Time) bool {
+	if dispatchAgySubsystem(cmd, shouldAudit, id, start) {
 		return true
 	}
+	if dispatchPromptSubsystem(cmd, shouldAudit, id, start) {
+		return true
+	}
+	return dispatchGeneralCommands(cmd, shouldAudit, id, start)
+}
 
-	return dispatchPromptSubsystem(command, shouldAudit, auditID, auditStart)
+func dispatchGeneralCommands(cmd string, shouldAudit bool, id int64, start time.Time) bool {
+	switch cmd {
+	case constants.CmdAi, constants.CmdAiAlias:
+		executeAndAudit(func(_ context.Context, args []string, _ *cobra.Command) error {
+			return cmdai.DispatchAi(args)
+		}, shouldAudit, id, start)
+		return true
+	default:
+		return false
+	}
 }
 
 func dispatchAgySubsystem(

@@ -5,6 +5,7 @@ import (
 
 	"golang.org/x/crypto/ssh"
 
+	"github.com/alimtvnetwork/gitmap-v28/cli/apperror"
 	"github.com/alimtvnetwork/gitmap-v28/cli/constants"
 	"github.com/alimtvnetwork/gitmap-v28/cli/crypto"
 	"github.com/alimtvnetwork/gitmap-v28/cli/db"
@@ -13,7 +14,7 @@ import (
 func runSSHUpdateCLI(args []string) error {
 	conns, err := loadSSHConnectionsForTarget("all")
 	if err != nil {
-		return err
+		return apperror.WrapSimple(err, "loadSSHConnectionsForTarget")
 	}
 
 	pkg, target := parseInstallTargetAndPackage(conns, args)
@@ -34,17 +35,20 @@ func executeFleetUpdate(conns []db.SSHConnection, target, pkg string) {
 
 func updateSingleSSHNode(c db.SSHConnection, pkg string) {
 	header := fmt.Sprintf("[%s|%s]", c.Alias, c.IPAddress)
-	if !isNodeAvailable(c.IPAddress, header) {
-		return
-	}
-
-	client, isConnected := connectSSHClient(c, header)
+	client, isConnected := connectSSHNode(c, header)
 	if !isConnected {
 		return
 	}
 	defer client.Close()
 
 	executeRemoteUpdate(client, header, c.OS, pkg)
+}
+
+func connectSSHNode(c db.SSHConnection, header string) (*ssh.Client, bool) {
+	if !isNodeAvailable(c.IPAddress, header) {
+		return nil, false
+	}
+	return connectSSHClient(c, header)
 }
 
 func executeRemoteUpdate(client *ssh.Client, header, osType, pkg string) {

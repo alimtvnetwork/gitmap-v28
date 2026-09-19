@@ -22,8 +22,8 @@ When an autonomous AI Agent is assigned a coding, refactoring, or debugging task
   └──────────────────────────────┬──────────────────────────────┘
                                  ▼
   ┌─────────────────────────────────────────────────────────────┐
-  │  Phase 3: Local Verification & Linting                      │
-  │  ➔ python .github/scripts/go-format-check.py, go test       │
+  │  Phase 3: Local Verification, Linting & Autofix             │
+  │  ➔ gitmap ai list, gitmap ai run, gitmap ai fix, linting   │
   └──────────────────────────────┬──────────────────────────────┘
                                  ▼
   ┌─────────────────────────────────────────────────────────────┐
@@ -182,10 +182,45 @@ AI Agents should use Gitmap's dedicated search tools rather than scanning huge d
 
 ---
 
-## 5. Alternative Commands & Aliases Cheat Sheet
+## 5. Native AI Scripts Catalog & Autofix Engine (`gitmap ai` / `gitmap scripts`)
+
+Gitmap embeds native discovery, live streaming execution, and repository autofix suites for the 44 autonomous Python scripts in `03-ai-scripts/`:
+
+### Catalog & Script Discovery:
+
+- **List All Scripts**: `gitmap ai list` (alias: `gitmap ai ls`, `gitmap scripts ls`)
+- **Filter by Category**: `gitmap ai list --category guidelines` (or `-c audit`, `-c ci`, `-c fix`, `-c spec`)
+- **Search by Keyword**: `gitmap ai list --search "format"` (or `-s "naming"`)
+- **Show Fix Mode Only**: `gitmap ai list --fix` (alias: `-f`)
+- **Structured JSON Export**: `gitmap ai list --json`
+- **Verbose Metadata**: `gitmap ai list --verbose` (alias: `-v`)
+
+### Direct & Numeric Execution:
+
+- **Run by Number**: `gitmap ai run 01` (executes `01-ai-instruction-writer.py`)
+- **Run by Full Name**: `gitmap ai run 06-cicd-local-runner.py`
+- **Direct Dispatch Shortcut**: `gitmap ai 01` or `gitmap scripts 14`
+- **Pass Arguments**: `gitmap ai run 06 --dry-run`
+
+### Standardized Repository Autofix Suites:
+
+- **Fix All Targets**: `gitmap ai fix all` (runs guidelines, newlines, paths, naming, encoding, and spelling)
+- **Fix Coding Guidelines**: `gitmap ai fix guidelines`
+- **Fix Trailing Newlines**: `gitmap ai fix newlines`
+- **Fix Documentation Paths**: `gitmap ai fix paths`
+- **Fix Naming Conventions**: `gitmap ai fix naming`
+- **Fix File Encodings**: `gitmap ai fix encoding`
+- **Fix Common Misspellings**: `gitmap ai fix spelling`
+
+---
+
+## 6. Alternative Commands & Aliases Cheat Sheet
 
 | Action / Goal | Standard CLI Command | Fast AI Shortcut / Alias | Notes |
 | :--- | :--- | :--- | :--- |
+| **AI Scripts Catalog** | `gitmap ai list` | `gitmap ai ls`, `gitmap scripts ls` | Catalog registered AI scripts with category filter |
+| **Run AI Script** | `gitmap ai run <token>` | `gitmap ai <token>` | Live streaming execution by number, slug, or alias |
+| **Repository Autofix** | `gitmap ai fix [target]` | `gitmap ai fix all` | Standardized autofix targets (guidelines, paths, etc.) |
 | **Pipeline Status (AI)** | `gitmap pipeline-ai status --json` | `gitmap pl-ai status --json` | Auto-delays 20s and suggests `nextAiCommand` |
 | **Dynamic Wait Time** | `gitmap pipeline-ai status -t <sec>`| `gitmap pl-ai status -t <sec>` | Sleeps `<sec>` before querying |
 | **Get Bare ETA** | `gitmap pipeline waittime` | `gitmap eta` | Returns integer seconds |
@@ -230,6 +265,12 @@ gitmap pipeline-ai status --json
 
 gitmap find-files "record_dir.go" -ext "go"
 gitmap find-regex-read "func ProcessCd" -ext "go"
+
+# Workflow 4: AI Scripts Discovery, Execution and Standard Autofix
+
+gitmap ai list --category guidelines
+gitmap ai run 01
+gitmap ai fix all
 ```
 
 ---

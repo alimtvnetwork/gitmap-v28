@@ -52,3 +52,25 @@ func TestResolveRemoteShell(t *testing.T) {
 		t.Fatal("expected bash for linux")
 	}
 }
+
+func TestParseInstallTargetAndPackage_SingleAllFlag(t *testing.T) {
+	pkg1, target1 := parseInstallTargetAndPackage(nil, []string{"--all"})
+	if pkg1 != "gitmap" || target1 != "all" {
+		t.Fatalf("expected gitmap/all, got %s/%s", pkg1, target1)
+	}
+	pkg2, target2 := parseInstallTargetAndPackage(nil, []string{"-a"})
+	if pkg2 != "gitmap" || target2 != "all" {
+		t.Fatalf("expected gitmap/all, got %s/%s", pkg2, target2)
+	}
+}
+
+func TestParseInstallTargetAndPackage_TwoArgsAllFlag(t *testing.T) {
+	pkg1, target1 := parseInstallTargetAndPackage(nil, []string{"agy", "--all"})
+	if pkg1 != "agy" || target1 != "all" {
+		t.Fatalf("expected agy/all, got %s/%s", pkg1, target1)
+	}
+	pkg2, target2 := parseInstallTargetAndPackage(nil, []string{"--all", "agy"})
+	if pkg2 != "agy" || target2 != "all" {
+		t.Fatalf("expected agy/all, got %s/%s", pkg2, target2)
+	}
+}

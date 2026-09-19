@@ -58,6 +58,8 @@ func routeClusterJoinOps(sub string, rest []string) result.ErrorWrapper {
 		return result.FailureWrapperErr(cmdssh.RunClusterJoinCLI(rest))
 	case "ping":
 		return result.FailureWrapperErr(cmdssh.RunSJStatus(nil, rest, context.Background()))
+	case "auth-key", "copy-id":
+		return result.FailureWrapperErr(cmdssh.RunSSHAuthKeyDeployCLI(rest))
 	default:
 		return result.UnmatchedWrapper()
 	}
