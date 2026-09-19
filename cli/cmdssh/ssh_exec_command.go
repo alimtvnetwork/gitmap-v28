@@ -30,8 +30,23 @@ func determineSSHCommand(osType string, args []string) (string, string, bool) {
 	if isExplicitShell(firstToken) {
 		return firstToken, extractShellCommandArgs(args), false
 	}
+	if isIPCommand(args) {
+		return resolveIPCommand(osType)
+	}
 	cmdStr := normalizeMultiCommands(strings.Join(args, " "), isWindowsOS(osType))
 	return determineFallbackShell(osType), cmdStr, false
+}
+
+func isIPCommand(args []string) bool {
+	return len(args) == 1 && strings.EqualFold(args[0], "ip")
+}
+
+func resolveIPCommand(osType string) (string, string, bool) {
+	if isWindowsOS(osType) {
+		return "ps", "Get-NetIPAddress -AddressFamily IPv4 | Select-Object -ExpandProperty IPAddress", false
+	}
+
+	return "bash", "ip -br a 2>/dev/null || ip a 2>/dev/null || hostname -I 2>/dev/null || ifconfig", false
 }
 
 func normalizeMultiCommands(cmdStr string, isWindows bool) string {

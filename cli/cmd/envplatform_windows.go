@@ -17,11 +17,17 @@ func setEnvPersistent(name, value string, system bool, _ string) error {
 	return runSetx(args)
 }
 
-// deleteEnvPersistent removes an environment variable on Windows.
+// deleteEnvPersistent removes an environment variable on Windows via registry deletion.
 func deleteEnvPersistent(name string, system bool, _ string) error {
-	args := buildSetxArgs(name, "", system)
+	key := `HKCU\Environment`
+	if system {
+		key = `HKLM\SYSTEM\CurrentControlSet\Control\Session Manager\Environment`
+	}
 
-	return runSetx(args)
+	cmd := exec.Command("reg", "delete", key, "/F", "/V", name)
+	_ = cmd.Run()
+
+	return nil
 }
 
 // buildSetxArgs builds setx command arguments.
