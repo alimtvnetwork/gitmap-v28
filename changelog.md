@@ -2432,6 +2432,12 @@ PowerShell: `Invoke-WebRequest -Uri https://raw.githubusercontent.com/alimtvnetw
 
 # Changelog
 
+## [v6.272.0] - 2026-09-19
+
+### Added
+- fix(open): buffer and suppress snapd mount warnings and isolate process group on unix
+
+
 ## [v6.271.0] - 2026-09-19
 
 ### Added

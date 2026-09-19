@@ -1,3 +1,9 @@
+## v6.272.0 — 2026-09-19 (fix(open): buffer and suppress snapd mount warnings and isolate process group on unix)
+
+**Scope:** Version bump. fix(open): buffer and suppress snapd mount warnings and isolate process group on unix.
+
+---
+
 ## v6.271.0 — 2026-09-19 (fix(open,ssh): handle headless linux display in open and enhance ssh exec authentication)
 
 **Scope:** Version bump. fix(open,ssh): handle headless linux display in open and enhance ssh exec authentication.
