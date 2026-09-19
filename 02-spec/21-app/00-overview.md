@@ -35,6 +35,7 @@ GitMap is a CLI tool that scans directory trees for Git repositories, extracts c
    - `123-cross-platform-python-tooling.md`: Cross-platform Python automation standards and Windows UTF-8 safety
    - `124-polyglot-worker-orchestrator-and-automation-runner.md`: Go supervisor and polyglot worker pool architecture with SQLite runtime caching
    - `125-automation-llm-orchestration-guide.md`: LLM orchestration playbook and structured recipes for AI coding agents
+   - `126-cargo-command-and-toolchain-runner.md`: Cargo command and Rust toolchain runner with auto-install suggestions
 
 2. **Feature Modules & Sub-systems**:
    - [`01-vscode-project-manager-sync/`](./01-vscode-project-manager-sync/): VS Code Project Manager synchronization

@@ -34,6 +34,7 @@ var toolProbeMap = map[string]toolProbeConfig{
 	constants.ToolGitLFS:         {bins: []string{"git-lfs"}, args: []string{"--version"}},
 	constants.ToolJava:           {bins: []string{"java"}, args: []string{"-version"}},
 	constants.ToolRust:           {bins: []string{"rustc", "cargo"}, args: []string{"--version"}},
+	constants.ToolCargo:          {bins: []string{"cargo"}, args: []string{"--version"}},
 	constants.ToolDotnet:         {bins: []string{"dotnet"}, args: []string{"--version"}},
 	constants.ToolKubernetes:     {bins: []string{"kubectl"}, args: []string{"version", "--client"}},
 	constants.ToolOpenVmTools:    {bins: []string{"vmtoolsd"}, args: []string{"-v"}},

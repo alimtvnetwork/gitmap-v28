@@ -49,6 +49,8 @@ gitmap-v28 install git
 | Notepad++ (npp) | `choco install notepadplusplus` | N/A | N/A |
 | Notepad++ Settings (npp-settings) | Settings sync only | Settings sync only | N/A |
 | Notepad++ Install Only (install-npp) | `choco install notepadplusplus` | N/A | N/A |
+| Cargo (cargo) | `winget install Rustlang.Rustup` / `choco install rust` | `apt install -y cargo` | `brew install rust` |
+| Rust (rust) | `winget install Rustlang.Rustup` / `choco install rust` | `apt install -y rustc` | `brew install rust` |
 
 ### Notepad++ Variants
 

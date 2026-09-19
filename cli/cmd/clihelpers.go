@@ -11,6 +11,7 @@ import (
 
 	"github.com/alimtvnetwork/gitmap-v28/cli/apperror"
 	"github.com/alimtvnetwork/gitmap-v28/cli/cmdagy"
+	"github.com/alimtvnetwork/gitmap-v28/cli/cmdcargo"
 	"github.com/alimtvnetwork/gitmap-v28/cli/cmdcg"
 	"github.com/alimtvnetwork/gitmap-v28/cli/cmdchrome"
 	"github.com/alimtvnetwork/gitmap-v28/cli/cmdclone"
@@ -496,6 +497,10 @@ func runInstall(args []string) error {
 	return cmdinstall.RunInstall(args)
 }
 
+func runCargo(args []string) error {
+	return cmdcargo.RunCargo(args)
+}
+
 func runInstalledDir() error {
 	return cmdinstall.RunInstalledDir()
 }
@@ -745,6 +750,7 @@ func init() {
 	}
 	cmdchrome.RunFindDuplicatesFn = runFindDuplicates
 	cmdchrome.CheckHelpFn = checkHelp
+	cmdcargo.CheckHelpFn = checkHelp
 	cmdinstall.CheckHelpFn = checkHelp
 
 	cmdupdate.RunPostUpdateMigrateFn = runPostUpdateMigrate

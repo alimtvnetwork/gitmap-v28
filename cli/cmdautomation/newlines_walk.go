@@ -48,11 +48,11 @@ func processSingleFile(path string, opts NewlineOptions, res *NewlineResult) *ap
 
 func walkDirectoryNewlines(dir string, opts NewlineOptions, res *NewlineResult) *apperror.AppError {
 	err := filepath.Walk(dir, func(p string, info os.FileInfo, walkErr error) error {
-		if walkErr != nil || info.IsDir() && isExcludedDir(info.Name()) {
-			if info != nil && info.IsDir() {
-				return filepath.SkipDir
-			}
+		if walkErr != nil {
 			return nil
+		}
+		if info.IsDir() && isExcludedDir(info.Name()) {
+			return filepath.SkipDir
 		}
 		if !info.IsDir() {
 			normalizeFileOnDisk(p, opts, res)
@@ -87,15 +87,19 @@ func normalizeFileOnDisk(path string, opts NewlineOptions, res *NewlineResult) *
 	cleaned, crlfs, isModified := NormalizeContent(data)
 	res.CrlfCount += crlfs
 
-	if isModified {
-		res.ModifiedFiles++
-		if opts.IsFixMode && !opts.IsDryRun {
-			writeErr := os.WriteFile(path, cleaned, 0644)
-			if writeErr != nil {
-				ctx := map[string]any{"path": path, "err": writeErr.Error()}
-				return apperror.New("write_file", "E_WRITE_FAILED", ctx)
-			}
-		}
+	if !isModified {
+		return nil
+	}
+
+	res.ModifiedFiles++
+	if !opts.IsFixMode || opts.IsDryRun {
+		return nil
+	}
+
+	writeErr := os.WriteFile(path, cleaned, 0644)
+	if writeErr != nil {
+		ctx := map[string]any{"path": path, "err": writeErr.Error()}
+		return apperror.New("write_file", "E_WRITE_FAILED", ctx)
 	}
 	return nil
 }

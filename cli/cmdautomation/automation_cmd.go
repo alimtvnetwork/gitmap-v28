@@ -35,7 +35,7 @@ var (
 )
 
 func runDefaultAutomationCmd(cmd *cobra.Command, args []string) error {
-	return AutomationCmd.Help()
+	return cmd.Help()
 }
 
 func runSearchCmd(cmd *cobra.Command, args []string) error {

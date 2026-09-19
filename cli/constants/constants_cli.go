@@ -92,6 +92,8 @@ const (
 	CmdTail                = "tail"
 	CmdFileSearch          = "file-search"
 	CmdInstallScript       = "install-script"
+	CmdCargo               = "cargo" // gitmap:cmd skip
+	CmdCargoAlias          = "crg"   // gitmap:cmd skip
 	CmdReleaseShort        = "r"
 	CmdLlm                 = "llm"
 	CmdFind                = "find"

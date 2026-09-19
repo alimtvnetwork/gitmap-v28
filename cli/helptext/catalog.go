@@ -19,6 +19,8 @@ var topicSummaries = map[string]string{
 	"fl":                     "Inspect, validate, and repair broken symlinks, VMware shared directories, and workstation desktop links.",
 	"install":                "Cross-platform developer tools, runtimes, AI models, custom scripts, and workstation profiles installation manager.",
 	"in":                     "Cross-platform developer tools, runtimes, AI models, custom scripts, and workstation profiles installation manager.",
+	"cargo":                  "Rust Cargo package manager and compiler toolchain runner with automatic install suggestions.",
+	"crg":                    "Rust Cargo package manager and compiler toolchain runner with automatic install suggestions.",
 	"installer":              "Multi-OS installer management, universal Unix execution ordering, Git-direct auto-committing exports, and versioning.",
 	"power":                  "Cross-platform OS screen timeout and sleep management framework with SQLite state tracking and restore profiles.",
 	"pw":                     "Cross-platform OS screen timeout and sleep management framework with SQLite state tracking and restore profiles.",

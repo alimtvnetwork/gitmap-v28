@@ -3,7 +3,7 @@ package cmdautomation
 import (
 	"fmt"
 
-	"github.com/alimtvnetwork/gitmap-v28/cli/formatter"
+	"github.com/alimtvnetwork/gitmap-v28/cli/constants"
 )
 
 func renderBenchmarkComparison(metrics []BenchmarkMetric) {
@@ -15,18 +15,18 @@ func renderBenchmarkComparison(metrics []BenchmarkMetric) {
 }
 
 func printBenchmarkHeader() {
-	fmt.Printf("\n%s================================================================================%s\n", formatter.Cyan, formatter.Reset)
-	fmt.Printf("%sGITMAP AUTOMATION BENCHMARK: GO (NATIVE) VS PYTHON (SCRIPTS)%s\n", formatter.Bold, formatter.Reset)
-	fmt.Printf("%s================================================================================%s\n", formatter.Cyan, formatter.Reset)
+	fmt.Printf("\n%s================================================================================%s\n", constants.ColorCyan, constants.ColorReset)
+	fmt.Printf("%sGITMAP AUTOMATION BENCHMARK: GO (NATIVE) VS PYTHON (SCRIPTS)%s\n", constants.ColorBold, constants.ColorReset)
+	fmt.Printf("%s================================================================================%s\n", constants.ColorCyan, constants.ColorReset)
 	fmt.Printf("%-22s | %-12s | %-14s | %-10s | %s\n", "Operation", "Go Native", "Python Script", "Speedup", "Temp Disk Bloat")
 	fmt.Println("-----------------------|--------------|----------------|------------|-------------------")
 }
 
 func renderSingleMetricRow(m BenchmarkMetric) {
 	speedupStr := fmt.Sprintf("%.1fx faster", m.GoSpeedup)
-	speedColor := formatter.Green
+	speedColor := constants.ColorGreen
 	if m.GoSpeedup < 1.0 {
-		speedColor = formatter.Yellow
+		speedColor = constants.ColorYellow
 	}
 
 	fmt.Printf("%-22s | %-12s | %-14s | %s%-10s%s | Go: 0 B | Py: ~24 KB\n",
@@ -35,7 +35,7 @@ func renderSingleMetricRow(m BenchmarkMetric) {
 		m.PyDuration.Round(100*1000).String(),
 		speedColor,
 		speedupStr,
-		formatter.Reset,
+		constants.ColorReset,
 	)
 }
 
@@ -43,8 +43,8 @@ func printBenchmarkFooter(metrics []BenchmarkMetric) {
 	fmt.Println("--------------------------------------------------------------------------------")
 	avgSpeedup := calculateAverageSpeedup(metrics)
 	fmt.Printf("%sSummary:%s Go native is on average %s%.1fx faster%s with ZERO temporary disk bloat.\n",
-		formatter.Bold, formatter.Reset, formatter.Green, avgSpeedup, formatter.Reset)
-	fmt.Printf("%s================================================================================%s\n\n", formatter.Cyan, formatter.Reset)
+		constants.ColorBold, constants.ColorReset, constants.ColorGreen, avgSpeedup, constants.ColorReset)
+	fmt.Printf("%s================================================================================%s\n\n", constants.ColorCyan, constants.ColorReset)
 }
 
 func calculateAverageSpeedup(metrics []BenchmarkMetric) float64 {

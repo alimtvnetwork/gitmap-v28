@@ -97,6 +97,7 @@ func toolingInstallEntries() []dispatchEntry {
 		{[]string{"os", "os-update"}, func() error { return RunOSCLI(argsTail()) }},
 		{[]string{"sj", "ssh-joiner", "ssh-join", "ssh-joined"}, func() error { return runSJ(argsTail()) }},
 		{[]string{"se", "ssh-exe", "ssh-exec", "ssh-execute"}, func() error { return runSSHExec(argsTail()) }},
+		{[]string{constants.CmdCargo, constants.CmdCargoAlias}, func() error { return runCargo(argsTail()) }},
 		{[]string{constants.CmdInstall, constants.CmdInstallAlias}, func() error { return runInstall(argsTail()) }},
 		{[]string{constants.CmdUninstall, constants.CmdUninstallAlias}, func() error { return runUninstall(argsTail()) }},
 		{[]string{constants.CmdExportConfig, constants.CmdExportConfigAlias}, func() error { return runExportConfig(argsTail()) }},

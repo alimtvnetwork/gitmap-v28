@@ -120,3 +120,8 @@ func UninstallCustomTool(tool string, purge bool) error {
 func FindInstalledAntigravityDesktopPath() (string, bool) {
 	return findInstalledAntigravityDesktopPath()
 }
+
+// ResolveToolBinaryPath resolves the binary path for a tool with fallback paths.
+func ResolveToolBinaryPath(binary string) string {
+	return resolveToolBinaryPath(binary)
+}

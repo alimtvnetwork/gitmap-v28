@@ -262,7 +262,7 @@ var aliasTestCases = []struct {
 	{"dotnet-sdk", constants.ToolDotnet},
 	{"jdk", constants.ToolJava},
 	{"openjdk", constants.ToolJava},
-	{"cargo", constants.ToolRust},
+	{"cargo", constants.ToolCargo},
 	{"rustup", constants.ToolRust},
 	{"llamacpp", constants.ToolLlamaCpp},
 	{"ngx", constants.ToolNginx},
@@ -326,7 +326,7 @@ func TestResolveToolAlias(t *testing.T) {
 }
 
 var newToolList = []string{
-	constants.ToolRust, constants.ToolDotnet, constants.ToolJava, constants.ToolFlutter,
+	constants.ToolRust, constants.ToolCargo, constants.ToolDotnet, constants.ToolJava, constants.ToolFlutter,
 	constants.ToolOllama, constants.ToolLlamaCpp, constants.ToolPythonLibs,
 	constants.ToolDocker, constants.ToolKubernetes, constants.ToolJenkins,
 	constants.ToolZsh, constants.ToolFlameshot, constants.ToolConemu, constants.ToolVLC,

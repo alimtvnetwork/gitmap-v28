@@ -202,6 +202,8 @@ var toolBinaryMap = map[string]string{
 	constants.ToolQBittorrent:   "qbittorrent",
 	constants.ToolUTorrent:      "utorrent",
 	constants.ToolZsh:           "zsh",
+	constants.ToolCargo:         "cargo",
+	constants.ToolRust:          "rustc",
 }
 
 // toolBinaryName maps tool names to their binary/executable names.

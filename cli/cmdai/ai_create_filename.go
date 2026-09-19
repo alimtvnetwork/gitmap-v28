@@ -3,7 +3,6 @@ package cmdai
 import (
 	"fmt"
 	"os"
-	"path/filepath"
 	"strconv"
 	"strings"
 	"unicode"

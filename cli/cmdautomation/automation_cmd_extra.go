@@ -5,7 +5,7 @@ import (
 
 	"github.com/spf13/cobra"
 
-	"github.com/alimtvnetwork/gitmap-v28/cli/formatter"
+	"github.com/alimtvnetwork/gitmap-v28/cli/constants"
 )
 
 var (
@@ -37,7 +37,7 @@ func runNewlinesCmd(cmd *cobra.Command, args []string) error {
 }
 
 func renderNewlineResult(res NewlineResult) {
-	fmt.Printf("\n%s[Polyglot Newline Normalization]%s\n", formatter.Bold, formatter.Reset)
+	fmt.Printf("\n%s[Polyglot Newline Normalization]%s\n", constants.ColorBold, constants.ColorReset)
 	fmt.Printf("  Scanned Files:   %d\n", res.ScannedFiles)
 	fmt.Printf("  Modified Files:  %d\n", res.ModifiedFiles)
 	fmt.Printf("  CRLF Converted:  %d\n", res.CrlfCount)
@@ -71,9 +71,9 @@ func runCacheCmd(cmd *cobra.Command, args []string) error {
 
 func renderSearchResults(res SearchResult) {
 	fmt.Printf("\n%sSearch completed:%s %d hit(s) across %d file(s) in %s\n",
-		formatter.Green, formatter.Reset, res.TotalHits, res.TotalFiles, res.Duration)
+		constants.ColorGreen, constants.ColorReset, res.TotalHits, res.TotalFiles, res.Duration)
 	for _, m := range res.Matches {
-		fmt.Printf("  %s%s:%d%s %s\n", formatter.Cyan, m.Path, m.LineNumber, formatter.Reset, m.LineContent)
+		fmt.Printf("  %s%s:%d%s %s\n", constants.ColorCyan, m.Path, m.LineNumber, constants.ColorReset, m.LineContent)
 	}
 	fmt.Println()
 }

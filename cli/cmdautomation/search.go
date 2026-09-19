@@ -49,11 +49,11 @@ func collectSearchFiles(dir string, exts []string) []string {
 	extMap := buildExtMap(exts)
 
 	_ = filepath.Walk(dir, func(p string, info os.FileInfo, err error) error {
-		if err != nil || info.IsDir() && isExcludedDir(info.Name()) {
-			if info != nil && info.IsDir() {
-				return filepath.SkipDir
-			}
+		if err != nil {
 			return nil
+		}
+		if info.IsDir() && isExcludedDir(info.Name()) {
+			return filepath.SkipDir
 		}
 		if !info.IsDir() && matchesExtensionFilter(p, extMap) {
 			files = append(files, p)

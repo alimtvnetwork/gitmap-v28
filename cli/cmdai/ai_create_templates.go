@@ -15,7 +15,7 @@ func GenerateScriptContent(opts CreateScriptOptions) result.Result[string] {
 	body := buildScriptBody(opts)
 	full := head + body
 
-	return result.Success(full)
+	return result.Ok(full)
 }
 
 func sanitizeScriptSlug(name string) string {

@@ -14,7 +14,6 @@ import (
 	"github.com/alimtvnetwork/gitmap-v28/cli/apperror"
 	"github.com/alimtvnetwork/gitmap-v28/cli/cliexit"
 	"github.com/alimtvnetwork/gitmap-v28/cli/cmdagy"
-	"github.com/alimtvnetwork/gitmap-v28/cli/cmdai"
 	"github.com/alimtvnetwork/gitmap-v28/cli/cmdautomation"
 	"github.com/alimtvnetwork/gitmap-v28/cli/cmdprompt"
 	"github.com/alimtvnetwork/gitmap-v28/cli/cmdprompttemplate"

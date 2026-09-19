@@ -6,7 +6,7 @@ import (
 	"path/filepath"
 
 	"github.com/alimtvnetwork/gitmap-v28/cli/apperror"
-	"github.com/alimtvnetwork/gitmap-v28/cli/formatter"
+	"github.com/alimtvnetwork/gitmap-v28/cli/constants"
 )
 
 // RunAiCreate scaffolds and registers a new AI automation script.
@@ -64,11 +64,11 @@ func verifyTargetFile(fullPath string, opts CreateScriptOptions) *apperror.AppEr
 
 func executeScriptCreation(fullPath, fname string, opts CreateScriptOptions) *apperror.AppError {
 	res := GenerateScriptContent(opts)
-	if res.IsError() {
-		return res.Error()
+	if res.IsFailed() {
+		return res.Err
 	}
 
-	content := res.Data()
+	content := res.Value
 	if opts.IsDryRun {
 		renderDryRunPreview(fname, content)
 		return nil
@@ -96,16 +96,16 @@ func writeScriptToDisk(path string, content string) *apperror.AppError {
 }
 
 func renderDryRunPreview(fname, content string) {
-	fmt.Printf("\n%s [DRY RUN] Generated Script: %s%s\n", formatter.Cyan, fname, formatter.Reset)
-	fmt.Println(formatter.Dim + "----------------------------------------" + formatter.Reset)
+	fmt.Printf("\n%s [DRY RUN] Generated Script: %s%s\n", constants.ColorCyan, fname, constants.ColorReset)
+	fmt.Println(constants.ColorDim + "----------------------------------------" + constants.ColorReset)
 	fmt.Println(content)
-	fmt.Println(formatter.Dim + "----------------------------------------" + formatter.Reset)
+	fmt.Println(constants.ColorDim + "----------------------------------------" + constants.ColorReset)
 }
 
 func renderCreationSummary(fname string, opts CreateScriptOptions) {
 	slug := sanitizeScriptSlug(opts.Name)
-	fmt.Printf("\n%s✔ Successfully created AI script:%s %s\n", formatter.Green, formatter.Reset, fname)
-	fmt.Printf("  %sType:%s     %s\n", formatter.Dim, formatter.Reset, opts.Type)
-	fmt.Printf("  %sExecute:%s  gitmap ai run %s\n", formatter.Bold, formatter.Reset, slug)
-	fmt.Printf("  %sDirect:%s   python 03-ai-scripts/%s\n\n", formatter.Dim, formatter.Reset, fname)
+	fmt.Printf("\n%s✔ Successfully created AI script:%s %s\n", constants.ColorGreen, constants.ColorReset, fname)
+	fmt.Printf("  %sType:%s     %s\n", constants.ColorDim, constants.ColorReset, opts.Type)
+	fmt.Printf("  %sExecute:%s  gitmap ai run %s\n", constants.ColorBold, constants.ColorReset, slug)
+	fmt.Printf("  %sDirect:%s   python 03-ai-scripts/%s\n\n", constants.ColorDim, constants.ColorReset, fname)
 }

@@ -45,6 +45,8 @@ func ensureDirInPath(dir string) {
 
 func buildUserHomeCandidates(home, binary string) []string {
 	return []string{
+		filepath.Join(home, ".cargo", "bin", binary),
+		filepath.Join(home, ".cargo", "bin", binary+".exe"),
 		filepath.Join(home, ".local", "share", "pnpm", binary),
 		filepath.Join(home, ".local", "bin", binary),
 		filepath.Join(home, ".local", "agy", "bin", binary),

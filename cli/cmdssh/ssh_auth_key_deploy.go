@@ -191,14 +191,13 @@ func resolveAuthKeyTargets(target string) ([]db.SSHConnection, error) {
 }
 
 func resolveFallbackTarget(target string) ([]db.SSHConnection, error) {
-	t, parseErr := ParseSSHTarget(target)
+	t, parseErr := ParseSSHTarget(target, "", 22)
 	isParsed := parseErr == nil && t != nil && t.IP != ""
 	if isParsed {
 		conn := db.SSHConnection{
 			Alias:     t.IP,
 			IPAddress: t.IP,
 			Username:  t.Username,
-			Port:      t.Port,
 		}
 		return []db.SSHConnection{conn}, nil
 	}

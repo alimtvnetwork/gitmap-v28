@@ -87,6 +87,7 @@ const (
 // Supported tool names — Languages & Runtimes.
 const (
 	ToolRust    = "rust"
+	ToolCargo   = "cargo"
 	ToolDotnet  = "dotnet"
 	ToolJava    = "java"
 	ToolFlutter = "flutter"
@@ -637,7 +638,8 @@ var InstallToolDescriptions = map[string]string{
 	ToolUbuntuCommon:     "Ubuntu common developer profile (compiler toolchain, editors, utilities)",
 	ToolChrome:           "Google Chrome web browser",
 	ToolGoogleChrome:     "Google Chrome web browser",
-	ToolRust:             "Rust programming language and Cargo toolchain",
+	ToolRust:             "Rust programming language and compiler toolchain",
+	ToolCargo:            "Cargo package manager and Rust build system",
 	ToolDotnet:           ".NET SDK and developer platform",
 	ToolJava:             "Java OpenJDK development kit and runtime",
 	ToolFlutter:          "Flutter cross-platform application SDK",
@@ -705,7 +707,7 @@ var InstallToolCategories = map[string][]string{
 		ToolNeo4j, ToolElasticsearch, ToolDuckDB, ToolLiteDB,
 	},
 	ToolCategoryLanguages: {
-		ToolRust, ToolDotnet, ToolJava, ToolFlutter, ToolLaravel, ToolComposer,
+		ToolRust, ToolCargo, ToolDotnet, ToolJava, ToolFlutter, ToolLaravel, ToolComposer,
 	},
 	ToolCategoryAI: {
 		ToolOllama, ToolLlamaCpp, ToolPythonLibs,

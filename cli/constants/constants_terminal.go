@@ -10,6 +10,7 @@ package constants
 // refresh in chat history.
 const (
 	ColorReset  = "\033[0m"
+	ColorBold   = "\033[1m"    // standard bold
 	ColorGreen  = "\033[1;92m" // bright bold green — successes, checkmarks
 	ColorRed    = "\033[1;91m" // bright bold red — failures
 	ColorYellow = "\033[1;93m" // bright bold yellow — warnings, prompts

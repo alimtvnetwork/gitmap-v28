@@ -6,7 +6,7 @@ import (
 	"time"
 
 	"github.com/alimtvnetwork/gitmap-v28/cli/apperror"
-	"github.com/alimtvnetwork/gitmap-v28/cli/formatter"
+	"github.com/alimtvnetwork/gitmap-v28/cli/constants"
 )
 
 // RunCacheStatus displays current in-memory cache capacity and stats.
@@ -14,7 +14,7 @@ func RunCacheStatus() *apperror.AppError {
 	stats := GlobalCache().Stats()
 	mb := float64(stats.TotalBytes) / (1024 * 1024)
 
-	fmt.Printf("\n%s[GitMap In-Memory Automation Cache]%s\n", formatter.Bold, formatter.Reset)
+	fmt.Printf("\n%s[GitMap In-Memory Automation Cache]%s\n", constants.ColorBold, constants.ColorReset)
 	fmt.Printf("  Cached Files:   %d\n", stats.TotalFiles)
 	fmt.Printf("  Memory Usage:   %.2f MB (0 disk bytes)\n", mb)
 	fmt.Printf("  Cache Hits:     %d\n", stats.Hits)
@@ -26,25 +26,26 @@ func RunCacheStatus() *apperror.AppError {
 func RunCacheRead(path string) *apperror.AppError {
 	start := time.Now()
 	data, isHit := GlobalCache().GetFile(path)
-	if !isHit {
-		diskData, err := os.ReadFile(path)
-		if err != nil {
-			ctx := map[string]any{"path": path, "err": err.Error()}
-			return apperror.New("cache_read", "E_FILE_NOT_FOUND", ctx)
-		}
-		data = diskData
-		GlobalCache().SetFile(path, data)
+	if isHit {
+		renderReadResult(path, len(data), true, time.Since(start))
+		return nil
 	}
 
-	dur := time.Since(start)
-	renderReadResult(path, len(data), isHit, dur)
+	diskData, err := os.ReadFile(path)
+	if err != nil {
+		ctx := map[string]any{"path": path, "err": err.Error()}
+		return apperror.New("cache_read", "E_FILE_NOT_FOUND", ctx)
+	}
+
+	GlobalCache().SetFile(path, diskData)
+	renderReadResult(path, len(diskData), false, time.Since(start))
 	return nil
 }
 
 func renderReadResult(path string, bytesLen int, isHit bool, dur time.Duration) {
-	tag := formatter.Green + "HIT (memory)" + formatter.Reset
+	tag := constants.ColorGreen + "HIT (memory)" + constants.ColorReset
 	if !isHit {
-		tag = formatter.Yellow + "MISS (disk load)" + formatter.Reset
+		tag = constants.ColorYellow + "MISS (disk load)" + constants.ColorReset
 	}
 	fmt.Printf("\nRead: %s | Size: %d B | Status: %s | Latency: %s\n\n", path, bytesLen, tag, dur)
 }
@@ -60,7 +61,7 @@ func RunCacheWarm(dir string) *apperror.AppError {
 	count := GlobalCache().Warm(targetDir)
 	dur := time.Since(start)
 	fmt.Printf("\n%s✔ Warmed in-memory cache:%s %d files in %s (0 bytes temp disk usage)\n\n",
-		formatter.Green, formatter.Reset, count, dur)
+		constants.ColorGreen, constants.ColorReset, count, dur)
 	return nil
 }
 
@@ -68,6 +69,6 @@ func RunCacheWarm(dir string) *apperror.AppError {
 func RunCacheClear() *apperror.AppError {
 	GlobalCache().Clear()
 	fmt.Printf("\n%s✔ Purged automation in-memory cache.%s All memory reclaimed.\n\n",
-		formatter.Green, formatter.Reset)
+		constants.ColorGreen, constants.ColorReset)
 	return nil
 }
