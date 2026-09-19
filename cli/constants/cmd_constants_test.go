@@ -462,6 +462,7 @@ func topLevelCmds() map[string]string {
 		"CmdAiAlias":                    CmdAiAlias,
 		"CmdAutomation":                 CmdAutomation,
 		"CmdAutomationAlias":            CmdAutomationAlias,
+		"CmdAutomationAumAlias":         CmdAutomationAumAlias,
 		"CmdAutomationPyAlias":          CmdAutomationPyAlias,
 	}
 }

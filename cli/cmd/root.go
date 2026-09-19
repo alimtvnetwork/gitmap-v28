@@ -557,7 +557,7 @@ func dispatchExtraCommand(cmd string, shouldAudit bool, id int64, start time.Tim
 
 func dispatchGeneralCommands(cmd string, shouldAudit bool, id int64, start time.Time) bool {
 	switch cmd {
-	case constants.CmdAutomation, constants.CmdAutomationAlias, constants.CmdAutomationPyAlias, constants.CmdAi, constants.CmdAiAlias:
+	case constants.CmdAutomation, constants.CmdAutomationAlias, constants.CmdAutomationAumAlias, constants.CmdAutomationPyAlias, constants.CmdAi, constants.CmdAiAlias:
 		executeAndAudit(func(_ context.Context, args []string, _ *cobra.Command) error {
 			return cmdautomation.DispatchAutomation(args)
 		}, shouldAudit, id, start)

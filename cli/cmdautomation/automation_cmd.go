@@ -12,7 +12,7 @@ var (
 	// AutomationCmd is the root command for native Go repository automation.
 	AutomationCmd = &cobra.Command{
 		Use:     "automation",
-		Aliases: []string{"auto", "py-auto", "scripts", "ai"},
+		Aliases: []string{"auto", "aum", "py-auto", "scripts", "ai"},
 		Short:   "High-performance native Go automation, search, newlines, and benchmarks",
 		RunE:    runDefaultAutomationCmd,
 	}
@@ -84,8 +84,8 @@ func stripAutomationPrefix(args []string) []string {
 }
 
 func isAutomationTrigger(token string) bool {
-	return token == "automation" || token == "auto" || token == "py-auto" ||
-		token == "scripts" || token == "ai"
+	return token == "automation" || token == "auto" || token == "aum" ||
+		token == "py-auto" || token == "scripts" || token == "ai"
 }
 
 func toError(appErr *apperror.AppError) error {

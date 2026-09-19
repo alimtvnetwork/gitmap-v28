@@ -197,8 +197,19 @@ Instead of scanning entire directory trees or reading large files into context:
 | **Repo Status** | ` + "`gitmap status`" + ` | ` + "`gitmap st`" + ` | Dirty, ahead, behind across all repos |
 `
 
-// Run executes the llm command.
+// Run executes the llm command or delegates to train/chain curriculum.
 func Run(args []string) *apperror.AppError {
+	if len(args) > 0 && isTrainCommand(args[0]) {
+		return RunTrain(args[1:])
+	}
+	return runDefaultLlm(args)
+}
+
+func isTrainCommand(arg string) bool {
+	return arg == "train" || arg == "chain"
+}
+
+func runDefaultLlm(args []string) *apperror.AppError {
 	fs := flag.NewFlagSet("llm", flag.ExitOnError)
 	isUrl := fs.Bool("url", false, "Output the URL to the LLM spec")
 	isInstruction := fs.Bool("instruction", false, "Output the full markdown instructions")
@@ -206,20 +217,12 @@ func Run(args []string) *apperror.AppError {
 	if err := fs.Parse(args); err != nil {
 		return apperror.WrapSimple(err, "parse flags")
 	}
-
 	if *isUrl {
 		fmt.Println(PublicLlmSpecURL)
-
 		return nil
 	}
-
-	if *isInstruction {
-		fmt.Print(llmMarkdownSpec)
-
-		return nil
-	}
-
 	fmt.Print(llmMarkdownSpec)
-
+	_ = isInstruction
 	return nil
 }
+

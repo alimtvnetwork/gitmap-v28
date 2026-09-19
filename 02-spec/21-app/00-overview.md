@@ -36,6 +36,8 @@ GitMap is a CLI tool that scans directory trees for Git repositories, extracts c
    - `124-polyglot-worker-orchestrator-and-automation-runner.md`: Go supervisor and polyglot worker pool architecture with SQLite runtime caching
    - `125-automation-llm-orchestration-guide.md`: LLM orchestration playbook and structured recipes for AI coding agents
    - `126-cargo-command-and-toolchain-runner.md`: Cargo command and Rust toolchain runner with auto-install suggestions
+   - `127-llm-train-and-chained-agent-curriculum.md`: LLM train & chained curriculum with automatic Antigravity skill generation
+   - `128-aum-automation-suite-and-roadmap.md`: AUM automation suite and 6-phase polyglot script migration roadmap
 
 2. **Feature Modules & Sub-systems**:
    - [`01-vscode-project-manager-sync/`](./01-vscode-project-manager-sync/): VS Code Project Manager synchronization

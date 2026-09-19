@@ -148,6 +148,7 @@ var helpAliases = map[string]string{
 	"scripts-run":              "ai",
 	"scripts-fix":              "ai",
 	"auto":                     "automation",
+	"aum":                      "automation",
 	"py-auto":                  "automation",
 	"automation-search":        "automation",
 	"automation-newlines":      "automation",
