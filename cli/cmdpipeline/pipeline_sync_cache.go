@@ -45,7 +45,7 @@ func FormatRelativeDbPath(fullPath string) string {
 		return formatRepoRelativeSlash(rel)
 	}
 
-	return filepath.ToSlash(filepath.Clean(fullPath))
+	return filepath.ToSlash(fullPath)
 }
 
 // ResolveDbFileSize returns the formatted human size for a pipeline database.
@@ -293,7 +293,7 @@ func calculateAlreadyCachedCount(res *PipelineSyncResult) int {
 func renderSyncResultTerminal(res *PipelineSyncResult) {
 	fmt.Printf("\n  %s● Incremental Pipeline Cache Sync (%s):%s\n",
 		constants.ColorCyan, res.Repo, constants.ColorReset)
-	fmt.Printf("    • Pipeline Database: %s\n", FormatRelativeDbPath(res.DbPath))
+	fmt.Printf("    • Pipeline Database: %s\n", filepath.ToSlash(FormatRelativeDbPath(res.DbPath)))
 	fmt.Printf("    • Database Size:     %s\n", ResolveDbFileSize(res.DbPath))
 	fmt.Printf("    • Runs Scanned:      %d (max 20)\n", res.ScannedRuns)
 	fmt.Printf("    • Failed Runs Found: %d\n", len(res.FailedRuns))

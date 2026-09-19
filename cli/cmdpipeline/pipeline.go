@@ -182,7 +182,7 @@ func isErrorLogsSubcmd(subcmd string) bool {
 
 func isPipelineClearDbSubcmd(subcmd string) bool {
 	switch subcmd {
-	case "clear-db", "cleardb", "db-clear", "clear-errors", "errors-clear", "reset-errors":
+	case "clear-db", "cleardb", "db-clear", "clear-errors", "errors-clear", "reset-errors", "clear", "clean", "reset":
 		return true
 	default:
 		return false
@@ -251,6 +251,7 @@ func printPipelineHelpCommands() {
 	fmt.Println("  history                Display recent commits pipeline execution tree (alias: hist, h)")
 	fmt.Println("  logs                   Display consolidated workflow logs for commit or offset")
 	fmt.Println("  pipeline-ai status     Auto-delay (default: 20s or -t <seconds>) then query status")
+	fmt.Println("  clear                  Clear logs, reports, and database for repo (alias: clean)")
 	fmt.Println("  db                     Inspect or manage isolated pipeline split SQLite database")
 	fmt.Println("  clear-db               Clear recorded pipeline runs and error logs (alias: cleardb, db-clear)")
 	fmt.Println("  help                   Show this pipeline command suite documentation")
@@ -290,6 +291,9 @@ func printPipelineHelpExamples() {
 	fmt.Println("  gitmap pipeline errors --last-failures 5")
 	fmt.Println("  gitmap pipeline last-failed-logs")
 	fmt.Println("  gitmap pipeline error-logs -t --fix")
+	fmt.Println("  gitmap pipeline clear -y")
+	fmt.Println("  gitmap pipeline clear alimtvnetwork/gitmap-v28 -y")
+	fmt.Println("  gitmap pipeline errors clear")
 	fmt.Println("  gitmap pipeline clear-db -y")
 	fmt.Println("  gitmap pipeline errorlogs --check")
 	fmt.Println("  gitmap pipeline error-logs --json")

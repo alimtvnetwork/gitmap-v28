@@ -228,8 +228,8 @@ func resolveLocalCommitSHA() string {
 func initBaseErrorLogsPayload(repo string) PipelineErrorLogsPayload {
 	return PipelineErrorLogsPayload{
 		Repo:            repo,
-		DbPath:          pipelinedb.PipelineDbPath(repo),
-		SavedReportFile: resolvePipelineErrorReportPath(),
+		DbPath:          filepath.ToSlash(pipelinedb.PipelineDbPath(repo)),
+		SavedReportFile: filepath.ToSlash(resolvePipelineErrorReportPathForRepo(repo)),
 	}
 }
 
@@ -255,7 +255,7 @@ func initLatestRunMeta(payload *PipelineErrorLogsPayload, latest ghRunItem) {
 	payload.CreatedAt = latest.CreatedAt
 	payload.UpdatedAt = latest.UpdatedAt
 	payload.DurationSeconds = calculateRunDuration(latest.CreatedAt, latest.UpdatedAt)
-	payload.SavedLogFile = getCachedPipelineLogPath(latest.DatabaseId)
+	payload.SavedLogFile = filepath.ToSlash(getCachedPipelineLogPathForRepo(payload.Repo, latest.DatabaseId))
 }
 
 func setPayloadRunningState(p *PipelineErrorLogsPayload, r ghRunItem, eta int) {
@@ -334,28 +334,28 @@ func initFailedRunTopLevel(p *PipelineErrorLogsPayload, fr ghRunItem) {
 	p.CreatedAt = fr.CreatedAt
 	p.UpdatedAt = fr.UpdatedAt
 	p.DurationSeconds = calculateRunDuration(fr.CreatedAt, fr.UpdatedAt)
-	p.SavedLogFile = getCachedPipelineLogPath(fr.DatabaseId)
+	p.SavedLogFile = filepath.ToSlash(getCachedPipelineLogPathForRepo(p.Repo, fr.DatabaseId))
 }
 
 func fetchAndBuildFailedRunItem(repo string, fr ghRunItem) FailedRunItem {
 	rawLogs := queryFailedRunLogs(repo, fr.DatabaseId)
 	jobs := CorrelateRunFailedJobs(repo, fr.DatabaseId, rawLogs)
-	item := buildBaseFailedRunItem(fr, rawLogs)
+	item := buildBaseFailedRunItem(repo, fr, rawLogs)
 	item.FailedJobs = jobs
 	item.StackTrace = extractStackTraceFromLog(rawLogs)
 
 	return item
 }
 
-func buildBaseFailedRunItem(fr ghRunItem, rawLogs string) FailedRunItem {
+func buildBaseFailedRunItem(repo string, fr ghRunItem, rawLogs string) FailedRunItem {
 	item := FailedRunItem{
 		WorkflowName: fr.Name, RunId: fr.DatabaseId,
 		Conclusion: fr.Conclusion, Status: fr.Status,
 		Branch: fr.HeadBranch, Sha: fr.HeadSha,
 		CreatedAt: fr.CreatedAt, UpdatedAt: fr.UpdatedAt,
 		DurationSeconds: calculateRunDuration(fr.CreatedAt, fr.UpdatedAt),
-		SavedLogFile:    getCachedPipelineLogPath(fr.DatabaseId),
-		SavedMetaFile:   getCachedPipelineJSONPath(fr.DatabaseId),
+		SavedLogFile:    filepath.ToSlash(getCachedPipelineLogPathForRepo(repo, fr.DatabaseId)),
+		SavedMetaFile:   filepath.ToSlash(getCachedPipelineJSONPathForRepo(repo, fr.DatabaseId)),
 		Url:             fr.Url, RawErrors: rawLogs,
 	}
 
@@ -533,7 +533,7 @@ func saveActiveErrorReport(p PipelineErrorLogsPayload) error {
 		return nil
 	}
 
-	_, err := writeCombinedErrorReport(reportContent)
+	_, err := writeCombinedErrorReportForRepo(p.Repo, reportContent)
 
 	return err
 }
@@ -615,7 +615,7 @@ func renderPipelineMetaVersionAndPR(p PipelineErrorLogsPayload) {
 
 func renderCleanSuccessDbAndHistory(p PipelineErrorLogsPayload) {
 	if len(p.DbPath) > 0 {
-		fmt.Printf("  • Pipeline DB:     %s\n", FormatRelativeDbPath(p.DbPath))
+		fmt.Printf("  • Pipeline DB:     %s\n", filepath.ToSlash(FormatRelativeDbPath(p.DbPath)))
 		fmt.Printf("  • DB Size:         %s\n", ResolveDbFileSize(p.DbPath))
 	}
 
@@ -756,7 +756,7 @@ func renderSingleSectionFailureRow(sec SectionFailure, idx, total int) {
 	renderSectionStackTrace(sec.StackTrace)
 
 	if len(sec.SavedLogFile) > 0 {
-		fmt.Printf("      Log:     %s\n", sec.SavedLogFile)
+		fmt.Printf("      Log:     %s\n", filepath.ToSlash(sec.SavedLogFile))
 	}
 }
 
@@ -836,7 +836,7 @@ func renderRunCardBranchAndLog(fr FailedRunItem) {
 		fmt.Printf("  │ Branch:    %s | Commit: %s\n", fr.Branch, fr.Sha)
 	}
 	if len(fr.SavedLogFile) > 0 {
-		fmt.Printf("  │ Saved Log: %s\n", fr.SavedLogFile)
+		fmt.Printf("  │ Saved Log: %s\n", filepath.ToSlash(fr.SavedLogFile))
 	}
 	if len(fr.Url) > 0 {
 		fmt.Printf("  │ URL:       %s\n", fr.Url)
@@ -846,17 +846,17 @@ func renderRunCardBranchAndLog(fr FailedRunItem) {
 func renderSavedLocationsTerminal(p PipelineErrorLogsPayload) {
 	fmt.Println("  💾 Pipeline Error Logs & Artifacts:")
 	if len(p.SavedReportFile) > 0 {
-		fmt.Printf("    • Combined Report: %s\n", p.SavedReportFile)
+		fmt.Printf("    • Combined Report: %s\n", filepath.ToSlash(p.SavedReportFile))
 	}
 	if len(p.SavedLogFile) > 0 {
-		fmt.Printf("    • Latest Run Log:  %s\n", p.SavedLogFile)
+		fmt.Printf("    • Latest Run Log:  %s\n", filepath.ToSlash(p.SavedLogFile))
 	}
 	renderSavedDbAndUrl(p)
 }
 
 func renderSavedDbAndUrl(p PipelineErrorLogsPayload) {
 	if len(p.DbPath) > 0 {
-		fmt.Printf("    • Pipeline DB:     %s\n", FormatRelativeDbPath(p.DbPath))
+		fmt.Printf("    • Pipeline DB:     %s\n", filepath.ToSlash(FormatRelativeDbPath(p.DbPath)))
 		fmt.Printf("    • DB Size:         %s\n", ResolveDbFileSize(p.DbPath))
 	}
 	if len(p.Url) > 0 {

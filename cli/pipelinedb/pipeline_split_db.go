@@ -48,39 +48,46 @@ func PipelineDbDir() string {
 	binDir := filepath.Dir(store.BinaryDataDir())
 	altDir := filepath.Join(binDir, "pipeline")
 	if isDirExisting(altDir) {
-		return altDir
+		return filepath.ToSlash(altDir)
 	}
 
 	dir := filepath.Join(store.BinaryDataDir(), "pipeline")
 	_ = os.MkdirAll(dir, 0755)
 
-	return dir
+	return filepath.ToSlash(dir)
 }
 
 // PipelineDBDir is an alias to PipelineDbDir.
 var PipelineDBDir = PipelineDbDir
 
-// RepoScopedPipelineDbDir returns the pipeline db directory co-located with the CLI installation.
-func RepoScopedPipelineDbDir(_ string) string {
-	return PipelineDbDir()
+// RepoPipelineDir returns the dedicated repository directory inside pipeline data root.
+func RepoPipelineDir(repoSlug string) string {
+	slug := SanitizeRepoSlug(repoSlug)
+	repoDir := filepath.Join(PipelineDbDir(), slug)
+	_ = os.MkdirAll(repoDir, 0755)
+
+	return filepath.ToSlash(repoDir)
+}
+
+// RepoScopedPipelineDbDir returns the dedicated repository pipeline directory.
+func RepoScopedPipelineDbDir(repoSlug string) string {
+	return RepoPipelineDir(repoSlug)
 }
 
 // ResolvePipelineDbPath resolves the CLI-anchored SQLite database path for a repository.
 func ResolvePipelineDbPath(repoSlug string) string {
 	slug := SanitizeRepoSlug(repoSlug)
-	dir := PipelineDbDir()
-
-	direct := filepath.Join(dir, slug+".db")
-	if isFileExisting(direct) {
-		return direct
+	repoDir := RepoPipelineDir(slug)
+	target := filepath.Join(repoDir, "pipeline.db")
+	if isFileExisting(target) {
+		return filepath.ToSlash(target)
 	}
 
-	prefixed := filepath.Join(dir, "pipeline_"+slug+".db")
-	if isFileExisting(prefixed) {
-		return prefixed
+	if sqlDb := filepath.Join(repoDir, "sql.db"); isFileExisting(sqlDb) {
+		return filepath.ToSlash(sqlDb)
 	}
 
-	return migrateOrFallbackPipelineDb(dir, slug, prefixed)
+	return filepath.ToSlash(migrateOrFallbackPipelineDb(PipelineDbDir(), slug, target))
 }
 
 // PipelineDbPath returns the full SQLite database file path for a repository.

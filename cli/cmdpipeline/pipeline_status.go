@@ -2,9 +2,12 @@ package cmdpipeline
 
 import (
 	"fmt"
+	"sort"
+	"strings"
 	"time"
 
 	"github.com/alimtvnetwork/gitmap-v28/cli/constants"
+	"github.com/alimtvnetwork/gitmap-v28/cli/pipelinedb"
 )
 
 func handlePipelineStatus(args []string) error {
@@ -179,28 +182,75 @@ func findActiveWorkflowRun(runs []ghRunItem) *ghRunItem {
 }
 
 func calculateAverageDuration(runs []ghRunItem, workflowName string) int {
-	totalDuration, completedCount := sumCompletedRunDurations(runs, workflowName)
-	if completedCount > 0 {
-		return totalDuration / completedCount
+	durs := collectValidRunDurations(runs, workflowName)
+	if len(durs) == 0 {
+		durs = queryDbHistoricalDurations(workflowName)
+	}
+	if len(durs) > 0 {
+		return computeBaselineDuration(durs)
 	}
 
 	return fallbackWorkflowDuration(workflowName)
 }
 
-func sumCompletedRunDurations(runs []ghRunItem, workflowName string) (int, int) {
-	totalDuration, successCount := 0, 0
+func collectValidRunDurations(runs []ghRunItem, workflowName string) []int {
+	var durs []int
 	for _, r := range runs {
-		isMatchingSuccess := r.Status == "completed" && r.Conclusion == "success" && (r.Name == workflowName || workflowName == "")
-		if !isMatchingSuccess {
+		if !isRunValidSuccess(r, workflowName) {
 			continue
 		}
-
 		dur := computeRunDuration(r.CreatedAt, r.UpdatedAt)
-		if dur >= 10 {
-			totalDuration += dur
-			successCount++
+		if dur >= getWorkflowMinDurationFloor(workflowName) {
+			durs = append(durs, dur)
 		}
 	}
 
-	return totalDuration, successCount
+	return durs
+}
+
+func isRunValidSuccess(r ghRunItem, workflowName string) bool {
+	if r.Status != "completed" || r.Conclusion != "success" {
+		return false
+	}
+	if workflowName == "" || r.Name == workflowName {
+		return true
+	}
+
+	return strings.EqualFold(r.Name, workflowName)
+}
+
+func getWorkflowMinDurationFloor(workflowName string) int {
+	lower := strings.ToLower(workflowName)
+	if strings.Contains(lower, "lint") || strings.Contains(lower, "format") {
+		return 15
+	}
+	if strings.Contains(lower, "release") {
+		return 45
+	}
+
+	return 45
+}
+
+func computeBaselineDuration(durs []int) int {
+	if len(durs) == 1 {
+		return durs[0]
+	}
+	sort.Ints(durs)
+	mid := len(durs) / 2
+	if len(durs)%2 == 1 {
+		return durs[mid]
+	}
+
+	return (durs[mid-1] + durs[mid]) / 2
+}
+
+func queryDbHistoricalDurations(workflowName string) []int {
+	slug := resolveCurrentRepoSlug()
+	db, err := pipelinedb.OpenPipelineSplitDb(slug)
+	if err != nil {
+		return nil
+	}
+	defer db.Close()
+
+	return db.QuerySuccessfulRunDurations(workflowName, 20)
 }

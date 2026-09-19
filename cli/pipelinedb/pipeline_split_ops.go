@@ -448,6 +448,23 @@ func (p *PipelineSplitDb) purgeCacheFiles(runIds []uint64) {
 	purgeRepoCacheDir(filepath.Join(dir, strings.ReplaceAll(p.RepoSlug, "/", "_")))
 	purgeRepoCacheDir(filepath.Join(dir, SanitizeRepoSlug(p.RepoSlug)))
 	purgeRepoMatchingJsonFiles(dir, p.RepoSlug)
+	purgePipelineReports(dir)
+	purgeParentLegacyFiles(dir, p.RepoSlug, runIds)
+}
+
+func purgePipelineReports(dir string) {
+	_ = os.Remove(filepath.Join(dir, "pipeline_errors.log"))
+	_ = os.Remove(filepath.Join(dir, "last_error.log"))
+}
+
+func purgeParentLegacyFiles(dir, repoSlug string, runIds []uint64) {
+	parent := filepath.Dir(dir)
+	if filepath.Base(parent) == "pipeline" {
+		slug := SanitizeRepoSlug(repoSlug)
+		_ = os.Remove(filepath.Join(parent, "pipeline_"+slug+".db"))
+		_ = os.Remove(filepath.Join(parent, slug+".db"))
+		purgeRunIdCacheFiles(parent, runIds)
+	}
 }
 
 func purgeRunIdCacheFiles(dir string, runIds []uint64) {
@@ -805,14 +822,41 @@ func (p *PipelineSplitDb) GetRunWorkflowName(runId uint64) string {
 	return name
 }
 
+// QuerySuccessfulRunDurations retrieves historical durations of successful runs.
+func (p *PipelineSplitDb) QuerySuccessfulRunDurations(workflowName string, limit int) []int {
+	if p.conn == nil || limit <= 0 {
+		return nil
+	}
+	query := "SELECT DurationSeconds FROM PipelineRun WHERE IsSuccess = 1 AND DurationSeconds >= 10 AND (WorkflowName = ? OR ? = '') ORDER BY PipelineRunId DESC LIMIT ?;"
+	rows, err := p.conn.Query(query, workflowName, workflowName, limit)
+	if err != nil {
+		return nil
+	}
+	defer rows.Close()
+
+	return scanDurations(rows)
+}
+
+func scanDurations(rows *sql.Rows) []int {
+	var durs []int
+	for rows.Next() {
+		var dur int
+		if err := rows.Scan(&dur); err == nil && dur > 0 {
+			durs = append(durs, dur)
+		}
+	}
+
+	return durs
+}
+
 func computeRelativeDbPath(absPath string) string {
 	cwd, err := os.Getwd()
 	if err != nil {
-		return absPath
+		return filepath.ToSlash(absPath)
 	}
 	rel, relErr := filepath.Rel(cwd, absPath)
 	if relErr != nil || strings.HasPrefix(rel, "..") {
-		return absPath
+		return filepath.ToSlash(absPath)
 	}
 
 	return formatRelativePrefix(filepath.ToSlash(rel))
@@ -913,8 +957,8 @@ func (p *PipelineSplitDb) populateCounts(info *PipelineDatabaseInfo) {
 // GetDatabaseInfo returns diagnostic telemetry and metadata for the database.
 func (p *PipelineSplitDb) GetDatabaseInfo() PipelineDatabaseInfo {
 	var info PipelineDatabaseInfo
-	info.Path = p.Path
-	info.RelativePath = computeRelativeDbPath(p.Path)
+	info.Path = filepath.ToSlash(p.Path)
+	info.RelativePath = filepath.ToSlash(computeRelativeDbPath(p.Path))
 	p.populateFileMetadata(&info)
 	p.populateCounts(&info)
 

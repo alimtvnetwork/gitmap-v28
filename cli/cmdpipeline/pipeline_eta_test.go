@@ -94,3 +94,32 @@ func TestExtractCleanErrorLines(t *testing.T) {
 		t.Errorf("cleaned error log should NOT contain setup lines, got:\n%s", cleaned)
 	}
 }
+
+func TestCalculateAverageDuration_ExcludesShortSkippedOutliers(t *testing.T) {
+	now := time.Now().UTC()
+	runs := []ghRunItem{
+		// Real full CI run (180s)
+		{
+			DatabaseId: 301,
+			Name:       "CI",
+			Status:     "completed",
+			Conclusion: "success",
+			CreatedAt:  now.Add(-300 * time.Second).Format(time.RFC3339),
+			UpdatedAt:  now.Add(-120 * time.Second).Format(time.RFC3339),
+		},
+		// Short skipped run (20s) - should be excluded from CI baseline
+		{
+			DatabaseId: 302,
+			Name:       "CI",
+			Status:     "completed",
+			Conclusion: "success",
+			CreatedAt:  now.Add(-600 * time.Second).Format(time.RFC3339),
+			UpdatedAt:  now.Add(-580 * time.Second).Format(time.RFC3339),
+		},
+	}
+
+	avg := calculateAverageDuration(runs, "CI")
+	if avg < 170 || avg > 190 {
+		t.Fatalf("expected baseline ~180s excluding 20s outlier, got %d", avg)
+	}
+}

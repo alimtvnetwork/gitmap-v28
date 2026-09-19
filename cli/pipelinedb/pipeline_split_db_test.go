@@ -276,4 +276,44 @@ func TestResolvePipelineDbPath(t *testing.T) {
 	if !strings.Contains(repoPath, "pipeline") || !strings.Contains(repoPath, "alimtvnetwork-gitmap-v28") {
 		t.Errorf("expected repo slug to resolve inside pipeline folder with repo slug, got %s", repoPath)
 	}
+	if strings.Contains(repoPath, "\\") {
+		t.Errorf("expected all forward slashes in db path, got %s", repoPath)
+	}
+}
+
+func TestRepoPipelineDir_ForwardSlashes(t *testing.T) {
+	dir := RepoPipelineDir("alimtvnetwork/gitmap-v28")
+	if strings.Contains(dir, "\\") {
+		t.Errorf("expected all forward slashes in repo dir, got: %s", dir)
+	}
+	if !strings.HasSuffix(dir, "alimtvnetwork-gitmap-v28") {
+		t.Errorf("expected folder to end with alimtvnetwork-gitmap-v28, got: %s", dir)
+	}
+}
+
+func TestQuerySuccessfulRunDurations(t *testing.T) {
+	tmpDir := t.TempDir()
+	origDir := store.BinaryDataDir()
+	store.SetBinaryDataDirForTesting(tmpDir)
+	defer store.SetBinaryDataDirForTesting(origDir)
+
+	db, err := OpenPipelineSplitDb("test-repo-duration")
+	if err != nil {
+		t.Fatalf("unexpected error opening db: %v", err)
+	}
+	defer db.Close()
+
+	_ = db.RecordRun(PipelineRunRecord{
+		RunId: 1, RepoSlug: "test-repo-duration", WorkflowName: "CI",
+		Status: "completed", Conclusion: "success", IsSuccess: true, DurationSeconds: 150,
+	})
+	_ = db.RecordRun(PipelineRunRecord{
+		RunId: 2, RepoSlug: "test-repo-duration", WorkflowName: "CI",
+		Status: "completed", Conclusion: "failure", IsSuccess: false, DurationSeconds: 10,
+	})
+
+	durs := db.QuerySuccessfulRunDurations("CI", 10)
+	if len(durs) != 1 || durs[0] != 150 {
+		t.Fatalf("expected 1 duration of 150s, got: %v", durs)
+	}
 }

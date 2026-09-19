@@ -22,6 +22,8 @@ gitmap pl <subcommand> [flags]
 | `status` | Live CI/CD execution state, active workflow, ETA, and pending PRs |
 | `waittime, eta` | Remaining estimated wait time in seconds (machine-friendly integer) |
 | `errors, err` | Aggregated failure logs for current or past commit by offset (`-1`, `-2`, `-3`) |
+| `errors clear` | Clear error reports, logs, and database for current repository (or target repo) |
+| `clear, clean` | Clear logs, reports, and database for current repository (or target repo) |
 | `fix errors agy` | Feed errors, git log & RCA prompt to Antigravity, inject prompt & queue (alias: `aef`) |
 | `clear-db, db clear` | Reset/purge local pipeline split SQLite database and telemetry error logs (`-y`) |
 | `history, hist` | Visual pipeline run tree and commit status summary for recent commits (`-n 5`) |
@@ -76,13 +78,22 @@ GitMap pipeline telemetry prevents false-positive "clean status" masking:
 
 ---
 
-## 1. Clear Pipeline Database (`clear-db`)
+## 1. Clear Pipeline Repository Data (`clear`, `errors clear`, `clear-db`)
 
-Purge recorded pipeline run history, cached step outputs, and aggregated failure logs from the repository-scoped SQLite split database (`.gitmap/repodb/pipeline.db` and global pipeline tables).
+Purge recorded pipeline run history, cached step outputs, error reports, and the repository SQLite database.
 
 ### Usage
 
 ```bash
+# Inside repository without arguments (auto-detects current repo)
+gitmap pipeline clear [-y]
+gitmap pipeline errors clear [-y]
+
+# From anywhere specifying target repository
+gitmap pipeline clear <repo> [-y]
+gitmap pipeline errors clear <repo> [-y]
+
+# Equivalent legacy subcommands
 gitmap pipeline clear-db [-y]
 gitmap pipeline db clear [-y]
 ```
@@ -90,14 +101,18 @@ gitmap pipeline db clear [-y]
 ### Examples
 
 ```bash
-# Interactively clear pipeline database with confirmation prompt
-gitmap pipeline clear-db
+# Interactively clear pipeline cache & DB for current repository
+gitmap pipeline clear
 
-# Non-interactively clear pipeline database without confirmation
-gitmap pipeline clear-db -y
+# Non-interactively clear pipeline cache & DB without confirmation prompt
+gitmap pipeline clear -y
 
-# Equivalent via db subcommand
-gitmap pipeline db clear -y
+# Clear pipeline errors and logs for current repository
+gitmap pipeline errors clear
+
+# Clear pipeline data for a specific remote repository
+gitmap pipeline clear alimtvnetwork/gitmap-v28 -y
+gitmap pipeline errors clear alimtvnetwork/gitmap-v28 -y
 ```
 
 ---

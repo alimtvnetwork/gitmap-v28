@@ -94,6 +94,9 @@ func printPipelineDBFlagsAndExamples() {
 	fmt.Println("  gitmap pipeline db error-logs")
 	fmt.Println("  gitmap pipeline db optimize")
 	fmt.Println("  gitmap pipeline db clear -y")
+	fmt.Println("  gitmap pipeline clear -y")
+	fmt.Println("  gitmap pipeline clear alimtvnetwork/gitmap-v28 -y")
+	fmt.Println("  gitmap pipeline errors clear")
 }
 
 func printPipelineDBHelp() {

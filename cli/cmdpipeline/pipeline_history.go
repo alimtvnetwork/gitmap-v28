@@ -513,7 +513,7 @@ func renderCachedCompactErrorsList(errors []pipelinedb.PipelineCompactErrorRecor
 }
 
 func renderCachedFailuresTerminal(db *pipelinedb.PipelineSplitDb, repo string, runs []pipelinedb.PipelineRunRecord, isDetailed bool) {
-	relDb := FormatRelativeDbPath(db.Path)
+	relDb := filepath.ToSlash(FormatRelativeDbPath(db.Path))
 	if len(runs) == 0 {
 		printEmptyCachedFailures(repo, db.Path)
 
@@ -525,7 +525,7 @@ func renderCachedFailuresTerminal(db *pipelinedb.PipelineSplitDb, repo string, r
 
 func printEmptyCachedFailures(repo, dbPath string) {
 	fmt.Printf("\n  No cached pipeline failures found in SQLite for %s.\n", repo)
-	fmt.Printf("  Pipeline DB: %s\n", FormatRelativeDbPath(dbPath))
+	fmt.Printf("  Pipeline DB: %s\n", filepath.ToSlash(FormatRelativeDbPath(dbPath)))
 	fmt.Printf("  DB Size:     %s\n\n", ResolveDbFileSize(dbPath))
 }
 

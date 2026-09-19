@@ -41,13 +41,12 @@ func resolveRepoRootDir() string {
 }
 
 func resolvePipelineDirForRepo(repo string) string {
-	baseDir := resolvePipelineDir()
-	if len(repo) == 0 {
-		return baseDir
+	targetRepo := repo
+	if len(targetRepo) == 0 {
+		targetRepo = resolveCurrentRepoSlug()
 	}
 
-	cleanRepo := strings.ReplaceAll(repo, "/", "_")
-	return filepath.Join(baseDir, cleanRepo)
+	return pipelinedb.RepoPipelineDir(targetRepo)
 }
 
 func readCachedPipelineLog(runId uint64) (string, bool) {
@@ -70,34 +69,19 @@ func readCachedPipelineLogForRepo(repo string, runId uint64) (string, bool) {
 }
 
 func writeCachedPipelineLog(runId uint64, logContent, repo string) error {
-	dir := resolvePipelineDir()
+	dir := resolvePipelineDirForRepo(repo)
 	if err := os.MkdirAll(dir, 0755); err != nil {
 		return err
 	}
 
-	logFile := filepath.Join(dir, fmt.Sprintf("%d.log", runId))
+	logFile := filepath.ToSlash(filepath.Join(dir, fmt.Sprintf("%d.log", runId)))
 	if err := os.WriteFile(logFile, []byte(logContent), 0644); err != nil {
 		return err
 	}
 
-	stageRepoScopedLog(repo, runId, logContent)
 	persistLogToRepoSplitDb(repo, runId, logContent)
 
 	return writeCachedPipelineJSON(dir, runId, logFile, repo, len(logContent))
-}
-
-func stageRepoScopedLog(repo string, runId uint64, logContent string) {
-	if len(repo) == 0 {
-		return
-	}
-
-	repoDir := resolvePipelineDirForRepo(repo)
-	if err := os.MkdirAll(repoDir, 0755); err != nil {
-		return
-	}
-
-	repoLogFile := filepath.Join(repoDir, fmt.Sprintf("%d.log", runId))
-	_ = os.WriteFile(repoLogFile, []byte(logContent), 0644)
 }
 
 func readCachedPipelineJobs(runId uint64, repo string) ([]ghJobItem, bool) {
@@ -138,16 +122,10 @@ func writeCachedPipelineJobs(runId uint64, repo string, jobs []ghJobItem) error 
 		return err
 	}
 
-	dir := resolvePipelineDir()
-	_ = os.MkdirAll(dir, 0755)
-	_ = os.WriteFile(filepath.Join(dir, fmt.Sprintf("%d.jobs.json", runId)), data, 0644)
-	if len(repo) > 0 {
-		repoDir := resolvePipelineDirForRepo(repo)
-		_ = os.MkdirAll(repoDir, 0755)
-		_ = os.WriteFile(filepath.Join(repoDir, fmt.Sprintf("%d.jobs.json", runId)), data, 0644)
-	}
+	repoDir := resolvePipelineDirForRepo(repo)
+	_ = os.MkdirAll(repoDir, 0755)
 
-	return nil
+	return os.WriteFile(filepath.Join(repoDir, fmt.Sprintf("%d.jobs.json", runId)), data, 0644)
 }
 
 func buildPersistRecords(repo string, runId uint64, workflow, raw, clean string) (pipelinedb.PipelineErrorRecord, pipelinedb.PipelineCompactErrorRecord) {
@@ -202,36 +180,88 @@ func writeCachedPipelineJSON(dir string, runId uint64, logFile, repo string, byt
 	return os.WriteFile(jsonFile, jsonBytes, 0644)
 }
 
+func isFileExisting(path string) bool {
+	info, err := os.Stat(path)
+	if err != nil {
+		return false
+	}
+
+	return !info.IsDir()
+}
+
 func getCachedPipelineLogPath(runId uint64) string {
-	return filepath.Join(resolvePipelineDir(), fmt.Sprintf("%d.log", runId))
+	return getCachedPipelineLogPathForRepo("", runId)
+}
+
+func getCachedPipelineLogPathForRepo(repo string, runId uint64) string {
+	dir := resolvePipelineDirForRepo(repo)
+	repoFile := filepath.Join(dir, fmt.Sprintf("%d.log", runId))
+	if isFileExisting(repoFile) {
+		return filepath.ToSlash(repoFile)
+	}
+
+	legacyFile := filepath.Join(resolvePipelineDir(), fmt.Sprintf("%d.log", runId))
+	if isFileExisting(legacyFile) {
+		_ = os.Rename(legacyFile, repoFile)
+
+		return filepath.ToSlash(repoFile)
+	}
+
+	return filepath.ToSlash(repoFile)
 }
 
 func getCachedPipelineJSONPath(runId uint64) string {
-	return filepath.Join(resolvePipelineDir(), fmt.Sprintf("%d.json", runId))
+	return getCachedPipelineJSONPathForRepo("", runId)
+}
+
+func getCachedPipelineJSONPathForRepo(repo string, runId uint64) string {
+	dir := resolvePipelineDirForRepo(repo)
+
+	return filepath.ToSlash(filepath.Join(dir, fmt.Sprintf("%d.json", runId)))
 }
 
 func resolvePipelineErrorReportPath() string {
-	return filepath.Join(resolvePipelineDir(), "pipeline_errors.log")
+	return resolvePipelineErrorReportPathForRepo("")
+}
+
+func resolvePipelineErrorReportPathForRepo(repo string) string {
+	dir := resolvePipelineDirForRepo(repo)
+	_ = os.MkdirAll(dir, 0755)
+
+	target := filepath.Join(dir, "pipeline_errors.log")
+	if isFileExisting(target) {
+		return filepath.ToSlash(target)
+	}
+
+	legacy := filepath.Join(resolvePipelineDir(), "pipeline_errors.log")
+	if isFileExisting(legacy) {
+		_ = os.Rename(legacy, target)
+	}
+
+	return filepath.ToSlash(target)
 }
 
 func writeCombinedErrorReport(content string) (string, error) {
-	dir := resolvePipelineDir()
-	if err := os.MkdirAll(dir, 0755); err != nil {
-		return "", err
-	}
+	return writeCombinedErrorReportForRepo("", content)
+}
 
-	reportPath := resolvePipelineErrorReportPath()
+func writeCombinedErrorReportForRepo(repo string, content string) (string, error) {
+	reportPath := resolvePipelineErrorReportPathForRepo(repo)
 	if err := os.WriteFile(reportPath, []byte(content), 0644); err != nil {
 		return "", err
 	}
 
-	_ = writeLastErrorLog(content)
+	_ = writeLastErrorLogForRepo(repo, content)
 
-	return reportPath, nil
+	return filepath.ToSlash(reportPath), nil
 }
 
 func writeLastErrorLog(content string) error {
-	dir := resolvePipelineDir()
+	return writeLastErrorLogForRepo("", content)
+}
+
+func writeLastErrorLogForRepo(repo string, content string) error {
+	dir := resolvePipelineDirForRepo(repo)
 	_ = os.MkdirAll(dir, 0755)
 	lastErrFile := filepath.Join(dir, "last_error.log")
 
@@ -239,7 +269,13 @@ func writeLastErrorLog(content string) error {
 }
 
 func clearLocalErrorLogs() {
-	_ = os.Remove(resolvePipelineErrorReportPath())
-	lastErrFile := filepath.Join(resolvePipelineDir(), "last_error.log")
-	_ = os.Remove(lastErrFile)
+	clearLocalErrorLogsForRepo("")
+}
+
+func clearLocalErrorLogsForRepo(repo string) {
+	_ = os.Remove(resolvePipelineErrorReportPathForRepo(repo))
+	dir := resolvePipelineDirForRepo(repo)
+	_ = os.Remove(filepath.Join(dir, "last_error.log"))
+	_ = os.Remove(filepath.Join(resolvePipelineDir(), "pipeline_errors.log"))
+	_ = os.Remove(filepath.Join(resolvePipelineDir(), "last_error.log"))
 }

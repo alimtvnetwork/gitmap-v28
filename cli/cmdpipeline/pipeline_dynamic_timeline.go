@@ -206,9 +206,9 @@ func fallbackWorkflowDuration(workflowName string) int {
 		return 95
 	}
 
-	if strings.Contains(lowerName, "ci") {
+	if strings.Contains(lowerName, "ci") || strings.Contains(lowerName, "smoke") || strings.Contains(lowerName, "test") {
 		return 180
 	}
 
-	return 90
+	return 120
 }

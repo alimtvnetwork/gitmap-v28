@@ -25,18 +25,21 @@ func isDirExisting(path string) bool {
 	return fi.IsDir()
 }
 
-func migrateOrFallbackPipelineDb(dir, slug, targetPrefixed string) string {
-	legacyDir := filepath.Join(store.BinaryDataDir(), "pipeline_db")
-	legacyFile := filepath.Join(legacyDir, "pipeline_"+slug+".db")
-	hasLegacy := isFileExisting(legacyFile)
-	if !hasLegacy {
-		return targetPrefixed
+func migrateOrFallbackPipelineDb(dir, slug, targetPath string) string {
+	candidates := []string{
+		filepath.Join(dir, "pipeline_"+slug+".db"),
+		filepath.Join(dir, slug+".db"),
+		filepath.Join(store.BinaryDataDir(), "pipeline_db", "pipeline_"+slug+".db"),
+	}
+	for _, cand := range candidates {
+		if isFileExisting(cand) {
+			if err := os.Rename(cand, targetPath); err == nil {
+				return targetPath
+			}
+
+			return cand
+		}
 	}
 
-	err := os.Rename(legacyFile, targetPrefixed)
-	if err == nil {
-		return targetPrefixed
-	}
-
-	return legacyFile
+	return targetPath
 }

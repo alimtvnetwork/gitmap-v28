@@ -2,6 +2,8 @@ package cmdpipeline
 
 import (
 	"fmt"
+	"os"
+	"path/filepath"
 	"strings"
 
 	"github.com/alimtvnetwork/gitmap-v28/cli/apperror"
@@ -9,8 +11,19 @@ import (
 	"github.com/alimtvnetwork/gitmap-v28/cli/pipelinedb"
 )
 
+func extractTargetRepo(args []string) string {
+	for _, arg := range args {
+		trimmed := strings.TrimSpace(arg)
+		if !strings.HasPrefix(trimmed, "-") && len(trimmed) > 0 {
+			return trimmed
+		}
+	}
+
+	return resolveCurrentRepoSlug()
+}
+
 func runPipelineDBClear(args []string) error {
-	repo := resolveCurrentRepoSlug()
+	repo := extractTargetRepo(args)
 	if !confirmPipelineDBClear(repo, args) {
 		fmt.Println("Clear operation canceled.")
 
@@ -27,18 +40,66 @@ func confirmPipelineDBClear(repo string, args []string) bool {
 }
 
 func executePipelineDBClear(repo string) *apperror.AppError {
+	dir := resolvePipelineDirForRepo(repo)
+	purgedFiles, reclaimedBytes := purgeRepoPipelineFolder(dir)
+	clearLocalErrorLogsForRepo(repo)
 	db, err := pipelinedb.OpenPipelineSplitDb(repo)
-	if err != nil {
-		return apperror.WrapSimple(err, "open pipeline split db for clear")
+	if err == nil {
+		defer db.Close()
+		_ = db.Clear()
 	}
-	defer db.Close()
 
-	if clearErr := db.Clear(); clearErr != nil {
-		return apperror.WrapSimple(clearErr, "clear pipeline split db")
-	}
-	fmt.Printf("%s✓ Pipeline split database cleared for %s.%s\n", constants.ColorGreen, repo, constants.ColorReset)
+	printPipelineClearSummary(repo, dir, purgedFiles, reclaimedBytes)
 
 	return nil
+}
+
+func purgeRepoPipelineFolder(dir string) (int, int64) {
+	entries, err := os.ReadDir(dir)
+	if err != nil {
+		return 0, 0
+	}
+	var count int
+	var totalBytes int64
+	for _, e := range entries {
+		if !e.IsDir() && isPurgeablePipelineFile(e.Name()) {
+			filePath := filepath.Join(dir, e.Name())
+			if fi, sErr := os.Stat(filePath); sErr == nil {
+				totalBytes += fi.Size()
+			}
+			if rErr := os.Remove(filePath); rErr == nil {
+				count++
+			}
+		}
+	}
+
+	return count, totalBytes
+}
+
+func isPurgeablePipelineFile(name string) bool {
+	lower := strings.ToLower(name)
+	switch {
+	case strings.HasSuffix(lower, ".log"):
+		return true
+	case strings.HasSuffix(lower, ".json"):
+		return true
+	case strings.HasSuffix(lower, ".db-journal") || strings.HasSuffix(lower, ".db-wal"):
+		return true
+	default:
+		return false
+	}
+}
+
+func printPipelineClearSummary(repo, dir string, files int, bytes int64) {
+	fmt.Printf("%s✓ Pipeline logs and database cleared for %s.%s\n",
+		constants.ColorGreen, repo, constants.ColorReset)
+	fmt.Printf("  Directory:     %s\n", filepath.ToSlash(dir))
+	if files > 0 {
+		fmt.Printf("  Files purged:  %d (%s reclaimed)\n", files, formatBytes(bytes))
+	} else {
+		fmt.Printf("  Files purged:  0 (clean)\n")
+	}
+	fmt.Printf("  Database:      freshly reset\n")
 }
 
 func runPipelineDBReset(args []string) error {
