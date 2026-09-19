@@ -7,9 +7,7 @@ package cmdpull
 // menu's power-user "pull-all" action; equivalent to
 // `gitmap pull --all <forwarded flags>`.
 func runPullAll(args []string) error {
-	runPull(prependAll(args))
-
-	return nil
+	return runPull(prependAll(args))
 }
 
 // prependAll injects --all at the front of args unless the caller

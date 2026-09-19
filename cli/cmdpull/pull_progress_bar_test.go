@@ -5,6 +5,8 @@ import (
 	"strings"
 	"testing"
 	"time"
+
+	"github.com/alimtvnetwork/gitmap-v28/cli/constants"
 )
 
 func TestFormatVisualBarSafe(t *testing.T) {
@@ -212,3 +214,49 @@ func TestFormatActiveWorkersListBounded(t *testing.T) {
 		t.Fatalf("expected summary to contain '(+1 more)', got %q", summary)
 	}
 }
+
+func TestColorizeBarAndBadge(t *testing.T) {
+	bar := NewPullProgressBar(1, false, false)
+	cyanBar := bar.colorizeBar("[====]", 50)
+	isCyan := strings.Contains(cyanBar, constants.ColorCyan)
+	if !isCyan {
+		t.Fatalf("expected cyan bar, got %q", cyanBar)
+	}
+	greenBar := bar.colorizeBar("[====]", 100)
+	isGreen := strings.Contains(greenBar, constants.ColorGreen)
+	if !isGreen {
+		t.Fatalf("expected green bar, got %q", greenBar)
+	}
+	badge := bar.colorizeBadge("✔", PullStepTypeUpToDate)
+	isBadgeGreen := strings.Contains(badge, constants.ColorGreen)
+	if !isBadgeGreen {
+		t.Fatalf("expected green badge, got %q", badge)
+	}
+}
+
+func TestPrependAll(t *testing.T) {
+	res1 := prependAll([]string{"--verbose"})
+	isFirstAll := len(res1) == 2 && res1[0] == "--all"
+	if !isFirstAll {
+		t.Fatalf("expected --all prepended, got %v", res1)
+	}
+	res2 := prependAll([]string{"--all", "--verbose"})
+	isUnchanged := len(res2) == 2 && res2[0] == "--all"
+	if !isUnchanged {
+		t.Fatalf("expected idempotent prepend, got %v", res2)
+	}
+}
+
+func TestNormalizePullArgsPa(t *testing.T) {
+	res := NormalizePullArgs([]string{"pa", "--verbose"})
+	hasAll := len(res) == 2 && res[0] == "--all"
+	if !hasAll {
+		t.Fatalf("expected 'pa' normalized to '--all', got %v", res)
+	}
+	res2 := NormalizePullArgs([]string{"pull-all"})
+	hasPullAll := len(res2) == 1 && res2[0] == "--all"
+	if !hasPullAll {
+		t.Fatalf("expected 'pull-all' normalized to '--all', got %v", res2)
+	}
+}
+

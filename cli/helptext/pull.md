@@ -9,6 +9,8 @@ p
 ## Usage
 
     gitmap pull [<repo-name> | all] [flags]
+    gitmap pull-all [flags]
+    gitmap pa [flags]
     gitmap git pull [<repo-name>] [flags]
     gitmap git pull-all [flags]
 
@@ -48,10 +50,10 @@ p
 
     ⠋ [████████████████████] 100% [Step 4/4] Complete (up-to-date) | ✔ my-api: up-to-date (0.4s)
 
-      REPO      BRANCH   RANGE     CHANGES   STATUS     TIME
-      ------------------------------------------------------
-      my-api    main     a1b2c3d   -         ✔ active   0.4s
-      ------------------------------------------------------
+      REPO      BRANCH   RANGE     CHANGES   STATUS
+      -----------------------------------------------
+      my-api    main     a1b2c3d   -         ✔ active
+      -----------------------------------------------
 
 ### Example 2: Pull all tracked repos using the `all` keyword
 
@@ -61,14 +63,14 @@ p
 
     ⠋ [████████████░░░░░░░░]  60% (3/5 repos) | [W0: auth-gateway: up-to-date], [W1: payments-api: Receiving (45%)] (1.8s)
 
-      REPO             BRANCH   COMMIT RANGE       CHANGES      PR/TRACK   STATUS      TIME
-      -------------------------------------------------------------------------------------
-      auth-gateway     main     9ff44cf            up-to-date   synced     ✔ active    0.5s
-      billing-svc      main     a1b2c3d..e5f6g7h   +24/-5 (3)   synced     ✔ updated   1.2s
-      notification-svc main     77c6edf            up-to-date   synced     ✔ active    0.5s
-      payments-api     main     03be798..f1d94df   +12/-2 (2)   synced     ✔ updated   0.8s
-      user-svc         develop  5e7599b            up-to-date   synced     ✔ active    0.6s
-      -------------------------------------------------------------------------------------
+      REPO             BRANCH   COMMIT RANGE       CHANGES      PR    STATUS
+      -----------------------------------------------------------------------
+      auth-gateway     main     9ff44cf            -            -     ✔ active
+      billing-svc      main     a1b2c3d..e5f6g7h   +24/-5 (3)   01    ✔ updated
+      notification-svc main     77c6edf            -            -     ✔ active
+      payments-api     main     03be798..f1d94df   +12/-2 (2)   02    ✔ updated
+      user-svc         develop  5e7599b            -            -     ✔ active
+      -----------------------------------------------------------------------
 
 ### Example 3: Pull all repos in a group
 

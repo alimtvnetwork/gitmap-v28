@@ -18,6 +18,7 @@ import (
 	"github.com/alimtvnetwork/gitmap-v28/cli/constants"
 	"github.com/alimtvnetwork/gitmap-v28/cli/fsutil"
 	"github.com/alimtvnetwork/gitmap-v28/cli/gitutil"
+	"github.com/alimtvnetwork/gitmap-v28/cli/glyphs"
 	"github.com/alimtvnetwork/gitmap-v28/cli/model"
 	"github.com/alimtvnetwork/gitmap-v28/cli/store"
 	"github.com/alimtvnetwork/gitmap-v28/cli/verbose"
@@ -38,11 +39,11 @@ type pullOptions struct {
 	isRaw         bool
 }
 
-// NormalizePullArgs converts positional "all" argument into "--all" flag.
+// NormalizePullArgs converts positional "all", "pa", or "pull-all" argument into "--all" flag.
 func NormalizePullArgs(args []string) []string {
 	normalized := make([]string, 0, len(args))
 	for _, a := range args {
-		if a == "all" {
+		if a == "all" || a == "pa" || a == "pull-all" {
 			normalized = append(normalized, "--all")
 		} else {
 			normalized = append(normalized, a)
@@ -55,8 +56,9 @@ func NormalizePullArgs(args []string) []string {
 // runPull handles the "pull" subcommand.
 func runPull(args []string) error {
 	checkHelp("pull", args)
+	isPullAll := isPullAllInvocation(args)
 	args = NormalizePullArgs(args)
-	printPullInvocationHeader()
+	printPullInvocationHeader(isPullAll)
 	requireOnline()
 	if handleTransportPull(args) {
 		return nil
@@ -69,14 +71,59 @@ func runPull(args []string) error {
 	return dispatchPullExecution(opts)
 }
 
-func printPullInvocationHeader() {
+func isPullAllInvocation(args []string) bool {
+	if isPullAllRootCmd() {
+		return true
+	}
+
+	return hasPullAllArg(args)
+}
+
+func isPullAllRootCmd() bool {
+	if len(os.Args) <= 1 {
+		return false
+	}
+	first := strings.ToLower(os.Args[1])
+
+	return first == "pull-all" || first == "pa"
+}
+
+func hasPullAllArg(args []string) bool {
+	for _, a := range args {
+		if a == "--all" || a == "-all" || a == "-a" || a == "all" || a == "pa" || a == "pull-all" {
+			return true
+		}
+	}
+
+	return false
+}
+
+func printPullInvocationHeader(isPullAll bool) {
 	cwd, _ := os.Getwd()
-	fmt.Printf("→ gitmap pull (cwd: %s)\n", cwd)
+	cmdName := "pull"
+	if isPullAll {
+		cmdName = "pull-all"
+	}
+	fmt.Printf("\n  %s→%s %sgitmap %s%s %s(cwd: %s)%s\n",
+		constants.ColorCyan, constants.ColorReset,
+		constants.ColorBold, cmdName, constants.ColorReset,
+		constants.ColorDim, cwd, constants.ColorReset)
+}
+
+func resolveSubArrow() string {
+	if glyphs.Resolve() == glyphs.ModeSafe {
+		return "->"
+	}
+
+	return "↳"
 }
 
 func dispatchPullExecution(opts pullOptions) error {
 	if isPullCWDEnabled(opts) {
-		fmt.Println("  ↳ cwd is a git repo — running plain `git pull` here")
+		arrow := resolveSubArrow()
+		fmt.Printf("    %s%s%s %scwd is a git repo — running plain `git pull` here%s\n\n",
+			constants.ColorCyan, arrow, constants.ColorReset,
+			constants.ColorDim, constants.ColorReset)
 
 		return runPullCWD(opts.isRaw)
 	}
@@ -100,7 +147,7 @@ func runPullBatch(opts pullOptions) error {
 	if !isFound {
 		return nil
 	}
-	fmt.Printf("  ↳ resolved %d repo(s) to pull\n", len(records))
+	printResolvedPullRepos(len(records))
 	filtered := applyPullAvailableFilter(records, opts.onlyAvailable)
 	if opts.onlyAvailable && len(filtered) == 0 {
 		fmt.Print(constants.MsgPullNoAvailable)
@@ -109,6 +156,13 @@ func runPullBatch(opts pullOptions) error {
 	}
 
 	return executePullBatchLifecycle(filtered, opts)
+}
+
+func printResolvedPullRepos(count int) {
+	arrow := resolveSubArrow()
+	fmt.Printf("    %s%s%s resolved %s%d%s repo(s) to pull\n\n",
+		constants.ColorCyan, arrow, constants.ColorReset,
+		constants.ColorBold, count, constants.ColorReset)
 }
 
 func applyPullAvailableFilter(records []model.ScanRecord, isOnlyAvailable bool) []model.ScanRecord {
@@ -293,7 +347,8 @@ func applyTransportSafe(cwd string, useSSH, useHTTPS bool) bool {
 
 func executeGitPullCommand(cwd string, extraArgs []string) error {
 	gitArgs := append([]string{"pull"}, extraArgs...)
-	fmt.Printf("→ Running: git %s (cwd: %s)\n", joinForLog(gitArgs), cwd)
+	arrow := resolveSubArrow()
+	fmt.Printf("    %s%s%s Running: git %s (cwd: %s)\n", constants.ColorCyan, arrow, constants.ColorReset, joinForLog(gitArgs), cwd)
 	cmd := exec.Command("git", gitArgs...)
 	cmd.Stdin = os.Stdin
 	cmd.Stdout = os.Stdout
@@ -599,7 +654,10 @@ func resolvePullBatchRecords(opts pullOptions) ([]model.ScanRecord, bool) {
 		records = findChildrenOfCWD(cwd)
 	}
 	if len(records) == 0 {
-		fmt.Println("  ↳ nothing to pull: no tracked repositories found in or under this directory.")
+		arrow := resolveSubArrow()
+		fmt.Printf("    %s%s%s %snothing to pull: no tracked repositories found in or under this directory.%s\n\n",
+			constants.ColorCyan, arrow, constants.ColorReset,
+			constants.ColorDim, constants.ColorReset)
 
 		return nil, false
 	}
@@ -619,9 +677,11 @@ func handleNonGitPull(cwd string, extraArgs []string) error {
 }
 
 func pullDiscoveredChildren(cwd string, childRepos []string, extraArgs []string) error {
-	fmt.Printf("→ Discovered %d child repositories in %s for pull:\n", len(childRepos), cwd)
+	arrow := resolveSubArrow()
+	fmt.Printf("    %s%s%s Discovered %d child repositories in %s for pull:\n",
+		constants.ColorCyan, arrow, constants.ColorReset, len(childRepos), cwd)
 	for _, r := range childRepos {
-		fmt.Printf("  • %s\n", filepath.Base(r))
+		fmt.Printf("      • %s\n", filepath.Base(r))
 		gitArgs := make([]string, 0, 3+len(extraArgs))
 		gitArgs = append(gitArgs, "-C", r, "pull")
 		gitArgs = append(gitArgs, extraArgs...)

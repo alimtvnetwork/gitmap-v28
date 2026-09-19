@@ -2,6 +2,8 @@
 package cmdpull
 
 import (
+	"fmt"
+	"strconv"
 	"strings"
 
 	"github.com/mattn/go-runewidth"
@@ -11,6 +13,7 @@ import (
 
 func stripBranchPrefix(branch string) string {
 	candidatePrefixes := []string{
+		"backup/",
 		"feature/",
 		"feat/",
 		"release/",
@@ -30,6 +33,68 @@ func stripBranchPrefix(branch string) string {
 	}
 
 	return branch
+}
+
+// leadTruncate truncates input from the front, retaining ending text with leading "...".
+func leadTruncate(input string, maxLength int) string {
+	runes := []rune(input)
+	if len(runes) <= maxLength {
+		return input
+	}
+	if maxLength <= 0 {
+		return ""
+	}
+	if maxLength <= 3 {
+		return string(runes[len(runes)-maxLength:])
+	}
+
+	keepLen := maxLength - 3
+	return "..." + string(runes[len(runes)-keepLen:])
+}
+
+// formatLatestBranchName strips prefixes and preserves the ending text if truncated.
+func formatLatestBranchName(branch string, maxLength int) string {
+	if len(branch) == 0 {
+		return ""
+	}
+
+	cleanedBranch := stripBranchPrefix(branch)
+	return leadTruncate(cleanedBranch, maxLength)
+}
+
+// formatPRCell formats PR count as a 2-digit number (e.g. "01", "02", "30") or "-" if 0/untracked.
+func formatPRCell(prStatus string) string {
+	prStatus = strings.TrimSpace(prStatus)
+	if prStatus == "" || prStatus == "—" || prStatus == "-" {
+		return "-"
+	}
+
+	numStr := extractLeadingDigits(prStatus)
+	if numStr == "" {
+		return "-"
+	}
+
+	count, err := strconv.Atoi(numStr)
+	if err != nil || count <= 0 {
+		return "-"
+	}
+
+	return fmt.Sprintf("%02d", count)
+}
+
+func extractLeadingDigits(s string) string {
+	var b strings.Builder
+	for _, r := range s {
+		if r >= '0' && r <= '9' {
+			b.WriteRune(r)
+			continue
+		}
+		if b.Len() > 0 {
+			break
+		}
+	}
+
+	return b.String()
 }
 
 func middleTruncate(input string, maxLength int, endLength int) string {

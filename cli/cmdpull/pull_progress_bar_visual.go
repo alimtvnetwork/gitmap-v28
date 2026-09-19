@@ -11,10 +11,10 @@ func (p *PullProgressBar) renderNonTTY() {
 	percent := calcProgressPercent(p.completed, p.total)
 	bar := FormatVisualBar(p.completed, p.total, 20, p.isSafe)
 	counter := fmt.Sprintf("%3d%% (%d/%d repos)", percent, p.completed, p.total)
-	badge := FormatStepBadge(p.activeStep, p.isSafe)
+	badge := p.colorizeBadge(FormatStepBadge(p.activeStep, p.isSafe), p.activeStep)
 	desc := p.formatActiveDescription()
 
-	fmt.Fprintf(p.out, "%s %s | %s %s%s\n", bar, counter, badge, p.activeRepo, desc)
+	fmt.Fprintf(p.out, "  %s %s | %s %s%s\n", p.colorizeBar(bar, percent), counter, badge, p.activeRepo, desc)
 }
 
 func (p *PullProgressBar) resolveSingleRepoPercent() int {

@@ -29,7 +29,7 @@ func (l *PullTableLayout) PrintRow(r model.PullTableRow) {
 func (l *PullTableLayout) printWideRow(r model.PullTableRow) {
 	renderedRepo, _ := l.renderRepoCol(r.RepoName, r.IsDirty)
 	formattedBranch := formatBranchName(r.Branch, l.MaxBranch)
-	formattedLatestBr := formatBranchName(r.LatestBranch, l.MaxLatestBr)
+	formattedLatestBr := formatLatestBranchName(r.LatestBranch, l.MaxLatestBr)
 	commitRange := resolveRowCommitRange(r, l.MaxRange)
 	changes := resolveRowChanges(r, l.MaxChanges)
 	line := l.formatWideRowLine(renderedRepo, formattedBranch, formattedLatestBr, commitRange, changes, r)
@@ -38,7 +38,7 @@ func (l *PullTableLayout) printWideRow(r model.PullTableRow) {
 }
 
 func (l *PullTableLayout) formatWideRowLine(repo, br, latestBr, rng, ch string, r model.PullTableRow) string {
-	pr := middleTruncate(r.PRStatus, l.MaxPR, 3)
+	pr := formatPRCell(r.PRStatus)
 	status, _ := l.renderStatusCol(r.PullStatus, r.IsDirty)
 	sep := "   "
 
@@ -49,8 +49,7 @@ func (l *PullTableLayout) formatWideRowLine(repo, br, latestBr, rng, ch string, 
 		PadVisual(rng, l.MaxRange) + sep +
 		PadVisual(ch, l.MaxChanges) + sep +
 		PadVisual(pr, l.MaxPR) + sep +
-		PadVisual(status, l.MaxStatus) + sep +
-		r.Duration
+		status
 }
 
 func (l *PullTableLayout) printCompactRow(r model.PullTableRow) {
@@ -66,8 +65,7 @@ func (l *PullTableLayout) printCompactRow(r model.PullTableRow) {
 		PadVisual(formattedBranch, l.MaxBranch) + sep +
 		PadVisual(commitRange, l.MaxRange) + sep +
 		PadVisual(changes, l.MaxChanges) + sep +
-		PadVisual(renderedStatus, l.MaxStatus) + sep +
-		r.Duration
+		renderedStatus
 
 	fmt.Println(line)
 }
@@ -83,7 +81,7 @@ func resolveRowCommitRange(r model.PullTableRow, maxLen int) string {
 
 func resolveRowChanges(r model.PullTableRow, maxLen int) string {
 	val := r.Changes
-	if val == "" {
+	if val == "" || val == "up-to-date" {
 		val = "-"
 	}
 

@@ -15,7 +15,7 @@ func (p *PullProgressBar) formatWorkersSummary() string {
 }
 
 func (p *PullProgressBar) formatFallbackSummary() string {
-	badge := FormatStepBadge(p.activeStep, p.isSafe)
+	badge := p.colorizeBadge(FormatStepBadge(p.activeStep, p.isSafe), p.activeStep)
 	desc := p.formatActiveDescription()
 
 	return fmt.Sprintf("%s %s%s", badge, p.activeRepo, desc)
@@ -28,12 +28,14 @@ func (p *PullProgressBar) formatActiveWorkersList() string {
 	}
 	if len(workerIDs) == 1 {
 		w := p.activeWorkers[workerIDs[0]]
-		return fmt.Sprintf("%s %s%s", FormatStepBadge(w.Step, p.isSafe), w.RepoName, formatWorkerSlotDesc(w))
+		badge := p.colorizeBadge(FormatStepBadge(w.Step, p.isSafe), w.Step)
+		return fmt.Sprintf("%s %s%s", badge, w.RepoName, formatWorkerSlotDesc(w))
 	}
 	var parts []string
 	for i := 0; i < len(workerIDs) && i < 2; i++ {
 		w := p.activeWorkers[workerIDs[i]]
-		parts = append(parts, fmt.Sprintf("%s %s", FormatStepBadge(w.Step, p.isSafe), w.RepoName))
+		badge := p.colorizeBadge(FormatStepBadge(w.Step, p.isSafe), w.Step)
+		parts = append(parts, fmt.Sprintf("%s %s", badge, w.RepoName))
 	}
 	summary := strings.Join(parts, ", ")
 	if len(workerIDs) > 2 {

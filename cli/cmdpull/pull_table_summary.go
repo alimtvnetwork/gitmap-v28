@@ -20,5 +20,5 @@ func RenderPullBatchTable(rows []model.PullTableRow) {
 		layout.PrintRow(r)
 	}
 
-	fmt.Printf("  %s\n", strings.Repeat("-", layout.DividerLen))
+	fmt.Printf("  %s\n\n", strings.Repeat("-", layout.DividerLen))
 }

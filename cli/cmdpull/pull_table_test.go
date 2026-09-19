@@ -270,3 +270,92 @@ func TestFormatPullStatusCheckmarks(t *testing.T) {
 		t.Errorf("expected '● dirty', got %q", dirtyStatus)
 	}
 }
+
+func TestLeadTruncate(t *testing.T) {
+	short := "main"
+	if leadTruncate(short, 10) != "main" {
+		t.Errorf("expected 'main', got %q", leadTruncate(short, 10))
+	}
+
+	long := "backup/plan-29-auto-aliasing-92927"
+	truncated := leadTruncate(long, 12)
+	if len(truncated) != 12 {
+		t.Errorf("expected len 12, got len %d (%q)", len(truncated), truncated)
+	}
+	if !strings.HasPrefix(truncated, "...") {
+		t.Errorf("expected prefix '...', got %q", truncated)
+	}
+	if !strings.HasSuffix(truncated, "92927") {
+		t.Errorf("expected suffix '92927', got %q", truncated)
+	}
+}
+
+func TestFormatLatestBranchName(t *testing.T) {
+	backupBr := "backup/plan-29-auto-aliasing-92927"
+	got := formatLatestBranchName(backupBr, 13)
+	if !strings.HasPrefix(got, "...") || !strings.HasSuffix(got, "92927") {
+		t.Errorf("expected '...92927', got %q", got)
+	}
+
+	depBr := "dependabot/go_modules_2026-09-19_175629"
+	gotDep := formatLatestBranchName(depBr, 14)
+	if !strings.HasPrefix(gotDep, "...") || !strings.HasSuffix(gotDep, "175629") {
+		t.Errorf("expected '...175629', got %q", gotDep)
+	}
+}
+
+func TestFormatPRCell(t *testing.T) {
+	if formatPRCell("30 Open PRs") != "30" {
+		t.Errorf("expected '30', got %q", formatPRCell("30 Open PRs"))
+	}
+	if formatPRCell("6 Open PRs") != "06" {
+		t.Errorf("expected '06', got %q", formatPRCell("6 Open PRs"))
+	}
+	if formatPRCell("1 Open PR") != "01" {
+		t.Errorf("expected '01', got %q", formatPRCell("1 Open PR"))
+	}
+	if formatPRCell("local") != "-" {
+		t.Errorf("expected '-', got %q", formatPRCell("local"))
+	}
+	if formatPRCell("0 PRs") != "-" {
+		t.Errorf("expected '-', got %q", formatPRCell("0 PRs"))
+	}
+}
+
+func TestPullTableWideUserScreenshotSimulation(t *testing.T) {
+	rows := []model.PullTableRow{
+		{
+			RepoName:     "Antigravity-Manager",
+			Branch:       "main",
+			LatestBranch: "v4.29.0",
+			CommitRange:  "06479c6..7e0",
+			Changes:      "+112/-1 (1)",
+			PRStatus:     "30 Open PRs",
+			PullStatus:   "FAST_FORWARD",
+		},
+		{
+			RepoName:     "enum-v10",
+			Branch:       "main",
+			LatestBranch: "dependabot/go_modules_2026-09-19_175629",
+			CommitRange:  "9ff44cf",
+			Changes:      "up-to-date",
+			PRStatus:     "6 Open PRs",
+			PullStatus:   "UP_TO_DATE",
+		},
+		{
+			RepoName:     "coding-guidelines-v24",
+			Branch:       "main",
+			LatestBranch: "backup/plan-29-auto-aliasing-92927",
+			CommitRange:  "7972239..8b2",
+			Changes:      "+304/-2 (2)",
+			PRStatus:     "local",
+			PullStatus:   "FAST_FORWARD",
+		},
+	}
+
+	layout := NewPullTableLayoutWithWidth(rows, 100)
+	layout.PrintHeader()
+	for _, r := range rows {
+		layout.PrintRow(r)
+	}
+}
