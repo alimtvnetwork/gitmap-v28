@@ -8,7 +8,8 @@ None.
 
 ## Recent Completed Tasks Register (Last 20 Tasks)
 
-1. [37-aum-helptext-documentation-parity-and-cli-catalog.md](completed/37-aum-helptext-documentation-parity-and-cli-catalog.md): AUM Helptext Documentation Parity & CLI Catalog Alignment
+1. [38-polyglot-worker-orchestrator-and-automation-runner.md](completed/38-polyglot-worker-orchestrator-and-automation-runner.md): Polyglot Worker Orchestrator & Automation Runner
+2. [37-aum-helptext-documentation-parity-and-cli-catalog.md](completed/37-aum-helptext-documentation-parity-and-cli-catalog.md): AUM Helptext Documentation Parity & CLI Catalog Alignment
 2. [36-aum-polyglot-script-migration-and-llm-train-suite.md](completed/36-aum-polyglot-script-migration-and-llm-train-suite.md): AUM Polyglot Script Migration & LLM Train Chained Curriculum Suite
 2. [27-completed-plans-consolidation.md](completed/27-completed-plans-consolidation.md): Completed Plans Aggressive Consolidation & Memory Reduction (v2.2.0)
 2. [26-coding-guidelines-and-linter-audits.md](completed/26-coding-guidelines-and-linter-audits.md): Coding Guidelines & Linter Audits (Booleans, Nesting, Enums, Sizes, Paths)
@@ -33,6 +34,7 @@ None.
 
 ## Completed Plans
 
+- [38-polyglot-worker-orchestrator-and-automation-runner.md](completed/38-polyglot-worker-orchestrator-and-automation-runner.md): Polyglot Worker Orchestrator & Automation Runner
 - [37-aum-helptext-documentation-parity-and-cli-catalog.md](completed/37-aum-helptext-documentation-parity-and-cli-catalog.md): AUM Helptext Documentation Parity & CLI Catalog Alignment
 - [36-aum-polyglot-script-migration-and-llm-train-suite.md](completed/36-aum-polyglot-script-migration-and-llm-train-suite.md): AUM Polyglot Script Migration & LLM Train Chained Curriculum Suite
 - [01-coding-guidelines-and-style-audits.md](completed/01-coding-guidelines-and-style-audits.md): Coding Guidelines, Sizing, Booleans & Style Quality
