@@ -6,6 +6,8 @@ Remediate dirty repositories and merge conflicts with batch or interactive promp
 
 ```bash
 gitmap fix
+gitmap fix ls
+gitmap fix list
 gitmap fix all [stash|wip|discard|1|2|3]
 gitmap fix --prompt
 gitmap fix [repo-name] [stash|wip|discard|1|2|3]
@@ -14,14 +16,18 @@ gitmap fix [repo-name] [stash|wip|discard|1|2|3]
 ## Description
 
 `gitmap fix` resolves repositories that have uncommitted local changes, untracked files,
-or conflicts preventing clean synchronization. It offers three execution modes:
+or conflicts preventing clean synchronization. It offers four execution modes:
 
-1. **Batch All Mode (`gitmap fix all`)**: Automatically applies the remediation strategy
+1. **List Repositories with Issues (`gitmap fix ls` / `gitmap fix list`)**: Live-scans all
+   tracked repositories across the workspace, detects dirty files, merge conflicts, behind/ahead
+   branch desync, unpopped stashes, and git locks, and displays an aligned diagnostic table with
+   suggested remediation commands.
+2. **Batch All Mode (`gitmap fix all`)**: Automatically applies the remediation strategy
    (defaulting to `stash` & re-apply) across all pending repositories in sequence.
-2. **Interactive Prompt Walkthrough (`gitmap fix --prompt` / `gitmap fix -p`)**: Steps through each
+3. **Interactive Prompt Walkthrough (`gitmap fix --prompt` / `gitmap fix -p`)**: Steps through each
    pending project one by one, displaying its exact pending changes and modified/untracked files
    with colored status tags, allowing individual selection, batch continuation, or skipping.
-3. **Targeted Mode (`gitmap fix <repo> [1|2|3]`)**: Directly executes a remediation strategy
+4. **Targeted Mode (`gitmap fix <repo> [1|2|3]`)**: Directly executes a remediation strategy
    on a specific repository.
 
 ## Remediation Strategies
@@ -108,6 +114,29 @@ gitmap fix --prompt
 
 ```bash
 gitmap fix all wip
+```
+
+### Example 4: Scan and list all repositories with issues
+
+```bash
+gitmap fix ls
+```
+
+**Output:**
+
+```
+ℹ Repositories Requiring Fix / Remediation (2):
+
+  #  Repository             Status / Issues                   Branch      Suggested Fix
+  ─  ─────────────────────  ────────────────────────────────  ──────────  ───────────────────────────────
+  1  icon-coding-guideline  dirty: +1 staged, +2 modified     main        gitmap fix icon-coding-guideline 1
+  2  riseup-asia            behind (3 commits)                main        gitmap fix riseup-asia 1
+
+  Remediation Commands:
+    gitmap fix <repo> [1|2|3]        (1=stash, 2=wip, 3=discard)
+    gitmap fix all                   (apply stash to all repositories)
+    gitmap fix all [1|2|3]           (apply specific strategy to all)
+    gitmap fix --prompt              (step-by-step interactive walkthrough)
 ```
 
 ## See Also

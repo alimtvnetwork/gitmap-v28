@@ -108,6 +108,10 @@ func runFix(args []string, aliasOverride string) error {
 		return cmdagy.RunPipelineFixAgyCLI(args)
 	}
 
+	if isFixLsRequest(args) {
+		return runFixLs(args)
+	}
+
 	items := LoadRemediationState()
 	if len(items) == 0 {
 		return handleEmptyRemediationState(args, aliasOverride)
@@ -147,10 +151,31 @@ func handleEmptyRemediationState(args []string, aliasOverride string) error {
 		return runFixDirect(args, aliasOverride)
 	}
 
-	fmt.Printf("%s No pending repositories require remediation.\n", constants.ColorGreen+"✓"+constants.ColorReset)
-	fmt.Println("  Run 'gitmap pull' to pull all tracked repositories.")
+	if handleLiveDiscoveredIssues() {
+		return nil
+	}
+
+	printNoPendingRemediationHelp()
 
 	return nil
+}
+
+func handleLiveDiscoveredIssues() bool {
+	liveItems := scanTrackedReposForIssues()
+	if len(liveItems) == 0 {
+		return false
+	}
+
+	_ = SaveRemediationState(liveItems)
+	PrintRemediationSummary(liveItems)
+
+	return true
+}
+
+func printNoPendingRemediationHelp() {
+	fmt.Printf("%s No pending repositories require remediation.\n", constants.ColorGreen+"✓"+constants.ColorReset)
+	fmt.Println("  Run 'gitmap fix ls' to inspect repositories with issues.")
+	fmt.Println("  Run 'gitmap pull' to pull all tracked repositories.")
 }
 
 func runFixDirect(args []string, aliasOverride string) error {
