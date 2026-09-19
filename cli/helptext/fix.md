@@ -64,7 +64,7 @@ gitmap fix all
 ℹ Remediating 3 repository(ies) with action: stash
 
 ℹ Applying Fix: Option 1 (Stash & Re-apply) on icon-coding-guidelines
-  Plan:    git stash -u && git pull && git stash pop
+  Plan:    Temporarily save local changes (including untracked), pull latest remote commits, then re-apply
 
   [1/3] ➜ git stash -u ... ✔ ok
   [2/3] ➜ git pull ... ✔ ok
@@ -73,7 +73,7 @@ gitmap fix all
 ✓ Fix applied successfully on icon-coding-guidelines
 
 ℹ Applying Fix: Option 1 (Stash & Re-apply) on bsrm-presentation-hiltrax-v4
-  Plan:    git stash -u && git pull && git stash pop
+  Plan:    Temporarily save local changes (including untracked), pull latest remote commits, then re-apply
 
   [1/3] ➜ git stash -u ... ✔ ok
   [2/3] ➜ git pull ... ✔ ok

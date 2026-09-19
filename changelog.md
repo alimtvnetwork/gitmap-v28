@@ -1,3 +1,20 @@
+## [v6.269.0] 2026-09-20 Release v6.269.0
+
+### Install GitMap v6.269.0
+
+To pin your repository to this exact version, run the following one-liner:
+Unix/Bash: `curl -sL https://raw.githubusercontent.com/alimtvnetwork/gitmap-v28/v6.269.0/install.sh | bash -s -- ".ai-memory/prompts" "v6.269.0"`
+PowerShell: `Invoke-WebRequest -Uri https://raw.githubusercontent.com/alimtvnetwork/gitmap-v28/v6.269.0/install.ps1 -OutFile install.ps1; .\install.ps1 -TargetDir ".ai-memory/prompts" -Version "v6.269.0"`
+
+### Added / Changed / Fixed / Removed
+
+- Remove raw direct git command lines (`git -C <repo> ...`) from remediation plan display in `gitmap fix`
+- Replace direct git plan string with human-readable strategy description in `executeFixRecipe`
+- Clean step command display in `executeSingleStep` to omit `-C <repoPath>` and show concise actions (`git stash -u`, `git pull`, `git stash pop`)
+- Clean remediation CLI help text and examples shown after `gitmap pull-all`
+- Add unit tests for `formatStepCommand` in `cli/cmd/fix_execute_test.go`
+- Update `cli/helptext/fix.md` examples to match clean plan output
+
 ## [v6.268.0] 2026-09-20 Release v6.268.0
 
 ### Install GitMap v6.268.0
@@ -2414,6 +2431,12 @@ PowerShell: `Invoke-WebRequest -Uri https://raw.githubusercontent.com/alimtvnetw
 - Fixed spacing in help menu.
 
 # Changelog
+
+## [v6.269.0] - 2026-09-19
+
+### Added
+- remove direct git command lines from remediation box and git fix execution
+
 
 ## [v6.268.0] - 2026-09-19
 

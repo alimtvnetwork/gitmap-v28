@@ -1,3 +1,9 @@
+## v6.269.0 — 2026-09-19 (remove direct git command lines from remediation box and git fix execution)
+
+**Scope:** Version bump. remove direct git command lines from remediation box and git fix execution.
+
+---
+
 ## v6.268.0 — 2026-09-19 (Improve SSH nodes and ls terminal view with rich color UI and add gitmap ssh nodes command)
 
 **Scope:** Version bump. Improve SSH nodes and ls terminal view with rich color UI and add gitmap ssh nodes command.

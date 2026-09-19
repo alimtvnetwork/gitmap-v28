@@ -14,7 +14,9 @@ import (
 
 func executeFixRecipe(item *RemediationItem, recipe gitutil.RemediationRecipe) error {
 	fmt.Printf("%s Applying Fix: %s on %s\n", constants.ColorCyan+"ℹ"+constants.ColorReset, recipe.Title, item.RepoName)
-	fmt.Printf("  Plan:    %s\n\n", recipe.Command)
+	if recipe.Description != "" {
+		fmt.Printf("  Plan:    %s\n\n", recipe.Description)
+	}
 
 	if len(recipe.Steps) == 0 && item.RepoPath != "" {
 		recipe.Steps = synthesizeRecipeSteps(recipe, item.RepoPath)
@@ -60,8 +62,16 @@ func executeStructuredRecipe(item *RemediationItem, recipe gitutil.RemediationRe
 	return nil
 }
 
+func formatStepCommand(step gitutil.RemediationStep) string {
+	if len(step.Args) >= 2 && step.Args[0] == "-C" {
+		return step.Name + " " + strings.Join(step.Args[2:], " ")
+	}
+
+	return step.Name + " " + strings.Join(step.Args, " ")
+}
+
 func executeSingleStep(repoName string, idx, total int, step gitutil.RemediationStep) error {
-	stepCmd := step.Name + " " + strings.Join(step.Args, " ")
+	stepCmd := formatStepCommand(step)
 	fmt.Printf("  [%d/%d] ➜ %s ... ", idx, total, stepCmd)
 
 	cmd := exec.Command(step.Name, step.Args...)
@@ -76,7 +86,10 @@ func executeSingleStep(repoName string, idx, total int, step gitutil.Remediation
 		return nil
 	}
 
-	outStr := outBuf.String()
+	return handleStepFailure(repoName, step, outBuf.String(), err)
+}
+
+func handleStepFailure(repoName string, step gitutil.RemediationStep, outStr string, err error) error {
 	if isBenignCommitClean(step, outStr) || isBenignStashClean(step, outStr) {
 		fmt.Printf("%s clean (nothing to commit/apply)\n", constants.ColorYellow+"•"+constants.ColorReset)
 
