@@ -56,25 +56,36 @@ func suggestAliases(db *store.DB, repos []store.UnaliasedRepo, autoApply bool) i
 	reader := bufio.NewReader(os.Stdin)
 
 	for _, r := range repos {
-		suggestion := r.RepoName
-		if db.AliasExists(suggestion) {
-			continue
-		}
-
-		if autoApply {
-			createSuggestedAlias(db, suggestion, r.ID)
-			created++
-
-			continue
-		}
-
-		if promptAliasSuggestion(reader, r.Slug, suggestion) {
-			createSuggestedAlias(db, suggestion, r.ID)
+		if processSingleAliasSuggestion(db, reader, r, autoApply) {
 			created++
 		}
 	}
 
 	return created
+}
+
+func processSingleAliasSuggestion(db *store.DB, reader *bufio.Reader, r store.UnaliasedRepo, autoApply bool) bool {
+	suggestion := determineRepoSuggestion(db, r)
+	if suggestion == "" {
+		return false
+	}
+	if autoApply || promptAliasSuggestion(reader, r.Slug, suggestion) {
+		createSuggestedAlias(db, suggestion, r.ID)
+
+		return true
+	}
+
+	return false
+}
+
+// determineRepoSuggestion calculates a unique suggestion for a repository.
+func determineRepoSuggestion(db *store.DB, r store.UnaliasedRepo) string {
+	candidate := GenerateAutoAlias(r.RepoName)
+	if candidate == "" {
+		candidate = r.RepoName
+	}
+
+	return ResolveUniqueAlias(candidate, db.AliasExists)
 }
 
 // promptAliasSuggestion asks the user to accept a suggested alias.
@@ -89,7 +100,7 @@ func promptAliasSuggestion(reader *bufio.Reader, slug, suggestion string) bool {
 
 // createSuggestedAlias creates an alias and prints confirmation.
 func createSuggestedAlias(db *store.DB, alias string, repoID int64) {
-	_, err := db.CreateAlias(alias, repoID)
+	_, err := db.CreateAliasWithDetails(alias, repoID, true, "auto")
 	if err != nil {
 		fmt.Fprintf(os.Stderr, constants.ErrBareFmt, err)
 

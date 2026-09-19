@@ -33,6 +33,20 @@ func (db *DB) CreateAlias(alias string, repoID int64) (model.Alias, error) {
 	return db.FindAliasByName(alias)
 }
 
+// CreateAliasWithDetails inserts a new alias with primary flag and source.
+func (db *DB) CreateAliasWithDetails(alias string, repoID int64, isPrimary bool, source string) (model.Alias, error) {
+	primaryVal := 0
+	if isPrimary {
+		primaryVal = 1
+	}
+	_, err := ExecWrapper(db.conn, constants.SQLInsertAliasFull, alias, repoID, primaryVal, source).Destruct()
+	if err != nil {
+		return model.Alias{}, fmt.Errorf(constants.ErrAliasCreate, err)
+	}
+
+	return db.FindAliasByName(alias)
+}
+
 // UpdateAlias reassigns an existing alias to a different repo.
 func (db *DB) UpdateAlias(alias string, repoID int64) error {
 	_, err := ExecWrapper(db.conn, constants.SQLUpdateAlias, repoID, alias).Destruct()
@@ -55,6 +69,18 @@ func (db *DB) FindAliasByRepoID(repoID int64) (model.Alias, error) {
 	row := QueryRowWrapper(db.conn, constants.SQLSelectAliasByRepoID, repoID)
 
 	return scanOneAlias(row)
+}
+
+// FindAliasesByRepoID retrieves all aliases for a specific repo.
+func (db *DB) FindAliasesByRepoID(repoID int64) ([]model.Alias, error) {
+	rows, err := QueryWrapper(db.conn, constants.SQLSelectAliasesByRepoID, repoID).Destruct()
+	if err != nil {
+		return nil, fmt.Errorf(constants.ErrAliasQuery, err)
+	}
+
+	defer rows.Close()
+
+	return scanAliasRowsFull(rows)
 }
 
 // ListAliases returns all aliases ordered by name.
@@ -178,4 +204,28 @@ func scanAliasRows(rows *sql.Rows) ([]model.Alias, error) { //nolint:unparam // 
 	}
 
 	return aliases, nil
+}
+
+// scanAliasRowsFull scans multiple alias rows including IsPrimary and Source.
+func scanAliasRowsFull(rows *sql.Rows) ([]model.Alias, error) { //nolint:unparam // error kept for interface consistency
+	var aliases []model.Alias
+
+	for rows.Next() {
+		if a := scanSingleAliasFull(rows); a != nil {
+			aliases = append(aliases, *a)
+		}
+	}
+
+	return aliases, nil
+}
+
+func scanSingleAliasFull(rows *sql.Rows) *model.Alias {
+	var a model.Alias
+	var isPrimaryInt int
+	if err := rows.Scan(&a.ID, &a.Alias, &a.RepoID, &isPrimaryInt, &a.Source, &a.CreatedAt); err != nil {
+		return nil
+	}
+	a.IsPrimary = isPrimaryInt == 1
+
+	return &a
 }

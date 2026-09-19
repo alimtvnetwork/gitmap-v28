@@ -23,12 +23,18 @@ const SQLCreateAlias = `CREATE TABLE IF NOT EXISTS Alias (
 	AliasId   INTEGER PRIMARY KEY AUTOINCREMENT,
 	Alias     TEXT NOT NULL UNIQUE,
 	RepoId    INTEGER NOT NULL REFERENCES Repo(RepoId) ON DELETE CASCADE,
+	IsPrimary INTEGER DEFAULT 0,
+	Source    TEXT DEFAULT 'manual',
 	CreatedAt TEXT DEFAULT CURRENT_TIMESTAMP
 )`
 
 // SQL: alias operations (v15: Alias singular, AliasId PK).
 const (
-	SQLInsertAlias = `INSERT INTO Alias (Alias, RepoId) VALUES (?, ?)`
+	SQLInsertAlias     = `INSERT INTO Alias (Alias, RepoId) VALUES (?, ?)`
+	SQLInsertAliasFull = `INSERT INTO Alias (Alias, RepoId, IsPrimary, Source) VALUES (?, ?, ?, ?)`
+
+	SQLAddAliasIsPrimary = `ALTER TABLE Alias ADD COLUMN IsPrimary INTEGER DEFAULT 0`
+	SQLAddAliasSource    = `ALTER TABLE Alias ADD COLUMN Source TEXT DEFAULT 'manual'`
 
 	SQLUpdateAlias = `UPDATE Alias SET RepoId = ? WHERE Alias = ?`
 
@@ -40,6 +46,9 @@ const (
 
 	SQLSelectAliasByRepoID = `SELECT a.AliasId, a.Alias, a.RepoId, a.CreatedAt
 		FROM Alias a WHERE a.RepoId = ?`
+
+	SQLSelectAliasesByRepoID = `SELECT a.AliasId, a.Alias, a.RepoId, COALESCE(a.IsPrimary, 0), COALESCE(a.Source, 'manual'), a.CreatedAt
+		FROM Alias a WHERE a.RepoId = ? ORDER BY a.IsPrimary DESC, a.AliasId ASC`
 
 	SQLDeleteAlias = `DELETE FROM Alias WHERE Alias = ?`
 

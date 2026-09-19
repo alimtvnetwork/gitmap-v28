@@ -29,3 +29,18 @@ type StorageCleanStats struct {
 	ReclaimedBytes   int64 `json:"reclaimedBytes"`
 	VacuumFreedBytes int64 `json:"vacuumFreedBytes"`
 }
+
+// StorageResetOptions holds user-configured flags for resetting error storage.
+type StorageResetOptions struct {
+	IsDryRun  bool `json:"isDryRun"`
+	IsVerbose bool `json:"isVerbose"`
+	IsForce   bool `json:"isForce"`
+}
+
+// StorageResetStats captures reclaimed metrics from error reset.
+type StorageResetStats struct {
+	ClearedPipelineLogs int   `json:"clearedPipelineLogs"`
+	ClearedErrorReports int   `json:"clearedErrorReports"`
+	ClearedDbRecords    int   `json:"clearedDbRecords"`
+	ReclaimedBytes      int64 `json:"reclaimedBytes"`
+}

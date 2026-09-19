@@ -8,6 +8,7 @@ import (
 	"runtime"
 
 	"github.com/alimtvnetwork/gitmap-v28/cli/apperror"
+	"github.com/alimtvnetwork/gitmap-v28/cli/cmdinstall"
 	"github.com/alimtvnetwork/gitmap-v28/cli/config"
 	"github.com/alimtvnetwork/gitmap-v28/cli/constants"
 	"github.com/alimtvnetwork/gitmap-v28/cli/desktop"
@@ -112,6 +113,7 @@ func executeScan(
 			RelRoot:       relRootBase,
 			DefaultBranch: defaultBranch,
 		})
+		records = enrichRecordsWithAliases(records)
 	})
 	outputDir := resolveOutputDir(cfg.OutputDir, absDir)
 	bench.Phase("scan.writeOutputs", func() {
@@ -136,6 +138,9 @@ func executeScan(
 	var wasFirstWorkDirRegistered bool
 	bench.Phase("scan.autoRegisterWorkDir", func() {
 		wasFirstWorkDirRegistered = autoRegisterFirstWorkDir(absDir, quiet)
+	})
+	bench.Phase("scan.autoAliases", func() {
+		autoPopulateScanAliases(quiet)
 	})
 	bench.Phase("scan.alignDBIDs", func() {
 		records = alignRecordsWithDB(records, outputDir)
@@ -345,4 +350,19 @@ func resolveOutputDir(cfgDir, scanDir string) string {
 	}
 
 	return filepath.Join(scanDir, constants.GitMapDir, constants.OutputDirName)
+}
+
+// autoPopulateScanAliases generates aliases for unaliased repositories found during scan.
+func autoPopulateScanAliases(quiet bool) {
+	db, err := store.OpenDefault()
+	if err != nil {
+		return
+	}
+
+	defer db.Close()
+
+	count, _ := cmdinstall.EnsureTrackedRepoAliases(db)
+	if count > 0 && !quiet {
+		fmt.Printf("  ✓ Auto-generated %d repository alias(es)\n", count)
+	}
 }

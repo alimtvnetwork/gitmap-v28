@@ -58,6 +58,24 @@ The indicator is suppressed automatically when `--quiet` is passed or
 when stderr is not a terminal (CI, redirected output). In those cases
 only the final summary line is emitted.
 
+## Auto-Aliasing Bracket & Multi-Alias Tree Display
+
+During repository scans and terminal output rendering, GitMap automatically surfaces repository aliases:
+
+- **Primary Alias in Brackets**: When a repository has an assigned or auto-generated alias, it is rendered in brackets immediately following the repository name:
+  ```text
+  1/5 ■ icon-coding-guidelines [icg] (main)
+       └─ git clone https://github.com/alimtvnetwork/icon-coding-guidelines
+  ```
+- **Multi-Alias Branch Tree View**: If a repository has multiple registered aliases, GitMap renders a clean branch tree view listing all aliases with primary and secondary labels:
+  ```text
+  1/5 ■ my-package [mp] (main)
+       ├─ Aliases:
+       │    ├── mp (primary)
+       │    └── my-pkg (secondary)
+       └─ git clone https://github.com/alimtvnetwork/my-package
+  ```
+
 ## Examples
 
 ### Relative path targets

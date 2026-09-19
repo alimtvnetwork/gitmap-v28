@@ -8,26 +8,26 @@ Zero pending plans. All planned work complete and verified.
 
 ## Recent Completed Tasks Register (Last 20 Tasks)
 
-1. [28-agy-prompts-templates-and-rerun-suite.md](completed/28-agy-prompts-templates-and-rerun-suite.md): Antigravity (AGY) Prompts Templates, Rerun Suite & Pipeline Error Remediations
-2. [27-completed-plans-consolidation.md](completed/27-completed-plans-consolidation.md): Completed Plans Aggressive Consolidation & Memory Reduction (v2.2.0)
-3. [26-coding-guidelines-and-linter-audits.md](completed/26-coding-guidelines-and-linter-audits.md): Coding Guidelines & Linter Audits (Booleans, Nesting, Enums, Sizes, Paths)
-4. [25-terminal-ui-help-and-agy-prompts.md](completed/25-terminal-ui-help-and-agy-prompts.md): Terminal UI, Help Text Parity, Aligned Tables & AGY CLI Prompts
-5. [24-os-management-and-power-lifecycle.md](completed/24-os-management-and-power-lifecycle.md): OS Management, Clean Profiles, Service Scheduling & Power Lifecycle
-6. [23-installers-antigravity-and-archives.md](completed/23-installers-antigravity-and-archives.md): Installers, Antigravity Setup, Linux Archives & Scripts-Fixer Parity
-7. [22-database-transactions-and-schemas.md](completed/22-database-transactions-and-schemas.md): Database Architecture: Transactions, SQLite Schemas, Profiles & Telemetry
-8. [21-type-safety-result-and-types-go.md](completed/21-type-safety-result-and-types-go.md): Type Safety: Monadic Result Wrappers, types.go Centralization & Parameter Structs
-9. [20-error-management-and-errorwrapper.md](completed/20-error-management-and-errorwrapper.md): Error Management, AppError Envelopes, Stack Traces & ErrorWrapper Architecture
-10. [19-smart-test-runner-and-inventory.md](completed/19-smart-test-runner-and-inventory.md): Smart Test Runner, Inventory Manifests & Dynamic ETA Sleep Sync
-11. [18-nuclear-package-modularization.md](completed/18-nuclear-package-modularization.md): Nuclear Package Modularization & Codebase Reorganization
-12. [17-macro-streaming-export-and-schedule.md](completed/17-macro-streaming-export-and-schedule.md): Macro Engine: Streaming, Export/Import, Run-Until, Storage & Scheduling
-13. [16-cluster-sc-and-kubernetes-suite.md](completed/16-cluster-sc-and-kubernetes-suite.md): Cluster, Servers-Clients (SC), Kubernetes Runner & Node Management
-14. [15-ssh-multicommand-and-liveness-parity.md](completed/15-ssh-multicommand-and-liveness-parity.md): SSH Multi-Command, Multi-Machine Join, Liveness & AGY Help Parity
-15. [14-pipeline-agy-fix-injection-suite.md](completed/14-pipeline-agy-fix-injection-suite.md): Pipeline Errors AGY Fix Injection, Queue & Multi-Project Batching
-16. [13-pipeline-sqlite-logs-and-history.md](completed/13-pipeline-sqlite-logs-and-history.md): CI/CD Pipeline Logs, SQLite Error History & Incremental DB
-17. [12-git-deleted-files-tracer-and-purger.md](completed/12-git-deleted-files-tracer-and-purger.md): 12-git-deleted-files-tracer-and-purger.md
-18. [11-completed-plans-consolidation.md](completed/11-completed-plans-consolidation.md): 79-completed-plans-consolidation.md
-19. [10-installers-multios-setup-and-web-stacks.md](completed/10-installers-multios-setup-and-web-stacks.md): Multi-OS Installers, Scripts & Web Stacks
-20. [09-chrome-profile-management-picker-and-token-vault.md](completed/09-chrome-profile-management-picker-and-token-vault.md): Chrome Profile Management, Picker & Token Vault
+1. [29-auto-aliasing-and-error-storage-reset.md](completed/29-auto-aliasing-and-error-storage-reset.md): Auto-Aliasing Engine, Scan Bracket/Tree Views & Error Storage Reset Suite
+2. [28-agy-prompts-templates-and-rerun-suite.md](completed/28-agy-prompts-templates-and-rerun-suite.md): Antigravity (AGY) Prompts Templates, Rerun Suite & Pipeline Error Remediations
+3. [27-completed-plans-consolidation.md](completed/27-completed-plans-consolidation.md): Completed Plans Aggressive Consolidation & Memory Reduction (v2.2.0)
+4. [26-coding-guidelines-and-linter-audits.md](completed/26-coding-guidelines-and-linter-audits.md): Coding Guidelines & Linter Audits (Booleans, Nesting, Enums, Sizes, Paths)
+5. [25-terminal-ui-help-and-agy-prompts.md](completed/25-terminal-ui-help-and-agy-prompts.md): Terminal UI, Help Text Parity, Aligned Tables & AGY CLI Prompts
+6. [24-os-management-and-power-lifecycle.md](completed/24-os-management-and-power-lifecycle.md): OS Management, Clean Profiles, Service Scheduling & Power Lifecycle
+7. [23-installers-antigravity-and-archives.md](completed/23-installers-antigravity-and-archives.md): Installers, Antigravity Setup, Linux Archives & Scripts-Fixer Parity
+8. [22-database-transactions-and-schemas.md](completed/22-database-transactions-and-schemas.md): Database Architecture: Transactions, SQLite Schemas, Profiles & Telemetry
+9. [21-type-safety-result-and-types-go.md](completed/21-type-safety-result-and-types-go.md): Type Safety: Monadic Result Wrappers, types.go Centralization & Parameter Structs
+10. [20-error-management-and-errorwrapper.md](completed/20-error-management-and-errorwrapper.md): Error Management, AppError Envelopes, Stack Traces & ErrorWrapper Architecture
+11. [19-smart-test-runner-and-inventory.md](completed/19-smart-test-runner-and-inventory.md): Smart Test Runner, Inventory Manifests & Dynamic ETA Sleep Sync
+12. [18-nuclear-package-modularization.md](completed/18-nuclear-package-modularization.md): Nuclear Package Modularization & Codebase Reorganization
+13. [17-macro-streaming-export-and-schedule.md](completed/17-macro-streaming-export-and-schedule.md): Macro Engine: Streaming, Export/Import, Run-Until, Storage & Scheduling
+14. [16-cluster-sc-and-kubernetes-suite.md](completed/16-cluster-sc-and-kubernetes-suite.md): Cluster, Servers-Clients (SC), Kubernetes Runner & Node Management
+15. [15-ssh-multicommand-and-liveness-parity.md](completed/15-ssh-multicommand-and-liveness-parity.md): SSH Multi-Command, Multi-Machine Join, Liveness & AGY Help Parity
+16. [14-pipeline-agy-fix-injection-suite.md](completed/14-pipeline-agy-fix-injection-suite.md): Pipeline Errors AGY Fix Injection, Queue & Multi-Project Batching
+17. [13-pipeline-sqlite-logs-and-history.md](completed/13-pipeline-sqlite-logs-and-history.md): CI/CD Pipeline Logs, SQLite Error History & Incremental DB
+18. [12-git-deleted-files-tracer-and-purger.md](completed/12-git-deleted-files-tracer-and-purger.md): 12-git-deleted-files-tracer-and-purger.md
+19. [11-completed-plans-consolidation.md](completed/11-completed-plans-consolidation.md): 79-completed-plans-consolidation.md
+20. [10-installers-multios-setup-and-web-stacks.md](completed/10-installers-multios-setup-and-web-stacks.md): Multi-OS Installers, Scripts & Web Stacks
 
 ## Completed Plans
 

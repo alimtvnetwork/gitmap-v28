@@ -33,6 +33,14 @@ func routeStorageSubcommand(args []string) result.ErrorWrapper {
 	if isStorageCleanSubcommand(sub) {
 		return result.MatchWrapper(runStorageClean(args[1:]))
 	}
+
+	return routeStorageSecondarySubcommand(sub, args)
+}
+
+func routeStorageSecondarySubcommand(sub string, args []string) result.ErrorWrapper {
+	if isStorageResetErrorsSubcommand(sub) {
+		return result.MatchWrapper(runStorageResetErrors(args[1:]))
+	}
 	if isStorageRestoreSubcommand(sub) {
 		return result.MatchWrapper(runStorageRestoreDB(args[1:]))
 	}
@@ -54,6 +62,10 @@ func isStorageSpaceSubcommand(sub string) bool {
 
 func isStorageRestoreSubcommand(sub string) bool {
 	return sub == "restore-db" || sub == "restoredb" || sub == "restore"
+}
+
+func isStorageResetErrorsSubcommand(sub string) bool {
+	return sub == "reset-errors" || sub == "error-reset" || sub == "reset" || sub == "clear-errors"
 }
 
 func isStorageListSubcommand(sub string) bool {

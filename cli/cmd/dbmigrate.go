@@ -87,12 +87,17 @@ func runPostUpdateMigrate() error {
 
 	defer db.Close()
 
+	return executePostUpdateMigrate(db)
+}
+
+func executePostUpdateMigrate(db *store.DB) error {
 	if err := db.Migrate(); err != nil {
 		fmt.Fprintf(os.Stderr, constants.WarnDBMigratePostFail, err)
 
 		return nil
 	}
 
+	_ = PopulateRepoAliases(db)
 	fmt.Println("  ✓ Schema migrations complete.")
 
 	return nil

@@ -6,5 +6,7 @@ type Alias struct {
 	ID        int64  `json:"id"`
 	Alias     string `json:"alias"`
 	RepoID    int64  `json:"repoId"`
+	IsPrimary bool   `json:"isPrimary,omitempty"`
+	Source    string `json:"source,omitempty"`
 	CreatedAt string `json:"createdAt"`
 }

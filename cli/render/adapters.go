@@ -32,6 +32,8 @@ func FromScanRecord(idx int, r model.ScanRecord) RepoTermBlock {
 	return RepoTermBlock{
 		Index:        idx,
 		Name:         r.RepoName,
+		PrimaryAlias: r.PrimaryAlias,
+		Aliases:      r.Aliases,
 		Branch:       r.Branch,
 		BranchSource: r.BranchSource,
 		Transport:    r.IdentifiedTransport,

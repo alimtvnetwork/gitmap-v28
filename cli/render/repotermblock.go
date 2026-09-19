@@ -40,6 +40,10 @@ type RepoTermBlock struct {
 	Index int
 	// Name is the repo's short name (basename or RepoName).
 	Name string
+	// PrimaryAlias is the primary alias displayed in brackets.
+	PrimaryAlias string
+	// Aliases lists all registered aliases for multi-alias tree view.
+	Aliases []string
 	// Branch is the detected branch ("main", "develop", …).
 	Branch string
 	// BranchSource describes how the branch was chosen: "HEAD",
@@ -75,7 +79,7 @@ const fieldUnknown = "(unknown)"
 // deliberately omitted here so the same renderer works for both
 // interactive terminals and CI logs that strip ANSI sequences.
 func RenderRepoTermBlock(w io.Writer, b RepoTermBlock) error {
-	header := fmt.Sprintf("  %d. %s\n", b.Index, fallback(b.Name))
+	header := formatBlockHeader(b)
 	if _, err := io.WriteString(w, header); err != nil {
 		return err
 	}
@@ -84,6 +88,27 @@ func RenderRepoTermBlock(w io.Writer, b RepoTermBlock) error {
 	_, err := io.WriteString(w, body)
 
 	return err
+}
+
+func formatBlockHeader(b RepoTermBlock) string {
+	name := fallback(b.Name)
+	primary := resolveBlockPrimaryAlias(b.PrimaryAlias, b.Aliases)
+	if len(primary) > 0 {
+		return fmt.Sprintf("  %d. %s [%s]\n", b.Index, name, primary)
+	}
+
+	return fmt.Sprintf("  %d. %s\n", b.Index, name)
+}
+
+func resolveBlockPrimaryAlias(primary string, aliases []string) string {
+	if len(strings.TrimSpace(primary)) > 0 {
+		return strings.TrimSpace(primary)
+	}
+	if len(aliases) > 0 {
+		return strings.TrimSpace(aliases[0])
+	}
+
+	return ""
 }
 
 // RenderRepoTermBlocks renders a slice in order. Stops on first
@@ -103,6 +128,7 @@ func RenderRepoTermBlocks(w io.Writer, blocks []RepoTermBlock) error {
 // pure function without needing an io.Writer.
 func buildBlockBody(b RepoTermBlock) string {
 	var sb strings.Builder
+	appendBlockAliasesTree(&sb, b)
 	fmt.Fprintf(&sb, "     branch:    %s\n", formatBranch(b.Branch, b.BranchSource))
 	fmt.Fprintf(&sb, "     transport: %s\n", fallback(blockTransport(b)))
 	fmt.Fprintf(&sb, "     https:     %s\n", fallback(blockHTTPSUrl(b)))
@@ -112,6 +138,29 @@ func buildBlockBody(b RepoTermBlock) string {
 	fmt.Fprintf(&sb, "     command:   %s\n", fallback(b.CloneCommand))
 
 	return sb.String()
+}
+
+func appendBlockAliasesTree(sb *strings.Builder, b RepoTermBlock) {
+	if len(b.Aliases) <= 1 {
+		return
+	}
+	primary := resolveBlockPrimaryAlias(b.PrimaryAlias, b.Aliases)
+	sb.WriteString("     aliases:\n")
+	for i, alias := range b.Aliases {
+		formatOneAliasBranch(sb, alias, primary, i == len(b.Aliases)-1)
+	}
+}
+
+func formatOneAliasBranch(sb *strings.Builder, alias, primary string, isLast bool) {
+	prefix := "├──"
+	if isLast {
+		prefix = "└──"
+	}
+	label := "secondary"
+	if alias == primary {
+		label = "primary"
+	}
+	fmt.Fprintf(sb, "       %s %s (%s)\n", prefix, alias, label)
 }
 
 func blockTransport(b RepoTermBlock) string {

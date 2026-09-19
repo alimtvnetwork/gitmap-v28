@@ -29,7 +29,14 @@ func printStorageInventoryFooter(entries []store.SplitDatabaseEntry) {
 	totalSize := calculateTotalDBSize(entries)
 	msg := fmt.Sprintf("\n  Total: %d databases (%s)\n", len(entries), cmddb.FormatBytes(totalSize))
 	fmt.Print(msg)
+	printStorageResetGuidance()
 	termpad.EnsureBottomPadding(msg)
+}
+
+func printStorageResetGuidance() {
+	fmt.Printf("\n  %sTo reset/clear error storage:%s\n", constants.ColorYellow, constants.ColorReset)
+	fmt.Printf("    %sgitmap storage reset-errors%s   (clear all pipeline & scan error records)\n", constants.ColorCyan, constants.ColorReset)
+	fmt.Printf("    %sgitmap pipeline clear-db%s      (clear pipeline runs and cached logs)\n", constants.ColorCyan, constants.ColorReset)
 }
 
 func collectStorageEntries() []store.SplitDatabaseEntry {

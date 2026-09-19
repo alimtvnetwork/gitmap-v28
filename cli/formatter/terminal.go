@@ -70,11 +70,58 @@ func printRepoList(w io.Writer, records []model.ScanRecord) {
 
 // printOneRepo writes a single repo entry with index.
 func printOneRepo(w io.Writer, r model.ScanRecord, idx, total int) {
+	primary := resolveScanPrimaryAlias(r.PrimaryAlias, r.Aliases)
+	repoDisplay := formatRepoTitle(r.RepoName, primary)
 	fmt.Fprintf(w, constants.ColorDim+"  %d/%d "+constants.ColorReset, idx, total)
-	fmt.Fprintf(w, constants.ColorGreen+"■ %s"+constants.ColorReset, r.RepoName)
+	fmt.Fprintf(w, constants.ColorGreen+"■ %s"+constants.ColorReset, repoDisplay)
 	fmt.Fprintf(w, constants.ColorDim+" (%s)"+constants.ColorReset+"\n", r.Branch)
+	printRepoAliasesBranchIfMulti(w, r.Aliases, primary)
 	fmt.Fprintf(w, constants.ColorDim+"       └─ "+constants.ColorReset)
 	fmt.Fprintf(w, constants.ColorWhite+"%s"+constants.ColorReset+"\n", r.CloneInstruction)
+}
+
+func formatRepoTitle(name, primary string) string {
+	if len(primary) == 0 {
+		return name
+	}
+
+	return fmt.Sprintf("%s [%s]", name, primary)
+}
+
+func resolveScanPrimaryAlias(primary string, aliases []string) string {
+	if len(primary) > 0 {
+		return primary
+	}
+	if len(aliases) > 0 {
+		return aliases[0]
+	}
+
+	return ""
+}
+
+func printRepoAliasesBranchIfMulti(w io.Writer, aliases []string, primary string) {
+	if len(aliases) <= 1 {
+		return
+	}
+
+	fmt.Fprintf(w, constants.ColorDim+"       ├─ Aliases:\n"+constants.ColorReset)
+	for i, a := range aliases {
+		printOneAliasBranchLine(w, a, primary, i == len(aliases)-1)
+	}
+}
+
+func printOneAliasBranchLine(w io.Writer, alias, primary string, isLast bool) {
+	branch := "├──"
+	if isLast {
+		branch = "└──"
+	}
+	label := "secondary"
+	if alias == primary {
+		label = "primary"
+	}
+	fmt.Fprintf(w, constants.ColorDim+"       │    %s "+constants.ColorReset+
+		constants.ColorCyan+"%s"+constants.ColorReset+
+		constants.ColorDim+" (%s)\n"+constants.ColorReset, branch, alias, label)
 }
 
 // printFolderTree writes the folder structure to terminal.

@@ -91,3 +91,46 @@ func resolveBinaryDir() string {
 
 	return filepath.Dir(resolved)
 }
+
+func enrichRecordsWithAliases(records []model.ScanRecord) []model.ScanRecord {
+	aliases := fetchExistingAliases()
+	if len(aliases) == 0 {
+		return records
+	}
+	aliasMap := buildRepoAliasesLookup(aliases)
+	for i := range records {
+		attachAliasesToRecord(&records[i], aliasMap)
+	}
+
+	return records
+}
+
+func fetchExistingAliases() []store.AliasWithRepo {
+	db, err := store.OpenDefault()
+	if err != nil {
+		return nil
+	}
+	defer db.Close()
+
+	list, _ := db.ListAliasesWithRepo()
+
+	return list
+}
+
+func attachAliasesToRecord(rec *model.ScanRecord, aliasMap map[string][]string) {
+	if list, ok := aliasMap[rec.AbsolutePath]; ok && len(list) > 0 {
+		rec.Aliases = list
+		rec.PrimaryAlias = list[0]
+	}
+}
+
+func buildRepoAliasesLookup(aliases []store.AliasWithRepo) map[string][]string {
+	m := make(map[string][]string, len(aliases))
+	for _, a := range aliases {
+		if len(a.AbsolutePath) > 0 {
+			m[a.AbsolutePath] = append(m[a.AbsolutePath], a.Alias.Alias)
+		}
+	}
+
+	return m
+}

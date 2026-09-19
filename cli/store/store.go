@@ -259,6 +259,7 @@ func (db *DB) Migrate() error {
 	db.migrateRepoLastClonedAt()
 	db.migrateRepoIdentifiedTransport()
 	db.migrateVSCodeProjectPaths()
+	db.migrateAliasColumns()
 
 	if err := db.EnsurePurgeHistoryTable(); err != nil {
 		return fmt.Errorf("ensure purge history table: %w", err)
@@ -361,6 +362,12 @@ func (db *DB) migrateRepoIdentifiedTransport() {
 // `gitmap scan` re-discovers them.
 func (db *DB) migrateRepoScanFolderID() {
 	db.addColumnIfNotExists(constants.SQLAddRepoScanFolderId)
+}
+
+// migrateAliasColumns adds IsPrimary and Source columns to Alias.
+func (db *DB) migrateAliasColumns() {
+	db.addColumnIfNotExists(constants.SQLAddAliasIsPrimary)
+	db.addColumnIfNotExists(constants.SQLAddAliasSource)
 }
 
 // migrateRepoInjectTimestamps adds LastInjectedDesktopAt + LastInjectedVSCodeAt

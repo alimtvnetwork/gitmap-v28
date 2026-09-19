@@ -25,6 +25,7 @@ gitmap df [subcommand] [flags]
 | `space ls (space list)` | Direct shortcut to list all repository SQLite databases and space usage |
 | `restore-db (restore, restoredb)` | Restore or auto-heal Gitmap SQLite databases from backup snapshot or schema |
 | `clean (clear, prune)` | Clean pipeline error logs, temporary files, and vacuum SQLite databases |
+| `reset-errors (error-reset, reset, clear-errors)` | Purge pipeline error caches, failure telemetry, and scan error reports |
 | `help` | Show this storage command suite documentation |
 
 ---
@@ -54,6 +55,14 @@ gitmap df [subcommand] [flags]
 | `--verbose` | `-v` | boolean | `false` | Print each deleted file path and reclaimed bytes |
 | `--force` | `-f` | boolean | `false` | Bypass interactive confirmations |
 | `--vacuum` | `-a` | boolean | `false` | Vacuum and reclaim unused pages from SQLite databases |
+
+### Reset Errors Flags (`reset-errors`)
+
+| Flag | Shorthand | Type | Default | Description |
+|------|-----------|------|---------|-------------|
+| `--dry-run` | `-n` | boolean | `false` | Simulate error purge without deleting files or database records |
+| `--verbose` | `-v` | boolean | `false` | Print each purged error file path and database row counts |
+| `--force` | `-f` | boolean | `false` | Bypass interactive confirmations (`-y`, `--yes`) |
 
 ---
 
@@ -89,6 +98,17 @@ The `restore-db` command recovers GitMap SQLite databases from automated snapsho
 
 ---
 
+## Error Storage Reset Engine (`reset-errors`)
+
+The `reset-errors` command (aliases: `error-reset`, `reset`, `clear-errors`) purges all failure telemetry, error caches, and error log files:
+
+- **Pipeline Error Logs & Runs**: Deletes `.log` and `.json` failure files in `.gitmap/pipeline/` and user home split directories.
+- **Scan & Clone Reports**: Removes `.gitmap/reports/errors-*.json` failure reports emitted by scanner and clone probes.
+- **Database Error Tables**: Truncates `PipelineErrorRecord`, `PipelineDetailErrorLog`, `PipelineCompactErrorLog`, and `PipelineErrorLog` tables, resets sequence counters, and vacuums SQLite databases.
+- **Inventory Guidance**: Whenever running `gitmap storage ls` or `gitmap storage space ls`, reset commands are surfaced in the inventory footer for quick discovery.
+
+---
+
 ## Examples
 
 ```bash
@@ -118,6 +138,12 @@ gitmap storage clean --force --verbose
 
 # Clean temporary logs and vacuum pipeline SQLite database
 gitmap storage clean --force --vacuum
+
+# Reset and clear all pipeline error caches and scan error reports (dry-run)
+gitmap storage reset-errors --dry-run
+
+# Force purge error storage and vacuum error database records
+gitmap storage reset-errors --force --verbose
 ```
 
 ---
