@@ -32,6 +32,9 @@ const (
 			OS = excluded.OS
 	`
 	sqlSelectSSHConnections        = `SELECT Alias, IPAddress, Username, EncryptedPassword, KeyPath, OS, CreatedAt FROM SSHConnection`
+	sqlSelectSSHConnectionByAlias  = `SELECT Alias, IPAddress, Username, EncryptedPassword, KeyPath, OS, CreatedAt FROM SSHConnection WHERE Alias = ? LIMIT 1`
+	sqlSelectSSHConnectionByIP     = `SELECT Alias, IPAddress, Username, EncryptedPassword, KeyPath, OS, CreatedAt FROM SSHConnection WHERE IPAddress = ? LIMIT 1`
+	sqlUpdateSSHConnectionPassword = `UPDATE SSHConnection SET EncryptedPassword = ? WHERE Alias = ? OR IPAddress = ?`
 	sqlDeleteSSHConnection         = `DELETE FROM SSHConnection WHERE Alias = ?`
 	sqlDeleteSSHConnectionByTarget = `DELETE FROM SSHConnection WHERE Alias = ? OR IPAddress = ?`
 	sqlDeleteAllSSHConnections     = `DELETE FROM SSHConnection`
@@ -171,4 +174,44 @@ func DeleteAllSSHConnections(ctx context.Context, db *sql.DB) error {
 	}
 
 	return nil
+}
+
+// UpdateSSHConnectionPassword updates the encrypted password for a connection identified by alias or IP.
+func UpdateSSHConnectionPassword(ctx context.Context, db *sql.DB, target string, encryptedPass string) (int64, error) {
+	_, _ = db.ExecContext(ctx, sqlCreateSSHConnectionTable)
+	res, err := db.ExecContext(ctx, sqlUpdateSSHConnectionPassword, encryptedPass, target, target)
+	if err != nil {
+		return 0, apperror.WrapSimple(err, "UpdateSSHConnectionPassword.Exec")
+	}
+	rows, err := res.RowsAffected()
+	if err != nil {
+		return 0, nil
+	}
+	return rows, nil
+}
+
+// GetSSHConnectionByAlias retrieves an SSHConnection by its Alias.
+func GetSSHConnectionByAlias(ctx context.Context, db *sql.DB, alias string) (*SSHConnection, error) {
+	_, _ = db.ExecContext(ctx, sqlCreateSSHConnectionTable)
+	var c SSHConnection
+	err := db.QueryRowContext(ctx, sqlSelectSSHConnectionByAlias, alias).Scan(
+		&c.Alias, &c.IPAddress, &c.Username, &c.EncryptedPassword, &c.KeyPath, &c.OS, &c.CreatedAt,
+	)
+	if err != nil {
+		return nil, err
+	}
+	return &c, nil
+}
+
+// GetSSHConnectionByIP retrieves an SSHConnection by its IP Address.
+func GetSSHConnectionByIP(ctx context.Context, db *sql.DB, ip string) (*SSHConnection, error) {
+	_, _ = db.ExecContext(ctx, sqlCreateSSHConnectionTable)
+	var c SSHConnection
+	err := db.QueryRowContext(ctx, sqlSelectSSHConnectionByIP, ip).Scan(
+		&c.Alias, &c.IPAddress, &c.Username, &c.EncryptedPassword, &c.KeyPath, &c.OS, &c.CreatedAt,
+	)
+	if err != nil {
+		return nil, err
+	}
+	return &c, nil
 }

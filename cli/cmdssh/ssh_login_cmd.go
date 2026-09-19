@@ -5,10 +5,12 @@ import (
 	"fmt"
 	"net"
 	"strings"
+	"time"
 
 	"github.com/spf13/cobra"
 
 	"github.com/alimtvnetwork/gitmap-v28/cli/apperror"
+	dbpkg "github.com/alimtvnetwork/gitmap-v28/cli/db"
 	"github.com/alimtvnetwork/gitmap-v28/cli/store"
 )
 
@@ -20,9 +22,9 @@ var (
 
 // SSHLoginCmd represents the gitmap ssh login command.
 var SSHLoginCmd = &cobra.Command{
-	Use:   "login [target]",
+	Use:   "login [target] [password]",
 	Short: "Login via SSH to the specified target",
-	Args:  cobra.ExactArgs(1),
+	Args:  cobra.RangeArgs(1, 2),
 	RunE: func(cmd *cobra.Command, args []string) error {
 		return runSSHLogin(cmd, args, cmd.Context())
 	},
@@ -43,9 +45,18 @@ func isNodesSubcommand(cmd string) bool {
 	return cmd == "nodes" || cmd == "node" || cmd == "ls"
 }
 
+func extractLoginPassword(args []string) string {
+	hasPassword := len(args) >= 2
+	if hasPassword {
+		return args[1]
+	}
+	return ""
+}
+
 //nolint:revive
 func runSSHLogin(cmd *cobra.Command, args []string, ctx context.Context) error {
-	if len(args) < 1 {
+	isEmptyArgs := len(args) < 1
+	if isEmptyArgs {
 		return apperror.NewSimple("runSSHLogin", "E_INTERNAL_ERROR")
 	}
 
@@ -57,7 +68,8 @@ func runSSHLogin(cmd *cobra.Command, args []string, ctx context.Context) error {
 		return RunSSHNodesCLI(ctx, args[1:])
 	}
 
-	return executeSSHLogin(ctx, args[0], false)
+	pass := extractLoginPassword(args)
+	return executeSSHLoginWithPassword(ctx, args[0], pass, false)
 }
 
 func isAliasTarget(target string) bool {
@@ -84,6 +96,11 @@ func checkAndResolveIP(ctx context.Context, target string, sshTarget *SSHTarget)
 	isIP := isPlainIPTarget(target)
 	if isIP {
 		resolveIPCredentials(ctx, target, sshTarget)
+		return
+	}
+	hasHostIP := sshTarget != nil && sshTarget.IP != "" && net.ParseIP(sshTarget.IP) != nil
+	if hasHostIP {
+		resolveIPCredentials(ctx, sshTarget.IP, sshTarget)
 	}
 }
 
@@ -96,12 +113,38 @@ func resolveIPCredentials(ctx context.Context, target string, sshTarget *SSHTarg
 	applyEnrolledIPHost(ctx, target, db, sshTarget)
 }
 
+func isDefaultOrEmptyUser(u string) bool {
+	return u == "" || u == "root"
+}
+
+func assignHostToSSHTarget(host store.SSHHost, sshTarget *SSHTarget) {
+	if isDefaultOrEmptyUser(sshTarget.Username) && host.Username != "" {
+		sshTarget.Username = host.Username
+	}
+	sshTarget.Port = host.Port
+	if sshTarget.EncryptedPassword == "" {
+		sshTarget.EncryptedPassword = host.EncryptedPassword
+	}
+}
+
+func assignConnToSSHTarget(conn *dbpkg.SSHConnection, sshTarget *SSHTarget) {
+	if isDefaultOrEmptyUser(sshTarget.Username) && conn.Username != "" {
+		sshTarget.Username = conn.Username
+	}
+	if sshTarget.EncryptedPassword == "" {
+		sshTarget.EncryptedPassword = conn.EncryptedPassword
+	}
+}
+
 func applyEnrolledIPHost(ctx context.Context, target string, db *store.DB, sshTarget *SSHTarget) {
 	host, err := store.GetHostByIP(ctx, target, db.Conn())
 	if err == nil {
-		sshTarget.Username = host.Username
-		sshTarget.Port = host.Port
-		sshTarget.EncryptedPassword = host.EncryptedPassword
+		assignHostToSSHTarget(host, sshTarget)
+		return
+	}
+	conn, connErr := dbpkg.GetSSHConnectionByIP(ctx, db.Conn(), target)
+	if connErr == nil && conn != nil {
+		assignConnToSSHTarget(conn, sshTarget)
 	}
 }
 
@@ -116,7 +159,62 @@ func resolveTargetPassword(sshTarget *SSHTarget) string {
 	return ""
 }
 
+func saveExplicitPassword(ctx context.Context, target string, sshTarget *SSHTarget, pass string) {
+	encPass, err := EncryptSSHPassword(pass)
+	if err != nil {
+		return
+	}
+	db, err := openSSHDB()
+	if err != nil {
+		return
+	}
+	defer db.Close()
+	updateAndInsertPassword(ctx, target, sshTarget, encPass, db)
+}
+
+func updateAndInsertPassword(ctx context.Context, target string, sshTarget *SSHTarget, encPass string, db *store.DB) {
+	rows1, _ := store.UpdateHostPassword(ctx, target, encPass, db.Conn())
+	_, _ = dbpkg.UpdateSSHConnectionPassword(ctx, db.Conn(), target, encPass)
+	hasExtraIP := sshTarget != nil && sshTarget.IP != "" && sshTarget.IP != target
+	if hasExtraIP {
+		rows2, _ := store.UpdateHostPassword(ctx, sshTarget.IP, encPass, db.Conn())
+		_, _ = dbpkg.UpdateSSHConnectionPassword(ctx, db.Conn(), sshTarget.IP, encPass)
+		rows1 += rows2
+	}
+	isUnregistered := rows1 == 0 && sshTarget != nil
+	if isUnregistered {
+		insertSSHHostFallback(ctx, target, sshTarget, encPass, db)
+	}
+}
+
+func insertSSHHostFallback(ctx context.Context, target string, sshTarget *SSHTarget, encPass string, db *store.DB) {
+	host := store.SSHHost{
+		ID:                fmt.Sprintf("host-%s", sshTarget.IP),
+		Alias:             target,
+		IP:                sshTarget.IP,
+		Username:          sshTarget.Username,
+		Port:              sshTarget.Port,
+		EncryptedPassword: encPass,
+		ClusterRole:       "worker",
+		CreatedAt:         time.Now().UTC(),
+	}
+	_ = store.InsertSSHHost(ctx, host, db.Conn())
+}
+
+func resolvePassword(ctx context.Context, target string, sshTarget *SSHTarget, explicitPass string) string {
+	hasExplicit := explicitPass != ""
+	if hasExplicit {
+		saveExplicitPassword(ctx, target, sshTarget, explicitPass)
+		return explicitPass
+	}
+	return resolveTargetPassword(sshTarget)
+}
+
 func executeSSHLogin(ctx context.Context, target string, force bool) error {
+	return executeSSHLoginWithPassword(ctx, target, "", force)
+}
+
+func executeSSHLoginWithPassword(ctx context.Context, target string, explicitPass string, force bool) error {
 	sshTarget, err := ParseSSHTarget(target, "root", 22)
 	if err != nil {
 		return err
@@ -125,7 +223,7 @@ func executeSSHLogin(ctx context.Context, target string, force bool) error {
 	if err := checkAndResolveAlias(ctx, target, sshTarget); err != nil {
 		return err
 	}
-	password := resolveTargetPassword(sshTarget)
+	password := resolvePassword(ctx, target, sshTarget, explicitPass)
 	return spawnSSHFn(ctx, *sshTarget, nil, password)
 }
 
@@ -153,6 +251,13 @@ func lookupSSHHostOrReport(ctx context.Context, target string, db *store.DB, ssh
 		sshTarget.IP = host.IP
 		sshTarget.Port = host.Port
 		sshTarget.EncryptedPassword = host.EncryptedPassword
+		return nil
+	}
+	conn, connErr := dbpkg.GetSSHConnectionByAlias(ctx, db.Conn(), target)
+	if connErr == nil && conn != nil {
+		assignConnToSSHTarget(conn, sshTarget)
+		sshTarget.IP = conn.IPAddress
+		sshTarget.Port = 22
 		return nil
 	}
 	return reportAliasNotFound(ctx, target, db)

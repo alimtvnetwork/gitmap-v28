@@ -53,6 +53,8 @@ const sqlSelectHostByAlias = `SELECT id FROM ssh_hosts WHERE alias = ? LIMIT 1`
 
 const sqlDeleteHostByAliasOrIP = `DELETE FROM ssh_hosts WHERE alias = ? OR ip = ?`
 
+const sqlUpdateHostPasswordByAliasOrIP = `UPDATE ssh_hosts SET encrypted_password = ? WHERE alias = ? OR ip = ?`
+
 const sqlDeleteAllSSHHosts = `DELETE FROM ssh_hosts`
 
 func resolveHostID(id string, ip string) string {
@@ -434,6 +436,21 @@ func DeleteHostByIP(ctx context.Context, ip string, db *sql.DB) error {
 	}
 
 	return nil
+}
+
+// UpdateHostPassword updates the encrypted password for a host identified by alias or IP.
+func UpdateHostPassword(ctx context.Context, target string, encryptedPass string, db *sql.DB) (int64, error) {
+	ctx = safeContext(ctx)
+	_ = EnsureSSHTables(db)
+	res, err := db.ExecContext(ctx, sqlUpdateHostPasswordByAliasOrIP, encryptedPass, target, target)
+	if err != nil {
+		return 0, apperror.WrapSimple(err, "UpdateHostPassword.Exec")
+	}
+	rows, err := res.RowsAffected()
+	if err != nil {
+		return 0, nil
+	}
+	return rows, nil
 }
 
 func scanHostRows(rows *sql.Rows) ([]SSHHost, error) {

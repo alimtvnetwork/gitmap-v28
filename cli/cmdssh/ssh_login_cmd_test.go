@@ -212,3 +212,88 @@ func TestRunSSHLogin_InterceptsLs(t *testing.T) {
 		t.Fatalf("expected nil error for ls intercept, got: %v", err)
 	}
 }
+
+func hookPasswordSpawner(t *testing.T, outPass *string) {
+	orig := spawnSSHFn
+	spawnSSHFn = func(ctx context.Context, target SSHTarget, args []string, password string) error {
+		*outPass = password
+		return nil
+	}
+	t.Cleanup(func() { spawnSSHFn = orig })
+}
+
+func TestRunSSHLogin_WithPasswordSavesEncrypted(t *testing.T) {
+	testDB := setupTestDB(t)
+	seedTestHost(t, testDB, "h5", "w2", "10.0.0.5", "admin")
+	hookTestDB(t, testDB)
+	var capturedPass string
+	hookPasswordSpawner(t, &capturedPass)
+
+	err := runSSHLogin(nil, []string{"w2", "secretPass123"}, context.Background())
+	if err != nil {
+		t.Fatalf("expected nil error, got: %v", err)
+	}
+	if capturedPass != "secretPass123" {
+		t.Errorf("expected secretPass123, got: %s", capturedPass)
+	}
+	verifyEncryptedHostPassword(t, testDB, "w2")
+}
+
+func verifyEncryptedHostPassword(t *testing.T, db *store.DB, alias string) {
+	host, err := store.GetHostByAlias(context.Background(), alias, db.Conn())
+	if err != nil {
+		t.Fatalf("failed to retrieve host: %v", err)
+	}
+	isRSA := strings.HasPrefix(host.EncryptedPassword, "rsa:")
+	isAES := strings.HasPrefix(host.EncryptedPassword, "aes:")
+	if isRSA || isAES {
+		return
+	}
+	t.Errorf("expected rsa: or aes: prefix in encrypted password, got: %s", host.EncryptedPassword)
+}
+
+func TestRunSSHLogin_SubsequentLoginWithoutPassword(t *testing.T) {
+	testDB := setupTestDB(t)
+	seedTestHost(t, testDB, "h6", "w3", "10.0.0.6", "admin")
+	hookTestDB(t, testDB)
+	var capturedPass string
+	hookPasswordSpawner(t, &capturedPass)
+
+	_ = runSSHLogin(nil, []string{"w3", "pass789"}, context.Background())
+	capturedPass = ""
+
+	err := runSSHLogin(nil, []string{"w3"}, context.Background())
+	if err != nil {
+		t.Fatalf("expected nil error on subsequent login, got: %v", err)
+	}
+	if capturedPass != "pass789" {
+		t.Errorf("expected pass789 decrypted automatically, got: %s", capturedPass)
+	}
+}
+
+func TestRunSSHLogin_DirectIPWithPassword(t *testing.T) {
+	testDB := setupTestDB(t)
+	hookTestDB(t, testDB)
+	var capturedPass string
+	hookPasswordSpawner(t, &capturedPass)
+
+	err := runSSHLogin(nil, []string{"192.168.1.88", "ipSecret999"}, context.Background())
+	if err != nil {
+		t.Fatalf("expected nil error, got: %v", err)
+	}
+	if capturedPass != "ipSecret999" {
+		t.Errorf("expected ipSecret999, got: %s", capturedPass)
+	}
+	testDirectIPRecall(t, &capturedPass)
+}
+
+func testDirectIPRecall(t *testing.T, capturedPass *string) {
+	*capturedPass = ""
+	err := runSSHLogin(nil, []string{"192.168.1.88"}, context.Background())
+	if err != nil {
+		t.Fatalf("expected nil error on recall, got: %v", err)
+	}
+	if *capturedPass != "ipSecret999" {
+		t.Errorf("expected ipSecret999 recalled, got: %s", *capturedPass)
+	}
+}
