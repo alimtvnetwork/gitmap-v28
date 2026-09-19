@@ -151,10 +151,23 @@ func checkErrorLogsSubcmd(subcmd string, args []string) (bool, error) {
 	}
 
 	if isErrorLogsSubcmd(subcmd) {
+		if len(args) > 1 && isPipelineClearAction(args[1]) {
+			return true, handlePipelineDB(append([]string{"clear"}, args[2:]...))
+		}
+
 		return true, handlePipelineErrorLogs(args[1:])
 	}
 
 	return false, nil
+}
+
+func isPipelineClearAction(action string) bool {
+	switch strings.ToLower(action) {
+	case "clear", "reset", "clean", "clear-errors", "reset-errors":
+		return true
+	default:
+		return false
+	}
 }
 
 func isErrorLogsSubcmd(subcmd string) bool {
@@ -169,7 +182,7 @@ func isErrorLogsSubcmd(subcmd string) bool {
 
 func isPipelineClearDbSubcmd(subcmd string) bool {
 	switch subcmd {
-	case "clear-db", "cleardb", "db-clear":
+	case "clear-db", "cleardb", "db-clear", "clear-errors", "errors-clear", "reset-errors":
 		return true
 	default:
 		return false

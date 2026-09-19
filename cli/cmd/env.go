@@ -9,15 +9,27 @@ import (
 // runEnv handles the "env" subcommand routing.
 func runEnv(args []string) error {
 	checkHelp("env", args)
-	if len(args) < 1 {
-		return apperror.NewSimple("constants.ErrEnvSubcommand "+"", "E9000")
+	if len(args) < 1 || isHelpSubcommand(args[0]) {
+		printEnvHelp()
+
+		return nil
 	}
 
 	return result.AsError(routeEnvSub(args[0], args[1:]))
 }
 
+func printEnvHelp() {
+	_, mode := ParsePrettyFlag(nil)
+	helptext.PrintWithMode("env", mode)
+	printUsageFooterShort()
+}
+
+func isHelpSubcommand(sub string) bool {
+	return sub == "help" || sub == "-h" || sub == "--help"
+}
+
 func routeEnvVariableSub(sub string, args []string) result.ErrorWrapper {
-	if sub == constants.CmdEnvSet {
+	if isEnvSetSub(sub) {
 		return result.MatchWrapper(runEnvSet(args))
 	}
 
@@ -25,15 +37,27 @@ func routeEnvVariableSub(sub string, args []string) result.ErrorWrapper {
 		return result.MatchWrapper(runEnvGet(args))
 	}
 
-	if sub == constants.CmdEnvDelete {
+	if isEnvDeleteSub(sub) {
 		return result.MatchWrapper(runEnvDelete(args))
 	}
 
-	if sub == constants.CmdEnvList {
+	if isEnvListSub(sub) {
 		return result.MatchWrapper(runEnvList())
 	}
 
 	return result.UnmatchedWrapper()
+}
+
+func isEnvSetSub(sub string) bool {
+	return sub == constants.CmdEnvSet || sub == "add"
+}
+
+func isEnvDeleteSub(sub string) bool {
+	return sub == constants.CmdEnvDelete || sub == "rm" || sub == "remove" || sub == "del"
+}
+
+func isEnvListSub(sub string) bool {
+	return sub == constants.CmdEnvList || sub == "ls"
 }
 
 // routeEnvSub routes to the appropriate env subcommand.

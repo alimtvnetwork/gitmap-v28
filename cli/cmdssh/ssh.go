@@ -50,6 +50,10 @@ func dispatchPrimarySSH(ctx context.Context, sub string, args []string, parent *
 		return result.MatchWrapper(runSSHCompareCLI(args))
 	case "profiles", "profile", "p":
 		return result.MatchWrapper(runSSHProfile(args))
+	case "copy", "cp":
+		return result.MatchWrapper(runSSHCopyCLI(args))
+	case "mv", "move":
+		return result.MatchWrapper(runSSHMvCLI(args))
 	case "schedule", "schedules":
 		return result.MatchWrapper(runSSHExec(append([]string{"schedule"}, args...)))
 	default:

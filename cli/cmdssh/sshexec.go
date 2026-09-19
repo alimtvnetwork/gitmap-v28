@@ -21,6 +21,7 @@ var seCommand = "se"
 
 type seOptions struct {
 	Exclude    string
+	Except     string
 	Target     string
 	IP         string
 	Args       []string
@@ -35,6 +36,7 @@ func printSSHExecHelp() {
 	fmt.Println("\nFlags:")
 	fmt.Println("  -t, --target string     Target machine alias or IP (default: all online machines)")
 	fmt.Println("      --exclude string    Exclude machines by alias or IP (comma separated)")
+	fmt.Println("      --except string     Exclude machines by alias, IP, or ID (comma separated)")
 	fmt.Println("      --ip string         Target machine IP address")
 	fmt.Println("  -h, --help              Show help for ssh exec")
 	printSSHExecExamples()
@@ -51,10 +53,12 @@ func printSSHExecExamples() {
 	fmt.Println("  gitmap ssh exec all gitmap --version")
 	fmt.Println("  gitmap ssh exec --target devbox \"docker ps\"")
 	fmt.Println("  gitmap ssh exec --exclude worker-1,192.168.1.20 \"free -m\"")
+	fmt.Println("  gitmap ssh exec cmd1,cmd2,cmd3 --except worker-1,2")
 }
 
 func configureSEFlags(fs *flag.FlagSet, opts *seOptions) {
 	fs.StringVar(&opts.Exclude, "exclude", "", "Exclude machines (comma separated)")
+	fs.StringVar(&opts.Except, "except", "", "Exclude machines by alias, IP, or ID (comma separated)")
 	fs.StringVar(&opts.Target, "target", "", "Target machine alias or IP")
 	fs.StringVar(&opts.Target, "t", "", "Target machine alias or IP (shorthand)")
 	fs.StringVar(&opts.IP, "ip", "", "Target machine IP address")
@@ -91,6 +95,16 @@ func parseSEFlags(args []string) seOptions {
 	return opts
 }
 
+func resolveExcludeCSV(opts seOptions) string {
+	if opts.Except != "" && opts.Exclude != "" {
+		return opts.Except + "," + opts.Exclude
+	}
+	if opts.Except != "" {
+		return opts.Except
+	}
+	return opts.Exclude
+}
+
 func runSSHExec(args []string) error {
 	opts := parseSEFlags(args)
 	if opts.IsShowHelp {
@@ -113,7 +127,7 @@ func runSSHExec(args []string) error {
 		return nil
 	}
 
-	conns := filterSSHConns(connsRes.Data, opts.Exclude)
+	conns := filterSSHConns(connsRes.Data, resolveExcludeCSV(opts))
 	conns, execArgs := resolveExecTargetAndArgs(conns, opts)
 	if len(conns) == 0 {
 		fmt.Println("No machines to execute on.")
@@ -134,16 +148,7 @@ func filterSSHConns(conns []db.SSHConnection, excludeCSV string) []db.SSHConnect
 	excludeList := strings.Split(excludeCSV, ",")
 	var filtered []db.SSHConnection
 	for _, c := range conns {
-		excluded := false
-		for _, ex := range excludeList {
-			ex = strings.TrimSpace(ex)
-			if c.Alias == ex || c.IPAddress == ex {
-				excluded = true
-				break
-			}
-		}
-
-		if !excluded {
+		if !isConnExcluded(c, excludeList) {
 			filtered = append(filtered, c)
 		}
 	}
@@ -151,79 +156,82 @@ func filterSSHConns(conns []db.SSHConnection, excludeCSV string) []db.SSHConnect
 	return filtered
 }
 
+func isConnExcluded(c db.SSHConnection, excludeList []string) bool {
+	idStr := fmt.Sprintf("%d", c.ID)
+	userHost := fmt.Sprintf("%s@%s", c.Username, c.IPAddress)
+	for _, ex := range excludeList {
+		ex = strings.TrimSpace(ex)
+		if ex == "" {
+			continue
+		}
+		if strings.EqualFold(c.Alias, ex) || c.IPAddress == ex || idStr == ex || strings.EqualFold(userHost, ex) {
+			return true
+		}
+	}
+
+	return false
+}
+
 func executeOnAllSSH(conns []db.SSHConnection, args []string) {
+	online, offline := partitionOnlineOffline(conns)
+	cmdStr := strings.Join(args, " ")
+	printExecStartBanner(online, offline, cmdStr)
+	if len(online) == 0 {
+		return
+	}
+
 	var wg sync.WaitGroup
-	for _, c := range conns {
+	for _, c := range online {
 		wg.Add(1)
 		go runSSHWorker(c, args, &wg)
 	}
 
 	wg.Wait()
-	fmt.Println("SSH Execution Done.")
+	printExecFinishSummary(len(online), offline)
 }
 
 func runSSHWorker(c db.SSHConnection, args []string, wg *sync.WaitGroup) error {
 	defer wg.Done()
 
-	header := lipgloss.NewStyle().Bold(true).Foreground(lipgloss.Color("#8be9fd")).Render(fmt.Sprintf("[%s|%s]", c.Alias, c.IPAddress))
-
-	isOnline, reason := CheckConnLiveness(context.Background(), c.IPAddress, 22, 0)
-	if !isOnline {
-		fmt.Printf("%s OFFLINE (skipped: %s)\n", header, reason)
-
-		return nil
-	}
-
-	client, isConnected := connectSSHClient(c, header)
+	client, isConnected := connectSSHClient(c)
 	if !isConnected {
+		printNodeResultOutput(c.Alias, c.IPAddress, "(authentication required: configure key or password)", nil)
 		return nil
 	}
-
 	defer client.Close()
 
-	if err := ensureGitmapInstalled(client, c.OS, header); err != nil {
-		fmt.Printf("%s Failed to ensure gitmap: %v\n", header, err)
-
+	if err := ensureGitmapInstalled(client, c.OS, c.Alias); err != nil {
+		printNodeResultOutput(c.Alias, c.IPAddress, "", err)
 		return nil
 	}
 
 	shellType, commandStr, delegateToGitmap := determineSSHCommand(c.OS, args)
-
 	if shellType == "ps" || shellType == "pwsh" {
-		_ = ensurePowerShellInstalled(client, c.OS, header)
+		_ = ensurePowerShellInstalled(client, c.OS, c.Alias)
 	}
-
 	if delegateToGitmap {
 		commandStr = resolveGitmapCommandString(args)
-		shellType = "" // default shell
+		shellType = ""
 	}
 
 	out, err := crypto.RunCommand(client, commandStr, shellType)
-	if err != nil {
-		fmt.Printf("%s Execute error: %v\n%s\n", header, err, strings.TrimSpace(out))
-
-		return nil
-	}
-
-	fmt.Printf("%s\n%s\n", header, strings.TrimSpace(out))
+	printNodeResultOutput(c.Alias, c.IPAddress, out, err)
 
 	return nil
 }
 
-func connectSSHClient(c db.SSHConnection, header string) (*ssh.Client, bool) {
+func connectSSHClient(c db.SSHConnection) (*ssh.Client, bool) {
 	if c.EncryptedPassword != "" {
-		return connectWithEncryptedPassword(c, header)
+		return connectWithEncryptedPassword(c, "")
 	}
 
 	if c.KeyPath != "" {
-		return connectWithKeyPath(c, header)
+		return connectWithKeyPath(c, "")
 	}
 
-	if client, isDefaultOk := connectWithDefaultKey(c.IPAddress, c.Username, header); isDefaultOk {
+	if client, isDefaultOk := connectWithDefaultKey(c.IPAddress, c.Username, ""); isDefaultOk {
 		return client, true
 	}
-
-	fmt.Printf("%s %s\n", header, formatMissingAuthAdvice(c.Alias, c.IPAddress, c.Username))
 
 	return nil, false
 }
@@ -231,7 +239,9 @@ func connectSSHClient(c db.SSHConnection, header string) (*ssh.Client, bool) {
 func connectWithKeyPath(c db.SSHConnection, header string) (*ssh.Client, bool) {
 	client, err := crypto.ConnectWithKey(c.IPAddress, c.Username, c.KeyPath)
 	if err != nil {
-		fmt.Printf("%s Connect error: %v\n", header, err)
+		if header != "" {
+			fmt.Printf("%s Connect error: %v\n", header, err)
+		}
 
 		return nil, false
 	}
@@ -242,14 +252,18 @@ func connectWithKeyPath(c db.SSHConnection, header string) (*ssh.Client, bool) {
 func connectWithEncryptedPassword(c db.SSHConnection, header string) (*ssh.Client, bool) {
 	passBytes, decErr := crypto.Decrypt(c.EncryptedPassword, getEncryptionKey())
 	if decErr != nil {
-		fmt.Printf("%s Decrypt error: %v\n", header, decErr)
+		if header != "" {
+			fmt.Printf("%s Decrypt error: %v\n", header, decErr)
+		}
 
 		return nil, false
 	}
 
 	client, err := crypto.ConnectWithPassword(c.IPAddress, c.Username, string(passBytes))
 	if err != nil {
-		fmt.Printf("%s Connect error: %v\n", header, err)
+		if header != "" {
+			fmt.Printf("%s Connect error: %v\n", header, err)
+		}
 
 		return nil, false
 	}

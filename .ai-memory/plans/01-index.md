@@ -4,12 +4,13 @@ Master directory of architectural and execution plans.
 
 ## Pending Plans
 
-Zero pending plans. All planned work complete and verified.
+None.
 
 ## Recent Completed Tasks Register (Last 20 Tasks)
 
-1. [29-auto-aliasing-and-error-storage-reset.md](completed/29-auto-aliasing-and-error-storage-reset.md): Auto-Aliasing Engine, Scan Bracket/Tree Views & Error Storage Reset Suite
-2. [28-agy-prompts-templates-and-rerun-suite.md](completed/28-agy-prompts-templates-and-rerun-suite.md): Antigravity (AGY) Prompts Templates, Rerun Suite & Pipeline Error Remediations
+1. [30-ssh-exec-copy-mv-env-and-rm-sync-resilience.md](completed/30-ssh-exec-copy-mv-env-and-rm-sync-resilience.md): SSH Exec Polish, Remote Copy/Move, Environment Management & CLI Resilience Suite
+2. [29-auto-aliasing-and-error-storage-reset.md](completed/29-auto-aliasing-and-error-storage-reset.md): Auto-Aliasing Engine, Scan Bracket/Tree Views & Error Storage Reset Suite
+3. [28-agy-prompts-templates-and-rerun-suite.md](completed/28-agy-prompts-templates-and-rerun-suite.md): Antigravity (AGY) Prompts Templates, Rerun Suite & Pipeline Error Remediations
 3. [27-completed-plans-consolidation.md](completed/27-completed-plans-consolidation.md): Completed Plans Aggressive Consolidation & Memory Reduction (v2.2.0)
 4. [26-coding-guidelines-and-linter-audits.md](completed/26-coding-guidelines-and-linter-audits.md): Coding Guidelines & Linter Audits (Booleans, Nesting, Enums, Sizes, Paths)
 5. [25-terminal-ui-help-and-agy-prompts.md](completed/25-terminal-ui-help-and-agy-prompts.md): Terminal UI, Help Text Parity, Aligned Tables & AGY CLI Prompts
@@ -59,6 +60,8 @@ Zero pending plans. All planned work complete and verified.
 - [26-coding-guidelines-and-linter-audits.md](completed/26-coding-guidelines-and-linter-audits.md): Coding Guidelines & Linter Audits (Booleans, Nesting, Enums, Sizes, Paths)
 - [27-completed-plans-consolidation.md](completed/27-completed-plans-consolidation.md): Completed Plans Aggressive Consolidation & Memory Reduction (v2.2.0)
 - [28-agy-prompts-templates-and-rerun-suite.md](completed/28-agy-prompts-templates-and-rerun-suite.md): Antigravity (AGY) Prompts Templates, Rerun Suite & Pipeline Error Remediations
+- [29-auto-aliasing-and-error-storage-reset.md](completed/29-auto-aliasing-and-error-storage-reset.md): Auto-Aliasing Engine, Scan Bracket/Tree Views & Error Storage Reset Suite
+- [30-ssh-exec-copy-mv-env-and-rm-sync-resilience.md](completed/30-ssh-exec-copy-mv-env-and-rm-sync-resilience.md): SSH Exec Polish, Remote Copy/Move, Environment Management & CLI Resilience Suite
 
 ## Subtasks
 

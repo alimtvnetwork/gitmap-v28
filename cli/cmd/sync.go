@@ -199,17 +199,8 @@ func dispatchSync(command string) (bool, error) {
 		return false, nil
 	}
 
-	if len(os.Args) < 3 {
-		err := apperror.NewWithDetails(
-			"cmd.sync.dispatch",
-			"E1144",
-			syncUsage,
-			"cmd.sync",
-			apperror.ErrorTypeValidation,
-			apperror.SeverityError,
-			nil,
-		)
-		cliexit.HandleError(err, 1)
+	if len(os.Args) < 3 || isSyncHelp(os.Args[2]) {
+		fmt.Print(syncUsage)
 
 		return true, nil
 	}
@@ -248,6 +239,10 @@ func dispatchSync(command string) (bool, error) {
 	}
 
 	return true, nil
+}
+
+func isSyncHelp(arg string) bool {
+	return arg == "help" || arg == "-h" || arg == "--help"
 }
 
 // parseSyncFlags scans args for --dry-run and --force (position agnostic).

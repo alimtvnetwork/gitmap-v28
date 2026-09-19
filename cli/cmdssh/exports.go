@@ -29,6 +29,16 @@ func RunSSHExec(args []string) error {
 	return runSSHExec(args)
 }
 
+// RunSSHCopyCLI executes ssh copy subcommand.
+func RunSSHCopyCLI(args []string) error {
+	return runSSHCopyCLI(args)
+}
+
+// RunSSHMvCLI executes ssh mv subcommand.
+func RunSSHMvCLI(args []string) error {
+	return runSSHMvCLI(args)
+}
+
 // RunSSHBind executes ssh bind subcommand.
 func RunSSHBind(args []string) error {
 	return runSSHBind(args)

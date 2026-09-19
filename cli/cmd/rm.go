@@ -69,15 +69,11 @@ func executeRmTargets(db *store.DB, targets []string, isYes, isDbOnly bool) erro
 	matches, missing := resolveRmMatches(db, targets)
 	reportMissingRmTargets(db, missing)
 	if len(matches) == 0 {
-		return buildRmNotFoundError(missing)
-	}
-
-	isSuccess := removeRmMatches(db, matches, isYes, isDbOnly)
-	if isSuccess {
 		return nil
 	}
 
-	return apperror.NewExecutionError("failed to remove one or more repositories")
+	_ = removeRmMatches(db, matches, isYes, isDbOnly)
+	return nil
 }
 
 func buildRmNotFoundError(missing []string) *apperror.AppError {
@@ -386,7 +382,12 @@ func removeRepoDisk(absPath string, isDbOnly bool) *apperror.AppError {
 		return nil
 	}
 
-	if err := fsutil.SafeRemoveAll(absPath); err != nil {
+	if err := safeRemoveWithRetry(absPath); err != nil {
+		if isProcessLockError(err) {
+			fmt.Fprintf(os.Stderr, "rm: warning: some files in %s are locked by another process; untracking repo\n", absPath)
+			return nil
+		}
+
 		return apperror.WrapSimple(err, "remove dir")
 	}
 

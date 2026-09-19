@@ -26,6 +26,8 @@ Manages SSH key pairs for Git authentication.
 | agy        |       | Run Antigravity CLI or open remote folder |
 | code       |       | Open remote folder in VS Code via SSH Remote |
 | compare    | matrix| Display comparison table: SSH vs Cluster vs SC |
+| copy       | cp    | Transfer file to remote machines with path macro expansion |
+| mv         | move  | Move file from host to remote machines and remove source |
 
 ## Flags (generate)
 

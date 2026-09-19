@@ -30,7 +30,29 @@ func determineSSHCommand(osType string, args []string) (string, string, bool) {
 	if isExplicitShell(firstToken) {
 		return firstToken, extractShellCommandArgs(args), false
 	}
-	return determineFallbackShell(osType), strings.Join(args, " "), false
+	cmdStr := normalizeMultiCommands(strings.Join(args, " "), isWindowsOS(osType))
+	return determineFallbackShell(osType), cmdStr, false
+}
+
+func normalizeMultiCommands(cmdStr string, isWindows bool) string {
+	if !strings.Contains(cmdStr, ",") {
+		return cmdStr
+	}
+	parts := strings.Split(cmdStr, ",")
+	var cleanParts []string
+	for _, p := range parts {
+		trimmed := strings.TrimSpace(p)
+		if trimmed != "" {
+			cleanParts = append(cleanParts, trimmed)
+		}
+	}
+	if len(cleanParts) <= 1 {
+		return cmdStr
+	}
+	if isWindows {
+		return strings.Join(cleanParts, "; ")
+	}
+	return strings.Join(cleanParts, " && ")
 }
 
 func isGitmapCoreCommand(cmd string) bool {
