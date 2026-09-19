@@ -68,7 +68,7 @@ func walkDirectoryNewlines(dir string, opts NewlineOptions, res *NewlineResult) 
 }
 
 func isExcludedDir(name string) bool {
-	return name == ".git" || name == "node_modules" || name == "dist" ||
+	return name == ".git" || name == ".gitmap" || name == "node_modules" || name == "dist" ||
 		name == "build" || name == ".pytest_cache" || name == "__pycache__"
 }
 

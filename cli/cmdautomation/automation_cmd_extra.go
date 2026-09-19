@@ -81,7 +81,12 @@ func renderSearchResults(res SearchResult) {
 func initSubsystems() {
 	AutomationCmd.AddCommand(newlinesCmd)
 	AutomationCmd.AddCommand(cacheCmd)
+	AutomationCmd.AddCommand(guardCmd)
+	AutomationCmd.AddCommand(sequenceCmd)
+	AutomationCmd.AddCommand(excludeCmd)
 
 	newlinesCmd.Flags().BoolVarP(&newlineOpts.IsFixMode, "fix", "f", false, "Write normalized changes to disk")
 	newlinesCmd.Flags().BoolVar(&newlineOpts.IsDryRun, "dry-run", false, "Preview modifications without writing")
+	initGuardFlags()
+	initSequenceFlags()
 }

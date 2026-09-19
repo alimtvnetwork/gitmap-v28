@@ -137,11 +137,14 @@ Consolidated reference, audit logs, contradiction checks.
 | 23 | `23-solid-principles.md` | Architecture |
 | 16a | `16-static-analysis/00-overview.md` | Enforcement |
 | 28 | `28-slug-conventions.md` | Naming |
+| 29 | `29-no-generated-artifacts.md` | Storage Hygiene |
+| 30 | `30-actions-zero-storage.md` | Storage Hygiene |
+| 31 | `31-file-size-guard-and-binary-exclusion.md` | Storage Hygiene |
 | 97 | `97-acceptance-criteria.md` | Meta |
 | 98 | `98-changelog.md` | Meta |
 | 99 | `99-consistency-report.md` | Meta |
 
-**Total:** 29 files (25 spec files + 1 overview + 3 meta)
+**Total:** 32 files (28 spec files + 1 overview + 3 meta)
 
 ---
 

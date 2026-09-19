@@ -107,6 +107,16 @@ CREATE TABLE IF NOT EXISTS execution_history (
 );
 CREATE INDEX IF NOT EXISTS idx_exec_runtime ON execution_history(runtime);
 CREATE INDEX IF NOT EXISTS idx_exec_date ON execution_history(executed_at);
+
+-- Table: search_exclusions
+-- Persists custom files, directories, and glob patterns excluded from search and audits.
+CREATE TABLE IF NOT EXISTS search_exclusions (
+    id INTEGER PRIMARY KEY AUTOINCREMENT,
+    pattern TEXT NOT NULL UNIQUE,                 -- e.g. 'assets/icon.png', '*.bin', 'tmp/cache'
+    reason TEXT NOT NULL DEFAULT 'user_excluded', -- 'binary', 'large_file', 'large_json', 'user_excluded'
+    created_at DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP
+);
+CREATE INDEX IF NOT EXISTS idx_exclusions_pattern ON search_exclusions(pattern);
 ```
 
 ---
@@ -455,6 +465,109 @@ done
 
 ---
 
+### 6.7 AI Script Catalog Proposals & Real-World Polyglot Orchestration (`03-ai-scripts`)
+
+The scripts in `03-ai-scripts/` represent high-value repository maintenance algorithms. Under the Go Supervisor architecture, these algorithms run either via high-performance native Go engines or via parallel polyglot worker processes.
+
+#### 6.7.1 Sequence, Numbering & Title Header Auditor (`15-sequence-and-title-auditor.py` / Native Go)
+Audits numbered markdown files (e.g. `01-intro.md`, `02-spec/...`, `124-polyglot-worker.md`) across directory trees to guarantee:
+1. **Zero Sequence Gaps:** Numbering must be strictly contiguous (e.g. `01`, `02`, `03`... no missing numbers).
+2. **Zero Duplicate Numbers:** No two files may share the same sequence prefix.
+3. **H1 Title Alignment:** Top-level `# XX Title` headers must exactly match the filename numeric prefix.
+4. **Automated Fix Mode (`--fix`):** Auto-updates mismatched H1 headers in place with Unix LF line endings.
+
+```bash
+# Audit markdown sequences and headers across all spec directories
+gitmap automation sequence 02-spec/21-app
+
+# Automatically fix mismatched H1 headers across the repository
+gitmap automation sequence --fix
+
+# Polyglot Worker Execution (Delegating to Python engine with worker pool):
+gitmap automation run py-file "03-ai-scripts/15-sequence-and-title-auditor.py" --path "02-spec" --w 4
+```
+
+#### 6.7.2 File Size Guard & Memory-Safe Binary Probing (`13-file-size-guard.py` / Native Go)
+Prevents accidental commits of massive blobs, multi-megabyte JSON dumps, and pre-compiled binaries:
+1. **Configurable Ceilings:** Audits all tracked and local repository files against maximum size limits (default: 500 KB, configurable via `--max-kb`).
+2. **8KB Chunk Probing:** Evaluates unrecognized file types by scanning the first 8,192 bytes for null bytes (`0x00`) without loading entire multi-megabyte files into RAM.
+3. **Allowed Large File Waivers (`ALLOWED_LARGE_FILES`):** Explicitly exempts pre-approved metadata assets (e.g. `src/data/specTree.json`, `.ai-memory/test-inventory.json`).
+
+```bash
+# Execute native Go file size guard (default 500 KB threshold)
+gitmap automation guard
+
+# Audit with custom 250 KB ceiling and output JSON telemetry
+gitmap automation guard --max-kb 250 --json
+
+# Polyglot Worker Execution (Delegating to Python engine):
+gitmap automation run py-file "03-ai-scripts/13-file-size-guard.py" --max-kb 500 --w 4
+```
+
+#### 6.7.3 Large JSON Automatic Exclusion ("Out of the List")
+Large JSON files (such as `specTree.json`, `test-inventory.json`, AST dumps, and pipeline telemetry logs exceeding 500 KB) pose a severe threat to search performance and AI LLM context windows:
+- **Default Policy:** Any `.json` file exceeding 500 KB is automatically excluded ("out of the list") from repository search streams (`gitmap automation search`), file manifests, and prompt injection buffers.
+- **Explicit Override:** Developers can explicitly include large JSONs when needed via `--include-large-json` or `--max-json-kb <size>`.
+
+```bash
+# Standard search automatically excludes oversized JSON dumps
+gitmap automation search "connectionTimeout"
+
+# Explicitly search including large JSON data dumps
+gitmap automation search "connectionTimeout" --include-large-json --max-json-kb 2000
+```
+
+#### 6.7.4 Common Binary Probing & Interactive User Confirmation
+When un-excluded binary files (`.exe`, `.dll`, `.bin`, `.zip`, `.png`, `.jpg`, `.wasm`, `.db`) or null-byte chunks are discovered:
+1. **Interactive Terminal Prompt:** GitMap displays the discovered binary and prompts the developer:
+   ```
+   [Binary File Detected] assets/logo.png (57 KB)
+   Exclude this file from future searches? [y/N]:
+   ```
+2. **Persistent Decision:** If confirmed (`y`), the file path or pattern is persisted into `search_exclusions` in `.gitmap/data/<repo-slug>/automation/sql.db`.
+3. **Headless / CI Execution:** In non-interactive mode (`CI=true` or piped stdin), binaries are automatically excluded from search streams without prompting.
+
+#### 6.7.5 Customizable Search Exclusions & Waiver Registry
+Developers can inspect, add, remove, and purge search exclusion patterns stored persistently in SQLite:
+
+```bash
+# List all active search and audit exclusions
+gitmap automation exclude list
+
+# Add a custom file path or glob pattern to exclusions
+gitmap automation exclude add "assets/vendor/*.bin" "vendor_blobs"
+gitmap automation exclude add "mock_data.json" "test_fixture"
+
+# Remove an exclusion pattern
+gitmap automation exclude rm "mock_data.json"
+
+# Clear all custom exclusions
+gitmap automation exclude clear
+```
+
+#### 6.7.6 Version Synchronization Checker (`14-version-sync-checker.py`)
+Ensures version consistency across polyglot project manifests (`package.json`, `Cargo.toml`, `go.mod`, `cli/constants/constants_version.go`):
+
+```bash
+gitmap automation run py-file "03-ai-scripts/14-version-sync-checker.py"
+```
+
+#### 6.7.7 CLI Help & Command Parity Auditor (`09-cli-help-auditor.py`)
+Audits CLI command registration, help text flags, and markdown documentation catalogs to ensure 100% AST simulation parity:
+
+```bash
+gitmap automation run py-file "03-ai-scripts/09-cli-help-auditor.py"
+```
+
+#### 6.7.8 Result Monad & AppError Wrapper Auditor (`35-result-wrapper-auditor.py`)
+Scans Go source files to detect and eliminate raw multi-value `(T, error)` tuples, enforcing strongly-typed `result.Result[T]` wrappers and structured `*apperror.AppError` envelopes:
+
+```bash
+gitmap automation run py-file "03-ai-scripts/35-result-wrapper-auditor.py" --path "cli"
+```
+
+---
+
 ## 7. Composed Pipelines & Chaining
 
 ### 7.1 Search and Execute Pipelines
@@ -525,6 +638,38 @@ gitmap automation config set defaultTimeoutSeconds 45
 gitmap automation config set autoInstallMissingRuntimes true
 ```
 
+### 8.4 Search & Audit Exclusion Management
+
+```bash
+# List all active exclusions
+gitmap automation exclude list
+
+# Add a custom exclusion pattern with an audit reason
+gitmap automation exclude add "assets/vendor/*.bin" "vendor_blobs"
+
+# Remove an exclusion pattern
+gitmap automation exclude rm "assets/vendor/*.bin"
+
+# Clear all custom exclusions
+gitmap automation exclude clear
+```
+
+### 8.5 Repository File Size Guard & Sequence Auditor Commands
+
+```bash
+# Run file size guard across the repository (default 500 KB limit)
+gitmap automation guard
+
+# Run guard with custom limit, non-interactive, and JSON output
+gitmap automation guard --max-kb 250 --interactive=false --json
+
+# Run sequence numbering and H1 header auditor
+gitmap automation sequence 02-spec
+
+# Automatically repair and align mismatched H1 headers to file sequence numbers
+gitmap automation sequence --fix
+```
+
 ---
 
 ## 9. Acceptance Criteria
@@ -548,6 +693,21 @@ gitmap automation config set autoInstallMissingRuntimes true
 - **Given** a repository with 5,000+ files
 - **When** `gitmap automation search-filename "*.go" run py "..." --w 4 --threads 4` is executed
 - **Then** Go groups all matching files into 4 balanced chunks, launches 4 worker processes, passes files via JSON stream, and completes without thrashing the OS.
+
+### Scenario 5: Large JSON Files Excluded from Search Stream
+- **Given** a repository containing `src/data/specTree.json` (> 1 MB) and `test-inventory.json`
+- **When** `gitmap automation search "pattern"` is executed without `--include-large-json`
+- **Then** GitMap automatically excludes all JSON files exceeding 500 KB, keeping search results concise and fast.
+
+### Scenario 6: Common Binary Interactive Prompt & Persistence
+- **Given** an un-excluded `.png` or binary file in a repository folder
+- **When** `gitmap automation guard` runs interactively
+- **Then** GitMap prompts the developer whether to exclude the file from future searches, and upon confirmation (`y`), persists the pattern into `.gitmap/data/<repo-slug>/automation/sql.db`.
+
+### Scenario 7: Sequence Gaps & Title Mismatch Auto-Repair
+- **Given** a documentation directory with numbering gaps (`01`, `03`) and title mismatch (`03` prefix with `# 02 Header`)
+- **When** `gitmap automation sequence --fix` is executed
+- **Then** GitMap reports the sequence gap and automatically repairs the `# 02` header to `# 03` in place with Unix LF line endings.
 
 ---
 

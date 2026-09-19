@@ -108,4 +108,7 @@ func initSearchFlags() {
 	searchCmd.Flags().BoolVarP(&searchOpts.IsCaseInsensitive, "ignore-case", "i", false, "Perform case-insensitive matching")
 	searchCmd.Flags().StringSliceVarP(&searchOpts.Extensions, "ext", "e", nil, "Filter by file extensions (e.g. .go, .ts)")
 	searchCmd.Flags().IntVarP(&searchOpts.Workers, "workers", "w", 0, "Number of worker threads (default: CPU count)")
+	searchCmd.Flags().IntVar(&searchOpts.MaxJsonKb, "max-json-kb", 500, "Maximum JSON size in KB before auto-exclusion")
+	searchCmd.Flags().BoolVar(&searchOpts.IncludeBinaries, "include-binaries", false, "Include binary files in search")
+	searchCmd.Flags().BoolVar(&searchOpts.IncludeLargeJson, "include-large-json", false, "Include oversized JSON files in search")
 }

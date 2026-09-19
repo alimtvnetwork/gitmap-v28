@@ -78,7 +78,7 @@ func (c *MemoryCache) Stats() CacheStats {
 }
 
 func (c *MemoryCache) Warm(dir string) int {
-	files := collectSearchFiles(dir, nil)
+	files := collectSearchFiles(SearchOptions{Dir: dir})
 	count := 0
 	for _, f := range files {
 		data, err := os.ReadFile(f)

@@ -145,6 +145,41 @@ func main() {
 
 ---
 
+### Recipe 5: Documentation Sequence Gaps & Title Mismatch Auto-Repair
+
+**LLM Intent:** Ensure all numbered markdown files across documentation and specifications have zero sequence gaps and matching `# XX Title` headers.
+
+```bash
+# 1. Audit sequence numbering and H1 headers across all specifications
+gitmap automation sequence 02-spec --json
+
+# 2. Or automatically repair mismatched titles across the whole repository
+gitmap automation sequence --fix
+
+# 3. Polyglot worker delegation to Python engine:
+gitmap automation run py-file "03-ai-scripts/15-sequence-and-title-auditor.py" --path "02-spec" --w 4
+```
+
+---
+
+### Recipe 6: Repository File Size Guard & Large JSON Exclusion Check
+
+**LLM Intent:** Audit repository files for accidental commits of massive binaries or serialized JSON dumps before pushing.
+
+```bash
+# 1. Execute native Go size guard (flags oversized files, binaries, and large JSONs)
+gitmap automation guard --max-kb 500 --json
+
+# 2. Query or manage persistent search exclusions in SQLite
+gitmap automation exclude list
+gitmap automation exclude add "assets/vendor/*.bin" "vendor_blobs"
+
+# 3. Polyglot worker delegation to Python engine:
+gitmap automation run py-file "03-ai-scripts/13-file-size-guard.py" --max-kb 500 --w 4
+```
+
+---
+
 ## 3. Structured Output Contracts for AI Agents
 
 When AI assistants invoke GitMap automation commands, they SHOULD supply `--json` or prefix output records with structured tags (`[WARN]`, `[ERROR]`, `[RESULT]`).

@@ -18,7 +18,7 @@ func RunSearch(opts SearchOptions) (SearchResult, *apperror.AppError) {
 		return SearchResult{}, valErr
 	}
 
-	files := collectSearchFiles(opts.Dir, opts.Extensions)
+	files := collectSearchFiles(opts)
 	matches := dispatchSearchWorkers(files, opts)
 	duration := time.Since(start)
 
@@ -44,23 +44,55 @@ func validateSearchOptions(opts *SearchOptions) *apperror.AppError {
 	return nil
 }
 
-func collectSearchFiles(dir string, exts []string) []string {
+func collectSearchFiles(opts SearchOptions) []string {
 	var files []string
-	extMap := buildExtMap(exts)
+	extMap := buildExtMap(opts.Extensions)
+	exclusions := loadActiveExclusions()
+	maxJsonBytes := resolveMaxJsonBytes(opts.MaxJsonKb)
 
-	_ = filepath.Walk(dir, func(p string, info os.FileInfo, err error) error {
+	_ = filepath.Walk(opts.Dir, func(p string, info os.FileInfo, err error) error {
 		if err != nil {
 			return nil
 		}
 		if info.IsDir() && isExcludedDir(info.Name()) {
 			return filepath.SkipDir
 		}
-		if !info.IsDir() && matchesExtensionFilter(p, extMap) {
+		if !info.IsDir() && isSearchCandidate(p, info, opts, extMap, exclusions, maxJsonBytes) {
 			files = append(files, p)
 		}
 		return nil
 	})
 	return files
+}
+
+func resolveMaxJsonBytes(maxKb int) int64 {
+	if maxKb <= 0 {
+		return 500 * 1024
+	}
+	return int64(maxKb * 1024)
+}
+
+func isSearchCandidate(p string, info os.FileInfo, opts SearchOptions, extMap map[string]bool, exclusions []string, maxJsonBytes int64) bool {
+	rel := filepath.ToSlash(p)
+	if IsPathExcluded(rel, exclusions) {
+		return false
+	}
+	if !opts.IncludeLargeJson && filepath.Ext(p) == ".json" && info.Size() > maxJsonBytes {
+		return false
+	}
+	if !opts.IncludeBinaries && isSearchBinary(p) {
+		return false
+	}
+	return matchesExtensionFilter(p, extMap)
+}
+
+func isSearchBinary(path string) bool {
+	ext := filepath.Ext(path)
+	if IsBinaryExtension(ext) {
+		return true
+	}
+	data, err := os.ReadFile(path)
+	return err == nil && HasBinaryContent(data)
 }
 
 func buildExtMap(exts []string) map[string]bool {

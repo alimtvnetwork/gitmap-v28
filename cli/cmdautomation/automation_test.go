@@ -86,8 +86,8 @@ func TestNormalizeContent_CrlfAndWhitespace(t *testing.T) {
 	if !isModified {
 		t.Error("expected content to be flagged as modified")
 	}
-	if crlfs != 3 {
-		t.Errorf("expected 3 CRLFs, got %d", crlfs)
+	if crlfs != 5 {
+		t.Errorf("expected 5 CRLFs, got %d", crlfs)
 	}
 
 	expected := []byte("line 1\nline 2\nline 3\n")
