@@ -84,9 +84,17 @@ func initSubsystems() {
 	AutomationCmd.AddCommand(guardCmd)
 	AutomationCmd.AddCommand(sequenceCmd)
 	AutomationCmd.AddCommand(excludeCmd)
+	AutomationCmd.AddCommand(relPathsCmd)
+	AutomationCmd.AddCommand(namingCmd)
+	AutomationCmd.AddCommand(resultWrapperCmd)
+	AutomationCmd.AddCommand(paramsCmd)
+	AutomationCmd.AddCommand(enumsCmd)
 
 	newlinesCmd.Flags().BoolVarP(&newlineOpts.IsFixMode, "fix", "f", false, "Write normalized changes to disk")
 	newlinesCmd.Flags().BoolVar(&newlineOpts.IsDryRun, "dry-run", false, "Preview modifications without writing")
 	initGuardFlags()
 	initSequenceFlags()
+	initRelPathsFlags()
+	initNamingFlags()
+	initRuleFlags()
 }

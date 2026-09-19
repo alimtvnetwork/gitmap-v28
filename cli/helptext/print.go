@@ -152,8 +152,19 @@ var helpAliases = map[string]string{
 	"py-auto":                  "automation",
 	"automation-search":        "automation",
 	"automation-newlines":      "automation",
-	"automation-cache":         "automation",
-	"automation-benchmark":     "automation",
+	"automation-cache":          "automation",
+	"automation-benchmark":      "automation",
+	"automation-relative-paths": "automation",
+	"automation-naming":         "automation",
+	"automation-result-wrapper": "automation",
+	"automation-params":         "automation",
+	"automation-enums":          "automation",
+	"relative-paths":            "automation",
+	"rel-paths":                 "automation",
+	"naming":                    "automation",
+	"result-wrapper":            "automation",
+	"params":                    "automation",
+	"enums":                     "automation",
 }
 
 func resolveHelpAlias(cmd string) string {

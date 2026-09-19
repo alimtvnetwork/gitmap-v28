@@ -97,8 +97,12 @@ var topicSummaries = map[string]string{
 	"py-auto":                "High-performance native Go automation, multi-core search, polyglot newline normalization, and side-by-side execution benchmarks.",
 	"automation-search":      "Multi-core streaming search across repository files with lazy regex or literal match.",
 	"automation-newlines":    "Polyglot CRLF to LF and trailing whitespace normalizer.",
-	"automation-cache":       "Manage sub-millisecond in-memory file cache with zero disk pollution.",
-	"automation-benchmark":   "Run side-by-side Go vs Python execution benchmarks.",
+	"automation-benchmark":      "Run side-by-side Go vs Python execution benchmarks.",
+	"automation-relative-paths": "Audit and sanitize forbidden absolute filesystem paths in documentation and code.",
+	"automation-naming":         "Audit boolean comparison anti-patterns and affirmative naming conventions.",
+	"automation-result-wrapper": "Audit Go functions returning multi-value map/slice error tuples.",
+	"automation-params":         "Audit function signatures for argument reduction and parameter structs.",
+	"automation-enums":          "Audit enums for *Type suffixes and ban raw numeric rune casts.",
 }
 
 // GetTopicDetailedSummary returns documentation content for a specific command topic.
