@@ -14,6 +14,7 @@ import (
 	"github.com/alimtvnetwork/gitmap-v28/cli/constants"
 	"github.com/alimtvnetwork/gitmap-v28/cli/crypto"
 	"github.com/alimtvnetwork/gitmap-v28/cli/db"
+	"github.com/alimtvnetwork/gitmap-v28/cli/store"
 )
 
 // RunSSHAuthKeyDeployCLI executes public key deployment to SSH fleet or node.
@@ -195,7 +196,26 @@ func promptAndConnectSSH(c db.SSHConnection, header string) (*ssh.Client, bool) 
 		printHeaderError(header, "Password connect failed", connErr)
 		return nil, false
 	}
+	saveSSHPasswordOnAuth(c.Alias, c.IPAddress, pass)
 	return client, true
+}
+
+func saveSSHPasswordOnAuth(alias, ip, pass string) {
+	encPass, err := EncryptSSHPassword(pass)
+	if err != nil || encPass == "" {
+		return
+	}
+	dbConn, dbErr := store.OpenDefault()
+	if dbErr != nil {
+		return
+	}
+	defer dbConn.Close()
+
+	ctx := context.Background()
+	_, _ = store.UpdateHostPassword(ctx, alias, encPass, dbConn.SQL())
+	_, _ = store.UpdateHostPassword(ctx, ip, encPass, dbConn.SQL())
+	_, _ = db.UpdateSSHConnectionPassword(ctx, dbConn.SQL(), alias, encPass)
+	_, _ = db.UpdateSSHConnectionPassword(ctx, dbConn.SQL(), ip, encPass)
 }
 
 func executeKeyInjection(client *ssh.Client, header, osType, pubKey string) {

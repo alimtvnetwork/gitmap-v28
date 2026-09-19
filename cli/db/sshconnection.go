@@ -3,6 +3,7 @@ package db
 import (
 	"context"
 	"database/sql"
+	"strings"
 	"time"
 
 	"github.com/alimtvnetwork/gitmap-v28/cli/apperror"
@@ -107,12 +108,30 @@ func mergeSSHHostsConnections(ctx context.Context, db *sql.DB, existing []SSHCon
 	return result.OkSlice(merged)
 }
 
+func updateExistingPassword(merged []SSHConnection, alias, ip, encPass, user string) {
+	for i := range merged {
+		isMatch := strings.EqualFold(merged[i].Alias, alias) || merged[i].IPAddress == ip
+		if isMatch {
+			hasNoPass := merged[i].EncryptedPassword == "" && encPass != ""
+			if hasNoPass {
+				merged[i].EncryptedPassword = encPass
+			}
+			hasNoUser := merged[i].Username == "" && user != ""
+			if hasNoUser {
+				merged[i].Username = user
+			}
+		}
+	}
+}
+
 func scanAndAppendSSHHostRow(rows *sql.Rows, seen map[string]bool, merged []SSHConnection) []SSHConnection {
 	var alias, ip, user, encPass string
 	if err := rows.Scan(&alias, &ip, &user, &encPass); err != nil {
 		return merged
 	}
-	if seen[alias] || seen[ip] {
+	hasSeen := seen[alias] || seen[ip]
+	if hasSeen {
+		updateExistingPassword(merged, alias, ip, encPass, user)
 		return merged
 	}
 

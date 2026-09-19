@@ -192,7 +192,8 @@ func runSSHWorker(c db.SSHConnection, args []string, wg *sync.WaitGroup) error {
 
 	client, isConnected := connectSSHClient(c)
 	if !isConnected {
-		printNodeResultOutput(c.Alias, c.IPAddress, "(authentication required: configure key or password)", nil)
+		advice := fmt.Sprintf("(auth failed: run 'gitmap ssh fix-auth %s' or configure password)", c.Alias)
+		printNodeResultOutput(c.Alias, c.IPAddress, advice, nil)
 		return nil
 	}
 	defer client.Close()
@@ -224,18 +225,49 @@ func connectSSHClient(c db.SSHConnection, headers ...string) (*ssh.Client, bool)
 	}
 
 	if c.EncryptedPassword != "" {
-		return connectWithEncryptedPassword(c, header)
+		if client, isPassOk := connectWithEncryptedPassword(c, header); isPassOk {
+			return client, true
+		}
 	}
 
 	if c.KeyPath != "" {
-		return connectWithKeyPath(c, header)
+		if client, isKeyOk := connectWithKeyPath(c, header); isKeyOk {
+			return client, true
+		}
 	}
 
 	if client, isDefaultOk := connectWithDefaultKey(c.IPAddress, c.Username, header); isDefaultOk {
 		return client, true
 	}
 
-	return nil, false
+	return tryFallbackDBPassword(c, header)
+}
+
+func tryFallbackDBPassword(c db.SSHConnection, header string) (*ssh.Client, bool) {
+	if c.EncryptedPassword != "" {
+		return nil, false
+	}
+	encPass := queryHostPasswordFromDB(c.Alias, c.IPAddress)
+	if encPass == "" {
+		return nil, false
+	}
+	c.EncryptedPassword = encPass
+	return connectWithEncryptedPassword(c, header)
+}
+
+func queryHostPasswordFromDB(alias, ip string) string {
+	dbConn, err := store.OpenDefault()
+	if err != nil {
+		return ""
+	}
+	defer dbConn.Close()
+
+	var encPass string
+	row := dbConn.SQL().QueryRow("SELECT COALESCE(encrypted_password, '') FROM ssh_hosts WHERE alias = ? OR ip = ? LIMIT 1", alias, ip)
+	if scanErr := row.Scan(&encPass); scanErr == nil && encPass != "" {
+		return encPass
+	}
+	return ""
 }
 
 func connectWithKeyPath(c db.SSHConnection, header string) (*ssh.Client, bool) {

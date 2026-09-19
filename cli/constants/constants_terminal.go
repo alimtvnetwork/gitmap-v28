@@ -17,6 +17,7 @@ const (
 	ColorCyan   = "\033[1;96m" // bright bold cyan — paths, URLs, emphasis
 	ColorWhite  = "\033[1;97m" // bright bold white — primary text accents
 	ColorDim    = "\033[2;37m" // dim grey — secondary / hint text
+	ColorMuted  = "\033[2;37m" // alias for ColorDim
 
 	// Accent palette — used sparingly to break up long success runs
 	// (e.g. release pipeline output) so each phase is visually distinct.
