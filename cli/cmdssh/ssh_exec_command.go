@@ -26,12 +26,16 @@ func determineSSHCommand(osType string, args []string) (string, string, bool) {
 	if isIPCommand(args) {
 		return resolveIPCommand(osType)
 	}
-	firstToken := extractFirstToken(args[0])
-	if isGitmapCommand(firstToken) {
+	first := extractFirstToken(args[0])
+	if isGitmapCommand(first) {
 		return "", resolveGitmapCommandString(args), true
 	}
-	if isExplicitShell(firstToken) {
-		return firstToken, extractShellCommandArgs(args), false
+	return resolveFallbackOrShell(osType, args, first)
+}
+
+func resolveFallbackOrShell(osType string, args []string, first string) (string, string, bool) {
+	if isExplicitShell(first) {
+		return first, extractShellCommandArgs(args), false
 	}
 	cmdStr := normalizeMultiCommands(strings.Join(args, " "), isWindowsOS(osType))
 	return determineFallbackShell(osType), cmdStr, false
@@ -72,7 +76,13 @@ func normalizeMultiCommands(cmdStr string, isWindows bool) string {
 
 func isGitmapCoreCommand(cmd string) bool {
 	switch cmd {
-	case "gitmap", "status", "pipeline", "pipe", "pl", "clone", "pull", "sync", "push", "clean", "log", "branch", "diff":
+	case "gitmap", "status", "st", "pipeline", "pipe", "pl", "clone", "pull", "sync", "push", "clean", "log", "branch", "diff":
+		return true
+	case "open", "o", "browse", "browse-url", "open-url", "pull-all", "clone-all", "sync-all", "push-all":
+		return true
+	case "clone-sync", "clone-only-missing", "clone-next", "clone-pick", "clone-from", "clone-now", "clone-reclone":
+		return true
+	case "reconcile", "latest-branch", "discard", "stash", "wip":
 		return true
 	default:
 		return false
@@ -81,9 +91,11 @@ func isGitmapCoreCommand(cmd string) bool {
 
 func isGitmapSystemCommand(cmd string) bool {
 	switch cmd {
-	case "storage", "macro", "install", "update", "setup", "chrome", "vscode", "vsc", "vhost", "zip", "service", "os":
+	case "storage", "macro", "install", "reinstall", "uninstall", "update", "setup", "chrome", "vscode", "vsc", "vhost", "zip":
 		return true
-	case "schedule", "schedules", "scheduled", "cron", "crontab", "restore-db", "restoredb":
+	case "service", "os", "power", "schedule", "schedules", "scheduled", "cron", "crontab":
+		return true
+	case "restore-db", "restoredb", "db", "db-reset", "db-migrate", "start-fresh", "backup", "stats", "task", "tasks", "watch":
 		return true
 	default:
 		return false
@@ -92,7 +104,7 @@ func isGitmapSystemCommand(cmd string) bool {
 
 func isGitmapAgyOrRemote(cmd string) bool {
 	switch cmd {
-	case "agy", "ag", "antigravity", "aef", "fix-pipeline", "fixpipeline", "pipeline-fix":
+	case "agy", "ag", "antigravity", "aef", "fix-pipeline", "fixpipeline", "pipeline-fix", "pipeline-ai", "plai":
 		return true
 	case "prompts-template", "prompt-template", "prompts-templates", "prompt-templates", "prompt_templates", "pt":
 		return true
@@ -103,9 +115,23 @@ func isGitmapAgyOrRemote(cmd string) bool {
 	}
 }
 
+func isGitmapUtilityCommand(cmd string) bool {
+	switch cmd {
+	case "doctor", "profile", "profiles", "config", "workdir", "cg", "codingguidelines", "coding-guidelines":
+		return true
+	case "ai", "cargo", "aum", "automation", "fix-auth", "fixauth", "ssh-bind", "help", "docs":
+		return true
+	default:
+		return false
+	}
+}
+
 func isGitmapCommand(first string) bool {
 	low := strings.ToLower(first)
-	return isGitmapCoreCommand(low) || isGitmapSystemCommand(low) || isGitmapAgyOrRemote(low)
+	if isGitmapCoreCommand(low) || isGitmapSystemCommand(low) {
+		return true
+	}
+	return isGitmapAgyOrRemote(low) || isGitmapUtilityCommand(low)
 }
 
 func resolveGitmapCommandString(args []string) string {

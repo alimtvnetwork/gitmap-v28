@@ -145,6 +145,16 @@ printed and a one-line warning is emitted — never fails.
 
 ### Execute remote command with automatic liveness checks (exec / se)
 
+Execute remote commands across nodes. Any GitMap function or verb can be executed directly without repeating `gitmap`:
+
+    # Run any GitMap verb directly without mentioning 'gitmap':
+    $ gitmap ssh exec status
+    $ gitmap ssh exec open google.com
+    $ gitmap ssh exec macro sync --all
+    $ gitmap ssh exec pull-all
+    $ gitmap ssh exec doctor
+
+    # Standard shell commands or explicit gitmap invocations also work:
     $ gitmap ssh exec "gitmap --version"
       [devbox|192.168.1.14] gitmap version v6.260.0 linux/amd64
       [node2|192.168.1.20] OFFLINE (skipped: connection timeout)

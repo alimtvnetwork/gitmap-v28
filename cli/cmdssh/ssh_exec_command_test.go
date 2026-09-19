@@ -19,6 +19,10 @@ func TestDetermineSSHCommand_GitmapDelegation(t *testing.T) {
 		{"linux", []string{"clone", "https://github.com/repo"}, "gitmap clone https://github.com/repo"},
 		{"linux", []string{"agy", "fix-pipeline"}, "gitmap agy fix-pipeline"},
 		{"linux", []string{"aef"}, "gitmap aef"},
+		{"linux", []string{"open", "google.com"}, "gitmap open google.com"},
+		{"unix", []string{"macro", "sync", "--all"}, "gitmap macro sync --all"},
+		{"linux", []string{"pull-all"}, "gitmap pull-all"},
+		{"linux", []string{"doctor"}, "gitmap doctor"},
 	}
 
 	for _, tc := range cases {
@@ -74,6 +78,7 @@ func TestIsGitmapCommand(t *testing.T) {
 		"vsc", "vhost", "zip", "service", "os", "schedule", "schedules",
 		"agy", "ag", "antigravity", "aef", "fix-pipeline", "pt",
 		"ssh", "se", "sj", "cluster", "sc", "mkdir", "cat",
+		"open", "o", "browse", "pull-all", "doctor", "profile", "ai", "cargo", "aum",
 	}
 
 	for _, cmd := range validCommands {
