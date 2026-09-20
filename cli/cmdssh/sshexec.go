@@ -214,10 +214,9 @@ func executeOnAllSSH(conns []db.SSHConnection, args []string) {
 func runSSHWorker(c db.SSHConnection, args []string, wg *sync.WaitGroup) error {
 	defer wg.Done()
 
-	client, isConnected := connectSSHClient(c)
-	if !isConnected {
-		advice := fmt.Sprintf("(auth failed: run 'gitmap ssh fix-auth %s' or configure password)", c.Alias)
-		printNodeResultOutput(c.Alias, c.IPAddress, advice, nil)
+	client, isConnected := connectSSHClient(c, fmt.Sprintf("[%s]", c.Alias))
+	if isConnected == false {
+		printNodeResultOutput(c.Alias, c.IPAddress, formatAuthFailedAdvice(c.Alias), nil)
 		return nil
 	}
 	defer client.Close()
@@ -227,19 +226,41 @@ func runSSHWorker(c db.SSHConnection, args []string, wg *sync.WaitGroup) error {
 		return nil
 	}
 
-	shellType, commandStr, delegateToGitmap := determineSSHCommand(c.OS, args)
+	return executeSSHPayload(client, c, args)
+}
+
+func formatAuthFailedAdvice(alias string) string {
+	return fmt.Sprintf("(auth failed: run 'gitmap ssh fix-auth %s' or configure password)", alias)
+}
+
+func executeSSHPayload(client *ssh.Client, c db.SSHConnection, args []string) error {
+	isHandled, _ := handleRemoteMacroAdd(client, c, args)
+	if isHandled {
+		return nil
+	}
+
+	shellType, cmdStr := resolveWorkerCommand(c.OS, args)
 	if shellType == "ps" || shellType == "pwsh" {
 		_ = ensurePowerShellInstalled(client, c.OS, c.Alias)
 	}
+
+	out, err := crypto.RunCommand(client, cmdStr, shellType)
+	printNodeResultOutput(c.Alias, c.IPAddress, out, err)
+
+	return nil
+}
+
+func resolveWorkerCommand(osType string, args []string) (string, string) {
+	shellType, commandStr, delegateToGitmap := determineSSHCommand(osType, args)
 	if delegateToGitmap {
 		commandStr = resolveGitmapCommandString(args)
 		shellType = ""
 	}
+	if isWindowsOS(osType) == false {
+		commandStr = wrapUnixPath(commandStr)
+	}
 
-	out, err := crypto.RunCommand(client, commandStr, shellType)
-	printNodeResultOutput(c.Alias, c.IPAddress, out, err)
-
-	return nil
+	return shellType, commandStr
 }
 
 func connectSSHClient(c db.SSHConnection, headers ...string) (*ssh.Client, bool) {
@@ -351,29 +372,6 @@ func printHeaderError(header, prefix string, err error) {
 	if header != "" {
 		fmt.Printf("%s %s: %v\n", header, prefix, err)
 	}
-}
-
-func ensureGitmapInstalled(client *ssh.Client, osType, header string) error {
-	_, err := crypto.RunCommand(client, "gitmap --version", "")
-	if err == nil {
-		return nil // installed
-	}
-
-	fmt.Printf("%s gitmap not found, installing...\n", header)
-	var installCmd string
-	if strings.EqualFold(osType, "windows") {
-		installCmd = "irm https://gitmap.dev/install.ps1 | iex"
-		_, err = crypto.RunCommand(client, installCmd, "ps")
-	} else {
-		installCmd = "curl -fsSL https://gitmap.dev/install.sh | bash"
-		_, err = crypto.RunCommand(client, installCmd, "bash")
-	}
-
-	if err != nil {
-		return fmt.Errorf("auto-install failed: %w", err)
-	}
-
-	return nil
 }
 
 func ensurePowerShellInstalled(client *ssh.Client, osType, header string) error {

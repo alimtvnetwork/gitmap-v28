@@ -122,7 +122,7 @@ func findMacroInDir(dir, cleanName string, extensions []string) (*Macro, bool, e
 }
 
 func handleReadFileError(err error) (*Macro, bool, error) {
-	if os.IsNotExist(err) {
+	if os.IsNotExist(err) || os.IsPermission(err) {
 		return nil, false, nil
 	}
 

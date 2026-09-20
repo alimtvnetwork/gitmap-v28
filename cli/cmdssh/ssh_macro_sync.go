@@ -189,12 +189,16 @@ func buildRemoteAtomicMacroWriteCmd(name string, data []byte, isWin bool, isForc
 }
 
 func buildUnixMacroWriteCmd(name string, b64 string, isForce bool) string {
-	forceCheck := ""
-	if !isForce {
-		forceCheck = fmt.Sprintf(`[ -f "$HOME/.gitmap/macros/%s.json" ] && exit 0; `, name)
+	return fmt.Sprintf(`MDIR=""; for d in "$HOME/.gitmap/macros" "$HOME/.config/gitmap/macros" "$HOME/.local/share/gitmap/macros" "/tmp/.gitmap-$USER/macros"; do if mkdir -p "$d" 2>/dev/null && [ -w "$d" ]; then MDIR="$d"; break; fi; done; if [ -z "$MDIR" ]; then exit 1; fi; %sprintf '%%s' '%s' | base64 -d > "$MDIR/%s.json.tmp" && mv -f "$MDIR/%s.json.tmp" "$MDIR/%s.json"`,
+		buildUnixForceCheck(name, isForce), b64, name, name, name)
+}
+
+func buildUnixForceCheck(name string, isForce bool) string {
+	if isForce == false {
+		return fmt.Sprintf(`[ -f "$MDIR/%s.json" ] && exit 0; `, name)
 	}
-	return fmt.Sprintf(`mkdir -p "$HOME/.gitmap/macros" && %sprintf '%%s' '%s' | base64 -d > "$HOME/.gitmap/macros/%s.json.tmp" && mv -f "$HOME/.gitmap/macros/%s.json.tmp" "$HOME/.gitmap/macros/%s.json"`,
-		forceCheck, b64, name, name, name)
+
+	return ""
 }
 
 func buildWindowsMacroWriteCmd(name string, b64 string, isForce bool) string {
