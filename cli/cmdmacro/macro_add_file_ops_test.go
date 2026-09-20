@@ -58,3 +58,29 @@ func TestRunCpAndRmFileCmd(t *testing.T) {
 		t.Fatalf("runRmFileCmd failed: %v", err)
 	}
 }
+
+func TestRunCpDirectoryRecursive(t *testing.T) {
+	tempDir := t.TempDir()
+	srcDir := filepath.Join(tempDir, "git-work")
+	_ = os.MkdirAll(filepath.Join(srcDir, "sub"), 0755)
+	_ = os.WriteFile(filepath.Join(srcDir, "file1.txt"), []byte("data1"), 0644)
+	_ = os.WriteFile(filepath.Join(srcDir, "sub", "file2.txt"), []byte("data2"), 0644)
+
+	targetDir := filepath.Join(tempDir, "test")
+	_ = os.MkdirAll(targetDir, 0755)
+
+	// Test cp -r srcDir targetDir
+	if err := executeInteractiveCopy("cp ../git-work .", []string{"-r", srcDir, targetDir}); err != nil {
+		t.Fatalf("executeInteractiveCopy failed: %v", err)
+	}
+
+	destFile1 := filepath.Join(targetDir, "git-work", "file1.txt")
+	destFile2 := filepath.Join(targetDir, "git-work", "sub", "file2.txt")
+
+	if _, err := os.Stat(destFile1); err != nil {
+		t.Errorf("expected %s to exist: %v", destFile1, err)
+	}
+	if _, err := os.Stat(destFile2); err != nil {
+		t.Errorf("expected %s to exist: %v", destFile2, err)
+	}
+}

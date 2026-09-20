@@ -165,33 +165,3 @@ func runRmFileCmd(args []string) error {
 
 	return nil
 }
-
-func runCpFileCmd(args []string) error {
-	if len(args) < 2 {
-		fmt.Printf("  %s▲ Usage: cpfile <src> <dst>%s\n\n", constants.ColorYellow, constants.ColorReset)
-
-		return apperror.NewValidationError("missing src or dst for cpfile")
-	}
-
-	src := macro.ExpandPathAndEnv(args[0])
-	dst := macro.ExpandPathAndEnv(args[1])
-
-	return copyFileDirect(src, dst)
-}
-
-func copyFileDirect(src, dst string) error {
-	data, err := os.ReadFile(src)
-	if err != nil {
-		return apperror.WrapSimple(err, fmt.Sprintf("read source file %q", src))
-	}
-
-	ensureParentDir(dst)
-	if err := os.WriteFile(dst, data, 0644); err != nil {
-		return apperror.WrapSimple(err, fmt.Sprintf("write destination file %q", dst))
-	}
-
-	fmt.Printf("  %s✓ Copied %s → %s (%d bytes)%s\n\n",
-		constants.ColorGreen, src, dst, len(data), constants.ColorReset)
-
-	return nil
-}

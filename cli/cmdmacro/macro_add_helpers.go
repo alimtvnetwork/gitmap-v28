@@ -38,6 +38,8 @@ func isExactHelper(line string) bool {
 		return true
 	case "cat", ":cat", "touch", ":touch", "mkfile", ":mkfile", "paste", ":paste", "explorer", ":explorer":
 		return true
+	case "cp", ":cp", "copy", ":copy", "cpfile", ":cpfile":
+		return true
 	default:
 		return false
 	}
@@ -70,7 +72,7 @@ func hasDesktopPrefix(low string) bool {
 	prefixes := []string{
 		"cat ", ":cat ", "type ", ":type ", "view ", ":view ",
 		"touch ", ":touch ", "mkfile ", ":mkfile ", "rmfile ", ":rmfile ",
-		"cpfile ", ":cpfile ", "copy ", ":copy ", "paste ", ":paste ",
+		"cpfile ", ":cpfile ", "cp ", ":cp ", "copy ", ":copy ", "paste ", ":paste ",
 		"explorer ", ":explorer ", "browse ", ":browse ", "open-url ", ":open-url ",
 	}
 
@@ -164,7 +166,7 @@ func handleRmFileHelper(line string, state *interactiveSessionState) bool {
 func handleCpFileHelper(line string, state *interactiveSessionState) bool {
 	state.lastInspectedCmd = line
 	args := extractCommandArgList(line)
-	_ = runCpFileCmd(args)
+	_ = executeInteractiveCopy(line, args)
 
 	return true
 }
@@ -201,7 +203,12 @@ func isRmFileHelperCmd(low string) bool {
 }
 
 func isCpFileHelperCmd(low string) bool {
-	return strings.HasPrefix(low, "cpfile ") || strings.HasPrefix(low, ":cpfile ")
+	return low == "cp" || low == ":cp" || low == "copy" || low == ":copy" ||
+		low == "cpfile" || low == ":cpfile" ||
+		strings.HasPrefix(low, "cp ") || strings.HasPrefix(low, ":cp ") ||
+		strings.HasPrefix(low, "copy ") || strings.HasPrefix(low, ":copy ") ||
+		strings.HasPrefix(low, "cpfile ") || strings.HasPrefix(low, ":cpfile ") ||
+		strings.HasPrefix(low, "gitmap cp ") || strings.HasPrefix(low, "gitmap copy ")
 }
 
 func handleNavigationOrInspection(line string, state *interactiveSessionState) bool {

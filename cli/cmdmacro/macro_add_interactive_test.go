@@ -106,3 +106,26 @@ func TestHandleZeroInteractiveSteps_RemoteSSH(t *testing.T) {
 		t.Fatalf("expected error when zero interactive steps in remote SSH session")
 	}
 }
+
+func TestIsCpFileHelperCmd(t *testing.T) {
+	cases := []struct {
+		cmd      string
+		expected bool
+	}{
+		{"cp ../git-work .", true},
+		{":cp foo bar", true},
+		{"copy file.txt dest/", true},
+		{":copy a b", true},
+		{"cpfile src dst", true},
+		{"cp", true},
+		{"copy", true},
+		{"ls", false},
+		{"cat foo", false},
+	}
+
+	for _, c := range cases {
+		if got := isCpFileHelperCmd(c.cmd); got != c.expected {
+			t.Errorf("isCpFileHelperCmd(%q) = %v; want %v", c.cmd, got, c.expected)
+		}
+	}
+}
