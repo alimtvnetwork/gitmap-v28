@@ -2432,6 +2432,12 @@ PowerShell: `Invoke-WebRequest -Uri https://raw.githubusercontent.com/alimtvnetw
 
 # Changelog
 
+## [v6.283.0] - 2026-09-20
+
+### Added
+- fix(ci): remove unused filterFailingRuns, flatten nested ifs in pipeline details, and document RCA 67
+
+
 ## [v6.282.0] - 2026-09-20
 
 ### Added

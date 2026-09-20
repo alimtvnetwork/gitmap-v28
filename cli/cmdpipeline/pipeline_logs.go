@@ -514,14 +514,6 @@ func isWorkflowScopeSucceeded(scopeKey string, succeeded map[string]bool) bool {
 	return len(scopeKey) > 0 && succeeded[scopeKey]
 }
 
-func filterFailingRunsByTargetSha(runs []ghRunItem) []ghRunItem {
-	if len(runs) == 0 {
-		return nil
-	}
-
-	return capFailedRuns(collectRunsMatchingSha(runs, runs[0].HeadSha), 5)
-}
-
 func collectRunsMatchingSha(runs []ghRunItem, targetSha string) []ghRunItem {
 	var filtered []ghRunItem
 	for _, r := range runs {

@@ -1,3 +1,9 @@
+## v6.283.0 — 2026-09-20 (fix(ci): remove unused filterFailingRuns, flatten nested ifs in pipeline details, and document RCA 67)
+
+**Scope:** Version bump. fix(ci): remove unused filterFailingRuns, flatten nested ifs in pipeline details, and document RCA 67.
+
+---
+
 ## v6.282.0 — 2026-09-20 (feat(pipeline): add pipeline details and pd shortcut with runner targets table and SQLite caching)
 
 **Scope:** Version bump. feat(pipeline): add pipeline details and pd shortcut with runner targets table and SQLite caching.

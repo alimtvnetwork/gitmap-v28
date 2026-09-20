@@ -164,10 +164,16 @@ func selectRunByIndex(runs []ghRunItem, flags PipelineDetailsFlags) ghRunItem {
 		return ghRunItem{}
 	}
 	if flags.HasIndex && flags.Index < 0 {
-		offset := NormalizeNegativeIndex(flags.Index)
-		if offset < len(runs) {
-			return runs[offset]
-		}
+		return resolveNegativeOffsetRun(runs, flags.Index)
+	}
+
+	return findPrimaryTargetRun(runs)
+}
+
+func resolveNegativeOffsetRun(runs []ghRunItem, index int) ghRunItem {
+	offset := NormalizeNegativeIndex(index)
+	if offset < len(runs) {
+		return runs[offset]
 	}
 
 	return findPrimaryTargetRun(runs)
@@ -184,7 +190,8 @@ func initBaseDetailsPayload(repo string, run ghRunItem, isFromCache bool) Pipeli
 		Conclusion:      run.Conclusion,
 		DurationSeconds: calculateRunDuration(run.CreatedAt, run.UpdatedAt),
 		IsFromCache:     isFromCache,
-		CacheSource:     "sqlite",
+		Jobs:            make([]PipelineJobDetailItem, 0),
+		Failures:        make([]SectionFailure, 0),
 	}
 }
 
@@ -246,17 +253,31 @@ func formatRunnerTargetName(name string) string {
 
 func resolveJobActiveOrFailingStep(j ghJobItem) string {
 	if j.Conclusion == "failure" {
-		if failStep := findFailingStepName(j.Steps); len(failStep) > 0 {
-			return failStep
-		}
+		return resolveFailedJobStep(j.Steps)
 	}
 	if j.Status == "in_progress" {
-		if activeStep := findActiveStepName(j.Steps); len(activeStep) > 0 {
-			return activeStep
-		}
+		return resolveActiveJobStep(j.Steps)
 	}
 
 	return findSubstantiveStepName(j.Steps)
+}
+
+func resolveFailedJobStep(steps []ghStepItem) string {
+	failStep := findFailingStepName(steps)
+	if len(failStep) > 0 {
+		return failStep
+	}
+
+	return findSubstantiveStepName(steps)
+}
+
+func resolveActiveJobStep(steps []ghStepItem) string {
+	activeStep := findActiveStepName(steps)
+	if len(activeStep) > 0 {
+		return activeStep
+	}
+
+	return findSubstantiveStepName(steps)
 }
 
 func findFailingStepName(steps []ghStepItem) string {

@@ -52,3 +52,7 @@
 - [61-pipeline-shared-engine-nested-ifs-spelling-and-test-result-wrapper-rca.md](./61-pipeline-shared-engine-nested-ifs-spelling-and-test-result-wrapper-rca.md): Fix pipeline shared engine nested ifs, spelling, and test result wrapper.
 - [62-ci-lint-staticcheck-spell-and-boolean-guidelines-rca.md](./62-ci-lint-staticcheck-spell-and-boolean-guidelines-rca.md): Fix spell check DOUB, strings.Title deprecation, unused functions, and boolean guidelines.
 - [63-ci-pipeline-compilation-vet-policy-and-tests-rca.md](./63-ci-pipeline-compilation-vet-policy-and-tests-rca.md): Fix vet errors, missing result import, nested ifs, negative booleans, relative paths in helptext, and unit test regressions.
+- [64-undefined-apperror-newnotfound-in-locate-rca.md](./64-undefined-apperror-newnotfound-in-locate-rca.md): Fix undefined apperror.NewNotFound in locate command.
+- [65-ci-cd-gofmt-nested-if-and-locate-test-rca.md](./65-ci-cd-gofmt-nested-if-and-locate-test-rca.md): Fix gofmt drift, nested ifs in pipeline-ai, and locate test probing.
+- [66-macos-cluster-join-test-handshake-deadline-timeout-rca.md](./66-macos-cluster-join-test-handshake-deadline-timeout-rca.md): Fix macOS cluster join handshake timeout and test flakiness.
+- [67-unused-filterfailingruns-and-nested-ifs-in-pipeline-details-rca.md](./67-unused-filterfailingruns-and-nested-ifs-in-pipeline-details-rca.md): Fix unused filterFailingRunsByTargetSha and nested if statements in pipeline details.
