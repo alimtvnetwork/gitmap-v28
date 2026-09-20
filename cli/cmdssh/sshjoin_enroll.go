@@ -23,13 +23,15 @@ import (
 type enrollSession struct {
 	client    *ssh.Client
 	osType    string
+	osVersion string
 	hasClient bool
 }
 
 type hostHistoryPair struct {
-	host   store.SSHHost
-	hist   store.SSHHistory
-	osType string
+	host      store.SSHHost
+	hist      store.SSHHistory
+	osType    string
+	osVersion string
 }
 
 type keySignerResult struct {
@@ -106,36 +108,78 @@ func promptUserPassword(ctx context.Context, target *SSHTarget) string {
 func connectWithGivenPass(target *SSHTarget, pass string) enrollSession {
 	client := dialNodeWithPassword(target, pass)
 	hasClient := client != nil
-	return enrollSession{client: client, hasClient: hasClient, osType: probeRemoteOSType(client)}
+	osType := probeRemoteOSType(client)
+	osVersion := probeRemoteOSVersion(client, osType)
+
+	return enrollSession{client: client, hasClient: hasClient, osType: osType, osVersion: osVersion}
 }
 
 func promptAndConnectTarget(ctx context.Context, opts *SSHJoinOptions) enrollSession {
 	pass := promptUserPassword(ctx, opts.Target)
-	if pass == "" {
+	hasNoPass := pass == ""
+	if hasNoPass {
 		return enrollSession{hasClient: false, osType: "linux"}
 	}
 	opts.Password = pass
+	notifyPasswordEncryptedStorage(opts.Alias)
+
 	return connectWithGivenPass(opts.Target, pass)
+}
+
+func notifyPasswordEncryptedStorage(alias string) {
+	fmt.Println("  ℹ Saving password as encrypted representation (RSA-OAEP/AES) in local vault.")
+	hasAlias := alias != ""
+	if hasAlias {
+		fmt.Printf("  ℹ Review saved password anytime with: gitmap ssh pass show %s\n", alias)
+
+		return
+	}
+	fmt.Println("  ℹ Review saved password anytime with: gitmap ssh pass ls")
 }
 
 func detectAndConnectAuth(ctx context.Context, opts *SSHJoinOptions) enrollSession {
 	client := tryConnectDefaultKey(opts.Target)
-	if client != nil {
-		return enrollSession{client: client, hasClient: true, osType: probeRemoteOSType(client)}
+	hasClient := client != nil
+	if hasClient {
+		osType := probeRemoteOSType(client)
+		osVersion := probeRemoteOSVersion(client, osType)
+
+		return enrollSession{client: client, hasClient: true, osType: osType, osVersion: osVersion}
 	}
-	if !isInteractiveTerminal() {
+	isInteractive := isInteractiveTerminal()
+	if isInteractive == false {
 		return enrollSession{hasClient: false, osType: "linux"}
 	}
+
 	return promptAndConnectTarget(ctx, opts)
 }
 
+func autoTrustTargetHost(ctx context.Context, target *SSHTarget) {
+	isNil := target == nil
+	if isNil {
+		return
+	}
+	dbConn, err := openSSHDBFunc()
+	if err != nil {
+		_, _ = TrustRemoteTarget(ctx, target.IP, "", nil)
+
+		return
+	}
+	defer dbConn.Close()
+	_, _ = TrustRemoteTarget(ctx, target.IP, "", dbConn.SQL())
+}
+
 func resolveTargetClient(ctx context.Context, opts *SSHJoinOptions) enrollSession {
-	if !probeTCPQuick(opts.Target.IP, opts.Target.Port, 800*time.Millisecond) {
+	isReachable := probeTCPQuick(opts.Target.IP, opts.Target.Port, 800*time.Millisecond)
+	if isReachable == false {
 		return enrollSession{hasClient: false, osType: "linux"}
 	}
-	if opts.Password != "" {
+	autoTrustTargetHost(ctx, opts.Target)
+	hasPass := opts.Password != ""
+	if hasPass {
 		return connectWithGivenPass(opts.Target, opts.Password)
 	}
+
 	return detectAndConnectAuth(ctx, opts)
 }
 
@@ -147,13 +191,31 @@ func probeRemoteOSType(client *ssh.Client) string {
 	if err != nil {
 		return "linux"
 	}
+
 	return resolveDetectedOSType(out)
+}
+
+func probeRemoteOSVersion(client *ssh.Client, osType string) string {
+	isNil := client == nil
+	if isNil {
+		return ""
+	}
+	isWin := isWindowsOS(osType)
+	if isWin {
+		out, _ := crypto.RunCommand(client, "powershell -NoProfile -Command \"(Get-CimInstance Win32_OperatingSystem).Caption\" 2>nul || ver", "")
+
+		return strings.TrimSpace(out)
+	}
+	out, _ := crypto.RunCommand(client, "grep PRETTY_NAME /etc/os-release 2>/dev/null | cut -d= -f2 | tr -d '\"' || uname -srm", "")
+
+	return strings.TrimSpace(out)
 }
 
 func resolveDefaultOS(osType string) string {
 	if isWindowsOS(osType) {
 		return "windows"
 	}
+
 	return "linux"
 }
 
@@ -168,8 +230,11 @@ func persistDualTables(ctx context.Context, dbConn *sql.DB, pair hostHistoryPair
 		EncryptedPassword: pair.host.EncryptedPassword,
 		KeyPath:           findDefaultUserSSHKey(),
 		OS:                resolveDefaultOS(pair.osType),
+		OSVersion:         pair.osVersion,
+		FirstRunAt:        pair.host.CreatedAt,
 		CreatedAt:         pair.host.CreatedAt,
 	}
+
 	return db.InsertOrUpdateSSHConnection(ctx, dbConn, conn)
 }
 
@@ -181,25 +246,28 @@ func resolveEncryptedPassword(pass string) string {
 	if err != nil {
 		return ""
 	}
+
 	return enc
 }
 
-func buildEnrollPair(opts *SSHJoinOptions, osType string) hostHistoryPair {
+func buildEnrollPair(opts *SSHJoinOptions, osType, osVersion string) hostHistoryPair {
 	now := time.Now().UTC()
 	host := buildHostRecord(opts, now)
 	hist := buildHistRecord(opts, now)
 	host.Port = opts.Target.Port
 	host.EncryptedPassword = resolveEncryptedPassword(opts.Password)
-	return hostHistoryPair{host: host, hist: hist, osType: osType}
+
+	return hostHistoryPair{host: host, hist: hist, osType: osType, osVersion: osVersion}
 }
 
-func persistEnrollmentDual(ctx context.Context, opts *SSHJoinOptions, osType string) *apperror.AppError {
+func persistEnrollmentDual(ctx context.Context, opts *SSHJoinOptions, osType, osVersion string) *apperror.AppError {
 	dbConn, err := openSSHDBFunc()
 	if err != nil {
 		return apperror.New("persistEnrollmentDual", "E_INTERNAL_ERROR", map[string]any{"cause": err.Error()})
 	}
 	defer dbConn.Close()
-	pair := buildEnrollPair(opts, osType)
+	pair := buildEnrollPair(opts, osType, osVersion)
+
 	return persistDualTables(ctx, dbConn.SQL(), pair)
 }
 
@@ -270,7 +338,7 @@ func ExecuteSSHJoinEnrollment(ctx context.Context, opts *SSHJoinOptions) error {
 		return apperror.NewValidationError(msgMissingJoinTarget)
 	}
 	session := resolveTargetClient(ctx, opts)
-	if err := persistEnrollmentDual(ctx, opts, session.osType); err != nil {
+	if err := persistEnrollmentDual(ctx, opts, session.osType, session.osVersion); err != nil {
 		return err
 	}
 	_ = performConnectedBootstrap(session, opts)

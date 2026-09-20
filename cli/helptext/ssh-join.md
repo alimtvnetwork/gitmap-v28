@@ -77,6 +77,7 @@ GitMap orchestrates distributed multi-node infrastructure through a cohesive tri
 | ls | list | List all enrolled SSH machines and aliases |
 | rm | remove, delete | Remove an enrolled machine from registry by alias or IP |
 | add-auth | auth | Authorize local public key on the target machine |
+| pass | password | Inspect and reveal saved encrypted passwords for enrolled nodes |
 | install | in | Install GitMap remotely on targeted machine via SSH (curl/PowerShell) |
 | history | hist | Display enrollment history audit logs |
 
@@ -300,6 +301,19 @@ To enroll this machine:
   gitmap ssh-join user@<ip> db-staging
   gitmap ssh-join <ip> db-staging
   gitmap sj user@<ip> db-staging
+```
+
+### 9. Review Saved Encrypted Passwords (pass show / ls)
+
+Review or reveal encrypted node passwords stored in your local GitMap vault:
+
+```bash
+# Reveal saved password for a specific node
+gitmap ssh pass show devbox
+gitmap sj pass show 192.168.1.14
+
+# List all nodes with password vault status
+gitmap ssh pass ls
 ```
 
 ## See Also

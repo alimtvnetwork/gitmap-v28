@@ -55,11 +55,13 @@ Dispatches native Windows commands to Windows cluster members. `ps` executes ins
 
 ### `join <target> [alias]` (Admission & Identity Layer)
 Admits a remote machine into the cluster topology. Under the hood, `join`:
-1. Validates network connectivity and SSH port reachability.
-2. Authorizes local SSH public keys onto the remote host (`~/.ssh/authorized_keys`) if requested.
-3. Encrypts and securely stores passwords at rest using RSA/AES encryption.
-4. Registers the host record in GitMap's SQLite database (`ssh_hosts` table).
-5. Logs an immutable admission event into `ssh_history`.
+1. Validates network connectivity and SSH port reachability via fast TCP handshake.
+2. Auto-accepts and records host keys into `~/.ssh/known_hosts` (preventing prompt hangs).
+3. Discovers credentials: tests default SSH keys, or prompts interactively with hidden input.
+4. Encrypts and securely vaults passwords at rest using RSA-OAEP / AES-GCM encryption (`gitmap ssh pass show <alias>`).
+5. Probes and records remote OS metadata (`linux`, `windows`, `darwin`), OS version, and first-run timestamp.
+6. Auto-checks or bootstraps GitMap agent on the remote machine.
+7. Registers the host record in GitMap's SQLite database (`ssh_hosts` and `SSHConnection` tables).
 Once joined, you can address this machine in all future `sc`, `clients`, and `cluster` commands by its friendly alias or IP address.
 
 ### `nodes` / `ls` / `list` (Cluster Registry Inspection)

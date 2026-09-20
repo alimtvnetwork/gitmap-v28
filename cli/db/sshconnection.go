@@ -17,24 +17,28 @@ type SSHConnection struct {
 	EncryptedPassword string    `json:"encrypted_password"`
 	KeyPath           string    `json:"key_path"`
 	OS                string    `json:"os"`
+	OSVersion         string    `json:"os_version,omitempty"`
+	FirstRunAt        time.Time `json:"first_run_at,omitempty"`
 	CreatedAt         time.Time `json:"created_at"`
 }
 
 const (
 	sqlUpsertSSHConnection = `
 		INSERT INTO SSHConnection (
-			Alias, IPAddress, Username, EncryptedPassword, KeyPath, OS, CreatedAt
-		) VALUES (?, ?, ?, ?, ?, ?, ?)
+			Alias, IPAddress, Username, EncryptedPassword, KeyPath, OS, OSVersion, FirstRunAt, CreatedAt
+		) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)
 		ON CONFLICT(Alias) DO UPDATE SET
 			IPAddress = excluded.IPAddress,
 			Username = excluded.Username,
 			EncryptedPassword = excluded.EncryptedPassword,
 			KeyPath = excluded.KeyPath,
-			OS = excluded.OS
+			OS = excluded.OS,
+			OSVersion = CASE WHEN excluded.OSVersion != '' THEN excluded.OSVersion ELSE SSHConnection.OSVersion END,
+			FirstRunAt = COALESCE(SSHConnection.FirstRunAt, excluded.FirstRunAt)
 	`
-	sqlSelectSSHConnections        = `SELECT Alias, IPAddress, Username, EncryptedPassword, KeyPath, OS, CreatedAt FROM SSHConnection`
-	sqlSelectSSHConnectionByAlias  = `SELECT Alias, IPAddress, Username, EncryptedPassword, KeyPath, OS, CreatedAt FROM SSHConnection WHERE Alias = ? LIMIT 1`
-	sqlSelectSSHConnectionByIP     = `SELECT Alias, IPAddress, Username, EncryptedPassword, KeyPath, OS, CreatedAt FROM SSHConnection WHERE IPAddress = ? LIMIT 1`
+	sqlSelectSSHConnections        = `SELECT Alias, IPAddress, Username, EncryptedPassword, KeyPath, OS, COALESCE(OSVersion, ''), COALESCE(FirstRunAt, CreatedAt), CreatedAt FROM SSHConnection`
+	sqlSelectSSHConnectionByAlias  = `SELECT Alias, IPAddress, Username, EncryptedPassword, KeyPath, OS, COALESCE(OSVersion, ''), COALESCE(FirstRunAt, CreatedAt), CreatedAt FROM SSHConnection WHERE Alias = ? LIMIT 1`
+	sqlSelectSSHConnectionByIP     = `SELECT Alias, IPAddress, Username, EncryptedPassword, KeyPath, OS, COALESCE(OSVersion, ''), COALESCE(FirstRunAt, CreatedAt), CreatedAt FROM SSHConnection WHERE IPAddress = ? LIMIT 1`
 	sqlUpdateSSHConnectionPassword = `UPDATE SSHConnection SET EncryptedPassword = ? WHERE Alias = ? OR IPAddress = ?`
 	sqlDeleteSSHConnection         = `DELETE FROM SSHConnection WHERE Alias = ?`
 	sqlDeleteSSHConnectionByTarget = `DELETE FROM SSHConnection WHERE Alias = ? OR IPAddress = ?`
@@ -42,7 +46,16 @@ const (
 )
 
 func InsertOrUpdateSSHConnection(ctx context.Context, db *sql.DB, conn SSHConnection) *apperror.AppError {
-	_, _ = db.ExecContext(ctx, sqlCreateSSHConnectionTable)
+	ensureSSHConnectionSchema(ctx, db)
+	now := time.Now().UTC()
+	firstRun := conn.FirstRunAt
+	if firstRun.IsZero() {
+		firstRun = now
+	}
+	createdAt := conn.CreatedAt
+	if createdAt.IsZero() {
+		createdAt = now
+	}
 	_, err := db.ExecContext(ctx, sqlUpsertSSHConnection,
 		conn.Alias,
 		conn.IPAddress,
@@ -50,7 +63,9 @@ func InsertOrUpdateSSHConnection(ctx context.Context, db *sql.DB, conn SSHConnec
 		conn.EncryptedPassword,
 		conn.KeyPath,
 		conn.OS,
-		conn.CreatedAt,
+		conn.OSVersion,
+		firstRun,
+		createdAt,
 	)
 	if err != nil {
 		return apperror.WrapSimple(err, "InsertOrUpdateSSHConnection.Exec")
@@ -66,11 +81,19 @@ const sqlCreateSSHConnectionTable = `CREATE TABLE IF NOT EXISTS SSHConnection (
 	EncryptedPassword TEXT NOT NULL,
 	KeyPath TEXT,
 	OS TEXT DEFAULT 'linux',
+	OSVersion TEXT DEFAULT '',
+	FirstRunAt TIMESTAMP,
 	CreatedAt TIMESTAMP NOT NULL
 );`
 
-func GetSSHConnections(ctx context.Context, db *sql.DB) SSHConnectionSliceResult {
+func ensureSSHConnectionSchema(ctx context.Context, db *sql.DB) {
 	_, _ = db.ExecContext(ctx, sqlCreateSSHConnectionTable)
+	_, _ = db.ExecContext(ctx, "ALTER TABLE SSHConnection ADD COLUMN OSVersion TEXT DEFAULT ''")
+	_, _ = db.ExecContext(ctx, "ALTER TABLE SSHConnection ADD COLUMN FirstRunAt TIMESTAMP")
+}
+
+func GetSSHConnections(ctx context.Context, db *sql.DB) SSHConnectionSliceResult {
+	ensureSSHConnectionSchema(ctx, db)
 
 	rows, err := db.QueryContext(ctx, sqlSelectSSHConnections)
 	if err != nil {
@@ -154,7 +177,7 @@ func scanSSHConnectionRows(rows *sql.Rows) SSHConnectionSliceResult {
 	var conns []SSHConnection
 	for rows.Next() {
 		var c SSHConnection
-		if err := rows.Scan(&c.Alias, &c.IPAddress, &c.Username, &c.EncryptedPassword, &c.KeyPath, &c.OS, &c.CreatedAt); err != nil {
+		if err := rows.Scan(&c.Alias, &c.IPAddress, &c.Username, &c.EncryptedPassword, &c.KeyPath, &c.OS, &c.OSVersion, &c.FirstRunAt, &c.CreatedAt); err != nil {
 			return result.FailSlice[SSHConnection](apperror.WrapSimple(err, "scanSSHConnectionRows.Scan"))
 		}
 
@@ -215,10 +238,10 @@ func UpdateSSHConnectionPassword(ctx context.Context, db *sql.DB, target string,
 
 // GetSSHConnectionByAlias retrieves an SSHConnection by its Alias.
 func GetSSHConnectionByAlias(ctx context.Context, db *sql.DB, alias string) (*SSHConnection, error) {
-	_, _ = db.ExecContext(ctx, sqlCreateSSHConnectionTable)
+	ensureSSHConnectionSchema(ctx, db)
 	var c SSHConnection
 	err := db.QueryRowContext(ctx, sqlSelectSSHConnectionByAlias, alias).Scan(
-		&c.Alias, &c.IPAddress, &c.Username, &c.EncryptedPassword, &c.KeyPath, &c.OS, &c.CreatedAt,
+		&c.Alias, &c.IPAddress, &c.Username, &c.EncryptedPassword, &c.KeyPath, &c.OS, &c.OSVersion, &c.FirstRunAt, &c.CreatedAt,
 	)
 	if err != nil {
 		return nil, err
@@ -228,10 +251,10 @@ func GetSSHConnectionByAlias(ctx context.Context, db *sql.DB, alias string) (*SS
 
 // GetSSHConnectionByIP retrieves an SSHConnection by its IP Address.
 func GetSSHConnectionByIP(ctx context.Context, db *sql.DB, ip string) (*SSHConnection, error) {
-	_, _ = db.ExecContext(ctx, sqlCreateSSHConnectionTable)
+	ensureSSHConnectionSchema(ctx, db)
 	var c SSHConnection
 	err := db.QueryRowContext(ctx, sqlSelectSSHConnectionByIP, ip).Scan(
-		&c.Alias, &c.IPAddress, &c.Username, &c.EncryptedPassword, &c.KeyPath, &c.OS, &c.CreatedAt,
+		&c.Alias, &c.IPAddress, &c.Username, &c.EncryptedPassword, &c.KeyPath, &c.OS, &c.OSVersion, &c.FirstRunAt, &c.CreatedAt,
 	)
 	if err != nil {
 		return nil, err

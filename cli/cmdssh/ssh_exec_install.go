@@ -11,10 +11,10 @@ import (
 
 func getGitmapCheckCmd(osType string) (string, string) {
 	if isWindowsOS(osType) {
-		return "where.exe gitmap 2>nul || gitmap version 2>nul || gitmap --version 2>nul", ""
+		return "where.exe gitmap 2>nul || gitmap.exe version 2>nul || if exist \"%LOCALAPPDATA%\\gitmap\\bin\\gitmap.exe\" (exit 0) else (exit 1)", "cmd"
 	}
 
-	return wrapUnixPath("for bin in gitmap \"$HOME/.local/bin/gitmap\" \"$HOME/.local/bin/gitmap-cli/gitmap\" \"$HOME/bin/gitmap\" /usr/local/bin/gitmap /usr/bin/gitmap /snap/bin/gitmap; do if command -v \"$bin\" >/dev/null 2>&1 || [ -x \"$bin\" ]; then if \"$bin\" version >/dev/null 2>&1 || \"$bin\" --version >/dev/null 2>&1; then exit 0; fi; fi; done; exit 1"), "bash"
+	return wrapUnixPath("which gitmap >/dev/null 2>&1 || command -v gitmap >/dev/null 2>&1 || [ -x \"$HOME/.local/bin/gitmap\" ] || [ -x \"/usr/local/bin/gitmap\" ] || [ -x \"/usr/bin/gitmap\" ] || [ -x \"$HOME/go/bin/gitmap\" ] || [ -x \"/snap/bin/gitmap\" ] || [ -x \"$HOME/.local/bin/gitmap-cli/gitmap\" ]"), "sh"
 }
 
 func getGitmapInstallCmd(osType string) (string, string) {

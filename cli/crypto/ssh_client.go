@@ -76,5 +76,13 @@ func wrapCommandForShell(cmd, shellType string) string {
 		return fmt.Sprintf("powershell -NoProfile -Command \"%s\"", cmd)
 	}
 
+	if shellType == "bash" {
+		return fmt.Sprintf("bash -c %q", cmd)
+	}
+
+	if shellType == "sh" {
+		return fmt.Sprintf("sh -c %q", cmd)
+	}
+
 	return cmd
 }

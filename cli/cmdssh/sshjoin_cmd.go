@@ -243,6 +243,9 @@ func dispatchSJActionSubcommand(ctx context.Context, sub string, args []string) 
 	if sub == "auth-key" || sub == "copy-id" || sub == "fix-auth" {
 		return true, RunSSHAuthKeyDeployCLI(args)
 	}
+	if sub == "pass" || sub == "password" {
+		return true, RunSSHPassCLI(args)
+	}
 	return false, nil
 }
 
