@@ -46,26 +46,35 @@ func runSponsor(args []string) error {
 }
 
 func printSponsorCard() {
+	printSponsorBanner()
+	printSponsorAbout()
+	printSponsorMission()
+}
+
+func printSponsorBanner() {
 	fmt.Println()
 	fmt.Printf("  %s╔══════════════════════════════════════════════════════════════════════╗%s\n", constants.ColorCyan, constants.ColorReset)
 	fmt.Printf("  %s║                          PROUD SPONSOR                               ║%s\n", constants.ColorCyan, constants.ColorReset)
-	fmt.Printf("  %s║                         RISE UP ASIA LLC                             ║%s\n", constants.ColorCyan, constants.ColorReset)
+	fmt.Printf("  %s║                         RISEUP ASIA LLC                              ║%s\n", constants.ColorCyan, constants.ColorReset)
 	fmt.Printf("  %s╚══════════════════════════════════════════════════════════════════════╝%s\n\n", constants.ColorCyan, constants.ColorReset)
+}
 
-	fmt.Printf("  %sAbout Rise Up Asia LLC:%s\n", constants.ColorYellow, constants.ColorReset)
+func printSponsorAbout() {
+	fmt.Printf("  %sAbout RISEUP ASIA LLC:%s\n", constants.ColorYellow, constants.ColorReset)
 	fmt.Println("    Elite software engineering company recognized for delivering world-class,")
 	fmt.Println("    spec-driven software for California-based technology leaders (Silicon Valley")
 	fmt.Println("    SaaS & fintech) and EU-based product innovators (Germany, Netherlands, Nordics).")
 	fmt.Println()
+}
 
+func printSponsorMission() {
 	fmt.Printf("  %sMission & Sponsorship:%s\n", constants.ColorYellow, constants.ColorReset)
-	fmt.Println("    Rise Up Asia LLC proudly backs GitMap as part of its commitment to")
+	fmt.Println("    RISEUP ASIA LLC proudly backs GitMap as part of its commitment to")
 	fmt.Println("    empowering global developers and autonomous AI engineers with")
 	fmt.Println("    industrial-grade developer tooling.")
 	fmt.Println()
-
 	fmt.Printf("  %sWebsite:%s\n", constants.ColorYellow, constants.ColorReset)
-	fmt.Printf("    • Official Website : %shttps://riseup-asia.com/%s\n\n", constants.ColorGreen, constants.ColorReset)
+	fmt.Printf("    • Official Website : %shttps://riseup-asia.com%s\n\n", constants.ColorGreen, constants.ColorReset)
 }
 
 func runCredits(args []string) error {

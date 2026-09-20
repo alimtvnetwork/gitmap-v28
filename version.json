@@ -27,6 +27,16 @@
         "https://github.com/aukgit",
         "https://github.com/aukgit/alim.karim.profile"
       ]
+    },
+    {
+      "Name": "RISEUP ASIA LLC",
+      "Role": "Sponsor",
+      "Title": "Official Sponsor & Engineering Partner",
+      "Company": "RISEUP ASIA LLC",
+      "CompanyUrl": "https://riseup-asia.com",
+      "Urls": [
+        "https://riseup-asia.com"
+      ]
     }
   ],
   "backend": "inherit",

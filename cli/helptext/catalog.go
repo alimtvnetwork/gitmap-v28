@@ -70,7 +70,7 @@ var topicSummaries = map[string]string{
 	"agy-fix-pipeline":            "Extract failing pipeline error logs and combine with CI/CD fix prompt for Antigravity IDE into clipboard and active temp file.",
 	"fix-pipeline":                "Extract failing pipeline error logs and combine with CI/CD fix prompt for Antigravity IDE into clipboard and active temp file.",
 	"author":                      "Display credentials, background, and innovations of GitMap's creator & system architect MD ALIM UL KARIM.",
-	"sponsor":                     "Display information about GitMap's official sponsor and engineering partner RISE UP ASIA LLC.",
+	"sponsor":                     "Display information about GitMap's official sponsor and engineering partner RISEUP ASIA LLC (https://riseup-asia.com).",
 	"credits":                     "Display creator, sponsor, and engineering partner acknowledgments.",
 	"task":                        "Manage and inspect pending and completed task execution queues, history, and undo/redo operations.",
 	"tasks":                       "Manage and inspect pending and completed task execution queues, history, and undo/redo operations.",

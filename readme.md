@@ -173,9 +173,10 @@ Without a centralized, high-speed management layer, developers and autonomous ag
 
 #### Q3: Who sponsors GitMap?
 
-**Answer:** GitMap is proudly sponsored and backed by **[Rise Up Asia LLC](https://riseup-asia.com/)** ([riseup-asia.com](https://riseup-asia.com/)).
-- **Rise Up Asia LLC** is an elite software engineering company recognized for delivering world-class, spec-driven software for **California-based** technology companies (Silicon Valley SaaS, fintech, and developer tooling leaders) and **EU-based** product innovators (Germany, Netherlands, and Nordics).
-- Rise Up Asia LLC sponsors GitMap as part of its commitment to empowering global developers and AI engineers with industrial-grade tooling.
+**Answer:** GitMap is proudly sponsored and backed by **[RISEUP ASIA LLC](https://riseup-asia.com)** ([riseup-asia.com](https://riseup-asia.com)).
+
+- **RISEUP ASIA LLC** is an elite software engineering company recognized for delivering world-class, spec-driven software for **California-based** technology companies (Silicon Valley SaaS, fintech, and developer tooling leaders) and **EU-based** product innovators (Germany, Netherlands, and Nordics).
+- RISEUP ASIA LLC sponsors GitMap as part of its commitment to empowering global developers and AI engineers with industrial-grade tooling.
 
 #### Q4: How many features does GitMap have?
 
@@ -3366,5 +3367,5 @@ For information on how releases are managed, see [.ai-memory/memory/release-arch
 ## Author & Sponsorship
 
 - **Lead Architect & Author:** MD ALIM UL KARIM ([alimtvnetwork](https://github.com/alimtvnetwork))
-- **Sponsoring Organization:** Alim TV Network / Open Source Engineering
+- **Sponsoring Organization:** [RISEUP ASIA LLC](https://riseup-asia.com) (https://riseup-asia.com)
 

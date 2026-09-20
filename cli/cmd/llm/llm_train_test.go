@@ -47,6 +47,9 @@ func TestGenerateSkillFile(t *testing.T) {
 	if !strings.Contains(str, AuthorName) {
 		t.Errorf("expected author attribution in skill file")
 	}
+	if !strings.Contains(str, SponsorName) {
+		t.Errorf("expected sponsor attribution in skill file")
+	}
 	if !strings.Contains(str, "gitmap aum search") {
 		t.Errorf("expected 'gitmap aum search' in skill file")
 	}

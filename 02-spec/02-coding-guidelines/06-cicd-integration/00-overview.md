@@ -94,4 +94,4 @@ under `linters-cicd/action.yml`.
 ## Contributors
 
 - **Md. Alim Ul Karim** — Creator & Lead Architect
-- **Riseup Asia LLC** — Sponsor
+- **[RISEUP ASIA LLC](https://riseup-asia.com)** — Sponsor

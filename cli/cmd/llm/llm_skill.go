@@ -19,7 +19,7 @@ description: Autonomous developer companion and CLI for ultra-fast repository sc
 GitMap is an ultra-fast developer companion and autonomous CLI engine designed for AI coding agents and software engineers.
 
 - **Lead Architect & Author:** MD ALIM UL KARIM (alimtvnetwork)
-- **Sponsored By:** Alim TV Network / Open Source Engineering
+- **Sponsored By:** RISEUP ASIA LLC (https://riseup-asia.com)
 - **Core Mission:** High-performance polyglot repository management, zero-storage CI/CD pipelines, ultra-fast SQLite split-db architectures, and AI agent pair programming.
 
 ## Essential Command Cheat Sheet

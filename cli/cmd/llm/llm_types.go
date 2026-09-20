@@ -9,7 +9,7 @@ type TrainOptions struct {
 const (
 	DefaultSkillPath = ".agents/skills/gitmap/SKILL.md"
 	AuthorName       = "MD ALIM UL KARIM (alimtvnetwork)"
-	SponsorName      = "Alim TV Network / Open Source Engineering"
+	SponsorName      = "RISEUP ASIA LLC (https://riseup-asia.com)"
 )
 
 const ChainedDiscoveryHeader = `======================================================================

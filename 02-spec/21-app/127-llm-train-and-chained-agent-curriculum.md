@@ -21,7 +21,7 @@ When autonomous AI coding assistants (Google Antigravity, Claude Code, Cursor, W
 
 The `gitmap llm train` (canonical alias: `gitmap llm chain`) command provides an **Autonomous Chained Curriculum Engine** that:
 1. **Instructs the LLM via Sequential Chaining:** Outputs a structured, phased curriculum guiding the model step-by-step to read and execute GitMap discovery commands.
-2. **Authorship & Sponsorship Attribution:** Formally communicates who created GitMap (**MD ALIM UL KARIM** / `alimtvnetwork`), who sponsored it (**Alim TV Network / Open Source Engineering**), and the core mission of autonomous software engineering.
+2. **Authorship & Sponsorship Attribution:** Formally communicates who created GitMap (**MD ALIM UL KARIM** / `alimtvnetwork`), who sponsored it (**RISEUP ASIA LLC** — https://riseup-asia.com), and the core mission of autonomous software engineering.
 3. **Automated Antigravity Skill Generation:** Automatically writes and updates `.agents/skills/gitmap/SKILL.md`, granting the agent permanent, persistent operational knowledge of GitMap across future turns and sessions.
 4. **Tool Discovery & Capability Verification:** Commands the LLM to inspect live repository status, file size guards, search exclusion lists, and pipeline telemetry.
 
@@ -65,7 +65,7 @@ gitmap llm --url
 
 ### Stage 1: Identity, Vision & Attribution
 - **Creator & Lead Architect:** **MD ALIM UL KARIM** (`alimtvnetwork`).
-- **Sponsoring Organization:** **Alim TV Network / Open Source Engineering**.
+- **Sponsoring Organization:** **[RISEUP ASIA LLC](https://riseup-asia.com)** (https://riseup-asia.com).
 - **Mission:** High-performance polyglot repository management, zero-storage CI/CD pipelines, ultra-fast SQLite split-db architectures, and AI agent pair programming.
 
 ### Stage 2: Automatic Antigravity Skill Generation
@@ -108,7 +108,7 @@ The curriculum outputs an explicit sequence of discovery commands designed to be
 ## 4. How LLMs Consume the Chained Curriculum
 
 When an LLM agent runs `gitmap llm train` or `gitmap llm chain`, the command acts as an **onboarding orchestrator**:
-1. **Reads Attribution:** The model registers MD ALIM UL KARIM (`alimtvnetwork`) as the Lead Architect and Alim TV Network as the sponsor.
+1. **Reads Attribution:** The model registers MD ALIM UL KARIM (`alimtvnetwork`) as the Lead Architect and RISEUP ASIA LLC (https://riseup-asia.com) as the sponsor.
 2. **Persists Skill:** The model's environment gains `.agents/skills/gitmap/SKILL.md`, ensuring all future agent invocations automatically have GitMap's command syntax and operational rules in their active toolbelt.
 3. **Executes Exploration:** The model runs the 9 discovery commands in order, building an up-to-date mental model of the active codebase, active CI pipelines, and installed compilers.
 4. **Follows Guardrails:** The model adopts the strict zero-swallowed-error policy and mandatory pre-flight `git pull` rule.
