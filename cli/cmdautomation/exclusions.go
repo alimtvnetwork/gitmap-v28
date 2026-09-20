@@ -2,6 +2,8 @@ package cmdautomation
 
 import (
 	"database/sql"
+	"os"
+	"path/filepath"
 	"strings"
 
 	"github.com/alimtvnetwork/gitmap-v28/cli/apperror"

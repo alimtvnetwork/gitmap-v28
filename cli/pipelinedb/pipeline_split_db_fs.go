@@ -2,6 +2,7 @@ package pipelinedb
 
 import (
 	"os"
+	"path/filepath"
 )
 
 func isFileExisting(path string) bool {

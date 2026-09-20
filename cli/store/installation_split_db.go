@@ -2,6 +2,8 @@ package store
 
 import (
 	"database/sql"
+	"os"
+	"path/filepath"
 
 	"github.com/alimtvnetwork/gitmap-v28/cli/apperror"
 	_ "modernc.org/sqlite"
