@@ -1,3 +1,9 @@
+## v6.280.0 — 2026-09-20 (fix(cluster): resolve cluster join handshake timeout and flakiness on macos)
+
+**Scope:** Version bump. fix(cluster): resolve cluster join handshake timeout and flakiness on macos.
+
+---
+
 ## v6.279.0 — 2026-09-20 (fix(ci): resolve gofmt drift, flatten pipeline-ai nested ifs, and fix scanRootForFile directory probe)
 
 **Scope:** Version bump. fix(ci): resolve gofmt drift, flatten pipeline-ai nested ifs, and fix scanRootForFile directory probe.

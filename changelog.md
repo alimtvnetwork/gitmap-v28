@@ -2432,6 +2432,12 @@ PowerShell: `Invoke-WebRequest -Uri https://raw.githubusercontent.com/alimtvnetw
 
 # Changelog
 
+## [v6.280.0] - 2026-09-20
+
+### Added
+- fix(cluster): resolve cluster join handshake timeout and flakiness on macos
+
+
 ## [v6.279.0] - 2026-09-20
 
 ### Added
