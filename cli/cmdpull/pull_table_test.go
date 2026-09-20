@@ -91,6 +91,25 @@ func TestFormatRepoNameMiddleTruncate(t *testing.T) {
 	}
 }
 
+func TestFormatRepoNameLeadTruncatePresentation(t *testing.T) {
+	longRepo := "bsrm-presentation-hiltrax-v4"
+	formatted := formatRepoName(longRepo, 24)
+	hasExpectedLen := len(formatted) == 24
+	if hasExpectedLen == false {
+		t.Fatalf("expected length 24, got %d (%q)", len(formatted), formatted)
+	}
+
+	hasEnding := strings.HasSuffix(formatted, "presentation-hiltrax-v4")
+	if hasEnding == false {
+		t.Fatalf("expected ending presentation-hiltrax-v4 in %q", formatted)
+	}
+
+	hasPrefix := strings.HasPrefix(formatted, "...")
+	if hasPrefix == false {
+		t.Fatalf("expected prefix ... in %q", formatted)
+	}
+}
+
 func TestCalcAnsiPadding(t *testing.T) {
 	plainString := "hello"
 	plainPadding := calcAnsiPadding(plainString, 10)

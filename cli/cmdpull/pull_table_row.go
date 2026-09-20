@@ -30,14 +30,12 @@ func (l *PullTableLayout) printWideRow(r model.PullTableRow) {
 	renderedRepo, _ := l.renderRepoCol(r.RepoName, r.IsDirty)
 	formattedBranch := formatBranchName(r.Branch, l.MaxBranch)
 	formattedLatestBr := formatLatestBranchName(r.LatestBranch, l.MaxLatestBr)
-	commitRange := resolveRowCommitRange(r, l.MaxRange)
-	changes := resolveRowChanges(r, l.MaxChanges)
-	line := l.formatWideRowLine(renderedRepo, formattedBranch, formattedLatestBr, commitRange, changes, r)
+	line := l.formatWideRowLine(renderedRepo, formattedBranch, formattedLatestBr, r)
 
 	fmt.Println(line)
 }
 
-func (l *PullTableLayout) formatWideRowLine(repo, br, latestBr, rng, ch string, r model.PullTableRow) string {
+func (l *PullTableLayout) formatWideRowLine(repo, br, latestBr string, r model.PullTableRow) string {
 	pr := formatPRCell(r.PRStatus)
 	status, _ := l.renderStatusCol(r.PullStatus, r.IsDirty)
 	sep := "   "
@@ -46,8 +44,6 @@ func (l *PullTableLayout) formatWideRowLine(repo, br, latestBr, rng, ch string, 
 		PadVisual(repo, l.MaxRepo) + sep +
 		PadVisual(br, l.MaxBranch) + sep +
 		PadVisual(latestBr, l.MaxLatestBr) + sep +
-		PadVisual(rng, l.MaxRange) + sep +
-		PadVisual(ch, l.MaxChanges) + sep +
 		PadVisual(pr, l.MaxPR) + sep +
 		status
 }
@@ -55,16 +51,14 @@ func (l *PullTableLayout) formatWideRowLine(repo, br, latestBr, rng, ch string, 
 func (l *PullTableLayout) printCompactRow(r model.PullTableRow) {
 	renderedRepo, _ := l.renderRepoCol(r.RepoName, r.IsDirty)
 	formattedBranch := formatCombinedBranch(r.Branch, r.LatestBranch, l.MaxBranch)
-	commitRange := resolveRowCommitRange(r, l.MaxRange)
-	changes := resolveRowChanges(r, l.MaxChanges)
+	pr := formatPRCell(r.PRStatus)
 	renderedStatus, _ := l.renderStatusCol(r.PullStatus, r.IsDirty)
 
 	sep := "  "
 	line := "  " +
 		PadVisual(renderedRepo, l.MaxRepo) + sep +
 		PadVisual(formattedBranch, l.MaxBranch) + sep +
-		PadVisual(commitRange, l.MaxRange) + sep +
-		PadVisual(changes, l.MaxChanges) + sep +
+		PadVisual(pr, l.MaxPR) + sep +
 		renderedStatus
 
 	fmt.Println(line)

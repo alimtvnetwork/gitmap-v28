@@ -154,13 +154,12 @@ func resolveBranchArrow() string {
 }
 
 func formatRepoName(repo string, maxLength int) string {
-	if len(repo) == 0 {
+	isZeroLen := len(repo) == 0
+	if isZeroLen {
 		return ""
 	}
 
-	formattedRepo := middleTruncate(repo, maxLength, 5)
-
-	return formattedRepo
+	return leadTruncate(repo, maxLength)
 }
 
 func calcAnsiPadding(renderedText string, visibleWidth int) int {

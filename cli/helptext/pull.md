@@ -50,10 +50,10 @@ p
 
     ⠋ [████████████████████] 100% [Step 4/4] Complete (up-to-date) | ✔ my-api: up-to-date (0.4s)
 
-      REPO      BRANCH   RANGE     CHANGES   STATUS
-      -----------------------------------------------
-      my-api    main     a1b2c3d   -         ✔ active
-      -----------------------------------------------
+      REPO      BRANCH   PR   STATUS
+      ----------------------------------
+      my-api    main     -    ✔ active
+      ----------------------------------
 
 ### Example 2: Pull all tracked repos using the `all` keyword
 
@@ -63,14 +63,14 @@ p
 
     ⠋ [████████████░░░░░░░░]  60% (3/5 repos) | [W0: auth-gateway: up-to-date], [W1: payments-api: Receiving (45%)] (1.8s)
 
-      REPO             BRANCH   COMMIT RANGE       CHANGES      PR    STATUS
-      -----------------------------------------------------------------------
-      auth-gateway     main     9ff44cf            -            -     ✔ active
-      billing-svc      main     a1b2c3d..e5f6g7h   +24/-5 (3)   01    ✔ updated
-      notification-svc main     77c6edf            -            -     ✔ active
-      payments-api     main     03be798..f1d94df   +12/-2 (2)   02    ✔ updated
-      user-svc         develop  5e7599b            -            -     ✔ active
-      -----------------------------------------------------------------------
+      REPO                BRANCH   LATEST BRANCH   PR   STATUS
+      ------------------------------------------------------------
+      auth-gateway        main     main            -    ✔ active
+      billing-svc         main     v1.2.0          01   ✔ updated
+      notification-svc    main     main            -    ✔ active
+      payments-api        main     v2.1.0          02   ✔ updated
+      user-svc            develop  develop         -    ✔ active
+      ------------------------------------------------------------
 
 ### Example 3: Pull all repos in a group
 

@@ -23,7 +23,7 @@ func formatPullStatus(status string, isDirty bool) string {
 
 func formatPullStatusOther(status string) string {
 	switch status {
-	case "SUCCESS", "ok", "updated":
+	case "SUCCESS", "ok", "updated", "FAST_FORWARD", "fast-forward":
 		return constants.ColorGreen + "✔ updated" + constants.ColorReset
 	case "FAILED", "fail", "error":
 		return constants.ColorRed + "✖ failed" + constants.ColorReset

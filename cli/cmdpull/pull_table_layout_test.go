@@ -22,18 +22,28 @@ func TestPullTableLayoutColumns(t *testing.T) {
 
 	layout := NewPullTableLayoutWithWidth(rows, 120)
 	isWide := layout.IsWide
-	if !isWide {
+	if isWide == false {
 		t.Fatalf("expected wide layout for width 120")
 	}
 
-	isRangeValid := layout.MaxRange > 0
-	if !isRangeValid {
-		t.Fatalf("expected positive MaxRange in wide layout")
+	isRepoValid := layout.MaxRepo > 0
+	if isRepoValid == false {
+		t.Fatalf("expected positive MaxRepo in wide layout")
 	}
 
-	isChangesValid := layout.MaxChanges > 0
-	if !isChangesValid {
-		t.Fatalf("expected positive MaxChanges in wide layout")
+	isBranchValid := layout.MaxBranch > 0
+	if isBranchValid == false {
+		t.Fatalf("expected positive MaxBranch in wide layout")
+	}
+
+	isLatestValid := layout.MaxLatestBr > 0
+	if isLatestValid == false {
+		t.Fatalf("expected positive MaxLatestBr in wide layout")
+	}
+
+	isDividerClean := layout.DividerLen <= 80
+	if isDividerClean == false {
+		t.Fatalf("expected divider <= 80 for neat layout, got %d", layout.DividerLen)
 	}
 
 	layout.PrintHeader()
@@ -54,13 +64,13 @@ func TestPullTableLayoutCompactColumns(t *testing.T) {
 	}
 
 	layout := NewPullTableLayoutWithWidth(rows, 80)
-	isCompact := !layout.IsWide
-	if !isCompact {
+	isCompact := layout.IsWide == false
+	if isCompact == false {
 		t.Fatalf("expected compact layout for width 80")
 	}
 
 	isDividerWithinLimit := layout.DividerLen+2 <= 80
-	if !isDividerWithinLimit {
+	if isDividerWithinLimit == false {
 		t.Fatalf("expected divider <= 80, got %d", layout.DividerLen+2)
 	}
 

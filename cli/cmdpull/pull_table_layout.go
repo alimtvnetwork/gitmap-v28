@@ -91,38 +91,31 @@ func buildWidePullTableLayout(rows []model.PullTableRow, termWidth int) *PullTab
 func newBaseWideLayout(termWidth, totalWidth int, rows []model.PullTableRow) *PullTableLayout {
 	return &PullTableLayout{
 		TermWidth: termWidth, IsWide: true, ColGap: defaultPullTableColGapWide,
-		MaxRange: 12, MaxChanges: 7, MaxSHA: 7, MaxPR: 3, MaxStatus: 10,
+		MaxRange: 0, MaxChanges: 0, MaxSHA: 0, MaxPR: 3, MaxStatus: 14,
 		DividerLen: totalWidth - 2, Rows: rows,
 	}
 }
 
 func calcWideColumnWidths(termWidth int) (int, int, int, int) {
-	avail := calcWideAvailableWidth(termWidth)
-	maxBranch := avail * 20 / 100
-	if maxBranch > 10 {
-		maxBranch = 10
-	}
-	if maxBranch < 6 {
-		maxBranch = 6
-	}
-	maxLatest := avail * 28 / 100
-	if maxLatest > 14 {
-		maxLatest = 14
-	}
-	if maxLatest < 9 {
-		maxLatest = 9
-	}
-	maxRepo := avail - maxBranch - maxLatest
-	if maxRepo < 14 {
-		maxRepo = 14
-	}
-	totalWidth := 2 + maxRepo + 3 + maxBranch + 3 + maxLatest + 3 + 12 + 3 + 7 + 3 + 3 + 3 + 10
+	maxBranch := 8
+	maxLatest := 14
+	maxRepo := resolveWideRepoWidth(termWidth)
+	totalWidth := 2 + maxRepo + 3 + maxBranch + 3 + maxLatest + 3 + 3 + 3 + 14
 
 	return maxRepo, maxBranch, maxLatest, totalWidth
 }
 
+func resolveWideRepoWidth(termWidth int) int {
+	isExtraWide := termWidth >= 120
+	if isExtraWide {
+		return 24
+	}
+
+	return 22
+}
+
 func calcWideAvailableWidth(termWidth int) int {
-	fixedWidth := 2 + 12 + 7 + 3 + 10 + (6 * defaultPullTableColGapWide)
+	fixedWidth := 2 + 3 + 14 + (4 * defaultPullTableColGapWide)
 	avail := termWidth - fixedWidth
 	if avail < 30 {
 		return 30
@@ -143,28 +136,30 @@ func buildCompactPullTableLayout(rows []model.PullTableRow, termWidth int) *Pull
 func newBaseCompactLayout(termWidth, totalWidth int, rows []model.PullTableRow) *PullTableLayout {
 	return &PullTableLayout{
 		TermWidth: termWidth, IsWide: false, ColGap: defaultPullTableColGapTight,
-		MaxRange: 8, MaxChanges: 7, MaxSHA: 7, MaxPR: 0, MaxStatus: 8,
+		MaxRange: 0, MaxChanges: 0, MaxSHA: 0, MaxPR: 3, MaxStatus: 12,
 		DividerLen: totalWidth - 2, Rows: rows,
 	}
 }
 
 func calcCompactColumnWidths(termWidth int) (int, int, int) {
-	avail := calcCompactAvailableWidth(termWidth)
-	maxRepo := avail * 55 / 100
-	if maxRepo < 10 {
-		maxRepo = 10
-	}
-	maxBranch := avail - maxRepo
-	if maxBranch < 8 {
-		maxBranch = 8
-	}
-	totalWidth := 2 + maxRepo + 2 + maxBranch + 2 + 8 + 2 + 7 + 2 + 8
+	maxBranch := 10
+	maxRepo := resolveCompactRepoWidth(termWidth)
+	totalWidth := 2 + maxRepo + 2 + maxBranch + 2 + 3 + 2 + 12
 
 	return maxRepo, maxBranch, totalWidth
 }
 
+func resolveCompactRepoWidth(termWidth int) int {
+	isNarrow := termWidth < 70
+	if isNarrow {
+		return 16
+	}
+
+	return 18
+}
+
 func calcCompactAvailableWidth(termWidth int) int {
-	fixedWidth := 2 + 8 + 7 + 8 + (4 * defaultPullTableColGapTight)
+	fixedWidth := 2 + 3 + 12 + (3 * defaultPullTableColGapTight)
 	avail := termWidth - fixedWidth
 	if avail < 16 {
 		return 16
@@ -189,8 +184,6 @@ func (l *PullTableLayout) printWideHeader() {
 		PadVisual("REPO", l.MaxRepo) + sep +
 		PadVisual("BRANCH", l.MaxBranch) + sep +
 		PadVisual("LATEST BRANCH", l.MaxLatestBr) + sep +
-		PadVisual("COMMIT RANGE", l.MaxRange) + sep +
-		PadVisual("CHANGES", l.MaxChanges) + sep +
 		PadVisual("PR", l.MaxPR) + sep +
 		"STATUS"
 
@@ -203,8 +196,7 @@ func (l *PullTableLayout) printCompactHeader() {
 	line := "  " +
 		PadVisual("REPO", l.MaxRepo) + sep +
 		PadVisual("BRANCH", l.MaxBranch) + sep +
-		PadVisual("RANGE", l.MaxRange) + sep +
-		PadVisual("CHANGES", l.MaxChanges) + sep +
+		PadVisual("PR", l.MaxPR) + sep +
 		"STATUS"
 
 	fmt.Println(line)
