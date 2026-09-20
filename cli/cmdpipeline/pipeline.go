@@ -181,7 +181,7 @@ func isPipelineClearAction(action string) bool {
 func isErrorLogsSubcmd(subcmd string) bool {
 	switch subcmd {
 	case "error-logs", "errorlogs", "error-log", "errorlog", "errors", "err",
-		"errorslogs", "errors-log", "errors-logs":
+		"errorslogs", "errors-log", "errors-logs", "pe":
 		return true
 	}
 
@@ -243,6 +243,7 @@ func dispatchPipelineFallback(subcmd string, args []string) error {
 func printPipelineHelpHeader() {
 	fmt.Println(constants.ColorCyan + "Usage:" + constants.ColorReset)
 	fmt.Println("  gitmap pipeline [command] [flags]")
+	fmt.Println("  gitmap pe [clear [-y]] [flags] (shortcut for pipeline errors)")
 	fmt.Println("  gitmap pipelines [command] [flags]")
 	fmt.Println("  gitmap pipeline-ai [status|errors|eta] [-t <seconds>] [--json]")
 	fmt.Println("  gitmap pl [command] [flags]")
@@ -252,6 +253,8 @@ func printPipelineHelpHeader() {
 func printPipelineHelpCommands() {
 	fmt.Println(constants.ColorCyan + "Commands:" + constants.ColorReset)
 	fmt.Println("  status                 Check live CI/CD pipeline status, ETA, and pending PRs")
+	fmt.Println("  errors                 Display failure logs, rerun ETA, and internal CI/CD fix suite (alias: pe)")
+	fmt.Println("  pe                     Shortcut for pipeline errors (supports clear [-y], -1, --json)")
 	fmt.Println("  waittime               Output remaining ETA seconds for active pipeline (alias: eta)")
 	fmt.Println("  eta                    Output remaining ETA seconds for active pipeline")
 	fmt.Println("  error-logs             Display failure logs, rerun ETA, and internal CI/CD fix suite")
@@ -291,6 +294,9 @@ func printPipelineHelpFlags() {
 func printPipelineHelpExamples() {
 	fmt.Println()
 	fmt.Println(constants.ColorCyan + "Examples:" + constants.ColorReset)
+	fmt.Println("  gitmap pe                                         # Fast shortcut to view errors / clean status")
+	fmt.Println("  gitmap pe clear -y                                # Clear errors, logs, and reset DB shortcut")
+	fmt.Println("  gitmap pe -1                                      # Inspect previous commit error logs")
 	fmt.Println("  gitmap pipeline status")
 	fmt.Println("  gitmap pipeline status -t")
 	fmt.Println("  gitmap pipeline fix")

@@ -105,6 +105,18 @@ func TestTopLevelErrorLogsAndLogs(t *testing.T) {
 	}
 }
 
+func TestTopLevelPipelineErrorsShortcut(t *testing.T) {
+	if err := runPipelineErrors([]string{"--json"}); err != nil {
+		t.Errorf("expected runPipelineErrors --json to succeed, got %v", err)
+	}
+	if err := runPipeline([]string{"pe", "--json"}); err != nil {
+		t.Errorf("expected runPipeline pe --json to succeed, got %v", err)
+	}
+	if err := runPipelineErrors([]string{"clear", "-y"}); err != nil {
+		t.Errorf("expected runPipelineErrors clear -y to succeed, got %v", err)
+	}
+}
+
 func TestHelpFlagTrigger(t *testing.T) {
 	// Ensure hasHelpFlag catches all variants including positional 'help'
 	cases := [][]string{

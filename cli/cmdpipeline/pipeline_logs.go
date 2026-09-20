@@ -114,18 +114,28 @@ func handleEmptyRunsPayload(repo string, runs []ghRunItem, p PipelineErrorLogsPa
 }
 
 func populateRunsIntoPayload(repo string, runs []ghRunItem, p *PipelineErrorLogsPayload) {
-	initLatestRunMeta(p, runs[0])
-	checkAndApplyRunningState(p, runs)
+	initTargetRunMeta(p, runs)
 	failedRuns := resolveFailedRunsForPayload(repo, runs)
 	if len(failedRuns) > 0 {
 		populateFailedRunsPayload(repo, failedRuns, p)
 
 		return
 	}
-	if isSkipFallback(p, runs) {
-		return
+	applyCleanOrFallbackState(p, repo, runs)
+}
+
+func initTargetRunMeta(p *PipelineErrorLogsPayload, runs []ghRunItem) {
+	initLatestRunMeta(p, findPrimaryTargetRun(runs))
+	checkAndApplyRunningState(p, runs)
+}
+
+func applyCleanOrFallbackState(p *PipelineErrorLogsPayload, repo string, runs []ghRunItem) {
+	if !p.IsRunning {
+		p.Conclusion = "success"
 	}
-	_ = ApplyPreviousRunFallbackToPayload(p, repo, runs)
+	if !isSkipFallback(p, runs) {
+		_ = ApplyPreviousRunFallbackToPayload(p, repo, runs)
+	}
 }
 
 func isSkipFallback(p *PipelineErrorLogsPayload, runs []ghRunItem) bool {
@@ -195,11 +205,11 @@ func formatWebURL(raw string) string {
 }
 
 func resolveLatestBranchName(p *PipelineErrorLogsPayload, runs []ghRunItem) string {
-	if len(runs) > 0 && len(runs[0].HeadBranch) > 0 {
-		return runs[0].HeadBranch
-	}
 	if len(p.Branch) > 0 {
 		return p.Branch
+	}
+	if len(runs) > 0 && len(runs[0].HeadBranch) > 0 {
+		return runs[0].HeadBranch
 	}
 
 	return resolveActiveOrMainBranch()
@@ -215,11 +225,11 @@ func resolveActiveOrMainBranch() string {
 }
 
 func resolveLatestCommitHash(p *PipelineErrorLogsPayload, runs []ghRunItem) string {
-	if len(runs) > 0 && len(runs[0].HeadSha) > 0 {
-		return gitutil.TruncSha(runs[0].HeadSha)
-	}
 	if len(p.Sha) > 0 {
 		return gitutil.TruncSha(p.Sha)
+	}
+	if len(runs) > 0 && len(runs[0].HeadSha) > 0 {
+		return gitutil.TruncSha(runs[0].HeadSha)
 	}
 
 	return resolveLocalCommitSHA()
@@ -247,10 +257,17 @@ func checkAndApplyRunningState(p *PipelineErrorLogsPayload, runs []ghRunItem) {
 		return
 	}
 
-	latest := runs[0]
-	if latest.Status == "in_progress" || latest.Status == "queued" {
-		setPayloadRunningState(p, latest, calculateETA(runs))
+	targetSha := resolveTargetCommitSha(runs)
+	for _, r := range runs {
+		if r.HeadSha == targetSha && isRunActive(r) {
+			setPayloadRunningState(p, r, calculateETA(runs))
+			return
+		}
 	}
+}
+
+func isRunActive(r ghRunItem) bool {
+	return r.Status == "in_progress" || r.Status == "queued"
 }
 
 func initLatestRunMeta(payload *PipelineErrorLogsPayload, latest ghRunItem) {
@@ -371,15 +388,58 @@ func buildBaseFailedRunItem(repo string, fr ghRunItem, rawLogs string) FailedRun
 	return item
 }
 
+func resolveTargetCommitSha(runs []ghRunItem) string {
+	if len(runs) == 0 {
+		return ""
+	}
+	if sha := findShaForActiveBranch(runs); len(sha) > 0 {
+		return sha
+	}
+
+	return runs[0].HeadSha
+}
+
+func findShaForActiveBranch(runs []ghRunItem) string {
+	activeBranch := gitutil.GetActiveBranch(".")
+	if len(activeBranch) == 0 || activeBranch == "-" {
+		return ""
+	}
+	for _, r := range runs {
+		if strings.EqualFold(r.HeadBranch, activeBranch) {
+			return r.HeadSha
+		}
+	}
+
+	return ""
+}
+
+func findPrimaryTargetRun(runs []ghRunItem) ghRunItem {
+	if len(runs) == 0 {
+		return ghRunItem{}
+	}
+
+	targetSha := resolveTargetCommitSha(runs)
+	for _, r := range runs {
+		if r.HeadSha == targetSha {
+			return r
+		}
+	}
+
+	return runs[0]
+}
+
 func collectFailedRuns(runs []ghRunItem) []ghRunItem {
+	if len(runs) == 0 {
+		return nil
+	}
+	targetRuns := collectRunsMatchingSha(runs, resolveTargetCommitSha(runs))
 	succeeded := make(map[string]bool)
 	var activeFailed []ghRunItem
-
-	for _, r := range runs {
+	for _, r := range targetRuns {
 		checkAndCollectRun(r, succeeded, &activeFailed)
 	}
 
-	return filterFailingRunsByTargetSha(activeFailed)
+	return capFailedRuns(activeFailed, 5)
 }
 
 func normalizeWorkflowKey(name string) string {
@@ -936,8 +996,21 @@ func printRerunETA(eta int) {
 }
 
 func printPipelineErrorLogsHelp() {
+	printPipelineErrorLogsUsage()
+	printPipelineErrorLogsFlags()
+}
+
+func printPipelineErrorLogsUsage() {
 	fmt.Println("Usage: gitmap pipeline error-logs [flags]")
+	fmt.Println("       gitmap pipeline errors [clear [-y]] [flags]")
+	fmt.Println("       gitmap pe [clear [-y]] [flags]")
 	fmt.Println()
+	fmt.Println("Commands:")
+	fmt.Println("  clear [-y]              Purge error logs, reports, and reset pipeline DB for current repo")
+	fmt.Println()
+}
+
+func printPipelineErrorLogsFlags() {
 	fmt.Println("Flags:")
 	fmt.Println("  -t, --timeline          Watch pipeline dynamic timeline until completion")
 	fmt.Println("  -f, --fix               Execute internal CI/CD diagnostic & auto-repair suite")

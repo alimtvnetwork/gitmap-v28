@@ -9,6 +9,11 @@ func RunPipeline(args []string) error {
 	return runPipeline(args)
 }
 
+// RunPipelineErrors executes the pipeline errors command group with args.
+func RunPipelineErrors(args []string) error {
+	return runPipeline(append([]string{"errors"}, args...))
+}
+
 // RunPipelineAI executes the pipeline AI command with delays.
 func RunPipelineAI(args []string) error {
 	return runPipelineAI(args)

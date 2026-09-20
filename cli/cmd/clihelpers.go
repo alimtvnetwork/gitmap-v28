@@ -223,6 +223,10 @@ func runPipeline(args []string) error {
 	return cmdpipeline.RunPipeline(args)
 }
 
+func runPipelineErrors(args []string) error {
+	return cmdpipeline.RunPipelineErrors(args)
+}
+
 func runPipelineAI(args []string) error {
 	return cmdpipeline.RunPipelineAI(args)
 }

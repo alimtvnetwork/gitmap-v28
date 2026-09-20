@@ -159,3 +159,46 @@ func TestCalculateETA_HistoricalAverage(t *testing.T) {
 		t.Fatalf("expected ETA >= 20, got %d", eta)
 	}
 }
+
+func TestIsErrorLogsSubcmdPe(t *testing.T) {
+	if !isErrorLogsSubcmd("pe") {
+		t.Errorf("expected isErrorLogsSubcmd('pe') to be true")
+	}
+	if !isErrorLogsSubcmd("errors") {
+		t.Errorf("expected isErrorLogsSubcmd('errors') to be true")
+	}
+}
+
+func TestIsPipelineClearAction(t *testing.T) {
+	if !isPipelineClearAction("clear") {
+		t.Errorf("expected isPipelineClearAction('clear') to be true")
+	}
+	if !isPipelineClearAction("reset") {
+		t.Errorf("expected isPipelineClearAction('reset') to be true")
+	}
+}
+
+func TestTargetShaFiltering(t *testing.T) {
+	runs := []ghRunItem{
+		{HeadSha: "sha-clean", Status: "completed", Conclusion: "success", Name: "CI"},
+		{HeadSha: "sha-stale", Status: "completed", Conclusion: "failure", Name: "CI"},
+	}
+	failed := collectRunsMatchingSha(runs, "sha-clean")
+	if len(failed) != 1 || failed[0].Conclusion != "success" {
+		t.Fatalf("expected 1 clean run for sha-clean, got %d", len(failed))
+	}
+}
+
+func TestPipelineHelpMentionsPe(t *testing.T) {
+	oldStdout := os.Stdout
+	r, w, _ := os.Pipe()
+	os.Stdout = w
+	printPipelineHelp()
+	_ = w.Close()
+	os.Stdout = oldStdout
+	var buf bytes.Buffer
+	_, _ = io.Copy(&buf, r)
+	if !strings.Contains(buf.String(), "gitmap pe") {
+		t.Fatalf("pipeline help missing 'gitmap pe': %s", buf.String())
+	}
+}

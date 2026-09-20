@@ -21,8 +21,8 @@ gitmap pl <subcommand> [flags]
 |------------|-------------|
 | `status` | Live CI/CD execution state, active workflow, ETA, and pending PRs |
 | `waittime, eta` | Remaining estimated wait time in seconds (machine-friendly integer) |
-| `errors, err` | Aggregated failure logs for current or past commit by offset (`-1`, `-2`, `-3`) |
-| `errors clear` | Clear error reports, logs, and database for current repository (or target repo) |
+| `errors, err, pe` | Aggregated failure logs for current or past commit by offset (`-1`, `-2`, `-3`) |
+| `errors clear, pe clear` | Clear error reports, logs, and database for current repository (or target repo) |
 | `clear, clean` | Clear logs, reports, and database for current repository (or target repo) |
 | `fix errors agy` | Feed errors, git log & RCA prompt to Antigravity, inject prompt & queue (alias: `aef`) |
 | `clear-db, db clear` | Reset/purge local pipeline split SQLite database and telemetry error logs (`-y`) |
@@ -59,6 +59,8 @@ gitmap pl <subcommand> [flags]
 
 | Shortcut | Equivalent Command |
 |----------|-------------------|
+| `gitmap pe` | `gitmap pipeline errors` |
+| `gitmap pe clear -y` | `gitmap pipeline errors clear -y` |
 | `gitmap aef` | `gitmap pipeline fix errors agy` |
 | `gitmap pipeline-fix` | `gitmap pipeline fix errors agy` |
 | `gitmap error-logs` | `gitmap pipeline error-logs` |
@@ -74,6 +76,13 @@ gitmap pl <subcommand> [flags]
 ## Examples
 
 ```bash
+# View failure logs or clean status via pe shortcut
+gitmap pe
+gitmap pe -1
+
+# Clear pipeline logs and database via pe clear shortcut
+gitmap pe clear -y
+
 # Check live CI/CD pipeline status and ETA
 gitmap pipeline status
 
