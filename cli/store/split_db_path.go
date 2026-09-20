@@ -57,15 +57,14 @@ func ResolveSplitDbDir(section, slug, repoRoot string) string {
 
 func resolveBaseDataDir(repoRoot string) string {
 	root := resolveTargetRoot(repoRoot)
-	if isDirExisting(filepath.Join(root, ".gitmap")) {
-		if root == "." {
-			return filepath.Join(".gitmap", "data")
-		}
-
-		return filepath.Join(root, ".gitmap", "data")
+	if !isDirExisting(filepath.Join(root, ".gitmap")) {
+		return BinaryDataDir()
+	}
+	if root == "." {
+		return filepath.Join(".gitmap", "data")
 	}
 
-	return BinaryDataDir()
+	return filepath.Join(root, ".gitmap", "data")
 }
 
 func resolveTargetRoot(repoRoot string) string {

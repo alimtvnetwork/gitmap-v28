@@ -82,11 +82,10 @@ func scanPullRequestRecord(row *sql.Row) result.Result[*PullRequestRecord] {
 		&rec.SourceBranch, &rec.TargetBranch, &rec.Status, &rawMergeSha,
 		&rec.CreatedAt, &rawMergedAt, &rawClosedAt, &rawNotes, &rawComments, &rec.UpdatedAt,
 	)
+	if errors.Is(err, sql.ErrNoRows) {
+		return result.Ok[*PullRequestRecord](nil)
+	}
 	if err != nil {
-		if errors.Is(err, sql.ErrNoRows) {
-			return result.Ok[*PullRequestRecord](nil)
-		}
-
 		return result.Fail[*PullRequestRecord](apperror.WrapSimple(err, "prdb.scanPullRequestRecord"))
 	}
 	rec.MergeCommitSha = dbengine.ScanString(rawMergeSha)

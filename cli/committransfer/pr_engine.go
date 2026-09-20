@@ -73,20 +73,27 @@ func extractPRNumber(subject string) int {
 }
 
 func parseBranchFromSubject(subject string) string {
-	reFrom := lazyregex.New(`(?i)from\s+([^\s]+)`).Compiled()
-	if reFrom != nil {
-		if m := reFrom.FindStringSubmatch(subject); len(m) > 1 {
-			return sanitizeBranchName(m[1])
-		}
+	if branch := extractBranchFromPattern(subject, `(?i)from\s+([^\s]+)`); branch != "" {
+		return branch
 	}
-	reBranch := lazyregex.New(`(?i)merge branch '([^']+)'`).Compiled()
-	if reBranch != nil {
-		if m := reBranch.FindStringSubmatch(subject); len(m) > 1 {
-			return sanitizeBranchName(m[1])
-		}
+	if branch := extractBranchFromPattern(subject, `(?i)merge branch '([^']+)'`); branch != "" {
+		return branch
 	}
 
 	return ""
+}
+
+func extractBranchFromPattern(subject, pattern string) string {
+	re := lazyregex.New(pattern).Compiled()
+	if re == nil {
+		return ""
+	}
+	m := re.FindStringSubmatch(subject)
+	if len(m) <= 1 {
+		return ""
+	}
+
+	return sanitizeBranchName(m[1])
 }
 
 func sanitizeBranchName(raw string) string {

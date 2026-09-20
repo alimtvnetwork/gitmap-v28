@@ -124,13 +124,14 @@ func resolveCommitTag(targetDir, sha string) string {
 }
 
 func resolveCommitBranch(subject, shortSha string, isMerge bool) string {
-	if isMerge {
-		if branch := parseBranchFromSubject(subject); branch != "" {
-			return branch
-		}
-		if prNum := extractPRNumber(subject); prNum > 0 {
-			return fmt.Sprintf("pr/%d", prNum)
-		}
+	if !isMerge {
+		return "main"
+	}
+	if branch := parseBranchFromSubject(subject); branch != "" {
+		return branch
+	}
+	if prNum := extractPRNumber(subject); prNum > 0 {
+		return fmt.Sprintf("pr/%d", prNum)
 	}
 
 	return "main"
@@ -138,16 +139,22 @@ func resolveCommitBranch(subject, shortSha string, isMerge bool) string {
 
 func enrichBranchEvents(targetDir string, events []graph.GraphEvent) []graph.GraphEvent {
 	for i := range events {
-		if events[i].IsMerge {
-			parents := getCommitParents(targetDir, events[i].CommitSha)
-			if len(parents) >= 2 {
-				branch := extractBranchName(events[i].Message, events[i].CommitSha, "")
-				markFeatureCommits(targetDir, parents[0], parents[1], branch, events)
-			}
-		}
+		enrichSingleMergeEvent(targetDir, &events[i], events)
 	}
 
 	return events
+}
+
+func enrichSingleMergeEvent(targetDir string, ev *graph.GraphEvent, events []graph.GraphEvent) {
+	if !ev.IsMerge {
+		return
+	}
+	parents := getCommitParents(targetDir, ev.CommitSha)
+	if len(parents) < 2 {
+		return
+	}
+	branch := extractBranchName(ev.Message, ev.CommitSha, "")
+	markFeatureCommits(targetDir, parents[0], parents[1], branch, events)
 }
 
 func markFeatureCommits(targetDir, p1, p2, branchName string, events []graph.GraphEvent) {

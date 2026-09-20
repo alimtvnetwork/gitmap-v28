@@ -36,15 +36,11 @@ func Replay(plan ReplayPlan, opts Options) (ReplayResult, error) {
 			continue
 		}
 
-		if isPRRouteEligible(plan.SourceDir, commit.SHA, commit.Subject, opts.PRMode) {
-			prRes := ProcessPR(plan, commit, opts)
-			if prRes.IsFailure() {
-				return res, apperror.Wrap(prRes.Err, fmt.Sprintf("commit %d/%d (%s)",
-					i+1, len(plan.Commits), commit.ShortSHA), nil)
-			}
-			res.Replayed++
-			res.NewSHAs = append(res.NewSHAs, prRes.Value)
-
+		handled, prErr := tryReplayPR(plan, commit, opts, i, &res)
+		if prErr != nil {
+			return res, prErr
+		}
+		if handled {
 			continue
 		}
 
@@ -77,6 +73,21 @@ func Replay(plan ReplayPlan, opts Options) (ReplayResult, error) {
 	}
 
 	return res, nil
+}
+
+func tryReplayPR(plan ReplayPlan, commit SourceCommit, opts Options, idx int, res *ReplayResult) (bool, error) {
+	if !isPRRouteEligible(plan.SourceDir, commit.SHA, commit.Subject, opts.PRMode) {
+		return false, nil
+	}
+	prRes := ProcessPR(plan, commit, opts)
+	if prRes.IsFailure() {
+		return true, apperror.Wrap(prRes.Err, fmt.Sprintf("commit %d/%d (%s)",
+			idx+1, len(plan.Commits), commit.ShortSHA), nil)
+	}
+	res.Replayed++
+	res.NewSHAs = append(res.NewSHAs, prRes.Value)
+
+	return true, nil
 }
 
 // replayOne is the per-commit step: checkout in source, snapshot copy
