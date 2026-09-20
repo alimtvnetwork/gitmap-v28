@@ -8,7 +8,8 @@ None.
 
 ## Recent Completed Tasks Register (Last 20 Tasks)
 
-1. [41-antigravity-ide-first-integration-and-queue-protocol.md](completed/41-antigravity-ide-first-integration-and-queue-protocol.md): Antigravity IDE-First Integration, File-System Discovery & Queue Protocol
+1. [44-pr-commit-engines-and-sqlite-split-db-architecture.md](completed/44-pr-commit-engines-and-sqlite-split-db-architecture.md): PR Commit Engines, SQLite Split-DB Architecture, and Auto-Merge PR Release Suite
+2. [41-antigravity-ide-first-integration-and-queue-protocol.md](completed/41-antigravity-ide-first-integration-and-queue-protocol.md): Antigravity IDE-First Integration, File-System Discovery & Queue Protocol
 2. [38-polyglot-worker-orchestrator-and-automation-runner.md](completed/38-polyglot-worker-orchestrator-and-automation-runner.md): Polyglot Worker Orchestrator & Automation Runner
 3. [37-aum-helptext-documentation-parity-and-cli-catalog.md](completed/37-aum-helptext-documentation-parity-and-cli-catalog.md): AUM Helptext Documentation Parity & CLI Catalog Alignment
 3. [36-aum-polyglot-script-migration-and-llm-train-suite.md](completed/36-aum-polyglot-script-migration-and-llm-train-suite.md): AUM Polyglot Script Migration & LLM Train Chained Curriculum Suite
