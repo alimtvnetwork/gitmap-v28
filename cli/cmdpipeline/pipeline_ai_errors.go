@@ -63,11 +63,13 @@ func populateLiveErrorDiagnostics(payload *PipelineStatusPayload, jobs []ghJobIt
 }
 
 func resolveFailedJobItems(repo string, runId uint64, rawLogs string, jobs []ghJobItem) []FailedJobItem {
-	if len(rawLogs) > 0 {
-		items := CorrelateFailedJobs(rawLogs, jobs)
-		if len(items) > 0 {
-			return items
-		}
+	if len(rawLogs) == 0 {
+		return extractLiveFailingJobsAndSteps(jobs)
+	}
+
+	items := CorrelateFailedJobs(rawLogs, jobs)
+	if len(items) > 0 {
+		return items
 	}
 
 	return extractLiveFailingJobsAndSteps(jobs)

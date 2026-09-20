@@ -2432,6 +2432,12 @@ PowerShell: `Invoke-WebRequest -Uri https://raw.githubusercontent.com/alimtvnetw
 
 # Changelog
 
+## [v6.279.0] - 2026-09-20
+
+### Added
+- fix(ci): resolve gofmt drift, flatten pipeline-ai nested ifs, and fix scanRootForFile directory probe
+
+
 ## [v6.278.0] - 2026-09-20
 
 ### Added

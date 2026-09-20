@@ -190,7 +190,7 @@ func searchBoundedVcvars() (string, bool) {
 }
 
 func scanRootForFile(root, filename string, maxDepth int) (string, bool) {
-	if !pathExists(root) {
+	if !dirExists(root) {
 		return "", false
 	}
 
@@ -266,6 +266,15 @@ func pathExists(p string) bool {
 	info, err := os.Stat(p)
 
 	return err == nil && !info.IsDir()
+}
+
+func dirExists(p string) bool {
+	if len(p) == 0 {
+		return false
+	}
+	info, err := os.Stat(p)
+
+	return err == nil && info.IsDir()
 }
 
 func renderLocateResult(res LocateResult, isJSON bool) {

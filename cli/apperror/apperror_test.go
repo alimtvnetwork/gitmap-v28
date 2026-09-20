@@ -152,4 +152,3 @@ func TestAppError_NewNotFound(t *testing.T) {
 		t.Errorf("expected empty stack for not found error, got %s", err.Stack)
 	}
 }
-

@@ -1,3 +1,9 @@
+## v6.279.0 — 2026-09-20 (fix(ci): resolve gofmt drift, flatten pipeline-ai nested ifs, and fix scanRootForFile directory probe)
+
+**Scope:** Version bump. fix(ci): resolve gofmt drift, flatten pipeline-ai nested ifs, and fix scanRootForFile directory probe.
+
+---
+
 ## v6.278.0 — 2026-09-20 (feat(clean-dev): add developer tools cache remover and os dev-clean command suite)
 
 **Scope:** Version bump. feat(clean-dev): add developer tools cache remover and os dev-clean command suite.

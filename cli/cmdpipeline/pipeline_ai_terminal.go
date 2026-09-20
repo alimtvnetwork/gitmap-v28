@@ -29,15 +29,18 @@ func renderPipelineAILiveErrorAlert(p PipelineStatusPayload) {
 
 func renderPipelineAIFailingJobSnippet(p PipelineStatusPayload) {
 	if len(p.FailedJobs) > 0 {
-		fj := p.FailedJobs[0]
-		fmt.Printf("  %s● Failing Job / Step:%s %s / %s\n",
-			constants.ColorCyan, constants.ColorReset, fj.JobName, fj.StepName)
-		if len(fj.FailureSummary) > 0 {
-			fmt.Printf("    %s%s%s\n", constants.ColorYellow, fj.FailureSummary, constants.ColorReset)
-		}
+		renderSingleFailedJobInfo(p.FailedJobs[0])
 	}
 
 	renderActionableSnippetLines(p.ActionableErrorSnippet)
+}
+
+func renderSingleFailedJobInfo(fj FailedJobItem) {
+	fmt.Printf("  %s● Failing Job / Step:%s %s / %s\n",
+		constants.ColorCyan, constants.ColorReset, fj.JobName, fj.StepName)
+	if len(fj.FailureSummary) > 0 {
+		fmt.Printf("    %s%s%s\n", constants.ColorYellow, fj.FailureSummary, constants.ColorReset)
+	}
 }
 
 func renderActionableSnippetLines(snippet string) {
