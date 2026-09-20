@@ -2432,6 +2432,12 @@ PowerShell: `Invoke-WebRequest -Uri https://raw.githubusercontent.com/alimtvnetw
 
 # Changelog
 
+## [v6.275.0] - 2026-09-20
+
+### Added
+- feat(pipeline-ai): live error streaming, aum search acceleration, tool locator, and author attribution
+
+
 ## [v6.274.0] - 2026-09-20
 
 ### Added

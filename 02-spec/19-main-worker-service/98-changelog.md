@@ -1,3 +1,9 @@
+## v6.275.0 — 2026-09-20 (feat(pipeline-ai): live error streaming, aum search acceleration, tool locator, and author attribution)
+
+**Scope:** Version bump. feat(pipeline-ai): live error streaming, aum search acceleration, tool locator, and author attribution.
+
+---
+
 ## v6.274.0 — 2026-09-20 (fix compilation, vet, policy linters, pull table formatting, and test regressions)
 
 **Scope:** Version bump. fix compilation, vet, policy linters, pull table formatting, and test regressions.
