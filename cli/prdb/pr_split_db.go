@@ -60,6 +60,7 @@ func cleanRepoURLPrefix(repo string) string {
 // SanitizeRepoSlug converts a repository slug or URL into a valid filesystem slug.
 func SanitizeRepoSlug(repo string) string {
 	lower := strings.ToLower(cleanRepoURLPrefix(repo))
+	lower = strings.ReplaceAll(lower, "_", "-")
 	slug := lazyregex.SlugSanitizeRegex.ReplaceAllString(lower, "-")
 	slug = strings.Trim(slug, "-")
 	if slug == "" {

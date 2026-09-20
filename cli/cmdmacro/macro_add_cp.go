@@ -75,7 +75,7 @@ func extractCpPositionalArgs(args []string) (string, string, bool) {
 	var positional []string
 	for _, a := range args {
 		trimmed := strings.Trim(a, "\"'")
-		if !strings.HasPrefix(trimmed, "-") && !strings.HasPrefix(trimmed, "/") {
+		if !strings.HasPrefix(trimmed, "-") {
 			positional = append(positional, trimmed)
 		}
 	}

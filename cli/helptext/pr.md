@@ -84,6 +84,25 @@ gitmap help --group pr
 gitmap completion --list-help-groups
 ```
 
+## Examples
+
+```bash
+# Replay commits from upstream into mainline in PR mode
+gitmap pr ./upstream-repo ./mainline-repo
+
+# Replay commits right-to-left
+gitmap pr left ./source ./target
+
+# Multi-source chronological PR replay into target repo
+gitmap pr in ./target ./service-a ./service-b
+
+# List all recorded pull requests with status
+gitmap pr-list
+
+# Clean up merged PR branches with interactive prompt
+gitmap pr-clean --yes
+```
+
 ## JSON Scripting Examples
 
 Machine-readable execution payload:
