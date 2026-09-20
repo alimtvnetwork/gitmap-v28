@@ -151,7 +151,7 @@ const (
 	CmdTodo              = "todo"
 	CmdOpen              = "open"
 	CmdOpenAlias         = "o"
-	CmdPR                = "pull-requests"
+	CmdPullRequests      = "pull-requests"
 	CmdPRAlias           = "prs"
 	CmdBlameStats        = "blame-stats"
 	CmdSnapshot          = "snapshot"
@@ -351,13 +351,12 @@ const (
 	// so we never tag on top of a divergent tree.
 	//
 	// Renamed v5.6.0: canonical name is now `pull-release` (verb-first,
-	// reads as "pull then release"). Short alias is `pr`. The legacy
-	// names `release-pull`, `relp`, and `rlp` remain wired as aliases
-	// for backward compatibility and will not be removed.
+	// reads as "pull then release"). Short aliases are `relp` and `rlp`.
+	// Collision on `pr` eliminated in Spec 129 in favor of the PR replay engine.
 	CmdReleasePull       = "pull-release"
-	CmdReleasePullAlias  = "pr"
+	CmdReleasePullAlias  = "relp"
 	CmdReleasePullAlias2 = "release-pull" // legacy long form
-	CmdReleasePullAlias3 = "relp"         // legacy alias
+	CmdReleasePullAlias3 = "rlp"          // legacy alias
 	CmdReleasePullAlias4 = "rlp"          // legacy alias
 	// CmdMakePublic / CmdMakePrivate toggle the current repo's
 	// visibility on GitHub or GitLab via `gh` / `glab`. No alias —
@@ -621,7 +620,7 @@ const (
 	HelpStatus           = "  status (st)         Show dirty/clean, ahead/behind, stash for all repos"
 	HelpExec             = "  exec (x) <args...>  Run any git command across all repos"
 	HelpRelease          = "  release (r) [ver]   Create release branch, tag, and push"
-	HelpReleasePull      = "  pull-release (pr) [ver]    git pull (" + ColorCyan + "--ff-only" + ColorReset + "|" + ColorCyan + "--rebase" + ColorReset + "|" + ColorCyan + "--merge" + ColorReset + "), then release the current repo"
+	HelpReleasePull      = "  pull-release (relp) [ver]  git pull (" + ColorCyan + "--ff-only" + ColorReset + "|" + ColorCyan + "--rebase" + ColorReset + "|" + ColorCyan + "--merge" + ColorReset + "), then release the current repo"
 	HelpReleaseBr        = "  release-branch (rb)      Complete release from existing release branch"
 	HelpReleasePend      = "  release-pending (rp)      Release all pending branches without tags"
 	HelpFixRepo          = "  fix-repo (fr)       Rewrite prior {base}-vN tokens (-2/-3/-5/" + ColorCyan + "--all" + ColorReset + "/" + ColorCyan + "--dry-run" + ColorReset + ")"

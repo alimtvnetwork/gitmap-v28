@@ -122,4 +122,3 @@ gitmap os ai-clean --dry-run
 # Non-interactive cleanup for automated scripts
 gitmap os ai-clean -y
 ```
-

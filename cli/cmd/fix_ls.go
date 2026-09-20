@@ -243,11 +243,12 @@ func appendDirtySummary(parts []string, diag gitutil.DirtyDiagnosis) []string {
 }
 
 func appendSyncSummary(parts []string, rs gitutil.RepoStatus) []string {
-	if rs.Behind > 0 && rs.Ahead > 0 {
+	switch {
+	case rs.Behind > 0 && rs.Ahead > 0:
 		parts = append(parts, fmt.Sprintf("diverged (+%d/-%d)", rs.Ahead, rs.Behind))
-	} else if rs.Behind > 0 {
+	case rs.Behind > 0:
 		parts = append(parts, fmt.Sprintf("behind (%d)", rs.Behind))
-	} else if rs.Ahead > 0 {
+	case rs.Ahead > 0:
 		parts = append(parts, fmt.Sprintf("ahead (%d)", rs.Ahead))
 	}
 	if rs.StashCount > 0 {

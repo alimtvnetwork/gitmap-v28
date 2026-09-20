@@ -33,8 +33,9 @@ GitMap CLI serves as the high-performance master supervisor:
 Under GitMap's split-database architecture, all automation telemetry, cached runtimes, and look-ahead file manifests are persisted in:
 
 ```
-.gitmap/data/<repo-slug>/automation/sql.db
+.gitmap/data/automation/<repo-slug>/sql.db
 ```
+*(Standardized per [Spec 129](129-pr-commit-engines-and-sqlite-split-db.md) canonical `<section>/<slug>/sql.db` formula)*
 
 Where `<repo-slug>` is the sanitized repository identifier (e.g. `alimtvnetwork-gitmap-v28` or relative workspace slug).
 

@@ -1781,8 +1781,10 @@ bypass; combine with `--prefer-left` / `--prefer-right` /
 | `undo` | `ud` | Restore the latest `gitmap fix-repo` snapshot for the current repo + version. `--list` lists snapshots, `--snapshot <ts>` selects one, `--dry-run` previews. |
 | `clone-fix-repo` | `cfr` | One-shot: `clone <url>` then `fix-repo --all` inside the new folder. Versioned URLs auto-flatten. |
 | `clone-fix-repo-pub` | `cfrp` | Same as `cfr`, plus `make-public --yes` at the end. |
-| `make-public` | — | Make the current repo **public** on GitHub or GitLab via the matching CLI (`gh` / `glab`). Verifies visibility post-edit. |
 | `commit-in` | `cin` | Walk one or more SOURCE repos chronologically and APPEND each commit into a TARGET repo, preserving both AuthorDate AND CommitterDate. Idempotent via `ShaMap`. |
+| `pr` | `pull-request` | Automated Commit Replay & Pull Request Simulation. Detects merge commits, isolates feature branches (`feature/<slug>`), generates rich PR descriptions, merges into mainline target, and synchronizes the final snapshot byte-for-byte. Backed by `.gitmap/data/pr/<slug>/sql.db`. |
+| `pr-clean` | `pr-rm` | Pre-flight inspect, confirm, and remove merged and closed PR branches. |
+| `pr-list` | `pr-ls` | List recorded pull requests, status, merge commits, and branches from SQLite. |
 
 ```bash
 

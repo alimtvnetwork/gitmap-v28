@@ -33,10 +33,8 @@ func cleanRepoURLPrefix(repo string) string {
 
 // SanitizeRepoSlug converts a repository slug into a valid safe filesystem name.
 func SanitizeRepoSlug(repo string) string {
-	lower := strings.ToLower(cleanRepoURLPrefix(repo))
-	slug := lazyregex.SlugSanitizeRegex.ReplaceAllString(lower, "-")
-	slug = strings.Trim(slug, "-")
-	if slug == "" {
+	slug := store.SanitizeSlug(repo)
+	if slug == "default" {
 		return "pipeline-default"
 	}
 
@@ -45,16 +43,7 @@ func SanitizeRepoSlug(repo string) string {
 
 // PipelineDbDir returns the dedicated directory where pipeline split DBs live.
 func PipelineDbDir() string {
-	binDir := filepath.Dir(store.BinaryDataDir())
-	altDir := filepath.Join(binDir, "pipeline")
-	if isDirExisting(altDir) {
-		return filepath.ToSlash(altDir)
-	}
-
-	dir := filepath.Join(store.BinaryDataDir(), "pipeline")
-	_ = os.MkdirAll(dir, 0755)
-
-	return filepath.ToSlash(dir)
+	return filepath.Dir(store.ResolveSplitDbDir(store.SectionPipeline, "default", ""))
 }
 
 // PipelineDBDir is an alias to PipelineDbDir.
@@ -63,10 +52,7 @@ var PipelineDBDir = PipelineDbDir
 // RepoPipelineDir returns the dedicated repository directory inside pipeline data root.
 func RepoPipelineDir(repoSlug string) string {
 	slug := SanitizeRepoSlug(repoSlug)
-	repoDir := filepath.Join(PipelineDbDir(), slug)
-	_ = os.MkdirAll(repoDir, 0755)
-
-	return filepath.ToSlash(repoDir)
+	return store.ResolveSplitDbDir(store.SectionPipeline, slug, "")
 }
 
 // RepoScopedPipelineDbDir returns the dedicated repository pipeline directory.
@@ -77,17 +63,7 @@ func RepoScopedPipelineDbDir(repoSlug string) string {
 // ResolvePipelineDbPath resolves the CLI-anchored SQLite database path for a repository.
 func ResolvePipelineDbPath(repoSlug string) string {
 	slug := SanitizeRepoSlug(repoSlug)
-	repoDir := RepoPipelineDir(slug)
-	target := filepath.Join(repoDir, "pipeline.db")
-	if isFileExisting(target) {
-		return filepath.ToSlash(target)
-	}
-
-	if sqlDb := filepath.Join(repoDir, "sql.db"); isFileExisting(sqlDb) {
-		return filepath.ToSlash(sqlDb)
-	}
-
-	return filepath.ToSlash(migrateOrFallbackPipelineDb(PipelineDbDir(), slug, target))
+	return store.ResolveSplitDbPath(store.SectionPipeline, slug, "")
 }
 
 // PipelineDbPath returns the full SQLite database file path for a repository.

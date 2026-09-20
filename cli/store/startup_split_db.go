@@ -3,8 +3,6 @@ package store
 
 import (
 	"database/sql"
-	"os"
-	"path/filepath"
 
 	"github.com/alimtvnetwork/gitmap-v28/cli/apperror"
 	"github.com/alimtvnetwork/gitmap-v28/cli/constants"
@@ -47,12 +45,7 @@ type StartupLogRecord struct {
 
 // StartupDBPath returns the full path to the startup SQLite DB.
 func StartupDBPath() string {
-	dir := filepath.Join(BinaryDataDir(), "startup")
-	if err := os.MkdirAll(dir, 0755); err != nil && !os.IsNotExist(err) {
-		return filepath.Join(BinaryDataDir(), "startup.db")
-	}
-
-	return filepath.Join(dir, "startup.db")
+	return ResolveSplitDbPath(SectionStartup, "default", "")
 }
 
 // OpenStartupSplitDB opens or initializes the startup split database.

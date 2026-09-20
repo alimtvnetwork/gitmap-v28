@@ -12,6 +12,7 @@ import (
 	"github.com/alimtvnetwork/gitmap-v28/cli/cmd/commitin/checkpoint"
 	"github.com/alimtvnetwork/gitmap-v28/cli/cmd/commitin/walk"
 	"github.com/alimtvnetwork/gitmap-v28/cli/cmd/commitin/workspace"
+	"github.com/alimtvnetwork/gitmap-v28/cli/committransfer"
 	"github.com/alimtvnetwork/gitmap-v28/cli/constants"
 )
 
@@ -31,6 +32,11 @@ func executePipeline(ctx *runContext, stdout io.Writer) int {
 		if ctx.aborted {
 			return constants.CommitInExitConflictAborted
 		}
+	}
+
+	if len(inputs) > 0 && !ctx.Raw.DryRun {
+		lastInput := inputs[len(inputs)-1]
+		_ = committransfer.FinalizeSnapshotSync(lastInput.WorkPath, ctx.Source.Path, "HEAD", "commit-in")
 	}
 
 	return constants.CommitInExitOk

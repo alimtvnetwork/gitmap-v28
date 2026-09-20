@@ -1,17 +1,21 @@
 package cmd
 
 import (
+	"encoding/json"
 	"flag"
 	"fmt"
 	"os"
+	"os/exec"
+	"path/filepath"
 	"strings"
 
+	"github.com/alimtvnetwork/gitmap-v28/cli/apperror"
+	"github.com/alimtvnetwork/gitmap-v28/cli/cliexit"
 	"github.com/alimtvnetwork/gitmap-v28/cli/committransfer"
 	"github.com/alimtvnetwork/gitmap-v28/cli/config"
 	"github.com/alimtvnetwork/gitmap-v28/cli/constants"
 	"github.com/alimtvnetwork/gitmap-v28/cli/movemerge"
-
-	"github.com/alimtvnetwork/gitmap-v28/cli/cliexit"
+	"github.com/alimtvnetwork/gitmap-v28/cli/prdb"
 )
 
 // commitTransferSpec describes one of the three commit-transfer commands.
@@ -143,6 +147,14 @@ func resolveCommitEndpoints(leftRaw, rightRaw string, _ committransfer.Options,
 	return left, right, err
 }
 
+func defaultPRMode(cmdName string) string {
+	if cmdName == constants.CmdPR || cmdName == constants.CmdPullRequest {
+		return "merges"
+	}
+
+	return ""
+}
+
 // parseCommitTransferArgs builds the Options struct + positional args.
 // One function per concern would be cleaner, but the flag.FlagSet API
 // keeps us under the per-function line cap as long as helpers extract
@@ -153,6 +165,7 @@ func parseCommitTransferArgs(spec commitTransferSpec, args []string,
 	opts := committransfer.Options{
 		CommandName: spec.Name, LogPrefix: spec.LogPrefix,
 		IncludeMerges: true, // v6.0.0 default — merge commits preserved
+		PRMode:        defaultPRMode(spec.Name),
 		Message: committransfer.MessagePolicy{
 			DropPatterns: committransfer.DefaultDropPatterns,
 			Conventional: true, Provenance: true,
@@ -202,7 +215,7 @@ func registerMessagePolicyToggles(fs *flag.FlagSet, opts *committransfer.Options
 // registerCommitTransferStrings wires value-taking flags + repeatable
 // regex patterns. --no-strip and --no-drop are BoolFunc (no value).
 func registerCommitTransferStrings(fs *flag.FlagSet, opts *committransfer.Options) {
-	fs.StringVar(&opts.PRMode, constants.FlagCTPR, "", constants.FlagDescCTPR)
+	fs.StringVar(&opts.PRMode, constants.FlagCTPR, opts.PRMode, constants.FlagDescCTPRMode)
 	fs.IntVar(&opts.Limit, constants.FlagCTLimit, 0, constants.FlagDescCTLimit)
 	fs.StringVar(&opts.Since, constants.FlagCTSince, "", constants.FlagDescCTSince)
 	fs.IntVar(&opts.MaxHistoryScan, constants.FlagCTMaxHistoryScan, 0, constants.FlagDescCTMaxHistoryScan)
@@ -248,7 +261,176 @@ func commitTransferSpecFor(command string) (commitTransferSpec, bool) {
 		return commitTransferSpec{
 			Name: constants.CmdCommitBoth, LogPrefix: constants.LogPrefixCommitBoth,
 		}, true
+	case constants.CmdPR, constants.CmdPullRequest:
+		return commitTransferSpec{
+			Name: constants.CmdPR, LogPrefix: constants.LogPrefixPR,
+		}, true
 	}
 
 	return commitTransferSpec{}, false
+}
+
+func runPRClean(args []string) error {
+	checkHelp(constants.CmdPRClean, args)
+	isYes, repoPath := parsePRCleanArgs(args)
+	repoRoot, err := os.Getwd()
+	if err != nil {
+		return apperror.WrapSimple(err, "runPRClean.getwd")
+	}
+	if repoPath != "" {
+		repoRoot = repoPath
+	}
+
+	return executePRClean(repoRoot, isYes)
+}
+
+func parsePRCleanArgs(args []string) (bool, string) {
+	isYes := false
+	repoPath := ""
+	for _, arg := range args {
+		if arg == "-y" || arg == "--yes" {
+			isYes = true
+			continue
+		}
+		if !strings.HasPrefix(arg, "-") && repoPath == "" {
+			repoPath = arg
+		}
+	}
+
+	return isYes, repoPath
+}
+
+func executePRClean(repoRoot string, isYes bool) error {
+	slug := prdb.SanitizeRepoSlug(filepath.Base(repoRoot))
+	dbRes := prdb.OpenPrSplitDb(slug, repoRoot)
+	if dbRes.IsFailure() {
+		return dbRes.Err
+	}
+	db := dbRes.Value
+	defer db.Close()
+
+	branchesRes := db.ListMergedPrBranches()
+	if branchesRes.IsFailure() {
+		return branchesRes.Err
+	}
+
+	return processPRCleanBranches(db, repoRoot, branchesRes.Value, isYes)
+}
+
+func processPRCleanBranches(db *prdb.PrSplitDb, repoRoot string, branches []prdb.PrBranchRecord, isYes bool) error {
+	if len(branches) == 0 {
+		fmt.Println("No merged PR branches to clean.")
+		return nil
+	}
+	if !isYes && !confirmPRClean(len(branches)) {
+		fmt.Println("PR clean canceled.")
+		return nil
+	}
+
+	return pruneMergedBranches(db, repoRoot, branches)
+}
+
+func confirmPRClean(count int) bool {
+	fmt.Printf("Remove %d closed/merged PR branches? [y/N]: ", count)
+	var response string
+	fmt.Scanln(&response)
+	resp := strings.TrimSpace(strings.ToLower(response))
+
+	return resp == "y" || resp == "yes"
+}
+
+func pruneMergedBranches(db *prdb.PrSplitDb, repoRoot string, branches []prdb.PrBranchRecord) error {
+	for _, b := range branches {
+		cmd := exec.Command("git", "-C", repoRoot, "branch", "-D", b.BranchName)
+		_ = cmd.Run()
+		db.MarkPrBranchDeleted(b.BranchName)
+		fmt.Printf("Deleted PR branch: %s\n", b.BranchName)
+	}
+	fmt.Printf("Cleaned %d merged PR branches.\n", len(branches))
+
+	return nil
+}
+
+func runPRList(args []string) error {
+	checkHelp(constants.CmdPRList, args)
+	isJSON, repoPath := parsePRListArgs(args)
+	repoRoot, err := os.Getwd()
+	if err != nil {
+		return apperror.WrapSimple(err, "runPRList.getwd")
+	}
+	if repoPath != "" {
+		repoRoot = repoPath
+	}
+
+	return executePRList(repoRoot, isJSON)
+}
+
+func parsePRListArgs(args []string) (bool, string) {
+	isJSON := false
+	repoPath := ""
+	for _, arg := range args {
+		if arg == "--json" {
+			isJSON = true
+			continue
+		}
+		if !strings.HasPrefix(arg, "-") && repoPath == "" {
+			repoPath = arg
+		}
+	}
+
+	return isJSON, repoPath
+}
+
+func executePRList(repoRoot string, isJSON bool) error {
+	slug := prdb.SanitizeRepoSlug(filepath.Base(repoRoot))
+	dbRes := prdb.OpenPrSplitDb(slug, repoRoot)
+	if dbRes.IsFailure() {
+		return dbRes.Err
+	}
+	db := dbRes.Value
+	defer db.Close()
+
+	activeRes := db.ListActivePrBranches()
+	mergedRes := db.ListMergedPrBranches()
+	if activeRes.IsFailure() {
+		return activeRes.Err
+	}
+	if mergedRes.IsFailure() {
+		return mergedRes.Err
+	}
+
+	return displayPRList(activeRes.Value, mergedRes.Value, isJSON)
+}
+
+func displayPRList(active, merged []prdb.PrBranchRecord, isJSON bool) error {
+	if isJSON {
+		return outputPRListJSON(active, merged)
+	}
+	renderPRListTable(active, merged)
+
+	return nil
+}
+
+func outputPRListJSON(active, merged []prdb.PrBranchRecord) error {
+	payload := map[string]any{
+		"active": active,
+		"merged": merged,
+	}
+	bytes, err := json.MarshalIndent(payload, "", "  ")
+	if err != nil {
+		return apperror.WrapSimple(err, "outputPRListJSON.marshal")
+	}
+	fmt.Println(string(bytes))
+
+	return nil
+}
+
+func renderPRListTable(active, merged []prdb.PrBranchRecord) {
+	fmt.Printf("PR Branches (Active: %d, Merged: %d):\n", len(active), len(merged))
+	for _, b := range active {
+		fmt.Printf("  [active] %s (%s)\n", b.BranchName, b.BranchType)
+	}
+	for _, b := range merged {
+		fmt.Printf("  [merged] %s (%s)\n", b.BranchName, b.BranchType)
+	}
 }

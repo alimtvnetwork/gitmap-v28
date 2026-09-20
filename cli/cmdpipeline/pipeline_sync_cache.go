@@ -33,19 +33,29 @@ func formatRepoRelativeSlash(rel string) string {
 
 // FormatRelativeDbPath converts an absolute DB path to a display path.
 func FormatRelativeDbPath(fullPath string) string {
-	if len(fullPath) == 0 {
-		fullPath = pipelinedb.ResolvePipelineDbPath(resolveCurrentRepoSlug())
+	target := fullPath
+	if len(target) == 0 {
+		target = pipelinedb.ResolvePipelineDbPath(resolveCurrentRepoSlug())
 	}
-	slashPath := filepath.ToSlash(fullPath)
+	slashPath := filepath.ToSlash(target)
 	if idx := strings.Index(slashPath, ".gitmap/"); idx != -1 {
 		return slashPath[idx:]
 	}
+	if idx := strings.Index(slashPath, "pipeline/"); idx != -1 && strings.HasSuffix(slashPath, "sql.db") {
+		return ".gitmap/data/" + slashPath[idx:]
+	}
+
+	return resolveRelOrSlashPath(slashPath, target)
+}
+
+func resolveRelOrSlashPath(slashPath, fullPath string) string {
 	repoRoot := resolveRepoRootDir()
-	if rel, err := filepath.Rel(repoRoot, fullPath); err == nil && !strings.HasPrefix(rel, "..") && len(rel) > 0 {
+	rel, err := filepath.Rel(repoRoot, fullPath)
+	if err == nil && !strings.HasPrefix(rel, "..") && len(rel) > 0 {
 		return formatRepoRelativeSlash(rel)
 	}
 
-	return filepath.ToSlash(fullPath)
+	return slashPath
 }
 
 // ResolveDbFileSize returns the formatted human size for a pipeline database.

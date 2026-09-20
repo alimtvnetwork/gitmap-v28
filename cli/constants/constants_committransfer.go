@@ -23,6 +23,11 @@ const (
 	CmdCommitRightA = "cmr"
 	CmdCommitBoth   = "commit-both"
 	CmdCommitBothA  = "cmb"
+	CmdPR           = "pr"
+	CmdPullRequest  = "pull-request"
+	CmdPRClean      = "pr-clean"
+	CmdPRRm         = "pr-rm"
+	CmdPRList       = "pr-list"
 )
 
 // Commit-transfer log prefixes (matches merge-* style).
@@ -30,6 +35,7 @@ const (
 	LogPrefixCommitLeft  = "[commit-left]"
 	LogPrefixCommitRight = "[commit-right]"
 	LogPrefixCommitBoth  = "[commit-both]"
+	LogPrefixPR          = "[pr]"
 )
 
 // Commit-transfer flag names. See spec §8 for semantics.
@@ -57,6 +63,7 @@ const (
 	FlagCTNoCommit         = "no-commit"
 	FlagCTInterleave       = "interleave"
 	FlagCTPR               = "pr"
+	FlagCTPRMode           = "pr"
 	FlagCTAppendFooter     = "append-footer"
 	FlagCTTemplateOverride = "template-override"
 )
@@ -86,6 +93,7 @@ const (
 	FlagDescCTNoCommit         = "Copy files but skip both commit and push"
 	FlagDescCTInterleave       = "commit-both only: replay both sides in author-date order (instead of sequential L→R then R→L)"
 	FlagDescCTPR               = "Create a pull request for the replayed commits (values: 'all', 'tags', 'release')"
+	FlagDescCTPRMode           = "PR mode: merges (default), all, tags, release, off"
 	FlagDescCTAppendFooter     = "Append a literal footer to every replayed commit (repeatable)"
 	FlagDescCTTemplateOverride = "Enable template replacement for generic commit titles"
 )
@@ -112,4 +120,7 @@ const (
 	HelpCommitRight = "  commit-right (cmr)  Replay LEFT's commits onto RIGHT (cleaned, idempotent) [LIVE]"
 	HelpCommitLeft  = "  commit-left (cml)  Replay RIGHT's commits onto LEFT (cleaned, idempotent) [LIVE]"
 	HelpCommitBoth  = "  commit-both (cmb)  Bidirectional replay (sequential by default; --interleave for author-date) [LIVE]"
+	HelpPR          = "  pr (pull-request)   Automated PR & merge commit replay engine [LIVE]"
+	HelpPRClean     = "  pr-clean (pr-rm)    Prune closed and merged PR feature branches"
+	HelpPRList      = "  pr-list             List recorded PRs and branch audit status"
 )

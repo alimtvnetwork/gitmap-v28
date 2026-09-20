@@ -41,6 +41,7 @@ None.
 
 ## Completed Plans
 
+- [42-pr-commit-engines-and-sqlite-split-db-architecture.md](completed/42-pr-commit-engines-and-sqlite-split-db-architecture.md): PR Commit Engines, Split-DB Architecture & Auto-Merge PR Release Suite
 - [41-antigravity-ide-first-integration-and-queue-protocol.md](completed/41-antigravity-ide-first-integration-and-queue-protocol.md): Antigravity IDE-First Integration, File-System Discovery & Queue Protocol
 - [40-macro-fleet-export-import-and-interactive-resilience.md](completed/40-macro-fleet-export-import-and-interactive-resilience.md): Macro Fleet Export/Import, Multi-Node Sync & Interactive Resilience
 - [39-windows-ssh-authkey-join-automation-and-node-rm.md](completed/39-windows-ssh-authkey-join-automation-and-node-rm.md): Windows SSH Authorized Key Architecture, Interactive SSH Join Password Automation, GitMap Host-Node Bootstrapping, and Comprehensive Node Removal

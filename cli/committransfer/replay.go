@@ -36,6 +36,18 @@ func Replay(plan ReplayPlan, opts Options) (ReplayResult, error) {
 			continue
 		}
 
+		if isPRRouteEligible(plan.SourceDir, commit.SHA, commit.Subject, opts.PRMode) {
+			prRes := ProcessPR(plan, commit, opts)
+			if prRes.IsFailure() {
+				return res, apperror.Wrap(prRes.Err, fmt.Sprintf("commit %d/%d (%s)",
+					i+1, len(plan.Commits), commit.ShortSHA), nil)
+			}
+			res.Replayed++
+			res.NewSHAs = append(res.NewSHAs, prRes.Value)
+
+			continue
+		}
+
 		newSHA, emptyAfterSnapshot, err := replayOne(plan, commit, opts)
 		if err != nil {
 			return res, apperror.Wrap(err, fmt.Sprintf("commit %d/%d (%s)",
@@ -57,10 +69,11 @@ func Replay(plan ReplayPlan, opts Options) (ReplayResult, error) {
 
 		res.Replayed++
 		res.NewSHAs = append(res.NewSHAs, newSHA)
+	}
 
-		if err := ProcessPR(plan.TargetDir, commit.Subject, commit.Cleaned, commit.ShortSHA, opts.PRMode, newSHA); err != nil {
-			return res, apperror.Wrap(err, "PR processing failed", map[string]any{"sha": commit.ShortSHA})
-		}
+	syncErr := FinalizeSnapshotSync(plan.SourceDir, plan.TargetDir, plan.SourceHEAD, opts.CommandName)
+	if syncErr != nil && !opts.NoCommit {
+		fmt.Fprintf(os.Stderr, "%s final snapshot sync notice: %v\n", opts.LogPrefix, syncErr)
 	}
 
 	return res, nil
@@ -230,4 +243,39 @@ func mirrorPrune(target string, wanted map[string]struct{}, opts Options) error 
 
 		return nil
 	})
+}
+
+// FinalizeSnapshotSync ensures target working tree exactly matches source repo snapshot.
+func FinalizeSnapshotSync(sourceDir, targetDir, sourceHeadSha, cmdName string) error {
+	opts := Options{CommandName: cmdName, Mirror: true}
+	if err := snapshotCopy(sourceDir, targetDir, opts); err != nil {
+		return apperror.WrapSimple(err, "finalizeSnapshotSync.copy")
+	}
+
+	return commitFinalSnapshotDiff(targetDir, sourceHeadSha, cmdName)
+}
+
+func commitFinalSnapshotDiff(targetDir, sourceHeadSha, cmdName string) error {
+	if err := addAll(targetDir); err != nil {
+		return apperror.WrapSimple(err, "finalizeSnapshotSync.addAll")
+	}
+	if !hasStagedChanges(targetDir) {
+		LogSnapshotSynced(os.Stdout, "[sync]", targetDir)
+
+		return nil
+	}
+
+	shortSha := sourceHeadSha
+	if len(shortSha) > 7 {
+		shortSha = shortSha[:7]
+	}
+	msg := fmt.Sprintf("chore(sync): synchronize final repository snapshot tree to match source %s\n\ngitmap-replay-final-snapshot: %s\ngitmap-replay-cmd: %s",
+		shortSha, sourceHeadSha, cmdName)
+
+	_, err := gitOut(targetDir, "commit", "-m", msg)
+	if err == nil {
+		LogSnapshotSynced(os.Stdout, "[sync]", targetDir)
+	}
+
+	return err
 }

@@ -420,4 +420,3 @@ gitmap agy check [flags]
 - [prompts-template](prompts-template.md) — Manage prompt prefix and verification templates
 - [pipeline](pipeline.md) — CI/CD pipeline status, logs, and database management
 - [storage](storage.md) — Inspect disk space, pipeline logs, and SQLite database storage
-

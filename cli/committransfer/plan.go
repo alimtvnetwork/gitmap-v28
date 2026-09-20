@@ -18,12 +18,13 @@ func BuildPlan(sourceDir, targetDir string, opts Options) (ReplayPlan, error) {
 		return ReplayPlan{}, err
 	}
 
-	shas, err := revListReverse(sourceDir, base, "HEAD", opts.IncludeMerges)
+	includeMerges := opts.IncludeMerges || isPRModeActive(opts.PRMode)
+	shas, err := revListReverse(sourceDir, base, "HEAD", includeMerges)
 	if err != nil {
 		return ReplayPlan{}, apperror.WrapSimple(err, "rev-list source")
 	}
 
-	mergeExcluded := countMergeExcluded(sourceDir, base, opts.IncludeMerges, len(shas))
+	mergeExcluded := countMergeExcluded(sourceDir, base, includeMerges, len(shas))
 	if opts.Limit > 0 && len(shas) > opts.Limit {
 		shas = shas[:opts.Limit]
 	}
@@ -38,7 +39,7 @@ func BuildPlan(sourceDir, targetDir string, opts Options) (ReplayPlan, error) {
 	plan, err := assemblePlan(sourceDir, targetDir, sourceHead, base, shas, replayedSet, opts)
 	if err == nil {
 		plan.MergeExcluded = mergeExcluded
-		plan.IncludeMerges = opts.IncludeMerges
+		plan.IncludeMerges = includeMerges
 	}
 
 	return plan, err
@@ -134,7 +135,8 @@ func hydrateCommit(
 		return entry, nil
 	}
 
-	cleaned := CleanMessage(subject, body, opts.Message, shortSHA, when)
+	msgPolicy := effectivePolicyForPR(opts.Message, isPRModeActive(opts.PRMode))
+	cleaned := CleanMessage(subject, body, msgPolicy, shortSHA, when)
 	if cleaned.Skipped != "" {
 		entry.SkipCause = cleaned.Skipped
 
@@ -144,6 +146,22 @@ func hydrateCommit(
 	entry.Cleaned = cleaned.Final
 
 	return entry, nil
+}
+
+func effectivePolicyForPR(p MessagePolicy, isPRActive bool) MessagePolicy {
+	if !isPRActive || len(p.DropPatterns) == 0 {
+		return p
+	}
+	filtered := make([]string, 0, len(p.DropPatterns))
+	for _, pat := range p.DropPatterns {
+		if pat == `^Merge branch` || pat == `^Merge pull request` {
+			continue
+		}
+		filtered = append(filtered, pat)
+	}
+	p.DropPatterns = filtered
+
+	return p
 }
 
 // isDropSkip reports whether a SkipCause originated from the drop filter.

@@ -86,12 +86,7 @@ func OpenAutomationDB(repoPath string) result.Result[*sql.DB] {
 func ResolveAutomationDbPath(repoPath string) string {
 	slug := resolveRepoSlug(repoPath)
 	root := resolveTargetRepoRoot(repoPath)
-	dir := filepath.Join(root, ".gitmap", "data", slug, "automation")
-	if !isDirExisting(filepath.Join(root, ".gitmap")) {
-		dir = filepath.Join(store.BinaryDataDir(), "automation", slug)
-	}
-	_ = os.MkdirAll(dir, 0755)
-	return filepath.ToSlash(filepath.Join(dir, "sql.db"))
+	return store.ResolveSplitDbPath(store.SectionAutomation, slug, root)
 }
 
 func resolveTargetRepoRoot(repoPath string) string {

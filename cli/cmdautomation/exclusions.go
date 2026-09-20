@@ -39,12 +39,8 @@ var defaultBinaryExts = map[string]bool{
 // GetAutomationDbPath returns the standardized SQLite path for automation data.
 func GetAutomationDbPath() string {
 	root := findRepoRoot()
-	dir := filepath.Join(root, ".gitmap", "data", "automation")
-	if root == "." || !isDirExisting(filepath.Join(root, ".gitmap")) {
-		dir = filepath.Join(store.BinaryDataDir(), "automation")
-	}
-	_ = os.MkdirAll(dir, 0755)
-	return filepath.ToSlash(filepath.Join(dir, "sql.db"))
+	slug := resolveRepoSlug(root)
+	return store.ResolveSplitDbPath(store.SectionAutomation, slug, root)
 }
 
 func findRepoRoot() string {

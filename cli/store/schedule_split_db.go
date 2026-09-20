@@ -62,10 +62,8 @@ type ScheduleConfig struct {
 
 // ScheduleSlug converts a schedule name to a clean, lowercase filesystem slug.
 func ScheduleSlug(name string) string {
-	lower := strings.ToLower(strings.TrimSpace(name))
-	slug := lazyregex.SlugSanitizeRegex.ReplaceAllString(lower, "-")
-	slug = strings.Trim(slug, "-")
-	if slug == "" {
+	slug := SanitizeSlug(name)
+	if slug == "default" {
 		return "schedule-default"
 	}
 
@@ -74,15 +72,12 @@ func ScheduleSlug(name string) string {
 
 // ScheduleDBDir returns the dedicated schedules subfolder within BinaryDataDir.
 func ScheduleDBDir() string {
-	dir := filepath.Join(BinaryDataDir(), "schedules")
-	_ = os.MkdirAll(dir, 0755)
-
-	return dir
+	return ResolveSplitDbDir(SectionSchedule, "default", "")
 }
 
 // ScheduleDBPath returns the full path to a schedule's isolated split SQLite DB.
 func ScheduleDBPath(slug string) string {
-	return filepath.Join(ScheduleDBDir(), slug+".db")
+	return ResolveSplitDbPath(SectionSchedule, slug, "")
 }
 
 // OpenScheduleSplitDB opens or creates the isolated SQLite DB for a schedule.
@@ -268,19 +263,25 @@ func DeleteScheduleSplitDB(slug string) error {
 
 // MigrateAllScheduleSplitDBs iterates through all split databases and migrates schema.
 func MigrateAllScheduleSplitDBs() error {
-	dir := ScheduleDBDir()
-	entries, err := os.ReadDir(dir)
+	baseDir := filepath.Dir(ScheduleDBDir())
+	entries, err := os.ReadDir(baseDir)
 	if err != nil {
 		return nil
 	}
 
+	migrateScheduleEntries(entries)
+
+	return nil
+}
+
+func migrateScheduleEntries(entries []os.DirEntry) {
 	for _, e := range entries {
-		if strings.HasSuffix(e.Name(), ".db") {
+		if e.IsDir() {
+			migrateSingleSplitDB(e.Name())
+		} else if strings.HasSuffix(e.Name(), ".db") {
 			migrateSingleSplitDB(strings.TrimSuffix(e.Name(), ".db"))
 		}
 	}
-
-	return nil
 }
 
 func migrateSingleSplitDB(slug string) {

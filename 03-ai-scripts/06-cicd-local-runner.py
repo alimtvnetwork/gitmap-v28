@@ -276,12 +276,36 @@ def clean_coverage_artifacts() -> None:
                 pass
 
 
+def clear_repo_go_cache() -> None:
+    """Purges Go build and test cache from repo-scoped temp and system to prevent disk accumulation."""
+    gocache_dir = Path(tempfile.gettempdir()) / "gitmap" / "gocache"
+    robust_rmtree(gocache_dir)
+    gocache_dir.mkdir(parents=True, exist_ok=True)
+    try:
+        subprocess.run(
+            ["go", "clean", "-cache", "-testcache"],
+            cwd=str(REPO_ROOT / "cli"),
+            capture_output=True,
+            timeout=30,
+            check=False,
+        )
+    except Exception:
+        pass
+
+
+def clear_worker_go_cache(worker_cache_dir: Path | str) -> None:
+    """Purges an isolated worker's Go build cache immediately after package test execution."""
+    robust_rmtree(worker_cache_dir)
+
+
 REPO_OS_TEMP = get_repo_os_temp_dir()
 REPO_BUILD_TEMP = get_repo_os_temp_dir("build")
 REPO_TEST_TEMP = get_repo_os_temp_dir("test")
+REPO_GOCACHE_TEMP = get_repo_os_temp_dir("gocache")
 
 os.environ["GOTMPDIR"] = str(REPO_BUILD_TEMP)
 os.environ["TMPDIR"] = str(REPO_TEST_TEMP)
+os.environ["GOCACHE"] = str(REPO_GOCACHE_TEMP)
 if os.name != "nt":
     os.environ["TEMP"] = str(REPO_TEST_TEMP)
     os.environ["TMP"] = str(REPO_TEST_TEMP)
@@ -1085,6 +1109,11 @@ def run_package_tests_worker(
     test_env["TEMP"] = str(REPO_TEST_TEMP)
     test_env["TMP"] = str(REPO_TEST_TEMP)
 
+    clean_pkg = re.sub(r"[^a-zA-Z0-9_]", "_", pkg)
+    worker_gocache = REPO_GOCACHE_TEMP / f"worker_{clean_pkg}_{os.getpid()}_{threading.get_ident()}"
+    worker_gocache.mkdir(parents=True, exist_ok=True)
+    test_env["GOCACHE"] = str(worker_gocache)
+
     try:
         proc = subprocess.run(
             cmd, cwd=cwd, capture_output=True, text=True,
@@ -1103,6 +1132,8 @@ def run_package_tests_worker(
             fail_log = FAILURES_DIR / f"{clean_tid}.log"
             fail_log.write_text(f"Execution error: {exc}", encoding="utf-8")
         return 0, len(pkg_tests), str(exc), {}
+    finally:
+        clear_worker_go_cache(worker_gocache)
 
     test_results: dict[str, dict[str, Any]] = {}
     test_output_map: dict[str, list[str]] = {}
@@ -1214,6 +1245,7 @@ def run_smart_go_tests(
     """Executes changed Go tests with unified priority worker pool."""
     start_time = time.monotonic()
     clear_repo_test_temp()
+    clear_repo_go_cache()
     clear_stale_failures_log()
     inventory = build_or_update_test_inventory(repo_root, force=force)
     all_tests = inventory.get("tests", {})
@@ -1375,6 +1407,7 @@ def run_smart_go_tests(
     atomic_write_json(TEST_INVENTORY_CACHE_PATH, inventory)
 
     clear_repo_test_temp()
+    clear_repo_go_cache()
     if failed_count > 0:
         err_text = "\n".join(error_outputs)
         return JobResult(
@@ -1450,6 +1483,7 @@ def execute_subprocess(
     sub_env["TMPDIR"] = str(REPO_TEST_TEMP)
     sub_env["TEMP"] = str(REPO_TEST_TEMP)
     sub_env["TMP"] = str(REPO_TEST_TEMP)
+    sub_env["GOCACHE"] = str(REPO_GOCACHE_TEMP)
     res = subprocess.run(
         resolved, capture_output=True, text=True, encoding=DEFAULT_ENCODING,
         errors="replace", timeout=timeout_sec, env=sub_env, cwd=cwd,
@@ -1476,6 +1510,7 @@ def run_job(
     """Executes a single gate subprocess and records duration, return code, and streams."""
     if name == "Go Compile Gate":
         clear_repo_build_temp()
+        clear_repo_go_cache()
         bin_exe = REPO_ROOT / "bin" / "gitmap.exe"
         if bin_exe.exists():
             try:
@@ -1484,6 +1519,7 @@ def run_job(
                 pass
     elif name in ("Web App Build", "GoReleaser Snapshot Build"):
         clear_repo_build_temp()
+        clear_repo_go_cache()
         for dist_dir in (REPO_ROOT / "dist", REPO_ROOT / "cli" / "dist"):
             robust_rmtree(dist_dir)
         if name == "Web App Build" and not (REPO_ROOT / "node_modules").is_dir():
@@ -1505,6 +1541,9 @@ def run_job(
         return build_timeout_result(name, cmd, exc, round(time.monotonic() - start, 2), cwd, env)
     except Exception as exc:
         return build_error_result(name, cmd, exc, round(time.monotonic() - start, 2), cwd, env)
+    finally:
+        if name in ("Go Compile Gate", "GoReleaser Snapshot Build", "Go Test Race (Hot Packages)", "Go Test Coverage Profile"):
+            clear_repo_go_cache()
 
 
 def extract_stack_or_error(res: JobResult) -> str:
@@ -2030,6 +2069,7 @@ def add_reporting_arguments(parser: argparse.ArgumentParser) -> None:
 def add_caching_and_resume_arguments(parser: argparse.ArgumentParser) -> None:
     """Adds incremental caching and crash resumption arguments."""
     parser.add_argument("--force", "--fresh", "--clean", "--no-cache", dest="force_run", action="store_true", help="Run all.")
+    parser.add_argument("--clean-cache", "--clean-gocache", dest="clean_cache", action="store_true", help="Explicitly purge Go build and test caches before and after execution.")
     parser.add_argument("--resume", dest="resume_mode", action="store_true", help="Resume interrupted session.")
     parser.add_argument("--changed-only", "-c", "--recent", dest="changed_only", action="store_true", help="Scope linters to files changed in recent commits.")
     parser.add_argument("--commits", "-n", dest="commits", type=int, default=20, help="Commit window for changed files (default: 20).")
@@ -2523,6 +2563,7 @@ def prepare_runner_context(args: argparse.Namespace, root: Path, total_jobs: int
     """Prepares directories, git delta, and initial state machine."""
     clear_repo_build_temp()
     clear_repo_test_temp()
+    clear_repo_go_cache()
     clear_stale_failures_log()
     clean_stale_temp_artifacts()
     prune_old_cicd_runs(keep_count=5)
@@ -2781,6 +2822,7 @@ def run_pipeline_with_eta(args: argparse.Namespace, batches: list, root: Path, t
         timings.update(GLOBAL_TIMINGS)
         save_cicd_timings(TIMING_FILE_PATH, timings)
         clear_repo_test_temp()
+        clear_repo_go_cache()
         clean_stale_temp_artifacts()
         clean_coverage_artifacts()
         prune_old_cicd_runs(keep_count=5)

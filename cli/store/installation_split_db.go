@@ -117,7 +117,7 @@ type InstallationSplitDB struct {
 
 // InstallationDBPath returns the full path to the split installation database.
 func InstallationDBPath() string {
-	return filepath.Join(BinaryDataDir(), installationDBFileName)
+	return ResolveSplitDbPath(SectionInstallation, "default", "")
 }
 
 // OpenInstallationSplitDB opens the canonical split database for tool installations.

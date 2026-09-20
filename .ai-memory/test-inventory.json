@@ -1,11 +1,11 @@
 {
   "version": 1,
-  "updated_at": "2026-09-20T10:56:50Z",
+  "updated_at": "2026-09-20T11:18:10Z",
   "total_tests": 3773,
   "summary": {
     "total": 3773,
-    "cached": 3296,
-    "dirty": 477,
+    "cached": 3289,
+    "dirty": 484,
     "packages": 144,
     "slow_tests": 84,
     "fast_tests": 3689,
@@ -6384,7 +6384,7 @@
       "is_slow": false,
       "last_status": "passed",
       "last_run_at": "2026-09-19T15:57:07",
-      "needs_run": false
+      "needs_run": true
     },
     "cli/cmd.TestIsRepoIssue_Conditions": {
       "id": "cli/cmd.TestIsRepoIssue_Conditions",
@@ -6400,7 +6400,7 @@
       "is_slow": false,
       "last_status": "passed",
       "last_run_at": "2026-09-19T15:57:07",
-      "needs_run": false
+      "needs_run": true
     },
     "cli/cmd.TestBuildIssueSummary_Formatting": {
       "id": "cli/cmd.TestBuildIssueSummary_Formatting",
@@ -6416,7 +6416,7 @@
       "is_slow": false,
       "last_status": "passed",
       "last_run_at": "2026-09-19T15:57:07",
-      "needs_run": false
+      "needs_run": true
     },
     "cli/cmd.TestParseStatusFlags_NoFlags": {
       "id": "cli/cmd.TestParseStatusFlags_NoFlags",
@@ -32192,7 +32192,7 @@
       "is_slow": false,
       "last_status": "passed",
       "last_run_at": "2026-09-20T09:12:42",
-      "needs_run": false
+      "needs_run": true
     },
     "cli/constants.TestNoUnmarkedTopLevelCmdBlocks": {
       "id": "cli/constants.TestNoUnmarkedTopLevelCmdBlocks",
@@ -32208,7 +32208,7 @@
       "is_slow": false,
       "last_status": "passed",
       "last_run_at": "2026-09-20T09:12:42",
-      "needs_run": false
+      "needs_run": true
     },
     "cli/constants.TestTopLevelCmdConstantsAreUnique": {
       "id": "cli/constants.TestTopLevelCmdConstantsAreUnique",
@@ -32224,7 +32224,7 @@
       "is_slow": false,
       "last_status": "passed",
       "last_run_at": "2026-09-20T09:12:42",
-      "needs_run": false
+      "needs_run": true
     },
     "cli/constants.TestTopLevelCmdAliasesAreUnique": {
       "id": "cli/constants.TestTopLevelCmdAliasesAreUnique",
@@ -32240,7 +32240,7 @@
       "is_slow": false,
       "last_status": "passed",
       "last_run_at": "2026-09-20T09:12:42",
-      "needs_run": false
+      "needs_run": true
     },
     "cli/constants.TestCanonicalCSVColumn": {
       "id": "cli/constants.TestCanonicalCSVColumn",

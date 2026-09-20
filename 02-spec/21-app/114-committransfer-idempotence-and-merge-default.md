@@ -3,6 +3,7 @@
 Status: PUBLISHED (Gap A resolved v5.78.0/v5.83.0; Gap B flag v5.62.0, default flip v6.0.0)
 Version target: v5.62.0 – v6.0.0
 Owners: committransfer package
+Related: [Spec 129](129-pr-commit-engines-and-sqlite-split-db.md) (PR Commit Engines, SQLite Split-DB & Final Snapshot Sync)
 
 ## Problem
 

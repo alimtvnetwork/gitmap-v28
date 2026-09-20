@@ -41,7 +41,7 @@ type SitesSplitDB struct {
 
 // SitesDBPath returns the full path to the split sites database.
 func SitesDBPath() string {
-	return filepath.Join(BinaryDataDir(), sitesDBFileName)
+	return ResolveSplitDbPath(SectionSites, "default", "")
 }
 
 // OpenSitesSplitDB opens the canonical split database for Nginx virtual host sites.

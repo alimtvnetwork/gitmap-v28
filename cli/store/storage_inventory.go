@@ -20,32 +20,42 @@ func CollectAllDatabaseEntries() []SplitDatabaseEntry {
 		}
 	}
 
-	collectCoreDatabases(dataDir, addEntry)
-	collectSubdirDatabases(dataDir, "schedules", "schedule", addEntry)
-	collectSubdirDatabases(dataDir, "pipeline", "pipeline", addEntry)
-	collectSubdirDatabases(dataDir, "pipeline_db", "pipeline", addEntry)
-	collectSubdirDatabases(dataDir, "repo_search", "repo", addEntry)
-	collectSubdirDatabases(dataDir, "repodb", "repodb", addEntry)
-	collectParentSubdirDatabases(dataDir, "pipeline", "pipeline", addEntry)
-	collectParentSubdirDatabases(dataDir, "repodb", "repodb", addEntry)
-	collectUserHomeDatabases(addEntry)
-	collectLocalRepoDatabases(addEntry)
-	collectLooseDatabases(dataDir, addEntry)
+	collectAllDataSources(dataDir, addEntry)
 
 	return list
+}
+
+func collectAllDataSources(dataDir string, add func(SplitDatabaseEntry)) {
+	collectCoreDatabases(dataDir, add)
+	collectDataSubdirs(dataDir, add)
+	collectParentSubdirDatabases(dataDir, "pipeline", "pipeline", add)
+	collectParentSubdirDatabases(dataDir, "repodb", "repodb", add)
+	collectUserHomeDatabases(add)
+	collectLocalRepoDatabases(add)
+	collectLooseDatabases(dataDir, add)
+}
+
+func collectDataSubdirs(dataDir string, add func(SplitDatabaseEntry)) {
+	collectSubdirDatabases(dataDir, "schedule", "schedule", add)
+	collectSubdirDatabases(dataDir, "schedules", "schedule", add)
+	collectSubdirDatabases(dataDir, "pipeline", "pipeline", add)
+	collectSubdirDatabases(dataDir, "automation", "automation", add)
+	collectSubdirDatabases(dataDir, "pipeline_db", "pipeline", add)
+	collectSubdirDatabases(dataDir, "repo_search", "repo", add)
+	collectSubdirDatabases(dataDir, "repodb", "repodb", add)
 }
 
 func collectCoreDatabases(dataDir string, add func(SplitDatabaseEntry)) {
 	rootPath := DefaultDBPath()
 	add(inspectSplitDBFile("master", "root", rootPath, "Primary Gitmap repository tracking database"))
 
-	instPath := filepath.Join(dataDir, "installation.db")
+	instPath := ResolveSplitDbPath(SectionInstallation, "default", "")
 	add(inspectSplitDBFile("split", "installation", instPath, "Tool installer registry database"))
 
-	startupPath := filepath.Join(dataDir, "startup.db")
+	startupPath := ResolveSplitDbPath(SectionStartup, "default", "")
 	add(inspectSplitDBFile("split", "startup", startupPath, "Startup manager and execution log database"))
 
-	sitesPath := filepath.Join(dataDir, "sites.db")
+	sitesPath := ResolveSplitDbPath(SectionSites, "default", "")
 	if _, err := os.Stat(sitesPath); err == nil {
 		add(inspectSplitDBFile("split", "sites", sitesPath, "Sites & vhosts configuration database"))
 	}
@@ -59,12 +69,31 @@ func collectSubdirDatabases(baseDir, subName, dbType string, add func(SplitDatab
 	}
 
 	for _, e := range entries {
-		if e.IsDir() || !strings.HasSuffix(e.Name(), ".db") {
-			continue
-		}
+		processSubdirEntry(dir, subName, dbType, e, add)
+	}
+}
 
-		slug := strings.TrimSuffix(e.Name(), ".db")
-		path := filepath.Join(dir, e.Name())
+func processSubdirEntry(dir, subName, dbType string, e os.DirEntry, add func(SplitDatabaseEntry)) {
+	if e.IsDir() {
+		processSubdirDirEntry(dir, subName, dbType, e.Name(), add)
+		return
+	}
+
+	processSubdirFileEntry(dir, subName, dbType, e.Name(), add)
+}
+
+func processSubdirDirEntry(dir, subName, dbType, name string, add func(SplitDatabaseEntry)) {
+	sqlPath := filepath.Join(dir, name, DbFileName)
+	if isFileExisting(sqlPath) {
+		desc := "Isolated child split database (" + subName + ")"
+		add(inspectSplitDBFile(dbType, name, sqlPath, desc))
+	}
+}
+
+func processSubdirFileEntry(dir, subName, dbType, name string, add func(SplitDatabaseEntry)) {
+	if strings.HasSuffix(name, ".db") {
+		slug := strings.TrimSuffix(name, ".db")
+		path := filepath.Join(dir, name)
 		desc := "Isolated child split database (" + subName + ")"
 		add(inspectSplitDBFile(dbType, slug, path, desc))
 	}
@@ -95,6 +124,9 @@ func collectLocalRepoDatabases(add func(SplitDatabaseEntry)) {
 	collectSubdirDatabases(".", "repodb", "repodb", add)
 	collectSubdirDatabases(".gitmap", "repodb", "repodb", add)
 	collectSubdirDatabases(".gitmap", "pipeline", "pipeline", add)
+	collectSubdirDatabases(".gitmap/data", "pipeline", "pipeline", add)
+	collectSubdirDatabases(".gitmap/data", "automation", "automation", add)
+	collectSubdirDatabases(".gitmap/data", "schedule", "schedule", add)
 }
 
 func collectParentSubdirDatabases(baseDir, subName, dbType string, add func(SplitDatabaseEntry)) {
@@ -115,4 +147,6 @@ func collectUserHomeDatabases(add func(SplitDatabaseEntry)) {
 	gitmapDir := filepath.Join(home, ".gitmap")
 	collectSubdirDatabases(gitmapDir, "pipeline", "pipeline", add)
 	collectSubdirDatabases(gitmapDir, "repodb", "repodb", add)
+	collectSubdirDatabases(filepath.Join(gitmapDir, "data"), "pipeline", "pipeline", add)
+	collectSubdirDatabases(filepath.Join(gitmapDir, "data"), "automation", "automation", add)
 }

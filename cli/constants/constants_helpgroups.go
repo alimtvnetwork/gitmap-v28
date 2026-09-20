@@ -20,6 +20,7 @@ const (
 	HelpGroupUtilities    = "  Utilities:"
 	HelpGroupVisualize    = "  Visualization:"
 	HelpGroupCommitXfer   = "  Commit Transfer (replay between repos):"
+	HelpGroupPR           = "  Pull Request & Merge Automation (PR):"
 	HelpGroupChromeProf   = "  Chrome Profiles:"
 	HelpGroupTemplates    = "  Templates & Scaffolding (.gitignore / .gitattributes / LFS):"
 	HelpGroupCluster      = "  Cluster & Delegation (multi-machine networks):"
@@ -75,7 +76,7 @@ const (
 	CompactCloning      = "  clone (c), clone-next (cn), desktop-sync (ds), github-desktop (gd)"
 	CompactGitOps       = "  pull (p), exec (x), status (st), watch (w), has-any-updates, latest-branch (lb)"
 	CompactNavigation   = "  cd (go), group (g), multi-group (mg), alias (a), diff-profiles (dp)"
-	CompactRelease      = "  release (r), pull-release (pr), release-self (rs), release-branch (rb), temp-release"
+	CompactRelease      = "  release (r), pull-release (relp), release-self (rs), release-branch (rb), temp-release"
 	CompactRelInfo      = "  changelog (cl), changelog-generate, list-versions (lv), list-releases (lr), release-pending (rp), revert, clear-release-json (crj), prune"
 	CompactData         = "  export (ex), import (im), profile (pf), bookmark (bk), mv (move), rm (remove/del), db-reset"
 	CompactImportExport = "  import-export (ie), export, import, export-config, import-config"
@@ -88,6 +89,7 @@ const (
 	CompactTasks        = "  task, macro, async (asyn)"
 	CompactVisualize    = "  dashboard (db)"
 	CompactCommitXfer   = "  commit-right (cmr) — LIVE,  commit-left (cml), commit-both (cmb) — scaffolds"
+	CompactPR           = "  pr (pull-request), pr-clean (pr-rm), pr-list"
 	CompactCluster      = "  servers-clients (sc), clients, cluster, ssh-join (sj)"
 	CompactUtilities    = "  setup, doctor, update, update-cleanup, version (v), completion (cmp), interactive (i), docs (d), help-dashboard (hd), gomod (gm), seo-write (sw), fix-repo (fr), make-public, make-private, clone-fix-repo (cfr), clone-fix-repo-pub (cfrp), help"
 	CompactIntegrations = "  vscode (vsc), antigravity (agy/ag), schedule (sc/cron), startup (su), storage (stor), pipeline (pl/eta), ui, vmware (vm)"
@@ -124,6 +126,7 @@ var HelpGroupKeys = []string{
 	"tasks",
 	"visualization",
 	"commit-transfer",
+	"pr",
 	"cluster",
 	"utilities",
 	"integrations",
