@@ -354,7 +354,7 @@ const (
 	// reads as "pull then release"). Short aliases are `relp` and `rlp`.
 	// Collision on `pr` eliminated in Spec 129 in favor of the PR replay engine.
 	CmdReleasePull       = "pull-release"
-	CmdReleasePullAlias  = "pr"
+	CmdReleasePullAlias  = "pr" // gitmap:cmd skip
 	CmdReleasePullAlias2 = "release-pull" // legacy long form
 	CmdReleasePullAlias3 = "relp"         // legacy alias
 	CmdReleasePullAlias4 = "rlp"          // legacy alias

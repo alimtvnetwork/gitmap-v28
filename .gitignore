@@ -49,6 +49,7 @@ reports/runner-guard-report.md
 .gitmap/memory/
 .gitmap/output/
 .gitmap/release/
+.gitmap/data/
 .cache/diagrams-hashes.json
 
 # Repo-size diet (v5.49.0): historical release bundles + gitmap backup snapshots
