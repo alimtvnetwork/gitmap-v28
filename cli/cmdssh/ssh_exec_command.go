@@ -121,6 +121,8 @@ func isGitmapUtilityCommand(cmd string) bool {
 		return true
 	case "ai", "cargo", "aum", "automation", "fix-auth", "fixauth", "ssh-bind", "help", "docs":
 		return true
+	case "export-all", "exportall", "import-all", "importall":
+		return true
 	default:
 		return false
 	}

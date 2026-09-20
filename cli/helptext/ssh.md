@@ -33,6 +33,8 @@ Manages SSH key pairs for Git authentication.
 | untrust    |       | Untrust and remove a machine from known_hosts and DB |
 | fix-auth   |       | Deploy SSH public key to remote authorized_keys (Unix/Windows) |
 | macro      | m     | Synchronize, export, or import macros across SSH machines |
+| export-all |       | Export all settings, macros, config & SSH data from local to nodes |
+| import-all |       | Import all settings, macros, config & SSH data from a remote node |
 
 ## Flags (generate)
 
@@ -299,6 +301,35 @@ Deploy your local public SSH key to remote `authorized_keys` for single or multi
 
     $ gitmap ssh fix-auth machineid, ip, id
     $ gitmap ssh fix-auth devbox --unix
+
+### Export All Settings to Nodes (`export-all`)
+
+Export all settings, macros, configuration, SSH connections, and known hosts from the current machine to all online nodes (or targeted nodes):
+
+    # Export everything to all online nodes:
+    $ gitmap ssh export-all nodes
+    $ gitmap ssh export-all all
+
+    # Export to specific nodes with overwrite:
+    $ gitmap ssh export-all devbox,worker-1 --force
+
+    # Simulate export without making changes:
+    $ gitmap ssh export-all --dry-run
+
+### Import All Settings from a Node (`import-all`)
+
+Import all settings, macros, configuration, SSH connections, and known hosts from a specified remote node to the current machine:
+
+    # Import by node name, IP, or alias:
+    $ gitmap ssh import-all node "devbox"
+    $ gitmap ssh import-all node "192.168.1.5"
+    $ gitmap ssh import-all "main"
+
+    # Import with overwrite:
+    $ gitmap ssh import-all node "devbox" --force
+
+    # Simulate import without modifying local files:
+    $ gitmap ssh import-all node "devbox" --dry-run
 
 ## See Also
 

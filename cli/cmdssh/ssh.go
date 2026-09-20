@@ -120,6 +120,17 @@ func dispatchMacroSSH(sub string, args []string) result.ErrorWrapper {
 	}
 }
 
+func dispatchExportImportSSH(sub string, args []string) result.ErrorWrapper {
+	switch sub {
+	case "export-all", "exportall":
+		return result.MatchWrapper(RunSSHExportAllCLI(args))
+	case "import-all", "importall":
+		return result.MatchWrapper(RunSSHImportAllCLI(args))
+	default:
+		return result.UnmatchedWrapper()
+	}
+}
+
 func dispatchPrimarySSH(ctx context.Context, sub string, args []string, parent *cobra.Command) result.ErrorWrapper {
 	if resCore := dispatchCoreSSH(ctx, sub, args, parent); resCore.IsMatched() {
 		return resCore
@@ -132,6 +143,9 @@ func dispatchPrimarySSH(ctx context.Context, sub string, args []string, parent *
 	}
 	if resMacro := dispatchMacroSSH(sub, args); resMacro.IsMatched() {
 		return resMacro
+	}
+	if resSync := dispatchExportImportSSH(sub, args); resSync.IsMatched() {
+		return resSync
 	}
 	return dispatchFilesSSH(sub, args)
 }
