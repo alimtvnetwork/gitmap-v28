@@ -309,6 +309,19 @@ func NewWithDetails(op, code, msg, creator string, errType ErrorType, sev Severi
 	}
 }
 
+// NewNotFound creates an AppError specialized for missing items with op, code, and message.
+func NewNotFound(op, code, msg string) *AppError {
+	return &AppError{
+		Op:       op,
+		Code:     code,
+		Type:     ErrorTypeNotFound,
+		Severity: SeverityError,
+		Message:  msg,
+		Caller:   captureCaller(DefaultCallerSkip),
+		Stack:    "",
+	}
+}
+
 // NewNotFoundError creates an AppError specialized for missing items or lookup misses.
 func NewNotFoundError(msg string) *AppError {
 	return &AppError{

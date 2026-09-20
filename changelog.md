@@ -2432,6 +2432,12 @@ PowerShell: `Invoke-WebRequest -Uri https://raw.githubusercontent.com/alimtvnetw
 
 # Changelog
 
+## [v6.277.0] - 2026-09-20
+
+### Added
+- feat(locate): fix undefined apperror.NewNotFound in locate engine and add unit test
+
+
 ## [v6.276.0] - 2026-09-20
 
 ### Added

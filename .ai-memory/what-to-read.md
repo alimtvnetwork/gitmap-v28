@@ -5,6 +5,7 @@
 
 ## Changelog
 
+- 2026-09-20T12:26:00Z, Memory write: RCA 64 defined apperror.NewNotFound(op, code, msg) constructor with op, code, and message, and added unit test.
 - 2026-09-20T12:20:00Z, Memory write: Plan 46 Pipeline-AI live error streaming, early remediation command switching, AUM search extension-first optimization, vcvarsall fast tool locator (gitmap aum locate), and MD ALIM UL KARIM author attribution.
 - 2026-09-20T11:55:00Z, Memory write: Plan 45 Composite Test Heatmap Engine, unified .ai-memory/cicd/cache/ architecture, repo_delta fast-path short-circuit, and fsync lock contention elimination.
 - 2026-09-19T09:30:00Z, Memory write: Consolidated 142 completed plans and 72 subtasks down to 27 dense milestones (87.8% file count reduction) under backup branch backup/plans-consolidation-20260919-093052.

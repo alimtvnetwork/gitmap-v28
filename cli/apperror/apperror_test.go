@@ -132,3 +132,24 @@ func TestAppError_NewNotFoundError(t *testing.T) {
 		t.Errorf("expected empty stack trace for not found, got %s", err.Stack)
 	}
 }
+
+func TestAppError_NewNotFound(t *testing.T) {
+	err := NewNotFound("tool_locate", "E_TOOL_NOT_FOUND", "vcvarsall.bat")
+
+	if err.Type != ErrorTypeNotFound {
+		t.Errorf("expected ErrorTypeNotFound, got %s", err.Type)
+	}
+	if err.Op != "tool_locate" {
+		t.Errorf("expected op 'tool_locate', got %s", err.Op)
+	}
+	if err.Code != "E_TOOL_NOT_FOUND" {
+		t.Errorf("expected code E_TOOL_NOT_FOUND, got %s", err.Code)
+	}
+	if err.Message != "vcvarsall.bat" {
+		t.Errorf("expected message 'vcvarsall.bat', got %s", err.Message)
+	}
+	if err.Stack != "" {
+		t.Errorf("expected empty stack for not found error, got %s", err.Stack)
+	}
+}
+

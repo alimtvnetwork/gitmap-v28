@@ -1,3 +1,9 @@
+## v6.277.0 — 2026-09-20 (feat(locate): fix undefined apperror.NewNotFound in locate engine and add unit test)
+
+**Scope:** Version bump. feat(locate): fix undefined apperror.NewNotFound in locate engine and add unit test.
+
+---
+
 ## v6.276.0 — 2026-09-20 (feat(locate): top-level locate and vcvars tool discovery engine)
 
 **Scope:** Version bump. feat(locate): top-level locate and vcvars tool discovery engine.
