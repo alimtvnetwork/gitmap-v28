@@ -38,13 +38,22 @@ func RunSSHPassCLI(args []string) error {
 	return dispatchPassTarget(sub, args)
 }
 
+func resolvePassTarget(sub string, args []string) (string, error) {
+	isShowAction := sub == "show" || sub == "view" || sub == "get"
+	if isShowAction == false {
+		return args[0], nil
+	}
+	if len(args) < 2 {
+		return "", apperror.NewValidationError("missing node alias or IP. Usage: gitmap ssh pass show <alias|ip>")
+	}
+
+	return args[1], nil
+}
+
 func dispatchPassTarget(sub string, args []string) error {
-	target := args[0]
-	if sub == "show" || sub == "view" || sub == "get" {
-		if len(args) < 2 {
-			return apperror.NewValidationError("missing node alias or IP. Usage: gitmap ssh pass show <alias|ip>")
-		}
-		target = args[1]
+	target, err := resolvePassTarget(sub, args)
+	if err != nil {
+		return err
 	}
 
 	return runPassShow(target)
@@ -71,8 +80,8 @@ func runPassShow(target string) error {
 		return err
 	}
 
-	hasNoPass := encPass == ""
-	if hasNoPass {
+	hasPass := encPass != ""
+	if hasPass == false {
 		fmt.Printf("No saved password for node: %s\n", target)
 
 		return nil
@@ -98,7 +107,7 @@ func renderPasswordDetails(target, hostDesc, plain string) {
 }
 
 func resolveNodeEncryptedPassword(target string) (string, string, error) {
-	dbConn, err := store.OpenDefault()
+	dbConn, err := openSSHDBFunc()
 	if err != nil {
 		return "", "", apperror.WrapSimple(err, "open db")
 	}
@@ -119,21 +128,21 @@ func resolveNodeEncryptedPassword(target string) (string, string, error) {
 }
 
 func resolveFallbackConnPassword(ctx context.Context, sqlDB *sql.DB, target string) (string, string, error) {
-	connRes := db.GetSSHConnectionByAlias(ctx, sqlDB, target)
-	if connRes.IsSuccess() {
-		return connRes.Data.EncryptedPassword, fmt.Sprintf("%s@%s", connRes.Data.Username, connRes.Data.IPAddress), nil
+	conn, connErr := db.GetSSHConnectionByAlias(ctx, sqlDB, target)
+	if connErr == nil && conn != nil {
+		return conn.EncryptedPassword, fmt.Sprintf("%s@%s", conn.Username, conn.IPAddress), nil
 	}
 
-	connIPRes := db.GetSSHConnectionByIP(ctx, sqlDB, target)
-	if connIPRes.IsSuccess() {
-		return connIPRes.Data.EncryptedPassword, fmt.Sprintf("%s@%s", connIPRes.Data.Username, connIPRes.Data.IPAddress), nil
+	connIP, ipErr := db.GetSSHConnectionByIP(ctx, sqlDB, target)
+	if ipErr == nil && connIP != nil {
+		return connIP.EncryptedPassword, fmt.Sprintf("%s@%s", connIP.Username, connIP.IPAddress), nil
 	}
 
 	return "", "", apperror.NewNotFoundError("node not found: " + target)
 }
 
 func runPassList() error {
-	dbConn, err := store.OpenDefault()
+	dbConn, err := openSSHDBFunc()
 	if err != nil {
 		return apperror.WrapSimple(err, "open db")
 	}

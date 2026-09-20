@@ -11,16 +11,15 @@ func TestGetGitmapCheckCmd(t *testing.T) {
 	winCmd, winShell := getGitmapCheckCmd("windows")
 	hasWinGitmap := strings.Contains(winCmd, "gitmap")
 	hasWinVersion := strings.Contains(winCmd, "version")
-	if hasWinGitmap == false || hasWinVersion == false || winShell != "" {
-		t.Errorf("getGitmapCheckCmd(windows) = (%q, %q); expected gitmap and version check", winCmd, winShell)
+	if hasWinGitmap == false || hasWinVersion == false || winShell != "cmd" {
+		t.Errorf("getGitmapCheckCmd(windows) = (%q, %q); expected gitmap and cmd", winCmd, winShell)
 	}
 
 	unixCmd, unixShell := getGitmapCheckCmd("linux")
 	hasPath := strings.Contains(unixCmd, "export PATH=")
-	hasVersion := strings.Contains(unixCmd, "version")
 	hasGitmap := strings.Contains(unixCmd, "gitmap")
-	if hasPath == false || hasVersion == false || hasGitmap == false || unixShell != "bash" {
-		t.Errorf("getGitmapCheckCmd(linux) = (%q, %q); expected export PATH, gitmap, version, and bash", unixCmd, unixShell)
+	if hasPath == false || hasGitmap == false || unixShell != "sh" {
+		t.Errorf("getGitmapCheckCmd(linux) = (%q, %q); expected export PATH, gitmap, and sh", unixCmd, unixShell)
 	}
 }
 

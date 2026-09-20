@@ -402,12 +402,12 @@ gitmap agy check [flags]
 
 ```text
 ● Antigravity IDE Ping & Health Report
-  IDE Executable: FOUND (C:\Users\Administrator\AppData\Local\Programs\antigravity\Antigravity.exe)
-  IDE Process:    RUNNING (PID: 14280, antigravity.exe)
+  IDE Executable: FOUND (~/.local/bin/antigravity)
+  IDE Process:    RUNNING (PID: 14280, antigravity)
   Filesystem:     ACCESSIBLE
-    • Brain Logs: C:\Users\Administrator\.gemini\antigravity\brain
-    • Projects:   C:\Users\Administrator\.gemini\config\projects
-  Workspace:      D:\work\gitmap
+    • Brain Logs: ~/.gemini/antigravity/brain
+    • Projects:   ~/.gemini/config/projects
+  Workspace:      .
     • Status:     IDLE (ID: 6c46400d-e873-4539-9d52-a96fee2786b6, 42 steps)
   Prompt Queue:   1 active, 0 queued
   Overall Health: HEALTHY

@@ -67,8 +67,8 @@ func cleanPromptText(raw string) string {
 
 func stripTagBlock(text, openTag, closeTag string) string {
 	start := strings.Index(text, openTag)
-	hasNoTag := start == -1
-	if hasNoTag {
+	hasTag := start >= 0
+	if hasTag == false {
 		return text
 	}
 

@@ -605,5 +605,31 @@ func ListHostsByTarget(ctx context.Context, target string, db *sql.DB) ([]SSHHos
 func LogSSHHistory(ctx context.Context, h SSHHistory, db *sql.DB) error {
 	ctx = safeContext(ctx)
 	_ = EnsureSSHTables(db)
+
 	return LogSSHJoin(ctx, h, db)
+}
+
+// GetSSHHostByAlias retrieves an SSHHost pointer by alias.
+func GetSSHHostByAlias(ctx context.Context, alias string, db *sql.DB) (*SSHHost, error) {
+	host, err := GetHostByAlias(ctx, alias, db)
+	if err != nil {
+		return nil, err
+	}
+
+	return &host, nil
+}
+
+// GetSSHHostByIP retrieves an SSHHost pointer by IP address.
+func GetSSHHostByIP(ctx context.Context, ip string, db *sql.DB) (*SSHHost, error) {
+	host, err := GetHostByIP(ctx, ip, db)
+	if err != nil {
+		return nil, err
+	}
+
+	return &host, nil
+}
+
+// ListSSHHosts retrieves all SSH hosts from the database.
+func ListSSHHosts(ctx context.Context, db *sql.DB) ([]SSHHost, error) {
+	return ListHosts(ctx, db)
 }

@@ -36,9 +36,9 @@ const (
 			OSVersion = CASE WHEN excluded.OSVersion != '' THEN excluded.OSVersion ELSE SSHConnection.OSVersion END,
 			FirstRunAt = COALESCE(SSHConnection.FirstRunAt, excluded.FirstRunAt)
 	`
-	sqlSelectSSHConnections        = `SELECT Alias, IPAddress, Username, EncryptedPassword, KeyPath, OS, COALESCE(OSVersion, ''), COALESCE(FirstRunAt, CreatedAt), CreatedAt FROM SSHConnection`
-	sqlSelectSSHConnectionByAlias  = `SELECT Alias, IPAddress, Username, EncryptedPassword, KeyPath, OS, COALESCE(OSVersion, ''), COALESCE(FirstRunAt, CreatedAt), CreatedAt FROM SSHConnection WHERE Alias = ? LIMIT 1`
-	sqlSelectSSHConnectionByIP     = `SELECT Alias, IPAddress, Username, EncryptedPassword, KeyPath, OS, COALESCE(OSVersion, ''), COALESCE(FirstRunAt, CreatedAt), CreatedAt FROM SSHConnection WHERE IPAddress = ? LIMIT 1`
+	sqlSelectSSHConnections        = `SELECT Alias, IPAddress, Username, EncryptedPassword, KeyPath, OS, COALESCE(OSVersion, ''), FirstRunAt, CreatedAt FROM SSHConnection`
+	sqlSelectSSHConnectionByAlias  = `SELECT Alias, IPAddress, Username, EncryptedPassword, KeyPath, OS, COALESCE(OSVersion, ''), FirstRunAt, CreatedAt FROM SSHConnection WHERE Alias = ? LIMIT 1`
+	sqlSelectSSHConnectionByIP     = `SELECT Alias, IPAddress, Username, EncryptedPassword, KeyPath, OS, COALESCE(OSVersion, ''), FirstRunAt, CreatedAt FROM SSHConnection WHERE IPAddress = ? LIMIT 1`
 	sqlUpdateSSHConnectionPassword = `UPDATE SSHConnection SET EncryptedPassword = ? WHERE Alias = ? OR IPAddress = ?`
 	sqlDeleteSSHConnection         = `DELETE FROM SSHConnection WHERE Alias = ?`
 	sqlDeleteSSHConnectionByTarget = `DELETE FROM SSHConnection WHERE Alias = ? OR IPAddress = ?`
@@ -177,8 +177,14 @@ func scanSSHConnectionRows(rows *sql.Rows) SSHConnectionSliceResult {
 	var conns []SSHConnection
 	for rows.Next() {
 		var c SSHConnection
-		if err := rows.Scan(&c.Alias, &c.IPAddress, &c.Username, &c.EncryptedPassword, &c.KeyPath, &c.OS, &c.OSVersion, &c.FirstRunAt, &c.CreatedAt); err != nil {
+		var firstRun sql.NullTime
+		if err := rows.Scan(&c.Alias, &c.IPAddress, &c.Username, &c.EncryptedPassword, &c.KeyPath, &c.OS, &c.OSVersion, &firstRun, &c.CreatedAt); err != nil {
 			return result.FailSlice[SSHConnection](apperror.WrapSimple(err, "scanSSHConnectionRows.Scan"))
+		}
+		if firstRun.Valid {
+			c.FirstRunAt = firstRun.Time
+		} else {
+			c.FirstRunAt = c.CreatedAt
 		}
 
 		conns = append(conns, c)
@@ -240,12 +246,19 @@ func UpdateSSHConnectionPassword(ctx context.Context, db *sql.DB, target string,
 func GetSSHConnectionByAlias(ctx context.Context, db *sql.DB, alias string) (*SSHConnection, error) {
 	ensureSSHConnectionSchema(ctx, db)
 	var c SSHConnection
+	var firstRun sql.NullTime
 	err := db.QueryRowContext(ctx, sqlSelectSSHConnectionByAlias, alias).Scan(
-		&c.Alias, &c.IPAddress, &c.Username, &c.EncryptedPassword, &c.KeyPath, &c.OS, &c.OSVersion, &c.FirstRunAt, &c.CreatedAt,
+		&c.Alias, &c.IPAddress, &c.Username, &c.EncryptedPassword, &c.KeyPath, &c.OS, &c.OSVersion, &firstRun, &c.CreatedAt,
 	)
 	if err != nil {
 		return nil, err
 	}
+	if firstRun.Valid {
+		c.FirstRunAt = firstRun.Time
+	} else {
+		c.FirstRunAt = c.CreatedAt
+	}
+
 	return &c, nil
 }
 
@@ -253,11 +266,18 @@ func GetSSHConnectionByAlias(ctx context.Context, db *sql.DB, alias string) (*SS
 func GetSSHConnectionByIP(ctx context.Context, db *sql.DB, ip string) (*SSHConnection, error) {
 	ensureSSHConnectionSchema(ctx, db)
 	var c SSHConnection
+	var firstRun sql.NullTime
 	err := db.QueryRowContext(ctx, sqlSelectSSHConnectionByIP, ip).Scan(
-		&c.Alias, &c.IPAddress, &c.Username, &c.EncryptedPassword, &c.KeyPath, &c.OS, &c.OSVersion, &c.FirstRunAt, &c.CreatedAt,
+		&c.Alias, &c.IPAddress, &c.Username, &c.EncryptedPassword, &c.KeyPath, &c.OS, &c.OSVersion, &firstRun, &c.CreatedAt,
 	)
 	if err != nil {
 		return nil, err
 	}
+	if firstRun.Valid {
+		c.FirstRunAt = firstRun.Time
+	} else {
+		c.FirstRunAt = c.CreatedAt
+	}
+
 	return &c, nil
 }

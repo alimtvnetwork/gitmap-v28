@@ -142,7 +142,10 @@ func extractWorkspaceFromConv(conn *sql.DB) string {
 func queryTrajectoryBlob(conn *sql.DB) []byte {
 	var blob []byte
 	row := conn.QueryRow("SELECT data FROM trajectory_metadata_blob WHERE id='main'")
-	_ = row.Scan(&blob)
+	err := row.Scan(&blob)
+	if err != nil {
+		return nil
+	}
 
 	return blob
 }
@@ -205,16 +208,22 @@ func cleanProjectWorkspace(rawPath string) string {
 	return strings.ToLower(filepath.Clean(rawPath))
 }
 
+func appendMatchingConv(matched []AgyConvInfo, c AgyConvInfo, hasActive bool) ([]AgyConvInfo, bool) {
+	matched = append(matched, c)
+	if isConvActive(c) {
+		return matched, true
+	}
+
+	return matched, hasActive
+}
+
 func findMatchingConvs(pClean string, convs []AgyConvInfo) ([]AgyConvInfo, bool) {
 	var matched []AgyConvInfo
 	hasActive := false
 	for _, c := range convs {
 		isMatch := isConvPathMatch(pClean, c.CleanPath)
 		if isMatch {
-			matched = append(matched, c)
-			if isConvActive(c) {
-				hasActive = true
-			}
+			matched, hasActive = appendMatchingConv(matched, c, hasActive)
 		}
 	}
 
@@ -277,17 +286,17 @@ func scanTranscriptForWorkspace(f *os.File) string {
 func extractWorkspaceFromLine(line []byte) string {
 	match := fileURIRegex.Find(line)
 	hasMatch := len(match) > 0
-	if hasMatch {
-		uriStr := string(match)
-		isInternal := isInternalAgyPath(uriStr)
-		if isInternal {
-			return ""
-		}
-
-		return cleanURIStringToPath(uriStr)
+	if hasMatch == false {
+		return ""
 	}
 
-	return ""
+	uriStr := string(match)
+	isInternal := isInternalAgyPath(uriStr)
+	if isInternal {
+		return ""
+	}
+
+	return cleanURIStringToPath(uriStr)
 }
 
 func isInternalAgyPath(uri string) bool {

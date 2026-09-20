@@ -4,6 +4,7 @@ import (
 	"os"
 	"time"
 
+	"github.com/alimtvnetwork/gitmap-v28/cli/result"
 	"github.com/spf13/cobra"
 )
 
@@ -90,8 +91,8 @@ func checkIDEProcess() AgyPingProcessCheck {
 }
 
 func extractResultError[T any](res result.Result[T], fallback string) string {
-	if res.Error != nil {
-		return res.Error.Error()
+	if res.Err != nil {
+		return res.Err.Error()
 	}
 
 	return fallback

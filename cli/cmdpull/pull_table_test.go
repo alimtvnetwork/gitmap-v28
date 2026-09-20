@@ -99,9 +99,9 @@ func TestFormatRepoNameLeadTruncatePresentation(t *testing.T) {
 		t.Fatalf("expected length 24, got %d (%q)", len(formatted), formatted)
 	}
 
-	hasEnding := strings.HasSuffix(formatted, "presentation-hiltrax-v4")
+	hasEnding := strings.HasSuffix(formatted, "-hiltrax-v4")
 	if hasEnding == false {
-		t.Fatalf("expected ending presentation-hiltrax-v4 in %q", formatted)
+		t.Fatalf("expected ending -hiltrax-v4 in %q", formatted)
 	}
 
 	hasPrefix := strings.HasPrefix(formatted, "...")

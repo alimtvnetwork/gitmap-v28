@@ -205,8 +205,8 @@ func DetectConversationExecutionStatus(repoRoot string) AgyConvStatusType {
 // DetectConversationExecutionState inspects transcript.jsonl for the active conversation.
 func DetectConversationExecutionState(repoRoot string) AgyConversationExecutionState {
 	convID, transcriptPath := findActiveConvTranscript(repoRoot)
-	hasNoTranscript := len(transcriptPath) == 0
-	if hasNoTranscript {
+	hasTranscript := len(transcriptPath) > 0
+	if hasTranscript == false {
 		return AgyConversationExecutionState{Status: AgyConvStatusUnknown}
 	}
 
@@ -219,14 +219,21 @@ func DetectConversationExecutionState(repoRoot string) AgyConversationExecutionS
 	}
 }
 
+func resolveExistingConvTranscript(convID string) (string, bool) {
+	hasConvID := len(convID) > 0
+	if hasConvID == false {
+		return "", false
+	}
+	path := resolveTranscriptPathForConv(convID)
+
+	return path, checkFileExists(path)
+}
+
 func findActiveConvTranscript(repoRoot string) (string, string) {
 	convID := findMatchingActiveConvID(repoRoot)
-	hasConvID := len(convID) > 0
-	if hasConvID {
-		path := resolveTranscriptPathForConv(convID)
-		if checkFileExists(path) {
-			return convID, path
-		}
+	path, isFound := resolveExistingConvTranscript(convID)
+	if isFound {
+		return convID, path
 	}
 
 	return findLatestModifiedTranscript()

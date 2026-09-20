@@ -114,16 +114,6 @@ func resolveWideRepoWidth(termWidth int) int {
 	return 22
 }
 
-func calcWideAvailableWidth(termWidth int) int {
-	fixedWidth := 2 + 3 + 14 + (4 * defaultPullTableColGapWide)
-	avail := termWidth - fixedWidth
-	if avail < 30 {
-		return 30
-	}
-
-	return avail
-}
-
 func buildCompactPullTableLayout(rows []model.PullTableRow, termWidth int) *PullTableLayout {
 	maxRepo, maxBranch, totalWidth := calcCompactColumnWidths(termWidth)
 	layout := newBaseCompactLayout(termWidth, totalWidth, rows)
@@ -156,16 +146,6 @@ func resolveCompactRepoWidth(termWidth int) int {
 	}
 
 	return 18
-}
-
-func calcCompactAvailableWidth(termWidth int) int {
-	fixedWidth := 2 + 3 + 12 + (3 * defaultPullTableColGapTight)
-	avail := termWidth - fixedWidth
-	if avail < 16 {
-		return 16
-	}
-
-	return avail
 }
 
 func (l *PullTableLayout) PrintHeader() {

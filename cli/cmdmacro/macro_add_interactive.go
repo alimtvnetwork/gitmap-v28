@@ -45,7 +45,7 @@ func resolveStepsInteractively(name string, isExec bool) ([]macro.MacroStep, err
 	return steps, nil
 }
 
-func handleZeroPipedSteps() *apperror.AppError {
+func handleZeroPipedSteps() error {
 	if isRemoteSSHSession() {
 		printRemoteSSHMacroAdvice()
 
@@ -105,7 +105,7 @@ func promptInteractiveMacroSteps(name string, isExec bool) ([]macro.MacroStep, e
 	return steps, nil
 }
 
-func handleZeroInteractiveSteps(name string) *apperror.AppError {
+func handleZeroInteractiveSteps(name string) error {
 	if isRemoteSSHSession() {
 		printRemoteSSHMacroAdvice()
 

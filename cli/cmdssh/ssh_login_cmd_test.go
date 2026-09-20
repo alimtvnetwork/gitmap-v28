@@ -10,19 +10,28 @@ import (
 	"github.com/alimtvnetwork/gitmap-v28/cli/store"
 )
 
+var testLoginDBPath string
+
 func setupTestDB(t *testing.T) *store.DB {
-	dbPath := filepath.Join(t.TempDir(), "test.db")
-	testDB, err := store.OpenAt(dbPath)
+	testLoginDBPath = filepath.Join(t.TempDir(), "test.db")
+	testDB, err := store.OpenAt(testLoginDBPath)
 	if err != nil {
 		t.Fatalf("failed to open test db: %v", err)
 	}
+	_ = store.EnsureSSHHostsTable(testDB.SQL())
+	_ = store.EnsureSSHHistoryTable(testDB.SQL())
 	t.Cleanup(func() { testDB.Close() })
 	return testDB
 }
 
 func hookTestDB(t *testing.T, db *store.DB) {
 	orig := openSSHDB
-	openSSHDB = func() (*store.DB, error) { return db, nil }
+	openSSHDB = func() (*store.DB, error) {
+		if testLoginDBPath != "" {
+			return store.OpenAt(testLoginDBPath)
+		}
+		return db, nil
+	}
 	t.Cleanup(func() { openSSHDB = orig })
 }
 
