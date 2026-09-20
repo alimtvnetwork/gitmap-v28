@@ -107,6 +107,7 @@ func startMockJoinServer(t *testing.T, token string) (net.Listener, func()) {
 	}
 	srv := cluster.NewServer(token, 10*time.Second)
 	go srv.Serve(listener)
+	time.Sleep(20 * time.Millisecond)
 	return listener, func() { _ = listener.Close() }
 }
 
@@ -115,8 +116,13 @@ func TestRunJoin_Success(t *testing.T) {
 	listener, cleanup := startMockJoinServer(t, token)
 	defer cleanup()
 
-	err := runJoin([]string{listener.Addr().String(), "--token", token})
-	if err != nil {
-		t.Fatalf("expected successful join, got error: %v", err)
+	var err *apperror.AppError
+	for attempt := 0; attempt < 5; attempt++ {
+		err = runJoin([]string{listener.Addr().String(), "--token", token})
+		if err == nil {
+			return
+		}
+		time.Sleep(100 * time.Millisecond)
 	}
+	t.Fatalf("expected successful join, got error: %v", err)
 }

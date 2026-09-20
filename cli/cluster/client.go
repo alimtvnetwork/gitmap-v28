@@ -21,13 +21,27 @@ func NewNodeClient(id, address, token string) *NodeClient {
 
 func (c *NodeClient) dialTLS() (*rpc.Client, error) {
 	conf := &tls.Config{InsecureSkipVerify: true}
-	dialer := &net.Dialer{Timeout: 2 * time.Second}
-	conn, err := tls.DialWithDialer(dialer, "tcp", c.address, conf)
+	dialer := &net.Dialer{Timeout: 5 * time.Second}
+	conn, err := c.dialWithRetry(conf, dialer)
 	if err != nil {
 		return nil, err
 	}
 
 	return rpc.NewClient(conn), nil
+}
+
+func (c *NodeClient) dialWithRetry(conf *tls.Config, dialer *net.Dialer) (net.Conn, error) {
+	var lastErr error
+	for attempt := 0; attempt < 3; attempt++ {
+		conn, err := tls.DialWithDialer(dialer, "tcp", c.address, conf)
+		if err == nil {
+			return conn, nil
+		}
+		lastErr = err
+		time.Sleep(50 * time.Millisecond)
+	}
+
+	return nil, lastErr
 }
 
 // Handshake connects to the server and verifies the join token.

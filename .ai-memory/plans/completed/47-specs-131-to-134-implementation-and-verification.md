@@ -34,7 +34,7 @@ Following the comprehensive audit and creation of Specifications 131 through 134
    - Confirmed complete elimination of background CLI runner spawning (`launchAgyBackgroundRunner` removed).
    - Validated direct filesystem reading from `~/.gemini/antigravity/` and workspace corpus auto-pairing.
    - Verified two-state dynamic prompt queue protocol (`RUNNING` queues into `agy-prompt-queue.json`, `IDLE` stages and copies to OS clipboard).
-   - Executed live `gitmap agy ping`: Detected IDE executable at `C:\Users\Administrator\AppData\Local\Programs\Antigravity\Antigravity.exe`, running process PID `2652`, healthy brain filesystem, active workspace `D:\work\gitmap` in `RUNNING` state, and overall health `HEALTHY`.
+   - Executed live `gitmap agy ping`: Detected IDE executable at `%LOCALAPPDATA%\Programs\Antigravity\Antigravity.exe`, running process PID `2652`, healthy brain filesystem, active workspace `gitmap-v28` in `RUNNING` state, and overall health `HEALTHY`.
 
 5. **SQLite Database Pending Tasks Hygiene:**
    - Audited the `PendingTask` SQLite table in `.gitmap/data/`.
