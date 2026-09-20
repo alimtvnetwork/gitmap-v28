@@ -37,13 +37,20 @@ func GetBrainLogsDirPath() (string, error) {
 // CollectPromptsForWorkspace reads prompts matching a workspace directory.
 func CollectPromptsForWorkspace(workspace string) []AgyPromptEntry {
 	all := CollectAllPrompts()
-	if workspace == "" {
+	hasEmptyWs := workspace == ""
+	if hasEmptyWs {
 		return all
 	}
-	normTarget := strings.ToLower(filepath.Clean(workspace))
+
+	return filterPromptsByWorkspace(all, workspace)
+}
+
+func filterPromptsByWorkspace(all []AgyPromptEntry, ws string) []AgyPromptEntry {
+	normTarget := strings.ToLower(filepath.Clean(ws))
 	var matched []AgyPromptEntry
 	for _, p := range all {
-		if strings.Contains(strings.ToLower(p.Workspace), normTarget) {
+		isMatch := strings.Contains(strings.ToLower(p.Workspace), normTarget)
+		if isMatch {
 			matched = append(matched, p)
 		}
 	}
@@ -54,7 +61,8 @@ func CollectPromptsForWorkspace(workspace string) []AgyPromptEntry {
 // CollectAllPrompts scans all conversation brain transcripts for user prompts.
 func CollectAllPrompts() []AgyPromptEntry {
 	brainDir, err := GetBrainLogsDirPath()
-	if err != nil {
+	hasErr := err != nil
+	if hasErr {
 		return nil
 	}
 	all := scanBrainDirPrompts(brainDir)
@@ -67,7 +75,8 @@ func CollectAllPrompts() []AgyPromptEntry {
 
 func scanBrainDirPrompts(brainDir string) []AgyPromptEntry {
 	entries, readErr := os.ReadDir(brainDir)
-	if readErr != nil {
+	hasErr := readErr != nil
+	if hasErr {
 		return nil
 	}
 	var all []AgyPromptEntry
@@ -81,9 +90,9 @@ func scanBrainDirPrompts(brainDir string) []AgyPromptEntry {
 }
 
 func readConvPrompts(brainDir, convID string) []AgyPromptEntry {
-	logFile := filepath.Join(brainDir, convID, ".system_generated", "logs", "transcript.jsonl")
-	f, err := os.Open(logFile)
-	if err != nil {
+	f, err := openConvTranscript(brainDir, convID)
+	hasErr := err != nil
+	if hasErr {
 		return nil
 	}
 	defer f.Close()
@@ -91,4 +100,27 @@ func readConvPrompts(brainDir, convID string) []AgyPromptEntry {
 	ws := resolveConvWorkspace(convID)
 
 	return scanTranscriptLines(f, convID, ws)
+}
+
+func openConvTranscript(brainDir, convID string) (*os.File, error) {
+	logDir := filepath.Join(brainDir, convID, ".system_generated", "logs")
+	fullPath := filepath.Join(logDir, "transcript_full.jsonl")
+	f, err := os.Open(fullPath)
+	hasFull := err == nil
+	if hasFull {
+		return f, nil
+	}
+	shortPath := filepath.Join(logDir, "transcript.jsonl")
+
+	return os.Open(shortPath)
+}
+
+func openConvTranscriptFile(convID string) (*os.File, error) {
+	brainDir, err := GetBrainLogsDirPath()
+	hasDirErr := err != nil
+	if hasDirErr {
+		return nil, err
+	}
+
+	return openConvTranscript(brainDir, convID)
 }

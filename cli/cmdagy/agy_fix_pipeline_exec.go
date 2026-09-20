@@ -52,14 +52,24 @@ func persistAndRecordAgyFix(p AgyFixDispatchParams, primary, followup string) *a
 
 func renderInjectionFeedback(res AgyInjectionResult, isNoInject bool) {
 	if res.IsSuccess {
-		fmt.Printf("  %s✔ %s%s\n\n", constants.ColorGreen, res.Message, constants.ColorReset)
+		renderSuccessFeedback(res)
 
 		return
 	}
 
-	if !isNoInject {
+	if isNoInject == false {
 		fmt.Printf("  %sℹ Antigravity Injection: %s%s\n\n", constants.ColorYellow, res.Message, constants.ColorReset)
 	}
+}
+
+func renderSuccessFeedback(res AgyInjectionResult) {
+	if res.Mode == AgyInjectionModeQueued {
+		fmt.Printf("  %s⏳ Antigravity Busy: %s%s\n\n", constants.ColorCyan, res.Message, constants.ColorReset)
+
+		return
+	}
+
+	fmt.Printf("  %s✔ %s%s\n\n", constants.ColorGreen, res.Message, constants.ColorReset)
 }
 
 func executeFixPayloadDispatch(p AgyFixDispatchParams, assembled AgyAssembledPromptPayload) *apperror.AppError {

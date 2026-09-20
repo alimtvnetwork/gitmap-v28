@@ -1,22 +1,39 @@
 package cmdagy
 
 import (
+	"database/sql"
 	"path/filepath"
-
-	"github.com/alimtvnetwork/gitmap-v28/cli/store"
 )
 
 func resolveConvWorkspace(convID string) string {
-	convDir, err := getConversationsDirPath()
-	if err != nil {
-		return ""
+	ws := readWorkspaceFromDB(convID)
+	hasWs := ws != ""
+	if hasWs {
+		return ws
 	}
-	dbPath := filepath.Join(convDir, convID+".db")
-	conn, dbErr := store.OpenSQLiteDB(dbPath)
-	if dbErr != nil {
+
+	return extractWorkspaceFromTranscript(convID)
+}
+
+func readWorkspaceFromDB(convID string) string {
+	conn, err := openConvDB(convID)
+	hasErr := err != nil
+	if hasErr {
 		return ""
 	}
 	defer conn.Close()
 
 	return extractWorkspaceFromConv(conn)
+}
+
+func openConvDB(convID string) (*sql.DB, error) {
+	convDir, err := getConversationsDirPath()
+	hasDirErr := err != nil
+	if hasDirErr {
+		return nil, err
+	}
+	dbPath := filepath.Join(convDir, convID+".db")
+	dsn := "file:" + filepath.ToSlash(dbPath) + "?mode=ro"
+
+	return sql.Open("sqlite", dsn)
 }

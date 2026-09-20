@@ -76,6 +76,10 @@ func parseRunningIDEFromTasklist(output string) result.Result[AgyProcessInfo] {
 		return result.Fail[AgyProcessInfo](apperror.WrapSimple(err, "parseRunningIDEFromTasklist"))
 	}
 
+	return findIDEProcessInRecords(records)
+}
+
+func findIDEProcessInRecords(records [][]string) result.Result[AgyProcessInfo] {
 	for _, rec := range records {
 		matchRes := extractIDEProcessRecord(rec)
 		if matchRes.IsSuccess() {
@@ -130,10 +134,13 @@ func extractIDEProcessLine(line string) result.Result[AgyProcessInfo] {
 		return result.Fail[AgyProcessInfo](apperror.NewSimple("invalid line", "E9003"))
 	}
 
-	pid, convErr := strconv.Atoi(fields[0])
-	name := filepath.Base(fields[1])
-	hasValidPid := convErr == nil && pid > 0 && strings.EqualFold(name, "antigravity")
+	return buildUnixIDEProcessInfo(fields[0], fields[1])
+}
 
+func buildUnixIDEProcessInfo(pidStr, rawName string) result.Result[AgyProcessInfo] {
+	pid, convErr := strconv.Atoi(pidStr)
+	name := filepath.Base(rawName)
+	hasValidPid := convErr == nil && pid > 0 && strings.EqualFold(name, "antigravity")
 	if hasValidPid {
 		return result.Ok(AgyProcessInfo{PID: pid, Name: name})
 	}
@@ -179,13 +186,13 @@ func getCandidateAntigravityIDEPaths() []string {
 	localApp := os.Getenv("LOCALAPPDATA")
 	progFiles := os.Getenv("ProgramFiles")
 
-	windowsPaths := getWindowsIDEPaths(localApp, progFiles)
+	windowsPaths := getWindowsIDEPaths(home, localApp, progFiles)
 	unixPaths := getUnixIDEPaths(home)
 
 	return append(windowsPaths, unixPaths...)
 }
 
-func getWindowsIDEPaths(localApp, progFiles string) []string {
+func getWindowsIDEPaths(home, localApp, progFiles string) []string {
 	progFilesX86 := os.Getenv("ProgramFiles(x86)")
 
 	return []string{
@@ -193,19 +200,25 @@ func getWindowsIDEPaths(localApp, progFiles string) []string {
 		filepath.Join(localApp, "Programs", "antigravity", "Antigravity.exe"),
 		filepath.Join(progFiles, "Antigravity", "Antigravity.exe"),
 		filepath.Join(progFilesX86, "Antigravity", "Antigravity.exe"),
+		filepath.Join(home, "AppData", "Local", "Programs", "antigravity", "Antigravity.exe"),
+		filepath.Join(home, "AppData", "Local", "Programs", "Antigravity", "Antigravity.exe"),
+		"C:\\Program Files\\Antigravity\\Antigravity.exe",
 	}
 }
 
 func getUnixIDEPaths(home string) []string {
-	return []string{
+	paths := []string{
 		filepath.Join(home, ".local", "share", "antigravity", "Antigravity"),
 		filepath.Join(home, ".local", "bin", "antigravity"),
-		"/opt/antigravity/Antigravity",
-		"/usr/share/antigravity/Antigravity",
-		"/usr/local/bin/antigravity",
+		"/opt/antigravity/Antigravity", "/opt/Antigravity/antigravity",
+		"/usr/share/antigravity/Antigravity", "/usr/local/bin/antigravity",
+		"/usr/bin/antigravity", "/snap/bin/antigravity",
+		"/var/lib/flatpak/exports/bin/antigravity",
 		"/Applications/Antigravity.app/Contents/MacOS/Antigravity",
 		filepath.Join(home, "Applications", "Antigravity.app", "Contents", "MacOS", "Antigravity"),
 	}
+
+	return paths
 }
 
 func getCandidateAntigravityCLIPaths() []string {

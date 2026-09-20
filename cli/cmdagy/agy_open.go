@@ -5,6 +5,8 @@ import (
 	"os"
 	"os/exec"
 	"path/filepath"
+	"runtime"
+	"strings"
 	"time"
 
 	"github.com/alimtvnetwork/gitmap-v28/cli/store"
@@ -81,7 +83,27 @@ func printAntigravityInstallSuggestion() {
 }
 
 func launchAntigravityProcess(exePath, absPath string) error {
-	cmd := exec.Command(exePath, absPath)
+	cmd := buildAntigravityCmd(exePath, absPath)
 
 	return cmd.Start()
+}
+
+func buildAntigravityCmd(exePath, absPath string) *exec.Cmd {
+	cleanPath := filepath.Clean(exePath)
+	isMacApp := runtime.GOOS == "darwin" && strings.HasSuffix(cleanPath, ".app")
+	if isMacApp {
+		return buildMacAppCmd(cleanPath, absPath)
+	}
+
+	return exec.Command(cleanPath, absPath)
+}
+
+func buildMacAppCmd(appPath, absPath string) *exec.Cmd {
+	innerBin := filepath.Join(appPath, "Contents", "MacOS", "Antigravity")
+	hasInnerBin := isValidBinaryPath(innerBin)
+	if hasInnerBin {
+		return exec.Command(innerBin, absPath)
+	}
+
+	return exec.Command("open", "-a", appPath, absPath)
 }

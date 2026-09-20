@@ -8,8 +8,9 @@ None.
 
 ## Recent Completed Tasks Register (Last 20 Tasks)
 
-1. [38-polyglot-worker-orchestrator-and-automation-runner.md](completed/38-polyglot-worker-orchestrator-and-automation-runner.md): Polyglot Worker Orchestrator & Automation Runner
-2. [37-aum-helptext-documentation-parity-and-cli-catalog.md](completed/37-aum-helptext-documentation-parity-and-cli-catalog.md): AUM Helptext Documentation Parity & CLI Catalog Alignment
+1. [41-antigravity-ide-first-integration-and-queue-protocol.md](completed/41-antigravity-ide-first-integration-and-queue-protocol.md): Antigravity IDE-First Integration, File-System Discovery & Queue Protocol
+2. [38-polyglot-worker-orchestrator-and-automation-runner.md](completed/38-polyglot-worker-orchestrator-and-automation-runner.md): Polyglot Worker Orchestrator & Automation Runner
+3. [37-aum-helptext-documentation-parity-and-cli-catalog.md](completed/37-aum-helptext-documentation-parity-and-cli-catalog.md): AUM Helptext Documentation Parity & CLI Catalog Alignment
 3. [36-aum-polyglot-script-migration-and-llm-train-suite.md](completed/36-aum-polyglot-script-migration-and-llm-train-suite.md): AUM Polyglot Script Migration & LLM Train Chained Curriculum Suite
 3. [35-native-automation-engine-lazy-regex-and-benchmarks.md](completed/35-native-automation-engine-lazy-regex-and-benchmarks.md): Native Automation Engine, Lazy Regex, Polyglot Newline Normalizer & Side-by-Side Benchmarks
 3. [34-generic-ai-scripts-creator-and-scaffolding-engine.md](completed/34-generic-ai-scripts-creator-and-scaffolding-engine.md): Generic AI Scripts Creator, Scaffolding Engine & Dynamic Catalog Discovery
@@ -40,6 +41,9 @@ None.
 
 ## Completed Plans
 
+- [41-antigravity-ide-first-integration-and-queue-protocol.md](completed/41-antigravity-ide-first-integration-and-queue-protocol.md): Antigravity IDE-First Integration, File-System Discovery & Queue Protocol
+- [40-macro-fleet-export-import-and-interactive-resilience.md](completed/40-macro-fleet-export-import-and-interactive-resilience.md): Macro Fleet Export/Import, Multi-Node Sync & Interactive Resilience
+- [39-windows-ssh-authkey-join-automation-and-node-rm.md](completed/39-windows-ssh-authkey-join-automation-and-node-rm.md): Windows SSH Authorized Key Architecture, Interactive SSH Join Password Automation, GitMap Host-Node Bootstrapping, and Comprehensive Node Removal
 - [38-polyglot-worker-orchestrator-and-automation-runner.md](completed/38-polyglot-worker-orchestrator-and-automation-runner.md): Polyglot Worker Orchestrator & Automation Runner
 - [37-aum-helptext-documentation-parity-and-cli-catalog.md](completed/37-aum-helptext-documentation-parity-and-cli-catalog.md): AUM Helptext Documentation Parity & CLI Catalog Alignment
 - [36-aum-polyglot-script-migration-and-llm-train-suite.md](completed/36-aum-polyglot-script-migration-and-llm-train-suite.md): AUM Polyglot Script Migration & LLM Train Chained Curriculum Suite

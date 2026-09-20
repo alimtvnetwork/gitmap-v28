@@ -70,10 +70,27 @@ type AgyFixDispatchParams struct {
 type AgyInjectionModeType string
 
 const (
-	AgyInjectionModeNone AgyInjectionModeType = "none"
-	AgyInjectionModeCLI  AgyInjectionModeType = "cli"
-	AgyInjectionModeIDE  AgyInjectionModeType = "ide"
+	AgyInjectionModeNone   AgyInjectionModeType = "none"
+	AgyInjectionModeCLI    AgyInjectionModeType = "cli"
+	AgyInjectionModeIDE    AgyInjectionModeType = "ide"
+	AgyInjectionModeQueued AgyInjectionModeType = "queued"
 )
+
+// AgyConvStatusType represents the execution status of an active conversation.
+type AgyConvStatusType string
+
+const (
+	AgyConvStatusIdle    AgyConvStatusType = "idle"
+	AgyConvStatusRunning AgyConvStatusType = "running"
+	AgyConvStatusUnknown AgyConvStatusType = "unknown"
+)
+
+// AgyConversationExecutionState represents the detected status of a conversation.
+type AgyConversationExecutionState struct {
+	ConvID         string            `json:"convId"`
+	Status         AgyConvStatusType `json:"status"`
+	TranscriptPath string            `json:"transcriptPath"`
+}
 
 // AgyInjectionResult encapsulates the outcome of an Antigravity injection task.
 type AgyInjectionResult struct {

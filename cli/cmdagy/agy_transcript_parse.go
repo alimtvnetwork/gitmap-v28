@@ -25,32 +25,64 @@ func scanTranscriptLines(f *os.File, convID, ws string) []AgyPromptEntry {
 
 func parseTranscriptLine(line []byte, convID, ws string) (AgyPromptEntry, bool) {
 	var step rawTranscriptStep
-	if err := json.Unmarshal(line, &step); err != nil || step.Type != "USER_INPUT" {
-		return AgyPromptEntry{}, false
+	err := json.Unmarshal(line, &step)
+	isUserInput := err == nil && step.Type == "USER_INPUT"
+	if isUserInput {
+		return buildPromptEntry(step, convID, ws)
 	}
 
-	return buildPromptEntry(step, convID, ws)
+	return AgyPromptEntry{}, false
 }
 
 func buildPromptEntry(step rawTranscriptStep, convID, ws string) (AgyPromptEntry, bool) {
 	cleanText := cleanPromptText(step.Content)
-	if cleanText == "" {
-		return AgyPromptEntry{}, false
+	hasText := cleanText != ""
+	if hasText {
+		return makePromptEntry(step, convID, ws, cleanText), true
 	}
+
+	return AgyPromptEntry{}, false
+}
+
+func makePromptEntry(step rawTranscriptStep, convID, ws, content string) AgyPromptEntry {
 	ts, _ := time.Parse(time.RFC3339, step.CreatedAt)
 
 	return AgyPromptEntry{
 		StepIndex: step.StepIndex,
 		CreatedAt: ts,
-		Content:   cleanText,
+		Content:   content,
 		Workspace: ws,
 		ConvID:    convID,
-	}, true
+	}
 }
 
 func cleanPromptText(raw string) string {
-	text := strings.TrimPrefix(raw, "<USER_REQUEST>")
-	text = strings.TrimSuffix(text, "</USER_REQUEST>")
+	text := stripTagBlock(raw, "<ADDITIONAL_METADATA>", "</ADDITIONAL_METADATA>")
+	text = stripTagBlock(text, "<USER_SETTINGS_CHANGE>", "</USER_SETTINGS_CHANGE>")
+	text = strings.TrimPrefix(strings.TrimSpace(text), "<USER_REQUEST>")
+	text = strings.TrimSuffix(strings.TrimSpace(text), "</USER_REQUEST>")
 
 	return strings.TrimSpace(text)
+}
+
+func stripTagBlock(text, openTag, closeTag string) string {
+	start := strings.Index(text, openTag)
+	hasNoTag := start == -1
+	if hasNoTag {
+		return text
+	}
+
+	return removeTagFromStart(text, start, openTag, closeTag)
+}
+
+func removeTagFromStart(text string, start int, openTag, closeTag string) string {
+	end := strings.Index(text[start:], closeTag)
+	hasEnd := end >= 0
+	if hasEnd {
+		endPos := start + end + len(closeTag)
+
+		return stripTagBlock(text[:start]+text[endPos:], openTag, closeTag)
+	}
+
+	return text[:start]
 }

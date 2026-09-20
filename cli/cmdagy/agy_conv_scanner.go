@@ -1,6 +1,7 @@
 package cmdagy
 
 import (
+	"bufio"
 	"database/sql"
 	"net/url"
 	"os"
@@ -37,15 +38,25 @@ func getConversationsDirPath() (string, error) {
 
 func scanAllConversations() ([]AgyConvInfo, error) {
 	dir, err := getConversationsDirPath()
-	if err != nil {
+	hasDirErr := err != nil
+	if hasDirErr {
 		return nil, err
 	}
 
+	return readConversationsFromDir(dir)
+}
+
+func readConversationsFromDir(dir string) ([]AgyConvInfo, error) {
 	entries, err := os.ReadDir(dir)
-	if err != nil {
+	hasReadErr := err != nil
+	if hasReadErr {
 		return nil, err
 	}
 
+	return collectConvEntries(dir, entries), nil
+}
+
+func collectConvEntries(dir string, entries []os.DirEntry) []AgyConvInfo {
 	var out []AgyConvInfo
 	for _, e := range entries {
 		info, isReadSuccess := tryReadConvEntry(dir, e)
@@ -54,7 +65,7 @@ func scanAllConversations() ([]AgyConvInfo, error) {
 		}
 	}
 
-	return out, nil
+	return out
 }
 
 func tryReadConvEntry(dir string, e os.DirEntry) (AgyConvInfo, bool) {
@@ -68,73 +79,122 @@ func tryReadConvEntry(dir string, e os.DirEntry) (AgyConvInfo, bool) {
 }
 
 func readSingleConvDB(dbPath, fileName string) (AgyConvInfo, bool) {
+	convID := strings.TrimSuffix(fileName, ".db")
 	conn, err := store.OpenSQLiteDB(dbPath)
-	if err != nil {
-		return AgyConvInfo{}, false
+	hasErr := err != nil
+	if hasErr {
+		return readConvFallback(convID), true
 	}
-
 	defer conn.Close()
 
-	return buildConvInfo(conn, fileName), true
+	return buildConvInfo(conn, convID), true
 }
 
-func buildConvInfo(conn *sql.DB, fileName string) AgyConvInfo {
-	steps := querySingleCount(conn, "SELECT COUNT(*) FROM steps")
-	userSteps := querySingleCount(conn, "SELECT COUNT(*) FROM steps WHERE step_type = 1")
-	cleanPath := extractWorkspaceFromConv(conn)
+func readConvFallback(convID string) AgyConvInfo {
+	cleanPath := extractWorkspaceFromTranscript(convID)
 
 	return AgyConvInfo{
-		ID:        strings.TrimSuffix(fileName, ".db"),
+		ID:        convID,
+		StepCount: 0,
+		UserSteps: 0,
+		CleanPath: cleanPath,
+	}
+}
+
+func buildConvInfo(conn *sql.DB, convID string) AgyConvInfo {
+	steps := querySingleCount(conn, "SELECT COUNT(*) FROM steps")
+	userSteps := querySingleCount(conn, "SELECT COUNT(*) FROM steps WHERE step_type = 1")
+	cleanPath := resolveConvPath(conn, convID)
+
+	return AgyConvInfo{
+		ID:        convID,
 		StepCount: steps,
 		UserSteps: userSteps,
 		CleanPath: cleanPath,
 	}
 }
 
+func resolveConvPath(conn *sql.DB, convID string) string {
+	cleanPath := extractWorkspaceFromConv(conn)
+	hasEmptyPath := cleanPath == ""
+	if hasEmptyPath {
+		return extractWorkspaceFromTranscript(convID)
+	}
+
+	return cleanPath
+}
+
 func extractWorkspaceFromConv(conn *sql.DB) string {
+	blob := queryTrajectoryBlob(conn)
+	hasEmptyBlob := len(blob) == 0
+	if hasEmptyBlob {
+		return ""
+	}
+	match := fileURIRegex.Find(blob)
+	hasMatch := len(match) > 0
+	if hasMatch {
+		return cleanURIStringToPath(string(match))
+	}
+
+	return ""
+}
+
+func queryTrajectoryBlob(conn *sql.DB) []byte {
 	var blob []byte
 	row := conn.QueryRow("SELECT data FROM trajectory_metadata_blob WHERE id='main'")
-	if err := row.Scan(&blob); err != nil || len(blob) == 0 {
-		return ""
-	}
+	_ = row.Scan(&blob)
 
-	match := fileURIRegex.Find(blob)
-	if len(match) == 0 {
-		return ""
-	}
-
-	return cleanURIStringToPath(string(match))
+	return blob
 }
 
 func cleanURIStringToPath(rawURI string) string {
 	trimmed := strings.TrimPrefix(rawURI, "file:///")
 	decoded, err := url.PathUnescape(trimmed)
-	if err != nil {
+	hasErr := err != nil
+	if hasErr {
 		decoded = trimmed
 	}
-
+	decoded = normalizeDecodedPath(decoded, rawURI)
 	clean := filepath.Clean(filepath.FromSlash(decoded))
 
 	return strings.ToLower(clean)
 }
 
+func normalizeDecodedPath(decoded, rawURI string) string {
+	isDrivePath := len(decoded) > 1 && decoded[1] == ':'
+	if isDrivePath {
+		return decoded
+	}
+	hasFilePrefix := strings.HasPrefix(rawURI, "file:///")
+	if hasFilePrefix {
+		return "/" + decoded
+	}
+
+	return decoded
+}
+
 func mapProjectsToConversations(projects []AgyProject, convs []AgyConvInfo) []AgyProjectConvs {
 	var results []AgyProjectConvs
 	for _, p := range projects {
-		if p.ID == "outside-of-project" {
+		isOutside := p.ID == "outside-of-project"
+		if isOutside {
 			continue
 		}
-
-		pClean := cleanProjectWorkspace(p.GetPath())
-		matching, hasActive := findMatchingConvs(pClean, convs)
-		results = append(results, AgyProjectConvs{
-			Project:   p,
-			Convs:     matching,
-			HasActive: hasActive,
-		})
+		results = append(results, buildProjectConvs(p, convs))
 	}
 
 	return results
+}
+
+func buildProjectConvs(p AgyProject, convs []AgyConvInfo) AgyProjectConvs {
+	pClean := cleanProjectWorkspace(p.GetPath())
+	matching, hasActive := findMatchingConvs(pClean, convs)
+
+	return AgyProjectConvs{
+		Project:   p,
+		Convs:     matching,
+		HasActive: hasActive,
+	}
 }
 
 func cleanProjectWorkspace(rawPath string) string {
@@ -149,13 +209,12 @@ func findMatchingConvs(pClean string, convs []AgyConvInfo) ([]AgyConvInfo, bool)
 	var matched []AgyConvInfo
 	hasActive := false
 	for _, c := range convs {
-		if !isConvPathMatch(pClean, c.CleanPath) {
-			continue
-		}
-
-		matched = append(matched, c)
-		if isConvActive(c) {
-			hasActive = true
+		isMatch := isConvPathMatch(pClean, c.CleanPath)
+		if isMatch {
+			matched = append(matched, c)
+			if isConvActive(c) {
+				hasActive = true
+			}
 		}
 	}
 
@@ -163,11 +222,16 @@ func findMatchingConvs(pClean string, convs []AgyConvInfo) ([]AgyConvInfo, bool)
 }
 
 func isConvPathMatch(pClean, cClean string) bool {
-	if pClean == "" || cClean == "" {
+	hasEmptyPath := pClean == "" || cClean == ""
+	if hasEmptyPath {
 		return false
 	}
+	sep := string(filepath.Separator)
+	isExact := pClean == cClean
+	isSubdir := strings.HasPrefix(pClean, cClean+sep)
+	isParent := strings.HasPrefix(cClean, pClean+sep)
 
-	return pClean == cClean || strings.HasPrefix(pClean, cClean) || strings.HasPrefix(cClean, pClean)
+	return isExact || isSubdir || isParent
 }
 
 func isConvActive(c AgyConvInfo) bool {
@@ -182,4 +246,53 @@ func querySingleCount(conn *sql.DB, query string) int {
 	}
 
 	return count
+}
+
+func extractWorkspaceFromTranscript(convID string) string {
+	f, err := openConvTranscriptFile(convID)
+	hasErr := err != nil
+	if hasErr {
+		return ""
+	}
+	defer f.Close()
+
+	return scanTranscriptForWorkspace(f)
+}
+
+func scanTranscriptForWorkspace(f *os.File) string {
+	scanner := bufio.NewScanner(f)
+	buf := make([]byte, 0, 64*1024)
+	scanner.Buffer(buf, 1024*1024)
+	for scanner.Scan() {
+		ws := extractWorkspaceFromLine(scanner.Bytes())
+		hasWs := ws != ""
+		if hasWs {
+			return ws
+		}
+	}
+
+	return ""
+}
+
+func extractWorkspaceFromLine(line []byte) string {
+	match := fileURIRegex.Find(line)
+	hasMatch := len(match) > 0
+	if hasMatch {
+		uriStr := string(match)
+		isInternal := isInternalAgyPath(uriStr)
+		if isInternal {
+			return ""
+		}
+
+		return cleanURIStringToPath(uriStr)
+	}
+
+	return ""
+}
+
+func isInternalAgyPath(uri string) bool {
+	lower := strings.ToLower(uri)
+	hasBrain := strings.Contains(lower, ".gemini") || strings.Contains(lower, "antigravity/brain")
+
+	return hasBrain
 }

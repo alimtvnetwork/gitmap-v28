@@ -32,12 +32,15 @@ gitmap agy fix [repo] [flags]
   -h, --help            Help for pipeline fix errors agy
 ```
 
-## Direct Antigravity Injection & Full File Paths
+## Direct Antigravity Injection & Dynamic Queue Protocol
 
-1. **Automated AGY Injection**:
-   - Detects Antigravity CLI (`agy` / `agy.exe`) or running IDE sessions.
-   - Dispatches the fix prompt directly into Antigravity so the agent begins fixing immediately.
-   - Also copies the assembled prompt payload to the OS clipboard as a seamless fallback.
+1. **IDE-First Injection & Queue Protocol**:
+   - **Priority Inversion**: Automatically detects active Antigravity IDE sessions before CLI runners.
+   - **Execution State Detection**: Inspects conversation execution status from `transcript.jsonl` / `transcript_full.jsonl`.
+   - **Dynamic Queue Delivery**:
+     - When IDE conversation is **RUNNING**: The prompt is automatically appended to `.ai-memory/temp/agy-prompt-queue.json` (`queued`), avoiding disruption of the active session.
+     - When IDE conversation is **IDLE**: The prompt is staged directly to `.ai-memory/temp/active-agy-pipeline-fix-prompt.txt` and copied to the OS system clipboard (`ide`).
+   - **CLI Suppression**: Background `agy.exe` runners are never spawned when an IDE process is already active.
 
 2. **Full File Path Display**:
    - In all terminal outputs, GitMap displays the **complete absolute path** on disk for every generated file:

@@ -20,6 +20,9 @@ gitmap antigravity <subcommand> [flags]
 
 | Subcommand | Description |
 |------------|-------------|
+| `prompt [slug/path] [text]` | Send a prompt to Antigravity IDE/CLI using Queue & Injection Protocol |
+| `queue [status\|ls\|clear\|pop]` | Manage pending prompt queue entries |
+| `status` | Show Antigravity system status (IDE process, IDLE vs RUNNING, prompt queue) |
 | `rerun last [N]` | Replay last N prompts with optional prefix verification prompt template (`-p`) |
 | `list-prompts [N]` | List historical prompts for current project or across all projects |
 | `scan [path]` | Scan repositories, recent prompt activity counts (24h/7d), and prompt archives |
@@ -258,6 +261,95 @@ gitmap agy fix-pipeline --all --limit 5
 # Reset batch cursor to start from the beginning
 gitmap agy fix-pipeline --reset-batch
 ```
+
+---
+
+## 6. agy prompt
+
+Send an arbitrary prompt to Antigravity using the Queue & Injection Protocol. Automatically routes prompt delivery based on IDE process presence and active conversation execution state:
+
+- **Active IDE is RUNNING (busy)**: Appends the prompt to `.ai-memory/temp/agy-prompt-queue.json` without interrupting the running agent.
+- **Active IDE is IDLE**: Stages the prompt to `.ai-memory/temp/active-agy-pipeline-fix-prompt.txt` and copies content to the OS system clipboard.
+- **No IDE Active**: Falls back to the Antigravity CLI background runner if available.
+
+### Usage
+
+```bash
+gitmap agy prompt [slug/id/path] [prompt-text]
+gitmap agy prompt [prompt-text]
+```
+
+### Examples
+
+```bash
+# Send prompt to current active project
+gitmap agy prompt "Refactor error handling to use AppError envelopes"
+
+# Send prompt to specific project path
+gitmap agy prompt d:/work/my-service "Implement health check endpoint"
+```
+
+---
+
+## 7. agy queue
+
+Manage the pending prompt queue stored in `.ai-memory/temp/agy-prompt-queue.json`.
+
+### Usage
+
+```bash
+gitmap agy queue [subcommand]
+gitmap agy q [subcommand]
+```
+
+### Subcommands
+
+| Subcommand | Description |
+|------------|-------------|
+| `status` | Show active prompt, queued count, and last update timestamp (default) |
+| `ls` / `list` | List all queued prompts with IDs, types, titles, and creation timestamps |
+| `pop` | Pop the next queued prompt, mark it active, stage to file, and copy to clipboard |
+| `clear` | Remove all queued and active items from the prompt queue |
+
+### Examples
+
+```bash
+# View queue status
+gitmap agy queue status
+
+# List all queued prompts
+gitmap agy queue ls
+
+# Pop next prompt into clipboard and active staging file
+gitmap agy queue pop
+
+# Clear prompt queue
+gitmap agy queue clear
+```
+
+---
+
+## 8. agy status
+
+Display Antigravity system status including running IDE process, active conversation execution state (IDLE vs RUNNING), pending prompt queue count, followed by the project status table.
+
+### Usage
+
+```bash
+gitmap agy status
+gitmap agy st
+```
+
+### Output Example
+
+```text
+● Antigravity System Status
+  IDE Process:   RUNNING (PID: 14280)
+  Conversation:  IDLE (ID: 6b7f91b5-6b40-45f8-87d6-fbd200388af2)
+  Prompt Queue:  2 pending prompt(s)
+```
+
+---
 
 ## See Also
 

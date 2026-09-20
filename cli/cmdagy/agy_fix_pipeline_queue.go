@@ -84,3 +84,110 @@ func updatePromptQueueFile(queuePath, primary, followup string) error {
 
 	return os.WriteFile(queuePath, marshaled, 0644)
 }
+
+// LoadPromptQueue loads the prompt queue file from disk.
+func LoadPromptQueue() (AgyPromptQueueFile, error) {
+	queuePath := resolveAgyPromptQueuePath()
+	data, err := os.ReadFile(queuePath)
+	if err != nil {
+		return AgyPromptQueueFile{Queued: make([]AgyPromptQueueEntry, 0)}, nil
+	}
+
+	var q AgyPromptQueueFile
+	if unmarshalErr := json.Unmarshal(data, &q); unmarshalErr != nil {
+		return AgyPromptQueueFile{Queued: make([]AgyPromptQueueEntry, 0)}, unmarshalErr
+	}
+
+	return q, nil
+}
+
+// SavePromptQueue persists the prompt queue file to disk.
+func SavePromptQueue(q AgyPromptQueueFile) error {
+	queuePath := resolveAgyPromptQueuePath()
+	_ = os.MkdirAll(filepath.Dir(queuePath), 0755)
+	q.UpdatedAt = time.Now().UTC().Format(time.RFC3339)
+	marshaled, err := json.MarshalIndent(q, "", "  ")
+	if err != nil {
+		return err
+	}
+
+	return os.WriteFile(queuePath, marshaled, 0644)
+}
+
+func computeNextQueueID(q AgyPromptQueueFile) int {
+	nextID := 1
+	if q.Active != nil && q.Active.ID >= nextID {
+		nextID = q.Active.ID + 1
+	}
+	for _, item := range q.Queued {
+		if item.ID >= nextID {
+			nextID = item.ID + 1
+		}
+	}
+
+	return nextID
+}
+
+// EnqueuePrompt appends a new prompt entry to the queue.
+func EnqueuePrompt(promptType, title, promptText string) (*AgyPromptQueueEntry, error) {
+	q, err := LoadPromptQueue()
+	if err != nil {
+		return nil, err
+	}
+	entry := AgyPromptQueueEntry{
+		ID: computeNextQueueID(q), Type: promptType, Title: title,
+		Prompt: promptText, Status: "queued",
+		CreatedAt: time.Now().UTC().Format(time.RFC3339),
+	}
+	q.Queued = append(q.Queued, entry)
+
+	return &entry, SavePromptQueue(q)
+}
+
+// GetQueueStatus returns the current prompt queue file.
+func GetQueueStatus() (AgyPromptQueueFile, error) {
+	return LoadPromptQueue()
+}
+
+// PopNextQueuedPrompt pops the next queued prompt and marks it active.
+func PopNextQueuedPrompt() (*AgyPromptQueueEntry, error) {
+	q, err := LoadPromptQueue()
+	if err != nil {
+		return nil, err
+	}
+	if len(q.Queued) == 0 {
+		return nil, nil
+	}
+
+	popped := q.Queued[0]
+	q.Queued = q.Queued[1:]
+	popped.Status = "dispatched"
+	q.Active = &popped
+
+	if saveErr := SavePromptQueue(q); saveErr != nil {
+		return nil, saveErr
+	}
+	_ = stagePoppedPromptToActiveFile(popped.Prompt)
+
+	return &popped, nil
+}
+
+func stagePoppedPromptToActiveFile(promptText string) error {
+	activePath := resolveActiveAgyPromptPath()
+	_ = os.MkdirAll(filepath.Dir(activePath), 0755)
+	copyClipboardIfNotSkipped(promptText, false)
+
+	return os.WriteFile(activePath, []byte(promptText), 0644)
+}
+
+// ClearPromptQueue empties all queued and active items from the prompt queue.
+func ClearPromptQueue() error {
+	q, err := LoadPromptQueue()
+	if err != nil {
+		return err
+	}
+	q.Queued = make([]AgyPromptQueueEntry, 0)
+	q.Active = nil
+
+	return SavePromptQueue(q)
+}

@@ -7,6 +7,15 @@ import (
 // PipelineAgyFixRunner is an injectable runner for AGY pipeline fix integration.
 var PipelineAgyFixRunner func(args []string) error
 
+// FormatPipelineAgyFeedback returns status string distinguishing direct delivery vs queued.
+func FormatPipelineAgyFeedback(isBusy bool, message string) string {
+	if isBusy {
+		return "⏳ Antigravity Busy (Queued): " + message
+	}
+
+	return "✔ Antigravity Direct Delivery: " + message
+}
+
 func isFixCompound(first string, rest []string) bool {
 	return first == "fix" && hasAgyOrErrorsTarget(rest)
 }
