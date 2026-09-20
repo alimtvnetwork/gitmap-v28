@@ -44,6 +44,10 @@ func dispatchOSSubcommand(subCmd string, subArgs []string) error {
 		return runOSFix(subArgs)
 	case "clean", "clear":
 		return runOSClean(subArgs)
+	case "dev-clean", "dev-cleanup", "cleandev", "devcleanup", "clean-dev":
+		return RunOSDevClean(subArgs)
+	case "cleanup":
+		return runOSCleanup(subArgs)
 	case "ai-clean", "aiclean", "clean-ai":
 		return RunOSAICleanCLI(subArgs)
 	case constants.SubCmdOSUser:
@@ -87,12 +91,27 @@ func runOSStatus(args []string) error {
 	return inspectStandardLinksStatus(desktopDir)
 }
 
+func runOSCleanup(subArgs []string) error {
+	if len(subArgs) > 0 && isDevTarget(subArgs[0]) {
+		return RunOSDevClean(subArgs[1:])
+	}
+
+	return runOSClean(subArgs)
+}
+
+func isDevTarget(s string) bool {
+	low := strings.ToLower(strings.TrimSpace(s))
+
+	return low == "dev" || low == "clean-dev" || low == "dev-clean"
+}
+
 const osUsageText = `Usage: gitmap os [subcommand] [flags]
 
 Commands:
   ip                  Inspect, set, change, switch, or revert network IP configuration
   fix                 Register, edit, run, export, and import system repair scripts
   clean (clear)       Clean temporary and ephemeral system cache directories
+  dev-clean (clean-dev) Clean compiler, package manager, and build tool caches
   ai-clean (aiclean)  Scan and purge Antigravity brain, task, and temp AI cache dumps
   zsh                 Install, theme, switch, profile, and clean ZSH & Oh-My-Zsh
   user                Add, edit, export, import, or remove operating system users

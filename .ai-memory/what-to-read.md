@@ -5,6 +5,7 @@
 
 ## Changelog
 
+- 2026-09-20T12:36:00Z, Memory write: Feature 30 Developer tools cache cleanup (gitmap clean-dev, gitmap os dev-clean / dev-cleanup), Go modcache read-only attribute stripping, and 10 developer tools cache categories.
 - 2026-09-20T12:26:00Z, Memory write: RCA 64 defined apperror.NewNotFound(op, code, msg) constructor with op, code, and message, and added unit test.
 - 2026-09-20T12:20:00Z, Memory write: Plan 46 Pipeline-AI live error streaming, early remediation command switching, AUM search extension-first optimization, vcvarsall fast tool locator (gitmap aum locate), and MD ALIM UL KARIM author attribution.
 - 2026-09-20T11:55:00Z, Memory write: Plan 45 Composite Test Heatmap Engine, unified .ai-memory/cicd/cache/ architecture, repo_delta fast-path short-circuit, and fsync lock contention elimination.

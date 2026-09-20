@@ -1,3 +1,9 @@
+## v6.278.0 — 2026-09-20 (feat(clean-dev): add developer tools cache remover and os dev-clean command suite)
+
+**Scope:** Version bump. feat(clean-dev): add developer tools cache remover and os dev-clean command suite.
+
+---
+
 ## v6.277.0 — 2026-09-20 (feat(locate): fix undefined apperror.NewNotFound in locate engine and add unit test)
 
 **Scope:** Version bump. feat(locate): fix undefined apperror.NewNotFound in locate engine and add unit test.

@@ -14,7 +14,9 @@ gitmap os [subcommand] [flags]
 |------------|-------------|
 | ip [subcommand] | Inspect, set, change, switch, or revert network IP configuration |
 | fix [subcommand] | Register, edit, run, export, and import system repair scripts |
-| ai-clean (clean) | Scan and purge Antigravity Brain Caches, transcripts, system tasks, and installer caches |
+| clean (clear) | Clean temporary and ephemeral system cache directories |
+| dev-clean (clean-dev) | Clean compiler, package manager, and build tool caches (Go, pnpm, npm, etc.) |
+| ai-clean (clean-ai) | Scan and purge Antigravity Brain Caches, transcripts, system tasks, and installer caches |
 | zsh [subcommand] | Install, theme, switch, profile, and clean ZSH & Oh-My-Zsh |
 | user [subcommand] | Add, create, edit, export, import, or remove operating system users |
 | group (user-group) | List, create, edit, export, import, and remove user groups |

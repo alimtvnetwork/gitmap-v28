@@ -8,6 +8,10 @@ import (
 )
 
 func runOSClean(args []string) error {
+	if len(args) > 0 && isDevTarget(args[0]) {
+		return RunOSDevClean(args[1:])
+	}
+
 	if isHelpClean(args) {
 		printOSCleanUsage()
 		return nil
@@ -52,8 +56,9 @@ func printCleanSummary(stats osclean.CleanStats, isDryRun bool) {
 }
 
 func printOSCleanUsage() {
-	fmt.Println("Usage: gitmap os clean [temp] [flags]")
+	fmt.Println("Usage: gitmap os clean [temp|dev] [flags]")
 	fmt.Println("       gitmap os clear temp [flags]")
+	fmt.Println("       gitmap os dev-clean [flags]")
 	fmt.Println()
 	fmt.Println("Flags:")
 	fmt.Println("  -n, --dry-run    Simulate cleanup without deleting files")
