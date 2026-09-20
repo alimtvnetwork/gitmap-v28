@@ -128,7 +128,8 @@ func decodeRemoteBase64Output(out string) ([]byte, error) {
 
 func saveExportedMacro(data []byte, opts SSHMacroIOOptions, alias string) error {
 	if opts.FilePath != "" {
-		if err := os.WriteFile(opts.FilePath, data, 0644); err != nil {
+		err := os.WriteFile(opts.FilePath, data, 0644)
+		if err != nil {
 			return apperror.WrapSimple(err, "write exported file")
 		}
 		printExportSuccessBanner(opts.Name, opts.FilePath, alias)
@@ -250,9 +251,11 @@ func readMacroFromFileOrStore(filePath, name string) (*macro.Macro, error) {
 	if target == "" {
 		target = name
 	}
-	if data, err := os.ReadFile(target); err == nil {
+	data, err := os.ReadFile(target)
+	if err == nil {
 		var m macro.Macro
-		if jsonErr := json.Unmarshal(data, &m); jsonErr == nil {
+		jsonErr := json.Unmarshal(data, &m)
+		if jsonErr == nil {
 			return &m, nil
 		}
 	}

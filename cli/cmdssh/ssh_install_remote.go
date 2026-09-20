@@ -116,7 +116,7 @@ func dispatchNodePackageAction(client *ssh.Client, header, osType, pkg string) {
 }
 
 func isGitmapPresent(client *ssh.Client) bool {
-	out, err := crypto.RunCommand(client, "gitmap --version", "")
+	out, err := crypto.RunCommand(client, "gitmap version 2>/dev/null || gitmap --version 2>/dev/null", "")
 
 	return err == nil && strings.Contains(out, "gitmap")
 }

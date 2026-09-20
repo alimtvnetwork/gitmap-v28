@@ -124,14 +124,13 @@ func resolveTargetFromArg(arg, currentTarget string) string {
 	if isAllFlag(arg) {
 		return "all"
 	}
-	isPositional := !strings.HasPrefix(arg, "-")
-	if isPositional {
-		if currentTarget == "all" {
-			return arg
-		}
-		return currentTarget + " " + arg
+	if strings.HasPrefix(arg, "-") {
+		return currentTarget
 	}
-	return currentTarget
+	if currentTarget == "all" {
+		return arg
+	}
+	return currentTarget + " " + arg
 }
 
 func runFleetKeyDeployment(target, pubKey, keyPath string, isForceUnix bool) error {

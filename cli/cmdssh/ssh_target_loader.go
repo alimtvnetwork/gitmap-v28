@@ -82,19 +82,19 @@ func convertHostToConnection(h store.SSHHost) db.SSHConnection {
 func parseAdHocConnection(token string) (db.SSHConnection, bool) {
 	t, err := ParseSSHTarget(token, "root", 22)
 	isParsed := err == nil && t != nil && t.IP != ""
-	if isParsed {
-		user := t.Username
-		if user == "" {
-			user = "root"
-		}
-		return db.SSHConnection{
-			Alias:     token,
-			IPAddress: t.IP,
-			Username:  user,
-			OS:        "linux",
-		}, true
+	if isParsed == false {
+		return db.SSHConnection{}, false
 	}
-	return db.SSHConnection{}, false
+	user := t.Username
+	if user == "" {
+		user = "root"
+	}
+	return db.SSHConnection{
+		Alias:     token,
+		IPAddress: t.IP,
+		Username:  user,
+		OS:        "linux",
+	}, true
 }
 
 func resolveSingleMissingTarget(dbConn *store.DB, token string) (db.SSHConnection, bool) {

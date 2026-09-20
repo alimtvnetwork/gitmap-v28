@@ -302,11 +302,6 @@ func buildHostAndHistory(opts *SSHJoinOptions) (store.SSHHost, store.SSHHistory)
 	return buildHostRecord(opts, now), buildHistRecord(opts, now)
 }
 
-func persistEnrollment(ctx context.Context, db *sql.DB, opts *SSHJoinOptions) error {
-	pair := buildEnrollPair(opts, "linux")
-	return persistDualTables(ctx, db, pair)
-}
-
 func pushAuthIfRequested(ctx context.Context, opts *SSHJoinOptions) error {
 	if !opts.IsPushAuth {
 		return nil
@@ -326,21 +321,12 @@ func printEnrollSuccess(alias, target string) {
 	fmt.Printf("  Or connect directly: gitmap ssh %s\n", target)
 }
 
-func completeEnrollment(ctx context.Context, opts *SSHJoinOptions) error {
-	return ExecuteEnrollmentCompletion(ctx, opts)
-}
-
 func resolveContext(ctx context.Context) context.Context {
 	if ctx == nil {
 		return context.Background()
 	}
 
 	return ctx
-}
-
-func openAndPersist(ctx context.Context, opts *SSHJoinOptions) error {
-	ctx = resolveContext(ctx)
-	return persistEnrollmentDual(ctx, opts, "linux")
 }
 
 func enrollParsedTarget(ctx context.Context, opts *SSHJoinOptions) error {

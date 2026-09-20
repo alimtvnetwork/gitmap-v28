@@ -111,15 +111,14 @@ func mergeSSHHostsConnections(ctx context.Context, db *sql.DB, existing []SSHCon
 func updateExistingPassword(merged []SSHConnection, alias, ip, encPass, user string) {
 	for i := range merged {
 		isMatch := strings.EqualFold(merged[i].Alias, alias) || merged[i].IPAddress == ip
-		if isMatch {
-			hasNoPass := merged[i].EncryptedPassword == "" && encPass != ""
-			if hasNoPass {
-				merged[i].EncryptedPassword = encPass
-			}
-			hasNoUser := merged[i].Username == "" && user != ""
-			if hasNoUser {
-				merged[i].Username = user
-			}
+		if !isMatch {
+			continue
+		}
+		if merged[i].EncryptedPassword == "" && encPass != "" {
+			merged[i].EncryptedPassword = encPass
+		}
+		if merged[i].Username == "" && user != "" {
+			merged[i].Username = user
 		}
 	}
 }

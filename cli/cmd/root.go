@@ -24,6 +24,10 @@ import (
 	"github.com/alimtvnetwork/gitmap-v28/cli/theme"
 )
 
+func isVersionCommand(cmd string) bool {
+	return cmd == constants.CmdVersion || cmd == constants.CmdVersionAlias || cmd == "--version" || cmd == "-version" || cmd == "-v"
+}
+
 // Run is the main entry point for the CLI.
 func Run() {
 	initConsole()
@@ -74,7 +78,7 @@ func Run() {
 
 	// Skip migration for commands that must produce clean stdout
 	cmd := os.Args[1]
-	if cmd != constants.CmdVersion && cmd != constants.CmdVersionAlias {
+	if isVersionCommand(cmd) == false {
 		migrateLegacyDirs()
 	}
 

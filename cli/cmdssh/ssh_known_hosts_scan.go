@@ -19,10 +19,9 @@ import (
 func resolveHostAndPort(target string) (string, int) {
 	if strings.Contains(target, ":") {
 		host, portStr, err := net.SplitHostPort(target)
-		if err == nil {
-			if p, convErr := strconv.Atoi(portStr); convErr == nil {
-				return host, p
-			}
+		p, convErr := strconv.Atoi(portStr)
+		if err == nil && convErr == nil {
+			return host, p
 		}
 	}
 	t, err := ParseSSHTarget(target, "root", 22)
@@ -82,16 +81,17 @@ func buildKnownHostRecord(target string, pubKey ssh.PublicKey) store.SSHKnownHos
 	}
 }
 
+func parseExplicitHostKey(target, explicitKey string) (store.SSHKnownHost, bool) {
+	if explicitKey == "" {
+		return store.SSHKnownHost{}, false
+	}
+	return parseKnownHostLine(target + " " + explicitKey)
+}
+
 // TrustRemoteTarget scans or records a host key into known_hosts and SQLite.
 func TrustRemoteTarget(ctx context.Context, target string, explicitKey string, db *sql.DB) (*store.SSHKnownHost, error) {
-	var kh store.SSHKnownHost
-	if explicitKey != "" {
-		parsed, ok := parseKnownHostLine(target + " " + explicitKey)
-		if ok {
-			kh = parsed
-		}
-	}
-	if kh.PublicKey == "" {
+	kh, isParsed := parseExplicitHostKey(target, explicitKey)
+	if !isParsed {
 		host, port := resolveHostAndPort(target)
 		pubKey, scanErr := ScanRemoteHostKey(host, port)
 		if scanErr != nil {

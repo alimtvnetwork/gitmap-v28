@@ -243,7 +243,8 @@ func deployHostPublicKey(client *ssh.Client, alias, osType string) *apperror.App
 }
 
 func confirmBidirectionalComm(client *ssh.Client, alias, osType string) bool {
-	out, err := crypto.RunCommand(client, "gitmap --version", resolveRemoteShell(osType))
+	checkCmd := "gitmap version 2>/dev/null || gitmap --version 2>/dev/null"
+	out, err := crypto.RunCommand(client, checkCmd, resolveRemoteShell(osType))
 	hasGitmap := err == nil && strings.Contains(out, "gitmap")
 	if hasGitmap {
 		fmt.Printf("✓ [%s] Bidirectional communication confirmed (node GitMap active).\n", alias)
@@ -264,7 +265,7 @@ func performConnectedBootstrap(session enrollSession, opts *SSHJoinOptions) *app
 	return nil
 }
 
-func ExecuteSSHJoinEnrollment(ctx context.Context, opts *SSHJoinOptions) *apperror.AppError {
+func ExecuteSSHJoinEnrollment(ctx context.Context, opts *SSHJoinOptions) error {
 	if opts.Target == nil {
 		return apperror.NewValidationError(msgMissingJoinTarget)
 	}
@@ -280,7 +281,7 @@ func ExecuteSSHJoinEnrollment(ctx context.Context, opts *SSHJoinOptions) *apperr
 	return nil
 }
 
-func ExecuteEnrollmentCompletion(ctx context.Context, opts *SSHJoinOptions) *apperror.AppError {
+func ExecuteEnrollmentCompletion(ctx context.Context, opts *SSHJoinOptions) error {
 	session := resolveTargetClient(ctx, opts)
 	_ = performConnectedBootstrap(session, opts)
 	if err := pushAuthIfRequested(ctx, opts); err != nil {

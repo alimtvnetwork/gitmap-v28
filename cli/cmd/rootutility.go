@@ -46,7 +46,7 @@ func utilityCoreEntries() []dispatchEntry {
 		{[]string{constants.CmdRevert}, func() error { return runRevert(argsTail()) }},
 		{[]string{constants.CmdRm, constants.CmdRmAlias, constants.CmdRmAlias2}, func() error { return runRm(argsTail()) }},
 		{[]string{constants.CmdRevertRunner}, runRevertRunner},
-		{[]string{constants.CmdVersion, constants.CmdVersionAlias}, printVersionBlock},
+		{[]string{constants.CmdVersion, constants.CmdVersionAlias, "--version", "-version", "-v"}, printVersionBlock},
 		{[]string{constants.CmdHelp, "--help", "-h"}, runHelpDispatch},
 	}
 }

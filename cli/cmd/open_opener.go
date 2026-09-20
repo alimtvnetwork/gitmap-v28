@@ -76,13 +76,15 @@ func isDisplayError(msg string) bool {
 func tryDirectBrowser(target string) error {
 	candidates := []string{"google-chrome", "chromium-browser", "chromium", "firefox", "sensible-browser"}
 	for _, cand := range candidates {
-		if path, err := exec.LookPath(cand); err == nil {
-			cmd := exec.Command(path, target)
-			configureLinuxDisplay(cmd)
-			configureDetachedProcess(cmd)
-			if startErr := cmd.Start(); startErr == nil {
-				return nil
-			}
+		path, err := exec.LookPath(cand)
+		if err != nil {
+			continue
+		}
+		cmd := exec.Command(path, target)
+		configureLinuxDisplay(cmd)
+		configureDetachedProcess(cmd)
+		if startErr := cmd.Start(); startErr == nil {
+			return nil
 		}
 	}
 	return handleHeadlessOpen(target)

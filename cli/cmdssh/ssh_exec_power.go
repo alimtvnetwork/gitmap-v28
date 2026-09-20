@@ -54,7 +54,11 @@ func resolveWindowsPowerCmd(isReboot bool) (string, string) {
 }
 
 func resolveUnixPowerCmd(c db.SSHConnection, isReboot bool) (string, string) {
-	plainPass, err := decryptPasswordCandidate(c.EncryptedPassword)
+	enc := c.EncryptedPassword
+	if enc == "" {
+		enc = queryHostPasswordFromDB(c.Alias, c.IPAddress)
+	}
+	plainPass, err := decryptPasswordCandidate(enc)
 	if err == nil && plainPass != "" {
 		return "bash", buildUnixPassPowerCmd(plainPass, isReboot)
 	}

@@ -10,7 +10,6 @@ import (
 	"github.com/alimtvnetwork/gitmap-v28/cli/apperror"
 	"github.com/alimtvnetwork/gitmap-v28/cli/crypto"
 	"github.com/alimtvnetwork/gitmap-v28/cli/db"
-	"github.com/alimtvnetwork/gitmap-v28/cli/macro"
 	"github.com/alimtvnetwork/gitmap-v28/cli/store"
 	"golang.org/x/crypto/ssh"
 )
@@ -145,16 +144,6 @@ func importConfigLocally(cfg map[string]any) {
 	_ = os.WriteFile(filepath.Join(dir, "config.json"), data, 0644)
 }
 
-func importMacrosLocally(macros []macro.Macro) int {
-	count := 0
-	for _, m := range macros {
-		if err := macro.SaveMacro(&m); err == nil {
-			count++
-		}
-	}
-	return count
-}
-
 func importConnectionsLocally(conns []db.SSHConnection) int {
 	dbConn, err := store.OpenDefault()
 	if err != nil {
@@ -217,7 +206,6 @@ func executeLocalBundleImport(opts SSHImportAllOptions) error {
 	c := db.SSHConnection{Alias: "local", IPAddress: "127.0.0.1"}
 	return applyImportBundleLocally(&bundle, c, opts)
 }
-
 
 func printSSHImportAllHelp() {
 	fmt.Println("Import all GitMap settings, macros, config, and SSH data from a remote node.")

@@ -221,6 +221,10 @@ func runSSHWorker(c db.SSHConnection, args []string, wg *sync.WaitGroup) error {
 	}
 	defer client.Close()
 
+	if c.EncryptedPassword == "" {
+		c.EncryptedPassword = queryHostPasswordFromDB(c.Alias, c.IPAddress)
+	}
+
 	return executeSSHPayload(client, c, args)
 }
 
@@ -236,7 +240,8 @@ func executeSSHPayload(client *ssh.Client, c db.SSHConnection, args []string) er
 
 	shellType, cmdStr, isDelegate := resolveWorkerCommand(c, args)
 	if isDelegate {
-		if err := ensureGitmapInstalled(client, c.OS, c.Alias); err != nil {
+		err := ensureGitmapInstalled(client, c.OS, c.Alias)
+		if err != nil {
 			printNodeResultOutput(c.Alias, c.IPAddress, "", err)
 			return nil
 		}

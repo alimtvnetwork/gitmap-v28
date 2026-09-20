@@ -29,14 +29,16 @@ func DefaultKnownHostsPath() (string, error) {
 
 func computeKeyFingerprint(keyType string, rawB64 string) string {
 	rawBytes, err := base64.StdEncoding.DecodeString(rawB64)
-	if err == nil {
-		pubKey, parseErr := ssh.ParsePublicKey(rawBytes)
-		if parseErr == nil {
-			return ssh.FingerprintSHA256(pubKey)
-		}
+	if err != nil {
+		h := sha256.Sum256([]byte(rawB64))
+		return "SHA256:" + base64.RawStdEncoding.EncodeToString(h[:])
 	}
-	h := sha256.Sum256([]byte(rawB64))
-	return "SHA256:" + base64.RawStdEncoding.EncodeToString(h[:])
+	pubKey, parseErr := ssh.ParsePublicKey(rawBytes)
+	if parseErr != nil {
+		h := sha256.Sum256([]byte(rawB64))
+		return "SHA256:" + base64.RawStdEncoding.EncodeToString(h[:])
+	}
+	return ssh.FingerprintSHA256(pubKey)
 }
 
 func parseKnownHostLine(line string) (store.SSHKnownHost, bool) {

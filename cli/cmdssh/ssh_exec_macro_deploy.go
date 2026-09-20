@@ -20,20 +20,20 @@ func handleRemoteMacroAdd(client *ssh.Client, c db.SSHConnection, args []string)
 
 func executeMacroAutoDeploy(client *ssh.Client, c db.SSHConnection, targetName string) (bool, error) {
 	localMacro, err := macro.LoadMacro(targetName)
-	if err == nil && localMacro != nil {
-		shell := determineFallbackShell(c.OS)
-		isOk := syncSingleMacroToClient(client, c, *localMacro, shell, true)
-		if isOk {
-			msg := fmt.Sprintf("✓ Deployed local macro %q (%d step(s)) to remote node", localMacro.Name, len(localMacro.Steps))
-			printNodeResultOutput(c.Alias, c.IPAddress, msg, nil)
-			return true, nil
-		}
-		deployErr := fmt.Errorf("failed to deploy local macro %q to %s", targetName, c.Alias)
-		printNodeResultOutput(c.Alias, c.IPAddress, "", deployErr)
-		return true, deployErr
+	if err != nil || localMacro == nil {
+		return reportMissingMacroAdvice(c, targetName)
 	}
 
-	return reportMissingMacroAdvice(c, targetName)
+	shell := determineFallbackShell(c.OS)
+	isOk := syncSingleMacroToClient(client, c, *localMacro, shell, true)
+	if isOk {
+		msg := fmt.Sprintf("✓ Deployed local macro %q (%d step(s)) to remote node", localMacro.Name, len(localMacro.Steps))
+		printNodeResultOutput(c.Alias, c.IPAddress, msg, nil)
+		return true, nil
+	}
+	deployErr := fmt.Errorf("failed to deploy local macro %q to %s", targetName, c.Alias)
+	printNodeResultOutput(c.Alias, c.IPAddress, "", deployErr)
+	return true, deployErr
 }
 
 func reportMissingMacroAdvice(c db.SSHConnection, targetName string) (bool, error) {
@@ -60,7 +60,7 @@ func inspectMacroTokens(tokens []string) (string, bool) {
 		return "", false
 	}
 	isAddVerb := tokens[1] == "add" || tokens[1] == "create" || tokens[1] == "new"
-	if isAddVerb && isValidMacroName(tokens[2]) && hasNoCommandTokens(tokens[3:]) {
+	if isAddVerb && isValidMacroName(tokens[2]) && hasOnlyFlagTokens(tokens[3:]) {
 		return tokens[2], true
 	}
 
@@ -70,10 +70,10 @@ func inspectMacroTokens(tokens []string) (string, bool) {
 func isValidMacroName(name string) bool {
 	hasDashPrefix := strings.HasPrefix(name, "-")
 
-	return hasDashPrefix == false && name != ""
+	return !hasDashPrefix && name != ""
 }
 
-func hasNoCommandTokens(tokens []string) bool {
+func hasOnlyFlagTokens(tokens []string) bool {
 	for i := 0; i < len(tokens); i++ {
 		t := tokens[i]
 		isValuedFlag := isFlagWithValue(t)
@@ -82,7 +82,7 @@ func hasNoCommandTokens(tokens []string) bool {
 			continue
 		}
 		isFlag := strings.HasPrefix(t, "-")
-		if isFlag == false {
+		if !isFlag {
 			return false
 		}
 	}
