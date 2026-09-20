@@ -2432,6 +2432,12 @@ PowerShell: `Invoke-WebRequest -Uri https://raw.githubusercontent.com/alimtvnetw
 
 # Changelog
 
+## [v6.274.0] - 2026-09-20
+
+### Added
+- fix compilation, vet, policy linters, pull table formatting, and test regressions
+
+
 ## [v6.273.0] - 2026-09-20
 
 ### Added

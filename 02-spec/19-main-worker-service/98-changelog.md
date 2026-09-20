@@ -1,3 +1,9 @@
+## v6.274.0 — 2026-09-20 (fix compilation, vet, policy linters, pull table formatting, and test regressions)
+
+**Scope:** Version bump. fix compilation, vet, policy linters, pull table formatting, and test regressions.
+
+---
+
 ## v6.273.0 — 2026-09-20 (fix remote gitmap detection, version flag routing, and sudo power command execution)
 
 **Scope:** Version bump. fix remote gitmap detection, version flag routing, and sudo power command execution.
