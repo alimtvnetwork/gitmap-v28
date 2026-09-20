@@ -100,7 +100,10 @@ func persistHostWithEncryptedPass(ctx context.Context, host store.SSHHost, hist 
 	}
 	defer dbConn.Close()
 	pair := hostHistoryPair{host: host, hist: hist, osType: "linux"}
-	return persistDualTables(ctx, dbConn.SQL(), pair)
+	if appErr := persistDualTables(ctx, dbConn.SQL(), pair); appErr != nil {
+		return appErr
+	}
+	return nil
 }
 
 func executeEnrollWithPassCLI(ctx context.Context, args []string) error {

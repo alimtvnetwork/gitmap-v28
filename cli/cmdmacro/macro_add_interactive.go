@@ -53,7 +53,7 @@ func handleZeroPipedSteps() *apperror.AppError {
 	}
 	printMacroAddUsage()
 
-	return apperror.NewValidationError("macro name and at least one command required")
+	return nil
 }
 
 func readPipedMacroSteps() ([]macro.MacroStep, error) {

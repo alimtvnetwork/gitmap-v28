@@ -68,9 +68,12 @@ func inspectMacroTokens(tokens []string) (string, bool) {
 }
 
 func isValidMacroName(name string) bool {
-	hasDashPrefix := strings.HasPrefix(name, "-")
+	isDashPrefix := strings.HasPrefix(name, "-")
+	if isDashPrefix {
+		return false
+	}
 
-	return !hasDashPrefix && name != ""
+	return name != ""
 }
 
 func hasOnlyFlagTokens(tokens []string) bool {

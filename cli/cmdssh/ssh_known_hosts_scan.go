@@ -24,14 +24,17 @@ func resolveTargetWithoutPort(target string) (string, int) {
 	return target, 22
 }
 
-func resolveHostAndPort(target string) (string, int) {
-	if strings.Contains(target, ":") == false {
-		return resolveTargetWithoutPort(target)
-	}
+func parseHostAndPort(target string) (string, int, bool) {
 	host, portStr, err := net.SplitHostPort(target)
 	p, convErr := strconv.Atoi(portStr)
-	if err == nil && convErr == nil {
-		return host, p
+	isValid := err == nil && convErr == nil
+	return host, p, isValid
+}
+
+func resolveHostAndPort(target string) (string, int) {
+	host, port, isValid := parseHostAndPort(target)
+	if isValid {
+		return host, port
 	}
 	return resolveTargetWithoutPort(target)
 }

@@ -73,17 +73,23 @@ func isDisplayError(msg string) bool {
 	return hasDisplayErr
 }
 
+func tryStartBrowserCandidate(cand, target string) bool {
+	path, err := exec.LookPath(cand)
+	if err != nil {
+		return false
+	}
+	cmd := exec.Command(path, target)
+	configureLinuxDisplay(cmd)
+	configureDetachedProcess(cmd)
+	startErr := cmd.Start()
+	return startErr == nil
+}
+
 func tryDirectBrowser(target string) error {
 	candidates := []string{"google-chrome", "chromium-browser", "chromium", "firefox", "sensible-browser"}
 	for _, cand := range candidates {
-		path, err := exec.LookPath(cand)
-		if err != nil {
-			continue
-		}
-		cmd := exec.Command(path, target)
-		configureLinuxDisplay(cmd)
-		configureDetachedProcess(cmd)
-		if startErr := cmd.Start(); startErr == nil {
+		isStarted := tryStartBrowserCandidate(cand, target)
+		if isStarted {
 			return nil
 		}
 	}

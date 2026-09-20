@@ -256,10 +256,12 @@ func tryReadMacroFile(target string) (*macro.Macro, bool) {
 		return nil, false
 	}
 	var m macro.Macro
-	if jsonErr := json.Unmarshal(data, &m); jsonErr != nil {
-		return nil, false
+	jsonErr := json.Unmarshal(data, &m)
+	isUnmarshalOk := jsonErr == nil
+	if isUnmarshalOk {
+		return &m, true
 	}
-	return &m, true
+	return nil, false
 }
 
 func readMacroFromFileOrStore(filePath, name string) (*macro.Macro, error) {

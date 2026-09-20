@@ -79,7 +79,7 @@ echo "$@" > "%s"`, escArgsFile)
 	os.Setenv("PATH", dir+string(os.PathListSeparator)+oldPath)
 	defer os.Setenv("PATH", oldPath)
 
-	args := expected[1:] // first element is target
+	args := []string{"ls", "-la"}
 	if err := SpawnSSH(ctx, target, args); err != nil {
 		t.Fatalf("SpawnSSH failed: %v", err)
 	}

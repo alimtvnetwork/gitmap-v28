@@ -108,17 +108,22 @@ func mergeSSHHostsConnections(ctx context.Context, db *sql.DB, existing []SSHCon
 	return result.OkSlice(merged)
 }
 
+func applySSHHostCredentials(conn *SSHConnection, encPass, user string) {
+	hasMissingPass := conn.EncryptedPassword == "" && encPass != ""
+	if hasMissingPass {
+		conn.EncryptedPassword = encPass
+	}
+	hasMissingUser := conn.Username == "" && user != ""
+	if hasMissingUser {
+		conn.Username = user
+	}
+}
+
 func updateExistingPassword(merged []SSHConnection, alias, ip, encPass, user string) {
 	for i := range merged {
 		isMatch := strings.EqualFold(merged[i].Alias, alias) || merged[i].IPAddress == ip
-		if !isMatch {
-			continue
-		}
-		if merged[i].EncryptedPassword == "" && encPass != "" {
-			merged[i].EncryptedPassword = encPass
-		}
-		if merged[i].Username == "" && user != "" {
-			merged[i].Username = user
+		if isMatch {
+			applySSHHostCredentials(&merged[i], encPass, user)
 		}
 	}
 }
