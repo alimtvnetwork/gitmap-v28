@@ -1,3 +1,9 @@
+## v6.276.0 — 2026-09-20 (feat(locate): top-level locate and vcvars tool discovery engine)
+
+**Scope:** Version bump. feat(locate): top-level locate and vcvars tool discovery engine.
+
+---
+
 ## v6.275.0 — 2026-09-20 (feat(pipeline-ai): live error streaming, aum search acceleration, tool locator, and author attribution)
 
 **Scope:** Version bump. feat(pipeline-ai): live error streaming, aum search acceleration, tool locator, and author attribution.

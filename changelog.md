@@ -2432,6 +2432,12 @@ PowerShell: `Invoke-WebRequest -Uri https://raw.githubusercontent.com/alimtvnetw
 
 # Changelog
 
+## [v6.276.0] - 2026-09-20
+
+### Added
+- feat(locate): top-level locate and vcvars tool discovery engine
+
+
 ## [v6.275.0] - 2026-09-20
 
 ### Added
