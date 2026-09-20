@@ -28,15 +28,40 @@ func DispatchAgy(ctx context.Context, args []string, root *cobra.Command) error 
 		return RunAgyOpen(args[0])
 	}
 	args = normalizeAgyArgs(args)
-	if len(args) > 0 && isAgyFindDuplicatesArg(args[0]) {
-		return RunFindDuplicates()
-	}
-	if isAgyLsEmptyConvsArg(args) {
-		return runAgyLsEmptyConvs(args[1:])
+	if err, isHandled := tryDispatchAgyShortcut(args); isHandled {
+		return err
 	}
 	AgyCmd.SetArgs(args)
 
 	return AgyCmd.ExecuteContext(ctx)
+}
+
+func tryDispatchAgyShortcut(args []string) (error, bool) {
+	if len(args) > 0 && isAgyFindDuplicatesArg(args[0]) {
+		return RunFindDuplicates(), true
+	}
+	if isAgyLsEmptyConvsArg(args) {
+		return runAgyLsEmptyConvs(args[1:]), true
+	}
+	if isDirectAgyPromptInjection(args) {
+		return runAgyPrompt(args[1:]), true
+	}
+
+	return nil, false
+}
+
+func isDirectAgyPromptInjection(args []string) bool {
+	if len(args) < 2 {
+		return false
+	}
+	isPrompt := args[0] == "prompt" || args[0] == "pr"
+	if isPrompt == false {
+		return false
+	}
+	sub := strings.ToLower(args[1])
+	isSubcmd := sub == "read" || sub == "show" || sub == "view" || sub == "cat" || sub == "ls" || sub == "list" || sub == "-h" || sub == "--help"
+
+	return isSubcmd == false
 }
 
 func stripAgyPrefix(args []string) []string {
@@ -144,6 +169,9 @@ func normalizeMaintenanceSubcommands(low string) string {
 	if low == "clean-cache" || low == "cleancache" || low == "clean_cache" || low == "cc" {
 		return "clean-cache"
 	}
+	if low == "ping" || low == "check" {
+		return "ping"
+	}
 	if isFixPipelineAlias(low) {
 		return "fix-pipeline"
 	}
@@ -242,6 +270,7 @@ func registerAgyBaseCommands() {
 	AgyCmd.AddCommand(agyRmCmd)
 	AgyCmd.AddCommand(agyLsCmd)
 	AgyCmd.AddCommand(agyStatusCmd)
+	AgyCmd.AddCommand(agyPingCmd)
 	AgyCmd.AddCommand(agyOptimizeCmd)
 	AgyCmd.AddCommand(agyScanCmd)
 	AgyCmd.AddCommand(agyStatsCmd)
@@ -329,6 +358,7 @@ func initAgyQueueCommands() {
 }
 
 func initAgyPromptAndStatusCommands() {
+	initAgyPromptSubcommands()
 	agyPromptCmd.RunE = func(cmd *cobra.Command, args []string) error {
 		return runAgyPrompt(args)
 	}

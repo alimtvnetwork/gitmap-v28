@@ -87,6 +87,8 @@ None.
 - [38-polyglot-worker-orchestrator-and-automation-runner.md](completed/38-polyglot-worker-orchestrator-and-automation-runner.md): Polyglot Worker Orchestrator & Automation Runner
 - [39-windows-ssh-authkey-join-automation-and-node-rm.md](completed/39-windows-ssh-authkey-join-automation-and-node-rm.md): Windows SSH Authorized Key Architecture, Interactive SSH Join Password Automation, GitMap Host-Node Bootstrapping, and Comprehensive Node Removal
 - [40-macro-fleet-export-import-and-interactive-resilience.md](completed/40-macro-fleet-export-import-and-interactive-resilience.md): Macro Fleet Export/Import, Multi-Node Sync & Interactive Resilience
+- [41-antigravity-ide-first-integration-and-queue-protocol.md](completed/41-antigravity-ide-first-integration-and-queue-protocol.md): Antigravity IDE-First Integration, SA4023 Typed Nil Pointer Fix & Queue Protocol
+- [42-antigravity-ide-multi-conversation-prompt-ping-and-queue-protocol.md](completed/42-antigravity-ide-multi-conversation-prompt-ping-and-queue-protocol.md): Antigravity IDE Multi-Conversation Prompt, Ping & Queue Protocol
 
 ## Subtasks
 

@@ -20,7 +20,10 @@ gitmap antigravity <subcommand> [flags]
 
 | Subcommand | Description |
 |------------|-------------|
+| `ping` | Ping Antigravity IDE and inspect environment health (alias: `check`) |
 | `prompt [slug/path] [text]` | Send a prompt to Antigravity IDE/CLI using Queue & Injection Protocol |
+| `prompt read [conv-id]` | Read and display user prompts for a conversation from Antigravity brain |
+| `prompt ls [limit]` | List conversation prompts across workspaces (alias: `list`) |
 | `queue [status\|ls\|clear\|pop]` | Manage pending prompt queue entries |
 | `status` | Show Antigravity system status (IDE process, IDLE vs RUNNING, prompt queue) |
 | `rerun last [N]` | Replay last N prompts with optional prefix verification prompt template (`-p`) |
@@ -289,6 +292,26 @@ gitmap agy prompt "Refactor error handling to use AppError envelopes"
 gitmap agy prompt d:/work/my-service "Implement health check endpoint"
 ```
 
+### Inspection Subcommands
+
+| Subcommand | Usage | Description |
+|------------|-------|-------------|
+| `read` | `gitmap agy prompt read [conv-id]` | Read all user prompts from a conversation transcript |
+| `ls` / `list` | `gitmap agy prompt ls [limit]` | List recent conversation prompts across workspaces |
+
+### Inspection Examples
+
+```bash
+# Read prompts for the active workspace conversation
+gitmap agy prompt read
+
+# Read prompts for a specific conversation ID
+gitmap agy prompt read 6c46400d-e873-4539-9d52-a96fee2786b6
+
+# List the last 20 conversation prompts across all workspaces
+gitmap agy prompt ls 20
+```
+
 ---
 
 ## 7. agy queue
@@ -351,8 +374,50 @@ gitmap agy st
 
 ---
 
+## 9. agy ping
+
+Ping the Antigravity desktop IDE environment and inspect health across 5 core dimensions:
+- **IDE Executable**: Locates `Antigravity.exe` or candidate paths across Windows, Linux, and macOS.
+- **IDE Process**: Detects whether the Antigravity desktop process is currently running (PID) or stopped (offline filesystem mode).
+- **Filesystem Health**: Checks accessibility of Antigravity brain logs (`~/.gemini/antigravity/brain/`), project configs (`~/.gemini/config/projects/`), and conversation databases (`~/.gemini/antigravity/conversations/`).
+- **Workspace Execution State**: Resolves matching conversation for the target workspace, reporting execution state (`IDLE` vs `RUNNING`) and total steps.
+- **Prompt Queue Status**: Reports pending and active verification prompts in `.ai-memory/temp/agy-prompt-queue.json`.
+
+### Usage
+
+```bash
+gitmap agy ping [flags]
+gitmap agy check [flags]
+```
+
+### Options & Flags
+
+| Flag | Shorthand | Type | Default | Description |
+|------|-----------|------|---------|-------------|
+| `--json` | `-j` | boolean | `false` | Output ping report in structured JSON format |
+| `--workspace` | `-w` | string | `""` | Target workspace directory to inspect |
+| `--help` | `-h` | boolean | `false` | Show help for agy ping |
+
+### Output Example
+
+```text
+● Antigravity IDE Ping & Health Report
+  IDE Executable: FOUND (C:\Users\Administrator\AppData\Local\Programs\antigravity\Antigravity.exe)
+  IDE Process:    RUNNING (PID: 14280, antigravity.exe)
+  Filesystem:     ACCESSIBLE
+    • Brain Logs: C:\Users\Administrator\.gemini\antigravity\brain
+    • Projects:   C:\Users\Administrator\.gemini\config\projects
+  Workspace:      D:\work\gitmap
+    • Status:     IDLE (ID: 6c46400d-e873-4539-9d52-a96fee2786b6, 42 steps)
+  Prompt Queue:   1 active, 0 queued
+  Overall Health: HEALTHY
+```
+
+---
+
 ## See Also
 
 - [prompts-template](prompts-template.md) — Manage prompt prefix and verification templates
 - [pipeline](pipeline.md) — CI/CD pipeline status, logs, and database management
 - [storage](storage.md) — Inspect disk space, pipeline logs, and SQLite database storage
+

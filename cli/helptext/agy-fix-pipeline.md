@@ -88,3 +88,10 @@ gitmap pipeline errors agy fix --all --limit 5
 gitmap pipeline errors agy fix --force
 ```
 
+## Diagnostic & Prompt Inspection Commands
+
+- **`gitmap agy ping`**: Run a comprehensive diagnostic check on the Antigravity IDE executable, process status, filesystem access, active workspace conversation state, and prompt queue ledger.
+- **`gitmap agy prompt read [conv-id]`**: Inspect user prompts recorded in an Antigravity conversation transcript directly from disk.
+- **`gitmap agy prompt ls [limit]`**: List recent conversation prompts across all workspaces.
+
+

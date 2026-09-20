@@ -39,11 +39,19 @@ func renderPayloadMetrics(repo, promptSource, logs, prompt, payload string, hasF
 	fmt.Printf("    • Saved Payload:  %s\n", toAbsPath(resolveActiveAgyPromptPath()))
 }
 
-func renderClipboardNotice(isNoClipboard bool) {
-	if !isNoClipboard {
-		fmt.Printf("    • Clipboard:      %sCopied to OS clipboard%s ✅\n",
-			constants.ColorGreen, constants.ColorReset)
+func renderClipboardNotice(isClipboardSkipped bool) {
+	if isClipboardSkipped {
+		renderClipboardReadyFooter()
+
+		return
 	}
+
+	fmt.Printf("    • Clipboard:      %sCopied to OS clipboard%s ✅\n",
+		constants.ColorGreen, constants.ColorReset)
+	renderClipboardReadyFooter()
+}
+
+func renderClipboardReadyFooter() {
 	fmt.Printf("\n  %sReady! Prompt injected into Antigravity or paste via Ctrl+V to start fix loop.%s\n\n",
 		constants.ColorYellow, constants.ColorReset)
 }
@@ -62,9 +70,6 @@ func renderQueuedVerificationNotice() {
 	fmt.Printf("  %s✓ Follow-up Verification Prompt Queued: %s (\"Is it fixed?\")%s\n",
 		constants.ColorGreen, queuedAbs, constants.ColorReset)
 	fmt.Printf("    • Queue Ledger:   %s\n", ledgerAbs)
-	if cliRes := ResolveAntigravityCLI(); cliRes.IsSuccess() {
-		fmt.Printf("    • Antigravity CLI: Detected at %s\n", cliRes.Value)
-	}
 	fmt.Println()
 }
 

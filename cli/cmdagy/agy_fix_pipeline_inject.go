@@ -4,7 +4,6 @@ import (
 	"encoding/json"
 	"fmt"
 	"os"
-	"os/exec"
 	"path/filepath"
 	"strings"
 	"time"
@@ -22,19 +21,24 @@ func InjectAgyFixTask(repoDir, absPayloadPath string, isSkipInject bool) AgyInje
 	repoRoot := resolveTargetRepoRoot(repoDir)
 	promptPath := stageActivePromptInRepo(repoRoot, absPayloadPath)
 	ideProcRes := DetectRunningAntigravityIDE()
+	pid := resolveActiveOrZeroPID(ideProcRes)
 
+	return handleIDEInjection(repoRoot, promptPath, pid)
+}
+
+func resolveActiveOrZeroPID(ideProcRes result.Result[AgyProcessInfo]) int {
 	if ideProcRes.IsSuccess() {
-		return handleIDEInjection(repoRoot, promptPath, ideProcRes.Value.PID)
+		return ideProcRes.Value.PID
 	}
 
-	return handleCLIInjectionFallback(repoRoot, promptPath, ideProcRes)
+	return 0
 }
 
 func handleIDEInjection(repoRoot, promptPath string, pid int) AgyInjectionResult {
 	convStatus := DetectConversationExecutionStatus(repoRoot)
 	promptContent := readPromptContentOrDefault(promptPath)
-
-	if convStatus == AgyConvStatusRunning {
+	isRunning := convStatus == AgyConvStatusRunning
+	if isRunning {
 		_, _ = EnqueuePrompt("pipeline_fix", "Fix CI/CD Pipeline Errors with 4-Part RCA", promptContent)
 
 		return makeQueuedSuccessResult(pid, repoRoot, promptPath)
@@ -43,15 +47,6 @@ func handleIDEInjection(repoRoot, promptPath string, pid int) AgyInjectionResult
 	copyClipboardIfNotSkipped(promptContent, false)
 
 	return makeIDESuccessResult(pid, repoRoot, promptPath)
-}
-
-func handleCLIInjectionFallback(repoRoot, promptPath string, ideRes result.Result[AgyProcessInfo]) AgyInjectionResult {
-	cliRes := ResolveAntigravityCLI()
-	if cliRes.IsSuccess() {
-		return launchAgyBackgroundRunner(cliRes.Value, repoRoot, promptPath, ideRes)
-	}
-
-	return makeNoTargetResult(repoRoot, promptPath)
 }
 
 // InjectAgyPrompt injects any prompt into active Antigravity IDE or CLI using queue protocol.
@@ -64,17 +59,15 @@ func InjectAgyPrompt(repoDir, promptText, title, promptType string, isSkipInject
 	targetPrompt := filepath.Join(repoRoot, activeAgyPromptRelativePath)
 	writePromptFile(targetPrompt, promptText)
 	ideProcRes := DetectRunningAntigravityIDE()
+	pid := resolveActiveOrZeroPID(ideProcRes)
 
-	if ideProcRes.IsSuccess() {
-		return handleIDEInjectionWithPayload(repoRoot, targetPrompt, promptText, title, promptType, ideProcRes.Value.PID)
-	}
-
-	return handleCLIInjectionFallback(repoRoot, targetPrompt, ideProcRes)
+	return handleIDEInjectionWithPayload(repoRoot, targetPrompt, promptText, title, promptType, pid)
 }
 
 func handleIDEInjectionWithPayload(repoRoot, promptPath, promptText, title, promptType string, pid int) AgyInjectionResult {
 	convStatus := DetectConversationExecutionStatus(repoRoot)
-	if convStatus == AgyConvStatusRunning {
+	isRunning := convStatus == AgyConvStatusRunning
+	if isRunning {
 		_, _ = EnqueuePrompt(promptType, title, promptText)
 
 		return makeQueuedSuccessResult(pid, repoRoot, promptPath)
@@ -86,7 +79,7 @@ func handleIDEInjectionWithPayload(repoRoot, promptPath, promptText, title, prom
 }
 
 func makeQueuedSuccessResult(pid int, repoDir, promptPath string) AgyInjectionResult {
-	msg := fmt.Sprintf("Active Antigravity IDE is currently busy (RUNNING); prompt queued in agy-prompt-queue.json (PID: %d)", pid)
+	msg := formatQueuedSuccessMessage(pid)
 
 	return AgyInjectionResult{
 		IsSuccess:  true,
@@ -98,10 +91,20 @@ func makeQueuedSuccessResult(pid int, repoDir, promptPath string) AgyInjectionRe
 	}
 }
 
+func formatQueuedSuccessMessage(pid int) string {
+	hasPID := pid > 0
+	if hasPID {
+		return fmt.Sprintf("Active Antigravity IDE is currently busy (RUNNING); prompt queued in agy-prompt-queue.json (PID: %d)", pid)
+	}
+
+	return "Antigravity IDE offline/ready; prompt queued in agy-prompt-queue.json"
+}
+
 func resolveTargetRepoRoot(repoDir string) string {
 	startPath := resolveInitialPath(repoDir)
 	root, err := gitutil.RepoRoot(startPath)
-	if err == nil && len(root) > 0 {
+	hasRoot := err == nil && len(root) > 0
+	if hasRoot {
 		return root
 	}
 
@@ -109,7 +112,8 @@ func resolveTargetRepoRoot(repoDir string) string {
 }
 
 func resolveInitialPath(repoDir string) string {
-	if len(repoDir) > 0 {
+	hasDir := len(repoDir) > 0
+	if hasDir {
 		return repoDir
 	}
 
@@ -118,7 +122,8 @@ func resolveInitialPath(repoDir string) string {
 
 func stageActivePromptInRepo(repoRoot, absPayloadPath string) string {
 	targetPrompt := filepath.Join(repoRoot, activeAgyPromptRelativePath)
-	if isSamePath(targetPrompt, absPayloadPath) {
+	isSame := isSamePath(targetPrompt, absPayloadPath)
+	if isSame {
 		return targetPrompt
 	}
 
@@ -136,12 +141,14 @@ func isSamePath(pathA, pathB string) bool {
 }
 
 func readPromptContentOrDefault(path string) string {
-	if len(path) == 0 {
+	hasEmpty := len(path) == 0
+	if hasEmpty {
 		return ""
 	}
 
 	data, err := os.ReadFile(path)
-	if err != nil {
+	hasErr := err != nil
+	if hasErr {
 		return ""
 	}
 
@@ -149,7 +156,8 @@ func readPromptContentOrDefault(path string) string {
 }
 
 func writePromptFile(path, content string) {
-	if len(content) == 0 {
+	hasEmpty := len(content) == 0
+	if hasEmpty {
 		return
 	}
 
@@ -157,80 +165,8 @@ func writePromptFile(path, content string) {
 	_ = os.WriteFile(path, []byte(content), 0644)
 }
 
-func buildAgyPromptArg(absPayloadPath string) string {
-	return fmt.Sprintf("Autonomous CI/CD pipeline fix: follow all directives in %s", absPayloadPath)
-}
-
-func attachInjectionLog(cmd *exec.Cmd, repoDir string) {
-	if len(repoDir) == 0 {
-		return
-	}
-
-	cmd.Dir = repoDir
-	logPath := filepath.Join(repoDir, ".ai-memory", "temp", "agy-injection.log")
-	_ = os.MkdirAll(filepath.Dir(logPath), 0755)
-	logFile, err := os.OpenFile(logPath, os.O_CREATE|os.O_WRONLY|os.O_APPEND, 0644)
-	if err != nil {
-		return
-	}
-
-	cmd.Stdout = logFile
-	cmd.Stderr = logFile
-}
-
-func launchAgyBackgroundRunner(
-	binPath string,
-	repoDir string,
-	promptPath string,
-	ideRes result.Result[AgyProcessInfo],
-) AgyInjectionResult {
-	promptArg := buildAgyPromptArg(promptPath)
-	cmd := exec.Command(binPath, "--dangerously-skip-permissions", "-p", promptArg)
-	attachInjectionLog(cmd, repoDir)
-	configureBackgroundProcess(cmd)
-
-	if err := cmd.Start(); err != nil {
-		return makeLaunchFailureResult(err, repoDir, promptPath)
-	}
-
-	pid := cmd.Process.Pid
-	_ = cmd.Process.Release()
-
-	return makeLaunchSuccessResult(pid, repoDir, promptPath, ideRes)
-}
-
-func makeLaunchSuccessResult(
-	pid int,
-	repoDir string,
-	promptPath string,
-	ideRes result.Result[AgyProcessInfo],
-) AgyInjectionResult {
-	msg := formatLaunchSuccessMessage(pid, repoDir, ideRes)
-
-	return AgyInjectionResult{
-		IsSuccess:  true,
-		Mode:       AgyInjectionModeCLI,
-		PID:        pid,
-		Message:    msg,
-		PromptPath: promptPath,
-		RepoDir:    repoDir,
-	}
-}
-
-func formatLaunchSuccessMessage(
-	pid int,
-	repoDir string,
-	ideRes result.Result[AgyProcessInfo],
-) string {
-	if ideRes.IsSuccess() {
-		return fmt.Sprintf("Started Antigravity CLI background runner (PID: %d) with active IDE detected (PID: %d)", pid, ideRes.Value.PID)
-	}
-
-	return fmt.Sprintf("Started Antigravity CLI background runner (PID: %d) in %s", pid, repoDir)
-}
-
 func makeIDESuccessResult(pid int, repoDir, promptPath string) AgyInjectionResult {
-	msg := fmt.Sprintf("Active Antigravity IDE detected (PID: %d); staged fix prompt in %s", pid, promptPath)
+	msg := formatIDESuccessMessage(pid, promptPath)
 
 	return AgyInjectionResult{
 		IsSuccess:  true,
@@ -242,14 +178,13 @@ func makeIDESuccessResult(pid int, repoDir, promptPath string) AgyInjectionResul
 	}
 }
 
-func makeLaunchFailureResult(err error, repoDir, promptPath string) AgyInjectionResult {
-	return AgyInjectionResult{
-		IsSuccess:  false,
-		Mode:       AgyInjectionModeCLI,
-		Message:    fmt.Sprintf("failed to launch agy CLI process: %v", err),
-		PromptPath: promptPath,
-		RepoDir:    repoDir,
+func formatIDESuccessMessage(pid int, promptPath string) string {
+	hasPID := pid > 0
+	if hasPID {
+		return fmt.Sprintf("Active Antigravity IDE detected (PID: %d); staged fix prompt in %s", pid, promptPath)
 	}
+
+	return fmt.Sprintf("Antigravity offline/ready; staged prompt in %s", promptPath)
 }
 
 func makeSkipInjectionResult() AgyInjectionResult {
@@ -257,16 +192,6 @@ func makeSkipInjectionResult() AgyInjectionResult {
 		IsSuccess: false,
 		Mode:      AgyInjectionModeNone,
 		Message:   "direct injection skipped by flag (--no-inject)",
-	}
-}
-
-func makeNoTargetResult(repoDir, promptPath string) AgyInjectionResult {
-	return AgyInjectionResult{
-		IsSuccess:  false,
-		Mode:       AgyInjectionModeNone,
-		Message:    "antigravity binary (agy) not detected and no active IDE process found",
-		PromptPath: promptPath,
-		RepoDir:    repoDir,
 	}
 }
 
@@ -280,7 +205,8 @@ func DetectConversationExecutionStatus(repoRoot string) AgyConvStatusType {
 // DetectConversationExecutionState inspects transcript.jsonl for the active conversation.
 func DetectConversationExecutionState(repoRoot string) AgyConversationExecutionState {
 	convID, transcriptPath := findActiveConvTranscript(repoRoot)
-	if len(transcriptPath) == 0 {
+	hasNoTranscript := len(transcriptPath) == 0
+	if hasNoTranscript {
 		return AgyConversationExecutionState{Status: AgyConvStatusUnknown}
 	}
 
@@ -295,7 +221,8 @@ func DetectConversationExecutionState(repoRoot string) AgyConversationExecutionS
 
 func findActiveConvTranscript(repoRoot string) (string, string) {
 	convID := findMatchingActiveConvID(repoRoot)
-	if len(convID) > 0 {
+	hasConvID := len(convID) > 0
+	if hasConvID {
 		path := resolveTranscriptPathForConv(convID)
 		if checkFileExists(path) {
 			return convID, path
@@ -307,7 +234,8 @@ func findActiveConvTranscript(repoRoot string) (string, string) {
 
 func resolveTranscriptPathForConv(convID string) string {
 	brainDir, err := GetBrainLogsDirPath()
-	if err != nil {
+	hasErr := err != nil
+	if hasErr {
 		return ""
 	}
 
@@ -320,59 +248,54 @@ func resolveTranscriptPathForConv(convID string) string {
 }
 
 func checkFileExists(path string) bool {
-	if len(path) == 0 {
+	hasEmpty := len(path) == 0
+	if hasEmpty {
 		return false
 	}
 	info, err := os.Stat(path)
+	isFoundFile := err == nil && info.IsDir() == false
 
-	return err == nil && info.IsDir() == false
+	return isFoundFile
 }
 
 func findMatchingActiveConvID(repoRoot string) string {
-	convs, err := scanAllConversations()
-	if err != nil || len(convs) == 0 {
+	conv, err := SelectMatchingConversation(repoRoot)
+	hasErr := err != nil
+	if hasErr {
 		return ""
 	}
 
-	pClean := cleanProjectWorkspace(repoRoot)
-	var bestConv AgyConvInfo
-	hasMatch := false
-
-	for _, c := range convs {
-		if isConvPathMatch(pClean, c.CleanPath) {
-			bestConv = pickMoreActiveConv(bestConv, c)
-			hasMatch = true
-		}
-	}
-	if hasMatch {
-		return bestConv.ID
-	}
-
-	return ""
-}
-
-func pickMoreActiveConv(curr, next AgyConvInfo) AgyConvInfo {
-	if next.StepCount > curr.StepCount || next.UserSteps > curr.UserSteps {
-		return next
-	}
-
-	return curr
+	return conv.ID
 }
 
 func findLatestModifiedTranscript() (string, string) {
-	brainDir, err := GetBrainLogsDirPath()
-	if err != nil {
-		return "", ""
-	}
-	entries, err := os.ReadDir(brainDir)
-	if err != nil {
-		return "", ""
+	brainDir, entries, isFound := readBrainDirEntries()
+	if isFound {
+		return scanEntriesForLatestTranscript(brainDir, entries)
 	}
 
+	return "", ""
+}
+
+func readBrainDirEntries() (string, []os.DirEntry, bool) {
+	brainDir, err := GetBrainLogsDirPath()
+	hasDirErr := err != nil
+	if hasDirErr {
+		return "", nil, false
+	}
+	entries, err := os.ReadDir(brainDir)
+	hasReadErr := err != nil
+	if hasReadErr {
+		return "", nil, false
+	}
+
+	return brainDir, entries, true
+}
+
+func scanEntriesForLatestTranscript(brainDir string, entries []os.DirEntry) (string, string) {
 	var latestPath string
 	var latestConvID string
 	var latestTime time.Time
-
 	for _, e := range entries {
 		if e.IsDir() {
 			latestConvID, latestPath, latestTime = inspectConvDirForLatest(brainDir, e.Name(), latestConvID, latestPath, latestTime)
@@ -385,7 +308,8 @@ func findLatestModifiedTranscript() (string, string) {
 func inspectConvDirForLatest(brainDir, name, curID, curPath string, curTime time.Time) (string, string, time.Time) {
 	tPath := resolveTranscriptPathForConv(name)
 	info, err := os.Stat(tPath)
-	if err == nil && info.ModTime().After(curTime) {
+	isNewer := err == nil && info.ModTime().After(curTime)
+	if isNewer {
 		return name, tPath, info.ModTime()
 	}
 
@@ -402,26 +326,21 @@ type rawTranscriptStepForStatus struct {
 
 func detectTranscriptStatus(transcriptPath string) AgyConvStatusType {
 	step, hasStep := readLastTranscriptStep(transcriptPath)
-	if hasStep == false {
-		return AgyConvStatusUnknown
+	if hasStep {
+		return parseConvStatusFromStep(step)
 	}
 
-	return parseConvStatusFromStep(step)
+	return AgyConvStatusUnknown
 }
 
 func parseConvStatusFromStep(step rawTranscriptStepForStatus) AgyConvStatusType {
 	stepType := strings.ToUpper(step.Type)
 	source := strings.ToUpper(step.Source)
-	hasToolCalls := len(step.ToolCalls) > 0
-
 	if stepType == "USER_INPUT" {
 		return AgyConvStatusRunning
 	}
 	if isModelStatusStep(stepType, source) {
-		if hasToolCalls {
-			return AgyConvStatusRunning
-		}
-		return AgyConvStatusIdle
+		return resolveModelStepStatus(len(step.ToolCalls) > 0)
 	}
 	if stepType == "GENERIC" || source == "GENERIC" {
 		return AgyConvStatusRunning
@@ -430,42 +349,71 @@ func parseConvStatusFromStep(step rawTranscriptStepForStatus) AgyConvStatusType 
 	return AgyConvStatusRunning
 }
 
+func resolveModelStepStatus(hasToolCalls bool) AgyConvStatusType {
+	if hasToolCalls {
+		return AgyConvStatusRunning
+	}
+
+	return AgyConvStatusIdle
+}
+
 func isModelStatusStep(stepType, source string) bool {
 	return stepType == "MODEL" || stepType == "PLANNER_RESPONSE" || source == "MODEL"
 }
 
-func readLastTranscriptStep(transcriptPath string) (rawTranscriptStepForStatus, bool) {
-	f, err := os.Open(transcriptPath)
-	if err != nil {
-		return rawTranscriptStepForStatus{}, false
+func openAndStatTranscript(path string) (*os.File, int64, bool) {
+	f, err := os.Open(path)
+	hasErr := err != nil
+	if hasErr {
+		return nil, 0, false
 	}
-	defer f.Close()
-
 	stat, statErr := f.Stat()
-	if statErr != nil || stat.Size() == 0 {
-		return rawTranscriptStepForStatus{}, false
+	hasStatErr := statErr != nil || stat.Size() == 0
+	if hasStatErr {
+		_ = f.Close()
+		return nil, 0, false
 	}
 
-	buf, isReadSuccess := readEndChunk(f, stat.Size())
-	if isReadSuccess == false {
-		return rawTranscriptStepForStatus{}, false
-	}
-
-	return parseLastStepFromBuffer(buf)
+	return f, stat.Size(), true
 }
 
-func readEndChunk(f *os.File, totalSize int64) ([]byte, bool) {
-	readSize := int64(256 * 1024)
+func readLastTranscriptStep(transcriptPath string) (rawTranscriptStepForStatus, bool) {
+	f, size, isReady := openAndStatTranscript(transcriptPath)
+	if isReady {
+		defer f.Close()
+		return readTranscriptBuffer(f, size)
+	}
+
+	return rawTranscriptStepForStatus{}, false
+}
+
+func readTranscriptBuffer(f *os.File, size int64) (rawTranscriptStepForStatus, bool) {
+	buf, isReadSuccess := readEndChunk(f, size)
+	if isReadSuccess {
+		return parseLastStepFromBuffer(buf)
+	}
+
+	return rawTranscriptStepForStatus{}, false
+}
+
+func calculateChunkOffset(totalSize, maxSize int64) (int64, int64) {
+	readSize := maxSize
 	if totalSize < readSize {
 		readSize = totalSize
 	}
-	offset := totalSize - readSize
+
+	return totalSize - readSize, readSize
+}
+
+func readEndChunk(f *os.File, totalSize int64) ([]byte, bool) {
+	offset, readSize := calculateChunkOffset(totalSize, 256*1024)
 	if _, err := f.Seek(offset, 0); err != nil {
 		return nil, false
 	}
 	buf := make([]byte, readSize)
 	n, readErr := f.Read(buf)
-	if readErr != nil || n == 0 {
+	hasReadErr := readErr != nil || n == 0
+	if hasReadErr {
 		return nil, false
 	}
 
@@ -475,14 +423,26 @@ func readEndChunk(f *os.File, totalSize int64) ([]byte, bool) {
 func parseLastStepFromBuffer(buf []byte) (rawTranscriptStepForStatus, bool) {
 	lines := strings.Split(string(buf), "\n")
 	for i := len(lines) - 1; i >= 0; i-- {
-		line := strings.TrimSpace(lines[i])
-		if len(line) == 0 {
-			continue
-		}
-		var step rawTranscriptStepForStatus
-		if err := json.Unmarshal([]byte(line), &step); err == nil && (len(step.Type) > 0 || len(step.Source) > 0) {
+		step, isFound := parseSingleTranscriptLine(lines[i])
+		if isFound {
 			return step, true
 		}
+	}
+
+	return rawTranscriptStepForStatus{}, false
+}
+
+func parseSingleTranscriptLine(line string) (rawTranscriptStepForStatus, bool) {
+	trimmed := strings.TrimSpace(line)
+	hasEmpty := len(trimmed) == 0
+	if hasEmpty {
+		return rawTranscriptStepForStatus{}, false
+	}
+	var step rawTranscriptStepForStatus
+	err := json.Unmarshal([]byte(trimmed), &step)
+	hasData := err == nil && (len(step.Type) > 0 || len(step.Source) > 0)
+	if hasData {
+		return step, true
 	}
 
 	return rawTranscriptStepForStatus{}, false
