@@ -17,12 +17,18 @@ import (
 )
 
 func resolveHostAndPort(target string) (string, int) {
-	if strings.Contains(target, ":") {
-		host, portStr, err := net.SplitHostPort(target)
-		p, convErr := strconv.Atoi(portStr)
-		if err == nil && convErr == nil {
-			return host, p
+	hasColon := strings.Contains(target, ":")
+	if hasColon == false {
+		t, err := ParseSSHTarget(target, "root", 22)
+		if err == nil && t != nil && t.IP != "" {
+			return t.IP, t.Port
 		}
+		return target, 22
+	}
+	host, portStr, err := net.SplitHostPort(target)
+	p, convErr := strconv.Atoi(portStr)
+	if err == nil && convErr == nil {
+		return host, p
 	}
 	t, err := ParseSSHTarget(target, "root", 22)
 	if err == nil && t != nil && t.IP != "" {
@@ -88,16 +94,24 @@ func parseExplicitHostKey(target, explicitKey string) (store.SSHKnownHost, bool)
 	return parseKnownHostLine(target + " " + explicitKey)
 }
 
+func resolveOrScanRemoteHostKey(target string) (store.SSHKnownHost, error) {
+	host, port := resolveHostAndPort(target)
+	pubKey, scanErr := ScanRemoteHostKey(host, port)
+	if scanErr != nil {
+		return store.SSHKnownHost{}, scanErr
+	}
+	return buildKnownHostRecord(target, pubKey), nil
+}
+
 // TrustRemoteTarget scans or records a host key into known_hosts and SQLite.
 func TrustRemoteTarget(ctx context.Context, target string, explicitKey string, db *sql.DB) (*store.SSHKnownHost, error) {
 	kh, isParsed := parseExplicitHostKey(target, explicitKey)
-	if !isParsed {
-		host, port := resolveHostAndPort(target)
-		pubKey, scanErr := ScanRemoteHostKey(host, port)
-		if scanErr != nil {
-			return nil, scanErr
+	if isParsed == false {
+		rec, err := resolveOrScanRemoteHostKey(target)
+		if err != nil {
+			return nil, err
 		}
-		kh = buildKnownHostRecord(target, pubKey)
+		kh = rec
 	}
 	return persistTrustedHost(ctx, kh, db)
 }

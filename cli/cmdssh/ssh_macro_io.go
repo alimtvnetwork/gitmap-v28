@@ -126,14 +126,18 @@ func decodeRemoteBase64Output(out string) ([]byte, error) {
 	return data, nil
 }
 
+func writeExportedFile(filePath string, data []byte, name, alias string) error {
+	err := os.WriteFile(filePath, data, 0644)
+	if err != nil {
+		return apperror.WrapSimple(err, "write exported file")
+	}
+	printExportSuccessBanner(name, filePath, alias)
+	return nil
+}
+
 func saveExportedMacro(data []byte, opts SSHMacroIOOptions, alias string) error {
 	if opts.FilePath != "" {
-		err := os.WriteFile(opts.FilePath, data, 0644)
-		if err != nil {
-			return apperror.WrapSimple(err, "write exported file")
-		}
-		printExportSuccessBanner(opts.Name, opts.FilePath, alias)
-		return nil
+		return writeExportedFile(opts.FilePath, data, opts.Name, alias)
 	}
 	var m macro.Macro
 	if err := json.Unmarshal(data, &m); err != nil {
@@ -246,18 +250,26 @@ func loadMacroForImport(opts SSHMacroIOOptions) (*macro.Macro, *apperror.AppErro
 	return m, nil
 }
 
+func tryReadMacroFile(target string) (*macro.Macro, bool) {
+	data, err := os.ReadFile(target)
+	if err != nil {
+		return nil, false
+	}
+	var m macro.Macro
+	if jsonErr := json.Unmarshal(data, &m); jsonErr != nil {
+		return nil, false
+	}
+	return &m, true
+}
+
 func readMacroFromFileOrStore(filePath, name string) (*macro.Macro, error) {
 	target := filePath
 	if target == "" {
 		target = name
 	}
-	data, err := os.ReadFile(target)
-	if err == nil {
-		var m macro.Macro
-		jsonErr := json.Unmarshal(data, &m)
-		if jsonErr == nil {
-			return &m, nil
-		}
+	m, ok := tryReadMacroFile(target)
+	if ok {
+		return m, nil
 	}
 	return macro.LoadMacro(target)
 }

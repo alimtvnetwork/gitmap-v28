@@ -232,6 +232,15 @@ func formatAuthFailedAdvice(alias string) string {
 	return fmt.Sprintf("(auth failed: run 'gitmap ssh fix-auth %s' or configure password)", alias)
 }
 
+func ensureDelegateInstalled(client *ssh.Client, c db.SSHConnection) error {
+	err := ensureGitmapInstalled(client, c.OS, c.Alias)
+	if err != nil {
+		printNodeResultOutput(c.Alias, c.IPAddress, "", err)
+		return err
+	}
+	return nil
+}
+
 func executeSSHPayload(client *ssh.Client, c db.SSHConnection, args []string) error {
 	isHandled, _ := handleRemoteMacroAdd(client, c, args)
 	if isHandled {
@@ -239,12 +248,8 @@ func executeSSHPayload(client *ssh.Client, c db.SSHConnection, args []string) er
 	}
 
 	shellType, cmdStr, isDelegate := resolveWorkerCommand(c, args)
-	if isDelegate {
-		err := ensureGitmapInstalled(client, c.OS, c.Alias)
-		if err != nil {
-			printNodeResultOutput(c.Alias, c.IPAddress, "", err)
-			return nil
-		}
+	if isDelegate && ensureDelegateInstalled(client, c) != nil {
+		return nil
 	}
 	if shellType == "ps" || shellType == "pwsh" {
 		_ = ensurePowerShellInstalled(client, c.OS, c.Alias)
