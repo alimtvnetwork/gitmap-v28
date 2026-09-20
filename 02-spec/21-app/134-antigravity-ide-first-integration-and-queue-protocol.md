@@ -94,10 +94,10 @@ gitmap agy ping
 ================================================================================
 ANTIGRAVITY IDE DIAGNOSTICS & HEALTH CHECK
 ================================================================================
-  ● IDE Binary:        Installed (C:\Users\Administrator\AppData\Local\Programs\antigravity\Antigravity.exe)
+  ● IDE Binary:        Installed (%LOCALAPPDATA%\Programs\antigravity\Antigravity.exe)
   ● Process Status:    RUNNING (PID: 8444)
-  ● Brain Directory:   Healthy (C:\Users\Administrator\.gemini\antigravity)
-  ● Active Workspace:  alimtvnetwork/gitmap-v28 (d:\work\gitmap)
+  ● Brain Directory:   Healthy (~/.gemini/antigravity)
+  ● Active Workspace:  alimtvnetwork/gitmap-v28 (/path/to/workspace)
   ● Conversation ID:   88823909-9574-4700-8211-015548af598b
   ● Agent State:       IDLE (Awaiting user prompt)
   ● Prompt Queue:      0 queued prompts (Clear)
