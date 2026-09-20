@@ -269,6 +269,7 @@ var generatedCommands = []string{
 	"power",
 	"pr",
 	"pr-clean",
+	"pr-in",
 	"pr-list",
 	"pr-rm",
 	"prc",
