@@ -3,7 +3,6 @@ package pipelinedb
 import (
 	"database/sql"
 	"path/filepath"
-	"strings"
 
 	"github.com/alimtvnetwork/gitmap-v28/cli/store"
 )
@@ -17,17 +16,6 @@ type PipelineSplitDb struct {
 
 // PipelineSplitDB is an alias to PipelineSplitDb for backward compatibility.
 type PipelineSplitDB = PipelineSplitDb
-
-func cleanRepoURLPrefix(repo string) string {
-	clean := strings.TrimSuffix(strings.TrimSpace(repo), ".git")
-	for _, token := range []string{"github.com/", "github.com:", "gitlab.com/", "gitlab.com:"} {
-		if idx := strings.Index(clean, token); idx != -1 {
-			return clean[idx+len(token):]
-		}
-	}
-
-	return clean
-}
 
 // SanitizeRepoSlug converts a repository slug into a valid safe filesystem name.
 func SanitizeRepoSlug(repo string) string {
