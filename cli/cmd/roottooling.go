@@ -138,6 +138,7 @@ func toolingUtilEntries() []dispatchEntry {
 		{[]string{constants.CmdIgnoreRm}, func() error { return runIgnoreRm(argsTail()) }},
 		{[]string{constants.CmdAdd}, func() error { return runAdd(argsTail()) }},
 		{[]string{constants.CmdLlm}, func() error { return runLlm(argsTail()) }},
+		{[]string{"locate", "find-tool", "vcvars"}, func() error { return runLocateTopLevel(argsTail()) }},
 		{[]string{constants.CmdFind, "f"}, func() error { return runFind(argsTail()) }},
 		{[]string{constants.CmdFindFiles, "ff"}, func() error { return runFindFiles(argsTail()) }},
 		{[]string{constants.CmdFindFilesAny, "ffa"}, func() error { return runFindFilesAny(argsTail()) }},

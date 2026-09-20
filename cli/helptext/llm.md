@@ -243,6 +243,7 @@ Gitmap embeds native discovery, live streaming execution, and repository autofix
 | **Antigravity** | `gitmap antigravity` | `gitmap agy`, `gitmap ag` | AI agent workspaces and config sync |
 | **VS Code PM** | `gitmap vscode` | `gitmap vsc` | VS Code Project Manager integrations |
 | **Scheduler** | `gitmap schedule` | `gitmap sc` | Background cron and interval scheduler |
+| **Locate Tool** | `gitmap locate <tool>` | `gitmap vcvars` | Fast developer tool locator (<15ms, e.g. vcvarsall.bat, msbuild; replaces slow PowerShell Get-ChildItem) |
 | **Repo Status** | `gitmap status` | `gitmap st` | Dirty, ahead, behind across all repos |
 
 ---
@@ -283,4 +284,12 @@ gitmap automation newlines --fix
 gitmap automation cache warm cli
 gitmap automation cache status
 gitmap automation benchmark all
+
+# Workflow 6: Ultra-Fast Developer Tool Locator (replaces slow PowerShell Get-ChildItem)
+
+# Locate Visual Studio vcvarsall.bat in <15ms instead of 30-120s PowerShell recursion:
+gitmap vcvars
+gitmap locate vcvarsall.bat
+# Output shell initialization command:
+gitmap vcvars --cmd
 ```
