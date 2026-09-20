@@ -221,11 +221,6 @@ func runSSHWorker(c db.SSHConnection, args []string, wg *sync.WaitGroup) error {
 	}
 	defer client.Close()
 
-	if err := ensureGitmapInstalled(client, c.OS, c.Alias); err != nil {
-		printNodeResultOutput(c.Alias, c.IPAddress, "", err)
-		return nil
-	}
-
 	return executeSSHPayload(client, c, args)
 }
 
@@ -239,7 +234,13 @@ func executeSSHPayload(client *ssh.Client, c db.SSHConnection, args []string) er
 		return nil
 	}
 
-	shellType, cmdStr := resolveWorkerCommand(c.OS, args)
+	shellType, cmdStr, isDelegate := resolveWorkerCommand(c, args)
+	if isDelegate {
+		if err := ensureGitmapInstalled(client, c.OS, c.Alias); err != nil {
+			printNodeResultOutput(c.Alias, c.IPAddress, "", err)
+			return nil
+		}
+	}
 	if shellType == "ps" || shellType == "pwsh" {
 		_ = ensurePowerShellInstalled(client, c.OS, c.Alias)
 	}
@@ -250,17 +251,22 @@ func executeSSHPayload(client *ssh.Client, c db.SSHConnection, args []string) er
 	return nil
 }
 
-func resolveWorkerCommand(osType string, args []string) (string, string) {
-	shellType, commandStr, delegateToGitmap := determineSSHCommand(osType, args)
+func resolveWorkerCommand(c db.SSHConnection, args []string) (string, string, bool) {
+	if len(args) > 0 && isPowerCommand(extractFirstToken(args[0])) {
+		shell, cmd := resolvePowerCommand(c, args)
+		return shell, cmd, false
+	}
+
+	shellType, commandStr, delegateToGitmap := determineSSHCommand(c.OS, args)
 	if delegateToGitmap {
 		commandStr = resolveGitmapCommandString(args)
 		shellType = ""
 	}
-	if isWindowsOS(osType) == false {
+	if isWindowsOS(c.OS) == false {
 		commandStr = wrapUnixPath(commandStr)
 	}
 
-	return shellType, commandStr
+	return shellType, commandStr, delegateToGitmap
 }
 
 func connectSSHClient(c db.SSHConnection, headers ...string) (*ssh.Client, bool) {
