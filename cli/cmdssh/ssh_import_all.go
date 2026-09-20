@@ -8,7 +8,6 @@ import (
 	"strings"
 
 	"github.com/alimtvnetwork/gitmap-v28/cli/apperror"
-	"github.com/alimtvnetwork/gitmap-v28/cli/constants"
 	"github.com/alimtvnetwork/gitmap-v28/cli/crypto"
 	"github.com/alimtvnetwork/gitmap-v28/cli/db"
 	"github.com/alimtvnetwork/gitmap-v28/cli/macro"
@@ -97,8 +96,9 @@ func executeSSHImportAll(opts SSHImportAllOptions) error {
 	if err != nil {
 		return err
 	}
-	client, isConnected := connectSSHClient(*conn)
-	if !isConnected {
+	logImportProcessStart(conn.Alias, conn.IPAddress)
+	client, isConnected := connectSSHClient(*conn, fmt.Sprintf("[%s]", conn.Alias))
+	if isConnected == false {
 		return apperror.NewExecutionError("failed to authenticate with " + conn.Alias)
 	}
 	defer client.Close()
@@ -106,7 +106,7 @@ func executeSSHImportAll(opts SSHImportAllOptions) error {
 	if fetchErr != nil {
 		return fetchErr
 	}
-	return applyImportBundleLocally(bundle, *conn, opts)
+	return applyImportBundleWithDetailedLogs(bundle, *conn, opts)
 }
 
 func fetchRemoteExportBundle(client *ssh.Client, c db.SSHConnection) (*GitmapExportBundle, error) {
@@ -128,17 +128,7 @@ func fetchRemoteExportBundle(client *ssh.Client, c db.SSHConnection) (*GitmapExp
 }
 
 func applyImportBundleLocally(bundle *GitmapExportBundle, c db.SSHConnection, opts SSHImportAllOptions) error {
-	if opts.IsDryRun {
-		fmt.Printf("(dry-run) would import %d macro(s), config, and %d connection(s) from %s\n",
-			len(bundle.Macros), len(bundle.Connections), c.Alias)
-		return nil
-	}
-	importConfigLocally(bundle.Config)
-	macroCount := importMacrosLocally(bundle.Macros)
-	connCount := importConnectionsLocally(bundle.Connections)
-	khCount := importKnownHostsLocally(bundle.KnownHosts)
-	printImportSuccessSummary(c.Alias, c.IPAddress, macroCount, connCount, khCount)
-	return nil
+	return applyImportBundleWithDetailedLogs(bundle, c, opts)
 }
 
 func importConfigLocally(cfg map[string]any) {
@@ -228,16 +218,6 @@ func executeLocalBundleImport(opts SSHImportAllOptions) error {
 	return applyImportBundleLocally(&bundle, c, opts)
 }
 
-func printImportSuccessSummary(alias, ip string, macros, conns, kh int) {
-	fmt.Println()
-	fmt.Printf("  %s✓ Import complete from [%s | %s]%s\n",
-		constants.ColorGreen, alias, ip, constants.ColorReset)
-	fmt.Printf("    • Config:       ~/.gitmap/config.json updated\n")
-	fmt.Printf("    • Macros:       %d macro(s) imported to ~/.gitmap/macros/\n", macros)
-	fmt.Printf("    • SSH Registry: %d connection(s) registered in SQLite DB\n", conns)
-	fmt.Printf("    • Known Hosts:  %d host key(s) merged into ~/.ssh/known_hosts\n", kh)
-	fmt.Println()
-}
 
 func printSSHImportAllHelp() {
 	fmt.Println("Import all GitMap settings, macros, config, and SSH data from a remote node.")

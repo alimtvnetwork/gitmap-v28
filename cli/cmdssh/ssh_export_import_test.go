@@ -116,3 +116,23 @@ func TestDispatchExportImportSSH(t *testing.T) {
 		t.Errorf("expected unknown to not match")
 	}
 }
+
+func TestFormatExportMacroNames(t *testing.T) {
+	short := formatExportMacroNames([]string{"a", "b"})
+	if short != "a, b" {
+		t.Errorf("expected 'a, b', got %q", short)
+	}
+
+	long := formatExportMacroNames([]string{"a", "b", "c", "d", "e"})
+	if long != "a, b, c, +2 more" {
+		t.Errorf("expected 'a, b, c, +2 more', got %q", long)
+	}
+}
+
+func TestFilterNonEmptyLogs(t *testing.T) {
+	input := []string{"log1", "", "log2", "", "log3"}
+	filtered := filterNonEmptyLogs(input)
+	if len(filtered) != 3 || filtered[0] != "log1" || filtered[1] != "log2" || filtered[2] != "log3" {
+		t.Errorf("expected 3 items, got %v", filtered)
+	}
+}

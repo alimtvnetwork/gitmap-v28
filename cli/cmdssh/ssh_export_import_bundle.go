@@ -107,7 +107,8 @@ func buildRemoteExportAppendCmd(subDir, fileName, b64 string, isWin bool) string
 
 func buildRemoteReadBundleCmd(isWin bool) string {
 	if isWin {
-		return `powershell -NoProfile -Command "$p=[IO.Path]::Combine($env:USERPROFILE, '.gitmap', 'export_bundle.json'); if (Test-Path $p) { [Convert]::ToBase64String([IO.File]::ReadAllBytes($p)) } else { exit 1 }"`
+		return `powershell -NoProfile -Command "$p=[IO.Path]::Combine($env:USERPROFILE, '.gitmap', 'export_bundle.json'); if (Test-Path $p) { [Convert]::ToBase64String([IO.File]::ReadAllBytes($p)) } else { $out = (& gitmap ssh export-all --stdout 2>$null | Out-String); if ($out) { [Convert]::ToBase64String([Text.Encoding]::UTF8.GetBytes($out)) } else { exit 1 } }"`
 	}
-	return `cat "$HOME/.gitmap/export_bundle.json" 2>/dev/null | base64`
+
+	return `export PATH="$HOME/.local/bin:$HOME/.local/bin/gitmap-cli:$HOME/bin:/usr/local/bin:/usr/local/go/bin:/snap/bin:$PATH"; if [ -f "$HOME/.gitmap/export_bundle.json" ]; then cat "$HOME/.gitmap/export_bundle.json" | base64; else gitmap ssh export-all --stdout 2>/dev/null | base64; fi`
 }
