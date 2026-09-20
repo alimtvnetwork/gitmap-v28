@@ -3,6 +3,8 @@ package pipelinedb
 import (
 	"os"
 	"path/filepath"
+
+	"github.com/alimtvnetwork/gitmap-v28/cli/store"
 )
 
 func isFileExisting(path string) bool {

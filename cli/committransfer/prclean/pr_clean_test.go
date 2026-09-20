@@ -7,12 +7,12 @@ import (
 )
 
 func TestFormatMergedTime(t *testing.T) {
-	if got := formatMergedTime(nil); got != "N/A" {
-		t.Errorf("expected 'N/A' for nil timestamp, got %q", got)
+	if got := formatMergedTime(0); got != "N/A" {
+		t.Errorf("expected 'N/A' for zero timestamp, got %q", got)
 	}
 
 	ts := int64(1710000000)
-	if got := formatMergedTime(&ts); got != "1710000000 (epoch)" {
+	if got := formatMergedTime(ts); got != "1710000000 (epoch)" {
 		t.Errorf("expected '1710000000 (epoch)', got %q", got)
 	}
 }

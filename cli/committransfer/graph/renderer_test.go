@@ -15,15 +15,15 @@ func TestRenderExecutionGraph_Empty(t *testing.T) {
 func TestRenderExecutionGraph_Linear(t *testing.T) {
 	events := []GraphEvent{
 		{
-			CommitSha: "abc123456",
+			CommitSha:  "abc123456",
 			BranchName: "main",
-			Message: "feat: initial commit",
+			Message:    "feat: initial commit",
 		},
 		{
-			CommitSha: "def789012",
+			CommitSha:  "def789012",
 			BranchName: "main",
 			ReleaseTag: "v1.0.0",
-			Message: "release: v1.0.0",
+			Message:    "release: v1.0.0",
 		},
 	}
 
@@ -42,22 +42,22 @@ func TestRenderExecutionGraph_Linear(t *testing.T) {
 func TestRenderExecutionGraph_Branched(t *testing.T) {
 	events := []GraphEvent{
 		{
-			CommitSha: "abc123456",
+			CommitSha:  "abc123456",
 			BranchName: "main",
-			Message: "feat: add base",
+			Message:    "feat: add base",
 		},
 		{
-			CommitSha: "bcd234567",
+			CommitSha:  "bcd234567",
 			BranchName: "feature/auth",
-			PRNumber: 42,
-			Message: "feat: add token login",
+			PRNumber:   42,
+			Message:    "feat: add token login",
 		},
 		{
-			CommitSha: "cde345678",
+			CommitSha:  "cde345678",
 			BranchName: "main",
-			IsMerge: true,
-			PRNumber: 42,
-			Message: "Merge pull request #42 from feature/auth",
+			IsMerge:    true,
+			PRNumber:   42,
+			Message:    "Merge pull request #42 from feature/auth",
 		},
 	}
 

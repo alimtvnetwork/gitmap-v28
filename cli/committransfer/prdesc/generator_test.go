@@ -36,7 +36,7 @@ func sampleTestMetadata() PRMetadata {
 	return PRMetadata{
 		PRNumber: 42, Title: "Add user auth", SourceBranch: "feature/auth",
 		TargetBranch: "main", Author: "Alice <alice@example.com>",
-		Timestamp: time.Date(2026, 9, 20, 10, 0, 0, 0, time.UTC),
+		Timestamp:        time.Date(2026, 9, 20, 10, 0, 0, 0, time.UTC),
 		ExecutiveSummary: "Implements JWT auth tokens.",
 		Commits:          []PRCommitInfo{{ShortSHA: "a1b2c3d", Author: "Alice", Subject: "feat(auth): add login"}},
 		Impacts:          []PRComponentImpact{{Component: "auth", Impact: "New feature", Files: 3}},
