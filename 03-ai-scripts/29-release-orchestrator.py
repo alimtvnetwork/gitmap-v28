@@ -294,6 +294,7 @@ def stage_and_commit_release(next_version, scope, dry_run=False):
         REPO_ROOT / "src" / "data" / "specTree.json",
         REPO_ROOT / "02-spec" / "19-main-worker-service" / "98-changelog.md",
         REPO_ROOT / "reports" / "spec-verification" / "coverage.md",
+        REPO_ROOT / "cli" / "constants" / "constants.go",
     ]
     for vf in release_candidates:
         if vf.exists():

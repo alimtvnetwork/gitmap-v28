@@ -37,6 +37,7 @@ README_MD = REPO_ROOT / "readme.md"
 CHANGELOG_MD = REPO_ROOT / "changelog.md"
 SPEC19_CHANGELOG = REPO_ROOT / "02-spec" / "19-main-worker-service" / "98-changelog.md"
 TEMPLATE_VERSION = REPO_ROOT / "prompt-version.template.json"
+CONSTANTS_GO = REPO_ROOT / "cli" / "constants" / "constants.go"
 
 
 def run_cmd(cmd, cwd=None, check=True, capture_output=True):
@@ -263,6 +264,28 @@ def run_repo_sync_if_available(dry_run=False):
         print(f"[!] Warning running npm run sync: {e}")
 
 
+def update_constants_version(next_version, dry_run=False):
+    """Updates Version in cli/constants/constants.go if present."""
+    if not CONSTANTS_GO.is_file():
+        return
+
+    with open(CONSTANTS_GO, "r", encoding="utf-8") as f:
+        content = f.read()
+
+    new_content = re.sub(r'var Version = "[^"]+"', f'var Version = "{next_version}"', content)
+    if new_content == content:
+        return
+
+    if dry_run:
+        print(f"[DRY RUN] Would update cli/constants/constants.go to {next_version}")
+        return
+
+    with open(CONSTANTS_GO, "w", encoding="utf-8", newline="\n") as f:
+        f.write(new_content)
+
+    print(f"[*] Updated cli/constants/constants.go -> {next_version}")
+
+
 def execute_bump(tier="minor", explicit_version=None, scope=None, dry_run=False):
     """Main bump execution logic."""
     current_ver = read_canonical_version()
@@ -282,6 +305,7 @@ def execute_bump(tier="minor", explicit_version=None, scope=None, dry_run=False)
     update_template_version(next_ver, dry_run=dry_run)
     update_readme_pins(current_ver, next_ver, dry_run=dry_run)
     update_changelogs(next_ver, bump_scope, today_str, dry_run=dry_run)
+    update_constants_version(next_ver, dry_run=dry_run)
     run_repo_sync_if_available(dry_run=dry_run)
 
     print(f"[OK] Successfully bumped version to {next_ver}")
