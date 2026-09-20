@@ -41,6 +41,13 @@ jobs:
     steps:
       - uses: actions/checkout@v6
 
+      - name: Optimize Windows Runner I/O
+        if: matrix.os == 'windows-latest'
+        shell: pwsh
+        run: |
+          Set-MpPreference -DisableRealtimeMonitoring $true
+          Set-MpPreference -ExclusionPath "${{ github.workspace }}"
+
       - uses: actions/setup-go@v6
         with:
           go-version-file: cli/go.mod

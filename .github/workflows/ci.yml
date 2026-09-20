@@ -1347,6 +1347,13 @@ jobs:
       - uses: actions/checkout@v6
         if: needs.sha-check.outputs.already-built != 'true'
 
+      - name: Optimize Windows Runner I/O
+        if: needs.sha-check.outputs.already-built != 'true'
+        shell: pwsh
+        run: |
+          Set-MpPreference -DisableRealtimeMonitoring $true
+          Set-MpPreference -ExclusionPath "${{ github.workspace }}"
+
       - uses: actions/setup-go@v6
         if: needs.sha-check.outputs.already-built != 'true'
         with:
@@ -1404,6 +1411,13 @@ jobs:
 
       - uses: actions/checkout@v6
         if: needs.sha-check.outputs.already-built != 'true'
+
+      - name: Optimize Windows Runner I/O
+        if: needs.sha-check.outputs.already-built != 'true' && matrix.os == 'windows-latest'
+        shell: pwsh
+        run: |
+          Set-MpPreference -DisableRealtimeMonitoring $true
+          Set-MpPreference -ExclusionPath "${{ github.workspace }}"
 
       - uses: actions/setup-go@v6
         if: needs.sha-check.outputs.already-built != 'true'
