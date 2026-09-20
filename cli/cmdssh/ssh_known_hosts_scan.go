@@ -16,25 +16,24 @@ import (
 	"github.com/alimtvnetwork/gitmap-v28/cli/store"
 )
 
+func resolveTargetWithoutPort(target string) (string, int) {
+	t, err := ParseSSHTarget(target, "root", 22)
+	if err == nil && t != nil && t.IP != "" {
+		return t.IP, t.Port
+	}
+	return target, 22
+}
+
 func resolveHostAndPort(target string) (string, int) {
-	hasColon := strings.Contains(target, ":")
-	if hasColon == false {
-		t, err := ParseSSHTarget(target, "root", 22)
-		if err == nil && t != nil && t.IP != "" {
-			return t.IP, t.Port
-		}
-		return target, 22
+	if strings.Contains(target, ":") == false {
+		return resolveTargetWithoutPort(target)
 	}
 	host, portStr, err := net.SplitHostPort(target)
 	p, convErr := strconv.Atoi(portStr)
 	if err == nil && convErr == nil {
 		return host, p
 	}
-	t, err := ParseSSHTarget(target, "root", 22)
-	if err == nil && t != nil && t.IP != "" {
-		return t.IP, t.Port
-	}
-	return target, 22
+	return resolveTargetWithoutPort(target)
 }
 
 func buildScanClientConfig(capturedKey *ssh.PublicKey) *ssh.ClientConfig {
@@ -106,14 +105,14 @@ func resolveOrScanRemoteHostKey(target string) (store.SSHKnownHost, error) {
 // TrustRemoteTarget scans or records a host key into known_hosts and SQLite.
 func TrustRemoteTarget(ctx context.Context, target string, explicitKey string, db *sql.DB) (*store.SSHKnownHost, error) {
 	kh, isParsed := parseExplicitHostKey(target, explicitKey)
-	if isParsed == false {
-		rec, err := resolveOrScanRemoteHostKey(target)
-		if err != nil {
-			return nil, err
-		}
-		kh = rec
+	if isParsed {
+		return persistTrustedHost(ctx, kh, db)
 	}
-	return persistTrustedHost(ctx, kh, db)
+	rec, err := resolveOrScanRemoteHostKey(target)
+	if err != nil {
+		return nil, err
+	}
+	return persistTrustedHost(ctx, rec, db)
 }
 
 func persistTrustedHost(ctx context.Context, kh store.SSHKnownHost, db *sql.DB) (*store.SSHKnownHost, error) {

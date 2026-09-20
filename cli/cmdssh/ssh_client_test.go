@@ -50,7 +50,7 @@ func TestPromptSSHPassword(t *testing.T) {
 
 func TestSSHClient(t *testing.T) {
 	target := SSHTarget{Username: "root", IP: "10.0.0.1"}
-	expected := []string{"root@10.0.0.1", "ls", "-la"}
+	expected := []string{"-o", "StrictHostKeyChecking=accept-new", "root@10.0.0.1", "ls", "-la"}
 
 	ctx := context.Background()
 	dir := t.TempDir()
