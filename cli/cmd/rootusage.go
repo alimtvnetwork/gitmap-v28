@@ -66,6 +66,7 @@ func printUsageReleaseGroups() {
 	printGroupHistory()
 	printGroupAmend()
 	printGroupCommitXfer()
+	printGroupPR()
 }
 
 func printUsageProjectsGroups() {

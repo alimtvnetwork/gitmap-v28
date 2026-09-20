@@ -154,6 +154,14 @@ func printGroupCommitXfer() {
 	renderLine(constants.HelpCommitBoth)
 }
 
+func printGroupPR() {
+	renderHeader(constants.HelpGroupPR)
+	renderLine(constants.HelpPR)
+	renderLine(constants.HelpPRIn)
+	renderLine(constants.HelpPRClean)
+	renderLine(constants.HelpPRList)
+}
+
 func printGroupChromeProfile() {
 	renderHeader(constants.HelpGroupChromeProf)
 	renderLine(constants.HelpChrome)

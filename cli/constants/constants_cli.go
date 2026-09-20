@@ -354,9 +354,9 @@ const (
 	// reads as "pull then release"). Short aliases are `relp` and `rlp`.
 	// Collision on `pr` eliminated in Spec 129 in favor of the PR replay engine.
 	CmdReleasePull       = "pull-release"
-	CmdReleasePullAlias  = "relp"
+	CmdReleasePullAlias  = "pr"
 	CmdReleasePullAlias2 = "release-pull" // legacy long form
-	CmdReleasePullAlias3 = "rlp"          // legacy alias
+	CmdReleasePullAlias3 = "relp"         // legacy alias
 	CmdReleasePullAlias4 = "rlp"          // legacy alias
 	// CmdMakePublic / CmdMakePrivate toggle the current repo's
 	// visibility on GitHub or GitLab via `gh` / `glab`. No alias —

@@ -559,3 +559,46 @@ erDiagram
         TEXT OutputSummary
         TEXT ErrorMessage
     }
+
+    %% ============================================================
+    %% PULL REQUEST & SPLIT-DB COMMIT REPLAY (Spec 129)
+    %% ============================================================
+
+    PullRequest {
+        INTEGER PullRequestId PK
+        INTEGER PrNumber UK
+        TEXT Title
+        TEXT SourceBranch
+        TEXT TargetBranch
+        TEXT Status
+        TEXT Description
+        TEXT HeadCommitSha
+        TEXT BaseCommitSha
+        TEXT MergeCommitSha
+        INTEGER CreatedAt
+        INTEGER MergedAt
+        INTEGER ClosedAt
+        INTEGER UpdatedAt
+    }
+
+    PrRelease {
+        INTEGER PrReleaseId PK
+        TEXT TagName UK
+        TEXT CommitSha
+        INTEGER PrNumber FK
+        TEXT ReleaseNotes
+        INTEGER ReleasedAt
+        INTEGER CreatedAt
+    }
+
+    PrBranch {
+        INTEGER PrBranchId PK
+        TEXT BranchName UK
+        INTEGER PrNumber FK
+        TEXT BaseSha
+        TEXT HeadSha
+        INTEGER IsMerged
+        INTEGER IsDeleted
+        INTEGER CreatedAt
+        INTEGER UpdatedAt
+    }

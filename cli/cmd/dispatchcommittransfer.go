@@ -18,6 +18,10 @@ func dispatchCommitTransfer(command string) (bool, error) {
 		return true, runPRList(argsTail())
 	}
 
+	if command == constants.CmdPRIn {
+		return true, runCommitIn(argsTail())
+	}
+
 	spec, ok := commitTransferSpecFor(command)
 	if !ok {
 		return false, nil
@@ -34,13 +38,36 @@ func isPRListCommand(command string) bool {
 	return command == constants.CmdPRList
 }
 
-func dispatchCommitTransferSpec(spec commitTransferSpec, args []string) (bool, error) {
+func dispatchPRSubcommands(spec *commitTransferSpec, args []string) (bool, error) {
 	if isPRSubcommandClean(spec.Name, args) {
 		return true, runPRClean(args[1:])
 	}
-
 	if isPRSubcommandList(spec.Name, args) {
 		return true, runPRList(args[1:])
+	}
+	if isPRSubcommandIn(spec.Name, args) {
+		return true, runCommitIn(args[1:])
+	}
+
+	return dispatchPRDirection(spec, args)
+}
+
+func dispatchPRDirection(spec *commitTransferSpec, args []string) (bool, error) {
+	if isPRSubcommandLeft(spec.Name, args) {
+		spec.Name = constants.CmdCommitLeft
+		return true, runCommitTransfer(*spec, args[1:])
+	}
+	if isPRSubcommandRight(spec.Name, args) {
+		spec.Name = constants.CmdCommitRight
+		return true, runCommitTransfer(*spec, args[1:])
+	}
+
+	return false, nil
+}
+
+func dispatchCommitTransferSpec(spec commitTransferSpec, args []string) (bool, error) {
+	if handled, err := dispatchPRSubcommands(&spec, args); handled {
+		return true, err
 	}
 
 	runCommitTransfer(spec, args)
@@ -68,4 +95,37 @@ func isPRSubcommandList(name string, args []string) bool {
 	}
 
 	return args[0] == "list" || args[0] == "ls"
+}
+
+func isPRSubcommandIn(name string, args []string) bool {
+	if name != constants.CmdPR && name != constants.CmdPullRequest {
+		return false
+	}
+	if len(args) == 0 {
+		return false
+	}
+
+	return args[0] == "in"
+}
+
+func isPRSubcommandLeft(name string, args []string) bool {
+	if name != constants.CmdPR && name != constants.CmdPullRequest {
+		return false
+	}
+	if len(args) == 0 {
+		return false
+	}
+
+	return args[0] == "left"
+}
+
+func isPRSubcommandRight(name string, args []string) bool {
+	if name != constants.CmdPR && name != constants.CmdPullRequest {
+		return false
+	}
+	if len(args) == 0 {
+		return false
+	}
+
+	return args[0] == "right"
 }

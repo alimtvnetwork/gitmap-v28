@@ -25,6 +25,7 @@ const (
 	CmdCommitBothA  = "cmb"
 	CmdPR           = "pr"
 	CmdPullRequest  = "pull-request"
+	CmdPRIn         = "pr-in"
 	CmdPRClean      = "pr-clean"
 	CmdPRRm         = "pr-rm"
 	CmdPRList       = "pr-list"
@@ -121,6 +122,7 @@ const (
 	HelpCommitLeft  = "  commit-left (cml)  Replay RIGHT's commits onto LEFT (cleaned, idempotent) [LIVE]"
 	HelpCommitBoth  = "  commit-both (cmb)  Bidirectional replay (sequential by default; --interleave for author-date) [LIVE]"
 	HelpPR          = "  pr (pull-request)   Automated PR & merge commit replay engine [LIVE]"
+	HelpPRIn        = "  pr-in               Multi-source commit-in replay with PR tracking"
 	HelpPRClean     = "  pr-clean (pr-rm)    Prune closed and merged PR feature branches"
 	HelpPRList      = "  pr-list             List recorded PRs and branch audit status"
 )

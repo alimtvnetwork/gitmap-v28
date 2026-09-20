@@ -342,6 +342,11 @@ func dispatch(command string) {
 		return
 	}
 
+	found, err = dispatchCommitTransfer(command)
+	if handleDispatchResult(command, found, err, shouldAudit, auditID, auditStart) {
+		return
+	}
+
 	found, err = dispatchRelease(command)
 	if handleDispatchResult(command, found, err, shouldAudit, auditID, auditStart) {
 		return
@@ -393,11 +398,6 @@ func dispatch(command string) {
 	}
 
 	found, err = dispatchTemplates(command)
-	if handleDispatchResult(command, found, err, shouldAudit, auditID, auditStart) {
-		return
-	}
-
-	found, err = dispatchCommitTransfer(command)
 	if handleDispatchResult(command, found, err, shouldAudit, auditID, auditStart) {
 		return
 	}

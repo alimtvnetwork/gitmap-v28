@@ -193,11 +193,12 @@ gitmap pr rm [repo] [--yes]
 gitmap pr list [repo] [--json]
 
 Flags:
-  --pr <mode>            PR mode: merges (default), all, tags, release, off
-  --since <ref|date>     Replay commits since ref or date
-  --limit <n>            Limit number of commits to replay
   --mirror               Prune files in target that do not exist in source
   --dry-run              Preview actions without writing commits or branches
   -y, --yes              Skip all confirmation prompts
   --json                 Output results as JSON
 ```
+
+### Documentation & Help
+- `cli/helptext/pr.md`
+

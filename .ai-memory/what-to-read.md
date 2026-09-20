@@ -65,3 +65,5 @@
 
 - Root `readme.md` (must stay in sync with this file)
 - `.ai-memory/plans/completed/09-chrome-profile-management-picker-and-token-vault.md`
+- `02-spec/21-app/129-pr-commit-engines-and-sqlite-split-db.md`, why: PR commit replay engine, SQLite split-DB standardization, and final snapshot sync
+- `cli/helptext/pr.md`, why: PR command family usage, HG help, and JSON examples

@@ -35,7 +35,8 @@ func writeHelpExclusions(b *strings.Builder) {
 	b.WriteString("EXCLUSION & FILTERING RULES:\n")
 	b.WriteString("  --exclude <glob>          Skip files matching glob patterns (e.g. '*.log', 'vendor/**')\n")
 	b.WriteString("  --message-exclude <regex> Skip commits whose subject matches regex (e.g. '^WIP', '^Merge')\n")
-	b.WriteString("  --function-intel on|off   AST parsing of Go/TS/Python to filter out pure comment churn\n")
+	b.WriteString("  --function-intel on|off   FuncIntel: AST parsing of Go/TS/Python to filter out comment churn\n")
+	b.WriteString("  SEO Commit Scheduling:    Generates formatted commit messages with custom templates\n")
 	b.WriteString("  Default exclusions ignore .git/, node_modules/, and .gitmap/ internal state.\n\n")
 }
 
