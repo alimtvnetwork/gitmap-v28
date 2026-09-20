@@ -23,7 +23,15 @@ var (
 		RunE:    runCacheCmd,
 	}
 
+	locateCmd = &cobra.Command{
+		Use:     "locate [tool-name]",
+		Aliases: []string{"find-tool", "vcvars", "find-exe"},
+		Short:   "Fast developer tool locator with vswhere and vcvarsall.bat fast paths",
+		RunE:    runLocateCmd,
+	}
+
 	newlineOpts NewlineOptions
+	locateOpts  LocateOptions
 )
 
 func runNewlinesCmd(cmd *cobra.Command, args []string) error {
@@ -78,9 +86,22 @@ func renderSearchResults(res SearchResult) {
 	fmt.Println()
 }
 
+func runLocateCmd(cmd *cobra.Command, args []string) error {
+	if len(args) > 0 {
+		locateOpts.Target = args[0]
+	}
+	res, err := RunLocate(locateOpts)
+	renderLocateResult(res, locateOpts.IsJSON)
+	if err != nil {
+		return err
+	}
+	return nil
+}
+
 func initSubsystems() {
 	AutomationCmd.AddCommand(newlinesCmd)
 	AutomationCmd.AddCommand(cacheCmd)
+	AutomationCmd.AddCommand(locateCmd)
 	AutomationCmd.AddCommand(guardCmd)
 	AutomationCmd.AddCommand(sequenceCmd)
 	AutomationCmd.AddCommand(excludeCmd)
@@ -92,6 +113,8 @@ func initSubsystems() {
 
 	newlinesCmd.Flags().BoolVarP(&newlineOpts.IsFixMode, "fix", "f", false, "Write normalized changes to disk")
 	newlinesCmd.Flags().BoolVar(&newlineOpts.IsDryRun, "dry-run", false, "Preview modifications without writing")
+	locateCmd.Flags().BoolVar(&locateOpts.IsJSON, "json", false, "Output results as JSON")
+	locateCmd.Flags().BoolVar(&locateOpts.IsCmd, "cmd", false, "Output shell initialization command")
 	initGuardFlags()
 	initSequenceFlags()
 	initRelPathsFlags()

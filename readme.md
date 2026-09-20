@@ -3362,3 +3362,9 @@ For repository versioning and propagation design, see [.ai-memory/memory/release
 ## Release Architecture
 
 For information on how releases are managed, see [.ai-memory/memory/release-architecture-map.md](.ai-memory/memory/release-architecture-map.md).
+
+## Author & Sponsorship
+
+- **Lead Architect & Author:** MD ALIM UL KARIM ([alimtvnetwork](https://github.com/alimtvnetwork))
+- **Sponsoring Organization:** Alim TV Network / Open Source Engineering
+

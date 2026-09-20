@@ -28,6 +28,8 @@ gitmap pl <subcommand> [flags]
 | `clear-db, db clear` | Reset/purge local pipeline split SQLite database and telemetry error logs (`-y`) |
 | `history, hist` | Visual pipeline run tree and commit status summary for recent commits (`-n 5`) |
 | `logs` | Full step logs for target commit, offset, or latest workflow run |
+| `pipeline-ai status` | Auto-delay (-t <sec>), stream live errors, and switch to fix |
+| `pipeline-ai errors` | Extract failing workflow errors with AI remediation guidance |
 | `help` | Show this pipeline command suite documentation |
 
 ---
@@ -250,6 +252,27 @@ gitmap pipeline clear alimtvnetwork/gitmap-v28 -y
 
 # Clear error reports & logs for current repo
 gitmap pipeline errors clear
+```
+
+---
+
+## 7. Pipeline-AI Live Error Streaming & Fast-Forward Remediation
+
+Automatically delay (`-t <seconds>`), query pipeline status, and stream live errors without waiting for the full suite to finish:
+
+```bash
+# Check status with dynamic auto-delay (delays then queries)
+gitmap pipeline-ai status -t 45
+
+# Structured JSON output with live error diagnostics and nextAiCommand
+gitmap pipeline-ai status --json
+
+# When errors occur during run, NextAiCommand automatically switches:
+# Next Action: gitmap pipeline fix agy
+# Stop waiting for remaining jobs. Fix current failure now so CI/CD can rerun in parallel.
+
+# Directly inspect errors with AI remediation guidance
+gitmap pipeline-ai errors
 ```
 
 ---

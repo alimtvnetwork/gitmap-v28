@@ -68,8 +68,16 @@ func walkDirectoryNewlines(dir string, opts NewlineOptions, res *NewlineResult) 
 }
 
 func isExcludedDir(name string) bool {
-	return name == ".git" || name == ".gitmap" || name == "node_modules" || name == "dist" ||
-		name == "build" || name == ".pytest_cache" || name == "__pycache__"
+	switch name {
+	case ".git", ".gitmap", "node_modules", "dist", "build",
+		".pytest_cache", "__pycache__", ".venv", "venv", "env",
+		".env", ".gemini", ".brain", ".idea", ".vscode", "target",
+		"bin", "obj", "tmp", "temp", "vendor", ".artifacts",
+		".system_generated", ".cache", ".mypy_cache", ".ruff_cache":
+		return true
+	default:
+		return false
+	}
 }
 
 func normalizeFileOnDisk(path string, opts NewlineOptions, res *NewlineResult) *apperror.AppError {

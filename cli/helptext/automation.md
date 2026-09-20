@@ -84,6 +84,15 @@ Multi-core streaming search across repository files with lazy regex or literal m
 | `--include-binaries` | | `false` | Include binary files in search |
 | `--include-large-json` | | `false` | Include oversized JSON files in search |
 
+#### Locate Flags (`gitmap aum locate [tool-name]`)
+
+Fast developer tool locator using `vswhere.exe` and known directory shortcuts (e.g. finding `vcvarsall.bat` in <15ms instead of 60s+ PowerShell `Get-ChildItem -Recurse`).
+
+| Flag | Short | Default | Description |
+|------|-------|---------|-------------|
+| `--json` | | `false` | Output location metrics as JSON |
+| `--cmd` | | `false` | Output shell environment initialization command |
+
 #### Newlines Flags (`gitmap aum newlines [paths...]`)
 
 Polyglot CRLF to LF and trailing whitespace normalizer.
@@ -441,7 +450,14 @@ gitmap aum search "func Run" cli --ext .go
 # 2. Case-insensitive literal search bypassing the regex engine
 gitmap aum search "connection reset" --ignore-case
 
-# 3. Polyglot newline normalization in dry-run mode
+# 3. Locate Visual Studio vcvarsall.bat in <15ms (fast alternative to slow PowerShell Get-ChildItem)
+gitmap aum locate vcvarsall.bat
+# Alias:
+gitmap aum vcvars
+# Output shell initialization command:
+gitmap aum locate vcvars --cmd
+
+# 4. Polyglot newline normalization in dry-run mode
 gitmap aum newlines --dry-run
 
 # 4. Atomically normalize CRLF to LF and trim whitespace across repository

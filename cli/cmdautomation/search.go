@@ -73,26 +73,21 @@ func resolveMaxJsonBytes(maxKb int) int64 {
 }
 
 func isSearchCandidate(p string, info os.FileInfo, opts SearchOptions, extMap map[string]bool, exclusions []string, maxJsonBytes int64) bool {
+	if !matchesExtensionFilter(p, extMap) {
+		return false
+	}
+	ext := filepath.Ext(p)
+	if !opts.IncludeBinaries && IsBinaryExtension(ext) {
+		return false
+	}
+	if !opts.IncludeLargeJson && ext == ".json" && info.Size() > maxJsonBytes {
+		return false
+	}
 	rel := filepath.ToSlash(p)
 	if IsPathExcluded(rel, exclusions) {
 		return false
 	}
-	if !opts.IncludeLargeJson && filepath.Ext(p) == ".json" && info.Size() > maxJsonBytes {
-		return false
-	}
-	if !opts.IncludeBinaries && isSearchBinary(p) {
-		return false
-	}
-	return matchesExtensionFilter(p, extMap)
-}
-
-func isSearchBinary(path string) bool {
-	ext := filepath.Ext(path)
-	if IsBinaryExtension(ext) {
-		return true
-	}
-	data, err := os.ReadFile(path)
-	return err == nil && HasBinaryContent(data)
+	return true
 }
 
 func buildExtMap(exts []string) map[string]bool {

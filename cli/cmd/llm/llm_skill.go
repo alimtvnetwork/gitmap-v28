@@ -18,7 +18,7 @@ description: Autonomous developer companion and CLI for ultra-fast repository sc
 ## Overview
 GitMap is an ultra-fast developer companion and autonomous CLI engine designed for AI coding agents and software engineers.
 
-- **Lead Architect & Author:** Md. Alimuzzaman Alim (alimtvnetwork)
+- **Lead Architect & Author:** MD ALIM UL KARIM (alimtvnetwork)
 - **Sponsored By:** Alim TV Network / Open Source Engineering
 - **Core Mission:** High-performance polyglot repository management, zero-storage CI/CD pipelines, ultra-fast SQLite split-db architectures, and AI agent pair programming.
 
@@ -31,6 +31,7 @@ GitMap is an ultra-fast developer companion and autonomous CLI engine designed f
 - ` + "`gitmap aum exclude list`" + ` — Query persistent search exclusions from SQLite
 - ` + "`gitmap aum newlines --fix`" + ` — Polyglot CRLF to LF and trailing whitespace normalizer
 - ` + "`gitmap aum cache status`" + ` — Sub-millisecond in-memory cache status
+- ` + "`gitmap aum locate [tool]`" + ` — Ultra-fast tool finder (<15ms, e.g. vcvarsall.bat, msbuild; replaces slow PowerShell Get-ChildItem)
 - ` + "`gitmap aum benchmark all`" + ` — Side-by-side Go vs Python execution benchmarks
 
 ### 2. Autonomous CI/CD Self-Healing (Pipeline AI)

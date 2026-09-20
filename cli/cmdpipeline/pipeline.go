@@ -9,21 +9,29 @@ import (
 
 // PipelineStatusPayload represents the status output.
 type PipelineStatusPayload struct {
-	IsRunning        bool   `json:"isRunning"`
-	EtaSeconds       int    `json:"etaSeconds"`
-	SleepSeconds     int    `json:"sleepSeconds,omitempty"`
-	NextAiCommand    string `json:"nextAiCommand,omitempty"`
-	LastTagRelease   string `json:"lastTagRelease"`
-	PendingPipelines int    `json:"pendingPipelines"`
-	PendingTasks     int    `json:"pendingTasks"`
-	PendingPRs       int    `json:"pendingPRs"`
-	Repo             string `json:"repo"`
-	ActiveWorkflow   string `json:"activeWorkflow,omitempty"`
-	LastStatus       string `json:"lastStatus,omitempty"`
-	LastConclusion   string `json:"lastConclusion,omitempty"`
-	LastRunId        uint64 `json:"lastRunId,omitempty"`
-	LastRunUrl       string `json:"lastRunUrl,omitempty"`
-	UpdatedAt        string `json:"updatedAt"`
+	IsRunning              bool            `json:"isRunning"`
+	EtaSeconds             int             `json:"etaSeconds"`
+	SleepSeconds           int             `json:"sleepSeconds,omitempty"`
+	NextAiCommand          string          `json:"nextAiCommand,omitempty"`
+	LastTagRelease         string          `json:"lastTagRelease"`
+	PendingPipelines       int             `json:"pendingPipelines"`
+	PendingTasks           int             `json:"pendingTasks"`
+	PendingPRs             int             `json:"pendingPRs"`
+	Repo                   string          `json:"repo"`
+	ActiveWorkflow         string          `json:"activeWorkflow,omitempty"`
+	LastStatus             string          `json:"lastStatus,omitempty"`
+	LastConclusion         string          `json:"lastConclusion,omitempty"`
+	LastRunId              uint64          `json:"lastRunId,omitempty"`
+	LastRunUrl             string          `json:"lastRunUrl,omitempty"`
+	UpdatedAt              string          `json:"updatedAt"`
+	HasErrors              bool            `json:"hasErrors"`
+	IsStopWaiting          bool            `json:"isStopWaiting"`
+	RecommendedAction      string          `json:"recommendedAction,omitempty"`
+	FailedJobCount         int             `json:"failedJobCount,omitempty"`
+	ErrorSummary           string          `json:"errorSummary,omitempty"`
+	ErrorLogs              string          `json:"errorLogs,omitempty"`
+	ActionableErrorSnippet string          `json:"actionableErrorSnippet,omitempty"`
+	FailedJobs             []FailedJobItem `json:"failedJobs,omitempty"`
 }
 
 // PipelineErrorLogsPayload represents error log outputs.
@@ -236,7 +244,7 @@ func printPipelineHelpHeader() {
 	fmt.Println(constants.ColorCyan + "Usage:" + constants.ColorReset)
 	fmt.Println("  gitmap pipeline [command] [flags]")
 	fmt.Println("  gitmap pipelines [command] [flags]")
-	fmt.Println("  gitmap pipeline-ai [status|eta] [-t <seconds>] [--json]")
+	fmt.Println("  gitmap pipeline-ai [status|errors|eta] [-t <seconds>] [--json]")
 	fmt.Println("  gitmap pl [command] [flags]")
 	fmt.Println()
 }
@@ -250,7 +258,8 @@ func printPipelineHelpCommands() {
 	fmt.Println("  fix                    Feed pipeline errors to Antigravity IDE (alias: fix errors agy)")
 	fmt.Println("  history                Display recent commits pipeline execution tree (alias: hist, h)")
 	fmt.Println("  logs                   Display consolidated workflow logs for commit or offset")
-	fmt.Println("  pipeline-ai status     Auto-delay (default: 20s or -t <seconds>) then query status")
+	fmt.Println("  pipeline-ai status     Auto-delay (-t <sec>), stream live errors, and switch to fix")
+	fmt.Println("  pipeline-ai errors     Extract failing workflow errors with AI remediation guidance")
 	fmt.Println("  clear                  Clear logs, reports, and database for repo (alias: clean)")
 	fmt.Println("  db                     Inspect or manage isolated pipeline split SQLite database")
 	fmt.Println("  clear-db               Clear recorded pipeline runs and error logs (alias: cleardb, db-clear)")

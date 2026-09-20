@@ -70,14 +70,15 @@ func executeSkillGeneration(path string) *apperror.AppError {
 func printChainedSequence() {
 	fmt.Println(ChainedDiscoveryHeader)
 	fmt.Println("1. gitmap aum search --help          - Multi-core search and regex filters")
-	fmt.Println("2. gitmap aum guard                  - 500 KB limit, large JSONs, binary null-byte probe")
-	fmt.Println("3. gitmap aum sequence --help        - Numbering gap detector & H1 title validator")
-	fmt.Println("4. gitmap aum exclude list           - Query persistent search exclusions from SQLite")
-	fmt.Println("5. gitmap pipeline-ai status --json  - Check remote CI workflow state and dynamic ETA")
-	fmt.Println("6. gitmap install --list             - Discover toolchains, profiles, and runtimes")
-	fmt.Println("7. gitmap cluster --help             - Multi-node SSH and cluster execution")
-	fmt.Println("8. gitmap cargo status               - Inspect Rust and Cargo toolchain status")
-	fmt.Println("9. gitmap db status                  - Check repository SQLite database health")
+	fmt.Println("2. gitmap aum locate vcvars          - Fast tool locator (vswhere & vcvarsall.bat fast path)")
+	fmt.Println("3. gitmap aum guard                  - 500 KB limit, large JSONs, binary null-byte probe")
+	fmt.Println("4. gitmap aum sequence --help        - Numbering gap detector & H1 title validator")
+	fmt.Println("5. gitmap aum exclude list           - Query persistent search exclusions from SQLite")
+	fmt.Println("6. gitmap pipeline-ai status --json  - Check remote CI workflow state, live errors, dynamic ETA")
+	fmt.Println("7. gitmap install --list             - Discover toolchains, profiles, and runtimes")
+	fmt.Println("8. gitmap cluster --help             - Multi-node SSH and cluster execution")
+	fmt.Println("9. gitmap cargo status               - Inspect Rust and Cargo toolchain status")
+	fmt.Println("10. gitmap db status                 - Check repository SQLite database health")
 	fmt.Println()
 }
 

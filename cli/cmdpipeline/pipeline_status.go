@@ -89,6 +89,8 @@ func buildStatusPayload(repo, lastTag string, pendingPRs int, runs []ghRunItem) 
 		populateActiveRunPayload(&payload, runs, latest)
 	}
 
+	AttachLivePipelineErrors(&payload)
+
 	return payload
 }
 

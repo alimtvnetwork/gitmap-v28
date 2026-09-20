@@ -8,7 +8,7 @@ type TrainOptions struct {
 
 const (
 	DefaultSkillPath = ".agents/skills/gitmap/SKILL.md"
-	AuthorName       = "Md. Alimuzzaman Alim (alimtvnetwork)"
+	AuthorName       = "MD ALIM UL KARIM (alimtvnetwork)"
 	SponsorName      = "Alim TV Network / Open Source Engineering"
 )
 
