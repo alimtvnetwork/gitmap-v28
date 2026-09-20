@@ -27,6 +27,21 @@ func recordInPipelineSplitDb(p PipelineStatusPayload, runs []ghRunItem) {
 	recordRunsToSplitDb(pipeDb, p, runs)
 }
 
+// RecordFetchedRunsToSplitDb persists fresh workflow runs and failures into the repository SQLite split DB.
+func RecordFetchedRunsToSplitDb(repo string, runs []ghRunItem) {
+	if len(runs) == 0 {
+		return
+	}
+
+	pipeDb, err := pipelinedb.OpenPipelineSplitDb(repo)
+	if err != nil {
+		return
+	}
+	defer pipeDb.Close()
+
+	recordRunsToSplitDb(pipeDb, PipelineStatusPayload{Repo: repo}, runs)
+}
+
 func recordRunsToSplitDb(pipeDb *pipelinedb.PipelineSplitDb, p PipelineStatusPayload, runs []ghRunItem) {
 	for _, r := range runs {
 		recordSingleSplitRun(pipeDb, p, r)

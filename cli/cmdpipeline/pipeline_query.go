@@ -288,12 +288,21 @@ func queryRunsFromDB(repo string) []ghRunItem {
 
 	defer db.Close()
 
-	runRes := db.QueryRecentRuns(5)
+	runRes := db.QueryRecentRuns(20)
 	if runRes.IsFailure() {
 		return nil
 	}
 
 	return mapDbRunsToGhRuns(runRes.Data)
+}
+
+func resolveCachedRunsOrFetch(repo string) []ghRunItem {
+	dbRuns := queryRunsFromDB(repo)
+	if len(dbRuns) > 0 {
+		return dbRuns
+	}
+
+	return queryWorkflowRuns(repo)
 }
 
 func mapDbRunsToGhRuns(dbRuns []pipelinedb.PipelineRunRecord) []ghRunItem {

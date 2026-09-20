@@ -611,7 +611,7 @@ func HandlePipelineHistoryErrors(args []string) (bool, error) {
 func tryHandleOffsetInspection(repo string, args []string, isJSON bool) (bool, error) {
 	offset, hasOffset := extractNegativeOffset(args)
 	if hasOffset {
-		runs := queryWorkflowRuns(repo)
+		runs := resolveCachedRunsOrFetch(repo)
 
 		return true, InspectPositionalRun(repo, runs, offset, isJSON)
 	}

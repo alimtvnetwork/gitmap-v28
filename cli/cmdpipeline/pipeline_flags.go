@@ -22,6 +22,7 @@ type PipelineErrorFlags struct {
 	CommitTarget         string
 	FilePath             string
 	TempFileName         string
+	HasForce             bool
 }
 
 // ParsePipelineErrorFlags parses command-line arguments for pipeline error-logs.
@@ -43,6 +44,12 @@ func parseCommonErrorFlags(args []string, flags *PipelineErrorFlags) {
 	flags.HasSuppressOutputLog = hasSuppressOutputArg(args)
 	flags.FilePath = extractFlagVal(args, "--file")
 	flags.TempFileName = extractFlagVal(args, "--tempfile")
+	flags.HasForce = hasForceArg(args)
+}
+
+func hasForceArg(args []string) bool {
+	return hasArgFlag(args, "--force") || hasArgFlag(args, "--no-cache") ||
+		hasArgFlag(os.Args, "--force") || hasArgFlag(os.Args, "--no-cache")
 }
 
 func hasSuppressOutputArg(args []string) bool {

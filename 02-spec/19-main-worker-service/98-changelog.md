@@ -1,3 +1,9 @@
+## v6.282.0 — 2026-09-20 (feat(pipeline): add pipeline details and pd shortcut with runner targets table and SQLite caching)
+
+**Scope:** Version bump. feat(pipeline): add pipeline details and pd shortcut with runner targets table and SQLite caching.
+
+---
+
 ## v6.281.0 — 2026-09-20 (feat(pipeline): add pe shortcut, pe clear -y, and fix stale past error logs)
 
 **Scope:** Version bump. feat(pipeline): add pe shortcut, pe clear -y, and fix stale past error logs.

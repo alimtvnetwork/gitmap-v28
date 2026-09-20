@@ -2432,6 +2432,12 @@ PowerShell: `Invoke-WebRequest -Uri https://raw.githubusercontent.com/alimtvnetw
 
 # Changelog
 
+## [v6.282.0] - 2026-09-20
+
+### Added
+- feat(pipeline): add pipeline details and pd shortcut with runner targets table and SQLite caching
+
+
 ## [v6.281.0] - 2026-09-20
 
 ### Added

@@ -20,6 +20,7 @@ gitmap pl <subcommand> [flags]
 | Subcommand | Description |
 |------------|-------------|
 | `status` | Live CI/CD execution state, active workflow, ETA, and pending PRs |
+| `details, detail, pd` | Display runner target table, step elapsed times, and diagnostics (alias: `pd`) |
 | `waittime, eta` | Remaining estimated wait time in seconds (machine-friendly integer) |
 | `errors, err, pe` | Aggregated failure logs for current or past commit by offset (`-1`, `-2`, `-3`) |
 | `errors clear, pe clear` | Clear error reports, logs, and database for current repository (or target repo) |
@@ -38,7 +39,8 @@ gitmap pl <subcommand> [flags]
 
 | Flag | Shorthand | Type | Default | Description |
 |------|-----------|------|---------|-------------|
-| `--force` | `-f` | boolean | `false` | Bypass duplicate check and resend errors previously dispatched |
+| `--force` | | boolean | `false` | Bypass local SQLite DB cache and pull fresh from GitHub |
+| `--no-cache` | | boolean | `false` | Bypass local SQLite DB cache and pull fresh from GitHub |
 | `--all` | | boolean | `false` | Scan all projects for failures (or retain verbose logs) |
 | `--projects` | | integer | `3` | Number of failing projects to batch-fix with Antigravity |
 | `--limit` | | integer | `3` | Limit number of failing projects per batch run |
@@ -59,6 +61,7 @@ gitmap pl <subcommand> [flags]
 
 | Shortcut | Equivalent Command |
 |----------|-------------------|
+| `gitmap pd` | `gitmap pipeline details` |
 | `gitmap pe` | `gitmap pipeline errors` |
 | `gitmap pe clear -y` | `gitmap pipeline errors clear -y` |
 | `gitmap aef` | `gitmap pipeline fix errors agy` |
@@ -283,6 +286,21 @@ gitmap pipeline-ai status --json
 # Directly inspect errors with AI remediation guidance
 gitmap pipeline-ai errors
 ```
+
+---
+
+## 8. High-Performance SQLite Pipeline Cache
+
+To maximize developer velocity and minimize GitHub API rate limits, `gitmap pipeline errors` and `gitmap pe` leverage an isolated repository SQLite split database (`pipelinedb`):
+
+- **Commit-Matched Instant Serving**: If the local repository commit SHA matches the latest recorded run in the database, and the pipeline run is completed, GitMap serves the error telemetry and status directly from SQLite cache in < 5ms without querying GitHub.
+- **5-Second Dynamic TTL**: Active or in-progress checks within a 5-second window are served from the cache, preventing repetitive API polling from hammering GitHub.
+- **Cache Transparency**: Terminal outputs clearly indicate cached telemetry with `⚡ [Cache] Served from local SQLITE DB cache (commit <sha>)`, and JSON output includes `"isFromCache": true` and `"cacheSource": "sqlite"`.
+- **Bypass with `--force` or `--no-cache`**: To force an immediate remote check from GitHub (bypassing local cache), supply `--force` or `--no-cache`:
+  ```bash
+  gitmap pe --force
+  gitmap pipeline errors --no-cache
+  ```
 
 ---
 

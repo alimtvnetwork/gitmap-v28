@@ -117,6 +117,18 @@ func TestTopLevelPipelineErrorsShortcut(t *testing.T) {
 	}
 }
 
+func TestTopLevelPipelineDetailsShortcut(t *testing.T) {
+	if err := runPipelineDetails([]string{"--json"}); err != nil {
+		t.Errorf("expected runPipelineDetails --json to succeed, got %v", err)
+	}
+	if err := runPipeline([]string{"pd", "--json"}); err != nil {
+		t.Errorf("expected runPipeline pd --json to succeed, got %v", err)
+	}
+	if err := runPipeline([]string{"details", "--json"}); err != nil {
+		t.Errorf("expected runPipeline details --json to succeed, got %v", err)
+	}
+}
+
 func TestHelpFlagTrigger(t *testing.T) {
 	// Ensure hasHelpFlag catches all variants including positional 'help'
 	cases := [][]string{

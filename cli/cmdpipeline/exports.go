@@ -14,6 +14,16 @@ func RunPipelineErrors(args []string) error {
 	return runPipeline(append([]string{"errors"}, args...))
 }
 
+// RunPipelineDetails executes the pipeline details command group with args.
+func RunPipelineDetails(args []string) error {
+	return runPipeline(append([]string{"details"}, args...))
+}
+
+// HandlePipelineDetails handles pipeline runner target details table inspection.
+func HandlePipelineDetailsExport(args []string) error {
+	return HandlePipelineDetails(args)
+}
+
 // RunPipelineAI executes the pipeline AI command with delays.
 func RunPipelineAI(args []string) error {
 	return runPipelineAI(args)

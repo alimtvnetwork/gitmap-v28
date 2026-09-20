@@ -67,6 +67,8 @@ type PipelineErrorLogsPayload struct {
 	FailedRuns         []FailedRunItem   `json:"failedRuns,omitempty"`
 	SectionFailures    []SectionFailure  `json:"sectionFailures,omitempty"`
 	CICDChecks         []CICDCheckResult `json:"cicdChecks,omitempty"`
+	IsFromCache        bool              `json:"isFromCache,omitempty"`
+	CacheSource        string            `json:"cacheSource,omitempty"`
 }
 
 // SectionFailure represents a discrete failing section or step across pipeline runs.
@@ -150,23 +152,37 @@ func runPipeline(args []string) error {
 }
 
 func checkErrorLogsSubcmd(subcmd string, args []string) (bool, error) {
+	if isDetailsSubcmd(subcmd) {
+		return true, HandlePipelineDetails(args[1:])
+	}
 	if subcmd == "last-failed-logs" {
 		return true, HandlePipelineLastFailedLogs(args[1:])
 	}
-
 	if IsNegativeIndexToken(subcmd) {
 		return true, handlePipelineErrorLogs(args)
 	}
 
+	return checkErrorLogsOrClear(subcmd, args)
+}
+
+func checkErrorLogsOrClear(subcmd string, args []string) (bool, error) {
 	if !isErrorLogsSubcmd(subcmd) {
 		return false, nil
 	}
-
 	if len(args) > 1 && isPipelineClearAction(args[1]) {
 		return true, handlePipelineDB(append([]string{"clear"}, args[2:]...))
 	}
 
 	return true, handlePipelineErrorLogs(args[1:])
+}
+
+func isDetailsSubcmd(subcmd string) bool {
+	switch subcmd {
+	case "details", "detail", "pd", "dt", "pipeline-details", "pipeline_details":
+		return true
+	}
+
+	return false
 }
 
 func isPipelineClearAction(action string) bool {
@@ -209,6 +225,8 @@ func dispatchCorePipelineSubcmd(subcmd string, args []string) error {
 	switch subcmd {
 	case "status", "st", "s":
 		return handlePipelineStatus(args[1:])
+	case "details", "detail", "pd", "dt":
+		return HandlePipelineDetails(args[1:])
 	case "waittime", "wait", "eta", "wt", "wait-time":
 		return handlePipelineWaitTime(args[1:])
 	case "logs", "log", "l":
@@ -244,6 +262,7 @@ func printPipelineHelpHeader() {
 	fmt.Println(constants.ColorCyan + "Usage:" + constants.ColorReset)
 	fmt.Println("  gitmap pipeline [command] [flags]")
 	fmt.Println("  gitmap pe [clear [-y]] [flags] (shortcut for pipeline errors)")
+	fmt.Println("  gitmap pd [flags] (shortcut for pipeline details table)")
 	fmt.Println("  gitmap pipelines [command] [flags]")
 	fmt.Println("  gitmap pipeline-ai [status|errors|eta] [-t <seconds>] [--json]")
 	fmt.Println("  gitmap pl [command] [flags]")
@@ -253,6 +272,8 @@ func printPipelineHelpHeader() {
 func printPipelineHelpCommands() {
 	fmt.Println(constants.ColorCyan + "Commands:" + constants.ColorReset)
 	fmt.Println("  status                 Check live CI/CD pipeline status, ETA, and pending PRs")
+	fmt.Println("  details                Display runner target table, step elapsed times, and diagnostics (alias: pd)")
+	fmt.Println("  pd                     Shortcut for pipeline details table and diagnostics")
 	fmt.Println("  errors                 Display failure logs, rerun ETA, and internal CI/CD fix suite (alias: pe)")
 	fmt.Println("  pe                     Shortcut for pipeline errors (supports clear [-y], -1, --json)")
 	fmt.Println("  waittime               Output remaining ETA seconds for active pipeline (alias: eta)")
@@ -288,12 +309,15 @@ func printPipelineHelpFlags() {
 	fmt.Println("  --tempfile <filename>   Write error logs to .ai-memory/temp/<filename>")
 	fmt.Println("  --last-failures <N>     Show logs for the last N failed runs")
 	fmt.Println("  -n, --no-output-log     Stage error logs to disk without displaying in terminal")
+	fmt.Println("  --force, --no-cache     Bypass local SQLite DB cache and pull fresh from GitHub")
 	printPipelineHelpExamples()
 }
 
 func printPipelineHelpExamples() {
 	fmt.Println()
 	fmt.Println(constants.ColorCyan + "Examples:" + constants.ColorReset)
+	fmt.Println("  gitmap pd                                         # Runner target table and step timings")
+	fmt.Println("  gitmap pd -1                                      # Inspect past commit runner targets table")
 	fmt.Println("  gitmap pe                                         # Fast shortcut to view errors / clean status")
 	fmt.Println("  gitmap pe clear -y                                # Clear errors, logs, and reset DB shortcut")
 	fmt.Println("  gitmap pe -1                                      # Inspect previous commit error logs")

@@ -151,6 +151,7 @@ func utilityPipelineEntries() []dispatchEntry {
 		{[]string{"pipeline-ai", "pl-ai", "plai", "pipeline_ai"}, func() error { return runPipelineAI(argsTail()) }},
 		{[]string{"pipeline", "pipelines", "pl"}, func() error { return runPipeline(argsTail()) }},
 		{[]string{"pe", "pipeline-errors", "pipeline_errors"}, func() error { return runPipelineErrors(argsTail()) }},
+		{[]string{"pd", "pipeline-details", "pipeline_details"}, func() error { return runPipelineDetails(argsTail()) }},
 		{[]string{"error-logs", "error-log", "errorlogs", "errorlog", "errors", "err", "errorslogs", "errors-log", "errors-logs", "last-failed-logs"}, func() error { return runPipeline(append([]string{os.Args[1]}, argsTail()...)) }},
 		{[]string{"logs", "log"}, func() error { return runPipeline(append([]string{"logs"}, argsTail()...)) }},
 		{[]string{"waittime", "wait-time", "eta"}, func() error { return runPipeline(append([]string{"waittime"}, argsTail()...)) }},

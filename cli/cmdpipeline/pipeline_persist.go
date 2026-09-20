@@ -65,6 +65,30 @@ func readCachedPipelineLogForRepo(repo string, runId uint64) (string, bool) {
 		}
 	}
 
+	return readCachedLogFromDb(repo, runId)
+}
+
+func readCachedLogFromDb(repo string, runId uint64) (string, bool) {
+	pipeDb, err := pipelinedb.OpenPipelineSplitDb(repo)
+	if err != nil {
+		return "", false
+	}
+	defer pipeDb.Close()
+
+	detailRes := pipeDb.QueryDetailedErrorLogsByRunId(runId)
+	if detailRes.HasRecord() && len(detailRes.Data[0].RawLogs) > 0 {
+		return detailRes.Data[0].RawLogs, true
+	}
+
+	return queryLegacyErrorLogFromDb(pipeDb, runId)
+}
+
+func queryLegacyErrorLogFromDb(pipeDb *pipelinedb.PipelineSplitDb, runId uint64) (string, bool) {
+	legacyRes := pipeDb.QueryErrorLogsByRunId(runId)
+	if legacyRes.HasRecord() && len(legacyRes.Data[0].RawLogs) > 0 {
+		return legacyRes.Data[0].RawLogs, true
+	}
+
 	return "", false
 }
 

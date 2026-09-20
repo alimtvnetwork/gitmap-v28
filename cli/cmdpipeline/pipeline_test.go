@@ -202,3 +202,42 @@ func TestPipelineHelpMentionsPe(t *testing.T) {
 		t.Fatalf("pipeline help missing 'gitmap pe': %s", buf.String())
 	}
 }
+
+func TestPipelineHelpMentionsPd(t *testing.T) {
+	oldStdout := os.Stdout
+	r, w, _ := os.Pipe()
+	os.Stdout = w
+	printPipelineHelp()
+	_ = w.Close()
+	os.Stdout = oldStdout
+	var buf bytes.Buffer
+	_, _ = io.Copy(&buf, r)
+	if !strings.Contains(buf.String(), "gitmap pd") {
+		t.Fatalf("pipeline help missing 'gitmap pd': %s", buf.String())
+	}
+}
+
+func TestBuildPipelineDetailsPayload(t *testing.T) {
+	run := ghRunItem{
+		DatabaseId: 12345, Name: "Cross-Platform Build",
+		HeadBranch: "main", HeadSha: "abc1234567890",
+		Status: "completed", Conclusion: "failure",
+	}
+	jobs := []ghJobItem{
+		{
+			DatabaseId: 101, Name: "Ubuntu 22.04", Status: "completed", Conclusion: "success",
+			Steps: []ghStepItem{{Name: "Build the app", Conclusion: "success"}},
+		},
+		{
+			DatabaseId: 102, Name: "macOS aarch64", Status: "completed", Conclusion: "failure",
+			Steps: []ghStepItem{{Name: "go test ./...", Conclusion: "failure"}},
+		},
+	}
+	p := buildPipelineDetailsPayload("test/repo", run, jobs, true)
+	if p.TotalCount != 2 || p.PassedCount != 1 || p.FailedCount != 1 {
+		t.Fatalf("unexpected summary counts: %+v", p)
+	}
+	if !p.IsFromCache || len(p.Jobs) != 2 || p.Jobs[1].Step != "go test ./..." {
+		t.Fatalf("unexpected details payload: %+v", p)
+	}
+}

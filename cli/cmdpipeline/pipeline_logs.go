@@ -56,8 +56,33 @@ func executeTimelineErrorLogs(repo string, flags PipelineErrorFlags, args []stri
 }
 
 func processAndRenderErrorLogs(repo string, flags PipelineErrorFlags) error {
+	decision := EvaluatePipelineErrorsCache(repo, flags)
+	if decision.IsFromCache {
+		return renderCachedErrorLogs(repo, decision, flags)
+	}
+
+	return fetchAndRenderFreshErrorLogs(repo, flags)
+}
+
+func renderCachedErrorLogs(repo string, decision PipelineCacheDecision, flags PipelineErrorFlags) error {
+	payload := buildErrorLogsPayload(repo, decision.CachedRuns)
+	payload.IsFromCache = true
+	payload.CacheSource = decision.CacheSource
+	applyPayloadOptions(&payload, decision.CachedRuns, flags)
+
+	return writeOrRenderErrorLogs(ErrorLogOutputParams{
+		Payload:              payload,
+		IsJSON:               flags.IsJSON,
+		HasSuppressOutputLog: flags.HasSuppressOutputLog,
+		FilePath:             flags.FilePath,
+		TempFile:             flags.TempFileName,
+	})
+}
+
+func fetchAndRenderFreshErrorLogs(repo string, flags PipelineErrorFlags) error {
 	printReadingProgress(flags)
 	runs := queryWorkflowRuns(repo)
+	RecordFetchedRunsToSplitDb(repo, runs)
 	payload := buildErrorLogsPayload(repo, runs)
 	applyPayloadOptions(&payload, runs, flags)
 
@@ -675,6 +700,14 @@ func renderCleanSuccessTerminal(p PipelineErrorLogsPayload) {
 }
 
 func renderPipelineMetaBlock(p PipelineErrorLogsPayload) {
+	if p.IsFromCache {
+		renderCacheBannerLine(p)
+	}
+	renderPipelineRepoAndBranch(p)
+	renderPipelineMetaVersionAndPR(p)
+}
+
+func renderPipelineRepoAndBranch(p PipelineErrorLogsPayload) {
 	fmt.Printf("    %-18s %s\n", "Repo:", p.Repo)
 	if len(p.RepoUrl) > 0 {
 		fmt.Printf("    %-18s %s\n", "Repo URL:", p.RepoUrl)
@@ -685,7 +718,15 @@ func renderPipelineMetaBlock(p PipelineErrorLogsPayload) {
 	if len(p.LastHash) > 0 {
 		fmt.Printf("    %-18s %s\n", "Last Commit:", p.LastHash)
 	}
-	renderPipelineMetaVersionAndPR(p)
+}
+
+func renderCacheBannerLine(p PipelineErrorLogsPayload) {
+	source := p.CacheSource
+	if len(source) == 0 {
+		source = "sqlite"
+	}
+	fmt.Printf("    %-18s %s⚡ Served from local %s DB cache (commit %s)%s\n",
+		"Cache:", constants.ColorCyan, strings.ToUpper(source), p.LastHash, constants.ColorReset)
 }
 
 func renderPipelineMetaVersionAndPR(p PipelineErrorLogsPayload) {
@@ -705,7 +746,7 @@ func renderCleanSuccessDbAndHistory(p PipelineErrorLogsPayload) {
 		fmt.Printf("  • Cleanup:         gitmap pipeline clear -y\n")
 	}
 
-	runs := queryWorkflowRuns(p.Repo)
+	runs := resolveCachedRunsOrFetch(p.Repo)
 	RenderHistorySummaryTable(runs)
 }
 
@@ -735,7 +776,7 @@ func renderFailureSectionsAndETA(p PipelineErrorLogsPayload) {
 	renderCombinedSectionsTerminal(p.SectionFailures)
 	renderFailedRunsBreakdown(p.FailedRuns)
 	renderSavedLocationsTerminal(p)
-	runs := queryWorkflowRuns(p.Repo)
+	runs := resolveCachedRunsOrFetch(p.Repo)
 	RenderHistorySummaryTable(runs)
 	printRerunETA(p.RerunEtaSeconds)
 }
@@ -781,10 +822,17 @@ func appendClipboardMetaHeader(sb *strings.Builder, title string, p PipelineErro
 }
 
 func appendClipboardMetaDetails(sb *strings.Builder, p PipelineErrorLogsPayload) {
+	if p.IsFromCache {
+		sb.WriteString(fmt.Sprintf("Cache:                Served from local SQLite DB (commit %s)\n", p.LastHash))
+	}
 	sb.WriteString(fmt.Sprintf("Branch:               %s\n", p.LatestBranch))
 	sb.WriteString(fmt.Sprintf("Last Commit:          %s\n", p.LastHash))
 	sb.WriteString(fmt.Sprintf("Last Release:         %s\n", p.LastReleaseVersion))
 	sb.WriteString(fmt.Sprintf("Open PRs:             %d\n", p.OpenPRsCount))
+	appendClipboardRunStatus(sb, p)
+}
+
+func appendClipboardRunStatus(sb *strings.Builder, p PipelineErrorLogsPayload) {
 	if len(p.Status) > 0 && len(p.Conclusion) > 0 {
 		sb.WriteString(fmt.Sprintf("Status:               %s (conclusion: %s)\n", p.Status, p.Conclusion))
 	}
@@ -1017,6 +1065,7 @@ func printPipelineErrorLogsFlags() {
 	fmt.Println("  -c, --check             Run internal CI/CD checks without modifying files")
 	fmt.Println("  -v, --detailed, --verbose  Show full raw error logs including passing ok lines")
 	fmt.Println("  -y, --yes               Auto-confirm prompts non-interactively")
+	fmt.Println("  --force, --no-cache     Bypass local SQLite DB cache and pull fresh from GitHub")
 	fmt.Println("  --json                  Output data in structured JSON format")
 	fmt.Println("  --file <path>           Write error logs to specified file path")
 	fmt.Println("  --tempfile <filename>   Write error logs to .ai-memory/temp/<filename>")
