@@ -1,3 +1,9 @@
+## v6.281.0 — 2026-09-20 (feat(pipeline): add pe shortcut, pe clear -y, and fix stale past error logs)
+
+**Scope:** Version bump. feat(pipeline): add pe shortcut, pe clear -y, and fix stale past error logs.
+
+---
+
 ## v6.280.0 — 2026-09-20 (fix(cluster): resolve cluster join handshake timeout and flakiness on macos)
 
 **Scope:** Version bump. fix(cluster): resolve cluster join handshake timeout and flakiness on macos.
