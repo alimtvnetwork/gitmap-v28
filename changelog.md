@@ -2432,6 +2432,12 @@ PowerShell: `Invoke-WebRequest -Uri https://raw.githubusercontent.com/alimtvnetw
 
 # Changelog
 
+## [v6.273.0] - 2026-09-20
+
+### Added
+- fix remote gitmap detection, version flag routing, and sudo power command execution
+
+
 ## [v6.272.0] - 2026-09-19
 
 ### Added

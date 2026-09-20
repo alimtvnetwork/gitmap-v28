@@ -1,3 +1,9 @@
+## v6.273.0 — 2026-09-20 (fix remote gitmap detection, version flag routing, and sudo power command execution)
+
+**Scope:** Version bump. fix remote gitmap detection, version flag routing, and sudo power command execution.
+
+---
+
 ## v6.272.0 — 2026-09-19 (fix(open): buffer and suppress snapd mount warnings and isolate process group on unix)
 
 **Scope:** Version bump. fix(open): buffer and suppress snapd mount warnings and isolate process group on unix.
