@@ -90,13 +90,17 @@ func processSyncFilterFlag(arg string, args []string, index *int, opts *SSHMacro
 	}
 }
 
+func collectSingleMacro(name string) ([]macro.Macro, *apperror.AppError) {
+	m, err := macro.LoadMacro(name)
+	if err != nil {
+		return nil, apperror.WrapSimple(err, "macro.LoadMacro: "+name)
+	}
+	return []macro.Macro{*m}, nil
+}
+
 func collectLocalMacrosForSync(name string) ([]macro.Macro, *apperror.AppError) {
 	if name != "" && name != "all" && name != "*" {
-		m, err := macro.LoadMacro(name)
-		if err != nil {
-			return nil, apperror.WrapSimple(err, "macro.LoadMacro: "+name)
-		}
-		return []macro.Macro{*m}, nil
+		return collectSingleMacro(name)
 	}
 	res := macro.ListMacros()
 	if res.IsFailure() {
