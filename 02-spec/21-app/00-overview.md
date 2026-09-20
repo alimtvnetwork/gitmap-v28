@@ -38,6 +38,12 @@ GitMap is a CLI tool that scans directory trees for Git repositories, extracts c
    - `126-cargo-command-and-toolchain-runner.md`: Cargo command and Rust toolchain runner with auto-install suggestions
    - `127-llm-train-and-chained-agent-curriculum.md`: LLM train & chained curriculum with automatic Antigravity skill generation
    - `128-aum-automation-suite-and-roadmap.md`: AUM automation suite and 6-phase polyglot script migration roadmap
+   - `129-pr-commit-engines-and-sqlite-split-db.md`: PR commit engines, SQLite split-DB architecture, and auto-merge PR release suite
+   - `130-pipeline-ai-live-error-streaming-and-remediation.md`: Pipeline-AI live error streaming, auto-stop, and fast-forward remediation suite
+   - `131-developer-tools-cache-cleanup.md`: Developer tools cache cleanup suite (clean-dev / os dev-clean) across 10 categories
+   - `132-ssh-multinode-exec-copy-mv-and-env.md`: SSH multi-node parallel execution, cross-host file copy/move, and environment management
+   - `133-ssh-interactive-join-password-vault-and-cluster.md`: SSH interactive join, encrypted password vault, node metadata, and cluster architecture
+   - `134-antigravity-ide-first-integration-and-queue-protocol.md`: Antigravity IDE-first filesystem discovery, conversation picker, and dynamic prompt queue protocol
 
 2. **Feature Modules & Sub-systems**:
    - [`01-vscode-project-manager-sync/`](./01-vscode-project-manager-sync/): VS Code Project Manager synchronization

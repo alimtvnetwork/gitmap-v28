@@ -43,7 +43,15 @@ Sibling folders for app-scoped concerns:
 
 ## Contents
 
-_No app-specific specs added yet. Add specs as numbered files within this folder._
+See [00-overview.md](./00-overview.md) for the complete application specification directory and architectural roadmap.
+
+### Recent Specifications
+- [Spec 129: PR Commit Engines & SQLite Split-DB](./129-pr-commit-engines-and-sqlite-split-db.md)
+- [Spec 130: Pipeline-AI Live Error Streaming & Remediation](./130-pipeline-ai-live-error-streaming-and-remediation.md)
+- [Spec 131: Developer Tools Cache Cleanup](./131-developer-tools-cache-cleanup.md)
+- [Spec 132: SSH Multi-Node Execution, Copy/Move & Env](./132-ssh-multinode-exec-copy-mv-and-env.md)
+- [Spec 133: SSH Interactive Join, Password Vault & Cluster](./133-ssh-interactive-join-password-vault-and-cluster.md)
+- [Spec 134: Antigravity IDE-First Integration & Queue Protocol](./134-antigravity-ide-first-integration-and-queue-protocol.md)
 
 ---
 
