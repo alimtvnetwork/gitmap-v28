@@ -334,3 +334,31 @@ func ProcessPR(plan ReplayPlan, commit SourceCommit, opts Options) result.Result
 
 	return res
 }
+
+// ProcessPRCommit handles PR creation and merging for single-commit orchestrators (commit-in).
+func ProcessPRCommit(
+	targetDir string,
+	originalSubject,
+	cleanedBody,
+	shortSHA,
+	prMode,
+	newSHA string,
+) error {
+	if !isPRRouteEligible(targetDir, newSHA, originalSubject, prMode) {
+		return nil
+	}
+	plan := ReplayPlan{TargetDir: targetDir}
+	commit := SourceCommit{
+		Subject:  originalSubject,
+		ShortSHA: shortSHA,
+		SHA:      newSHA,
+		Body:     cleanedBody,
+	}
+	opts := Options{PRMode: prMode}
+	res := ProcessPR(plan, commit, opts)
+	if res.IsFailure() {
+		return res.Err
+	}
+
+	return nil
+}

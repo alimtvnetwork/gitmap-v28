@@ -34,7 +34,7 @@ func executePipeline(ctx *runContext, stdout io.Writer) int {
 		}
 	}
 
-	if len(inputs) > 0 && !ctx.Raw.DryRun {
+	if len(inputs) > 0 && !ctx.Raw.IsDryRun {
 		lastInput := inputs[len(inputs)-1]
 		_ = committransfer.FinalizeSnapshotSync(lastInput.WorkPath, ctx.Source.Path, "HEAD", "commit-in")
 	}

@@ -2,11 +2,9 @@ package pipelinedb
 
 import (
 	"database/sql"
-	"os"
 	"path/filepath"
 	"strings"
 
-	"github.com/alimtvnetwork/gitmap-v28/cli/lazyregex"
 	"github.com/alimtvnetwork/gitmap-v28/cli/store"
 )
 

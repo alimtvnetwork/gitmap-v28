@@ -2,7 +2,6 @@ package cmdautomation
 
 import (
 	"database/sql"
-	"os"
 	"os/exec"
 	"path/filepath"
 	"strings"

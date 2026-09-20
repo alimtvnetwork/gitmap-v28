@@ -4,12 +4,8 @@ package store
 
 import (
 	"database/sql"
-	"os"
-	"path/filepath"
-	"strings"
 
 	"github.com/alimtvnetwork/gitmap-v28/cli/apperror"
-	"github.com/alimtvnetwork/gitmap-v28/cli/lazyregex"
 	_ "modernc.org/sqlite"
 )
 

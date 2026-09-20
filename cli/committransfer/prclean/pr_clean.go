@@ -2,7 +2,6 @@ package prclean
 
 import (
 	"fmt"
-	"os"
 	"os/exec"
 	"path/filepath"
 	"strings"
@@ -65,12 +64,12 @@ func renderPreflightTable(branches []prdb.PrBranchRecord) {
 	fmt.Println()
 }
 
-func formatMergedTime(t *int64) string {
-	if t == nil {
+func formatMergedTime(t int64) string {
+	if t <= 0 {
 		return "N/A"
 	}
 
-	return fmt.Sprintf("%d (epoch)", *t)
+	return fmt.Sprintf("%d (epoch)", t)
 }
 
 func confirmPrune(count int) bool {

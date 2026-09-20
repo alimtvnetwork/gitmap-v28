@@ -170,7 +170,7 @@ func doReplayAndRecord(
 	}
 
 	recordCreated(ctx, srcID, c, msg, res.NewSha, stdout)
-	if err := committransfer.ProcessPR(plan.TargetRepoDir, c.OriginalMessage, msg, c.Sha[:7], ctx.Resolved.PRMode, res.NewSha); err != nil {
+	if err := committransfer.ProcessPRCommit(plan.TargetRepoDir, c.OriginalMessage, msg, c.Sha[:7], ctx.Resolved.PRMode, res.NewSha); err != nil {
 		fmt.Fprintf(stdout, "PR processing failed: %v\n", err)
 	}
 }
