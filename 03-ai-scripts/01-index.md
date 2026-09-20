@@ -234,6 +234,9 @@ Enables developers and AI agents to run all 31+ local CI quality gates concurren
 
 - Concurrently executes all repository quality gates across multiple languages using `ThreadPoolExecutor`.
 - Features intelligent log filtering: emits quiet green checkmarks on success; prints full stack traces and diffs on failure.
+- Incorporates a **Composite Test Heatmap Engine** ranking tests by failure history, git commit churn, and execution speed.
+- Supports fail-fast prioritization and `--fast` mode skipping cold/stable tests to drop test cycles to 3-5 seconds.
+- Provides unified cache architecture under `.ai-memory/cicd/cache/` with `--cache-stats`, `--clear-cache`, and `--prune-cache`.
 - Supports synchronous sequential mode (`--sync`) for deterministic step-by-step debugging.
 - Supports job filtering (`--filter`) and machine-readable JSON exports (`--json`).
 
@@ -242,6 +245,21 @@ Enables developers and AI agents to run all 31+ local CI quality gates concurren
 ```bash
 # Run all quality gates concurrently (check mode, quiet on success, full logs on failure)
 python 03-ai-scripts/06-cicd-local-runner.py
+
+# Inspect top test hotspots and failure risk rankings
+python 03-ai-scripts/06-cicd-local-runner.py --heatmap --top 15
+
+# Fast mode: run hot and warm tests only, bypassing cold tests
+python 03-ai-scripts/06-cicd-local-runner.py --fast
+
+# View cache directory size, item counts, and hit rates
+python 03-ai-scripts/06-cicd-local-runner.py --cache-stats
+
+# Purge runner cache and reset telemetry
+python 03-ai-scripts/06-cicd-local-runner.py --clear-cache
+
+# Enforce cache size budget (<= 25 MB) and 24h TTL
+python 03-ai-scripts/06-cicd-local-runner.py --prune-cache
 
 # Show detailed output for all gates (both passed and failed)
 python 03-ai-scripts/06-cicd-local-runner.py --all
@@ -1069,20 +1087,24 @@ Maintains a single source of truth for repository test coverage at `.ai-memory/t
 
 - Discovers and parses unit tests across Go (`*_test.go`), TypeScript/JavaScript (`*.test.ts`, `*.spec.ts`), and Python (`test_*.py`).
 - Maps tests to target source files, extracts function names, and generates SHA-256 code hashes.
-- Generates and maintains `.ai-memory/test-inventory.json` with test counts, status tracking, and dirty flags.
+- Calculates Git commit churn, failure frequencies, and duration weights to build the **Test Heatmap**.
+- Generates and maintains `.ai-memory/test-inventory.json` and `.ai-memory/test-heatmap.json` with risk tiers (`hot`, `warm`, `cold`).
 - Under file lock (`.ai-memory/temp/recent-file-changes.lock`), records distinct repository-relative file paths to `.ai-memory/temp/recent-file-changes.json` and automatically resolves all associated tests that must be executed when release verification or test fixes are explicitly requested.
 
 #### CLI Usage & Examples
 
 ```bash
-# Scan repository and generate / update .ai-memory/test-inventory.json
+# Scan repository and generate / update .ai-memory/test-inventory.json & test-heatmap.json
 python 03-ai-scripts/33-test-inventory-generator.py
+
+# Inspect top hotspot tests with heat scores and failure counts
+python 03-ai-scripts/33-test-inventory-generator.py --heatmap --top 20
 
 # Check test inventory cache freshness (<= 5 days old and profiled)
 python 03-ai-scripts/33-test-inventory-generator.py --check-age --max-age-days 5
 
 # Safely record modified files under lock and resolve associated tests
-python 03-ai-scripts/33-test-inventory-generator.py --record "04-code/golang/pkg/appfault/appfault.go"
+python 03-ai-scripts/33-test-inventory-generator.py --record "cli/cmd/root.go"
 
 # Query currently recorded modified files and associated test list
 python 03-ai-scripts/33-test-inventory-generator.py --query-recent

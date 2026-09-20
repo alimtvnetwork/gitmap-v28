@@ -312,6 +312,14 @@ if os.name != "nt":
 
 CICD_DIR = REPO_ROOT / ".ai-memory" / "cicd"
 CICD_DIR.mkdir(parents=True, exist_ok=True)
+CACHE_DIR = CICD_DIR / "cache"
+CACHE_DIR.mkdir(parents=True, exist_ok=True)
+
+CACHE_STATE_FILE = CACHE_DIR / "state.json"
+CACHE_INVENTORY_FILE = CACHE_DIR / "inventory.json"
+CACHE_TIMINGS_FILE = CACHE_DIR / "timings.json"
+CACHE_DEBOUNCE_FILE = CACHE_DIR / "debounce.json"
+
 CICD_TEMP_DIR = CICD_DIR
 CICD_RUNS_DIR = CICD_DIR / "runs"
 CICD_LATEST_DIR = CICD_DIR / "latest"
@@ -321,13 +329,13 @@ CICD_RUN_LOG = CICD_DIR / "run.log"
 CICD_EVENTS_JSONL = CICD_DIR / "events.jsonl"
 CICD_CHANGELOG_LOG = CICD_DIR / "changelog.log"
 CICD_SUMMARY_JSON = CICD_DIR / "summary.json"
-CICD_STATE_JSON = CICD_DIR / "state.json"
+CICD_STATE_JSON = CACHE_STATE_FILE
 CICD_POINTER_FILE = CICD_DIR / "latest_run.txt"
-CICD_LAST_RUN_CACHE = CICD_DIR / "last_run_cache.json"
+CICD_LAST_RUN_CACHE = CACHE_DEBOUNCE_FILE
 
-TIMING_FILE_PATH = CICD_DIR / "timings.json"
-TEST_INVENTORY_PATH = Path(".ai-memory/test-inventory.json")
-TEST_INVENTORY_CACHE_PATH = CICD_DIR / "test-inventory.json"
+TIMING_FILE_PATH = CACHE_TIMINGS_FILE
+TEST_INVENTORY_PATH = REPO_ROOT / ".ai-memory" / "test-inventory.json"
+TEST_INVENTORY_CACHE_PATH = CACHE_INVENTORY_FILE
 
 DISK_WRITE_LOCK = threading.RLock()
 
@@ -820,22 +828,22 @@ def clean_temp_file(tmp_path: Path) -> None:
             sys.stderr.write(f"[WARN] Failed to unlink temp file {tmp_path}: {err}\n")
 
 
-def retry_replace_or_overwrite(tmp_path: Path, file_path: Path, text: str) -> None:
+def retry_replace_or_overwrite(tmp_path: Path, file_path: Path, text: str, has_fsync: bool = False) -> None:
     """Attempts atomic replace with retry, falling back to direct write."""
     for attempt in range(5):
         try:
             os.replace(tmp_path, file_path)
-
             return
         except PermissionError:
             time.sleep(0.01 * (2 ** attempt))
     with open(file_path, "w", encoding=DEFAULT_ENCODING) as fh:
         fh.write(text)
         fh.flush()
-        os.fsync(fh.fileno())
+        if has_fsync:
+            os.fsync(fh.fileno())
 
 
-def atomic_write_text(file_path: Path, text: str) -> None:
+def atomic_write_text(file_path: Path, text: str, has_fsync: bool = False) -> None:
     """Atomically writes text using tmp file with retry backoff for Windows file locks."""
     file_path.parent.mkdir(parents=True, exist_ok=True)
     tmp_path = file_path.with_suffix(f".tmp.{os.getpid()}.{threading.get_ident()}")
@@ -843,18 +851,19 @@ def atomic_write_text(file_path: Path, text: str) -> None:
         with open(tmp_path, "w", encoding=DEFAULT_ENCODING) as fh:
             fh.write(text)
             fh.flush()
-            os.fsync(fh.fileno())
-        retry_replace_or_overwrite(tmp_path, file_path, text)
+            if has_fsync:
+                os.fsync(fh.fileno())
+        retry_replace_or_overwrite(tmp_path, file_path, text, has_fsync=has_fsync)
     except OSError as err:
         sys.stderr.write(f"[WARN] Failed atomic write: {err}\n")
     finally:
         clean_temp_file(tmp_path)
 
 
-def atomic_write_json(file_path: Path, data: Any) -> None:
+def atomic_write_json(file_path: Path, data: Any, has_fsync: bool = False) -> None:
     """Atomically writes JSON structure to file."""
     payload = json.dumps(data, indent=2)
-    atomic_write_text(file_path, payload)
+    atomic_write_text(file_path, payload, has_fsync=has_fsync)
 
 
 def clear_existing_link(latest_dir: Path) -> None:
@@ -973,74 +982,122 @@ def extract_go_test_functions(filepath: Path) -> dict[str, str]:
     return tests
 
 
+FILE_HASH_MEMO_CACHE: dict[str, str] = {}
+
+
 def compute_file_hash(filepath: Path) -> str:
-    """Computes short SHA256 hex digest for an entire file."""
+    """Computes short SHA256 hex digest for an entire file with in-memory memoization."""
+    key = str(filepath)
+    if key in FILE_HASH_MEMO_CACHE:
+        return FILE_HASH_MEMO_CACHE[key]
     try:
-        return hashlib.sha256(filepath.read_bytes()).hexdigest()[:16]
+        digest = hashlib.sha256(filepath.read_bytes()).hexdigest()[:16]
+        FILE_HASH_MEMO_CACHE[key] = digest
+        return digest
     except OSError:
         return ""
 
 
 def load_raw_test_inventory(path: Path) -> dict[str, Any]:
     """Loads existing test inventory JSON from disk if present."""
-    if path.is_file():
-        try:
-            data = json.loads(path.read_text(encoding="utf-8"))
-            if isinstance(data, dict):
-                return data
-        except Exception:
-            pass
+    for candidate in (path, CACHE_INVENTORY_FILE):
+        if candidate.is_file():
+            try:
+                data = json.loads(candidate.read_text(encoding=DEFAULT_ENCODING))
+                if isinstance(data, dict):
+                    return data
+            except Exception:
+                pass
     return {}
 
 
-def build_or_update_test_inventory(repo_root: Path, force: bool = False) -> dict[str, Any]:
-    """Discovers all repository tests, indexes source code functions, maps code-to-test, and caches hashes & timings."""
-    existing_inv = load_raw_test_inventory(TEST_INVENTORY_PATH)
-    slow_threshold = float(os.environ.get("GITMAP_SLOW_TEST_THRESHOLD", "4.0"))
+def resolve_inventory_delta(repo_root: Path, delta: set[str] | None) -> set[str]:
+    """Resolves repo delta set for test inventory short-circuiting."""
+    if delta is not None:
+        return delta
+    prev = load_previous_state(False)
+    curr_head = get_head_commit(repo_root)
+    curr_dirty = get_dirty_files_map(repo_root)
+    return compute_repo_delta(repo_root, prev.get("head", ""), curr_head, prev.get("dirty", {}), curr_dirty)
 
-    # If inventory does not exist, has no tests, or force is requested, delegate to centralized generator
-    if not existing_inv or not existing_inv.get("tests") or force:
-        try:
-            sys.path.insert(0, str(Path(__file__).parent))
-            inv_gen = importlib.import_module("33-test-inventory-generator")
-            return inv_gen.build_test_inventory(repo_root, slow_threshold=slow_threshold, force_run_all=force)
-        except Exception as exc:
-            sys.stderr.write(f"[WARN] Failed to invoke 33-test-inventory-generator: {exc}\n")
 
-    # Fast incremental dirty checking across existing inventory
-    tests = existing_inv.get("tests", {})
-    dirty_count = 0
-    cached_count = 0
+def is_test_cached_by_delta(t: dict[str, Any], delta: set[str], force: bool) -> bool:
+    """Checks if test can be bypassed directly from git delta and prior success."""
+    tgt, tf = t.get("target_file", ""), t.get("test_file", "")
+    has_passed = t.get("last_status") == "passed"
+    is_affected = bool((tgt and tgt in delta) or (tf and tf in delta))
+    return not force and has_passed and not is_affected and bool(t.get("code_hash"))
 
-    for tid, t in tests.items():
-        rel_target = t.get("target_file", "")
-        rel_test = t.get("test_file", "")
-        curr_test_hash = compute_file_hash(repo_root / rel_test) if rel_test else ""
-        curr_code_hash = compute_file_hash(repo_root / rel_target) if rel_target else ""
 
-        is_unchanged = (
-            not force
-            and t.get("last_status") == "passed"
-            and curr_code_hash == t.get("code_hash")
-            and curr_test_hash == t.get("test_hash")
-            and curr_code_hash != ""
-        )
+def evaluate_inventory_test_item(t: dict[str, Any], delta: set[str], root: Path, force: bool) -> tuple[bool, bool]:
+    """Evaluates if test needs run and whether its dirty status changed."""
+    if is_test_cached_by_delta(t, delta, force):
+        has_changed = bool(t.get("needs_run") is not False)
+        t["needs_run"] = False
+        return False, has_changed
+    tgt, tf = t.get("target_file", ""), t.get("test_file", "")
+    ch = compute_file_hash(root / tgt) if tgt else ""
+    th = compute_file_hash(root / tf) if tf else ""
+    is_match = not force and t.get("last_status") == "passed" and ch == t.get("code_hash") and th == t.get("test_hash") and ch != ""
+    has_changed = bool(t.get("needs_run") == is_match)
+    t["needs_run"] = not is_match
+    return not is_match, has_changed
 
-        needs_run = not is_unchanged
-        t["needs_run"] = needs_run
+
+def process_inventory_tests(tests: dict, delta: set[str], root: Path, force: bool) -> tuple[int, int, bool]:
+    """Scans all inventory tests and computes dirty count and status transitions."""
+    dirty_count, cached_count = 0, 0
+    is_dirty_state = False
+    for t in tests.values():
+        needs_run, has_changed = evaluate_inventory_test_item(t, delta, root, force)
+        if has_changed:
+            is_dirty_state = True
         if needs_run:
             dirty_count += 1
         else:
             cached_count += 1
+    return dirty_count, cached_count, is_dirty_state
 
-    summary = existing_inv.setdefault("summary", {})
-    summary["total"] = len(tests)
-    summary["cached"] = cached_count
-    summary["dirty"] = dirty_count
-    existing_inv["updated_at"] = time.strftime("%Y-%m-%dT%H:%M:%SZ")
 
-    atomic_write_json(TEST_INVENTORY_PATH, existing_inv)
-    atomic_write_json(TEST_INVENTORY_CACHE_PATH, existing_inv)
+def persist_inventory_if_dirty(inv: dict, dirty: int, cached: int, is_dirty: bool, force: bool) -> None:
+    """Writes inventory.json only if dirty or status changed or missing from disk."""
+    has_disk_file = TEST_INVENTORY_PATH.is_file() and CACHE_INVENTORY_FILE.is_file()
+    if not is_dirty and dirty == 0 and not force and has_disk_file:
+        return
+    summary = inv.setdefault("summary", {})
+    summary["total"] = len(inv.get("tests", {}))
+    summary["cached"] = cached
+    summary["dirty"] = dirty
+    inv["updated_at"] = time.strftime("%Y-%m-%dT%H:%M:%SZ")
+    atomic_write_json(TEST_INVENTORY_PATH, inv)
+    atomic_write_json(CACHE_INVENTORY_FILE, inv)
+
+
+def invoke_inventory_generator_fallback(repo_root: Path, slow_threshold: float, force: bool) -> dict[str, Any]:
+    """Invokes external test inventory generator script."""
+    try:
+        sys.path.insert(0, str(Path(__file__).parent))
+        inv_gen = importlib.import_module("33-test-inventory-generator")
+        return inv_gen.build_test_inventory(repo_root, slow_threshold=slow_threshold, force_run_all=force)
+    except Exception as exc:
+        sys.stderr.write(f"[WARN] Failed to invoke 33-test-inventory-generator: {exc}\n")
+        return {}
+
+
+def build_or_update_test_inventory(
+    repo_root: Path, force: bool = False, repo_delta: set[str] | None = None
+) -> dict[str, Any]:
+    """Discovers all repository tests, indexes source code functions, and caches hashes & timings."""
+    existing_inv = load_raw_test_inventory(TEST_INVENTORY_PATH)
+    if not existing_inv or not existing_inv.get("tests") or force:
+        slow_threshold = float(os.environ.get("GITMAP_SLOW_TEST_THRESHOLD", "4.0"))
+        gen_inv = invoke_inventory_generator_fallback(repo_root, slow_threshold, force)
+        if gen_inv:
+            return gen_inv
+    delta = resolve_inventory_delta(repo_root, repo_delta)
+    tests = existing_inv.get("tests", {})
+    dirty, cached, is_dirty = process_inventory_tests(tests, delta, repo_root, force)
+    persist_inventory_if_dirty(existing_inv, dirty, cached, is_dirty, force)
     return existing_inv
 
 
@@ -1238,6 +1295,21 @@ def filter_tests_by_package_or_file(tests: dict[str, Any], queries: list[str], r
     return [tests[tid] for tid in matched_ids if tid in tests]
 
 
+def filter_fast_mode_tests(tests: list[dict[str, Any]], is_fast: bool) -> list[dict[str, Any]]:
+    """Filters dirty tests to hot and warm tiers when fast mode is active."""
+    if not is_fast:
+        return tests
+    return [
+        t for t in tests
+        if t.get("heat_tier") in ("hot", "warm") or t.get("last_status") == "failed"
+    ]
+
+
+def sort_tests_by_heat(tests: list[dict[str, Any]]) -> None:
+    """Sorts test list in-place by descending heat score for fail-fast execution."""
+    tests.sort(key=lambda t: float(t.get("heat_score", 0.0)), reverse=True)
+
+
 def run_smart_go_tests(
     name: str, timeout_sec: int, max_workers: int, force: bool, repo_root: Path,
     tel: TelemetryTracker | None = None, package_filter: list[str] | str | None = None
@@ -1245,7 +1317,6 @@ def run_smart_go_tests(
     """Executes changed Go tests with unified priority worker pool."""
     start_time = time.monotonic()
     clear_repo_test_temp()
-    clear_repo_go_cache()
     clear_stale_failures_log()
     inventory = build_or_update_test_inventory(repo_root, force=force)
     all_tests = inventory.get("tests", {})
@@ -1268,6 +1339,9 @@ def run_smart_go_tests(
             if (t.get("needs_run", True) or force) and (include_heavy or "tests/heavy_test" not in t.get("test_file", ""))
         ]
 
+    is_fast_mode = os.environ.get("GITMAP_FAST_TESTS") == "1"
+    dirty_tests = filter_fast_mode_tests(dirty_tests, is_fast_mode)
+
     if not dirty_tests:
         elapsed = round(time.monotonic() - start_time, 2)
         total_tests = len(tests)
@@ -1285,6 +1359,8 @@ def run_smart_go_tests(
         or float(t.get("duration_sec", 0.0)) >= slow_threshold
     ]
     fast_tests = [t for t in dirty_tests if t not in slow_tests]
+    sort_tests_by_heat(fast_tests)
+    sort_tests_by_heat(slow_tests)
 
     total_dirty = len(dirty_tests)
     passed_count = 0
@@ -1407,7 +1483,6 @@ def run_smart_go_tests(
     atomic_write_json(TEST_INVENTORY_CACHE_PATH, inventory)
 
     clear_repo_test_temp()
-    clear_repo_go_cache()
     if failed_count > 0:
         err_text = "\n".join(error_outputs)
         return JobResult(
@@ -1504,46 +1579,61 @@ def build_success_result(
     )
 
 
-def run_job(
-    name: str, cmd: list[str], timeout_sec: int, env: dict[str, str] | None = None, cwd: str | None = None
-) -> JobResult:
-    """Executes a single gate subprocess and records duration, return code, and streams."""
+def prepare_web_app_gate(name: str, cmd: list[str]) -> JobResult | None:
+    """Prepares build artifacts for web app and packaging gates."""
+    clear_repo_build_temp()
+    for dist_dir in (REPO_ROOT / "dist", REPO_ROOT / "cli" / "dist"):
+        robust_rmtree(dist_dir)
+    if name == "Web App Build" and not (REPO_ROOT / "node_modules").is_dir():
+        return JobResult(name=name, cmd=cmd, code=0, out="[SKIP] node_modules not installed.", err="", elapsed=0.01, is_cached=True)
+
+    return None
+
+
+def prepare_compile_or_build_gate(name: str, cmd: list[str]) -> JobResult | None:
+    """Prepares directory artifacts for compile and build gates."""
     if name == "Go Compile Gate":
         clear_repo_build_temp()
-        clear_repo_go_cache()
-        bin_exe = REPO_ROOT / "bin" / "gitmap.exe"
-        if bin_exe.exists():
-            try:
-                bin_exe.unlink(missing_ok=True)
-            except OSError:
-                pass
+        try:
+            (REPO_ROOT / "bin" / "gitmap.exe").unlink(missing_ok=True)
+        except OSError:
+            pass
     elif name in ("Web App Build", "GoReleaser Snapshot Build"):
-        clear_repo_build_temp()
-        clear_repo_go_cache()
-        for dist_dir in (REPO_ROOT / "dist", REPO_ROOT / "cli" / "dist"):
-            robust_rmtree(dist_dir)
-        if name == "Web App Build" and not (REPO_ROOT / "node_modules").is_dir():
-            return JobResult(
-                name=name, cmd=cmd, code=0,
-                out="[SKIP] node_modules not installed locally; web app build skipped.",
-                err="", elapsed=0.01, is_cached=True
-            )
+        return prepare_web_app_gate(name, cmd)
+
+    return None
+
+
+def ensure_smoke_binary_present(name: str) -> None:
+    """Ensures bin/gitmap.exe is compiled before executing smoke test suites."""
     if name in ("E2E Smoke Suite", "History Purge Smoke", "History Pin Smoke"):
         bin_exe = REPO_ROOT / "bin" / "gitmap.exe"
         if not bin_exe.exists():
             subprocess.run(["go", "build", "-C", "cli", "-o", "../bin/gitmap.exe", "."], check=False)
+
+
+def execute_job_and_record(cmd: list[str], t_sec: int, env: dict | None, cwd: str | None, name: str) -> JobResult:
+    """Invokes subprocess and returns constructed JobResult."""
     start = time.monotonic()
     try:
-        res = execute_subprocess(cmd, timeout_sec, env, cwd)
-
+        res = execute_subprocess(cmd, t_sec, env, cwd)
         return build_success_result(name, cmd, res, round(time.monotonic() - start, 2), cwd, env)
     except subprocess.TimeoutExpired as exc:
         return build_timeout_result(name, cmd, exc, round(time.monotonic() - start, 2), cwd, env)
     except Exception as exc:
         return build_error_result(name, cmd, exc, round(time.monotonic() - start, 2), cwd, env)
-    finally:
-        if name in ("Go Compile Gate", "GoReleaser Snapshot Build", "Go Test Race (Hot Packages)", "Go Test Coverage Profile"):
-            clear_repo_go_cache()
+
+
+def run_job(
+    name: str, cmd: list[str], timeout_sec: int, env: dict[str, str] | None = None, cwd: str | None = None
+) -> JobResult:
+    """Executes a single gate subprocess and records duration, return code, and streams."""
+    early_res = prepare_compile_or_build_gate(name, cmd)
+    if early_res is not None:
+        return early_res
+    ensure_smoke_binary_present(name)
+
+    return execute_job_and_record(cmd, timeout_sec, env, cwd, name)
 
 
 def extract_stack_or_error(res: JobResult) -> str:
@@ -1716,21 +1806,24 @@ def format_run_log_line(res: JobResult) -> str:
     return line
 
 
-def direct_append_sync(file_path: Path, content: str) -> None:
-    """Appends content to file and immediately flushes and syncs to disk."""
+def direct_append_sync(file_path: Path, content: str, has_fsync: bool = False) -> None:
+    """Appends content to file and flushes, syncing to disk only when requested."""
     file_path.parent.mkdir(parents=True, exist_ok=True)
     with DISK_WRITE_LOCK:
         try:
             with open(file_path, "a", encoding=DEFAULT_ENCODING) as fh:
                 fh.write(content)
                 fh.flush()
-                os.fsync(fh.fileno())
+                if has_fsync:
+                    os.fsync(fh.fileno())
         except OSError as err:
             sys.stderr.write(f"[WARN] Failed writing to {file_path}: {err}\n")
 
 
-def emit_telemetry_event(event_type: str, session_dir: Path | None, payload: dict[str, Any]) -> None:
-    """Emits append-only real-time event to events.jsonl and changelog.log with immediate fsync."""
+def emit_telemetry_event(
+    event_type: str, session_dir: Path | None, payload: dict[str, Any], has_fsync: bool = False
+) -> None:
+    """Emits append-only real-time event to events.jsonl and changelog.log."""
     ts = time.strftime("%Y-%m-%dT%H:%M:%S")
     event_obj = {"timestamp": ts, "event": event_type, **payload}
     json_line = json.dumps(event_obj, separators=(",", ":")) + "\n"
@@ -1740,7 +1833,7 @@ def emit_telemetry_event(event_type: str, session_dir: Path | None, payload: dic
     if session_dir is not None:
         targets.extend([(session_dir / "events.jsonl", json_line), (session_dir / "changelog.log", changelog_line)])
     for path, text in targets:
-        direct_append_sync(path, text)
+        direct_append_sync(path, text, has_fsync=has_fsync)
 
 
 def append_run_log_entry(res: JobResult, session_dir: Path | None) -> None:
@@ -1749,8 +1842,9 @@ def append_run_log_entry(res: JobResult, session_dir: Path | None) -> None:
     targets = [CICD_RUN_LOG]
     if session_dir is not None:
         targets.append(session_dir / "run.log")
+    has_fsync = not res.is_success
     for t in targets:
-        direct_append_sync(t, entry)
+        direct_append_sync(t, entry, has_fsync=has_fsync)
 
 
 def write_failure_markdown(entry: str, session_dir: Path | None) -> None:
@@ -1759,7 +1853,21 @@ def write_failure_markdown(entry: str, session_dir: Path | None) -> None:
     if session_dir is not None:
         targets.append(session_dir / "errors.log")
     for t in targets:
-        direct_append_sync(t, entry)
+        direct_append_sync(t, entry, has_fsync=True)
+
+
+def save_failure_trace_file(res: JobResult, err_text: str, session_dir: Path | None) -> str:
+    """Saves individual failure trace to separate file and returns relative path."""
+    if session_dir is None:
+        return ""
+    failures_dir = session_dir / "failed_tests"
+    failures_dir.mkdir(parents=True, exist_ok=True)
+    safe_name = "".join([c if c.isalnum() or c in ("-", "_") else "_" for c in res.name])
+    failure_file = failures_dir / f"{safe_name}.log"
+    failure_content = f"Test Name: {res.name}\nCommand: {res.cmd}\nCode: {res.code}\n\nStack Trace / Output:\n{err_text}"
+    failure_file.write_text(failure_content, encoding=DEFAULT_ENCODING)
+
+    return normalize_repo_rel(failure_file)
 
 
 def append_failure_to_disk(res: JobResult, state: dict[str, Any], session_dir: Path | None) -> None:
@@ -1768,23 +1876,12 @@ def append_failure_to_disk(res: JobResult, state: dict[str, Any], session_dir: P
     err_text = extract_stack_or_error(res)
     suspect_files = extract_failing_files(err_text)
     write_failure_markdown(format_error_log_entry(res, suspect_files, ts, err_text), session_dir)
-
-    # Save individual failure trace to separate file
-    log_path_str = ""
+    log_path = save_failure_trace_file(res, err_text, session_dir)
+    errors = state.setdefault("errors_list", [])
+    errors.append({"name": res.name, "cmd": res.cmd, "code": res.code, "elapsed": res.elapsed, "suspect_files": suspect_files, "error": strip_ansi(err_text), "log_path": log_path})
+    atomic_write_json(CICD_ERRORS_JSON, errors, has_fsync=True)
     if session_dir is not None:
-        failures_dir = session_dir / "failed_tests"
-        failures_dir.mkdir(parents=True, exist_ok=True)
-        safe_name = "".join([c if c.isalnum() or c in ("-", "_") else "_" for c in res.name])
-        failure_file = failures_dir / f"{safe_name}.log"
-        failure_content = f"Test Name: {res.name}\nCommand: {res.cmd}\nCode: {res.code}\n\nStack Trace / Output:\n{err_text}"
-        failure_file.write_text(failure_content, encoding=DEFAULT_ENCODING)
-        log_path_str = normalize_repo_rel(failure_file)
-
-    errors_list = state.setdefault("errors_list", [])
-    errors_list.append({"name": res.name, "cmd": res.cmd, "code": res.code, "elapsed": res.elapsed, "suspect_files": suspect_files, "error": strip_ansi(err_text), "log_path": log_path_str})
-    atomic_write_json(CICD_ERRORS_JSON, errors_list)
-    if session_dir is not None:
-        atomic_write_json(session_dir / "errors.json", errors_list)
+        atomic_write_json(session_dir / "errors.json", errors, has_fsync=True)
 
 
 class TelemetryTracker:
@@ -1974,6 +2071,126 @@ def update_cicd_summary(state: dict[str, Any], session_dir: Path, is_finished: b
     update_summary_file(session_dir, meta)
 
 
+def get_cache_size_and_count(cache_dir: Path) -> tuple[int, int]:
+    """Calculates total byte size and file count in cache directory."""
+    if not cache_dir.is_dir():
+        return 0, 0
+    files = [f for f in cache_dir.iterdir() if f.is_file()]
+    total_size = sum(f.stat().st_size for f in files)
+
+    return total_size, len(files)
+
+
+def get_cache_age_info(cache_dir: Path) -> tuple[str, float]:
+    """Finds latest modification timestamp and elapsed seconds across cache files."""
+    if not cache_dir.is_dir():
+        return "N/A", 0.0
+    files = [f for f in cache_dir.iterdir() if f.is_file()]
+    if not files:
+        return "N/A", 0.0
+    latest_mtime = max(f.stat().st_mtime for f in files)
+    elapsed = max(0.0, time.time() - latest_mtime)
+    formatted = time.strftime("%Y-%m-%d %H:%M:%S", time.localtime(latest_mtime))
+
+    return formatted, elapsed
+
+
+def get_cache_hit_rate_summary() -> str:
+    """Reads state and inventory cache to calculate observed hit rates."""
+    parts = []
+    if CACHE_STATE_FILE.is_file():
+        res = load_previous_state(False).get("results", [])
+        if res:
+            cached = sum(1 for r in res if isinstance(r, dict) and r.get("is_cached"))
+            parts.append(f"Gates: {cached}/{len(res)} ({int(100 * cached / len(res))}%)")
+    if CACHE_INVENTORY_FILE.is_file():
+        summ = load_raw_test_inventory(CACHE_INVENTORY_FILE).get("summary", {})
+        if summ.get("total", 0) > 0:
+            c, t = summ.get("cached", 0), summ.get("total", 1)
+            parts.append(f"Tests: {c}/{t} ({int(100 * c / t)}%)")
+
+    return " | ".join(parts) if parts else "No active run data"
+
+
+def display_cache_stats() -> None:
+    """Prints cache directory size, item counts, hit rates, and age."""
+    total_bytes, count = get_cache_size_and_count(CACHE_DIR)
+    latest_date, elapsed = get_cache_age_info(CACHE_DIR)
+    hit_rates = get_cache_hit_rate_summary()
+    print("================================================================")
+    print("                CI/CD LOCAL RUNNER CACHE STATS                  ")
+    print("================================================================")
+    print(f"📁 Cache Directory   : {CACHE_DIR}")
+    print(f"📦 Cached Files      : {count} items ({total_bytes / 1024:.1f} KB)")
+    print(f"⏱️  Latest Cache Age : {latest_date} ({elapsed:.1f}s ago)")
+    print(f"🎯 Cache Hit Rates   : {hit_rates}")
+    print("================================================================")
+
+
+def remove_path_safely(p: Path) -> None:
+    """Removes single file or directory path safely."""
+    if p.is_file():
+        try:
+            p.unlink()
+        except OSError:
+            pass
+    elif p.is_dir():
+        robust_rmtree(p)
+
+
+def clear_cicd_cache() -> None:
+    """Safely removes cache files, resets runner-eta.json, and clears memo cache."""
+    FILE_HASH_MEMO_CACHE.clear()
+    if CACHE_DIR.is_dir():
+        for item in CACHE_DIR.iterdir():
+            remove_path_safely(item)
+    for legacy in (CICD_DIR / "state.json", CICD_DIR / "timings.json", CICD_DIR / "test-inventory.json", CICD_DIR / "last_run_cache.json"):
+        remove_path_safely(legacy)
+    if RUNNER_ETA_FILE.is_file():
+        atomic_write_json(RUNNER_ETA_FILE, {"status": "idle", "eta_sec": 0, "active_jobs": []})
+    print(f"✔ CI/CD cache cleared successfully ({CACHE_DIR}).")
+
+
+def prune_session_runs_by_ttl(runs_dir: Path, ttl_sec: float) -> int:
+    """Removes session directories older than TTL."""
+    if not runs_dir.is_dir():
+        return 0
+    now = time.time()
+    pruned = 0
+    for p in runs_dir.iterdir():
+        if p.is_dir() and (now - p.stat().st_mtime > ttl_sec):
+            robust_rmtree(p)
+            pruned += 1
+
+    return pruned
+
+
+def prune_session_runs_by_count(runs_dir: Path, keep_runs: int) -> int:
+    """Keeps the most recent session directories, removing excess."""
+    if not runs_dir.is_dir():
+        return 0
+    dirs = [p for p in runs_dir.iterdir() if p.is_dir()]
+    if len(dirs) <= keep_runs:
+        return 0
+    dirs.sort(key=lambda p: p.stat().st_mtime, reverse=True)
+    for old_dir in dirs[keep_runs:]:
+        robust_rmtree(old_dir)
+
+    return max(0, len(dirs) - keep_runs)
+
+
+def prune_cicd_cache(max_size_mb: int = 25, keep_runs: int = 3, ttl_hours: int = 24) -> None:
+    """Enforces size budget and purges old sessions and temporary artifacts."""
+    ttl_sec = ttl_hours * 3600.0
+    pruned_ttl = prune_session_runs_by_ttl(CICD_RUNS_DIR, ttl_sec)
+    pruned_cnt = prune_session_runs_by_count(CICD_RUNS_DIR, keep_runs)
+    clean_stale_temp_artifacts()
+    total_bytes, _ = get_cache_size_and_count(CACHE_DIR)
+    if total_bytes > max_size_mb * 1024 * 1024:
+        clear_cicd_cache()
+    print(f"✔ CI/CD cache pruned: removed {pruned_ttl + pruned_cnt} old run(s), budget: {max_size_mb}MB.")
+
+
 def filter_batch_jobs(jobs: dict[str, Any], query: str) -> dict[str, Any]:
     """Filters dictionary of jobs by name substring query."""
     q = query.lower()
@@ -2045,6 +2262,12 @@ def add_execution_mode_arguments(parser: argparse.ArgumentParser) -> None:
         help="Explicitly execute all unit test suites, integration tests, and coverage checks."
     )
     parser.add_argument(
+        "--fast",
+        dest="fast_mode",
+        action="store_true",
+        help="Execute only hot and warm tests based on heatmap, skipping cold tests."
+    )
+    parser.add_argument(
         "--pkg", "--package", "-p", "--target-file", "--file",
         dest="package_filter", nargs="*", default=[],
         help="Run specific Go test package based on code file path, code file name, or Go package name."
@@ -2061,6 +2284,8 @@ def add_reporting_arguments(parser: argparse.ArgumentParser) -> None:
     parser.add_argument("--failed", dest="failed_only", action="store_true", help="Show failed only.")
     parser.add_argument("-o", "--output-paths", dest="output_paths", nargs="*", type=str, default=[], help="Multiple output file paths.")
     parser.add_argument("--json", dest="json_mode", action="store_true", help="Output machine-readable JSON.")
+    parser.add_argument("--heatmap", dest="show_heatmap", action="store_true", help="Display test suite heat map and exit.")
+    parser.add_argument("--top", dest="top_n", type=int, default=25, help="Limit heat map display to top N entries (default: 25).")
     parser.add_argument("--eta-interval", type=int, default=120, help="Print ETA interval in seconds.")
     parser.add_argument("--heartbeat-interval", type=float, default=DEFAULT_HEARTBEAT_INTERVAL, help="Heartbeat interval in seconds for in-flight progress (default: 25.0).")
     parser.add_argument("--inventory-only", dest="inventory_only", action="store_true", help="Discover and catalog all tests into JSON manifest and exit.")
@@ -2069,7 +2294,10 @@ def add_reporting_arguments(parser: argparse.ArgumentParser) -> None:
 def add_caching_and_resume_arguments(parser: argparse.ArgumentParser) -> None:
     """Adds incremental caching and crash resumption arguments."""
     parser.add_argument("--force", "--fresh", "--clean", "--no-cache", dest="force_run", action="store_true", help="Run all.")
-    parser.add_argument("--clean-cache", "--clean-gocache", dest="clean_cache", action="store_true", help="Explicitly purge Go build and test caches before and after execution.")
+    parser.add_argument("--cache-stats", dest="cache_stats", action="store_true", help="Display cache statistics and exit.")
+    parser.add_argument("--clear-cache", "--clean-cache", dest="clear_cache", action="store_true", help="Purge CI/CD cache and exit.")
+    parser.add_argument("--prune-cache", dest="prune_cache", action="store_true", help="Enforce cache size budget and exit.")
+    parser.add_argument("--clean-gocache", dest="clean_gocache", action="store_true", help="Purge Go build and test caches.")
     parser.add_argument("--resume", dest="resume_mode", action="store_true", help="Resume interrupted session.")
     parser.add_argument("--changed-only", "-c", "--recent", dest="changed_only", action="store_true", help="Scope linters to files changed in recent commits.")
     parser.add_argument("--commits", "-n", dest="commits", type=int, default=20, help="Commit window for changed files (default: 20).")
@@ -2144,7 +2372,7 @@ def handle_failure_result(res: JobResult, cmd_hash: str, state: dict, sdir: Path
     """Handles reporting and state update for a failed quality gate."""
     record_gate_failure(state, res.name, res, cmd_hash)
     append_failure_to_disk(res, state, sdir)
-    emit_telemetry_event("gate_failed", sdir, {"name": res.name, "code": res.code, "elapsed": res.elapsed})
+    emit_telemetry_event("gate_failed", sdir, {"name": res.name, "code": res.code, "elapsed": res.elapsed}, has_fsync=True)
     if not state["is_json"]:
         tel.clear_line()
         print_immediate_failure_report(res, state["counter"], state["total"])
@@ -2176,8 +2404,6 @@ def handle_completed_result(
         track_executed_gate(res, state)
         append_run_log_entry(res, sdir)
         dispatch_result_outcome(res, cmd_hash, spec, state, sdir, tel, root)
-        persist_state(sdir, state)
-        update_cicd_summary(state, sdir, is_finished=False)
         tel.finish_job(res.name, is_cached=res.is_cached)
 
 
@@ -2274,13 +2500,14 @@ def execute_job_batch(
     """Executes all jobs within a single batch with worker pool."""
     items = list(batch["jobs"].items())
     to_run = evaluate_batch_skips(items, state, prev_state, repo_delta, root, sdir, tel)
-    if not to_run:
-        return
-    limit = batch.get("max_workers")
-    batch_workers = 1 if is_sync else min(workers, limit or workers, len(to_run))
-    with ThreadPoolExecutor(max_workers=batch_workers) as executor:
-        fut_map = submit_job_futures(executor, to_run, args, tel, root)
-        wait_and_handle_batch_futures(fut_map, state, sdir, tel, root)
+    if to_run:
+        limit = batch.get("max_workers")
+        batch_workers = 1 if is_sync else min(workers, limit or workers, len(to_run))
+        with ThreadPoolExecutor(max_workers=batch_workers) as executor:
+            fut_map = submit_job_futures(executor, to_run, args, tel, root)
+            wait_and_handle_batch_futures(fut_map, state, sdir, tel, root)
+    persist_state(sdir, state)
+    update_cicd_summary(state, sdir, is_finished=False)
 
 
 def format_segment_gate_bullet(idx: int, gate_name: str) -> str:
@@ -2559,28 +2786,31 @@ def setup_runner_state(total_jobs: int, is_json: bool, curr_head: str, curr_dirt
     return state
 
 
-def prepare_runner_context(args: argparse.Namespace, root: Path, total_jobs: int) -> tuple[Path, dict, set, TelemetryTracker, dict]:
-    """Prepares directories, git delta, and initial state machine."""
+def prepare_runner_temp_dirs(args: argparse.Namespace) -> None:
+    """Cleans temporary directories and optionally Go cache if requested."""
     clear_repo_build_temp()
     clear_repo_test_temp()
-    clear_repo_go_cache()
+    if getattr(args, "force_run", False) or getattr(args, "clean_gocache", False):
+        clear_repo_go_cache()
     clear_stale_failures_log()
     clean_stale_temp_artifacts()
     prune_old_cicd_runs(keep_count=5)
     clean_coverage_artifacts()
-    session_dir, prev_state = init_session_scaffolding(args.force_run, args.resume_mode)
-    curr_head = get_head_commit(root)
-    curr_dirty = get_dirty_files_map(root)
-    last_head = prev_state.get("head", "")
-    last_dirty = prev_state.get("dirty", {})
-    delta = compute_repo_delta(root, last_head, curr_head, last_dirty, curr_dirty)
+
+
+def prepare_runner_context(args: argparse.Namespace, root: Path, total_jobs: int) -> tuple[Path, dict, set, TelemetryTracker, dict]:
+    """Prepares directories, git delta, and initial state machine."""
+    prepare_runner_temp_dirs(args)
+    sdir, prev = init_session_scaffolding(args.force_run, args.resume_mode)
+    curr_head, curr_dirty = get_head_commit(root), get_dirty_files_map(root)
+    delta = compute_repo_delta(root, prev.get("head", ""), curr_head, prev.get("dirty", {}), curr_dirty)
     hb_interval = getattr(args, "heartbeat_interval", DEFAULT_HEARTBEAT_INTERVAL)
     telemetry = TelemetryTracker(total_jobs, sys.stdout.isatty(), bool(args.json_mode), args.show_all, heartbeat_interval=hb_interval)
     state = setup_runner_state(total_jobs, bool(args.json_mode), curr_head, curr_dirty)
-    update_cicd_summary(state, session_dir, is_finished=False)
-    emit_telemetry_event("run_started", session_dir, {"total_gates": total_jobs, "session": session_dir.name})
+    update_cicd_summary(state, sdir, is_finished=False)
+    emit_telemetry_event("run_started", sdir, {"total_gates": total_jobs, "session": sdir.name})
 
-    return session_dir, prev_state, delta, telemetry, state
+    return sdir, prev, delta, telemetry, state
 
 
 def execute_agent_group(
@@ -2714,6 +2944,14 @@ def emit_runner_report(args: argparse.Namespace, st: dict, counts: tuple, elapse
     return handle_text_output(args, st["results"], counts, elapsed, st, sdir)
 
 
+def cleanup_runner_temp_artifacts() -> None:
+    """Performs post-runner temporary artifact cleaning."""
+    clear_repo_test_temp()
+    clean_stale_temp_artifacts()
+    clean_coverage_artifacts()
+    prune_old_cicd_runs(keep_count=5)
+
+
 def execute_runner(args: argparse.Namespace, active_batches: list[dict[str, Any]], repo_root: Path) -> int:
     """Orchestrates test batch execution and report output generation."""
     total_jobs = sum(len(b["jobs"]) for b in active_batches)
@@ -2724,14 +2962,11 @@ def execute_runner(args: argparse.Namespace, active_batches: list[dict[str, Any]
     start = time.monotonic()
     run_batch_sequence(active_batches, args, st, prev, delta, repo_root, sdir, tel)
     elapsed = round(time.monotonic() - start, 2)
+    persist_state(sdir, st)
     update_cicd_summary(st, sdir, is_finished=True)
-    counts = extract_runner_counts(total_jobs, st["results"])
-    clear_repo_test_temp()
-    clean_stale_temp_artifacts()
-    clean_coverage_artifacts()
-    prune_old_cicd_runs(keep_count=5)
+    cleanup_runner_temp_artifacts()
 
-    return emit_runner_report(args, st, counts, elapsed, sdir)
+    return emit_runner_report(args, st, extract_runner_counts(total_jobs, st["results"]), elapsed, sdir)
 
 
 def load_cicd_timings(path: Path) -> dict[str, float]:
@@ -2811,6 +3046,18 @@ def start_eta_reporter(interval_sec: int, total_est_sec: int, stop_event: thread
     return worker
 
 
+def cleanup_pipeline_post_run(args: argparse.Namespace, timings: dict) -> None:
+    """Performs post-pipeline timing persistence and temporary file cleanup."""
+    timings.update(GLOBAL_TIMINGS)
+    save_cicd_timings(CACHE_TIMINGS_FILE, timings)
+    clear_repo_test_temp()
+    if getattr(args, "clean_gocache", False):
+        clear_repo_go_cache()
+    clean_stale_temp_artifacts()
+    clean_coverage_artifacts()
+    prune_old_cicd_runs(keep_count=5)
+
+
 def run_pipeline_with_eta(args: argparse.Namespace, batches: list, root: Path, timings: dict, total_est: int) -> int:
     """Runs test execution pipeline with background ETA reporter."""
     stop_event = threading.Event()
@@ -2819,24 +3066,59 @@ def run_pipeline_with_eta(args: argparse.Namespace, batches: list, root: Path, t
         return execute_runner(args, batches, root)
     finally:
         stop_event.set()
-        timings.update(GLOBAL_TIMINGS)
-        save_cicd_timings(TIMING_FILE_PATH, timings)
-        clear_repo_test_temp()
-        clear_repo_go_cache()
-        clean_stale_temp_artifacts()
-        clean_coverage_artifacts()
-        prune_old_cicd_runs(keep_count=5)
+        cleanup_pipeline_post_run(args, timings)
+
+
+def generate_git_changed_manifest_fallback(repo_root: Path, commits: int) -> None:
+    """Generates git-changed-files.json using git diff when extractor script is missing."""
+    manifest_path = repo_root / ".ai-memory" / "temp" / "git-changed-files.json"
+    manifest_path.parent.mkdir(parents=True, exist_ok=True)
+    head_sha = get_head_commit(repo_root)
+    dirty_files = get_dirty_files_map(repo_root)
+    cmd = ["git", "diff", "--name-only", f"HEAD~{commits}..HEAD"]
+    res = subprocess.run(cmd, cwd=repo_root, capture_output=True, text=True, check=False)
+    diff_lines = [p.strip() for p in res.stdout.splitlines() if p.strip()] if res.returncode == 0 else []
+    all_paths = set(diff_lines) | set(dirty_files.keys())
+    records = [{"path": p, "status": "working-tree" if p in dirty_files else "committed", "extension": Path(p).suffix} for p in sorted(all_paths)]
+    payload = {"last_commit_hash": head_sha, "commit_window": commits, "total_files": len(records), "files": records}
+    atomic_write_json(manifest_path, payload)
+
+
+def run_extractor_if_present(extractor: Path, commits: int, is_force: bool, repo_root: Path) -> bool:
+    """Executes extractor script if present and returns whether execution succeeded."""
+    if not extractor.is_file():
+        return False
+    cmd = [sys.executable, str(extractor), "--commits", str(commits), "--quiet"]
+    if is_force:
+        cmd.append("--no-incremental")
+    res = subprocess.run(cmd, cwd=str(repo_root), check=False)
+
+    return res.returncode == 0
 
 
 def ensure_manifest_if_changed_only(args: argparse.Namespace, repo_root: Path) -> None:
     """Pre-generates git-changed-files.json when running in changed-only mode."""
-    if getattr(args, "changed_only", False):
-        extractor = repo_root / "03-ai-scripts/27-git-changed-files.py"
-        commits = getattr(args, "commits", 20)
-        cmd = [sys.executable, str(extractor), "--commits", str(commits), "--quiet"]
-        if getattr(args, "force_run", False):
-            cmd.append("--no-incremental")
-        subprocess.run(cmd, cwd=str(repo_root), check=True)
+    if not getattr(args, "changed_only", False):
+        return
+    commits = getattr(args, "commits", 20)
+    is_force = bool(getattr(args, "force_run", False))
+    extractor = repo_root / "03-ai-scripts" / "27-git-changed-files.py"
+    has_run = run_extractor_if_present(extractor, commits, is_force, repo_root)
+    if not has_run:
+        generate_git_changed_manifest_fallback(repo_root, commits)
+
+
+def print_cached_run_banner(elapsed: float, ttl_sec: float, data: dict[str, Any]) -> None:
+    """Prints formatted terminal banner for cached debounce run."""
+    print("================================================================")
+    print("Here is the result from the previous run.")
+    print("================================================================")
+    print(f"⏱️  Cached from previous run {elapsed:.1f}s ago (debounce TTL: {ttl_sec:.0f}s).")
+    status_text = "PASSED (exit 0)" if data.get("exit_code") == 0 else f"FAILED (exit {data.get('exit_code')})"
+    print(f"📋 Status: {status_text}")
+    if data.get("summary"):
+        print(f"📊 Summary: {data.get('summary')}")
+    print("================================================================")
 
 
 def check_recent_run_cache(cache_file: Path, signature: str, is_force: bool = False, normal_ttl: float = 15.0, force_ttl: float = 5.0) -> int | None:
@@ -2846,19 +3128,9 @@ def check_recent_run_cache(cache_file: Path, signature: str, is_force: bool = Fa
     ttl_sec = force_ttl if is_force else normal_ttl
     try:
         data = json.loads(cache_file.read_text(encoding=DEFAULT_ENCODING))
-        last_time = float(data.get("timestamp", 0.0))
-        elapsed = time.time() - last_time
+        elapsed = time.time() - float(data.get("timestamp", 0.0))
         if elapsed < ttl_sec and data.get("signature") == signature:
-            print("================================================================")
-            print("Here is the result from the previous run.")
-            print("================================================================")
-            print(f"⏱️  Cached from previous run {elapsed:.1f}s ago (debounce TTL: {ttl_sec:.0f}s).")
-            status_text = "PASSED (exit 0)" if data.get("exit_code") == 0 else f"FAILED (exit {data.get('exit_code')})"
-            print(f"📋 Status: {status_text}")
-            summary = data.get("summary")
-            if summary:
-                print(f"📊 Summary: {summary}")
-            print("================================================================")
+            print_cached_run_banner(elapsed, ttl_sec, data)
             return int(data.get("exit_code", 0))
     except Exception:
         return None
@@ -2880,49 +3152,101 @@ def save_recent_run_cache(cache_file: Path, signature: str, exit_code: int, summ
         pass
 
 
-def main() -> None:
-    """Primary entry point for local CI/CD quality gate runner."""
-    args = parse_args()
-    repo_root = Path(__file__).resolve().parent.parent
+def handle_cache_cli_commands(args: argparse.Namespace) -> bool:
+    """Handles cache management CLI flags and exits early if matched."""
+    if getattr(args, "cache_stats", False):
+        display_cache_stats()
+        return True
+    if getattr(args, "clear_cache", False):
+        clear_cicd_cache()
+        return True
+    if getattr(args, "prune_cache", False):
+        prune_cicd_cache()
+        return True
 
-    # Fast Debounce Cache Check: return prior result if invoked in quick succession
-    sig = f"no_tests={getattr(args, 'no_tests', False)},run_tests={getattr(args, 'run_tests', False)},filter={getattr(args, 'filter', '') or ''},pkg={getattr(args, 'package_filter', [])}"
-    cached_code = check_recent_run_cache(CICD_LAST_RUN_CACHE, sig, is_force=bool(getattr(args, "force_run", False)))
-    if cached_code is not None:
-        sys.exit(cached_code)
+    return False
 
-    ensure_manifest_if_changed_only(args, repo_root)
 
-    # Step 1: Discover all existing tests, build/update test inventory JSON with code-to-test mapping & timings
-    inventory = build_or_update_test_inventory(repo_root, force=bool(args.force_run))
-    if getattr(args, "inventory_only", False):
-        print_inventory_summary(inventory)
-        sys.exit(0)
+def filter_out_test_batches(batches: list[dict[str, Any]]) -> list[dict[str, Any]]:
+    """Filters out all test jobs when --no-tests flag is provided."""
+    filtered = []
+    for b in batches:
+        if is_test_batch(b.get("name", "")):
+            continue
+        jobs = {k: v for k, v in b.get("jobs", {}).items() if not is_test_job(k, v)}
+        if jobs:
+            b_copy = dict(b)
+            b_copy["jobs"] = jobs
+            filtered.append(b_copy)
 
+    return filtered
+
+
+def resolve_filtered_pipeline_batches(args: argparse.Namespace) -> list[dict[str, Any]]:
+    """Resolves and filters job batches based on package and job filters."""
     if getattr(args, "package_filter", None) and not args.filter:
         batches = filter_job_batches(JOB_BATCHES, "Go Smart Incremental Tests")
     else:
         batches = filter_job_batches(JOB_BATCHES, args.filter)
-
     if getattr(args, "no_tests", False):
-        filtered_batches = []
-        for b in batches:
-            if is_test_batch(b.get("name", "")):
-                continue
-            non_test_jobs = {
-                jname: jcmd for jname, jcmd in b.get("jobs", {}).items()
-                if not is_test_job(jname, jcmd)
-            }
-            if non_test_jobs:
-                b_copy = dict(b)
-                b_copy["jobs"] = non_test_jobs
-                filtered_batches.append(b_copy)
-        batches = filtered_batches
-    timings = load_cicd_timings(TIMING_FILE_PATH)
-    total_est = calculate_total_eta(batches, timings)
-    code = run_pipeline_with_eta(args, batches, repo_root, timings, total_est)
-    summary_str = f"Executed {len(batches)} batches | Result code: {code}"
-    save_recent_run_cache(CICD_LAST_RUN_CACHE, sig, code, summary_str)
+        return filter_out_test_batches(batches)
+
+    return batches
+
+
+def check_debounce_and_manifest(args: argparse.Namespace, sig: str, root: Path) -> None:
+    """Checks debounce cache and pre-generates changed manifest if requested."""
+    cached_code = check_recent_run_cache(CACHE_DEBOUNCE_FILE, sig, is_force=bool(getattr(args, "force_run", False)))
+    if cached_code is not None:
+        sys.exit(cached_code)
+    ensure_manifest_if_changed_only(args, root)
+
+
+def execute_pipeline_entry(args: argparse.Namespace, root: Path, batches: list) -> int:
+    """Loads timings and runs execution pipeline with ETA calculation."""
+    timings = load_cicd_timings(CACHE_TIMINGS_FILE)
+
+    return run_pipeline_with_eta(args, batches, root, timings, calculate_total_eta(batches, timings))
+
+
+def check_inventory_only_mode(args: argparse.Namespace, root: Path) -> None:
+    """Updates test inventory and exits early if --inventory-only flag set."""
+    inventory = build_or_update_test_inventory(root, force=bool(args.force_run))
+    if getattr(args, "inventory_only", False):
+        print_inventory_summary(inventory)
+        sys.exit(0)
+
+
+def handle_heatmap_cli(args: argparse.Namespace, root: Path) -> bool:
+    """Displays test heatmap and exits if --heatmap was specified."""
+    if not getattr(args, "show_heatmap", False):
+        return False
+    try:
+        sys.path.insert(0, str(Path(__file__).parent))
+        inv_gen = importlib.import_module("33-test-inventory-generator")
+        inv = inv_gen.build_test_inventory(root, commits=getattr(args, "commits", 50))
+        inv_gen.display_heatmap_report(inv, top_n=getattr(args, "top_n", 25))
+    except Exception as exc:
+        sys.stderr.write(f"[WARN] Failed to generate heatmap report: {exc}\n")
+    return True
+
+
+def main() -> None:
+    """Primary entry point for local CI/CD quality gate runner."""
+    args = parse_args()
+    if handle_cache_cli_commands(args):
+        sys.exit(0)
+    root = Path(__file__).resolve().parent.parent
+    if handle_heatmap_cli(args, root):
+        sys.exit(0)
+    if getattr(args, "fast_mode", False):
+        os.environ["GITMAP_FAST_TESTS"] = "1"
+    sig = f"no_tests={getattr(args, 'no_tests', False)},run_tests={getattr(args, 'run_tests', False)},filter={getattr(args, 'filter', '') or ''},pkg={getattr(args, 'package_filter', [])},fast={getattr(args, 'fast_mode', False)}"
+    check_debounce_and_manifest(args, sig, root)
+    check_inventory_only_mode(args, root)
+    batches = resolve_filtered_pipeline_batches(args)
+    code = execute_pipeline_entry(args, root, batches)
+    save_recent_run_cache(CACHE_DEBOUNCE_FILE, sig, code, f"Executed {len(batches)} batches | Result code: {code}")
     sys.exit(code)
 
 
