@@ -103,11 +103,20 @@ gitmap cluster <subcommand> [args...] [flags]
 
 Gitmap provides first-class subcommands to enroll, list, probe, and remove cluster nodes:
 
-- **Enroll Node (`add`)**: Register and enroll a new node into the cluster topology (`gitmap cluster add <user@ip|ip> [alias] [flags]`).
-- **Join Node (`join`)**: Join a node to the cluster via SSH enrollment (`gitmap cluster join <user@ip|ip> [alias] [flags]`).
+- **Join Node (`join`, `add`)**: Enroll a remote machine into the cluster topology (`gitmap cluster join <user@ip|ip> [alias] [flags]`).
+  - **`ssh join` vs `cluster join`**: `ssh join` registers individual ad-hoc hosts for direct point-to-point logins, whereas `cluster join` admits nodes into a synchronized, role-based computing cluster (`control` vs `worker`) for fleet fanout (`cluster exec`, `sc`), Kubernetes lifecycle (`cluster k8s`), and Ubuntu provisioning (`cluster node`).
+  - **7-Step Connection Protocol**:
+    1. *Network Reachability*: Fast non-blocking TCP socket check against target IP and SSH port.
+    2. *Host Key Auto-Acceptance*: Automatically scans host key and adds it to `~/.ssh/known_hosts` (preventing prompt hangs).
+    3. *Cryptographic Auth Discovery*: Checks default SSH keys (`~/.ssh/id_rsa`).
+    4. *Hidden Password Input & Vaulting*: Prompts securely if key fails, encrypts at rest (RSA-OAEP/AES), and informs: `gitmap ssh pass show <alias>`.
+    5. *Node OS & Environment Probing*: Discovers OS type (`linux`, `windows`, `darwin`), OS version, and first-run timestamp.
+    6. *GitMap Agent Check & Bootstrap*: Verifies remote `gitmap` binary across all paths; bootstraps automatically if missing.
+    7. *Bidirectional Confirmation*: Validates communication and registers node into cluster database.
 - **List Nodes (`nodes`, `ls`)**: List all registered cluster nodes with roles, OS, IPs, and status (`gitmap cluster nodes [--json]`).
 - **Health & Ping (`status`, `ping`)**: Display heartbeat records and ping round-trip latency (`gitmap cluster status`, `gitmap cluster ping [target]`).
 - **Remove Node (`remove`, `rm`)**: Unregister a node from the cluster topology (`gitmap cluster rm <alias|ip>`, `gitmap cluster node rm <alias|ip>`).
+- **Password Vault (`pass`)**: Review or reveal encrypted node passwords anytime via `gitmap ssh pass show <alias>` or `gitmap ssh pass ls`.
 
 ---
 
