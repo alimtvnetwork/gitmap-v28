@@ -47,11 +47,22 @@ File Path: `file:///d:/work/gitmap/.ai-memory/plans/completed/50-finalize-missin
   - Instrumented `runStreamingCommand` in `cli/cmdai/ai_exec.go` to measure duration and automatically log executions to `.gitmap/data/ai-instruction/sql.db` via `store.RecordAiExecution`.
   - Implemented `gitmap ai pwsh` / `gitmap ai ps` so any PowerShell automation the AI or user executes through GitMap streams output and is saved to AI instruction execution history.
 
+### Subtask 04: EDI Prompt Help & prompt-txt 2-Newline Formatting
+- **Files Modified/Created:**
+  - `cli/cmdantigravity/prompt_help.go`
+  - `cli/cmdantigravity/prompt_cmd.go`
+  - `cli/cmdantigravity/prompt_project.go`
+  - `cli/cmdagy/agy_help_automation.go`
+- **Accomplishments:**
+  - Implemented `PrintAgyPromptHelp` and `IsHelpArg` intercepting `gitmap agy prompt help`, `prompt-txt help`, `prompt-with-name help`, `prompt-project help` so they render dedicated formatted help instead of staging "help" as a prompt.
+  - Implemented `formatTxtPrompt` for `prompt-txt` enforcing `--prefix(pf)/suffix(sf)` separation with 2 newlines (`\n\n`).
+  - Updated `Protocols & Automation` in `cli/cmdagy/agy_help_automation.go` to explicitly list `prompt-project (p)`, `prompt [-n name] [-t txt]`, `prompt-with-name (pwn)`, `prompt-txt (pt)`, and `prompt ls (list prompts)`.
+
 ---
 
 ## Verification & Compliance
 - **Linters:**
   - `python linter-scripts/check-boolean-guidelines.py`: PASS (0 violations)
   - `python linter-scripts/check-nested-ifs.py`: PASS (0 violations)
-  - `python .github/scripts/go-format-check.py --check-only`: PASS (0 unformatted across 3,207 files)
+  - `python .github/scripts/go-format-check.py --check-only`: PASS (0 unformatted across 3,208 files)
 - **Coding Guidelines:** All functions <= 15 lines, affirmative booleans only, zero nested ifs, universal `AppError` wrapping.

@@ -47,6 +47,10 @@ func initPromptProjectFlags(cmd *cobra.Command) {
 }
 
 func runPromptProject(args []string) error {
+	if IsHelpArg(args) {
+		return PrintAgyPromptHelp()
+	}
+
 	targetPath, findErr := FindProjectByPrefix(args[0])
 	if findErr != nil {
 		return findErr

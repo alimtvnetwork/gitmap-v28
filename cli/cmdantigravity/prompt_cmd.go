@@ -107,6 +107,10 @@ func initTxtFlags(cmd *cobra.Command) {
 }
 
 func runBasePrompt(args []string) error {
+	if IsHelpArg(args) {
+		return PrintAgyPromptHelp()
+	}
+
 	repoRoot := resolveCurrentRepoRoot()
 	templateName, templateContent, err := resolveBaseTemplate(args)
 	if err != nil {
@@ -170,6 +174,10 @@ func resolveBaseText(args []string, detectedTemplateName string) string {
 }
 
 func runPromptWithName(args []string) error {
+	if IsHelpArg(args) {
+		return PrintAgyPromptHelp()
+	}
+
 	repoRoot := resolveCurrentRepoRoot()
 	tplName := args[0]
 	tpl, hasTpl := cmdprompttemplate.FindTemplate(tplName)
@@ -197,13 +205,28 @@ func resolveWithNameText(args []string) string {
 }
 
 func runPromptTxt(args []string) error {
+	if IsHelpArg(args) {
+		return PrintAgyPromptHelp()
+	}
+
 	repoRoot := resolveCurrentRepoRoot()
 	textVal := resolveTxtPromptText(args)
 	if len(textVal) == 0 {
 		return apperror.NewSimple("prompt text cannot be empty: gitmap agy prompt-txt <text>", "E9011")
 	}
+	isSuffix := resolveIsSuffix(txtPromptSuffix, txtPromptSf, txtPromptPrefix, txtPromptPf)
+	assembled := formatTxtPrompt(textVal, isSuffix)
 
-	return EnqueueWithDualQueuePolicy(repoRoot, "", textVal)
+	return EnqueueWithDualQueuePolicy(repoRoot, "", assembled)
+}
+
+func formatTxtPrompt(textVal string, isSuffix bool) string {
+	clean := strings.TrimSpace(textVal)
+	if isSuffix {
+		return clean + "\n\n"
+	}
+
+	return clean
 }
 
 func resolveTxtPromptText(args []string) string {
