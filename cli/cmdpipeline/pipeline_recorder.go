@@ -89,37 +89,6 @@ func buildPipelineRunRecord(p PipelineStatusPayload, r ghRunItem) pipelinedb.Pip
 	return rec
 }
 
-func recordSingleFailedRun(pipeDb *pipelinedb.PipelineSplitDb, repo string, r ghRunItem) {
-	if r.Conclusion != "failure" {
-		return
-	}
-	if isRunFailureAlreadyRecorded(pipeDb, r) {
-		return
-	}
-	if isSkipDelayRequested() {
-		return
-	}
-
-	raw := queryFailedRunLogs(repo, r.DatabaseId)
-	clean := extractCleanErrorLines(raw)
-	if clean == "" {
-		return
-	}
-
-	persistSingleFailedRunLog(pipeDb, repo, r, clean, raw)
-}
-
-func isRunFailureAlreadyRecorded(pipeDb *pipelinedb.PipelineSplitDb, r ghRunItem) bool {
-	if pipeDb.HasErrorLog(r.DatabaseId) {
-		return true
-	}
-	if len(r.HeadSha) >= 7 && pipeDb.HasErrorLogForSha(r.HeadSha) {
-		return true
-	}
-
-	return false
-}
-
 func persistSingleFailedRunLog(pipeDb *pipelinedb.PipelineSplitDb, repo string, r ghRunItem, clean, raw string) {
 	compactClean, filteredCount := FilterCompactLogText(clean)
 	compactRaw, _ := FilterCompactLogText(raw)

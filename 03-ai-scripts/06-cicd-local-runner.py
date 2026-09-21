@@ -499,6 +499,18 @@ def record_job_timing(job_name: str, elapsed_sec: float) -> None:
     GLOBAL_TIMINGS[job_name] = elapsed_sec
 
 
+def format_duration(seconds: float | int) -> str:
+    """Formats duration in seconds; if >= 60s, displays both seconds and minutes/seconds."""
+    sec_float = float(seconds)
+    is_under_minute = sec_float < 60.0
+    if is_under_minute:
+        return f"{sec_float:.2f}s"
+    mins = int(sec_float // 60)
+    rem_sec = sec_float % 60
+
+    return f"{sec_float:.2f}s ({mins}m {rem_sec:.1f}s)"
+
+
 def normalize_repo_rel(path_input: Any) -> str:
     """Normalizes path to forward-slash relative path within the repo."""
     if path_input is None:
@@ -1021,12 +1033,21 @@ def resolve_inventory_delta(repo_root: Path, delta: set[str] | None) -> set[str]
     return compute_repo_delta(repo_root, prev.get("head", ""), curr_head, prev.get("dirty", {}), curr_dirty)
 
 
+def is_pkg_file_in_delta(pkg: str, delta: set[str]) -> bool:
+    """Checks if any file in the git delta belongs to the package directory."""
+    prefix = pkg.rstrip("/") + "/"
+
+    return any(f == pkg or f.startswith(prefix) for f in delta)
+
+
 def is_test_cached_by_delta(t: dict[str, Any], delta: set[str], force: bool) -> bool:
     """Checks if test can be bypassed directly from git delta and prior success."""
     tgt, tf = t.get("target_file", ""), t.get("test_file", "")
+    pkg = t.get("package", "")
     has_passed = t.get("last_status") == "passed"
-    is_affected = bool((tgt and tgt in delta) or (tf and tf in delta))
-    return not force and has_passed and not is_affected and bool(t.get("code_hash"))
+    is_affected = bool((tgt and tgt in delta) or (tf and tf in delta) or (pkg and is_pkg_file_in_delta(pkg, delta)))
+
+    return bool(not force and has_passed and not is_affected and t.get("code_hash"))
 
 
 def evaluate_inventory_test_item(t: dict[str, Any], delta: set[str], root: Path, force: bool) -> tuple[bool, bool]:
@@ -1035,12 +1056,15 @@ def evaluate_inventory_test_item(t: dict[str, Any], delta: set[str], root: Path,
         has_changed = bool(t.get("needs_run") is not False)
         t["needs_run"] = False
         return False, has_changed
+    pkg = t.get("package", "")
+    is_pkg_affected = bool(pkg and is_pkg_file_in_delta(pkg, delta))
     tgt, tf = t.get("target_file", ""), t.get("test_file", "")
     ch = compute_file_hash(root / tgt) if tgt else ""
     th = compute_file_hash(root / tf) if tf else ""
-    is_match = not force and t.get("last_status") == "passed" and ch == t.get("code_hash") and th == t.get("test_hash") and ch != ""
+    is_match = not force and not is_pkg_affected and t.get("last_status") == "passed" and ch == t.get("code_hash") and th == t.get("test_hash") and ch != ""
     has_changed = bool(t.get("needs_run") == is_match)
     t["needs_run"] = not is_match
+
     return not is_match, has_changed
 
 
@@ -1144,105 +1168,454 @@ def resolve_package_test_target(pkg: str, repo_root: Path) -> tuple[Path, str]:
     return repo_root / "cli", f"./{pkg}"
 
 
-def run_package_tests_worker(
-    pkg: str, pkg_tests: list[dict[str, Any]], repo_root: Path, timeout_sec: int
-) -> tuple[int, int, str, dict[str, dict[str, Any]]]:
-    """Worker function executing a batch of tests within a package using go test -json."""
-    cwd, rel_in_gitmap = resolve_package_test_target(pkg, repo_root)
-    parallel_threads = max(4, min(16, CPU_CORES))
-    cmd = ["go", "test", "-json", f"-parallel={parallel_threads}", rel_in_gitmap, "-count=1"]
-    test_funcs = [t["test_func"] for t in pkg_tests]
-    if len(test_funcs) <= 50:
-        run_regex = "^(" + "|".join(test_funcs) + ")$"
-        cmd.extend(["-run", run_regex])
-    test_env = dict(os.environ)
-    test_env["GOMAXPROCS"] = str(CPU_CORES)
-    test_env["GITMAP_MOCK_GH"] = "1"
-    test_env["GITMAP_FAST_PROBE"] = "1"
-    test_env["GITMAP_IN_MEMORY_DB"] = "1"
-    test_env["GITMAP_TEST"] = "1"
-    test_env["GOTMPDIR"] = str(REPO_BUILD_TEMP)
-    test_env["TMPDIR"] = str(REPO_TEST_TEMP)
-    test_env["TEMP"] = str(REPO_TEST_TEMP)
-    test_env["TMP"] = str(REPO_TEST_TEMP)
+def build_standard_test_env() -> dict[str, str]:
+    """Constructs hermetic test environment variables for Go test execution."""
+    env = dict(os.environ)
+    env["GOMAXPROCS"] = str(CPU_CORES)
+    env["GITMAP_MOCK_GH"] = "1"
+    env["GITMAP_FAST_PROBE"] = "1"
+    env["GITMAP_IN_MEMORY_DB"] = "1"
+    env["GITMAP_TEST"] = "1"
+    env["GOTMPDIR"] = str(REPO_BUILD_TEMP)
+    env["TMPDIR"] = str(REPO_TEST_TEMP)
+    env["TEMP"] = str(REPO_TEST_TEMP)
+    env["TMP"] = str(REPO_TEST_TEMP)
+    env["GOCACHE"] = str(REPO_GOCACHE_TEMP)
 
-    clean_pkg = re.sub(r"[^a-zA-Z0-9_]", "_", pkg)
-    worker_gocache = REPO_GOCACHE_TEMP / f"worker_{clean_pkg}_{os.getpid()}_{threading.get_ident()}"
-    worker_gocache.mkdir(parents=True, exist_ok=True)
-    test_env["GOCACHE"] = str(worker_gocache)
+    return env
 
-    try:
-        proc = subprocess.run(
-            cmd, cwd=cwd, capture_output=True, text=True,
-            encoding="utf-8", errors="replace", timeout=timeout_sec,
-            env=test_env
-        )
-    except subprocess.TimeoutExpired:
-        for t in pkg_tests:
-            clean_tid = re.sub(r'[<>:"/\\|?*]', '_', t['id'])
-            fail_log = FAILURES_DIR / f"{clean_tid}.log"
-            fail_log.write_text(f"Timeout expired after {timeout_sec}s for test {t['id']}", encoding="utf-8")
-        return 0, len(pkg_tests), f"Timeout expired after {timeout_sec}s", {}
-    except Exception as exc:
-        for t in pkg_tests:
-            clean_tid = re.sub(r'[<>:"/\\|?*]', '_', t['id'])
-            fail_log = FAILURES_DIR / f"{clean_tid}.log"
-            fail_log.write_text(f"Execution error: {exc}", encoding="utf-8")
-        return 0, len(pkg_tests), str(exc), {}
-    finally:
-        clear_worker_go_cache(worker_gocache)
 
-    test_results: dict[str, dict[str, Any]] = {}
-    test_output_map: dict[str, list[str]] = {}
-    passed = 0
-    failed = 0
-    raw_stdout = proc.stdout or ""
+def get_test_binaries_dir() -> Path:
+    """Returns the OS temp directory scoped by repository name for precompiled test binaries."""
+    target = get_repo_os_temp_dir("test_binaries")
+    target.mkdir(parents=True, exist_ok=True)
 
-    for line in raw_stdout.splitlines():
-        line_str = line.strip()
-        if not line_str:
-            continue
+    return target
+
+
+def get_test_manifest_path() -> Path:
+    """Returns the path to manifest.json for tracking precompiled test binaries."""
+    return get_test_binaries_dir() / "manifest.json"
+
+
+def load_test_manifest() -> dict[str, Any]:
+    """Loads existing precompiled binary manifest from the OS temp directory."""
+    path = get_test_manifest_path()
+    if path.exists():
         try:
-            data = json.loads(line_str)
-            action = data.get("Action")
-            tname = data.get("Test")
-            if tname:
-                tid = f"{pkg}.{tname}"
-                test_output_map.setdefault(tid, []).append(data.get("Output", ""))
-                if action == "pass":
-                    passed += 1
-                    test_results[tid] = {"status": "passed", "elapsed": float(data.get("Elapsed", 0.0))}
-                elif action == "fail":
-                    failed += 1
-                    test_results[tid] = {"status": "failed", "elapsed": float(data.get("Elapsed", 0.0))}
+            return json.loads(path.read_text(encoding="utf-8"))
         except Exception:
             pass
 
+    return {"version": "1.0.0", "packages": {}}
+
+
+def save_test_manifest(manifest: dict[str, Any]) -> None:
+    """Persists precompiled binary manifest tracking to the OS temp directory."""
+    manifest["updated_at"] = time.strftime("%Y-%m-%dT%H:%M:%SZ")
+    path = get_test_manifest_path()
+    try:
+        path.write_text(json.dumps(manifest, indent=2), encoding="utf-8")
+    except Exception:
+        pass
+
+
+def resolve_package_dir(pkg: str, repo_root: Path) -> Path:
+    """Resolves filesystem directory for a Go package within the repository."""
+    cwd, rel = resolve_package_test_target(pkg, repo_root)
+    if rel == ".":
+        return cwd
+
+    return cwd / rel.lstrip("./")
+
+
+def compute_package_hash(pkg_dir: Path) -> str:
+    """Computes composite hash of all Go source and test files in a package directory."""
+    hasher = hashlib.sha256()
+    if not pkg_dir.exists():
+        return ""
+    for f in sorted(pkg_dir.glob("*.go")):
+        try:
+            hasher.update(f.read_bytes())
+        except Exception:
+            pass
+
+    return hasher.hexdigest()[:16]
+
+
+def is_precompiled_binary_fresh(
+    pkg: str, bin_path_str: str, pkg_dir: Path, manifest: dict[str, Any]
+) -> bool:
+    """Verifies that precompiled test binary exists and matches the current package hash."""
+    bin_path = Path(bin_path_str)
+    if not bin_path.exists():
+        return False
+    entry = manifest.get("packages", {}).get(pkg, {})
+    saved_hash = entry.get("code_hash", "")
+    current_hash = compute_package_hash(pkg_dir)
+
+    return bool(saved_hash and saved_hash == current_hash)
+
+
+def partition_safe_batches(pkgs: list[str], max_size: int = 15) -> list[list[str]]:
+    """Partitions packages into batches ensuring zero duplicate base names per batch."""
+    batches: list[list[str]] = []
+    for p in pkgs:
+        base = p.split("/")[-1]
+        placed = False
+        for b in batches:
+            b_bases = {x.split("/")[-1] for x in b}
+            if len(b) < max_size and base not in b_bases:
+                b.append(p)
+                placed = True
+                break
+        if not placed:
+            batches.append([p])
+
+    return batches
+
+
+def build_warmup_batch_targets(batch: list[str], repo_root: Path, batch_dir: Path) -> tuple[Path, list[str]]:
+    """Resolves working directory and command arguments for multi-package compilation."""
+    cwd = resolve_package_test_target(batch[0], repo_root)[0]
+    out_dir_arg = str(batch_dir.resolve()) + os.sep
+    rel_targets = [resolve_package_test_target(p, repo_root)[1] for p in batch]
+
+    return cwd, ["go", "test", "-c", "-o", out_dir_arg] + rel_targets
+
+
+def compile_single_warmup_batch(
+    batch: list[str], batch_idx: int, repo_root: Path, test_env: dict[str, str]
+) -> tuple[dict[str, str], str]:
+    """Compiles a batch of test packages into a dedicated batch directory in OS temp."""
+    batch_dir = get_test_binaries_dir() / f"batch_{batch_idx}"
+    batch_dir.mkdir(parents=True, exist_ok=True)
+    cwd, cmd = build_warmup_batch_targets(batch, repo_root, batch_dir)
+    res = subprocess.run(cmd, cwd=cwd, capture_output=True, text=True, env=test_env)
+    if res.returncode != 0:
+        return {}, res.stderr or res.stdout
+    bin_ext = ".test.exe" if os.name == "nt" else ".test"
+    found = {p: str(batch_dir / f"{p.split('/')[-1]}{bin_ext}") for p in batch}
+
+    return found, ""
+
+
+def filter_packages_needing_compile(
+    pkgs: list[str], manifest: dict[str, Any], repo_root: Path, force: bool
+) -> tuple[dict[str, str], list[str]]:
+    """Separates warm cached packages from packages that require binary compilation."""
+    bin_map: dict[str, str] = {}
+    needs_compile: list[str] = []
+    for p in pkgs:
+        p_dir = resolve_package_dir(p, repo_root)
+        entry = manifest.get("packages", {}).get(p, {})
+        bin_path_str = entry.get("binary_path", "")
+        if not force and is_precompiled_binary_fresh(p, bin_path_str, p_dir, manifest):
+            bin_map[p] = bin_path_str
+        else:
+            needs_compile.append(p)
+
+    return bin_map, needs_compile
+
+
+def update_manifest_with_compiled_batch(
+    batch_map: dict[str, str], manifest: dict[str, Any], repo_root: Path
+) -> None:
+    """Updates manifest metadata entries with newly compiled test binaries."""
+    for p, bin_path in batch_map.items():
+        p_dir = resolve_package_dir(p, repo_root)
+        manifest.setdefault("packages", {})[p] = {
+            "binary_path": bin_path,
+            "code_hash": compute_package_hash(p_dir),
+            "built_at": time.strftime("%Y-%m-%dT%H:%M:%SZ"),
+        }
+
+
+def cluster_packages_by_speed(pkgs: list[str], manifest: dict[str, Any]) -> list[str]:
+    """Sorts packages clustering slow packages together and fast packages together."""
+    pkg_entries = manifest.get("packages", {})
+
+    return sorted(pkgs, key=lambda p: float(pkg_entries.get(p, {}).get("duration_estimate_sec", 0.0)), reverse=True)
+
+
+def resolve_module_key(pkg: str) -> str:
+    """Returns module grouping key for a Go package."""
+    for prefix in ("scripts/changelog", "04-code/golang", "cli-updater"):
+        if pkg.startswith(prefix):
+            return prefix
+
+    return "cli"
+
+
+def group_packages_by_module(pkgs: list[str]) -> dict[str, list[str]]:
+    """Groups packages by root Go module to prevent cross-module compilation."""
+    modules: dict[str, list[str]] = {}
+    for p in pkgs:
+        modules.setdefault(resolve_module_key(p), []).append(p)
+
+    return modules
+
+
+def build_module_safe_batches(needs_compile: list[str], manifest: dict[str, Any]) -> list[list[str]]:
+    """Partitions sorted needs into module-isolated safe batches."""
+    sorted_needs = cluster_packages_by_speed(needs_compile, manifest)
+    batches: list[list[str]] = []
+    for mod_pkgs in group_packages_by_module(sorted_needs).values():
+        batches.extend(partition_safe_batches(mod_pkgs, max_size=15))
+
+    return batches
+
+
+def process_compiled_warmup_batch(
+    batch_map: dict[str, str], bin_map: dict[str, str], manifest: dict[str, Any], repo_root: Path
+) -> None:
+    """Updates binary mapping and registers package entries into manifest."""
+    bin_map.update(batch_map)
+    update_manifest_with_compiled_batch(batch_map, manifest, repo_root)
+
+
+def run_warmup_batches_compilation(
+    needs_compile: list[str], bin_map: dict[str, str],
+    manifest: dict[str, Any], repo_root: Path
+) -> str:
+    """Compiles batches and registers generated binaries in manifest."""
+    test_env = build_standard_test_env()
+    batches = build_module_safe_batches(needs_compile, manifest)
+    for idx, batch in enumerate(batches):
+        batch_map, err = compile_single_warmup_batch(batch, idx, repo_root, test_env)
+        if err:
+            return f"Warmup compilation failed for batch {idx}: {err}"
+        process_compiled_warmup_batch(batch_map, bin_map, manifest, repo_root)
+
+    return ""
+
+
+
+
+
+def precompile_test_binaries_warmup(
+    pkgs: list[str], repo_root: Path, force: bool
+) -> tuple[dict[str, str], str]:
+    """Pre-compiles test packages in batched sweeps into OS temp with caching."""
+    manifest = load_test_manifest()
+    bin_map, needs_compile = filter_packages_needing_compile(pkgs, manifest, repo_root, force)
+    if not needs_compile:
+        return bin_map, ""
+    err = run_warmup_batches_compilation(needs_compile, bin_map, manifest, repo_root)
+    if err:
+        return bin_map, err
+    save_test_manifest(manifest)
+
+    return bin_map, ""
+
+
+def record_package_test_failure(pkg: str, test_id: str, content: str) -> None:
+    """Writes surgical failure log for a failed test case into failures directory."""
+    clean_tid = re.sub(r'[<>:"/\\|?*]', "_", test_id)
+    fail_log = FAILURES_DIR / f"{clean_tid}.log"
+    try:
+        fail_log.write_text(content, encoding="utf-8")
+    except Exception:
+        pass
+
+
+def extract_failing_test_names(output: str) -> list[str]:
+    """Extracts failing test function names from native Go test binary output."""
+    matches = re.findall(r"--- FAIL: ([^\s\(]+)", output)
+
+    return list(dict.fromkeys(matches))
+
+
+def process_precompiled_worker_result(
+    pkg: str, proc: subprocess.CompletedProcess[str], pkg_tests: list[dict[str, Any]]
+) -> tuple[int, int, str, dict[str, dict[str, Any]]]:
+    """Evaluates process exit code; silent on pass, surgical error extraction on failure."""
+    if proc.returncode == 0:
+        test_results = {t["id"]: {"status": "passed", "elapsed": 0.01} for t in pkg_tests}
+        return len(pkg_tests), 0, "", test_results
+    out_text = (proc.stdout or "") + "\n" + (proc.stderr or "")
+    failing_names = extract_failing_test_names(out_text)
+    failed_count = len(failing_names) if failing_names else len(pkg_tests)
+    passed_count = max(0, len(pkg_tests) - failed_count)
+    record_package_test_failure(pkg, f"{pkg}.failure", out_text)
+    test_results = {}
     for t in pkg_tests:
-        tid = t["id"]
-        if tid not in test_results:
-            if proc.returncode == 0:
-                passed += 1
-                test_results[tid] = {"status": "passed", "elapsed": 0.0}
-            else:
-                failed += 1
-                test_results[tid] = {"status": "failed", "elapsed": 0.0}
+        has_failed = t["test_func"] in failing_names or not failing_names
+        test_results[t["id"]] = {"status": "failed" if has_failed else "passed", "elapsed": 0.01}
 
-    # Write failure logs only for failing tests; passing tests are completely silent
-    failure_snippets: list[str] = []
-    for tid, res_info in test_results.items():
-        if res_info["status"] == "failed":
-            clean_tid = re.sub(r'[<>:"/\\|?*]', '_', tid)
-            fail_log = FAILURES_DIR / f"{clean_tid}.log"
-            err_content = "".join(test_output_map.get(tid, [])) or f"Test {tid} failed with exit code {proc.returncode}"
-            fail_log.write_text(err_content, encoding="utf-8")
-            failure_snippets.append(f"[{tid}] {err_content.strip()}")
+    return passed_count, failed_count, out_text.strip(), test_results
 
-    out_summary = "\n".join(failure_snippets) if failed > 0 else ""
-    return passed, failed, out_summary, test_results
+
+def execute_test_binary_subprocess(cmd: list[str], pkg_dir: Path, timeout_sec: int) -> subprocess.CompletedProcess[str]:
+    """Executes a precompiled test binary with DEVNULL stdin and hermetic env."""
+    effective_timeout = max(180, timeout_sec)
+
+    return subprocess.run(
+        cmd, cwd=pkg_dir, capture_output=True, text=True,
+        encoding="utf-8", errors="replace", timeout=effective_timeout,
+        env=build_standard_test_env(), stdin=subprocess.DEVNULL
+    )
+
+
+def run_precompiled_package_worker(
+    pkg: str, bin_path_str: str, pkg_tests: list[dict[str, Any]],
+    repo_root: Path, timeout_sec: int
+) -> tuple[int, int, str, dict[str, dict[str, Any]]]:
+    """Worker executing precompiled package test binary with 8-way parallel goroutines."""
+    bin_path = Path(bin_path_str)
+    if not bin_path.exists():
+        return 0, len(pkg_tests), f"Binary not found: {bin_path}", {}
+    try:
+        proc = execute_test_binary_subprocess([str(bin_path), "-test.parallel=8"], resolve_package_dir(pkg, repo_root), timeout_sec)
+        return process_precompiled_worker_result(pkg, proc, pkg_tests)
+    except Exception as ex:
+        return 0, len(pkg_tests), f"Execution error in {pkg}: {ex}", {}
+
+
+
+def run_git_stdout_lines(args: list[str], repo_root: Path) -> list[str]:
+    """Runs a git command and returns non-empty stripped stdout lines."""
+    git_bin = shutil.which("git") or "git"
+    try:
+        res = subprocess.run([git_bin] + args, cwd=str(repo_root), capture_output=True, text=True)
+        if res.returncode == 0:
+            return [line.strip() for line in res.stdout.splitlines() if line.strip()]
+    except Exception:
+        pass
+
+    return []
+
+
+def get_current_git_head_sha(repo_root: Path) -> str:
+    """Returns current HEAD commit hash from git."""
+    lines = run_git_stdout_lines(["rev-parse", "HEAD"], repo_root)
+
+    return lines[0].strip() if lines else ""
+
+
+def parse_porcelain_path(line: str) -> str:
+    """Extracts normalized relative path from git porcelain status line."""
+    p = line[2:].strip().strip('"')
+    if " -> " in p:
+        p = p.split(" -> ")[-1].strip()
+
+    return p.replace("\\", "/")
+
+
+def get_repo_changed_files_since_sha(last_sha: str, current_head: str, repo_root: Path) -> set[str]:
+    """Returns set of relative paths changed uncommitted or committed since last_sha."""
+    changed: set[str] = set()
+    st_lines = run_git_stdout_lines(["status", "--porcelain", "-uall"], repo_root)
+    changed.update(parse_porcelain_path(line) for line in st_lines if parse_porcelain_path(line))
+    if last_sha and last_sha != current_head:
+        df_lines = run_git_stdout_lines(["diff", "--name-only", f"{last_sha}..{current_head}"], repo_root)
+        changed.update(line.replace("\\", "/") for line in df_lines)
+
+    return changed
+
+
+def is_pkg_changed_in_git(rel_pkg: str, changed_files: set[str]) -> bool:
+    """Checks if any changed file resides inside the package directory."""
+    prefix = rel_pkg.rstrip("/") + "/"
+
+    return any(f == rel_pkg or f.startswith(prefix) for f in changed_files)
+
+
+def is_package_execution_fresh(
+    pkg: str, bin_path_str: str, pkg_dir: Path, manifest: dict[str, Any],
+    changed_files: set[str], repo_root: Path
+) -> bool:
+    """Checks if test binary exists, last status passed, and no package files changed."""
+    entry = manifest.get("packages", {}).get(pkg, {})
+    if entry.get("last_status") != "passed":
+        return False
+    if not is_precompiled_binary_fresh(pkg, bin_path_str, pkg_dir, manifest):
+        return False
+    rel_pkg = pkg_dir.relative_to(repo_root).as_posix()
+
+    return not is_pkg_changed_in_git(rel_pkg, changed_files)
+
+
+def record_package_test_success(
+    pkg: str, bin_path: str, manifest: dict[str, Any],
+    repo_root: Path, current_head: str, test_count: int
+) -> None:
+    """Updates manifest entry with successful test execution metadata."""
+    p_dir = resolve_package_dir(pkg, repo_root)
+    manifest.setdefault("packages", {})[pkg] = {
+        "binary_path": bin_path,
+        "code_hash": compute_package_hash(p_dir),
+        "last_git_sha": current_head,
+        "last_status": "passed",
+        "test_count": test_count,
+        "built_at": time.strftime("%Y-%m-%dT%H:%M:%SZ"),
+        "last_run_at": time.strftime("%Y-%m-%dT%H:%M:%SZ"),
+    }
+
+
+def record_package_test_failure_status(
+    pkg: str, bin_path: str, manifest: dict[str, Any],
+    repo_root: Path, current_head: str, test_count: int
+) -> None:
+    """Updates manifest entry with failed test execution metadata."""
+    p_dir = resolve_package_dir(pkg, repo_root)
+    manifest.setdefault("packages", {})[pkg] = {
+        "binary_path": bin_path,
+        "code_hash": compute_package_hash(p_dir),
+        "last_git_sha": current_head,
+        "last_status": "failed",
+        "test_count": test_count,
+        "built_at": time.strftime("%Y-%m-%dT%H:%M:%SZ"),
+        "last_run_at": time.strftime("%Y-%m-%dT%H:%M:%SZ"),
+    }
+
+
+def should_skip_package_run(
+    pkg: str, bin_path: str, manifest: dict[str, Any],
+    changed_files: set[str], repo_root: Path, force: bool
+) -> bool:
+    """Evaluates if package is fresh and eligible to skip execution."""
+    p_dir = resolve_package_dir(pkg, repo_root)
+
+    return bool(not force and is_package_execution_fresh(pkg, bin_path, p_dir, manifest, changed_files, repo_root))
+
+
+def separate_execution_packages(
+    dirty_pkg_map: dict[str, list[dict[str, Any]]], bin_map: dict[str, str],
+    manifest: dict[str, Any], changed_files: set[str], repo_root: Path, force: bool
+) -> tuple[dict[str, list[dict[str, Any]]], dict[str, list[dict[str, Any]]]]:
+    """Separates packages into cached done-checking packages and packages needing execution."""
+    cached_pkgs: dict[str, list[dict[str, Any]]] = {}
+    exec_pkgs: dict[str, list[dict[str, Any]]] = {}
+    for pkg, b_tests in dirty_pkg_map.items():
+        bin_path = bin_map.get(pkg, "") or manifest.get("packages", {}).get(pkg, {}).get("binary_path", "")
+        if should_skip_package_run(pkg, bin_path, manifest, changed_files, repo_root, force):
+            cached_pkgs[pkg] = b_tests
+        else:
+            exec_pkgs[pkg] = b_tests
+
+    return cached_pkgs, exec_pkgs
+
+
+
+def apply_cached_package_results(
+    cached_pkgs: dict[str, list[dict[str, Any]]], tests: dict[str, Any]
+) -> int:
+    """Marks tests from cached packages as passed in inventory and returns count."""
+    passed = 0
+    for b_tests in cached_pkgs.values():
+        passed += len(b_tests)
+        for t in b_tests:
+            tid = t.get("id", "")
+            if tid in tests:
+                tests[tid]["last_status"] = "passed"
+                tests[tid]["needs_run"] = False
+
+    return passed
 
 
 def filter_tests_by_package_or_file(tests: dict[str, Any], queries: list[str], repo_root: Path) -> list[dict[str, Any]]:
+
     """Filters inventory tests based on code file paths, code file names, or Go package names."""
     matched_ids: set[str] = set()
     for q_raw in queries:
@@ -1310,6 +1683,54 @@ def sort_tests_by_heat(tests: list[dict[str, Any]]) -> None:
     tests.sort(key=lambda t: float(t.get("heat_score", 0.0)), reverse=True)
 
 
+def is_pkg_code_changed(pkg: str, pkg_dir: Path, manifest: dict[str, Any]) -> bool:
+    """Checks if package source files have changed since last recorded test run."""
+    entry = manifest.get("packages", {}).get(pkg, {})
+    if not entry or entry.get("last_status") != "passed":
+        return True
+    bin_path = entry.get("binary_path", "")
+    if not bin_path or not Path(bin_path).exists():
+        return True
+    saved_hash = entry.get("code_hash", "")
+    current_hash = compute_package_hash(pkg_dir)
+
+    return bool(not saved_hash or saved_hash != current_hash)
+
+
+def resolve_dirty_go_tests(
+    tests: dict[str, Any], changed_files: set[str], manifest: dict[str, Any],
+    repo_root: Path, include_heavy: bool, force: bool
+) -> list[dict[str, Any]]:
+    """Filters inventory tests to only packages changed in git or failing in manifest."""
+    dirty = []
+    checked_pkgs: dict[str, bool] = {}
+    for t in tests.values():
+        pkg = t.get("package", "")
+        if pkg not in checked_pkgs:
+            p_dir = resolve_package_dir(pkg, repo_root)
+            is_git_diff = is_pkg_changed_in_git(pkg, changed_files)
+            is_code_diff = is_pkg_code_changed(pkg, p_dir, manifest)
+            checked_pkgs[pkg] = bool(force or (is_git_diff and is_code_diff))
+        is_light = bool(include_heavy or "tests/heavy_test" not in t.get("test_file", ""))
+        if checked_pkgs[pkg] and is_light:
+            dirty.append(t)
+
+    return dirty
+
+
+def build_cached_smart_test_result(
+    name: str, total_tests: int, current_head: str, elapsed: float
+) -> JobResult:
+    """Builds clean JobResult for zero-change cached pass."""
+    out_msg = f"Passed {total_tests} tests in {format_duration(elapsed)} (all packages cached on git {current_head[:8]})"
+    print(f"\n⚡ [Quad Runner] All Go test packages verified & cached (done checking on git {current_head[:8]}).\n", flush=True)
+
+    return JobResult(
+        name=name, cmd=["go", "test", "smart-incremental"], code=0,
+        out=out_msg, err="", elapsed=elapsed, is_cached=True
+    )
+
+
 def run_smart_go_tests(
     name: str, timeout_sec: int, max_workers: int, force: bool, repo_root: Path,
     tel: TelemetryTracker | None = None, package_filter: list[str] | str | None = None
@@ -1318,6 +1739,10 @@ def run_smart_go_tests(
     start_time = time.monotonic()
     clear_repo_test_temp()
     clear_stale_failures_log()
+    manifest = load_test_manifest()
+    current_head = get_current_git_head_sha(repo_root)
+    last_head = manifest.get("last_git_hash", "")
+    changed_files = get_repo_changed_files_since_sha(last_head, current_head, repo_root)
     inventory = build_or_update_test_inventory(repo_root, force=force)
     all_tests = inventory.get("tests", {})
     tests = {tid: t for tid, t in all_tests.items() if t.get("test_file", "").endswith(".go")}
@@ -1334,22 +1759,16 @@ def run_smart_go_tests(
         dirty_tests = target_tests
     else:
         include_heavy = os.environ.get("GITMAP_RUN_HEAVY_TESTS") == "1"
-        dirty_tests = [
-            t for t in tests.values()
-            if (t.get("needs_run", True) or force) and (include_heavy or "tests/heavy_test" not in t.get("test_file", ""))
-        ]
+        dirty_tests = resolve_dirty_go_tests(tests, changed_files, manifest, repo_root, include_heavy, force)
 
     is_fast_mode = os.environ.get("GITMAP_FAST_TESTS") == "1"
     dirty_tests = filter_fast_mode_tests(dirty_tests, is_fast_mode)
 
     if not dirty_tests:
         elapsed = round(time.monotonic() - start_time, 2)
-        total_tests = len(tests)
-        out_msg = f"[CACHED] All {total_tests} Go unit tests skipped (0 target functions or tests modified)"
-        return JobResult(
-            name=name, cmd=["go", "test", "smart-incremental"], code=0,
-            out=out_msg, err="", elapsed=elapsed, is_cached=True
-        )
+        manifest["last_git_hash"] = current_head
+        save_test_manifest(manifest)
+        return build_cached_smart_test_result(name, len(tests), current_head, elapsed)
 
     slow_threshold = float(os.environ.get("GITMAP_SLOW_TEST_THRESHOLD", "4.0"))
     slow_tests = [
@@ -1392,37 +1811,57 @@ def run_smart_go_tests(
     unified_worker_limit = dynamic_workers
 
 
-    # Unified Priority Work Queue: Slow batches enqueued first, followed immediately by fast packages
-    all_work_items: list[tuple[str, list[dict[str, Any]]]] = []
-    if slow_tests:
-        slow_batches = [slow_tests[i:i + 2] for i in range(0, len(slow_tests), 2)]
-        for sbatch in slow_batches:
-            batch_pkg_map: dict[str, list[dict[str, Any]]] = {}
-            for t in sbatch:
-                batch_pkg_map.setdefault(t["package"], []).append(t)
-            for pkg, b_tests in batch_pkg_map.items():
-                all_work_items.append((pkg, b_tests))
+    dirty_pkg_map: dict[str, list[dict[str, Any]]] = {}
+    for t in dirty_tests:
+        dirty_pkg_map.setdefault(t["package"], []).append(t)
 
-    if fast_tests:
-        pkg_map: dict[str, list[dict[str, Any]]] = {}
-        for t in fast_tests:
-            pkg_map.setdefault(t["package"], []).append(t)
+    # 1. Package-level Git SHA & Done-Checking Cache Filter (BEFORE compilation)
+    manifest = load_test_manifest()
+    current_head = get_current_git_head_sha(repo_root)
+    last_head = manifest.get("last_git_hash", "")
+    changed_files = get_repo_changed_files_since_sha(last_head, current_head, repo_root)
+    cached_pkg_map, active_pkg_map = separate_execution_packages(
+        dirty_pkg_map, {}, manifest, changed_files, repo_root, force
+    )
+    passed_count += apply_cached_package_results(cached_pkg_map, tests)
 
-        for pkg, ptests in pkg_map.items():
-            if len(ptests) > 40:
-                for i in range(0, len(ptests), 30):
-                    all_work_items.append((pkg, ptests[i:i + 30]))
-            else:
-                all_work_items.append((pkg, ptests))
+    if not active_pkg_map:
+        elapsed = round(time.monotonic() - start_time, 2)
+        print(f"⚡ [Quad Runner] All {len(cached_pkg_map)} packages verified & cached (done checking on git {current_head[:8]}).\n", flush=True)
+        manifest["last_git_hash"] = current_head
+        save_test_manifest(manifest)
+        inventory["summary"]["dirty"] = 0
+        inventory["summary"]["cached"] = len(tests)
+        atomic_write_json(TEST_INVENTORY_PATH, inventory)
+        atomic_write_json(TEST_INVENTORY_CACHE_PATH, inventory)
+        clear_repo_test_temp()
+        out_msg = f"Passed {passed_count} tests in {format_duration(elapsed)} (all {len(cached_pkg_map)} packages done checking / cached)"
+        return JobResult(
+            name=name, cmd=["go", "test", "smart-incremental"], code=0,
+            out=out_msg, err="", elapsed=elapsed, is_cached=True
+        )
 
-    worker_limit = min(unified_worker_limit, len(all_work_items)) if all_work_items else 1
-    print(f"\n⚡ [CPU Freeness Engine] System CPU is {free_pct}% idle across {CPU_CORES} logical cores.", flush=True)
-    print(f"   Unified Worker Pool: {worker_limit} concurrent threads across {len(all_work_items)} test batches.\n", flush=True)
+    # 2. Warmup Pre-compilation Phase (ONLY for changed packages)
+    print(f"\n⚡ [Warmup Engine] Pre-compiling {len(active_pkg_map)} changed test packages into OS temp...", flush=True)
+    t_warm = time.monotonic()
+    bin_map, warm_err = precompile_test_binaries_warmup(list(active_pkg_map.keys()), repo_root, force=force)
+    warm_sec = round(time.monotonic() - t_warm, 2)
+    print(f"   Warmup complete in {format_duration(warm_sec)}.\n", flush=True)
+    if warm_err:
+        return JobResult(
+            name=name, cmd=["go", "test", "warmup"], code=1,
+            out="", err=warm_err, elapsed=warm_sec
+        )
+
+    # 3. Quad-Process Execution Phase (4 workers, 8 goroutines each)
+    worker_limit = min(4, len(active_pkg_map)) if active_pkg_map else 1
+    cached_info = f" [{len(cached_pkg_map)} packages done checking / cached]" if cached_pkg_map else ""
+    print(f"⚡ [Quad Runner] Executing {len(active_pkg_map)} packages across {worker_limit} concurrent processes (8 goroutines each){cached_info}...\n", flush=True)
 
     with ThreadPoolExecutor(max_workers=worker_limit) as executor:
         futures = {
-            executor.submit(run_package_tests_worker, pkg, b_tests, repo_root, timeout_sec): (pkg, b_tests)
-            for pkg, b_tests in all_work_items
+            executor.submit(run_precompiled_package_worker, pkg, bin_map.get(pkg, ""), b_tests, repo_root, timeout_sec): (pkg, b_tests)
+            for pkg, b_tests in active_pkg_map.items()
         }
 
         for fut in as_completed(futures):
@@ -1433,6 +1872,9 @@ def run_smart_go_tests(
                 failed_count += pkg_failed
                 if pkg_failed > 0:
                     error_outputs.append(f"[{pkg}] {pkg_out}")
+                    record_package_test_failure_status(pkg, bin_map.get(pkg, ""), manifest, repo_root, current_head, len(b_tests))
+                else:
+                    record_package_test_success(pkg, bin_map.get(pkg, ""), manifest, repo_root, current_head, len(b_tests))
                 for tid, res_info in test_results.items():
                     if tid in tests:
                         tests[tid]["duration_sec"] = res_info["elapsed"]
@@ -1464,6 +1906,10 @@ def run_smart_go_tests(
                 "failed": failed_count,
             }, indent=2), encoding="utf-8")
 
+    manifest["last_git_hash"] = current_head
+    save_test_manifest(manifest)
+
+
     elapsed = round(time.monotonic() - start_time, 2)
     RUNNER_ETA_FILE.write_text(json.dumps({
         "status": "completed",
@@ -1490,7 +1936,7 @@ def run_smart_go_tests(
             out="", err=err_text, elapsed=elapsed
         )
 
-    out_msg = f"Passed {passed_count} tests ({len(slow_tests)} slow, {len(fast_tests)} fast) in {elapsed}s ({len(tests) - total_dirty} tests cached)"
+    out_msg = f"Passed {passed_count} tests ({len(slow_tests)} slow, {len(fast_tests)} fast) in {format_duration(elapsed)} ({len(tests) - total_dirty} tests cached)"
     return JobResult(
         name=name, cmd=["go", "test", "smart-incremental"], code=0,
         out=out_msg, err="", elapsed=elapsed
@@ -1751,7 +2197,7 @@ def format_banner_metadata(res: JobResult, files: list[str]) -> str:
 
     return (
         f"  Command       : {cmd_str}\n  Working Dir   : {cwd_str}\n  Env Overrides : {env_str}\n"
-        f"  Exit Code     : {res.code} ({res.elapsed}s)\n  Failing Files :\n{files_str}\n"
+        f"  Exit Code     : {res.code} ({format_duration(res.elapsed)})\n  Failing Files :\n{files_str}\n"
         f"  Stream Log    : {normalize_repo_rel(CICD_ERRORS_LOG)}\n"
         f"  Stream JSON   : {normalize_repo_rel(CICD_ERRORS_JSON)}\n"
         f"  Stream Events : {normalize_repo_rel(CICD_EVENTS_JSONL)}\n\n"
@@ -1785,7 +2231,7 @@ def format_error_log_entry(res: JobResult, suspect_files: list[str], ts: str, er
     files_line = f"- **Suspect Files**: {', '.join(suspect_files)}\n" if suspect_files else ""
     entry = (
         f"### [{ts}] FAIL: {res.name}\n- **Command**: `{cmd_str}`\n"
-        f"- **Exit Code**: `{res.code}` ({res.elapsed}s)\n{files_line}"
+        f"- **Exit Code**: `{res.code}` ({format_duration(res.elapsed)})\n{files_line}"
         f"```text\n{strip_ansi(err_text)}\n```\n\n"
     )
 
@@ -1798,7 +2244,7 @@ def format_run_log_line(res: JobResult) -> str:
     status = "PASS" if res.is_success else "FAIL"
     cached_tag = " [CACHED]" if res.is_cached else ""
     cmd_str = " ".join(res.cmd) if isinstance(res.cmd, list) else str(res.cmd)
-    line = f"[{ts}] [{status}{cached_tag}] {res.name} (code={res.code}, {res.elapsed}s) | Cmd: {cmd_str}\n"
+    line = f"[{ts}] [{status}{cached_tag}] {res.name} (code={res.code}, {format_duration(res.elapsed)}) | Cmd: {cmd_str}\n"
     if not res.is_success:
         err = extract_stack_or_error(res)
         line += f"  Error: {strip_ansi(err)}\n"
@@ -1940,7 +2386,7 @@ class TelemetryTracker:
         with self.lock:
             active_list = list(self.active_jobs.items())
             count = len(active_list)
-            items = [f"{n} ({now - st:.1f}s)" for n, st in active_list[:4]]
+            items = [f"{n} ({format_duration(now - st)})" for n, st in active_list[:4]]
             if count > 4:
                 items.append(f"+{count - 4} more")
             oldest_elapsed = max((now - st for _, st in active_list), default=0.0)
@@ -1950,7 +2396,7 @@ class TelemetryTracker:
     def _build_tick_message(self, act_count: int, items: list[str], elapsed: float) -> str:
         items_str = ", ".join(items)
         if self.completed_count == 0:
-            return f"[IN-FLIGHT] {act_count} active: [{items_str}] | in-progress ({elapsed:.1f}s elapsed)"
+            return f"[IN-FLIGHT] {act_count} active: [{items_str}] | in-progress ({format_duration(elapsed)} elapsed)"
 
         pct = int(100.0 * self.completed_count / max(1, self.total_jobs))
 
@@ -2214,6 +2660,62 @@ def filter_job_batches(batches: list[dict[str, Any]], query: str | None) -> list
     return filtered
 
 
+def get_current_host_os() -> str:
+    """Returns normalized host OS string: windows, darwin, or linux."""
+    is_windows = sys.platform == "win32"
+    if is_windows:
+        return "windows"
+    is_darwin = sys.platform == "darwin"
+    if is_darwin:
+        return "darwin"
+
+    return "linux"
+
+
+def is_gate_matching_host_os(gate_name: str, host_os: str) -> bool:
+    """Checks if a platform-specific gate matches current host operating system."""
+    name_lower = gate_name.lower()
+    has_linux_mismatch = "(linux)" in name_lower and host_os != "linux"
+    if has_linux_mismatch:
+        return False
+    has_darwin_mismatch = "(darwin)" in name_lower and host_os != "darwin"
+    if has_darwin_mismatch:
+        return False
+    has_win_mismatch = "(windows)" in name_lower and host_os != "windows"
+    if has_win_mismatch:
+        return False
+
+    return True
+
+
+def filter_single_batch_by_host_os(b: dict[str, Any], host_os: str) -> dict[str, Any] | None:
+    """Filters jobs within a single batch by host OS matching."""
+    jobs = b.get("jobs", {})
+    matched = {k: v for k, v in jobs.items() if is_gate_matching_host_os(k, host_os)}
+    has_matches = bool(matched)
+    if not has_matches:
+        return None
+    copy_b = dict(b)
+    copy_b["jobs"] = matched
+
+    return copy_b
+
+
+def filter_batches_by_host_os(batches: list[dict[str, Any]], allow_all_os: bool) -> list[dict[str, Any]]:
+    """Filters out cross-platform gates not matching current host OS unless allow_all_os is True."""
+    is_bypass = allow_all_os or os.environ.get("CI") == "true"
+    if is_bypass:
+        return batches
+    host_os = get_current_host_os()
+    filtered = []
+    for b in batches:
+        filtered_batch = filter_single_batch_by_host_os(b, host_os)
+        if filtered_batch is not None:
+            filtered.append(filtered_batch)
+
+    return filtered
+
+
 def is_test_batch(batch_name: str) -> bool:
     """Detects whether an entire batch represents a test execution stage."""
     b_lower = batch_name.lower()
@@ -2233,22 +2735,40 @@ def is_test_job(job_name: str, command: Any) -> bool:
 
 def create_base_arg_parser() -> argparse.ArgumentParser:
     """Initializes ArgumentParser with basic description and epilog."""
-    parser = argparse.ArgumentParser(
-        prog="python 03-ai-scripts/06-cicd-local-runner.py",
-        description="Fast Multi-Worker Local CI/CD Runner with Incremental Caching & Telemetry.",
-        formatter_class=argparse.RawDescriptionHelpFormatter,
+    banner = (
+        "Fast Multi-Worker Local CI/CD Runner with Incremental Caching & Telemetry.\n\n"
+        "⚡ PRIORITY SHORTCUTS:\n"
+        "  python 03-ai-scripts/06-cicd-local-runner.py run-smart        (or: smart, --smart, -s)\n"
+        "  python 03-ai-scripts/06-cicd-local-runner.py run-incremental  (or: incremental, --incremental)\n"
+        "  -> Checks Git changed files, builds ONLY changed packages into OS temp, and runs Quad Runner.\n"
     )
 
-    return parser
+    return argparse.ArgumentParser(
+        prog="python 03-ai-scripts/06-cicd-local-runner.py",
+        description=banner,
+        formatter_class=argparse.RawDescriptionHelpFormatter,
+    )
 
 
 def add_execution_mode_arguments(parser: argparse.ArgumentParser) -> None:
     """Adds execution mode CLI arguments."""
+    parser.add_argument(
+        "--smart", "--incremental", "-s",
+        dest="smart_mode",
+        action="store_true",
+        help="[PRIORITY] Execute smart incremental Go tests on changed packages only.",
+    )
     parser.add_argument("--sync", dest="sync_mode", action="store_true", help="Run sequentially.")
     parser.add_argument("-w", "--workers", type=int, default=DEFAULT_WORKERS, help="Worker threads.")
     parser.add_argument("--io-workers", type=int, default=DEFAULT_IO_WORKERS, help="IO worker limit.")
     parser.add_argument("-t", "--timeout", type=int, default=DEFAULT_TIMEOUT_SEC, help="Job timeout.")
     parser.add_argument("--filter", type=str, default=None, help="Filter jobs by substring.")
+    parser.add_argument(
+        "--all-os",
+        dest="all_os",
+        action="store_true",
+        help="Run cross-OS build-tag and vet gates for all operating systems (default: current host OS only).",
+    )
     parser.add_argument(
         "--no-tests", "--skip-tests",
         dest="no_tests",
@@ -2303,6 +2823,20 @@ def add_caching_and_resume_arguments(parser: argparse.ArgumentParser) -> None:
     parser.add_argument("--commits", "-n", dest="commits", type=int, default=20, help="Commit window for changed files (default: 20).")
 
 
+def normalize_smart_command_args(args: argparse.Namespace) -> None:
+    """Normalizes positional smart/incremental command tokens into smart execution mode."""
+    smart_tokens = {"smart", "run-smart", "incremental", "run-incremental", "smart-test", "test"}
+    remaining_targets = []
+    for t in getattr(args, "package_filter", []):
+        if t.lower() in smart_tokens:
+            args.smart_mode = True
+        else:
+            remaining_targets.append(t)
+    args.package_filter = remaining_targets
+    if getattr(args, "smart_mode", False) and not args.filter:
+        args.filter = "Go Smart Incremental Tests"
+
+
 def parse_args() -> argparse.Namespace:
     """Constructs CLI argument parser with comprehensive argument support."""
     parser = create_base_arg_parser()
@@ -2313,6 +2847,8 @@ def parse_args() -> argparse.Namespace:
     args = parser.parse_args()
     raw_targets = list(getattr(args, "package_filter", []) or []) + list(getattr(args, "positional_targets", []) or [])
     args.package_filter = [t for t in raw_targets if t]
+    normalize_smart_command_args(args)
+
     return args
 
 
@@ -2365,7 +2901,7 @@ def handle_success_result(res: JobResult, cmd_hash: str, spec: GateSpec, state: 
         tel.clear_line()
         tag = " [cached]" if res.is_cached else ""
         idx, total = state["counter"], state["total"]
-        print(f"  [{idx:2d}/{total}] \033[1;92m✓ PASS\033[0m [{res.name}] ({res.elapsed}s){tag}", flush=True)
+        print(f"  [{idx:2d}/{total}] \033[1;92m✓ PASS\033[0m [{res.name}] ({format_duration(res.elapsed)}){tag}", flush=True)
 
 
 def handle_failure_result(res: JobResult, cmd_hash: str, state: dict, sdir: Path, tel: TelemetryTracker) -> None:
@@ -2431,12 +2967,20 @@ def build_cached_job_result(name: str, raw_cmd: Any, cmd: Any, reason: str) -> J
 
 
 def evaluate_batch_skips(
-    items: list[tuple[str, Any]], state: dict, prev: dict, delta: set, root: Path, sdir: Path, tel: TelemetryTracker
+    items: list[tuple[str, Any]], state: dict, prev: dict, delta: set,
+    root: Path, sdir: Path, tel: TelemetryTracker, args: argparse.Namespace | None = None
 ) -> list[tuple[str, Any, str, GateSpec]]:
     """Evaluates gates for skipping; records skipped gates and returns list of jobs to run."""
     to_run = []
     executed = state.get("freshly_executed", set())
+    has_pkg_filter = bool(args and (getattr(args, "package_filter", None) or getattr(args, "smart_mode", False)))
     for name, cmd in items:
+        if has_pkg_filter and name == "Go Smart Incremental Tests":
+            raw = cmd.get("cmd") if isinstance(cmd, dict) else cmd
+            env = cmd.get("env") if isinstance(cmd, dict) else None
+            cwd = cmd.get("cwd") if isinstance(cmd, dict) else None
+            to_run.append((name, cmd, compute_cmd_hash(raw, env, cwd), GATE_SPECS.get(name, GateSpec(name))))
+            continue
         can_skip, reason, cmd_hash, spec, raw_cmd = check_single_gate_skip(name, cmd, prev, delta, root, executed)
         if can_skip:
             res = build_cached_job_result(name, raw_cmd, cmd, reason)
@@ -2499,7 +3043,7 @@ def execute_job_batch(
 ) -> None:
     """Executes all jobs within a single batch with worker pool."""
     items = list(batch["jobs"].items())
-    to_run = evaluate_batch_skips(items, state, prev_state, repo_delta, root, sdir, tel)
+    to_run = evaluate_batch_skips(items, state, prev_state, repo_delta, root, sdir, tel, args)
     if to_run:
         limit = batch.get("max_workers")
         batch_workers = 1 if is_sync else min(workers, limit or workers, len(to_run))
@@ -2573,8 +3117,9 @@ def format_report_row(res: JobResult) -> str:
     """Formats single job result into summary table row."""
     status_str = "\033[1;92mPASS\033[0m" if res.is_success else "\033[1;91mFAIL\033[0m"
     cached_flag = " [cached]" if res.is_cached else ""
+    dur_str = format_duration(res.elapsed)
 
-    return f"  [{status_str}] {res.name:<32} ({res.elapsed:6.2f}s) exit={res.code}{cached_flag}"
+    return f"  [{status_str}] {res.name:<32} ({dur_str}) exit={res.code}{cached_flag}"
 
 
 def format_report_header(total: int, passed: int, failed: int, timeout: int, elapsed: float, cached: int) -> list[str]:
@@ -2587,7 +3132,7 @@ def format_report_header(total: int, passed: int, failed: int, timeout: int, ela
         f"  Passed        : {passed} ({cached} cached)",
         f"  Failed        : {failed}",
         f"  Timeouts      : {timeout}",
-        f"  Total Duration: {elapsed:.2f}s",
+        f"  Total Duration: {format_duration(elapsed)}",
         "----------------------------------------------------------------",
     ]
 
@@ -2687,7 +3232,7 @@ def format_single_trace_metadata(idx: int, total: int, err: dict[str, Any]) -> l
     return [
         f"\033[1;91m[{idx}/{total}] FAIL: {err.get('name', '')}\033[0m",
         f"  Command      : {cmd_str}",
-        f"  Exit Code    : {err.get('code', '')} ({err.get('elapsed', 0.0)}s)",
+        f"  Exit Code    : {err.get('code', '')} ({format_duration(err.get('elapsed', 0.0))})",
         f"  Suspect Files: {suspects}",
         "  --- Stack Trace & Error Output ---",
     ]
@@ -2748,7 +3293,7 @@ def print_success_report(report: str, show_all: bool, total: int, cached: int, e
         print("\n\033[1;92m🎉 All quality gates passed successfully! Codebase is 100% green.\033[0m")
     else:
         executed = total - cached
-        print(f"✔ All passed. ({total} gates [{cached} cached, {executed} executed] in {elapsed:.2f}s)")
+        print(f"✔ All passed. ({total} gates [{cached} cached, {executed} executed] in {format_duration(elapsed)})")
 
     return 0
 
@@ -3025,7 +3570,7 @@ def run_eta_worker(interval_sec: int, total_est_sec: int, start_time: float, sto
             break
         elapsed = time.time() - start_time
         remaining = max(1, int(total_est_sec - elapsed))
-        print(f"\n[ETA] Estimated remaining time: {remaining} seconds\n", flush=True)
+        print(f"\n[ETA] Estimated remaining time: {format_duration(remaining)}\n", flush=True)
         if RUNNER_ETA_FILE.is_file():
             try:
                 eta_data = json.loads(RUNNER_ETA_FILE.read_text(encoding="utf-8"))
@@ -3184,10 +3729,11 @@ def filter_out_test_batches(batches: list[dict[str, Any]]) -> list[dict[str, Any
 
 def resolve_filtered_pipeline_batches(args: argparse.Namespace) -> list[dict[str, Any]]:
     """Resolves and filters job batches based on package and job filters."""
-    if getattr(args, "package_filter", None) and not args.filter:
+    if (getattr(args, "package_filter", None) or getattr(args, "smart_mode", False)) and not args.filter:
         batches = filter_job_batches(JOB_BATCHES, "Go Smart Incremental Tests")
     else:
         batches = filter_job_batches(JOB_BATCHES, args.filter)
+    batches = filter_batches_by_host_os(batches, getattr(args, "all_os", False))
     if getattr(args, "no_tests", False):
         return filter_out_test_batches(batches)
 

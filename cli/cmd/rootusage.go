@@ -145,6 +145,7 @@ func colorGroupHeader(header string) string {
 func printUsageQuickStart() {
 	fmt.Println(colorGroupHeader(constants.HelpGroupExample))
 	fmt.Println()
+	fmt.Println(constants.HelpExampleRunSmart)
 	fmt.Println(constants.HelpExampleScan)
 	fmt.Println(constants.HelpExampleList)
 	fmt.Println(constants.HelpExamplePull)

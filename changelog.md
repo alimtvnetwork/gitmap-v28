@@ -2432,6 +2432,12 @@ PowerShell: `Invoke-WebRequest -Uri https://raw.githubusercontent.com/alimtvnetw
 
 # Changelog
 
+## [v6.286.0] - 2026-09-21
+
+### Added
+- feat(test): smart incremental Go test runner, priority CLI help, and fix pipeline recorder unused functions
+
+
 ## [v6.285.0] - 2026-09-21
 
 ### Added

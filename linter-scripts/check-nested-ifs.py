@@ -18,7 +18,10 @@ if hasattr(sys.stdout, "reconfigure"):
 if hasattr(sys.stderr, "reconfigure"):
     sys.stderr.reconfigure(encoding="utf-8", errors="replace")
 
+sys.path.insert(0, str(Path(__file__).resolve().parent))
 sys.path.insert(0, str(Path(__file__).resolve().parent.parent / "03-ai-scripts"))
+from linter_cache import load_linter_cache, record_linter_success, resolve_linter_targets
+
 engine = import_module("02-shared-engine")
 chunk_items = engine.chunk_items
 WorkerHeartbeatMonitor = engine.WorkerHeartbeatMonitor
@@ -239,40 +242,11 @@ def print_scan_progress(completed: int, total: int, workers: int, start_time: fl
 def parse_cli_args() -> argparse.Namespace:
     """Parses command line arguments for nested if linter."""
     parser = argparse.ArgumentParser(description="Check for nested ifs across repository.")
-    parser.add_argument("--changed-only", "-c", action="store_true", help="Check only changed files")
-    parser.add_argument("--commits", "-n", type=int, default=20, help="Commit window (default: 20)")
+    parser.add_argument("--all", "--force", dest="force_all", action="store_true", help="Scan all repository files (bypass change cache)")
     parser.add_argument("--chunk-size", type=int, default=8, help="Files per chunk (default: 8)")
     parser.add_argument("--workers", "-w", type=int, default=10, help="Concurrency (default: 10)")
 
     return parser.parse_args()
-
-
-def load_changed_targets(commits: int) -> list[Path]:
-    """Loads target files from git-changed-files.json."""
-    manifest = ROOT_DIR / ".ai-memory/temp/git-changed-files.json"
-    is_fresh = manifest.is_file() and (time.time() - manifest.stat().st_mtime < 120.0)
-    if not is_fresh:
-        extractor = ROOT_DIR / "03-ai-scripts/27-git-changed-files.py"
-        subprocess.run([sys.executable, str(extractor), "--commits", str(commits), "--quiet"], cwd=str(ROOT_DIR), check=True)
-    data = json.loads(manifest.read_text(encoding="utf-8"))
-    targets: list[Path] = []
-    for item in data.get("files", []):
-        path_str = item["path"] if isinstance(item, dict) else str(item)
-        p = ROOT_DIR / path_str
-        if p.is_file() and p.suffix.lower() in TARGET_EXTS:
-            rel = p.relative_to(ROOT_DIR).as_posix()
-            if not any(ex in rel.split("/") for ex in EXCLUDE_DIRS):
-                targets.append(p)
-
-    return targets
-
-
-def resolve_candidate_files(args: argparse.Namespace) -> list[Path]:
-    """Resolves eligible files according to changed-only flag."""
-    if args.changed_only:
-        return load_changed_targets(args.commits)
-
-    return collect_target_files()
 
 
 def scan_file_chunk(chunk: list[Path]) -> list[tuple[Path, list[tuple[int, str]]]]:
@@ -321,7 +295,44 @@ def report_violations_and_exit(all_violations: dict[str, list[tuple[int, str]]],
             for line_no, msg in v_list:
                 print(f"  {rel_path}:{line_no}: {msg}")
         return 1
-    print(f"\n✅ PASS: Zero nested if statements or single-line compression violations found across {total_files} files in {elapsed:.2f}s.")
+    print(f"\n✅ PASS (0 nested if violations across {total_files:,} files) in {elapsed:.2f}s.")
+
+    return 0
+
+
+def report_cached_nested_pass(desc: str) -> int:
+    """Reports clean pass when zero changed files need scanning."""
+    cache = load_linter_cache("check-nested-ifs", ROOT_DIR)
+    cached_count = len(cache.get("file_hashes", {}))
+    file_info = f" across {cached_count:,} files" if cached_count > 0 else ""
+    print(f"\n✅ PASS (0 nested if violations{file_info}) [{desc}]")
+
+    return 0
+
+
+def run_ts_ast_check() -> int:
+    """Executes TypeScript AST check if node and typescript module are installed."""
+    ts_mjs = ROOT_DIR / "linter-scripts" / "check-nested-ifs.mjs"
+    if not ts_mjs.exists():
+        return 0
+    node_ts = ROOT_DIR / "node_modules" / "typescript"
+    if not node_ts.exists():
+        print("▸ TypeScript AST check: skipped (node_modules/typescript not installed)")
+        return 0
+    try:
+        ts_res = subprocess.run(
+            ["node", str(ts_mjs)], cwd=str(ROOT_DIR), capture_output=True,
+            text=True, encoding="utf-8", errors="replace"
+        )
+        if ts_res.returncode != 0:
+            if "ERR_MODULE_NOT_FOUND" in (ts_res.stderr or ""):
+                print("▸ TypeScript AST check: skipped (typescript module not installed)")
+                return 0
+            print(ts_res.stderr or ts_res.stdout)
+            return 1
+        print(f"▸ TypeScript AST check: {ts_res.stdout.strip()}")
+    except Exception:
+        pass
 
     return 0
 
@@ -329,11 +340,15 @@ def report_violations_and_exit(all_violations: dict[str, list[tuple[int, str]]],
 def main() -> int:
     """Main execution function."""
     args = parse_cli_args()
-    mode_label = f" (changed only, last {args.commits} commits)" if args.changed_only else ""
-    print(f"=== Running Nested If Linter (check-nested-ifs.py){mode_label} in {ROOT_DIR} ===")
-    target_files = resolve_candidate_files(args)
-    total_files = len(target_files)
-    chunks = chunk_items(target_files, args.chunk_size)
+    targets, desc, is_incremental = resolve_linter_targets(
+        "check-nested-ifs", ROOT_DIR, TARGET_EXTS, EXCLUDE_DIRS, force_all=args.force_all
+    )
+    print(f"=== Running Nested If Linter (check-nested-ifs.py) [{desc}] in {ROOT_DIR} ===")
+    if not targets:
+        return report_cached_nested_pass(desc)
+
+    total_files = len(targets)
+    chunks = chunk_items(targets, args.chunk_size)
     cpu_cores = min(args.workers, max(1, len(chunks)))
     print(f"▸ Discovered {total_files} candidate file(s). Scanning with {cpu_cores} worker threads...")
     monitor = WorkerHeartbeatMonitor(total_files, "files", 5.0, cpu_cores)
@@ -345,33 +360,9 @@ def main() -> int:
     exit_code = report_violations_and_exit(all_violations, total_files, elapsed)
     if exit_code != 0:
         return exit_code
+    record_linter_success("check-nested-ifs", ROOT_DIR, targets, is_incremental)
 
-    ts_mjs = ROOT_DIR / "linter-scripts" / "check-nested-ifs.mjs"
-    if ts_mjs.exists():
-        node_ts = ROOT_DIR / "node_modules" / "typescript"
-        if not node_ts.exists():
-            print("▸ TypeScript AST check: skipped (node_modules/typescript not installed)")
-            return 0
-        try:
-            ts_res = subprocess.run(
-                ["node", str(ts_mjs)],
-                cwd=str(ROOT_DIR),
-                capture_output=True,
-                text=True,
-                encoding="utf-8",
-                errors="replace",
-            )
-            if ts_res.returncode != 0:
-                if "ERR_MODULE_NOT_FOUND" in (ts_res.stderr or ""):
-                    print("▸ TypeScript AST check: skipped (typescript module not installed)")
-                    return 0
-                print(ts_res.stderr or ts_res.stdout)
-                return 1
-            print(f"▸ TypeScript AST check: {ts_res.stdout.strip()}")
-        except Exception:
-            pass
-
-    return 0
+    return run_ts_ast_check()
 
 
 if __name__ == "__main__":

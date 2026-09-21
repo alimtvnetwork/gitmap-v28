@@ -52,6 +52,7 @@ See [00-overview.md](./00-overview.md) for the complete application specificatio
 - [Spec 132: SSH Multi-Node Execution, Copy/Move & Env](./132-ssh-multinode-exec-copy-mv-and-env.md)
 - [Spec 133: SSH Interactive Join, Password Vault & Cluster](./133-ssh-interactive-join-password-vault-and-cluster.md)
 - [Spec 134: Antigravity IDE-First Integration & Queue Protocol](./134-antigravity-ide-first-integration-and-queue-protocol.md)
+- [Spec 135: Precompiled Test Warmup & Quad-Process Runner](./135-precompiled-test-warmup-and-dual-queue-runner.md)
 
 ---
 

@@ -550,13 +550,35 @@ func stripLeadingSJCommand(args []string) []string {
 }
 
 func dispatchExtraCommand(cmd string, shouldAudit bool, id int64, start time.Time) bool {
+	if dispatchSmartTestSubsystem(cmd, shouldAudit, id, start) {
+		return true
+	}
 	if dispatchAgySubsystem(cmd, shouldAudit, id, start) {
 		return true
 	}
 	if dispatchPromptSubsystem(cmd, shouldAudit, id, start) {
 		return true
 	}
+
 	return dispatchGeneralCommands(cmd, shouldAudit, id, start)
+}
+
+func dispatchSmartTestSubsystem(
+	command string,
+	shouldAudit bool,
+	auditID int64,
+	auditStart time.Time,
+) bool {
+	switch command {
+	case "run-smart", "run-incremental", "smart", "test", "smart-test":
+		executeAndAudit(func(_ context.Context, args []string, _ *cobra.Command) error {
+			return runSmartTestCLI(args)
+		}, shouldAudit, auditID, auditStart)
+
+		return true
+	default:
+		return false
+	}
 }
 
 func dispatchGeneralCommands(cmd string, shouldAudit bool, id int64, start time.Time) bool {

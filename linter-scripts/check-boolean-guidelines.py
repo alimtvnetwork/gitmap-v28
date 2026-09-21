@@ -1,9 +1,13 @@
 #!/usr/bin/env python3
 """Linter to verify boolean guidelines: implicit checks, no explicit comparisons, positive framing, and no mixed polarity."""
+import argparse
 import os
 import re
 import sys
 from pathlib import Path
+
+sys.path.insert(0, str(Path(__file__).resolve().parent))
+from linter_cache import load_linter_cache, record_linter_success, resolve_linter_targets
 
 if hasattr(sys.stdout, "reconfigure"):
     sys.stdout.reconfigure(encoding="utf-8", errors="replace")
@@ -189,34 +193,72 @@ def scan_file(filepath: Path) -> list[tuple[int, str]]:
     return violations
 
 
-def main():
-    print(f"=== Running Boolean Guidelines Linter (check-boolean-guidelines.py) in {ROOT_DIR} ===")
-    all_violations = {}
-    total_scanned = 0
+def parse_cli_args() -> argparse.Namespace:
+    """Parses command line arguments for boolean guidelines linter."""
+    parser = argparse.ArgumentParser(description="Check boolean guidelines across repository.")
+    parser.add_argument("--all", "--force", dest="force_all", action="store_true", help="Scan all repository files")
 
-    for root, dirs, files in os.walk(ROOT_DIR):
-        dirs[:] = [d for d in dirs if d not in EXCLUDE_DIRS and not any(d.startswith(ex) for ex in EXCLUDE_DIRS)]
+    return parser.parse_args()
 
-        for file in files:
-            p = Path(root) / file
-            if p.suffix.lower() in TARGET_EXTS:
-                total_scanned += 1
-                v = scan_file(p)
-                if v:
-                    rel = p.relative_to(ROOT_DIR).as_posix()
-                    all_violations[rel] = v
 
+def scan_target_files(targets: list[Path]) -> dict[str, list[tuple[int, str]]]:
+    """Scans all target files and collects boolean guideline violations."""
+    all_violations: dict[str, list[tuple[int, str]]] = {}
+    for p in targets:
+        v = scan_file(p)
+        if v:
+            rel = p.relative_to(ROOT_DIR).as_posix()
+            all_violations[rel] = v
+
+    return all_violations
+
+
+def report_boolean_violations(all_violations: dict[str, list[tuple[int, str]]], desc: str, total_files: int) -> int:
+    """Reports boolean violations and exits with appropriate status code."""
     if all_violations:
-        total_count = sum(len(v) for v in all_violations.values())
-        print(f"\n❌ FAIL: Found {total_count} boolean guideline violation(s) across {len(all_violations)} file(s):\n")
+        total = sum(len(v) for v in all_violations.values())
+        print(f"\n❌ FAIL: Found {total} boolean guideline violation(s) across {len(all_violations)} file(s):\n")
         for rel_path, v_list in sorted(all_violations.items()):
             for line_no, msg in v_list:
                 print(f"  {rel_path}:{line_no}: {msg}")
-        sys.exit(1)
+        return 1
+    file_info = f" across {total_files:,} files" if total_files > 0 else ""
+    print(f"\n✅ PASS (0 boolean guideline violations{file_info}) [{desc}]")
 
-    print(f"\n✅ PASS: Zero boolean guideline violations found across {total_scanned} files.")
+    return 0
+
+
+def report_cached_boolean_pass(desc: str) -> None:
+    """Reports clean pass when zero changed files need scanning."""
+    cache = load_linter_cache("check-boolean-guidelines", ROOT_DIR)
+    cached_count = len(cache.get("file_hashes", {}))
+    file_info = f" across {cached_count:,} files" if cached_count > 0 else ""
+    print(f"\n✅ PASS (0 boolean guideline violations{file_info}) [{desc}]")
     sys.exit(0)
+
+
+def execute_boolean_run(targets: list[Path], desc: str, is_incremental: bool) -> None:
+    """Executes target scanning, reporting, and records cache on success."""
+    all_violations = scan_target_files(targets)
+    code = report_boolean_violations(all_violations, desc, len(targets))
+    if code != 0:
+        sys.exit(code)
+    record_linter_success("check-boolean-guidelines", ROOT_DIR, targets, is_incremental)
+    sys.exit(0)
+
+
+def main() -> None:
+    """Main execution function for boolean guidelines linter."""
+    args = parse_cli_args()
+    targets, desc, is_incremental = resolve_linter_targets(
+        "check-boolean-guidelines", ROOT_DIR, TARGET_EXTS, EXCLUDE_DIRS, force_all=args.force_all
+    )
+    print(f"=== Running Boolean Guidelines Linter (check-boolean-guidelines.py) [{desc}] in {ROOT_DIR} ===")
+    if not targets:
+        report_cached_boolean_pass(desc)
+    execute_boolean_run(targets, desc, is_incremental)
 
 
 if __name__ == "__main__":
     main()
+

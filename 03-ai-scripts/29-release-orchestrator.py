@@ -296,9 +296,7 @@ def stage_and_commit_release(next_version, scope, dry_run=False):
         REPO_ROOT / "reports" / "spec-verification" / "coverage.md",
         REPO_ROOT / "cli" / "constants" / "constants.go",
     ]
-    for vf in release_candidates:
-        if vf.exists():
-            run_cmd(["git", "add", str(vf)], check=False)
+    run_cmd(["git", "add", "-A"], check=False)
 
     # Commit
     run_cmd(["git", "commit", "-m", commit_msg])
