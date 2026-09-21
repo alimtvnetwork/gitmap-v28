@@ -172,52 +172,38 @@ func AutoRegisterRepoInAgy(repoRoot string) error {
 	return apperror.NewSimple("failed to auto-register repository in Antigravity: "+repoRoot, "E9014")
 }
 
-// EnqueueWithDualQueuePolicy handles auto-registration and dual-queue or single-queue prompt execution.
+// EnqueueWithDualQueuePolicy handles auto-registration and dual-queue prompt execution.
 func EnqueueWithDualQueuePolicy(repoRoot, templateName, assembledPrompt string) error {
-	isRegistered := IsRepoRegisteredInAgy(repoRoot)
-	if isRegistered {
-		return processRegisteredRepoPrompt(repoRoot, templateName, assembledPrompt)
-	}
+	ensureRegisteredInAgy(repoRoot)
 
-	return processUnregisteredRepoPrompt(repoRoot, templateName, assembledPrompt)
-}
-
-func processUnregisteredRepoPrompt(repoRoot, templateName, assembledPrompt string) error {
-	regErr := AutoRegisterRepoInAgy(repoRoot)
-	if regErr != nil {
-		return regErr
-	}
-	renderAutoRegisterNotice(repoRoot)
 	dualErr := enqueueDualPrompts(repoRoot, templateName, assembledPrompt)
 	if dualErr != nil {
 		return dualErr
 	}
+	renderDualQueueNotice(repoRoot)
 	stageAndCopyActivePrompt(repoRoot, assembledPrompt)
 
 	return nil
 }
 
-func processRegisteredRepoPrompt(repoRoot, templateName, assembledPrompt string) error {
-	title := resolveUserPromptTitle(templateName)
-	qErr := enqueueSinglePrompt(repoRoot, "user_prompt", title, assembledPrompt)
-	if qErr != nil {
-		return qErr
+func ensureRegisteredInAgy(repoRoot string) {
+	isRegistered := IsRepoRegisteredInAgy(repoRoot)
+	if isRegistered {
+		return
 	}
-	renderSingleQueueNotice(repoRoot)
-	stageAndCopyActivePrompt(repoRoot, assembledPrompt)
-
-	return nil
+	regErr := AutoRegisterRepoInAgy(repoRoot)
+	if regErr == nil {
+		renderAutoRegisterNotice(repoRoot)
+	}
 }
 
 func renderAutoRegisterNotice(repoRoot string) {
 	fmt.Printf("  %s✔ Auto-registered repository '%s' in Antigravity%s\n",
 		constants.ColorGreen, filepath.Base(repoRoot), constants.ColorReset)
-	fmt.Printf("  %s✔ Dual-queued: [1] Read Memory protocol, [2] User Prompt%s\n",
-		constants.ColorGreen, constants.ColorReset)
 }
 
-func renderSingleQueueNotice(repoRoot string) {
-	fmt.Printf("  %s✔ Enqueued prompt for repository '%s'%s\n",
+func renderDualQueueNotice(repoRoot string) {
+	fmt.Printf("  %s✔ Queued for '%s': [1] Read all first prompt, [2] Current prompt%s\n",
 		constants.ColorGreen, filepath.Base(repoRoot), constants.ColorReset)
 }
 

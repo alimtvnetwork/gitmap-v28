@@ -39,13 +39,14 @@ The prompt commands (`prompt`, `prompt-project`, `prompt-with-name`, `prompt-txt
 ## Auto-Registration & Dual-Queue Protocol
 
 When executing `gitmap agy prompt`, `prompt-with-name`, or `prompt-txt` from a git repository:
-1. **Registration Check**: GitMap inspects `~/.gemini/config/projects/` for an existing project matching the repository root.
-2. **Auto-Registration**: If not found, GitMap automatically registers the project in Antigravity workspaces (`workspacesync`).
-3. **Dual-Queue**: For newly registered projects, GitMap enqueues two sequential prompts:
+1. **Repository Auto-Detection**: Project name is not required when running from a git repository.
+2. **Auto-Registration**: GitMap inspects `~/.gemini/config/projects/` for an existing project matching the repository root. If not found, it automatically registers the repository in Antigravity workspaces.
+3. **Dual-Queue Protocol**: GitMap enqueues two sequential prompts:
    - **Prompt 1**: Default Read Memory prompt (`Execute enhanced Read Memory protocol. Defensively load memory, specs, constraints, and pending plans before taking action.`) under type `read_memory`.
    - **Prompt 2**: The assembled user prompt under type `user_prompt`.
-4. **Single-Queue**: If the repository is already registered, only Prompt 2 (the assembled user prompt) is enqueued.
-5. **Staging & Clipboard**: The assembled prompt is staged to `.ai-memory/temp/active-agy-pipeline-fix-prompt.txt` and copied to the system clipboard.
+4. **Default Template**: If `-name` / `-n` is omitted, it defaults to `read-all` (same as `prompt-with-name read-all`).
+5. **Formatting**: By default, template is placed before text separated by two newlines (`<template>\n\n<text>`). Use `--suffix` (`--sf`) for post-text placement (`<text>\n\n<template>`).
+6. **Staging & Clipboard**: The assembled prompt is staged to `.ai-memory/temp/active-agy-pipeline-fix-prompt.txt` and copied to the system clipboard.
 
 ## Installation Flags
 
@@ -61,26 +62,25 @@ The unified Antigravity installer engine supports the following multi-platform f
 ## Examples
 
 ```bash
-# 1. Target project by name/prefix with template and additional text (prefix mode by default)
-gitmap agy prompt-project my-app -n is-done -t "Verify database migrations and tests"
-gitmap agy p my-app -name is-done -txt "Check auth handlers" --prefix
+# 1. Target project by name/prefix with template name, text, and prefix mode (default, 2 newlines)
+gitmap agy prompt-project my-app -name read-all -txt "what we want to add here" --prefix
+gitmap agy p my-app -n read-all -t "what we want to add here" --pf
 
-# 2. Target project in suffix mode (text placed before template)
-gitmap agy prompt-project my-app -n is-done -t "Refactored user service" --suffix
-gitmap agy p my-app -n is-done -t "Refactored user service" --sf
+# 2. Prompt current repository (auto-adds project if missing, queues read-all first, then current prompt)
+gitmap agy prompt -name read-all -txt "what we want to add here" --prefix
+gitmap agy prompt -n read-all -t "what we want to add here" --pf
 
-# 3. Prompt current repository (auto-registers and dual-queues if new)
-gitmap agy prompt -n is-done -t "Ensure zero test regressions"
-gitmap agy prompt -t "Fix typo in README"
-gitmap agy prompt "Run code formatting across repo"
+# 3. Prompt with template name as argument (same as prompt -name read-all)
+gitmap agy prompt-with-name read-all -txt "what we want to add here" --prefix
+gitmap agy pwn read-all -t "what we want to add here" --pf
 
-# 4. Prompt with template name as positional argument
-gitmap agy prompt-with-name is-done -t "Check lint rules"
-gitmap agy pwn is-done "Verify coding guidelines"
+# 4. Prompt direct text (defaults to read-all template prefix separated by 2 newlines)
+gitmap agy prompt-txt "what we want to add here" --prefix
+gitmap agy pt "what we want to add here" --pf
 
-# 5. Prompt direct text
-gitmap agy prompt-txt "Review PR #42 changes"
-gitmap agy pt "Implement graceful shutdown"
+# 5. Suffix mode (text followed by 2 newlines and template)
+gitmap agy prompt -name read-all -txt "what we want to add here" --suffix
+gitmap agy prompt-txt "what we want to add here" --sf
 
 # 6. List all available prompt templates in table
 gitmap agy prompt ls

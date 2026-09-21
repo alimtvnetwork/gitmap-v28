@@ -26,8 +26,14 @@ var (
 var PromptProjectCmd = &cobra.Command{
 	Use:     "prompt-project <projectStartsWithName>",
 	Aliases: []string{"p", "prompt-p"},
-	Short:   "Send a prompt to an Antigravity project matching prefix",
-	Args:    cobra.MinimumNArgs(1),
+	Short:   "Send prompt to Antigravity project matching prefix name",
+	Long: `Target an Antigravity project by prefix name and dispatch a templated or text prompt.
+If -name is omitted, it defaults to 'read-all' (same as not passing name parameter).
+Always adds a default prompt to read all first, and then queues this current prompt.
+By default, prefixes template with 2 newlines before text (--prefix). Use --suffix for post-text.`,
+	Example: `  gitmap agy prompt-project my-app -name read-all -txt "what we want to add here" --prefix
+  gitmap agy p my-app -n is-done -t "Verify all checks pass"`,
+	Args: cobra.MinimumNArgs(1),
 	RunE: func(cmd *cobra.Command, args []string) error {
 		return runPromptProject(args)
 	},
@@ -55,18 +61,30 @@ func runPromptProject(args []string) error {
 	if findErr != nil {
 		return findErr
 	}
-	templateContent, tplErr := resolveProjectTemplateContent(projPromptName)
-	if tplErr != nil {
-		return tplErr
-	}
+	tplName := resolveProjectTemplateName()
+	templateContent := resolveProjectTemplateOrFallback(tplName)
 	textVal := resolveProjectText(args)
-	if len(templateContent) == 0 && len(textVal) == 0 {
-		return apperror.NewSimple("prompt text or template name is required", "E9010")
-	}
 	isSuffix := resolveIsSuffix(projPromptSuffix, projPromptSf, projPromptPrefix, projPromptPf)
 	assembled := AssemblePrompt(templateContent, textVal, isSuffix)
 
-	return EnqueueWithDualQueuePolicy(targetPath, projPromptName, assembled)
+	return EnqueueWithDualQueuePolicy(targetPath, tplName, assembled)
+}
+
+func resolveProjectTemplateName() string {
+	if len(strings.TrimSpace(projPromptName)) > 0 {
+		return projPromptName
+	}
+
+	return "read-all"
+}
+
+func resolveProjectTemplateOrFallback(name string) string {
+	content, err := resolveProjectTemplateContent(name)
+	if err == nil && len(content) > 0 {
+		return content
+	}
+
+	return DefaultReadMemoryPrompt
 }
 
 func resolveProjectTemplateContent(name string) (string, error) {

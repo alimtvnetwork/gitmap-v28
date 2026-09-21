@@ -11,11 +11,11 @@ func buildAutomationSection() termhelp.HelpSection {
 
 func buildAutomationEntries() []termhelp.CommandEntry {
 	return []termhelp.CommandEntry{
-		{Command: "prompt-project (p)", Description: "Target project by prefix with -name, -txt, --pf/--sf"},
-		{Command: "prompt [-n name] [-t txt]", Description: "Send prompt to current repo (auto-registers & reads first)"},
-		{Command: "prompt-with-name (pwn)", Description: "Send named prompt template with optional -txt"},
-		{Command: "prompt-txt (pt)", Description: "Send direct prompt text with --prefix/--suffix (2 newlines)"},
-		{Command: "prompt ls (list prompts)", Description: "List all available prompt templates"},
+		{Command: "prompt-project (p)", Description: "Target project by prefix with -name, -txt, --pf/--sf (prefix + 2 newlines)"},
+		{Command: "prompt [-n name] [-t txt]", Description: "Dispatch to current repo (auto-adds project, queues read-all first)"},
+		{Command: "prompt-with-name (pwn)", Description: "Dispatch named template (same as prompt -name; queues read-all first)"},
+		{Command: "prompt-txt (pt)", Description: "Dispatch direct text (defaults to read-all prefix with 2 newlines)"},
+		{Command: "prompt ls (list prompts)", Description: "List all available prompt templates in formatted table"},
 		{Command: "rerun last [N]", Description: "Replay last N prompts with prefix template (-p is-done)"},
 		{Command: "list-prompts [N]", Description: "List prompts or diff in VS Code (--projects <N>)"},
 		{Command: "read-all-projects-with-read-prompts (rprp)", Description: "Discover repos, sync, and broadcast Read Memory"},

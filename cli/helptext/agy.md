@@ -21,9 +21,12 @@ gitmap antigravity <subcommand> [flags]
 | Subcommand | Description |
 |------------|-------------|
 | `ping` | Ping Antigravity IDE and inspect environment health (alias: `check`) |
-| `prompt [slug/path] [text]` | Send a prompt to Antigravity IDE/CLI using Queue & Injection Protocol |
+| `prompt-project <prefix>` | Target Antigravity project by prefix with `-name`, `-txt`, `--pf/--sf` (alias: `p`) |
+| `prompt [-n name] [-t txt]` | Dispatch prompt to current repo (auto-adds project, queues read-all first) |
+| `prompt-with-name <name>` | Dispatch named template with optional `-txt` (alias: `pwn`; same as `prompt -name`) |
+| `prompt-txt "<text>"` | Dispatch direct text (alias: `pt`; defaults to read-all prefix with 2 newlines) |
+| `prompt ls` | List available prompt templates in formatted table (alias: `list prompts`) |
 | `prompt read [conv-id]` | Read and display user prompts for a conversation from Antigravity brain |
-| `prompt ls [limit]` | List conversation prompts across workspaces (alias: `list`) |
 | `queue [status\|ls\|clear\|pop]` | Manage pending prompt queue entries |
 | `status` | Show Antigravity system status (IDE process, IDLE vs RUNNING, prompt queue) |
 | `rerun last [N]` | Replay last N prompts with optional prefix verification prompt template (`-p`) |

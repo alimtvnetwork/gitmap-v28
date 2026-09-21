@@ -37,7 +37,17 @@ var (
 var PromptCmd = &cobra.Command{
 	Use:     "prompt",
 	Aliases: []string{"pr"},
-	Short:   "Send or enqueue a prompt for the current project in Antigravity",
+	Short:   "Send or enqueue prompt for current project (auto-adds repo, queues read-all first)",
+	Long: `Send or enqueue a prompt for the current git repository in Antigravity.
+When running from a git repo, project name is not needed.
+If not registered in Antigravity, the repo is automatically added.
+Always adds a default prompt to read all first, and then queues this current prompt.
+If -name is omitted, it defaults to 'read-all' (same as prompt-with-name read-all).
+By default, prefixes template with 2 newlines before text (--prefix). Use --suffix for post-text.`,
+	Example: `  gitmap agy prompt -name read-all -txt "what we want to add here" --prefix
+  gitmap agy prompt -n is-done -t "Verify all unit tests pass"
+  gitmap agy prompt -t "Fix typo in README"
+  gitmap agy prompt "Run code formatting across repo"`,
 	RunE: func(cmd *cobra.Command, args []string) error {
 		return runBasePrompt(args)
 	},
@@ -47,8 +57,16 @@ var PromptCmd = &cobra.Command{
 var PromptWithNameCmd = &cobra.Command{
 	Use:     "prompt-with-name <templateName>",
 	Aliases: []string{"pwn"},
-	Short:   "Send a named prompt template to current project in Antigravity",
-	Args:    cobra.MinimumNArgs(1),
+	Short:   "Send named prompt template (same as prompt -name; auto-adds repo, queues read-all first)",
+	Long: `Send a named prompt template to the current repository project in Antigravity.
+Same as calling 'gitmap agy prompt -name <templateName>'.
+When running from a git repo, project name is not needed.
+If not registered in Antigravity, the repo is automatically added.
+Always adds a default prompt to read all first, and then queues this current prompt.
+By default, prefixes template with 2 newlines before text (--prefix). Use --suffix for post-text.`,
+	Example: `  gitmap agy prompt-with-name read-all -txt "what we want to add here" --prefix
+  gitmap agy pwn is-done -t "Verify database split-db"`,
+	Args: cobra.MinimumNArgs(1),
 	RunE: func(cmd *cobra.Command, args []string) error {
 		return runPromptWithName(args)
 	},
@@ -58,7 +76,15 @@ var PromptWithNameCmd = &cobra.Command{
 var PromptTxtCmd = &cobra.Command{
 	Use:     "prompt-txt [text]",
 	Aliases: []string{"pt"},
-	Short:   "Send direct prompt text to current project in Antigravity",
+	Short:   "Send direct prompt text (defaults to read-all prefix with 2 newlines; auto-adds repo, queues read-all first)",
+	Long: `Send direct prompt text to the current repository project in Antigravity.
+When running from a git repo, project name is not needed.
+If not registered in Antigravity, the repo is automatically added.
+Always adds a default prompt to read all first, and then queues this current prompt.
+By default, prefixes with 'read-all' template followed by 2 newlines (--prefix). Use --suffix for post-text.`,
+	Example: `  gitmap agy prompt-txt "what we want to add here" --prefix
+  gitmap agy prompt-txt "what we want to add here" --suffix
+  gitmap agy pt "Ensure all linters pass before commit"`,
 	RunE: func(cmd *cobra.Command, args []string) error {
 		return runPromptTxt(args)
 	},
@@ -117,13 +143,30 @@ func runBasePrompt(args []string) error {
 		return err
 	}
 	textVal := resolveBaseText(args, templateName)
-	if len(templateContent) == 0 && len(textVal) == 0 {
-		return apperror.NewSimple("prompt text or template name is required", "E9010")
-	}
+	templateName, templateContent = resolveDefaultBaseTemplate(templateName, templateContent)
 	isSuffix := resolveIsSuffix(basePromptSuffix, basePromptSf, basePromptPrefix, basePromptPf)
 	assembled := AssemblePrompt(templateContent, textVal, isSuffix)
 
 	return EnqueueWithDualQueuePolicy(repoRoot, templateName, assembled)
+}
+
+func resolveDefaultBaseTemplate(name, content string) (string, string) {
+	hasName := len(name) > 0
+	if hasName {
+		return name, content
+	}
+
+	return "read-all", resolveDefaultTemplateContent()
+}
+
+func resolveDefaultTemplateContent() string {
+	content, _ := resolveProjectTemplateContent("read-all")
+	hasContent := len(content) > 0
+	if hasContent {
+		return content
+	}
+
+	return DefaultReadMemoryPrompt
 }
 
 func resolveCurrentRepoRoot() string {
@@ -215,18 +258,18 @@ func runPromptTxt(args []string) error {
 		return apperror.NewSimple("prompt text cannot be empty: gitmap agy prompt-txt <text>", "E9011")
 	}
 	isSuffix := resolveIsSuffix(txtPromptSuffix, txtPromptSf, txtPromptPrefix, txtPromptPf)
-	assembled := formatTxtPrompt(textVal, isSuffix)
+	assembled := assembleTxtPrompt(textVal, isSuffix)
 
-	return EnqueueWithDualQueuePolicy(repoRoot, "", assembled)
+	return EnqueueWithDualQueuePolicy(repoRoot, "read-all", assembled)
 }
 
-func formatTxtPrompt(textVal string, isSuffix bool) string {
-	clean := strings.TrimSpace(textVal)
-	if isSuffix {
-		return clean + "\n\n"
+func assembleTxtPrompt(textVal string, isSuffix bool) string {
+	tplContent, err := resolveProjectTemplateContent("read-all")
+	if err != nil || len(tplContent) == 0 {
+		tplContent = DefaultReadMemoryPrompt
 	}
 
-	return clean
+	return AssemblePrompt(tplContent, textVal, isSuffix)
 }
 
 func resolveTxtPromptText(args []string) string {
