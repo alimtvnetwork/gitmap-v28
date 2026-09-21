@@ -65,13 +65,7 @@ func evaluateStatusDbCache(db *pipelinedb.PipelineSplitDb, repo string) ([]ghRun
 		return queryWorkflowRuns(repo), false
 	}
 
-	latest := runRes.Data[0]
 	if checkTtlCacheHit(db.Path) {
-		return mapDbRunsToGhRuns(runRes.Data), true
-	}
-
-	localSha := resolveLocalCommitSHA()
-	if checkCommitMatchCacheHit(latest, localSha) {
 		return mapDbRunsToGhRuns(runRes.Data), true
 	}
 

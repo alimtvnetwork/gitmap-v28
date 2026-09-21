@@ -52,24 +52,14 @@ func isPipelineCacheBypassed(flags PipelineErrorFlags) bool {
 
 func evaluateDecisionFromRuns(db *pipelinedb.PipelineSplitDb, dbRuns []pipelinedb.PipelineRunRecord, flags PipelineErrorFlags) PipelineCacheDecision {
 	latest := dbRuns[0]
-	if checkTtlCacheHit(db.Path) {
-		return buildCacheHitDecision(dbRuns, latest.Sha, "within_ttl")
-	}
-	if checkCommitMatchCacheHit(latest, resolveLocalCommitSHA()) {
-		return buildCacheHitDecision(dbRuns, latest.Sha, "commit_match_completed")
-	}
-	if checkLatestCompletedSuccessCacheHit(latest) {
-		return buildCacheHitDecision(dbRuns, latest.Sha, "latest_completed_success")
-	}
 	if checkTargetIndexCacheHit(dbRuns, flags) {
 		return buildCacheHitDecision(dbRuns, latest.Sha, "target_index_matched")
 	}
+	if checkTtlCacheHit(db.Path) {
+		return buildCacheHitDecision(dbRuns, latest.Sha, "within_ttl")
+	}
 
-	return PipelineCacheDecision{IsFromCache: false, Reason: "no_cache_match"}
-}
-
-func checkLatestCompletedSuccessCacheHit(latest pipelinedb.PipelineRunRecord) bool {
-	return latest.Status == "completed" && latest.Conclusion == "success"
+	return PipelineCacheDecision{IsFromCache: false, Reason: "cache_expired"}
 }
 
 func resolvePipelineCacheTTL() time.Duration {
@@ -83,14 +73,6 @@ func checkTtlCacheHit(dbPath string) bool {
 	}
 
 	return time.Since(info.ModTime()) < resolvePipelineCacheTTL()
-}
-
-func checkCommitMatchCacheHit(latest pipelinedb.PipelineRunRecord, localSha string) bool {
-	if !matchCommitSha(latest.Sha, localSha) {
-		return false
-	}
-
-	return isRunCompleted(latest.Status, latest.Conclusion)
 }
 
 func isRunCompleted(status, conclusion string) bool {

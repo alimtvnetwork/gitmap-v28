@@ -296,13 +296,41 @@ func queryRunsFromDB(repo string) []ghRunItem {
 	return mapDbRunsToGhRuns(runRes.Data)
 }
 
-func resolveCachedRunsOrFetch(repo string) []ghRunItem {
+func queryFreshDbRuns(repo string) ([]ghRunItem, bool) {
 	dbRuns := queryRunsFromDB(repo)
-	if len(dbRuns) > 0 {
+	hasRuns := len(dbRuns) > 0
+	if hasRuns {
+		return dbRuns, true
+	}
+
+	return nil, false
+}
+
+func resolveCachedDbRunsIfFresh(repo string) ([]ghRunItem, bool) {
+	dbPath := pipelinedb.PipelineDbPath(repo)
+	isCacheHit := checkTtlCacheHit(dbPath)
+	if isCacheHit {
+		return queryFreshDbRuns(repo)
+	}
+
+	return nil, false
+}
+
+func resolveCachedRunsOrFetch(repo string) []ghRunItem {
+	dbRuns, isFresh := resolveCachedDbRunsIfFresh(repo)
+	if isFresh {
 		return dbRuns
 	}
 
-	return queryWorkflowRuns(repo)
+	runs := queryWorkflowRuns(repo)
+	hasRuns := len(runs) > 0
+	if hasRuns {
+		RecordFetchedRunsToSplitDb(repo, runs)
+
+		return runs
+	}
+
+	return queryRunsFromDB(repo)
 }
 
 func mapDbRunsToGhRuns(dbRuns []pipelinedb.PipelineRunRecord) []ghRunItem {

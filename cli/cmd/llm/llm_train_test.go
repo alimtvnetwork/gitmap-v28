@@ -68,4 +68,3 @@ func TestRunLlmHelp(t *testing.T) {
 		t.Fatalf("expected nil error for Run --help, got: %v", err)
 	}
 }
-

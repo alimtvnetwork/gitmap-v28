@@ -1,6 +1,7 @@
 package cmdpipeline
 
 import (
+	"sort"
 	"strconv"
 	"strings"
 )
@@ -62,6 +63,16 @@ func (b *groupBuilder) addRun(r ghRunItem) {
 	wf := buildWorkflowItem(r)
 	group.Workflows = append(group.Workflows, wf)
 	updateGroupMetrics(group, wf)
+	b.updateGroupTimestamps(group, r)
+}
+
+func (b *groupBuilder) updateGroupTimestamps(group *CommitPipelineGroup, r ghRunItem) {
+	if r.CreatedAt > group.CreatedAt {
+		group.CreatedAt = r.CreatedAt
+	}
+	if r.UpdatedAt > group.UpdatedAt {
+		group.UpdatedAt = r.UpdatedAt
+	}
 }
 
 func (b *groupBuilder) ensureGroup(r ghRunItem) *CommitPipelineGroup {
@@ -176,8 +187,15 @@ func (b *groupBuilder) build() []CommitPipelineGroup {
 	for _, sha := range b.orderedShas {
 		result = append(result, *b.groups[sha])
 	}
+	sortCommitGroupsDesc(result)
 
 	return result
+}
+
+func sortCommitGroupsDesc(groups []CommitPipelineGroup) {
+	sort.SliceStable(groups, func(i, j int) bool {
+		return groups[i].CreatedAt > groups[j].CreatedAt
+	})
 }
 
 // ResolveCommitGroupByOffset resolves a commit group by negative offset or 0 for latest.

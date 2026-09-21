@@ -117,6 +117,7 @@ func applyPayloadOptions(p *PipelineErrorLogsPayload, runs []ghRunItem, flags Pi
 
 func buildErrorLogsPayload(repo string, runs []ghRunItem) PipelineErrorLogsPayload {
 	payload := initBaseErrorLogsPayload(repo)
+	payload.Runs = runs
 	if len(runs) == 0 {
 		return handleEmptyRunsPayload(repo, runs, payload)
 	}
@@ -738,7 +739,10 @@ func renderCleanSuccessDbAndHistory(p PipelineErrorLogsPayload) {
 		fmt.Printf("  • Cleanup:         gitmap pipeline clear -y\n")
 	}
 
-	runs := resolveCachedRunsOrFetch(p.Repo)
+	runs := p.Runs
+	if len(runs) == 0 {
+		runs = resolveCachedRunsOrFetch(p.Repo)
+	}
 	RenderHistorySummaryTable(runs)
 }
 
@@ -768,7 +772,10 @@ func renderFailureSectionsAndETA(p PipelineErrorLogsPayload) {
 	renderCombinedSectionsTerminal(p.SectionFailures)
 	renderFailedRunsBreakdown(p.FailedRuns)
 	renderSavedLocationsTerminal(p)
-	runs := resolveCachedRunsOrFetch(p.Repo)
+	runs := p.Runs
+	if len(runs) == 0 {
+		runs = resolveCachedRunsOrFetch(p.Repo)
+	}
 	RenderHistorySummaryTable(runs)
 	printRerunETA(p.RerunEtaSeconds)
 }

@@ -2432,6 +2432,12 @@ PowerShell: `Invoke-WebRequest -Uri https://raw.githubusercontent.com/alimtvnetw
 
 # Changelog
 
+## [v6.288.0] - 2026-09-21
+
+### Added
+- fix(pipeline): enforce 5s TTL cache, fix chronological table ordering, and format train test
+
+
 ## [v6.287.0] - 2026-09-21
 
 ### Added

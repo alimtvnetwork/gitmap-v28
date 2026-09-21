@@ -68,7 +68,7 @@ ON CONFLICT(RunId, StepName) DO UPDATE SET
 const sqlQueryRecentRuns = `
 SELECT RunId, RepoSlug, WorkflowName, Status, Conclusion, Branch, Sha,
        EtaSeconds, DurationSeconds, RunUrl, IsSuccess, CreatedAt, UpdatedAt
-FROM PipelineRun ORDER BY PipelineRunId DESC LIMIT ?;`
+FROM PipelineRun ORDER BY CreatedAt DESC, RunId DESC LIMIT ?;`
 
 const sqlQueryRecentErrors = `
 SELECT RunId, RepoSlug, WorkflowName, StepName, ErrorText, COALESCE(RawLogs, ''), CreatedAt
@@ -94,12 +94,12 @@ SELECT DISTINCT RunId FROM (
 const sqlQueryRunByOffset = `
 SELECT RunId, RepoSlug, WorkflowName, Status, Conclusion, Branch, Sha,
        EtaSeconds, DurationSeconds, RunUrl, IsSuccess, CreatedAt, UpdatedAt
-FROM PipelineRun ORDER BY PipelineRunId DESC LIMIT 1 OFFSET ?;`
+FROM PipelineRun ORDER BY CreatedAt DESC, RunId DESC LIMIT 1 OFFSET ?;`
 
 const sqlQueryLastFailedRuns = `
 SELECT RunId, RepoSlug, WorkflowName, Status, Conclusion, Branch, Sha,
        EtaSeconds, DurationSeconds, RunUrl, IsSuccess, CreatedAt, UpdatedAt
-FROM PipelineRun WHERE IsSuccess = 0 ORDER BY PipelineRunId DESC LIMIT ?;`
+FROM PipelineRun WHERE IsSuccess = 0 ORDER BY CreatedAt DESC, RunId DESC LIMIT ?;`
 
 const sqlQueryErrorLogsByRunId = `
 SELECT RunId, RepoSlug, WorkflowName, StepName, ErrorText, COALESCE(RawLogs, ''), CreatedAt
@@ -865,7 +865,7 @@ func (p *PipelineSplitDb) QuerySuccessfulRunDurations(workflowName string, limit
 	if p.conn == nil || limit <= 0 {
 		return nil
 	}
-	query := "SELECT DurationSeconds FROM PipelineRun WHERE IsSuccess = 1 AND DurationSeconds >= 10 AND (WorkflowName = ? OR ? = '') ORDER BY PipelineRunId DESC LIMIT ?;"
+	query := "SELECT DurationSeconds FROM PipelineRun WHERE IsSuccess = 1 AND DurationSeconds >= 10 AND (WorkflowName = ? OR ? = '') ORDER BY CreatedAt DESC, RunId DESC LIMIT ?;"
 	rows, err := p.conn.Query(query, workflowName, workflowName, limit)
 	if err != nil {
 		return nil

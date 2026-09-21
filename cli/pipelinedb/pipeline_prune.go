@@ -221,7 +221,7 @@ func (p *PipelineSplitDb) QueryRunBySha(sha string) (*PipelineRunRecord, error) 
 	if len(sha) < 7 {
 		return nil, apperror.NewValidationError("sha too short for lookup")
 	}
-	query := "SELECT RunId, RepoSlug, WorkflowName, Status, Conclusion, Branch, Sha, EtaSeconds, DurationSeconds, RunUrl, IsSuccess, CreatedAt, UpdatedAt FROM PipelineRun WHERE Sha LIKE ? ORDER BY PipelineRunId DESC LIMIT 1;"
+	query := "SELECT RunId, RepoSlug, WorkflowName, Status, Conclusion, Branch, Sha, EtaSeconds, DurationSeconds, RunUrl, IsSuccess, CreatedAt, UpdatedAt FROM PipelineRun WHERE Sha LIKE ? ORDER BY CreatedAt DESC, RunId DESC LIMIT 1;"
 	rows, err := p.conn.Query(query, sha+"%")
 	if err != nil {
 		return nil, apperror.WrapSimple(err, "query run by sha")

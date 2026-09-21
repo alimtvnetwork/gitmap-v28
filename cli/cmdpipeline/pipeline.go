@@ -70,6 +70,7 @@ type PipelineErrorLogsPayload struct {
 	FailedRuns         []FailedRunItem   `json:"failedRuns,omitempty"`
 	SectionFailures    []SectionFailure  `json:"sectionFailures,omitempty"`
 	CICDChecks         []CICDCheckResult `json:"cicdChecks,omitempty"`
+	Runs               []ghRunItem       `json:"runs,omitempty"`
 	IsFromCache        bool              `json:"isFromCache,omitempty"`
 	CacheSource        string            `json:"cacheSource,omitempty"`
 }

@@ -1,3 +1,9 @@
+## v6.288.0 — 2026-09-21 (fix(pipeline): enforce 5s TTL cache, fix chronological table ordering, and format train test)
+
+**Scope:** Version bump. fix(pipeline): enforce 5s TTL cache, fix chronological table ordering, and format train test.
+
+---
+
 ## v6.287.0 — 2026-09-21 (feat(aum): fix search channel deadlock, add scoped search guidance, and improve llm train learning protocol)
 
 **Scope:** Version bump. feat(aum): fix search channel deadlock, add scoped search guidance, and improve llm train learning protocol.
