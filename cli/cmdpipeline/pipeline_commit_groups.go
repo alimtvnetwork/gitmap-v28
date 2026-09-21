@@ -22,6 +22,7 @@ type CommitWorkflowItem struct {
 type CommitPipelineGroup struct {
 	HeadSha         string               `json:"headSha"`
 	HeadBranch      string               `json:"headBranch"`
+	Release         string               `json:"release,omitempty"`
 	Status          string               `json:"status"`
 	Conclusion      string               `json:"conclusion"`
 	CreatedAt       string               `json:"createdAt"`
@@ -64,6 +65,18 @@ func (b *groupBuilder) addRun(r ghRunItem) {
 	group.Workflows = append(group.Workflows, wf)
 	updateGroupMetrics(group, wf)
 	b.updateGroupTimestamps(group, r)
+	b.updateGroupRelease(group, r)
+}
+
+func (b *groupBuilder) updateGroupRelease(group *CommitPipelineGroup, r ghRunItem) {
+	if len(group.Release) > 0 {
+		return
+	}
+
+	rel := resolveReleaseFromRun(r)
+	if len(rel) > 0 {
+		group.Release = rel
+	}
 }
 
 func (b *groupBuilder) updateGroupTimestamps(group *CommitPipelineGroup, r ghRunItem) {
@@ -96,9 +109,24 @@ func initCommitGroup(r ghRunItem) *CommitPipelineGroup {
 	return &CommitPipelineGroup{
 		HeadSha:    r.HeadSha,
 		HeadBranch: r.HeadBranch,
+		Release:    resolveReleaseFromRun(r),
 		CreatedAt:  r.CreatedAt,
 		UpdatedAt:  r.UpdatedAt,
 	}
+}
+
+func resolveReleaseFromRun(r ghRunItem) string {
+	relFromBranch := extractReleaseFromBranch(r.HeadBranch)
+	if len(relFromBranch) > 0 {
+		return relFromBranch
+	}
+
+	relFromTitle := extractReleaseFromTitle(r.DisplayTitle)
+	if len(relFromTitle) > 0 {
+		return relFromTitle
+	}
+
+	return ""
 }
 
 func buildWorkflowItem(r ghRunItem) CommitWorkflowItem {

@@ -1,6 +1,7 @@
 package cmdpipeline
 
 import (
+	"database/sql"
 	"fmt"
 	"os/exec"
 	"path/filepath"
@@ -12,6 +13,7 @@ import (
 	"github.com/alimtvnetwork/gitmap-v28/cli/apperror"
 	"github.com/alimtvnetwork/gitmap-v28/cli/constants"
 	"github.com/alimtvnetwork/gitmap-v28/cli/pipelinedb"
+	"github.com/alimtvnetwork/gitmap-v28/cli/store"
 	"github.com/atotto/clipboard"
 )
 
@@ -360,6 +362,10 @@ func printRecentCommitRow(sb *strings.Builder, g CommitPipelineGroup, index int)
 }
 
 func resolveCommitRelease(g CommitPipelineGroup) string {
+	if len(g.Release) > 0 {
+		return g.Release
+	}
+
 	relFromBranch := extractReleaseFromBranch(g.HeadBranch)
 	if len(relFromBranch) > 0 {
 		return relFromBranch
@@ -403,6 +409,59 @@ func isSemverLike(s string) bool {
 	return err == nil
 }
 
+func extractReleaseFromTitle(title string) string {
+	if len(title) == 0 {
+		return ""
+	}
+
+	lower := strings.ToLower(title)
+	hasReleaseKeyword := strings.Contains(lower, "release")
+	hasVTag := strings.Contains(lower, "v")
+	if hasReleaseKeyword == false && hasVTag == false {
+		return ""
+	}
+
+	clean := sanitizeTitleSeparators(title)
+	tokens := strings.Fields(clean)
+	for _, tok := range tokens {
+		if isSemverToken(tok) {
+			return ensureVPrefix(tok)
+		}
+	}
+
+	return ""
+}
+
+func sanitizeTitleSeparators(title string) string {
+	clean := strings.ReplaceAll(title, ":", " ")
+	clean = strings.ReplaceAll(clean, "(", " ")
+	clean = strings.ReplaceAll(clean, ")", " ")
+	clean = strings.ReplaceAll(clean, "/", " ")
+	clean = strings.ReplaceAll(clean, ",", " ")
+
+	return clean
+}
+
+func isSemverToken(tok string) bool {
+	raw := strings.TrimPrefix(strings.ToLower(tok), "v")
+	parts := strings.Split(raw, ".")
+	if len(parts) < 2 {
+		return false
+	}
+	_, err0 := strconv.Atoi(parts[0])
+	_, err1 := strconv.Atoi(parts[1])
+
+	return err0 == nil && err1 == nil
+}
+
+func ensureVPrefix(s string) string {
+	if strings.HasPrefix(strings.ToLower(s), "v") {
+		return s
+	}
+
+	return "v" + s
+}
+
 func extractReleaseFromSha(sha string) string {
 	isShort := len(sha) < 4
 	if isShort {
@@ -410,11 +469,59 @@ func extractReleaseFromSha(sha string) string {
 	}
 
 	tagOut, err := exec.Command("git", "tag", "--points-at", sha).Output()
+	tag := parseFirstVTagFromOutput(tagOut, err)
+	if len(tag) > 0 {
+		return tag
+	}
+
+	return extractReleaseFromRepoPath(sha)
+}
+
+func parseFirstVTagFromOutput(output []byte, err error) string {
 	if err != nil {
 		return ""
 	}
 
-	return parseFirstVTag(string(tagOut))
+	return parseFirstVTag(string(output))
+}
+
+func extractReleaseFromRepoPath(sha string) string {
+	repoDir := findLocalRepoDirForSlug(resolveCurrentRepoSlug())
+	if len(repoDir) == 0 {
+		return ""
+	}
+
+	tagOutRepo, errRepo := exec.Command("git", "-C", repoDir, "tag", "--points-at", sha).Output()
+
+	return parseFirstVTagFromOutput(tagOutRepo, errRepo)
+}
+
+func findLocalRepoDirForSlug(slug string) string {
+	dbPath := store.DefaultDBPath()
+	if isFileExisting(dbPath) == false {
+		return ""
+	}
+
+	conn, err := sql.Open("sqlite", "file:"+filepath.ToSlash(dbPath)+"?mode=ro")
+	if err != nil {
+		return ""
+	}
+	defer conn.Close()
+
+	return queryRepoPathFromConn(conn, slug)
+}
+
+func queryRepoPathFromConn(conn *sql.DB, slug string) string {
+	var absPath string
+	parts := strings.Split(slug, "/")
+	shortSlug := parts[len(parts)-1]
+	query := "SELECT AbsolutePath FROM Repo WHERE Slug = ? OR Slug = ? LIMIT 1"
+	row := conn.QueryRow(query, slug, shortSlug)
+	if err := row.Scan(&absPath); err == nil && len(absPath) > 0 {
+		return absPath
+	}
+
+	return ""
 }
 
 func parseFirstVTag(output string) string {

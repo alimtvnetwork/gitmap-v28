@@ -374,3 +374,54 @@ func TestResolveCommitRelease(t *testing.T) {
 		t.Errorf("expected '-' for unreleased commit, got: %s", rel)
 	}
 }
+
+func TestExtractReleaseFromTitle(t *testing.T) {
+	checkReleaseTitle(t, "release: v6.292.0 fix(ci): update", "v6.292.0")
+	checkReleaseTitle(t, "release: 6.292.0 fix(ci): something", "v6.292.0")
+	checkReleaseTitle(t, "release(v6.290.0): bump version", "v6.290.0")
+	checkReleaseTitle(t, "v6.289.0 release ceremony", "v6.289.0")
+	checkReleaseTitle(t, "fix: regular bug fix", "")
+	checkReleaseTitle(t, "", "")
+}
+
+func checkReleaseTitle(t *testing.T, title, want string) {
+	t.Helper()
+	got := extractReleaseFromTitle(title)
+	if got != want {
+		t.Errorf("extractReleaseFromTitle(%q) = %q; want %q", title, got, want)
+	}
+}
+
+func TestResolveReleaseFromRun(t *testing.T) {
+	runBranch := ghRunItem{HeadBranch: "release/v6.292.0"}
+	if rel := resolveReleaseFromRun(runBranch); rel != "v6.292.0" {
+		t.Errorf("expected v6.292.0 from branch, got: %s", rel)
+	}
+
+	runTitle := ghRunItem{HeadBranch: "main", DisplayTitle: "release: v6.292.0 fix"}
+	if rel := resolveReleaseFromRun(runTitle); rel != "v6.292.0" {
+		t.Errorf("expected v6.292.0 from title, got: %s", rel)
+	}
+
+	runNone := ghRunItem{HeadBranch: "main", DisplayTitle: "feat: add stuff"}
+	if rel := resolveReleaseFromRun(runNone); rel != "" {
+		t.Errorf("expected empty string, got: %s", rel)
+	}
+}
+
+func TestGroupRunsByCommit_PreservesReleaseFromSubsequentRuns(t *testing.T) {
+	runs := []ghRunItem{
+		{HeadSha: "abcdef1", HeadBranch: "main", DisplayTitle: "chore: merge"},
+		{HeadSha: "abcdef1", HeadBranch: "release/v6.292.0", DisplayTitle: "release: v6.292.0"},
+	}
+	groups := GroupRunsByCommit(runs)
+	if len(groups) != 1 {
+		t.Fatalf("expected 1 group, got %d", len(groups))
+	}
+	if groups[0].Release != "v6.292.0" {
+		t.Errorf("expected Release to be v6.292.0, got: %s", groups[0].Release)
+	}
+	if rel := resolveCommitRelease(groups[0]); rel != "v6.292.0" {
+		t.Errorf("expected resolveCommitRelease to return v6.292.0, got: %s", rel)
+	}
+}

@@ -2432,6 +2432,12 @@ PowerShell: `Invoke-WebRequest -Uri https://raw.githubusercontent.com/alimtvnetw
 
 # Changelog
 
+## [v6.293.0] - 2026-09-21
+
+### Added
+- fix(pipeline): resolve release version tag across commit group runs, titles, and external working directories
+
+
 ## [v6.292.0] - 2026-09-21
 
 ### Added

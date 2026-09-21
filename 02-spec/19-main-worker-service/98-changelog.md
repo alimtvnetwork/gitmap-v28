@@ -1,3 +1,9 @@
+## v6.293.0 — 2026-09-21 (fix(pipeline): resolve release version tag across commit group runs, titles, and external working directories)
+
+**Scope:** Version bump. fix(pipeline): resolve release version tag across commit group runs, titles, and external working directories.
+
+---
+
 ## v6.292.0 — 2026-09-21 (fix(ci): update table alignment test for release column and gofmt test file)
 
 **Scope:** Version bump. fix(ci): update table alignment test for release column and gofmt test file.

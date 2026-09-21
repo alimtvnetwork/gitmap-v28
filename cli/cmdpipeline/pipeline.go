@@ -128,15 +128,17 @@ type ErrorLogOutputParams struct {
 }
 
 type ghRunItem struct {
-	DatabaseId uint64 `json:"databaseId"`
-	Name       string `json:"name"`
-	Status     string `json:"status"`
-	Conclusion string `json:"conclusion"`
-	CreatedAt  string `json:"createdAt"`
-	UpdatedAt  string `json:"updatedAt"`
-	HeadBranch string `json:"headBranch"`
-	HeadSha    string `json:"headSha"`
-	Url        string `json:"url"`
+	DatabaseId   uint64 `json:"databaseId"`
+	Name         string `json:"name"`
+	Status       string `json:"status"`
+	Conclusion   string `json:"conclusion"`
+	CreatedAt    string `json:"createdAt"`
+	UpdatedAt    string `json:"updatedAt"`
+	HeadBranch   string `json:"headBranch"`
+	HeadSha      string `json:"headSha"`
+	Url          string `json:"url"`
+	DisplayTitle string `json:"displayTitle,omitempty"`
+	Event        string `json:"event,omitempty"`
 }
 
 // runPipeline is the entry point for the gitmap pipeline command group.
