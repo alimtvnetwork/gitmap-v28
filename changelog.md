@@ -2432,6 +2432,12 @@ PowerShell: `Invoke-WebRequest -Uri https://raw.githubusercontent.com/alimtvnetw
 
 # Changelog
 
+## [v6.287.0] - 2026-09-21
+
+### Added
+- feat(aum): fix search channel deadlock, add scoped search guidance, and improve llm train learning protocol
+
+
 ## [v6.286.0] - 2026-09-21
 
 ### Added

@@ -86,22 +86,25 @@ The curriculum outputs an explicit sequence of discovery commands designed to be
 
 | Step | Command Line | Target Capability Explored | Why It Matters for AI Agents |
 |---|---|---|---|
-| **1** | `gitmap aum search --help` | Multi-core streaming search | Avoids scanning entire directory trees; uses compiled Go regex |
-| **2** | `gitmap aum guard` | Repository blob and file size limits | Prevents reading or generating oversized files (>500 KB, Rule R19) |
-| **3** | `gitmap aum sequence --help` | Markdown sequence & title validator | Ensures continuous document numbering without missing gaps |
-| **4** | `gitmap aum exclude list` | Persistent search exclusions | Queries SQLite for patterns excluded from automated scans |
-| **5** | `gitmap pipeline-ai status --json` | Remote CI workflow state & ETA | Enables non-blocking self-healing loop without polling |
-| **6** | `gitmap install --list` | Developer toolchains & runtimes | Discovers available compilers, profiles, and runtime packages |
-| **7** | `gitmap cluster --help` | Multi-node SSH & cluster delegation | Understands how to delegate tasks across remote worker nodes |
-| **8** | `gitmap cargo status` | Rust & Cargo toolchain status | Verifies Rust toolchain availability with auto-install suggestions |
-| **9** | `gitmap db status` | Repository SQLite database health | Inspects split-db storage status and table metrics |
+| **1** | `gitmap aum search "func Run" cli --ext .go` | Scoped multi-core search | Requires `[dir]` and `--ext` scoping; strictly bans unscoped searches like `gitmap aum search "train"` |
+| **2** | `gitmap aum locate vcvars` | Fast tool locator (<15ms) | Ultra-fast native toolchain resolution replacing slow PowerShell recursive scans |
+| **3** | `gitmap aum guard` | Repository blob and file size limits | Prevents reading or generating oversized files (>500 KB, Rule R19) |
+| **4** | `gitmap aum sequence --help` | Markdown sequence & title validator | Ensures continuous document numbering without missing gaps |
+| **5** | `gitmap aum exclude list` | Persistent search exclusions | Queries SQLite for patterns excluded from automated scans |
+| **6** | `gitmap pipeline-ai status --json` | Remote CI workflow state & ETA | Enables non-blocking self-healing loop without polling |
+| **7** | `gitmap install --list` | Developer toolchains & runtimes | Discovers available compilers, profiles, and runtime packages |
+| **8** | `gitmap cluster --help` | Multi-node SSH & cluster delegation | Understands how to delegate tasks across remote worker nodes |
+| **9** | `gitmap cargo status` | Rust & Cargo toolchain status | Verifies Rust toolchain availability with auto-install suggestions |
+| **10** | `gitmap db status` | Repository SQLite database health | Inspects split-db storage status and table metrics |
 
 ### Stage 4: Operational Best Practices & Guardrail Directives
 1. **Mandatory Pre-Flight Pull:** Always run `git pull` before modifying code.
-2. **File Size Limit (Rule R19):** Single files must not exceed 500 KB; oversized JSONs must be excluded.
-3. **Universal AppError Return Envelope:** Functions return `*apperror.AppError` or `result.Result[T]`; zero swallowed errors.
-4. **Clean Git Tree (Rule R18):** Never commit generated test binaries, build artifacts, or temporary logs.
-5. **Semantic Commits:** Use `gitmap cpf` (feature), `gitmap cpb` (bugfix), or `gitmap cpr` (release).
+2. **Learning Protocol:** Run `gitmap llm train` or `gitmap llm-docs` to learn capabilities. Do NOT run unconstrained repository searches like `gitmap aum search "train"` to find learning materials or docs.
+3. **Scoped Search Hygiene:** Always scope `gitmap aum search` with target `[dir]` and `--ext` filters.
+4. **File Size Limit (Rule R19):** Single files must not exceed 500 KB; oversized JSONs must be excluded.
+5. **Universal AppError Return Envelope:** Functions return `*apperror.AppError` or `result.Result[T]`; zero swallowed errors.
+6. **Clean Git Tree (Rule R18):** Never commit generated test binaries, build artifacts, or temporary logs.
+7. **Semantic Commits:** Use `gitmap cpf` (feature), `gitmap cpb` (bugfix), or `gitmap cpr` (release).
 
 ---
 

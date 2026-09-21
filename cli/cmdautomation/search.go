@@ -110,18 +110,28 @@ func dispatchSearchWorkers(files []string, opts SearchOptions) []SearchMatch {
 	results := make(chan []SearchMatch, opts.Workers)
 	var wg sync.WaitGroup
 
+	startSearchWorkers(&wg, jobs, results, opts)
+	feedSearchJobs(jobs, files)
+	go waitAndCloseResults(&wg, results)
+
+	return gatherSearchResults(results)
+}
+
+func startSearchWorkers(wg *sync.WaitGroup, jobs <-chan string, results chan<- []SearchMatch, opts SearchOptions) {
 	for i := 0; i < opts.Workers; i++ {
 		wg.Add(1)
-		go searchWorkerRoutine(jobs, results, opts, &wg)
+		go searchWorkerRoutine(jobs, results, opts, wg)
 	}
+}
 
+func feedSearchJobs(jobs chan<- string, files []string) {
 	for _, f := range files {
 		jobs <- f
 	}
 	close(jobs)
+}
 
+func waitAndCloseResults(wg *sync.WaitGroup, results chan<- []SearchMatch) {
 	wg.Wait()
 	close(results)
-
-	return gatherSearchResults(results)
 }

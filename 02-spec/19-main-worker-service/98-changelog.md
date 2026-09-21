@@ -1,3 +1,9 @@
+## v6.287.0 — 2026-09-21 (feat(aum): fix search channel deadlock, add scoped search guidance, and improve llm train learning protocol)
+
+**Scope:** Version bump. feat(aum): fix search channel deadlock, add scoped search guidance, and improve llm train learning protocol.
+
+---
+
 ## v6.286.0 — 2026-09-21 (feat(test): smart incremental Go test runner, priority CLI help, and fix pipeline recorder unused functions)
 
 **Scope:** Version bump. feat(test): smart incremental Go test runner, priority CLI help, and fix pipeline recorder unused functions.

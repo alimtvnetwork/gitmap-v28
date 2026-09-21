@@ -54,3 +54,18 @@ func TestGenerateSkillFile(t *testing.T) {
 		t.Errorf("expected 'gitmap aum search' in skill file")
 	}
 }
+
+func TestRunTrainHelp(t *testing.T) {
+	err := RunTrain([]string{"--help"})
+	if err != nil {
+		t.Fatalf("expected nil error for RunTrain --help, got: %v", err)
+	}
+}
+
+func TestRunLlmHelp(t *testing.T) {
+	err := Run([]string{"--help"})
+	if err != nil {
+		t.Fatalf("expected nil error for Run --help, got: %v", err)
+	}
+}
+

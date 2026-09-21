@@ -210,18 +210,47 @@ func isTrainCommand(arg string) bool {
 }
 
 func runDefaultLlm(args []string) *apperror.AppError {
-	fs := flag.NewFlagSet("llm", flag.ExitOnError)
-	isUrl := fs.Bool("url", false, "Output the URL to the LLM spec")
-	isInstruction := fs.Bool("instruction", false, "Output the full markdown instructions")
-
-	if err := fs.Parse(args); err != nil {
-		return apperror.WrapSimple(err, "parse flags")
+	isUrl, isHelp, err := parseDefaultLlmFlags(args)
+	if err != nil {
+		return err
 	}
-	if *isUrl {
+	if isHelp {
+		return nil
+	}
+	if isUrl {
 		fmt.Println(PublicLlmSpecURL)
+
 		return nil
 	}
 	fmt.Print(llmMarkdownSpec)
-	_ = isInstruction
+
 	return nil
+}
+
+func parseDefaultLlmFlags(args []string) (bool, bool, *apperror.AppError) {
+	fs := flag.NewFlagSet("llm", flag.ContinueOnError)
+	fs.Usage = printLlmUsage
+	isUrl := fs.Bool("url", false, "Output the URL to the LLM spec")
+	_ = fs.Bool("instruction", false, "Output the full markdown instructions")
+
+	err := fs.Parse(args)
+	if err == flag.ErrHelp {
+		return false, true, nil
+	}
+	if err != nil {
+		return false, false, apperror.WrapSimple(err, "parse flags")
+	}
+
+	return *isUrl, false, nil
+}
+
+func printLlmUsage() {
+	fmt.Println("Usage: gitmap llm [command] [flags]")
+	fmt.Println()
+	fmt.Println("Commands:")
+	fmt.Println("  train, chain     Autonomous LLM training & chained discovery curriculum")
+	fmt.Println()
+	fmt.Println("Flags:")
+	fmt.Println("  -instruction     Output the full markdown instructions")
+	fmt.Println("  -url             Output the URL to the LLM spec")
 }
