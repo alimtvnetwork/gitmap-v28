@@ -61,7 +61,7 @@ func dispatchNodeSSH(ctx context.Context, sub string, args []string, parent *cob
 		return resHist
 	}
 	switch sub {
-	case "join", "sj":
+	case "join", "sj", "add":
 		return result.MatchWrapper(RunSSHJoinCLI(args))
 	case "nodes", "node", "ls":
 		return result.MatchWrapper(RunSSHNodesCLI(ctx, args))

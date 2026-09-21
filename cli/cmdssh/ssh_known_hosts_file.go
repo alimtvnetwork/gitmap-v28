@@ -7,6 +7,7 @@ import (
 	"database/sql"
 	"encoding/base64"
 	"fmt"
+	"net"
 	"os"
 	"path/filepath"
 	"strings"
@@ -102,19 +103,29 @@ func AppendKnownHostFile(path string, host string, keyType string, pubKey string
 	return err
 }
 
+func stripHostPort(addr string) string {
+	clean := strings.Trim(addr, "[]")
+	if host, _, err := net.SplitHostPort(clean); err == nil {
+		return host
+	}
+
+	return clean
+}
+
 func isMatchingHostLine(line, target string) bool {
 	fields := strings.Fields(line)
 	if len(fields) < 1 {
 		return false
 	}
+
+	cleanTarget := stripHostPort(target)
 	hosts := strings.Split(fields[0], ",")
 	for _, h := range hosts {
-		clean := strings.Trim(h, "[]")
-		cleanTarget := strings.Trim(target, "[]")
-		if strings.EqualFold(clean, cleanTarget) {
+		if strings.EqualFold(stripHostPort(h), cleanTarget) {
 			return true
 		}
 	}
+
 	return false
 }
 

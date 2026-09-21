@@ -22,7 +22,7 @@ func hasYesFlag(args []string) bool {
 }
 
 func askRemovalConfirmation(candidates []store.SSHHost, isForced bool) bool {
-	if isForced {
+	if isForced || !isInteractiveTerminal() {
 		return true
 	}
 

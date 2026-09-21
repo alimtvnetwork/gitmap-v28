@@ -40,3 +40,27 @@ func TestConnectWithDefaultKey_Unreachable(t *testing.T) {
 		t.Errorf("expected connection failure on TEST-NET IP")
 	}
 }
+
+func TestFormatDisplayPublicKey_Unmasked(t *testing.T) {
+	sampleKey := "ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAIExampleKeyBlobForTesting123456789 user@host"
+	displayedNonRaw := formatDisplayPublicKey(sampleKey, false)
+	if displayedNonRaw != sampleKey {
+		t.Errorf("expected full unmasked key, got: %s", displayedNonRaw)
+	}
+
+	displayedRaw := formatDisplayPublicKey(sampleKey, true)
+	if displayedRaw != sampleKey {
+		t.Errorf("expected full unmasked key with raw flag, got: %s", displayedRaw)
+	}
+
+	if strings.Contains(displayedNonRaw, "redacted") {
+		t.Errorf("expected key never to be redacted")
+	}
+}
+
+func TestDispatchNodeSSH_Add(t *testing.T) {
+	res := dispatchNodeSSH(nil, "add", []string{"invalid-target"}, nil)
+	if !res.IsMatched() {
+		t.Errorf("expected 'add' subcommand to match in dispatchNodeSSH")
+	}
+}

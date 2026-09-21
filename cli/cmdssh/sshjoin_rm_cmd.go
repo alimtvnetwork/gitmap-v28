@@ -59,11 +59,18 @@ func executeTargetNodeRm(target string, flags []string) error {
 	return executeNodeDeletion(ctx, ActionRmNode, target, candidates)
 }
 
+func handleEmptyRm(ctx context.Context, args []string) error {
+	if !isInteractiveTerminal() {
+		return apperror.NewValidationError("missing target for rm command")
+	}
+
+	return promptInteractiveRM(ctx, args)
+}
+
 func runSJRm(cmd *cobra.Command, args []string, ctx context.Context) error {
 	_ = cmd
-	hasArgs := len(args) > 0
-	if !hasArgs {
-		return promptInteractiveRM(ctx, args)
+	if len(args) == 0 {
+		return handleEmptyRm(ctx, args)
 	}
 
 	target, flags := parseRmTokens(args)

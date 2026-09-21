@@ -219,11 +219,15 @@ func executeSSHLoginWithPassword(ctx context.Context, target string, explicitPas
 	if err != nil {
 		return err
 	}
+
 	checkAndResolveIP(ctx, target, sshTarget)
 	if err := checkAndResolveAlias(ctx, target, sshTarget); err != nil {
 		return err
 	}
+
+	autoTrustTargetHost(ctx, sshTarget)
 	password := resolvePassword(ctx, target, sshTarget, explicitPass)
+
 	return spawnSSHFn(ctx, *sshTarget, nil, password)
 }
 

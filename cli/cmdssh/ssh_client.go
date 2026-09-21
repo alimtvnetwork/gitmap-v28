@@ -28,10 +28,14 @@ type InteractiveSSHClient struct {
 func executeClientCmd(cmd *exec.Cmd, op string, ctx map[string]any) error {
 	if err := cmd.Run(); err != nil {
 		return &apperror.AppError{
-			Op:    op,
-			Code:  "E_INTERNAL_ERROR",
-			Cause: err,
-			Ctx:   ctx,
+			Op:       op,
+			Code:     "E_INTERNAL_ERROR",
+			Type:     apperror.ErrorTypeExecution,
+			Severity: apperror.SeverityError,
+			Cause:    err,
+			Caller:   apperror.CaptureCaller(apperror.DefaultCallerSkip),
+			Stack:    apperror.CaptureStackTrace(apperror.DefaultStackTraceSkip),
+			Ctx:      ctx,
 		}
 	}
 

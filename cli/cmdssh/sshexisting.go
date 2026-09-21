@@ -8,6 +8,7 @@ package cmdssh
 import (
 	"fmt"
 	"os"
+	"strings"
 	"time"
 
 	"github.com/alimtvnetwork/gitmap-v28/cli/apperror"
@@ -66,6 +67,7 @@ func printExistingKeyOnDisk(db *store.DB, name, keyPath, host string) {
 	fingerprint := readFingerprint(keyPath)
 	printExistingKeyDetails(keyPath, fingerprint, host)
 	printExistingKeyPublic(string(pub), hasRawFlag(os.Args))
+	copyPubKeyAndAnnounce(strings.TrimSpace(string(pub)))
 	upsertExistingKeyToDB(db, name, keyPath, string(pub), fingerprint)
 }
 

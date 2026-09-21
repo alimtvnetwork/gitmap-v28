@@ -112,12 +112,14 @@ PowerShell: `Invoke-WebRequest -Uri https://raw.githubusercontent.com/alimtvnetw
 
 ### Added / Changed / Fixed / Removed
 
-- Fixed CI/CD compilation and lint: resolved unused strings imports and eliminated duplicate SJRmCmd declaration in cmdssh
-- Fixed Error Management Policy Check: eliminated swallowed SQLite execution error in openSSHHistoryDB with proper apperror.WrapSimple
-- Fixed test suites: added resolveRmTarget and validateRmTarget in cli/cmdssh/ssh_rm_target.go for sshjoin_rm_cmd_test.go
-- Fixed gitmap pe stack trace leak: removed Go runtime stack trace capture from formatGHFailedError and buildGHFailedErrorMessage
-- Fixed golangci-lint strict: removed unused checkHelp in cli/cmdssh/ssh_help_check.go and unused apperror import in cli/cmdpipeline/pipeline_query.go
-- Documented 4-part Root Cause Analysis in .ai-memory/cicd-issues/72-ssh-build-failures-and-pe-stacktrace-rca.md
+- Fixed SSH join routing: routed 'add' subcommand to RunSSHJoinCLI to support 'gitmap ssh add <user@ip> <alias>'
+- Restored unmasked public key display: formatDisplayPublicKey unconditionally outputs full key, and printExistingKeyOnDisk copies to OS clipboard
+- Added Memory Rule: enforced TOTAL BAN in .ai-memory/strictly-avoid.md against public key masking and clipboard omission
+- Fixed Known Hosts verification: auto-purged stale host keys in known_hosts during join and login to prevent 'REMOTE HOST IDENTIFICATION HAS CHANGED'
+- Fixed SSH Password & PAM Auth: supported keyboard-interactive authentication alongside password and enforced auth check before reporting join success
+- Preserved Error Stack Traces: populated Stack and Caller in executeClientCmd and enabled stack trace output on E_INTERNAL_ERROR
+- Fixed SSH node list and removal: used openSSHDBFunc in fetchSJHosts and auto-confirmed removal in non-interactive terminals
+- Documented 4-part Root Cause Analysis in .ai-memory/issues/16-ssh-join-hostkey-and-auth-rca.md
 """
     # Prepend directly at the top of changelog.md
     lines.insert(0, entry + "\n")
@@ -142,12 +144,14 @@ curl -fsSL https://github.com/alimtvnetwork/gitmap-v28/releases/download/v{new_v
 
 ## Changelog v{new_version}
 
-- Fixed CI/CD compilation and lint: resolved unused strings imports and eliminated duplicate SJRmCmd declaration in cmdssh
-- Fixed Error Management Policy Check: eliminated swallowed SQLite execution error in openSSHHistoryDB with proper apperror.WrapSimple
-- Fixed test suites: added resolveRmTarget and validateRmTarget in cli/cmdssh/ssh_rm_target.go for sshjoin_rm_cmd_test.go
-- Fixed gitmap pe stack trace leak: removed Go runtime stack trace capture from formatGHFailedError and buildGHFailedErrorMessage
-- Fixed golangci-lint strict: removed unused checkHelp in cli/cmdssh/ssh_help_check.go and unused apperror import in cli/cmdpipeline/pipeline_query.go
-- Documented 4-part Root Cause Analysis in .ai-memory/cicd-issues/72-ssh-build-failures-and-pe-stacktrace-rca.md
+- Fixed SSH join routing: routed 'add' subcommand to RunSSHJoinCLI to support 'gitmap ssh add <user@ip> <alias>'
+- Restored unmasked public key display: formatDisplayPublicKey unconditionally outputs full key, and printExistingKeyOnDisk copies to OS clipboard
+- Added Memory Rule: enforced TOTAL BAN in .ai-memory/strictly-avoid.md against public key masking and clipboard omission
+- Fixed Known Hosts verification: auto-purged stale host keys in known_hosts during join and login to prevent 'REMOTE HOST IDENTIFICATION HAS CHANGED'
+- Fixed SSH Password & PAM Auth: supported keyboard-interactive authentication alongside password and enforced auth check before reporting join success
+- Preserved Error Stack Traces: populated Stack and Caller in executeClientCmd and enabled stack trace output on E_INTERNAL_ERROR
+- Fixed SSH node list and removal: used openSSHDBFunc in fetchSJHosts and auto-confirmed removal in non-interactive terminals
+- Documented 4-part Root Cause Analysis in .ai-memory/issues/16-ssh-join-hostkey-and-auth-rca.md
 """
     os.makedirs(os.path.dirname(notes_path), exist_ok=True)
     with open(notes_path, "w", encoding="utf-8") as f:

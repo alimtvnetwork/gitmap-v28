@@ -22,6 +22,7 @@ import (
 
 type enrollSession struct {
 	client    *ssh.Client
+	err       error
 	osType    string
 	osVersion string
 	hasClient bool
@@ -74,14 +75,23 @@ func dialNodeWithSigner(target *SSHTarget, signer ssh.Signer) *ssh.Client {
 	return client
 }
 
-func dialNodeWithPassword(target *SSHTarget, pass string) *ssh.Client {
-	config := newAutoAcceptHostKeyConfig(target.Username, []ssh.AuthMethod{ssh.Password(pass)})
+func buildKeyboardInteractiveAuth(pass string) ssh.AuthMethod {
+	return ssh.KeyboardInteractive(func(user, instruction string, questions []string, echos []bool) ([]string, error) {
+		answers := make([]string, len(questions))
+		for i := range answers {
+			answers[i] = pass
+		}
+
+		return answers, nil
+	})
+}
+
+func dialNodeWithPassword(target *SSHTarget, pass string) (*ssh.Client, error) {
+	auths := []ssh.AuthMethod{ssh.Password(pass), buildKeyboardInteractiveAuth(pass)}
+	config := newAutoAcceptHostKeyConfig(target.Username, auths)
 	addr := net.JoinHostPort(target.IP, strconv.Itoa(resolveHealthPort(target.Port)))
-	client, err := ssh.Dial("tcp", addr, config)
-	if err != nil {
-		return nil
-	}
-	return client
+
+	return ssh.Dial("tcp", addr, config)
 }
 
 func tryConnectDefaultKey(target *SSHTarget) *ssh.Client {
@@ -106,12 +116,12 @@ func promptUserPassword(ctx context.Context, target *SSHTarget) string {
 }
 
 func connectWithGivenPass(target *SSHTarget, pass string) enrollSession {
-	client := dialNodeWithPassword(target, pass)
+	client, err := dialNodeWithPassword(target, pass)
 	hasClient := client != nil
 	osType := probeRemoteOSType(client)
 	osVersion := probeRemoteOSVersion(client, osType)
 
-	return enrollSession{client: client, hasClient: hasClient, osType: osType, osVersion: osVersion}
+	return enrollSession{client: client, hasClient: hasClient, osType: osType, osVersion: osVersion, err: err}
 }
 
 func promptAndConnectTarget(ctx context.Context, opts *SSHJoinOptions) enrollSession {
@@ -154,19 +164,31 @@ func detectAndConnectAuth(ctx context.Context, opts *SSHJoinOptions) enrollSessi
 	return promptAndConnectTarget(ctx, opts)
 }
 
+func resolveTargetAddr(target *SSHTarget) string {
+	hasCustomPort := target.Port > 0 && target.Port != 22
+	if hasCustomPort {
+		return net.JoinHostPort(target.IP, strconv.Itoa(target.Port))
+	}
+
+	return target.IP
+}
+
 func autoTrustTargetHost(ctx context.Context, target *SSHTarget) {
-	isNil := target == nil
+	isNil := target == nil || target.IP == ""
 	if isNil {
 		return
 	}
+
+	addr := resolveTargetAddr(target)
 	dbConn, err := openSSHDBFunc()
 	if err != nil {
-		_, _ = TrustRemoteTarget(ctx, target.IP, "", nil)
+		_, _ = TrustRemoteTarget(ctx, addr, "", nil)
 
 		return
 	}
+
 	defer dbConn.Close()
-	_, _ = TrustRemoteTarget(ctx, target.IP, "", dbConn.SQL())
+	_, _ = TrustRemoteTarget(ctx, addr, "", dbConn.SQL())
 }
 
 func resolveTargetClient(ctx context.Context, opts *SSHJoinOptions) enrollSession {
@@ -333,20 +355,43 @@ func performConnectedBootstrap(session enrollSession, opts *SSHJoinOptions) *app
 	return nil
 }
 
-func ExecuteSSHJoinEnrollment(ctx context.Context, opts *SSHJoinOptions) error {
-	if opts.Target == nil {
-		return apperror.NewValidationError(msgMissingJoinTarget)
+func checkEnrollAuth(opts *SSHJoinOptions, session enrollSession) error {
+	isFailedAuth := opts.Password != "" && !session.hasClient && session.err != nil
+	if isFailedAuth {
+		fmt.Fprintf(os.Stderr, "  ⚠ Failed to authenticate with remote machine: %v\n", session.err)
+
+		return apperror.WrapSimple(session.err, "ExecuteSSHJoinEnrollment.auth")
 	}
-	session := resolveTargetClient(ctx, opts)
+
+	return nil
+}
+
+func finalizeEnrollment(ctx context.Context, opts *SSHJoinOptions, session enrollSession) error {
 	if err := persistEnrollmentDual(ctx, opts, session.osType, session.osVersion); err != nil {
 		return err
 	}
+
 	_ = performConnectedBootstrap(session, opts)
 	if err := pushAuthIfRequested(ctx, opts); err != nil {
 		return apperror.WrapSimple(err, "pushAuthIfRequested")
 	}
+
 	printEnrollSuccess(opts.Alias, opts.Target.String())
+
 	return nil
+}
+
+func ExecuteSSHJoinEnrollment(ctx context.Context, opts *SSHJoinOptions) error {
+	if opts.Target == nil {
+		return apperror.NewValidationError(msgMissingJoinTarget)
+	}
+
+	session := resolveTargetClient(ctx, opts)
+	if err := checkEnrollAuth(opts, session); err != nil {
+		return err
+	}
+
+	return finalizeEnrollment(ctx, opts, session)
 }
 
 func ExecuteEnrollmentCompletion(ctx context.Context, opts *SSHJoinOptions) error {

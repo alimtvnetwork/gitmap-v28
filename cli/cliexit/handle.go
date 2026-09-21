@@ -131,7 +131,7 @@ func isStackTraceEnabled(e *apperror.AppError) bool {
 		return true
 	}
 
-	isFatal := e.Code == "E9000" || e.Type == apperror.ErrorTypeExecution || e.Severity == apperror.SeverityFatal
+	isFatal := e.Code == "E9000" || e.Code == "E_INTERNAL_ERROR" || e.Type == apperror.ErrorTypeExecution || e.Severity == apperror.SeverityFatal
 	if isFatal {
 		return true
 	}

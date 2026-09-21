@@ -29,7 +29,10 @@ func buildAskPassScriptContent() string {
 func resolveAskPassTempPath() string {
 	ts := time.Now().UnixNano()
 	filename := fmt.Sprintf("gitmap-askpass-%d%s", ts, getAskPassScriptExt())
-	return filepath.Join(os.TempDir(), filename)
+	baseDir := filepath.Join(os.TempDir(), "gitmap", "ssh")
+	_ = os.MkdirAll(baseDir, 0700)
+
+	return filepath.Join(baseDir, filename)
 }
 
 func writeAskPassScript(targetPath string, content string) error {

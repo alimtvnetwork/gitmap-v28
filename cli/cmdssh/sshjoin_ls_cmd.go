@@ -36,7 +36,7 @@ func runSJLs(cmd *cobra.Command, args []string, ctx context.Context) error {
 }
 
 func fetchSJHosts(ctx context.Context) ([]store.SSHHost, error) {
-	dbConn, err := store.OpenDefault()
+	dbConn, err := openSSHDBFunc()
 	if err != nil {
 		return nil, apperror.WrapSimple(err, "fetchSJHosts_OpenDB")
 	}

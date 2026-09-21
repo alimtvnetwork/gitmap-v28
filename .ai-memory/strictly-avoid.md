@@ -491,3 +491,22 @@ Allowed work:
 - ✅ Inspect `res.AppError()` or `res.Err` only when concrete `*apperror.AppError` pointer is required.
 
 **Why:** In Go, `(error)((*apperror.AppError)(nil)) != nil` evaluates to `true`, causing false-positive errors on successful commands. Additionally, `errname` linter flags non-Error types implementing `Error() string`.
+
+---
+
+## SSH Public Key Masking & Clipboard Omission — TOTAL BAN
+
+🔴 **NEVER mask, redact, truncate, or censor SSH public keys, and NEVER omit automatic clipboard copying when `gitmap ssh` (or related SSH key inspection commands) is invoked.**
+
+Forbidden:
+- ❌ Masking public key blobs with `...[redacted, pass --raw to view]...` or similar redaction strings.
+- ❌ Hiding or truncating public keys in `gitmap ssh`, `gitmap ssh cat`, or `gitmap ssh copy`.
+- ❌ Requiring `--raw` or `-r` flags just to view the real public key.
+- ❌ Omitting automatic copying of the full public key to the OS clipboard (`clip`, `pbcopy`, `xclip`, `wl-copy`) on `gitmap ssh`.
+
+Allowed work:
+- ✅ Always display the full, unredacted public key directly on stdout when `gitmap ssh` is executed.
+- ✅ Always automatically copy the full public key to the system clipboard and announce it to the user.
+
+**Why:** Public keys are designed to be shared openly (e.g. pasted into GitHub, GitLab, or remote authorized_keys). Masking them breaks automated scripts, confuses developers, and forces unnecessary manual steps.
+
