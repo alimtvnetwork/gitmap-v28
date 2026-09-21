@@ -1,7 +1,11 @@
 package cmdpipeline
 
 import (
+	"encoding/json"
+	"os"
+	"path/filepath"
 	"testing"
+	"time"
 
 	"github.com/alimtvnetwork/gitmap-v28/cli/pipelinedb"
 )
@@ -84,5 +88,58 @@ func TestEvaluatePipelineErrorsCache_ForceBypass(t *testing.T) {
 	}
 	if decision.Reason != "bypassed" {
 		t.Errorf("expected reason bypassed, got %s", decision.Reason)
+	}
+}
+
+func TestCheckTtlCacheHit_WithFreshSyncMeta(t *testing.T) {
+	tempDir := t.TempDir()
+	dbPath := filepath.Join(tempDir, "sql.db")
+	_ = os.WriteFile(dbPath, []byte("sqlite"), 0644)
+	syncMeta := PipelineCacheSyncMeta{
+		FetchedAt: time.Now().UTC(),
+		RunCount:  3,
+	}
+	data, _ := json.Marshal(syncMeta)
+	_ = os.WriteFile(filepath.Join(tempDir, "cache_sync.json"), data, 0644)
+
+	if isHit := checkTtlCacheHit(dbPath); isHit == false {
+		t.Errorf("expected cache hit for fresh sync meta within 5s")
+	}
+}
+
+func TestCheckTtlCacheHit_WithExpiredSyncMeta(t *testing.T) {
+	tempDir := t.TempDir()
+	dbPath := filepath.Join(tempDir, "sql.db")
+	_ = os.WriteFile(dbPath, []byte("sqlite"), 0644)
+	syncMeta := PipelineCacheSyncMeta{
+		FetchedAt: time.Now().UTC().Add(-10 * time.Second),
+		RunCount:  3,
+	}
+	data, _ := json.Marshal(syncMeta)
+	_ = os.WriteFile(filepath.Join(tempDir, "cache_sync.json"), data, 0644)
+
+	if isHit := checkTtlCacheHit(dbPath); isHit {
+		t.Errorf("expected cache miss for expired sync meta (10s old)")
+	}
+}
+
+func TestCheckTtlCacheHit_FallbackDbStat(t *testing.T) {
+	tempDir := t.TempDir()
+	dbPath := filepath.Join(tempDir, "sql.db")
+	_ = os.WriteFile(dbPath, []byte("sqlite"), 0644)
+
+	if isHit := checkTtlCacheHit(dbPath); isHit == false {
+		t.Errorf("expected cache hit for newly created db file fallback")
+	}
+}
+
+func TestWriteAndReadCacheSyncMeta(t *testing.T) {
+	tempDir := t.TempDir()
+	dbPath := filepath.Join(tempDir, "sql.db")
+	runs := []ghRunItem{{DatabaseId: 123, HeadSha: "abc"}}
+	writeCacheSyncMeta(dbPath, runs)
+	meta, isFound := readCacheSyncMeta(filepath.Join(tempDir, "cache_sync.json"))
+	if isFound == false || meta.RunCount != 1 || meta.FetchedSha != "abc" {
+		t.Errorf("expected sync meta to be written and read successfully")
 	}
 }

@@ -129,3 +129,39 @@ func TestAppendClipboardFailureTree(t *testing.T) {
 		t.Errorf("missing workflow in clipboard tree: %s", out)
 	}
 }
+
+func TestBuildCommitGroupFailureTree_NilOrNoFailures(t *testing.T) {
+	if res := BuildCommitGroupFailureTree("repo", nil, false); len(res) > 0 {
+		t.Errorf("expected empty string for nil group, got: %s", res)
+	}
+
+	group := &CommitPipelineGroup{
+		HeadSha: "abcdef123456",
+		Workflows: []CommitWorkflowItem{
+			{Name: "CI", Conclusion: "success"},
+		},
+	}
+	if res := BuildCommitGroupFailureTree("repo", group, false); len(res) > 0 {
+		t.Errorf("expected empty string for passing group, got: %s", res)
+	}
+}
+
+func TestBuildCommitGroupFailureTree_WithFailingWorkflow(t *testing.T) {
+	group := &CommitPipelineGroup{
+		HeadSha: "abcdef123456",
+		Workflows: []CommitWorkflowItem{
+			{Name: "CI", DatabaseId: 999, Conclusion: "failure"},
+			{Name: "Lint", DatabaseId: 1000, Conclusion: "success"},
+		},
+	}
+	res := BuildCommitGroupFailureTree("repo", group, false)
+	if !strings.Contains(res, "FAILED PIPELINE CHECKS TREE:") {
+		t.Errorf("expected tree header, got: %s", res)
+	}
+	if !strings.Contains(res, "CI (#999)") {
+		t.Errorf("expected failing workflow in tree, got: %s", res)
+	}
+	if strings.Contains(res, "Lint") {
+		t.Errorf("expected passing workflow to be omitted from tree, got: %s", res)
+	}
+}

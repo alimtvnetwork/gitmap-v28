@@ -2432,6 +2432,12 @@ PowerShell: `Invoke-WebRequest -Uri https://raw.githubusercontent.com/alimtvnetw
 
 # Changelog
 
+## [v6.290.0] - 2026-09-21
+
+### Added
+- fix(pipeline): decouple cache TTL with sync manifest, render commit failure sub-tree, and omit passing workflows
+
+
 ## [v6.289.0] - 2026-09-21
 
 ### Added

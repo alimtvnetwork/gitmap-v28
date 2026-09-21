@@ -1,3 +1,9 @@
+## v6.290.0 — 2026-09-21 (fix(pipeline): decouple cache TTL with sync manifest, render commit failure sub-tree, and omit passing workflows)
+
+**Scope:** Version bump. fix(pipeline): decouple cache TTL with sync manifest, render commit failure sub-tree, and omit passing workflows.
+
+---
+
 ## v6.289.0 — 2026-09-21 (fix(pipeline): display in-progress job failures immediately, render failed checks tree view, isolate TestPersistErrorReport, and fix Go compile gate)
 
 **Scope:** Version bump. fix(pipeline): display in-progress job failures immediately, render failed checks tree view, isolate TestPersistErrorReport, and fix Go compile gate.

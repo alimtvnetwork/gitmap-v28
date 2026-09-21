@@ -28,6 +28,7 @@ func recordInPipelineSplitDb(p PipelineStatusPayload, runs []ghRunItem) {
 	recordRunsToSplitDb(pipeDb, p, runs)
 	_, _, _ = pipeDb.PruneIfExceedsSize(0)
 	touchDbTimestamp(pipeDb.Path)
+	writeCacheSyncMeta(pipeDb.Path, runs)
 }
 
 // RecordFetchedRunsToSplitDb persists fresh workflow runs and failures into the repository SQLite split DB.
@@ -45,6 +46,7 @@ func RecordFetchedRunsToSplitDb(repo string, runs []ghRunItem) {
 	recordRunsToSplitDb(pipeDb, PipelineStatusPayload{Repo: repo}, runs)
 	_, _, _ = pipeDb.PruneIfExceedsSize(0)
 	touchDbTimestamp(pipeDb.Path)
+	writeCacheSyncMeta(pipeDb.Path, runs)
 }
 
 func touchDbTimestamp(dbPath string) {

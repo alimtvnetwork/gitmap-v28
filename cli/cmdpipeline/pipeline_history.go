@@ -11,6 +11,7 @@ import (
 	"github.com/alimtvnetwork/gitmap-v28/cli/apperror"
 	"github.com/alimtvnetwork/gitmap-v28/cli/constants"
 	"github.com/alimtvnetwork/gitmap-v28/cli/pipelinedb"
+	"github.com/atotto/clipboard"
 )
 
 func extractNegativeOffset(args []string) (int, bool) {
@@ -160,6 +161,13 @@ func renderPositionalCommitTerminal(repo string, runs []ghRunItem, groups []Comm
 	renderRecentCommitsSummaryToBuilder(&sb, groups, 5)
 	output := CollapseConsecutiveEmptyLines(sb.String())
 	fmt.Print(output)
+	copyPositionalReportToClipboard(output)
+}
+
+func copyPositionalReportToClipboard(terminalOutput string) {
+	cleanOutput := stripANSI(terminalOutput)
+	_ = clipboard.WriteAll(cleanOutput)
+	fmt.Printf("\n  %s📋 Copied positional pipeline error report to clipboard%s\n", constants.ColorCyan, constants.ColorReset)
 }
 
 func isCommitGroupFailure(group *CommitPipelineGroup) bool {
@@ -246,8 +254,17 @@ func renderFailingPositionalCommit(sb *strings.Builder, repo string, group *Comm
 	fmt.Fprintf(sb, "    • Branch:          %s\n", group.HeadBranch)
 	fmt.Fprintf(sb, "    • Status:          %s (conclusion: %s)\n", group.Status, group.Conclusion)
 	fmt.Fprintf(sb, "    • Total Duration:  %s\n", dur)
+	appendCommitGroupFailureTree(sb, repo, group)
 	renderFailingWorkflowsDiagnostics(sb, repo, group.Workflows)
-	renderPassingWorkflowsSummary(sb, group.Workflows)
+}
+
+func appendCommitGroupFailureTree(sb *strings.Builder, repo string, group *CommitPipelineGroup) {
+	tree := BuildCommitGroupFailureTree(repo, group, true)
+	if len(tree) > 0 {
+		sb.WriteString("\n")
+		sb.WriteString(tree)
+		sb.WriteString("\n")
+	}
 }
 
 func renderFailingWorkflowsDiagnostics(sb *strings.Builder, repo string, workflows []CommitWorkflowItem) {
@@ -261,19 +278,8 @@ func renderFailingWorkflowsDiagnostics(sb *strings.Builder, repo string, workflo
 func renderSingleFailingWorkflowLogs(sb *strings.Builder, repo string, wf CommitWorkflowItem) {
 	fmt.Fprintf(sb, "    • Failed Workflow: %s (#%d) - %s\n", wf.Name, wf.DatabaseId, wf.Url)
 	rawLogs := queryFailedRunLogs(repo, wf.DatabaseId)
-	renderFailedJobItemsToBuilder(sb, ParseFailedLogLines(rawLogs))
-}
-
-func renderPassingWorkflowsSummary(sb *strings.Builder, workflows []CommitWorkflowItem) {
-	var passingNames []string
-	for _, wf := range workflows {
-		if wf.Conclusion == "success" {
-			passingNames = append(passingNames, fmt.Sprintf("%s (#%d)", wf.Name, wf.DatabaseId))
-		}
-	}
-	if len(passingNames) > 0 {
-		fmt.Fprintf(sb, "    • Passing Workflows: %s\n\n", strings.Join(passingNames, ", "))
-	}
+	jobs := CorrelateRunFailedJobs(repo, wf.DatabaseId, rawLogs)
+	renderFailedJobItemsToBuilder(sb, jobs)
 }
 
 func renderFailedJobItemsToBuilder(sb *strings.Builder, jobs []FailedJobItem) {

@@ -1,13 +1,68 @@
 package cmdpipeline
 
 import (
+	"encoding/json"
 	"os"
+	"path/filepath"
 	"strings"
 	"time"
 
 	"github.com/alimtvnetwork/gitmap-v28/cli/config"
 	"github.com/alimtvnetwork/gitmap-v28/cli/pipelinedb"
 )
+
+// PipelineCacheSyncMeta tracks synchronization telemetry to evaluate cache freshness.
+type PipelineCacheSyncMeta struct {
+	FetchedAt  time.Time `json:"fetchedAt"`
+	FetchedSha string    `json:"fetchedSha,omitempty"`
+	RunCount   int       `json:"runCount"`
+}
+
+func resolveCacheSyncFilePath(dbPath string) string {
+	if len(dbPath) == 0 {
+		return ""
+	}
+
+	return filepath.Join(filepath.Dir(dbPath), "cache_sync.json")
+}
+
+func writeCacheSyncMeta(dbPath string, runs []ghRunItem) {
+	syncPath := resolveCacheSyncFilePath(dbPath)
+	if len(syncPath) == 0 {
+		return
+	}
+
+	meta := PipelineCacheSyncMeta{
+		FetchedAt: time.Now().UTC(),
+		RunCount:  len(runs),
+	}
+	if len(runs) > 0 {
+		meta.FetchedSha = runs[0].HeadSha
+	}
+
+	data, err := json.Marshal(meta)
+	if err == nil {
+		_ = os.WriteFile(syncPath, data, 0644)
+	}
+}
+
+func readCacheSyncMeta(syncPath string) (PipelineCacheSyncMeta, bool) {
+	if len(syncPath) == 0 {
+		return PipelineCacheSyncMeta{}, false
+	}
+
+	data, err := os.ReadFile(syncPath)
+	if err != nil || len(data) == 0 {
+		return PipelineCacheSyncMeta{}, false
+	}
+
+	var meta PipelineCacheSyncMeta
+	if err := json.Unmarshal(data, &meta); err != nil || meta.FetchedAt.IsZero() {
+		return PipelineCacheSyncMeta{}, false
+	}
+
+	return meta, true
+}
 
 // PipelineCacheDecision encapsulates the result of evaluating SQLite DB cache for pipeline telemetry.
 type PipelineCacheDecision struct {
@@ -67,24 +122,17 @@ func resolvePipelineCacheTTL() time.Duration {
 }
 
 func checkTtlCacheHit(dbPath string) bool {
+	syncPath := resolveCacheSyncFilePath(dbPath)
+	if meta, isFound := readCacheSyncMeta(syncPath); isFound {
+		return time.Since(meta.FetchedAt) < resolvePipelineCacheTTL()
+	}
+
 	info, err := os.Stat(dbPath)
 	if err != nil {
 		return false
 	}
 
-	modTime := resolveDbModTime(dbPath, info.ModTime())
-
-	return time.Since(modTime) < resolvePipelineCacheTTL()
-}
-
-func resolveDbModTime(dbPath string, defaultTime time.Time) time.Time {
-	walPath := dbPath + "-wal"
-	walInfo, err := os.Stat(walPath)
-	if err == nil && walInfo.ModTime().After(defaultTime) {
-		return walInfo.ModTime()
-	}
-
-	return defaultTime
+	return time.Since(info.ModTime()) < resolvePipelineCacheTTL()
 }
 
 func isRunCompleted(status, conclusion string) bool {
