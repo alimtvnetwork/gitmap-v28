@@ -1,3 +1,9 @@
+## v6.289.0 — 2026-09-21 (fix(pipeline): display in-progress job failures immediately, render failed checks tree view, isolate TestPersistErrorReport, and fix Go compile gate)
+
+**Scope:** Version bump. fix(pipeline): display in-progress job failures immediately, render failed checks tree view, isolate TestPersistErrorReport, and fix Go compile gate.
+
+---
+
 ## v6.288.0 — 2026-09-21 (fix(pipeline): enforce 5s TTL cache, fix chronological table ordering, and format train test)
 
 **Scope:** Version bump. fix(pipeline): enforce 5s TTL cache, fix chronological table ordering, and format train test.

@@ -57,11 +57,21 @@ func queryRunJobs(repo string, runId uint64) []ghJobItem {
 	}
 
 	jobs := parseGhJobsJSON(out)
-	if len(jobs) > 0 {
+	if len(jobs) > 0 && isAllJobsCompleted(jobs) {
 		_ = writeCachedPipelineJobs(runId, repo, jobs)
 	}
 
 	return jobs
+}
+
+func isAllJobsCompleted(jobs []ghJobItem) bool {
+	for _, j := range jobs {
+		if j.Status != "completed" {
+			return false
+		}
+	}
+
+	return true
 }
 
 func parseGhJobsJSON(data []byte) []ghJobItem {

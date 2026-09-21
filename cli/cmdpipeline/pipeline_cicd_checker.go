@@ -86,6 +86,11 @@ func resolveGitmapRoot() (string, string) {
 }
 
 func resolveGitmapDirFromRoot(root string) (string, string) {
+	cliMod := filepath.Join(root, "cli", "go.mod")
+	if _, err := os.Stat(cliMod); err == nil {
+		return root, filepath.Join(root, "cli")
+	}
+
 	gDir := filepath.Join(root, "gitmap")
 	if _, err := os.Stat(gDir); err == nil {
 		return root, gDir

@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"math"
 	"os"
+	"time"
 
 	"github.com/alimtvnetwork/gitmap-v28/cli/pipelinedb"
 	"github.com/alimtvnetwork/gitmap-v28/cli/store"
@@ -26,6 +27,7 @@ func recordInPipelineSplitDb(p PipelineStatusPayload, runs []ghRunItem) {
 
 	recordRunsToSplitDb(pipeDb, p, runs)
 	_, _, _ = pipeDb.PruneIfExceedsSize(0)
+	touchDbTimestamp(pipeDb.Path)
 }
 
 // RecordFetchedRunsToSplitDb persists fresh workflow runs and failures into the repository SQLite split DB.
@@ -42,6 +44,12 @@ func RecordFetchedRunsToSplitDb(repo string, runs []ghRunItem) {
 
 	recordRunsToSplitDb(pipeDb, PipelineStatusPayload{Repo: repo}, runs)
 	_, _, _ = pipeDb.PruneIfExceedsSize(0)
+	touchDbTimestamp(pipeDb.Path)
+}
+
+func touchDbTimestamp(dbPath string) {
+	now := time.Now()
+	_ = os.Chtimes(dbPath, now, now)
 }
 
 func recordRunsToSplitDb(pipeDb *pipelinedb.PipelineSplitDb, p PipelineStatusPayload, runs []ghRunItem) {

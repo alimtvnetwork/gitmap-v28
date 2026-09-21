@@ -2432,6 +2432,12 @@ PowerShell: `Invoke-WebRequest -Uri https://raw.githubusercontent.com/alimtvnetw
 
 # Changelog
 
+## [v6.289.0] - 2026-09-21
+
+### Added
+- fix(pipeline): display in-progress job failures immediately, render failed checks tree view, isolate TestPersistErrorReport, and fix Go compile gate
+
+
 ## [v6.288.0] - 2026-09-21
 
 ### Added

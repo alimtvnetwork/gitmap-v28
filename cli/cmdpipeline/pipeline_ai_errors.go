@@ -5,6 +5,42 @@ import (
 	"strings"
 )
 
+// AttachLivePipelineErrorsWithRuns inspects runs for the target commit and attaches live failure diagnostics.
+func AttachLivePipelineErrorsWithRuns(payload *PipelineStatusPayload, runs []ghRunItem) {
+	if payload == nil {
+		return
+	}
+
+	failingRun := findTargetCommitFailingRun(payload.Repo, runs)
+	if failingRun != nil {
+		jobs := queryRunJobs(payload.Repo, failingRun.DatabaseId)
+		payload.LastRunId = failingRun.DatabaseId
+		payload.LastConclusion = "failure"
+		populateLiveErrorDiagnostics(payload, jobs)
+
+		return
+	}
+
+	AttachLivePipelineErrors(payload)
+}
+
+func findTargetCommitFailingRun(repo string, runs []ghRunItem) *ghRunItem {
+	targetSha := resolveTargetCommitSha(runs)
+	for i := range runs {
+		if len(targetSha) > 0 && runs[i].HeadSha != targetSha {
+			continue
+		}
+		if isFailingConclusion(runs[i].Conclusion) {
+			return &runs[i]
+		}
+		if isRunActive(runs[i]) && hasActiveRunFailedJobs(repo, runs[i]) {
+			return &runs[i]
+		}
+	}
+
+	return nil
+}
+
 // AttachLivePipelineErrors inspects active running jobs and attaches failure diagnostics if any error occurred.
 func AttachLivePipelineErrors(payload *PipelineStatusPayload) {
 	if payload == nil || payload.LastRunId == 0 {

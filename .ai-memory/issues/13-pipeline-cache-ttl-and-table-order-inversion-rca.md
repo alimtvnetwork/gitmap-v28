@@ -46,16 +46,16 @@ In commit `2764db6`, `cli/cmd/llm/llm_train_test.go` was not formatted with `gof
 ## 3. Corrective Implementation
 
 1. **Enforce Strict 5s TTL in Cache Evaluation:**
-   - In [`cli/cmdpipeline/pipeline_cache_eval.go`](file:///d:/work/gitmap/cli/cmdpipeline/pipeline_cache_eval.go): Completely eliminated `checkLatestCompletedSuccessCacheHit`. If no target index is requested, cache hits are strictly restricted to `checkTtlCacheHit(db.Path)`. Once 5 seconds elapse, cache expires and fresh runs are queried from GitHub.
-   - In [`cli/cmdpipeline/pipeline_status.go`](file:///d:/work/gitmap/cli/cmdpipeline/pipeline_status.go): Removed `checkCommitMatchCacheHit` bypass; status cache strictly honors 5s TTL.
+   - In `cli/cmdpipeline/pipeline_cache_eval.go`: Completely eliminated `checkLatestCompletedSuccessCacheHit`. If no target index is requested, cache hits are strictly restricted to `checkTtlCacheHit(db.Path)`. Once 5 seconds elapse, cache expires and fresh runs are queried from GitHub.
+   - In `cli/cmdpipeline/pipeline_status.go`: Removed `checkCommitMatchCacheHit` bypass; status cache strictly honors 5s TTL.
 2. **True Chronological Sorting in SQLite DB:**
-   - In [`cli/pipelinedb/pipeline_split_ops.go`](file:///d:/work/gitmap/cli/pipelinedb/pipeline_split_ops.go) and [`cli/pipelinedb/pipeline_prune.go`](file:///d:/work/gitmap/cli/pipelinedb/pipeline_prune.go): Updated all queries to `ORDER BY CreatedAt DESC, RunId DESC` instead of `ORDER BY PipelineRunId DESC`.
+   - In `cli/pipelinedb/pipeline_split_ops.go` and `cli/pipelinedb/pipeline_prune.go`: Updated all queries to `ORDER BY CreatedAt DESC, RunId DESC` instead of `ORDER BY PipelineRunId DESC`.
 3. **Defensive Group Timestamp Tracking & In-Memory Payload Propagation:**
-   - In [`cli/cmdpipeline/pipeline_commit_groups.go`](file:///d:/work/gitmap/cli/cmdpipeline/pipeline_commit_groups.go): `addRun` now tracks the newest `CreatedAt` across workflows in each group, and `build()` defensively sorts groups descending by `CreatedAt`.
-   - In [`cli/cmdpipeline/pipeline.go`](file:///d:/work/gitmap/cli/cmdpipeline/pipeline.go) and [`cli/cmdpipeline/pipeline_logs.go`](file:///d:/work/gitmap/cli/cmdpipeline/pipeline_logs.go): Added `Runs []ghRunItem` to `PipelineErrorLogsPayload`. Terminal renderers directly consume the in-memory runs evaluated during the request, avoiding inconsistent second-pass DB reads.
-   - In [`cli/cmdpipeline/pipeline_query.go`](file:///d:/work/gitmap/cli/cmdpipeline/pipeline_query.go): `resolveCachedRunsOrFetch` verifies TTL freshness before serving cached runs.
+   - In `cli/cmdpipeline/pipeline_commit_groups.go`: `addRun` now tracks the newest `CreatedAt` across workflows in each group, and `build()` defensively sorts groups descending by `CreatedAt`.
+   - In `cli/cmdpipeline/pipeline.go` and `cli/cmdpipeline/pipeline_logs.go`: Added `Runs []ghRunItem` to `PipelineErrorLogsPayload`. Terminal renderers directly consume the in-memory runs evaluated during the request, avoiding inconsistent second-pass DB reads.
+   - In `cli/cmdpipeline/pipeline_query.go`: `resolveCachedRunsOrFetch` verifies TTL freshness before serving cached runs.
 4. **Formatting Fix:**
-   - Formatted [`cli/cmd/llm/llm_train_test.go`](file:///d:/work/gitmap/cli/cmd/llm/llm_train_test.go) with `gofmt`.
+   - Formatted `cli/cmd/llm/llm_train_test.go` with `gofmt`.
 
 ---
 
@@ -67,6 +67,6 @@ In commit `2764db6`, `cli/cmd/llm/llm_train_test.go` was not formatted with `gof
 - `python linter-scripts/check-newline-styling.py`: 100% Unix LF.
 - `go test ./cmdpipeline`: PASS (100% green).
 - `go test ./pipelinedb`: PASS (100% green).
-- Ran `gitmap pe` from `C:\Users\Administrator`:
+- Ran `gitmap pe` from home directory:
   - Output accurately identifies `2764db6` as latest commit and displays `latest 2764db6` in the summary table.
   - Subsequent execution within 5 seconds cleanly hits cache; execution after 5 seconds refreshes from GitHub.

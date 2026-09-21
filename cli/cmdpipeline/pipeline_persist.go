@@ -289,10 +289,6 @@ func resolvePipelineErrorReportPathForRepo(repo string) string {
 	return filepath.ToSlash(target)
 }
 
-func writeCombinedErrorReport(content string) (string, error) {
-	return writeCombinedErrorReportForRepo("", content)
-}
-
 func writeCombinedErrorReportForRepo(repo string, content string) (string, error) {
 	reportPath := resolvePipelineErrorReportPathForRepo(repo)
 	if err := os.WriteFile(reportPath, []byte(content), 0644); err != nil {

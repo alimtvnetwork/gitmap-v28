@@ -72,7 +72,19 @@ func checkTtlCacheHit(dbPath string) bool {
 		return false
 	}
 
-	return time.Since(info.ModTime()) < resolvePipelineCacheTTL()
+	modTime := resolveDbModTime(dbPath, info.ModTime())
+
+	return time.Since(modTime) < resolvePipelineCacheTTL()
+}
+
+func resolveDbModTime(dbPath string, defaultTime time.Time) time.Time {
+	walPath := dbPath + "-wal"
+	walInfo, err := os.Stat(walPath)
+	if err == nil && walInfo.ModTime().After(defaultTime) {
+		return walInfo.ModTime()
+	}
+
+	return defaultTime
 }
 
 func isRunCompleted(status, conclusion string) bool {

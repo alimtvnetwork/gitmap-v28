@@ -321,12 +321,13 @@ func setPayloadRunningState(p *PipelineErrorLogsPayload, r ghRunItem, eta int) {
 }
 
 func resolveFailedRunsForPayload(repo string, runs []ghRunItem) []ghRunItem {
-	return collectFailedRuns(runs)
+	return collectFailedRunsForRepo(repo, runs)
 }
 
 func populateFailedRunsPayload(repo string, failedRuns []ghRunItem, p *PipelineErrorLogsPayload) {
 	initFailedRunTopLevel(p, failedRuns[0])
 	p.FailedRuns = fetchAllFailedRunsParallel(repo, failedRuns)
+	p.FailedTree = BuildFailedChecksTree(*p, false)
 	p.SectionFailures = extractAllSectionFailures(p.FailedRuns)
 	p.CombinedErrors = formatCombinedSectionFailures(p.SectionFailures)
 	p.ErrorLogs = formatAggregatedErrorLogs(p.FailedRuns)
@@ -455,6 +456,10 @@ func findPrimaryTargetRun(runs []ghRunItem) ghRunItem {
 }
 
 func collectFailedRuns(runs []ghRunItem) []ghRunItem {
+	return collectFailedRunsForRepo("", runs)
+}
+
+func collectFailedRunsForRepo(repo string, runs []ghRunItem) []ghRunItem {
 	if len(runs) == 0 {
 		return nil
 	}
@@ -462,7 +467,7 @@ func collectFailedRuns(runs []ghRunItem) []ghRunItem {
 	succeeded := make(map[string]bool)
 	var activeFailed []ghRunItem
 	for _, r := range targetRuns {
-		checkAndCollectRun(r, succeeded, &activeFailed)
+		checkAndCollectRunForRepo(repo, r, succeeded, &activeFailed)
 	}
 
 	return capFailedRuns(activeFailed, 5)
@@ -491,18 +496,37 @@ func buildWorkflowScopeKey(r ghRunItem) string {
 	return branchKey + ":" + nameKey
 }
 
-func checkAndCollectRun(r ghRunItem, succeeded map[string]bool, active *[]ghRunItem) {
+func checkAndCollectRunForRepo(repo string, r ghRunItem, succeeded map[string]bool, active *[]ghRunItem) {
 	scopeKey := buildWorkflowScopeKey(r)
 	if r.Conclusion == "success" {
 		recordWorkflowSuccess(scopeKey, succeeded)
 
 		return
 	}
-	if !isFailingConclusion(r.Conclusion) || isWorkflowScopeSucceeded(scopeKey, succeeded) {
+	if isWorkflowScopeSucceeded(scopeKey, succeeded) {
 		return
 	}
+	if isFailingConclusion(r.Conclusion) {
+		*active = append(*active, r)
 
-	*active = append(*active, r)
+		return
+	}
+	if isRunActive(r) && hasActiveRunFailedJobs(repo, r) {
+		failingRun := r
+		failingRun.Conclusion = "failure"
+		*active = append(*active, failingRun)
+	}
+}
+
+func hasActiveRunFailedJobs(repo string, r ghRunItem) bool {
+	jobs := queryRunJobs(repo, r.DatabaseId)
+	for _, j := range jobs {
+		if isJobFailing(j) || hasAnyFailingStep(j.Steps) {
+			return true
+		}
+	}
+
+	return false
 }
 
 func recordWorkflowSuccess(scopeKey string, succeeded map[string]bool) {
@@ -655,18 +679,26 @@ func formatErrorLogContent(params ErrorLogOutputParams) (string, error) {
 }
 
 func renderErrorLogsTerminal(p PipelineErrorLogsPayload) {
-	if p.IsRunning && len(p.FailedRuns) == 0 {
+	if p.IsRunning {
 		renderActiveRunningBanner(p)
+	}
+
+	if p.IsRunning && len(p.FailedRuns) == 0 {
+		renderRunningSummaryTable(p)
 		copyReportToClipboard(buildClipboardCleanReport(p), false)
 
 		return
 	}
 
-	if p.IsRunning {
-		renderActiveRunningBanner(p)
-	}
-
 	renderAndCopyTerminalReport(p)
+}
+
+func renderRunningSummaryTable(p PipelineErrorLogsPayload) {
+	runs := p.Runs
+	if len(runs) == 0 {
+		runs = resolveCachedRunsOrFetch(p.Repo)
+	}
+	RenderHistorySummaryTable(runs)
 }
 
 func renderAndCopyTerminalReport(p PipelineErrorLogsPayload) {
@@ -759,6 +791,7 @@ func renderFailureTerminal(p PipelineErrorLogsPayload) {
 		constants.ColorRed, constants.ColorReset)
 	renderPipelineMetaBlock(p)
 	fmt.Println()
+	renderFailureTreeTerminal(p)
 	if len(p.FailedRuns) == 0 {
 		renderSingleFailureTerminal(p)
 
@@ -783,6 +816,7 @@ func renderFailureSectionsAndETA(p PipelineErrorLogsPayload) {
 func buildClipboardErrorReport(p PipelineErrorLogsPayload) string {
 	var sb strings.Builder
 	appendClipboardMetaHeader(&sb, "GITMAP PIPELINE ERROR REPORT", p)
+	appendClipboardFailureTree(&sb, p)
 	appendClipboardBodyContent(&sb, p)
 
 	return strings.TrimSpace(sb.String())

@@ -100,38 +100,42 @@ func handlePipelineWaitTime(args []string) error {
 }
 
 func buildStatusPayload(repo, lastTag string, pendingPRs int, runs []ghRunItem) PipelineStatusPayload {
-	nowStr := time.Now().UTC().Format(time.RFC3339)
-	dbPath := pipelinedb.ResolvePipelineDbPath(repo)
-	payload := PipelineStatusPayload{
-		Repo:           repo,
-		LastTagRelease: lastTag,
-		PendingPRs:     pendingPRs,
-		UpdatedAt:      nowStr,
-		DbPath:         FormatRelativeDbPath(dbPath),
-		DbSize:         ResolveDbFileSize(dbPath),
-	}
-
+	payload := initBaseStatusPayload(repo, lastTag, pendingPRs, runs)
 	if len(runs) == 0 {
 		return payload
 	}
 
-	latest := runs[0]
-	payload.LastRunId = latest.DatabaseId
-	payload.LastStatus = latest.Status
-	payload.LastConclusion = latest.Conclusion
-	payload.LastRunUrl = latest.Url
-
-	runningCount := countRunningWorkflows(runs)
-	payload.PendingPipelines = runningCount
-	payload.IsRunning = runningCount > 0
-
-	if payload.IsRunning {
-		populateActiveRunPayload(&payload, runs, latest)
-	}
-
-	AttachLivePipelineErrors(&payload)
+	applyLatestRunStatus(&payload, runs)
+	AttachLivePipelineErrorsWithRuns(&payload, runs)
 
 	return payload
+}
+
+func initBaseStatusPayload(repo, lastTag string, pendingPRs int, runs []ghRunItem) PipelineStatusPayload {
+	dbPath := pipelinedb.ResolvePipelineDbPath(repo)
+
+	return PipelineStatusPayload{
+		Repo:           repo,
+		LastTagRelease: lastTag,
+		PendingPRs:     pendingPRs,
+		UpdatedAt:      time.Now().UTC().Format(time.RFC3339),
+		DbPath:         FormatRelativeDbPath(dbPath),
+		DbSize:         ResolveDbFileSize(dbPath),
+		Runs:           runs,
+	}
+}
+
+func applyLatestRunStatus(p *PipelineStatusPayload, runs []ghRunItem) {
+	latest := runs[0]
+	p.LastRunId = latest.DatabaseId
+	p.LastStatus = latest.Status
+	p.LastConclusion = latest.Conclusion
+	p.LastRunUrl = latest.Url
+	p.PendingPipelines = countRunningWorkflows(runs)
+	p.IsRunning = p.PendingPipelines > 0
+	if p.IsRunning {
+		populateActiveRunPayload(p, runs, latest)
+	}
 }
 
 func populateActiveRunPayload(payload *PipelineStatusPayload, runs []ghRunItem, latest ghRunItem) {
@@ -152,10 +156,25 @@ func populateActiveRunPayload(payload *PipelineStatusPayload, runs []ghRunItem, 
 func renderPipelineStatusTerminal(p PipelineStatusPayload) {
 	renderPrimaryStatusSection(p)
 	renderPipelineDbInfoTerminal(p)
+	renderStatusDiagnostics(p)
+	renderStatusSummaryTable(p)
+}
 
+func renderStatusDiagnostics(p PipelineStatusPayload) {
 	if p.IsRunning && p.LastRunId > 0 {
 		renderSegmentBreakdown(p.Repo, p.LastRunId)
 	}
+	if p.HasErrors && p.Repo != "" {
+		renderFailureErrorSummary(p.Repo, 0)
+	}
+}
+
+func renderStatusSummaryTable(p PipelineStatusPayload) {
+	runs := p.Runs
+	if len(runs) == 0 {
+		runs = resolveCachedRunsOrFetch(p.Repo)
+	}
+	RenderHistorySummaryTable(runs)
 }
 
 func renderPrimaryStatusSection(p PipelineStatusPayload) {
@@ -169,14 +188,36 @@ func renderPrimaryStatusSection(p PipelineStatusPayload) {
 }
 
 func renderRunningStatusLine(p PipelineStatusPayload) {
-	cacheHint := ""
-	if p.IsFromCache {
-		cacheHint = fmt.Sprintf(" %s(served from cache)%s", constants.ColorCyan, constants.ColorReset)
-	}
-	fmt.Printf("  %s● Status:%s           %sRUNNING%s (%s, ETA: %s)%s\n",
+	cacheHint := resolveCacheHint(p.IsFromCache)
+	badge := resolveRunningBadge(p.HasErrors)
+	fmt.Printf("  %s● Status:%s           %s (%s, ETA: %s)%s\n",
 		constants.ColorCyan, constants.ColorReset,
-		constants.ColorYellow, constants.ColorReset,
-		p.ActiveWorkflow, formatEtaDisplay(p.EtaSeconds), cacheHint)
+		badge, p.ActiveWorkflow, formatEtaDisplay(p.EtaSeconds), cacheHint)
+	renderLiveFailureAlert(p)
+}
+
+func resolveCacheHint(isFromCache bool) string {
+	if isFromCache {
+		return fmt.Sprintf(" %s(served from cache)%s", constants.ColorCyan, constants.ColorReset)
+	}
+
+	return ""
+}
+
+func resolveRunningBadge(hasErrors bool) string {
+	if hasErrors {
+		return fmt.Sprintf("%sRUNNING (WITH FAILURES)%s", constants.ColorRed, constants.ColorReset)
+	}
+
+	return fmt.Sprintf("%sRUNNING%s", constants.ColorYellow, constants.ColorReset)
+}
+
+func renderLiveFailureAlert(p PipelineStatusPayload) {
+	if p.HasErrors && len(p.ErrorSummary) > 0 {
+		fmt.Printf("  %s✖ Failure Alert:%s    %s%s%s\n",
+			constants.ColorRed, constants.ColorReset,
+			constants.ColorRed, p.ErrorSummary, constants.ColorReset)
+	}
 }
 
 func renderCountsAndUrlSection(p PipelineStatusPayload) {

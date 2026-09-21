@@ -35,6 +35,7 @@ type PipelineStatusPayload struct {
 	DbPath                 string          `json:"dbPath,omitempty"`
 	DbSize                 string          `json:"dbSize,omitempty"`
 	IsFromCache            bool            `json:"isFromCache,omitempty"`
+	Runs                   []ghRunItem     `json:"runs,omitempty"`
 }
 
 // PipelineErrorLogsPayload represents error log outputs.
@@ -68,6 +69,7 @@ type PipelineErrorLogsPayload struct {
 	Url                string            `json:"url,omitempty"`
 	Notes              string            `json:"notes,omitempty"`
 	FailedRuns         []FailedRunItem   `json:"failedRuns,omitempty"`
+	FailedTree         string            `json:"failedTree,omitempty"`
 	SectionFailures    []SectionFailure  `json:"sectionFailures,omitempty"`
 	CICDChecks         []CICDCheckResult `json:"cicdChecks,omitempty"`
 	Runs               []ghRunItem       `json:"runs,omitempty"`

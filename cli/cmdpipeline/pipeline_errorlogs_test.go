@@ -2,6 +2,7 @@ package cmdpipeline
 
 import (
 	"os"
+	"path/filepath"
 	"strings"
 	"testing"
 	"time"
@@ -250,10 +251,15 @@ func TestFormatRunTimestampAndDuration(t *testing.T) {
 }
 
 func TestPersistErrorReport(t *testing.T) {
-	reportPath, err := writeCombinedErrorReport("test error report content")
+	testRepo := "test-persist-report/iso-repo"
+	reportPath, err := writeCombinedErrorReportForRepo(testRepo, "test error report content")
 	if err != nil {
-		t.Fatalf("expected writeCombinedErrorReport to succeed, got %v", err)
+		t.Fatalf("expected writeCombinedErrorReportForRepo to succeed, got %v", err)
 	}
+	t.Cleanup(func() {
+		_ = os.Remove(reportPath)
+		_ = os.Remove(filepath.Dir(reportPath))
+	})
 
 	if !strings.HasSuffix(reportPath, "pipeline_errors.log") {
 		t.Errorf("unexpected report path: %s", reportPath)
@@ -261,7 +267,7 @@ func TestPersistErrorReport(t *testing.T) {
 
 	data, readErr := os.ReadFile(reportPath)
 	if readErr != nil || !strings.Contains(string(data), "test error report content") {
-		t.Errorf("expected content to match in %s", reportPath)
+		t.Errorf("expected content to match in %s, readErr=%v", reportPath, readErr)
 	}
 }
 
