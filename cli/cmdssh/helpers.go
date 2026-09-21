@@ -5,47 +5,8 @@ import (
 	"path/filepath"
 	"strings"
 
-	"github.com/alimtvnetwork/gitmap-v28/cli/helptext"
 	"github.com/alimtvnetwork/gitmap-v28/cli/store"
 )
-
-func hasHelpToken(arg string) bool {
-	return arg == "--help" || arg == "-h" || arg == "help"
-}
-
-func hasHelpFlag(args []string) bool {
-	for _, a := range args {
-		if hasHelpToken(a) {
-			return true
-		}
-	}
-	return false
-}
-
-func hasJoinToken(args []string) bool {
-	for _, a := range args {
-		if a == "join" || a == "sj" {
-			return true
-		}
-	}
-	return false
-}
-
-func checkHelp(command string, args []string) bool {
-	if hasHelpFlag(args) {
-		helptext.Print(command)
-		return true
-	}
-	return false
-}
-
-func checkSSHHelp(args []string) bool {
-	if hasJoinToken(args) && hasHelpFlag(args) {
-		helptext.Print("ssh-join")
-		return true
-	}
-	return checkHelp("ssh", args)
-}
 
 func homeDir() string {
 	h, err := os.UserHomeDir()

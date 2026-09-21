@@ -192,6 +192,7 @@ func isSJSubcommand(sub string) bool {
 	}
 
 	return sub == "ls" || sub == "list" || sub == "nodes" || sub == "node" || sub == "rm" || sub == "remove" || sub == "delete" ||
+		sub == "clear" || sub == "reset" ||
 		sub == "add-auth" || sub == "auth" || sub == "history" || sub == "hist" ||
 		sub == "auth-key" || sub == "copy-id" || sub == "fix-auth"
 }
@@ -233,9 +234,23 @@ func dispatchSJQuerySubcommand(ctx context.Context, sub string, args []string) (
 	return false, nil
 }
 
-func dispatchSJActionSubcommand(ctx context.Context, sub string, args []string) (bool, error) {
+func dispatchSJRemovalSubcommand(ctx context.Context, sub string, args []string) (bool, error) {
 	if sub == "rm" || sub == "remove" || sub == "delete" {
 		return true, runSJRm(nil, args, ctx)
+	}
+	if sub == "clear" {
+		return true, runSSHClearNodes(args)
+	}
+	if sub == "reset" {
+		return true, RunSSHResetCLI(args)
+	}
+
+	return false, nil
+}
+
+func dispatchSJActionSubcommand(ctx context.Context, sub string, args []string) (bool, error) {
+	if isHandled, err := dispatchSJRemovalSubcommand(ctx, sub, args); isHandled {
+		return true, err
 	}
 	if sub == "add-auth" || sub == "auth" {
 		return true, runSJAddAuth(nil, args, ctx)
@@ -246,6 +261,7 @@ func dispatchSJActionSubcommand(ctx context.Context, sub string, args []string) 
 	if sub == "pass" || sub == "password" {
 		return true, RunSSHPassCLI(args)
 	}
+
 	return false, nil
 }
 

@@ -43,7 +43,23 @@ func dispatchCoreSSH(ctx context.Context, sub string, args []string, parent *cob
 	}
 }
 
+func dispatchHistorySSH(sub string, args []string) result.ErrorWrapper {
+	switch sub {
+	case "reset":
+		return result.MatchWrapper(RunSSHResetCLI(args))
+	case "undo":
+		return result.MatchWrapper(RunSSHUndoCLI(args))
+	case "restore":
+		return result.MatchWrapper(RunSSHRestoreCLI(args))
+	default:
+		return result.UnmatchedWrapper()
+	}
+}
+
 func dispatchNodeSSH(ctx context.Context, sub string, args []string, parent *cobra.Command) result.ErrorWrapper {
+	if resHist := dispatchHistorySSH(sub, args); resHist.IsMatched() {
+		return resHist
+	}
 	switch sub {
 	case "join", "sj":
 		return result.MatchWrapper(RunSSHJoinCLI(args))

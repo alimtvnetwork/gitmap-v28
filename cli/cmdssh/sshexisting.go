@@ -30,38 +30,43 @@ func keyExistsOnDisk(keyPath string) bool {
 // it along with the fingerprint, file paths, and a "copy to GitHub" hint.
 // Also upserts the key into the gitmap database so subsequent `ssh-cat` /
 // `ssh-list` calls find it.
+func printExistingKeyDetails(keyPath, fingerprint, host string) {
+	fmt.Fprintf(os.Stdout, constants.MsgSSHExistsOnDisk, keyPath)
+	fmt.Fprintf(os.Stdout, constants.MsgSSHPath, keyPath)
+	fmt.Fprintf(os.Stdout, constants.MsgSSHFingerprint, fingerprint)
+	hasCustomHost := host != constants.DefaultSSHHost
+	if hasCustomHost {
+		fmt.Fprintf(os.Stdout, constants.MsgSSHHostUsed, host)
+	}
+}
+
+func printExistingKeyPublic(pub string, isRaw bool) {
+	displayPub := formatDisplayPublicKey(pub, isRaw)
+	fmt.Fprint(os.Stdout, constants.MsgSSHPubLabel)
+	fmt.Fprintf(os.Stdout, "  %s\n", displayPub)
+	fmt.Fprint(os.Stdout, constants.MsgSSHCopyHint)
+	fmt.Fprint(os.Stdout, constants.MsgSSHForceHint)
+}
+
+func handleExistingPubReadError(err error, keyPath string) {
+	msg := fmt.Sprintf(constants.ErrSSHReadPub, keyPath+".pub", err)
+	details := map[string]any{"keyPath": keyPath}
+	appErr := apperror.WrapWithDetails(err, "cmd.sshexisting.readPub", "E1075", msg, "cmd.sshexisting", apperror.ErrorTypeExecution, apperror.SeverityError, details)
+	cliexit.HandleError(appErr, 1)
+}
+
 func printExistingKeyOnDisk(db *store.DB, name, keyPath, host string) {
 	pub, err := os.ReadFile(keyPath + ".pub")
-	if err != nil {
-		appErr := apperror.WrapWithDetails(
-			err,
-			"cmd.sshexisting.readPub",
-			"E1075",
-			fmt.Sprintf(constants.ErrSSHReadPub, keyPath+".pub", err),
-			"cmd.sshexisting",
-			apperror.ErrorTypeExecution,
-			apperror.SeverityError,
-			map[string]any{"keyPath": keyPath},
-		)
-		cliexit.HandleError(appErr, 1)
+	hasErr := err != nil
+	if hasErr {
+		handleExistingPubReadError(err, keyPath)
 
 		return
 	}
 
 	fingerprint := readFingerprint(keyPath)
-
-	fmt.Fprintf(os.Stdout, constants.MsgSSHExistsOnDisk, keyPath)
-	fmt.Fprintf(os.Stdout, constants.MsgSSHPath, keyPath)
-	fmt.Fprintf(os.Stdout, constants.MsgSSHFingerprint, fingerprint)
-	if host != constants.DefaultSSHHost {
-		fmt.Fprintf(os.Stdout, constants.MsgSSHHostUsed, host)
-	}
-
-	fmt.Fprint(os.Stdout, constants.MsgSSHPubLabel)
-	fmt.Fprintf(os.Stdout, "  %s\n", strings.TrimSpace(string(pub)))
-	fmt.Fprint(os.Stdout, constants.MsgSSHCopyHint)
-	fmt.Fprint(os.Stdout, constants.MsgSSHForceHint)
-
+	printExistingKeyDetails(keyPath, fingerprint, host)
+	printExistingKeyPublic(string(pub), hasRawFlag(os.Args))
 	upsertExistingKeyToDB(db, name, keyPath, string(pub), fingerprint)
 }
 

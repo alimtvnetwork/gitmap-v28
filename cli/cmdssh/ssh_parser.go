@@ -223,6 +223,11 @@ func ParseSSHTarget(raw string, defaultUser string, defaultPort int) (*SSHTarget
 		return nil, wrapTargetError(raw, "empty target")
 	}
 
+	isReserved := isReservedSSHVerb(raw)
+	if isReserved {
+		return nil, wrapTargetError(raw, fmt.Sprintf("'%s' is a reserved command, not a host target", raw))
+	}
+
 	user, hostPort, err := splitUserAndHost(raw, defaultUser)
 	if err != nil {
 		return nil, wrapTargetError(raw, err.Error())
@@ -235,6 +240,11 @@ func resolveSSHTargetFromHost(user, hostPort string, defaultPort int, raw string
 	host, port, err := splitHostAndPort(hostPort, defaultPort)
 	if err != nil {
 		return nil, wrapTargetError(raw, err.Error())
+	}
+
+	isReserved := isReservedSSHVerb(host)
+	if isReserved {
+		return nil, wrapTargetError(raw, fmt.Sprintf("'%s' is a reserved command, not a host target", host))
 	}
 
 	return buildSSHTarget(user, host, port)

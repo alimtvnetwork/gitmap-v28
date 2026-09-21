@@ -175,27 +175,38 @@ const (
 // SSH completion flag.
 const CompListSSHKeys = "--list-ssh-keys"
 
-const MsgSSHAvailableCommands = "\n\nAvailable SSH subcommands:\n" +
-	"  ssh create [name]      Generate or reuse an SSH key\n" +
-	"  ssh list               List all managed SSH keys\n" +
-	"  ssh nodes (ls)         List all registered SSH nodes/machines\n" +
-	"  ssh status (st)        Check ssh-agent and connection status\n" +
-	"  ssh copy (cp)          Copy a public key to your clipboard\n" +
-	"  ssh cat (view)         Print a public key to the terminal\n" +
-	"  ssh delete (rm)        Remove a key from gitmap (and disk)\n" +
-	"  ssh config             Rebuild ~/.ssh/config for all managed keys\n" +
-	"  ssh join <sub>         Join, broadcast, or distribute cluster nodes\n" +
-	"  ssh login <user@ip>    Connect & install environment on remote host\n" +
-	"  ssh alias <sub>        Manage custom SSH host aliases\n" +
-	"  ssh exec <cmd>         Execute command on remote SSH nodes\n" +
-	"  ssh scan               Probe reachability across all registered SSH nodes\n" +
-	"  ssh check [target]     Check connectivity, open port 22 & health\n" +
-	"  ssh install [target]   Install or update GitMap on remote machine(s)\n" +
-	"  ssh update [target]    Update GitMap binary across remote fleet\n" +
-	"  ssh agy <args>         Run Antigravity CLI or open remote folder\n" +
-	"  ssh code <args>        Open remote folder in VS Code via SSH Remote\n" +
-	"  ssh compare (matrix)   Display architecture matrix: SSH vs Cluster vs SC\n" +
-	"  ssh known-hosts (kh)   Manage, list, trust, and sync known_hosts entries\n" +
-	"  ssh trust <target>     Auto-scan & trust remote host key in known_hosts & DB\n" +
-	"  ssh untrust <target>   Remove machine from known_hosts and database\n" +
-	"  ssh fix-auth <target>  Deploy SSH public key to remote authorized_keys\n"
+const MsgSSHAvailableCommands = "\n  \033[1;96mAvailable SSH subcommands:\033[0m\n\n" +
+	"    \033[1;97mssh create\033[0m [name]        \033[2;37mGenerate or reuse an SSH key\033[0m\n" +
+	"    \033[1;97mssh list\033[0m (ls)             \033[2;37mList all managed SSH keys\033[0m\n" +
+	"    \033[1;97mssh nodes\033[0m (ls)            \033[2;37mList all registered SSH nodes/machines\033[0m\n" +
+	"    \033[1;97mssh status\033[0m (st)           \033[2;37mCheck ssh-agent and connection status\033[0m\n" +
+	"    \033[1;97mssh copy\033[0m (cp)             \033[2;37mCopy a public key to your clipboard\033[0m\n" +
+	"    \033[1;97mssh cat\033[0m (view)            \033[2;37mPrint a public key to the terminal\033[0m\n" +
+	"    \033[1;97mssh delete\033[0m (rm)           \033[2;37mRemove a key from gitmap (and disk)\033[0m\n" +
+	"    \033[1;97mssh config\033[0m                \033[2;37mRebuild ~/.ssh/config for all managed keys\033[0m\n" +
+	"    \033[1;97mssh join\033[0m <sub>            \033[2;37mJoin, broadcast, or distribute cluster nodes\033[0m\n" +
+	"    \033[1;97mssh login\033[0m <user@ip>       \033[2;37mConnect & install environment on remote host\033[0m\n" +
+	"    \033[1;97mssh alias\033[0m <sub>           \033[2;37mManage custom SSH host aliases\033[0m\n" +
+	"    \033[1;97mssh exec\033[0m <cmd>            \033[2;37mExecute command on remote SSH nodes\033[0m\n" +
+	"    \033[1;97mssh scan\033[0m                  \033[2;37mProbe reachability across all registered SSH nodes\033[0m\n" +
+	"    \033[1;97mssh check\033[0m [target]        \033[2;37mCheck connectivity, open port 22 & health\033[0m\n" +
+	"    \033[1;97mssh install\033[0m [target]      \033[2;37mInstall or update GitMap on remote machine(s)\033[0m\n" +
+	"    \033[1;97mssh update\033[0m [target]       \033[2;37mUpdate GitMap binary across remote fleet\033[0m\n" +
+	"    \033[1;97mssh agy\033[0m <args>            \033[2;37mRun Antigravity CLI or open remote folder\033[0m\n" +
+	"    \033[1;97mssh code\033[0m <args>           \033[2;37mOpen remote folder in VS Code via SSH Remote\033[0m\n" +
+	"    \033[1;97mssh compare\033[0m (matrix)      \033[2;37mDisplay architecture matrix: SSH vs Cluster vs SC\033[0m\n" +
+	"    \033[1;97mssh known-hosts\033[0m (kh)      \033[2;37mManage, list, trust, and sync known_hosts entries\033[0m\n" +
+	"    \033[1;97mssh trust\033[0m <target>        \033[2;37mAuto-scan & trust remote host key in known_hosts & DB\033[0m\n" +
+	"    \033[1;97mssh untrust\033[0m <target>      \033[2;37mRemove machine from known_hosts and database\033[0m\n" +
+	"    \033[1;97mssh fix-auth\033[0m <target>     \033[2;37mDeploy SSH public key to remote authorized_keys\033[0m\n" +
+	"    \033[1;97mssh rm\033[0m <nodes|keys>        \033[2;37mRemove node(s) or key(s) with confirmation\033[0m\n" +
+	"    \033[1;97mssh reset\033[0m [-y]             \033[2;37mWipe all registered nodes and reset SSH state\033[0m\n" +
+	"    \033[1;97mssh undo\033[0m                  \033[2;37mUndo last destructive node deletion or reset\033[0m\n" +
+	"    \033[1;97mssh restore\033[0m <task-id>     \033[2;37mRestore nodes from a specific snapshot ID\033[0m\n\n" +
+	"  \033[1;93mExamples:\033[0m\n" +
+	"    gitmap ssh join alim@192.168.1.14 devbox\n" +
+	"    gitmap ssh rm devbox -y\n" +
+	"    gitmap ssh rm nodes 192.168.1.14 -y\n" +
+	"    gitmap ssh rm all -y\n" +
+	"    gitmap ssh reset -y\n" +
+	"    gitmap ssh undo\n\n"

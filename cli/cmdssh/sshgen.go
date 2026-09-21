@@ -256,8 +256,9 @@ func generateAndStore(db *store.DB, name, keyPath, email, host string) {
 		fmt.Fprintf(os.Stdout, constants.MsgSSHHostUsed, host)
 	}
 
+	displayPub := formatDisplayPublicKey(string(pubKey), hasRawFlag(os.Args))
 	fmt.Fprint(os.Stdout, constants.MsgSSHPubLabel)
-	fmt.Fprintf(os.Stdout, "  %s\n", strings.TrimSpace(string(pubKey)))
+	fmt.Fprintf(os.Stdout, "  %s\n", displayPub)
 	fmt.Fprint(os.Stdout, constants.MsgSSHCopyHint)
 	copyPubKeyAndAnnounce(strings.TrimSpace(string(pubKey)))
 
