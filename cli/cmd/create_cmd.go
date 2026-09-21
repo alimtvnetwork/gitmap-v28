@@ -16,7 +16,7 @@ func runCreate(args []string) error {
 	isNonInteractive := !isInteractiveStdin()
 	isHeadlessError := isNoArgs && isNonInteractive
 	if isHeadlessError {
-		return apperror.NewSimple("usage: gitmap create [repo] <name> [flags]", "E1076")
+		return apperror.NewSimple("usage: gitmap repo-create (repoc) <name> [folder] [slug] [flags]", "E1076")
 	}
 
 	subArgs, resolveErr := resolveCreateArgs(args)
@@ -24,7 +24,24 @@ func runCreate(args []string) error {
 		return resolveErr
 	}
 
-	return executeCreateRepo(subArgs)
+	return executeCreateRepo(subArgs, false)
+}
+
+func runCreateLocal(args []string) error {
+	checkHelp("create", args)
+	isNoArgs := len(args) == 0
+	isNonInteractive := !isInteractiveStdin()
+	isHeadlessError := isNoArgs && isNonInteractive
+	if isHeadlessError {
+		return apperror.NewSimple("usage: gitmap create-local-repo (clr) <name> [folder] [slug] [flags]", "E1076")
+	}
+
+	subArgs, resolveErr := resolveCreateArgs(args)
+	if resolveErr != nil {
+		return resolveErr
+	}
+
+	return executeCreateRepo(subArgs, true)
 }
 
 func resolveCreateArgs(args []string) ([]string, error) {
@@ -42,7 +59,7 @@ func resolveCreateArgs(args []string) ([]string, error) {
 }
 
 func normalizeCreateArgs(args []string) []string {
-	if len(args) > 0 && args[0] == "repo" {
+	if len(args) > 0 && (args[0] == "repo" || args[0] == "repository") {
 		return args[1:]
 	}
 

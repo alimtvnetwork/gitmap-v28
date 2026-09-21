@@ -25,7 +25,7 @@ func runDoPending(args []string) error {
 
 // runDoPendingAll retries all pending tasks.
 func runDoPendingAll() error {
-	db, err := openDB()
+	db, err := openTasksDB()
 	if err != nil {
 		return apperror.WrapSimple(err, constants.WarnPendingDBOpen)
 	}
@@ -59,7 +59,7 @@ func runDoPendingSingle(idStr string) error {
 		return apperror.NewSimple(constants.ErrPendingTaskNotFound, "E9000")
 	}
 
-	db, err := openDB()
+	db, err := openTasksDB()
 	if err != nil {
 		return apperror.WrapSimple(err, constants.WarnPendingDBOpen)
 	}

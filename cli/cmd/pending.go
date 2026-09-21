@@ -22,7 +22,7 @@ func runPending() error {
 
 	checkHelp("pending", args)
 
-	db, err := openDB()
+	db, err := openTasksDB()
 	if err != nil {
 		return apperror.WrapSimple(err, constants.WarnPendingDBOpen)
 	}

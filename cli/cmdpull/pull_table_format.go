@@ -232,7 +232,7 @@ func formatSHACell(sha string, maxLength int) string {
 }
 
 func resolveSHACellLimit(maxLength int) int {
-	target := 5
+	target := 7
 	hasSmallerMax := maxLength < target && maxLength > 0
 	if hasSmallerMax {
 		return maxLength

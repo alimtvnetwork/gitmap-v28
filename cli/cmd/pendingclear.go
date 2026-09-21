@@ -44,7 +44,7 @@ func mustParsePendingClearArgs(args []string) (string, bool, bool, int64) {
 
 // mustOpenPendingDB opens the store database or exits with a warning.
 func mustOpenPendingDB() *store.DB {
-	db, dbErr := openDB()
+	db, dbErr := openTasksDB()
 	if dbErr != nil {
 		return nil
 	}

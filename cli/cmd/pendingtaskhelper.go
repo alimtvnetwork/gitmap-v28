@@ -9,6 +9,16 @@ import (
 	"github.com/alimtvnetwork/gitmap-v28/cli/store"
 )
 
+// openTasksDB opens the split tasks root database at .gitmap/data/tasks/sql.db.
+func openTasksDB() (*store.DB, error) {
+	tasksDB, err := store.OpenTasksRootSplitDB()
+	if err != nil {
+		return nil, err
+	}
+
+	return tasksDB.DB, nil
+}
+
 // createPendingTask inserts a pending task into the database.
 // For replayable task types, duplicate detection includes CommandArgs.
 // Returns the task ID and DB handle (caller must close), or 0 on failure.
@@ -19,7 +29,7 @@ func createPendingTask(
 	sourceCmd,
 	cmdArgs string,
 ) (int64, *store.DB) {
-	db, err := openDB()
+	db, err := openTasksDB()
 	if err != nil {
 		fmt.Fprintf(os.Stderr, constants.WarnPendingDBOpen, err)
 
@@ -111,7 +121,7 @@ func ensureDB(db *store.DB, action string, taskID int64) (*store.DB, func()) {
 		return db, func() {}
 	}
 
-	opened, err := openDB()
+	opened, err := openTasksDB()
 	if err != nil {
 		fmt.Fprintf(os.Stderr, "warning: could not open database to %s pending task %d: %v\n", action, taskID, err)
 

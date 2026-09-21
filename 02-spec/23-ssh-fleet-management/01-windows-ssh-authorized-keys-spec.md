@@ -162,8 +162,44 @@ powershell -NoProfile -Command "$k = '%s'.Trim(); $tokens = $k -split '\s+'; if 
 
 ---
 
+## 7. Interactive Local Authorized Key Installation (`auth-key-add` / `ssh-key add`)
+
+### PowerShell Reference Implementation
+The following reference PowerShell one-liner allows interactive key entry and sets the required `administrators_authorized_keys` ACLs on Windows:
+
+```powershell
+$key = Read-Host 'Paste your SSH public key'; $path = "$env:ProgramData\ssh\administrators_authorized_keys"; New-Item -ItemType File -Path $path -Force | Out-Null; $current = [IO.File]::ReadAllText($path); if ($current -and -not $current.EndsWith("`n")) { [IO.File]::AppendAllText($path, "`r`n") }; [IO.File]::AppendAllText($path, $key + "`r`n"); icacls $path /inheritance:r /grant 'SYSTEM:(F)' 'BUILTIN\Administrators:(F)'
+```
+
+### Native GitMap Cross-Platform Command
+GitMap integrates this pattern natively in Go across all supported operating systems without requiring external PowerShell scripts:
+
+```bash
+# Direct argument:
+gitmap ssh auth-key-add "ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAI... user@host"
+gitmap ssh-key add "ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAI... user@host"
+
+# Interactive prompt (prompts user to paste public key):
+gitmap ssh auth-key-add
+gitmap ssh-key add
+```
+
+### Behavior Across Operating Systems:
+1. **Windows**:
+   - Updates both `$env:ProgramData\ssh\administrators_authorized_keys` (with `icacls /inheritance:r /grant 'SYSTEM:(F)' 'BUILTIN\Administrators:(F)'`) and `$env:USERPROFILE\.ssh\authorized_keys`.
+   - If running without administrator privileges, updates `$env:USERPROFILE\.ssh\authorized_keys` and advises on elevation for administrative sessions.
+2. **Linux & macOS**:
+   - Updates `~/.ssh/authorized_keys` with `0600` permissions and `~/.ssh` with `0700` permissions.
+3. **Idempotency**:
+   - Deduplicates based on the public key's unique base64 payload. Existing keys are recognized and not duplicated.
+4. **Known-Hosts Verification & Self-Healing**:
+   - Outdated or mismatched host keys in `~/.ssh/known_hosts` are automatically pruned prior to connection, avoiding `WARNING: REMOTE HOST IDENTIFICATION HAS CHANGED!`.
+
+---
+
 ## Cross-References
 
 - [SSH Keys Specification](../21-app/50-ssh-keys.md)
 - [Coding Guidelines Golang](../02-coding-guidelines/03-golang/00-overview.md)
 - [Error Management Architecture](../03-error-manage/02-error-architecture/00-overview.md)
+

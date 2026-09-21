@@ -3,6 +3,7 @@ package workspace
 import (
 	"fmt"
 	"os"
+	"os/exec"
 	"path/filepath"
 	"strings"
 
@@ -125,7 +126,39 @@ func resolveMissingDir(abs string) (*SourceHandle, error) {
 		return nil, fmt.Errorf(constants.CommitInErrSourceInit, err)
 	}
 
+	tryCreateRemoteForSource(abs)
+
 	return &SourceHandle{Path: abs, Kind: SourceKindCreatedAndInit, IsFreshlyInit: true}, nil
+}
+
+func tryCreateRemoteForSource(abs string) {
+	name := filepath.Base(abs)
+	slug := cleanSlugForSource(name)
+	if slug == "" {
+		return
+	}
+
+	cmd := exec.Command("gh", "repo", "create", slug, "--private", "--source=.", "--remote=origin")
+	cmd.Dir = abs
+	_ = cmd.Run()
+}
+
+func cleanSlugForSource(name string) string {
+	lower := strings.ToLower(strings.TrimSpace(name))
+	var b strings.Builder
+	for _, r := range lower {
+		isChar := (r >= 'a' && r <= 'z') || (r >= '0' && r <= '9') || r == '-'
+		if isChar {
+			b.WriteRune(r)
+			continue
+		}
+		isSep := r == ' ' || r == '_'
+		if isSep {
+			b.WriteRune('-')
+		}
+	}
+
+	return strings.Trim(b.String(), "-")
 }
 
 // hasGitMetadata returns true when the directory is a working tree

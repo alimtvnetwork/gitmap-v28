@@ -6,6 +6,7 @@ import (
 	"strconv"
 	"strings"
 
+	"github.com/pterm/pterm"
 	"golang.org/x/term"
 
 	"github.com/alimtvnetwork/gitmap-v28/cli/model"
@@ -13,7 +14,7 @@ import (
 
 const (
 	minPullTableTermWidth       = 60
-	defaultPullTableTermWidth   = 80
+	defaultPullTableTermWidth   = 120
 	widePullTableThreshold      = 100
 	defaultPullTableColGapWide  = 3
 	defaultPullTableColGapTight = 2
@@ -39,7 +40,8 @@ type PullTableLayout struct {
 func parseColumnsEnv() int {
 	colsEnv := strings.TrimSpace(os.Getenv("COLUMNS"))
 	parsed, err := strconv.Atoi(colsEnv)
-	if err == nil && parsed >= minPullTableTermWidth {
+	isValid := err == nil && parsed >= minPullTableTermWidth
+	if isValid {
 		return parsed
 	}
 
@@ -47,13 +49,25 @@ func parseColumnsEnv() int {
 }
 
 func detectTerminalWidth() int {
-	width, _, err := term.GetSize(int(os.Stdout.Fd()))
-	if err == nil && width >= minPullTableTermWidth {
+	width := pterm.GetTerminalWidth()
+	isValid := width >= minPullTableTermWidth
+	if isValid {
 		return width
 	}
 
+	return fallbackTerminalWidth()
+}
+
+func fallbackTerminalWidth() int {
+	termWidth, _, err := term.GetSize(int(os.Stdout.Fd()))
+	isValidTerm := err == nil && termWidth >= minPullTableTermWidth
+	if isValidTerm {
+		return termWidth
+	}
+
 	envWidth := parseColumnsEnv()
-	if envWidth >= minPullTableTermWidth {
+	isValidEnv := envWidth >= minPullTableTermWidth
+	if isValidEnv {
 		return envWidth
 	}
 
@@ -102,15 +116,28 @@ func newBaseWideLayout(termWidth, totalWidth, colGap int, rows []model.PullTable
 func calcWideColumnWidths(termWidth int) (int, int, int, int, int, int, int) {
 	colGap := resolveWideColGap(termWidth)
 	maxBranch := resolveWideBranchWidth(termWidth)
-	maxLatest := resolveWideLatestWidth(termWidth)
-	maxRepo := resolveWideRepoWidth(termWidth)
 	maxRelease := resolveWideReleaseWidth(termWidth)
 	maxSHA := resolveWideSHAWidth(termWidth)
 	maxPR := resolveWidePRWidth(termWidth)
 	maxStatus := 14
-	totalWidth := 2 + maxRepo + colGap + maxBranch + colGap + maxLatest + colGap + maxRelease + colGap + maxSHA + colGap + maxPR + colGap + maxStatus
+	fixedWidth := 2 + (6 * colGap) + maxBranch + maxRelease + maxSHA + maxPR + maxStatus
+	maxRepo, maxLatest := resolveWideRepoAndLatestWidths(termWidth, fixedWidth)
+	totalWidth := fixedWidth + maxRepo + maxLatest
 
 	return maxRepo, maxBranch, maxLatest, maxRelease, maxSHA, totalWidth, colGap
+}
+
+func resolveWideRepoAndLatestWidths(termWidth, fixedWidth int) (int, int) {
+	avail := termWidth - fixedWidth
+	isNarrow := avail < 36
+	if isNarrow {
+		return 24, 12
+	}
+
+	repoWidth := (avail * 58) / 100
+	latestWidth := avail - repoWidth
+
+	return repoWidth, latestWidth
 }
 
 func resolveWideColGap(termWidth int) int {
@@ -122,21 +149,12 @@ func resolveWideColGap(termWidth int) int {
 	return defaultPullTableColGapWide
 }
 
-func resolveWideRepoWidth(termWidth int) int {
-	isExtraWide := termWidth >= 140
-	if isExtraWide {
-		return 34
-	}
-
-	isWide := termWidth >= 120
-	if isWide {
-		return 30
-	}
-
-	return 24
-}
-
 func resolveWideBranchWidth(termWidth int) int {
+	isUltraWide := termWidth >= 180
+	if isUltraWide {
+		return 18
+	}
+
 	isExtraWide := termWidth >= 140
 	if isExtraWide {
 		return 16
@@ -148,20 +166,6 @@ func resolveWideBranchWidth(termWidth int) int {
 	}
 
 	return 11
-}
-
-func resolveWideLatestWidth(termWidth int) int {
-	isExtraWide := termWidth >= 140
-	if isExtraWide {
-		return 18
-	}
-
-	isWide := termWidth >= 120
-	if isWide {
-		return 15
-	}
-
-	return 13
 }
 
 func resolveWideReleaseWidth(termWidth int) int {
@@ -176,10 +180,10 @@ func resolveWideReleaseWidth(termWidth int) int {
 func resolveWideSHAWidth(termWidth int) int {
 	isSmallWide := termWidth < 120
 	if isSmallWide {
-		return 5
+		return 7
 	}
 
-	return 6
+	return 8
 }
 
 func resolveWidePRWidth(termWidth int) int {
@@ -212,24 +216,26 @@ func newBaseCompactLayout(termWidth, totalWidth int, rows []model.PullTableRow) 
 
 func calcCompactColumnWidths(termWidth int) (int, int, int, int, int) {
 	maxBranch := 10
-	maxRepo := resolveCompactRepoWidth(termWidth)
 	maxRel := 9
-	maxSha := 5
+	maxSha := 7
 	maxPR := 3
 	maxStatus := 10
 	gap := defaultPullTableColGapTight
-	totalWidth := 2 + maxRepo + gap + maxBranch + gap + maxRel + gap + maxSha + gap + maxPR + gap + maxStatus
+	fixedWidth := 2 + (5 * gap) + maxBranch + maxRel + maxSha + maxPR + maxStatus
+	maxRepo := resolveCompactRepoWidth(termWidth, fixedWidth)
+	totalWidth := fixedWidth + maxRepo
 
 	return maxRepo, maxBranch, maxRel, maxSha, totalWidth
 }
 
-func resolveCompactRepoWidth(termWidth int) int {
-	isNarrow := termWidth < 75
+func resolveCompactRepoWidth(termWidth, fixedWidth int) int {
+	avail := termWidth - fixedWidth
+	isNarrow := avail < 16
 	if isNarrow {
 		return 16
 	}
 
-	return 18
+	return avail
 }
 
 func (l *PullTableLayout) PrintHeader() {
@@ -249,7 +255,7 @@ func (l *PullTableLayout) printWideHeader() {
 		PadVisual("BRANCH", l.MaxBranch) + sep +
 		PadVisual("LATEST BRANCH", l.MaxLatestBr) + sep +
 		PadVisual("RELEASE", l.MaxRelease) + sep +
-		PadVisual("SHA", l.MaxSHA) + sep +
+		PadVisual("COMMIT", l.MaxSHA) + sep +
 		PadVisual("PR", l.MaxPR) + sep +
 		"STATUS"
 
@@ -263,7 +269,7 @@ func (l *PullTableLayout) printCompactHeader() {
 		PadVisual("REPO", l.MaxRepo) + sep +
 		PadVisual("BRANCH", l.MaxBranch) + sep +
 		PadVisual("RELEASE", l.MaxRelease) + sep +
-		PadVisual("SHA", l.MaxSHA) + sep +
+		PadVisual("COMMIT", l.MaxSHA) + sep +
 		PadVisual("PR", l.MaxPR) + sep +
 		"STATUS"
 

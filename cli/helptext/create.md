@@ -1,22 +1,14 @@
 # `gitmap create`
 
-Create and initialize a local repository and automatically provision and push to GitHub or GitLab.
-
-## Simulation
-
-```
-$ gitmap create my-new-service --description "Microservice backend"
-  ✓ Repository created successfully!
-  ● Name:      my-new-service
-  ● Path:      D:/wp-work/my-new-service
-  ● Profile:   alimtvnetwork (github)
-  ● Remote:    https://github.com/alimtvnetwork/my-new-service
-```
+Create and initialize a local repository, automatically slugify human-readable names with spaces, and automatically provision and push to GitHub.
 
 ## Subcommands & Usage
 
 ```
-gitmap create [repo] <name> [flags]
+gitmap create [repo] <name> [folder] [slug] [flags]
+gitmap repo-create (repoc) <name> [folder] [slug] [flags]
+gitmap create-repo (crepo) <name> [folder] [slug] [flags]
+gitmap create-local-repo (clr) <name> [folder] [slug] [flags]
 ```
 
 ## Flags

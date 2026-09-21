@@ -13,51 +13,6 @@ import (
 	"github.com/alimtvnetwork/gitmap-v28/cli/searcher"
 )
 
-func runSearch(args []string) error {
-	checkHelp("search", args)
-	limit, cleanArgs := parseLimit(args)
-	if len(cleanArgs) == 0 {
-		fmt.Println(constants.ColorCyan + "Usage:" + constants.ColorReset)
-		fmt.Println("  gitmap search <query> [--limit <n>]")
-		fmt.Println()
-		fmt.Println(constants.ColorCyan + "Description:" + constants.ColorReset)
-		fmt.Println("  Fast indexed keyword and symbol search across repositories using SplitDB.")
-		fmt.Println()
-		fmt.Println(constants.ColorCyan + "Examples:" + constants.ColorReset)
-		fmt.Println("  gitmap search \"Resolve-Version\"")
-		fmt.Println("  gitmap search \"AppError\" --limit 10")
-		fmt.Println("  gitmap search \"type SearchResult struct\"")
-
-		return nil
-	}
-
-	query := cleanArgs[0]
-
-	ctx := context.Background()
-	mainDB, db, err := getRepoDB(ctx)
-	if err != nil {
-		return apperror.WrapSimple(err, "error")
-	}
-
-	defer mainDB.Close()
-	defer db.Close()
-
-	res, searchErr := searcher.SearchRepoDB(ctx, db, query, limit, false)
-	if searchErr != nil {
-		pterm.Error.Println(searchErr)
-
-		return nil
-	}
-
-	for _, r := range res {
-		pterm.DefaultHeader.WithFullWidth().Printf("Found in %s at position %d", r.RelativePath, r.StartPosition)
-		fmt.Println(r.MatchedText)
-		fmt.Println()
-	}
-
-	return nil
-}
-
 func runReplaceRegex(args []string) error {
 	checkHelp("replace-regex", args)
 	if len(args) < 2 {

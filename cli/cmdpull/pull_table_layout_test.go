@@ -120,3 +120,23 @@ func TestResolveRowChangesFallback(t *testing.T) {
 		t.Fatalf("expected '-', got %q", resEmpty)
 	}
 }
+
+func TestPullTableUltraWideWidth198(t *testing.T) {
+	rows := []model.PullTableRow{{RepoName: "gitmap", Branch: "main"}}
+	layout := NewPullTableLayoutWithWidth(rows, 198)
+	if !layout.IsWide {
+		t.Fatalf("expected wide layout")
+	}
+
+	if layout.MaxRepo != 71 {
+		t.Fatalf("expected MaxRepo=71, got %d", layout.MaxRepo)
+	}
+
+	if layout.MaxLatestBr != 53 {
+		t.Fatalf("expected MaxLatestBr=53, got %d", layout.MaxLatestBr)
+	}
+
+	if layout.MaxSHA != 8 {
+		t.Fatalf("expected MaxSHA=8, got %d", layout.MaxSHA)
+	}
+}

@@ -11,6 +11,7 @@ import (
 	"github.com/spf13/cobra"
 
 	"github.com/alimtvnetwork/gitmap-v28/cli/apperror"
+	"github.com/alimtvnetwork/gitmap-v28/cli/cmdantigravity"
 	"github.com/alimtvnetwork/gitmap-v28/cli/constants"
 	"github.com/alimtvnetwork/gitmap-v28/cli/result"
 )
@@ -43,25 +44,8 @@ func tryDispatchAgyShortcut(args []string) (error, bool) {
 	if isAgyLsEmptyConvsArg(args) {
 		return runAgyLsEmptyConvs(args[1:]), true
 	}
-	if isDirectAgyPromptInjection(args) {
-		return runAgyPrompt(args[1:]), true
-	}
 
 	return nil, false
-}
-
-func isDirectAgyPromptInjection(args []string) bool {
-	if len(args) < 2 {
-		return false
-	}
-	isPrompt := args[0] == "prompt" || args[0] == "pr"
-	if isPrompt == false {
-		return false
-	}
-	sub := strings.ToLower(args[1])
-	isSubcmd := sub == "read" || sub == "show" || sub == "view" || sub == "cat" || sub == "ls" || sub == "list" || sub == "-h" || sub == "--help"
-
-	return isSubcmd == false
 }
 
 func stripAgyPrefix(args []string) []string {
@@ -81,9 +65,27 @@ func normalizeAgyArgs(args []string) []string {
 		return rewriteCompoundAgyFix(args)
 	}
 
+	if isCompoundAgyListPrompts(args) {
+		return rewriteCompoundAgyListPrompts(args)
+	}
+
 	args[0] = normalizeAgySubcommand(args[0])
 
 	return args
+}
+
+func isCompoundAgyListPrompts(args []string) bool {
+	if len(args) < 2 {
+		return false
+	}
+	first := strings.ToLower(args[0])
+	second := strings.ToLower(args[1])
+
+	return first == "list" && (second == "prompts" || second == "prompt")
+}
+
+func rewriteCompoundAgyListPrompts(args []string) []string {
+	return append([]string{"prompt", "ls"}, args[2:]...)
 }
 
 func isCompoundAgyFix(args []string) bool {
@@ -180,6 +182,9 @@ func normalizeMaintenanceSubcommands(low string) string {
 }
 
 func normalizeWorkflowSubcommands(low string) string {
+	if match := normalizePromptSubcommands(low); len(match) > 0 {
+		return match
+	}
 	if low == "list-prompts" || low == "listprompts" || low == "lp" || low == "list-prompt" {
 		return "list-prompts"
 	}
@@ -189,8 +194,22 @@ func normalizeWorkflowSubcommands(low string) string {
 	if low == "queue" || low == "q" {
 		return "queue"
 	}
+
+	return ""
+}
+
+func normalizePromptSubcommands(low string) string {
 	if low == "prompt" || low == "pr" {
 		return "prompt"
+	}
+	if low == "p" || low == "prompt-p" || low == "prompt-project" {
+		return "prompt-project"
+	}
+	if low == "prompt-with-name" || low == "pwn" {
+		return "prompt-with-name"
+	}
+	if low == "prompt-txt" || low == "pt" {
+		return "prompt-txt"
 	}
 
 	return ""
@@ -277,7 +296,14 @@ func registerAgyBaseCommands() {
 	AgyCmd.AddCommand(agyUpdateCmd)
 	AgyCmd.AddCommand(agyClearCmd)
 	AgyCmd.AddCommand(agyOpenCmd)
-	AgyCmd.AddCommand(agyPromptCmd)
+	registerAgyPromptCommands()
+}
+
+func registerAgyPromptCommands() {
+	AgyCmd.AddCommand(cmdantigravity.PromptCmd)
+	AgyCmd.AddCommand(cmdantigravity.PromptProjectCmd)
+	AgyCmd.AddCommand(cmdantigravity.PromptWithNameCmd)
+	AgyCmd.AddCommand(cmdantigravity.PromptTxtCmd)
 }
 
 func registerAgyProjectCommands() {
@@ -359,9 +385,6 @@ func initAgyQueueCommands() {
 
 func initAgyPromptAndStatusCommands() {
 	initAgyPromptSubcommands()
-	agyPromptCmd.RunE = func(cmd *cobra.Command, args []string) error {
-		return runAgyPrompt(args)
-	}
 	agyStatusCmd.RunE = func(cmd *cobra.Command, args []string) error {
 		return runAgyStatusWithQueue()
 	}

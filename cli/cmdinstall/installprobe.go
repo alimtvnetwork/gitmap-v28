@@ -56,6 +56,9 @@ var toolProbeMap = map[string]toolProbeConfig{
 	constants.ToolAgy:            {bins: []string{"agy"}, args: []string{"--version"}},
 	constants.ToolAgManager:      {bins: []string{"ag-manager", "Antigravity.Tools", "Antigravity-Manager"}, args: []string{"--version"}},
 	constants.ToolGitCompact:     {bins: []string{"git-compact", "gitcompact"}, args: []string{"--version"}},
+	constants.ToolBeyondCompare:  {bins: []string{"bcomp", "bcompare", "BComp.exe", "BCompare.exe"}, args: []string{"/version"}},
+	constants.ToolBeyondCompare4: {bins: []string{"bcomp", "bcompare", "BComp.exe", "BCompare.exe"}, args: []string{"/version"}},
+	constants.ToolBeyondCompare5: {bins: []string{"bcomp", "bcompare", "BComp.exe", "BCompare.exe"}, args: []string{"/version"}},
 }
 
 func resolveToolCandidates(tool string) ([]string, []string) {

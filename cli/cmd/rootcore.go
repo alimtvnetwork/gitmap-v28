@@ -52,7 +52,15 @@ func coreBasicOpEntries() []dispatchEntry {
 		{[]string{constants.CmdScan, constants.CmdScanAlias}, func() error { return runScan(argsTail()) }},
 		{[]string{constants.CmdClone, constants.CmdCloneAlias}, func() error { return runClone(argsTail()) }},
 		{[]string{constants.CmdCloneOnlyMissing, constants.CmdCloneOnlyMissingAlias}, func() error { return runCloneOnlyMissing(argsTail()) }},
-		{[]string{constants.CmdCreate, constants.CmdCreateAlias}, func() error { return runCreate(argsTail()) }},
+		{[]string{
+			constants.CmdCreate, constants.CmdCreateAlias,
+			constants.CmdRepoCreate, constants.CmdRepoCreateAlias,
+			constants.CmdCreateRepo, constants.CmdCreateRepoAlias,
+		}, func() error { return runCreate(argsTail()) }},
+		{[]string{
+			constants.CmdCreateLocalRepo, constants.CmdCreateLocalRepoAlias,
+			constants.CmdCreateRepoLocal, constants.CmdRepoCreateLocal,
+		}, func() error { return runCreateLocal(argsTail()) }},
 		{[]string{constants.CmdCloneSync, constants.CmdCloneSyncAlias}, runCloneSync},
 		{[]string{constants.CmdPull, constants.CmdPullAlias}, func() error { return runPull(argsTail()) }},
 		{[]string{constants.CmdPush, constants.CmdPushAlias}, func() error { return runPush(argsTail()) }},

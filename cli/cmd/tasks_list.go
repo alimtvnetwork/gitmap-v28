@@ -5,12 +5,13 @@ import (
 	"fmt"
 
 	"github.com/alimtvnetwork/gitmap-v28/cli/apperror"
+	"github.com/alimtvnetwork/gitmap-v28/cli/cmdtask"
 	"github.com/alimtvnetwork/gitmap-v28/cli/constants"
 	"github.com/alimtvnetwork/gitmap-v28/cli/model"
 )
 
 func runTasksList() error {
-	db, err := openDB()
+	db, err := openTasksDB()
 	if err != nil {
 		return apperror.WrapSimple(err, constants.WarnPendingDBOpen)
 	}
@@ -68,28 +69,6 @@ func printRecentCompletedTasksTable(tasks []model.CompletedTaskRecord) {
 	fmt.Println()
 }
 
-func runTasksHistory() error {
-	db, err := openDB()
-	if err != nil {
-		return apperror.WrapSimple(err, constants.WarnPendingDBOpen)
-	}
-
-	defer db.Close()
-
-	completed, err := db.ListCompletedTasks()
-	if err != nil {
-		return apperror.WrapSimple(err, constants.ErrPendingTaskQuery)
-	}
-
-	fmt.Println()
-	fmt.Printf("  %s📋 Task Execution History (%d total)%s\n", constants.ColorCyan, len(completed), constants.ColorReset)
-	fmt.Printf("    %-6s %-12s %-26s %-20s %s\n", "ID", "TYPE", "COMPLETED_AT", "SOURCE_CMD", "ARGS")
-	fmt.Printf("    %s\n", constants.TermTableRule)
-	for _, t := range completed {
-		fmt.Printf("    %-6d %-12s %-26s %-20s %s\n",
-			t.ID, t.TaskTypeName, t.CompletedAt, t.SourceCommand, t.CommandArgs)
-	}
-	fmt.Println()
-
-	return nil
+func runTasksHistory(args []string) error {
+	return cmdtask.RunTaskHistory(args)
 }

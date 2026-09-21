@@ -21,9 +21,9 @@ func getAskPassScriptExt() string {
 func buildAskPassScriptContent() string {
 	isWindows := runtime.GOOS == "windows"
 	if isWindows {
-		return "@echo off\r\necho %GITMAP_SSH_PASS%\r\n"
+		return "@echo off\r\n<nul set /p=\"%GITMAP_SSH_PASS%\"\r\n"
 	}
-	return "#!/bin/sh\necho \"$GITMAP_SSH_PASS\"\n"
+	return "#!/bin/sh\nprintf \"%s\" \"$GITMAP_SSH_PASS\"\n"
 }
 
 func resolveAskPassTempPath() string {

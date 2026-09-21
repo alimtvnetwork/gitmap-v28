@@ -96,11 +96,11 @@ func extractFailingJobsAndSteps(jobs []ghJobItem) []FailedJobItem {
 }
 
 func isJobFailing(j ghJobItem) bool {
-	return j.Conclusion == "failure"
+	return j.Conclusion == "failure" || j.Conclusion == "cancelled" || j.Conclusion == "timed_out" || j.Conclusion == "startup_failure"
 }
 
 func isStepFailing(s ghStepItem) bool {
-	return s.Conclusion == "failure"
+	return s.Conclusion == "failure" || s.Conclusion == "cancelled" || s.Conclusion == "timed_out"
 }
 
 func extractFailingStepsFromJob(j ghJobItem) []FailedJobItem {
@@ -112,28 +112,29 @@ func extractFailingStepsFromJob(j ghJobItem) []FailedJobItem {
 	}
 
 	if len(items) == 0 {
-		items = append(items, buildStepFailureItem(j.Name, "Job Execution"))
+		items = append(items, buildJobFailureItem(j, "Job Execution"))
 	}
 
 	return items
 }
 
 func buildStepFailureFromGhStep(jobName string, s ghStepItem) FailedJobItem {
-	summary := fmt.Sprintf("Step '%s' (step #%d) failed in job '%s'", s.Name, s.Number, jobName)
+	summary := fmt.Sprintf("Step '%s' (step #%d) %s in job '%s'", s.Name, s.Number, s.Conclusion, jobName)
 	return FailedJobItem{
 		JobName:        jobName,
 		StepName:       s.Name,
 		FailureSummary: summary,
-		ErrorLines:     []string{fmt.Sprintf("Failure detected in step #%d '%s'", s.Number, s.Name)},
+		ErrorLines:     []string{fmt.Sprintf("Failure detected in step #%d '%s' (%s)", s.Number, s.Name, s.Conclusion)},
 	}
 }
 
-func buildStepFailureItem(jobName, stepName string) FailedJobItem {
+func buildJobFailureItem(j ghJobItem, stepName string) FailedJobItem {
+	summary := fmt.Sprintf("Job '%s' ended with conclusion '%s'", j.Name, j.Conclusion)
 	return FailedJobItem{
-		JobName:        jobName,
+		JobName:        j.Name,
 		StepName:       stepName,
-		FailureSummary: fmt.Sprintf("Step '%s' failed in job '%s'", stepName, jobName),
-		ErrorLines:     []string{fmt.Sprintf("Failure detected in job '%s' step '%s'", jobName, stepName)},
+		FailureSummary: summary,
+		ErrorLines:     []string{fmt.Sprintf("Job '%s' conclusion: %s", j.Name, j.Conclusion)},
 	}
 }
 

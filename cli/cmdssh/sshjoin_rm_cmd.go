@@ -3,6 +3,7 @@ package cmdssh
 import (
 	"context"
 	"fmt"
+	"net"
 
 	"github.com/alimtvnetwork/gitmap-v28/cli/apperror"
 	"github.com/spf13/cobra"
@@ -35,6 +36,14 @@ func dispatchRmCategory(ctx context.Context, target string, args []string) (bool
 	return false, nil
 }
 
+func resolveRmAction(target string) string {
+	isIP := net.ParseIP(target) != nil
+	if isIP {
+		return ActionRmIP
+	}
+	return ActionRmNode
+}
+
 func executeTargetNodeRm(target string, flags []string) error {
 	ctx := context.Background()
 	hosts, err := fetchSJHosts(ctx)
@@ -56,7 +65,7 @@ func executeTargetNodeRm(target string, flags []string) error {
 		return nil
 	}
 
-	return executeNodeDeletion(ctx, ActionRmNode, target, candidates)
+	return executeNodeDeletion(ctx, resolveRmAction(target), target, candidates)
 }
 
 func handleEmptyRm(ctx context.Context, args []string) error {

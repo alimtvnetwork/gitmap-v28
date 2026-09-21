@@ -129,22 +129,44 @@ func _deprecated_pickSourceDisplayName(name string, left, right movemerge.Endpoi
 	return left.DisplayName
 }
 
-// resolveCommitEndpoints reuses the merge-* endpoint resolver. LEFT is
-// the source for commit-right; we mark it as the "left" side for the
-// resolver's missing-folder semantics.
-func resolveCommitEndpoints(leftRaw, rightRaw string, _ committransfer.Options,
-) (movemerge.Endpoint, movemerge.Endpoint, error) {
+func provisionDestTarget(raw string, isLocal bool) string {
+	prov, err := EnsureOrProvisionDestinationRepo(raw, isLocal)
+	if err == nil {
+		return prov
+	}
+
+	return raw
+}
+
+func resolveEndpointsResolved(leftTarget, rightTarget string) (movemerge.Endpoint, movemerge.Endpoint, error) {
 	mmOpts := movemerge.Options{}
-	resolvedLeft := resolveEndpointString(leftRaw)
+	resolvedLeft := resolveEndpointString(leftTarget)
 	left, err := movemerge.ResolveEndpoint(resolvedLeft, true, mmOpts)
 	if err != nil {
 		return left, movemerge.Endpoint{}, err
 	}
 
-	resolvedRight := resolveEndpointString(rightRaw)
+	resolvedRight := resolveEndpointString(rightTarget)
 	right, err := movemerge.ResolveEndpoint(resolvedRight, false, mmOpts)
 
 	return left, right, err
+}
+
+// resolveCommitEndpoints reuses the merge-* endpoint resolver, auto-provisioning
+// missing destination endpoints if needed.
+func resolveCommitEndpoints(leftRaw, rightRaw string, opts committransfer.Options,
+) (movemerge.Endpoint, movemerge.Endpoint, error) {
+	leftTarget := leftRaw
+	rightTarget := rightRaw
+	isLeftDest := opts.CommandName == constants.CmdCommitLeft
+	if isLeftDest {
+		leftTarget = provisionDestTarget(leftRaw, opts.IsLocal)
+	}
+	if !isLeftDest {
+		rightTarget = provisionDestTarget(rightRaw, opts.IsLocal)
+	}
+
+	return resolveEndpointsResolved(leftTarget, rightTarget)
 }
 
 func defaultPRMode(cmdName string) string {
@@ -194,6 +216,8 @@ func registerCommitTransferBools(fs *flag.FlagSet, opts *committransfer.Options)
 	fs.BoolVar(&opts.Mirror, constants.FlagCTMirror, false, constants.FlagDescCTMirror)
 	fs.BoolVar(&opts.ForceReplay, constants.FlagCTForceReplay, false, constants.FlagDescCTForceReplay)
 	fs.BoolVar(&opts.Interleave, constants.FlagCTInterleave, false, constants.FlagDescCTInterleave)
+	fs.BoolVar(&opts.IsLocal, "local", false, "Provision destination repository locally only (skip GitHub creation)")
+	fs.BoolVar(&opts.IsLocal, "no-remote", false, "Alias for --local")
 	registerMessagePolicyToggles(fs, opts)
 }
 

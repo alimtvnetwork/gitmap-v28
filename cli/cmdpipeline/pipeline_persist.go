@@ -49,6 +49,20 @@ func resolvePipelineDirForRepo(repo string) string {
 	return pipelinedb.RepoPipelineDir(targetRepo)
 }
 
+func isCorruptOrFallbackErrorLog(content string) bool {
+	if strings.Contains(content, "gh command failed") {
+		return true
+	}
+	if strings.Contains(content, "at github.com/alimtvnetwork/") {
+		return true
+	}
+	if strings.Contains(content, "Unable to fetch failed logs via gh CLI") {
+		return true
+	}
+
+	return false
+}
+
 func readCachedPipelineLog(runId uint64) (string, bool) {
 	return readCachedPipelineLogForRepo("", runId)
 }
@@ -60,8 +74,10 @@ func readCachedPipelineLogForRepo(repo string, runId uint64) (string, bool) {
 	}
 	for _, p := range candidates {
 		data, err := os.ReadFile(p)
-		if err == nil && len(data) > 0 {
-			return string(data), true
+		content := string(data)
+		hasValidData := err == nil && len(data) > 0 && !isCorruptOrFallbackErrorLog(content)
+		if hasValidData {
+			return content, true
 		}
 	}
 
@@ -75,14 +91,17 @@ func readCachedLogFromDb(repo string, runId uint64) (string, bool) {
 	}
 	defer pipeDb.Close()
 
-	if content, ok := queryDetailLogFromDb(pipeDb, runId); ok {
+	if content, ok := queryDetailLogFromDb(pipeDb, runId); ok && !isCorruptOrFallbackErrorLog(content) {
 		return content, true
 	}
-	if content, ok := queryCompactLogFromDb(pipeDb, runId); ok {
+	if content, ok := queryCompactLogFromDb(pipeDb, runId); ok && !isCorruptOrFallbackErrorLog(content) {
+		return content, true
+	}
+	if content, ok := queryLegacyErrorLogFromDb(pipeDb, runId); ok && !isCorruptOrFallbackErrorLog(content) {
 		return content, true
 	}
 
-	return queryLegacyErrorLogFromDb(pipeDb, runId)
+	return "", false
 }
 
 func queryDetailLogFromDb(pipeDb *pipelinedb.PipelineSplitDb, runId uint64) (string, bool) {

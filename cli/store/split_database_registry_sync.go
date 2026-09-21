@@ -26,10 +26,49 @@ func (db *DB) SyncKnownSplitDatabases() error {
 		return apperror.WrapSimple(err, "store.SyncKnownSplitDatabases.installation")
 	}
 
+	db.syncTasksDB()
 	db.syncScheduleDBs()
 	db.syncPipelineDBs()
+	db.syncAiInstructionDB()
+	db.syncSearchDB()
 
 	return nil
+}
+
+func (db *DB) syncAiInstructionDB() {
+	path := ResolveAiInstructionDbPath("")
+	aiDB, err := OpenAiInstructionSplitDBAt(path)
+	if err == nil && aiDB != nil {
+		_ = aiDB.Close()
+	}
+
+	desc := "AI instruction execution history and category split database"
+	entry := inspectSplitDBFile("ai-instruction", "ai_instruction_master", path, desc)
+	_ = db.RegisterSplitDB(entry)
+}
+
+func (db *DB) syncSearchDB() {
+	path := ResolveSearchDbPath("")
+	searchDB, err := OpenSearchSplitDBAt(path)
+	if err == nil && searchDB != nil {
+		_ = searchDB.Close()
+	}
+
+	desc := "Search queries, caller tracking, and audit split database"
+	entry := inspectSplitDBFile("search", "search_master", path, desc)
+	_ = db.RegisterSplitDB(entry)
+}
+
+func (db *DB) syncTasksDB() {
+	path := ResolveTasksRootDbPath("")
+	tasksDB, err := OpenTasksRootSplitDBAt(path)
+	if err == nil && tasksDB != nil {
+		_ = tasksDB.Close()
+	}
+
+	desc := "Root database for tasks, queue, and execution history"
+	entry := inspectSplitDBFile("tasks", "tasks_root", path, desc)
+	_ = db.RegisterSplitDB(entry)
 }
 
 func (db *DB) syncInstallationDB() error {

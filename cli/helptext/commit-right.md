@@ -61,6 +61,10 @@ either a local folder path or an `https://` / `git@` URL with optional
     gitmap commit-right ./repo-A ./repo-B
     gitmap commit-right prompt-architect-v2 https://github.com/alimtvnetwork/prompt-architect-v3
 
+    # Auto-provision target repository (locally and on GitHub) if it does not exist:
+    gitmap commit-right ./repo-A "New Project Destination"
+    gitmap commit-right ./repo-A "New Local Project" --local
+
 Output:
 
     [commit-right] replaying 7 commits from LEFT onto RIGHT:

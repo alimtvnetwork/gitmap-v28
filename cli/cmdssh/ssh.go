@@ -24,11 +24,36 @@ func runSSH(args []string) error {
 	return result.AsError(dispatchSSH(context.Background(), args, nil))
 }
 
+func dispatchKeyOpsSSH(sub string, args []string) result.ErrorWrapper {
+	switch sub {
+	case "key", "keys", "ssh-key":
+		if len(args) > 0 {
+			switch args[0] {
+			case "add", "install":
+				return result.MatchWrapper(RunSSHAuthKeyAddCLI(args[1:]))
+			case "rm", "remove", "delete":
+				return result.MatchWrapper(runSSHDelete(args[1:]))
+			case "manage", "list", "ls":
+				return result.MatchWrapper(runSSHKeysManage(args[1:]))
+			}
+		}
+	}
+
+	return result.UnmatchedWrapper()
+}
+
 func dispatchCoreSSH(ctx context.Context, sub string, args []string, parent *cobra.Command) result.ErrorWrapper {
 	if resNode := dispatchNodeSSH(ctx, sub, args, parent); resNode.IsMatched() {
 		return resNode
 	}
+	if resKey := dispatchKeyOpsSSH(sub, args); resKey.IsMatched() {
+		return resKey
+	}
 
+	return dispatchBasicCoreSSH(ctx, sub, args, parent)
+}
+
+func dispatchBasicCoreSSH(ctx context.Context, sub string, args []string, parent *cobra.Command) result.ErrorWrapper {
 	switch sub {
 	case "login", "login-install":
 		return result.MatchWrapper(runSSHLogin(parent, args, ctx))
@@ -49,6 +74,8 @@ func dispatchHistorySSH(sub string, args []string) result.ErrorWrapper {
 		return result.MatchWrapper(RunSSHResetCLI(args))
 	case "undo":
 		return result.MatchWrapper(RunSSHUndoCLI(args))
+	case "redo":
+		return result.MatchWrapper(RunSSHRedoCLI(args))
 	case "restore":
 		return result.MatchWrapper(RunSSHRestoreCLI(args))
 	default:
@@ -67,18 +94,24 @@ func dispatchNodeSSH(ctx context.Context, sub string, args []string, parent *cob
 		return result.MatchWrapper(RunSSHNodesCLI(ctx, args))
 	case "rm", "remove":
 		return result.MatchWrapper(runSJRm(parent, args, ctx))
+	case "ip":
+		if len(args) > 0 && (args[0] == "rm" || args[0] == "remove" || args[0] == "delete") {
+			return result.MatchWrapper(runSJRm(parent, args[1:], ctx))
+		}
+		return result.UnmatchedWrapper()
 	default:
 		return result.UnmatchedWrapper()
 	}
 }
 
-func dispatchPackageSSH(sub string, args []string) result.ErrorWrapper {
+func dispatchAuthOpsSSH(sub string, args []string) result.ErrorWrapper {
 	switch sub {
-	case "install", "i":
-		return result.MatchWrapper(runSSHInstallCLI(args))
-	case "update", "u":
-		return result.MatchWrapper(runSSHUpdateCLI(args))
+	case "auth-key-add", "ssh-key-add", "key-add", "add-key":
+		return result.MatchWrapper(RunSSHAuthKeyAddCLI(args))
 	case "auth-key", "copy-id", "fix-auth":
+		if len(args) > 0 && (args[0] == "add" || args[0] == "install") {
+			return result.MatchWrapper(RunSSHAuthKeyAddCLI(args[1:]))
+		}
 		return result.MatchWrapper(RunSSHAuthKeyDeployCLI(args))
 	case "known-hosts", "knownhosts", "kh", "trust-list":
 		return result.MatchWrapper(RunSSHKnownHostsCLI(args))
@@ -86,6 +119,20 @@ func dispatchPackageSSH(sub string, args []string) result.ErrorWrapper {
 		return result.MatchWrapper(RunSSHTrustCLI(args))
 	case "untrust":
 		return result.MatchWrapper(RunSSHUntrustCLI(args))
+	default:
+		return result.UnmatchedWrapper()
+	}
+}
+
+func dispatchPackageSSH(sub string, args []string) result.ErrorWrapper {
+	if resAuth := dispatchAuthOpsSSH(sub, args); resAuth.IsMatched() {
+		return resAuth
+	}
+	switch sub {
+	case "install", "i":
+		return result.MatchWrapper(runSSHInstallCLI(args))
+	case "update", "u":
+		return result.MatchWrapper(runSSHUpdateCLI(args))
 	case "scan":
 		return result.MatchWrapper(runSSHScanCLI(args))
 	default:

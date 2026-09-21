@@ -38,6 +38,8 @@ type pullOptions struct {
 	yes           bool
 	noFix         bool
 	isRaw         bool
+	useSSH        bool
+	useHTTPS      bool
 }
 
 // NormalizePullArgs converts positional "all", "pa", or "pull-all" argument into "--all" flag.
@@ -61,15 +63,31 @@ func runPull(args []string) error {
 	args = NormalizePullArgs(args)
 	printPullInvocationHeader(isPullAll)
 	requireOnline()
-	if handleTransportPull(args) {
+	useSSH, useHTTPS, restArgs := ExtractTransportFlags(args)
+	isCWDTransport := !isPullAll && (useSSH || useHTTPS)
+	if isCWDTransport {
+		runPullCWDWithTransport(useSSH, useHTTPS, restArgs)
+
 		return nil
 	}
-	opts := parsePullFlags(args)
+	opts := resolveParsedPullOptions(restArgs, useSSH, useHTTPS)
 	if opts.verbose {
 		initVerboseLog()
 	}
 
 	return dispatchPullExecution(opts)
+}
+
+func resolveParsedPullOptions(args []string, useSSH, useHTTPS bool) pullOptions {
+	opts := parsePullFlags(args)
+	if useSSH {
+		opts.useSSH = true
+	}
+	if useHTTPS {
+		opts.useHTTPS = true
+	}
+
+	return opts
 }
 
 func isPullAllInvocation(args []string) bool {
@@ -179,6 +197,7 @@ func executePullBatchLifecycle(records []model.ScanRecord, opts pullOptions) err
 	if taskDB != nil {
 		defer taskDB.Close()
 	}
+	maybeApplyTransportToRecords(records, opts.useSSH, opts.useHTTPS)
 	bar := NewPullProgressBar(len(records), false, opts.stopOnFail)
 	bar.Start()
 	executePull(records, bar, opts)
@@ -188,6 +207,25 @@ func executePullBatchLifecycle(records []model.ScanRecord, opts pullOptions) err
 	handlePullRemediationForRecords(records, opts)
 
 	return finalizePullBatchTask(taskDB, taskID, bar.Failed())
+}
+
+func maybeApplyTransportToRecords(records []model.ScanRecord, useSSH, useHTTPS bool) {
+	hasTransport := useSSH || useHTTPS
+	if !hasTransport {
+		return
+	}
+	for _, rec := range records {
+		applyTransportIfPathExists(rec.AbsolutePath, useSSH, useHTTPS)
+	}
+}
+
+func applyTransportIfPathExists(path string, useSSH, useHTTPS bool) {
+	hasPath := len(path) > 0
+	if !hasPath {
+		return
+	}
+
+	ApplyTransportFlag(path, useSSH, useHTTPS)
 }
 
 func sortStatesAlphabetically(states []*PullRepoState) []*PullRepoState {
@@ -497,10 +535,10 @@ func ExtractTransportFlags(args []string) (bool, bool, []string) {
 	var useSSH, useHTTPS bool
 	rest := make([]string, 0, len(args))
 	for _, a := range args {
-		switch a {
-		case "--ssh", "-ssh", "--sh", "-sh":
+		switch strings.ToLower(a) {
+		case "--ssh", "-ssh", "--sh", "-sh", "ssh":
 			useSSH = true
-		case "--https", "-https", "--ht", "-ht":
+		case "--https", "-https", "--ht", "-ht", "https":
 			useHTTPS = true
 		default:
 			rest = append(rest, a)
@@ -569,6 +607,7 @@ func handlePullRemediation(remItems []RemediationItem, opts pullOptions) {
 
 type pullFlagHolders struct {
 	vFlag, aFlag, sFlag, oFlag, fixFlag, yFlag, noFixFlag, rawFlag *bool
+	sshFlag, httpsFlag                                             *bool
 	gFlag                                                          *string
 	pFlag                                                          *int
 }
@@ -590,6 +629,8 @@ func registerPullCoreFlags(fs *flag.FlagSet, h *pullFlagHolders) {
 	h.pFlag = fs.Int("parallel", 0, constants.FlagDescPullParallel)
 	h.oFlag = fs.Bool("only-available", false, constants.FlagDescPullOnlyAvailable)
 	h.rawFlag = fs.Bool("raw", false, constants.FlagDescPullRaw)
+	h.sshFlag = fs.Bool("ssh", false, "Pull using SSH transport")
+	h.httpsFlag = fs.Bool("https", false, "Pull using HTTPS transport")
 	fs.StringVar(h.gFlag, "g", "", constants.FlagDescGroup)
 }
 
@@ -612,6 +653,8 @@ func buildPullOptions(h *pullFlagHolders) pullOptions {
 		yes:           *h.yFlag,
 		noFix:         *h.noFixFlag,
 		isRaw:         *h.rawFlag,
+		useSSH:        *h.sshFlag,
+		useHTTPS:      *h.httpsFlag,
 	}
 }
 

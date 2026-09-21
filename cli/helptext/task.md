@@ -12,13 +12,17 @@ tk
 
 ## Subcommands
 
-| Subcommand | Description                          |
-|------------|--------------------------------------|
-| create     | Create a new sync task               |
-| list       | List all saved tasks                 |
-| run        | Start a task's sync loop             |
-| show       | Show details of a task               |
-| delete     | Remove a saved task                  |
+| Subcommand | Description                                               |
+|------------|-----------------------------------------------------------|
+| create     | Create a new sync task                                    |
+| list       | List all saved tasks                                      |
+| run        | Start a task's sync loop                                  |
+| show       | Show details of a task                                    |
+| delete     | Remove a saved task                                       |
+| history    | View task execution history ([limit] [offset], e.g. -10)  |
+| undo       | Revert the most recently completed task or task ID        |
+| redo       | Re-execute the most recently undone task                  |
+| clear      | Clear orphaned or illegal pending tasks                   |
 
 ## Flags (create)
 
@@ -72,6 +76,19 @@ tk
 
     $ gitmap task delete docs-mirror
       Task 'docs-mirror' deleted.
+
+### View task execution history
+
+    $ gitmap task history
+    $ gitmap task history 50
+    $ gitmap task history 50 -10
+    $ gitmap task history -20
+
+### Undo or redo a task
+
+    $ gitmap task undo
+    $ gitmap task undo 12
+    $ gitmap task redo
 
 ## See Also
 

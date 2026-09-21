@@ -330,6 +330,7 @@ func printEnrollSuccess(alias, target string) {
 	fmt.Printf("✓ Machine '%s' (%s) joined successfully.\n", alias, target)
 	fmt.Printf("  Recall anytime: gitmap ssh %s\n", alias)
 	fmt.Printf("  Or connect directly: gitmap ssh %s\n", target)
+	fmt.Println("  Undo anytime: gitmap ssh undo")
 }
 
 func resolveContext(ctx context.Context) context.Context {

@@ -64,3 +64,25 @@ func TestDispatchNodeSSH_Add(t *testing.T) {
 		t.Errorf("expected 'add' subcommand to match in dispatchNodeSSH")
 	}
 }
+
+func TestDispatchSSH_AuthKeyAdd(t *testing.T) {
+	res1 := dispatchPackageSSH("auth-key-add", []string{"--help"})
+	if !res1.IsMatched() {
+		t.Errorf("expected 'auth-key-add' to match in dispatchPackageSSH")
+	}
+
+	res2 := dispatchPackageSSH("auth-key", []string{"add", "--help"})
+	if !res2.IsMatched() {
+		t.Errorf("expected 'auth-key add' to match in dispatchPackageSSH")
+	}
+
+	res3 := dispatchKeyOpsSSH("ssh-key", []string{"add", "--help"})
+	if !res3.IsMatched() {
+		t.Errorf("expected 'ssh-key add' to match in dispatchKeyOpsSSH")
+	}
+
+	res4 := dispatchKeyOpsSSH("key", []string{"add", "--help"})
+	if !res4.IsMatched() {
+		t.Errorf("expected 'key add' to match in dispatchKeyOpsSSH")
+	}
+}

@@ -89,6 +89,7 @@ func attachAskPass(cmd *exec.Cmd, password string) func() {
 }
 
 func SpawnSSHWithPassword(ctx context.Context, target SSHTarget, args []string, password string) error {
+	autoTrustTargetHost(ctx, &target)
 	cmdArgs := buildSSHArgs(target, args)
 	cmd := SSHExecutor(ctx, "ssh", cmdArgs...)
 	cleanup := attachAskPass(cmd, password)

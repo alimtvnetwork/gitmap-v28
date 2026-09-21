@@ -37,6 +37,9 @@ func resolveSpecialToolsMap() map[string]func(installOptions) {
 		constants.ToolAntigravity:      func(opts installOptions) { handleAntigravityInstall(opts) },
 		constants.ToolAgy:              func(opts installOptions) { handleAgyInstall(opts) },
 		constants.ToolGitCompact:       func(opts installOptions) { handleGitCompactInstall(opts) },
+		constants.ToolBeyondCompare:    func(opts installOptions) { handleBeyondCompareInstall(opts, 5) },
+		constants.ToolBeyondCompare4:   func(opts installOptions) { handleBeyondCompareInstall(opts, 4) },
+		constants.ToolBeyondCompare5:   func(opts installOptions) { handleBeyondCompareInstall(opts, 5) },
 	}
 }
 

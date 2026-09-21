@@ -58,6 +58,7 @@ func writeHelpFinalSnapshot(b *strings.Builder) {
 func writeHelpUsageExamples(b *strings.Builder) {
 	b.WriteString("COMMAND USAGE:\n")
 	b.WriteString("  gitmap commit-in <target> <input-1> <input-2> ... [flags]\n")
+	b.WriteString("  gitmap commit-in \"New Target Repo\" <input-1> ... (auto-provisions target)\n")
 	b.WriteString("  gitmap pr in <target> <input-1> <input-2> ... [flags]\n")
 	b.WriteString("  gitmap cin <target> all --since 2026-01-01 --pr merges\n")
 	b.WriteString("  gitmap pr-clean <target> --yes\n\n")

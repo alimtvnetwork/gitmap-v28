@@ -108,6 +108,17 @@ var toolAliasMap = map[string]string{
 	"git-compact":         constants.ToolGitCompact,
 	"gitcompact":          constants.ToolGitCompact,
 	"git-c":               constants.ToolGitCompact,
+	"bc":                  constants.ToolBeyondCompare,
+	"bcompare":            constants.ToolBeyondCompare,
+	"beyond-compare":      constants.ToolBeyondCompare,
+	"bc4":                 constants.ToolBeyondCompare4,
+	"bcompare4":           constants.ToolBeyondCompare4,
+	"beyond-compare-4":    constants.ToolBeyondCompare4,
+	"beyondcompare-4":     constants.ToolBeyondCompare4,
+	"bc5":                 constants.ToolBeyondCompare5,
+	"bcompare5":           constants.ToolBeyondCompare5,
+	"beyond-compare-5":    constants.ToolBeyondCompare5,
+	"beyondcompare-5":     constants.ToolBeyondCompare5,
 }
 
 // resolveToolAlias normalizes known tool aliases to their canonical tool name.

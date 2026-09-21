@@ -36,7 +36,7 @@ func dispatchTaskSubcommand(sub string, args []string) error {
 	case constants.CmdTaskList, "ls":
 		return runTasksList()
 	case constants.CmdTaskHistory, "hist", "hi":
-		return runTasksHistory()
+		return runTasksHistory(args)
 	case constants.CmdTaskUndo:
 		return runTasksUndo(args)
 	case constants.CmdTaskRedo:

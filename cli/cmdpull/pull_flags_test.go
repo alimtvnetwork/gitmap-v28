@@ -80,3 +80,37 @@ func TestParsePullFlags_OnlyAvailable(t *testing.T) {
 		t.Error("expected onlyAvailable=true")
 	}
 }
+
+func TestParsePullFlags_SSH(t *testing.T) {
+	useSSH, useHTTPS, rest := ExtractTransportFlags([]string{"--all", "--ssh"})
+	opts := resolveParsedPullOptions(rest, useSSH, useHTTPS)
+	if !opts.all {
+		t.Error("expected all=true")
+	}
+
+	if !opts.useSSH {
+		t.Error("expected useSSH=true")
+	}
+
+	if opts.useHTTPS {
+		t.Error("expected useHTTPS=false")
+	}
+}
+
+func TestParsePullFlags_SSHPositionalAndCaseInsensitive(t *testing.T) {
+	useSSH, useHTTPS, rest := ExtractTransportFlags([]string{"--all", "ssh"})
+	opts := resolveParsedPullOptions(rest, useSSH, useHTTPS)
+	if !opts.useSSH {
+		t.Error("expected useSSH=true for positional 'ssh'")
+	}
+
+	useSSHUpper, _, _ := ExtractTransportFlags([]string{"--all", "SSH"})
+	if !useSSHUpper {
+		t.Error("expected useSSH=true for uppercase 'SSH'")
+	}
+
+	_, useHTTPSPos, _ := ExtractTransportFlags([]string{"--all", "https"})
+	if !useHTTPSPos {
+		t.Error("expected useHTTPS=true for positional 'https'")
+	}
+}

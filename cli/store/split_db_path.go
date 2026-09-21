@@ -109,6 +109,44 @@ func ResolveSplitDbPath(section, slug, repoRoot string) string {
 	return targetPath
 }
 
+// ResolveTasksRootDbPath resolves the tasks root SQLite database file path (.gitmap/data/tasks/sql.db).
+func ResolveTasksRootDbPath(repoRoot string) string {
+	baseDir := resolveBaseDataDir(repoRoot)
+	dir := filepath.Join(baseDir, "tasks")
+	_ = os.MkdirAll(dir, 0755)
+
+	return filepath.ToSlash(filepath.Join(dir, DbFileName))
+}
+
+// ResolveSectionTasksDbPath resolves a section-scoped tasks database file path (.gitmap/data/<section>/<section>-tasks.db).
+func ResolveSectionTasksDbPath(section, repoRoot string) string {
+	cleanSec := SanitizeSlug(section)
+	baseDir := resolveBaseDataDir(repoRoot)
+	dir := filepath.Join(baseDir, cleanSec)
+	_ = os.MkdirAll(dir, 0755)
+
+	fileName := cleanSec + "-tasks.db"
+	return filepath.ToSlash(filepath.Join(dir, fileName))
+}
+
+// ResolveAiInstructionDbPath resolves the AI instruction SQLite database file path (.gitmap/data/ai-instruction/sql.db).
+func ResolveAiInstructionDbPath(repoRoot string) string {
+	baseDir := resolveBaseDataDir(repoRoot)
+	dir := filepath.Join(baseDir, "ai-instruction")
+	_ = os.MkdirAll(dir, 0755)
+
+	return filepath.ToSlash(filepath.Join(dir, DbFileName))
+}
+
+// ResolveSearchDbPath resolves the search SQLite database file path (.gitmap/data/search/sql.db).
+func ResolveSearchDbPath(repoRoot string) string {
+	baseDir := resolveBaseDataDir(repoRoot)
+	dir := filepath.Join(baseDir, "search")
+	_ = os.MkdirAll(dir, 0755)
+
+	return filepath.ToSlash(filepath.Join(dir, DbFileName))
+}
+
 func migrateLegacySplitDb(section, slug, repoRoot, targetPath string) {
 	candidates := collectLegacyCandidates(section, slug, repoRoot)
 	for _, cand := range candidates {

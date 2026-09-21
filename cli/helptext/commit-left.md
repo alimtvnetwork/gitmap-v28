@@ -25,8 +25,10 @@ RIGHT → LEFT instead of LEFT → RIGHT.
 ## Examples
 
     gitmap commit-left ./repo-A ./repo-B
+    gitmap commit-left "New Left Repo" ./repo-B
+    gitmap commit-left "New Local Target" ./repo-B --local
 
-Replays the commits **from `./repo-B`** onto `./repo-A`. The provenance
+Replays the commits **from `./repo-B`** onto `./repo-A` (or provisions "New Left Repo" if it does not exist). The provenance
 footer's `gitmap-replay-source:` line records `./repo-B` (the source).
 
 ## See Also

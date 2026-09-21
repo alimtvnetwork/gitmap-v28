@@ -2,6 +2,9 @@ package cmdagy
 
 import (
 	"github.com/spf13/cobra"
+
+	"github.com/alimtvnetwork/gitmap-v28/cli/cmdantigravity"
+	"github.com/alimtvnetwork/gitmap-v28/cli/cmdprompt"
 )
 
 var agyPromptReadCmd = &cobra.Command{
@@ -14,15 +17,16 @@ var agyPromptReadCmd = &cobra.Command{
 }
 
 var agyPromptLsCmd = &cobra.Command{
-	Use:     "ls [limit]",
+	Use:     "ls",
 	Aliases: []string{"list"},
-	Short:   "List conversation prompts across workspaces",
+	Short:   "List available prompt templates",
 	RunE: func(cmd *cobra.Command, args []string) error {
-		return RunAgyPromptLs(args)
+		return cmdprompt.RunPromptList(args)
 	},
 }
 
 func initAgyPromptSubcommands() {
+	cmdantigravity.PromptCmd.AddCommand(agyPromptReadCmd)
 	agyPromptCmd.AddCommand(agyPromptReadCmd)
 	agyPromptCmd.AddCommand(agyPromptLsCmd)
 }

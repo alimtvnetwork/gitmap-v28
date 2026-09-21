@@ -371,6 +371,7 @@ func finalizeEnrollment(ctx context.Context, opts *SSHJoinOptions, session enrol
 		return err
 	}
 
+	_, _ = RecordSSHAddNodeTask(ctx, buildHostRecord(opts, time.Now().UTC()))
 	_ = performConnectedBootstrap(session, opts)
 	if err := pushAuthIfRequested(ctx, opts); err != nil {
 		return apperror.WrapSimple(err, "pushAuthIfRequested")

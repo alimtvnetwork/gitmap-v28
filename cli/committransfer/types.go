@@ -95,6 +95,7 @@ type Options struct {
 	DryRun         bool             // print the plan; no writes
 	NoPush         bool             // skip the final git push
 	NoCommit       bool             // copy + stage but do not commit
+	IsLocal        bool             // local only: skip remote creation when provisioning missing destination
 	IncludeMerges  bool             // default true in CLI; zero value = legacy strip (v6.0.0)
 	IncludeVCS     bool             // copy .git/* during snapshot
 	IncludeNodeMod bool             // copy node_modules/* during snapshot

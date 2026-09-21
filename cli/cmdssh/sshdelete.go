@@ -2,6 +2,7 @@ package cmdssh
 
 import (
 	"bufio"
+	"context"
 	"flag"
 	"fmt"
 	"os"
@@ -48,11 +49,13 @@ func runSSHDelete(args []string) error {
 		return nil
 	}
 
+	_, _ = RecordSSHDeleteKeyTask(context.Background(), key)
 	if err := db.DeleteSSHKey(name); err != nil {
 		return apperror.WrapSimple(err, constants.ErrSSHDelete)
 	}
 
 	fmt.Fprintf(os.Stdout, constants.MsgSSHDeleted, name)
+	fmt.Println("  Undo anytime: gitmap ssh undo")
 
 	if *filesFlag {
 		removeKeyFiles(key.PrivatePath)

@@ -158,7 +158,7 @@ func resolveWindowsDevTools() []string {
 	extra := []string{
 		constants.ToolPython, constants.ToolNodeJS, constants.ToolPnpm,
 		constants.ToolRust, constants.ToolPHP, constants.ToolAntigravity,
-		constants.ToolAgManager,
+		constants.ToolAgManager, constants.ToolBeyondCompare5,
 	}
 
 	return append(resolveWindowsSmallDevTools(), extra...)
@@ -168,6 +168,7 @@ func resolveLinuxDevTools() []string {
 	extra := []string{
 		constants.ToolNodeJS, constants.ToolPnpm, constants.ToolYarn,
 		constants.ToolAntigravity, constants.ToolAgManager,
+		constants.ToolBeyondCompare5,
 	}
 
 	return append(resolveLinuxSmallDevTools(), extra...)

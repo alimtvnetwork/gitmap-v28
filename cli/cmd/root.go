@@ -377,6 +377,11 @@ func dispatch(command string) {
 		return
 	}
 
+	found, err = dispatchCompare(command)
+	if handleDispatchResult(command, found, err, shouldAudit, auditID, auditStart) {
+		return
+	}
+
 	found, err = dispatchMoveMerge(command)
 	if handleDispatchResult(command, found, err, shouldAudit, auditID, auditStart) {
 		return
