@@ -46,12 +46,24 @@ func initSSHHistorySchema(conn *sql.DB) error {
 		return apperror.WrapSimple(errCfg, "openSSHHistoryDB.configure")
 	}
 
-	_, _ = conn.Exec(sqlCreateSSHHistory)
-	_, _ = conn.Exec(sqlCreateSSHTaskQueue)
-	_, _ = conn.Exec(`ALTER TABLE ssh_task_history ADD COLUMN forward_payload TEXT NOT NULL DEFAULT ''`)
-	_, _ = conn.Exec(`ALTER TABLE ssh_task_history ADD COLUMN inverse_payload TEXT NOT NULL DEFAULT ''`)
+	resHist := store.ExecWrapper(conn, sqlCreateSSHHistory)
+	if resHist.IsFailure {
+		return apperror.WrapSimple(resHist.Error, "initSSHHistorySchema.createHistory")
+	}
+
+	resQueue := store.ExecWrapper(conn, sqlCreateSSHTaskQueue)
+	if resQueue.IsFailure {
+		return apperror.WrapSimple(resQueue.Error, "initSSHHistorySchema.createQueue")
+	}
+
+	execSafeColumnAdd(conn, `ALTER TABLE ssh_task_history ADD COLUMN forward_payload TEXT NOT NULL DEFAULT ''`)
+	execSafeColumnAdd(conn, `ALTER TABLE ssh_task_history ADD COLUMN inverse_payload TEXT NOT NULL DEFAULT ''`)
 
 	return nil
+}
+
+func execSafeColumnAdd(conn *sql.DB, query string) {
+	_ = store.ExecWrapper(conn, query) // lint-allow: ignore-db-error reason="column may already exist in table schema"
 }
 
 func copyLegacyFile(src, dst string) {
@@ -131,12 +143,27 @@ func insertHistorySnapshot(ctx context.Context, db *sql.DB, action, target strin
 	taskID := fmt.Sprintf("task-%d", time.Now().UnixNano())
 	createdAt := time.Now().UTC().Format(time.RFC3339)
 	query := `INSERT INTO ssh_task_history (task_id, action, target, payload_json, forward_payload, inverse_payload, created_at) VALUES (?, ?, ?, ?, ?, ?, ?)`
-	_, errExec := db.ExecContext(ctx, query, taskID, action, target, string(payload), target, string(payload), createdAt)
-	if errExec != nil {
-		return "", apperror.WrapSimple(errExec, "insertHistorySnapshot.Exec")
+	res := store.ExecWrapper(db, query, taskID, action, target, string(payload), target, string(payload), createdAt)
+	if res.IsFailure {
+		return "", apperror.WrapSimple(res.Error, "insertHistorySnapshot.Exec")
 	}
 
+	recordSSHTaskToRootTasksDB(taskID, action, target, target, string(payload))
 	return taskID, nil
+}
+
+func recordSSHTaskToRootTasksDB(taskID, action, target, fwd, inv string) {
+	rdb, errOpen := store.OpenTasksRootSplitDB()
+	if errOpen != nil {
+		return
+	}
+	defer rdb.Close()
+
+	sqlQuery := `INSERT OR IGNORE INTO TaskHistory 
+		(TaskId, Section, Action, Target, ForwardPayload, InversePayload, Status) 
+		VALUES (?, 'ssh', ?, ?, ?, ?, 'completed')`
+	res := store.ExecWrapper(rdb.Conn(), sqlQuery, taskID, action, target, fwd, inv)
+	_ = res.Destruct() // lint-allow: ignore-db-error reason="optional cross-split sync"
 }
 
 // EnqueueSSHTask wraps an SSH operation into the task queue with forward and inverse payloads.
@@ -149,16 +176,36 @@ func EnqueueSSHTask(ctx context.Context, action, target, forwardPayload, inverse
 
 	taskID := fmt.Sprintf("task-%d", time.Now().UnixNano())
 	now := time.Now().UTC().Format(time.RFC3339)
-	queryQueue := `INSERT INTO ssh_task_queue (task_id, action, target, forward_payload, inverse_payload, status, created_at, updated_at) VALUES (?, ?, ?, ?, ?, 'pending', ?, ?)`
-	_, _ = db.ExecContext(ctx, queryQueue, taskID, action, target, forwardPayload, inversePayload, now, now)
-
-	queryHist := `INSERT INTO ssh_task_history (task_id, action, target, payload_json, forward_payload, inverse_payload, created_at) VALUES (?, ?, ?, ?, ?, ?, ?)`
-	_, errHist := db.ExecContext(ctx, queryHist, taskID, action, target, inversePayload, forwardPayload, inversePayload, now)
-	if errHist != nil {
-		return "", apperror.WrapSimple(errHist, "EnqueueSSHTask.hist")
+	resQueue := insertSSHTaskQueue(db, taskID, action, target, forwardPayload, inversePayload, now)
+	if resQueue != nil {
+		return "", resQueue
 	}
 
+	resHist := insertSSHHistoryEntry(db, taskID, action, target, forwardPayload, inversePayload, now)
+	if resHist != nil {
+		return "", resHist
+	}
+
+	recordSSHTaskToRootTasksDB(taskID, action, target, forwardPayload, inversePayload)
 	return taskID, nil
+}
+
+func insertSSHTaskQueue(db *sql.DB, taskID, action, target, forward, inverse, now string) error {
+	queryQueue := `INSERT INTO ssh_task_queue (task_id, action, target, forward_payload, inverse_payload, status, created_at, updated_at) VALUES (?, ?, ?, ?, ?, 'pending', ?, ?)`
+	resQueue := store.ExecWrapper(db, queryQueue, taskID, action, target, forward, inverse, now, now)
+	if resQueue.IsFailure {
+		return apperror.WrapSimple(resQueue.Error, "EnqueueSSHTask.queue")
+	}
+	return nil
+}
+
+func insertSSHHistoryEntry(db *sql.DB, taskID, action, target, forward, inverse, now string) error {
+	queryHist := `INSERT INTO ssh_task_history (task_id, action, target, payload_json, forward_payload, inverse_payload, created_at) VALUES (?, ?, ?, ?, ?, ?, ?)`
+	resHist := store.ExecWrapper(db, queryHist, taskID, action, target, inverse, forward, inverse, now)
+	if resHist.IsFailure {
+		return apperror.WrapSimple(resHist.Error, "EnqueueSSHTask.hist")
+	}
+	return nil
 }
 
 // RecordSSHAddNodeTask records an add node operation with inverse delete payload.
