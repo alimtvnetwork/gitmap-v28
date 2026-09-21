@@ -235,10 +235,11 @@ func isConvPathMatch(pClean, cClean string) bool {
 	if hasEmptyPath {
 		return false
 	}
-	sep := string(filepath.Separator)
-	isExact := pClean == cClean
-	isSubdir := strings.HasPrefix(pClean, cClean+sep)
-	isParent := strings.HasPrefix(cClean, pClean+sep)
+	pNorm := strings.ReplaceAll(filepath.ToSlash(strings.ToLower(pClean)), "\\", "/")
+	cNorm := strings.ReplaceAll(filepath.ToSlash(strings.ToLower(cClean)), "\\", "/")
+	isExact := pNorm == cNorm
+	isSubdir := strings.HasPrefix(pNorm, cNorm+"/")
+	isParent := strings.HasPrefix(cNorm, pNorm+"/")
 
 	return isExact || isSubdir || isParent
 }

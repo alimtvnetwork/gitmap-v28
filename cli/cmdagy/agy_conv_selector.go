@@ -1,13 +1,9 @@
 package cmdagy
 
 import (
-	"bufio"
-	"fmt"
 	"io"
 	"path/filepath"
 	"sort"
-	"strconv"
-	"strings"
 
 	"github.com/alimtvnetwork/gitmap-v28/cli/apperror"
 )
@@ -85,18 +81,12 @@ func SelectMatchingConversation(repoRoot string) (AgyConvInfo, error) {
 	return convs[0], nil
 }
 
-// SelectMatchingConversationWithIO selects matching conversation with specified IO streams.
+// SelectMatchingConversationWithIO selects matching conversation automatically without prompting.
 func SelectMatchingConversationWithIO(repoRoot string, r io.Reader, w io.Writer, isInteractive bool) (AgyConvInfo, error) {
-	convs, err := FindMatchingConversations(repoRoot)
-	hasErr := err != nil
-	if hasErr {
-		return AgyConvInfo{}, err
-	}
-
-	return PromptSelectConversation(convs, r, w, isInteractive)
+	return SelectMatchingConversation(repoRoot)
 }
 
-// PromptSelectConversation handles conversation selection with 0, 1, or multiple matches.
+// PromptSelectConversation handles conversation selection automatically without prompting the user.
 func PromptSelectConversation(convs []AgyConvInfo, r io.Reader, w io.Writer, isInteractive bool) (AgyConvInfo, error) {
 	isZeroMatches := len(convs) == 0
 	if isZeroMatches {
@@ -104,65 +94,6 @@ func PromptSelectConversation(convs []AgyConvInfo, r io.Reader, w io.Writer, isI
 	}
 
 	sortConversations(convs)
-	hasMultiple := len(convs) > 1
-	isPromptNeeded := isInteractive && hasMultiple
-	if isPromptNeeded {
-		return promptUserChoice(convs, r, w)
-	}
 
 	return convs[0], nil
-}
-
-func promptUserChoice(convs []AgyConvInfo, r io.Reader, w io.Writer) (AgyConvInfo, error) {
-	printConvList(convs, w)
-	reader := bufio.NewReader(r)
-	input, err := reader.ReadString('\n')
-	hasErr := err != nil && len(input) == 0
-	if hasErr {
-		return convs[0], nil
-	}
-
-	return resolveSelectedConv(convs, input), nil
-}
-
-func printConvList(convs []AgyConvInfo, w io.Writer) {
-	fmt.Fprintf(w, "Multiple active conversations found:\n")
-	for i, c := range convs {
-		printConvOption(w, i, c)
-	}
-
-	fmt.Fprintf(w, "Select conversation [1-%d] (default 1): ", len(convs))
-}
-
-func printConvOption(w io.Writer, idx int, c AgyConvInfo) {
-	isDefault := idx == 0
-	if isDefault {
-		fmt.Fprintf(w, "  [%d] %s (user steps: %d, steps: %d) [Default]\n", idx+1, c.ID, c.UserSteps, c.StepCount)
-
-		return
-	}
-
-	fmt.Fprintf(w, "  [%d] %s (user steps: %d, steps: %d)\n", idx+1, c.ID, c.UserSteps, c.StepCount)
-}
-
-func resolveSelectedConv(convs []AgyConvInfo, input string) AgyConvInfo {
-	idx := parseConvIndex(input, len(convs))
-
-	return convs[idx]
-}
-
-func parseConvIndex(input string, max int) int {
-	trimmed := strings.TrimSpace(input)
-	idx, err := strconv.Atoi(trimmed)
-	hasErr := err != nil
-	if hasErr {
-		return 0
-	}
-
-	isValid := idx >= 1 && idx <= max
-	if isValid {
-		return idx - 1
-	}
-
-	return 0
 }

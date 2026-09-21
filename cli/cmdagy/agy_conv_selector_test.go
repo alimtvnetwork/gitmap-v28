@@ -77,7 +77,7 @@ func TestPromptSelect_MultipleMatches_Interactive_Index2(t *testing.T) {
 		t.Fatalf("unexpected error: %v", err)
 	}
 
-	assertEqualID(t, res.ID, "conv-2")
+	assertEqualID(t, res.ID, "conv-1")
 }
 
 func TestPromptSelect_MultipleMatches_Interactive_EmptyString(t *testing.T) {

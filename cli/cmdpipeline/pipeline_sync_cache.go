@@ -41,9 +41,6 @@ func FormatRelativeDbPath(fullPath string) string {
 	if idx := strings.Index(slashPath, ".gitmap/"); idx != -1 {
 		return slashPath[idx:]
 	}
-	if idx := strings.Index(slashPath, "pipeline/"); idx != -1 && strings.HasSuffix(slashPath, "sql.db") {
-		return ".gitmap/data/" + slashPath[idx:]
-	}
 
 	return resolveRelOrSlashPath(slashPath, target)
 }
@@ -51,7 +48,8 @@ func FormatRelativeDbPath(fullPath string) string {
 func resolveRelOrSlashPath(slashPath, fullPath string) string {
 	repoRoot := resolveRepoRootDir()
 	rel, err := filepath.Rel(repoRoot, fullPath)
-	if err == nil && !strings.HasPrefix(rel, "..") && len(rel) > 0 {
+	isInsideRepo := err == nil && !strings.HasPrefix(rel, "..") && len(rel) > 0
+	if isInsideRepo {
 		return formatRepoRelativeSlash(rel)
 	}
 
@@ -65,15 +63,35 @@ func ResolveDbFileSize(dbPath string) string {
 		return "0 B"
 	}
 
-	fi, err := os.Stat(target)
-	if err != nil {
-		fi, err = statRelativeDbFallback(target)
-	}
-	if err != nil || fi.IsDir() {
-		return "0 B"
+	total := calculateDbTotalDiskBytes(target)
+	if total > 0 {
+		return pipelinedb.FormatHumanSize(total)
 	}
 
-	return pipelinedb.FormatHumanSize(fi.Size())
+	return "0 B"
+}
+
+func calculateDbTotalDiskBytes(target string) int64 {
+	total := sumTargetDiskFiles(target)
+	if total > 0 {
+		return total
+	}
+	if fi, err := statRelativeDbFallback(target); err == nil && !fi.IsDir() {
+		return fi.Size()
+	}
+
+	return 0
+}
+
+func sumTargetDiskFiles(target string) int64 {
+	var total int64
+	for _, t := range []string{target, target + "-wal", target + "-shm"} {
+		if fi, err := os.Stat(t); err == nil && !fi.IsDir() {
+			total += fi.Size()
+		}
+	}
+
+	return total
 }
 
 // FormatDbPathWithSize converts DB path to relative and appends file size if file exists.

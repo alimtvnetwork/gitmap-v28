@@ -47,7 +47,6 @@ func RecordFetchedRunsToSplitDb(repo string, runs []ghRunItem) {
 func recordRunsToSplitDb(pipeDb *pipelinedb.PipelineSplitDb, p PipelineStatusPayload, runs []ghRunItem) {
 	for _, r := range runs {
 		recordSingleSplitRun(pipeDb, p, r)
-		recordSingleFailedRun(pipeDb, p.Repo, r)
 	}
 }
 

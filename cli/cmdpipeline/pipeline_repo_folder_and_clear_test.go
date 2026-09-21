@@ -84,3 +84,21 @@ func TestPurgeRepoPipelineFolder_IncludesSqlDb(t *testing.T) {
 		t.Fatalf("expected at least 8000 reclaimed bytes, got %d", reclaimed)
 	}
 }
+
+func TestFormatRelativeDbPath_AppData(t *testing.T) {
+	appDataDb := "C:/Users/Administrator/AppData/Local/gitmap-cli/data/pipeline/alimtvnetwork-antigravity-manager/sql.db"
+	formatted := FormatRelativeDbPath(appDataDb)
+	if strings.Contains(formatted, ".gitmap") {
+		t.Fatalf("expected real path without fake .gitmap prefix, got: %s", formatted)
+	}
+	if !strings.HasSuffix(formatted, "alimtvnetwork-antigravity-manager/sql.db") {
+		t.Fatalf("expected path to end with slug/sql.db, got: %s", formatted)
+	}
+}
+
+func TestCollectRepoPipelineDirs(t *testing.T) {
+	dirs := collectRepoPipelineDirs("alimtvnetwork/gitmap-v28")
+	if len(dirs) == 0 {
+		t.Fatalf("expected at least one pipeline directory to be found")
+	}
+}

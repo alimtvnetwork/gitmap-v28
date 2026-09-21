@@ -2,10 +2,10 @@ package cmdpipeline
 
 import (
 	"os"
-	"strconv"
 	"strings"
 	"time"
 
+	"github.com/alimtvnetwork/gitmap-v28/cli/config"
 	"github.com/alimtvnetwork/gitmap-v28/cli/pipelinedb"
 )
 
@@ -53,10 +53,13 @@ func isPipelineCacheBypassed(flags PipelineErrorFlags) bool {
 func evaluateDecisionFromRuns(db *pipelinedb.PipelineSplitDb, dbRuns []pipelinedb.PipelineRunRecord, flags PipelineErrorFlags) PipelineCacheDecision {
 	latest := dbRuns[0]
 	if checkTtlCacheHit(db.Path) {
-		return buildCacheHitDecision(dbRuns, latest.Sha, "within_5s_ttl")
+		return buildCacheHitDecision(dbRuns, latest.Sha, "within_ttl")
 	}
 	if checkCommitMatchCacheHit(latest, resolveLocalCommitSHA()) {
 		return buildCacheHitDecision(dbRuns, latest.Sha, "commit_match_completed")
+	}
+	if checkLatestCompletedSuccessCacheHit(latest) {
+		return buildCacheHitDecision(dbRuns, latest.Sha, "latest_completed_success")
 	}
 	if checkTargetIndexCacheHit(dbRuns, flags) {
 		return buildCacheHitDecision(dbRuns, latest.Sha, "target_index_matched")
@@ -65,18 +68,12 @@ func evaluateDecisionFromRuns(db *pipelinedb.PipelineSplitDb, dbRuns []pipelined
 	return PipelineCacheDecision{IsFromCache: false, Reason: "no_cache_match"}
 }
 
+func checkLatestCompletedSuccessCacheHit(latest pipelinedb.PipelineRunRecord) bool {
+	return latest.Status == "completed" && latest.Conclusion == "success"
+}
+
 func resolvePipelineCacheTTL() time.Duration {
-	envVal := os.Getenv("GITMAP_PIPELINE_CACHE_TTL_SEC")
-	if len(envVal) == 0 {
-		return 5 * time.Second
-	}
-
-	sec, err := strconv.Atoi(envVal)
-	if err == nil && sec > 0 {
-		return time.Duration(sec) * time.Second
-	}
-
-	return 5 * time.Second
+	return config.ResolvePipelineCacheTTL()
 }
 
 func checkTtlCacheHit(dbPath string) bool {

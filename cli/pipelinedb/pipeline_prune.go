@@ -3,9 +3,10 @@ package pipelinedb
 import (
 	"database/sql"
 	"os"
-	"strconv"
+	"path/filepath"
 
 	"github.com/alimtvnetwork/gitmap-v28/cli/apperror"
+	"github.com/alimtvnetwork/gitmap-v28/cli/config"
 )
 
 // DiskSizeBytes calculates the total on-disk size of the SQLite DB including WAL and SHM files.
@@ -21,20 +22,48 @@ func (p *PipelineSplitDb) DiskSizeBytes() int64 {
 	return total
 }
 
+// TotalPipelineDiskBytes calculates the total on-disk size of the pipeline directory including logs and DBs.
+func (p *PipelineSplitDb) TotalPipelineDiskBytes() int64 {
+	dir := filepath.Dir(p.Path)
+	entries, err := os.ReadDir(dir)
+	if err != nil {
+		return p.DiskSizeBytes()
+	}
+
+	return sumDirEntriesSize(dir, entries)
+}
+
+func sumDirEntriesSize(dir string, entries []os.DirEntry) int64 {
+	var total int64
+	for _, e := range entries {
+		if fi, sErr := e.Info(); sErr == nil && !e.IsDir() {
+			total += fi.Size()
+		}
+	}
+
+	return total
+}
+
 // ResolveConfiguredPipelineMaxDbBytes returns the maximum DB size ceiling in bytes (default 10 MB).
 func ResolveConfiguredPipelineMaxDbBytes() int64 {
-	const defaultMaxBytes = int64(10 * 1024 * 1024)
-	envVal := os.Getenv("GITMAP_PIPELINE_MAX_DB_MB")
-	if len(envVal) == 0 {
-		return defaultMaxBytes
+	return config.ResolvePipelineMaxDbBytes()
+}
+
+func isFileExisting(path string) bool {
+	fi, err := os.Stat(path)
+	if err != nil {
+		return false
 	}
 
-	mb, err := strconv.ParseInt(envVal, 10, 64)
-	if err == nil && mb > 0 {
-		return mb * 1024 * 1024
-	}
+	return !fi.IsDir()
+}
 
-	return defaultMaxBytes
+func (p *PipelineSplitDb) cleanLegacyDbIfPresent() {
+	dir := filepath.Dir(p.Path)
+	legacyDb := filepath.Join(dir, "pipeline.db")
+	if isFileExisting(legacyDb) && filepath.Base(p.Path) == "sql.db" {
+		_ = os.Remove(legacyDb)
+	}
 }
 
 // PruneIfExceedsSize prunes old runs, error logs, and vacuums if the DB exceeds the maximum byte limit.
@@ -43,7 +72,9 @@ func (p *PipelineSplitDb) PruneIfExceedsSize(maxBytes int64) (bool, int, error) 
 	if limit <= 0 {
 		limit = ResolveConfiguredPipelineMaxDbBytes()
 	}
-	if p.DiskSizeBytes() <= limit {
+
+	p.cleanLegacyDbIfPresent()
+	if p.TotalPipelineDiskBytes() <= limit {
 		return false, 0, nil
 	}
 
@@ -51,21 +82,54 @@ func (p *PipelineSplitDb) PruneIfExceedsSize(maxBytes int64) (bool, int, error) 
 }
 
 func (p *PipelineSplitDb) executeIterativePrune(limit int64) (bool, int, error) {
+	totalPruned := p.runPruneIterations(limit)
+	if p.TotalPipelineDiskBytes() > limit {
+		p.pruneOldestLogFiles(limit)
+		_ = p.runCheckpointAndVacuum()
+	}
+
+	return totalPruned > 0, totalPruned, nil
+}
+
+func (p *PipelineSplitDb) runPruneIterations(limit int64) int {
 	totalPruned := 0
 	for iteration := 0; iteration < 5; iteration++ {
 		pruned, err := p.pruneOldestBatch()
 		if err != nil {
-			return totalPruned > 0, totalPruned, err
+			return totalPruned
 		}
 		totalPruned += pruned
 		_ = p.truncateOlderRawLogs(5)
 		_ = p.runCheckpointAndVacuum()
-		if p.DiskSizeBytes() <= limit || pruned == 0 {
+		if p.TotalPipelineDiskBytes() <= limit || pruned == 0 {
 			break
 		}
 	}
 
-	return totalPruned > 0, totalPruned, nil
+	return totalPruned
+}
+
+func (p *PipelineSplitDb) pruneOldestLogFiles(limit int64) {
+	dir := filepath.Dir(p.Path)
+	entries, err := os.ReadDir(dir)
+	if err != nil {
+		return
+	}
+	for _, e := range entries {
+		p.purgeSingleLogIfEligible(dir, e)
+		if p.TotalPipelineDiskBytes() <= limit {
+			return
+		}
+	}
+}
+
+func (p *PipelineSplitDb) purgeSingleLogIfEligible(dir string, e os.DirEntry) {
+	if e.IsDir() {
+		return
+	}
+	if isPurgeableCacheFile(e.Name()) {
+		_ = os.Remove(filepath.Join(dir, e.Name()))
+	}
 }
 
 func (p *PipelineSplitDb) pruneOldestBatch() (int, error) {
@@ -125,7 +189,13 @@ func (p *PipelineSplitDb) HasErrorLogForSha(sha string) bool {
 		return false
 	}
 	var exists int
-	query := "SELECT 1 FROM PipelineErrorLog e JOIN PipelineRun r ON e.RunId = r.RunId WHERE r.Sha LIKE ? LIMIT 1;"
+	const query = `SELECT 1 FROM (
+		SELECT RunId FROM PipelineErrorLog
+		UNION
+		SELECT RunId FROM PipelineDetailErrorLog
+		UNION
+		SELECT RunId FROM PipelineCompactErrorLog
+	) e JOIN PipelineRun r ON e.RunId = r.RunId WHERE r.Sha LIKE ? LIMIT 1;`
 	err := p.conn.QueryRow(query, sha+"%").Scan(&exists)
 	if err != nil {
 		return false

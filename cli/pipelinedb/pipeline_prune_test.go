@@ -2,6 +2,8 @@ package pipelinedb
 
 import (
 	"fmt"
+	"os"
+	"path/filepath"
 	"testing"
 )
 
@@ -80,10 +82,10 @@ func TestPipelinePrune_PruneIfExceedsSize(t *testing.T) {
 	}
 }
 
-func populateTestPruneRuns(db *PipelineSplitDb, count int) {
-	for i := 1; i <= count; i++ {
+func populateTestPruneRuns(db *PipelineSplitDb, count uint64) {
+	for i := uint64(1); i <= count; i++ {
 		rec := PipelineRunRecord{
-			RunId: uint64(2000 + i), RepoSlug: "test/prune-repo",
+			RunId: 2000 + i, RepoSlug: "test/prune-repo",
 			WorkflowName: "CI", Status: "completed", Conclusion: "failure",
 			Branch: "main", Sha: fmt.Sprintf("sha%04d", i),
 			CreatedAt: fmt.Sprintf("2026-09-20T00:%02d:00Z", i),
@@ -95,5 +97,29 @@ func populateTestPruneRuns(db *PipelineSplitDb, count int) {
 			StepName: "Test Step", ErrorText: "test failure", RawLogs: "simulated long raw log",
 		}
 		_ = db.RecordDetailErrorLog(detail)
+	}
+}
+
+func TestPipelinePrune_RemovesLegacyPipelineDb(t *testing.T) {
+	db := createTestPruneSplitDb(t)
+	defer db.Close()
+
+	legacyDb := filepath.Join(filepath.Dir(db.Path), "pipeline.db")
+	_ = os.WriteFile(legacyDb, []byte("fake-legacy-data"), 0644)
+
+	db.cleanLegacyDbIfPresent()
+
+	if isFileExisting(legacyDb) {
+		t.Errorf("expected legacy pipeline.db to be removed")
+	}
+}
+
+func TestPipelinePrune_TotalPipelineDiskBytes(t *testing.T) {
+	db := createTestPruneSplitDb(t)
+	defer db.Close()
+
+	totalBytes := db.TotalPipelineDiskBytes()
+	if totalBytes <= 0 {
+		t.Errorf("expected positive total pipeline disk bytes, got %d", totalBytes)
 	}
 }

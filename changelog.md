@@ -2432,6 +2432,17 @@ PowerShell: `Invoke-WebRequest -Uri https://raw.githubusercontent.com/alimtvnetw
 
 # Changelog
 
+## [v6.285.0] - 2026-09-21
+
+### Added
+- feat(pipeline): display true forward-slash database paths without misleading `.gitmap/data/` prefixes when SQLite database resides in AppData
+- feat(pipeline): fix `gitmap pipeline clear -y` to reclaim disk space across both local repository `.gitmap` and global AppData directory, purging legacy `pipeline.db` and orphaned logs (>100MB reclaimed)
+- feat(pipeline): support `gitmap pipeline clear --all -y` to wipe all pipeline caches and logs across all repositories
+- feat(pipeline): enforce 10MB directory storage ceiling with auto-pruning of oldest runs, log truncation, and error log cache hit detection across all error tables (`PipelineErrorLog`, `PipelineDetailErrorLog`, `PipelineCompactErrorLog`)
+- feat(cmdagy): eliminate interactive conversation selection prompt in `gitmap pipeline errors agy fix` with zero-prompt automatic matching by both project name and project path
+- feat(pipelinedb): add UNIQUE(RunId, StepName) deduplication indexes and ON CONFLICT DO UPDATE across error log tables to cap database size at 10MB
+
+
 ## [v6.284.0] - 2026-09-21
 
 ### Added

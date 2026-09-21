@@ -1,3 +1,9 @@
+## v6.285.0 — 2026-09-21 (feat(pipeline): db path transparency, space reclaim, 10MB auto-pruning, and automatic agy conversation selection)
+
+**Scope:** feat(pipeline): eliminate misleading fabricated `.gitmap/data/` path prefixes for AppData databases, reclaim disk space across local and global AppData folders in `gitmap pipeline clear -y`, support `gitmap pipeline clear --all -y`, enforce 10MB directory ceiling with auto-pruning and ON CONFLICT DO UPDATE deduplication indexes, and eliminate interactive conversation selection prompts in `gitmap pipeline errors agy fix` with zero-prompt automatic matching by both project name and project path.
+
+---
+
 ## v6.284.0 — 2026-09-21 (feat(pipeline): add db status visibility, full clear space reclaim, 10MB auto-pruning ceiling, and auto-select agy conversation)
 
 **Scope:** Version bump. feat(pipeline): add db status visibility, full clear space reclaim, 10MB auto-pruning ceiling, and auto-select agy conversation.

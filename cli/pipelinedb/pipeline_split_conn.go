@@ -13,13 +13,23 @@ import (
 // OpenPipelineSplitDb opens or initializes the split SQLite database for a repo.
 func OpenPipelineSplitDb(repoSlug string) (*PipelineSplitDb, error) {
 	dbPath := ResolvePipelineDbPath(repoSlug)
-	_ = os.MkdirAll(filepath.Dir(dbPath), 0755)
+	dir := filepath.Dir(dbPath)
+	_ = os.MkdirAll(dir, 0755)
+	cleanLegacyDbIfPresentInDir(dir)
+
 	conn, err := sql.Open("sqlite", dbPath)
 	if err != nil {
 		return nil, apperror.WrapSimple(err, "open pipeline split db "+repoSlug)
 	}
 
 	return initPipelineSplitConn(conn, repoSlug, dbPath)
+}
+
+func cleanLegacyDbIfPresentInDir(dir string) {
+	legacy := filepath.Join(dir, "pipeline.db")
+	if isFileExisting(legacy) {
+		_ = os.Remove(legacy)
+	}
 }
 
 func initPipelineSplitConn(conn *sql.DB, repoSlug, dbPath string) (*PipelineSplitDb, error) {
@@ -30,8 +40,49 @@ func initPipelineSplitConn(conn *sql.DB, repoSlug, dbPath string) (*PipelineSpli
 	}
 
 	p := &PipelineSplitDb{conn: conn, RepoSlug: repoSlug, Path: dbPath}
+	if err := p.setupSchema(); err != nil {
+		_ = conn.Close()
 
-	return p, p.setupSchema()
+		return resetAndReopenPipelineSplitDb(repoSlug, dbPath)
+	}
+
+	return p, nil
+}
+
+func wipeDbFiles(dbPath string) {
+	_ = os.Remove(dbPath)
+	_ = os.Remove(dbPath + "-wal")
+	_ = os.Remove(dbPath + "-shm")
+}
+
+func openCleanConn(dbPath, repoSlug string) (*sql.DB, error) {
+	newConn, err := sql.Open("sqlite", dbPath)
+	if err != nil {
+		return nil, apperror.WrapSimple(err, "reopen pipeline split db "+repoSlug)
+	}
+	if cfgErr := store.ConfigureSQLiteConn(newConn); cfgErr != nil {
+		_ = newConn.Close()
+
+		return nil, apperror.WrapSimple(cfgErr, "reconfigure pipeline split db "+repoSlug)
+	}
+
+	return newConn, nil
+}
+
+func resetAndReopenPipelineSplitDb(repoSlug, dbPath string) (*PipelineSplitDb, error) {
+	wipeDbFiles(dbPath)
+	newConn, err := openCleanConn(dbPath, repoSlug)
+	if err != nil {
+		return nil, err
+	}
+	p := &PipelineSplitDb{conn: newConn, RepoSlug: repoSlug, Path: dbPath}
+	if schemaErr := p.setupSchema(); schemaErr != nil {
+		_ = newConn.Close()
+
+		return nil, schemaErr
+	}
+
+	return p, nil
 }
 
 // OpenPipelineSplitDB is an alias to OpenPipelineSplitDb.

@@ -75,12 +75,48 @@ func readCachedLogFromDb(repo string, runId uint64) (string, bool) {
 	}
 	defer pipeDb.Close()
 
-	detailRes := pipeDb.QueryDetailedErrorLogsByRunId(runId)
-	if detailRes.HasRecord() && len(detailRes.Data[0].RawLogs) > 0 {
-		return detailRes.Data[0].RawLogs, true
+	if content, ok := queryDetailLogFromDb(pipeDb, runId); ok {
+		return content, true
+	}
+	if content, ok := queryCompactLogFromDb(pipeDb, runId); ok {
+		return content, true
 	}
 
 	return queryLegacyErrorLogFromDb(pipeDb, runId)
+}
+
+func queryDetailLogFromDb(pipeDb *pipelinedb.PipelineSplitDb, runId uint64) (string, bool) {
+	detailRes := pipeDb.QueryDetailedErrorLogsByRunId(runId)
+	if !detailRes.HasRecord() {
+		return "", false
+	}
+	for _, rec := range detailRes.Data {
+		if len(rec.RawLogs) > 0 {
+			return rec.RawLogs, true
+		}
+		if len(rec.ErrorText) > 0 {
+			return rec.ErrorText, true
+		}
+	}
+
+	return "", false
+}
+
+func queryCompactLogFromDb(pipeDb *pipelinedb.PipelineSplitDb, runId uint64) (string, bool) {
+	compactRes := pipeDb.QueryCompactErrorLogsByRunId(runId)
+	if !compactRes.HasRecord() {
+		return "", false
+	}
+	for _, rec := range compactRes.Data {
+		if len(rec.CompactLogs) > 0 {
+			return rec.CompactLogs, true
+		}
+		if len(rec.ErrorText) > 0 {
+			return rec.ErrorText, true
+		}
+	}
+
+	return "", false
 }
 
 func queryLegacyErrorLogFromDb(pipeDb *pipelinedb.PipelineSplitDb, runId uint64) (string, bool) {

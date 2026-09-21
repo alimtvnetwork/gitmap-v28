@@ -108,6 +108,20 @@ func scoreAllSummaryRows(rows []summaryRow, pClean, pName string, projectIDs []s
 		}
 	}
 
+	return filterTopTierSummaries(scored)
+}
+
+func filterTopTierSummaries(scored []scoredSummary) []scoredSummary {
+	var bothMatches []scoredSummary
+	for _, s := range scored {
+		if s.score >= 1000 {
+			bothMatches = append(bothMatches, s)
+		}
+	}
+	if len(bothMatches) > 0 {
+		return bothMatches
+	}
+
 	return scored
 }
 

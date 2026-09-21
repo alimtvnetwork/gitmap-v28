@@ -972,10 +972,10 @@ func renderRunCardBranchAndLog(fr FailedRunItem) {
 func renderSavedLocationsTerminal(p PipelineErrorLogsPayload) {
 	fmt.Println("  💾 Pipeline Error Logs & Artifacts:")
 	if len(p.SavedReportFile) > 0 {
-		fmt.Printf("    • Combined Report: %s\n", filepath.ToSlash(p.SavedReportFile))
+		fmt.Printf("    • Combined Report: %s\n", filepath.ToSlash(FormatRelativeDbPath(p.SavedReportFile)))
 	}
 	if len(p.SavedLogFile) > 0 {
-		fmt.Printf("    • Latest Run Log:  %s\n", filepath.ToSlash(p.SavedLogFile))
+		fmt.Printf("    • Latest Run Log:  %s\n", filepath.ToSlash(FormatRelativeDbPath(p.SavedLogFile)))
 	}
 	renderSavedDbAndUrl(p)
 }

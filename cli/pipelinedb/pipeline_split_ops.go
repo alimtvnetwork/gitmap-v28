@@ -28,17 +28,42 @@ ON CONFLICT(RunId) DO UPDATE SET
 const sqlRecordErrorLog = `
 INSERT INTO PipelineErrorLog (
     RunId, RepoSlug, WorkflowName, StepName, ErrorText, RawLogs, Notes, Comments, CreatedAt
-) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?);`
+) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)
+ON CONFLICT(RunId, StepName) DO UPDATE SET
+    RepoSlug = excluded.RepoSlug,
+    WorkflowName = excluded.WorkflowName,
+    ErrorText = excluded.ErrorText,
+    RawLogs = excluded.RawLogs,
+    Notes = excluded.Notes,
+    Comments = excluded.Comments,
+    CreatedAt = excluded.CreatedAt;`
 
 const sqlRecordDetailErrorLog = `
 INSERT INTO PipelineDetailErrorLog (
     RunId, RepoSlug, WorkflowName, StepName, ErrorText, RawLogs, Notes, Comments, CreatedAt
-) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?);`
+) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)
+ON CONFLICT(RunId, StepName) DO UPDATE SET
+    RepoSlug = excluded.RepoSlug,
+    WorkflowName = excluded.WorkflowName,
+    ErrorText = excluded.ErrorText,
+    RawLogs = excluded.RawLogs,
+    Notes = excluded.Notes,
+    Comments = excluded.Comments,
+    CreatedAt = excluded.CreatedAt;`
 
 const sqlRecordCompactErrorLog = `
 INSERT INTO PipelineCompactErrorLog (
     RunId, RepoSlug, WorkflowName, StepName, ErrorText, CompactLogs, FilteredOkCount, Notes, Comments, CreatedAt
-) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?);`
+) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+ON CONFLICT(RunId, StepName) DO UPDATE SET
+    RepoSlug = excluded.RepoSlug,
+    WorkflowName = excluded.WorkflowName,
+    ErrorText = excluded.ErrorText,
+    CompactLogs = excluded.CompactLogs,
+    FilteredOkCount = excluded.FilteredOkCount,
+    Notes = excluded.Notes,
+    Comments = excluded.Comments,
+    CreatedAt = excluded.CreatedAt;`
 
 const sqlQueryRecentRuns = `
 SELECT RunId, RepoSlug, WorkflowName, Status, Conclusion, Branch, Sha,
@@ -58,7 +83,13 @@ SELECT RunId, RepoSlug, WorkflowName, StepName, ErrorText, COALESCE(CompactLogs,
 FROM PipelineCompactErrorLog ORDER BY PipelineCompactErrorLogId DESC LIMIT ?;`
 
 const sqlQueryCachedErrorRunIds = `
-SELECT DISTINCT RunId FROM PipelineErrorLog ORDER BY RunId DESC;`
+SELECT DISTINCT RunId FROM (
+	SELECT RunId FROM PipelineErrorLog
+	UNION
+	SELECT RunId FROM PipelineDetailErrorLog
+	UNION
+	SELECT RunId FROM PipelineCompactErrorLog
+) ORDER BY RunId DESC;`
 
 const sqlQueryRunByOffset = `
 SELECT RunId, RepoSlug, WorkflowName, Status, Conclusion, Branch, Sha,
@@ -132,7 +163,14 @@ func (p *PipelineSplitDb) RecordErrorLog(e PipelineErrorRecord) error {
 // HasErrorLog checks if an error diagnostic entry for a run has already been recorded.
 func (p *PipelineSplitDb) HasErrorLog(runId uint64) bool {
 	var exists int
-	err := p.conn.QueryRow("SELECT 1 FROM PipelineErrorLog WHERE RunId = ? LIMIT 1;", runId).Scan(&exists)
+	const query = `SELECT 1 FROM (
+		SELECT RunId FROM PipelineErrorLog
+		UNION
+		SELECT RunId FROM PipelineDetailErrorLog
+		UNION
+		SELECT RunId FROM PipelineCompactErrorLog
+	) WHERE RunId = ? LIMIT 1;`
+	err := p.conn.QueryRow(query, runId).Scan(&exists)
 	if err != nil {
 		return false
 	}

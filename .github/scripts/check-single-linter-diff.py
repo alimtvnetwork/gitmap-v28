@@ -62,6 +62,9 @@ def run_linter(lint_dir, linter, current_out):
         print("ERROR: golangci-lint not on PATH", file=sys.stderr)
         sys.exit(2)
 
+    out_dir = os.path.dirname(current_out)
+    if out_dir:
+        os.makedirs(out_dir, exist_ok=True)
     with open(current_out, "w", encoding="utf-8") as fh:
         fh.write(res.stdout or '{"Issues": []}')
 

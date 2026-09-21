@@ -26,7 +26,8 @@ CREATE INDEX IF NOT EXISTS IdxPipelineRun_IsSuccess ON PipelineRun (IsSuccess);
 CREATE INDEX IF NOT EXISTS IdxPipelineRun_RepoSlug_RunId ON PipelineRun (RepoSlug, RunId);
 CREATE INDEX IF NOT EXISTS IdxPipelineRun_Sha ON PipelineRun (Sha);
 CREATE INDEX IF NOT EXISTS IdxPipelineRun_Sha_RepoSlug ON PipelineRun (Sha, RepoSlug);
-CREATE INDEX IF NOT EXISTS IdxPipelineRun_Sha_CreatedAt ON PipelineRun (Sha, CreatedAt DESC);`
+CREATE INDEX IF NOT EXISTS IdxPipelineRun_CreatedAt ON PipelineRun (CreatedAt DESC);
+CREATE INDEX IF NOT EXISTS IdxPipelineRun_Status ON PipelineRun (Status);`
 
 	sqlCreatePipelineErrorLog = `
 CREATE TABLE IF NOT EXISTS PipelineErrorLog (
@@ -43,7 +44,8 @@ CREATE TABLE IF NOT EXISTS PipelineErrorLog (
 );
 CREATE INDEX IF NOT EXISTS IdxPipelineErrorLog_RepoSlug ON PipelineErrorLog (RepoSlug);
 CREATE INDEX IF NOT EXISTS IdxPipelineErrorLog_RunId ON PipelineErrorLog (RunId);
-CREATE INDEX IF NOT EXISTS IdxPipelineErrorLog_RepoSlug_RunId ON PipelineErrorLog (RepoSlug, RunId);`
+CREATE INDEX IF NOT EXISTS IdxPipelineErrorLog_RepoSlug_RunId ON PipelineErrorLog (RepoSlug, RunId);
+CREATE UNIQUE INDEX IF NOT EXISTS IdxPipelineErrorLog_RunId_Step ON PipelineErrorLog (RunId, StepName);`
 
 	sqlCreatePipelineDetailErrorLog = `
 CREATE TABLE IF NOT EXISTS PipelineDetailErrorLog (
@@ -61,7 +63,8 @@ CREATE TABLE IF NOT EXISTS PipelineDetailErrorLog (
 );
 CREATE INDEX IF NOT EXISTS IdxPipelineDetailErrorLog_RepoSlug ON PipelineDetailErrorLog (RepoSlug);
 CREATE INDEX IF NOT EXISTS IdxPipelineDetailErrorLog_RunId ON PipelineDetailErrorLog (RunId);
-CREATE INDEX IF NOT EXISTS IdxPipelineDetailErrorLog_RepoSlug_RunId ON PipelineDetailErrorLog (RepoSlug, RunId);`
+CREATE INDEX IF NOT EXISTS IdxPipelineDetailErrorLog_RepoSlug_RunId ON PipelineDetailErrorLog (RepoSlug, RunId);
+CREATE UNIQUE INDEX IF NOT EXISTS IdxPipelineDetailErrorLog_RunId_Step ON PipelineDetailErrorLog (RunId, StepName);`
 
 	sqlCreatePipelineCompactErrorLog = `
 CREATE TABLE IF NOT EXISTS PipelineCompactErrorLog (
@@ -80,7 +83,8 @@ CREATE TABLE IF NOT EXISTS PipelineCompactErrorLog (
 );
 CREATE INDEX IF NOT EXISTS IdxPipelineCompactErrorLog_RepoSlug ON PipelineCompactErrorLog (RepoSlug);
 CREATE INDEX IF NOT EXISTS IdxPipelineCompactErrorLog_RunId ON PipelineCompactErrorLog (RunId);
-CREATE INDEX IF NOT EXISTS IdxPipelineCompactErrorLog_RepoSlug_RunId ON PipelineCompactErrorLog (RepoSlug, RunId);`
+CREATE INDEX IF NOT EXISTS IdxPipelineCompactErrorLog_RepoSlug_RunId ON PipelineCompactErrorLog (RepoSlug, RunId);
+CREATE UNIQUE INDEX IF NOT EXISTS IdxPipelineCompactErrorLog_RunId_Step ON PipelineCompactErrorLog (RunId, StepName);`
 
 	sqlCreatePipelineSegment = `
 CREATE TABLE IF NOT EXISTS PipelineSegment (

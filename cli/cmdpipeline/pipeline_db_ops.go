@@ -9,6 +9,7 @@ import (
 	"github.com/alimtvnetwork/gitmap-v28/cli/apperror"
 	"github.com/alimtvnetwork/gitmap-v28/cli/constants"
 	"github.com/alimtvnetwork/gitmap-v28/cli/pipelinedb"
+	"github.com/alimtvnetwork/gitmap-v28/cli/store"
 )
 
 func extractTargetRepo(args []string) string {
@@ -23,6 +24,11 @@ func extractTargetRepo(args []string) string {
 }
 
 func runPipelineDBClear(args []string) error {
+	hasAll := hasArgFlag(args, "--all")
+	if hasAll {
+		return runPipelineDBClearAll(args)
+	}
+
 	repo := extractTargetRepo(args)
 	if !confirmPipelineDBClear(repo, args) {
 		fmt.Println("Clear operation canceled.")
@@ -33,6 +39,22 @@ func runPipelineDBClear(args []string) error {
 	return executePipelineDBClear(repo)
 }
 
+func runPipelineDBClearAll(args []string) error {
+	if !confirmPipelineDBClearAll(args) {
+		fmt.Println("Clear operation canceled.")
+
+		return nil
+	}
+
+	return executePipelineDBClearAll()
+}
+
+func confirmPipelineDBClearAll(args []string) bool {
+	msg := "Clear all pipeline runs and error logs across ALL repositories? [y/N]: "
+
+	return confirmOrSkip(msg, args)
+}
+
 func confirmPipelineDBClear(repo string, args []string) bool {
 	msg := fmt.Sprintf("Clear all pipeline runs and error logs for %s? [y/N]: ", repo)
 
@@ -40,17 +62,237 @@ func confirmPipelineDBClear(repo string, args []string) bool {
 }
 
 func executePipelineDBClear(repo string) *apperror.AppError {
-	dir := resolvePipelineDirForRepo(repo)
-	purgedFiles, reclaimedBytes := purgeRepoPipelineFolder(dir)
+	dirs := collectRepoPipelineDirs(repo)
+	activeDir := resolvePipelineDirForRepo(repo)
+	totalFiles, totalBytes := purgeAllCandidateDirs(dirs, activeDir)
+	parentFiles, parentBytes := purgeParentPipelineOrphans(repo)
+	totalFiles += parentFiles
+	totalBytes += parentBytes
+
 	clearLocalErrorLogsForRepo(repo)
+	reinitFreshPipelineDb(repo)
+	printPipelineClearSummary(repo, activeDir, totalFiles, totalBytes)
+
+	return nil
+}
+
+func executePipelineDBClearAll() *apperror.AppError {
+	dirs := []string{
+		filepath.Join(store.BinaryDataDir(), "pipeline"),
+		resolveGlobalAppDataPipelineDir(),
+	}
+	totalFiles, totalBytes := purgeAllGlobalDirs(dirs)
+	repoRoot := resolveRepoRootDir()
+	if len(repoRoot) > 0 && repoRoot != "." {
+		localPipe := filepath.Join(repoRoot, ".gitmap", "data", "pipeline")
+		f, b := purgeSubtreeAndFiles(localPipe)
+		totalFiles += f
+		totalBytes += b
+	}
+	clearLocalErrorLogs()
+	reinitFreshPipelineDb(resolveCurrentRepoSlug())
+	printClearAllSummary(totalFiles, totalBytes)
+
+	return nil
+}
+
+func purgeAllGlobalDirs(dirs []string) (int, int64) {
+	seen := make(map[string]bool)
+	var totalFiles int
+	var totalBytes int64
+	for _, d := range dirs {
+		clean := filepath.Clean(d)
+		if len(d) > 0 && !seen[clean] && isDirExisting(clean) {
+			seen[clean] = true
+			f, b := purgeSubtreeAndFiles(clean)
+			totalFiles += f
+			totalBytes += b
+		}
+	}
+
+	return totalFiles, totalBytes
+}
+
+func purgeSubtreeAndFiles(dir string) (int, int64) {
+	entries, err := os.ReadDir(dir)
+	if err != nil {
+		return 0, 0
+	}
+
+	var count int
+	var bytes int64
+	for _, e := range entries {
+		c, b := purgeEntryRecursive(dir, e)
+		count += c
+		bytes += b
+	}
+
+	return count, bytes
+}
+
+func purgeEntryRecursive(parent string, e os.DirEntry) (int, int64) {
+	target := filepath.Join(parent, e.Name())
+	if e.IsDir() {
+		c, b := purgeRepoPipelineFolder(target)
+		_ = os.Remove(target)
+
+		return c, b
+	}
+	if isPurgeablePipelineFile(e.Name()) {
+		return purgeSinglePipelineFile(target)
+	}
+
+	return 0, 0
+}
+
+func printClearAllSummary(files int, bytes int64) {
+	fmt.Printf("%s✓ Pipeline logs and database cleared across ALL repositories.%s\n",
+		constants.ColorGreen, constants.ColorReset)
+	fmt.Printf("  Files purged:  %d (%s reclaimed)\n", files, formatBytes(bytes))
+	fmt.Printf("  Database:      freshly reset\n")
+}
+
+func purgeAllCandidateDirs(dirs []string, activeDir string) (int, int64) {
+	var totalFiles int
+	var totalBytes int64
+	for _, d := range dirs {
+		f, b := purgeRepoPipelineFolder(d)
+		totalFiles += f
+		totalBytes += b
+		if d != activeDir {
+			_ = os.Remove(d)
+		}
+	}
+
+	return totalFiles, totalBytes
+}
+
+func reinitFreshPipelineDb(repo string) {
 	freshDb, err := pipelinedb.OpenPipelineSplitDb(repo)
 	if err == nil {
 		_ = freshDb.Close()
 	}
+}
 
-	printPipelineClearSummary(repo, dir, purgedFiles, reclaimedBytes)
+func collectRepoPipelineDirs(repo string) []string {
+	seen := make(map[string]bool)
+	var dirs []string
+	slug := pipelinedb.SanitizeRepoSlug(repo)
+	underscoreSlug := strings.ReplaceAll(repo, "/", "_")
+	candidates := buildDirCandidates(repo, slug, underscoreSlug)
 
-	return nil
+	for _, d := range candidates {
+		clean := filepath.Clean(d)
+		if isDirExisting(clean) && !seen[clean] {
+			seen[clean] = true
+			dirs = append(dirs, clean)
+		}
+	}
+
+	return dirs
+}
+
+func resolveGlobalAppDataPipelineDir() string {
+	localAppData := os.Getenv("LOCALAPPDATA")
+	if len(localAppData) > 0 {
+		return filepath.Join(localAppData, "gitmap-cli", "data", "pipeline")
+	}
+
+	home, err := os.UserHomeDir()
+	if err == nil && len(home) > 0 {
+		return filepath.Join(home, "AppData", "Local", "gitmap-cli", "data", "pipeline")
+	}
+
+	return ""
+}
+
+func buildDirCandidates(repo, slug, underscoreSlug string) []string {
+	appData := store.BinaryDataDir()
+	candidates := []string{
+		pipelinedb.RepoPipelineDir(repo),
+		filepath.Join(appData, "pipeline", slug),
+		filepath.Join(appData, "pipeline", underscoreSlug),
+	}
+	candidates = appendGlobalAppDataCandidates(candidates, slug, underscoreSlug)
+
+	return appendRepoRootCandidates(candidates, slug, underscoreSlug)
+}
+
+func appendGlobalAppDataCandidates(list []string, slug, underscoreSlug string) []string {
+	globalDir := resolveGlobalAppDataPipelineDir()
+	if len(globalDir) > 0 {
+		list = append(list,
+			filepath.Join(globalDir, slug),
+			filepath.Join(globalDir, underscoreSlug),
+		)
+	}
+
+	return list
+}
+
+func appendRepoRootCandidates(list []string, slug, underscoreSlug string) []string {
+	repoRoot := resolveRepoRootDir()
+	if len(repoRoot) > 0 && repoRoot != "." {
+		list = append(list,
+			filepath.Join(repoRoot, ".gitmap", "data", "pipeline", slug),
+			filepath.Join(repoRoot, ".gitmap", "data", "pipeline", underscoreSlug),
+		)
+	}
+
+	return list
+}
+
+func purgeParentPipelineOrphans(repo string) (int, int64) {
+	slug := pipelinedb.SanitizeRepoSlug(repo)
+	underscoreSlug := strings.ReplaceAll(repo, "/", "_")
+	dirs := []string{
+		filepath.Join(store.BinaryDataDir(), "pipeline"),
+		resolveGlobalAppDataPipelineDir(),
+	}
+
+	return purgeOrphanFilesAcrossDirs(dirs, slug, underscoreSlug)
+}
+
+func purgeOrphanFilesAcrossDirs(dirs []string, slug, underscoreSlug string) (int, int64) {
+	var totalFiles int
+	var totalBytes int64
+	for _, d := range dirs {
+		if len(d) == 0 || !isDirExisting(d) {
+			continue
+		}
+		f, b := purgeOrphansInDir(d, slug, underscoreSlug)
+		totalFiles += f
+		totalBytes += b
+	}
+
+	return totalFiles, totalBytes
+}
+
+func purgeOrphansInDir(dir, slug, underscoreSlug string) (int, int64) {
+	targets := []string{
+		filepath.Join(dir, fmt.Sprintf("pipeline_%s.db", slug)),
+		filepath.Join(dir, fmt.Sprintf("%s.db", slug)),
+		filepath.Join(dir, fmt.Sprintf("pipeline_%s.db", underscoreSlug)),
+		filepath.Join(dir, fmt.Sprintf("%s.db", underscoreSlug)),
+	}
+	var count int
+	var bytes int64
+	for _, t := range targets {
+		c, b := purgeSinglePipelineFile(t)
+		count += c
+		bytes += b
+	}
+
+	return count, bytes
+}
+
+func isDirExisting(path string) bool {
+	fi, err := os.Stat(path)
+	if err != nil {
+		return false
+	}
+
+	return fi.IsDir()
 }
 
 func purgeRepoPipelineFolder(dir string) (int, int64) {
@@ -75,14 +317,15 @@ func iteratePurgeEntries(dir string, entries []os.DirEntry) (int, int64) {
 }
 
 func purgeEntryIfEligible(dir string, e os.DirEntry) (int, int64) {
+	target := filepath.Join(dir, e.Name())
 	if e.IsDir() {
-		return 0, 0
-	}
-	if isPurgeablePipelineFile(e.Name()) {
-		return purgeSinglePipelineFile(filepath.Join(dir, e.Name()))
+		c, b := purgeRepoPipelineFolder(target)
+		_ = os.Remove(target)
+
+		return c, b
 	}
 
-	return 0, 0
+	return purgeSinglePipelineFile(target)
 }
 
 func purgeSinglePipelineFile(filePath string) (int, int64) {
