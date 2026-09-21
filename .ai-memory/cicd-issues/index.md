@@ -59,3 +59,4 @@
 - [68-unused-recorder-functions-in-pipeline-recorder-rca.md](./68-unused-recorder-functions-in-pipeline-recorder-rca.md): Fix unused recordSingleFailedRun and isRunFailureAlreadyRecorded in pipeline recorder.
 - [69-pipeline-summary-table-release-column-offset-and-gofmt-rca.md](./69-pipeline-summary-table-release-column-offset-and-gofmt-rca.md): Fix recent commits summary table column offset assertions and gofmt drift.
 - [70-pipeline-commit-group-release-tag-resolution-rca.md](./70-pipeline-commit-group-release-tag-resolution-rca.md): Fix recent commits summary table release tag resolution outside repository root.
+- [71-windows-console-subarrow-glyph-tofu-rca.md](./71-windows-console-subarrow-glyph-tofu-rca.md): Fix Windows terminal glyph font rendering issue with subarrow in pull all.

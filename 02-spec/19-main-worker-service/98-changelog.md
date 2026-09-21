@@ -1,3 +1,9 @@
+## v6.294.0 — 2026-09-21 (fix(pull): replace unsupported subarrow glyph on Windows console with universal arrow)
+
+**Scope:** Version bump. fix(pull): replace unsupported subarrow glyph on Windows console with universal arrow.
+
+---
+
 ## v6.293.0 — 2026-09-21 (fix(pipeline): resolve release version tag across commit group runs, titles, and external working directories)
 
 **Scope:** Version bump. fix(pipeline): resolve release version tag across commit group runs, titles, and external working directories.

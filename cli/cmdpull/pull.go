@@ -116,7 +116,7 @@ func resolveSubArrow() string {
 		return "->"
 	}
 
-	return "↳"
+	return "→"
 }
 
 func dispatchPullExecution(opts pullOptions) error {

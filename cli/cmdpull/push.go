@@ -52,7 +52,7 @@ func runPush(args []string) error {
 	}
 
 	if isPushCWDEnabled(opts) {
-		fmt.Println("  ↳ cwd is a git repo — running plain `git push` here")
+		fmt.Printf("  %s cwd is a git repo — running plain `git push` here\n", resolveSubArrow())
 		runPushCWD(rest)
 
 		return nil
@@ -63,7 +63,7 @@ func runPush(args []string) error {
 	}
 
 	records := resolvePullTargets(opts.slug, opts.group, opts.all) // Reusing target resolver from pull.go
-	fmt.Printf("  ↳ resolved %d repo(s) to push\n", len(records))
+	fmt.Printf("  %s resolved %d repo(s) to push\n", resolveSubArrow(), len(records))
 
 	taskID, taskDB := beginPushTask(records, rest)
 	if taskDB != nil {
@@ -131,7 +131,7 @@ func pushNoTargetsHint(opts pushOptions) bool {
 		return true
 	}
 
-	fmt.Println("  ↳ nothing to push:")
+	fmt.Printf("  %s nothing to push:\n", resolveSubArrow())
 	fmt.Println("     • current directory is not a git repository")
 	fmt.Println("     • no <repo-name>, --group, --all, or -A alias provided")
 	fmt.Println("  Try one of:")

@@ -2432,6 +2432,12 @@ PowerShell: `Invoke-WebRequest -Uri https://raw.githubusercontent.com/alimtvnetw
 
 # Changelog
 
+## [v6.294.0] - 2026-09-21
+
+### Added
+- fix(pull): replace unsupported subarrow glyph on Windows console with universal arrow
+
+
 ## [v6.293.0] - 2026-09-21
 
 ### Added
