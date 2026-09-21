@@ -47,9 +47,6 @@ def update_version_json(new_version: str) -> str:
         vdata = json.load(f)
 
     current = vdata.get("Version", "0.0.0")
-    if args.version:
-        print(f"Current version: {current}")
-        sys.exit(0)
     vdata["Version"] = new_version
     vdata["version"] = new_version
     vdata["updated"] = datetime.datetime.now(datetime.timezone.utc).strftime("%Y-%m-%dT%H:%M:%SZ")
@@ -115,17 +112,12 @@ PowerShell: `Invoke-WebRequest -Uri https://raw.githubusercontent.com/alimtvnetw
 
 ### Added / Changed / Fixed / Removed
 
-- Fixed CI/CD compatibility: formatted cmd/agy_pin_projects.go to strict gofmt specifications
-- Purged orphaned submodule gitlinks ensuring clean actions/checkout across GitHub Actions workflows
-- Standardized US English spelling across all documentation in spec/ and de-literalized test lookup tables
-- Gracefully handled missing VS Code user-data root in headless CI runners for gitmap vscode ls
-- Verified 115/115 E2E installer smoke tests with 100% green verification on release pipeline
-- Added gitmap agy pin-projects command suite (ls, add, rm, --json, --all) to pin, list, and unpin Antigravity projects
-- Added --pinned / -p filter flag to gitmap agy ls to quickly inspect pinned projects
-- Added first-class dynamic root-level execution for saved macros allowing gitmap <macro-name> directly
-- Added root-level macro utility command aliases (macro-list, macro-add, macro-run, macro-record, macro-show, macro-rm)
-- Enforced vertical newline styling rules (R13-R16) with blank lines before if, after closing braces, and before return
-- Passed all 16 local CI/CD quality gates across 3 sequential batches with 100% green verification (exit code 0)
+- Fixed CI/CD compilation and lint: resolved unused strings imports and eliminated duplicate SJRmCmd declaration in cmdssh
+- Fixed Error Management Policy Check: eliminated swallowed SQLite execution error in openSSHHistoryDB with proper apperror.WrapSimple
+- Fixed test suites: added resolveRmTarget and validateRmTarget in cli/cmdssh/ssh_rm_target.go for sshjoin_rm_cmd_test.go
+- Fixed gitmap pe stack trace leak: removed Go runtime stack trace capture from formatGHFailedError and buildGHFailedErrorMessage
+- Fixed golangci-lint strict: removed unused checkHelp in cli/cmdssh/ssh_help_check.go and unused apperror import in cli/cmdpipeline/pipeline_query.go
+- Documented 4-part Root Cause Analysis in .ai-memory/cicd-issues/72-ssh-build-failures-and-pe-stacktrace-rca.md
 """
     # Prepend directly at the top of changelog.md
     lines.insert(0, entry + "\n")
@@ -150,17 +142,12 @@ curl -fsSL https://github.com/alimtvnetwork/gitmap-v28/releases/download/v{new_v
 
 ## Changelog v{new_version}
 
-- Fixed CI/CD compatibility: formatted cmd/agy_pin_projects.go to strict gofmt specifications
-- Purged orphaned submodule gitlinks ensuring clean actions/checkout across GitHub Actions workflows
-- Standardized US English spelling across all documentation in spec/ and de-literalized test lookup tables
-- Gracefully handled missing VS Code user-data root in headless CI runners for gitmap vscode ls
-- Verified 115/115 E2E installer smoke tests with 100% green verification on release pipeline
-- Added gitmap agy pin-projects command suite (ls, add, rm, --json, --all) to pin, list, and unpin Antigravity projects
-- Added --pinned / -p filter flag to gitmap agy ls to quickly inspect pinned projects
-- Added first-class dynamic root-level execution for saved macros allowing gitmap <macro-name> directly
-- Added root-level macro utility command aliases (macro-list, macro-add, macro-run, macro-record, macro-show, macro-rm)
-- Enforced vertical newline styling rules (R13-R16) with blank lines before if, after closing braces, and before return
-- Passed all 16 local CI/CD quality gates across 3 sequential batches with 100% green verification (exit code 0)
+- Fixed CI/CD compilation and lint: resolved unused strings imports and eliminated duplicate SJRmCmd declaration in cmdssh
+- Fixed Error Management Policy Check: eliminated swallowed SQLite execution error in openSSHHistoryDB with proper apperror.WrapSimple
+- Fixed test suites: added resolveRmTarget and validateRmTarget in cli/cmdssh/ssh_rm_target.go for sshjoin_rm_cmd_test.go
+- Fixed gitmap pe stack trace leak: removed Go runtime stack trace capture from formatGHFailedError and buildGHFailedErrorMessage
+- Fixed golangci-lint strict: removed unused checkHelp in cli/cmdssh/ssh_help_check.go and unused apperror import in cli/cmdpipeline/pipeline_query.go
+- Documented 4-part Root Cause Analysis in .ai-memory/cicd-issues/72-ssh-build-failures-and-pe-stacktrace-rca.md
 """
     os.makedirs(os.path.dirname(notes_path), exist_ok=True)
     with open(notes_path, "w", encoding="utf-8") as f:

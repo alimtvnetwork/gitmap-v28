@@ -1,3 +1,20 @@
+## [v6.295.0] 2026-09-22 Release v6.295.0
+
+### Install GitMap v6.295.0
+
+To pin your repository to this exact version, run the following one-liner:
+Unix/Bash: `curl -sL https://raw.githubusercontent.com/alimtvnetwork/gitmap-v28/v6.295.0/install.sh | bash -s -- ".ai-memory/prompts" "v6.295.0"`
+PowerShell: `Invoke-WebRequest -Uri https://raw.githubusercontent.com/alimtvnetwork/gitmap-v28/v6.295.0/install.ps1 -OutFile install.ps1; .\install.ps1 -TargetDir ".ai-memory/prompts" -Version "v6.295.0"`
+
+### Added / Changed / Fixed / Removed
+
+- Fixed CI/CD compilation and lint: resolved unused strings imports and eliminated duplicate SJRmCmd declaration in cmdssh
+- Fixed Error Management Policy Check: eliminated swallowed SQLite execution error in openSSHHistoryDB with proper apperror.WrapSimple
+- Fixed test suites: added resolveRmTarget and validateRmTarget in cli/cmdssh/ssh_rm_target.go for sshjoin_rm_cmd_test.go
+- Fixed gitmap pe stack trace leak: removed Go runtime stack trace capture from formatGHFailedError and buildGHFailedErrorMessage
+- Fixed golangci-lint strict: removed unused checkHelp in cli/cmdssh/ssh_help_check.go and unused apperror import in cli/cmdpipeline/pipeline_query.go
+- Documented 4-part Root Cause Analysis in .ai-memory/cicd-issues/72-ssh-build-failures-and-pe-stacktrace-rca.md
+
 ## [v6.269.0] 2026-09-20 Release v6.269.0
 
 ### Install GitMap v6.269.0

@@ -21,6 +21,22 @@ const sqlCreateSSHHistory = `CREATE TABLE IF NOT EXISTS ssh_task_history (
 	restored_at TEXT DEFAULT ''
 )`
 
+func initSSHHistorySchema(conn *sql.DB) error {
+	errCfg := store.ConfigureSQLiteConn(conn)
+	hasCfgErr := errCfg != nil
+	if hasCfgErr {
+		return apperror.WrapSimple(errCfg, "openSSHHistoryDB.configure")
+	}
+
+	_, errExec := conn.Exec(sqlCreateSSHHistory)
+	hasExecErr := errExec != nil
+	if hasExecErr {
+		return apperror.WrapSimple(errExec, "openSSHHistoryDB.createSchema")
+	}
+
+	return nil
+}
+
 func openSSHHistoryDB() (*sql.DB, error) {
 	dbPath := store.ResolveSplitDbPath("history", "task", "")
 	conn, err := sql.Open("sqlite", dbPath)
@@ -29,8 +45,12 @@ func openSSHHistoryDB() (*sql.DB, error) {
 		return nil, apperror.WrapSimple(err, "openSSHHistoryDB")
 	}
 
-	_ = store.ConfigureSQLiteConn(conn)
-	_, _ = conn.Exec(sqlCreateSSHHistory)
+	errInit := initSSHHistorySchema(conn)
+	hasInitErr := errInit != nil
+	if hasInitErr {
+		_ = conn.Close()
+		return nil, errInit
+	}
 
 	return conn, nil
 }

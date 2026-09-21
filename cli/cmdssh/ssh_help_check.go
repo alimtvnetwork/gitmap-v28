@@ -36,17 +36,6 @@ func hasJoinToken(args []string) bool {
 	return false
 }
 
-func checkHelp(command string, args []string) bool {
-	isHelp := hasHelpFlag(args)
-	if isHelp {
-		helptext.Print(command)
-
-		return true
-	}
-
-	return false
-}
-
 func checkSSHHelp(args []string) bool {
 	hasJoin := hasJoinToken(args)
 	hasHelp := hasHelpFlag(args)

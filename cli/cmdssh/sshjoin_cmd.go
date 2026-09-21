@@ -170,14 +170,6 @@ func runSSHJoin(cmd *cobra.Command, args []string, ctx context.Context) error {
 	return RunSSHJoinCLI(args)
 }
 
-var SJRmCmd = &cobra.Command{
-	Use:   "rm",
-	Short: "Remove machine-alias or ip",
-	RunE: func(cmd *cobra.Command, args []string) error {
-		return runSJRm(cmd, args, cmd.Context())
-	},
-}
-
 func isSJScanSubcommand(sub string) bool {
 	return sub == "scan" || sub == "find" || sub == "discover" || sub == "probe"
 }

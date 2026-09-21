@@ -60,3 +60,4 @@
 - [69-pipeline-summary-table-release-column-offset-and-gofmt-rca.md](./69-pipeline-summary-table-release-column-offset-and-gofmt-rca.md): Fix recent commits summary table column offset assertions and gofmt drift.
 - [70-pipeline-commit-group-release-tag-resolution-rca.md](./70-pipeline-commit-group-release-tag-resolution-rca.md): Fix recent commits summary table release tag resolution outside repository root.
 - [71-windows-console-subarrow-glyph-tofu-rca.md](./71-windows-console-subarrow-glyph-tofu-rca.md): Fix Windows terminal glyph font rendering issue with subarrow in pull all.
+- [72-ssh-build-failures-and-pe-stacktrace-rca.md](./72-ssh-build-failures-and-pe-stacktrace-rca.md): Fix unused strings imports, duplicate SJRmCmd, swallowed error in ssh_history_db, missing resolveRmTarget, and gitmap pe Go stack trace leak.

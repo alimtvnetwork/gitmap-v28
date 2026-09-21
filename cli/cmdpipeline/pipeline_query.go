@@ -10,7 +10,6 @@ import (
 	"strings"
 	"time"
 
-	"github.com/alimtvnetwork/gitmap-v28/cli/apperror"
 	"github.com/alimtvnetwork/gitmap-v28/cli/constants"
 	"github.com/alimtvnetwork/gitmap-v28/cli/ghtoken"
 	"github.com/alimtvnetwork/gitmap-v28/cli/pipelinedb"
@@ -243,24 +242,21 @@ func extractDiagnosticFromRunView(text string) string {
 func formatGHFailedError(err error, out []byte, repo string, runId uint64) string {
 	msg := strings.TrimSpace(string(out))
 	diag := queryRunDiagnostic(repo, runId)
-	stack := apperror.CaptureStackTrace(apperror.DefaultStackTraceSkip)
 
-	return buildGHFailedErrorMessage(err, msg, diag, stack)
+	return buildGHFailedErrorMessage(err, msg, diag)
 }
 
-func buildGHFailedErrorMessage(err error, rawMsg, diag, stack string) string {
+func buildGHFailedErrorMessage(err error, rawMsg, diag string) string {
 	var sb strings.Builder
 	sb.WriteString(fmt.Sprintf("gh command failed (%v):\n", err))
-	if len(rawMsg) > 0 {
+	hasRawMsg := len(rawMsg) > 0
+	if hasRawMsg {
 		sb.WriteString(fmt.Sprintf("  %s\n", rawMsg))
 	}
-	if len(diag) > 0 {
+
+	hasDiag := len(diag) > 0
+	if hasDiag {
 		sb.WriteString(fmt.Sprintf("  Diagnostic: %s\n", diag))
-	}
-	if len(stack) > 0 {
-		sb.WriteString("  Stack Trace:\n")
-		sb.WriteString(stack)
-		sb.WriteString("\n")
 	}
 
 	return sb.String()
