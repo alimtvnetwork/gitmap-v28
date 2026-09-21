@@ -41,9 +41,17 @@ func TestPullTableLayoutColumns(t *testing.T) {
 		t.Fatalf("expected positive MaxLatestBr in wide layout")
 	}
 
-	isDividerClean := layout.DividerLen <= 80
+	if layout.MaxRelease <= 0 {
+		t.Fatalf("expected positive MaxRelease in wide layout")
+	}
+
+	if layout.MaxSHA <= 0 {
+		t.Fatalf("expected positive MaxSHA in wide layout")
+	}
+
+	isDividerClean := layout.DividerLen <= 120
 	if isDividerClean == false {
-		t.Fatalf("expected divider <= 80 for neat layout, got %d", layout.DividerLen)
+		t.Fatalf("expected divider <= 120 for neat layout, got %d", layout.DividerLen)
 	}
 
 	layout.PrintHeader()

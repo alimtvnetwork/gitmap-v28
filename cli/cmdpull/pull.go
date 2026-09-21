@@ -9,6 +9,7 @@ import (
 	"os/exec"
 	"path/filepath"
 	"sort"
+	"strconv"
 	"strings"
 
 	"github.com/alimtvnetwork/gitmap-v28/cli/apperror"
@@ -212,8 +213,126 @@ func buildPullTableRowFromState(state *PullRepoState) model.PullTableRow {
 	row.LatestBranch = gitutil.GetLatestRemoteBranch(state.RepoPath)
 	row.PRStatus = gitutil.DetectPRStatus(state.RepoPath)
 	row.PullStatus = resolveStateStatus(state)
+	row.Release = resolveRepoRelease(state.RepoPath, row.LatestBranch)
+	row.LastSHA = resolveRowSHA(state)
 
 	return row
+}
+
+func resolveRowSHA(state *PullRepoState) string {
+	sha := state.NewSHA
+	if len(sha) == 0 {
+		sha = state.OldSHA
+	}
+	if len(sha) == 0 && len(state.RepoPath) > 0 {
+		sha = gitutil.GetLastCommitSHA(state.RepoPath)
+	}
+
+	return ShortenSHA(sha)
+}
+
+func resolveRepoRelease(repoPath, latestBranch string) string {
+	hasPath := len(repoPath) > 0
+	if hasPath == false {
+		return "-"
+	}
+
+	rel := queryReleaseIdentifier(repoPath, latestBranch)
+	if len(rel) > 0 {
+		return rel
+	}
+
+	return "-"
+}
+
+func queryReleaseIdentifier(repoPath, latestBranch string) string {
+	tag := gitutil.GetLatestTag(repoPath)
+	if len(tag) > 0 {
+		return tag
+	}
+
+	if rel := extractReleaseFromBranch(latestBranch); len(rel) > 0 {
+		return rel
+	}
+
+	return readRepoManifestVersion(repoPath)
+}
+
+func extractReleaseFromBranch(branch string) string {
+	lower := strings.ToLower(branch)
+	isReleasePrefix := strings.HasPrefix(lower, "release/")
+	trimmed := strings.TrimPrefix(branch, "release/")
+	hasRelease := isReleasePrefix && len(trimmed) > 0
+	if hasRelease {
+		return trimmed
+	}
+
+	isVPrefix := strings.HasPrefix(lower, "v")
+	if isVPrefix && isSemverLike(branch) {
+		return branch
+	}
+
+	return ""
+}
+
+func isSemverLike(s string) bool {
+	raw := strings.TrimPrefix(s, "v")
+	parts := strings.Split(raw, ".")
+	hasEnoughParts := len(parts) >= 2
+	if hasEnoughParts == false {
+		return false
+	}
+
+	_, err := strconv.Atoi(parts[0])
+
+	return err == nil
+}
+
+func readRepoManifestVersion(repoPath string) string {
+	vJson := filepath.Join(repoPath, "version.json")
+	v := readJsonVersion(vJson)
+	if len(v) > 0 {
+		return ensureVPrefix(v)
+	}
+
+	pkgJson := filepath.Join(repoPath, "package.json")
+	pkgV := readJsonVersion(pkgJson)
+	if len(pkgV) > 0 {
+		return ensureVPrefix(pkgV)
+	}
+
+	return ""
+}
+
+func readJsonVersion(filePath string) string {
+	data, err := os.ReadFile(filePath)
+	if err != nil || len(data) == 0 {
+		return ""
+	}
+
+	var m map[string]interface{}
+	if err := json.Unmarshal(data, &m); err != nil {
+		return ""
+	}
+
+	if v, ok := m["Version"].(string); ok && len(v) > 0 {
+		return v
+	}
+	if v, ok := m["version"].(string); ok && len(v) > 0 {
+		return v
+	}
+
+	return ""
+}
+
+func ensureVPrefix(v string) string {
+	trimmed := strings.TrimSpace(v)
+	hasV := strings.HasPrefix(trimmed, "v")
+	if hasV {
+		return trimmed
+	}
+
+	return "v" + trimmed
 }
 
 func initBasePullTableRow(state *PullRepoState) model.PullTableRow {

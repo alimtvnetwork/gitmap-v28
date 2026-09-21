@@ -14,7 +14,7 @@ import (
 const (
 	minPullTableTermWidth       = 60
 	defaultPullTableTermWidth   = 80
-	widePullTableThreshold      = 92
+	widePullTableThreshold      = 100
 	defaultPullTableColGapWide  = 3
 	defaultPullTableColGapTight = 2
 )
@@ -26,6 +26,7 @@ type PullTableLayout struct {
 	MaxRepo     int
 	MaxBranch   int
 	MaxLatestBr int
+	MaxRelease  int
 	MaxRange    int
 	MaxChanges  int
 	MaxSHA      int
@@ -79,46 +80,124 @@ func NewPullTableLayoutWithWidth(rows []model.PullTableRow, termWidth int) *Pull
 }
 
 func buildWidePullTableLayout(rows []model.PullTableRow, termWidth int) *PullTableLayout {
-	maxRepo, maxBranch, maxLatest, totalWidth := calcWideColumnWidths(termWidth)
-	layout := newBaseWideLayout(termWidth, totalWidth, rows)
+	maxRepo, maxBranch, maxLatest, maxRel, maxSha, totalWidth, colGap := calcWideColumnWidths(termWidth)
+	layout := newBaseWideLayout(termWidth, totalWidth, colGap, rows)
 	layout.MaxRepo = maxRepo
 	layout.MaxBranch = maxBranch
 	layout.MaxLatestBr = maxLatest
+	layout.MaxRelease = maxRel
+	layout.MaxSHA = maxSha
 
 	return layout
 }
 
-func newBaseWideLayout(termWidth, totalWidth int, rows []model.PullTableRow) *PullTableLayout {
+func newBaseWideLayout(termWidth, totalWidth, colGap int, rows []model.PullTableRow) *PullTableLayout {
 	return &PullTableLayout{
-		TermWidth: termWidth, IsWide: true, ColGap: defaultPullTableColGapWide,
-		MaxRange: 0, MaxChanges: 0, MaxSHA: 0, MaxPR: 3, MaxStatus: 14,
+		TermWidth: termWidth, IsWide: true, ColGap: colGap,
+		MaxRange: 0, MaxChanges: 0, MaxPR: 4, MaxStatus: 14,
 		DividerLen: totalWidth - 2, Rows: rows,
 	}
 }
 
-func calcWideColumnWidths(termWidth int) (int, int, int, int) {
-	maxBranch := 8
-	maxLatest := 14
+func calcWideColumnWidths(termWidth int) (int, int, int, int, int, int, int) {
+	colGap := resolveWideColGap(termWidth)
+	maxBranch := resolveWideBranchWidth(termWidth)
+	maxLatest := resolveWideLatestWidth(termWidth)
 	maxRepo := resolveWideRepoWidth(termWidth)
-	totalWidth := 2 + maxRepo + 3 + maxBranch + 3 + maxLatest + 3 + 3 + 3 + 14
+	maxRelease := resolveWideReleaseWidth(termWidth)
+	maxSHA := resolveWideSHAWidth(termWidth)
+	maxPR := resolveWidePRWidth(termWidth)
+	maxStatus := 14
+	totalWidth := 2 + maxRepo + colGap + maxBranch + colGap + maxLatest + colGap + maxRelease + colGap + maxSHA + colGap + maxPR + colGap + maxStatus
 
-	return maxRepo, maxBranch, maxLatest, totalWidth
+	return maxRepo, maxBranch, maxLatest, maxRelease, maxSHA, totalWidth, colGap
+}
+
+func resolveWideColGap(termWidth int) int {
+	isCompactWide := termWidth < 120
+	if isCompactWide {
+		return defaultPullTableColGapTight
+	}
+
+	return defaultPullTableColGapWide
 }
 
 func resolveWideRepoWidth(termWidth int) int {
-	isExtraWide := termWidth >= 120
+	isExtraWide := termWidth >= 140
 	if isExtraWide {
-		return 24
+		return 34
 	}
 
-	return 22
+	isWide := termWidth >= 120
+	if isWide {
+		return 30
+	}
+
+	return 24
+}
+
+func resolveWideBranchWidth(termWidth int) int {
+	isExtraWide := termWidth >= 140
+	if isExtraWide {
+		return 16
+	}
+
+	isWide := termWidth >= 120
+	if isWide {
+		return 13
+	}
+
+	return 11
+}
+
+func resolveWideLatestWidth(termWidth int) int {
+	isExtraWide := termWidth >= 140
+	if isExtraWide {
+		return 18
+	}
+
+	isWide := termWidth >= 120
+	if isWide {
+		return 15
+	}
+
+	return 13
+}
+
+func resolveWideReleaseWidth(termWidth int) int {
+	isSmallWide := termWidth < 120
+	if isSmallWide {
+		return 9
+	}
+
+	return 10
+}
+
+func resolveWideSHAWidth(termWidth int) int {
+	isSmallWide := termWidth < 120
+	if isSmallWide {
+		return 5
+	}
+
+	return 6
+}
+
+func resolveWidePRWidth(termWidth int) int {
+	isSmallWide := termWidth < 120
+	if isSmallWide {
+		return 3
+	}
+
+	return 4
 }
 
 func buildCompactPullTableLayout(rows []model.PullTableRow, termWidth int) *PullTableLayout {
-	maxRepo, maxBranch, totalWidth := calcCompactColumnWidths(termWidth)
+	maxRepo, maxBranch, maxRel, maxSha, totalWidth := calcCompactColumnWidths(termWidth)
 	layout := newBaseCompactLayout(termWidth, totalWidth, rows)
 	layout.MaxRepo = maxRepo
 	layout.MaxBranch = maxBranch
+	layout.MaxRelease = maxRel
+	layout.MaxSHA = maxSha
 
 	return layout
 }
@@ -126,21 +205,26 @@ func buildCompactPullTableLayout(rows []model.PullTableRow, termWidth int) *Pull
 func newBaseCompactLayout(termWidth, totalWidth int, rows []model.PullTableRow) *PullTableLayout {
 	return &PullTableLayout{
 		TermWidth: termWidth, IsWide: false, ColGap: defaultPullTableColGapTight,
-		MaxRange: 0, MaxChanges: 0, MaxSHA: 0, MaxPR: 3, MaxStatus: 12,
+		MaxRange: 0, MaxChanges: 0, MaxPR: 3, MaxStatus: 10,
 		DividerLen: totalWidth - 2, Rows: rows,
 	}
 }
 
-func calcCompactColumnWidths(termWidth int) (int, int, int) {
+func calcCompactColumnWidths(termWidth int) (int, int, int, int, int) {
 	maxBranch := 10
 	maxRepo := resolveCompactRepoWidth(termWidth)
-	totalWidth := 2 + maxRepo + 2 + maxBranch + 2 + 3 + 2 + 12
+	maxRel := 9
+	maxSha := 5
+	maxPR := 3
+	maxStatus := 10
+	gap := defaultPullTableColGapTight
+	totalWidth := 2 + maxRepo + gap + maxBranch + gap + maxRel + gap + maxSha + gap + maxPR + gap + maxStatus
 
-	return maxRepo, maxBranch, totalWidth
+	return maxRepo, maxBranch, maxRel, maxSha, totalWidth
 }
 
 func resolveCompactRepoWidth(termWidth int) int {
-	isNarrow := termWidth < 70
+	isNarrow := termWidth < 75
 	if isNarrow {
 		return 16
 	}
@@ -159,11 +243,13 @@ func (l *PullTableLayout) PrintHeader() {
 }
 
 func (l *PullTableLayout) printWideHeader() {
-	sep := "   "
+	sep := strings.Repeat(" ", l.ColGap)
 	line := "  " +
 		PadVisual("REPO", l.MaxRepo) + sep +
 		PadVisual("BRANCH", l.MaxBranch) + sep +
 		PadVisual("LATEST BRANCH", l.MaxLatestBr) + sep +
+		PadVisual("RELEASE", l.MaxRelease) + sep +
+		PadVisual("SHA", l.MaxSHA) + sep +
 		PadVisual("PR", l.MaxPR) + sep +
 		"STATUS"
 
@@ -172,10 +258,12 @@ func (l *PullTableLayout) printWideHeader() {
 }
 
 func (l *PullTableLayout) printCompactHeader() {
-	sep := "  "
+	sep := strings.Repeat(" ", l.ColGap)
 	line := "  " +
 		PadVisual("REPO", l.MaxRepo) + sep +
 		PadVisual("BRANCH", l.MaxBranch) + sep +
+		PadVisual("RELEASE", l.MaxRelease) + sep +
+		PadVisual("SHA", l.MaxSHA) + sep +
 		PadVisual("PR", l.MaxPR) + sep +
 		"STATUS"
 

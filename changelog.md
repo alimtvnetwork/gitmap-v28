@@ -2432,6 +2432,12 @@ PowerShell: `Invoke-WebRequest -Uri https://raw.githubusercontent.com/alimtvnetw
 
 # Changelog
 
+## [v6.291.0] - 2026-09-21
+
+### Added
+- feat(table): expand pull and pipeline tables with release and sha columns and wider spacing
+
+
 ## [v6.290.0] - 2026-09-21
 
 ### Added

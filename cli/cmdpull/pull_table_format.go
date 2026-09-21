@@ -204,3 +204,39 @@ func truncateVisual(s string, targetWidth int) string {
 
 	return string(runes[:cutIdx]) + strings.Repeat(" ", targetWidth-curWidth)
 }
+
+func formatReleaseCell(rel string, maxLength int) string {
+	cleaned := strings.TrimSpace(rel)
+	isEmpty := len(cleaned) == 0 || cleaned == "—" || cleaned == "-"
+	if isEmpty {
+		return "-"
+	}
+
+	return leadTruncate(cleaned, maxLength)
+}
+
+func formatSHACell(sha string, maxLength int) string {
+	cleaned := strings.TrimSpace(sha)
+	isEmpty := len(cleaned) == 0 || cleaned == "—" || cleaned == "-"
+	if isEmpty {
+		return "-"
+	}
+
+	limit := resolveSHACellLimit(maxLength)
+	hasOverflow := len(cleaned) > limit
+	if hasOverflow {
+		return cleaned[:limit]
+	}
+
+	return cleaned
+}
+
+func resolveSHACellLimit(maxLength int) int {
+	target := 5
+	hasSmallerMax := maxLength < target && maxLength > 0
+	if hasSmallerMax {
+		return maxLength
+	}
+
+	return target
+}

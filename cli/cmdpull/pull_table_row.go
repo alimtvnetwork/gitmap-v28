@@ -2,6 +2,7 @@ package cmdpull
 
 import (
 	"fmt"
+	"strings"
 
 	"github.com/charmbracelet/lipgloss"
 
@@ -30,20 +31,24 @@ func (l *PullTableLayout) printWideRow(r model.PullTableRow) {
 	renderedRepo, _ := l.renderRepoCol(r.RepoName, r.IsDirty)
 	formattedBranch := formatBranchName(r.Branch, l.MaxBranch)
 	formattedLatestBr := formatLatestBranchName(r.LatestBranch, l.MaxLatestBr)
-	line := l.formatWideRowLine(renderedRepo, formattedBranch, formattedLatestBr, r)
+	formattedRelease := formatReleaseCell(r.Release, l.MaxRelease)
+	formattedSHA := formatSHACell(r.LastSHA, l.MaxSHA)
+	line := l.formatWideRowLine(renderedRepo, formattedBranch, formattedLatestBr, formattedRelease, formattedSHA, r)
 
 	fmt.Println(line)
 }
 
-func (l *PullTableLayout) formatWideRowLine(repo, br, latestBr string, r model.PullTableRow) string {
+func (l *PullTableLayout) formatWideRowLine(repo, br, latestBr, rel, sha string, r model.PullTableRow) string {
 	pr := formatPRCell(r.PRStatus)
 	status, _ := l.renderStatusCol(r.PullStatus, r.IsDirty)
-	sep := "   "
+	sep := strings.Repeat(" ", l.ColGap)
 
 	return "  " +
 		PadVisual(repo, l.MaxRepo) + sep +
 		PadVisual(br, l.MaxBranch) + sep +
 		PadVisual(latestBr, l.MaxLatestBr) + sep +
+		PadVisual(rel, l.MaxRelease) + sep +
+		PadVisual(sha, l.MaxSHA) + sep +
 		PadVisual(pr, l.MaxPR) + sep +
 		status
 }
@@ -51,13 +56,17 @@ func (l *PullTableLayout) formatWideRowLine(repo, br, latestBr string, r model.P
 func (l *PullTableLayout) printCompactRow(r model.PullTableRow) {
 	renderedRepo, _ := l.renderRepoCol(r.RepoName, r.IsDirty)
 	formattedBranch := formatCombinedBranch(r.Branch, r.LatestBranch, l.MaxBranch)
+	formattedRelease := formatReleaseCell(r.Release, l.MaxRelease)
+	formattedSHA := formatSHACell(r.LastSHA, l.MaxSHA)
 	pr := formatPRCell(r.PRStatus)
 	renderedStatus, _ := l.renderStatusCol(r.PullStatus, r.IsDirty)
 
-	sep := "  "
+	sep := strings.Repeat(" ", l.ColGap)
 	line := "  " +
 		PadVisual(renderedRepo, l.MaxRepo) + sep +
 		PadVisual(formattedBranch, l.MaxBranch) + sep +
+		PadVisual(formattedRelease, l.MaxRelease) + sep +
+		PadVisual(formattedSHA, l.MaxSHA) + sep +
 		PadVisual(pr, l.MaxPR) + sep +
 		renderedStatus
 

@@ -1,3 +1,9 @@
+## v6.291.0 — 2026-09-21 (feat(table): expand pull and pipeline tables with release and sha columns and wider spacing)
+
+**Scope:** Version bump. feat(table): expand pull and pipeline tables with release and sha columns and wider spacing.
+
+---
+
 ## v6.290.0 — 2026-09-21 (fix(pipeline): decouple cache TTL with sync manifest, render commit failure sub-tree, and omit passing workflows)
 
 **Scope:** Version bump. fix(pipeline): decouple cache TTL with sync manifest, render commit failure sub-tree, and omit passing workflows.

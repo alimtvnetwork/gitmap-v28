@@ -2,6 +2,7 @@ package cmdpipeline
 
 import (
 	"fmt"
+	"os/exec"
 	"path/filepath"
 	"strconv"
 	"strings"
@@ -339,22 +340,94 @@ func capCommitGroups(groups []CommitPipelineGroup, limit int) []CommitPipelineGr
 func printRecentCommitsHeader(sb *strings.Builder, count int) {
 	fmt.Fprintf(sb, "\n  %s● Recent Commits Pipeline Summary (Last %d Commits):%s\n",
 		constants.ColorCyan, count, constants.ColorReset)
-	fmt.Fprintf(sb, "    %-8s %-9s %-14s %-10s %-32s %-8s\n",
-		"Offset", "Commit", "Branch", "Status", "Workflows", "Failures")
-	fmt.Fprintf(sb, "    %-8s %-9s %-14s %-10s %-32s %-8s\n",
-		"------", "------", "------", "------", "---------", "--------")
+	fmt.Fprintf(sb, "    %-8s %-9s %-20s %-11s %-10s %-32s %-8s\n",
+		"Offset", "Commit", "Branch", "Release", "Status", "Workflows", "Failures")
+	fmt.Fprintf(sb, "    %-8s %-9s %-20s %-11s %-10s %-32s %-8s\n",
+		"------", "------", "------", "-------", "------", "---------", "--------")
 }
 
 func printRecentCommitRow(sb *strings.Builder, g CommitPipelineGroup, index int) {
 	offsetStr := formatCommitOffsetLabel(index)
 	sha := truncateHistoryStr(g.HeadSha, 7)
-	branch := truncateHistoryStr(g.HeadBranch, 13)
+	branch := truncateHistoryStr(g.HeadBranch, 19)
+	releaseVer := resolveCommitRelease(g)
 	badge := formatStatusBadge(g.Conclusion, g.Status)
 	paddedBadge := padRightVisible(badge, 10)
 	wfSummary := formatGroupWorkflowsSummary(g.Workflows, 32)
 	failuresStr := strconv.Itoa(g.FailedWorkflows)
-	fmt.Fprintf(sb, "    %-8s %-9s %-14s %s %-32s %-8s\n",
-		offsetStr, sha, branch, paddedBadge, wfSummary, failuresStr)
+	fmt.Fprintf(sb, "    %-8s %-9s %-20s %-11s %s %-32s %-8s\n",
+		offsetStr, sha, branch, releaseVer, paddedBadge, wfSummary, failuresStr)
+}
+
+func resolveCommitRelease(g CommitPipelineGroup) string {
+	relFromBranch := extractReleaseFromBranch(g.HeadBranch)
+	if len(relFromBranch) > 0 {
+		return relFromBranch
+	}
+
+	relFromSha := extractReleaseFromSha(g.HeadSha)
+	if len(relFromSha) > 0 {
+		return relFromSha
+	}
+
+	return "-"
+}
+
+func extractReleaseFromBranch(branch string) string {
+	lower := strings.ToLower(branch)
+	isReleasePrefix := strings.HasPrefix(lower, "release/")
+	trimmed := strings.TrimPrefix(branch, "release/")
+	hasRelease := isReleasePrefix && len(trimmed) > 0
+	if hasRelease {
+		return trimmed
+	}
+
+	isVPrefix := strings.HasPrefix(lower, "v")
+	if isVPrefix && isSemverLike(branch) {
+		return branch
+	}
+
+	return ""
+}
+
+func isSemverLike(s string) bool {
+	raw := strings.TrimPrefix(s, "v")
+	parts := strings.Split(raw, ".")
+	hasEnoughParts := len(parts) >= 2
+	if hasEnoughParts == false {
+		return false
+	}
+
+	_, err := strconv.Atoi(parts[0])
+
+	return err == nil
+}
+
+func extractReleaseFromSha(sha string) string {
+	isShort := len(sha) < 4
+	if isShort {
+		return ""
+	}
+
+	tagOut, err := exec.Command("git", "tag", "--points-at", sha).Output()
+	if err != nil {
+		return ""
+	}
+
+	return parseFirstVTag(string(tagOut))
+}
+
+func parseFirstVTag(output string) string {
+	lines := strings.Split(strings.TrimSpace(output), "\n")
+	for _, l := range lines {
+		trimmed := strings.TrimSpace(l)
+		hasVPrefix := strings.HasPrefix(strings.ToLower(trimmed), "v")
+		if hasVPrefix {
+			return trimmed
+		}
+	}
+
+	return ""
 }
 
 func formatGroupWorkflowsSummary(workflows []CommitWorkflowItem, maxWidth int) string {

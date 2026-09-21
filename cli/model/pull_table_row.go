@@ -6,6 +6,7 @@ type PullTableRow struct {
 	Branch       string `json:"branch"`
 	LatestBranch string `json:"latestBranch"`
 	LastSHA      string `json:"lastSha"`
+	Release      string `json:"release,omitempty"`
 	PRStatus     string `json:"prStatus"`
 	PullStatus   string `json:"pullStatus"`
 	Duration     string `json:"duration"`

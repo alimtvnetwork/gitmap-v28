@@ -354,3 +354,21 @@ func TestFormatRelativeDbPath_RepoScoped(t *testing.T) {
 		t.Errorf("expected .gitmap/pipeline.db, got %s", rel)
 	}
 }
+
+func TestResolveCommitRelease(t *testing.T) {
+	gReleaseBranch := CommitPipelineGroup{HeadBranch: "release/v6.290.0"}
+	if rel := resolveCommitRelease(gReleaseBranch); rel != "v6.290.0" {
+		t.Errorf("expected v6.290.0 from release branch, got: %s", rel)
+	}
+
+	gTagBranch := CommitPipelineGroup{HeadBranch: "v6.289.0"}
+	if rel := resolveCommitRelease(gTagBranch); rel != "v6.289.0" {
+		t.Errorf("expected v6.289.0 from tag branch, got: %s", rel)
+	}
+
+	gNoRelease := CommitPipelineGroup{HeadBranch: "feature/login", HeadSha: "0000000000"}
+	if rel := resolveCommitRelease(gNoRelease); rel != "-" {
+		t.Errorf("expected '-' for unreleased commit, got: %s", rel)
+	}
+}
+
