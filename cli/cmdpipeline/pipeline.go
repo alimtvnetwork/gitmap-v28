@@ -32,6 +32,9 @@ type PipelineStatusPayload struct {
 	ErrorLogs              string          `json:"errorLogs,omitempty"`
 	ActionableErrorSnippet string          `json:"actionableErrorSnippet,omitempty"`
 	FailedJobs             []FailedJobItem `json:"failedJobs,omitempty"`
+	DbPath                 string          `json:"dbPath,omitempty"`
+	DbSize                 string          `json:"dbSize,omitempty"`
+	IsFromCache            bool            `json:"isFromCache,omitempty"`
 }
 
 // PipelineErrorLogsPayload represents error log outputs.

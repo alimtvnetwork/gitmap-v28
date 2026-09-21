@@ -2,6 +2,7 @@ package cmdpipeline
 
 import (
 	"fmt"
+	"path/filepath"
 	"sort"
 	"strings"
 	"time"
@@ -19,13 +20,21 @@ func handlePipelineStatus(args []string) error {
 		return runPipelineDynamicTimeline(repo, isJSON)
 	}
 
-	runs := queryWorkflowRuns(repo)
+	runs, isFromCache := resolveStatusRunsWithCache(repo, args)
 	pendingPRs := queryPendingPRs(repo)
 	lastTag := queryLatestTagRelease(repo)
 
 	payload := buildStatusPayload(repo, lastTag, pendingPRs, runs)
-	recordPipelineInDB(payload, runs)
+	payload.IsFromCache = isFromCache
 
+	if !isFromCache {
+		recordPipelineInDB(payload, runs)
+	}
+
+	return outputStatusResult(payload, isJSON)
+}
+
+func outputStatusResult(payload PipelineStatusPayload, isJSON bool) error {
 	if isJSON {
 		return printJSON(payload)
 	}
@@ -33,6 +42,40 @@ func handlePipelineStatus(args []string) error {
 	renderPipelineStatusTerminal(payload)
 
 	return nil
+}
+
+func resolveStatusRunsWithCache(repo string, args []string) ([]ghRunItem, bool) {
+	hasForce := hasArgFlag(args, "--force") || hasArgFlag(args, "-f")
+	if hasForce {
+		return queryWorkflowRuns(repo), false
+	}
+
+	db, err := pipelinedb.OpenPipelineSplitDb(repo)
+	if err != nil {
+		return queryWorkflowRuns(repo), false
+	}
+	defer db.Close()
+
+	return evaluateStatusDbCache(db, repo)
+}
+
+func evaluateStatusDbCache(db *pipelinedb.PipelineSplitDb, repo string) ([]ghRunItem, bool) {
+	runRes := db.QueryRecentRuns(20)
+	if runRes.IsFailure() || len(runRes.Data) == 0 {
+		return queryWorkflowRuns(repo), false
+	}
+
+	latest := runRes.Data[0]
+	if checkTtlCacheHit(db.Path) {
+		return mapDbRunsToGhRuns(runRes.Data), true
+	}
+
+	localSha := resolveLocalCommitSHA()
+	if checkCommitMatchCacheHit(latest, localSha) {
+		return mapDbRunsToGhRuns(runRes.Data), true
+	}
+
+	return queryWorkflowRuns(repo), false
 }
 
 func handlePipelineWaitTime(args []string) error {
@@ -64,11 +107,14 @@ func handlePipelineWaitTime(args []string) error {
 
 func buildStatusPayload(repo, lastTag string, pendingPRs int, runs []ghRunItem) PipelineStatusPayload {
 	nowStr := time.Now().UTC().Format(time.RFC3339)
+	dbPath := pipelinedb.ResolvePipelineDbPath(repo)
 	payload := PipelineStatusPayload{
 		Repo:           repo,
 		LastTagRelease: lastTag,
 		PendingPRs:     pendingPRs,
 		UpdatedAt:      nowStr,
+		DbPath:         FormatRelativeDbPath(dbPath),
+		DbSize:         ResolveDbFileSize(dbPath),
 	}
 
 	if len(runs) == 0 {
@@ -110,41 +156,68 @@ func populateActiveRunPayload(payload *PipelineStatusPayload, runs []ghRunItem, 
 }
 
 func renderPipelineStatusTerminal(p PipelineStatusPayload) {
-	fmt.Printf("  %s● Repo:%s             %s\n", constants.ColorCyan, constants.ColorReset, p.Repo)
-
-	if p.IsRunning {
-		fmt.Printf("  %s● Status:%s           %sRUNNING%s (%s, ETA: %s)\n",
-			constants.ColorCyan, constants.ColorReset,
-			constants.ColorYellow, constants.ColorReset,
-			p.ActiveWorkflow, formatEtaDisplay(p.EtaSeconds))
-	} else {
-		renderCompletedStatusLine(p)
-	}
-
-	fmt.Printf("  %s● Last Tag Release:%s %s\n", constants.ColorCyan, constants.ColorReset, p.LastTagRelease)
-	fmt.Printf("  %s● Pending Pipelines:%s %d\n", constants.ColorCyan, constants.ColorReset, p.PendingPipelines)
-	fmt.Printf("  %s● Pending PRs:%s       %d\n", constants.ColorCyan, constants.ColorReset, p.PendingPRs)
-
-	if len(p.LastRunUrl) > 0 {
-		fmt.Printf("  %s● Run URL:%s           %s\n", constants.ColorCyan, constants.ColorReset, p.LastRunUrl)
-	}
+	renderPrimaryStatusSection(p)
+	renderPipelineDbInfoTerminal(p)
 
 	if p.IsRunning && p.LastRunId > 0 {
 		renderSegmentBreakdown(p.Repo, p.LastRunId)
 	}
 }
 
+func renderPrimaryStatusSection(p PipelineStatusPayload) {
+	fmt.Printf("  %s● Repo:%s             %s\n", constants.ColorCyan, constants.ColorReset, p.Repo)
+	if p.IsRunning {
+		renderRunningStatusLine(p)
+	} else {
+		renderCompletedStatusLine(p)
+	}
+	renderCountsAndUrlSection(p)
+}
+
+func renderRunningStatusLine(p PipelineStatusPayload) {
+	cacheHint := ""
+	if p.IsFromCache {
+		cacheHint = fmt.Sprintf(" %s(served from cache)%s", constants.ColorCyan, constants.ColorReset)
+	}
+	fmt.Printf("  %s● Status:%s           %sRUNNING%s (%s, ETA: %s)%s\n",
+		constants.ColorCyan, constants.ColorReset,
+		constants.ColorYellow, constants.ColorReset,
+		p.ActiveWorkflow, formatEtaDisplay(p.EtaSeconds), cacheHint)
+}
+
+func renderCountsAndUrlSection(p PipelineStatusPayload) {
+	fmt.Printf("  %s● Last Tag Release:%s %s\n", constants.ColorCyan, constants.ColorReset, p.LastTagRelease)
+	fmt.Printf("  %s● Pending Pipelines:%s %d\n", constants.ColorCyan, constants.ColorReset, p.PendingPipelines)
+	fmt.Printf("  %s● Pending PRs:%s       %d\n", constants.ColorCyan, constants.ColorReset, p.PendingPRs)
+	if len(p.LastRunUrl) > 0 {
+		fmt.Printf("  %s● Run URL:%s           %s\n", constants.ColorCyan, constants.ColorReset, p.LastRunUrl)
+	}
+}
+
+func renderPipelineDbInfoTerminal(p PipelineStatusPayload) {
+	if len(p.DbPath) == 0 {
+		return
+	}
+	fmt.Printf("  %s● Pipeline DB:%s       %s\n", constants.ColorCyan, constants.ColorReset, filepath.ToSlash(p.DbPath))
+	fmt.Printf("  %s● DB Size:%s           %s\n", constants.ColorCyan, constants.ColorReset, p.DbSize)
+	fmt.Printf("  %s● Clear DB:%s          gitmap pipeline clear -y\n", constants.ColorCyan, constants.ColorReset)
+}
+
 func renderCompletedStatusLine(p PipelineStatusPayload) {
 	statusColor := constants.ColorGreen
-
 	if p.LastConclusion == "failure" {
 		statusColor = constants.ColorRed
 	}
 
-	fmt.Printf("  %s● Status:%s           %s%s%s (conclusion: %s)\n",
+	cacheHint := ""
+	if p.IsFromCache {
+		cacheHint = fmt.Sprintf(" %s(served from cache)%s", constants.ColorCyan, constants.ColorReset)
+	}
+
+	fmt.Printf("  %s● Status:%s           %s%s%s (conclusion: %s)%s\n",
 		constants.ColorCyan, constants.ColorReset,
 		statusColor, p.LastStatus, constants.ColorReset,
-		p.LastConclusion)
+		p.LastConclusion, cacheHint)
 
 	if p.LastConclusion == "failure" && p.Repo != "" {
 		renderFailureErrorSummary(p.Repo, 0)

@@ -2432,6 +2432,15 @@ PowerShell: `Invoke-WebRequest -Uri https://raw.githubusercontent.com/alimtvnetw
 
 # Changelog
 
+## [v6.284.0] - 2026-09-21
+
+### Added
+- feat(pipeline): display Pipeline DB path, DB size, and clear DB command in gitmap pipeline status output
+- feat(pipeline): fix gitmap pipeline clear -y to purge sql.db, wal, shm, and all logs, accurately reclaiming disk space and re-initializing clean schema
+- feat(pipeline): add configurable 10 MB DB ceiling (PipelineMaxDbSizeMB: 10) with automatic iterative pruning of oldest runs and log truncation
+- feat(pipeline): add SQLite caching with 5-second TTL window and (served from cache) indicator for status and error logs
+- fix(agy): auto-select conversation by matching project name and path without interactive prompting
+
 ## [v6.283.0] - 2026-09-20
 
 ### Added

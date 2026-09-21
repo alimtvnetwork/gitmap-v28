@@ -1,3 +1,9 @@
+## v6.284.0 — 2026-09-21 (feat(pipeline): add db status visibility, full clear space reclaim, 10MB auto-pruning ceiling, and auto-select agy conversation)
+
+**Scope:** Version bump. feat(pipeline): add db status visibility, full clear space reclaim, 10MB auto-pruning ceiling, and auto-select agy conversation.
+
+---
+
 ## v6.283.0 — 2026-09-20 (fix(ci): remove unused filterFailingRuns, flatten nested ifs in pipeline details, and document RCA 67)
 
 **Scope:** Version bump. fix(ci): remove unused filterFailingRuns, flatten nested ifs in pipeline details, and document RCA 67.

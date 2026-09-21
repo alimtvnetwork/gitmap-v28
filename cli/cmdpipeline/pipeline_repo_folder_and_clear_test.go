@@ -66,3 +66,21 @@ func TestPurgeRepoPipelineFolder(t *testing.T) {
 		t.Fatalf("expected positive reclaimed bytes, got %d", reclaimed)
 	}
 }
+
+func TestPurgeRepoPipelineFolder_IncludesSqlDb(t *testing.T) {
+	tmpDir := t.TempDir()
+	dbFile := filepath.Join(tmpDir, "sql.db")
+	walFile := filepath.Join(tmpDir, "sql.db-wal")
+	shmFile := filepath.Join(tmpDir, "sql.db-shm")
+	_ = os.WriteFile(dbFile, make([]byte, 5000), 0644)
+	_ = os.WriteFile(walFile, make([]byte, 2000), 0644)
+	_ = os.WriteFile(shmFile, make([]byte, 1000), 0644)
+
+	purged, reclaimed := purgeRepoPipelineFolder(tmpDir)
+	if purged != 3 {
+		t.Fatalf("expected 3 purged db files, got %d", purged)
+	}
+	if reclaimed < 8000 {
+		t.Fatalf("expected at least 8000 reclaimed bytes, got %d", reclaimed)
+	}
+}

@@ -242,14 +242,24 @@ func fetchAndStoreRunErrorLog(db *pipelinedb.PipelineSplitDb, repo string, run g
 
 func handleSyncFailureLog(db *pipelinedb.PipelineSplitDb, repo string, run ghRunItem, cachedMap map[uint64]bool, res *PipelineSyncResult) {
 	res.FailedRuns = append(res.FailedRuns, run.DatabaseId)
-	hasCached := cachedMap[run.DatabaseId] || db.HasErrorLog(run.DatabaseId)
-	if hasCached {
+	if isRunErrorLogCached(db, run, cachedMap) {
 		res.CachedErrors = append(res.CachedErrors, run.DatabaseId)
 
 		return
 	}
 
 	fetchAndStoreRunErrorLog(db, repo, run, res)
+}
+
+func isRunErrorLogCached(db *pipelinedb.PipelineSplitDb, run ghRunItem, cachedMap map[uint64]bool) bool {
+	if cachedMap[run.DatabaseId] || db.HasErrorLog(run.DatabaseId) {
+		return true
+	}
+	if len(run.HeadSha) >= 7 && db.HasErrorLogForSha(run.HeadSha) {
+		return true
+	}
+
+	return false
 }
 
 func processSyncRun(db *pipelinedb.PipelineSplitDb, repo string, run ghRunItem, cachedMap map[uint64]bool, res *PipelineSyncResult) {
@@ -287,6 +297,7 @@ func SyncPipelineCache(repo string, maxRuns int) (*PipelineSyncResult, error) {
 	runs := queryWorkflowRunsLimit(repo, limit)
 	result := initSyncResult(repo, db.Path, len(runs))
 	syncAllRunsIntoDb(db, repo, runs, result)
+	_, _, _ = db.PruneIfExceedsSize(0)
 
 	return result, nil
 }

@@ -43,10 +43,9 @@ func executePipelineDBClear(repo string) *apperror.AppError {
 	dir := resolvePipelineDirForRepo(repo)
 	purgedFiles, reclaimedBytes := purgeRepoPipelineFolder(dir)
 	clearLocalErrorLogsForRepo(repo)
-	db, err := pipelinedb.OpenPipelineSplitDb(repo)
+	freshDb, err := pipelinedb.OpenPipelineSplitDb(repo)
 	if err == nil {
-		defer db.Close()
-		_ = db.Clear()
+		_ = freshDb.Close()
 	}
 
 	printPipelineClearSummary(repo, dir, purgedFiles, reclaimedBytes)
@@ -59,18 +58,31 @@ func purgeRepoPipelineFolder(dir string) (int, int64) {
 	if err != nil {
 		return 0, 0
 	}
+
+	return iteratePurgeEntries(dir, entries)
+}
+
+func iteratePurgeEntries(dir string, entries []os.DirEntry) (int, int64) {
 	var count int
 	var totalBytes int64
 	for _, e := range entries {
-		if e.IsDir() || !isPurgeablePipelineFile(e.Name()) {
-			continue
-		}
-		c, b := purgeSinglePipelineFile(filepath.Join(dir, e.Name()))
+		c, b := purgeEntryIfEligible(dir, e)
 		count += c
 		totalBytes += b
 	}
 
 	return count, totalBytes
+}
+
+func purgeEntryIfEligible(dir string, e os.DirEntry) (int, int64) {
+	if e.IsDir() {
+		return 0, 0
+	}
+	if isPurgeablePipelineFile(e.Name()) {
+		return purgeSinglePipelineFile(filepath.Join(dir, e.Name()))
+	}
+
+	return 0, 0
 }
 
 func purgeSinglePipelineFile(filePath string) (int, int64) {
@@ -81,6 +93,7 @@ func purgeSinglePipelineFile(filePath string) (int, int64) {
 	if rErr := os.Remove(filePath); rErr == nil {
 		return 1, size
 	}
+
 	return 0, 0
 }
 
@@ -91,7 +104,9 @@ func isPurgeablePipelineFile(name string) bool {
 		return true
 	case strings.HasSuffix(lower, ".json"):
 		return true
-	case strings.HasSuffix(lower, ".db-journal") || strings.HasSuffix(lower, ".db-wal"):
+	case strings.HasSuffix(lower, ".db-journal") || strings.HasSuffix(lower, ".db-wal") || strings.HasSuffix(lower, ".db-shm"):
+		return true
+	case lower == "sql.db" || strings.HasSuffix(lower, ".db"):
 		return true
 	default:
 		return false

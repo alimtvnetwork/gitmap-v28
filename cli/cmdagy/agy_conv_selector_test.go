@@ -117,3 +117,26 @@ func TestSortConversations(t *testing.T) {
 	assertEqualID(t, convs[2].ID, "conv-a")
 	assertEqualID(t, convs[3].ID, "conv-b")
 }
+
+func TestSelectMatchingConversation_ZeroMatches(t *testing.T) {
+	_, err := SelectMatchingConversation("/non/existent/repo/path/xyz")
+	hasErr := err != nil
+	if hasErr == false {
+		t.Fatalf("expected error for non-existent workspace, got nil")
+	}
+}
+
+func TestSelectMatchingConversation_LocalWorkspaces(t *testing.T) {
+	conv, err := SelectMatchingConversation("d:\\work\\gitmap")
+	hasErr := err != nil
+	if hasErr {
+		t.Skip("skipping local workspace test when summaries db not present")
+
+		return
+	}
+
+	hasEmptyID := conv.ID == ""
+	if hasEmptyID {
+		t.Errorf("expected non-empty conversation ID, got empty")
+	}
+}

@@ -4,7 +4,7 @@ import (
 	"bufio"
 	"fmt"
 	"io"
-	"os"
+	"path/filepath"
 	"sort"
 	"strconv"
 	"strings"
@@ -14,13 +14,24 @@ import (
 
 // FindMatchingConversations returns all conversations matching repoRoot sorted by activity.
 func FindMatchingConversations(repoRoot string) ([]AgyConvInfo, error) {
+	pClean := cleanProjectWorkspace(repoRoot)
+	pName := filepath.Base(pClean)
+	summaries, err := scanConversationsFromSummaries(pClean, pName)
+	hasSummaries := err == nil && len(summaries) > 0
+	if hasSummaries {
+		return summaries, nil
+	}
+
+	return findMatchingConversationsFromDBDir(pClean)
+}
+
+func findMatchingConversationsFromDBDir(pClean string) ([]AgyConvInfo, error) {
 	convs, err := scanAllConversations()
 	hasErr := err != nil
 	if hasErr {
 		return nil, apperror.WrapSimple(err, "scan conversations")
 	}
 
-	pClean := cleanProjectWorkspace(repoRoot)
 	matches := filterMatchingConversations(pClean, convs)
 	sortConversations(matches)
 
@@ -59,11 +70,19 @@ func compareConvInfo(a, b AgyConvInfo) bool {
 	return a.ID < b.ID
 }
 
-// SelectMatchingConversation picks the best matching conversation, prompting if multiple exist in interactive terminal.
+// SelectMatchingConversation automatically picks the best matching conversation by project name and path without prompting.
 func SelectMatchingConversation(repoRoot string) (AgyConvInfo, error) {
-	isInteractive := isTerminalInteractive()
+	convs, err := FindMatchingConversations(repoRoot)
+	hasErr := err != nil
+	if hasErr {
+		return AgyConvInfo{}, err
+	}
+	isZeroMatches := len(convs) == 0
+	if isZeroMatches {
+		return AgyConvInfo{}, apperror.NewSimple("no matching conversation found for workspace", "E9020")
+	}
 
-	return SelectMatchingConversationWithIO(repoRoot, os.Stdin, os.Stdout, isInteractive)
+	return convs[0], nil
 }
 
 // SelectMatchingConversationWithIO selects matching conversation with specified IO streams.
@@ -146,15 +165,4 @@ func parseConvIndex(input string, max int) int {
 	}
 
 	return 0
-}
-
-func isTerminalInteractive() bool {
-	stat, err := os.Stdin.Stat()
-	hasErr := err != nil
-	if hasErr {
-		return false
-	}
-	isCharDevice := (stat.Mode() & os.ModeCharDevice) != 0
-
-	return isCharDevice
 }

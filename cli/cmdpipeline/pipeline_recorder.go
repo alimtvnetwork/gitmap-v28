@@ -25,6 +25,7 @@ func recordInPipelineSplitDb(p PipelineStatusPayload, runs []ghRunItem) {
 	defer pipeDb.Close()
 
 	recordRunsToSplitDb(pipeDb, p, runs)
+	_, _, _ = pipeDb.PruneIfExceedsSize(0)
 }
 
 // RecordFetchedRunsToSplitDb persists fresh workflow runs and failures into the repository SQLite split DB.
@@ -40,6 +41,7 @@ func RecordFetchedRunsToSplitDb(repo string, runs []ghRunItem) {
 	defer pipeDb.Close()
 
 	recordRunsToSplitDb(pipeDb, PipelineStatusPayload{Repo: repo}, runs)
+	_, _, _ = pipeDb.PruneIfExceedsSize(0)
 }
 
 func recordRunsToSplitDb(pipeDb *pipelinedb.PipelineSplitDb, p PipelineStatusPayload, runs []ghRunItem) {
@@ -92,11 +94,9 @@ func recordSingleFailedRun(pipeDb *pipelinedb.PipelineSplitDb, repo string, r gh
 	if r.Conclusion != "failure" {
 		return
 	}
-
-	if pipeDb.HasErrorLog(r.DatabaseId) {
+	if isRunFailureAlreadyRecorded(pipeDb, r) {
 		return
 	}
-
 	if isSkipDelayRequested() {
 		return
 	}
@@ -108,6 +108,17 @@ func recordSingleFailedRun(pipeDb *pipelinedb.PipelineSplitDb, repo string, r gh
 	}
 
 	persistSingleFailedRunLog(pipeDb, repo, r, clean, raw)
+}
+
+func isRunFailureAlreadyRecorded(pipeDb *pipelinedb.PipelineSplitDb, r ghRunItem) bool {
+	if pipeDb.HasErrorLog(r.DatabaseId) {
+		return true
+	}
+	if len(r.HeadSha) >= 7 && pipeDb.HasErrorLogForSha(r.HeadSha) {
+		return true
+	}
+
+	return false
 }
 
 func persistSingleFailedRunLog(pipeDb *pipelinedb.PipelineSplitDb, repo string, r ghRunItem, clean, raw string) {

@@ -65,6 +65,8 @@ type Config struct {
 	ErrorDisplay          string            `json:"errorDisplay"`
 	CommitReplayKeepUrl   bool              `json:"commitReplayKeepUrl"`
 	CommitReplayTemplates map[string]string `json:"commitReplayTemplates"`
+	PipelineMaxDbSizeMB   int               `json:"pipelineMaxDbSizeMb,omitempty"`
+	PipelineCacheTTLSec   int               `json:"pipelineCacheTtlSec,omitempty"`
 }
 
 // DefaultConfig returns a Config with sensible built-in defaults.
@@ -79,6 +81,8 @@ func DefaultConfig() Config {
 		ErrorDisplay:          "full",
 		CommitReplayKeepUrl:   false,
 		CommitReplayTemplates: map[string]string{"Changes": "chore: apply automated updates", "Work in progress": "chore: work in progress", "Lovable update": "chore: lovable update"},
+		PipelineMaxDbSizeMB:   10,
+		PipelineCacheTTLSec:   5,
 		Release: ReleaseConfig{
 			Targets:      []ReleaseTarget{},
 			HasChecksums: false,

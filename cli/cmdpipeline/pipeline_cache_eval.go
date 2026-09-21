@@ -2,6 +2,7 @@ package cmdpipeline
 
 import (
 	"os"
+	"strconv"
 	"strings"
 	"time"
 
@@ -64,13 +65,27 @@ func evaluateDecisionFromRuns(db *pipelinedb.PipelineSplitDb, dbRuns []pipelined
 	return PipelineCacheDecision{IsFromCache: false, Reason: "no_cache_match"}
 }
 
+func resolvePipelineCacheTTL() time.Duration {
+	envVal := os.Getenv("GITMAP_PIPELINE_CACHE_TTL_SEC")
+	if len(envVal) == 0 {
+		return 5 * time.Second
+	}
+
+	sec, err := strconv.Atoi(envVal)
+	if err == nil && sec > 0 {
+		return time.Duration(sec) * time.Second
+	}
+
+	return 5 * time.Second
+}
+
 func checkTtlCacheHit(dbPath string) bool {
 	info, err := os.Stat(dbPath)
 	if err != nil {
 		return false
 	}
 
-	return time.Since(info.ModTime()) < 5*time.Second
+	return time.Since(info.ModTime()) < resolvePipelineCacheTTL()
 }
 
 func checkCommitMatchCacheHit(latest pipelinedb.PipelineRunRecord, localSha string) bool {
