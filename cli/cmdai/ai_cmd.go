@@ -37,6 +37,13 @@ var (
 		RunE:  runFixCmd,
 	}
 
+	pwshCmd = &cobra.Command{
+		Use:     "pwsh [command/args...]",
+		Aliases: []string{"ps", "powershell"},
+		Short:   "Execute PowerShell automation and record execution history",
+		RunE:    runPwshCmd,
+	}
+
 	listOpts ScriptListOptions
 )
 
@@ -55,6 +62,10 @@ func runRunCmd(cmd *cobra.Command, args []string) error {
 	}
 
 	return toError(RunAiScript(args[0], args[1:]))
+}
+
+func runPwshCmd(cmd *cobra.Command, args []string) error {
+	return toError(RunAiPowershell(args))
 }
 
 func runFixCmd(cmd *cobra.Command, args []string) error {
@@ -136,6 +147,7 @@ func toError(appErr *apperror.AppError) error {
 func init() {
 	AiCmd.AddCommand(listCmd)
 	AiCmd.AddCommand(runCmd)
+	AiCmd.AddCommand(pwshCmd)
 	AiCmd.AddCommand(fixCmd)
 
 	initListFlags()

@@ -1,6 +1,7 @@
 package cmdpipeline
 
 import (
+	"database/sql"
 	"fmt"
 	"math"
 	"os"
@@ -12,7 +13,7 @@ import (
 
 func recordPipelineInDB(p PipelineStatusPayload, runs []ghRunItem) {
 	recordInPipelineSplitDb(p, runs)
-	recordInMasterDB(p, runs)
+	recordInPipelineTasksDb(p, runs)
 }
 
 func recordInPipelineSplitDb(p PipelineStatusPayload, runs []ghRunItem) {
@@ -133,43 +134,28 @@ func buildCompactRecord(repo string, r ghRunItem, clean, raw string, filtered in
 	}
 }
 
-func recordInMasterDB(p PipelineStatusPayload, runs []ghRunItem) {
-	db, err := openDB()
-	if err != nil {
-		fmt.Fprintf(os.Stderr, "  ⚠ Could not open master DB: %v\n", err)
-
+func recordInPipelineTasksDb(p PipelineStatusPayload, runs []ghRunItem) {
+	pdb, err := store.OpenSectionTasksDB("pipeline", "")
+	hasErr := err != nil
+	if hasErr {
 		return
 	}
+	defer pdb.Close()
 
-	defer db.Close()
-
-	insertMasterRuns(db, p, runs)
-}
-
-func insertMasterRuns(db *store.DB, p PipelineStatusPayload, runs []ghRunItem) {
 	for _, r := range runs {
-		insertSingleMasterRun(db, p, r)
+		insertSinglePipelineTask(pdb.Conn(), p.Repo, r)
 	}
 }
 
-func insertSingleMasterRun(db *store.DB, p PipelineStatusPayload, r ghRunItem) {
-	run := store.PipelineRun{
-		RunID:        safeUint64ToInt64(r.DatabaseId),
-		Repo:         p.Repo,
-		WorkflowName: r.Name,
-		Status:       r.Status,
-		Conclusion:   r.Conclusion,
-		Branch:       r.HeadBranch,
-		Sha:          r.HeadSha,
-		EtaSeconds:   resolveRecordEta(r.Status, p.EtaSeconds),
-		URL:          r.Url,
-		CreatedAt:    r.CreatedAt,
-		UpdatedAt:    r.UpdatedAt,
-	}
-
-	if err := db.InsertOrUpdatePipelineRun(run); err != nil {
-		fmt.Fprintf(os.Stderr, "  ⚠ Could not record master pipeline run %d: %v\n", r.DatabaseId, err)
-	}
+func insertSinglePipelineTask(conn *sql.DB, repo string, r ghRunItem) {
+	taskId := fmt.Sprintf("pipe_%s_%d", repo, r.DatabaseId)
+	action := "pipeline_run_" + r.Status
+	target := r.HeadBranch
+	fwd := fmt.Sprintf(`{"runId":%d,"workflow":"%s","conclusion":"%s","sha":"%s"}`, r.DatabaseId, r.Name, r.Conclusion, r.HeadSha)
+	sqlQuery := `INSERT OR IGNORE INTO TaskHistory 
+		(TaskId, Section, Action, Target, ForwardPayload, InversePayload, Status) 
+		VALUES (?, 'pipeline', ?, ?, ?, '', 'completed')`
+	_ = store.ExecWrapper(conn, sqlQuery, taskId, action, target, fwd)
 }
 
 func safeUint64ToInt64(val uint64) int64 {

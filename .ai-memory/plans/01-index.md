@@ -46,6 +46,8 @@ None.
 
 ## Completed Plans
 
+- [50-finalize-missing-elements-pipeline-tasks-scriptsfixer-ai-logging.md](completed/50-finalize-missing-elements-pipeline-tasks-scriptsfixer-ai-logging.md): Finalize Missing Elements (Pipeline Tasks DB, scripts-fixer Beyond Compare, AI Execution Logging)
+- [49-split-tasks-db-branch-compare-llm-search-and-agy-prompt.md](completed/49-split-tasks-db-branch-compare-llm-search-and-agy-prompt.md): Split Tasks DB, Branch Compare (Beyond Compare), LLM AI Execution History, Search DB & AGY Prompt Enhancements
 - [42-pr-commit-engines-and-sqlite-split-db-architecture.md](completed/42-pr-commit-engines-and-sqlite-split-db-architecture.md): PR Commit Engines, Split-DB Architecture & Auto-Merge PR Release Suite
 - [41-antigravity-ide-first-integration-and-queue-protocol.md](completed/41-antigravity-ide-first-integration-and-queue-protocol.md): Antigravity IDE-First Integration, File-System Discovery & Queue Protocol
 - [40-macro-fleet-export-import-and-interactive-resilience.md](completed/40-macro-fleet-export-import-and-interactive-resilience.md): Macro Fleet Export/Import, Multi-Node Sync & Interactive Resilience

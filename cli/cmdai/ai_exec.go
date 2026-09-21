@@ -2,11 +2,15 @@ package cmdai
 
 import (
 	"context"
+	"encoding/json"
 	"os"
 	"os/exec"
 	"path/filepath"
+	"strings"
+	"time"
 
 	"github.com/alimtvnetwork/gitmap-v28/cli/apperror"
+	"github.com/alimtvnetwork/gitmap-v28/cli/store"
 )
 
 // ResolveRepoRoot walks up the directory hierarchy to find the repository root.
@@ -118,13 +122,54 @@ func runStreamingCommand(ctx context.Context, pythonExe, repoRoot, scriptPath st
 	cmd.Stdin = os.Stdin
 	cmd.Env = buildStreamingEnv()
 
+	start := time.Now()
 	runErr := cmd.Run()
-	hasRunErr := runErr != nil
-	if hasRunErr {
+	durationMs := int(time.Since(start).Milliseconds())
+	recordExecutionHistory(scriptPath, args, repoRoot, durationMs, runErr)
+	if runErr != nil {
 		return wrapProcessError(runErr, scriptPath)
 	}
 
 	return nil
+}
+
+func recordExecutionHistory(scriptPath string, args []string, repoRoot string, durationMs int, err error) {
+	argsJSON, _ := json.Marshal(args)
+	exitCode := 0
+	errMsg := ""
+	isSuccess := err == nil
+	if err != nil {
+		exitCode = extractExitCode(err)
+		errMsg = err.Error()
+	}
+	category := resolveScriptCategory(scriptPath)
+	_ = store.RecordAiExecution(
+		category,
+		scriptPath,
+		string(argsJSON),
+		repoRoot,
+		"127.0.0.1",
+		durationMs,
+		exitCode,
+		"",
+		errMsg,
+		isSuccess,
+	)
+}
+
+func resolveScriptCategory(scriptPath string) string {
+	base := filepath.Base(scriptPath)
+	if strings.Contains(base, "fix") {
+		return "code_gen"
+	}
+	if strings.Contains(base, "test") || strings.Contains(base, "audit") || strings.Contains(base, "check") {
+		return "audit"
+	}
+	if strings.Contains(base, "search") || strings.Contains(base, "find") || strings.Contains(base, "grep") {
+		return "search"
+	}
+
+	return "instruction"
 }
 
 func buildCmdArgs(scriptPath string, args []string) []string {

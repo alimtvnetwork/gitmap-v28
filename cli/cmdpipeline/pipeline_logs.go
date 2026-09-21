@@ -69,6 +69,7 @@ func renderCachedErrorLogs(repo string, decision PipelineCacheDecision, flags Pi
 	payload.IsFromCache = true
 	payload.CacheSource = decision.CacheSource
 	applyPayloadOptions(&payload, decision.CachedRuns, flags)
+	_ = RecordPipelineCheckInTask(repo, payload)
 
 	return writeOrRenderErrorLogs(ErrorLogOutputParams{
 		Payload:              payload,
@@ -85,6 +86,7 @@ func fetchAndRenderFreshErrorLogs(repo string, flags PipelineErrorFlags) error {
 	RecordFetchedRunsToSplitDb(repo, runs)
 	payload := buildErrorLogsPayload(repo, runs)
 	applyPayloadOptions(&payload, runs, flags)
+	_ = RecordPipelineCheckInTask(repo, payload)
 
 	return writeOrRenderErrorLogs(ErrorLogOutputParams{
 		Payload:              payload,
