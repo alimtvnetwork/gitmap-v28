@@ -169,7 +169,15 @@ func AutoRegisterRepoInAgy(repoRoot string) error {
 		return nil
 	}
 
-	return apperror.NewSimple("failed to auto-register repository in Antigravity: "+repoRoot, "E9014")
+// PromptDispatcherFunc dispatches a prompt to Antigravity and returns feedback message and success status.
+type PromptDispatcherFunc func(repoRoot, promptPath, title, content string) (string, bool)
+
+// DefaultPromptDispatcher is registered by cmdagy to perform native IPC prompt dispatch.
+var DefaultPromptDispatcher PromptDispatcherFunc
+
+// SetPromptDispatcher configures the active prompt dispatcher.
+func SetPromptDispatcher(fn PromptDispatcherFunc) {
+	DefaultPromptDispatcher = fn
 }
 
 // EnqueueWithDualQueuePolicy handles auto-registration and dual-queue prompt execution.
@@ -182,8 +190,32 @@ func EnqueueWithDualQueuePolicy(repoRoot, templateName, assembledPrompt string) 
 	}
 	renderDualQueueNotice(repoRoot)
 	stageAndCopyActivePrompt(repoRoot, assembledPrompt)
+	dispatchActivePrompt(repoRoot, templateName, assembledPrompt)
 
 	return nil
+}
+
+func dispatchActivePrompt(repoRoot, templateName, content string) {
+	hasDispatcher := DefaultPromptDispatcher != nil
+	if hasDispatcher == false {
+		return
+	}
+	promptPath := resolveActivePromptPath(repoRoot)
+	title := resolveUserPromptTitle(templateName)
+	msg, isSuccess := DefaultPromptDispatcher(repoRoot, promptPath, title, content)
+	renderPromptDispatchNotice(msg, isSuccess)
+}
+
+func renderPromptDispatchNotice(msg string, isSuccess bool) {
+	hasMsg := len(msg) > 0
+	if hasMsg == false {
+		return
+	}
+	if isSuccess {
+		fmt.Printf("  %s✔ %s%s\n\n", constants.ColorGreen, msg, constants.ColorReset)
+		return
+	}
+	fmt.Printf("  %sℹ %s%s\n\n", constants.ColorYellow, msg, constants.ColorReset)
 }
 
 func ensureRegisteredInAgy(repoRoot string) {

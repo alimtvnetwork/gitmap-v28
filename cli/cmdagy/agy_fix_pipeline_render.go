@@ -41,19 +41,11 @@ func renderPayloadMetrics(repo, promptSource, logs, prompt, payload string, hasF
 
 func renderClipboardNotice(isClipboardSkipped bool) {
 	if isClipboardSkipped {
-		renderClipboardReadyFooter()
-
 		return
 	}
 
-	fmt.Printf("    • Clipboard:      %sCopied to OS clipboard%s ✅\n",
+	fmt.Printf("    • Clipboard:      %sCopied to OS clipboard (fallback)%s ✅\n\n",
 		constants.ColorGreen, constants.ColorReset)
-	renderClipboardReadyFooter()
-}
-
-func renderClipboardReadyFooter() {
-	fmt.Printf("\n  %sReady! Prompt injected into Antigravity or paste via Ctrl+V to start fix loop.%s\n\n",
-		constants.ColorYellow, constants.ColorReset)
 }
 
 func renderAgyFixFeedback(repo, promptSource, logs, prompt, payload string, hasFailures, noClip bool) {

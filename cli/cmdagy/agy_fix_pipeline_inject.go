@@ -44,9 +44,7 @@ func handleIDEInjection(repoRoot, promptPath string, pid int) AgyInjectionResult
 		return makeQueuedSuccessResult(pid, repoRoot, promptPath)
 	}
 
-	copyClipboardIfNotSkipped(promptContent, false)
-
-	return makeIDESuccessResult(pid, repoRoot, promptPath)
+	return DispatchPromptToAntigravity(repoRoot, promptPath, "Fix CI/CD Pipeline Errors with 4-Part RCA", promptContent, pid)
 }
 
 // InjectAgyPrompt injects any prompt into active Antigravity IDE or CLI using queue protocol.
@@ -73,9 +71,7 @@ func handleIDEInjectionWithPayload(repoRoot, promptPath, promptText, title, prom
 		return makeQueuedSuccessResult(pid, repoRoot, promptPath)
 	}
 
-	copyClipboardIfNotSkipped(promptText, false)
-
-	return makeIDESuccessResult(pid, repoRoot, promptPath)
+	return DispatchPromptToAntigravity(repoRoot, promptPath, title, promptText, pid)
 }
 
 func makeQueuedSuccessResult(pid int, repoDir, promptPath string) AgyInjectionResult {

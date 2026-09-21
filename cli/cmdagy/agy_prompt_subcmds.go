@@ -29,4 +29,13 @@ func initAgyPromptSubcommands() {
 	cmdantigravity.PromptCmd.AddCommand(agyPromptReadCmd)
 	agyPromptCmd.AddCommand(agyPromptReadCmd)
 	agyPromptCmd.AddCommand(agyPromptLsCmd)
+	cmdantigravity.SetPromptDispatcher(dispatchPromptFromAntigravityCmd)
+}
+
+func dispatchPromptFromAntigravityCmd(repoRoot, promptPath, title, content string) (string, bool) {
+	ideProcRes := DetectRunningAntigravityIDE()
+	pid := resolveActiveOrZeroPID(ideProcRes)
+	res := DispatchPromptToAntigravity(repoRoot, promptPath, title, content, pid)
+
+	return res.Message, res.IsSuccess
 }
