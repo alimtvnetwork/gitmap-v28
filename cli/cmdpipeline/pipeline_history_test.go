@@ -306,11 +306,14 @@ func TestRecentCommitsSummaryTableAlignment(t *testing.T) {
 	printRecentCommitRow(&sb, g, 0)
 	plainRow := stripANSI(sb.String())
 	parts := strings.Fields(plainRow)
-	if len(parts) < 6 {
-		t.Fatalf("expected at least 6 columns, got %d in %q", len(parts), plainRow)
+	if len(parts) < 7 {
+		t.Fatalf("expected at least 7 columns, got %d in %q", len(parts), plainRow)
 	}
-	if parts[3] != "PASS" {
-		t.Fatalf("expected Status column to be PASS, got %s", parts[3])
+	if parts[3] != "-" {
+		t.Fatalf("expected Release column to be -, got %s", parts[3])
+	}
+	if parts[4] != "PASS" {
+		t.Fatalf("expected Status column to be PASS, got %s", parts[4])
 	}
 }
 
@@ -371,4 +374,3 @@ func TestResolveCommitRelease(t *testing.T) {
 		t.Errorf("expected '-' for unreleased commit, got: %s", rel)
 	}
 }
-

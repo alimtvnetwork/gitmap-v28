@@ -56,3 +56,5 @@
 - [65-ci-cd-gofmt-nested-if-and-locate-test-rca.md](./65-ci-cd-gofmt-nested-if-and-locate-test-rca.md): Fix gofmt drift, nested ifs in pipeline-ai, and locate test probing.
 - [66-macos-cluster-join-test-handshake-deadline-timeout-rca.md](./66-macos-cluster-join-test-handshake-deadline-timeout-rca.md): Fix macOS cluster join handshake timeout and test flakiness.
 - [67-unused-filterfailingruns-and-nested-ifs-in-pipeline-details-rca.md](./67-unused-filterfailingruns-and-nested-ifs-in-pipeline-details-rca.md): Fix unused filterFailingRunsByTargetSha and nested if statements in pipeline details.
+- [68-unused-recorder-functions-in-pipeline-recorder-rca.md](./68-unused-recorder-functions-in-pipeline-recorder-rca.md): Fix unused recordSingleFailedRun and isRunFailureAlreadyRecorded in pipeline recorder.
+- [69-pipeline-summary-table-release-column-offset-and-gofmt-rca.md](./69-pipeline-summary-table-release-column-offset-and-gofmt-rca.md): Fix recent commits summary table column offset assertions and gofmt drift.

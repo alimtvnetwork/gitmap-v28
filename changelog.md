@@ -2432,6 +2432,12 @@ PowerShell: `Invoke-WebRequest -Uri https://raw.githubusercontent.com/alimtvnetw
 
 # Changelog
 
+## [v6.292.0] - 2026-09-21
+
+### Added
+- fix(ci): update table alignment test for release column and gofmt test file
+
+
 ## [v6.291.0] - 2026-09-21
 
 ### Added

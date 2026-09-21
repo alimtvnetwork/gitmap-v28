@@ -1,3 +1,9 @@
+## v6.292.0 — 2026-09-21 (fix(ci): update table alignment test for release column and gofmt test file)
+
+**Scope:** Version bump. fix(ci): update table alignment test for release column and gofmt test file.
+
+---
+
 ## v6.291.0 — 2026-09-21 (feat(table): expand pull and pipeline tables with release and sha columns and wider spacing)
 
 **Scope:** Version bump. feat(table): expand pull and pipeline tables with release and sha columns and wider spacing.
