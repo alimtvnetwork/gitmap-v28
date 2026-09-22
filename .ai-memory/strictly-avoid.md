@@ -1,6 +1,32 @@
 # Strictly Avoid
 
-Items in this file MUST NEVER be suggested, recommended, asked about, or built again.
+## Anti-Gravity IDE Configuration & Settings Deletion — TOTAL BAN
+
+🔴 **NEVER delete, touch, wipe, reset, or overwrite Anti-Gravity IDE configuration, settings, preferences, project states, or conversation databases during any clean operation (`gitmap os dev clean`, `gitmap os dev-clean`, `gitmap os clean`, `gitmap clean-dev`, `gitmap os ai-clean`, `gitmap agy clean-cache`).**
+
+Allowed cleanup targets (ephemeral caches ONLY):
+- ✅ Chromium network & disk cache (`%APPDATA%\Antigravity\Cache`)
+- ✅ Compiled JavaScript cache (`%APPDATA%\Antigravity\Code Cache`)
+- ✅ GPU shader cache (`%APPDATA%\Antigravity\GPUCache`)
+- ✅ Dawn WebGPU cache (`%APPDATA%\Antigravity\Dawn*Cache`)
+- ✅ Runtime application logs (`%APPDATA%\Antigravity\logs`)
+- ✅ Crash dump logs (`~/.gemini/antigravity/crashes`)
+- ✅ Temporary scratch files (`~/.gemini/antigravity/scratch`)
+- ✅ Package updater cache (`%LOCALAPPDATA%\antigravity-updater`)
+
+Forbidden:
+- ❌ Deleting or modifying `config.json` (`~/.gemini/config/config.json`)
+- ❌ Deleting or modifying `Preferences` (`%APPDATA%\Antigravity\Preferences`)
+- ❌ Deleting or modifying `Local State` (`%APPDATA%\Antigravity\Local State`)
+- ❌ Deleting or modifying `app_storage.json` (`%APPDATA%\Antigravity\app_storage.json`)
+- ❌ Deleting or touching `~/.gemini/config/` (`projects/`, `plugins/`, `prompts/`, `sidecars/`, `groups/`, `backup/`)
+- ❌ Deleting or touching `~/.gemini/antigravity/` (`conversations/`, `knowledge/`, `builtin/`, `conversation_summaries.db*`, `agyhub_summaries_proto.pb`, `installation_id`, `antigravity_state.pbtxt`)
+- ❌ Deleting or touching `%APPDATA%\Antigravity\` (`Local Storage/`, `Session Storage/`, `Network/`, `Shared Dictionary/`, `bin/`)
+- ❌ Wiping system `%TEMP%` indiscriminately during cache cleanup.
+
+**Why:** User explicitly mandated: "Also, the Git Map OS dev clean, that is actually clearing all the configuration for the Anti-Gravity IDE. Please don't do that. Do not touch the settings. You can remove cache, that's fine, but you cannot touch settings. Please remember that. Please fix it immediately"
+
+---
 
 ## Bare `gitmap ssh` Public Key Display & Clipboard Copying — TOTAL BAN ON REMOVAL / SUPPRESSION
 
