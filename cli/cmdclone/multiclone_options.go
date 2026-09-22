@@ -105,11 +105,9 @@ func isDirCandidate(arg string) bool {
 }
 
 func assembleRawInput(opts MultiCloneOptions, parts []string) string {
-	if opts.FilePath != "" {
-		content, err := os.ReadFile(opts.FilePath)
-		if err == nil {
-			return string(content)
-		}
+	fileContent := readOptFileContent(opts.FilePath)
+	if fileContent != "" {
+		return fileContent
 	}
 
 	if len(parts) > 0 {
@@ -117,6 +115,19 @@ func assembleRawInput(opts MultiCloneOptions, parts []string) string {
 	}
 
 	return readStdinIfAvailable()
+}
+
+func readOptFileContent(filePath string) string {
+	if filePath == "" {
+		return ""
+	}
+
+	content, err := os.ReadFile(filePath)
+	if err != nil {
+		return ""
+	}
+
+	return string(content)
 }
 
 func readStdinIfAvailable() string {

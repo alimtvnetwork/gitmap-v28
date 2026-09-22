@@ -4,7 +4,9 @@ Master directory of architectural and execution plans.
 
 ## Pending Plans
 
-None.
+- [51-winutil-and-linutil-os-autologin-and-tweaks.md](pending/51-winutil-and-linutil-os-autologin-and-tweaks.md): WinUtil & LinUtil Native Go Integration: OS Auto-Login (Windows & Ubuntu), System Tweaks & Maintenance
+
+
 
 ## Recent Completed Tasks Register (Last 20 Tasks)
 

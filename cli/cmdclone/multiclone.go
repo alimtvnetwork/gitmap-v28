@@ -34,8 +34,8 @@ func checkIsHelpRequested(args []string) bool {
 
 func processMultiCloneExecution(opts MultiCloneOptions) error {
 	urls := ParseMultiCloneText(opts.RawInput)
-	hasNoURLs := len(urls) == 0
-	if hasNoURLs {
+	hasURLs := len(urls) > 0
+	if !hasURLs {
 		fmt.Fprint(os.Stderr, "  ⚠ No valid repository URLs or slugs found in input.\n")
 		fmt.Fprint(os.Stderr, "  Run 'gitmap mc --help' to see supported input formats.\n")
 		cliexit.HandleError(nil, constants.ExitCloneMultiAllInvalid)
