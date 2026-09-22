@@ -387,6 +387,10 @@ func executeDirectClone(params DirectCloneParams) {
 	taskID, taskDB := createPendingTask(constants.TaskTypeClone, absPath, workDir, "clone", cmdArgs)
 
 	url := coerceURLToStoredTransport(params.URL)
+	rec := model.ScanRecord{HTTPSUrl: url, RepoName: repoName}
+	if resolved, err := ResolveRepoAuth(rec); err == nil {
+		url = pickResolvedURL(resolved, url)
+	}
 
 	// `--output terminal`: emit the standardized per-repo block to
 	// stdout BEFORE the legacy "Cloning ..." line so the user sees
@@ -596,12 +600,40 @@ func runCloneExecution(cf CloneFlags) (model.CloneSummary, error) {
 	records = filterRecordsByExclude(records, cf.ExcludeFilter)
 	if cf.UseSSH {
 		records = convertRecordsToSSH(records)
+	} else {
+		records = resolveAuthForRecords(records)
 	}
 	if len(records) == 0 {
 		fmt.Println("Warning: no repositories matched clone filters")
 		return model.CloneSummary{}, nil
 	}
 	return cloner.CloneRecords(records, cf.TargetDir, opts), nil
+}
+
+func resolveAuthForRecords(records []model.ScanRecord) []model.ScanRecord {
+	out := make([]model.ScanRecord, 0, len(records))
+	for _, r := range records {
+		resolved, err := ResolveRepoAuth(r)
+		if err == ErrAuthSkipped {
+			fmt.Printf("  Skipping %s per user request.\n", getRecordDisplayName(r))
+
+			continue
+		}
+		out = append(out, resolved)
+	}
+
+	return out
+}
+
+func pickResolvedURL(rec model.ScanRecord, fallback string) string {
+	if rec.Transport == "ssh" && len(rec.SSHUrl) > 0 {
+		return rec.SSHUrl
+	}
+	if len(rec.HTTPSUrl) > 0 {
+		return rec.HTTPSUrl
+	}
+
+	return fallback
 }
 
 func convertRecordsToSSH(records []model.ScanRecord) []model.ScanRecord {

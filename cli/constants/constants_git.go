@@ -71,6 +71,7 @@ const (
 	EnvGitTerminalPromptZero  = "GIT_TERMINAL_PROMPT=0"
 	EnvGitAskpassEmpty        = "GIT_ASKPASS="
 	EnvSSHAskpassEmpty        = "SSH_ASKPASS="
+	EnvGCMInteractiveNever    = "GCM_INTERACTIVE=never"
 	EnvGitSSHCommandBatchYes  = "GIT_SSH_COMMAND=ssh -o StrictHostKeyChecking=accept-new -o BatchMode=yes"
 )
 

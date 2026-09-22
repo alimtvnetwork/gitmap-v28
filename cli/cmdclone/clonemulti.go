@@ -7,6 +7,7 @@ import (
 	"strings"
 
 	"github.com/alimtvnetwork/gitmap-v28/cli/constants"
+	"github.com/alimtvnetwork/gitmap-v28/cli/model"
 )
 
 // urlListSeparators are the characters that split a single positional
@@ -170,6 +171,10 @@ func executeDirectCloneOne(url, folderName string, ghDesktopFlag, noReplace bool
 	}
 
 	url = coerceURLToStoredTransport(url)
+	rec := model.ScanRecord{HTTPSUrl: url, RepoName: repoName}
+	if resolved, err := ResolveRepoAuth(rec); err == nil {
+		url = pickResolvedURL(resolved, url)
+	}
 
 	errClone := executeCloneStrategy(url, absPath, noReplace)
 	if errClone != nil {

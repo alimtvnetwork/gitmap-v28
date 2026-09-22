@@ -209,6 +209,7 @@ func runClone(rec model.ScanRecord, dest string) model.CloneResult {
 	cmd := exec.Command(constants.GitBin, args...)
 	cmd.Env = append(os.Environ(),
 		constants.EnvGitTerminalPromptZero,
+		constants.EnvGCMInteractiveNever,
 		constants.EnvGitAskpassEmpty,
 		constants.EnvSSHAskpassEmpty)
 	if isSSHCloneURL(url) {
