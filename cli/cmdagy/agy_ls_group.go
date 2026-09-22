@@ -94,11 +94,12 @@ func loadAllProjectSequences(projects []AgyProject) map[string]int {
 		m = make(map[string]int)
 	}
 	for _, p := range projects {
-		if _, ok := m[p.ID]; !ok {
-			seq, _ := GetOrAssignProjectSequence(p.ID, p.Name, p.GetPath())
-			if seq > 0 {
-				m[p.ID] = seq
-			}
+		if _, ok := m[p.ID]; ok {
+			continue
+		}
+		seq, _ := GetOrAssignProjectSequence(p.ID, p.Name, p.GetPath())
+		if seq > 0 {
+			m[p.ID] = seq
 		}
 	}
 

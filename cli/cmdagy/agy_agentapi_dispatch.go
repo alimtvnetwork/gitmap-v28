@@ -131,13 +131,18 @@ func formatOfflineFallbackMsg(pid int, promptPath string, appErr *apperror.AppEr
 		sb.WriteString("Antigravity IDE offline (process not running).")
 	}
 	sb.WriteString(fmt.Sprintf("\n  Staged prompt in: %s (copied to clipboard)", promptPath))
-	if appErr != nil {
-		sb.WriteString(fmt.Sprintf("\n  Error: %s", appErr.Error()))
-		if len(appErr.Stack) > 0 {
-			sb.WriteString(fmt.Sprintf("\n  Stack Trace:%s", appErr.Stack))
-		}
-	}
+	appendAppErrorDetails(&sb, appErr)
 	sb.WriteString("\n  " + strings.ReplaceAll(DiagnoseAntigravityIDEAndCLI(), "\n", "\n  "))
 
 	return sb.String()
+}
+
+func appendAppErrorDetails(sb *strings.Builder, appErr *apperror.AppError) {
+	if appErr == nil {
+		return
+	}
+	sb.WriteString(fmt.Sprintf("\n  Error: %s", appErr.Error()))
+	if len(appErr.Stack) > 0 {
+		sb.WriteString(fmt.Sprintf("\n  Stack Trace:%s", appErr.Stack))
+	}
 }

@@ -50,14 +50,6 @@ func printAgyTableRow(c *agyTableContext, r agyTableRow, index int) {
 		seqCol, gap, convCol, gap, idCol, gap, projCol, gap, r.Path)
 }
 
-func resolveBranchColor(branch string) string {
-	if branch == "—" {
-		return constants.ColorDim
-	}
-
-	return constants.ColorCyan
-}
-
 func formatAgyStatus(status string, isMissing bool, width int) string {
 	if isMissing {
 		return fmt.Sprintf("%s%-*s%s", constants.ColorRed, width, "✖   missing", constants.ColorReset)

@@ -185,4 +185,6 @@ var helptextExemptConstants = []string{
 	"CmdCreateRepo", "CmdCreateLocalRepo", "CmdCreateRepoLocal", "CmdRepoCreateLocal",
 	// Commit transfer and PR aliases — covered by commit-left.md / commit-right.md / commit-in.md.
 	"CmdCommitLeftPR", "CmdCommitRightPR", "CmdCommitInPR",
+	// Lowercase file renamer aliases — covered by lowercase.md.
+	"CmdLowerCaseFix", "CmdLowerCaseFixShort", "CmdLowercaseReadme", "CmdReadmeLower",
 }

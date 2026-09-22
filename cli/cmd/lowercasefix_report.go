@@ -25,14 +25,11 @@ func renderRenameHeader(opts LowerCaseFixOptions, isGit bool, matched int, root 
 }
 
 func renderFileStepLog(idx, total int, p RenamePair, isSuccess bool, err error) {
-	status := constants.ColorGreen + "OK" + constants.ColorReset
-	if !isSuccess {
-		status = constants.ColorRed + fmt.Sprintf("FAIL (%v)", err) + constants.ColorReset
+	status := constants.ColorRed + fmt.Sprintf("FAIL (%v)", err) + constants.ColorReset
+	if isSuccess {
+		status = constants.ColorGreen + "OK" + constants.ColorReset
 	}
-	prefix := "git mv"
-	if !p.IsGitTracked {
-		prefix = "fs rename"
-	}
+	prefix := resolveRenamePrefix(p.IsGitTracked)
 	fmt.Printf("  [%d/%d] %s → %s\n", idx, total, p.OldBase, p.NewBase)
 	fmt.Printf("        Step 1: %s %s → %s.tmp-lcf (%s)\n", prefix, p.OldBase, p.OldBase, status)
 	fmt.Printf("        Step 2: %s %s.tmp-lcf → %s (%s)\n", prefix, p.OldBase, p.NewBase, status)

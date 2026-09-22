@@ -58,20 +58,29 @@ func runLowerCaseFixCLI(args []string) error {
 		lcfReadme = true
 	}
 
-	subArgs := args
-	if len(args) > 0 {
-		subcmd := strings.ToLower(args[0])
-		if isReadmeAlias(subcmd) {
-			lcfReadme = true
-			subArgs = args[1:]
-		} else if isLcfCmdToken(subcmd) {
-			subArgs = args[1:]
-		}
+	subArgs, isReadme := extractSubArgs(args)
+	if isReadme {
+		lcfReadme = true
 	}
 	checkHelp("lowercase", subArgs)
 	lowerCaseFixCmd.SetArgs(subArgs)
 
 	return lowerCaseFixCmd.ExecuteContext(context.Background())
+}
+
+func extractSubArgs(args []string) ([]string, bool) {
+	if len(args) == 0 {
+		return args, false
+	}
+	subcmd := strings.ToLower(args[0])
+	if isReadmeAlias(subcmd) {
+		return args[1:], true
+	}
+	if isLcfCmdToken(subcmd) {
+		return args[1:], false
+	}
+
+	return args, false
 }
 
 func isReadmeAlias(s string) bool {

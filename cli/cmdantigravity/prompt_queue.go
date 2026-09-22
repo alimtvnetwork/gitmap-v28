@@ -270,11 +270,6 @@ func appendSingleEntry(q PromptQueueFile, e PromptQueueEntry) PromptQueueFile {
 	return q
 }
 
-func renderDualQueueNotice(repoRoot string) {
-	fmt.Printf("  %s✔ Queued for '%s': [1] Read all first prompt, [2] Current prompt%s\n",
-		constants.ColorGreen, filepath.Base(repoRoot), constants.ColorReset)
-}
-
 func resolveUserPromptTitle(templateName string) string {
 	hasName := len(strings.TrimSpace(templateName)) > 0
 	if hasName {
@@ -323,17 +318,6 @@ func savePromptQueueFile(queuePath string, q PromptQueueFile) error {
 	return nil
 }
 
-func enqueueDualPrompts(repoRoot, templateName, assembledPrompt string) error {
-	queuePath := resolvePromptQueuePath(repoRoot)
-	q := loadPromptQueueFile(queuePath)
-	now := time.Now().UTC().Format(time.RFC3339)
-	entry1 := makeQueueEntry(computeNextID(q), "read_memory", "Read Memory Protocol", DefaultReadMemoryPrompt, now)
-	entry2 := makeQueueEntry(entry1.ID+1, "user_prompt", resolveUserPromptTitle(templateName), assembledPrompt, now)
-	q = appendDualEntries(q, entry1, entry2)
-
-	return savePromptQueueFile(queuePath, q)
-}
-
 func makeQueueEntry(id int, pType, title, text, now string) PromptQueueEntry {
 	return PromptQueueEntry{
 		ID:        id,
@@ -343,19 +327,6 @@ func makeQueueEntry(id int, pType, title, text, now string) PromptQueueEntry {
 		Status:    "queued",
 		CreatedAt: now,
 	}
-}
-
-func appendDualEntries(q PromptQueueFile, e1, e2 PromptQueueEntry) PromptQueueFile {
-	hasActive := q.Active != nil
-	if hasActive {
-		q.Queued = append(q.Queued, e1, e2)
-
-		return q
-	}
-	q.Active = &e1
-	q.Queued = append(q.Queued, e2)
-
-	return q
 }
 
 func computeNextID(q PromptQueueFile) int {

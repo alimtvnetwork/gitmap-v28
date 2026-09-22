@@ -2,7 +2,7 @@
 
 Scan the repository or directory for uppercase or mixed-case files matching specified patterns, safely rename them to lowercase using a two-step git mv to avoid case-collision on case-insensitive filesystems (Windows/macOS), and optionally commit the changes.
 
-## Usage
+## Examples
 
 ```bash
 # Rename all markdown files matching *.md across the repo (default)

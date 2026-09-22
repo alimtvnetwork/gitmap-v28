@@ -103,15 +103,19 @@ func isPatternMatch(rel, base, pattern string) bool {
 	if strings.HasPrefix(p, "*") && !strings.Contains(p[1:], "*") {
 		return strings.HasSuffix(lowBase, p[1:])
 	}
-	if strings.HasPrefix(p, "**/") {
-		glob := strings.TrimPrefix(p, "**/")
-		if match, _ := filepath.Match(glob, lowBase); match {
-			return true
-		}
+	if strings.HasPrefix(p, "**/") && isGlobMatch(strings.TrimPrefix(p, "**/"), lowBase) {
+		return true
 	}
 	dirPrefix := strings.TrimSuffix(filepath.ToSlash(p), "/") + "/"
 	if strings.HasPrefix(lowRel, dirPrefix) {
 		return true
 	}
+
 	return false
+}
+
+func isGlobMatch(pattern, target string) bool {
+	match, _ := filepath.Match(pattern, target)
+
+	return match
 }

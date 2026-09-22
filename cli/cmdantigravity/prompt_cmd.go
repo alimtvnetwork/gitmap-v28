@@ -142,8 +142,8 @@ func initTxtFlags(cmd *cobra.Command) {
 }
 
 func runBasePrompt(args []string) error {
-	hasNoInput := len(args) == 0 && len(strings.TrimSpace(basePromptName)) == 0 && len(strings.TrimSpace(basePromptTxt)) == 0
-	if IsHelpArg(args) || hasNoInput {
+	isEmptyInput := len(args) == 0 && len(strings.TrimSpace(basePromptName)) == 0 && len(strings.TrimSpace(basePromptTxt)) == 0
+	if IsHelpArg(args) || isEmptyInput {
 		return PrintAgyPromptHelp()
 	}
 

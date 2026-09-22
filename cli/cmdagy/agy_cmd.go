@@ -525,10 +525,6 @@ func getProjectsDirPath() (string, error) {
 	return filepath.Join(homeDir, ".gemini", "config", "projects"), nil
 }
 
-func ensureDirExists(dirPath string) bool {
-	return ensureDirExistsErr(dirPath) == nil
-}
-
 func ensureDirExistsErr(dirPath string) error {
 	return os.MkdirAll(dirPath, 0755)
 }

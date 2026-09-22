@@ -28,19 +28,28 @@ func ExecuteLowerCaseFix(opts LowerCaseFixOptions) error {
 	}
 
 	if opts.IsDryRun {
-		for i, p := range pairs {
-			prefix := "git mv"
-			if !p.IsGitTracked {
-				prefix = "fs rename"
-			}
-			fmt.Printf("  [%d/%d] %s → %s (%s preview)\n", i+1, len(pairs), p.OldBase, p.NewBase, prefix)
-		}
-		renderDryRunNotice(len(pairs))
+		renderDryRunPreviews(pairs)
 
 		return nil
 	}
 
 	return applyRenamesAndCommit(pairs, opts, totalScanned, isGit)
+}
+
+func renderDryRunPreviews(pairs []RenamePair) {
+	for i, p := range pairs {
+		prefix := resolveRenamePrefix(p.IsGitTracked)
+		fmt.Printf("  [%d/%d] %s → %s (%s preview)\n", i+1, len(pairs), p.OldBase, p.NewBase, prefix)
+	}
+	renderDryRunNotice(len(pairs))
+}
+
+func resolveRenamePrefix(isGitTracked bool) string {
+	if isGitTracked {
+		return "git mv"
+	}
+
+	return "fs rename"
 }
 
 func applyRenamesAndCommit(pairs []RenamePair, opts LowerCaseFixOptions, scanned int, isGit bool) error {
@@ -54,13 +63,9 @@ func applyRenamesAndCommit(pairs []RenamePair, opts LowerCaseFixOptions, scanned
 		renamedCount++
 	}
 
-	commitSHA := ""
-	if isGit && !opts.IsNoCommit {
-		sha, commitErr := commitRenames(pairs, opts.CommitMessage)
-		if commitErr != nil {
-			return commitErr
-		}
-		commitSHA = sha
+	commitSHA, commitErr := maybeCommitRenames(pairs, opts, isGit)
+	if commitErr != nil {
+		return commitErr
 	}
 
 	renderRenameSummary(RenameSummary{
@@ -72,4 +77,12 @@ func applyRenamesAndCommit(pairs []RenamePair, opts LowerCaseFixOptions, scanned
 	})
 
 	return nil
+}
+
+func maybeCommitRenames(pairs []RenamePair, opts LowerCaseFixOptions, isGit bool) (string, error) {
+	if !isGit || opts.IsNoCommit {
+		return "", nil
+	}
+
+	return commitRenames(pairs, opts.CommitMessage)
 }
