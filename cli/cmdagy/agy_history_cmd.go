@@ -2,6 +2,7 @@
 package cmdagy
 
 import (
+	"database/sql"
 	"fmt"
 	"os"
 	"text/tabwriter"

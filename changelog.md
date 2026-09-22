@@ -1,3 +1,18 @@
+## [v6.302.0] 2026-09-22 Release v6.302.0
+
+### Install GitMap v6.302.0
+
+To pin your repository to this exact version, run the following one-liner:
+Unix/Bash: `curl -sL https://raw.githubusercontent.com/alimtvnetwork/gitmap-v28/v6.302.0/install.sh | bash -s -- ".ai-memory/prompts" "v6.302.0"`
+PowerShell: `Invoke-WebRequest -Uri https://raw.githubusercontent.com/alimtvnetwork/gitmap-v28/v6.302.0/install.ps1 -OutFile install.ps1; .\install.ps1 -TargetDir ".ai-memory/prompts" -Version "v6.302.0"`
+
+### Added / Changed / Fixed / Removed
+
+- AGY Workspace & Pin Management: Added `gitmap agy pins` (`ls`, `add`, `rm`, `edit`, `help`), `gitmap agy rm-rejoin-read` (`rrr`), `gitmap agy rm-rejoin-pin-read` (`rrpr`), supporting sequential IDs, project slugs, and shell completion.
+- Raw Error Propagation: Audited codebase error management across CLI commands to guarantee zero swallowed errors; wrapped underlying SQL and filesystem errors with structured `apperror.WrapSimple` / `apperror.Wrap` preserving root causes.
+- Antigravity Compilation & Import Hygiene: Added missing `database/sql` import in `cli/cmdagy/agy_history_cmd.go`, fixed `loadAllAgyProjects` signature mismatch in `agy_pin_projects.go` and `agy_pins_edit.go`, and cleaned unused imports in `agy_projects.go`.
+- Quad Runner Verification: Verified all 13 modified Go packages pass green via parallel quad runner in local CI/CD.
+
 ## [v6.301.0] 2026-09-22 Release v6.301.0
 
 ### Install GitMap v6.301.0

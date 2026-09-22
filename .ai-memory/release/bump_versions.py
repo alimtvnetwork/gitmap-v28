@@ -112,12 +112,10 @@ PowerShell: `Invoke-WebRequest -Uri https://raw.githubusercontent.com/alimtvnetw
 
 ### Added / Changed / Fixed / Removed
 
-- Native OS Auto-Login Subsystem: Added `gitmap os autologin` with interactive 3-parameter credentials (username, domain, masked password) and flags (`-u`, `-d`, `-p`), natively writing Windows Winlogon registry keys and configuring Ubuntu display managers (GDM3, LightDM) with zero PowerShell or external executable dependencies.
-- Windows Desktop Tweaks: Added `gitmap os tweak context-menu classic|modern` (CLSID InprocServer32 restore for Windows 10 right-click menu) and `start-menu classic|default` layout override.
-- Ultimate Performance & Hibernation: Added `gitmap os tweak power ultimate|balanced` to duplicate and activate Windows Ultimate Performance scheme and `gitmap os tweak hibernate off|on` to delete `C:\hiberfil.sys` and reclaim RAM-sized disk space.
-- Linux System Maintenance: Added `gitmap os clean sys` for multi-distro package manager cache purging (APT, DNF, Pacman) and systemd journal vacuuming (`journalctl --vacuum-time=3d`).
-- Two-Column Styled Help Screens: Authored comprehensive help documentation and terminal menus for `gitmap help os-autologin` and `gitmap help os-tweak`.
-- CI/CD Self-Healing: Restored local runner helpers in `03-ai-scripts/06-cicd-local-runner.py`, fixed 18/18 Python CI test cases, removed unused symbols, and verified cross-platform compilation across Linux, Darwin, and Windows.
+- AGY Workspace & Pin Management: Added `gitmap agy pins` (`ls`, `add`, `rm`, `edit`, `help`), `gitmap agy rm-rejoin-read` (`rrr`), `gitmap agy rm-rejoin-pin-read` (`rrpr`), supporting sequential IDs, project slugs, and shell completion.
+- Raw Error Propagation: Audited codebase error management across CLI commands to guarantee zero swallowed errors; wrapped underlying SQL and filesystem errors with structured `apperror.WrapSimple` / `apperror.Wrap` preserving root causes.
+- Antigravity Compilation & Import Hygiene: Added missing `database/sql` import in `cli/cmdagy/agy_history_cmd.go`, fixed `loadAllAgyProjects` signature mismatch in `agy_pin_projects.go` and `agy_pins_edit.go`, and cleaned unused imports in `agy_projects.go`.
+- Quad Runner Verification: Verified all 13 modified Go packages pass green via parallel quad runner in local CI/CD.
 """
     # Prepend directly at the top of changelog.md
     lines.insert(0, entry + "\n")
@@ -142,12 +140,10 @@ curl -fsSL https://github.com/alimtvnetwork/gitmap-v28/releases/download/v{new_v
 
 ## Changelog v{new_version}
 
-- Native OS Auto-Login Subsystem: Added `gitmap os autologin` with interactive 3-parameter credentials (username, domain, masked password) and flags (`-u`, `-d`, `-p`), natively writing Windows Winlogon registry keys and configuring Ubuntu display managers (GDM3, LightDM) with zero PowerShell or external executable dependencies.
-- Windows Desktop Tweaks: Added `gitmap os tweak context-menu classic|modern` (CLSID InprocServer32 restore for Windows 10 right-click menu) and `start-menu classic|default` layout override.
-- Ultimate Performance & Hibernation: Added `gitmap os tweak power ultimate|balanced` to duplicate and activate Windows Ultimate Performance scheme and `gitmap os tweak hibernate off|on` to delete `C:\hiberfil.sys` and reclaim RAM-sized disk space.
-- Linux System Maintenance: Added `gitmap os clean sys` for multi-distro package manager cache purging (APT, DNF, Pacman) and systemd journal vacuuming (`journalctl --vacuum-time=3d`).
-- Two-Column Styled Help Screens: Authored comprehensive help documentation and terminal menus for `gitmap help os-autologin` and `gitmap help os-tweak`.
-- CI/CD Self-Healing: Restored local runner helpers in `03-ai-scripts/06-cicd-local-runner.py`, fixed 18/18 Python CI test cases, removed unused symbols, and verified cross-platform compilation across Linux, Darwin, and Windows.
+- AGY Workspace & Pin Management: Added `gitmap agy pins` (`ls`, `add`, `rm`, `edit`, `help`), `gitmap agy rm-rejoin-read` (`rrr`), `gitmap agy rm-rejoin-pin-read` (`rrpr`), supporting sequential IDs, project slugs, and shell completion.
+- Raw Error Propagation: Audited codebase error management across CLI commands to guarantee zero swallowed errors; wrapped underlying SQL and filesystem errors with structured `apperror.WrapSimple` / `apperror.Wrap` preserving root causes.
+- Antigravity Compilation & Import Hygiene: Added missing `database/sql` import in `cli/cmdagy/agy_history_cmd.go`, fixed `loadAllAgyProjects` signature mismatch in `agy_pin_projects.go` and `agy_pins_edit.go`, and cleaned unused imports in `agy_projects.go`.
+- Quad Runner Verification: Verified all 13 modified Go packages pass green via parallel quad runner in local CI/CD.
 """
     os.makedirs(os.path.dirname(notes_path), exist_ok=True)
     with open(notes_path, "w", encoding="utf-8") as f:

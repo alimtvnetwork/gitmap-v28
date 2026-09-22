@@ -23,11 +23,7 @@ var agyPinProjectsEditCmd = &cobra.Command{
 		if len(args) > 0 {
 			return nil, cobra.ShellCompDirectiveNoFileComp
 		}
-		projects, err := loadAllAgyProjects()
-		if err != nil {
-			return nil, cobra.ShellCompDirectiveNoFileComp
-		}
-		return CompleteAgyProjectSuggestions(toComplete, projects), cobra.ShellCompDirectiveNoFileComp
+		return completeAgyRmArgs(toComplete)
 	},
 }
 

@@ -36,11 +36,7 @@ var agyPinProjectsAddCmd = &cobra.Command{
 		return runAgyPinProjectsAdd(args)
 	},
 	ValidArgsFunction: func(cmd *cobra.Command, args []string, toComplete string) ([]string, cobra.ShellCompDirective) {
-		projects, err := loadAllAgyProjects()
-		if err != nil {
-			return nil, cobra.ShellCompDirectiveNoFileComp
-		}
-		return CompleteAgyProjectSuggestions(toComplete, projects), cobra.ShellCompDirectiveNoFileComp
+		return completeAgyRmArgs(toComplete)
 	},
 }
 
@@ -52,11 +48,7 @@ var agyPinProjectsRmCmd = &cobra.Command{
 		return runAgyPinProjectsRm(args)
 	},
 	ValidArgsFunction: func(cmd *cobra.Command, args []string, toComplete string) ([]string, cobra.ShellCompDirective) {
-		projects, err := loadAllAgyProjects()
-		if err != nil {
-			return nil, cobra.ShellCompDirectiveNoFileComp
-		}
-		return CompleteAgyProjectSuggestions(toComplete, projects), cobra.ShellCompDirectiveNoFileComp
+		return completeAgyRmArgs(toComplete)
 	},
 }
 
