@@ -629,6 +629,7 @@ const (
 	HelpReconcile        = "  reconcile (recon)   Reconcile failed or dirty pull repositories repo-by-repo"
 	HelpFix              = "  fix [repo] [action] Apply pull remediation to a repo (aliases: stash, wip, discard)"
 	HelpLowerCaseFix     = "  lowercase (lcf)     Rename uppercase files to lowercase via safe 2-step git mv (" + ColorCyan + "--dry-run" + ColorReset + ", " + ColorCyan + "--no-commit" + ColorReset + ", " + ColorCyan + "--readme" + ColorReset + ")"
+	HelpLowerCaseReadme  = "  lowercase-readme    Rename root README (e.g. README.md -> readme.md) via safe 2-step git mv (" + ColorCyan + "--dry-run" + ColorReset + ", " + ColorCyan + "--no-commit" + ColorReset + ")"
 	HelpRescan           = "  rescan (rsc)        Re-run last scan with cached flags"
 	HelpSetup            = "  setup               Configure Git diff/merge tool, aliases & core settings"
 	HelpStatus           = "  status (st)         Show dirty/clean, ahead/behind, stash for all repos"

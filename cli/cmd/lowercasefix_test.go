@@ -28,6 +28,9 @@ func TestFindRenameCandidates(t *testing.T) {
 	if len(pairs) != 2 {
 		t.Errorf("expected 2 rename candidates, got %d", len(pairs))
 	}
+	if pairs[0].MatchedBy == "" {
+		t.Errorf("expected non-empty MatchedBy on candidate")
+	}
 }
 
 func TestPerformTwoStepFSRename(t *testing.T) {

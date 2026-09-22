@@ -95,7 +95,7 @@ func isLcfCmdToken(s string) bool {
 
 func resolveLcfPatterns(args []string) ([]string, bool) {
 	if len(args) == 0 {
-		return []string{"*.md"}, false
+		return []string{"*"}, false
 	}
 	if len(args) == 1 && strings.EqualFold(args[0], "readme") {
 		return []string{"readme*"}, true

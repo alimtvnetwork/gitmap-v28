@@ -9,7 +9,8 @@ Master directory of architectural and execution plans.
 
 ## Recent Completed Tasks Register (Last 20 Tasks)
 
-1. [81-ssh-join-auth-error-logging-and-diagnostics.md](completed/81-ssh-join-auth-error-logging-and-diagnostics.md): SSH Join Authentication Error Logging, Execution Tracing & Diagnostic Command
+1. [82-lowercase-renamer-full-parity.md](completed/82-lowercase-renamer-full-parity.md): Lowercase Command Full Parity: Doc CMD, Web UI Catalog, Robust Wildcard Engine, Safe 2-Step Git Rename & Status Reporting
+2. [81-ssh-join-auth-error-logging-and-diagnostics.md](completed/81-ssh-join-auth-error-logging-and-diagnostics.md): SSH Join Authentication Error Logging, Execution Tracing & Diagnostic Command
 2. [80-agm-ide-interaction-and-e2e-isolation.md](completed/80-agm-ide-interaction-and-e2e-isolation.md): Antigravity-Manager (AGM) Research, Antigravity IDE Interaction, Adhoc E2E Testing & CI/CD Isolation
 3. [79-agy-prompts-table-conv-rename-and-aum.md](completed/79-agy-prompts-table-conv-rename-and-aum.md): AGY Prompts Injection Error Handling, Dynamic Single Prompts, Unique Sequence Persistence, Conversation Rename, Table Formatting & AUM Search Optimization
 2. [78-cli-relative-database-path.md](completed/78-cli-relative-database-path.md): Anchor Pipeline Database to CLI Data Directory with Relative Display Path

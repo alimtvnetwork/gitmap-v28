@@ -46,3 +46,19 @@ func TestIsPatternMatch_RelativePath(t *testing.T) {
 		t.Errorf("expected **/*.md to match docs/sub/API.md")
 	}
 }
+
+func TestIsPatternMatch_Substring(t *testing.T) {
+	if !isPatternMatch("docs/MY_DOC_FILE.txt", "MY_DOC_FILE.txt", "*doc*") {
+		t.Errorf("expected *doc* to match MY_DOC_FILE.txt")
+	}
+	if isPatternMatch("docs/OTHER.txt", "OTHER.txt", "*doc*") {
+		t.Errorf("expected *doc* not to match OTHER.txt")
+	}
+}
+
+func TestFindMatchingPattern(t *testing.T) {
+	matched, p := findMatchingPattern("docs/README.md", "README.md", []string{"*.txt", "*.md"})
+	if !matched || p != "*.md" {
+		t.Errorf("expected matched=true with pattern=*.md, got %v, %s", matched, p)
+	}
+}

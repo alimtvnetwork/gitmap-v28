@@ -3622,6 +3622,69 @@ export const commands: CommandDef[] = [
       { name: "ssh join", description: "Enroll new machines into registry" },
     ],
   },
+  {
+    name: "lowercase",
+    alias: "lcf, lower-case-fix, lowercase-fix, lower, lc-fix",
+    description: "Scan repository or directory for uppercase files and safely rename them to lowercase using two-step git mv to avoid filesystem case collisions",
+    usage: "gitmap lowercase [patterns...] [--dry-run] [--no-commit] [--readme] [-m <msg>]",
+    category: "tools",
+    flags: [
+      { flag: "--dry-run, -d", description: "Preview matching uppercase files without modifying disk or Git" },
+      { flag: "--no-commit", description: "Rename files on disk and in Git index without creating an automated commit" },
+      { flag: "--readme, -r", description: "Target root README files only (README.md, README -> readme.md, readme)" },
+      { flag: "--message, -m <text>", description: "Custom commit message for automated Git commit" },
+      { flag: "--yes, -y", description: "Proceed without interactive confirmation" },
+    ],
+    examples: [
+      { command: "gitmap lowercase", description: "Rename all uppercase files across the repository to lowercase" },
+      { command: "gitmap lowercase *.md", description: "Rename uppercase markdown files to lowercase" },
+      { command: "gitmap lowercase *", description: "Rename all uppercase files matching any extension" },
+      { command: "gitmap lowercase SKILL*", description: "Rename all files starting with SKILL (e.g. SKILL.md -> skill.md)" },
+      { command: "gitmap lowercase docs/*.md", description: "Rename uppercase markdown files within docs directory" },
+      { command: "gitmap lowercase --dry-run", description: "Preview which files would be renamed without modifying disk" },
+      { command: "gitmap lowercase --no-commit", description: "Rename and stage changes in Git without auto-committing" },
+    ],
+    howToProceed: [
+      { step: 1, title: "Preview changes", action: "Run `gitmap lowercase --dry-run` to inspect files that will be renamed" },
+      { step: 2, title: "Execute safe rename", action: "Run `gitmap lowercase` or `gitmap lowercase <pattern>` to perform two-step Git rename" },
+      { step: 3, title: "Review Git status", action: "Run `git status` to verify staged/committed renames in your repository" },
+    ],
+    notes: [
+      "Performs a safe 2-step rename (file -> file.tmp-lcf -> newfile) preventing silent data loss or no-ops on Windows NTFS and macOS APFS case-insensitive filesystems.",
+      "If executed outside a Git repository, safely falls back to standard filesystem renames.",
+      "Provides end-of-run summary detailing scanned count, matched count, renamed count, and Git manipulation steps performed.",
+    ],
+    seeAlso: [
+      { name: "lowercase-readme", description: "Target root README files specifically" },
+      { name: "fix-repo", description: "Rewrite stale version tokens across repository" },
+      { name: "status", description: "Inspect repository git status" },
+    ],
+  },
+  {
+    name: "lowercase-readme",
+    alias: "readme-lower, readme-lowercase, lcr, lower-case-readme",
+    description: "Safely rename root README file (README.md, README -> readme.md, readme) to lowercase via two-step git mv",
+    usage: "gitmap lowercase-readme [--dry-run] [--no-commit] [-m <msg>]",
+    category: "tools",
+    flags: [
+      { flag: "--dry-run, -d", description: "Preview rename without modifying disk or Git" },
+      { flag: "--no-commit", description: "Rename and stage in Git index without committing" },
+      { flag: "--message, -m <text>", description: "Custom commit message" },
+      { flag: "--yes, -y", description: "Proceed without confirmation" },
+    ],
+    examples: [
+      { command: "gitmap lowercase-readme", description: "Rename root README.md to readme.md and commit" },
+      { command: "gitmap readme-lower --dry-run", description: "Preview root README rename" },
+      { command: "gitmap lowercase-readme --no-commit", description: "Rename root README and stage without commit" },
+    ],
+    notes: [
+      "Strictly targets only the root directory README (ignores subdirectories like docs/README.md).",
+      "Uses safe two-step git mv to avoid Windows/macOS case collision.",
+    ],
+    seeAlso: [
+      { name: "lowercase", description: "Rename any uppercase files by pattern across the repo" },
+    ],
+  },
 ];
 
 // Global flags applied by every command via the shared root parser.

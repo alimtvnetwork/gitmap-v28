@@ -19,6 +19,7 @@ type RenamePair struct {
 	NewBase      string `json:"newBase"`
 	RelPath      string `json:"relPath"`
 	IsGitTracked bool   `json:"isGitTracked"`
+	MatchedBy    string `json:"matchedBy"`
 }
 
 // RenameSummary captures the overall execution statistics.

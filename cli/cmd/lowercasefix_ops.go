@@ -20,9 +20,9 @@ func ExecuteLowerCaseFix(opts LowerCaseFixOptions) error {
 		pairs[i].IsGitTracked = isGit && isFileTrackedInGit(pairs[i].OldPath)
 	}
 
-	renderRenameHeader(opts, isGit, len(pairs), cwd)
+	renderRenameHeader(opts, isGit, len(pairs), totalScanned, cwd)
 	if len(pairs) == 0 {
-		fmt.Printf("%s No uppercase files matching patterns found to rename.\n\n", constants.ColorGreen+"✓"+constants.ColorReset)
+		renderZeroMatchMessage(opts)
 
 		return nil
 	}
@@ -36,10 +36,17 @@ func ExecuteLowerCaseFix(opts LowerCaseFixOptions) error {
 	return applyRenamesAndCommit(pairs, opts, totalScanned, isGit)
 }
 
+func renderZeroMatchMessage(opts LowerCaseFixOptions) {
+	filterStr := resolveFilterStr(opts)
+	fmt.Printf("%s✓ No uppercase files matching filter [%s] found to rename.%s\n", constants.ColorGreen, filterStr, constants.ColorReset)
+	fmt.Printf("  All matching files in this directory are already lowercase. No changes needed.\n\n")
+}
+
 func renderDryRunPreviews(pairs []RenamePair) {
 	for i, p := range pairs {
 		prefix := resolveRenamePrefix(p.IsGitTracked)
-		fmt.Printf("  [%d/%d] %s → %s (%s preview)\n", i+1, len(pairs), p.OldBase, p.NewBase, prefix)
+		matched := resolveMatchedInfo(p.MatchedBy)
+		fmt.Printf("  [%d/%d] %s → %s%s (%s preview)\n", i+1, len(pairs), p.OldBase, p.NewBase, matched, prefix)
 	}
 	renderDryRunNotice(len(pairs))
 }
