@@ -61,6 +61,9 @@ const (
 	SubCmdRepo              = "repo" // gitmap:cmd skip
 	CmdFolder               = "folder"
 	CmdLowercase            = "lowercase"
+	CmdLowerCaseFix         = "lower-case-fix"
+	CmdLowerCaseFixAlias    = "lowercase-fix"
+	CmdLowerCaseFixShort    = "lcf"
 	CmdFixSeqFiles          = "fix-seq-files"
 	CmdFixSeqFilesAlias     = "fsf"
 	CmdSequence             = "sequence"

@@ -52,6 +52,9 @@ Master directory of architectural and execution plans.
 
 ## Completed Plans
 
+- [57-lower-case-fix-command.md](completed/57-lower-case-fix-command.md): Lower-Case Fix Command (gitmap lower-case-fix)
+- [56-agy-cache-clear-retention-undo.md](completed/56-agy-cache-clear-retention-undo.md): AGY Cache Clear Retention, Preflight, Undo & Direct Shortcut Commands
+- [55-deep-raw-error-audit-codebase.md](completed/55-deep-raw-error-audit-codebase.md): Deep Raw Error Audit & Propagation Across the Codebase
 - [54-agy-rm-rejoin-pins-and-raw-error-propagation.md](completed/54-agy-rm-rejoin-pins-and-raw-error-propagation.md): AGY Workspace Management Enhancements & Raw Error Propagation (rm, pins, rrr, rrpr, sequence numbers, split-DB TaskHistory)
 - [51-winutil-and-linutil-os-autologin-and-tweaks.md](completed/51-winutil-and-linutil-os-autologin-and-tweaks.md): WinUtil & LinUtil Native Go Integration: OS Auto-Login (Windows & Ubuntu), System Tweaks & Maintenance
 - [50-finalize-missing-elements-pipeline-tasks-scriptsfixer-ai-logging.md](completed/50-finalize-missing-elements-pipeline-tasks-scriptsfixer-ai-logging.md): Finalize Missing Elements (Pipeline Tasks DB, scripts-fixer Beyond Compare, AI Execution Logging)
