@@ -1,6 +1,6 @@
 {
   "version": 1,
-  "updated_at": "2026-09-22T21:48:04Z",
+  "updated_at": "2026-09-22T21:55:49Z",
   "total_tests": 4088,
   "summary": {
     "total": 4088,
@@ -3919,7 +3919,7 @@
       "tier": "fast",
       "is_slow": false,
       "last_status": "passed",
-      "last_run_at": "2026-09-22T21:45:59",
+      "last_run_at": "2026-09-22T21:56:09",
       "needs_run": false
     },
     "cli/cmd.TestBuildAddTagSorted": {
@@ -3935,7 +3935,7 @@
       "tier": "fast",
       "is_slow": false,
       "last_status": "passed",
-      "last_run_at": "2026-09-22T21:45:59",
+      "last_run_at": "2026-09-22T21:56:09",
       "needs_run": false
     },
     "cli/cmd.TestDedupeLinesPreservesBlanks": {
@@ -3951,7 +3951,7 @@
       "tier": "fast",
       "is_slow": false,
       "last_status": "passed",
-      "last_run_at": "2026-09-22T21:45:59",
+      "last_run_at": "2026-09-22T21:56:09",
       "needs_run": false
     },
     "cli/cmd.TestConcatTemplateBodiesAddsLangBanners": {
@@ -3967,7 +3967,7 @@
       "tier": "fast",
       "is_slow": false,
       "last_status": "passed",
-      "last_run_at": "2026-09-22T21:45:59",
+      "last_run_at": "2026-09-22T21:56:09",
       "needs_run": false
     },
     "cli/cmd.TestParseAddLFSInstallFlagsDefaults": {
@@ -3983,7 +3983,7 @@
       "tier": "fast",
       "is_slow": false,
       "last_status": "passed",
-      "last_run_at": "2026-09-22T21:45:59",
+      "last_run_at": "2026-09-22T21:56:09",
       "needs_run": false
     },
     "cli/cmd.TestParseAddLFSInstallFlagsDryRun": {
@@ -3999,7 +3999,7 @@
       "tier": "fast",
       "is_slow": false,
       "last_status": "passed",
-      "last_run_at": "2026-09-22T21:45:59",
+      "last_run_at": "2026-09-22T21:56:09",
       "needs_run": false
     },
     "cli/cmd.TestAddLFSInstallTagIsStable": {
@@ -4015,7 +4015,7 @@
       "tier": "fast",
       "is_slow": false,
       "last_status": "passed",
-      "last_run_at": "2026-09-22T21:45:59",
+      "last_run_at": "2026-09-22T21:56:09",
       "needs_run": false
     },
     "cli/cmd.TestDispatchAgm": {
@@ -4031,7 +4031,7 @@
       "tier": "fast",
       "is_slow": false,
       "last_status": "passed",
-      "last_run_at": "2026-09-22T21:45:59",
+      "last_run_at": "2026-09-22T21:56:09",
       "needs_run": false
     },
     "cli/cmd.TestDispatchAgmUpdate": {
@@ -4047,7 +4047,7 @@
       "tier": "fast",
       "is_slow": false,
       "last_status": "passed",
-      "last_run_at": "2026-09-22T21:45:59",
+      "last_run_at": "2026-09-22T21:56:09",
       "needs_run": false
     },
     "cli/cmd.TestIsAgmUpdateTarget": {
@@ -4063,7 +4063,7 @@
       "tier": "fast",
       "is_slow": false,
       "last_status": "passed",
-      "last_run_at": "2026-09-22T21:45:59",
+      "last_run_at": "2026-09-22T21:56:09",
       "needs_run": false
     },
     "cli/cmd.TestRunUpdateAgManagerTargetDryRun": {
@@ -4079,7 +4079,7 @@
       "tier": "fast",
       "is_slow": false,
       "last_status": "passed",
-      "last_run_at": "2026-09-22T21:45:59",
+      "last_run_at": "2026-09-22T21:56:09",
       "needs_run": false
     },
     "cli/cmd.TestAmendAuditJSONContract_CanonicalRecord_KeyOrder": {
@@ -4095,7 +4095,7 @@
       "tier": "fast",
       "is_slow": false,
       "last_status": "passed",
-      "last_run_at": "2026-09-22T21:45:59",
+      "last_run_at": "2026-09-22T21:56:09",
       "needs_run": false
     },
     "cli/cmd.TestAmendAuditJSONSchema_TopLevelShape": {
@@ -4111,7 +4111,7 @@
       "tier": "fast",
       "is_slow": false,
       "last_status": "passed",
-      "last_run_at": "2026-09-22T21:45:59",
+      "last_run_at": "2026-09-22T21:56:09",
       "needs_run": false
     },
     "cli/cmd.TestAmendAuditJSONSchema_EncoderMatchesSchema": {
@@ -4127,7 +4127,7 @@
       "tier": "fast",
       "is_slow": false,
       "last_status": "passed",
-      "last_run_at": "2026-09-22T21:45:59",
+      "last_run_at": "2026-09-22T21:56:09",
       "needs_run": false
     },
     "cli/cmd.TestAmendListJSONContract_EmptyIsArrayNotNull": {
@@ -4143,7 +4143,7 @@
       "tier": "fast",
       "is_slow": false,
       "last_status": "passed",
-      "last_run_at": "2026-09-22T21:45:59",
+      "last_run_at": "2026-09-22T21:56:09",
       "needs_run": false
     },
     "cli/cmd.TestAmendListJSONContract_CanonicalRow_KeyOrders": {
@@ -4159,7 +4159,7 @@
       "tier": "fast",
       "is_slow": false,
       "last_status": "passed",
-      "last_run_at": "2026-09-22T21:45:59",
+      "last_run_at": "2026-09-22T21:56:09",
       "needs_run": false
     },
     "cli/cmd.TestAmendListJSONSchema_TopLevelShape": {
@@ -4175,7 +4175,7 @@
       "tier": "fast",
       "is_slow": false,
       "last_status": "passed",
-      "last_run_at": "2026-09-22T21:45:59",
+      "last_run_at": "2026-09-22T21:56:09",
       "needs_run": false
     },
     "cli/cmd.TestAmendListJSONSchema_EncoderMatchesSchema": {
@@ -4191,7 +4191,7 @@
       "tier": "fast",
       "is_slow": false,
       "last_status": "passed",
-      "last_run_at": "2026-09-22T21:45:59",
+      "last_run_at": "2026-09-22T21:56:09",
       "needs_run": false
     },
     "cli/cmd.TestAsyncCmdHelp": {
@@ -4207,7 +4207,7 @@
       "tier": "fast",
       "is_slow": false,
       "last_status": "passed",
-      "last_run_at": "2026-09-22T21:45:59",
+      "last_run_at": "2026-09-22T21:56:09",
       "needs_run": false
     },
     "cli/cmd.TestAsyncCmdList": {
@@ -4223,7 +4223,7 @@
       "tier": "fast",
       "is_slow": false,
       "last_status": "passed",
-      "last_run_at": "2026-09-22T21:45:59",
+      "last_run_at": "2026-09-22T21:56:09",
       "needs_run": false
     },
     "cli/cmd.TestAsyncCmdStop": {
@@ -4239,7 +4239,7 @@
       "tier": "fast",
       "is_slow": false,
       "last_status": "passed",
-      "last_run_at": "2026-09-22T21:45:59",
+      "last_run_at": "2026-09-22T21:56:09",
       "needs_run": false
     },
     "cli/cmd.TestParseAsyncArgs": {
@@ -4255,7 +4255,7 @@
       "tier": "fast",
       "is_slow": false,
       "last_status": "passed",
-      "last_run_at": "2026-09-22T21:45:59",
+      "last_run_at": "2026-09-22T21:56:09",
       "needs_run": false
     },
     "cli/cmd.TestRunAuthor": {
@@ -4271,7 +4271,7 @@
       "tier": "fast",
       "is_slow": false,
       "last_status": "passed",
-      "last_run_at": "2026-09-22T21:45:59",
+      "last_run_at": "2026-09-22T21:56:09",
       "needs_run": false
     },
     "cli/cmd.TestRunSponsor": {
@@ -4287,7 +4287,7 @@
       "tier": "fast",
       "is_slow": false,
       "last_status": "passed",
-      "last_run_at": "2026-09-22T21:45:59",
+      "last_run_at": "2026-09-22T21:56:09",
       "needs_run": false
     },
     "cli/cmd.TestRunCredits": {
@@ -4303,7 +4303,7 @@
       "tier": "fast",
       "is_slow": false,
       "last_status": "passed",
-      "last_run_at": "2026-09-22T21:45:59",
+      "last_run_at": "2026-09-22T21:56:09",
       "needs_run": false
     },
     "cli/cmd.TestRunSponsorContent": {
@@ -4319,7 +4319,7 @@
       "tier": "fast",
       "is_slow": false,
       "last_status": "passed",
-      "last_run_at": "2026-09-22T21:45:59",
+      "last_run_at": "2026-09-22T21:56:09",
       "needs_run": false
     },
     "cli/cmd.TestAutoAlias_WordBoundarySplitting": {
@@ -4335,7 +4335,7 @@
       "tier": "fast",
       "is_slow": false,
       "last_status": "passed",
-      "last_run_at": "2026-09-22T21:45:59",
+      "last_run_at": "2026-09-22T21:56:09",
       "needs_run": false
     },
     "cli/cmd.TestAutoAlias_CompoundWords": {
@@ -4351,7 +4351,7 @@
       "tier": "fast",
       "is_slow": false,
       "last_status": "passed",
-      "last_run_at": "2026-09-22T21:45:59",
+      "last_run_at": "2026-09-22T21:56:09",
       "needs_run": false
     },
     "cli/cmd.TestAutoAlias_WpPrefix": {
@@ -4367,7 +4367,7 @@
       "tier": "fast",
       "is_slow": false,
       "last_status": "passed",
-      "last_run_at": "2026-09-22T21:45:59",
+      "last_run_at": "2026-09-22T21:56:09",
       "needs_run": false
     },
     "cli/cmd.TestAutoAlias_PresentationsPrefix": {
@@ -4383,7 +4383,7 @@
       "tier": "fast",
       "is_slow": false,
       "last_status": "passed",
-      "last_run_at": "2026-09-22T21:45:59",
+      "last_run_at": "2026-09-22T21:56:09",
       "needs_run": false
     },
     "cli/cmd.TestAutoAlias_GracefulFallbackSingleWord": {
@@ -4399,7 +4399,7 @@
       "tier": "fast",
       "is_slow": false,
       "last_status": "passed",
-      "last_run_at": "2026-09-22T21:45:59",
+      "last_run_at": "2026-09-22T21:56:09",
       "needs_run": false
     },
     "cli/cmd.TestAutoAlias_CollisionAvoidance": {
@@ -4415,7 +4415,7 @@
       "tier": "fast",
       "is_slow": false,
       "last_status": "passed",
-      "last_run_at": "2026-09-22T21:45:59",
+      "last_run_at": "2026-09-22T21:56:09",
       "needs_run": false
     },
     "cli/cmd.TestAutoAlias_PopulateRepoAliases": {
@@ -4431,7 +4431,7 @@
       "tier": "fast",
       "is_slow": false,
       "last_status": "passed",
-      "last_run_at": "2026-09-22T21:45:59",
+      "last_run_at": "2026-09-22T21:56:09",
       "needs_run": false
     },
     "cli/cmd.TestCmdInstall_EnsureTrackedRepoAliases": {
@@ -4447,7 +4447,7 @@
       "tier": "fast",
       "is_slow": false,
       "last_status": "passed",
-      "last_run_at": "2026-09-22T21:45:59",
+      "last_run_at": "2026-09-22T21:56:09",
       "needs_run": false
     },
     "cli/cmd.TestBookmarkListJSONContract_EmptyIsArrayNotNull": {
@@ -4463,7 +4463,7 @@
       "tier": "fast",
       "is_slow": false,
       "last_status": "passed",
-      "last_run_at": "2026-09-22T21:45:59",
+      "last_run_at": "2026-09-22T21:56:09",
       "needs_run": false
     },
     "cli/cmd.TestBookmarkListJSONContract_CanonicalRow_KeyOrder": {
@@ -4479,7 +4479,7 @@
       "tier": "fast",
       "is_slow": false,
       "last_status": "passed",
-      "last_run_at": "2026-09-22T21:45:59",
+      "last_run_at": "2026-09-22T21:56:09",
       "needs_run": false
     },
     "cli/cmd.TestBookmarkListJSONSchema_TopLevelShape": {
@@ -4495,7 +4495,7 @@
       "tier": "fast",
       "is_slow": false,
       "last_status": "passed",
-      "last_run_at": "2026-09-22T21:45:59",
+      "last_run_at": "2026-09-22T21:56:09",
       "needs_run": false
     },
     "cli/cmd.TestBookmarkListJSONSchema_EncoderMatchesSchema": {
@@ -4511,7 +4511,7 @@
       "tier": "fast",
       "is_slow": false,
       "last_status": "passed",
-      "last_run_at": "2026-09-22T21:45:59",
+      "last_run_at": "2026-09-22T21:56:09",
       "needs_run": false
     },
     "cli/cmd.TestParseBrowseArgs": {
@@ -4527,7 +4527,7 @@
       "tier": "fast",
       "is_slow": false,
       "last_status": "passed",
-      "last_run_at": "2026-09-22T21:45:59",
+      "last_run_at": "2026-09-22T21:56:09",
       "needs_run": false
     },
     "cli/cmd.TestNormalizeBrowseURL": {
@@ -4543,7 +4543,7 @@
       "tier": "fast",
       "is_slow": false,
       "last_status": "passed",
-      "last_run_at": "2026-09-22T21:45:59",
+      "last_run_at": "2026-09-22T21:56:09",
       "needs_run": false
     },
     "cli/cmd.TestHasURLProtocol": {
@@ -4559,7 +4559,7 @@
       "tier": "fast",
       "is_slow": false,
       "last_status": "passed",
-      "last_run_at": "2026-09-22T21:45:59",
+      "last_run_at": "2026-09-22T21:56:09",
       "needs_run": false
     },
     "cli/cmd.TestEvaluateCandidateRepo_Fuzzy": {
@@ -4575,7 +4575,7 @@
       "tier": "fast",
       "is_slow": false,
       "last_status": "passed",
-      "last_run_at": "2026-09-22T21:45:59",
+      "last_run_at": "2026-09-22T21:56:09",
       "needs_run": false
     },
     "cli/cmd.TestEvaluateCandidateRepo_Substring": {
@@ -4591,7 +4591,7 @@
       "tier": "fast",
       "is_slow": false,
       "last_status": "passed",
-      "last_run_at": "2026-09-22T21:45:59",
+      "last_run_at": "2026-09-22T21:56:09",
       "needs_run": false
     },
     "cli/cmd.TestSelectBestRepoSuggestions_Cap": {
@@ -4607,7 +4607,7 @@
       "tier": "fast",
       "is_slow": false,
       "last_status": "passed",
-      "last_run_at": "2026-09-22T21:45:59",
+      "last_run_at": "2026-09-22T21:56:09",
       "needs_run": false
     },
     "cli/cmd.TestFormatCDNotFoundMessage_WithSuggestions": {
@@ -4623,7 +4623,7 @@
       "tier": "fast",
       "is_slow": false,
       "last_status": "passed",
-      "last_run_at": "2026-09-22T21:45:59",
+      "last_run_at": "2026-09-22T21:56:09",
       "needs_run": false
     },
     "cli/cmd.TestFormatCDNotFoundMessage_NoSuggestions": {
@@ -4639,7 +4639,7 @@
       "tier": "fast",
       "is_slow": false,
       "last_status": "passed",
-      "last_run_at": "2026-09-22T21:45:59",
+      "last_run_at": "2026-09-22T21:56:09",
       "needs_run": false
     },
     "cli/cmd.TestAppendUniqueCandidate": {
@@ -4655,7 +4655,7 @@
       "tier": "fast",
       "is_slow": false,
       "last_status": "passed",
-      "last_run_at": "2026-09-22T21:45:59",
+      "last_run_at": "2026-09-22T21:56:09",
       "needs_run": false
     },
     "cli/cmd.TestCFRPPriorMaxLookbackSane": {
@@ -4671,7 +4671,7 @@
       "tier": "fast",
       "is_slow": false,
       "last_status": "passed",
-      "last_run_at": "2026-09-22T21:45:59",
+      "last_run_at": "2026-09-22T21:56:09",
       "needs_run": false
     },
     "cli/cmd.TestResolvePriorScanIdentity_NotAGitRepo": {
@@ -4687,7 +4687,7 @@
       "tier": "fast",
       "is_slow": false,
       "last_status": "passed",
-      "last_run_at": "2026-09-22T21:45:59",
+      "last_run_at": "2026-09-22T21:56:09",
       "needs_run": false
     },
     "cli/cmd.TestRenderInlineMarkdownHighlightsDoubleQuotes": {
@@ -4703,7 +4703,7 @@
       "tier": "fast",
       "is_slow": false,
       "last_status": "passed",
-      "last_run_at": "2026-09-22T21:45:59",
+      "last_run_at": "2026-09-22T21:56:09",
       "needs_run": false
     },
     "cli/cmd.TestRenderInlineMarkdownLeavesApostrophesAlone": {
@@ -4719,7 +4719,7 @@
       "tier": "fast",
       "is_slow": false,
       "last_status": "passed",
-      "last_run_at": "2026-09-22T21:45:59",
+      "last_run_at": "2026-09-22T21:56:09",
       "needs_run": false
     },
     "cli/cmd.TestRenderInlineMarkdownPreservesBoldAndCode": {
@@ -4735,7 +4735,7 @@
       "tier": "fast",
       "is_slow": false,
       "last_status": "passed",
-      "last_run_at": "2026-09-22T21:45:59",
+      "last_run_at": "2026-09-22T21:56:09",
       "needs_run": false
     },
     "cli/cmd.TestRenderInlineMarkdownPlainModeStripsAllANSI": {
@@ -4751,7 +4751,7 @@
       "tier": "fast",
       "is_slow": false,
       "last_status": "passed",
-      "last_run_at": "2026-09-22T21:45:59",
+      "last_run_at": "2026-09-22T21:56:09",
       "needs_run": false
     },
     "cli/cmd.TestColorOrEmptyTogglesByPrettyFlag": {
@@ -4767,7 +4767,7 @@
       "tier": "fast",
       "is_slow": false,
       "last_status": "passed",
-      "last_run_at": "2026-09-22T21:45:59",
+      "last_run_at": "2026-09-22T21:56:09",
       "needs_run": false
     },
     "cli/cmd.TestRegenChangelogOrdersDescending": {
@@ -4783,7 +4783,7 @@
       "tier": "fast",
       "is_slow": false,
       "last_status": "passed",
-      "last_run_at": "2026-09-22T21:45:59",
+      "last_run_at": "2026-09-22T21:56:09",
       "needs_run": false
     },
     "cli/cmd.TestCompareSemverDesc": {
@@ -4799,7 +4799,7 @@
       "tier": "fast",
       "is_slow": false,
       "last_status": "passed",
-      "last_run_at": "2026-09-22T21:45:59",
+      "last_run_at": "2026-09-22T21:56:09",
       "needs_run": false
     },
     "cli/cmd.TestClusterCommand": {
@@ -4815,7 +4815,7 @@
       "tier": "fast",
       "is_slow": false,
       "last_status": "passed",
-      "last_run_at": "2026-09-22T21:45:59",
+      "last_run_at": "2026-09-22T21:56:09",
       "needs_run": false
     },
     "cli/cmd.TestParseClusterFlags": {
@@ -4831,7 +4831,7 @@
       "tier": "fast",
       "is_slow": false,
       "last_status": "passed",
-      "last_run_at": "2026-09-22T21:45:59",
+      "last_run_at": "2026-09-22T21:56:09",
       "needs_run": false
     },
     "cli/cmd.TestClusterSubCommandParser": {
@@ -4847,7 +4847,7 @@
       "tier": "fast",
       "is_slow": false,
       "last_status": "passed",
-      "last_run_at": "2026-09-22T21:45:59",
+      "last_run_at": "2026-09-22T21:56:09",
       "needs_run": false
     },
     "cli/cmd.TestRunClusterNodes_Help": {
@@ -4863,7 +4863,7 @@
       "tier": "fast",
       "is_slow": false,
       "last_status": "passed",
-      "last_run_at": "2026-09-22T21:45:59",
+      "last_run_at": "2026-09-22T21:56:09",
       "needs_run": false
     },
     "cli/cmd.TestRunClusterNodes_EmptyHosts": {
@@ -4879,7 +4879,7 @@
       "tier": "fast",
       "is_slow": false,
       "last_status": "passed",
-      "last_run_at": "2026-09-22T21:45:59",
+      "last_run_at": "2026-09-22T21:56:09",
       "needs_run": false
     },
     "cli/cmd.TestRunClusterNodes_WithHosts": {
@@ -4895,7 +4895,7 @@
       "tier": "fast",
       "is_slow": false,
       "last_status": "passed",
-      "last_run_at": "2026-09-22T21:45:59",
+      "last_run_at": "2026-09-22T21:56:09",
       "needs_run": false
     },
     "cli/cmd.TestRunClusterNodes_JSON": {
@@ -4911,7 +4911,7 @@
       "tier": "fast",
       "is_slow": false,
       "last_status": "passed",
-      "last_run_at": "2026-09-22T21:45:59",
+      "last_run_at": "2026-09-22T21:56:09",
       "needs_run": false
     },
     "cli/cmd.TestRunClusterRemove_Help": {
@@ -4927,7 +4927,7 @@
       "tier": "fast",
       "is_slow": false,
       "last_status": "passed",
-      "last_run_at": "2026-09-22T21:45:59",
+      "last_run_at": "2026-09-22T21:56:09",
       "needs_run": false
     },
     "cli/cmd.TestRunClusterRemove_PositionalByAlias": {
@@ -4943,7 +4943,7 @@
       "tier": "fast",
       "is_slow": false,
       "last_status": "passed",
-      "last_run_at": "2026-09-22T21:45:59",
+      "last_run_at": "2026-09-22T21:56:09",
       "needs_run": false
     },
     "cli/cmd.TestRunClusterRemove_PositionalByIP": {
@@ -4959,7 +4959,7 @@
       "tier": "fast",
       "is_slow": false,
       "last_status": "passed",
-      "last_run_at": "2026-09-22T21:45:59",
+      "last_run_at": "2026-09-22T21:56:09",
       "needs_run": false
     },
     "cli/cmd.TestRunClusterRemove_MissingArgs": {
@@ -4975,7 +4975,7 @@
       "tier": "fast",
       "is_slow": false,
       "last_status": "passed",
-      "last_run_at": "2026-09-22T21:45:59",
+      "last_run_at": "2026-09-22T21:56:09",
       "needs_run": false
     },
     "cli/cmd.TestRunClusterRemove_LegacyID": {
@@ -4991,7 +4991,7 @@
       "tier": "fast",
       "is_slow": false,
       "last_status": "passed",
-      "last_run_at": "2026-09-22T21:45:59",
+      "last_run_at": "2026-09-22T21:56:09",
       "needs_run": false
     },
     "cli/cmd.TestHasPositionalNodeTarget": {
@@ -5007,7 +5007,7 @@
       "tier": "fast",
       "is_slow": false,
       "last_status": "passed",
-      "last_run_at": "2026-09-22T21:45:59",
+      "last_run_at": "2026-09-22T21:56:09",
       "needs_run": false
     },
     "cli/cmd.TestHasClusterJSONFlag": {
@@ -5023,7 +5023,7 @@
       "tier": "fast",
       "is_slow": false,
       "last_status": "passed",
-      "last_run_at": "2026-09-22T21:45:59",
+      "last_run_at": "2026-09-22T21:56:09",
       "needs_run": false
     },
     "cli/cmd.TestIsClusterHelpToken": {
@@ -5039,7 +5039,7 @@
       "tier": "fast",
       "is_slow": false,
       "last_status": "passed",
-      "last_run_at": "2026-09-22T21:45:59",
+      "last_run_at": "2026-09-22T21:56:09",
       "needs_run": false
     },
     "cli/cmd.TestRunCluster_Empty": {
@@ -5055,7 +5055,7 @@
       "tier": "fast",
       "is_slow": false,
       "last_status": "passed",
-      "last_run_at": "2026-09-22T21:45:59",
+      "last_run_at": "2026-09-22T21:56:09",
       "needs_run": false
     },
     "cli/cmd.TestRunCluster_HelpToken": {
@@ -5071,7 +5071,7 @@
       "tier": "fast",
       "is_slow": false,
       "last_status": "passed",
-      "last_run_at": "2026-09-22T21:45:59",
+      "last_run_at": "2026-09-22T21:56:09",
       "needs_run": false
     },
     "cli/cmd.TestRunCluster_Unknown": {
@@ -5087,7 +5087,7 @@
       "tier": "fast",
       "is_slow": false,
       "last_status": "passed",
-      "last_run_at": "2026-09-22T21:45:59",
+      "last_run_at": "2026-09-22T21:56:09",
       "needs_run": false
     },
     "cli/cmd.TestDispatchClusterSubcommand_Matches": {
@@ -5103,7 +5103,7 @@
       "tier": "fast",
       "is_slow": false,
       "last_status": "passed",
-      "last_run_at": "2026-09-22T21:45:59",
+      "last_run_at": "2026-09-22T21:56:09",
       "needs_run": false
     },
     "cli/cmd.TestDispatchClusterSubcommand_Unknown": {
@@ -5119,7 +5119,7 @@
       "tier": "fast",
       "is_slow": false,
       "last_status": "passed",
-      "last_run_at": "2026-09-22T21:45:59",
+      "last_run_at": "2026-09-22T21:56:09",
       "needs_run": false
     },
     "cli/cmd.TestRunCluster_InvertedHelp": {
@@ -5135,7 +5135,7 @@
       "tier": "fast",
       "is_slow": false,
       "last_status": "passed",
-      "last_run_at": "2026-09-22T21:45:59",
+      "last_run_at": "2026-09-22T21:56:09",
       "needs_run": false
     },
     "cli/cmd.TestDispatchInvertedClusterHelp_Branches": {
@@ -5151,7 +5151,7 @@
       "tier": "fast",
       "is_slow": false,
       "last_status": "passed",
-      "last_run_at": "2026-09-22T21:45:59",
+      "last_run_at": "2026-09-22T21:56:09",
       "needs_run": false
     },
     "cli/cmd.TestClusterSubcommands_LazyRegexMatching": {
@@ -5167,7 +5167,7 @@
       "tier": "fast",
       "is_slow": false,
       "last_status": "passed",
-      "last_run_at": "2026-09-22T21:45:59",
+      "last_run_at": "2026-09-22T21:56:09",
       "needs_run": false
     },
     "cli/cmd.TestClusterSubcommand_LazyRegexUnknownMismatch": {
@@ -5183,7 +5183,7 @@
       "tier": "fast",
       "is_slow": false,
       "last_status": "passed",
-      "last_run_at": "2026-09-22T21:45:59",
+      "last_run_at": "2026-09-22T21:56:09",
       "needs_run": false
     },
     "cli/cmd.TestClusterSubcommand_LazyRegexResultGroupMethods": {
@@ -5199,7 +5199,7 @@
       "tier": "fast",
       "is_slow": false,
       "last_status": "passed",
-      "last_run_at": "2026-09-22T21:45:59",
+      "last_run_at": "2026-09-22T21:56:09",
       "needs_run": false
     },
     "cli/cmd.TestClusterSubcommand_LazyRegexGroupItemsAndMap": {
@@ -5215,7 +5215,7 @@
       "tier": "fast",
       "is_slow": false,
       "last_status": "passed",
-      "last_run_at": "2026-09-22T21:45:59",
+      "last_run_at": "2026-09-22T21:56:09",
       "needs_run": false
     },
     "cli/cmd.TestClusterSubcommand_LazyRegexMatchError": {
@@ -5231,7 +5231,7 @@
       "tier": "fast",
       "is_slow": false,
       "last_status": "passed",
-      "last_run_at": "2026-09-22T21:45:59",
+      "last_run_at": "2026-09-22T21:56:09",
       "needs_run": false
     },
     "cli/cmd.TestTopLevelCmdConstantsAreUnique": {
@@ -5247,7 +5247,7 @@
       "tier": "fast",
       "is_slow": false,
       "last_status": "passed",
-      "last_run_at": "2026-09-22T21:45:59",
+      "last_run_at": "2026-09-22T21:56:09",
       "needs_run": false
     },
     "cli/cmd.TestParseCGFlags": {
@@ -5263,7 +5263,7 @@
       "tier": "fast",
       "is_slow": false,
       "last_status": "passed",
-      "last_run_at": "2026-09-22T21:45:59",
+      "last_run_at": "2026-09-22T21:56:09",
       "needs_run": false
     },
     "cli/cmd.TestParseSEFlags": {
@@ -5279,7 +5279,7 @@
       "tier": "fast",
       "is_slow": false,
       "last_status": "passed",
-      "last_run_at": "2026-09-22T21:45:59",
+      "last_run_at": "2026-09-22T21:56:09",
       "needs_run": false
     },
     "cli/cmd.TestParseSJFlags": {
@@ -5295,7 +5295,7 @@
       "tier": "fast",
       "is_slow": false,
       "last_status": "passed",
-      "last_run_at": "2026-09-22T21:45:59",
+      "last_run_at": "2026-09-22T21:56:09",
       "needs_run": false
     },
     "cli/cmd.TestInstallCommandInvocations": {
@@ -5311,7 +5311,7 @@
       "tier": "fast",
       "is_slow": false,
       "last_status": "passed",
-      "last_run_at": "2026-09-22T21:45:59",
+      "last_run_at": "2026-09-22T21:56:09",
       "needs_run": false
     },
     "cli/cmd.TestPipelineCommandInvocations": {
@@ -5327,7 +5327,7 @@
       "tier": "fast",
       "is_slow": false,
       "last_status": "passed",
-      "last_run_at": "2026-09-22T21:45:59",
+      "last_run_at": "2026-09-22T21:56:09",
       "needs_run": false
     },
     "cli/cmd.TestTopLevelErrorLogsAndLogs": {
@@ -5343,7 +5343,7 @@
       "tier": "fast",
       "is_slow": false,
       "last_status": "passed",
-      "last_run_at": "2026-09-22T21:45:59",
+      "last_run_at": "2026-09-22T21:56:09",
       "needs_run": false
     },
     "cli/cmd.TestTopLevelPipelineErrorsShortcut": {
@@ -5359,7 +5359,7 @@
       "tier": "fast",
       "is_slow": false,
       "last_status": "passed",
-      "last_run_at": "2026-09-22T21:45:59",
+      "last_run_at": "2026-09-22T21:56:09",
       "needs_run": false
     },
     "cli/cmd.TestTopLevelPipelineDetailsShortcut": {
@@ -5375,7 +5375,7 @@
       "tier": "fast",
       "is_slow": false,
       "last_status": "passed",
-      "last_run_at": "2026-09-22T21:45:59",
+      "last_run_at": "2026-09-22T21:56:09",
       "needs_run": false
     },
     "cli/cmd.TestHelpFlagTrigger": {
@@ -5391,7 +5391,7 @@
       "tier": "fast",
       "is_slow": false,
       "last_status": "passed",
-      "last_run_at": "2026-09-22T21:45:59",
+      "last_run_at": "2026-09-22T21:56:09",
       "needs_run": false
     },
     "cli/cmd.TestBuildErrorLogsPayloadWithFallback": {
@@ -5407,7 +5407,7 @@
       "tier": "fast",
       "is_slow": false,
       "last_status": "passed",
-      "last_run_at": "2026-09-22T21:45:59",
+      "last_run_at": "2026-09-22T21:56:09",
       "needs_run": false
     },
     "cli/cmd.TestMergeStringPaths": {
@@ -5423,7 +5423,7 @@
       "tier": "fast",
       "is_slow": false,
       "last_status": "passed",
-      "last_run_at": "2026-09-22T21:45:59",
+      "last_run_at": "2026-09-22T21:56:09",
       "needs_run": false
     },
     "cli/cmd.TestPatchCGArithmeticIncrements": {
@@ -5439,7 +5439,7 @@
       "tier": "fast",
       "is_slow": false,
       "last_status": "passed",
-      "last_run_at": "2026-09-22T21:45:59",
+      "last_run_at": "2026-09-22T21:56:09",
       "needs_run": false
     },
     "cli/cmd.TestCommitCodingGuidelinesNoCommitNoPushPrintsBothNotes": {
@@ -5455,7 +5455,7 @@
       "tier": "fast",
       "is_slow": false,
       "last_status": "passed",
-      "last_run_at": "2026-09-22T21:45:59",
+      "last_run_at": "2026-09-22T21:56:09",
       "needs_run": false
     },
     "cli/cmd.TestPatchCGWindowsScriptFile": {
@@ -5471,7 +5471,7 @@
       "tier": "fast",
       "is_slow": false,
       "last_status": "passed",
-      "last_run_at": "2026-09-22T21:45:59",
+      "last_run_at": "2026-09-22T21:56:09",
       "needs_run": false
     },
     "cli/cmd.TestCommitTransferIncludeMergesDefault": {
@@ -5487,7 +5487,7 @@
       "tier": "fast",
       "is_slow": false,
       "last_status": "passed",
-      "last_run_at": "2026-09-22T21:45:59",
+      "last_run_at": "2026-09-22T21:56:09",
       "needs_run": false
     },
     "cli/cmd.TestCommitTransferIncludeMergesExplicit": {
@@ -5503,7 +5503,7 @@
       "tier": "fast",
       "is_slow": false,
       "last_status": "passed",
-      "last_run_at": "2026-09-22T21:45:59",
+      "last_run_at": "2026-09-22T21:56:09",
       "needs_run": false
     },
     "cli/cmd.TestProvisionDestTarget_Existing": {
@@ -5519,7 +5519,7 @@
       "tier": "fast",
       "is_slow": false,
       "last_status": "passed",
-      "last_run_at": "2026-09-22T21:45:59",
+      "last_run_at": "2026-09-22T21:56:09",
       "needs_run": false
     },
     "cli/cmd.TestProvisionDestTarget_MissingLocal": {
@@ -5535,7 +5535,7 @@
       "tier": "fast",
       "is_slow": false,
       "last_status": "passed",
-      "last_run_at": "2026-09-22T21:45:59",
+      "last_run_at": "2026-09-22T21:56:09",
       "needs_run": false
     },
     "cli/cmd.TestFilterFlagArgs": {
@@ -5551,7 +5551,7 @@
       "tier": "fast",
       "is_slow": false,
       "last_status": "passed",
-      "last_run_at": "2026-09-22T21:45:59",
+      "last_run_at": "2026-09-22T21:56:09",
       "needs_run": false
     },
     "cli/cmd.TestExtractCopyFilePath": {
@@ -5567,7 +5567,7 @@
       "tier": "fast",
       "is_slow": false,
       "last_status": "passed",
-      "last_run_at": "2026-09-22T21:45:59",
+      "last_run_at": "2026-09-22T21:56:09",
       "needs_run": false
     },
     "cli/cmd.TestExtractPasteOutFile": {
@@ -5583,7 +5583,7 @@
       "tier": "fast",
       "is_slow": false,
       "last_status": "passed",
-      "last_run_at": "2026-09-22T21:45:59",
+      "last_run_at": "2026-09-22T21:56:09",
       "needs_run": false
     },
     "cli/cmd.TestSaveAndFetchMemoryContent": {
@@ -5599,7 +5599,7 @@
       "tier": "fast",
       "is_slow": false,
       "last_status": "passed",
-      "last_run_at": "2026-09-22T21:45:59",
+      "last_run_at": "2026-09-22T21:56:09",
       "needs_run": false
     },
     "cli/cmd.TestNormalizeCreateArgs_RepoCreateSuite": {
@@ -5615,7 +5615,7 @@
       "tier": "fast",
       "is_slow": false,
       "last_status": "passed",
-      "last_run_at": "2026-09-22T21:45:59",
+      "last_run_at": "2026-09-22T21:56:09",
       "needs_run": false
     },
     "cli/cmd.TestEnsureOrProvisionDestinationRepo_Existing": {
@@ -5631,7 +5631,7 @@
       "tier": "fast",
       "is_slow": false,
       "last_status": "passed",
-      "last_run_at": "2026-09-22T21:45:59",
+      "last_run_at": "2026-09-22T21:56:09",
       "needs_run": false
     },
     "cli/cmd.TestEnsureOrProvisionDestinationRepo_RemoteURL": {
@@ -5647,7 +5647,7 @@
       "tier": "fast",
       "is_slow": false,
       "last_status": "passed",
-      "last_run_at": "2026-09-22T21:45:59",
+      "last_run_at": "2026-09-22T21:56:09",
       "needs_run": false
     },
     "cli/cmd.TestEnsureOrProvisionDestinationRepo_MissingLocal": {
@@ -5663,7 +5663,7 @@
       "tier": "fast",
       "is_slow": false,
       "last_status": "passed",
-      "last_run_at": "2026-09-22T21:45:59",
+      "last_run_at": "2026-09-22T21:56:09",
       "needs_run": false
     },
     "cli/cmd.TestCSVCRLF_StartupList": {
@@ -5679,7 +5679,7 @@
       "tier": "fast",
       "is_slow": false,
       "last_status": "passed",
-      "last_run_at": "2026-09-22T21:45:59",
+      "last_run_at": "2026-09-22T21:56:09",
       "needs_run": false
     },
     "cli/cmd.TestCSVCRLF_LatestBranch": {
@@ -5695,7 +5695,7 @@
       "tier": "fast",
       "is_slow": false,
       "last_status": "passed",
-      "last_run_at": "2026-09-22T21:45:59",
+      "last_run_at": "2026-09-22T21:56:09",
       "needs_run": false
     },
     "cli/cmd.TestDiffProfilesJSONContract_CanonicalRecord_KeyOrder": {
@@ -5711,7 +5711,7 @@
       "tier": "fast",
       "is_slow": false,
       "last_status": "passed",
-      "last_run_at": "2026-09-22T21:45:59",
+      "last_run_at": "2026-09-22T21:56:09",
       "needs_run": false
     },
     "cli/cmd.TestDiffProfilesJSONSchema_TopLevelShape": {
@@ -5727,7 +5727,7 @@
       "tier": "fast",
       "is_slow": false,
       "last_status": "passed",
-      "last_run_at": "2026-09-22T21:45:59",
+      "last_run_at": "2026-09-22T21:56:09",
       "needs_run": false
     },
     "cli/cmd.TestDiffProfilesJSONSchema_EncoderMatchesSchema": {
@@ -5743,7 +5743,7 @@
       "tier": "fast",
       "is_slow": false,
       "last_status": "passed",
-      "last_run_at": "2026-09-22T21:45:59",
+      "last_run_at": "2026-09-22T21:56:09",
       "needs_run": false
     },
     "cli/cmd.TestDispatchIP": {
@@ -5759,7 +5759,7 @@
       "tier": "fast",
       "is_slow": false,
       "last_status": "passed",
-      "last_run_at": "2026-09-22T21:45:59",
+      "last_run_at": "2026-09-22T21:56:09",
       "needs_run": false
     },
     "cli/cmd.TestDispatchSJ": {
@@ -5775,7 +5775,7 @@
       "tier": "fast",
       "is_slow": false,
       "last_status": "passed",
-      "last_run_at": "2026-09-22T21:45:59",
+      "last_run_at": "2026-09-22T21:56:09",
       "needs_run": false
     },
     "cli/cmd.TestFilterPathPartsRemovesMatch": {
@@ -5791,7 +5791,7 @@
       "tier": "fast",
       "is_slow": false,
       "last_status": "passed",
-      "last_run_at": "2026-09-22T21:45:59",
+      "last_run_at": "2026-09-22T21:56:09",
       "needs_run": false
     },
     "cli/cmd.TestFilterPathPartsCaseInsensitive": {
@@ -5807,7 +5807,7 @@
       "tier": "fast",
       "is_slow": false,
       "last_status": "passed",
-      "last_run_at": "2026-09-22T21:45:59",
+      "last_run_at": "2026-09-22T21:56:09",
       "needs_run": false
     },
     "cli/cmd.TestEnvNamePatternValidates": {
@@ -5823,7 +5823,7 @@
       "tier": "fast",
       "is_slow": false,
       "last_status": "passed",
-      "last_run_at": "2026-09-22T21:45:59",
+      "last_run_at": "2026-09-22T21:56:09",
       "needs_run": false
     },
     "cli/cmd.TestUpsertEnvVariableInsertsAndUpdates": {
@@ -5839,7 +5839,7 @@
       "tier": "fast",
       "is_slow": false,
       "last_status": "passed",
-      "last_run_at": "2026-09-22T21:45:59",
+      "last_run_at": "2026-09-22T21:56:09",
       "needs_run": false
     },
     "cli/cmd.TestRemoveEnvVariableDropsMatch": {
@@ -5855,7 +5855,7 @@
       "tier": "fast",
       "is_slow": false,
       "last_status": "passed",
-      "last_run_at": "2026-09-22T21:45:59",
+      "last_run_at": "2026-09-22T21:56:09",
       "needs_run": false
     },
     "cli/cmd.TestRemoveEnvVariableNoopOnMiss": {
@@ -5871,7 +5871,7 @@
       "tier": "fast",
       "is_slow": false,
       "last_status": "passed",
-      "last_run_at": "2026-09-22T21:45:59",
+      "last_run_at": "2026-09-22T21:56:09",
       "needs_run": false
     },
     "cli/cmd.TestRemoveEnvPathDropsMatch": {
@@ -5887,7 +5887,7 @@
       "tier": "fast",
       "is_slow": false,
       "last_status": "passed",
-      "last_run_at": "2026-09-22T21:45:59",
+      "last_run_at": "2026-09-22T21:56:09",
       "needs_run": false
     },
     "cli/cmd.TestIsPathInside": {
@@ -5903,7 +5903,7 @@
       "tier": "fast",
       "is_slow": false,
       "last_status": "passed",
-      "last_run_at": "2026-09-22T21:45:59",
+      "last_run_at": "2026-09-22T21:56:09",
       "needs_run": false
     },
     "cli/cmd.TestEscapeCwdIfInside_NotInside": {
@@ -5919,7 +5919,7 @@
       "tier": "fast",
       "is_slow": false,
       "last_status": "passed",
-      "last_run_at": "2026-09-22T21:45:59",
+      "last_run_at": "2026-09-22T21:56:09",
       "needs_run": false
     },
     "cli/cmd.TestEscapeCwdIfInside_EscapesWhenInside": {
@@ -5935,7 +5935,7 @@
       "tier": "fast",
       "is_slow": false,
       "last_status": "passed",
-      "last_run_at": "2026-09-22T21:45:59",
+      "last_run_at": "2026-09-22T21:56:09",
       "needs_run": false
     },
     "cli/cmd.TestExecPending_EnqueueCreatesTask": {
@@ -5951,7 +5951,7 @@
       "tier": "fast",
       "is_slow": false,
       "last_status": "passed",
-      "last_run_at": "2026-09-22T21:45:59",
+      "last_run_at": "2026-09-22T21:56:09",
       "needs_run": false
     },
     "cli/cmd.TestExecPending_EnqueuePreservesWorkDir": {
@@ -5967,7 +5967,7 @@
       "tier": "fast",
       "is_slow": false,
       "last_status": "passed",
-      "last_run_at": "2026-09-22T21:45:59",
+      "last_run_at": "2026-09-22T21:56:09",
       "needs_run": false
     },
     "cli/cmd.TestExecPending_DuplicateWithSameArgs": {
@@ -5983,7 +5983,7 @@
       "tier": "fast",
       "is_slow": false,
       "last_status": "passed",
-      "last_run_at": "2026-09-22T21:45:59",
+      "last_run_at": "2026-09-22T21:56:09",
       "needs_run": false
     },
     "cli/cmd.TestExecPending_NoDuplicateWithDifferentArgs": {
@@ -5999,7 +5999,7 @@
       "tier": "fast",
       "is_slow": false,
       "last_status": "passed",
-      "last_run_at": "2026-09-22T21:45:59",
+      "last_run_at": "2026-09-22T21:56:09",
       "needs_run": false
     },
     "cli/cmd.TestExecPending_CompleteMovesToCompleted": {
@@ -6015,7 +6015,7 @@
       "tier": "fast",
       "is_slow": false,
       "last_status": "passed",
-      "last_run_at": "2026-09-22T21:45:59",
+      "last_run_at": "2026-09-22T21:56:09",
       "needs_run": false
     },
     "cli/cmd.TestExecPending_FailRecordsReason": {
@@ -6031,7 +6031,7 @@
       "tier": "fast",
       "is_slow": false,
       "last_status": "passed",
-      "last_run_at": "2026-09-22T21:45:59",
+      "last_run_at": "2026-09-22T21:56:09",
       "needs_run": false
     },
     "cli/cmd.TestExecPending_FailKeepsTaskPending": {
@@ -6047,7 +6047,7 @@
       "tier": "fast",
       "is_slow": false,
       "last_status": "passed",
-      "last_run_at": "2026-09-22T21:45:59",
+      "last_run_at": "2026-09-22T21:56:09",
       "needs_run": false
     },
     "cli/cmd.TestExecPending_FullLifecycle_FailThenComplete": {
@@ -6063,7 +6063,7 @@
       "tier": "fast",
       "is_slow": false,
       "last_status": "passed",
-      "last_run_at": "2026-09-22T21:45:59",
+      "last_run_at": "2026-09-22T21:56:09",
       "needs_run": false
     },
     "cli/cmd.TestBuildCommandArgs_ExecWithFlags": {
@@ -6079,7 +6079,7 @@
       "tier": "fast",
       "is_slow": false,
       "last_status": "passed",
-      "last_run_at": "2026-09-22T21:45:59",
+      "last_run_at": "2026-09-22T21:56:09",
       "needs_run": false
     },
     "cli/cmd.TestBuildCommandArgs_ExecStopOnFail": {
@@ -6095,7 +6095,7 @@
       "tier": "fast",
       "is_slow": false,
       "last_status": "passed",
-      "last_run_at": "2026-09-22T21:45:59",
+      "last_run_at": "2026-09-22T21:56:09",
       "needs_run": false
     },
     "cli/cmd.TestExpandHome": {
@@ -6111,7 +6111,7 @@
       "tier": "fast",
       "is_slow": false,
       "last_status": "passed",
-      "last_run_at": "2026-09-22T21:45:59",
+      "last_run_at": "2026-09-22T21:56:09",
       "needs_run": false
     },
     "cli/cmd.TestExtractTargetArg": {
@@ -6127,7 +6127,7 @@
       "tier": "fast",
       "is_slow": false,
       "last_status": "passed",
-      "last_run_at": "2026-09-22T21:45:59",
+      "last_run_at": "2026-09-22T21:56:09",
       "needs_run": false
     },
     "cli/cmd.TestResolveExplorerTarget": {
@@ -6143,7 +6143,7 @@
       "tier": "fast",
       "is_slow": false,
       "last_status": "passed",
-      "last_run_at": "2026-09-22T21:45:59",
+      "last_run_at": "2026-09-22T21:56:09",
       "needs_run": false
     },
     "cli/cmd.TestCheckExplorerTargetType": {
@@ -6159,7 +6159,7 @@
       "tier": "fast",
       "is_slow": false,
       "last_status": "passed",
-      "last_run_at": "2026-09-22T21:45:59",
+      "last_run_at": "2026-09-22T21:56:09",
       "needs_run": false
     },
     "cli/cmd.TestBuildExplorerCmd": {
@@ -6175,7 +6175,7 @@
       "tier": "fast",
       "is_slow": false,
       "last_status": "passed",
-      "last_run_at": "2026-09-22T21:45:59",
+      "last_run_at": "2026-09-22T21:56:09",
       "needs_run": false
     },
     "cli/cmd.TestExportJSONContract_EmptyArraysNotNull": {
@@ -6191,7 +6191,7 @@
       "tier": "fast",
       "is_slow": false,
       "last_status": "passed",
-      "last_run_at": "2026-09-22T21:45:59",
+      "last_run_at": "2026-09-22T21:56:09",
       "needs_run": false
     },
     "cli/cmd.TestExportJSONContract_TopLevelKeyOrder": {
@@ -6207,7 +6207,7 @@
       "tier": "fast",
       "is_slow": false,
       "last_status": "passed",
-      "last_run_at": "2026-09-22T21:45:59",
+      "last_run_at": "2026-09-22T21:56:09",
       "needs_run": false
     },
     "cli/cmd.TestExportJSONSchema_TopLevelShape": {
@@ -6223,7 +6223,7 @@
       "tier": "fast",
       "is_slow": false,
       "last_status": "passed",
-      "last_run_at": "2026-09-22T21:45:59",
+      "last_run_at": "2026-09-22T21:56:09",
       "needs_run": false
     },
     "cli/cmd.TestExportJSONSchema_EncoderMatchesSchema": {
@@ -6239,7 +6239,7 @@
       "tier": "fast",
       "is_slow": false,
       "last_status": "passed",
-      "last_run_at": "2026-09-22T21:45:59",
+      "last_run_at": "2026-09-22T21:56:09",
       "needs_run": false
     },
     "cli/cmd.TestExportJSONSchema_NestedRecordKeysSubsetOfProperties": {
@@ -6255,7 +6255,7 @@
       "tier": "fast",
       "is_slow": false,
       "last_status": "passed",
-      "last_run_at": "2026-09-22T21:45:59",
+      "last_run_at": "2026-09-22T21:56:09",
       "needs_run": false
     },
     "cli/cmd.TestParseFindNextFlags_HappyPaths": {
@@ -6271,7 +6271,7 @@
       "tier": "fast",
       "is_slow": false,
       "last_status": "passed",
-      "last_run_at": "2026-09-22T21:45:59",
+      "last_run_at": "2026-09-22T21:56:09",
       "needs_run": false
     },
     "cli/cmd.TestParseFindNextFlags_RejectsJSONValue": {
@@ -6287,7 +6287,7 @@
       "tier": "fast",
       "is_slow": false,
       "last_status": "passed",
-      "last_run_at": "2026-09-22T21:45:59",
+      "last_run_at": "2026-09-22T21:56:09",
       "needs_run": false
     },
     "cli/cmd.TestParseFindNextFlags_RejectsBadInt": {
@@ -6303,7 +6303,7 @@
       "tier": "fast",
       "is_slow": false,
       "last_status": "passed",
-      "last_run_at": "2026-09-22T21:45:59",
+      "last_run_at": "2026-09-22T21:56:09",
       "needs_run": false
     },
     "cli/cmd.TestParseFindNextFlags_RejectsMissingValue": {
@@ -6319,7 +6319,7 @@
       "tier": "fast",
       "is_slow": false,
       "last_status": "passed",
-      "last_run_at": "2026-09-22T21:45:59",
+      "last_run_at": "2026-09-22T21:56:09",
       "needs_run": false
     },
     "cli/cmd.TestParseFindNextFlags_UnknownFlagWithSuggestion": {
@@ -6335,7 +6335,7 @@
       "tier": "fast",
       "is_slow": false,
       "last_status": "passed",
-      "last_run_at": "2026-09-22T21:45:59",
+      "last_run_at": "2026-09-22T21:56:09",
       "needs_run": false
     },
     "cli/cmd.TestParseFindNextFlags_UnknownFlagWithoutSuggestion": {
@@ -6351,7 +6351,7 @@
       "tier": "fast",
       "is_slow": false,
       "last_status": "passed",
-      "last_run_at": "2026-09-22T21:45:59",
+      "last_run_at": "2026-09-22T21:56:09",
       "needs_run": false
     },
     "cli/cmd.TestParseFindNextFlags_RejectsPositional": {
@@ -6367,7 +6367,7 @@
       "tier": "fast",
       "is_slow": false,
       "last_status": "passed",
-      "last_run_at": "2026-09-22T21:45:59",
+      "last_run_at": "2026-09-22T21:56:09",
       "needs_run": false
     },
     "cli/cmd.TestFindNextJSONContract_EmptyIsArrayNotNull": {
@@ -6383,7 +6383,7 @@
       "tier": "fast",
       "is_slow": false,
       "last_status": "passed",
-      "last_run_at": "2026-09-22T21:45:59",
+      "last_run_at": "2026-09-22T21:56:09",
       "needs_run": false
     },
     "cli/cmd.TestFindNextJSONContract_CanonicalRow_KeyOrders": {
@@ -6399,7 +6399,7 @@
       "tier": "fast",
       "is_slow": false,
       "last_status": "passed",
-      "last_run_at": "2026-09-22T21:45:59",
+      "last_run_at": "2026-09-22T21:56:09",
       "needs_run": false
     },
     "cli/cmd.TestFindNextJSONSchema_TopLevelShape": {
@@ -6415,7 +6415,7 @@
       "tier": "fast",
       "is_slow": false,
       "last_status": "passed",
-      "last_run_at": "2026-09-22T21:45:59",
+      "last_run_at": "2026-09-22T21:56:09",
       "needs_run": false
     },
     "cli/cmd.TestFindNextJSONSchema_EncoderMatchesSchema": {
@@ -6431,7 +6431,7 @@
       "tier": "fast",
       "is_slow": false,
       "last_status": "passed",
-      "last_run_at": "2026-09-22T21:45:59",
+      "last_run_at": "2026-09-22T21:56:09",
       "needs_run": false
     },
     "cli/cmd.TestFindFilesExact": {
@@ -6447,7 +6447,7 @@
       "tier": "fast",
       "is_slow": false,
       "last_status": "passed",
-      "last_run_at": "2026-09-22T21:45:59",
+      "last_run_at": "2026-09-22T21:56:09",
       "needs_run": false
     },
     "cli/cmd.TestFindFilesAnyContains": {
@@ -6463,7 +6463,7 @@
       "tier": "fast",
       "is_slow": false,
       "last_status": "passed",
-      "last_run_at": "2026-09-22T21:45:59",
+      "last_run_at": "2026-09-22T21:56:09",
       "needs_run": false
     },
     "cli/cmd.TestFindFilesStartsWith": {
@@ -6479,7 +6479,7 @@
       "tier": "fast",
       "is_slow": false,
       "last_status": "passed",
-      "last_run_at": "2026-09-22T21:45:59",
+      "last_run_at": "2026-09-22T21:56:09",
       "needs_run": false
     },
     "cli/cmd.TestFindFilesEndsWith": {
@@ -6495,7 +6495,7 @@
       "tier": "fast",
       "is_slow": false,
       "last_status": "passed",
-      "last_run_at": "2026-09-22T21:45:59",
+      "last_run_at": "2026-09-22T21:56:09",
       "needs_run": false
     },
     "cli/cmd.TestFindWildcard": {
@@ -6511,7 +6511,7 @@
       "tier": "fast",
       "is_slow": false,
       "last_status": "passed",
-      "last_run_at": "2026-09-22T21:45:59",
+      "last_run_at": "2026-09-22T21:56:09",
       "needs_run": false
     },
     "cli/cmd.TestFixRepoRewriteV9ToV12Fixture": {
@@ -6527,7 +6527,7 @@
       "tier": "fast",
       "is_slow": false,
       "last_status": "passed",
-      "last_run_at": "2026-09-22T21:45:59",
+      "last_run_at": "2026-09-22T21:56:09",
       "needs_run": false
     },
     "cli/cmd.TestIsFixAgyRequest_Variations": {
@@ -6543,7 +6543,7 @@
       "tier": "fast",
       "is_slow": false,
       "last_status": "passed",
-      "last_run_at": "2026-09-22T21:45:59",
+      "last_run_at": "2026-09-22T21:56:09",
       "needs_run": false
     },
     "cli/cmd.TestIsFixAllRequested_Variations": {
@@ -6559,7 +6559,7 @@
       "tier": "fast",
       "is_slow": false,
       "last_status": "passed",
-      "last_run_at": "2026-09-22T21:45:59",
+      "last_run_at": "2026-09-22T21:56:09",
       "needs_run": false
     },
     "cli/cmd.TestIsFixPromptRequested_Variations": {
@@ -6575,7 +6575,7 @@
       "tier": "fast",
       "is_slow": false,
       "last_status": "passed",
-      "last_run_at": "2026-09-22T21:45:59",
+      "last_run_at": "2026-09-22T21:56:09",
       "needs_run": false
     },
     "cli/cmd.TestResolveFixAllAction_Variations": {
@@ -6591,7 +6591,7 @@
       "tier": "fast",
       "is_slow": false,
       "last_status": "passed",
-      "last_run_at": "2026-09-22T21:45:59",
+      "last_run_at": "2026-09-22T21:56:09",
       "needs_run": false
     },
     "cli/cmd.TestFormatStepCommand_StripsCDir": {
@@ -6607,7 +6607,7 @@
       "tier": "fast",
       "is_slow": false,
       "last_status": "passed",
-      "last_run_at": "2026-09-22T21:45:59",
+      "last_run_at": "2026-09-22T21:56:09",
       "needs_run": false
     },
     "cli/cmd.TestIsFixLsRequest_Variations": {
@@ -6623,7 +6623,7 @@
       "tier": "fast",
       "is_slow": false,
       "last_status": "passed",
-      "last_run_at": "2026-09-22T21:45:59",
+      "last_run_at": "2026-09-22T21:56:09",
       "needs_run": false
     },
     "cli/cmd.TestIsRepoIssue_Conditions": {
@@ -6639,7 +6639,7 @@
       "tier": "fast",
       "is_slow": false,
       "last_status": "passed",
-      "last_run_at": "2026-09-22T21:45:59",
+      "last_run_at": "2026-09-22T21:56:09",
       "needs_run": false
     },
     "cli/cmd.TestBuildIssueSummary_Formatting": {
@@ -6655,7 +6655,7 @@
       "tier": "fast",
       "is_slow": false,
       "last_status": "passed",
-      "last_run_at": "2026-09-22T21:45:59",
+      "last_run_at": "2026-09-22T21:56:09",
       "needs_run": false
     },
     "cli/cmd.TestParseStatusFlags_NoFlags": {
@@ -6671,7 +6671,7 @@
       "tier": "fast",
       "is_slow": false,
       "last_status": "passed",
-      "last_run_at": "2026-09-22T21:45:59",
+      "last_run_at": "2026-09-22T21:56:09",
       "needs_run": false
     },
     "cli/cmd.TestParseStatusFlags_GroupLong": {
@@ -6687,7 +6687,7 @@
       "tier": "fast",
       "is_slow": false,
       "last_status": "passed",
-      "last_run_at": "2026-09-22T21:45:59",
+      "last_run_at": "2026-09-22T21:56:09",
       "needs_run": false
     },
     "cli/cmd.TestParseStatusFlags_GroupShort": {
@@ -6703,7 +6703,7 @@
       "tier": "fast",
       "is_slow": false,
       "last_status": "passed",
-      "last_run_at": "2026-09-22T21:45:59",
+      "last_run_at": "2026-09-22T21:56:09",
       "needs_run": false
     },
     "cli/cmd.TestParseStatusFlags_All": {
@@ -6719,7 +6719,7 @@
       "tier": "fast",
       "is_slow": false,
       "last_status": "passed",
-      "last_run_at": "2026-09-22T21:45:59",
+      "last_run_at": "2026-09-22T21:56:09",
       "needs_run": false
     },
     "cli/cmd.TestParseStatusFlags_GroupAndAll": {
@@ -6735,7 +6735,7 @@
       "tier": "fast",
       "is_slow": false,
       "last_status": "passed",
-      "last_run_at": "2026-09-22T21:45:59",
+      "last_run_at": "2026-09-22T21:56:09",
       "needs_run": false
     },
     "cli/cmd.TestParseStatusFlags_Dirty": {
@@ -6751,7 +6751,7 @@
       "tier": "fast",
       "is_slow": false,
       "last_status": "passed",
-      "last_run_at": "2026-09-22T21:45:59",
+      "last_run_at": "2026-09-22T21:56:09",
       "needs_run": false
     },
     "cli/cmd.TestParseExecFlags_NoFlags": {
@@ -6767,7 +6767,7 @@
       "tier": "fast",
       "is_slow": false,
       "last_status": "passed",
-      "last_run_at": "2026-09-22T21:45:59",
+      "last_run_at": "2026-09-22T21:56:09",
       "needs_run": false
     },
     "cli/cmd.TestParseExecFlags_GroupLong": {
@@ -6783,7 +6783,7 @@
       "tier": "fast",
       "is_slow": false,
       "last_status": "passed",
-      "last_run_at": "2026-09-22T21:45:59",
+      "last_run_at": "2026-09-22T21:56:09",
       "needs_run": false
     },
     "cli/cmd.TestParseExecFlags_GroupShort": {
@@ -6799,7 +6799,7 @@
       "tier": "fast",
       "is_slow": false,
       "last_status": "passed",
-      "last_run_at": "2026-09-22T21:45:59",
+      "last_run_at": "2026-09-22T21:56:09",
       "needs_run": false
     },
     "cli/cmd.TestParseExecFlags_All": {
@@ -6815,7 +6815,7 @@
       "tier": "fast",
       "is_slow": false,
       "last_status": "passed",
-      "last_run_at": "2026-09-22T21:45:59",
+      "last_run_at": "2026-09-22T21:56:09",
       "needs_run": false
     },
     "cli/cmd.TestParseExecFlags_NoArgs": {
@@ -6831,7 +6831,7 @@
       "tier": "fast",
       "is_slow": false,
       "last_status": "passed",
-      "last_run_at": "2026-09-22T21:45:59",
+      "last_run_at": "2026-09-22T21:56:09",
       "needs_run": false
     },
     "cli/cmd.TestHasGHDesktopInstallFlag": {
@@ -6847,7 +6847,7 @@
       "tier": "fast",
       "is_slow": false,
       "last_status": "passed",
-      "last_run_at": "2026-09-22T21:45:59",
+      "last_run_at": "2026-09-22T21:56:09",
       "needs_run": false
     },
     "cli/cmd.TestIsGHDesktopSubcommand": {
@@ -6863,7 +6863,7 @@
       "tier": "fast",
       "is_slow": false,
       "last_status": "passed",
-      "last_run_at": "2026-09-22T21:45:59",
+      "last_run_at": "2026-09-22T21:56:09",
       "needs_run": false
     },
     "cli/cmd.TestResolveGHDesktopTarget_CwdFallback": {
@@ -6879,7 +6879,7 @@
       "tier": "fast",
       "is_slow": false,
       "last_status": "passed",
-      "last_run_at": "2026-09-22T21:45:59",
+      "last_run_at": "2026-09-22T21:56:09",
       "needs_run": false
     },
     "cli/cmd.TestRegisterGHDesktop_MissingCLIReturnsValidationError": {
@@ -6895,7 +6895,7 @@
       "tier": "fast",
       "is_slow": false,
       "last_status": "passed",
-      "last_run_at": "2026-09-22T21:45:59",
+      "last_run_at": "2026-09-22T21:56:09",
       "needs_run": false
     },
     "cli/cmd.TestDeriveSlug_Simple": {
@@ -6911,7 +6911,7 @@
       "tier": "fast",
       "is_slow": false,
       "last_status": "passed",
-      "last_run_at": "2026-09-22T21:45:59",
+      "last_run_at": "2026-09-22T21:56:09",
       "needs_run": false
     },
     "cli/cmd.TestDeriveSlug_NoSlashes": {
@@ -6927,7 +6927,7 @@
       "tier": "fast",
       "is_slow": false,
       "last_status": "passed",
-      "last_run_at": "2026-09-22T21:45:59",
+      "last_run_at": "2026-09-22T21:56:09",
       "needs_run": false
     },
     "cli/cmd.TestDeriveSlug_WithAt": {
@@ -6943,7 +6943,7 @@
       "tier": "fast",
       "is_slow": false,
       "last_status": "passed",
-      "last_run_at": "2026-09-22T21:45:59",
+      "last_run_at": "2026-09-22T21:56:09",
       "needs_run": false
     },
     "cli/cmd.TestDeriveSlug_Dots": {
@@ -6959,7 +6959,7 @@
       "tier": "fast",
       "is_slow": false,
       "last_status": "passed",
-      "last_run_at": "2026-09-22T21:45:59",
+      "last_run_at": "2026-09-22T21:56:09",
       "needs_run": false
     },
     "cli/cmd.TestDeriveSlug_Empty": {
@@ -6975,7 +6975,7 @@
       "tier": "fast",
       "is_slow": false,
       "last_status": "passed",
-      "last_run_at": "2026-09-22T21:45:59",
+      "last_run_at": "2026-09-22T21:56:09",
       "needs_run": false
     },
     "cli/cmd.TestCreateGoModBranches_Names": {
@@ -6991,7 +6991,7 @@
       "tier": "fast",
       "is_slow": false,
       "last_status": "passed",
-      "last_run_at": "2026-09-22T21:45:59",
+      "last_run_at": "2026-09-22T21:56:09",
       "needs_run": false
     },
     "cli/cmd.TestParseModuleLine_Valid": {
@@ -7007,7 +7007,7 @@
       "tier": "fast",
       "is_slow": false,
       "last_status": "passed",
-      "last_run_at": "2026-09-22T21:45:59",
+      "last_run_at": "2026-09-22T21:56:09",
       "needs_run": false
     },
     "cli/cmd.TestParseModuleLine_WithSpaces": {
@@ -7023,7 +7023,7 @@
       "tier": "fast",
       "is_slow": false,
       "last_status": "passed",
-      "last_run_at": "2026-09-22T21:45:59",
+      "last_run_at": "2026-09-22T21:56:09",
       "needs_run": false
     },
     "cli/cmd.TestParseModuleLine_MultipleLines": {
@@ -7039,7 +7039,7 @@
       "tier": "fast",
       "is_slow": false,
       "last_status": "passed",
-      "last_run_at": "2026-09-22T21:45:59",
+      "last_run_at": "2026-09-22T21:56:09",
       "needs_run": false
     },
     "cli/cmd.TestMatchesExtFilter_EmptySlice": {
@@ -7055,7 +7055,7 @@
       "tier": "fast",
       "is_slow": false,
       "last_status": "passed",
-      "last_run_at": "2026-09-22T21:45:59",
+      "last_run_at": "2026-09-22T21:56:09",
       "needs_run": false
     },
     "cli/cmd.TestIsExcludedDir_Git": {
@@ -7071,7 +7071,7 @@
       "tier": "fast",
       "is_slow": false,
       "last_status": "passed",
-      "last_run_at": "2026-09-22T21:45:59",
+      "last_run_at": "2026-09-22T21:56:09",
       "needs_run": false
     },
     "cli/cmd.TestIsExcludedDir_Vendor": {
@@ -7087,7 +7087,7 @@
       "tier": "fast",
       "is_slow": false,
       "last_status": "passed",
-      "last_run_at": "2026-09-22T21:45:59",
+      "last_run_at": "2026-09-22T21:56:09",
       "needs_run": false
     },
     "cli/cmd.TestIsExcludedDir_NodeModules": {
@@ -7103,7 +7103,7 @@
       "tier": "fast",
       "is_slow": false,
       "last_status": "passed",
-      "last_run_at": "2026-09-22T21:45:59",
+      "last_run_at": "2026-09-22T21:56:09",
       "needs_run": false
     },
     "cli/cmd.TestIsExcludedDir_Regular": {
@@ -7119,7 +7119,7 @@
       "tier": "fast",
       "is_slow": false,
       "last_status": "passed",
-      "last_run_at": "2026-09-22T21:45:59",
+      "last_run_at": "2026-09-22T21:56:09",
       "needs_run": false
     },
     "cli/cmd.TestFileContains_NotFound": {
@@ -7135,7 +7135,7 @@
       "tier": "fast",
       "is_slow": false,
       "last_status": "passed",
-      "last_run_at": "2026-09-22T21:45:59",
+      "last_run_at": "2026-09-22T21:56:09",
       "needs_run": false
     },
     "cli/cmd.TestDeriveSlug_Integration": {
@@ -7151,7 +7151,7 @@
       "tier": "fast",
       "is_slow": false,
       "last_status": "passed",
-      "last_run_at": "2026-09-22T21:45:59",
+      "last_run_at": "2026-09-22T21:56:09",
       "needs_run": false
     },
     "cli/cmd.TestParseExtFlag_Empty": {
@@ -7167,7 +7167,7 @@
       "tier": "fast",
       "is_slow": false,
       "last_status": "passed",
-      "last_run_at": "2026-09-22T21:45:59",
+      "last_run_at": "2026-09-22T21:56:09",
       "needs_run": false
     },
     "cli/cmd.TestParseExtFlag_Single": {
@@ -7183,7 +7183,7 @@
       "tier": "fast",
       "is_slow": false,
       "last_status": "passed",
-      "last_run_at": "2026-09-22T21:45:59",
+      "last_run_at": "2026-09-22T21:56:09",
       "needs_run": false
     },
     "cli/cmd.TestParseExtFlag_Multiple": {
@@ -7199,7 +7199,7 @@
       "tier": "fast",
       "is_slow": false,
       "last_status": "passed",
-      "last_run_at": "2026-09-22T21:45:59",
+      "last_run_at": "2026-09-22T21:56:09",
       "needs_run": false
     },
     "cli/cmd.TestParseExtFlag_WithSpaces": {
@@ -7215,7 +7215,7 @@
       "tier": "fast",
       "is_slow": false,
       "last_status": "passed",
-      "last_run_at": "2026-09-22T21:45:59",
+      "last_run_at": "2026-09-22T21:56:09",
       "needs_run": false
     },
     "cli/cmd.TestParseExtFlag_NoStar": {
@@ -7231,7 +7231,7 @@
       "tier": "fast",
       "is_slow": false,
       "last_status": "passed",
-      "last_run_at": "2026-09-22T21:45:59",
+      "last_run_at": "2026-09-22T21:56:09",
       "needs_run": false
     },
     "cli/cmd.TestMatchesExtFilter_EmptyAllows": {
@@ -7247,7 +7247,7 @@
       "tier": "fast",
       "is_slow": false,
       "last_status": "passed",
-      "last_run_at": "2026-09-22T21:45:59",
+      "last_run_at": "2026-09-22T21:56:09",
       "needs_run": false
     },
     "cli/cmd.TestMatchesExtFilter_Match": {
@@ -7263,7 +7263,7 @@
       "tier": "fast",
       "is_slow": false,
       "last_status": "passed",
-      "last_run_at": "2026-09-22T21:45:59",
+      "last_run_at": "2026-09-22T21:56:09",
       "needs_run": false
     },
     "cli/cmd.TestMatchesExtFilter_NoMatch": {
@@ -7279,7 +7279,7 @@
       "tier": "fast",
       "is_slow": false,
       "last_status": "passed",
-      "last_run_at": "2026-09-22T21:45:59",
+      "last_run_at": "2026-09-22T21:56:09",
       "needs_run": false
     },
     "cli/cmd.TestMatchesExtFilter_NoExtension": {
@@ -7295,7 +7295,7 @@
       "tier": "fast",
       "is_slow": false,
       "last_status": "passed",
-      "last_run_at": "2026-09-22T21:45:59",
+      "last_run_at": "2026-09-22T21:56:09",
       "needs_run": false
     },
     "cli/cmd.TestParseGoModFlags_Defaults": {
@@ -7311,7 +7311,7 @@
       "tier": "fast",
       "is_slow": false,
       "last_status": "passed",
-      "last_run_at": "2026-09-22T21:45:59",
+      "last_run_at": "2026-09-22T21:56:09",
       "needs_run": false
     },
     "cli/cmd.TestParseGoModFlags_AllFlags": {
@@ -7327,7 +7327,7 @@
       "tier": "fast",
       "is_slow": false,
       "last_status": "passed",
-      "last_run_at": "2026-09-22T21:45:59",
+      "last_run_at": "2026-09-22T21:56:09",
       "needs_run": false
     },
     "cli/cmd.TestParseGoModFlags_NoArgs": {
@@ -7343,7 +7343,7 @@
       "tier": "fast",
       "is_slow": false,
       "last_status": "passed",
-      "last_run_at": "2026-09-22T21:45:59",
+      "last_run_at": "2026-09-22T21:56:09",
       "needs_run": false
     },
     "cli/cmd.TestInitFunc009": {
@@ -7359,7 +7359,7 @@
       "tier": "fast",
       "is_slow": false,
       "last_status": "passed",
-      "last_run_at": "2026-09-22T21:45:59",
+      "last_run_at": "2026-09-22T21:56:09",
       "needs_run": false
     },
     "cli/cmd.TestInitFunc010": {
@@ -7375,7 +7375,7 @@
       "tier": "fast",
       "is_slow": false,
       "last_status": "passed",
-      "last_run_at": "2026-09-22T21:45:59",
+      "last_run_at": "2026-09-22T21:56:09",
       "needs_run": false
     },
     "cli/cmd.TestTerminalCommandExecAPI": {
@@ -7391,7 +7391,7 @@
       "tier": "fast",
       "is_slow": false,
       "last_status": "passed",
-      "last_run_at": "2026-09-22T21:45:59",
+      "last_run_at": "2026-09-22T21:56:09",
       "needs_run": false
     },
     "cli/cmd.TestIsHelpRequestedOrEmpty_EmptyAndNil": {
@@ -7407,7 +7407,7 @@
       "tier": "fast",
       "is_slow": false,
       "last_status": "passed",
-      "last_run_at": "2026-09-22T21:45:59",
+      "last_run_at": "2026-09-22T21:56:09",
       "needs_run": false
     },
     "cli/cmd.TestIsHelpRequestedOrEmpty_HelpFlags": {
@@ -7423,7 +7423,7 @@
       "tier": "fast",
       "is_slow": false,
       "last_status": "passed",
-      "last_run_at": "2026-09-22T21:45:59",
+      "last_run_at": "2026-09-22T21:56:09",
       "needs_run": false
     },
     "cli/cmd.TestIsHelpRequestedOrEmpty_NonHelpArgs": {
@@ -7439,7 +7439,7 @@
       "tier": "fast",
       "is_slow": false,
       "last_status": "passed",
-      "last_run_at": "2026-09-22T21:45:59",
+      "last_run_at": "2026-09-22T21:56:09",
       "needs_run": false
     },
     "cli/cmd.TestCheckHelpOrEmpty_ExitsOnHelp": {
@@ -7455,7 +7455,7 @@
       "tier": "fast",
       "is_slow": false,
       "last_status": "passed",
-      "last_run_at": "2026-09-22T21:45:59",
+      "last_run_at": "2026-09-22T21:56:09",
       "needs_run": false
     },
     "cli/cmd.TestCheckHelpOrEmpty_ExitsOnEmpty": {
@@ -7471,7 +7471,7 @@
       "tier": "fast",
       "is_slow": false,
       "last_status": "passed",
-      "last_run_at": "2026-09-22T21:45:59",
+      "last_run_at": "2026-09-22T21:56:09",
       "needs_run": false
     },
     "cli/cmd.TestCheckHelpOrEmpty_ContinuesOnArgs": {
@@ -7487,7 +7487,7 @@
       "tier": "fast",
       "is_slow": false,
       "last_status": "passed",
-      "last_run_at": "2026-09-22T21:45:59",
+      "last_run_at": "2026-09-22T21:56:09",
       "needs_run": false
     },
     "cli/cmd.TestOpenHostedDocsFallbackPrintsURL": {
@@ -7503,7 +7503,7 @@
       "tier": "fast",
       "is_slow": false,
       "last_status": "passed",
-      "last_run_at": "2026-09-22T21:45:59",
+      "last_run_at": "2026-09-22T21:56:09",
       "needs_run": false
     },
     "cli/cmd.TestOpenURLNonFatalOnMissingLauncher": {
@@ -7519,7 +7519,7 @@
       "tier": "fast",
       "is_slow": false,
       "last_status": "passed",
-      "last_run_at": "2026-09-22T21:45:59",
+      "last_run_at": "2026-09-22T21:56:09",
       "needs_run": false
     },
     "cli/cmd.TestHelpJSONSchema_TopLevelShape": {
@@ -7535,7 +7535,7 @@
       "tier": "fast",
       "is_slow": false,
       "last_status": "passed",
-      "last_run_at": "2026-09-22T21:45:59",
+      "last_run_at": "2026-09-22T21:56:09",
       "needs_run": false
     },
     "cli/cmd.TestHelpJSONSchema_EncoderMatchesSchema": {
@@ -7551,7 +7551,7 @@
       "tier": "fast",
       "is_slow": false,
       "last_status": "passed",
-      "last_run_at": "2026-09-22T21:45:59",
+      "last_run_at": "2026-09-22T21:56:09",
       "needs_run": false
     },
     "cli/cmd.TestHistoryJSONContract_EmptyIsArrayNotNull": {
@@ -7567,7 +7567,7 @@
       "tier": "fast",
       "is_slow": false,
       "last_status": "passed",
-      "last_run_at": "2026-09-22T21:45:59",
+      "last_run_at": "2026-09-22T21:56:09",
       "needs_run": false
     },
     "cli/cmd.TestHistoryJSONContract_CanonicalRow_KeyOrders": {
@@ -7583,7 +7583,7 @@
       "tier": "fast",
       "is_slow": false,
       "last_status": "passed",
-      "last_run_at": "2026-09-22T21:45:59",
+      "last_run_at": "2026-09-22T21:56:09",
       "needs_run": false
     },
     "cli/cmd.TestParseHistoryPathsNormalizesAllInputForms": {
@@ -7599,7 +7599,7 @@
       "tier": "fast",
       "is_slow": false,
       "last_status": "passed",
-      "last_run_at": "2026-09-22T21:45:59",
+      "last_run_at": "2026-09-22T21:56:09",
       "needs_run": false
     },
     "cli/cmd.TestBuildPinCallbackPythonUsesGlobalsCache": {
@@ -7615,7 +7615,7 @@
       "tier": "fast",
       "is_slow": false,
       "last_status": "passed",
-      "last_run_at": "2026-09-22T21:45:59",
+      "last_run_at": "2026-09-22T21:56:09",
       "needs_run": false
     },
     "cli/cmd.TestParseBlobShasFromRawLogRequiresFullSha": {
@@ -7631,7 +7631,7 @@
       "tier": "fast",
       "is_slow": false,
       "last_status": "passed",
-      "last_run_at": "2026-09-22T21:45:59",
+      "last_run_at": "2026-09-22T21:56:09",
       "needs_run": false
     },
     "cli/cmd.TestHistoryJSONSchema_TopLevelShape": {
@@ -7647,7 +7647,7 @@
       "tier": "fast",
       "is_slow": false,
       "last_status": "passed",
-      "last_run_at": "2026-09-22T21:45:59",
+      "last_run_at": "2026-09-22T21:56:09",
       "needs_run": false
     },
     "cli/cmd.TestHistoryJSONSchema_EncoderMatchesSchema": {
@@ -7663,7 +7663,7 @@
       "tier": "fast",
       "is_slow": false,
       "last_status": "passed",
-      "last_run_at": "2026-09-22T21:45:59",
+      "last_run_at": "2026-09-22T21:56:09",
       "needs_run": false
     },
     "cli/cmd.TestParseHygieneFormat": {
@@ -7679,7 +7679,7 @@
       "tier": "fast",
       "is_slow": false,
       "last_status": "passed",
-      "last_run_at": "2026-09-22T21:45:59",
+      "last_run_at": "2026-09-22T21:56:09",
       "needs_run": false
     },
     "cli/cmd.TestEmitJSONAndCSV": {
@@ -7695,7 +7695,7 @@
       "tier": "fast",
       "is_slow": false,
       "last_status": "passed",
-      "last_run_at": "2026-09-22T21:45:59",
+      "last_run_at": "2026-09-22T21:56:09",
       "needs_run": false
     },
     "cli/cmd.TestRunIPChangeCmd": {
@@ -7711,7 +7711,7 @@
       "tier": "fast",
       "is_slow": false,
       "last_status": "passed",
-      "last_run_at": "2026-09-22T21:45:59",
+      "last_run_at": "2026-09-22T21:56:09",
       "needs_run": false
     },
     "cli/cmd.TestValidatePing": {
@@ -7727,7 +7727,7 @@
       "tier": "fast",
       "is_slow": false,
       "last_status": "passed",
-      "last_run_at": "2026-09-22T21:45:59",
+      "last_run_at": "2026-09-22T21:56:09",
       "needs_run": false
     },
     "cli/cmd.TestExecuteIPChange": {
@@ -7743,7 +7743,7 @@
       "tier": "fast",
       "is_slow": false,
       "last_status": "passed",
-      "last_run_at": "2026-09-22T21:45:59",
+      "last_run_at": "2026-09-22T21:56:09",
       "needs_run": false
     },
     "cli/cmd.Test_runSSHJoin": {
@@ -7759,7 +7759,7 @@
       "tier": "fast",
       "is_slow": false,
       "last_status": "passed",
-      "last_run_at": "2026-09-22T21:45:59",
+      "last_run_at": "2026-09-22T21:56:09",
       "needs_run": false
     },
     "cli/cmd.Test_runSJRm": {
@@ -7775,7 +7775,7 @@
       "tier": "fast",
       "is_slow": false,
       "last_status": "passed",
-      "last_run_at": "2026-09-22T21:45:59",
+      "last_run_at": "2026-09-22T21:56:09",
       "needs_run": false
     },
     "cli/cmd.TestRunIPCmd": {
@@ -7791,7 +7791,7 @@
       "tier": "fast",
       "is_slow": false,
       "last_status": "passed",
-      "last_run_at": "2026-09-22T21:45:59",
+      "last_run_at": "2026-09-22T21:56:09",
       "needs_run": false
     },
     "cli/cmd.TestExecuteIPCmd": {
@@ -7807,7 +7807,7 @@
       "tier": "fast",
       "is_slow": false,
       "last_status": "passed",
-      "last_run_at": "2026-09-22T21:45:59",
+      "last_run_at": "2026-09-22T21:56:09",
       "needs_run": false
     },
     "cli/cmd.TestIPResolver": {
@@ -7823,7 +7823,7 @@
       "tier": "fast",
       "is_slow": false,
       "last_status": "passed",
-      "last_run_at": "2026-09-22T21:45:59",
+      "last_run_at": "2026-09-22T21:56:09",
       "needs_run": false
     },
     "cli/cmd.TestGetLocalIP": {
@@ -7839,7 +7839,7 @@
       "tier": "fast",
       "is_slow": false,
       "last_status": "passed",
-      "last_run_at": "2026-09-22T21:45:59",
+      "last_run_at": "2026-09-22T21:56:09",
       "needs_run": false
     },
     "cli/cmd.TestRunJoin_ZeroArgsTriggersHelp": {
@@ -7855,7 +7855,7 @@
       "tier": "fast",
       "is_slow": false,
       "last_status": "passed",
-      "last_run_at": "2026-09-22T21:45:59",
+      "last_run_at": "2026-09-22T21:56:09",
       "needs_run": false
     },
     "cli/cmd.TestRunJoin_HelpFlags": {
@@ -7871,7 +7871,7 @@
       "tier": "fast",
       "is_slow": false,
       "last_status": "passed",
-      "last_run_at": "2026-09-22T21:45:59",
+      "last_run_at": "2026-09-22T21:56:09",
       "needs_run": false
     },
     "cli/cmd.TestRunJoin_MissingAddress": {
@@ -7887,7 +7887,7 @@
       "tier": "fast",
       "is_slow": false,
       "last_status": "passed",
-      "last_run_at": "2026-09-22T21:45:59",
+      "last_run_at": "2026-09-22T21:56:09",
       "needs_run": false
     },
     "cli/cmd.TestRunJoin_MissingToken": {
@@ -7903,7 +7903,7 @@
       "tier": "fast",
       "is_slow": false,
       "last_status": "passed",
-      "last_run_at": "2026-09-22T21:45:59",
+      "last_run_at": "2026-09-22T21:56:09",
       "needs_run": false
     },
     "cli/cmd.TestRunJoin_InvalidFlag": {
@@ -7919,7 +7919,7 @@
       "tier": "fast",
       "is_slow": false,
       "last_status": "passed",
-      "last_run_at": "2026-09-22T21:45:59",
+      "last_run_at": "2026-09-22T21:56:09",
       "needs_run": false
     },
     "cli/cmd.TestRunJoin_HandshakeFailure": {
@@ -7935,7 +7935,7 @@
       "tier": "fast",
       "is_slow": false,
       "last_status": "passed",
-      "last_run_at": "2026-09-22T21:45:59",
+      "last_run_at": "2026-09-22T21:56:09",
       "needs_run": false
     },
     "cli/cmd.TestRunJoin_Success": {
@@ -7951,7 +7951,7 @@
       "tier": "fast",
       "is_slow": false,
       "last_status": "passed",
-      "last_run_at": "2026-09-22T21:45:59",
+      "last_run_at": "2026-09-22T21:56:09",
       "needs_run": false
     },
     "cli/cmd.TestAssertGoldenBytesDeterministic_DetectsDivergence": {
@@ -7967,7 +7967,7 @@
       "tier": "fast",
       "is_slow": false,
       "last_status": "passed",
-      "last_run_at": "2026-09-22T21:45:59",
+      "last_run_at": "2026-09-22T21:56:09",
       "needs_run": false
     },
     "cli/cmd.TestAssertGoldenBytesDeterministic_PassesDeterministicEncoder": {
@@ -7983,7 +7983,7 @@
       "tier": "fast",
       "is_slow": false,
       "last_status": "passed",
-      "last_run_at": "2026-09-22T21:45:59",
+      "last_run_at": "2026-09-22T21:56:09",
       "needs_run": false
     },
     "cli/cmd.TestAssertGoldenBytesDeterministic_RunCount": {
@@ -7999,7 +7999,7 @@
       "tier": "fast",
       "is_slow": false,
       "last_status": "passed",
-      "last_run_at": "2026-09-22T21:45:59",
+      "last_run_at": "2026-09-22T21:56:09",
       "needs_run": false
     },
     "cli/cmd.TestExpectDelim_FailureMessages": {
@@ -8015,7 +8015,7 @@
       "tier": "fast",
       "is_slow": false,
       "last_status": "passed",
-      "last_run_at": "2026-09-22T21:45:59",
+      "last_run_at": "2026-09-22T21:56:09",
       "needs_run": false
     },
     "cli/cmd.TestScanEveryObjectKeysPure_PointsAtBrokenObject": {
@@ -8031,7 +8031,7 @@
       "tier": "fast",
       "is_slow": false,
       "last_status": "passed",
-      "last_run_at": "2026-09-22T21:45:59",
+      "last_run_at": "2026-09-22T21:56:09",
       "needs_run": false
     },
     "cli/cmd.TestScanEveryObjectKeysPure_HappyPath": {
@@ -8047,7 +8047,7 @@
       "tier": "fast",
       "is_slow": false,
       "last_status": "passed",
-      "last_run_at": "2026-09-22T21:45:59",
+      "last_run_at": "2026-09-22T21:56:09",
       "needs_run": false
     },
     "cli/cmd.TestLatestBranchJSONContract_NoTopOmitsKey": {
@@ -8063,7 +8063,7 @@
       "tier": "fast",
       "is_slow": false,
       "last_status": "passed",
-      "last_run_at": "2026-09-22T21:45:59",
+      "last_run_at": "2026-09-22T21:56:09",
       "needs_run": false
     },
     "cli/cmd.TestLatestBranchJSONContract_WithTopIncludesKey": {
@@ -8079,7 +8079,7 @@
       "tier": "fast",
       "is_slow": false,
       "last_status": "passed",
-      "last_run_at": "2026-09-22T21:45:59",
+      "last_run_at": "2026-09-22T21:56:09",
       "needs_run": false
     },
     "cli/cmd.TestLatestBranchJSONSchema_TopLevelShape": {
@@ -8095,7 +8095,7 @@
       "tier": "fast",
       "is_slow": false,
       "last_status": "passed",
-      "last_run_at": "2026-09-22T21:45:59",
+      "last_run_at": "2026-09-22T21:56:09",
       "needs_run": false
     },
     "cli/cmd.TestLatestBranchJSONSchema_EncoderMatchesSchema": {
@@ -8111,7 +8111,7 @@
       "tier": "fast",
       "is_slow": false,
       "last_status": "passed",
-      "last_run_at": "2026-09-22T21:45:59",
+      "last_run_at": "2026-09-22T21:56:09",
       "needs_run": false
     },
     "cli/cmd.TestLFSCommonPatternsMatchSpec": {
@@ -8127,7 +8127,7 @@
       "tier": "fast",
       "is_slow": false,
       "last_status": "passed",
-      "last_run_at": "2026-09-22T21:45:59",
+      "last_run_at": "2026-09-22T21:56:09",
       "needs_run": false
     },
     "cli/cmd.TestLFSCommonPatternsAreUnique": {
@@ -8143,7 +8143,7 @@
       "tier": "fast",
       "is_slow": false,
       "last_status": "passed",
-      "last_run_at": "2026-09-22T21:45:59",
+      "last_run_at": "2026-09-22T21:56:09",
       "needs_run": false
     },
     "cli/cmd.TestListReleasesSchema_TopLevelIsArray": {
@@ -8159,7 +8159,7 @@
       "tier": "fast",
       "is_slow": false,
       "last_status": "passed",
-      "last_run_at": "2026-09-22T21:45:59",
+      "last_run_at": "2026-09-22T21:56:09",
       "needs_run": false
     },
     "cli/cmd.TestListReleasesSchema_RequiredKeysMatchEncoder": {
@@ -8175,7 +8175,7 @@
       "tier": "fast",
       "is_slow": false,
       "last_status": "passed",
-      "last_run_at": "2026-09-22T21:45:59",
+      "last_run_at": "2026-09-22T21:56:09",
       "needs_run": false
     },
     "cli/cmd.TestListReleasesSchema_PropertyOrderMatchesEncoder": {
@@ -8191,7 +8191,7 @@
       "tier": "fast",
       "is_slow": false,
       "last_status": "passed",
-      "last_run_at": "2026-09-22T21:45:59",
+      "last_run_at": "2026-09-22T21:56:09",
       "needs_run": false
     },
     "cli/cmd.TestListReleasesSchema_EmptyEncodesAsArray": {
@@ -8207,7 +8207,7 @@
       "tier": "fast",
       "is_slow": false,
       "last_status": "passed",
-      "last_run_at": "2026-09-22T21:45:59",
+      "last_run_at": "2026-09-22T21:56:09",
       "needs_run": false
     },
     "cli/cmd.TestListReleasesAllReposSchema_RequiredKeysMatchEncoder": {
@@ -8223,7 +8223,7 @@
       "tier": "fast",
       "is_slow": false,
       "last_status": "passed",
-      "last_run_at": "2026-09-22T21:45:59",
+      "last_run_at": "2026-09-22T21:56:09",
       "needs_run": false
     },
     "cli/cmd.TestListReleasesAllReposSchema_PropertyOrderMatchesEncoder": {
@@ -8239,7 +8239,7 @@
       "tier": "fast",
       "is_slow": false,
       "last_status": "passed",
-      "last_run_at": "2026-09-22T21:45:59",
+      "last_run_at": "2026-09-22T21:56:09",
       "needs_run": false
     },
     "cli/cmd.TestListReleasesAllReposSchema_EmptyEncodesAsArray": {
@@ -8255,7 +8255,7 @@
       "tier": "fast",
       "is_slow": false,
       "last_status": "passed",
-      "last_run_at": "2026-09-22T21:45:59",
+      "last_run_at": "2026-09-22T21:56:09",
       "needs_run": false
     },
     "cli/cmd.TestListReleasesJSON_ByteCompatWithLegacyMarshalIndent": {
@@ -8271,7 +8271,7 @@
       "tier": "fast",
       "is_slow": false,
       "last_status": "passed",
-      "last_run_at": "2026-09-22T21:45:59",
+      "last_run_at": "2026-09-22T21:56:09",
       "needs_run": false
     },
     "cli/cmd.TestListReleasesAllReposJSON_ByteCompatWithLegacyMarshalIndent": {
@@ -8287,7 +8287,7 @@
       "tier": "fast",
       "is_slow": false,
       "last_status": "passed",
-      "last_run_at": "2026-09-22T21:45:59",
+      "last_run_at": "2026-09-22T21:56:09",
       "needs_run": false
     },
     "cli/cmd.TestListVersionsJSONContract_EmptyIsArrayNotNull": {
@@ -8303,7 +8303,7 @@
       "tier": "fast",
       "is_slow": false,
       "last_status": "passed",
-      "last_run_at": "2026-09-22T21:45:59",
+      "last_run_at": "2026-09-22T21:56:09",
       "needs_run": false
     },
     "cli/cmd.TestListVersionsJSONContract_CanonicalRows": {
@@ -8319,7 +8319,7 @@
       "tier": "fast",
       "is_slow": false,
       "last_status": "passed",
-      "last_run_at": "2026-09-22T21:45:59",
+      "last_run_at": "2026-09-22T21:56:09",
       "needs_run": false
     },
     "cli/cmd.TestListVersionsJSONContract_KeyOrder": {
@@ -8335,7 +8335,7 @@
       "tier": "fast",
       "is_slow": false,
       "last_status": "passed",
-      "last_run_at": "2026-09-22T21:45:59",
+      "last_run_at": "2026-09-22T21:56:09",
       "needs_run": false
     },
     "cli/cmd.TestListVersionsJSONSchema_TopLevelShape": {
@@ -8351,7 +8351,7 @@
       "tier": "fast",
       "is_slow": false,
       "last_status": "passed",
-      "last_run_at": "2026-09-22T21:45:59",
+      "last_run_at": "2026-09-22T21:56:09",
       "needs_run": false
     },
     "cli/cmd.TestListVersionsJSONSchema_EncoderMatchesSchema": {
@@ -8367,7 +8367,7 @@
       "tier": "fast",
       "is_slow": false,
       "last_status": "passed",
-      "last_run_at": "2026-09-22T21:45:59",
+      "last_run_at": "2026-09-22T21:56:09",
       "needs_run": false
     },
     "cli/cmd.TestLLMDocsJSONContract_EmptyIsObjectNotNull": {
@@ -8383,7 +8383,7 @@
       "tier": "fast",
       "is_slow": false,
       "last_status": "passed",
-      "last_run_at": "2026-09-22T21:45:59",
+      "last_run_at": "2026-09-22T21:56:09",
       "needs_run": false
     },
     "cli/cmd.TestLLMDocsJSONContract_TopLevelKeyOrder": {
@@ -8399,7 +8399,7 @@
       "tier": "fast",
       "is_slow": false,
       "last_status": "passed",
-      "last_run_at": "2026-09-22T21:45:59",
+      "last_run_at": "2026-09-22T21:56:09",
       "needs_run": false
     },
     "cli/cmd.TestLLMDocsJSONContract_CommandGroupKeyOrder": {
@@ -8415,7 +8415,7 @@
       "tier": "fast",
       "is_slow": false,
       "last_status": "passed",
-      "last_run_at": "2026-09-22T21:45:59",
+      "last_run_at": "2026-09-22T21:56:09",
       "needs_run": false
     },
     "cli/cmd.TestLLMDocsJSONSchema_TopLevelShape": {
@@ -8431,7 +8431,7 @@
       "tier": "fast",
       "is_slow": false,
       "last_status": "passed",
-      "last_run_at": "2026-09-22T21:45:59",
+      "last_run_at": "2026-09-22T21:56:09",
       "needs_run": false
     },
     "cli/cmd.TestLLMDocsJSONSchema_EncoderMatchesSchema": {
@@ -8447,7 +8447,7 @@
       "tier": "fast",
       "is_slow": false,
       "last_status": "passed",
-      "last_run_at": "2026-09-22T21:45:59",
+      "last_run_at": "2026-09-22T21:56:09",
       "needs_run": false
     },
     "cli/cmd.TestLLMDocsJSONSchema_NestedCommandShape": {
@@ -8463,7 +8463,7 @@
       "tier": "fast",
       "is_slow": false,
       "last_status": "passed",
-      "last_run_at": "2026-09-22T21:45:59",
+      "last_run_at": "2026-09-22T21:56:09",
       "needs_run": false
     },
     "cli/cmd.TestParseSections_Empty": {
@@ -8479,7 +8479,7 @@
       "tier": "fast",
       "is_slow": false,
       "last_status": "passed",
-      "last_run_at": "2026-09-22T21:45:59",
+      "last_run_at": "2026-09-22T21:56:09",
       "needs_run": false
     },
     "cli/cmd.TestParseSections_SingleValid": {
@@ -8495,7 +8495,7 @@
       "tier": "fast",
       "is_slow": false,
       "last_status": "passed",
-      "last_run_at": "2026-09-22T21:45:59",
+      "last_run_at": "2026-09-22T21:56:09",
       "needs_run": false
     },
     "cli/cmd.TestParseSections_MultipleValid": {
@@ -8511,7 +8511,7 @@
       "tier": "fast",
       "is_slow": false,
       "last_status": "passed",
-      "last_run_at": "2026-09-22T21:45:59",
+      "last_run_at": "2026-09-22T21:56:09",
       "needs_run": false
     },
     "cli/cmd.TestParseSections_AllValid": {
@@ -8527,7 +8527,7 @@
       "tier": "fast",
       "is_slow": false,
       "last_status": "passed",
-      "last_run_at": "2026-09-22T21:45:59",
+      "last_run_at": "2026-09-22T21:56:09",
       "needs_run": false
     },
     "cli/cmd.TestParseSections_TrailingComma": {
@@ -8543,7 +8543,7 @@
       "tier": "fast",
       "is_slow": false,
       "last_status": "passed",
-      "last_run_at": "2026-09-22T21:45:59",
+      "last_run_at": "2026-09-22T21:56:09",
       "needs_run": false
     },
     "cli/cmd.TestParseSections_WhitespaceHandling": {
@@ -8559,7 +8559,7 @@
       "tier": "fast",
       "is_slow": false,
       "last_status": "passed",
-      "last_run_at": "2026-09-22T21:45:59",
+      "last_run_at": "2026-09-22T21:56:09",
       "needs_run": false
     },
     "cli/cmd.TestWantSection_NilSetIncludesAll": {
@@ -8575,7 +8575,7 @@
       "tier": "fast",
       "is_slow": false,
       "last_status": "passed",
-      "last_run_at": "2026-09-22T21:45:59",
+      "last_run_at": "2026-09-22T21:56:09",
       "needs_run": false
     },
     "cli/cmd.TestWantSection_FilteredSet": {
@@ -8591,7 +8591,7 @@
       "tier": "fast",
       "is_slow": false,
       "last_status": "passed",
-      "last_run_at": "2026-09-22T21:45:59",
+      "last_run_at": "2026-09-22T21:56:09",
       "needs_run": false
     },
     "cli/cmd.TestWantSection_EmptySet": {
@@ -8607,7 +8607,7 @@
       "tier": "fast",
       "is_slow": false,
       "last_status": "passed",
-      "last_run_at": "2026-09-22T21:45:59",
+      "last_run_at": "2026-09-22T21:56:09",
       "needs_run": false
     },
     "cli/cmd.TestResolveMkdirAbsPath": {
@@ -8623,7 +8623,7 @@
       "tier": "fast",
       "is_slow": false,
       "last_status": "passed",
-      "last_run_at": "2026-09-22T21:45:59",
+      "last_run_at": "2026-09-22T21:56:09",
       "needs_run": false
     },
     "cli/cmd.TestRunMkdir": {
@@ -8639,7 +8639,7 @@
       "tier": "fast",
       "is_slow": false,
       "last_status": "passed",
-      "last_run_at": "2026-09-22T21:45:59",
+      "last_run_at": "2026-09-22T21:56:09",
       "needs_run": false
     },
     "cli/cmd.TestUpdateRepoInDB_Success": {
@@ -8655,7 +8655,7 @@
       "tier": "fast",
       "is_slow": false,
       "last_status": "passed",
-      "last_run_at": "2026-09-22T21:45:59",
+      "last_run_at": "2026-09-22T21:56:09",
       "needs_run": false
     },
     "cli/cmd.TestRemoveRepoDB_Success": {
@@ -8671,7 +8671,7 @@
       "tier": "fast",
       "is_slow": false,
       "last_status": "passed",
-      "last_run_at": "2026-09-22T21:45:59",
+      "last_run_at": "2026-09-22T21:56:09",
       "needs_run": false
     },
     "cli/cmd.TestRemoveRepoDB_RollbackOnError": {
@@ -8687,7 +8687,7 @@
       "tier": "fast",
       "is_slow": false,
       "last_status": "passed",
-      "last_run_at": "2026-09-22T21:45:59",
+      "last_run_at": "2026-09-22T21:56:09",
       "needs_run": false
     },
     "cli/cmd.TestPipelineRecorderAndSyncCacheHelpers": {
@@ -8703,7 +8703,7 @@
       "tier": "fast",
       "is_slow": false,
       "last_status": "passed",
-      "last_run_at": "2026-09-22T21:45:59",
+      "last_run_at": "2026-09-22T21:56:09",
       "needs_run": false
     },
     "cli/cmd.TestCalculateDestPath": {
@@ -8719,7 +8719,7 @@
       "tier": "fast",
       "is_slow": false,
       "last_status": "passed",
-      "last_run_at": "2026-09-22T21:45:59",
+      "last_run_at": "2026-09-22T21:56:09",
       "needs_run": false
     },
     "cli/cmd.TestNginxStatus": {
@@ -8735,7 +8735,7 @@
       "tier": "fast",
       "is_slow": false,
       "last_status": "passed",
-      "last_run_at": "2026-09-22T21:45:59",
+      "last_run_at": "2026-09-22T21:56:09",
       "needs_run": false
     },
     "cli/cmd.TestNginxStatusSubcommand": {
@@ -8751,7 +8751,7 @@
       "tier": "fast",
       "is_slow": false,
       "last_status": "passed",
-      "last_run_at": "2026-09-22T21:45:59",
+      "last_run_at": "2026-09-22T21:56:09",
       "needs_run": false
     },
     "cli/cmd.TestNginxUnknownSubcommand": {
@@ -8767,7 +8767,7 @@
       "tier": "fast",
       "is_slow": false,
       "last_status": "passed",
-      "last_run_at": "2026-09-22T21:45:59",
+      "last_run_at": "2026-09-22T21:56:09",
       "needs_run": false
     },
     "cli/cmd.TestNginxVHostDispatch": {
@@ -8783,7 +8783,7 @@
       "tier": "fast",
       "is_slow": false,
       "last_status": "passed",
-      "last_run_at": "2026-09-22T21:45:59",
+      "last_run_at": "2026-09-22T21:56:09",
       "needs_run": false
     },
     "cli/cmd.TestNginxVHostAliases": {
@@ -8799,7 +8799,7 @@
       "tier": "fast",
       "is_slow": false,
       "last_status": "passed",
-      "last_run_at": "2026-09-22T21:45:59",
+      "last_run_at": "2026-09-22T21:56:09",
       "needs_run": false
     },
     "cli/cmd.TestNginxDispatchTestAndReloadDryRun": {
@@ -8815,7 +8815,7 @@
       "tier": "fast",
       "is_slow": false,
       "last_status": "passed",
-      "last_run_at": "2026-09-22T21:45:59",
+      "last_run_at": "2026-09-22T21:56:09",
       "needs_run": false
     },
     "cli/cmd.TestNginxAddDomainDryRun": {
@@ -8831,7 +8831,7 @@
       "tier": "fast",
       "is_slow": false,
       "last_status": "passed",
-      "last_run_at": "2026-09-22T21:45:59",
+      "last_run_at": "2026-09-22T21:56:09",
       "needs_run": false
     },
     "cli/cmd.TestNginxRmDomainDryRun": {
@@ -8847,7 +8847,7 @@
       "tier": "fast",
       "is_slow": false,
       "last_status": "passed",
-      "last_run_at": "2026-09-22T21:45:59",
+      "last_run_at": "2026-09-22T21:56:09",
       "needs_run": false
     },
     "cli/cmd.TestNginxIniShowcase": {
@@ -8863,7 +8863,7 @@
       "tier": "fast",
       "is_slow": false,
       "last_status": "passed",
-      "last_run_at": "2026-09-22T21:45:59",
+      "last_run_at": "2026-09-22T21:56:09",
       "needs_run": false
     },
     "cli/cmd.TestHandleHeadlessOpen": {
@@ -8879,7 +8879,7 @@
       "tier": "fast",
       "is_slow": false,
       "last_status": "passed",
-      "last_run_at": "2026-09-22T21:45:59",
+      "last_run_at": "2026-09-22T21:56:09",
       "needs_run": false
     },
     "cli/cmd.TestBuildOpenerCommand": {
@@ -8895,7 +8895,7 @@
       "tier": "fast",
       "is_slow": false,
       "last_status": "passed",
-      "last_run_at": "2026-09-22T21:45:59",
+      "last_run_at": "2026-09-22T21:56:09",
       "needs_run": false
     },
     "cli/cmd.TestIsHeadlessLinux": {
@@ -8911,7 +8911,7 @@
       "tier": "fast",
       "is_slow": false,
       "last_status": "passed",
-      "last_run_at": "2026-09-22T21:45:59",
+      "last_run_at": "2026-09-22T21:56:09",
       "needs_run": false
     },
     "cli/cmd.TestIsDisplayError": {
@@ -8927,7 +8927,7 @@
       "tier": "fast",
       "is_slow": false,
       "last_status": "passed",
-      "last_run_at": "2026-09-22T21:45:59",
+      "last_run_at": "2026-09-22T21:56:09",
       "needs_run": false
     },
     "cli/cmd.TestIsEditorTarget": {
@@ -8943,7 +8943,7 @@
       "tier": "fast",
       "is_slow": false,
       "last_status": "passed",
-      "last_run_at": "2026-09-22T21:45:59",
+      "last_run_at": "2026-09-22T21:56:09",
       "needs_run": false
     },
     "cli/cmd.TestIsWebTarget": {
@@ -8959,7 +8959,7 @@
       "tier": "fast",
       "is_slow": false,
       "last_status": "passed",
-      "last_run_at": "2026-09-22T21:45:59",
+      "last_run_at": "2026-09-22T21:56:09",
       "needs_run": false
     },
     "cli/cmd.TestNormalizeWebUrl": {
@@ -8975,7 +8975,7 @@
       "tier": "fast",
       "is_slow": false,
       "last_status": "passed",
-      "last_run_at": "2026-09-22T21:45:59",
+      "last_run_at": "2026-09-22T21:56:09",
       "needs_run": false
     },
     "cli/cmd.TestResolveOpenTarget": {
@@ -8991,7 +8991,7 @@
       "tier": "fast",
       "is_slow": false,
       "last_status": "passed",
-      "last_run_at": "2026-09-22T21:45:59",
+      "last_run_at": "2026-09-22T21:56:09",
       "needs_run": false
     },
     "cli/cmd.TestScanOutputFilenames_Contract": {
@@ -9007,7 +9007,7 @@
       "tier": "fast",
       "is_slow": false,
       "last_status": "passed",
-      "last_run_at": "2026-09-22T21:45:59",
+      "last_run_at": "2026-09-22T21:56:09",
       "needs_run": false
     },
     "cli/cmd.TestCloneShorthand_Contract": {
@@ -9023,7 +9023,7 @@
       "tier": "fast",
       "is_slow": false,
       "last_status": "passed",
-      "last_run_at": "2026-09-22T21:45:59",
+      "last_run_at": "2026-09-22T21:56:09",
       "needs_run": false
     },
     "cli/cmd.TestResolveOutFile_Precedence": {
@@ -9039,7 +9039,7 @@
       "tier": "fast",
       "is_slow": false,
       "last_status": "passed",
-      "last_run_at": "2026-09-22T21:45:59",
+      "last_run_at": "2026-09-22T21:56:09",
       "needs_run": false
     },
     "cli/cmd.TestCloneFromReportName_Contract": {
@@ -9055,7 +9055,7 @@
       "tier": "fast",
       "is_slow": false,
       "last_status": "passed",
-      "last_run_at": "2026-09-22T21:45:59",
+      "last_run_at": "2026-09-22T21:56:09",
       "needs_run": false
     },
     "cli/cmd.TestErrorsReportName_Contract": {
@@ -9071,7 +9071,7 @@
       "tier": "fast",
       "is_slow": false,
       "last_status": "passed",
-      "last_run_at": "2026-09-22T21:45:59",
+      "last_run_at": "2026-09-22T21:56:09",
       "needs_run": false
     },
     "cli/cmd.TestBuildCommandArgs_JoinsArgs": {
@@ -9087,7 +9087,7 @@
       "tier": "fast",
       "is_slow": false,
       "last_status": "passed",
-      "last_run_at": "2026-09-22T21:45:59",
+      "last_run_at": "2026-09-22T21:56:09",
       "needs_run": false
     },
     "cli/cmd.TestBuildCommandArgs_Empty": {
@@ -9103,7 +9103,7 @@
       "tier": "fast",
       "is_slow": false,
       "last_status": "passed",
-      "last_run_at": "2026-09-22T21:45:59",
+      "last_run_at": "2026-09-22T21:56:09",
       "needs_run": false
     },
     "cli/cmd.TestBuildCommandArgs_SingleArg": {
@@ -9119,7 +9119,7 @@
       "tier": "fast",
       "is_slow": false,
       "last_status": "passed",
-      "last_run_at": "2026-09-22T21:45:59",
+      "last_run_at": "2026-09-22T21:56:09",
       "needs_run": false
     },
     "cli/cmd.TestFindDuplicate_DeleteMatchesByTypePath": {
@@ -9135,7 +9135,7 @@
       "tier": "fast",
       "is_slow": false,
       "last_status": "passed",
-      "last_run_at": "2026-09-22T21:45:59",
+      "last_run_at": "2026-09-22T21:56:09",
       "needs_run": false
     },
     "cli/cmd.TestFindDuplicate_DeleteIgnoresCmdArgs": {
@@ -9151,7 +9151,7 @@
       "tier": "fast",
       "is_slow": false,
       "last_status": "passed",
-      "last_run_at": "2026-09-22T21:45:59",
+      "last_run_at": "2026-09-22T21:56:09",
       "needs_run": false
     },
     "cli/cmd.TestFindDuplicate_RemoveMatchesByTypePath": {
@@ -9167,7 +9167,7 @@
       "tier": "fast",
       "is_slow": false,
       "last_status": "passed",
-      "last_run_at": "2026-09-22T21:45:59",
+      "last_run_at": "2026-09-22T21:56:09",
       "needs_run": false
     },
     "cli/cmd.TestFindDuplicate_ScanMatchesByTypePathCmd": {
@@ -9183,7 +9183,7 @@
       "tier": "fast",
       "is_slow": false,
       "last_status": "passed",
-      "last_run_at": "2026-09-22T21:45:59",
+      "last_run_at": "2026-09-22T21:56:09",
       "needs_run": false
     },
     "cli/cmd.TestFindDuplicate_ScanDifferentArgsNoDuplicate": {
@@ -9199,7 +9199,7 @@
       "tier": "fast",
       "is_slow": false,
       "last_status": "passed",
-      "last_run_at": "2026-09-22T21:45:59",
+      "last_run_at": "2026-09-22T21:56:09",
       "needs_run": false
     },
     "cli/cmd.TestFindDuplicate_CloneMatchesByTypePathCmd": {
@@ -9215,7 +9215,7 @@
       "tier": "fast",
       "is_slow": false,
       "last_status": "passed",
-      "last_run_at": "2026-09-22T21:45:59",
+      "last_run_at": "2026-09-22T21:56:09",
       "needs_run": false
     },
     "cli/cmd.TestFindDuplicate_NoDuplicateOnDifferentPath": {
@@ -9231,7 +9231,7 @@
       "tier": "fast",
       "is_slow": false,
       "last_status": "passed",
-      "last_run_at": "2026-09-22T21:45:59",
+      "last_run_at": "2026-09-22T21:56:09",
       "needs_run": false
     },
     "cli/cmd.TestCompletePendingTask_MovesToCompleted": {
@@ -9247,7 +9247,7 @@
       "tier": "fast",
       "is_slow": false,
       "last_status": "passed",
-      "last_run_at": "2026-09-22T21:45:59",
+      "last_run_at": "2026-09-22T21:56:09",
       "needs_run": false
     },
     "cli/cmd.TestCompletePendingTask_NilDB_NoOp": {
@@ -9263,7 +9263,7 @@
       "tier": "fast",
       "is_slow": false,
       "last_status": "passed",
-      "last_run_at": "2026-09-22T21:45:59",
+      "last_run_at": "2026-09-22T21:56:09",
       "needs_run": false
     },
     "cli/cmd.TestCompletePendingTask_ZeroID_NoOp": {
@@ -9279,7 +9279,7 @@
       "tier": "fast",
       "is_slow": false,
       "last_status": "passed",
-      "last_run_at": "2026-09-22T21:45:59",
+      "last_run_at": "2026-09-22T21:56:09",
       "needs_run": false
     },
     "cli/cmd.TestFailPendingTask_RecordsReason": {
@@ -9295,7 +9295,7 @@
       "tier": "fast",
       "is_slow": false,
       "last_status": "passed",
-      "last_run_at": "2026-09-22T21:45:59",
+      "last_run_at": "2026-09-22T21:56:09",
       "needs_run": false
     },
     "cli/cmd.TestFailPendingTask_TaskRemainsPending": {
@@ -9311,7 +9311,7 @@
       "tier": "fast",
       "is_slow": false,
       "last_status": "passed",
-      "last_run_at": "2026-09-22T21:45:59",
+      "last_run_at": "2026-09-22T21:56:09",
       "needs_run": false
     },
     "cli/cmd.TestFailPendingTask_NilDB_NoOp": {
@@ -9327,7 +9327,7 @@
       "tier": "fast",
       "is_slow": false,
       "last_status": "passed",
-      "last_run_at": "2026-09-22T21:45:59",
+      "last_run_at": "2026-09-22T21:56:09",
       "needs_run": false
     },
     "cli/cmd.TestFailPendingTask_ZeroID_NoOp": {
@@ -9343,7 +9343,7 @@
       "tier": "fast",
       "is_slow": false,
       "last_status": "passed",
-      "last_run_at": "2026-09-22T21:45:59",
+      "last_run_at": "2026-09-22T21:56:09",
       "needs_run": false
     },
     "cli/cmd.TestPendingTask_FullLifecycle_FailThenComplete": {
@@ -9359,7 +9359,7 @@
       "tier": "fast",
       "is_slow": false,
       "last_status": "passed",
-      "last_run_at": "2026-09-22T21:45:59",
+      "last_run_at": "2026-09-22T21:56:09",
       "needs_run": false
     },
     "cli/cmd.TestPipelineDBDispatch": {
@@ -9375,7 +9375,7 @@
       "tier": "fast",
       "is_slow": false,
       "last_status": "passed",
-      "last_run_at": "2026-09-22T21:45:59",
+      "last_run_at": "2026-09-22T21:56:09",
       "needs_run": false
     },
     "cli/cmd.TestRepoDBDispatch": {
@@ -9391,7 +9391,7 @@
       "tier": "fast",
       "is_slow": false,
       "last_status": "passed",
-      "last_run_at": "2026-09-22T21:45:59",
+      "last_run_at": "2026-09-22T21:56:09",
       "needs_run": false
     },
     "cli/cmd.TestDBStatusAndOptimizeDispatch": {
@@ -9407,7 +9407,7 @@
       "tier": "fast",
       "is_slow": false,
       "last_status": "passed",
-      "last_run_at": "2026-09-22T21:45:59",
+      "last_run_at": "2026-09-22T21:56:09",
       "needs_run": false
     },
     "cli/cmd.TestParseSetArgs": {
@@ -9423,7 +9423,7 @@
       "tier": "fast",
       "is_slow": false,
       "last_status": "passed",
-      "last_run_at": "2026-09-22T21:45:59",
+      "last_run_at": "2026-09-22T21:56:09",
       "needs_run": false
     },
     "cli/cmd.TestFormatTimeoutMinutes": {
@@ -9439,7 +9439,7 @@
       "tier": "fast",
       "is_slow": false,
       "last_status": "passed",
-      "last_run_at": "2026-09-22T21:45:59",
+      "last_run_at": "2026-09-22T21:56:09",
       "needs_run": false
     },
     "cli/cmd.TestRunPowerSubcommands": {
@@ -9455,7 +9455,7 @@
       "tier": "fast",
       "is_slow": false,
       "last_status": "passed",
-      "last_run_at": "2026-09-22T21:45:59",
+      "last_run_at": "2026-09-22T21:56:09",
       "needs_run": false
     },
     "cli/cmd.TestParsePrettyFlagDefaultsToAuto": {
@@ -9471,7 +9471,7 @@
       "tier": "fast",
       "is_slow": false,
       "last_status": "passed",
-      "last_run_at": "2026-09-22T21:45:59",
+      "last_run_at": "2026-09-22T21:56:09",
       "needs_run": false
     },
     "cli/cmd.TestParsePrettyFlagAcceptsAllPositiveForms": {
@@ -9487,7 +9487,7 @@
       "tier": "fast",
       "is_slow": false,
       "last_status": "passed",
-      "last_run_at": "2026-09-22T21:45:59",
+      "last_run_at": "2026-09-22T21:56:09",
       "needs_run": false
     },
     "cli/cmd.TestParsePrettyFlagAcceptsAllNegativeForms": {
@@ -9503,7 +9503,7 @@
       "tier": "fast",
       "is_slow": false,
       "last_status": "passed",
-      "last_run_at": "2026-09-22T21:45:59",
+      "last_run_at": "2026-09-22T21:56:09",
       "needs_run": false
     },
     "cli/cmd.TestParsePrettyFlagExplicitAutoResets": {
@@ -9519,7 +9519,7 @@
       "tier": "fast",
       "is_slow": false,
       "last_status": "passed",
-      "last_run_at": "2026-09-22T21:45:59",
+      "last_run_at": "2026-09-22T21:56:09",
       "needs_run": false
     },
     "cli/cmd.TestParsePrettyFlagLastWriterWins": {
@@ -9535,7 +9535,7 @@
       "tier": "fast",
       "is_slow": false,
       "last_status": "passed",
-      "last_run_at": "2026-09-22T21:45:59",
+      "last_run_at": "2026-09-22T21:56:09",
       "needs_run": false
     },
     "cli/cmd.TestParsePrettyFlagStripsFromArgs": {
@@ -9551,7 +9551,7 @@
       "tier": "fast",
       "is_slow": false,
       "last_status": "passed",
-      "last_run_at": "2026-09-22T21:45:59",
+      "last_run_at": "2026-09-22T21:56:09",
       "needs_run": false
     },
     "cli/cmd.TestParsePrettyFlagPassesThroughUnknownValues": {
@@ -9567,7 +9567,7 @@
       "tier": "fast",
       "is_slow": false,
       "last_status": "passed",
-      "last_run_at": "2026-09-22T21:45:59",
+      "last_run_at": "2026-09-22T21:56:09",
       "needs_run": false
     },
     "cli/cmd.TestParsePrettyFlagAcceptsColorSynonyms": {
@@ -9583,7 +9583,7 @@
       "tier": "fast",
       "is_slow": false,
       "last_status": "passed",
-      "last_run_at": "2026-09-22T21:45:59",
+      "last_run_at": "2026-09-22T21:56:09",
       "needs_run": false
     },
     "cli/cmd.TestParsePrettyFlagColorAndPrettyInteract": {
@@ -9599,7 +9599,7 @@
       "tier": "fast",
       "is_slow": false,
       "last_status": "passed",
-      "last_run_at": "2026-09-22T21:45:59",
+      "last_run_at": "2026-09-22T21:56:09",
       "needs_run": false
     },
     "cli/cmd.TestParsePrettyFlagDoesNotEatColorPrefixedFlags": {
@@ -9615,7 +9615,7 @@
       "tier": "fast",
       "is_slow": false,
       "last_status": "passed",
-      "last_run_at": "2026-09-22T21:45:59",
+      "last_run_at": "2026-09-22T21:56:09",
       "needs_run": false
     },
     "cli/cmd.TestProbeJSONContract_EmptyIsArrayNotNull": {
@@ -9631,7 +9631,7 @@
       "tier": "fast",
       "is_slow": false,
       "last_status": "passed",
-      "last_run_at": "2026-09-22T21:45:59",
+      "last_run_at": "2026-09-22T21:56:09",
       "needs_run": false
     },
     "cli/cmd.TestProbeJSONContract_CanonicalRow_KeyOrders": {
@@ -9647,7 +9647,7 @@
       "tier": "fast",
       "is_slow": false,
       "last_status": "passed",
-      "last_run_at": "2026-09-22T21:45:59",
+      "last_run_at": "2026-09-22T21:56:09",
       "needs_run": false
     },
     "cli/cmd.TestProbeJSONSchema_TopLevelShape": {
@@ -9663,7 +9663,7 @@
       "tier": "fast",
       "is_slow": false,
       "last_status": "passed",
-      "last_run_at": "2026-09-22T21:45:59",
+      "last_run_at": "2026-09-22T21:56:09",
       "needs_run": false
     },
     "cli/cmd.TestProbeJSONSchema_EncoderMatchesSchema": {
@@ -9679,7 +9679,7 @@
       "tier": "fast",
       "is_slow": false,
       "last_status": "passed",
-      "last_run_at": "2026-09-22T21:45:59",
+      "last_run_at": "2026-09-22T21:56:09",
       "needs_run": false
     },
     "cli/cmd.TestPickProfileBySequenceOrName": {
@@ -9695,7 +9695,7 @@
       "tier": "fast",
       "is_slow": false,
       "last_status": "passed",
-      "last_run_at": "2026-09-22T21:45:59",
+      "last_run_at": "2026-09-22T21:56:09",
       "needs_run": false
     },
     "cli/cmd.TestNormalizeCreateArgs": {
@@ -9711,7 +9711,7 @@
       "tier": "fast",
       "is_slow": false,
       "last_status": "passed",
-      "last_run_at": "2026-09-22T21:45:59",
+      "last_run_at": "2026-09-22T21:56:09",
       "needs_run": false
     },
     "cli/cmd.TestResolveBackupRepoSlug": {
@@ -9727,7 +9727,7 @@
       "tier": "fast",
       "is_slow": false,
       "last_status": "passed",
-      "last_run_at": "2026-09-22T21:45:59",
+      "last_run_at": "2026-09-22T21:56:09",
       "needs_run": false
     },
     "cli/cmd.TestApplyDefaultProfile": {
@@ -9743,7 +9743,7 @@
       "tier": "fast",
       "is_slow": false,
       "last_status": "passed",
-      "last_run_at": "2026-09-22T21:45:59",
+      "last_run_at": "2026-09-22T21:56:09",
       "needs_run": false
     },
     "cli/cmd.TestProfileImportRouting": {
@@ -9759,7 +9759,7 @@
       "tier": "fast",
       "is_slow": false,
       "last_status": "passed",
-      "last_run_at": "2026-09-22T21:45:59",
+      "last_run_at": "2026-09-22T21:56:09",
       "needs_run": false
     },
     "cli/cmd.TestProfileInvalidSubcommandReturnsAppError": {
@@ -9775,7 +9775,7 @@
       "tier": "fast",
       "is_slow": false,
       "last_status": "passed",
-      "last_run_at": "2026-09-22T21:45:59",
+      "last_run_at": "2026-09-22T21:56:09",
       "needs_run": false
     },
     "cli/cmd.TestProjectReposJSONContract_EmptyIsArrayNotNull": {
@@ -9791,7 +9791,7 @@
       "tier": "fast",
       "is_slow": false,
       "last_status": "passed",
-      "last_run_at": "2026-09-22T21:45:59",
+      "last_run_at": "2026-09-22T21:56:09",
       "needs_run": false
     },
     "cli/cmd.TestProjectReposJSONContract_CanonicalRow_KeyOrder": {
@@ -9807,7 +9807,7 @@
       "tier": "fast",
       "is_slow": false,
       "last_status": "passed",
-      "last_run_at": "2026-09-22T21:45:59",
+      "last_run_at": "2026-09-22T21:56:09",
       "needs_run": false
     },
     "cli/cmd.TestProjectReposJSONSchema_TopLevelShape": {
@@ -9823,7 +9823,7 @@
       "tier": "fast",
       "is_slow": false,
       "last_status": "passed",
-      "last_run_at": "2026-09-22T21:45:59",
+      "last_run_at": "2026-09-22T21:56:09",
       "needs_run": false
     },
     "cli/cmd.TestProjectReposJSONSchema_EncoderMatchesSchema": {
@@ -9839,7 +9839,7 @@
       "tier": "fast",
       "is_slow": false,
       "last_status": "passed",
-      "last_run_at": "2026-09-22T21:45:59",
+      "last_run_at": "2026-09-22T21:56:09",
       "needs_run": false
     },
     "cli/cmd.TestParseReconcileArgs": {
@@ -9855,7 +9855,7 @@
       "tier": "fast",
       "is_slow": false,
       "last_status": "passed",
-      "last_run_at": "2026-09-22T21:45:59",
+      "last_run_at": "2026-09-22T21:56:09",
       "needs_run": false
     },
     "cli/cmd.TestFindRemediationItem": {
@@ -9871,7 +9871,7 @@
       "tier": "fast",
       "is_slow": false,
       "last_status": "passed",
-      "last_run_at": "2026-09-22T21:45:59",
+      "last_run_at": "2026-09-22T21:56:09",
       "needs_run": false
     },
     "cli/cmd.TestBatchRemediationSaveLoadRemove": {
@@ -9887,7 +9887,7 @@
       "tier": "fast",
       "is_slow": false,
       "last_status": "passed",
-      "last_run_at": "2026-09-22T21:45:59",
+      "last_run_at": "2026-09-22T21:56:09",
       "needs_run": false
     },
     "cli/cmd.TestParseRecipeIndex": {
@@ -9903,7 +9903,7 @@
       "tier": "fast",
       "is_slow": false,
       "last_status": "passed",
-      "last_run_at": "2026-09-22T21:45:59",
+      "last_run_at": "2026-09-22T21:56:09",
       "needs_run": false
     },
     "cli/cmd.TestIsReconcileAllRequested": {
@@ -9919,7 +9919,7 @@
       "tier": "fast",
       "is_slow": false,
       "last_status": "passed",
-      "last_run_at": "2026-09-22T21:45:59",
+      "last_run_at": "2026-09-22T21:56:09",
       "needs_run": false
     },
     "cli/cmd.TestResolvePromptChoice": {
@@ -9935,7 +9935,7 @@
       "tier": "fast",
       "is_slow": false,
       "last_status": "passed",
-      "last_run_at": "2026-09-22T21:45:59",
+      "last_run_at": "2026-09-22T21:56:09",
       "needs_run": false
     },
     "cli/cmd.TestResolveDirtyFiles": {
@@ -9951,7 +9951,7 @@
       "tier": "fast",
       "is_slow": false,
       "last_status": "passed",
-      "last_run_at": "2026-09-22T21:45:59",
+      "last_run_at": "2026-09-22T21:56:09",
       "needs_run": false
     },
     "cli/cmd.TestNormalizePorcelainStatus_Untracked_ReturnsAdded": {
@@ -9967,7 +9967,7 @@
       "tier": "fast",
       "is_slow": false,
       "last_status": "passed",
-      "last_run_at": "2026-09-22T21:45:59",
+      "last_run_at": "2026-09-22T21:56:09",
       "needs_run": false
     },
     "cli/cmd.TestNormalizePorcelainStatus_DeletionBeatsModification": {
@@ -9983,7 +9983,7 @@
       "tier": "fast",
       "is_slow": false,
       "last_status": "passed",
-      "last_run_at": "2026-09-22T21:45:59",
+      "last_run_at": "2026-09-22T21:56:09",
       "needs_run": false
     },
     "cli/cmd.TestNormalizePorcelainStatus_PlainModified": {
@@ -9999,7 +9999,7 @@
       "tier": "fast",
       "is_slow": false,
       "last_status": "passed",
-      "last_run_at": "2026-09-22T21:45:59",
+      "last_run_at": "2026-09-22T21:56:09",
       "needs_run": false
     },
     "cli/cmd.TestSortGoldenDiffEntries_OrdersByStatusThenPath": {
@@ -10015,7 +10015,7 @@
       "tier": "fast",
       "is_slow": false,
       "last_status": "passed",
-      "last_run_at": "2026-09-22T21:45:59",
+      "last_run_at": "2026-09-22T21:56:09",
       "needs_run": false
     },
     "cli/cmd.TestGoldenDiffTotals_AccumulateMixedStatuses": {
@@ -10031,7 +10031,7 @@
       "tier": "fast",
       "is_slow": false,
       "last_status": "passed",
-      "last_run_at": "2026-09-22T21:45:59",
+      "last_run_at": "2026-09-22T21:56:09",
       "needs_run": false
     },
     "cli/cmd.TestGoldenDiffStatusRank_OrderingContract": {
@@ -10047,7 +10047,7 @@
       "tier": "fast",
       "is_slow": false,
       "last_status": "passed",
-      "last_run_at": "2026-09-22T21:45:59",
+      "last_run_at": "2026-09-22T21:56:09",
       "needs_run": false
     },
     "cli/cmd.TestIsGoldenFixturePath_AcceptsTestdataGoldenBasename": {
@@ -10063,7 +10063,7 @@
       "tier": "fast",
       "is_slow": false,
       "last_status": "passed",
-      "last_run_at": "2026-09-22T21:45:59",
+      "last_run_at": "2026-09-22T21:56:09",
       "needs_run": false
     },
     "cli/cmd.TestIsGoldenFixturePath_RejectsNonGoldenOrNonTestdata": {
@@ -10079,7 +10079,7 @@
       "tier": "fast",
       "is_slow": false,
       "last_status": "passed",
-      "last_run_at": "2026-09-22T21:45:59",
+      "last_run_at": "2026-09-22T21:56:09",
       "needs_run": false
     },
     "cli/cmd.TestPrecheckFoundNonDeterminism_DetectsMarker": {
@@ -10095,7 +10095,7 @@
       "tier": "fast",
       "is_slow": false,
       "last_status": "passed",
-      "last_run_at": "2026-09-22T21:45:59",
+      "last_run_at": "2026-09-22T21:56:09",
       "needs_run": false
     },
     "cli/cmd.TestPrecheckFoundNonDeterminism_IgnoresGateOnlyFailure": {
@@ -10111,7 +10111,7 @@
       "tier": "fast",
       "is_slow": false,
       "last_status": "passed",
-      "last_run_at": "2026-09-22T21:45:59",
+      "last_run_at": "2026-09-22T21:56:09",
       "needs_run": false
     },
     "cli/cmd.TestPrecheckFoundNonDeterminism_EmptyOutput_Miss": {
@@ -10127,7 +10127,7 @@
       "tier": "fast",
       "is_slow": false,
       "last_status": "passed",
-      "last_run_at": "2026-09-22T21:45:59",
+      "last_run_at": "2026-09-22T21:56:09",
       "needs_run": false
     },
     "cli/cmd.TestPrecheckMarkerConstant_NonEmpty": {
@@ -10143,7 +10143,7 @@
       "tier": "fast",
       "is_slow": false,
       "last_status": "passed",
-      "last_run_at": "2026-09-22T21:45:59",
+      "last_run_at": "2026-09-22T21:56:09",
       "needs_run": false
     },
     "cli/cmd.TestNormalizeVersion": {
@@ -10159,7 +10159,7 @@
       "tier": "fast",
       "is_slow": false,
       "last_status": "passed",
-      "last_run_at": "2026-09-22T21:45:59",
+      "last_run_at": "2026-09-22T21:56:09",
       "needs_run": false
     },
     "cli/cmd.TestFindRemediationItem_PathVariations": {
@@ -10175,7 +10175,7 @@
       "tier": "fast",
       "is_slow": false,
       "last_status": "passed",
-      "last_run_at": "2026-09-22T21:45:59",
+      "last_run_at": "2026-09-22T21:56:09",
       "needs_run": false
     },
     "cli/cmd.TestFindRemediationSuggestions": {
@@ -10191,7 +10191,7 @@
       "tier": "fast",
       "is_slow": false,
       "last_status": "passed",
-      "last_run_at": "2026-09-22T21:45:59",
+      "last_run_at": "2026-09-22T21:56:09",
       "needs_run": false
     },
     "cli/cmd.TestBuildAuditNeedles": {
@@ -10207,7 +10207,7 @@
       "tier": "fast",
       "is_slow": false,
       "last_status": "passed",
-      "last_run_at": "2026-09-22T21:45:59",
+      "last_run_at": "2026-09-22T21:56:09",
       "needs_run": false
     },
     "cli/cmd.TestBuildAuditNeedlesWidthCrossing": {
@@ -10223,7 +10223,7 @@
       "tier": "fast",
       "is_slow": false,
       "last_status": "passed",
-      "last_run_at": "2026-09-22T21:45:59",
+      "last_run_at": "2026-09-22T21:56:09",
       "needs_run": false
     },
     "cli/cmd.TestLineContainsAny": {
@@ -10239,7 +10239,7 @@
       "tier": "fast",
       "is_slow": false,
       "last_status": "passed",
-      "last_run_at": "2026-09-22T21:45:59",
+      "last_run_at": "2026-09-22T21:56:09",
       "needs_run": false
     },
     "cli/cmd.TestScanAuditFileFormatting": {
@@ -10255,7 +10255,7 @@
       "tier": "fast",
       "is_slow": false,
       "last_status": "passed",
-      "last_run_at": "2026-09-22T21:45:59",
+      "last_run_at": "2026-09-22T21:56:09",
       "needs_run": false
     },
     "cli/cmd.TestNormalizeExtListInsensitive": {
@@ -10271,7 +10271,7 @@
       "tier": "fast",
       "is_slow": false,
       "last_status": "passed",
-      "last_run_at": "2026-09-22T21:45:59",
+      "last_run_at": "2026-09-22T21:56:09",
       "needs_run": false
     },
     "cli/cmd.TestNormalizeExtListSensitive": {
@@ -10287,7 +10287,7 @@
       "tier": "fast",
       "is_slow": false,
       "last_status": "passed",
-      "last_run_at": "2026-09-22T21:45:59",
+      "last_run_at": "2026-09-22T21:56:09",
       "needs_run": false
     },
     "cli/cmd.TestMatchesExtFilterCaseModes": {
@@ -10303,7 +10303,7 @@
       "tier": "fast",
       "is_slow": false,
       "last_status": "passed",
-      "last_run_at": "2026-09-22T21:45:59",
+      "last_run_at": "2026-09-22T21:56:09",
       "needs_run": false
     },
     "cli/cmd.TestResolveExtCase": {
@@ -10319,7 +10319,7 @@
       "tier": "fast",
       "is_slow": false,
       "last_status": "passed",
-      "last_run_at": "2026-09-22T21:45:59",
+      "last_run_at": "2026-09-22T21:56:09",
       "needs_run": false
     },
     "cli/cmd.TestParseReplaceFlagsExtAndCase": {
@@ -10335,7 +10335,7 @@
       "tier": "fast",
       "is_slow": false,
       "last_status": "passed",
-      "last_run_at": "2026-09-22T21:45:59",
+      "last_run_at": "2026-09-22T21:56:09",
       "needs_run": false
     },
     "cli/cmd.TestWalkRepoFilesExtCaseSensitive": {
@@ -10351,7 +10351,7 @@
       "tier": "fast",
       "is_slow": false,
       "last_status": "passed",
-      "last_run_at": "2026-09-22T21:45:59",
+      "last_run_at": "2026-09-22T21:56:09",
       "needs_run": false
     },
     "cli/cmd.TestSlugFromRemote": {
@@ -10367,7 +10367,7 @@
       "tier": "fast",
       "is_slow": false,
       "last_status": "passed",
-      "last_run_at": "2026-09-22T21:45:59",
+      "last_run_at": "2026-09-22T21:56:09",
       "needs_run": false
     },
     "cli/cmd.TestRemoteSlugRegex": {
@@ -10383,7 +10383,7 @@
       "tier": "fast",
       "is_slow": false,
       "last_status": "passed",
-      "last_run_at": "2026-09-22T21:45:59",
+      "last_run_at": "2026-09-22T21:56:09",
       "needs_run": false
     },
     "cli/cmd.TestPairsForTarget": {
@@ -10399,7 +10399,7 @@
       "tier": "fast",
       "is_slow": false,
       "last_status": "passed",
-      "last_run_at": "2026-09-22T21:45:59",
+      "last_run_at": "2026-09-22T21:56:09",
       "needs_run": false
     },
     "cli/cmd.TestPairsForTargetWidthCrossing": {
@@ -10415,7 +10415,7 @@
       "tier": "fast",
       "is_slow": false,
       "last_status": "passed",
-      "last_run_at": "2026-09-22T21:45:59",
+      "last_run_at": "2026-09-22T21:56:09",
       "needs_run": false
     },
     "cli/cmd.TestVersionTargetsClamping": {
@@ -10431,7 +10431,7 @@
       "tier": "fast",
       "is_slow": false,
       "last_status": "passed",
-      "last_run_at": "2026-09-22T21:45:59",
+      "last_run_at": "2026-09-22T21:56:09",
       "needs_run": false
     },
     "cli/cmd.TestIsExcludedDirAndPrefix": {
@@ -10447,7 +10447,7 @@
       "tier": "fast",
       "is_slow": false,
       "last_status": "passed",
-      "last_run_at": "2026-09-22T21:45:59",
+      "last_run_at": "2026-09-22T21:56:09",
       "needs_run": false
     },
     "cli/cmd.TestWalkRepoFilesSkipsExclusionsAndBinaries": {
@@ -10463,7 +10463,7 @@
       "tier": "fast",
       "is_slow": false,
       "last_status": "passed",
-      "last_run_at": "2026-09-22T21:45:59",
+      "last_run_at": "2026-09-22T21:56:09",
       "needs_run": false
     },
     "cli/cmd.TestIsBinaryFile": {
@@ -10479,7 +10479,7 @@
       "tier": "fast",
       "is_slow": false,
       "last_status": "passed",
-      "last_run_at": "2026-09-22T21:45:59",
+      "last_run_at": "2026-09-22T21:56:09",
       "needs_run": false
     },
     "cli/cmd.TestReplaceScanningOnWindowsPaths": {
@@ -10495,7 +10495,7 @@
       "tier": "fast",
       "is_slow": false,
       "last_status": "passed",
-      "last_run_at": "2026-09-22T21:45:59",
+      "last_run_at": "2026-09-22T21:56:09",
       "needs_run": false
     },
     "cli/cmd.TestParseCreateParams_SingleNameWithSpaces": {
@@ -10506,12 +10506,12 @@
       "test_hash": "7b5bdfa62d18c5d2",
       "target_file": "cli/cmd/repo_create_params.go",
       "target_func": "ParseCreateParams",
-      "code_hash": "29db4d8034591e7b",
+      "code_hash": "13539e4a407688b8",
       "duration_sec": 0.01,
       "tier": "fast",
       "is_slow": false,
       "last_status": "passed",
-      "last_run_at": "2026-09-22T21:45:59",
+      "last_run_at": "2026-09-22T21:56:09",
       "needs_run": false
     },
     "cli/cmd.TestParseCreateParams_NameAndSlug": {
@@ -10522,12 +10522,12 @@
       "test_hash": "7b5bdfa62d18c5d2",
       "target_file": "cli/cmd/repo_create_params.go",
       "target_func": "ParseCreateParams",
-      "code_hash": "29db4d8034591e7b",
+      "code_hash": "13539e4a407688b8",
       "duration_sec": 0.01,
       "tier": "fast",
       "is_slow": false,
       "last_status": "passed",
-      "last_run_at": "2026-09-22T21:45:59",
+      "last_run_at": "2026-09-22T21:56:09",
       "needs_run": false
     },
     "cli/cmd.TestParseCreateParams_NameAndFolder": {
@@ -10538,12 +10538,12 @@
       "test_hash": "7b5bdfa62d18c5d2",
       "target_file": "cli/cmd/repo_create_params.go",
       "target_func": "ParseCreateParams",
-      "code_hash": "29db4d8034591e7b",
+      "code_hash": "13539e4a407688b8",
       "duration_sec": 0.01,
       "tier": "fast",
       "is_slow": false,
       "last_status": "passed",
-      "last_run_at": "2026-09-22T21:45:59",
+      "last_run_at": "2026-09-22T21:56:09",
       "needs_run": false
     },
     "cli/cmd.TestParseCreateParams_ThreeArgs": {
@@ -10554,12 +10554,12 @@
       "test_hash": "7b5bdfa62d18c5d2",
       "target_file": "cli/cmd/repo_create_params.go",
       "target_func": "ParseCreateParams",
-      "code_hash": "29db4d8034591e7b",
+      "code_hash": "13539e4a407688b8",
       "duration_sec": 0.01,
       "tier": "fast",
       "is_slow": false,
       "last_status": "passed",
-      "last_run_at": "2026-09-22T21:45:59",
+      "last_run_at": "2026-09-22T21:56:09",
       "needs_run": false
     },
     "cli/cmd.TestParseCreateParams_LocalMode": {
@@ -10570,12 +10570,12 @@
       "test_hash": "7b5bdfa62d18c5d2",
       "target_file": "cli/cmd/repo_create_params.go",
       "target_func": "ParseCreateParams",
-      "code_hash": "29db4d8034591e7b",
+      "code_hash": "13539e4a407688b8",
       "duration_sec": 0.01,
       "tier": "fast",
       "is_slow": false,
       "last_status": "passed",
-      "last_run_at": "2026-09-22T21:45:59",
+      "last_run_at": "2026-09-22T21:56:09",
       "needs_run": false
     },
     "cli/cmd.TestSlugifyRepoName": {
@@ -10591,7 +10591,7 @@
       "tier": "fast",
       "is_slow": false,
       "last_status": "passed",
-      "last_run_at": "2026-09-22T21:45:59",
+      "last_run_at": "2026-09-22T21:56:09",
       "needs_run": false
     },
     "cli/cmd.TestResolver": {
@@ -10607,7 +10607,7 @@
       "tier": "fast",
       "is_slow": false,
       "last_status": "passed",
-      "last_run_at": "2026-09-22T21:45:59",
+      "last_run_at": "2026-09-22T21:56:09",
       "needs_run": false
     },
     "cli/cmd.TestIsProcessLockError": {
@@ -10623,7 +10623,7 @@
       "tier": "fast",
       "is_slow": false,
       "last_status": "passed",
-      "last_run_at": "2026-09-22T21:45:59",
+      "last_run_at": "2026-09-22T21:56:09",
       "needs_run": false
     },
     "cli/cmd.TestParseRmFlags": {
@@ -10639,7 +10639,7 @@
       "tier": "fast",
       "is_slow": false,
       "last_status": "passed",
-      "last_run_at": "2026-09-22T21:45:59",
+      "last_run_at": "2026-09-22T21:56:09",
       "needs_run": false
     },
     "cli/cmd.TestPullReleaseAliasesShareOneDispatchEntry": {
@@ -10655,7 +10655,7 @@
       "tier": "fast",
       "is_slow": false,
       "last_status": "passed",
-      "last_run_at": "2026-09-22T21:45:59",
+      "last_run_at": "2026-09-22T21:56:09",
       "needs_run": false
     },
     "cli/cmd.TestPullReleaseAliasesAreUnique": {
@@ -10671,7 +10671,7 @@
       "tier": "fast",
       "is_slow": false,
       "last_status": "passed",
-      "last_run_at": "2026-09-22T21:45:59",
+      "last_run_at": "2026-09-22T21:56:09",
       "needs_run": false
     },
     "cli/cmd.TestPullReleaseAliasesResolveSameHelpPage": {
@@ -10687,7 +10687,7 @@
       "tier": "fast",
       "is_slow": false,
       "last_status": "passed",
-      "last_run_at": "2026-09-22T21:45:59",
+      "last_run_at": "2026-09-22T21:56:09",
       "needs_run": false
     },
     "cli/cmd.TestSuggestTopLevelCommands_Pleae": {
@@ -10703,7 +10703,7 @@
       "tier": "fast",
       "is_slow": false,
       "last_status": "passed",
-      "last_run_at": "2026-09-22T21:45:59",
+      "last_run_at": "2026-09-22T21:56:09",
       "needs_run": false
     },
     "cli/cmd.TestSuggestTopLevelCommands_Please": {
@@ -10719,7 +10719,7 @@
       "tier": "fast",
       "is_slow": false,
       "last_status": "passed",
-      "last_run_at": "2026-09-22T21:45:59",
+      "last_run_at": "2026-09-22T21:56:09",
       "needs_run": false
     },
     "cli/cmd.TestSuggestTopLevelCommands_Typos": {
@@ -10735,7 +10735,7 @@
       "tier": "fast",
       "is_slow": false,
       "last_status": "passed",
-      "last_run_at": "2026-09-22T21:45:59",
+      "last_run_at": "2026-09-22T21:56:09",
       "needs_run": false
     },
     "cli/cmd.TestBuildUnknownCommandMessage": {
@@ -10751,7 +10751,7 @@
       "tier": "fast",
       "is_slow": false,
       "last_status": "passed",
-      "last_run_at": "2026-09-22T21:45:59",
+      "last_run_at": "2026-09-22T21:56:09",
       "needs_run": false
     },
     "cli/cmd.TestCaptureGitRejectsEmptyDir": {
@@ -10767,7 +10767,7 @@
       "tier": "fast",
       "is_slow": false,
       "last_status": "passed",
-      "last_run_at": "2026-09-22T21:45:59",
+      "last_run_at": "2026-09-22T21:56:09",
       "needs_run": false
     },
     "cli/cmd.TestEmitIdentityRowsUsesBuildOverridesWithoutDir": {
@@ -10783,7 +10783,7 @@
       "tier": "fast",
       "is_slow": false,
       "last_status": "passed",
-      "last_run_at": "2026-09-22T21:45:59",
+      "last_run_at": "2026-09-22T21:56:09",
       "needs_run": false
     },
     "cli/cmd.TestLongFooterBlockHasRequiredFields": {
@@ -10799,7 +10799,7 @@
       "tier": "fast",
       "is_slow": false,
       "last_status": "passed",
-      "last_run_at": "2026-09-22T21:45:59",
+      "last_run_at": "2026-09-22T21:56:09",
       "needs_run": false
     },
     "cli/cmd.TestShortFooterBlockHasRequiredFields": {
@@ -10815,7 +10815,7 @@
       "tier": "fast",
       "is_slow": false,
       "last_status": "passed",
-      "last_run_at": "2026-09-22T21:45:59",
+      "last_run_at": "2026-09-22T21:56:09",
       "needs_run": false
     },
     "cli/cmd.TestCurrentRepoBlockHasRequiredFields": {
@@ -10831,7 +10831,7 @@
       "tier": "fast",
       "is_slow": false,
       "last_status": "passed",
-      "last_run_at": "2026-09-22T21:45:59",
+      "last_run_at": "2026-09-22T21:56:09",
       "needs_run": false
     },
     "cli/cmd.TestHelpJSONStripANSI": {
@@ -10847,7 +10847,7 @@
       "tier": "fast",
       "is_slow": false,
       "last_status": "passed",
-      "last_run_at": "2026-09-22T21:45:59",
+      "last_run_at": "2026-09-22T21:56:09",
       "needs_run": false
     },
     "cli/cmd.TestHelpFilterRowsMatch": {
@@ -10863,7 +10863,7 @@
       "tier": "fast",
       "is_slow": false,
       "last_status": "passed",
-      "last_run_at": "2026-09-22T21:45:59",
+      "last_run_at": "2026-09-22T21:56:09",
       "needs_run": false
     },
     "cli/cmd.TestHelpJSONDocSchema": {
@@ -10879,7 +10879,7 @@
       "tier": "fast",
       "is_slow": false,
       "last_status": "passed",
-      "last_run_at": "2026-09-22T21:45:59",
+      "last_run_at": "2026-09-22T21:56:09",
       "needs_run": false
     },
     "cli/cmd.TestRunNoArgsDoesNotPanic": {
@@ -10895,7 +10895,7 @@
       "tier": "fast",
       "is_slow": false,
       "last_status": "passed",
-      "last_run_at": "2026-09-22T21:45:59",
+      "last_run_at": "2026-09-22T21:56:09",
       "needs_run": false
     },
     "cli/cmd.TestShouldRewriteToCloneCoversReportedInvocations": {
@@ -10911,7 +10911,7 @@
       "tier": "fast",
       "is_slow": false,
       "last_status": "passed",
-      "last_run_at": "2026-09-22T21:45:59",
+      "last_run_at": "2026-09-22T21:56:09",
       "needs_run": false
     },
     "cli/cmd.TestSplitOnCommaHandlesPasteArtifacts": {
@@ -10927,7 +10927,7 @@
       "tier": "fast",
       "is_slow": false,
       "last_status": "passed",
-      "last_run_at": "2026-09-22T21:45:59",
+      "last_run_at": "2026-09-22T21:56:09",
       "needs_run": false
     },
     "cli/cmd.TestLooksLikeURLTokenAcceptsAllSupportedShapes": {
@@ -10943,7 +10943,7 @@
       "tier": "fast",
       "is_slow": false,
       "last_status": "passed",
-      "last_run_at": "2026-09-22T21:45:59",
+      "last_run_at": "2026-09-22T21:56:09",
       "needs_run": false
     },
     "cli/cmd.TestSchemaRegistry_ParseVersionFromPath": {
@@ -10959,7 +10959,7 @@
       "tier": "fast",
       "is_slow": false,
       "last_status": "passed",
-      "last_run_at": "2026-09-22T21:45:59",
+      "last_run_at": "2026-09-22T21:56:09",
       "needs_run": false
     },
     "cli/cmd.TestSchemaRegistry_FindLatestPicksHighestVersion": {
@@ -10975,7 +10975,7 @@
       "tier": "fast",
       "is_slow": false,
       "last_status": "passed",
-      "last_run_at": "2026-09-22T21:45:59",
+      "last_run_at": "2026-09-22T21:56:09",
       "needs_run": false
     },
     "cli/cmd.TestSchemaRegistry_FindLatestErrorsOnMissing": {
@@ -10991,7 +10991,7 @@
       "tier": "fast",
       "is_slow": false,
       "last_status": "passed",
-      "last_run_at": "2026-09-22T21:45:59",
+      "last_run_at": "2026-09-22T21:56:09",
       "needs_run": false
     },
     "cli/cmd.TestSchemaRegistry_ListContains": {
@@ -11007,7 +11007,7 @@
       "tier": "fast",
       "is_slow": false,
       "last_status": "passed",
-      "last_run_at": "2026-09-22T21:45:59",
+      "last_run_at": "2026-09-22T21:56:09",
       "needs_run": false
     },
     "cli/cmd.TestSchemaRegistry_WriteSchemaPreservesDoc": {
@@ -11023,7 +11023,7 @@
       "tier": "fast",
       "is_slow": false,
       "last_status": "passed",
-      "last_run_at": "2026-09-22T21:45:59",
+      "last_run_at": "2026-09-22T21:56:09",
       "needs_run": false
     },
     "cli/cmd.TestSchemaRegistry_AcceptIsVersionStrict": {
@@ -11039,7 +11039,7 @@
       "tier": "fast",
       "is_slow": false,
       "last_status": "passed",
-      "last_run_at": "2026-09-22T21:45:59",
+      "last_run_at": "2026-09-22T21:56:09",
       "needs_run": false
     },
     "cli/cmd.TestSchemaRegistry_FlagAndEnvBothHonored": {
@@ -11055,7 +11055,7 @@
       "tier": "fast",
       "is_slow": false,
       "last_status": "passed",
-      "last_run_at": "2026-09-22T21:45:59",
+      "last_run_at": "2026-09-22T21:56:09",
       "needs_run": false
     },
     "cli/cmd.TestSchemaRegistry_ProductionSchemasParse": {
@@ -11071,7 +11071,7 @@
       "tier": "fast",
       "is_slow": false,
       "last_status": "passed",
-      "last_run_at": "2026-09-22T21:45:59",
+      "last_run_at": "2026-09-22T21:56:09",
       "needs_run": false
     },
     "cli/cmd.TestScanDirectorySequence": {
@@ -11087,7 +11087,7 @@
       "tier": "fast",
       "is_slow": false,
       "last_status": "passed",
-      "last_run_at": "2026-09-22T21:45:59",
+      "last_run_at": "2026-09-22T21:56:09",
       "needs_run": false
     },
     "cli/cmd.TestApplySequenceOrderingWithPin": {
@@ -11103,7 +11103,7 @@
       "tier": "fast",
       "is_slow": false,
       "last_status": "passed",
-      "last_run_at": "2026-09-22T21:45:59",
+      "last_run_at": "2026-09-22T21:56:09",
       "needs_run": false
     },
     "cli/cmd.TestExecuteSaveSequenceTx": {
@@ -11119,7 +11119,7 @@
       "tier": "fast",
       "is_slow": false,
       "last_status": "passed",
-      "last_run_at": "2026-09-22T21:45:59",
+      "last_run_at": "2026-09-22T21:56:09",
       "needs_run": false
     },
     "cli/cmd.TestExecuteSaveSequenceTxErrorPropagation": {
@@ -11135,7 +11135,7 @@
       "tier": "fast",
       "is_slow": false,
       "last_status": "passed",
-      "last_run_at": "2026-09-22T21:45:59",
+      "last_run_at": "2026-09-22T21:56:09",
       "needs_run": false
     },
     "cli/cmd.TestSaveSequenceToRepoDBOutsideRepo": {
@@ -11151,7 +11151,7 @@
       "tier": "fast",
       "is_slow": false,
       "last_status": "passed",
-      "last_run_at": "2026-09-22T21:45:59",
+      "last_run_at": "2026-09-22T21:56:09",
       "needs_run": false
     },
     "cli/cmd.TestUpdateRepoInDBAndRemoveRepoDB": {
@@ -11167,7 +11167,7 @@
       "tier": "fast",
       "is_slow": false,
       "last_status": "passed",
-      "last_run_at": "2026-09-22T21:45:59",
+      "last_run_at": "2026-09-22T21:56:09",
       "needs_run": false
     },
     "cli/cmd.TestRemoveRepoDBWithAliasAtomicity": {
@@ -11183,7 +11183,7 @@
       "tier": "fast",
       "is_slow": false,
       "last_status": "passed",
-      "last_run_at": "2026-09-22T21:45:59",
+      "last_run_at": "2026-09-22T21:56:09",
       "needs_run": false
     },
     "cli/cmd.TestWriteShellHandoffNoEnvIsNoop": {
@@ -11199,7 +11199,7 @@
       "tier": "fast",
       "is_slow": false,
       "last_status": "passed",
-      "last_run_at": "2026-09-22T21:45:59",
+      "last_run_at": "2026-09-22T21:56:09",
       "needs_run": false
     },
     "cli/cmd.TestWriteShellHandoffWritesPath": {
@@ -11215,7 +11215,7 @@
       "tier": "fast",
       "is_slow": false,
       "last_status": "passed",
-      "last_run_at": "2026-09-22T21:45:59",
+      "last_run_at": "2026-09-22T21:56:09",
       "needs_run": false
     },
     "cli/cmd.TestWriteShellHandoffEmptyPathIsNoop": {
@@ -11231,7 +11231,7 @@
       "tier": "fast",
       "is_slow": false,
       "last_status": "passed",
-      "last_run_at": "2026-09-22T21:45:59",
+      "last_run_at": "2026-09-22T21:56:09",
       "needs_run": false
     },
     "cli/cmd.TestSSHListJSONContract_EmptyIsArrayNotNull": {
@@ -11247,7 +11247,7 @@
       "tier": "fast",
       "is_slow": false,
       "last_status": "passed",
-      "last_run_at": "2026-09-22T21:45:59",
+      "last_run_at": "2026-09-22T21:56:09",
       "needs_run": false
     },
     "cli/cmd.TestSSHListJSONContract_CanonicalRow_KeyOrder": {
@@ -11263,7 +11263,7 @@
       "tier": "fast",
       "is_slow": false,
       "last_status": "passed",
-      "last_run_at": "2026-09-22T21:45:59",
+      "last_run_at": "2026-09-22T21:56:09",
       "needs_run": false
     },
     "cli/cmd.TestSSHListJSONSchema_TopLevelShape": {
@@ -11279,7 +11279,7 @@
       "tier": "fast",
       "is_slow": false,
       "last_status": "passed",
-      "last_run_at": "2026-09-22T21:45:59",
+      "last_run_at": "2026-09-22T21:56:09",
       "needs_run": false
     },
     "cli/cmd.TestSSHListJSONSchema_EncoderMatchesSchema": {
@@ -11295,7 +11295,7 @@
       "tier": "fast",
       "is_slow": false,
       "last_status": "passed",
-      "last_run_at": "2026-09-22T21:45:59",
+      "last_run_at": "2026-09-22T21:56:09",
       "needs_run": false
     },
     "cli/cmd.TestStartupListCSVContract_HeaderIsExact": {
@@ -11311,7 +11311,7 @@
       "tier": "fast",
       "is_slow": false,
       "last_status": "passed",
-      "last_run_at": "2026-09-22T21:45:59",
+      "last_run_at": "2026-09-22T21:56:09",
       "needs_run": false
     },
     "cli/cmd.TestStartupListCSVContract_EmptyIsHeaderOnly": {
@@ -11327,7 +11327,7 @@
       "tier": "fast",
       "is_slow": false,
       "last_status": "passed",
-      "last_run_at": "2026-09-22T21:45:59",
+      "last_run_at": "2026-09-22T21:56:09",
       "needs_run": false
     },
     "cli/cmd.TestStartupListCSVContract_EveryRowHas3Columns": {
@@ -11343,7 +11343,7 @@
       "tier": "fast",
       "is_slow": false,
       "last_status": "passed",
-      "last_run_at": "2026-09-22T21:45:59",
+      "last_run_at": "2026-09-22T21:56:09",
       "needs_run": false
     },
     "cli/cmd.TestStartupListCSVContract_HeaderMatchesJSONSchema": {
@@ -11359,7 +11359,7 @@
       "tier": "fast",
       "is_slow": false,
       "last_status": "passed",
-      "last_run_at": "2026-09-22T21:45:59",
+      "last_run_at": "2026-09-22T21:56:09",
       "needs_run": false
     },
     "cli/cmd.TestFilterStartupList_NoFilters": {
@@ -11375,7 +11375,7 @@
       "tier": "fast",
       "is_slow": false,
       "last_status": "passed",
-      "last_run_at": "2026-09-22T21:45:59",
+      "last_run_at": "2026-09-22T21:56:09",
       "needs_run": false
     },
     "cli/cmd.TestFilterStartupList_BackendRegistry": {
@@ -11391,7 +11391,7 @@
       "tier": "fast",
       "is_slow": false,
       "last_status": "passed",
-      "last_run_at": "2026-09-22T21:45:59",
+      "last_run_at": "2026-09-22T21:56:09",
       "needs_run": false
     },
     "cli/cmd.TestFilterStartupList_BackendStartupFolder": {
@@ -11407,7 +11407,7 @@
       "tier": "fast",
       "is_slow": false,
       "last_status": "passed",
-      "last_run_at": "2026-09-22T21:45:59",
+      "last_run_at": "2026-09-22T21:56:09",
       "needs_run": false
     },
     "cli/cmd.TestFilterStartupList_NameMatchesAcrossOSes": {
@@ -11423,7 +11423,7 @@
       "tier": "fast",
       "is_slow": false,
       "last_status": "passed",
-      "last_run_at": "2026-09-22T21:45:59",
+      "last_run_at": "2026-09-22T21:56:09",
       "needs_run": false
     },
     "cli/cmd.TestFilterStartupList_BackendRegistryHKLM": {
@@ -11439,7 +11439,7 @@
       "tier": "fast",
       "is_slow": false,
       "last_status": "passed",
-      "last_run_at": "2026-09-22T21:45:59",
+      "last_run_at": "2026-09-22T21:56:09",
       "needs_run": false
     },
     "cli/cmd.TestFilterStartupList_BackendAndName": {
@@ -11455,7 +11455,7 @@
       "tier": "fast",
       "is_slow": false,
       "last_status": "passed",
-      "last_run_at": "2026-09-22T21:45:59",
+      "last_run_at": "2026-09-22T21:56:09",
       "needs_run": false
     },
     "cli/cmd.TestFilterStartupList_NameNoMatch": {
@@ -11471,7 +11471,7 @@
       "tier": "fast",
       "is_slow": false,
       "last_status": "passed",
-      "last_run_at": "2026-09-22T21:45:59",
+      "last_run_at": "2026-09-22T21:56:09",
       "needs_run": false
     },
     "cli/cmd.TestParseStartupListFlags_BackendValidation": {
@@ -11487,7 +11487,7 @@
       "tier": "fast",
       "is_slow": false,
       "last_status": "passed",
-      "last_run_at": "2026-09-22T21:45:59",
+      "last_run_at": "2026-09-22T21:56:09",
       "needs_run": false
     },
     "cli/cmd.TestParseStartupListFlags_NameAcceptsAnyString": {
@@ -11503,7 +11503,7 @@
       "tier": "fast",
       "is_slow": false,
       "last_status": "passed",
-      "last_run_at": "2026-09-22T21:45:59",
+      "last_run_at": "2026-09-22T21:56:09",
       "needs_run": false
     },
     "cli/cmd.TestStartupListJSONL_EmptyEmitsNothing": {
@@ -11519,7 +11519,7 @@
       "tier": "fast",
       "is_slow": false,
       "last_status": "passed",
-      "last_run_at": "2026-09-22T21:45:59",
+      "last_run_at": "2026-09-22T21:56:09",
       "needs_run": false
     },
     "cli/cmd.TestStartupListJSONL_SingleEntryByteExact": {
@@ -11535,7 +11535,7 @@
       "tier": "fast",
       "is_slow": false,
       "last_status": "passed",
-      "last_run_at": "2026-09-22T21:45:59",
+      "last_run_at": "2026-09-22T21:56:09",
       "needs_run": false
     },
     "cli/cmd.TestStartupListJSONL_MultiEntryLineCount": {
@@ -11551,7 +11551,7 @@
       "tier": "fast",
       "is_slow": false,
       "last_status": "passed",
-      "last_run_at": "2026-09-22T21:45:59",
+      "last_run_at": "2026-09-22T21:56:09",
       "needs_run": false
     },
     "cli/cmd.TestStartupListJSONL_KeyOrderStable": {
@@ -11567,7 +11567,7 @@
       "tier": "fast",
       "is_slow": false,
       "last_status": "passed",
-      "last_run_at": "2026-09-22T21:45:59",
+      "last_run_at": "2026-09-22T21:56:09",
       "needs_run": false
     },
     "cli/cmd.TestStartupListJSONL_SpecialCharsMatchJSON": {
@@ -11583,7 +11583,7 @@
       "tier": "fast",
       "is_slow": false,
       "last_status": "passed",
-      "last_run_at": "2026-09-22T21:45:59",
+      "last_run_at": "2026-09-22T21:56:09",
       "needs_run": false
     },
     "cli/cmd.TestStartupListJSONBytes_MultiEntry": {
@@ -11599,7 +11599,7 @@
       "tier": "fast",
       "is_slow": false,
       "last_status": "passed",
-      "last_run_at": "2026-09-22T21:45:59",
+      "last_run_at": "2026-09-22T21:56:09",
       "needs_run": false
     },
     "cli/cmd.TestStartupListJSONBytes_SpecialChars": {
@@ -11615,7 +11615,7 @@
       "tier": "fast",
       "is_slow": false,
       "last_status": "passed",
-      "last_run_at": "2026-09-22T21:45:59",
+      "last_run_at": "2026-09-22T21:56:09",
       "needs_run": false
     },
     "cli/cmd.TestStartupListJSONContract_EmptyIsArrayNotNull": {
@@ -11631,7 +11631,7 @@
       "tier": "fast",
       "is_slow": false,
       "last_status": "passed",
-      "last_run_at": "2026-09-22T21:45:59",
+      "last_run_at": "2026-09-22T21:56:09",
       "needs_run": false
     },
     "cli/cmd.TestStartupListJSONContract_EmptyNonNilSliceAlsoIsArray": {
@@ -11647,7 +11647,7 @@
       "tier": "fast",
       "is_slow": false,
       "last_status": "passed",
-      "last_run_at": "2026-09-22T21:45:59",
+      "last_run_at": "2026-09-22T21:56:09",
       "needs_run": false
     },
     "cli/cmd.TestStartupListJSONContract_CanonicalEntry": {
@@ -11663,7 +11663,7 @@
       "tier": "fast",
       "is_slow": false,
       "last_status": "passed",
-      "last_run_at": "2026-09-22T21:45:59",
+      "last_run_at": "2026-09-22T21:56:09",
       "needs_run": false
     },
     "cli/cmd.TestStartupListJSONContract_KeyOrderStable": {
@@ -11679,7 +11679,7 @@
       "tier": "fast",
       "is_slow": false,
       "last_status": "passed",
-      "last_run_at": "2026-09-22T21:45:59",
+      "last_run_at": "2026-09-22T21:56:09",
       "needs_run": false
     },
     "cli/cmd.TestStartupListJSON_DeterministicAcrossRuns": {
@@ -11695,7 +11695,7 @@
       "tier": "fast",
       "is_slow": false,
       "last_status": "passed",
-      "last_run_at": "2026-09-22T21:45:59",
+      "last_run_at": "2026-09-22T21:56:09",
       "needs_run": false
     },
     "cli/cmd.TestStartupListJSONIndent_KeyOrderStableAcrossIndents": {
@@ -11711,7 +11711,7 @@
       "tier": "fast",
       "is_slow": false,
       "last_status": "passed",
-      "last_run_at": "2026-09-22T21:45:59",
+      "last_run_at": "2026-09-22T21:56:09",
       "needs_run": false
     },
     "cli/cmd.TestStartupListJSONIndent_MinifiedByteExact": {
@@ -11727,7 +11727,7 @@
       "tier": "fast",
       "is_slow": false,
       "last_status": "passed",
-      "last_run_at": "2026-09-22T21:45:59",
+      "last_run_at": "2026-09-22T21:56:09",
       "needs_run": false
     },
     "cli/cmd.TestStartupListJSONIndent_DefaultMatchesLegacy": {
@@ -11743,7 +11743,7 @@
       "tier": "fast",
       "is_slow": false,
       "last_status": "passed",
-      "last_run_at": "2026-09-22T21:45:59",
+      "last_run_at": "2026-09-22T21:56:09",
       "needs_run": false
     },
     "cli/cmd.TestStartupListJSONIndent_EmptyAlwaysBracketsNewline": {
@@ -11759,7 +11759,7 @@
       "tier": "fast",
       "is_slow": false,
       "last_status": "passed",
-      "last_run_at": "2026-09-22T21:45:59",
+      "last_run_at": "2026-09-22T21:56:09",
       "needs_run": false
     },
     "cli/cmd.TestStartupListJSONIndent_IndentWidthIsCountedSpaces": {
@@ -11775,7 +11775,7 @@
       "tier": "fast",
       "is_slow": false,
       "last_status": "passed",
-      "last_run_at": "2026-09-22T21:45:59",
+      "last_run_at": "2026-09-22T21:56:09",
       "needs_run": false
     },
     "cli/cmd.TestStartupListJSONIndent_FlagParsing": {
@@ -11791,7 +11791,7 @@
       "tier": "fast",
       "is_slow": false,
       "last_status": "passed",
-      "last_run_at": "2026-09-22T21:45:59",
+      "last_run_at": "2026-09-22T21:56:09",
       "needs_run": false
     },
     "cli/cmd.TestStartupListJSONSnapshot_SchemaIsLocked": {
@@ -11807,7 +11807,7 @@
       "tier": "fast",
       "is_slow": false,
       "last_status": "passed",
-      "last_run_at": "2026-09-22T21:45:59",
+      "last_run_at": "2026-09-22T21:56:09",
       "needs_run": false
     },
     "cli/cmd.TestStartupListJSONSnapshot_DeterministicAcrossRuns": {
@@ -11823,7 +11823,7 @@
       "tier": "fast",
       "is_slow": false,
       "last_status": "passed",
-      "last_run_at": "2026-09-22T21:45:59",
+      "last_run_at": "2026-09-22T21:56:09",
       "needs_run": false
     },
     "cli/cmd.TestStartupListJSONSnapshot_EmptyListHasNoObjects": {
@@ -11839,7 +11839,7 @@
       "tier": "fast",
       "is_slow": false,
       "last_status": "passed",
-      "last_run_at": "2026-09-22T21:45:59",
+      "last_run_at": "2026-09-22T21:56:09",
       "needs_run": false
     },
     "cli/cmd.TestStartupListTableContract_HeaderIncludesDir": {
@@ -11855,7 +11855,7 @@
       "tier": "fast",
       "is_slow": false,
       "last_status": "passed",
-      "last_run_at": "2026-09-22T21:45:59",
+      "last_run_at": "2026-09-22T21:56:09",
       "needs_run": false
     },
     "cli/cmd.TestStartupListTableContract_EmptyMarkerIsStable": {
@@ -11871,7 +11871,7 @@
       "tier": "fast",
       "is_slow": false,
       "last_status": "passed",
-      "last_run_at": "2026-09-22T21:45:59",
+      "last_run_at": "2026-09-22T21:56:09",
       "needs_run": false
     },
     "cli/cmd.TestStartupListTableContract_RowShape": {
@@ -11887,7 +11887,7 @@
       "tier": "fast",
       "is_slow": false,
       "last_status": "passed",
-      "last_run_at": "2026-09-22T21:45:59",
+      "last_run_at": "2026-09-22T21:56:09",
       "needs_run": false
     },
     "cli/cmd.TestStartupListTableContract_EmptyExecRendersPlaceholder": {
@@ -11903,7 +11903,7 @@
       "tier": "fast",
       "is_slow": false,
       "last_status": "passed",
-      "last_run_at": "2026-09-22T21:45:59",
+      "last_run_at": "2026-09-22T21:56:09",
       "needs_run": false
     },
     "cli/cmd.TestStartupListTableContract_FooterPinsCount": {
@@ -11919,7 +11919,7 @@
       "tier": "fast",
       "is_slow": false,
       "last_status": "passed",
-      "last_run_at": "2026-09-22T21:45:59",
+      "last_run_at": "2026-09-22T21:56:09",
       "needs_run": false
     },
     "cli/cmd.TestStartupListSchema_TopLevelIsArray": {
@@ -11935,7 +11935,7 @@
       "tier": "fast",
       "is_slow": false,
       "last_status": "passed",
-      "last_run_at": "2026-09-22T21:45:59",
+      "last_run_at": "2026-09-22T21:56:09",
       "needs_run": false
     },
     "cli/cmd.TestStartupListSchema_RequiredKeysMatchEncoder": {
@@ -11951,7 +11951,7 @@
       "tier": "fast",
       "is_slow": false,
       "last_status": "passed",
-      "last_run_at": "2026-09-22T21:45:59",
+      "last_run_at": "2026-09-22T21:56:09",
       "needs_run": false
     },
     "cli/cmd.TestStartupListSchema_PropertyOrderMatchesEncoder": {
@@ -11967,7 +11967,7 @@
       "tier": "fast",
       "is_slow": false,
       "last_status": "passed",
-      "last_run_at": "2026-09-22T21:45:59",
+      "last_run_at": "2026-09-22T21:56:09",
       "needs_run": false
     },
     "cli/cmd.TestStartupListSchema_EmptyEncodesAsArray": {
@@ -11983,7 +11983,7 @@
       "tier": "fast",
       "is_slow": false,
       "last_status": "passed",
-      "last_run_at": "2026-09-22T21:45:59",
+      "last_run_at": "2026-09-22T21:56:09",
       "needs_run": false
     },
     "cli/cmd.TestParseStartupRemoveFlags_PositionalOnly": {
@@ -11999,7 +11999,7 @@
       "tier": "fast",
       "is_slow": false,
       "last_status": "passed",
-      "last_run_at": "2026-09-22T21:45:59",
+      "last_run_at": "2026-09-22T21:56:09",
       "needs_run": false
     },
     "cli/cmd.TestParseStartupRemoveFlags_Backend": {
@@ -12015,7 +12015,7 @@
       "tier": "fast",
       "is_slow": false,
       "last_status": "passed",
-      "last_run_at": "2026-09-22T21:45:59",
+      "last_run_at": "2026-09-22T21:56:09",
       "needs_run": false
     },
     "cli/cmd.TestParseStartupRemoveFlags_BackendStartupFolder": {
@@ -12031,7 +12031,7 @@
       "tier": "fast",
       "is_slow": false,
       "last_status": "passed",
-      "last_run_at": "2026-09-22T21:45:59",
+      "last_run_at": "2026-09-22T21:56:09",
       "needs_run": false
     },
     "cli/cmd.TestParseStartupRemoveFlags_BackendAndDryRun": {
@@ -12047,7 +12047,7 @@
       "tier": "fast",
       "is_slow": false,
       "last_status": "passed",
-      "last_run_at": "2026-09-22T21:45:59",
+      "last_run_at": "2026-09-22T21:56:09",
       "needs_run": false
     },
     "cli/cmd.TestParseStartupRemoveFlags_MissingName": {
@@ -12063,7 +12063,7 @@
       "tier": "fast",
       "is_slow": false,
       "last_status": "passed",
-      "last_run_at": "2026-09-22T21:45:59",
+      "last_run_at": "2026-09-22T21:56:09",
       "needs_run": false
     },
     "cli/cmd.TestParseStartupRemoveFlags_OutputAndIndent": {
@@ -12079,7 +12079,7 @@
       "tier": "fast",
       "is_slow": false,
       "last_status": "passed",
-      "last_run_at": "2026-09-22T21:45:59",
+      "last_run_at": "2026-09-22T21:56:09",
       "needs_run": false
     },
     "cli/cmd.TestStartupStatusJSON_AddCreatedKeyOrder": {
@@ -12095,7 +12095,7 @@
       "tier": "fast",
       "is_slow": false,
       "last_status": "passed",
-      "last_run_at": "2026-09-22T21:45:59",
+      "last_run_at": "2026-09-22T21:56:09",
       "needs_run": false
     },
     "cli/cmd.TestStartupStatusJSON_AddActionsAndOwners": {
@@ -12111,7 +12111,7 @@
       "tier": "fast",
       "is_slow": false,
       "last_status": "passed",
-      "last_run_at": "2026-09-22T21:45:59",
+      "last_run_at": "2026-09-22T21:56:09",
       "needs_run": false
     },
     "cli/cmd.TestStartupStatusJSON_RemoveActionsAndOwners": {
@@ -12127,7 +12127,7 @@
       "tier": "fast",
       "is_slow": false,
       "last_status": "passed",
-      "last_run_at": "2026-09-22T21:45:59",
+      "last_run_at": "2026-09-22T21:56:09",
       "needs_run": false
     },
     "cli/cmd.TestStartupStatusJSON_MinifiedShape": {
@@ -12143,7 +12143,7 @@
       "tier": "fast",
       "is_slow": false,
       "last_status": "passed",
-      "last_run_at": "2026-09-22T21:45:59",
+      "last_run_at": "2026-09-22T21:56:09",
       "needs_run": false
     },
     "cli/cmd.TestValidateStartupOutput_RejectsUnknownAndOutOfRange": {
@@ -12159,7 +12159,7 @@
       "tier": "fast",
       "is_slow": false,
       "last_status": "passed",
-      "last_run_at": "2026-09-22T21:45:59",
+      "last_run_at": "2026-09-22T21:56:09",
       "needs_run": false
     },
     "cli/cmd.TestParseStartupAddArgs": {
@@ -12175,7 +12175,7 @@
       "tier": "fast",
       "is_slow": false,
       "last_status": "passed",
-      "last_run_at": "2026-09-22T21:45:59",
+      "last_run_at": "2026-09-22T21:56:09",
       "needs_run": false
     },
     "cli/cmd.TestDeriveStartupName": {
@@ -12191,7 +12191,7 @@
       "tier": "fast",
       "is_slow": false,
       "last_status": "passed",
-      "last_run_at": "2026-09-22T21:45:59",
+      "last_run_at": "2026-09-22T21:56:09",
       "needs_run": false
     },
     "cli/cmd.TestStatsJSONContract_EmptyCommandsArray": {
@@ -12207,7 +12207,7 @@
       "tier": "fast",
       "is_slow": false,
       "last_status": "passed",
-      "last_run_at": "2026-09-22T21:45:59",
+      "last_run_at": "2026-09-22T21:56:09",
       "needs_run": false
     },
     "cli/cmd.TestStatsJSONContract_KeyOrder": {
@@ -12223,7 +12223,7 @@
       "tier": "fast",
       "is_slow": false,
       "last_status": "passed",
-      "last_run_at": "2026-09-22T21:45:59",
+      "last_run_at": "2026-09-22T21:56:09",
       "needs_run": false
     },
     "cli/cmd.TestStatsJSONSchema_TopLevelShape": {
@@ -12239,7 +12239,7 @@
       "tier": "fast",
       "is_slow": false,
       "last_status": "passed",
-      "last_run_at": "2026-09-22T21:45:59",
+      "last_run_at": "2026-09-22T21:56:09",
       "needs_run": false
     },
     "cli/cmd.TestStatsJSONSchema_EncoderMatchesSchema": {
@@ -12255,7 +12255,7 @@
       "tier": "fast",
       "is_slow": false,
       "last_status": "passed",
-      "last_run_at": "2026-09-22T21:45:59",
+      "last_run_at": "2026-09-22T21:56:09",
       "needs_run": false
     },
     "cli/cmd.TestStorageCmdDriveReport": {
@@ -12271,7 +12271,7 @@
       "tier": "fast",
       "is_slow": false,
       "last_status": "passed",
-      "last_run_at": "2026-09-22T21:45:59",
+      "last_run_at": "2026-09-22T21:56:09",
       "needs_run": false
     },
     "cli/cmd.TestStorageCmdList": {
@@ -12287,7 +12287,7 @@
       "tier": "fast",
       "is_slow": false,
       "last_status": "passed",
-      "last_run_at": "2026-09-22T21:45:59",
+      "last_run_at": "2026-09-22T21:56:09",
       "needs_run": false
     },
     "cli/cmd.TestGetDiskSpaceMetrics": {
@@ -12303,7 +12303,7 @@
       "tier": "fast",
       "is_slow": false,
       "last_status": "passed",
-      "last_run_at": "2026-09-22T21:45:59",
+      "last_run_at": "2026-09-22T21:56:09",
       "needs_run": false
     },
     "cli/cmd.TestIsStorageListSubcommand": {
@@ -12319,7 +12319,7 @@
       "tier": "fast",
       "is_slow": false,
       "last_status": "passed",
-      "last_run_at": "2026-09-22T21:45:59",
+      "last_run_at": "2026-09-22T21:56:09",
       "needs_run": false
     },
     "cli/cmd.TestResolveRelativeDBPath": {
@@ -12335,7 +12335,7 @@
       "tier": "fast",
       "is_slow": false,
       "last_status": "passed",
-      "last_run_at": "2026-09-22T21:45:59",
+      "last_run_at": "2026-09-22T21:56:09",
       "needs_run": false
     },
     "cli/cmd.TestIsStorageRestoreSubcommand": {
@@ -12351,7 +12351,7 @@
       "tier": "fast",
       "is_slow": false,
       "last_status": "passed",
-      "last_run_at": "2026-09-22T21:45:59",
+      "last_run_at": "2026-09-22T21:56:09",
       "needs_run": false
     },
     "cli/cmd.TestIsStorageSpaceSubcommand": {
@@ -12367,7 +12367,7 @@
       "tier": "fast",
       "is_slow": false,
       "last_status": "passed",
-      "last_run_at": "2026-09-22T21:45:59",
+      "last_run_at": "2026-09-22T21:56:09",
       "needs_run": false
     },
     "cli/cmd.TestStorageCmdSpaceList": {
@@ -12383,7 +12383,7 @@
       "tier": "fast",
       "is_slow": false,
       "last_status": "passed",
-      "last_run_at": "2026-09-22T21:45:59",
+      "last_run_at": "2026-09-22T21:56:09",
       "needs_run": false
     },
     "cli/cmd.TestStorageCmdRestoreDB": {
@@ -12399,7 +12399,7 @@
       "tier": "fast",
       "is_slow": false,
       "last_status": "passed",
-      "last_run_at": "2026-09-22T21:45:59",
+      "last_run_at": "2026-09-22T21:56:09",
       "needs_run": false
     },
     "cli/cmd.TestStorageCmdRestoreDbAlias": {
@@ -12415,7 +12415,7 @@
       "tier": "fast",
       "is_slow": false,
       "last_status": "passed",
-      "last_run_at": "2026-09-22T21:45:59",
+      "last_run_at": "2026-09-22T21:56:09",
       "needs_run": false
     },
     "cli/cmd.TestCollectStorageEntries": {
@@ -12431,7 +12431,7 @@
       "tier": "fast",
       "is_slow": false,
       "last_status": "passed",
-      "last_run_at": "2026-09-22T21:45:59",
+      "last_run_at": "2026-09-22T21:56:09",
       "needs_run": false
     },
     "cli/cmd.TestIsSyncHelp": {
@@ -12447,7 +12447,7 @@
       "tier": "fast",
       "is_slow": false,
       "last_status": "passed",
-      "last_run_at": "2026-09-22T21:45:59",
+      "last_run_at": "2026-09-22T21:56:09",
       "needs_run": false
     },
     "cli/cmd.TestIsLegacyTaskSubcommand": {
@@ -12463,7 +12463,7 @@
       "tier": "fast",
       "is_slow": false,
       "last_status": "passed",
-      "last_run_at": "2026-09-22T21:45:59",
+      "last_run_at": "2026-09-22T21:56:09",
       "needs_run": false
     },
     "cli/cmd.TestDispatchTaskSubcommandConstants": {
@@ -12479,7 +12479,7 @@
       "tier": "fast",
       "is_slow": false,
       "last_status": "passed",
-      "last_run_at": "2026-09-22T21:45:59",
+      "last_run_at": "2026-09-22T21:56:09",
       "needs_run": false
     },
     "cli/cmd.TestIsGitignoreCommentClassifies": {
@@ -12495,7 +12495,7 @@
       "tier": "fast",
       "is_slow": false,
       "last_status": "passed",
-      "last_run_at": "2026-09-22T21:45:59",
+      "last_run_at": "2026-09-22T21:56:09",
       "needs_run": false
     },
     "cli/cmd.TestParseGitignoreLinesStripsCommentsAndBlanks": {
@@ -12511,7 +12511,7 @@
       "tier": "fast",
       "is_slow": false,
       "last_status": "passed",
-      "last_run_at": "2026-09-22T21:45:59",
+      "last_run_at": "2026-09-22T21:56:09",
       "needs_run": false
     },
     "cli/cmd.TestParseGitignoreLinesEmptyInput": {
@@ -12527,7 +12527,7 @@
       "tier": "fast",
       "is_slow": false,
       "last_status": "passed",
-      "last_run_at": "2026-09-22T21:45:59",
+      "last_run_at": "2026-09-22T21:56:09",
       "needs_run": false
     },
     "cli/cmd.TestMatchGlobBasename": {
@@ -12543,7 +12543,7 @@
       "tier": "fast",
       "is_slow": false,
       "last_status": "passed",
-      "last_run_at": "2026-09-22T21:45:59",
+      "last_run_at": "2026-09-22T21:56:09",
       "needs_run": false
     },
     "cli/cmd.TestMatchesPatternDirOnlyVsFile": {
@@ -12559,7 +12559,7 @@
       "tier": "fast",
       "is_slow": false,
       "last_status": "passed",
-      "last_run_at": "2026-09-22T21:45:59",
+      "last_run_at": "2026-09-22T21:56:09",
       "needs_run": false
     },
     "cli/cmd.TestIsIgnoredEmptyPatternsShortCircuit": {
@@ -12575,7 +12575,7 @@
       "tier": "fast",
       "is_slow": false,
       "last_status": "passed",
-      "last_run_at": "2026-09-22T21:45:59",
+      "last_run_at": "2026-09-22T21:56:09",
       "needs_run": false
     },
     "cli/cmd.TestIsIgnoredAnyMatchWins": {
@@ -12591,7 +12591,7 @@
       "tier": "fast",
       "is_slow": false,
       "last_status": "passed",
-      "last_run_at": "2026-09-22T21:45:59",
+      "last_run_at": "2026-09-22T21:56:09",
       "needs_run": false
     },
     "cli/cmd.TestFilterTemplatesNoFilters": {
@@ -12607,7 +12607,7 @@
       "tier": "fast",
       "is_slow": false,
       "last_status": "passed",
-      "last_run_at": "2026-09-22T21:45:59",
+      "last_run_at": "2026-09-22T21:56:09",
       "needs_run": false
     },
     "cli/cmd.TestFilterTemplatesByKind": {
@@ -12623,7 +12623,7 @@
       "tier": "fast",
       "is_slow": false,
       "last_status": "passed",
-      "last_run_at": "2026-09-22T21:45:59",
+      "last_run_at": "2026-09-22T21:56:09",
       "needs_run": false
     },
     "cli/cmd.TestFilterTemplatesByLang": {
@@ -12639,7 +12639,7 @@
       "tier": "fast",
       "is_slow": false,
       "last_status": "passed",
-      "last_run_at": "2026-09-22T21:45:59",
+      "last_run_at": "2026-09-22T21:56:09",
       "needs_run": false
     },
     "cli/cmd.TestFilterTemplatesByKindAndLang": {
@@ -12655,7 +12655,7 @@
       "tier": "fast",
       "is_slow": false,
       "last_status": "passed",
-      "last_run_at": "2026-09-22T21:45:59",
+      "last_run_at": "2026-09-22T21:56:09",
       "needs_run": false
     },
     "cli/cmd.TestFilterTemplatesEmptyResult": {
@@ -12671,7 +12671,7 @@
       "tier": "fast",
       "is_slow": false,
       "last_status": "passed",
-      "last_run_at": "2026-09-22T21:45:59",
+      "last_run_at": "2026-09-22T21:56:09",
       "needs_run": false
     },
     "cli/cmd.TestIsValidKindFilter": {
@@ -12687,7 +12687,7 @@
       "tier": "fast",
       "is_slow": false,
       "last_status": "passed",
-      "last_run_at": "2026-09-22T21:45:59",
+      "last_run_at": "2026-09-22T21:56:09",
       "needs_run": false
     },
     "cli/cmd.TestParseTemplatesListFlagsLowersValues": {
@@ -12703,7 +12703,7 @@
       "tier": "fast",
       "is_slow": false,
       "last_status": "passed",
-      "last_run_at": "2026-09-22T21:45:59",
+      "last_run_at": "2026-09-22T21:56:09",
       "needs_run": false
     },
     "cli/cmd.TestIsMarkdownTemplatePathRecognizesMarkdownExtensions": {
@@ -12719,7 +12719,7 @@
       "tier": "fast",
       "is_slow": false,
       "last_status": "passed",
-      "last_run_at": "2026-09-22T21:45:59",
+      "last_run_at": "2026-09-22T21:56:09",
       "needs_run": false
     },
     "cli/cmd.TestParseTemplatesShowFlagsPrefersPretty": {
@@ -12735,7 +12735,7 @@
       "tier": "fast",
       "is_slow": false,
       "last_status": "passed",
-      "last_run_at": "2026-09-22T21:45:59",
+      "last_run_at": "2026-09-22T21:56:09",
       "needs_run": false
     },
     "cli/cmd.TestParseTemplatesShowFlagsRawAliases": {
@@ -12751,7 +12751,7 @@
       "tier": "fast",
       "is_slow": false,
       "last_status": "passed",
-      "last_run_at": "2026-09-22T21:45:59",
+      "last_run_at": "2026-09-22T21:56:09",
       "needs_run": false
     },
     "cli/cmd.TestParseTemplatesShowFlagsPrettyBeatsRaw": {
@@ -12767,7 +12767,7 @@
       "tier": "fast",
       "is_slow": false,
       "last_status": "passed",
-      "last_run_at": "2026-09-22T21:45:59",
+      "last_run_at": "2026-09-22T21:56:09",
       "needs_run": false
     },
     "cli/cmd.TestParseTemplatesInitFlagsAcceptsMixedOrder": {
@@ -12783,7 +12783,7 @@
       "tier": "fast",
       "is_slow": false,
       "last_status": "passed",
-      "last_run_at": "2026-09-22T21:45:59",
+      "last_run_at": "2026-09-22T21:56:09",
       "needs_run": false
     },
     "cli/cmd.TestParseTemplatesInitFlagsLFSAndDryRunStored": {
@@ -12799,7 +12799,7 @@
       "tier": "fast",
       "is_slow": false,
       "last_status": "passed",
-      "last_run_at": "2026-09-22T21:45:59",
+      "last_run_at": "2026-09-22T21:56:09",
       "needs_run": false
     },
     "cli/cmd.TestExecuteTemplatesInitWritesIgnoreAndAttributes": {
@@ -12815,7 +12815,7 @@
       "tier": "fast",
       "is_slow": false,
       "last_status": "passed",
-      "last_run_at": "2026-09-22T21:45:59",
+      "last_run_at": "2026-09-22T21:56:09",
       "needs_run": false
     },
     "cli/cmd.TestExecuteTemplatesInitIsIdempotent": {
@@ -12831,7 +12831,7 @@
       "tier": "fast",
       "is_slow": false,
       "last_status": "passed",
-      "last_run_at": "2026-09-22T21:45:59",
+      "last_run_at": "2026-09-22T21:56:09",
       "needs_run": false
     },
     "cli/cmd.TestExecuteTemplatesInitDryRunWritesNothing": {
@@ -12847,7 +12847,7 @@
       "tier": "fast",
       "is_slow": false,
       "last_status": "passed",
-      "last_run_at": "2026-09-22T21:45:59",
+      "last_run_at": "2026-09-22T21:56:09",
       "needs_run": false
     },
     "cli/cmd.TestExecuteTemplatesInitForceReplacesExisting": {
@@ -12863,7 +12863,7 @@
       "tier": "fast",
       "is_slow": false,
       "last_status": "passed",
-      "last_run_at": "2026-09-22T21:45:59",
+      "last_run_at": "2026-09-22T21:56:09",
       "needs_run": false
     },
     "cli/cmd.TestExecuteTemplatesInitWithoutForcePreservesUserContent": {
@@ -12879,7 +12879,7 @@
       "tier": "fast",
       "is_slow": false,
       "last_status": "passed",
-      "last_run_at": "2026-09-22T21:45:59",
+      "last_run_at": "2026-09-22T21:56:09",
       "needs_run": false
     },
     "cli/cmd.TestExecuteTemplatesInitLFSMergesIntoAttributes": {
@@ -12895,7 +12895,7 @@
       "tier": "fast",
       "is_slow": false,
       "last_status": "passed",
-      "last_run_at": "2026-09-22T21:45:59",
+      "last_run_at": "2026-09-22T21:56:09",
       "needs_run": false
     },
     "cli/cmd.TestRunTemplatesInitStepSoftSkipsMissingOptional": {
@@ -12911,7 +12911,7 @@
       "tier": "fast",
       "is_slow": false,
       "last_status": "passed",
-      "last_run_at": "2026-09-22T21:45:59",
+      "last_run_at": "2026-09-22T21:56:09",
       "needs_run": false
     },
     "cli/cmd.TestTempReleaseListJSONContract_EmptyIsArrayNotNull": {
@@ -12927,7 +12927,7 @@
       "tier": "fast",
       "is_slow": false,
       "last_status": "passed",
-      "last_run_at": "2026-09-22T21:45:59",
+      "last_run_at": "2026-09-22T21:56:09",
       "needs_run": false
     },
     "cli/cmd.TestTempReleaseListJSONContract_CanonicalRows": {
@@ -12943,7 +12943,7 @@
       "tier": "fast",
       "is_slow": false,
       "last_status": "passed",
-      "last_run_at": "2026-09-22T21:45:59",
+      "last_run_at": "2026-09-22T21:56:09",
       "needs_run": false
     },
     "cli/cmd.TestTempReleaseListJSONContract_KeyOrder": {
@@ -12959,7 +12959,7 @@
       "tier": "fast",
       "is_slow": false,
       "last_status": "passed",
-      "last_run_at": "2026-09-22T21:45:59",
+      "last_run_at": "2026-09-22T21:56:09",
       "needs_run": false
     },
     "cli/cmd.TestTempReleaseListJSONSchema_TopLevelShape": {
@@ -12975,7 +12975,7 @@
       "tier": "fast",
       "is_slow": false,
       "last_status": "passed",
-      "last_run_at": "2026-09-22T21:45:59",
+      "last_run_at": "2026-09-22T21:56:09",
       "needs_run": false
     },
     "cli/cmd.TestTempReleaseListJSONSchema_EncoderMatchesSchema": {
@@ -12991,7 +12991,7 @@
       "tier": "fast",
       "is_slow": false,
       "last_status": "passed",
-      "last_run_at": "2026-09-22T21:45:59",
+      "last_run_at": "2026-09-22T21:56:09",
       "needs_run": false
     },
     "cli/cmd.TestHasPositionalToolArg": {
@@ -13007,7 +13007,7 @@
       "tier": "fast",
       "is_slow": false,
       "last_status": "passed",
-      "last_run_at": "2026-09-22T21:45:59",
+      "last_run_at": "2026-09-22T21:56:09",
       "needs_run": false
     },
     "cli/cmd.TestBuildUninstallCommand": {
@@ -13023,7 +13023,7 @@
       "tier": "fast",
       "is_slow": false,
       "last_status": "passed",
-      "last_run_at": "2026-09-22T21:45:59",
+      "last_run_at": "2026-09-22T21:56:09",
       "needs_run": false
     },
     "cli/cmd.TestBuildChocoUninstall": {
@@ -13039,7 +13039,7 @@
       "tier": "fast",
       "is_slow": false,
       "last_status": "passed",
-      "last_run_at": "2026-09-22T21:45:59",
+      "last_run_at": "2026-09-22T21:56:09",
       "needs_run": false
     },
     "cli/cmd.TestBuildAptUninstall": {
@@ -13055,7 +13055,7 @@
       "tier": "fast",
       "is_slow": false,
       "last_status": "passed",
-      "last_run_at": "2026-09-22T21:45:59",
+      "last_run_at": "2026-09-22T21:56:09",
       "needs_run": false
     },
     "cli/cmd.TestCheckUninstallEligibilityErrorFormatting": {
@@ -13071,7 +13071,7 @@
       "tier": "fast",
       "is_slow": false,
       "last_status": "passed",
-      "last_run_at": "2026-09-22T21:45:59",
+      "last_run_at": "2026-09-22T21:56:09",
       "needs_run": false
     },
     "cli/cmd.TestIsCustomStandaloneTool": {
@@ -13087,7 +13087,7 @@
       "tier": "fast",
       "is_slow": false,
       "last_status": "passed",
-      "last_run_at": "2026-09-22T21:45:59",
+      "last_run_at": "2026-09-22T21:56:09",
       "needs_run": false
     },
     "cli/cmd.TestUserUsage": {
@@ -13103,7 +13103,7 @@
       "tier": "fast",
       "is_slow": false,
       "last_status": "passed",
-      "last_run_at": "2026-09-22T21:45:59",
+      "last_run_at": "2026-09-22T21:56:09",
       "needs_run": false
     },
     "cli/cmd.TestVersionHistoryJSONContract_EmptyIsArrayNotNull": {
@@ -13119,7 +13119,7 @@
       "tier": "fast",
       "is_slow": false,
       "last_status": "passed",
-      "last_run_at": "2026-09-22T21:45:59",
+      "last_run_at": "2026-09-22T21:56:09",
       "needs_run": false
     },
     "cli/cmd.TestVersionHistoryJSONContract_CanonicalRows": {
@@ -13135,7 +13135,7 @@
       "tier": "fast",
       "is_slow": false,
       "last_status": "passed",
-      "last_run_at": "2026-09-22T21:45:59",
+      "last_run_at": "2026-09-22T21:56:09",
       "needs_run": false
     },
     "cli/cmd.TestVersionHistoryJSONContract_KeyOrder": {
@@ -13151,7 +13151,7 @@
       "tier": "fast",
       "is_slow": false,
       "last_status": "passed",
-      "last_run_at": "2026-09-22T21:45:59",
+      "last_run_at": "2026-09-22T21:56:09",
       "needs_run": false
     },
     "cli/cmd.TestVersionHistoryJSONSchema_TopLevelShape": {
@@ -13167,7 +13167,7 @@
       "tier": "fast",
       "is_slow": false,
       "last_status": "passed",
-      "last_run_at": "2026-09-22T21:45:59",
+      "last_run_at": "2026-09-22T21:56:09",
       "needs_run": false
     },
     "cli/cmd.TestVersionHistoryJSONSchema_EncoderMatchesSchema": {
@@ -13183,7 +13183,7 @@
       "tier": "fast",
       "is_slow": false,
       "last_status": "passed",
-      "last_run_at": "2026-09-22T21:45:59",
+      "last_run_at": "2026-09-22T21:56:09",
       "needs_run": false
     },
     "cli/cmd.TestOwnerFromSlug": {
@@ -13199,7 +13199,7 @@
       "tier": "fast",
       "is_slow": false,
       "last_status": "passed",
-      "last_run_at": "2026-09-22T21:45:59",
+      "last_run_at": "2026-09-22T21:56:09",
       "needs_run": false
     },
     "cli/cmd.TestProviderHost": {
@@ -13215,7 +13215,7 @@
       "tier": "fast",
       "is_slow": false,
       "last_status": "passed",
-      "last_run_at": "2026-09-22T21:45:59",
+      "last_run_at": "2026-09-22T21:56:09",
       "needs_run": false
     },
     "cli/cmd.TestExtractBaseAndVersionFromArg_URL": {
@@ -13231,7 +13231,7 @@
       "tier": "fast",
       "is_slow": false,
       "last_status": "passed",
-      "last_run_at": "2026-09-22T21:45:59",
+      "last_run_at": "2026-09-22T21:56:09",
       "needs_run": false
     },
     "cli/cmd.TestExtractBaseAndVersionFromArg_Slug": {
@@ -13247,7 +13247,7 @@
       "tier": "fast",
       "is_slow": false,
       "last_status": "passed",
-      "last_run_at": "2026-09-22T21:45:59",
+      "last_run_at": "2026-09-22T21:56:09",
       "needs_run": false
     },
     "cli/cmd.TestExtractBaseAndVersionFromArg_BareNameVersioned": {
@@ -13263,7 +13263,7 @@
       "tier": "fast",
       "is_slow": false,
       "last_status": "passed",
-      "last_run_at": "2026-09-22T21:45:59",
+      "last_run_at": "2026-09-22T21:56:09",
       "needs_run": false
     },
     "cli/cmd.TestExtractBaseAndVersionFromArg_UnversionedDefaultsTo1": {
@@ -13279,7 +13279,7 @@
       "tier": "fast",
       "is_slow": false,
       "last_status": "passed",
-      "last_run_at": "2026-09-22T21:45:59",
+      "last_run_at": "2026-09-22T21:56:09",
       "needs_run": false
     },
     "cli/cmd.TestExtractBaseAndVersionFromArg_UnversionedURL": {
@@ -13295,7 +13295,7 @@
       "tier": "fast",
       "is_slow": false,
       "last_status": "passed",
-      "last_run_at": "2026-09-22T21:45:59",
+      "last_run_at": "2026-09-22T21:56:09",
       "needs_run": false
     },
     "cli/cmd.TestParseBulkRequest_TwoArgValid": {
@@ -13311,7 +13311,7 @@
       "tier": "fast",
       "is_slow": false,
       "last_status": "passed",
-      "last_run_at": "2026-09-22T21:45:59",
+      "last_run_at": "2026-09-22T21:56:09",
       "needs_run": false
     },
     "cli/cmd.TestParseBulkRequest_Empty": {
@@ -13327,7 +13327,7 @@
       "tier": "fast",
       "is_slow": false,
       "last_status": "passed",
-      "last_run_at": "2026-09-22T21:45:59",
+      "last_run_at": "2026-09-22T21:56:09",
       "needs_run": false
     },
     "cli/cmd.TestParseBulkRequest_SingleNonInt": {
@@ -13343,7 +13343,7 @@
       "tier": "fast",
       "is_slow": false,
       "last_status": "passed",
-      "last_run_at": "2026-09-22T21:45:59",
+      "last_run_at": "2026-09-22T21:56:09",
       "needs_run": false
     },
     "cli/cmd.TestParseBulkRequest_TooManyArgs": {
@@ -13359,7 +13359,7 @@
       "tier": "fast",
       "is_slow": false,
       "last_status": "passed",
-      "last_run_at": "2026-09-22T21:45:59",
+      "last_run_at": "2026-09-22T21:56:09",
       "needs_run": false
     },
     "cli/cmd.TestDecideDriftAction": {
@@ -13375,7 +13375,7 @@
       "tier": "fast",
       "is_slow": false,
       "last_status": "passed",
-      "last_run_at": "2026-09-22T21:45:59",
+      "last_run_at": "2026-09-22T21:56:09",
       "needs_run": false
     },
     "cli/cmd.TestParseHistoryFilters": {
@@ -13391,7 +13391,7 @@
       "tier": "fast",
       "is_slow": false,
       "last_status": "passed",
-      "last_run_at": "2026-09-22T21:45:59",
+      "last_run_at": "2026-09-22T21:56:09",
       "needs_run": false
     },
     "cli/cmd.TestApplyHistoryFilters": {
@@ -13407,7 +13407,7 @@
       "tier": "fast",
       "is_slow": false,
       "last_status": "passed",
-      "last_run_at": "2026-09-22T21:45:59",
+      "last_run_at": "2026-09-22T21:56:09",
       "needs_run": false
     },
     "cli/cmd.TestParseUndoArgsDefaults": {
@@ -13423,7 +13423,7 @@
       "tier": "fast",
       "is_slow": false,
       "last_status": "passed",
-      "last_run_at": "2026-09-22T21:45:59",
+      "last_run_at": "2026-09-22T21:56:09",
       "needs_run": false
     },
     "cli/cmd.TestParseUndoArgsAllFlags": {
@@ -13439,7 +13439,7 @@
       "tier": "fast",
       "is_slow": false,
       "last_status": "passed",
-      "last_run_at": "2026-09-22T21:45:59",
+      "last_run_at": "2026-09-22T21:56:09",
       "needs_run": false
     },
     "cli/cmd.TestParseUndoArgsForceWithoutOtherFlags": {
@@ -13455,7 +13455,7 @@
       "tier": "fast",
       "is_slow": false,
       "last_status": "passed",
-      "last_run_at": "2026-09-22T21:45:59",
+      "last_run_at": "2026-09-22T21:56:09",
       "needs_run": false
     },
     "cli/cmd.TestParseUndoArgsIgnoresUnknownTokens": {
@@ -13471,7 +13471,7 @@
       "tier": "fast",
       "is_slow": false,
       "last_status": "passed",
-      "last_run_at": "2026-09-22T21:45:59",
+      "last_run_at": "2026-09-22T21:56:09",
       "needs_run": false
     },
     "cli/cmd.TestMatchesFromResultsPreservesNameAndPattern": {
@@ -13487,7 +13487,7 @@
       "tier": "fast",
       "is_slow": false,
       "last_status": "passed",
-      "last_run_at": "2026-09-22T21:45:59",
+      "last_run_at": "2026-09-22T21:56:09",
       "needs_run": false
     },
     "cli/cmd.TestBulkExitCodeMatrix": {
@@ -13503,7 +13503,7 @@
       "tier": "fast",
       "is_slow": false,
       "last_status": "passed",
-      "last_run_at": "2026-09-22T21:45:59",
+      "last_run_at": "2026-09-22T21:56:09",
       "needs_run": false
     },
     "cli/cmd.TestRenderUndoJSONShapeStable": {
@@ -13519,7 +13519,7 @@
       "tier": "fast",
       "is_slow": false,
       "last_status": "passed",
-      "last_run_at": "2026-09-22T21:45:59",
+      "last_run_at": "2026-09-22T21:56:09",
       "needs_run": false
     },
     "cli/cmd.TestRenderUndoJSONZeroValuesEmitted": {
@@ -13535,7 +13535,7 @@
       "tier": "fast",
       "is_slow": false,
       "last_status": "passed",
-      "last_run_at": "2026-09-22T21:45:59",
+      "last_run_at": "2026-09-22T21:56:09",
       "needs_run": false
     },
     "cli/cmd.TestIsLocalRemote_ClassifiesFileAndPathSchemes": {
@@ -13551,7 +13551,7 @@
       "tier": "fast",
       "is_slow": false,
       "last_status": "passed",
-      "last_run_at": "2026-09-22T21:45:59",
+      "last_run_at": "2026-09-22T21:56:09",
       "needs_run": false
     },
     "cli/cmd.TestWatchJSONContract_EmptyRepos": {
@@ -13567,7 +13567,7 @@
       "tier": "fast",
       "is_slow": false,
       "last_status": "passed",
-      "last_run_at": "2026-09-22T21:45:59",
+      "last_run_at": "2026-09-22T21:56:09",
       "needs_run": false
     },
     "cli/cmd.TestWatchJSONContract_CanonicalObject_KeyOrders": {
@@ -13583,7 +13583,7 @@
       "tier": "fast",
       "is_slow": false,
       "last_status": "passed",
-      "last_run_at": "2026-09-22T21:45:59",
+      "last_run_at": "2026-09-22T21:56:09",
       "needs_run": false
     },
     "cli/cmd.TestWatchJSONSchema_TopLevelShape": {
@@ -13599,7 +13599,7 @@
       "tier": "fast",
       "is_slow": false,
       "last_status": "passed",
-      "last_run_at": "2026-09-22T21:45:59",
+      "last_run_at": "2026-09-22T21:56:09",
       "needs_run": false
     },
     "cli/cmd.TestWatchJSONSchema_EncoderMatchesSchema": {
@@ -13615,7 +13615,7 @@
       "tier": "fast",
       "is_slow": false,
       "last_status": "passed",
-      "last_run_at": "2026-09-22T21:45:59",
+      "last_run_at": "2026-09-22T21:56:09",
       "needs_run": false
     },
     "cli/cmd.TestWatchJSONSchema_RepoItemShape": {
@@ -13631,7 +13631,7 @@
       "tier": "fast",
       "is_slow": false,
       "last_status": "passed",
-      "last_run_at": "2026-09-22T21:45:59",
+      "last_run_at": "2026-09-22T21:56:09",
       "needs_run": false
     },
     "cli/cmd.TestWatchJSONSchema_SummaryShape": {
@@ -13647,7 +13647,7 @@
       "tier": "fast",
       "is_slow": false,
       "last_status": "passed",
-      "last_run_at": "2026-09-22T21:45:59",
+      "last_run_at": "2026-09-22T21:56:09",
       "needs_run": false
     },
     "cli/cmdagy.TestFormatBytes": {
@@ -36506,12 +36506,12 @@
       "test_hash": "dbf029f71e6dae5d",
       "target_file": "cli/constants/constants.go",
       "target_func": "TopLevelCmdRegistryMatchesAST",
-      "code_hash": "0ec4e1bd90a85136",
+      "code_hash": "86be15b8528c158a",
       "duration_sec": 0.01,
       "tier": "fast",
       "is_slow": false,
       "last_status": "passed",
-      "last_run_at": "2026-09-22T21:48:05",
+      "last_run_at": "2026-09-22T21:55:58",
       "needs_run": false
     },
     "cli/constants.TestNoUnmarkedTopLevelCmdBlocks": {
@@ -36522,12 +36522,12 @@
       "test_hash": "dbf029f71e6dae5d",
       "target_file": "cli/constants/constants.go",
       "target_func": "NoUnmarkedTopLevelCmdBlocks",
-      "code_hash": "0ec4e1bd90a85136",
+      "code_hash": "86be15b8528c158a",
       "duration_sec": 0.01,
       "tier": "fast",
       "is_slow": false,
       "last_status": "passed",
-      "last_run_at": "2026-09-22T21:48:05",
+      "last_run_at": "2026-09-22T21:55:58",
       "needs_run": false
     },
     "cli/constants.TestTopLevelCmdConstantsAreUnique": {
@@ -36538,12 +36538,12 @@
       "test_hash": "40a822f91022ddf6",
       "target_file": "cli/constants/constants.go",
       "target_func": "TopLevelCmdConstantsAreUnique",
-      "code_hash": "0ec4e1bd90a85136",
+      "code_hash": "86be15b8528c158a",
       "duration_sec": 0.01,
       "tier": "fast",
       "is_slow": false,
       "last_status": "passed",
-      "last_run_at": "2026-09-22T21:48:05",
+      "last_run_at": "2026-09-22T21:55:58",
       "needs_run": false
     },
     "cli/constants.TestTopLevelCmdAliasesAreUnique": {
@@ -36554,12 +36554,12 @@
       "test_hash": "40a822f91022ddf6",
       "target_file": "cli/constants/constants.go",
       "target_func": "TopLevelCmdAliasesAreUnique",
-      "code_hash": "0ec4e1bd90a85136",
+      "code_hash": "86be15b8528c158a",
       "duration_sec": 0.01,
       "tier": "fast",
       "is_slow": false,
       "last_status": "passed",
-      "last_run_at": "2026-09-22T21:48:05",
+      "last_run_at": "2026-09-22T21:55:58",
       "needs_run": false
     },
     "cli/constants.TestCanonicalCSVColumn": {
@@ -36575,7 +36575,7 @@
       "tier": "fast",
       "is_slow": false,
       "last_status": "passed",
-      "last_run_at": "2026-09-22T21:48:05",
+      "last_run_at": "2026-09-22T21:55:58",
       "needs_run": false
     },
     "cli/constants.TestCSVColumnAliasesNoConflict": {
@@ -36591,7 +36591,7 @@
       "tier": "fast",
       "is_slow": false,
       "last_status": "passed",
-      "last_run_at": "2026-09-22T21:48:05",
+      "last_run_at": "2026-09-22T21:55:58",
       "needs_run": false
     },
     "cli/constants.TestHostedDocsFallbackContract": {
@@ -36607,7 +36607,7 @@
       "tier": "fast",
       "is_slow": false,
       "last_status": "passed",
-      "last_run_at": "2026-09-22T21:48:05",
+      "last_run_at": "2026-09-22T21:55:58",
       "needs_run": false
     },
     "cli/crypto.TestEncryptDecrypt": {
@@ -39232,7 +39232,7 @@
       "is_slow": false,
       "last_status": "passed",
       "last_run_at": "2026-09-22T18:31:37",
-      "needs_run": false
+      "needs_run": true
     },
     "cli/helptext.TestEveryHelpFileHasExamples": {
       "id": "cli/helptext.TestEveryHelpFileHasExamples",
@@ -39248,7 +39248,7 @@
       "is_slow": false,
       "last_status": "passed",
       "last_run_at": "2026-09-22T18:31:37",
-      "needs_run": false
+      "needs_run": true
     },
     "cli/helptext.TestValidateStamp_UnstampedPasses": {
       "id": "cli/helptext.TestValidateStamp_UnstampedPasses",
@@ -39264,7 +39264,7 @@
       "is_slow": false,
       "last_status": "passed",
       "last_run_at": "2026-09-22T18:31:37",
-      "needs_run": false
+      "needs_run": true
     },
     "cli/helptext.TestValidateStamp_StaleFails": {
       "id": "cli/helptext.TestValidateStamp_StaleFails",
@@ -39280,7 +39280,7 @@
       "is_slow": false,
       "last_status": "passed",
       "last_run_at": "2026-09-22T18:31:37",
-      "needs_run": false
+      "needs_run": true
     },
     "cli/helptext.TestValidateStamp_FreshPasses": {
       "id": "cli/helptext.TestValidateStamp_FreshPasses",
@@ -39296,7 +39296,7 @@
       "is_slow": false,
       "last_status": "passed",
       "last_run_at": "2026-09-22T18:31:37",
-      "needs_run": false
+      "needs_run": true
     },
     "cli/helptext.TestValidateStamp_MalformedFails": {
       "id": "cli/helptext.TestValidateStamp_MalformedFails",
@@ -39312,7 +39312,7 @@
       "is_slow": false,
       "last_status": "passed",
       "last_run_at": "2026-09-22T18:31:37",
-      "needs_run": false
+      "needs_run": true
     },
     "cli/indexer.TestBinarySniffer": {
       "id": "cli/indexer.TestBinarySniffer",

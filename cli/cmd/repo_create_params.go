@@ -14,6 +14,7 @@ type createRepoParams struct {
 	IsPublic     bool
 	IsSkipRemote bool
 	IsJSON       bool
+	IsYAML       bool
 	Profile      model.GitProfile
 }
 
@@ -67,9 +68,10 @@ func applyMultiPositionalArgs(pos []string, p *createRepoParams) {
 
 func parseCreateParams(args []string, defaultLocal bool) (createRepoParams, error) {
 	p := createRepoParams{
-		IsPublic:     hasArgFlag(args, "--public"),
+		IsPublic:     hasArgFlag(args, "--public") && !hasArgFlag(args, "--private"),
 		IsSkipRemote: defaultLocal || hasArgFlag(args, "--local") || hasArgFlag(args, "--no-remote"),
-		IsJSON:       hasArgFlag(args, "--json"),
+		IsJSON:       hasArgFlag(args, "--json") || hasArgFlag(args, "-json"),
+		IsYAML:       hasArgFlag(args, "--yaml") || hasArgFlag(args, "--yml") || hasArgFlag(args, "-yaml") || hasArgFlag(args, "-y"),
 		Description:  extractFlagVal(args, "--description"),
 	}
 	if p.Description == "" {

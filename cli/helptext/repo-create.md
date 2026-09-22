@@ -35,6 +35,7 @@ gitmap repo-create --local <name> [flags]
 | `-d`, `--description <text>` | Repository description | `""` |
 | `--profile <name>` | Target GitHub profile or organization | Active default |
 | `--json` | Output creation metadata as structured JSON | `false` |
+| `--yaml` | Output creation metadata as structured YAML | `false` |
 
 ## Examples
 

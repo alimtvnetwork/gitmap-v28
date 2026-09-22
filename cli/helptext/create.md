@@ -23,6 +23,7 @@ gitmap create-local-repo (clr) <name> [folder] [slug] [flags]
 | `-d`, `--description <text>` | Repository description | `""` |
 | `--no-remote` | Local git repository initialization only | `false` |
 | `--json` | Output creation metadata as structured JSON | `false` |
+| `--yaml` | Output creation metadata as structured YAML | `false` |
 
 ## Examples
 
