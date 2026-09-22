@@ -38,10 +38,14 @@ The pipeline failure was caused by:
 2. In `cli/archive/source.go`, added `"fmt"` to the import block.
 3. In `cli/cmdagy/agy_clean_cache_apply.go`, implemented `logProcessTermination` and `logCacheCleaning`.
 4. In `cli/cmdagy/` files, removed unused imports (`time`, `fmt`, `workspacesync`).
-5. In `cli/constants/constants_commitin.go`, replaced `%w` with `%v` in `CommitInErr*` constants passed to `fmt.Fprintf`.
-6. In `cli/store/scan_folder.go`, updated `executeDetachAndDeleteSF` to pass op names directly to `apperror.WrapSimple` without wrapping `%w` inside `fmt.Sprintf`.
-7. In `cli/constants/constants_scan_folder.go`, changed `%w` to `%v` in `ErrSFAbsResolve`.
+5. In `cli/cmd/lowercasefix_ops.go`, renamed `runGitMv` to `runGitMvForLcf` to resolve collision with `filemanipulator.go`.
+6. In `cli/cmd/clusterflags.go` and `cli/cmd/replaceflags.go`, fixed import blocks (`fmt`, `errors`).
+7. In `cli/constants/` (`constants_commitin.go`, `constants_scan_folder.go`, `constants_ssh.go`, `constants_messages.go`, `constants_cli.go`, `constants_bookmark.go`, `constants_cd.go`, `constants_history.go`, `constants_stats.go`, `constants_probe.go`, `constants_project.go`, `constants_zipgroup.go`), replaced `%w` with `%v` in all string constants passed to `fmt.Fprintf` and `fmt.Sprintf` so raw error information is strictly preserved without violating `go vet`.
+8. In `cli/store/scan_folder.go`, updated `executeDetachAndDeleteSF` to pass op names directly to `apperror.WrapSimple` without wrapping `%w` inside `fmt.Sprintf`.
+9. Verified with `go vet ./...` in `cli/` (exit code 0) and `python 03-ai-scripts/06-cicd-local-runner.py run-smart` (all quality gates passed).
+10. Executed minor release bump to `v6.303.0` via `03-ai-scripts/29-release-orchestrator.py`, tagging `v6.303.0` and pushing release branch and tag to origin.
 
 ## 4. Prevention & Learnings
-- **Error Formatting Directive Rules**: Never use `%w` in string constants passed to `fmt.Fprintf`, `fmt.Sprintf`, or `fmt.Printf`; `%w` is exclusively valid in `fmt.Errorf`.
-- **Pre-commit Compilation Sanity**: Ensure all newly modified files compile cleanly without dangling references or unimported packages.
+- **Error Formatting Directive Rules**: Never use `%w` in string constants passed to `fmt.Fprintf`, `fmt.Sprintf`, or `fmt.Printf`; `%w` is exclusively valid in `fmt.Errorf`. Using `%v` preserves raw error contents without triggering `go vet` lint violations.
+- **Pre-commit Compilation Sanity**: Run `go vet ./...` across `cli/` prior to releasing to catch invalid error formatting directives in constants.
+- **Release Orchestrator Resilience**: Support gitignored files gracefully during staging in `29-release-orchestrator.py` and ensure existing release branches are checked out cleanly.
