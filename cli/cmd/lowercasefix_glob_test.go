@@ -36,4 +36,13 @@ func TestIsPatternMatch_RelativePath(t *testing.T) {
 	if !isPatternMatch("docs/API.md", "API.md", "docs/*.md") {
 		t.Errorf("expected docs/*.md to match docs/API.md")
 	}
+	if !isPatternMatch("docs/sub/API.md", "API.md", "docs") {
+		t.Errorf("expected docs directory prefix to match docs/sub/API.md")
+	}
+	if !isPatternMatch("docs/sub/API.md", "API.md", ".") {
+		t.Errorf("expected . to match docs/sub/API.md")
+	}
+	if !isPatternMatch("docs/sub/API.md", "API.md", "**/*.md") {
+		t.Errorf("expected **/*.md to match docs/sub/API.md")
+	}
 }

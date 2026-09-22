@@ -45,3 +45,49 @@ func TestPerformTwoStepFSRename(t *testing.T) {
 		t.Errorf("expected %s to exist: %v", dst, err)
 	}
 }
+
+func TestExecuteLowerCaseFix_Workflow(t *testing.T) {
+	tempDir := t.TempDir()
+	origWd, _ := os.Getwd()
+	defer func() { _ = os.Chdir(origWd) }()
+	_ = os.Chdir(tempDir)
+
+	readmePath := filepath.Join(tempDir, "README.md")
+	_ = os.WriteFile(readmePath, []byte("# Readme"), 0644)
+	llmPath := filepath.Join(tempDir, "LLM.md")
+	_ = os.WriteFile(llmPath, []byte("# LLM"), 0644)
+	lowerPath := filepath.Join(tempDir, "already_lower.md")
+	_ = os.WriteFile(lowerPath, []byte("# Lower"), 0644)
+
+	// Dry run test
+	optsDry := LowerCaseFixOptions{
+		Patterns:   []string{"*.md"},
+		IsDryRun:   true,
+		IsNoCommit: true,
+	}
+	if err := ExecuteLowerCaseFix(optsDry); err != nil {
+		t.Fatalf("ExecuteLowerCaseFix dry-run failed: %v", err)
+	}
+	if _, err := os.Stat(readmePath); os.IsNotExist(err) {
+		t.Errorf("expected README.md to still exist after dry-run")
+	}
+
+	// Real execution test (no commit since tempDir isn't a git repo)
+	optsReal := LowerCaseFixOptions{
+		Patterns:   []string{"*.md"},
+		IsDryRun:   false,
+		IsNoCommit: true,
+	}
+	if err := ExecuteLowerCaseFix(optsReal); err != nil {
+		t.Fatalf("ExecuteLowerCaseFix real failed: %v", err)
+	}
+
+	newReadme := filepath.Join(tempDir, "readme.md")
+	if _, err := os.Stat(newReadme); err != nil {
+		t.Errorf("expected readme.md to exist: %v", err)
+	}
+	newLLM := filepath.Join(tempDir, "llm.md")
+	if _, err := os.Stat(newLLM); err != nil {
+		t.Errorf("expected llm.md to exist: %v", err)
+	}
+}

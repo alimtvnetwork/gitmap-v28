@@ -341,7 +341,8 @@ func performConnectedBootstrap(session enrollSession, opts *SSHJoinOptions) *app
 }
 
 func checkEnrollAuth(opts *SSHJoinOptions, session enrollSession) error {
-	if session.hasClient {
+	isFailedAuth := opts.Password != "" && !session.hasClient
+	if !isFailedAuth {
 		return nil
 	}
 

@@ -61,7 +61,6 @@ func writeAgyProjectJson(projectsPath, projectID, projectName string) error {
 	return nil
 }
 
-
 func deleteProjectFile(projectID string) error {
 	projectsPath, pathErr := getProjectsDirPath()
 	if pathErr != nil {

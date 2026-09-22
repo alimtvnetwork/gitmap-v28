@@ -127,6 +127,8 @@ func topLevelCmds() map[string]string {
 		"CmdLowerCaseFix":           CmdLowerCaseFix,
 		"CmdLowerCaseFixAlias":      CmdLowerCaseFixAlias,
 		"CmdLowerCaseFixShort":      CmdLowerCaseFixShort,
+		"CmdLowercaseReadme":        CmdLowercaseReadme,
+		"CmdReadmeLower":            CmdReadmeLower,
 		"CmdFixSeqFiles":            CmdFixSeqFiles,
 		"CmdFixSeqFilesAlias":       CmdFixSeqFilesAlias,
 		"CmdSequence":               CmdSequence,

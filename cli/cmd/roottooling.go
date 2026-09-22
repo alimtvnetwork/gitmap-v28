@@ -124,8 +124,22 @@ func toolingUtilEntries() []dispatchEntry {
 		{[]string{constants.CmdDownloaderConfig, constants.CmdDownloaderConfigAlias}, func() error { return runDownloaderConfig(argsTail()) }},
 		{[]string{constants.CmdUnzipCompact, constants.CmdUnzipCompactAlias}, func() error { return runUnzipCompact(argsTail()) }},
 		{[]string{constants.CmdFolder, "tree"}, func() error { return runFolder(argsTail()) }},
-		{[]string{constants.CmdLowercase}, func() error { return runLowercase(argsTail()) }},
-		{[]string{constants.CmdLowerCaseFix, constants.CmdLowerCaseFixAlias, constants.CmdLowerCaseFixShort, "lower-case-readme", "lc-fix"}, func() error { return runLowerCaseFixCLI(argsTail()) }},
+		{[]string{
+			constants.CmdLowercase,
+			constants.CmdLowerCaseFix,
+			constants.CmdLowerCaseFixAlias,
+			constants.CmdLowerCaseFixShort,
+			constants.CmdLowercaseReadme,
+			constants.CmdReadmeLower,
+			"lower",
+			"lower-case-readme",
+			"readme-lowercase",
+			"lcr",
+			"lc-fix",
+		}, func() error {
+			checkHelp("lowercase", argsTail())
+			return runLowerCaseFixCLI(argsTail())
+		}},
 		{[]string{constants.CmdFixSeqFiles, constants.CmdFixSeqFilesAlias}, func() error { return runFixSeqFiles(argsTail()) }},
 		{[]string{constants.CmdSequence, constants.CmdSequenceAlias}, func() error { return runSequence(argsTail()) }},
 		{[]string{constants.CmdGitRm}, func() error { return runGitRm(argsTail()) }},

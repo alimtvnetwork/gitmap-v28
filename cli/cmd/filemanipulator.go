@@ -21,20 +21,8 @@ type lowercaseOptions struct {
 }
 
 func runLowercase(args []string) error {
-	opts, dirs := parseLowercaseArgs(args)
-	if opts.Source == "" {
-		printLowercaseUsage()
-
-		return nil
-	}
-
-	opts.Except = appendDefaultIgnores(opts)
-	dirs = ensureDefaultDir(dirs)
-	for _, d := range dirs {
-		processLowercaseDir(d, opts)
-	}
-
-	return nil
+	checkHelp("lowercase", args)
+	return runLowerCaseFixCLI(args)
 }
 
 func parseLowercaseArgs(args []string) (lowercaseOptions, []string) {

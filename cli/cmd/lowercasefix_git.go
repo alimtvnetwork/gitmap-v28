@@ -31,6 +31,7 @@ func performSafeGitRename(p RenamePair) error {
 }
 
 func performTwoStepGitMv(src, tmp, dst string) error {
+	_ = os.Remove(tmp)
 	if err := runGitMvForLcf(src, tmp); err != nil {
 		return fallbackRename(src, tmp, dst, err)
 	}
@@ -44,6 +45,7 @@ func performTwoStepGitMv(src, tmp, dst string) error {
 }
 
 func performTwoStepFSRename(src, tmp, dst string) error {
+	_ = os.Remove(tmp)
 	if err := os.Rename(src, tmp); err != nil {
 		return fmt.Errorf("fs rename step 1 (%s -> %s) failed: %w", src, tmp, err)
 	}
@@ -60,6 +62,7 @@ func performTwoStepFSRename(src, tmp, dst string) error {
 }
 
 func fallbackRename(src, tmp, dst string, gitErr error) error {
+	_ = os.Remove(tmp)
 	if err := os.Rename(src, tmp); err != nil {
 		return fmt.Errorf("git mv failed (%v) and fs rename to tmp failed: %w", gitErr, err)
 	}

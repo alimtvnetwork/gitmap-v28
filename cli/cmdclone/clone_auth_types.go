@@ -10,14 +10,14 @@ var ErrAuthSkipped = errors.New("authentication skipped by user")
 type AuthMethod int
 
 const (
-	AuthMethodToken AuthMethod = 1
+	AuthMethodToken   AuthMethod = 1
 	AuthMethodBrowser AuthMethod = 2
-	AuthMethodSkip AuthMethod = 3
+	AuthMethodSkip    AuthMethod = 3
 )
 
 // AuthPromptResult encapsulates the outcome of an interactive authentication prompt.
 type AuthPromptResult struct {
-	Token      string
-	IsReused   bool
-	Method     AuthMethod
+	Token    string
+	IsReused bool
+	Method   AuthMethod
 }

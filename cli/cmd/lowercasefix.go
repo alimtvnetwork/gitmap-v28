@@ -3,6 +3,7 @@ package cmd
 
 import (
 	"context"
+	"os"
 	"strings"
 
 	"github.com/spf13/cobra"
@@ -47,6 +48,16 @@ func init() {
 }
 
 func runLowerCaseFixCLI(args []string) error {
+	lcfDryRun = false
+	lcfNoCommit = false
+	lcfYes = false
+	lcfReadme = false
+	lcfMessage = ""
+
+	if len(os.Args) > 1 && isReadmeAlias(strings.ToLower(os.Args[1])) {
+		lcfReadme = true
+	}
+
 	subArgs := args
 	if len(args) > 0 {
 		subcmd := strings.ToLower(args[0])
@@ -57,6 +68,7 @@ func runLowerCaseFixCLI(args []string) error {
 			subArgs = args[1:]
 		}
 	}
+	checkHelp("lowercase", subArgs)
 	lowerCaseFixCmd.SetArgs(subArgs)
 
 	return lowerCaseFixCmd.ExecuteContext(context.Background())

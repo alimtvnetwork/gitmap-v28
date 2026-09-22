@@ -28,6 +28,13 @@ func ExecuteLowerCaseFix(opts LowerCaseFixOptions) error {
 	}
 
 	if opts.IsDryRun {
+		for i, p := range pairs {
+			prefix := "git mv"
+			if !p.IsGitTracked {
+				prefix = "fs rename"
+			}
+			fmt.Printf("  [%d/%d] %s → %s (%s preview)\n", i+1, len(pairs), p.OldBase, p.NewBase, prefix)
+		}
 		renderDryRunNotice(len(pairs))
 
 		return nil
