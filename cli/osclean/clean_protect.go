@@ -1,7 +1,6 @@
 package osclean
 
 import (
-	"path/filepath"
 	"strings"
 )
 
@@ -11,7 +10,7 @@ func IsAntigravityProtected(rawPath string) bool {
 		return false
 	}
 	normalized := normalizeCleanPath(rawPath)
-	baseName := filepath.Base(rawPath)
+	baseName := extractUniversalBaseName(normalized)
 
 	if isProtectedBaseName(baseName) {
 		return true
@@ -24,10 +23,17 @@ func IsAntigravityProtected(rawPath string) bool {
 }
 
 func normalizeCleanPath(path string) string {
-	clean := filepath.Clean(path)
-	slash := filepath.ToSlash(clean)
+	slash := strings.ReplaceAll(path, "\\", "/")
 
-	return strings.ToLower(slash)
+	return strings.ToLower(strings.TrimRight(slash, "/"))
+}
+
+func extractUniversalBaseName(normalized string) string {
+	if idx := strings.LastIndex(normalized, "/"); idx >= 0 {
+		return normalized[idx+1:]
+	}
+
+	return normalized
 }
 
 func isAntigravityScope(normalized string) bool {
