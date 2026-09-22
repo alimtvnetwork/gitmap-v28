@@ -142,7 +142,7 @@ func readProfileContent(path string) string {
 func writeProfileContent(path, content string) error {
 	err := os.WriteFile(path, []byte(content), constants.FilePermission)
 	if err != nil {
-		return apperror.NewSimple(constants.ErrEnvProfileWrite, "E9000")
+		return apperror.WrapSimple(err, constants.ErrEnvProfileWrite)
 	}
 
 	return nil

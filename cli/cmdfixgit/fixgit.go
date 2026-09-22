@@ -64,7 +64,10 @@ func resolveGitDirectory(target string) (string, string, error) {
 	gitDir := filepath.Join(absTarget, ".git")
 
 	info, statErr := os.Stat(gitDir)
-	if statErr != nil || !info.IsDir() {
+	if statErr != nil {
+		return "", "", apperror.WrapValidation(statErr, "not a git repository (missing .git directory)")
+	}
+	if !info.IsDir() {
 		return "", "", apperror.NewValidationError("not a git repository (missing .git directory)")
 	}
 

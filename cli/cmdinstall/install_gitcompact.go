@@ -87,7 +87,7 @@ func executeGitCompactInstall(opts installOptions) error {
 	if err := cmd.Run(); err != nil {
 		return apperror.NewWithDetails("cmdinstall.gitcompact", "E4001",
 			fmt.Sprintf("git-compact install failed: %v", err),
-			"cmdinstall", apperror.ErrorTypeExecution, apperror.SeverityError, nil)
+			"cmdinstall", apperror.ErrorTypeExecution, apperror.SeverityError, nil).WithCause(err)
 	}
 
 	return nil

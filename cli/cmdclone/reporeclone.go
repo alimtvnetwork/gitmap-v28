@@ -117,7 +117,10 @@ func isGitRepoDir(dir string) bool {
 
 func RunRepoReclone(target string, yes bool) error {
 	origin, err := currentOriginURL(target)
-	if err != nil || origin == "" {
+	if err != nil {
+		return apperror.WrapSimple(err, constants.ErrRepoRecloneNoOrigin)
+	}
+	if origin == "" {
 		return apperror.NewSimple(constants.ErrRepoRecloneNoOrigin, "E9000")
 	}
 
@@ -128,25 +131,25 @@ func RunRepoReclone(target string, yes bool) error {
 	if !yes && !confirmRepoReclone(target, origin) {
 		fmt.Fprint(os.Stderr, constants.MsgRepoRecloneAborted)
 
-		return apperror.NewSimple("fatal error", "E9000")
+		return apperror.NewSimple("reclone aborted", "E9000")
 	}
 
 	if _, escapeErr := escapeCwdIfInside(target); escapeErr != nil {
 		fmt.Fprintln(os.Stderr, escapeErr.Error())
 
-		return apperror.NewSimple("fatal error", "E9000")
+		return apperror.WrapSimple(escapeErr, "escape cwd")
 	}
 
 	fmt.Printf(constants.MsgRepoRecloneRemoving, target)
 	if rmErr := os.RemoveAll(target); rmErr != nil {
-		return apperror.NewSimple(constants.ErrRepoRecloneRemove, "E9000")
+		return apperror.WrapSimple(rmErr, constants.ErrRepoRecloneRemove)
 	}
 
 	dest := filepath.Join(parent, folderName)
 	origin = coerceURLToStoredTransport(origin)
 	fmt.Printf(constants.MsgRepoRecloneCloning, origin, dest)
 	if cloneErr := runCloneCommand(origin, dest); cloneErr != nil {
-		return apperror.NewSimple(constants.ErrRepoRecloneClone, "E9000")
+		return apperror.WrapSimple(cloneErr, constants.ErrRepoRecloneClone)
 	}
 
 	persistRecloneTransport(origin)

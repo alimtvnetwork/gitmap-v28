@@ -38,7 +38,7 @@ func runSSHDelete(args []string) error {
 
 	key, err := db.FindSSHKeyByName(name)
 	if err != nil {
-		return apperror.NewSimple(constants.ErrSSHNotFound, "E9000")
+		return apperror.WrapNotFound(err, fmt.Sprintf(constants.ErrSSHNotFound, name))
 	}
 
 	fmt.Fprintf(os.Stdout, constants.MsgSSHDeleteConfirm, name)

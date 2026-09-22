@@ -41,11 +41,11 @@ func hasEnoughArgs(args []string, requiredCount int) bool {
 func createProjectFile(projectID, projectName string) error {
 	projectsPath, pathErr := getProjectsDirPath()
 	if pathErr != nil {
-		return apperror.WrapSimple(pathErr, "path error")
+		return apperror.WrapSimple(pathErr, "get projects dir path")
 	}
 
-	if !ensureDirExists(projectsPath) {
-		return fmt.Errorf("failed to create projects dir")
+	if err := ensureDirExistsErr(projectsPath); err != nil {
+		return apperror.WrapSimple(err, "ensure projects dir exists")
 	}
 
 	return writeAgyProjectJson(projectsPath, projectID, projectName)
@@ -56,40 +56,23 @@ func writeAgyProjectJson(projectsPath, projectID, projectName string) error {
 	currentTime := time.Now().Format(time.RFC3339Nano)
 	content := fmt.Sprintf(`{"id":"%s","name":"%s","updatedAt":"%s"}`, projectID, projectName, currentTime)
 
-	return os.WriteFile(filePath, []byte(content), 0644)
-}
-
-var agyRmCmd = &cobra.Command{
-	Use:     "rm [id]",
-	Aliases: []string{"del", "remove"},
-	Short:   "Remove a project configuration (files on disk preserved)",
-	RunE: func(cmd *cobra.Command, args []string) error {
-		return runAgyRm(args)
-	},
-}
-
-func runAgyRm(args []string) error {
-	if !hasEnoughArgs(args, 1) {
-		return apperror.NewSimple("requires id", "E9000")
+	if err := os.WriteFile(filePath, []byte(content), 0644); err != nil {
+		return apperror.WrapSimple(err, "write agy project json")
 	}
-
-	if err := deleteProjectFile(args[0]); err != nil {
-		return apperror.WrapSimple(err, "delete")
-	}
-
-	fmt.Printf("  %s✓ Project '%s' removed from Antigravity configuration (files on disk preserved).%s\n",
-		constants.ColorGreen, args[0], constants.ColorReset)
-
 	return nil
 }
+
 
 func deleteProjectFile(projectID string) error {
 	projectsPath, pathErr := getProjectsDirPath()
 	if pathErr != nil {
-		return apperror.WrapSimple(pathErr, "path error")
+		return apperror.WrapSimple(pathErr, "get projects dir path")
 	}
 
 	filePath := filepath.Join(projectsPath, projectID+".json")
 
-	return os.Remove(filePath)
+	if err := os.Remove(filePath); err != nil {
+		return apperror.WrapSimple(err, "remove project json file")
+	}
+	return nil
 }

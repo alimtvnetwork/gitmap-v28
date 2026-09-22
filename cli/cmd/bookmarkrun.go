@@ -38,7 +38,7 @@ func loadAndDispatchBookmark(name string) *apperror.AppError {
 func findAndReplayBookmark(db storeBookmarkReader, name string) *apperror.AppError {
 	bk, err := db.FindBookmarkByName(name)
 	if err != nil {
-		return apperror.NewNotFoundError(fmt.Sprintf("bookmark %q not found", name))
+		return apperror.WrapNotFound(err, fmt.Sprintf("bookmark %q not found", name))
 	}
 
 	fmt.Printf(constants.MsgBookmarkRunning, bk.Name, bk.Command, bk.Args, bk.Flags)

@@ -279,6 +279,8 @@ func init() {
 	initAgyGroup()
 	initAgySettings()
 	initAgyPinProjects()
+	initAgyRmCmd()
+	initAgyRmRejoinCmd()
 	initAgyQueueCommands()
 	initAgyPromptAndStatusCommands()
 	AgyCmd.SetHelpFunc(renderAgyHelp)
@@ -331,6 +333,7 @@ func registerAgyUtilityCommands() {
 	AgyCmd.AddCommand(agyFixPipelineCmd)
 	AgyCmd.AddCommand(agyRerunCmd)
 	AgyCmd.AddCommand(agyListPromptsCmd)
+	AgyCmd.AddCommand(agyHistoryCmd)
 }
 
 var agyQueueCmd = &cobra.Command{
@@ -511,7 +514,9 @@ func getProjectsDirPath() (string, error) {
 }
 
 func ensureDirExists(dirPath string) bool {
-	mkErr := os.MkdirAll(dirPath, 0755)
+	return ensureDirExistsErr(dirPath) == nil
+}
 
-	return mkErr == nil
+func ensureDirExistsErr(dirPath string) error {
+	return os.MkdirAll(dirPath, 0755)
 }

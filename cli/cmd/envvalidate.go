@@ -48,7 +48,7 @@ func validateEnvPathDir(dir string) *apperror.AppError {
 
 	_, err := os.Stat(dir)
 	if err != nil {
-		return apperror.NewSimple(constants.ErrEnvPathNotExist, "E9000")
+		return apperror.WrapSimple(err, constants.ErrEnvPathNotExist)
 	}
 
 	return nil

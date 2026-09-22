@@ -33,7 +33,7 @@ func runAs(args []string) *apperror.AppError {
 		cwd, _ := os.Getwd()
 		fmt.Fprintf(os.Stderr, constants.ErrAsNotInRepoFmt, cwd)
 
-		return apperror.NewSimple("fatal error", "E9000")
+		return apperror.WrapSimple(err, "git top level: "+cwd)
 	}
 
 	return executeAs(root, aliasName, force)

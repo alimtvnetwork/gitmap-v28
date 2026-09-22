@@ -44,7 +44,7 @@ latest commit/release snapshot, pruning any stray target-only files and ensuring
 }
 `)
 	if err != nil {
-		return apperror.NewSimple("appendPRHelp", "E_INTERNAL_ERROR")
+		return apperror.WrapSimple(err, "appendPRHelp")
 	}
 
 	return nil

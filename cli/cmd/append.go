@@ -22,7 +22,7 @@ func runAppend(args []string) error {
 	if err != nil {
 		fmt.Println("Error appending to file:", err)
 
-		return apperror.NewSimple("fatal error", "E9000")
+		return apperror.WrapSimple(err, "append file")
 	}
 
 	return nil
@@ -42,7 +42,7 @@ func runWrite(args []string) error {
 	if err != nil {
 		fmt.Println("Error writing to file:", err)
 
-		return apperror.NewSimple("fatal error", "E9000")
+		return apperror.WrapSimple(err, "write file")
 	}
 
 	return nil

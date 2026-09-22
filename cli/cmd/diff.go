@@ -37,11 +37,11 @@ func runDiff(args []string) error {
 
 	entries, err := diff.DiffTrees(leftEP.WorkingDir, rightEP.WorkingDir, walkOpts)
 	if err != nil {
-		return apperror.NewSimple("diff failed: "+constants.LogPrefixDiff, "E9000")
+		return apperror.WrapSimple(err, "diff failed: "+constants.LogPrefixDiff)
 	}
 
 	if reportErr := diff.Report(os.Stdout, entries, printOpts); reportErr != nil {
-		return apperror.NewSimple("report failed: "+constants.LogPrefixDiff, "E9000")
+		return apperror.WrapSimple(reportErr, "report failed: "+constants.LogPrefixDiff)
 	}
 
 	return nil

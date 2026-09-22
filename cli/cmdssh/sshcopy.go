@@ -33,7 +33,7 @@ func runSSHCopy(args []string) error {
 		fmt.Fprintf(os.Stderr, constants.ErrSSHNotFound, *nameFlag)
 		printAvailableKeys(db)
 
-		return apperror.NewSimple("fatal error", "E9000")
+		return apperror.WrapNotFound(err, fmt.Sprintf("ssh key %q not found", *nameFlag))
 	}
 
 	pub := strings.TrimSpace(key.PublicKey)

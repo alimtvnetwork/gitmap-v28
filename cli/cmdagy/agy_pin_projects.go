@@ -1,12 +1,8 @@
-// Package cmd — agy_pin_projects.go defines Cobra commands for pinned Antigravity projects.
+// Package cmdagy — agy_pin_projects.go defines Cobra commands for pinned Antigravity projects.
 package cmdagy
 
 import (
-	"fmt"
-
 	"github.com/spf13/cobra"
-
-	"github.com/alimtvnetwork/gitmap-v28/cli/constants"
 )
 
 var (
@@ -33,101 +29,35 @@ var agyPinProjectsLsCmd = &cobra.Command{
 }
 
 var agyPinProjectsAddCmd = &cobra.Command{
-	Use:     "add [project-id-or-path...]",
+	Use:     "add [target...]",
 	Aliases: []string{"pin", "set"},
 	Short:   "Pin one or more Antigravity projects",
 	RunE: func(cmd *cobra.Command, args []string) error {
 		return runAgyPinProjectsAdd(args)
 	},
+	ValidArgsFunction: func(cmd *cobra.Command, args []string, toComplete string) ([]string, cobra.ShellCompDirective) {
+		projects, err := loadAllAgyProjects()
+		if err != nil {
+			return nil, cobra.ShellCompDirectiveNoFileComp
+		}
+		return CompleteAgyProjectSuggestions(toComplete, projects), cobra.ShellCompDirectiveNoFileComp
+	},
 }
 
 var agyPinProjectsRmCmd = &cobra.Command{
-	Use:     "rm [project-id-or-path...]",
+	Use:     "rm [target...]",
 	Aliases: []string{"remove", "del", "delete", "unpin"},
 	Short:   "Unpin one or more Antigravity projects",
 	RunE: func(cmd *cobra.Command, args []string) error {
 		return runAgyPinProjectsRm(args)
 	},
-}
-
-func runAgyPinProjectsLs() error {
-	store, loadErr := loadPinnedProjectsStore()
-
-	if loadErr != nil {
-		return fmt.Errorf("load pinned projects: %w", loadErr.Unwrap())
-	}
-
-	if agyPinProjectsJSON {
-		return outputPinnedProjectsJSON(store.Projects)
-	}
-
-	renderPinnedProjectsTable(store.Projects)
-
-	return nil
-}
-
-func runAgyPinProjectsAdd(args []string) error {
-	targets := args
-
-	if len(targets) == 0 {
-		targets = []string{"."}
-	}
-
-	for _, t := range targets {
-		pinned, addErr := addPinnedProjectTarget(t)
-
-		if addErr != nil {
-			return fmt.Errorf("pin project %q: %w", t, addErr.Unwrap())
+	ValidArgsFunction: func(cmd *cobra.Command, args []string, toComplete string) ([]string, cobra.ShellCompDirective) {
+		projects, err := loadAllAgyProjects()
+		if err != nil {
+			return nil, cobra.ShellCompDirectiveNoFileComp
 		}
-
-		fmt.Printf("%s Pinned project: %s%s%s (%s)\n",
-			constants.ColorGreen+"✓"+constants.ColorReset,
-			constants.ColorCyan, pinned.Name, constants.ColorReset,
-			pinned.Path)
-	}
-
-	return nil
-}
-
-func runAgyPinProjectsRm(args []string) error {
-	if agyPinProjectsRmAll {
-		return handleAgyPinProjectsClearAll()
-	}
-
-	if len(args) == 0 {
-		return fmt.Errorf("requires project ID, name, path, or --all")
-	}
-
-	return handleAgyPinProjectsRemoveTargets(args)
-}
-
-func handleAgyPinProjectsClearAll() error {
-	count, clearErr := clearAllPinnedProjects()
-
-	if clearErr != nil {
-		return fmt.Errorf("clear pinned projects: %w", clearErr.Unwrap())
-	}
-
-	fmt.Printf("%s Unpinned all (%d) projects.\n", constants.ColorGreen+"✓"+constants.ColorReset, count)
-
-	return nil
-}
-
-func handleAgyPinProjectsRemoveTargets(targets []string) error {
-	for _, t := range targets {
-		removed, rmErr := removePinnedProjectTarget(t)
-
-		if rmErr != nil {
-			return fmt.Errorf("unpin project %q: %w", t, rmErr.Unwrap())
-		}
-
-		fmt.Printf("%s Unpinned project: %s%s%s (%s)\n",
-			constants.ColorGreen+"✓"+constants.ColorReset,
-			constants.ColorCyan, removed.Name, constants.ColorReset,
-			removed.Path)
-	}
-
-	return nil
+		return CompleteAgyProjectSuggestions(toComplete, projects), cobra.ShellCompDirectiveNoFileComp
+	},
 }
 
 func initAgyPinProjects() {
@@ -137,4 +67,6 @@ func initAgyPinProjects() {
 	agyPinProjectsCmd.AddCommand(agyPinProjectsLsCmd)
 	agyPinProjectsCmd.AddCommand(agyPinProjectsAddCmd)
 	agyPinProjectsCmd.AddCommand(agyPinProjectsRmCmd)
+	agyPinProjectsCmd.AddCommand(agyPinProjectsEditCmd)
+	agyPinProjectsCmd.AddCommand(agyPinProjectsHelpCmd)
 }

@@ -35,10 +35,15 @@ func executeAliasSet(alias, slug string) error {
 
 func resolveAndPersistAlias(db *store.DB, alias, slug string) error {
 	repos, err := db.FindBySlug(slug)
-	if err != nil || len(repos) == 0 {
+	if err != nil {
 		fmt.Fprintf(os.Stderr, constants.ErrAliasRepoMissing, slug)
 
-		return apperror.NewSimple(fmt.Sprintf(constants.ErrAliasRepoMissing, slug), "E9000")
+		return apperror.WrapSimple(err, fmt.Sprintf(constants.ErrAliasRepoMissing, slug))
+	}
+	if len(repos) == 0 {
+		fmt.Fprintf(os.Stderr, constants.ErrAliasRepoMissing, slug)
+
+		return apperror.NewSimple(fmt.Sprintf(constants.ErrAliasRepoMissing, slug), "E1004")
 	}
 
 	return persistAliasMapping(db, alias, repos[0].ID, slug)

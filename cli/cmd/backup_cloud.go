@@ -169,7 +169,7 @@ func commitAndPushSnapshot(cloudDir, snapID string) error {
 	cmdPush.Dir = cloudDir
 	out, pushErr := cmdPush.CombinedOutput()
 	if pushErr != nil {
-		return apperror.NewSimple("git push backup failed: "+string(out), "E1079")
+		return apperror.WrapSimple(pushErr, "git push backup failed: "+string(out))
 	}
 
 	return nil

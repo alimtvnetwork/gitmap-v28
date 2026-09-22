@@ -78,7 +78,7 @@ func parseAmendListBranch(args []string) string {
 func loadAmendments(branch string) ([]store.AmendmentRow, *apperror.AppError) {
 	db, err := openDB()
 	if err != nil {
-		return nil, apperror.NewSimple(constants.ErrNoDatabase, "E9000")
+		return nil, apperror.WrapSimple(err, constants.ErrNoDatabase)
 	}
 
 	defer db.Close()

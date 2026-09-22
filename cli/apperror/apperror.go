@@ -226,6 +226,9 @@ func NewWithSkip(skip int, op string, code string) *AppError {
 
 // WrapWithSkip wraps an existing error with an explicit frame skip increase.
 func WrapWithSkip(skip int, err error, op string, code string) *AppError {
+	if err == nil {
+		return nil
+	}
 	callerSkip := DefaultCallerSkip + skip
 	stackSkip := DefaultStackTraceSkip + skip
 	return &AppError{
@@ -265,7 +268,7 @@ func resolveStack(errType ErrorType) string {
 	return captureStackTrace(DefaultStackTraceSkip)
 }
 
-// New creates a new AppError without an underlying cause.
+// New creates a new AppError and automatically extracts Cause from ctx if present.
 func New(op string, code string, ctx map[string]any) *AppError {
 	errType := resolveDefaultErrorType(code, op)
 
@@ -277,7 +280,27 @@ func New(op string, code string, ctx map[string]any) *AppError {
 		Caller:   captureCaller(DefaultCallerSkip),
 		Stack:    resolveStack(errType),
 		Ctx:      ctx,
+		Cause:    resolveCauseFromCtx(ctx),
 	}
+}
+
+func resolveCauseFromCtx(ctx map[string]any) error {
+	if ctx == nil {
+		return nil
+	}
+	if c, ok := ctx["cause"].(error); ok {
+		return c
+	}
+	if c, ok := ctx["err"].(error); ok {
+		return c
+	}
+	if cs, ok := ctx["cause"].(string); ok && cs != "" {
+		return errors.New(cs)
+	}
+	if es, ok := ctx["err"].(string); ok && es != "" {
+		return errors.New(es)
+	}
+	return nil
 }
 
 // NewSimple creates a new AppError without an underlying cause and no context map.
@@ -361,8 +384,44 @@ func NewExecutionError(msg string) *AppError {
 	}
 }
 
+// WithCause assigns the underlying raw cause error to AppError.
+func (e *AppError) WithCause(cause error) *AppError {
+	if e == nil {
+		return nil
+	}
+	e.Cause = cause
+	return e
+}
+
+// WrapNotFound creates a NotFound AppError wrapping an underlying cause.
+func WrapNotFound(err error, msg string) *AppError {
+	if err == nil {
+		return nil
+	}
+	return NewNotFoundError(msg).WithCause(err)
+}
+
+// WrapValidation creates a Validation AppError wrapping an underlying cause.
+func WrapValidation(err error, msg string) *AppError {
+	if err == nil {
+		return nil
+	}
+	return NewValidationError(msg).WithCause(err)
+}
+
+// WrapExecution creates an Execution AppError wrapping an underlying cause.
+func WrapExecution(err error, msg string) *AppError {
+	if err == nil {
+		return nil
+	}
+	return NewExecutionError(msg).WithCause(err)
+}
+
 // Wrap wraps an existing error with an operation label and context.
 func Wrap(err error, op string, ctx map[string]any) *AppError {
+	if err == nil {
+		return nil
+	}
 	return &AppError{
 		Op:       op,
 		Code:     "E9000",
@@ -377,6 +436,9 @@ func Wrap(err error, op string, ctx map[string]any) *AppError {
 
 // WrapSimple creates a new AppError with an underlying cause but no context map.
 func WrapSimple(err error, op string) *AppError {
+	if err == nil {
+		return nil
+	}
 	return &AppError{
 		Op:       op,
 		Code:     "E9000",
@@ -390,6 +452,9 @@ func WrapSimple(err error, op string) *AppError {
 
 // WrapWithDetails wraps an existing error with full metadata.
 func WrapWithDetails(err error, op, code, msg, creator string, errType ErrorType, sev SeverityType, ctx map[string]any) *AppError {
+	if err == nil {
+		return nil
+	}
 	return &AppError{
 		Op:       op,
 		Code:     code,

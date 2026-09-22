@@ -27,7 +27,7 @@ func runVSCodePMPath(args []string) error {
 	if err != nil {
 		printVSCodePMPathError(path, err)
 
-		return apperror.NewSimple("fatal error", "E9000")
+		return apperror.WrapSimple(err, "fatal error")
 	}
 
 	fmt.Println(path)

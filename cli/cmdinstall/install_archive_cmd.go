@@ -144,7 +144,7 @@ func validateArchiveSource(path string) (string, error) {
 	}
 	info, statErr := os.Stat(abs)
 	if statErr != nil {
-		return "", apperror.NewSimple(fmt.Sprintf("archive file '%s' does not exist", path), "E_NOT_FOUND")
+		return "", apperror.WrapSimple(statErr, fmt.Sprintf("archive file '%s' does not exist", path))
 	}
 	return checkArchiveFileInfo(abs, info)
 }

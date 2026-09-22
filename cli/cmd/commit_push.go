@@ -81,7 +81,7 @@ func runPullCommitPush(args []string) error {
 		printPaddedWarning("Pull failed — you may need to resolve conflicts manually.")
 		printPaddedWarning("Error: %v", err)
 
-		return apperror.NewSimple("fatal error", "E9000")
+		return apperror.WrapSimple(err, "pull --rebase")
 	}
 
 	printPaddedSuccess("Pull complete.")
@@ -228,7 +228,7 @@ func runGitReset(args []string) error {
 	if errReset := execGitPadded("reset", "--hard", fullSha); errReset != nil {
 		printPaddedError("Failed to reset branch: %v", errReset)
 
-		return apperror.NewSimple("reset failed", "E9000")
+		return apperror.WrapSimple(errReset, "reset branch")
 	}
 
 	printPaddedSuccess("Branch reset to %s (%s).", fullSha[:8], subject)
@@ -268,7 +268,7 @@ func executeDropCommit(fullSha string) error {
 		execGitOutputCP("rebase", "--abort")
 		printPaddedError("Failed to rebase commit %s: %v", fullSha[:8], errRebase)
 
-		return apperror.NewSimple("rebase failed", "E9000")
+		return apperror.WrapSimple(errRebase, "rebase commit")
 	}
 
 	return nil
@@ -391,7 +391,10 @@ func resolveSHAFragment(shaFragment string) (string, error) {
 	}
 
 	fullSha, err = execGitOutputCP("log", "--all", "--format=%H", "--grep="+shaFragment)
-	if err != nil || fullSha == "" {
+	if err != nil {
+		return "", apperror.WrapSimple(err, "resolve SHA fragment: "+shaFragment)
+	}
+	if fullSha == "" {
 		return "", apperror.NewSimple("Could not resolve SHA fragment: "+shaFragment, "E9000")
 	}
 

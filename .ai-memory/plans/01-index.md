@@ -9,7 +9,8 @@ Master directory of architectural and execution plans.
 
 ## Recent Completed Tasks Register (Last 20 Tasks)
 
-1. [51-winutil-and-linutil-os-autologin-and-tweaks.md](completed/51-winutil-and-linutil-os-autologin-and-tweaks.md): WinUtil & LinUtil Native Go Integration: OS Auto-Login (Windows & Ubuntu), System Tweaks & Maintenance
+1. [54-agy-rm-rejoin-pins-and-raw-error-propagation.md](completed/54-agy-rm-rejoin-pins-and-raw-error-propagation.md): AGY Workspace Management Enhancements & Raw Error Propagation (rm, pins, rrr, rrpr, sequence numbers, split-DB TaskHistory)
+2. [51-winutil-and-linutil-os-autologin-and-tweaks.md](completed/51-winutil-and-linutil-os-autologin-and-tweaks.md): WinUtil & LinUtil Native Go Integration: OS Auto-Login (Windows & Ubuntu), System Tweaks & Maintenance
 2. [50-finalize-missing-elements-pipeline-tasks-scriptsfixer-ai-logging.md](completed/50-finalize-missing-elements-pipeline-tasks-scriptsfixer-ai-logging.md): Finalize Missing Elements (Pipeline Tasks DB, scripts-fixer Beyond Compare, AI Execution Logging)
 2. [49-split-tasks-db-branch-compare-llm-search-and-agy-prompt.md](completed/49-split-tasks-db-branch-compare-llm-search-and-agy-prompt.md): Split Tasks DB Architecture, Branch Compare (Beyond Compare), LLM AI Execution History, Search DB & AGY Prompt Enhancements
 3. [47-specs-131-to-134-implementation-and-verification.md](completed/47-specs-131-to-134-implementation-and-verification.md): Specs 131 to 134 Implementation, Verification, and Database Hygiene Suite
@@ -49,6 +50,7 @@ Master directory of architectural and execution plans.
 
 ## Completed Plans
 
+- [54-agy-rm-rejoin-pins-and-raw-error-propagation.md](completed/54-agy-rm-rejoin-pins-and-raw-error-propagation.md): AGY Workspace Management Enhancements & Raw Error Propagation (rm, pins, rrr, rrpr, sequence numbers, split-DB TaskHistory)
 - [51-winutil-and-linutil-os-autologin-and-tweaks.md](completed/51-winutil-and-linutil-os-autologin-and-tweaks.md): WinUtil & LinUtil Native Go Integration: OS Auto-Login (Windows & Ubuntu), System Tweaks & Maintenance
 - [50-finalize-missing-elements-pipeline-tasks-scriptsfixer-ai-logging.md](completed/50-finalize-missing-elements-pipeline-tasks-scriptsfixer-ai-logging.md): Finalize Missing Elements (Pipeline Tasks DB, scripts-fixer Beyond Compare, AI Execution Logging)
 - [49-split-tasks-db-branch-compare-llm-search-and-agy-prompt.md](completed/49-split-tasks-db-branch-compare-llm-search-and-agy-prompt.md): Split Tasks DB, Branch Compare (Beyond Compare), LLM AI Execution History, Search DB & AGY Prompt Enhancements

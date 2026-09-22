@@ -26,7 +26,7 @@ func runScan(args []string) error {
 	dir, cfgPath, mode, output, outFile, outputPath, relativeRoot, defaultBranch, ghDesktop, openFolder, quiet, noVSCodeSync, noAutoTags, reportErrors, compact, fix, workers, maxDepth, probeOpts := parseScanFlags(args)
 	cfg, err := config.LoadFromFile(cfgPath)
 	if err != nil {
-		return apperror.NewSimple(constants.ErrConfigLoad, "E9000")
+		return apperror.WrapSimple(err, constants.ErrConfigLoad)
 	}
 
 	cfg = config.MergeWithFlags(cfg, mode, output, outputPath)

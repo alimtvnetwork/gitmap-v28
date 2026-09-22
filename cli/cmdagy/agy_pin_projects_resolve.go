@@ -64,17 +64,22 @@ func matchAgyProject(projects []AgyProject, target string) *AgyProject {
 
 func resolveFallbackLocalDir(target string) (*AgyProject, *apperror.AppError) {
 	abs, absErr := filepath.Abs(target)
-
 	if absErr != nil {
 		return nil, apperror.WrapSimple(absErr, "resolveFallbackLocalDir.abs")
 	}
 
 	stat, statErr := os.Stat(abs)
-
-	if statErr != nil || !stat.IsDir() {
-		return nil, apperror.NewSimple(fmt.Sprintf("antigravity project or directory %q not found", target), "E9000")
+	if statErr != nil {
+		return nil, apperror.WrapSimple(statErr, "resolveFallbackLocalDir.stat")
+	}
+	if !stat.IsDir() {
+		return nil, apperror.NewSimple(fmt.Sprintf("target %q is not a directory", target), "E9000")
 	}
 
+	return makeFallbackAgyProject(abs), nil
+}
+
+func makeFallbackAgyProject(abs string) *AgyProject {
 	return &AgyProject{
 		ID:   filepath.Base(abs),
 		Name: filepath.Base(abs),
@@ -88,5 +93,5 @@ func resolveFallbackLocalDir(target string) (*AgyProject, *apperror.AppError) {
 				},
 			},
 		},
-	}, nil
+	}
 }

@@ -56,7 +56,7 @@ func runDoPendingAll() error {
 func runDoPendingSingle(idStr string) error {
 	taskID, err := strconv.ParseInt(idStr, 10, 64)
 	if err != nil {
-		return apperror.NewSimple(constants.ErrPendingTaskNotFound, "E9000")
+		return apperror.WrapSimple(err, constants.ErrPendingTaskNotFound)
 	}
 
 	db, err := openTasksDB()
@@ -68,7 +68,7 @@ func runDoPendingSingle(idStr string) error {
 
 	task, err := db.FindPendingTaskByID(taskID)
 	if err != nil {
-		return apperror.NewSimple(constants.ErrPendingTaskNotFound, "E9000")
+		return apperror.WrapSimple(err, constants.ErrPendingTaskNotFound)
 	}
 
 	fmt.Printf(constants.MsgPendingRetryOne, taskID)

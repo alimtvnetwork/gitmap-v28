@@ -51,11 +51,17 @@ func registerAlias(name string, rec model.ScanRecord, force bool) *apperror.AppE
 	defer db.Close()
 
 	repos, err := db.FindBySlug(rec.Slug)
-	if err != nil || len(repos) == 0 {
+	if err != nil {
 		fmt.Fprintf(os.Stderr, constants.ErrAsResolveFmt, rec.Slug, err)
 		fmt.Fprintln(os.Stderr)
 
-		return apperror.NewSimple("fatal error", "E9000")
+		return apperror.WrapSimple(err, "find by slug: "+rec.Slug)
+	}
+	if len(repos) == 0 {
+		fmt.Fprintf(os.Stderr, constants.ErrAsResolveFmt, rec.Slug, "no repository found")
+		fmt.Fprintln(os.Stderr)
+
+		return apperror.NewSimple(fmt.Sprintf("repo not found: %s", rec.Slug), "E1004")
 	}
 
 	return createOrUpdateAliasRow(db, name, repos[0].ID, rec, force)

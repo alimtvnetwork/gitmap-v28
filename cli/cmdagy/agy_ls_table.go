@@ -13,6 +13,7 @@ type agyTableRow struct {
 
 type agyTableContext struct {
 	Rows       []agyTableRow
+	MaxSeq     int
 	MaxProject int
 	MaxID      int
 	MaxBranch  int
@@ -23,6 +24,7 @@ type agyTableContext struct {
 func newAgyTableContext() *agyTableContext {
 	return &agyTableContext{
 		Rows:       make([]agyTableRow, 0),
+		MaxSeq:     3,
 		MaxProject: 18,
 		MaxID:      10,
 		MaxBranch:  8,

@@ -39,13 +39,16 @@ func executeDesktopSync() error {
 // validateDesktopSyncPaths checks that the output dir and JSON file exist.
 func validateDesktopSyncPaths(outputDir, jsonPath string) *apperror.AppError {
 	info, err := os.Stat(outputDir)
-	if err != nil || !info.IsDir() {
+	if err != nil {
+		return apperror.WrapSimple(err, constants.MsgNoOutputDir)
+	}
+	if !info.IsDir() {
 		return apperror.NewSimple(constants.MsgNoOutputDir, "E9000")
 	}
 
 	_, jsonErr := os.Stat(jsonPath)
 	if jsonErr != nil {
-		return apperror.NewSimple(constants.MsgNoJSONFile, "E9000")
+		return apperror.WrapSimple(jsonErr, constants.MsgNoJSONFile)
 	}
 
 	return nil

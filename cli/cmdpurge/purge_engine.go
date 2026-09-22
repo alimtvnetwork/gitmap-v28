@@ -15,12 +15,18 @@ import (
 
 func checkWorkTreeAndBranch() error {
 	out, err := runPurgeCmd("git", "status", "--porcelain")
-	if err != nil || strings.TrimSpace(out) != "" {
+	if err != nil {
+		return apperror.WrapSimple(err, "git status failed")
+	}
+	if strings.TrimSpace(out) != "" {
 		return apperror.NewSimple("EXECUTION", "Working tree not clean.")
 	}
 
 	br, err := runPurgeCmd("git", "branch", "--show-current")
-	if err != nil || strings.TrimSpace(br) == "" {
+	if err != nil {
+		return apperror.WrapSimple(err, "git branch failed")
+	}
+	if strings.TrimSpace(br) == "" {
 		return apperror.NewSimple("EXECUTION", "Could not determine branch.")
 	}
 

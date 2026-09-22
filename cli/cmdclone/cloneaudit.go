@@ -25,11 +25,11 @@ func runCloneAudit(cf CloneFlags) error {
 
 	report, err := cloner.PlanCloneAudit(source, cf.TargetDir)
 	if err != nil {
-		return apperror.NewSimple(constants.ErrCloneAuditLoad, "E9000")
+		return apperror.WrapSimple(err, constants.ErrCloneAuditLoad)
 	}
 
 	if printErr := report.Print(os.Stdout); printErr != nil {
-		return apperror.NewSimple(constants.ErrCloneAuditLoad, "E9000")
+		return apperror.WrapSimple(printErr, constants.ErrCloneAuditLoad)
 	}
 
 	return nil

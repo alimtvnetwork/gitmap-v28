@@ -35,7 +35,7 @@ func runInstallCustomTool(tool string) error {
 	cmd.Stderr = os.Stderr
 
 	if err := cmd.Run(); err != nil {
-		return apperror.NewSimple("Failed to install: "+tool, "E9000")
+		return apperror.WrapSimple(err, "Failed to install: "+tool)
 	}
 
 	return nil
