@@ -4,7 +4,6 @@ package cmdagy
 import (
 	"database/sql"
 	"encoding/json"
-	"fmt"
 	"os"
 	"path/filepath"
 	"sort"

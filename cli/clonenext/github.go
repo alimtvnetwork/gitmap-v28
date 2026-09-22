@@ -57,35 +57,41 @@ type RepoCreateParams struct {
 // CreateRepo creates a new GitHub repository under the given owner.
 // It detects whether the owner is a user or organization and calls the
 // appropriate endpoint. The repo is created as private by default.
+func CreateRepo(owner, repoName string, isPrivate bool) error {
+	token, err := resolveRepoToken()
+	if err != nil {
+		return err
+	}
+	return attemptRepoCreation(owner, repoName, isPrivate, token)
+}
+
+func resolveRepoToken() (string, error) {
 	token, _, err := ghtoken.Resolve()
 	if err != nil {
-		return fmt.Errorf("resolve GitHub token failed: %w", err)
+		return "", fmt.Errorf("resolve GitHub token failed: %w", err)
 	}
 	if len(token) == 0 {
-		return fmt.Errorf("no GitHub token available — set GITHUB_TOKEN or run `gh auth login`")
+		return "", fmt.Errorf("no GitHub token available — set GITHUB_TOKEN or run `gh auth login`")
 	}
+	return token, nil
+}
 
-	// Try org endpoint first; if 404, fall back to user endpoint.
+func attemptRepoCreation(owner, repoName string, isPrivate bool, token string) error {
 	orgParams := RepoCreateParams{
 		ApiURL:    fmt.Sprintf("https://api.github.com/orgs/%s/repos", owner),
 		RepoName:  repoName,
 		IsPrivate: isPrivate,
 		Token:     token,
 	}
-
-	err = createOrgRepo(orgParams)
-	if err == nil {
+	if err := createOrgRepo(orgParams); err == nil {
 		return nil
 	}
-
 	userParams := RepoCreateParams{
 		ApiURL:    "https://api.github.com/user/repos",
 		RepoName:  repoName,
 		IsPrivate: isPrivate,
 		Token:     token,
 	}
-
-	// Fallback: create under authenticated user.
 	return createUserRepo(userParams)
 }
 

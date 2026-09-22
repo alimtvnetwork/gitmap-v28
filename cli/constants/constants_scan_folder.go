@@ -91,7 +91,7 @@ const (
 	ErrSFFindByID    = "no scan folder with id: %d"
 	ErrSFRemove      = "failed to remove scan folder: %w"
 	ErrSFDetachRepos = "failed to detach repos from scan folder: %w"
-	ErrSFAbsResolve  = "failed to resolve absolute path for %q: %w"
+	ErrSFAbsResolve  = "failed to resolve absolute path for %q: %v"
 	ErrSFInvalidID   = "invalid scan folder id %q: %w"
 	ErrSFMissingArg  = "missing required argument: %s"
 )

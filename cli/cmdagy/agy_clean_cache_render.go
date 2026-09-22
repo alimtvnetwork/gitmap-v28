@@ -7,7 +7,6 @@ import (
 	"fmt"
 	"os"
 	"strings"
-	"time"
 
 	"github.com/alimtvnetwork/gitmap-v28/cli/constants"
 )

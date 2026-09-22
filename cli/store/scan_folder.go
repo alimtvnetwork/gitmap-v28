@@ -99,11 +99,11 @@ func runDetachAndDeleteTx(wrap *dbengine.DbWrapper, folderID int64) *apperror.Ap
 
 func executeDetachAndDeleteSF(tx *sql.Tx, folderID int64) *apperror.AppError {
 	if _, err := ExecWrapper(tx, constants.SQLDetachReposFromScanFolder, folderID).Destruct(); err != nil {
-		return apperror.WrapSimple(err, fmt.Sprintf(constants.ErrSFDetachRepos, err))
+		return apperror.WrapSimple(err, "detach repos from scan folder")
 	}
 
 	if _, err := ExecWrapper(tx, constants.SQLDeleteScanFolderByID, folderID).Destruct(); err != nil {
-		return apperror.WrapSimple(err, fmt.Sprintf(constants.ErrSFRemove, err))
+		return apperror.WrapSimple(err, "delete scan folder by id")
 	}
 
 	return nil

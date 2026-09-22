@@ -76,3 +76,15 @@ func printUndoAdvisoryNotice(backupDir string) {
 	fmt.Printf("  %sWarning: OS temporary directories are ephemeral and may be wiped automatically.%s\n\n",
 		constants.ColorYellow, constants.ColorReset)
 }
+
+func logProcessTermination(isJSON bool, count int) {
+	if !isJSON {
+		fmt.Printf("\n%sTerminating %d Antigravity process(es)...%s\n", constants.ColorYellow, count, constants.ColorReset)
+	}
+}
+
+func logCacheCleaning(isJSON bool) {
+	if !isJSON {
+		fmt.Printf("%sCleaning Antigravity cache directories...%s\n", constants.ColorCyan, constants.ColorReset)
+	}
+}
