@@ -1,3 +1,9 @@
+## v6.308.0 — 2026-09-22 (Fix AGY prompt injection stacktrace, add conv-rename, unique SEQ persistence, and table polish)
+
+**Scope:** Version bump. Fix AGY prompt injection stacktrace, add conv-rename, unique SEQ persistence, and table polish.
+
+---
+
 ## v6.307.0 — 2026-09-22 (Anchor pipeline database to CLI data directory with relative display path)
 
 **Scope:** Version bump. Anchor pipeline database to CLI data directory with relative display path.

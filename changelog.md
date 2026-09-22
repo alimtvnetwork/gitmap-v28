@@ -1,3 +1,15 @@
+## [v6.308.0] 2026-09-22 Release v6.308.0
+
+### Install GitMap v6.308.0
+
+To pin your repository to this exact version, run the following one-liner:
+Unix/Bash: `curl -sL https://raw.githubusercontent.com/alimtvnetwork/gitmap-v28/v6.308.0/install.sh | bash -s -- ".ai-memory/prompts" "v6.308.0"`
+PowerShell: `Invoke-WebRequest -Uri https://raw.githubusercontent.com/alimtvnetwork/gitmap-v28/v6.308.0/install.ps1 -OutFile install.ps1; .\install.ps1 -TargetDir ".ai-memory/prompts" -Version "v6.308.0"`
+
+### Added / Changed / Fixed / Removed
+
+- Fix AGY prompt injection stacktrace, add conv-rename, unique SEQ persistence, and table polish
+
 ## [v6.307.0] 2026-09-22 Release v6.307.0
 
 ### Install GitMap v6.307.0
