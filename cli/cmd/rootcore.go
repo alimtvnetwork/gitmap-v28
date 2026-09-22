@@ -2,7 +2,6 @@ package cmd
 
 import (
 	"context"
-	"os"
 
 	"github.com/alimtvnetwork/gitmap-v28/cli/cluster"
 	"github.com/alimtvnetwork/gitmap-v28/cli/cmdpurge"
@@ -127,14 +126,7 @@ func coreClusterEntries() []dispatchEntry {
 	}
 }
 
-func resolveSCTopic() string {
-	isSC := len(os.Args) > 1 && os.Args[1] == constants.CmdSC
-	if isSC {
-		return constants.CmdSC
-	}
 
-	return constants.CmdServersClients
-}
 
 func dispatchServersClients(args []string) {
 	if IsHelpRequestedOrEmpty(args) {

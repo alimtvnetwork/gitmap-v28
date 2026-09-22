@@ -49,7 +49,7 @@ func tryInjectNewConversation(title, content string, pid int, repoRoot, promptPa
 func tryDispatchExisting(repoRoot, promptPath, title, sendContent string, pid int) (AgyInjectionResult, bool) {
 	conv, err := SelectMatchingConversation(repoRoot)
 	hasConv := err == nil && len(conv.ID) > 0
-	if hasConv == false {
+	if !hasConv {
 		return AgyInjectionResult{}, false
 	}
 

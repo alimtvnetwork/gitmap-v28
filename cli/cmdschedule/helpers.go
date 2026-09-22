@@ -8,11 +8,7 @@ import (
 	"github.com/alimtvnetwork/gitmap-v28/cli/macro"
 )
 
-func checkHelp(command string, args []string) {
-	if CheckHelpFn != nil {
-		CheckHelpFn(command, args)
-	}
-}
+
 
 func matchFlagWithVal(arg string, names ...string) bool {
 	for _, n := range names {

@@ -46,18 +46,16 @@ func findHWNDForPID(targetPID uint32) uintptr {
 }
 
 // FocusAntigravityWindow activates and restores the Antigravity window for targetPID.
-func FocusAntigravityWindow(targetPID int) bool {
+func FocusAntigravityWindow(targetPID int) {
 	hasTarget := targetPID > 0
-	if hasTarget == false {
-		return false
+	if !hasTarget {
+		return
 	}
 	hwnd := findHWNDForPID(uint32(targetPID))
 	hasHWND := hwnd != 0
-	if hasHWND == false {
-		return false
+	if !hasHWND {
+		return
 	}
 	procShowWindow.Call(hwnd, swRestore)
-	res, _, _ := procSetForegroundWindow.Call(hwnd)
-
-	return res != 0
+	procSetForegroundWindow.Call(hwnd)
 }
