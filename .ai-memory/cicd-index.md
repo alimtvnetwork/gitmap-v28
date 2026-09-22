@@ -37,6 +37,7 @@ Tracks every CI/CD pipeline failure or hardening decision encountered, its root 
 | 42 | Step Timeout Flakiness and Fixture Gofmt Backup Dirtiness | Full Suite Guard / Matrix | ✅ Resolved | [42-step-timeout-and-fixture-gofmt.md](cicd-issues/42-step-timeout-and-fixture-gofmt.md) |
 | 43 | Installer Seed Data 404s & Release Dry-Run Script Path Drift | Installer Dry-Run / Smoke Windows | ✅ Resolved | [43-installer-seed-urls-and-release-dryrun-path.md](cicd-issues/43-installer-seed-urls-and-release-dryrun-path.md) |
 | 60 | Pipeline Build, Linter, Typecheck, and Error Management | CI/CD Pipeline #35428297196 | ✅ Resolved | [60-pipeline-build-linter-and-typecheck-rca.md](cicd-issues/60-pipeline-build-linter-and-typecheck-rca.md) |
+| 73 | Gofmt Whitespace Drift in rootcore.go and helpers.go | Lint Script Unit Tests | ✅ Resolved | [73-gofmt-whitespace-drift-in-rootcore-and-helpers-rca.md](cicd-issues/73-gofmt-whitespace-drift-in-rootcore-and-helpers-rca.md) |
 
 ## Patterns Learned
 

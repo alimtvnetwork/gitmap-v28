@@ -8,8 +8,6 @@ import (
 	"github.com/alimtvnetwork/gitmap-v28/cli/macro"
 )
 
-
-
 func matchFlagWithVal(arg string, names ...string) bool {
 	for _, n := range names {
 		if arg == n || strings.HasPrefix(arg, n+"=") {

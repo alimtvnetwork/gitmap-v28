@@ -126,8 +126,6 @@ func coreClusterEntries() []dispatchEntry {
 	}
 }
 
-
-
 func dispatchServersClients(args []string) {
 	if IsHelpRequestedOrEmpty(args) {
 		RenderSCHelp()
