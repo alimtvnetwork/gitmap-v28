@@ -1,3 +1,15 @@
+## [v6.306.0] 2026-09-22 Release v6.306.0
+
+### Install GitMap v6.306.0
+
+To pin your repository to this exact version, run the following one-liner:
+Unix/Bash: `curl -sL https://raw.githubusercontent.com/alimtvnetwork/gitmap-v28/v6.306.0/install.sh | bash -s -- ".ai-memory/prompts" "v6.306.0"`
+PowerShell: `Invoke-WebRequest -Uri https://raw.githubusercontent.com/alimtvnetwork/gitmap-v28/v6.306.0/install.ps1 -OutFile install.ps1; .\install.ps1 -TargetDir ".ai-memory/prompts" -Version "v6.306.0"`
+
+### Added / Changed / Fixed / Removed
+
+- Implement SSH-first access probe and interactive terminal token authentication with global reuse
+
 ## [v6.305.0] 2026-09-22 Release v6.305.0
 
 ### Install GitMap v6.305.0

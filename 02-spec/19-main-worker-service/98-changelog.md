@@ -1,3 +1,9 @@
+## v6.306.0 — 2026-09-22 (Implement SSH-first access probe and interactive terminal token authentication with global reuse)
+
+**Scope:** Version bump. Implement SSH-first access probe and interactive terminal token authentication with global reuse.
+
+---
+
 ## v6.305.0 — 2026-09-22 (Implement robust lowercase file renamer and root README command)
 
 **Scope:** Version bump. Implement robust lowercase file renamer and root README command.
