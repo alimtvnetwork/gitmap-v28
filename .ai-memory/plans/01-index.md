@@ -9,7 +9,8 @@ Master directory of architectural and execution plans.
 
 ## Recent Completed Tasks Register (Last 20 Tasks)
 
-1. [77-agy-parity-ssh-first-auth-and-token-prompt.md](completed/77-agy-parity-ssh-first-auth-and-token-prompt.md): AGY Scripts-Fixer Parity Verification, SSH-First Access Probe & Interactive Terminal Auth Prompt
+1. [78-cli-relative-database-path.md](completed/78-cli-relative-database-path.md): Anchor Pipeline Database to CLI Data Directory with Relative Display Path
+2. [77-agy-parity-ssh-first-auth-and-token-prompt.md](completed/77-agy-parity-ssh-first-auth-and-token-prompt.md): AGY Scripts-Fixer Parity Verification, SSH-First Access Probe & Interactive Terminal Auth Prompt
 2. [76-lowercase-file-fix-and-git-renaming.md](completed/76-lowercase-file-fix-and-git-renaming.md): Robust Lowercase File Renamer, Git Case Manipulation, Root README Command, Help Text & UI Integration
 2. [56-agy-cache-clear-retention-undo.md](completed/56-agy-cache-clear-retention-undo.md): AGY Cache Clear Retention (--keep 10), Preflight Simulation (--pre, --precheck, --preflight), Undo Backup & Direct Convenience Commands (ccko, cckf)
 2. [55-deep-raw-error-audit-codebase.md](completed/55-deep-raw-error-audit-codebase.md): Deep Codebase Raw Error Audit, Elimination of Swallowed Errors, AGY Workspace Suite (rm, pins, rrr, rrpr), and Conv Name/ID Display in Table
@@ -54,6 +55,7 @@ Master directory of architectural and execution plans.
 
 ## Completed Plans
 
+- [78-cli-relative-database-path.md](completed/78-cli-relative-database-path.md): Anchor Pipeline Database to CLI Data Directory with Relative Display Path
 - [77-agy-parity-ssh-first-auth-and-token-prompt.md](completed/77-agy-parity-ssh-first-auth-and-token-prompt.md): AGY Scripts-Fixer Parity Verification, SSH-First Access Probe & Interactive Terminal Auth Prompt
 - [76-lowercase-file-fix-and-git-renaming.md](completed/76-lowercase-file-fix-and-git-renaming.md): Robust Lowercase File Renamer, Git Case Manipulation, Root README Command, Help Text & UI Integration
 - [57-lower-case-fix-command.md](completed/57-lower-case-fix-command.md): Lower-Case Fix Command (gitmap lower-case-fix)

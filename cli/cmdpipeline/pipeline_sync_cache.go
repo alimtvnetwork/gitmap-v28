@@ -8,6 +8,7 @@ import (
 
 	"github.com/alimtvnetwork/gitmap-v28/cli/constants"
 	"github.com/alimtvnetwork/gitmap-v28/cli/pipelinedb"
+	"github.com/alimtvnetwork/gitmap-v28/cli/store"
 )
 
 // PipelineSyncResult summarizes an incremental sync of workflow runs and error logs.
@@ -42,7 +43,23 @@ func FormatRelativeDbPath(fullPath string) string {
 		return slashPath[idx:]
 	}
 
-	return resolveRelOrSlashPath(slashPath, target)
+	return resolveBinaryOrRelPath(slashPath, target)
+}
+
+func resolveBinaryOrRelPath(slashPath, fullPath string) string {
+	binDir := filepath.ToSlash(store.BinaryDataDir())
+	if strings.HasPrefix(slashPath, binDir+"/") {
+		return "data/" + strings.TrimPrefix(slashPath, binDir+"/")
+	}
+	cliDir := filepath.ToSlash(filepath.Dir(store.BinaryDataDir()))
+	if strings.HasPrefix(slashPath, cliDir+"/") {
+		return strings.TrimPrefix(slashPath, cliDir+"/")
+	}
+	if idx := strings.Index(slashPath, "/data/pipeline/"); idx != -1 {
+		return slashPath[idx+1:]
+	}
+
+	return resolveRelOrSlashPath(slashPath, fullPath)
 }
 
 func resolveRelOrSlashPath(slashPath, fullPath string) string {

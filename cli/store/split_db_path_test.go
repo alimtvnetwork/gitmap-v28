@@ -107,3 +107,19 @@ func assertMigratedTarget(t *testing.T, targetPath, legacyPath string) {
 		t.Errorf("legacy file %s still exists", legacyPath)
 	}
 }
+
+func TestResolveSplitDbDirEmptyRoot(t *testing.T) {
+	dir := ResolveSplitDbDir(SectionPipeline, "my-repo", "")
+	expected := filepath.ToSlash(filepath.Join(BinaryDataDir(), "pipeline", "my-repo"))
+	if dir != expected {
+		t.Errorf("ResolveSplitDbDir with empty root = %q; want %q", dir, expected)
+	}
+}
+
+func TestResolveSplitDbPathEmptyRoot(t *testing.T) {
+	path := ResolveSplitDbPath(SectionPipeline, "my-repo", "")
+	expected := filepath.ToSlash(filepath.Join(BinaryDataDir(), "pipeline", "my-repo", "sql.db"))
+	if path != expected {
+		t.Errorf("ResolveSplitDbPath with empty root = %q; want %q", path, expected)
+	}
+}
