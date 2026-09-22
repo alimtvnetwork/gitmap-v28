@@ -4,6 +4,7 @@ package cmdagy
 
 import (
 	"os"
+	"strings"
 	"testing"
 )
 
@@ -52,4 +53,27 @@ func TestE2E_WindowFocus(t *testing.T) {
 	}
 	FocusAntigravityWindow(procRes.Value.PID)
 	t.Logf("FocusAntigravityWindow invoked for PID %d", procRes.Value.PID)
+}
+
+func TestE2E_LSEnvDiscovery(t *testing.T) {
+	skipIfInCI(t)
+	addr, token, ok := ResolveAntigravityLSEnv()
+	if !ok {
+		t.Fatalf("failed to discover Antigravity Language Server address and token")
+	}
+	t.Logf("Discovered Language Server: addr=%s, tokenLen=%d", addr, len(token))
+}
+
+func TestE2E_AgentAPIExecution(t *testing.T) {
+	skipIfInCI(t)
+	addr, _, ok := ResolveAntigravityLSEnv()
+	if !ok {
+		t.Skip("Antigravity Language Server not running, skipping execution test")
+	}
+	t.Logf("Testing agentapi with addr=%s...", addr)
+	rawRes := executeAgentAPICmd([]string{"get-conversation-metadata", "probe-check"})
+	if rawRes.IsFailure() && strings.Contains(rawRes.Err.Error(), "ANTIGRAVITY_LS_ADDRESS is not set") {
+		t.Fatalf("agentapi failed with ANTIGRAVITY_LS_ADDRESS is not set: %v", rawRes.Err)
+	}
+	t.Logf("agentapi executed successfully (no LS_ADDRESS error)")
 }

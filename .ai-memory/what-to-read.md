@@ -5,6 +5,7 @@
 
 ## Changelog
 
+- 2026-09-23T07:40:00Z, Memory write: Plan 83 Antigravity Language Server address dynamic discovery, CSRF token extraction via CIM, multi-port probing, agentapi injection, and CLI fallback.
 - 2026-09-22T08:35:00Z, Memory write: Enhanced release-orchestrator and ci-cd-fix-with-release prompts and skills with priority smart runner shortcuts (run-smart, --fast), gitmap pipeline suite (pe, pd), and cross-repo sync (learned 31).
 - 2026-09-22T07:25:00Z, Memory write: Authored 6 specialized GitMap subsystem skills in .agents/skills/ (scanner-and-cloner, ssh-cluster-fleet, split-db-engine, pipeline-and-diagnostics, developer-hygiene-and-agy, macro-automation-engine) and learned memory 30.
 - 2026-09-20T13:46:00Z, Memory write: RCA 65 fixed scanRootForFile directory probe, flattened pipeline-ai nested ifs, and cleaned gofmt whitespace drift.

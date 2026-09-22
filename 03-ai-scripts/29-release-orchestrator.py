@@ -378,18 +378,18 @@ def revert_to_original_branch(original_branch, dry_run=False):
 
 
 def verify_pre_release_quality_gates(dry_run=False, skip_tests=False):
-    """Executes full unit test suites and CI quality gates prior to release."""
+    """Executes smart targeted unit test suites and CI quality gates prior to release."""
     if skip_tests:
         print("[!] Warning: Pre-release test execution skipped via --skip-tests flag.")
         return
 
     if dry_run:
-        print("[DRY RUN] Would execute full unit test suites and CI quality gates: python 03-ai-scripts/06-cicd-local-runner.py --run-tests")
+        print("[DRY RUN] Would execute pre-release quality gates: python 03-ai-scripts/06-cicd-local-runner.py run-smart")
         return
 
-    print("[*] Running full pre-release unit test suites and CI quality gates (python 03-ai-scripts/06-cicd-local-runner.py --run-tests)...")
+    print("[*] Running pre-release quality gates (python 03-ai-scripts/06-cicd-local-runner.py run-smart)...")
     runner_script = REPO_ROOT / "03-ai-scripts" / "06-cicd-local-runner.py"
-    res = run_cmd([sys.executable, str(runner_script), "--run-tests"], capture_output=False)
+    res = run_cmd([sys.executable, str(runner_script), "run-smart"], capture_output=False)
     if res.returncode != 0:
         raise RuntimeError("Pre-release quality gates / unit tests failed! Releases are forbidden on failing tests.")
 

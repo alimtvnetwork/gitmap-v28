@@ -101,12 +101,22 @@ func executeAgentAPICmd(subArgs []string) result.Result[[]byte] {
 	}
 	fullArgs := append(baseArgs, subArgs...)
 	cmd := exec.Command(binPath, fullArgs...)
-	out, err := cmd.CombinedOutput()
-	hasErr := err != nil
-	if hasErr {
-		errMsg := strings.TrimSpace(string(out))
-		return result.Fail[[]byte](apperror.NewSimple("agentapi execution failed: "+errMsg, "E9031"))
+	cmd.Env = os.Environ()
+	addr, token, hasEnv := ResolveAntigravityLSEnv()
+	if hasEnv {
+		cmd.Env = append(cmd.Env,
+			"ANTIGRAVITY_LS_ADDRESS="+addr,
+			"ANTIGRAVITY_CSRF_TOKEN="+token,
+		)
 	}
+	out, err := cmd.CombinedOutput()
+	if err == nil {
+		return result.Ok(out)
+	}
+	if hasEnv {
+		InvalidateAntigravityLSEnvCache()
+	}
+	errMsg := strings.TrimSpace(string(out))
 
-	return result.Ok(out)
+	return result.Fail[[]byte](apperror.NewSimple("agentapi execution failed: "+errMsg, "E9031"))
 }

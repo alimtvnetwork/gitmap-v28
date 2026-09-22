@@ -2,6 +2,8 @@ package cmdagy
 
 import (
 	"fmt"
+	"os/exec"
+	"path/filepath"
 	"strings"
 
 	"github.com/alimtvnetwork/gitmap-v28/cli/apperror"
@@ -72,6 +74,11 @@ func DispatchPromptToAntigravity(repoRoot, promptPath, title, content string, pi
 		return res
 	}
 
+	cliRes, hasCLISuccess := tryFallbackCLIWhenOffline(pid, repoRoot, promptPath, title, sendContent)
+	if hasCLISuccess {
+		return cliRes
+	}
+
 	var appErr *apperror.AppError
 	if newErr != nil {
 		appErr = newErr
@@ -84,6 +91,40 @@ func DispatchPromptToAntigravity(repoRoot, promptPath, title, content string, pi
 	}
 
 	return makeOfflineFallbackResult(pid, repoRoot, promptPath, appErr)
+}
+
+func tryFallbackCLIWhenOffline(pid int, repoRoot, promptPath, title, sendContent string) (AgyInjectionResult, bool) {
+	if pid > 0 {
+		return AgyInjectionResult{}, false
+	}
+
+	return tryDispatchAgyCLI(repoRoot, promptPath, title, sendContent, pid)
+}
+
+func tryDispatchAgyCLI(repoRoot, promptPath, title, content string, pid int) (AgyInjectionResult, bool) {
+	cliRes := ResolveAntigravityCLI()
+	if cliRes.IsFailure() {
+		return AgyInjectionResult{}, false
+	}
+	agyBin := cliRes.Value
+	cmd := exec.Command(agyBin, "-p", content)
+	if len(repoRoot) > 0 {
+		cmd.Dir = repoRoot
+	}
+	err := cmd.Start()
+	if err != nil {
+		return AgyInjectionResult{}, false
+	}
+	msg := fmt.Sprintf("Dispatched prompt to Antigravity CLI (%s) in background!", filepath.Base(agyBin))
+
+	return AgyInjectionResult{
+		IsSuccess:  true,
+		Mode:       AgyInjectionModeCLI,
+		PID:        pid,
+		Message:    msg,
+		PromptPath: promptPath,
+		RepoDir:    repoRoot,
+	}, true
 }
 
 func makeAgentAPISuccessResult(pid int, repoDir, promptPath, convID string, isNew bool) AgyInjectionResult {

@@ -1,11 +1,11 @@
 {
   "version": 1,
-  "updated_at": "2026-09-23T07:12:35Z",
+  "updated_at": "2026-09-23T07:40:51Z",
   "total_tests": 4088,
   "summary": {
     "total": 4088,
-    "cached": 2228,
-    "dirty": 1860,
+    "cached": 3695,
+    "dirty": 0,
     "packages": 152,
     "slow_tests": 84,
     "fast_tests": 4004,
@@ -13663,7 +13663,7 @@
       "tier": "fast",
       "is_slow": false,
       "last_status": "passed",
-      "last_run_at": "2026-09-23T07:07:35",
+      "last_run_at": "2026-09-23T07:40:57",
       "needs_run": false
     },
     "cli/cmdagy.TestCalculateDirStatsAndClean": {
@@ -13679,7 +13679,7 @@
       "tier": "fast",
       "is_slow": false,
       "last_status": "passed",
-      "last_run_at": "2026-09-23T07:07:35",
+      "last_run_at": "2026-09-23T07:40:57",
       "needs_run": false
     },
     "cli/cmdagy.TestParseTasklistCSV": {
@@ -13695,7 +13695,7 @@
       "tier": "fast",
       "is_slow": false,
       "last_status": "passed",
-      "last_run_at": "2026-09-23T07:07:35",
+      "last_run_at": "2026-09-23T07:40:57",
       "needs_run": false
     },
     "cli/cmdagy.TestParsePsOutput": {
@@ -13711,7 +13711,7 @@
       "tier": "fast",
       "is_slow": false,
       "last_status": "passed",
-      "last_run_at": "2026-09-23T07:07:35",
+      "last_run_at": "2026-09-23T07:40:57",
       "needs_run": false
     },
     "cli/cmdagy.TestNormalizeAgySubcommand_CleanCache": {
@@ -13727,7 +13727,7 @@
       "tier": "fast",
       "is_slow": false,
       "last_status": "passed",
-      "last_run_at": "2026-09-23T07:07:35",
+      "last_run_at": "2026-09-23T07:40:57",
       "needs_run": false
     },
     "cli/cmdagy.TestExecuteCleanCache_DryRunJSON": {
@@ -13743,7 +13743,7 @@
       "tier": "fast",
       "is_slow": false,
       "last_status": "passed",
-      "last_run_at": "2026-09-23T07:07:35",
+      "last_run_at": "2026-09-23T07:40:57",
       "needs_run": false
     },
     "cli/cmdagy.TestCleanDirectoryContents_ProtectsSettings": {
@@ -13759,7 +13759,7 @@
       "tier": "fast",
       "is_slow": false,
       "last_status": "passed",
-      "last_run_at": "2026-09-23T07:07:35",
+      "last_run_at": "2026-09-23T07:40:57",
       "needs_run": false
     },
     "cli/cmdagy.TestAgyClearProtectsPinnedProjects": {
@@ -13775,7 +13775,7 @@
       "tier": "fast",
       "is_slow": false,
       "last_status": "passed",
-      "last_run_at": "2026-09-23T07:07:35",
+      "last_run_at": "2026-09-23T07:40:57",
       "needs_run": false
     },
     "cli/cmdagy.TestStripAgyPrefix": {
@@ -13791,7 +13791,7 @@
       "tier": "fast",
       "is_slow": false,
       "last_status": "passed",
-      "last_run_at": "2026-09-23T07:07:35",
+      "last_run_at": "2026-09-23T07:40:57",
       "needs_run": false
     },
     "cli/cmdagy.TestIsCompoundAgyFix": {
@@ -13807,7 +13807,7 @@
       "tier": "fast",
       "is_slow": false,
       "last_status": "passed",
-      "last_run_at": "2026-09-23T07:07:35",
+      "last_run_at": "2026-09-23T07:40:57",
       "needs_run": false
     },
     "cli/cmdagy.TestRewriteCompoundAgyFix": {
@@ -13823,7 +13823,7 @@
       "tier": "fast",
       "is_slow": false,
       "last_status": "passed",
-      "last_run_at": "2026-09-23T07:07:35",
+      "last_run_at": "2026-09-23T07:40:57",
       "needs_run": false
     },
     "cli/cmdagy.TestNormalizeAgySubcommand_Aliases": {
@@ -13839,7 +13839,7 @@
       "tier": "fast",
       "is_slow": false,
       "last_status": "passed",
-      "last_run_at": "2026-09-23T07:07:35",
+      "last_run_at": "2026-09-23T07:40:57",
       "needs_run": false
     },
     "cli/cmdagy.TestNormalizeAgyArgs_CompoundAndSingle": {
@@ -13855,7 +13855,7 @@
       "tier": "fast",
       "is_slow": false,
       "last_status": "passed",
-      "last_run_at": "2026-09-23T07:07:35",
+      "last_run_at": "2026-09-23T07:40:57",
       "needs_run": false
     },
     "cli/cmdagy.TestIsAgyOpenPathArg_Extended": {
@@ -13871,7 +13871,7 @@
       "tier": "fast",
       "is_slow": false,
       "last_status": "passed",
-      "last_run_at": "2026-09-23T07:07:35",
+      "last_run_at": "2026-09-23T07:40:57",
       "needs_run": false
     },
     "cli/cmdagy.TestReadSingleConvDB": {
@@ -13887,7 +13887,7 @@
       "tier": "fast",
       "is_slow": false,
       "last_status": "passed",
-      "last_run_at": "2026-09-23T07:07:35",
+      "last_run_at": "2026-09-23T07:40:57",
       "needs_run": false
     },
     "cli/cmdagy.TestPromptSelect_ZeroMatches": {
@@ -13903,7 +13903,7 @@
       "tier": "fast",
       "is_slow": false,
       "last_status": "passed",
-      "last_run_at": "2026-09-23T07:07:35",
+      "last_run_at": "2026-09-23T07:40:57",
       "needs_run": false
     },
     "cli/cmdagy.TestPromptSelect_SingleMatch": {
@@ -13919,7 +13919,7 @@
       "tier": "fast",
       "is_slow": false,
       "last_status": "passed",
-      "last_run_at": "2026-09-23T07:07:35",
+      "last_run_at": "2026-09-23T07:40:57",
       "needs_run": false
     },
     "cli/cmdagy.TestPromptSelect_MultipleMatches_NonInteractive": {
@@ -13935,7 +13935,7 @@
       "tier": "fast",
       "is_slow": false,
       "last_status": "passed",
-      "last_run_at": "2026-09-23T07:07:35",
+      "last_run_at": "2026-09-23T07:40:57",
       "needs_run": false
     },
     "cli/cmdagy.TestPromptSelect_MultipleMatches_Interactive_Index1": {
@@ -13951,7 +13951,7 @@
       "tier": "fast",
       "is_slow": false,
       "last_status": "passed",
-      "last_run_at": "2026-09-23T07:07:35",
+      "last_run_at": "2026-09-23T07:40:57",
       "needs_run": false
     },
     "cli/cmdagy.TestPromptSelect_MultipleMatches_Interactive_Index2": {
@@ -13967,7 +13967,7 @@
       "tier": "fast",
       "is_slow": false,
       "last_status": "passed",
-      "last_run_at": "2026-09-23T07:07:35",
+      "last_run_at": "2026-09-23T07:40:57",
       "needs_run": false
     },
     "cli/cmdagy.TestPromptSelect_MultipleMatches_Interactive_EmptyString": {
@@ -13983,7 +13983,7 @@
       "tier": "fast",
       "is_slow": false,
       "last_status": "passed",
-      "last_run_at": "2026-09-23T07:07:35",
+      "last_run_at": "2026-09-23T07:40:57",
       "needs_run": false
     },
     "cli/cmdagy.TestPromptSelect_MultipleMatches_Interactive_InvalidInput": {
@@ -13999,7 +13999,7 @@
       "tier": "fast",
       "is_slow": false,
       "last_status": "passed",
-      "last_run_at": "2026-09-23T07:07:35",
+      "last_run_at": "2026-09-23T07:40:57",
       "needs_run": false
     },
     "cli/cmdagy.TestSortConversations": {
@@ -14015,7 +14015,7 @@
       "tier": "fast",
       "is_slow": false,
       "last_status": "passed",
-      "last_run_at": "2026-09-23T07:07:35",
+      "last_run_at": "2026-09-23T07:40:57",
       "needs_run": false
     },
     "cli/cmdagy.TestSelectMatchingConversation_ZeroMatches": {
@@ -14031,7 +14031,7 @@
       "tier": "fast",
       "is_slow": false,
       "last_status": "passed",
-      "last_run_at": "2026-09-23T07:07:35",
+      "last_run_at": "2026-09-23T07:40:57",
       "needs_run": false
     },
     "cli/cmdagy.TestSelectMatchingConversation_LocalWorkspaces": {
@@ -14047,7 +14047,7 @@
       "tier": "fast",
       "is_slow": false,
       "last_status": "passed",
-      "last_run_at": "2026-09-23T07:07:35",
+      "last_run_at": "2026-09-23T07:40:57",
       "needs_run": false
     },
     "cli/cmdagy.TestComputeBaseMatchScore": {
@@ -14063,7 +14063,7 @@
       "tier": "fast",
       "is_slow": false,
       "last_status": "passed",
-      "last_run_at": "2026-09-23T07:07:35",
+      "last_run_at": "2026-09-23T07:40:57",
       "needs_run": false
     },
     "cli/cmdagy.TestComputeSummaryScore": {
@@ -14079,7 +14079,7 @@
       "tier": "fast",
       "is_slow": false,
       "last_status": "passed",
-      "last_run_at": "2026-09-23T07:07:35",
+      "last_run_at": "2026-09-23T07:40:57",
       "needs_run": false
     },
     "cli/cmdagy.TestCheckProjectNameMatch": {
@@ -14095,7 +14095,7 @@
       "tier": "fast",
       "is_slow": false,
       "last_status": "passed",
-      "last_run_at": "2026-09-23T07:07:35",
+      "last_run_at": "2026-09-23T07:40:57",
       "needs_run": false
     },
     "cli/cmdagy.TestIsProjectIDInList": {
@@ -14111,7 +14111,7 @@
       "tier": "fast",
       "is_slow": false,
       "last_status": "passed",
-      "last_run_at": "2026-09-23T07:07:35",
+      "last_run_at": "2026-09-23T07:40:57",
       "needs_run": false
     },
     "cli/cmdagy.TestSortScoredSummaries": {
@@ -14127,7 +14127,7 @@
       "tier": "fast",
       "is_slow": false,
       "last_status": "passed",
-      "last_run_at": "2026-09-23T07:07:35",
+      "last_run_at": "2026-09-23T07:40:57",
       "needs_run": false
     },
     "cli/cmdagy.TestParseAgyFixArgs_BatchFlagsCounts": {
@@ -14138,12 +14138,12 @@
       "test_hash": "6f3122efc9eac77c",
       "target_file": "cli/cmdagy/agy_agentapi.go",
       "target_func": "ParseAgyFixArgs",
-      "code_hash": "e29a4d7d02760710",
+      "code_hash": "b45d663a73e369e8",
       "duration_sec": 0.01,
       "tier": "fast",
       "is_slow": false,
       "last_status": "passed",
-      "last_run_at": "2026-09-23T07:07:35",
+      "last_run_at": "2026-09-23T07:40:57",
       "needs_run": false
     },
     "cli/cmdagy.TestParseAgyFixArgs_BatchToggles": {
@@ -14154,12 +14154,12 @@
       "test_hash": "6f3122efc9eac77c",
       "target_file": "cli/cmdagy/agy_agentapi.go",
       "target_func": "ParseAgyFixArgs",
-      "code_hash": "e29a4d7d02760710",
+      "code_hash": "b45d663a73e369e8",
       "duration_sec": 0.01,
       "tier": "fast",
       "is_slow": false,
       "last_status": "passed",
-      "last_run_at": "2026-09-23T07:07:35",
+      "last_run_at": "2026-09-23T07:40:57",
       "needs_run": false
     },
     "cli/cmdagy.TestBatchCursor_SaveAndReset": {
@@ -14170,12 +14170,12 @@
       "test_hash": "6f3122efc9eac77c",
       "target_file": "cli/cmdagy/agy_agentapi.go",
       "target_func": "BatchCursor",
-      "code_hash": "e29a4d7d02760710",
+      "code_hash": "b45d663a73e369e8",
       "duration_sec": 0.01,
       "tier": "fast",
       "is_slow": false,
       "last_status": "passed",
-      "last_run_at": "2026-09-23T07:07:35",
+      "last_run_at": "2026-09-23T07:40:57",
       "needs_run": false
     },
     "cli/cmdagy.TestInjectAgyFixTask_SkipInject": {
@@ -14186,12 +14186,12 @@
       "test_hash": "6f3122efc9eac77c",
       "target_file": "cli/cmdagy/agy_agentapi.go",
       "target_func": "InjectAgyFixTask",
-      "code_hash": "e29a4d7d02760710",
+      "code_hash": "b45d663a73e369e8",
       "duration_sec": 0.01,
       "tier": "fast",
       "is_slow": false,
       "last_status": "passed",
-      "last_run_at": "2026-09-23T07:07:35",
+      "last_run_at": "2026-09-23T07:40:57",
       "needs_run": false
     },
     "cli/cmdagy.TestToAbsPath": {
@@ -14202,12 +14202,12 @@
       "test_hash": "6f3122efc9eac77c",
       "target_file": "cli/cmdagy/agy_agentapi.go",
       "target_func": "ToAbsPath",
-      "code_hash": "e29a4d7d02760710",
+      "code_hash": "b45d663a73e369e8",
       "duration_sec": 0.01,
       "tier": "fast",
       "is_slow": false,
       "last_status": "passed",
-      "last_run_at": "2026-09-23T07:07:35",
+      "last_run_at": "2026-09-23T07:40:57",
       "needs_run": false
     },
     "cli/cmdagy.TestAssembleFixPipelinePayload_BothNonEmpty": {
@@ -14223,7 +14223,7 @@
       "tier": "fast",
       "is_slow": false,
       "last_status": "passed",
-      "last_run_at": "2026-09-23T07:07:35",
+      "last_run_at": "2026-09-23T07:40:57",
       "needs_run": false
     },
     "cli/cmdagy.TestAssembleFixPipelinePayload_TrimsSurroundingWhitespace": {
@@ -14239,7 +14239,7 @@
       "tier": "fast",
       "is_slow": false,
       "last_status": "passed",
-      "last_run_at": "2026-09-23T07:07:35",
+      "last_run_at": "2026-09-23T07:40:57",
       "needs_run": false
     },
     "cli/cmdagy.TestAssembleFixPipelinePayload_EmptyLogsOrPrompt": {
@@ -14255,7 +14255,7 @@
       "tier": "fast",
       "is_slow": false,
       "last_status": "passed",
-      "last_run_at": "2026-09-23T07:07:35",
+      "last_run_at": "2026-09-23T07:40:57",
       "needs_run": false
     },
     "cli/cmdagy.TestResolveTargetRepoArg": {
@@ -14271,7 +14271,7 @@
       "tier": "fast",
       "is_slow": false,
       "last_status": "passed",
-      "last_run_at": "2026-09-23T07:07:35",
+      "last_run_at": "2026-09-23T07:40:57",
       "needs_run": false
     },
     "cli/cmdagy.TestSelectPromptPath": {
@@ -14287,7 +14287,7 @@
       "tier": "fast",
       "is_slow": false,
       "last_status": "passed",
-      "last_run_at": "2026-09-23T07:07:35",
+      "last_run_at": "2026-09-23T07:40:57",
       "needs_run": false
     },
     "cli/cmdagy.TestLoadCicdFixPrompt_CustomPath": {
@@ -14303,7 +14303,7 @@
       "tier": "fast",
       "is_slow": false,
       "last_status": "passed",
-      "last_run_at": "2026-09-23T07:07:35",
+      "last_run_at": "2026-09-23T07:40:57",
       "needs_run": false
     },
     "cli/cmdagy.TestTruncateMiddle": {
@@ -14319,7 +14319,7 @@
       "tier": "fast",
       "is_slow": false,
       "last_status": "passed",
-      "last_run_at": "2026-09-23T07:07:35",
+      "last_run_at": "2026-09-23T07:40:57",
       "needs_run": false
     },
     "cli/cmdagy.TestResolveProjectParentFolder": {
@@ -14335,7 +14335,7 @@
       "tier": "fast",
       "is_slow": false,
       "last_status": "passed",
-      "last_run_at": "2026-09-23T07:07:35",
+      "last_run_at": "2026-09-23T07:40:57",
       "needs_run": false
     },
     "cli/cmdagy.TestGroupProjectsByRootFolder": {
@@ -14351,7 +14351,7 @@
       "tier": "fast",
       "is_slow": false,
       "last_status": "passed",
-      "last_run_at": "2026-09-23T07:07:35",
+      "last_run_at": "2026-09-23T07:40:57",
       "needs_run": false
     },
     "cli/cmdagy.TestResolveTargetPath": {
@@ -14367,7 +14367,7 @@
       "tier": "fast",
       "is_slow": false,
       "last_status": "passed",
-      "last_run_at": "2026-09-23T07:07:35",
+      "last_run_at": "2026-09-23T07:40:57",
       "needs_run": false
     },
     "cli/cmdagy.TestIsAgyOpenPathArg": {
@@ -14383,7 +14383,7 @@
       "tier": "fast",
       "is_slow": false,
       "last_status": "passed",
-      "last_run_at": "2026-09-23T07:07:35",
+      "last_run_at": "2026-09-23T07:40:57",
       "needs_run": false
     },
     "cli/cmdagy.TestExecuteAgyPing": {
@@ -14399,7 +14399,7 @@
       "tier": "fast",
       "is_slow": false,
       "last_status": "passed",
-      "last_run_at": "2026-09-23T07:07:35",
+      "last_run_at": "2026-09-23T07:40:57",
       "needs_run": false
     },
     "cli/cmdagy.TestRenderPingReport": {
@@ -14415,7 +14415,7 @@
       "tier": "fast",
       "is_slow": false,
       "last_status": "passed",
-      "last_run_at": "2026-09-23T07:07:35",
+      "last_run_at": "2026-09-23T07:40:57",
       "needs_run": false
     },
     "cli/cmdagy.TestRenderPingJSON": {
@@ -14431,7 +14431,7 @@
       "tier": "fast",
       "is_slow": false,
       "last_status": "passed",
-      "last_run_at": "2026-09-23T07:07:35",
+      "last_run_at": "2026-09-23T07:40:57",
       "needs_run": false
     },
     "cli/cmdagy.TestCheckIDEExecutable": {
@@ -14447,7 +14447,7 @@
       "tier": "fast",
       "is_slow": false,
       "last_status": "passed",
-      "last_run_at": "2026-09-23T07:07:35",
+      "last_run_at": "2026-09-23T07:40:57",
       "needs_run": false
     },
     "cli/cmdagy.TestCheckIDEProcess": {
@@ -14463,7 +14463,7 @@
       "tier": "fast",
       "is_slow": false,
       "last_status": "passed",
-      "last_run_at": "2026-09-23T07:07:35",
+      "last_run_at": "2026-09-23T07:40:57",
       "needs_run": false
     },
     "cli/cmdagy.TestCheckFilesystemHealth": {
@@ -14479,7 +14479,7 @@
       "tier": "fast",
       "is_slow": false,
       "last_status": "passed",
-      "last_run_at": "2026-09-23T07:07:35",
+      "last_run_at": "2026-09-23T07:40:57",
       "needs_run": false
     },
     "cli/cmdagy.TestCheckPromptQueue": {
@@ -14495,7 +14495,7 @@
       "tier": "fast",
       "is_slow": false,
       "last_status": "passed",
-      "last_run_at": "2026-09-23T07:07:35",
+      "last_run_at": "2026-09-23T07:40:57",
       "needs_run": false
     },
     "cli/cmdagy.TestComputePingHealth": {
@@ -14511,7 +14511,7 @@
       "tier": "fast",
       "is_slow": false,
       "last_status": "passed",
-      "last_run_at": "2026-09-23T07:07:35",
+      "last_run_at": "2026-09-23T07:40:57",
       "needs_run": false
     },
     "cli/cmdagy.TestAgyPinProjectsStoreLoadSave": {
@@ -14527,7 +14527,7 @@
       "tier": "fast",
       "is_slow": false,
       "last_status": "passed",
-      "last_run_at": "2026-09-23T07:07:35",
+      "last_run_at": "2026-09-23T07:40:57",
       "needs_run": false
     },
     "cli/cmdagy.TestAgyPinProjectsAddAndRemove": {
@@ -14543,7 +14543,7 @@
       "tier": "fast",
       "is_slow": false,
       "last_status": "passed",
-      "last_run_at": "2026-09-23T07:07:35",
+      "last_run_at": "2026-09-23T07:40:57",
       "needs_run": false
     },
     "cli/cmdagy.TestAgyPinProjectsClearAll": {
@@ -14559,7 +14559,7 @@
       "tier": "fast",
       "is_slow": false,
       "last_status": "passed",
-      "last_run_at": "2026-09-23T07:07:35",
+      "last_run_at": "2026-09-23T07:40:57",
       "needs_run": false
     },
     "cli/cmdagy.TestParseAgyFixArgs_FlagsAndSubcommands": {
@@ -14570,12 +14570,12 @@
       "test_hash": "100a1222d0543497",
       "target_file": "cli/cmdagy/agy_agentapi.go",
       "target_func": "ParseAgyFixArgs",
-      "code_hash": "e29a4d7d02760710",
+      "code_hash": "b45d663a73e369e8",
       "duration_sec": 0.01,
       "tier": "fast",
       "is_slow": false,
       "last_status": "passed",
-      "last_run_at": "2026-09-23T07:07:35",
+      "last_run_at": "2026-09-23T07:40:57",
       "needs_run": false
     },
     "cli/cmdagy.TestParseAgyFixArgs_ShortForceFlagAndTargetRepo": {
@@ -14586,12 +14586,12 @@
       "test_hash": "100a1222d0543497",
       "target_file": "cli/cmdagy/agy_agentapi.go",
       "target_func": "ParseAgyFixArgs",
-      "code_hash": "e29a4d7d02760710",
+      "code_hash": "b45d663a73e369e8",
       "duration_sec": 0.01,
       "tier": "fast",
       "is_slow": false,
       "last_status": "passed",
-      "last_run_at": "2026-09-23T07:07:35",
+      "last_run_at": "2026-09-23T07:40:57",
       "needs_run": false
     },
     "cli/cmdagy.TestComputeErrorSignature": {
@@ -14602,12 +14602,12 @@
       "test_hash": "100a1222d0543497",
       "target_file": "cli/cmdagy/agy_agentapi.go",
       "target_func": "ComputeErrorSignature",
-      "code_hash": "e29a4d7d02760710",
+      "code_hash": "b45d663a73e369e8",
       "duration_sec": 0.01,
       "tier": "fast",
       "is_slow": false,
       "last_status": "passed",
-      "last_run_at": "2026-09-23T07:07:35",
+      "last_run_at": "2026-09-23T07:40:57",
       "needs_run": false
     },
     "cli/cmdagy.TestDeduplicationStore_Hermetic": {
@@ -14618,12 +14618,12 @@
       "test_hash": "100a1222d0543497",
       "target_file": "cli/cmdagy/agy_agentapi.go",
       "target_func": "DeduplicationStore",
-      "code_hash": "e29a4d7d02760710",
+      "code_hash": "b45d663a73e369e8",
       "duration_sec": 0.01,
       "tier": "fast",
       "is_slow": false,
       "last_status": "passed",
-      "last_run_at": "2026-09-23T07:07:35",
+      "last_run_at": "2026-09-23T07:40:57",
       "needs_run": false
     },
     "cli/cmdagy.TestPromptAssembly_RcaHeaderAndSections": {
@@ -14634,12 +14634,12 @@
       "test_hash": "100a1222d0543497",
       "target_file": "cli/cmdagy/agy_agentapi.go",
       "target_func": "PromptAssembly",
-      "code_hash": "e29a4d7d02760710",
+      "code_hash": "b45d663a73e369e8",
       "duration_sec": 0.01,
       "tier": "fast",
       "is_slow": false,
       "last_status": "passed",
-      "last_run_at": "2026-09-23T07:07:35",
+      "last_run_at": "2026-09-23T07:40:57",
       "needs_run": false
     },
     "cli/cmdagy.TestVerificationFollowupPrompt_ContainsIsItFixed": {
@@ -14650,12 +14650,12 @@
       "test_hash": "100a1222d0543497",
       "target_file": "cli/cmdagy/agy_agentapi.go",
       "target_func": "VerificationFollowupPrompt",
-      "code_hash": "e29a4d7d02760710",
+      "code_hash": "b45d663a73e369e8",
       "duration_sec": 0.01,
       "tier": "fast",
       "is_slow": false,
       "last_status": "passed",
-      "last_run_at": "2026-09-23T07:07:35",
+      "last_run_at": "2026-09-23T07:40:57",
       "needs_run": false
     },
     "cli/cmdagy.TestUpdatePromptQueueFile_Hermetic": {
@@ -14666,12 +14666,12 @@
       "test_hash": "100a1222d0543497",
       "target_file": "cli/cmdagy/agy_agentapi.go",
       "target_func": "UpdatePromptQueueFile",
-      "code_hash": "e29a4d7d02760710",
+      "code_hash": "b45d663a73e369e8",
       "duration_sec": 0.01,
       "tier": "fast",
       "is_slow": false,
       "last_status": "passed",
-      "last_run_at": "2026-09-23T07:07:35",
+      "last_run_at": "2026-09-23T07:40:57",
       "needs_run": false
     },
     "cli/cmdagy.TestNormalizeAgyArgs_CompoundFixPhrases": {
@@ -14682,12 +14682,12 @@
       "test_hash": "100a1222d0543497",
       "target_file": "cli/cmdagy/agy_agentapi.go",
       "target_func": "NormalizeAgyArgs",
-      "code_hash": "e29a4d7d02760710",
+      "code_hash": "b45d663a73e369e8",
       "duration_sec": 0.01,
       "tier": "fast",
       "is_slow": false,
       "last_status": "passed",
-      "last_run_at": "2026-09-23T07:07:35",
+      "last_run_at": "2026-09-23T07:40:57",
       "needs_run": false
     },
     "cli/cmdagy.TestAgyRprpSubcommandNormalization": {
@@ -14698,12 +14698,12 @@
       "test_hash": "dce527ba7e48ac88",
       "target_file": "cli/cmdagy/agy_agentapi.go",
       "target_func": "AgyRprpSubcommandNormalization",
-      "code_hash": "e29a4d7d02760710",
+      "code_hash": "b45d663a73e369e8",
       "duration_sec": 0.01,
       "tier": "fast",
       "is_slow": false,
       "last_status": "passed",
-      "last_run_at": "2026-09-23T07:07:35",
+      "last_run_at": "2026-09-23T07:40:57",
       "needs_run": false
     },
     "cli/cmdagy.TestFormatAgyStatusGap": {
@@ -14714,12 +14714,12 @@
       "test_hash": "69ba08620a32ffbf",
       "target_file": "cli/cmdagy/agy_agentapi.go",
       "target_func": "FormatAgyStatusGap",
-      "code_hash": "e29a4d7d02760710",
+      "code_hash": "b45d663a73e369e8",
       "duration_sec": 0.01,
       "tier": "fast",
       "is_slow": false,
       "last_status": "passed",
-      "last_run_at": "2026-09-23T07:07:35",
+      "last_run_at": "2026-09-23T07:40:57",
       "needs_run": false
     },
     "cli/cmdagy.TestNormalizeAgySubcommand": {
@@ -14730,12 +14730,12 @@
       "test_hash": "69ba08620a32ffbf",
       "target_file": "cli/cmdagy/agy_agentapi.go",
       "target_func": "NormalizeAgySubcommand",
-      "code_hash": "e29a4d7d02760710",
+      "code_hash": "b45d663a73e369e8",
       "duration_sec": 0.01,
       "tier": "fast",
       "is_slow": false,
       "last_status": "passed",
-      "last_run_at": "2026-09-23T07:07:35",
+      "last_run_at": "2026-09-23T07:40:57",
       "needs_run": false
     },
     "cli/cmdagy.TestMatchPrefixOrSlugExcept": {
@@ -14746,12 +14746,12 @@
       "test_hash": "69ba08620a32ffbf",
       "target_file": "cli/cmdagy/agy_agentapi.go",
       "target_func": "MatchPrefixOrSlugExcept",
-      "code_hash": "e29a4d7d02760710",
+      "code_hash": "b45d663a73e369e8",
       "duration_sec": 0.01,
       "tier": "fast",
       "is_slow": false,
       "last_status": "passed",
-      "last_run_at": "2026-09-23T07:07:35",
+      "last_run_at": "2026-09-23T07:40:57",
       "needs_run": false
     },
     "cli/cmdagy.TestParseFolderUri": {
@@ -14762,12 +14762,12 @@
       "test_hash": "e2e98e026f08960c",
       "target_file": "cli/cmdagy/agy_agentapi.go",
       "target_func": "ParseFolderUri",
-      "code_hash": "e29a4d7d02760710",
+      "code_hash": "b45d663a73e369e8",
       "duration_sec": 0.01,
       "tier": "fast",
       "is_slow": false,
       "last_status": "passed",
-      "last_run_at": "2026-09-23T07:07:35",
+      "last_run_at": "2026-09-23T07:40:57",
       "needs_run": false
     },
     "cli/cmdagy.TestShortProjectId": {
@@ -14778,12 +14778,12 @@
       "test_hash": "e2e98e026f08960c",
       "target_file": "cli/cmdagy/agy_agentapi.go",
       "target_func": "ShortProjectId",
-      "code_hash": "e29a4d7d02760710",
+      "code_hash": "b45d663a73e369e8",
       "duration_sec": 0.01,
       "tier": "fast",
       "is_slow": false,
       "last_status": "passed",
-      "last_run_at": "2026-09-23T07:07:35",
+      "last_run_at": "2026-09-23T07:40:57",
       "needs_run": false
     },
     "cli/cmdagy.TestFormatRelativeTime": {
@@ -14794,12 +14794,12 @@
       "test_hash": "e2e98e026f08960c",
       "target_file": "cli/cmdagy/agy_agentapi.go",
       "target_func": "FormatRelativeTime",
-      "code_hash": "e29a4d7d02760710",
+      "code_hash": "b45d663a73e369e8",
       "duration_sec": 0.01,
       "tier": "fast",
       "is_slow": false,
       "last_status": "passed",
-      "last_run_at": "2026-09-23T07:07:35",
+      "last_run_at": "2026-09-23T07:40:57",
       "needs_run": false
     },
     "cli/cmdagy.TestFilterAgyProjects": {
@@ -14810,12 +14810,12 @@
       "test_hash": "e2e98e026f08960c",
       "target_file": "cli/cmdagy/agy_agentapi.go",
       "target_func": "FilterAgyProjects",
-      "code_hash": "e29a4d7d02760710",
+      "code_hash": "b45d663a73e369e8",
       "duration_sec": 0.01,
       "tier": "fast",
       "is_slow": false,
       "last_status": "passed",
-      "last_run_at": "2026-09-23T07:07:35",
+      "last_run_at": "2026-09-23T07:40:57",
       "needs_run": false
     },
     "cli/cmdagy.TestSortAgyProjects": {
@@ -14826,12 +14826,12 @@
       "test_hash": "e2e98e026f08960c",
       "target_file": "cli/cmdagy/agy_agentapi.go",
       "target_func": "SortAgyProjects",
-      "code_hash": "e29a4d7d02760710",
+      "code_hash": "b45d663a73e369e8",
       "duration_sec": 0.01,
       "tier": "fast",
       "is_slow": false,
       "last_status": "passed",
-      "last_run_at": "2026-09-23T07:07:35",
+      "last_run_at": "2026-09-23T07:40:57",
       "needs_run": false
     },
     "cli/cmdagy.TestClearTargetsSelection": {
@@ -14842,12 +14842,12 @@
       "test_hash": "e2e98e026f08960c",
       "target_file": "cli/cmdagy/agy_agentapi.go",
       "target_func": "ClearTargetsSelection",
-      "code_hash": "e29a4d7d02760710",
+      "code_hash": "b45d663a73e369e8",
       "duration_sec": 0.01,
       "tier": "fast",
       "is_slow": false,
       "last_status": "passed",
-      "last_run_at": "2026-09-23T07:07:35",
+      "last_run_at": "2026-09-23T07:40:57",
       "needs_run": false
     },
     "cli/cmdagy.TestFindAgyDuplicates": {
@@ -14858,12 +14858,12 @@
       "test_hash": "e2e98e026f08960c",
       "target_file": "cli/cmdagy/agy_agentapi.go",
       "target_func": "FindAgyDuplicates",
-      "code_hash": "e29a4d7d02760710",
+      "code_hash": "b45d663a73e369e8",
       "duration_sec": 0.01,
       "tier": "fast",
       "is_slow": false,
       "last_status": "passed",
-      "last_run_at": "2026-09-23T07:07:35",
+      "last_run_at": "2026-09-23T07:40:57",
       "needs_run": false
     },
     "cli/cmdagy.TestIsAgyProjectExcepted": {
@@ -14874,12 +14874,12 @@
       "test_hash": "e2e98e026f08960c",
       "target_file": "cli/cmdagy/agy_agentapi.go",
       "target_func": "IsAgyProjectExcepted",
-      "code_hash": "e29a4d7d02760710",
+      "code_hash": "b45d663a73e369e8",
       "duration_sec": 0.01,
       "tier": "fast",
       "is_slow": false,
       "last_status": "passed",
-      "last_run_at": "2026-09-23T07:07:35",
+      "last_run_at": "2026-09-23T07:40:57",
       "needs_run": false
     },
     "cli/cmdai.TestGenerateScriptContent_Linter": {
@@ -36506,12 +36506,12 @@
       "test_hash": "dbf029f71e6dae5d",
       "target_file": "cli/constants/constants.go",
       "target_func": "TopLevelCmdRegistryMatchesAST",
-      "code_hash": "71228f70a139e6dd",
+      "code_hash": "79e07bbfd501c3d2",
       "duration_sec": 0.01,
       "tier": "fast",
       "is_slow": false,
       "last_status": "passed",
-      "last_run_at": "2026-09-22T23:33:49",
+      "last_run_at": "2026-09-23T07:40:54",
       "needs_run": false
     },
     "cli/constants.TestNoUnmarkedTopLevelCmdBlocks": {
@@ -36522,12 +36522,12 @@
       "test_hash": "dbf029f71e6dae5d",
       "target_file": "cli/constants/constants.go",
       "target_func": "NoUnmarkedTopLevelCmdBlocks",
-      "code_hash": "71228f70a139e6dd",
+      "code_hash": "79e07bbfd501c3d2",
       "duration_sec": 0.01,
       "tier": "fast",
       "is_slow": false,
       "last_status": "passed",
-      "last_run_at": "2026-09-22T23:33:49",
+      "last_run_at": "2026-09-23T07:40:54",
       "needs_run": false
     },
     "cli/constants.TestTopLevelCmdConstantsAreUnique": {
@@ -36538,12 +36538,12 @@
       "test_hash": "f5f88a7fe4be5940",
       "target_file": "cli/constants/constants.go",
       "target_func": "TopLevelCmdConstantsAreUnique",
-      "code_hash": "71228f70a139e6dd",
+      "code_hash": "79e07bbfd501c3d2",
       "duration_sec": 0.01,
       "tier": "fast",
       "is_slow": false,
       "last_status": "passed",
-      "last_run_at": "2026-09-22T23:33:49",
+      "last_run_at": "2026-09-23T07:40:54",
       "needs_run": false
     },
     "cli/constants.TestTopLevelCmdAliasesAreUnique": {
@@ -36554,12 +36554,12 @@
       "test_hash": "f5f88a7fe4be5940",
       "target_file": "cli/constants/constants.go",
       "target_func": "TopLevelCmdAliasesAreUnique",
-      "code_hash": "71228f70a139e6dd",
+      "code_hash": "79e07bbfd501c3d2",
       "duration_sec": 0.01,
       "tier": "fast",
       "is_slow": false,
       "last_status": "passed",
-      "last_run_at": "2026-09-22T23:33:49",
+      "last_run_at": "2026-09-23T07:40:54",
       "needs_run": false
     },
     "cli/constants.TestCanonicalCSVColumn": {
@@ -36575,7 +36575,7 @@
       "tier": "fast",
       "is_slow": false,
       "last_status": "passed",
-      "last_run_at": "2026-09-22T23:33:49",
+      "last_run_at": "2026-09-23T07:40:54",
       "needs_run": false
     },
     "cli/constants.TestCSVColumnAliasesNoConflict": {
@@ -36591,7 +36591,7 @@
       "tier": "fast",
       "is_slow": false,
       "last_status": "passed",
-      "last_run_at": "2026-09-22T23:33:49",
+      "last_run_at": "2026-09-23T07:40:54",
       "needs_run": false
     },
     "cli/constants.TestHostedDocsFallbackContract": {
@@ -36607,7 +36607,7 @@
       "tier": "fast",
       "is_slow": false,
       "last_status": "passed",
-      "last_run_at": "2026-09-22T23:33:49",
+      "last_run_at": "2026-09-23T07:40:54",
       "needs_run": false
     },
     "cli/crypto.TestEncryptDecrypt": {
