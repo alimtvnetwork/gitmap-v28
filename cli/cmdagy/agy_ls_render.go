@@ -27,14 +27,12 @@ func printAgyBanner(count int, dirPath string) {
 
 func printAgyTableHeader(c *agyTableContext) {
 	const gap = "   "
-	fmt.Printf("  %s%-*s%s%-*s%s%-*s%s%-*s%s%-*s%s%-*s%s%s%s\n",
+	fmt.Printf("  %s%-*s%s%-*s%s%-*s%s%-*s%s%s%s\n",
 		constants.ColorWhite,
 		c.MaxSeq, "SEQ", gap,
 		c.MaxConvName, "CONV NAME", gap,
 		c.MaxID, "ID", gap,
 		c.MaxProject, "PROJECT", gap,
-		c.MaxBranch, "BRANCH", gap,
-		c.MaxStatus, "STATUS", gap,
 		"PATH",
 		constants.ColorReset)
 	fmt.Printf("  %s%s%s\n", constants.ColorDim, constants.TermTableRule, constants.ColorReset)
@@ -43,15 +41,13 @@ func printAgyTableHeader(c *agyTableContext) {
 func printAgyTableRow(c *agyTableContext, r agyTableRow, index int) {
 	const gap = "   "
 	color := constants.ColorCycle[index%len(constants.ColorCycle)]
-	seqCol := fmt.Sprintf("%s%03d%s", constants.ColorYellow, index+1, constants.ColorReset)
+	seqCol := fmt.Sprintf("%s%03d%s", constants.ColorYellow, r.Seq, constants.ColorReset)
 	convCol := fmt.Sprintf("%s%-*s%s", constants.ColorWhite, c.MaxConvName, r.ConvName, constants.ColorReset)
 	idCol := fmt.Sprintf("%s%-*s%s", constants.ColorDim, c.MaxID, r.ID, constants.ColorReset)
 	projCol := fmt.Sprintf("%s%-*s%s", color, c.MaxProject, r.Name, constants.ColorReset)
-	branchCol := fmt.Sprintf("%s%-*s%s", resolveBranchColor(r.Branch), c.MaxBranch, r.Branch, constants.ColorReset)
-	statusCol := formatAgyStatus(r.Status, r.IsMissing, c.MaxStatus)
 
-	fmt.Printf("  %s%s%s%s%s%s%s%s%s%s%s%s%s\n",
-		seqCol, gap, convCol, gap, idCol, gap, projCol, gap, branchCol, gap, statusCol, gap, r.Path)
+	fmt.Printf("  %s%s%s%s%s%s%s%s%s\n",
+		seqCol, gap, convCol, gap, idCol, gap, projCol, gap, r.Path)
 }
 
 func resolveBranchColor(branch string) string {

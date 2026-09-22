@@ -183,19 +183,24 @@ func SetPromptDispatcher(fn PromptDispatcherFunc) {
 	DefaultPromptDispatcher = fn
 }
 
-// EnqueueWithDualQueuePolicy handles auto-registration and dual-queue prompt execution.
-func EnqueueWithDualQueuePolicy(repoRoot, templateName, assembledPrompt string) error {
+// EnqueueSinglePrompt handles auto-registration and single prompt execution.
+func EnqueueSinglePrompt(repoRoot, templateName, assembledPrompt string) error {
 	ensureRegisteredInAgy(repoRoot)
 
-	dualErr := enqueueDualPrompts(repoRoot, templateName, assembledPrompt)
-	if dualErr != nil {
-		return dualErr
+	err := enqueueSinglePromptEntry(repoRoot, templateName, assembledPrompt)
+	if err != nil {
+		return err
 	}
-	renderDualQueueNotice(repoRoot)
+	renderSingleQueueNotice(repoRoot, templateName)
 	stageAndCopyActivePrompt(repoRoot, assembledPrompt)
 	dispatchActivePrompt(repoRoot, templateName, assembledPrompt)
 
 	return nil
+}
+
+// EnqueueWithDualQueuePolicy handles prompt execution (delegates to EnqueueSinglePrompt).
+func EnqueueWithDualQueuePolicy(repoRoot, templateName, assembledPrompt string) error {
+	return EnqueueSinglePrompt(repoRoot, templateName, assembledPrompt)
 }
 
 func dispatchActivePrompt(repoRoot, templateName, content string) {
@@ -235,6 +240,34 @@ func ensureRegisteredInAgy(repoRoot string) {
 func renderAutoRegisterNotice(repoRoot string) {
 	fmt.Printf("  %s✔ Auto-registered repository '%s' in Antigravity%s\n",
 		constants.ColorGreen, filepath.Base(repoRoot), constants.ColorReset)
+}
+
+func renderSingleQueueNotice(repoRoot, templateName string) {
+	title := resolveUserPromptTitle(templateName)
+	fmt.Printf("  %s✔ Queued for '%s': [1] %s%s\n",
+		constants.ColorGreen, filepath.Base(repoRoot), title, constants.ColorReset)
+}
+
+func enqueueSinglePromptEntry(repoRoot, templateName, assembledPrompt string) error {
+	queuePath := resolvePromptQueuePath(repoRoot)
+	q := loadPromptQueueFile(queuePath)
+	now := time.Now().UTC().Format(time.RFC3339)
+	entry := makeQueueEntry(computeNextID(q), "user_prompt", resolveUserPromptTitle(templateName), assembledPrompt, now)
+	q = appendSingleEntry(q, entry)
+
+	return savePromptQueueFile(queuePath, q)
+}
+
+func appendSingleEntry(q PromptQueueFile, e PromptQueueEntry) PromptQueueFile {
+	hasActive := q.Active != nil
+	if hasActive {
+		q.Queued = append(q.Queued, e)
+
+		return q
+	}
+	q.Active = &e
+
+	return q
 }
 
 func renderDualQueueNotice(repoRoot string) {

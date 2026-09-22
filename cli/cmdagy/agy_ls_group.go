@@ -47,18 +47,23 @@ func printFolderHeader(folder string, count int) {
 		constants.ColorDim, count, constants.ColorReset)
 }
 
-func renderAgyFolderTable(list []AgyProject, convMap map[string]AgyLatestConv) (int, int) {
+func renderAgyFolderTable(list []AgyProject, convMap map[string]AgyLatestConv, seqMap map[string]int) (int, int) {
 	ctx := newAgyTableContext()
 	activeCount, missingCount := 0, 0
 
 	for _, p := range list {
-		row := buildAgyTableRow(p, convMap)
+		seq := resolveProjectSeq(p, seqMap)
+		row := buildAgyTableRow(p, convMap, seq)
 		if row.IsMissing {
 			missingCount++
-		} else {
-			activeCount++
+			continue
 		}
+		activeCount++
 		ctx.addRow(row)
+	}
+
+	if len(ctx.Rows) == 0 {
+		return activeCount, missingCount
 	}
 
 	printAgyTableHeader(ctx)
@@ -70,15 +75,64 @@ func renderAgyFolderTable(list []AgyProject, convMap map[string]AgyLatestConv) (
 	return activeCount, missingCount
 }
 
+func resolveProjectSeq(p AgyProject, seqMap map[string]int) int {
+	if seq, ok := seqMap[p.ID]; ok && seq > 0 {
+		return seq
+	}
+	seq, _ := GetOrAssignProjectSequence(p.ID, p.Name, p.GetPath())
+	if seq > 0 {
+		seqMap[p.ID] = seq
+		return seq
+	}
+
+	return 1
+}
+
+func loadAllProjectSequences(projects []AgyProject) map[string]int {
+	m, err := GetAllProjectSequences()
+	if err != nil {
+		m = make(map[string]int)
+	}
+	for _, p := range projects {
+		if _, ok := m[p.ID]; !ok {
+			seq, _ := GetOrAssignProjectSequence(p.ID, p.Name, p.GetPath())
+			if seq > 0 {
+				m[p.ID] = seq
+			}
+		}
+	}
+
+	return m
+}
+
+func filterActiveProjects(list []AgyProject) []AgyProject {
+	var active []AgyProject
+	for _, p := range list {
+		path := p.GetPath()
+		isActive := path == "" || checkDirExists(path)
+		if isActive {
+			active = append(active, p)
+		}
+	}
+
+	return active
+}
+
 func renderAgyProjectsGrouped(projects []AgyProject) (int, int) {
 	convMap := loadLatestConversationsMap()
+	seqMap := loadAllProjectSequences(projects)
 	folders, groupMap := groupProjectsByRootFolder(projects)
 	totalActive, totalMissing := 0, 0
 
 	for _, folder := range folders {
 		list := groupMap[folder]
-		printFolderHeader(folder, len(list))
-		active, missing := renderAgyFolderTable(list, convMap)
+		activeList := filterActiveProjects(list)
+		if len(activeList) == 0 {
+			totalMissing += len(list)
+			continue
+		}
+		printFolderHeader(folder, len(activeList))
+		active, missing := renderAgyFolderTable(list, convMap, seqMap)
 		totalActive += active
 		totalMissing += missing
 	}

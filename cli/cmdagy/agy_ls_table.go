@@ -2,6 +2,7 @@
 package cmdagy
 
 type agyTableRow struct {
+	Seq       int
 	ID        string
 	Name      string
 	ConvName  string
@@ -20,8 +21,6 @@ type agyTableContext struct {
 	MaxID       int
 	MaxConvName int
 	MaxConvID   int
-	MaxBranch   int
-	MaxStatus   int
 	MaxUpdated  int
 }
 
@@ -33,8 +32,6 @@ func newAgyTableContext() *agyTableContext {
 		MaxID:       10,
 		MaxConvName: 16,
 		MaxConvID:   10,
-		MaxBranch:   8,
-		MaxStatus:   14,
 		MaxUpdated:  9,
 	}
 }
@@ -60,11 +57,10 @@ func (c *agyTableContext) updateMaxColumnWidths(r agyTableRow) {
 	c.MaxID = max(c.MaxID, len(r.ID))
 	c.MaxConvName = max(c.MaxConvName, len(r.ConvName))
 	c.MaxConvID = max(c.MaxConvID, len(r.ConvID))
-	c.MaxBranch = max(c.MaxBranch, len(r.Branch))
 	c.MaxUpdated = max(c.MaxUpdated, len(r.Updated))
 }
 
-func buildAgyTableRow(p AgyProject, convMap map[string]AgyLatestConv) agyTableRow {
+func buildAgyTableRow(p AgyProject, convMap map[string]AgyLatestConv, seq int) agyTableRow {
 	path := p.GetPath()
 	isMissing := path != "" && !checkDirExists(path)
 	pinnedMap := getPinnedProjectsSet()
@@ -73,6 +69,7 @@ func buildAgyTableRow(p AgyProject, convMap map[string]AgyLatestConv) agyTableRo
 	convTitle, convID := resolveProjectConvDetails(p.ID, convMap)
 
 	return agyTableRow{
+		Seq:       seq,
 		ID:        shortProjectId(p.ID),
 		Name:      truncateMiddle(p.Name, 24),
 		ConvName:  truncateMiddle(convTitle, 24),
@@ -80,7 +77,7 @@ func buildAgyTableRow(p AgyProject, convMap map[string]AgyLatestConv) agyTableRo
 		Branch:    resolveRowBranch(p.GetBranch()),
 		Status:    status,
 		Updated:   formatRelativeTime(p.UpdatedAt),
-		Path:      truncateMiddle(displayPath, 36),
+		Path:      truncateMiddle(displayPath, 42),
 		IsMissing: isMissing,
 	}
 }

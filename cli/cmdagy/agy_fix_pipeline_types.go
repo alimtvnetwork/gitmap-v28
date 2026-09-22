@@ -1,6 +1,7 @@
 package cmdagy
 
 import (
+	"github.com/alimtvnetwork/gitmap-v28/cli/apperror"
 	"github.com/alimtvnetwork/gitmap-v28/cli/cmdpipeline"
 )
 
@@ -100,6 +101,7 @@ type AgyInjectionResult struct {
 	Message    string               `json:"Message"`
 	PromptPath string               `json:"PromptPath"`
 	RepoDir    string               `json:"RepoDir"`
+	Err        *apperror.AppError   `json:"Err,omitempty"`
 }
 
 // AgyAssembledPromptPayload bundles assembled prompt components for pipeline fix dispatch.

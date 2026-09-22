@@ -142,7 +142,8 @@ func initTxtFlags(cmd *cobra.Command) {
 }
 
 func runBasePrompt(args []string) error {
-	if IsHelpArg(args) {
+	hasNoInput := len(args) == 0 && len(strings.TrimSpace(basePromptName)) == 0 && len(strings.TrimSpace(basePromptTxt)) == 0
+	if IsHelpArg(args) || hasNoInput {
 		return PrintAgyPromptHelp()
 	}
 
@@ -156,7 +157,7 @@ func runBasePrompt(args []string) error {
 	isSuffix := resolveIsSuffix(basePromptSuffix, basePromptSf, basePromptPrefix, basePromptPf)
 	assembled := AssemblePrompt(templateContent, textVal, isSuffix)
 
-	return EnqueueWithDualQueuePolicy(repoRoot, templateName, assembled)
+	return EnqueueSinglePrompt(repoRoot, templateName, assembled)
 }
 
 func resolveDefaultBaseTemplate(name, content string) (string, string) {
@@ -240,7 +241,7 @@ func runPromptWithName(args []string) error {
 	isSuffix := resolveIsSuffix(withNameSuffix, withNameSf, withNamePrefix, withNamePf)
 	assembled := AssemblePrompt(tpl.Content, textVal, isSuffix)
 
-	return EnqueueWithDualQueuePolicy(repoRoot, tpl.Name, assembled)
+	return EnqueueSinglePrompt(repoRoot, tpl.Name, assembled)
 }
 
 func resolveWithNameText(args []string) string {
@@ -269,7 +270,7 @@ func runPromptTxt(args []string) error {
 	isSuffix := resolveIsSuffix(txtPromptSuffix, txtPromptSf, txtPromptPrefix, txtPromptPf)
 	assembled := assembleTxtPrompt(textVal, isSuffix)
 
-	return EnqueueWithDualQueuePolicy(repoRoot, "read-all", assembled)
+	return EnqueueSinglePrompt(repoRoot, "text-prompt", assembled)
 }
 
 func assembleTxtPrompt(textVal string, isSuffix bool) string {

@@ -9,7 +9,8 @@ Master directory of architectural and execution plans.
 
 ## Recent Completed Tasks Register (Last 20 Tasks)
 
-1. [78-cli-relative-database-path.md](completed/78-cli-relative-database-path.md): Anchor Pipeline Database to CLI Data Directory with Relative Display Path
+1. [79-agy-prompts-table-conv-rename-and-aum.md](completed/79-agy-prompts-table-conv-rename-and-aum.md): AGY Prompts Injection Error Handling, Dynamic Single Prompts, Unique Sequence Persistence, Conversation Rename, Table Formatting & AUM Search Optimization
+2. [78-cli-relative-database-path.md](completed/78-cli-relative-database-path.md): Anchor Pipeline Database to CLI Data Directory with Relative Display Path
 2. [77-agy-parity-ssh-first-auth-and-token-prompt.md](completed/77-agy-parity-ssh-first-auth-and-token-prompt.md): AGY Scripts-Fixer Parity Verification, SSH-First Access Probe & Interactive Terminal Auth Prompt
 2. [76-lowercase-file-fix-and-git-renaming.md](completed/76-lowercase-file-fix-and-git-renaming.md): Robust Lowercase File Renamer, Git Case Manipulation, Root README Command, Help Text & UI Integration
 2. [56-agy-cache-clear-retention-undo.md](completed/56-agy-cache-clear-retention-undo.md): AGY Cache Clear Retention (--keep 10), Preflight Simulation (--pre, --precheck, --preflight), Undo Backup & Direct Convenience Commands (ccko, cckf)
@@ -55,6 +56,7 @@ Master directory of architectural and execution plans.
 
 ## Completed Plans
 
+- [79-agy-prompts-table-conv-rename-and-aum.md](completed/79-agy-prompts-table-conv-rename-and-aum.md): AGY Prompts Injection Error Handling, Dynamic Single Prompts, Unique Sequence Persistence, Conversation Rename, Table Formatting & AUM Search Optimization
 - [78-cli-relative-database-path.md](completed/78-cli-relative-database-path.md): Anchor Pipeline Database to CLI Data Directory with Relative Display Path
 - [77-agy-parity-ssh-first-auth-and-token-prompt.md](completed/77-agy-parity-ssh-first-auth-and-token-prompt.md): AGY Scripts-Fixer Parity Verification, SSH-First Access Probe & Interactive Terminal Auth Prompt
 - [76-lowercase-file-fix-and-git-renaming.md](completed/76-lowercase-file-fix-and-git-renaming.md): Robust Lowercase File Renamer, Git Case Manipulation, Root README Command, Help Text & UI Integration

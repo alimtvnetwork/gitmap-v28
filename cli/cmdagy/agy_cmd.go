@@ -200,6 +200,9 @@ func normalizeWorkflowSubcommands(low string) string {
 	if low == "queue" || low == "q" {
 		return "queue"
 	}
+	if low == "conv-rename" || low == "cr" || low == "rename-conv" {
+		return "conv-rename"
+	}
 
 	return ""
 }
@@ -304,6 +307,7 @@ func registerAgyBaseCommands() {
 	AgyCmd.AddCommand(agyUpdateCmd)
 	AgyCmd.AddCommand(agyClearCmd)
 	AgyCmd.AddCommand(agyOpenCmd)
+	AgyCmd.AddCommand(ConvRenameCmd)
 	registerAgyPromptCommands()
 }
 

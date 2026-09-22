@@ -181,6 +181,33 @@ func findBinaryInPath(names []string) result.Result[string] {
 	return result.Fail[string](apperror.NewSimple("binary not found in PATH", "E9005"))
 }
 
+// GetCandidateAntigravityIDEPaths returns candidate binary paths for the IDE.
+func GetCandidateAntigravityIDEPaths() []string {
+	return getCandidateAntigravityIDEPaths()
+}
+
+// DiagnoseAntigravityIDEAndCLI inspects candidate paths and CLI availability for diagnostics.
+func DiagnoseAntigravityIDEAndCLI() string {
+	var sb strings.Builder
+	sb.WriteString("Antigravity IDE & CLI Diagnostics:\n")
+	sb.WriteString("  Searched IDE candidate paths:\n")
+	for _, p := range getCandidateAntigravityIDEPaths() {
+		status := "[not found]"
+		if isValidBinaryPath(p) {
+			status = "[found]"
+		}
+		sb.WriteString("    - " + p + " " + status + "\n")
+	}
+	cliRes := ResolveAntigravityCLI()
+	if cliRes.IsSuccess() {
+		sb.WriteString("  Antigravity CLI (agy): found at " + cliRes.Value + " (CLI connection available)\n")
+		sb.WriteString("  Hint: Use 'agy --continue' or 'agy -p \"<prompt>\"' to connect via CLI.")
+	} else {
+		sb.WriteString("  Antigravity CLI (agy): not found in PATH or standard paths")
+	}
+	return sb.String()
+}
+
 func getCandidateAntigravityIDEPaths() []string {
 	home, _ := os.UserHomeDir()
 	localApp := os.Getenv("LOCALAPPDATA")
