@@ -40,6 +40,8 @@ VERSION_JSON = REPO_ROOT / "version.json"
 PACKAGE_JSON = REPO_ROOT / "package.json"
 README_MD = REPO_ROOT / "readme.md"
 CHANGELOG_MD = REPO_ROOT / "changelog.md"
+CONSTANTS_GO = REPO_ROOT / "cli" / "constants" / "constants.go"
+TEMPLATE_VERSION = REPO_ROOT / "prompt-version.template.json"
 
 # Known bump scripts
 NODE_BUMP_SCRIPT = REPO_ROOT / "scripts" / "bump-version.mjs"
@@ -198,7 +200,10 @@ def create_and_checkout_release_branch(next_version, dry_run=False):
         return branch_name
 
     print(f"[*] Step 1: Creating and switching to release branch: '{branch_name}'...")
-    run_cmd(["git", "checkout", "-b", branch_name])
+    try:
+        run_cmd(["git", "checkout", "-b", branch_name])
+    except Exception:
+        run_cmd(["git", "checkout", branch_name])
     current = get_current_branch()
     print(f"[*] Active branch is now: '{current}'")
 
@@ -286,6 +291,8 @@ def stage_and_commit_release(next_version, scope, dry_run=False):
         PACKAGE_JSON,
         CHANGELOG_MD,
         README_MD,
+        CONSTANTS_GO,
+        TEMPLATE_VERSION,
         NODE_BUMP_SCRIPT,
         PYTHON_BUMP_SCRIPT,
         AI_BUMP_SCRIPT,
@@ -297,7 +304,7 @@ def stage_and_commit_release(next_version, scope, dry_run=False):
     ]
     for vf in release_candidates:
         if vf.exists():
-            run_cmd(["git", "add", str(vf)])
+            run_cmd(["git", "add", str(vf)], check=False)
 
     # Commit
     run_cmd(["git", "commit", "-m", commit_msg])
