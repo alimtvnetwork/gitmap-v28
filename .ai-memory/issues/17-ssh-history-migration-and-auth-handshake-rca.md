@@ -1,5 +1,7 @@
 # Root Cause Analysis (RCA-17): SSH History Migration Missing Column and Join Handshake Protocol Failure
 
+> **Raw Error Log:** [`17-ssh-history-migration-and-auth-handshake-error.txt`](./17-ssh-history-migration-and-auth-handshake-error.txt)
+
 ## 1. Symptom
 1. **`SQL logic error: no such column: forward_payload (1)` on `gitmap ssh nodes rm`:**
    When removing an enrolled SSH node interactively or via CLI:

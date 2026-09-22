@@ -1,0 +1,39 @@
+PS C:\Users\Alim> gitmap ssh exec ip
+
+  Notice: The following machine(s) are currently OFF or unreachable:
+    • [w2 | 192.168.1.9] (machine is off)
+
+  All target machines are currently off. No nodes available to execute.
+
+PS C:\Users\Alim> gitmap ssh nodes rm
+
+What would you like to remove?
+  [1] Registered SSH nodes
+  [2] Managed SSH keys
+
+Select option (1-2) or 'q' to quit: 1
+
+Candidate node(s) for removal:
+
+  ALIAS            ROLE           HOST (IP:PORT)         USER           STATUS     ENROLLED
+  ----------------------------------------------------------------------------------------------------
+  w2               worker         192.168.1.9:22         a              ● ready    2026-09-21 17:09:47
+
+  Total: 1 registered node(s)
+
+
+Are you sure you want to remove 1 node(s)? [y/N]: y
+[QueryWrapper Error]: exec failed: SQL logic error: no such column: forward_payload (1)
+query: INSERT OR IGNORE INTO TaskHistory
+                        (TaskId, Section, Action, Target, ForwardPayload, InversePayload, RestoredAt, CreatedAt)
+                        SELECT task_id, 'ssh', action, target, forward_payload, inverse_payload, COALESCE(restored_at, ''), created_at
+                        FROM ssh_task_history;
+[TaskHistory Error]: migrate legacy table error: SQL logic error: no such column: forward_payload (1)
+✓ 1 machine(s) removed from SSH registry.
+
+PS C:\Users\Alim> gitmap ssh join a@192.168.1.3 w1
+Enter SSH password for a@192.168.1.3:
+  ℹ Saving password as encrypted representation (RSA-OAEP/AES) in local vault.
+  ℹ Review saved password anytime with: gitmap ssh pass show w1
+  ⚠ Failed to authenticate with remote machine: ssh: handshake failed: ssh: unexpected message type 51 (expected 60)
+gitmap ssh: execute failed: [E9000:EXECUTION] ExecuteSSHJoinEnrollment.auth: ssh: handshake failed: ssh: unexpected message type 51 (expected 60) (at=cmdssh/sshjoin_enroll.go:365)
