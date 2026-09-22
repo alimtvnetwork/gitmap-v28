@@ -112,13 +112,12 @@ PowerShell: `Invoke-WebRequest -Uri https://raw.githubusercontent.com/alimtvnetw
 
 ### Added / Changed / Fixed / Removed
 
-- MultiClone Subsystem: Added `gitmap multiclone` (aliases `mc`, `mutliclone`) to batch clone repositories from markdown codeblocks, raw lists, or stdin with shorthand expansion, description stripping, and deduplication.
-- AI Split DB Command Tracking: Integrated global `--ai` execution history logging into `~/.gitmap/ai/instructions.db` with duration and exit code metrics.
-- Frequent AI Commands & Clipboard Export: Implemented `gitmap ai ls` and `gitmap ai history` to inspect top frequent commands with `--copy` to OS clipboard.
-- Native Automation Search Benchmark: Verified Go native search is 46.1x faster (1.5ms vs 70.5ms) than cached Python grep with 0 disk bloat.
-- Rich Terminal Help Menus: Implemented two-column styled help screens for `gitmap sync` and `gitmap github` (`gd`) with formatted error diagnostics.
-- Anti-Gravity Settings Protection: Protected all Antigravity IDE configuration files and settings across Windows and Unix OS clean operations.
-- WinUtil & LinUtil Integration Architecture: Authored comprehensive plan for native Go OS auto-login, Windows tweaks, and Linux system cleanup.
+- Native OS Auto-Login Subsystem: Added `gitmap os autologin` with interactive 3-parameter credentials (username, domain, masked password) and flags (`-u`, `-d`, `-p`), natively writing Windows Winlogon registry keys and configuring Ubuntu display managers (GDM3, LightDM) with zero PowerShell or external executable dependencies.
+- Windows Desktop Tweaks: Added `gitmap os tweak context-menu classic|modern` (CLSID InprocServer32 restore for Windows 10 right-click menu) and `start-menu classic|default` layout override.
+- Ultimate Performance & Hibernation: Added `gitmap os tweak power ultimate|balanced` to duplicate and activate Windows Ultimate Performance scheme and `gitmap os tweak hibernate off|on` to delete `C:\hiberfil.sys` and reclaim RAM-sized disk space.
+- Linux System Maintenance: Added `gitmap os clean sys` for multi-distro package manager cache purging (APT, DNF, Pacman) and systemd journal vacuuming (`journalctl --vacuum-time=3d`).
+- Two-Column Styled Help Screens: Authored comprehensive help documentation and terminal menus for `gitmap help os-autologin` and `gitmap help os-tweak`.
+- CI/CD Self-Healing: Restored local runner helpers in `03-ai-scripts/06-cicd-local-runner.py`, fixed 18/18 Python CI test cases, removed unused symbols, and verified cross-platform compilation across Linux, Darwin, and Windows.
 """
     # Prepend directly at the top of changelog.md
     lines.insert(0, entry + "\n")
@@ -143,13 +142,12 @@ curl -fsSL https://github.com/alimtvnetwork/gitmap-v28/releases/download/v{new_v
 
 ## Changelog v{new_version}
 
-- MultiClone Subsystem: Added `gitmap multiclone` (aliases `mc`, `mutliclone`) to batch clone repositories from markdown codeblocks, raw lists, or stdin with shorthand expansion, description stripping, and deduplication.
-- AI Split DB Command Tracking: Integrated global `--ai` execution history logging into `~/.gitmap/ai/instructions.db` with duration and exit code metrics.
-- Frequent AI Commands & Clipboard Export: Implemented `gitmap ai ls` and `gitmap ai history` to inspect top frequent commands with `--copy` to OS clipboard.
-- Native Automation Search Benchmark: Verified Go native search is 46.1x faster (1.5ms vs 70.5ms) than cached Python grep with 0 disk bloat.
-- Rich Terminal Help Menus: Implemented two-column styled help screens for `gitmap sync` and `gitmap github` (`gd`) with formatted error diagnostics.
-- Anti-Gravity Settings Protection: Protected all Antigravity IDE configuration files and settings across Windows and Unix OS clean operations.
-- WinUtil & LinUtil Integration Architecture: Authored comprehensive plan for native Go OS auto-login, Windows tweaks, and Linux system cleanup.
+- Native OS Auto-Login Subsystem: Added `gitmap os autologin` with interactive 3-parameter credentials (username, domain, masked password) and flags (`-u`, `-d`, `-p`), natively writing Windows Winlogon registry keys and configuring Ubuntu display managers (GDM3, LightDM) with zero PowerShell or external executable dependencies.
+- Windows Desktop Tweaks: Added `gitmap os tweak context-menu classic|modern` (CLSID InprocServer32 restore for Windows 10 right-click menu) and `start-menu classic|default` layout override.
+- Ultimate Performance & Hibernation: Added `gitmap os tweak power ultimate|balanced` to duplicate and activate Windows Ultimate Performance scheme and `gitmap os tweak hibernate off|on` to delete `C:\hiberfil.sys` and reclaim RAM-sized disk space.
+- Linux System Maintenance: Added `gitmap os clean sys` for multi-distro package manager cache purging (APT, DNF, Pacman) and systemd journal vacuuming (`journalctl --vacuum-time=3d`).
+- Two-Column Styled Help Screens: Authored comprehensive help documentation and terminal menus for `gitmap help os-autologin` and `gitmap help os-tweak`.
+- CI/CD Self-Healing: Restored local runner helpers in `03-ai-scripts/06-cicd-local-runner.py`, fixed 18/18 Python CI test cases, removed unused symbols, and verified cross-platform compilation across Linux, Darwin, and Windows.
 """
     os.makedirs(os.path.dirname(notes_path), exist_ok=True)
     with open(notes_path, "w", encoding="utf-8") as f:
