@@ -1,3 +1,9 @@
+## v6.304.0 — 2026-09-22 (Add visibility, JSON, and YAML status to create-repo)
+
+**Scope:** Version bump. Add visibility, JSON, and YAML status to create-repo.
+
+---
+
 ## v6.303.0 — 2026-09-22 (Pipeline compile and vet fixes)
 
 **Scope:** Version bump. Pipeline compile and vet fixes.
