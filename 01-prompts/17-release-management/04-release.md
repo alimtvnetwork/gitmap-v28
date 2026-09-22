@@ -1,6 +1,6 @@
 # Release Deployment & Version Bump — Release Management (must follow)
 
-> **Prompt Version:** 2.1.0
+> **Prompt Version:** 2.2.0
 > **Synchronization:** Main Meta-Repo & Connected Workspaces
 
 Trigger phrases: `release`, `bump version`, `bump version + add changelog + pin to root readme`, `abump version ...` (typo variants count).
@@ -123,8 +123,8 @@ Past release turns were sloppy: guessed the version, bumped PATCH instead of MIN
      Create and checkout the dedicated release branch first: `git checkout -b release/vX.Y.Z`. Releases MUST NOT be committed directly to `main` without a release branch.
    - **Step 2: Bump Version on Release Branch via Python Script:**
      Execute the dedicated Python bump script (`03-ai-scripts/37-bump-version.py` or `.ai-memory/release/bump_versions.py`) on the release branch.
-     - **CRITICAL REPOSITORY ADAPTATION:** The bump version script MUST be created or adapted based on the target repository architecture (identifying where and how versions are tracked: `version.json`, `package.json`, `readme.md`, `changelog.md`, install snippets, etc.).
-     - **Execution:** Run `python 03-ai-scripts/29-release-orchestrator.py --tier <tier>` or `python 03-ai-scripts/37-bump-version.py --tier <tier>` or `.ai-memory/release/bump_versions.py --type <tier>`.
+      - **CRITICAL REPOSITORY ADAPTATION & SCRIPT REPAIR:** The bump version script MUST be inspected, created, or adapted based on the target repository architecture. The agent MUST identify where versions are defined (`version.json`, `package.json`, `Cargo.toml`, `pyproject.toml`, `go.mod`, etc.), where they will change (`readme.md`, `changelog.md`, badges, install scripts), and what sync operations run (`npm run sync`, `go generate ./...`). If the bump script is missing, outdated, or lacks support for this repository's version pin sites, **the agent MUST fix or recreate the Python bump script immediately** before running the release!
+      - **Execution:** Run `python 03-ai-scripts/29-release-orchestrator.py --tier <tier>` or `python 03-ai-scripts/37-bump-version.py --tier <tier>` or `.ai-memory/release/bump_versions.py --type <tier>`.
    - **Step 3: Commit in Release Branch:**
      Stage and commit all version bump and generated release files on the release branch: `git commit -m "release: vX.Y.Z <scope>"`.
    - **Step 4: Create Annotated Git Tag:**
@@ -268,11 +268,14 @@ When answered: `mv` from `01-new-ambiguity/` to `02-ambiguity-resolved/`, flip `
 ## Actionable Items & Checklist
 
 - [ ] Read the overarching main task plan.
-- [ ] Ensure the git repository starts completely clean.
-- [ ] Complete all work on the current branch only.
+- [ ] Ensure the git repository starts completely clean (`git status`, commit pending work, `git pull`).
+- [ ] Inspect repository architecture and adapt/fix the Python bump script (`03-ai-scripts/37-bump-version.py` or `.ai-memory/release/bump_versions.py`) based on where versions are tracked and how they change.
+- [ ] Step 1: Create and switch to dedicated release branch: `git checkout -b release/vX.Y.Z`.
+- [ ] Step 2: Bump version on release branch using the repository-aware Python bump script (`python 03-ai-scripts/37-bump-version.py` or `python .ai-memory/release/bump_versions.py`).
+- [ ] Step 3: Stage and commit all release changes on release branch: `git commit -m "release: vX.Y.Z <scope>"`.
+- [ ] Step 4: Create annotated tag on release commit: `git tag -a vX.Y.Z -m "Release vX.Y.Z"`.
+- [ ] Step 5: Switch to `main`, merge `release/vX.Y.Z`, push `main`, `release/vX.Y.Z`, and tag `vX.Y.Z` to `origin`, then restore starting branch.
 - [ ] Ensure `.gitignore` explicitly excludes test reports, artifacts, and compiled binaries.
-- [ ] Group all completed work into a single logical commit.
-- [ ] Push the commit to the remote repository.
 - [ ] **File Change Summary:** Provide a highly detailed summary in the chat listing exactly which files were changed, what specific changes were made inside them, and why they were changed. The summary is VERY important.
 
 #

@@ -134,7 +134,7 @@ def run_cli_auditor(
         vios = audit_single_file_cli(p)
         return (normalize_rel_path(p), vios) if vios else None
 
-    stats = process_repository_files(handler, root_dir=target_dir, extensions=exts)
+    stats = process_repository_files(handler, root_dir=target_dir, extensions=exts, workers=worker_count)
     all_violations = stats["results"]
     has_violations = len(all_violations) > 0
     duration_sec = stats["elapsed_ms"] / 1000

@@ -18,14 +18,15 @@ import sys
 SOURCE_ROOT = Path(__file__).resolve().parent.parent
 
 TARGET_REPOS = [
-    Path(r"D:\work\antigravity-manager"),
-    Path(r"D:\work\cat-my"),
-    Path(r"D:\work\movie-cli"),
-    Path(r"D:\work\scripts-fixer"),
-    Path(r"D:\work\spec-builder"),
-    Path(r"D:\work\kita-social-media-content-calender"),
-    Path(r"D:\work\laravel-automation"),
-    Path(r"D:\work\wp-exam"),
+    SOURCE_ROOT.parent / "antigravity-manager",
+    SOURCE_ROOT.parent / "cat-my",
+    SOURCE_ROOT.parent / "movie-cli",
+    SOURCE_ROOT.parent / "scripts-fixer",
+    SOURCE_ROOT.parent / "spec-builder",
+    SOURCE_ROOT.parent / "kita-social-media-content-calender",
+    SOURCE_ROOT.parent / "laravel-automation",
+    SOURCE_ROOT.parent / "wp-exam",
+    SOURCE_ROOT.parent / "gitmap",
 ]
 
 SYNC_DIRS = [

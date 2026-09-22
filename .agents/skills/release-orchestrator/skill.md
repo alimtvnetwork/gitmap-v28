@@ -12,11 +12,12 @@ Execute full automated release orchestration, semantic version bumping, branch m
 
 1. Determine bump tier (MINOR default per Rule 0, reset PATCH to 0).
 2. Verify git clean status before release execution.
-3. **Mandatory Pre-Release Unit Tests & CI/CD Verification:** Execute `python 03-ai-scripts/06-cicd-local-runner.py --run-tests` and verify all unit test suites, AST checks, and quality gates pass 100% green (`exit 0`).
+3. **Mandatory Smart Targeted Pre-Release Verification:** Build and test ONLY packages failed in the stack trace and packages changed between the last git hash and current working tree (`git diff --name-only HEAD~1`), persisting modified files to `.ai-memory/temp/recent-file-changes.json`. Execute targeted verification via `python 03-ai-scripts/06-cicd-local-runner.py run-smart` (or alias `--smart`, `-s`), `python 03-ai-scripts/06-cicd-local-runner.py --changed-only`, or `python 03-ai-scripts/06-cicd-local-runner.py --pkg <affected_pkg>` (with optional `--fast` heatmap filtering) to verify 100% green passing (`exit 0`) without running extraneous test suites, spellcheckers, or unrelated checks. In-flight heartbeats emit every 25s (`--heartbeat-interval 25.0`); wait dynamically via `.ai-memory/temp/runner-eta.json` rather than busy-polling.
 4. **Test Inventory Validation:** Cross-reference `.ai-memory/temp/recent-file-changes.json` with `.ai-memory/test-inventory.json` to verify that all test suites covering recently modified files pass completely.
 5. **Mandatory 5-Step Release Branching Lifecycle:**
    - **Step 1:** Create and switch to a dedicated release branch: `git checkout -b release/vX.Y.Z`.
-   - **Step 2:** Bump the version using the dedicated Python bump script (`03-ai-scripts/37-bump-version.py` or `.ai-memory/release/bump_versions.py`) on the release branch, adapting it to the target repository.
+   - **Step 2:** Bump the version using the dedicated Python bump script (`03-ai-scripts/37-bump-version.py` or `.ai-memory/release/bump_versions.py`) on the release branch.
+     - **CRITICAL REPOSITORY ADAPTATION & SCRIPT REPAIR:** Inspect the target repository architecture to identify where versions are defined (`version.json`, `package.json`, `Cargo.toml`, `pyproject.toml`, `go.mod`, etc.), where and how they will change (`readme.md`, `changelog.md`, install scripts), and post-bump synchronization commands (`npm run sync`, `go generate ./...`). If the bump script is missing, outdated, or lacks support for this repository's version pin sites, **the agent MUST fix or recreate the Python bump script immediately** before executing the release.
    - **Step 3:** Commit version bump changes in the release branch: `release: vX.Y.Z <scope>`.
    - **Step 4:** Create the annotated git tag on the release commit: `git tag -a vX.Y.Z -m "Release vX.Y.Z"`.
    - **Step 5:** Put the release commit back to the `main` branch (`git checkout main && git merge release/vX.Y.Z`), push `main`, `release/vX.Y.Z`, and tag `vX.Y.Z` to `origin`, then restore the starting branch.
@@ -27,13 +28,17 @@ Execute full automated release orchestration, semantic version bumping, branch m
 ## Fast File Discovery via Python Toolchain (Mandatory Acceleration)
 
 To rapidly discover version manifests, changelog entries, release notes, and install scripts without hitting 50-result tool caps, the AI agent MUST utilize the Python discovery scripts first:
+- **Remote Pipeline AI Status (<50ms):** `gitmap pipeline-ai status --json` (or alias `gitmap pl-ai status --json`)
+- **Remote Dynamic Timeout Wait:** `gitmap pipeline-ai status -t <etaSeconds>` (or alias `gitmap pl-ai status -t <sec>`)
+- **Extract Failing Step Error Logs:** `gitmap pipeline error-logs` (or alias `gitmap pe`, clear with `gitmap pe clear -y`)
+- **Pipeline Runner Targets & Cache Table:** `gitmap pipeline details` (or alias `gitmap pd`)
 - **Inventory Manifests & Version Files:** `python 03-ai-scripts/11-fast-file-scanner.py --search "version" --limit 20`
 - **Fast Grep Across Version Pins:** `python 03-ai-scripts/12-fast-cached-grep.py --pattern "<version>" --limit 20`
 - **Explore Release Artifacts & Folders:** `python 03-ai-scripts/17-fast-file-reader.py --list-folder .ai-memory/release --limit 20`
 - **Read Version Manifest:** `python 03-ai-scripts/17-fast-file-reader.py --read-file version.json`
 
 > [!NOTE]
-> **Release Verification Allowance:** Release workflows are explicitly authorized to execute pre-release quality gates (`python 03-ai-scripts/06-cicd-local-runner.py --run-tests` or `--skip-tests` for emergency runs) and create release branches, tags, and commits.
+> **Release Verification Allowance:** Release workflows are explicitly authorized to execute targeted pre-release quality gates (e.g. `python 03-ai-scripts/06-cicd-local-runner.py run-smart`, `--changed-only`, or `--pkg <target>`) and create release branches, tags, and commits.
 
 ---
 

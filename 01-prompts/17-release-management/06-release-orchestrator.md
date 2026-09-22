@@ -1,6 +1,6 @@
 # Automated Release Orchestrator & Branch Lifecycle — Release Management (must follow)
 
-> **Prompt Version:** 2.1.0
+> **Prompt Version:** 2.2.0
 > **Synchronization:** Main Meta-Repo & Connected Workspaces
 
 Trigger phrases: `orchestrate release`, `release orchestrator`, `bump with release branch`, `release and tag`, `automated release`.
@@ -21,6 +21,7 @@ Before any execution, check if this prompt is installed as a native Antigravity 
 
 1. Check if `.agents/skills/release-orchestrator/skill.md` exists.
 2. If it does NOT exist, create it now. Write the core instructions of this prompt to `.agents/skills/release-orchestrator/skill.md` with frontmatter:
+
    ```yaml
    ---
    name: release-orchestrator
@@ -28,6 +29,7 @@ Before any execution, check if this prompt is installed as a native Antigravity 
      Execute full automated release orchestration, semantic version bumping, branch management, and tag creation using Python scripts.
    ---
    ```
+
 3. Once installed, load it on-demand via progressive disclosure for all future runs.
 
 ---
@@ -45,13 +47,25 @@ Before any execution, check if this prompt is installed as a native Antigravity 
 ## Fast File Discovery via Python Toolchain (Mandatory Acceleration)
 
 To rapidly discover version manifests, changelog entries, release notes, and install scripts without hitting 50-result tool caps, the AI agent MUST utilize the Python discovery scripts first:
+- **Remote Pipeline AI Status (<50ms):** `gitmap pipeline-ai status --json` (or alias `gitmap pl-ai status --json`)
+- **Remote Dynamic Timeout Wait:** `gitmap pipeline-ai status -t <etaSeconds>` (or alias `gitmap pl-ai status -t <sec>`)
+- **Extract Failing Step Error Logs:** `gitmap pipeline error-logs` (or alias `gitmap pe`, clear with `gitmap pe clear -y`)
+- **Pipeline Runner Targets & Cache Table:** `gitmap pipeline details` (or alias `gitmap pd`)
 - **Inventory Manifests & Version Files:** `python 03-ai-scripts/11-fast-file-scanner.py --search "version" --limit 20`
 - **Fast Grep Across Version Pins:** `python 03-ai-scripts/12-fast-cached-grep.py --pattern "<version>" --limit 20`
 - **Explore Release Artifacts & Folders:** `python 03-ai-scripts/17-fast-file-reader.py --list-folder .ai-memory/release --limit 20`
 - **Read Version Manifest:** `python 03-ai-scripts/17-fast-file-reader.py --read-file version.json`
 
-> [!NOTE]
-> **Release Verification Allowance:** Release workflows are explicitly authorized to execute pre-release quality gates (`python 03-ai-scripts/06-cicd-local-runner.py --run-tests` or `--skip-tests` for emergency runs) and create release branches, tags, and commits.
+> [!IMPORTANT]
+> **SMART TARGETED PRE-RELEASE TESTING (FASTEST PATH TO RELEASE):**
+> When verifying code prior to release, do NOT run heavy full repository test suites, spellcheckers, or unrelated packages.
+> 1. **Priority Incremental Runner:** Execute smart incremental Go tests and gates via `python 03-ai-scripts/06-cicd-local-runner.py run-smart` (or alias `smart`, `--smart`, `-s`), which inspects Git changed files, builds ONLY changed packages into OS temp, and runs the Quad Runner.
+> 2. **Specific Package Targeting:** Isolate and test ONLY packages and functions identified in failing stack traces or modified packages: `python 03-ai-scripts/06-cicd-local-runner.py --pkg <target_package_or_file>`.
+> 3. **Heatmap & Fast-Path Testing:** Use `--fast` to run only hot and warm tests based on `.ai-memory/test-heatmap.json`, skipping cold tests (`python 03-ai-scripts/06-cicd-local-runner.py --fast`).
+> 4. **Changed Packages from Last Git Hash:** Isolate packages changed between the previous git hash and current working tree (`git diff --name-only HEAD~1` or `git status --porcelain`) using `python 03-ai-scripts/06-cicd-local-runner.py --changed-only`.
+> 5. **Change State Persistence:** Record modified files into `.ai-memory/temp/recent-file-changes.json` under lock (`python 03-ai-scripts/33-test-inventory-generator.py --record <files...>`).
+> 6. **In-Flight Heartbeats & ETA Wait:** The local runner emits heartbeats every 25s (`--heartbeat-interval 25.0`) and writes status to `.ai-memory/temp/runner-eta.json`. Agents must sleep for 60s or remaining ETA rather than busy-polling.
+> 7. Once targeted checks pass green, trigger `python 03-ai-scripts/29-release-orchestrator.py` immediately without delaying the release.
 
 ---
 
@@ -78,15 +92,24 @@ python 03-ai-scripts/29-release-orchestrator.py --tier <minor|patch|major>
 
 ---
 
-## Standalone Bump-Version Recovery & Repository Adaptation
+## Standalone Bump-Version Recovery & Repository Adaptation Mandate
 
-If the repository does not have a project-level bump version script (such as `03-ai-scripts/37-bump-version.py` or `.ai-memory/release/bump_versions.py`):
-1. **Autonomous Bootstrap & Repository Adaptation:** The orchestrator script must not fail or halt. It MUST autonomously create or adapt `03-ai-scripts/37-bump-version.py` (or `.ai-memory/release/bump_versions.py`) based on how the target repository tracks versions and where files need to change.
-2. **In-Place File Updates:** The bump script must update:
-   - `version.json`: Update `"version"` to `next_version` and `"releaseDate"` to today's UTC date (`YYYY-MM-DD`).
-   - `package.json`: Update `"version"` to `next_version`.
-   - `readme.md`: Pin the new release version in badges, install snippets, and header versions.
-   - `changelog.md`: Prepend the release entry under `# Changelog` with the release version, UTC date, and changelog bullets.
+> [!IMPORTANT]
+> **REPOSITORY ARCHITECTURE INSPECTION & SCRIPT REPAIR:**
+> If the repository does not have a project-level bump version script (such as `03-ai-scripts/37-bump-version.py` or `.ai-memory/release/bump_versions.py`), or if the existing script is outdated or incomplete:
+>
+> 1. **Inspect Repository Architecture:**
+>    - Determine where versions are defined (`version.json`, `package.json`, `Cargo.toml`, `pyproject.toml`, `go.mod`, etc.).
+>    - Determine where and how versions will change (`readme.md`, `changelog.md`, badges, install scripts).
+>    - Determine post-bump synchronization commands (`npm run sync`, `go generate ./...`).
+> 2. **Fix or Create the Bump Script:**
+>    - The orchestrator script must not fail or halt. It MUST autonomously create, fix, or adapt `03-ai-scripts/37-bump-version.py` (or `.ai-memory/release/bump_versions.py`) based specifically on how the target repository tracks versions and where files need to change.
+> 3. **In-Place File Updates:** The bump script must update:
+>    - `version.json`: Update `"version"` to `next_version` and `"releaseDate"` to today's UTC date (`YYYY-MM-DD`).
+>    - `package.json`: Update `"version"` to `next_version`.
+>    - `readme.md`: Pin the new release version in badges, install snippets, and header versions.
+>    - `changelog.md`: Prepend the release entry under `# Changelog` with the release version, UTC date, and changelog bullets.
+>    - Run synchronization commands (`npm run sync`) to regenerate spec trees and manifests.
 
 ---
 

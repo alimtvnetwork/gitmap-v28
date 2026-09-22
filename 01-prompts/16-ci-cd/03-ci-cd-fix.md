@@ -24,7 +24,7 @@ To rapidly locate failing pipeline definitions, broken source files, test fixtur
 - **Record Modified Files Under Lock:** `python 03-ai-scripts/33-test-inventory-generator.py --record <files...>`
 
 > [!NOTE]
-> **CI/CD Fix Verification Allowance:** Unlike routine refactoring turns, CI/CD Fix workflows ARE explicitly authorized and expected to run local builds, tests, and runner scripts (`python 03-ai-scripts/06-cicd-local-runner.py`) to diagnose failures, reproduce errors, and verify that all quality gates pass (exit code 0).
+> **Smart Targeted CI/CD Fix Verification:** Unlike routine refactoring turns, CI/CD Fix workflows ARE authorized to run targeted builds and tests. However, the AI MUST execute tests in the smartest way possible: run builds/tests ONLY for packages cited in the failing stack trace or changed from the last git hash (`git diff --name-only HEAD~1`), recording modified files to `.ai-memory/temp/recent-file-changes.json`. Do NOT run full test suites, spellcheckers, or unrelated checks that delay resolution.
 
 ---
 
@@ -529,8 +529,8 @@ Before entering Phase 1 or Phase 2:
 ## Strictly Avoid: No Automatic Releases & Run All Tests (Strict Policy)
 
 > [!CAUTION]
-> **NO AUTOMATIC RELEASES (TOTAL BAN IN STANDARD CI-CD-FIX):** This is a development fix workflow. You MUST NOT bump versions, update changelogs, or cut a release. Releases are exclusively handled by `04-ci-cd-fix-with-release.md` or `release-orchestrator`.
-> **NO ROUTINE UNIT TEST RUNNING (EXCLUSIVE TO CI-CD WITH RELEASE):** Routine heavy unit test execution is STRICTLY RESERVED for `04-ci-cd-fix-with-release.md` and release workflows! In standard `ci-cd-fix`, do NOT run full unit test suites or test runner pools (`go test ./...`, `06-cicd-local-runner.py --run-tests`). Instead, diagnose and verify fixes using targeted file-level linters, AST validators, and syntax checks on the specific modified files. ONLY `04-ci-cd-fix-with-release.md` will execute the full test suite (`--run-tests` / `--all`) before cutting the release!
+> **NO AUTOMATIC RELEASES (TOTAL BAN IN STANDARD CI-CD-FIX):** This is a development fix workflow. You MUST NOT bump versions, update changelogs, or cut a release. Releases are exclusively handled by `06-ci-cd-fix-with-release.md` or `release-orchestrator`.
+> **SMART TARGETED TESTING (NO FULL SUITE RUNS):** Do NOT run full repository test suites (`go test ./...`, `06-cicd-local-runner.py --all`). Instead, isolate and run builds/tests ONLY for the packages failed in the stack trace or changed since the last git hash (`python 03-ai-scripts/06-cicd-local-runner.py --pkg <target>` or `--changed-only`), recording modified files to `.ai-memory/temp/recent-file-changes.json`.
 > **NO PER-FILE COMMITTING (TOTAL BAN):** Never commit each file individually. All modified files across the turn must be accumulated in the working tree and committed together in a single atomic commit at the final step.
 
 ---
@@ -577,10 +577,10 @@ When `06-cicd-local-runner.py` exits with code 0:
 
 ## Banned Operations Checklist (TOTAL BAN — Auto-Reject on Violation)
 
-- [ ] **NO ROUTINE UNIT TEST RUNNING (TOTAL BAN IN STANDARD CI-CD-FIX):** NEVER run heavy unit test suites (`go test ./...`, `06-cicd-local-runner.py --run-tests`, runner scripts) during standard CI/CD fix turns. All full test suite runs are strictly reserved for `04-ci-cd-fix-with-release.md` and release workflows.
+- [ ] **SMART TARGETED TESTING MANDATE:** NEVER run full repository test suites (`go test ./...`, `06-cicd-local-runner.py --all`, full test pools) during standard fix turns. Testing is strictly scoped to packages failed in the stack trace and files changed from the last git hash, persisted under `.ai-memory/temp/recent-file-changes.json`.
 - [ ] **NO ROUTINE BUILD CHECKING (TOTAL BAN):** NEVER run broad build commands (`go build ./...`, `npm run build`) to verify compilation during intermediate micro-refactoring steps.
 - [ ] **NO RUNNER SCRIPTS (TOTAL BAN):** NEVER launch background test runners, worker pools, or test inventory loops during routine execution.
-- [ ] **NO AUTOMATIC RELEASES (TOTAL BAN IN STANDARD CI-CD-FIX):** NEVER bump versions, update changelogs, or trigger releases in standard `ci-cd-fix`. Releases are exclusively handled by `04-ci-cd-fix-with-release.md` or `release-orchestrator`.
+- [ ] **NO AUTOMATIC RELEASES (TOTAL BAN IN STANDARD CI-CD-FIX):** NEVER bump versions, update changelogs, or trigger releases in standard `ci-cd-fix`. Releases are exclusively handled by `06-ci-cd-fix-with-release.md` or `release-orchestrator`.
 - [ ] **NO PER-FILE COMMITTING (TOTAL BAN):** NEVER commit each file individually as you work. Committing file-by-file pollutes git history, creates subagent lock collisions, and breaks atomic changes. All modified files across the turn must be accumulated and committed together in a single atomic commit at the final step.
 
 ---

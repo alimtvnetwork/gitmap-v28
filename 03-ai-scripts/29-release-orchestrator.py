@@ -198,7 +198,7 @@ def create_and_checkout_release_branch(next_version, dry_run=False):
         return branch_name
 
     print(f"[*] Step 1: Creating and switching to release branch: '{branch_name}'...")
-    run_cmd(["git", "checkout", "-B", branch_name])
+    run_cmd(["git", "checkout", "-b", branch_name])
     current = get_current_branch()
     print(f"[*] Active branch is now: '{current}'")
 
@@ -294,9 +294,10 @@ def stage_and_commit_release(next_version, scope, dry_run=False):
         REPO_ROOT / "src" / "data" / "specTree.json",
         REPO_ROOT / "02-spec" / "19-main-worker-service" / "98-changelog.md",
         REPO_ROOT / "reports" / "spec-verification" / "coverage.md",
-        REPO_ROOT / "cli" / "constants" / "constants.go",
     ]
-    run_cmd(["git", "add", "-A"], check=False)
+    for vf in release_candidates:
+        if vf.exists():
+            run_cmd(["git", "add", str(vf)])
 
     # Commit
     run_cmd(["git", "commit", "-m", commit_msg])
