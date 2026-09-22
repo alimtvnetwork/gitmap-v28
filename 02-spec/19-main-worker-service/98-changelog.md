@@ -1,3 +1,9 @@
+## v6.311.0 — 2026-09-22 (dynamic Antigravity language server discovery and agy CLI fallback)
+
+**Scope:** Version bump. dynamic Antigravity language server discovery and agy CLI fallback.
+
+---
+
 ## v6.310.0 — 2026-09-22 (lowercase renamer full parity, doc CMD, web UI, prefix wildcard engine, and report summary)
 
 **Scope:** Version bump. lowercase renamer full parity, doc CMD, web UI, prefix wildcard engine, and report summary.
