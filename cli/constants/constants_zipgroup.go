@@ -145,6 +145,6 @@ const (
 	ErrZGRemoveItem  = "failed to remove item from zip group: %w"
 	ErrZGCompress    = "  ✗ Failed to create archive for %s: %v (operation: write)\n"
 	ErrZGGroupNotDB  = "zip group %q not found in database"
-	ErrZGPathResolve = "cannot resolve path %q: %w (operation: resolve)"
-	ErrZGJSONWrite   = "failed to write zip-groups.json at %s: %w (operation: write)"
+	ErrZGPathResolve = "cannot resolve path %q: %v (operation: resolve)"
+	ErrZGJSONWrite   = "failed to write zip-groups.json at %s: %v (operation: write)"
 )

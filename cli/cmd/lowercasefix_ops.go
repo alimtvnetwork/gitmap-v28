@@ -48,10 +48,10 @@ func applyRenamesAndCommit(pairs []RenamePair, opts LowerCaseFixOptions) error {
 
 func performSafeGitRename(p RenamePair) error {
 	tmpPath := p.OldPath + ".tmp-lcf"
-	if err := runGitMv(p.OldPath, tmpPath); err != nil {
+	if err := runGitMvForLcf(p.OldPath, tmpPath); err != nil {
 		return fallbackRename(p, tmpPath, err)
 	}
-	return runGitMv(tmpPath, p.NewPath)
+	return runGitMvForLcf(tmpPath, p.NewPath)
 }
 
 func fallbackRename(p RenamePair, tmpPath string, gitErr error) error {
@@ -64,7 +64,7 @@ func fallbackRename(p RenamePair, tmpPath string, gitErr error) error {
 	return nil
 }
 
-func runGitMv(src, dst string) error {
+func runGitMvForLcf(src, dst string) error {
 	cmd := exec.Command("git", "mv", src, dst)
 	if out, err := cmd.CombinedOutput(); err != nil {
 		return fmt.Errorf("git mv %s to %s failed: %w (output: %s)", src, dst, err, strings.TrimSpace(string(out)))

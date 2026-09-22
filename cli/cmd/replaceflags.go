@@ -1,8 +1,8 @@
 package cmd
 
 import (
-	"errors"
 	"flag"
+	"fmt"
 	"strings"
 
 	"github.com/alimtvnetwork/gitmap-v28/cli/constants"
