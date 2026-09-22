@@ -9,7 +9,8 @@ Master directory of architectural and execution plans.
 
 ## Recent Completed Tasks Register (Last 20 Tasks)
 
-1. [79-agy-prompts-table-conv-rename-and-aum.md](completed/79-agy-prompts-table-conv-rename-and-aum.md): AGY Prompts Injection Error Handling, Dynamic Single Prompts, Unique Sequence Persistence, Conversation Rename, Table Formatting & AUM Search Optimization
+1. [80-agm-ide-interaction-and-e2e-isolation.md](completed/80-agm-ide-interaction-and-e2e-isolation.md): Antigravity-Manager (AGM) Research, Antigravity IDE Interaction, Adhoc E2E Testing & CI/CD Isolation
+2. [79-agy-prompts-table-conv-rename-and-aum.md](completed/79-agy-prompts-table-conv-rename-and-aum.md): AGY Prompts Injection Error Handling, Dynamic Single Prompts, Unique Sequence Persistence, Conversation Rename, Table Formatting & AUM Search Optimization
 2. [78-cli-relative-database-path.md](completed/78-cli-relative-database-path.md): Anchor Pipeline Database to CLI Data Directory with Relative Display Path
 2. [77-agy-parity-ssh-first-auth-and-token-prompt.md](completed/77-agy-parity-ssh-first-auth-and-token-prompt.md): AGY Scripts-Fixer Parity Verification, SSH-First Access Probe & Interactive Terminal Auth Prompt
 2. [76-lowercase-file-fix-and-git-renaming.md](completed/76-lowercase-file-fix-and-git-renaming.md): Robust Lowercase File Renamer, Git Case Manipulation, Root README Command, Help Text & UI Integration
@@ -56,6 +57,7 @@ Master directory of architectural and execution plans.
 
 ## Completed Plans
 
+- [80-agm-ide-interaction-and-e2e-isolation.md](completed/80-agm-ide-interaction-and-e2e-isolation.md): Antigravity-Manager (AGM) Research, Antigravity IDE Interaction, Adhoc E2E Testing & CI/CD Isolation
 - [79-agy-prompts-table-conv-rename-and-aum.md](completed/79-agy-prompts-table-conv-rename-and-aum.md): AGY Prompts Injection Error Handling, Dynamic Single Prompts, Unique Sequence Persistence, Conversation Rename, Table Formatting & AUM Search Optimization
 - [78-cli-relative-database-path.md](completed/78-cli-relative-database-path.md): Anchor Pipeline Database to CLI Data Directory with Relative Display Path
 - [77-agy-parity-ssh-first-auth-and-token-prompt.md](completed/77-agy-parity-ssh-first-auth-and-token-prompt.md): AGY Scripts-Fixer Parity Verification, SSH-First Access Probe & Interactive Terminal Auth Prompt
