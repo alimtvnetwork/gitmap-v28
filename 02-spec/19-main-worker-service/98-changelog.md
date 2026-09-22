@@ -1,3 +1,9 @@
+## v6.309.0 — 2026-09-22 (unify lowercase renamer with two-step safe git mv and live logging)
+
+**Scope:** Version bump. unify lowercase renamer with two-step safe git mv and live logging.
+
+---
+
 ## v6.308.0 — 2026-09-22 (Fix AGY prompt injection stacktrace, add conv-rename, unique SEQ persistence, and table polish)
 
 **Scope:** Version bump. Fix AGY prompt injection stacktrace, add conv-rename, unique SEQ persistence, and table polish.
