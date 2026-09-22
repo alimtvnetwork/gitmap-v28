@@ -79,7 +79,21 @@ func insertAuditRecord(db *store.DB, record model.CommandHistoryRecord) int64 {
 }
 
 func recordPendingTaskAudit(command string, args []string) {
+	if !isPendingTaskCommand(command) {
+		return
+	}
 	cwd, _ := os.Getwd()
 	cmdArgs := strings.Join(args, " ")
 	_, _ = createPendingTask(command, cwd, cwd, command, cmdArgs)
+}
+
+func isPendingTaskCommand(command string) bool {
+	switch command {
+	case "pending", "status", "st", "version", "--version", "-v", "help", "--help", "-h", "docs":
+		return false
+	case "storage", "disk", "df", "ps", "ls":
+		return false
+	}
+
+	return true
 }

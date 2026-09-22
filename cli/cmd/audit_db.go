@@ -9,6 +9,36 @@ import (
 )
 
 func completePendingCommandTask(db *store.DB, exitCode int, summary string) {
+	completeSplitTasksDB(exitCode, summary)
+	completeMasterDB(db, exitCode, summary)
+}
+
+func completeSplitTasksDB(exitCode int, summary string) {
+	tasksDB, err := openTasksDB()
+	if err != nil {
+		return
+	}
+	defer tasksDB.Close()
+
+	pending, err := tasksDB.ListPendingTasks()
+	if err != nil || len(pending) == 0 {
+		return
+	}
+
+	latest := pending[len(pending)-1]
+	if exitCode == 0 {
+		_ = tasksDB.CompleteTask(latest.ID)
+		return
+	}
+
+	_ = tasksDB.FailTask(latest.ID, summary)
+}
+
+func completeMasterDB(db *store.DB, exitCode int, summary string) {
+	if db == nil {
+		return
+	}
+
 	pending, err := db.ListPendingTasks()
 	if err != nil || len(pending) == 0 {
 		return
@@ -17,9 +47,10 @@ func completePendingCommandTask(db *store.DB, exitCode int, summary string) {
 	latest := pending[len(pending)-1]
 	if exitCode == 0 {
 		_ = db.CompleteTask(latest.ID)
-	} else {
-		_ = db.FailTask(latest.ID, summary)
+		return
 	}
+
+	_ = db.FailTask(latest.ID, summary)
 }
 
 func openAuditDB() (*store.DB, error) {

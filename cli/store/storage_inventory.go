@@ -6,6 +6,15 @@ import (
 	"strings"
 )
 
+func normalizeStorageDbPath(rawPath string) string {
+	clean := filepath.Clean(rawPath)
+	if abs, err := filepath.Abs(clean); err == nil {
+		clean = abs
+	}
+
+	return filepath.ToSlash(strings.ToLower(clean))
+}
+
 // CollectAllDatabaseEntries returns an inventory of all SQLite databases managed by Gitmap.
 func CollectAllDatabaseEntries() []SplitDatabaseEntry {
 	dataDir := BinaryDataDir()
@@ -13,9 +22,9 @@ func CollectAllDatabaseEntries() []SplitDatabaseEntry {
 	var list []SplitDatabaseEntry
 
 	addEntry := func(e SplitDatabaseEntry) {
-		clean := filepath.Clean(e.DatabasePath)
-		if !seen[clean] {
-			seen[clean] = true
+		norm := normalizeStorageDbPath(e.DatabasePath)
+		if !seen[norm] {
+			seen[norm] = true
 			list = append(list, e)
 		}
 	}
@@ -58,6 +67,11 @@ func collectCoreDatabases(dataDir string, add func(SplitDatabaseEntry)) {
 	sitesPath := ResolveSplitDbPath(SectionSites, "default", "")
 	if _, err := os.Stat(sitesPath); err == nil {
 		add(inspectSplitDBFile("split", "sites", sitesPath, "Sites & vhosts configuration database"))
+	}
+
+	tasksPath := ResolveTasksRootDbPath("")
+	if _, err := os.Stat(tasksPath); err == nil {
+		add(inspectSplitDBFile("tasks", "tasks", tasksPath, "Tasks root split database"))
 	}
 }
 
@@ -124,9 +138,8 @@ func collectLocalRepoDatabases(add func(SplitDatabaseEntry)) {
 	collectSubdirDatabases(".", "repodb", "repodb", add)
 	collectSubdirDatabases(".gitmap", "repodb", "repodb", add)
 	collectSubdirDatabases(".gitmap", "pipeline", "pipeline", add)
-	collectSubdirDatabases(".gitmap/data", "pipeline", "pipeline", add)
-	collectSubdirDatabases(".gitmap/data", "automation", "automation", add)
-	collectSubdirDatabases(".gitmap/data", "schedule", "schedule", add)
+	CollectDataTreeDatabases(".gitmap/data", add)
+	CollectDataTreeDatabases("data", add)
 }
 
 func collectParentSubdirDatabases(baseDir, subName, dbType string, add func(SplitDatabaseEntry)) {

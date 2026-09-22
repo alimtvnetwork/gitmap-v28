@@ -47,10 +47,19 @@ func collectStorageEntries() []store.SplitDatabaseEntry {
 	return append(entries, extra...)
 }
 
+func normalizeStorageDbPath(rawPath string) string {
+	clean := filepath.Clean(rawPath)
+	if abs, err := filepath.Abs(clean); err == nil {
+		clean = abs
+	}
+
+	return filepath.ToSlash(strings.ToLower(clean))
+}
+
 func buildDatabaseSeenMap(entries []store.SplitDatabaseEntry) map[string]bool {
 	seen := make(map[string]bool, len(entries))
 	for _, e := range entries {
-		seen[filepath.Clean(e.DatabasePath)] = true
+		seen[normalizeStorageDbPath(e.DatabasePath)] = true
 	}
 
 	return seen
@@ -100,6 +109,7 @@ func candidateRepoDbDirs() []string {
 	dirs := []string{
 		filepath.Join(".", "repodb"),
 		filepath.Join(".", ".gitmap", "repodb"),
+		filepath.Join(".", ".gitmap", "data", "repodb"),
 		filepath.Join(dataDir, "repodb"),
 		filepath.Join(baseDir, "repodb"),
 	}
@@ -150,10 +160,11 @@ func inspectDbDirEntry(
 	}
 
 	fullPath := filepath.Clean(filepath.Join(dir, e.Name()))
-	if seen[fullPath] {
+	normPath := normalizeStorageDbPath(fullPath)
+	if seen[normPath] {
 		return nil
 	}
-	seen[fullPath] = true
+	seen[normPath] = true
 
 	slug := strings.TrimSuffix(e.Name(), ".db")
 	entry := store.InspectSplitDBFile(dbType, slug, fullPath, desc)
@@ -206,9 +217,23 @@ func buildStorageTableRow(dataDir string, e store.SplitDatabaseEntry) termtable.
 
 func resolveRelativeDBPath(dataDir, fullPath string) string {
 	rel, err := filepath.Rel(dataDir, fullPath)
-	if err != nil || strings.HasPrefix(rel, "..") {
+	if err == nil && !strings.HasPrefix(rel, "..") {
+		return rel
+	}
+
+	return resolveCwdRelativePath(fullPath)
+}
+
+func resolveCwdRelativePath(fullPath string) string {
+	cwd, err := os.Getwd()
+	if err != nil {
 		return fullPath
 	}
 
-	return rel
+	relCwd, errRel := filepath.Rel(cwd, fullPath)
+	if errRel != nil || strings.HasPrefix(relCwd, "..") {
+		return fullPath
+	}
+
+	return relCwd
 }
