@@ -14,6 +14,7 @@ import (
 	"github.com/alimtvnetwork/gitmap-v28/cli/apperror"
 	"github.com/alimtvnetwork/gitmap-v28/cli/cliexit"
 	"github.com/alimtvnetwork/gitmap-v28/cli/cmdagy"
+	"github.com/alimtvnetwork/gitmap-v28/cli/cmdai"
 	"github.com/alimtvnetwork/gitmap-v28/cli/cmdautomation"
 	"github.com/alimtvnetwork/gitmap-v28/cli/cmdprompt"
 	"github.com/alimtvnetwork/gitmap-v28/cli/cmdprompttemplate"
@@ -69,6 +70,8 @@ func Run() {
 	// values into GITMAP_VSCODE_TAG_{ADD,SKIP,MARKER} so every
 	// DetectTagsCustom caller — present and future — picks them up.
 	os.Args = append(os.Args[:1], stripVSCodeTagFlags(os.Args[1:])...)
+	// Strip global `--ai` execution recording flag and track in env.
+	os.Args = append(os.Args[:1], stripAiFlag(os.Args[1:])...)
 	if len(os.Args) < 2 {
 		PrintBinaryLocations()
 		printUsage()
@@ -590,9 +593,14 @@ func dispatchSmartTestSubsystem(
 
 func dispatchGeneralCommands(cmd string, shouldAudit bool, id int64, start time.Time) bool {
 	switch cmd {
-	case constants.CmdAutomation, constants.CmdAutomationAlias, constants.CmdAutomationAumAlias, constants.CmdAutomationPyAlias, constants.CmdAi, constants.CmdAiAlias:
+	case constants.CmdAutomation, constants.CmdAutomationAlias, constants.CmdAutomationAumAlias, constants.CmdAutomationPyAlias:
 		executeAndAudit(func(_ context.Context, args []string, _ *cobra.Command) error {
 			return cmdautomation.DispatchAutomation(args)
+		}, shouldAudit, id, start)
+		return true
+	case constants.CmdAi, constants.CmdAiAlias:
+		executeAndAudit(func(_ context.Context, args []string, _ *cobra.Command) error {
+			return cmdai.DispatchAi(args)
 		}, shouldAudit, id, start)
 		return true
 	default:

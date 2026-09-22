@@ -69,11 +69,13 @@ type FixTargetDef struct {
 
 // ScriptListOptions encapsulates filter and rendering flags for script enumeration.
 type ScriptListOptions struct {
-	CategoryFilter string `json:"categoryFilter"`
-	SearchQuery    string `json:"searchQuery"`
-	IsFixOnly      bool   `json:"isFixOnly"`
-	IsJsonFormat   bool   `json:"isJsonFormat"`
-	IsVerbose      bool   `json:"isVerbose"`
+	CategoryFilter  string `json:"categoryFilter"`
+	SearchQuery     string `json:"searchQuery"`
+	IsFixOnly       bool   `json:"isFixOnly"`
+	IsJsonFormat    bool   `json:"isJsonFormat"`
+	IsVerbose       bool   `json:"isVerbose"`
+	IsCopyClipboard bool   `json:"isCopyClipboard"`
+	IsFrequentOnly  bool   `json:"isFrequentOnly"`
 }
 
 // ScriptTemplateType defines the archetype of script to scaffold.

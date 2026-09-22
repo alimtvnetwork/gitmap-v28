@@ -3,6 +3,7 @@ package cmd
 import (
 	"fmt"
 	"os"
+	"strings"
 	"time"
 
 	"github.com/alimtvnetwork/gitmap-v28/cli/model"
@@ -36,6 +37,36 @@ func recordAuditEnd(id int64, start time.Time, exitCode int, summary string, rep
 	defer db.Close()
 
 	updateAuditRecordAndTasks(db, record, exitCode, summary)
+	maybeRecordAiExecutionHistory(record, exitCode)
+}
+
+func maybeRecordAiExecutionHistory(record model.CommandHistoryRecord, exitCode int) {
+	if os.Getenv("GITMAP_AI_TRACKING") != "1" {
+		return
+	}
+
+	cwd, _ := os.Getwd()
+	cmdStr := resolveAiCommandString()
+	isSuccess := exitCode == 0
+	_ = store.RecordAiExecution(
+		"cli",
+		cmdStr,
+		"[]",
+		cwd,
+		"127.0.0.1",
+		int(record.DurationMs),
+		exitCode,
+		record.Summary,
+		"",
+		isSuccess,
+	)
+}
+
+func resolveAiCommandString() string {
+	if len(os.Args) < 2 {
+		return "gitmap"
+	}
+	return "gitmap " + strings.Join(os.Args[1:], " ")
 }
 
 func buildAuditCompletionRecord(id int64, start time.Time, exitCode int, summary string, repoCount int) model.CommandHistoryRecord {

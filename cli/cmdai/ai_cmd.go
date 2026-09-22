@@ -44,6 +44,13 @@ var (
 		RunE:    runPwshCmd,
 	}
 
+	historyCmd = &cobra.Command{
+		Use:     "history",
+		Aliases: []string{"hist", "frequent", "freq"},
+		Short:   "Inspect and copy frequently executed AI commands",
+		RunE:    runHistoryCmd,
+	}
+
 	listOpts ScriptListOptions
 )
 
@@ -68,6 +75,10 @@ func runPwshCmd(cmd *cobra.Command, args []string) error {
 	return toError(RunAiPowershell(args))
 }
 
+func runHistoryCmd(cmd *cobra.Command, args []string) error {
+	return toError(RunAiFrequent(25, listOpts.IsCopyClipboard))
+}
+
 func runFixCmd(cmd *cobra.Command, args []string) error {
 	target := "all"
 	extraArgs := []string{}
@@ -86,6 +97,12 @@ func DispatchAi(args []string) error {
 	isEmpty := len(cleanArgs) == 0
 	if isEmpty {
 		return toError(RunAiList(ScriptListOptions{}))
+	}
+
+	first := cleanArgs[0]
+	if first == "-h" || first == "--help" || first == "help" {
+		RenderAiHelp()
+		return nil
 	}
 
 	isDirect := isDirectScriptDispatch(cleanArgs[0])
@@ -130,6 +147,8 @@ func isAiSubcommand(token string) bool {
 	isKnown := clean == "list" || clean == "ls" || clean == "catalog" ||
 		clean == "run" || clean == "exec" || clean == "fix" ||
 		clean == "create" || clean == "new" || clean == "scaffold" || clean == "gen" ||
+		clean == "history" || clean == "hist" || clean == "frequent" || clean == "freq" ||
+		clean == "pwsh" || clean == "ps" || clean == "powershell" ||
 		clean == "help" || clean == "--help" || clean == "-h"
 
 	return isKnown
@@ -146,6 +165,7 @@ func toError(appErr *apperror.AppError) error {
 
 func init() {
 	AiCmd.AddCommand(listCmd)
+	AiCmd.AddCommand(historyCmd)
 	AiCmd.AddCommand(runCmd)
 	AiCmd.AddCommand(pwshCmd)
 	AiCmd.AddCommand(fixCmd)
@@ -160,4 +180,8 @@ func initListFlags() {
 	listCmd.Flags().BoolVarP(&listOpts.IsFixOnly, "fix", "f", false, "Show only scripts with fix mode")
 	listCmd.Flags().BoolVar(&listOpts.IsJsonFormat, "json", false, "Output results in JSON format")
 	listCmd.Flags().BoolVarP(&listOpts.IsVerbose, "verbose", "v", false, "Show verbose script information")
+	listCmd.Flags().BoolVar(&listOpts.IsCopyClipboard, "copy", false, "Copy frequent AI commands to clipboard")
+	listCmd.Flags().BoolVar(&listOpts.IsFrequentOnly, "frequent", false, "Show only frequent AI commands")
+
+	historyCmd.Flags().BoolVar(&listOpts.IsCopyClipboard, "copy", false, "Copy frequent AI commands to clipboard")
 }

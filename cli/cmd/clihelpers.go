@@ -114,6 +114,18 @@ func stripVSCodeTagFlags(args []string) []string {
 	return cmdvscode.StripVSCodeTagFlags(args)
 }
 
+func stripAiFlag(args []string) []string {
+	var cleaned []string
+	for _, arg := range args {
+		if arg == "--ai" {
+			_ = os.Setenv("GITMAP_AI_TRACKING", "1")
+			continue
+		}
+		cleaned = append(cleaned, arg)
+	}
+	return cleaned
+}
+
 func runVHost(args []string) error {
 	return cmdvhost.RunVHost(args)
 }
@@ -686,6 +698,10 @@ func registerSingleDesktop(name, absPath string) {
 
 func runClone(args []string) error {
 	return cmdclone.RunClone(args)
+}
+
+func runMultiClone(args []string) error {
+	return cmdclone.RunMultiCloneCommand(args)
 }
 
 func runCloneOnlyMissing(args []string) error {

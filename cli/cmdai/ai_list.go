@@ -6,8 +6,14 @@ import (
 	"github.com/alimtvnetwork/gitmap-v28/cli/apperror"
 )
 
-// RunAiList filters and renders the registered AI script catalog.
+// RunAiList filters and renders the registered AI script catalog and frequent command history.
 func RunAiList(opts ScriptListOptions) *apperror.AppError {
+	if opts.IsFrequentOnly {
+		return RunAiFrequent(25, opts.IsCopyClipboard)
+	}
+
+	_ = RunAiFrequent(10, opts.IsCopyClipboard)
+
 	scripts := AllScripts()
 	filtered := filterScripts(scripts, opts)
 

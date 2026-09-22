@@ -2,6 +2,7 @@ package cmd
 
 import (
 	"github.com/alimtvnetwork/gitmap-v28/cli/cmdagy"
+	"github.com/alimtvnetwork/gitmap-v28/cli/cmdai"
 	"github.com/alimtvnetwork/gitmap-v28/cli/cmdclone"
 	"github.com/alimtvnetwork/gitmap-v28/cli/cmdfixgit"
 	"github.com/alimtvnetwork/gitmap-v28/cli/cmdinstall"
@@ -95,12 +96,20 @@ func tryRenderWorkflowRichTopic(topic string) bool {
 		cmdclone.RenderCloneHelp()
 
 		return true
+	case "multiclone", "mutliclone", "mc":
+		cmdclone.RenderMultiCloneHelp()
+
+		return true
 	case "scan", "s":
 		cmdscan.RenderScanHelp()
 
 		return true
 	case "fix-git", "fg":
 		cmdfixgit.RenderFixGitHelp()
+
+		return true
+	case "ai", "scripts":
+		cmdai.RenderAiHelp()
 
 		return true
 	}
