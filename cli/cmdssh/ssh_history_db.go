@@ -102,8 +102,8 @@ func recordSSHTaskToRootTasksDB(taskID, action, target, fwd, inv string) {
 	}
 	defer rdb.Close()
 
-	sqlQuery := `INSERT OR IGNORE INTO TaskHistory 
-		(TaskId, Section, Action, Target, ForwardPayload, InversePayload, Status) 
+	sqlQuery := `INSERT OR IGNORE INTO TaskHistory
+		(TaskId, Section, Action, Target, ForwardPayload, InversePayload, Status)
 		VALUES (?, 'ssh', ?, ?, ?, ?, 'completed')`
 	res := store.ExecWrapper(rdb.Conn(), sqlQuery, taskID, action, target, fwd, inv)
 	_, _ = res.Destruct() // lint-allow: ignore-db-error reason="optional cross-split sync"

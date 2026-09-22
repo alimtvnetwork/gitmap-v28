@@ -23,9 +23,9 @@ func migrateLegacySSHHistoryTables(conn *sql.DB) {
 
 func migrateLegacyHistoryRows(conn *sql.DB) {
 	if checkColumnExists(conn, "ssh_task_history", "forward_payload") {
-		_ = store.ExecWrapper(conn, `INSERT OR IGNORE INTO TaskHistory 
+		_ = store.ExecWrapper(conn, `INSERT OR IGNORE INTO TaskHistory
 			(TaskId, Section, Action, Target, ForwardPayload, InversePayload, RestoredAt, CreatedAt)
-			SELECT task_id, 'ssh', action, target, forward_payload, inverse_payload, COALESCE(restored_at, ''), created_at 
+			SELECT task_id, 'ssh', action, target, forward_payload, inverse_payload, COALESCE(restored_at, ''), created_at
 			FROM ssh_task_history;`)
 		return
 	}
@@ -34,18 +34,18 @@ func migrateLegacyHistoryRows(conn *sql.DB) {
 	if checkColumnExists(conn, "ssh_task_history", "payload_json") {
 		payloadCol = "payload_json"
 	}
-	query := fmt.Sprintf(`INSERT OR IGNORE INTO TaskHistory 
+	query := fmt.Sprintf(`INSERT OR IGNORE INTO TaskHistory
 		(TaskId, Section, Action, Target, ForwardPayload, InversePayload, RestoredAt, CreatedAt)
-		SELECT task_id, 'ssh', action, target, target, %s, COALESCE(restored_at, ''), created_at 
+		SELECT task_id, 'ssh', action, target, target, %s, COALESCE(restored_at, ''), created_at
 		FROM ssh_task_history;`, payloadCol)
 	_ = store.ExecWrapper(conn, query)
 }
 
 func migrateLegacyQueueRows(conn *sql.DB) {
 	if checkColumnExists(conn, "ssh_task_queue", "forward_payload") {
-		_ = store.ExecWrapper(conn, `INSERT OR IGNORE INTO TaskQueue 
+		_ = store.ExecWrapper(conn, `INSERT OR IGNORE INTO TaskQueue
 			(QueueId, Section, Action, Target, ForwardPayload, InversePayload, Status, CreatedAt, UpdatedAt)
-			SELECT task_id, 'ssh', action, target, forward_payload, inverse_payload, status, created_at, updated_at 
+			SELECT task_id, 'ssh', action, target, forward_payload, inverse_payload, status, created_at, updated_at
 			FROM ssh_task_queue;`)
 		return
 	}
@@ -54,9 +54,9 @@ func migrateLegacyQueueRows(conn *sql.DB) {
 	if checkColumnExists(conn, "ssh_task_queue", "payload_json") {
 		payloadCol = "payload_json"
 	}
-	query := fmt.Sprintf(`INSERT OR IGNORE INTO TaskQueue 
+	query := fmt.Sprintf(`INSERT OR IGNORE INTO TaskQueue
 		(QueueId, Section, Action, Target, ForwardPayload, InversePayload, Status, CreatedAt, UpdatedAt)
-		SELECT task_id, 'ssh', action, target, target, %s, status, created_at, updated_at 
+		SELECT task_id, 'ssh', action, target, target, %s, status, created_at, updated_at
 		FROM ssh_task_queue;`, payloadCol)
 	_ = store.ExecWrapper(conn, query)
 }

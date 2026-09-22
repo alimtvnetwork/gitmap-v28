@@ -36,9 +36,9 @@ func GetLastSSHHistoryTask(ctx context.Context) (*SSHHistoryTask, error) {
 	}
 	defer db.Close()
 
-	query := `SELECT TaskId, Action, Target, ForwardPayload, InversePayload, CreatedAt, RestoredAt 
-		FROM TaskHistory 
-		WHERE Section = 'ssh' AND RestoredAt = '' 
+	query := `SELECT TaskId, Action, Target, ForwardPayload, InversePayload, CreatedAt, RestoredAt
+		FROM TaskHistory
+		WHERE Section = 'ssh' AND RestoredAt = ''
 		ORDER BY CreatedAt DESC LIMIT 1`
 	row := db.QueryRowContext(ctx, query)
 
@@ -53,9 +53,9 @@ func GetLastRestoredSSHHistoryTask(ctx context.Context) (*SSHHistoryTask, error)
 	}
 	defer db.Close()
 
-	query := `SELECT TaskId, Action, Target, ForwardPayload, InversePayload, CreatedAt, RestoredAt 
-		FROM TaskHistory 
-		WHERE Section = 'ssh' AND RestoredAt != '' 
+	query := `SELECT TaskId, Action, Target, ForwardPayload, InversePayload, CreatedAt, RestoredAt
+		FROM TaskHistory
+		WHERE Section = 'ssh' AND RestoredAt != ''
 		ORDER BY RestoredAt DESC LIMIT 1`
 	row := db.QueryRowContext(ctx, query)
 
@@ -70,8 +70,8 @@ func GetSSHHistoryTaskByID(ctx context.Context, taskID string) (*SSHHistoryTask,
 	}
 	defer db.Close()
 
-	query := `SELECT TaskId, Action, Target, ForwardPayload, InversePayload, CreatedAt, RestoredAt 
-		FROM TaskHistory 
+	query := `SELECT TaskId, Action, Target, ForwardPayload, InversePayload, CreatedAt, RestoredAt
+		FROM TaskHistory
 		WHERE TaskId = ? LIMIT 1`
 	row := db.QueryRowContext(ctx, query, taskID)
 
@@ -131,10 +131,10 @@ func ListSSHHistoryTasks(ctx context.Context, limit, offset int) ([]SSHHistoryRe
 	}
 	defer db.Close()
 
-	query := `SELECT TaskId, Action, Target, Status, RestoredAt, CreatedAt 
-		FROM TaskHistory 
-		WHERE Section = 'ssh' 
-		ORDER BY TaskHistoryId DESC 
+	query := `SELECT TaskId, Action, Target, Status, RestoredAt, CreatedAt
+		FROM TaskHistory
+		WHERE Section = 'ssh'
+		ORDER BY TaskHistoryId DESC
 		LIMIT ? OFFSET ?`
 	rows, errQuery := db.QueryContext(ctx, query, limit, offset)
 	if errQuery != nil {

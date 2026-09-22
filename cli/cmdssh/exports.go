@@ -74,6 +74,11 @@ func RunSSHJoinCLI(args []string) error {
 	return runSSHJoinCLI(args)
 }
 
+// RunSSHErrorLogsCLI exports SSH error logs reader.
+func RunSSHErrorLogsCLI(args []string) error {
+	return runSSHErrorLogsCLI(args)
+}
+
 // ParseSEFlags parses ssh exec flags.
 func ParseSEFlags(args []string) SEOptions {
 	return parseSEFlags(args)

@@ -3,6 +3,7 @@ package cmdssh
 import (
 	"fmt"
 	"net"
+	"path/filepath"
 	"strconv"
 	"strings"
 
@@ -30,30 +31,41 @@ func buildKeyboardInteractiveAuth(pass string) ssh.AuthMethod {
 }
 
 // dialNodeWithPassword attempts standard password auth first, falling back to
-// keyboard-interactive only when password auth is unsupported by the remote server.
+// keyboard-interactive (PAM) if password auth is rejected.
 func dialNodeWithPassword(target *SSHTarget, pass string) (*ssh.Client, error) {
 	addr := net.JoinHostPort(target.IP, strconv.Itoa(resolveHealthPort(target.Port)))
+	trace := GetActiveSSHTrace()
 
 	configPass := newAutoAcceptHostKeyConfig(target.Username, []ssh.AuthMethod{ssh.Password(pass)})
 	client, errPass := ssh.Dial("tcp", addr, configPass)
 	if errPass == nil {
+		trace.AddStep("Password Auth", fmt.Sprintf("authenticated '%s@%s'", target.Username, addr), "SUCCESS", nil)
+
 		return client, nil
 	}
 	if isNetworkDialFailure(errPass) {
+		trace.AddStep("Password Auth", "network dial failed: "+errPass.Error(), "FAILED", errPass)
+
 		return nil, errPass
 	}
 
-	if !isSSHPasswordUnsupported(errPass) {
-		return nil, normalizeSSHAuthFailure(errPass)
-	}
+	trace.AddStep("Password Auth", fmt.Sprintf("password rejected for '%s@%s'", target.Username, addr), "FAILED", errPass)
 
+	return dialKeyboardInteractiveFallback(target, addr, pass, errPass, trace)
+}
+
+func dialKeyboardInteractiveFallback(target *SSHTarget, addr, pass string, errPass error, trace *SSHExecutionTrace) (*ssh.Client, error) {
 	configKbd := newAutoAcceptHostKeyConfig(target.Username, []ssh.AuthMethod{buildKeyboardInteractiveAuth(pass)})
 	clientKbd, errKbd := ssh.Dial("tcp", addr, configKbd)
-	if errKbd != nil {
-		return nil, normalizeSSHAuthFailure(errKbd)
+	if errKbd == nil {
+		trace.AddStep("Keyboard-Interactive Auth", fmt.Sprintf("authenticated '%s@%s' via PAM", target.Username, addr), "SUCCESS", nil)
+
+		return clientKbd, nil
 	}
 
-	return clientKbd, nil
+	trace.AddStep("Keyboard-Interactive Auth", fmt.Sprintf("PAM rejected for '%s@%s'", target.Username, addr), "FAILED", errKbd)
+
+	return nil, normalizeSSHAuthFailure(errPass)
 }
 
 func isNetworkDialFailure(err error) bool {
@@ -83,20 +95,28 @@ func normalizeSSHAuthFailure(err error) error {
 	if strings.Contains(msg, "unexpected message type 51") ||
 		strings.Contains(msg, "unable to authenticate") ||
 		strings.Contains(msg, "handshake failed") {
-		return fmt.Errorf("ssh: authentication failed: invalid password or remote server rejected credentials")
+		return fmt.Errorf("ssh: authentication failed: invalid password or remote server rejected credentials: %w", err)
 	}
 	return err
 }
 
 func tryConnectDefaultKey(target *SSHTarget) *ssh.Client {
-	for _, keyPath := range findAllUserSSHKeys() {
+	trace := GetActiveSSHTrace()
+	keys := findAllUserSSHKeys()
+	for _, keyPath := range keys {
 		res := loadPrivateKeySigner(keyPath)
 		if !res.hasSigner {
 			continue
 		}
 		if client := dialNodeWithSigner(target, res.signer); client != nil {
+			trace.AddStep("Public Key Auth", fmt.Sprintf("authenticated using %s", filepath.Base(keyPath)), "SUCCESS", nil)
+
 			return client
 		}
 	}
+	if len(keys) > 0 {
+		trace.AddStep("Public Key Auth", fmt.Sprintf("checked %d default user keys, none accepted", len(keys)), "SKIPPED", nil)
+	}
+
 	return nil
 }

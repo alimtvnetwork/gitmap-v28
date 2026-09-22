@@ -152,11 +152,19 @@ func autoTrustTargetHost(ctx context.Context, target *SSHTarget) {
 }
 
 func resolveTargetClient(ctx context.Context, opts *SSHJoinOptions) enrollSession {
+	trace := GetActiveSSHTrace()
 	isReachable := probeTCPQuick(opts.Target.IP, opts.Target.Port, 800*time.Millisecond)
 	if isReachable == false {
-		return enrollSession{hasClient: false, osType: "linux"}
+		err := fmt.Errorf("network dial unreachable: %s:%d (port 22 closed or timed out)", opts.Target.IP, opts.Target.Port)
+		trace.AddStep("TCP Reachability", fmt.Sprintf("%s:%d unreachable", opts.Target.IP, opts.Target.Port), "FAILED", err)
+
+		return enrollSession{hasClient: false, osType: "linux", err: err}
 	}
+
+	trace.AddStep("TCP Reachability", fmt.Sprintf("%s:%d reachable (port 22 open)", opts.Target.IP, opts.Target.Port), "SUCCESS", nil)
 	autoTrustTargetHost(ctx, opts.Target)
+	trace.AddStep("Host Key Trust", fmt.Sprintf("auto-trusted %s in known_hosts", resolveTargetAddr(opts.Target)), "SUCCESS", nil)
+
 	hasPass := opts.Password != ""
 	if hasPass {
 		return connectWithGivenPass(opts.Target, opts.Password)
@@ -309,21 +317,73 @@ func performConnectedBootstrap(session enrollSession, opts *SSHJoinOptions) *app
 		return nil
 	}
 	defer session.client.Close()
-	_ = ensureRemoteGitmapInstalled(session.client, opts.Alias, session.osType)
-	_ = deployHostPublicKey(session.client, opts.Alias, session.osType)
-	_ = confirmBidirectionalComm(session.client, opts.Alias, session.osType)
+	trace := GetActiveSSHTrace()
+
+	if err := ensureRemoteGitmapInstalled(session.client, opts.Alias, session.osType); err != nil {
+		trace.AddStep("Remote GitMap Check", "bootstrap notice: "+err.Error(), "FAILED", err)
+	} else {
+		trace.AddStep("Remote GitMap Check", "gitmap available on remote", "SUCCESS", nil)
+	}
+
+	if err := deployHostPublicKey(session.client, opts.Alias, session.osType); err != nil {
+		trace.AddStep("Deploy Host Key", "public key notice: "+err.Error(), "FAILED", err)
+	} else {
+		trace.AddStep("Deploy Host Key", "public key deployed", "SUCCESS", nil)
+	}
+
+	if ok := confirmBidirectionalComm(session.client, opts.Alias, session.osType); ok {
+		trace.AddStep("Bidirectional Comm", "communication confirmed", "SUCCESS", nil)
+	} else {
+		trace.AddStep("Bidirectional Comm", "communication check notice", "FAILED", nil)
+	}
+
 	return nil
 }
 
 func checkEnrollAuth(opts *SSHJoinOptions, session enrollSession) error {
-	isFailedAuth := opts.Password != "" && !session.hasClient && session.err != nil
-	if isFailedAuth {
-		fmt.Fprintf(os.Stderr, "  ⚠ Failed to authenticate with remote machine: %v\n", session.err)
-
-		return apperror.WrapSimple(session.err, "ExecuteSSHJoinEnrollment.auth")
+	if session.hasClient {
+		return nil
 	}
 
-	return nil
+	trace := GetActiveSSHTrace()
+	err := session.err
+	if err == nil {
+		err = fmt.Errorf("ssh: authentication failed: invalid password or remote server rejected credentials")
+	}
+
+	hint := buildAuthFailureHint(opts, err)
+	trace.SetInternalError(err, hint)
+	logPath := trace.PersistLog()
+
+	printAuthFailureReport(err, trace, logPath)
+
+	ctx := map[string]any{
+		"target":    opts.Target.String(),
+		"raw_error": err.Error(),
+		"log_path":  logPath,
+		"user":      opts.Target.Username,
+		"host":      opts.Target.IP,
+		"port":      opts.Target.Port,
+	}
+
+	return apperror.Wrap(err, "ExecuteSSHJoinEnrollment.auth", ctx)
+}
+
+func buildAuthFailureHint(opts *SSHJoinOptions, err error) string {
+	if isNetworkDialFailure(err) {
+		return fmt.Sprintf("Verify remote host %s is online, port %d open, and firewall allows SSH.", opts.Target.IP, opts.Target.Port)
+	}
+
+	return fmt.Sprintf("Remote host %s rejected credentials for '%s'. Check password or sshd_config on remote host.", opts.Target.IP, opts.Target.Username)
+}
+
+func printAuthFailureReport(err error, trace *SSHExecutionTrace, logPath string) {
+	fmt.Fprintf(os.Stderr, "  ⚠ Failed to authenticate with remote machine: %v\n", err)
+	if trace != nil {
+		fmt.Fprint(os.Stderr, trace.FormatTerminalReport())
+	}
+	fmt.Fprintf(os.Stderr, "  ℹ To share or inspect full details, view: %s\n", logPath)
+	fmt.Fprintf(os.Stderr, "    Or run: gitmap ssh error-logs\n")
 }
 
 func finalizeEnrollment(ctx context.Context, opts *SSHJoinOptions, session enrollSession) error {
@@ -350,6 +410,8 @@ func ExecuteSSHJoinEnrollment(ctx context.Context, opts *SSHJoinOptions) error {
 	if opts.Target == nil {
 		return apperror.NewValidationError(msgMissingJoinTarget)
 	}
+
+	_ = BeginSSHTrace("ssh join", opts.Target.String(), opts.Target.Username, opts.Target.IP, opts.Target.Port)
 
 	session := resolveTargetClient(ctx, opts)
 	if err := checkEnrollAuth(opts, session); err != nil {

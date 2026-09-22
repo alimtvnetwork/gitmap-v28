@@ -40,6 +40,7 @@ func buildSSHRecoverySection() termhelp.HelpSection {
 			{Command: "undo", Description: "Undo last destructive node deletion or reset"},
 			{Command: "redo", Description: "Redo last undone SSH operation"},
 			{Command: "restore <id>", Description: "Restore nodes from a specific snapshot ID"},
+			{Command: "error-logs [flags]", Description: "Display diagnostic logs and trace from last failed SSH action"},
 		},
 	}
 }

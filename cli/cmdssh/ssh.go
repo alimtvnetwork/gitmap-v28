@@ -98,6 +98,8 @@ func dispatchNodeSSH(ctx context.Context, sub string, args []string, parent *cob
 			return result.MatchWrapper(runSJRm(parent, args[1:], ctx))
 		}
 		return result.UnmatchedWrapper()
+	case "error-logs", "errorlogs", "errors", "err", "logs":
+		return result.MatchWrapper(RunSSHErrorLogsCLI(args))
 	default:
 		return result.UnmatchedWrapper()
 	}

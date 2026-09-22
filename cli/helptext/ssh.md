@@ -35,6 +35,7 @@ Manages SSH key pairs for Git authentication.
 | macro      | m     | Synchronize, export, or import macros across SSH machines |
 | export-all |       | Export all settings, macros, config & SSH data from local to nodes |
 | import-all |       | Import all settings, macros, config & SSH data from a remote node |
+| error-logs | err, errors, logs | Query and display error logs and execution trace from last SSH operations |
 
 ## Flags (generate)
 
