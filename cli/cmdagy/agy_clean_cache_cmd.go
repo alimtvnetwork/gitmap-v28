@@ -1,165 +1,93 @@
-// Package cmdagy — agy_clean_cache_cmd.go defines the CLI command for agy clean-cache.
+// Package cmdagy — agy_clean_cache_cmd.go defines CLI commands for cache clear and retention.
 package cmdagy
 
 import (
-	"fmt"
-	"time"
+	"strconv"
 
 	"github.com/spf13/cobra"
-
-	"github.com/alimtvnetwork/gitmap-v28/cli/constants"
 )
 
 var (
 	agyCleanDryRun      bool
+	agyCleanPreflight   bool
 	agyCleanYes         bool
 	agyCleanForce       bool
 	agyCleanNoKill      bool
 	agyCleanJSON        bool
 	agyCleanIncludeTemp bool
+	agyCleanKeep        int
 )
 
 var agyCleanCacheCmd = &cobra.Command{
-	Use:     "clean-cache",
-	Aliases: []string{"cleancache", "clean_cache", "cc"},
-	Short:   "Clean Antigravity and browser cache stores and close locking processes",
-	Long: `Cleans Chromium, Dawn WebGPU, shader, and scratch caches for Antigravity.
-Optionally closes locking processes (antigravity, electron, msedge, msedgewebview2) to ensure
-clean unlinking of cached assets.
-
-Protected locations (transcripts, conversation history, user settings, projects)
-are strictly preserved.`,
+	Use:     "clean-cache [keep-count]",
+	Aliases: []string{"cache-clear", "cleancache", "clean_cache", "cc"},
+	Short:   "Clean Antigravity cache stores and prune conversations with retention",
 	RunE: func(cmd *cobra.Command, args []string) error {
-		opts := CleanCacheOptions{
-			DryRun:      agyCleanDryRun,
-			Force:       agyCleanForce,
-			Yes:         agyCleanYes || agyCleanForce,
-			NoKill:      agyCleanNoKill,
-			JSON:        agyCleanJSON,
-			IncludeTemp: agyCleanIncludeTemp,
-		}
+		keep := resolveKeepCount(args, agyCleanKeep)
+		opts := buildCleanCacheOpts(keep, agyCleanDryRun, agyCleanPreflight)
+		return ExecuteCleanCache(opts)
+	},
+}
 
+var agyCacheClearKeepOneCmd = &cobra.Command{
+	Use:     "cache-clear-keep-one",
+	Aliases: []string{"ccko", "cache-clear-keep-1", "cc-keep-one"},
+	Short:   "Clean Antigravity cache keeping only the single most recent conversation",
+	RunE: func(cmd *cobra.Command, args []string) error {
+		opts := buildCleanCacheOpts(1, agyCleanDryRun, agyCleanPreflight)
+		return ExecuteCleanCache(opts)
+	},
+}
+
+var agyCacheClearKeepFiveCmd = &cobra.Command{
+	Use:     "cache-clear-keep-five",
+	Aliases: []string{"cckf", "cache-clear-keep-5", "cc-keep-five"},
+	Short:   "Clean Antigravity cache keeping the top 5 most recent conversations",
+	RunE: func(cmd *cobra.Command, args []string) error {
+		opts := buildCleanCacheOpts(5, agyCleanDryRun, agyCleanPreflight)
 		return ExecuteCleanCache(opts)
 	},
 }
 
 func init() {
-	agyCleanCacheCmd.Flags().BoolVarP(&agyCleanDryRun, "dry-run", "d", false, "Preview cache targets and processes without deleting")
-	agyCleanCacheCmd.Flags().BoolVarP(&agyCleanYes, "yes", "y", false, "Proceed with cleanup without interactive prompt")
-	agyCleanCacheCmd.Flags().BoolVarP(&agyCleanForce, "force", "f", false, "Force terminate processes and proceed without confirmation")
-	agyCleanCacheCmd.Flags().BoolVar(&agyCleanNoKill, "no-kill", false, "Skip terminating running processes before cleaning")
-	agyCleanCacheCmd.Flags().BoolVar(&agyCleanJSON, "json", false, "Output results in JSON format")
-	agyCleanCacheCmd.Flags().BoolVar(&agyCleanIncludeTemp, "include-temp", false, "Include system/user temp directory in cleanup")
+	bindCleanCacheFlags(agyCleanCacheCmd)
+	bindCleanCacheFlags(agyCacheClearKeepOneCmd)
+	bindCleanCacheFlags(agyCacheClearKeepFiveCmd)
 }
 
-// ExecuteCleanCache orchestrates cache target discovery, process termination, and cache wiping.
-func ExecuteCleanCache(opts CleanCacheOptions) error {
-	startTime := time.Now()
-	targets := DiscoverCacheTargets(opts.IncludeTemp)
-	procs, _ := DiscoverTargetProcesses()
-
-	report := BuildBaseCacheReport(opts, targets, procs)
-
-	if opts.DryRun {
-		return handleDryRun(opts, report, targets, procs)
-	}
-
-	if !isConfirmed(opts, targets, procs) {
-		fmt.Printf("\n%sCleanup canceled. No changes made.%s\n\n", constants.ColorYellow, constants.ColorReset)
-		return nil
-	}
-
-	return executeActualClean(opts, report, targets, procs, startTime)
+func bindCleanCacheFlags(cmd *cobra.Command) {
+	cmd.Flags().BoolVarP(&agyCleanDryRun, "dry-run", "d", false, "Preview cache targets and processes without deleting")
+	cmd.Flags().BoolVar(&agyCleanPreflight, "preflight", false, "Simulate cleanup and retention analysis (alias: --pre, --precheck)")
+	cmd.Flags().BoolVar(&agyCleanPreflight, "pre", false, "Simulate cleanup and retention analysis")
+	cmd.Flags().BoolVar(&agyCleanPreflight, "precheck", false, "Simulate cleanup and retention analysis")
+	cmd.Flags().BoolVarP(&agyCleanYes, "yes", "y", false, "Proceed with cleanup without interactive prompt")
+	cmd.Flags().BoolVarP(&agyCleanForce, "force", "f", false, "Force terminate processes and proceed without confirmation")
+	cmd.Flags().BoolVar(&agyCleanNoKill, "no-kill", false, "Skip terminating running processes before cleaning")
+	cmd.Flags().BoolVar(&agyCleanJSON, "json", false, "Output results in JSON format")
+	cmd.Flags().BoolVar(&agyCleanIncludeTemp, "include-temp", false, "Include system/user temp directory in cleanup")
+	cmd.Flags().IntVarP(&agyCleanKeep, "keep", "k", 10, "Number of conversations to retain (default: 10)")
 }
 
-func isConfirmed(opts CleanCacheOptions, targets []AgyCacheTarget, procs []AgyProcessInfo) bool {
-	if opts.Yes || opts.JSON {
-		return true
+func resolveKeepCount(args []string, defaultKeep int) int {
+	if len(args) == 0 {
+		return defaultKeep
 	}
-	RenderCleanPreview(targets, procs)
-	return AskProceedConfirmation()
+	val, err := strconv.Atoi(args[0])
+	if err == nil && val >= 0 {
+		return val
+	}
+	return defaultKeep
 }
 
-func handleDryRun(opts CleanCacheOptions, report CleanCacheReport, targets []AgyCacheTarget, procs []AgyProcessInfo) error {
-	var totalBytes int64
-	var totalFiles int
-
-	for _, t := range targets {
-		if t.Exists {
-			totalBytes += t.SizeBytes
-			totalFiles += t.FileCount
-		}
+func buildCleanCacheOpts(keep int, dryRun, preflight bool) CleanCacheOptions {
+	return CleanCacheOptions{
+		DryRun:      dryRun,
+		Preflight:   preflight,
+		Force:       agyCleanForce,
+		Yes:         agyCleanYes || agyCleanForce,
+		NoKill:      agyCleanNoKill,
+		JSON:        agyCleanJSON,
+		IncludeTemp: agyCleanIncludeTemp,
+		Keep:        keep,
 	}
-
-	report.BytesFreed = totalBytes
-	report.HumanFreed = FormatBytes(totalBytes)
-	report.FilesDeleted = totalFiles
-
-	if opts.JSON {
-		return RenderCleanJSON(report)
-	}
-
-	RenderCleanPreview(targets, procs)
-	fmt.Printf("\n%sℹ [dry-run] %d location(s) inspected; %s across %d file(s) would be cleaned.%s\n\n",
-		constants.ColorYellow, len(targets), report.HumanFreed, totalFiles, constants.ColorReset)
-
-	return nil
-}
-
-func executeActualClean(
-	opts CleanCacheOptions,
-	report CleanCacheReport,
-	targets []AgyCacheTarget,
-	procs []AgyProcessInfo,
-	startTime time.Time,
-) error {
-	if isTerminationRequired(opts, procs) {
-		logProcessTermination(opts.JSON, len(procs))
-		killed, warnings := TerminateProcesses(procs)
-		report.ProcessesTerminated = killed
-		report.Warnings = append(report.Warnings, warnings...)
-	}
-
-	logCacheCleaning(opts.JSON)
-
-	for _, t := range targets {
-		if !t.Exists {
-			continue
-		}
-		freed, files, warnings := CleanDirectoryContents(t.Path)
-		report.BytesFreed += freed
-		report.FilesDeleted += files
-		report.Warnings = append(report.Warnings, warnings...)
-	}
-
-	report.HumanFreed = FormatBytes(report.BytesFreed)
-	report.DurationMs = time.Since(startTime).Milliseconds()
-
-	if opts.JSON {
-		return RenderCleanJSON(report)
-	}
-
-	RenderCleanSuccess(report)
-	return nil
-}
-
-func isTerminationRequired(opts CleanCacheOptions, procs []AgyProcessInfo) bool {
-	if opts.NoKill || len(procs) == 0 {
-		return false
-	}
-	return true
-}
-
-func logProcessTermination(isJSON bool, count int) {
-	if isJSON {
-		return
-	}
-	fmt.Printf("\n%sClosing %d process(es)...%s\n", constants.ColorYellow, count, constants.ColorReset)
-}
-
-func logCacheCleaning(isJSON bool) {
-	if isJSON {
-		return
-	}
-	fmt.Printf("%sCleaning cache directories...%s\n", constants.ColorCyan, constants.ColorReset)
 }

@@ -168,8 +168,14 @@ func normalizeMaintenanceSubcommands(low string) string {
 	if low == "install" || low == "in" || low == "i" {
 		return "install"
 	}
-	if low == "clean-cache" || low == "cleancache" || low == "clean_cache" || low == "cc" {
+	if low == "clean-cache" || low == "cleancache" || low == "clean_cache" || low == "cc" || low == "cache-clear" {
 		return "clean-cache"
+	}
+	if low == "cache-clear-keep-one" || low == "ccko" || low == "cc-keep-one" || low == "cache-clear-keep-1" {
+		return "cache-clear-keep-one"
+	}
+	if low == "cache-clear-keep-five" || low == "cckf" || low == "cc-keep-five" || low == "cache-clear-keep-5" {
+		return "cache-clear-keep-five"
 	}
 	if low == "ping" || low == "check" {
 		return "ping"
@@ -330,6 +336,8 @@ func registerAgyUtilityCommands() {
 	AgyCmd.AddCommand(agySettingsCmd)
 	AgyCmd.AddCommand(agyPinProjectsCmd)
 	AgyCmd.AddCommand(agyCleanCacheCmd)
+	AgyCmd.AddCommand(agyCacheClearKeepOneCmd)
+	AgyCmd.AddCommand(agyCacheClearKeepFiveCmd)
 	AgyCmd.AddCommand(agyFixPipelineCmd)
 	AgyCmd.AddCommand(agyRerunCmd)
 	AgyCmd.AddCommand(agyListPromptsCmd)

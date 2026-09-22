@@ -9,7 +9,8 @@ Master directory of architectural and execution plans.
 
 ## Recent Completed Tasks Register (Last 20 Tasks)
 
-1. [55-deep-raw-error-audit-codebase.md](completed/55-deep-raw-error-audit-codebase.md): Deep Codebase Raw Error Audit, Elimination of Swallowed Errors, AGY Workspace Suite (rm, pins, rrr, rrpr), and Conv Name/ID Display in Table
+1. [56-agy-cache-clear-retention-undo.md](completed/56-agy-cache-clear-retention-undo.md): AGY Cache Clear Retention (--keep 10), Preflight Simulation (--pre, --precheck, --preflight), Undo Backup & Direct Convenience Commands (ccko, cckf)
+2. [55-deep-raw-error-audit-codebase.md](completed/55-deep-raw-error-audit-codebase.md): Deep Codebase Raw Error Audit, Elimination of Swallowed Errors, AGY Workspace Suite (rm, pins, rrr, rrpr), and Conv Name/ID Display in Table
 2. [54-raw-error-audit-and-agy-improvements.md](completed/54-raw-error-audit-and-agy-improvements.md): Raw Error Audit, Elimination of Swallowed Errors, AGY Workspace Suite (rm, pins, rrr, rrpr), and Conv Name/ID Display in Table
 2. [51-winutil-and-linutil-os-autologin-and-tweaks.md](completed/51-winutil-and-linutil-os-autologin-and-tweaks.md): WinUtil & LinUtil Native Go Integration: OS Auto-Login (Windows & Ubuntu), System Tweaks & Maintenance
 2. [50-finalize-missing-elements-pipeline-tasks-scriptsfixer-ai-logging.md](completed/50-finalize-missing-elements-pipeline-tasks-scriptsfixer-ai-logging.md): Finalize Missing Elements (Pipeline Tasks DB, scripts-fixer Beyond Compare, AI Execution Logging)

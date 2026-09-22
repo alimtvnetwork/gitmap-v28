@@ -10,6 +10,12 @@ import (
 )
 
 func runAgyUndo() error {
+	restoredConvs, hasCacheBackup, _ := restoreLatestCacheClearBackup()
+	if hasCacheBackup && restoredConvs > 0 {
+		fmt.Printf("%s Restored %d conversation(s) from temporary cache backup.\n",
+			constants.ColorGreen+"✓"+constants.ColorReset, restoredConvs)
+	}
+
 	snapshots, err := listAgySnapshots()
 	if err != nil {
 		return fmt.Errorf("list snapshots: %w", err.Unwrap())
@@ -20,9 +26,11 @@ func runAgyUndo() error {
 		chosen = snapshots[len(snapshots)-1]
 	}
 
-	if chosen == "" {
+	if chosen == "" && (!hasCacheBackup || restoredConvs == 0) {
 		fmt.Printf("%s No Antigravity snapshots available to undo.\n", constants.ColorYellow+"ℹ"+constants.ColorReset)
-
+		return nil
+	}
+	if chosen == "" {
 		return nil
 	}
 
