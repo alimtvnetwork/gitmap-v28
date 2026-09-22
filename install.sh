@@ -305,6 +305,25 @@ resolve_version() {
 
 download() {
     local url="$1" dest="$2"
+    if command -v aria2c >/dev/null 2>&1; then
+        step "Delegating download request to aria2c accelerator..."
+        step "Accelerating download with aria2c (16 connections, 80 splits, 1MB chunks)..."
+        local dest_dir
+        dest_dir="$(dirname "${dest}")"
+        local dest_file
+        dest_file="$(basename "${dest}")"
+        if aria2c --disable-ipv6=true -x 16 -s 80 -j 16 -k 1M \
+            --allow-overwrite=true --auto-file-renaming=false \
+            --summary-interval=0 --console-log-level=error --show-console-readout=false \
+            -d "${dest_dir}" -o "${dest_file}" "${url}" >/dev/null 2>&1; then
+            if [ -f "${dest}" ] && [ -s "${dest}" ]; then
+                step "Download completed successfully via aria2c."
+                return 0
+            fi
+        fi
+        warn "aria2c failed; delegating download request to secondary downloader..."
+    fi
+
     if command -v curl >/dev/null 2>&1; then
         curl -fsSL -o "${dest}" "${url}"
     elif command -v wget >/dev/null 2>&1; then
@@ -1508,11 +1527,27 @@ parse_args() {
     # for the original motivating use case (pwsh user on macOS).
     PROFILE_MODE="auto"
 
+    if [ -z "${VERSION:-}" ]; then
+        if [ -n "${GITMAP_VERSION:-}" ]; then
+            VERSION="$GITMAP_VERSION"
+        elif [ -n "${INSTALLER_VERSION:-}" ]; then
+            VERSION="$INSTALLER_VERSION"
+        fi
+    fi
+
     while [ $# -gt 0 ]; do
         case "$1" in
-            --version)
+            --version|-v)
                 VERSION="$2"
                 shift 2
+                ;;
+            --version=*|-v=*)
+                VERSION="${1#*=}"
+                shift
+                ;;
+            v[0-9]*|[0-9]*)
+                VERSION="$1"
+                shift
                 ;;
             --dir)
                 INSTALL_DIR="$2"

@@ -40,28 +40,30 @@ _Scan, catalog, clone, and manage all your Git repositories from a single CLI._
 
 GitMap is a **Windows-first** project. The commands below install the latest release with sensible defaults - no prompts, no drive picker. Use the Quick block if you want to pick a custom install drive.
 
-### 🪟 Windows · PowerShell (latest)
+### 🪟 Windows · PowerShell
 
+#### Direct Latest Install (Auto-Updating)
 ```powershell
 irm https://raw.githubusercontent.com/alimtvnetwork/gitmap-v28/main/install.ps1 | iex
 ```
 
-### 🐧 macOS · Linux · Bash (latest)
+#### Pinned Version Install (v6.308.0)
+```powershell
+irm https://raw.githubusercontent.com/alimtvnetwork/gitmap-v28/v6.308.0/install.ps1 | iex
+```
 
+---
+
+### 🐧 macOS · Linux · Bash
+
+#### Direct Latest Install (Auto-Updating)
 ```bash
 curl -fsSL https://raw.githubusercontent.com/alimtvnetwork/gitmap-v28/main/install.sh | sh
 ```
 
-### 📌 Pinned version (v6.262.0)
-
-Install a specific version without auto-updating:
-
+#### Pinned Version Install (v6.308.0)
 ```bash
-curl -sL https://raw.githubusercontent.com/alimtvnetwork/gitmap-v28/v6.262.0/install.sh | bash -s -- ".ai-memory/prompts" "v6.262.0"
-```
-
-```powershell
-Invoke-WebRequest -Uri https://raw.githubusercontent.com/alimtvnetwork/gitmap-v28/v6.262.0/install.ps1 -OutFile install.ps1; .\install.ps1 -TargetDir ".ai-memory/prompts" -Version "v6.262.0"
+curl -fsSL https://raw.githubusercontent.com/alimtvnetwork/gitmap-v28/v6.308.0/install.sh | sh
 ```
 
 ### 🎯 Install — Quick (pick your install drive)

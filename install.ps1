@@ -64,8 +64,37 @@ param(
     [switch]$DryRun
 )
 
+if (-not $Version) {
+    if ($env:GITMAP_VERSION) {
+        $Version = $env:GITMAP_VERSION
+    } elseif ($env:VERSION) {
+        $Version = $env:VERSION
+    } elseif ($env:INSTALLER_VERSION) {
+        $Version = $env:INSTALLER_VERSION
+    } elseif ($args -and $args.Count -gt 0) {
+        if ($args[0] -match '^[vV]?[0-9]+\.[0-9]+') {
+            $Version = $args[0]
+        }
+    } else {
+        # Detect raw tag URL from command line or invocation
+        try {
+            $rawTagRegex = '(?i)(?:releases/download/|raw\.githubusercontent\.com/[^/]+/[^/]+/)(?:v)?([0-9]+\.[0-9]+(?:\.[0-9]+)?(?:-[a-zA-Z0-9.]+)?)/'
+            $candidates = @()
+            if ($MyInvocation.Line) { $candidates += $MyInvocation.Line }
+            if ($MyInvocation.Statement) { $candidates += $MyInvocation.Statement }
+            $candidates += [System.Environment]::CommandLine
+            foreach ($c in $candidates) {
+                if ($c -match $rawTagRegex) {
+                    $Version = "v$($Matches[1])"
+                    break
+                }
+            }
+        } catch {}
+    }
+}
+
 $script:ExplicitVersion = $Version
-$script:IsExplicitVersion = $PSBoundParameters.ContainsKey('Version') -and (-not [string]::IsNullOrWhiteSpace($Version))
+$script:IsExplicitVersion = (-not [string]::IsNullOrWhiteSpace($Version))
 
 $ErrorActionPreference = "Stop"
 $ProgressPreference = "SilentlyContinue"
@@ -602,6 +631,34 @@ function Write-MissingAssetError([string]$version, [string]$arch,
     Write-Err ""
 }
 
+function Invoke-Aria2cDownload([string]$url, [string]$outPath) {
+    $aria2 = Get-Command aria2c.exe -ErrorAction SilentlyContinue
+    if (-not $aria2) { $aria2 = Get-Command aria2c -ErrorAction SilentlyContinue }
+    if ($aria2) {
+        Write-Step "Delegating download request to aria2c accelerator..."
+        Write-Step "Accelerating download with aria2c (16 connections, 80 splits, 1MB chunks)..."
+        $destDir = Split-Path -Parent $outPath
+        $destFile = Split-Path -Leaf $outPath
+        $ariaArgs = @(
+            "--disable-ipv6=true", "-x", "16", "-s", "80", "-j", "16", "-k", "1M",
+            "--file-allocation=none", "--allow-overwrite=true", "--auto-file-renaming=false",
+            "--summary-interval=0", "--console-log-level=error", "--show-console-readout=false",
+            "--dir=$destDir", "-o", "$destFile", "$url"
+        )
+        try {
+            $p = Start-Process -FilePath $aria2.Source -ArgumentList $ariaArgs -NoNewWindow -Wait -PassThru -ErrorAction Stop
+            if ($p.ExitCode -eq 0 -and (Test-Path $outPath) -and (Get-Item $outPath).Length -gt 0) {
+                Write-OK "Download completed successfully via aria2c."
+                return $true
+            }
+            Write-Warning "aria2c finished with code $($p.ExitCode); delegating download request to secondary downloader..."
+        } catch {
+            Write-Warning "aria2c encountered an error: $_. Delegating download request to secondary downloader..."
+        }
+    }
+    return $false
+}
+
 # --- Download asset ---
 
 function Get-Asset([string]$assetVer, [string]$assetArch) {
@@ -683,7 +740,9 @@ function Get-Asset([string]$assetVer, [string]$assetArch) {
     Write-Step "Downloading $assetName ($assetVer)..."
 
     try {
-        Invoke-WebRequest -Uri $assetUrl -OutFile $zipPath -UseBasicParsing
+        if (-not (Invoke-Aria2cDownload -url $assetUrl -outPath $zipPath)) {
+            Invoke-WebRequest -Uri $assetUrl -OutFile $zipPath -UseBasicParsing
+        }
         Invoke-WebRequest -Uri $checksumUrl -OutFile $checksumPath -UseBasicParsing
     }
     catch {
