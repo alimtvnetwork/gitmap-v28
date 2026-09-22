@@ -41,7 +41,7 @@ func runReleaseUndo(args []string) error {
 
 	v, err := release.Parse(version)
 	if err != nil {
-		return apperror.NewSimple(constants.ErrReleaseInvalidVersion, "E9000")
+		return apperror.WrapSimple(err, constants.ErrReleaseInvalidVersion)
 	}
 
 	tag := "v" + v.String()

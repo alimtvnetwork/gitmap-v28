@@ -80,7 +80,7 @@ func parseParallelOrHelp(arg string, nextArg string, opts *clusterExecOptions) (
 	}
 	val, consumed, err := parseParallelFlag(arg, nextArg)
 	if err != nil {
-		return 0, false, apperror.NewValidationError("invalid parallel value")
+		return 0, false, apperror.WrapValidation(err, "invalid parallel value")
 	}
 	if consumed > 0 {
 		opts.parallel = val

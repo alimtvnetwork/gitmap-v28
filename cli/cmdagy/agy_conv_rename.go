@@ -12,7 +12,7 @@ import (
 func renameProjectInitialConversation(p AgyProject, newTitle string) error {
 	dbPath, err := getConversationSummariesDBPath()
 	if err != nil {
-		return nil
+		return apperror.WrapSimple(err, "get conversation summaries db path")
 	}
 
 	conn, openErr := store.OpenSQLiteDB(dbPath)
@@ -22,8 +22,11 @@ func renameProjectInitialConversation(p AgyProject, newTitle string) error {
 	defer conn.Close()
 
 	convID, findErr := findLatestConvIDForProject(conn, p)
-	if findErr != nil || convID == "" {
+	if findErr != nil {
 		return findErr
+	}
+	if convID == "" {
+		return nil
 	}
 
 	return executeConversationTitleUpdate(conn, convID, newTitle)

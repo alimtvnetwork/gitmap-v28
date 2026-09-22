@@ -5,7 +5,6 @@ import (
 	"encoding/json"
 	"fmt"
 	"os"
-	"path/filepath"
 
 	"github.com/alimtvnetwork/gitmap-v28/cli/apperror"
 	"github.com/alimtvnetwork/gitmap-v28/cli/constants"
@@ -34,16 +33,23 @@ func runAgyRmRejoin(args []string, isPin bool) error {
 
 func executeRmRejoinTargets(targets []AgyProject, isPin bool) error {
 	_, _ = snapshotAgyProjects("pre-rrr")
+	var lastErr error
+	rejoinedCount := 0
 
 	for _, p := range targets {
 		if err := processSingleRmRejoin(p, isPin); err != nil {
+			lastErr = err
 			fmt.Printf("  %s✗ Failed rm-rejoin for %s: %v%s\n",
 				constants.ColorRed, p.Name, err, constants.ColorReset)
 			continue
 		}
+		rejoinedCount++
 	}
 
 	printAgyUndoGuidance()
+	if rejoinedCount == 0 && lastErr != nil {
+		return apperror.WrapSimple(lastErr, "rm-rejoin failed")
+	}
 	return nil
 }
 
@@ -51,8 +57,14 @@ func processSingleRmRejoin(p AgyProject, isPin bool) error {
 	inv, _ := json.Marshal(p)
 	_ = recordAgyTask("rm-rejoin-read", p.Name, p.ID, string(inv))
 
-	purged, _ := purgeProjectConversations(p)
-	_ = deleteProjectFile(p.ID)
+	purged, purgeErr := purgeProjectConversations(p)
+	if purgeErr != nil {
+		fmt.Printf("  %s! Notice: conversation purge: %v%s\n",
+			constants.ColorYellow, purgeErr, constants.ColorReset)
+	}
+	if err := deleteProjectFile(p.ID); err != nil && !os.IsNotExist(err) {
+		return apperror.WrapSimple(err, "delete project file before rejoin")
+	}
 
 	if err := rejoinAgyProject(p); err != nil {
 		return err
@@ -60,12 +72,22 @@ func processSingleRmRejoin(p AgyProject, isPin bool) error {
 	fmt.Printf("  %s✓ Rejoined project '%s' (purged %d convs)%s\n",
 		constants.ColorGreen, p.Name, purged, constants.ColorReset)
 
-	if isPin {
-		_, _ = addPinnedProjectTarget(p.ID)
-		fmt.Printf("  %s✓ Pinned project '%s'%s\n", constants.ColorGreen, p.Name, constants.ColorReset)
+	if err := handleRejoinPin(p, isPin); err != nil {
+		return err
 	}
 
 	return dispatchProjectReadPrompt(p)
+}
+
+func handleRejoinPin(p AgyProject, isPin bool) error {
+	if !isPin {
+		return nil
+	}
+	if _, pinErr := addPinnedProjectTarget(p.ID); pinErr != nil {
+		return apperror.WrapSimple(pinErr, "pin project on rejoin")
+	}
+	fmt.Printf("  %s✓ Pinned project '%s'%s\n", constants.ColorGreen, p.Name, constants.ColorReset)
+	return nil
 }
 
 func rejoinAgyProject(p AgyProject) error {
@@ -75,22 +97,5 @@ func rejoinAgyProject(p AgyProject) error {
 	if p.GetPath() != "" {
 		workspacesync.SyncAntigravity(p.GetPath(), p.Name)
 	}
-	return nil
-}
-
-func dispatchProjectReadPrompt(p AgyProject) error {
-	ideProc := DetectRunningAntigravityIDE()
-	pid := 0
-	if ideProc.IsSuccess() {
-		pid = ideProc.Value.PID
-	}
-	promptPath := filepath.Join(os.TempDir(), fmt.Sprintf("agy-read-prompt-%s.txt", p.ID))
-	_ = os.WriteFile(promptPath, []byte(defaultReadMemoryPrompt), 0644)
-
-	res := DispatchPromptToAntigravity(p.GetPath(), promptPath, p.Name, defaultReadMemoryPrompt, pid)
-	if res.IsSuccess {
-		fmt.Printf("  %s %s\n", constants.ColorGreen+"✓"+constants.ColorReset, res.Message)
-	}
-	_ = renameProjectInitialConversation(p, p.Name)
 	return nil
 }

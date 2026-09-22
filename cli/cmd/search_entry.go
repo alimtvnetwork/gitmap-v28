@@ -148,7 +148,7 @@ func runRepoSearchJson(args []string) error {
 	if err != nil {
 		fmt.Println("[]")
 
-		return apperror.NewSimple("fatal error", "E9000")
+		return apperror.WrapSimple(err, "repo search fatal error")
 	}
 
 	defer mainDB.Close()
@@ -183,7 +183,7 @@ func runRepoSearchRegexJson(args []string) error {
 	if err != nil {
 		fmt.Println("[]")
 
-		return apperror.NewSimple("fatal error", "E9000")
+		return apperror.WrapSimple(err, "repo regex search fatal error")
 	}
 
 	defer mainDB.Close()

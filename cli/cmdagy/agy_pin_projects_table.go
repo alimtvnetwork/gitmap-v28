@@ -9,8 +9,7 @@ import (
 
 func renderPinnedProjectsTable(projects []PinnedProject) {
 	if len(projects) == 0 {
-		fmt.Printf("\n  %sNo pinned Antigravity projects found.%s\n", constants.ColorDim, constants.ColorReset)
-		fmt.Printf("  Pin a project with: %sgitmap agy pin-projects add <project-id-or-path>%s\n\n", constants.ColorCyan, constants.ColorReset)
+		printPinnedEmptyState()
 		return
 	}
 
@@ -80,4 +79,14 @@ func printPinnedTableRow(c *pinnedTableContext, p PinnedProject, index int) {
 
 	fmt.Printf("  %s%s%s%s%s%s%s%s%s%s%s%s%s\n",
 		seqCol, gap, projectCol, gap, idCol, gap, branchCol, gap, statusCol, gap, pinnedCol, gap, p.Path)
+}
+
+func printPinnedEmptyState() {
+	fmt.Printf("\n  %sNo pinned Antigravity projects found.%s\n", constants.ColorDim, constants.ColorReset)
+	fmt.Printf("  Pin a project with: %sgitmap agy pins add <seq|id|slug>%s\n\n", constants.ColorCyan, constants.ColorReset)
+	fmt.Printf("  %sCommands:%s\n", constants.ColorWhite, constants.ColorReset)
+	fmt.Printf("    • %sgitmap agy pins add <target...>%s   Pin projects\n", constants.ColorCyan, constants.ColorReset)
+	fmt.Printf("    • %sgitmap agy pins rm <target...>%s    Unpin projects\n", constants.ColorCyan, constants.ColorReset)
+	fmt.Printf("    • %sgitmap agy pins edit <target> <name>%s Rename a pin\n", constants.ColorCyan, constants.ColorReset)
+	fmt.Printf("    • %sgitmap agy pins help%s                Show help guide\n\n", constants.ColorCyan, constants.ColorReset)
 }

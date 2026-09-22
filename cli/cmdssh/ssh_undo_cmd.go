@@ -109,7 +109,7 @@ func RunSSHRestoreCLI(args []string) error {
 	ctx := context.Background()
 	task, err := GetSSHHistoryTaskByID(ctx, args[0])
 	if err != nil {
-		return apperror.NewValidationError(fmt.Sprintf("task '%s' not found in SSH history", args[0]))
+		return apperror.WrapValidation(err, fmt.Sprintf("task '%s' not found in SSH history", args[0]))
 	}
 
 	return executeTaskRestore(ctx, task)

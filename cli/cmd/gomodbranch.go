@@ -84,7 +84,7 @@ func createBranchAtHead(branch string) error {
 	cmd.Stderr = os.Stderr
 	err := cmd.Run()
 	if err != nil {
-		return apperror.NewSimple(constants.ErrGoModBranchExists, "E9000")
+		return apperror.WrapSimple(err, constants.ErrGoModBranchExists)
 	}
 
 	return nil

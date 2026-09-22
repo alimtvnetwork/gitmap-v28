@@ -4,6 +4,8 @@ package cmdagy
 type agyTableRow struct {
 	ID        string
 	Name      string
+	ConvName  string
+	ConvID    string
 	Branch    string
 	Status    string
 	Updated   string
@@ -12,24 +14,28 @@ type agyTableRow struct {
 }
 
 type agyTableContext struct {
-	Rows       []agyTableRow
-	MaxSeq     int
-	MaxProject int
-	MaxID      int
-	MaxBranch  int
-	MaxStatus  int
-	MaxUpdated int
+	Rows        []agyTableRow
+	MaxSeq      int
+	MaxProject  int
+	MaxID       int
+	MaxConvName int
+	MaxConvID   int
+	MaxBranch   int
+	MaxStatus   int
+	MaxUpdated  int
 }
 
 func newAgyTableContext() *agyTableContext {
 	return &agyTableContext{
-		Rows:       make([]agyTableRow, 0),
-		MaxSeq:     3,
-		MaxProject: 18,
-		MaxID:      10,
-		MaxBranch:  8,
-		MaxStatus:  14,
-		MaxUpdated: 9,
+		Rows:        make([]agyTableRow, 0),
+		MaxSeq:      3,
+		MaxProject:  16,
+		MaxID:       10,
+		MaxConvName: 16,
+		MaxConvID:   10,
+		MaxBranch:   8,
+		MaxStatus:   14,
+		MaxUpdated:  9,
 	}
 }
 
@@ -52,22 +58,27 @@ func (c *agyTableContext) addRow(r agyTableRow) {
 func (c *agyTableContext) updateMaxColumnWidths(r agyTableRow) {
 	c.MaxProject = max(c.MaxProject, len(r.Name))
 	c.MaxID = max(c.MaxID, len(r.ID))
+	c.MaxConvName = max(c.MaxConvName, len(r.ConvName))
+	c.MaxConvID = max(c.MaxConvID, len(r.ConvID))
 	c.MaxBranch = max(c.MaxBranch, len(r.Branch))
 	c.MaxUpdated = max(c.MaxUpdated, len(r.Updated))
 }
 
-func buildAgyTableRow(p AgyProject) agyTableRow {
+func buildAgyTableRow(p AgyProject, convMap map[string]AgyLatestConv) agyTableRow {
 	path := p.GetPath()
 	isMissing := path != "" && !checkDirExists(path)
 	status, displayPath := resolveRowStatusAndPath(path)
+	convTitle, convID := resolveProjectConvDetails(p.ID, convMap)
 
 	return agyTableRow{
 		ID:        shortProjectId(p.ID),
-		Name:      truncateMiddle(p.Name, 26),
+		Name:      truncateMiddle(p.Name, 24),
+		ConvName:  truncateMiddle(convTitle, 24),
+		ConvID:    shortProjectId(convID),
 		Branch:    resolveRowBranch(p.GetBranch()),
 		Status:    status,
 		Updated:   formatRelativeTime(p.UpdatedAt),
-		Path:      truncateMiddle(displayPath, 42),
+		Path:      truncateMiddle(displayPath, 36),
 		IsMissing: isMissing,
 	}
 }
@@ -76,7 +87,6 @@ func resolveRowBranch(branch string) string {
 	if branch == "" {
 		return "—"
 	}
-
 	return branch
 }
 
@@ -84,6 +94,5 @@ func resolveRowStatusAndPath(path string) (string, string) {
 	if path == "" {
 		return "global", "—"
 	}
-
 	return "active", path
 }

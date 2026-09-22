@@ -134,7 +134,7 @@ func normalizeSubnetCIDR(raw string) (string, *apperror.AppError) {
 func parseCIDRRange(cidr string) (*net.IPNet, *apperror.AppError) {
 	_, ipNet, err := net.ParseCIDR(cidr)
 	if err != nil {
-		return nil, apperror.NewValidationError(fmt.Sprintf("invalid CIDR notation: %s", cidr))
+		return nil, apperror.WrapValidation(err, fmt.Sprintf("invalid CIDR notation: %s", cidr))
 	}
 	return ipNet, nil
 }

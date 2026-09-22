@@ -199,7 +199,7 @@ func TestNginxConfig(opts VHostOptions) (string, *apperror.AppError) {
 	cmd := exec.Command(applied.NginxBin, "-t")
 	out, err := cmd.CombinedOutput()
 	if err != nil {
-		return string(out), apperror.NewExecutionError("nginx test failed: " + string(out))
+		return string(out), apperror.WrapExecution(err, "nginx test failed: "+string(out))
 	}
 
 	return string(out), nil
@@ -220,7 +220,7 @@ func ReloadNginx(opts VHostOptions) *apperror.AppError {
 	cmd := exec.Command(applied.NginxBin, "-s", "reload")
 	out, err := cmd.CombinedOutput()
 	if err != nil {
-		return apperror.NewExecutionError("nginx reload failed: " + string(out))
+		return apperror.WrapExecution(err, "nginx reload failed: "+string(out))
 	}
 
 	return nil

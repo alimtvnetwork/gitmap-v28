@@ -40,7 +40,7 @@ func pushRemoteRepo(p createRepoParams) (string, error) {
 	cmd.Dir = absDir
 	out, err := cmd.CombinedOutput()
 	if err != nil {
-		return "", apperror.NewSimple(fmt.Sprintf("gh repo create failed: %s", string(out)), "E1078")
+		return "", apperror.WrapSimple(err, fmt.Sprintf("gh repo create failed: %s", string(out)))
 	}
 
 	return fmt.Sprintf("https://github.com/%s", slug), nil

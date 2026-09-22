@@ -31,7 +31,8 @@ Target formats:
 	},
 	RunE: func(cmd *cobra.Command, args []string) error {
 		if len(args) == 1 && args[0] == "help" {
-			return cmd.Help()
+			renderAgyRmHelp()
+			return nil
 		}
 		return runAgyRmEnhanced(args, agyRmFolderFlag)
 	},
@@ -41,7 +42,7 @@ var agyRmHelpCmd = &cobra.Command{
 	Use:   "help",
 	Short: "Show detailed help on removing Antigravity projects",
 	Run: func(cmd *cobra.Command, args []string) {
-		_ = agyRmCmd.Help()
+		renderAgyRmHelp()
 	},
 }
 

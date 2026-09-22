@@ -25,7 +25,7 @@ type ClusterUserJSON struct {
 func checkFileStat(path string) error {
 	info, err := os.Stat(path)
 	if err != nil {
-		return apperror.NewNotFoundError(fmt.Sprintf("config file not found: %s", path))
+		return apperror.WrapNotFound(err, fmt.Sprintf("config file not found: %s", path))
 	}
 	if info.IsDir() {
 		return apperror.NewValidationError(fmt.Sprintf("config path is a directory: %s", path))

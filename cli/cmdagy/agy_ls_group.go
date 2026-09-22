@@ -47,12 +47,12 @@ func printFolderHeader(folder string, count int) {
 		constants.ColorDim, count, constants.ColorReset)
 }
 
-func renderAgyFolderTable(list []AgyProject) (int, int) {
+func renderAgyFolderTable(list []AgyProject, convMap map[string]AgyLatestConv) (int, int) {
 	ctx := newAgyTableContext()
 	activeCount, missingCount := 0, 0
 
 	for _, p := range list {
-		row := buildAgyTableRow(p)
+		row := buildAgyTableRow(p, convMap)
 		if row.IsMissing {
 			missingCount++
 		} else {
@@ -71,13 +71,14 @@ func renderAgyFolderTable(list []AgyProject) (int, int) {
 }
 
 func renderAgyProjectsGrouped(projects []AgyProject) (int, int) {
+	convMap := loadLatestConversationsMap()
 	folders, groupMap := groupProjectsByRootFolder(projects)
 	totalActive, totalMissing := 0, 0
 
 	for _, folder := range folders {
 		list := groupMap[folder]
 		printFolderHeader(folder, len(list))
-		active, missing := renderAgyFolderTable(list)
+		active, missing := renderAgyFolderTable(list, convMap)
 		totalActive += active
 		totalMissing += missing
 	}
