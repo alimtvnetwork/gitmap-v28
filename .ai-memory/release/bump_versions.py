@@ -112,13 +112,13 @@ PowerShell: `Invoke-WebRequest -Uri https://raw.githubusercontent.com/alimtvnetw
 
 ### Added / Changed / Fixed / Removed
 
-- Fixed SSH Host Key verification: implemented auto-pruning of stale known_hosts entries (handling hashed entries via ssh-keygen -R and line deletion) to prevent REMOTE HOST IDENTIFICATION HAS CHANGED
-- Added auto-recovery & retry in SpawnSSH: seamlessly auto-prunes stale host keys and re-trusts remote machines upon detecting host key changes
-- Preserved bare gitmap ssh public key display and clipboard copying: strictly enforced TOTAL BAN in .ai-memory/strictly-avoid.md
-- Guaranteed bounded stack traces on all errors: updated global error handler so no error is ever emitted without an informative stack trace
-- Added repository creation commands suite: gitmap repo-create (repoc), gitmap create-repo (crepo), gitmap create-local-repo (clr) with automatic space slugification
-- Enhanced commit transfer & PR workflows: automated destination repository directory provision and GitHub creation in commit-in, commit-left, commit-right, and PR counterparts (cin-pr, cml-pr, cmr-pr)
-- Resolved CI/CD pipeline issues: eliminated constants collision (CmdCompareAlias to "comp"), AST registry discrepancies, unused functions, and staticcheck context warnings across all 35 gates
+- MultiClone Subsystem: Added `gitmap multiclone` (aliases `mc`, `mutliclone`) to batch clone repositories from markdown codeblocks, raw lists, or stdin with shorthand expansion, description stripping, and deduplication.
+- AI Split DB Command Tracking: Integrated global `--ai` execution history logging into `~/.gitmap/ai/instructions.db` with duration and exit code metrics.
+- Frequent AI Commands & Clipboard Export: Implemented `gitmap ai ls` and `gitmap ai history` to inspect top frequent commands with `--copy` to OS clipboard.
+- Native Automation Search Benchmark: Verified Go native search is 46.1x faster (1.5ms vs 70.5ms) than cached Python grep with 0 disk bloat.
+- Rich Terminal Help Menus: Implemented two-column styled help screens for `gitmap sync` and `gitmap github` (`gd`) with formatted error diagnostics.
+- Anti-Gravity Settings Protection: Protected all Antigravity IDE configuration files and settings across Windows and Unix OS clean operations.
+- WinUtil & LinUtil Integration Architecture: Authored comprehensive plan for native Go OS auto-login, Windows tweaks, and Linux system cleanup.
 """
     # Prepend directly at the top of changelog.md
     lines.insert(0, entry + "\n")
@@ -143,13 +143,13 @@ curl -fsSL https://github.com/alimtvnetwork/gitmap-v28/releases/download/v{new_v
 
 ## Changelog v{new_version}
 
-- Fixed SSH Host Key verification: implemented auto-pruning of stale known_hosts entries (handling hashed entries via ssh-keygen -R and line deletion) to prevent REMOTE HOST IDENTIFICATION HAS CHANGED
-- Added auto-recovery & retry in SpawnSSH: seamlessly auto-prunes stale host keys and re-trusts remote machines upon detecting host key changes
-- Preserved bare gitmap ssh public key display and clipboard copying: strictly enforced TOTAL BAN in .ai-memory/strictly-avoid.md
-- Guaranteed bounded stack traces on all errors: updated global error handler so no error is ever emitted without an informative stack trace
-- Added repository creation commands suite: gitmap repo-create (repoc), gitmap create-repo (crepo), gitmap create-local-repo (clr) with automatic space slugification
-- Enhanced commit transfer & PR workflows: automated destination repository directory provision and GitHub creation in commit-in, commit-left, commit-right, and PR counterparts (cin-pr, cml-pr, cmr-pr)
-- Resolved CI/CD pipeline issues: eliminated constants collision (CmdCompareAlias to "comp"), AST registry discrepancies, unused functions, and staticcheck context warnings across all 35 gates
+- MultiClone Subsystem: Added `gitmap multiclone` (aliases `mc`, `mutliclone`) to batch clone repositories from markdown codeblocks, raw lists, or stdin with shorthand expansion, description stripping, and deduplication.
+- AI Split DB Command Tracking: Integrated global `--ai` execution history logging into `~/.gitmap/ai/instructions.db` with duration and exit code metrics.
+- Frequent AI Commands & Clipboard Export: Implemented `gitmap ai ls` and `gitmap ai history` to inspect top frequent commands with `--copy` to OS clipboard.
+- Native Automation Search Benchmark: Verified Go native search is 46.1x faster (1.5ms vs 70.5ms) than cached Python grep with 0 disk bloat.
+- Rich Terminal Help Menus: Implemented two-column styled help screens for `gitmap sync` and `gitmap github` (`gd`) with formatted error diagnostics.
+- Anti-Gravity Settings Protection: Protected all Antigravity IDE configuration files and settings across Windows and Unix OS clean operations.
+- WinUtil & LinUtil Integration Architecture: Authored comprehensive plan for native Go OS auto-login, Windows tweaks, and Linux system cleanup.
 """
     os.makedirs(os.path.dirname(notes_path), exist_ok=True)
     with open(notes_path, "w", encoding="utf-8") as f:
