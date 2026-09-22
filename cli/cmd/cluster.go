@@ -6,8 +6,6 @@ import (
 	"github.com/alimtvnetwork/gitmap-v28/cli/apperror"
 	"github.com/alimtvnetwork/gitmap-v28/cli/cmdssh"
 	"github.com/alimtvnetwork/gitmap-v28/cli/constants"
-	"github.com/alimtvnetwork/gitmap-v28/cli/helptext"
-	"github.com/alimtvnetwork/gitmap-v28/cli/render"
 	"github.com/alimtvnetwork/gitmap-v28/cli/result"
 )
 
@@ -192,7 +190,7 @@ func dispatchInvertedClusterHelp(args []string) result.ErrorWrapper {
 // routeCluster routes the cluster subcommand and returns ErrorWrapper.
 func routeCluster(args []string) result.ErrorWrapper {
 	if isClusterRootHelp(args) {
-		helptext.PrintWithMode("cluster", render.PrettyAuto)
+		RenderClusterHelp()
 		return result.SuccessWrapper()
 	}
 

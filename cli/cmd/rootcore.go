@@ -136,7 +136,11 @@ func resolveSCTopic() string {
 }
 
 func dispatchServersClients(args []string) {
-	CheckHelpOrEmpty(resolveSCTopic(), args)
+	if IsHelpRequestedOrEmpty(args) {
+		RenderSCHelp()
+
+		return
+	}
 
 	subCmd, rest := args[0], args[1:]
 	isHandled := dispatchSCNodeOps(subCmd, rest)

@@ -2,12 +2,9 @@ package cmdssh
 
 import (
 	"context"
-	"fmt"
-	"os"
 
 	"github.com/spf13/cobra"
 
-	"github.com/alimtvnetwork/gitmap-v28/cli/constants"
 	"github.com/alimtvnetwork/gitmap-v28/cli/result"
 )
 
@@ -18,7 +15,7 @@ func runSSH(args []string) error {
 	}
 	if len(args) == 0 {
 		runSSHGenerate(args)
-		fmt.Fprint(os.Stdout, constants.MsgSSHAvailableCommands)
+		RenderSSHHelp()
 		return nil
 	}
 	return result.AsError(dispatchSSH(context.Background(), args, nil))
@@ -226,7 +223,7 @@ func runSSHProfile(args []string) error {
 
 func handleEmptySSHArgs() error {
 	runSSHGenerate(nil)
-	fmt.Fprint(os.Stdout, constants.MsgSSHAvailableCommands)
+	RenderSSHHelp()
 	return nil
 }
 

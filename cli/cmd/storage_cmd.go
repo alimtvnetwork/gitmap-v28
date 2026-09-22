@@ -4,7 +4,6 @@ import (
 	"strings"
 
 	"github.com/alimtvnetwork/gitmap-v28/cli/cmdos"
-	"github.com/alimtvnetwork/gitmap-v28/cli/constants"
 	"github.com/alimtvnetwork/gitmap-v28/cli/result"
 )
 
@@ -12,9 +11,23 @@ func init() {
 	cmdos.StorageRunnerFn = RunStorageCmd
 }
 
+func isStorageHelpRequested(args []string) bool {
+	for _, a := range args {
+		if a == "--help" || a == "-h" || a == "help" {
+			return true
+		}
+	}
+
+	return false
+}
+
 // RunStorageCmd handles gitmap storage inspection and database listing.
 func RunStorageCmd(args []string) error {
-	checkHelp(constants.CmdStorage, args)
+	if isStorageHelpRequested(args) {
+		RenderStorageHelp()
+
+		return nil
+	}
 	if len(args) == 0 {
 		return runStorageDriveReport(args)
 	}

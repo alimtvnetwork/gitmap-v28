@@ -2,14 +2,13 @@ package cmdfixgit
 
 import (
 	"github.com/alimtvnetwork/gitmap-v28/cli/cliexit"
-	"github.com/alimtvnetwork/gitmap-v28/cli/helptext"
 )
 
 func checkHelp(command string, args []string) {
 	if !hasHelpFlag(args) {
 		return
 	}
-	helptext.Print(command)
+	RenderFixGitHelp()
 	cliexit.Exit(0)
 }
 
@@ -19,5 +18,6 @@ func hasHelpFlag(args []string) bool {
 			return true
 		}
 	}
+
 	return false
 }

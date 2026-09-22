@@ -205,6 +205,9 @@ func runHelpDispatch() error {
 // usage when the topic has no dedicated help text.
 func dispatchHelpTopic(rawTopic string) {
 	topic := normalizeHelpTopic(rawTopic)
+	if tryRenderRichTopic(topic) {
+		return
+	}
 	_, err := helptext.ReadRaw(topic)
 	if err != nil {
 		printUsageFiltered(topic)

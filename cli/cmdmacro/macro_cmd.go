@@ -411,23 +411,5 @@ func renderMacroShow(m *macro.Macro) {
 }
 
 func printMacroUsage() {
-	fmt.Println("Usage: gitmap macro <command> [arguments]")
-	fmt.Println("Commands:")
-	fmt.Println("  add <name> <steps...>               Create/add a new macro directly from arguments")
-	fmt.Println("  edit <name> [--no-exec]             Interactively edit steps of an existing macro")
-	fmt.Println("  run <name> [--json] [--yaml]        Replay a macro (optional JSON/YAML & file export)")
-	fmt.Println("  run-until-succeed <name|cmd>        Execute macro repeatedly until success")
-	fmt.Println("  record <name>                       Record an interactive shell session as a macro")
-	fmt.Println("  list [--json] [--yaml]              List all saved macros")
-	fmt.Println("  show <name> [--json] [--yaml]       Inspect steps of a macro")
-	fmt.Println("  rm <name>                           Delete a saved macro")
-	fmt.Println("  startup <subcommand> [name]         Manage macro execution on OS login/reboot")
-	fmt.Println("  schedule <subcommand> [name]        Manage recurring scheduled execution of macros")
-	fmt.Println("  export [name|all] [options]         Export macro(s) to JSON, YAML, SQLite DB, or ZIP")
-	fmt.Println("  export-all [options]                Export all macros (--json, --yaml, --sqlitedb, --zip)")
-	fmt.Println("  export-single <name> [options]      Export a single macro to JSON, YAML, or SQLite DB")
-	fmt.Println("  sync [flags]                        Synchronize local macros to remote SSH machines")
-	fmt.Println("  import <file> [name] [options]      Import macro(s) safely with format auto-inference")
-	fmt.Println("  import-all <file> [options]         Import all macros from backup archive or database")
-	fmt.Println("  import-single <file> [options]      Import single macro from file with optional --as rename")
+	RenderMacroHelp()
 }

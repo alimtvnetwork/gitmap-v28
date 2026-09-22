@@ -18,9 +18,23 @@ import (
 	"github.com/alimtvnetwork/gitmap-v28/cli/store"
 )
 
+func isScheduleHelpRequested(args []string) bool {
+	for _, a := range args {
+		if a == "--help" || a == "-h" || a == "help" {
+			return true
+		}
+	}
+
+	return false
+}
+
 // runSchedule handles gitmap schedule commands.
 func runSchedule(args []string) error {
-	checkHelp("schedule", args)
+	if isScheduleHelpRequested(args) {
+		RenderScheduleHelp()
+
+		return nil
+	}
 	if len(args) == 0 {
 		return runScheduleList(nil)
 	}

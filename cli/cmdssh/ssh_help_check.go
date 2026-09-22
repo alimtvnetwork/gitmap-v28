@@ -1,10 +1,6 @@
 package cmdssh
 
 import (
-	"fmt"
-	"os"
-
-	"github.com/alimtvnetwork/gitmap-v28/cli/constants"
 	"github.com/alimtvnetwork/gitmap-v28/cli/helptext"
 )
 
@@ -48,7 +44,7 @@ func checkSSHHelp(args []string) bool {
 	}
 
 	if hasHelp {
-		fmt.Fprint(os.Stdout, constants.MsgSSHAvailableCommands)
+		RenderSSHHelp()
 
 		return true
 	}

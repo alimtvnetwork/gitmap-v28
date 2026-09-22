@@ -10,6 +10,7 @@ import (
 
 	"github.com/alimtvnetwork/gitmap-v28/cli/cliexit"
 	"github.com/alimtvnetwork/gitmap-v28/cli/cmdvscode"
+	"github.com/alimtvnetwork/gitmap-v28/cli/constants"
 	"github.com/alimtvnetwork/gitmap-v28/cli/errreport"
 	"github.com/alimtvnetwork/gitmap-v28/cli/helptext"
 	"github.com/alimtvnetwork/gitmap-v28/cli/store"
@@ -84,12 +85,35 @@ func requireOnline() {
 }
 
 func checkHelp(command string, args []string) {
+	if !hasHelpArg(args) {
+		maybeRunCheckHelpFn(command, args)
+
+		return
+	}
+	renderCommandHelp(command)
+	cliexit.Exit(0)
+}
+
+func hasHelpArg(args []string) bool {
 	for _, a := range args {
 		if a == "--help" || a == "-h" || a == "help" {
-			helptext.Print(command)
-			cliexit.Exit(0)
+			return true
 		}
 	}
+
+	return false
+}
+
+func renderCommandHelp(command string) {
+	if command == "clone" || command == constants.CmdClone {
+		RenderCloneHelp()
+
+		return
+	}
+	helptext.Print(command)
+}
+
+func maybeRunCheckHelpFn(command string, args []string) {
 	if CheckHelpFn != nil {
 		CheckHelpFn(command, args)
 	}

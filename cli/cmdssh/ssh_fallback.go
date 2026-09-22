@@ -1,9 +1,6 @@
 package cmdssh
 
 import (
-	"fmt"
-	"os"
-
 	"github.com/alimtvnetwork/gitmap-v28/cli/constants"
 )
 
@@ -54,7 +51,7 @@ func dispatchOtherFallbackSSH(sub string, args []string) bool {
 func dispatchCreateSSH(sub string, args []string) bool {
 	if sub == constants.SubCmdSSHCreate {
 		runSSHGenerate(args)
-		fmt.Fprint(os.Stdout, constants.MsgSSHAvailableCommands)
+		RenderSSHHelp()
 		return true
 	}
 	return false

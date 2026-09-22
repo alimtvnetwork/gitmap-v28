@@ -200,7 +200,7 @@ func dispatchSync(command string) (bool, error) {
 	}
 
 	if len(os.Args) < 3 || isSyncHelp(os.Args[2]) {
-		fmt.Print(syncUsage)
+		RenderSyncHelp()
 
 		return true, nil
 	}

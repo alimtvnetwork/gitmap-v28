@@ -13,20 +13,22 @@ import (
 	"github.com/alimtvnetwork/gitmap-v28/cli/vscodepm"
 )
 
+func isVSCodeHelpRequested(args []string) bool {
+	for _, a := range args {
+		if a == "--help" || a == "-h" || a == "help" {
+			return true
+		}
+	}
+
+	return false
+}
+
 // runVSCode handles `gitmap vscode` CLI commands.
 func runVSCode(args []string) error {
-	if len(args) == 0 {
-		printVSCodeUsage()
+	if len(args) == 0 || isVSCodeHelpRequested(args) {
+		RenderVSCodeHelp()
 
-		return apperror.NewWithDetails(
-			"cmd.vscode.dispatch",
-			"E1024",
-			"no subcommand provided to vscode command",
-			"cmd.vscode",
-			apperror.ErrorTypeValidation,
-			apperror.SeverityError,
-			nil,
-		)
+		return nil
 	}
 
 	return dispatchVSCodeAction(args)
@@ -140,7 +142,7 @@ func handleVSCodeRm(args []string) {
 }
 
 func printVSCodeUsage() {
-	fmt.Println("Usage: gitmap vscode [ls|add <path>|rm <path>|profiles|optimize-projects|clear] [flags]")
+	RenderVSCodeHelp()
 }
 
 func runVSCodeLs() error {

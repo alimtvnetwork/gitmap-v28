@@ -9,12 +9,23 @@ import (
 	"path/filepath"
 	"strings"
 
+	"github.com/alimtvnetwork/gitmap-v28/cli/cmdvscode"
 	"github.com/alimtvnetwork/gitmap-v28/cli/constants"
 	"github.com/alimtvnetwork/gitmap-v28/cli/store"
 	"github.com/alimtvnetwork/gitmap-v28/cli/vscodepm"
 
 	"github.com/alimtvnetwork/gitmap-v28/cli/cliexit"
 )
+
+func isCodeHelpRequested(args []string) bool {
+	for _, a := range args {
+		if a == "--help" || a == "-h" || a == "help" {
+			return true
+		}
+	}
+
+	return false
+}
 
 // runCode implements `gitmap code` and its `paths` subcommand.
 //
@@ -28,7 +39,11 @@ import (
 // The first three forms launch VS Code on the resolved root. The `paths`
 // subcommand never opens VS Code — it only mutates the registry.
 func runCode(args []string) error {
-	checkHelp(constants.CmdCode, args)
+	if isCodeHelpRequested(args) {
+		cmdvscode.RenderVSCodeHelp()
+
+		return nil
+	}
 
 	if len(args) > 0 {
 		switch strings.ToLower(args[0]) {

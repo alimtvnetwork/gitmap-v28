@@ -36,6 +36,9 @@ func checkHelp(command string, args []string) {
 
 // printHelpAndExit prints embedded help with parsed pretty mode and exits with code 0.
 func printHelpAndExit(command string, args []string) {
+	if tryRenderRichTopic(command) {
+		cliexit.Exit(0)
+	}
 	_, mode := ParsePrettyFlag(args)
 	helptext.PrintWithMode(command, mode)
 	printUsageFooterShort()

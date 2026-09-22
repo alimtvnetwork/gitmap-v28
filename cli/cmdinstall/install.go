@@ -52,7 +52,23 @@ func parseInstallFlags(args []string) (installOptions, bool) {
 	return opts, list
 }
 
+func isInstallHelpRequested(args []string) bool {
+	for _, a := range args {
+		if a == "--help" || a == "-h" || a == "help" {
+			return true
+		}
+	}
+
+	return false
+}
+
 func runInstall(args []string) error {
+	if isInstallHelpRequested(args) {
+		RenderInstallHelp()
+
+		return nil
+	}
+
 	if isInstallLogsCommand(args) {
 		return runInstallLogs(extractInstallLogsArgs(args))
 	}

@@ -3,8 +3,6 @@ package cmdpipeline
 import (
 	"fmt"
 	"strings"
-
-	"github.com/alimtvnetwork/gitmap-v28/cli/constants"
 )
 
 // PipelineStatusPayload represents the status output.
@@ -266,82 +264,6 @@ func dispatchPipelineFallback(subcmd string, args []string) error {
 	return fmt.Errorf("unknown pipeline subcommand: %s", subcmd)
 }
 
-func printPipelineHelpHeader() {
-	fmt.Println(constants.ColorCyan + "Usage:" + constants.ColorReset)
-	fmt.Println("  gitmap pipeline [command] [flags]")
-	fmt.Println("  gitmap pe [clear [-y]] [flags] (shortcut for pipeline errors)")
-	fmt.Println("  gitmap pd [flags] (shortcut for pipeline details table)")
-	fmt.Println("  gitmap pipelines [command] [flags]")
-	fmt.Println("  gitmap pipeline-ai [status|errors|eta] [-t <seconds>] [--json]")
-	fmt.Println("  gitmap pl [command] [flags]")
-	fmt.Println()
-}
-
-func printPipelineHelpCommands() {
-	fmt.Println(constants.ColorCyan + "Commands:" + constants.ColorReset)
-	fmt.Println("  status                 Check live CI/CD pipeline status, ETA, and pending PRs")
-	fmt.Println("  details                Display runner target table, step elapsed times, and diagnostics (alias: pd)")
-	fmt.Println("  pd                     Shortcut for pipeline details table and diagnostics")
-	fmt.Println("  errors                 Display failure logs, rerun ETA, and internal CI/CD fix suite (alias: pe)")
-	fmt.Println("  pe                     Shortcut for pipeline errors (supports clear [-y], -1, --json)")
-	fmt.Println("  waittime               Output remaining ETA seconds for active pipeline (alias: eta)")
-	fmt.Println("  eta                    Output remaining ETA seconds for active pipeline")
-	fmt.Println("  error-logs             Display failure logs, rerun ETA, and internal CI/CD fix suite")
-	fmt.Println("  fix                    Feed pipeline errors to Antigravity IDE (alias: fix errors agy)")
-	fmt.Println("  history                Display recent commits pipeline execution tree (alias: hist, h)")
-	fmt.Println("  logs                   Display consolidated workflow logs for commit or offset")
-	fmt.Println("  pipeline-ai status     Auto-delay (-t <sec>), stream live errors, and switch to fix")
-	fmt.Println("  pipeline-ai errors     Extract failing workflow errors with AI remediation guidance")
-	fmt.Println("  clear                  Clear logs, reports, and database for repo (alias: clean)")
-	fmt.Println("  db                     Inspect or manage isolated pipeline split SQLite database")
-	fmt.Println("  clear-db               Clear recorded pipeline runs and error logs (alias: cleardb, db-clear)")
-	fmt.Println("  help                   Show this pipeline command suite documentation")
-}
-
 func printPipelineHelp() {
-	printPipelineHelpHeader()
-	printPipelineHelpCommands()
-	printPipelineHelpFlags()
-}
-
-func printPipelineHelpFlags() {
-	fmt.Println()
-	fmt.Println(constants.ColorCyan + "Flags:" + constants.ColorReset)
-	fmt.Println("  -t, --timeline          Watch pipeline run until completion with dynamic ETA timeline")
-	fmt.Println("  -f, --fix               Run internal CI/CD issue diagnostic and auto-repair scripts")
-	fmt.Println("  -c, --check             Run internal CI/CD issue diagnostic checks without modifying files")
-	fmt.Println("  -y, --yes               Auto-confirm prompts non-interactively")
-	fmt.Println("  --no-release            Prepare CI/CD fix prompt without triggering release")
-	fmt.Println("  --json                  Output data in structured JSON format")
-	fmt.Println("  --file <path>           Write error logs to specified file path")
-	fmt.Println("  --tempfile <filename>   Write error logs to .ai-memory/temp/<filename>")
-	fmt.Println("  --last-failures <N>     Show logs for the last N failed runs")
-	fmt.Println("  -n, --no-output-log     Stage error logs to disk without displaying in terminal")
-	fmt.Println("  --force, --no-cache     Bypass local SQLite DB cache and pull fresh from GitHub")
-	printPipelineHelpExamples()
-}
-
-func printPipelineHelpExamples() {
-	fmt.Println()
-	fmt.Println(constants.ColorCyan + "Examples:" + constants.ColorReset)
-	fmt.Println("  gitmap pd                                         # Runner target table and step timings")
-	fmt.Println("  gitmap pd -1                                      # Inspect past commit runner targets table")
-	fmt.Println("  gitmap pe                                         # Fast shortcut to view errors / clean status")
-	fmt.Println("  gitmap pe clear -y                                # Clear errors, logs, and reset DB shortcut")
-	fmt.Println("  gitmap pe -1                                      # Inspect previous commit error logs")
-	fmt.Println("  gitmap pipeline status")
-	fmt.Println("  gitmap pipeline status -t")
-	fmt.Println("  gitmap pipeline fix")
-	fmt.Println("  gitmap pipeline fix errors agy")
-	fmt.Println("  gitmap pipeline errorlogs -t")
-	fmt.Println("  gitmap pipeline errors -2")
-	fmt.Println("  gitmap pipeline errors --last-failures 5")
-	fmt.Println("  gitmap pipeline last-failed-logs")
-	fmt.Println("  gitmap pipeline error-logs -t --fix")
-	fmt.Println("  gitmap pipeline clear -y                          # Clear pipeline for current repo (run inside repo)")
-	fmt.Println("  gitmap pipeline clear alimtvnetwork/gitmap-v28 -y # Clear pipeline for target repo (run from anywhere)")
-	fmt.Println("  gitmap pipeline errors clear                      # Clear error reports & logs for current repo")
-	fmt.Println("  gitmap pipeline clear-db -y")
-	fmt.Println("  gitmap pipeline errorlogs --check")
-	fmt.Println("  gitmap pipeline error-logs --json")
+	RenderPipelineHelp()
 }

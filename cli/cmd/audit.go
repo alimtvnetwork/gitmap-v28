@@ -79,7 +79,7 @@ func insertAuditRecord(db *store.DB, record model.CommandHistoryRecord) int64 {
 }
 
 func recordPendingTaskAudit(command string, args []string) {
-	if !isPendingTaskCommand(command) {
+	if !isPendingTaskCommand(command) || hasHelpFlag(args) {
 		return
 	}
 	cwd, _ := os.Getwd()

@@ -6,11 +6,24 @@ import (
 	"github.com/alimtvnetwork/gitmap-v28/cli/helptext"
 )
 
+func isHelpToken(a string) bool {
+	return a == "--help" || a == "-h" || a == "help"
+}
+
+func printVSCodeHelpAndExit(command string) {
+	if command == "vscode" || command == "code" {
+		RenderVSCodeHelp()
+		cliexit.Exit(0)
+	}
+
+	helptext.Print(command)
+	cliexit.Exit(0)
+}
+
 func checkHelp(command string, args []string) {
 	for _, a := range args {
-		if a == "--help" || a == "-h" || a == "help" {
-			helptext.Print(command)
-			cliexit.Exit(0)
+		if isHelpToken(a) {
+			printVSCodeHelpAndExit(command)
 		}
 	}
 }
