@@ -1,3 +1,9 @@
+## v6.299.1 — 2026-09-22 (fix gofmt whitespace drift in rootcore.go and helpers.go)
+
+**Scope:** Version bump. fix gofmt whitespace drift in rootcore.go and helpers.go.
+
+---
+
 ## v6.294.0 — 2026-09-21 (fix(pull): replace unsupported subarrow glyph on Windows console with universal arrow)
 
 **Scope:** Version bump. fix(pull): replace unsupported subarrow glyph on Windows console with universal arrow.
