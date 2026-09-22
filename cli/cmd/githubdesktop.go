@@ -87,7 +87,8 @@ func processGHDesktopTarget(args []string) error {
 	target := resolveGHDesktopTarget(cwd, args)
 	isRepo := isGitRepo(target)
 	if !isRepo {
-		return apperror.NewValidationError(constants.ErrGHDesktopNotRepo)
+		RenderGitHubDesktopHelp()
+		return apperror.NewValidationError(fmt.Sprintf(constants.ErrGHDesktopNotRepo, target))
 	}
 
 	return registerGHDesktop(target)

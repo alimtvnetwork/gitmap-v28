@@ -69,6 +69,10 @@ func tryRenderToolRichTopic(topic string) bool {
 		cmdvscode.RenderVSCodeHelp()
 
 		return true
+	case "github-desktop", "gd", "github", "desktop-sync", "ds":
+		RenderGitHubDesktopHelp()
+
+		return true
 	}
 
 	return false
