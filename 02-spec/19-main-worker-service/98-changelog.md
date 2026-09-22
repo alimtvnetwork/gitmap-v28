@@ -1,3 +1,9 @@
+## v6.310.0 — 2026-09-22 (lowercase renamer full parity, doc CMD, web UI, prefix wildcard engine, and report summary)
+
+**Scope:** Version bump. lowercase renamer full parity, doc CMD, web UI, prefix wildcard engine, and report summary.
+
+---
+
 ## v6.309.0 — 2026-09-22 (unify lowercase renamer with two-step safe git mv and live logging)
 
 **Scope:** Version bump. unify lowercase renamer with two-step safe git mv and live logging.

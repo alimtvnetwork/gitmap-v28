@@ -1,3 +1,15 @@
+## [v6.310.0] 2026-09-22 Release v6.310.0
+
+### Install GitMap v6.310.0
+
+To pin your repository to this exact version, run the following one-liner:
+Unix/Bash: `curl -sL https://raw.githubusercontent.com/alimtvnetwork/gitmap-v28/v6.310.0/install.sh | bash -s -- ".ai-memory/prompts" "v6.310.0"`
+PowerShell: `Invoke-WebRequest -Uri https://raw.githubusercontent.com/alimtvnetwork/gitmap-v28/v6.310.0/install.ps1 -OutFile install.ps1; .\install.ps1 -TargetDir ".ai-memory/prompts" -Version "v6.310.0"`
+
+### Added / Changed / Fixed / Removed
+
+- lowercase renamer full parity, doc CMD, web UI, prefix wildcard engine, and report summary
+
 ## [v6.309.0] 2026-09-22 Release v6.309.0
 
 ### Install GitMap v6.309.0
