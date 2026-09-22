@@ -1,3 +1,20 @@
+## [v6.299.0] 2026-09-22 Release v6.299.0
+
+### Install GitMap v6.299.0
+
+To pin your repository to this exact version, run the following one-liner:
+Unix/Bash: `curl -sL https://raw.githubusercontent.com/alimtvnetwork/gitmap-v28/v6.299.0/install.sh | bash -s -- ".ai-memory/prompts" "v6.299.0"`
+PowerShell: `Invoke-WebRequest -Uri https://raw.githubusercontent.com/alimtvnetwork/gitmap-v28/v6.299.0/install.ps1 -OutFile install.ps1; .\install.ps1 -TargetDir ".ai-memory/prompts" -Version "v6.299.0"`
+
+### Added / Changed / Fixed / Removed
+
+- Native OS Auto-Login Subsystem: Added `gitmap os autologin` with interactive 3-parameter credentials (username, domain, masked password) and flags (`-u`, `-d`, `-p`), natively writing Windows Winlogon registry keys and configuring Ubuntu display managers (GDM3, LightDM) with zero PowerShell or external executable dependencies.
+- Windows Desktop Tweaks: Added `gitmap os tweak context-menu classic|modern` (CLSID InprocServer32 restore for Windows 10 right-click menu) and `start-menu classic|default` layout override.
+- Ultimate Performance & Hibernation: Added `gitmap os tweak power ultimate|balanced` to duplicate and activate Windows Ultimate Performance scheme and `gitmap os tweak hibernate off|on` to delete `C:\hiberfil.sys` and reclaim RAM-sized disk space.
+- Linux System Maintenance: Added `gitmap os clean sys` for multi-distro package manager cache purging (APT, DNF, Pacman) and systemd journal vacuuming (`journalctl --vacuum-time=3d`).
+- Two-Column Styled Help Screens: Authored comprehensive help documentation and terminal menus for `gitmap help os-autologin` and `gitmap help os-tweak`.
+- CI/CD Self-Healing: Restored local runner helpers in `03-ai-scripts/06-cicd-local-runner.py`, fixed 18/18 Python CI test cases, removed unused symbols, and verified cross-platform compilation across Linux, Darwin, and Windows.
+
 ## [v6.298.0] 2026-09-22 Release v6.298.0
 
 ### Install GitMap v6.298.0
