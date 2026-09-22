@@ -1,3 +1,15 @@
+## [v6.305.0] 2026-09-22 Release v6.305.0
+
+### Install GitMap v6.305.0
+
+To pin your repository to this exact version, run the following one-liner:
+Unix/Bash: `curl -sL https://raw.githubusercontent.com/alimtvnetwork/gitmap-v28/v6.305.0/install.sh | bash -s -- ".ai-memory/prompts" "v6.305.0"`
+PowerShell: `Invoke-WebRequest -Uri https://raw.githubusercontent.com/alimtvnetwork/gitmap-v28/v6.305.0/install.ps1 -OutFile install.ps1; .\install.ps1 -TargetDir ".ai-memory/prompts" -Version "v6.305.0"`
+
+### Added / Changed / Fixed / Removed
+
+- Implement robust lowercase file renamer and root README command
+
 ## [v6.304.0] 2026-09-22 Release v6.304.0
 
 ### Install GitMap v6.304.0

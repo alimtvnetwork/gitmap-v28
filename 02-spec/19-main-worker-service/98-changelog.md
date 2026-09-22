@@ -1,3 +1,9 @@
+## v6.305.0 — 2026-09-22 (Implement robust lowercase file renamer and root README command)
+
+**Scope:** Version bump. Implement robust lowercase file renamer and root README command.
+
+---
+
 ## v6.304.0 — 2026-09-22 (Add visibility, JSON, and YAML status to create-repo)
 
 **Scope:** Version bump. Add visibility, JSON, and YAML status to create-repo.
