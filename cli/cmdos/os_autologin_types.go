@@ -17,8 +17,8 @@ type AutoLoginStatus struct {
 	DisplayManager string
 }
 
-// AutoLoginEngine abstracts OS-specific auto-login read/write operations.
-type AutoLoginEngine interface {
+// AutoLoginOperator abstracts OS-specific auto-login read/write operations.
+type AutoLoginOperator interface {
 	Configure(cfg AutoLoginConfig) error
 	Disable() error
 	Status() (AutoLoginStatus, error)

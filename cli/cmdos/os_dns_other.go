@@ -10,7 +10,7 @@ import (
 
 type otherDNSEngine struct{}
 
-func newPlatformDNSEngine() DNSEngine {
+func newPlatformDNSEngine() DNSOperator {
 	return &otherDNSEngine{}
 }
 

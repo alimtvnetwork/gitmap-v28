@@ -1,3 +1,18 @@
+## [v6.301.0] 2026-09-22 Release v6.301.0
+
+### Install GitMap v6.301.0
+
+To pin your repository to this exact version, run the following one-liner:
+Unix/Bash: `curl -sL https://raw.githubusercontent.com/alimtvnetwork/gitmap-v28/v6.301.0/install.sh | bash -s -- ".ai-memory/prompts" "v6.301.0"`
+PowerShell: `Invoke-WebRequest -Uri https://raw.githubusercontent.com/alimtvnetwork/gitmap-v28/v6.301.0/install.ps1 -OutFile install.ps1; .\install.ps1 -TargetDir ".ai-memory/prompts" -Version "v6.301.0"`
+
+### Added / Changed / Fixed / Removed
+
+- Interface Naming Compliance: Renamed all internal `cmdos` orchestrator interfaces (`AutoLoginEngine` -> `AutoLoginOperator`, `SystemCleanEngine` -> `SystemCleanOperator`, `DNSEngine` -> `DNSOperator`, `ThemeEngine` -> `ThemeOperator`, `TweakEngine` -> `TweakOperator`) to strictly adhere to Go naming guidelines (`*er` / `*or` suffix) enforced by `check-interface-naming.py`.
+- Enum Naming Compliance: Renamed `ThemeMode` to `ThemeModeType` in `cli/cmdos/os_theme_types.go` and cross-platform handlers to satisfy the mandatory `*Type` suffix rule enforced by `check-enum-guidelines.py`.
+- Quality Gate Self-Healing & Verification: All 43 CI/CD quality gates in `03-ai-scripts/06-cicd-local-runner.py` executed and passed 100% green (including E2E smoke tests, history pin/purge, and race detector).
+- 4-Part RCA 74: Recorded root-cause analysis in `.ai-memory/cicd-issues/74-interface-naming-and-enum-suffix-compliance-rca.md` and registered in `.ai-memory/cicd-index.md`.
+
 ## [v6.300.0] 2026-09-22 Release v6.300.0
 
 ### Install GitMap v6.300.0

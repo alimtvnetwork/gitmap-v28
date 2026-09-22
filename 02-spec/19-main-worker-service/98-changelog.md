@@ -1,3 +1,9 @@
+## v6.301.0 — 2026-09-22 (fix Go interface naming and enum type suffix compliance in cmdos)
+
+**Scope:** Version bump. fix Go interface naming and enum type suffix compliance in cmdos.
+
+---
+
 ## v6.300.0 — 2026-09-22 (add Linux display manager dm.settings, Windows privacy and search tweaks, native DNS switcher, and universal updater)
 
 **Scope:** Version bump. add Linux display manager dm.settings, Windows privacy and search tweaks, native DNS switcher, and universal updater.

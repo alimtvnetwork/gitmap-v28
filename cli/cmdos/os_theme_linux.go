@@ -11,11 +11,11 @@ import (
 
 type linuxThemeEngine struct{}
 
-func newPlatformThemeEngine() ThemeEngine {
+func newPlatformThemeEngine() ThemeOperator {
 	return &linuxThemeEngine{}
 }
 
-func (l *linuxThemeEngine) SetTheme(mode ThemeMode) error {
+func (l *linuxThemeEngine) SetTheme(mode ThemeModeType) error {
 	val := "'prefer-dark'"
 	if mode == ThemeModeLight {
 		val = "'default'"
@@ -29,7 +29,7 @@ func (l *linuxThemeEngine) SetTheme(mode ThemeMode) error {
 	return nil
 }
 
-func (l *linuxThemeEngine) GetTheme() (ThemeMode, error) {
+func (l *linuxThemeEngine) GetTheme() (ThemeModeType, error) {
 	cmd := exec.Command("gsettings", "get", "org.gnome.desktop.interface", "color-scheme")
 	out, err := cmd.Output()
 	if err != nil {

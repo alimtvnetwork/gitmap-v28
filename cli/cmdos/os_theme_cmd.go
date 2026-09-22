@@ -43,7 +43,7 @@ func handleThemeStatus() error {
 	return nil
 }
 
-func handleThemeSet(mode ThemeMode) error {
+func handleThemeSet(mode ThemeModeType) error {
 	engine := newPlatformThemeEngine()
 	if err := engine.SetTheme(mode); err != nil {
 		return err

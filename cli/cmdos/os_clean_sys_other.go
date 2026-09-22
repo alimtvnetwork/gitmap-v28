@@ -4,7 +4,7 @@ package cmdos
 
 type fallbackSystemCleanEngine struct{}
 
-func newPlatformSystemCleanEngine() SystemCleanEngine {
+func newPlatformSystemCleanEngine() SystemCleanOperator {
 	return &fallbackSystemCleanEngine{}
 }
 

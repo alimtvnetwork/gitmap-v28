@@ -10,7 +10,7 @@ import (
 
 type unsupportedAutoLoginEngine struct{}
 
-func newPlatformAutoLoginEngine() AutoLoginEngine {
+func newPlatformAutoLoginEngine() AutoLoginOperator {
 	return &unsupportedAutoLoginEngine{}
 }
 

@@ -6,7 +6,7 @@ import "os"
 
 type windowsTweakEngine struct{}
 
-func newPlatformTweakEngine() TweakEngine {
+func newPlatformTweakEngine() TweakOperator {
 	return &windowsTweakEngine{}
 }
 

@@ -10,16 +10,16 @@ import (
 
 type otherThemeEngine struct{}
 
-func newPlatformThemeEngine() ThemeEngine {
+func newPlatformThemeEngine() ThemeOperator {
 	return &otherThemeEngine{}
 }
 
-func (o *otherThemeEngine) SetTheme(_ ThemeMode) error {
+func (o *otherThemeEngine) SetTheme(_ ThemeModeType) error {
 	msg := "desktop theme switching is not supported on " + runtime.GOOS
 
 	return apperror.NewSimple(msg, "E_OS_UNSUPPORTED")
 }
 
-func (o *otherThemeEngine) GetTheme() (ThemeMode, error) {
+func (o *otherThemeEngine) GetTheme() (ThemeModeType, error) {
 	return ThemeModeDark, nil
 }

@@ -12,7 +12,7 @@ import (
 
 type linuxDNSEngine struct{}
 
-func newPlatformDNSEngine() DNSEngine {
+func newPlatformDNSEngine() DNSOperator {
 	return &linuxDNSEngine{}
 }
 

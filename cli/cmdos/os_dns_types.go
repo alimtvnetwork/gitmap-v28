@@ -39,8 +39,8 @@ var KnownDNSProviders = map[string]DNSProvider{
 	},
 }
 
-// DNSEngine abstracts OS-level DNS configuration.
-type DNSEngine interface {
+// DNSOperator abstracts OS-level DNS configuration.
+type DNSOperator interface {
 	SetDNS(iface string, p DNSProvider) error
 	SetDHCP(iface string) error
 	GetDNS(iface string) ([]string, error)

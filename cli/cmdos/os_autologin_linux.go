@@ -10,7 +10,7 @@ import (
 
 type linuxAutoLoginEngine struct{}
 
-func newPlatformAutoLoginEngine() AutoLoginEngine {
+func newPlatformAutoLoginEngine() AutoLoginOperator {
 	return &linuxAutoLoginEngine{}
 }
 

@@ -12,11 +12,11 @@ const themePersonalizeKey = `Software\Microsoft\Windows\CurrentVersion\Themes\Pe
 
 type windowsThemeEngine struct{}
 
-func newPlatformThemeEngine() ThemeEngine {
+func newPlatformThemeEngine() ThemeOperator {
 	return &windowsThemeEngine{}
 }
 
-func (w *windowsThemeEngine) SetTheme(mode ThemeMode) error {
+func (w *windowsThemeEngine) SetTheme(mode ThemeModeType) error {
 	k, _, err := registry.CreateKey(registry.CURRENT_USER, themePersonalizeKey, registry.SET_VALUE)
 	if err != nil {
 		return apperror.WrapSimple(err, "failed to open Themes Personalize key")
@@ -34,7 +34,7 @@ func (w *windowsThemeEngine) SetTheme(mode ThemeMode) error {
 	return nil
 }
 
-func (w *windowsThemeEngine) GetTheme() (ThemeMode, error) {
+func (w *windowsThemeEngine) GetTheme() (ThemeModeType, error) {
 	k, err := registry.OpenKey(registry.CURRENT_USER, themePersonalizeKey, registry.QUERY_VALUE)
 	if err != nil {
 		return ThemeModeDark, nil

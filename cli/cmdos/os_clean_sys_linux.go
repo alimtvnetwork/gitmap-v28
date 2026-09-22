@@ -8,7 +8,7 @@ import (
 
 type linuxSystemCleanEngine struct{}
 
-func newPlatformSystemCleanEngine() SystemCleanEngine {
+func newPlatformSystemCleanEngine() SystemCleanOperator {
 	return &linuxSystemCleanEngine{}
 }
 

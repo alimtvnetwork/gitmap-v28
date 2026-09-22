@@ -24,8 +24,8 @@ type TweakStatus struct {
 	IsBingSearchDisabled   bool
 }
 
-// TweakEngine abstracts tweak application and inspection.
-type TweakEngine interface {
+// TweakOperator abstracts tweak application and inspection.
+type TweakOperator interface {
 	SetContextMenu(isClassic bool) error
 	SetStartMenu(isClassic bool) error
 	SetPowerScheme(isUltimate bool) error

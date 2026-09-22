@@ -1,20 +1,20 @@
 package cmdos
 
-// SystemCleanEngine abstracts OS system-level package and log cleanup.
-type SystemCleanEngine interface {
+// SystemCleanOperator abstracts OS system-level package and log cleanup.
+type SystemCleanOperator interface {
 	CleanSystemPackages() (int64, error)
 	VacuumJournals() error
 }
 
 // defaultSystemCleanEngine is the active engine instance.
-var defaultSystemCleanEngine SystemCleanEngine = newPlatformSystemCleanEngine()
+var defaultSystemCleanEngine SystemCleanOperator = newPlatformSystemCleanEngine()
 
 // GetSystemCleanEngine returns the active system clean engine.
-func GetSystemCleanEngine() SystemCleanEngine {
+func GetSystemCleanEngine() SystemCleanOperator {
 	return defaultSystemCleanEngine
 }
 
 // SetSystemCleanEngine sets the active engine (used in tests).
-func SetSystemCleanEngine(engine SystemCleanEngine) {
+func SetSystemCleanEngine(engine SystemCleanOperator) {
 	defaultSystemCleanEngine = engine
 }

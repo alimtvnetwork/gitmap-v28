@@ -10,7 +10,7 @@ import (
 
 type unsupportedTweakEngine struct{}
 
-func newPlatformTweakEngine() TweakEngine {
+func newPlatformTweakEngine() TweakOperator {
 	return &unsupportedTweakEngine{}
 }
 

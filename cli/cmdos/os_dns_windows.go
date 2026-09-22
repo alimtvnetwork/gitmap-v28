@@ -12,7 +12,7 @@ import (
 
 type windowsDNSEngine struct{}
 
-func newPlatformDNSEngine() DNSEngine {
+func newPlatformDNSEngine() DNSOperator {
 	return &windowsDNSEngine{}
 }
 

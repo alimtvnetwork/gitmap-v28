@@ -12,7 +12,7 @@ const winlogonRegPath = `SOFTWARE\Microsoft\Windows NT\CurrentVersion\Winlogon`
 
 type windowsAutoLoginEngine struct{}
 
-func newPlatformAutoLoginEngine() AutoLoginEngine {
+func newPlatformAutoLoginEngine() AutoLoginOperator {
 	return &windowsAutoLoginEngine{}
 }
 

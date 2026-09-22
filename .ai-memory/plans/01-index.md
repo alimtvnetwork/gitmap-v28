@@ -5,6 +5,7 @@ Master directory of architectural and execution plans.
 ## Pending Plans
 
 - [52-winutil-linutil-advanced-os-integration-plan.md](pending/52-winutil-linutil-advanced-os-integration-plan.md): Advanced WinUtil & LinUtil Native Go Integration (DM Settings, OS Tweaks, DNS Switcher & Bubbletea TUI)
+- [53-cicd-interface-naming-and-enum-suffix.md](pending/53-cicd-interface-naming-and-enum-suffix.md): CI/CD Quality Gate: Interface Naming and Enum Type Suffix Compliance
 
 ## Recent Completed Tasks Register (Last 20 Tasks)
 

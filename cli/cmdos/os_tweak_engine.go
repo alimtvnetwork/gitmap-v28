@@ -1,14 +1,14 @@
 package cmdos
 
 // defaultTweakEngine holds the active tweak implementation.
-var defaultTweakEngine TweakEngine = newPlatformTweakEngine()
+var defaultTweakEngine TweakOperator = newPlatformTweakEngine()
 
 // GetTweakEngine returns the active tweak engine.
-func GetTweakEngine() TweakEngine {
+func GetTweakEngine() TweakOperator {
 	return defaultTweakEngine
 }
 
 // SetTweakEngine overrides the active tweak engine (for tests).
-func SetTweakEngine(engine TweakEngine) {
+func SetTweakEngine(engine TweakOperator) {
 	defaultTweakEngine = engine
 }

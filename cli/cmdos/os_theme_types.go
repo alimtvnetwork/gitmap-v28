@@ -1,15 +1,15 @@
 package cmdos
 
-// ThemeMode specifies desktop visual appearance.
-type ThemeMode string
+// ThemeModeType specifies desktop visual appearance.
+type ThemeModeType string
 
 const (
-	ThemeModeDark  ThemeMode = "dark"
-	ThemeModeLight ThemeMode = "light"
+	ThemeModeDark  ThemeModeType = "dark"
+	ThemeModeLight ThemeModeType = "light"
 )
 
-// ThemeEngine sets desktop theme.
-type ThemeEngine interface {
-	SetTheme(mode ThemeMode) error
-	GetTheme() (ThemeMode, error)
+// ThemeOperator sets desktop theme.
+type ThemeOperator interface {
+	SetTheme(mode ThemeModeType) error
+	GetTheme() (ThemeModeType, error)
 }
