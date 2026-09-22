@@ -603,6 +603,11 @@ func dispatchGeneralCommands(cmd string, shouldAudit bool, id int64, start time.
 			return cmdai.DispatchAi(args)
 		}, shouldAudit, id, start)
 		return true
+	case "lowercase", "lower", "lower-case-fix", "lowercase-fix", "lcf", "lower-case-readme", "lowercase-readme", "readme-lower", "readme-lowercase", "lcr", "lc-fix":
+		executeAndAudit(func(_ context.Context, args []string, _ *cobra.Command) error {
+			return runLowerCaseFixCLI(args)
+		}, shouldAudit, id, start)
+		return true
 	default:
 		return false
 	}

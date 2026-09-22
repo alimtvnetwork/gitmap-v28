@@ -7,8 +7,9 @@ import (
 	"strings"
 )
 
-func findRenameCandidates(root string, patterns []string) ([]RenamePair, error) {
+func findRenameCandidates(root string, opts LowerCaseFixOptions) ([]RenamePair, int, error) {
 	var pairs []RenamePair
+	scannedCount := 0
 	err := filepath.Walk(root, func(path string, info os.FileInfo, walkErr error) error {
 		if walkErr != nil || info == nil {
 			return nil
@@ -16,12 +17,14 @@ func findRenameCandidates(root string, patterns []string) ([]RenamePair, error) 
 		if info.IsDir() {
 			return skipOrContinueDir(info.Name())
 		}
-		if pair, isMatch := checkFileCandidate(path, info.Name(), patterns); isMatch {
+		scannedCount++
+		rel, _ := filepath.Rel(root, path)
+		if pair, isMatch := checkFileCandidate(path, rel, info.Name(), opts); isMatch {
 			pairs = append(pairs, pair)
 		}
 		return nil
 	})
-	return pairs, err
+	return pairs, scannedCount, err
 }
 
 func skipOrContinueDir(name string) error {
@@ -37,11 +40,14 @@ func isIgnoredScanDir(name string) bool {
 		low == ".gemini" || low == "dist" || low == "build" || low == "target"
 }
 
-func checkFileCandidate(path, base string, patterns []string) (RenamePair, bool) {
+func checkFileCandidate(path, rel, base string, opts LowerCaseFixOptions) (RenamePair, bool) {
 	if !hasUppercaseChars(base) {
 		return RenamePair{}, false
 	}
-	if !isMatchingAnyPattern(base, patterns) {
+	if opts.IsReadmeOnly && !isRootReadme(rel, base) {
+		return RenamePair{}, false
+	}
+	if !opts.IsReadmeOnly && !isMatchingAnyPattern(rel, base, opts.Patterns) {
 		return RenamePair{}, false
 	}
 
@@ -52,21 +58,50 @@ func checkFileCandidate(path, base string, patterns []string) (RenamePair, bool)
 		NewPath: filepath.Join(dir, lowBase),
 		OldBase: base,
 		NewBase: lowBase,
+		RelPath: rel,
 	}, true
+}
+
+func isRootReadme(rel, base string) bool {
+	dir := filepath.Dir(rel)
+	if dir != "." && dir != "" {
+		return false
+	}
+	low := strings.ToLower(base)
+	return strings.HasPrefix(low, "readme")
 }
 
 func hasUppercaseChars(s string) bool {
 	return strings.ToLower(s) != s
 }
 
-func isMatchingAnyPattern(base string, patterns []string) bool {
+func isMatchingAnyPattern(rel, base string, patterns []string) bool {
 	if len(patterns) == 0 {
-		return strings.EqualFold(base, "readme.md")
+		return true
 	}
 	for _, p := range patterns {
-		if match, _ := filepath.Match(strings.ToLower(p), strings.ToLower(base)); match {
+		if isPatternMatch(rel, base, p) {
 			return true
 		}
+	}
+	return false
+}
+
+func isPatternMatch(rel, base, pattern string) bool {
+	p := strings.ToLower(pattern)
+	if p == "*" || p == "*.*" {
+		return true
+	}
+	lowBase := strings.ToLower(base)
+	if match, _ := filepath.Match(p, lowBase); match {
+		return true
+	}
+	lowRel := filepath.ToSlash(strings.ToLower(rel))
+	if match, _ := filepath.Match(p, lowRel); match {
+		return true
+	}
+	if strings.HasPrefix(p, "*") && !strings.Contains(p[1:], "*") {
+		return strings.HasSuffix(lowBase, p[1:])
 	}
 	return false
 }

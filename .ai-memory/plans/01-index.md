@@ -9,7 +9,8 @@ Master directory of architectural and execution plans.
 
 ## Recent Completed Tasks Register (Last 20 Tasks)
 
-1. [56-agy-cache-clear-retention-undo.md](completed/56-agy-cache-clear-retention-undo.md): AGY Cache Clear Retention (--keep 10), Preflight Simulation (--pre, --precheck, --preflight), Undo Backup & Direct Convenience Commands (ccko, cckf)
+1. [76-lowercase-file-fix-and-git-renaming.md](completed/76-lowercase-file-fix-and-git-renaming.md): Robust Lowercase File Renamer, Git Case Manipulation, Root README Command, Help Text & UI Integration
+2. [56-agy-cache-clear-retention-undo.md](completed/56-agy-cache-clear-retention-undo.md): AGY Cache Clear Retention (--keep 10), Preflight Simulation (--pre, --precheck, --preflight), Undo Backup & Direct Convenience Commands (ccko, cckf)
 2. [55-deep-raw-error-audit-codebase.md](completed/55-deep-raw-error-audit-codebase.md): Deep Codebase Raw Error Audit, Elimination of Swallowed Errors, AGY Workspace Suite (rm, pins, rrr, rrpr), and Conv Name/ID Display in Table
 2. [54-raw-error-audit-and-agy-improvements.md](completed/54-raw-error-audit-and-agy-improvements.md): Raw Error Audit, Elimination of Swallowed Errors, AGY Workspace Suite (rm, pins, rrr, rrpr), and Conv Name/ID Display in Table
 2. [51-winutil-and-linutil-os-autologin-and-tweaks.md](completed/51-winutil-and-linutil-os-autologin-and-tweaks.md): WinUtil & LinUtil Native Go Integration: OS Auto-Login (Windows & Ubuntu), System Tweaks & Maintenance
@@ -52,6 +53,7 @@ Master directory of architectural and execution plans.
 
 ## Completed Plans
 
+- [76-lowercase-file-fix-and-git-renaming.md](completed/76-lowercase-file-fix-and-git-renaming.md): Robust Lowercase File Renamer, Git Case Manipulation, Root README Command, Help Text & UI Integration
 - [57-lower-case-fix-command.md](completed/57-lower-case-fix-command.md): Lower-Case Fix Command (gitmap lower-case-fix)
 - [56-agy-cache-clear-retention-undo.md](completed/56-agy-cache-clear-retention-undo.md): AGY Cache Clear Retention, Preflight, Undo & Direct Shortcut Commands
 - [55-deep-raw-error-audit-codebase.md](completed/55-deep-raw-error-audit-codebase.md): Deep Raw Error Audit & Propagation Across the Codebase
