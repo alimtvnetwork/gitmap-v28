@@ -44,6 +44,8 @@ func dispatchOSSubcommand(subCmd string, subArgs []string) error {
 		return runOSFix(subArgs)
 	case "clean", "clear":
 		return runOSClean(subArgs)
+	case "dev":
+		return runOSDevSubcommand(subArgs)
 	case "dev-clean", "dev-cleanup", "cleandev", "devcleanup", "clean-dev":
 		return RunOSDevClean(subArgs)
 	case "cleanup":
@@ -99,6 +101,19 @@ func runOSCleanup(subArgs []string) error {
 	return runOSClean(subArgs)
 }
 
+func runOSDevSubcommand(subArgs []string) error {
+	if len(subArgs) == 0 {
+		return RunOSDevClean(nil)
+	}
+
+	sub := strings.ToLower(subArgs[0])
+	if sub == "clean" || sub == "cleanup" || sub == "dev-clean" {
+		return RunOSDevClean(subArgs[1:])
+	}
+
+	return RunOSDevClean(subArgs)
+}
+
 func isDevTarget(s string) bool {
 	low := strings.ToLower(strings.TrimSpace(s))
 
@@ -111,7 +126,7 @@ Commands:
   ip                  Inspect, set, change, switch, or revert network IP configuration
   fix                 Register, edit, run, export, and import system repair scripts
   clean (clear)       Clean temporary and ephemeral system cache directories
-  dev-clean (clean-dev) Clean compiler, package manager, and build tool caches
+  dev-clean (dev clean) Clean compiler, package manager, and build tool caches
   ai-clean (aiclean)  Scan and purge Antigravity brain, task, and temp AI cache dumps
   zsh                 Install, theme, switch, profile, and clean ZSH & Oh-My-Zsh
   user                Add, edit, export, import, or remove operating system users

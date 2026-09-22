@@ -49,7 +49,7 @@ func init() {
 	agyCleanCacheCmd.Flags().BoolVarP(&agyCleanForce, "force", "f", false, "Force terminate processes and proceed without confirmation")
 	agyCleanCacheCmd.Flags().BoolVar(&agyCleanNoKill, "no-kill", false, "Skip terminating running processes before cleaning")
 	agyCleanCacheCmd.Flags().BoolVar(&agyCleanJSON, "json", false, "Output results in JSON format")
-	agyCleanCacheCmd.Flags().BoolVar(&agyCleanIncludeTemp, "include-temp", true, "Include system/user temp directory in cleanup")
+	agyCleanCacheCmd.Flags().BoolVar(&agyCleanIncludeTemp, "include-temp", false, "Include system/user temp directory in cleanup")
 }
 
 // ExecuteCleanCache orchestrates cache target discovery, process termination, and cache wiping.

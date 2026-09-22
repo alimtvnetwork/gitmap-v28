@@ -4,6 +4,8 @@ import (
 	"os"
 	"path/filepath"
 	"runtime"
+
+	"github.com/alimtvnetwork/gitmap-v28/cli/osclean"
 )
 
 // AICleanCategory represents a discovered collection of purgeable cache files.
@@ -72,12 +74,7 @@ func resolveGitmapDir() string {
 }
 
 func isProtectedFile(filePath string) bool {
-	baseName := filepath.Base(filePath)
-
-	return baseName == "antigravity_state.pbtxt" ||
-		baseName == "installation_id" ||
-		baseName == "config.json" ||
-		baseName == ".gitkeep"
+	return osclean.IsAntigravityProtected(filePath)
 }
 
 type cleanAccumulator struct {
@@ -93,7 +90,7 @@ func (a *cleanAccumulator) addFilePath(filePath string, size int64) {
 }
 
 func scanDirectoryTree(dirPath string, acc *cleanAccumulator) {
-	if !pathExists(dirPath) {
+	if !pathExists(dirPath) || osclean.IsAntigravityProtected(dirPath) {
 		return
 	}
 

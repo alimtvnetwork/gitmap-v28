@@ -69,6 +69,9 @@ func appendIfPresent(dirs *[]string, seen map[string]bool, path string) {
 
 func cleanSingleDirectory(dir string, opts CleanOptions) CleanStats {
 	var stats CleanStats
+	if IsAntigravityProtected(dir) {
+		return stats
+	}
 	entries, readErr := os.ReadDir(dir)
 	if readErr != nil {
 		return stats
@@ -83,6 +86,9 @@ func cleanSingleDirectory(dir string, opts CleanOptions) CleanStats {
 
 func processEntry(dir string, entry os.DirEntry, opts CleanOptions, stats *CleanStats) {
 	fullPath := filepath.Join(dir, entry.Name())
+	if IsAntigravityProtected(fullPath) {
+		return
+	}
 	info, statErr := entry.Info()
 	if statErr != nil {
 		return
@@ -114,12 +120,18 @@ func removeEntry(fullPath string, info os.FileInfo, stats *CleanStats) {
 }
 
 func removeDirectoryEntry(fullPath string, stats *CleanStats) {
+	if IsAntigravityProtected(fullPath) {
+		return
+	}
 	if err := os.RemoveAll(fullPath); err == nil {
 		stats.RemovedDirsCount++
 	}
 }
 
 func removeFileEntry(fullPath string, info os.FileInfo, stats *CleanStats) {
+	if IsAntigravityProtected(fullPath) {
+		return
+	}
 	if err := os.Remove(fullPath); err == nil {
 		stats.RemovedFilesCount++
 		stats.FreedBytes += info.Size()

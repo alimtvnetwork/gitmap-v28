@@ -146,7 +146,9 @@ func renderDevCleanSummaryTotals(summary osclean.DevCleanSummary) {
 
 func printOSDevCleanUsage() {
 	fmt.Println("Usage: gitmap clean-dev [flags]")
+	fmt.Println("       gitmap os dev clean [flags]")
 	fmt.Println("       gitmap os dev-clean [flags]")
+	fmt.Println("       gitmap os clean dev [flags]")
 	fmt.Println("       gitmap os cleanup dev [flags]")
 	fmt.Println()
 	fmt.Println("Flags:")

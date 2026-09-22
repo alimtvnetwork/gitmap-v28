@@ -14,6 +14,7 @@ import (
 	"time"
 
 	"github.com/alimtvnetwork/gitmap-v28/cli/constants"
+	"github.com/alimtvnetwork/gitmap-v28/cli/osclean"
 )
 
 // AgyCacheTarget represents a cache directory target to be cleaned.
@@ -80,6 +81,11 @@ func CleanDirectoryContents(dirPath string) (int64, int, []string) {
 	var deletedFiles int
 	var warnings []string
 
+	if osclean.IsAntigravityProtected(dirPath) {
+		warnings = append(warnings, fmt.Sprintf("skipped protected directory %s", dirPath))
+		return freedBytes, deletedFiles, warnings
+	}
+
 	entries, readErr := os.ReadDir(dirPath)
 	if readErr != nil {
 		warnings = append(warnings, fmt.Sprintf("read dir %s: %v", dirPath, readErr))
@@ -88,6 +94,10 @@ func CleanDirectoryContents(dirPath string) (int64, int, []string) {
 
 	for _, entry := range entries {
 		subPath := filepath.Join(dirPath, entry.Name())
+		if osclean.IsAntigravityProtected(subPath) {
+			warnings = append(warnings, fmt.Sprintf("skipped protected path %s", subPath))
+			continue
+		}
 		subSize, subFiles, _ := CalculateDirStats(subPath)
 
 		removeErr := os.RemoveAll(subPath)

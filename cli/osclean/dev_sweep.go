@@ -9,7 +9,7 @@ import (
 // SweepTarget cleans or simulates cleaning on a directory target.
 func SweepTarget(dir string, isDryRun bool, hasStripReadOnly bool) CategoryCleanStats {
 	var stats CategoryCleanStats
-	if !isExistingDir(dir) {
+	if !isExistingDir(dir) || IsAntigravityProtected(dir) {
 		return stats
 	}
 
@@ -37,6 +37,9 @@ func isExistingDir(path string) bool {
 }
 
 func sweepEntry(p string, entry os.DirEntry, isDryRun, hasStrip bool, stats *CategoryCleanStats) {
+	if IsAntigravityProtected(p) {
+		return
+	}
 	if isDryRun {
 		recordDryRunEntry(p, entry, stats)
 		return
@@ -65,6 +68,9 @@ func recordDryRunEntry(p string, entry os.DirEntry, stats *CategoryCleanStats) {
 }
 
 func recordLiveRemoval(p string, entry os.DirEntry, stats *CategoryCleanStats) {
+	if IsAntigravityProtected(p) {
+		return
+	}
 	dirFiles, dirBytes := measureDirRecursive(p)
 	if removeErr := os.RemoveAll(p); removeErr != nil {
 		stats.Errors = append(stats.Errors, removeErr.Error())

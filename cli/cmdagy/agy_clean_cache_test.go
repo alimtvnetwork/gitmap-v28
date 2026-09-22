@@ -140,3 +140,41 @@ func TestExecuteCleanCache_DryRunJSON(t *testing.T) {
 		t.Fatalf("ExecuteCleanCache dry-run failed: %v", err)
 	}
 }
+
+func TestCleanDirectoryContents_ProtectsSettings(t *testing.T) {
+	tempDir, err := os.MkdirTemp("", "agy-clean-protect-test-*")
+	if err != nil {
+		t.Fatalf("failed to create temp dir: %v", err)
+	}
+	defer func() { _ = os.RemoveAll(tempDir) }()
+
+	cacheFile := filepath.Join(tempDir, "cache_001.bin")
+	_ = os.WriteFile(cacheFile, []byte("cache data"), 0644)
+
+	configFile := filepath.Join(tempDir, "config.json")
+	_ = os.WriteFile(configFile, []byte(`{"userSettings": {}}`), 0644)
+
+	prefFile := filepath.Join(tempDir, "Preferences")
+	_ = os.WriteFile(prefFile, []byte(`{"theme": "dark"}`), 0644)
+
+	freed, deleted, warnings := CleanDirectoryContents(tempDir)
+	if deleted != 1 {
+		t.Errorf("expected only 1 file deleted, got %d", deleted)
+	}
+	if freed != int64(len("cache data")) {
+		t.Errorf("expected freed bytes %d, got %d", len("cache data"), freed)
+	}
+	if len(warnings) < 2 {
+		t.Errorf("expected at least 2 warnings for protected files, got %d", len(warnings))
+	}
+
+	if _, statErr := os.Stat(configFile); statErr != nil {
+		t.Errorf("expected config.json to NOT be deleted: %v", statErr)
+	}
+	if _, statErr := os.Stat(prefFile); statErr != nil {
+		t.Errorf("expected Preferences to NOT be deleted: %v", statErr)
+	}
+	if _, statErr := os.Stat(cacheFile); !os.IsNotExist(statErr) {
+		t.Errorf("expected cacheFile to be deleted")
+	}
+}

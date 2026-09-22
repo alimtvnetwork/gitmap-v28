@@ -39,3 +39,25 @@ func TestIsHelpDevClean(t *testing.T) {
 		t.Errorf("expected --dry-run not to be recognized as help")
 	}
 }
+
+func TestIsDevTarget(t *testing.T) {
+	if !isDevTarget("dev") {
+		t.Errorf("expected dev to be true")
+	}
+	if !isDevTarget("clean-dev") {
+		t.Errorf("expected clean-dev to be true")
+	}
+	if !isDevTarget("dev-clean") {
+		t.Errorf("expected dev-clean to be true")
+	}
+	if isDevTarget("temp") {
+		t.Errorf("expected temp to be false")
+	}
+}
+
+func TestRunOSDevSubcommand_CleanRouting(t *testing.T) {
+	err := runOSDevSubcommand([]string{"clean", "--dry-run", "--json"})
+	if err != nil {
+		t.Errorf("expected no error running os dev clean dry-run, got %v", err)
+	}
+}
