@@ -5,6 +5,7 @@
 
 ## Changelog
 
+- 2026-09-22T08:35:00Z, Memory write: Enhanced release-orchestrator and ci-cd-fix-with-release prompts and skills with priority smart runner shortcuts (run-smart, --fast), gitmap pipeline suite (pe, pd), and cross-repo sync (learned 31).
 - 2026-09-22T07:25:00Z, Memory write: Authored 6 specialized GitMap subsystem skills in .agents/skills/ (scanner-and-cloner, ssh-cluster-fleet, split-db-engine, pipeline-and-diagnostics, developer-hygiene-and-agy, macro-automation-engine) and learned memory 30.
 - 2026-09-20T13:46:00Z, Memory write: RCA 65 fixed scanRootForFile directory probe, flattened pipeline-ai nested ifs, and cleaned gofmt whitespace drift.
 - 2026-09-20T12:36:00Z, Memory write: Feature 30 Developer tools cache cleanup (gitmap clean-dev, gitmap os dev-clean / dev-cleanup), Go modcache read-only attribute stripping, and 10 developer tools cache categories.
@@ -43,6 +44,7 @@
 - `.ai-memory/memory/learned/28-git-commit-history-os-isolation-and-context-ingestion.md`, why: recent 10 commits, Coding Guideline 24 OS test isolation, hermetic mock runner decoupling, and context ingestion
 - `.ai-memory/memory/learned/29-ssh-multi-target-pipeline-bounded-stacktrace-ingestion.md`, why: Plans 208–214 SSH multi-target command resolution and machine join, and CI/CD pipeline bounded stack traces (RCA 58)
 - `.ai-memory/memory/learned/30-gitmap-subsystem-skills-set-architecture.md`, why: 6 specialized subsystem skills set for scanner, SSH cluster fleet, Split-DB, pipeline diagnostics, AGY hygiene, and macro automation engines
+- `.ai-memory/memory/learned/31-pipeline-runner-enhancements-prompts-and-skills-sync.md`, why: release orchestrator & CI/CD fix with release prompts updated with priority runner shortcuts (run-smart, --fast), gitmap pipeline suite (pe, pd), and cross-repo synchronization
 
 
 - `03-ai-scripts/01-index.md`, why: local automation tools and CI/CD parallel runner specifications
