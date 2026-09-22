@@ -1,3 +1,9 @@
+## v6.307.0 — 2026-09-22 (Anchor pipeline database to CLI data directory with relative display path)
+
+**Scope:** Version bump. Anchor pipeline database to CLI data directory with relative display path.
+
+---
+
 ## v6.306.0 — 2026-09-22 (Implement SSH-first access probe and interactive terminal token authentication with global reuse)
 
 **Scope:** Version bump. Implement SSH-first access probe and interactive terminal token authentication with global reuse.
