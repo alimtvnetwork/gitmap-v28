@@ -1,3 +1,9 @@
+## v6.300.0 — 2026-09-22 (add Linux display manager dm.settings, Windows privacy and search tweaks, native DNS switcher, and universal updater)
+
+**Scope:** Version bump. add Linux display manager dm.settings, Windows privacy and search tweaks, native DNS switcher, and universal updater.
+
+---
+
 ## v6.299.1 — 2026-09-22 (fix gofmt whitespace drift in rootcore.go and helpers.go)
 
 **Scope:** Version bump. fix gofmt whitespace drift in rootcore.go and helpers.go.

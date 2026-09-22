@@ -4,7 +4,7 @@ Master directory of architectural and execution plans.
 
 ## Pending Plans
 
-*(No pending plans at this time.)*
+- [52-winutil-linutil-advanced-os-integration-plan.md](pending/52-winutil-linutil-advanced-os-integration-plan.md): Advanced WinUtil & LinUtil Native Go Integration (DM Settings, OS Tweaks, DNS Switcher & Bubbletea TUI)
 
 ## Recent Completed Tasks Register (Last 20 Tasks)
 

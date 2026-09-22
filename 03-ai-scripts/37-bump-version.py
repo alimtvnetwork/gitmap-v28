@@ -37,6 +37,8 @@ README_MD = REPO_ROOT / "readme.md"
 CHANGELOG_MD = REPO_ROOT / "changelog.md"
 SPEC19_CHANGELOG = REPO_ROOT / "02-spec" / "19-main-worker-service" / "98-changelog.md"
 TEMPLATE_VERSION = REPO_ROOT / "prompt-version.template.json"
+CONSTANTS_GO = REPO_ROOT / "cli" / "constants" / "constants.go"
+
 
 
 def run_cmd(cmd, cwd=None, check=True, capture_output=True):
@@ -176,6 +178,28 @@ def update_template_version(next_version, dry_run=False):
     print(f"[*] Updated prompt-version.template.json -> {next_version}")
 
 
+def update_constants_go(next_version, dry_run=False):
+    """Updates Version in cli/constants/constants.go."""
+    if not CONSTANTS_GO.is_file():
+        return
+
+    with open(CONSTANTS_GO, "r", encoding="utf-8") as f:
+        content = f.read()
+
+    new_content = re.sub(r'var Version = "[^"]+"', f'var Version = "{next_version}"', content)
+    if new_content == content:
+        return
+
+    if dry_run:
+        print(f"[DRY RUN] Would update cli/constants/constants.go Version -> {next_version}")
+        return
+
+    with open(CONSTANTS_GO, "w", encoding="utf-8", newline="\n") as f:
+        f.write(new_content)
+
+    print(f"[*] Updated cli/constants/constants.go Version -> {next_version}")
+
+
 def update_readme_pins(current_ver, next_version, dry_run=False):
     """Pins new version in readme.md badges and text references."""
     if not README_MD.is_file():
@@ -204,7 +228,15 @@ def update_readme_pins(current_ver, next_version, dry_run=False):
 
 def update_changelogs(next_version, scope, today_str, dry_run=False):
     """Prepends release entries to changelog.md and spec19 changelog if present."""
-    entry_header = f"## [v{next_version}] - {today_str}\n\n### Added\n- {scope}\n\n"
+    entry_header = (
+        f"## [v{next_version}] {today_str} Release v{next_version}\n\n"
+        f"### Install GitMap v{next_version}\n\n"
+        f"To pin your repository to this exact version, run the following one-liner:\n"
+        f'Unix/Bash: `curl -sL https://raw.githubusercontent.com/alimtvnetwork/gitmap-v28/v{next_version}/install.sh | bash -s -- ".ai-memory/prompts" "v{next_version}"`\n'
+        f'PowerShell: `Invoke-WebRequest -Uri https://raw.githubusercontent.com/alimtvnetwork/gitmap-v28/v{next_version}/install.ps1 -OutFile install.ps1; .\\install.ps1 -TargetDir ".ai-memory/prompts" -Version "v{next_version}"`\n\n'
+        f"### Added / Changed / Fixed / Removed\n\n"
+        f"- {scope}\n\n"
+    )
 
     if CHANGELOG_MD.is_file():
         with open(CHANGELOG_MD, "r", encoding="utf-8") as f:
@@ -214,11 +246,7 @@ def update_changelogs(next_version, scope, today_str, dry_run=False):
             if dry_run:
                 print(f"[DRY RUN] Would prepend changelog entry to changelog.md for v{next_version}")
             else:
-                if "# Changelog\n" in cl_content:
-                    cl_content = cl_content.replace("# Changelog\n", f"# Changelog\n\n{entry_header}", 1)
-                else:
-                    cl_content = f"# Changelog\n\n{entry_header}{cl_content}"
-
+                cl_content = f"{entry_header}{cl_content}"
                 with open(CHANGELOG_MD, "w", encoding="utf-8", newline="\n") as f:
                     f.write(cl_content)
 
@@ -280,6 +308,7 @@ def execute_bump(tier="minor", explicit_version=None, scope=None, dry_run=False)
     update_version_json(next_ver, today_str, dry_run=dry_run)
     update_package_json(next_ver, dry_run=dry_run)
     update_template_version(next_ver, dry_run=dry_run)
+    update_constants_go(next_ver, dry_run=dry_run)
     update_readme_pins(current_ver, next_ver, dry_run=dry_run)
     update_changelogs(next_ver, bump_scope, today_str, dry_run=dry_run)
     run_repo_sync_if_available(dry_run=dry_run)

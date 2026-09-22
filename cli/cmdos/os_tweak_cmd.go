@@ -26,6 +26,12 @@ func runOSTweak(args []string) error {
 		return handleTweakPower(args[1:])
 	case "hibernate", "hibernation":
 		return handleTweakHibernate(args[1:])
+	case "telemetry", "telemetry-optout":
+		return handleTweakTelemetry(args[1:])
+	case "activity", "activity-feed", "activities":
+		return handleTweakActivity(args[1:])
+	case "search", "bing-search", "bing":
+		return handleTweakSearch(args[1:])
 	default:
 		printTweakUsage()
 		return apperror.NewSimple("unknown tweak category: "+args[0], "E_INVALID_TWEAK_CAT")
@@ -48,6 +54,9 @@ func printTweakStatusReport(st TweakStatus) {
 	fmt.Printf("  • Classic Start Menu:   %t\n", st.IsClassicStartMenu)
 	fmt.Printf("  • Ultimate Power:       %t\n", st.IsUltimatePower)
 	fmt.Printf("  • Hibernation Active:   %t\n", st.IsHibernateEnabled)
+	fmt.Printf("  • Telemetry Disabled:   %t\n", st.IsTelemetryDisabled)
+	fmt.Printf("  • Activity Disabled:    %t\n", st.IsActivityFeedDisabled)
+	fmt.Printf("  • Bing Search Disabled: %t\n", st.IsBingSearchDisabled)
 }
 
 func printTweakUsage() {
@@ -57,4 +66,7 @@ func printTweakUsage() {
 	fmt.Println("       gitmap os tweak start-menu classic|default   (Toggle Start Menu layout)")
 	fmt.Println("       gitmap os tweak power ultimate|balanced      (Switch power scheme)")
 	fmt.Println("       gitmap os tweak hibernate on|off             (Toggle hibernation)")
+	fmt.Println("       gitmap os tweak telemetry off|on             (Toggle Windows telemetry)")
+	fmt.Println("       gitmap os tweak activity off|on              (Toggle activity history feed)")
+	fmt.Println("       gitmap os tweak search clean|default         (Toggle Start Menu web search)")
 }

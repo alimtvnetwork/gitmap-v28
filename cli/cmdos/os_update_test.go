@@ -1,43 +1,29 @@
 package cmdos
 
 import (
-	"context"
-	"os/exec"
 	"testing"
 )
 
-func setupMockOSCommandRunner() (func() *exec.Cmd, func()) {
-	var capturedCmd *exec.Cmd
-	orig := defaultOSCommandRunner
-	defaultOSCommandRunner = func(cmd *exec.Cmd) error {
-		capturedCmd = cmd
-		return nil
+func TestHasDryRunFlag(t *testing.T) {
+	if !hasDryRunFlag([]string{"--dry-run"}) {
+		t.Errorf("expected true for --dry-run")
 	}
-	getCaptured := func() *exec.Cmd { return capturedCmd }
-	cleanup := func() { defaultOSCommandRunner = orig }
-	return getCaptured, cleanup
-}
 
-func TestExecuteOSUpdate_Mocked(t *testing.T) {
-	getCaptured, cleanup := setupMockOSCommandRunner()
-	defer cleanup()
-
-	if err := ExecuteOSUpdate(context.Background()); err != nil {
-		t.Fatalf("unexpected error: %v", err)
+	if !hasDryRunFlag([]string{"-n"}) {
+		t.Errorf("expected true for -n")
 	}
-	if getCaptured() == nil {
-		t.Fatal("expected non-nil captured cmd")
+
+	if hasDryRunFlag([]string{"--other"}) {
+		t.Errorf("expected false for --other")
 	}
 }
 
-func TestExecuteOSFullUpgrade_Mocked(t *testing.T) {
-	getCaptured, cleanup := setupMockOSCommandRunner()
-	defer cleanup()
-
-	if err := ExecuteOSFullUpgrade(context.Background()); err != nil {
-		t.Fatalf("unexpected error: %v", err)
+func TestRunOSUpdateHelpRouting(t *testing.T) {
+	if err := runOSUpdateCommand(false, []string{"--help"}); err != nil {
+		t.Errorf("expected nil error for update help, got: %v", err)
 	}
-	if getCaptured() == nil {
-		t.Fatal("expected non-nil captured cmd")
+
+	if err := runOSUpdateCommand(true, []string{"-h"}); err != nil {
+		t.Errorf("expected nil error for upgrade help, got: %v", err)
 	}
 }

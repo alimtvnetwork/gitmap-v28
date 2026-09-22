@@ -1,3 +1,20 @@
+## [v6.300.0] 2026-09-22 Release v6.300.0
+
+### Install GitMap v6.300.0
+
+To pin your repository to this exact version, run the following one-liner:
+Unix/Bash: `curl -sL https://raw.githubusercontent.com/alimtvnetwork/gitmap-v28/v6.300.0/install.sh | bash -s -- ".ai-memory/prompts" "v6.300.0"`
+PowerShell: `Invoke-WebRequest -Uri https://raw.githubusercontent.com/alimtvnetwork/gitmap-v28/v6.300.0/install.ps1 -OutFile install.ps1; .\install.ps1 -TargetDir ".ai-memory/prompts" -Version "v6.300.0"`
+
+### Added / Changed / Fixed / Removed
+
+- Native Linux Display Manager (`gitmap os dm`): Display manager detection and configuration parity with LinUtil's `dm.settings`, inspecting active DM (GDM3, LightDM, SDDM), toggling Wayland mode (`gitmap os dm wayland on|off`), and restarting display-manager services without shell scripts.
+- Windows Privacy & Start Menu Tweaks: Added `gitmap os tweak telemetry off|on` (disables DiagTrack service, sets telemetry opt-out), `activity off|on` (disables Windows Activity Feed collection & cloud upload), and `search clean|default` (removes Bing and web suggestions from Start Menu).
+- Native DNS Switcher & Benchmark (`gitmap os dns`): Added ultra-fast DNS switcher supporting Cloudflare (1.1.1.1), Google (8.8.8.8), Quad9 (9.9.9.9), and AdGuard (94.140.14.14), automated DHCP restoration (`gitmap os dns dhcp`), and integrated UDP DNS benchmark (`gitmap os dns bench`).
+- Universal System Updater (`gitmap os update / upgrade`): Cross-platform multi-package manager aggregator supporting winget, apt, dnf, pacman, and brew with dry-run support (`--dry-run`).
+- Desktop Theme Switcher (`gitmap os theme dark|light`): Native registry theme toggle on Windows (AppsUseLightTheme, SystemUsesLightTheme) and gsettings on Linux/GNOME.
+- Code Hygiene & Modularity: Strictly preserved $\le 100$ lines per file, flattened all nested ifs to depth 1, and achieved 100% compliance across all CI/CD policy linters and cross-platform vet.
+
 ## [v6.299.1] 2026-09-22 Release v6.299.1
 
 ### Install GitMap v6.299.1

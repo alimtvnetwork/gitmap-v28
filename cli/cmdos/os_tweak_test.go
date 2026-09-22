@@ -4,42 +4,6 @@ import (
 	"testing"
 )
 
-type mockTweakEngine struct {
-	isClassicContext bool
-	isClassicStart   bool
-	isUltimatePower  bool
-	isHibernate      bool
-}
-
-func (m *mockTweakEngine) SetContextMenu(isClassic bool) error {
-	m.isClassicContext = isClassic
-	return nil
-}
-
-func (m *mockTweakEngine) SetStartMenu(isClassic bool) error {
-	m.isClassicStart = isClassic
-	return nil
-}
-
-func (m *mockTweakEngine) SetPowerScheme(isUltimate bool) error {
-	m.isUltimatePower = isUltimate
-	return nil
-}
-
-func (m *mockTweakEngine) SetHibernate(isEnabled bool) error {
-	m.isHibernate = isEnabled
-	return nil
-}
-
-func (m *mockTweakEngine) GetStatus() (TweakStatus, error) {
-	return TweakStatus{
-		IsClassicContextMenu: m.isClassicContext,
-		IsClassicStartMenu:   m.isClassicStart,
-		IsUltimatePower:      m.isUltimatePower,
-		IsHibernateEnabled:   m.isHibernate,
-	}, nil
-}
-
 func TestTweakMockOperations(t *testing.T) {
 	mock := &mockTweakEngine{}
 	prev := GetTweakEngine()
@@ -64,5 +28,20 @@ func TestTweakMockOperations(t *testing.T) {
 	_ = runOSTweak([]string{"hibernate", "off"})
 	if mock.isHibernate {
 		t.Error("expected hibernation to be false")
+	}
+
+	_ = runOSTweak([]string{"telemetry", "off"})
+	if !mock.isTelemetry {
+		t.Error("expected telemetry disabled to be true")
+	}
+
+	_ = runOSTweak([]string{"activity", "off"})
+	if !mock.isActivity {
+		t.Error("expected activity feed disabled to be true")
+	}
+
+	_ = runOSTweak([]string{"search", "clean"})
+	if !mock.isBing {
+		t.Error("expected search disabled to be true")
 	}
 }
