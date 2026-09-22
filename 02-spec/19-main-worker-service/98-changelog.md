@@ -1,3 +1,9 @@
+## v6.303.0 — 2026-09-22 (Pipeline compile and vet fixes)
+
+**Scope:** Version bump. Pipeline compile and vet fixes.
+
+---
+
 ## v6.301.0 — 2026-09-22 (fix Go interface naming and enum type suffix compliance in cmdos)
 
 **Scope:** Version bump. fix Go interface naming and enum type suffix compliance in cmdos.
