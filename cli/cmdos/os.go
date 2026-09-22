@@ -62,6 +62,10 @@ func dispatchOSSubcommand(subCmd string, subArgs []string) error {
 		return runOSCron(subArgs)
 	case "storage", "disk", "space":
 		return runOSStorage(subArgs)
+	case "autologin", "auto-login", "al":
+		return runOSAutoLogin(subArgs)
+	case "tweak", "tweaks", "twk":
+		return runOSTweak(subArgs)
 	case constants.SubCmdOSHelp:
 		return handleOSHelp()
 	default:
@@ -134,6 +138,8 @@ Commands:
   vmware              Discover and mount VMware shared folders (/mnt/hgfs)
   cron                Inspect, append, and remove crontab scheduled jobs
   storage (disk)      Inspect disk drive capacities, partitions, and storage metrics
+  autologin           Configure OS auto-login credentials (Windows & Ubuntu)
+  tweak               Manage Windows desktop tweaks, power schemes, and hibernation
   display (disp)      Inspect and configure OS display settings, resolution & timeouts
   fix-link (fixlink)  Inspect and repair broken symlinks and shared directories
   status (st)         Display operating system environment and link diagnostics

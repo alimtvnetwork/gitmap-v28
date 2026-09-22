@@ -11,6 +11,9 @@ func runOSClean(args []string) error {
 	if len(args) > 0 && isDevTarget(args[0]) {
 		return RunOSDevClean(args[1:])
 	}
+	if len(args) > 0 && isSystemCleanTarget(args[0]) {
+		return runOSSystemClean()
+	}
 
 	if isHelpClean(args) {
 		printOSCleanUsage()
@@ -56,8 +59,9 @@ func printCleanSummary(stats osclean.CleanStats, isDryRun bool) {
 }
 
 func printOSCleanUsage() {
-	fmt.Println("Usage: gitmap os clean [temp|dev] [flags]")
+	fmt.Println("Usage: gitmap os clean [temp|dev|sys] [flags]")
 	fmt.Println("       gitmap os clear temp [flags]")
+	fmt.Println("       gitmap os clean sys [flags]   (Linux package & journal cleanup)")
 	fmt.Println("       gitmap os dev-clean [flags]")
 	fmt.Println()
 	fmt.Println("Flags:")

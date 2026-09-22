@@ -4,13 +4,12 @@ Master directory of architectural and execution plans.
 
 ## Pending Plans
 
-- [51-winutil-and-linutil-os-autologin-and-tweaks.md](pending/51-winutil-and-linutil-os-autologin-and-tweaks.md): WinUtil & LinUtil Native Go Integration: OS Auto-Login (Windows & Ubuntu), System Tweaks & Maintenance
-
-
+*(No pending plans at this time.)*
 
 ## Recent Completed Tasks Register (Last 20 Tasks)
 
-1. [50-finalize-missing-elements-pipeline-tasks-scriptsfixer-ai-logging.md](completed/50-finalize-missing-elements-pipeline-tasks-scriptsfixer-ai-logging.md): Finalize Missing Elements (Pipeline Tasks DB, scripts-fixer Beyond Compare, AI Execution Logging)
+1. [51-winutil-and-linutil-os-autologin-and-tweaks.md](completed/51-winutil-and-linutil-os-autologin-and-tweaks.md): WinUtil & LinUtil Native Go Integration: OS Auto-Login (Windows & Ubuntu), System Tweaks & Maintenance
+2. [50-finalize-missing-elements-pipeline-tasks-scriptsfixer-ai-logging.md](completed/50-finalize-missing-elements-pipeline-tasks-scriptsfixer-ai-logging.md): Finalize Missing Elements (Pipeline Tasks DB, scripts-fixer Beyond Compare, AI Execution Logging)
 2. [49-split-tasks-db-branch-compare-llm-search-and-agy-prompt.md](completed/49-split-tasks-db-branch-compare-llm-search-and-agy-prompt.md): Split Tasks DB Architecture, Branch Compare (Beyond Compare), LLM AI Execution History, Search DB & AGY Prompt Enhancements
 3. [47-specs-131-to-134-implementation-and-verification.md](completed/47-specs-131-to-134-implementation-and-verification.md): Specs 131 to 134 Implementation, Verification, and Database Hygiene Suite
 3. [46-pipeline-ai-live-error-streaming-and-auto-remediation.md](completed/46-pipeline-ai-live-error-streaming-and-auto-remediation.md): Pipeline-AI Live Error Streaming, Fast-Forward Auto-Remediation, AUM Search Acceleration, and Author Attribution
@@ -49,6 +48,7 @@ Master directory of architectural and execution plans.
 
 ## Completed Plans
 
+- [51-winutil-and-linutil-os-autologin-and-tweaks.md](completed/51-winutil-and-linutil-os-autologin-and-tweaks.md): WinUtil & LinUtil Native Go Integration: OS Auto-Login (Windows & Ubuntu), System Tweaks & Maintenance
 - [50-finalize-missing-elements-pipeline-tasks-scriptsfixer-ai-logging.md](completed/50-finalize-missing-elements-pipeline-tasks-scriptsfixer-ai-logging.md): Finalize Missing Elements (Pipeline Tasks DB, scripts-fixer Beyond Compare, AI Execution Logging)
 - [49-split-tasks-db-branch-compare-llm-search-and-agy-prompt.md](completed/49-split-tasks-db-branch-compare-llm-search-and-agy-prompt.md): Split Tasks DB, Branch Compare (Beyond Compare), LLM AI Execution History, Search DB & AGY Prompt Enhancements
 - [42-pr-commit-engines-and-sqlite-split-db-architecture.md](completed/42-pr-commit-engines-and-sqlite-split-db-architecture.md): PR Commit Engines, Split-DB Architecture & Auto-Merge PR Release Suite

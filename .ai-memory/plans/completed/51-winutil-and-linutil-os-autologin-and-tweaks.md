@@ -1,7 +1,7 @@
 # Plan: WinUtil & LinUtil Native Integration: OS Auto-Login (Windows & Ubuntu), System Tweaks & Maintenance
 
 - **Slug:** `51-winutil-and-linutil-os-autologin-and-tweaks`
-- **Status:** Pending
+- **Status:** Completed
 - **Author:** Antigravity (Pair Programming with Alim Karim)
 - **Source Repositories Analyzed:** `D:\work\chris\winutil` and `D:\work\chris\linutil`
 - **Target Architecture:** Native Go subsystem under `cli/cmdos/` with zero PowerShell dependency, hermetic testing, and two-column terminal menus.
@@ -120,14 +120,14 @@ gitmap os update                           # Unified package manager and reposit
 
 ## 4. Execution & Implementation Tasks
 
-- [ ] **Task 1 (Data Types & Interfaces):** Create `cli/cmdos/os_autologin_types.go` defining `AutoLoginConfig`, `TweakTarget`, and `SystemCleanOptions`.
-- [ ] **Task 2 (Windows Auto-Login):** Implement `cli/cmdos/os_autologin_windows.go` with native registry read/write operations.
-- [ ] **Task 3 (Ubuntu Auto-Login):** Implement `cli/cmdos/os_autologin_linux.go` with GDM3, LightDM, and getty support.
-- [ ] **Task 4 (CLI Prompts & Options):** Implement `cli/cmdos/os_autologin_prompt.go` for 3-parameter interactive input with masked password entry.
-- [ ] **Task 5 (Windows Shell Tweaks):** Implement `cli/cmdos/os_tweak_windows.go` (Context Menu, Start Menu, Power Schemes, Hibernation).
-- [ ] **Task 6 (Linux System Clean):** Implement `cli/cmdos/os_clean_linux.go` for package cache, journal vacuuming, and log cleanup.
-- [ ] **Task 7 (Subcommand Dispatch & Help Menus):** Add `gitmap os autologin` and `gitmap os tweak` to `cli/cmdos/os_cmd.go` and author two-column styled help menus in `cli/helptext/os-autologin.md` and `cli/helptext/os-tweak.md`.
-- [ ] **Task 8 (Hermetic Unit Testing):** Author unit tests with mock registry and mock filesystem providers in `os_autologin_test.go` and `os_tweak_test.go`.
+- [x] **Task 1 (Data Types & Interfaces):** Create `cli/cmdos/os_autologin_types.go` defining `AutoLoginConfig`, `TweakTarget`, and `SystemCleanOptions`.
+- [x] **Task 2 (Windows Auto-Login):** Implement `cli/cmdos/os_autologin_windows.go` with native registry read/write operations.
+- [x] **Task 3 (Ubuntu Auto-Login):** Implement `cli/cmdos/os_autologin_linux.go` with GDM3, LightDM, and getty support.
+- [x] **Task 4 (CLI Prompts & Options):** Implement `cli/cmdos/os_autologin_prompt.go` for 3-parameter interactive input with masked password entry.
+- [x] **Task 5 (Windows Shell Tweaks):** Implement `cli/cmdos/os_tweak_windows.go` (Context Menu, Start Menu, Power Schemes, Hibernation).
+- [x] **Task 6 (Linux System Clean):** Implement `cli/cmdos/os_clean_linux.go` for package cache, journal vacuuming, and log cleanup.
+- [x] **Task 7 (Subcommand Dispatch & Help Menus):** Add `gitmap os autologin` and `gitmap os tweak` to `cli/cmdos/os_cmd.go` and author two-column styled help menus in `cli/helptext/os-autologin.md` and `cli/helptext/os-tweak.md`.
+- [x] **Task 8 (Hermetic Unit Testing):** Author unit tests with mock registry and mock filesystem providers in `os_autologin_test.go` and `os_tweak_test.go`.
 
 ---
 

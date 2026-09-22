@@ -22,6 +22,8 @@ gitmap os [subcommand] [flags]
 | group (user-group) | List, create, edit, export, import, and remove user groups |
 | vmware | Discover and mount VMware shared folders (/mnt/hgfs) |
 | cron [subcommand] | Inspect, append, and remove crontab scheduled jobs |
+| autologin [subcommand] | Configure OS auto-login credentials (Windows & Ubuntu) |
+| tweak [subcommand] | Manage Windows desktop tweaks, power schemes, and hibernation |
 | display [subcommand] | Inspect and configure OS display settings, desktop session & timeouts |
 | fix-link [path] | Inspect and repair broken symlinks and shared directories |
 | storage [subcommand] | Inspect disk space, storage volumes, SQLite databases, and cleanup |
