@@ -520,7 +520,8 @@ func renderSingleDetailsFailure(sec SectionFailure, idx, total int) {
 	if len(sec.FailureSummary) > 0 {
 		fmt.Printf("      Error:   %s%s%s\n", constants.ColorRed, sec.FailureSummary, constants.ColorReset)
 	}
-	renderSectionErrorLines(sec.ErrorLines)
+	renderSectionWarnings(sec.Warnings)
+	renderSectionErrorLinesDedup(sec.ErrorLines, sec.FailureSummary)
 	if len(sec.SavedLogFile) > 0 {
 		fmt.Printf("      Log:     %s\n", filepath.ToSlash(sec.SavedLogFile))
 	}

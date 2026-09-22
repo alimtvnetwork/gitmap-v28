@@ -93,20 +93,24 @@ func scanLogLinesIntoMap(rawLogs string, jobMap map[string]*FailedJobItem, order
 	scanner := bufio.NewScanner(strings.NewReader(rawLogs))
 	contextRemaining := 0
 	var lastKey string
+	warnBuf := make(map[string][]string)
 	for scanner.Scan() {
-		processLogLine(scanner.Text(), jobMap, order, &contextRemaining, &lastKey)
+		processLogLine(scanner.Text(), jobMap, order, &contextRemaining, &lastKey, warnBuf)
 	}
 }
 
-func processLogLine(raw string, jobMap map[string]*FailedJobItem, order *[]string, ctxRem *int, lastKey *string) {
+func processLogLine(raw string, jobMap map[string]*FailedJobItem, order *[]string, ctxRem *int, lastKey *string, warnBuf map[string][]string) {
 	job, step, text, isError := parseLogLine(raw)
 	if text == "" || isIgnoredLogLine(text) {
 		return
 	}
 
 	key := job + "|||" + step
+	if isWarningLine(text) {
+		bufferWarning(warnBuf, key, text)
+	}
 	if isError {
-		recordErrorLine(jobMap, order, key, job, step, text, ctxRem, lastKey)
+		recordErrorLine(jobMap, order, key, job, step, text, ctxRem, lastKey, warnBuf)
 
 		return
 	}
@@ -114,12 +118,33 @@ func processLogLine(raw string, jobMap map[string]*FailedJobItem, order *[]strin
 	appendContextLine(jobMap, key, text, ctxRem, lastKey)
 }
 
-func recordErrorLine(jobMap map[string]*FailedJobItem, order *[]string, key, job, step, text string, ctxRem *int, lastKey *string) {
+func bufferWarning(warnBuf map[string][]string, key, text string) {
+	list := warnBuf[key]
+	if len(list) < 15 {
+		warnBuf[key] = append(list, text)
+
+		return
+	}
+
+	warnBuf[key] = append(list[1:], text)
+}
+
+func recordErrorLine(jobMap map[string]*FailedJobItem, order *[]string, key, job, step, text string, ctxRem *int, lastKey *string, warnBuf map[string][]string) {
 	item := getOrCreateJobItem(jobMap, order, key, job, step)
-	item.ErrorLines = append(item.ErrorLines, text)
-	updateJobSummary(item, text)
+	attachBufferedWarnings(item, warnBuf[key])
+	compacted := compactLinkerCommandLine(text)
+	item.ErrorLines = append(item.ErrorLines, compacted)
+	updateJobSummary(item, compacted)
 	*ctxRem = resolveContextLimit(text)
 	*lastKey = key
+}
+
+func attachBufferedWarnings(item *FailedJobItem, warnings []string) {
+	if len(item.Warnings) > 0 || len(warnings) == 0 {
+		return
+	}
+
+	item.Warnings = append(item.Warnings, warnings...)
 }
 
 func resolveContextLimit(text string) int {
@@ -148,7 +173,11 @@ func appendContextLine(jobMap map[string]*FailedJobItem, key, text string, ctxRe
 	}
 
 	item := jobMap[key]
-	item.ErrorLines = append(item.ErrorLines, "    "+text)
+	compacted := compactLinkerCommandLine(text)
+	item.ErrorLines = append(item.ErrorLines, "    "+compacted)
+	if isWarningLine(text) {
+		item.Warnings = append(item.Warnings, text)
+	}
 	*ctxRem--
 }
 
@@ -566,6 +595,7 @@ func mergeMatchedFailure(target, p FailedJobItem) FailedJobItem {
 		StepName:       target.StepName,
 		FailureSummary: p.FailureSummary,
 		ErrorLines:     p.ErrorLines,
+		Warnings:       p.Warnings,
 		StackTrace:     stack,
 	}
 
@@ -574,6 +604,9 @@ func mergeMatchedFailure(target, p FailedJobItem) FailedJobItem {
 	}
 	if len(item.ErrorLines) == 0 {
 		item.ErrorLines = target.ErrorLines
+	}
+	if len(item.Warnings) == 0 {
+		item.Warnings = target.Warnings
 	}
 
 	return item
@@ -687,6 +720,7 @@ func buildSectionFailureFromRunJob(run FailedRunItem, job FailedJobItem) Section
 		StepName:       job.StepName,
 		FailureSummary: job.FailureSummary,
 		ErrorLines:     job.ErrorLines,
+		Warnings:       job.Warnings,
 		SavedLogFile:   toRelativeGitPath(run.SavedLogFile),
 		CreatedAt:      run.CreatedAt,
 		StackTrace:     stack,
@@ -853,11 +887,17 @@ func formatRunSourceMeta(sb *strings.Builder, run FailedRunItem) {
 
 func formatJobLines(sb *strings.Builder, job FailedJobItem) {
 	sb.WriteString(fmt.Sprintf("    ● Job: %s | Step: %s\n", job.JobName, job.StepName))
+	if len(job.Warnings) > 0 {
+		sb.WriteString(fmt.Sprintf("      Warnings: (%d detected)\n", len(job.Warnings)))
+		for _, w := range capErrorLines(job.Warnings, 5) {
+			sb.WriteString(fmt.Sprintf("        %s\n", w))
+		}
+	}
 	if len(job.FailureSummary) > 0 {
 		sb.WriteString(fmt.Sprintf("      Summary: %s\n", job.FailureSummary))
 	}
 
-	for _, l := range job.ErrorLines {
+	for _, l := range filterOutSummaryLine(job.ErrorLines, job.FailureSummary) {
 		sb.WriteString(fmt.Sprintf("      %s\n", l))
 	}
 	formatJobStackLines(sb, job.StackTrace)
@@ -974,4 +1014,87 @@ func updateCompactedErrorLogs(p *PipelineErrorLogsPayload) {
 	if len(p.ErrorLogs) > 0 {
 		p.ErrorLogs = strings.Join(filterCompactLines(strings.Split(p.ErrorLogs, "\n")), "\n")
 	}
+}
+
+func isWarningLine(text string) bool {
+	trimmed := strings.TrimSpace(text)
+	lower := strings.ToLower(trimmed)
+	if strings.HasPrefix(lower, "warning:") || strings.HasPrefix(lower, "warning[") || strings.HasPrefix(lower, "warning ") {
+		return true
+	}
+	if strings.Contains(lower, ": warning:") || strings.Contains(lower, ": warning ") {
+		return true
+	}
+	if strings.Contains(lower, "generated ") && strings.Contains(lower, "warnings") {
+		return true
+	}
+
+	return strings.HasPrefix(lower, "##[warning]")
+}
+
+func compactLinkerCommandLine(line string) string {
+	if len(line) < 250 {
+		return line
+	}
+
+	lower := strings.ToLower(line)
+	isLinker := strings.Contains(lower, "link.exe") || strings.Contains(lower, "collect2") || strings.Contains(lower, "/libpath:")
+	if !isLinker {
+		return line
+	}
+
+	return formatCompactedLinkerCommand(line)
+}
+
+func formatCompactedLinkerCommand(line string) string {
+	rlibCount := strings.Count(line, ".rlib")
+	libCount := strings.Count(line, ".lib")
+	totalLibs := rlibCount + libCount
+	if totalLibs < 5 {
+		return line
+	}
+
+	prefix := extractLinkerPrefix(line)
+	outFlag := extractLinkerOutFlag(line)
+
+	return fmt.Sprintf("%s ... [%d library and object files omitted] ... %s", prefix, totalLibs, outFlag)
+}
+
+func extractLinkerPrefix(line string) string {
+	if idx := strings.Index(line, `"/NOLOGO"`); idx != -1 {
+		return line[:idx+len(`"/NOLOGO"`)]
+	}
+	if idx := strings.Index(line, `link.exe"`); idx != -1 {
+		return line[:idx+len(`link.exe"`)]
+	}
+
+	return line[:100]
+}
+
+func extractLinkerOutFlag(line string) string {
+	if idx := strings.Index(line, `"/OUT:`); idx != -1 {
+		endIdx := strings.Index(line[idx+1:], `"`)
+		if endIdx != -1 {
+			return line[idx : idx+1+endIdx+1]
+		}
+	}
+
+	return ""
+}
+
+func filterOutSummaryLine(lines []string, summary string) []string {
+	if len(lines) == 0 {
+		return nil
+	}
+
+	cleanSummary := strings.ToLower(strings.TrimSpace(summary))
+	var out []string
+	for _, l := range lines {
+		cleanLine := strings.ToLower(strings.TrimSpace(l))
+		if cleanLine != cleanSummary && !strings.HasSuffix(cleanLine, cleanSummary) {
+			out = append(out, l)
+		}
+	}
+
+	return out
 }

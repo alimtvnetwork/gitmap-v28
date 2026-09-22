@@ -2,7 +2,6 @@ package cmdpipeline
 
 import (
 	"sort"
-	"strconv"
 	"strings"
 )
 
@@ -271,12 +270,20 @@ func isLatestTarget(target string) bool {
 
 func tryParseTargetOffset(target string) (int, bool) {
 	trimmed := strings.TrimSpace(target)
-	val, err := strconv.Atoi(trimmed)
-	if err == nil && val < 0 {
-		return val, true
+	if isZeroOffsetTarget(trimmed) {
+		return 0, true
+	}
+	if offset, isNeg := ParseNegativeIndex(trimmed); isNeg {
+		return offset, true
 	}
 
 	return 0, false
+}
+
+func isZeroOffsetTarget(trimmed string) bool {
+	lower := strings.ToLower(trimmed)
+
+	return lower == "0" || lower == "0n" || lower == "head~0" || lower == "~0"
 }
 
 func findGroupByShaPrefix(groups []CommitPipelineGroup, target string) (*CommitPipelineGroup, bool) {

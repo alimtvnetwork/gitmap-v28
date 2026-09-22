@@ -29,12 +29,7 @@ func extractNegativeOffset(args []string) (int, bool) {
 }
 
 func tryParseNegativeOffset(arg string) (int, bool) {
-	val, err := strconv.Atoi(arg)
-	if err == nil && val < 0 {
-		return val, true
-	}
-
-	return 0, false
+	return ParseNegativeIndex(arg)
 }
 
 func extractLastFailuresFlag(args []string) (int, bool) {

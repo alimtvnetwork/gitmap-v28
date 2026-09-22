@@ -66,8 +66,8 @@ func recordToTasksRootDB(taskId, action, target, fwd, inv string) *apperror.AppE
 }
 
 func insertTaskHistoryRecord(conn *sql.DB, taskId, section, action, target, fwd, inv string) *apperror.AppError {
-	sqlQuery := `INSERT OR IGNORE INTO TaskHistory 
-		(TaskId, Section, Action, Target, ForwardPayload, InversePayload, Status) 
+	sqlQuery := `INSERT OR IGNORE INTO TaskHistory
+		(TaskId, Section, Action, Target, ForwardPayload, InversePayload, Status)
 		VALUES (?, ?, ?, ?, ?, ?, 'completed')`
 	res := store.ExecWrapper(conn, sqlQuery, taskId, section, action, target, fwd, inv)
 	if res.IsFailure {

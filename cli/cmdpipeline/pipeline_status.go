@@ -292,12 +292,22 @@ func findActiveWorkflowRun(runs []ghRunItem) *ghRunItem {
 }
 
 func calculateAverageDuration(runs []ghRunItem, workflowName string) int {
+	repo := resolveCurrentRepoSlug()
+	if len(runs) > 0 {
+		UpdatePipelineEtaCache(repo, runs)
+	}
+
 	durs := collectValidRunDurations(runs, workflowName)
 	if len(durs) == 0 {
 		durs = queryDbHistoricalDurations(workflowName)
 	}
 	if len(durs) > 0 {
 		return computeBaselineDuration(durs)
+	}
+
+	cachedEta := GetCachedWorkflowETA(repo, workflowName)
+	if cachedEta > 0 {
+		return cachedEta
 	}
 
 	return fallbackWorkflowDuration(workflowName)

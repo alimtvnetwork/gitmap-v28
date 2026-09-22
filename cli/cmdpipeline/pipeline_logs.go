@@ -28,6 +28,10 @@ func handlePipelineErrorLogs(args []string) error {
 }
 
 func handlePipelineHistoryOrExecute(args []string) error {
+	flags := ParsePipelineErrorFlags(args)
+	if len(flags.CommitTarget) > 0 {
+		return executePipelineErrorLogs(args)
+	}
 	if handled, err := HandlePipelineHistoryErrors(args); handled {
 		return err
 	}
@@ -65,7 +69,7 @@ func processAndRenderErrorLogs(repo string, flags PipelineErrorFlags) error {
 }
 
 func renderCachedErrorLogs(repo string, decision PipelineCacheDecision, flags PipelineErrorFlags) error {
-	payload := buildErrorLogsPayload(repo, decision.CachedRuns)
+	payload := buildErrorLogsPayloadWithFlags(repo, decision.CachedRuns, flags)
 	payload.IsFromCache = true
 	payload.CacheSource = decision.CacheSource
 	applyPayloadOptions(&payload, decision.CachedRuns, flags)
@@ -82,9 +86,9 @@ func renderCachedErrorLogs(repo string, decision PipelineCacheDecision, flags Pi
 
 func fetchAndRenderFreshErrorLogs(repo string, flags PipelineErrorFlags) error {
 	printReadingProgress(flags)
-	runs := queryWorkflowRuns(repo)
+	runs := queryWorkflowRunsForTarget(repo, flags.CommitTarget)
 	RecordFetchedRunsToSplitDb(repo, runs)
-	payload := buildErrorLogsPayload(repo, runs)
+	payload := buildErrorLogsPayloadWithFlags(repo, runs, flags)
 	applyPayloadOptions(&payload, runs, flags)
 	_ = RecordPipelineCheckInTask(repo, payload)
 
@@ -118,13 +122,17 @@ func applyPayloadOptions(p *PipelineErrorLogsPayload, runs []ghRunItem, flags Pi
 }
 
 func buildErrorLogsPayload(repo string, runs []ghRunItem) PipelineErrorLogsPayload {
+	return buildErrorLogsPayloadWithFlags(repo, runs, PipelineErrorFlags{})
+}
+
+func buildErrorLogsPayloadWithFlags(repo string, runs []ghRunItem, flags PipelineErrorFlags) PipelineErrorLogsPayload {
 	payload := initBaseErrorLogsPayload(repo)
 	payload.Runs = runs
 	if len(runs) == 0 {
 		return handleEmptyRunsPayload(repo, runs, payload)
 	}
 
-	populateRunsIntoPayload(repo, runs, &payload)
+	populateRunsIntoPayloadWithFlags(repo, runs, &payload, flags)
 	enrichErrorLogsMetadata(&payload, repo, runs)
 
 	return payload
@@ -142,8 +150,12 @@ func handleEmptyRunsPayload(repo string, runs []ghRunItem, p PipelineErrorLogsPa
 }
 
 func populateRunsIntoPayload(repo string, runs []ghRunItem, p *PipelineErrorLogsPayload) {
-	initTargetRunMeta(p, runs)
-	failedRuns := resolveFailedRunsForPayload(repo, runs)
+	populateRunsIntoPayloadWithFlags(repo, runs, p, PipelineErrorFlags{})
+}
+
+func populateRunsIntoPayloadWithFlags(repo string, runs []ghRunItem, p *PipelineErrorLogsPayload, flags PipelineErrorFlags) {
+	initTargetRunMeta(p, runs, flags.CommitTarget)
+	failedRuns := resolveFailedRunsForPayloadWithTarget(repo, runs, flags.CommitTarget)
 	if len(failedRuns) > 0 {
 		populateFailedRunsPayload(repo, failedRuns, p)
 
@@ -152,9 +164,9 @@ func populateRunsIntoPayload(repo string, runs []ghRunItem, p *PipelineErrorLogs
 	applyCleanOrFallbackState(p, repo, runs)
 }
 
-func initTargetRunMeta(p *PipelineErrorLogsPayload, runs []ghRunItem) {
-	initLatestRunMeta(p, findPrimaryTargetRun(runs))
-	checkAndApplyRunningState(p, runs)
+func initTargetRunMeta(p *PipelineErrorLogsPayload, runs []ghRunItem, targetCommit ...string) {
+	initLatestRunMeta(p, findPrimaryTargetRun(runs, targetCommit...))
+	checkAndApplyRunningState(p, runs, targetCommit...)
 }
 
 func applyCleanOrFallbackState(p *PipelineErrorLogsPayload, repo string, runs []ghRunItem) {
@@ -280,15 +292,16 @@ func initBaseErrorLogsPayload(repo string) PipelineErrorLogsPayload {
 	}
 }
 
-func checkAndApplyRunningState(p *PipelineErrorLogsPayload, runs []ghRunItem) {
+func checkAndApplyRunningState(p *PipelineErrorLogsPayload, runs []ghRunItem, targetCommit ...string) {
 	if len(runs) == 0 {
 		return
 	}
 
-	targetSha := resolveTargetCommitSha(runs)
+	targetSha := resolveTargetCommitSha(runs, targetCommit...)
 	for _, r := range runs {
 		if r.HeadSha == targetSha && isRunActive(r) {
 			setPayloadRunningState(p, r, calculateETA(runs))
+
 			return
 		}
 	}
@@ -417,15 +430,30 @@ func buildBaseFailedRunItem(repo string, fr ghRunItem, rawLogs string) FailedRun
 	return item
 }
 
-func resolveTargetCommitSha(runs []ghRunItem) string {
+func resolveTargetCommitSha(runs []ghRunItem, targetCommit ...string) string {
 	if len(runs) == 0 {
 		return ""
+	}
+	if len(targetCommit) > 0 && len(targetCommit[0]) > 0 {
+		if sha := resolveTargetShaFromGroups(runs, targetCommit[0]); len(sha) > 0 {
+			return sha
+		}
 	}
 	if sha := findShaForActiveBranch(runs); len(sha) > 0 {
 		return sha
 	}
 
 	return runs[0].HeadSha
+}
+
+func resolveTargetShaFromGroups(runs []ghRunItem, target string) string {
+	groups := GroupRunsByCommit(runs)
+	group, isFound := ResolveCommitGroupByTarget(groups, target)
+	if isFound {
+		return group.HeadSha
+	}
+
+	return ""
 }
 
 func findShaForActiveBranch(runs []ghRunItem) string {
@@ -442,12 +470,12 @@ func findShaForActiveBranch(runs []ghRunItem) string {
 	return ""
 }
 
-func findPrimaryTargetRun(runs []ghRunItem) ghRunItem {
+func findPrimaryTargetRun(runs []ghRunItem, targetCommit ...string) ghRunItem {
 	if len(runs) == 0 {
 		return ghRunItem{}
 	}
 
-	targetSha := resolveTargetCommitSha(runs)
+	targetSha := resolveTargetCommitSha(runs, targetCommit...)
 	for _, r := range runs {
 		if r.HeadSha == targetSha {
 			return r
@@ -461,11 +489,12 @@ func collectFailedRuns(runs []ghRunItem) []ghRunItem {
 	return collectFailedRunsForRepo("", runs)
 }
 
-func collectFailedRunsForRepo(repo string, runs []ghRunItem) []ghRunItem {
+func collectFailedRunsForRepo(repo string, runs []ghRunItem, targetCommit ...string) []ghRunItem {
 	if len(runs) == 0 {
 		return nil
 	}
-	targetRuns := collectRunsMatchingSha(runs, resolveTargetCommitSha(runs))
+	targetSha := resolveTargetCommitSha(runs, targetCommit...)
+	targetRuns := collectRunsMatchingSha(runs, targetSha)
 	succeeded := make(map[string]bool)
 	var activeFailed []ghRunItem
 	for _, r := range targetRuns {
@@ -473,6 +502,44 @@ func collectFailedRunsForRepo(repo string, runs []ghRunItem) []ghRunItem {
 	}
 
 	return capFailedRuns(activeFailed, 5)
+}
+
+func resolveFailedRunsForPayloadWithTarget(repo string, runs []ghRunItem, target string) []ghRunItem {
+	return collectFailedRunsForRepo(repo, runs, target)
+}
+
+func queryWorkflowRunsForTarget(repo string, target string) []ghRunItem {
+	runs := queryWorkflowRuns(repo)
+	if len(target) == 0 {
+		return runs
+	}
+	groups := GroupRunsByCommit(runs)
+	if _, isFound := ResolveCommitGroupByTarget(groups, target); isFound {
+		return runs
+	}
+	if isCommitHexSha(target) {
+		commitRuns := queryWorkflowRunsByCommit(repo, target)
+		if len(commitRuns) > 0 {
+			return append(commitRuns, runs...)
+		}
+	}
+
+	return runs
+}
+
+func queryWorkflowRunsByCommit(repo, sha string) []ghRunItem {
+	out, err := runGHCommandWithTimeout("run", "list", "--repo", repo, "--commit", sha, "--limit", "10", "--json",
+		"databaseId,name,status,conclusion,createdAt,updatedAt,headBranch,headSha,url,displayTitle,event")
+	if err != nil || len(out) == 0 {
+		return nil
+	}
+
+	var runs []ghRunItem
+	if jsonErr := json.Unmarshal(out, &runs); jsonErr != nil {
+		return nil
+	}
+
+	return runs
 }
 
 func normalizeWorkflowKey(name string) string {
@@ -921,12 +988,41 @@ func renderSingleSectionFailureRow(sec SectionFailure, idx, total int) {
 		fmt.Printf("      Error:   %s%s%s\n", constants.ColorRed, sec.FailureSummary, constants.ColorReset)
 	}
 
-	renderSectionErrorLines(sec.ErrorLines)
-	renderSectionStackTrace(sec.StackTrace)
+	renderSectionWarnings(sec.Warnings)
+	renderSectionErrorLinesDedup(sec.ErrorLines, sec.FailureSummary)
 
 	if len(sec.SavedLogFile) > 0 {
 		fmt.Printf("      Log:     %s\n", filepath.ToSlash(sec.SavedLogFile))
 	}
+}
+
+func renderSectionWarnings(warnings []string) {
+	if len(warnings) == 0 {
+		return
+	}
+
+	fmt.Printf("      Warnings (%d preceding):\n", len(warnings))
+	capped := capErrorLines(warnings, 4)
+	for _, w := range capped {
+		fmt.Printf("        %s%s%s\n", constants.ColorYellow, w, constants.ColorReset)
+	}
+
+	printRemainingLineCount(len(warnings), len(capped))
+}
+
+func renderSectionErrorLinesDedup(lines []string, summary string) {
+	dedup := filterOutSummaryLine(lines, summary)
+	if len(dedup) == 0 {
+		return
+	}
+
+	fmt.Printf("      Details:\n")
+	capped := capErrorLines(dedup, 6)
+	for _, l := range capped {
+		fmt.Printf("        %s%s%s\n", constants.ColorYellow, l, constants.ColorReset)
+	}
+
+	printRemainingLineCount(len(dedup), len(capped))
 }
 
 func renderSectionStackTrace(stack string) {
@@ -1041,10 +1137,36 @@ func renderFailedJobSection(job FailedJobItem) {
 		fmt.Printf("  │ Error: %s%s%s\n", constants.ColorRed, job.FailureSummary, constants.ColorReset)
 	}
 
-	for _, line := range job.ErrorLines {
+	renderJobCardWarnings(job.Warnings)
+	renderJobCardDetails(job.ErrorLines, job.FailureSummary)
+	renderJobStackTrace(job.StackTrace)
+}
+
+func renderJobCardWarnings(warnings []string) {
+	if len(warnings) == 0 {
+		return
+	}
+
+	fmt.Printf("  │ Warnings (%d preceding):\n", len(warnings))
+	capped := capErrorLines(warnings, 5)
+	for _, w := range capped {
+		fmt.Printf("  │   %s%s%s\n", constants.ColorYellow, w, constants.ColorReset)
+	}
+
+	printRemainingWarningCount(len(warnings), len(capped))
+}
+
+func printRemainingWarningCount(total, capped int) {
+	if total > capped {
+		fmt.Printf("  │   %s... (%d more warnings)%s\n", constants.ColorDim, total-capped, constants.ColorReset)
+	}
+}
+
+func renderJobCardDetails(lines []string, summary string) {
+	dedupLines := filterOutSummaryLine(lines, summary)
+	for _, line := range dedupLines {
 		fmt.Printf("  │   %s\n", line)
 	}
-	renderJobStackTrace(job.StackTrace)
 }
 
 func renderJobStackTrace(stack string) {
@@ -1084,17 +1206,22 @@ func printPipelineErrorLogsHelp() {
 }
 
 func printPipelineErrorLogsUsage() {
-	fmt.Println("Usage: gitmap pipeline error-logs [flags]")
-	fmt.Println("       gitmap pipeline errors [clear [-y]] [flags]")
-	fmt.Println("       gitmap pe [clear [-y]] [flags]")
+	fmt.Println("Usage: gitmap pipeline error-logs [commit|-N|-Nn|HEAD~N] [flags]")
+	fmt.Println("       gitmap pipeline errors [commit|-N] [clear [-y]] [flags]")
+	fmt.Println("       gitmap pe [commit|-N|-Nn|HEAD~N] [clear [-y]] [flags]")
 	fmt.Println()
 	fmt.Println("Commands:")
 	fmt.Println("  clear [-y]              Purge error logs, reports, and reset pipeline DB for current repo")
+	fmt.Println()
+	fmt.Println("Targeting:")
+	fmt.Println("  <commit-sha>            Filter errors for specific commit (e.g. gitmap pe ee4a694)")
+	fmt.Println("  -1, -2, -3, -1n, HEAD~1 Inspect errors for previous commits by relative offset")
 	fmt.Println()
 }
 
 func printPipelineErrorLogsFlags() {
 	fmt.Println("Flags:")
+	fmt.Println("  -1, -2, -3, HEAD~N      Target past workflow run by relative commit offset or SHA")
 	fmt.Println("  -t, --timeline          Watch pipeline dynamic timeline until completion")
 	fmt.Println("  -f, --fix               Execute internal CI/CD diagnostic & auto-repair suite")
 	fmt.Println("  -c, --check             Run internal CI/CD checks without modifying files")

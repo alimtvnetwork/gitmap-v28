@@ -83,6 +83,7 @@ type SectionFailure struct {
 	StepName       string   `json:"stepName"`
 	FailureSummary string   `json:"failureSummary"`
 	ErrorLines     []string `json:"errorLines"`
+	Warnings       []string `json:"warnings,omitempty"`
 	SavedLogFile   string   `json:"savedLogFile,omitempty"`
 	CreatedAt      string   `json:"createdAt,omitempty"`
 	StackTrace     string   `json:"stackTrace,omitempty"`
@@ -113,6 +114,7 @@ type FailedJobItem struct {
 	StepName       string   `json:"stepName"`
 	FailureSummary string   `json:"failureSummary"`
 	ErrorLines     []string `json:"errorLines"`
+	Warnings       []string `json:"warnings,omitempty"`
 	StackTrace     string   `json:"stackTrace,omitempty"`
 }
 

@@ -14,9 +14,9 @@ func buildPipelineHelpMenu() termhelp.HelpMenu {
 		Title: "CI/CD Pipeline Diagnostics & Healing (gitmap pipeline)",
 		UsageLines: []string{
 			"gitmap pipeline [command] [flags]",
-			"gitmap pd [flags]           (runner details table shortcut)",
-			"gitmap pe [flags]           (error logs & clean status shortcut)",
-			"gitmap pipeline-ai [cmd]    (AI telemetry & timeout waiting)",
+			"gitmap pd [commit|-N] [flags]  (runner details table shortcut)",
+			"gitmap pe [commit|-N] [flags]  (error logs & clean status shortcut)",
+			"gitmap pipeline-ai [cmd]       (AI telemetry & timeout waiting)",
 		},
 		Sections: []termhelp.HelpSection{
 			buildPipelineTelemetrySection(),
@@ -27,6 +27,7 @@ func buildPipelineHelpMenu() termhelp.HelpMenu {
 		Tips: []string{
 			"Use shortcut 'gitmap pd' for runner target breakdown and step timings.",
 			"Use shortcut 'gitmap pe' to inspect failing jobs and actionable snippets.",
+			"Pass commit SHA or offset ('gitmap pe 7b1a2c', 'gitmap pe -1', 'gitmap pe HEAD~1') to target past runs.",
 			"Run 'gitmap pe clear -y' to reset pipeline failure history for repo.",
 		},
 	}
@@ -34,6 +35,7 @@ func buildPipelineHelpMenu() termhelp.HelpMenu {
 
 func buildPipelineFooterFlags() []termhelp.CommandEntry {
 	return []termhelp.CommandEntry{
+		{Command: "-1, -2, -3, HEAD~N", Description: "Inspect pipeline logs for past commit by negative offset or SHA"},
 		{Command: "-t, --timeline", Description: "Watch pipeline run until completion with dynamic ETA timeline"},
 		{Command: "-f, --fix", Description: "Run internal CI/CD issue diagnostic and auto-repair scripts"},
 		{Command: "-c, --check", Description: "Run internal diagnostic checks without modifying files"},

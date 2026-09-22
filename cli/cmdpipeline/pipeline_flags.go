@@ -3,6 +3,7 @@ package cmdpipeline
 import (
 	"os"
 	"strconv"
+	"strings"
 )
 
 // PipelineErrorFlags holds parsed flags and positional options for pipeline error-logs.
@@ -30,6 +31,7 @@ func ParsePipelineErrorFlags(args []string) PipelineErrorFlags {
 	var flags PipelineErrorFlags
 	parseCommonErrorFlags(args, &flags)
 	parseIndexAndFailures(args, &flags)
+	parseCommitTarget(args, &flags)
 
 	return flags
 }
@@ -79,14 +81,37 @@ func parseIndexAndFailures(args []string, flags *PipelineErrorFlags) {
 	}
 }
 
-// ParseNegativeIndex parses a string as a negative integer index (e.g. "-2").
+// ParseNegativeIndex parses a string as a negative integer index (e.g. "-2", "-1n", "HEAD~1").
 func ParseNegativeIndex(arg string) (int, bool) {
-	val, err := strconv.Atoi(arg)
+	trimmed := strings.TrimSpace(arg)
+	if offset, isHead := parseHeadRevisionOffset(trimmed); isHead {
+		return offset, true
+	}
+
+	clean := strings.TrimSuffix(strings.TrimSuffix(trimmed, "n"), "N")
+	val, err := strconv.Atoi(clean)
 	if err != nil || val >= 0 {
 		return 0, false
 	}
 
 	return val, true
+}
+
+func parseHeadRevisionOffset(arg string) (int, bool) {
+	lower := strings.ToLower(arg)
+	isHeadTilde := strings.HasPrefix(lower, "head~")
+	isTildeOnly := strings.HasPrefix(lower, "~")
+	if !isHeadTilde && !isTildeOnly {
+		return 0, false
+	}
+
+	raw := strings.TrimPrefix(strings.TrimPrefix(lower, "head~"), "~")
+	val, err := strconv.Atoi(raw)
+	if err != nil || val <= 0 {
+		return 0, false
+	}
+
+	return -val, true
 }
 
 // IsNegativeIndexToken reports whether arg is a negative integer token.
@@ -137,4 +162,76 @@ func ParseLastFailuresFlag(args []string) (int, bool) {
 	}
 
 	return val, true
+}
+
+func parseCommitTarget(args []string, flags *PipelineErrorFlags) {
+	explicit := extractFlagVal(args, "--commit")
+	if len(explicit) > 0 {
+		flags.CommitTarget = explicit
+
+		return
+	}
+
+	flags.CommitTarget = scanCommitTargetOrOffset(args)
+}
+
+func scanCommitTargetOrOffset(args []string) string {
+	for _, arg := range args {
+		target := evaluateCommitCandidate(arg)
+		if len(target) > 0 {
+			return target
+		}
+	}
+
+	return ""
+}
+
+func evaluateCommitCandidate(arg string) string {
+	trimmed := strings.TrimSpace(arg)
+	if isSkipTokenForCommit(trimmed) {
+		return ""
+	}
+	if _, isOffset := ParseNegativeIndex(trimmed); isOffset {
+		return trimmed
+	}
+	if isCommitHexSha(trimmed) {
+		return trimmed
+	}
+	lower := strings.ToLower(trimmed)
+	if lower == "latest" || lower == "head" {
+		return trimmed
+	}
+
+	return ""
+}
+
+func isSkipTokenForCommit(token string) bool {
+	if len(token) == 0 || strings.HasPrefix(token, "--") {
+		return true
+	}
+
+	switch token {
+	case "-f", "-c", "-v", "-V", "-t", "-w", "-h", "-n", "-y", "-j":
+		return true
+	case "clear", "last-failed-logs", "errors", "error-logs", "pe":
+		return true
+	default:
+		return false
+	}
+}
+
+func isCommitHexSha(s string) bool {
+	if strings.HasPrefix(s, "-") || len(s) < 4 || len(s) > 40 {
+		return false
+	}
+
+	for _, r := range strings.ToLower(s) {
+		isDigit := r >= '0' && r <= '9'
+		isHexLetter := r >= 'a' && r <= 'f'
+		if !isDigit && !isHexLetter {
+			return false
+		}
+	}
+
+	return true
 }

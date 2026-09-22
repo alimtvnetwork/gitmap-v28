@@ -194,20 +194,34 @@ $ gitmap pipeline status --json
 
 ---
 
-## 3. Negative Commit Offsets (`-1`, `-2`, `-3`)
+## 3. Commit SHA & Relative Offset Navigation (`<sha>`, `-1`, `-1n`, `HEAD~1`)
 
-Inspect failure logs from earlier commits when diagnosing regressions across recent pushes:
+Inspect failure logs and diagnostics from specific commits or earlier revisions when diagnosing regressions across recent pushes:
 
 ```bash
-# Aggregate all workflow errors for the previous commit (-1)
-gitmap pipeline errors -1
+# Target a specific commit SHA directly
+gitmap pe ee4a694
+gitmap pipeline error-logs 7b1a2c
 
-# Inspect errors for 2 commits prior (-2)
-gitmap pipeline errors -2
+# Aggregate all workflow errors for the previous commit (-1 or HEAD~1)
+gitmap pe -1
+gitmap pe HEAD~1
+
+# Inspect errors for 2 commits prior (-2 or -2n)
+gitmap pe -2
+gitmap pe -2n
 
 # Inspect errors for 3 commits prior (-3)
 gitmap pipeline errors -3
 ```
+
+### Advanced Diagnostics Features
+
+- **Direct Commit Scoping**: Query GitHub Actions runs matching the target commit SHA directly via `--commit <sha>`, resolving runs even when multiple branches or historical runs exist.
+- **Compiler Warning Ingestion**: Pre-failure compiler and tool warnings (e.g. `rustc` warnings, MSVC notes, `gcc` warnings) in failing steps are buffered and presented alongside the fatal failure, avoiding dropped diagnostic context.
+- **Linker Noise Compacting**: Enormous compiler/linker command invocations (with hundreds of `.lib`, `.rlib`, `/LIBPATH:` flags spanning thousands of characters) are automatically compacted into `[<N> library and object files omitted]` so the underlying fatal error message (`CVT1100`, `LNK1123`, etc.) is immediately visible.
+- **Deduplicated Error Details**: Identical consecutive error summary lines are suppressed under `Details:` to avoid noisy repetitions.
+- **Historical Workflow ETA Baseline**: Pipeline durations are tracked in a rolling JSON cache (`data/pipeline/<repo>/eta_history.json`, up to 20 entries) to compute accurate moving-average ETAs per workflow rather than falling back to static 3-minute approximations.
 
 ---
 

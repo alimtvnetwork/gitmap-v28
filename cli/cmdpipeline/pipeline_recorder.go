@@ -151,8 +151,8 @@ func insertSinglePipelineTask(conn *sql.DB, repo string, r ghRunItem) {
 	action := "pipeline_run_" + r.Status
 	target := r.HeadBranch
 	fwd := fmt.Sprintf(`{"runId":%d,"workflow":"%s","conclusion":"%s","sha":"%s"}`, r.DatabaseId, r.Name, r.Conclusion, r.HeadSha)
-	sqlQuery := `INSERT OR IGNORE INTO TaskHistory 
-		(TaskId, Section, Action, Target, ForwardPayload, InversePayload, Status) 
+	sqlQuery := `INSERT OR IGNORE INTO TaskHistory
+		(TaskId, Section, Action, Target, ForwardPayload, InversePayload, Status)
 		VALUES (?, 'pipeline', ?, ?, ?, '', 'completed')`
 	_ = store.ExecWrapper(conn, sqlQuery, taskId, action, target, fwd)
 }

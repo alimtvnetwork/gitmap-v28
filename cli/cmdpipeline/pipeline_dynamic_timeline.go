@@ -201,11 +201,20 @@ func computeRunDuration(createdStr, updatedStr string) int {
 }
 
 func fallbackWorkflowDuration(workflowName string) int {
+	repo := resolveCurrentRepoSlug()
+	cached := GetCachedWorkflowETA(repo, workflowName)
+	if cached > 0 {
+		return cached
+	}
+
+	return resolveStaticFallbackDuration(workflowName)
+}
+
+func resolveStaticFallbackDuration(workflowName string) int {
 	lowerName := strings.ToLower(workflowName)
 	if strings.Contains(lowerName, "release") {
 		return 95
 	}
-
 	if strings.Contains(lowerName, "ci") || strings.Contains(lowerName, "smoke") || strings.Contains(lowerName, "test") {
 		return 180
 	}
