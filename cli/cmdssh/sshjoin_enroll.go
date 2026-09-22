@@ -65,47 +65,6 @@ func loadPrivateKeySigner(keyPath string) keySignerResult {
 	return keySignerResult{signer: signer, hasSigner: true}
 }
 
-func dialNodeWithSigner(target *SSHTarget, signer ssh.Signer) *ssh.Client {
-	config := newAutoAcceptHostKeyConfig(target.Username, []ssh.AuthMethod{ssh.PublicKeys(signer)})
-	addr := net.JoinHostPort(target.IP, strconv.Itoa(resolveHealthPort(target.Port)))
-	client, err := ssh.Dial("tcp", addr, config)
-	if err != nil {
-		return nil
-	}
-	return client
-}
-
-func buildKeyboardInteractiveAuth(pass string) ssh.AuthMethod {
-	return ssh.KeyboardInteractive(func(user, instruction string, questions []string, echos []bool) ([]string, error) {
-		answers := make([]string, len(questions))
-		for i := range answers {
-			answers[i] = pass
-		}
-
-		return answers, nil
-	})
-}
-
-func dialNodeWithPassword(target *SSHTarget, pass string) (*ssh.Client, error) {
-	auths := []ssh.AuthMethod{ssh.Password(pass), buildKeyboardInteractiveAuth(pass)}
-	config := newAutoAcceptHostKeyConfig(target.Username, auths)
-	addr := net.JoinHostPort(target.IP, strconv.Itoa(resolveHealthPort(target.Port)))
-
-	return ssh.Dial("tcp", addr, config)
-}
-
-func tryConnectDefaultKey(target *SSHTarget) *ssh.Client {
-	keyPath := findDefaultUserSSHKey()
-	if keyPath == "" {
-		return nil
-	}
-	res := loadPrivateKeySigner(keyPath)
-	if !res.hasSigner {
-		return nil
-	}
-	return dialNodeWithSigner(target, res.signer)
-}
-
 func promptUserPassword(ctx context.Context, target *SSHTarget) string {
 	prompt := fmt.Sprintf("Enter SSH password for %s: ", target.String())
 	pass, err := PromptSSHPassword(ctx, prompt, int(os.Stdin.Fd()))
@@ -131,7 +90,6 @@ func promptAndConnectTarget(ctx context.Context, opts *SSHJoinOptions) enrollSes
 		return enrollSession{hasClient: false, osType: "linux"}
 	}
 	opts.Password = pass
-	notifyPasswordEncryptedStorage(opts.Alias)
 
 	return connectWithGivenPass(opts.Target, pass)
 }
@@ -371,6 +329,10 @@ func checkEnrollAuth(opts *SSHJoinOptions, session enrollSession) error {
 func finalizeEnrollment(ctx context.Context, opts *SSHJoinOptions, session enrollSession) error {
 	if err := persistEnrollmentDual(ctx, opts, session.osType, session.osVersion); err != nil {
 		return err
+	}
+
+	if opts.Password != "" {
+		notifyPasswordEncryptedStorage(opts.Alias)
 	}
 
 	_, _ = RecordSSHAddNodeTask(ctx, buildHostRecord(opts, time.Now().UTC()))
