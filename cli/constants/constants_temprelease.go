@@ -103,9 +103,9 @@ const (
 	ErrTRNoPlaceholder = "version pattern must contain at least one '$' placeholder (e.g., v1.$$)"
 	ErrTROverflow      = "sequence %d exceeds %d-digit format (max %d)"
 	ErrTRNotEnough     = "  ⚠ Only %d commit(s) available (requested %d)\n"
-	ErrTRCreate        = "failed to create temp-release: %v"
-	ErrTRQuery         = "failed to query temp-releases: %v"
-	ErrTRDelete        = "failed to delete temp-release: %v"
+	ErrTRCreate        = "failed to create temp-release: %w"
+	ErrTRQuery         = "failed to query temp-releases: %w"
+	ErrTRDelete        = "failed to delete temp-release: %w"
 	ErrTRRemoveUsage   = "Usage: gitmap tr remove <version> | <v1> to <v2> | all"
 )
 

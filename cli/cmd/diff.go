@@ -59,7 +59,7 @@ func parseDiffArgs(args []string) (left, right string, walk diff.WalkOptions, pr
 
 	positional := reorderFlagsBeforeArgs(args)
 	if err := fs.Parse(positional); err != nil {
-		cliexit.HandleError(nil, 2)
+		cliexit.HandleError(err, 2)
 	}
 
 	left, right = extractDiffPositional(fs.Args())

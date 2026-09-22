@@ -145,7 +145,12 @@ func readCDSelection(records []model.ScanRecord) (string, error) {
 	}
 
 	idx, err := strconv.Atoi(strings.TrimSpace(scanner.Text()))
-	if err != nil || idx < 1 || idx > len(records) {
+	if err != nil {
+		fmt.Fprint(os.Stderr, constants.ErrCDInvalidPick)
+
+		return "", fmt.Errorf("%s: %w", constants.ErrCDInvalidPick, err)
+	}
+	if idx < 1 || idx > len(records) {
 		fmt.Fprint(os.Stderr, constants.ErrCDInvalidPick)
 
 		return "", fmt.Errorf("%s", constants.ErrCDInvalidPick)

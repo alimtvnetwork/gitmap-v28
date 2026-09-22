@@ -59,7 +59,7 @@ func parseHasChangeFlags(args []string) (alias, mode string, all, fetch bool) {
 	allFlag := fs.Bool(constants.FlagHCAll, false, constants.FlagDescHCAll)
 	fetchFlag := fs.Bool(constants.FlagHCFetch, true, constants.FlagDescHCFetch)
 	if err := fs.Parse(reorderFlagsBeforeArgs(args)); err != nil {
-		cliexit.HandleError(nil, 2)
+		cliexit.HandleError(err, 2)
 	}
 
 	rest := fs.Args()

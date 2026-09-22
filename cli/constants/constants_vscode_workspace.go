@@ -42,9 +42,9 @@ const (
 
 // Error templates (Code Red zero-swallow policy).
 const (
-	ErrVSCodeWorkspaceDBOpen     = "vscode-workspace: failed to open repo database: %v\n"
-	ErrVSCodeWorkspaceDBList     = "vscode-workspace: failed to list repos: %v\n"
-	ErrVSCodeWorkspaceWriteTemp  = "vscode-workspace: failed to write temp file %q: %v\n"
-	ErrVSCodeWorkspaceRename     = "vscode-workspace: failed to commit %q: %v\n"
-	ErrVSCodeWorkspaceRelativize = "vscode-workspace: failed to relativize %q against %q: %v\n"
+	ErrVSCodeWorkspaceDBOpen     = "vscode-workspace: failed to open repo database: %w\n"
+	ErrVSCodeWorkspaceDBList     = "vscode-workspace: failed to list repos: %w\n"
+	ErrVSCodeWorkspaceWriteTemp  = "vscode-workspace: failed to write temp file %q: %w\n"
+	ErrVSCodeWorkspaceRename     = "vscode-workspace: failed to commit %q: %w\n"
+	ErrVSCodeWorkspaceRelativize = "vscode-workspace: failed to relativize %q against %q: %w\n"
 )

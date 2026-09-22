@@ -31,7 +31,7 @@ const (
 	MsgCDDefaultSet        = "Default set for %s: %s\n"
 	MsgCDDefaultCleared    = "Default cleared for %s\n"
 	ErrCDUsage             = "usage: gitmap cd <repo-name|repos> [--group <name>] [--pick] [<inner-command> ...]\n"
-	ErrCDChdirFmt          = "cd: cannot enter %s: %v\n"
+	ErrCDChdirFmt          = "cd: cannot enter %s: %w\n"
 	ErrCDNotFound          = "no repo found matching '%s'\n"
 	ErrCDInvalidPick       = "invalid selection\n"
 	ErrCDSetDefaultUsage   = "usage: gitmap cd set-default <name> <path>\n"

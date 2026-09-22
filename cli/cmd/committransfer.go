@@ -63,13 +63,13 @@ func executeCommitTransfer(spec commitTransferSpec, args []string) {
 	left, right, resolveErr := resolveCommitEndpoints(positional[0], positional[1], opts)
 	if resolveErr != nil {
 		fmt.Fprintf(os.Stderr, "%s endpoint resolve failed: %v\n", opts.LogPrefix, resolveErr)
-		cliexit.HandleError(nil, 1)
+		cliexit.HandleError(resolveErr, 1)
 	}
 
 	opts.Message.SourceDisplayName = pickSourceDisplayName(spec.Name, left, right, opts.Message.KeepUrl)
 	if err := dispatchDirection(spec.Name, left.WorkingDir, right.WorkingDir, opts); err != nil {
 		fmt.Fprintf(os.Stderr, "%s replay failed: %v\n", opts.LogPrefix, err)
-		cliexit.HandleError(nil, 1)
+		cliexit.HandleError(err, 1)
 	}
 }
 

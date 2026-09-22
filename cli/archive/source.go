@@ -163,7 +163,10 @@ func downloadWithAria2c(params Aria2cDownloadParams) error {
 	}
 
 	info, err := os.Stat(filepath.Join(params.Dir, params.Name))
-	if err != nil || info.Size() == 0 {
+	if err != nil {
+		return fmt.Errorf("stat aria2c file failed: %w", err)
+	}
+	if info.Size() == 0 {
 		return errors.New("aria2c produced empty file")
 	}
 

@@ -55,7 +55,7 @@ func requireActiveGroup() string {
 	db, err := openDB()
 	if err != nil {
 		fmt.Fprintln(os.Stderr, apperror.WrapSimple(err, constants.ErrListDBFailed).Error())
-		cliexit.HandleError(nil, 1)
+		cliexit.HandleError(err, 1)
 	}
 
 	defer db.Close()

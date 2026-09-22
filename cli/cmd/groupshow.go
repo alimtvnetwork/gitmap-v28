@@ -29,7 +29,7 @@ func fetchGroupRepos(db *store.DB, name string) ([]model.ScanRecord, *apperror.A
 	if err != nil && isLegacyDataError(err) {
 		fmt.Fprint(os.Stderr, constants.MsgLegacyProjectData)
 
-		return nil, apperror.NewSimple("legacy data error", "E9000")
+		return nil, apperror.WrapSimple(err, "legacy data error")
 	}
 
 	if err != nil {

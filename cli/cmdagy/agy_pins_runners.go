@@ -4,22 +4,32 @@ package cmdagy
 import (
 	"fmt"
 
+	"github.com/alimtvnetwork/gitmap-v28/cli/apperror"
 	"github.com/alimtvnetwork/gitmap-v28/cli/constants"
 )
 
 func runAgyPinProjectsLs() error {
-	store, loadErr := loadPinnedProjectsStore()
-	if loadErr != nil {
-		return fmt.Errorf("load pinned projects: %w", loadErr.Unwrap())
+	dirPath, pathErr := getProjectsDirPath()
+	if pathErr != nil {
+		return apperror.WrapSimple(pathErr, "path error")
 	}
 
-	if agyPinProjectsJSON {
-		return outputPinnedProjectsJSON(store.Projects)
+	if err := processAgyLsProjects(dirPath); err != nil {
+		return err
 	}
-
-	renderPinnedProjectsTable(store.Projects)
-
+	printPinsTableAdvisory()
 	return nil
+}
+
+func printPinsTableAdvisory() {
+	store, _ := loadPinnedProjectsStore()
+	if store == nil || len(store.Projects) == 0 {
+		fmt.Printf("  %sTip: Pin projects with: gitmap agy pins add <seq|id|slug>%s\n\n",
+			constants.ColorDim, constants.ColorReset)
+		return
+	}
+	fmt.Printf("  %s%d pinned project(s) shown first. Manage pins: gitmap agy pins <add|rm|edit|help>%s\n\n",
+		constants.ColorDim, len(store.Projects), constants.ColorReset)
 }
 
 func runAgyPinProjectsAdd(args []string) error {

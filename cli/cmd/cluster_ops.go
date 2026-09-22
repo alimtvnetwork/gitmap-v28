@@ -28,7 +28,7 @@ func runClusterHistory(args []string) error {
 	storeDB, err := store.OpenDefault()
 	if err != nil {
 		fmt.Fprintf(os.Stderr, "failed to open db: %v\n", err)
-		cliexit.HandleError(nil, 1)
+		cliexit.HandleError(err, 1)
 	}
 
 	defer storeDB.Close()
@@ -49,7 +49,7 @@ func printClusterHistoryList(ctx context.Context, conn *sql.DB) {
 	runsRes := db.ListClusterRuns(ctx, conn, constants.ClusterDefaultHistoryLimit)
 	if runsRes.IsFailure() {
 		fmt.Fprintf(os.Stderr, "failed to list runs: %v\n", runsRes.AppError())
-		cliexit.HandleError(nil, 1)
+		cliexit.HandleError(runsRes.AppError(), 1)
 	}
 
 	fmt.Printf("%-20s | %-15s | %-15s | %-5s | %-4s | %-4s | %s\n",
@@ -88,13 +88,13 @@ func printClusterRunDetails(ctx context.Context, conn *sql.DB, runRef string) {
 	run, err := db.SelectClusterRun(ctx, conn, runRef)
 	if err != nil {
 		fmt.Fprintf(os.Stderr, "failed to get run %s: %v\n", runRef, err)
-		cliexit.HandleError(nil, 1)
+		cliexit.HandleError(err, 1)
 	}
 
 	resultsRes := db.SelectClusterExecResultsByRunId(ctx, conn, run.ClusterRunId)
 	if resultsRes.IsFailure() {
 		fmt.Fprintf(os.Stderr, "failed to get results for run %s: %v\n", runRef, resultsRes.AppError())
-		cliexit.HandleError(nil, 1)
+		cliexit.HandleError(resultsRes.AppError(), 1)
 	}
 
 	fmt.Printf("RunRef: %s\nCommand: %s\n\n", run.RunRef, run.RawCommand)
@@ -158,14 +158,14 @@ func runClusterExport(args []string) error {
 	storeDB, err := store.OpenDefault()
 	if err != nil {
 		fmt.Fprintf(os.Stderr, "failed to open db: %v\n", err)
-		cliexit.HandleError(nil, 1)
+		cliexit.HandleError(err, 1)
 	}
 
 	defer storeDB.Close()
 	nodesRes := db.ListClusterNodes(ctx, storeDB.Conn())
 	if nodesRes.IsFailure() {
 		fmt.Fprintf(os.Stderr, "failed to list nodes: %v\n", nodesRes.AppError())
-		cliexit.HandleError(nil, 1)
+		cliexit.HandleError(nodesRes.AppError(), 1)
 	}
 
 	data := formatClusterExportNodes(nodesRes.Data, format)
@@ -189,7 +189,7 @@ func formatClusterExportNodes(nodes []db.ClusterNode, format string) []byte {
 	data, err := json.MarshalIndent(nodes, "", constants.JSONIndent)
 	if err != nil {
 		fmt.Fprintf(os.Stderr, "failed to marshal nodes: %v\n", err)
-		cliexit.HandleError(nil, 1)
+		cliexit.HandleError(err, 1)
 	}
 
 	return data
@@ -217,7 +217,7 @@ func writeClusterExportData(data []byte, output string) {
 
 	if err := os.WriteFile(output, data, constants.FilePermission); err != nil {
 		fmt.Fprintf(os.Stderr, "failed to write output: %v\n", err)
-		cliexit.HandleError(nil, 1)
+		cliexit.HandleError(err, 1)
 	}
 }
 
@@ -256,7 +256,7 @@ func runClusterSetPassword(args []string) error {
 	hash, err := bcrypt.GenerateFromPassword([]byte(pass), constants.ClusterBcryptCost)
 	if err != nil {
 		fmt.Fprintf(os.Stderr, "failed to hash password: %v\n", err)
-		cliexit.HandleError(nil, 1)
+		cliexit.HandleError(err, 1)
 	}
 
 	hashStr := string(hash)
@@ -271,13 +271,13 @@ func updateClusterNodePasswordInDB(id string, hash *string) {
 	storeDB, err := store.OpenDefault()
 	if err != nil {
 		fmt.Fprintf(os.Stderr, "failed to open db: %v\n", err)
-		cliexit.HandleError(nil, 1)
+		cliexit.HandleError(err, 1)
 	}
 
 	defer storeDB.Close()
 	if err := db.UpdateClusterNodePassword(ctx, storeDB.Conn(), id, hash); err != nil {
 		fmt.Fprintf(os.Stderr, "failed to update password: %v\n", err)
-		cliexit.HandleError(nil, 1)
+		cliexit.HandleError(err, 1)
 	}
 }
 
@@ -445,14 +445,14 @@ func deleteClusterNodeInDB(id string) {
 	storeDB, err := openClusterStore()
 	if err != nil {
 		fmt.Fprintf(os.Stderr, "failed to open db: %v\n", err)
-		cliexit.HandleError(nil, 1)
+		cliexit.HandleError(err, 1)
 		return
 	}
 
 	defer storeDB.Close()
 	if err := db.DeleteClusterNode(ctx, storeDB.Conn(), id); err != nil {
 		fmt.Fprintf(os.Stderr, "failed to delete node: %v\n", err)
-		cliexit.HandleError(nil, 1)
+		cliexit.HandleError(err, 1)
 	}
 }
 
@@ -496,21 +496,21 @@ func cleanClusterAuditRecords(beforeStr string) {
 	before, err := time.Parse(time.RFC3339, beforeStr)
 	if err != nil {
 		fmt.Fprintf(os.Stderr, "invalid date format, use RFC3339: %v\n", err)
-		cliexit.HandleError(nil, 1)
+		cliexit.HandleError(err, 1)
 	}
 
 	ctx := context.Background()
 	storeDB, err := store.OpenDefault()
 	if err != nil {
 		fmt.Fprintf(os.Stderr, "failed to open db: %v\n", err)
-		cliexit.HandleError(nil, 1)
+		cliexit.HandleError(err, 1)
 	}
 
 	defer storeDB.Close()
 	count, delErr := db.DeleteClusterRunsBefore(ctx, storeDB.Conn(), before)
 	if delErr != nil {
 		fmt.Fprintf(os.Stderr, "failed to clean audit records: %v\n", delErr)
-		cliexit.HandleError(nil, 1)
+		cliexit.HandleError(delErr, 1)
 	}
 
 	fmt.Printf("Cleaned %d cluster run records older than %s.\n", count, beforeStr)
@@ -521,14 +521,14 @@ func runClusterStats(args []string) error {
 	storeDB, err := store.OpenDefault()
 	if err != nil {
 		fmt.Fprintf(os.Stderr, "failed to open db: %v\n", err)
-		cliexit.HandleError(nil, 1)
+		cliexit.HandleError(err, 1)
 	}
 
 	defer storeDB.Close()
 	stats, statsErr := db.GetClusterStats(ctx, storeDB.Conn())
 	if statsErr != nil {
 		fmt.Fprintf(os.Stderr, "failed to get cluster stats: %v\n", statsErr)
-		cliexit.HandleError(nil, 1)
+		cliexit.HandleError(statsErr, 1)
 	}
 
 	printClusterStatsReport(stats)

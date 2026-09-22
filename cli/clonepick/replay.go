@@ -50,7 +50,7 @@ func LoadFromDB(loader Loader, ref string) (Plan, int64, error) {
 
 	plan, sel, err := loader.LoadClonePickByName(trimmed)
 	if err != nil {
-		return Plan{}, 0, fmt.Errorf(constants.MsgClonePickReplayNotFound, ref)
+		return Plan{}, 0, fmt.Errorf(constants.MsgClonePickReplayNotFound+": %w", ref, err)
 	}
 
 	return plan, sel, nil
@@ -59,7 +59,7 @@ func LoadFromDB(loader Loader, ref string) (Plan, int64, error) {
 func loadByIDOrError(loader Loader, id int64, ref string) (Plan, int64, error) {
 	plan, sel, loadErr := loader.LoadClonePickByID(id)
 	if loadErr != nil {
-		return Plan{}, 0, fmt.Errorf(constants.MsgClonePickReplayNotFound, ref)
+		return Plan{}, 0, fmt.Errorf(constants.MsgClonePickReplayNotFound+": %w", ref, loadErr)
 	}
 
 	return plan, sel, nil

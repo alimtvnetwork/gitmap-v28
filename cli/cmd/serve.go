@@ -28,7 +28,7 @@ func runServe(args []string) error {
 	token, err := generateJoinToken()
 	if err != nil {
 		fmt.Fprintf(os.Stderr, constants.ErrServeTokenGenerate, err)
-		cliexit.HandleError(nil, 1)
+		cliexit.HandleError(err, 1)
 	}
 
 	// Bind to all network interfaces on the specified port
@@ -36,7 +36,7 @@ func runServe(args []string) error {
 	listener, err := net.Listen(constants.ServeProtocol, address)
 	if err != nil {
 		fmt.Fprintf(os.Stderr, constants.ErrServeBind+"\n", err)
-		cliexit.HandleError(nil, 1)
+		cliexit.HandleError(err, 1)
 	}
 
 	defer listener.Close()

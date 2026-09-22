@@ -68,13 +68,13 @@ const (
 
 // Error messages.
 const (
-	ErrVSCodePMUpsert        = "failed to upsert VSCodeProject %q: %v"
-	ErrVSCodePMList          = "failed to list VSCodeProject rows: %v"
-	ErrVSCodePMRename        = "failed to rename VSCodeProject %q: %v"
-	ErrVSCodePMDelete        = "failed to delete VSCodeProject %q: %v"
-	ErrVSCodePMUpdatePaths   = "failed to update Paths for VSCodeProject %q: %v"
-	ErrVSCodePMPathsEncode   = "failed to encode Paths for VSCodeProject %q: %v"
-	ErrVSCodePMPathsDecode   = "failed to decode Paths for VSCodeProject %q: %v"
+	ErrVSCodePMUpsert        = "failed to upsert VSCodeProject %q: %w"
+	ErrVSCodePMList          = "failed to list VSCodeProject rows: %w"
+	ErrVSCodePMRename        = "failed to rename VSCodeProject %q: %w"
+	ErrVSCodePMDelete        = "failed to delete VSCodeProject %q: %w"
+	ErrVSCodePMUpdatePaths   = "failed to update Paths for VSCodeProject %q: %w"
+	ErrVSCodePMPathsEncode   = "failed to encode Paths for VSCodeProject %q: %w"
+	ErrVSCodePMPathsDecode   = "failed to decode Paths for VSCodeProject %q: %w"
 	ErrVSCodePMAliasNotFound = "no VS Code project registered with alias %q (register one first via `gitmap code %s`)"
 )
 

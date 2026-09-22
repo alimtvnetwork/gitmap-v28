@@ -13,7 +13,7 @@ import (
 func FindLockingProcesses(dirPath string) ([]LockingProcess, error) {
 	lsofPath, err := exec.LookPath("lsof")
 	if err != nil {
-		return nil, fmt.Errorf("lsof not found")
+		return nil, fmt.Errorf("lsof not found: %w", err)
 	}
 
 	cmd := exec.Command(lsofPath, "+D", dirPath)

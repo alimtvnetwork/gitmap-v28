@@ -24,7 +24,7 @@ func runPrintPathSnippet(args []string) error {
 	out, err := setup.RenderPathSnippet(shell, dir, manager)
 	if err != nil {
 		fmt.Fprintf(os.Stderr, "Error: %v\n", err)
-		cliexit.HandleError(nil, 2)
+		cliexit.HandleError(err, 2)
 	}
 
 	// Trailing newline so callers can `>>` straight into a profile file.

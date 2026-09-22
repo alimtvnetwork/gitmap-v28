@@ -142,7 +142,7 @@ func executeCFRPostSteps(
 ) {
 	if err := os.Chdir(absPath); err != nil {
 		fmt.Fprintf(os.Stderr, constants.ErrCloneFixRepoChdirFmt, absPath, err)
-		cliexit.HandleError(nil, constants.ExitCloneFixRepoChdir)
+		cliexit.HandleError(err, constants.ExitCloneFixRepoChdir)
 	}
 
 	maybeRunFixRepoStep(absPath, f.requireVersion)
@@ -217,12 +217,12 @@ func dispatchCodingGuidelinesModifier(absPath string, m CfrModifierFlags) {
 	}
 
 	if err := RunCodingGuidelinesInstall(CodingGuidelinesOpts{WorkingDir: absPath}); err != nil {
-		cliexit.HandleError(nil, constants.ExitCloneFixRepoChainFailed)
+		cliexit.HandleError(err, constants.ExitCloneFixRepoChainFailed)
 	}
 
 	commitOpts := CGCommitOpts{WorkingDir: absPath, IsSkipCommit: m.IsSkipCommit, IsSkipPush: m.IsSkipPush}
 	if err := CommitCodingGuidelines(commitOpts); err != nil {
-		cliexit.HandleError(nil, constants.ExitCloneFixRepoChainFailed)
+		cliexit.HandleError(err, constants.ExitCloneFixRepoChainFailed)
 	}
 }
 
@@ -443,7 +443,7 @@ func runChainedGitmapStep(args []string) error {
 	bin, err := os.Executable()
 	if err != nil {
 		fmt.Fprintf(os.Stderr, constants.ErrCloneFixRepoExecFmt, err)
-		cliexit.HandleError(nil, constants.ExitCloneFixRepoChainFailed)
+		cliexit.HandleError(err, constants.ExitCloneFixRepoChainFailed)
 	}
 
 	cmd := exec.Command(bin, args...)
@@ -462,9 +462,9 @@ func handleChainedStepResult(runErr error) {
 
 	var exitErr *exec.ExitError
 	if errors.As(runErr, &exitErr) {
-		cliexit.HandleError(nil, exitErr.ExitCode())
+		cliexit.HandleError(runErr, exitErr.ExitCode())
 	}
 
 	fmt.Fprintf(os.Stderr, constants.ErrCloneFixRepoExecFmt, runErr)
-	cliexit.HandleError(nil, constants.ExitCloneFixRepoChainFailed)
+	cliexit.HandleError(runErr, constants.ExitCloneFixRepoChainFailed)
 }

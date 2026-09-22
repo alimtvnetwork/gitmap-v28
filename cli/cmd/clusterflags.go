@@ -127,7 +127,7 @@ func parseClusterFlagSet(args []string, opts *ClusterFlags) ([]string, error) {
 	yes, yesShort := bindClusterFlags(fs, opts, &ips, &ids)
 	flags, pos := splitClusterFlagsAndArgs(args)
 	if err := fs.Parse(flags); err != nil {
-		return nil, errors.New("cluster: " + err.Error())
+		return nil, fmt.Errorf("cluster: %w", err)
 	}
 
 	opts.AutoConfirm, opts.OnlyIPs, opts.OnlyIDs = *yes || *yesShort, ips, ids

@@ -69,7 +69,11 @@ func parseBulkSingleArg(arg string) (bulkVisibilityRequest, bool) {
 
 func parseBulkPairArg(repoArg, countArg string) (bulkVisibilityRequest, bool) {
 	count, err := strconv.Atoi(countArg)
-	if err != nil || count < 1 {
+	if err != nil {
+		fmt.Fprintf(os.Stderr, constants.ErrVisBulkBadCountFmt, countArg)
+		cliexit.HandleError(err, constants.ExitVisBadFlag)
+	}
+	if count < 1 {
 		fmt.Fprintf(os.Stderr, constants.ErrVisBulkBadCountFmt, countArg)
 		cliexit.HandleError(nil, constants.ExitVisBadFlag)
 	}

@@ -103,7 +103,7 @@ func (db *DB) ResolveAlias(alias string) (AliasWithRepo, error) {
 
 	err := row.Scan(&a.ID, &a.Alias.Alias, &a.RepoID, &a.CreatedAt, &a.AbsolutePath, &a.Slug)
 	if err != nil {
-		return AliasWithRepo{}, fmt.Errorf(constants.ErrAliasNotFound, alias)
+		return AliasWithRepo{}, fmt.Errorf(constants.ErrAliasNotFound+": %w", alias, err)
 	}
 
 	return a, nil

@@ -28,7 +28,7 @@ func runReleaseDry(args []string) error {
 
 	fmt.Println("\033[1;96m▸ release-dry\033[0m  build + local tag rehearsal (no push)")
 	if err := runStep("go build ./...", "go", "build", "./..."); err != nil {
-		return apperror.NewSimple("fatal error", "E9000")
+		return apperror.WrapSimple(err, "fatal error")
 	}
 
 	if tag == "" {
@@ -38,7 +38,7 @@ func runReleaseDry(args []string) error {
 	}
 
 	if err := runStep("git tag "+tag, "git", "tag", tag); err != nil {
-		return apperror.NewSimple("fatal error", "E9000")
+		return apperror.WrapSimple(err, "fatal error")
 	}
 
 	fmt.Printf("\033[1;94mnotes for %s\033[0m\n", tag)

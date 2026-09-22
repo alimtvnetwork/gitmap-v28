@@ -95,7 +95,7 @@ func runBackupPrune(args []string) error {
 	olderDays := fs.Int("older-than", 0, "delete snapshots older than N days (0 = no age filter)")
 	dryRun := fs.Bool("dry-run", false, "print what would be deleted; do not touch disk")
 	if err := fs.Parse(args); err != nil {
-		cliexit.HandleError(nil, 2)
+		cliexit.HandleError(err, 2)
 	}
 
 	if *keep == 0 && *olderDays == 0 {

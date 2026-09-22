@@ -39,7 +39,7 @@ func RunSequenceAuditor(opts SequenceAuditorOptions) (SequenceAuditorResult, *ap
 
 	if walkErr != nil {
 		ctx := map[string]any{"dir": targetDir, "err": walkErr.Error()}
-		return res, apperror.New("sequence_auditor", "E_WALK_FAILED", ctx)
+		return res, apperror.Wrap(walkErr, "sequence_auditor", ctx)
 	}
 
 	res.Duration = time.Since(start)

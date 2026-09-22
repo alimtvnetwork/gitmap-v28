@@ -115,8 +115,9 @@ func syncBranchAndRetryPush(branch, pushOutput string) error {
 		abortRebaseAfterFailure()
 
 		return fmt.Errorf(
-			"remote branch advanced; pull --rebase failed: %s",
+			"remote branch advanced; pull --rebase failed: %s: %w",
 			trimGitOutput(pullOutput),
+			err,
 		)
 	}
 
@@ -127,8 +128,9 @@ func syncBranchAndRetryPush(branch, pushOutput string) error {
 	retryOutput, err := runGitCmdCombined(constants.GitPush, constants.GitOrigin, branch)
 	if err != nil {
 		return fmt.Errorf(
-			"push retry after rebase failed: %s",
+			"push retry after rebase failed: %s: %w",
 			trimGitOutput(retryOutput),
+			err,
 		)
 	}
 

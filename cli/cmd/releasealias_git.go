@@ -24,7 +24,7 @@ func runReleaseAliasPull(target string) error {
 		fmt.Fprintf(os.Stderr, constants.ErrRAPullFailedFmt, target, err)
 		fmt.Fprintln(os.Stderr)
 
-		return apperror.NewSimple("fatal error", "E9000")
+		return apperror.WrapSimple(err, "fatal error")
 	}
 
 	return nil

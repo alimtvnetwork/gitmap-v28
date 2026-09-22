@@ -71,9 +71,13 @@ func fetchLatestBranchRefs(cfg latestBranchConfig) {
 // loadFilteredRefs lists remote branches and applies remote + pattern filters.
 func loadFilteredRefs(cfg latestBranchConfig) []string {
 	refs, err := gitutil.ListRemoteBranches()
-	if err != nil || len(refs) == 0 {
+	if err != nil {
 		printNoRefsError(cfg)
-		cliexit.HandleError(apperror.NewSimple("fatal", "E9000"), 1)
+		cliexit.HandleError(apperror.WrapSimple(err, "list remote branches"), 1)
+	}
+	if len(refs) == 0 {
+		printNoRefsError(cfg)
+		cliexit.HandleError(apperror.NewNotFoundError("no remote branches found"), 1)
 	}
 
 	refs = applyRemoteFilter(refs, cfg)
@@ -126,7 +130,7 @@ func readAndSortBranches(refs []string, sortBy string) []gitutil.RemoteBranchInf
 	items, err := gitutil.ReadBranchTips(refs)
 	if err != nil {
 		fmt.Fprintf(os.Stderr, constants.ErrLatestBranchNoCommits+"\n")
-		cliexit.HandleError(apperror.NewSimple("fatal", "E9000"), 1)
+		cliexit.HandleError(apperror.WrapSimple(err, constants.ErrLatestBranchNoCommits), 1)
 	}
 
 	if sortBy == constants.SortByName {

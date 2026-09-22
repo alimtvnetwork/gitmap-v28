@@ -23,7 +23,7 @@ func runGroupList() error {
 	if err != nil && isLegacyDataError(err) {
 		fmt.Fprint(os.Stderr, constants.MsgLegacyProjectData)
 
-		return apperror.NewSimple("fatal error", "E9000")
+		return apperror.WrapSimple(err, "fatal error")
 	}
 
 	if err != nil {

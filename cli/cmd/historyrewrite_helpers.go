@@ -36,7 +36,7 @@ func readPinPathPayload(p string) []byte {
 	if err != nil {
 		fmt.Fprintf(os.Stderr, constants.HistoryErrBadArgs,
 			fmt.Sprintf(constants.HistoryErrPathNotReadable, p, err))
-		cliexit.HandleError(nil, constants.HistoryExitBadArgs)
+		cliexit.HandleError(err, constants.HistoryExitBadArgs)
 	}
 
 	return data

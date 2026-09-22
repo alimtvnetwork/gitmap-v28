@@ -84,9 +84,9 @@ const (
 const (
 	MsgHistoryEmpty          = "No command history found.\n"
 	MsgHistoryResetDone      = "Command history cleared.\n"
-	ErrHistoryResetFailed    = "failed to reset command history: %v\n"
+	ErrHistoryResetFailed    = "failed to reset command history: %w\n"
 	ErrHistoryResetNoConfirm = "history-reset requires --confirm flag\n"
-	ErrHistoryQuery          = "failed to query command history: %v"
+	ErrHistoryQuery          = "failed to query command history: %w"
 	MsgHistoryStatusOK       = "OK"
 	MsgHistoryStatusFail     = "FAIL"
 )

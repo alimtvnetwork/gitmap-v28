@@ -50,7 +50,7 @@ func loadHistory(cmdFilter string) []model.CommandHistoryRecord {
 	db, err := openDB()
 	if err != nil {
 		fmt.Fprintf(os.Stderr, constants.ErrHistoryQuery+"\n", err)
-		cliexit.HandleError(nil, 1)
+		cliexit.HandleError(err, 1)
 	}
 
 	defer db.Close()

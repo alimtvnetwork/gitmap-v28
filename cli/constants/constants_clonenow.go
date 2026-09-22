@@ -313,12 +313,12 @@ const (
 // Errors. All use printf-style verbs documented inline.
 const (
 	// %s = path, %v = err.
-	ErrCloneNowAbsPath = "clone-now: resolve path %s: %v"
-	ErrCloneNowOpen    = "clone-now: open %s: %v"
+	ErrCloneNowAbsPath = "clone-now: resolve path %s: %w"
+	ErrCloneNowOpen    = "clone-now: open %s: %w"
 	// %v = err.
-	ErrCloneNowJSONDecode = "clone-now: decode JSON: %v"
-	ErrCloneNowCSVRead    = "clone-now: read CSV: %v"
-	ErrCloneNowTextRead   = "clone-now: read text: %v"
+	ErrCloneNowJSONDecode = "clone-now: decode JSON: %w"
+	ErrCloneNowCSVRead    = "clone-now: read CSV: %w"
+	ErrCloneNowTextRead   = "clone-now: read text: %w"
 	// %s = bad value.
 	ErrCloneNowBadMode     = "clone-now: --mode must be 'https' or 'ssh', got %q"
 	ErrCloneNowBadFormat   = "clone-now: --format must be 'json', 'csv', or 'text', got %q"
@@ -337,7 +337,7 @@ const (
 	// and shell scripts can grep them.
 	//
 	// %v = decode error from json.Decoder.
-	ErrCloneNowJSONShape = "clone-now: JSON input must be an array of objects: %v"
+	ErrCloneNowJSONShape = "clone-now: JSON input must be an array of objects: %w"
 	// %d = 1-based row index, %s = actual JSON kind ("string",
 	// "number", "array", "null", etc.). Emitted when the top-level
 	// array is well-formed but one of its elements is not an object.
@@ -360,7 +360,7 @@ const (
 	// 1 is the first row after the header — matches what a user
 	// inspecting the file in a spreadsheet sees as "row 2"). %v =
 	// underlying csv.Reader error.
-	ErrCloneNowCSVRowRead = "clone-now: CSV data row %d failed to parse: %v"
+	ErrCloneNowCSVRowRead = "clone-now: CSV data row %d failed to parse: %w"
 	// %d = 1-based data row number. Emitted when a CSV data row has
 	// neither httpsUrl nor sshUrl set to a non-empty value.
 	ErrCloneNowCSVRowMissingURL = "clone-now: CSV data row %d has neither httpsUrl nor sshUrl set"

@@ -38,7 +38,7 @@ func runStartupList(args []string) error {
 	opts, err := parseStartupListFlags(args)
 	if err != nil {
 		fmt.Fprintf(os.Stderr, "%v\n", err)
-		cliexit.HandleError(nil, 2)
+		cliexit.HandleError(err, 2)
 	}
 
 	entries, err := startup.List()
@@ -152,18 +152,18 @@ func runStartupRemove(args []string) error {
 	cfg, err := parseStartupRemoveFlags(args)
 	if err != nil {
 		fmt.Fprintln(os.Stderr, constants.ErrStartupRemoveUsage)
-		cliexit.HandleError(nil, 2)
+		cliexit.HandleError(err, 2)
 	}
 
 	if err := validateStartupOutput(constants.CmdStartupRemove, cfg.output, cfg.jsonIndent); err != nil {
 		fmt.Fprintf(os.Stderr, "%v\n", err)
-		cliexit.HandleError(nil, 2)
+		cliexit.HandleError(err, 2)
 	}
 
 	backend, err := startup.ParseBackend(cfg.backend)
 	if err != nil {
 		fmt.Fprintf(os.Stderr, "%v\n", err)
-		cliexit.HandleError(nil, 2)
+		cliexit.HandleError(err, 2)
 	}
 
 	res, err := startup.RemoveWithOptions(cfg.name, startup.RemoveOptions{

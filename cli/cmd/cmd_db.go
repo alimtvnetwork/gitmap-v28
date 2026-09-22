@@ -25,7 +25,12 @@ func getRepoDB(ctx context.Context) (*store.DB, *sql.DB, error) {
 	}
 
 	repos, err := mainDB.FindByPath(cwd)
-	if err != nil || len(repos) == 0 {
+	if err != nil {
+		mainDB.Close()
+
+		return nil, nil, fmt.Errorf("find repo by path %s failed: %w", cwd, err)
+	}
+	if len(repos) == 0 {
 		mainDB.Close()
 
 		return nil, nil, fmt.Errorf("current directory is not a tracked gitmap repository. run 'gitmap scan' first")

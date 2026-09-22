@@ -537,10 +537,10 @@ const (
 	MsgAuditLegacyHit           = "    %s:%d: %s\n"
 	MsgAuditLegacyReportWrote   = "  📄 audit-legacy: report written to %s\n"
 	MsgAuditLegacyDiffsWrote    = "  📎 audit-legacy: %d per-file diff(s) written to %s\n"
-	ErrAuditLegacyWalk          = "audit-legacy: walk failed for %s: %v\n"
-	ErrAuditLegacyRegex         = "audit-legacy: invalid regex %q: %v\n"
-	ErrAuditLegacyReportWrite   = "audit-legacy: failed to write report to %s: %v\n"
-	ErrAuditLegacyDiffWrite     = "audit-legacy: failed to write diff for %s: %v\n"
+	ErrAuditLegacyWalk          = "audit-legacy: walk failed for %s: %w\n"
+	ErrAuditLegacyRegex         = "audit-legacy: invalid regex %q: %w\n"
+	ErrAuditLegacyReportWrite   = "audit-legacy: failed to write report to %s: %w\n"
+	ErrAuditLegacyDiffWrite     = "audit-legacy: failed to write diff for %s: %w\n"
 )
 
 // Regoldens flag names + descriptions. The two env vars driven by

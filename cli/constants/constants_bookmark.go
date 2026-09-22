@@ -71,7 +71,7 @@ const (
 	ErrBookmarkDelUsage  = "usage: gitmap bookmark delete <name>\n"
 	ErrBookmarkNotFound  = "bookmark not found: %s\n"
 	ErrBookmarkExists    = "bookmark already exists: %s (delete it first)\n"
-	ErrBookmarkQuery     = "failed to query bookmarks: %v"
-	ErrBookmarkSave      = "failed to save bookmark: %v\n"
-	ErrBookmarkDelete    = "failed to delete bookmark: %v\n"
+	ErrBookmarkQuery     = "failed to query bookmarks: %w"
+	ErrBookmarkSave      = "failed to save bookmark: %w\n"
+	ErrBookmarkDelete    = "failed to delete bookmark: %w\n"
 )

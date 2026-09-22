@@ -75,7 +75,7 @@ func printCompletionScript(shell string) {
 	script, err := completion.Generate(shell)
 	if err != nil {
 		fmt.Fprintf(os.Stderr, constants.ErrCompUnknownShell, shell)
-		cliexit.HandleError(nil, 1)
+		cliexit.HandleError(err, 1)
 	}
 
 	fmt.Print(script)

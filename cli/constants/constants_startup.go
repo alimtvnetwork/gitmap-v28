@@ -97,8 +97,8 @@ const (
 	MsgStartupAddExists      = "  (exists) gitmap-managed entry already at %s — pass --force to overwrite\n"
 	MsgStartupAddRefused     = "  (refused) %q exists but was NOT created by gitmap — refusing to overwrite\n"
 	MsgStartupAddBadName     = "  (refused) name %q is empty or contains a path separator\n"
-	ErrStartupResolveDir     = "could not resolve autostart directory: %v"
-	ErrStartupReadDir        = "could not read autostart directory %s: %v"
+	ErrStartupResolveDir     = "could not resolve autostart directory: %w"
+	ErrStartupReadDir        = "could not read autostart directory %s: %w"
 	ErrStartupRemoveUsage    = "usage: gitmap startup-remove <name>"
 	ErrStartupAddMissingExec = "startup-add: --exec is required " +
 		"(or run from an installed gitmap binary so we can auto-detect it)"

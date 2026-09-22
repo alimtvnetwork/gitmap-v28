@@ -57,15 +57,16 @@ func readAgyProject(filePath string) (AgyProject, error) {
 }
 
 func sortAgyProjects(projects []AgyProject, sortBy string) {
-	if sortBy == "time" || sortBy == "recent" {
-		sort.Slice(projects, func(i, j int) bool {
-			return projects[i].UpdatedAt > projects[j].UpdatedAt
-		})
-
-		return
-	}
-
+	pinnedMap := getPinnedProjectsSet()
 	sort.Slice(projects, func(i, j int) bool {
+		pi := pinnedMap[projects[i].ID] || pinnedMap[projects[i].Name]
+		pj := pinnedMap[projects[j].ID] || pinnedMap[projects[j].Name]
+		if pi != pj {
+			return pi
+		}
+		if sortBy == "time" || sortBy == "recent" {
+			return projects[i].UpdatedAt > projects[j].UpdatedAt
+		}
 		return strings.ToLower(projects[i].Name) < strings.ToLower(projects[j].Name)
 	})
 }

@@ -27,13 +27,12 @@ func printAgyBanner(count int, dirPath string) {
 
 func printAgyTableHeader(c *agyTableContext) {
 	const gap = "   "
-	fmt.Printf("  %s%-*s%s%-*s%s%-*s%s%-*s%s%-*s%s%-*s%s%-*s%s%s%s\n",
+	fmt.Printf("  %s%-*s%s%-*s%s%-*s%s%-*s%s%-*s%s%-*s%s%s%s\n",
 		constants.ColorWhite,
 		c.MaxSeq, "SEQ", gap,
-		c.MaxProject, "PROJECT", gap,
-		c.MaxID, "ID", gap,
 		c.MaxConvName, "CONV NAME", gap,
-		c.MaxConvID, "CONV ID", gap,
+		c.MaxID, "ID", gap,
+		c.MaxProject, "PROJECT", gap,
 		c.MaxBranch, "BRANCH", gap,
 		c.MaxStatus, "STATUS", gap,
 		"PATH",
@@ -44,18 +43,15 @@ func printAgyTableHeader(c *agyTableContext) {
 func printAgyTableRow(c *agyTableContext, r agyTableRow, index int) {
 	const gap = "   "
 	color := constants.ColorCycle[index%len(constants.ColorCycle)]
-	branchColor := resolveBranchColor(r.Branch)
-
 	seqCol := fmt.Sprintf("%s%03d%s", constants.ColorYellow, index+1, constants.ColorReset)
-	projectCol := fmt.Sprintf("%s%-*s%s", color, c.MaxProject, r.Name, constants.ColorReset)
+	convCol := fmt.Sprintf("%s%-*s%s", constants.ColorWhite, c.MaxConvName, r.ConvName, constants.ColorReset)
 	idCol := fmt.Sprintf("%s%-*s%s", constants.ColorDim, c.MaxID, r.ID, constants.ColorReset)
-	convNameCol := fmt.Sprintf("%s%-*s%s", constants.ColorWhite, c.MaxConvName, r.ConvName, constants.ColorReset)
-	convIDCol := fmt.Sprintf("%s%-*s%s", constants.ColorDim, c.MaxConvID, r.ConvID, constants.ColorReset)
-	branchCol := fmt.Sprintf("%s%-*s%s", branchColor, c.MaxBranch, r.Branch, constants.ColorReset)
+	projCol := fmt.Sprintf("%s%-*s%s", color, c.MaxProject, r.Name, constants.ColorReset)
+	branchCol := fmt.Sprintf("%s%-*s%s", resolveBranchColor(r.Branch), c.MaxBranch, r.Branch, constants.ColorReset)
 	statusCol := formatAgyStatus(r.Status, r.IsMissing, c.MaxStatus)
 
-	fmt.Printf("  %s%s%s%s%s%s%s%s%s%s%s%s%s%s%s\n",
-		seqCol, gap, projectCol, gap, idCol, gap, convNameCol, gap, convIDCol, gap, branchCol, gap, statusCol, gap, r.Path)
+	fmt.Printf("  %s%s%s%s%s%s%s%s%s%s%s%s%s\n",
+		seqCol, gap, convCol, gap, idCol, gap, projCol, gap, branchCol, gap, statusCol, gap, r.Path)
 }
 
 func resolveBranchColor(branch string) string {
@@ -69,6 +65,10 @@ func resolveBranchColor(branch string) string {
 func formatAgyStatus(status string, isMissing bool, width int) string {
 	if isMissing {
 		return fmt.Sprintf("%s%-*s%s", constants.ColorRed, width, "✖   missing", constants.ColorReset)
+	}
+
+	if status == "pinned" {
+		return fmt.Sprintf("%s%-*s%s", constants.ColorYellow, width, "📌  pinned", constants.ColorReset)
 	}
 
 	if status == "global" {

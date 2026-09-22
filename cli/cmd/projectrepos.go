@@ -20,7 +20,7 @@ func runProjectRepos(typeKey string, args []string) error {
 	db, err := store.OpenDefault()
 	if err != nil {
 		fmt.Fprint(os.Stderr, constants.MsgProjectNoDB)
-		cliexit.HandleError(apperror.NewSimple("fatal", "E9000"), 1)
+		cliexit.HandleError(apperror.WrapSimple(err, "open default store"), 1)
 	}
 
 	defer db.Close()
@@ -56,7 +56,7 @@ func printProjectCount(db *store.DB, typeKey string) {
 	isLegacyErr := err != nil && isLegacyDataError(err)
 	if isLegacyErr {
 		fmt.Fprint(os.Stderr, constants.MsgLegacyProjectData)
-		cliexit.HandleError(apperror.NewSimple("fatal", "E9000"), 1)
+		cliexit.HandleError(apperror.WrapSimple(err, "legacy project data error"), 1)
 	}
 
 	if err != nil {
@@ -73,7 +73,7 @@ func printProjectList(db *store.DB, typeKey string, jsonOut bool) {
 	isLegacyErr := err != nil && isLegacyDataError(err)
 	if isLegacyErr {
 		fmt.Fprint(os.Stderr, constants.MsgLegacyProjectData)
-		cliexit.HandleError(apperror.NewSimple("fatal", "E9000"), 1)
+		cliexit.HandleError(apperror.WrapSimple(err, "legacy project data error"), 1)
 	}
 
 	if err != nil {

@@ -83,7 +83,7 @@ func ResolveLatestVersion() (Version, error) {
 func resolveFromFile() (Version, error) {
 	raw, err := ReadVersionFile()
 	if err != nil {
-		return Version{}, fmt.Errorf(constants.ErrReleaseVersionRequired)
+		return Version{}, fmt.Errorf(constants.ErrReleaseVersionRequired+": %w", err)
 	}
 
 	fmt.Printf(constants.MsgReleaseVersionRead, constants.DefaultVersionFile, raw)

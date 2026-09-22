@@ -75,8 +75,12 @@ func parseHistoryLimit(args []string) int {
 		}
 
 		n, err := strconv.Atoi(args[i+1])
-		if err != nil || n <= 0 {
+		if err != nil {
 			fmt.Fprintf(os.Stderr, constants.ErrUndoBadRunFlagFmt, args[i+1], err, "--limit must be positive integer")
+			cliexit.HandleError(err, constants.ExitVisBadFlag)
+		}
+		if n <= 0 {
+			fmt.Fprintf(os.Stderr, constants.ErrUndoBadRunFlagFmt, args[i+1], nil, "--limit must be positive integer")
 			cliexit.HandleError(nil, constants.ExitVisBadFlag)
 		}
 

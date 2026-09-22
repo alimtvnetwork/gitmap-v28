@@ -51,7 +51,7 @@ func runStartupAdd(args []string) error {
 	cfg := parseStartupAddFlags(args)
 	if err := validateStartupOutput(constants.CmdStartupAdd, cfg.output, cfg.jsonIndent); err != nil {
 		fmt.Fprintf(os.Stderr, "%v\n", err)
-		cliexit.HandleError(nil, 2)
+		cliexit.HandleError(err, 2)
 	}
 
 	exec, ok := resolveStartupAddExec(cfg.exec)
@@ -63,7 +63,7 @@ func runStartupAdd(args []string) error {
 	backend, err := startup.ParseBackend(cfg.backend)
 	if err != nil {
 		fmt.Fprintf(os.Stderr, "%v\n", err)
-		cliexit.HandleError(nil, 2)
+		cliexit.HandleError(err, 2)
 	}
 
 	res, err := startup.Add(startup.AddOptions{

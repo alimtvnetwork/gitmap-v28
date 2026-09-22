@@ -118,7 +118,7 @@ func fixAuthGenerate(keyPath, email string, assumeYes, force bool) {
 
 	if err := validateSSHKeygen(); err != nil {
 		fmt.Fprint(os.Stderr, constants.ErrSSHKeygenMissing)
-		cliexit.HandleError(apperror.NewSimple(constants.ErrSSHKeygenMissing, "E_KEYGEN_MISSING"))
+		cliexit.HandleError(apperror.WrapSimple(err, constants.ErrSSHKeygenMissing))
 
 		return
 	}

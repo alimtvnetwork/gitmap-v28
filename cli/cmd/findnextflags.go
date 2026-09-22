@@ -72,8 +72,8 @@ func classifyEqualsForm(name, value string, curID int64, curJSON bool) (int, int
 	case constants.FindNextFlagScanFolder:
 		v, err := strconv.ParseInt(value, 10, 64)
 		if err != nil {
-			return 0, 0, false, fmt.Errorf(constants.ErrFindNextBadIntFmt,
-				constants.FindNextFlagScanFolder, value)
+			msg := strings.TrimSpace(fmt.Sprintf(constants.ErrFindNextBadIntFmt, constants.FindNextFlagScanFolder, value))
+			return 0, 0, false, fmt.Errorf("%s: %w", msg, err)
 		}
 
 		return 0, v, curJSON, nil
@@ -93,8 +93,8 @@ func classifyScanFolderSpaceForm(args []string, i int, curJSON bool) (int, int64
 	raw := args[i+1]
 	v, err := strconv.ParseInt(raw, 10, 64)
 	if err != nil {
-		return 0, 0, false, fmt.Errorf(constants.ErrFindNextBadIntFmt,
-			constants.FindNextFlagScanFolder, raw)
+		msg := strings.TrimSpace(fmt.Sprintf(constants.ErrFindNextBadIntFmt, constants.FindNextFlagScanFolder, raw))
+		return 0, 0, false, fmt.Errorf("%s: %w", msg, err)
 	}
 
 	return 1, v, curJSON, nil

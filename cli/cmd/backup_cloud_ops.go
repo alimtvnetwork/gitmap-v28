@@ -215,7 +215,10 @@ func runBackupCloudRestore(args []string) error {
 
 func resolveSnapshotTarget(snapsDir string, args []string) (string, error) {
 	entries, err := os.ReadDir(snapsDir)
-	if err != nil || len(entries) == 0 {
+	if err != nil {
+		return "", apperror.WrapSimple(err, "read snapshots directory failed")
+	}
+	if len(entries) == 0 {
 		return "", apperror.NewSimple("no snapshots available to restore", "E1080")
 	}
 

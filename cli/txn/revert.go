@@ -121,7 +121,7 @@ func assertBackupSha(f model.TransactionFileRecord, opts RevertOptions) error {
 
 	got, err := hashFile(f.BackupPath)
 	if err != nil {
-		return fmt.Errorf(constants.ErrTxnBackupMissing, f.TransactionID, f.BackupPath)
+		return fmt.Errorf(constants.ErrTxnBackupMissing+": %w", f.TransactionID, f.BackupPath, err)
 	}
 
 	if got != f.Sha256 {

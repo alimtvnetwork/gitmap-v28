@@ -96,7 +96,7 @@ func loadRepoFiles(root string, exts []string, caseInsensitive bool) []string {
 	files, err := walkRepoFiles(root, exts, caseInsensitive)
 	if err != nil {
 		fmt.Fprintf(os.Stderr, constants.ErrReplaceWalk, err)
-		cliexit.HandleError(nil, 2)
+		cliexit.HandleError(err, 2)
 	}
 
 	fmt.Printf(constants.MsgReplaceScanning, len(files), root)

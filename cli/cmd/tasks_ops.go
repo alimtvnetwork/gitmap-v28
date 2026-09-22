@@ -29,7 +29,10 @@ func runTasksUndo(args []string) error {
 
 func findTaskToRevert(db *store.DB, args []string) (*model.CompletedTaskRecord, error) {
 	completed, err := db.ListCompletedTasks()
-	if err != nil || len(completed) == 0 {
+	if err != nil {
+		return nil, apperror.WrapSimple(err, "list completed tasks failed")
+	}
+	if len(completed) == 0 {
 		return nil, apperror.NewSimple("no completed tasks available to undo", "E1096")
 	}
 

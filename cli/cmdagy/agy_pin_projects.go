@@ -15,7 +15,17 @@ var agyPinProjectsCmd = &cobra.Command{
 	Aliases: []string{"pin-project", "pinned-projects", "pinned", "pins"},
 	Short:   "Manage pinned Antigravity projects",
 	RunE: func(cmd *cobra.Command, args []string) error {
-		return runAgyPinProjectsLs()
+		if len(args) == 0 {
+			return runAgyPinProjectsLs()
+		}
+		if args[0] == "help" {
+			renderAgyPinsHelp()
+			return nil
+		}
+		if args[0] == "ls" || args[0] == "list" {
+			return runAgyPinProjectsLs()
+		}
+		return runAgyPinProjectsAdd(args)
 	},
 }
 

@@ -121,7 +121,7 @@ func parseAddTemplateArgs(spec addTemplateSpec, args []string) (addTemplateFlags
 	dryRun := fs.Bool("dry-run", false, "preview the merged "+spec.targetName+" block without writing anything")
 	if err := fs.Parse(args); err != nil {
 		fmt.Fprintf(os.Stderr, "  ✗ Could not parse flags: %v\n", err)
-		cliexit.HandleError(nil, 1)
+		cliexit.HandleError(err, 1)
 	}
 
 	return addTemplateFlags{dryRun: *dryRun}, normalizeLangs(fs.Args()), nil

@@ -40,7 +40,7 @@ func loadFixRepoConfig(explicit, repoRoot string) {
 	resolved, err := resolveFixRepoConfigPath(explicit, repoRoot)
 	if err != nil {
 		fmt.Fprintf(os.Stderr, constants.FixRepoErrBadConfigFmt, err.Error())
-		cliexit.HandleError(nil, constants.FixRepoExitBadConfig)
+		cliexit.HandleError(err, constants.FixRepoExitBadConfig)
 	}
 
 	fixRepoActiveIgnore = fixRepoIgnore{}
@@ -51,7 +51,7 @@ func loadFixRepoConfig(explicit, repoRoot string) {
 	cfg, err := readFixRepoConfig(resolved)
 	if err != nil {
 		fmt.Fprintf(os.Stderr, constants.FixRepoErrBadConfigFmt, err.Error())
-		cliexit.HandleError(nil, constants.FixRepoExitBadConfig)
+		cliexit.HandleError(err, constants.FixRepoExitBadConfig)
 	}
 
 	fixRepoActiveIgnore = compileFixRepoIgnore(cfg)
@@ -75,8 +75,11 @@ func resolveFixRepoConfigPath(explicit, repoRoot string) (string, error) {
 
 func resolveExplicitConfigPath(explicit string) (string, error) {
 	info, err := os.Stat(explicit)
-	if err != nil || info.IsDir() {
-		return "", fmt.Errorf("config file not found: %s", explicit)
+	if err != nil {
+		return "", fmt.Errorf("config file not found %s: %w", explicit, err)
+	}
+	if info.IsDir() {
+		return "", fmt.Errorf("config file is directory: %s", explicit)
 	}
 
 	return explicit, nil

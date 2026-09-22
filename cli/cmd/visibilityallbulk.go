@@ -88,7 +88,7 @@ func runMakeAllVisibility(target, cmdName string, args []string, exceptLatestDef
 	patterns, err := visibility.ParsePatternList(patternsRaw)
 	if err != nil {
 		fmt.Fprintf(os.Stderr, "make-all-*: %v\n", err)
-		cliexit.HandleError(nil, constants.ExitVisBadFlag)
+		cliexit.HandleError(err, constants.ExitVisBadFlag)
 	}
 
 	matches, ownerTotal := matchOrExitEmpty(ctx, patterns, flags)
@@ -208,7 +208,7 @@ func resolveOwnerOrExit(arg string) ownerContext {
 	ctx, err := ResolveOwnerOnly(arg)
 	if err != nil {
 		fmt.Fprintf(os.Stderr, constants.ErrMakeAllResolveFmt, err)
-		cliexit.HandleError(nil, constants.ExitVisBadProvider)
+		cliexit.HandleError(err, constants.ExitVisBadProvider)
 	}
 
 	return ctx
@@ -226,7 +226,7 @@ func matchOrExitEmpty(
 	names, err := listOwnerReposCached(ctx.Provider, ctx.Owner, flags)
 	if err != nil {
 		fmt.Fprintf(os.Stderr, "make-all-*: %v\n", err)
-		cliexit.HandleError(nil, constants.ExitVisAuthFailed)
+		cliexit.HandleError(err, constants.ExitVisAuthFailed)
 	}
 
 	matches := visibility.MatchOwnerRepos(names, patterns)

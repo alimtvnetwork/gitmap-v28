@@ -97,7 +97,7 @@ func loadVersionHistory(absPath string, limit int) []model.RepoVersionHistoryRec
 	repoID, findErr := db.GetRepoIDByPath(absPath)
 	if findErr != nil {
 		fmt.Print(constants.MsgVersionHistoryEmpty)
-		cliexit.HandleError(nil, 0)
+		cliexit.HandleError(findErr, 0)
 
 		return nil
 	}

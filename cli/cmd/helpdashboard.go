@@ -200,7 +200,7 @@ func serveDev(docsDir string, port int) {
 	npmPath, err := exec.LookPath("npm")
 	if err != nil {
 		fmt.Fprint(os.Stderr, constants.ErrHDNPMNotFound)
-		cliexit.HandleError(apperror.NewSimple("npm not found", "E9000"))
+		cliexit.HandleError(apperror.WrapSimple(err, "npm not found"))
 
 		return
 	}

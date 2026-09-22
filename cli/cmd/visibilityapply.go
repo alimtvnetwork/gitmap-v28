@@ -28,7 +28,7 @@ func mustReadCurrentVisibility(ctx visibilityContext, verbose bool) string {
 	out, err := runProviderCLI(ctx.Provider, args, verbose)
 	if err != nil {
 		fmt.Fprintf(os.Stderr, constants.ErrVisReadCurrentFmt, providerCLI(ctx.Provider), err)
-		cliexit.HandleError(nil, constants.ExitVisAuthFailed)
+		cliexit.HandleError(err, constants.ExitVisAuthFailed)
 	}
 
 	return parseVisibilityOutput(ctx.Provider, out)
@@ -75,7 +75,7 @@ func applyVisibilityOrExit(ctx visibilityContext, target string, verbose bool) {
 	stderr, err := runProviderCLICapturingStderr(ctx.Provider, args, verbose)
 	if err != nil {
 		fmt.Fprintf(os.Stderr, constants.ErrVisApplyFailedFmt, err, stderr)
-		cliexit.HandleError(nil, constants.ExitVisAuthFailed)
+		cliexit.HandleError(err, constants.ExitVisAuthFailed)
 	}
 }
 

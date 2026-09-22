@@ -131,7 +131,7 @@ func runShowTxn(raw string) error {
 	defer db.Close()
 	rec, err := db.FindTransactionByID(id)
 	if err != nil {
-		cliexit.HandleError(apperror.NewSimple(constants.ErrTxnRowNotFound, "E9000"), 1)
+		cliexit.HandleError(apperror.WrapSimple(err, constants.ErrTxnRowNotFound), 1)
 	}
 
 	files, err := db.ListTransactionFiles(id)
@@ -188,7 +188,7 @@ func revertOne(id int64, force bool) {
 	defer db.Close()
 	rec, err := db.FindTransactionByID(id)
 	if err != nil {
-		cliexit.HandleError(apperror.NewSimple(constants.ErrTxnRowNotFound, "E9000"), 1)
+		cliexit.HandleError(apperror.WrapSimple(err, constants.ErrTxnRowNotFound), 1)
 	}
 
 	files, _ := db.ListTransactionFiles(id)
@@ -259,7 +259,11 @@ func mustOpenForTxn() *store.DB {
 // mustParseTxnID parses a positive int64 transaction id or exits with usage.
 func mustParseTxnID(raw string) int64 {
 	id, err := strconv.ParseInt(strings.TrimSpace(raw), 10, 64)
-	if err != nil || id <= 0 {
+	if err != nil {
+		fmt.Fprintf(os.Stderr, "revert: invalid transaction id %q: %v\n", raw, err)
+		cliexit.HandleError(err, 2)
+	}
+	if id <= 0 {
 		fmt.Fprintf(os.Stderr, "revert: invalid transaction id %q\n", raw)
 		cliexit.HandleError(nil, 2)
 	}

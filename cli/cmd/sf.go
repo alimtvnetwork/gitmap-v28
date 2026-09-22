@@ -60,7 +60,7 @@ func runSfAdd(args []string) error {
 	absPath, err := filepath.Abs(pathArg)
 	if err != nil {
 		fmt.Fprintf(os.Stderr, constants.ErrSFAbsResolve+"\n", pathArg, err)
-		cliexit.HandleError(nil, 1)
+		cliexit.HandleError(err, 1)
 	}
 
 	db := openSfDB()
@@ -70,7 +70,7 @@ func runSfAdd(args []string) error {
 	folder, err := db.EnsureScanFolder(absPath, label, notes)
 	if err != nil {
 		fmt.Fprintln(os.Stderr, err.Error())
-		cliexit.HandleError(nil, 1)
+		cliexit.HandleError(err, 1)
 	}
 
 	if isExistingScanFolder(existing, folder.ID) {
@@ -92,7 +92,7 @@ func runSfList(_ []string) error {
 	folders, err := db.ListScanFolders()
 	if err != nil {
 		fmt.Fprintln(os.Stderr, err.Error())
-		cliexit.HandleError(nil, 1)
+		cliexit.HandleError(err, 1)
 	}
 
 	if len(folders) == 0 {
@@ -124,7 +124,7 @@ func runSfRemove(args []string) error {
 	folder, detached, err := removeSfTarget(db, target)
 	if err != nil {
 		fmt.Fprintln(os.Stderr, err.Error())
-		cliexit.HandleError(nil, 1)
+		cliexit.HandleError(err, 1)
 	}
 
 	fmt.Printf(constants.MsgSFRemovedFmt, folder.AbsolutePath, folder.ID, detached)
@@ -195,13 +195,13 @@ func openSfDB() *store.DB {
 	db, err := store.OpenDefault()
 	if err != nil {
 		fmt.Fprintln(os.Stderr, err.Error())
-		cliexit.HandleError(nil, 1)
+		cliexit.HandleError(err, 1)
 	}
 
 	if err := db.Migrate(); err != nil {
 		fmt.Fprintln(os.Stderr, err.Error())
 		db.Close()
-		cliexit.HandleError(nil, 1)
+		cliexit.HandleError(err, 1)
 	}
 
 	return db

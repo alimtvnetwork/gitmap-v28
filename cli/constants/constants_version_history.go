@@ -41,7 +41,7 @@ const (
 )
 
 // Version history error messages.
-const ErrDBVersionHistory = "failed to query version history: %v"
+const ErrDBVersionHistory = "failed to query version history: %w"
 
 // Flatten messages.
 const (

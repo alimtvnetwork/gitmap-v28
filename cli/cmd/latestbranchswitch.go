@@ -41,7 +41,7 @@ func maybeSwitchToLatest(result latestBranchResult, cfg latestBranchConfig) {
 	}
 
 	if err != nil {
-		cliexit.HandleError(apperror.NewSimple(constants.ErrLatestBranchSwitchFailed, "E9000"), 1)
+		cliexit.HandleError(apperror.WrapSimple(err, constants.ErrLatestBranchSwitchFailed), 1)
 	}
 }
 

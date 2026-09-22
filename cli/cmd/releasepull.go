@@ -89,7 +89,7 @@ func parseReleasePullFlags(args []string) (mode string, dryRun, verbose bool, re
 
 	relevant, forwarded := splitReleasePullArgs(args)
 	if err := fs.Parse(relevant); err != nil {
-		cliexit.HandleError(nil, 2)
+		cliexit.HandleError(err, 2)
 	}
 
 	mode = resolvePullMode(*ffOnly, *rebase, *merge)

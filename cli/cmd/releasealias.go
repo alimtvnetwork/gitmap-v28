@@ -36,7 +36,7 @@ func parseRAArgs(args []string, forcePull bool) (string, string, bool, bool, boo
 	dryRun := fs.Bool(constants.FlagRADryRun, false, "preview without releasing")
 
 	if err := fs.Parse(reorderFlagsBeforeArgs(args)); err != nil {
-		cliexit.HandleError(nil, 2)
+		cliexit.HandleError(err, 2)
 	}
 
 	rest := fs.Args()

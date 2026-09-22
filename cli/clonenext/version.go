@@ -50,7 +50,7 @@ func ResolveTarget(parsed ParsedRepo, arg string) (int, error) {
 	numStr := lower[1:]
 	n, err := strconv.Atoi(numStr)
 	if err != nil {
-		return 0, fmt.Errorf("invalid version argument: %s (expected v++, v+1, or vN)", arg)
+		return 0, fmt.Errorf("invalid version argument %s (expected v++, v+1, or vN): %w", arg, err)
 	}
 
 	if n < 1 {

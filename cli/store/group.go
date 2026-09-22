@@ -34,7 +34,7 @@ func findGroupByNameRunner(runner sqlRowQueryer, name string) (model.Group, erro
 	var g model.Group
 	err := row.Scan(&g.ID, &g.Name, &g.Description, &g.Color, &g.CreatedAt)
 	if err != nil {
-		return model.Group{}, fmt.Errorf(constants.ErrDBGroupNone, name)
+		return model.Group{}, fmt.Errorf(constants.ErrDBGroupNone+": %w", name, err)
 	}
 
 	return g, nil

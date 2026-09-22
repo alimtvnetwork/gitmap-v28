@@ -2,14 +2,14 @@ package constants
 
 // Pending task error messages.
 const (
-	ErrPendingTaskInsert   = "failed to insert pending task: %v (operation: insert)"
-	ErrPendingTaskQuery    = "failed to query pending tasks: %v (operation: query)"
-	ErrPendingTaskComplete = "failed to complete task: %v (operation: complete)"
-	ErrPendingTaskFail     = "failed to update task failure: %v (operation: update)"
+	ErrPendingTaskInsert   = "failed to insert pending task: %w (operation: insert)"
+	ErrPendingTaskQuery    = "failed to query pending tasks: %w (operation: query)"
+	ErrPendingTaskComplete = "failed to complete task: %w (operation: complete)"
+	ErrPendingTaskFail     = "failed to update task failure: %w (operation: update)"
 	ErrPendingTaskNotFound = "pending task not found: %d\n"
 	ErrTaskTypeNotFound    = "task type not found: %s"
 	ErrPendingTaskExists   = "pending task already exists for %s at %s (Id %d)\n"
-	ErrPendingReplayFailed = "failed to replay command: %v (operation: exec)"
+	ErrPendingReplayFailed = "failed to replay command: %w (operation: exec)"
 )
 
 // Pending task warning messages.

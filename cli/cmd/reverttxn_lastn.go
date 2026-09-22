@@ -46,7 +46,11 @@ func runRevertLastN(raw string, force bool) error {
 // mustParseLastN validates the --last-n-txn count argument.
 func mustParseLastN(raw string) int {
 	n, err := strconv.Atoi(strings.TrimSpace(raw))
-	if err != nil || n <= 0 {
+	if err != nil {
+		fmt.Fprintf(os.Stderr, constants.ErrRevertLastNBadCount, constants.FlagRevertLastN, raw)
+		cliexit.HandleError(err, 2)
+	}
+	if n <= 0 {
 		fmt.Fprintf(os.Stderr, constants.ErrRevertLastNBadCount, constants.FlagRevertLastN, raw)
 		cliexit.HandleError(nil, 2)
 	}

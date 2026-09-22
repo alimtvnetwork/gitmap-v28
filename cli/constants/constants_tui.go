@@ -140,5 +140,5 @@ const (
 // TUI errors.
 const (
 	ErrTUINoTerminal = "interactive mode requires a terminal — use standard commands instead"
-	ErrTUIDBOpen     = "failed to open database for interactive mode: %v"
+	ErrTUIDBOpen     = "failed to open database for interactive mode: %w"
 )

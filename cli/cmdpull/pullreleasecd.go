@@ -26,7 +26,7 @@ func runPullReleaseCD(args []string) error {
 	entries, err := parsePRCEntries(args)
 	if err != nil {
 		fmt.Fprintf(os.Stderr, "  ✗ %v\n", err)
-		cliexit.HandleError(nil, 2)
+		cliexit.HandleError(err, 2)
 	}
 
 	self, err := os.Executable()

@@ -54,7 +54,7 @@ func writeLLMDocsFile(content, format string) {
 
 	outPath := filepath.Join(wd, "LLM"+llmDocsExt(format))
 	if writeErr := os.WriteFile(outPath, []byte(content), constants.FilePermission); writeErr != nil {
-		cliexit.HandleError(apperror.NewSimple(constants.ErrLLMDocsWrite, "E9000"), 1)
+		cliexit.HandleError(apperror.WrapSimple(writeErr, constants.ErrLLMDocsWrite), 1)
 	}
 
 	fmt.Printf(constants.MsgLLMDocsWritten, outPath)
@@ -67,7 +67,7 @@ func runLLMDocs(args []string) error {
 	if err != nil {
 		fmt.Fprint(os.Stderr, err.Error())
 
-		return apperror.NewSimple("fatal error", "E9000")
+		return apperror.WrapSimple(err, "parse llmdocs flags")
 	}
 
 	sectionSet := parseSections(opts.sections)

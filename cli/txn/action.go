@@ -180,7 +180,7 @@ func reverseRenamePathAction(a model.TransactionActionRecord) error {
 	}
 
 	if _, err := os.Stat(p.From); err != nil {
-		return fmt.Errorf(constants.ErrActionLiveConflict, a.ID, a.Kind)
+		return fmt.Errorf(constants.ErrActionLiveConflict+": %w", a.ID, a.Kind, err)
 	}
 
 	return os.Rename(p.From, p.To)

@@ -42,8 +42,8 @@ func validateJSONSchema(data []byte) error {
 func validateJSONElement(i int, raw json.RawMessage) error {
 	var obj map[string]json.RawMessage
 	if err := json.Unmarshal(raw, &obj); err != nil {
-		return fmt.Errorf(constants.ErrCloneNowJSONRowNotObject,
-			i+1, jsonKind(raw))
+		return fmt.Errorf(constants.ErrCloneNowJSONRowNotObject+": %w",
+			i+1, jsonKind(raw), err)
 	}
 
 	return validateJSONRow(i, obj)

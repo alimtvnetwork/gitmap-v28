@@ -25,7 +25,7 @@ func (db *DB) GetTaskTypeID(name string) (int64, error) {
 
 	err := row.Scan(&id)
 	if err != nil {
-		return 0, fmt.Errorf(constants.ErrTaskTypeNotFound, name)
+		return 0, fmt.Errorf(constants.ErrTaskTypeNotFound+": %w", name, err)
 	}
 
 	return id, nil

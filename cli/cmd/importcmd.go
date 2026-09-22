@@ -51,7 +51,7 @@ func readImportFile(path string) model.DatabaseExport {
 	raw, err := os.ReadFile(path)
 	if err != nil {
 		fmt.Fprintln(os.Stderr, apperror.WrapSimple(err, constants.MsgImportReadFailed).Error())
-		cliexit.HandleError(nil, 1)
+		cliexit.HandleError(err, 1)
 	}
 
 	var data model.DatabaseExport
@@ -59,7 +59,7 @@ func readImportFile(path string) model.DatabaseExport {
 	err = json.Unmarshal(raw, &data)
 	if err != nil {
 		fmt.Fprintln(os.Stderr, apperror.WrapSimple(err, constants.MsgImportParseFailed).Error())
-		cliexit.HandleError(nil, 1)
+		cliexit.HandleError(err, 1)
 	}
 
 	return data

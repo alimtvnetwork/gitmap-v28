@@ -105,7 +105,7 @@ func checkPasswordAuth(hash, password string) *apperror.AppError {
 	}
 
 	if err := bcrypt.CompareHashAndPassword([]byte(hash), []byte(password)); err != nil {
-		return apperror.NewSimple(constants.ErrClusterInvalidPassword, "E8004")
+		return apperror.WrapSimple(err, constants.ErrClusterInvalidPassword)
 	}
 
 	return nil

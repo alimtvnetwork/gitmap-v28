@@ -34,7 +34,7 @@ func loadCSVMessages(path string) []commitMessage {
 func readCSVFile(path string) [][]string {
 	f, err := os.Open(path)
 	if err != nil {
-		cliexit.HandleError(apperror.NewSimple(constants.ErrSEOCSVRead, "E9000"), 1)
+		cliexit.HandleError(apperror.WrapSimple(err, constants.ErrSEOCSVRead), 1)
 	}
 
 	defer f.Close()

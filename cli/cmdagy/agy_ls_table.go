@@ -67,7 +67,9 @@ func (c *agyTableContext) updateMaxColumnWidths(r agyTableRow) {
 func buildAgyTableRow(p AgyProject, convMap map[string]AgyLatestConv) agyTableRow {
 	path := p.GetPath()
 	isMissing := path != "" && !checkDirExists(path)
-	status, displayPath := resolveRowStatusAndPath(path)
+	pinnedMap := getPinnedProjectsSet()
+	isPinned := pinnedMap[p.ID] || pinnedMap[p.Name]
+	status, displayPath := resolveRowStatusAndPath(path, isPinned)
 	convTitle, convID := resolveProjectConvDetails(p.ID, convMap)
 
 	return agyTableRow{
@@ -81,18 +83,4 @@ func buildAgyTableRow(p AgyProject, convMap map[string]AgyLatestConv) agyTableRo
 		Path:      truncateMiddle(displayPath, 36),
 		IsMissing: isMissing,
 	}
-}
-
-func resolveRowBranch(branch string) string {
-	if branch == "" {
-		return "—"
-	}
-	return branch
-}
-
-func resolveRowStatusAndPath(path string) (string, string) {
-	if path == "" {
-		return "global", "—"
-	}
-	return "active", path
 }

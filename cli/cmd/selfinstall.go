@@ -117,7 +117,7 @@ func forceAcquireOrExit() lockfile.Releaser {
 	release, err := lockfile.ForceAcquire(constants.SelfInstallLockName)
 	if err != nil {
 		fmt.Fprintf(os.Stderr, constants.ErrSelfInstallLock, err)
-		cliexit.HandleError(nil, constants.ExitCodeError)
+		cliexit.HandleError(err, constants.ExitCodeError)
 	}
 
 	return release
@@ -260,7 +260,7 @@ func promptInstallDir(def string) string {
 	line, err := reader.ReadString('\n')
 	if err != nil && err != io.EOF {
 		fmt.Fprintf(os.Stderr, constants.ErrSelfInstallReadStdin, err)
-		cliexit.HandleError(nil, constants.ExitCodeError)
+		cliexit.HandleError(err, constants.ExitCodeError)
 	}
 
 	answer := strings.TrimSpace(line)
@@ -289,7 +289,7 @@ func downloadFallbackInstallScript() []byte {
 	body, dlErr := downloadInstallScript(remote)
 	if dlErr != nil {
 		fmt.Fprintf(os.Stderr, constants.ErrSelfInstallDownload, remote, dlErr)
-		cliexit.HandleError(nil, constants.ExitCodeError)
+		cliexit.HandleError(dlErr, constants.ExitCodeError)
 	}
 
 	return body
@@ -330,7 +330,7 @@ func writeInstallScriptTemp(name string, body []byte) string {
 	f, err := os.CreateTemp(os.TempDir(), pattern)
 	if err != nil {
 		fmt.Fprintf(os.Stderr, constants.ErrSelfInstallScriptWrite, err)
-		cliexit.HandleError(nil, constants.ExitCodeError)
+		cliexit.HandleError(err, constants.ExitCodeError)
 	}
 
 	defer f.Close()
@@ -382,7 +382,7 @@ func executeInstallScript(name, path, dir string, opts selfInstallOpts) {
 	cmd.Stdin = os.Stdin
 	if err := cmd.Run(); err != nil {
 		fmt.Fprintf(os.Stderr, constants.ErrSelfInstallScriptRun, err)
-		cliexit.HandleError(nil, constants.ExitCodeError)
+		cliexit.HandleError(err, constants.ExitCodeError)
 	}
 }
 

@@ -80,10 +80,10 @@ const (
 const (
 	ErrVSCodePMUserDataNotFound = "vscode: user data directory not found at %q (is VS Code installed?)\n"
 	ErrVSCodePMExtDirMissing    = "vscode: project-manager extension dir not found at %q (open VS Code, install the alefragnani.project-manager extension, then retry)\n"
-	ErrVSCodePMReadFailed       = "vscode: failed to read %s: %v\n"
-	ErrVSCodePMParseFailed      = "vscode: %s is not valid JSON: %v (left untouched)\n"
-	ErrVSCodePMWriteTempFailed  = "vscode: failed to write temp %s: %v\n"
-	ErrVSCodePMRenameFailed     = "vscode: failed to commit %s: %v\n"
+	ErrVSCodePMReadFailed       = "vscode: failed to read %s: %w\n"
+	ErrVSCodePMParseFailed      = "vscode: %s is not valid JSON: %w (left untouched)\n"
+	ErrVSCodePMWriteTempFailed  = "vscode: failed to write temp %s: %w\n"
+	ErrVSCodePMRenameFailed     = "vscode: failed to commit %s: %w\n"
 	ErrVSCodePMNoUserDataEnv    = "vscode: cannot determine user-data directory (no APPDATA / USERPROFILE / HOME env)\n"
 	// ErrVSCodePMSyncBadMode is emitted when --mode is passed an
 	// unknown literal. Args: bad-value, then the three accepted

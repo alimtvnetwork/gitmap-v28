@@ -312,7 +312,7 @@ func consumeFixRepoGofmtMaxArg(args []string, i int, out *fixRepoOptions) (int, 
 func applyGofmtMaxCmdLen(out *fixRepoOptions, v string) error {
 	n, err := strconv.Atoi(strings.TrimSpace(v))
 	if err != nil {
-		return fmt.Errorf("--%s: %q is not an integer", constants.FixRepoFlagGofmtMaxCmdLen, v)
+		return fmt.Errorf("--%s: %q is not an integer: %w", constants.FixRepoFlagGofmtMaxCmdLen, v, err)
 	}
 
 	if n < constants.FixRepoGofmtMinCmdLen {

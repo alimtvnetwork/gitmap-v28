@@ -39,7 +39,7 @@ const (
 	MsgCompProfileWrite = "  " + ColorGreen + "✓" + ColorReset + " Added source line to %s\n"
 	ErrCompUsage        = "usage: gitmap completion <powershell|bash|zsh|fish> [--list-repos|--list-groups|--list-commands|--list-aliases|--list-zip-groups|--list-help-groups]\n"
 	ErrCompUnknownShell = "unknown shell: %s (use powershell, bash, zsh, or fish)\n"
-	ErrCompProfileWrite = "failed to update profile at %s: %v (operation: write)\n"
+	ErrCompProfileWrite = "failed to update profile at %s: %w (operation: write)\n"
 )
 
 // Completion flag descriptions.

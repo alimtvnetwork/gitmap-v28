@@ -42,7 +42,7 @@ func readOriginURL() string {
 	out, err := cmd.Output()
 	if err != nil {
 		fmt.Fprintf(os.Stderr, constants.HistoryErrNoOrigin, err)
-		cliexit.HandleError(nil, constants.HistoryExitNotInRepo)
+		cliexit.HandleError(err, constants.HistoryExitNotInRepo)
 	}
 
 	url := strings.TrimSpace(string(out))
@@ -60,7 +60,7 @@ func mirrorClone(originURL string, opts historyOpts) string {
 	sandbox, err := os.MkdirTemp(tempdir.RepoTempDir("sandbox"), constants.HistorySandboxPrefix)
 	if err != nil {
 		fmt.Fprintf(os.Stderr, constants.HistoryErrSandbox, err)
-		cliexit.HandleError(nil, constants.HistoryExitBadArgs)
+		cliexit.HandleError(err, constants.HistoryExitBadArgs)
 	}
 
 	if !opts.quiet {
@@ -72,7 +72,7 @@ func mirrorClone(originURL string, opts historyOpts) string {
 	if err := cmd.Run(); err != nil {
 		_ = os.RemoveAll(sandbox)
 		fmt.Fprintf(os.Stderr, constants.HistoryErrMirrorClone, err)
-		cliexit.HandleError(nil, constants.HistoryExitFilterFailed)
+		cliexit.HandleError(err, constants.HistoryExitFilterFailed)
 	}
 
 	return sandbox
@@ -124,7 +124,7 @@ func runFilterRepoPin(sandbox string, paths []string,
 	manifest, err := writePinManifest(sandbox, paths, pinPayloads)
 	if err != nil {
 		fmt.Fprintf(os.Stderr, constants.HistoryErrManifest, err)
-		cliexit.HandleError(nil, constants.HistoryExitFilterFailed)
+		cliexit.HandleError(err, constants.HistoryExitFilterFailed)
 	}
 
 	args := []string{
@@ -220,7 +220,7 @@ func execFilterRepo(args []string) {
 	cmd.Stdout, cmd.Stderr = os.Stderr, os.Stderr
 	if err := cmd.Run(); err != nil {
 		fmt.Fprintf(os.Stderr, constants.HistoryErrFilterRepo, exitCodeOf(err), err.Error())
-		cliexit.HandleError(nil, constants.HistoryExitFilterFailed)
+		cliexit.HandleError(err, constants.HistoryExitFilterFailed)
 	}
 }
 

@@ -75,7 +75,7 @@ func runCode(args []string) error {
 	resolved, err := resolveCodeRootPath(rootPath)
 	if err != nil {
 		fmt.Fprintln(os.Stderr, err.Error())
-		cliexit.HandleError(nil, 1)
+		cliexit.HandleError(err, 1)
 	}
 
 	if alias == "" {
@@ -147,7 +147,7 @@ func absoluteExisting(p string) (string, error) {
 	}
 
 	if _, err := os.Stat(abs); err != nil {
-		return "", fmt.Errorf("path does not exist: %s", abs)
+		return "", fmt.Errorf("path does not exist %s: %w", abs, err)
 	}
 
 	return abs, nil
@@ -158,14 +158,14 @@ func upsertCodeEntry(rootPath, name string) {
 	db, err := openCodeDB()
 	if err != nil {
 		fmt.Fprintln(os.Stderr, err.Error())
-		cliexit.HandleError(nil, 1)
+		cliexit.HandleError(err, 1)
 	}
 
 	defer db.Close()
 
 	if err := db.UpsertVSCodeProject(rootPath, name); err != nil {
 		fmt.Fprintln(os.Stderr, err.Error())
-		cliexit.HandleError(nil, 1)
+		cliexit.HandleError(err, 1)
 	}
 }
 
@@ -178,7 +178,7 @@ func appendCodePathsToDB(rootPath string, extras []string) {
 	db, err := openCodeDB()
 	if err != nil {
 		fmt.Fprintln(os.Stderr, err.Error())
-		cliexit.HandleError(nil, 1)
+		cliexit.HandleError(err, 1)
 	}
 
 	defer db.Close()
@@ -186,7 +186,7 @@ func appendCodePathsToDB(rootPath string, extras []string) {
 	row, err := db.FindVSCodeProjectByPath(rootPath)
 	if err != nil {
 		fmt.Fprintln(os.Stderr, err.Error())
-		cliexit.HandleError(nil, 1)
+		cliexit.HandleError(err, 1)
 	}
 
 	merged := mergeStringPaths(row.Paths, resolvedExtras)
@@ -196,7 +196,7 @@ func appendCodePathsToDB(rootPath string, extras []string) {
 
 	if err := db.SetVSCodeProjectPaths(rootPath, merged); err != nil {
 		fmt.Fprintln(os.Stderr, err.Error())
-		cliexit.HandleError(nil, 1)
+		cliexit.HandleError(err, 1)
 	}
 }
 
@@ -208,7 +208,7 @@ func resolveExtras(extras []string) []string {
 		abs, err := absoluteExisting(raw)
 		if err != nil {
 			fmt.Fprintln(os.Stderr, err.Error())
-			cliexit.HandleError(nil, 1)
+			cliexit.HandleError(err, 1)
 		}
 
 		out = append(out, abs)
@@ -329,7 +329,7 @@ func runCodePathsAdd(args []string) error {
 	abs, err := absoluteExisting(extra)
 	if err != nil {
 		fmt.Fprintln(os.Stderr, err.Error())
-		cliexit.HandleError(nil, 1)
+		cliexit.HandleError(err, 1)
 	}
 
 	merged := mergeStringPaths(row.Paths, []string{abs})
@@ -354,7 +354,7 @@ func runCodePathsRm(args []string) error {
 	abs, err := filepath.Abs(extra)
 	if err != nil {
 		fmt.Fprintln(os.Stderr, err.Error())
-		cliexit.HandleError(nil, 1)
+		cliexit.HandleError(err, 1)
 	}
 
 	dropKey := pathKey(abs)
@@ -422,7 +422,7 @@ func lookupAlias(alias string) (row aliasRow) {
 	db, err := openCodeDB()
 	if err != nil {
 		fmt.Fprintln(os.Stderr, err.Error())
-		cliexit.HandleError(nil, 1)
+		cliexit.HandleError(err, 1)
 	}
 
 	defer db.Close()
@@ -431,12 +431,12 @@ func lookupAlias(alias string) (row aliasRow) {
 	if err != nil && errors.Is(err, sql.ErrNoRows) {
 		fmt.Fprintf(os.Stderr, constants.ErrVSCodePMAliasNotFound, alias, alias)
 		fmt.Fprintln(os.Stderr)
-		cliexit.HandleError(nil, 1)
+		cliexit.HandleError(err, 1)
 	}
 
 	if err != nil {
 		fmt.Fprintln(os.Stderr, err.Error())
-		cliexit.HandleError(nil, 1)
+		cliexit.HandleError(err, 1)
 	}
 
 	return aliasRow{RootPath: found.RootPath, Name: found.Name, Paths: found.Paths}
@@ -455,14 +455,14 @@ func persistAliasPaths(rootPath, alias string, paths []string) {
 	db, err := openCodeDB()
 	if err != nil {
 		fmt.Fprintln(os.Stderr, err.Error())
-		cliexit.HandleError(nil, 1)
+		cliexit.HandleError(err, 1)
 	}
 
 	defer db.Close()
 
 	if err := db.SetVSCodeProjectPaths(rootPath, paths); err != nil {
 		fmt.Fprintf(os.Stderr, "%s: %v\n", alias, err)
-		cliexit.HandleError(nil, 1)
+		cliexit.HandleError(err, 1)
 	}
 }
 
@@ -494,7 +494,7 @@ func runCodeInstall() error {
 	cmd.Stdin = os.Stdin
 	if err := cmd.Run(); err != nil {
 		fmt.Fprintf(os.Stderr, "gitmap install vscode-ctx failed: %v\n", err)
-		cliexit.HandleError(nil, 1)
+		cliexit.HandleError(err, 1)
 	}
 
 	return nil

@@ -76,7 +76,7 @@ func releasePendingFromMetadata(
 func releaseFromMetadata(meta ReleaseMeta, assetsPath, notes string, isDraft, dryRun bool) error {
 	v, err := Parse(meta.Tag)
 	if err != nil {
-		return fmt.Errorf("invalid version in metadata: %s", meta.Tag)
+		return fmt.Errorf("invalid version in metadata %s: %w", meta.Tag, err)
 	}
 
 	if !CommitExists(meta.Commit) {

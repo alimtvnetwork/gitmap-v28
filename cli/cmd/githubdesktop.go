@@ -139,7 +139,7 @@ func invokeGHDesktop(cli, target string) error {
 	fmt.Printf(constants.MsgGHDesktopRegister, target)
 	cmd := exec.Command(cli, target)
 	if _, runErr := cmd.CombinedOutput(); runErr != nil {
-		return apperror.NewSimple(constants.ErrGHDesktopInvoke, "E9000")
+		return apperror.WrapSimple(runErr, constants.ErrGHDesktopInvoke)
 	}
 
 	fmt.Printf(constants.MsgGHDesktopDone, target)

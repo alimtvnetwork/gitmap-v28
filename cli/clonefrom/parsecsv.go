@@ -138,7 +138,7 @@ func applyDepth(row Row, depthStr string) (Row, string, error) {
 
 	d, err := strconv.Atoi(depthStr)
 	if err != nil {
-		return row, constants.CSVColumnDepth, fmt.Errorf(constants.ErrCloneFromBadDepth, depthStr)
+		return row, constants.CSVColumnDepth, fmt.Errorf(constants.ErrCloneFromBadDepth+": %w", depthStr, err)
 	}
 
 	row.Depth = d

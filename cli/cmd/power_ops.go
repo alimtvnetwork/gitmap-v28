@@ -182,7 +182,10 @@ func loadPreviousOrDefault(def power.Settings) power.Settings {
 
 func runPowerHistory(args []string) error {
 	db, err := openDB()
-	if err != nil || db == nil {
+	if err != nil {
+		return apperror.WrapSimple(err, "database unavailable for power history")
+	}
+	if db == nil {
 		return apperror.NewSimple("database unavailable for power history", "E_DB_UNAVAILABLE")
 	}
 

@@ -97,8 +97,11 @@ func ResolveTagRange(fromTag, toTag string) (string, string, error) {
 
 func resolveDefaultTagRange() (string, string, error) {
 	tags, err := ListTags()
-	if err != nil || len(tags) < 1 {
-		return "", "", fmt.Errorf(constants.ErrChangelogGenNoTags)
+	if err != nil {
+		return "", "", fmt.Errorf("list tags failed: %w", err)
+	}
+	if len(tags) < 1 {
+		return "", "", fmt.Errorf("%s", constants.ErrChangelogGenNoTags)
 	}
 
 	if len(tags) == 1 {

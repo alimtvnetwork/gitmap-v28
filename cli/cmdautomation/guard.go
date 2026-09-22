@@ -34,7 +34,7 @@ func RunFileSizeGuard(opts GuardOptions) (GuardResult, *apperror.AppError) {
 
 	if walkErr != nil {
 		ctx := map[string]any{"dir": targetDir, "err": walkErr.Error()}
-		return res, apperror.New("file_size_guard", "E_WALK_FAILED", ctx)
+		return res, apperror.Wrap(walkErr, "file_size_guard", ctx)
 	}
 
 	res.Duration = time.Since(start)

@@ -34,13 +34,13 @@ func runClusterCommand(selector cluster.TargetSelectorType, args []string) error
 	flags, positional, err := ParseClusterFlags(args)
 	if err != nil {
 		fmt.Fprintf(os.Stderr, "Error parsing flags: %v\n", err)
-		cliexit.HandleError(nil, 1)
+		cliexit.HandleError(err, 1)
 	}
 
 	subCmds, err := ParseSubCommands(positional)
 	if err != nil {
 		fmt.Fprintf(os.Stderr, "Error parsing sub-commands: %v\n", err)
-		cliexit.HandleError(nil, 1)
+		cliexit.HandleError(err, 1)
 	}
 
 	isEmptySubCmds := len(subCmds) == 0
@@ -70,7 +70,7 @@ func runClusterCommand(selector cluster.TargetSelectorType, args []string) error
 	effective, err := cluster.ResolveTargetNodes(selector, filter, allNodes)
 	if err != nil {
 		fmt.Fprintf(os.Stderr, "Error resolving target nodes: %v\n", err)
-		cliexit.HandleError(nil, 1)
+		cliexit.HandleError(err, 1)
 	}
 
 	isEmptyEffectiveNodes := len(effective) == 0
@@ -170,7 +170,7 @@ func generateRunRef(dbConn *sql.DB) string {
 	runRef, err := cluster.RunRefGenerator(dbConn)
 	if err != nil {
 		fmt.Fprintf(os.Stderr, "Error generating run ref: %v\n", err)
-		cliexit.HandleError(nil, 1)
+		cliexit.HandleError(err, 1)
 	}
 
 	return runRef
@@ -216,7 +216,7 @@ func insertRun(ctx context.Context, dbConn *sql.DB, run db.ClusterRun) int64 {
 	runId, err := db.InsertClusterRun(ctx, dbConn, run)
 	if err != nil {
 		fmt.Fprintf(os.Stderr, "Error inserting ClusterRun: %v\n", err)
-		cliexit.HandleError(nil, 1)
+		cliexit.HandleError(err, 1)
 	}
 
 	return runId

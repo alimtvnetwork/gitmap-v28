@@ -65,6 +65,6 @@ const (
 
 // Settings error messages.
 const (
-	ErrDBSettingUpsert = "failed to save setting: %v"
-	ErrDBSettingQuery  = "failed to read setting: %v"
+	ErrDBSettingUpsert = "failed to save setting: %w"
+	ErrDBSettingQuery  = "failed to read setting: %w"
 )

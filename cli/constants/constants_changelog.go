@@ -37,10 +37,10 @@ const (
 
 // Changelog generate errors.
 const (
-	ErrChangelogGenCommits     = "failed to list commits between %s and %s: %v"
-	ErrChangelogGenTags        = "failed to list tags: %v"
+	ErrChangelogGenCommits     = "failed to list commits between %s and %s: %w"
+	ErrChangelogGenTags        = "failed to list tags: %w"
 	ErrChangelogGenTagNotFound = "tag %s not found locally"
 	ErrChangelogGenNoTags      = "no version tags found — create a release first"
-	ErrChangelogGenWrite       = "failed to write changelog at %s: %v (operation: write)"
-	ErrChangelogGenRead        = "failed to read existing changelog at %s: %v (operation: read)"
+	ErrChangelogGenWrite       = "failed to write changelog at %s: %w (operation: write)"
+	ErrChangelogGenRead        = "failed to read existing changelog at %s: %w (operation: read)"
 )

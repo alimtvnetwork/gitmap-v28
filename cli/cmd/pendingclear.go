@@ -36,7 +36,7 @@ func mustParsePendingClearArgs(args []string) (string, bool, bool, int64) {
 	mode, dryRun, yes, idMatch, err := parsePendingClearArgs(args)
 	if err != nil {
 		fmt.Fprint(os.Stderr, err.Error())
-		cliexit.HandleError(apperror.NewSimple("fatal", "E9000"), 1)
+		cliexit.HandleError(apperror.WrapSimple(err, "parse pending clear args"), 1)
 	}
 
 	return mode, dryRun, yes, idMatch

@@ -30,7 +30,7 @@ func runOrphans(args []string) error {
 	dryRun := fs.Bool("dry-run", false, "list only; do not delete")
 	format := fs.String("format", "table", "output format: table|json|csv")
 	if err := fs.Parse(args); err != nil {
-		cliexit.HandleError(nil, 2)
+		cliexit.HandleError(err, 2)
 	}
 
 	fmtKind, err := parseHygieneFormat(*format)

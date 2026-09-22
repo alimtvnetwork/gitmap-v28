@@ -32,7 +32,7 @@ func (db *DB) FindZipGroupByName(name string) (model.ZipGroup, error) {
 
 	err := row.Scan(&g.ID, &g.Name, &g.ArchiveName, &g.CreatedAt)
 	if err != nil {
-		return model.ZipGroup{}, fmt.Errorf(constants.ErrZGNotFound, name)
+		return model.ZipGroup{}, fmt.Errorf(constants.ErrZGNotFound+": %w", name, err)
 	}
 
 	return g, nil

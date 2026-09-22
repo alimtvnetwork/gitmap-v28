@@ -64,7 +64,7 @@ func parseCoreSegments(core string) (major, minor, patch int, err error) {
 
 	major, err = strconv.Atoi(parts[0])
 	if err != nil {
-		return 0, 0, 0, fmt.Errorf("invalid major version: %s", parts[0])
+		return 0, 0, 0, fmt.Errorf("invalid major version %s: %w", parts[0], err)
 	}
 
 	minor, err = parseSegment(parts, 1, "minor")
@@ -87,7 +87,7 @@ func parseSegment(parts []string, idx int, name string) (int, error) {
 
 	val, err := strconv.Atoi(parts[idx])
 	if err != nil {
-		return 0, fmt.Errorf("invalid %s version: %s", name, parts[idx])
+		return 0, fmt.Errorf("invalid %s version %s: %w", name, parts[idx], err)
 	}
 
 	return val, nil

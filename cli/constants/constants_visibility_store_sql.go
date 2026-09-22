@@ -43,11 +43,11 @@ const SQLUpdateMakeAllVisibilityRunCounts = `UPDATE MakeAllVisibilityRun
 
 // Error format strings — Code Red standard (operation + reason).
 const (
-	ErrMakeAllRunInsertFmt     = "Error: insert MakeAllVisibilityRun failed: %v (operation: SQLInsertMakeAllVisibilityRun, reason: %s)"
-	ErrMakeAllResultInsertFmt  = "Error: insert MakeAllVisibilityResult failed: %v (operation: SQLInsertMakeAllVisibilityResult, reason: %s)"
-	ErrMakeAllResultUpdateFmt  = "Error: update MakeAllVisibilityResult failed: %v (operation: SQLUpdateMakeAllVisibilityResult, reason: %s)"
-	ErrMakeAllRunFinalizeFmt   = "Error: finalize MakeAllVisibilityRun failed: %v (operation: SQLUpdateMakeAllVisibilityRunCounts, reason: %s)"
-	ErrMakeAllResultExcludeFmt = "Error: exclude MakeAllVisibilityResult rows failed: %v (operation: SQLUpdateMakeAllVisibilityResultExcluded, reason: %s)"
+	ErrMakeAllRunInsertFmt     = "Error: insert MakeAllVisibilityRun failed: %w (operation: SQLInsertMakeAllVisibilityRun, reason: %s)"
+	ErrMakeAllResultInsertFmt  = "Error: insert MakeAllVisibilityResult failed: %w (operation: SQLInsertMakeAllVisibilityResult, reason: %s)"
+	ErrMakeAllResultUpdateFmt  = "Error: update MakeAllVisibilityResult failed: %w (operation: SQLUpdateMakeAllVisibilityResult, reason: %s)"
+	ErrMakeAllRunFinalizeFmt   = "Error: finalize MakeAllVisibilityRun failed: %w (operation: SQLUpdateMakeAllVisibilityRunCounts, reason: %s)"
+	ErrMakeAllResultExcludeFmt = "Error: exclude MakeAllVisibilityResult rows failed: %w (operation: SQLUpdateMakeAllVisibilityResultExcluded, reason: %s)"
 )
 
 // SQLSelectLatestUndoableRun — picks the most recent run that has at
@@ -75,8 +75,8 @@ const SQLSelectUndoableResultsForRun = `SELECT
 
 // Error format strings for the select path.
 const (
-	ErrUndoSelectRunFmt     = "Error: select latest undoable run failed: %v (operation: SQLSelectLatestUndoableRun, reason: %s)"
-	ErrUndoSelectResultsFmt = "Error: select undoable results failed: %v (operation: SQLSelectUndoableResultsForRun, reason: %s)"
+	ErrUndoSelectRunFmt     = "Error: select latest undoable run failed: %w (operation: SQLSelectLatestUndoableRun, reason: %s)"
+	ErrUndoSelectResultsFmt = "Error: select undoable results failed: %w (operation: SQLSelectUndoableResultsForRun, reason: %s)"
 	ErrUndoNoRunFound       = "Error: no undoable make-all-* run found (operation: visibility-undo, reason: MakeAllVisibilityRun has no row with OkCount>0)"
 )
 
@@ -133,7 +133,7 @@ const (
 )
 
 const (
-	ErrHistorySelectFmt = "Error: select recent runs failed: %v (operation: SQLSelectRecentRuns, reason: %s)"
+	ErrHistorySelectFmt = "Error: select recent runs failed: %w (operation: SQLSelectRecentRuns, reason: %s)"
 	MsgVisHistoryEmpty  = "visibility-history: no make-all-* runs recorded yet\n"
 	MsgVisHistoryHeader = "ID    Kind             Owner                 Matched  Ok  Skip Fail Excl Exit  Started\n"
 	MsgVisHistoryRowFmt = "%-5d %-16s %-21s %7d %3d %4d %4d %4d %4d  %s\n"

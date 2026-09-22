@@ -40,7 +40,7 @@ func parseMergeArgs(spec mergeSpec, args []string) (string, string, movemerge.Op
 	mf := &movemergeFlagSet{}
 	mf.bindFlags(fs)
 	if err := fs.Parse(reorderFlagsBeforeArgs(args)); err != nil {
-		cliexit.HandleError(nil, 2)
+		cliexit.HandleError(err, 2)
 	}
 
 	rest := fs.Args()

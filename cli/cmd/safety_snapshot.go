@@ -147,7 +147,7 @@ func runGuard(args []string) error {
 	hooks := filepath.Join(root, ".git", "hooks")
 	if _, err := os.Stat(hooks); err != nil {
 		fmt.Fprintln(os.Stderr, "guard: ERROR not a git repo (no .git/hooks)")
-		cliexit.HandleError(nil, 2)
+		cliexit.HandleError(err, 2)
 	}
 
 	hook := filepath.Join(hooks, "pre-commit")

@@ -102,7 +102,7 @@ func resolveInjectTarget(args []string) (string, error) {
 
 	resolved, err := resolveCloneNextFolder(positional[0])
 	if err != nil {
-		return "", fmt.Errorf("folder not found or not a directory: %s", positional[0])
+		return "", fmt.Errorf("folder not found or not a directory %s: %w", positional[0], err)
 	}
 
 	return resolved, nil

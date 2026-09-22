@@ -30,7 +30,7 @@ func parseHistoryArgs(args []string) (historyOpts, []string) {
 	flagsOnly, positional := splitHistoryFlagsAndArgs(args)
 	if err := fs.Parse(flagsOnly); err != nil {
 		fmt.Fprintf(os.Stderr, constants.HistoryErrBadArgs, err.Error())
-		cliexit.HandleError(nil, constants.HistoryExitBadArgs)
+		cliexit.HandleError(err, constants.HistoryExitBadArgs)
 	}
 
 	opts := assembleHistoryOpts(raw)

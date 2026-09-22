@@ -48,7 +48,7 @@ func parseDbMigrateFlags(args []string) bool {
 	fs.BoolVar(&isVerbose, constants.FlagDBMigrateVerbose, false, constants.FlagDescDBMigrateV)
 
 	if err := fs.Parse(reorderFlagsBeforeArgs(args)); err != nil {
-		cliexit.HandleError(nil, 2)
+		cliexit.HandleError(err, 2)
 	}
 
 	return isVerbose

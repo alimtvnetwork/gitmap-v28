@@ -135,7 +135,7 @@ func dispatchReinstall(mode string) {
 func executeReinstallRepo() {
 	scriptPath, scriptName := pickReinstallScriptPath()
 	if _, err := os.Stat(scriptPath); err != nil {
-		cliexit.HandleError(apperror.NewSimple(constants.ErrReinstallScriptNotFound, "E9000"), 1)
+		cliexit.HandleError(apperror.WrapSimple(err, constants.ErrReinstallScriptNotFound), 1)
 	}
 
 	fmt.Printf(constants.MsgReinstallRunningRepo, scriptName)
@@ -149,11 +149,11 @@ func executeReinstallRepo() {
 	if err != nil && errors.As(err, &exitErr) {
 		exitCode := exitErr.ExitCode()
 		fmt.Fprintf(os.Stderr, constants.ErrReinstallScriptFailed, scriptName, exitCode)
-		cliexit.HandleError(nil, exitCode)
+		cliexit.HandleError(err, exitCode)
 	}
 
 	if err != nil {
-		cliexit.HandleError(apperror.NewSimple(constants.ErrReinstallScriptFailed, "E9000"), 1)
+		cliexit.HandleError(apperror.WrapSimple(err, constants.ErrReinstallScriptFailed), 1)
 	}
 }
 

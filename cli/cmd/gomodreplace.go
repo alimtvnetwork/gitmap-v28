@@ -18,8 +18,7 @@ func readModulePath() string {
 	data, err := os.ReadFile(constants.GoModFile)
 	if err != nil {
 		fmt.Fprint(os.Stderr, constants.ErrGoModNoFile)
-		fmt.Fprintln(os.Stderr, apperror.NewSimple("fatal error", "E9000").Error())
-		cliexit.HandleError(nil, 1)
+		cliexit.HandleError(apperror.WrapSimple(err, "read go.mod"), 1)
 	}
 
 	return parseModuleLine(string(data))

@@ -70,7 +70,7 @@ func promptForSourceRepo() (string, error) {
 		fmt.Fprint(os.Stdout, constants.MsgSelfReleasePromptPath)
 		input, err := reader.ReadString('\n')
 		if err != nil && len(input) == 0 {
-			return "", fmt.Errorf("%s", constants.ErrSelfReleaseNoRepo)
+			return "", fmt.Errorf("%s: %w", constants.ErrSelfReleaseNoRepo, err)
 		}
 
 		path := strings.TrimSpace(strings.Trim(input, "\"'"))

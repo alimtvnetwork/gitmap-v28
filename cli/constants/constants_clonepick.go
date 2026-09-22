@@ -148,20 +148,20 @@ const (
 	// %d = bad value.
 	ErrClonePickBadDepth = "clone-pick: --depth must be >= 0, got %d"
 	// %v = err.
-	ErrClonePickGitClone       = "clone-pick: git clone failed: %v"
-	ErrClonePickGitSparseInit  = "clone-pick: git sparse-checkout init failed: %v"
-	ErrClonePickGitSparseSet   = "clone-pick: git sparse-checkout set failed: %v"
-	ErrClonePickGitCheckout    = "clone-pick: git checkout failed: %v"
-	ErrClonePickGitLsTree      = "clone-pick: git ls-tree failed: %v"
-	ErrClonePickFsCreateDest   = "clone-pick: create dest dir: %v"
-	ErrClonePickFsRemoveDotGit = "clone-pick: remove .git: %v"
-	ErrClonePickDBInsert       = "clone-pick: save selection: %v"
-	ErrClonePickDBLookup       = "clone-pick: lookup selection: %v"
-	ErrClonePickPickerLaunch   = "clone-pick: launch picker: %v"
+	ErrClonePickGitClone       = "clone-pick: git clone failed: %w"
+	ErrClonePickGitSparseInit  = "clone-pick: git sparse-checkout init failed: %w"
+	ErrClonePickGitSparseSet   = "clone-pick: git sparse-checkout set failed: %w"
+	ErrClonePickGitCheckout    = "clone-pick: git checkout failed: %w"
+	ErrClonePickGitLsTree      = "clone-pick: git ls-tree failed: %w"
+	ErrClonePickFsCreateDest   = "clone-pick: create dest dir: %w"
+	ErrClonePickFsRemoveDotGit = "clone-pick: remove .git: %w"
+	ErrClonePickDBInsert       = "clone-pick: save selection: %w"
+	ErrClonePickDBLookup       = "clone-pick: lookup selection: %w"
+	ErrClonePickPickerLaunch   = "clone-pick: launch picker: %w"
 	// %v = err. Emitted when promoting the picker's pre-cloned
 	// metadata dir into DestDir fails (rename + cross-fs copy
 	// fallback both errored).
-	ErrClonePickPromoteSrc = "clone-pick: promote pre-cloned source: %v"
+	ErrClonePickPromoteSrc = "clone-pick: promote pre-cloned source: %w"
 )
 
 // User-cancel exit code. 130 mirrors the SIGINT convention so shell

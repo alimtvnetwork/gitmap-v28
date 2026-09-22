@@ -28,7 +28,7 @@ func applySSHKey(name string) {
 	db, err := openDB()
 	if err != nil {
 		fmt.Fprintf(os.Stderr, constants.ErrSSHQuery, err)
-		cliexit.HandleError(nil, 1)
+		cliexit.HandleError(err, 1)
 	}
 
 	defer db.Close()
@@ -36,7 +36,7 @@ func applySSHKey(name string) {
 	key, err := db.FindSSHKeyByName(name)
 	if err != nil {
 		fmt.Fprintf(os.Stderr, constants.ErrSSHNotFound, name)
-		cliexit.HandleError(nil, 1)
+		cliexit.HandleError(err, 1)
 	}
 
 	sshCmd := fmt.Sprintf("ssh -i %s -o IdentitiesOnly=yes", key.PrivatePath)
@@ -408,7 +408,7 @@ func executeDirectClone(params DirectCloneParams) {
 		failPendingTask(taskDB, taskID, fmt.Sprintf(constants.ErrCloneURLFailed, url, cloneErr))
 		closeTaskDB(taskDB)
 		fmt.Fprintf(os.Stderr, constants.ErrCloneURLFailed, url, cloneErr)
-		cliexit.HandleError(nil, 1)
+		cliexit.HandleError(cloneErr, 1)
 	}
 
 	persistRecloneTransport(url)
@@ -559,7 +559,7 @@ func executeClone(cf CloneFlags) {
 		failPendingTask(taskDB, taskID, fmt.Sprintf(constants.ErrCloneFailed, cf.Source, err))
 		closeTaskDB(taskDB)
 		fmt.Fprintf(os.Stderr, constants.ErrCloneFailed, cf.Source, err)
-		cliexit.HandleError(nil, 1)
+		cliexit.HandleError(err, 1)
 	}
 
 	finalizeCloneExecution(summary, cf, taskDB, taskID)

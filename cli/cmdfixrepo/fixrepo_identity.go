@@ -43,7 +43,7 @@ func mustGitRoot() string {
 	out, err := exec.Command("git", "rev-parse", "--show-toplevel").Output()
 	if err != nil {
 		fmt.Fprint(os.Stderr, constants.FixRepoErrNotARepo)
-		cliexit.HandleError(nil, constants.FixRepoExitNotARepo)
+		cliexit.HandleError(err, constants.FixRepoExitNotARepo)
 	}
 
 	root := strings.TrimSpace(string(out))
@@ -60,7 +60,7 @@ func mustGitRemoteURL() string {
 	out, err := exec.Command("git", "config", "--get", "remote.origin.url").Output()
 	if err != nil {
 		fmt.Fprint(os.Stderr, constants.FixRepoErrNoRemote)
-		cliexit.HandleError(nil, constants.FixRepoExitNoRemote)
+		cliexit.HandleError(err, constants.FixRepoExitNoRemote)
 	}
 
 	url := strings.TrimSpace(string(out))
@@ -154,7 +154,11 @@ func mustSplitRepoVersion(repo string) (string, int) {
 	}
 
 	n, err := strconv.Atoi(m[2])
-	if err != nil || n < 1 {
+	if err != nil {
+		fmt.Fprint(os.Stderr, constants.FixRepoErrBadVersion)
+		cliexit.HandleError(err, constants.FixRepoExitBadVersion)
+	}
+	if n < 1 {
 		fmt.Fprint(os.Stderr, constants.FixRepoErrBadVersion)
 		cliexit.HandleError(nil, constants.FixRepoExitBadVersion)
 	}

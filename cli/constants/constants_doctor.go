@@ -63,7 +63,7 @@ const (
 	DoctorBDifferFix      = "Run: gitmap doctor --fix-path"
 	DoctorSourceOKFmt     = "Source version: %s (all binaries match)"
 	DoctorResolveNoRepo   = "RepoPath not embedded — rebuild with run.ps1"
-	DoctorResolveNoRead   = "cannot read powershell.json: %v"
+	DoctorResolveNoRead   = "cannot read powershell.json: %w"
 	DoctorResolveNoDeploy = "no deployPath in powershell.json"
 	DoctorResolveNotFound = "deployed binary not found: %s"
 	DoctorDefaultBinary   = "gitmap.exe"

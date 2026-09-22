@@ -103,7 +103,7 @@ const (
 	ErrSEOGitPush        = "error: git push failed: %v\n"
 	ErrSEOSeedRead       = "error: failed to read seed file at %s: %v (operation: read)\n"
 	ErrSEOCreateWrite    = "error: failed to write template file at %s: %v (operation: write)\n"
-	ErrSEODBInsert       = "error: failed to insert template: %v\n"
+	ErrSEODBInsert       = "failed to insert template: %w"
 )
 
 // SEO-write help text.

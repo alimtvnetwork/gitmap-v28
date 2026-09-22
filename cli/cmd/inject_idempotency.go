@@ -29,7 +29,7 @@ func parseInjectForceFlag(name string, args []string) bool {
 	fs.BoolVar(&force, constants.FlagInjectForceShort, false, constants.FlagDescInjectForce)
 
 	if err := fs.Parse(reorderFlagsBeforeArgs(args)); err != nil {
-		cliexit.HandleError(nil, 2)
+		cliexit.HandleError(err, 2)
 	}
 
 	return force

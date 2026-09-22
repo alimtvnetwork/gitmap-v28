@@ -71,7 +71,7 @@ func pushSandbox(sandbox, originURL string, opts historyOpts) {
 	cmd.Stdout, cmd.Stderr = os.Stderr, os.Stderr
 	if err := cmd.Run(); err != nil {
 		fmt.Fprintf(os.Stderr, constants.HistoryErrPush, err)
-		cliexit.HandleError(nil, constants.HistoryExitPushFailed)
+		cliexit.HandleError(err, constants.HistoryExitPushFailed)
 	}
 
 	fmt.Fprint(os.Stderr, constants.HistoryMsgPushOk)

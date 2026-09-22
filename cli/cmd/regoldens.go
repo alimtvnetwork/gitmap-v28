@@ -75,7 +75,7 @@ func parseRegoldensFlags(args []string) regoldensFlags {
 	bindRegoldensFlags(fs, &cfg)
 	if err := fs.Parse(args); err != nil {
 		fmt.Fprintf(os.Stderr, "regoldens: parse flags: %v\n", err)
-		cliexit.HandleError(nil, 2)
+		cliexit.HandleError(err, 2)
 	}
 
 	return cfg

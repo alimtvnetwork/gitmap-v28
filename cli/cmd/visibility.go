@@ -103,7 +103,7 @@ func parseVisibilityFlags(args []string, target string) (visibilityFlags, []stri
 	vrb := fs.Bool(constants.FlagVisVerbose, false, constants.FlagDescVisVerbose)
 
 	if err := fs.Parse(args); err != nil {
-		cliexit.HandleError(nil, constants.ExitVisBadFlag)
+		cliexit.HandleError(err, constants.ExitVisBadFlag)
 	}
 
 	out := visibilityFlags{yes: *yesLong || *yesShort, dryRun: *dry, verbose: *vrb}

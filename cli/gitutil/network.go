@@ -16,7 +16,7 @@ func CheckOnline() error {
 		time.Duration(constants.NetworkTimeoutSec)*time.Second,
 	)
 	if err != nil {
-		return fmt.Errorf(constants.ErrOffline)
+		return fmt.Errorf("%s: %w", constants.ErrOffline, err)
 	}
 
 	conn.Close()

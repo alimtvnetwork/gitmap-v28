@@ -223,34 +223,34 @@ const (
 
 // Store error messages.
 const (
-	ErrDBOpen          = "failed to open database at %s: %v (operation: open)"
-	ErrDBMigrate       = "failed to initialize tables: %v"
-	ErrDBUpsert        = "failed to upsert repo: %v"
-	ErrDBQuery         = "failed to query repos: %v"
+	ErrDBOpen          = "failed to open database at %s: %w (operation: open)"
+	ErrDBMigrate       = "failed to initialize tables: %w"
+	ErrDBUpsert        = "failed to upsert repo: %w"
+	ErrDBQuery         = "failed to query repos: %w"
 	ErrDBNoMatch       = "no repo matches slug: %s\n"
-	ErrDBCreateDir     = "failed to create database directory at %s: %v (operation: mkdir)"
-	ErrDBGroupCreate   = "failed to create group: %v"
-	ErrDBGroupQuery    = "failed to query groups: %v"
-	ErrDBGroupAdd      = "failed to add repo to group: %v"
-	ErrDBGroupRemove   = "failed to remove repo from group: %v"
-	ErrDBGroupDelete   = "failed to delete group: %v"
+	ErrDBCreateDir     = "failed to create database directory at %s: %w (operation: mkdir)"
+	ErrDBGroupCreate   = "failed to create group: %w"
+	ErrDBGroupQuery    = "failed to query groups: %w"
+	ErrDBGroupAdd      = "failed to add repo to group: %w"
+	ErrDBGroupRemove   = "failed to remove repo from group: %w"
+	ErrDBGroupDelete   = "failed to delete group: %w"
 	ErrDBGroupNone     = "no group found: %s"
 	ErrDBGroupExists   = "group already exists: %s"
-	ErrDBReleaseUpsert = "failed to upsert release: %v"
-	ErrDBReleaseQuery  = "failed to query releases: %v"
+	ErrDBReleaseUpsert = "failed to upsert release: %w"
+	ErrDBReleaseQuery  = "failed to query releases: %w"
 )
 
 // Phase 1 v15 migration messages.
 const (
 	MsgV15RepoMigrationStart = "→ Migrating database to v15 schema (Repos → Repo)..."
 	MsgV15RepoMigrationDone  = "✓ Migrated Repos → Repo (RepoId PK). Existing data preserved."
-	ErrV15RepoMigration      = "v15 Repo migration failed: %v"
+	ErrV15RepoMigration      = "v15 Repo migration failed: %w"
 	ErrV15RepoCountMismatch  = "v15 Repo migration count mismatch: old=%d new=%d"
-	ErrV15Phase2Migration    = "v15 Phase 1.2 migration failed: %v"
-	ErrV15Phase3Migration    = "v15 Phase 1.3 migration failed: %v"
-	ErrV15Phase4Migration    = "v15 Phase 1.4 migration failed: %v"
-	ErrV15Phase5Migration    = "v15 Phase 1.5 migration failed: %v"
-	ErrV15Phase6Migration    = "v15 Phase 1.6 migration failed: %v"
+	ErrV15Phase2Migration    = "v15 Phase 1.2 migration failed: %w"
+	ErrV15Phase3Migration    = "v15 Phase 1.3 migration failed: %w"
+	ErrV15Phase4Migration    = "v15 Phase 1.4 migration failed: %w"
+	ErrV15Phase5Migration    = "v15 Phase 1.5 migration failed: %w"
+	ErrV15Phase6Migration    = "v15 Phase 1.6 migration failed: %w"
 )
 
 // Phase 1.6 (v17) Release.RepoId FK migration messages.

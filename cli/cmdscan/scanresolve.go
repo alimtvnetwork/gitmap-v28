@@ -35,7 +35,7 @@ func resolveScanTarget(raw string) string {
 	abs, err := filepath.Abs(expanded)
 	if err != nil {
 		fmt.Fprintf(os.Stderr, constants.ErrScanFailed, original, err)
-		cliexit.HandleError(nil, 1)
+		cliexit.HandleError(err, 1)
 	}
 
 	abs = filepath.Clean(abs)
@@ -43,7 +43,7 @@ func resolveScanTarget(raw string) string {
 	info, err := os.Stat(abs)
 	if err != nil {
 		fmt.Fprintf(os.Stderr, constants.ErrScanDirNotFound, original, abs)
-		cliexit.HandleError(nil, 1)
+		cliexit.HandleError(err, 1)
 	}
 
 	if !info.IsDir() {
@@ -110,13 +110,13 @@ func resolveRelativeRoot(raw, scanDir string, quiet bool) string {
 	expanded := expandHome(trimmed)
 	abs, err := filepath.Abs(expanded)
 	if err != nil {
-		cliexit.HandleError(apperror.NewSimple(constants.ErrScanRelativeRootInvalid, "E9000"), 1)
+		cliexit.HandleError(apperror.WrapSimple(err, "resolve absolute path"), 1)
 	}
 
 	abs = filepath.Clean(abs)
 	info, statErr := os.Stat(abs)
 	if statErr != nil {
-		cliexit.HandleError(apperror.NewSimple(constants.ErrScanRelativeRootInvalid, "E9000"), 1)
+		cliexit.HandleError(apperror.WrapNotFound(statErr, fmt.Sprintf(constants.ErrScanRelativeRootInvalid, raw, statErr)), 1)
 	}
 
 	if !info.IsDir() {

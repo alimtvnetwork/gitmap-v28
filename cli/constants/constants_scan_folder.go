@@ -85,14 +85,14 @@ const (
 
 // ScanFolder error messages (Code Red zero-swallow policy).
 const (
-	ErrSFEnsure      = "failed to ensure scan folder %q: %v"
-	ErrSFList        = "failed to list scan folders: %v"
+	ErrSFEnsure      = "failed to ensure scan folder %q: %w"
+	ErrSFList        = "failed to list scan folders: %w"
 	ErrSFFindByPath  = "no scan folder registered for path: %s"
 	ErrSFFindByID    = "no scan folder with id: %d"
-	ErrSFRemove      = "failed to remove scan folder: %v"
-	ErrSFDetachRepos = "failed to detach repos from scan folder: %v"
-	ErrSFAbsResolve  = "failed to resolve absolute path for %q: %v"
-	ErrSFInvalidID   = "invalid scan folder id %q: %v"
+	ErrSFRemove      = "failed to remove scan folder: %w"
+	ErrSFDetachRepos = "failed to detach repos from scan folder: %w"
+	ErrSFAbsResolve  = "failed to resolve absolute path for %q: %w"
+	ErrSFInvalidID   = "invalid scan folder id %q: %w"
 	ErrSFMissingArg  = "missing required argument: %s"
 )
 

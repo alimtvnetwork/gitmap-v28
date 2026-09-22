@@ -75,7 +75,7 @@ func runPromptShow(slug string) error {
 	filePath := filepath.Join(dir, slug+".md")
 	data, err := os.ReadFile(filePath)
 	if err != nil {
-		return fmt.Errorf("prompt template %q not found", slug)
+		return fmt.Errorf("prompt template %q not found: %w", slug, err)
 	}
 
 	pt := parsePromptMarkdown(string(data))

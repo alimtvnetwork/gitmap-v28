@@ -51,7 +51,7 @@ func resolveGitDir(repoPath string) (string, error) {
 	dotGit := filepath.Join(repoPath, constants.DotGit)
 	info, err := os.Stat(dotGit)
 	if err != nil {
-		return "", fmt.Errorf("%w: %s", ErrNotAGitRepo, repoPath)
+		return "", fmt.Errorf("%w: %s: %w", ErrNotAGitRepo, repoPath, err)
 	}
 
 	if info.IsDir() {

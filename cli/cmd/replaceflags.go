@@ -33,7 +33,7 @@ func parseReplaceFlags(args []string) (replaceOpts, []string, error) {
 	fs, raw := defineReplaceFlags()
 	flags, positional := splitReplaceFlagsAndArgs(rest)
 	if err := fs.Parse(flags); err != nil {
-		return opts, nil, errors.New("replace: " + err.Error())
+		return opts, nil, fmt.Errorf("replace: %w", err)
 	}
 
 	opts.yes = *raw.yes || *raw.yesShort

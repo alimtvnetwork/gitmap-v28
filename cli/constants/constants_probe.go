@@ -37,13 +37,13 @@ const SQLTagReposByScanFolderTpl = `UPDATE Repo SET ScanFolderId = ? WHERE Absol
 
 // VersionProbe error/message strings.
 const (
-	ErrProbeOpenDB       = "version probe: failed to open database: %v"
+	ErrProbeOpenDB       = "version probe: failed to open database: %w"
 	ErrProbeMissingURL   = "version probe: repo %q has no clone URL"
-	ErrProbeLsRemoteFail = "ls-remote failed: %v"
-	ErrProbeCloneFail    = "shallow clone failed: %v"
-	ErrProbeRecord       = "version probe: failed to record result for repo %d: %v"
+	ErrProbeLsRemoteFail = "ls-remote failed: %w"
+	ErrProbeCloneFail    = "shallow clone failed: %w"
+	ErrProbeRecord       = "version probe: failed to record result for repo %d: %w"
 	ErrProbeNoRepo       = "version probe: no repo found at %q"
-	ErrProbeTagFail      = "scan: failed to tag repos with scan folder %d: %v"
+	ErrProbeTagFail      = "scan: failed to tag repos with scan folder %d: %w"
 )
 
 // VersionProbe user-facing CLI strings.

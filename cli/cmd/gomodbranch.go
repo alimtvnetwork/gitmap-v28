@@ -164,7 +164,7 @@ func mergeGoModBranch(originalBranch, featureBranch, newPath string) {
 	cmd.Stdout = os.Stdout
 	cmd.Stderr = os.Stderr
 	if err := cmd.Run(); err != nil {
-		cliexit.HandleGeneralError(apperror.NewSimple(constants.ErrGoModMergeConflict, "E9000"))
+		cliexit.HandleGeneralError(apperror.WrapSimple(err, constants.ErrGoModMergeConflict))
 	}
 }
 

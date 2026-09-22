@@ -29,7 +29,7 @@ func runFindNext(args []string) error {
 	if err != nil {
 		fmt.Fprint(os.Stderr, err.Error())
 		fmt.Fprintln(os.Stderr, constants.MsgFindNextUsageHeader)
-		cliexit.HandleError(nil, findNextUsageExitCode)
+		cliexit.HandleError(err, findNextUsageExitCode)
 	}
 
 	db := openSfDB()

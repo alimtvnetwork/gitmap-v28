@@ -107,7 +107,7 @@ func normalizeFileOnDisk(path string, opts NewlineOptions, res *NewlineResult) *
 	writeErr := os.WriteFile(path, cleaned, 0644)
 	if writeErr != nil {
 		ctx := map[string]any{"path": path, "err": writeErr.Error()}
-		return apperror.New("write_file", "E_WRITE_FAILED", ctx)
+		return apperror.Wrap(writeErr, "write_file", ctx)
 	}
 	return nil
 }

@@ -113,10 +113,10 @@ const (
 const (
 	MsgStartupListHeaderWindows  = "Windows autostart entries managed by gitmap:\n"
 	MsgStartupListBackendSection = "  [%s]\n"
-	ErrStartupRegistryOpen       = "open registry key %s: %v"
-	ErrStartupRegistryWrite      = "write registry value %s: %v"
-	ErrStartupRegistryRead       = "read registry value %s: %v"
-	ErrStartupShortcutCreate     = "create shortcut %s: %v"
+	ErrStartupRegistryOpen       = "open registry key %s: %w"
+	ErrStartupRegistryWrite      = "write registry value %s: %w"
+	ErrStartupRegistryRead       = "read registry value %s: %w"
+	ErrStartupShortcutCreate     = "create shortcut %s: %w"
 	ErrStartupPowerShellMissing  = "powershell.exe not found on PATH " +
 		"(required for --backend=startup-folder; install Windows " +
 		"PowerShell or use --backend=registry)"

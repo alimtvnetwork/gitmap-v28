@@ -71,7 +71,7 @@ func makeProbeEntry(repo model.ScanRecord, r probe.Result) probeJSONEntry {
 func emitProbeJSON(entries []probeJSONEntry) {
 	if err := encodeProbeJSON(os.Stdout, entries); err != nil {
 		fmt.Fprintln(os.Stderr, err.Error())
-		cliexit.HandleError(apperror.NewSimple("fatal error", "E9000"), 1)
+		cliexit.HandleError(apperror.WrapSimple(err, "encode probe json"), 1)
 	}
 }
 

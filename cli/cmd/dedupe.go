@@ -26,7 +26,7 @@ func runDedupe(args []string) error {
 	root := fs.String("root", ".", "scan root directory")
 	format := fs.String("format", "table", "output format: table|json|csv")
 	if err := fs.Parse(args); err != nil {
-		cliexit.HandleError(nil, 2)
+		cliexit.HandleError(err, 2)
 	}
 
 	fmtKind, err := parseHygieneFormat(*format)

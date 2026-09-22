@@ -59,7 +59,7 @@ func runChromeProfileCopy(args []string) error {
 	files, err := copyChromeProfile(srcProfile.Path, dstProfile.Path)
 	if err != nil {
 		printChromeProfileCopyError(srcProfile, dstProfile, err)
-		cliexit.HandleError(nil, constants.ExitChromeProfileCopyFailed)
+		cliexit.HandleError(err, constants.ExitChromeProfileCopyFailed)
 	}
 
 	if chromeProfileLockSkipCount > 0 {
@@ -244,7 +244,7 @@ func executeSingleProfileExport(format, srcPath, name, outPath string) error {
 	rec, exportErr := exportChromeFormat(format, srcPath, name, outPath)
 	if exportErr != nil {
 		fmt.Fprintf(os.Stderr, constants.ErrChromeProfileExportFail, exportErr)
-		cliexit.HandleError(nil, constants.ExitChromeProfileCopyFailed)
+		cliexit.HandleError(exportErr, constants.ExitChromeProfileCopyFailed)
 
 		return exportErr
 	}

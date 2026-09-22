@@ -33,7 +33,7 @@ func findViaHandle(dirPath string) ([]LockingProcess, error) {
 	}
 
 	if err != nil {
-		return nil, fmt.Errorf("handle.exe not found")
+		return nil, fmt.Errorf("handle.exe not found: %w", err)
 	}
 
 	cmd := exec.Command(handlePath, "-accepteula", "-nobanner", dirPath)

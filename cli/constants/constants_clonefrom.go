@@ -107,22 +107,22 @@ const (
 // Errors. All use printf-style verbs documented inline.
 const (
 	// %s = path, %v = err.
-	ErrCloneFromAbsPath = "clone-from: resolve path %s: %v"
-	ErrCloneFromOpen    = "clone-from: open %s: %v"
+	ErrCloneFromAbsPath = "clone-from: resolve path %s: %w"
+	ErrCloneFromOpen    = "clone-from: open %s: %w"
 	// %v = err.
-	ErrCloneFromJSONDecode = "clone-from: decode JSON: %v"
+	ErrCloneFromJSONDecode = "clone-from: decode JSON: %w"
 	// %d = 1-indexed row, %v = err.
-	ErrCloneFromJSONRow = "clone-from: row %d: %v"
+	ErrCloneFromJSONRow = "clone-from: row %d: %w"
 	// %v = err.
-	ErrCloneFromCSVHeader = "clone-from: read CSV header: %v"
+	ErrCloneFromCSVHeader = "clone-from: read CSV header: %w"
 	ErrCloneFromCSVNoURL  = "clone-from: CSV header is missing required column 'url'"
 	// %d = row number including header, %v = err.
-	ErrCloneFromCSVRow = "clone-from: CSV row %d: %v"
+	ErrCloneFromCSVRow = "clone-from: CSV row %d: %w"
 	// %d = row number including header, %s = column name, %v = err.
 	// Used when a row failure is attributable to a specific column so
 	// the operator can jump straight to the offending cell instead of
 	// re-reading the whole row to guess which field tripped validation.
-	ErrCloneFromCSVRowCol = "clone-from: CSV row %d, column %q: %v"
+	ErrCloneFromCSVRowCol = "clone-from: CSV row %d, column %q: %w"
 	// %s = bad depth string.
 	ErrCloneFromBadDepth = "depth %q is not a valid integer"
 	ErrCloneFromEmptyURL = "url is empty after trim"
@@ -147,9 +147,9 @@ const (
 	// %d = depth.
 	CloneFromDepthFlagFmt = "--depth=%d"
 	// %s = directory, %v = err.
-	ErrCloneFromReportMkdir = "clone-from: mkdir %s: %v"
+	ErrCloneFromReportMkdir = "clone-from: mkdir %s: %w"
 	// %s = file path, %v = err.
-	ErrCloneFromReportCreate = "clone-from: create report %s: %v"
+	ErrCloneFromReportCreate = "clone-from: create report %s: %w"
 	// ErrCloneFromReportMissingFields is surfaced when one or more
 	// rows in the result set are missing a field required to
 	// produce a useful report (URL, Dest, or Status). Listing each

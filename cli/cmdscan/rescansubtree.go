@@ -45,13 +45,13 @@ func runRescanSubtree(args []string) error {
 	path, rest, err := splitRescanSubtreeArgs(args)
 	if err != nil {
 		fmt.Fprintln(os.Stderr, err.Error())
-		cliexit.HandleError(nil, 2)
+		cliexit.HandleError(err, 2)
 	}
 
 	abs, err := resolveRescanSubtreePath(path)
 	if err != nil {
 		fmt.Fprintln(os.Stderr, err.Error())
-		cliexit.HandleError(nil, 2)
+		cliexit.HandleError(err, 2)
 	}
 
 	scanArgs := buildRescanSubtreeArgs(abs, rest)
@@ -152,9 +152,9 @@ func resolveRescanSubtreePath(path string) (string, error) {
 	info, err := os.Stat(abs)
 	if err != nil && os.IsNotExist(err) {
 		return "", fmt.Errorf(
-			"  Error: rescan-subtree target does not exist: %s\n"+
+			"  Error: rescan-subtree target does not exist %s: %w\n"+
 				"         Did you copy the absolutePath from a row that has since moved?",
-			abs)
+			abs, err)
 	}
 
 	if err != nil {

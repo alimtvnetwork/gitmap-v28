@@ -128,7 +128,7 @@ const (
 	MsgRescanReplay       = "\n  Rescanning with cached flags (dir: %s)...\n"
 	MsgScanCacheSaved     = "  • Cache       %s\n"
 	MsgDBUpsertDone       = "  ✓ %d repositories upserted into database\n"
-	MsgDBUpsertFailed     = "Warning: database upsert failed: %v\n"
+	MsgDBUpsertFailed     = "Warning: database upsert failed: %w\n"
 	// Section headers for the post-scan summary.
 	// MsgSectionArtifacts takes the common output base directory so it can be
 	// printed once instead of repeated on every file line.
@@ -168,16 +168,16 @@ const (
 	ErrGroupNameReq     = "Error: group name is required"
 	ErrGroupUsage       = "Usage: gitmap group <create|add|remove|list|show|delete> [args]"
 	ErrGroupSlugReq     = "Error: at least one slug is required"
-	ErrListDBFailed     = "Error: could not open database: %v\nRun 'gitmap scan' first.\n"
+	ErrListDBFailed     = "Error: could not open database: %w\nRun 'gitmap scan' first.\n"
 	ErrNoDatabase       = "No database found. Run 'gitmap scan' first."
 	MsgDBResetDone      = "Database reset: all repos and groups cleared.\n"
-	ErrDBResetFailed    = "Error: database reset failed: %v\n"
+	ErrDBResetFailed    = "Error: database reset failed: %w\n"
 	ErrDBResetNoConfirm = "Error: this will delete all tracked repos and groups.\nRun with --confirm to proceed: gitmap db-reset --confirm"
 	MsgResetFileRemoved = "Removed database file: %s\n"
 	MsgResetReseeded    = "Reseeded %s\n"
 	MsgResetDone        = "Reset complete: database file deleted, schema rebuilt, seeds reapplied.\n"
 	ErrResetNoConfirm   = "Error: this will permanently delete the database file and rebuild it from scratch.\nRun with --confirm to proceed: gitmap reset --confirm"
-	ErrResetRemoveFile  = "Error: could not delete database file %s: %v\n"
+	ErrResetRemoveFile  = "Error: could not delete database file %s: %w\n"
 	ErrResetReinit      = "Error: could not reinitialize database: %v\n"
 )
 
@@ -260,12 +260,12 @@ const (
 	ErrReleaseBumpNoLatest      = "Error: no previous release found. Create an initial release before using --bump.\n"
 	ErrReleaseBumpConflict      = "Error: --bump cannot be used with an explicit version argument.\n"
 	ErrReleaseCommitBranch      = "Error: --commit and --branch are mutually exclusive.\n"
-	ErrReleasePushFailed        = "Error: failed to push to remote: %v\n"
-	ErrReleaseVersionLoad       = "Error: could not read version.json at %s: %v (operation: read)\n"
-	ErrReleaseMetaWrite         = "Error: could not write release metadata at %s: %v (operation: write)\n"
-	ErrChangelogRead            = "Error: could not read changelog.md at %s: %v (operation: read)\n"
+	ErrReleasePushFailed        = "Error: failed to push to remote: %w\n"
+	ErrReleaseVersionLoad       = "Error: could not read version.json at %s: %w (operation: read)\n"
+	ErrReleaseMetaWrite         = "Error: could not write release metadata at %s: %w (operation: write)\n"
+	ErrChangelogRead            = "Error: could not read changelog.md at %s: %w (operation: read)\n"
 	ErrChangelogVersionNotFound = "Error: version %s not found in changelog.md\n"
-	ErrChangelogOpen            = "Error: could not open changelog.md at %s: %v (operation: open)\n"
+	ErrChangelogOpen            = "Error: could not open changelog.md at %s: %w (operation: open)\n"
 )
 
 // List-versions error messages.

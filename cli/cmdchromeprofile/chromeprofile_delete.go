@@ -31,14 +31,14 @@ func runChromeProfileDelete(args []string) error {
 	db, err := store.OpenDefault()
 	if err != nil {
 		fmt.Fprintf(os.Stderr, constants.ErrChromeProfileDeleteFail, err)
-		cliexit.HandleError(nil, constants.ExitChromeProfileCopyFailed)
+		cliexit.HandleError(err, constants.ExitChromeProfileCopyFailed)
 	}
 
 	defer db.Close()
 	paths, err := db.DeleteChromeProfile(name)
 	if err != nil {
 		fmt.Fprintf(os.Stderr, constants.ErrChromeProfileDeleteFail, err)
-		cliexit.HandleError(nil, constants.ExitChromeProfileCopyFailed)
+		cliexit.HandleError(err, constants.ExitChromeProfileCopyFailed)
 	}
 
 	if len(paths) == 0 && !db.ChromeProfileExists(name) {

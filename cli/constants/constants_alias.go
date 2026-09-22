@@ -101,8 +101,8 @@ const (
 	ErrAliasEmpty       = "alias name cannot be empty"
 	ErrAliasInvalid     = "alias must be alphanumeric with hyphens: %s"
 	ErrAliasShadow      = "alias cannot shadow command: %s"
-	ErrAliasCreate      = "failed to create alias: %v"
-	ErrAliasQuery       = "failed to query aliases: %v"
-	ErrAliasDelete      = "failed to delete alias: %v"
+	ErrAliasCreate      = "failed to create alias: %w"
+	ErrAliasQuery       = "failed to query aliases: %w"
+	ErrAliasDelete      = "failed to delete alias: %w"
 	ErrAliasRepoMissing = "repo not found for alias target: %s"
 )

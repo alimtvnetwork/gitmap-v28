@@ -17,7 +17,7 @@ func runReplace(args []string) error {
 	opts, positional, err := parseReplaceFlags(args)
 	if err != nil {
 		fmt.Fprintf(os.Stderr, constants.ErrBareFmt, err)
-		cliexit.HandleError(nil, constants.ExitCodeError)
+		cliexit.HandleError(err, constants.ExitCodeError)
 	}
 
 	mode := classifyReplaceMode(positional, opts)

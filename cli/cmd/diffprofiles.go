@@ -69,8 +69,7 @@ func validateDPProfiles(nameA, nameB string) *apperror.AppError {
 func loadProfileRepos(name string) []model.ScanRecord {
 	db, err := store.OpenDefaultProfile(name)
 	if err != nil {
-		fmt.Fprintln(os.Stderr, apperror.NewSimple(constants.ErrDPOpenFailed, "E9000").Error())
-		cliexit.HandleError(nil, 1)
+		cliexit.HandleError(apperror.WrapSimple(err, constants.ErrDPOpenFailed), 1)
 	}
 
 	defer db.Close()
@@ -81,8 +80,7 @@ func loadProfileRepos(name string) []model.ScanRecord {
 
 	repos, err := db.ListRepos()
 	if err != nil {
-		fmt.Fprintln(os.Stderr, apperror.NewSimple(constants.ErrDPOpenFailed, "E9000").Error())
-		cliexit.HandleError(nil, 1)
+		cliexit.HandleError(apperror.WrapSimple(err, constants.ErrDPOpenFailed), 1)
 	}
 
 	return repos

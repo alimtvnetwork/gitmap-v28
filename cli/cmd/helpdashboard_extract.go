@@ -49,7 +49,10 @@ func extractDocsSiteZip(zipPath, targetDir string) error {
 func extractDocsZipEntry(f *zip.File, absTarget string, totalSize int64) (int64, error) {
 	destPath := filepath.Join(absTarget, f.Name) // #nosec G305 — validated below
 	absDestPath, absErr := filepath.Abs(destPath)
-	if absErr != nil || !strings.HasPrefix(absDestPath, absTarget+string(os.PathSeparator)) {
+	if absErr != nil {
+		return 0, fmt.Errorf("illegal file path in zip %s: %w", f.Name, absErr)
+	}
+	if !strings.HasPrefix(absDestPath, absTarget+string(os.PathSeparator)) {
 		return 0, fmt.Errorf("illegal file path in zip: %s", f.Name)
 	}
 

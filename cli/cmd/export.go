@@ -62,7 +62,7 @@ func loadExportData() model.DatabaseExport {
 	db, err := openDB()
 	if err != nil {
 		fmt.Fprintln(os.Stderr, apperror.WrapSimple(err, constants.MsgExportFailed).Error())
-		cliexit.HandleError(nil, 1)
+		cliexit.HandleError(err, 1)
 	}
 
 	defer db.Close()
@@ -70,10 +70,10 @@ func loadExportData() model.DatabaseExport {
 	export, err := db.ExportAll()
 	if err != nil && isLegacyDataError(err) {
 		fmt.Fprint(os.Stderr, constants.MsgLegacyProjectData)
-		cliexit.HandleError(apperror.NewSimple("legacy project data", "E9000"), 1)
+		cliexit.HandleError(apperror.WrapSimple(err, "legacy project data"), 1)
 	} else if err != nil {
 		fmt.Fprintln(os.Stderr, apperror.WrapSimple(err, constants.MsgExportFailed).Error())
-		cliexit.HandleError(nil, 1)
+		cliexit.HandleError(err, 1)
 	}
 
 	return export

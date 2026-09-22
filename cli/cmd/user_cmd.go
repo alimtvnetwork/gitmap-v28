@@ -56,7 +56,7 @@ func runUserAdd(args []string) error {
 	pwd := extractUserArgFlag(args[1:], "--password")
 	if err := osuser.AddUser(args[0], pwd); err != nil {
 		fmt.Fprintf(os.Stderr, "Error creating user: %v\n", err)
-		cliexit.HandleError(nil, 1)
+		cliexit.HandleError(err, 1)
 		return nil
 	}
 	fmt.Printf("✔ Successfully created user %q\n", args[0])
@@ -77,7 +77,7 @@ func runUserRm(args []string) error {
 	}
 	if err := osuser.Remove(opts); err != nil {
 		fmt.Fprintf(os.Stderr, "Error removing user: %v\n", err)
-		cliexit.HandleError(nil, 1)
+		cliexit.HandleError(err, 1)
 		return nil
 	}
 	fmt.Printf("✔ Successfully removed user %q\n", args[0])
@@ -93,7 +93,7 @@ func runUserCreateRoot(args []string) error {
 	opts := buildCreateRootOptions(args[0], args[1:])
 	if err := osuser.CreateRoot(opts); err != nil {
 		fmt.Fprintf(os.Stderr, "Error creating root user: %v\n", err)
-		cliexit.HandleError(nil, 1)
+		cliexit.HandleError(err, 1)
 		return nil
 	}
 	fmt.Printf("✔ Successfully created root user %q\n", args[0])
@@ -123,7 +123,7 @@ func runUserKill(args []string) error {
 	}
 	if err := osuser.Kill(opts); err != nil {
 		fmt.Fprintf(os.Stderr, "Error terminating user processes: %v\n", err)
-		cliexit.HandleError(nil, 1)
+		cliexit.HandleError(err, 1)
 		return nil
 	}
 	fmt.Printf("✔ Successfully terminated processes for user %q\n", args[0])
@@ -142,7 +142,7 @@ func runUserSSHKey(args []string) error {
 	}
 	if err := osuser.InstallKey(opts); err != nil {
 		fmt.Fprintf(os.Stderr, "Error installing SSH key: %v\n", err)
-		cliexit.HandleError(nil, 1)
+		cliexit.HandleError(err, 1)
 		return nil
 	}
 	fmt.Printf("✔ Successfully installed SSH key for user %q\n", args[0])

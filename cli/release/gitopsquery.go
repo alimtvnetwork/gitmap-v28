@@ -81,7 +81,7 @@ func latestFromGitTags() (Version, error) {
 	cmd := exec.Command(constants.GitBin, constants.GitTag, constants.GitTagListFlag, constants.GitTagGlob)
 	out, err := cmd.Output()
 	if err != nil {
-		return Version{}, fmt.Errorf("no git tags found and no .gitmap/release/latest.json exists")
+		return Version{}, fmt.Errorf("no git tags found and no .gitmap/release/latest.json exists: %w", err)
 	}
 
 	return findHighestVersion(strings.TrimSpace(string(out)))

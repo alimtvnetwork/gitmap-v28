@@ -121,7 +121,7 @@ func diffOneKind(kind, lang, cwd string) bool {
 	r, err := templates.Resolve(kind, lang)
 	if err != nil {
 		fmt.Fprintf(os.Stderr, errDiffResolve, kind, lang, err)
-		cliexit.HandleError(nil, exitDiffError)
+		cliexit.HandleError(err, exitDiffError)
 	}
 
 	target := filepath.Join(cwd, targetFileFor(kind))
@@ -129,7 +129,7 @@ func diffOneKind(kind, lang, cwd string) bool {
 	res, err := templates.Diff(target, tag, r.Content)
 	if err != nil {
 		fmt.Fprintf(os.Stderr, errDiffRun, err)
-		cliexit.HandleError(nil, exitDiffError)
+		cliexit.HandleError(err, exitDiffError)
 	}
 
 	if res.Status == templates.DiffNoChange {

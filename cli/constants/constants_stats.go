@@ -63,5 +63,5 @@ const (
 	MsgStatsColumns    = "COMMAND         RUNS   SUCCESS  FAIL  FAIL%%   AVG(ms)  MIN(ms)  MAX(ms)  LAST USED"
 	MsgStatsRowFmt     = "%-15s %-6d %-8d %-5d %-7.1f %-8d %-8d %-8d %s\n"
 	MsgStatsEmpty      = "No command history found. Run some commands first.\n"
-	ErrStatsQuery      = "failed to query stats: %v"
+	ErrStatsQuery      = "failed to query stats: %w"
 )

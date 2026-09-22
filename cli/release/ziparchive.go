@@ -44,7 +44,7 @@ func BuildZipGroupArchives(db *store.DB, groupNames []string, stagingDir string)
 func buildOneZipGroup(db *store.DB, name, stagingDir string) (string, error) {
 	group, err := db.FindZipGroupByName(name)
 	if err != nil {
-		return "", fmt.Errorf(constants.ErrZGGroupNotDB, name)
+		return "", fmt.Errorf(constants.ErrZGGroupNotDB+": %w", name, err)
 	}
 
 	items, err := db.ListZipGroupItems(name)
