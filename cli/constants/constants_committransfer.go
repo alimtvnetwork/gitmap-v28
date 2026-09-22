@@ -17,18 +17,26 @@ package constants
 // gitmap:cmd top-level
 // Commit-transfer commands.
 const (
-	CmdCommitLeft   = "commit-left"
-	CmdCommitLeftA  = "cml"
-	CmdCommitRight  = "commit-right"
-	CmdCommitRightA = "cmr"
-	CmdCommitBoth   = "commit-both"
-	CmdCommitBothA  = "cmb"
-	CmdPR           = "pr"
-	CmdPullRequest  = "pull-request"
-	CmdPRIn         = "pr-in"
-	CmdPRClean      = "pr-clean"
-	CmdPRRm         = "pr-rm"
-	CmdPRList       = "pr-list"
+	CmdCommitLeft     = "commit-left"
+	CmdCommitLeftA    = "cml"
+	CmdCommitRight    = "commit-right"
+	CmdCommitRightA   = "cmr"
+	CmdCommitBoth     = "commit-both"
+	CmdCommitBothA    = "cmb"
+	CmdPR             = "pr"
+	CmdPullRequest    = "pull-request"
+	CmdPRIn           = "pr-in"
+	CmdCommitInPR     = "commit-in-pr"
+	CmdCommitInPRA    = "cin-pr"
+	CmdCommitLeftPR   = "commit-left-pr"
+	CmdCommitLeftPRA  = "cml-pr"
+	CmdPRLeft         = "pr-left"
+	CmdCommitRightPR  = "commit-right-pr"
+	CmdCommitRightPRA = "cmr-pr"
+	CmdPRRight        = "pr-right"
+	CmdPRClean        = "pr-clean"
+	CmdPRRm           = "pr-rm"
+	CmdPRList         = "pr-list"
 )
 
 // Commit-transfer log prefixes (matches merge-* style).

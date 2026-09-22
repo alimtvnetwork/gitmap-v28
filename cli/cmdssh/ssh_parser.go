@@ -210,10 +210,14 @@ func buildSSHTarget(user string, host string, port int) (*SSHTarget, error) {
 
 func wrapTargetError(raw string, msg string) *apperror.AppError {
 	return &apperror.AppError{
-		Op:    "ParseSSHTarget",
-		Code:  "E_INTERNAL_ERROR",
-		Ctx:   map[string]any{"raw": raw},
-		Cause: errors.New(msg),
+		Op:       "ParseSSHTarget",
+		Code:     "E_INTERNAL_ERROR",
+		Type:     apperror.ErrorTypeValidation,
+		Severity: apperror.SeverityError,
+		Caller:   apperror.CaptureCaller(apperror.DefaultCallerSkip),
+		Stack:    apperror.CaptureStackTrace(apperror.DefaultStackTraceSkip),
+		Ctx:      map[string]any{"raw": raw},
+		Cause:    errors.New(msg),
 	}
 }
 

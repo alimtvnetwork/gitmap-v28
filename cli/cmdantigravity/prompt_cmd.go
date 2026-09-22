@@ -105,6 +105,15 @@ func init() {
 	initWithNameFlags(PromptWithNameCmd)
 	initTxtFlags(PromptTxtCmd)
 	PromptCmd.AddCommand(PromptLsCmd)
+	PromptCmd.SetHelpFunc(func(c *cobra.Command, args []string) {
+		_ = PrintAgyPromptHelp()
+	})
+	PromptWithNameCmd.SetHelpFunc(func(c *cobra.Command, args []string) {
+		_ = PrintAgyPromptHelp()
+	})
+	PromptTxtCmd.SetHelpFunc(func(c *cobra.Command, args []string) {
+		_ = PrintAgyPromptHelp()
+	})
 }
 
 func initBasePromptFlags(cmd *cobra.Command) {

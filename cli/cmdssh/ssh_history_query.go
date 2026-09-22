@@ -12,14 +12,14 @@ import (
 
 func scanHistoryTask(row *sql.Row) (*SSHHistoryTask, error) {
 	var task SSHHistoryTask
-	var payload, fwd, inv, created string
-	err := row.Scan(&task.TaskID, &task.Action, &task.Target, &payload, &fwd, &inv, &created, &task.RestoredAt)
+	var fwd, inv, created string
+	err := row.Scan(&task.TaskID, &task.Action, &task.Target, &fwd, &inv, &created, &task.RestoredAt)
 	if err != nil {
 		return nil, err
 	}
 
 	var nodes []store.SSHHost
-	_ = json.Unmarshal([]byte(payload), &nodes)
+	_ = json.Unmarshal([]byte(inv), &nodes)
 	task.Nodes = nodes
 	task.ForwardPayload = fwd
 	task.InversePayload = inv
@@ -36,7 +36,10 @@ func GetLastSSHHistoryTask(ctx context.Context) (*SSHHistoryTask, error) {
 	}
 	defer db.Close()
 
-	query := `SELECT task_id, action, target, payload_json, forward_payload, inverse_payload, created_at, restored_at FROM ssh_task_history WHERE restored_at = '' ORDER BY created_at DESC LIMIT 1`
+	query := `SELECT TaskId, Action, Target, ForwardPayload, InversePayload, CreatedAt, RestoredAt 
+		FROM TaskHistory 
+		WHERE Section = 'ssh' AND RestoredAt = '' 
+		ORDER BY CreatedAt DESC LIMIT 1`
 	row := db.QueryRowContext(ctx, query)
 
 	return scanHistoryTask(row)
@@ -50,7 +53,10 @@ func GetLastRestoredSSHHistoryTask(ctx context.Context) (*SSHHistoryTask, error)
 	}
 	defer db.Close()
 
-	query := `SELECT task_id, action, target, payload_json, forward_payload, inverse_payload, created_at, restored_at FROM ssh_task_history WHERE restored_at != '' ORDER BY restored_at DESC LIMIT 1`
+	query := `SELECT TaskId, Action, Target, ForwardPayload, InversePayload, CreatedAt, RestoredAt 
+		FROM TaskHistory 
+		WHERE Section = 'ssh' AND RestoredAt != '' 
+		ORDER BY RestoredAt DESC LIMIT 1`
 	row := db.QueryRowContext(ctx, query)
 
 	return scanHistoryTask(row)
@@ -64,7 +70,9 @@ func GetSSHHistoryTaskByID(ctx context.Context, taskID string) (*SSHHistoryTask,
 	}
 	defer db.Close()
 
-	query := `SELECT task_id, action, target, payload_json, forward_payload, inverse_payload, created_at, restored_at FROM ssh_task_history WHERE task_id = ? LIMIT 1`
+	query := `SELECT TaskId, Action, Target, ForwardPayload, InversePayload, CreatedAt, RestoredAt 
+		FROM TaskHistory 
+		WHERE TaskId = ? LIMIT 1`
 	row := db.QueryRowContext(ctx, query, taskID)
 
 	return scanHistoryTask(row)
@@ -79,10 +87,10 @@ func MarkSSHHistoryTaskRestored(ctx context.Context, taskID string) error {
 	defer db.Close()
 
 	now := time.Now().UTC().Format(time.RFC3339)
-	query := `UPDATE ssh_task_history SET restored_at = ? WHERE task_id = ?`
-	_, errExec := db.ExecContext(ctx, query, now, taskID)
-	if errExec != nil {
-		return apperror.WrapSimple(errExec, "MarkSSHHistoryTaskRestored")
+	query := `UPDATE TaskHistory SET RestoredAt = ? WHERE TaskId = ?`
+	res := store.ExecWrapper(db, query, now, taskID)
+	if res.IsFailure {
+		return apperror.WrapSimple(res.Error, "MarkSSHHistoryTaskRestored")
 	}
 
 	return nil
@@ -96,11 +104,51 @@ func MarkSSHHistoryTaskActive(ctx context.Context, taskID string) error {
 	}
 	defer db.Close()
 
-	query := `UPDATE ssh_task_history SET restored_at = '' WHERE task_id = ?`
-	_, errExec := db.ExecContext(ctx, query, taskID)
-	if errExec != nil {
-		return apperror.WrapSimple(errExec, "MarkSSHHistoryTaskActive")
+	query := `UPDATE TaskHistory SET RestoredAt = '' WHERE TaskId = ?`
+	res := store.ExecWrapper(db, query, taskID)
+	if res.IsFailure {
+		return apperror.WrapSimple(res.Error, "MarkSSHHistoryTaskActive")
 	}
 
 	return nil
+}
+
+// SSHHistoryRecord represents a summarized history entry for CLI display.
+type SSHHistoryRecord struct {
+	TaskId     string
+	Action     string
+	Target     string
+	Status     string
+	RestoredAt string
+	CreatedAt  string
+}
+
+// ListSSHHistoryTasks queries SSH tasks from TaskHistory with limit and offset.
+func ListSSHHistoryTasks(ctx context.Context, limit, offset int) ([]SSHHistoryRecord, error) {
+	db, err := openSSHHistoryDB()
+	if err != nil {
+		return nil, err
+	}
+	defer db.Close()
+
+	query := `SELECT TaskId, Action, Target, Status, RestoredAt, CreatedAt 
+		FROM TaskHistory 
+		WHERE Section = 'ssh' 
+		ORDER BY TaskHistoryId DESC 
+		LIMIT ? OFFSET ?`
+	rows, errQuery := db.QueryContext(ctx, query, limit, offset)
+	if errQuery != nil {
+		return nil, apperror.WrapSimple(errQuery, "ListSSHHistoryTasks.Query")
+	}
+	defer rows.Close()
+
+	var results []SSHHistoryRecord
+	for rows.Next() {
+		var rec SSHHistoryRecord
+		if errScan := rows.Scan(&rec.TaskId, &rec.Action, &rec.Target, &rec.Status, &rec.RestoredAt, &rec.CreatedAt); errScan == nil {
+			results = append(results, rec)
+		}
+	}
+
+	return results, nil
 }

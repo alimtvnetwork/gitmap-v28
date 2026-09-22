@@ -102,7 +102,7 @@ func findWinMerge() (CompareTool, error) {
 
 	for _, candidate := range candidates {
 		if path, isFound := lookExecutable(candidate); isFound {
-			return CompareTool{Name: constants.CompareToolWinMerge, Path: path}, true
+			return CompareTool{Name: constants.CompareToolWinMerge, Path: path}, nil
 		}
 	}
 

@@ -17,9 +17,9 @@ func runRepoCommand(args []string) error {
 	switch subcmd {
 	case "db":
 		return runRepoDB(args[1:])
-	case "create", "new", "c":
+	case "create", "new", "c", "repo-create", "create-repo", "repoc", "crepo":
 		return runCreate(args[1:])
-	case "create-local", "local", "clr":
+	case "create-local", "local", "clr", "create-local-repo", "create-repo-local", "repo-create-local":
 		return runCreateLocal(args[1:])
 	case "help", "-h", "--help":
 		printRepoHelp()

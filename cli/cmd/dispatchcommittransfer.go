@@ -18,8 +18,8 @@ func dispatchCommitTransfer(command string) (bool, error) {
 		return true, runPRList(argsTail())
 	}
 
-	if command == constants.CmdPRIn {
-		return true, runCommitIn(argsTail())
+	if command == constants.CmdPRIn || command == constants.CmdCommitInPR || command == constants.CmdCommitInPRA {
+		return true, runCommitIn(append([]string{"--pr=feature-per-commit"}, argsTail()...))
 	}
 
 	spec, ok := commitTransferSpecFor(command)

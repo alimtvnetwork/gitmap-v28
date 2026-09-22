@@ -57,14 +57,14 @@ func initSectionTasksConn(conn *sql.DB, section, dbPath string) (*SectionTasksDB
 
 // InitSchema creates standard task queue and task history tables for the section.
 func (s *SectionTasksDB) InitSchema() error {
-	_, errQueue := s.conn.Exec(sqlCreateTaskQueue)
-	if errQueue != nil {
-		return apperror.WrapSimple(errQueue, "section_tasks.initTaskQueue")
+	resQueue := ExecWrapper(s.conn, sqlCreateTaskQueue)
+	if resQueue.IsFailure {
+		return apperror.WrapSimple(resQueue.Error, "section_tasks.initTaskQueue")
 	}
 
-	_, errHist := s.conn.Exec(sqlCreateTaskHistory)
-	if errHist != nil {
-		return apperror.WrapSimple(errHist, "section_tasks.initTaskHistory")
+	resHist := ExecWrapper(s.conn, sqlCreateTaskHistory)
+	if resHist.IsFailure {
+		return apperror.WrapSimple(resHist.Error, "section_tasks.initTaskHistory")
 	}
 
 	return nil

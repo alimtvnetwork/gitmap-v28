@@ -1,6 +1,7 @@
 package cmdssh
 
 import (
+	"bytes"
 	"context"
 	"fmt"
 	"io"
@@ -88,17 +89,37 @@ func attachAskPass(cmd *exec.Cmd, password string) func() {
 	return cleanup
 }
 
-func SpawnSSHWithPassword(ctx context.Context, target SSHTarget, args []string, password string) error {
-	autoTrustTargetHost(ctx, &target)
+func handleHostKeyRecovery(ctx context.Context, target *SSHTarget, errStr string) {
+	fmt.Fprintf(os.Stderr, "\n[ssh] Detected changed host key for %s. Auto-pruning stale host key and re-trusting...\n", target.IP)
+	if offPath, lineNum, hasLine := ParseOffendingKnownHostsLine(errStr); hasLine {
+		_ = RemoveKnownHostsLine(offPath, lineNum)
+	}
+	_ = PruneHostFromKnownHosts(target.IP, target.Port)
+	autoTrustTargetHost(ctx, target)
+}
+
+func runSSHOnce(ctx context.Context, target SSHTarget, args []string, password string) (error, string) {
 	cmdArgs := buildSSHArgs(target, args)
 	cmd := SSHExecutor(ctx, "ssh", cmdArgs...)
 	cleanup := attachAskPass(cmd, password)
 	defer cleanup()
 	cmd.Stdin = os.Stdin
 	cmd.Stdout = os.Stdout
-	cmd.Stderr = os.Stderr
+	var errBuf bytes.Buffer
+	cmd.Stderr = io.MultiWriter(os.Stderr, &errBuf)
+	err := executeClientCmd(cmd, "SpawnSSH", map[string]any{"target": target.String(), "args": args})
+	return err, errBuf.String()
+}
 
-	return executeClientCmd(cmd, "SpawnSSH", map[string]any{"target": target.String(), "args": args})
+func SpawnSSHWithPassword(ctx context.Context, target SSHTarget, args []string, password string) error {
+	autoTrustTargetHost(ctx, &target)
+	err, errStr := runSSHOnce(ctx, target, args, password)
+	if err == nil || !isHostKeyChangedError(errStr) {
+		return err
+	}
+	handleHostKeyRecovery(ctx, &target, errStr)
+	retryErr, _ := runSSHOnce(ctx, target, args, password)
+	return retryErr
 }
 
 func SpawnSSH(ctx context.Context, target SSHTarget, args []string) error {
@@ -111,9 +132,13 @@ func PromptSSHPassword(ctx context.Context, prompt string, fd int) (string, erro
 	fmt.Println()
 	if err != nil {
 		return "", &apperror.AppError{
-			Op:    "PromptSSHPassword",
-			Code:  "E_INTERNAL_ERROR",
-			Cause: err,
+			Op:       "PromptSSHPassword",
+			Code:     "E_INTERNAL_ERROR",
+			Type:     apperror.ErrorTypeExecution,
+			Severity: apperror.SeverityError,
+			Caller:   apperror.CaptureCaller(apperror.DefaultCallerSkip),
+			Stack:    apperror.CaptureStackTrace(apperror.DefaultStackTraceSkip),
+			Cause:    err,
 		}
 	}
 

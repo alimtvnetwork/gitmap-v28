@@ -461,44 +461,6 @@ func runAgyQueuePop() error {
 	return nil
 }
 
-func runAgyPrompt(args []string) error {
-	if len(args) == 0 {
-		return apperror.NewSimple("requires prompt text: gitmap agy prompt [slug/id/path] [prompt-text]", "E9010")
-	}
-
-	target, promptText := parseAgyPromptArgs(args)
-	if len(promptText) == 0 {
-		return apperror.NewSimple("prompt text cannot be empty", "E9011")
-	}
-
-	res := InjectAgyPrompt(target, promptText, "User Prompt", "user_prompt", false)
-	renderInjectionFeedback(res, false)
-
-	return nil
-}
-
-func parseAgyPromptArgs(args []string) (string, string) {
-	if len(args) == 1 {
-		return "", args[0]
-	}
-
-	if isAgyOpenPathArg(args[0]) || isKnownProjectSlug(args[0]) {
-		return args[0], strings.Join(args[1:], " ")
-	}
-
-	return "", strings.Join(args, " ")
-}
-
-func isKnownProjectSlug(slug string) bool {
-	dirPath, err := getProjectsDirPath()
-	if err != nil {
-		return false
-	}
-	pPath := filepath.Join(dirPath, slug+".json")
-
-	return checkFileExists(pPath)
-}
-
 func runAgyStatusWithQueue() error {
 	cwd, _ := os.Getwd()
 	ideProc := DetectRunningAntigravityIDE()

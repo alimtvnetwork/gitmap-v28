@@ -179,6 +179,8 @@ func autoTrustTargetHost(ctx context.Context, target *SSHTarget) {
 		return
 	}
 
+	_ = PruneHostFromKnownHosts(target.IP, target.Port)
+
 	addr := resolveTargetAddr(target)
 	dbConn, err := openSSHDBFunc()
 	if err != nil {

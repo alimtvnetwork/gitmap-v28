@@ -36,21 +36,33 @@ func parseTemplateData(data []byte) ([]PromptTemplate, error) {
 		return nil, apperror.WrapSimple(err, "parse prompt templates JSON")
 	}
 
-	return ensureIsDonePresent(list), nil
+	return ensureDefaultTemplatesPresent(list), nil
 }
 
-func ensureIsDonePresent(list []PromptTemplate) []PromptTemplate {
+func ensureDefaultTemplatesPresent(list []PromptTemplate) []PromptTemplate {
+	hasIsDone := false
+	hasReadAll := false
 	for _, item := range list {
 		if item.ID == DefaultTemplateID || item.Name == DefaultTemplateID {
-			return list
+			hasIsDone = true
+		}
+		if item.ID == TemplateIDReadAll || item.Name == TemplateIDReadAll || item.Name == "read" {
+			hasReadAll = true
 		}
 	}
 
-	return append([]PromptTemplate{BuildDefaultTemplate()}, list...)
+	if !hasReadAll {
+		list = append([]PromptTemplate{BuildReadAllTemplate()}, list...)
+	}
+	if !hasIsDone {
+		list = append([]PromptTemplate{BuildDefaultTemplate()}, list...)
+	}
+
+	return list
 }
 
 func initDefaultStore(filePath string) ([]PromptTemplate, error) {
-	defaultList := []PromptTemplate{BuildDefaultTemplate()}
+	defaultList := []PromptTemplate{BuildReadAllTemplate(), BuildDefaultTemplate()}
 	if err := SaveTemplates(defaultList); err != nil {
 		return defaultList, err
 	}

@@ -3,7 +3,6 @@ package cmdpipeline
 import (
 	"database/sql"
 	"fmt"
-	"math"
 	"os"
 	"time"
 
@@ -156,12 +155,4 @@ func insertSinglePipelineTask(conn *sql.DB, repo string, r ghRunItem) {
 		(TaskId, Section, Action, Target, ForwardPayload, InversePayload, Status) 
 		VALUES (?, 'pipeline', ?, ?, ?, '', 'completed')`
 	_ = store.ExecWrapper(conn, sqlQuery, taskId, action, target, fwd)
-}
-
-func safeUint64ToInt64(val uint64) int64 {
-	if val > math.MaxInt64 {
-		return math.MaxInt64
-	}
-
-	return int64(val)
 }

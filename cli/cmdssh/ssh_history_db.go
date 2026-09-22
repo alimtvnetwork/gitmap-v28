@@ -16,54 +16,13 @@ import (
 	_ "modernc.org/sqlite"
 )
 
-const (
-	sqlCreateSSHHistory = `CREATE TABLE IF NOT EXISTS ssh_task_history (
-	task_id TEXT PRIMARY KEY,
-	action TEXT NOT NULL,
-	target TEXT NOT NULL,
-	payload_json TEXT NOT NULL,
-	forward_payload TEXT NOT NULL DEFAULT '',
-	inverse_payload TEXT NOT NULL DEFAULT '',
-	created_at TEXT NOT NULL,
-	restored_at TEXT DEFAULT ''
-);`
-
-	sqlCreateSSHTaskQueue = `CREATE TABLE IF NOT EXISTS ssh_task_queue (
-	task_id TEXT PRIMARY KEY,
-	action TEXT NOT NULL,
-	target TEXT NOT NULL,
-	forward_payload TEXT NOT NULL DEFAULT '',
-	inverse_payload TEXT NOT NULL DEFAULT '',
-	status TEXT NOT NULL DEFAULT 'pending',
-	created_at TEXT NOT NULL,
-	updated_at TEXT NOT NULL
-);`
-)
-
-func initSSHHistorySchema(conn *sql.DB) error {
-	errCfg := store.ConfigureSQLiteConn(conn)
-	if errCfg != nil {
-		return apperror.WrapSimple(errCfg, "openSSHHistoryDB.configure")
+func migrateLegacySSHHistoryFile(targetPath string) {
+	legacyPath := store.ResolveSplitDbPath("history", "task", "")
+	fi, errStat := os.Stat(legacyPath)
+	isLegacyPresent := errStat == nil && !fi.IsDir()
+	if isLegacyPresent {
+		copyLegacyFile(legacyPath, targetPath)
 	}
-
-	resHist := store.ExecWrapper(conn, sqlCreateSSHHistory)
-	if resHist.IsFailure {
-		return apperror.WrapSimple(resHist.Error, "initSSHHistorySchema.createHistory")
-	}
-
-	resQueue := store.ExecWrapper(conn, sqlCreateSSHTaskQueue)
-	if resQueue.IsFailure {
-		return apperror.WrapSimple(resQueue.Error, "initSSHHistorySchema.createQueue")
-	}
-
-	execSafeColumnAdd(conn, `ALTER TABLE ssh_task_history ADD COLUMN forward_payload TEXT NOT NULL DEFAULT ''`)
-	execSafeColumnAdd(conn, `ALTER TABLE ssh_task_history ADD COLUMN inverse_payload TEXT NOT NULL DEFAULT ''`)
-
-	return nil
-}
-
-func execSafeColumnAdd(conn *sql.DB, query string) {
-	_ = store.ExecWrapper(conn, query) // lint-allow: ignore-db-error reason="column may already exist in table schema"
 }
 
 func copyLegacyFile(src, dst string) {
@@ -82,15 +41,6 @@ func copyLegacyFile(src, dst string) {
 	_, _ = io.Copy(d, s)
 }
 
-func migrateLegacySSHHistoryFile(targetPath string) {
-	legacyPath := store.ResolveSplitDbPath("history", "task", "")
-	fi, errStat := os.Stat(legacyPath)
-	isLegacyPresent := errStat == nil && !fi.IsDir()
-	if isLegacyPresent {
-		copyLegacyFile(legacyPath, targetPath)
-	}
-}
-
 func resolveSSHHistoryDBPath() string {
 	targetPath := store.ResolveSectionTasksDbPath("ssh", "")
 	fi, errStat := os.Stat(targetPath)
@@ -103,19 +53,38 @@ func resolveSSHHistoryDBPath() string {
 }
 
 func openSSHHistoryDB() (*sql.DB, error) {
-	dbPath := resolveSSHHistoryDBPath()
-	conn, err := sql.Open("sqlite", dbPath)
+	_ = resolveSSHHistoryDBPath()
+	secDB, err := store.OpenSectionTasksDB("ssh", "")
 	if err != nil {
-		return nil, apperror.WrapSimple(err, "openSSHHistoryDB")
+		return nil, apperror.WrapSimple(err, "openSSHHistoryDB.OpenSectionTasksDB")
 	}
 
-	errInit := initSSHHistorySchema(conn)
-	if errInit != nil {
-		_ = conn.Close()
-		return nil, errInit
-	}
+	conn := secDB.Conn()
+	migrateLegacySSHHistoryTables(conn)
 
 	return conn, nil
+}
+
+func migrateLegacySSHHistoryTables(conn *sql.DB) {
+	if checkTableExists(conn, "ssh_task_history") {
+		_ = store.ExecWrapper(conn, `INSERT OR IGNORE INTO TaskHistory 
+			(TaskId, Section, Action, Target, ForwardPayload, InversePayload, RestoredAt, CreatedAt)
+			SELECT task_id, 'ssh', action, target, forward_payload, inverse_payload, COALESCE(restored_at, ''), created_at 
+			FROM ssh_task_history;`)
+	}
+	if checkTableExists(conn, "ssh_task_queue") {
+		_ = store.ExecWrapper(conn, `INSERT OR IGNORE INTO TaskQueue 
+			(QueueId, Section, Action, Target, ForwardPayload, InversePayload, Status, CreatedAt, UpdatedAt)
+			SELECT task_id, 'ssh', action, target, forward_payload, inverse_payload, status, created_at, updated_at 
+			FROM ssh_task_queue;`)
+	}
+}
+
+func checkTableExists(conn *sql.DB, tableName string) bool {
+	query := `SELECT 1 FROM sqlite_master WHERE type='table' AND name=? LIMIT 1`
+	row := conn.QueryRow(query, tableName)
+	var dummy int
+	return row.Scan(&dummy) == nil
 }
 
 // SnapshotSSHNodesBeforeRemoval stores nodes prior to deletion for undo support.
@@ -142,8 +111,8 @@ func insertHistorySnapshot(ctx context.Context, db *sql.DB, action, target strin
 
 	taskID := fmt.Sprintf("task-%d", time.Now().UnixNano())
 	createdAt := time.Now().UTC().Format(time.RFC3339)
-	query := `INSERT INTO ssh_task_history (task_id, action, target, payload_json, forward_payload, inverse_payload, created_at) VALUES (?, ?, ?, ?, ?, ?, ?)`
-	res := store.ExecWrapper(db, query, taskID, action, target, string(payload), target, string(payload), createdAt)
+	query := `INSERT INTO TaskHistory (TaskId, Section, Action, Target, ForwardPayload, InversePayload, CreatedAt) VALUES (?, 'ssh', ?, ?, ?, ?, ?)`
+	res := store.ExecWrapper(db, query, taskID, action, target, target, string(payload), createdAt)
 	if res.IsFailure {
 		return "", apperror.WrapSimple(res.Error, "insertHistorySnapshot.Exec")
 	}
@@ -163,7 +132,7 @@ func recordSSHTaskToRootTasksDB(taskID, action, target, fwd, inv string) {
 		(TaskId, Section, Action, Target, ForwardPayload, InversePayload, Status) 
 		VALUES (?, 'ssh', ?, ?, ?, ?, 'completed')`
 	res := store.ExecWrapper(rdb.Conn(), sqlQuery, taskID, action, target, fwd, inv)
-	_ = res.Destruct() // lint-allow: ignore-db-error reason="optional cross-split sync"
+	_, _ = res.Destruct() // lint-allow: ignore-db-error reason="optional cross-split sync"
 }
 
 // EnqueueSSHTask wraps an SSH operation into the task queue with forward and inverse payloads.
@@ -191,7 +160,7 @@ func EnqueueSSHTask(ctx context.Context, action, target, forwardPayload, inverse
 }
 
 func insertSSHTaskQueue(db *sql.DB, taskID, action, target, forward, inverse, now string) error {
-	queryQueue := `INSERT INTO ssh_task_queue (task_id, action, target, forward_payload, inverse_payload, status, created_at, updated_at) VALUES (?, ?, ?, ?, ?, 'pending', ?, ?)`
+	queryQueue := `INSERT INTO TaskQueue (QueueId, Section, Action, Target, ForwardPayload, InversePayload, Status, CreatedAt, UpdatedAt) VALUES (?, 'ssh', ?, ?, ?, ?, 'pending', ?, ?)`
 	resQueue := store.ExecWrapper(db, queryQueue, taskID, action, target, forward, inverse, now, now)
 	if resQueue.IsFailure {
 		return apperror.WrapSimple(resQueue.Error, "EnqueueSSHTask.queue")
@@ -200,8 +169,8 @@ func insertSSHTaskQueue(db *sql.DB, taskID, action, target, forward, inverse, no
 }
 
 func insertSSHHistoryEntry(db *sql.DB, taskID, action, target, forward, inverse, now string) error {
-	queryHist := `INSERT INTO ssh_task_history (task_id, action, target, payload_json, forward_payload, inverse_payload, created_at) VALUES (?, ?, ?, ?, ?, ?, ?)`
-	resHist := store.ExecWrapper(db, queryHist, taskID, action, target, inverse, forward, inverse, now)
+	queryHist := `INSERT INTO TaskHistory (TaskId, Section, Action, Target, ForwardPayload, InversePayload, CreatedAt) VALUES (?, 'ssh', ?, ?, ?, ?, ?)`
+	resHist := store.ExecWrapper(db, queryHist, taskID, action, target, forward, inverse, now)
 	if resHist.IsFailure {
 		return apperror.WrapSimple(resHist.Error, "EnqueueSSHTask.hist")
 	}

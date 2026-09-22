@@ -121,7 +121,7 @@ func TrustRemoteTarget(ctx context.Context, target string, explicitKey string, d
 func persistTrustedHost(ctx context.Context, kh store.SSHKnownHost, db *sql.DB) (*store.SSHKnownHost, error) {
 	path, _ := DefaultKnownHostsPath()
 	if path != "" {
-		_, _ = RemoveFromKnownHostsFile(path, kh.Host)
+		_ = PruneHostFromKnownHosts(kh.Host, 0)
 		_ = AppendKnownHostFile(path, kh.Host, kh.KeyType, kh.PublicKey)
 	}
 	if db != nil {

@@ -232,10 +232,12 @@ func appendStepFallbackLogs(sb *strings.Builder, j ghJobItem) bool {
 	return hasFailedStep
 }
 
+//nolint:misspell // GitHub Actions API uses British spelling "cancelled"
 func isJobFailingOrCancelled(j ghJobItem) bool {
 	return j.Conclusion == "failure" || j.Conclusion == "cancelled" || j.Conclusion == "timed_out" || j.Conclusion == "startup_failure"
 }
 
+//nolint:misspell // GitHub Actions API uses British spelling "cancelled"
 func formatConclusionTag(conclusion string) string {
 	if conclusion == "cancelled" {
 		return "CANCELLED"

@@ -13,7 +13,7 @@ func AgentAPISendMessage(convID, title, content string) result.Result[string] {
 	args := buildSendMessageArgs(convID, title, content)
 	rawRes := executeAgentAPICmd(args)
 	if rawRes.IsFailure() {
-		return result.Fail[string](rawRes.Error)
+		return result.Fail[string](rawRes.Err)
 	}
 
 	return parseSendMessageResponse(rawRes.Value)
@@ -52,7 +52,7 @@ func AgentAPINewConversation(title, prompt string) result.Result[string] {
 	args := buildNewConvArgs(title, prompt)
 	rawRes := executeAgentAPICmd(args)
 	if rawRes.IsFailure() {
-		return result.Fail[string](rawRes.Error)
+		return result.Fail[string](rawRes.Err)
 	}
 
 	return parseNewConversationResponse(rawRes.Value)

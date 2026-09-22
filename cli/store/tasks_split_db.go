@@ -99,9 +99,9 @@ func initTasksSchema(conn *sql.DB) error {
 		sqlCreateTaskHistory,
 	}
 	for _, stmt := range statements {
-		_, execErr := conn.Exec(stmt)
-		if execErr != nil {
-			return apperror.WrapSimple(execErr, "init tasks root schema")
+		res := ExecWrapper(conn, stmt)
+		if res.IsFailure {
+			return apperror.WrapSimple(res.Error, "init tasks root schema")
 		}
 	}
 	return nil

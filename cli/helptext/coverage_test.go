@@ -181,4 +181,8 @@ var helptextExemptConstants = []string{
 	"CmdServerCmds",
 	// `improt-config` is a typo alias of `import-config` — covered by import-config.md.
 	"CmdImportConfigTypo",
+	// Repository creation aliases — covered by repo-create.md.
+	"CmdCreateRepo", "CmdCreateLocalRepo", "CmdCreateRepoLocal", "CmdRepoCreateLocal",
+	// Commit transfer and PR aliases — covered by commit-left.md / commit-right.md / commit-in.md.
+	"CmdCommitLeftPR", "CmdCommitRightPR", "CmdCommitInPR",
 }

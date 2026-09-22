@@ -1,6 +1,7 @@
 package cmdssh
 
 import (
+	"context"
 	"os"
 	"strings"
 	"testing"
@@ -59,7 +60,7 @@ func TestFormatDisplayPublicKey_Unmasked(t *testing.T) {
 }
 
 func TestDispatchNodeSSH_Add(t *testing.T) {
-	res := dispatchNodeSSH(nil, "add", []string{"invalid-target"}, nil)
+	res := dispatchNodeSSH(context.Background(), "add", []string{"invalid-target"}, nil)
 	if !res.IsMatched() {
 		t.Errorf("expected 'add' subcommand to match in dispatchNodeSSH")
 	}

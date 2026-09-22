@@ -113,8 +113,9 @@ func initSearchSchema(conn *sql.DB) error {
 		sqlCreateSearchLogView,
 	}
 	for _, stmt := range statements {
-		if _, err := conn.Exec(stmt); err != nil {
-			return apperror.WrapSimple(err, "search_split.initSchema")
+		res := ExecWrapper(conn, stmt)
+		if res.IsFailure {
+			return apperror.WrapSimple(res.Error, "search_split.initSchema")
 		}
 	}
 	return nil
@@ -166,9 +167,9 @@ func (db *SearchSplitDB) RecordSearchQuery(
 		CategoryCode, QueryText, RegexPattern, SearchType,
 		CallerIp, IsAiCaller, DurationMs, ResultCount
 	) VALUES (?, ?, ?, ?, ?, ?, ?, ?)`
-	_, err := db.conn.Exec(q, cat, queryText, regexPattern, searchType, callerIp, aiVal, durationMs, resultCount)
-	if err != nil {
-		return apperror.WrapSimple(err, "search_split.record_query")
+	res := ExecWrapper(db.conn, q, cat, queryText, regexPattern, searchType, callerIp, aiVal, durationMs, resultCount)
+	if res.IsFailure {
+		return apperror.WrapSimple(res.Error, "search_split.record_query")
 	}
 	return nil
 }

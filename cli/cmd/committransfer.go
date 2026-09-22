@@ -22,6 +22,7 @@ import (
 type commitTransferSpec struct {
 	Name      string // e.g. constants.CmdCommitLeft
 	LogPrefix string // e.g. constants.LogPrefixCommitLeft
+	IsPR      bool   // when true, PR branch creation is activated
 }
 
 // runCommitTransfer is the single entry point for commit-left,
@@ -199,6 +200,10 @@ func parseCommitTransferArgs(spec commitTransferSpec, args []string,
 	registerCommitTransferStrings(fs, &opts)
 	fs.Parse(reorderFlagsBeforeArgs(args))
 
+	if spec.IsPR && opts.PRMode == "" {
+		opts.PRMode = "all"
+	}
+
 	return opts, fs.Args()
 }
 
@@ -277,9 +282,19 @@ func commitTransferSpecFor(command string) (commitTransferSpec, bool) {
 		return commitTransferSpec{
 			Name: constants.CmdCommitLeft, LogPrefix: constants.LogPrefixCommitLeft,
 		}, true
+	case constants.CmdCommitLeftPR, constants.CmdCommitLeftPRA, constants.CmdPRLeft:
+		return commitTransferSpec{
+			Name: constants.CmdCommitLeft, LogPrefix: "[commit-left-pr]",
+			IsPR: true,
+		}, true
 	case constants.CmdCommitRight, constants.CmdCommitRightA:
 		return commitTransferSpec{
 			Name: constants.CmdCommitRight, LogPrefix: constants.LogPrefixCommitRight,
+		}, true
+	case constants.CmdCommitRightPR, constants.CmdCommitRightPRA, constants.CmdPRRight:
+		return commitTransferSpec{
+			Name: constants.CmdCommitRight, LogPrefix: "[commit-right-pr]",
+			IsPR: true,
 		}, true
 	case constants.CmdCommitBoth, constants.CmdCommitBothA:
 		return commitTransferSpec{

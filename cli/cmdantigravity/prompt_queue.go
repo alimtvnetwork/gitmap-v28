@@ -169,6 +169,9 @@ func AutoRegisterRepoInAgy(repoRoot string) error {
 		return nil
 	}
 
+	return apperror.NewSimple("failed to auto-register project in Antigravity", "E9012")
+}
+
 // PromptDispatcherFunc dispatches a prompt to Antigravity and returns feedback message and success status.
 type PromptDispatcherFunc func(repoRoot, promptPath, title, content string) (string, bool)
 
@@ -298,16 +301,6 @@ func enqueueDualPrompts(repoRoot, templateName, assembledPrompt string) error {
 	return savePromptQueueFile(queuePath, q)
 }
 
-func enqueueSinglePrompt(repoRoot, pType, title, promptText string) error {
-	queuePath := resolvePromptQueuePath(repoRoot)
-	q := loadPromptQueueFile(queuePath)
-	now := time.Now().UTC().Format(time.RFC3339)
-	entry := makeQueueEntry(computeNextID(q), pType, title, promptText, now)
-	q = appendSingleEntry(q, entry)
-
-	return savePromptQueueFile(queuePath, q)
-}
-
 func makeQueueEntry(id int, pType, title, text, now string) PromptQueueEntry {
 	return PromptQueueEntry{
 		ID:        id,
@@ -328,18 +321,6 @@ func appendDualEntries(q PromptQueueFile, e1, e2 PromptQueueEntry) PromptQueueFi
 	}
 	q.Active = &e1
 	q.Queued = append(q.Queued, e2)
-
-	return q
-}
-
-func appendSingleEntry(q PromptQueueFile, e PromptQueueEntry) PromptQueueFile {
-	hasActive := q.Active != nil
-	if hasActive {
-		q.Queued = append(q.Queued, e)
-
-		return q
-	}
-	q.Active = &e
 
 	return q
 }

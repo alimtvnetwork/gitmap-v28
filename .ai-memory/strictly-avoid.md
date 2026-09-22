@@ -2,6 +2,24 @@
 
 Items in this file MUST NEVER be suggested, recommended, asked about, or built again.
 
+## Bare `gitmap ssh` Public Key Display & Clipboard Copying — TOTAL BAN ON REMOVAL / SUPPRESSION
+
+🔴 **NEVER remove, suppress, hide, or alter the public key display and OS clipboard copy behavior on bare `gitmap ssh`.**
+
+When `gitmap ssh` is executed without arguments:
+- ✅ MUST print the full public key string to stdout (`  ssh-...`).
+- ✅ MUST copy the public key to the OS clipboard (`[clip] Public key copied to clipboard...`).
+- ✅ MUST display the available SSH subcommands list.
+
+Forbidden:
+- ❌ Suppressing or truncating the full public key output when running bare `gitmap ssh`.
+- ❌ Removing the clipboard copy step or making it require an explicit flag like `--copy`.
+- ❌ Replacing bare `gitmap ssh` with only a help screen without the key display.
+
+**Why:** User explicitly mandated: "when I just type gitmap SSH, it should show the full SSH of the key and copy it to the clipboard, which was the previous feature. You removed it. Never do that. Write it to your memory as a strictly avoid."
+
+---
+
 ## 02-spec/19-main-worker-service implementation — TOTAL BAN
 
 🔴 **NEVER write, scaffold, propose, or suggest implementation code for `02-spec/19-main-worker-service/` (the Main-Worker Service).**

@@ -31,8 +31,22 @@ func (db *DB) SyncKnownSplitDatabases() error {
 	db.syncPipelineDBs()
 	db.syncAiInstructionDB()
 	db.syncSearchDB()
+	db.syncSectionTasksDBs()
 
 	return nil
+}
+
+func (db *DB) syncSectionTasksDBs() {
+	sections := []string{"ssh", "pipeline", "automation", "sites", "installation", "schedule", "startup"}
+	for _, sec := range sections {
+		path := ResolveSectionTasksDbPath(sec, "")
+		if !isFileExisting(path) {
+			continue
+		}
+		desc := fmt.Sprintf("%s section-scoped tasks split database", strings.ToUpper(sec))
+		entry := inspectSplitDBFile("section-tasks", sec+"_tasks", path, desc)
+		_ = db.RegisterSplitDB(entry)
+	}
 }
 
 func (db *DB) syncAiInstructionDB() {

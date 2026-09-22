@@ -41,6 +41,9 @@ By default, prefixes template with 2 newlines before text (--prefix). Use --suff
 
 func init() {
 	initPromptProjectFlags(PromptProjectCmd)
+	PromptProjectCmd.SetHelpFunc(func(c *cobra.Command, args []string) {
+		_ = PrintAgyPromptHelp()
+	})
 }
 
 func initPromptProjectFlags(cmd *cobra.Command) {

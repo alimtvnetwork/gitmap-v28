@@ -150,17 +150,6 @@ func dispatchPullExecution(opts pullOptions) error {
 	return runPullBatch(opts)
 }
 
-func handleTransportPull(args []string) bool {
-	useSSH, useHTTPS, rest := ExtractTransportFlags(args)
-	if useSSH || useHTTPS {
-		runPullCWDWithTransport(useSSH, useHTTPS, rest)
-
-		return true
-	}
-
-	return false
-}
-
 func runPullBatch(opts pullOptions) error {
 	records, isFound := resolvePullBatchRecords(opts)
 	if !isFound {

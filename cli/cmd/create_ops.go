@@ -64,8 +64,18 @@ func EnsureOrProvisionDestinationRepo(rawTarget string, isLocal bool) (string, e
 func provisionMissingDestination(rawTarget, abs string, isLocal bool) (string, error) {
 	name := filepath.Base(rawTarget)
 	slug := SlugifyRepoName(name)
+	targetDir := abs
+	if !isPathLike(rawTarget) {
+		targetDir = filepath.Join(".", slug)
+	}
+	absTarget, _ := filepath.Abs(targetDir)
+
+	if info, err := os.Stat(absTarget); err == nil && info.IsDir() {
+		return absTarget, nil
+	}
+
 	params := createRepoParams{
-		Name: name, Slug: slug, LocalDir: abs,
+		Name: name, Slug: slug, LocalDir: absTarget,
 		Description:  "Provisioned by GitMap replay engine",
 		IsSkipRemote: isLocal,
 	}
@@ -76,7 +86,7 @@ func provisionMissingDestination(rawTarget, abs string, isLocal bool) (string, e
 
 	tryPushRemoteProvisioned(params)
 
-	return abs, nil
+	return absTarget, nil
 }
 
 func tryPushRemoteProvisioned(p createRepoParams) {

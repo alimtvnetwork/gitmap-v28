@@ -53,8 +53,22 @@ func runFileSearch(args []string) error {
 	results := executeLineSearch(content, rx, filePath, absPath, contextBefore, contextAfter)
 	printFileSearchResults(results)
 	updateFileSearchCache(ctx, db, cacheKey, results)
+	logFileSearchQuery(pattern, len(results))
 
 	return nil
+}
+
+func logFileSearchQuery(pattern string, count int) {
+	_ = searcher.LogSearchQuery(searcher.SearchLogEntry{
+		CategoryCode: "user",
+		QueryText:    pattern,
+		RegexPattern: pattern,
+		SearchType:   "regex",
+		CallerIp:     "127.0.0.1",
+		IsAiCaller:   false,
+		DurationMs:   0,
+		ResultCount:  count,
+	})
 }
 
 func parseContextCounts(args []string) (int, int) {

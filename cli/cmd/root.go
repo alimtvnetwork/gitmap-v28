@@ -176,19 +176,21 @@ func handleGlobalError(command string, err error) {
 
 	cliexit.Reportf(command, "execute", "", err)
 
-	if isAppErr && isPrintableStackTrace(appErr) {
-		fmt.Fprintf(os.Stderr, "Stack Trace:%s\n", appErr.Stack)
+	stack := resolveErrorStackTrace(err)
+	if stack != "" {
+		fmt.Fprintf(os.Stderr, "Stack Trace:%s\n", stack)
 	}
 
 	cliexit.HandleError(nil, 1)
 }
 
-func isPrintableStackTrace(appErr *apperror.AppError) bool {
-	if appErr == nil || appErr.Stack == "" {
-		return false
+func resolveErrorStackTrace(err error) string {
+	appErr, isAppErr := err.(*apperror.AppError)
+	if isAppErr && appErr != nil && appErr.Stack != "" {
+		return appErr.Stack
 	}
 
-	return appErr.Type != apperror.ErrorTypeValidation && appErr.Type != apperror.ErrorTypeNotFound
+	return apperror.CaptureStackTrace(2)
 }
 
 func getValidationErrorMessage(appErr *apperror.AppError) string {

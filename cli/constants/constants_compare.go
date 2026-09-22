@@ -4,7 +4,7 @@ package constants
 // Compare command identifiers and defaults.
 const (
 	CmdCompare      = "compare"
-	CmdCompareAlias = "cmp"
+	CmdCompareAlias = "comp"
 )
 
 // Compare tool executable identifiers.

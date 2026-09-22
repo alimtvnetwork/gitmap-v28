@@ -3,7 +3,6 @@ package cmdssh
 import (
 	"context"
 	"fmt"
-	"os"
 
 	"github.com/alimtvnetwork/gitmap-v28/cli/apperror"
 	"github.com/alimtvnetwork/gitmap-v28/cli/constants"

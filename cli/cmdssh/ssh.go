@@ -70,6 +70,8 @@ func dispatchBasicCoreSSH(ctx context.Context, sub string, args []string, parent
 
 func dispatchHistorySSH(sub string, args []string) result.ErrorWrapper {
 	switch sub {
+	case "history", "hist":
+		return result.MatchWrapper(RunSSHHistoryCLI(args))
 	case "reset":
 		return result.MatchWrapper(RunSSHResetCLI(args))
 	case "undo":

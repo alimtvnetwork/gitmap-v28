@@ -112,14 +112,13 @@ PowerShell: `Invoke-WebRequest -Uri https://raw.githubusercontent.com/alimtvnetw
 
 ### Added / Changed / Fixed / Removed
 
-- Fixed SSH join routing: routed 'add' subcommand to RunSSHJoinCLI to support 'gitmap ssh add <user@ip> <alias>'
-- Restored unmasked public key display: formatDisplayPublicKey unconditionally outputs full key, and printExistingKeyOnDisk copies to OS clipboard
-- Added Memory Rule: enforced TOTAL BAN in .ai-memory/strictly-avoid.md against public key masking and clipboard omission
-- Fixed Known Hosts verification: auto-purged stale host keys in known_hosts during join and login to prevent 'REMOTE HOST IDENTIFICATION HAS CHANGED'
-- Fixed SSH Password & PAM Auth: supported keyboard-interactive authentication alongside password and enforced auth check before reporting join success
-- Preserved Error Stack Traces: populated Stack and Caller in executeClientCmd and enabled stack trace output on E_INTERNAL_ERROR
-- Fixed SSH node list and removal: used openSSHDBFunc in fetchSJHosts and auto-confirmed removal in non-interactive terminals
-- Documented 4-part Root Cause Analysis in .ai-memory/issues/16-ssh-join-hostkey-and-auth-rca.md
+- Fixed SSH Host Key verification: implemented auto-pruning of stale known_hosts entries (handling hashed entries via ssh-keygen -R and line deletion) to prevent REMOTE HOST IDENTIFICATION HAS CHANGED
+- Added auto-recovery & retry in SpawnSSH: seamlessly auto-prunes stale host keys and re-trusts remote machines upon detecting host key changes
+- Preserved bare gitmap ssh public key display and clipboard copying: strictly enforced TOTAL BAN in .ai-memory/strictly-avoid.md
+- Guaranteed bounded stack traces on all errors: updated global error handler so no error is ever emitted without an informative stack trace
+- Added repository creation commands suite: gitmap repo-create (repoc), gitmap create-repo (crepo), gitmap create-local-repo (clr) with automatic space slugification
+- Enhanced commit transfer & PR workflows: automated destination repository directory provision and GitHub creation in commit-in, commit-left, commit-right, and PR counterparts (cin-pr, cml-pr, cmr-pr)
+- Resolved CI/CD pipeline issues: eliminated constants collision (CmdCompareAlias to "comp"), AST registry discrepancies, unused functions, and staticcheck context warnings across all 35 gates
 """
     # Prepend directly at the top of changelog.md
     lines.insert(0, entry + "\n")
@@ -144,14 +143,13 @@ curl -fsSL https://github.com/alimtvnetwork/gitmap-v28/releases/download/v{new_v
 
 ## Changelog v{new_version}
 
-- Fixed SSH join routing: routed 'add' subcommand to RunSSHJoinCLI to support 'gitmap ssh add <user@ip> <alias>'
-- Restored unmasked public key display: formatDisplayPublicKey unconditionally outputs full key, and printExistingKeyOnDisk copies to OS clipboard
-- Added Memory Rule: enforced TOTAL BAN in .ai-memory/strictly-avoid.md against public key masking and clipboard omission
-- Fixed Known Hosts verification: auto-purged stale host keys in known_hosts during join and login to prevent 'REMOTE HOST IDENTIFICATION HAS CHANGED'
-- Fixed SSH Password & PAM Auth: supported keyboard-interactive authentication alongside password and enforced auth check before reporting join success
-- Preserved Error Stack Traces: populated Stack and Caller in executeClientCmd and enabled stack trace output on E_INTERNAL_ERROR
-- Fixed SSH node list and removal: used openSSHDBFunc in fetchSJHosts and auto-confirmed removal in non-interactive terminals
-- Documented 4-part Root Cause Analysis in .ai-memory/issues/16-ssh-join-hostkey-and-auth-rca.md
+- Fixed SSH Host Key verification: implemented auto-pruning of stale known_hosts entries (handling hashed entries via ssh-keygen -R and line deletion) to prevent REMOTE HOST IDENTIFICATION HAS CHANGED
+- Added auto-recovery & retry in SpawnSSH: seamlessly auto-prunes stale host keys and re-trusts remote machines upon detecting host key changes
+- Preserved bare gitmap ssh public key display and clipboard copying: strictly enforced TOTAL BAN in .ai-memory/strictly-avoid.md
+- Guaranteed bounded stack traces on all errors: updated global error handler so no error is ever emitted without an informative stack trace
+- Added repository creation commands suite: gitmap repo-create (repoc), gitmap create-repo (crepo), gitmap create-local-repo (clr) with automatic space slugification
+- Enhanced commit transfer & PR workflows: automated destination repository directory provision and GitHub creation in commit-in, commit-left, commit-right, and PR counterparts (cin-pr, cml-pr, cmr-pr)
+- Resolved CI/CD pipeline issues: eliminated constants collision (CmdCompareAlias to "comp"), AST registry discrepancies, unused functions, and staticcheck context warnings across all 35 gates
 """
     os.makedirs(os.path.dirname(notes_path), exist_ok=True)
     with open(notes_path, "w", encoding="utf-8") as f:

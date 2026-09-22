@@ -122,8 +122,9 @@ func initAiInstructionSchema(conn *sql.DB) error {
 		sqlCreateAiExecutionView,
 	}
 	for _, stmt := range statements {
-		if _, err := conn.Exec(stmt); err != nil {
-			return apperror.WrapSimple(err, "ai_instruction.initSchema")
+		res := ExecWrapper(conn, stmt)
+		if res.IsFailure {
+			return apperror.WrapSimple(res.Error, "ai_instruction.initSchema")
 		}
 	}
 	return nil
@@ -176,9 +177,9 @@ func (db *AiInstructionSplitDB) RecordAiExecution(
 		CategoryCode, CommandText, ArgsJson, WorkDir, CallerIp,
 		DurationMs, ExitCode, OutputSummary, ErrMsg, IsSuccess
 	) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`
-	_, err := db.conn.Exec(q, cat, commandText, argsJson, workDir, callerIp, durationMs, exitCode, outputSummary, errMsg, successVal)
-	if err != nil {
-		return apperror.WrapSimple(err, "ai_instruction.record_execution")
+	res := ExecWrapper(db.conn, q, cat, commandText, argsJson, workDir, callerIp, durationMs, exitCode, outputSummary, errMsg, successVal)
+	if res.IsFailure {
+		return apperror.WrapSimple(res.Error, "ai_instruction.record_execution")
 	}
 	return nil
 }

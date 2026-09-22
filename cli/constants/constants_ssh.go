@@ -201,7 +201,9 @@ const MsgSSHAvailableCommands = "\n  \033[1;96mAvailable SSH subcommands:\033[0m
 	"    \033[1;97mssh fix-auth\033[0m <target>     \033[2;37mDeploy SSH public key to remote authorized_keys\033[0m\n" +
 	"    \033[1;97mssh rm\033[0m <nodes|keys>        \033[2;37mRemove node(s) or key(s) with confirmation\033[0m\n" +
 	"    \033[1;97mssh reset\033[0m [-y]             \033[2;37mWipe all registered nodes and reset SSH state\033[0m\n" +
+	"    \033[1;97mssh history\033[0m [n] [-offset]  \033[2;37mShow SSH task and join history (default: 100)\033[0m\n" +
 	"    \033[1;97mssh undo\033[0m                  \033[2;37mUndo last destructive node deletion or reset\033[0m\n" +
+	"    \033[1;97mssh redo\033[0m                  \033[2;37mRedo last undone SSH operation\033[0m\n" +
 	"    \033[1;97mssh restore\033[0m <task-id>     \033[2;37mRestore nodes from a specific snapshot ID\033[0m\n\n" +
 	"  \033[1;93mExamples:\033[0m\n" +
 	"    gitmap ssh join alim@192.168.1.14 devbox\n" +

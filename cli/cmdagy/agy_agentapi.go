@@ -1,7 +1,6 @@
 package cmdagy
 
 import (
-	"encoding/json"
 	"os"
 	"os/exec"
 	"path/filepath"
@@ -33,13 +32,13 @@ type rawNewConversationResult struct {
 
 // ResolveAgentAPI finds the agentapi binary or language_server fallback on the system.
 func ResolveAgentAPI() (string, []string, bool) {
-	homePath, homeArgs, hasHome := findAgentAPIFromHome()
-	if hasHome {
-		return homePath, homeArgs, true
-	}
 	installPath, installArgs, hasInstall := findAgentAPIFromInstallDir()
 	if hasInstall {
 		return installPath, installArgs, true
+	}
+	homePath, homeArgs, hasHome := findAgentAPIFromHome()
+	if hasHome {
+		return homePath, homeArgs, true
 	}
 
 	return findAgentAPIFromPath()

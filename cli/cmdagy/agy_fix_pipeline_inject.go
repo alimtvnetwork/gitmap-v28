@@ -35,8 +35,13 @@ func resolveActiveOrZeroPID(ideProcRes result.Result[AgyProcessInfo]) int {
 }
 
 func handleIDEInjection(repoRoot, promptPath string, pid int) AgyInjectionResult {
-	convStatus := DetectConversationExecutionStatus(repoRoot)
 	promptContent := readPromptContentOrDefault(promptPath)
+	dispatchRes := DispatchPromptToAntigravity(repoRoot, promptPath, "Fix CI/CD Pipeline Errors with 4-Part RCA", promptContent, pid)
+	if dispatchRes.IsSuccess {
+		return dispatchRes
+	}
+
+	convStatus := DetectConversationExecutionStatus(repoRoot)
 	isRunning := convStatus == AgyConvStatusRunning
 	if isRunning {
 		_, _ = EnqueuePrompt("pipeline_fix", "Fix CI/CD Pipeline Errors with 4-Part RCA", promptContent)
@@ -44,7 +49,7 @@ func handleIDEInjection(repoRoot, promptPath string, pid int) AgyInjectionResult
 		return makeQueuedSuccessResult(pid, repoRoot, promptPath)
 	}
 
-	return DispatchPromptToAntigravity(repoRoot, promptPath, "Fix CI/CD Pipeline Errors with 4-Part RCA", promptContent, pid)
+	return dispatchRes
 }
 
 // InjectAgyPrompt injects any prompt into active Antigravity IDE or CLI using queue protocol.
@@ -63,6 +68,11 @@ func InjectAgyPrompt(repoDir, promptText, title, promptType string, isSkipInject
 }
 
 func handleIDEInjectionWithPayload(repoRoot, promptPath, promptText, title, promptType string, pid int) AgyInjectionResult {
+	dispatchRes := DispatchPromptToAntigravity(repoRoot, promptPath, title, promptText, pid)
+	if dispatchRes.IsSuccess {
+		return dispatchRes
+	}
+
 	convStatus := DetectConversationExecutionStatus(repoRoot)
 	isRunning := convStatus == AgyConvStatusRunning
 	if isRunning {
@@ -71,7 +81,7 @@ func handleIDEInjectionWithPayload(repoRoot, promptPath, promptText, title, prom
 		return makeQueuedSuccessResult(pid, repoRoot, promptPath)
 	}
 
-	return DispatchPromptToAntigravity(repoRoot, promptPath, title, promptText, pid)
+	return dispatchRes
 }
 
 func makeQueuedSuccessResult(pid int, repoDir, promptPath string) AgyInjectionResult {
@@ -159,28 +169,6 @@ func writePromptFile(path, content string) {
 
 	_ = os.MkdirAll(filepath.Dir(path), 0755)
 	_ = os.WriteFile(path, []byte(content), 0644)
-}
-
-func makeIDESuccessResult(pid int, repoDir, promptPath string) AgyInjectionResult {
-	msg := formatIDESuccessMessage(pid, promptPath)
-
-	return AgyInjectionResult{
-		IsSuccess:  true,
-		Mode:       AgyInjectionModeIDE,
-		PID:        pid,
-		Message:    msg,
-		PromptPath: promptPath,
-		RepoDir:    repoDir,
-	}
-}
-
-func formatIDESuccessMessage(pid int, promptPath string) string {
-	hasPID := pid > 0
-	if hasPID {
-		return fmt.Sprintf("Active Antigravity IDE detected (PID: %d); staged fix prompt in %s", pid, promptPath)
-	}
-
-	return fmt.Sprintf("Antigravity offline/ready; staged prompt in %s", promptPath)
 }
 
 func makeSkipInjectionResult() AgyInjectionResult {
@@ -337,19 +325,19 @@ func detectTranscriptStatus(transcriptPath string) AgyConvStatusType {
 }
 
 func parseConvStatusFromStep(step rawTranscriptStepForStatus) AgyConvStatusType {
+	if strings.EqualFold(step.Status, "DONE") || strings.EqualFold(step.Status, "COMPLETED") || strings.EqualFold(step.Status, "IDLE") {
+		return AgyConvStatusIdle
+	}
 	stepType := strings.ToUpper(step.Type)
 	source := strings.ToUpper(step.Source)
 	if stepType == "USER_INPUT" {
 		return AgyConvStatusRunning
 	}
 	if isModelStatusStep(stepType, source) {
-		return resolveModelStepStatus(len(step.ToolCalls) > 0)
-	}
-	if stepType == "GENERIC" || source == "GENERIC" {
-		return AgyConvStatusRunning
+		return resolveModelStepStatus(len(step.ToolCalls) > 0 && !strings.EqualFold(step.Status, "DONE"))
 	}
 
-	return AgyConvStatusRunning
+	return AgyConvStatusIdle
 }
 
 func resolveModelStepStatus(hasToolCalls bool) AgyConvStatusType {
