@@ -38,7 +38,7 @@ At C:\Users\Administrator\Documents\WindowsPowerShell\Microsoft.PowerShell_profi
 1. **Rebuild with Main Package**:
    Rebuilt the Windows binary targeting the main package root:
    ```powershell
-   cd d:\work\gitmap\cli
+   cd cli
    $env:GOOS = "windows"
    $env:GOARCH = "amd64"
    go build -o bin/gitmap.exe .
