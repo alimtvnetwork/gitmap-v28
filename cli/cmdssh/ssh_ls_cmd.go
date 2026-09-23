@@ -22,7 +22,7 @@ var SSHNodesCmd = &cobra.Command{
 	Use:     "nodes",
 	Aliases: []string{"node"},
 	Short:   "List all registered SSH nodes/machines",
-	Args:    cobra.NoArgs,
+	Args:    cobra.ArbitraryArgs,
 	RunE: func(cmd *cobra.Command, args []string) error {
 		return runSSHLs(cmd, args, cmd.Context())
 	},
@@ -39,7 +39,16 @@ func RunSSHNodesCLI(ctx context.Context, args []string) error {
 }
 
 func dispatchNodesArgs(ctx context.Context, args []string) error {
+	if isNodesVersionRequest(args) {
+		return runSSHNodesVersion(args)
+	}
+
 	sub := args[0]
+	isLs := sub == "ls" || sub == "list"
+	if isLs {
+		return printSJList(ctx, os.Stdout, 0)
+	}
+
 	isClear := sub == "clear"
 	if isClear {
 		return runSSHClearNodes(args[1:])

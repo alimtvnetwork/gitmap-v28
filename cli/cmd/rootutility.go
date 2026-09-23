@@ -91,13 +91,17 @@ func extractRemoteUpdateTarget(args []string) (string, []string) {
 
 func runUpdateHelp() error {
 	checkHelp("update", argsTail())
-	remoteTarget, cleanArgs := extractRemoteUpdateTarget(argsTail())
+	args := argsTail()
+	if len(args) > 0 && (args[0] == "ssh" || args[0] == "remote") {
+		return cmdssh.RunSSHUpdateCLI(args[1:])
+	}
+	remoteTarget, cleanArgs := extractRemoteUpdateTarget(args)
 	if remoteTarget != "" {
 		pkg := resolveUpdatePackage(cleanArgs)
 		return cmdssh.RunSSHUpdateCLI([]string{pkg, remoteTarget})
 	}
-	if isAgmUpdateTarget(argsTail()) {
-		return runUpdateAgManagerTarget(argsTail())
+	if isAgmUpdateTarget(args) {
+		return runUpdateAgManagerTarget(args)
 	}
 
 	return runUpdate()

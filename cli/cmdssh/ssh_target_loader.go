@@ -105,8 +105,13 @@ func resolveSingleMissingTarget(dbConn *store.DB, token string) (db.SSHConnectio
 	return parseAdHocConnection(token)
 }
 
+func isAllTarget(target string) bool {
+	low := strings.ToLower(target)
+	return low == "" || low == "all" || low == "all-nodes" || low == "allnodes" || low == "nodes"
+}
+
 func filterConnectionsByTarget(conns []db.SSHConnection, target string) []db.SSHConnection {
-	if target == "" || target == "all" {
+	if isAllTarget(target) {
 		return conns
 	}
 

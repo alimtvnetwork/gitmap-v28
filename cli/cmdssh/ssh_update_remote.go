@@ -17,69 +17,141 @@ func RunSSHUpdateCLI(args []string) error {
 	return runSSHUpdateCLI(args)
 }
 
-func extractNodeAndPackageFlags(args []string) (string, []string) {
-	target := ""
+func parseUpdateOptions(args []string) SSHFleetUpdateOptions {
+	opts := SSHFleetUpdateOptions{
+		Target: "",
+		Pkg:    "gitmap",
+	}
 	var clean []string
 	for i := 0; i < len(args); i++ {
 		arg := args[i]
-		if (arg == "--node" || arg == "--remote" || arg == "-n" || arg == "-r") && i+1 < len(args) {
-			target = args[i+1]
+		if isTargetFlag(arg) && i+1 < len(args) {
+			opts.Target = args[i+1]
 			i++
 			continue
 		}
+		if isExceptFlag(arg) {
+			var exceptTokens []string
+			for i+1 < len(args) && !strings.HasPrefix(args[i+1], "-") {
+				exceptTokens = append(exceptTokens, args[i+1])
+				i++
+			}
+			opts.Except = strings.Join(exceptTokens, ",")
+			continue
+		}
 		if strings.HasPrefix(arg, "--node=") {
-			target = strings.TrimPrefix(arg, "--node=")
+			opts.Target = strings.TrimPrefix(arg, "--node=")
+			continue
+		}
+		if strings.HasPrefix(arg, "--target=") {
+			opts.Target = strings.TrimPrefix(arg, "--target=")
 			continue
 		}
 		if strings.HasPrefix(arg, "--remote=") {
-			target = strings.TrimPrefix(arg, "--remote=")
+			opts.Target = strings.TrimPrefix(arg, "--remote=")
+			continue
+		}
+		if strings.HasPrefix(arg, "--except=") {
+			opts.Except = strings.TrimPrefix(arg, "--except=")
+			continue
+		}
+		if strings.HasPrefix(arg, "--exclude=") {
+			opts.Except = strings.TrimPrefix(arg, "--exclude=")
+			continue
+		}
+		if arg == "--dry-run" {
+			opts.IsDryRun = true
+			continue
+		}
+		if arg == "-f" || arg == "--force" {
+			opts.IsForce = true
 			continue
 		}
 		clean = append(clean, arg)
 	}
-	return target, clean
+
+	return populateTargetAndPackage(opts, clean)
 }
 
-func resolveTargetAndPkg(conns []db.SSHConnection, args []string) (string, string) {
-	flagTarget, clean := extractNodeAndPackageFlags(args)
-	if flagTarget != "" {
-		pkg := resolveCleanPackageName(clean)
-		return pkg, flagTarget
-	}
-	return parseInstallTargetAndPackage(conns, args)
+func isTargetFlag(arg string) bool {
+	return arg == "--node" || arg == "--remote" || arg == "-n" || arg == "-r" || arg == "-t" || arg == "--target"
 }
 
-func resolveCleanPackageName(clean []string) string {
-	if len(clean) > 0 {
-		return clean[0]
+func isExceptFlag(arg string) bool {
+	return arg == "--except" || arg == "--exclude"
+}
+
+func populateTargetAndPackage(opts SSHFleetUpdateOptions, clean []string) SSHFleetUpdateOptions {
+	for _, token := range clean {
+		if isAllTarget(token) {
+			opts.Target = "all-nodes"
+			continue
+		}
+		if isKnownPackage(token) {
+			opts.Pkg = token
+			continue
+		}
+		if opts.Target == "" {
+			opts.Target = token
+		}
 	}
-	return "gitmap"
+	if opts.Target == "" {
+		opts.Target = "all-nodes"
+	}
+	return opts
+}
+
+func isKnownPackage(token string) bool {
+	low := strings.ToLower(token)
+	return low == "gitmap" || low == "agm" || low == "ag-manager" || low == "antigravity-manager"
 }
 
 func runSSHUpdateCLI(args []string) error {
-	conns, err := loadSSHConnectionsForTarget("all")
+	conns, err := fetchAllSSHConnections()
 	if err != nil {
-		return apperror.WrapSimple(err, "loadSSHConnectionsForTarget")
+		return apperror.WrapSimple(err, "fetchAllSSHConnections")
 	}
 
-	pkg, target := resolveTargetAndPkg(conns, args)
-	executeFleetUpdate(conns, target, pkg)
+	opts := parseUpdateOptions(args)
+	executeFleetUpdateWithOptions(conns, opts)
 	return nil
 }
 
 func executeFleetUpdate(conns []db.SSHConnection, target, pkg string) {
-	fmt.Printf("\n%s Updating '%s' across SSH fleet (%s):%s\n\n",
-		constants.ColorCyan, pkg, target, constants.ColorReset)
-
-	for _, c := range filterConnectionsByTarget(conns, target) {
-		updateSingleSSHNode(c, pkg)
+	opts := SSHFleetUpdateOptions{
+		Target: target,
+		Pkg:    pkg,
 	}
-
-	fmt.Printf("\nSSH Fleet Update '%s' complete.\n\n", pkg)
+	executeFleetUpdateWithOptions(conns, opts)
 }
 
-func updateSingleSSHNode(c db.SSHConnection, pkg string) {
+func executeFleetUpdateWithOptions(conns []db.SSHConnection, opts SSHFleetUpdateOptions) {
+	fmt.Printf("\n%s Updating '%s' across SSH fleet (%s):%s\n\n",
+		constants.ColorCyan, opts.Pkg, opts.Target, constants.ColorReset)
+
+	filtered := filterConnectionsByTarget(conns, opts.Target)
+	if opts.Except != "" {
+		filtered = filterSSHConns(filtered, opts.Except)
+	}
+
+	if len(filtered) == 0 {
+		fmt.Printf("No matching target machines found to update.\n\n")
+		return
+	}
+
+	for _, c := range filtered {
+		updateSingleSSHNode(c, opts.Pkg, opts.IsDryRun)
+	}
+
+	fmt.Printf("\nSSH Fleet Update '%s' complete.\n\n", opts.Pkg)
+}
+
+func updateSingleSSHNode(c db.SSHConnection, pkg string, isDryRun bool) {
 	header := fmt.Sprintf("[%s|%s]", c.Alias, c.IPAddress)
+	if isDryRun {
+		fmt.Printf("  %s [DRY-RUN] Would update %s on %s\n", header, pkg, c.Alias)
+		return
+	}
 	client, isConnected := connectSSHNode(c, header)
 	if !isConnected {
 		return

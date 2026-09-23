@@ -293,8 +293,9 @@ func runSSHWorkerJSON(c db.SSHConnection, args []string, results *[]NodeExecResu
 	defer client.Close()
 	c.OS = probeRemoteOSType(client)
 	shellType, cmdStr, isDelegate := resolveWorkerCommand(c, args)
-	if isDelegate && !ensureDelegateInstalledJSON(client, c, results, mu) {
-		return
+	if isDelegate && !ensureDelegateInstalledQuiet(client, c) {
+		cmdStr = strings.Join(args, " ")
+		shellType = determineFallbackShell(c.OS)
 	}
 	start := time.Now()
 	out, err := crypto.RunCommand(client, cmdStr, shellType)
@@ -310,6 +311,11 @@ func runSSHWorkerJSON(c db.SSHConnection, args []string, results *[]NodeExecResu
 		DurationMs: dur,
 	})
 	mu.Unlock()
+}
+
+func ensureDelegateInstalledQuiet(client *ssh.Client, c db.SSHConnection) bool {
+	err := ensureGitmapInstalled(client, c.OS, c.Alias)
+	return err == nil
 }
 
 func ensureDelegateInstalledJSON(client *ssh.Client, c db.SSHConnection, results *[]NodeExecResult, mu *sync.Mutex) bool {
@@ -366,6 +372,10 @@ func executeSSHPayload(client *ssh.Client, c db.SSHConnection, args []string) er
 	c.OS = probeRemoteOSType(client)
 	shellType, cmdStr, isDelegate := resolveWorkerCommand(c, args)
 	if isDelegate && ensureDelegateInstalled(client, c) != nil {
+		rawCmd := strings.Join(args, " ")
+		fallbackShell := determineFallbackShell(c.OS)
+		out, err := crypto.RunCommand(client, rawCmd, fallbackShell)
+		printNodeResultOutput(c.Alias, c.IPAddress, out, err)
 		return nil
 	}
 	if shellType == "ps" || shellType == "pwsh" {

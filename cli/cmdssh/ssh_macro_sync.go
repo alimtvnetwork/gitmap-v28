@@ -179,8 +179,16 @@ func syncSingleMacroToClient(client *ssh.Client, c db.SSHConnection, m macro.Mac
 	if err != nil {
 		return false
 	}
-	cmd := buildRemoteAtomicMacroWriteCmd(m.Name, data, isWindowsOS(c.OS), isForce)
-	_, runErr := crypto.RunCommand(client, cmd, shell)
+	isWin := isWindowsOS(c.OS)
+	cmd := buildRemoteAtomicMacroWriteCmd(m.Name, data, isWin, isForce)
+	shellType := "sh"
+	if isWin {
+		shellType = ""
+	}
+	out, runErr := crypto.RunCommand(client, cmd, shellType)
+	if runErr != nil {
+		fmt.Printf("  [%s] %s✖ Remote deploy error: %v (output: %s)%s\n", c.Alias, constants.ColorRed, runErr, out, constants.ColorReset)
+	}
 	return runErr == nil
 }
 
@@ -206,8 +214,12 @@ func buildUnixForceCheck(name string, isForce bool) string {
 }
 
 func buildWindowsMacroWriteCmd(name string, b64 string, isForce bool) string {
-	return fmt.Sprintf(`powershell -NoProfile -Command "$dir=[IO.Path]::Combine($env:USERPROFILE, '.gitmap', 'macros'); if (-not (Test-Path $dir)) { [IO.Directory]::CreateDirectory($dir) | Out-Null }; $p=[IO.Path]::Combine($dir, '%s.json'); if (%t -or -not (Test-Path $p)) { $d=[Convert]::FromBase64String('%s'); $tmp=$p + '.tmp'; [IO.File]::WriteAllBytes($tmp, $d); Move-Item -Force $tmp $p }"`,
-		name, isForce, b64)
+	forceClause := "$false"
+	if isForce {
+		forceClause = "$true"
+	}
+	return fmt.Sprintf(`powershell -NoProfile -Command "$dir=[IO.Path]::Combine($env:USERPROFILE, '.gitmap', 'macros'); if (-not (Test-Path $dir)) { [IO.Directory]::CreateDirectory($dir) | Out-Null }; $p=[IO.Path]::Combine($dir, '%s.json'); if (%s -or -not (Test-Path $p)) { $d=[Convert]::FromBase64String('%s'); $tmp=$p + '.tmp'; [IO.File]::WriteAllBytes($tmp, $d); Move-Item -Force $tmp $p }"`,
+		name, forceClause, b64)
 }
 
 func printSyncStartBanner(macroCount, onlineCount, offlineCount int) {

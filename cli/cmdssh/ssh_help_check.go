@@ -32,13 +32,32 @@ func hasJoinToken(args []string) bool {
 	return false
 }
 
+func hasMacroToken(args []string) bool {
+	for _, a := range args {
+		isMacro := a == "macro" || a == "m"
+		if isMacro {
+			return true
+		}
+	}
+
+	return false
+}
+
 func checkSSHHelp(args []string) bool {
 	hasJoin := hasJoinToken(args)
+	hasMacro := hasMacroToken(args)
 	hasHelp := hasHelpFlag(args)
 	hasJoinHelp := hasJoin && hasHelp
+	hasMacroHelp := hasMacro && hasHelp
 
 	if hasJoinHelp {
 		helptext.Print("ssh-join")
+
+		return true
+	}
+
+	if hasMacroHelp {
+		printSSHMacroHelp()
 
 		return true
 	}

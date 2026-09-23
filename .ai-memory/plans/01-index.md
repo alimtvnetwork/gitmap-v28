@@ -9,7 +9,8 @@ Master directory of architectural and execution plans.
 
 ## Recent Completed Tasks Register (Last 20 Tasks)
 
-1. [88-pe-custom-format-and-error-capture.md](completed/88-pe-custom-format-and-error-capture.md): Pipeline Error Multi-Line Extraction Intelligence & Declarative JSON Format Profiles
+1. [89-ssh-fleet-update-nodes-macros.md](completed/89-ssh-fleet-update-nodes-macros.md): SSH Fleet Update, Node Inspection, Smart Command Routing, and Macro Engine
+2. [88-pe-custom-format-and-error-capture.md](completed/88-pe-custom-format-and-error-capture.md): Pipeline Error Multi-Line Extraction Intelligence & Declarative JSON Format Profiles
 2. [87-vm-cluster-lifecycle-and-osutil-suite.md](completed/87-vm-cluster-lifecycle-and-osutil-suite.md): VM Cluster Lifecycle, E2E Verification, WinUtil/LinUtil Aliases & Ubuntu AGY/AGM RCA Suite
 2. [86-vm-cluster-e2e-ssh-and-os-integration.md](completed/86-vm-cluster-e2e-ssh-and-os-integration.md): Live VM Cluster End-to-End SSH Join, Multi-Node Execution, Remote Updates, and WinUtil/LinUtil OS Integration
 2. [85-git-pull-efficient-and-split-database.md](completed/85-git-pull-efficient-and-split-database.md): Git Pull Efficient Engine, Non-Git Directory Fallback, and Dedicated SQLite Split-Database (gitmap-pull.db)
@@ -65,6 +66,7 @@ Master directory of architectural and execution plans.
 
 ## Completed Plans
 
+- [89-ssh-fleet-update-nodes-macros.md](completed/89-ssh-fleet-update-nodes-macros.md): SSH Fleet Update, Node Inspection, Smart Command Routing, and Macro Engine
 - [88-pe-custom-format-and-error-capture.md](completed/88-pe-custom-format-and-error-capture.md): Pipeline Error Multi-Line Extraction Intelligence & Declarative JSON Format Profiles
 - [87-vm-cluster-lifecycle-and-osutil-suite.md](completed/87-vm-cluster-lifecycle-and-osutil-suite.md): VM Cluster Lifecycle, E2E Verification, WinUtil/LinUtil Aliases & Ubuntu AGY/AGM RCA Suite
 - [86-vm-cluster-e2e-ssh-and-os-integration.md](completed/86-vm-cluster-e2e-ssh-and-os-integration.md): Live VM Cluster End-to-End SSH Join, Multi-Node Execution, Remote Updates, and WinUtil/LinUtil OS Integration
