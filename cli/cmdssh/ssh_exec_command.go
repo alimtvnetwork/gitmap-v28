@@ -115,7 +115,7 @@ func isGitmapUtilityCommand(cmd string) bool {
 	switch cmd {
 	case "doctor", "profile", "profiles", "config", "workdir", "cg", "codingguidelines", "coding-guidelines":
 		return true
-	case "ai", "cargo", "aum", "automation", "fix-auth", "fixauth", "ssh-bind", "help", "docs":
+	case "ai", "cargo", "aum", "automation", "fix-auth", "fixauth", "ssh-bind", "help", "docs", "version", "-v", "--version", "v":
 		return true
 	case "export-all", "exportall", "import-all", "importall":
 		return true
