@@ -55,6 +55,7 @@ See [00-overview.md](./00-overview.md) for the complete application specificatio
 - [Spec 135: Precompiled Test Warmup & Quad-Process Runner](./135-precompiled-test-warmup-and-dual-queue-runner.md)
 - [Spec 136: Git Pull Efficient & Split-DB](./136-git-pull-efficient-and-split-database.md)
 - [Spec 137: VM Cluster E2E SSH & OS Integration](./137-vm-cluster-e2e-ssh-and-os-integration.md)
+- [Spec 138: VM Cluster Lifecycle, E2E Verification & OS Utility Suite](./138-vm-cluster-lifecycle-and-osutil-suite.md)
 
 ---
 

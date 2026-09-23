@@ -59,6 +59,16 @@
 - **Symptom:** `wrapCommandForShell` wrapped commands in `powershell -NoProfile -Command "..."`. When `ssh_agy_cmd.go` passed `"agy " + args` to PowerShell, interactive or console commands could hang or collision occurred.
 - **Fix:** `executeAgyRemoteCommand` in `cli/cmdssh/ssh_agy_cmd.go` now delegates directly to `gitmap agy <args>` without nested shell wrappers, eliminating quote stripping and process hanging.
 
+### RCA-AGY-03: Wrapper Recursion on Ubuntu (`Argument list too long`)
+- **Symptom:** Running `gitmap ssh u1 "/home/a/.local/bin/antigravity"` returns `/home/a/.local/bin/antigravity: line 10: ... Argument list too long`.
+- **Root Cause:** A launch script intended for `/home/a/.local/share/antigravity-ide/` was copied to `/home/a/.local/bin/antigravity`. Line 2 evaluates `DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"` (yielding `/home/a/.local/bin`), and line 10 runs `exec "$EXEC" --no-sandbox "$@"` (where `EXEC="$DIR/antigravity"`), calling itself in an infinite loop.
+- **Remediation:** Update wrapper script to explicitly point to the installation binary at `/home/a/.local/share/antigravity-ide/antigravity`. Note: Running GUI Electron over SSH also requires `DISPLAY=:0` or `xvfb-run`.
+
+### RCA-AGY-04: Antigravity Manager (AGM) Non-Interactive Sudo Requirement
+- **Symptom:** `gitmap remote update --node u1 agm` fails with `sudo: A terminal is required to authenticate` when attempting `sudo dpkg -i`.
+- **Root Cause:** Sudo requires a terminal or password entry for user `a`. In non-interactive SSH without a pty, `sudo` exits with error code 1.
+- **Remediation:** Configure passwordless sudo for worker nodes in `/etc/sudoers.d/a` (`a ALL=(ALL) NOPASSWD: ALL`), or invoke with `sudo -S` passing credentials via stdin, or allocate a pseudo-terminal (`ssh -t`).
+
 ---
 
 ## 4. How to Prompt AGY Across Remote Machines

@@ -164,7 +164,8 @@ func utilityToolEntries() []dispatchEntry {
 func utilitySystemEntries() []dispatchEntry {
 	return []dispatchEntry{
 		{[]string{constants.CmdPower, constants.CmdPowerAlias, constants.CmdPowerAlias2}, func() error { return runPower(argsTail()) }},
-		{[]string{constants.CmdOS}, func() error { return runOS(argsTail()) }},
+		{[]string{constants.CmdOS, "winutil", "linutil"}, func() error { return runOS(argsTail()) }},
+		{[]string{"autologin", "auto-login", "al"}, func() error { return runOS(append([]string{"autologin"}, argsTail()...)) }},
 		{[]string{"zsh"}, func() error { return runZsh(argsTail()) }},
 		{[]string{constants.CmdFixLink, constants.CmdFixLinkAlias, constants.CmdFixLinkAlias2}, func() error { return runOSFixLink(argsTail()) }},
 		{[]string{constants.CmdWhoAmI, constants.CmdWhoAmIAlias}, func() error { checkHelp("whoami", argsTail()); return runWhoAmI(argsTail()) }},
