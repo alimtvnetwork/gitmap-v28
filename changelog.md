@@ -1,3 +1,15 @@
+## [v6.316.0] 2026-09-23 Release v6.316.0
+
+### Install GitMap v6.316.0
+
+To pin your repository to this exact version, run the following one-liner:
+Unix/Bash: `curl -sL https://raw.githubusercontent.com/alimtvnetwork/gitmap-v28/v6.316.0/install.sh | bash -s -- ".ai-memory/prompts" "v6.316.0"`
+PowerShell: `Invoke-WebRequest -Uri https://raw.githubusercontent.com/alimtvnetwork/gitmap-v28/v6.316.0/install.ps1 -OutFile install.ps1; .\install.ps1 -TargetDir ".ai-memory/prompts" -Version "v6.316.0"`
+
+### Added / Changed / Fixed / Removed
+
+- batch common join, subnet scanner, os info, agy rop, and aum benchmarks
+
 ## [v6.315.0] 2026-09-23 Release v6.315.0
 
 ### Install GitMap v6.315.0
