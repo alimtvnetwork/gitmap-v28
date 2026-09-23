@@ -143,3 +143,29 @@ func TestPrintScanResultTable_Empty(t *testing.T) {
 		t.Errorf("expected empty message, got: %s", buf.String())
 	}
 }
+
+func TestParseScanArgs(t *testing.T) {
+	args := []string{"192.168.2.0/24", "-p", "2222", "-w", "25", "-t", "500ms"}
+	isReg, opts := parseScanArgs(args)
+	if isReg {
+		t.Error("expected isReg false")
+	}
+	if opts.Subnet != "192.168.2.0/24" {
+		t.Errorf("expected subnet 192.168.2.0/24, got %s", opts.Subnet)
+	}
+	if opts.Port != 2222 {
+		t.Errorf("expected port 2222, got %d", opts.Port)
+	}
+	if opts.Workers != 25 {
+		t.Errorf("expected workers 25, got %d", opts.Workers)
+	}
+	if opts.Timeout != 500*time.Millisecond {
+		t.Errorf("expected timeout 500ms, got %v", opts.Timeout)
+	}
+
+	regArgs := []string{"--registered"}
+	isReg2, _ := parseScanArgs(regArgs)
+	if !isReg2 {
+		t.Error("expected isReg2 true for --registered flag")
+	}
+}

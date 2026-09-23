@@ -145,6 +145,8 @@ func dispatchPackageSSH(sub string, args []string) result.ErrorWrapper {
 		return result.MatchWrapper(runSSHInstallCLI(args))
 	case "update", "u":
 		return result.MatchWrapper(runSSHUpdateCLI(args))
+	case "join-common", "sjc", "ssh-join-common":
+		return result.MatchWrapper(RunSSHJoinCommonCLI(args))
 	case "scan":
 		return result.MatchWrapper(runSSHScanCLI(args))
 	default:

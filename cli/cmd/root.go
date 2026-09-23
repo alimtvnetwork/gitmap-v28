@@ -559,6 +559,35 @@ func stripLeadingSJCommand(args []string) []string {
 	return args
 }
 
+func isSJCCommand(arg string) bool {
+	return arg == "sjc" || arg == "ssh-join-common" || arg == "ssh-join-c" || arg == "join-common"
+}
+
+func stripLeadingSJCCommand(args []string) []string {
+	if len(args) == 0 {
+		return args
+	}
+
+	if isSJCCommand(args[0]) {
+		return args[1:]
+	}
+
+	return args
+}
+
+func dispatchSJC(ctx context.Context, args []string, root *cobra.Command) error {
+	cleanArgs := stripLeadingSJCCommand(args)
+	return cmdssh.RunSSHJoinCommonCLI(cleanArgs)
+}
+
+func runSJC(args []string) error {
+	if err := dispatchSJC(context.Background(), os.Args[1:], nil); err != nil {
+		cliexit.HandleError(err, 1)
+	}
+
+	return nil
+}
+
 func dispatchExtraCommand(cmd string, shouldAudit bool, id int64, start time.Time) bool {
 	if dispatchSmartTestSubsystem(cmd, shouldAudit, id, start) {
 		return true
@@ -652,6 +681,10 @@ func dispatchPromptSubsystem(
 	switch command {
 	case "sj", "ssh-join", "ssh-joined", "ssh-joiner":
 		executeAndAudit(dispatchSJ, shouldAudit, auditID, auditStart)
+
+		return true
+	case "sjc", "ssh-join-common", "ssh-join-c", "join-common":
+		executeAndAudit(dispatchSJC, shouldAudit, auditID, auditStart)
 
 		return true
 	case "prompt", "prompts", "pmt":

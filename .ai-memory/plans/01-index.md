@@ -9,7 +9,8 @@ Master directory of architectural and execution plans.
 
 ## Recent Completed Tasks Register (Last 20 Tasks)
 
-1. [90-pipeline-cancelled-shown-as-pass.md](completed/90-pipeline-cancelled-shown-as-pass.md): Pipeline Cancelled / Timed Out Runs Erroneously Displayed as PASS
+1. [91-ssh-join-common-scan-and-agy-rop.md](completed/91-ssh-join-common-scan-and-agy-rop.md): SSH Batch Common Join, Subnet Scanner, OS Metadata, AGY Project Re-Read & Optimization, and AUM Benchmarking
+2. [90-pipeline-cancelled-shown-as-pass.md](completed/90-pipeline-cancelled-shown-as-pass.md): Pipeline Cancelled / Timed Out Runs Erroneously Displayed as PASS
 2. [89-ssh-fleet-update-nodes-macros.md](completed/89-ssh-fleet-update-nodes-macros.md): SSH Fleet Update, Node Inspection, Smart Command Routing, and Macro Engine
 2. [88-pe-custom-format-and-error-capture.md](completed/88-pe-custom-format-and-error-capture.md): Pipeline Error Multi-Line Extraction Intelligence & Declarative JSON Format Profiles
 2. [87-vm-cluster-lifecycle-and-osutil-suite.md](completed/87-vm-cluster-lifecycle-and-osutil-suite.md): VM Cluster Lifecycle, E2E Verification, WinUtil/LinUtil Aliases & Ubuntu AGY/AGM RCA Suite
@@ -67,6 +68,7 @@ Master directory of architectural and execution plans.
 
 ## Completed Plans
 
+- [91-ssh-join-common-scan-and-agy-rop.md](completed/91-ssh-join-common-scan-and-agy-rop.md): SSH Batch Common Join, Subnet Scanner, OS Metadata, AGY Project Re-Read & Optimization, and AUM Benchmarking
 - [90-pipeline-cancelled-shown-as-pass.md](completed/90-pipeline-cancelled-shown-as-pass.md): Pipeline Cancelled / Timed Out Runs Erroneously Displayed as PASS
 - [89-ssh-fleet-update-nodes-macros.md](completed/89-ssh-fleet-update-nodes-macros.md): SSH Fleet Update, Node Inspection, Smart Command Routing, and Macro Engine
 - [88-pe-custom-format-and-error-capture.md](completed/88-pe-custom-format-and-error-capture.md): Pipeline Error Multi-Line Extraction Intelligence & Declarative JSON Format Profiles

@@ -335,7 +335,9 @@ func printScanResultTable(out io.Writer, hosts []SSHScanHost, subnet string) err
 	for _, h := range hosts {
 		printScanTableRow(w, h)
 	}
-	return w.Flush()
+	flushErr := w.Flush()
+	fmt.Fprintf(out, "\n  Total active SSH machines discovered: %d on subnet %s\n\n", len(hosts), subnet)
+	return flushErr
 }
 
 func prepareScanOptions(opts *SSHScanOptions) {

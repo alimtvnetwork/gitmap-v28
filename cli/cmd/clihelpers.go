@@ -944,6 +944,10 @@ func RunOSCLI(args []string) error {
 	return cmdos.RunOSCLI(args)
 }
 
+func RunOSInfoCLI(args []string) error {
+	return cmdos.RunOSInfoCLI(args)
+}
+
 func runSchedule(args []string) error {
 	return cmdschedule.RunSchedule(args)
 }

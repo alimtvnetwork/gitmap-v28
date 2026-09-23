@@ -34,8 +34,25 @@ func executeStorageReset(opts StorageResetOptions) StorageResetStats {
 	purgePipelineLogs(repoRoot, opts, &stats)
 	purgeScanReports(repoRoot, opts, &stats)
 	purgeDatabaseErrors(repoRoot, opts, &stats)
+	purgeAGYBackups(opts, &stats)
 
 	return stats
+}
+
+func purgeAGYBackups(opts StorageResetOptions, stats *StorageResetStats) {
+	baseDir := filepath.Join(store.BinaryDataDir(), "agy")
+	if _, err := os.Stat(baseDir); os.IsNotExist(err) {
+		return
+	}
+	_ = filepath.Walk(baseDir, func(p string, info os.FileInfo, err error) error {
+		if err == nil && !info.IsDir() {
+			stats.ReclaimedBytes += info.Size()
+		}
+		return nil
+	})
+	if !opts.IsDryRun {
+		_ = os.RemoveAll(baseDir)
+	}
 }
 
 func resolveCurrentRepoRoot() string {

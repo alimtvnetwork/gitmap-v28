@@ -201,6 +201,49 @@ func probeRemoteOSVersion(client *ssh.Client, osType string) string {
 	return strings.TrimSpace(out)
 }
 
+func probeRemoteOSArch(client *ssh.Client, osType string) string {
+	if client == nil {
+		return "amd64"
+	}
+	if isWindowsOS(osType) {
+		return probeWindowsArch(client)
+	}
+	return probeUnixArch(client)
+}
+
+func probeWindowsArch(client *ssh.Client) string {
+	out, _ := crypto.RunCommand(client, "powershell -NoProfile -Command \"$env:PROCESSOR_ARCHITECTURE\" 2>nul || echo %PROCESSOR_ARCHITECTURE%", "")
+	trimmed := strings.ToLower(strings.TrimSpace(out))
+	if trimmed == "" {
+		return "amd64"
+	}
+	return trimmed
+}
+
+func probeUnixArch(client *ssh.Client) string {
+	out, _ := crypto.RunCommand(client, "uname -m 2>/dev/null || echo amd64", "")
+	trimmed := strings.ToLower(strings.TrimSpace(out))
+	if trimmed == "x86_64" || trimmed == "" {
+		return "amd64"
+	}
+	return trimmed
+}
+
+func formatOSVersionWithArch(osVer, osArch string) string {
+	cleanVer := strings.TrimSpace(osVer)
+	cleanArch := strings.TrimSpace(osArch)
+	if cleanVer == "" && cleanArch != "" {
+		return cleanArch
+	}
+	if cleanVer == "" {
+		return ""
+	}
+	if cleanArch == "" || strings.Contains(strings.ToLower(cleanVer), cleanArch) {
+		return cleanVer
+	}
+	return fmt.Sprintf("%s (%s)", cleanVer, cleanArch)
+}
+
 func resolveDefaultOS(osType string) string {
 	if isWindowsOS(osType) {
 		return "windows"
