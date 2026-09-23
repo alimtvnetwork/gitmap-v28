@@ -83,3 +83,4 @@ tmp/
 *.db-wal
 *.lock
 .ai-memory/cicd/
+vmpass.json
