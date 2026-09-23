@@ -3,7 +3,7 @@
 ## 1. Symptom
 When executing `gitmap ssh exec ip` (or related remote fleet commands) across active Windows nodes (`w1`, `w2`, `w3`):
 ```text
-PS D:\work\gitmap> gitmap ssh exec ip
+PS repo> gitmap ssh exec ip
 
   Notice: The following machine(s) are currently OFF or unreachable:
     • [w4 | 192.168.1.13] (machine is off)
