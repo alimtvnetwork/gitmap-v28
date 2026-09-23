@@ -1,3 +1,9 @@
+## v6.317.0 — 2026-09-23 (chrome profile auth export/import, us-english canceled, and sshjoin boolean fixes)
+
+**Scope:** Version bump. chrome profile auth export/import, us-english canceled, and sshjoin boolean fixes.
+
+---
+
 ## v6.316.0 — 2026-09-23 (batch common join, subnet scanner, os info, agy rop, and aum benchmarks)
 
 **Scope:** Version bump. batch common join, subnet scanner, os info, agy rop, and aum benchmarks.
