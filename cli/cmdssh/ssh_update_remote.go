@@ -43,13 +43,17 @@ func extractNodeAndPackageFlags(args []string) (string, []string) {
 func resolveTargetAndPkg(conns []db.SSHConnection, args []string) (string, string) {
 	flagTarget, clean := extractNodeAndPackageFlags(args)
 	if flagTarget != "" {
-		pkg := "gitmap"
-		if len(clean) > 0 {
-			pkg = clean[0]
-		}
+		pkg := resolveCleanPackageName(clean)
 		return pkg, flagTarget
 	}
 	return parseInstallTargetAndPackage(conns, args)
+}
+
+func resolveCleanPackageName(clean []string) string {
+	if len(clean) > 0 {
+		return clean[0]
+	}
+	return "gitmap"
 }
 
 func runSSHUpdateCLI(args []string) error {

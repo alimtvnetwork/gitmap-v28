@@ -147,14 +147,18 @@ func executeSSHFromOptions(opts seOptions) error {
 	}
 	conns, execArgs := resolveExecTargetAndArgs(conns, opts)
 	if len(conns) == 0 {
-		if opts.IsJSON {
-			fmt.Println("[]")
-			return nil
-		}
-		fmt.Println("No machines to execute on.")
-		return nil
+		return handleEmptySSHConns(opts.IsJSON)
 	}
 	return dispatchSSHExecIfAllowed(conns, execArgs, opts.IsJSON)
+}
+
+func handleEmptySSHConns(isJSON bool) error {
+	if isJSON {
+		fmt.Println("[]")
+		return nil
+	}
+	fmt.Println("No machines to execute on.")
+	return nil
 }
 
 func dispatchSSHExecIfAllowed(conns []db.SSHConnection, args []string, isJSON bool) error {

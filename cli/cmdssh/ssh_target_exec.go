@@ -60,14 +60,22 @@ func handleTargetNotFound(target string, isJSON bool, err error) error {
 }
 
 func resolveConnectionForTarget(ctx context.Context, target string) (*db.SSHConnection, error) {
-	conns, err := fetchAllSSHConnections()
-	if err == nil {
-		matched := filterConnectionsByTarget(conns, target)
-		if len(matched) > 0 {
-			return &matched[0], nil
-		}
+	if conn := findMatchingTargetConnection(target); conn != nil {
+		return conn, nil
 	}
 	return queryFallbackConnection(ctx, target)
+}
+
+func findMatchingTargetConnection(target string) *db.SSHConnection {
+	conns, err := fetchAllSSHConnections()
+	if err != nil {
+		return nil
+	}
+	matched := filterConnectionsByTarget(conns, target)
+	if len(matched) == 0 {
+		return nil
+	}
+	return &matched[0]
 }
 
 func queryFallbackConnection(ctx context.Context, target string) (*db.SSHConnection, error) {

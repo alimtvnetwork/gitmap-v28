@@ -93,10 +93,7 @@ func runUpdateHelp() error {
 	checkHelp("update", argsTail())
 	remoteTarget, cleanArgs := extractRemoteUpdateTarget(argsTail())
 	if remoteTarget != "" {
-		pkg := "gitmap"
-		if isAgmUpdateTarget(cleanArgs) {
-			pkg = "agm"
-		}
+		pkg := resolveUpdatePackage(cleanArgs)
 		return cmdssh.RunSSHUpdateCLI([]string{pkg, remoteTarget})
 	}
 	if isAgmUpdateTarget(argsTail()) {
@@ -104,6 +101,13 @@ func runUpdateHelp() error {
 	}
 
 	return runUpdate()
+}
+
+func resolveUpdatePackage(args []string) string {
+	if isAgmUpdateTarget(args) {
+		return "agm"
+	}
+	return "gitmap"
 }
 
 func isAgmUpdateTarget(args []string) bool {

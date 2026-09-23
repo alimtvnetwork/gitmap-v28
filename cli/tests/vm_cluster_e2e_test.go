@@ -36,16 +36,24 @@ func loadVMCredentials(t *testing.T) *VMClusterCredentials {
 		"vmpass.json",
 	}
 	for _, p := range rootPaths {
-		data, err := os.ReadFile(p)
-		if err == nil {
-			var creds VMClusterCredentials
-			if jsonErr := json.Unmarshal(data, &creds); jsonErr == nil {
-				return &creds
-			}
+		if creds := parseCredentialsFile(p); creds != nil {
+			return creds
 		}
 	}
 	t.Skip("vmpass.json not found; skipping local-only VM cluster e2e test")
 	return nil
+}
+
+func parseCredentialsFile(path string) *VMClusterCredentials {
+	data, err := os.ReadFile(path)
+	if err != nil {
+		return nil
+	}
+	var creds VMClusterCredentials
+	if jsonErr := json.Unmarshal(data, &creds); jsonErr != nil {
+		return nil
+	}
+	return &creds
 }
 
 func isTCPPortOpen(ip string, port int, timeout time.Duration) bool {

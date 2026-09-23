@@ -174,15 +174,23 @@ func executeEnrollWithPassCLI(ctx context.Context, args []string) error {
 	host.EncryptedPassword = encPass
 	host.Port = target.Port
 	osType := resolveDefaultOS(params.osType)
-	if params.osType == "" && probeTCPQuick(target.IP, target.Port, 200*time.Millisecond) {
-		client, connErr := crypto.ConnectWithPassword(target.IP, target.Username, password)
-		if connErr == nil && client != nil {
-			osType = probeRemoteOSType(client)
-			client.Close()
-		}
+	if params.osType == "" {
+		osType = probeHostOSOrFallback(target.IP, target.Port, target.Username, password, osType)
 	}
 	if err := persistHostWithEncryptedPass(ctx, host, hist, osType); err != nil {
 		return err
 	}
 	return completeAddPassEnrollment(host.Alias, target.String(), params.isJSON)
+}
+
+func probeHostOSOrFallback(ip string, port int, user, pass, fallback string) string {
+	if !probeTCPQuick(ip, port, 200*time.Millisecond) {
+		return fallback
+	}
+	client, err := crypto.ConnectWithPassword(ip, user, pass)
+	if err != nil || client == nil {
+		return fallback
+	}
+	defer client.Close()
+	return probeRemoteOSType(client)
 }

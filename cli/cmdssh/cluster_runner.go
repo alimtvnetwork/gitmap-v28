@@ -222,21 +222,8 @@ func runNodeDirectCmd(ctx context.Context, host store.SSHHost, alias, formattedC
 	if user == "" {
 		user = "root"
 	}
-	if password != "" {
-		client, err := crypto.ConnectWithPassword(host.IP, user, password)
-		if err == nil {
-			defer client.Close()
-			osType := probeRemoteOSType(client)
-			shell := ""
-			execCmd := formattedCmd
-			if isWindowsOS(osType) {
-				shell = "ps"
-			}
-			out, runErr := crypto.RunCommand(client, execCmd, shell)
-			exitCode := resolveProcessExitCode(runErr)
-			printPrefixedLine(alias, strings.TrimRight(out, "\r\n"), false)
-			return buildClusterRunResult(host, exitCode, out, "", time.Since(startTime), runErr)
-		}
+	if res, ok := tryCryptoDirectCmd(host, user, password, alias, formattedCmd, startTime); ok {
+		return res
 	}
 	sshArgs := BuildNodeSSHArgs(host, formattedCmd)
 	cmd := SSHExecutor(ctx, "ssh", sshArgs...)
@@ -255,25 +242,60 @@ func runNodeSSHProcess(ctx context.Context, host store.SSHHost, alias, shellCmd,
 	if user == "" {
 		user = "root"
 	}
-	if password != "" {
-		client, err := crypto.ConnectWithPassword(host.IP, user, password)
-		if err == nil {
-			defer client.Close()
-			osType := probeRemoteOSType(client)
-			shell := ""
-			execCmd := FormatClusterCommand(shellCmd, password, isSudo)
-			if isWindowsOS(osType) {
-				shell = "ps"
-				execCmd = shellCmd
-			}
-			out, runErr := crypto.RunCommand(client, execCmd, shell)
-			exitCode := resolveProcessExitCode(runErr)
-			printPrefixedLine(alias, strings.TrimRight(out, "\r\n"), false)
-			return buildClusterRunResult(host, exitCode, out, "", time.Since(startTime), runErr)
-		}
+	if res, ok := tryCryptoSSHProcess(host, user, password, alias, shellCmd, isSudo, startTime); ok {
+		return res
 	}
 	formattedCmd := FormatClusterCommand(shellCmd, password, isSudo)
 	return runNodeDirectCmd(ctx, host, alias, formattedCmd, password, startTime)
+}
+
+func tryCryptoDirectCmd(host store.SSHHost, user, password, alias, formattedCmd string, startTime time.Time) (ClusterRunResult, bool) {
+	if password == "" {
+		return ClusterRunResult{}, false
+	}
+	client, err := crypto.ConnectWithPassword(host.IP, user, password)
+	if err != nil {
+		return ClusterRunResult{}, false
+	}
+	defer client.Close()
+	osType := probeRemoteOSType(client)
+	shell := resolveRemoteExecShell(osType)
+	out, runErr := crypto.RunCommand(client, formattedCmd, shell)
+	exitCode := resolveProcessExitCode(runErr)
+	printPrefixedLine(alias, strings.TrimRight(out, "\r\n"), false)
+	return buildClusterRunResult(host, exitCode, out, "", time.Since(startTime), runErr), true
+}
+
+func tryCryptoSSHProcess(host store.SSHHost, user, password, alias, shellCmd string, isSudo bool, startTime time.Time) (ClusterRunResult, bool) {
+	if password == "" {
+		return ClusterRunResult{}, false
+	}
+	client, err := crypto.ConnectWithPassword(host.IP, user, password)
+	if err != nil {
+		return ClusterRunResult{}, false
+	}
+	defer client.Close()
+	osType := probeRemoteOSType(client)
+	shell := resolveRemoteExecShell(osType)
+	execCmd := resolveClusterExecCmd(shellCmd, password, isSudo, osType)
+	out, runErr := crypto.RunCommand(client, execCmd, shell)
+	exitCode := resolveProcessExitCode(runErr)
+	printPrefixedLine(alias, strings.TrimRight(out, "\r\n"), false)
+	return buildClusterRunResult(host, exitCode, out, "", time.Since(startTime), runErr), true
+}
+
+func resolveRemoteExecShell(osType string) string {
+	if isWindowsOS(osType) {
+		return "ps"
+	}
+	return ""
+}
+
+func resolveClusterExecCmd(shellCmd, password string, isSudo bool, osType string) string {
+	if isWindowsOS(osType) {
+		return shellCmd
+	}
+	return FormatClusterCommand(shellCmd, password, isSudo)
 }
 
 func hasGitmapToken(token string) bool {
@@ -305,18 +327,26 @@ func printGitmapBootstrapSuccess(alias string) {
 	fmt.Printf("✓ [%s] GitMap installed successfully.\n", alias)
 }
 
+func tryCryptoProbe(host store.SSHHost, user, password, probeCmd string) (int, bool) {
+	if password == "" {
+		return 0, false
+	}
+	client, err := crypto.ConnectWithPassword(host.IP, user, password)
+	if err != nil {
+		return 0, false
+	}
+	defer client.Close()
+	_, runErr := crypto.RunCommand(client, probeCmd, "")
+	return resolveProcessExitCode(runErr), true
+}
+
 func runNodeProbeProcess(ctx context.Context, host store.SSHHost, probeCmd, password string) int {
 	user := host.Username
 	if user == "" {
 		user = "root"
 	}
-	if password != "" {
-		client, err := crypto.ConnectWithPassword(host.IP, user, password)
-		if err == nil {
-			defer client.Close()
-			_, runErr := crypto.RunCommand(client, probeCmd, "")
-			return resolveProcessExitCode(runErr)
-		}
+	if code, ok := tryCryptoProbe(host, user, password, probeCmd); ok {
+		return code
 	}
 	formattedCmd := FormatClusterCommand(probeCmd, password, false)
 	sshArgs := BuildNodeSSHArgs(host, formattedCmd)
