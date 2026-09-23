@@ -1,3 +1,9 @@
+## v6.315.0 — 2026-09-23 (pipeline error custom format profiles and multi-line capture)
+
+**Scope:** Version bump. pipeline error custom format profiles and multi-line capture.
+
+---
+
 ## v6.314.0 — 2026-09-23 (fix(ssh): delegate ip command to gitmap with auto-install across os and fix sh not recognized)
 
 **Scope:** Version bump. fix(ssh): delegate ip command to gitmap with auto-install across os and fix sh not recognized.

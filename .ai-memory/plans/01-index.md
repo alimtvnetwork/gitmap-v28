@@ -9,7 +9,8 @@ Master directory of architectural and execution plans.
 
 ## Recent Completed Tasks Register (Last 20 Tasks)
 
-1. [87-vm-cluster-lifecycle-and-osutil-suite.md](completed/87-vm-cluster-lifecycle-and-osutil-suite.md): VM Cluster Lifecycle, E2E Verification, WinUtil/LinUtil Aliases & Ubuntu AGY/AGM RCA Suite
+1. [88-pe-custom-format-and-error-capture.md](completed/88-pe-custom-format-and-error-capture.md): Pipeline Error Multi-Line Extraction Intelligence & Declarative JSON Format Profiles
+2. [87-vm-cluster-lifecycle-and-osutil-suite.md](completed/87-vm-cluster-lifecycle-and-osutil-suite.md): VM Cluster Lifecycle, E2E Verification, WinUtil/LinUtil Aliases & Ubuntu AGY/AGM RCA Suite
 2. [86-vm-cluster-e2e-ssh-and-os-integration.md](completed/86-vm-cluster-e2e-ssh-and-os-integration.md): Live VM Cluster End-to-End SSH Join, Multi-Node Execution, Remote Updates, and WinUtil/LinUtil OS Integration
 2. [85-git-pull-efficient-and-split-database.md](completed/85-git-pull-efficient-and-split-database.md): Git Pull Efficient Engine, Non-Git Directory Fallback, and Dedicated SQLite Split-Database (gitmap-pull.db)
 3. [84-pipeline-error-commit-filter-eta-and-dedup.md](completed/84-pipeline-error-commit-filter-eta-and-dedup.md): Pipeline Error Commit Navigation, Warning Ingestion, De-Duplication & Rolling ETA Engine
@@ -64,6 +65,9 @@ Master directory of architectural and execution plans.
 
 ## Completed Plans
 
+- [88-pe-custom-format-and-error-capture.md](completed/88-pe-custom-format-and-error-capture.md): Pipeline Error Multi-Line Extraction Intelligence & Declarative JSON Format Profiles
+- [87-vm-cluster-lifecycle-and-osutil-suite.md](completed/87-vm-cluster-lifecycle-and-osutil-suite.md): VM Cluster Lifecycle, E2E Verification, WinUtil/LinUtil Aliases & Ubuntu AGY/AGM RCA Suite
+- [86-vm-cluster-e2e-ssh-and-os-integration.md](completed/86-vm-cluster-e2e-ssh-and-os-integration.md): Live VM Cluster End-to-End SSH Join, Multi-Node Execution, Remote Updates, and WinUtil/LinUtil OS Integration
 - [85-git-pull-efficient-and-split-database.md](completed/85-git-pull-efficient-and-split-database.md): Git Pull Efficient Engine, Non-Git Directory Fallback, and Dedicated SQLite Split-Database (gitmap-pull.db)
 - [84-pipeline-error-commit-filter-eta-and-dedup.md](completed/84-pipeline-error-commit-filter-eta-and-dedup.md): Pipeline Error Commit Navigation, Warning Ingestion, De-Duplication & Rolling ETA Engine
 - [81-ssh-join-auth-error-logging-and-diagnostics.md](completed/81-ssh-join-auth-error-logging-and-diagnostics.md): SSH Join Authentication Error Logging, Execution Tracing & Diagnostic Command

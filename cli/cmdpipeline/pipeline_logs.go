@@ -15,13 +15,16 @@ import (
 )
 
 func handlePipelineErrorLogs(args []string) error {
-	if hasArgFlag(args, "--help") || hasArgFlag(args, "-h") {
+	if hasArgFlag(args, "--help") || hasArgFlag(args, "-h") || hasArgFlag(args, "help") {
 		printPipelineErrorLogsHelp()
 
 		return nil
 	}
 	if hasArgFlag(args, "last-failed-logs") {
 		return HandlePipelineLastFailedLogs(args)
+	}
+	if handled, err := HandlePEFormatCommands(args); handled {
+		return err
 	}
 
 	return handlePipelineHistoryOrExecute(args)
@@ -118,6 +121,56 @@ func applyPayloadOptions(p *PipelineErrorLogsPayload, runs []ghRunItem, flags Pi
 	}
 	if flags.HasFix || flags.HasCheck {
 		p.CICDChecks = runInternalCICDChecks(flags.HasFix)
+	}
+	if flags.FormatProfile != "" {
+		applyFormatProfileToPayload(p, flags.FormatProfile)
+	}
+}
+
+func applyFormatProfileToPayload(p *PipelineErrorLogsPayload, formatName string) {
+	profile, err := LoadPEFormatProfile(formatName)
+	if err != nil {
+		fmt.Printf("⚠️  Warning: could not load format profile '%s': %v\n", formatName, err)
+
+		return
+	}
+	applyProfileToFailedRuns(p.FailedRuns, profile)
+	applyProfileToSectionFailures(p.SectionFailures, profile)
+	if len(p.ErrorLogs) > 0 {
+		p.ErrorLogs = FilterLogWithProfile(p.ErrorLogs, profile)
+	}
+	if len(p.CombinedErrors) > 0 {
+		p.CombinedErrors = FilterLogWithProfile(p.CombinedErrors, profile)
+	}
+}
+
+func applyProfileToFailedRuns(runs []FailedRunItem, profile *PEFormatProfile) {
+	for i := range runs {
+		applyProfileToFailedJobs(runs[i].FailedJobs, profile)
+	}
+}
+
+func applyProfileToFailedJobs(jobs []FailedJobItem, profile *PEFormatProfile) {
+	for i := range jobs {
+		var filtered []string
+		for _, l := range jobs[i].ErrorLines {
+			if !IsLineStrippedByProfile(l, profile) {
+				filtered = append(filtered, l)
+			}
+		}
+		jobs[i].ErrorLines = filtered
+	}
+}
+
+func applyProfileToSectionFailures(sections []SectionFailure, profile *PEFormatProfile) {
+	for i := range sections {
+		var filtered []string
+		for _, l := range sections[i].ErrorLines {
+			if !IsLineStrippedByProfile(l, profile) {
+				filtered = append(filtered, l)
+			}
+		}
+		sections[i].ErrorLines = filtered
 	}
 }
 
@@ -1002,7 +1055,7 @@ func renderSectionWarnings(warnings []string) {
 	}
 
 	fmt.Printf("      Warnings (%d preceding):\n", len(warnings))
-	capped := capErrorLines(warnings, 4)
+	capped := capErrorLines(warnings, 25)
 	for _, w := range capped {
 		fmt.Printf("        %s%s%s\n", constants.ColorYellow, w, constants.ColorReset)
 	}
@@ -1123,7 +1176,7 @@ func renderJobCardWarnings(warnings []string) {
 	}
 
 	fmt.Printf("  │ Warnings (%d preceding):\n", len(warnings))
-	capped := capErrorLines(warnings, 5)
+	capped := capErrorLines(warnings, 25)
 	for _, w := range capped {
 		fmt.Printf("  │   %s%s%s\n", constants.ColorYellow, w, constants.ColorReset)
 	}
@@ -1184,29 +1237,44 @@ func printPipelineErrorLogsUsage() {
 	fmt.Println("Usage: gitmap pipeline error-logs [commit|-N|-Nn|HEAD~N] [flags]")
 	fmt.Println("       gitmap pipeline errors [commit|-N] [clear [-y]] [flags]")
 	fmt.Println("       gitmap pe [commit|-N|-Nn|HEAD~N] [clear [-y]] [flags]")
+	fmt.Println("       gitmap pe -f <format.json|alias> [flags]")
+	fmt.Println("       gitmap pe -f <alias> -test <filepath>")
+	fmt.Println("       gitmap pe -f <alias> -test-commit <commit-sha> [-repo <path>]")
+	fmt.Println("       gitmap pe add-format <file.json> [alias]")
+	fmt.Println("       gitmap pe rm-format <name|alias>")
+	fmt.Println("       gitmap pe add-all <folder-path>")
+	fmt.Println("       gitmap pe list-formats")
 	fmt.Println()
 	fmt.Println("Commands:")
-	fmt.Println("  clear [-y]              Purge error logs, reports, and reset pipeline DB for current repo")
+	fmt.Println("  clear [-y]                     Purge error logs, reports, and reset pipeline DB for current repo")
+	fmt.Println("  add-format <file.json> [alias] Register custom JSON format profile for error/warning filtering")
+	fmt.Println("  rm-format <name|alias>         Remove registered format profile")
+	fmt.Println("  add-all <folder-path>          Batch register all format profiles (*.json) from folder")
+	fmt.Println("  list-formats                   List all registered error log format profiles")
+	fmt.Println("  preview-format <name|file>     Preview format configuration rules in JSON")
 	fmt.Println()
 	fmt.Println("Targeting:")
-	fmt.Println("  <commit-sha>            Filter errors for specific commit (e.g. gitmap pe ee4a694)")
-	fmt.Println("  -1, -2, -3, -1n, HEAD~1 Inspect errors for previous commits by relative offset")
+	fmt.Println("  <commit-sha>                   Filter errors for specific commit (e.g. gitmap pe ee4a694)")
+	fmt.Println("  -1, -2, -3, -1n, HEAD~1        Inspect errors for previous commits by relative offset")
 	fmt.Println()
 }
 
 func printPipelineErrorLogsFlags() {
 	fmt.Println("Flags:")
-	fmt.Println("  -1, -2, -3, HEAD~N      Target past workflow run by relative commit offset or SHA")
-	fmt.Println("  -t, --timeline          Watch pipeline dynamic timeline until completion")
-	fmt.Println("  -f, --fix               Execute internal CI/CD diagnostic & auto-repair suite")
-	fmt.Println("  -c, --check             Run internal CI/CD checks without modifying files")
-	fmt.Println("  -v, --detailed, --verbose  Show full raw error logs including passing ok lines")
-	fmt.Println("  -y, --yes               Auto-confirm prompts non-interactively")
-	fmt.Println("  --force, --no-cache     Bypass local SQLite DB cache and pull fresh from GitHub")
-	fmt.Println("  --json                  Output data in structured JSON format")
-	fmt.Println("  --file <path>           Write error logs to specified file path")
-	fmt.Println("  --tempfile <filename>   Write error logs to .ai-memory/temp/<filename>")
-	fmt.Println("  -n, --no-output-log     Stage error logs to disk without displaying in terminal")
+	fmt.Println("  -f <format|file.json>          Apply custom format profile to filter and format errors (e.g. -f tauri)")
+	fmt.Println("  -f <format> -test <file>       Test format profile against a local log file")
+	fmt.Println("  -f <format> -test-commit <sha> Test format profile against remote GitHub Actions run for commit")
+	fmt.Println("  -1, -2, -3, HEAD~N             Target past workflow run by relative commit offset or SHA")
+	fmt.Println("  -t, --timeline                 Watch pipeline dynamic timeline until completion")
+	fmt.Println("  -f, --fix                      Execute internal CI/CD diagnostic & auto-repair suite (when standalone)")
+	fmt.Println("  -c, --check                    Run internal CI/CD checks without modifying files")
+	fmt.Println("  -v, --detailed, --verbose      Show full raw error logs including passing ok lines")
+	fmt.Println("  -y, --yes                      Auto-confirm prompts non-interactively")
+	fmt.Println("  --force, --no-cache            Bypass local SQLite DB cache and pull fresh from GitHub")
+	fmt.Println("  --json                         Output data in structured JSON format")
+	fmt.Println("  --file <path>                  Write error logs to specified file path")
+	fmt.Println("  --tempfile <filename>          Write error logs to .ai-memory/temp/<filename>")
+	fmt.Println("  -n, --no-output-log            Stage error logs to disk without displaying in terminal")
 }
 
 func printPipelineLogsHelp() {

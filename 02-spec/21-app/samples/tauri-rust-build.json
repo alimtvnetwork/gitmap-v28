@@ -1,0 +1,44 @@
+{
+  "$schema": "https://gitmap.dev/schemas/pe-format.json",
+  "name": "tauri-rust-build",
+  "alias": "tauri",
+  "description": "Log filter for Tauri + Rust desktop app compilation and bundling pipelines",
+  "strip_prefixes": [
+    "Compiling ",
+    "   Compiling ",
+    "Updating ",
+    "    Updating ",
+    "transforming...",
+    "vite v",
+    "dist/",
+    "Browserslist:"
+  ],
+  "strip_contains": [
+    "Finished `release` profile",
+    "modules transformed"
+  ],
+  "skip_empty": true,
+  "warning_markers": [
+    "warning:",
+    "warning[",
+    "##[warning]"
+  ],
+  "error_markers": [
+    "##[error]",
+    "failed to bundle",
+    "Error failed to bundle",
+    "does not exist",
+    "Failed to copy binary",
+    "Error:",
+    "error:",
+    "FAIL:",
+    "Process completed with exit code"
+  ],
+  "capture_until_markers": [
+    "Compiling ",
+    "   Compiling ",
+    "Finished `release`",
+    "ok  \t"
+  ],
+  "max_context_lines": 35
+}

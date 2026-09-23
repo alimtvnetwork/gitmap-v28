@@ -43,6 +43,19 @@ var failureMarkers = []string{
 	"want \"",
 	"lint error",
 	"Process completed with exit code",
+	"failed to bundle",
+	"Error failed to bundle",
+	"Failed to copy binary",
+	"failed to copy",
+	"failed to build",
+	"failed to compile",
+	"does not exist",
+	"error[E",
+	"Error [E",
+	"command not found",
+	"is not recognized as an internal or external command",
+	"no such file or directory",
+	"cannot find module",
 }
 
 // extractCleanErrorLines filters noisy logs to isolate only failure and error lines.
@@ -94,21 +107,44 @@ func scanLogLinesIntoMap(rawLogs string, jobMap map[string]*FailedJobItem, order
 	contextRemaining := 0
 	var lastKey string
 	warnBuf := make(map[string][]string)
+	warnContRemaining := 0
 	for scanner.Scan() {
-		processLogLine(scanner.Text(), jobMap, order, &contextRemaining, &lastKey, warnBuf)
+		processLogLine(scanner.Text(), jobMap, order, &contextRemaining, &lastKey, warnBuf, &warnContRemaining)
 	}
 }
 
-func processLogLine(raw string, jobMap map[string]*FailedJobItem, order *[]string, ctxRem *int, lastKey *string, warnBuf map[string][]string) {
+func processLogLine(
+	raw string,
+	jobMap map[string]*FailedJobItem,
+	order *[]string,
+	ctxRem *int,
+	lastKey *string,
+	warnBuf map[string][]string,
+	warnContRem *int,
+) {
 	job, step, text, isError := parseLogLine(raw)
 	if text == "" || isIgnoredLogLine(text) {
+		*warnContRem = 0
+
 		return
 	}
 
 	key := job + "|||" + step
 	if isWarningLine(text) {
 		bufferWarning(warnBuf, key, text)
+		*warnContRem = 10
+
+		return
 	}
+
+	if *warnContRem > 0 && isWarningContinuationLine(text) {
+		bufferWarning(warnBuf, key, text)
+		*warnContRem--
+
+		return
+	}
+	*warnContRem = 0
+
 	if isError {
 		recordErrorLine(jobMap, order, key, job, step, text, ctxRem, lastKey, warnBuf)
 
@@ -118,9 +154,30 @@ func processLogLine(raw string, jobMap map[string]*FailedJobItem, order *[]strin
 	appendContextLine(jobMap, key, text, ctxRem, lastKey)
 }
 
+func isWarningContinuationLine(text string) bool {
+	trimmed := strings.TrimSpace(text)
+	if trimmed == "" {
+		return false
+	}
+	if strings.HasPrefix(trimmed, "-->") || strings.HasPrefix(trimmed, "::: ") {
+		return true
+	}
+	if strings.Contains(trimmed, " |") || strings.HasPrefix(trimmed, "|") {
+		return true
+	}
+	if strings.HasPrefix(trimmed, "= note:") || strings.HasPrefix(trimmed, "= help:") {
+		return true
+	}
+	if strings.HasPrefix(trimmed, "^") || strings.Contains(trimmed, "^^^") {
+		return true
+	}
+
+	return false
+}
+
 func bufferWarning(warnBuf map[string][]string, key, text string) {
 	list := warnBuf[key]
-	if len(list) < 15 {
+	if len(list) < 30 {
 		warnBuf[key] = append(list, text)
 
 		return
@@ -371,6 +428,15 @@ func isToolProgressNoise(trimmed string) bool {
 	if strings.HasPrefix(trimmed, "Successfully set up CPython") || strings.HasPrefix(trimmed, "Complete job name:") {
 		return true
 	}
+	if strings.HasPrefix(trimmed, "Browserslist:") || strings.Contains(trimmed, "caniuse-lite") || strings.Contains(trimmed, "npx update-browserslist-db") {
+		return true
+	}
+	if strings.HasPrefix(trimmed, "transforming...") || strings.HasPrefix(trimmed, "vite v") || strings.Contains(trimmed, "building client environment") {
+		return true
+	}
+	if strings.HasPrefix(trimmed, "Info Looking up installed tauri packages") || strings.HasPrefix(trimmed, "Running beforeBuildCommand") {
+		return true
+	}
 
 	return strings.HasPrefix(trimmed, "Installed versions")
 }
@@ -435,7 +501,23 @@ func isStrongerSummary(candidate, current string) bool {
 		return true
 	}
 
+	if isBundlerOrBuildFailure(candidate) && !isBundlerOrBuildFailure(current) {
+		return true
+	}
+
 	return isGenericExitCode(current)
+}
+
+func isBundlerOrBuildFailure(s string) bool {
+	lower := strings.ToLower(s)
+	if strings.Contains(lower, "failed to bundle") || strings.Contains(lower, "failed to copy") {
+		return true
+	}
+	if strings.Contains(lower, "failed to build") || strings.Contains(lower, "does not exist") {
+		return true
+	}
+
+	return strings.Contains(lower, "error[e")
 }
 
 func isLocationSummary(s string) bool {

@@ -24,6 +24,7 @@ type PipelineErrorFlags struct {
 	FilePath             string
 	TempFileName         string
 	HasForce             bool
+	FormatProfile        string
 }
 
 // ParsePipelineErrorFlags parses command-line arguments for pipeline error-logs.
@@ -37,16 +38,30 @@ func ParsePipelineErrorFlags(args []string) PipelineErrorFlags {
 }
 
 func parseCommonErrorFlags(args []string, flags *PipelineErrorFlags) {
-	flags.HasHelp = hasArgFlag(args, "--help") || hasArgFlag(args, "-h")
+	flags.HasHelp = hasArgFlag(args, "--help") || hasArgFlag(args, "-h") || hasArgFlag(args, "help")
 	flags.IsJSON = hasArgFlag(args, "--json")
 	flags.HasTimeline = hasTimelineArg(args)
-	flags.HasFix = hasArgFlag(args, "--fix") || hasArgFlag(args, "-f")
 	flags.HasCheck = hasArgFlag(args, "--check") || hasArgFlag(args, "-c")
 	flags.IsDetailed = hasDetailedArg(args)
 	flags.HasSuppressOutputLog = hasSuppressOutputArg(args)
 	flags.FilePath = extractFlagVal(args, "--file")
 	flags.TempFileName = extractFlagVal(args, "--tempfile")
 	flags.HasForce = hasForceArg(args)
+	flags.FormatProfile = extractFormatProfileFlag(args)
+	flags.HasFix = hasArgFlag(args, "--fix") || (hasArgFlag(args, "-f") && flags.FormatProfile == "")
+}
+
+func extractFormatProfileFlag(args []string) string {
+	val := extractFlagVal(args, "--format")
+	if val != "" && !strings.HasPrefix(val, "-") {
+		return val
+	}
+	val = extractFlagVal(args, "-f")
+	if val != "" && !strings.HasPrefix(val, "-") {
+		return val
+	}
+
+	return ""
 }
 
 func hasForceArg(args []string) bool {

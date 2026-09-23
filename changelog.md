@@ -1,3 +1,15 @@
+## [v6.315.0] 2026-09-23 Release v6.315.0
+
+### Install GitMap v6.315.0
+
+To pin your repository to this exact version, run the following one-liner:
+Unix/Bash: `curl -sL https://raw.githubusercontent.com/alimtvnetwork/gitmap-v28/v6.315.0/install.sh | bash -s -- ".ai-memory/prompts" "v6.315.0"`
+PowerShell: `Invoke-WebRequest -Uri https://raw.githubusercontent.com/alimtvnetwork/gitmap-v28/v6.315.0/install.ps1 -OutFile install.ps1; .\install.ps1 -TargetDir ".ai-memory/prompts" -Version "v6.315.0"`
+
+### Added / Changed / Fixed / Removed
+
+- pipeline error custom format profiles and multi-line capture
+
 ## [v6.314.0] 2026-09-23 Release v6.314.0
 
 ### Install GitMap v6.314.0
