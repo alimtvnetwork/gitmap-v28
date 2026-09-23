@@ -63,6 +63,11 @@ func runPush(args []string) error {
 	}
 
 	records := resolvePullTargets(opts.slug, opts.group, opts.all) // Reusing target resolver from pull.go
+	if len(records) == 0 {
+		handlePushTargetNotFound(opts)
+
+		return nil
+	}
 	fmt.Printf("  %s resolved %d repo(s) to push\n", resolveSubArrow(), len(records))
 
 	taskID, taskDB := beginPushTask(records, rest)

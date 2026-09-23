@@ -152,7 +152,7 @@ func dispatchPullExecution(opts pullOptions) error {
 
 func runPullBatch(opts pullOptions) error {
 	records, isFound := resolvePullBatchRecords(opts)
-	if !isFound {
+	if !isFound || len(records) == 0 {
 		return nil
 	}
 	printResolvedPullRepos(len(records))
@@ -797,7 +797,14 @@ func findChildrenOfCWD(cwd string) []model.ScanRecord {
 
 func resolvePullBatchRecords(opts pullOptions) ([]model.ScanRecord, bool) {
 	if opts.slug != "" || opts.group != "" || opts.all || HasAlias() {
-		return resolvePullTargets(opts.slug, opts.group, opts.all), true
+		records := resolvePullTargets(opts.slug, opts.group, opts.all)
+		if len(records) == 0 {
+			handlePullTargetNotFound(opts)
+
+			return nil, false
+		}
+
+		return records, true
 	}
 	cwd, _ := os.Getwd()
 	records := ResolvePullDirectoryTargets(cwd)
@@ -809,6 +816,7 @@ func resolvePullBatchRecords(opts pullOptions) ([]model.ScanRecord, bool) {
 		fmt.Printf("    %s%s%s %snothing to pull: no tracked repositories found in or under this directory.%s\n\n",
 			constants.ColorCyan, arrow, constants.ColorReset,
 			constants.ColorDim, constants.ColorReset)
+		cliexit.HandleError(nil, int(cliexit.ExitCodeNotFound))
 
 		return nil, false
 	}
