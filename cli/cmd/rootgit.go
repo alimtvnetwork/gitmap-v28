@@ -22,11 +22,37 @@ func dispatchGitSubcommand(subCmd string, subArgs []string) error {
 		return runPullAll(subArgs)
 	}
 
+	if isPullEfficientTableGitSubCmd(subCmd) {
+		return runPullAllEfficient(subArgs, true, subCmd, isShortPullEfficientGitSubCmd(subCmd))
+	}
+
+	if isPullEfficientGitSubCmd(subCmd) {
+		return runPullAllEfficient(subArgs, false, subCmd, isShortPullEfficientGitSubCmd(subCmd))
+	}
+
 	return runGitPassthrough(append([]string{subCmd}, subArgs...))
 }
 
 func isPullAllGitSubCmd(subCmd string) bool {
 	return subCmd == "pull-all" || subCmd == "pa"
+}
+
+func isPullEfficientTableGitSubCmd(subCmd string) bool {
+	lower := strings.ToLower(subCmd)
+
+	return lower == "pull-all-efficient-table" || lower == "paet"
+}
+
+func isPullEfficientGitSubCmd(subCmd string) bool {
+	lower := strings.ToLower(subCmd)
+
+	return lower == "pull-all-efficient" || lower == "pae" || lower == "pull-ae"
+}
+
+func isShortPullEfficientGitSubCmd(subCmd string) bool {
+	lower := strings.ToLower(subCmd)
+
+	return lower == "pae" || lower == "pull-ae" || lower == "paet"
 }
 
 func runGitPassthrough(args []string) error {

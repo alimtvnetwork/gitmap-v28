@@ -11,8 +11,13 @@ p
     gitmap pull [<repo-name> | all] [flags]
     gitmap pull-all [flags]
     gitmap pa [flags]
+    gitmap pull all-efficient [flags]
+    gitmap pull-all-efficient [flags]
+    gitmap pae [flags]
     gitmap git pull [<repo-name>] [flags]
     gitmap git pull-all [flags]
+
+> **Note:** If `gitmap pull` is executed outside a Git repository, it automatically defaults to `gitmap pull all`.
 
 ## Flags
 
@@ -20,7 +25,7 @@ p
 |------|---------|-------------|
 | -A, --alias \<name\> | — | Target a repo by its alias |
 | --group \<name\> | — | Pull all repos in a group |
-| --all | false | Pull all tracked repos |
+| --all | false | Pull all tracked repos (default when outside a git repo) |
 | --raw | false | Stream raw git output directly instead of using progress bar |
 | --verbose | false | Enable verbose logging |
 | --parallel \<N\> | 1 | Run up to N pulls concurrently (worker pool) |

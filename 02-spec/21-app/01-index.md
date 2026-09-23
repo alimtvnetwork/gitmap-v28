@@ -53,6 +53,7 @@ See [00-overview.md](./00-overview.md) for the complete application specificatio
 - [Spec 133: SSH Interactive Join, Password Vault & Cluster](./133-ssh-interactive-join-password-vault-and-cluster.md)
 - [Spec 134: Antigravity IDE-First Integration & Queue Protocol](./134-antigravity-ide-first-integration-and-queue-protocol.md)
 - [Spec 135: Precompiled Test Warmup & Quad-Process Runner](./135-precompiled-test-warmup-and-dual-queue-runner.md)
+- [Spec 136: Git Pull Efficient & Split-DB](./136-git-pull-efficient-and-split-database.md)
 
 ---
 

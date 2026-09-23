@@ -64,6 +64,21 @@ func coreBasicOpEntries() []dispatchEntry {
 		{[]string{constants.CmdPull, constants.CmdPullAlias}, func() error { return runPull(argsTail()) }},
 		{[]string{constants.CmdPush, constants.CmdPushAlias}, func() error { return runPush(argsTail()) }},
 		{[]string{constants.CmdPullAll, constants.CmdPullAllAlias}, func() error { return runPullAll(argsTail()) }},
+		{[]string{
+			constants.CmdPullAllEfficient, constants.CmdPullAllEfficientAlias,
+			constants.CmdPullAE,
+		}, func() error {
+			alias := subcommandName()
+			isShort := alias == constants.CmdPullAllEfficientAlias || alias == constants.CmdPullAE
+			return runPullAllEfficient(argsTail(), false, alias, isShort)
+		}},
+		{[]string{
+			constants.CmdPullAllEfficientTable, constants.CmdPullAllEfficientTableAlias,
+		}, func() error {
+			alias := subcommandName()
+			isShort := alias == constants.CmdPullAllEfficientTableAlias
+			return runPullAllEfficient(argsTail(), true, alias, isShort)
+		}},
 		{[]string{constants.CmdStatus, constants.CmdStatusAlias}, func() error { return runStatus(argsTail()) }},
 		{[]string{"git"}, func() error { return runGitSubcommand(argsTail()) }},
 		{[]string{constants.CmdExec, constants.CmdExecAlias}, func() error { return runExec(argsTail()) }},

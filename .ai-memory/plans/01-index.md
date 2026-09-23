@@ -9,7 +9,8 @@ Master directory of architectural and execution plans.
 
 ## Recent Completed Tasks Register (Last 20 Tasks)
 
-1. [84-pipeline-error-commit-filter-eta-and-dedup.md](completed/84-pipeline-error-commit-filter-eta-and-dedup.md): Pipeline Error Commit Navigation, Warning Ingestion, De-Duplication & Rolling ETA Engine
+1. [85-git-pull-efficient-and-split-database.md](completed/85-git-pull-efficient-and-split-database.md): Git Pull Efficient Engine, Non-Git Directory Fallback, and Dedicated SQLite Split-Database (gitmap-pull.db)
+2. [84-pipeline-error-commit-filter-eta-and-dedup.md](completed/84-pipeline-error-commit-filter-eta-and-dedup.md): Pipeline Error Commit Navigation, Warning Ingestion, De-Duplication & Rolling ETA Engine
 2. [83-antigravity-ls-address-dynamic-discovery.md](completed/83-antigravity-ls-address-dynamic-discovery.md): Antigravity Language Server Address Dynamic Discovery, CSRF Token Probing, agentapi Injection & CLI Fallback
 3. [82-lowercase-renamer-full-parity.md](completed/82-lowercase-renamer-full-parity.md): Lowercase Command Full Parity: Doc CMD, Web UI Catalog, Robust Wildcard Engine, Safe 2-Step Git Rename & Status Reporting
 2. [81-ssh-join-auth-error-logging-and-diagnostics.md](completed/81-ssh-join-auth-error-logging-and-diagnostics.md): SSH Join Authentication Error Logging, Execution Tracing & Diagnostic Command
@@ -61,6 +62,7 @@ Master directory of architectural and execution plans.
 
 ## Completed Plans
 
+- [85-git-pull-efficient-and-split-database.md](completed/85-git-pull-efficient-and-split-database.md): Git Pull Efficient Engine, Non-Git Directory Fallback, and Dedicated SQLite Split-Database (gitmap-pull.db)
 - [84-pipeline-error-commit-filter-eta-and-dedup.md](completed/84-pipeline-error-commit-filter-eta-and-dedup.md): Pipeline Error Commit Navigation, Warning Ingestion, De-Duplication & Rolling ETA Engine
 - [81-ssh-join-auth-error-logging-and-diagnostics.md](completed/81-ssh-join-auth-error-logging-and-diagnostics.md): SSH Join Authentication Error Logging, Execution Tracing & Diagnostic Command
 - [80-agm-ide-interaction-and-e2e-isolation.md](completed/80-agm-ide-interaction-and-e2e-isolation.md): Antigravity-Manager (AGM) Research, Antigravity IDE Interaction, Adhoc E2E Testing & CI/CD Isolation

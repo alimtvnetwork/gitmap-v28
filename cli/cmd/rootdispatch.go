@@ -46,3 +46,11 @@ func matchAny(command string, names []string) bool {
 func argsTail() []string {
 	return os.Args[2:]
 }
+
+func subcommandName() string {
+	if len(os.Args) > 1 {
+		return os.Args[1]
+	}
+
+	return ""
+}

@@ -27,6 +27,11 @@ const (
 	CmdPullAlias             = "p"
 	CmdPullAll               = "pull-all"
 	CmdPullAllAlias          = "pa"
+	CmdPullAllEfficient      = "pull-all-efficient"
+	CmdPullAllEfficientAlias = "pae"
+	CmdPullAE                = "pull-ae"
+	CmdPullAllEfficientTable = "pull-all-efficient-table"
+	CmdPullAllEfficientTableAlias = "paet"
 	CmdReconcile             = "reconcile"
 	CmdReconcileAlias        = "recon"
 	// CmdPush is the cwd-scoped `git push` wrapper added in v5.29.0.

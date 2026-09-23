@@ -59,12 +59,15 @@ func NormalizePullArgs(args []string) []string {
 // runPull handles the "pull" subcommand.
 func runPull(args []string) error {
 	checkHelp("pull", args)
+	if handled, err := checkEfficientSubcommand(args); handled {
+		return err
+	}
 	isPullAll := isPullAllInvocation(args)
 	args = NormalizePullArgs(args)
 	printPullInvocationHeader(isPullAll)
 	requireOnline()
 	useSSH, useHTTPS, restArgs := ExtractTransportFlags(args)
-	isCWDTransport := !isPullAll && (useSSH || useHTTPS)
+	isCWDTransport := !isPullAll && (useSSH || useHTTPS) && isGitRepoCWD()
 	if isCWDTransport {
 		runPullCWDWithTransport(useSSH, useHTTPS, restArgs)
 
@@ -96,6 +99,38 @@ func isPullAllInvocation(args []string) bool {
 	}
 
 	return hasPullAllArg(args)
+}
+
+func checkEfficientSubcommand(args []string) (bool, error) {
+	if len(args) == 0 {
+		return false, nil
+	}
+	if isEfficientTableSubcmd(args[0]) {
+		return true, RunPullAllEfficient(args[1:], true, "pull "+args[0], isShortEfficientSubcmd(args[0]))
+	}
+	if isEfficientPullSubcmd(args[0]) {
+		return true, RunPullAllEfficient(args[1:], false, "pull "+args[0], isShortEfficientSubcmd(args[0]))
+	}
+
+	return false, nil
+}
+
+func isEfficientTableSubcmd(arg string) bool {
+	lower := strings.ToLower(arg)
+
+	return lower == "all-efficient-table" || lower == "paet" || lower == "aet"
+}
+
+func isEfficientPullSubcmd(arg string) bool {
+	lower := strings.ToLower(arg)
+
+	return lower == "all-efficient" || lower == "ae" || lower == "pae" || lower == "pull-ae" || lower == "efficient"
+}
+
+func isShortEfficientSubcmd(arg string) bool {
+	lower := strings.ToLower(arg)
+
+	return lower == "ae" || lower == "pae" || lower == "pull-ae" || lower == "paet" || lower == "aet"
 }
 
 func isPullAllRootCmd() bool {
@@ -147,6 +182,11 @@ func dispatchPullExecution(opts pullOptions) error {
 		return runPullCWD(opts.isRaw)
 	}
 
+	if ShouldFallbackToPullAll(opts) {
+		AnnounceNonGitPullFallback()
+		opts.all = true
+	}
+
 	return runPullBatch(opts)
 }
 
@@ -189,13 +229,57 @@ func executePullBatchLifecycle(records []model.ScanRecord, opts pullOptions) err
 	maybeApplyTransportToRecords(records, opts.useSSH, opts.useHTTPS)
 	bar := NewPullProgressBar(len(records), false, opts.stopOnFail)
 	bar.Start()
+	startTime := time.Now()
 	executePull(records, bar, opts)
 	bar.Stop()
+	dur := time.Since(startTime)
 	sortedStates := sortStatesAlphabetically(bar.States())
 	renderPullBatchResults(sortedStates)
 	handlePullRemediationForRecords(records, opts)
+	syncPullBatchTelemetry(records, sortedStates, dur, opts)
 
 	return finalizePullBatchTask(taskDB, taskID, bar.Failed())
+}
+
+func syncPullBatchTelemetry(records []model.ScanRecord, states []*PullRepoState, dur time.Duration, opts pullOptions) {
+	cwd, _ := os.Getwd()
+	cmdType := resolveBatchCommandType(opts.all)
+	successCount, failedCount := countBatchStateOutcomes(states)
+	telemetry := PullSessionTelemetry{
+		CommandType:   cmdType,
+		WorkingDir:    cwd,
+		TotalRepos:    len(records),
+		PulledRepos:   len(states),
+		SkippedRepos:  len(records) - len(states),
+		SuccessCount:  successCount,
+		FailedCount:   failedCount,
+		IsEfficient:   false,
+		Duration:      dur,
+		GitMapVersion: constants.Version,
+	}
+	_ = RecordPullBatchSession(telemetry, states)
+}
+
+func resolveBatchCommandType(isAll bool) string {
+	if isAll {
+		return "pull-all"
+	}
+
+	return "pull"
+}
+
+func countBatchStateOutcomes(states []*PullRepoState) (int, int) {
+	successCount := 0
+	failedCount := 0
+	for _, s := range states {
+		if s.ErrorMsg == "" && s.Step != PullStepTypeError {
+			successCount++
+		} else {
+			failedCount++
+		}
+	}
+
+	return successCount, failedCount
 }
 
 func maybeApplyTransportToRecords(records []model.ScanRecord, useSSH, useHTTPS bool) {
@@ -454,6 +538,7 @@ func runPullCWDTracked() error {
 	state := executeCWDTrackedPull(cwd)
 	row := buildPullTableRowFromState(state)
 	RenderPullBatchTable([]model.PullTableRow{row})
+	_ = RecordSinglePullSession(cwd, state, "pull")
 
 	return nil
 }

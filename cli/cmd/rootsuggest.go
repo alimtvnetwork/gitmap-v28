@@ -11,6 +11,7 @@ import (
 
 var primaryTopCommands = []string{
 	"scan", "clone", "clone-only-missing", "com", "create", "clone-sync", "pull", "push", "pull-all",
+	"pull-all-efficient", "pae", "pull-ae", "pull-all-efficient-table", "paet",
 	"status", "reconcile", "fix", "stash", "wip", "discard", "exec",
 	"release", "pull-release", "changelog", "cd", "group", "open",
 	"history", "stats", "export", "import", "profile", "bookmark",

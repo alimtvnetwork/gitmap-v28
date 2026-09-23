@@ -648,6 +648,10 @@ func runPullAll(args []string) error {
 	return cmdpull.RunPullAll(args)
 }
 
+func runPullAllEfficient(args []string, isTable bool, alias string, isShort bool) error {
+	return cmdpull.RunPullAllEfficient(args, isTable, alias, isShort)
+}
+
 func runPullReleaseCD(args []string) error {
 	return cmdpull.RunPullReleaseCD(args)
 }
