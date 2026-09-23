@@ -91,19 +91,23 @@ func renderCommonJoinTable(out io.Writer, res *SSHCommonJoinResult) error {
 	w := tabwriter.NewWriter(out, 0, 0, 2, ' ', 0)
 	fmt.Fprintln(w, "STATUS\tIP\tALIAS\tUSER\tOS\tVERSION\tDETAILS")
 	for _, t := range res.Targets {
-		statusStr := constants.ColorGreen + "SUCCESS" + constants.ColorReset
-		details := "enrolled"
-		if !t.IsSuccess {
-			statusStr = constants.ColorRed + "FAILED" + constants.ColorReset
-			details = t.ErrorMsg
-		}
-		fmt.Fprintf(w, "%s\t%s\t%s\t%s\t%s\t%s\t%s\n",
-			statusStr, t.FullIP, t.Alias, t.Username, t.DetectedOS, t.OSVersion, details)
+		renderCommonJoinTargetRow(w, t)
 	}
 	_ = w.Flush()
 	fmt.Fprintf(out, "\n  Batch join summary: %d/%d succeeded (%d failed)\n\n",
 		res.SuccessCount, res.TotalCount, res.FailureCount)
 	return nil
+}
+
+func renderCommonJoinTargetRow(w io.Writer, t SSHCommonTarget) {
+	statusStr := constants.ColorRed + "FAILED" + constants.ColorReset
+	details := t.ErrorMsg
+	if t.IsSuccess {
+		statusStr = constants.ColorGreen + "SUCCESS" + constants.ColorReset
+		details = "enrolled"
+	}
+	fmt.Fprintf(w, "%s\t%s\t%s\t%s\t%s\t%s\t%s\n",
+		statusStr, t.FullIP, t.Alias, t.Username, t.DetectedOS, t.OSVersion, details)
 }
 
 func renderCommonJoinJSON(out io.Writer, res *SSHCommonJoinResult) error {

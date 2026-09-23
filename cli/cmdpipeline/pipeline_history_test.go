@@ -426,8 +426,8 @@ func TestGroupRunsByCommit_PreservesReleaseFromSubsequentRuns(t *testing.T) {
 	}
 }
 
-func TestFormatStatusBadge_CancelledAndFailing(t *testing.T) {
-	testBadgeOutput(t, "cancelled", "completed", "FAIL")
+func TestFormatStatusBadge_CanceledAndFailing(t *testing.T) {
+	testBadgeOutput(t, "canceled", "completed", "FAIL")
 	testBadgeOutput(t, "failure", "completed", "FAIL")
 	testBadgeOutput(t, "timed_out", "completed", "FAIL")
 	testBadgeOutput(t, "action_required", "completed", "FAIL")
@@ -449,7 +449,7 @@ func TestFormatGroupWorkflowsSummary_PrioritizesFailures(t *testing.T) {
 	wfs := []CommitWorkflowItem{
 		{Name: "Release", Conclusion: "success"},
 		{Name: "Pages", Conclusion: "success"},
-		{Name: "CI", Conclusion: "cancelled"},
+		{Name: "CI", Conclusion: "canceled"},
 	}
 	got := formatGroupWorkflowsSummary(wfs, 32)
 	if !strings.HasPrefix(got, "CI [CANCEL]") {
@@ -468,20 +468,20 @@ func TestFormatGroupWorkflowsSummary_PrioritizesFailures(t *testing.T) {
 	}
 }
 
-func TestIsCommitGroupFailure_Cancelled(t *testing.T) {
-	groupCancelled := &CommitPipelineGroup{
+func TestIsCommitGroupFailure_Canceled(t *testing.T) {
+	groupCanceled := &CommitPipelineGroup{
 		Conclusion:      "failure",
 		FailedWorkflows: 1,
 	}
-	if !isCommitGroupFailure(groupCancelled) {
+	if !isCommitGroupFailure(groupCanceled) {
 		t.Fatalf("expected isCommitGroupFailure to be true for failed group")
 	}
 
-	groupCancelledConclusion := &CommitPipelineGroup{
-		Conclusion: "cancelled",
+	groupCanceledConclusion := &CommitPipelineGroup{
+		Conclusion: "canceled",
 	}
-	if !isCommitGroupFailure(groupCancelledConclusion) {
-		t.Fatalf("expected isCommitGroupFailure to be true for cancelled conclusion")
+	if !isCommitGroupFailure(groupCanceledConclusion) {
+		t.Fatalf("expected isCommitGroupFailure to be true for canceled conclusion")
 	}
 
 	groupSuccess := &CommitPipelineGroup{

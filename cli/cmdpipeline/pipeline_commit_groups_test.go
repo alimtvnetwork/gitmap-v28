@@ -58,20 +58,20 @@ func verifySecondGroup(t *testing.T, g CommitPipelineGroup) {
 	}
 }
 
-func TestGroupRunsByCommit_CancelledWorkflows(t *testing.T) {
+func TestGroupRunsByCommit_CanceledWorkflows(t *testing.T) {
 	runs := []ghRunItem{
-		makeTestRun(301, "CI", "completed", "cancelled", "12e40b1"),
+		makeTestRun(301, "CI", "completed", "canceled", "12e40b1"),
 		makeTestRun(302, "Release", "completed", "success", "12e40b1"),
-		makeTestRun(303, "CI", "completed", "cancelled", "5717700"),
-		makeTestRun(304, "Release", "completed", "cancelled", "5717700"),
+		makeTestRun(303, "CI", "completed", "canceled", "5717700"),
+		makeTestRun(304, "Release", "completed", "canceled", "5717700"),
 	}
 	groups := GroupRunsByCommit(runs)
 	verifyGroupLengths(t, groups, 2)
-	verifyCancelledFirstGroup(t, groups[0])
-	verifyCancelledSecondGroup(t, groups[1])
+	verifyCanceledFirstGroup(t, groups[0])
+	verifyCanceledSecondGroup(t, groups[1])
 }
 
-func verifyCancelledFirstGroup(t *testing.T, g CommitPipelineGroup) {
+func verifyCanceledFirstGroup(t *testing.T, g CommitPipelineGroup) {
 	if g.HeadSha != "12e40b1" || g.Conclusion != "failure" {
 		t.Fatalf("unexpected first group conclusion: sha=%s, conclusion=%s", g.HeadSha, g.Conclusion)
 	}
@@ -80,7 +80,7 @@ func verifyCancelledFirstGroup(t *testing.T, g CommitPipelineGroup) {
 	}
 }
 
-func verifyCancelledSecondGroup(t *testing.T, g CommitPipelineGroup) {
+func verifyCanceledSecondGroup(t *testing.T, g CommitPipelineGroup) {
 	if g.HeadSha != "5717700" || g.Conclusion != "failure" {
 		t.Fatalf("unexpected second group conclusion: sha=%s, conclusion=%s", g.HeadSha, g.Conclusion)
 	}
