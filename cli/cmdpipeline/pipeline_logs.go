@@ -149,10 +149,6 @@ func handleEmptyRunsPayload(repo string, runs []ghRunItem, p PipelineErrorLogsPa
 	return buildLocalOrEmptyErrorPayload(p)
 }
 
-func populateRunsIntoPayload(repo string, runs []ghRunItem, p *PipelineErrorLogsPayload) {
-	populateRunsIntoPayloadWithFlags(repo, runs, p, PipelineErrorFlags{})
-}
-
 func populateRunsIntoPayloadWithFlags(repo string, runs []ghRunItem, p *PipelineErrorLogsPayload, flags PipelineErrorFlags) {
 	initTargetRunMeta(p, runs, flags.CommitTarget)
 	failedRuns := resolveFailedRunsForPayloadWithTarget(repo, runs, flags.CommitTarget)
@@ -335,10 +331,6 @@ func setPayloadRunningState(p *PipelineErrorLogsPayload, r ghRunItem, eta int) {
 		r.Name, r.DatabaseId, eta)
 }
 
-func resolveFailedRunsForPayload(repo string, runs []ghRunItem) []ghRunItem {
-	return collectFailedRunsForRepo(repo, runs)
-}
-
 func populateFailedRunsPayload(repo string, failedRuns []ghRunItem, p *PipelineErrorLogsPayload) {
 	initFailedRunTopLevel(p, failedRuns[0])
 	p.FailedRuns = fetchAllFailedRunsParallel(repo, failedRuns)
@@ -430,14 +422,20 @@ func buildBaseFailedRunItem(repo string, fr ghRunItem, rawLogs string) FailedRun
 	return item
 }
 
+func resolveExplicitTargetSha(runs []ghRunItem, targetCommit ...string) string {
+	if len(targetCommit) == 0 || len(targetCommit[0]) == 0 {
+		return ""
+	}
+
+	return resolveTargetShaFromGroups(runs, targetCommit[0])
+}
+
 func resolveTargetCommitSha(runs []ghRunItem, targetCommit ...string) string {
 	if len(runs) == 0 {
 		return ""
 	}
-	if len(targetCommit) > 0 && len(targetCommit[0]) > 0 {
-		if sha := resolveTargetShaFromGroups(runs, targetCommit[0]); len(sha) > 0 {
-			return sha
-		}
+	if sha := resolveExplicitTargetSha(runs, targetCommit...); len(sha) > 0 {
+		return sha
 	}
 	if sha := findShaForActiveBranch(runs); len(sha) > 0 {
 		return sha
@@ -517,11 +515,13 @@ func queryWorkflowRunsForTarget(repo string, target string) []ghRunItem {
 	if _, isFound := ResolveCommitGroupByTarget(groups, target); isFound {
 		return runs
 	}
-	if isCommitHexSha(target) {
-		commitRuns := queryWorkflowRunsByCommit(repo, target)
-		if len(commitRuns) > 0 {
-			return append(commitRuns, runs...)
-		}
+	if !isCommitHexSha(target) {
+		return runs
+	}
+
+	commitRuns := queryWorkflowRunsByCommit(repo, target)
+	if len(commitRuns) > 0 {
+		return append(commitRuns, runs...)
 	}
 
 	return runs
@@ -1023,31 +1023,6 @@ func renderSectionErrorLinesDedup(lines []string, summary string) {
 	}
 
 	printRemainingLineCount(len(dedup), len(capped))
-}
-
-func renderSectionStackTrace(stack string) {
-	if len(stack) == 0 {
-		return
-	}
-
-	fmt.Printf("      Stack Trace:\n")
-	for _, line := range strings.Split(strings.TrimSpace(stack), "\n") {
-		fmt.Printf("        %s%s%s\n", constants.ColorDim, line, constants.ColorReset)
-	}
-}
-
-func renderSectionErrorLines(lines []string) {
-	if len(lines) == 0 {
-		return
-	}
-
-	fmt.Printf("      Details:\n")
-	capped := capErrorLines(lines, 12)
-	for _, l := range capped {
-		fmt.Printf("        %s%s%s\n", constants.ColorYellow, l, constants.ColorReset)
-	}
-
-	printRemainingLineCount(len(lines), len(capped))
 }
 
 func printRemainingLineCount(total, capped int) {

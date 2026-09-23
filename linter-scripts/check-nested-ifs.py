@@ -245,6 +245,8 @@ def parse_cli_args() -> argparse.Namespace:
     parser.add_argument("--all", "--force", dest="force_all", action="store_true", help="Scan all repository files (bypass change cache)")
     parser.add_argument("--chunk-size", type=int, default=8, help="Files per chunk (default: 8)")
     parser.add_argument("--workers", "-w", type=int, default=10, help="Concurrency (default: 10)")
+    parser.add_argument("--changed-only", dest="changed_only", action="store_true", help="Scan only changed files")
+    parser.add_argument("--commits", type=int, default=20, help="Number of commits to check for changes")
 
     return parser.parse_args()
 

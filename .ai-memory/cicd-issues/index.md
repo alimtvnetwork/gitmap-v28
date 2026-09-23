@@ -61,3 +61,7 @@
 - [70-pipeline-commit-group-release-tag-resolution-rca.md](./70-pipeline-commit-group-release-tag-resolution-rca.md): Fix recent commits summary table release tag resolution outside repository root.
 - [71-windows-console-subarrow-glyph-tofu-rca.md](./71-windows-console-subarrow-glyph-tofu-rca.md): Fix Windows terminal glyph font rendering issue with subarrow in pull all.
 - [72-ssh-build-failures-and-pe-stacktrace-rca.md](./72-ssh-build-failures-and-pe-stacktrace-rca.md): Fix unused strings imports, duplicate SJRmCmd, swallowed error in ssh_history_db, missing resolveRmTarget, and gitmap pe Go stack trace leak.
+- [73-gofmt-whitespace-drift-in-rootcore-and-helpers-rca.md](./73-gofmt-whitespace-drift-in-rootcore-and-helpers-rca.md): Fix gofmt whitespace drift in rootcore and helpers.
+- [74-interface-naming-and-enum-suffix-compliance-rca.md](./74-interface-naming-and-enum-suffix-compliance-rca.md): Fix interface naming and enum suffix compliance.
+- [75-pipeline-compile-and-vet-fixes-rca.md](./75-pipeline-compile-and-vet-fixes-rca.md): Fix CI pipeline compilation, vet, and unused import fixes.
+- [76-cross-platform-windows-runner-hang-rca.md](./76-cross-platform-windows-runner-hang-rca.md): Fix Cross-Platform Build Windows runner communication hang via job timeout-minutes and expanded Defender exclusions.

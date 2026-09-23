@@ -35,6 +35,7 @@ jobs:
       matrix:
         os: [ubuntu-latest, macos-latest, windows-latest]
     runs-on: ${{ matrix.os }}
+    timeout-minutes: 20
     defaults:
       run:
         working-directory: cli
@@ -46,7 +47,7 @@ jobs:
         shell: pwsh
         run: |
           Set-MpPreference -DisableRealtimeMonitoring $true
-          Set-MpPreference -ExclusionPath "${{ github.workspace }}"
+          Set-MpPreference -ExclusionPath "${{ github.workspace }}", "C:\hostedtoolcache", "$env:USERPROFILE\go", "$env:LOCALAPPDATA\go-build"
 
       - uses: actions/setup-go@v6
         with:

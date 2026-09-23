@@ -795,16 +795,20 @@ func findChildrenOfCWD(cwd string) []model.ScanRecord {
 	return children
 }
 
+func resolveExplicitPullTargets(opts pullOptions) ([]model.ScanRecord, bool) {
+	records := resolvePullTargets(opts.slug, opts.group, opts.all)
+	if len(records) == 0 {
+		handlePullTargetNotFound(opts)
+
+		return nil, false
+	}
+
+	return records, true
+}
+
 func resolvePullBatchRecords(opts pullOptions) ([]model.ScanRecord, bool) {
 	if opts.slug != "" || opts.group != "" || opts.all || HasAlias() {
-		records := resolvePullTargets(opts.slug, opts.group, opts.all)
-		if len(records) == 0 {
-			handlePullTargetNotFound(opts)
-
-			return nil, false
-		}
-
-		return records, true
+		return resolveExplicitPullTargets(opts)
 	}
 	cwd, _ := os.Getwd()
 	records := ResolvePullDirectoryTargets(cwd)

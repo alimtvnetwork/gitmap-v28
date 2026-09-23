@@ -1,6 +1,6 @@
 {
   "version": 1,
-  "updated_at": "2026-09-23T07:40:51Z",
+  "updated_at": "2026-09-23T08:52:48Z",
   "total_tests": 4088,
   "summary": {
     "total": 4088,
@@ -23535,7 +23535,7 @@
       "tier": "fast",
       "is_slow": false,
       "last_status": "passed",
-      "last_run_at": "2026-09-22T23:22:19",
+      "last_run_at": "2026-09-23T08:53:17",
       "needs_run": false
     },
     "cli/cmdpipeline.TestExtractPipelineAISubcmd": {
@@ -23551,7 +23551,7 @@
       "tier": "fast",
       "is_slow": false,
       "last_status": "passed",
-      "last_run_at": "2026-09-22T23:22:19",
+      "last_run_at": "2026-09-23T08:53:17",
       "needs_run": false
     },
     "cli/cmdpipeline.TestResolvePipelineAINextCommand_Errors": {
@@ -23567,7 +23567,7 @@
       "tier": "fast",
       "is_slow": false,
       "last_status": "passed",
-      "last_run_at": "2026-09-22T23:22:19",
+      "last_run_at": "2026-09-23T08:53:17",
       "needs_run": false
     },
     "cli/cmdpipeline.TestResolvePipelineAINextCommand_RunningClean": {
@@ -23583,7 +23583,7 @@
       "tier": "fast",
       "is_slow": false,
       "last_status": "passed",
-      "last_run_at": "2026-09-22T23:22:19",
+      "last_run_at": "2026-09-23T08:53:17",
       "needs_run": false
     },
     "cli/cmdpipeline.TestHasAnyFailingJobOrStep": {
@@ -23599,7 +23599,7 @@
       "tier": "fast",
       "is_slow": false,
       "last_status": "passed",
-      "last_run_at": "2026-09-22T23:22:19",
+      "last_run_at": "2026-09-23T08:53:17",
       "needs_run": false
     },
     "cli/cmdpipeline.TestTruncateErrorLines": {
@@ -23615,7 +23615,7 @@
       "tier": "fast",
       "is_slow": false,
       "last_status": "passed",
-      "last_run_at": "2026-09-22T23:22:19",
+      "last_run_at": "2026-09-23T08:53:17",
       "needs_run": false
     },
     "cli/cmdpipeline.TestRunPipelineAI_SkipDelay": {
@@ -23631,7 +23631,7 @@
       "tier": "fast",
       "is_slow": false,
       "last_status": "passed",
-      "last_run_at": "2026-09-22T23:22:19",
+      "last_run_at": "2026-09-23T08:53:17",
       "needs_run": false
     },
     "cli/cmdpipeline.TestIsPipelineCacheBypassed": {
@@ -23647,7 +23647,7 @@
       "tier": "fast",
       "is_slow": false,
       "last_status": "passed",
-      "last_run_at": "2026-09-22T23:22:19",
+      "last_run_at": "2026-09-23T08:53:17",
       "needs_run": false
     },
     "cli/cmdpipeline.TestMatchCommitSha": {
@@ -23663,7 +23663,7 @@
       "tier": "fast",
       "is_slow": false,
       "last_status": "passed",
-      "last_run_at": "2026-09-22T23:22:19",
+      "last_run_at": "2026-09-23T08:53:17",
       "needs_run": false
     },
     "cli/cmdpipeline.TestIsRunCompleted": {
@@ -23679,7 +23679,7 @@
       "tier": "fast",
       "is_slow": false,
       "last_status": "passed",
-      "last_run_at": "2026-09-22T23:22:19",
+      "last_run_at": "2026-09-23T08:53:17",
       "needs_run": false
     },
     "cli/cmdpipeline.TestCheckTargetIndexCacheHit": {
@@ -23695,7 +23695,7 @@
       "tier": "fast",
       "is_slow": false,
       "last_status": "passed",
-      "last_run_at": "2026-09-22T23:22:19",
+      "last_run_at": "2026-09-23T08:53:17",
       "needs_run": false
     },
     "cli/cmdpipeline.TestEvaluatePipelineErrorsCache_ForceBypass": {
@@ -23711,7 +23711,7 @@
       "tier": "fast",
       "is_slow": false,
       "last_status": "passed",
-      "last_run_at": "2026-09-22T23:22:19",
+      "last_run_at": "2026-09-23T08:53:17",
       "needs_run": false
     },
     "cli/cmdpipeline.TestCheckTtlCacheHit_WithFreshSyncMeta": {
@@ -23727,7 +23727,7 @@
       "tier": "fast",
       "is_slow": false,
       "last_status": "passed",
-      "last_run_at": "2026-09-22T23:22:19",
+      "last_run_at": "2026-09-23T08:53:17",
       "needs_run": false
     },
     "cli/cmdpipeline.TestCheckTtlCacheHit_WithExpiredSyncMeta": {
@@ -23743,7 +23743,7 @@
       "tier": "fast",
       "is_slow": false,
       "last_status": "passed",
-      "last_run_at": "2026-09-22T23:22:19",
+      "last_run_at": "2026-09-23T08:53:17",
       "needs_run": false
     },
     "cli/cmdpipeline.TestCheckTtlCacheHit_FallbackDbStat": {
@@ -23759,7 +23759,7 @@
       "tier": "fast",
       "is_slow": false,
       "last_status": "passed",
-      "last_run_at": "2026-09-22T23:22:19",
+      "last_run_at": "2026-09-23T08:53:17",
       "needs_run": false
     },
     "cli/cmdpipeline.TestWriteAndReadCacheSyncMeta": {
@@ -23775,7 +23775,7 @@
       "tier": "fast",
       "is_slow": false,
       "last_status": "passed",
-      "last_run_at": "2026-09-22T23:22:19",
+      "last_run_at": "2026-09-23T08:53:17",
       "needs_run": false
     },
     "cli/cmdpipeline.TestGroupRunsByCommit_MultipleWorkflows": {
@@ -23786,12 +23786,12 @@
       "test_hash": "33263c6dafb4b662",
       "target_file": "cli/cmdpipeline/pipeline_commit_groups.go",
       "target_func": "GroupRunsByCommit",
-      "code_hash": "5b3a398af35fbf51",
+      "code_hash": "cfce365d46585142",
       "duration_sec": 0.01,
       "tier": "fast",
       "is_slow": false,
       "last_status": "passed",
-      "last_run_at": "2026-09-22T23:22:19",
+      "last_run_at": "2026-09-23T08:53:17",
       "needs_run": false
     },
     "cli/cmdpipeline.TestResolveCommitGroupByOffset": {
@@ -23802,12 +23802,12 @@
       "test_hash": "33263c6dafb4b662",
       "target_file": "cli/cmdpipeline/pipeline_commit_groups.go",
       "target_func": "ResolveCommitGroupByOffset",
-      "code_hash": "5b3a398af35fbf51",
+      "code_hash": "cfce365d46585142",
       "duration_sec": 0.01,
       "tier": "fast",
       "is_slow": false,
       "last_status": "passed",
-      "last_run_at": "2026-09-22T23:22:19",
+      "last_run_at": "2026-09-23T08:53:17",
       "needs_run": false
     },
     "cli/cmdpipeline.TestResolveCommitGroupByTarget": {
@@ -23818,12 +23818,12 @@
       "test_hash": "33263c6dafb4b662",
       "target_file": "cli/cmdpipeline/pipeline_commit_groups.go",
       "target_func": "ResolveCommitGroupByTarget",
-      "code_hash": "5b3a398af35fbf51",
+      "code_hash": "cfce365d46585142",
       "duration_sec": 0.01,
       "tier": "fast",
       "is_slow": false,
       "last_status": "passed",
-      "last_run_at": "2026-09-22T23:22:19",
+      "last_run_at": "2026-09-23T08:53:17",
       "needs_run": false
     },
     "cli/cmdpipeline.TestGroupRunsByCommit_InProgressConclusion": {
@@ -23834,12 +23834,12 @@
       "test_hash": "33263c6dafb4b662",
       "target_file": "cli/cmdpipeline/pipeline_commit_groups.go",
       "target_func": "GroupRunsByCommit",
-      "code_hash": "5b3a398af35fbf51",
+      "code_hash": "cfce365d46585142",
       "duration_sec": 0.01,
       "tier": "fast",
       "is_slow": false,
       "last_status": "passed",
-      "last_run_at": "2026-09-22T23:22:19",
+      "last_run_at": "2026-09-23T08:53:17",
       "needs_run": false
     },
     "cli/cmdpipeline.TestCollapseConsecutiveEmptyLines": {
@@ -23850,12 +23850,12 @@
       "test_hash": "33263c6dafb4b662",
       "target_file": "cli/cmdpipeline/pipeline_commit_groups.go",
       "target_func": "CollapseConsecutiveEmptyLines",
-      "code_hash": "5b3a398af35fbf51",
+      "code_hash": "cfce365d46585142",
       "duration_sec": 0.01,
       "tier": "fast",
       "is_slow": false,
       "last_status": "passed",
-      "last_run_at": "2026-09-22T23:22:19",
+      "last_run_at": "2026-09-23T08:53:17",
       "needs_run": false
     },
     "cli/cmdpipeline.TestIsOkLogLine_WithPassingInputs_ReturnsTrue": {
@@ -23871,7 +23871,7 @@
       "tier": "fast",
       "is_slow": false,
       "last_status": "passed",
-      "last_run_at": "2026-09-22T23:22:19",
+      "last_run_at": "2026-09-23T08:53:17",
       "needs_run": false
     },
     "cli/cmdpipeline.TestIsOkLogLine_WithFailingInputs_ReturnsFalse": {
@@ -23887,7 +23887,7 @@
       "tier": "fast",
       "is_slow": false,
       "last_status": "passed",
-      "last_run_at": "2026-09-22T23:22:19",
+      "last_run_at": "2026-09-23T08:53:17",
       "needs_run": false
     },
     "cli/cmdpipeline.TestFilterCompactLines_WithMixedLines_FiltersOkLines": {
@@ -23903,7 +23903,7 @@
       "tier": "fast",
       "is_slow": false,
       "last_status": "passed",
-      "last_run_at": "2026-09-22T23:22:19",
+      "last_run_at": "2026-09-23T08:53:17",
       "needs_run": false
     },
     "cli/cmdpipeline.TestParsePipelineErrorFlags_WithDetailedFlags_SetsIsDetailed": {
@@ -23919,7 +23919,7 @@
       "tier": "fast",
       "is_slow": false,
       "last_status": "passed",
-      "last_run_at": "2026-09-22T23:22:19",
+      "last_run_at": "2026-09-23T08:53:17",
       "needs_run": false
     },
     "cli/cmdpipeline.TestParsePipelineErrorFlags_WithoutDetailedFlag_SetsIsDetailedFalse": {
@@ -23935,7 +23935,7 @@
       "tier": "fast",
       "is_slow": false,
       "last_status": "passed",
-      "last_run_at": "2026-09-22T23:22:19",
+      "last_run_at": "2026-09-23T08:53:17",
       "needs_run": false
     },
     "cli/cmdpipeline.TestCompactErrorPayload_WithFailedRuns_RemovesOkLines": {
@@ -23951,7 +23951,7 @@
       "tier": "fast",
       "is_slow": false,
       "last_status": "passed",
-      "last_run_at": "2026-09-22T23:22:19",
+      "last_run_at": "2026-09-23T08:53:17",
       "needs_run": false
     },
     "cli/cmdpipeline.TestFilterCompactLogText": {
@@ -23967,7 +23967,7 @@
       "tier": "fast",
       "is_slow": false,
       "last_status": "passed",
-      "last_run_at": "2026-09-22T23:22:19",
+      "last_run_at": "2026-09-23T08:53:17",
       "needs_run": false
     },
     "cli/cmdpipeline.TestDualTableRepoSplitDbStorage": {
@@ -23983,7 +23983,7 @@
       "tier": "fast",
       "is_slow": false,
       "last_status": "passed",
-      "last_run_at": "2026-09-22T23:22:19",
+      "last_run_at": "2026-09-23T08:53:17",
       "needs_run": false
     },
     "cli/cmdpipeline.TestCleanAnnotationError_WithFileAndLine_FormatsLocation": {
@@ -23999,7 +23999,7 @@
       "tier": "fast",
       "is_slow": false,
       "last_status": "passed",
-      "last_run_at": "2026-09-22T23:22:19",
+      "last_run_at": "2026-09-23T08:53:17",
       "needs_run": false
     },
     "cli/cmdpipeline.TestCleanAnnotationError_WithoutAnnotation_ReturnsOriginal": {
@@ -24015,7 +24015,7 @@
       "tier": "fast",
       "is_slow": false,
       "last_status": "passed",
-      "last_run_at": "2026-09-22T23:22:19",
+      "last_run_at": "2026-09-23T08:53:17",
       "needs_run": false
     },
     "cli/cmdpipeline.TestFormatSectionMetadata_WithScriptAndFile_DisplaysThem": {
@@ -24031,7 +24031,7 @@
       "tier": "fast",
       "is_slow": false,
       "last_status": "passed",
-      "last_run_at": "2026-09-22T23:22:19",
+      "last_run_at": "2026-09-23T08:53:17",
       "needs_run": false
     },
     "cli/cmdpipeline.TestExtractBoundedStackTrace_StopsAtNonStackLine": {
@@ -24047,7 +24047,7 @@
       "tier": "fast",
       "is_slow": false,
       "last_status": "passed",
-      "last_run_at": "2026-09-22T23:22:19",
+      "last_run_at": "2026-09-23T08:53:17",
       "needs_run": false
     },
     "cli/cmdpipeline.TestAssembleJobItems_DoesNotCrossContaminateStackTrace": {
@@ -24063,7 +24063,7 @@
       "tier": "fast",
       "is_slow": false,
       "last_status": "passed",
-      "last_run_at": "2026-09-22T23:22:19",
+      "last_run_at": "2026-09-23T08:53:17",
       "needs_run": false
     },
     "cli/cmdpipeline.TestIsIgnoredLogLine_FiltersRunnerAndCleanupNoise": {
@@ -24079,7 +24079,7 @@
       "tier": "fast",
       "is_slow": false,
       "last_status": "passed",
-      "last_run_at": "2026-09-22T23:22:19",
+      "last_run_at": "2026-09-23T08:53:17",
       "needs_run": false
     },
     "cli/cmdpipeline.TestResolveContextLimit_TerminalStepError": {
@@ -24095,7 +24095,7 @@
       "tier": "fast",
       "is_slow": false,
       "last_status": "passed",
-      "last_run_at": "2026-09-22T23:22:19",
+      "last_run_at": "2026-09-23T08:53:17",
       "needs_run": false
     },
     "cli/cmdpipeline.TestMultiJobLogParsing_BoundedAndNoiseFree": {
@@ -24111,7 +24111,7 @@
       "tier": "fast",
       "is_slow": false,
       "last_status": "passed",
-      "last_run_at": "2026-09-22T23:22:19",
+      "last_run_at": "2026-09-23T08:53:17",
       "needs_run": false
     },
     "cli/cmdpipeline.TestCachedLogFile35354190330_CompactPayloadSize": {
@@ -24127,7 +24127,7 @@
       "tier": "fast",
       "is_slow": false,
       "last_status": "passed",
-      "last_run_at": "2026-09-22T23:22:19",
+      "last_run_at": "2026-09-23T08:53:17",
       "needs_run": false
     },
     "cli/cmdpipeline.TestHandlePipelineErrorLogsWithTimeline": {
@@ -24143,7 +24143,7 @@
       "tier": "fast",
       "is_slow": false,
       "last_status": "passed",
-      "last_run_at": "2026-09-22T23:22:19",
+      "last_run_at": "2026-09-23T08:53:17",
       "needs_run": false
     },
     "cli/cmdpipeline.TestHandlePipelineErrorLogsWithCheckAndFix": {
@@ -24159,7 +24159,7 @@
       "tier": "fast",
       "is_slow": false,
       "last_status": "passed",
-      "last_run_at": "2026-09-22T23:22:19",
+      "last_run_at": "2026-09-23T08:53:17",
       "needs_run": false
     },
     "cli/cmdpipeline.TestPipelineErrorLogsPayloadRerunETA": {
@@ -24175,7 +24175,7 @@
       "tier": "fast",
       "is_slow": false,
       "last_status": "passed",
-      "last_run_at": "2026-09-22T23:22:19",
+      "last_run_at": "2026-09-23T08:53:17",
       "needs_run": false
     },
     "cli/cmdpipeline.TestRunInternalCICDChecks": {
@@ -24191,7 +24191,7 @@
       "tier": "fast",
       "is_slow": false,
       "last_status": "passed",
-      "last_run_at": "2026-09-22T23:22:19",
+      "last_run_at": "2026-09-23T08:53:17",
       "needs_run": false
     },
     "cli/cmdpipeline.TestPipelineDispatcherErrorlogsAlias": {
@@ -24207,7 +24207,7 @@
       "tier": "fast",
       "is_slow": false,
       "last_status": "passed",
-      "last_run_at": "2026-09-22T23:22:19",
+      "last_run_at": "2026-09-23T08:53:17",
       "needs_run": false
     },
     "cli/cmdpipeline.TestParseFailedLogLines": {
@@ -24223,7 +24223,7 @@
       "tier": "fast",
       "is_slow": false,
       "last_status": "passed",
-      "last_run_at": "2026-09-22T23:22:19",
+      "last_run_at": "2026-09-23T08:53:17",
       "needs_run": false
     },
     "cli/cmdpipeline.TestCollectFailedRuns": {
@@ -24239,7 +24239,7 @@
       "tier": "fast",
       "is_slow": false,
       "last_status": "passed",
-      "last_run_at": "2026-09-22T23:22:19",
+      "last_run_at": "2026-09-23T08:53:17",
       "needs_run": false
     },
     "cli/cmdpipeline.TestFormatAggregatedErrorLogs": {
@@ -24255,7 +24255,7 @@
       "tier": "fast",
       "is_slow": false,
       "last_status": "passed",
-      "last_run_at": "2026-09-22T23:22:19",
+      "last_run_at": "2026-09-23T08:53:17",
       "needs_run": false
     },
     "cli/cmdpipeline.TestExtractAllSectionFailures": {
@@ -24271,7 +24271,7 @@
       "tier": "fast",
       "is_slow": false,
       "last_status": "passed",
-      "last_run_at": "2026-09-22T23:22:19",
+      "last_run_at": "2026-09-23T08:53:17",
       "needs_run": false
     },
     "cli/cmdpipeline.TestFormatCombinedSectionFailures": {
@@ -24287,7 +24287,7 @@
       "tier": "fast",
       "is_slow": false,
       "last_status": "passed",
-      "last_run_at": "2026-09-22T23:22:19",
+      "last_run_at": "2026-09-23T08:53:17",
       "needs_run": false
     },
     "cli/cmdpipeline.TestFormatRunTimestampAndDuration": {
@@ -24303,7 +24303,7 @@
       "tier": "fast",
       "is_slow": false,
       "last_status": "passed",
-      "last_run_at": "2026-09-22T23:22:19",
+      "last_run_at": "2026-09-23T08:53:17",
       "needs_run": false
     },
     "cli/cmdpipeline.TestPersistErrorReport": {
@@ -24319,7 +24319,7 @@
       "tier": "fast",
       "is_slow": false,
       "last_status": "passed",
-      "last_run_at": "2026-09-22T23:22:19",
+      "last_run_at": "2026-09-23T08:53:17",
       "needs_run": false
     },
     "cli/cmdpipeline.TestCollectFailedRunsIgnoresResolvedRuns": {
@@ -24335,7 +24335,7 @@
       "tier": "fast",
       "is_slow": false,
       "last_status": "passed",
-      "last_run_at": "2026-09-22T23:22:19",
+      "last_run_at": "2026-09-23T08:53:17",
       "needs_run": false
     },
     "cli/cmdpipeline.TestBuildErrorLogsPayloadCleanSuccess": {
@@ -24351,7 +24351,7 @@
       "tier": "fast",
       "is_slow": false,
       "last_status": "passed",
-      "last_run_at": "2026-09-22T23:22:19",
+      "last_run_at": "2026-09-23T08:53:17",
       "needs_run": false
     },
     "cli/cmdpipeline.TestParsePipelineErrorFlagsSuppressOutput": {
@@ -24367,7 +24367,7 @@
       "tier": "fast",
       "is_slow": false,
       "last_status": "passed",
-      "last_run_at": "2026-09-22T23:22:19",
+      "last_run_at": "2026-09-23T08:53:17",
       "needs_run": false
     },
     "cli/cmdpipeline.TestCachedPipelineJobsRoundTrip": {
@@ -24383,7 +24383,7 @@
       "tier": "fast",
       "is_slow": false,
       "last_status": "passed",
-      "last_run_at": "2026-09-22T23:22:19",
+      "last_run_at": "2026-09-23T08:53:17",
       "needs_run": false
     },
     "cli/cmdpipeline.TestResolveFetchConcurrency": {
@@ -24399,7 +24399,7 @@
       "tier": "fast",
       "is_slow": false,
       "last_status": "passed",
-      "last_run_at": "2026-09-22T23:22:19",
+      "last_run_at": "2026-09-23T08:53:17",
       "needs_run": false
     },
     "cli/cmdpipeline.TestPrintRecentCommitsHeaderPadding": {
@@ -24415,7 +24415,7 @@
       "tier": "fast",
       "is_slow": false,
       "last_status": "passed",
-      "last_run_at": "2026-09-22T23:22:19",
+      "last_run_at": "2026-09-23T08:53:17",
       "needs_run": false
     },
     "cli/cmdpipeline.TestHistoricalSuccessETAExcludesFailedRuns": {
@@ -24431,7 +24431,7 @@
       "tier": "fast",
       "is_slow": false,
       "last_status": "passed",
-      "last_run_at": "2026-09-22T23:22:19",
+      "last_run_at": "2026-09-23T08:53:17",
       "needs_run": false
     },
     "cli/cmdpipeline.TestExtractCleanErrorLines": {
@@ -24447,7 +24447,7 @@
       "tier": "fast",
       "is_slow": false,
       "last_status": "passed",
-      "last_run_at": "2026-09-22T23:22:19",
+      "last_run_at": "2026-09-23T08:53:17",
       "needs_run": false
     },
     "cli/cmdpipeline.TestCalculateAverageDuration_ExcludesShortSkippedOutliers": {
@@ -24463,7 +24463,7 @@
       "tier": "fast",
       "is_slow": false,
       "last_status": "passed",
-      "last_run_at": "2026-09-22T23:22:19",
+      "last_run_at": "2026-09-23T08:53:17",
       "needs_run": false
     },
     "cli/cmdpipeline.TestBuildFailedChecksTree_Empty": {
@@ -24479,7 +24479,7 @@
       "tier": "fast",
       "is_slow": false,
       "last_status": "passed",
-      "last_run_at": "2026-09-22T23:22:19",
+      "last_run_at": "2026-09-23T08:53:17",
       "needs_run": false
     },
     "cli/cmdpipeline.TestBuildFailedChecksTree_SingleWorkflowAndJob": {
@@ -24495,7 +24495,7 @@
       "tier": "fast",
       "is_slow": false,
       "last_status": "passed",
-      "last_run_at": "2026-09-22T23:22:19",
+      "last_run_at": "2026-09-23T08:53:17",
       "needs_run": false
     },
     "cli/cmdpipeline.TestBuildFailedChecksTree_MultipleWorkflowsAndJobs": {
@@ -24511,7 +24511,7 @@
       "tier": "fast",
       "is_slow": false,
       "last_status": "passed",
-      "last_run_at": "2026-09-22T23:22:19",
+      "last_run_at": "2026-09-23T08:53:17",
       "needs_run": false
     },
     "cli/cmdpipeline.TestBuildFailedChecksTree_ColorFormatting": {
@@ -24527,7 +24527,7 @@
       "tier": "fast",
       "is_slow": false,
       "last_status": "passed",
-      "last_run_at": "2026-09-22T23:22:19",
+      "last_run_at": "2026-09-23T08:53:17",
       "needs_run": false
     },
     "cli/cmdpipeline.TestAppendClipboardFailureTree": {
@@ -24543,7 +24543,7 @@
       "tier": "fast",
       "is_slow": false,
       "last_status": "passed",
-      "last_run_at": "2026-09-22T23:22:19",
+      "last_run_at": "2026-09-23T08:53:17",
       "needs_run": false
     },
     "cli/cmdpipeline.TestBuildCommitGroupFailureTree_NilOrNoFailures": {
@@ -24559,7 +24559,7 @@
       "tier": "fast",
       "is_slow": false,
       "last_status": "passed",
-      "last_run_at": "2026-09-22T23:22:19",
+      "last_run_at": "2026-09-23T08:53:17",
       "needs_run": false
     },
     "cli/cmdpipeline.TestBuildCommitGroupFailureTree_WithFailingWorkflow": {
@@ -24575,7 +24575,7 @@
       "tier": "fast",
       "is_slow": false,
       "last_status": "passed",
-      "last_run_at": "2026-09-22T23:22:19",
+      "last_run_at": "2026-09-23T08:53:17",
       "needs_run": false
     },
     "cli/cmdpipeline.TestFindPreviousFailingRunInHistory_ReturnsFirstFailedRun": {
@@ -24591,7 +24591,7 @@
       "tier": "fast",
       "is_slow": false,
       "last_status": "passed",
-      "last_run_at": "2026-09-22T23:22:19",
+      "last_run_at": "2026-09-23T08:53:17",
       "needs_run": false
     },
     "cli/cmdpipeline.TestFindPreviousFailingRunInHistory_ReturnsFalseWhenAllSuccess": {
@@ -24607,7 +24607,7 @@
       "tier": "fast",
       "is_slow": false,
       "last_status": "passed",
-      "last_run_at": "2026-09-22T23:22:19",
+      "last_run_at": "2026-09-23T08:53:17",
       "needs_run": false
     },
     "cli/cmdpipeline.TestResolveFallbackTargetGroup_ReturnsSecondGroupWhenAvailable": {
@@ -24623,7 +24623,7 @@
       "tier": "fast",
       "is_slow": false,
       "last_status": "passed",
-      "last_run_at": "2026-09-22T23:22:19",
+      "last_run_at": "2026-09-23T08:53:17",
       "needs_run": false
     },
     "cli/cmdpipeline.TestResolveFallbackTargetGroup_ReturnsFalseWhenSingleGroup": {
@@ -24639,7 +24639,7 @@
       "tier": "fast",
       "is_slow": false,
       "last_status": "passed",
-      "last_run_at": "2026-09-22T23:22:19",
+      "last_run_at": "2026-09-23T08:53:17",
       "needs_run": false
     },
     "cli/cmdpipeline.TestIsPipelineFixAgyArgs_UserRequestVariations": {
@@ -24655,7 +24655,7 @@
       "tier": "fast",
       "is_slow": false,
       "last_status": "passed",
-      "last_run_at": "2026-09-22T23:22:19",
+      "last_run_at": "2026-09-23T08:53:17",
       "needs_run": false
     },
     "cli/cmdpipeline.TestRunPipeline_DispatchesToPipelineAgyFixRunner": {
@@ -24671,7 +24671,7 @@
       "tier": "fast",
       "is_slow": false,
       "last_status": "passed",
-      "last_run_at": "2026-09-22T23:22:19",
+      "last_run_at": "2026-09-23T08:53:17",
       "needs_run": false
     },
     "cli/cmdpipeline.TestParseNegativeIndex": {
@@ -24682,12 +24682,12 @@
       "test_hash": "72d187f1d0016fe2",
       "target_file": "cli/cmdpipeline/pipeline_history.go",
       "target_func": "ParseNegativeIndex",
-      "code_hash": "35e914ee9cd5afbf",
+      "code_hash": "1b6e940ceddd8300",
       "duration_sec": 0.01,
       "tier": "fast",
       "is_slow": false,
       "last_status": "passed",
-      "last_run_at": "2026-09-22T23:22:19",
+      "last_run_at": "2026-09-23T08:53:17",
       "needs_run": false
     },
     "cli/cmdpipeline.TestNormalizeNegativeIndex": {
@@ -24698,12 +24698,12 @@
       "test_hash": "72d187f1d0016fe2",
       "target_file": "cli/cmdpipeline/pipeline_history.go",
       "target_func": "NormalizeNegativeIndex",
-      "code_hash": "35e914ee9cd5afbf",
+      "code_hash": "1b6e940ceddd8300",
       "duration_sec": 0.01,
       "tier": "fast",
       "is_slow": false,
       "last_status": "passed",
-      "last_run_at": "2026-09-22T23:22:19",
+      "last_run_at": "2026-09-23T08:53:17",
       "needs_run": false
     },
     "cli/cmdpipeline.TestParseLastFailuresFlag": {
@@ -24714,12 +24714,12 @@
       "test_hash": "72d187f1d0016fe2",
       "target_file": "cli/cmdpipeline/pipeline_history.go",
       "target_func": "ParseLastFailuresFlag",
-      "code_hash": "35e914ee9cd5afbf",
+      "code_hash": "1b6e940ceddd8300",
       "duration_sec": 0.01,
       "tier": "fast",
       "is_slow": false,
       "last_status": "passed",
-      "last_run_at": "2026-09-22T23:22:19",
+      "last_run_at": "2026-09-23T08:53:17",
       "needs_run": false
     },
     "cli/cmdpipeline.TestIsErrorLogsSubcmd": {
@@ -24730,12 +24730,12 @@
       "test_hash": "72d187f1d0016fe2",
       "target_file": "cli/cmdpipeline/pipeline_history.go",
       "target_func": "IsErrorLogsSubcmd",
-      "code_hash": "35e914ee9cd5afbf",
+      "code_hash": "1b6e940ceddd8300",
       "duration_sec": 0.01,
       "tier": "fast",
       "is_slow": false,
       "last_status": "passed",
-      "last_run_at": "2026-09-22T23:22:19",
+      "last_run_at": "2026-09-23T08:53:17",
       "needs_run": false
     },
     "cli/cmdpipeline.TestFormatRelativeDbPath": {
@@ -24746,12 +24746,12 @@
       "test_hash": "72d187f1d0016fe2",
       "target_file": "cli/cmdpipeline/pipeline_history.go",
       "target_func": "FormatRelativeDbPath",
-      "code_hash": "35e914ee9cd5afbf",
+      "code_hash": "1b6e940ceddd8300",
       "duration_sec": 0.01,
       "tier": "fast",
       "is_slow": false,
       "last_status": "passed",
-      "last_run_at": "2026-09-22T23:22:19",
+      "last_run_at": "2026-09-23T08:53:17",
       "needs_run": false
     },
     "cli/cmdpipeline.TestInspectPositionalRunPassing": {
@@ -24762,12 +24762,12 @@
       "test_hash": "72d187f1d0016fe2",
       "target_file": "cli/cmdpipeline/pipeline_history.go",
       "target_func": "InspectPositionalRunPassing",
-      "code_hash": "35e914ee9cd5afbf",
+      "code_hash": "1b6e940ceddd8300",
       "duration_sec": 0.01,
       "tier": "fast",
       "is_slow": false,
       "last_status": "passed",
-      "last_run_at": "2026-09-22T23:22:19",
+      "last_run_at": "2026-09-23T08:53:17",
       "needs_run": false
     },
     "cli/cmdpipeline.TestInspectPositionalRunFailing": {
@@ -24778,12 +24778,12 @@
       "test_hash": "72d187f1d0016fe2",
       "target_file": "cli/cmdpipeline/pipeline_history.go",
       "target_func": "InspectPositionalRunFailing",
-      "code_hash": "35e914ee9cd5afbf",
+      "code_hash": "1b6e940ceddd8300",
       "duration_sec": 0.01,
       "tier": "fast",
       "is_slow": false,
       "last_status": "passed",
-      "last_run_at": "2026-09-22T23:22:19",
+      "last_run_at": "2026-09-23T08:53:17",
       "needs_run": false
     },
     "cli/cmdpipeline.TestRenderHistorySummaryTable": {
@@ -24794,12 +24794,12 @@
       "test_hash": "72d187f1d0016fe2",
       "target_file": "cli/cmdpipeline/pipeline_history.go",
       "target_func": "RenderHistorySummaryTable",
-      "code_hash": "35e914ee9cd5afbf",
+      "code_hash": "1b6e940ceddd8300",
       "duration_sec": 0.01,
       "tier": "fast",
       "is_slow": false,
       "last_status": "passed",
-      "last_run_at": "2026-09-22T23:22:19",
+      "last_run_at": "2026-09-23T08:53:17",
       "needs_run": false
     },
     "cli/cmdpipeline.TestRenderLastCachedFailuresEmpty": {
@@ -24810,12 +24810,12 @@
       "test_hash": "72d187f1d0016fe2",
       "target_file": "cli/cmdpipeline/pipeline_history.go",
       "target_func": "RenderLastCachedFailuresEmpty",
-      "code_hash": "35e914ee9cd5afbf",
+      "code_hash": "1b6e940ceddd8300",
       "duration_sec": 0.01,
       "tier": "fast",
       "is_slow": false,
       "last_status": "passed",
-      "last_run_at": "2026-09-22T23:22:19",
+      "last_run_at": "2026-09-23T08:53:17",
       "needs_run": false
     },
     "cli/cmdpipeline.TestPipelineSyncResultCount": {
@@ -24826,12 +24826,12 @@
       "test_hash": "72d187f1d0016fe2",
       "target_file": "cli/cmdpipeline/pipeline_history.go",
       "target_func": "PipelineSyncResultCount",
-      "code_hash": "35e914ee9cd5afbf",
+      "code_hash": "1b6e940ceddd8300",
       "duration_sec": 0.01,
       "tier": "fast",
       "is_slow": false,
       "last_status": "passed",
-      "last_run_at": "2026-09-22T23:22:19",
+      "last_run_at": "2026-09-23T08:53:17",
       "needs_run": false
     },
     "cli/cmdpipeline.TestPipelineDBOpenAndIndexes": {
@@ -24842,12 +24842,12 @@
       "test_hash": "72d187f1d0016fe2",
       "target_file": "cli/cmdpipeline/pipeline_history.go",
       "target_func": "PipelineDBOpenAndIndexes",
-      "code_hash": "35e914ee9cd5afbf",
+      "code_hash": "1b6e940ceddd8300",
       "duration_sec": 0.01,
       "tier": "fast",
       "is_slow": false,
       "last_status": "passed",
-      "last_run_at": "2026-09-22T23:22:19",
+      "last_run_at": "2026-09-23T08:53:17",
       "needs_run": false
     },
     "cli/cmdpipeline.TestSyncAllRunsIntoDbIncremental": {
@@ -24858,12 +24858,12 @@
       "test_hash": "72d187f1d0016fe2",
       "target_file": "cli/cmdpipeline/pipeline_history.go",
       "target_func": "SyncAllRunsIntoDbIncremental",
-      "code_hash": "35e914ee9cd5afbf",
+      "code_hash": "1b6e940ceddd8300",
       "duration_sec": 0.01,
       "tier": "fast",
       "is_slow": false,
       "last_status": "passed",
-      "last_run_at": "2026-09-22T23:22:19",
+      "last_run_at": "2026-09-23T08:53:17",
       "needs_run": false
     },
     "cli/cmdpipeline.TestParsePipelineErrorFlags_Combined": {
@@ -24874,12 +24874,12 @@
       "test_hash": "72d187f1d0016fe2",
       "target_file": "cli/cmdpipeline/pipeline_history.go",
       "target_func": "ParsePipelineErrorFlags",
-      "code_hash": "35e914ee9cd5afbf",
+      "code_hash": "1b6e940ceddd8300",
       "duration_sec": 0.01,
       "tier": "fast",
       "is_slow": false,
       "last_status": "passed",
-      "last_run_at": "2026-09-22T23:22:19",
+      "last_run_at": "2026-09-23T08:53:17",
       "needs_run": false
     },
     "cli/cmdpipeline.TestParsePipelineErrorFlags_LastFailedLogs": {
@@ -24890,12 +24890,12 @@
       "test_hash": "72d187f1d0016fe2",
       "target_file": "cli/cmdpipeline/pipeline_history.go",
       "target_func": "ParsePipelineErrorFlags",
-      "code_hash": "35e914ee9cd5afbf",
+      "code_hash": "1b6e940ceddd8300",
       "duration_sec": 0.01,
       "tier": "fast",
       "is_slow": false,
       "last_status": "passed",
-      "last_run_at": "2026-09-22T23:22:19",
+      "last_run_at": "2026-09-23T08:53:17",
       "needs_run": false
     },
     "cli/cmdpipeline.TestVisibleLenAndPadRightVisible": {
@@ -24906,12 +24906,12 @@
       "test_hash": "72d187f1d0016fe2",
       "target_file": "cli/cmdpipeline/pipeline_history.go",
       "target_func": "VisibleLenAndPadRightVisible",
-      "code_hash": "35e914ee9cd5afbf",
+      "code_hash": "1b6e940ceddd8300",
       "duration_sec": 0.01,
       "tier": "fast",
       "is_slow": false,
       "last_status": "passed",
-      "last_run_at": "2026-09-22T23:22:19",
+      "last_run_at": "2026-09-23T08:53:17",
       "needs_run": false
     },
     "cli/cmdpipeline.TestFormatGroupWorkflowsSummary_FitsWithinLimit": {
@@ -24922,12 +24922,12 @@
       "test_hash": "72d187f1d0016fe2",
       "target_file": "cli/cmdpipeline/pipeline_history.go",
       "target_func": "FormatGroupWorkflowsSummary",
-      "code_hash": "35e914ee9cd5afbf",
+      "code_hash": "1b6e940ceddd8300",
       "duration_sec": 0.01,
       "tier": "fast",
       "is_slow": false,
       "last_status": "passed",
-      "last_run_at": "2026-09-22T23:22:19",
+      "last_run_at": "2026-09-23T08:53:17",
       "needs_run": false
     },
     "cli/cmdpipeline.TestFormatGroupWorkflowsSummary_TruncatesSafely": {
@@ -24938,12 +24938,12 @@
       "test_hash": "72d187f1d0016fe2",
       "target_file": "cli/cmdpipeline/pipeline_history.go",
       "target_func": "FormatGroupWorkflowsSummary",
-      "code_hash": "35e914ee9cd5afbf",
+      "code_hash": "1b6e940ceddd8300",
       "duration_sec": 0.01,
       "tier": "fast",
       "is_slow": false,
       "last_status": "passed",
-      "last_run_at": "2026-09-22T23:22:19",
+      "last_run_at": "2026-09-23T08:53:17",
       "needs_run": false
     },
     "cli/cmdpipeline.TestRecentCommitsSummaryTableAlignment": {
@@ -24954,12 +24954,12 @@
       "test_hash": "72d187f1d0016fe2",
       "target_file": "cli/cmdpipeline/pipeline_history.go",
       "target_func": "RecentCommitsSummaryTableAlignment",
-      "code_hash": "35e914ee9cd5afbf",
+      "code_hash": "1b6e940ceddd8300",
       "duration_sec": 0.01,
       "tier": "fast",
       "is_slow": false,
       "last_status": "passed",
-      "last_run_at": "2026-09-22T23:22:19",
+      "last_run_at": "2026-09-23T08:53:17",
       "needs_run": false
     },
     "cli/cmdpipeline.TestFormatDbPathWithSize_ExistingAndMissing": {
@@ -24970,12 +24970,12 @@
       "test_hash": "72d187f1d0016fe2",
       "target_file": "cli/cmdpipeline/pipeline_history.go",
       "target_func": "FormatDbPathWithSize",
-      "code_hash": "35e914ee9cd5afbf",
+      "code_hash": "1b6e940ceddd8300",
       "duration_sec": 0.01,
       "tier": "fast",
       "is_slow": false,
       "last_status": "passed",
-      "last_run_at": "2026-09-22T23:22:19",
+      "last_run_at": "2026-09-23T08:53:17",
       "needs_run": false
     },
     "cli/cmdpipeline.TestResolveDbFileSize": {
@@ -24986,12 +24986,12 @@
       "test_hash": "72d187f1d0016fe2",
       "target_file": "cli/cmdpipeline/pipeline_history.go",
       "target_func": "ResolveDbFileSize",
-      "code_hash": "35e914ee9cd5afbf",
+      "code_hash": "1b6e940ceddd8300",
       "duration_sec": 0.01,
       "tier": "fast",
       "is_slow": false,
       "last_status": "passed",
-      "last_run_at": "2026-09-22T23:22:19",
+      "last_run_at": "2026-09-23T08:53:17",
       "needs_run": false
     },
     "cli/cmdpipeline.TestFormatRelativeDbPath_RepoScoped": {
@@ -25002,12 +25002,12 @@
       "test_hash": "72d187f1d0016fe2",
       "target_file": "cli/cmdpipeline/pipeline_history.go",
       "target_func": "FormatRelativeDbPath",
-      "code_hash": "35e914ee9cd5afbf",
+      "code_hash": "1b6e940ceddd8300",
       "duration_sec": 0.01,
       "tier": "fast",
       "is_slow": false,
       "last_status": "passed",
-      "last_run_at": "2026-09-22T23:22:19",
+      "last_run_at": "2026-09-23T08:53:17",
       "needs_run": false
     },
     "cli/cmdpipeline.TestResolveCommitRelease": {
@@ -25018,12 +25018,12 @@
       "test_hash": "72d187f1d0016fe2",
       "target_file": "cli/cmdpipeline/pipeline_history.go",
       "target_func": "ResolveCommitRelease",
-      "code_hash": "35e914ee9cd5afbf",
+      "code_hash": "1b6e940ceddd8300",
       "duration_sec": 0.01,
       "tier": "fast",
       "is_slow": false,
       "last_status": "passed",
-      "last_run_at": "2026-09-22T23:22:19",
+      "last_run_at": "2026-09-23T08:53:17",
       "needs_run": false
     },
     "cli/cmdpipeline.TestExtractReleaseFromTitle": {
@@ -25034,12 +25034,12 @@
       "test_hash": "72d187f1d0016fe2",
       "target_file": "cli/cmdpipeline/pipeline_history.go",
       "target_func": "ExtractReleaseFromTitle",
-      "code_hash": "35e914ee9cd5afbf",
+      "code_hash": "1b6e940ceddd8300",
       "duration_sec": 0.01,
       "tier": "fast",
       "is_slow": false,
       "last_status": "passed",
-      "last_run_at": "2026-09-22T23:22:19",
+      "last_run_at": "2026-09-23T08:53:17",
       "needs_run": false
     },
     "cli/cmdpipeline.TestResolveReleaseFromRun": {
@@ -25050,12 +25050,12 @@
       "test_hash": "72d187f1d0016fe2",
       "target_file": "cli/cmdpipeline/pipeline_history.go",
       "target_func": "ResolveReleaseFromRun",
-      "code_hash": "35e914ee9cd5afbf",
+      "code_hash": "1b6e940ceddd8300",
       "duration_sec": 0.01,
       "tier": "fast",
       "is_slow": false,
       "last_status": "passed",
-      "last_run_at": "2026-09-22T23:22:19",
+      "last_run_at": "2026-09-23T08:53:17",
       "needs_run": false
     },
     "cli/cmdpipeline.TestGroupRunsByCommit_PreservesReleaseFromSubsequentRuns": {
@@ -25066,12 +25066,12 @@
       "test_hash": "72d187f1d0016fe2",
       "target_file": "cli/cmdpipeline/pipeline_history.go",
       "target_func": "GroupRunsByCommit",
-      "code_hash": "35e914ee9cd5afbf",
+      "code_hash": "1b6e940ceddd8300",
       "duration_sec": 0.01,
       "tier": "fast",
       "is_slow": false,
       "last_status": "passed",
-      "last_run_at": "2026-09-22T23:22:19",
+      "last_run_at": "2026-09-23T08:53:17",
       "needs_run": false
     },
     "cli/cmdpipeline.TestParallelFilterLines_RemovesOkAndPassLinesOnLargeSlice": {
@@ -25087,7 +25087,7 @@
       "tier": "fast",
       "is_slow": false,
       "last_status": "passed",
-      "last_run_at": "2026-09-22T23:22:19",
+      "last_run_at": "2026-09-23T08:53:17",
       "needs_run": false
     },
     "cli/cmdpipeline.TestParallelFilterLines_HandlesEmptyAndSmallSlices": {
@@ -25103,7 +25103,7 @@
       "tier": "fast",
       "is_slow": false,
       "last_status": "passed",
-      "last_run_at": "2026-09-22T23:22:19",
+      "last_run_at": "2026-09-23T08:53:17",
       "needs_run": false
     },
     "cli/cmdpipeline.TestSliceLineMarker_ComputesExactCapacity": {
@@ -25119,7 +25119,7 @@
       "tier": "fast",
       "is_slow": false,
       "last_status": "passed",
-      "last_run_at": "2026-09-22T23:22:19",
+      "last_run_at": "2026-09-23T08:53:17",
       "needs_run": false
     },
     "cli/cmdpipeline.TestBuildPipelineRunRecord_PopulatesDurationAndSuccess": {
@@ -25130,12 +25130,12 @@
       "test_hash": "b99a48c3b51c1c2b",
       "target_file": "cli/cmdpipeline/pipeline_recorder.go",
       "target_func": "BuildPipelineRunRecord",
-      "code_hash": "9771c49cc9dd8064",
+      "code_hash": "de27f1c6b23ec8fe",
       "duration_sec": 0.01,
       "tier": "fast",
       "is_slow": false,
       "last_status": "passed",
-      "last_run_at": "2026-09-22T23:22:19",
+      "last_run_at": "2026-09-23T08:53:17",
       "needs_run": false
     },
     "cli/cmdpipeline.TestFormatEtaDisplay": {
@@ -25146,12 +25146,12 @@
       "test_hash": "b99a48c3b51c1c2b",
       "target_file": "cli/cmdpipeline/pipeline_recorder.go",
       "target_func": "FormatEtaDisplay",
-      "code_hash": "9771c49cc9dd8064",
+      "code_hash": "de27f1c6b23ec8fe",
       "duration_sec": 0.01,
       "tier": "fast",
       "is_slow": false,
       "last_status": "passed",
-      "last_run_at": "2026-09-22T23:22:19",
+      "last_run_at": "2026-09-23T08:53:17",
       "needs_run": false
     },
     "cli/cmdpipeline.TestResolvePipelineDirForRepo_ForwardSlashes": {
@@ -25167,7 +25167,7 @@
       "tier": "fast",
       "is_slow": false,
       "last_status": "passed",
-      "last_run_at": "2026-09-22T23:22:19",
+      "last_run_at": "2026-09-23T08:53:17",
       "needs_run": false
     },
     "cli/cmdpipeline.TestResolvePipelineErrorReportPathForRepo_ForwardSlashes": {
@@ -25183,7 +25183,7 @@
       "tier": "fast",
       "is_slow": false,
       "last_status": "passed",
-      "last_run_at": "2026-09-22T23:22:19",
+      "last_run_at": "2026-09-23T08:53:17",
       "needs_run": false
     },
     "cli/cmdpipeline.TestGetCachedPipelineLogPathForRepo_ForwardSlashes": {
@@ -25199,7 +25199,7 @@
       "tier": "fast",
       "is_slow": false,
       "last_status": "passed",
-      "last_run_at": "2026-09-22T23:22:19",
+      "last_run_at": "2026-09-23T08:53:17",
       "needs_run": false
     },
     "cli/cmdpipeline.TestExtractTargetRepo": {
@@ -25215,7 +25215,7 @@
       "tier": "fast",
       "is_slow": false,
       "last_status": "passed",
-      "last_run_at": "2026-09-22T23:22:19",
+      "last_run_at": "2026-09-23T08:53:17",
       "needs_run": false
     },
     "cli/cmdpipeline.TestPurgeRepoPipelineFolder": {
@@ -25231,7 +25231,7 @@
       "tier": "fast",
       "is_slow": false,
       "last_status": "passed",
-      "last_run_at": "2026-09-22T23:22:19",
+      "last_run_at": "2026-09-23T08:53:17",
       "needs_run": false
     },
     "cli/cmdpipeline.TestPurgeRepoPipelineFolder_IncludesSqlDb": {
@@ -25247,7 +25247,7 @@
       "tier": "fast",
       "is_slow": false,
       "last_status": "passed",
-      "last_run_at": "2026-09-22T23:22:19",
+      "last_run_at": "2026-09-23T08:53:17",
       "needs_run": false
     },
     "cli/cmdpipeline.TestFormatRelativeDbPath_AppData": {
@@ -25263,7 +25263,7 @@
       "tier": "fast",
       "is_slow": false,
       "last_status": "passed",
-      "last_run_at": "2026-09-22T23:22:19",
+      "last_run_at": "2026-09-23T08:53:17",
       "needs_run": false
     },
     "cli/cmdpipeline.TestCollectRepoPipelineDirs": {
@@ -25279,7 +25279,7 @@
       "tier": "fast",
       "is_slow": false,
       "last_status": "passed",
-      "last_run_at": "2026-09-22T23:22:19",
+      "last_run_at": "2026-09-23T08:53:17",
       "needs_run": false
     },
     "cli/cmdpipeline.TestReadRunnerETAMissing": {
@@ -25295,7 +25295,7 @@
       "tier": "fast",
       "is_slow": false,
       "last_status": "passed",
-      "last_run_at": "2026-09-22T23:22:19",
+      "last_run_at": "2026-09-23T08:53:17",
       "needs_run": false
     },
     "cli/cmdpipeline.TestIsRunnerActive": {
@@ -25311,7 +25311,7 @@
       "tier": "fast",
       "is_slow": false,
       "last_status": "passed",
-      "last_run_at": "2026-09-22T23:22:19",
+      "last_run_at": "2026-09-23T08:53:17",
       "needs_run": false
     },
     "cli/cmdpipeline.TestWaitForRunnerETAActive": {
@@ -25327,7 +25327,7 @@
       "tier": "fast",
       "is_slow": false,
       "last_status": "passed",
-      "last_run_at": "2026-09-22T23:22:19",
+      "last_run_at": "2026-09-23T08:53:17",
       "needs_run": false
     },
     "cli/cmdpipeline.TestParseSlugFromGitURL": {
@@ -25338,12 +25338,12 @@
       "test_hash": "a1b24a375cc0b01b",
       "target_file": "cli/cmdpipeline/pipeline.go",
       "target_func": "ParseSlugFromGitURL",
-      "code_hash": "24a085d8d26ca717",
+      "code_hash": "1495bdfc8af28650",
       "duration_sec": 0.01,
       "tier": "fast",
       "is_slow": false,
       "last_status": "passed",
-      "last_run_at": "2026-09-22T23:22:19",
+      "last_run_at": "2026-09-23T08:53:17",
       "needs_run": false
     },
     "cli/cmdpipeline.TestBuildStatusPayload": {
@@ -25354,12 +25354,12 @@
       "test_hash": "a1b24a375cc0b01b",
       "target_file": "cli/cmdpipeline/pipeline.go",
       "target_func": "BuildStatusPayload",
-      "code_hash": "24a085d8d26ca717",
+      "code_hash": "1495bdfc8af28650",
       "duration_sec": 0.01,
       "tier": "fast",
       "is_slow": false,
       "last_status": "passed",
-      "last_run_at": "2026-09-22T23:22:19",
+      "last_run_at": "2026-09-23T08:53:17",
       "needs_run": false
     },
     "cli/cmdpipeline.TestBuildErrorLogsPayload": {
@@ -25370,12 +25370,12 @@
       "test_hash": "a1b24a375cc0b01b",
       "target_file": "cli/cmdpipeline/pipeline.go",
       "target_func": "BuildErrorLogsPayload",
-      "code_hash": "24a085d8d26ca717",
+      "code_hash": "1495bdfc8af28650",
       "duration_sec": 0.01,
       "tier": "fast",
       "is_slow": false,
       "last_status": "passed",
-      "last_run_at": "2026-09-22T23:22:19",
+      "last_run_at": "2026-09-23T08:53:17",
       "needs_run": false
     },
     "cli/cmdpipeline.TestWriteOrRenderErrorLogs_File": {
@@ -25386,12 +25386,12 @@
       "test_hash": "a1b24a375cc0b01b",
       "target_file": "cli/cmdpipeline/pipeline.go",
       "target_func": "WriteOrRenderErrorLogs",
-      "code_hash": "24a085d8d26ca717",
+      "code_hash": "1495bdfc8af28650",
       "duration_sec": 0.01,
       "tier": "fast",
       "is_slow": false,
       "last_status": "passed",
-      "last_run_at": "2026-09-22T23:22:19",
+      "last_run_at": "2026-09-23T08:53:17",
       "needs_run": false
     },
     "cli/cmdpipeline.TestPipelineHelp": {
@@ -25402,12 +25402,12 @@
       "test_hash": "a1b24a375cc0b01b",
       "target_file": "cli/cmdpipeline/pipeline.go",
       "target_func": "PipelineHelp",
-      "code_hash": "24a085d8d26ca717",
+      "code_hash": "1495bdfc8af28650",
       "duration_sec": 0.01,
       "tier": "fast",
       "is_slow": false,
       "last_status": "passed",
-      "last_run_at": "2026-09-22T23:22:19",
+      "last_run_at": "2026-09-23T08:53:17",
       "needs_run": false
     },
     "cli/cmdpipeline.TestCalculateETA_HistoricalAverage": {
@@ -25418,12 +25418,12 @@
       "test_hash": "a1b24a375cc0b01b",
       "target_file": "cli/cmdpipeline/pipeline.go",
       "target_func": "CalculateETA",
-      "code_hash": "24a085d8d26ca717",
+      "code_hash": "1495bdfc8af28650",
       "duration_sec": 0.01,
       "tier": "fast",
       "is_slow": false,
       "last_status": "passed",
-      "last_run_at": "2026-09-22T23:22:19",
+      "last_run_at": "2026-09-23T08:53:17",
       "needs_run": false
     },
     "cli/cmdpipeline.TestIsErrorLogsSubcmdPe": {
@@ -25434,12 +25434,12 @@
       "test_hash": "a1b24a375cc0b01b",
       "target_file": "cli/cmdpipeline/pipeline.go",
       "target_func": "IsErrorLogsSubcmdPe",
-      "code_hash": "24a085d8d26ca717",
+      "code_hash": "1495bdfc8af28650",
       "duration_sec": 0.01,
       "tier": "fast",
       "is_slow": false,
       "last_status": "passed",
-      "last_run_at": "2026-09-22T23:22:19",
+      "last_run_at": "2026-09-23T08:53:17",
       "needs_run": false
     },
     "cli/cmdpipeline.TestIsPipelineClearAction": {
@@ -25450,12 +25450,12 @@
       "test_hash": "a1b24a375cc0b01b",
       "target_file": "cli/cmdpipeline/pipeline.go",
       "target_func": "IsPipelineClearAction",
-      "code_hash": "24a085d8d26ca717",
+      "code_hash": "1495bdfc8af28650",
       "duration_sec": 0.01,
       "tier": "fast",
       "is_slow": false,
       "last_status": "passed",
-      "last_run_at": "2026-09-22T23:22:19",
+      "last_run_at": "2026-09-23T08:53:17",
       "needs_run": false
     },
     "cli/cmdpipeline.TestTargetShaFiltering": {
@@ -25466,12 +25466,12 @@
       "test_hash": "a1b24a375cc0b01b",
       "target_file": "cli/cmdpipeline/pipeline.go",
       "target_func": "TargetShaFiltering",
-      "code_hash": "24a085d8d26ca717",
+      "code_hash": "1495bdfc8af28650",
       "duration_sec": 0.01,
       "tier": "fast",
       "is_slow": false,
       "last_status": "passed",
-      "last_run_at": "2026-09-22T23:22:19",
+      "last_run_at": "2026-09-23T08:53:17",
       "needs_run": false
     },
     "cli/cmdpipeline.TestPipelineHelpMentionsPe": {
@@ -25482,12 +25482,12 @@
       "test_hash": "a1b24a375cc0b01b",
       "target_file": "cli/cmdpipeline/pipeline.go",
       "target_func": "PipelineHelpMentionsPe",
-      "code_hash": "24a085d8d26ca717",
+      "code_hash": "1495bdfc8af28650",
       "duration_sec": 0.01,
       "tier": "fast",
       "is_slow": false,
       "last_status": "passed",
-      "last_run_at": "2026-09-22T23:22:19",
+      "last_run_at": "2026-09-23T08:53:17",
       "needs_run": false
     },
     "cli/cmdpipeline.TestPipelineHelpMentionsPd": {
@@ -25498,12 +25498,12 @@
       "test_hash": "a1b24a375cc0b01b",
       "target_file": "cli/cmdpipeline/pipeline.go",
       "target_func": "PipelineHelpMentionsPd",
-      "code_hash": "24a085d8d26ca717",
+      "code_hash": "1495bdfc8af28650",
       "duration_sec": 0.01,
       "tier": "fast",
       "is_slow": false,
       "last_status": "passed",
-      "last_run_at": "2026-09-22T23:22:19",
+      "last_run_at": "2026-09-23T08:53:17",
       "needs_run": false
     },
     "cli/cmdpipeline.TestBuildPipelineDetailsPayload": {
@@ -25514,12 +25514,12 @@
       "test_hash": "a1b24a375cc0b01b",
       "target_file": "cli/cmdpipeline/pipeline.go",
       "target_func": "BuildPipelineDetailsPayload",
-      "code_hash": "24a085d8d26ca717",
+      "code_hash": "1495bdfc8af28650",
       "duration_sec": 0.01,
       "tier": "fast",
       "is_slow": false,
       "last_status": "passed",
-      "last_run_at": "2026-09-22T23:22:19",
+      "last_run_at": "2026-09-23T08:53:17",
       "needs_run": false
     },
     "cli/cmdprompt.TestPromptDashboardSuite": {
@@ -25583,7 +25583,7 @@
       "tier": "fast",
       "is_slow": false,
       "last_status": "passed",
-      "last_run_at": "2026-09-22T21:45:49",
+      "last_run_at": "2026-09-23T08:50:09",
       "needs_run": false
     },
     "cli/cmdpull.TestIsPRCURL": {
@@ -25599,7 +25599,7 @@
       "tier": "fast",
       "is_slow": false,
       "last_status": "passed",
-      "last_run_at": "2026-09-22T21:45:49",
+      "last_run_at": "2026-09-23T08:50:09",
       "needs_run": false
     },
     "cli/cmdpull.TestSlugFromURL": {
@@ -25615,7 +25615,7 @@
       "tier": "fast",
       "is_slow": false,
       "last_status": "passed",
-      "last_run_at": "2026-09-22T21:45:49",
+      "last_run_at": "2026-09-23T08:50:09",
       "needs_run": false
     },
     "cli/cmdpull.TestParsePullFlags_NoFlags": {
@@ -25631,7 +25631,7 @@
       "tier": "fast",
       "is_slow": false,
       "last_status": "passed",
-      "last_run_at": "2026-09-22T21:45:49",
+      "last_run_at": "2026-09-23T08:50:09",
       "needs_run": false
     },
     "cli/cmdpull.TestParsePullFlags_GroupLong": {
@@ -25647,7 +25647,7 @@
       "tier": "fast",
       "is_slow": false,
       "last_status": "passed",
-      "last_run_at": "2026-09-22T21:45:49",
+      "last_run_at": "2026-09-23T08:50:09",
       "needs_run": false
     },
     "cli/cmdpull.TestParsePullFlags_GroupShort": {
@@ -25663,7 +25663,7 @@
       "tier": "fast",
       "is_slow": false,
       "last_status": "passed",
-      "last_run_at": "2026-09-22T21:45:49",
+      "last_run_at": "2026-09-23T08:50:09",
       "needs_run": false
     },
     "cli/cmdpull.TestParsePullFlags_All": {
@@ -25679,7 +25679,7 @@
       "tier": "fast",
       "is_slow": false,
       "last_status": "passed",
-      "last_run_at": "2026-09-22T21:45:49",
+      "last_run_at": "2026-09-23T08:50:09",
       "needs_run": false
     },
     "cli/cmdpull.TestParsePullFlags_AllWithVerbose": {
@@ -25695,7 +25695,7 @@
       "tier": "fast",
       "is_slow": false,
       "last_status": "passed",
-      "last_run_at": "2026-09-22T21:45:49",
+      "last_run_at": "2026-09-23T08:50:09",
       "needs_run": false
     },
     "cli/cmdpull.TestParsePullFlags_Parallel": {
@@ -25711,7 +25711,7 @@
       "tier": "fast",
       "is_slow": false,
       "last_status": "passed",
-      "last_run_at": "2026-09-22T21:45:49",
+      "last_run_at": "2026-09-23T08:50:09",
       "needs_run": false
     },
     "cli/cmdpull.TestParsePullFlags_OnlyAvailable": {
@@ -25727,7 +25727,7 @@
       "tier": "fast",
       "is_slow": false,
       "last_status": "passed",
-      "last_run_at": "2026-09-22T21:45:49",
+      "last_run_at": "2026-09-23T08:50:09",
       "needs_run": false
     },
     "cli/cmdpull.TestParsePullFlags_SSH": {
@@ -25743,7 +25743,7 @@
       "tier": "fast",
       "is_slow": false,
       "last_status": "passed",
-      "last_run_at": "2026-09-22T21:45:49",
+      "last_run_at": "2026-09-23T08:50:09",
       "needs_run": false
     },
     "cli/cmdpull.TestParsePullFlags_SSHPositionalAndCaseInsensitive": {
@@ -25759,7 +25759,7 @@
       "tier": "fast",
       "is_slow": false,
       "last_status": "passed",
-      "last_run_at": "2026-09-22T21:45:49",
+      "last_run_at": "2026-09-23T08:50:09",
       "needs_run": false
     },
     "cli/cmdpull.TestFormatVisualBarSafe": {
@@ -25775,7 +25775,7 @@
       "tier": "fast",
       "is_slow": false,
       "last_status": "passed",
-      "last_run_at": "2026-09-22T21:45:49",
+      "last_run_at": "2026-09-23T08:50:09",
       "needs_run": false
     },
     "cli/cmdpull.TestFormatVisualBarRich": {
@@ -25791,7 +25791,7 @@
       "tier": "fast",
       "is_slow": false,
       "last_status": "passed",
-      "last_run_at": "2026-09-22T21:45:49",
+      "last_run_at": "2026-09-23T08:50:09",
       "needs_run": false
     },
     "cli/cmdpull.TestPullProgressBarLifecycle": {
@@ -25807,7 +25807,7 @@
       "tier": "fast",
       "is_slow": false,
       "last_status": "passed",
-      "last_run_at": "2026-09-22T21:45:49",
+      "last_run_at": "2026-09-23T08:50:09",
       "needs_run": false
     },
     "cli/cmdpull.TestPullProgressBarStopOnFail": {
@@ -25823,7 +25823,7 @@
       "tier": "fast",
       "is_slow": false,
       "last_status": "passed",
-      "last_run_at": "2026-09-22T21:45:49",
+      "last_run_at": "2026-09-23T08:50:09",
       "needs_run": false
     },
     "cli/cmdpull.TestPullProgressBarTickerStartStop": {
@@ -25839,7 +25839,7 @@
       "tier": "fast",
       "is_slow": false,
       "last_status": "passed",
-      "last_run_at": "2026-09-22T21:45:49",
+      "last_run_at": "2026-09-23T08:50:09",
       "needs_run": false
     },
     "cli/cmdpull.TestPullProgressBarWorkerSlotRegistry": {
@@ -25855,7 +25855,7 @@
       "tier": "fast",
       "is_slow": false,
       "last_status": "passed",
-      "last_run_at": "2026-09-22T21:45:49",
+      "last_run_at": "2026-09-23T08:50:09",
       "needs_run": false
     },
     "cli/cmdpull.TestPullProgressBarSingleRepoSubSteps": {
@@ -25871,7 +25871,7 @@
       "tier": "fast",
       "is_slow": false,
       "last_status": "passed",
-      "last_run_at": "2026-09-22T21:45:49",
+      "last_run_at": "2026-09-23T08:50:09",
       "needs_run": false
     },
     "cli/cmdpull.TestParseGitProgressLineObjects": {
@@ -25887,7 +25887,7 @@
       "tier": "fast",
       "is_slow": false,
       "last_status": "passed",
-      "last_run_at": "2026-09-22T21:45:49",
+      "last_run_at": "2026-09-23T08:50:09",
       "needs_run": false
     },
     "cli/cmdpull.TestParseGitProgressLineFastForward": {
@@ -25903,7 +25903,7 @@
       "tier": "fast",
       "is_slow": false,
       "last_status": "passed",
-      "last_run_at": "2026-09-22T21:45:49",
+      "last_run_at": "2026-09-23T08:50:09",
       "needs_run": false
     },
     "cli/cmdpull.TestSortStatesAlphabetically": {
@@ -25919,7 +25919,7 @@
       "tier": "fast",
       "is_slow": false,
       "last_status": "passed",
-      "last_run_at": "2026-09-22T21:45:49",
+      "last_run_at": "2026-09-23T08:50:09",
       "needs_run": false
     },
     "cli/cmdpull.TestPullProgressBarTTYRender": {
@@ -25935,7 +25935,7 @@
       "tier": "fast",
       "is_slow": false,
       "last_status": "passed",
-      "last_run_at": "2026-09-22T21:45:49",
+      "last_run_at": "2026-09-23T08:50:09",
       "needs_run": false
     },
     "cli/cmdpull.TestClampLineToTermWidth": {
@@ -25951,7 +25951,7 @@
       "tier": "fast",
       "is_slow": false,
       "last_status": "passed",
-      "last_run_at": "2026-09-22T21:45:49",
+      "last_run_at": "2026-09-23T08:50:09",
       "needs_run": false
     },
     "cli/cmdpull.TestFormatActiveWorkersListBounded": {
@@ -25967,7 +25967,7 @@
       "tier": "fast",
       "is_slow": false,
       "last_status": "passed",
-      "last_run_at": "2026-09-22T21:45:49",
+      "last_run_at": "2026-09-23T08:50:09",
       "needs_run": false
     },
     "cli/cmdpull.TestColorizeBarAndBadge": {
@@ -25983,7 +25983,7 @@
       "tier": "fast",
       "is_slow": false,
       "last_status": "passed",
-      "last_run_at": "2026-09-22T21:45:49",
+      "last_run_at": "2026-09-23T08:50:09",
       "needs_run": false
     },
     "cli/cmdpull.TestPrependAll": {
@@ -25999,7 +25999,7 @@
       "tier": "fast",
       "is_slow": false,
       "last_status": "passed",
-      "last_run_at": "2026-09-22T21:45:49",
+      "last_run_at": "2026-09-23T08:50:09",
       "needs_run": false
     },
     "cli/cmdpull.TestNormalizePullArgsPa": {
@@ -26015,7 +26015,7 @@
       "tier": "fast",
       "is_slow": false,
       "last_status": "passed",
-      "last_run_at": "2026-09-22T21:45:49",
+      "last_run_at": "2026-09-23T08:50:09",
       "needs_run": false
     },
     "cli/cmdpull.TestFormatStepBadgeSafe": {
@@ -26031,7 +26031,7 @@
       "tier": "fast",
       "is_slow": false,
       "last_status": "passed",
-      "last_run_at": "2026-09-22T21:45:49",
+      "last_run_at": "2026-09-23T08:50:09",
       "needs_run": false
     },
     "cli/cmdpull.TestFormatStepBadgeRich": {
@@ -26047,7 +26047,7 @@
       "tier": "fast",
       "is_slow": false,
       "last_status": "passed",
-      "last_run_at": "2026-09-22T21:45:49",
+      "last_run_at": "2026-09-23T08:50:09",
       "needs_run": false
     },
     "cli/cmdpull.TestParseGitPullOutputUpToDate": {
@@ -26063,7 +26063,7 @@
       "tier": "fast",
       "is_slow": false,
       "last_status": "passed",
-      "last_run_at": "2026-09-22T21:45:49",
+      "last_run_at": "2026-09-23T08:50:09",
       "needs_run": false
     },
     "cli/cmdpull.TestParseGitPullOutputFastForward": {
@@ -26079,7 +26079,7 @@
       "tier": "fast",
       "is_slow": false,
       "last_status": "passed",
-      "last_run_at": "2026-09-22T21:45:49",
+      "last_run_at": "2026-09-23T08:50:09",
       "needs_run": false
     },
     "cli/cmdpull.TestParseGitPullOutputConflict": {
@@ -26095,7 +26095,7 @@
       "tier": "fast",
       "is_slow": false,
       "last_status": "passed",
-      "last_run_at": "2026-09-22T21:45:49",
+      "last_run_at": "2026-09-23T08:50:09",
       "needs_run": false
     },
     "cli/cmdpull.TestParseGitPullOutputError": {
@@ -26111,7 +26111,7 @@
       "tier": "fast",
       "is_slow": false,
       "last_status": "passed",
-      "last_run_at": "2026-09-22T21:45:49",
+      "last_run_at": "2026-09-23T08:50:09",
       "needs_run": false
     },
     "cli/cmdpull.TestPullTableLayoutColumns": {
@@ -26127,7 +26127,7 @@
       "tier": "fast",
       "is_slow": false,
       "last_status": "passed",
-      "last_run_at": "2026-09-22T21:45:49",
+      "last_run_at": "2026-09-23T08:50:09",
       "needs_run": false
     },
     "cli/cmdpull.TestPullTableLayoutCompactColumns": {
@@ -26143,7 +26143,7 @@
       "tier": "fast",
       "is_slow": false,
       "last_status": "passed",
-      "last_run_at": "2026-09-22T21:45:49",
+      "last_run_at": "2026-09-23T08:50:09",
       "needs_run": false
     },
     "cli/cmdpull.TestResolveRowCommitRangeFallback": {
@@ -26159,7 +26159,7 @@
       "tier": "fast",
       "is_slow": false,
       "last_status": "passed",
-      "last_run_at": "2026-09-22T21:45:49",
+      "last_run_at": "2026-09-23T08:50:09",
       "needs_run": false
     },
     "cli/cmdpull.TestResolveRowChangesFallback": {
@@ -26175,7 +26175,7 @@
       "tier": "fast",
       "is_slow": false,
       "last_status": "passed",
-      "last_run_at": "2026-09-22T21:45:49",
+      "last_run_at": "2026-09-23T08:50:09",
       "needs_run": false
     },
     "cli/cmdpull.TestPullTableUltraWideWidth198": {
@@ -26191,7 +26191,7 @@
       "tier": "fast",
       "is_slow": false,
       "last_status": "passed",
-      "last_run_at": "2026-09-22T21:45:49",
+      "last_run_at": "2026-09-23T08:50:09",
       "needs_run": false
     },
     "cli/cmdpull.TestPullTableSuite": {
@@ -26207,7 +26207,7 @@
       "tier": "fast",
       "is_slow": false,
       "last_status": "passed",
-      "last_run_at": "2026-09-22T21:45:49",
+      "last_run_at": "2026-09-23T08:50:09",
       "needs_run": false
     },
     "cli/cmdpull.TestFormatBranchNamePrefixOmission": {
@@ -26223,7 +26223,7 @@
       "tier": "fast",
       "is_slow": false,
       "last_status": "passed",
-      "last_run_at": "2026-09-22T21:45:49",
+      "last_run_at": "2026-09-23T08:50:09",
       "needs_run": false
     },
     "cli/cmdpull.TestFormatBranchNameMiddleTruncate": {
@@ -26239,7 +26239,7 @@
       "tier": "fast",
       "is_slow": false,
       "last_status": "passed",
-      "last_run_at": "2026-09-22T21:45:49",
+      "last_run_at": "2026-09-23T08:50:09",
       "needs_run": false
     },
     "cli/cmdpull.TestFormatRepoNameMiddleTruncate": {
@@ -26255,7 +26255,7 @@
       "tier": "fast",
       "is_slow": false,
       "last_status": "passed",
-      "last_run_at": "2026-09-22T21:45:49",
+      "last_run_at": "2026-09-23T08:50:09",
       "needs_run": false
     },
     "cli/cmdpull.TestFormatRepoNameLeadTruncatePresentation": {
@@ -26271,7 +26271,7 @@
       "tier": "fast",
       "is_slow": false,
       "last_status": "passed",
-      "last_run_at": "2026-09-22T21:45:49",
+      "last_run_at": "2026-09-23T08:50:09",
       "needs_run": false
     },
     "cli/cmdpull.TestCalcAnsiPadding": {
@@ -26287,7 +26287,7 @@
       "tier": "fast",
       "is_slow": false,
       "last_status": "passed",
-      "last_run_at": "2026-09-22T21:45:49",
+      "last_run_at": "2026-09-23T08:50:09",
       "needs_run": false
     },
     "cli/cmdpull.TestPullTableUserScreenshotSimulation": {
@@ -26303,7 +26303,7 @@
       "tier": "fast",
       "is_slow": false,
       "last_status": "passed",
-      "last_run_at": "2026-09-22T21:45:49",
+      "last_run_at": "2026-09-23T08:50:09",
       "needs_run": false
     },
     "cli/cmdpull.TestPullTableNarrowWidth72": {
@@ -26319,7 +26319,7 @@
       "tier": "fast",
       "is_slow": false,
       "last_status": "passed",
-      "last_run_at": "2026-09-22T21:45:49",
+      "last_run_at": "2026-09-23T08:50:09",
       "needs_run": false
     },
     "cli/cmdpull.TestPullTableStandardWidth80": {
@@ -26335,7 +26335,7 @@
       "tier": "fast",
       "is_slow": false,
       "last_status": "passed",
-      "last_run_at": "2026-09-22T21:45:49",
+      "last_run_at": "2026-09-23T08:50:09",
       "needs_run": false
     },
     "cli/cmdpull.TestPullTableWideWidth120": {
@@ -26351,7 +26351,7 @@
       "tier": "fast",
       "is_slow": false,
       "last_status": "passed",
-      "last_run_at": "2026-09-22T21:45:49",
+      "last_run_at": "2026-09-23T08:50:09",
       "needs_run": false
     },
     "cli/cmdpull.TestFormatCombinedBranch": {
@@ -26367,7 +26367,7 @@
       "tier": "fast",
       "is_slow": false,
       "last_status": "passed",
-      "last_run_at": "2026-09-22T21:45:49",
+      "last_run_at": "2026-09-23T08:50:09",
       "needs_run": false
     },
     "cli/cmdpull.TestPadVisualWithArrow": {
@@ -26383,7 +26383,7 @@
       "tier": "fast",
       "is_slow": false,
       "last_status": "passed",
-      "last_run_at": "2026-09-22T21:45:49",
+      "last_run_at": "2026-09-23T08:50:09",
       "needs_run": false
     },
     "cli/cmdpull.TestFormatPullStatusCheckmarks": {
@@ -26399,7 +26399,7 @@
       "tier": "fast",
       "is_slow": false,
       "last_status": "passed",
-      "last_run_at": "2026-09-22T21:45:49",
+      "last_run_at": "2026-09-23T08:50:09",
       "needs_run": false
     },
     "cli/cmdpull.TestLeadTruncate": {
@@ -26415,7 +26415,7 @@
       "tier": "fast",
       "is_slow": false,
       "last_status": "passed",
-      "last_run_at": "2026-09-22T21:45:49",
+      "last_run_at": "2026-09-23T08:50:09",
       "needs_run": false
     },
     "cli/cmdpull.TestFormatLatestBranchName": {
@@ -26431,7 +26431,7 @@
       "tier": "fast",
       "is_slow": false,
       "last_status": "passed",
-      "last_run_at": "2026-09-22T21:45:49",
+      "last_run_at": "2026-09-23T08:50:09",
       "needs_run": false
     },
     "cli/cmdpull.TestFormatPRCell": {
@@ -26447,7 +26447,7 @@
       "tier": "fast",
       "is_slow": false,
       "last_status": "passed",
-      "last_run_at": "2026-09-22T21:45:49",
+      "last_run_at": "2026-09-23T08:50:09",
       "needs_run": false
     },
     "cli/cmdpull.TestPullTableWideUserScreenshotSimulation": {
@@ -26463,7 +26463,7 @@
       "tier": "fast",
       "is_slow": false,
       "last_status": "passed",
-      "last_run_at": "2026-09-22T21:45:49",
+      "last_run_at": "2026-09-23T08:50:09",
       "needs_run": false
     },
     "cli/cmdpull.TestInitPullArrayUIPart1": {
@@ -26479,7 +26479,7 @@
       "tier": "fast",
       "is_slow": false,
       "last_status": "passed",
-      "last_run_at": "2026-09-22T21:45:49",
+      "last_run_at": "2026-09-23T08:50:09",
       "needs_run": false
     },
     "cli/cmdpull.TestResolveSubArrow": {
@@ -26495,7 +26495,7 @@
       "tier": "fast",
       "is_slow": false,
       "last_status": "passed",
-      "last_run_at": "2026-09-22T21:45:49",
+      "last_run_at": "2026-09-23T08:50:09",
       "needs_run": false
     },
     "cli/cmdpull.TestInitFunc007": {
@@ -26511,7 +26511,7 @@
       "tier": "fast",
       "is_slow": false,
       "last_status": "passed",
-      "last_run_at": "2026-09-22T21:45:49",
+      "last_run_at": "2026-09-23T08:50:09",
       "needs_run": false
     },
     "cli/cmdpull.TestInitFunc008": {
@@ -26527,7 +26527,7 @@
       "tier": "fast",
       "is_slow": false,
       "last_status": "passed",
-      "last_run_at": "2026-09-22T21:45:49",
+      "last_run_at": "2026-09-23T08:50:09",
       "needs_run": false
     },
     "cli/cmdpurge.TestPurgeLovable": {
@@ -36506,12 +36506,12 @@
       "test_hash": "dbf029f71e6dae5d",
       "target_file": "cli/constants/constants.go",
       "target_func": "TopLevelCmdRegistryMatchesAST",
-      "code_hash": "79e07bbfd501c3d2",
+      "code_hash": "8762693c2568a185",
       "duration_sec": 0.01,
       "tier": "fast",
       "is_slow": false,
       "last_status": "passed",
-      "last_run_at": "2026-09-23T07:40:54",
+      "last_run_at": "2026-09-23T08:50:09",
       "needs_run": false
     },
     "cli/constants.TestNoUnmarkedTopLevelCmdBlocks": {
@@ -36522,12 +36522,12 @@
       "test_hash": "dbf029f71e6dae5d",
       "target_file": "cli/constants/constants.go",
       "target_func": "NoUnmarkedTopLevelCmdBlocks",
-      "code_hash": "79e07bbfd501c3d2",
+      "code_hash": "8762693c2568a185",
       "duration_sec": 0.01,
       "tier": "fast",
       "is_slow": false,
       "last_status": "passed",
-      "last_run_at": "2026-09-23T07:40:54",
+      "last_run_at": "2026-09-23T08:50:09",
       "needs_run": false
     },
     "cli/constants.TestTopLevelCmdConstantsAreUnique": {
@@ -36538,12 +36538,12 @@
       "test_hash": "f5f88a7fe4be5940",
       "target_file": "cli/constants/constants.go",
       "target_func": "TopLevelCmdConstantsAreUnique",
-      "code_hash": "79e07bbfd501c3d2",
+      "code_hash": "8762693c2568a185",
       "duration_sec": 0.01,
       "tier": "fast",
       "is_slow": false,
       "last_status": "passed",
-      "last_run_at": "2026-09-23T07:40:54",
+      "last_run_at": "2026-09-23T08:50:09",
       "needs_run": false
     },
     "cli/constants.TestTopLevelCmdAliasesAreUnique": {
@@ -36554,12 +36554,12 @@
       "test_hash": "f5f88a7fe4be5940",
       "target_file": "cli/constants/constants.go",
       "target_func": "TopLevelCmdAliasesAreUnique",
-      "code_hash": "79e07bbfd501c3d2",
+      "code_hash": "8762693c2568a185",
       "duration_sec": 0.01,
       "tier": "fast",
       "is_slow": false,
       "last_status": "passed",
-      "last_run_at": "2026-09-23T07:40:54",
+      "last_run_at": "2026-09-23T08:50:09",
       "needs_run": false
     },
     "cli/constants.TestCanonicalCSVColumn": {
@@ -36575,7 +36575,7 @@
       "tier": "fast",
       "is_slow": false,
       "last_status": "passed",
-      "last_run_at": "2026-09-23T07:40:54",
+      "last_run_at": "2026-09-23T08:50:09",
       "needs_run": false
     },
     "cli/constants.TestCSVColumnAliasesNoConflict": {
@@ -36591,7 +36591,7 @@
       "tier": "fast",
       "is_slow": false,
       "last_status": "passed",
-      "last_run_at": "2026-09-23T07:40:54",
+      "last_run_at": "2026-09-23T08:50:09",
       "needs_run": false
     },
     "cli/constants.TestHostedDocsFallbackContract": {
@@ -36607,7 +36607,7 @@
       "tier": "fast",
       "is_slow": false,
       "last_status": "passed",
-      "last_run_at": "2026-09-23T07:40:54",
+      "last_run_at": "2026-09-23T08:50:09",
       "needs_run": false
     },
     "cli/crypto.TestEncryptDecrypt": {

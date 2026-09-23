@@ -1072,11 +1072,14 @@ func extractLinkerPrefix(line string) string {
 }
 
 func extractLinkerOutFlag(line string) string {
-	if idx := strings.Index(line, `"/OUT:`); idx != -1 {
-		endIdx := strings.Index(line[idx+1:], `"`)
-		if endIdx != -1 {
-			return line[idx : idx+1+endIdx+1]
-		}
+	idx := strings.Index(line, `"/OUT:`)
+	if idx == -1 {
+		return ""
+	}
+
+	endIdx := strings.Index(line[idx+1:], `"`)
+	if endIdx != -1 {
+		return line[idx : idx+1+endIdx+1]
 	}
 
 	return ""
