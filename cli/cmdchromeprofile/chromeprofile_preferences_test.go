@@ -45,8 +45,8 @@ func TestPatchImportedChromeProfilePreferencesScrubAuth(t *testing.T) {
 		t.Fatalf("failed to write initial prefs: %v", writeErr)
 	}
 
-	if patchErr := patchImportedChromeProfilePreferences(tempDir, "Clean Profile"); patchErr != nil {
-		t.Fatalf("patchImportedChromeProfilePreferences failed: %v", patchErr)
+	if patchErr := patchImportedChromeProfilePreferencesWithOptions(tempDir, "Clean Profile", false); patchErr != nil {
+		t.Fatalf("patchImportedChromeProfilePreferencesWithOptions failed: %v", patchErr)
 	}
 
 	patchedBytes, readErr := os.ReadFile(prefPath)
@@ -115,8 +115,8 @@ func TestPatchImportedChromeProfilePreferencesKeepSignin(t *testing.T) {
 		t.Fatalf("failed to write initial prefs: %v", writeErr)
 	}
 
-	if patchErr := patchImportedChromeProfilePreferencesWithOptions(tempDir, "Kept Profile", true); patchErr != nil {
-		t.Fatalf("patchImportedChromeProfilePreferencesWithOptions failed: %v", patchErr)
+	if patchErr := patchImportedChromeProfilePreferences(tempDir, "Kept Profile"); patchErr != nil {
+		t.Fatalf("patchImportedChromeProfilePreferences failed: %v", patchErr)
 	}
 
 	patchedBytes, readErr := os.ReadFile(prefPath)
@@ -131,5 +131,10 @@ func TestPatchImportedChromeProfilePreferencesKeepSignin(t *testing.T) {
 
 	if _, hasAccountInfo := patched["account_info"]; !hasAccountInfo {
 		t.Errorf("expected account_info to be kept when keepSignin=true")
+	}
+
+	signinMap, ok := patched["signin"].(map[string]any)
+	if !ok || signinMap["allowed"] != true {
+		t.Errorf("expected signin.allowed to be true by default, got: %v", patched["signin"])
 	}
 }

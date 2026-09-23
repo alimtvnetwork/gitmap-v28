@@ -750,12 +750,8 @@ func registerImportedProfileToLocalState(dstDir, displayName, email string) erro
 }
 
 func importSingleSnapshotWithStepLogging(srcFile, explicitTarget string) error {
-	if strings.HasSuffix(strings.ToLower(srcFile), constants.ExtZIP) {
-		return importZipSnapshotWithStepLogging(srcFile, explicitTarget)
-	}
-
-	if isDirectoryPath(srcFile) {
-		return importDirectorySnapshotWithStepLogging(srcFile, explicitTarget)
+	if isDelegatedSnapshotFile(srcFile) {
+		return handleDelegatedSnapshot(srcFile, explicitTarget)
 	}
 
 	meta, err := readSnapshotMetadata(srcFile)
@@ -764,21 +760,45 @@ func importSingleSnapshotWithStepLogging(srcFile, explicitTarget string) error {
 	}
 
 	exp := meta.Export
-	fmt.Printf("  \033[1;94m[Step 1/5]\033[0m Inspecting snapshot: %s\n", srcFile)
-	fmt.Printf("        → Name: %q | Display: %q | Email: %q | Bookmarks: %d | Extensions: %d\n",
-		exp.Name, exp.DisplayName, exp.Email, meta.BookmarksCount, meta.ExtensionsCount)
-
+	logSnapshotInspectionStep(srcFile, meta)
 	dest := resolveImportDestination(exp, explicitTarget, true)
 	if err := os.MkdirAll(dest.Path, constants.DirPermission); err != nil {
 		return fmt.Errorf("mkdir %s: %w", dest.Path, err)
 	}
 
-	fmt.Printf("  \033[1;94m[Step 3/5]\033[0m Restoring Bookmarks & Preferences into %q...\n", dest.Dir)
-	if err := writeOptional(filepath.Join(dest.Path, "Bookmarks"), exp.Bookmarks); err != nil {
+	if err := restoreSnapshotContent(exp, dest); err != nil {
 		return err
 	}
 
-	if err := writeOptional(filepath.Join(dest.Path, "Preferences"), exp.Preferences); err != nil {
+	registerSnapshotProfile(exp, dest)
+	checkChromeRunningAdvisory()
+	fmt.Printf("  \033[1;92m✓ Successfully imported\033[0m %s → %s (%q)\n\n", srcFile, dest.Dir, dest.DisplayName)
+
+	return nil
+}
+
+func isDelegatedSnapshotFile(srcFile string) bool {
+	return strings.HasSuffix(strings.ToLower(srcFile), constants.ExtZIP) || isDirectoryPath(srcFile)
+}
+
+func handleDelegatedSnapshot(srcFile, explicitTarget string) error {
+	if strings.HasSuffix(strings.ToLower(srcFile), constants.ExtZIP) {
+		return importZipSnapshotWithStepLogging(srcFile, explicitTarget)
+	}
+
+	return importDirectorySnapshotWithStepLogging(srcFile, explicitTarget)
+}
+
+func logSnapshotInspectionStep(srcFile string, meta *snapshotMetadata) {
+	exp := meta.Export
+	fmt.Printf("  \033[1;94m[Step 1/5]\033[0m Inspecting snapshot: %s\n", srcFile)
+	fmt.Printf("        → Name: %q | Display: %q | Email: %q | Bookmarks: %d | Extensions: %d\n",
+		exp.Name, exp.DisplayName, exp.Email, meta.BookmarksCount, meta.ExtensionsCount)
+}
+
+func restoreSnapshotContent(exp *chromeExport, dest importDestination) error {
+	fmt.Printf("  \033[1;94m[Step 3/5]\033[0m Restoring Bookmarks, Preferences & Auth into %q...\n", dest.Dir)
+	if err := restoreExportBaseFiles(exp, dest.Path); err != nil {
 		return err
 	}
 
@@ -786,21 +806,24 @@ func importSingleSnapshotWithStepLogging(srcFile, explicitTarget string) error {
 		fmt.Fprintf(os.Stderr, "        \033[1;93m⚠\033[0m Preferences patch notice: %v\n", err)
 	}
 
-	fmt.Printf("  \033[1;94m[Step 4/5]\033[0m Staging extensions (%d pending hints)...\n", meta.ExtensionsCount)
-	if err := writePendingExtensions(dest.Path, exp.ExtensionIDs); err != nil {
-		return err
-	}
+	restoreExportAuthPayloads(exp, dest.Path)
+	fmt.Printf("  \033[1;94m[Step 4/5]\033[0m Staging extensions (%d pending hints)...\n", len(exp.ExtensionIDs))
 
+	return writePendingExtensions(dest.Path, exp.ExtensionIDs)
+}
+
+func registerSnapshotProfile(exp *chromeExport, dest importDestination) {
 	fmt.Printf("  \033[1;94m[Step 5/5]\033[0m Registering %q in Chrome Local State...\n", dest.Dir)
-	if err := registerImportedProfileToLocalState(dest.Dir, dest.DisplayName, dest.Email); err != nil {
+	if err := registerChromeProfileWithFullSchemaAndGAIA(
+		dest.Dir,
+		dest.DisplayName,
+		dest.Email,
+		exp.GaiaID,
+		exp.GaiaName,
+		exp.GaiaGivenName,
+	); err != nil {
 		fmt.Fprintf(os.Stderr, "        \033[1;93m⚠\033[0m Warning: Local State registration notice: %v\n", err)
 	}
-
-	checkChromeRunningAdvisory()
-
-	fmt.Printf("  \033[1;92m✓ Successfully imported\033[0m %s → %s (%q)\n\n", srcFile, dest.Dir, dest.DisplayName)
-
-	return nil
 }
 
 func checkChromeRunningAdvisory() {

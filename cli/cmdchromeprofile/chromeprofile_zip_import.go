@@ -129,16 +129,24 @@ func processMultiProfileZipEntry(f *zip.File, imported map[string]bool) {
 		return
 	}
 
-	profName, fileName := parts[0], parts[len(parts)-1]
+	profName := parts[0]
+	relPath := strings.Join(parts[1:], "/")
 	profDir := chromeProfilePath(profName)
 	_ = os.MkdirAll(profDir, constants.DirPermission)
-	if strings.HasSuffix(fileName, ".json") {
+	extractProfileZipEntry(f, profDir, relPath)
+	imported[profName] = true
+}
+
+func extractProfileZipEntry(f *zip.File, profDir, relPath string) {
+	if strings.HasSuffix(relPath, ".json") {
 		_ = importChromeJSONFile(f, profDir)
-	} else if isAllowedSQLiteDB(fileName) || fileName == "Bookmarks" || fileName == "Preferences" {
-		_ = extractZipFile(f, filepath.Join(profDir, fileName))
+
+		return
 	}
 
-	imported[profName] = true
+	if isAllowedSQLiteDB(relPath) || relPath == "Bookmarks" || relPath == "Preferences" {
+		_ = extractZipFile(f, filepath.Join(profDir, filepath.FromSlash(relPath)))
+	}
 }
 
 func extractSingleProfileZip(r *zip.ReadCloser, dstProfile string) error {
@@ -158,7 +166,7 @@ func extractSingleProfileZip(r *zip.ReadCloser, dstProfile string) error {
 		}
 
 		if isAllowedSQLiteDB(f.Name) || f.Name == "Bookmarks" || f.Name == "Preferences" {
-			_ = extractZipFile(f, filepath.Join(dstProfile, f.Name))
+			_ = extractZipFile(f, filepath.Join(dstProfile, filepath.FromSlash(f.Name)))
 		}
 	}
 
@@ -193,6 +201,10 @@ func extractZipFile(f *zip.File, dest string) error {
 
 	defer rc.Close()
 
+	if err := os.MkdirAll(filepath.Dir(dest), constants.DirPermission); err != nil {
+		return fmt.Errorf("mkdir %s: %w", filepath.Dir(dest), err)
+	}
+
 	out, err := os.OpenFile(dest, os.O_WRONLY|os.O_CREATE|os.O_TRUNC, constants.FilePermission)
 	if err != nil {
 		return err
@@ -206,8 +218,9 @@ func extractZipFile(f *zip.File, dest string) error {
 }
 
 func isAllowedSQLiteDB(name string) bool {
+	cleanName := filepath.ToSlash(name)
 	for _, allowed := range constants.ChromeProfileSQLiteEntries {
-		if name == allowed {
+		if cleanName == allowed {
 			return true
 		}
 	}

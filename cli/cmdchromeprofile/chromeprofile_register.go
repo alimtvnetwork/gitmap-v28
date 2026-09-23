@@ -42,6 +42,14 @@ func registerChromeProfileInLocalState(srcDir, dstDir, displayName string) error
 // ensuring all 13 Chromium UI attributes are populated so Chrome's
 // profile picker UI displays the profile tile without dropping it.
 func registerChromeProfileWithFullSchema(dstDir, displayName, email string) error {
+	return registerChromeProfileWithFullSchemaAndGAIA(dstDir, displayName, email, "", "", "")
+}
+
+// registerChromeProfileWithFullSchemaAndGAIA registers a profile in Local State
+// ensuring UI attributes and Google GAIA identity metadata are populated.
+func registerChromeProfileWithFullSchemaAndGAIA(
+	dstDir, displayName, email, gaiaID, gaiaName, gaiaGivenName string,
+) error {
 	path := filepath.Join(chromeUserDataDir(), constants.ChromeLocalStateFile)
 	rootRes := readOrCreateLocalStateRoot(path)
 	if rootRes.IsFailure() {
@@ -50,20 +58,42 @@ func registerChromeProfileWithFullSchema(dstDir, displayName, email string) erro
 
 	profile := ensureChromeLocalStateProfile(rootRes.Data)
 	infoCache := ensureChromeLocalStateInfoCache(profile)
+	entry := prepareChromeInfoEntry(infoCache, dstDir, gaiaID)
+	applyChromeInfoEntryDefaults(entry, displayName, email)
+	applyChromeInfoEntryGAIA(entry, gaiaID, gaiaName, gaiaGivenName)
+	infoCache[dstDir] = entry
+	appendChromeProfileToOrder(profile, dstDir)
+
+	return writeChromeLocalState(path, rootRes.Data)
+}
+
+func prepareChromeInfoEntry(infoCache map[string]any, dstDir, gaiaID string) map[string]any {
 	entry, ok := infoCache[dstDir].(map[string]any)
 	if !ok {
 		entry = map[string]any{}
 	}
 
-	for _, k := range chromeInfoCacheGAIAFields {
-		delete(entry, k)
+	if gaiaID == "" {
+		for _, k := range chromeInfoCacheGAIAFields {
+			delete(entry, k)
+		}
 	}
 
-	applyChromeInfoEntryDefaults(entry, displayName, email)
-	infoCache[dstDir] = entry
-	appendChromeProfileToOrder(profile, dstDir)
+	return entry
+}
 
-	return writeChromeLocalState(path, rootRes.Data)
+func applyChromeInfoEntryGAIA(entry map[string]any, gaiaID, gaiaName, gaiaGivenName string) {
+	if gaiaID == "" {
+		return
+	}
+
+	entry["gaia_id"] = gaiaID
+	if gaiaName != "" {
+		entry["gaia_name"] = gaiaName
+	}
+	if gaiaGivenName != "" {
+		entry["gaia_given_name"] = gaiaGivenName
+	}
 }
 
 func readOrCreateLocalStateRoot(path string) result.ResultMap[string, any] {

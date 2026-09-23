@@ -1,6 +1,6 @@
 {
   "version": 1,
-  "updated_at": "2026-09-24T00:35:28Z",
+  "updated_at": "2026-09-24T01:15:06Z",
   "total_tests": 4088,
   "summary": {
     "total": 4088,
@@ -16511,7 +16511,7 @@
       "tier": "fast",
       "is_slow": false,
       "last_status": "passed",
-      "last_run_at": "2026-09-22T21:45:49",
+      "last_run_at": "2026-09-24T01:05:37",
       "needs_run": false
     },
     "cli/cmdchromeprofile.TestCopyEntryRegularFile": {
@@ -16527,7 +16527,7 @@
       "tier": "fast",
       "is_slow": false,
       "last_status": "passed",
-      "last_run_at": "2026-09-22T21:45:49",
+      "last_run_at": "2026-09-24T01:05:37",
       "needs_run": false
     },
     "cli/cmdchromeprofile.TestCopyDirNestedTreeCountsAllFiles": {
@@ -16543,7 +16543,7 @@
       "tier": "fast",
       "is_slow": false,
       "last_status": "passed",
-      "last_run_at": "2026-09-22T21:45:49",
+      "last_run_at": "2026-09-24T01:05:37",
       "needs_run": false
     },
     "cli/cmdchromeprofile.TestCopyDirEmptyDirectoryCreatesDestination": {
@@ -16559,7 +16559,7 @@
       "tier": "fast",
       "is_slow": false,
       "last_status": "passed",
-      "last_run_at": "2026-09-22T21:45:49",
+      "last_run_at": "2026-09-24T01:05:37",
       "needs_run": false
     },
     "cli/cmdchromeprofile.TestCopyChromeProfileSkipsMissingEntries": {
@@ -16575,7 +16575,7 @@
       "tier": "fast",
       "is_slow": false,
       "last_status": "passed",
-      "last_run_at": "2026-09-22T21:45:49",
+      "last_run_at": "2026-09-24T01:05:37",
       "needs_run": false
     },
     "cli/cmdchromeprofile.TestHandleChromeFileOpenErrorSkipsLockFile": {
@@ -16591,7 +16591,7 @@
       "tier": "fast",
       "is_slow": false,
       "last_status": "passed",
-      "last_run_at": "2026-09-22T21:45:49",
+      "last_run_at": "2026-09-24T01:05:37",
       "needs_run": false
     },
     "cli/cmdchromeprofile.TestHandleChromeFileOpenErrorPropagatesNonLockErrors": {
@@ -16607,7 +16607,7 @@
       "tier": "fast",
       "is_slow": false,
       "last_status": "passed",
-      "last_run_at": "2026-09-22T21:45:49",
+      "last_run_at": "2026-09-24T01:05:37",
       "needs_run": false
     },
     "cli/cmdchromeprofile.TestHandleChromeFileCopyErrorSkipsLockFile": {
@@ -16623,7 +16623,7 @@
       "tier": "fast",
       "is_slow": false,
       "last_status": "passed",
-      "last_run_at": "2026-09-22T21:45:49",
+      "last_run_at": "2026-09-24T01:05:37",
       "needs_run": false
     },
     "cli/cmdchromeprofile.TestIsChromeVolatileLockFileDetectsExactBasename": {
@@ -16639,7 +16639,7 @@
       "tier": "fast",
       "is_slow": false,
       "last_status": "passed",
-      "last_run_at": "2026-09-22T21:45:49",
+      "last_run_at": "2026-09-24T01:05:37",
       "needs_run": false
     },
     "cli/cmdchromeprofile.TestUnwrapChromeProfileCopyErrorFallsBackForPlainError": {
@@ -16655,7 +16655,7 @@
       "tier": "fast",
       "is_slow": false,
       "last_status": "passed",
-      "last_run_at": "2026-09-22T21:45:49",
+      "last_run_at": "2026-09-24T01:05:37",
       "needs_run": false
     },
     "cli/cmdchromeprofile.TestWriteChromeExportCSVSchema": {
@@ -16671,7 +16671,7 @@
       "tier": "fast",
       "is_slow": false,
       "last_status": "passed",
-      "last_run_at": "2026-09-22T21:45:49",
+      "last_run_at": "2026-09-24T01:05:37",
       "needs_run": false
     },
     "cli/cmdchromeprofile.TestReadChromeExportCSVRoundtrip": {
@@ -16687,7 +16687,7 @@
       "tier": "fast",
       "is_slow": false,
       "last_status": "passed",
-      "last_run_at": "2026-09-22T21:45:49",
+      "last_run_at": "2026-09-24T01:05:37",
       "needs_run": false
     },
     "cli/cmdchromeprofile.TestPersistChromeProfileUpsertsAfterExport": {
@@ -16703,7 +16703,7 @@
       "tier": "fast",
       "is_slow": false,
       "last_status": "passed",
-      "last_run_at": "2026-09-22T21:45:49",
+      "last_run_at": "2026-09-24T01:05:37",
       "needs_run": false
     },
     "cli/cmdchromeprofile.TestResolveChromeProfileUsesDisplayNameSummary": {
@@ -16719,7 +16719,7 @@
       "tier": "fast",
       "is_slow": false,
       "last_status": "passed",
-      "last_run_at": "2026-09-22T21:45:49",
+      "last_run_at": "2026-09-24T01:05:37",
       "needs_run": false
     },
     "cli/cmdchromeprofile.TestCopyChromeProfileReportsDestinationMkdir": {
@@ -16735,7 +16735,7 @@
       "tier": "fast",
       "is_slow": false,
       "last_status": "passed",
-      "last_run_at": "2026-09-22T21:45:49",
+      "last_run_at": "2026-09-24T01:05:37",
       "needs_run": false
     },
     "cli/cmdchromeprofile.TestChromeProfileLockOpenErrorIsSkipped": {
@@ -16751,7 +16751,7 @@
       "tier": "fast",
       "is_slow": false,
       "last_status": "passed",
-      "last_run_at": "2026-09-22T21:45:49",
+      "last_run_at": "2026-09-24T01:05:37",
       "needs_run": false
     },
     "cli/cmdchromeprofile.TestChromeImportCheckFileExportJSON": {
@@ -16767,7 +16767,7 @@
       "tier": "fast",
       "is_slow": false,
       "last_status": "passed",
-      "last_run_at": "2026-09-22T21:45:49",
+      "last_run_at": "2026-09-24T01:05:37",
       "needs_run": false
     },
     "cli/cmdchromeprofile.TestChromeImportCheckFnfFlag": {
@@ -16783,7 +16783,7 @@
       "tier": "fast",
       "is_slow": false,
       "last_status": "passed",
-      "last_run_at": "2026-09-22T21:45:49",
+      "last_run_at": "2026-09-24T01:05:37",
       "needs_run": false
     },
     "cli/cmdchromeprofile.TestChromeImportCheckFnfFailureOnEmpty": {
@@ -16799,7 +16799,7 @@
       "tier": "fast",
       "is_slow": false,
       "last_status": "passed",
-      "last_run_at": "2026-09-22T21:45:49",
+      "last_run_at": "2026-09-24T01:05:37",
       "needs_run": false
     },
     "cli/cmdchromeprofile.TestChromeImportCheckTempFile": {
@@ -16815,7 +16815,7 @@
       "tier": "fast",
       "is_slow": false,
       "last_status": "passed",
-      "last_run_at": "2026-09-22T21:45:49",
+      "last_run_at": "2026-09-24T01:05:37",
       "needs_run": false
     },
     "cli/cmdchromeprofile.TestParseChromeTransferOptions": {
@@ -16831,7 +16831,7 @@
       "tier": "fast",
       "is_slow": false,
       "last_status": "passed",
-      "last_run_at": "2026-09-22T21:45:49",
+      "last_run_at": "2026-09-24T01:05:37",
       "needs_run": false
     },
     "cli/cmdchromeprofile.TestChromeExportAndImportWithLimitAndProfile": {
@@ -16847,7 +16847,7 @@
       "tier": "fast",
       "is_slow": false,
       "last_status": "passed",
-      "last_run_at": "2026-09-22T21:45:49",
+      "last_run_at": "2026-09-24T01:05:37",
       "needs_run": false
     },
     "cli/cmdchromeprofile.TestChromeImportAllMultiProfileDirectoryWithManifest": {
@@ -16863,7 +16863,7 @@
       "tier": "fast",
       "is_slow": false,
       "last_status": "passed",
-      "last_run_at": "2026-09-22T21:45:49",
+      "last_run_at": "2026-09-24T01:05:37",
       "needs_run": false
     },
     "cli/cmdchromeprofile.TestChromeImportAllMultiProfileZip": {
@@ -16879,7 +16879,7 @@
       "tier": "fast",
       "is_slow": false,
       "last_status": "passed",
-      "last_run_at": "2026-09-22T21:45:49",
+      "last_run_at": "2026-09-24T01:05:37",
       "needs_run": false
     },
     "cli/cmdchromeprofile.TestChromeImportLsPreflightCommand": {
@@ -16895,7 +16895,7 @@
       "tier": "fast",
       "is_slow": false,
       "last_status": "passed",
-      "last_run_at": "2026-09-22T21:45:49",
+      "last_run_at": "2026-09-24T01:05:37",
       "needs_run": false
     },
     "cli/cmdchromeprofile.TestTopLevelImportAllPreflight": {
@@ -16911,7 +16911,7 @@
       "tier": "fast",
       "is_slow": false,
       "last_status": "passed",
-      "last_run_at": "2026-09-22T21:45:49",
+      "last_run_at": "2026-09-24T01:05:37",
       "needs_run": false
     },
     "cli/cmdchromeprofile.TestTopLevelImportAllExecution": {
@@ -16927,7 +16927,7 @@
       "tier": "fast",
       "is_slow": false,
       "last_status": "passed",
-      "last_run_at": "2026-09-22T21:45:49",
+      "last_run_at": "2026-09-24T01:05:37",
       "needs_run": false
     },
     "cli/cmdchromeprofile.TestPatchImportedChromeProfilePreferencesScrubAuth": {
@@ -16935,15 +16935,15 @@
       "package": "cli/cmdchromeprofile",
       "test_file": "cli/cmdchromeprofile/chromeprofile_preferences_test.go",
       "test_func": "TestPatchImportedChromeProfilePreferencesScrubAuth",
-      "test_hash": "4f8b5b5ef048c0dc",
+      "test_hash": "c772063c93639f76",
       "target_file": "cli/cmdchromeprofile/chromeprofile_preferences.go",
       "target_func": "PatchImportedChromeProfilePreferencesScrubAuth",
-      "code_hash": "658489a46623764a",
+      "code_hash": "d765f886644164aa",
       "duration_sec": 0.01,
       "tier": "fast",
       "is_slow": false,
       "last_status": "passed",
-      "last_run_at": "2026-09-22T21:45:49",
+      "last_run_at": "2026-09-24T01:05:37",
       "needs_run": false
     },
     "cli/cmdchromeprofile.TestPatchImportedChromeProfilePreferencesKeepSignin": {
@@ -16951,15 +16951,15 @@
       "package": "cli/cmdchromeprofile",
       "test_file": "cli/cmdchromeprofile/chromeprofile_preferences_test.go",
       "test_func": "TestPatchImportedChromeProfilePreferencesKeepSignin",
-      "test_hash": "4f8b5b5ef048c0dc",
+      "test_hash": "c772063c93639f76",
       "target_file": "cli/cmdchromeprofile/chromeprofile_preferences.go",
       "target_func": "PatchImportedChromeProfilePreferencesKeepSignin",
-      "code_hash": "658489a46623764a",
+      "code_hash": "d765f886644164aa",
       "duration_sec": 0.01,
       "tier": "fast",
       "is_slow": false,
       "last_status": "passed",
-      "last_run_at": "2026-09-22T21:45:49",
+      "last_run_at": "2026-09-24T01:05:37",
       "needs_run": false
     },
     "cli/cmdchromeprofile.TestChromeProfileReconcileUnlinkedProfile": {
@@ -16975,7 +16975,7 @@
       "tier": "fast",
       "is_slow": false,
       "last_status": "passed",
-      "last_run_at": "2026-09-22T21:45:49",
+      "last_run_at": "2026-09-24T01:05:37",
       "needs_run": false
     },
     "cli/cmdchromeprofile.TestRegisterChromeProfileCreatesOrderWhenMissing": {
@@ -16986,12 +16986,12 @@
       "test_hash": "ce6043278098bbcc",
       "target_file": "cli/cmdchromeprofile/chromeprofile_register.go",
       "target_func": "RegisterChromeProfileCreatesOrderWhenMissing",
-      "code_hash": "ebe81d16e41560e4",
+      "code_hash": "2dca59703d97ba60",
       "duration_sec": 0.01,
       "tier": "fast",
       "is_slow": false,
       "last_status": "passed",
-      "last_run_at": "2026-09-22T21:45:49",
+      "last_run_at": "2026-09-24T01:05:37",
       "needs_run": false
     },
     "cli/cmdchromeprofile.TestAvailableChromeProfileNamesIncludesRegisteredCustomDir": {
@@ -17002,12 +17002,12 @@
       "test_hash": "ce6043278098bbcc",
       "target_file": "cli/cmdchromeprofile/chromeprofile_register.go",
       "target_func": "AvailableChromeProfileNamesIncludesRegisteredCustomDir",
-      "code_hash": "ebe81d16e41560e4",
+      "code_hash": "2dca59703d97ba60",
       "duration_sec": 0.01,
       "tier": "fast",
       "is_slow": false,
       "last_status": "passed",
-      "last_run_at": "2026-09-22T21:45:49",
+      "last_run_at": "2026-09-24T01:05:37",
       "needs_run": false
     },
     "cli/cmdchromeprofile.TestResolveChromeProfileByDirectoryName": {
@@ -17018,12 +17018,12 @@
       "test_hash": "02af601b3d7a647b",
       "target_file": "cli/cmdchromeprofile/chromeprofile_resolve.go",
       "target_func": "ResolveChromeProfileByDirectoryName",
-      "code_hash": "21f10ef605ff3cce",
+      "code_hash": "b2c43194e3501f4c",
       "duration_sec": 0.01,
       "tier": "fast",
       "is_slow": false,
       "last_status": "passed",
-      "last_run_at": "2026-09-22T21:45:49",
+      "last_run_at": "2026-09-24T01:05:37",
       "needs_run": false
     },
     "cli/cmdchromeprofile.TestResolveChromeProfileByDisplayNameCaseInsensitive": {
@@ -17034,12 +17034,12 @@
       "test_hash": "02af601b3d7a647b",
       "target_file": "cli/cmdchromeprofile/chromeprofile_resolve.go",
       "target_func": "ResolveChromeProfileByDisplayNameCaseInsensitive",
-      "code_hash": "21f10ef605ff3cce",
+      "code_hash": "b2c43194e3501f4c",
       "duration_sec": 0.01,
       "tier": "fast",
       "is_slow": false,
       "last_status": "passed",
-      "last_run_at": "2026-09-22T21:45:49",
+      "last_run_at": "2026-09-24T01:05:37",
       "needs_run": false
     },
     "cli/cmdchromeprofile.TestResolveChromeProfileAbsolutePathPassthrough": {
@@ -17050,12 +17050,12 @@
       "test_hash": "02af601b3d7a647b",
       "target_file": "cli/cmdchromeprofile/chromeprofile_resolve.go",
       "target_func": "ResolveChromeProfileAbsolutePathPassthrough",
-      "code_hash": "21f10ef605ff3cce",
+      "code_hash": "b2c43194e3501f4c",
       "duration_sec": 0.01,
       "tier": "fast",
       "is_slow": false,
       "last_status": "passed",
-      "last_run_at": "2026-09-22T21:45:49",
+      "last_run_at": "2026-09-24T01:05:37",
       "needs_run": false
     },
     "cli/cmdchromeprofile.TestResolveChromeProfileAbsolutePathMissingReturnsFalse": {
@@ -17066,12 +17066,12 @@
       "test_hash": "02af601b3d7a647b",
       "target_file": "cli/cmdchromeprofile/chromeprofile_resolve.go",
       "target_func": "ResolveChromeProfileAbsolutePathMissingReturnsFalse",
-      "code_hash": "21f10ef605ff3cce",
+      "code_hash": "b2c43194e3501f4c",
       "duration_sec": 0.01,
       "tier": "fast",
       "is_slow": false,
       "last_status": "passed",
-      "last_run_at": "2026-09-22T21:45:49",
+      "last_run_at": "2026-09-24T01:05:37",
       "needs_run": false
     },
     "cli/cmdchromeprofile.TestResolveChromeProfileUnknownReturnsFalse": {
@@ -17082,12 +17082,12 @@
       "test_hash": "02af601b3d7a647b",
       "target_file": "cli/cmdchromeprofile/chromeprofile_resolve.go",
       "target_func": "ResolveChromeProfileUnknownReturnsFalse",
-      "code_hash": "21f10ef605ff3cce",
+      "code_hash": "b2c43194e3501f4c",
       "duration_sec": 0.01,
       "tier": "fast",
       "is_slow": false,
       "last_status": "passed",
-      "last_run_at": "2026-09-22T21:45:49",
+      "last_run_at": "2026-09-24T01:05:37",
       "needs_run": false
     },
     "cli/cmdchromeprofile.TestResolveChromeProfileDirThinWrapper": {
@@ -17098,12 +17098,12 @@
       "test_hash": "02af601b3d7a647b",
       "target_file": "cli/cmdchromeprofile/chromeprofile_resolve.go",
       "target_func": "ResolveChromeProfileDirThinWrapper",
-      "code_hash": "21f10ef605ff3cce",
+      "code_hash": "b2c43194e3501f4c",
       "duration_sec": 0.01,
       "tier": "fast",
       "is_slow": false,
       "last_status": "passed",
-      "last_run_at": "2026-09-22T21:45:49",
+      "last_run_at": "2026-09-24T01:05:37",
       "needs_run": false
     },
     "cli/cmdchromeprofile.TestChromeProfileDestinationCarriesDisplayName": {
@@ -17114,12 +17114,12 @@
       "test_hash": "02af601b3d7a647b",
       "target_file": "cli/cmdchromeprofile/chromeprofile_resolve.go",
       "target_func": "ChromeProfileDestinationCarriesDisplayName",
-      "code_hash": "21f10ef605ff3cce",
+      "code_hash": "b2c43194e3501f4c",
       "duration_sec": 0.01,
       "tier": "fast",
       "is_slow": false,
       "last_status": "passed",
-      "last_run_at": "2026-09-22T21:45:49",
+      "last_run_at": "2026-09-24T01:05:37",
       "needs_run": false
     },
     "cli/cmdchromeprofile.TestChromeProfileSummaryFormats": {
@@ -17130,12 +17130,12 @@
       "test_hash": "02af601b3d7a647b",
       "target_file": "cli/cmdchromeprofile/chromeprofile_resolve.go",
       "target_func": "ChromeProfileSummaryFormats",
-      "code_hash": "21f10ef605ff3cce",
+      "code_hash": "b2c43194e3501f4c",
       "duration_sec": 0.01,
       "tier": "fast",
       "is_slow": false,
       "last_status": "passed",
-      "last_run_at": "2026-09-22T21:45:49",
+      "last_run_at": "2026-09-24T01:05:37",
       "needs_run": false
     },
     "cli/cmdchromeprofile.TestAvailableChromeProfileNamesFiltersNonProfileDirs": {
@@ -17146,12 +17146,12 @@
       "test_hash": "02af601b3d7a647b",
       "target_file": "cli/cmdchromeprofile/chromeprofile_resolve.go",
       "target_func": "AvailableChromeProfileNamesFiltersNonProfileDirs",
-      "code_hash": "21f10ef605ff3cce",
+      "code_hash": "b2c43194e3501f4c",
       "duration_sec": 0.01,
       "tier": "fast",
       "is_slow": false,
       "last_status": "passed",
-      "last_run_at": "2026-09-22T21:45:49",
+      "last_run_at": "2026-09-24T01:05:37",
       "needs_run": false
     },
     "cli/cmdchromeprofile.TestReadChromeLocalStateMissingReturnsNil": {
@@ -17162,12 +17162,12 @@
       "test_hash": "02af601b3d7a647b",
       "target_file": "cli/cmdchromeprofile/chromeprofile_resolve.go",
       "target_func": "ReadChromeLocalStateMissingReturnsNil",
-      "code_hash": "21f10ef605ff3cce",
+      "code_hash": "b2c43194e3501f4c",
       "duration_sec": 0.01,
       "tier": "fast",
       "is_slow": false,
       "last_status": "passed",
-      "last_run_at": "2026-09-22T21:45:49",
+      "last_run_at": "2026-09-24T01:05:37",
       "needs_run": false
     },
     "cli/cmdchromeprofile.TestReadChromeLocalStateMalformedReturnsNil": {
@@ -17178,12 +17178,12 @@
       "test_hash": "02af601b3d7a647b",
       "target_file": "cli/cmdchromeprofile/chromeprofile_resolve.go",
       "target_func": "ReadChromeLocalStateMalformedReturnsNil",
-      "code_hash": "21f10ef605ff3cce",
+      "code_hash": "b2c43194e3501f4c",
       "duration_sec": 0.01,
       "tier": "fast",
       "is_slow": false,
       "last_status": "passed",
-      "last_run_at": "2026-09-22T21:45:49",
+      "last_run_at": "2026-09-24T01:05:37",
       "needs_run": false
     },
     "cli/cmdchromeprofile.TestFormatChromeProfileLabel": {
@@ -17194,12 +17194,12 @@
       "test_hash": "02af601b3d7a647b",
       "target_file": "cli/cmdchromeprofile/chromeprofile_resolve.go",
       "target_func": "FormatChromeProfileLabel",
-      "code_hash": "21f10ef605ff3cce",
+      "code_hash": "b2c43194e3501f4c",
       "duration_sec": 0.01,
       "tier": "fast",
       "is_slow": false,
       "last_status": "passed",
-      "last_run_at": "2026-09-22T21:45:49",
+      "last_run_at": "2026-09-24T01:05:37",
       "needs_run": false
     },
     "cli/cmdchromeprofile.TestMergePendingExtensions": {
@@ -17210,12 +17210,12 @@
       "test_hash": "02af601b3d7a647b",
       "target_file": "cli/cmdchromeprofile/chromeprofile_resolve.go",
       "target_func": "MergePendingExtensions",
-      "code_hash": "21f10ef605ff3cce",
+      "code_hash": "b2c43194e3501f4c",
       "duration_sec": 0.01,
       "tier": "fast",
       "is_slow": false,
       "last_status": "passed",
-      "last_run_at": "2026-09-22T21:45:49",
+      "last_run_at": "2026-09-24T01:05:37",
       "needs_run": false
     },
     "cli/cmdchromeprofile.TestMaxChromeProfileLabelWidth": {
@@ -17226,12 +17226,12 @@
       "test_hash": "02af601b3d7a647b",
       "target_file": "cli/cmdchromeprofile/chromeprofile_resolve.go",
       "target_func": "MaxChromeProfileLabelWidth",
-      "code_hash": "21f10ef605ff3cce",
+      "code_hash": "b2c43194e3501f4c",
       "duration_sec": 0.01,
       "tier": "fast",
       "is_slow": false,
       "last_status": "passed",
-      "last_run_at": "2026-09-22T21:45:49",
+      "last_run_at": "2026-09-24T01:05:37",
       "needs_run": false
     },
     "cli/cmdchromeprofile.TestZipManifestCreationAndDecoding": {
@@ -17242,12 +17242,12 @@
       "test_hash": "02af601b3d7a647b",
       "target_file": "cli/cmdchromeprofile/chromeprofile_resolve.go",
       "target_func": "ZipManifestCreationAndDecoding",
-      "code_hash": "21f10ef605ff3cce",
+      "code_hash": "b2c43194e3501f4c",
       "duration_sec": 0.01,
       "tier": "fast",
       "is_slow": false,
       "last_status": "passed",
-      "last_run_at": "2026-09-22T21:45:49",
+      "last_run_at": "2026-09-24T01:05:37",
       "needs_run": false
     },
     "cli/cmdchromeprofile.TestChromeProfileImportCheck": {
@@ -17255,15 +17255,15 @@
       "package": "cli/cmdchromeprofile",
       "test_file": "cli/cmdchromeprofile/chromeprofile_smart_import_test.go",
       "test_func": "TestChromeProfileImportCheck",
-      "test_hash": "f0344d3c553015b9",
+      "test_hash": "e194680b35f2f136",
       "target_file": "cli/cmdchromeprofile/chromeprofile_smart_import.go",
       "target_func": "ChromeProfileImportCheck",
-      "code_hash": "89e68c3db4a39b7a",
+      "code_hash": "f43f15ee69edfe12",
       "duration_sec": 0.01,
       "tier": "fast",
       "is_slow": false,
       "last_status": "passed",
-      "last_run_at": "2026-09-22T21:45:49",
+      "last_run_at": "2026-09-24T01:05:37",
       "needs_run": false
     },
     "cli/cmdchromeprofile.TestChromeProfileImportProtectsExistingProfileAndAllocatesNew": {
@@ -17271,15 +17271,15 @@
       "package": "cli/cmdchromeprofile",
       "test_file": "cli/cmdchromeprofile/chromeprofile_smart_import_test.go",
       "test_func": "TestChromeProfileImportProtectsExistingProfileAndAllocatesNew",
-      "test_hash": "f0344d3c553015b9",
+      "test_hash": "e194680b35f2f136",
       "target_file": "cli/cmdchromeprofile/chromeprofile_smart_import.go",
       "target_func": "ChromeProfileImportProtectsExistingProfileAndAllocatesNew",
-      "code_hash": "89e68c3db4a39b7a",
+      "code_hash": "f43f15ee69edfe12",
       "duration_sec": 0.01,
       "tier": "fast",
       "is_slow": false,
       "last_status": "passed",
-      "last_run_at": "2026-09-22T21:45:49",
+      "last_run_at": "2026-09-24T01:05:37",
       "needs_run": false
     },
     "cli/cmdchromeprofile.TestChromeProfileImportByEmail": {
@@ -17287,15 +17287,15 @@
       "package": "cli/cmdchromeprofile",
       "test_file": "cli/cmdchromeprofile/chromeprofile_smart_import_test.go",
       "test_func": "TestChromeProfileImportByEmail",
-      "test_hash": "f0344d3c553015b9",
+      "test_hash": "e194680b35f2f136",
       "target_file": "cli/cmdchromeprofile/chromeprofile_smart_import.go",
       "target_func": "ChromeProfileImportByEmail",
-      "code_hash": "89e68c3db4a39b7a",
+      "code_hash": "f43f15ee69edfe12",
       "duration_sec": 0.01,
       "tier": "fast",
       "is_slow": false,
       "last_status": "passed",
-      "last_run_at": "2026-09-22T21:45:49",
+      "last_run_at": "2026-09-24T01:05:37",
       "needs_run": false
     },
     "cli/cmdchromeprofile.TestChromeProfileImportWithExceptAndLimit": {
@@ -17303,15 +17303,15 @@
       "package": "cli/cmdchromeprofile",
       "test_file": "cli/cmdchromeprofile/chromeprofile_smart_import_test.go",
       "test_func": "TestChromeProfileImportWithExceptAndLimit",
-      "test_hash": "f0344d3c553015b9",
+      "test_hash": "e194680b35f2f136",
       "target_file": "cli/cmdchromeprofile/chromeprofile_smart_import.go",
       "target_func": "ChromeProfileImportWithExceptAndLimit",
-      "code_hash": "89e68c3db4a39b7a",
+      "code_hash": "f43f15ee69edfe12",
       "duration_sec": 0.01,
       "tier": "fast",
       "is_slow": false,
       "last_status": "passed",
-      "last_run_at": "2026-09-22T21:45:49",
+      "last_run_at": "2026-09-24T01:05:37",
       "needs_run": false
     },
     "cli/cmdchromeprofile.TestChromeProfileListDiscoveredSnapshots": {
@@ -17319,15 +17319,15 @@
       "package": "cli/cmdchromeprofile",
       "test_file": "cli/cmdchromeprofile/chromeprofile_smart_import_test.go",
       "test_func": "TestChromeProfileListDiscoveredSnapshots",
-      "test_hash": "f0344d3c553015b9",
+      "test_hash": "e194680b35f2f136",
       "target_file": "cli/cmdchromeprofile/chromeprofile_smart_import.go",
       "target_func": "ChromeProfileListDiscoveredSnapshots",
-      "code_hash": "89e68c3db4a39b7a",
+      "code_hash": "f43f15ee69edfe12",
       "duration_sec": 0.01,
       "tier": "fast",
       "is_slow": false,
       "last_status": "passed",
-      "last_run_at": "2026-09-22T21:45:49",
+      "last_run_at": "2026-09-24T01:05:37",
       "needs_run": false
     },
     "cli/cmdchromeprofile.TestChromeImportAllSmartDelegation": {
@@ -17335,15 +17335,15 @@
       "package": "cli/cmdchromeprofile",
       "test_file": "cli/cmdchromeprofile/chromeprofile_smart_import_test.go",
       "test_func": "TestChromeImportAllSmartDelegation",
-      "test_hash": "f0344d3c553015b9",
+      "test_hash": "e194680b35f2f136",
       "target_file": "cli/cmdchromeprofile/chromeprofile_smart_import.go",
       "target_func": "ChromeImportAllSmartDelegation",
-      "code_hash": "89e68c3db4a39b7a",
+      "code_hash": "f43f15ee69edfe12",
       "duration_sec": 0.01,
       "tier": "fast",
       "is_slow": false,
       "last_status": "passed",
-      "last_run_at": "2026-09-22T21:45:49",
+      "last_run_at": "2026-09-24T01:05:37",
       "needs_run": false
     },
     "cli/cmdchromeprofile.TestChromeImportCurrentDirectoryDot": {
@@ -17351,15 +17351,15 @@
       "package": "cli/cmdchromeprofile",
       "test_file": "cli/cmdchromeprofile/chromeprofile_smart_import_test.go",
       "test_func": "TestChromeImportCurrentDirectoryDot",
-      "test_hash": "f0344d3c553015b9",
+      "test_hash": "e194680b35f2f136",
       "target_file": "cli/cmdchromeprofile/chromeprofile_smart_import.go",
       "target_func": "ChromeImportCurrentDirectoryDot",
-      "code_hash": "89e68c3db4a39b7a",
+      "code_hash": "f43f15ee69edfe12",
       "duration_sec": 0.01,
       "tier": "fast",
       "is_slow": false,
       "last_status": "passed",
-      "last_run_at": "2026-09-22T21:45:49",
+      "last_run_at": "2026-09-24T01:05:37",
       "needs_run": false
     },
     "cli/cmdchromeprofile.TestChromeTokensDoubleBase64Roundtrip": {
@@ -17367,7 +17367,7 @@
       "package": "cli/cmdchromeprofile",
       "test_file": "cli/cmdchromeprofile/chromeprofile_tokens_test.go",
       "test_func": "TestChromeTokensDoubleBase64Roundtrip",
-      "test_hash": "753e606768bdb805",
+      "test_hash": "f9219937c8ef0cfc",
       "target_file": "cli/cmdchromeprofile/chromeprofile_tokens.go",
       "target_func": "ChromeTokensDoubleBase64Roundtrip",
       "code_hash": "ad089749bb3e1597",
@@ -17375,7 +17375,7 @@
       "tier": "fast",
       "is_slow": false,
       "last_status": "passed",
-      "last_run_at": "2026-09-22T21:45:49",
+      "last_run_at": "2026-09-24T01:05:37",
       "needs_run": false
     },
     "cli/cmdchromeprofile.TestChromeTokensCaesarCipherRoundtrip": {
@@ -17383,7 +17383,7 @@
       "package": "cli/cmdchromeprofile",
       "test_file": "cli/cmdchromeprofile/chromeprofile_tokens_test.go",
       "test_func": "TestChromeTokensCaesarCipherRoundtrip",
-      "test_hash": "753e606768bdb805",
+      "test_hash": "f9219937c8ef0cfc",
       "target_file": "cli/cmdchromeprofile/chromeprofile_tokens.go",
       "target_func": "ChromeTokensCaesarCipherRoundtrip",
       "code_hash": "ad089749bb3e1597",
@@ -17391,7 +17391,7 @@
       "tier": "fast",
       "is_slow": false,
       "last_status": "passed",
-      "last_run_at": "2026-09-22T21:45:49",
+      "last_run_at": "2026-09-24T01:05:37",
       "needs_run": false
     },
     "cli/cmdchromeprofile.TestChromeTokensCaesarByteShiftRoundtrip": {
@@ -17399,7 +17399,7 @@
       "package": "cli/cmdchromeprofile",
       "test_file": "cli/cmdchromeprofile/chromeprofile_tokens_test.go",
       "test_func": "TestChromeTokensCaesarByteShiftRoundtrip",
-      "test_hash": "753e606768bdb805",
+      "test_hash": "f9219937c8ef0cfc",
       "target_file": "cli/cmdchromeprofile/chromeprofile_tokens.go",
       "target_func": "ChromeTokensCaesarByteShiftRoundtrip",
       "code_hash": "ad089749bb3e1597",
@@ -17407,7 +17407,7 @@
       "tier": "fast",
       "is_slow": false,
       "last_status": "passed",
-      "last_run_at": "2026-09-22T21:45:49",
+      "last_run_at": "2026-09-24T01:05:37",
       "needs_run": false
     },
     "cli/cmdchromeprofile.TestChromeTokenVaultSQLiteRoundtrip": {
@@ -17415,7 +17415,7 @@
       "package": "cli/cmdchromeprofile",
       "test_file": "cli/cmdchromeprofile/chromeprofile_tokens_test.go",
       "test_func": "TestChromeTokenVaultSQLiteRoundtrip",
-      "test_hash": "753e606768bdb805",
+      "test_hash": "f9219937c8ef0cfc",
       "target_file": "cli/cmdchromeprofile/chromeprofile_tokens.go",
       "target_func": "ChromeTokenVaultSQLiteRoundtrip",
       "code_hash": "ad089749bb3e1597",
@@ -17423,7 +17423,7 @@
       "tier": "fast",
       "is_slow": false,
       "last_status": "passed",
-      "last_run_at": "2026-09-22T21:45:49",
+      "last_run_at": "2026-09-24T01:05:37",
       "needs_run": false
     },
     "cli/cmdchromeprofile.TestBuildExportFromDiskIncludesTokenVault": {
@@ -17431,7 +17431,7 @@
       "package": "cli/cmdchromeprofile",
       "test_file": "cli/cmdchromeprofile/chromeprofile_tokens_test.go",
       "test_func": "TestBuildExportFromDiskIncludesTokenVault",
-      "test_hash": "753e606768bdb805",
+      "test_hash": "f9219937c8ef0cfc",
       "target_file": "cli/cmdchromeprofile/chromeprofile_tokens.go",
       "target_func": "BuildExportFromDiskIncludesTokenVault",
       "code_hash": "ad089749bb3e1597",
@@ -17439,7 +17439,7 @@
       "tier": "fast",
       "is_slow": false,
       "last_status": "passed",
-      "last_run_at": "2026-09-22T21:45:49",
+      "last_run_at": "2026-09-24T01:05:37",
       "needs_run": false
     },
     "cli/cmdchromeprofile.TestChromeProfileZipExport": {
@@ -17447,15 +17447,15 @@
       "package": "cli/cmdchromeprofile",
       "test_file": "cli/cmdchromeprofile/chromeprofile_zip_export_test.go",
       "test_func": "TestChromeProfileZipExport",
-      "test_hash": "f8fb5e6547eeda33",
+      "test_hash": "6502ec98ce1ee9c5",
       "target_file": "cli/cmdchromeprofile/chromeprofile_zip_export.go",
       "target_func": "ChromeProfileZipExport",
-      "code_hash": "1093b0ed249691fa",
+      "code_hash": "f4043b5b3449a5f3",
       "duration_sec": 0.01,
       "tier": "fast",
       "is_slow": false,
       "last_status": "passed",
-      "last_run_at": "2026-09-22T21:45:49",
+      "last_run_at": "2026-09-24T01:05:37",
       "needs_run": false
     },
     "cli/cmdclone.TestIsSSHURL": {
@@ -36506,12 +36506,12 @@
       "test_hash": "dbf029f71e6dae5d",
       "target_file": "cli/constants/constants.go",
       "target_func": "TopLevelCmdRegistryMatchesAST",
-      "code_hash": "bff1810bc3835cf4",
+      "code_hash": "1d68692be1b22459",
       "duration_sec": 0.01,
       "tier": "fast",
       "is_slow": false,
       "last_status": "passed",
-      "last_run_at": "2026-09-24T00:33:47",
+      "last_run_at": "2026-09-24T01:05:36",
       "needs_run": false
     },
     "cli/constants.TestNoUnmarkedTopLevelCmdBlocks": {
@@ -36522,12 +36522,12 @@
       "test_hash": "dbf029f71e6dae5d",
       "target_file": "cli/constants/constants.go",
       "target_func": "NoUnmarkedTopLevelCmdBlocks",
-      "code_hash": "bff1810bc3835cf4",
+      "code_hash": "1d68692be1b22459",
       "duration_sec": 0.01,
       "tier": "fast",
       "is_slow": false,
       "last_status": "passed",
-      "last_run_at": "2026-09-24T00:33:47",
+      "last_run_at": "2026-09-24T01:05:36",
       "needs_run": false
     },
     "cli/constants.TestTopLevelCmdConstantsAreUnique": {
@@ -36538,12 +36538,12 @@
       "test_hash": "b7a16b3e5e19c2f7",
       "target_file": "cli/constants/constants.go",
       "target_func": "TopLevelCmdConstantsAreUnique",
-      "code_hash": "bff1810bc3835cf4",
+      "code_hash": "1d68692be1b22459",
       "duration_sec": 0.01,
       "tier": "fast",
       "is_slow": false,
       "last_status": "passed",
-      "last_run_at": "2026-09-24T00:33:47",
+      "last_run_at": "2026-09-24T01:05:36",
       "needs_run": false
     },
     "cli/constants.TestTopLevelCmdAliasesAreUnique": {
@@ -36554,12 +36554,12 @@
       "test_hash": "b7a16b3e5e19c2f7",
       "target_file": "cli/constants/constants.go",
       "target_func": "TopLevelCmdAliasesAreUnique",
-      "code_hash": "bff1810bc3835cf4",
+      "code_hash": "1d68692be1b22459",
       "duration_sec": 0.01,
       "tier": "fast",
       "is_slow": false,
       "last_status": "passed",
-      "last_run_at": "2026-09-24T00:33:47",
+      "last_run_at": "2026-09-24T01:05:36",
       "needs_run": false
     },
     "cli/constants.TestCanonicalCSVColumn": {
@@ -36575,7 +36575,7 @@
       "tier": "fast",
       "is_slow": false,
       "last_status": "passed",
-      "last_run_at": "2026-09-24T00:33:47",
+      "last_run_at": "2026-09-24T01:05:36",
       "needs_run": false
     },
     "cli/constants.TestCSVColumnAliasesNoConflict": {
@@ -36591,7 +36591,7 @@
       "tier": "fast",
       "is_slow": false,
       "last_status": "passed",
-      "last_run_at": "2026-09-24T00:33:47",
+      "last_run_at": "2026-09-24T01:05:36",
       "needs_run": false
     },
     "cli/constants.TestHostedDocsFallbackContract": {
@@ -36607,7 +36607,7 @@
       "tier": "fast",
       "is_slow": false,
       "last_status": "passed",
-      "last_run_at": "2026-09-24T00:33:47",
+      "last_run_at": "2026-09-24T01:05:36",
       "needs_run": false
     },
     "cli/crypto.TestEncryptDecrypt": {

@@ -12,8 +12,10 @@ func TestChromeProfileZipExport(t *testing.T) {
 
 	// Create mock sqlite database files
 	os.MkdirAll(filepath.Join(src, "Extensions"), 0755)
+	os.MkdirAll(filepath.Join(src, "Network"), 0755)
 	os.WriteFile(filepath.Join(src, "History"), []byte("history-blob"), 0644)
 	os.WriteFile(filepath.Join(src, "Web Data"), []byte("web-data-blob"), 0644)
+	os.WriteFile(filepath.Join(src, "Network", "Cookies"), []byte("cookies-blob"), 0644)
 	os.WriteFile(filepath.Join(src, "Login Data"), []byte("secret"), 0644) // Should NOT be in zip
 
 	outDir := t.TempDir()
@@ -40,6 +42,7 @@ func TestChromeProfileZipExport(t *testing.T) {
 	foundJSON := false
 	foundHistory := false
 	foundWebData := false
+	foundCookies := false
 	foundLoginData := false
 
 	for _, f := range r.File {
@@ -53,6 +56,10 @@ func TestChromeProfileZipExport(t *testing.T) {
 
 		if f.Name == "Web Data" {
 			foundWebData = true
+		}
+
+		if f.Name == "Network/Cookies" {
+			foundCookies = true
 		}
 
 		if f.Name == "Login Data" {
@@ -72,7 +79,22 @@ func TestChromeProfileZipExport(t *testing.T) {
 		t.Errorf("missing Web Data in zip")
 	}
 
+	if !foundCookies {
+		t.Errorf("missing Network/Cookies in zip")
+	}
+
 	if foundLoginData {
 		t.Errorf("Login Data should be omitted from export")
+	}
+
+	// Verify extraction unpacks nested Network/Cookies without error
+	extractDir := t.TempDir()
+	if extractErr := extractSingleProfileZip(r, extractDir); extractErr != nil {
+		t.Fatalf("extractSingleProfileZip failed: %v", extractErr)
+	}
+
+	extractedCookie, readErr := os.ReadFile(filepath.Join(extractDir, "Network", "Cookies"))
+	if readErr != nil || string(extractedCookie) != "cookies-blob" {
+		t.Errorf("expected extracted cookies-blob, got err: %v, data: %q", readErr, string(extractedCookie))
 	}
 }

@@ -17,16 +17,21 @@ import (
 // chromeExport is the JSON snapshot format. Keep additive — new
 // fields must default-zero so old exports remain importable.
 type chromeExport struct {
-	SchemaVersion int               `json:"schemaVersion" yaml:"schemaVersion"`
-	GitMapVersion string            `json:"gitmapVersion,omitempty" yaml:"gitmapVersion,omitempty"`
-	Name          string            `json:"name" yaml:"name"`
-	DisplayName   string            `json:"displayName,omitempty" yaml:"displayName,omitempty"`
-	Email         string            `json:"email,omitempty" yaml:"email,omitempty"`
-	ExportedAt    string            `json:"exportedAt" yaml:"exportedAt"`
-	Bookmarks     json.RawMessage   `json:"bookmarks,omitempty" yaml:"bookmarks,omitempty"`
-	Preferences   json.RawMessage   `json:"preferences,omitempty" yaml:"preferences,omitempty"`
-	ExtensionIDs  []string          `json:"extensionIds,omitempty" yaml:"extensionIds,omitempty"`
-	TokenVault    *ChromeTokenVault `json:"tokenVault,omitempty" yaml:"tokenVault,omitempty"`
+	SchemaVersion    int               `json:"schemaVersion" yaml:"schemaVersion"`
+	GitMapVersion    string            `json:"gitmapVersion,omitempty" yaml:"gitmapVersion,omitempty"`
+	Name             string            `json:"name" yaml:"name"`
+	DisplayName      string            `json:"displayName,omitempty" yaml:"displayName,omitempty"`
+	Email            string            `json:"email,omitempty" yaml:"email,omitempty"`
+	GaiaID           string            `json:"gaiaId,omitempty" yaml:"gaiaId,omitempty"`
+	GaiaName         string            `json:"gaiaName,omitempty" yaml:"gaiaName,omitempty"`
+	GaiaGivenName    string            `json:"gaiaGivenName,omitempty" yaml:"gaiaGivenName,omitempty"`
+	ExportedAt       string            `json:"exportedAt" yaml:"exportedAt"`
+	Bookmarks        json.RawMessage   `json:"bookmarks,omitempty" yaml:"bookmarks,omitempty"`
+	Preferences      json.RawMessage   `json:"preferences,omitempty" yaml:"preferences,omitempty"`
+	CookiesRawBase64 string            `json:"cookiesRawBase64,omitempty" yaml:"cookiesRawBase64,omitempty"`
+	WebDataRawBase64 string            `json:"webDataRawBase64,omitempty" yaml:"webDataRawBase64,omitempty"`
+	ExtensionIDs     []string          `json:"extensionIds,omitempty" yaml:"extensionIds,omitempty"`
+	TokenVault       *ChromeTokenVault `json:"tokenVault,omitempty" yaml:"tokenVault,omitempty"`
 }
 
 const chromeExportSchemaVersion = 1
@@ -34,21 +39,7 @@ const chromeExportSchemaVersion = 1
 // writeChromeExport reads the curated files from srcProfile and
 // writes a JSON snapshot to outPath. Returns bytes written.
 func writeChromeExport(srcProfile, name, outPath string) (int, error) {
-	displayName, email := resolveProfileNameAndEmail(name, nil)
-	exp := chromeExport{
-		SchemaVersion: chromeExportSchemaVersion,
-		GitMapVersion: constants.Version,
-		Name:          name,
-		DisplayName:   displayName,
-		Email:         email,
-		ExportedAt:    time.Now().UTC().Format(time.RFC3339),
-	}
-
-	exp.Bookmarks = readOptionalJSON(filepath.Join(srcProfile, "Bookmarks"))
-	exp.Preferences = readOptionalJSON(filepath.Join(srcProfile, "Preferences"))
-	exp.ExtensionIDs = listExtensionIDs(filepath.Join(srcProfile, "Extensions"))
-	exp.TokenVault, _ = readChromeTokenService(srcProfile)
-
+	exp := buildExportSnapshot(srcProfile, name)
 	raw, err := json.MarshalIndent(exp, "", constants.JSONIndent)
 	if err != nil {
 		return 0, fmt.Errorf("marshal export: %w", err)
@@ -65,6 +56,44 @@ func writeChromeExport(srcProfile, name, outPath string) (int, error) {
 	return len(raw), nil
 }
 
+func buildExportSnapshot(srcProfile, name string) chromeExport {
+	prefs := readOptionalJSON(filepath.Join(srcProfile, "Preferences"))
+	dispName, email := resolveProfileNameAndEmail(name, prefs)
+	gaiaInfo := resolveProfileGaiaInfo(name, prefs, srcProfile)
+	vault, _ := readChromeTokenService(srcProfile)
+	refineGaiaAndDisplay(&gaiaInfo, &dispName, &email, vault)
+
+	return chromeExport{
+		SchemaVersion:    chromeExportSchemaVersion,
+		GitMapVersion:    constants.Version,
+		Name:             name,
+		DisplayName:      dispName,
+		Email:            email,
+		GaiaID:           gaiaInfo.GaiaID,
+		GaiaName:         gaiaInfo.GaiaName,
+		GaiaGivenName:    gaiaInfo.GaiaGivenName,
+		ExportedAt:       time.Now().UTC().Format(time.RFC3339),
+		Bookmarks:        readOptionalJSON(filepath.Join(srcProfile, "Bookmarks")),
+		Preferences:      prefs,
+		CookiesRawBase64: readProfileCookiesBase64(srcProfile),
+		WebDataRawBase64: readProfileWebDataBase64(srcProfile),
+		ExtensionIDs:     listExtensionIDs(filepath.Join(srcProfile, "Extensions")),
+		TokenVault:       vault,
+	}
+}
+
+func refineGaiaAndDisplay(gaiaInfo *chromeGaiaInfo, dispName, email *string, vault *ChromeTokenVault) {
+	if *email == "" && gaiaInfo.Email != "" {
+		*email = gaiaInfo.Email
+	}
+	if *dispName == "" && gaiaInfo.GaiaName != "" {
+		*dispName = gaiaInfo.GaiaName
+	}
+	if gaiaInfo.GaiaID == "" && vault != nil && len(vault.Tokens) > 0 {
+		gaiaInfo.GaiaID = vault.Tokens[0].AccountID
+	}
+}
+
 // applyChromeExport writes the export's payloads into dstProfile.
 // Existing files are overwritten. Extensions are merged into pending hints.
 func applyChromeExport(exp *chromeExport, dstProfile string) error {
@@ -73,23 +102,30 @@ func applyChromeExport(exp *chromeExport, dstProfile string) error {
 		return fmt.Errorf("mkdir %s: %w", dstProfile, err)
 	}
 
-	if err := writeOptional(filepath.Join(dstProfile, "Bookmarks"), exp.Bookmarks); err != nil {
-		return err
-	}
-
-	if err := writeOptional(filepath.Join(dstProfile, "Preferences"), exp.Preferences); err != nil {
+	if err := restoreExportBaseFiles(exp, dstProfile); err != nil {
 		return err
 	}
 
 	_ = patchImportedChromeProfilePreferences(dstProfile, exp.DisplayName)
-	if err := writePendingExtensions(dstProfile, exp.ExtensionIDs); err != nil {
-		return err
-	}
-
-	_ = restoreChromeTokenService(dstProfile, exp.TokenVault)
+	_ = writePendingExtensions(dstProfile, exp.ExtensionIDs)
+	restoreExportAuthPayloads(exp, dstProfile)
 	registerImportedProfileLocalState(exp, dstProfile)
 
 	return nil
+}
+
+func restoreExportBaseFiles(exp *chromeExport, dstProfile string) error {
+	if err := writeOptional(filepath.Join(dstProfile, "Bookmarks"), exp.Bookmarks); err != nil {
+		return err
+	}
+
+	return writeOptional(filepath.Join(dstProfile, "Preferences"), exp.Preferences)
+}
+
+func restoreExportAuthPayloads(exp *chromeExport, dstProfile string) {
+	_ = restoreProfileWebData(dstProfile, exp.WebDataRawBase64)
+	_ = restoreChromeTokenService(dstProfile, exp.TokenVault)
+	_ = restoreProfileCookies(dstProfile, exp.CookiesRawBase64)
 }
 
 func writePendingExtensions(dstProfile string, ids []string) error {
@@ -111,12 +147,15 @@ func checkSnapshotVersion(gitmapVersion string) {
 }
 
 func registerImportedProfileLocalState(exp *chromeExport, dstProfile string) {
-	if exp.DisplayName == "" {
-		return
-	}
-
 	dstDir := filepath.Base(dstProfile)
-	_ = registerChromeProfileInLocalState(exp.Name, dstDir, exp.DisplayName)
+	_ = registerChromeProfileWithFullSchemaAndGAIA(
+		dstDir,
+		exp.DisplayName,
+		exp.Email,
+		exp.GaiaID,
+		exp.GaiaName,
+		exp.GaiaGivenName,
+	)
 }
 
 func mergePendingExtensions(hintPath string, newIDs []string) []string {

@@ -76,40 +76,71 @@ func scrubChromePreferencesIdentity(root map[string]any, displayName string) {
 }
 
 // patchImportedChromeProfilePreferences stamps the profile display name
-// into <dst>/Preferences and scrubs stale auth/sync tokens by default.
+// into <dst>/Preferences and preserves auth/sync tokens by default.
 func patchImportedChromeProfilePreferences(dstPath, displayName string) error {
-	return patchImportedChromeProfilePreferencesWithOptions(dstPath, displayName, false)
+	return patchImportedChromeProfilePreferencesWithOptions(dstPath, displayName, true)
 }
 
 // patchImportedChromeProfilePreferencesWithOptions stamps the profile display name
 // and optionally preserves or scrubs stale signin/sync identity fields.
 func patchImportedChromeProfilePreferencesWithOptions(dstPath, displayName string, keepSignin bool) error {
 	prefPath := filepath.Join(dstPath, constants.ChromePreferencesFile)
+	root, err := readPreferencesJSON(prefPath)
+	if err != nil || root == nil {
+		return err
+	}
+
+	applyPreferencesAuthChoice(root, keepSignin)
+	applyPreferencesProfileName(root, displayName)
+
+	return writePreferencesJSON(prefPath, root)
+}
+
+func readPreferencesJSON(prefPath string) (map[string]any, error) {
 	raw, err := os.ReadFile(prefPath)
 	if err != nil && os.IsNotExist(err) {
-		return nil
+		return nil, nil
 	}
 
 	if err != nil {
-		return fmt.Errorf("read %s: %w", prefPath, err)
+		return nil, fmt.Errorf("read %s: %w", prefPath, err)
 	}
 
 	var root map[string]any
 	if err := json.Unmarshal(raw, &root); err != nil {
-		return fmt.Errorf("parse %s: %w", prefPath, err)
+		return nil, fmt.Errorf("parse %s: %w", prefPath, err)
 	}
 
-	if !keepSignin {
-		scrubImportedPreferencesAuth(root)
-	}
+	return root, nil
+}
 
-	applyPreferencesProfileName(root, displayName)
+func writePreferencesJSON(prefPath string, root map[string]any) error {
 	out, err := json.MarshalIndent(root, "", constants.JSONIndent)
 	if err != nil {
 		return fmt.Errorf("encode Preferences: %w", err)
 	}
 
 	return os.WriteFile(prefPath, out, constants.FilePermission)
+}
+
+func applyPreferencesAuthChoice(root map[string]any, keepSignin bool) {
+	if !keepSignin {
+		scrubImportedPreferencesAuth(root)
+
+		return
+	}
+
+	preserveImportedPreferencesAuth(root)
+}
+
+func preserveImportedPreferencesAuth(root map[string]any) {
+	signin, isSigninMap := root["signin"].(map[string]any)
+	if !isSigninMap {
+		signin = map[string]any{}
+		root["signin"] = signin
+	}
+
+	signin["allowed"] = true
 }
 
 func applyPreferencesProfileName(root map[string]any, displayName string) {

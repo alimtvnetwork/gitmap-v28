@@ -127,22 +127,7 @@ func loadSingleChromeProfileExport(name string) (chromeExport, bool) {
 }
 
 func buildExportFromDisk(name, srcPath string) chromeExport {
-	prefs := readOptionalJSON(filepath.Join(srcPath, "Preferences"))
-	dispName, email := resolveProfileNameAndEmail(name, prefs)
-	vault, _ := readChromeTokenService(srcPath)
-	exp := chromeExport{
-		SchemaVersion: chromeExportSchemaVersion,
-		Name:          name,
-		DisplayName:   dispName,
-		Email:         email,
-		ExportedAt:    time.Now().UTC().Format(time.RFC3339),
-		Bookmarks:     readOptionalJSON(filepath.Join(srcPath, "Bookmarks")),
-		Preferences:   prefs,
-		ExtensionIDs:  listExtensionIDs(filepath.Join(srcPath, "Extensions")),
-		TokenVault:    vault,
-	}
-
-	return exp
+	return buildExportSnapshot(srcPath, name)
 }
 
 func writeAllChromeProfilesJSON(names []string, outPath string) (int, error) {

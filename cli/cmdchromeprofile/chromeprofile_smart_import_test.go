@@ -1,6 +1,8 @@
 package cmdchromeprofile
 
 import (
+	"database/sql"
+	"encoding/base64"
 	"encoding/json"
 	"os"
 	"path/filepath"
@@ -241,5 +243,96 @@ func TestChromeImportCurrentDirectoryDot(t *testing.T) {
 	// Test import-check "ls"
 	if err := runChromeProfileImportCheck([]string{"ls"}); err != nil {
 		t.Fatalf("runChromeProfileImportCheck with ls failed: %v", err)
+	}
+}
+
+func TestSmartImportTokenRestore(t *testing.T) {
+	tempUserData := t.TempDir()
+	t.Setenv("GITMAP_CHROME_USER_DATA", tempUserData)
+	workDir := t.TempDir()
+	snapPath := createTestSnapshotWithTokens(t, workDir)
+
+	if err := runChromeProfileImport([]string{snapPath}); err != nil {
+		t.Fatalf("runChromeProfileImport failed: %v", err)
+	}
+
+	destProfile := filepath.Join(tempUserData, "Profile 1")
+	verifyRestoredTokens(t, destProfile)
+	verifyRestoredCookies(t, destProfile)
+	verifyRestoredLocalState(t, tempUserData)
+}
+
+func createTestSnapshotWithTokens(t *testing.T, dir string) string {
+	t.Helper()
+	vault := &ChromeTokenVault{
+		Count: 1,
+		Tokens: []ChromeRefreshTokenEntry{
+			{
+				Service:      "AccountId-113336085041923585255",
+				AccountID:    "113336085041923585255",
+				DoubleBase64: EncodeDoubleBase64([]byte("smart-test-token-secret")),
+			},
+		},
+	}
+	exp := chromeExport{
+		SchemaVersion:    chromeExportSchemaVersion,
+		GitMapVersion:    constants.Version,
+		Name:             "Default",
+		DisplayName:      "Smart User",
+		Email:            "smart@gmail.com",
+		GaiaID:           "113336085041923585255",
+		GaiaName:         "Smart User",
+		ExportedAt:       time.Now().UTC().Format(time.RFC3339),
+		CookiesRawBase64: base64.StdEncoding.EncodeToString([]byte("sqlite-cookie-data")),
+		TokenVault:       vault,
+	}
+
+	raw, _ := json.MarshalIndent(exp, "", "  ")
+	path := filepath.Join(dir, "Default.json")
+	_ = os.WriteFile(path, raw, 0644)
+
+	return path
+}
+
+func verifyRestoredTokens(t *testing.T, profilePath string) {
+	t.Helper()
+	webDataPath := filepath.Join(profilePath, "Web Data")
+	db, err := sql.Open("sqlite", webDataPath)
+	if err != nil {
+		t.Fatalf("open Web Data: %v", err)
+	}
+	defer db.Close()
+
+	var token []byte
+	err = db.QueryRow("SELECT encrypted_token FROM token_service WHERE service = ?", "AccountId-113336085041923585255").Scan(&token)
+	if err != nil {
+		t.Fatalf("query token_service: %v", err)
+	}
+	if string(token) != "smart-test-token-secret" {
+		t.Errorf("expected smart-test-token-secret, got %q", string(token))
+	}
+}
+
+func verifyRestoredCookies(t *testing.T, profilePath string) {
+	t.Helper()
+	cookiePath := filepath.Join(profilePath, "Network", "Cookies")
+	data, err := os.ReadFile(cookiePath)
+	if err != nil {
+		t.Fatalf("read restored cookies: %v", err)
+	}
+	if string(data) != "sqlite-cookie-data" {
+		t.Errorf("expected sqlite-cookie-data, got %q", string(data))
+	}
+}
+
+func verifyRestoredLocalState(t *testing.T, userData string) {
+	t.Helper()
+	localStatePath := filepath.Join(userData, constants.ChromeLocalStateFile)
+	raw, err := os.ReadFile(localStatePath)
+	if err != nil {
+		t.Fatalf("read Local State: %v", err)
+	}
+	if !strings.Contains(string(raw), "113336085041923585255") {
+		t.Errorf("expected Local State to contain GaiaID 113336085041923585255")
 	}
 }

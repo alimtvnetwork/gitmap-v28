@@ -227,6 +227,8 @@ var ChromeProfileSQLiteEntries = []string{
 	"Top Sites",
 	"Favicons",
 	"Network Action Predictor",
+	"Network/Cookies",
+	"Cookies",
 }
 
 var ChromeProfileCopyEntries = []string{

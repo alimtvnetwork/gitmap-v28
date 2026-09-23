@@ -3,6 +3,7 @@ package cmdchromeprofile
 import (
 	"bytes"
 	"database/sql"
+	"os"
 	"path/filepath"
 	"testing"
 )
@@ -167,4 +168,21 @@ func initDummyTokenWebData(t *testing.T, dir string) {
 	defer db.Close()
 	_, _ = db.Exec("CREATE TABLE token_service (service VARCHAR PRIMARY KEY NOT NULL, encrypted_token BLOB NOT NULL)")
 	_, _ = db.Exec("INSERT INTO token_service (service, encrypted_token) VALUES (?, ?)", "service-1", []byte("secret-token"))
+}
+
+func TestBuildExportFromDiskIncludesCookiesAndWebData(t *testing.T) {
+	tmpDir := t.TempDir()
+	initDummyTokenWebData(t, tmpDir)
+	netDir := filepath.Join(tmpDir, "Network")
+	_ = os.MkdirAll(netDir, 0755)
+	_ = os.WriteFile(filepath.Join(netDir, "Cookies"), []byte("cookie-binary-data"), 0644)
+
+	exp := buildExportFromDisk("Profile 1", tmpDir)
+	if exp.CookiesRawBase64 == "" {
+		t.Errorf("expected CookiesRawBase64 to be populated")
+	}
+
+	if exp.WebDataRawBase64 == "" {
+		t.Errorf("expected WebDataRawBase64 to be populated")
+	}
 }

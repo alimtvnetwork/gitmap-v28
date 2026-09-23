@@ -111,13 +111,13 @@ func exportChromeProfileSQLite(zw *zip.Writer, srcProfile string) error {
 }
 
 func copySQLiteEntryToZip(zw *zip.Writer, srcProfile, dbName string) error {
-	src := filepath.Join(srcProfile, dbName)
+	src := filepath.Join(srcProfile, filepath.FromSlash(dbName))
 	info, err := os.Stat(src)
 	if err != nil || info.IsDir() {
 		return nil
 	}
 
-	w, err := zw.Create(dbName)
+	w, err := zw.Create(filepath.ToSlash(dbName))
 	if err != nil {
 		return err
 	}
