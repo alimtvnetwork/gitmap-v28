@@ -40,6 +40,7 @@ Tracks every CI/CD pipeline failure or hardening decision encountered, its root 
 | 73 | Gofmt Whitespace Drift in rootcore.go and helpers.go | Lint Script Unit Tests | ✅ Resolved | [73-gofmt-whitespace-drift-in-rootcore-and-helpers-rca.md](cicd-issues/73-gofmt-whitespace-drift-in-rootcore-and-helpers-rca.md) |
 | 74 | Go Interface Naming and Enum Type Suffix Compliance in cmdos | Enum Guidelines / Interface Naming | ✅ Resolved | [74-interface-naming-and-enum-suffix-compliance-rca.md](cicd-issues/74-interface-naming-and-enum-suffix-compliance-rca.md) |
 | 77 | Misspell `cancelled` in Pipeline Tests & Inverted Success Check in `sshjoin_common.go` | golangci-lint / Boolean Guidelines | ✅ Resolved | [77-misspell-cancelled-and-sshjoin-inverted-success-rca.md](cicd-issues/77-misspell-cancelled-and-sshjoin-inverted-success-rca.md) |
+| 78 | Windows Binary Archive Packaging vs Executable PE Target | Local CLI Installation / PowerShell | ✅ Resolved | [78-windows-binary-magic-bytes-and-powershell-profile-rca.md](cicd-issues/78-windows-binary-magic-bytes-and-powershell-profile-rca.md) |
 
 ## Patterns Learned
 
