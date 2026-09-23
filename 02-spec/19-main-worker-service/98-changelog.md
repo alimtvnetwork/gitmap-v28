@@ -1,3 +1,9 @@
+## v6.318.0 — 2026-09-23 (relative path check fix in rca 78 and green ci validation)
+
+**Scope:** Version bump. relative path check fix in rca 78 and green ci validation.
+
+---
+
 ## v6.317.0 — 2026-09-23 (chrome profile auth export/import, us-english canceled, and sshjoin boolean fixes)
 
 **Scope:** Version bump. chrome profile auth export/import, us-english canceled, and sshjoin boolean fixes.
