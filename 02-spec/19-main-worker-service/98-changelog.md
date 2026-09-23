@@ -1,3 +1,9 @@
+## v6.313.0 — 2026-09-23 (feat(cluster): expose osutil aliases, enhance cluster e2e tests, and document agy rca)
+
+**Scope:** Version bump. feat(cluster): expose osutil aliases, enhance cluster e2e tests, and document agy rca.
+
+---
+
 ## v6.312.0 — 2026-09-23 (feat(cluster): live VM cluster E2E SSH join, multi-node exec, and remote update)
 
 **Scope:** Version bump. feat(cluster): live VM cluster E2E SSH join, multi-node exec, and remote update.
