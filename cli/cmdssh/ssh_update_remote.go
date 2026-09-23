@@ -117,14 +117,6 @@ func runSSHUpdateCLI(args []string) error {
 	return nil
 }
 
-func executeFleetUpdate(conns []db.SSHConnection, target, pkg string) {
-	opts := SSHFleetUpdateOptions{
-		Target: target,
-		Pkg:    pkg,
-	}
-	executeFleetUpdateWithOptions(conns, opts)
-}
-
 func executeFleetUpdateWithOptions(conns []db.SSHConnection, opts SSHFleetUpdateOptions) {
 	fmt.Printf("\n%s Updating '%s' across SSH fleet (%s):%s\n\n",
 		constants.ColorCyan, opts.Pkg, opts.Target, constants.ColorReset)

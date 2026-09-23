@@ -240,7 +240,7 @@ func renderPipelineDbInfoTerminal(p PipelineStatusPayload) {
 
 func renderCompletedStatusLine(p PipelineStatusPayload) {
 	statusColor := constants.ColorGreen
-	if p.LastConclusion == "failure" {
+	if isFailingConclusion(p.LastConclusion) {
 		statusColor = constants.ColorRed
 	}
 
@@ -254,7 +254,7 @@ func renderCompletedStatusLine(p PipelineStatusPayload) {
 		statusColor, p.LastStatus, constants.ColorReset,
 		p.LastConclusion, cacheHint)
 
-	if p.LastConclusion == "failure" && p.Repo != "" {
+	if isFailingConclusion(p.LastConclusion) && p.Repo != "" {
 		renderFailureErrorSummary(p.Repo, 0)
 	}
 }

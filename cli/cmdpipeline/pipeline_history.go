@@ -45,11 +45,14 @@ func extractLastFailuresFlag(args []string) (int, bool) {
 }
 
 func formatStatusBadge(conclusion, status string) string {
+	if isFailingConclusion(conclusion) {
+		return constants.ColorRed + "FAIL" + constants.ColorReset
+	}
 	switch conclusion {
 	case "success":
 		return constants.ColorGreen + "PASS" + constants.ColorReset
-	case "failure":
-		return constants.ColorRed + "FAIL" + constants.ColorReset
+	case "skipped":
+		return constants.ColorYellow + "SKIPPED" + constants.ColorReset
 	}
 	if status == "in_progress" || status == "queued" {
 		return constants.ColorYellow + "RUNNING" + constants.ColorReset
@@ -169,7 +172,7 @@ func copyPositionalReportToClipboard(terminalOutput string) {
 }
 
 func isCommitGroupFailure(group *CommitPipelineGroup) bool {
-	return group.Conclusion == "failure"
+	return isFailingConclusion(group.Conclusion) || group.FailedWorkflows > 0
 }
 
 func isCommitGroupInProgress(group *CommitPipelineGroup) bool {
@@ -536,12 +539,41 @@ func formatGroupWorkflowsSummary(workflows []CommitWorkflowItem, maxWidth int) s
 	if len(workflows) == 0 {
 		return "-"
 	}
-	full := summarizeGroupWorkflows(workflows)
+	ordered := prioritizeGroupWorkflows(workflows)
+	full := summarizeGroupWorkflows(ordered)
 	if visibleLen(full) <= maxWidth {
 		return full
 	}
 
-	return formatWorkflowsWithRemaining(workflows, maxWidth)
+	return formatWorkflowsWithRemaining(ordered, maxWidth)
+}
+
+func prioritizeGroupWorkflows(workflows []CommitWorkflowItem) []CommitWorkflowItem {
+	if len(workflows) <= 1 {
+		return workflows
+	}
+	var failing []CommitWorkflowItem
+	var active []CommitWorkflowItem
+	var passing []CommitWorkflowItem
+
+	for _, wf := range workflows {
+		if isWorkflowFailure(wf) {
+			failing = append(failing, wf)
+			continue
+		}
+		if isWorkflowActive(wf) {
+			active = append(active, wf)
+			continue
+		}
+		passing = append(passing, wf)
+	}
+
+	result := make([]CommitWorkflowItem, 0, len(workflows))
+	result = append(result, failing...)
+	result = append(result, active...)
+	result = append(result, passing...)
+
+	return result
 }
 
 func formatWorkflowsWithRemaining(workflows []CommitWorkflowItem, maxWidth int) string {
@@ -572,8 +604,12 @@ func buildWorkflowCandidate(parts []string, nextItem string, remaining int) stri
 }
 
 func finalizeTruncatedSummary(workflows []CommitWorkflowItem, parts []string, remaining int, maxWidth int) string {
+	remainingUnprinted := len(workflows) - len(parts)
+	if len(parts) > 0 && remainingUnprinted > 0 {
+		return strings.Join(parts, ", ") + fmt.Sprintf(" (+%d)", remainingUnprinted)
+	}
 	if len(parts) > 0 {
-		return strings.Join(parts, ", ") + fmt.Sprintf(" (+%d)", remaining)
+		return strings.Join(parts, ", ")
 	}
 	if len(workflows) == 0 {
 		return "-"
@@ -610,11 +646,16 @@ func summarizeGroupWorkflows(workflows []CommitWorkflowItem) string {
 }
 
 func formatWorkflowShortStatus(wf CommitWorkflowItem) string {
+	lower := strings.ToLower(strings.TrimSpace(wf.Conclusion))
+	if strings.HasPrefix(lower, "cancel") {
+		return "CANCEL"
+	}
+	if isFailingConclusion(wf.Conclusion) {
+		return "FAIL"
+	}
 	switch wf.Conclusion {
 	case "success":
 		return "PASS"
-	case "failure":
-		return "FAIL"
 	}
 	if wf.Status == "in_progress" || wf.Status == "queued" {
 		return "RUN"

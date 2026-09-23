@@ -42,6 +42,7 @@ Any content that analyzes bugs, failures, root causes, or fixes for application-
 | 34 | [34-hd-hosted-docs-fallback.md](34-hd-hosted-docs-fallback.md) | Hosted-Docs Fallback (No More Hard-Exit on Missing docs-site) | Fixed |
 | 35 | [35-reconcile-prompt-nested-if-ci-failure.md](35-reconcile-prompt-nested-if-ci-failure.md) | Reconcile Prompt Nested If CI Failure: Root Cause Analysis & Prevention | Resolved |
 | 36 | [36-ubuntu-agy-agm-execution-errors.md](36-ubuntu-agy-agm-execution-errors.md) | Ubuntu AGY & Antigravity Manager Remote Execution Errors: RCA & Remediation | Resolved |
+| 37 | [37-pipeline-cancelled-shown-as-pass.md](37-pipeline-cancelled-shown-as-pass.md) | Pipeline Cancelled / Timed Out Runs Erroneously Displayed as PASS: Root Cause Analysis & Fix | Resolved |
 
 ---
 

@@ -169,11 +169,12 @@ func formatOffsetLabel(index int) string {
 }
 
 func formatCommitGroupBadge(conclusion, status string) string {
+	if isFailingConclusion(conclusion) {
+		return constants.ColorRed + "✖ FAIL   " + constants.ColorReset
+	}
 	switch conclusion {
 	case "success":
 		return constants.ColorGreen + "● PASS   " + constants.ColorReset
-	case "failure":
-		return constants.ColorRed + "✖ FAIL   " + constants.ColorReset
 	}
 	if status == "in_progress" || status == "queued" {
 		return constants.ColorYellow + "● RUNNING" + constants.ColorReset
@@ -203,11 +204,12 @@ func renderWorkflowBranch(wf CommitWorkflowItem, isLast bool) {
 }
 
 func formatWorkflowTreeBadge(conclusion, status string) string {
+	if isFailingConclusion(conclusion) {
+		return constants.ColorRed + "FAIL" + constants.ColorReset
+	}
 	switch conclusion {
 	case "success":
 		return constants.ColorGreen + "PASS" + constants.ColorReset
-	case "failure":
-		return constants.ColorRed + "FAIL" + constants.ColorReset
 	}
 	if status == "in_progress" || status == "queued" {
 		return constants.ColorYellow + "RUNNING" + constants.ColorReset

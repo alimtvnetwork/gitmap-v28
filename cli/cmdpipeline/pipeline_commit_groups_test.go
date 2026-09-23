@@ -58,6 +58,37 @@ func verifySecondGroup(t *testing.T, g CommitPipelineGroup) {
 	}
 }
 
+func TestGroupRunsByCommit_CancelledWorkflows(t *testing.T) {
+	runs := []ghRunItem{
+		makeTestRun(301, "CI", "completed", "cancelled", "12e40b1"),
+		makeTestRun(302, "Release", "completed", "success", "12e40b1"),
+		makeTestRun(303, "CI", "completed", "cancelled", "5717700"),
+		makeTestRun(304, "Release", "completed", "cancelled", "5717700"),
+	}
+	groups := GroupRunsByCommit(runs)
+	verifyGroupLengths(t, groups, 2)
+	verifyCancelledFirstGroup(t, groups[0])
+	verifyCancelledSecondGroup(t, groups[1])
+}
+
+func verifyCancelledFirstGroup(t *testing.T, g CommitPipelineGroup) {
+	if g.HeadSha != "12e40b1" || g.Conclusion != "failure" {
+		t.Fatalf("unexpected first group conclusion: sha=%s, conclusion=%s", g.HeadSha, g.Conclusion)
+	}
+	if g.FailedWorkflows != 1 || g.PassedWorkflows != 1 {
+		t.Fatalf("unexpected counts: failed=%d, passed=%d", g.FailedWorkflows, g.PassedWorkflows)
+	}
+}
+
+func verifyCancelledSecondGroup(t *testing.T, g CommitPipelineGroup) {
+	if g.HeadSha != "5717700" || g.Conclusion != "failure" {
+		t.Fatalf("unexpected second group conclusion: sha=%s, conclusion=%s", g.HeadSha, g.Conclusion)
+	}
+	if g.FailedWorkflows != 2 || g.PassedWorkflows != 0 {
+		t.Fatalf("unexpected counts: failed=%d, passed=%d", g.FailedWorkflows, g.PassedWorkflows)
+	}
+}
+
 func TestResolveCommitGroupByOffset(t *testing.T) {
 	groups := buildSampleGroups()
 	verifyOffsetResolutions(t, groups)

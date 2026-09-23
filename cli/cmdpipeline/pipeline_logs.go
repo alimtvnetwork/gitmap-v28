@@ -256,7 +256,7 @@ func isFailingConclusion(conclusion string) bool {
 	}
 
 	switch lower {
-	case "failure", "timed_out", "startup_failure":
+	case "failure", "timed_out", "startup_failure", "action_required", "stale":
 		return true
 	default:
 		return false

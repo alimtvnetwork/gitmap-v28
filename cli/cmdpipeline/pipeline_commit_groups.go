@@ -161,7 +161,7 @@ func updateWorkflowCounts(group *CommitPipelineGroup, wf CommitWorkflowItem) {
 }
 
 func isWorkflowFailure(wf CommitWorkflowItem) bool {
-	return wf.Conclusion == "failure" || wf.Conclusion == "timed_out" || wf.Conclusion == "startup_failure"
+	return isFailingConclusion(wf.Conclusion)
 }
 
 func isWorkflowActive(wf CommitWorkflowItem) bool {

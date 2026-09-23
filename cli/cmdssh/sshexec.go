@@ -318,21 +318,6 @@ func ensureDelegateInstalledQuiet(client *ssh.Client, c db.SSHConnection) bool {
 	return err == nil
 }
 
-func ensureDelegateInstalledJSON(client *ssh.Client, c db.SSHConnection, results *[]NodeExecResult, mu *sync.Mutex) bool {
-	if err := ensureGitmapInstalled(client, c.OS, c.Alias); err != nil {
-		mu.Lock()
-		*results = append(*results, NodeExecResult{
-			Alias:  c.Alias,
-			IP:     c.IPAddress,
-			Status: "error",
-			Error:  err.Error(),
-		})
-		mu.Unlock()
-		return false
-	}
-	return true
-}
-
 func runSSHWorker(c db.SSHConnection, args []string, wg *sync.WaitGroup) error {
 	defer wg.Done()
 

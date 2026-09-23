@@ -425,3 +425,70 @@ func TestGroupRunsByCommit_PreservesReleaseFromSubsequentRuns(t *testing.T) {
 		t.Errorf("expected resolveCommitRelease to return v6.292.0, got: %s", rel)
 	}
 }
+
+func TestFormatStatusBadge_CancelledAndFailing(t *testing.T) {
+	testBadgeOutput(t, "cancelled", "completed", "FAIL")
+	testBadgeOutput(t, "failure", "completed", "FAIL")
+	testBadgeOutput(t, "timed_out", "completed", "FAIL")
+	testBadgeOutput(t, "action_required", "completed", "FAIL")
+	testBadgeOutput(t, "stale", "completed", "FAIL")
+	testBadgeOutput(t, "success", "completed", "PASS")
+	testBadgeOutput(t, "", "in_progress", "RUNNING")
+}
+
+func testBadgeOutput(t *testing.T, conclusion, status, wantSubstring string) {
+	t.Helper()
+	badge := formatStatusBadge(conclusion, status)
+	clean := stripANSI(badge)
+	if clean != wantSubstring {
+		t.Fatalf("expected badge %q for conclusion=%q status=%q, got %q", wantSubstring, conclusion, status, clean)
+	}
+}
+
+func TestFormatGroupWorkflowsSummary_PrioritizesFailures(t *testing.T) {
+	wfs := []CommitWorkflowItem{
+		{Name: "Release", Conclusion: "success"},
+		{Name: "Pages", Conclusion: "success"},
+		{Name: "CI", Conclusion: "cancelled"},
+	}
+	got := formatGroupWorkflowsSummary(wfs, 32)
+	if !strings.HasPrefix(got, "CI [CANCEL]") {
+		t.Fatalf("expected failing workflow to be prioritized at front, got: %q", got)
+	}
+	if !strings.Contains(got, "(+1)") {
+		t.Fatalf("expected (+1) suffix for remaining passing workflows at width 32, got: %q", got)
+	}
+
+	gotTight := formatGroupWorkflowsSummary(wfs, 20)
+	if !strings.HasPrefix(gotTight, "CI [CANCEL]") {
+		t.Fatalf("expected failing workflow at front for tight width, got: %q", gotTight)
+	}
+	if !strings.Contains(gotTight, "(+2)") {
+		t.Fatalf("expected (+2) suffix for tight width, got: %q", gotTight)
+	}
+}
+
+func TestIsCommitGroupFailure_Cancelled(t *testing.T) {
+	groupCancelled := &CommitPipelineGroup{
+		Conclusion:      "failure",
+		FailedWorkflows: 1,
+	}
+	if !isCommitGroupFailure(groupCancelled) {
+		t.Fatalf("expected isCommitGroupFailure to be true for failed group")
+	}
+
+	groupCancelledConclusion := &CommitPipelineGroup{
+		Conclusion: "cancelled",
+	}
+	if !isCommitGroupFailure(groupCancelledConclusion) {
+		t.Fatalf("expected isCommitGroupFailure to be true for cancelled conclusion")
+	}
+
+	groupSuccess := &CommitPipelineGroup{
+		Conclusion:      "success",
+		FailedWorkflows: 0,
+	}
+	if isCommitGroupFailure(groupSuccess) {
+		t.Fatalf("expected isCommitGroupFailure to be false for clean success group")
+	}
+}
