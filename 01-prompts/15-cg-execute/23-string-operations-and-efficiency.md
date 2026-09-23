@@ -93,7 +93,7 @@ Do not rely on standard search tools with 50-item truncation when discovering re
 > 1. **Exact Case-Insensitive Equality** (`full match`)
 > 2. **Case-Insensitive Substring Containment** (`partial match / search filter`)
 > 3. **Case-Insensitive Prefix or Suffix Matching** (`starts with / ends with`)
-> 
+>
 > Changing a substring search (`Contains`) to an equality check (`EqualFold`) is a CATASTROPHIC BUG that breaks filters and searches!
 
 ### Semantic Intent Mapping Matrix

@@ -34,7 +34,7 @@ GitMap spans over 6,500 files (3,339 Go files, 2,818 Markdown files, 220 TypeScr
 ```mermaid
 graph TD
     CLI["GitMap Entry Point (cli/main.go)"] --> CoreRouter["Subcommand Router (cli/cmd/root.go)"]
-    
+
     CoreRouter --> S1["gitmap-scanner-and-cloner<br/>(Discovery & Cloner Engine)"]
     CoreRouter --> S2["gitmap-ssh-cluster-fleet<br/>(Cluster Triad & SSH Engine)"]
     CoreRouter --> S3["gitmap-split-db-engine<br/>(Multi-DB SQLite Storage Tier)"]

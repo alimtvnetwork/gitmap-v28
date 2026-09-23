@@ -343,6 +343,20 @@ func runSSHExec(args []string) error {
 	return cmdssh.RunSSHExec(args)
 }
 
+// runRemote delegates to cmdssh.RunSSHUpdateCLI.
+func runRemote(args []string) error {
+	if len(args) == 0 || args[0] == "-h" || args[0] == "--help" || args[0] == "help" {
+		fmt.Println("\nUsage: gitmap remote update [--node <target>] [package]")
+		fmt.Println("       gitmap update --remote <target> [package]")
+		fmt.Println("       gitmap agm update --remote <target>")
+		return nil
+	}
+	if args[0] == "update" || args[0] == "up" || args[0] == "u" {
+		return cmdssh.RunSSHUpdateCLI(args[1:])
+	}
+	return cmdssh.RunSSHUpdateCLI(args)
+}
+
 // runSSHBind delegates to cmdssh.RunSSHBind.
 func runSSHBind(args []string) error {
 	return cmdssh.RunSSHBind(args)
@@ -784,6 +798,9 @@ func init() {
 	cmdchrome.CheckHelpFn = checkHelp
 	cmdcargo.CheckHelpFn = checkHelp
 	cmdinstall.CheckHelpFn = checkHelp
+	cmdinstall.RemoteAgmUpdateFn = func(target string) error {
+		return cmdssh.RunSSHUpdateCLI([]string{"agm", target})
+	}
 
 	cmdupdate.RunPostUpdateMigrateFn = runPostUpdateMigrate
 	cmdupdate.RequireOnlineFn = requireOnline

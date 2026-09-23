@@ -30,7 +30,9 @@ paet
 
 ### Example 1: Efficient pull with full table via short form
 
-    gitmap paet
+```bash
+gitmap paet
+```
 
 ## See also
 

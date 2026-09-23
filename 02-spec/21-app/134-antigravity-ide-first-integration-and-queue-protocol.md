@@ -2,13 +2,13 @@
 
 ## Overview
 
-**Module Number:** 134  
-**Version:** 1.0.0  
-**Updated:** 2026-09-20  
-**Status:** Approved Specification  
-**AI Confidence:** Production-Ready  
-**Ambiguity Score:** None  
-**Package:** `cli/cmdagy`, `cli/agyfs`, `cli/agyqueue`, `cli/cmdpipeline`  
+**Module Number:** 134
+**Version:** 1.0.0
+**Updated:** 2026-09-20
+**Status:** Approved Specification
+**AI Confidence:** Production-Ready
+**Ambiguity Score:** None
+**Package:** `cli/cmdagy`, `cli/agyfs`, `cli/agyqueue`, `cli/cmdpipeline`
 **Related Specs:** [Spec 122](122-antigravity-empty-conversations-pruner.md), [Spec 125](125-automation-llm-orchestration-guide.md), [Spec 130](130-pipeline-ai-live-error-streaming-and-remediation.md)
 
 ---
@@ -142,7 +142,7 @@ Multiple active Antigravity conversations detected for this workspace:
       Last: "run gitmap scan and update readme"
       State: IDLE
 
-Select target conversation [1-2, default 1]: 
+Select target conversation [1-2, default 1]:
 ```
 
 ---

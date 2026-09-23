@@ -12,6 +12,7 @@ var (
 	agmInstallYes     bool
 	agmInstallVerbose bool
 	agmInstallVersion string
+	agmUpdateRemote   string
 )
 
 // AgmCmd manages Antigravity Manager GUI and tools.
@@ -53,6 +54,7 @@ func bindAgmUpdateFlags() {
 	agmUpdateCmd.Flags().BoolVarP(&agmInstallDryRun, "dry-run", "n", false, "Simulate update without downloading")
 	agmUpdateCmd.Flags().BoolVarP(&agmInstallYes, "yes", "y", false, "Automatic yes to prompts")
 	agmUpdateCmd.Flags().BoolVarP(&agmInstallVerbose, "verbose", "v", false, "Enable verbose output")
+	agmUpdateCmd.Flags().StringVarP(&agmUpdateRemote, "remote", "r", "", "Remote node alias or IP to update")
 }
 
 func buildAgmInstallOptions() installOptions {
@@ -71,6 +73,9 @@ func runAgmInstallCmd(cmd *cobra.Command, args []string) error {
 }
 
 func runAgmUpdateCmd(cmd *cobra.Command, args []string) error {
+	if agmUpdateRemote != "" && RemoteAgmUpdateFn != nil {
+		return RemoteAgmUpdateFn(agmUpdateRemote)
+	}
 	opts := buildAgmInstallOptions()
 
 	return runUpdateAgManagerWithOpts(opts)

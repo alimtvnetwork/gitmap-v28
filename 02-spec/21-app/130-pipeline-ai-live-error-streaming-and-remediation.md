@@ -1,7 +1,7 @@
 # Spec 130: Pipeline-AI Live Error Streaming, Auto-Stop, and Fast-Forward Remediation Suite
 
-> **Status:** Active  
-> **Package:** `cli/cmdpipeline`, `cli/cmdagy`  
+> **Status:** Active
+> **Package:** `cli/cmdpipeline`, `cli/cmdagy`
 > **Related Specs:** [Spec 129](129-pr-commit-engines-and-sqlite-split-db.md), [Spec 84](../09-pipeline/01-ci-pipeline.md), [Spec 85](../09-pipeline-extend-v2/01-pipeline-v2.md)
 
 ---

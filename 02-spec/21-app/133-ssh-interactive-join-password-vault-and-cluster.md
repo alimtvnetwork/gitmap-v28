@@ -2,13 +2,13 @@
 
 ## Overview
 
-**Module Number:** 133  
-**Version:** 1.0.0  
-**Updated:** 2026-09-20  
-**Status:** Approved Specification  
-**AI Confidence:** Production-Ready  
-**Ambiguity Score:** None  
-**Package:** `cli/cmdssh`, `cli/sshjoin`, `cli/sshvault`, `cli/cmdcluster`, `cli/clusterdb`, `cli/netdiag`  
+**Module Number:** 133
+**Version:** 1.0.0
+**Updated:** 2026-09-20
+**Status:** Approved Specification
+**AI Confidence:** Production-Ready
+**Ambiguity Score:** None
+**Package:** `cli/cmdssh`, `cli/sshjoin`, `cli/sshvault`, `cli/cmdcluster`, `cli/clusterdb`, `cli/netdiag`
 **Related Specs:** [Spec 19](19-ssh-executor/01-spec.md), [Spec 50](50-ssh-keys.md), [Spec 124](124-polyglot-worker-orchestrator-and-automation-runner.md), [Spec 129](129-pr-commit-engines-and-sqlite-split-db.md), [Spec 132](132-ssh-multinode-exec-copy-mv-and-env.md)
 
 ---

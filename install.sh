@@ -557,6 +557,11 @@ repair_layout() {
     local app_dir="$target/$APP_SUBDIR"
     local legacy_binary="$target/${BINARY_NAME}"
     local wrapped_binary="$app_dir/${BINARY_NAME}"
+    # --- Clean up any nested app_dir/APP_SUBDIR from previous buggy runs ---
+    if [ -d "$app_dir/$APP_SUBDIR" ]; then
+        rm -rf "$app_dir/$APP_SUBDIR" 2>/dev/null || true
+        step "Layout: cleaned nested redundant ${app_dir}/${APP_SUBDIR}"
+    fi
 
     # --- Migration 2: any legacy app folder -> $APP_SUBDIR ----
     # Distinguish folder vs file at $target/<legacy>. A directory means the
@@ -1479,6 +1484,9 @@ resolve_install_dir() {
     local dir="$1"
     if [ -n "${dir}" ]; then
         dir="$(sanitize_install_dir "${dir}")"
+        while [[ "${dir}" == *"/gitmap-cli" ]] || [[ "${dir}" == *"/gitmap" ]]; do
+            dir="${dir%/*}"
+        done
         if [ -n "${dir}" ]; then
             echo "${dir}"
             return

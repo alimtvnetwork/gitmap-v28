@@ -3,18 +3,30 @@ package cmdssh
 import (
 	"context"
 	"fmt"
+	"strings"
 
 	"github.com/alimtvnetwork/gitmap-v28/cli/apperror"
 	"github.com/alimtvnetwork/gitmap-v28/cli/store"
 )
 
-func hasExecutionFailures(results []ClusterRunResult) bool {
+func isOfflineResult(res ClusterRunResult) bool {
+	return res.Err != nil && strings.Contains(res.Err.Error(), "offline")
+}
+
+func hasClusterFailures(results []ClusterRunResult, ignoreOffline bool) bool {
 	for _, res := range results {
+		if ignoreOffline && isOfflineResult(res) {
+			continue
+		}
 		if res.ExitCode != 0 || res.Err != nil {
 			return true
 		}
 	}
 	return false
+}
+
+func hasExecutionFailures(results []ClusterRunResult) bool {
+	return hasClusterFailures(results, false)
 }
 
 func resolveClusterHosts(ctx context.Context, target string) ([]store.SSHHost, error) {
@@ -39,7 +51,8 @@ func executeClusterExec(ctx context.Context, opts *clusterExecOptions) error {
 		return err
 	}
 	results := dispatchClusterRunFn(ctx, hosts, opts.command, opts.isSudo, opts.parallel)
-	if hasExecutionFailures(results) {
+	ignoreOffline := opts.target == "all"
+	if hasClusterFailures(results, ignoreOffline) {
 		return apperror.NewExecutionError("one or more cluster nodes failed execution")
 	}
 	return nil

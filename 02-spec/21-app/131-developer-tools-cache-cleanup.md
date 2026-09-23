@@ -2,13 +2,13 @@
 
 ## Overview
 
-**Module Number:** 131  
-**Version:** 1.0.0  
-**Updated:** 2026-09-20  
-**Status:** Approved Specification & Production Implementation  
-**AI Confidence:** Production-Ready  
-**Ambiguity Score:** None  
-**Package:** `cli/osclean`, `cli/cmd`, `cli/cmdos`  
+**Module Number:** 131
+**Version:** 1.0.0
+**Updated:** 2026-09-20
+**Status:** Approved Specification & Production Implementation
+**AI Confidence:** Production-Ready
+**Ambiguity Score:** None
+**Package:** `cli/osclean`, `cli/cmd`, `cli/cmdos`
 **Related Specs:** [Spec 120](120-database-suite-and-start-fresh.md), [Spec 128](128-aum-automation-suite-and-roadmap.md), [Spec 129](129-pr-commit-engines-and-sqlite-split-db.md)
 
 ---

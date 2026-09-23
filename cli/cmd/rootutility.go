@@ -8,6 +8,7 @@ import (
 	"github.com/alimtvnetwork/gitmap-v28/cli/cmdagy"
 	"github.com/alimtvnetwork/gitmap-v28/cli/cmdinstall"
 	"github.com/alimtvnetwork/gitmap-v28/cli/cmdos"
+	"github.com/alimtvnetwork/gitmap-v28/cli/cmdssh"
 	"github.com/alimtvnetwork/gitmap-v28/cli/cmdzsh"
 	"github.com/alimtvnetwork/gitmap-v28/cli/constants"
 	"github.com/alimtvnetwork/gitmap-v28/cli/helptext"
@@ -70,8 +71,34 @@ func runInstalledDirHelp() error {
 	return runInstalledDir()
 }
 
+func extractRemoteUpdateTarget(args []string) (string, []string) {
+	for i := 0; i < len(args); i++ {
+		arg := args[i]
+		if (arg == "--remote" || arg == "-r" || arg == "--node" || arg == "-n") && i+1 < len(args) {
+			target := args[i+1]
+			clean := append(args[:i], args[i+2:]...)
+			return target, clean
+		}
+		if strings.HasPrefix(arg, "--remote=") {
+			return strings.TrimPrefix(arg, "--remote="), append(args[:i], args[i+1:]...)
+		}
+		if strings.HasPrefix(arg, "--node=") {
+			return strings.TrimPrefix(arg, "--node="), append(args[:i], args[i+1:]...)
+		}
+	}
+	return "", args
+}
+
 func runUpdateHelp() error {
 	checkHelp("update", argsTail())
+	remoteTarget, cleanArgs := extractRemoteUpdateTarget(argsTail())
+	if remoteTarget != "" {
+		pkg := "gitmap"
+		if isAgmUpdateTarget(cleanArgs) {
+			pkg = "agm"
+		}
+		return cmdssh.RunSSHUpdateCLI([]string{pkg, remoteTarget})
+	}
 	if isAgmUpdateTarget(argsTail()) {
 		return runUpdateAgManagerTarget(argsTail())
 	}
@@ -94,6 +121,10 @@ func isAgmToken(arg string) bool {
 }
 
 func runUpdateAgManagerTarget(args []string) error {
+	remoteTarget, _ := extractRemoteUpdateTarget(args)
+	if remoteTarget != "" {
+		return cmdssh.RunSSHUpdateCLI([]string{"agm", remoteTarget})
+	}
 	opts := cmdinstall.InstallOptions{
 		DryRun: hasDryRunArg(args),
 	}

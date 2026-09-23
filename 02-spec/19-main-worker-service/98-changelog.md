@@ -1,3 +1,9 @@
+## v6.312.0 — 2026-09-23 (feat(cluster): live VM cluster E2E SSH join, multi-node exec, and remote update)
+
+**Scope:** Version bump. feat(cluster): live VM cluster E2E SSH join, multi-node exec, and remote update.
+
+---
+
 ## v6.311.0 — 2026-09-22 (dynamic Antigravity language server discovery and agy CLI fallback)
 
 **Scope:** Version bump. dynamic Antigravity language server discovery and agy CLI fallback.

@@ -1,7 +1,7 @@
 # Plan 39: Windows SSH Authorized Key Architecture, Interactive SSH Join Password Automation, GitMap Host-Node Bootstrapping, and Comprehensive Node Removal
 
-> **Origin:** User request incorporating Windows OpenSSH PowerShell elevation, `$env:ProgramData\ssh\administrators_authorized_keys`, `icacls` ACL inheritance and permissions, `sshd` service health/startup, password prompt auto-detection during `gitmap ssh join`, remote GitMap installation/key exchange, and dual-table node removal (`gitmap ssh rm <ip|alias|--all>`).  
-> **Execution Loops:** 1 continuous multi-agent orchestration loop with 2 parallel subagents across 4 subtasks.  
+> **Origin:** User request incorporating Windows OpenSSH PowerShell elevation, `$env:ProgramData\ssh\administrators_authorized_keys`, `icacls` ACL inheritance and permissions, `sshd` service health/startup, password prompt auto-detection during `gitmap ssh join`, remote GitMap installation/key exchange, and dual-table node removal (`gitmap ssh rm <ip|alias|--all>`).
+> **Execution Loops:** 1 continuous multi-agent orchestration loop with 2 parallel subagents across 4 subtasks.
 > **Status:** COMPLETED
 
 ---

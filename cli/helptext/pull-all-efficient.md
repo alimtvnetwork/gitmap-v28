@@ -35,11 +35,15 @@ pae, pull-ae
 
 ### Example 1: Efficient pull via short form
 
-    gitmap pae
+```bash
+gitmap pae
+```
 
 ### Example 2: Efficient pull with full status table
 
-    gitmap pae --status
+```bash
+gitmap pae --status
+```
 
 ## See also
 

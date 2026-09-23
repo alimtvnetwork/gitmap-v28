@@ -1,10 +1,10 @@
 # 23 — SSH Fleet Management Specification
 
-**Version:** 1.0.0  
-**Updated:** 2026-09-20  
-**Status:** Canonical  
-**AI Confidence:** Production-Ready  
-**Ambiguity:** None  
+**Version:** 1.0.0
+**Updated:** 2026-09-20
+**Status:** Canonical
+**AI Confidence:** Production-Ready
+**Ambiguity:** None
 
 ---
 

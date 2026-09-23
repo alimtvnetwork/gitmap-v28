@@ -1,9 +1,9 @@
 # Windows OpenSSH Authorized Keys Architecture & Injection Specification
 
-**Version:** 1.0.0  
-**Updated:** 2026-09-20  
-**AI Confidence:** Production-Ready  
-**Ambiguity:** None  
+**Version:** 1.0.0
+**Updated:** 2026-09-20
+**AI Confidence:** Production-Ready
+**Ambiguity:** None
 
 ---
 
@@ -202,4 +202,3 @@ gitmap ssh-key add
 - [SSH Keys Specification](../21-app/50-ssh-keys.md)
 - [Coding Guidelines Golang](../02-coding-guidelines/03-golang/00-overview.md)
 - [Error Management Architecture](../03-error-manage/02-error-architecture/00-overview.md)
-

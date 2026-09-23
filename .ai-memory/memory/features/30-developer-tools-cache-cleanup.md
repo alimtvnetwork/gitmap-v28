@@ -1,7 +1,7 @@
 # Developer Tools Cache Cleanup (`clean-dev` / `os dev-clean` / `dev-cleanup`)
 
-> **Status:** Authoritative Feature Specification & Implementation Record  
-> **Command:** `gitmap clean-dev`, `gitmap os dev-clean`, `gitmap os dev-cleanup`  
+> **Status:** Authoritative Feature Specification & Implementation Record
+> **Command:** `gitmap clean-dev`, `gitmap os dev-clean`, `gitmap os dev-cleanup`
 > **Package:** `cli/osclean`, `cli/cmdos/os_dev_clean.go`, `cli/cmd/clean_dev_entry.go`
 
 ---

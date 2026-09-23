@@ -2,6 +2,7 @@ package cmdupdate
 
 import (
 	"os/exec"
+	"path/filepath"
 	"runtime"
 )
 
@@ -11,6 +12,14 @@ func buildRemoteInstallerCmd(scriptPath, installDir string) *exec.Cmd {
 	}
 
 	return buildUnixInstallerCmd(scriptPath, installDir)
+}
+
+func sanitizeUnixInstallDir(dir string) string {
+	base := filepath.Base(dir)
+	if base == "gitmap-cli" || base == "gitmap" {
+		return filepath.Dir(dir)
+	}
+	return dir
 }
 
 func buildRemoteWindowsInstallerCmd(scriptPath, installDir string) *exec.Cmd {
@@ -29,8 +38,9 @@ func buildRemoteWindowsInstallerCmd(scriptPath, installDir string) *exec.Cmd {
 
 func buildUnixInstallerCmd(scriptPath, installDir string) *exec.Cmd {
 	args := []string{scriptPath}
-	if len(installDir) > 0 {
-		args = append(args, "--dir", installDir)
+	cleanDir := sanitizeUnixInstallDir(installDir)
+	if len(cleanDir) > 0 {
+		args = append(args, "--dir", cleanDir)
 	}
 
 	return exec.Command(getUnixShell(), args...)

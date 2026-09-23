@@ -1,8 +1,8 @@
 # Rule R19: Repository File Size Guard, Binary Probing & Large JSON Exclusion Standards
 
-**Status:** Active  
-**Scope:** Universal (All Polyglot Repositories, AI Scripts, Tools & Workflows)  
-**Strictness:** Mandatory Quality Gate  
+**Status:** Active
+**Scope:** Universal (All Polyglot Repositories, AI Scripts, Tools & Workflows)
+**Strictness:** Mandatory Quality Gate
 
 ---
 

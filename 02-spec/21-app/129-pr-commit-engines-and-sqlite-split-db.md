@@ -1,7 +1,7 @@
 # Spec 129: PR Commit Engines, SQLite Split-DB Architecture, and Auto-Merge PR Release Suite
 
-> **Status:** Active  
-> **Package:** `cli/committransfer`, `cli/prdb`, `cli/store`, `cli/cmd`, `cli/cmd/commitin`  
+> **Status:** Active
+> **Package:** `cli/committransfer`, `cli/prdb`, `cli/store`, `cli/cmd`, `cli/cmd/commitin`
 > **Related Specs:** [Spec 106](106-commit-left-right-both.md), [Spec 114](114-committransfer-idempotence-and-merge-default.md), [Spec 124](124-polyglot-worker-orchestrator-and-automation-runner.md), [Spec 04](../../02-spec/04-database-conventions/01-naming-conventions.md)
 
 ---
@@ -201,4 +201,3 @@ Flags:
 
 ### Documentation & Help
 - `cli/helptext/pr.md`
-

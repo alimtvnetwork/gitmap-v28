@@ -202,12 +202,15 @@ func insertSSHHostFallback(ctx context.Context, target string, sshTarget *SSHTar
 }
 
 func resolvePassword(ctx context.Context, target string, sshTarget *SSHTarget, explicitPass string) string {
-	hasExplicit := explicitPass != ""
-	if hasExplicit {
+	stored := resolveTargetPassword(sshTarget)
+	if stored != "" {
+		return stored
+	}
+	if explicitPass != "" {
 		saveExplicitPassword(ctx, target, sshTarget, explicitPass)
 		return explicitPass
 	}
-	return resolveTargetPassword(sshTarget)
+	return ""
 }
 
 func executeSSHLogin(ctx context.Context, target string, force bool) error {

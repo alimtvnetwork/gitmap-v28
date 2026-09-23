@@ -97,6 +97,9 @@ func dispatchNodeSSH(ctx context.Context, sub string, args []string, parent *cob
 		if len(args) > 0 && (args[0] == "rm" || args[0] == "remove" || args[0] == "delete") {
 			return result.MatchWrapper(runSJRm(parent, args[1:], ctx))
 		}
+		if len(args) > 0 {
+			return result.MatchWrapper(handleDirectSSHTarget(ctx, parent, args[0], args[1:]))
+		}
 		return result.UnmatchedWrapper()
 	case "error-logs", "errorlogs", "errors", "err", "logs":
 		return result.MatchWrapper(RunSSHErrorLogsCLI(args))
@@ -233,7 +236,7 @@ func dispatchFallbackOrLogin(ctx context.Context, sub string, args []string, par
 	if isFallback := dispatchFallbackSSH(sub, args); isFallback {
 		return result.SuccessWrapper()
 	}
-	return result.MatchWrapper(runSSHLogin(parent, append([]string{sub}, args...), ctx))
+	return result.MatchWrapper(handleDirectSSHTarget(ctx, parent, sub, args))
 }
 
 func dispatchSSH(ctx context.Context, args []string, parent *cobra.Command) result.ErrorWrapper {

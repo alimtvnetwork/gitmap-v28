@@ -2,13 +2,13 @@
 
 ## Overview
 
-**Module Number:** 132  
-**Version:** 1.0.0  
-**Updated:** 2026-09-20  
-**Status:** Approved Specification  
-**AI Confidence:** Production-Ready  
-**Ambiguity Score:** None  
-**Package:** `cli/cmdssh`, `cli/sshops`, `cli/sshclient`, `cli/cmdenv`, `cli/sshdb`  
+**Module Number:** 132
+**Version:** 1.0.0
+**Updated:** 2026-09-20
+**Status:** Approved Specification
+**AI Confidence:** Production-Ready
+**Ambiguity Score:** None
+**Package:** `cli/cmdssh`, `cli/sshops`, `cli/sshclient`, `cli/cmdenv`, `cli/sshdb`
 **Related Specs:** [Spec 19](19-ssh-executor/01-spec.md), [Spec 50](50-ssh-keys.md), [Spec 124](124-polyglot-worker-orchestrator-and-automation-runner.md), [Spec 129](129-pr-commit-engines-and-sqlite-split-db.md), [Spec 133](133-ssh-interactive-join-password-vault-and-cluster.md)
 
 ---

@@ -1,3 +1,15 @@
+## [v6.312.0] 2026-09-23 Release v6.312.0
+
+### Install GitMap v6.312.0
+
+To pin your repository to this exact version, run the following one-liner:
+Unix/Bash: `curl -sL https://raw.githubusercontent.com/alimtvnetwork/gitmap-v28/v6.312.0/install.sh | bash -s -- ".ai-memory/prompts" "v6.312.0"`
+PowerShell: `Invoke-WebRequest -Uri https://raw.githubusercontent.com/alimtvnetwork/gitmap-v28/v6.312.0/install.ps1 -OutFile install.ps1; .\install.ps1 -TargetDir ".ai-memory/prompts" -Version "v6.312.0"`
+
+### Added / Changed / Fixed / Removed
+
+- feat(cluster): live VM cluster E2E SSH join, multi-node exec, and remote update
+
 ## [v6.311.0] 2026-09-22 Release v6.311.0
 
 ### Install GitMap v6.311.0

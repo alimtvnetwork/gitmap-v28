@@ -161,4 +161,3 @@ When generating SVG assets as part of a project, assets must follow strict lower
 
 - Provide strictly the raw SVG code inside a fenced code block with language identifier `xml` or `svg`.
 - Do not output HTML wrappers or surrounding page containers.
-

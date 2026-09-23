@@ -80,21 +80,9 @@ func resolveAllTrackedRecords() []model.ScanRecord {
 	}
 	defer db.Close()
 
-	repos, err := db.ListRepos()
+	records, err := db.ListRepos()
 	if err != nil {
 		return nil
-	}
-
-	return convertReposToScanRecords(repos)
-}
-
-func convertReposToScanRecords(repos []model.Repo) []model.ScanRecord {
-	var records []model.ScanRecord
-	for _, r := range repos {
-		records = append(records, model.ScanRecord{
-			RepoName:     r.Name,
-			AbsolutePath: r.Path,
-		})
 	}
 
 	return records
@@ -267,13 +255,13 @@ func buildCombinedRepoRuns(states []*PullRepoState, inactive []InactiveRepoDetai
 	runs := buildRepoRunRecords(states)
 	for _, in := range inactive {
 		runs = append(runs, store.PullRepoRunRecord{
-			RepoPath:     in.RepoPath,
-			RepoName:     in.RepoName,
-			PullStatus:   "skipped-inactive",
-			IsActive:     false,
-			HasChanges:   false,
-			DurationMs:   0,
-			Notes:        in.Reason,
+			RepoPath:   in.RepoPath,
+			RepoName:   in.RepoName,
+			PullStatus: "skipped-inactive",
+			IsActive:   false,
+			HasChanges: false,
+			DurationMs: 0,
+			Notes:      in.Reason,
 		})
 	}
 

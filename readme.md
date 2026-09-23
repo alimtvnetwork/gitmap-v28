@@ -4,7 +4,7 @@
 
 **Git repository scanner, manager, and navigator CLI**
 
-**Pinned version: v6.311.0**
+**Pinned version: v6.312.0**
 
 <!-- STAMP:PLATFORM_BADGES -->
 [![CI](https://github.com/alimtvnetwork/gitmap-v28/actions/workflows/ci.yml/badge.svg?branch=main)](https://github.com/alimtvnetwork/gitmap-v28/actions/workflows/ci.yml)
@@ -47,9 +47,9 @@ GitMap is a **Windows-first** project. The commands below install the latest rel
 irm https://raw.githubusercontent.com/alimtvnetwork/gitmap-v28/main/install.ps1 | iex
 ```
 
-#### Pinned Version Install (v6.311.0)
+#### Pinned Version Install (v6.312.0)
 ```powershell
-irm https://raw.githubusercontent.com/alimtvnetwork/gitmap-v28/v6.311.0/install.ps1 | iex
+irm https://raw.githubusercontent.com/alimtvnetwork/gitmap-v28/v6.312.0/install.ps1 | iex
 ```
 
 ---
@@ -61,9 +61,9 @@ irm https://raw.githubusercontent.com/alimtvnetwork/gitmap-v28/v6.311.0/install.
 curl -fsSL https://raw.githubusercontent.com/alimtvnetwork/gitmap-v28/main/install.sh | sh
 ```
 
-#### Pinned Version Install (v6.311.0)
+#### Pinned Version Install (v6.312.0)
 ```bash
-curl -fsSL https://raw.githubusercontent.com/alimtvnetwork/gitmap-v28/v6.311.0/install.sh | sh
+curl -fsSL https://raw.githubusercontent.com/alimtvnetwork/gitmap-v28/v6.312.0/install.sh | sh
 ```
 
 ### 🎯 Install — Quick (pick your install drive)
@@ -3370,4 +3370,3 @@ For information on how releases are managed, see [.ai-memory/memory/release-arch
 
 - **Lead Architect & Author:** MD ALIM UL KARIM ([alimtvnetwork](https://github.com/alimtvnetwork))
 - **Sponsoring Organization:** [RISEUP ASIA LLC](https://riseup-asia.com) (https://riseup-asia.com)
-

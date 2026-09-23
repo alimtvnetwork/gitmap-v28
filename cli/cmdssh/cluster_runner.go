@@ -14,6 +14,7 @@ import (
 	"time"
 
 	"github.com/alimtvnetwork/gitmap-v28/cli/apperror"
+	"github.com/alimtvnetwork/gitmap-v28/cli/crypto"
 	"github.com/alimtvnetwork/gitmap-v28/cli/store"
 )
 
@@ -212,6 +213,31 @@ func executeAndStreamCmd(cmd *exec.Cmd, host store.SSHHost, alias string, startT
 }
 
 func runNodeDirectCmd(ctx context.Context, host store.SSHHost, alias, formattedCmd, password string, startTime time.Time) ClusterRunResult {
+	if !probeTCPQuick(host.IP, host.Port, 800*time.Millisecond) {
+		err := fmt.Errorf("node is offline or port 22 unreachable")
+		printPrefixedLine(alias, "(node is offline or unreachable)", true)
+		return buildClusterRunResult(host, 255, "", err.Error(), time.Since(startTime), err)
+	}
+	user := host.Username
+	if user == "" {
+		user = "root"
+	}
+	if password != "" {
+		client, err := crypto.ConnectWithPassword(host.IP, user, password)
+		if err == nil {
+			defer client.Close()
+			osType := probeRemoteOSType(client)
+			shell := ""
+			execCmd := formattedCmd
+			if isWindowsOS(osType) {
+				shell = "ps"
+			}
+			out, runErr := crypto.RunCommand(client, execCmd, shell)
+			exitCode := resolveProcessExitCode(runErr)
+			printPrefixedLine(alias, strings.TrimRight(out, "\r\n"), false)
+			return buildClusterRunResult(host, exitCode, out, "", time.Since(startTime), runErr)
+		}
+	}
 	sshArgs := BuildNodeSSHArgs(host, formattedCmd)
 	cmd := SSHExecutor(ctx, "ssh", sshArgs...)
 	cleanup := attachAskPass(cmd, password)
@@ -220,6 +246,32 @@ func runNodeDirectCmd(ctx context.Context, host store.SSHHost, alias, formattedC
 }
 
 func runNodeSSHProcess(ctx context.Context, host store.SSHHost, alias, shellCmd, password string, isSudo bool, startTime time.Time) ClusterRunResult {
+	if !probeTCPQuick(host.IP, host.Port, 800*time.Millisecond) {
+		err := fmt.Errorf("node is offline or port 22 unreachable")
+		printPrefixedLine(alias, "(node is offline or unreachable)", true)
+		return buildClusterRunResult(host, 255, "", err.Error(), time.Since(startTime), err)
+	}
+	user := host.Username
+	if user == "" {
+		user = "root"
+	}
+	if password != "" {
+		client, err := crypto.ConnectWithPassword(host.IP, user, password)
+		if err == nil {
+			defer client.Close()
+			osType := probeRemoteOSType(client)
+			shell := ""
+			execCmd := FormatClusterCommand(shellCmd, password, isSudo)
+			if isWindowsOS(osType) {
+				shell = "ps"
+				execCmd = shellCmd
+			}
+			out, runErr := crypto.RunCommand(client, execCmd, shell)
+			exitCode := resolveProcessExitCode(runErr)
+			printPrefixedLine(alias, strings.TrimRight(out, "\r\n"), false)
+			return buildClusterRunResult(host, exitCode, out, "", time.Since(startTime), runErr)
+		}
+	}
 	formattedCmd := FormatClusterCommand(shellCmd, password, isSudo)
 	return runNodeDirectCmd(ctx, host, alias, formattedCmd, password, startTime)
 }
@@ -254,6 +306,18 @@ func printGitmapBootstrapSuccess(alias string) {
 }
 
 func runNodeProbeProcess(ctx context.Context, host store.SSHHost, probeCmd, password string) int {
+	user := host.Username
+	if user == "" {
+		user = "root"
+	}
+	if password != "" {
+		client, err := crypto.ConnectWithPassword(host.IP, user, password)
+		if err == nil {
+			defer client.Close()
+			_, runErr := crypto.RunCommand(client, probeCmd, "")
+			return resolveProcessExitCode(runErr)
+		}
+	}
 	formattedCmd := FormatClusterCommand(probeCmd, password, false)
 	sshArgs := BuildNodeSSHArgs(host, formattedCmd)
 	cmd := SSHExecutor(ctx, "ssh", sshArgs...)

@@ -1,10 +1,13 @@
 package cmdssh
 
 import (
+	"encoding/json"
 	"flag"
 	"fmt"
+	"os"
 	"strings"
 	"sync"
+	"time"
 
 	"golang.org/x/crypto/ssh"
 
@@ -22,6 +25,7 @@ type seOptions struct {
 	Except     string
 	Target     string
 	IP         string
+	IsJSON     bool
 	Args       []string
 	IsShowHelp bool
 }
@@ -60,6 +64,7 @@ func configureSEFlags(fs *flag.FlagSet, opts *seOptions) {
 	fs.StringVar(&opts.Target, "target", "", "Target machine alias or IP")
 	fs.StringVar(&opts.Target, "t", "", "Target machine alias or IP (shorthand)")
 	fs.StringVar(&opts.IP, "ip", "", "Target machine IP address")
+	fs.BoolVar(&opts.IsJSON, "json", false, "Output results in JSON format")
 }
 
 func validateSEArgs(args []string) {
@@ -78,15 +83,33 @@ func validateSEArgs(args []string) {
 	}
 }
 
+func extractSEJSONFlag(args []string) (bool, []string) {
+	isJSON := false
+	var clean []string
+	for _, a := range args {
+		if a == "--json" {
+			isJSON = true
+			continue
+		}
+		clean = append(clean, a)
+	}
+	return isJSON, clean
+}
+
 func parseSEFlags(args []string) seOptions {
 	if hasHelpFlag(args) {
 		printSSHExecHelp()
 		return seOptions{IsShowHelp: true}
 	}
+	isJSON, cleanArgs := extractSEJSONFlag(args)
 	fs := flag.NewFlagSet(seCommand, flag.ExitOnError)
 	var opts seOptions
+	opts.IsJSON = isJSON
 	configureSEFlags(fs, &opts)
-	fs.Parse(args)
+	fs.Parse(cleanArgs)
+	if isJSON {
+		opts.IsJSON = true
+	}
 	opts.Args = fs.Args()
 	validateSEArgs(opts.Args)
 
@@ -124,18 +147,22 @@ func executeSSHFromOptions(opts seOptions) error {
 	}
 	conns, execArgs := resolveExecTargetAndArgs(conns, opts)
 	if len(conns) == 0 {
+		if opts.IsJSON {
+			fmt.Println("[]")
+			return nil
+		}
 		fmt.Println("No machines to execute on.")
 		return nil
 	}
-	return dispatchSSHExecIfAllowed(conns, execArgs)
+	return dispatchSSHExecIfAllowed(conns, execArgs, opts.IsJSON)
 }
 
-func dispatchSSHExecIfAllowed(conns []db.SSHConnection, args []string) error {
+func dispatchSSHExecIfAllowed(conns []db.SSHConnection, args []string, isJSON bool) error {
 	if isInteractiveMacroAdd(args) {
 		printInteractiveMacroAdvice()
 		return apperror.NewValidationError("interactive macro creation cannot run over non-interactive SSH exec")
 	}
-	executeOnAllSSH(conns, args)
+	executeOnAllSSH(conns, args, isJSON)
 	return nil
 }
 
@@ -193,8 +220,23 @@ func isConnExcluded(c db.SSHConnection, excludeList []string) bool {
 	return false
 }
 
-func executeOnAllSSH(conns []db.SSHConnection, args []string) {
+type NodeExecResult struct {
+	Alias      string `json:"alias"`
+	IP         string `json:"ip"`
+	Status     string `json:"status"`
+	ExitCode   int    `json:"exitCode"`
+	Stdout     string `json:"stdout"`
+	Stderr     string `json:"stderr"`
+	DurationMs int64  `json:"durationMs"`
+	Error      string `json:"error,omitempty"`
+}
+
+func executeOnAllSSH(conns []db.SSHConnection, args []string, isJSON bool) {
 	online, offline := partitionOnlineOffline(conns)
+	if isJSON {
+		executeOnAllSSHJSON(online, offline, args)
+		return
+	}
 	cmdStr := strings.Join(args, " ")
 	printExecStartBanner(online, offline, cmdStr)
 	if len(online) == 0 {
@@ -209,6 +251,58 @@ func executeOnAllSSH(conns []db.SSHConnection, args []string) {
 
 	wg.Wait()
 	printExecFinishSummary(len(online), offline)
+}
+
+func executeOnAllSSHJSON(online, offline []db.SSHConnection, args []string) {
+	var results []NodeExecResult
+	for _, c := range offline {
+		results = append(results, NodeExecResult{
+			Alias:  c.Alias,
+			IP:     c.IPAddress,
+			Status: "offline",
+		})
+	}
+	var mu sync.Mutex
+	var wg sync.WaitGroup
+	for _, c := range online {
+		wg.Add(1)
+		go runSSHWorkerJSON(c, args, &results, &mu, &wg)
+	}
+	wg.Wait()
+	_ = json.NewEncoder(os.Stdout).Encode(results)
+}
+
+func runSSHWorkerJSON(c db.SSHConnection, args []string, results *[]NodeExecResult, mu *sync.Mutex, wg *sync.WaitGroup) {
+	defer wg.Done()
+	client, isConnected := connectSSHClient(c, "")
+	if !isConnected {
+		mu.Lock()
+		*results = append(*results, NodeExecResult{
+			Alias:  c.Alias,
+			IP:     c.IPAddress,
+			Status: "auth_failed",
+			Error:  "authentication failed",
+		})
+		mu.Unlock()
+		return
+	}
+	defer client.Close()
+	c.OS = probeRemoteOSType(client)
+	shellType, cmdStr, _ := resolveWorkerCommand(c, args)
+	start := time.Now()
+	out, err := crypto.RunCommand(client, cmdStr, shellType)
+	dur := time.Since(start).Milliseconds()
+	exitCode := resolveProcessExitCode(err)
+	mu.Lock()
+	*results = append(*results, NodeExecResult{
+		Alias:      c.Alias,
+		IP:         c.IPAddress,
+		Status:     "online",
+		ExitCode:   exitCode,
+		Stdout:     out,
+		DurationMs: dur,
+	})
+	mu.Unlock()
 }
 
 func runSSHWorker(c db.SSHConnection, args []string, wg *sync.WaitGroup) error {
@@ -247,6 +341,7 @@ func executeSSHPayload(client *ssh.Client, c db.SSHConnection, args []string) er
 		return nil
 	}
 
+	c.OS = probeRemoteOSType(client)
 	shellType, cmdStr, isDelegate := resolveWorkerCommand(c, args)
 	if isDelegate && ensureDelegateInstalled(client, c) != nil {
 		return nil

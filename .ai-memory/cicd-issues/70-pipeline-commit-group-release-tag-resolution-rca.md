@@ -14,9 +14,9 @@ When executing `gitmap pe` from an arbitrary directory outside a local git repos
   ● Recent Commits Pipeline Summary (Last 5 Commits):
     Offset   Commit    Branch               Release     Status     Workflows                        Failures
     ------   ------    ------               -------     ------     ---------                        --------
-    latest   ba9ccc9   main                 -           RUNNING    CI [], CI Beacon [PASS] (+4)     0       
-    -1       3a629d9   release/v6.291.0     v6.291.0    RUNNING    CI Beacon [PASS], CI [RUN] (+4)  0       
-    -2       3ac9771   release/v6.290.0     v6.290.0    PASS       CI Beacon [PASS], CI [PASS] (+4) 0       
+    latest   ba9ccc9   main                 -           RUNNING    CI [], CI Beacon [PASS] (+4)     0
+    -1       3a629d9   release/v6.291.0     v6.291.0    RUNNING    CI Beacon [PASS], CI [RUN] (+4)  0
+    -2       3ac9771   release/v6.290.0     v6.290.0    PASS       CI Beacon [PASS], CI [PASS] (+4) 0
 ```
 
 ---

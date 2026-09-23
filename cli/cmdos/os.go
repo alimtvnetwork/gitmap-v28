@@ -57,7 +57,7 @@ func dispatchOSSubcommand(subCmd string, subArgs []string) error {
 		return cmdvmware.Run(subArgs)
 	case "group", "groups", "user-group", "usergroup":
 		return runOSGroup(subArgs)
-	case "cron", "crontab":
+	case "cron", "crontab", "schedule", "schedules", "sched":
 		return runOSCron(subArgs)
 	case "storage", "disk", "space":
 		return runOSStorage(subArgs)

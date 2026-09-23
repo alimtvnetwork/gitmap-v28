@@ -1113,4 +1113,3 @@ class WorkerHeartbeatMonitor:
         pct = (self.processed_count / self.total_items * 100.0) if self.total_items > 0 else 100.0
         msg = f"[Snapshot {elapsed:4.1f}s] Processed {self.processed_count}/{self.total_items} ({pct:5.1f}%) | {self.worker_count} workers | {fps:5.1f} {self.item_noun}/sec"
         print(msg)
-

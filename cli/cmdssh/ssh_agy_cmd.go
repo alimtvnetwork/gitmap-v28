@@ -60,7 +60,12 @@ func runAgyOnNode(c db.SSHConnection, agyArgs []string) {
 	}
 	defer client.Close()
 
-	executeAgyRemoteCommand(client, header, c.OS, agyArgs)
+	osType := c.OS
+	if probed := probeRemoteOSType(client); probed != "" {
+		osType = probed
+	}
+
+	executeAgyRemoteCommand(client, header, osType, agyArgs)
 }
 
 func establishAgyClient(c db.SSHConnection, header string) (*ssh.Client, bool) {
@@ -79,8 +84,8 @@ func establishAgyClient(c db.SSHConnection, header string) (*ssh.Client, bool) {
 }
 
 func executeAgyRemoteCommand(client *ssh.Client, header, osType string, agyArgs []string) {
-	cmdStr := "agy " + strings.Join(agyArgs, " ")
-	out, err := crypto.RunCommand(client, cmdStr, resolveRemoteShell(osType))
+	cmdStr := "gitmap agy " + strings.Join(agyArgs, " ")
+	out, err := crypto.RunCommand(client, cmdStr, "")
 	if err != nil {
 		appErr := apperror.WrapSimple(err, "runAgyOnNode")
 		printAppErrorWithStack(header, "AGY Error", appErr)

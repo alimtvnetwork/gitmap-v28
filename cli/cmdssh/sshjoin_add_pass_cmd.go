@@ -5,10 +5,14 @@ import (
 	"encoding/json"
 	"fmt"
 	"os"
+	"strings"
+	"time"
+
+	"github.com/spf13/cobra"
 
 	"github.com/alimtvnetwork/gitmap-v28/cli/apperror"
+	"github.com/alimtvnetwork/gitmap-v28/cli/crypto"
 	"github.com/alimtvnetwork/gitmap-v28/cli/store"
-	"github.com/spf13/cobra"
 )
 
 var SJAddWithPassCmd = &cobra.Command{
@@ -41,18 +45,53 @@ type addPassEnrollParams struct {
 	targetRaw string
 	password  string
 	alias     string
+	osType    string
+	isJSON    bool
 }
 
 func parseAddPassParams(args []string) (addPassEnrollParams, error) {
 	if len(args) == 0 {
 		return addPassEnrollParams{}, apperror.NewValidationError(msgMissingAddPassTarget)
 	}
-	p := addPassEnrollParams{targetRaw: args[0]}
-	if len(args) > 1 {
-		p.password = args[1]
+	p := addPassEnrollParams{}
+	var positionals []string
+	idx := 0
+	for idx < len(args) {
+		a := args[idx]
+		if a == "--json" {
+			p.isJSON = true
+			idx++
+			continue
+		}
+		if (a == "--os" || a == "-o") && idx+1 < len(args) {
+			p.osType = args[idx+1]
+			idx += 2
+			continue
+		}
+		if (a == "--password" || a == "--pass") && idx+1 < len(args) {
+			p.password = args[idx+1]
+			idx += 2
+			continue
+		}
+		if (a == "--alias" || a == "-n") && idx+1 < len(args) {
+			p.alias = args[idx+1]
+			idx += 2
+			continue
+		}
+		if !strings.HasPrefix(a, "-") {
+			positionals = append(positionals, a)
+		}
+		idx++
 	}
-	if len(args) > 2 {
-		p.alias = args[2]
+	if len(positionals) == 0 {
+		return addPassEnrollParams{}, apperror.NewValidationError(msgMissingAddPassTarget)
+	}
+	p.targetRaw = positionals[0]
+	if len(positionals) > 1 && p.password == "" {
+		p.password = positionals[1]
+	}
+	if len(positionals) > 2 && p.alias == "" {
+		p.alias = positionals[2]
 	}
 	return p, nil
 }
@@ -90,7 +129,7 @@ func completeAddPassEnrollment(alias, target string, isJSON bool) error {
 	return nil
 }
 
-func persistHostWithEncryptedPass(ctx context.Context, host store.SSHHost, hist store.SSHHistory) error {
+func persistHostWithEncryptedPass(ctx context.Context, host store.SSHHost, hist store.SSHHistory, osType string) error {
 	if ctx == nil {
 		ctx = context.Background()
 	}
@@ -99,7 +138,7 @@ func persistHostWithEncryptedPass(ctx context.Context, host store.SSHHost, hist 
 		return apperror.New("persistHostWithEncryptedPass", "E_INTERNAL_ERROR", map[string]any{"cause": err.Error()})
 	}
 	defer dbConn.Close()
-	pair := hostHistoryPair{host: host, hist: hist, osType: "linux"}
+	pair := hostHistoryPair{host: host, hist: hist, osType: osType}
 	if appErr := persistDualTables(ctx, dbConn.SQL(), pair); appErr != nil {
 		return appErr
 	}
@@ -134,8 +173,16 @@ func executeEnrollWithPassCLI(ctx context.Context, args []string) error {
 	host, hist := buildHostAndHistory(opts)
 	host.EncryptedPassword = encPass
 	host.Port = target.Port
-	if err := persistHostWithEncryptedPass(ctx, host, hist); err != nil {
+	osType := resolveDefaultOS(params.osType)
+	if params.osType == "" && probeTCPQuick(target.IP, target.Port, 200*time.Millisecond) {
+		client, connErr := crypto.ConnectWithPassword(target.IP, target.Username, password)
+		if connErr == nil && client != nil {
+			osType = probeRemoteOSType(client)
+			client.Close()
+		}
+	}
+	if err := persistHostWithEncryptedPass(ctx, host, hist, osType); err != nil {
 		return err
 	}
-	return completeAddPassEnrollment(host.Alias, target.String(), false)
+	return completeAddPassEnrollment(host.Alias, target.String(), params.isJSON)
 }

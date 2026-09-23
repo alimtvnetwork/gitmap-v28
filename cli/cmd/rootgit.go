@@ -1,6 +1,8 @@
 package cmd
 
 import (
+	"strings"
+
 	"github.com/alimtvnetwork/gitmap-v28/cli/apperror"
 )
 

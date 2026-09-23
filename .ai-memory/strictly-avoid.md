@@ -553,4 +553,3 @@ Allowed work:
 - ✅ Always automatically copy the full public key to the system clipboard and announce it to the user.
 
 **Why:** Public keys are designed to be shared openly (e.g. pasted into GitHub, GitLab, or remote authorized_keys). Masking them breaks automated scripts, confuses developers, and forces unnecessary manual steps.
-
