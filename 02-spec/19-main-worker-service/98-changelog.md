@@ -1,3 +1,9 @@
+## v6.314.0 — 2026-09-23 (fix(ssh): delegate ip command to gitmap with auto-install across os and fix sh not recognized)
+
+**Scope:** Version bump. fix(ssh): delegate ip command to gitmap with auto-install across os and fix sh not recognized.
+
+---
+
 ## v6.313.0 — 2026-09-23 (feat(cluster): expose osutil aliases, enhance cluster e2e tests, and document agy rca)
 
 **Scope:** Version bump. feat(cluster): expose osutil aliases, enhance cluster e2e tests, and document agy rca.
