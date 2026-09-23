@@ -117,7 +117,10 @@ func executeRemoteTargetCommand(c db.SSHConnection, target string, args []string
 	defer client.Close()
 
 	c.OS = probeRemoteOSType(client)
-	shellType, cmdStr, _ := resolveWorkerCommand(c, args)
+	shellType, cmdStr, isDelegate := resolveWorkerCommand(c, args)
+	if isDelegate && ensureDelegateInstalled(client, c) != nil {
+		return apperror.NewExecutionError(fmt.Sprintf("failed to install gitmap delegate on host '%s'", target))
+	}
 	startTime := time.Now()
 	out, err := crypto.RunCommand(client, cmdStr, shellType)
 	durMs := time.Since(startTime).Milliseconds()

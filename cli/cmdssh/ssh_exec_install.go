@@ -11,7 +11,7 @@ import (
 
 func getGitmapCheckCmd(osType string) (string, string) {
 	if isWindowsOS(osType) {
-		return "where.exe gitmap 2>nul || gitmap.exe version 2>nul || if exist \"%LOCALAPPDATA%\\gitmap\\bin\\gitmap.exe\" (exit 0) else (exit 1)", "cmd"
+		return "where.exe gitmap 2>nul || gitmap.exe version 2>nul || if exist \"%LOCALAPPDATA%\\gitmap-cli\\gitmap.exe\" (exit 0) else if exist \"%LOCALAPPDATA%\\gitmap\\bin\\gitmap.exe\" (exit 0) else (exit 1)", "cmd"
 	}
 
 	return wrapUnixPath("which gitmap >/dev/null 2>&1 || command -v gitmap >/dev/null 2>&1 || [ -x \"$HOME/.local/bin/gitmap\" ] || [ -x \"/usr/local/bin/gitmap\" ] || [ -x \"/usr/bin/gitmap\" ] || [ -x \"$HOME/go/bin/gitmap\" ] || [ -x \"/snap/bin/gitmap\" ] || [ -x \"$HOME/.local/bin/gitmap-cli/gitmap\" ]"), "sh"

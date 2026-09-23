@@ -1,7 +1,6 @@
 package cmdssh
 
 import (
-	"strings"
 	"testing"
 
 	"github.com/alimtvnetwork/gitmap-v28/cli/cliexit"
@@ -177,12 +176,12 @@ func TestDetermineSSHCommand_QuotedExplicitShell(t *testing.T) {
 
 func TestDetermineSSHCommand_IPCommand(t *testing.T) {
 	shellWin, cmdWin, isDelWin := determineSSHCommand("windows", []string{"ip"})
-	if isDelWin || shellWin != "ps" || !strings.Contains(cmdWin, "Get-NetIPAddress") {
-		t.Errorf("expected ps and Get-NetIPAddress on windows, got (%q, %q, %v)", shellWin, cmdWin, isDelWin)
+	if !isDelWin || shellWin != "" || cmdWin != "gitmap ip" {
+		t.Errorf("expected delegate gitmap ip on windows, got (%q, %q, %v)", shellWin, cmdWin, isDelWin)
 	}
 
 	shellLinux, cmdLinux, isDelLinux := determineSSHCommand("linux", []string{"ip"})
-	if isDelLinux || shellLinux != "bash" || !strings.Contains(cmdLinux, "ip -br a") {
-		t.Errorf("expected bash and ip -br a on linux, got (%q, %q, %v)", shellLinux, cmdLinux, isDelLinux)
+	if !isDelLinux || shellLinux != "" || cmdLinux != "gitmap ip" {
+		t.Errorf("expected delegate gitmap ip on linux, got (%q, %q, %v)", shellLinux, cmdLinux, isDelLinux)
 	}
 }

@@ -292,7 +292,10 @@ func runSSHWorkerJSON(c db.SSHConnection, args []string, results *[]NodeExecResu
 	}
 	defer client.Close()
 	c.OS = probeRemoteOSType(client)
-	shellType, cmdStr, _ := resolveWorkerCommand(c, args)
+	shellType, cmdStr, isDelegate := resolveWorkerCommand(c, args)
+	if isDelegate && !ensureDelegateInstalledJSON(client, c, results, mu) {
+		return
+	}
 	start := time.Now()
 	out, err := crypto.RunCommand(client, cmdStr, shellType)
 	dur := time.Since(start).Milliseconds()
@@ -307,6 +310,21 @@ func runSSHWorkerJSON(c db.SSHConnection, args []string, results *[]NodeExecResu
 		DurationMs: dur,
 	})
 	mu.Unlock()
+}
+
+func ensureDelegateInstalledJSON(client *ssh.Client, c db.SSHConnection, results *[]NodeExecResult, mu *sync.Mutex) bool {
+	if err := ensureGitmapInstalled(client, c.OS, c.Alias); err != nil {
+		mu.Lock()
+		*results = append(*results, NodeExecResult{
+			Alias:  c.Alias,
+			IP:     c.IPAddress,
+			Status: "error",
+			Error:  err.Error(),
+		})
+		mu.Unlock()
+		return false
+	}
+	return true
 }
 
 func runSSHWorker(c db.SSHConnection, args []string, wg *sync.WaitGroup) error {

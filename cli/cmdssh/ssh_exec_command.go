@@ -46,11 +46,7 @@ func isIPCommand(args []string) bool {
 }
 
 func resolveIPCommand(osType string) (string, string, bool) {
-	if isWindowsOS(osType) {
-		return "ps", "Get-NetIPAddress -AddressFamily IPv4 | Select-Object -ExpandProperty IPAddress", false
-	}
-
-	return "bash", "ip -br a 2>/dev/null || ip a 2>/dev/null || hostname -I 2>/dev/null || ifconfig", false
+	return "", "gitmap ip", true
 }
 
 func normalizeMultiCommands(cmdStr string, isWindows bool) string {

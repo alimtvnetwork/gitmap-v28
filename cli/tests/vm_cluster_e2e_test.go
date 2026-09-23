@@ -212,3 +212,51 @@ func isNodeAliasPresent(conns []db.SSHConnection, targetAlias string) bool {
 	}
 	return false
 }
+
+func TestVMClusterE2EIPDelegation(t *testing.T) {
+	creds := loadVMCredentials(t)
+	nodes := clusterTestNodes()
+	for _, node := range nodes {
+		user, pass := resolveNodeCredentials(creds, node.OS)
+		testSingleNodeIP(t, node, user, pass)
+	}
+}
+
+func resolveIPExecCommand(osType string) string {
+	if osType == "linux" {
+		return "export PATH=\"$HOME/.local/bin:$HOME/.local/bin/gitmap-cli:$PATH\"; gitmap ip"
+	}
+	return "gitmap ip"
+}
+
+func testSingleNodeIP(t *testing.T, node VMNodeInfo, user, pass string) {
+	t.Run(node.Alias+"_ip_delegation", func(t *testing.T) {
+		if !isTCPPortOpen(node.IP, 22, 1*time.Second) {
+			t.Logf("Node %s is offline; skipping ip check", node.Alias)
+			return
+		}
+		client, err := crypto.ConnectWithPassword(node.IP, user, pass)
+		if err != nil {
+			t.Fatalf("SSH connect failed: %v", err)
+		}
+		defer client.Close()
+
+		cmd := resolveIPExecCommand(node.OS)
+		out, runErr := crypto.RunCommand(client, cmd, "")
+		if runErr != nil {
+			t.Fatalf("gitmap ip failed on %s: %v", node.Alias, runErr)
+		}
+		validateIPDelegationOutput(t, node.Alias, out)
+	})
+}
+
+func validateIPDelegationOutput(t *testing.T, alias, out string) {
+	ipOut := strings.TrimSpace(out)
+	if !strings.Contains(ipOut, "192.168.") {
+		t.Fatalf("expected valid IP starting with 192.168. from %s, got: %s", alias, ipOut)
+	}
+	if strings.Contains(ipOut, "'sh'") {
+		t.Fatalf("detected sh error in ip delegation output on %s: %s", alias, ipOut)
+	}
+	t.Logf("Node %s successfully reported IP via gitmap delegation: %s", alias, ipOut)
+}

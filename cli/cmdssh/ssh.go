@@ -98,14 +98,22 @@ func dispatchNodeSSH(ctx context.Context, sub string, args []string, parent *cob
 			return result.MatchWrapper(runSJRm(parent, args[1:], ctx))
 		}
 		if len(args) > 0 {
-			return result.MatchWrapper(handleDirectSSHTarget(ctx, parent, args[0], args[1:]))
+			return result.MatchWrapper(dispatchDirectTargetIP(ctx, parent, args))
 		}
-		return result.UnmatchedWrapper()
+		return result.MatchWrapper(runSSHExec([]string{"ip"}))
 	case "error-logs", "errorlogs", "errors", "err", "logs":
 		return result.MatchWrapper(RunSSHErrorLogsCLI(args))
 	default:
 		return result.UnmatchedWrapper()
 	}
+}
+
+func dispatchDirectTargetIP(ctx context.Context, parent *cobra.Command, args []string) error {
+	cmdArgs := args[1:]
+	if len(cmdArgs) == 0 {
+		cmdArgs = []string{"ip"}
+	}
+	return handleDirectSSHTarget(ctx, parent, args[0], cmdArgs)
 }
 
 func dispatchAuthOpsSSH(sub string, args []string) result.ErrorWrapper {

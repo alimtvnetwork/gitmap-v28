@@ -1,6 +1,6 @@
 {
   "version": 1,
-  "updated_at": "2026-09-23T13:44:00Z",
+  "updated_at": "2026-09-23T17:23:16Z",
   "total_tests": 4088,
   "summary": {
     "total": 4088,
@@ -28127,7 +28127,7 @@
       "tier": "fast",
       "is_slow": false,
       "last_status": "passed",
-      "last_run_at": "2026-09-23T12:55:31",
+      "last_run_at": "2026-09-23T17:24:37",
       "needs_run": false
     },
     "cli/cmdssh.TestParseClusterBootstrapArgs_Flags": {
@@ -28143,7 +28143,7 @@
       "tier": "fast",
       "is_slow": false,
       "last_status": "passed",
-      "last_run_at": "2026-09-23T12:55:31",
+      "last_run_at": "2026-09-23T17:24:37",
       "needs_run": false
     },
     "cli/cmdssh.TestParseClusterBootstrapArgs_NoSudoAndHelp": {
@@ -28159,7 +28159,7 @@
       "tier": "fast",
       "is_slow": false,
       "last_status": "passed",
-      "last_run_at": "2026-09-23T12:55:31",
+      "last_run_at": "2026-09-23T17:24:37",
       "needs_run": false
     },
     "cli/cmdssh.TestParseClusterBootstrapArgs_Empty": {
@@ -28175,7 +28175,7 @@
       "tier": "fast",
       "is_slow": false,
       "last_status": "passed",
-      "last_run_at": "2026-09-23T12:55:31",
+      "last_run_at": "2026-09-23T17:24:37",
       "needs_run": false
     },
     "cli/cmdssh.TestEnsureClusterRSAKeypair_GenerationAndDiscovery": {
@@ -28191,7 +28191,7 @@
       "tier": "fast",
       "is_slow": false,
       "last_status": "passed",
-      "last_run_at": "2026-09-23T12:55:31",
+      "last_run_at": "2026-09-23T17:24:37",
       "needs_run": false
     },
     "cli/cmdssh.TestBuildScripts": {
@@ -28207,7 +28207,7 @@
       "tier": "fast",
       "is_slow": false,
       "last_status": "passed",
-      "last_run_at": "2026-09-23T12:55:31",
+      "last_run_at": "2026-09-23T17:24:37",
       "needs_run": false
     },
     "cli/cmdssh.TestBuildBatchVerifyArgs": {
@@ -28223,7 +28223,7 @@
       "tier": "fast",
       "is_slow": false,
       "last_status": "passed",
-      "last_run_at": "2026-09-23T12:55:31",
+      "last_run_at": "2026-09-23T17:24:37",
       "needs_run": false
     },
     "cli/cmdssh.TestBootstrapSingleTarget_Success": {
@@ -28239,7 +28239,7 @@
       "tier": "fast",
       "is_slow": false,
       "last_status": "passed",
-      "last_run_at": "2026-09-23T12:55:31",
+      "last_run_at": "2026-09-23T17:24:37",
       "needs_run": false
     },
     "cli/cmdssh.TestBootstrapSingleTarget_InjectFailure": {
@@ -28255,7 +28255,7 @@
       "tier": "fast",
       "is_slow": false,
       "last_status": "passed",
-      "last_run_at": "2026-09-23T12:55:31",
+      "last_run_at": "2026-09-23T17:24:37",
       "needs_run": false
     },
     "cli/cmdssh.TestBootstrapSingleTarget_VerifyFailure": {
@@ -28271,7 +28271,7 @@
       "tier": "fast",
       "is_slow": false,
       "last_status": "passed",
-      "last_run_at": "2026-09-23T12:55:31",
+      "last_run_at": "2026-09-23T17:24:37",
       "needs_run": false
     },
     "cli/cmdssh.TestRunClusterBootstrapCLI_Success": {
@@ -28287,7 +28287,7 @@
       "tier": "fast",
       "is_slow": false,
       "last_status": "passed",
-      "last_run_at": "2026-09-23T12:55:31",
+      "last_run_at": "2026-09-23T17:24:37",
       "needs_run": false
     },
     "cli/cmdssh.TestRunClusterBootstrapCLI_Help": {
@@ -28303,7 +28303,7 @@
       "tier": "fast",
       "is_slow": false,
       "last_status": "passed",
-      "last_run_at": "2026-09-23T12:55:31",
+      "last_run_at": "2026-09-23T17:24:37",
       "needs_run": false
     },
     "cli/cmdssh.TestRenderBootstrapSummaryTable": {
@@ -28319,7 +28319,7 @@
       "tier": "fast",
       "is_slow": false,
       "last_status": "passed",
-      "last_run_at": "2026-09-23T12:55:31",
+      "last_run_at": "2026-09-23T17:24:37",
       "needs_run": false
     },
     "cli/cmdssh.TestResolveStoredPassword": {
@@ -28335,7 +28335,7 @@
       "tier": "fast",
       "is_slow": false,
       "last_status": "passed",
-      "last_run_at": "2026-09-23T12:55:31",
+      "last_run_at": "2026-09-23T17:24:37",
       "needs_run": false
     },
     "cli/cmdssh.TestWipePasswordString": {
@@ -28351,7 +28351,7 @@
       "tier": "fast",
       "is_slow": false,
       "last_status": "passed",
-      "last_run_at": "2026-09-23T12:55:31",
+      "last_run_at": "2026-09-23T17:24:37",
       "needs_run": false
     },
     "cli/cmdssh.TestParseClusterExecArgs_Basic": {
@@ -28367,7 +28367,7 @@
       "tier": "fast",
       "is_slow": false,
       "last_status": "passed",
-      "last_run_at": "2026-09-23T12:55:31",
+      "last_run_at": "2026-09-23T17:24:37",
       "needs_run": false
     },
     "cli/cmdssh.TestParseClusterExecArgs_SudoShort": {
@@ -28383,7 +28383,7 @@
       "tier": "fast",
       "is_slow": false,
       "last_status": "passed",
-      "last_run_at": "2026-09-23T12:55:31",
+      "last_run_at": "2026-09-23T17:24:37",
       "needs_run": false
     },
     "cli/cmdssh.TestParseClusterExecArgs_SudoLong": {
@@ -28399,7 +28399,7 @@
       "tier": "fast",
       "is_slow": false,
       "last_status": "passed",
-      "last_run_at": "2026-09-23T12:55:31",
+      "last_run_at": "2026-09-23T17:24:37",
       "needs_run": false
     },
     "cli/cmdssh.TestParseClusterExecArgs_Parallel": {
@@ -28415,7 +28415,7 @@
       "tier": "fast",
       "is_slow": false,
       "last_status": "passed",
-      "last_run_at": "2026-09-23T12:55:31",
+      "last_run_at": "2026-09-23T17:24:37",
       "needs_run": false
     },
     "cli/cmdssh.TestParseClusterExecArgs_ParallelEquals": {
@@ -28431,7 +28431,7 @@
       "tier": "fast",
       "is_slow": false,
       "last_status": "passed",
-      "last_run_at": "2026-09-23T12:55:31",
+      "last_run_at": "2026-09-23T17:24:37",
       "needs_run": false
     },
     "cli/cmdssh.TestParseClusterExecArgs_MissingTarget": {
@@ -28447,7 +28447,7 @@
       "tier": "fast",
       "is_slow": false,
       "last_status": "passed",
-      "last_run_at": "2026-09-23T12:55:31",
+      "last_run_at": "2026-09-23T17:24:37",
       "needs_run": false
     },
     "cli/cmdssh.TestParseClusterExecArgs_MissingCommand": {
@@ -28463,7 +28463,7 @@
       "tier": "fast",
       "is_slow": false,
       "last_status": "passed",
-      "last_run_at": "2026-09-23T12:55:31",
+      "last_run_at": "2026-09-23T17:24:37",
       "needs_run": false
     },
     "cli/cmdssh.TestParseClusterExecArgs_Help": {
@@ -28479,7 +28479,7 @@
       "tier": "fast",
       "is_slow": false,
       "last_status": "passed",
-      "last_run_at": "2026-09-23T12:55:31",
+      "last_run_at": "2026-09-23T17:24:37",
       "needs_run": false
     },
     "cli/cmdssh.TestParseClusterScriptArgs_Basic": {
@@ -28495,7 +28495,7 @@
       "tier": "fast",
       "is_slow": false,
       "last_status": "passed",
-      "last_run_at": "2026-09-23T12:55:31",
+      "last_run_at": "2026-09-23T17:24:37",
       "needs_run": false
     },
     "cli/cmdssh.TestParseClusterScriptArgs_Flags": {
@@ -28511,7 +28511,7 @@
       "tier": "fast",
       "is_slow": false,
       "last_status": "passed",
-      "last_run_at": "2026-09-23T12:55:31",
+      "last_run_at": "2026-09-23T17:24:37",
       "needs_run": false
     },
     "cli/cmdssh.TestParseClusterScriptArgs_MissingArgs": {
@@ -28527,7 +28527,7 @@
       "tier": "fast",
       "is_slow": false,
       "last_status": "passed",
-      "last_run_at": "2026-09-23T12:55:31",
+      "last_run_at": "2026-09-23T17:24:37",
       "needs_run": false
     },
     "cli/cmdssh.TestFormatClusterCommand_NonSudo": {
@@ -28543,7 +28543,7 @@
       "tier": "fast",
       "is_slow": false,
       "last_status": "passed",
-      "last_run_at": "2026-09-23T12:55:31",
+      "last_run_at": "2026-09-23T17:24:37",
       "needs_run": false
     },
     "cli/cmdssh.TestFormatClusterCommand_Sudo": {
@@ -28559,7 +28559,7 @@
       "tier": "fast",
       "is_slow": false,
       "last_status": "passed",
-      "last_run_at": "2026-09-23T12:55:31",
+      "last_run_at": "2026-09-23T17:24:37",
       "needs_run": false
     },
     "cli/cmdssh.TestFormatClusterCommand_EscapedQuotes": {
@@ -28575,7 +28575,7 @@
       "tier": "fast",
       "is_slow": false,
       "last_status": "passed",
-      "last_run_at": "2026-09-23T12:55:31",
+      "last_run_at": "2026-09-23T17:24:37",
       "needs_run": false
     },
     "cli/cmdssh.TestFormatClusterScriptCommand": {
@@ -28591,7 +28591,7 @@
       "tier": "fast",
       "is_slow": false,
       "last_status": "passed",
-      "last_run_at": "2026-09-23T12:55:31",
+      "last_run_at": "2026-09-23T17:24:37",
       "needs_run": false
     },
     "cli/cmdssh.TestFormatClusterScriptCleanup": {
@@ -28607,7 +28607,7 @@
       "tier": "fast",
       "is_slow": false,
       "last_status": "passed",
-      "last_run_at": "2026-09-23T12:55:31",
+      "last_run_at": "2026-09-23T17:24:37",
       "needs_run": false
     },
     "cli/cmdssh.TestTargetGroupExpansion_All": {
@@ -28623,7 +28623,7 @@
       "tier": "fast",
       "is_slow": false,
       "last_status": "passed",
-      "last_run_at": "2026-09-23T12:55:31",
+      "last_run_at": "2026-09-23T17:24:37",
       "needs_run": false
     },
     "cli/cmdssh.TestTargetGroupExpansion_Roles": {
@@ -28639,7 +28639,7 @@
       "tier": "fast",
       "is_slow": false,
       "last_status": "passed",
-      "last_run_at": "2026-09-23T12:55:31",
+      "last_run_at": "2026-09-23T17:24:37",
       "needs_run": false
     },
     "cli/cmdssh.TestTargetGroupExpansion_AliasAndComma": {
@@ -28655,7 +28655,7 @@
       "tier": "fast",
       "is_slow": false,
       "last_status": "passed",
-      "last_run_at": "2026-09-23T12:55:31",
+      "last_run_at": "2026-09-23T17:24:37",
       "needs_run": false
     },
     "cli/cmdssh.TestRenderClusterSummaryTable": {
@@ -28671,7 +28671,7 @@
       "tier": "fast",
       "is_slow": false,
       "last_status": "passed",
-      "last_run_at": "2026-09-23T12:55:31",
+      "last_run_at": "2026-09-23T17:24:37",
       "needs_run": false
     },
     "cli/cmdssh.TestDispatchClusterRun_WorkerPool": {
@@ -28687,7 +28687,7 @@
       "tier": "fast",
       "is_slow": false,
       "last_status": "passed",
-      "last_run_at": "2026-09-23T12:55:31",
+      "last_run_at": "2026-09-23T17:24:37",
       "needs_run": false
     },
     "cli/cmdssh.TestDispatchClusterScript_WorkerPool": {
@@ -28703,7 +28703,7 @@
       "tier": "fast",
       "is_slow": false,
       "last_status": "passed",
-      "last_run_at": "2026-09-23T12:55:31",
+      "last_run_at": "2026-09-23T17:24:37",
       "needs_run": false
     },
     "cli/cmdssh.TestRunClusterExecCLI_Flow": {
@@ -28719,7 +28719,7 @@
       "tier": "fast",
       "is_slow": false,
       "last_status": "passed",
-      "last_run_at": "2026-09-23T12:55:31",
+      "last_run_at": "2026-09-23T17:24:37",
       "needs_run": false
     },
     "cli/cmdssh.TestRunClusterScriptCLI_Flow": {
@@ -28735,7 +28735,7 @@
       "tier": "fast",
       "is_slow": false,
       "last_status": "passed",
-      "last_run_at": "2026-09-23T12:55:31",
+      "last_run_at": "2026-09-23T17:24:37",
       "needs_run": false
     },
     "cli/cmdssh.TestParseClusterExecArgs_GitmapMultiToken": {
@@ -28751,7 +28751,7 @@
       "tier": "fast",
       "is_slow": false,
       "last_status": "passed",
-      "last_run_at": "2026-09-23T12:55:31",
+      "last_run_at": "2026-09-23T17:24:37",
       "needs_run": false
     },
     "cli/cmdssh.TestParseClusterExecArgs_ExplicitTargetGitmapCompound": {
@@ -28767,7 +28767,7 @@
       "tier": "fast",
       "is_slow": false,
       "last_status": "passed",
-      "last_run_at": "2026-09-23T12:55:31",
+      "last_run_at": "2026-09-23T17:24:37",
       "needs_run": false
     },
     "cli/cmdssh.TestParseClusterExecArgs_ExplicitTargetGitmapSubcommand": {
@@ -28783,7 +28783,7 @@
       "tier": "fast",
       "is_slow": false,
       "last_status": "passed",
-      "last_run_at": "2026-09-23T12:55:31",
+      "last_run_at": "2026-09-23T17:24:37",
       "needs_run": false
     },
     "cli/cmdssh.TestParseClusterExecArgs_MultiTargetComma": {
@@ -28799,7 +28799,7 @@
       "tier": "fast",
       "is_slow": false,
       "last_status": "passed",
-      "last_run_at": "2026-09-23T12:55:31",
+      "last_run_at": "2026-09-23T17:24:37",
       "needs_run": false
     },
     "cli/cmdssh.TestParseClusterExecArgs_NewGitmapCommands": {
@@ -28815,7 +28815,7 @@
       "tier": "fast",
       "is_slow": false,
       "last_status": "passed",
-      "last_run_at": "2026-09-23T12:55:31",
+      "last_run_at": "2026-09-23T17:24:37",
       "needs_run": false
     },
     "cli/cmdssh.TestLoadClusterConfigFile_Valid": {
@@ -28831,7 +28831,7 @@
       "tier": "fast",
       "is_slow": false,
       "last_status": "passed",
-      "last_run_at": "2026-09-23T12:55:31",
+      "last_run_at": "2026-09-23T17:24:37",
       "needs_run": false
     },
     "cli/cmdssh.TestLoadClusterConfigFile_Errors": {
@@ -28847,7 +28847,7 @@
       "tier": "fast",
       "is_slow": false,
       "last_status": "passed",
-      "last_run_at": "2026-09-23T12:55:31",
+      "last_run_at": "2026-09-23T17:24:37",
       "needs_run": false
     },
     "cli/cmdssh.TestValidateClusterUser": {
@@ -28863,7 +28863,7 @@
       "tier": "fast",
       "is_slow": false,
       "last_status": "passed",
-      "last_run_at": "2026-09-23T12:55:31",
+      "last_run_at": "2026-09-23T17:24:37",
       "needs_run": false
     },
     "cli/cmdssh.TestClusterImport_RSAEncryptionValidation": {
@@ -28879,7 +28879,7 @@
       "tier": "fast",
       "is_slow": false,
       "last_status": "passed",
-      "last_run_at": "2026-09-23T12:55:31",
+      "last_run_at": "2026-09-23T17:24:37",
       "needs_run": false
     },
     "cli/cmdssh.TestRunClusterImportCLI_Success": {
@@ -28895,7 +28895,7 @@
       "tier": "fast",
       "is_slow": false,
       "last_status": "passed",
-      "last_run_at": "2026-09-23T12:55:31",
+      "last_run_at": "2026-09-23T17:24:37",
       "needs_run": false
     },
     "cli/cmdssh.TestSJClusterImportSubcommandAliases": {
@@ -28911,7 +28911,7 @@
       "tier": "fast",
       "is_slow": false,
       "last_status": "passed",
-      "last_run_at": "2026-09-23T12:55:31",
+      "last_run_at": "2026-09-23T17:24:37",
       "needs_run": false
     },
     "cli/cmdssh.TestResolveImportConfigPath": {
@@ -28927,7 +28927,7 @@
       "tier": "fast",
       "is_slow": false,
       "last_status": "passed",
-      "last_run_at": "2026-09-23T12:55:31",
+      "last_run_at": "2026-09-23T17:24:37",
       "needs_run": false
     },
     "cli/cmdssh.TestClusterInit_GenerateJSON_Defaults": {
@@ -28943,7 +28943,7 @@
       "tier": "fast",
       "is_slow": false,
       "last_status": "passed",
-      "last_run_at": "2026-09-23T12:55:31",
+      "last_run_at": "2026-09-23T17:24:37",
       "needs_run": false
     },
     "cli/cmdssh.TestClusterInit_GenerateJSON_Custom": {
@@ -28959,7 +28959,7 @@
       "tier": "fast",
       "is_slow": false,
       "last_status": "passed",
-      "last_run_at": "2026-09-23T12:55:31",
+      "last_run_at": "2026-09-23T17:24:37",
       "needs_run": false
     },
     "cli/cmdssh.TestClusterInit_WriteFile_Hermetic": {
@@ -28975,7 +28975,7 @@
       "tier": "fast",
       "is_slow": false,
       "last_status": "passed",
-      "last_run_at": "2026-09-23T12:55:31",
+      "last_run_at": "2026-09-23T17:24:37",
       "needs_run": false
     },
     "cli/cmdssh.TestBuildGitmapInstallOneLiner_LinuxDefault": {
@@ -28991,7 +28991,7 @@
       "tier": "fast",
       "is_slow": false,
       "last_status": "passed",
-      "last_run_at": "2026-09-23T12:55:31",
+      "last_run_at": "2026-09-23T17:24:37",
       "needs_run": false
     },
     "cli/cmdssh.TestBuildGitmapInstallOneLiner_LinuxEmpty": {
@@ -29007,7 +29007,7 @@
       "tier": "fast",
       "is_slow": false,
       "last_status": "passed",
-      "last_run_at": "2026-09-23T12:55:31",
+      "last_run_at": "2026-09-23T17:24:37",
       "needs_run": false
     },
     "cli/cmdssh.TestBuildGitmapInstallOneLiner_LinuxPinned": {
@@ -29023,7 +29023,7 @@
       "tier": "fast",
       "is_slow": false,
       "last_status": "passed",
-      "last_run_at": "2026-09-23T12:55:31",
+      "last_run_at": "2026-09-23T17:24:37",
       "needs_run": false
     },
     "cli/cmdssh.TestBuildGitmapInstallOneLiner_DarwinPinned": {
@@ -29039,7 +29039,7 @@
       "tier": "fast",
       "is_slow": false,
       "last_status": "passed",
-      "last_run_at": "2026-09-23T12:55:31",
+      "last_run_at": "2026-09-23T17:24:37",
       "needs_run": false
     },
     "cli/cmdssh.TestBuildGitmapInstallOneLiner_WindowsDefault": {
@@ -29055,7 +29055,7 @@
       "tier": "fast",
       "is_slow": false,
       "last_status": "passed",
-      "last_run_at": "2026-09-23T12:55:31",
+      "last_run_at": "2026-09-23T17:24:37",
       "needs_run": false
     },
     "cli/cmdssh.TestBuildGitmapInstallOneLiner_WindowsPinned": {
@@ -29071,7 +29071,7 @@
       "tier": "fast",
       "is_slow": false,
       "last_status": "passed",
-      "last_run_at": "2026-09-23T12:55:31",
+      "last_run_at": "2026-09-23T17:24:37",
       "needs_run": false
     },
     "cli/cmdssh.TestParseClusterInstallArgs_Defaults": {
@@ -29087,7 +29087,7 @@
       "tier": "fast",
       "is_slow": false,
       "last_status": "passed",
-      "last_run_at": "2026-09-23T12:55:31",
+      "last_run_at": "2026-09-23T17:24:37",
       "needs_run": false
     },
     "cli/cmdssh.TestParseClusterInstallArgs_CustomTargetAndFlags": {
@@ -29103,7 +29103,7 @@
       "tier": "fast",
       "is_slow": false,
       "last_status": "passed",
-      "last_run_at": "2026-09-23T12:55:31",
+      "last_run_at": "2026-09-23T17:24:37",
       "needs_run": false
     },
     "cli/cmdssh.TestParseClusterInstallArgs_ShortFlags": {
@@ -29119,7 +29119,7 @@
       "tier": "fast",
       "is_slow": false,
       "last_status": "passed",
-      "last_run_at": "2026-09-23T12:55:31",
+      "last_run_at": "2026-09-23T17:24:37",
       "needs_run": false
     },
     "cli/cmdssh.TestRunClusterInstallCLI_Help": {
@@ -29135,7 +29135,7 @@
       "tier": "fast",
       "is_slow": false,
       "last_status": "passed",
-      "last_run_at": "2026-09-23T12:55:31",
+      "last_run_at": "2026-09-23T17:24:37",
       "needs_run": false
     },
     "cli/cmdssh.TestRunClusterInstallCLI_Success": {
@@ -29151,7 +29151,7 @@
       "tier": "fast",
       "is_slow": false,
       "last_status": "passed",
-      "last_run_at": "2026-09-23T12:55:31",
+      "last_run_at": "2026-09-23T17:24:37",
       "needs_run": false
     },
     "cli/cmdssh.TestRunClusterInstallCLI_Failure": {
@@ -29167,7 +29167,7 @@
       "tier": "fast",
       "is_slow": false,
       "last_status": "passed",
-      "last_run_at": "2026-09-23T12:55:31",
+      "last_run_at": "2026-09-23T17:24:37",
       "needs_run": false
     },
     "cli/cmdssh.TestClusterHelpGroups_ContainsSSHJoin": {
@@ -29183,7 +29183,7 @@
       "tier": "fast",
       "is_slow": false,
       "last_status": "passed",
-      "last_run_at": "2026-09-23T12:55:31",
+      "last_run_at": "2026-09-23T17:24:37",
       "needs_run": false
     },
     "cli/cmdssh.TestRunClusterJoinCLI_HelpFlag": {
@@ -29199,7 +29199,7 @@
       "tier": "fast",
       "is_slow": false,
       "last_status": "passed",
-      "last_run_at": "2026-09-23T12:55:31",
+      "last_run_at": "2026-09-23T17:24:37",
       "needs_run": false
     },
     "cli/cmdssh.TestRunClusterJoinCLI_EmptyArgs": {
@@ -29215,7 +29215,7 @@
       "tier": "fast",
       "is_slow": false,
       "last_status": "passed",
-      "last_run_at": "2026-09-23T12:55:31",
+      "last_run_at": "2026-09-23T17:24:37",
       "needs_run": false
     },
     "cli/cmdssh.TestExtractKubeadmJoinCommand_Success": {
@@ -29231,7 +29231,7 @@
       "tier": "fast",
       "is_slow": false,
       "last_status": "passed",
-      "last_run_at": "2026-09-23T12:55:31",
+      "last_run_at": "2026-09-23T17:24:37",
       "needs_run": false
     },
     "cli/cmdssh.TestExtractKubeadmJoinCommand_MultiLine": {
@@ -29247,7 +29247,7 @@
       "tier": "fast",
       "is_slow": false,
       "last_status": "passed",
-      "last_run_at": "2026-09-23T12:55:31",
+      "last_run_at": "2026-09-23T17:24:37",
       "needs_run": false
     },
     "cli/cmdssh.TestExtractKubeadmJoinCommand_Error": {
@@ -29263,7 +29263,7 @@
       "tier": "fast",
       "is_slow": false,
       "last_status": "passed",
-      "last_run_at": "2026-09-23T12:55:31",
+      "last_run_at": "2026-09-23T17:24:37",
       "needs_run": false
     },
     "cli/cmdssh.TestParseSingleK8sTarget_Success": {
@@ -29279,7 +29279,7 @@
       "tier": "fast",
       "is_slow": false,
       "last_status": "passed",
-      "last_run_at": "2026-09-23T12:55:31",
+      "last_run_at": "2026-09-23T17:24:37",
       "needs_run": false
     },
     "cli/cmdssh.TestParseSingleK8sTarget_Missing": {
@@ -29295,7 +29295,7 @@
       "tier": "fast",
       "is_slow": false,
       "last_status": "passed",
-      "last_run_at": "2026-09-23T12:55:31",
+      "last_run_at": "2026-09-23T17:24:37",
       "needs_run": false
     },
     "cli/cmdssh.TestParseTargetAndFlag_Inline": {
@@ -29311,7 +29311,7 @@
       "tier": "fast",
       "is_slow": false,
       "last_status": "passed",
-      "last_run_at": "2026-09-23T12:55:31",
+      "last_run_at": "2026-09-23T17:24:37",
       "needs_run": false
     },
     "cli/cmdssh.TestParseTargetAndFlag_Short": {
@@ -29327,7 +29327,7 @@
       "tier": "fast",
       "is_slow": false,
       "last_status": "passed",
-      "last_run_at": "2026-09-23T12:55:31",
+      "last_run_at": "2026-09-23T17:24:37",
       "needs_run": false
     },
     "cli/cmdssh.TestParseTargetAndFlag_MissingTarget": {
@@ -29343,7 +29343,7 @@
       "tier": "fast",
       "is_slow": false,
       "last_status": "passed",
-      "last_run_at": "2026-09-23T12:55:31",
+      "last_run_at": "2026-09-23T17:24:37",
       "needs_run": false
     },
     "cli/cmdssh.TestParseTargetAndTwoFlags_Success": {
@@ -29359,7 +29359,7 @@
       "tier": "fast",
       "is_slow": false,
       "last_status": "passed",
-      "last_run_at": "2026-09-23T12:55:31",
+      "last_run_at": "2026-09-23T17:24:37",
       "needs_run": false
     },
     "cli/cmdssh.TestParseTargetAndTwoFlags_MissingTarget": {
@@ -29375,7 +29375,7 @@
       "tier": "fast",
       "is_slow": false,
       "last_status": "passed",
-      "last_run_at": "2026-09-23T12:55:31",
+      "last_run_at": "2026-09-23T17:24:37",
       "needs_run": false
     },
     "cli/cmdssh.TestRunClusterK8sCLI_Help": {
@@ -29391,7 +29391,7 @@
       "tier": "fast",
       "is_slow": false,
       "last_status": "passed",
-      "last_run_at": "2026-09-23T12:55:31",
+      "last_run_at": "2026-09-23T17:24:37",
       "needs_run": false
     },
     "cli/cmdssh.TestRunClusterK8sCLI_UnknownCommand": {
@@ -29407,7 +29407,7 @@
       "tier": "fast",
       "is_slow": false,
       "last_status": "passed",
-      "last_run_at": "2026-09-23T12:55:31",
+      "last_run_at": "2026-09-23T17:24:37",
       "needs_run": false
     },
     "cli/cmdssh.TestRunClusterK8sCLI_PrereqMock": {
@@ -29423,7 +29423,7 @@
       "tier": "fast",
       "is_slow": false,
       "last_status": "passed",
-      "last_run_at": "2026-09-23T12:55:31",
+      "last_run_at": "2026-09-23T17:24:37",
       "needs_run": false
     },
     "cli/cmdssh.TestRunClusterK8sCLI_AutoJoinPipeline": {
@@ -29439,7 +29439,7 @@
       "tier": "fast",
       "is_slow": false,
       "last_status": "passed",
-      "last_run_at": "2026-09-23T12:55:31",
+      "last_run_at": "2026-09-23T17:24:37",
       "needs_run": false
     },
     "cli/cmdssh.TestRunClusterK8sCLI_ManualJoin": {
@@ -29455,7 +29455,7 @@
       "tier": "fast",
       "is_slow": false,
       "last_status": "passed",
-      "last_run_at": "2026-09-23T12:55:31",
+      "last_run_at": "2026-09-23T17:24:37",
       "needs_run": false
     },
     "cli/cmdssh.TestRunClusterK8sCLI_TargetNotFound": {
@@ -29471,7 +29471,7 @@
       "tier": "fast",
       "is_slow": false,
       "last_status": "passed",
-      "last_run_at": "2026-09-23T12:55:31",
+      "last_run_at": "2026-09-23T17:24:37",
       "needs_run": false
     },
     "cli/cmdssh.TestGenerateK8sPrereqScript_Modules": {
@@ -29487,7 +29487,7 @@
       "tier": "fast",
       "is_slow": false,
       "last_status": "passed",
-      "last_run_at": "2026-09-23T12:55:31",
+      "last_run_at": "2026-09-23T17:24:37",
       "needs_run": false
     },
     "cli/cmdssh.TestGenerateK8sPrereqScript_Sysctl": {
@@ -29503,7 +29503,7 @@
       "tier": "fast",
       "is_slow": false,
       "last_status": "passed",
-      "last_run_at": "2026-09-23T12:55:31",
+      "last_run_at": "2026-09-23T17:24:37",
       "needs_run": false
     },
     "cli/cmdssh.TestGenerateK8sInstallScript_Defaults": {
@@ -29519,7 +29519,7 @@
       "tier": "fast",
       "is_slow": false,
       "last_status": "passed",
-      "last_run_at": "2026-09-23T12:55:31",
+      "last_run_at": "2026-09-23T17:24:37",
       "needs_run": false
     },
     "cli/cmdssh.TestGenerateK8sInstallScript_Custom": {
@@ -29535,7 +29535,7 @@
       "tier": "fast",
       "is_slow": false,
       "last_status": "passed",
-      "last_run_at": "2026-09-23T12:55:31",
+      "last_run_at": "2026-09-23T17:24:37",
       "needs_run": false
     },
     "cli/cmdssh.TestGenerateK8sInstallScript_Prefix": {
@@ -29551,7 +29551,7 @@
       "tier": "fast",
       "is_slow": false,
       "last_status": "passed",
-      "last_run_at": "2026-09-23T12:55:31",
+      "last_run_at": "2026-09-23T17:24:37",
       "needs_run": false
     },
     "cli/cmdssh.TestGenerateK8sInitScript_Default": {
@@ -29567,7 +29567,7 @@
       "tier": "fast",
       "is_slow": false,
       "last_status": "passed",
-      "last_run_at": "2026-09-23T12:55:31",
+      "last_run_at": "2026-09-23T17:24:37",
       "needs_run": false
     },
     "cli/cmdssh.TestGenerateK8sInitScript_WithCIDR": {
@@ -29583,7 +29583,7 @@
       "tier": "fast",
       "is_slow": false,
       "last_status": "passed",
-      "last_run_at": "2026-09-23T12:55:31",
+      "last_run_at": "2026-09-23T17:24:37",
       "needs_run": false
     },
     "cli/cmdssh.TestGenerateCNIScript_Weave": {
@@ -29599,7 +29599,7 @@
       "tier": "fast",
       "is_slow": false,
       "last_status": "passed",
-      "last_run_at": "2026-09-23T12:55:31",
+      "last_run_at": "2026-09-23T17:24:37",
       "needs_run": false
     },
     "cli/cmdssh.TestGenerateCNIScript_Calico": {
@@ -29615,7 +29615,7 @@
       "tier": "fast",
       "is_slow": false,
       "last_status": "passed",
-      "last_run_at": "2026-09-23T12:55:31",
+      "last_run_at": "2026-09-23T17:24:37",
       "needs_run": false
     },
     "cli/cmdssh.TestGenerateK8sJoinScript_WithoutSudo": {
@@ -29631,7 +29631,7 @@
       "tier": "fast",
       "is_slow": false,
       "last_status": "passed",
-      "last_run_at": "2026-09-23T12:55:31",
+      "last_run_at": "2026-09-23T17:24:37",
       "needs_run": false
     },
     "cli/cmdssh.TestGenerateK8sJoinScript_WithSudo": {
@@ -29647,7 +29647,7 @@
       "tier": "fast",
       "is_slow": false,
       "last_status": "passed",
-      "last_run_at": "2026-09-23T12:55:31",
+      "last_run_at": "2026-09-23T17:24:37",
       "needs_run": false
     },
     "cli/cmdssh.TestGenerateNFSServerScript_Default": {
@@ -29663,7 +29663,7 @@
       "tier": "fast",
       "is_slow": false,
       "last_status": "passed",
-      "last_run_at": "2026-09-23T12:55:31",
+      "last_run_at": "2026-09-23T17:24:37",
       "needs_run": false
     },
     "cli/cmdssh.TestGenerateNFSServerScript_Custom": {
@@ -29679,7 +29679,7 @@
       "tier": "fast",
       "is_slow": false,
       "last_status": "passed",
-      "last_run_at": "2026-09-23T12:55:31",
+      "last_run_at": "2026-09-23T17:24:37",
       "needs_run": false
     },
     "cli/cmdssh.TestGenerateHelmInstallScript_Default": {
@@ -29695,7 +29695,7 @@
       "tier": "fast",
       "is_slow": false,
       "last_status": "passed",
-      "last_run_at": "2026-09-23T12:55:31",
+      "last_run_at": "2026-09-23T17:24:37",
       "needs_run": false
     },
     "cli/cmdssh.TestGenerateHelmInstallScript_Custom": {
@@ -29711,7 +29711,7 @@
       "tier": "fast",
       "is_slow": false,
       "last_status": "passed",
-      "last_run_at": "2026-09-23T12:55:31",
+      "last_run_at": "2026-09-23T17:24:37",
       "needs_run": false
     },
     "cli/cmdssh.TestGenerateHelmNFSScript_Default": {
@@ -29727,7 +29727,7 @@
       "tier": "fast",
       "is_slow": false,
       "last_status": "passed",
-      "last_run_at": "2026-09-23T12:55:31",
+      "last_run_at": "2026-09-23T17:24:37",
       "needs_run": false
     },
     "cli/cmdssh.TestGenerateHelmNFSScript_Custom": {
@@ -29743,7 +29743,7 @@
       "tier": "fast",
       "is_slow": false,
       "last_status": "passed",
-      "last_run_at": "2026-09-23T12:55:31",
+      "last_run_at": "2026-09-23T17:24:37",
       "needs_run": false
     },
     "cli/cmdssh.TestGenerateK8sResetScript": {
@@ -29759,7 +29759,7 @@
       "tier": "fast",
       "is_slow": false,
       "last_status": "passed",
-      "last_run_at": "2026-09-23T12:55:31",
+      "last_run_at": "2026-09-23T17:24:37",
       "needs_run": false
     },
     "cli/cmdssh.TestGenerateNetplanScript_Defaults": {
@@ -29775,7 +29775,7 @@
       "tier": "fast",
       "is_slow": false,
       "last_status": "passed",
-      "last_run_at": "2026-09-23T12:55:31",
+      "last_run_at": "2026-09-23T17:24:37",
       "needs_run": false
     },
     "cli/cmdssh.TestGenerateNetplanScript_Custom": {
@@ -29791,7 +29791,7 @@
       "tier": "fast",
       "is_slow": false,
       "last_status": "passed",
-      "last_run_at": "2026-09-23T12:55:31",
+      "last_run_at": "2026-09-23T17:24:37",
       "needs_run": false
     },
     "cli/cmdssh.TestGenerateBasePackagesScript": {
@@ -29807,7 +29807,7 @@
       "tier": "fast",
       "is_slow": false,
       "last_status": "passed",
-      "last_run_at": "2026-09-23T12:55:31",
+      "last_run_at": "2026-09-23T17:24:37",
       "needs_run": false
     },
     "cli/cmdssh.TestGenerateCreateUserScript_WithPassword": {
@@ -29823,7 +29823,7 @@
       "tier": "fast",
       "is_slow": false,
       "last_status": "passed",
-      "last_run_at": "2026-09-23T12:55:31",
+      "last_run_at": "2026-09-23T17:24:37",
       "needs_run": false
     },
     "cli/cmdssh.TestGenerateCreateUserScript_Defaults": {
@@ -29839,7 +29839,7 @@
       "tier": "fast",
       "is_slow": false,
       "last_status": "passed",
-      "last_run_at": "2026-09-23T12:55:31",
+      "last_run_at": "2026-09-23T17:24:37",
       "needs_run": false
     },
     "cli/cmdssh.TestGenerateThemeScript": {
@@ -29855,7 +29855,7 @@
       "tier": "fast",
       "is_slow": false,
       "last_status": "passed",
-      "last_run_at": "2026-09-23T12:55:31",
+      "last_run_at": "2026-09-23T17:24:37",
       "needs_run": false
     },
     "cli/cmdssh.TestGeneratePurgeScript": {
@@ -29871,7 +29871,7 @@
       "tier": "fast",
       "is_slow": false,
       "last_status": "passed",
-      "last_run_at": "2026-09-23T12:55:31",
+      "last_run_at": "2026-09-23T17:24:37",
       "needs_run": false
     },
     "cli/cmdssh.TestParseSetIPArgs_Success": {
@@ -29887,7 +29887,7 @@
       "tier": "fast",
       "is_slow": false,
       "last_status": "passed",
-      "last_run_at": "2026-09-23T12:55:31",
+      "last_run_at": "2026-09-23T17:24:37",
       "needs_run": false
     },
     "cli/cmdssh.TestParseSetIPArgs_InlineFlag": {
@@ -29903,7 +29903,7 @@
       "tier": "fast",
       "is_slow": false,
       "last_status": "passed",
-      "last_run_at": "2026-09-23T12:55:31",
+      "last_run_at": "2026-09-23T17:24:37",
       "needs_run": false
     },
     "cli/cmdssh.TestParseSetIPArgs_Error": {
@@ -29919,7 +29919,7 @@
       "tier": "fast",
       "is_slow": false,
       "last_status": "passed",
-      "last_run_at": "2026-09-23T12:55:31",
+      "last_run_at": "2026-09-23T17:24:37",
       "needs_run": false
     },
     "cli/cmdssh.TestParseCreateUserArgs_Success": {
@@ -29935,7 +29935,7 @@
       "tier": "fast",
       "is_slow": false,
       "last_status": "passed",
-      "last_run_at": "2026-09-23T12:55:31",
+      "last_run_at": "2026-09-23T17:24:37",
       "needs_run": false
     },
     "cli/cmdssh.TestParseCreateUserArgs_InlineTheme": {
@@ -29951,7 +29951,7 @@
       "tier": "fast",
       "is_slow": false,
       "last_status": "passed",
-      "last_run_at": "2026-09-23T12:55:31",
+      "last_run_at": "2026-09-23T17:24:37",
       "needs_run": false
     },
     "cli/cmdssh.TestParseCreateUserArgs_Error": {
@@ -29967,7 +29967,7 @@
       "tier": "fast",
       "is_slow": false,
       "last_status": "passed",
-      "last_run_at": "2026-09-23T12:55:31",
+      "last_run_at": "2026-09-23T17:24:37",
       "needs_run": false
     },
     "cli/cmdssh.TestParseSetThemeArgs": {
@@ -29983,7 +29983,7 @@
       "tier": "fast",
       "is_slow": false,
       "last_status": "passed",
-      "last_run_at": "2026-09-23T12:55:31",
+      "last_run_at": "2026-09-23T17:24:37",
       "needs_run": false
     },
     "cli/cmdssh.TestParseSingleTargetArg": {
@@ -29999,7 +29999,7 @@
       "tier": "fast",
       "is_slow": false,
       "last_status": "passed",
-      "last_run_at": "2026-09-23T12:55:31",
+      "last_run_at": "2026-09-23T17:24:37",
       "needs_run": false
     },
     "cli/cmdssh.TestRunClusterNodeCLI_Help": {
@@ -30015,7 +30015,7 @@
       "tier": "fast",
       "is_slow": false,
       "last_status": "passed",
-      "last_run_at": "2026-09-23T12:55:31",
+      "last_run_at": "2026-09-23T17:24:37",
       "needs_run": false
     },
     "cli/cmdssh.TestRunClusterNodeCLI_Unknown": {
@@ -30031,7 +30031,7 @@
       "tier": "fast",
       "is_slow": false,
       "last_status": "passed",
-      "last_run_at": "2026-09-23T12:55:31",
+      "last_run_at": "2026-09-23T17:24:37",
       "needs_run": false
     },
     "cli/cmdssh.TestRunClusterNodeCLI_MockExecution": {
@@ -30047,7 +30047,7 @@
       "tier": "fast",
       "is_slow": false,
       "last_status": "passed",
-      "last_run_at": "2026-09-23T12:55:31",
+      "last_run_at": "2026-09-23T17:24:37",
       "needs_run": false
     },
     "cli/cmdssh.TestShowClusterNodeHelp_Success": {
@@ -30063,7 +30063,7 @@
       "tier": "fast",
       "is_slow": false,
       "last_status": "passed",
-      "last_run_at": "2026-09-23T12:55:31",
+      "last_run_at": "2026-09-23T17:24:37",
       "needs_run": false
     },
     "cli/cmdssh.TestRouteClusterNodeLifecycle": {
@@ -30079,7 +30079,7 @@
       "tier": "fast",
       "is_slow": false,
       "last_status": "passed",
-      "last_run_at": "2026-09-23T12:55:31",
+      "last_run_at": "2026-09-23T17:24:37",
       "needs_run": false
     },
     "cli/cmdssh.TestRunNodeAdd_Help": {
@@ -30095,7 +30095,7 @@
       "tier": "fast",
       "is_slow": false,
       "last_status": "passed",
-      "last_run_at": "2026-09-23T12:55:31",
+      "last_run_at": "2026-09-23T17:24:37",
       "needs_run": false
     },
     "cli/cmdssh.TestRunNodeRm_Help": {
@@ -30111,7 +30111,7 @@
       "tier": "fast",
       "is_slow": false,
       "last_status": "passed",
-      "last_run_at": "2026-09-23T12:55:31",
+      "last_run_at": "2026-09-23T17:24:37",
       "needs_run": false
     },
     "cli/cmdssh.TestRunClusterAddCLI_Validation": {
@@ -30127,7 +30127,7 @@
       "tier": "fast",
       "is_slow": false,
       "last_status": "passed",
-      "last_run_at": "2026-09-23T12:55:31",
+      "last_run_at": "2026-09-23T17:24:37",
       "needs_run": false
     },
     "cli/cmdssh.TestRunClusterJoinCLI_Validation": {
@@ -30143,7 +30143,7 @@
       "tier": "fast",
       "is_slow": false,
       "last_status": "passed",
-      "last_run_at": "2026-09-23T12:55:31",
+      "last_run_at": "2026-09-23T17:24:37",
       "needs_run": false
     },
     "cli/cmdssh.TestRequiresGitmap_Positive": {
@@ -30159,7 +30159,7 @@
       "tier": "fast",
       "is_slow": false,
       "last_status": "passed",
-      "last_run_at": "2026-09-23T12:55:31",
+      "last_run_at": "2026-09-23T17:24:37",
       "needs_run": false
     },
     "cli/cmdssh.TestRequiresGitmap_Negative": {
@@ -30175,7 +30175,7 @@
       "tier": "fast",
       "is_slow": false,
       "last_status": "passed",
-      "last_run_at": "2026-09-23T12:55:31",
+      "last_run_at": "2026-09-23T17:24:37",
       "needs_run": false
     },
     "cli/cmdssh.TestResolveDetectedOSType": {
@@ -30191,7 +30191,7 @@
       "tier": "fast",
       "is_slow": false,
       "last_status": "passed",
-      "last_run_at": "2026-09-23T12:55:31",
+      "last_run_at": "2026-09-23T17:24:37",
       "needs_run": false
     },
     "cli/cmdssh.TestExecuteNodeCommand_ProbeSkippedWhenNotGitmap": {
@@ -30207,7 +30207,7 @@
       "tier": "fast",
       "is_slow": false,
       "last_status": "passed",
-      "last_run_at": "2026-09-23T12:55:31",
+      "last_run_at": "2026-09-23T17:24:37",
       "needs_run": false
     },
     "cli/cmdssh.TestEnsureNodeGitmap_AlreadyInstalled": {
@@ -30223,7 +30223,7 @@
       "tier": "fast",
       "is_slow": false,
       "last_status": "passed",
-      "last_run_at": "2026-09-23T12:55:31",
+      "last_run_at": "2026-09-23T17:24:37",
       "needs_run": false
     },
     "cli/cmdssh.TestEnsureNodeGitmap_AutoBootstrapMissing": {
@@ -30239,7 +30239,7 @@
       "tier": "fast",
       "is_slow": false,
       "last_status": "passed",
-      "last_run_at": "2026-09-23T12:55:31",
+      "last_run_at": "2026-09-23T17:24:37",
       "needs_run": false
     },
     "cli/cmdssh.TestEnsureNodeGitmap_WindowsBootstrap": {
@@ -30255,7 +30255,7 @@
       "tier": "fast",
       "is_slow": false,
       "last_status": "passed",
-      "last_run_at": "2026-09-23T12:55:31",
+      "last_run_at": "2026-09-23T17:24:37",
       "needs_run": false
     },
     "cli/cmdssh.TestBuildNodeSSHArgs": {
@@ -30271,7 +30271,7 @@
       "tier": "fast",
       "is_slow": false,
       "last_status": "passed",
-      "last_run_at": "2026-09-23T12:55:31",
+      "last_run_at": "2026-09-23T17:24:37",
       "needs_run": false
     },
     "cli/cmdssh.TestSanitizeSSHConfigContent_AuthorizedKeysFile": {
@@ -30287,7 +30287,7 @@
       "tier": "fast",
       "is_slow": false,
       "last_status": "passed",
-      "last_run_at": "2026-09-23T12:55:31",
+      "last_run_at": "2026-09-23T17:24:37",
       "needs_run": false
     },
     "cli/cmdssh.TestSanitizeSSHConfigContent_MultipleDaemonDirectives": {
@@ -30303,7 +30303,7 @@
       "tier": "fast",
       "is_slow": false,
       "last_status": "passed",
-      "last_run_at": "2026-09-23T12:55:31",
+      "last_run_at": "2026-09-23T17:24:37",
       "needs_run": false
     },
     "cli/cmdssh.TestSanitizeSSHConfigFile_Hermetic": {
@@ -30319,7 +30319,7 @@
       "tier": "fast",
       "is_slow": false,
       "last_status": "passed",
-      "last_run_at": "2026-09-23T12:55:31",
+      "last_run_at": "2026-09-23T17:24:37",
       "needs_run": false
     },
     "cli/cmdssh.TestDetermineSSHCommand": {
@@ -30327,15 +30327,15 @@
       "package": "cli/cmdssh",
       "test_file": "cli/cmdssh/sshexec_test.go",
       "test_func": "TestDetermineSSHCommand",
-      "test_hash": "60c7da1acc435a7d",
+      "test_hash": "988b01a3b0360f17",
       "target_file": "cli/cmdssh/sshexec.go",
       "target_func": "DetermineSSHCommand",
-      "code_hash": "0e14a387ecbae506",
+      "code_hash": "fb43319ea3c2ef42",
       "duration_sec": 0.01,
       "tier": "fast",
       "is_slow": false,
       "last_status": "passed",
-      "last_run_at": "2026-09-23T12:55:31",
+      "last_run_at": "2026-09-23T17:24:37",
       "needs_run": false
     },
     "cli/cmdssh.TestResolveIPCommandArgs": {
@@ -30343,15 +30343,15 @@
       "package": "cli/cmdssh",
       "test_file": "cli/cmdssh/sshexec_test.go",
       "test_func": "TestResolveIPCommandArgs",
-      "test_hash": "60c7da1acc435a7d",
+      "test_hash": "988b01a3b0360f17",
       "target_file": "cli/cmdssh/sshexec.go",
       "target_func": "ResolveIPCommandArgs",
-      "code_hash": "0e14a387ecbae506",
+      "code_hash": "fb43319ea3c2ef42",
       "duration_sec": 0.01,
       "tier": "fast",
       "is_slow": false,
       "last_status": "passed",
-      "last_run_at": "2026-09-23T12:55:31",
+      "last_run_at": "2026-09-23T17:24:37",
       "needs_run": false
     },
     "cli/cmdssh.TestResolveExecTargetAndArgs": {
@@ -30359,15 +30359,15 @@
       "package": "cli/cmdssh",
       "test_file": "cli/cmdssh/sshexec_test.go",
       "test_func": "TestResolveExecTargetAndArgs",
-      "test_hash": "60c7da1acc435a7d",
+      "test_hash": "988b01a3b0360f17",
       "target_file": "cli/cmdssh/sshexec.go",
       "target_func": "ResolveExecTargetAndArgs",
-      "code_hash": "0e14a387ecbae506",
+      "code_hash": "fb43319ea3c2ef42",
       "duration_sec": 0.01,
       "tier": "fast",
       "is_slow": false,
       "last_status": "passed",
-      "last_run_at": "2026-09-23T12:55:31",
+      "last_run_at": "2026-09-23T17:24:37",
       "needs_run": false
     },
     "cli/cmdssh.TestIsInteractiveMacroAdd_TrueBasic": {
@@ -30375,15 +30375,15 @@
       "package": "cli/cmdssh",
       "test_file": "cli/cmdssh/sshexec_test.go",
       "test_func": "TestIsInteractiveMacroAdd_TrueBasic",
-      "test_hash": "60c7da1acc435a7d",
+      "test_hash": "988b01a3b0360f17",
       "target_file": "cli/cmdssh/sshexec.go",
       "target_func": "IsInteractiveMacroAdd",
-      "code_hash": "0e14a387ecbae506",
+      "code_hash": "fb43319ea3c2ef42",
       "duration_sec": 0.01,
       "tier": "fast",
       "is_slow": false,
       "last_status": "passed",
-      "last_run_at": "2026-09-23T12:55:31",
+      "last_run_at": "2026-09-23T17:24:37",
       "needs_run": false
     },
     "cli/cmdssh.TestIsInteractiveMacroAdd_TrueFlags": {
@@ -30391,15 +30391,15 @@
       "package": "cli/cmdssh",
       "test_file": "cli/cmdssh/sshexec_test.go",
       "test_func": "TestIsInteractiveMacroAdd_TrueFlags",
-      "test_hash": "60c7da1acc435a7d",
+      "test_hash": "988b01a3b0360f17",
       "target_file": "cli/cmdssh/sshexec.go",
       "target_func": "IsInteractiveMacroAdd",
-      "code_hash": "0e14a387ecbae506",
+      "code_hash": "fb43319ea3c2ef42",
       "duration_sec": 0.01,
       "tier": "fast",
       "is_slow": false,
       "last_status": "passed",
-      "last_run_at": "2026-09-23T12:55:31",
+      "last_run_at": "2026-09-23T17:24:37",
       "needs_run": false
     },
     "cli/cmdssh.TestIsInteractiveMacroAdd_FalseCommands": {
@@ -30407,15 +30407,15 @@
       "package": "cli/cmdssh",
       "test_file": "cli/cmdssh/sshexec_test.go",
       "test_func": "TestIsInteractiveMacroAdd_FalseCommands",
-      "test_hash": "60c7da1acc435a7d",
+      "test_hash": "988b01a3b0360f17",
       "target_file": "cli/cmdssh/sshexec.go",
       "target_func": "IsInteractiveMacroAdd",
-      "code_hash": "0e14a387ecbae506",
+      "code_hash": "fb43319ea3c2ef42",
       "duration_sec": 0.01,
       "tier": "fast",
       "is_slow": false,
       "last_status": "passed",
-      "last_run_at": "2026-09-23T12:55:31",
+      "last_run_at": "2026-09-23T17:24:37",
       "needs_run": false
     },
     "cli/cmdssh.TestIsInteractiveMacroAdd_FalseOther": {
@@ -30423,15 +30423,15 @@
       "package": "cli/cmdssh",
       "test_file": "cli/cmdssh/sshexec_test.go",
       "test_func": "TestIsInteractiveMacroAdd_FalseOther",
-      "test_hash": "60c7da1acc435a7d",
+      "test_hash": "988b01a3b0360f17",
       "target_file": "cli/cmdssh/sshexec.go",
       "target_func": "IsInteractiveMacroAdd",
-      "code_hash": "0e14a387ecbae506",
+      "code_hash": "fb43319ea3c2ef42",
       "duration_sec": 0.01,
       "tier": "fast",
       "is_slow": false,
       "last_status": "passed",
-      "last_run_at": "2026-09-23T12:55:31",
+      "last_run_at": "2026-09-23T17:24:37",
       "needs_run": false
     },
     "cli/cmdssh.TestRunSSHExec_InterceptsInteractiveMacroAdd": {
@@ -30439,15 +30439,15 @@
       "package": "cli/cmdssh",
       "test_file": "cli/cmdssh/sshexec_test.go",
       "test_func": "TestRunSSHExec_InterceptsInteractiveMacroAdd",
-      "test_hash": "60c7da1acc435a7d",
+      "test_hash": "988b01a3b0360f17",
       "target_file": "cli/cmdssh/sshexec.go",
       "target_func": "RunSSHExec",
-      "code_hash": "0e14a387ecbae506",
+      "code_hash": "fb43319ea3c2ef42",
       "duration_sec": 0.01,
       "tier": "fast",
       "is_slow": false,
       "last_status": "passed",
-      "last_run_at": "2026-09-23T12:55:31",
+      "last_run_at": "2026-09-23T17:24:37",
       "needs_run": false
     },
     "cli/cmdssh.TestParseAddPassParams": {
@@ -30463,7 +30463,7 @@
       "tier": "fast",
       "is_slow": false,
       "last_status": "passed",
-      "last_run_at": "2026-09-23T12:55:31",
+      "last_run_at": "2026-09-23T17:24:37",
       "needs_run": false
     },
     "cli/cmdssh.TestExecuteEnrollWithPassCLI": {
@@ -30479,7 +30479,7 @@
       "tier": "fast",
       "is_slow": false,
       "last_status": "passed",
-      "last_run_at": "2026-09-23T12:55:31",
+      "last_run_at": "2026-09-23T17:24:37",
       "needs_run": false
     },
     "cli/cmdssh.TestSJAddWithPassCmd_Execute": {
@@ -30495,7 +30495,7 @@
       "tier": "fast",
       "is_slow": false,
       "last_status": "passed",
-      "last_run_at": "2026-09-23T12:55:31",
+      "last_run_at": "2026-09-23T17:24:37",
       "needs_run": false
     },
     "cli/cmdssh.TestGetLocalPublicKey": {
@@ -30511,7 +30511,7 @@
       "tier": "fast",
       "is_slow": false,
       "last_status": "passed",
-      "last_run_at": "2026-09-23T12:55:31",
+      "last_run_at": "2026-09-23T17:24:37",
       "needs_run": false
     },
     "cli/cmdssh.TestAppendKeyRemote": {
@@ -30527,7 +30527,7 @@
       "tier": "fast",
       "is_slow": false,
       "last_status": "passed",
-      "last_run_at": "2026-09-23T12:55:31",
+      "last_run_at": "2026-09-23T17:24:37",
       "needs_run": false
     },
     "cli/cmdssh.TestRunSJAddAuth": {
@@ -30543,7 +30543,7 @@
       "tier": "fast",
       "is_slow": false,
       "last_status": "passed",
-      "last_run_at": "2026-09-23T12:55:31",
+      "last_run_at": "2026-09-23T17:24:37",
       "needs_run": false
     },
     "cli/cmdssh.TestExecuteSSHJoinAtomicity": {
@@ -30559,7 +30559,7 @@
       "tier": "fast",
       "is_slow": false,
       "last_status": "passed",
-      "last_run_at": "2026-09-23T12:55:31",
+      "last_run_at": "2026-09-23T17:24:37",
       "needs_run": false
     },
     "cli/cmdssh.TestExecuteSSHJoinRollback": {
@@ -30575,7 +30575,7 @@
       "tier": "fast",
       "is_slow": false,
       "last_status": "passed",
-      "last_run_at": "2026-09-23T12:55:31",
+      "last_run_at": "2026-09-23T17:24:37",
       "needs_run": false
     },
     "cli/cmdssh.TestExecuteSSHJoinSkeleton": {
@@ -30591,7 +30591,7 @@
       "tier": "fast",
       "is_slow": false,
       "last_status": "passed",
-      "last_run_at": "2026-09-23T12:55:31",
+      "last_run_at": "2026-09-23T17:24:37",
       "needs_run": false
     },
     "cli/cmdssh.TestRunSSHJoinCLI_Validation": {
@@ -30607,7 +30607,7 @@
       "tier": "fast",
       "is_slow": false,
       "last_status": "passed",
-      "last_run_at": "2026-09-23T12:55:31",
+      "last_run_at": "2026-09-23T17:24:37",
       "needs_run": false
     },
     "cli/cmdssh.TestRunSSHJoinCLI_EnrollmentAndRecall": {
@@ -30623,7 +30623,7 @@
       "tier": "fast",
       "is_slow": false,
       "last_status": "passed",
-      "last_run_at": "2026-09-23T12:55:31",
+      "last_run_at": "2026-09-23T17:24:37",
       "needs_run": false
     },
     "cli/cmdssh.TestRunSSHJoinCLI_Removal": {
@@ -30639,7 +30639,7 @@
       "tier": "fast",
       "is_slow": false,
       "last_status": "passed",
-      "last_run_at": "2026-09-23T12:55:31",
+      "last_run_at": "2026-09-23T17:24:37",
       "needs_run": false
     },
     "cli/cmdssh.TestRunSSHJoinCLI_Subcommands": {
@@ -30655,7 +30655,7 @@
       "tier": "fast",
       "is_slow": false,
       "last_status": "passed",
-      "last_run_at": "2026-09-23T12:55:31",
+      "last_run_at": "2026-09-23T17:24:37",
       "needs_run": false
     },
     "cli/cmdssh.TestRunSSHJoinCLI_AddSubcommand": {
@@ -30671,7 +30671,7 @@
       "tier": "fast",
       "is_slow": false,
       "last_status": "passed",
-      "last_run_at": "2026-09-23T12:55:31",
+      "last_run_at": "2026-09-23T17:24:37",
       "needs_run": false
     },
     "cli/cmdssh.TestRunSSHJoinCLI_DirectPositional": {
@@ -30687,7 +30687,7 @@
       "tier": "fast",
       "is_slow": false,
       "last_status": "passed",
-      "last_run_at": "2026-09-23T12:55:31",
+      "last_run_at": "2026-09-23T17:24:37",
       "needs_run": false
     },
     "cli/cmdssh.TestRunSSHJoinCLI_LsFreshDB": {
@@ -30703,7 +30703,7 @@
       "tier": "fast",
       "is_slow": false,
       "last_status": "passed",
-      "last_run_at": "2026-09-23T12:55:31",
+      "last_run_at": "2026-09-23T17:24:37",
       "needs_run": false
     },
     "cli/cmdssh.TestSJAddCmd_Execute": {
@@ -30719,7 +30719,7 @@
       "tier": "fast",
       "is_slow": false,
       "last_status": "passed",
-      "last_run_at": "2026-09-23T12:55:31",
+      "last_run_at": "2026-09-23T17:24:37",
       "needs_run": false
     },
     "cli/cmdssh.TestSSHJoinCmd_RoutingAddAndPositional": {
@@ -30735,7 +30735,7 @@
       "tier": "fast",
       "is_slow": false,
       "last_status": "passed",
-      "last_run_at": "2026-09-23T12:55:31",
+      "last_run_at": "2026-09-23T17:24:37",
       "needs_run": false
     },
     "cli/cmdssh.TestRunSSHJoinCLI_UserAtIP": {
@@ -30751,7 +30751,7 @@
       "tier": "fast",
       "is_slow": false,
       "last_status": "passed",
-      "last_run_at": "2026-09-23T12:55:31",
+      "last_run_at": "2026-09-23T17:24:37",
       "needs_run": false
     },
     "cli/cmdssh.TestRunSSHJoinCLI_UserAtIP_WithAlias": {
@@ -30767,7 +30767,7 @@
       "tier": "fast",
       "is_slow": false,
       "last_status": "passed",
-      "last_run_at": "2026-09-23T12:55:31",
+      "last_run_at": "2026-09-23T17:24:37",
       "needs_run": false
     },
     "cli/cmdssh.TestSJAddCmd_UserAtIP": {
@@ -30783,7 +30783,7 @@
       "tier": "fast",
       "is_slow": false,
       "last_status": "passed",
-      "last_run_at": "2026-09-23T12:55:31",
+      "last_run_at": "2026-09-23T17:24:37",
       "needs_run": false
     },
     "cli/cmdssh.TestSSHJoinCmd_PositionalUserAtIP": {
@@ -30799,7 +30799,7 @@
       "tier": "fast",
       "is_slow": false,
       "last_status": "passed",
-      "last_run_at": "2026-09-23T12:55:31",
+      "last_run_at": "2026-09-23T17:24:37",
       "needs_run": false
     },
     "cli/cmdssh.TestSSHDistributeKeys": {
@@ -30815,7 +30815,7 @@
       "tier": "fast",
       "is_slow": false,
       "last_status": "passed",
-      "last_run_at": "2026-09-23T12:55:31",
+      "last_run_at": "2026-09-23T17:24:37",
       "needs_run": false
     },
     "cli/cmdssh.Test_runSJHistory": {
@@ -30831,7 +30831,7 @@
       "tier": "fast",
       "is_slow": false,
       "last_status": "passed",
-      "last_run_at": "2026-09-23T12:55:31",
+      "last_run_at": "2026-09-23T17:24:37",
       "needs_run": false
     },
     "cli/cmdssh.Test_printSJHistory": {
@@ -30847,7 +30847,7 @@
       "tier": "fast",
       "is_slow": false,
       "last_status": "passed",
-      "last_run_at": "2026-09-23T12:55:31",
+      "last_run_at": "2026-09-23T17:24:37",
       "needs_run": false
     },
     "cli/cmdssh.TestGetLeafHelp_Subcommands": {
@@ -30863,7 +30863,7 @@
       "tier": "fast",
       "is_slow": false,
       "last_status": "passed",
-      "last_run_at": "2026-09-23T12:55:31",
+      "last_run_at": "2026-09-23T17:24:37",
       "needs_run": false
     },
     "cli/cmdssh.TestGetLeafHelp_Aliases": {
@@ -30879,7 +30879,7 @@
       "tier": "fast",
       "is_slow": false,
       "last_status": "passed",
-      "last_run_at": "2026-09-23T12:55:31",
+      "last_run_at": "2026-09-23T17:24:37",
       "needs_run": false
     },
     "cli/cmdssh.TestGetLeafHelp_Unknown": {
@@ -30895,7 +30895,7 @@
       "tier": "fast",
       "is_slow": false,
       "last_status": "passed",
-      "last_run_at": "2026-09-23T12:55:31",
+      "last_run_at": "2026-09-23T17:24:37",
       "needs_run": false
     },
     "cli/cmdssh.TestPrintLeafHelp_Valid": {
@@ -30911,7 +30911,7 @@
       "tier": "fast",
       "is_slow": false,
       "last_status": "passed",
-      "last_run_at": "2026-09-23T12:55:31",
+      "last_run_at": "2026-09-23T17:24:37",
       "needs_run": false
     },
     "cli/cmdssh.TestPrintLeafHelp_Unknown": {
@@ -30927,7 +30927,7 @@
       "tier": "fast",
       "is_slow": false,
       "last_status": "passed",
-      "last_run_at": "2026-09-23T12:55:31",
+      "last_run_at": "2026-09-23T17:24:37",
       "needs_run": false
     },
     "cli/cmdssh.TestAttachLeafHelp_Integration": {
@@ -30943,7 +30943,7 @@
       "tier": "fast",
       "is_slow": false,
       "last_status": "passed",
-      "last_run_at": "2026-09-23T12:55:31",
+      "last_run_at": "2026-09-23T17:24:37",
       "needs_run": false
     },
     "cli/cmdssh.Test_runSJLs": {
@@ -30959,7 +30959,7 @@
       "tier": "fast",
       "is_slow": false,
       "last_status": "passed",
-      "last_run_at": "2026-09-23T12:55:31",
+      "last_run_at": "2026-09-23T17:24:37",
       "needs_run": false
     },
     "cli/cmdssh.Test_printSJList": {
@@ -30975,7 +30975,7 @@
       "tier": "fast",
       "is_slow": false,
       "last_status": "passed",
-      "last_run_at": "2026-09-23T12:55:31",
+      "last_run_at": "2026-09-23T17:24:37",
       "needs_run": false
     },
     "cli/cmdssh.TestFindMultiTargetIndex": {
@@ -30991,7 +30991,7 @@
       "tier": "fast",
       "is_slow": false,
       "last_status": "passed",
-      "last_run_at": "2026-09-23T12:55:31",
+      "last_run_at": "2026-09-23T17:24:37",
       "needs_run": false
     },
     "cli/cmdssh.TestBuildSingleTargetArgs": {
@@ -31007,7 +31007,7 @@
       "tier": "fast",
       "is_slow": false,
       "last_status": "passed",
-      "last_run_at": "2026-09-23T12:55:31",
+      "last_run_at": "2026-09-23T17:24:37",
       "needs_run": false
     },
     "cli/cmdssh.TestRunSSHJoinCLI_MultiEnrollment": {
@@ -31023,7 +31023,7 @@
       "tier": "fast",
       "is_slow": false,
       "last_status": "passed",
-      "last_run_at": "2026-09-23T12:55:31",
+      "last_run_at": "2026-09-23T17:24:37",
       "needs_run": false
     },
     "cli/cmdssh.TestIsTargetAddress": {
@@ -31039,7 +31039,7 @@
       "tier": "fast",
       "is_slow": false,
       "last_status": "passed",
-      "last_run_at": "2026-09-23T12:55:31",
+      "last_run_at": "2026-09-23T17:24:37",
       "needs_run": false
     },
     "cli/cmdssh.TestExtractTargetPositionsAndFlags": {
@@ -31055,7 +31055,7 @@
       "tier": "fast",
       "is_slow": false,
       "last_status": "passed",
-      "last_run_at": "2026-09-23T12:55:31",
+      "last_run_at": "2026-09-23T17:24:37",
       "needs_run": false
     },
     "cli/cmdssh.TestRunSSHJoinCLI_SpaceMultiEnrollment": {
@@ -31071,7 +31071,7 @@
       "tier": "fast",
       "is_slow": false,
       "last_status": "passed",
-      "last_run_at": "2026-09-23T12:55:31",
+      "last_run_at": "2026-09-23T17:24:37",
       "needs_run": false
     },
     "cli/cmdssh.TestExecuteSJRm": {
@@ -31087,7 +31087,7 @@
       "tier": "fast",
       "is_slow": false,
       "last_status": "passed",
-      "last_run_at": "2026-09-23T12:55:31",
+      "last_run_at": "2026-09-23T17:24:37",
       "needs_run": false
     },
     "cli/cmdssh.TestResolveRmTarget_AllVariations": {
@@ -31103,7 +31103,7 @@
       "tier": "fast",
       "is_slow": false,
       "last_status": "passed",
-      "last_run_at": "2026-09-23T12:55:31",
+      "last_run_at": "2026-09-23T17:24:37",
       "needs_run": false
     },
     "cli/cmdssh.TestValidateRmTarget_ErrorOnEmpty": {
@@ -31119,7 +31119,7 @@
       "tier": "fast",
       "is_slow": false,
       "last_status": "passed",
-      "last_run_at": "2026-09-23T12:55:31",
+      "last_run_at": "2026-09-23T17:24:37",
       "needs_run": false
     },
     "cli/cmdssh.TestRenderSSHHostsTable_Empty": {
@@ -31135,7 +31135,7 @@
       "tier": "fast",
       "is_slow": false,
       "last_status": "passed",
-      "last_run_at": "2026-09-23T12:55:31",
+      "last_run_at": "2026-09-23T17:24:37",
       "needs_run": false
     },
     "cli/cmdssh.TestRenderSSHHostsTable_SingleNode": {
@@ -31151,7 +31151,7 @@
       "tier": "fast",
       "is_slow": false,
       "last_status": "passed",
-      "last_run_at": "2026-09-23T12:55:31",
+      "last_run_at": "2026-09-23T17:24:37",
       "needs_run": false
     },
     "cli/cmdssh.TestRenderSSHHostsTable_MultiNode": {
@@ -31167,7 +31167,7 @@
       "tier": "fast",
       "is_slow": false,
       "last_status": "passed",
-      "last_run_at": "2026-09-23T12:55:31",
+      "last_run_at": "2026-09-23T17:24:37",
       "needs_run": false
     },
     "cli/cmdssh.TestRenderSSHHostsTable_NonStandardPort": {
@@ -31183,7 +31183,7 @@
       "tier": "fast",
       "is_slow": false,
       "last_status": "passed",
-      "last_run_at": "2026-09-23T12:55:31",
+      "last_run_at": "2026-09-23T17:24:37",
       "needs_run": false
     },
     "cli/cmdssh.TestRenderSSHHostsTable_DefaultFallbacks": {
@@ -31199,7 +31199,7 @@
       "tier": "fast",
       "is_slow": false,
       "last_status": "passed",
-      "last_run_at": "2026-09-23T12:55:31",
+      "last_run_at": "2026-09-23T17:24:37",
       "needs_run": false
     },
     "cli/cmdssh.TestRenderSSHHostsTable_ColorsAndStyles": {
@@ -31215,7 +31215,7 @@
       "tier": "fast",
       "is_slow": false,
       "last_status": "passed",
-      "last_run_at": "2026-09-23T12:55:31",
+      "last_run_at": "2026-09-23T17:24:37",
       "needs_run": false
     },
     "cli/cmdssh.Test_saveAliasCommand": {
@@ -31231,7 +31231,7 @@
       "tier": "fast",
       "is_slow": false,
       "last_status": "passed",
-      "last_run_at": "2026-09-23T12:55:31",
+      "last_run_at": "2026-09-23T17:24:37",
       "needs_run": false
     },
     "cli/cmdssh.TestCreateAskPassScript": {
@@ -31247,7 +31247,7 @@
       "tier": "fast",
       "is_slow": false,
       "last_status": "passed",
-      "last_run_at": "2026-09-23T12:55:31",
+      "last_run_at": "2026-09-23T17:24:37",
       "needs_run": false
     },
     "cli/cmdssh.TestBuildAskPassEnv": {
@@ -31263,7 +31263,7 @@
       "tier": "fast",
       "is_slow": false,
       "last_status": "passed",
-      "last_run_at": "2026-09-23T12:55:31",
+      "last_run_at": "2026-09-23T17:24:37",
       "needs_run": false
     },
     "cli/cmdssh.TestValidateSSHPublicKey_Valid": {
@@ -31279,7 +31279,7 @@
       "tier": "fast",
       "is_slow": false,
       "last_status": "passed",
-      "last_run_at": "2026-09-23T12:55:31",
+      "last_run_at": "2026-09-23T17:24:37",
       "needs_run": false
     },
     "cli/cmdssh.TestValidateSSHPublicKey_Invalid": {
@@ -31295,7 +31295,7 @@
       "tier": "fast",
       "is_slow": false,
       "last_status": "passed",
-      "last_run_at": "2026-09-23T12:55:31",
+      "last_run_at": "2026-09-23T17:24:37",
       "needs_run": false
     },
     "cli/cmdssh.TestValidateSSHPublicKey_Empty": {
@@ -31311,7 +31311,7 @@
       "tier": "fast",
       "is_slow": false,
       "last_status": "passed",
-      "last_run_at": "2026-09-23T12:55:31",
+      "last_run_at": "2026-09-23T17:24:37",
       "needs_run": false
     },
     "cli/cmdssh.TestIsKeyInAuthorizedKeys_Match": {
@@ -31327,7 +31327,7 @@
       "tier": "fast",
       "is_slow": false,
       "last_status": "passed",
-      "last_run_at": "2026-09-23T12:55:31",
+      "last_run_at": "2026-09-23T17:24:37",
       "needs_run": false
     },
     "cli/cmdssh.TestIsKeyInAuthorizedKeys_NoMatch": {
@@ -31343,7 +31343,7 @@
       "tier": "fast",
       "is_slow": false,
       "last_status": "passed",
-      "last_run_at": "2026-09-23T12:55:31",
+      "last_run_at": "2026-09-23T17:24:37",
       "needs_run": false
     },
     "cli/cmdssh.TestFormatKeyAppend": {
@@ -31359,7 +31359,7 @@
       "tier": "fast",
       "is_slow": false,
       "last_status": "passed",
-      "last_run_at": "2026-09-23T12:55:31",
+      "last_run_at": "2026-09-23T17:24:37",
       "needs_run": false
     },
     "cli/cmdssh.TestRunSSHAuthKeyAddCLI_NonInteractiveEmpty": {
@@ -31375,7 +31375,7 @@
       "tier": "fast",
       "is_slow": false,
       "last_status": "passed",
-      "last_run_at": "2026-09-23T12:55:31",
+      "last_run_at": "2026-09-23T17:24:37",
       "needs_run": false
     },
     "cli/cmdssh.TestRunSSHAuthKeyAddCLI_Help": {
@@ -31391,7 +31391,7 @@
       "tier": "fast",
       "is_slow": false,
       "last_status": "passed",
-      "last_run_at": "2026-09-23T12:55:31",
+      "last_run_at": "2026-09-23T17:24:37",
       "needs_run": false
     },
     "cli/cmdssh.TestParseAuthKeyArgs_Defaults": {
@@ -31407,7 +31407,7 @@
       "tier": "fast",
       "is_slow": false,
       "last_status": "passed",
-      "last_run_at": "2026-09-23T12:55:31",
+      "last_run_at": "2026-09-23T17:24:37",
       "needs_run": false
     },
     "cli/cmdssh.TestParseAuthKeyArgs_WithDeployAndTarget": {
@@ -31423,7 +31423,7 @@
       "tier": "fast",
       "is_slow": false,
       "last_status": "passed",
-      "last_run_at": "2026-09-23T12:55:31",
+      "last_run_at": "2026-09-23T17:24:37",
       "needs_run": false
     },
     "cli/cmdssh.TestParseAuthKeyArgs_WithIdentityFlag": {
@@ -31439,7 +31439,7 @@
       "tier": "fast",
       "is_slow": false,
       "last_status": "passed",
-      "last_run_at": "2026-09-23T12:55:31",
+      "last_run_at": "2026-09-23T17:24:37",
       "needs_run": false
     },
     "cli/cmdssh.TestParseAuthKeyArgs_WithIdentityEqualsFlag": {
@@ -31455,7 +31455,7 @@
       "tier": "fast",
       "is_slow": false,
       "last_status": "passed",
-      "last_run_at": "2026-09-23T12:55:31",
+      "last_run_at": "2026-09-23T17:24:37",
       "needs_run": false
     },
     "cli/cmdssh.TestParseAuthKeyArgs_MissingIdentityValue": {
@@ -31471,7 +31471,7 @@
       "tier": "fast",
       "is_slow": false,
       "last_status": "passed",
-      "last_run_at": "2026-09-23T12:55:31",
+      "last_run_at": "2026-09-23T17:24:37",
       "needs_run": false
     },
     "cli/cmdssh.TestParseAuthKeyArgs_FixAuthMultipleTargets": {
@@ -31487,7 +31487,7 @@
       "tier": "fast",
       "is_slow": false,
       "last_status": "passed",
-      "last_run_at": "2026-09-23T12:55:31",
+      "last_run_at": "2026-09-23T17:24:37",
       "needs_run": false
     },
     "cli/cmdssh.TestParseAuthKeyArgs_UnixFlag": {
@@ -31503,7 +31503,7 @@
       "tier": "fast",
       "is_slow": false,
       "last_status": "passed",
-      "last_run_at": "2026-09-23T12:55:31",
+      "last_run_at": "2026-09-23T17:24:37",
       "needs_run": false
     },
     "cli/cmdssh.TestBuildUnixAuthKeyScript": {
@@ -31519,7 +31519,7 @@
       "tier": "fast",
       "is_slow": false,
       "last_status": "passed",
-      "last_run_at": "2026-09-23T12:55:31",
+      "last_run_at": "2026-09-23T17:24:37",
       "needs_run": false
     },
     "cli/cmdssh.TestBuildWindowsAuthKeyScript": {
@@ -31535,7 +31535,7 @@
       "tier": "fast",
       "is_slow": false,
       "last_status": "passed",
-      "last_run_at": "2026-09-23T12:55:31",
+      "last_run_at": "2026-09-23T17:24:37",
       "needs_run": false
     },
     "cli/cmdssh.TestLoadSpecifiedPublicKey_FileExists": {
@@ -31551,7 +31551,7 @@
       "tier": "fast",
       "is_slow": false,
       "last_status": "passed",
-      "last_run_at": "2026-09-23T12:55:31",
+      "last_run_at": "2026-09-23T17:24:37",
       "needs_run": false
     },
     "cli/cmdssh.TestLoadSpecifiedPublicKey_AutoAppendsPub": {
@@ -31567,7 +31567,7 @@
       "tier": "fast",
       "is_slow": false,
       "last_status": "passed",
-      "last_run_at": "2026-09-23T12:55:31",
+      "last_run_at": "2026-09-23T17:24:37",
       "needs_run": false
     },
     "cli/cmdssh.TestStripSubcommandKeyword": {
@@ -31583,7 +31583,7 @@
       "tier": "fast",
       "is_slow": false,
       "last_status": "passed",
-      "last_run_at": "2026-09-23T12:55:31",
+      "last_run_at": "2026-09-23T17:24:37",
       "needs_run": false
     },
     "cli/cmdssh.TestIsIdentityFlag": {
@@ -31599,7 +31599,7 @@
       "tier": "fast",
       "is_slow": false,
       "last_status": "passed",
-      "last_run_at": "2026-09-23T12:55:31",
+      "last_run_at": "2026-09-23T17:24:37",
       "needs_run": false
     },
     "cli/cmdssh.TestResolveTargetFromArg": {
@@ -31615,7 +31615,7 @@
       "tier": "fast",
       "is_slow": false,
       "last_status": "passed",
-      "last_run_at": "2026-09-23T12:55:31",
+      "last_run_at": "2026-09-23T17:24:37",
       "needs_run": false
     },
     "cli/cmdssh.TestStripSubcommandKeyword_FixAuth": {
@@ -31631,7 +31631,7 @@
       "tier": "fast",
       "is_slow": false,
       "last_status": "passed",
-      "last_run_at": "2026-09-23T12:55:31",
+      "last_run_at": "2026-09-23T17:24:37",
       "needs_run": false
     },
     "cli/cmdssh.TestResolveTargetFromArg_Multiple": {
@@ -31647,7 +31647,7 @@
       "tier": "fast",
       "is_slow": false,
       "last_status": "passed",
-      "last_run_at": "2026-09-23T12:55:31",
+      "last_run_at": "2026-09-23T17:24:37",
       "needs_run": false
     },
     "cli/cmdssh.TestResolveTargetOS": {
@@ -31663,7 +31663,7 @@
       "tier": "fast",
       "is_slow": false,
       "last_status": "passed",
-      "last_run_at": "2026-09-23T12:55:31",
+      "last_run_at": "2026-09-23T17:24:37",
       "needs_run": false
     },
     "cli/cmdssh.TestInteractiveSSHClient": {
@@ -31679,7 +31679,7 @@
       "tier": "fast",
       "is_slow": false,
       "last_status": "passed",
-      "last_run_at": "2026-09-23T12:55:31",
+      "last_run_at": "2026-09-23T17:24:37",
       "needs_run": false
     },
     "cli/cmdssh.TestSpawnSSH": {
@@ -31695,7 +31695,7 @@
       "tier": "fast",
       "is_slow": false,
       "last_status": "passed",
-      "last_run_at": "2026-09-23T12:55:31",
+      "last_run_at": "2026-09-23T17:24:37",
       "needs_run": false
     },
     "cli/cmdssh.TestPromptSSHPassword": {
@@ -31711,7 +31711,7 @@
       "tier": "fast",
       "is_slow": false,
       "last_status": "passed",
-      "last_run_at": "2026-09-23T12:55:31",
+      "last_run_at": "2026-09-23T17:24:37",
       "needs_run": false
     },
     "cli/cmdssh.TestSSHClient": {
@@ -31727,7 +31727,7 @@
       "tier": "fast",
       "is_slow": false,
       "last_status": "passed",
-      "last_run_at": "2026-09-23T12:55:31",
+      "last_run_at": "2026-09-23T17:24:37",
       "needs_run": false
     },
     "cli/cmdssh.TestCompareTableStructure": {
@@ -31743,7 +31743,7 @@
       "tier": "fast",
       "is_slow": false,
       "last_status": "passed",
-      "last_run_at": "2026-09-23T12:55:31",
+      "last_run_at": "2026-09-23T17:24:37",
       "needs_run": false
     },
     "cli/cmdssh.TestRunSSHCompareCLI": {
@@ -31759,7 +31759,7 @@
       "tier": "fast",
       "is_slow": false,
       "last_status": "passed",
-      "last_run_at": "2026-09-23T12:55:31",
+      "last_run_at": "2026-09-23T17:24:37",
       "needs_run": false
     },
     "cli/cmdssh.TestRSAOAEP_EncryptDecrypt": {
@@ -31775,7 +31775,7 @@
       "tier": "fast",
       "is_slow": false,
       "last_status": "passed",
-      "last_run_at": "2026-09-23T12:55:31",
+      "last_run_at": "2026-09-23T17:24:37",
       "needs_run": false
     },
     "cli/cmdssh.TestFallbackAES_EncryptDecrypt": {
@@ -31791,7 +31791,7 @@
       "tier": "fast",
       "is_slow": false,
       "last_status": "passed",
-      "last_run_at": "2026-09-23T12:55:31",
+      "last_run_at": "2026-09-23T17:24:37",
       "needs_run": false
     },
     "cli/cmdssh.TestEncryptDecryptSSHPassword_Fallback": {
@@ -31807,7 +31807,7 @@
       "tier": "fast",
       "is_slow": false,
       "last_status": "passed",
-      "last_run_at": "2026-09-23T12:55:31",
+      "last_run_at": "2026-09-23T17:24:37",
       "needs_run": false
     },
     "cli/cmdssh.TestDispatchSSHLogin": {
@@ -31818,12 +31818,12 @@
       "test_hash": "bfc7f41eae512be1",
       "target_file": "cli/cmdssh/ssh.go",
       "target_func": "DispatchSSHLogin",
-      "code_hash": "c34dd3d5cf22b015",
+      "code_hash": "020d8bbe31359e7e",
       "duration_sec": 0.01,
       "tier": "fast",
       "is_slow": false,
       "last_status": "passed",
-      "last_run_at": "2026-09-23T12:55:31",
+      "last_run_at": "2026-09-23T17:24:37",
       "needs_run": false
     },
     "cli/cmdssh.TestDetermineSSHCommand_GitmapDelegation": {
@@ -31831,15 +31831,15 @@
       "package": "cli/cmdssh",
       "test_file": "cli/cmdssh/ssh_exec_command_test.go",
       "test_func": "TestDetermineSSHCommand_GitmapDelegation",
-      "test_hash": "f7f8d726d660568b",
+      "test_hash": "b05de8dd653583ea",
       "target_file": "cli/cmdssh/ssh_exec_command.go",
       "target_func": "DetermineSSHCommand",
-      "code_hash": "b3a1e74c165a0b49",
+      "code_hash": "ce7407192c1ebd08",
       "duration_sec": 0.01,
       "tier": "fast",
       "is_slow": false,
       "last_status": "passed",
-      "last_run_at": "2026-09-23T12:55:31",
+      "last_run_at": "2026-09-23T17:24:37",
       "needs_run": false
     },
     "cli/cmdssh.TestDetermineSSHCommand_NativeShells": {
@@ -31847,15 +31847,15 @@
       "package": "cli/cmdssh",
       "test_file": "cli/cmdssh/ssh_exec_command_test.go",
       "test_func": "TestDetermineSSHCommand_NativeShells",
-      "test_hash": "f7f8d726d660568b",
+      "test_hash": "b05de8dd653583ea",
       "target_file": "cli/cmdssh/ssh_exec_command.go",
       "target_func": "DetermineSSHCommand",
-      "code_hash": "b3a1e74c165a0b49",
+      "code_hash": "ce7407192c1ebd08",
       "duration_sec": 0.01,
       "tier": "fast",
       "is_slow": false,
       "last_status": "passed",
-      "last_run_at": "2026-09-23T12:55:31",
+      "last_run_at": "2026-09-23T17:24:37",
       "needs_run": false
     },
     "cli/cmdssh.TestDetermineSSHCommand_ChainedAndEmpty": {
@@ -31863,15 +31863,15 @@
       "package": "cli/cmdssh",
       "test_file": "cli/cmdssh/ssh_exec_command_test.go",
       "test_func": "TestDetermineSSHCommand_ChainedAndEmpty",
-      "test_hash": "f7f8d726d660568b",
+      "test_hash": "b05de8dd653583ea",
       "target_file": "cli/cmdssh/ssh_exec_command.go",
       "target_func": "DetermineSSHCommand",
-      "code_hash": "b3a1e74c165a0b49",
+      "code_hash": "ce7407192c1ebd08",
       "duration_sec": 0.01,
       "tier": "fast",
       "is_slow": false,
       "last_status": "passed",
-      "last_run_at": "2026-09-23T12:55:31",
+      "last_run_at": "2026-09-23T17:24:37",
       "needs_run": false
     },
     "cli/cmdssh.TestIsGitmapCommand": {
@@ -31879,15 +31879,15 @@
       "package": "cli/cmdssh",
       "test_file": "cli/cmdssh/ssh_exec_command_test.go",
       "test_func": "TestIsGitmapCommand",
-      "test_hash": "f7f8d726d660568b",
+      "test_hash": "b05de8dd653583ea",
       "target_file": "cli/cmdssh/ssh_exec_command.go",
       "target_func": "IsGitmapCommand",
-      "code_hash": "b3a1e74c165a0b49",
+      "code_hash": "ce7407192c1ebd08",
       "duration_sec": 0.01,
       "tier": "fast",
       "is_slow": false,
       "last_status": "passed",
-      "last_run_at": "2026-09-23T12:55:31",
+      "last_run_at": "2026-09-23T17:24:37",
       "needs_run": false
     },
     "cli/cmdssh.TestResolveGitmapCommandString": {
@@ -31895,15 +31895,15 @@
       "package": "cli/cmdssh",
       "test_file": "cli/cmdssh/ssh_exec_command_test.go",
       "test_func": "TestResolveGitmapCommandString",
-      "test_hash": "f7f8d726d660568b",
+      "test_hash": "b05de8dd653583ea",
       "target_file": "cli/cmdssh/ssh_exec_command.go",
       "target_func": "ResolveGitmapCommandString",
-      "code_hash": "b3a1e74c165a0b49",
+      "code_hash": "ce7407192c1ebd08",
       "duration_sec": 0.01,
       "tier": "fast",
       "is_slow": false,
       "last_status": "passed",
-      "last_run_at": "2026-09-23T12:55:31",
+      "last_run_at": "2026-09-23T17:24:37",
       "needs_run": false
     },
     "cli/cmdssh.TestParseSEFlags_Options": {
@@ -31911,15 +31911,15 @@
       "package": "cli/cmdssh",
       "test_file": "cli/cmdssh/ssh_exec_command_test.go",
       "test_func": "TestParseSEFlags_Options",
-      "test_hash": "f7f8d726d660568b",
+      "test_hash": "b05de8dd653583ea",
       "target_file": "cli/cmdssh/ssh_exec_command.go",
       "target_func": "ParseSEFlags",
-      "code_hash": "b3a1e74c165a0b49",
+      "code_hash": "ce7407192c1ebd08",
       "duration_sec": 0.01,
       "tier": "fast",
       "is_slow": false,
       "last_status": "passed",
-      "last_run_at": "2026-09-23T12:55:31",
+      "last_run_at": "2026-09-23T17:24:37",
       "needs_run": false
     },
     "cli/cmdssh.TestValidateSEArgs_EmptyExits": {
@@ -31927,15 +31927,15 @@
       "package": "cli/cmdssh",
       "test_file": "cli/cmdssh/ssh_exec_command_test.go",
       "test_func": "TestValidateSEArgs_EmptyExits",
-      "test_hash": "f7f8d726d660568b",
+      "test_hash": "b05de8dd653583ea",
       "target_file": "cli/cmdssh/ssh_exec_command.go",
       "target_func": "ValidateSEArgs",
-      "code_hash": "b3a1e74c165a0b49",
+      "code_hash": "ce7407192c1ebd08",
       "duration_sec": 0.01,
       "tier": "fast",
       "is_slow": false,
       "last_status": "passed",
-      "last_run_at": "2026-09-23T12:55:31",
+      "last_run_at": "2026-09-23T17:24:37",
       "needs_run": false
     },
     "cli/cmdssh.TestExtractFirstToken": {
@@ -31943,15 +31943,15 @@
       "package": "cli/cmdssh",
       "test_file": "cli/cmdssh/ssh_exec_command_test.go",
       "test_func": "TestExtractFirstToken",
-      "test_hash": "f7f8d726d660568b",
+      "test_hash": "b05de8dd653583ea",
       "target_file": "cli/cmdssh/ssh_exec_command.go",
       "target_func": "ExtractFirstToken",
-      "code_hash": "b3a1e74c165a0b49",
+      "code_hash": "ce7407192c1ebd08",
       "duration_sec": 0.01,
       "tier": "fast",
       "is_slow": false,
       "last_status": "passed",
-      "last_run_at": "2026-09-23T12:55:31",
+      "last_run_at": "2026-09-23T17:24:37",
       "needs_run": false
     },
     "cli/cmdssh.TestDetermineSSHCommand_QuotedGitmapMultiCommand": {
@@ -31959,15 +31959,15 @@
       "package": "cli/cmdssh",
       "test_file": "cli/cmdssh/ssh_exec_command_test.go",
       "test_func": "TestDetermineSSHCommand_QuotedGitmapMultiCommand",
-      "test_hash": "f7f8d726d660568b",
+      "test_hash": "b05de8dd653583ea",
       "target_file": "cli/cmdssh/ssh_exec_command.go",
       "target_func": "DetermineSSHCommand",
-      "code_hash": "b3a1e74c165a0b49",
+      "code_hash": "ce7407192c1ebd08",
       "duration_sec": 0.01,
       "tier": "fast",
       "is_slow": false,
       "last_status": "passed",
-      "last_run_at": "2026-09-23T12:55:31",
+      "last_run_at": "2026-09-23T17:24:37",
       "needs_run": false
     },
     "cli/cmdssh.TestDetermineSSHCommand_QuotedExplicitShell": {
@@ -31975,15 +31975,15 @@
       "package": "cli/cmdssh",
       "test_file": "cli/cmdssh/ssh_exec_command_test.go",
       "test_func": "TestDetermineSSHCommand_QuotedExplicitShell",
-      "test_hash": "f7f8d726d660568b",
+      "test_hash": "b05de8dd653583ea",
       "target_file": "cli/cmdssh/ssh_exec_command.go",
       "target_func": "DetermineSSHCommand",
-      "code_hash": "b3a1e74c165a0b49",
+      "code_hash": "ce7407192c1ebd08",
       "duration_sec": 0.01,
       "tier": "fast",
       "is_slow": false,
       "last_status": "passed",
-      "last_run_at": "2026-09-23T12:55:31",
+      "last_run_at": "2026-09-23T17:24:37",
       "needs_run": false
     },
     "cli/cmdssh.TestDetermineSSHCommand_IPCommand": {
@@ -31991,15 +31991,15 @@
       "package": "cli/cmdssh",
       "test_file": "cli/cmdssh/ssh_exec_command_test.go",
       "test_func": "TestDetermineSSHCommand_IPCommand",
-      "test_hash": "f7f8d726d660568b",
+      "test_hash": "b05de8dd653583ea",
       "target_file": "cli/cmdssh/ssh_exec_command.go",
       "target_func": "DetermineSSHCommand",
-      "code_hash": "b3a1e74c165a0b49",
+      "code_hash": "ce7407192c1ebd08",
       "duration_sec": 0.01,
       "tier": "fast",
       "is_slow": false,
       "last_status": "passed",
-      "last_run_at": "2026-09-23T12:55:31",
+      "last_run_at": "2026-09-23T17:24:37",
       "needs_run": false
     },
     "cli/cmdssh.TestGetGitmapCheckCmd": {
@@ -32010,12 +32010,12 @@
       "test_hash": "99874c81ed15bc1d",
       "target_file": "cli/cmdssh/ssh_exec_install.go",
       "target_func": "GetGitmapCheckCmd",
-      "code_hash": "b7a0af9723af88be",
+      "code_hash": "c7bb066467e88979",
       "duration_sec": 0.01,
       "tier": "fast",
       "is_slow": false,
       "last_status": "passed",
-      "last_run_at": "2026-09-23T12:55:31",
+      "last_run_at": "2026-09-23T17:24:37",
       "needs_run": false
     },
     "cli/cmdssh.TestGetGitmapInstallCmd": {
@@ -32026,12 +32026,12 @@
       "test_hash": "99874c81ed15bc1d",
       "target_file": "cli/cmdssh/ssh_exec_install.go",
       "target_func": "GetGitmapInstallCmd",
-      "code_hash": "b7a0af9723af88be",
+      "code_hash": "c7bb066467e88979",
       "duration_sec": 0.01,
       "tier": "fast",
       "is_slow": false,
       "last_status": "passed",
-      "last_run_at": "2026-09-23T12:55:31",
+      "last_run_at": "2026-09-23T17:24:37",
       "needs_run": false
     },
     "cli/cmdssh.TestWrapUnixPath": {
@@ -32042,12 +32042,12 @@
       "test_hash": "99874c81ed15bc1d",
       "target_file": "cli/cmdssh/ssh_exec_install.go",
       "target_func": "WrapUnixPath",
-      "code_hash": "b7a0af9723af88be",
+      "code_hash": "c7bb066467e88979",
       "duration_sec": 0.01,
       "tier": "fast",
       "is_slow": false,
       "last_status": "passed",
-      "last_run_at": "2026-09-23T12:55:31",
+      "last_run_at": "2026-09-23T17:24:37",
       "needs_run": false
     },
     "cli/cmdssh.TestParseMacroAddTargetName": {
@@ -32063,7 +32063,7 @@
       "tier": "fast",
       "is_slow": false,
       "last_status": "passed",
-      "last_run_at": "2026-09-23T12:55:31",
+      "last_run_at": "2026-09-23T17:24:37",
       "needs_run": false
     },
     "cli/cmdssh.TestIsPowerCommand": {
@@ -32079,7 +32079,7 @@
       "tier": "fast",
       "is_slow": false,
       "last_status": "passed",
-      "last_run_at": "2026-09-23T12:55:31",
+      "last_run_at": "2026-09-23T17:24:37",
       "needs_run": false
     },
     "cli/cmdssh.TestIsRebootAction": {
@@ -32095,7 +32095,7 @@
       "tier": "fast",
       "is_slow": false,
       "last_status": "passed",
-      "last_run_at": "2026-09-23T12:55:31",
+      "last_run_at": "2026-09-23T17:24:37",
       "needs_run": false
     },
     "cli/cmdssh.TestResolvePowerCommand_Windows": {
@@ -32111,7 +32111,7 @@
       "tier": "fast",
       "is_slow": false,
       "last_status": "passed",
-      "last_run_at": "2026-09-23T12:55:31",
+      "last_run_at": "2026-09-23T17:24:37",
       "needs_run": false
     },
     "cli/cmdssh.TestResolvePowerCommand_Unix": {
@@ -32127,7 +32127,7 @@
       "tier": "fast",
       "is_slow": false,
       "last_status": "passed",
-      "last_run_at": "2026-09-23T12:55:31",
+      "last_run_at": "2026-09-23T17:24:37",
       "needs_run": false
     },
     "cli/cmdssh.TestResolveExecTargetAndArgs_SingleTarget": {
@@ -32138,12 +32138,12 @@
       "test_hash": "30e25db2f880e27f",
       "target_file": "cli/cmdssh/ssh_exec_resolve.go",
       "target_func": "ResolveExecTargetAndArgs",
-      "code_hash": "6182a90fe50a48a1",
+      "code_hash": "ae94360b371c02e1",
       "duration_sec": 0.01,
       "tier": "fast",
       "is_slow": false,
       "last_status": "passed",
-      "last_run_at": "2026-09-23T12:55:31",
+      "last_run_at": "2026-09-23T17:24:37",
       "needs_run": false
     },
     "cli/cmdssh.TestResolveExecTargetAndArgs_CommaMultiTarget": {
@@ -32154,12 +32154,12 @@
       "test_hash": "30e25db2f880e27f",
       "target_file": "cli/cmdssh/ssh_exec_resolve.go",
       "target_func": "ResolveExecTargetAndArgs",
-      "code_hash": "6182a90fe50a48a1",
+      "code_hash": "ae94360b371c02e1",
       "duration_sec": 0.01,
       "tier": "fast",
       "is_slow": false,
       "last_status": "passed",
-      "last_run_at": "2026-09-23T12:55:31",
+      "last_run_at": "2026-09-23T17:24:37",
       "needs_run": false
     },
     "cli/cmdssh.TestResolveExecTargetAndArgs_SpaceMultiTarget": {
@@ -32170,12 +32170,12 @@
       "test_hash": "30e25db2f880e27f",
       "target_file": "cli/cmdssh/ssh_exec_resolve.go",
       "target_func": "ResolveExecTargetAndArgs",
-      "code_hash": "6182a90fe50a48a1",
+      "code_hash": "ae94360b371c02e1",
       "duration_sec": 0.01,
       "tier": "fast",
       "is_slow": false,
       "last_status": "passed",
-      "last_run_at": "2026-09-23T12:55:31",
+      "last_run_at": "2026-09-23T17:24:37",
       "needs_run": false
     },
     "cli/cmdssh.TestResolveExecTargetAndArgs_NoTargetGitmapCmd": {
@@ -32186,12 +32186,12 @@
       "test_hash": "30e25db2f880e27f",
       "target_file": "cli/cmdssh/ssh_exec_resolve.go",
       "target_func": "ResolveExecTargetAndArgs",
-      "code_hash": "6182a90fe50a48a1",
+      "code_hash": "ae94360b371c02e1",
       "duration_sec": 0.01,
       "tier": "fast",
       "is_slow": false,
       "last_status": "passed",
-      "last_run_at": "2026-09-23T12:55:31",
+      "last_run_at": "2026-09-23T17:24:37",
       "needs_run": false
     },
     "cli/cmdssh.TestResolveExecTargetAndArgs_IPTarget": {
@@ -32202,12 +32202,12 @@
       "test_hash": "30e25db2f880e27f",
       "target_file": "cli/cmdssh/ssh_exec_resolve.go",
       "target_func": "ResolveExecTargetAndArgs",
-      "code_hash": "6182a90fe50a48a1",
+      "code_hash": "ae94360b371c02e1",
       "duration_sec": 0.01,
       "tier": "fast",
       "is_slow": false,
       "last_status": "passed",
-      "last_run_at": "2026-09-23T12:55:31",
+      "last_run_at": "2026-09-23T17:24:37",
       "needs_run": false
     },
     "cli/cmdssh.TestNormalizeMultiCommands": {
@@ -32223,7 +32223,7 @@
       "tier": "fast",
       "is_slow": false,
       "last_status": "passed",
-      "last_run_at": "2026-09-23T12:55:31",
+      "last_run_at": "2026-09-23T17:24:37",
       "needs_run": false
     },
     "cli/cmdssh.TestFilterSSHConns_ExceptAndExclude": {
@@ -32239,7 +32239,7 @@
       "tier": "fast",
       "is_slow": false,
       "last_status": "passed",
-      "last_run_at": "2026-09-23T12:55:31",
+      "last_run_at": "2026-09-23T17:24:37",
       "needs_run": false
     },
     "cli/cmdssh.TestParseExportAllOptions": {
@@ -32255,7 +32255,7 @@
       "tier": "fast",
       "is_slow": false,
       "last_status": "passed",
-      "last_run_at": "2026-09-23T12:55:31",
+      "last_run_at": "2026-09-23T17:24:37",
       "needs_run": false
     },
     "cli/cmdssh.TestParseImportAllOptions": {
@@ -32271,7 +32271,7 @@
       "tier": "fast",
       "is_slow": false,
       "last_status": "passed",
-      "last_run_at": "2026-09-23T12:55:31",
+      "last_run_at": "2026-09-23T17:24:37",
       "needs_run": false
     },
     "cli/cmdssh.TestGitmapExportBundleSerialization": {
@@ -32287,7 +32287,7 @@
       "tier": "fast",
       "is_slow": false,
       "last_status": "passed",
-      "last_run_at": "2026-09-23T12:55:31",
+      "last_run_at": "2026-09-23T17:24:37",
       "needs_run": false
     },
     "cli/cmdssh.TestBuildRemoteWriteCmd": {
@@ -32303,7 +32303,7 @@
       "tier": "fast",
       "is_slow": false,
       "last_status": "passed",
-      "last_run_at": "2026-09-23T12:55:31",
+      "last_run_at": "2026-09-23T17:24:37",
       "needs_run": false
     },
     "cli/cmdssh.TestDispatchExportImportSSH": {
@@ -32319,7 +32319,7 @@
       "tier": "fast",
       "is_slow": false,
       "last_status": "passed",
-      "last_run_at": "2026-09-23T12:55:31",
+      "last_run_at": "2026-09-23T17:24:37",
       "needs_run": false
     },
     "cli/cmdssh.TestFormatExportMacroNames": {
@@ -32335,7 +32335,7 @@
       "tier": "fast",
       "is_slow": false,
       "last_status": "passed",
-      "last_run_at": "2026-09-23T12:55:31",
+      "last_run_at": "2026-09-23T17:24:37",
       "needs_run": false
     },
     "cli/cmdssh.TestFilterNonEmptyLogs": {
@@ -32351,7 +32351,7 @@
       "tier": "fast",
       "is_slow": false,
       "last_status": "passed",
-      "last_run_at": "2026-09-23T12:55:31",
+      "last_run_at": "2026-09-23T17:24:37",
       "needs_run": false
     },
     "cli/cmdssh.TestMatchMultipleTargets_RegisteredAndAdhoc": {
@@ -32367,7 +32367,7 @@
       "tier": "fast",
       "is_slow": false,
       "last_status": "passed",
-      "last_run_at": "2026-09-23T12:55:31",
+      "last_run_at": "2026-09-23T17:24:37",
       "needs_run": false
     },
     "cli/cmdssh.TestMatchMultipleTargets_EmptyTargets": {
@@ -32383,7 +32383,7 @@
       "tier": "fast",
       "is_slow": false,
       "last_status": "passed",
-      "last_run_at": "2026-09-23T12:55:31",
+      "last_run_at": "2026-09-23T17:24:37",
       "needs_run": false
     },
     "cli/cmdssh.TestExtractTargetArg_MultiArgs": {
@@ -32399,7 +32399,7 @@
       "tier": "fast",
       "is_slow": false,
       "last_status": "passed",
-      "last_run_at": "2026-09-23T12:55:31",
+      "last_run_at": "2026-09-23T17:24:37",
       "needs_run": false
     },
     "cli/cmdssh.TestResolveHealthDefaults": {
@@ -32415,7 +32415,7 @@
       "tier": "fast",
       "is_slow": false,
       "last_status": "passed",
-      "last_run_at": "2026-09-23T12:55:31",
+      "last_run_at": "2026-09-23T17:24:37",
       "needs_run": false
     },
     "cli/cmdssh.TestClassifyProbeError_Known": {
@@ -32431,7 +32431,7 @@
       "tier": "fast",
       "is_slow": false,
       "last_status": "passed",
-      "last_run_at": "2026-09-23T12:55:31",
+      "last_run_at": "2026-09-23T17:24:37",
       "needs_run": false
     },
     "cli/cmdssh.TestClassifyProbeError_NoRoute": {
@@ -32447,7 +32447,7 @@
       "tier": "fast",
       "is_slow": false,
       "last_status": "passed",
-      "last_run_at": "2026-09-23T12:55:31",
+      "last_run_at": "2026-09-23T17:24:37",
       "needs_run": false
     },
     "cli/cmdssh.TestProbeHostHealth_OnlineListener": {
@@ -32463,7 +32463,7 @@
       "tier": "fast",
       "is_slow": false,
       "last_status": "passed",
-      "last_run_at": "2026-09-23T12:55:31",
+      "last_run_at": "2026-09-23T17:24:37",
       "needs_run": false
     },
     "cli/cmdssh.TestProbeHostHealth_OfflineTarget": {
@@ -32479,7 +32479,7 @@
       "tier": "fast",
       "is_slow": false,
       "last_status": "passed",
-      "last_run_at": "2026-09-23T12:55:31",
+      "last_run_at": "2026-09-23T17:24:37",
       "needs_run": false
     },
     "cli/cmdssh.TestFindHostByTarget_Alias": {
@@ -32495,7 +32495,7 @@
       "tier": "fast",
       "is_slow": false,
       "last_status": "passed",
-      "last_run_at": "2026-09-23T12:55:31",
+      "last_run_at": "2026-09-23T17:24:37",
       "needs_run": false
     },
     "cli/cmdssh.TestFindHostByTarget_IPAndMissing": {
@@ -32511,7 +32511,7 @@
       "tier": "fast",
       "is_slow": false,
       "last_status": "passed",
-      "last_run_at": "2026-09-23T12:55:31",
+      "last_run_at": "2026-09-23T17:24:37",
       "needs_run": false
     },
     "cli/cmdssh.TestPrintHealthTable_Output": {
@@ -32527,7 +32527,7 @@
       "tier": "fast",
       "is_slow": false,
       "last_status": "passed",
-      "last_run_at": "2026-09-23T12:55:31",
+      "last_run_at": "2026-09-23T17:24:37",
       "needs_run": false
     },
     "cli/cmdssh.TestHandleEmptyHostsList_Output": {
@@ -32543,7 +32543,7 @@
       "tier": "fast",
       "is_slow": false,
       "last_status": "passed",
-      "last_run_at": "2026-09-23T12:55:31",
+      "last_run_at": "2026-09-23T17:24:37",
       "needs_run": false
     },
     "cli/cmdssh.TestBuildHealthResults": {
@@ -32559,7 +32559,7 @@
       "tier": "fast",
       "is_slow": false,
       "last_status": "passed",
-      "last_run_at": "2026-09-23T12:55:31",
+      "last_run_at": "2026-09-23T17:24:37",
       "needs_run": false
     },
     "cli/cmdssh.TestFormatLatencyString": {
@@ -32575,7 +32575,7 @@
       "tier": "fast",
       "is_slow": false,
       "last_status": "passed",
-      "last_run_at": "2026-09-23T12:55:31",
+      "last_run_at": "2026-09-23T17:24:37",
       "needs_run": false
     },
     "cli/cmdssh.TestMatchOrAdhocHost": {
@@ -32591,7 +32591,7 @@
       "tier": "fast",
       "is_slow": false,
       "last_status": "passed",
-      "last_run_at": "2026-09-23T12:55:31",
+      "last_run_at": "2026-09-23T17:24:37",
       "needs_run": false
     },
     "cli/cmdssh.TestParseInstallTargetAndPackageZeroArgs": {
@@ -32607,7 +32607,7 @@
       "tier": "fast",
       "is_slow": false,
       "last_status": "passed",
-      "last_run_at": "2026-09-23T12:55:31",
+      "last_run_at": "2026-09-23T17:24:37",
       "needs_run": false
     },
     "cli/cmdssh.TestParseInstallTargetAndPackageSingleArgGitmap": {
@@ -32623,7 +32623,7 @@
       "tier": "fast",
       "is_slow": false,
       "last_status": "passed",
-      "last_run_at": "2026-09-23T12:55:31",
+      "last_run_at": "2026-09-23T17:24:37",
       "needs_run": false
     },
     "cli/cmdssh.TestParseInstallTargetAndPackageSingleArgTarget": {
@@ -32639,7 +32639,7 @@
       "tier": "fast",
       "is_slow": false,
       "last_status": "passed",
-      "last_run_at": "2026-09-23T12:55:31",
+      "last_run_at": "2026-09-23T17:24:37",
       "needs_run": false
     },
     "cli/cmdssh.TestParseInstallTargetAndPackageSingleArgPackage": {
@@ -32655,7 +32655,7 @@
       "tier": "fast",
       "is_slow": false,
       "last_status": "passed",
-      "last_run_at": "2026-09-23T12:55:31",
+      "last_run_at": "2026-09-23T17:24:37",
       "needs_run": false
     },
     "cli/cmdssh.TestParseInstallTargetAndPackageTwoArgs": {
@@ -32671,7 +32671,7 @@
       "tier": "fast",
       "is_slow": false,
       "last_status": "passed",
-      "last_run_at": "2026-09-23T12:55:31",
+      "last_run_at": "2026-09-23T17:24:37",
       "needs_run": false
     },
     "cli/cmdssh.TestResolveRemoteShell": {
@@ -32687,7 +32687,7 @@
       "tier": "fast",
       "is_slow": false,
       "last_status": "passed",
-      "last_run_at": "2026-09-23T12:55:31",
+      "last_run_at": "2026-09-23T17:24:37",
       "needs_run": false
     },
     "cli/cmdssh.TestParseInstallTargetAndPackage_SingleAllFlag": {
@@ -32703,7 +32703,7 @@
       "tier": "fast",
       "is_slow": false,
       "last_status": "passed",
-      "last_run_at": "2026-09-23T12:55:31",
+      "last_run_at": "2026-09-23T17:24:37",
       "needs_run": false
     },
     "cli/cmdssh.TestParseInstallTargetAndPackage_TwoArgsAllFlag": {
@@ -32719,7 +32719,7 @@
       "tier": "fast",
       "is_slow": false,
       "last_status": "passed",
-      "last_run_at": "2026-09-23T12:55:31",
+      "last_run_at": "2026-09-23T17:24:37",
       "needs_run": false
     },
     "cli/cmdssh.TestFormatMissingAuthAdvice": {
@@ -32735,7 +32735,7 @@
       "tier": "fast",
       "is_slow": false,
       "last_status": "passed",
-      "last_run_at": "2026-09-23T12:55:31",
+      "last_run_at": "2026-09-23T17:24:37",
       "needs_run": false
     },
     "cli/cmdssh.TestFindDefaultUserSSHKey": {
@@ -32751,7 +32751,7 @@
       "tier": "fast",
       "is_slow": false,
       "last_status": "passed",
-      "last_run_at": "2026-09-23T12:55:31",
+      "last_run_at": "2026-09-23T17:24:37",
       "needs_run": false
     },
     "cli/cmdssh.TestConnectWithDefaultKey_Unreachable": {
@@ -32767,7 +32767,7 @@
       "tier": "fast",
       "is_slow": false,
       "last_status": "passed",
-      "last_run_at": "2026-09-23T12:55:31",
+      "last_run_at": "2026-09-23T17:24:37",
       "needs_run": false
     },
     "cli/cmdssh.TestFormatDisplayPublicKey_Unmasked": {
@@ -32783,7 +32783,7 @@
       "tier": "fast",
       "is_slow": false,
       "last_status": "passed",
-      "last_run_at": "2026-09-23T12:55:31",
+      "last_run_at": "2026-09-23T17:24:37",
       "needs_run": false
     },
     "cli/cmdssh.TestDispatchNodeSSH_Add": {
@@ -32799,7 +32799,7 @@
       "tier": "fast",
       "is_slow": false,
       "last_status": "passed",
-      "last_run_at": "2026-09-23T12:55:31",
+      "last_run_at": "2026-09-23T17:24:37",
       "needs_run": false
     },
     "cli/cmdssh.TestDispatchSSH_AuthKeyAdd": {
@@ -32815,7 +32815,7 @@
       "tier": "fast",
       "is_slow": false,
       "last_status": "passed",
-      "last_run_at": "2026-09-23T12:55:31",
+      "last_run_at": "2026-09-23T17:24:37",
       "needs_run": false
     },
     "cli/cmdssh.TestParseOffendingKnownHostsLine": {
@@ -32831,7 +32831,7 @@
       "tier": "fast",
       "is_slow": false,
       "last_status": "passed",
-      "last_run_at": "2026-09-23T12:55:31",
+      "last_run_at": "2026-09-23T17:24:37",
       "needs_run": false
     },
     "cli/cmdssh.TestIsHostKeyChangedError": {
@@ -32847,7 +32847,7 @@
       "tier": "fast",
       "is_slow": false,
       "last_status": "passed",
-      "last_run_at": "2026-09-23T12:55:31",
+      "last_run_at": "2026-09-23T17:24:37",
       "needs_run": false
     },
     "cli/cmdssh.TestRemoveKnownHostsLine": {
@@ -32863,7 +32863,7 @@
       "tier": "fast",
       "is_slow": false,
       "last_status": "passed",
-      "last_run_at": "2026-09-23T12:55:31",
+      "last_run_at": "2026-09-23T17:24:37",
       "needs_run": false
     },
     "cli/cmdssh.TestBuildPruneTargets": {
@@ -32879,7 +32879,7 @@
       "tier": "fast",
       "is_slow": false,
       "last_status": "passed",
-      "last_run_at": "2026-09-23T12:55:31",
+      "last_run_at": "2026-09-23T17:24:37",
       "needs_run": false
     },
     "cli/cmdssh.TestParseKnownHostLine": {
@@ -32895,7 +32895,7 @@
       "tier": "fast",
       "is_slow": false,
       "last_status": "passed",
-      "last_run_at": "2026-09-23T12:55:31",
+      "last_run_at": "2026-09-23T17:24:37",
       "needs_run": false
     },
     "cli/cmdssh.TestParseKnownHostLine_Ignored": {
@@ -32911,7 +32911,7 @@
       "tier": "fast",
       "is_slow": false,
       "last_status": "passed",
-      "last_run_at": "2026-09-23T12:55:31",
+      "last_run_at": "2026-09-23T17:24:37",
       "needs_run": false
     },
     "cli/cmdssh.TestAppendAndRemoveKnownHostsFile": {
@@ -32927,7 +32927,7 @@
       "tier": "fast",
       "is_slow": false,
       "last_status": "passed",
-      "last_run_at": "2026-09-23T12:55:31",
+      "last_run_at": "2026-09-23T17:24:37",
       "needs_run": false
     },
     "cli/cmdssh.TestSSHKnownHostsRepo_CRUD": {
@@ -32943,7 +32943,7 @@
       "tier": "fast",
       "is_slow": false,
       "last_status": "passed",
-      "last_run_at": "2026-09-23T12:55:31",
+      "last_run_at": "2026-09-23T17:24:37",
       "needs_run": false
     },
     "cli/cmdssh.TestAppendHostKeyCheckingDefault": {
@@ -32959,7 +32959,7 @@
       "tier": "fast",
       "is_slow": false,
       "last_status": "passed",
-      "last_run_at": "2026-09-23T12:55:31",
+      "last_run_at": "2026-09-23T17:24:37",
       "needs_run": false
     },
     "cli/cmdssh.TestRenderKnownHostsTable": {
@@ -32975,7 +32975,7 @@
       "tier": "fast",
       "is_slow": false,
       "last_status": "passed",
-      "last_run_at": "2026-09-23T12:55:31",
+      "last_run_at": "2026-09-23T17:24:37",
       "needs_run": false
     },
     "cli/cmdssh.TestLivenessCache": {
@@ -32991,7 +32991,7 @@
       "tier": "fast",
       "is_slow": false,
       "last_status": "passed",
-      "last_run_at": "2026-09-23T12:55:31",
+      "last_run_at": "2026-09-23T17:24:37",
       "needs_run": false
     },
     "cli/cmdssh.TestProbeTCPQuickUnreachable": {
@@ -33007,7 +33007,7 @@
       "tier": "fast",
       "is_slow": false,
       "last_status": "passed",
-      "last_run_at": "2026-09-23T12:55:31",
+      "last_run_at": "2026-09-23T17:24:37",
       "needs_run": false
     },
     "cli/cmdssh.TestCheckConnLivenessOffline": {
@@ -33023,7 +33023,7 @@
       "tier": "fast",
       "is_slow": false,
       "last_status": "passed",
-      "last_run_at": "2026-09-23T12:55:31",
+      "last_run_at": "2026-09-23T17:24:37",
       "needs_run": false
     },
     "cli/cmdssh.TestRunSSHLogin_InterceptsJoin": {
@@ -33039,7 +33039,7 @@
       "tier": "fast",
       "is_slow": false,
       "last_status": "passed",
-      "last_run_at": "2026-09-23T12:55:31",
+      "last_run_at": "2026-09-23T17:24:37",
       "needs_run": false
     },
     "cli/cmdssh.TestRunSSHLogin_InterceptsSJ": {
@@ -33055,7 +33055,7 @@
       "tier": "fast",
       "is_slow": false,
       "last_status": "passed",
-      "last_run_at": "2026-09-23T12:55:31",
+      "last_run_at": "2026-09-23T17:24:37",
       "needs_run": false
     },
     "cli/cmdssh.TestExecuteSSHLogin_UnknownAliasRejectionWithSuggestions": {
@@ -33071,7 +33071,7 @@
       "tier": "fast",
       "is_slow": false,
       "last_status": "passed",
-      "last_run_at": "2026-09-23T12:55:31",
+      "last_run_at": "2026-09-23T17:24:37",
       "needs_run": false
     },
     "cli/cmdssh.TestExecuteSSHLogin_UnknownAliasEmptyRegistry": {
@@ -33087,7 +33087,7 @@
       "tier": "fast",
       "is_slow": false,
       "last_status": "passed",
-      "last_run_at": "2026-09-23T12:55:31",
+      "last_run_at": "2026-09-23T17:24:37",
       "needs_run": false
     },
     "cli/cmdssh.TestExecuteSSHLogin_KnownAliasSpawns": {
@@ -33103,7 +33103,7 @@
       "tier": "fast",
       "is_slow": false,
       "last_status": "passed",
-      "last_run_at": "2026-09-23T12:55:31",
+      "last_run_at": "2026-09-23T17:24:37",
       "needs_run": false
     },
     "cli/cmdssh.TestExecuteSSHLogin_DirectIPSpawnsDirectly": {
@@ -33119,7 +33119,7 @@
       "tier": "fast",
       "is_slow": false,
       "last_status": "passed",
-      "last_run_at": "2026-09-23T12:55:31",
+      "last_run_at": "2026-09-23T17:24:37",
       "needs_run": false
     },
     "cli/cmdssh.TestExecuteSSHLogin_UserAtHostSpawnsDirectly": {
@@ -33135,7 +33135,7 @@
       "tier": "fast",
       "is_slow": false,
       "last_status": "passed",
-      "last_run_at": "2026-09-23T12:55:31",
+      "last_run_at": "2026-09-23T17:24:37",
       "needs_run": false
     },
     "cli/cmdssh.TestRunSSHLogin_InterceptsNodes": {
@@ -33151,7 +33151,7 @@
       "tier": "fast",
       "is_slow": false,
       "last_status": "passed",
-      "last_run_at": "2026-09-23T12:55:31",
+      "last_run_at": "2026-09-23T17:24:37",
       "needs_run": false
     },
     "cli/cmdssh.TestRunSSHLogin_InterceptsLs": {
@@ -33167,7 +33167,7 @@
       "tier": "fast",
       "is_slow": false,
       "last_status": "passed",
-      "last_run_at": "2026-09-23T12:55:31",
+      "last_run_at": "2026-09-23T17:24:37",
       "needs_run": false
     },
     "cli/cmdssh.TestRunSSHLogin_WithPasswordSavesEncrypted": {
@@ -33183,7 +33183,7 @@
       "tier": "fast",
       "is_slow": false,
       "last_status": "passed",
-      "last_run_at": "2026-09-23T12:55:31",
+      "last_run_at": "2026-09-23T17:24:37",
       "needs_run": false
     },
     "cli/cmdssh.TestRunSSHLogin_SubsequentLoginWithoutPassword": {
@@ -33199,7 +33199,7 @@
       "tier": "fast",
       "is_slow": false,
       "last_status": "passed",
-      "last_run_at": "2026-09-23T12:55:31",
+      "last_run_at": "2026-09-23T17:24:37",
       "needs_run": false
     },
     "cli/cmdssh.TestRunSSHLogin_DirectIPWithPassword": {
@@ -33215,7 +33215,7 @@
       "tier": "fast",
       "is_slow": false,
       "last_status": "passed",
-      "last_run_at": "2026-09-23T12:55:31",
+      "last_run_at": "2026-09-23T17:24:37",
       "needs_run": false
     },
     "cli/cmdssh.Test_getInstallPayload": {
@@ -33231,7 +33231,7 @@
       "tier": "fast",
       "is_slow": false,
       "last_status": "passed",
-      "last_run_at": "2026-09-23T12:55:31",
+      "last_run_at": "2026-09-23T17:24:37",
       "needs_run": false
     },
     "cli/cmdssh.TestExecuteRemoteInstall": {
@@ -33247,7 +33247,7 @@
       "tier": "fast",
       "is_slow": false,
       "last_status": "passed",
-      "last_run_at": "2026-09-23T12:55:31",
+      "last_run_at": "2026-09-23T17:24:37",
       "needs_run": false
     },
     "cli/cmdssh.TestSSHMultiParser": {
@@ -33263,7 +33263,7 @@
       "tier": "fast",
       "is_slow": false,
       "last_status": "passed",
-      "last_run_at": "2026-09-23T12:55:31",
+      "last_run_at": "2026-09-23T17:24:37",
       "needs_run": false
     },
     "cli/cmdssh.TestFilterConnectionsByTarget_SingleAndAll": {
@@ -33279,7 +33279,7 @@
       "tier": "fast",
       "is_slow": false,
       "last_status": "passed",
-      "last_run_at": "2026-09-23T12:55:31",
+      "last_run_at": "2026-09-23T17:24:37",
       "needs_run": false
     },
     "cli/cmdssh.TestFilterConnectionsByTarget_MultiComma": {
@@ -33295,7 +33295,7 @@
       "tier": "fast",
       "is_slow": false,
       "last_status": "passed",
-      "last_run_at": "2026-09-23T12:55:31",
+      "last_run_at": "2026-09-23T17:24:37",
       "needs_run": false
     },
     "cli/cmdssh.TestFilterConnectionsByTarget_MultiMixedAliasIP": {
@@ -33311,7 +33311,7 @@
       "tier": "fast",
       "is_slow": false,
       "last_status": "passed",
-      "last_run_at": "2026-09-23T12:55:31",
+      "last_run_at": "2026-09-23T17:24:37",
       "needs_run": false
     },
     "cli/cmdssh.TestSSHTarget": {
@@ -33327,7 +33327,7 @@
       "tier": "fast",
       "is_slow": false,
       "last_status": "passed",
-      "last_run_at": "2026-09-23T12:55:31",
+      "last_run_at": "2026-09-23T17:24:37",
       "needs_run": false
     },
     "cli/cmdssh.TestParseSSHTarget_Valid": {
@@ -33343,7 +33343,7 @@
       "tier": "fast",
       "is_slow": false,
       "last_status": "passed",
-      "last_run_at": "2026-09-23T12:55:31",
+      "last_run_at": "2026-09-23T17:24:37",
       "needs_run": false
     },
     "cli/cmdssh.TestParseSSHTarget_Invalid": {
@@ -33359,7 +33359,7 @@
       "tier": "fast",
       "is_slow": false,
       "last_status": "passed",
-      "last_run_at": "2026-09-23T12:55:31",
+      "last_run_at": "2026-09-23T17:24:37",
       "needs_run": false
     },
     "cli/cmdssh.TestResolveDefaultUsername_User": {
@@ -33375,7 +33375,7 @@
       "tier": "fast",
       "is_slow": false,
       "last_status": "passed",
-      "last_run_at": "2026-09-23T12:55:31",
+      "last_run_at": "2026-09-23T17:24:37",
       "needs_run": false
     },
     "cli/cmdssh.TestResolveDefaultUsername_Username": {
@@ -33391,7 +33391,7 @@
       "tier": "fast",
       "is_slow": false,
       "last_status": "passed",
-      "last_run_at": "2026-09-23T12:55:31",
+      "last_run_at": "2026-09-23T17:24:37",
       "needs_run": false
     },
     "cli/cmdssh.TestResolveDefaultUsername_Root": {
@@ -33407,7 +33407,7 @@
       "tier": "fast",
       "is_slow": false,
       "last_status": "passed",
-      "last_run_at": "2026-09-23T12:55:31",
+      "last_run_at": "2026-09-23T17:24:37",
       "needs_run": false
     },
     "cli/cmdssh.TestGenerateDefaultAlias": {
@@ -33423,7 +33423,7 @@
       "tier": "fast",
       "is_slow": false,
       "last_status": "passed",
-      "last_run_at": "2026-09-23T12:55:31",
+      "last_run_at": "2026-09-23T17:24:37",
       "needs_run": false
     },
     "cli/cmdssh.TestParseSSHJoinOptions_PlainTarget": {
@@ -33439,7 +33439,7 @@
       "tier": "fast",
       "is_slow": false,
       "last_status": "passed",
-      "last_run_at": "2026-09-23T12:55:31",
+      "last_run_at": "2026-09-23T17:24:37",
       "needs_run": false
     },
     "cli/cmdssh.TestParseSSHJoinOptions_PositionalAlias": {
@@ -33455,7 +33455,7 @@
       "tier": "fast",
       "is_slow": false,
       "last_status": "passed",
-      "last_run_at": "2026-09-23T12:55:31",
+      "last_run_at": "2026-09-23T17:24:37",
       "needs_run": false
     },
     "cli/cmdssh.TestParseSSHJoinOptions_NameFlags": {
@@ -33471,7 +33471,7 @@
       "tier": "fast",
       "is_slow": false,
       "last_status": "passed",
-      "last_run_at": "2026-09-23T12:55:31",
+      "last_run_at": "2026-09-23T17:24:37",
       "needs_run": false
     },
     "cli/cmdssh.TestParseSSHJoinOptions_UserAndPortFlags": {
@@ -33487,7 +33487,7 @@
       "tier": "fast",
       "is_slow": false,
       "last_status": "passed",
-      "last_run_at": "2026-09-23T12:55:31",
+      "last_run_at": "2026-09-23T17:24:37",
       "needs_run": false
     },
     "cli/cmdssh.TestParseSSHJoinOptions_FlagOverrides": {
@@ -33503,7 +33503,7 @@
       "tier": "fast",
       "is_slow": false,
       "last_status": "passed",
-      "last_run_at": "2026-09-23T12:55:31",
+      "last_run_at": "2026-09-23T17:24:37",
       "needs_run": false
     },
     "cli/cmdssh.TestParseSSHJoinOptions_Auth": {
@@ -33519,7 +33519,7 @@
       "tier": "fast",
       "is_slow": false,
       "last_status": "passed",
-      "last_run_at": "2026-09-23T12:55:31",
+      "last_run_at": "2026-09-23T17:24:37",
       "needs_run": false
     },
     "cli/cmdssh.TestParseSSHJoinOptions_Help": {
@@ -33535,7 +33535,7 @@
       "tier": "fast",
       "is_slow": false,
       "last_status": "passed",
-      "last_run_at": "2026-09-23T12:55:31",
+      "last_run_at": "2026-09-23T17:24:37",
       "needs_run": false
     },
     "cli/cmdssh.TestParseSSHJoinOptions_Invalid": {
@@ -33551,7 +33551,7 @@
       "tier": "fast",
       "is_slow": false,
       "last_status": "passed",
-      "last_run_at": "2026-09-23T12:55:31",
+      "last_run_at": "2026-09-23T17:24:37",
       "needs_run": false
     },
     "cli/cmdssh.TestRunSSHPassCLI_EmptyArgs": {
@@ -33567,7 +33567,7 @@
       "tier": "fast",
       "is_slow": false,
       "last_status": "passed",
-      "last_run_at": "2026-09-23T12:55:31",
+      "last_run_at": "2026-09-23T17:24:37",
       "needs_run": false
     },
     "cli/cmdssh.TestRunSSHPassCLI_Help": {
@@ -33583,7 +33583,7 @@
       "tier": "fast",
       "is_slow": false,
       "last_status": "passed",
-      "last_run_at": "2026-09-23T12:55:31",
+      "last_run_at": "2026-09-23T17:24:37",
       "needs_run": false
     },
     "cli/cmdssh.TestRunSSHPassCLI_ShowMissingTarget": {
@@ -33599,7 +33599,7 @@
       "tier": "fast",
       "is_slow": false,
       "last_status": "passed",
-      "last_run_at": "2026-09-23T12:55:31",
+      "last_run_at": "2026-09-23T17:24:37",
       "needs_run": false
     },
     "cli/cmdssh.TestRunSSHPassCLI_ShowSuccess": {
@@ -33615,7 +33615,7 @@
       "tier": "fast",
       "is_slow": false,
       "last_status": "passed",
-      "last_run_at": "2026-09-23T12:55:31",
+      "last_run_at": "2026-09-23T17:24:37",
       "needs_run": false
     },
     "cli/cmdssh.TestRunSSHPassCLI_ListSuccess": {
@@ -33631,7 +33631,7 @@
       "tier": "fast",
       "is_slow": false,
       "last_status": "passed",
-      "last_run_at": "2026-09-23T12:55:31",
+      "last_run_at": "2026-09-23T17:24:37",
       "needs_run": false
     },
     "cli/cmdssh.TestExpandUniversalPath_Tilde": {
@@ -33647,7 +33647,7 @@
       "tier": "fast",
       "is_slow": false,
       "last_status": "passed",
-      "last_run_at": "2026-09-23T12:55:31",
+      "last_run_at": "2026-09-23T17:24:37",
       "needs_run": false
     },
     "cli/cmdssh.TestExpandUniversalPath_WinMacros": {
@@ -33663,7 +33663,7 @@
       "tier": "fast",
       "is_slow": false,
       "last_status": "passed",
-      "last_run_at": "2026-09-23T12:55:31",
+      "last_run_at": "2026-09-23T17:24:37",
       "needs_run": false
     },
     "cli/cmdssh.TestExpandUniversalPath_TempAndAppData": {
@@ -33679,7 +33679,7 @@
       "tier": "fast",
       "is_slow": false,
       "last_status": "passed",
-      "last_run_at": "2026-09-23T12:55:31",
+      "last_run_at": "2026-09-23T17:24:37",
       "needs_run": false
     },
     "cli/cmdssh.TestExpandSubnetIPs_ValidSlash24": {
@@ -33695,7 +33695,7 @@
       "tier": "fast",
       "is_slow": false,
       "last_status": "passed",
-      "last_run_at": "2026-09-23T12:55:31",
+      "last_run_at": "2026-09-23T17:24:37",
       "needs_run": false
     },
     "cli/cmdssh.TestExpandSubnetIPs_ValidSlash30": {
@@ -33711,7 +33711,7 @@
       "tier": "fast",
       "is_slow": false,
       "last_status": "passed",
-      "last_run_at": "2026-09-23T12:55:31",
+      "last_run_at": "2026-09-23T17:24:37",
       "needs_run": false
     },
     "cli/cmdssh.TestExpandSubnetIPs_InvalidCIDR": {
@@ -33727,7 +33727,7 @@
       "tier": "fast",
       "is_slow": false,
       "last_status": "passed",
-      "last_run_at": "2026-09-23T12:55:31",
+      "last_run_at": "2026-09-23T17:24:37",
       "needs_run": false
     },
     "cli/cmdssh.TestExpandSubnetIPs_SubnetTooLarge": {
@@ -33743,7 +33743,7 @@
       "tier": "fast",
       "is_slow": false,
       "last_status": "passed",
-      "last_run_at": "2026-09-23T12:55:31",
+      "last_run_at": "2026-09-23T17:24:37",
       "needs_run": false
     },
     "cli/cmdssh.TestNormalizeSubnetCIDR_PlainIP": {
@@ -33759,7 +33759,7 @@
       "tier": "fast",
       "is_slow": false,
       "last_status": "passed",
-      "last_run_at": "2026-09-23T12:55:31",
+      "last_run_at": "2026-09-23T17:24:37",
       "needs_run": false
     },
     "cli/cmdssh.TestNormalizeSubnetCIDR_EmptyAutoDetect": {
@@ -33775,7 +33775,7 @@
       "tier": "fast",
       "is_slow": false,
       "last_status": "passed",
-      "last_run_at": "2026-09-23T12:55:31",
+      "last_run_at": "2026-09-23T17:24:37",
       "needs_run": false
     },
     "cli/cmdssh.TestResolveScanDefaults": {
@@ -33791,7 +33791,7 @@
       "tier": "fast",
       "is_slow": false,
       "last_status": "passed",
-      "last_run_at": "2026-09-23T12:55:31",
+      "last_run_at": "2026-09-23T17:24:37",
       "needs_run": false
     },
     "cli/cmdssh.TestProbeHostTCP_OnlineListener": {
@@ -33807,7 +33807,7 @@
       "tier": "fast",
       "is_slow": false,
       "last_status": "passed",
-      "last_run_at": "2026-09-23T12:55:31",
+      "last_run_at": "2026-09-23T17:24:37",
       "needs_run": false
     },
     "cli/cmdssh.TestFormatEnrollmentStatus": {
@@ -33823,7 +33823,7 @@
       "tier": "fast",
       "is_slow": false,
       "last_status": "passed",
-      "last_run_at": "2026-09-23T12:55:31",
+      "last_run_at": "2026-09-23T17:24:37",
       "needs_run": false
     },
     "cli/cmdssh.TestPrintScanResultTable_WithHosts": {
@@ -33839,7 +33839,7 @@
       "tier": "fast",
       "is_slow": false,
       "last_status": "passed",
-      "last_run_at": "2026-09-23T12:55:31",
+      "last_run_at": "2026-09-23T17:24:37",
       "needs_run": false
     },
     "cli/cmdssh.TestPrintScanResultTable_Empty": {
@@ -33855,7 +33855,7 @@
       "tier": "fast",
       "is_slow": false,
       "last_status": "passed",
-      "last_run_at": "2026-09-23T12:55:31",
+      "last_run_at": "2026-09-23T17:24:37",
       "needs_run": false
     },
     "cli/cmdssh.TestDispatchPrimarySSH_MatchedSubcommands": {
@@ -33866,12 +33866,12 @@
       "test_hash": "ef9527e287dedda3",
       "target_file": "cli/cmdssh/ssh.go",
       "target_func": "DispatchPrimarySSH",
-      "code_hash": "c34dd3d5cf22b015",
+      "code_hash": "020d8bbe31359e7e",
       "duration_sec": 0.01,
       "tier": "fast",
       "is_slow": false,
       "last_status": "passed",
-      "last_run_at": "2026-09-23T12:55:31",
+      "last_run_at": "2026-09-23T17:24:37",
       "needs_run": false
     },
     "cli/cmdssh.TestDispatchPrimarySSH_UnmatchedSubcommands": {
@@ -33882,12 +33882,12 @@
       "test_hash": "ef9527e287dedda3",
       "target_file": "cli/cmdssh/ssh.go",
       "target_func": "DispatchPrimarySSH",
-      "code_hash": "c34dd3d5cf22b015",
+      "code_hash": "020d8bbe31359e7e",
       "duration_sec": 0.01,
       "tier": "fast",
       "is_slow": false,
       "last_status": "passed",
-      "last_run_at": "2026-09-23T12:55:31",
+      "last_run_at": "2026-09-23T17:24:37",
       "needs_run": false
     },
     "cli/cmdssh.TestRunSSHProfile_NilRunner": {
@@ -33898,12 +33898,12 @@
       "test_hash": "ef9527e287dedda3",
       "target_file": "cli/cmdssh/ssh.go",
       "target_func": "RunSSHProfile",
-      "code_hash": "c34dd3d5cf22b015",
+      "code_hash": "020d8bbe31359e7e",
       "duration_sec": 0.01,
       "tier": "fast",
       "is_slow": false,
       "last_status": "passed",
-      "last_run_at": "2026-09-23T12:55:31",
+      "last_run_at": "2026-09-23T17:24:37",
       "needs_run": false
     },
     "cli/cmdssh.TestRunSSHProfile_CustomRunner": {
@@ -33914,12 +33914,12 @@
       "test_hash": "ef9527e287dedda3",
       "target_file": "cli/cmdssh/ssh.go",
       "target_func": "RunSSHProfile",
-      "code_hash": "c34dd3d5cf22b015",
+      "code_hash": "020d8bbe31359e7e",
       "duration_sec": 0.01,
       "tier": "fast",
       "is_slow": false,
       "last_status": "passed",
-      "last_run_at": "2026-09-23T12:55:31",
+      "last_run_at": "2026-09-23T17:24:37",
       "needs_run": false
     },
     "cli/cmdupdate.TestCleanupLegacyDeployDirNoOpWhenNotInGitmapCli": {
@@ -36506,12 +36506,12 @@
       "test_hash": "dbf029f71e6dae5d",
       "target_file": "cli/constants/constants.go",
       "target_func": "TopLevelCmdRegistryMatchesAST",
-      "code_hash": "4de0f1eaec4e34b5",
+      "code_hash": "4899fe2863fda0e9",
       "duration_sec": 0.01,
       "tier": "fast",
       "is_slow": false,
       "last_status": "passed",
-      "last_run_at": "2026-09-23T12:54:16",
+      "last_run_at": "2026-09-23T17:23:19",
       "needs_run": false
     },
     "cli/constants.TestNoUnmarkedTopLevelCmdBlocks": {
@@ -36522,12 +36522,12 @@
       "test_hash": "dbf029f71e6dae5d",
       "target_file": "cli/constants/constants.go",
       "target_func": "NoUnmarkedTopLevelCmdBlocks",
-      "code_hash": "4de0f1eaec4e34b5",
+      "code_hash": "4899fe2863fda0e9",
       "duration_sec": 0.01,
       "tier": "fast",
       "is_slow": false,
       "last_status": "passed",
-      "last_run_at": "2026-09-23T12:54:16",
+      "last_run_at": "2026-09-23T17:23:19",
       "needs_run": false
     },
     "cli/constants.TestTopLevelCmdConstantsAreUnique": {
@@ -36538,12 +36538,12 @@
       "test_hash": "b7a16b3e5e19c2f7",
       "target_file": "cli/constants/constants.go",
       "target_func": "TopLevelCmdConstantsAreUnique",
-      "code_hash": "4de0f1eaec4e34b5",
+      "code_hash": "4899fe2863fda0e9",
       "duration_sec": 0.01,
       "tier": "fast",
       "is_slow": false,
       "last_status": "passed",
-      "last_run_at": "2026-09-23T12:54:16",
+      "last_run_at": "2026-09-23T17:23:19",
       "needs_run": false
     },
     "cli/constants.TestTopLevelCmdAliasesAreUnique": {
@@ -36554,12 +36554,12 @@
       "test_hash": "b7a16b3e5e19c2f7",
       "target_file": "cli/constants/constants.go",
       "target_func": "TopLevelCmdAliasesAreUnique",
-      "code_hash": "4de0f1eaec4e34b5",
+      "code_hash": "4899fe2863fda0e9",
       "duration_sec": 0.01,
       "tier": "fast",
       "is_slow": false,
       "last_status": "passed",
-      "last_run_at": "2026-09-23T12:54:16",
+      "last_run_at": "2026-09-23T17:23:19",
       "needs_run": false
     },
     "cli/constants.TestCanonicalCSVColumn": {
@@ -36575,7 +36575,7 @@
       "tier": "fast",
       "is_slow": false,
       "last_status": "passed",
-      "last_run_at": "2026-09-23T12:54:16",
+      "last_run_at": "2026-09-23T17:23:19",
       "needs_run": false
     },
     "cli/constants.TestCSVColumnAliasesNoConflict": {
@@ -36591,7 +36591,7 @@
       "tier": "fast",
       "is_slow": false,
       "last_status": "passed",
-      "last_run_at": "2026-09-23T12:54:16",
+      "last_run_at": "2026-09-23T17:23:19",
       "needs_run": false
     },
     "cli/constants.TestHostedDocsFallbackContract": {
@@ -36607,7 +36607,7 @@
       "tier": "fast",
       "is_slow": false,
       "last_status": "passed",
-      "last_run_at": "2026-09-23T12:54:16",
+      "last_run_at": "2026-09-23T17:23:19",
       "needs_run": false
     },
     "cli/crypto.TestEncryptDecrypt": {

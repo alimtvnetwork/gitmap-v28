@@ -34,8 +34,8 @@ func TestDetermineSSHCommand(t *testing.T) {
 
 func TestResolveIPCommandArgs(t *testing.T) {
 	args := resolveIPCommandArgs([]string{"ip"})
-	if len(args) < 2 || args[0] != "sh" {
-		t.Fatalf("expected resolved shell command for ip, got: %v", args)
+	if len(args) != 1 || args[0] != "ip" {
+		t.Fatalf("expected preserved ip command args for delegation, got: %v", args)
 	}
 
 	regularArgs := resolveIPCommandArgs([]string{"gitmap", "--version"})
