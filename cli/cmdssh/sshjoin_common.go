@@ -49,7 +49,7 @@ func processCommonTarget(ctx context.Context, target *SSHCommonTarget, password,
 		User:     target.Username,
 	}
 
-	persistErr := persistHostWithEncryptedPass(ctx, host, hist, osType)
+	persistErr := persistHostWithEncryptedPassAndVersion(ctx, host, hist, osType, fullVersion)
 	if persistErr != nil {
 		target.IsSuccess = false
 		target.ErrorMsg = persistErr.Error()

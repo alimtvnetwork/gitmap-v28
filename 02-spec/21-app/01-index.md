@@ -65,6 +65,7 @@ See [00-overview.md](./00-overview.md) for the complete application specificatio
 - [Spec 145: SSH Macro & App Fleet Deployment, Remote Clone, REST Endpoint Triad, and Web UI Management Engine](./145-ssh-fleet-deploy-remote-clone-api-ui/01-overview.md)
 - [Spec 146: Repository Creation Triple Ecosystem Auto-Sync (VS Code, GitHub Desktop & Antigravity) & PAET Latency RCA](./146-repo-create-triple-sync-and-paet-latency-rca.md)
 - [Spec 147: Pull Batch Abort, CFR GitHub Resolver, Asset Downloader, Color Contrast, and Token Fleet Management](./147-pull-abort-cfr-gh-resolver-asset-downloader-and-contrast.md)
+- [Spec 148: SSH Common Batch Join, Remote OS Detection & Telemetry, AGY Project Re-read & Optimization, and Native AUM Benchmarking](./148-ssh-join-common-os-detect-rop-and-e2e-benchmarks.md)
 
 ---
 

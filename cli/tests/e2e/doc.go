@@ -1,0 +1,3 @@
+// Package e2e provides isolated end-to-end integration tests.
+// Run explicitly with: go test -v -tags e2e ./tests/e2e/...
+package e2e

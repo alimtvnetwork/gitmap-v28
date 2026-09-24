@@ -1,3 +1,9 @@
+## v6.323.0 — 2026-09-24 (ssh join common, os detect, rop, e2e benchmarks, and vscode rca)
+
+**Scope:** Version bump. ssh join common, os detect, rop, e2e benchmarks, and vscode rca.
+
+---
+
 ## v6.322.0 — 2026-09-24 (pull abort, cfr gh resolver, asset downloader, contrast, prompt sync)
 
 **Scope:** Version bump. pull abort, cfr gh resolver, asset downloader, contrast, prompt sync.

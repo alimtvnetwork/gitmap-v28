@@ -33,7 +33,9 @@ func dispatchOSSubcommand(subCmd string, subArgs []string) error {
 		return runOSDisplay(subArgs)
 	case constants.SubCmdFixLink, constants.SubCmdFixLinkAlias, constants.SubCmdFixLinkAlias2:
 		return runOSFixLink(subArgs)
-	case constants.SubCmdOSStatus, "st", "info":
+	case "info", "os-info", "osinfo", "sysinfo", "system-info":
+		return RunOSInfoCLI(subArgs)
+	case constants.SubCmdOSStatus, "st":
 		return runOSStatus(subArgs)
 	case constants.SubCmdOSIP:
 		return runOSIP(subArgs)

@@ -10,7 +10,8 @@ Master directory of architectural and execution plans.
 
 ## Recent Completed Tasks Register (Last 20 Tasks)
 
-1. [96-pull-abort-cfr-gh-resolver-asset-downloader-and-contrast.md](completed/96-pull-abort-cfr-gh-resolver-asset-downloader-and-contrast.md): Pull Batch Abort, CFR GitHub Resolver, Asset Downloader, Color Contrast, and Token Fleet Management
+1. [97-ssh-join-common-os-detect-rop-and-e2e-benchmarks.md](completed/97-ssh-join-common-os-detect-rop-and-e2e-benchmarks.md): SSH Common Batch Join, Remote OS Detection & Telemetry, AGY Project Re-read & Optimization, and Native AUM Benchmarking
+2. [96-pull-abort-cfr-gh-resolver-asset-downloader-and-contrast.md](completed/96-pull-abort-cfr-gh-resolver-asset-downloader-and-contrast.md): Pull Batch Abort, CFR GitHub Resolver, Asset Downloader, Color Contrast, and Token Fleet Management
 2. [95-repo-create-triple-sync-and-paet-latency-rca.md](completed/95-repo-create-triple-sync-and-paet-latency-rca.md): Repository Creation Triple Ecosystem Auto-Sync (VS Code, GitHub Desktop & Antigravity) & PAET Latency RCA
 3. [94-agy-rerun-restart-and-tooling-suite.md](completed/94-agy-rerun-restart-and-tooling-suite.md): AGY Rerun IDE Restart, Multi-Project Prompt Replay with Media, and Tooling Suite
 4. [94-ssh-fleet-deploy-remote-clone-api-ui.md](completed/94-ssh-fleet-deploy-remote-clone-api-ui.md): SSH Macro & App Fleet Deployment, Remote Clone, REST Endpoint Triad, and Web UI Management Engine
@@ -74,6 +75,8 @@ Master directory of architectural and execution plans.
 
 ## Completed Plans
 
+- [97-ssh-join-common-os-detect-rop-and-e2e-benchmarks.md](completed/97-ssh-join-common-os-detect-rop-and-e2e-benchmarks.md): SSH Common Batch Join, Remote OS Detection & Telemetry, AGY Project Re-read & Optimization, and Native AUM Benchmarking
+- [96-pull-abort-cfr-gh-resolver-asset-downloader-and-contrast.md](completed/96-pull-abort-cfr-gh-resolver-asset-downloader-and-contrast.md): Pull Batch Abort, CFR GitHub Resolver, Asset Downloader, Color Contrast, and Token Fleet Management
 - [95-repo-create-triple-sync-and-paet-latency-rca.md](completed/95-repo-create-triple-sync-and-paet-latency-rca.md): Repository Creation Triple Ecosystem Auto-Sync (VS Code, GitHub Desktop & Antigravity) & PAET Latency RCA
 - [94-agy-rerun-restart-and-tooling-suite.md](completed/94-agy-rerun-restart-and-tooling-suite.md): AGY Rerun IDE Restart, Multi-Project Prompt Replay with Media, and Tooling Suite
 - [94-ssh-fleet-deploy-remote-clone-api-ui.md](completed/94-ssh-fleet-deploy-remote-clone-api-ui.md): SSH Macro & App Fleet Deployment, Remote Clone, REST Endpoint Triad, and Web UI Management Engine

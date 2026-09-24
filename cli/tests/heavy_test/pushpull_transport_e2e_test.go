@@ -1,12 +1,12 @@
 package heavy_test
 
-import "github.com/alimtvnetwork/gitmap-v28/cli/cmd"
-
 import (
 	"os/exec"
 	"path/filepath"
 	"strings"
 	"testing"
+
+	"github.com/alimtvnetwork/gitmap-v28/cli/cmd"
 )
 
 // TestApplyTransportFlag_E2E exercises the end-to-end transport

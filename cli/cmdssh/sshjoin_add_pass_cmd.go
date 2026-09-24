@@ -130,6 +130,10 @@ func completeAddPassEnrollment(alias, target string, isJSON bool) error {
 }
 
 func persistHostWithEncryptedPass(ctx context.Context, host store.SSHHost, hist store.SSHHistory, osType string) error {
+	return persistHostWithEncryptedPassAndVersion(ctx, host, hist, osType, "")
+}
+
+func persistHostWithEncryptedPassAndVersion(ctx context.Context, host store.SSHHost, hist store.SSHHistory, osType, osVersion string) error {
 	if ctx == nil {
 		ctx = context.Background()
 	}
@@ -138,7 +142,7 @@ func persistHostWithEncryptedPass(ctx context.Context, host store.SSHHost, hist 
 		return apperror.New("persistHostWithEncryptedPass", "E_INTERNAL_ERROR", map[string]any{"cause": err.Error()})
 	}
 	defer dbConn.Close()
-	pair := hostHistoryPair{host: host, hist: hist, osType: osType}
+	pair := hostHistoryPair{host: host, hist: hist, osType: osType, osVersion: osVersion}
 	if appErr := persistDualTables(ctx, dbConn.SQL(), pair); appErr != nil {
 		return appErr
 	}

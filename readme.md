@@ -4,7 +4,7 @@
 
 **Git repository scanner, manager, and navigator CLI**
 
-**Pinned version: v6.322.0**
+**Pinned version: v6.323.0**
 
 <!-- STAMP:PLATFORM_BADGES -->
 [![CI](https://github.com/alimtvnetwork/gitmap-v28/actions/workflows/ci.yml/badge.svg?branch=main)](https://github.com/alimtvnetwork/gitmap-v28/actions/workflows/ci.yml)
@@ -30,7 +30,7 @@ _Scan, catalog, clone, and manage all your Git repositories from a single CLI._
 
 <div align="center">
 
-📖 **[Full Command & Subcommand Directory (docs/commands/)](./docs/commands/readme.md)** · 📚 **[Command Reference](#command-reference)** · 🧭 **[What to Read](.ai-memory/what-to-read.md)** · 🚀 **[Install](#-install)**
+📖 **[Full Command & Subcommand Directory (docs/commands/)](./docs/commands/readme.md)** · 📚 **[Command Reference](#command-reference)** · ⚡ **[Search Benchmarks](docs/benchmarks/search_benchmark.md)** · 🧭 **[What to Read](.ai-memory/what-to-read.md)** · 🚀 **[Install](#-install)**
 
 </div>
 
@@ -47,9 +47,9 @@ GitMap is a **Windows-first** project. The commands below install the latest rel
 irm https://raw.githubusercontent.com/alimtvnetwork/gitmap-v28/main/install.ps1 | iex
 ```
 
-#### Pinned Version Install (v6.322.0)
+#### Pinned Version Install (v6.323.0)
 ```powershell
-irm https://raw.githubusercontent.com/alimtvnetwork/gitmap-v28/v6.322.0/install.ps1 | iex
+irm https://raw.githubusercontent.com/alimtvnetwork/gitmap-v28/v6.323.0/install.ps1 | iex
 ```
 
 ---
@@ -61,9 +61,9 @@ irm https://raw.githubusercontent.com/alimtvnetwork/gitmap-v28/v6.322.0/install.
 curl -fsSL https://raw.githubusercontent.com/alimtvnetwork/gitmap-v28/main/install.sh | sh
 ```
 
-#### Pinned Version Install (v6.322.0)
+#### Pinned Version Install (v6.323.0)
 ```bash
-curl -fsSL https://raw.githubusercontent.com/alimtvnetwork/gitmap-v28/v6.322.0/install.sh | sh
+curl -fsSL https://raw.githubusercontent.com/alimtvnetwork/gitmap-v28/v6.323.0/install.sh | sh
 ```
 
 ### 🎯 Install — Quick (pick your install drive)

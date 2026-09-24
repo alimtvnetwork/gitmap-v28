@@ -46,6 +46,7 @@ Any content that analyzes bugs, failures, root causes, or fixes for application-
 | 38 | [38-paet-table-latency-and-gh-pr-bottleneck-rca.md](38-paet-table-latency-and-gh-pr-bottleneck-rca.md) | PAET Table Command Excessive Execution Latency: Root Cause Analysis & Mitigation | Resolved |
 | 39 | [39-pull-batch-abort-and-search-untracked-directory-crash.md](39-pull-batch-abort-and-search-untracked-directory-crash.md) | Pull Batch Abort & Search Untracked Directory Crash: RCA & Fix | Resolved |
 | 40 | [40-cfr-short-name-clone-failure-and-missing-gh-resolution.md](40-cfr-short-name-clone-failure-and-missing-gh-resolution.md) | CFR Short-Name Clone Failure & Missing GitHub CLI Resolution: RCA & Fix | Resolved |
+| 41 | [41-vscode-startup-failure-and-search-latency-rca.md](41-vscode-startup-failure-and-search-latency-rca.md) | VS Code Startup Failure & Investigation Latency: Root Cause Analysis & Mitigation | Resolved |
 
 ---
 

@@ -1,7 +1,5 @@
 package heavy_test
 
-import "github.com/alimtvnetwork/gitmap-v28/cli/cmd"
-
 import (
 	"bytes"
 	"os"
@@ -9,6 +7,8 @@ import (
 	"path/filepath"
 	"strings"
 	"testing"
+
+	"github.com/alimtvnetwork/gitmap-v28/cli/cmd"
 )
 
 // TestRunRepoRecloneEndToEnd creates a tiny local bare git repo,

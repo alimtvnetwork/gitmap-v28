@@ -24,7 +24,6 @@ func ExpandUniversalPath(rawPath, osType string) string {
 	return normalizePathSeparators(expanded, isWin)
 }
 
-
 func expandHomeTilde(p string, isWin bool) string {
 	if p == "~" {
 		return resolveHomeDir(isWin)

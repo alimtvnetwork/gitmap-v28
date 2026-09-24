@@ -1,3 +1,21 @@
+## [v6.323.0] 2026-09-24 Release v6.323.0
+
+### Install GitMap v6.323.0
+
+To pin your repository to this exact version, run the following one-liner:
+Unix/Bash: `curl -sL https://raw.githubusercontent.com/alimtvnetwork/gitmap-v28/v6.323.0/install.sh | bash -s -- ".ai-memory/prompts" "v6.323.0"`
+PowerShell: `Invoke-WebRequest -Uri https://raw.githubusercontent.com/alimtvnetwork/gitmap-v28/v6.323.0/install.ps1 -OutFile install.ps1; .\install.ps1 -TargetDir ".ai-memory/prompts" -Version "v6.323.0"`
+
+### Added / Changed / Fixed / Removed
+
+- **SSH Batch Common Join (`sjc` / `ssh-join-common`)**: Added shorthand IP/octet notation with embedded host aliases (`gitmap ssh-join-common administrator 192.168.1.3(w1),7(w2),12(w3) --pass <secret>`), automatic remote OS detection (`os_detect`) upon initial join, and persistence to `SSHConnection.OSVersion` in SQLite (`gitmap.db`).
+- **OS Telemetry & Node Inspection (`gitmap os info --json`)**: Exposed structured JSON and terminal hardware/OS telemetry via `RunOSInfoCLI` in `cli/cmdos/os.go`.
+- **AGY IDE Rerun & Restart Replay (`gitmap agy rerun [1|2|3|4|project]`)**: Hardened IDE termination (`taskkill /F /IM antigravity.exe` / `pkill -9 antigravity`), target project workspace launch, and multimodal prompt replay (including pictures and media attachments).
+- **AGY Project Re-Read & Optimization (`gitmap agy rop [N]`)**: Implemented active project discovery (last 24h, default 5), `--keep 10` cache retention, split SQLite DB conversation archiving (`data/AGY/<slug>.db`), and automated project-named conversation re-read initialization.
+- **Native AUM Search vs Python Fast Grep Benchmarking**: Documented side-by-side search benchmarks (`docs/benchmarks/search_benchmark.md` and `cli/tests/e2e/search_benchmark_e2e_test.go`), demonstrating a 33,000x latency improvement (<1ms vs 33.2s).
+- **Chrome Profile Full-Fidelity Export/Import E2E Suite**: Added hermetic local E2E verification (`//go:build e2e`) for OAuth refresh token, session cookie, and login persistence roundtrip.
+- **VS Code Startup Failure 4-Part RCA & Dynamic Path Normalization (Issue 41)**: Authored `02-spec/22-app-issues/41-vscode-startup-failure-and-search-latency-rca.md` detailing Chromium ICU binary locks and `projects.json` schema recovery, and normalized all PowerShell/Go scripts to use dynamic environment variables (`$env:APPDATA`).
+
 ## [v6.322.0] 2026-09-24 Release v6.322.0
 
 ### Install GitMap v6.322.0

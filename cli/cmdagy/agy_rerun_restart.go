@@ -41,7 +41,7 @@ func RestartAndRerunProject(target string, isRestart, isDryRun bool, templateID 
 
 	renderRerunPlanHeader(plan)
 	if isDryRun {
-		fmt.Println("  • [dry-run] Preview complete. Skipping IDE restart and prompt injection.\n")
+		fmt.Println("  • [dry-run] Preview complete. Skipping IDE restart and prompt injection.")
 		return nil
 	}
 
