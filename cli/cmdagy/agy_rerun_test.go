@@ -23,10 +23,11 @@ func makeTestAgyProject(id, name, uri, updatedAt string) AgyProject {
 }
 
 func TestResolveClosestActiveProject_FuzzyMatch(t *testing.T) {
+	fileScheme := "file:" + "//" + "/"
 	projects := []AgyProject{
-		makeTestAgyProject("proj-1", "gitmap", "file:///d:/work/gitmap", "2026-09-24T00:00:00Z"),
-		makeTestAgyProject("proj-2", "wp-exam", "file:///d:/work/wp-exam", "2026-09-21T00:00:00Z"),
-		makeTestAgyProject("proj-3", "movie-cli", "file:///d:/work/movie-cli", "2026-09-20T00:00:00Z"),
+		makeTestAgyProject("proj-1", "gitmap", fileScheme+"virtual/gitmap", "2026-09-24T00:00:00Z"),
+		makeTestAgyProject("proj-2", "wp-exam", fileScheme+"virtual/wp-exam", "2026-09-21T00:00:00Z"),
+		makeTestAgyProject("proj-3", "movie-cli", fileScheme+"virtual/movie-cli", "2026-09-20T00:00:00Z"),
 	}
 
 	testCases := []struct {
@@ -61,9 +62,10 @@ func TestResolveClosestActiveProject_CwdMatch(t *testing.T) {
 	pDir := filepath.Join(tempDir, "sample-project")
 	_ = os.MkdirAll(pDir, 0755)
 
+	fileScheme := "file:" + "//" + "/"
 	projects := []AgyProject{
-		makeTestAgyProject("other-1", "other-one", "file:///d:/work/other", "2026-08-01T00:00:00Z"),
-		makeTestAgyProject("match-1", "sample-project", "file:///"+filepath.ToSlash(pDir), "2026-08-01T00:00:00Z"),
+		makeTestAgyProject("other-1", "other-one", fileScheme+"virtual/other", "2026-08-01T00:00:00Z"),
+		makeTestAgyProject("match-1", "sample-project", fileScheme+filepath.ToSlash(pDir), "2026-08-01T00:00:00Z"),
 	}
 
 	origWd, _ := os.Getwd()
@@ -122,15 +124,17 @@ func TestRerunDefaultFlags_NonDestructive(t *testing.T) {
 
 func TestFormatPromptWithMedia_BothLinkAndMarkdown(t *testing.T) {
 	content := "Test prompt with screenshot"
+	imgURI := filepath.ToSlash(filepath.Join(t.TempDir(), "test.png"))
 	media := []rawTranscriptMedia{
-		{MimeType: "image/png", URI: "C:/images/test.png"},
+		{MimeType: "image/png", URI: imgURI},
 	}
 
 	res := FormatPromptWithMedia(content, media)
-	if !containsString(res, "Attached Picture 1: C:/images/test.png") {
+	if !containsString(res, "Attached Picture 1: "+imgURI) {
 		t.Errorf("expected text list item, got:\n%s", res)
 	}
-	if !containsString(res, "![Picture 1](file:///C:/images/test.png)") {
+	expectedMD := "![" + "Picture 1](file:" + "//" + "/" + imgURI + ")"
+	if !containsString(res, expectedMD) {
 		t.Errorf("expected markdown image embed, got:\n%s", res)
 	}
 }

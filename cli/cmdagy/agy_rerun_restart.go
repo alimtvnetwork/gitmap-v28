@@ -220,7 +220,7 @@ func dispatchRerunPayload(plan rerunRestartPlan, isNewConv bool, model string) e
 
 func tryDispatchNewConversation(title, model string, plan rerunRestartPlan, targetPrompt string, pid int) bool {
 	newRes := AgentAPINewConversationWithOptions(title, model, "", plan.PromptText)
-	if !newRes.IsSuccess() {
+	if newRes.IsFailure() {
 		return false
 	}
 	FocusAntigravityWindow(pid)
