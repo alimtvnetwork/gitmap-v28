@@ -63,11 +63,19 @@ gitmap agy fix-pipeline
 
 ## 1. agy rerun
 
-Replay the last N user prompts recorded in Antigravity conversation transcripts (`transcript.jsonl`). Supports prepending a prefix template to verify or guide execution.
+Rerun the last prompt for a specific project with Antigravity IDE restart and automatic media/picture replay. Supports targeting projects by index sequence (`1`, `2`, `3`, `4`), terminating running IDE processes, relaunching into the target workspace, and re-injecting the exact active prompt payload with all attached screenshots and pictures.
+
+Also supports replaying the last N user prompts recorded in conversation transcripts into clipboard (`gitmap agy rerun last [N]`).
 
 ### Usage
 
 ```bash
+# Rerun project by sequence index with IDE restart and prompt + picture replay
+gitmap agy rerun [1|2|3|4|project-name] [flags]
+gitmap agy rerun-restart [1|2|3|4] [flags]
+gitmap agy rr [1|2|3|4] [flags]
+
+# Legacy clipboard replay of last N prompts
 gitmap agy rerun last [N] [flags]
 ```
 
@@ -75,9 +83,13 @@ gitmap agy rerun last [N] [flags]
 
 | Flag | Shorthand | Type | Default | Description |
 |------|-----------|------|---------|-------------|
-| `--prompt` | `-p` | string | `"is-done"` | Prompt template name, prefix, or ID |
+| `--restart` | `-r` | boolean | `true` | Restart the Antigravity IDE process and replay prompt |
+| `--no-restart` | | boolean | `false` | Replay prompt directly without restarting the IDE process |
+| `--project` | `-P` | string | `""` | Target project by index (`1`, `2`, ...) or name/slug |
+| `--conversation` | `-c` | string | `""` | Target conversation ID (auto-resolved if omitted) |
+| `--prompt` | `-p` | string | `"is-done"` | Prefix prompt template name or verification template |
 | `--no-clipboard` | | boolean | `false` | Do not copy constructed prompt to system clipboard |
-| `--dry-run` | `-d` | boolean | `false` | Preview constructed prompt without triggering execution |
+| `--dry-run` | `-d` | boolean | `false` | Preview restart actions and extracted payload without execution |
 | `--help` | `-h` | boolean | `false` | Show help for agy rerun |
 
 ### Default Verification Template (`is-done`)
@@ -88,23 +100,23 @@ When `-p is-done` is specified (or used by default):
 Is it done properly? Can we check properly the missing items from the task that is mentioned below? Please check it carefully. Do not make any mistakes.
 ```
 
-### Prompt Template Resolution Order
-
-1. **Exact Slug or ID Match**: Matches template ID (e.g., `-p is-done`, `-p code-review`).
-2. **Prefix Match**: Matches any registered template starting with the given string (e.g., `-p is` resolves to `is-done`).
-3. **Built-in Fallback**: Falls back to the canonical `is-done` verification prompt.
-
 ### Examples
 
 ```bash
-# Rerun the very last prompt with the default is-done verification prefix
+# Rerun the prompt of project #1 with IDE restart and full picture/media replay
+gitmap agy rerun 1
+
+# Rerun the prompt of project #2
+gitmap agy rerun 2
+
+# Rerun project #3 without restarting the IDE process
+gitmap agy rerun 3 --no-restart
+
+# Preview rerun plan for project #1 without executing
+gitmap agy rerun 1 --dry-run
+
+# Legacy: Replay the very last prompt to OS clipboard
 gitmap agy rerun last 1
-
-# Rerun the last 5 prompts prefixed with a custom template
-gitmap agy rerun last 5 -p code-review
-
-# Preview constructed prompt without copying to clipboard or dispatching
-gitmap agy rerun last 3 --dry-run
 ```
 
 ---

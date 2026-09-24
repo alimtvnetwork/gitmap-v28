@@ -16,18 +16,28 @@ func PrintFleetStart(alias, ip, task string) {
 
 // PrintFleetDone displays immediate completion output for a single node.
 func PrintFleetDone(res FleetNodeResult) {
-	if res.Success {
-		fmt.Printf("%s[FLEET DONE]%s  [%s|%s]: %sSUCCESS%s (took %dms)\n",
-			constants.ColorGreen, constants.ColorReset,
-			res.Alias, res.IP, constants.ColorGreen, constants.ColorReset, res.DurationMs)
-		if trimmed := strings.TrimSpace(res.Output); trimmed != "" {
-			fmt.Printf("  %s\n", trimmed)
-		}
+	if !res.Success {
+		printFleetFailure(res)
 		return
 	}
+
+	fmt.Printf("%s[FLEET DONE]%s  [%s|%s]: %sSUCCESS%s (took %dms)\n",
+		constants.ColorGreen, constants.ColorReset,
+		res.Alias, res.IP, constants.ColorGreen, constants.ColorReset, res.DurationMs)
+	printFleetOutputIfPresent(res.Output)
+}
+
+func printFleetFailure(res FleetNodeResult) {
 	fmt.Printf("%s[FLEET FAIL]%s  [%s|%s]: %sFAILED%s - %v (took %dms)\n",
 		constants.ColorRed, constants.ColorReset,
 		res.Alias, res.IP, constants.ColorRed, constants.ColorReset, res.Error, res.DurationMs)
+}
+
+func printFleetOutputIfPresent(output string) {
+	trimmed := strings.TrimSpace(output)
+	if trimmed != "" {
+		fmt.Printf("  %s\n", trimmed)
+	}
 }
 
 func printFleetNoTargets(task string) {
@@ -83,14 +93,7 @@ func countFleetFailure(results []FleetNodeResult) int {
 func buildFleetSummaryRows(results []FleetNodeResult) []termtable.Row {
 	rows := make([]termtable.Row, 0, len(results))
 	for _, r := range results {
-		statusStr := constants.ColorGreen + "SUCCESS" + constants.ColorReset
-		details := "OK"
-		if !r.Success {
-			statusStr = constants.ColorRed + "FAILED" + constants.ColorReset
-			if r.Error != nil {
-				details = r.Error.Error()
-			}
-		}
+		statusStr, details := resolveFleetRowStatus(r)
 		rows = append(rows, termtable.Row{
 			Cells: []string{
 				r.Alias,
@@ -102,4 +105,17 @@ func buildFleetSummaryRows(results []FleetNodeResult) []termtable.Row {
 		})
 	}
 	return rows
+}
+
+func resolveFleetRowStatus(r FleetNodeResult) (string, string) {
+	if r.Success {
+		return constants.ColorGreen + "SUCCESS" + constants.ColorReset, "OK"
+	}
+
+	details := "Failed"
+	if r.Error != nil {
+		details = r.Error.Error()
+	}
+
+	return constants.ColorRed + "FAILED" + constants.ColorReset, details
 }

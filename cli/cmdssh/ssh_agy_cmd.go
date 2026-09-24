@@ -60,17 +60,24 @@ func resolveAgyTargetAndCommand(target, except string, clean []string) (string, 
 	if len(clean) == 0 {
 		return "all", except, []string{"status"}
 	}
-	if target == "" {
-		if isAllTarget(clean[0]) {
-			return "all", except, clean[1:]
-		}
-		conns, err := fetchAllSSHConnections()
-		if err == nil && len(filterConnectionsByTarget(conns, clean[0])) > 0 {
-			return clean[0], except, clean[1:]
-		}
-		return "all", except, clean
+	if target != "" {
+		return target, except, clean
 	}
-	return target, except, clean
+
+	return inferAgyTargetAndCommand(except, clean)
+}
+
+func inferAgyTargetAndCommand(except string, clean []string) (string, string, []string) {
+	if isAllTarget(clean[0]) {
+		return "all", except, clean[1:]
+	}
+
+	conns, err := fetchAllSSHConnections()
+	if err == nil && len(filterConnectionsByTarget(conns, clean[0])) > 0 {
+		return clean[0], except, clean[1:]
+	}
+
+	return "all", except, clean
 }
 
 func executeAgyOnFleet(target, except string, agyArgs []string) error {

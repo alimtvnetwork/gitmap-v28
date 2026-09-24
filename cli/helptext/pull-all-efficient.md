@@ -22,6 +22,8 @@ pae, pull-ae
 | --status-table | false | Alias for --status |
 | --ssh | false | Enforce SSH transport for pulled repositories |
 | --https | false | Enforce HTTPS transport for pulled repositories |
+| -t, --target | "" | Query remote SSH fleet machines (e.g. `-t ssh` or `-t <node>`) |
+| --json | false | Emit structured JSON summary object (`PullEfficientSummary`) |
 
 ## Key Features
 
@@ -30,6 +32,7 @@ pae, pull-ae
 - **Short-Form Expansion Banner**: Running `pae` or `pull-ae` announces the full command name, working directory, and GitMap version.
 - **Concise Default Output**: Suppresses verbose tabular overhead by default, presenting a clean list of updated repositories and skipped inactive items.
 - **Full Table on Demand**: Use `--status` or `gitmap pull-all-efficient-table` (`paet`) to render the full batch table.
+- **Remote SSH JSON Query**: Use `-t ssh` to query remote SSH nodes concurrently; remote nodes return JSON summaries which are formatted and displayed locally using native `termtable`.
 
 ## Examples
 
@@ -43,6 +46,19 @@ gitmap pae
 
 ```bash
 gitmap pae --status
+```
+
+### Example 3: Remote SSH fleet query formatted as native table
+
+```bash
+gitmap pull all-efficient -t ssh
+gitmap pae -t ssh
+```
+
+### Example 4: Output structured JSON for automation
+
+```bash
+gitmap pae --json
 ```
 
 ## See also

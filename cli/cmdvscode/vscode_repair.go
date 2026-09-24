@@ -138,14 +138,20 @@ func handleBrokenBinaries(candidates []string, errOut string, opts repairOptions
 		return
 	}
 
-	if opts.Force {
-		fmt.Println("    • Running winget reinstall/repair...")
-		out, err := runWingetRepair()
-		if err != nil {
-			fmt.Printf("    %s Winget error: %v (%s)\n", warnMark, err, strings.TrimSpace(out))
+	executeWingetReinstall(opts)
+}
 
-			return
-		}
-		fmt.Printf("    %s Winget repair finished successfully.\n", successMark)
+func executeWingetReinstall(opts repairOptions) {
+	if !opts.Force {
+		return
 	}
+
+	fmt.Println("    • Running winget reinstall/repair...")
+	out, err := runWingetRepair()
+	if err != nil {
+		fmt.Printf("    %s Winget error: %v (%s)\n", warnMark, err, strings.TrimSpace(out))
+
+		return
+	}
+	fmt.Printf("    %s Winget repair finished successfully.\n", successMark)
 }

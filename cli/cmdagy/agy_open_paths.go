@@ -229,7 +229,6 @@ func getWindowsIDEPaths(home, localApp, progFiles string) []string {
 		filepath.Join(progFilesX86, "Antigravity", "Antigravity.exe"),
 		filepath.Join(home, "AppData", "Local", "Programs", "antigravity", "Antigravity.exe"),
 		filepath.Join(home, "AppData", "Local", "Programs", "Antigravity", "Antigravity.exe"),
-		"C:\\Program Files\\Antigravity\\Antigravity.exe",
 	}
 }
 

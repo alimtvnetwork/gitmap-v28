@@ -50,14 +50,19 @@ func runAgmUpdateCmd(cmd *cobra.Command, args []string) error {
 	hasSSH := agmUpdateSSH || hasSSHArg(args)
 	hasAll := hasAllArg(args)
 	if (hasSSH || agmUpdateRemote != "" || hasAll) && RemoteAgmUpdateFleetFn != nil {
-		target := agmUpdateRemote
-		if target == "" || hasAll {
-			target = "all-nodes"
-		}
+		target := resolveAgmUpdateTarget(agmUpdateRemote, hasAll)
 		return RemoteAgmUpdateFleetFn(target, agmUpdateExcept)
 	}
 	opts := buildAgmInstallOptions()
 	return runUpdateAgManagerWithOpts(opts)
+}
+
+func resolveAgmUpdateTarget(target string, hasAll bool) string {
+	if target == "" || hasAll {
+		return "all-nodes"
+	}
+
+	return target
 }
 
 func runAgmUpdateAllCmd(cmd *cobra.Command, args []string) error {

@@ -194,7 +194,7 @@ func normalizeWorkflowSubcommands(low string) string {
 	if low == "list-prompts" || low == "listprompts" || low == "lp" || low == "list-prompt" {
 		return "list-prompts"
 	}
-	if low == "rerun" || low == "replay" || low == "rr" {
+	if low == "rerun" || low == "replay" || low == "rr" || low == "rerun-restart" || low == "restart-rerun" {
 		return "rerun"
 	}
 	if low == "queue" || low == "q" {

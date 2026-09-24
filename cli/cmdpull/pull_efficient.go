@@ -30,14 +30,18 @@ func RunPullAllEfficient(args []string, isTableMode bool, invokedAlias string, i
 
 	records := resolveAllTrackedRecords()
 	if len(records) == 0 {
-		if isJSON {
-			return renderJSONInactiveResults(0, nil)
-		}
-		printNothingToPull()
-		return nil
+		return handleEmptyRecords(isJSON)
 	}
 
 	return processEfficientPullLifecycle(records, opts)
+}
+
+func handleEmptyRecords(isJSON bool) error {
+	if isJSON {
+		return renderJSONInactiveResults(0, nil)
+	}
+	printNothingToPull()
+	return nil
 }
 
 func buildEfficientOptions(args []string, isTable, isJSON bool, alias string, isShort bool, ssh, https bool, target string) EfficientPullOptions {

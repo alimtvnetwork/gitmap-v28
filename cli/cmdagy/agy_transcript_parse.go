@@ -3,6 +3,7 @@ package cmdagy
 import (
 	"bufio"
 	"encoding/json"
+	"fmt"
 	"os"
 	"strings"
 	"time"
@@ -36,8 +37,8 @@ func parseTranscriptLine(line []byte, convID, ws string) (AgyPromptEntry, bool) 
 
 func buildPromptEntry(step rawTranscriptStep, convID, ws string) (AgyPromptEntry, bool) {
 	cleanText := cleanPromptText(step.Content)
-	hasText := cleanText != ""
-	if hasText {
+	hasContent := cleanText != "" || len(step.Media) > 0
+	if hasContent {
 		return makePromptEntry(step, convID, ws, cleanText), true
 	}
 
@@ -53,7 +54,26 @@ func makePromptEntry(step rawTranscriptStep, convID, ws, content string) AgyProm
 		Content:   content,
 		Workspace: ws,
 		ConvID:    convID,
+		Media:     step.Media,
 	}
+}
+
+// FormatPromptWithMedia formats a prompt content string, preserving attached media references.
+func FormatPromptWithMedia(content string, media []rawTranscriptMedia) string {
+	if len(media) == 0 {
+		return content
+	}
+
+	var sb strings.Builder
+	sb.WriteString(content)
+	sb.WriteString("\n\n<!-- Attached Media / Pictures -->\n")
+	for i, m := range media {
+		cleanURI := strings.TrimPrefix(m.URI, "file:///")
+		cleanURI = strings.TrimPrefix(cleanURI, "file://")
+		sb.WriteString(fmt.Sprintf("- Attached Picture %d: %s\n", i+1, cleanURI))
+	}
+
+	return sb.String()
 }
 
 func cleanPromptText(raw string) string {

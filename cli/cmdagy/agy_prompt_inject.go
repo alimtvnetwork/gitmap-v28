@@ -37,17 +37,17 @@ func resolveInjectProjectTarget(args []string) (string, error) {
 }
 
 func loadInjectPromptPayload(slugOrPath string) (string, string, error) {
-	if _, err := os.Stat(slugOrPath); err == nil {
-		content, readErr := os.ReadFile(slugOrPath)
-		if readErr != nil {
-			return "", "", apperror.WrapSimple(readErr, "read prompt file")
-		}
-		title := strings.TrimSuffix(filepath.Base(slugOrPath), filepath.Ext(slugOrPath))
-
-		return string(content), title, nil
+	if _, err := os.Stat(slugOrPath); err != nil {
+		return findPromptInSearchPaths(slugOrPath)
 	}
 
-	return findPromptInSearchPaths(slugOrPath)
+	content, readErr := os.ReadFile(slugOrPath)
+	if readErr != nil {
+		return "", "", apperror.WrapSimple(readErr, "read prompt file")
+	}
+	title := strings.TrimSuffix(filepath.Base(slugOrPath), filepath.Ext(slugOrPath))
+
+	return string(content), title, nil
 }
 
 func findPromptInSearchPaths(slug string) (string, string, error) {

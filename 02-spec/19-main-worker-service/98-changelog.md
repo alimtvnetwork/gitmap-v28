@@ -1,3 +1,9 @@
+## v6.320.0 — 2026-09-24 (agy rerun ide restart, transcript media replay, and vscode repair integration)
+
+**Scope:** Version bump. agy rerun ide restart, transcript media replay, and vscode repair integration.
+
+---
+
 ## v6.319.0 — 2026-09-24 (native vscode repair command, dynamic paths, and install list color contrast)
 
 **Scope:** Version bump. native vscode repair command, dynamic paths, and install list color contrast.

@@ -1,3 +1,19 @@
+## [v6.320.0] 2026-09-24 Release v6.320.0
+
+### Install GitMap v6.320.0
+
+To pin your repository to this exact version, run the following one-liner:
+Unix/Bash: `curl -sL https://raw.githubusercontent.com/alimtvnetwork/gitmap-v28/v6.320.0/install.sh | bash -s -- ".ai-memory/prompts" "v6.320.0"`
+PowerShell: `Invoke-WebRequest -Uri https://raw.githubusercontent.com/alimtvnetwork/gitmap-v28/v6.320.0/install.ps1 -OutFile install.ps1; .\install.ps1 -TargetDir ".ai-memory/prompts" -Version "v6.320.0"`
+
+### Added / Changed / Fixed / Removed
+
+- **AGY Rerun IDE Restart (`gitmap agy rerun [1|2|3|4|project]`)**: Re-runs the active prompt payload by terminating running Antigravity IDE instances, relaunching the IDE in the target project's workspace, and immediately re-dispatching the prompt to that conversation.
+- **Transcript Media Preservation**: Extracted and embedded media attachments (`rawTranscriptMedia`) including user uploaded images and files directly into replayed prompts for seamless vision/multimodal resumption.
+- **Native VS Code Repair & Fix Integration**: Integrated `gitmap vscode repair` and `gitmap vscode fix` with dynamic path resolution, fixing locked Chromium ICU binary and corrupted project manager configurations without hardcoded drive letters.
+- **Parallel SSH Fleet Automation**: Distributed AGM and AGY command execution across remote SSH cluster nodes with summary rendering and node exclusion flags.
+- **Isolated E2E Test Suite**: Added end-to-end verification tests under `cli/tests/e2e/` guarded by `//go:build e2e`.
+
 ## [v6.319.0] 2026-09-24 Release v6.319.0
 
 ### Install GitMap v6.319.0

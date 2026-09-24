@@ -10,18 +10,25 @@ import (
 
 // AgyPromptEntry stores a captured user prompt from an Antigravity transcript.
 type AgyPromptEntry struct {
-	StepIndex int       `json:"stepIndex"`
-	CreatedAt time.Time `json:"createdAt"`
-	Content   string    `json:"content"`
-	Workspace string    `json:"workspace"`
-	ConvID    string    `json:"convId"`
+	StepIndex int                  `json:"stepIndex"`
+	CreatedAt time.Time            `json:"createdAt"`
+	Content   string               `json:"content"`
+	Workspace string               `json:"workspace"`
+	ConvID    string               `json:"convId"`
+	Media     []rawTranscriptMedia `json:"media,omitempty"`
+}
+
+type rawTranscriptMedia struct {
+	MimeType string `json:"mime_type"`
+	URI      string `json:"uri"`
 }
 
 type rawTranscriptStep struct {
-	StepIndex int    `json:"step_index"`
-	Type      string `json:"type"`
-	CreatedAt string `json:"created_at"`
-	Content   string `json:"content"`
+	StepIndex int                  `json:"step_index"`
+	Type      string               `json:"type"`
+	CreatedAt string               `json:"created_at"`
+	Content   string               `json:"content"`
+	Media     []rawTranscriptMedia `json:"media,omitempty"`
 }
 
 // GetBrainLogsDirPath returns the root path where Antigravity brain transcripts are stored.

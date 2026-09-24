@@ -17,16 +17,14 @@ func TestPromptInject_E2E(t *testing.T) {
 	title := "E2E Prompt Test"
 
 	res := cmdagy.InjectAgyPrompt(tempProject, promptText, title, "user_inject", false)
-	if !res.IsSuccess && res.Mode == cmdagy.AgyInjectionModeNone {
+	if res.IsSuccess == false && res.Mode == cmdagy.AgyInjectionModeNone {
 		t.Fatalf("expected non-none injection mode, got %s", res.Mode)
 	}
 
 	stagedPath := filepath.Join(tempProject, ".ai-memory", "prompts", "active-prompt.md")
-	if _, err := os.Stat(stagedPath); err == nil {
-		content, _ := os.ReadFile(stagedPath)
-		if len(content) == 0 {
-			t.Errorf("expected staged content at %s", stagedPath)
-		}
+	content, err := os.ReadFile(stagedPath)
+	if err == nil && len(content) == 0 {
+		t.Errorf("expected staged content at %s", stagedPath)
 	}
 }
 

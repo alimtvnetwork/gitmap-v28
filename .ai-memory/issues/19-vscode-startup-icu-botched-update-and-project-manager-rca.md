@@ -39,3 +39,22 @@ VS Code workbench failed to open completely.
 ## 4. Prevention & Learnings
 - When diagnosing VS Code launch crashes on Windows with `icu_util.cc:232`, check the commit hash of `Code.exe` against the subfolder names in the installation directory. If the commit folder matching `Code.exe` is absent, an incomplete background update occurred due to a locked file.
 - Keep both modern and legacy `projects.json` locations mirrored to prevent extension version incompatibilities across different machines.
+
+## 5. Diagnostic Latency Breakdown (Why It Took ~1 Hour)
+1. **Initial Misdirection & Search Scope:**
+   - Initial diagnosis focused on exploring core VS Code configuration files (`product.json`, workspace state, extension settings) under the assumption that a JSON corruption was crashing the UI.
+   - Searching across massive directory trees (`%APPDATA%\Code`, extensions, cache) consumed significant disk I/O time without identifying the root cause because `product.json` was entirely valid.
+2. **Crash Dump & Electron / Chromium Binary Diagnostics:**
+   - The crash occurred before Electron could initialize its logging or UI layer, emitting only `[ERROR:base\i18n\icu_util.cc:232] Invalid file descriptor to ICU data received.` to stderr with exit code `-2147483645` (`STATUS_BREAKPOINT`).
+   - Identifying that Chromium's `icu_util` requires `icudtl.dat` located in the version-stamped directory (`7debcd0e2a...`) required analyzing Electron's `win32VersionedUpdate` update mechanism and comparing directory commit hashes against the `Code.exe` binary header.
+3. **Dual-Installation Mismatch:**
+   - Windows installations frequently feature both 64-bit System (`Program Files\Microsoft VS Code`) and 64-bit User (`%LOCALAPPDATA%\Programs\Microsoft VS Code`) paths. Tracing which binary was being invoked from `%PATH%` vs Desktop shortcuts required methodical process tree inspection.
+
+## 6. Zero Hardcoded Paths & Dynamic Path Computation Standard
+- All PowerShell scripts (`tools/repair-vscode-and-projects.ps1`), Go commands (`cli/cmdvscode/`), and automation tools must strictly compute paths dynamically:
+  * Application Data: `$env:APPDATA` / `os.Getenv("APPDATA")`
+  * Local Application Data: `$env:LOCALAPPDATA` / `os.Getenv("LOCALAPPDATA")`
+  * Program Files: `$env:ProgramFiles` / `os.Getenv("ProgramFiles")`
+  * Script Root: `$PSScriptRoot`
+- Strict prohibition on hardcoded drive letters (`D:\` or `C:\`) ensuring 100% portability across workstations and multi-node clusters.
+

@@ -85,6 +85,7 @@ var topicSummaries = map[string]string{
 	"task":                        "Manage and inspect pending and completed task execution queues, history, and undo/redo operations.",
 	"tasks":                       "Manage and inspect pending and completed task execution queues, history, and undo/redo operations.",
 	"agy":                         "Manage Google Antigravity workspaces, rerun historical prompts with prefix verification templates, inspect prompt diffs across projects in non-admin VS Code, and orchestrate remote execution.",
+	"agm":                         "Manage and install Antigravity Manager GUI desktop application and tools locally or across remote SSH fleet nodes concurrently.",
 	"antigravity":                 "Manage Google Antigravity workspaces, rerun historical prompts with prefix verification templates, inspect prompt diffs across projects in non-admin VS Code, and orchestrate remote execution.",
 	"pipeline":                    "Query live CI/CD pipeline runs, calculate remaining wait times (ETA), fetch step failure logs, export telemetry, clear local databases, and feed errors to Antigravity.",
 	"pl":                          "Query live CI/CD pipeline runs, calculate remaining wait times (ETA), fetch step failure logs, export telemetry, clear local databases, and feed errors to Antigravity.",
@@ -136,6 +137,8 @@ var topicSummaries = map[string]string{
 	"automation-changed-files":    "Discover modified, staged, and untracked files relative to origin/main or specified base commit.",
 	"automation-purge-history":    "Trace and identify large historical git blobs without rewriting recent commit lineage.",
 	"automation-format-go":        "AST-aware Go code formatter organizing imports and enforcing UTF-8 BOM-free LF encoding.",
+	"vscode":                      "Manage VS Code workspace integrations, Project Manager projects.json, profiles, group categorization, and automatic repair.",
+	"vscode-repair":               "Diagnose & repair VS Code startup crashes (Chromium ICU data file error) and synchronize Project Manager projects.json across modern and legacy paths.",
 }
 
 // GetTopicDetailedSummary returns documentation content for a specific command topic.

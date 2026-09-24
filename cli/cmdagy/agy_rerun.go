@@ -17,11 +17,15 @@ var (
 	rerunPromptTpl   string
 	rerunNoClipboard bool
 	rerunDryRun      bool
+	rerunRestartFlag bool
+	rerunNoRestart   bool
+	rerunProjectFlag string
+	rerunConvFlag    string
 )
 
 var agyRerunCmd = &cobra.Command{
-	Use:   "rerun [last] [N]",
-	Short: "Replay recent prompts with optional prefix template",
+	Use:   "rerun [1|2|3|4|project] [flags]",
+	Short: "Rerun last prompt for project with Antigravity IDE restart and media attachments",
 	RunE: func(cmd *cobra.Command, args []string) error {
 		appErr := runAgyRerun(args)
 		if appErr != nil {
@@ -36,6 +40,10 @@ func init() {
 	agyRerunCmd.Flags().StringVarP(&rerunPromptTpl, "prompt", "p", cmdprompttemplate.DefaultTemplateID, "Prefix prompt template name or ID")
 	agyRerunCmd.Flags().BoolVar(&rerunNoClipboard, "no-clipboard", false, "Do not copy constructed prompt to clipboard")
 	agyRerunCmd.Flags().BoolVarP(&rerunDryRun, "dry-run", "d", false, "Preview constructed prompt without execution")
+	agyRerunCmd.Flags().BoolVarP(&rerunRestartFlag, "restart", "r", true, "Restart Antigravity IDE and replay prompt")
+	agyRerunCmd.Flags().BoolVar(&rerunNoRestart, "no-restart", false, "Do not restart IDE, inject directly")
+	agyRerunCmd.Flags().StringVarP(&rerunProjectFlag, "project", "P", "", "Target project by index (1, 2, 3...) or name")
+	agyRerunCmd.Flags().StringVarP(&rerunConvFlag, "conversation", "c", "", "Target conversation ID")
 }
 
 // RunRerunTopLevelCLI executes agy rerun from top-level gitmap aliases.
@@ -47,6 +55,46 @@ func RunRerunTopLevelCLI(args []string) error {
 }
 
 func runAgyRerun(args []string) *apperror.AppError {
+	if isLegacyLastInvocation(args) {
+		return runLegacyAgyRerun(args)
+	}
+
+	target := resolveRerunProjectTarget(args)
+	isRestart := rerunRestartFlag && !rerunNoRestart
+	tplName := extractRerunTemplateName(args)
+
+	err := RestartAndRerunProject(target, isRestart, rerunDryRun, tplName)
+	if err != nil {
+		return apperror.WrapSimple(err, "agy rerun")
+	}
+
+	return nil
+}
+
+func isLegacyLastInvocation(args []string) bool {
+	if len(args) == 0 {
+		return false
+	}
+
+	return strings.EqualFold(args[0], "last")
+}
+
+func resolveRerunProjectTarget(args []string) string {
+	if rerunProjectFlag != "" {
+		return rerunProjectFlag
+	}
+
+	for _, a := range args {
+		trimmed := strings.TrimSpace(a)
+		if trimmed != "" && !strings.HasPrefix(trimmed, "-") {
+			return trimmed
+		}
+	}
+
+	return ""
+}
+
+func runLegacyAgyRerun(args []string) *apperror.AppError {
 	count := parseRerunCount(args)
 	tplName := extractRerunTemplateName(args)
 	tplContent := resolveRerunTemplate(tplName)

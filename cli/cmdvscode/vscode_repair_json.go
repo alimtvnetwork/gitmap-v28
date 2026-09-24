@@ -85,14 +85,21 @@ func sanitizeEntries(entries []vscodepm.Entry) int {
 		if entries[i].Tags == nil {
 			entries[i].Tags = []string{"gitmap"}
 		}
-		if entries[i].RootPath != "" {
-			if _, err := os.Stat(entries[i].RootPath); os.IsNotExist(err) {
-				missing++
-			}
+		if isMissingRootPath(entries[i].RootPath) {
+			missing++
 		}
 	}
 
 	return missing
+}
+
+func isMissingRootPath(rootPath string) bool {
+	if rootPath == "" {
+		return false
+	}
+	_, err := os.Stat(rootPath)
+
+	return os.IsNotExist(err)
 }
 
 func backupCorruptJSON(path string, data []byte) string {

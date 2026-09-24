@@ -61,6 +61,7 @@ See [00-overview.md](./00-overview.md) for the complete application specificatio
 - [Spec 141: SSH Batch Common Join, Subnet Scanner, OS Metadata, AGY Project Re-read & Optimization, and AUM Benchmarking](./141-ssh-join-common-scan-and-agy-rop.md)
 - [Spec 142: Chrome Profile Auth Session, Refresh Token & Cookies Full-Fidelity Export/Import](./142-chrome-profile-auth-export-import.md)
 - [Spec 143: Antigravity Commands Suite, SSH Fleet Parallel Execution, and E2E Benchmarking](./143-antigravity-commands-ssh-fleet-and-e2e-benchmarking.md)
+- [Spec 144: AGY Rerun IDE Restart, Multi-Project Prompt Replay with Media, and VS Code Repair Integration](./144-agy-rerun-ide-restart-and-workflow-suite.md)
 
 ---
 

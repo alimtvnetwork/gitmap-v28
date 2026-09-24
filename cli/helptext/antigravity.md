@@ -20,6 +20,8 @@ Manage Antigravity projects, project groups, prompt templates, prompt queues, un
 - `gitmap agy plugin [ls|install <slug>]`: List installed Antigravity plugins and install new plugins.
 - `gitmap agy settings [export|import <file.json>]`: Export and import Antigravity configuration in JSON format.
 - `gitmap agy ls`: List all discovered Antigravity projects with health status.
+- `gitmap agy rerun [1|2|3|4] [--restart]`: Rerun last prompt for project with Antigravity IDE restart and media attachments.
+- `gitmap agy prompt inject <prompt> [project]`: Inject prompt payload directly into active conversation without GUI dialogs.
 - `gitmap agy clear`: Remove stale or missing projects (snapshots state before deletion).
 - `gitmap agy optimize-projects`: Deduplicate and optimize registered project entries.
 - `gitmap agy export-projects <file.zip>`: Create a zip archive backup of all projects.

@@ -70,19 +70,25 @@ func testCodeExecutable(installDir string) (string, bool) {
 
 func resolveCodeLauncher(installDir string) string {
 	if runtime.GOOS == "windows" {
-		binCmd := filepath.Join(installDir, "bin", "code.cmd")
-		if isFile(binCmd) {
-			return binCmd
-		}
-		exe := filepath.Join(installDir, "Code.exe")
-		if isFile(exe) {
-			return exe
-		}
+		return resolveWindowsLauncher(installDir)
 	}
 
 	stdBin := filepath.Join(installDir, "bin", "code")
 	if isFile(stdBin) {
 		return stdBin
+	}
+
+	return ""
+}
+
+func resolveWindowsLauncher(installDir string) string {
+	binCmd := filepath.Join(installDir, "bin", "code.cmd")
+	if isFile(binCmd) {
+		return binCmd
+	}
+	exe := filepath.Join(installDir, "Code.exe")
+	if isFile(exe) {
+		return exe
 	}
 
 	return ""
@@ -123,15 +129,21 @@ func copyMissingCommitDirs(dirs []string, srcParent, dstParent string) int {
 	synced := 0
 	for _, d := range dirs {
 		dstPath := filepath.Join(dstParent, d)
-		if !isDir(dstPath) {
-			srcPath := filepath.Join(srcParent, d)
-			if copyDir(srcPath, dstPath) == nil {
-				synced++
-			}
+		srcPath := filepath.Join(srcParent, d)
+		if isCommitDirNeeded(dstPath, srcPath) {
+			synced++
 		}
 	}
 
 	return synced
+}
+
+func isCommitDirNeeded(dstPath, srcPath string) bool {
+	if isDir(dstPath) {
+		return false
+	}
+
+	return copyDir(srcPath, dstPath) == nil
 }
 
 func copyDir(src, dst string) error {
