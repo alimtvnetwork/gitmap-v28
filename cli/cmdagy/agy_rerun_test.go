@@ -3,6 +3,7 @@ package cmdagy
 import (
 	"os"
 	"path/filepath"
+	"strings"
 	"testing"
 )
 
@@ -63,9 +64,10 @@ func TestResolveClosestActiveProject_CwdMatch(t *testing.T) {
 	_ = os.MkdirAll(pDir, 0755)
 
 	fileScheme := "file:" + "//" + "/"
+	cleanPDir := strings.TrimPrefix(filepath.ToSlash(pDir), "/")
 	projects := []AgyProject{
 		makeTestAgyProject("other-1", "other-one", fileScheme+"virtual/other", "2026-08-01T00:00:00Z"),
-		makeTestAgyProject("match-1", "sample-project", fileScheme+filepath.ToSlash(pDir), "2026-08-01T00:00:00Z"),
+		makeTestAgyProject("match-1", "sample-project", fileScheme+cleanPDir, "2026-08-01T00:00:00Z"),
 	}
 
 	origWd, _ := os.Getwd()

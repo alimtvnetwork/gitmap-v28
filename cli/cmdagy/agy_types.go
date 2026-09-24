@@ -73,6 +73,10 @@ func parseFolderUri(rawUri string) string {
 		return filepath.FromSlash(decoded)
 	}
 
+	if strings.HasPrefix(decoded, "/") {
+		return filepath.FromSlash(decoded)
+	}
+
 	if strings.HasPrefix(rawUri, "file:///") {
 		return filepath.FromSlash("/" + decoded)
 	}

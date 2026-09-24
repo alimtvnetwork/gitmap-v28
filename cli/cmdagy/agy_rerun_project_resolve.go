@@ -342,13 +342,36 @@ func findCwdProjectOrDefault(projects []AgyProject) (AgyProject, int) {
 	}
 
 	cleanCwd := cleanProjectWorkspace(cwd)
+	cleanRealCwd := resolveCleanRealCwd(cwd)
+
 	for i, p := range projects {
-		if cleanProjectWorkspace(p.GetPath()) == cleanCwd {
+		if isCwdMatchingProject(p, cleanCwd, cleanRealCwd) {
 			return p, i + 1
 		}
 	}
 
 	return projects[0], 1
+}
+
+func isCwdMatchingProject(p AgyProject, cleanCwd, cleanRealCwd string) bool {
+	pWs := cleanProjectWorkspace(p.GetPath())
+	if pWs == cleanCwd || (cleanRealCwd != "" && pWs == cleanRealCwd) {
+		return true
+	}
+	realWs, err := filepath.EvalSymlinks(p.GetPath())
+	if err != nil || realWs == "" {
+		return false
+	}
+	cleanRealWs := cleanProjectWorkspace(realWs)
+	return cleanRealWs == cleanCwd || (cleanRealCwd != "" && cleanRealWs == cleanRealCwd)
+}
+
+func resolveCleanRealCwd(cwd string) string {
+	realCwd, err := filepath.EvalSymlinks(cwd)
+	if err != nil || realCwd == "" {
+		return ""
+	}
+	return cleanProjectWorkspace(realCwd)
 }
 
 func findProjectByFlexibleTarget(projects []AgyProject, target string) (AgyProject, error) {
