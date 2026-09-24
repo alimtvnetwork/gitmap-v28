@@ -22,12 +22,16 @@ func setupHermeticTestDB(tempDir string) {
 	openSSHDB = func() (*store.DB, error) { return store.OpenAt(testDBPath) }
 }
 
-func TestMain(m *testing.M) {
+func runTestMain(m *testing.M) int {
 	tempDir, err := os.MkdirTemp("", "cmdssh_hermetic_*")
 	if err == nil {
 		defer os.RemoveAll(tempDir)
 		store.SetBinaryDataDirForTesting(tempDir)
 		setupHermeticTestDB(tempDir)
 	}
-	os.Exit(m.Run())
+	return m.Run()
+}
+
+func TestMain(m *testing.M) {
+	os.Exit(runTestMain(m))
 }

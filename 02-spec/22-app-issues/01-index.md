@@ -42,7 +42,7 @@ Any content that analyzes bugs, failures, root causes, or fixes for application-
 | 34 | [34-hd-hosted-docs-fallback.md](34-hd-hosted-docs-fallback.md) | Hosted-Docs Fallback (No More Hard-Exit on Missing docs-site) | Fixed |
 | 35 | [35-reconcile-prompt-nested-if-ci-failure.md](35-reconcile-prompt-nested-if-ci-failure.md) | Reconcile Prompt Nested If CI Failure: Root Cause Analysis & Prevention | Resolved |
 | 36 | [36-ubuntu-agy-agm-execution-errors.md](36-ubuntu-agy-agm-execution-errors.md) | Ubuntu AGY & Antigravity Manager Remote Execution Errors: RCA & Remediation | Resolved |
-| 37 | [37-pipeline-cancelled-shown-as-pass.md](37-pipeline-cancelled-shown-as-pass.md) | Pipeline Cancelled / Timed Out Runs Erroneously Displayed as PASS: Root Cause Analysis & Fix | Resolved |
+| 37 | [37-pipeline-cancelled-shown-as-pass.md](37-pipeline-cancelled-shown-as-pass.md) | Pipeline Canceled / Timed Out Runs Erroneously Displayed as PASS: Root Cause Analysis & Fix | Resolved |
 | 38 | [38-paet-table-latency-and-gh-pr-bottleneck-rca.md](38-paet-table-latency-and-gh-pr-bottleneck-rca.md) | PAET Table Command Excessive Execution Latency: Root Cause Analysis & Mitigation | Resolved |
 | 39 | [39-pull-batch-abort-and-search-untracked-directory-crash.md](39-pull-batch-abort-and-search-untracked-directory-crash.md) | Pull Batch Abort & Search Untracked Directory Crash: RCA & Fix | Resolved |
 | 40 | [40-cfr-short-name-clone-failure-and-missing-gh-resolution.md](40-cfr-short-name-clone-failure-and-missing-gh-resolution.md) | CFR Short-Name Clone Failure & Missing GitHub CLI Resolution: RCA & Fix | Resolved |
