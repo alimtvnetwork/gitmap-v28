@@ -1,7 +1,7 @@
 # Plan 102: Dynamic Column Width Alignment for Efficient Pull (`gitmap pae`)
 
 > **Status:** `COMPLETED`  
-> **Release Target:** `v6.330.0`  
+> **Release Target:** `v6.331.0`  
 > **Spec Reference:** [`02-spec/21-app/153-pae-output-column-width-alignment.md`](../../../02-spec/21-app/153-pae-output-column-width-alignment.md)
 
 ---

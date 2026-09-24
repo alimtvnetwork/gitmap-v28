@@ -4,6 +4,8 @@ import (
 	"bytes"
 	"strings"
 	"testing"
+
+	"github.com/alimtvnetwork/gitmap-v28/cli/termpad"
 )
 
 func TestResolveConciseRepoColWidth(t *testing.T) {
@@ -101,8 +103,9 @@ func TestRenderConciseActiveResultsTo(t *testing.T) {
 			t.Errorf("line %d missing bullet prefix: %q", i, line)
 		}
 
+		plainLine := termpad.StripAnsi(line)
 		expectedLabel := ResolveRepoStatusLabel(states[i].Changes)
-		statusCol := strings.LastIndex(line, expectedLabel)
+		statusCol := strings.LastIndex(plainLine, expectedLabel)
 		if statusCol == -1 {
 			t.Errorf("line %d does not contain expected status %q: %s", i, expectedLabel, line)
 		}
@@ -115,3 +118,39 @@ func TestRenderConciseActiveResultsTo(t *testing.T) {
 		}
 	}
 }
+
+func TestStyleRepoStatusLabel(t *testing.T) {
+	if s := StyleRepoStatusLabel("up-to-date"); !strings.Contains(s, "up-to-date") {
+		t.Fatalf("expected up-to-date in styled output, got %s", s)
+	}
+	if s := StyleRepoStatusLabel("dirty"); !strings.Contains(s, "dirty") {
+		t.Fatalf("expected dirty in styled output, got %s", s)
+	}
+	if s := StyleRepoStatusLabel("+576/-119 (32)"); !strings.Contains(s, "+576") || !strings.Contains(s, "/-119") {
+		t.Fatalf("expected diff parts in styled output, got %s", s)
+	}
+}
+
+func TestFormatWrappedInactiveList(t *testing.T) {
+	names := []string{
+		"repo-alpha", "repo-beta", "repo-gamma", "repo-delta",
+		"repo-epsilon", "repo-zeta", "repo-eta", "repo-theta",
+	}
+
+	wrapped := FormatWrappedInactiveList(names, "      ", 40)
+	lines := strings.Split(wrapped, "\n")
+	if len(lines) <= 1 {
+		t.Fatalf("expected multiple wrapped lines, got %d:\n%s", len(lines), wrapped)
+	}
+
+	for i, l := range lines {
+		if !strings.HasPrefix(l, "      ") {
+			t.Errorf("line %d missing 6-space indent: %q", i, l)
+		}
+		// Ensure line does not exceed maxLineLen (unless single token)
+		if len(l) > 42 {
+			t.Errorf("line %d exceeds expected width (len=%d): %q", i, len(l), l)
+		}
+	}
+}
+

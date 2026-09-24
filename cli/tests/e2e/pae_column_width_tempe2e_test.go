@@ -9,6 +9,7 @@ import (
 	"testing"
 
 	"github.com/alimtvnetwork/gitmap-v28/cli/cmdpull"
+	"github.com/alimtvnetwork/gitmap-v28/cli/termpad"
 )
 
 func TestTempE2E_PAEColumnWidthAlignment(t *testing.T) {
@@ -46,8 +47,9 @@ func TestTempE2E_PAEColumnWidthAlignment(t *testing.T) {
 			t.Fatalf("line %d missing bullet prefix: %s", i, line)
 		}
 
+		plainLine := termpad.StripAnsi(line)
 		expectedLabel := cmdpull.ResolveRepoStatusLabel(states[i].Changes)
-		statusIdx := strings.LastIndex(line, expectedLabel)
+		statusIdx := strings.LastIndex(plainLine, expectedLabel)
 		if statusIdx == -1 {
 			t.Fatalf("line %d does not contain expected status %q: %s", i, expectedLabel, line)
 		}

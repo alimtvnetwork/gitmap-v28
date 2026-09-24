@@ -259,7 +259,9 @@ func printInactiveSkipSummary(inactive []InactiveRepoDetail) {
 	fmt.Printf("    %s%s%s %sskipped inactive repos (0 changes over 3+ pulls in last 24h):%s\n",
 		constants.ColorCyan, arrow, constants.ColorReset,
 		constants.ColorDim, constants.ColorReset)
-	fmt.Printf("      %s%s%s\n", constants.ColorDim, strings.Join(names, ", "), constants.ColorReset)
+	termWidth := detectTerminalWidth()
+	wrapped := FormatWrappedInactiveList(names, "      ", termWidth-2)
+	fmt.Printf("%s%s%s\n", constants.ColorDim, wrapped, constants.ColorReset)
 	fmt.Printf("    %sTo pull all repositories including inactive ones, run:%s %sgitmap pull all%s\n\n",
 		constants.ColorDim, constants.ColorReset,
 		constants.ColorBold, constants.ColorReset)

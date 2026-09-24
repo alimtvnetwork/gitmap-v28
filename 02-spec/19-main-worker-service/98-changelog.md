@@ -1,3 +1,9 @@
+## v6.331.0 — 2026-09-24 (enhance pae column display with syntax highlighted statuses and clean word-wrapped inactive repos)
+
+**Scope:** Version bump. enhance pae column display with syntax highlighted statuses and clean word-wrapped inactive repos.
+
+---
+
 ## v6.330.0 — 2026-09-24 (fix output column width for gitmap pae)
 
 **Scope:** Version bump. fix output column width for gitmap pae.

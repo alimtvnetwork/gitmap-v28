@@ -1,7 +1,7 @@
 # Spec 153: Dynamic Column Width Alignment for Efficient Pull (`gitmap pae`)
 
 > **Spec ID:** `SPEC-153`  
-> **Version:** `v6.330.0`  
+> **Version:** `v6.331.0`  
 > **Status:** Completed / Released  
 > **Date:** 2026-09-24  
 
@@ -9,45 +9,46 @@
 
 ## 0. User Request (Verbatim) & Actionable Deliverables
 
+### Request 1:
 ```text
 fix the output column width for gitmap pae https://prnt.sc/ZviMUeV9slNP please
 ```
 
-### Problem Statement:
-Screenshot telemetry at `https://prnt.sc/ZviMUeV9slNP` exhibits column misalignment in `gitmap pae` (`gitmap pull all-efficient`).
-In `cli/cmdpull/pull_efficient.go`:
-```go
-func renderConciseActiveResults(states []*PullRepoState) {
-    fmt.Println()
-    for _, s := range states {
-        statusLabel := s.Changes
-        if statusLabel == "" || statusLabel == "synced" {
-            statusLabel = "up-to-date"
-        }
-        fmt.Printf("    • %-26s %s\n", s.RepoName, statusLabel)
-    }
-}
+### Request 2:
+```text
+imrpove the column display for gitmap pae, can you please fix it properly
 ```
-Because the column width was hardcoded to `%-26s`, any repository whose name exceeds 26 characters (e.g. `bsrm-presentation-hiltrax-v4` [29 chars], `kita-social-media-content-calender-v2` [37 chars]) overflowed the 26-char boundary, printing 0 padding and displacing the status column horizontally. Repositories with names of 26 characters (e.g. `ai-empathy-prompt-tuner-v1`) had 0 trailing spaces, leaving only 1 space before `up-to-date`.
+
+### Problem Statement:
+Screenshot telemetry at `https://prnt.sc/ZviMUeV9slNP` and `media_1790261308371.png` exhibited two display flaws in `gitmap pae` (`gitmap pull all-efficient`):
+1. **Active Repositories Column Misalignment**:
+   In `cli/cmdpull/pull_efficient.go`, `renderConciseActiveResults` hardcoded `%-26s`. Repositories whose name exceeded 26 characters (e.g. `bsrm-presentation-hiltrax-v4` [29 chars], `riseup-asia-website-project-v6` [30 chars], `kita-social-media-content-calender-v2` [37 chars]) overflowed the 26-char boundary, displacing the status column horizontally.
+2. **Inactive Repositories Word-Wrap Splitting**:
+   In `printInactiveSkipSummary`, 55 inactive repository names were printed as a single comma-separated line with `strings.Join(names, ", ")`, causing the terminal to hard-wrap mid-word (`bsrm-presentation-hiltr` ... `ax-v4`, `gitlo` ... `gger-new-v2`, `movie-cli-` ... `v8`).
+3. **Local Deployment Out-of-Date**:
+   The user's local binary at `%LOCALAPPDATA%\gitmap-cli\gitmap.exe` was running `v6.325.0`.
 
 ### Extracted Actionable Deliverables:
 1. **Dynamic Column Width Calculation**:
-   - Introduce `resolveConciseRepoColWidth(states []*PullRepoState) int`:
+   - `ResolveConciseRepoColWidth(states []*PullRepoState) int`:
      - Default baseline width: `26`.
-     - Scan all `s.RepoName` in `states`.
-     - If the maximum name length exceeds 26, expand `colWidth` to `max(len(s.RepoName))`.
-     - Bound against detected terminal width (`detectTerminalWidth() - 30`) to avoid unwanted line wrapping in narrow terminals.
-2. **Column Spacing & Alignment**:
-   - Provide a clean 2-space column separator between repo names and statuses: `%-*s  %s`.
-   - Ensure every status label (`up-to-date`, `dirty`, `+4941/-484 (68)`, etc.) aligns perfectly vertically across all rows.
-3. **Modular Function Decomposition**:
-   - Decompose into small, testable single-responsibility functions adhering to `02-spec/02-coding-guidelines/`:
-     - `resolveConciseRepoColWidth(states []*PullRepoState) int`
-     - `resolveRepoStatusLabel(changes string) string`
-     - `formatConciseActiveResultLine(colWidth int, repoName, statusLabel string) string`
-     - `renderConciseActiveResultsTo(w io.Writer, states []*PullRepoState)`
-4. **Unit & Isolated Temporary E2E Tests**:
-   - Add unit tests in `cli/cmdpull/pull_efficient_test.go`.
-   - Add isolated temporary E2E test in `cli/tests/e2e/pae_column_width_tempe2e_test.go` (`//go:build tempe2e`, `RUN_TEMP_E2E=1`).
-5. **Version Bump & Release**:
-   - Bump version to `v6.330.0` (or next patch version), commit atomically, tag, and push.
+     - Dynamically expands to fit the widest active repository name (e.g. 37+ chars).
+     - Bounded by `detectTerminalWidth() - 30` to prevent unintended line wrapping.
+2. **Vivid Status Syntax Highlighting**:
+   - `StyleRepoStatusLabel(statusLabel string) string`:
+     - `up-to-date`: bright bold green (`ColorGreen`)
+     - `dirty`: bright bold yellow (`ColorYellow`)
+     - `failed`: bright bold red (`ColorRed`)
+     - Diff stats (e.g. `+576/-119 (32)`): `+576` in green, `/-119` in red, `(32)` in dim white.
+3. **Clean Comma-Bound Word Wrapping for Inactive Repositories**:
+   - `FormatWrappedInactiveList(names []string, indent string, maxLineLen int) string`:
+     - Wraps lines at comma boundaries before reaching `maxLineLen`.
+     - Preserves clean 6-space indentation (`      `) across all wrapped lines.
+     - Never splits a repository name across lines.
+4. **Local Deployment Synchronization**:
+   - Compile and deploy the updated binary to `%LOCALAPPDATA%\gitmap-cli\gitmap.exe`.
+5. **Quality Gates & Tests**:
+   - 6 unit tests in `cli/cmdpull/pull_efficient_render_test.go`.
+   - Isolated temporary E2E test in `cli/tests/e2e/pae_column_width_tempe2e_test.go` (`//go:build tempe2e`, `RUN_TEMP_E2E=1`).
+6. **Release & Push**:
+   - Tag `v6.331.0` and push to `origin main`.
