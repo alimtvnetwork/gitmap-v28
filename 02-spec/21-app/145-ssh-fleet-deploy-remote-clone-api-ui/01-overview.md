@@ -1,8 +1,8 @@
-# Spec 144: SSH Macro & App Fleet Deployment, Remote Clone, REST Endpoint Triad, and Web UI Management Engine
+# Spec 145: SSH Macro & App Fleet Deployment, Remote Clone, REST Endpoint Triad, and Web UI Management Engine
 
 - **Slug:** ssh-fleet-deploy-remote-clone-api-ui
 - **Status:** Active
-- **Version:** v6.319.0
+- **Version:** v6.321.0
 - **Created:** 2026-09-24
 - **Author:** MD ALIM UL KARIM
 - **Sponsor:** RISEUP ASIA LLC
@@ -10,7 +10,7 @@
 
 ---
 
-## 1. Visual References & Screenshots
+## 1. Visual References & Architecture Screenshots
 
 ![Fleet Deploy & Remote Commands UI](assets/screenshots/ssh-fleet-deploy-remote-clone-api-ui-01.png)
 ![Full Architecture & Remote Web UI Specification](assets/screenshots/ssh-fleet-deploy-remote-clone-api-ui-02.png)
@@ -20,7 +20,12 @@
 ## 2. User Request (Verbatim)
 
 ```text
+is it done and released??
+
+
 do a git pull properly and git pull always before commiting to sync and fix the conflicts okay??
+
+
 
 add 
 
@@ -36,6 +41,7 @@ gitmap ssh clone / ssh-clone / ssh-c <repo name>/url git/<nothing if we are in t
 
 implement and do all e2e test locally using other machines , don't worry aboyt breaking, swpan 2 agents to do things parallley
 
+
 Spwan 2 agents to do things faster please.
 
 I also wanted to have, let's say, API system and UI system in this tool. What do I mean by UI? Is that we are not going to make the actual, let's say, application UI like the Electron or others. We can use the same technique as the HD, the help document that we have. So we can go to settings, Git Map, settings, a space UI, that would open up a UI where I could modify the settings, save it in the browser, and that would save everything. The same thing could go for Git Map, commit in UI, commit in, commit right, commit left, all these factors. We can have a nice great UI because it has so many options. All these options needs to be from UI. Also, same thing could go for SSH UI that would actually show us how many commands are there, how we can deploy macros. Macro UI also show us product application that we could do from the browser end. You can add those separate pages. You can just open this up in the browser with the endpoint, and you can modify this. This would be the process. That's one thing. Another is that at the end, we want to have endpoint communication. That means when we are doing the SSH, first time doing the SSH, we can connect using those nodes, using, let's say, REST API. Once we do that, then all the communication from this SSH needs it would happen using the REST API. It would probably call using SSH, but we'll try to communicate using the endpoints. What do you think? Is it achievable? So first, you don't do much. You create a detailed plan and write that detailed plan as spec so that I can review it. How the macros, SSH, SSH keys, authentication keys deployed, how the, let's say, installer can be updated, how new commands can be added, how to bring files from other machine to the current machine, current machine to other machine, how to clone from one machine to other machines. Okay? So all these things we should be able to do. Yeah. So if during the SSH clone, if the repository does not have the access for the other stuff, then it would automatically deploy the keys and other stuff from this machine to that machine automatically, and that would actually log it, show it like this is what it is doing. It found that the no access is there, so it will resolve, try to resolve in each step, and then command it back and forth. Make sure of that. So this is very critical. Do you understand the concern? Do you understand how it needs to be completed and done? Is it clear to you? Do you have any question and confusion?
@@ -45,9 +51,9 @@ Do you have any commands that I could use to fix or open VS Code in remote machi
 
 ---
 
-## 3. Executive Architectural Summary
+## 3. Executive Architectural Topology
 
-Spec 144 establishes an integrated multi-node orchestration, deployment, and browser-based management ecosystem for GitMap across seven interconnected pillars:
+The following diagram illustrates the seven pillars of the GitMap fleet deployment and web management architecture:
 
 ```mermaid
 graph TD
@@ -80,85 +86,12 @@ graph TD
 
 ---
 
-## 4. Subsystem Specifications
+## 4. Key Subsystem Capabilities
 
-### 4.1 Macro Fleet Deployment (`gitmap macro deploy ssh`, `peat deploy ssh`, `pea deploy ssh`)
-
-1. **Commands:**
-   - `gitmap macro deploy ssh [--except <ids,ips,aliases>]`
-   - `gitmap peat deploy ssh [--except <ids,ips,aliases>]`
-   - `gitmap pea deploy ssh [--except <ids,ips,aliases>]`
-2. **Behavior:**
-   - Discovers all registered nodes from `installation.db` / `cluster.db`.
-   - Filters out targets matching the `--except` comma-separated argument (matching by node `NodeId`, IP address, or `Alias`).
-   - Reads local macro library (`.ai-memory/macros/` and local installation store).
-   - Bundles macros into JSON envelope and securely transfers to remote nodes via `gitmap macro import` over SSH / REST.
-   - Outputs live terminal progress with a summary table indicating success/failure per node.
-
-### 4.2 Multi-Node Fleet Update Engine (`gitmap update`)
-
-1. **Commands:**
-   - `gitmap update --all` / `gitmap update all` / `gitmap ua`: Updates all installed applications/components across all remote nodes in parallel (except excluded ones), requests structured JSON summary reports from remote GitMap agents, and renders a unified terminal comparison table.
-   - `gitmap update <name> [--except <id,alias,ip>]`: Updates a specific tool or package (e.g. `gitmap update node`, `gitmap update agy`) across target nodes.
-   - `gitmap update ls`: Queries all cluster nodes in parallel for installed software inventory, receives JSON response matrices, and displays a multi-column node comparison table.
-
-### 4.3 Self-Healing Remote Git Clone (`gitmap ssh clone`, `ssh-clone`, `ssh-c`)
-
-1. **Commands:**
-   - `gitmap ssh clone <repo-name|url> [git|path]`
-   - `gitmap ssh-clone <repo-name|url> [git|path]`
-   - `gitmap ssh-c <repo-name|url> [git|path]`
-2. **Self-Healing Access Flow:**
-   - Resolves target repo URL. If `<repo-name>` given, resolves against configured default git organization / remote host.
-   - Dispatches remote clone test on destination node.
-   - If git fails with authentication error (`Permission denied (publickey)`, `Repository not found`, or HTTP 401/403):
-     - Logs: `[auth-probe] Repository access denied on node <alias>. Deploying authentication keys...`
-     - Auto-extracts local host SSH public key or generates node deployment key.
-     - Adds key to remote `~/.ssh/authorized_keys` or provisions Git host deploy key via CLI credentials.
-     - Re-probes repository accessibility.
-     - Resumes and completes cloning into destination path (or default `$HOME/git/<repo>` workspace).
-     - Emits structured execution logs at each resolution step.
-
-### 4.4 Bidirectional File Transfer & Remote VS Code Integration
-
-1. **Bidirectional Transfer:**
-   - `gitmap ssh cp <node>:<remote-path> <local-path>` (fetch)
-   - `gitmap ssh cp <local-path> <node>:<remote-path>` (send)
-2. **Remote VS Code Invocation:**
-   - `gitmap vscode remote <node> [path]`: Launches local VS Code connected to remote host via `code --remote ssh-remote+<alias> <path>`.
-   - `gitmap vscode remote fix <node>`: Verifies remote `.vscode-server` installation, clears stale lockfiles, and restores remote server daemon.
-
-### 4.5 Embedded Web UI Architecture (`gitmap ui`, `gitmap <module> ui`)
-
-1. **Server Architecture:**
-   - Lightweight embedded Go HTTP server (`modernc.org/sqlite` backed, zero external runtime dependencies) sharing the same technology stack as `gitmap hd`.
-   - Binds to `127.0.0.1:port` (default `8080`, with dynamic auto-incrementing port discovery if busy) and automatically opens default browser.
-2. **Pages & Direct CLI Entrypoints:**
-   - `gitmap ui`: Master navigation portal.
-   - `gitmap settings ui` / `gitmap ui settings`: System settings, theme, tokens, cluster configurations.
-   - `gitmap commitin ui`: Visual commit wizard with commit right/left, amend, atomic grouping, and branch review.
-   - `gitmap ssh ui`: Node fleet dashboard, terminal execution panel, macro distributor, and liveness monitor.
-   - `gitmap macro ui`: Visual step builder, drag-and-drop sequencing, replay testing, and fleet deployer.
-   - `gitmap installer ui`: Multi-OS installer catalog (Windows, Linux, Ubuntu, CentOS) with script editor and node execution dropdown.
-   - `gitmap prompts ui`: Prompt template editor, AI instruction generator, syntax-highlighted JSON import/export.
-   - `gitmap import-export ui`: Full system snapshot import/export manager.
-   - `gitmap schedules ui`: Cron / timer scheduler manager with interactive execution testing.
-   - `gitmap editor ui <node> <file>`: Full in-browser remote text editor with syntax highlighting, line numbers, and live file saving back to the remote SSH machine.
-
-### 4.6 REST Endpoint Triad & Node-to-Node Daemon
-
-1. **Protocol:**
-   - During `gitmap ssh join`, each node registers its REST port (default `:49152`) and generates an ephemeral mutual TLS or shared HMAC token.
-   - Peer communication defaults to high-speed REST calls (`GET /api/v1/status`, `POST /api/v1/update`, `POST /api/v1/exec`).
-   - If the REST endpoint is unreachable (e.g. firewalled or daemon stopped), requests seamlessly fall back to standard SSH shell execution (`sshexec`).
-
----
-
-## 5. Acceptance Criteria
-
-- **AC-SPEC144-01:** `gitmap macro deploy ssh --except <nodes>` dispatches macros to all non-excluded nodes with zero failures.
-- **AC-SPEC144-02:** `gitmap update --all`, `gitmap update all`, `gitmap ua` aggregate remote JSON summaries and render clean comparison tables.
-- **AC-SPEC144-03:** `gitmap ssh clone` automatically recovers from missing auth keys by deploying required keys and completing the clone.
-- **AC-SPEC144-04:** `gitmap <module> ui` commands launch local embedded web UI server and open the specific browser interface cleanly.
-- **AC-SPEC144-05:** In-browser remote text editor edits and saves files across SSH connections with round-trip fidelity.
-- **AC-SPEC144-06:** All Go code follows zero-nesting, positive boolean, and `apperror` conventions with Unix LF line endings.
+1. **Macro Fleet Distribution:** Parallel broadcast of macro definitions to all online nodes via SSH execution or REST daemon, honoring `--except <ids,ips,aliases>` filters.
+2. **Multi-Node App Update & Software Inventory:** Parallel tool update across all nodes (`gitmap update --all`, `gitmap update all`, `gitmap ua`), specific package updates (`gitmap update <name>`), and inventory matrix inspection (`gitmap update ls`).
+3. **Autonomous Self-Healing Git Clone:** Detects permission denied / publickey failures during remote cloning, automatically injects SSH public keys to the remote host, logs each diagnostic step, and resumes clone seamlessly.
+4. **Bidirectional File Transfer & VS Code Remote:** Direct file transfer between local host and remote nodes (`gitmap ssh cp`) and native VS Code SSH remote invocation (`gitmap vscode remote`).
+5. **Embedded Web Management UI:** Browser-based SPA with zero external daemon requirements (using embedded `gitmap hd` server technology), supporting interactive visual control across Settings, Commitin, SSH, Macros, Installers, Prompts, Schedules, and Import/Export.
+6. **In-Browser Remote Text Editor:** Syntax-highlighted text editor with live save-back to remote SSH machine filesystems (`gitmap editor ui <node> <file>`).
+7. **REST Endpoint Triad:** Post-join authenticated REST API communication with automatic token rotation and transparent fallback to SSH execution (`sshexec`).

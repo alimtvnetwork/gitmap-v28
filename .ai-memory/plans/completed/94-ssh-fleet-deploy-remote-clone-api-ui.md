@@ -1,6 +1,6 @@
 # Plan 94: SSH Macro & App Fleet Deployment, Remote Clone, REST Endpoint Triad, and Web UI Management Engine
 
-Spec Reference: [02-spec/21-app/144-ssh-fleet-deploy-remote-clone-api-ui.md](../../../02-spec/21-app/144-ssh-fleet-deploy-remote-clone-api-ui.md)
+Spec Reference: [02-spec/21-app/145-ssh-fleet-deploy-remote-clone-api-ui/01-overview.md](../../../02-spec/21-app/145-ssh-fleet-deploy-remote-clone-api-ui/01-overview.md)
 Status: Completed
 Execution Date: 2026-09-24
 
@@ -63,5 +63,5 @@ Implement multi-node macro fleet distribution (`gitmap macro deploy ssh`, `peat 
 - **Verification**: Build-tag isolated to ensure zero disruption to CI test runners.
 
 ## Traceability
-- **Spec**: `02-spec/21-app/144-ssh-fleet-deploy-remote-clone-api-ui.md`
+- **Spec**: `02-spec/21-app/145-ssh-fleet-deploy-remote-clone-api-ui/01-overview.md`
 - **Index**: Registered in `.ai-memory/plans/01-index.md`
