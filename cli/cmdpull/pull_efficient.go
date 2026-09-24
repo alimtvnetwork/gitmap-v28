@@ -13,17 +13,26 @@ import (
 
 // RunPullAllEfficient executes the efficient pull workflow skipping inactive repos.
 func RunPullAllEfficient(args []string, isTableMode bool, invokedAlias string, isShortForm bool) error {
-	useSSH, useHTTPS, isTableFlag, cleanArgs := extractEfficientFlags(args)
+	useSSH, useHTTPS, isTableFlag, isJSON, targetSSH, cleanArgs := extractEfficientFlags(args)
 	if isTableFlag {
 		isTableMode = true
 	}
-	opts := buildEfficientOptions(cleanArgs, isTableMode, invokedAlias, isShortForm, useSSH, useHTTPS)
+	if targetSSH != "" && RunRemoteSSHPullFn != nil {
+		return RunRemoteSSHPullFn(targetSSH, isTableMode)
+	}
+
+	opts := buildEfficientOptions(cleanArgs, isTableMode, isJSON, invokedAlias, isShortForm, useSSH, useHTTPS, targetSSH)
 	fullCmd := resolveEfficientFullCmdName(isTableMode)
-	PrintPullBanner(fullCmd, invokedAlias, isShortForm)
+	if !isJSON {
+		PrintPullBanner(fullCmd, invokedAlias, isShortForm)
+	}
 	requireOnline()
 
 	records := resolveAllTrackedRecords()
 	if len(records) == 0 {
+		if isJSON {
+			return renderJSONInactiveResults(0, nil)
+		}
 		printNothingToPull()
 		return nil
 	}
@@ -31,13 +40,15 @@ func RunPullAllEfficient(args []string, isTableMode bool, invokedAlias string, i
 	return processEfficientPullLifecycle(records, opts)
 }
 
-func buildEfficientOptions(args []string, isTable bool, alias string, isShort bool, ssh, https bool) EfficientPullOptions {
+func buildEfficientOptions(args []string, isTable, isJSON bool, alias string, isShort bool, ssh, https bool, target string) EfficientPullOptions {
 	return EfficientPullOptions{
 		IsTableMode:  isTable,
+		IsJSON:       isJSON,
 		InvokedAlias: alias,
 		IsShortForm:  isShort,
 		UseSSH:       ssh,
 		UseHTTPS:     https,
+		TargetSSH:    target,
 		Args:         args,
 	}
 }
@@ -50,13 +61,32 @@ func resolveEfficientFullCmdName(isTable bool) string {
 	return "pull all-efficient"
 }
 
-func extractEfficientFlags(args []string) (bool, bool, bool, []string) {
-	var useSSH, useHTTPS, isTable bool
+func extractEfficientFlags(args []string) (bool, bool, bool, bool, string, []string) {
+	var useSSH, useHTTPS, isTable, isJSON bool
+	var targetSSH string
 	var rest []string
-	for _, a := range args {
+	for i := 0; i < len(args); i++ {
+		a := args[i]
 		lower := strings.ToLower(a)
-		if lower == "--status" || lower == "--status-table" || lower == "-status" {
+		if lower == "--status" || lower == "--status-table" || lower == "-status" || lower == "--table" {
 			isTable = true
+			continue
+		}
+		if lower == "--json" {
+			isJSON = true
+			continue
+		}
+		if (lower == "-t" || lower == "--target") && i+1 < len(args) {
+			targetSSH = args[i+1]
+			i++
+			continue
+		}
+		if strings.HasPrefix(lower, "-t=") {
+			targetSSH = a[3:]
+			continue
+		}
+		if strings.HasPrefix(lower, "--target=") {
+			targetSSH = a[9:]
 			continue
 		}
 		if lower == "--ssh" || lower == "-ssh" || lower == "ssh" {
@@ -70,7 +100,7 @@ func extractEfficientFlags(args []string) (bool, bool, bool, []string) {
 		rest = append(rest, a)
 	}
 
-	return useSSH, useHTTPS, isTable, rest
+	return useSSH, useHTTPS, isTable, isJSON, targetSSH, rest
 }
 
 func resolveAllTrackedRecords() []model.ScanRecord {

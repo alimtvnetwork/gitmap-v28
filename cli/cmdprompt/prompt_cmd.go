@@ -36,7 +36,7 @@ var promptShowCmd = &cobra.Command{
 	},
 }
 
-var promptAddCmd = &cobra.Command{
+var PromptAddCmd = &cobra.Command{
 	Use:   "add [slug] [file.md]",
 	Short: "Add or update a prompt template from a markdown file",
 	RunE: func(cmd *cobra.Command, args []string) error {
@@ -64,7 +64,7 @@ var promptRmCmd = &cobra.Command{
 func initPromptCmd() {
 	PromptCmd.AddCommand(promptLsCmd)
 	PromptCmd.AddCommand(promptShowCmd)
-	PromptCmd.AddCommand(promptAddCmd)
+	PromptCmd.AddCommand(PromptAddCmd)
 	PromptCmd.AddCommand(promptRmCmd)
 	PromptCmd.AddCommand(promptExportCmd)
 	PromptCmd.AddCommand(promptImportCmd)

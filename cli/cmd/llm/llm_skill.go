@@ -75,7 +75,7 @@ GitMap is an ultra-fast developer companion and autonomous CLI engine designed f
 2. **Mandatory Pre-Flight Pull:** Always run ` + "`git pull`" + ` before modifying code.
 3. **Scoped Search:** Always provide target directories and extensions to ` + "`gitmap aum search`" + ` (e.g. ` + "`gitmap aum search \"target\" cli --ext .go`" + `).
 4. **File Size & Binary Guard:** Respect 500 KB limit (Rule R19); never commit test binaries or temp artifacts.
-5. **Coding Guidelines:** Max 8–15 lines per function, single return types with ` + "`*apperror.AppError`" + `, affirmative booleans.
+5. **Coding Guidelines:** Max 8–15 lines per function, single return types with ` + "`*appfault.AppError`" + `, affirmative booleans.
 `
 
 // GenerateSkillFile writes or updates the Antigravity skill markdown file.

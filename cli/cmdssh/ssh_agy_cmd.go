@@ -4,93 +4,102 @@ import (
 	"fmt"
 	"strings"
 
-	"golang.org/x/crypto/ssh"
-
-	"github.com/alimtvnetwork/gitmap-v28/cli/apperror"
 	"github.com/alimtvnetwork/gitmap-v28/cli/constants"
 	"github.com/alimtvnetwork/gitmap-v28/cli/crypto"
 	"github.com/alimtvnetwork/gitmap-v28/cli/db"
 )
+
+// RunSSHAgyCLI executes AGY commands across remote SSH nodes in parallel.
+func RunSSHAgyCLI(args []string) error {
+	return runSSHAgyCLI(args)
+}
 
 func runSSHAgyCLI(args []string) error {
 	if len(args) == 0 {
 		showSSHAgyUsage()
 		return nil
 	}
-
-	target, agyArgs := parseRemoteTargetAndArgs(args)
-	return executeAgyOnFleet(target, agyArgs)
+	target, except, agyArgs := parseAgyFleetArgs(args)
+	return executeAgyOnFleet(target, except, agyArgs)
 }
 
-func executeAgyOnFleet(target string, agyArgs []string) error {
+func showSSHAgyUsage() {
+	fmt.Printf("\n%s Usage:%s gitmap agy ssh [target] [flags] <agy-command...>\n", constants.ColorCyan, constants.ColorReset)
+	fmt.Println("  Flags: -e, --except <nodes>   Exclude machines by alias or IP")
+	fmt.Println("  Examples:")
+	fmt.Println("    gitmap agy ssh status")
+	fmt.Println("    gitmap agy ssh -e worker-2 prompt ls")
+	fmt.Println()
+}
+
+func parseAgyFleetArgs(args []string) (string, string, []string) {
+	target, except := "", ""
+	var clean []string
+	for i := 0; i < len(args); i++ {
+		arg := args[i]
+		if isExceptFlag(arg) && i+1 < len(args) {
+			except = args[i+1]
+			i++
+			continue
+		}
+		if isTargetFlag(arg) && i+1 < len(args) {
+			target = args[i+1]
+			i++
+			continue
+		}
+		if strings.HasPrefix(arg, "--except=") {
+			except = strings.TrimPrefix(arg, "--except=")
+			continue
+		}
+		clean = append(clean, arg)
+	}
+	return resolveAgyTargetAndCommand(target, except, clean)
+}
+
+func resolveAgyTargetAndCommand(target, except string, clean []string) (string, string, []string) {
+	if len(clean) == 0 {
+		return "all", except, []string{"status"}
+	}
+	if target == "" {
+		if isAllTarget(clean[0]) {
+			return "all", except, clean[1:]
+		}
+		conns, err := fetchAllSSHConnections()
+		if err == nil && len(filterConnectionsByTarget(conns, clean[0])) > 0 {
+			return clean[0], except, clean[1:]
+		}
+		return "all", except, clean
+	}
+	return target, except, clean
+}
+
+func executeAgyOnFleet(target, except string, agyArgs []string) error {
 	conns, err := loadTargetNodes(target)
 	if err != nil {
 		return err
 	}
-
-	for _, c := range conns {
-		runAgyOnNode(c, agyArgs)
+	opts := FleetParallelOptions{
+		Target:   target,
+		Except:   except,
+		TaskName: "AGY " + strings.Join(agyArgs, " "),
 	}
-
+	RunParallelFleetExecution(conns, opts, func(c db.SSHConnection) (string, error) {
+		return executeAgyNodeWorker(c, agyArgs)
+	})
 	return nil
 }
 
-func showSSHAgyUsage() {
-	fmt.Printf("\n%s Usage:%s gitmap ssh agy <target> <agy-command...>\n", constants.ColorCyan, constants.ColorReset)
-	fmt.Println("  Examples:")
-	fmt.Println("    gitmap ssh agy w1 open /projects/my-app")
-	fmt.Println("    gitmap ssh agy all status")
-	fmt.Println("    gitmap ssh agy 192.168.1.8 ls")
-	fmt.Println()
-}
-
-func parseRemoteTargetAndArgs(args []string) (string, []string) {
-	if len(args) == 1 {
-		return "all", args
-	}
-
-	return args[0], args[1:]
-}
-
-func runAgyOnNode(c db.SSHConnection, agyArgs []string) {
+func executeAgyNodeWorker(c db.SSHConnection, agyArgs []string) (string, error) {
 	header := fmt.Sprintf("[%s|%s]", c.Alias, c.IPAddress)
-	client, isConnected := establishAgyClient(c, header)
+	if !checkRemoteNodeOnline(c.IPAddress, header) {
+		return "", fmt.Errorf("node %s is offline", header)
+	}
+	client, isConnected := connectSSHClient(c, header)
 	if !isConnected {
-		return
+		return "", fmt.Errorf("connection/auth failed for %s", header)
 	}
 	defer client.Close()
 
-	osType := c.OS
-	if probed := probeRemoteOSType(client); probed != "" {
-		osType = probed
-	}
-
-	executeAgyRemoteCommand(client, header, osType, agyArgs)
-}
-
-func establishAgyClient(c db.SSHConnection, header string) (*ssh.Client, bool) {
-	if !checkRemoteNodeOnline(c.IPAddress, header) {
-		return nil, false
-	}
-
-	client, isConnected := connectSSHClient(c, header)
-	if !isConnected {
-		appErr := apperror.NewExecutionError("ssh connection authentication failed for " + header)
-		printAppErrorWithStack(header, "Auth Error", appErr)
-		return nil, false
-	}
-
-	return client, true
-}
-
-func executeAgyRemoteCommand(client *ssh.Client, header, osType string, agyArgs []string) {
 	cmdStr := "gitmap agy " + strings.Join(agyArgs, " ")
-	out, err := crypto.RunCommand(client, cmdStr, "")
-	if err != nil {
-		appErr := apperror.WrapSimple(err, "runAgyOnNode")
-		printAppErrorWithStack(header, "AGY Error", appErr)
-		return
-	}
-
-	fmt.Printf("%s\n%s\n", header, strings.TrimSpace(out))
+	return crypto.RunCommand(client, cmdStr, "")
 }

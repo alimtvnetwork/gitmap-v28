@@ -55,3 +55,10 @@ func reorderFlagsBeforeArgs(args []string) []string {
 	}
 	return append(flags, positional...)
 }
+
+func parseRemoteTargetAndArgs(args []string) (string, []string) {
+	if len(args) == 1 {
+		return "all", args
+	}
+	return args[0], args[1:]
+}

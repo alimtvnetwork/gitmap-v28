@@ -26,6 +26,6 @@ STAGE 4: OPERATIONAL BEST PRACTICES & GUARDRAIL DIRECTIVES
    Do NOT run unconstrained repository searches like 'gitmap aum search "train"'.
 3. Scoped Search Hygiene: Always scope 'gitmap aum search' with [dir] and --ext filters.
 4. File Size Limit (Rule R19): Reject/warn on single files > 500 KB and large JSONs.
-5. Universal AppError Envelope: Return *apperror.AppError; never swallow errors.
+5. Universal AppError Envelope: Return *appfault.AppError (package appfault); never swallow errors.
 6. Clean Git Tree: Never commit generated test binaries or temp artifacts.
 7. Semantic Commits: Use 'gitmap cpf', 'gitmap cpb', or 'gitmap cpr'.`

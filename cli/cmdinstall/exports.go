@@ -6,6 +6,9 @@ var CheckHelpFn func(cmd string, args []string)
 // RemoteAgmUpdateFn delegates remote AGM update to cmdssh package.
 var RemoteAgmUpdateFn func(target string) error
 
+// RemoteAgmUpdateFleetFn delegates remote AGM fleet update with exclusions to cmdssh package.
+var RemoteAgmUpdateFleetFn func(target, except string) error
+
 // InstallOptions is the alias for installOptions.
 type InstallOptions = installOptions
 

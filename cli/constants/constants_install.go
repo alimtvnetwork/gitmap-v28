@@ -82,6 +82,7 @@ const (
 	ToolNeo4j         = "neo4j"
 	ToolElasticsearch = "elasticsearch"
 	ToolDuckDB        = "duckdb"
+	ToolSupabase      = "supabase"
 )
 
 // Supported tool names — Languages & Runtimes.
@@ -611,6 +612,7 @@ var InstallToolDescriptions = map[string]string{
 	ToolNeo4j:            "Neo4j graph database",
 	ToolElasticsearch:    "Elasticsearch search and analytics",
 	ToolDuckDB:           "DuckDB analytical columnar database",
+	ToolSupabase:         "[?] Supabase open-source backend & database platform (Planned / To-Do)",
 	ToolDbeaver:          "DBeaver database management tool",
 	ToolStickyNotes:      "Microsoft Sticky Notes",
 	ToolLiteDB:           "LiteDB embedded NoSQL database for .NET",
@@ -704,7 +706,7 @@ var InstallToolCategories = map[string][]string{
 	ToolCategoryDatabase: {
 		ToolMySQL, ToolMariaDB, ToolPostgreSQL, ToolSQLite,
 		ToolMongoDB, ToolCouchDB, ToolRedis, ToolCassandra,
-		ToolNeo4j, ToolElasticsearch, ToolDuckDB, ToolLiteDB,
+		ToolNeo4j, ToolElasticsearch, ToolDuckDB, ToolLiteDB, ToolSupabase,
 	},
 	ToolCategoryLanguages: {
 		ToolRust, ToolCargo, ToolDotnet, ToolJava, ToolFlutter, ToolLaravel, ToolComposer,

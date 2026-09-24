@@ -2,6 +2,9 @@ package cmdpull
 
 import "github.com/alimtvnetwork/gitmap-v28/cli/model"
 
+// RunRemoteSSHPullFn delegates remote SSH pull all-efficient to cmdssh package.
+var RunRemoteSSHPullFn func(target string, isTable bool) error
+
 // RunPull handles the "pull" subcommand.
 func RunPull(args []string) error {
 	return runPull(args)

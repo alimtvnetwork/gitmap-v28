@@ -801,6 +801,14 @@ func init() {
 	cmdinstall.RemoteAgmUpdateFn = func(target string) error {
 		return cmdssh.RunSSHUpdateCLI([]string{"agm", target})
 	}
+	cmdinstall.RemoteAgmUpdateFleetFn = func(target, except string) error {
+		args := []string{"agm", target}
+		if except != "" {
+			args = append(args, "--except", except)
+		}
+		return cmdssh.RunSSHUpdateCLI(args)
+	}
+	cmdagy.RunAgySSHFn = cmdssh.RunSSHAgyCLI
 
 	cmdupdate.RunPostUpdateMigrateFn = runPostUpdateMigrate
 	cmdupdate.RequireOnlineFn = requireOnline

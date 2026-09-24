@@ -25,10 +25,29 @@ var agyPromptLsCmd = &cobra.Command{
 	},
 }
 
+var agyPromptInjectCmd = &cobra.Command{
+	Use:     "inject <slug-or-file> [target-project]",
+	Aliases: []string{"inj"},
+	Short:   "Inject a prompt into an Antigravity project and conversation",
+	RunE: func(cmd *cobra.Command, args []string) error {
+		return RunAgyPromptInject(cmd, args)
+	},
+}
+
+func init() {
+	agyPromptInjectCmd.Flags().StringVarP(&injectProjectFlag, "project", "p", "", "Target project path or alias")
+	agyPromptInjectCmd.Flags().StringVarP(&injectConvFlag, "conversation", "c", "", "Target conversation ID or default")
+	agyPromptInjectCmd.Flags().StringVarP(&injectTitleFlag, "title", "t", "", "Custom prompt title")
+	agyPromptInjectCmd.Flags().BoolVar(&injectSkipFlag, "skip-inject", false, "Stage prompt file only without injecting to queue")
+}
+
 func initAgyPromptSubcommands() {
 	cmdantigravity.PromptCmd.AddCommand(agyPromptReadCmd)
+	cmdantigravity.PromptCmd.AddCommand(agyPromptInjectCmd)
 	agyPromptCmd.AddCommand(agyPromptReadCmd)
 	agyPromptCmd.AddCommand(agyPromptLsCmd)
+	agyPromptCmd.AddCommand(agyPromptInjectCmd)
+	agyPromptCmd.AddCommand(cmdprompt.PromptAddCmd)
 	cmdantigravity.SetPromptDispatcher(dispatchPromptFromAntigravityCmd)
 }
 

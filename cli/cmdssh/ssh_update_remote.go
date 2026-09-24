@@ -78,13 +78,16 @@ func isTargetFlag(arg string) bool {
 }
 
 func isExceptFlag(arg string) bool {
-	return arg == "--except" || arg == "--exclude"
+	return arg == "--except" || arg == "--exclude" || arg == "-e"
 }
 
 func populateTargetAndPackage(opts SSHFleetUpdateOptions, clean []string) SSHFleetUpdateOptions {
 	for _, token := range clean {
 		if isAllTarget(token) {
 			opts.Target = "all-nodes"
+			continue
+		}
+		if isUpdateAction(token) {
 			continue
 		}
 		if isKnownPackage(token) {
@@ -99,6 +102,11 @@ func populateTargetAndPackage(opts SSHFleetUpdateOptions, clean []string) SSHFle
 		opts.Target = "all-nodes"
 	}
 	return opts
+}
+
+func isUpdateAction(token string) bool {
+	low := strings.ToLower(token)
+	return low == "update" || low == "up" || low == "update-all" || low == "updateall"
 }
 
 func isKnownPackage(token string) bool {
@@ -121,32 +129,26 @@ func executeFleetUpdateWithOptions(conns []db.SSHConnection, opts SSHFleetUpdate
 	fmt.Printf("\n%s Updating '%s' across SSH fleet (%s):%s\n\n",
 		constants.ColorCyan, opts.Pkg, opts.Target, constants.ColorReset)
 
-	filtered := filterConnectionsByTarget(conns, opts.Target)
-	if opts.Except != "" {
-		filtered = filterSSHConns(filtered, opts.Except)
+	fleetOpts := FleetParallelOptions{
+		Target:   opts.Target,
+		Except:   opts.Except,
+		TaskName: fmt.Sprintf("Update %s", opts.Pkg),
+		IsDryRun: opts.IsDryRun,
 	}
 
-	if len(filtered) == 0 {
-		fmt.Printf("No matching target machines found to update.\n\n")
-		return
-	}
-
-	for _, c := range filtered {
-		updateSingleSSHNode(c, opts.Pkg, opts.IsDryRun)
-	}
-
-	fmt.Printf("\nSSH Fleet Update '%s' complete.\n\n", opts.Pkg)
+	RunParallelFleetExecution(conns, fleetOpts, func(c db.SSHConnection) (string, error) {
+		return executeSingleSSHNodeUpdate(c, opts.Pkg, opts.IsDryRun)
+	})
 }
 
-func updateSingleSSHNode(c db.SSHConnection, pkg string, isDryRun bool) {
+func executeSingleSSHNodeUpdate(c db.SSHConnection, pkg string, isDryRun bool) (string, error) {
 	header := fmt.Sprintf("[%s|%s]", c.Alias, c.IPAddress)
 	if isDryRun {
-		fmt.Printf("  %s [DRY-RUN] Would update %s on %s\n", header, pkg, c.Alias)
-		return
+		return fmt.Sprintf("[DRY-RUN] Would update %s on %s", pkg, c.Alias), nil
 	}
 	client, isConnected := connectSSHNode(c, header)
 	if !isConnected {
-		return
+		return "", fmt.Errorf("unable to connect to %s", header)
 	}
 	defer client.Close()
 
@@ -155,7 +157,10 @@ func updateSingleSSHNode(c db.SSHConnection, pkg string, isDryRun bool) {
 		osType = probed
 	}
 
-	executeRemoteUpdate(client, header, osType, pkg)
+	cmd := resolveRemoteUpdateCommand(osType, pkg)
+	out, err := crypto.RunCommand(client, cmd, resolveRemoteShell(osType))
+	reportRemoteExecution(header, "Updated", out, err)
+	return out, err
 }
 
 func connectSSHNode(c db.SSHConnection, header string) (*ssh.Client, bool) {
