@@ -84,25 +84,6 @@ func buildRerunRestartPlan(projects []AgyProject, target, templateID string) (re
 	}, nil
 }
 
-func resolveProjectFromTarget(projects []AgyProject, target string) (AgyProject, int) {
-	trimmed := strings.TrimSpace(target)
-	if trimmed == "" {
-		return projects[0], 1
-	}
-
-	seq, err := strconv.Atoi(trimmed)
-	if err == nil && seq >= 1 && seq <= len(projects) {
-		return projects[seq-1], seq
-	}
-
-	matched, matchErr := ResolveAgyProjectTargets([]string{target}, projects)
-	if matchErr == nil && len(matched) > 0 {
-		return matched[0], findProjectSequence(projects, matched[0].ID)
-	}
-
-	return projects[0], 1
-}
-
 func findProjectSequence(projects []AgyProject, id string) int {
 	for i, p := range projects {
 		if p.ID == id {

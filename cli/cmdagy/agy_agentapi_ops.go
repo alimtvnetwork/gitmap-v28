@@ -63,10 +63,6 @@ func AgentAPINewConversationWithOptions(title, model, profile, prompt string) re
 	return parseNewConversationResponse(rawRes.Value)
 }
 
-func buildNewConvArgs(title, prompt string) []string {
-	return buildNewConvArgsWithOptions(title, "", "", prompt)
-}
-
 func buildNewConvArgsWithOptions(title, model, profile, prompt string) []string {
 	args := []string{"new-conversation"}
 	if len(strings.TrimSpace(model)) > 0 {
