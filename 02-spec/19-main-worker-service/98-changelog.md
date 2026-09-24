@@ -1,3 +1,9 @@
+## v6.332.0 — 2026-09-24 (fix(spec-154): pae inactivity calculation, freshness cooldown, and global column width stability)
+
+**Scope:** Version bump. fix(spec-154): pae inactivity calculation, freshness cooldown, and global column width stability.
+
+---
+
 ## v6.331.0 — 2026-09-24 (enhance pae column display with syntax highlighted statuses and clean word-wrapped inactive repos)
 
 **Scope:** Version bump. enhance pae column display with syntax highlighted statuses and clean word-wrapped inactive repos.

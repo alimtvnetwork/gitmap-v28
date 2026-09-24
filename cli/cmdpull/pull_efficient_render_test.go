@@ -5,6 +5,7 @@ import (
 	"strings"
 	"testing"
 
+	"github.com/alimtvnetwork/gitmap-v28/cli/model"
 	"github.com/alimtvnetwork/gitmap-v28/cli/termpad"
 )
 
@@ -33,6 +34,15 @@ func TestResolveConciseRepoColWidth(t *testing.T) {
 	expectedLen := len(longName) // 37
 	if width := ResolveConciseRepoColWidth(mixedStates); width < expectedLen {
 		t.Fatalf("expected width >= %d for long repo, got %d", expectedLen, width)
+	}
+
+	// 4. Stable column width calculated from allRecords even if active repos are short
+	allRecords := []model.ScanRecord{
+		{RepoName: "short"},
+		{RepoName: longName},
+	}
+	if width := ResolveConciseRepoColWidth(shortStates, allRecords); width != expectedLen {
+		t.Fatalf("expected width %d from allRecords, got %d", expectedLen, width)
 	}
 }
 

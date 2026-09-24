@@ -190,7 +190,7 @@ func processEfficientPullLifecycle(records []model.ScanRecord, opts EfficientPul
 	if !opts.IsJSON {
 		printEfficientPartitionNotice(total, len(partition.ActiveRecords), len(partition.InactiveRepos))
 	}
-	return executeActiveEfficientBatch(partition, opts, total)
+	return executeActiveEfficientBatch(partition, opts, total, records)
 }
 
 func printEfficientPartitionNotice(total, activeCount, inactiveCount int) {
@@ -200,7 +200,7 @@ func printEfficientPartitionNotice(total, activeCount, inactiveCount int) {
 		total, activeCount, inactiveCount)
 }
 
-func executeActiveEfficientBatch(partition EfficientPullPartition, opts EfficientPullOptions, total int) error {
+func executeActiveEfficientBatch(partition EfficientPullPartition, opts EfficientPullOptions, total int, allRecords []model.ScanRecord) error {
 	pullOpts := pullOptions{
 		all:      true,
 		useSSH:   opts.UseSSH,
@@ -223,17 +223,17 @@ func executeActiveEfficientBatch(partition EfficientPullPartition, opts Efficien
 	if opts.IsJSON {
 		return renderJSONEfficientResults(total, sortedStates, partition.InactiveRepos, dur)
 	}
-	renderEfficientResults(sortedStates, partition.InactiveRepos, opts.IsTableMode)
+	renderEfficientResults(sortedStates, partition.InactiveRepos, opts.IsTableMode, allRecords)
 	recordEfficientPullTelemetry(total, sortedStates, partition.InactiveRepos, dur, opts.IsTableMode)
 
 	return nil
 }
 
-func renderEfficientResults(states []*PullRepoState, inactive []InactiveRepoDetail, isTable bool) {
+func renderEfficientResults(states []*PullRepoState, inactive []InactiveRepoDetail, isTable bool, allRecords []model.ScanRecord) {
 	if isTable {
 		renderPullBatchResults(states)
 	} else {
-		renderConciseActiveResults(states)
+		renderConciseActiveResults(states, allRecords)
 	}
 
 	renderEfficientPullSummary(states, inactive)
@@ -256,7 +256,7 @@ func printInactiveSkipSummary(inactive []InactiveRepoDetail) {
 	for _, in := range inactive {
 		names = append(names, in.RepoName)
 	}
-	fmt.Printf("    %s%s%s %sskipped inactive repos (0 changes over 3+ pulls in last 24h):%s\n",
+	fmt.Printf("    %s%s%s %sskipped inactive repos (0 changes or checked recently in 24h window):%s\n",
 		constants.ColorCyan, arrow, constants.ColorReset,
 		constants.ColorDim, constants.ColorReset)
 	termWidth := detectTerminalWidth()
@@ -271,7 +271,7 @@ func handleAllReposInactive(total int, inactive []InactiveRepoDetail, isTable bo
 	if isJSON {
 		return renderJSONInactiveResults(total, inactive)
 	}
-	fmt.Printf("\n  %sℹ%s All %d repository(ies) are currently inactive (0 changes in last 3+ pulls within 24h).\n",
+	fmt.Printf("\n  %sℹ%s All %d repository(ies) are currently up-to-date (0 changes or checked recently in 24h window).\n",
 		constants.ColorCyan, constants.ColorReset, total)
 	printInactiveSkipSummary(inactive)
 	recordEfficientPullTelemetry(total, nil, inactive, 0, isTable)
@@ -296,7 +296,7 @@ func PartitionRecordsByActivity(records []model.ScanRecord) (EfficientPullPartit
 }
 
 func classifyRepoActivity(db *store.PullSplitDB, rec model.ScanRecord, part *EfficientPullPartition) {
-	status, err := db.EvaluateRepoInactivity(rec.AbsolutePath, 3, 24)
+	status, err := db.EvaluateRepoActivityStatus(rec.AbsolutePath, store.DefaultActivityWindowHours, store.DefaultFreshnessCooldownMinutes)
 	isInactive := err == nil && status.IsInactive
 	if isInactive {
 		part.InactiveRepos = append(part.InactiveRepos, InactiveRepoDetail{

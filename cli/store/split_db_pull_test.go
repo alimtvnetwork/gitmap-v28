@@ -146,3 +146,67 @@ func TestPullSplitDB_ParseCreatedAtTime(t *testing.T) {
 		t.Fatalf("expected invalid timestamp to fail parsing")
 	}
 }
+
+func TestPullSplitDB_EvaluateRepoActivityStatus(t *testing.T) {
+	tempDir := t.TempDir()
+	dbPath := filepath.Join(tempDir, "test-gitmap-pull-act.db")
+	db, err := OpenPullSplitDBAt(dbPath)
+	if err != nil {
+		t.Fatalf("OpenPullSplitDBAt failed: %v", err)
+	}
+	defer db.Close()
+
+	repoClean := filepath.Join(tempDir, "repo-clean")
+	repoChanged := filepath.Join(tempDir, "repo-changed")
+
+	// 1. Unseen repo -> active (no prior pull history)
+	st0, err := db.EvaluateRepoActivityStatus(repoClean, 24, 5)
+	if err != nil {
+		t.Fatalf("EvaluateRepoActivityStatus failed: %v", err)
+	}
+	if st0.IsInactive {
+		t.Fatalf("expected unseen repo to be active, got inactive")
+	}
+
+	// 2. Insert clean run
+	runID, err := db.InsertPullRun(&PullRunRecord{CommandType: "pull-all", TotalRepos: 1})
+	if err != nil {
+		t.Fatalf("InsertPullRun failed: %v", err)
+	}
+	err = db.InsertPullRepoRuns(runID, []PullRepoRunRecord{
+		{
+			RepoPath: repoClean, RepoName: "repo-clean",
+			PullStatus: "up-to-date", FilesChanged: 0, HasChanges: false,
+		},
+		{
+			RepoPath: repoChanged, RepoName: "repo-changed",
+			PullStatus: "success", FilesChanged: 10, HasChanges: true,
+		},
+	})
+	if err != nil {
+		t.Fatalf("InsertPullRepoRuns failed: %v", err)
+	}
+
+	// 3. Just inserted -> cooldown (< 5m) marks both inactive (skip network re-pull)
+	stCleanCooldown, err := db.EvaluateRepoActivityStatus(repoClean, 24, 5)
+	if err != nil || !stCleanCooldown.IsInactive {
+		t.Fatalf("expected repoClean in cooldown to be inactive, got active")
+	}
+	stChangedCooldown, err := db.EvaluateRepoActivityStatus(repoChanged, 24, 5)
+	if err != nil || !stChangedCooldown.IsInactive {
+		t.Fatalf("expected repoChanged in cooldown to be inactive, got active")
+	}
+
+	// 4. Test with cooldownMinutes = 0 (cooldown disabled)
+	// Clean repo -> inactive (0 changes on latest pull within 24h window)
+	stCleanNoCooldown, err := db.EvaluateRepoActivityStatus(repoClean, 24, 0)
+	if err != nil || !stCleanNoCooldown.IsInactive {
+		t.Fatalf("expected clean repo to be inactive, got active")
+	}
+
+	// Changed repo -> active (recent changes within 24h)
+	stChangedNoCooldown, err := db.EvaluateRepoActivityStatus(repoChanged, 24, 0)
+	if err != nil || stChangedNoCooldown.IsInactive {
+		t.Fatalf("expected changed repo to be active, got inactive")
+	}
+}

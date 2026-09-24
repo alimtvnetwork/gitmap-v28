@@ -1,3 +1,15 @@
+## [v6.332.0] 2026-09-24 Release v6.332.0
+
+### Install GitMap v6.332.0
+
+To pin your repository to this exact version, run the following one-liner:
+Unix/Bash: `curl -sL https://raw.githubusercontent.com/alimtvnetwork/gitmap-v28/v6.332.0/install.sh | bash -s -- ".ai-memory/prompts" "v6.332.0"`
+PowerShell: `Invoke-WebRequest -Uri https://raw.githubusercontent.com/alimtvnetwork/gitmap-v28/v6.332.0/install.ps1 -OutFile install.ps1; .\install.ps1 -TargetDir ".ai-memory/prompts" -Version "v6.332.0"`
+
+### Added / Changed / Fixed / Removed
+
+- fix(spec-154): pae inactivity calculation, freshness cooldown, and global column width stability
+
 ## [v6.331.0] 2026-09-24 Release v6.331.0
 
 ### Install GitMap v6.331.0

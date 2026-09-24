@@ -7,6 +7,7 @@ import (
 	"strings"
 
 	"github.com/alimtvnetwork/gitmap-v28/cli/constants"
+	"github.com/alimtvnetwork/gitmap-v28/cli/model"
 )
 
 const (
@@ -15,14 +16,14 @@ const (
 )
 
 // renderConciseActiveResults prints bullet list with aligned columns to stdout.
-func renderConciseActiveResults(states []*PullRepoState) {
-	RenderConciseActiveResultsTo(os.Stdout, states)
+func renderConciseActiveResults(states []*PullRepoState, allRecords ...[]model.ScanRecord) {
+	RenderConciseActiveResultsTo(os.Stdout, states, allRecords...)
 }
 
 // RenderConciseActiveResultsTo renders concise repo states to the provided writer.
-func RenderConciseActiveResultsTo(w io.Writer, states []*PullRepoState) {
+func RenderConciseActiveResultsTo(w io.Writer, states []*PullRepoState, allRecords ...[]model.ScanRecord) {
 	fmt.Fprintln(w)
-	colWidth := ResolveConciseRepoColWidth(states)
+	colWidth := ResolveConciseRepoColWidth(states, allRecords...)
 	for _, s := range states {
 		statusLabel := ResolveRepoStatusLabel(s.Changes)
 		fmt.Fprintln(w, FormatConciseActiveResultLine(colWidth, s.RepoName, statusLabel))
@@ -30,8 +31,15 @@ func RenderConciseActiveResultsTo(w io.Writer, states []*PullRepoState) {
 }
 
 // ResolveConciseRepoColWidth dynamically calculates the repo column width to prevent overflow.
-func ResolveConciseRepoColWidth(states []*PullRepoState) int {
+func ResolveConciseRepoColWidth(states []*PullRepoState, allRecords ...[]model.ScanRecord) int {
 	colWidth := minConciseRepoColWidth
+	if len(allRecords) > 0 {
+		for _, r := range allRecords[0] {
+			if len(r.RepoName) > colWidth {
+				colWidth = len(r.RepoName)
+			}
+		}
+	}
 	for _, s := range states {
 		if len(s.RepoName) > colWidth {
 			colWidth = len(s.RepoName)
