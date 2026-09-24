@@ -81,6 +81,9 @@ Master directory of architectural and execution plans.
 
 ## Completed Plans
 
+- [111-update-all-ssh-dial-failure-and-missing-command-suggestions.md](completed/111-update-all-ssh-dial-failure-and-missing-command-suggestions.md): SSH Fleet Update Decrypted Auth, Liveness Probe & Command Suggestions
+- [110-ssh-installer-hermetic-test-isolation-and-stale-process-guard.md](completed/110-ssh-installer-hermetic-test-isolation-and-stale-process-guard.md): SSH Installer Hermetic Test Isolation & Stale Process Guard
+- [109-ssh-installer-nsis-payload-detection-and-fleet-deployment.md](completed/109-ssh-installer-nsis-payload-detection-and-fleet-deployment.md): SSH Installer Payload NSIS Auto-Detection, Silent Execution & Fleet Enrollment Resolution
 - [108-remote-node-first-login-os-profiling-gitbash-and-cross-os-execution.md](completed/108-remote-node-first-login-os-profiling-gitbash-and-cross-os-execution.md): Remote Node First-Time Login OS Profiling, Cross-Platform Git Bash Execution & Multi-OS Installer Filtering
 - [107-gitmap-lowercase-preflight-hygiene-and-conflict-resolution.md](completed/107-gitmap-lowercase-preflight-hygiene-and-conflict-resolution.md): GitMap Lowercase Pre-Flight Hygiene, Working Tree Conflict Resolution & Automated Push
 - [106-ssh-install-exec-streaming-upload-and-os-resolution.md](completed/106-ssh-install-exec-streaming-upload-and-os-resolution.md): SSH Install-Exec Streaming Upload Protocol, DB Resolution Fallback & Dynamic Remote OS Probing

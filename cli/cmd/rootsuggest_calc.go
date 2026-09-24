@@ -56,10 +56,23 @@ func rankCandidateCommands(input string, candidates []string) []commandScore {
 	}
 
 	sort.SliceStable(scores, func(i, j int) bool {
-		return scores[i].dist < scores[j].dist
+		if scores[i].dist != scores[j].dist {
+			return scores[i].dist < scores[j].dist
+		}
+		diffI := candidateLenDiff(scores[i].cmd, input)
+		diffJ := candidateLenDiff(scores[j].cmd, input)
+		return diffI < diffJ
 	})
 
 	return scores
+}
+
+func candidateLenDiff(candidate, input string) int {
+	diff := len(candidate) - len(input)
+	if diff < 0 {
+		return -diff
+	}
+	return diff
 }
 
 func selectBestSuggestions(scores []commandScore) []string {

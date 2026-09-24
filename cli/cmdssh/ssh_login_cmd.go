@@ -303,8 +303,32 @@ func formatJoinExamples(target string) string {
 	return sb.String()
 }
 
+func suggestSSHSubcommand(target string) string {
+	low := strings.ToLower(target)
+	switch low {
+	case "hosts", "host", "machines", "vms", "node":
+		return "nodes"
+	case "updat", "up", "upgrade":
+		return "update"
+	case "exe", "cmd", "run":
+		return "exec"
+	case "inst", "install", "setup":
+		return "install-exec"
+	case "joi", "enroll":
+		return "join"
+	case "err", "error", "logs":
+		return "error-logs"
+	case "stat", "check", "ping":
+		return "health"
+	}
+	return ""
+}
+
 func formatAliasNotFoundMessage(target string, hosts []store.SSHHost) string {
 	header := fmt.Sprintf("SSH host alias '%s' not found in registry.\n\n", target)
+	if suggestion := suggestSSHSubcommand(target); suggestion != "" {
+		header = fmt.Sprintf("SSH host alias '%s' not found in registry.\n  Did you mean: gitmap ssh %s?\n\n", target, suggestion)
+	}
 	table := formatRegisteredHostsTable(hosts)
 	examples := formatJoinExamples(target)
 	return header + table + "\n" + examples

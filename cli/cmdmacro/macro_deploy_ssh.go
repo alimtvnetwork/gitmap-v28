@@ -429,8 +429,12 @@ func tryDialPassword(target MacroDeployTarget) (*ssh.Client, bool) {
 	if target.Password == "" {
 		return nil, false
 	}
-	c, err := crypto.ConnectWithPassword(target.IP, target.Username, target.Password)
-	return c, err == nil
+	plain, err := crypto.DecryptStoredPassword(target.Password)
+	if err != nil || plain == "" {
+		plain = target.Password
+	}
+	c, connErr := crypto.ConnectWithPassword(target.IP, target.Username, plain)
+	return c, connErr == nil
 }
 
 func tryDialKeyPath(target MacroDeployTarget) (*ssh.Client, bool) {

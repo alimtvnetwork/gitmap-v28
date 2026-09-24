@@ -36,3 +36,29 @@ func TestDecrypt_InvalidKey(t *testing.T) {
 		t.Error("Expected error with wrong key, got nil")
 	}
 }
+
+func TestDecryptStoredPassword(t *testing.T) {
+	rawSecret := "ClusterSecretPassword123!"
+	cipherText, err := Encrypt([]byte(rawSecret), sshSecretKeyPrimary)
+	if err != nil {
+		t.Fatalf("Failed to encrypt with primary key: %v", err)
+	}
+
+	decrypted, decErr := DecryptStoredPassword(cipherText)
+	if decErr != nil {
+		t.Fatalf("DecryptStoredPassword failed: %v", decErr)
+	}
+	if decrypted != rawSecret {
+		t.Errorf("Expected %q, got %q", rawSecret, decrypted)
+	}
+
+	empty, emptyErr := DecryptStoredPassword("")
+	if emptyErr != nil || empty != "" {
+		t.Errorf("Expected empty string, got %q, err=%v", empty, emptyErr)
+	}
+
+	fallback, _ := DecryptStoredPassword("plainPasswordNoEncryption")
+	if fallback != "plainPasswordNoEncryption" {
+		t.Errorf("Expected plaintext fallback, got %q", fallback)
+	}
+}

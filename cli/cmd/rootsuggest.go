@@ -20,6 +20,7 @@ var primaryTopCommands = []string{
 	"service", "schedule", "macro", "os", "storage", "pipeline", "pe", "pd",
 	"servers-clients", "servers-client", "sc", "clients", "cluster",
 	"agy", "fix-pipeline", "tasks", "task", "author", "sponsor", "credits",
+	"update", "ua", "ssh", "ssh-join", "ssh-exec", "ssh-nodes", "install-exec", "deploy",
 }
 
 func buildUnknownCommandMessage(command string, suggestions []string) string {

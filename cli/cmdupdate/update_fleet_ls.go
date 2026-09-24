@@ -1,6 +1,7 @@
 package cmdupdate
 
 import (
+	"context"
 	"encoding/json"
 	"fmt"
 	"io"
@@ -10,6 +11,7 @@ import (
 	"time"
 
 	"github.com/alimtvnetwork/gitmap-v28/cli/apperror"
+	"github.com/alimtvnetwork/gitmap-v28/cli/cmdssh"
 	"github.com/alimtvnetwork/gitmap-v28/cli/constants"
 	"github.com/alimtvnetwork/gitmap-v28/cli/crypto"
 	"github.com/alimtvnetwork/gitmap-v28/cli/termtable"
@@ -89,6 +91,25 @@ func executeParallelFleetLS(targets []FleetTarget) []FleetLSNodeResult {
 }
 
 func runSingleFleetLS(target FleetTarget) FleetLSNodeResult {
+	isOnline, reason := CheckConnLivenessFn(context.Background(), target.IP, target.Port, 1000*time.Millisecond)
+	if !isOnline {
+		res := FleetLSNodeResult{
+			Alias:      target.Alias,
+			IP:         target.IP,
+			IsSuccess:  false,
+			DurationMs: 15,
+			Inventory: FleetNodeInventory{
+				NodeID: target.ID,
+				Alias:  target.Alias,
+				IP:     target.IP,
+				OS:     target.OS,
+				Error:  fmt.Sprintf("machine is off or unreachable (%s)", reason),
+			},
+		}
+		printSingleFleetLSProgress(res)
+		return res
+	}
+
 	start := time.Now()
 	rawOutput, err := ExecuteRemoteInventoryFn(target)
 	dur := time.Since(start).Milliseconds()
@@ -293,8 +314,13 @@ func executeSSHRemoteInventory(target FleetTarget) (string, error) {
 	}
 	defer client.Close()
 
-	cmd := resolveFleetInventoryCommand(target.OS)
-	shell := resolveFleetShell(target.OS)
+	osType := target.OS
+	if probed := cmdssh.ProbeRemoteOSType(client); probed != "" {
+		osType = probed
+	}
+
+	cmd := resolveFleetInventoryCommand(osType)
+	shell := resolveFleetShell(osType)
 	return crypto.RunCommand(client, cmd, shell)
 }
 

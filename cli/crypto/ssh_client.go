@@ -3,10 +3,18 @@ package crypto
 import (
 	"fmt"
 	"os"
+	"strings"
 	"time"
 
 	"golang.org/x/crypto/ssh"
 )
+
+func resolveTCPAddress(ip string) string {
+	if strings.Contains(ip, ":") {
+		return ip
+	}
+	return fmt.Sprintf("%s:22", ip)
+}
 
 // ConnectWithPassword establishes an SSH connection using a password.
 func ConnectWithPassword(ip, user, password string) (*ssh.Client, error) {
@@ -17,7 +25,7 @@ func ConnectWithPassword(ip, user, password string) (*ssh.Client, error) {
 		Timeout:         4 * time.Second,
 	}
 
-	return ssh.Dial("tcp", fmt.Sprintf("%s:22", ip), config)
+	return ssh.Dial("tcp", resolveTCPAddress(ip), config)
 }
 
 // ConnectWithKey establishes an SSH connection using a private key file.
@@ -34,7 +42,7 @@ func ConnectWithKey(ip, user, keyPath string) (*ssh.Client, error) {
 		Timeout:         4 * time.Second,
 	}
 
-	return ssh.Dial("tcp", fmt.Sprintf("%s:22", ip), config)
+	return ssh.Dial("tcp", resolveTCPAddress(ip), config)
 }
 
 func parseKeyFile(keyPath string) (ssh.Signer, error) {

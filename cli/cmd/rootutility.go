@@ -127,7 +127,61 @@ func runUpdateHelp() error {
 		cmdupdate.SetTargetVersion(targetVer)
 	}
 
+	if len(args) > 0 && !isKnownUpdateTargetOrFlag(args[0]) {
+		handleUnknownUpdateTarget(args[0])
+		return nil
+	}
+
 	return runUpdate()
+}
+
+func isKnownUpdateTargetOrFlag(token string) bool {
+	if strings.HasPrefix(token, "-") {
+		return true
+	}
+	if isSemverLike(token) {
+		return true
+	}
+	low := strings.ToLower(token)
+	switch low {
+	case "all", "all-nodes", "allnodes", "ls", "list", "ssh", "remote", "gitmap", "agm", "ag-manager", "antigravity-manager":
+		return true
+	default:
+		return false
+	}
+}
+
+func suggestUpdateTarget(token string) string {
+	low := strings.ToLower(token)
+	switch low {
+	case "al", "allnodes", "all-node", "nodes", "hosts", "cluster":
+		return "all"
+	case "l", "lss", "inventory", "apps", "soft":
+		return "ls"
+	case "ag", "ang", "manager":
+		return "agm"
+	case "git", "gitm", "gm":
+		return "gitmap"
+	case "rem", "ss":
+		return "ssh"
+	}
+	return ""
+}
+
+func handleUnknownUpdateTarget(token string) {
+	suggestion := suggestUpdateTarget(token)
+	if suggestion != "" {
+		fmt.Printf("\ngitmap update: Unknown update target '%s'.\n  Did you mean: gitmap update %s?\n\n", token, suggestion)
+	} else {
+		fmt.Printf("\ngitmap update: Unknown update target '%s'.\n\n", token)
+	}
+	fmt.Println("Available update commands:")
+	fmt.Println("  gitmap update              - Self-update local gitmap binary")
+	fmt.Println("  gitmap update all          - Update all fleet cluster nodes in parallel (alias: gitmap ua)")
+	fmt.Println("  gitmap update ls           - List installed software inventory across fleet nodes")
+	fmt.Println("  gitmap update agm          - Update Antigravity Manager")
+	fmt.Println("  gitmap update ssh <target> - Update package on specified SSH target")
+	fmt.Println()
 }
 
 func resolveUpdatePackage(args []string) string {

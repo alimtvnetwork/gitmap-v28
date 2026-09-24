@@ -77,6 +77,7 @@ See [00-overview.md](./00-overview.md) for the complete application specificatio
 - [Spec 157: Remote Node First-Time Login OS Profiling, Cross-Platform Git Bash Execution & Multi-OS Installer Filtering](./157-remote-node-first-login-os-profiling-gitbash-and-cross-os-execution.md)
 - [Spec 158: SSH Installer Payload NSIS Auto-Detection, Silent Execution & Fleet Enrollment Resolution](./158-ssh-installer-payload-nsis-auto-detection-and-fleet-deployment.md)
 - [Spec 159: SSH Fleet Installer Hermetic Test Isolation & Stale Process Lock Guard](./159-ssh-installer-hermetic-test-isolation-and-stale-process-guard.md)
+- [Spec 160: SSH Fleet Update Decrypted Auth, Liveness Probe, and Command Suggestions](./160-ssh-fleet-update-decrypted-auth-liveness-probe-and-command-suggestions.md)
 
 ---
 

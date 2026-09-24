@@ -1,9 +1,11 @@
 package cmdupdate
 
 import (
+	"context"
 	"errors"
 	"sync"
 	"testing"
+	"time"
 )
 
 func createMockFleetTargets() []FleetTarget {
@@ -38,10 +40,16 @@ func createMockFleetTargets() []FleetTarget {
 func TestExecuteFleetUpdate_AllAliasesExecuteIdentically(t *testing.T) {
 	origLoad := LoadFleetTargetsFn
 	origExec := ExecuteRemoteUpdateFn
+	origLive := CheckConnLivenessFn
 	defer func() {
 		LoadFleetTargetsFn = origLoad
 		ExecuteRemoteUpdateFn = origExec
+		CheckConnLivenessFn = origLive
 	}()
+
+	CheckConnLivenessFn = func(ctx context.Context, ip string, port int, timeout time.Duration) (bool, string) {
+		return true, "online"
+	}
 
 	mockTargets := createMockFleetTargets()
 	LoadFleetTargetsFn = func() ([]FleetTarget, error) {
@@ -88,10 +96,16 @@ func TestExecuteFleetUpdate_AllAliasesExecuteIdentically(t *testing.T) {
 func TestExecuteFleetUpdate_SingleAppWithExcept(t *testing.T) {
 	origLoad := LoadFleetTargetsFn
 	origExec := ExecuteRemoteUpdateFn
+	origLive := CheckConnLivenessFn
 	defer func() {
 		LoadFleetTargetsFn = origLoad
 		ExecuteRemoteUpdateFn = origExec
+		CheckConnLivenessFn = origLive
 	}()
+
+	CheckConnLivenessFn = func(ctx context.Context, ip string, port int, timeout time.Duration) (bool, string) {
+		return true, "online"
+	}
 
 	mockTargets := createMockFleetTargets()
 	LoadFleetTargetsFn = func() ([]FleetTarget, error) {
@@ -124,10 +138,16 @@ func TestExecuteFleetUpdate_SingleAppWithExcept(t *testing.T) {
 func TestExecuteFleetUpdateLS_ParsesVariousJSONFormats(t *testing.T) {
 	origLoad := LoadFleetTargetsFn
 	origInv := ExecuteRemoteInventoryFn
+	origLive := CheckConnLivenessFn
 	defer func() {
 		LoadFleetTargetsFn = origLoad
 		ExecuteRemoteInventoryFn = origInv
+		CheckConnLivenessFn = origLive
 	}()
+
+	CheckConnLivenessFn = func(ctx context.Context, ip string, port int, timeout time.Duration) (bool, string) {
+		return true, "online"
+	}
 
 	mockTargets := createMockFleetTargets()
 	LoadFleetTargetsFn = func() ([]FleetTarget, error) {
@@ -168,10 +188,16 @@ func TestExecuteFleetUpdateLS_ParsesVariousJSONFormats(t *testing.T) {
 func TestExecuteFleetUpdateLS_HandlesErrorsAndMalformedJSON(t *testing.T) {
 	origLoad := LoadFleetTargetsFn
 	origInv := ExecuteRemoteInventoryFn
+	origLive := CheckConnLivenessFn
 	defer func() {
 		LoadFleetTargetsFn = origLoad
 		ExecuteRemoteInventoryFn = origInv
+		CheckConnLivenessFn = origLive
 	}()
+
+	CheckConnLivenessFn = func(ctx context.Context, ip string, port int, timeout time.Duration) (bool, string) {
+		return true, "online"
+	}
 
 	mockTargets := createMockFleetTargets()
 	LoadFleetTargetsFn = func() ([]FleetTarget, error) {
@@ -192,6 +218,51 @@ func TestExecuteFleetUpdateLS_HandlesErrorsAndMalformedJSON(t *testing.T) {
 	err := ExecuteFleetUpdateLS([]string{})
 	if err != nil {
 		t.Fatalf("unexpected error: %v", err)
+	}
+}
+
+func TestExecuteFleetUpdate_OfflineNodeReporting(t *testing.T) {
+	origLoad := LoadFleetTargetsFn
+	origExec := ExecuteRemoteUpdateFn
+	origLive := CheckConnLivenessFn
+	defer func() {
+		LoadFleetTargetsFn = origLoad
+		ExecuteRemoteUpdateFn = origExec
+		CheckConnLivenessFn = origLive
+	}()
+
+	mockTargets := createMockFleetTargets()
+	LoadFleetTargetsFn = func() ([]FleetTarget, error) {
+		return mockTargets, nil
+	}
+
+	// Mock worker-2 (10.0.0.2) as offline
+	CheckConnLivenessFn = func(ctx context.Context, ip string, port int, timeout time.Duration) (bool, string) {
+		if ip == "10.0.0.2" {
+			return false, "connection timed out"
+		}
+		return true, "online"
+	}
+
+	var mu sync.Mutex
+	updatedIPs := make(map[string]bool)
+	ExecuteRemoteUpdateFn = func(target FleetTarget, opts FleetUpdateOptions) (string, error) {
+		mu.Lock()
+		updatedIPs[target.IP] = true
+		mu.Unlock()
+		return `{"success": true, "details": "ok"}`, nil
+	}
+
+	err := RunFleetUpdateDispatch("update", []string{"all"})
+	if err != nil {
+		t.Fatalf("unexpected error: %v", err)
+	}
+
+	if updatedIPs["10.0.0.2"] {
+		t.Errorf("expected offline worker-2 (10.0.0.2) NOT to be updated via SSH")
+	}
+	if !updatedIPs["10.0.0.1"] || !updatedIPs["10.0.0.3"] {
+		t.Errorf("expected online nodes 10.0.0.1 and 10.0.0.3 to be updated")
 	}
 }
 

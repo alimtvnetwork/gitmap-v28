@@ -51,6 +51,7 @@ Any content that analyzes bugs, failures, root causes, or fixes for application-
 | 43 | [43-gitmap-lowercase-unresolved-conflicts-and-missing-push-rca.md](43-gitmap-lowercase-unresolved-conflicts-and-missing-push-rca.md) | GitMap Lowercase Unresolved Merge Conflicts, Working Tree Dirt Contamination & Missing Push: RCA & Fix | Resolved |
 | 44 | [44-ssh-install-exec-nsis-silent-hanging-and-empty-registry-resolution-rca.md](44-ssh-install-exec-nsis-silent-hanging-and-empty-registry-resolution-rca.md) | SSH Install-Exec NSIS Silent Hanging, Unattended Detection & Empty Registry Discovery Resolution: RCA & Fix | Resolved |
 | 45 | [45-ssh-install-exec-stale-process-file-lock-and-test-db-wiping-rca.md](45-ssh-install-exec-stale-process-file-lock-and-test-db-wiping-rca.md) | SSH Install-Exec Stale Process File Lock & Unit Test DB Erasure: RCA & Fix | Resolved |
+| 46 | [46-update-all-ssh-dial-failure-and-missing-command-suggestions-rca.md](46-update-all-ssh-dial-failure-and-missing-command-suggestions-rca.md) | SSH Fleet Update Authentication Dial Failure & Missing Command Suggestions: RCA & Fix | Resolved |
 
 ---
 

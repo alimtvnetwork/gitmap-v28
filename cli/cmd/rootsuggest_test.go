@@ -36,6 +36,9 @@ func TestSuggestTopLevelCommands_Typos(t *testing.T) {
 		{"scna", "scan"},
 		{"fxi", "fix"},
 		{"stauts", "status"},
+		{"updat", "update"},
+		{"ss", "ssh"},
+		{"shs", "ssh"},
 	}
 
 	for _, tc := range cases {
@@ -58,6 +61,27 @@ func containsSuggestion(suggestions []string, target string) bool {
 	}
 
 	return false
+}
+
+func TestSuggestUpdateTarget(t *testing.T) {
+	cases := []struct{ input, want string }{
+		{"al", "all"},
+		{"hosts", "all"},
+		{"cluster", "all"},
+		{"inventory", "ls"},
+		{"apps", "ls"},
+		{"ag", "agm"},
+		{"gitm", "gitmap"},
+		{"rem", "ssh"},
+		{"somethingunknown", ""},
+	}
+
+	for _, tc := range cases {
+		got := suggestUpdateTarget(tc.input)
+		if got != tc.want {
+			t.Errorf("suggestUpdateTarget(%q) = %q, want %q", tc.input, got, tc.want)
+		}
+	}
 }
 
 func TestBuildUnknownCommandMessage(t *testing.T) {

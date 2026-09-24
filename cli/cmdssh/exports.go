@@ -176,3 +176,8 @@ func FetchAllSSHConnections() ([]db.SSHConnection, error) {
 func ConnectSSHClient(c db.SSHConnection, headers ...string) (*ssh.Client, bool) {
 	return connectSSHClient(c, headers...)
 }
+
+// ProbeRemoteOSType detects whether a connected SSH client is running on Windows or Unix.
+func ProbeRemoteOSType(client *ssh.Client) string {
+	return probeRemoteOSType(client)
+}

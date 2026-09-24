@@ -1,6 +1,7 @@
 package cmdupdate
 
 import (
+	"context"
 	"encoding/json"
 	"fmt"
 	"io"
@@ -11,10 +12,10 @@ import (
 	"time"
 
 	"github.com/alimtvnetwork/gitmap-v28/cli/apperror"
+	"github.com/alimtvnetwork/gitmap-v28/cli/cmdssh"
 	"github.com/alimtvnetwork/gitmap-v28/cli/constants"
 	"github.com/alimtvnetwork/gitmap-v28/cli/crypto"
 	"github.com/alimtvnetwork/gitmap-v28/cli/db"
-	"github.com/alimtvnetwork/gitmap-v28/cli/store"
 	"github.com/alimtvnetwork/gitmap-v28/cli/termtable"
 	"golang.org/x/crypto/ssh"
 )
@@ -60,6 +61,7 @@ type FleetUpdateNodeResult struct {
 	Alias      string
 	IP         string
 	IsSuccess  bool
+	IsOffline  bool
 	Status     string
 	Telemetry  FleetUpdateTelemetry
 	DurationMs int64
@@ -72,6 +74,9 @@ var LoadFleetTargetsFn = loadDefaultFleetTargets
 
 // ExecuteRemoteUpdateFn is a mockable remote executor.
 var ExecuteRemoteUpdateFn = executeDefaultRemoteUpdate
+
+// CheckConnLivenessFn is a mockable connectivity liveness checker.
+var CheckConnLivenessFn = cmdssh.CheckConnLiveness
 
 // IsFleetUpdateCommand reports whether the command invocation routes to fleet update.
 func IsFleetUpdateCommand(cmd string, args []string) bool {
@@ -92,7 +97,7 @@ func isFleetUpdateArgs(args []string) bool {
 	if first == "ls" || first == "list" {
 		return true
 	}
-	if first == "--all" || first == "all" {
+	if first == "--all" || first == "all" || first == "all-nodes" || first == "allnodes" || first == "-a" {
 		return true
 	}
 	if hasExceptFlag(args) {
@@ -299,39 +304,16 @@ func isFleetNodeExcluded(t FleetTarget, exclusions map[string]bool) bool {
 }
 
 func loadDefaultFleetTargets() ([]FleetTarget, error) {
-	dbConn, err := store.OpenDefault()
+	conns, err := cmdssh.FetchAllSSHConnections()
 	if err != nil {
-		return nil, apperror.WrapSimple(err, "store.OpenDefault")
+		return nil, apperror.WrapSimple(err, "cmdssh.FetchAllSSHConnections")
 	}
-	defer dbConn.Close()
-
-	hosts, _ := store.ListSSHHosts(dbConn.Context(), dbConn.SQL())
-	connsRes := db.GetSSHConnections(dbConn.Context(), dbConn.SQL())
-
-	var conns []db.SSHConnection
-	if connsRes.IsSuccess() {
-		conns = connsRes.Data
-	}
-	return mergeFleetTargets(hosts, conns), nil
+	return convertConnectionsToFleetTargets(conns), nil
 }
 
-func mergeFleetTargets(hosts []store.SSHHost, conns []db.SSHConnection) []FleetTarget {
+func convertConnectionsToFleetTargets(conns []db.SSHConnection) []FleetTarget {
 	seen := make(map[string]bool)
 	var targets []FleetTarget
-
-	for _, h := range hosts {
-		key := strings.ToLower(h.IP)
-		seen[key] = true
-		targets = append(targets, FleetTarget{
-			ID:       h.ID,
-			Alias:    h.Alias,
-			IP:       h.IP,
-			Username: h.Username,
-			Port:     resolvePort(h.Port),
-			Password: h.EncryptedPassword,
-			OS:       "linux",
-		})
-	}
 
 	for _, c := range conns {
 		key := strings.ToLower(c.IPAddress)
@@ -340,7 +322,7 @@ func mergeFleetTargets(hosts []store.SSHHost, conns []db.SSHConnection) []FleetT
 		}
 		seen[key] = true
 		targets = append(targets, FleetTarget{
-			ID:       fmt.Sprintf("host-%s", c.IPAddress),
+			ID:       c.Alias,
 			Alias:    c.Alias,
 			IP:       c.IPAddress,
 			Username: c.Username,
@@ -364,7 +346,7 @@ func resolveOS(osName string) string {
 	if osName != "" {
 		return osName
 	}
-	return "linux"
+	return "windows"
 }
 
 func executeParallelFleetUpdate(targets []FleetTarget, opts FleetUpdateOptions) []FleetUpdateNodeResult {
@@ -390,6 +372,32 @@ func executeParallelFleetUpdate(targets []FleetTarget, opts FleetUpdateOptions) 
 }
 
 func runSingleFleetUpdate(target FleetTarget, opts FleetUpdateOptions) FleetUpdateNodeResult {
+	if opts.IsDryRun {
+		return FleetUpdateNodeResult{
+			Alias:      target.Alias,
+			IP:         target.IP,
+			IsSuccess:  true,
+			Status:     "SUCCESS",
+			DurationMs: 0,
+			Details:    fmt.Sprintf("[DRY-RUN] Would update %s", opts.Pkg),
+		}
+	}
+
+	isOnline, reason := CheckConnLivenessFn(context.Background(), target.IP, target.Port, 1000*time.Millisecond)
+	if !isOnline {
+		res := FleetUpdateNodeResult{
+			Alias:      target.Alias,
+			IP:         target.IP,
+			IsSuccess:  false,
+			IsOffline:  true,
+			Status:     "OFFLINE",
+			DurationMs: 15,
+			Details:    fmt.Sprintf("machine is off or unreachable (%s)", reason),
+		}
+		printSingleFleetUpdateProgress(res)
+		return res
+	}
+
 	start := time.Now()
 	rawOutput, err := ExecuteRemoteUpdateFn(target, opts)
 	dur := time.Since(start).Milliseconds()
@@ -404,9 +412,6 @@ func runSingleFleetUpdate(target FleetTarget, opts FleetUpdateOptions) FleetUpda
 	details := telemetry.Details
 	if details == "" {
 		details = formatTelemetryDetails(telemetry)
-	}
-	if opts.IsDryRun {
-		details = fmt.Sprintf("[DRY-RUN] Would update %s", opts.Pkg)
 	}
 
 	res := FleetUpdateNodeResult{
@@ -437,6 +442,11 @@ func printSingleFleetUpdateProgress(res FleetUpdateNodeResult) {
 	if res.IsSuccess {
 		fmt.Printf("  %s✓%s [%s|%s] %s (%dms)\n",
 			constants.ColorGreen, constants.ColorReset, res.Alias, res.IP, res.Details, res.DurationMs)
+		return
+	}
+	if res.IsOffline {
+		fmt.Printf("  %s●%s [%s|%s] OFFLINE: %s (%dms)\n",
+			constants.ColorYellow, constants.ColorReset, res.Alias, res.IP, res.Details, res.DurationMs)
 		return
 	}
 	fmt.Printf("  %s✖%s [%s|%s] FAILED: %s (%dms)\n",
@@ -563,27 +573,52 @@ func executeSSHFleetUpdate(target FleetTarget, opts FleetUpdateOptions) (string,
 	}
 	defer client.Close()
 
-	cmd := resolveFleetUpdateCommand(target.OS, opts.Pkg)
-	shell := resolveFleetShell(target.OS)
+	osType := target.OS
+	if probed := cmdssh.ProbeRemoteOSType(client); probed != "" {
+		osType = probed
+	}
+
+	cmd := resolveFleetUpdateCommand(osType, opts.Pkg)
+	shell := resolveFleetShell(osType)
 	return crypto.RunCommand(client, cmd, shell)
 }
 
 func resolveFleetUpdateCommand(osType, pkg string) string {
-	isWin := strings.EqualFold(osType, "windows")
-	if isWin {
-		return fmt.Sprintf("powershell -NoProfile -Command \"gitmap update %s --json 2>&1\"", pkg)
+	isWin := strings.EqualFold(osType, "windows") || strings.EqualFold(osType, "win")
+	switch strings.ToLower(pkg) {
+	case "agm", "ag-manager", "antigravity-manager":
+		if isWin {
+			return constants.AgManagerWindowsInstallCmd
+		}
+		return constants.AgManagerUnixInstallCmd
+	default:
+		if isWin {
+			return "powershell -NoProfile -ExecutionPolicy Bypass -Command \"irm https://raw.githubusercontent.com/alimtvnetwork/gitmap-v28/main/cli/scripts/install.ps1 | iex\""
+		}
+		return "curl -fsSL https://raw.githubusercontent.com/alimtvnetwork/gitmap-v28/main/cli/scripts/install.sh | bash"
 	}
-	return fmt.Sprintf("gitmap update %s --json 2>&1 || curl -fsSL https://raw.githubusercontent.com/alimtvnetwork/gitmap-v28/main/cli/scripts/install.sh | bash", pkg)
 }
 
 func resolveFleetShell(osType string) string {
-	if strings.EqualFold(osType, "windows") {
+	if strings.EqualFold(osType, "windows") || strings.EqualFold(osType, "win") {
 		return ""
 	}
 	return "sh"
 }
 
 func dialFleetSSH(target FleetTarget) (*ssh.Client, error) {
+	conn := db.SSHConnection{
+		Alias:             target.Alias,
+		IPAddress:         target.IP,
+		Username:          target.Username,
+		EncryptedPassword: target.Password,
+		KeyPath:           target.KeyPath,
+		OS:                target.OS,
+	}
+	client, isOk := cmdssh.ConnectSSHClient(conn, fmt.Sprintf("[%s|%s]", target.Alias, target.IP))
+	if isOk && client != nil {
+		return client, nil
+	}
 	if c, ok := tryDialFleetPassword(target); ok {
 		return c, nil
 	}
@@ -600,8 +635,12 @@ func tryDialFleetPassword(target FleetTarget) (*ssh.Client, bool) {
 	if target.Password == "" {
 		return nil, false
 	}
-	c, err := crypto.ConnectWithPassword(target.IP, target.Username, target.Password)
-	return c, err == nil
+	plain, err := crypto.DecryptStoredPassword(target.Password)
+	if err != nil || plain == "" {
+		plain = target.Password
+	}
+	c, connErr := crypto.ConnectWithPassword(target.IP, target.Username, plain)
+	return c, connErr == nil
 }
 
 func tryDialFleetKey(target FleetTarget) (*ssh.Client, bool) {
@@ -636,11 +675,11 @@ func renderFleetUpdateSummary(results []FleetUpdateNodeResult, pkg string, exclu
 	if len(results) == 0 {
 		return
 	}
-	successCount, failCount := calculateFleetMetrics(results)
+	successCount, failCount, offlineCount := calculateFleetMetrics(results)
 	fmt.Printf("\n%s================================================================================%s\n",
 		constants.ColorCyan, constants.ColorReset)
-	fmt.Printf(" %sSSH Fleet Update Summary [%s]:%s Total: %d | Succeeded: %d | Failed: %d | Excluded: %d\n",
-		constants.ColorBold, pkg, constants.ColorReset, len(results), successCount, failCount, excludedCount)
+	fmt.Printf(" %sSSH Fleet Update Summary [%s]:%s Total: %d | Succeeded: %d | Failed: %d | Offline: %d | Excluded: %d\n",
+		constants.ColorBold, pkg, constants.ColorReset, len(results), successCount, failCount, offlineCount, excludedCount)
 	fmt.Printf("%s--------------------------------------------------------------------------------%s\n",
 		constants.ColorDim, constants.ColorReset)
 
@@ -659,17 +698,22 @@ func renderFleetUpdateSummary(results []FleetUpdateNodeResult, pkg string, exclu
 		constants.ColorCyan, constants.ColorReset)
 }
 
-func calculateFleetMetrics(results []FleetUpdateNodeResult) (int, int) {
+func calculateFleetMetrics(results []FleetUpdateNodeResult) (int, int, int) {
 	succeeded := 0
 	failed := 0
+	offline := 0
 	for _, r := range results {
 		if r.IsSuccess {
 			succeeded++
 			continue
 		}
+		if r.IsOffline {
+			offline++
+			continue
+		}
 		failed++
 	}
-	return succeeded, failed
+	return succeeded, failed, offline
 }
 
 func buildFleetUpdateRows(results []FleetUpdateNodeResult) []termtable.Row {
@@ -678,6 +722,8 @@ func buildFleetUpdateRows(results []FleetUpdateNodeResult) []termtable.Row {
 		statusStr := constants.ColorRed + "FAILED" + constants.ColorReset
 		if r.IsSuccess {
 			statusStr = constants.ColorGreen + "SUCCESS" + constants.ColorReset
+		} else if r.IsOffline {
+			statusStr = constants.ColorYellow + "OFFLINE" + constants.ColorReset
 		}
 		rows = append(rows, termtable.Row{
 			Cells: []string{
