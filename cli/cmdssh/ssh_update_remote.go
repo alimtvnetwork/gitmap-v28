@@ -55,6 +55,10 @@ func parseUpdateOptions(args []string) SSHFleetUpdateOptions {
 			opts.Except = strings.TrimPrefix(arg, "--except=")
 			continue
 		}
+		if strings.HasPrefix(arg, "--excep=") {
+			opts.Except = strings.TrimPrefix(arg, "--excep=")
+			continue
+		}
 		if strings.HasPrefix(arg, "--exclude=") {
 			opts.Except = strings.TrimPrefix(arg, "--exclude=")
 			continue
@@ -78,7 +82,7 @@ func isTargetFlag(arg string) bool {
 }
 
 func isExceptFlag(arg string) bool {
-	return arg == "--except" || arg == "--exclude" || arg == "-e"
+	return arg == "--except" || arg == "--excep" || arg == "--exclude" || arg == "-e"
 }
 
 func populateTargetAndPackage(opts SSHFleetUpdateOptions, clean []string) SSHFleetUpdateOptions {

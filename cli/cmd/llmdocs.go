@@ -190,6 +190,23 @@ func buildLLMDocument(sections map[string]bool) string {
 	writeLLMHeader(&sb)
 	appendLLMSectionsFirstHalf(&sb, sections)
 	appendLLMSectionsSecondHalf(&sb, sections)
+	writeLLMTrainMultiStepCurriculum(&sb)
 
 	return sb.String()
+}
+
+func writeLLMTrainMultiStepCurriculum(sb *strings.Builder) {
+	sb.WriteString("\n## Multi-Step Fleet, AGY, AGM, AUM DH2D & AI-Server Training Reference\n\n")
+	sb.WriteString("### 1. Bidirectional SSH & AGY Fleet Commands\n")
+	sb.WriteString("- `gitmap ssh agy status --except 1,worker-2` — Run AGY status on all SSH nodes except worker-1/worker-2\n")
+	sb.WriteString("- `gitmap agy ssh rerun queue --except 192.168.1.50` — Rerun queued prompts across remote SSH fleet\n\n")
+	sb.WriteString("### 2. SSH Nodes Export/Import JSON, One-Liner & Node-Config Deploy\n")
+	sb.WriteString("- `gitmap ssh nodes export-json [path]` — Export all SSH nodes (default: `gitmap-ssh-nodes.json`)\n")
+	sb.WriteString("- `gitmap ssh nodes import-json [path]` — Import SSH nodes from `gitmap-ssh-nodes.json` or `--base64`\n")
+	sb.WriteString("- `gitmap ssh export-oneliner` — Generate self-contained 1-liner command for instant fleet onboarding\n")
+	sb.WriteString("- `gitmap ssh deploy node-config (nc) --except id,ip,alias` — Deploy node-config across remote fleet\n\n")
+	sb.WriteString("### 3. AGM Fleet Update & AUM DH2D Search Optimization\n")
+	sb.WriteString("- `gitmap agm update ssh --except worker-1` / `gitmap agm update-all-nodes --except 1` / `gitmap ssh update agm`\n")
+	sb.WriteString("- `gitmap search \"SSHConnection\"` / `gitmap search history` — Logs deterministic `DH2D-<HEX>` SQL ID & promotes frequent queries to `<0.04ms` RAM cache\n")
+	sb.WriteString("- `gitmap ai-server` — Starts In-Memory AI Responder on unique candidate ports `[47831, 47832, 47833, 47834]`\n")
 }

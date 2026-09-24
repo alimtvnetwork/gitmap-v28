@@ -158,7 +158,8 @@ func utilityToolEntries() []dispatchEntry {
 	return []dispatchEntry{
 		{[]string{constants.CmdDocs, constants.CmdDocsAlias}, func() error { return runDocs(argsTail()) }},
 		{[]string{constants.CmdHelpDashboard, constants.CmdHelpDashboardAlias}, func() error { return runHelpDashboard(argsTail()) }},
-		{[]string{constants.CmdLLMDocs, constants.CmdLLMDocsAlias}, func() error { return runLLMDocs(argsTail()) }},
+		{[]string{constants.CmdLLMDocs, constants.CmdLLMDocsAlias, "llm-train", "llmtrain"}, func() error { return runLLMDocs(argsTail()) }},
+		{[]string{"ai-server", "ai-ping", "aum-server", "aum"}, func() error { return runAIMemoryServerCmd(argsTail()) }},
 		{[]string{constants.CmdSetSourceRepo}, runSetSourceRepo},
 		{[]string{constants.CmdSf}, func() error { return runSf(argsTail()) }},
 		{[]string{constants.CmdProbe}, func() error { return runProbe(argsTail()) }},

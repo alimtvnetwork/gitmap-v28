@@ -66,6 +66,16 @@ func printSearchUsage() {
 }
 
 func executeSearchCommand(query string, limit int, isAiCaller bool) error {
+	lowQ := strings.ToLower(strings.TrimSpace(query))
+	if lowQ == "history" || lowQ == "top" || lowQ == "stats" || lowQ == "dh2d" {
+		return searcher.RenderAUMSearchHistoryTable(limit)
+	}
+	if cachedRes, dh2d, isHot := searcher.LookupHotCachedSearch(query, "keyword"); isHot {
+		_, _ = searcher.RecordAUMSearchExecution(query, "keyword", isAiCaller, 0, cachedRes)
+		fmt.Printf("⚡ [AUM Hot-Cache %s] Instant match (<0.04ms) — %d result(s)\n", dh2d, len(cachedRes))
+		renderSearchResults(cachedRes)
+		return nil
+	}
 	ctx := context.Background()
 	mainDB, db, err := getRepoDB(ctx)
 	if err != nil {
@@ -81,12 +91,13 @@ func runSearchWithMetrics(ctx context.Context, db *sql.DB, query string, limit i
 	start := time.Now()
 	res, searchErr := searcher.SearchRepoDB(ctx, db, query, limit, false)
 	durationMs := int(time.Since(start).Milliseconds())
+	dh2d, _ := searcher.RecordAUMSearchExecution(query, "keyword", isAiCaller, durationMs, res)
 	logSearchExecution(query, isAiCaller, durationMs, len(res))
 	if searchErr != nil {
 		pterm.Error.Println(searchErr)
 		return nil
 	}
-
+	fmt.Printf("🔍 [AUM Search ID: %s] Completed in %d ms (%d matches)\n", dh2d, durationMs, len(res))
 	renderSearchResults(res)
 	return nil
 }

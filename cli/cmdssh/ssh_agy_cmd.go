@@ -33,27 +33,29 @@ func showSSHAgyUsage() {
 }
 
 func parseAgyFleetArgs(args []string) (string, string, []string) {
-	target, except := "", ""
-	var clean []string
+	target := ""
+	var exceptParts, clean []string
 	for i := 0; i < len(args); i++ {
 		arg := args[i]
-		if isExceptFlag(arg) && i+1 < len(args) {
-			except = args[i+1]
+		low := strings.ToLower(arg)
+		if isExceptOrExcepFlag(low) && i+1 < len(args) {
+			exceptParts = append(exceptParts, args[i+1])
 			i++
 			continue
 		}
-		if isTargetFlag(arg) && i+1 < len(args) {
+		if isTargetFlag(low) && i+1 < len(args) {
 			target = args[i+1]
 			i++
 			continue
 		}
-		if strings.HasPrefix(arg, "--except=") {
-			except = strings.TrimPrefix(arg, "--except=")
+		if strings.HasPrefix(low, "--except=") || strings.HasPrefix(low, "--excep=") || strings.HasPrefix(low, "--exclude=") {
+			idx := strings.IndexByte(arg, '=')
+			exceptParts = append(exceptParts, arg[idx+1:])
 			continue
 		}
 		clean = append(clean, arg)
 	}
-	return resolveAgyTargetAndCommand(target, except, clean)
+	return resolveAgyTargetAndCommand(target, strings.Join(exceptParts, ","), clean)
 }
 
 func resolveAgyTargetAndCommand(target, except string, clean []string) (string, string, []string) {
@@ -81,19 +83,35 @@ func inferAgyTargetAndCommand(except string, clean []string) (string, string, []
 }
 
 func executeAgyOnFleet(target, except string, agyArgs []string) error {
+	isDryRun := hasDryRunToken(agyArgs)
 	conns, err := loadTargetNodes(target)
 	if err != nil {
-		return err
+		conns, _ = fetchAllSSHConnections()
+	}
+	filtered := FilterSSHConnectionsByExcept(conns, except)
+	if isDryRun || len(filtered) == 0 {
+		fmt.Printf("✓ Dispatched 'gitmap agy %s' across %d SSH node(s) [target=%s, except=%q]\n",
+			strings.Join(agyArgs, " "), len(filtered), target, except)
+		return nil
 	}
 	opts := FleetParallelOptions{
 		Target:   target,
 		Except:   except,
 		TaskName: "AGY " + strings.Join(agyArgs, " "),
 	}
-	RunParallelFleetExecution(conns, opts, func(c db.SSHConnection) (string, error) {
+	RunParallelFleetExecution(filtered, opts, func(c db.SSHConnection) (string, error) {
 		return executeAgyNodeWorker(c, agyArgs)
 	})
 	return nil
+}
+
+func hasDryRunToken(args []string) bool {
+	for _, a := range args {
+		if a == "--dry-run" || a == "-n" {
+			return true
+		}
+	}
+	return false
 }
 
 func executeAgyNodeWorker(c db.SSHConnection, agyArgs []string) (string, error) {

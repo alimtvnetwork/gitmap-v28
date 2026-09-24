@@ -67,6 +67,7 @@ See [00-overview.md](./00-overview.md) for the complete application specificatio
 - [Spec 147: Pull Batch Abort, CFR GitHub Resolver, Asset Downloader, Color Contrast, and Token Fleet Management](./147-pull-abort-cfr-gh-resolver-asset-downloader-and-contrast.md)
 - [Spec 148: SSH Common Batch Join, Remote OS Detection & Telemetry, AGY Project Re-read & Optimization, and Native AUM Benchmarking](./148-ssh-join-common-os-detect-rop-and-e2e-benchmarks.md)
 - [Spec 149: SSH Macro/PEA/PEAT Fleet Deployment, Multi-Node Update Telemetry, Remote SSH Clone & Isolated Temporary E2E Validation](./149-ssh-macro-pea-deploy-fleet-update-and-ssh-clone-tempe2e.md)
+- [Spec 150: SSH & AGY Bidirectional Fleet Dispatch, SSH Nodes JSON Export/Import & One-Liner, AGM Fleet Update, AUM SQLite Search History (`DH2D`), PowerShell Search Benchmark, and In-Memory AI Multi-Port Server](./150-ssh-agy-fleet-nodes-export-agm-update-aum-db-and-ai-port-server.md)
 
 ---
 

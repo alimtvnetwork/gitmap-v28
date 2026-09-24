@@ -9,9 +9,13 @@ func buildSSHClusterSection() termhelp.HelpSection {
 		Title: "Cluster & Remote Operations",
 		Entries: []termhelp.CommandEntry{
 			{Command: "join <sub>", Description: "Join, broadcast, or enroll cluster nodes", HasSubcommands: true},
+			{Command: "nodes export-json [file]", Description: "Export SSH nodes to JSON (default: gitmap-ssh-nodes.json)"},
+			{Command: "nodes import-json [file]", Description: "Import SSH nodes from JSON or --base64 payload"},
+			{Command: "export-oneliner", Description: "Generate portable 1-line command to import all SSH nodes"},
+			{Command: "deploy node-config (nc)", Description: "Deploy local SSH node config across fleet (--except id,ip,alias)"},
 			{Command: "exec <cmd>", Description: "Execute command across remote SSH nodes"},
 			{Command: "install [target]", Description: "Install or update GitMap on remote machine(s)"},
-			{Command: "update [target]", Description: "Update GitMap binary across remote fleet"},
+			{Command: "update [agm|target]", Description: "Update GitMap or AGM across remote fleet (--except id,ip,alias)"},
 			{Command: "bootstrap [target]", Description: "Setup passwordless sudo and deploy keys"},
 			{Command: "compare (matrix)", Description: "Display architecture matrix: SSH vs Cluster vs SC"},
 		},
@@ -47,9 +51,9 @@ func buildSSHRecoverySection() termhelp.HelpSection {
 
 func buildSSHRemoteToolsSection() termhelp.HelpSection {
 	return termhelp.HelpSection{
-		Title: "Remote Tools",
+		Title: "Remote Tools & AGY Fleet",
 		Entries: []termhelp.CommandEntry{
-			{Command: "agy <args>", Description: "Run Antigravity CLI or open remote folder"},
+			{Command: "agy <subcmd> [--except]", Description: "Run any AGY command across remote SSH fleet (alias: gitmap agy ssh)"},
 			{Command: "code <args>", Description: "Open remote folder in VS Code via SSH Remote"},
 		},
 	}

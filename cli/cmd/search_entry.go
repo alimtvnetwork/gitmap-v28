@@ -48,10 +48,8 @@ func runRepoSearch(args []string) error {
 	}
 
 	query := cleanArgs[0]
-	if query == "history" {
-		fmt.Println("repo-search history: No history recorded yet.")
-
-		return nil
+	if query == "history" || query == "top" || query == "dh2d" {
+		return searcher.RenderAUMSearchHistoryTable(limit)
 	}
 
 	if query == "clear" {

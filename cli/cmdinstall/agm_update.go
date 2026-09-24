@@ -21,8 +21,8 @@ var agmUpdateCmd = &cobra.Command{
 
 var agmUpdateAllCmd = &cobra.Command{
 	Use:     "update-all [flags] [ssh]",
-	Aliases: []string{"updateall", "up-all"},
-	Short:   "Update Antigravity Manager across all nodes or local",
+	Aliases: []string{"update-all-nodes", "updateallnodes", "update-nodes", "updateall", "up-all"},
+	Short:   "Update Antigravity Manager across all SSH nodes or local",
 	RunE:    runAgmUpdateAllCmd,
 }
 
@@ -43,7 +43,8 @@ func bindCommonUpdateFlags(cmd *cobra.Command) {
 	cmd.Flags().BoolVarP(&agmInstallVerbose, "verbose", "v", false, "Enable verbose output")
 	cmd.Flags().StringVarP(&agmUpdateRemote, "remote", "r", "", "Remote node alias or IP to update")
 	cmd.Flags().BoolVarP(&agmUpdateSSH, "ssh", "s", false, "Update remote fleet machines via SSH")
-	cmd.Flags().StringVarP(&agmUpdateExcept, "except", "e", "", "Exclude machines by alias or IP")
+	cmd.Flags().StringVarP(&agmUpdateExcept, "except", "e", "", "Exclude machines by ID, alias, or IP")
+	cmd.Flags().StringVar(&agmUpdateExcept, "excep", "", "Exclude machines by ID, alias, or IP")
 }
 
 func runAgmUpdateCmd(cmd *cobra.Command, args []string) error {

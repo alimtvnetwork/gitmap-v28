@@ -1,3 +1,9 @@
+## v6.325.0 — 2026-09-24 (Routine release v6.325.0)
+
+**Scope:** Version bump. Routine release v6.325.0.
+
+---
+
 ## v6.324.0 — 2026-09-24 (ssh macro pea peat deploy, fleet update ua ls, ssh clone, and tempe2e suite)
 
 **Scope:** Version bump. ssh macro pea peat deploy, fleet update ua ls, ssh clone, and tempe2e suite.

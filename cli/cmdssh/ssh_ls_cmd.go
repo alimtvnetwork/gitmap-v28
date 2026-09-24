@@ -3,6 +3,7 @@ package cmdssh
 import (
 	"context"
 	"os"
+	"strings"
 
 	"github.com/spf13/cobra"
 )
@@ -44,6 +45,14 @@ func dispatchNodesArgs(ctx context.Context, args []string) error {
 	}
 
 	sub := args[0]
+	switch strings.ToLower(sub) {
+	case "export-json", "exportjson":
+		return RunSSHNodesExportJSON(args[1:])
+	case "import-json", "importjson":
+		return RunSSHNodesImportJSON(args[1:])
+	case "export-oneliner", "oneliner":
+		return RunSSHExportOnelinerCLI(args[1:])
+	}
 	isLs := sub == "ls" || sub == "list"
 	if isLs {
 		return printSJList(ctx, os.Stdout, 0)
