@@ -55,7 +55,7 @@ func SyncAll(repoPath string, repoName string) {
 	}
 
 	dtRes := "[desktop: skipped]"
-	records := []model.ScanRecord{{AbsolutePath: repoPath}}
+	records := []model.ScanRecord{{AbsolutePath: repoPath, RepoName: repoName}}
 	dtSummary := desktop.AddRepos(records)
 	if dtSummary.Added > 0 {
 		dtRes = "[desktop: " + constants.ColorGreen + "ok" + constants.ColorReset + "]"

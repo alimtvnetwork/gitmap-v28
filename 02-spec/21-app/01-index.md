@@ -63,6 +63,7 @@ See [00-overview.md](./00-overview.md) for the complete application specificatio
 - [Spec 143: Antigravity Commands Suite, SSH Fleet Parallel Execution, and E2E Benchmarking](./143-antigravity-commands-ssh-fleet-and-e2e-benchmarking.md)
 - [Spec 144: AGY Rerun IDE Restart, Multi-Project Prompt Replay with Media, and VS Code Repair Integration](./144-agy-rerun-ide-restart-and-workflow-suite.md)
 - [Spec 145: SSH Macro & App Fleet Deployment, Remote Clone, REST Endpoint Triad, and Web UI Management Engine](./145-ssh-fleet-deploy-remote-clone-api-ui/01-overview.md)
+- [Spec 146: Repository Creation Triple Ecosystem Auto-Sync (VS Code, GitHub Desktop & Antigravity) & PAET Latency RCA](./146-repo-create-triple-sync-and-paet-latency-rca.md)
 
 ---
 

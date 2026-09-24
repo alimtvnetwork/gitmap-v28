@@ -323,7 +323,7 @@ func renderPullBatchResults(states []*PullRepoState) {
 func buildPullTableRowFromState(state *PullRepoState) model.PullTableRow {
 	row := initBasePullTableRow(state)
 	row.LatestBranch = gitutil.GetLatestRemoteBranch(state.RepoPath)
-	row.PRStatus = gitutil.DetectPRStatus(state.RepoPath)
+	row.PRStatus = gitutil.DetectPRStatusFast(state.RepoPath)
 	row.PullStatus = resolveStateStatus(state)
 	row.Release = resolveRepoRelease(state.RepoPath, row.LatestBranch)
 	row.LastSHA = resolveRowSHA(state)

@@ -8,6 +8,7 @@ import (
 
 	"github.com/alimtvnetwork/gitmap-v28/cli/apperror"
 	"github.com/alimtvnetwork/gitmap-v28/cli/constants"
+	"github.com/alimtvnetwork/gitmap-v28/cli/workspacesync"
 )
 
 func executeCreateRepo(args []string, defaultLocal bool) error {
@@ -25,6 +26,8 @@ func executeCreateRepo(args []string, defaultLocal bool) error {
 		return pushErr
 	}
 
+	absDir, _ := filepath.Abs(params.LocalDir)
+	workspacesync.SyncAll(absDir, params.Name)
 	recordProfileUsage(params.Profile)
 
 	return reportCreatedRepo(params, remoteURL)
@@ -85,6 +88,7 @@ func provisionMissingDestination(rawTarget, abs string, isLocal bool) (string, e
 	}
 
 	tryPushRemoteProvisioned(params)
+	workspacesync.SyncAll(absTarget, name)
 
 	return absTarget, nil
 }

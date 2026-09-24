@@ -16,6 +16,11 @@ func DetectPRStatus(repoPath string) string {
 	return detectGitBranchTracking(repoPath)
 }
 
+// DetectPRStatusFast checks tracking branches directly without invoking gh pr list.
+func DetectPRStatusFast(repoPath string) string {
+	return detectGitBranchTracking(repoPath)
+}
+
 func detectGitHubPRs(repoPath string) (string, bool) {
 	cmdGh := exec.Command("gh", "pr", "list", "--state", "open", "--json", "number")
 	cmdGh.Dir = repoPath

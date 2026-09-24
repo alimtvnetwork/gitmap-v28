@@ -13,6 +13,14 @@ import (
 
 // RunPullAllEfficient executes the efficient pull workflow skipping inactive repos.
 func RunPullAllEfficient(args []string, isTableMode bool, invokedAlias string, isShortForm bool) error {
+	isHelp := isHelpArg(args)
+	if isHelp {
+		cmdName := resolveEfficientHelpTopic(args, isTableMode, invokedAlias)
+		checkHelp(cmdName, args)
+
+		return nil
+	}
+
 	useSSH, useHTTPS, isTableFlag, isJSON, targetSSH, cleanArgs := extractEfficientFlags(args)
 	if isTableFlag {
 		isTableMode = true
@@ -63,6 +71,49 @@ func resolveEfficientFullCmdName(isTable bool) string {
 	}
 
 	return "pull all-efficient"
+}
+
+func isHelpArg(args []string) bool {
+	for _, a := range args {
+		lower := strings.ToLower(a)
+		isHelp := lower == "--help" || lower == "-h" || lower == "help"
+		if isHelp {
+			return true
+		}
+	}
+
+	return false
+}
+
+func resolveEfficientHelpTopic(args []string, isTableMode bool, invokedAlias string) string {
+	lowerAlias := strings.ToLower(invokedAlias)
+	hasPaet := strings.Contains(lowerAlias, "paet") || lowerAlias == "paet"
+	if hasPaet {
+		return "paet"
+	}
+	hasPae := strings.Contains(lowerAlias, "pae") || lowerAlias == "pae"
+	if hasPae {
+		return "pae"
+	}
+
+	isTable := isTableMode || hasTableFlag(args)
+	if isTable {
+		return "pull-all-efficient-table"
+	}
+
+	return "pull-all-efficient"
+}
+
+func hasTableFlag(args []string) bool {
+	for _, a := range args {
+		lower := strings.ToLower(a)
+		isTable := lower == "--status" || lower == "--status-table" || lower == "-status" || lower == "--table"
+		if isTable {
+			return true
+		}
+	}
+
+	return false
 }
 
 func extractEfficientFlags(args []string) (bool, bool, bool, bool, string, []string) {
@@ -216,7 +267,7 @@ func printInactiveSkipSummary(inactive []InactiveRepoDetail) {
 	for _, in := range inactive {
 		names = append(names, in.RepoName)
 	}
-	fmt.Printf("    %s%s%s %sskipped inactive repos (0 changes over 20+ pulls in last 24h):%s\n",
+	fmt.Printf("    %s%s%s %sskipped inactive repos (0 changes over 3+ pulls in last 24h):%s\n",
 		constants.ColorCyan, arrow, constants.ColorReset,
 		constants.ColorDim, constants.ColorReset)
 	fmt.Printf("      %s%s%s\n", constants.ColorDim, strings.Join(names, ", "), constants.ColorReset)
@@ -229,7 +280,7 @@ func handleAllReposInactive(total int, inactive []InactiveRepoDetail, isTable bo
 	if isJSON {
 		return renderJSONInactiveResults(total, inactive)
 	}
-	fmt.Printf("\n  %sℹ%s All %d repository(ies) are currently inactive (0 changes in last 20+ pulls within 24h).\n",
+	fmt.Printf("\n  %sℹ%s All %d repository(ies) are currently inactive (0 changes in last 3+ pulls within 24h).\n",
 		constants.ColorCyan, constants.ColorReset, total)
 	printInactiveSkipSummary(inactive)
 	recordEfficientPullTelemetry(total, nil, inactive, 0, isTable)
@@ -254,8 +305,9 @@ func PartitionRecordsByActivity(records []model.ScanRecord) (EfficientPullPartit
 }
 
 func classifyRepoActivity(db *store.PullSplitDB, rec model.ScanRecord, part *EfficientPullPartition) {
-	status, err := db.EvaluateRepoInactivity(rec.AbsolutePath, 20, 24)
-	if err == nil && status.IsInactive {
+	status, err := db.EvaluateRepoInactivity(rec.AbsolutePath, 3, 24)
+	isInactive := err == nil && status.IsInactive
+	if isInactive {
 		part.InactiveRepos = append(part.InactiveRepos, InactiveRepoDetail{
 			RepoName: rec.RepoName,
 			RepoPath: rec.AbsolutePath,
