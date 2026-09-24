@@ -15,7 +15,7 @@ func RunSSHAgyCLI(args []string) error {
 }
 
 func runSSHAgyCLI(args []string) error {
-	if len(args) == 0 {
+	if len(args) == 0 || isHelpArgToken(args[0]) {
 		showSSHAgyUsage()
 		return nil
 	}
@@ -23,12 +23,39 @@ func runSSHAgyCLI(args []string) error {
 	return executeAgyOnFleet(target, except, agyArgs)
 }
 
+func isHelpArgToken(arg string) bool {
+	low := strings.ToLower(arg)
+	return low == "-h" || low == "--help" || low == "help"
+}
+
 func showSSHAgyUsage() {
-	fmt.Printf("\n%s Usage:%s gitmap agy ssh [target] [flags] <agy-command...>\n", constants.ColorCyan, constants.ColorReset)
-	fmt.Println("  Flags: -e, --except <nodes>   Exclude machines by alias or IP")
+	fmt.Printf("\n%s╔════════════════════════════════════════════════════════════════════════════╗%s\n", constants.ColorCyan, constants.ColorReset)
+	fmt.Printf("%s║   Bidirectional SSH & AGY Fleet Orchestrator (gitmap ssh agy / agy ssh)   ║%s\n", constants.ColorCyan, constants.ColorReset)
+	fmt.Printf("%s╚════════════════════════════════════════════════════════════════════════════╝%s\n", constants.ColorCyan, constants.ColorReset)
+	fmt.Println("  Execute ANY Antigravity (AGY) or GitMap command across all remote SSH machines in parallel.")
+	fmt.Println()
+	fmt.Println("  Usage:")
+	fmt.Println("    gitmap ssh agy [flags] <agy-or-gitmap-command...>")
+	fmt.Println("    gitmap agy ssh [flags] <agy-or-gitmap-command...>")
+	fmt.Println()
+	fmt.Println("  Fleet Filter Flags:")
+	fmt.Println("    -e, --except, --excep, --accept <id,ip,alias>   Exclude machines by Worker ID (1, worker-1), IP, or Alias")
+	fmt.Println("    -t, --target <node>                             Run only on a specific target node or group")
+	fmt.Println("    -n, --dry-run                                   Simulate fleet dispatch without SSH execution")
+	fmt.Println()
+	fmt.Println("  Supported AGY & GitMap Commands Across Fleet:")
+	fmt.Println("    • rerun [1|2|3|4|all|queue]   Restart IDE, re-inject active prompt + images + 5 queued items with prefix")
+	fmt.Println("    • rop [N]                     Re-read, optimize, and repair N Antigravity projects with temp backup")
+	fmt.Println("    • status / ping / ls / stats  Check Antigravity IDE status, health, and project tables on all nodes")
+	fmt.Println("    • prompt ls / list-prompts    List all prompt templates and active conversation prompts")
+	fmt.Println("    • cache-clear (cc) / ccko     Clean Antigravity runtime cache across all remote machines")
+	fmt.Println("    • fix-pipeline (fp)           Trigger autonomous CI/CD pipeline repair across remote nodes")
+	fmt.Println()
 	fmt.Println("  Examples:")
-	fmt.Println("    gitmap agy ssh status")
-	fmt.Println("    gitmap agy ssh -e worker-2 prompt ls")
+	fmt.Println("    gitmap ssh agy status --except 1,worker-2")
+	fmt.Println("    gitmap agy ssh rerun all --except 192.168.1.50,dev-laptop")
+	fmt.Println("    gitmap ssh agy rerun queue --except 2")
+	fmt.Println("    gitmap agy ssh rop 4 --except alpha-win")
 	fmt.Println()
 }
 

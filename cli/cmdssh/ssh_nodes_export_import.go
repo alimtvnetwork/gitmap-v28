@@ -17,7 +17,10 @@ import (
 )
 
 // DefaultSSHNodesJSONFile is the default filename for SSH node JSON exports and imports.
-const DefaultSSHNodesJSONFile = "gitmap-ssh-nodes.json"
+const (
+	DefaultSSHNodesJSONFile    = "gitmap-ssh-nodes.json"
+	DefaultSSHNodesAltJSONFile = "gitmap-ssh.json"
+)
 
 // SSHNodeExportItem represents an exported SSH node with deterministic worker ID and metadata.
 type SSHNodeExportItem struct {
@@ -34,16 +37,16 @@ type SSHNodeExportItem struct {
 
 // SSHNodesExportEnvelope wraps the exported SSH nodes list with schema and timestamp metadata.
 type SSHNodesExportEnvelope struct {
-	SchemaVersion string               `json:"schema_version"`
-	ExportedAt    string               `json:"exported_at"`
-	TotalNodes    int                  `json:"total_nodes"`
-	Nodes         []SSHNodeExportItem  `json:"nodes"`
-	Connections   []db.SSHConnection   `json:"connections"`
+	SchemaVersion string              `json:"schema_version"`
+	ExportedAt    string              `json:"exported_at"`
+	TotalNodes    int                 `json:"total_nodes"`
+	Nodes         []SSHNodeExportItem `json:"nodes"`
+	Connections   []db.SSHConnection  `json:"connections"`
 }
 
-// RunSSHNodesExportJSON exports all registered SSH nodes to a JSON file (default: gitmap-ssh-nodes.json).
+// RunSSHNodesExportJSON exports all registered SSH nodes to a JSON file (default: gitmap-ssh-nodes.json and gitmap-ssh.json).
 func RunSSHNodesExportJSON(args []string) error {
-	outPath, toStdout := parseNodesJSONPathArg(args, DefaultSSHNodesJSONFile)
+	outPath, isDefaultFile, toStdout := parseNodesExportPathArg(args)
 	envelope, err := BuildSSHNodesExportEnvelope()
 	if err != nil {
 		return err
@@ -61,6 +64,9 @@ func RunSSHNodesExportJSON(args []string) error {
 	}
 	if err := os.WriteFile(outPath, data, 0644); err != nil {
 		return err
+	}
+	if isDefaultFile {
+		_ = os.WriteFile(DefaultSSHNodesAltJSONFile, data, 0644)
 	}
 	fmt.Printf("✓ Exported %d SSH node(s) to %s\n", len(envelope.Connections), outPath)
 	return nil
@@ -100,7 +106,7 @@ func BuildSSHNodesExportEnvelope() (*SSHNodesExportEnvelope, error) {
 	}, nil
 }
 
-// RunSSHNodesImportJSON imports SSH nodes from a JSON file (default: gitmap-ssh-nodes.json) or --base64 payload.
+// RunSSHNodesImportJSON imports SSH nodes from a JSON file (default: gitmap-ssh-nodes.json or gitmap-ssh.json) or --base64 payload.
 func RunSSHNodesImportJSON(args []string) error {
 	b64Payload, inPath := parseImportJSONArgs(args)
 	var raw []byte
@@ -110,7 +116,7 @@ func RunSSHNodesImportJSON(args []string) error {
 		raw, err = base64.StdEncoding.DecodeString(strings.TrimSpace(b64Payload))
 		sourceLabel = "inline-base64-oneliner"
 	} else {
-		raw, err = os.ReadFile(inPath)
+		raw, sourceLabel, err = readNodesImportFileWithFallback(inPath)
 	}
 	if err != nil {
 		return fmt.Errorf("failed to read SSH nodes JSON from %s: %w", sourceLabel, err)
@@ -258,7 +264,7 @@ func splitExceptTokens(raw string) []string {
 	return out
 }
 
-func parseNodesJSONPathArg(args []string, defaultFile string) (string, bool) {
+func parseNodesExportPathArg(args []string) (string, bool, bool) {
 	var pathArg string
 	toStdout := false
 	for _, a := range args {
@@ -271,9 +277,28 @@ func parseNodesJSONPathArg(args []string, defaultFile string) (string, bool) {
 		}
 	}
 	if pathArg == "" {
-		pathArg = defaultFile
+		return DefaultSSHNodesJSONFile, true, toStdout
 	}
-	return pathArg, toStdout
+	if info, err := os.Stat(pathArg); err == nil && info.IsDir() {
+		return filepath.Join(pathArg, DefaultSSHNodesJSONFile), false, toStdout
+	}
+	return pathArg, false, toStdout
+}
+
+func readNodesImportFileWithFallback(inPath string) ([]byte, string, error) {
+	if info, err := os.Stat(inPath); err == nil && info.IsDir() {
+		inPath = filepath.Join(inPath, DefaultSSHNodesJSONFile)
+	}
+	data, err := os.ReadFile(inPath)
+	if err == nil {
+		return data, inPath, nil
+	}
+	if inPath == DefaultSSHNodesJSONFile {
+		if altData, altErr := os.ReadFile(DefaultSSHNodesAltJSONFile); altErr == nil {
+			return altData, DefaultSSHNodesAltJSONFile, nil
+		}
+	}
+	return nil, inPath, err
 }
 
 func parseImportJSONArgs(args []string) (string, string) {
@@ -323,7 +348,7 @@ func parseNodeConfigDeployFlags(args []string) (string, bool, bool) {
 			}
 			continue
 		}
-		if strings.HasPrefix(low, "--except=") || strings.HasPrefix(low, "--excep=") || strings.HasPrefix(low, "--exclude=") {
+		if strings.HasPrefix(low, "--except=") || strings.HasPrefix(low, "--excep=") || strings.HasPrefix(low, "--accept=") || strings.HasPrefix(low, "--exclude=") {
 			idx := strings.IndexByte(a, '=')
 			exceptParts = append(exceptParts, a[idx+1:])
 		}
@@ -332,7 +357,7 @@ func parseNodeConfigDeployFlags(args []string) (string, bool, bool) {
 }
 
 func isExceptOrExcepFlag(low string) bool {
-	return low == "--except" || low == "--excep" || low == "--exclude" || low == "-e"
+	return low == "--except" || low == "--excep" || low == "--accept" || low == "--exclude" || low == "-e"
 }
 
 func hasOnelinerRawFlag(args []string) bool {

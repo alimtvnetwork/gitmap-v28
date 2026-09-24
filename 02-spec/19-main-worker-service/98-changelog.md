@@ -1,3 +1,9 @@
+## v6.326.0 — 2026-09-24 (Routine release v6.326.0)
+
+**Scope:** Version bump. Routine release v6.326.0.
+
+---
+
 ## v6.325.0 — 2026-09-24 (Routine release v6.325.0)
 
 **Scope:** Version bump. Routine release v6.325.0.
