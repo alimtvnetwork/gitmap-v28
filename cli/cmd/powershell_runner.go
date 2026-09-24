@@ -91,7 +91,7 @@ func printPowerShellMissingHeader() {
 	fmt.Println()
 	fmt.Println("✗ PowerShell (pwsh) is not installed on this system.")
 	fmt.Println()
-	fmt.Println("Would you like to install PowerShell using GitMap?")
+	fmt.Println("Do you like to install the PowerShell using GitMap? (gitmap install powershell)")
 	fmt.Println()
 }
 

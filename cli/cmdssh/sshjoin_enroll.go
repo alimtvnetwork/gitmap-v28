@@ -15,6 +15,7 @@ import (
 	"golang.org/x/term"
 
 	"github.com/alimtvnetwork/gitmap-v28/cli/apperror"
+	"github.com/alimtvnetwork/gitmap-v28/cli/cmdos"
 	"github.com/alimtvnetwork/gitmap-v28/cli/crypto"
 	"github.com/alimtvnetwork/gitmap-v28/cli/db"
 	"github.com/alimtvnetwork/gitmap-v28/cli/store"
@@ -29,10 +30,12 @@ type enrollSession struct {
 }
 
 type hostHistoryPair struct {
-	host      store.SSHHost
-	hist      store.SSHHistory
-	osType    string
-	osVersion string
+	host         store.SSHHost
+	hist         store.SSHHistory
+	osType       string
+	osGroup      string
+	osVersion    string
+	buildVersion string
 }
 
 type keySignerResult struct {
@@ -272,7 +275,9 @@ func persistDualTables(ctx context.Context, dbConn *sql.DB, pair hostHistoryPair
 		EncryptedPassword: pair.host.EncryptedPassword,
 		KeyPath:           findDefaultUserSSHKey(),
 		OS:                resolveDefaultOS(pair.osType),
+		OSGroup:           pair.osGroup,
 		OSVersion:         pair.osVersion,
+		BuildVersion:      pair.buildVersion,
 		FirstRunAt:        pair.host.CreatedAt,
 		CreatedAt:         pair.host.CreatedAt,
 	}
@@ -375,6 +380,7 @@ func performConnectedBootstrap(session enrollSession, opts *SSHJoinOptions) *app
 		trace.AddStep("Remote GitMap Check", "bootstrap notice: "+err.Error(), "FAILED", err)
 	} else {
 		trace.AddStep("Remote GitMap Check", "gitmap available on remote", "SUCCESS", nil)
+		reProfileTargetPostInstall(session.client, opts)
 	}
 
 	if err := deployHostPublicKey(session.client, opts.Alias, session.osType); err != nil {
@@ -390,6 +396,39 @@ func performConnectedBootstrap(session enrollSession, opts *SSHJoinOptions) *app
 	}
 
 	return nil
+}
+
+func reProfileTargetPostInstall(client *ssh.Client, opts *SSHJoinOptions) {
+	rep, hasGitmap := probeRemoteGitmapWhichOS(client)
+	if !hasGitmap || rep == nil {
+		return
+	}
+	fmt.Printf("✔ Node %s: Profiled via GitMap which-os: %s (%s, %s, %s)\n",
+		opts.Alias, rep.OSType, rep.OSGroup, rep.OSVersion, rep.Architecture)
+	savePostInstallProfile(opts, rep)
+}
+
+func savePostInstallProfile(opts *SSHJoinOptions, rep *cmdos.OSInfoReport) {
+	dbConn, err := openSSHDBFunc()
+	if err != nil {
+		return
+	}
+	defer dbConn.Close()
+	now := time.Now().UTC()
+	conn := db.SSHConnection{
+		Alias:             opts.Alias,
+		IPAddress:         opts.Target.IP,
+		Username:          opts.Target.Username,
+		EncryptedPassword: resolveEncryptedPassword(opts.Password),
+		KeyPath:           findDefaultUserSSHKey(),
+		OS:                rep.OSType,
+		OSGroup:           rep.OSGroup,
+		OSVersion:         rep.OSVersion,
+		BuildVersion:      rep.BuildVersion,
+		FirstRunAt:        now,
+		CreatedAt:         now,
+	}
+	_ = db.InsertOrUpdateSSHConnection(context.Background(), dbConn.SQL(), conn)
 }
 
 func checkEnrollAuth(opts *SSHJoinOptions, session enrollSession) error {

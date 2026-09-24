@@ -32,7 +32,9 @@ func TestSSHConnection_InsertAndRetrieveWithOSMetadata(t *testing.T) {
 		EncryptedPassword: "rsa:test-encrypted-pass",
 		KeyPath:           "/home/user/.ssh/id_rsa",
 		OS:                "linux",
+		OSGroup:           "unix",
 		OSVersion:         "Ubuntu 22.04.4 LTS",
+		BuildVersion:      "5.15.0-generic",
 		FirstRunAt:        now,
 		CreatedAt:         now,
 	}
@@ -52,6 +54,16 @@ func TestSSHConnection_InsertAndRetrieveWithOSMetadata(t *testing.T) {
 	isMatchOS := fetched.OSVersion == "Ubuntu 22.04.4 LTS"
 	if isMatchOS == false {
 		t.Fatalf("expected OSVersion 'Ubuntu 22.04.4 LTS', got: %s", fetched.OSVersion)
+	}
+
+	isMatchGroup := fetched.OSGroup == "unix"
+	if isMatchGroup == false {
+		t.Fatalf("expected OSGroup 'unix', got: %s", fetched.OSGroup)
+	}
+
+	isMatchBuild := fetched.BuildVersion == "5.15.0-generic"
+	if isMatchBuild == false {
+		t.Fatalf("expected BuildVersion '5.15.0-generic', got: %s", fetched.BuildVersion)
 	}
 
 	isMatchFirstRun := fetched.FirstRunAt.Equal(now)

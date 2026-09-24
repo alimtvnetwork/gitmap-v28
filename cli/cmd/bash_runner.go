@@ -137,17 +137,17 @@ func printGitMissingHeader() {
 	fmt.Println()
 	fmt.Println("✗ Git is not installed or could not be found.")
 	fmt.Println()
-	fmt.Println("GitMap requires Git to execute bash and manage repositories.")
-	fmt.Println("You can install Git using one of the following commands:")
+	fmt.Println("Hey, you have to install Git using the GitMap SSH, Git compact, or Git install command.")
+	fmt.Println("Which one would you like to pick?")
 	fmt.Println()
 }
 
 func printGitInstallOptions() {
-	fmt.Println("  Local Installation:")
+	fmt.Println("  Option 1 (Local Install):")
 	fmt.Println("    ● gitmap install git")
+	fmt.Println("  Option 2 (Compact Bundle):")
 	fmt.Println("    ● gitmap compact")
-	fmt.Println()
-	fmt.Println("  Remote SSH Installation:")
+	fmt.Println("  Option 3 (Remote SSH Install):")
 	fmt.Println("    ● gitmap ssh install git --target <node-alias>")
 	fmt.Println("    ● gitmap ssh exec <node-alias> \"sudo apt-get update && sudo apt-get install -y git\"")
 	fmt.Println("    ● gitmap ssh exec <node-alias> \"winget install --id Git.Git -e --source winget\"")

@@ -134,15 +134,36 @@ func persistHostWithEncryptedPass(ctx context.Context, host store.SSHHost, hist 
 }
 
 func persistHostWithEncryptedPassAndVersion(ctx context.Context, host store.SSHHost, hist store.SSHHistory, osType, osVersion string) error {
-	if ctx == nil {
-		ctx = context.Background()
+	return persistHostWithDetails(ctx, host, hist, osType, "", osVersion, "")
+}
+
+func createHostHistoryPair(
+	host store.SSHHost,
+	hist store.SSHHistory,
+	osType, osGroup, osVersion, buildVersion string,
+) hostHistoryPair {
+	return hostHistoryPair{
+		host:         host,
+		hist:         hist,
+		osType:       osType,
+		osGroup:      osGroup,
+		osVersion:    osVersion,
+		buildVersion: buildVersion,
 	}
+}
+
+func persistHostWithDetails(
+	ctx context.Context,
+	host store.SSHHost,
+	hist store.SSHHistory,
+	osType, osGroup, osVersion, buildVersion string,
+) error {
 	dbConn, err := openSSHDBFunc()
 	if err != nil {
-		return apperror.New("persistHostWithEncryptedPass", "E_INTERNAL_ERROR", map[string]any{"cause": err.Error()})
+		return apperror.New("persistHostWithDetails", "E_INTERNAL_ERROR", map[string]any{"cause": err.Error()})
 	}
 	defer dbConn.Close()
-	pair := hostHistoryPair{host: host, hist: hist, osType: osType, osVersion: osVersion}
+	pair := createHostHistoryPair(host, hist, osType, osGroup, osVersion, buildVersion)
 	if appErr := persistDualTables(ctx, dbConn.SQL(), pair); appErr != nil {
 		return appErr
 	}

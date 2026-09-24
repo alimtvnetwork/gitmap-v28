@@ -230,6 +230,7 @@ func executeSSHLoginWithPassword(ctx context.Context, target string, explicitPas
 
 	autoTrustTargetHost(ctx, sshTarget)
 	password := resolvePassword(ctx, target, sshTarget, explicitPass)
+	probeAndEnsureNodeProfile(ctx, target, sshTarget, password)
 
 	return spawnSSHFn(ctx, *sshTarget, nil, password)
 }

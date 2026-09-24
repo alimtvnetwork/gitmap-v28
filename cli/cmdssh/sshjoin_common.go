@@ -32,10 +32,11 @@ func processCommonTarget(ctx context.Context, target *SSHCommonTarget, password,
 	}
 	defer client.Close()
 
-	osType, fullVersion, osArch := probeTargetWithWhichOS(client, target.Alias, target.FullIP)
-	target.DetectedOS = osType
+	rep := probeTargetReport(client, target.Alias, target.FullIP)
+	fullVersion := formatOSVersionWithArch(rep.OSVersion, rep.Architecture)
+	target.DetectedOS = rep.OSType
 	target.OSVersion = fullVersion
-	target.OSArch = osArch
+	target.OSArch = rep.Architecture
 
 	host := store.SSHHost{
 		Alias:             target.Alias,
@@ -51,7 +52,9 @@ func processCommonTarget(ctx context.Context, target *SSHCommonTarget, password,
 		User:     target.Username,
 	}
 
-	persistErr := persistHostWithEncryptedPassAndVersion(ctx, host, hist, osType, fullVersion)
+	persistErr := persistHostWithDetails(
+		ctx, host, hist, rep.OSType, rep.OSGroup, fullVersion, rep.BuildVersion,
+	)
 	if persistErr != nil {
 		target.IsSuccess = false
 		target.ErrorMsg = persistErr.Error()
@@ -68,15 +71,27 @@ func resolveDialError(err error) string {
 	return err.Error()
 }
 
-func probeTargetWithWhichOS(client *ssh.Client, alias, ip string) (string, string, string) {
+func probeTargetReport(client *ssh.Client, alias, ip string) *cmdos.OSInfoReport {
 	rep, hasGitmap := probeRemoteGitmapWhichOS(client)
 	if hasGitmap && rep != nil {
-		fullVer := formatOSVersionWithArch(rep.OSVersion, rep.Architecture)
-		fmt.Printf("✔ Node %s: Identified via GitMap which-os: %s (%s, %s)\n", alias, rep.OSType, rep.OSGroup, rep.OSVersion)
-		return rep.OSType, fullVer, rep.Architecture
+		fmt.Printf("✔ Node %s: Identified via GitMap which-os: %s (%s, %s, %s)\n",
+			alias, rep.OSType, rep.OSGroup, rep.OSVersion, rep.Architecture)
+		return rep
 	}
 	notifyRemoteGitmapAdvice(alias, ip)
-	return probeTargetOSDetails(client)
+	osType, fullVer, arch := probeTargetOSDetails(client)
+	return &cmdos.OSInfoReport{
+		OSType:       osType,
+		OSGroup:      resolveOSGroupFromType(osType),
+		OSVersion:    fullVer,
+		Architecture: arch,
+	}
+}
+
+func probeTargetWithWhichOS(client *ssh.Client, alias, ip string) (string, string, string) {
+	rep := probeTargetReport(client, alias, ip)
+	fullVer := formatOSVersionWithArch(rep.OSVersion, rep.Architecture)
+	return rep.OSType, fullVer, rep.Architecture
 }
 
 func probeRemoteGitmapWhichOS(client *ssh.Client) (*cmdos.OSInfoReport, bool) {
