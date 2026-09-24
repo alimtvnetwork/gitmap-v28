@@ -1,3 +1,9 @@
+## v6.339.0 — 2026-09-24 (antigravity rerun non-destructive and conversation commands)
+
+**Scope:** Version bump. antigravity rerun non-destructive and conversation commands.
+
+---
+
 ## v6.338.0 — 2026-09-24 (gitmap lowercase preflight hygiene, conflict resolution, auto-push, and ssh stream upload)
 
 **Scope:** Version bump. gitmap lowercase preflight hygiene, conflict resolution, auto-push, and ssh stream upload.
