@@ -103,7 +103,7 @@ func isFleetUpdateArgs(args []string) bool {
 
 func hasExceptFlag(args []string) bool {
 	for _, a := range args {
-		if a == "--except" || a == "--exclude" || strings.HasPrefix(a, "--except=") || strings.HasPrefix(a, "--exclude=") {
+		if isExceptParam(a) {
 			return true
 		}
 	}
@@ -197,7 +197,8 @@ func processUpdateFlag(arg string, args []string, index *int, opts *FleetUpdateO
 }
 
 func isExceptParam(arg string) bool {
-	return arg == "--except" || arg == "--exclude" || strings.HasPrefix(arg, "--except=") || strings.HasPrefix(arg, "--exclude=")
+	return arg == "--except" || arg == "--excep" || arg == "--exclude" ||
+		strings.HasPrefix(arg, "--except=") || strings.HasPrefix(arg, "--excep=") || strings.HasPrefix(arg, "--exclude=")
 }
 
 func isTargetParam(arg string) bool {

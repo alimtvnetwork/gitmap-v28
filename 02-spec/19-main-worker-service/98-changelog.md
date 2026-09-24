@@ -1,3 +1,9 @@
+## v6.324.0 — 2026-09-24 (ssh macro pea peat deploy, fleet update ua ls, ssh clone, and tempe2e suite)
+
+**Scope:** Version bump. ssh macro pea peat deploy, fleet update ua ls, ssh clone, and tempe2e suite.
+
+---
+
 ## v6.323.0 — 2026-09-24 (ssh join common, os detect, rop, e2e benchmarks, and vscode rca)
 
 **Scope:** Version bump. ssh join common, os detect, rop, e2e benchmarks, and vscode rca.

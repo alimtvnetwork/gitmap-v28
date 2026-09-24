@@ -78,6 +78,7 @@
 - `.ai-memory/plans/completed/09-chrome-profile-management-picker-and-token-vault.md`
 - `02-spec/21-app/129-pr-commit-engines-and-sqlite-split-db.md`, why: PR commit replay engine, SQLite split-DB standardization, and final snapshot sync
 - `02-spec/21-app/148-ssh-join-common-os-detect-rop-and-e2e-benchmarks.md`, why: SSH batch common join (`sjc`), remote OS telemetry (`os_detect`), AGY `rerun` & `rop` split-DB optimization, and AUM search benchmarks
+- `02-spec/21-app/149-ssh-macro-pea-deploy-fleet-update-and-ssh-clone-tempe2e.md`, why: SSH macro/pea/peat deploy (`--except`), fleet update (`ua`, `update ls`), remote `ssh-clone`, and `//go:build tempe2e` isolated validation
 - `02-spec/22-app-issues/41-vscode-startup-failure-and-search-latency-rca.md`, why: 4-Part RCA for VS Code startup failure and search latency
 - `docs/benchmarks/search_benchmark.md`, why: Native AUM search vs Go walk vs Python grep benchmark report
 - `cli/helptext/pr.md`, why: PR command family usage, HG help, and JSON examples

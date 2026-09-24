@@ -29,12 +29,16 @@ func parseSSHCloneOptions(args []string) sshCloneOptions {
 	fs.StringVar(&opts.Target, "target", "all", "Target machine alias or IP")
 	fs.StringVar(&opts.Target, "t", "all", "Target machine alias or IP (shorthand)")
 	fs.StringVar(&opts.Except, "except", "", "Exclude machines by alias, IP, or ID")
+	fs.StringVar(&opts.Except, "excep", "", "Exclude machines shorthand")
 	fs.StringVar(&opts.Exclude, "exclude", "", "Exclude machines (comma separated)")
 	fs.BoolVar(&opts.IsSSH, "ssh", false, "Force SSH protocol for clone")
 	fs.BoolVar(&opts.IsHTTPS, "https", false, "Force HTTPS protocol for clone")
 
 	filtered := extractLeadingCloneArgs(args)
 	_ = fs.Parse(filtered.FlagArgs)
+	if opts.Except == "" && opts.Exclude != "" {
+		opts.Except = opts.Exclude
+	}
 
 	assignPositionalCloneArgs(&opts, filtered.PosArgs)
 	return opts

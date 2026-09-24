@@ -1,3 +1,19 @@
+## [v6.324.0] 2026-09-24 Release v6.324.0
+
+### Install GitMap v6.324.0
+
+To pin your repository to this exact version, run the following one-liner:
+Unix/Bash: `curl -sL https://raw.githubusercontent.com/alimtvnetwork/gitmap-v28/v6.324.0/install.sh | bash -s -- ".ai-memory/prompts" "v6.324.0"`
+PowerShell: `Invoke-WebRequest -Uri https://raw.githubusercontent.com/alimtvnetwork/gitmap-v28/v6.324.0/install.ps1 -OutFile install.ps1; .\install.ps1 -TargetDir ".ai-memory/prompts" -Version "v6.324.0"`
+
+### Added / Changed / Fixed / Removed
+
+- **Macro, PEAT & PEA Fleet SSH Deployment (`gitmap macro|peat|pea deploy ssh`)**: Enhanced parallel fleet deployment across joined SSH nodes with `--except`, `--excep`, and `--exclude` host ID, IP, and alias filtering and aligned summary tables.
+- **Fleet Multi-App Update (`gitmap update --all` / `gitmap update all` / `gitmap ua`)**: Added parallel multi-node app updates returning structured JSON telemetry from each SSH machine and displaying a rich terminal summary table.
+- **Targeted App Update (`gitmap update <name> --excep/--except`) & Fleet Inventory (`gitmap update ls`)**: Added targeted package updates with `--excep`/`--except` node filtering and `gitmap update ls` to query installed software inventory as JSON across SSH nodes and display as a table.
+- **Remote SSH Repository Clone (`gitmap ssh clone` / `ssh-clone` / `ssh-c`)**: Added current repository `origin` URL auto-detection (when repo arg omitted or `git`/`.`) and default remote workdir (`~/git/<repo>`) resolution with `--except`/`--excep` filtering.
+- **Isolated Temporary End-to-End Validation (`//go:build tempe2e`)**: Added `cli/tests/e2e/ssh_fleet_deploy_update_clone_tempe2e_test.go` guarded by `//go:build tempe2e` and `RUN_TEMP_E2E=1` skip-by-default runtime protection.
+
 ## [v6.323.0] 2026-09-24 Release v6.323.0
 
 ### Install GitMap v6.323.0

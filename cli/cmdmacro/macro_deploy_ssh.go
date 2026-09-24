@@ -126,7 +126,8 @@ func processDeployFlag(arg string, args []string, index *int, opts *MacroDeployO
 }
 
 func isExceptParam(arg string) bool {
-	return arg == "--except" || arg == "--exclude" || strings.HasPrefix(arg, "--except=") || strings.HasPrefix(arg, "--exclude=")
+	return arg == "--except" || arg == "--excep" || arg == "--exclude" ||
+		strings.HasPrefix(arg, "--except=") || strings.HasPrefix(arg, "--excep=") || strings.HasPrefix(arg, "--exclude=")
 }
 
 func isTargetParam(arg string) bool {
