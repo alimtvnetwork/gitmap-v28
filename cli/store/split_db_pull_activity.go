@@ -9,7 +9,7 @@ import (
 
 const (
 	DefaultFreshnessCooldownMinutes = 5
-	DefaultActivityWindowHours     = 24
+	DefaultActivityWindowHours      = 24
 )
 
 // GetRecentActualRepoPullHistory returns the last N genuine pull execution records (excluding skipped-inactive).

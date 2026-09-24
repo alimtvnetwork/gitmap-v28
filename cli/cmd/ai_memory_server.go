@@ -35,11 +35,11 @@ func StartInMemoryAIServerOnCandidatePorts(ports []int) (net.Listener, int, *htt
 	}
 	if ln == nil {
 		ln, err = net.Listen("tcp", "127.0.0.1:0")
-		if err != nil {
-			return nil, 0, nil, err
-		}
-		boundPort = ln.Addr().(*net.TCPAddr).Port
 	}
+	if err != nil {
+		return nil, 0, nil, err
+	}
+	boundPort = ln.Addr().(*net.TCPAddr).Port
 	srv := &http.Server{
 		Handler:           buildAIMemoryMux(boundPort),
 		ReadHeaderTimeout: 3 * time.Second,

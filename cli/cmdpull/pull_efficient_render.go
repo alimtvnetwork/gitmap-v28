@@ -33,11 +33,13 @@ func RenderConciseActiveResultsTo(w io.Writer, states []*PullRepoState, allRecor
 // ResolveConciseRepoColWidth dynamically calculates the repo column width to prevent overflow.
 func ResolveConciseRepoColWidth(states []*PullRepoState, allRecords ...[]model.ScanRecord) int {
 	colWidth := minConciseRepoColWidth
+	var records []model.ScanRecord
 	if len(allRecords) > 0 {
-		for _, r := range allRecords[0] {
-			if len(r.RepoName) > colWidth {
-				colWidth = len(r.RepoName)
-			}
+		records = allRecords[0]
+	}
+	for _, r := range records {
+		if len(r.RepoName) > colWidth {
+			colWidth = len(r.RepoName)
 		}
 	}
 	for _, s := range states {

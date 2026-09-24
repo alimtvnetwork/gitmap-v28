@@ -75,7 +75,7 @@ func RequeuePendingWithCheckPrefix(customPrefix string) ([]AgyPromptQueueEntry, 
 // ApplyCompletionCheckPrefix prepends the completion check prefix if not already present.
 func ApplyCompletionCheckPrefix(promptText, prefix string) string {
 	trimmed := strings.TrimSpace(promptText)
-	if strings.HasPrefix( strings.ToLower(trimmed), "is it completed") {
+	if strings.HasPrefix(strings.ToLower(trimmed), "is it completed") {
 		return trimmed
 	}
 	return fmt.Sprintf("%s\n\n%s", prefix, trimmed)

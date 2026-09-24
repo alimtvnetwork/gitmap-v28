@@ -163,4 +163,3 @@ func TestFormatWrappedInactiveList(t *testing.T) {
 		}
 	}
 }
-

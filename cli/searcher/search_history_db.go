@@ -11,6 +11,7 @@ import (
 	"sync"
 	"time"
 
+	"github.com/alimtvnetwork/gitmap-v28/cli/apperror"
 	"github.com/alimtvnetwork/gitmap-v28/cli/store"
 )
 
@@ -179,38 +180,49 @@ func ListTopAUMSearches(limit int) ([]AUMSearchStatRecord, error) {
 		limit = 25
 	}
 	db, err := store.OpenSearchSplitDB()
-	if err == nil {
-		defer db.Close()
-		if rows, qErr := querySQLiteTopSearches(db.Conn(), limit); qErr == nil && len(rows) > 0 {
-			return rows, nil
-		}
+	if err != nil {
+		return snapshotMemoryHotCache(), nil
+	}
+	defer db.Close()
+
+	rows, qErr := querySQLiteTopSearches(db.Conn(), limit)
+	if qErr == nil && len(rows) > 0 {
+		return rows, nil
 	}
 	return snapshotMemoryHotCache(), nil
 }
 
 func querySQLiteTopSearches(conn *sql.DB, limit int) ([]AUMSearchStatRecord, error) {
-	_, _ = conn.Exec(sqlCreateAUMSearchHotCache)
+	if _, err := conn.Exec(sqlCreateAUMSearchHotCache); err != nil {
+		return nil, apperror.WrapSimple(err, "querySQLiteTopSearches.createTable")
+	}
 	rows, err := conn.Query(`SELECT SearchHotCacheId, SearchHashId, QueryText, SearchType, HitCount, LastDurationMs, AvgDurationMs, ResultCount, IsOptimizedHot, UpdatedAt
 		FROM SearchHotCache ORDER BY HitCount DESC, SearchHotCacheId DESC LIMIT ?`, limit)
 	if err != nil {
 		return nil, err
 	}
 	defer rows.Close()
+
 	var list []AUMSearchStatRecord
 	for rows.Next() {
 		var r AUMSearchStatRecord
 		var hotInt int
-		if err := rows.Scan(&r.SQLID, &r.SearchHashID, &r.QueryText, &r.SearchType, &r.HitCount, &r.LastDurationMs, &r.AvgDurationMs, &r.ResultCount, &hotInt, &r.UpdatedAt); err == nil {
-			r.IsOptimizedHot = hotInt == 1
-			if r.IsOptimizedHot {
-				r.OptimizationTier = "HOT_MEMORY_CACHE (<0.04ms)"
-			} else {
-				r.OptimizationTier = "WARM_INDEX (<1ms)"
-			}
-			list = append(list, r)
+		scanErr := rows.Scan(&r.SQLID, &r.SearchHashID, &r.QueryText, &r.SearchType, &r.HitCount, &r.LastDurationMs, &r.AvgDurationMs, &r.ResultCount, &hotInt, &r.UpdatedAt)
+		if scanErr != nil {
+			continue
 		}
+		r.IsOptimizedHot = hotInt == 1
+		r.OptimizationTier = resolveOptimizationTier(r.IsOptimizedHot)
+		list = append(list, r)
 	}
 	return list, nil
+}
+
+func resolveOptimizationTier(isHot bool) string {
+	if isHot {
+		return "HOT_MEMORY_CACHE (<0.04ms)"
+	}
+	return "WARM_INDEX (<1ms)"
 }
 
 func snapshotMemoryHotCache() []AUMSearchStatRecord {

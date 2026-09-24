@@ -546,14 +546,14 @@ func tryRestFleetUpdate(target FleetTarget, opts FleetUpdateOptions) (string, bo
 	}
 	defer resp.Body.Close()
 	isOk := resp.StatusCode == http.StatusOK || resp.StatusCode == http.StatusCreated
-	if isOk {
-		body, readErr := io.ReadAll(resp.Body)
-		if readErr != nil {
-			return "", false
-		}
-		return string(body), true
+	if !isOk {
+		return "", false
 	}
-	return "", false
+	body, readErr := io.ReadAll(resp.Body)
+	if readErr != nil {
+		return "", false
+	}
+	return string(body), true
 }
 
 func executeSSHFleetUpdate(target FleetTarget, opts FleetUpdateOptions) (string, error) {

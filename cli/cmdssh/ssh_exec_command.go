@@ -68,21 +68,22 @@ func splitCommandsRespectingQuotes(cmdStr string) []string {
 			continue
 		}
 		if ch == ',' && !inSingle && !inDouble {
-			trimmed := strings.TrimSpace(cur.String())
-			if trimmed != "" {
-				parts = append(parts, trimmed)
-			}
+			parts = appendTrimmedPart(parts, cur.String())
 			cur.Reset()
 			continue
 		}
 		cur.WriteByte(ch)
 	}
 
-	trimmed := strings.TrimSpace(cur.String())
-	if trimmed != "" {
-		parts = append(parts, trimmed)
-	}
+	parts = appendTrimmedPart(parts, cur.String())
+	return parts
+}
 
+func appendTrimmedPart(parts []string, s string) []string {
+	trimmed := strings.TrimSpace(s)
+	if trimmed != "" {
+		return append(parts, trimmed)
+	}
 	return parts
 }
 

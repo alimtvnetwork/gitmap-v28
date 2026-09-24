@@ -130,13 +130,23 @@ func RunSSHNodesImportJSON(args []string) error {
 	return nil
 }
 
-func decodeConnectionsFromJSON(raw []byte) ([]db.SSHConnection, error) {
+func decodeEnvelopeConnections(raw []byte) ([]db.SSHConnection, bool) {
 	var env SSHNodesExportEnvelope
-	if err := json.Unmarshal(raw, &env); err == nil && (len(env.Connections) > 0 || len(env.Nodes) > 0) {
-		if len(env.Connections) > 0 {
-			return env.Connections, nil
-		}
-		return convertExportItemsToConnections(env.Nodes), nil
+	if err := json.Unmarshal(raw, &env); err != nil {
+		return nil, false
+	}
+	if len(env.Connections) > 0 {
+		return env.Connections, true
+	}
+	if len(env.Nodes) > 0 {
+		return convertExportItemsToConnections(env.Nodes), true
+	}
+	return nil, false
+}
+
+func decodeConnectionsFromJSON(raw []byte) ([]db.SSHConnection, error) {
+	if conns, ok := decodeEnvelopeConnections(raw); ok {
+		return conns, nil
 	}
 	var directConns []db.SSHConnection
 	if err := json.Unmarshal(raw, &directConns); err != nil {
@@ -293,10 +303,12 @@ func readNodesImportFileWithFallback(inPath string) ([]byte, string, error) {
 	if err == nil {
 		return data, inPath, nil
 	}
-	if inPath == DefaultSSHNodesJSONFile {
-		if altData, altErr := os.ReadFile(DefaultSSHNodesAltJSONFile); altErr == nil {
-			return altData, DefaultSSHNodesAltJSONFile, nil
-		}
+	if inPath != DefaultSSHNodesJSONFile {
+		return nil, inPath, err
+	}
+	altData, altErr := os.ReadFile(DefaultSSHNodesAltJSONFile)
+	if altErr == nil {
+		return altData, DefaultSSHNodesAltJSONFile, nil
 	}
 	return nil, inPath, err
 }

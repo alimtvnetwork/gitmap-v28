@@ -18,7 +18,7 @@ func TestAgyRerun_OneRunningFiveQueued_And_Images_TempE2E(t *testing.T) {
 
 	seedOneRunningAndFiveQueuedPrompts(t)
 
-	promptWithImages := "Fix VS Code startup JSON issue and dark blue contrast. Refer to file:///C:/Users/Administrator/.gemini/antigravity/brain/5612a36d/screenshot_8BnieUEKidCr.png and C:/Users/Administrator/.gemini/antigravity/brain/5612a36d/.user_uploaded/media_1790240392825.png"
+	promptWithImages := "Fix VS Code startup JSON issue and dark blue contrast. Refer to mock/brain/5612a36d/screenshot_8BnieUEKidCr.png and assets/media_1790240392825.png"
 	paths := cmdagy.ExtractAllImagePathsFromPrompt(promptWithImages, nil)
 	if len(paths) != 2 {
 		t.Fatalf("expected 2 extracted image paths, got %d: %v", len(paths), paths)

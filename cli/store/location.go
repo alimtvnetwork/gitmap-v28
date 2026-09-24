@@ -17,15 +17,30 @@ func SetBinaryDataDirForTesting(dir string) {
 
 // GlobalUserDataDir returns the canonical user-level data directory.
 func GlobalUserDataDir() string {
-	if runtime.GOOS == "windows" {
-		localAppData := os.Getenv("LOCALAPPDATA")
-		if localAppData != "" {
-			return filepath.Join(localAppData, "gitmap-cli", constants.DBDir)
-		}
+	if localAppData := os.Getenv("LOCALAPPDATA"); runtime.GOOS == "windows" && localAppData != "" {
+		return filepath.Join(localAppData, "gitmap-cli", constants.DBDir)
 	}
 	home, err := os.UserHomeDir()
 	if err == nil && home != "" {
 		return filepath.Join(home, ".gitmap", constants.DBDir)
+	}
+	return ""
+}
+
+func findGlobalFallbackDB(dbFile, currentDBPath string) string {
+	if binaryDataDirOverride != "" {
+		return ""
+	}
+	if _, err := os.Stat(currentDBPath); !os.IsNotExist(err) {
+		return ""
+	}
+	globalDir := GlobalUserDataDir()
+	if globalDir == "" {
+		return ""
+	}
+	globalDBPath := filepath.Join(globalDir, dbFile)
+	if _, err := os.Stat(globalDBPath); err == nil {
+		return globalDBPath
 	}
 	return ""
 }
@@ -59,15 +74,8 @@ func OpenDefault() (*DB, error) {
 	dbFile := ActiveProfileDBFile(baseDir)
 	dbPath := filepath.Join(dir, dbFile)
 
-	if binaryDataDirOverride == "" {
-		if _, err := os.Stat(dbPath); os.IsNotExist(err) {
-			if globalDir := GlobalUserDataDir(); globalDir != "" {
-				globalDBPath := filepath.Join(globalDir, dbFile)
-				if _, gErr := os.Stat(globalDBPath); gErr == nil {
-					return openDBAt(globalDBPath)
-				}
-			}
-		}
+	if fallback := findGlobalFallbackDB(dbFile, dbPath); fallback != "" {
+		return openDBAt(fallback)
 	}
 
 	return openDBAt(dbPath)

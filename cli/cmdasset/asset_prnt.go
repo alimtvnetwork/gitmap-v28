@@ -20,8 +20,8 @@ var (
 )
 
 func RunAssetPrnt(args []string) error {
-	hasNoArgs := len(args) == 0
-	if hasNoArgs || args[0] == "-h" || args[0] == "--help" {
+	hasArgs := len(args) > 0
+	if !hasArgs || args[0] == "-h" || args[0] == "--help" {
 		printAssetPrntHelp()
 		return nil
 	}
@@ -171,8 +171,8 @@ func maybeSyncToActiveBrain(slug string, data []byte) {
 
 	brainBase := filepath.Join(home, ".gemini", "antigravity", "brain")
 	entries, err := os.ReadDir(brainBase)
-	hasNoEntries := err != nil || len(entries) == 0
-	if hasNoEntries {
+	hasEntries := err == nil && len(entries) > 0
+	if !hasEntries {
 		return
 	}
 
@@ -190,14 +190,14 @@ func findLatestBrainDir(brainBase string, entries []os.DirEntry) string {
 	var latestMod time.Time
 
 	for _, e := range entries {
-		isDir := e.IsDir() && !strings.HasPrefix(e.Name(), ".")
-		if isDir {
-			p := filepath.Join(brainBase, e.Name())
-			fi, fiErr := os.Stat(p)
-			if fiErr == nil && fi.ModTime().After(latestMod) {
-				latestMod = fi.ModTime()
-				latestDir = p
-			}
+		if !e.IsDir() || strings.HasPrefix(e.Name(), ".") {
+			continue
+		}
+		p := filepath.Join(brainBase, e.Name())
+		fi, fiErr := os.Stat(p)
+		if fiErr == nil && fi.ModTime().After(latestMod) {
+			latestMod = fi.ModTime()
+			latestDir = p
 		}
 	}
 

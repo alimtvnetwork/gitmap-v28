@@ -61,13 +61,14 @@ func resolveFromStore(slug string) string {
 
 	for _, r := range repos {
 		isMatchingName := strings.EqualFold(r.RepoName, cleanSlug) || strings.EqualFold(r.Slug, cleanSlug)
-		if isMatchingName {
-			if len(r.HTTPSUrl) > 0 {
-				return r.HTTPSUrl
-			}
-			if len(r.SSHUrl) > 0 {
-				return r.SSHUrl
-			}
+		if !isMatchingName {
+			continue
+		}
+		if len(r.HTTPSUrl) > 0 {
+			return r.HTTPSUrl
+		}
+		if len(r.SSHUrl) > 0 {
+			return r.SSHUrl
 		}
 	}
 

@@ -21,8 +21,8 @@ func RunTokenDeployCLI(args []string) error {
 
 	targetNode, exceptNode, isDryRun := parseTokenDeployArgs(args)
 	conns, err := fetchAllSSHConnections()
-	hasNoConns := err != nil || len(conns) == 0
-	if hasNoConns {
+	hasConns := err == nil && len(conns) > 0
+	if !hasConns {
 		printNoSSHNodesWarning()
 		return nil
 	}

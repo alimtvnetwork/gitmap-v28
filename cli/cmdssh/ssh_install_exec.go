@@ -163,23 +163,7 @@ func BuildRemoteInstallerExecCmd(osType, remotePath string, installerArgs []stri
 	}
 
 	if isWin {
-		if ext == ".msi" {
-			if argsStr == "" {
-				return fmt.Sprintf("$p = '%s'; $proc = Start-Process msiexec.exe -ArgumentList @('/i', $p) -Wait -PassThru; exit $proc.ExitCode", remotePath), "ps"
-			}
-			return fmt.Sprintf("$p = '%s'; $proc = Start-Process msiexec.exe -ArgumentList @('/i', $p, '%s') -Wait -PassThru; exit $proc.ExitCode", remotePath, argsStr), "ps"
-		}
-		if ext == ".ps1" {
-			return fmt.Sprintf("powershell -NoProfile -ExecutionPolicy Bypass -File \"%s\" %s", remotePath, argsStr), "cmd"
-		}
-		if ext == ".bat" || ext == ".cmd" {
-			return fmt.Sprintf("\"%s\" %s", remotePath, argsStr), "cmd"
-		}
-		// Default Windows .exe execution
-		if argsStr == "" {
-			return fmt.Sprintf("$p = '%s'; $proc = Start-Process -FilePath $p -Wait -PassThru; exit $proc.ExitCode", remotePath), "ps"
-		}
-		return fmt.Sprintf("$p = '%s'; $proc = Start-Process -FilePath $p -ArgumentList '%s' -Wait -PassThru; exit $proc.ExitCode", remotePath, argsStr), "ps"
+		return buildWindowsInstallerExecCmd(ext, remotePath, argsStr)
 	}
 
 	// Linux / Unix / macOS
@@ -187,15 +171,35 @@ func BuildRemoteInstallerExecCmd(osType, remotePath string, installerArgs []stri
 	return cmd, "bash"
 }
 
+func buildWindowsInstallerExecCmd(ext, remotePath, argsStr string) (string, string) {
+	switch ext {
+	case ".msi":
+		if argsStr == "" {
+			return fmt.Sprintf("$p = '%s'; $proc = Start-Process msiexec.exe -ArgumentList @('/i', $p) -Wait -PassThru; exit $proc.ExitCode", remotePath), "ps"
+		}
+		return fmt.Sprintf("$p = '%s'; $proc = Start-Process msiexec.exe -ArgumentList @('/i', $p, '%s') -Wait -PassThru; exit $proc.ExitCode", remotePath, argsStr), "ps"
+	case ".ps1":
+		return fmt.Sprintf("powershell -NoProfile -ExecutionPolicy Bypass -File \"%s\" %s", remotePath, argsStr), "cmd"
+	case ".bat", ".cmd":
+		return fmt.Sprintf("\"%s\" %s", remotePath, argsStr), "cmd"
+	default:
+		if argsStr == "" {
+			return fmt.Sprintf("$p = '%s'; $proc = Start-Process -FilePath $p -Wait -PassThru; exit $proc.ExitCode", remotePath), "ps"
+		}
+		return fmt.Sprintf("$p = '%s'; $proc = Start-Process -FilePath $p -ArgumentList '%s' -Wait -PassThru; exit $proc.ExitCode", remotePath, argsStr), "ps"
+	}
+}
+
 // RunSSHInstallExecCLI handles the 'gitmap ssh install-exec' command.
 func RunSSHInstallExecCLI(args []string) error {
 	opts := ParseInstallExecArgs(args)
-	if opts.IsShowHelp || opts.SetupPath == "" {
+	if opts.IsShowHelp {
 		printSSHInstallExecHelp()
-		if opts.SetupPath == "" && !opts.IsShowHelp {
-			return apperror.NewValidationError("missing required <setup-file> argument")
-		}
 		return nil
+	}
+	if opts.SetupPath == "" {
+		printSSHInstallExecHelp()
+		return apperror.NewValidationError("missing required <setup-file> argument")
 	}
 
 	fileInfo, errStat := os.Stat(opts.SetupPath)
@@ -287,11 +291,11 @@ func executeInstallerOnSingleNode(c db.SSHConnection, fileName string, data []by
 	defer client.Close()
 
 	probedOS := probeRemoteOSType(client)
+	if probedOS != "" && probedOS != c.OS {
+		c.OS = probedOS
+		persistUpdatedNodeOS(c)
+	}
 	if probedOS != "" {
-		if probedOS != c.OS {
-			c.OS = probedOS
-			persistUpdatedNodeOS(c)
-		}
 		res.OS = probedOS
 	}
 
@@ -340,10 +344,10 @@ func persistUpdatedNodeOS(c db.SSHConnection) {
 }
 
 func resolveRemoteTempPath(osType, fileName, customDest string) string {
+	if customDest != "" && isWindowsOS(osType) {
+		return strings.TrimRight(customDest, "\\/") + "\\" + fileName
+	}
 	if customDest != "" {
-		if isWindowsOS(osType) {
-			return strings.TrimRight(customDest, "\\/") + "\\" + fileName
-		}
 		return strings.TrimRight(customDest, "\\/") + "/" + fileName
 	}
 

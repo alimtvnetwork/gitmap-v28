@@ -38,35 +38,41 @@ func GetLocalOSInfo() OSInfoReport {
 	}
 }
 
-func probeGitTool() (string, bool) {
-	if p, err := exec.LookPath("git"); err == nil && p != "" {
-		return p, true
-	}
-	if runtime.GOOS == "windows" {
-		candidates := []string{
-			`C:\Program Files\Git\cmd\git.exe`,
-			`C:\Program Files\Git\bin\git.exe`,
-		}
-		for _, c := range candidates {
-			if _, err := os.Stat(c); err == nil {
-				return c, true
-			}
+func findFirstExistingFile(candidates []string) (string, bool) {
+	for _, c := range candidates {
+		if _, err := os.Stat(c); err == nil {
+			return c, true
 		}
 	}
 	return "", false
 }
 
+func probeGitTool() (string, bool) {
+	if p, err := exec.LookPath("git"); err == nil && p != "" {
+		return p, true
+	}
+	if runtime.GOOS != "windows" {
+		return "", false
+	}
+	return findFirstExistingFile([]string{
+		`C:\Program Files\Git\cmd\git.exe`,
+		`C:\Program Files\Git\bin\git.exe`,
+	})
+}
+
+func probeWindowsBash() (string, bool) {
+	if runtime.GOOS != "windows" {
+		return "", false
+	}
+	return findFirstExistingFile([]string{
+		`C:\Program Files\Git\bin\bash.exe`,
+		`C:\Program Files\Git\usr\bin\bash.exe`,
+	})
+}
+
 func probeBashTool() (string, bool) {
-	if runtime.GOOS == "windows" {
-		candidates := []string{
-			`C:\Program Files\Git\bin\bash.exe`,
-			`C:\Program Files\Git\usr\bin\bash.exe`,
-		}
-		for _, c := range candidates {
-			if _, err := os.Stat(c); err == nil {
-				return c, true
-			}
-		}
+	if c, found := probeWindowsBash(); found {
+		return c, true
 	}
 	if p, err := exec.LookPath("bash"); err == nil && p != "" {
 		return p, true

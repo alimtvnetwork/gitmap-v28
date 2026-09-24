@@ -28,11 +28,12 @@ func isNodeProfiled(ctx context.Context, target, ip string) bool {
 }
 
 func connectProbeClient(sshTarget *SSHTarget, password string) *ssh.Client {
-	if password != "" {
-		c, err := crypto.ConnectWithPassword(sshTarget.IP, sshTarget.Username, password)
-		if err == nil && c != nil {
-			return c
-		}
+	if password == "" {
+		return tryConnectDefaultKey(sshTarget)
+	}
+	c, err := crypto.ConnectWithPassword(sshTarget.IP, sshTarget.Username, password)
+	if err == nil && c != nil {
+		return c
 	}
 	return tryConnectDefaultKey(sshTarget)
 }

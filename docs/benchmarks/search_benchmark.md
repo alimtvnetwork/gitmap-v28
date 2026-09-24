@@ -24,7 +24,7 @@
 ## 2. Putting PowerShell Search into Perspective (Why It Takes `14.85 s` & How to Make It Better)
 
 ### 2.1 Why Standard PowerShell (`Get-ChildItem -Recurse | Select-String`) Takes `14.85 s`
-When searching this repository (`d:\work\gitmap` — ~2,900 code files + `.git` / build metadata):
+When searching this repository (`<repo-root>` — ~2,900 code files + `.git` / build metadata):
 1. **CLR Object Wrapping per File (`System.IO.FileInfo`)**: `Get-ChildItem -Recurse` allocates a managed `.NET` `FileInfo` object with ETS (Extended Type System) properties for every single file before passing it down the PowerShell pipeline.
 2. **UTF-16 Encoding & Regex Compilation Overhead**: `Select-String` decodes every file stream into `.NET` UTF-16 `System.String` lines and runs the `.NET` regex engine per line unless `-SimpleMatch` is specified.
 3. **Unfiltered Directory Traversal**: By default, `Get-ChildItem -Recurse` traverses `.git/objects`, `node_modules`, and binary artifacts unless explicitly filtered via `-Exclude`.

@@ -496,7 +496,7 @@ func finalizePullBatchTask(taskDB *store.DB, taskID int64, failCount int) error 
 		errMsg := fmt.Sprintf("pull batch finished with %d failure(s)", failCount)
 		failPendingTask(taskDB, taskID, errMsg)
 		fmt.Fprintf(os.Stderr, "\n  %s%s%s\n\n", constants.ColorRed, errMsg, constants.ColorReset)
-		os.Exit(1)
+		cliexit.Exit(1)
 
 		return nil
 	}

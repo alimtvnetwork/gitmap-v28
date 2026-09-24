@@ -265,23 +265,27 @@ func loadFilteredSSHConns(opts seOptions) ([]db.SSHConnection, error) {
 	return conns, nil
 }
 
+func fetchConnsFromStore(conn *store.DB, err error) []db.SSHConnection {
+	if err != nil {
+		return nil
+	}
+	defer conn.Close()
+	res := db.GetSSHConnections(conn.Context(), conn.SQL())
+	if !res.IsFailure() && len(res.Data) > 0 {
+		return res.Data
+	}
+	return nil
+}
+
 func fetchAllSSHConnections() ([]db.SSHConnection, error) {
 	dbConn, err := store.OpenDefault()
-	if err == nil {
-		defer dbConn.Close()
-		connsRes := db.GetSSHConnections(dbConn.Context(), dbConn.SQL())
-		if !connsRes.IsFailure() && len(connsRes.Data) > 0 {
-			return connsRes.Data, nil
-		}
+	if conns := fetchConnsFromStore(dbConn, err); len(conns) > 0 {
+		return conns, nil
 	}
 
 	globalConn, gErr := store.OpenGlobalDefault()
-	if gErr == nil {
-		defer globalConn.Close()
-		gRes := db.GetSSHConnections(globalConn.Context(), globalConn.SQL())
-		if !gRes.IsFailure() && len(gRes.Data) > 0 {
-			return gRes.Data, nil
-		}
+	if conns := fetchConnsFromStore(globalConn, gErr); len(conns) > 0 {
+		return conns, nil
 	}
 
 	if err != nil {

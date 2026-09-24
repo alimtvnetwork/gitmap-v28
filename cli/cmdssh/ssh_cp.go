@@ -199,13 +199,17 @@ func writeRemoteFileBytes(conn db.SSHConnection, remotePath string, data []byte)
 	return nil
 }
 
-func writeLocalFile(destPath string, data []byte) error {
+func ensureLocalDir(destPath string) error {
 	dir := filepath.Dir(destPath)
-	if dir != "" && dir != "." {
-		mkdirErr := os.MkdirAll(dir, 0755)
-		if mkdirErr != nil {
-			return mkdirErr
-		}
+	if dir == "" || dir == "." {
+		return nil
+	}
+	return os.MkdirAll(dir, 0755)
+}
+
+func writeLocalFile(destPath string, data []byte) error {
+	if err := ensureLocalDir(destPath); err != nil {
+		return err
 	}
 	return os.WriteFile(destPath, data, 0644)
 }

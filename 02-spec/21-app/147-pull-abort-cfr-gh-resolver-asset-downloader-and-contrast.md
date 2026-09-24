@@ -50,7 +50,7 @@ The user provided four screenshot artifacts illustrating exact defects:
    - Resolution: Catch untracked directory condition and fall back to global DB or local workspace search without stack traces.
 
 2. `assets/screenshots/_N8xDMM-6ylG.png`:
-   - View: `gitmap pull` interactive remediation menu showing `Path: D:\work\gitmap` and remediation options in dark blue on black terminal background.
+   - View: `gitmap pull` interactive remediation menu showing `Path: <repo-root>` and remediation options in dark blue on black terminal background.
    - Failure: Text is virtually illegible; selecting `[q]` triggers batch execution failure.
    - Resolution: Upgrade `dimStyle` to high-contrast pastel white/cyan; handle `[q]` as clean user abort.
 

@@ -11,8 +11,8 @@ import (
 )
 
 func RunTokenCommand(args []string) error {
-	hasNoArgs := len(args) == 0
-	if hasNoArgs || args[0] == "-h" || args[0] == "--help" {
+	hasArgs := len(args) > 0
+	if !hasArgs || args[0] == "-h" || args[0] == "--help" {
 		printTokenUsage()
 		return nil
 	}
@@ -61,8 +61,8 @@ func runTokenList() error {
 }
 
 func runTokenAdd(args []string) error {
-	hasNoToken := len(args) == 0
-	if hasNoToken {
+	hasToken := len(args) > 0
+	if !hasToken {
 		fmt.Printf("%sUsage: gitmap token add <token>%s\n", constants.ColorYellow, constants.ColorReset)
 		return nil
 	}

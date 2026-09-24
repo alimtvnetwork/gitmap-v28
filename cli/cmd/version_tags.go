@@ -38,10 +38,11 @@ func FetchGitHubReleaseTags(owner, repo string, limit int) ([]GitHubReleaseTagIn
 	req.Header.Set("Accept", "application/vnd.github.v3+json")
 
 	resp, err := client.Do(req)
-	if err != nil || resp.StatusCode != http.StatusOK {
-		if resp != nil {
-			_ = resp.Body.Close()
-		}
+	if err != nil {
+		return fetchFallbackTags(owner, repo, limit)
+	}
+	if resp.StatusCode != http.StatusOK {
+		_ = resp.Body.Close()
 		return fetchFallbackTags(owner, repo, limit)
 	}
 	defer resp.Body.Close()

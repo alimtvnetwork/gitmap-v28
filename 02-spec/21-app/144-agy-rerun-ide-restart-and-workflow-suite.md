@@ -86,7 +86,7 @@ Antigravity transcripts store image and media attachments in the `media` JSON ar
   "media": [
     {
       "mime_type": "image/png",
-      "uri": "C:/Users/Administrator/.gemini/antigravity/brain/.../media_1.png"
+      "uri": "~/.gemini/antigravity/brain/.../media_1.png"
     }
   ]
 }

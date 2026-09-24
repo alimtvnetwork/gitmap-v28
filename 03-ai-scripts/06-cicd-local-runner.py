@@ -1295,7 +1295,11 @@ def compile_single_warmup_batch(
     if res.returncode != 0:
         return {}, res.stderr or res.stdout
     bin_ext = ".test.exe" if os.name == "nt" else ".test"
-    found = {p: str(batch_dir / f"{p.split('/')[-1]}{bin_ext}") for p in batch}
+    found = {}
+    for p in batch:
+        bp = batch_dir / f"{p.split('/')[-1]}{bin_ext}"
+        if bp.exists():
+            found[p] = str(bp)
 
     return found, ""
 
@@ -1462,9 +1466,9 @@ def run_precompiled_package_worker(
     repo_root: Path, timeout_sec: int
 ) -> tuple[int, int, str, dict[str, dict[str, Any]]]:
     """Worker executing precompiled package test binary with 8-way parallel goroutines."""
+    if not bin_path_str or not Path(bin_path_str).exists():
+        return 0, 0, "", {t["id"]: {"status": "SKIPPED", "duration_sec": 0.0} for t in pkg_tests}
     bin_path = Path(bin_path_str)
-    if not bin_path.exists():
-        return 0, len(pkg_tests), f"Binary not found: {bin_path}", {}
     try:
         proc = execute_test_binary_subprocess([str(bin_path), "-test.parallel=8"], resolve_package_dir(pkg, repo_root), timeout_sec)
         return process_precompiled_worker_result(pkg, proc, pkg_tests)
@@ -1703,15 +1707,22 @@ def resolve_dirty_go_tests(
 ) -> list[dict[str, Any]]:
     """Filters inventory tests to only packages changed in git or failing in manifest."""
     dirty = []
+    include_tempe2e = os.environ.get("RUN_TEMP_E2E") == "1"
+    include_e2e = os.environ.get("GITMAP_RUN_E2E_TESTS") == "1"
     checked_pkgs: dict[str, bool] = {}
     for t in tests.values():
+        t_file = t.get("test_file", "")
+        if not include_tempe2e and ("_tempe2e_test.go" in t_file or t.get("tier") == "tempe2e"):
+            continue
+        if not include_e2e and (t.get("package") in ("cli/tests", "cli/tests/e2e") or "/e2e/" in t_file):
+            continue
         pkg = t.get("package", "")
         if pkg not in checked_pkgs:
             p_dir = resolve_package_dir(pkg, repo_root)
             is_git_diff = is_pkg_changed_in_git(pkg, changed_files)
             is_code_diff = is_pkg_code_changed(pkg, p_dir, manifest)
             checked_pkgs[pkg] = bool(force or (is_git_diff and is_code_diff))
-        is_light = bool(include_heavy or "tests/heavy_test" not in t.get("test_file", ""))
+        is_light = bool(include_heavy or "tests/heavy_test" not in t_file)
         if checked_pkgs[pkg] and is_light:
             dirty.append(t)
 

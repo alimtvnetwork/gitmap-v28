@@ -37,8 +37,20 @@ var ClusterScriptCmd = &cobra.Command{
 	},
 }
 
+func checkScriptBoolFlag(arg string, opts *clusterScriptOptions) bool {
+	if isClusterHelpFlag(arg) {
+		opts.isShowHelp = true
+		return true
+	}
+	if isSudoFlag(arg) {
+		opts.isSudo = true
+		return true
+	}
+	return false
+}
+
 func parseScriptFlag(arg string, nextArg string, opts *clusterScriptOptions) (int, bool, error) {
-	if checkBoolFlag(arg, &opts.isShowHelp, &opts.isSudo) {
+	if checkScriptBoolFlag(arg, opts) {
 		return 1, true, nil
 	}
 	val, consumed, err := parseParallelFlag(arg, nextArg)

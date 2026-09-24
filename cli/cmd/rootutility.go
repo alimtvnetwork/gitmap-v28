@@ -106,10 +106,10 @@ func runUpdateHelp() error {
 	}
 	checkHelp("update", argsTail())
 
+	if isVersionListRequest(args) && isAgmUpdateTarget(args) {
+		return RunAGMVersionTagsLS()
+	}
 	if isVersionListRequest(args) {
-		if isAgmUpdateTarget(args) {
-			return RunAGMVersionTagsLS()
-		}
 		return RunGitMapVersionTagsLS()
 	}
 

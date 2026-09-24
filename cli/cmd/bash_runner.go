@@ -36,15 +36,16 @@ func findGitExecutable() (string, bool) {
 	if p, err := exec.LookPath("git"); err == nil && p != "" {
 		return p, true
 	}
-	if runtime.GOOS == constants.OSWindows {
-		candidates := []string{
-			`C:\Program Files\Git\cmd\git.exe`,
-			`C:\Program Files\Git\bin\git.exe`,
-		}
-		for _, c := range candidates {
-			if _, err := os.Stat(c); err == nil {
-				return c, true
-			}
+	if runtime.GOOS != constants.OSWindows {
+		return "", false
+	}
+	candidates := []string{
+		`C:\Program Files\Git\cmd\git.exe`,
+		`C:\Program Files\Git\bin\git.exe`,
+	}
+	for _, c := range candidates {
+		if _, err := os.Stat(c); err == nil {
+			return c, true
 		}
 	}
 	return "", false

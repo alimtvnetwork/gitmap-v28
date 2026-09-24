@@ -276,15 +276,14 @@ func tryRestRemoteInventory(target FleetTarget) (string, bool) {
 		return "", false
 	}
 	defer resp.Body.Close()
-	isOk := resp.StatusCode == http.StatusOK
-	if isOk {
-		body, readErr := io.ReadAll(resp.Body)
-		if readErr != nil {
-			return "", false
-		}
-		return string(body), true
+	if resp.StatusCode != http.StatusOK {
+		return "", false
 	}
-	return "", false
+	body, readErr := io.ReadAll(resp.Body)
+	if readErr != nil {
+		return "", false
+	}
+	return string(body), true
 }
 
 func executeSSHRemoteInventory(target FleetTarget) (string, error) {

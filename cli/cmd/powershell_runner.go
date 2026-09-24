@@ -25,13 +25,11 @@ func findPowerShellExecutable() (string, bool) {
 	if p, err := exec.LookPath("pwsh"); err == nil && p != "" {
 		return p, true
 	}
-	isWin := runtime.GOOS == constants.OSWindows
-	if isWin {
-		if p, err := exec.LookPath("powershell"); err == nil && p != "" {
-			return p, true
-		}
+	if runtime.GOOS != constants.OSWindows {
+		return "", false
 	}
-	return "", false
+	p, err := exec.LookPath("powershell")
+	return p, err == nil && p != ""
 }
 
 func executePowerShellProcess(psPath string, args []string) error {

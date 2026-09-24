@@ -88,6 +88,10 @@ func TestPartitionRecordsByActivity_WithMockData(t *testing.T) {
 		t.Fatalf("InsertPullRepoRuns failed: %v", err)
 	}
 
+	if _, err := db.Conn().Exec("UPDATE PullRepoRun SET CreatedAt = datetime('now', '-10 minutes')"); err != nil {
+		t.Fatalf("failed to update CreatedAt: %v", err)
+	}
+
 	records := []model.ScanRecord{
 		{RepoName: "active-repo", AbsolutePath: repoActive},
 		{RepoName: "inactive-repo", AbsolutePath: repoInactive},

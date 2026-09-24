@@ -1,3 +1,9 @@
+## v6.334.0 — 2026-09-24 (fix CI/CD quality gates, relative paths, boolean conventions, nested ifs, and gofmt)
+
+**Scope:** Version bump. fix CI/CD quality gates, relative paths, boolean conventions, nested ifs, and gofmt.
+
+---
+
 ## v6.333.0 — 2026-09-24 (add which-os, cross-platform bash/shell runner, and node os profiling)
 
 **Scope:** Version bump. add which-os, cross-platform bash/shell runner, and node os profiling.

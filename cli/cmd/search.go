@@ -176,14 +176,27 @@ func findMatchingReposInStore(query string, limit int) []string {
 	for _, r := range repos {
 		isRepoMatch := strings.Contains(strings.ToLower(r.RepoName), cleanQ)
 		isPathMatch := strings.Contains(strings.ToLower(r.AbsolutePath), cleanQ)
-		if isRepoMatch || isPathMatch {
-			matches = append(matches, r.RepoName+" ("+r.AbsolutePath+")")
-			if len(matches) >= limit {
-				break
-			}
+		if !isRepoMatch && !isPathMatch {
+			continue
+		}
+		matches = append(matches, r.RepoName+" ("+r.AbsolutePath+")")
+		if len(matches) >= limit {
+			break
 		}
 	}
 	return matches
+}
+
+func isIgnoredSearchDir(name string) bool {
+	return strings.HasPrefix(name, ".") || name == "node_modules" || name == "vendor" || name == "bin"
+}
+
+func formatRelOrAbsPath(root, path string) string {
+	rel, err := filepath.Rel(root, path)
+	if err == nil {
+		return rel
+	}
+	return path
 }
 
 func findMatchingFilesLocal(root, query string, limit int) []string {
@@ -196,23 +209,18 @@ func findMatchingFilesLocal(root, query string, limit int) []string {
 		if err != nil {
 			return nil
 		}
+		if d.IsDir() && isIgnoredSearchDir(d.Name()) {
+			return filepath.SkipDir
+		}
 		if d.IsDir() {
-			name := d.Name()
-			if strings.HasPrefix(name, ".") || name == "node_modules" || name == "vendor" || name == "bin" {
-				return filepath.SkipDir
-			}
 			return nil
 		}
-		if strings.Contains(strings.ToLower(d.Name()), cleanQ) {
-			rel, relErr := filepath.Rel(root, path)
-			if relErr == nil {
-				matches = append(matches, rel)
-			} else {
-				matches = append(matches, path)
-			}
-			if len(matches) >= limit {
-				return filepath.SkipAll
-			}
+		if !strings.Contains(strings.ToLower(d.Name()), cleanQ) {
+			return nil
+		}
+		matches = append(matches, formatRelOrAbsPath(root, path))
+		if len(matches) >= limit {
+			return filepath.SkipAll
 		}
 		return nil
 	})

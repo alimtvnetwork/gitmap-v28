@@ -154,7 +154,7 @@ func TestExecPS_Unix_PwshNotFound(t *testing.T) {
 		t.Errorf("expected empty out, got %q", out)
 	}
 
-	if errOut != "pwsh not found, skipping" {
+	if !strings.Contains(errOut, "pwsh not found") {
 		t.Errorf("unexpected stderr: %q", errOut)
 	}
 

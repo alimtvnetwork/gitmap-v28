@@ -74,10 +74,7 @@ func runAgyRerun(args []string) *apperror.AppError {
 	tplName := extractRerunTemplateName(args)
 
 	if rerunAllFlag || strings.EqualFold(target, "all") {
-		if err := RestartAndRerunAllActiveProjects(4, isRestart, rerunDryRun, tplName); err != nil {
-			return apperror.WrapSimple(err, "agy rerun all")
-		}
-		return nil
+		return runRerunAllProjects(isRestart, tplName)
 	}
 
 	err := RestartAndRerunProject(target, isRestart, rerunDryRun, tplName)
@@ -85,6 +82,13 @@ func runAgyRerun(args []string) *apperror.AppError {
 		return apperror.WrapSimple(err, "agy rerun")
 	}
 
+	return nil
+}
+
+func runRerunAllProjects(isRestart bool, tplName string) *apperror.AppError {
+	if err := RestartAndRerunAllActiveProjects(4, isRestart, rerunDryRun, tplName); err != nil {
+		return apperror.WrapSimple(err, "agy rerun all")
+	}
 	return nil
 }
 

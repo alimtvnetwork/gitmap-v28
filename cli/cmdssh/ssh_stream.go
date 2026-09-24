@@ -29,22 +29,25 @@ func StreamFileToRemote(client *ssh.Client, remotePath string, data []byte, osTy
 	return streamDirectToRemote(client, remotePath, data, isWin)
 }
 
-func splitRemoteDestPath(remotePath string, isWin bool) (string, string) {
-	norm := remotePath
-	if isWin {
-		norm = strings.ReplaceAll(norm, "/", "\\")
-		idx := strings.LastIndex(norm, "\\")
-		if idx >= 0 {
-			return norm[:idx], norm[idx+1:]
-		}
-		return "C:\\Windows\\Temp", norm
-	}
-
-	idx := strings.LastIndex(norm, "/")
+func splitWindowsRemoteDestPath(remotePath string) (string, string) {
+	norm := strings.ReplaceAll(remotePath, "/", "\\")
+	idx := strings.LastIndex(norm, "\\")
 	if idx >= 0 {
 		return norm[:idx], norm[idx+1:]
 	}
-	return "/tmp", norm
+	return "C:\\Windows\\Temp", norm
+}
+
+func splitRemoteDestPath(remotePath string, isWin bool) (string, string) {
+	if isWin {
+		return splitWindowsRemoteDestPath(remotePath)
+	}
+
+	idx := strings.LastIndex(remotePath, "/")
+	if idx >= 0 {
+		return remotePath[:idx], remotePath[idx+1:]
+	}
+	return "/tmp", remotePath
 }
 
 func ensureRemoteDir(client *ssh.Client, dir string, isWin bool) error {
@@ -63,9 +66,9 @@ func ensureRemoteDir(client *ssh.Client, dir string, isWin bool) error {
 
 func buildTarExtractCmd(dir string, isWin bool) string {
 	if isWin {
-		return fmt.Sprintf("tar.exe -xf - -C \"%s\"", dir)
+		return fmt.Sprintf("cmd.exe /c tar.exe -xf - -C \"%s\"", dir)
 	}
-	return fmt.Sprintf("tar -xf - -C '%s'", dir)
+	return fmt.Sprintf("sh -c \"tar -xf - -C '%s'\"", dir)
 }
 
 func buildDirectStreamCmd(remotePath string, isWin bool) string {

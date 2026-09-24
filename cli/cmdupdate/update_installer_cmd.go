@@ -65,14 +65,17 @@ func buildUnixInstallerCmd(scriptPath, installDir, version string) *exec.Cmd {
 	}
 
 	if len(version) > 0 {
-		clean := version
-		if !strings.HasPrefix(clean, "v") {
-			clean = "v" + clean
-		}
-		args = append(args, "--version", clean)
+		args = append(args, "--version", formatInstallerVersionFlag(version))
 	}
 
 	return exec.Command(getUnixShell(), args...)
+}
+
+func formatInstallerVersionFlag(version string) string {
+	if strings.HasPrefix(version, "v") {
+		return version
+	}
+	return "v" + version
 }
 
 func getUnixShell() string {
