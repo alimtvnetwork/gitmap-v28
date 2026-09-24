@@ -1,3 +1,9 @@
+## v6.340.0 — 2026-09-24 (antigravity rerun non-destructive replay and dedicated conversation commands)
+
+**Scope:** Version bump. antigravity rerun non-destructive replay and dedicated conversation commands.
+
+---
+
 ## v6.339.0 — 2026-09-24 (antigravity rerun non-destructive and conversation commands)
 
 **Scope:** Version bump. antigravity rerun non-destructive and conversation commands.
