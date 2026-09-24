@@ -2,7 +2,6 @@ package cmdssh
 
 import (
 	"encoding/json"
-	"flag"
 	"fmt"
 	"os"
 	"strings"
@@ -61,17 +60,6 @@ func printSSHExecExamples() {
 	fmt.Println("  gitmap ssh exec cmd1,cmd2,cmd3 --except-os unix")
 	fmt.Println("  gitmap ssh exec cmd1,cmd2,cmd3 --except-os win")
 	fmt.Println("  gitmap ssh exec cmd1,cmd2,cmd3 --except-os ubuntu")
-}
-
-func configureSEFlags(fs *flag.FlagSet, opts *seOptions) {
-	fs.StringVar(&opts.Exclude, "exclude", "", "Exclude machines (comma separated)")
-	fs.StringVar(&opts.Except, "except", "", "Exclude machines by alias, IP, or ID (comma separated)")
-	fs.StringVar(&opts.ExceptOS, "except-os", "", "Exclude machines by OS (unix, win, ubuntu, etc.)")
-	fs.StringVar(&opts.TargetOS, "os", "", "Target machines by OS")
-	fs.StringVar(&opts.Target, "target", "", "Target machine alias or IP")
-	fs.StringVar(&opts.Target, "t", "", "Target machine alias or IP (shorthand)")
-	fs.StringVar(&opts.IP, "ip", "", "Target machine IP address")
-	fs.BoolVar(&opts.IsJSON, "json", false, "Output results in JSON format")
 }
 
 func validateSEArgs(args []string) {

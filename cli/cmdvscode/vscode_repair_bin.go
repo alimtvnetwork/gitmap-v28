@@ -11,13 +11,6 @@ import (
 	"strings"
 )
 
-type binaryRepairResult struct {
-	ActiveInstall string
-	VersionInfo   string
-	IsHealthy     bool
-	SyncedFolders int
-}
-
 var commitDirRegex = regexp.MustCompile(`^[0-9a-f]{10}$`)
 
 func discoverInstallationCandidates() []string {

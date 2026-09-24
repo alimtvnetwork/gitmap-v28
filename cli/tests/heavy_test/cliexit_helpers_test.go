@@ -64,10 +64,10 @@ func ensureGitmapBinary(t *testing.T) string {
 func resolveHeavyTestModuleRoot() string {
 	_, currentFile, _, ok := runtime.Caller(0)
 	if ok {
-		return filepath.Dir(filepath.Dir(currentFile))
+		return filepath.Dir(filepath.Dir(filepath.Dir(currentFile)))
 	}
 
-	return ".."
+	return filepath.Join("..", "..")
 }
 
 func buildGitmapBinaryOnce() {
