@@ -1,6 +1,7 @@
 package cmdssh
 
 import (
+	"bytes"
 	"context"
 	"fmt"
 	"os"
@@ -76,7 +77,9 @@ func printSSHInstallExecHelp() {
 
 // ParseInstallExecArgs parses arguments and flags for install-exec.
 func ParseInstallExecArgs(args []string) SSHInstallExecOptions {
-	var opts SSHInstallExecOptions
+	opts := SSHInstallExecOptions{
+		IsSilent: true,
+	}
 	var positional []string
 
 	for i := 0; i < len(args); i++ {
@@ -91,6 +94,10 @@ func ParseInstallExecArgs(args []string) SSHInstallExecOptions {
 		}
 		if a == "-s" || a == "--silent" {
 			opts.IsSilent = true
+			continue
+		}
+		if a == "--no-silent" || a == "--gui" || a == "--interactive" {
+			opts.IsSilent = false
 			continue
 		}
 		if a == "-f" || a == "--force-all" || a == "force-all" || a == "--all-os" {
@@ -151,13 +158,15 @@ func ParseInstallExecArgs(args []string) SSHInstallExecOptions {
 		opts.InstallerArgs = positional[1:]
 	}
 
-	if opts.TargetOS == "" && opts.ExceptOS == "" && !opts.IsForceAll && opts.SetupPath != "" {
-		ext := strings.ToLower(filepath.Ext(opts.SetupPath))
-		if isWindowsInstallerExt(ext) {
-			opts.TargetOS = constants.OSTargetWin
-		} else if isUnixInstallerExt(ext) {
-			opts.TargetOS = constants.OSTargetUnix
-		}
+	if opts.TargetOS != "" || opts.ExceptOS != "" || opts.IsForceAll || opts.SetupPath == "" {
+		return opts
+	}
+
+	ext := strings.ToLower(filepath.Ext(opts.SetupPath))
+	if isWindowsInstallerExt(ext) {
+		opts.TargetOS = constants.OSTargetWin
+	} else if isUnixInstallerExt(ext) {
+		opts.TargetOS = constants.OSTargetUnix
 	}
 
 	return opts
@@ -183,17 +192,17 @@ func isUnixInstallerExt(ext string) bool {
 
 // BuildRemoteInstallerExecCmd constructs the OS-specific remote execution command.
 func BuildRemoteInstallerExecCmd(osType, remotePath string, installerArgs []string, isSilent bool) (string, string) {
+	return BuildRemoteInstallerExecCmdWithPayload(osType, remotePath, installerArgs, isSilent, nil)
+}
+
+// BuildRemoteInstallerExecCmdWithPayload constructs the OS-specific remote execution command using payload inspection.
+func BuildRemoteInstallerExecCmdWithPayload(osType, remotePath string, installerArgs []string, isSilent bool, payload []byte) (string, string) {
 	isWin := isWindowsOS(osType)
 	ext := strings.ToLower(filepath.Ext(remotePath))
 	argsStr := strings.Join(installerArgs, " ")
 
 	if isSilent && argsStr == "" {
-		switch ext {
-		case ".msi":
-			argsStr = "/qn"
-		case ".exe":
-			argsStr = "/VERYSILENT /SUPPRESSMSGBOXES /NORESTART /SP-"
-		}
+		argsStr = resolveDefaultSilentInstallerArgs(ext, payload)
 	}
 
 	if isWin {
@@ -203,6 +212,25 @@ func BuildRemoteInstallerExecCmd(osType, remotePath string, installerArgs []stri
 	// Linux / Unix / macOS
 	cmd := fmt.Sprintf("chmod +x '%s' && '%s' %s", remotePath, remotePath, argsStr)
 	return cmd, "bash"
+}
+
+func resolveDefaultSilentInstallerArgs(ext string, payload []byte) string {
+	if ext == ".msi" {
+		return "/qn"
+	}
+	if ext != ".exe" {
+		return ""
+	}
+	if bytes.Contains(payload, []byte("NullsoftInst")) {
+		return "/S"
+	}
+	if bytes.Contains(payload, []byte("Inno Setup")) {
+		return "/VERYSILENT /SUPPRESSMSGBOXES /NORESTART /SP-"
+	}
+	if bytes.Contains(payload, []byte("WixBundle")) || bytes.Contains(payload, []byte("Burn")) {
+		return "/quiet /norestart"
+	}
+	return "/S"
 }
 
 func buildWindowsInstallerExecCmd(ext, remotePath, argsStr string) (string, string) {
@@ -265,8 +293,7 @@ func RunSSHInstallExecCLI(args []string) error {
 	}
 
 	if len(conns) == 0 {
-		fmt.Printf("No matching SSH machines to deploy setup to (filtered by except: %q, except-os: %q, os: %q).\n", opts.Except, opts.ExceptOS, opts.TargetOS)
-		return nil
+		return renderNoMatchingMachinesMessage(opts)
 	}
 
 	fileName := filepath.Base(opts.SetupPath)
@@ -345,7 +372,7 @@ func executeInstallerOnSingleNode(c db.SSHConnection, fileName string, data []by
 	}
 
 	// 2. Build and execute installation command
-	execCmd, execShell := BuildRemoteInstallerExecCmd(c.OS, remoteDestPath, opts.InstallerArgs, opts.IsSilent)
+	execCmd, execShell := BuildRemoteInstallerExecCmdWithPayload(c.OS, remoteDestPath, opts.InstallerArgs, opts.IsSilent, data)
 	stdout, errExec := crypto.RunCommand(client, execCmd, execShell)
 	dur := time.Since(start).Milliseconds()
 	res.DurationMs = dur
@@ -418,4 +445,15 @@ func renderInstallExecResultsTable(fileName string, results []NodeInstallExecRes
 		}
 	}
 	fmt.Println()
+}
+
+func renderNoMatchingMachinesMessage(opts SSHInstallExecOptions) error {
+	allConns, _ := fetchAllSSHConnections()
+	if len(allConns) == 0 {
+		fmt.Println("No registered SSH machines found in registry.")
+		fmt.Println("Enroll machines first using: gitmap sjc <user> <ip(alias)...> --pass <password> or gitmap sj add <user@ip> [alias]")
+		return nil
+	}
+	fmt.Printf("No matching SSH machines to deploy setup to (filtered by except: %q, except-os: %q, os: %q).\n", opts.Except, opts.ExceptOS, opts.TargetOS)
+	return nil
 }

@@ -9,7 +9,8 @@ Master directory of architectural and execution plans.
 
 ## Recent Completed Tasks Register (Last 20 Tasks)
 
-1. [108-remote-node-first-login-os-profiling-gitbash-and-cross-os-execution.md](completed/108-remote-node-first-login-os-profiling-gitbash-and-cross-os-execution.md): Remote Node First-Time Login OS Profiling, Cross-Platform Git Bash Execution & Multi-OS Installer Filtering
+1. [109-ssh-installer-nsis-payload-detection-and-fleet-deployment.md](completed/109-ssh-installer-nsis-payload-detection-and-fleet-deployment.md): SSH Installer NSIS Payload Detection, Unattended Silent Execution & Fleet DB Resolution
+2. [108-remote-node-first-login-os-profiling-gitbash-and-cross-os-execution.md](completed/108-remote-node-first-login-os-profiling-gitbash-and-cross-os-execution.md): Remote Node First-Time Login OS Profiling, Cross-Platform Git Bash Execution & Multi-OS Installer Filtering
 2. [107-gitmap-lowercase-preflight-hygiene-and-conflict-resolution.md](completed/107-gitmap-lowercase-preflight-hygiene-and-conflict-resolution.md): GitMap Lowercase Pre-Flight Hygiene, Working Tree Conflict Resolution & Automated Push
 3. [106-ssh-install-exec-streaming-upload-and-os-resolution.md](completed/106-ssh-install-exec-streaming-upload-and-os-resolution.md): SSH Install-Exec Streaming Upload Protocol, DB Resolution Fallback & Dynamic Remote OS Probing
 4. [105-node-login-profiling-which-os-sqlite-persistence.md](completed/105-node-login-profiling-which-os-sqlite-persistence.md): Node First-Time Login Profiling, GitMap Auto-Install, and SQLite OS Persistence

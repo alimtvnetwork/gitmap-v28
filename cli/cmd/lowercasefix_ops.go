@@ -14,35 +14,12 @@ func ExecuteLowerCaseFix(opts LowerCaseFixOptions) error {
 	cwd, _ := os.Getwd()
 	isGit := isGitRepository()
 
-	if isGit && !opts.IsDryRun {
-		treeStatus := checkGitWorkingTreeStatus()
-		if treeStatus.HasConflicts {
-			return fmt.Errorf("git repository has %d unresolved merge conflict(s). Resolve conflicts before running lowercase renames:\n  %s", len(treeStatus.ConflictFiles), strings.Join(treeStatus.ConflictFiles, "\n  "))
-		}
-		if len(treeStatus.DirtyFiles) > 0 {
-			if opts.IsDiscardPending {
-				if err := discardGitWorkingTreeChanges(); err != nil {
-					return fmt.Errorf("failed to discard pending changes: %w", err)
-				}
-				fmt.Printf("%s✓ Discarded %d uncommitted pending change(s) before renaming.%s\n\n",
-					constants.ColorYellow, len(treeStatus.DirtyFiles), constants.ColorReset)
-			} else if !opts.IsForce && !opts.IsYes {
-				shouldDiscard, err := promptDiscardPendingConfirmation(treeStatus)
-				if err != nil {
-					return err
-				}
-				if shouldDiscard {
-					if err := discardGitWorkingTreeChanges(); err != nil {
-						return fmt.Errorf("failed to discard pending changes: %w", err)
-					}
-					fmt.Printf("%s✓ Discarded %d uncommitted pending change(s) before renaming.%s\n\n",
-						constants.ColorYellow, len(treeStatus.DirtyFiles), constants.ColorReset)
-				} else {
-					renderCanceledMessage()
-					return nil
-				}
-			}
-		}
+	proceed, prepErr := ensureGitWorkingTreeReady(opts, isGit)
+	if prepErr != nil {
+		return prepErr
+	}
+	if !proceed {
+		return nil
 	}
 
 	pairs, totalScanned, err := findRenameCandidates(cwd, opts)
@@ -150,4 +127,49 @@ func maybeCommitRenames(pairs []RenamePair, opts LowerCaseFixOptions, isGit bool
 	}
 
 	return commitRenames(pairs, opts.CommitMessage, opts.IsNoPush)
+}
+
+func ensureGitWorkingTreeReady(opts LowerCaseFixOptions, isGit bool) (bool, error) {
+	if !isGit || opts.IsDryRun {
+		return true, nil
+	}
+	return prepareGitWorkingTree(opts)
+}
+
+func prepareGitWorkingTree(opts LowerCaseFixOptions) (bool, error) {
+	treeStatus := checkGitWorkingTreeStatus()
+	if treeStatus.HasConflicts {
+		return false, fmt.Errorf("git repository has %d unresolved merge conflict(s). Resolve conflicts before running lowercase renames:\n  %s", len(treeStatus.ConflictFiles), strings.Join(treeStatus.ConflictFiles, "\n  "))
+	}
+	if len(treeStatus.DirtyFiles) == 0 {
+		return true, nil
+	}
+	return handleDirtyWorkingTree(treeStatus, opts)
+}
+
+func handleDirtyWorkingTree(status GitWorkingTreeStatus, opts LowerCaseFixOptions) (bool, error) {
+	if opts.IsDiscardPending {
+		return true, executeDiscardDirty(status)
+	}
+	if opts.IsForce || opts.IsYes {
+		return true, nil
+	}
+	shouldDiscard, err := promptDiscardPendingConfirmation(status)
+	if err != nil {
+		return false, err
+	}
+	if !shouldDiscard {
+		renderCanceledMessage()
+		return false, nil
+	}
+	return true, executeDiscardDirty(status)
+}
+
+func executeDiscardDirty(status GitWorkingTreeStatus) error {
+	if err := discardGitWorkingTreeChanges(); err != nil {
+		return fmt.Errorf("failed to discard pending changes: %w", err)
+	}
+	fmt.Printf("%s✓ Discarded %d uncommitted pending change(s) before renaming.%s\n\n",
+		constants.ColorYellow, len(status.DirtyFiles), constants.ColorReset)
+	return nil
 }

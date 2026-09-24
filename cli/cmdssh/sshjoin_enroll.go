@@ -132,6 +132,17 @@ func resolveTargetAddr(target *SSHTarget) string {
 	return target.IP
 }
 
+var autoTrustTargetHostFn = autoTrustTargetHost
+
+// SetAutoTrustTargetHostForTesting overrides autoTrustTargetHost during unit tests.
+func SetAutoTrustTargetHostForTesting(fn func(ctx context.Context, target *SSHTarget)) func() {
+	prev := autoTrustTargetHostFn
+	autoTrustTargetHostFn = fn
+	return func() {
+		autoTrustTargetHostFn = prev
+	}
+}
+
 func autoTrustTargetHost(ctx context.Context, target *SSHTarget) {
 	isNil := target == nil || target.IP == ""
 	if isNil {
@@ -163,7 +174,7 @@ func resolveTargetClient(ctx context.Context, opts *SSHJoinOptions) enrollSessio
 	}
 
 	trace.AddStep("TCP Reachability", fmt.Sprintf("%s:%d reachable (port 22 open)", opts.Target.IP, opts.Target.Port), "SUCCESS", nil)
-	autoTrustTargetHost(ctx, opts.Target)
+	autoTrustTargetHostFn(ctx, opts.Target)
 	trace.AddStep("Host Key Trust", fmt.Sprintf("auto-trusted %s in known_hosts", resolveTargetAddr(opts.Target)), "SUCCESS", nil)
 
 	hasPass := opts.Password != ""

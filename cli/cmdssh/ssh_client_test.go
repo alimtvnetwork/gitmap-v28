@@ -49,6 +49,7 @@ func TestPromptSSHPassword(t *testing.T) {
 }
 
 func TestSSHClient(t *testing.T) {
+	t.Cleanup(SetAutoTrustTargetHostForTesting(func(context.Context, *SSHTarget) {}))
 	target := SSHTarget{Username: "root", IP: "10.0.0.1"}
 	expected := []string{"-o", "StrictHostKeyChecking=accept-new", "root@10.0.0.1", "ls", "-la"}
 

@@ -3,6 +3,7 @@ package crypto
 import (
 	"fmt"
 	"os"
+	"time"
 
 	"golang.org/x/crypto/ssh"
 )
@@ -13,6 +14,7 @@ func ConnectWithPassword(ip, user, password string) (*ssh.Client, error) {
 		User:            user,
 		Auth:            []ssh.AuthMethod{ssh.Password(password)},
 		HostKeyCallback: ssh.InsecureIgnoreHostKey(),
+		Timeout:         4 * time.Second,
 	}
 
 	return ssh.Dial("tcp", fmt.Sprintf("%s:22", ip), config)
@@ -29,6 +31,7 @@ func ConnectWithKey(ip, user, keyPath string) (*ssh.Client, error) {
 		User:            user,
 		Auth:            []ssh.AuthMethod{ssh.PublicKeys(signer)},
 		HostKeyCallback: ssh.InsecureIgnoreHostKey(),
+		Timeout:         4 * time.Second,
 	}
 
 	return ssh.Dial("tcp", fmt.Sprintf("%s:22", ip), config)

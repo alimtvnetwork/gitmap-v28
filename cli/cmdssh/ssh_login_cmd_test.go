@@ -8,6 +8,7 @@ import (
 	"testing"
 
 	"github.com/alimtvnetwork/gitmap-v28/cli/store"
+	"golang.org/x/crypto/ssh"
 )
 
 var testLoginDBPath string
@@ -33,6 +34,8 @@ func hookTestDB(t *testing.T, db *store.DB) {
 		return db, nil
 	}
 	t.Cleanup(func() { openSSHDB = orig })
+	t.Cleanup(SetConnectProbeClientForTesting(func(*SSHTarget, string) *ssh.Client { return nil }))
+	t.Cleanup(SetAutoTrustTargetHostForTesting(func(context.Context, *SSHTarget) {}))
 }
 
 func hookTestSpawner(t *testing.T) *int {

@@ -95,7 +95,7 @@ func handleHostKeyRecovery(ctx context.Context, target *SSHTarget, errStr string
 		_ = RemoveKnownHostsLine(offPath, lineNum)
 	}
 	_ = PruneHostFromKnownHosts(target.IP, target.Port)
-	autoTrustTargetHost(ctx, target)
+	autoTrustTargetHostFn(ctx, target)
 }
 
 func runSSHOnce(ctx context.Context, target SSHTarget, args []string, password string) (error, string) {
@@ -112,7 +112,7 @@ func runSSHOnce(ctx context.Context, target SSHTarget, args []string, password s
 }
 
 func SpawnSSHWithPassword(ctx context.Context, target SSHTarget, args []string, password string) error {
-	autoTrustTargetHost(ctx, &target)
+	autoTrustTargetHostFn(ctx, &target)
 	err, errStr := runSSHOnce(ctx, target, args, password)
 	if err == nil || !isHostKeyChangedError(errStr) {
 		return err

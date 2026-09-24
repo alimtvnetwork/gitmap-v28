@@ -2,9 +2,12 @@ package cmdssh
 
 import (
 	"context"
+	"fmt"
 	"os"
 	"strings"
 	"testing"
+
+	"golang.org/x/crypto/ssh"
 )
 
 func TestFormatMissingAuthAdvice(t *testing.T) {
@@ -36,6 +39,9 @@ func TestFindDefaultUserSSHKey(t *testing.T) {
 }
 
 func TestConnectWithDefaultKey_Unreachable(t *testing.T) {
+	t.Cleanup(SetCryptoConnectWithKeyForTesting(func(ip, user, keyPath string) (*ssh.Client, error) {
+		return nil, fmt.Errorf("connection refused")
+	}))
 	client, isConnected := connectWithDefaultKey("192.0.2.1", "testuser", "[test]")
 	if isConnected || client != nil {
 		t.Errorf("expected connection failure on TEST-NET IP")

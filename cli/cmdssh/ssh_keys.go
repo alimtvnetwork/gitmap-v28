@@ -55,6 +55,17 @@ func findAllUserSSHKeys() []string {
 	return found
 }
 
+var cryptoConnectWithKeyFn = crypto.ConnectWithKey
+
+// SetCryptoConnectWithKeyForTesting overrides ConnectWithKey in tests.
+func SetCryptoConnectWithKeyForTesting(fn func(ip, user, keyPath string) (*ssh.Client, error)) func() {
+	prev := cryptoConnectWithKeyFn
+	cryptoConnectWithKeyFn = fn
+	return func() {
+		cryptoConnectWithKeyFn = prev
+	}
+}
+
 func connectWithDefaultKey(ip, user, header string) (*ssh.Client, bool) {
 	keys := findAllUserSSHKeys()
 	if len(keys) == 0 {
@@ -62,7 +73,7 @@ func connectWithDefaultKey(ip, user, header string) (*ssh.Client, bool) {
 	}
 
 	for _, keyPath := range keys {
-		client, err := crypto.ConnectWithKey(ip, user, keyPath)
+		client, err := cryptoConnectWithKeyFn(ip, user, keyPath)
 		if err == nil {
 			return client, true
 		}

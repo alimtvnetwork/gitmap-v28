@@ -81,4 +81,36 @@ func TestParseInstallExecArgs_DefaultOSAndForceAll(t *testing.T) {
 	if optsExplicit.TargetOS != "linux" {
 		t.Errorf("expected TargetOS='linux' when explicitly set, got %q", optsExplicit.TargetOS)
 	}
+
+	// 5. Default IsSilent is true, overridden by --no-silent
+	optsSilent := ParseInstallExecArgs([]string{"./setup.exe"})
+	if !optsSilent.IsSilent {
+		t.Errorf("expected IsSilent=true by default")
+	}
+	optsNoSilent := ParseInstallExecArgs([]string{"./setup.exe", "--no-silent"})
+	if optsNoSilent.IsSilent {
+		t.Errorf("expected IsSilent=false when --no-silent is passed")
+	}
+}
+
+func TestBuildRemoteInstallerExecCmd_PayloadDetection(t *testing.T) {
+	// 1. NSIS detection
+	nsisData := []byte("...NullsoftInst...")
+	cmdNSIS, shellNSIS := BuildRemoteInstallerExecCmdWithPayload("windows", "C:\\Temp\\setup.exe", nil, true, nsisData)
+	if shellNSIS != "ps" || !strings.Contains(cmdNSIS, "'-ArgumentList', '/S'") && !strings.Contains(cmdNSIS, "-ArgumentList '/S'") {
+		t.Errorf("expected NSIS to use /S argument, got cmd: %s", cmdNSIS)
+	}
+
+	// 2. Inno Setup detection
+	innoData := []byte("...Inno Setup...")
+	cmdInno, _ := BuildRemoteInstallerExecCmdWithPayload("windows", "C:\\Temp\\setup.exe", nil, true, innoData)
+	if !strings.Contains(cmdInno, "/VERYSILENT") {
+		t.Errorf("expected Inno Setup to use /VERYSILENT, got: %s", cmdInno)
+	}
+
+	// 3. MSI
+	cmdMSI, _ := BuildRemoteInstallerExecCmdWithPayload("windows", "C:\\Temp\\setup.msi", nil, true, nil)
+	if !strings.Contains(cmdMSI, "msiexec.exe") {
+		t.Errorf("expected MSI to invoke msiexec.exe, got: %s", cmdMSI)
+	}
 }

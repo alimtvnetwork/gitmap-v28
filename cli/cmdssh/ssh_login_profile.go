@@ -27,6 +27,17 @@ func isNodeProfiled(ctx context.Context, target, ip string) bool {
 	return errIP == nil && connIP != nil && connIP.OSVersion != "" && !connIP.FirstRunAt.IsZero()
 }
 
+var connectProbeClientFn = connectProbeClient
+
+// SetConnectProbeClientForTesting overrides the probe client connector during tests.
+func SetConnectProbeClientForTesting(fn func(sshTarget *SSHTarget, password string) *ssh.Client) func() {
+	prev := connectProbeClientFn
+	connectProbeClientFn = fn
+	return func() {
+		connectProbeClientFn = prev
+	}
+}
+
 func connectProbeClient(sshTarget *SSHTarget, password string) *ssh.Client {
 	if password == "" {
 		return tryConnectDefaultKey(sshTarget)
@@ -130,7 +141,7 @@ func probeAndEnsureNodeProfile(
 	if isNodeProfiled(ctx, target, sshTarget.IP) {
 		return
 	}
-	client := connectProbeClient(sshTarget, password)
+	client := connectProbeClientFn(sshTarget, password)
 	if client == nil {
 		return
 	}

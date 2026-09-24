@@ -32,21 +32,21 @@ func commitRenames(pairs []RenamePair, customMsg string, isNoPush bool) (string,
 	fmt.Printf("\n%s✓ Committed %d lowercase file rename(s): %q (%s)%s\n",
 		constants.ColorGreen, len(pairs), msg, shortSHA, constants.ColorReset)
 
-	isPushed := false
-	if !isNoPush {
-		if pushErr := executeGitPush(); pushErr != nil {
-			fmt.Printf("%s⚠️  Git commit created (%s), but git push failed: %v%s\n\n",
-				constants.ColorYellow, shortSHA, pushErr, constants.ColorReset)
-		} else {
-			isPushed = true
-			fmt.Printf("%s✓ Pushed commit (%s) to remote tracking branch%s\n\n",
-				constants.ColorGreen, shortSHA, constants.ColorReset)
-		}
-	} else {
+	if isNoPush {
 		fmt.Println()
+		return sha, false, nil
 	}
 
-	return sha, isPushed, nil
+	pushErr := executeGitPush()
+	if pushErr != nil {
+		fmt.Printf("%s⚠️  Git commit created (%s), but git push failed: %v%s\n\n",
+			constants.ColorYellow, shortSHA, pushErr, constants.ColorReset)
+		return sha, false, nil
+	}
+
+	fmt.Printf("%s✓ Pushed commit (%s) to remote tracking branch%s\n\n",
+		constants.ColorGreen, shortSHA, constants.ColorReset)
+	return sha, true, nil
 }
 
 func executeGitPush() error {

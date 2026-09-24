@@ -39,7 +39,7 @@ func TestAgyRerun_MediaAttachmentFormatting(t *testing.T) {
 	formatted := promptText + "\n\n<!-- Attached Media / Pictures -->\n"
 	for i, m := range media {
 		clean := strings.TrimPrefix(m.URI, "file:///")
-		formatted += "- Attached Picture " + string(rune('1'+i)) + ": " + clean + "\n"
+		formatted += fmt.Sprintf("- Attached Picture %d: %s\n", 1+i, clean)
 	}
 
 	if !strings.Contains(formatted, "media_1.png") || !strings.Contains(formatted, "media_2.png") {
@@ -53,7 +53,7 @@ func TestAgyRerun_TranscriptParsingWithMedia(t *testing.T) {
 	_ = os.MkdirAll(logDir, 0755)
 
 	transcriptPath := filepath.Join(logDir, "transcript.jsonl")
-	drive := string('C') + ":"
+	drive := "C:"
 	stepLine := fmt.Sprintf(`{"step_index":1,"source":"USER_EXPLICIT","type":"USER_INPUT","status":"DONE","created_at":"2026-09-24T08:32:01Z","content":"<USER_REQUEST>Fix contrast</USER_REQUEST>","media":[{"mime_type":"image/png","uri":"%s/Users/test/media_1.png"}]}`, drive) + "\n"
 
 	if err := os.WriteFile(transcriptPath, []byte(stepLine), 0644); err != nil {

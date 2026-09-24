@@ -82,10 +82,7 @@ func renderSummaryDetails(s RenameSummary) {
 
 func renderGitOrFSStatus(s RenameSummary) {
 	if s.IsGitRepo && s.CommitSHA != "" {
-		pushInfo := ""
-		if s.IsPushed {
-			pushInfo = " & Pushed to remote"
-		}
+		pushInfo := resolvePushInfo(s.IsPushed)
 		fmt.Printf("  ● Git Status:          Committed (%s)%s\n", s.CommitSHA[:minLen(8, len(s.CommitSHA))], pushInfo)
 		return
 	}
@@ -94,6 +91,13 @@ func renderGitOrFSStatus(s RenameSummary) {
 		return
 	}
 	fmt.Printf("  ● Filesystem Status:   Renamed on disk (non-git directory)\n")
+}
+
+func resolvePushInfo(isPushed bool) string {
+	if isPushed {
+		return " & Pushed to remote"
+	}
+	return ""
 }
 
 func renderManipulationSteps(s RenameSummary) {
@@ -111,16 +115,20 @@ func renderGitManipulationSteps(s RenameSummary) {
 	fmt.Printf("    2. Step 2 (Target Rename):   git mv <file>.tmp-lcf <file_lowercase>\n")
 	fmt.Printf("       Registers true case rename in Git index tree\n")
 	fmt.Printf("    3. Step 3 (Index Sync):      git add -A\n")
-	if s.CommitSHA != "" {
-		fmt.Printf("    4. Step 4 (Atomic Commit):   git commit -m \"chore: rename ...\"\n")
-		if s.IsPushed {
-			fmt.Printf("    5. Step 5 (Remote Push):     git push origin <branch>\n")
-		} else {
-			fmt.Printf("    5. Step 5 (Skip Push):       Push skipped (--no-push specified or push failed)\n")
-		}
+	if s.CommitSHA == "" {
+		fmt.Printf("    4. Step 4 (Skip Commit):     Staged without committing (--no-commit specified)\n")
 		return
 	}
-	fmt.Printf("    4. Step 4 (Skip Commit):     Staged without committing (--no-commit specified)\n")
+	fmt.Printf("    4. Step 4 (Atomic Commit):   git commit -m \"chore: rename ...\"\n")
+	renderPushStep(s.IsPushed)
+}
+
+func renderPushStep(isPushed bool) {
+	if isPushed {
+		fmt.Printf("    5. Step 5 (Remote Push):     git push origin <branch>\n")
+		return
+	}
+	fmt.Printf("    5. Step 5 (Skip Push):       Push skipped (--no-push specified or push failed)\n")
 }
 
 func renderFSManipulationSteps() {
