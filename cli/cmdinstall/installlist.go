@@ -22,7 +22,7 @@ var (
 	unknownDot   = lipgloss.NewStyle().Foreground(lipgloss.Color("#f1fa8c")).Render("?")
 	toolStyle    = lipgloss.NewStyle().Foreground(lipgloss.Color("#f8f8f2")).Width(22)
 	versionStyle = lipgloss.NewStyle().Foreground(lipgloss.Color("#8be9fd")).Width(14)
-	descStyle    = lipgloss.NewStyle().Foreground(lipgloss.Color("#6272a4"))
+	descStyle    = lipgloss.NewStyle().Foreground(lipgloss.Color("#a6adc8"))
 )
 
 func printInstallListGrouped() {

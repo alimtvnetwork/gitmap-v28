@@ -78,6 +78,8 @@ func routeVSCodeMaintenanceAction(sub string, args []string) result.ErrorWrapper
 		return result.MatchWrapper(runVSCodeGroup(args[1:]))
 	case "find-duplicates", "duplicates", "dups", "find-dups":
 		return result.MatchWrapper(runFindDuplicatesVSCode())
+	case "repair", "fix", "doctor":
+		return result.MatchWrapper(runVSCodeRepair(args[1:]))
 	default:
 		printVSCodeUsage()
 

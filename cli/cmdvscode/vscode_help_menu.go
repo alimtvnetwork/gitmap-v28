@@ -25,6 +25,7 @@ func buildVSCodeHelpMenu() termhelp.HelpMenu {
 		Tips: []string{
 			"Use 'gitmap code <alias> <path>' to register and open directly in VS Code.",
 			"Run 'gitmap vscode optimize-projects' to purge duplicate paths from projects.json.",
+			"Run 'gitmap vscode repair' to fix startup crashes (ICU error) and sync projects.json.",
 		},
 	}
 }
@@ -56,6 +57,7 @@ func buildVSCodeDiagnosticsSection() termhelp.HelpSection {
 			{Command: "optimize-projects", Description: "Clean up and deduplicate identical workspace paths"},
 			{Command: "find-duplicates", Description: "Detect multiple aliases pointing to the same folder"},
 			{Command: "clear (clean)", Description: "Purge broken and non-existent project references"},
+			{Command: "repair (fix)", Description: "Diagnose & repair VS Code executable and projects.json"},
 		},
 	}
 }

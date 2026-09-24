@@ -12,6 +12,11 @@ import (
 	"github.com/alimtvnetwork/gitmap-v28/cli/constants"
 )
 
+// WriteEntries writes entries atomically to path.
+func WriteEntries(path string, entries []Entry) error {
+	return writeEntriesAtomic(path, entries)
+}
+
 // writeEntriesAtomic encodes entries to a sibling .tmp then renames.
 // On Windows, os.Rename overwrites the destination; on Unix it does too,
 // but we explicitly remove the destination first if rename fails to keep

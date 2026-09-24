@@ -102,7 +102,7 @@ func printPendingReposList(items []RemediationItem) {
 
 func printPendingRepoEntry(idx int, item RemediationItem) {
 	titleStyle := lipgloss.NewStyle().Bold(true).Foreground(lipgloss.Color("#50fa7b"))
-	dimStyle := lipgloss.NewStyle().Foreground(lipgloss.Color("#6272a4"))
+	dimStyle := lipgloss.NewStyle().Foreground(lipgloss.Color("#a6adc8"))
 	cmdStyle := lipgloss.NewStyle().Foreground(lipgloss.Color("#8be9fd"))
 	reason := item.SummaryReason
 	if reason == "" {

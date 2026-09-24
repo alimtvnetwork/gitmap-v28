@@ -13,7 +13,7 @@ var (
 	keyStyle    = lipgloss.NewStyle().Foreground(lipgloss.Color("#f8f8f2")).Width(14)
 	valStyle    = lipgloss.NewStyle().Foreground(lipgloss.Color("#50fa7b"))
 	warnStyle   = lipgloss.NewStyle().Foreground(lipgloss.Color("#ff5555"))
-	dimStyle    = lipgloss.NewStyle().Foreground(lipgloss.Color("#6272a4"))
+	dimStyle    = lipgloss.NewStyle().Foreground(lipgloss.Color("#a6adc8"))
 )
 
 func runCargoStatus() error {

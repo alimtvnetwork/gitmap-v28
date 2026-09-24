@@ -74,7 +74,7 @@ func printOverflowNote(totalCount, maxShowCount int) {
 		return
 	}
 
-	dimStyle := lipgloss.NewStyle().Foreground(lipgloss.Color("#6272a4"))
+	dimStyle := lipgloss.NewStyle().Foreground(lipgloss.Color("#a6adc8"))
 	remainingCount := totalCount - maxShowCount
 	fmt.Printf("      %s\n", dimStyle.Render(fmt.Sprintf("... and %d more files", remainingCount)))
 }
@@ -125,7 +125,7 @@ func printRepoDirtyFiles(item *RemediationItem) {
 }
 
 func printPromptOptions() {
-	dimStyle := lipgloss.NewStyle().Foreground(lipgloss.Color("#6272a4"))
+	dimStyle := lipgloss.NewStyle().Foreground(lipgloss.Color("#a6adc8"))
 	fmt.Println("    Remediation Options:")
 	fmt.Printf("      [1] %-18s %s\n", "Stash & Re-apply", dimStyle.Render("Stash local changes (-u), pull remote, then pop stash"))
 	fmt.Printf("      [2] %-18s %s\n", "Commit WIP", dimStyle.Render("Commit all modified/untracked files, then pull --rebase"))
@@ -151,7 +151,7 @@ func resolvePromptChoice(choice string) (string, bool) {
 
 func promptSingleRepo(reader *bufio.Reader, idx, total int, item *RemediationItem) (string, bool) {
 	titleStyle := lipgloss.NewStyle().Bold(true).Foreground(lipgloss.Color("#50fa7b"))
-	dimStyle := lipgloss.NewStyle().Foreground(lipgloss.Color("#6272a4"))
+	dimStyle := lipgloss.NewStyle().Foreground(lipgloss.Color("#a6adc8"))
 	promptStyle := lipgloss.NewStyle().Bold(true).Foreground(lipgloss.Color("#8be9fd"))
 	fmt.Printf("\n[%d/%d] %s %s\n", idx, total, titleStyle.Render(item.RepoName), dimStyle.Render("("+item.SummaryReason+")"))
 	if len(item.RepoPath) > 0 {
