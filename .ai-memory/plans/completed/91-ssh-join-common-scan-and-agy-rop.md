@@ -1,6 +1,7 @@
 # Completed Plan 91: SSH Batch Common Join, Subnet Scanner, OS Metadata, AGY Project Re-Read & Optimization, and AUM Benchmarking
 
 Spec Reference: [02-spec/21-app/141-ssh-join-common-scan-and-agy-rop.md](../../02-spec/21-app/141-ssh-join-common-scan-and-agy-rop.md)
+Subtasks: [.ai-memory/plans/subtasks/91-ssh-join-common-scan-and-agy-rop/](../subtasks/91-ssh-join-common-scan-and-agy-rop/)
 
 ## User Request (Verbatim)
 

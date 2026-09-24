@@ -143,4 +143,5 @@ Master directory of architectural and execution plans.
 
 ## Subtasks
 
-Zero active subtask directories. All historical subtask sets have been synthesized and folded directly into their parent consolidated milestone documents in completed/.
+- [91-ssh-join-common-scan-and-agy-rop](subtasks/91-ssh-join-common-scan-and-agy-rop/): 5 subtask specifications for SSH batch common join, subnet scanner, OS detection/info, AGY ROP, and AUM search benchmarks (completed in Plan 91).
+- [52-winutil-linutil](subtasks/): 5 subtasks (52.1–52.5) for advanced WinUtil & LinUtil native Go integration (DM, privacy tweaks, DNS switcher, updater, Bubbletea TUI).
