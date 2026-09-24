@@ -1,3 +1,9 @@
+## v6.329.0 — 2026-09-24 (ssh exec except-os filter and install-exec deployment)
+
+**Scope:** Version bump. ssh exec except-os filter and install-exec deployment.
+
+---
+
 ## v6.328.0 — 2026-09-24 (add preflight confirmation and -y prompt bypass to lowercase renamer)
 
 **Scope:** Version bump. add preflight confirmation and -y prompt bypass to lowercase renamer.

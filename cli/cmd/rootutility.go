@@ -237,6 +237,7 @@ func utilityToolEntries() []dispatchEntry {
 		{[]string{constants.CmdReinstall}, func() error { return runReinstall(argsTail()) }},
 		{[]string{"peat", "pea"}, func() error { return runPeatCmd(argsTail()) }},
 		{[]string{"deploy"}, func() error { return runDeployCmd(argsTail()) }},
+		{[]string{"install-exec", "in-exec", "setup-exec"}, func() error { return cmdssh.RunSSHInstallExecCLI(argsTail()) }},
 	}
 }
 

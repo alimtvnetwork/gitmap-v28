@@ -31,6 +31,11 @@ func RunSSHExec(args []string) error {
 	return runSSHExec(args)
 }
 
+// RunSSHInstallExec executes ssh install-exec subcommand.
+func RunSSHInstallExec(args []string) error {
+	return RunSSHInstallExecCLI(args)
+}
+
 // RunSSHCopyCLI executes ssh copy subcommand.
 func RunSSHCopyCLI(args []string) error {
 	return runSSHCopyCLI(args)

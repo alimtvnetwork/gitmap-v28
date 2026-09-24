@@ -57,7 +57,7 @@ func printSSHInstallExecHelp() {
 	fmt.Println("      --except string     Exclude machines by ID (1, worker-1), alias, or IP")
 	fmt.Println("      --except-os string  Exclude machines by OS (e.g. unix, win, linux, ubuntu, darwin)")
 	fmt.Println("      --os string         Target machines by OS (e.g. win, unix, linux, darwin)")
-	fmt.Println("      --dest string       Remote directory for setup (default: %TEMP% on Windows, /tmp on Unix)")
+	fmt.Println("      --dest string       Remote directory for setup (default: Windows Temp directory, /tmp on Unix)")
 	fmt.Println("  -s, --silent            Append silent unattended switch if not already provided")
 	fmt.Println("  -n, --dry-run           Simulate file transfer and execution without running")
 	fmt.Println("  -h, --help              Show this help message")
@@ -163,24 +163,24 @@ func BuildRemoteInstallerExecCmd(osType, remotePath string, installerArgs []stri
 
 	if isWin {
 		if ext == ".msi" {
-			cmd := fmt.Sprintf(`powershell -NoProfile -Command "$p = '%s'; $proc = Start-Process msiexec.exe -ArgumentList @('/i', "`"$p`"", '%s') -Wait -PassThru; exit $proc.ExitCode"`, remotePath, argsStr)
+			cmd := fmt.Sprintf("powershell -NoProfile -Command \"$p = '%s'; $proc = Start-Process msiexec.exe -ArgumentList @('/i', $p, '%s') -Wait -PassThru; exit $proc.ExitCode\"", remotePath, argsStr)
 			return cmd, "ps"
 		}
 		if ext == ".ps1" {
-			cmd := fmt.Sprintf(`powershell -NoProfile -ExecutionPolicy Bypass -File '%s' %s`, remotePath, argsStr)
+			cmd := fmt.Sprintf("powershell -NoProfile -ExecutionPolicy Bypass -File \"%s\" %s", remotePath, argsStr)
 			return cmd, "ps"
 		}
 		if ext == ".bat" || ext == ".cmd" {
-			cmd := fmt.Sprintf(`cmd.exe /c "%s %s"`, remotePath, argsStr)
+			cmd := fmt.Sprintf("cmd.exe /c \"%s %s\"", remotePath, argsStr)
 			return cmd, "cmd"
 		}
 		// Default Windows .exe execution
-		cmd := fmt.Sprintf(`powershell -NoProfile -Command "$p = '%s'; $proc = Start-Process -FilePath $p -ArgumentList '%s' -Wait -PassThru; exit $proc.ExitCode"`, remotePath, argsStr)
+		cmd := fmt.Sprintf("powershell -NoProfile -Command \"$p = '%s'; $proc = Start-Process -FilePath $p -ArgumentList '%s' -Wait -PassThru; exit $proc.ExitCode\"", remotePath, argsStr)
 		return cmd, "ps"
 	}
 
 	// Linux / Unix / macOS
-	cmd := fmt.Sprintf(`chmod +x '%s' && '%s' %s`, remotePath, remotePath, argsStr)
+	cmd := fmt.Sprintf("chmod +x '%s' && '%s' %s", remotePath, remotePath, argsStr)
 	return cmd, "bash"
 }
 
@@ -329,9 +329,9 @@ func resolveRemoteTempPath(osType, fileName, customDest string) string {
 	}
 
 	if isWindowsOS(osType) {
-		return fmt.Sprintf(`C:\Windows\Temp\%s`, fileName)
+		return "C:\\Windows\\Temp\\" + fileName
 	}
-	return fmt.Sprintf(`/tmp/%s`, fileName)
+	return "/tmp/" + fileName
 }
 
 func renderInstallExecResultsTable(fileName string, results []NodeInstallExecResult) {

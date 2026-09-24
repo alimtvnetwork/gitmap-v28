@@ -1,8 +1,8 @@
 # Spec 152: SSH Execution OS Filtering (`--except-os`), Multi-Command Sequencing, and Remote Installer Deployment (`gitmap ssh install-exec`)
 
 > **Spec ID:** `SPEC-152`  
-> **Version:** `v6.328.0`  
-> **Status:** Draft / Active  
+> **Version:** `v6.329.0`  
+> **Status:** Completed / Released  
 > **Date:** 2026-09-24  
 
 ---
