@@ -23,6 +23,7 @@ type rerunRestartPlan struct {
 	PromptText     string
 	MediaCount     int
 	MediaPaths     []string
+	QueuedEntries  []AgyPromptQueueEntry
 	OldPID         int
 	IsRestarted    bool
 }
@@ -76,8 +77,9 @@ func buildRerunRestartPlan(projects []AgyProject, target, templateID string) (re
 	}
 
 	promptEntry, convID := extractLastPromptForProject(ws)
-	payload := composeRerunPayload(promptEntry, templateID)
-	mediaPaths := extractMediaURIs(promptEntry.Media)
+	mediaPaths := ExtractAllImagePathsFromPrompt(promptEntry.Content, promptEntry.Media)
+	payload := composeRerunPayloadWithPaths(promptEntry, templateID, mediaPaths)
+	queued, _ := RequeuePendingWithCheckPrefix(rerunPrefixFlag)
 
 	return rerunRestartPlan{
 		Project:        proj,
@@ -85,8 +87,9 @@ func buildRerunRestartPlan(projects []AgyProject, target, templateID string) (re
 		ConvID:         convID,
 		WorkspacePath:  ws,
 		PromptText:     payload,
-		MediaCount:     len(promptEntry.Media),
+		MediaCount:     len(mediaPaths),
 		MediaPaths:     mediaPaths,
+		QueuedEntries:  queued,
 	}, nil
 }
 
@@ -152,24 +155,18 @@ func tryExtractMatchingConvPrompt(workspace string) (AgyPromptEntry, string, boo
 	return prompts[len(prompts)-1], conv.ID, true
 }
 
-func composeRerunPayload(promptEntry AgyPromptEntry, templateID string) string {
+func composeRerunPayloadWithPaths(promptEntry AgyPromptEntry, templateID string, mediaPaths []string) string {
 	tplContent := resolveRerunTemplate(templateID)
 	basePrompt := promptEntry.Content
 	if tplContent != "" && !strings.Contains(basePrompt, tplContent) {
 		basePrompt = tplContent + "\n\n" + basePrompt
 	}
 
-	return FormatPromptWithMedia(basePrompt, promptEntry.Media)
-}
-
-func extractMediaURIs(media []rawTranscriptMedia) []string {
-	var paths []string
-	for _, m := range media {
-		clean := strings.TrimPrefix(m.URI, "file:///")
-		paths = append(paths, filepath.FromSlash(clean))
+	var mediaList []rawTranscriptMedia
+	for _, p := range mediaPaths {
+		mediaList = append(mediaList, rawTranscriptMedia{MimeType: "image/png", URI: p})
 	}
-
-	return paths
+	return FormatPromptWithMedia(basePrompt, mediaList)
 }
 
 func executeIDERestart(plan *rerunRestartPlan) {
@@ -236,6 +233,12 @@ func renderRerunPlanHeader(plan rerunRestartPlan) {
 		fmt.Printf("  • Pictures Attached: %d media item(s)\n", plan.MediaCount)
 		for i, mp := range plan.MediaPaths {
 			fmt.Printf("      [%d] %s\n", i+1, mp)
+		}
+	}
+	if len(plan.QueuedEntries) > 0 {
+		fmt.Printf("  • Queued Prompts Re-Injected with Check Prefix: %d item(s)\n", len(plan.QueuedEntries))
+		for i, q := range plan.QueuedEntries {
+			fmt.Printf("      [Queue #%d] %s -> [Status: %s]\n", i+1, q.Title, q.Status)
 		}
 	}
 	fmt.Println()
