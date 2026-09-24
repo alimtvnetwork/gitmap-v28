@@ -1,3 +1,9 @@
+## v6.335.0 — 2026-09-24 (prune unused functions and finalize v6.335.0 release)
+
+**Scope:** Version bump. prune unused functions and finalize v6.335.0 release.
+
+---
+
 ## v6.334.0 — 2026-09-24 (fix CI/CD quality gates, relative paths, boolean conventions, nested ifs, and gofmt)
 
 **Scope:** Version bump. fix CI/CD quality gates, relative paths, boolean conventions, nested ifs, and gofmt.

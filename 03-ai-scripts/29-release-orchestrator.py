@@ -30,6 +30,7 @@ import os
 import re
 import subprocess
 import sys
+import time
 from pathlib import Path
 
 # Repository root discovery
@@ -338,7 +339,8 @@ def merge_release_to_main(release_branch, main_branch="main", dry_run=False):
 
     print(f"[*] Step 5a: Checking out '{main_branch}' and merging '{release_branch}'...")
     run_cmd(["git", "checkout", main_branch])
-    run_cmd(["git", "merge", release_branch])
+    time.sleep(1)
+    run_cmd(["git", "merge", "--no-edit", release_branch])
     print(f"[OK] Merged release branch '{release_branch}' into '{main_branch}'.")
 
 

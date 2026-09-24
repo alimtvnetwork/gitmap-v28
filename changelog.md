@@ -1,3 +1,15 @@
+## [v6.335.0] 2026-09-24 Release v6.335.0
+
+### Install GitMap v6.335.0
+
+To pin your repository to this exact version, run the following one-liner:
+Unix/Bash: `curl -sL https://raw.githubusercontent.com/alimtvnetwork/gitmap-v28/v6.335.0/install.sh | bash -s -- ".ai-memory/prompts" "v6.335.0"`
+PowerShell: `Invoke-WebRequest -Uri https://raw.githubusercontent.com/alimtvnetwork/gitmap-v28/v6.335.0/install.ps1 -OutFile install.ps1; .\install.ps1 -TargetDir ".ai-memory/prompts" -Version "v6.335.0"`
+
+### Added / Changed / Fixed / Removed
+
+- prune unused functions and finalize v6.335.0 release
+
 ## [v6.334.0] 2026-09-24 Release v6.334.0
 
 ### Install GitMap v6.334.0
