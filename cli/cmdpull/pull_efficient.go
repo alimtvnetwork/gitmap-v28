@@ -239,17 +239,6 @@ func renderEfficientResults(states []*PullRepoState, inactive []InactiveRepoDeta
 	renderEfficientPullSummary(states, inactive)
 }
 
-func renderConciseActiveResults(states []*PullRepoState) {
-	fmt.Println()
-	for _, s := range states {
-		statusLabel := s.Changes
-		if statusLabel == "" || statusLabel == "synced" {
-			statusLabel = "up-to-date"
-		}
-		fmt.Printf("    • %-26s %s\n", s.RepoName, statusLabel)
-	}
-}
-
 func renderEfficientPullSummary(states []*PullRepoState, inactive []InactiveRepoDetail) {
 	fmt.Printf("\n  %s✓%s %sPull efficient complete:%s %d active pulled, %d inactive skipped\n",
 		constants.ColorGreen, constants.ColorReset,

@@ -57,12 +57,12 @@ func TestTempE2E_SemverComparisonAndNodeStatus(t *testing.T) {
 		t.Fatalf("expected IDENTICAL status, got %q", sameStatus)
 	}
 
-	aboveStatus := cmdssh.ResolveNodeVersionComparisonForTest("v6.330.0", true)
+	aboveStatus := cmdssh.ResolveNodeVersionComparisonForTest("v99.0.0", true)
 	if !strings.Contains(aboveStatus, "ABOVE") && !strings.Contains(aboveStatus, "NEWER") {
 		t.Fatalf("expected ABOVE status, got %q", aboveStatus)
 	}
 
-	belowStatus := cmdssh.ResolveNodeVersionComparisonForTest("v6.320.0", true)
+	belowStatus := cmdssh.ResolveNodeVersionComparisonForTest("v1.0.0", true)
 	if !strings.Contains(belowStatus, "BELOW") && !strings.Contains(belowStatus, "OLDER") {
 		t.Fatalf("expected BELOW status, got %q", belowStatus)
 	}

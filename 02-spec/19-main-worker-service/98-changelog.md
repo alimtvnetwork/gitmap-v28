@@ -1,3 +1,9 @@
+## v6.330.0 — 2026-09-24 (fix output column width for gitmap pae)
+
+**Scope:** Version bump. fix output column width for gitmap pae.
+
+---
+
 ## v6.329.0 — 2026-09-24 (ssh exec except-os filter and install-exec deployment)
 
 **Scope:** Version bump. ssh exec except-os filter and install-exec deployment.
