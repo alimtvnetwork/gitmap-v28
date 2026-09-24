@@ -71,15 +71,6 @@ func stripForceFlag(args []string) []string {
 	return clean
 }
 
-func hasForceAllFlag(args []string) bool {
-	for _, a := range args {
-		if a == "--force-all" || a == "-f" || a == "force-all" {
-			return true
-		}
-	}
-	return false
-}
-
 func printPowerShellMissingAdvice() {
 	printPowerShellMissingHeader()
 	printPowerShellInstallOptions()

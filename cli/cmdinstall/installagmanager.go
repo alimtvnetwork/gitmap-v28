@@ -81,19 +81,11 @@ func resolveAgManagerPlatformName() string {
 	return "curl | bash"
 }
 
-func dispatchAgManagerScript() error {
-	return dispatchAgManagerScriptWithVersion("")
-}
-
 func dispatchAgManagerScriptWithVersion(version string) error {
 	if runtime.GOOS == "windows" {
 		return dispatchAgManagerWindowsWithVersion(version)
 	}
 	return dispatchAgManagerUnixWithVersion(version)
-}
-
-func dispatchAgManagerWindows() error {
-	return dispatchAgManagerWindowsWithVersion("")
 }
 
 func dispatchAgManagerWindowsWithVersion(version string) error {
@@ -111,10 +103,6 @@ func dispatchAgManagerWindowsWithVersion(version string) error {
 	cmd.Stderr = os.Stderr
 	cmd.Stdin = os.Stdin
 	return cmd.Run()
-}
-
-func dispatchAgManagerUnix() error {
-	return dispatchAgManagerUnixWithVersion("")
 }
 
 func dispatchAgManagerUnixWithVersion(version string) error {

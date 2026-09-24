@@ -189,9 +189,3 @@ func resolveRemoteUpdateCommand(osType, pkg string) string {
 		return "curl -fsSL https://raw.githubusercontent.com/alimtvnetwork/gitmap-v28/main/cli/scripts/install.sh | bash"
 	}
 }
-
-func executeRemoteUpdate(client *ssh.Client, header, osType, pkg string) {
-	cmd := resolveRemoteUpdateCommand(osType, pkg)
-	out, err := crypto.RunCommand(client, cmd, resolveRemoteShell(osType))
-	reportRemoteExecution(header, "Updated", out, err)
-}
