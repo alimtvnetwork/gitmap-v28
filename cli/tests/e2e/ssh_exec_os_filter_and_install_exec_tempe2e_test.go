@@ -3,12 +3,14 @@
 package e2e
 
 import (
+	"fmt"
 	"os"
 	"path/filepath"
 	"strings"
 	"testing"
 
 	"github.com/alimtvnetwork/gitmap-v28/cli/cmdssh"
+	"github.com/alimtvnetwork/gitmap-v28/cli/crypto"
 	"github.com/alimtvnetwork/gitmap-v28/cli/db"
 )
 
@@ -159,5 +161,73 @@ func TestTempE2E_SSHInstallExecDryRun(t *testing.T) {
 	err := cmdssh.RunSSHInstallExecCLI([]string{dummySetup, "/S", "--dry-run", "--except-os", "unix"})
 	if err != nil {
 		t.Fatalf("expected dry-run to exit cleanly, got error: %v", err)
+	}
+}
+
+// TestTempE2E_SSHInstallExecStreamingAndOSProbing verifies pure SSH streaming upload and OS probing on live nodes.
+func TestTempE2E_SSHInstallExecStreamingAndOSProbing(t *testing.T) {
+	requireTempE2EEnvSpec152(t)
+
+	conns, err := cmdssh.FetchAllSSHConnectionsForTest()
+	if err != nil || len(conns) == 0 {
+		t.Skip("Skipping live test: no registered SSH connections available")
+	}
+
+	if len(conns) < 5 {
+		t.Fatalf("expected at least 5 registered nodes from database fallback, got %d", len(conns))
+	}
+
+	for _, alias := range []string{"w1", "w2"} {
+		var targetConn *db.SSHConnection
+		for i := range conns {
+			if conns[i].Alias == alias {
+				targetConn = &conns[i]
+				break
+			}
+		}
+		if targetConn == nil {
+			continue
+		}
+
+		client, isConnected := cmdssh.ConnectSSHClientForTest(*targetConn)
+		if !isConnected {
+			t.Logf("Node %s is unreachable or unauthenticated, skipping", targetConn.Alias)
+			continue
+		}
+
+		// Verify OS probe detects windows
+		probedOS := cmdssh.ProbeRemoteOSTypeForTest(client)
+		if probedOS != "windows" {
+			client.Close()
+			t.Fatalf("expected probed OS 'windows' for %s, got %q", targetConn.Alias, probedOS)
+		}
+
+		payloadSize := 128 * 1024
+		payload := make([]byte, payloadSize)
+		for i := range payload {
+			payload[i] = byte(i % 256)
+		}
+
+		remotePath := fmt.Sprintf(`C:\Windows\Temp\test_stream_verify_%s.bin`, alias)
+		errStream := cmdssh.StreamFileToRemote(client, remotePath, payload, probedOS)
+		if errStream != nil {
+			client.Close()
+			t.Fatalf("StreamFileToRemote failed on %s: %v", alias, errStream)
+		}
+
+		out, errCmd := crypto.RunCommand(client, fmt.Sprintf(`powershell -NoProfile -Command "(Get-Item '%s').Length"`, remotePath), "ps")
+		if errCmd != nil {
+			client.Close()
+			t.Fatalf("failed to query file length on %s: %v", alias, errCmd)
+		}
+		trimmed := strings.TrimSpace(out)
+		expectedStr := fmt.Sprintf("%d", payloadSize)
+		if !strings.Contains(trimmed, expectedStr) {
+			client.Close()
+			t.Fatalf("expected remote file length %s on %s, got %q", expectedStr, alias, trimmed)
+		}
+
+		_, _ = crypto.RunCommand(client, fmt.Sprintf(`powershell -NoProfile -Command "Remove-Item -Force '%s' 2>$null"`, remotePath), "ps")
+		client.Close()
 	}
 }

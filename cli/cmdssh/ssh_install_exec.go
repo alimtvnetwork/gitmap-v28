@@ -13,6 +13,7 @@ import (
 	"github.com/alimtvnetwork/gitmap-v28/cli/constants"
 	"github.com/alimtvnetwork/gitmap-v28/cli/crypto"
 	"github.com/alimtvnetwork/gitmap-v28/cli/db"
+	"github.com/alimtvnetwork/gitmap-v28/cli/store"
 )
 
 // SSHInstallExecOptions represents parsed options for remote installer execution.
@@ -163,20 +164,22 @@ func BuildRemoteInstallerExecCmd(osType, remotePath string, installerArgs []stri
 
 	if isWin {
 		if ext == ".msi" {
-			cmd := fmt.Sprintf("powershell -NoProfile -Command \"$p = '%s'; $proc = Start-Process msiexec.exe -ArgumentList @('/i', $p, '%s') -Wait -PassThru; exit $proc.ExitCode\"", remotePath, argsStr)
-			return cmd, "ps"
+			if argsStr == "" {
+				return fmt.Sprintf("$p = '%s'; $proc = Start-Process msiexec.exe -ArgumentList @('/i', $p) -Wait -PassThru; exit $proc.ExitCode", remotePath), "ps"
+			}
+			return fmt.Sprintf("$p = '%s'; $proc = Start-Process msiexec.exe -ArgumentList @('/i', $p, '%s') -Wait -PassThru; exit $proc.ExitCode", remotePath, argsStr), "ps"
 		}
 		if ext == ".ps1" {
-			cmd := fmt.Sprintf("powershell -NoProfile -ExecutionPolicy Bypass -File \"%s\" %s", remotePath, argsStr)
-			return cmd, "ps"
+			return fmt.Sprintf("powershell -NoProfile -ExecutionPolicy Bypass -File \"%s\" %s", remotePath, argsStr), "cmd"
 		}
 		if ext == ".bat" || ext == ".cmd" {
-			cmd := fmt.Sprintf("cmd.exe /c \"%s %s\"", remotePath, argsStr)
-			return cmd, "cmd"
+			return fmt.Sprintf("\"%s\" %s", remotePath, argsStr), "cmd"
 		}
 		// Default Windows .exe execution
-		cmd := fmt.Sprintf("powershell -NoProfile -Command \"$p = '%s'; $proc = Start-Process -FilePath $p -ArgumentList '%s' -Wait -PassThru; exit $proc.ExitCode\"", remotePath, argsStr)
-		return cmd, "ps"
+		if argsStr == "" {
+			return fmt.Sprintf("$p = '%s'; $proc = Start-Process -FilePath $p -Wait -PassThru; exit $proc.ExitCode", remotePath), "ps"
+		}
+		return fmt.Sprintf("$p = '%s'; $proc = Start-Process -FilePath $p -ArgumentList '%s' -Wait -PassThru; exit $proc.ExitCode", remotePath, argsStr), "ps"
 	}
 
 	// Linux / Unix / macOS
@@ -283,21 +286,23 @@ func executeInstallerOnSingleNode(c db.SSHConnection, fileName string, data []by
 	}
 	defer client.Close()
 
-	if c.OS == "" {
-		c.OS = probeRemoteOSType(client)
-		res.OS = c.OS
+	probedOS := probeRemoteOSType(client)
+	if probedOS != "" {
+		if probedOS != c.OS {
+			c.OS = probedOS
+			persistUpdatedNodeOS(c)
+		}
+		res.OS = probedOS
 	}
 
 	remoteDestPath := resolveRemoteTempPath(c.OS, fileName, opts.DestDir)
 	res.RemotePath = remoteDestPath
 
 	// 1. Stream binary over pure SSH channel
-	writeCmd := buildRemoteWriteCmd(remoteDestPath, data, isWindowsOS(c.OS))
-	shell := determineFallbackShell(c.OS)
-	_, errWrite := crypto.RunCommand(client, writeCmd, shell)
-	if errWrite != nil {
+	errStream := StreamFileToRemote(client, remoteDestPath, data, c.OS)
+	if errStream != nil {
 		res.Status = "✗ UPLOAD FAILED"
-		res.Error = errWrite.Error()
+		res.Error = errStream.Error()
 		return res
 	}
 
@@ -318,6 +323,20 @@ func executeInstallerOnSingleNode(c db.SSHConnection, fileName string, data []by
 	}
 
 	return res
+}
+
+func persistUpdatedNodeOS(c db.SSHConnection) {
+	ctx := context.Background()
+	dbConn, err := store.OpenDefault()
+	if err == nil {
+		defer dbConn.Close()
+		_ = db.UpdateConnectionOS(ctx, dbConn.SQL(), c.Alias, c.OS)
+	}
+	globalConn, gErr := store.OpenGlobalDefault()
+	if gErr == nil {
+		defer globalConn.Close()
+		_ = db.UpdateConnectionOS(ctx, globalConn.SQL(), c.Alias, c.OS)
+	}
 }
 
 func resolveRemoteTempPath(osType, fileName, customDest string) string {
@@ -353,6 +372,9 @@ func renderInstallExecResultsTable(fileName string, results []NodeInstallExecRes
 			statusColor, r.Status, constants.ColorReset,
 			r.DurationMs,
 		)
+		if r.Error != "" && !strings.Contains(r.Status, "✓") {
+			fmt.Printf("    %sError: %s%s\n", constants.ColorRed, r.Error, constants.ColorReset)
+		}
 		if r.Stdout != "" && !strings.Contains(r.Status, "✓") {
 			fmt.Printf("    %sOutput: %s%s\n", constants.ColorDim, r.Stdout, constants.ColorReset)
 		}

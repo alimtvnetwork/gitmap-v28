@@ -267,17 +267,28 @@ func loadFilteredSSHConns(opts seOptions) ([]db.SSHConnection, error) {
 
 func fetchAllSSHConnections() ([]db.SSHConnection, error) {
 	dbConn, err := store.OpenDefault()
+	if err == nil {
+		defer dbConn.Close()
+		connsRes := db.GetSSHConnections(dbConn.Context(), dbConn.SQL())
+		if !connsRes.IsFailure() && len(connsRes.Data) > 0 {
+			return connsRes.Data, nil
+		}
+	}
+
+	globalConn, gErr := store.OpenGlobalDefault()
+	if gErr == nil {
+		defer globalConn.Close()
+		gRes := db.GetSSHConnections(globalConn.Context(), globalConn.SQL())
+		if !gRes.IsFailure() && len(gRes.Data) > 0 {
+			return gRes.Data, nil
+		}
+	}
+
 	if err != nil {
 		fmt.Printf("Failed to open DB: %v\n", err)
 		return nil, err
 	}
-	defer dbConn.Close()
-	connsRes := db.GetSSHConnections(dbConn.Context(), dbConn.SQL())
-	if connsRes.IsFailure() {
-		fmt.Printf("Failed to get connections: %v\n", connsRes.AppError())
-		return nil, connsRes.AppError()
-	}
-	return connsRes.Data, nil
+	return nil, nil
 }
 
 func filterSSHConns(conns []db.SSHConnection, excludeCSV string) []db.SSHConnection {

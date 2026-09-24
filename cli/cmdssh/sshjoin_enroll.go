@@ -177,12 +177,23 @@ func probeRemoteOSType(client *ssh.Client) string {
 	if client == nil {
 		return "linux"
 	}
-	out, err := crypto.RunCommand(client, "uname -s 2>/dev/null || echo Windows", "")
-	if err != nil {
-		return "linux"
+	outVer, errVer := crypto.RunCommand(client, "cmd.exe /c ver", "")
+	if errVer == nil && strings.Contains(strings.ToLower(outVer), "windows") {
+		return "windows"
 	}
-
-	return resolveDetectedOSType(out)
+	out, err := crypto.RunCommand(client, "uname -s", "")
+	if err == nil {
+		return resolveDetectedOSType(out)
+	}
+	errStr := ""
+	if err != nil {
+		errStr = err.Error()
+	}
+	combined := strings.ToLower(outVer + " " + out + " " + errStr)
+	if strings.Contains(combined, "windows") || strings.Contains(combined, "categoryinfo") || strings.Contains(combined, "powershell") {
+		return "windows"
+	}
+	return "linux"
 }
 
 func probeRemoteOSVersion(client *ssh.Client, osType string) string {

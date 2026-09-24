@@ -40,6 +40,7 @@ const (
 	sqlSelectSSHConnectionByAlias  = `SELECT Alias, IPAddress, Username, EncryptedPassword, KeyPath, OS, COALESCE(OSVersion, ''), FirstRunAt, CreatedAt FROM SSHConnection WHERE Alias = ? LIMIT 1`
 	sqlSelectSSHConnectionByIP     = `SELECT Alias, IPAddress, Username, EncryptedPassword, KeyPath, OS, COALESCE(OSVersion, ''), FirstRunAt, CreatedAt FROM SSHConnection WHERE IPAddress = ? LIMIT 1`
 	sqlUpdateSSHConnectionPassword = `UPDATE SSHConnection SET EncryptedPassword = ? WHERE Alias = ? OR IPAddress = ?`
+	sqlUpdateSSHConnectionOS       = `UPDATE SSHConnection SET OS = ? WHERE Alias = ? OR IPAddress = ?`
 	sqlDeleteSSHConnection         = `DELETE FROM SSHConnection WHERE Alias = ?`
 	sqlDeleteSSHConnectionByTarget = `DELETE FROM SSHConnection WHERE Alias = ? OR IPAddress = ?`
 	sqlDeleteAllSSHConnections     = `DELETE FROM SSHConnection`
@@ -164,12 +165,16 @@ func scanAndAppendSSHHostRow(rows *sql.Rows, seen map[string]bool, merged []SSHC
 
 	seen[alias] = true
 	seen[ip] = true
+	initialOS := "linux"
+	if strings.EqualFold(user, "Administrator") {
+		initialOS = "windows"
+	}
 	return append(merged, SSHConnection{
 		Alias:             alias,
 		IPAddress:         ip,
 		Username:          user,
 		EncryptedPassword: encPass,
-		OS:                "linux",
+		OS:                initialOS,
 	})
 }
 
@@ -201,6 +206,17 @@ func DeleteSSHConnection(ctx context.Context, db *sql.DB, alias string) *apperro
 	_, err := db.ExecContext(ctx, sqlDeleteSSHConnection, alias)
 	if err != nil {
 		return apperror.WrapSimple(err, "DeleteSSHConnection.Exec")
+	}
+
+	return nil
+}
+
+// UpdateConnectionOS updates the recorded OS of an SSH connection.
+func UpdateConnectionOS(ctx context.Context, db *sql.DB, target, osType string) *apperror.AppError {
+	ensureSSHConnectionSchema(ctx, db)
+	_, err := db.ExecContext(ctx, sqlUpdateSSHConnectionOS, osType, target, target)
+	if err != nil {
+		return apperror.WrapSimple(err, "UpdateConnectionOS.Exec")
 	}
 
 	return nil

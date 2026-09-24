@@ -43,7 +43,19 @@ func hasMacroToken(args []string) bool {
 	return false
 }
 
+func hasInstallExecToken(args []string) bool {
+	for _, a := range args {
+		if a == "install-exec" || a == "in-exec" || a == "setup-exec" || a == "install-run" {
+			return true
+		}
+	}
+	return false
+}
+
 func checkSSHHelp(args []string) bool {
+	if hasInstallExecToken(args) {
+		return false
+	}
 	hasJoin := hasJoinToken(args)
 	hasMacro := hasMacroToken(args)
 	hasHelp := hasHelpFlag(args)

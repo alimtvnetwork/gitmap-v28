@@ -141,9 +141,16 @@ func transferWorker(c db.SSHConnection, srcPath, rawDest string, data []byte, wg
 	}
 	defer client.Close()
 
-	cmd := buildRemoteWriteCmd(destPath, data, isWindowsOS(c.OS))
-	shell := determineFallbackShell(c.OS)
-	out, err := crypto.RunCommand(client, cmd, shell)
+	var err error
+	if len(data) > 24000 {
+		err = StreamFileToRemote(client, destPath, data, c.OS)
+	} else {
+		cmd := buildRemoteWriteCmd(destPath, data, isWindowsOS(c.OS))
+		shell := determineFallbackShell(c.OS)
+		_, err = crypto.RunCommand(client, cmd, shell)
+	}
+
+	out := ""
 	if err == nil {
 		out = fmt.Sprintf("Transferred %d bytes -> %s", len(data), destPath)
 	}

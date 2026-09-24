@@ -72,6 +72,7 @@ See [00-overview.md](./00-overview.md) for the complete application specificatio
 - [Spec 152: SSH Execution OS Filtering (`--except-os`), Multi-Command Sequencing, and Remote Installer Deployment (`gitmap ssh install-exec`)](./152-ssh-exec-os-filter-and-install-exec.md)
 - [Spec 153: Dynamic Column Width Alignment for Efficient Pull (`gitmap pae`)](./153-pae-output-column-width-alignment.md)
 - [Spec 154: Inactivity Calculation, Freshness Cooldown, and Global Column Width Stability for `gitmap pae`](./154-pae-inactivity-calculation-and-freshness-cooldown.md)
+- [Spec 155: SSH Install-Exec Streaming Upload Protocol, DB Resolution Fallback & Dynamic Remote OS Probing](./155-ssh-install-exec-streaming-upload-and-os-resolution.md)
 
 ---
 

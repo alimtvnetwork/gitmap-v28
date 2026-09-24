@@ -3,6 +3,7 @@ package store
 import (
 	"os"
 	"path/filepath"
+	"runtime"
 
 	"github.com/alimtvnetwork/gitmap-v28/cli/constants"
 )
@@ -12,6 +13,21 @@ var binaryDataDirOverride string
 // SetBinaryDataDirForTesting overrides the binary data directory during tests.
 func SetBinaryDataDirForTesting(dir string) {
 	binaryDataDirOverride = dir
+}
+
+// GlobalUserDataDir returns the canonical user-level data directory.
+func GlobalUserDataDir() string {
+	if runtime.GOOS == "windows" {
+		localAppData := os.Getenv("LOCALAPPDATA")
+		if localAppData != "" {
+			return filepath.Join(localAppData, "gitmap-cli", constants.DBDir)
+		}
+	}
+	home, err := os.UserHomeDir()
+	if err == nil && home != "" {
+		return filepath.Join(home, ".gitmap", constants.DBDir)
+	}
+	return ""
 }
 
 // BinaryDataDir returns the data directory relative to the running
@@ -43,6 +59,17 @@ func OpenDefault() (*DB, error) {
 	dbFile := ActiveProfileDBFile(baseDir)
 	dbPath := filepath.Join(dir, dbFile)
 
+	if binaryDataDirOverride == "" {
+		if _, err := os.Stat(dbPath); os.IsNotExist(err) {
+			if globalDir := GlobalUserDataDir(); globalDir != "" {
+				globalDBPath := filepath.Join(globalDir, dbFile)
+				if _, gErr := os.Stat(globalDBPath); gErr == nil {
+					return openDBAt(globalDBPath)
+				}
+			}
+		}
+	}
+
 	return openDBAt(dbPath)
 }
 
@@ -52,6 +79,17 @@ func OpenDefaultProfile(profileName string) (*DB, error) {
 	dir := BinaryDataDir()
 	dbFile := ProfileDBFile(profileName)
 	dbPath := filepath.Join(dir, dbFile)
+
+	return openDBAt(dbPath)
+}
+
+// OpenGlobalDefault opens the database from the canonical global user data directory.
+func OpenGlobalDefault() (*DB, error) {
+	globalDir := GlobalUserDataDir()
+	if globalDir == "" {
+		return nil, os.ErrNotExist
+	}
+	dbPath := filepath.Join(globalDir, constants.DBFile)
 
 	return openDBAt(dbPath)
 }

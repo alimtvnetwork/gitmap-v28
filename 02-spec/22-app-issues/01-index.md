@@ -47,6 +47,7 @@ Any content that analyzes bugs, failures, root causes, or fixes for application-
 | 39 | [39-pull-batch-abort-and-search-untracked-directory-crash.md](39-pull-batch-abort-and-search-untracked-directory-crash.md) | Pull Batch Abort & Search Untracked Directory Crash: RCA & Fix | Resolved |
 | 40 | [40-cfr-short-name-clone-failure-and-missing-gh-resolution.md](40-cfr-short-name-clone-failure-and-missing-gh-resolution.md) | CFR Short-Name Clone Failure & Missing GitHub CLI Resolution: RCA & Fix | Resolved |
 | 41 | [41-vscode-startup-failure-and-search-latency-rca.md](41-vscode-startup-failure-and-search-latency-rca.md) | VS Code Startup Failure & Investigation Latency: Root Cause Analysis & Mitigation | Resolved |
+| 42 | [42-ssh-install-exec-upload-failed-and-os-misclassification-rca.md](42-ssh-install-exec-upload-failed-and-os-misclassification-rca.md) | SSH Install-Exec 0ms Upload Failure & Remote OS Misclassification: RCA & Fix | Resolved |
 
 ---
 
