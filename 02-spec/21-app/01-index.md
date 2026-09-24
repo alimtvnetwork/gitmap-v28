@@ -78,6 +78,7 @@ See [00-overview.md](./00-overview.md) for the complete application specificatio
 - [Spec 158: SSH Installer Payload NSIS Auto-Detection, Silent Execution & Fleet Enrollment Resolution](./158-ssh-installer-payload-nsis-auto-detection-and-fleet-deployment.md)
 - [Spec 159: SSH Fleet Installer Hermetic Test Isolation & Stale Process Lock Guard](./159-ssh-installer-hermetic-test-isolation-and-stale-process-guard.md)
 - [Spec 160: SSH Fleet Update Decrypted Auth, Liveness Probe, and Command Suggestions](./160-ssh-fleet-update-decrypted-auth-liveness-probe-and-command-suggestions.md)
+- [Spec 161: Antigravity Rerun Active Project Resolution, Non-Destructive Replay, and Conversation Commands](./161-agy-rerun-active-project-non-destructive-and-conversation-commands.md)
 
 ---
 

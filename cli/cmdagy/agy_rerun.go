@@ -38,17 +38,21 @@ var agyRerunCmd = &cobra.Command{
 }
 
 var (
-	rerunAllFlag    bool
-	rerunQueueFlag  bool
-	rerunPrefixFlag string
+	rerunAllFlag     bool
+	rerunQueueFlag   bool
+	rerunPrefixFlag  string
+	rerunNewConvFlag bool
+	rerunModelFlag   string
 )
 
 func init() {
 	agyRerunCmd.Flags().StringVarP(&rerunPromptTpl, "prompt", "p", cmdprompttemplate.DefaultTemplateID, "Prefix prompt template name or ID")
 	agyRerunCmd.Flags().BoolVar(&rerunNoClipboard, "no-clipboard", false, "Do not copy constructed prompt to clipboard")
 	agyRerunCmd.Flags().BoolVarP(&rerunDryRun, "dry-run", "d", false, "Preview constructed prompt without execution")
-	agyRerunCmd.Flags().BoolVarP(&rerunRestartFlag, "restart", "r", true, "Restart Antigravity IDE and replay prompt")
+	agyRerunCmd.Flags().BoolVarP(&rerunRestartFlag, "restart", "r", false, "Restart Antigravity IDE and replay prompt (default: false, inject without closing)")
 	agyRerunCmd.Flags().BoolVar(&rerunNoRestart, "no-restart", false, "Do not restart IDE, inject directly")
+	agyRerunCmd.Flags().BoolVarP(&rerunNewConvFlag, "new-conversation", "n", true, "Create new conversation for prompt replay (default: true)")
+	agyRerunCmd.Flags().StringVarP(&rerunModelFlag, "model", "m", "", "Model for new conversation (flash_lite, flash, pro)")
 	agyRerunCmd.Flags().StringVarP(&rerunProjectFlag, "project", "P", "", "Target project by index (1, 2, 3...) or name")
 	agyRerunCmd.Flags().StringVarP(&rerunConvFlag, "conversation", "c", "", "Target conversation ID")
 	agyRerunCmd.Flags().BoolVarP(&rerunAllFlag, "all", "a", false, "Rerun active prompts across all running projects")
@@ -71,13 +75,14 @@ func runAgyRerun(args []string) *apperror.AppError {
 
 	target := resolveRerunProjectTarget(args)
 	isRestart := rerunRestartFlag && !rerunNoRestart
+	isNewConv := rerunNewConvFlag
 	tplName := extractRerunTemplateName(args)
 
 	if rerunAllFlag || strings.EqualFold(target, "all") {
 		return runRerunAllProjects(isRestart, tplName)
 	}
 
-	err := RestartAndRerunProject(target, isRestart, rerunDryRun, tplName)
+	err := RerunProject(target, isRestart, isNewConv, rerunDryRun, tplName, rerunModelFlag)
 	if err != nil {
 		return apperror.WrapSimple(err, "agy rerun")
 	}

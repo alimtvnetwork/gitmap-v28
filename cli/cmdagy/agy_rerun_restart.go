@@ -11,8 +11,6 @@ import (
 
 	"github.com/atotto/clipboard"
 	"github.com/charmbracelet/lipgloss"
-
-	"github.com/alimtvnetwork/gitmap-v28/cli/apperror"
 )
 
 type rerunRestartPlan struct {
@@ -30,6 +28,11 @@ type rerunRestartPlan struct {
 
 // RestartAndRerunProject resolves a target project, extracts its prompt and pictures, restarts the IDE, and replays.
 func RestartAndRerunProject(target string, isRestart, isDryRun bool, templateID string) error {
+	return RerunProject(target, isRestart, true, isDryRun, templateID, "")
+}
+
+// RerunProject resolves a target project, extracts prompt & images, and replays without closing IDE by default.
+func RerunProject(target string, isRestart, isNewConv, isDryRun bool, templateID, model string) error {
 	projects, err := loadSortedProjects()
 	if err != nil {
 		return err
@@ -40,7 +43,7 @@ func RestartAndRerunProject(target string, isRestart, isDryRun bool, templateID 
 		return planErr
 	}
 
-	renderRerunPlanHeader(plan)
+	renderRerunPlanHeader(plan, isRestart)
 	if isDryRun {
 		fmt.Println("  • [dry-run] Preview complete. Skipping IDE restart and prompt injection.")
 		return nil
@@ -50,27 +53,15 @@ func RestartAndRerunProject(target string, isRestart, isDryRun bool, templateID 
 		executeIDERestart(&plan)
 	}
 
-	return dispatchRerunPayload(plan)
+	return dispatchRerunPayload(plan, isNewConv, model)
 }
 
 func loadSortedProjects() ([]AgyProject, error) {
-	dirPath, err := getProjectsDirPath()
-	if err != nil {
-		return nil, apperror.WrapSimple(err, "projects dir")
-	}
-
-	projects, err := loadAllAgyProjects(dirPath)
-	if err != nil || len(projects) == 0 {
-		return nil, apperror.NewSimple("no Antigravity projects configured in ~/.gemini/config/projects", "E9030")
-	}
-
-	sortAgyProjects(projects, "recent")
-
-	return projects, nil
+	return loadActiveSortedProjects()
 }
 
 func buildRerunRestartPlan(projects []AgyProject, target, templateID string) (rerunRestartPlan, error) {
-	proj, seq := resolveProjectFromTarget(projects, target)
+	proj, seq := resolveClosestActiveProject(projects, target)
 	ws := proj.GetPath()
 	if ws == "" {
 		return rerunRestartPlan{}, fmt.Errorf("project %q has no valid workspace folder", proj.Name)
@@ -208,7 +199,7 @@ func killIDEProcessByPID(pid int) {
 	fmt.Printf("    ✓ Terminated Antigravity IDE (PID: %d)\n", pid)
 }
 
-func dispatchRerunPayload(plan rerunRestartPlan) error {
+func dispatchRerunPayload(plan rerunRestartPlan, isNewConv bool, model string) error {
 	title := fmt.Sprintf("Rerun: %s (#%d)", plan.Project.Name, plan.SequenceNumber)
 	targetPrompt := filepath.Join(plan.WorkspacePath, activeAgyPromptRelativePath)
 	writePromptFile(targetPrompt, plan.PromptText)
@@ -217,15 +208,34 @@ func dispatchRerunPayload(plan rerunRestartPlan) error {
 	ideProcRes := DetectRunningAntigravityIDE()
 	pid := resolveActiveOrZeroPID(ideProcRes)
 
+	if isNewConv && tryDispatchNewConversation(title, model, plan, targetPrompt, pid) {
+		return nil
+	}
+
 	res := DispatchPromptToAntigravity(plan.WorkspacePath, targetPrompt, title, plan.PromptText, pid)
 	renderRerunResult(res, plan)
 
 	return nil
 }
 
-func renderRerunPlanHeader(plan rerunRestartPlan) {
+func tryDispatchNewConversation(title, model string, plan rerunRestartPlan, targetPrompt string, pid int) bool {
+	newRes := AgentAPINewConversationWithOptions(title, model, "", plan.PromptText)
+	if !newRes.IsSuccess() {
+		return false
+	}
+	FocusAntigravityWindow(pid)
+	renderRerunResult(makeAgentAPISuccessResult(pid, plan.WorkspacePath, targetPrompt, newRes.Value, true), plan)
+
+	return true
+}
+
+func renderRerunPlanHeader(plan rerunRestartPlan, isRestart bool) {
 	headerStyle := lipgloss.NewStyle().Bold(true).Foreground(lipgloss.Color("#bd93f9"))
-	fmt.Println(headerStyle.Render("\nAntigravity IDE Rerun & Restart Suite:"))
+	titleText := "\nAntigravity IDE Rerun Suite:"
+	if isRestart {
+		titleText = "\nAntigravity IDE Rerun & Restart Suite:"
+	}
+	fmt.Println(headerStyle.Render(titleText))
 	fmt.Printf("  • Target Project:   #%d - %s\n", plan.SequenceNumber, plan.Project.Name)
 	fmt.Printf("  • Workspace Path:   %s\n", plan.WorkspacePath)
 	fmt.Printf("  • Conversation:     %s\n", plan.ConvID)

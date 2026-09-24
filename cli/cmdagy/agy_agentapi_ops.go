@@ -49,7 +49,12 @@ func parseSendMessageResponse(data []byte) result.Result[string] {
 
 // AgentAPINewConversation creates a new conversation with an initial prompt.
 func AgentAPINewConversation(title, prompt string) result.Result[string] {
-	args := buildNewConvArgs(title, prompt)
+	return AgentAPINewConversationWithOptions(title, "", "", prompt)
+}
+
+// AgentAPINewConversationWithOptions creates a new conversation with model, profile, title, and initial prompt.
+func AgentAPINewConversationWithOptions(title, model, profile, prompt string) result.Result[string] {
+	args := buildNewConvArgsWithOptions(title, model, profile, prompt)
 	rawRes := executeAgentAPICmd(args)
 	if rawRes.IsFailure() {
 		return result.Fail[string](rawRes.Err)
@@ -59,12 +64,23 @@ func AgentAPINewConversation(title, prompt string) result.Result[string] {
 }
 
 func buildNewConvArgs(title, prompt string) []string {
-	hasTitle := len(strings.TrimSpace(title)) > 0
-	if hasTitle {
-		return []string{"new-conversation", "--title=" + title, prompt}
-	}
+	return buildNewConvArgsWithOptions(title, "", "", prompt)
+}
 
-	return []string{"new-conversation", prompt}
+func buildNewConvArgsWithOptions(title, model, profile, prompt string) []string {
+	args := []string{"new-conversation"}
+	if len(strings.TrimSpace(model)) > 0 {
+		args = append(args, "--model="+strings.TrimSpace(model))
+	}
+	if len(strings.TrimSpace(title)) > 0 {
+		args = append(args, "--title="+strings.TrimSpace(title))
+	}
+	if len(strings.TrimSpace(profile)) > 0 {
+		args = append(args, "--profile="+strings.TrimSpace(profile))
+	}
+	args = append(args, prompt)
+
+	return args
 }
 
 func parseNewConversationResponse(data []byte) result.Result[string] {

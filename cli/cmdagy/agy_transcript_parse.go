@@ -71,6 +71,7 @@ func FormatPromptWithMedia(content string, media []rawTranscriptMedia) string {
 		cleanURI := strings.TrimPrefix(m.URI, "file:///")
 		cleanURI = strings.TrimPrefix(cleanURI, "file://")
 		sb.WriteString(fmt.Sprintf("- Attached Picture %d: %s\n", i+1, cleanURI))
+		sb.WriteString(fmt.Sprintf("  ![Picture %d](file:///%s)\n", i+1, strings.ReplaceAll(cleanURI, "\\", "/")))
 	}
 
 	return sb.String()

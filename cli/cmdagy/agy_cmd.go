@@ -344,6 +344,8 @@ func registerAgyUtilityCommands() {
 	AgyCmd.AddCommand(agyCacheClearKeepFiveCmd)
 	AgyCmd.AddCommand(agyFixPipelineCmd)
 	AgyCmd.AddCommand(agyRerunCmd)
+	AgyCmd.AddCommand(agyNewConvCmd)
+	AgyCmd.AddCommand(agySendMessageCmd)
 	AgyCmd.AddCommand(agyListPromptsCmd)
 	AgyCmd.AddCommand(agyHistoryCmd)
 }

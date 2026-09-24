@@ -97,13 +97,22 @@ func extractIDEProcessRecord(rec []string) result.Result[AgyProcessInfo] {
 
 	name := strings.TrimSpace(rec[0])
 	pid, convErr := strconv.Atoi(strings.TrimSpace(rec[1]))
-	hasValidPid := convErr == nil && pid > 0 && strings.EqualFold(filepath.Base(name), "antigravity.exe")
+	hasValidPid := convErr == nil && pid > 0 && isAntigravityProcessName(name)
 
 	if hasValidPid {
 		return result.Ok(AgyProcessInfo{PID: pid, Name: name})
 	}
 
 	return result.Fail[AgyProcessInfo](apperror.NewSimple("not antigravity IDE", "E9004"))
+}
+
+func isAntigravityProcessName(name string) bool {
+	base := strings.ToLower(filepath.Base(name))
+	if base == "antigravity.exe" || base == "language_server.exe" {
+		return true
+	}
+
+	return strings.HasPrefix(base, "antigravity") && strings.HasSuffix(base, ".exe")
 }
 
 func detectRunningIDEUnix() result.Result[AgyProcessInfo] {
