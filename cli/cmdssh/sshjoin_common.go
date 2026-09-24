@@ -98,18 +98,19 @@ func probeRemoteGitmapWhichOS(client *ssh.Client) (*cmdos.OSInfoReport, bool) {
 	if client == nil {
 		return nil, false
 	}
-	cmd := "gitmap which-os --json 2>/dev/null || powershell -NoProfile -Command \"gitmap which-os --json\" 2>$null"
+	cmd := "gitmap which-os --json 2>/dev/null || powershell -NoProfile -Command \"gitmap which-os --json\" 2>$null || \"$env:LOCALAPPDATA\\gitmap-cli\\gitmap.exe\" which-os --json 2>$null || ~/.local/bin/gitmap which-os --json 2>/dev/null"
 	out, err := crypto.RunCommand(client, cmd, "")
 	if err != nil {
 		return nil, false
 	}
 	clean := strings.TrimSpace(out)
 	idx := strings.Index(clean, "{")
-	if idx < 0 {
+	lastIdx := strings.LastIndex(clean, "}")
+	if idx < 0 || lastIdx <= idx {
 		return nil, false
 	}
 	var report cmdos.OSInfoReport
-	if err := json.Unmarshal([]byte(clean[idx:]), &report); err != nil {
+	if err := json.Unmarshal([]byte(clean[idx:lastIdx+1]), &report); err != nil {
 		return nil, false
 	}
 	if report.OSType == "" {

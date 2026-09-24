@@ -1,6 +1,6 @@
 # Completed Plan 107: GitMap Lowercase Pre-Flight Hygiene, Working Tree Conflict Resolution & Automated Push
 
-Spec Reference: [02-spec/21-app/156-gitmap-lowercase-preflight-hygiene-and-conflict-resolution.md](../../02-spec/21-app/156-gitmap-lowercase-preflight-hygiene-and-conflict-resolution.md)  
+Spec Reference: [02-spec/21-app/157-gitmap-lowercase-preflight-hygiene-and-conflict-resolution.md](../../02-spec/21-app/157-gitmap-lowercase-preflight-hygiene-and-conflict-resolution.md)  
 Issue Reference: [02-spec/22-app-issues/43-gitmap-lowercase-unresolved-conflicts-and-missing-push-rca.md](../../02-spec/22-app-issues/43-gitmap-lowercase-unresolved-conflicts-and-missing-push-rca.md)  
 Execution Summary: Completed in 2 orchestration loops across 4 subtask domains with comprehensive pre-flight verification, conflict detection, discard prompt, full disclosure, auto-push, and minor version bump to v6.338.0.
 

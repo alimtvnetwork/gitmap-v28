@@ -50,3 +50,35 @@ func TestWrapUnixPath(t *testing.T) {
 		t.Errorf("wrapUnixPath idempotent failed: got %q, want %q", idempotent, wrapped)
 	}
 }
+
+func TestParseInstallExecArgs_DefaultOSAndForceAll(t *testing.T) {
+	// 1. .exe automatically targets Windows
+	optsExe := ParseInstallExecArgs([]string{"./setup.exe", "/SILENT"})
+	if optsExe.TargetOS != "win" {
+		t.Errorf("expected TargetOS='win' for .exe, got %q", optsExe.TargetOS)
+	}
+	if optsExe.IsForceAll {
+		t.Errorf("expected IsForceAll=false by default")
+	}
+
+	// 2. .sh automatically targets Unix
+	optsSh := ParseInstallExecArgs([]string{"./bootstrap.sh"})
+	if optsSh.TargetOS != "unix" {
+		t.Errorf("expected TargetOS='unix' for .sh, got %q", optsSh.TargetOS)
+	}
+
+	// 3. --force-all bypasses default OS targeting
+	optsForce := ParseInstallExecArgs([]string{"./setup.exe", "--force-all"})
+	if !optsForce.IsForceAll {
+		t.Errorf("expected IsForceAll=true on --force-all")
+	}
+	if optsForce.TargetOS != "" {
+		t.Errorf("expected TargetOS='' when --force-all is set, got %q", optsForce.TargetOS)
+	}
+
+	// 4. Explicit --os wins
+	optsExplicit := ParseInstallExecArgs([]string{"./setup.exe", "--os", "linux"})
+	if optsExplicit.TargetOS != "linux" {
+		t.Errorf("expected TargetOS='linux' when explicitly set, got %q", optsExplicit.TargetOS)
+	}
+}

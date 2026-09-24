@@ -27,6 +27,7 @@ type SSHInstallExecOptions struct {
 	DestDir       string
 	IsSilent      bool
 	IsDryRun      bool
+	IsForceAll    bool
 	IsShowHelp    bool
 }
 
@@ -58,15 +59,17 @@ func printSSHInstallExecHelp() {
 	fmt.Println("      --except string     Exclude machines by ID (1, worker-1), alias, or IP")
 	fmt.Println("      --except-os string  Exclude machines by OS (e.g. unix, win, linux, ubuntu, darwin)")
 	fmt.Println("      --os string         Target machines by OS (e.g. win, unix, linux, darwin)")
+	fmt.Println("  -f, --force-all         Deploy installer to all machines regardless of default OS target")
 	fmt.Println("      --dest string       Remote directory for setup (default: Windows Temp directory, /tmp on Unix)")
 	fmt.Println("  -s, --silent            Append silent unattended switch if not already provided")
 	fmt.Println("  -n, --dry-run           Simulate file transfer and execution without running")
 	fmt.Println("  -h, --help              Show this help message")
 	fmt.Println()
 	fmt.Println("Examples:")
-	fmt.Println("  gitmap ssh install-exec ./setup.exe /SILENT --except-os unix")
+	fmt.Println("  gitmap ssh install-exec ./setup.exe /SILENT (auto-targets Windows nodes)")
+	fmt.Println("  gitmap ssh install-exec ./setup.exe --force-all (targets all nodes regardless of OS)")
+	fmt.Println("  gitmap ssh install-exec ./bootstrap.sh (auto-targets Unix nodes)")
 	fmt.Println("  gitmap ssh install-exec ./agent-installer.exe /qn --except worker-1,10.20.0.15")
-	fmt.Println("  gitmap ssh install-exec ./bootstrap.sh --except-os win")
 	fmt.Println("  gitmap ssh install-exec ./app.msi --os win --silent")
 	fmt.Println()
 }
@@ -88,6 +91,10 @@ func ParseInstallExecArgs(args []string) SSHInstallExecOptions {
 		}
 		if a == "-s" || a == "--silent" {
 			opts.IsSilent = true
+			continue
+		}
+		if a == "-f" || a == "--force-all" || a == "force-all" || a == "--all-os" {
+			opts.IsForceAll = true
 			continue
 		}
 		if (a == "--except" || a == "--excep") && i+1 < len(args) {
@@ -144,7 +151,34 @@ func ParseInstallExecArgs(args []string) SSHInstallExecOptions {
 		opts.InstallerArgs = positional[1:]
 	}
 
+	if opts.TargetOS == "" && opts.ExceptOS == "" && !opts.IsForceAll && opts.SetupPath != "" {
+		ext := strings.ToLower(filepath.Ext(opts.SetupPath))
+		if isWindowsInstallerExt(ext) {
+			opts.TargetOS = constants.OSTargetWin
+		} else if isUnixInstallerExt(ext) {
+			opts.TargetOS = constants.OSTargetUnix
+		}
+	}
+
 	return opts
+}
+
+func isWindowsInstallerExt(ext string) bool {
+	switch ext {
+	case ".exe", ".msi", ".bat", ".cmd", ".ps1":
+		return true
+	default:
+		return false
+	}
+}
+
+func isUnixInstallerExt(ext string) bool {
+	switch ext {
+	case ".sh", ".bash", ".deb", ".rpm", ".bin", ".run", ".appimage":
+		return true
+	default:
+		return false
+	}
 }
 
 // BuildRemoteInstallerExecCmd constructs the OS-specific remote execution command.

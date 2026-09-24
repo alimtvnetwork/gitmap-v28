@@ -9,10 +9,11 @@ Master directory of architectural and execution plans.
 
 ## Recent Completed Tasks Register (Last 20 Tasks)
 
-1. [107-gitmap-lowercase-preflight-hygiene-and-conflict-resolution.md](completed/107-gitmap-lowercase-preflight-hygiene-and-conflict-resolution.md): GitMap Lowercase Pre-Flight Hygiene, Working Tree Conflict Resolution & Automated Push
-2. [106-ssh-install-exec-streaming-upload-and-os-resolution.md](completed/106-ssh-install-exec-streaming-upload-and-os-resolution.md): SSH Install-Exec Streaming Upload Protocol, DB Resolution Fallback & Dynamic Remote OS Probing
-3. [105-node-login-profiling-which-os-sqlite-persistence.md](completed/105-node-login-profiling-which-os-sqlite-persistence.md): Node First-Time Login Profiling, GitMap Auto-Install, and SQLite OS Persistence
-4. [98-ssh-macro-pea-deploy-fleet-update-and-ssh-clone-tempe2e.md](completed/98-ssh-macro-pea-deploy-fleet-update-and-ssh-clone-tempe2e.md): SSH Macro/PEA/PEAT Fleet Deployment, Multi-Node Update Telemetry, Remote SSH Clone & Isolated Temporary E2E Validation
+1. [108-remote-node-first-login-os-profiling-gitbash-and-cross-os-execution.md](completed/108-remote-node-first-login-os-profiling-gitbash-and-cross-os-execution.md): Remote Node First-Time Login OS Profiling, Cross-Platform Git Bash Execution & Multi-OS Installer Filtering
+2. [107-gitmap-lowercase-preflight-hygiene-and-conflict-resolution.md](completed/107-gitmap-lowercase-preflight-hygiene-and-conflict-resolution.md): GitMap Lowercase Pre-Flight Hygiene, Working Tree Conflict Resolution & Automated Push
+3. [106-ssh-install-exec-streaming-upload-and-os-resolution.md](completed/106-ssh-install-exec-streaming-upload-and-os-resolution.md): SSH Install-Exec Streaming Upload Protocol, DB Resolution Fallback & Dynamic Remote OS Probing
+4. [105-node-login-profiling-which-os-sqlite-persistence.md](completed/105-node-login-profiling-which-os-sqlite-persistence.md): Node First-Time Login Profiling, GitMap Auto-Install, and SQLite OS Persistence
+5. [98-ssh-macro-pea-deploy-fleet-update-and-ssh-clone-tempe2e.md](completed/98-ssh-macro-pea-deploy-fleet-update-and-ssh-clone-tempe2e.md): SSH Macro/PEA/PEAT Fleet Deployment, Multi-Node Update Telemetry, Remote SSH Clone & Isolated Temporary E2E Validation
 2. [97-ssh-join-common-os-detect-rop-and-e2e-benchmarks.md](completed/97-ssh-join-common-os-detect-rop-and-e2e-benchmarks.md): SSH Common Batch Join, Remote OS Detection & Telemetry, AGY Project Re-read & Optimization, and Native AUM Benchmarking
 2. [96-pull-abort-cfr-gh-resolver-asset-downloader-and-contrast.md](completed/96-pull-abort-cfr-gh-resolver-asset-downloader-and-contrast.md): Pull Batch Abort, CFR GitHub Resolver, Asset Downloader, Color Contrast, and Token Fleet Management
 2. [95-repo-create-triple-sync-and-paet-latency-rca.md](completed/95-repo-create-triple-sync-and-paet-latency-rca.md): Repository Creation Triple Ecosystem Auto-Sync (VS Code, GitHub Desktop & Antigravity) & PAET Latency RCA
@@ -78,6 +79,7 @@ Master directory of architectural and execution plans.
 
 ## Completed Plans
 
+- [108-remote-node-first-login-os-profiling-gitbash-and-cross-os-execution.md](completed/108-remote-node-first-login-os-profiling-gitbash-and-cross-os-execution.md): Remote Node First-Time Login OS Profiling, Cross-Platform Git Bash Execution & Multi-OS Installer Filtering
 - [107-gitmap-lowercase-preflight-hygiene-and-conflict-resolution.md](completed/107-gitmap-lowercase-preflight-hygiene-and-conflict-resolution.md): GitMap Lowercase Pre-Flight Hygiene, Working Tree Conflict Resolution & Automated Push
 - [106-ssh-install-exec-streaming-upload-and-os-resolution.md](completed/106-ssh-install-exec-streaming-upload-and-os-resolution.md): SSH Install-Exec Streaming Upload Protocol, DB Resolution Fallback & Dynamic Remote OS Probing
 - [105-node-login-profiling-which-os-sqlite-persistence.md](completed/105-node-login-profiling-which-os-sqlite-persistence.md): Node First-Time Login Profiling, GitMap Auto-Install, and SQLite OS Persistence

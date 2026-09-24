@@ -138,7 +138,7 @@ func printGitMissingHeader() {
 	fmt.Println()
 	fmt.Println("✗ Git is not installed or could not be found.")
 	fmt.Println()
-	fmt.Println("Hey, you have to install Git using the GitMap SSH, Git compact, or Git install command.")
+	fmt.Println("Hey, you have to install the Git using the Git map SSH, Git compact, or Git install command.")
 	fmt.Println("Which one would you like to pick?")
 	fmt.Println()
 }
