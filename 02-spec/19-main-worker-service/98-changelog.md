@@ -1,3 +1,9 @@
+## v6.319.0 — 2026-09-24 (native vscode repair command, dynamic paths, and install list color contrast)
+
+**Scope:** Version bump. native vscode repair command, dynamic paths, and install list color contrast.
+
+---
+
 ## v6.318.0 — 2026-09-23 (relative path check fix in rca 78 and green ci validation)
 
 **Scope:** Version bump. relative path check fix in rca 78 and green ci validation.
