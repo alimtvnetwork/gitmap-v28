@@ -1,10 +1,11 @@
 # What to Read
 
 > Canonical map of what the AI must read before working on this project.
-> Last updated: 2026-09-13T16:15:00Z
+> Last updated: 2026-09-24T20:00:00Z
 
 ## Changelog
 
+- 2026-09-24T20:00:00Z, Memory write: Spec 148, Plan 97, and Issue 41 RCA (SSH Batch Common Join `sjc`, Remote OS Detection `os_detect`, AGY `rerun` & `rop` split-DB optimization, Native AUM Search Benchmark `docs/benchmarks/search_benchmark.md` 33,000x speedup, and VS Code Startup Failure 4-Part RCA).
 - 2026-09-23T07:40:00Z, Memory write: Plan 83 Antigravity Language Server address dynamic discovery, CSRF token extraction via CIM, multi-port probing, agentapi injection, and CLI fallback.
 - 2026-09-22T08:35:00Z, Memory write: Enhanced release-orchestrator and ci-cd-fix-with-release prompts and skills with priority smart runner shortcuts (run-smart, --fast), gitmap pipeline suite (pe, pd), and cross-repo sync (learned 31).
 - 2026-09-22T07:25:00Z, Memory write: Authored 6 specialized GitMap subsystem skills in .agents/skills/ (scanner-and-cloner, ssh-cluster-fleet, split-db-engine, pipeline-and-diagnostics, developer-hygiene-and-agy, macro-automation-engine) and learned memory 30.
@@ -76,4 +77,8 @@
 - Root `readme.md` (must stay in sync with this file)
 - `.ai-memory/plans/completed/09-chrome-profile-management-picker-and-token-vault.md`
 - `02-spec/21-app/129-pr-commit-engines-and-sqlite-split-db.md`, why: PR commit replay engine, SQLite split-DB standardization, and final snapshot sync
+- `02-spec/21-app/148-ssh-join-common-os-detect-rop-and-e2e-benchmarks.md`, why: SSH batch common join (`sjc`), remote OS telemetry (`os_detect`), AGY `rerun` & `rop` split-DB optimization, and AUM search benchmarks
+- `02-spec/22-app-issues/41-vscode-startup-failure-and-search-latency-rca.md`, why: 4-Part RCA for VS Code startup failure and search latency
+- `docs/benchmarks/search_benchmark.md`, why: Native AUM search vs Go walk vs Python grep benchmark report
 - `cli/helptext/pr.md`, why: PR command family usage, HG help, and JSON examples
+
