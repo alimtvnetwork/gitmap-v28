@@ -9,8 +9,8 @@ import (
 )
 
 func TestExtractEfficientFlags(t *testing.T) {
-	args := []string{"--status", "--ssh", "extra-arg"}
-	useSSH, useHTTPS, isTable, rest := extractEfficientFlags(args)
+	args := []string{"--status", "--ssh", "-t", "ssh", "--json", "extra-arg"}
+	useSSH, useHTTPS, isTable, isJSON, targetSSH, rest := extractEfficientFlags(args)
 
 	if !isTable {
 		t.Fatalf("expected isTable to be true")
@@ -20,6 +20,12 @@ func TestExtractEfficientFlags(t *testing.T) {
 	}
 	if useHTTPS {
 		t.Fatalf("expected useHTTPS to be false")
+	}
+	if !isJSON {
+		t.Fatalf("expected isJSON to be true")
+	}
+	if targetSSH != "ssh" {
+		t.Fatalf("expected targetSSH to be 'ssh', got %s", targetSSH)
 	}
 	if len(rest) != 1 || rest[0] != "extra-arg" {
 		t.Fatalf("expected rest args to have 1 element, got %v", rest)

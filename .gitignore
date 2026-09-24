@@ -84,3 +84,4 @@ tmp/
 *.lock
 .ai-memory/cicd/
 vmpass.json
+benchmark.md

@@ -129,10 +129,12 @@ func processEfficientPullLifecycle(records []model.ScanRecord, opts EfficientPul
 	partition, _ := PartitionRecordsByActivity(records)
 	total := len(records)
 	if len(partition.ActiveRecords) == 0 {
-		return handleAllReposInactive(total, partition.InactiveRepos, opts.IsTableMode)
+		return handleAllReposInactive(total, partition.InactiveRepos, opts.IsTableMode, opts.IsJSON)
 	}
 
-	printEfficientPartitionNotice(total, len(partition.ActiveRecords), len(partition.InactiveRepos))
+	if !opts.IsJSON {
+		printEfficientPartitionNotice(total, len(partition.ActiveRecords), len(partition.InactiveRepos))
+	}
 	return executeActiveEfficientBatch(partition, opts, total)
 }
 
@@ -152,13 +154,20 @@ func executeActiveEfficientBatch(partition EfficientPullPartition, opts Efficien
 	maybeApplyTransportToRecords(partition.ActiveRecords, opts.UseSSH, opts.UseHTTPS)
 
 	bar := NewPullProgressBar(len(partition.ActiveRecords), false, false)
-	bar.Start()
+	if !opts.IsJSON {
+		bar.Start()
+	}
 	startTime := time.Now()
 	executePull(partition.ActiveRecords, bar, pullOpts)
-	bar.Stop()
+	if !opts.IsJSON {
+		bar.Stop()
+	}
 	dur := time.Since(startTime)
 
 	sortedStates := sortStatesAlphabetically(bar.States())
+	if opts.IsJSON {
+		return renderJSONEfficientResults(total, sortedStates, partition.InactiveRepos, dur)
+	}
 	renderEfficientResults(sortedStates, partition.InactiveRepos, opts.IsTableMode)
 	recordEfficientPullTelemetry(total, sortedStates, partition.InactiveRepos, dur, opts.IsTableMode)
 
@@ -212,7 +221,10 @@ func printInactiveSkipSummary(inactive []InactiveRepoDetail) {
 		constants.ColorBold, constants.ColorReset)
 }
 
-func handleAllReposInactive(total int, inactive []InactiveRepoDetail, isTable bool) error {
+func handleAllReposInactive(total int, inactive []InactiveRepoDetail, isTable bool, isJSON bool) error {
+	if isJSON {
+		return renderJSONInactiveResults(total, inactive)
+	}
 	fmt.Printf("\n  %sℹ%s All %d repository(ies) are currently inactive (0 changes in last 20+ pulls within 24h).\n",
 		constants.ColorCyan, constants.ColorReset, total)
 	printInactiveSkipSummary(inactive)

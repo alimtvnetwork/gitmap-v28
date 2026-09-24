@@ -823,6 +823,7 @@ func init() {
 	cmdpull.RequireOnlineFn = requireOnline
 	cmdpull.CheckHelpFn = checkHelp
 	cmdpull.ApplyTransportFlagFn = ApplyTransportFlag
+	cmdpull.RunRemoteSSHPullFn = cmdssh.RunSSHPullJSON
 	cmdpull.HasAliasFn = HasAlias
 	cmdpull.GetAliasSlugFn = GetAliasSlug
 	cmdpull.GetAliasPathFn = GetAliasPath
