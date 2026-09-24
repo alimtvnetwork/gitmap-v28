@@ -1,3 +1,9 @@
+## v6.337.0 — 2026-09-24 (prune unused symbols, resolve heavy_test module root, and pass all CI gates)
+
+**Scope:** Version bump. prune unused symbols, resolve heavy_test module root, and pass all CI gates.
+
+---
+
 ## v6.336.0 — 2026-09-24 (fix staticcheck, stdlib constants, spelling, and release v6.336.0)
 
 **Scope:** Version bump. fix staticcheck, stdlib constants, spelling, and release v6.336.0.
