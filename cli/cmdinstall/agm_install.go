@@ -28,9 +28,25 @@ var agmInstallCmd = &cobra.Command{
 	RunE:    runAgmInstallCmd,
 }
 
+// RunAGMVersionTagsLSFn delegates AGM version listing to cmd package.
+var RunAGMVersionTagsLSFn func() error
+
+var agmVersionCmd = &cobra.Command{
+	Use:     "version [ls|list]",
+	Aliases: []string{"versions", "tags", "ls"},
+	Short:   "List all available Antigravity Manager release tags from GitHub",
+	RunE: func(cmd *cobra.Command, args []string) error {
+		if RunAGMVersionTagsLSFn != nil {
+			return RunAGMVersionTagsLSFn()
+		}
+		return nil
+	},
+}
+
 func init() {
 	bindAgmInstallFlags()
 	AgmCmd.AddCommand(agmInstallCmd)
+	AgmCmd.AddCommand(agmVersionCmd)
 }
 
 func bindAgmInstallFlags() {
@@ -51,6 +67,11 @@ func buildAgmInstallOptions() installOptions {
 
 func runAgmInstallCmd(cmd *cobra.Command, args []string) error {
 	opts := buildAgmInstallOptions()
+	for _, a := range args {
+		if !strings.HasPrefix(a, "-") && opts.Version == "" {
+			opts.Version = strings.TrimPrefix(a, "v")
+		}
+	}
 
 	return runInstallAgManagerWithOpts(opts)
 }

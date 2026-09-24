@@ -7,6 +7,7 @@ type NodeVersionInfo struct {
 	Role        string `json:"role"`
 	Status      string `json:"status"`
 	Version     string `json:"version"`
+	Comparison  string `json:"comparison,omitempty"`
 	IsInstalled bool   `json:"isInstalled"`
 	IsOnline    bool   `json:"isOnline"`
 	ErrorMsg    string `json:"errorMsg,omitempty"`

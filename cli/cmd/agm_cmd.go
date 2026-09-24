@@ -12,6 +12,7 @@ import (
 
 func init() {
 	cmdagy.RunAgySSHFn = cmdssh.RunSSHAgyCLI
+	cmdinstall.RunAGMVersionTagsLSFn = RunAGMVersionTagsLS
 	cmdinstall.RemoteAgmUpdateFleetFn = func(target, except string) error {
 		args := []string{"agm", "--target", target}
 		if except != "" {

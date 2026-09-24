@@ -41,6 +41,7 @@ func bindCommonUpdateFlags(cmd *cobra.Command) {
 	cmd.Flags().BoolVarP(&agmInstallDryRun, "dry-run", "n", false, "Simulate update without downloading")
 	cmd.Flags().BoolVarP(&agmInstallYes, "yes", "y", false, "Automatic yes to prompts")
 	cmd.Flags().BoolVarP(&agmInstallVerbose, "verbose", "v", false, "Enable verbose output")
+	cmd.Flags().StringVar(&agmInstallVersion, "version", "", "Specific release version to update to (e.g. 4.7.1)")
 	cmd.Flags().StringVarP(&agmUpdateRemote, "remote", "r", "", "Remote node alias or IP to update")
 	cmd.Flags().BoolVarP(&agmUpdateSSH, "ssh", "s", false, "Update remote fleet machines via SSH")
 	cmd.Flags().StringVarP(&agmUpdateExcept, "except", "e", "", "Exclude machines by ID, alias, or IP")
@@ -55,6 +56,11 @@ func runAgmUpdateCmd(cmd *cobra.Command, args []string) error {
 		return RemoteAgmUpdateFleetFn(target, agmUpdateExcept)
 	}
 	opts := buildAgmInstallOptions()
+	for _, a := range args {
+		if !strings.HasPrefix(a, "-") && a != "ssh" && a != "all" && opts.Version == "" {
+			opts.Version = strings.TrimPrefix(a, "v")
+		}
+	}
 	return runUpdateAgManagerWithOpts(opts)
 }
 

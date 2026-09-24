@@ -5,6 +5,7 @@ import (
 	"os"
 	"os/exec"
 	"runtime"
+	"strings"
 
 	"github.com/alimtvnetwork/gitmap-v28/cli/apperror"
 	"github.com/alimtvnetwork/gitmap-v28/cli/constants"
@@ -24,10 +25,10 @@ func executeAgManagerOneLiner(opts installOptions, isUpdate bool) error {
 		return nil
 	}
 	if opts.DryRun {
-		fmt.Printf("  [dry-run] Would run: %s\n", resolveAgManagerCommandForOS())
+		fmt.Printf("  [dry-run] Would run: %s (version: %s)\n", resolveAgManagerCommandForOS(), opts.Version)
 		return nil
 	}
-	return runAgManagerScriptWithFeedback(isUpdate)
+	return runAgManagerScriptWithFeedback(isUpdate, opts.Version)
 }
 
 func isAgManagerInstallSkipped(opts installOptions, isUpdate bool) bool {
@@ -39,15 +40,23 @@ func isAgManagerInstallSkipped(opts installOptions, isUpdate bool) bool {
 	return false
 }
 
-func runAgManagerScriptWithFeedback(isUpdate bool) error {
+func runAgManagerScriptWithFeedback(isUpdate bool, version string) error {
 	action := resolveAgManagerActionName(isUpdate)
-	fmt.Printf("%s Antigravity Manager via %s...\n", action, resolveAgManagerPlatformName())
-	if err := dispatchAgManagerScript(); err != nil {
+	verLabel := ""
+	if version != "" {
+		verLabel = " (" + version + ")"
+	}
+	fmt.Printf("%s Antigravity Manager%s via %s...\n", action, verLabel, resolveAgManagerPlatformName())
+	if err := dispatchAgManagerScriptWithVersion(version); err != nil {
 		reportVerificationFailure(constants.ToolAgManager, "ag-manager")
 		return apperror.WrapSimple(err, "Antigravity Manager execution failed")
 	}
-	recordAgManagerInstalled("latest")
-	fmt.Printf("%s✓%s Antigravity Manager completed successfully.\n", constants.ColorGreen, constants.ColorReset)
+	installedVer := "latest"
+	if version != "" {
+		installedVer = version
+	}
+	recordAgManagerInstalled(installedVer)
+	fmt.Printf("%s✓%s Antigravity Manager%s completed successfully.\n", constants.ColorGreen, constants.ColorReset, verLabel)
 	return nil
 }
 
@@ -73,18 +82,31 @@ func resolveAgManagerPlatformName() string {
 }
 
 func dispatchAgManagerScript() error {
+	return dispatchAgManagerScriptWithVersion("")
+}
+
+func dispatchAgManagerScriptWithVersion(version string) error {
 	if runtime.GOOS == "windows" {
-		return dispatchAgManagerWindows()
+		return dispatchAgManagerWindowsWithVersion(version)
 	}
-	return dispatchAgManagerUnix()
+	return dispatchAgManagerUnixWithVersion(version)
 }
 
 func dispatchAgManagerWindows() error {
+	return dispatchAgManagerWindowsWithVersion("")
+}
+
+func dispatchAgManagerWindowsWithVersion(version string) error {
 	pwsh := resolvePowerShellBinary()
 	if pwsh == "" {
 		return apperror.NewSimple("PowerShell not found on PATH. Run manually:\n  "+constants.AgManagerWindowsInstallCmd, "E9000")
 	}
-	cmd := exec.Command(pwsh, "-NoProfile", "-ExecutionPolicy", "Bypass", "-Command", constants.AgManagerWindowsInstallCmd)
+	installCmd := constants.AgManagerWindowsInstallCmd
+	if version != "" {
+		clean := strings.TrimPrefix(version, "v")
+		installCmd = fmt.Sprintf(`& ([scriptblock]::Create((irm https://raw.githubusercontent.com/alimtvnetwork/Antigravity-Manager/main/install.ps1))) -Version '%s'`, clean)
+	}
+	cmd := exec.Command(pwsh, "-NoProfile", "-ExecutionPolicy", "Bypass", "-Command", installCmd)
 	cmd.Stdout = os.Stdout
 	cmd.Stderr = os.Stderr
 	cmd.Stdin = os.Stdin
@@ -92,7 +114,16 @@ func dispatchAgManagerWindows() error {
 }
 
 func dispatchAgManagerUnix() error {
-	cmd := exec.Command("bash", "-c", constants.AgManagerUnixInstallCmd)
+	return dispatchAgManagerUnixWithVersion("")
+}
+
+func dispatchAgManagerUnixWithVersion(version string) error {
+	installCmd := constants.AgManagerUnixInstallCmd
+	if version != "" {
+		clean := strings.TrimPrefix(version, "v")
+		installCmd = fmt.Sprintf(`curl -fsSL https://raw.githubusercontent.com/alimtvnetwork/Antigravity-Manager/main/install.sh | bash -s -- --version '%s'`, clean)
+	}
+	cmd := exec.Command("bash", "-c", installCmd)
 	cmd.Stdout = os.Stdout
 	cmd.Stderr = os.Stderr
 	cmd.Stdin = os.Stdin

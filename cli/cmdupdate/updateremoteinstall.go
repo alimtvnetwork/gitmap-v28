@@ -26,6 +26,9 @@ func runUpdateRemoteInstall() bool {
 func startRemoteUpdateWorkflow(slug string) bool {
 	currentVersion := constants.Version
 	targetVersion := fetchRemoteTargetVersion(slug)
+	if targetPinnedVersion != "" {
+		targetVersion = targetPinnedVersion
+	}
 	url := installerURLFor(slug)
 	fmt.Printf(constants.MsgUpdateRemoteFetch, url)
 

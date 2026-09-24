@@ -172,10 +172,28 @@ func joinRemotePath(dir, base string, isWin bool) string {
 	return strings.TrimRight(dir, "/") + "/" + base
 }
 
+func isExecutableTarget(destPath string, data []byte) bool {
+	base := filepath.Base(destPath)
+	if strings.HasSuffix(base, ".sh") || !strings.Contains(base, ".") {
+		return true
+	}
+	if len(data) >= 4 && data[0] == 0x7f && data[1] == 'E' && data[2] == 'L' && data[3] == 'F' {
+		return true
+	}
+	if len(data) >= 2 && data[0] == 'M' && data[1] == 'Z' {
+		return true
+	}
+	return false
+}
+
 func buildRemoteWriteCmd(destPath string, data []byte, isWin bool) string {
 	b64 := base64.StdEncoding.EncodeToString(data)
 	if isWin {
 		return fmt.Sprintf(`powershell -NoProfile -Command "$d=[Convert]::FromBase64String('%s'); $p='%s'; $dir=[IO.Path]::GetDirectoryName($p); if ($dir -and -not (Test-Path $dir)) { [IO.Directory]::CreateDirectory($dir) | Out-Null }; [IO.File]::WriteAllBytes($p, $d)"`, b64, destPath)
+	}
+
+	if isExecutableTarget(destPath, data) {
+		return fmt.Sprintf(`mkdir -p "$(dirname '%s')" && printf '%%s' '%s' | base64 -d > '%s' && chmod +x '%s'`, destPath, b64, destPath, destPath)
 	}
 
 	return fmt.Sprintf(`mkdir -p "$(dirname '%s')" && printf '%%s' '%s' | base64 -d > '%s'`, destPath, b64, destPath)
@@ -230,4 +248,10 @@ func printSSHTransferHelp(isMove bool) {
 	fmt.Printf("  gitmap ssh %s ./file.txt .\\test --except worker-2,192.168.1.20\n", action)
 	fmt.Printf("  gitmap ssh %s ./migration.sql /tmp/ --except alias\n", action)
 	fmt.Printf("  gitmap ssh %s ./app.zip %%win%%\\Temp\n\n", action)
+}
+
+// BuildRemoteWriteCmdForTest exports buildRemoteWriteCmd for testing.
+func BuildRemoteWriteCmdForTest(osType, destPath, b64Data string) string {
+	data, _ := base64.StdEncoding.DecodeString(b64Data)
+	return buildRemoteWriteCmd(destPath, data, isWindowsOS(osType))
 }

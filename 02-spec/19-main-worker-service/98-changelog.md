@@ -1,3 +1,9 @@
+## v6.327.0 — 2026-09-24 (remote exe copy semver verification and pinned releases)
+
+**Scope:** Version bump. remote exe copy semver verification and pinned releases.
+
+---
+
 ## v6.326.0 — 2026-09-24 (Routine release v6.326.0)
 
 **Scope:** Version bump. Routine release v6.326.0.

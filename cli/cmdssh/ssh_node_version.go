@@ -110,7 +110,54 @@ func probeOnlineNodeVersion(c db.SSHConnection) NodeVersionInfo {
 	ver, isInstalled := queryNodeVersionViaSSH(client, osType)
 	info.Version = ver
 	info.IsInstalled = isInstalled
+	info.Comparison = resolveNodeVersionComparison(ver, isInstalled)
 	return info
+}
+
+// CompareSemverStrings compares two version strings (e.g. "v6.326.0" vs "v6.324.0").
+// Returns 1 if v1 > v2, -1 if v1 < v2, and 0 if equal.
+func CompareSemverStrings(v1, v2 string) int {
+	clean1 := strings.TrimPrefix(strings.TrimSpace(v1), "v")
+	clean2 := strings.TrimPrefix(strings.TrimSpace(v2), "v")
+	if clean1 == clean2 {
+		return 0
+	}
+	p1 := strings.Split(clean1, ".")
+	p2 := strings.Split(clean2, ".")
+	maxLen := len(p1)
+	if len(p2) > maxLen {
+		maxLen = len(p2)
+	}
+	for i := 0; i < maxLen; i++ {
+		var n1, n2 int
+		if i < len(p1) {
+			_, _ = fmt.Sscanf(p1[i], "%d", &n1)
+		}
+		if i < len(p2) {
+			_, _ = fmt.Sscanf(p2[i], "%d", &n2)
+		}
+		if n1 > n2 {
+			return 1
+		}
+		if n1 < n2 {
+			return -1
+		}
+	}
+	return 0
+}
+
+func resolveNodeVersionComparison(ver string, isInstalled bool) string {
+	if !isInstalled {
+		return "○ NOT INSTALLED"
+	}
+	cmp := CompareSemverStrings(ver, constants.Version)
+	if cmp == 0 {
+		return "● IDENTICAL (SAME)"
+	}
+	if cmp > 0 {
+		return "▲ ABOVE (NEWER)"
+	}
+	return "▼ BELOW (OLDER)"
 }
 
 func probeNodeVersion(c db.SSHConnection) NodeVersionInfo {
@@ -122,6 +169,7 @@ func probeNodeVersion(c db.SSHConnection) NodeVersionInfo {
 			Role:        "worker",
 			Status:      "○ offline",
 			Version:     "(machine is off)",
+			Comparison:  "○ OFFLINE",
 			IsOnline:    false,
 			IsInstalled: false,
 		}
@@ -148,22 +196,37 @@ func collectFleetNodeVersions(conns []db.SSHConnection) []NodeVersionInfo {
 
 func renderNodeVersionTable(infos []NodeVersionInfo) {
 	fmt.Println()
-	fmt.Printf("  %-16s %-22s %-14s %-12s %s\n",
-		"ALIAS", "HOST (IP:PORT)", "ROLE", "STATUS", "GITMAP VERSION")
-	fmt.Println("  " + strings.Repeat("-", 84))
+	fmt.Printf("  %-16s %-20s %-10s %-12s %-18s %s\n",
+		"ALIAS", "HOST (IP:PORT)", "ROLE", "STATUS", "GITMAP VERSION", "COMPARISON (LOCAL: v"+constants.Version+")")
+	fmt.Println("  " + strings.Repeat("-", 100))
 
 	for _, info := range infos {
 		statusColor := resolveNodeStatusColor(info.IsOnline)
 		versionColor := resolveNodeVersionColor(info.IsInstalled, info.IsOnline)
-		fmt.Printf("  %-16s %-22s %-14s %s%-12s%s %s%s%s\n",
+		cmpColor := resolveComparisonColor(info.Comparison)
+		fmt.Printf("  %-16s %-20s %-10s %s%-12s%s %s%-18s%s %s%s%s\n",
 			info.Alias,
 			info.Host,
 			info.Role,
 			statusColor, info.Status, constants.ColorReset,
 			versionColor, info.Version, constants.ColorReset,
+			cmpColor, info.Comparison, constants.ColorReset,
 		)
 	}
 	fmt.Println()
+}
+
+func resolveComparisonColor(comparison string) string {
+	if strings.Contains(comparison, "IDENTICAL") {
+		return constants.ColorGreen
+	}
+	if strings.Contains(comparison, "ABOVE") {
+		return constants.ColorCyan
+	}
+	if strings.Contains(comparison, "BELOW") {
+		return constants.ColorYellow
+	}
+	return constants.ColorDim
 }
 
 func resolveNodeStatusColor(isOnline bool) string {
@@ -221,4 +284,9 @@ func extractTargetFilter(args []string) string {
 		}
 	}
 	return "all"
+}
+
+// ResolveNodeVersionComparisonForTest exports resolveNodeVersionComparison for testing.
+func ResolveNodeVersionComparisonForTest(ver string, isInstalled bool) string {
+	return resolveNodeVersionComparison(ver, isInstalled)
 }

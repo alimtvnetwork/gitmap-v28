@@ -49,7 +49,7 @@ func utilityCoreEntries() []dispatchEntry {
 		{[]string{constants.CmdRevert}, func() error { return runRevert(argsTail()) }},
 		{[]string{constants.CmdRm, constants.CmdRmAlias, constants.CmdRmAlias2}, func() error { return runRm(argsTail()) }},
 		{[]string{constants.CmdRevertRunner}, runRevertRunner},
-		{[]string{constants.CmdVersion, constants.CmdVersionAlias, "--version", "-version", "-v"}, printVersionBlock},
+		{[]string{constants.CmdVersion, constants.CmdVersionAlias, "--version", "-version", "-v", "versions"}, printVersionBlock},
 		{[]string{constants.CmdHelp, "--help", "-h"}, runHelpDispatch},
 	}
 }
@@ -61,7 +61,11 @@ func printIdentityLong() error {
 }
 
 func printVersionBlock() error {
-	checkHelp("version", argsTail())
+	args := argsTail()
+	if isVersionListRequest(args) {
+		return RunGitMapVersionTagsLS()
+	}
+	checkHelp("version", args)
 	fmt.Printf(constants.MsgVersionFmt, constants.Version)
 
 	return nil
@@ -101,6 +105,14 @@ func runUpdateHelp() error {
 		return cmdssh.RunSSHUpdateCLI(args[1:])
 	}
 	checkHelp("update", argsTail())
+
+	if isVersionListRequest(args) {
+		if isAgmUpdateTarget(args) {
+			return RunAGMVersionTagsLS()
+		}
+		return RunGitMapVersionTagsLS()
+	}
+
 	remoteTarget, cleanArgs := extractRemoteUpdateTarget(args)
 	if remoteTarget != "" {
 		pkg := resolveUpdatePackage(cleanArgs)
@@ -108,6 +120,11 @@ func runUpdateHelp() error {
 	}
 	if isAgmUpdateTarget(args) {
 		return runUpdateAgManagerTarget(args)
+	}
+
+	targetVer := extractVersionFromArgs(args)
+	if targetVer != "" {
+		cmdupdate.SetTargetVersion(targetVer)
 	}
 
 	return runUpdate()
@@ -135,14 +152,63 @@ func isAgmToken(arg string) bool {
 }
 
 func runUpdateAgManagerTarget(args []string) error {
-	remoteTarget, _ := extractRemoteUpdateTarget(args)
+	remoteTarget, cleanArgs := extractRemoteUpdateTarget(args)
 	if remoteTarget != "" {
 		return cmdssh.RunSSHUpdateCLI([]string{"agm", remoteTarget})
 	}
+	if isVersionListRequest(cleanArgs) {
+		return RunAGMVersionTagsLS()
+	}
 	opts := cmdinstall.InstallOptions{
-		DryRun: hasDryRunArg(args),
+		DryRun:  hasDryRunArg(cleanArgs),
+		Version: extractVersionFromArgs(cleanArgs),
 	}
 	return cmdinstall.RunUpdateAgManagerWithOpts(opts)
+}
+
+func isVersionListRequest(args []string) bool {
+	for _, a := range args {
+		low := strings.ToLower(strings.TrimSpace(a))
+		if low == "ls" || low == "list" || low == "versions" || low == "tags" || low == "ls-versions" {
+			return true
+		}
+	}
+	return false
+}
+
+func isSemverLike(s string) bool {
+	s = strings.TrimPrefix(s, "v")
+	parts := strings.Split(s, ".")
+	if len(parts) < 2 {
+		return false
+	}
+	for _, p := range parts {
+		if len(p) == 0 {
+			return false
+		}
+		for _, r := range p {
+			if r < '0' || r > '9' {
+				return false
+			}
+		}
+	}
+	return true
+}
+
+func extractVersionFromArgs(args []string) string {
+	for i := 0; i < len(args); i++ {
+		a := args[i]
+		if (a == "--version" || a == "-v") && i+1 < len(args) {
+			return args[i+1]
+		}
+		if strings.HasPrefix(a, "--version=") {
+			return strings.TrimPrefix(a, "--version=")
+		}
+		if !strings.HasPrefix(a, "-") && isSemverLike(a) {
+			return a
+		}
+	}
+	return ""
 }
 
 func hasDryRunArg(args []string) bool {

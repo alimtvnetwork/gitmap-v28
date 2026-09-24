@@ -1,3 +1,15 @@
+## [v6.327.0] 2026-09-24 Release v6.327.0
+
+### Install GitMap v6.327.0
+
+To pin your repository to this exact version, run the following one-liner:
+Unix/Bash: `curl -sL https://raw.githubusercontent.com/alimtvnetwork/gitmap-v28/v6.327.0/install.sh | bash -s -- ".ai-memory/prompts" "v6.327.0"`
+PowerShell: `Invoke-WebRequest -Uri https://raw.githubusercontent.com/alimtvnetwork/gitmap-v28/v6.327.0/install.ps1 -OutFile install.ps1; .\install.ps1 -TargetDir ".ai-memory/prompts" -Version "v6.327.0"`
+
+### Added / Changed / Fixed / Removed
+
+- remote exe copy semver verification and pinned releases
+
 ## [v6.326.0] 2026-09-24 Release v6.326.0
 
 ### Install GitMap v6.326.0
