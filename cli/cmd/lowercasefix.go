@@ -10,11 +10,14 @@ import (
 )
 
 var (
-	lcfDryRun   bool
-	lcfNoCommit bool
-	lcfYes      bool
-	lcfReadme   bool
-	lcfMessage  string
+	lcfDryRun         bool
+	lcfNoCommit       bool
+	lcfNoPush         bool
+	lcfDiscardPending bool
+	lcfForce          bool
+	lcfYes            bool
+	lcfReadme         bool
+	lcfMessage        string
 )
 
 var lowerCaseFixCmd = &cobra.Command{
@@ -23,16 +26,19 @@ var lowerCaseFixCmd = &cobra.Command{
 	Short:   "Rename uppercase files (e.g. README.md -> readme.md) across the repo and commit",
 	Long: `Scans the repository for uppercase or mixed-case files matching specified patterns
 (e.g. *.md, *md, *, SKILL*) and safely renames them to lowercase using a two-step git mv,
-preventing case-collision on case-insensitive filesystems (Windows/macOS), and optionally commits.`,
+preventing case-collision on case-insensitive filesystems (Windows/macOS), and optionally commits and pushes.`,
 	RunE: func(cmd *cobra.Command, args []string) error {
 		patterns, isReadme := resolveLcfPatterns(args)
 		opts := LowerCaseFixOptions{
-			Patterns:      patterns,
-			IsDryRun:      lcfDryRun,
-			IsNoCommit:    lcfNoCommit,
-			IsYes:         lcfYes,
-			IsReadmeOnly:  lcfReadme || isReadme,
-			CommitMessage: lcfMessage,
+			Patterns:         patterns,
+			IsDryRun:         lcfDryRun,
+			IsNoCommit:       lcfNoCommit,
+			IsNoPush:         lcfNoPush,
+			IsDiscardPending: lcfDiscardPending,
+			IsForce:          lcfForce,
+			IsYes:            lcfYes,
+			IsReadmeOnly:     lcfReadme || isReadme,
+			CommitMessage:    lcfMessage,
 		}
 
 		return ExecuteLowerCaseFix(opts)
@@ -42,6 +48,9 @@ preventing case-collision on case-insensitive filesystems (Windows/macOS), and o
 func init() {
 	lowerCaseFixCmd.Flags().BoolVarP(&lcfDryRun, "dry-run", "d", false, "Preview matching files without renaming")
 	lowerCaseFixCmd.Flags().BoolVar(&lcfNoCommit, "no-commit", false, "Do not commit renames to git")
+	lowerCaseFixCmd.Flags().BoolVar(&lcfNoPush, "no-push", false, "Do not push commit to remote git repository")
+	lowerCaseFixCmd.Flags().BoolVar(&lcfDiscardPending, "discard-pending", false, "Discard pending uncommitted changes before renaming")
+	lowerCaseFixCmd.Flags().BoolVarP(&lcfForce, "force", "f", false, "Force execution without prompting for dirty working tree")
 	lowerCaseFixCmd.Flags().BoolVarP(&lcfYes, "yes", "y", false, "Proceed without interactive confirmation")
 	lowerCaseFixCmd.Flags().BoolVarP(&lcfReadme, "readme", "r", false, "Target root README files only")
 	lowerCaseFixCmd.Flags().StringVarP(&lcfMessage, "message", "m", "", "Custom git commit message")
@@ -50,6 +59,9 @@ func init() {
 func runLowerCaseFixCLI(args []string) error {
 	lcfDryRun = false
 	lcfNoCommit = false
+	lcfNoPush = false
+	lcfDiscardPending = false
+	lcfForce = false
 	lcfYes = false
 	lcfReadme = false
 	lcfMessage = ""

@@ -9,18 +9,18 @@ import (
 	"github.com/alimtvnetwork/gitmap-v28/cli/constants"
 )
 
-func commitRenames(pairs []RenamePair, customMsg string) (string, error) {
+func commitRenames(pairs []RenamePair, customMsg string, isNoPush bool) (string, bool, error) {
 	if len(pairs) == 0 {
-		return "", nil
+		return "", false, nil
 	}
 
 	if err := stageRenamedFiles(); err != nil {
-		return "", err
+		return "", false, err
 	}
 
 	msg := resolveCommitMsg(pairs, customMsg)
 	if err := executeGitCommit(msg); err != nil {
-		return "", err
+		return "", false, err
 	}
 
 	sha := getLatestCommitSHA()
@@ -29,10 +29,39 @@ func commitRenames(pairs []RenamePair, customMsg string) (string, error) {
 		shortSHA = sha[:8]
 	}
 
-	fmt.Printf("\n%s✓ Committed %d lowercase file rename(s): %q (%s)%s\n\n",
+	fmt.Printf("\n%s✓ Committed %d lowercase file rename(s): %q (%s)%s\n",
 		constants.ColorGreen, len(pairs), msg, shortSHA, constants.ColorReset)
 
-	return sha, nil
+	isPushed := false
+	if !isNoPush {
+		if pushErr := executeGitPush(); pushErr != nil {
+			fmt.Printf("%s⚠️  Git commit created (%s), but git push failed: %v%s\n\n",
+				constants.ColorYellow, shortSHA, pushErr, constants.ColorReset)
+		} else {
+			isPushed = true
+			fmt.Printf("%s✓ Pushed commit (%s) to remote tracking branch%s\n\n",
+				constants.ColorGreen, shortSHA, constants.ColorReset)
+		}
+	} else {
+		fmt.Println()
+	}
+
+	return sha, isPushed, nil
+}
+
+func executeGitPush() error {
+	branch := resolveCurrentBranchName()
+	cmd := exec.Command("git", "push", "origin", branch)
+	if _, err := cmd.CombinedOutput(); err == nil {
+		return nil
+	}
+
+	cmdSimple := exec.Command("git", "push")
+	if outSimple, errSimple := cmdSimple.CombinedOutput(); errSimple != nil {
+		return fmt.Errorf("push failed: %w (%s)", errSimple, strings.TrimSpace(string(outSimple)))
+	}
+
+	return nil
 }
 
 func stageRenamedFiles() error {

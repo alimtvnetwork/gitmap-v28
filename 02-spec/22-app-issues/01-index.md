@@ -48,6 +48,7 @@ Any content that analyzes bugs, failures, root causes, or fixes for application-
 | 40 | [40-cfr-short-name-clone-failure-and-missing-gh-resolution.md](40-cfr-short-name-clone-failure-and-missing-gh-resolution.md) | CFR Short-Name Clone Failure & Missing GitHub CLI Resolution: RCA & Fix | Resolved |
 | 41 | [41-vscode-startup-failure-and-search-latency-rca.md](41-vscode-startup-failure-and-search-latency-rca.md) | VS Code Startup Failure & Investigation Latency: Root Cause Analysis & Mitigation | Resolved |
 | 42 | [42-ssh-install-exec-upload-failed-and-os-misclassification-rca.md](42-ssh-install-exec-upload-failed-and-os-misclassification-rca.md) | SSH Install-Exec 0ms Upload Failure & Remote OS Misclassification: RCA & Fix | Resolved |
+| 43 | [43-gitmap-lowercase-unresolved-conflicts-and-missing-push-rca.md](43-gitmap-lowercase-unresolved-conflicts-and-missing-push-rca.md) | GitMap Lowercase Unresolved Merge Conflicts, Working Tree Dirt Contamination & Missing Push: RCA & Fix | Resolved |
 
 ---
 

@@ -1,3 +1,9 @@
+## v6.338.0 — 2026-09-24 (gitmap lowercase preflight hygiene, conflict resolution, auto-push, and ssh stream upload)
+
+**Scope:** Version bump. gitmap lowercase preflight hygiene, conflict resolution, auto-push, and ssh stream upload.
+
+---
+
 ## v6.337.0 — 2026-09-24 (prune unused symbols, resolve heavy_test module root, and pass all CI gates)
 
 **Scope:** Version bump. prune unused symbols, resolve heavy_test module root, and pass all CI gates.

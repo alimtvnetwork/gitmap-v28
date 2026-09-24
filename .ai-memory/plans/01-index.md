@@ -6,11 +6,13 @@ Master directory of architectural and execution plans.
 
 - [52-winutil-linutil-advanced-os-integration-plan.md](pending/52-winutil-linutil-advanced-os-integration-plan.md): Advanced WinUtil & LinUtil Native Go Integration (DM Settings, OS Tweaks, DNS Switcher & Bubbletea TUI)
 - [53-cicd-interface-naming-and-enum-suffix.md](pending/53-cicd-interface-naming-and-enum-suffix.md): CI/CD Quality Gate: Interface Naming and Enum Type Suffix Compliance
-- [93-antigravity-commands-ssh-fleet-and-e2e-benchmarking.md](pending/93-antigravity-commands-ssh-fleet-and-e2e-benchmarking.md): Antigravity Commands Suite, SSH Fleet Parallel Execution, and E2E Benchmarking
 
 ## Recent Completed Tasks Register (Last 20 Tasks)
 
-1. [98-ssh-macro-pea-deploy-fleet-update-and-ssh-clone-tempe2e.md](completed/98-ssh-macro-pea-deploy-fleet-update-and-ssh-clone-tempe2e.md): SSH Macro/PEA/PEAT Fleet Deployment, Multi-Node Update Telemetry, Remote SSH Clone & Isolated Temporary E2E Validation
+1. [107-gitmap-lowercase-preflight-hygiene-and-conflict-resolution.md](completed/107-gitmap-lowercase-preflight-hygiene-and-conflict-resolution.md): GitMap Lowercase Pre-Flight Hygiene, Working Tree Conflict Resolution & Automated Push
+2. [106-ssh-install-exec-streaming-upload-and-os-resolution.md](completed/106-ssh-install-exec-streaming-upload-and-os-resolution.md): SSH Install-Exec Streaming Upload Protocol, DB Resolution Fallback & Dynamic Remote OS Probing
+3. [105-node-login-profiling-which-os-sqlite-persistence.md](completed/105-node-login-profiling-which-os-sqlite-persistence.md): Node First-Time Login Profiling, GitMap Auto-Install, and SQLite OS Persistence
+4. [98-ssh-macro-pea-deploy-fleet-update-and-ssh-clone-tempe2e.md](completed/98-ssh-macro-pea-deploy-fleet-update-and-ssh-clone-tempe2e.md): SSH Macro/PEA/PEAT Fleet Deployment, Multi-Node Update Telemetry, Remote SSH Clone & Isolated Temporary E2E Validation
 2. [97-ssh-join-common-os-detect-rop-and-e2e-benchmarks.md](completed/97-ssh-join-common-os-detect-rop-and-e2e-benchmarks.md): SSH Common Batch Join, Remote OS Detection & Telemetry, AGY Project Re-read & Optimization, and Native AUM Benchmarking
 2. [96-pull-abort-cfr-gh-resolver-asset-downloader-and-contrast.md](completed/96-pull-abort-cfr-gh-resolver-asset-downloader-and-contrast.md): Pull Batch Abort, CFR GitHub Resolver, Asset Downloader, Color Contrast, and Token Fleet Management
 2. [95-repo-create-triple-sync-and-paet-latency-rca.md](completed/95-repo-create-triple-sync-and-paet-latency-rca.md): Repository Creation Triple Ecosystem Auto-Sync (VS Code, GitHub Desktop & Antigravity) & PAET Latency RCA
@@ -76,6 +78,9 @@ Master directory of architectural and execution plans.
 
 ## Completed Plans
 
+- [107-gitmap-lowercase-preflight-hygiene-and-conflict-resolution.md](completed/107-gitmap-lowercase-preflight-hygiene-and-conflict-resolution.md): GitMap Lowercase Pre-Flight Hygiene, Working Tree Conflict Resolution & Automated Push
+- [106-ssh-install-exec-streaming-upload-and-os-resolution.md](completed/106-ssh-install-exec-streaming-upload-and-os-resolution.md): SSH Install-Exec Streaming Upload Protocol, DB Resolution Fallback & Dynamic Remote OS Probing
+- [105-node-login-profiling-which-os-sqlite-persistence.md](completed/105-node-login-profiling-which-os-sqlite-persistence.md): Node First-Time Login Profiling, GitMap Auto-Install, and SQLite OS Persistence
 - [99-ssh-agy-fleet-nodes-export-agm-update-aum-db-and-ai-port-server.md](completed/99-ssh-agy-fleet-nodes-export-agm-update-aum-db-and-ai-port-server.md): SSH & AGY Bidirectional Fleet Dispatch, SSH Nodes JSON Export/Import & One-Liner, AGM Fleet Update, AUM SQLite Search History (`DH2D`), PowerShell Search Benchmark, and In-Memory AI Multi-Port Server
 - [98-ssh-macro-pea-deploy-fleet-update-ssh-clone-and-agy-rerun-queue-tempe2e.md](completed/98-ssh-macro-pea-deploy-fleet-update-ssh-clone-and-agy-rerun-queue-tempe2e.md): SSH Macro/PEA/PEAT Fleet Deployment, Multi-Node Update Telemetry, Remote SSH Clone, AGY Rerun 5-Queue Replay & Isolated Temporary E2E Validation
 - [97-ssh-join-common-os-detect-rop-and-e2e-benchmarks.md](completed/97-ssh-join-common-os-detect-rop-and-e2e-benchmarks.md): SSH Common Batch Join, Remote OS Detection & Telemetry, AGY Project Re-read & Optimization, and Native AUM Benchmarking

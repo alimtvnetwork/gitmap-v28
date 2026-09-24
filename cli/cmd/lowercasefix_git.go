@@ -85,3 +85,56 @@ func runGitMvForLcf(src, dst string) error {
 
 	return nil
 }
+
+// GitWorkingTreeStatus records pending dirty or conflicted files.
+type GitWorkingTreeStatus struct {
+	HasConflicts  bool
+	ConflictFiles []string
+	DirtyFiles    []string
+}
+
+func checkGitWorkingTreeStatus() GitWorkingTreeStatus {
+	cmd := exec.Command("git", "status", "--porcelain")
+	out, err := cmd.Output()
+	if err != nil {
+		return GitWorkingTreeStatus{}
+	}
+
+	var status GitWorkingTreeStatus
+	lines := strings.Split(string(out), "\n")
+	for _, line := range lines {
+		trimmed := strings.TrimRight(line, "\r")
+		if len(trimmed) < 3 {
+			continue
+		}
+		code := trimmed[:2]
+		filePath := strings.TrimSpace(trimmed[3:])
+		if isGitConflictCode(code) {
+			status.HasConflicts = true
+			status.ConflictFiles = append(status.ConflictFiles, filePath)
+		} else {
+			status.DirtyFiles = append(status.DirtyFiles, filePath)
+		}
+	}
+
+	return status
+}
+
+func isGitConflictCode(code string) bool {
+	return code == "UU" || code == "AA" || code == "DD" ||
+		code == "AU" || code == "UA" || code == "UD" || code == "DU"
+}
+
+func discardGitWorkingTreeChanges() error {
+	cmdReset := exec.Command("git", "reset", "--hard", "HEAD")
+	if out, err := cmdReset.CombinedOutput(); err != nil {
+		return fmt.Errorf("git reset --hard failed: %w (%s)", err, strings.TrimSpace(string(out)))
+	}
+
+	cmdClean := exec.Command("git", "clean", "-fd")
+	if out, err := cmdClean.CombinedOutput(); err != nil {
+		return fmt.Errorf("git clean -fd failed: %w (%s)", err, strings.TrimSpace(string(out)))
+	}
+
+	return nil
+}

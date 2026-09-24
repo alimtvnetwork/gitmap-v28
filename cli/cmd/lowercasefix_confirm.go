@@ -44,15 +44,43 @@ func renderPreflightBox(pairs []RenamePair, opts LowerCaseFixOptions) {
 	fmt.Printf("%s────────────────────────────────────────────────────────────────%s\n", constants.ColorCyan, constants.ColorReset)
 }
 
-func renderPreflightFound(pairs []RenamePair) {
-	fmt.Printf("  ● Found: %d uppercase file(s) to rename:\n", len(pairs))
-	limit := 8
-	for i, p := range pairs {
-		if i >= limit {
-			fmt.Printf("    ... and %d more file(s)\n", len(pairs)-limit)
+func promptDiscardPendingConfirmation(status GitWorkingTreeStatus) (bool, error) {
+	return promptDiscardPendingConfirmationWithReader(lcfStdinReader, status)
+}
+
+func promptDiscardPendingConfirmationWithReader(r io.Reader, status GitWorkingTreeStatus) (bool, error) {
+	fmt.Printf("\n%s⚠️  Warning: Repository working tree has %d pending uncommitted file(s):%s\n",
+		constants.ColorYellow, len(status.DirtyFiles), constants.ColorReset)
+	for i, f := range status.DirtyFiles {
+		if i >= 15 {
+			fmt.Printf("    ... and %d more pending file(s)\n", len(status.DirtyFiles)-15)
 			break
 		}
-		fmt.Printf("    • %s → %s\n", p.OldBase, p.NewBase)
+		fmt.Printf("    • %s\n", f)
+	}
+	fmt.Printf("\n%sDiscard uncommitted pending changes to proceed with clean renames? (confirm/y/N): %s",
+		constants.ColorYellow, constants.ColorReset)
+
+	reader := bufio.NewReader(r)
+	line, err := reader.ReadString('\n')
+	if err != nil && len(line) == 0 {
+		return false, nil
+	}
+
+	ans := strings.ToLower(strings.TrimSpace(line))
+	return ans == "confirm" || ans == "yes" || ans == "y", nil
+}
+
+func renderPreflightFound(pairs []RenamePair) {
+	fmt.Printf("  ● Found: %d uppercase file(s) to rename:\n", len(pairs))
+	for _, p := range pairs {
+		displayOld := p.OldBase
+		displayNew := p.NewBase
+		if p.RelPath != "" && p.RelPath != p.OldBase {
+			displayOld = p.RelPath
+			displayNew = strings.TrimSuffix(p.RelPath, p.OldBase) + p.NewBase
+		}
+		fmt.Printf("    • %s → %s\n", displayOld, displayNew)
 	}
 }
 
@@ -71,6 +99,9 @@ func renderPreflightAfterEffects(opts LowerCaseFixOptions) {
 		return
 	}
 	fmt.Printf("    • Automatically committed to branch: %s\n", branch)
+	if !opts.IsNoPush {
+		fmt.Printf("    • Automatically pushed to remote: origin/%s\n", branch)
+	}
 }
 
 func resolveCurrentBranchName() string {

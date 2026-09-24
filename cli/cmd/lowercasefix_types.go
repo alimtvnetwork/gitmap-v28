@@ -3,12 +3,15 @@ package cmd
 
 // LowerCaseFixOptions holds flags and configuration for lowercase fix.
 type LowerCaseFixOptions struct {
-	Patterns      []string `json:"patterns"`
-	IsDryRun      bool     `json:"isDryRun"`
-	IsNoCommit    bool     `json:"isNoCommit"`
-	IsYes         bool     `json:"isYes"`
-	IsReadmeOnly  bool     `json:"isReadmeOnly"`
-	CommitMessage string   `json:"commitMessage"`
+	Patterns         []string `json:"patterns"`
+	IsDryRun         bool     `json:"isDryRun"`
+	IsNoCommit       bool     `json:"isNoCommit"`
+	IsNoPush         bool     `json:"isNoPush"`
+	IsDiscardPending bool     `json:"isDiscardPending"`
+	IsForce          bool     `json:"isForce"`
+	IsYes            bool     `json:"isYes"`
+	IsReadmeOnly     bool     `json:"isReadmeOnly"`
+	CommitMessage    string   `json:"commitMessage"`
 }
 
 // RenamePair represents a file to be renamed to lowercase.
@@ -29,4 +32,5 @@ type RenameSummary struct {
 	TotalRenamed int    `json:"totalRenamed"`
 	IsGitRepo    bool   `json:"isGitRepo"`
 	CommitSHA    string `json:"commitSha"`
+	IsPushed     bool   `json:"isPushed"`
 }

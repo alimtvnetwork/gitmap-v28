@@ -82,7 +82,11 @@ func renderSummaryDetails(s RenameSummary) {
 
 func renderGitOrFSStatus(s RenameSummary) {
 	if s.IsGitRepo && s.CommitSHA != "" {
-		fmt.Printf("  ● Git Status:          Committed (%s)\n", s.CommitSHA[:minLen(8, len(s.CommitSHA))])
+		pushInfo := ""
+		if s.IsPushed {
+			pushInfo = " & Pushed to remote"
+		}
+		fmt.Printf("  ● Git Status:          Committed (%s)%s\n", s.CommitSHA[:minLen(8, len(s.CommitSHA))], pushInfo)
 		return
 	}
 	if s.IsGitRepo {
@@ -109,6 +113,11 @@ func renderGitManipulationSteps(s RenameSummary) {
 	fmt.Printf("    3. Step 3 (Index Sync):      git add -A\n")
 	if s.CommitSHA != "" {
 		fmt.Printf("    4. Step 4 (Atomic Commit):   git commit -m \"chore: rename ...\"\n")
+		if s.IsPushed {
+			fmt.Printf("    5. Step 5 (Remote Push):     git push origin <branch>\n")
+		} else {
+			fmt.Printf("    5. Step 5 (Skip Push):       Push skipped (--no-push specified or push failed)\n")
+		}
 		return
 	}
 	fmt.Printf("    4. Step 4 (Skip Commit):     Staged without committing (--no-commit specified)\n")

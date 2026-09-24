@@ -1,3 +1,25 @@
+## [v6.338.0] 2026-09-24 Release v6.338.0
+
+### Install GitMap v6.338.0
+
+To pin your repository to this exact version, run the following one-liner:
+Unix/Bash: `curl -sL https://raw.githubusercontent.com/alimtvnetwork/gitmap-v28/v6.338.0/install.sh | bash -s -- ".ai-memory/prompts" "v6.338.0"`
+PowerShell: `Invoke-WebRequest -Uri https://raw.githubusercontent.com/alimtvnetwork/gitmap-v28/v6.338.0/install.ps1 -OutFile install.ps1; .\install.ps1 -TargetDir ".ai-memory/prompts" -Version "v6.338.0"`
+
+### Added / Changed / Fixed / Removed
+
+- **Spec 156: GitMap Lowercase Pre-Flight Hygiene, Conflict Resolution & Auto-Push**
+  - Added pre-flight working tree inspection (`git status --porcelain`) prior to rename execution.
+  - Added immediate detection and abortion on unresolved Git merge conflicts (`UU`, `AA`, etc.).
+  - Added full relative path disclosure in pre-flight confirmation without truncation or hidden items.
+  - Added interactive prompt to discard uncommitted working tree changes with `--discard-pending` and `-f, --force` bypass flags.
+  - Added automatic remote git push (`git push origin <branch>`) after atomic commit with `--no-push` bypass flag.
+  - Enhanced report summary to indicate commit SHA and remote push status.
+- **Spec 155: SSH Install-Exec Streaming Upload Protocol & OS Resolution**
+  - Replaced Base64 command-line string inlining with pure SSH stdin POSIX Tar streaming (`StreamFileToRemote`).
+  - Added AppData global database fallback in `store/location.go` when invoked outside git directories.
+  - Added dynamic remote OS probing and SQLite schema migration for `ssh_hosts` table OS column.
+
 ## [v6.337.0] 2026-09-24 Release v6.337.0
 
 ### Install GitMap v6.337.0

@@ -4,6 +4,7 @@ package cmd
 import (
 	"fmt"
 	"os"
+	"strings"
 
 	"github.com/alimtvnetwork/gitmap-v28/cli/constants"
 )
@@ -12,6 +13,38 @@ import (
 func ExecuteLowerCaseFix(opts LowerCaseFixOptions) error {
 	cwd, _ := os.Getwd()
 	isGit := isGitRepository()
+
+	if isGit && !opts.IsDryRun {
+		treeStatus := checkGitWorkingTreeStatus()
+		if treeStatus.HasConflicts {
+			return fmt.Errorf("git repository has %d unresolved merge conflict(s). Resolve conflicts before running lowercase renames:\n  %s", len(treeStatus.ConflictFiles), strings.Join(treeStatus.ConflictFiles, "\n  "))
+		}
+		if len(treeStatus.DirtyFiles) > 0 {
+			if opts.IsDiscardPending {
+				if err := discardGitWorkingTreeChanges(); err != nil {
+					return fmt.Errorf("failed to discard pending changes: %w", err)
+				}
+				fmt.Printf("%s✓ Discarded %d uncommitted pending change(s) before renaming.%s\n\n",
+					constants.ColorYellow, len(treeStatus.DirtyFiles), constants.ColorReset)
+			} else if !opts.IsForce && !opts.IsYes {
+				shouldDiscard, err := promptDiscardPendingConfirmation(treeStatus)
+				if err != nil {
+					return err
+				}
+				if shouldDiscard {
+					if err := discardGitWorkingTreeChanges(); err != nil {
+						return fmt.Errorf("failed to discard pending changes: %w", err)
+					}
+					fmt.Printf("%s✓ Discarded %d uncommitted pending change(s) before renaming.%s\n\n",
+						constants.ColorYellow, len(treeStatus.DirtyFiles), constants.ColorReset)
+				} else {
+					renderCanceledMessage()
+					return nil
+				}
+			}
+		}
+	}
+
 	pairs, totalScanned, err := findRenameCandidates(cwd, opts)
 	if err != nil {
 		return err
@@ -94,7 +127,7 @@ func applyRenamesAndCommit(pairs []RenamePair, opts LowerCaseFixOptions, scanned
 		renamedCount++
 	}
 
-	commitSHA, commitErr := maybeCommitRenames(pairs, opts, isGit)
+	commitSHA, isPushed, commitErr := maybeCommitRenames(pairs, opts, isGit)
 	if commitErr != nil {
 		return commitErr
 	}
@@ -105,15 +138,16 @@ func applyRenamesAndCommit(pairs []RenamePair, opts LowerCaseFixOptions, scanned
 		TotalRenamed: renamedCount,
 		IsGitRepo:    isGit,
 		CommitSHA:    commitSHA,
+		IsPushed:     isPushed,
 	})
 
 	return nil
 }
 
-func maybeCommitRenames(pairs []RenamePair, opts LowerCaseFixOptions, isGit bool) (string, error) {
+func maybeCommitRenames(pairs []RenamePair, opts LowerCaseFixOptions, isGit bool) (string, bool, error) {
 	if !isGit || opts.IsNoCommit {
-		return "", nil
+		return "", false, nil
 	}
 
-	return commitRenames(pairs, opts.CommitMessage)
+	return commitRenames(pairs, opts.CommitMessage, opts.IsNoPush)
 }
