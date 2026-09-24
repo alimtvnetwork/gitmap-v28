@@ -168,13 +168,16 @@ func suggestUpdateTarget(token string) string {
 	return ""
 }
 
-func handleUnknownUpdateTarget(token string) {
+func formatUnknownUpdateTargetHeader(token string) string {
 	suggestion := suggestUpdateTarget(token)
 	if suggestion != "" {
-		fmt.Printf("\ngitmap update: Unknown update target '%s'.\n  Did you mean: gitmap update %s?\n\n", token, suggestion)
-	} else {
-		fmt.Printf("\ngitmap update: Unknown update target '%s'.\n\n", token)
+		return fmt.Sprintf("gitmap update: Unknown update target '%s'.\n  Did you mean: gitmap update %s?", token, suggestion)
 	}
+	return fmt.Sprintf("gitmap update: Unknown update target '%s'.", token)
+}
+
+func handleUnknownUpdateTarget(token string) {
+	fmt.Printf("\n%s\n\n", formatUnknownUpdateTargetHeader(token))
 	fmt.Println("Available update commands:")
 	fmt.Println("  gitmap update              - Self-update local gitmap binary")
 	fmt.Println("  gitmap update all          - Update all fleet cluster nodes in parallel (alias: gitmap ua)")

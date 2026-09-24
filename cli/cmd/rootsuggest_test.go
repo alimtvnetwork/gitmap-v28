@@ -94,3 +94,24 @@ func TestBuildUnknownCommandMessage(t *testing.T) {
 		t.Errorf("expected suggestion in message, got %q", msg)
 	}
 }
+
+func TestFormatUnknownUpdateTargetHeader_Proof(t *testing.T) {
+	cases := []struct {
+		input       string
+		mustContain string
+	}{
+		{"al", "Did you mean: gitmap update all?"},
+		{"hosts", "Did you mean: gitmap update all?"},
+		{"cluster", "Did you mean: gitmap update all?"},
+		{"apps", "Did you mean: gitmap update ls?"},
+		{"inventory", "Did you mean: gitmap update ls?"},
+		{"ag", "Did you mean: gitmap update agm?"},
+		{"gitm", "Did you mean: gitmap update gitmap?"},
+	}
+	for _, tc := range cases {
+		header := formatUnknownUpdateTargetHeader(tc.input)
+		if !strings.Contains(header, tc.mustContain) {
+			t.Errorf("formatUnknownUpdateTargetHeader(%q) = %q, expected to contain %q", tc.input, header, tc.mustContain)
+		}
+	}
+}

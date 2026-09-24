@@ -335,13 +335,6 @@ func convertConnectionsToFleetTargets(conns []db.SSHConnection) []FleetTarget {
 	return targets
 }
 
-func resolvePort(p int) int {
-	if p > 0 {
-		return p
-	}
-	return 22
-}
-
 func resolveOS(osName string) string {
 	if osName != "" {
 		return osName
