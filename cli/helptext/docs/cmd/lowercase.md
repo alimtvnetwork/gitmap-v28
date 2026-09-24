@@ -32,9 +32,12 @@ GitMap solves this with an atomic two-step rename pipeline:
 2. **Step 2 (Target Rename)**:
    - Git repository: `git mv <FILE>.tmp-lcf <file>`
    - Non-Git directory: `os.Rename(<FILE>.tmp-lcf, <file>)`
-3. **Step 3 (Git Synchronization)**:
+3. **Step 3 (Pre-Flight Verification & User Confirmation)**:
+   - When running on a Git repository, GitMap displays a pre-flight event summarizing matched files, the 2-step move plan, and after-effects (Git index staging and automated commit).
+   - Prompts the user to enter `confirm`, `yes`, or `y` to proceed. Use `-y` or `--yes` to proceed without interactive confirmation.
+4. **Step 4 (Git Synchronization)**:
    - Staged with `git add -A` to guarantee index tree consistency.
-4. **Step 4 (Atomic Commit)**:
+5. **Step 5 (Atomic Commit)**:
    - Automatically commits changes with a standardized message (can be disabled with `--no-commit`).
 
 ## Flags & Options

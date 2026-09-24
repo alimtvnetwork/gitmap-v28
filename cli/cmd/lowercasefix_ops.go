@@ -16,24 +16,48 @@ func ExecuteLowerCaseFix(opts LowerCaseFixOptions) error {
 	if err != nil {
 		return err
 	}
-	for i := range pairs {
-		pairs[i].IsGitTracked = isGit && isFileTrackedInGit(pairs[i].OldPath)
-	}
-
+	resolveGitTracking(pairs, isGit)
 	renderRenameHeader(opts, isGit, len(pairs), totalScanned, cwd)
 	if len(pairs) == 0 {
 		renderZeroMatchMessage(opts)
 
 		return nil
 	}
-
 	if opts.IsDryRun {
 		renderDryRunPreviews(pairs)
 
 		return nil
 	}
+	isProceed, confirmErr := checkPreflightConfirmation(pairs, opts, isGit)
+	if confirmErr != nil || !isProceed {
+		return confirmErr
+	}
 
 	return applyRenamesAndCommit(pairs, opts, totalScanned, isGit)
+}
+
+func resolveGitTracking(pairs []RenamePair, isGit bool) {
+	for i := range pairs {
+		pairs[i].IsGitTracked = isGit && isFileTrackedInGit(pairs[i].OldPath)
+	}
+}
+
+func checkPreflightConfirmation(pairs []RenamePair, opts LowerCaseFixOptions, isGit bool) (bool, error) {
+	if !isGit || opts.IsYes {
+		return true, nil
+	}
+
+	isConfirmed, err := promptPreflightConfirmation(pairs, opts)
+	if err != nil {
+		return false, err
+	}
+	if !isConfirmed {
+		renderCancelledMessage()
+
+		return false, nil
+	}
+
+	return true, nil
 }
 
 func renderZeroMatchMessage(opts LowerCaseFixOptions) {

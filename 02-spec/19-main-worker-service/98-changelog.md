@@ -1,3 +1,9 @@
+## v6.328.0 — 2026-09-24 (add preflight confirmation and -y prompt bypass to lowercase renamer)
+
+**Scope:** Version bump. add preflight confirmation and -y prompt bypass to lowercase renamer.
+
+---
+
 ## v6.327.0 — 2026-09-24 (remote exe copy semver verification and pinned releases)
 
 **Scope:** Version bump. remote exe copy semver verification and pinned releases.
