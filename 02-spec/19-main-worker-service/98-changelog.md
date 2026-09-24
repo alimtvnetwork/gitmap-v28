@@ -1,3 +1,9 @@
+## v6.333.0 — 2026-09-24 (add which-os, cross-platform bash/shell runner, and node os profiling)
+
+**Scope:** Version bump. add which-os, cross-platform bash/shell runner, and node os profiling.
+
+---
+
 ## v6.332.0 — 2026-09-24 (fix(spec-154): pae inactivity calculation, freshness cooldown, and global column width stability)
 
 **Scope:** Version bump. fix(spec-154): pae inactivity calculation, freshness cooldown, and global column width stability.
