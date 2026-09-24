@@ -1,4 +1,4 @@
-name: Purge GitHub Actions Artifacts (Zero Storage)
+name: Purge GitHub Actions Storage (Zero Storage)
 
 on:
   schedule:
@@ -10,8 +10,8 @@ permissions:
   contents: read
 
 jobs:
-  purge-artifacts:
-    name: Purge All Actions Artifacts
+  purge-storage:
+    name: Purge All Actions Artifacts & Caches
     runs-on: ubuntu-latest
     steps:
       - name: Checkout
@@ -22,7 +22,7 @@ jobs:
         with:
           python-version: '3.12'
 
-      - name: Purge Stored Artifacts
+      - name: Purge Stored Artifacts and Caches
         env:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: |
