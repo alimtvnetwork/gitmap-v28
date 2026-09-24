@@ -1,3 +1,9 @@
+## v6.321.0 — 2026-09-24 (macro deploy ssh, fleet update, remote clone, rest triad, and web ui)
+
+**Scope:** Version bump. macro deploy ssh, fleet update, remote clone, rest triad, and web ui.
+
+---
+
 ## v6.320.0 — 2026-09-24 (agy rerun ide restart, transcript media replay, and vscode repair integration)
 
 **Scope:** Version bump. agy rerun ide restart, transcript media replay, and vscode repair integration.
