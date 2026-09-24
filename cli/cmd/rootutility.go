@@ -7,8 +7,10 @@ import (
 
 	"github.com/alimtvnetwork/gitmap-v28/cli/cmdagy"
 	"github.com/alimtvnetwork/gitmap-v28/cli/cmdinstall"
+	"github.com/alimtvnetwork/gitmap-v28/cli/cmdmacro"
 	"github.com/alimtvnetwork/gitmap-v28/cli/cmdos"
 	"github.com/alimtvnetwork/gitmap-v28/cli/cmdssh"
+	"github.com/alimtvnetwork/gitmap-v28/cli/cmdupdate"
 	"github.com/alimtvnetwork/gitmap-v28/cli/cmdzsh"
 	"github.com/alimtvnetwork/gitmap-v28/cli/constants"
 	"github.com/alimtvnetwork/gitmap-v28/cli/helptext"
@@ -40,7 +42,7 @@ func utilityCoreEntries() []dispatchEntry {
 	return []dispatchEntry{
 		{[]string{"binary", "info"}, printIdentityLong},
 		{[]string{"error"}, func() error { return runErrorCmd(argsTail()) }},
-		{[]string{constants.CmdUpdate}, runUpdateHelp},
+		{[]string{constants.CmdUpdate, "ua"}, runUpdateHelp},
 		{[]string{constants.CmdUpdateRunner}, runUpdateRunner},
 		{[]string{constants.CmdUpdateCleanup}, runUpdateCleanup},
 		{[]string{constants.CmdInstalledDir, constants.CmdInstalledDirAlias}, runInstalledDirHelp},
@@ -90,7 +92,11 @@ func extractRemoteUpdateTarget(args []string) (string, []string) {
 }
 
 func runUpdateHelp() error {
+	cmdName := subcommandName()
 	args := argsTail()
+	if cmdupdate.IsFleetUpdateCommand(cmdName, args) {
+		return cmdupdate.RunFleetUpdateDispatch(cmdName, args)
+	}
 	if len(args) > 0 && (args[0] == "ssh" || args[0] == "remote") {
 		return cmdssh.RunSSHUpdateCLI(args[1:])
 	}
@@ -162,7 +168,23 @@ func utilityToolEntries() []dispatchEntry {
 		{[]string{constants.CmdVSCodeWorkspace, constants.CmdVSCodeWorkspaceAlias}, func() error { return runVSCodeWorkspace(argsTail()) }},
 		{[]string{constants.CmdLFSCommon, constants.CmdLFSCommonAlias}, func() error { return runLFSCommon(argsTail()) }},
 		{[]string{constants.CmdReinstall}, func() error { return runReinstall(argsTail()) }},
+		{[]string{"peat", "pea"}, func() error { return runPeatCmd(argsTail()) }},
+		{[]string{"deploy"}, func() error { return runDeployCmd(argsTail()) }},
 	}
+}
+
+func runPeatCmd(args []string) error {
+	if len(args) > 0 && args[0] == "deploy" {
+		return cmdmacro.ExecuteMacroDeploySSH(args[1:])
+	}
+	return cmdmacro.RunMacroCmd(args)
+}
+
+func runDeployCmd(args []string) error {
+	if len(args) > 0 && args[0] == "ssh" {
+		return cmdmacro.ExecuteMacroDeploySSH(args[1:])
+	}
+	return cmdmacro.ExecuteMacroDeploySSH(args)
 }
 
 func utilitySystemEntries() []dispatchEntry {

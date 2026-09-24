@@ -34,6 +34,11 @@ func RunSSHCopyCLI(args []string) error {
 	return runSSHCopyCLI(args)
 }
 
+// RunSSHCP executes bidirectional ssh cp subcommand.
+func RunSSHCP(args []string) error {
+	return RunSSHCPCLI(args)
+}
+
 // RunSSHMvCLI executes ssh mv subcommand.
 func RunSSHMvCLI(args []string) error {
 	return runSSHMvCLI(args)
@@ -148,4 +153,9 @@ func IsInteractiveMacroAdd(args []string) bool {
 // PrintInteractiveMacroAdvice prints guidance for interactive macro over SSH.
 func PrintInteractiveMacroAdvice() {
 	printInteractiveMacroAdvice()
+}
+
+// RunSSHCloneCLI executes the remote git clone command.
+func RunSSHClone(args []string) error {
+	return RunSSHCloneCLI(args)
 }

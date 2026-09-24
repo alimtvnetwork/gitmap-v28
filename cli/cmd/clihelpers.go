@@ -338,6 +338,11 @@ func runSSH(args []string) error {
 	return cmdssh.RunSSH(args)
 }
 
+// runSSHClone delegates to cmdssh.RunSSHCloneCLI.
+func runSSHClone(args []string) error {
+	return cmdssh.RunSSHCloneCLI(args)
+}
+
 // runSSHExec delegates to cmdssh.RunSSHExec.
 func runSSHExec(args []string) error {
 	return cmdssh.RunSSHExec(args)

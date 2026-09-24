@@ -6,13 +6,15 @@ Master directory of architectural and execution plans.
 
 - [52-winutil-linutil-advanced-os-integration-plan.md](pending/52-winutil-linutil-advanced-os-integration-plan.md): Advanced WinUtil & LinUtil Native Go Integration (DM Settings, OS Tweaks, DNS Switcher & Bubbletea TUI)
 - [53-cicd-interface-naming-and-enum-suffix.md](pending/53-cicd-interface-naming-and-enum-suffix.md): CI/CD Quality Gate: Interface Naming and Enum Type Suffix Compliance
+- [93-antigravity-commands-ssh-fleet-and-e2e-benchmarking.md](pending/93-antigravity-commands-ssh-fleet-and-e2e-benchmarking.md): Antigravity Commands Suite, SSH Fleet Parallel Execution, and E2E Benchmarking
 
 ## Recent Completed Tasks Register (Last 20 Tasks)
 
 1. [94-agy-rerun-restart-and-tooling-suite.md](completed/94-agy-rerun-restart-and-tooling-suite.md): AGY Rerun IDE Restart, Multi-Project Prompt Replay with Media, and Tooling Suite
-2. [93-antigravity-commands-ssh-fleet-and-e2e-benchmarking.md](completed/93-antigravity-commands-ssh-fleet-and-e2e-benchmarking.md): Antigravity Commands Suite, SSH Fleet Parallel Execution, and E2E Benchmarking
-2. [92-chrome-profile-auth-export-import.md](completed/92-chrome-profile-auth-export-import.md): Chrome Profile Auth Session, Refresh Token & Cookies Full-Fidelity Export/Import
-2. [91-ssh-join-common-scan-and-agy-rop.md](completed/91-ssh-join-common-scan-and-agy-rop.md): SSH Batch Common Join, Subnet Scanner, OS Metadata, AGY Project Re-Read & Optimization, and AUM Benchmarking
+2. [94-ssh-fleet-deploy-remote-clone-api-ui.md](completed/94-ssh-fleet-deploy-remote-clone-api-ui.md): SSH Macro & App Fleet Deployment, Remote Clone, REST Endpoint Triad, and Web UI Management Engine
+3. [93-antigravity-commands-ssh-fleet-and-e2e-benchmarking.md](completed/93-antigravity-commands-ssh-fleet-and-e2e-benchmarking.md): Antigravity Commands Suite, SSH Fleet Parallel Execution, and E2E Benchmarking
+4. [92-chrome-profile-auth-export-import.md](completed/92-chrome-profile-auth-export-import.md): Chrome Profile Auth Session, Refresh Token & Cookies Full-Fidelity Export/Import
+5. [91-ssh-join-common-scan-and-agy-rop.md](completed/91-ssh-join-common-scan-and-agy-rop.md): SSH Batch Common Join, Subnet Scanner, OS Metadata, AGY Project Re-Read & Optimization, and AUM Benchmarking
 2. [90-pipeline-cancelled-shown-as-pass.md](completed/90-pipeline-cancelled-shown-as-pass.md): Pipeline Cancelled / Timed Out Runs Erroneously Displayed as PASS
 2. [89-ssh-fleet-update-nodes-macros.md](completed/89-ssh-fleet-update-nodes-macros.md): SSH Fleet Update, Node Inspection, Smart Command Routing, and Macro Engine
 2. [88-pe-custom-format-and-error-capture.md](completed/88-pe-custom-format-and-error-capture.md): Pipeline Error Multi-Line Extraction Intelligence & Declarative JSON Format Profiles
@@ -71,6 +73,7 @@ Master directory of architectural and execution plans.
 
 ## Completed Plans
 
+- [94-ssh-fleet-deploy-remote-clone-api-ui.md](completed/94-ssh-fleet-deploy-remote-clone-api-ui.md): SSH Macro & App Fleet Deployment, Remote Clone, REST Endpoint Triad, and Web UI Management Engine
 - [91-ssh-join-common-scan-and-agy-rop.md](completed/91-ssh-join-common-scan-and-agy-rop.md): SSH Batch Common Join, Subnet Scanner, OS Metadata, AGY Project Re-Read & Optimization, and AUM Benchmarking
 - [90-pipeline-cancelled-shown-as-pass.md](completed/90-pipeline-cancelled-shown-as-pass.md): Pipeline Cancelled / Timed Out Runs Erroneously Displayed as PASS
 - [89-ssh-fleet-update-nodes-macros.md](completed/89-ssh-fleet-update-nodes-macros.md): SSH Fleet Update, Node Inspection, Smart Command Routing, and Macro Engine

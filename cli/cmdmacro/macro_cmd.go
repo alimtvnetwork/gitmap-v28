@@ -219,6 +219,10 @@ func routeManagementSubcommand(sub string, rest []string) result.ErrorWrapper {
 		return routeSyncSubcommand(rest)
 	}
 
+	if sub == "deploy" {
+		return result.MatchWrapper(ExecuteMacroDeploySSH(rest))
+	}
+
 	if isModifySubcommand(sub) {
 		return routeModifySubcommand(sub, rest)
 	}

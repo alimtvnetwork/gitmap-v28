@@ -80,6 +80,8 @@ func routeVSCodeMaintenanceAction(sub string, args []string) result.ErrorWrapper
 		return result.MatchWrapper(runFindDuplicatesVSCode())
 	case "repair", "fix", "doctor":
 		return result.MatchWrapper(runVSCodeRepair(args[1:]))
+	case "remote":
+		return result.MatchWrapper(runVSCodeRemote(args[1:]))
 	default:
 		printVSCodeUsage()
 

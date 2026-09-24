@@ -59,3 +59,13 @@ func HasFlag(flagName string) bool {
 func ExpandTilde(path string) string {
 	return expandTilde(path)
 }
+
+// RunFleetUpdate executes fleet application updates across cluster nodes.
+func RunFleetUpdate(args []string) error {
+	return ExecuteFleetUpdate(args)
+}
+
+// RunFleetUpdateLS queries software inventory across cluster nodes.
+func RunFleetUpdateLS(args []string) error {
+	return ExecuteFleetUpdateLS(args)
+}

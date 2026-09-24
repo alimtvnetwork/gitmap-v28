@@ -48,6 +48,7 @@ func toolingDevEntries() []dispatchEntry {
 		{[]string{constants.CmdCompletion, constants.CmdCompletionAlias}, func() error { return runCompletion(argsTail()) }},
 		{[]string{constants.CmdZipGroup, constants.CmdZipGroupShort}, func() error { return runZipGroup(argsTail()) }},
 		{[]string{constants.CmdAlias, constants.CmdAliasShort}, func() error { return runAlias(argsTail()) }},
+		{[]string{"ssh-clone", "ssh-c"}, func() error { return runSSHClone(argsTail()) }},
 		{[]string{constants.CmdSSH, "ssh-key", "ssh-keys", "auth-key", "auth-key-add", "ssh-key-add"}, func() error { return runSSH(argsTail()) }},
 		{[]string{constants.CmdBackup}, func() error { return runBackup(argsTail()) }},
 	}

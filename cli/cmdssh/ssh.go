@@ -162,6 +162,8 @@ func dispatchToolsSSH(ctx context.Context, sub string, args []string) result.Err
 		return result.MatchWrapper(runSSHAgyCLI(args))
 	case "code":
 		return result.MatchWrapper(runSSHCodeCLI(args))
+	case "clone", "ssh-clone", "ssh-c", "c":
+		return result.MatchWrapper(RunSSHCloneCLI(args))
 	case "compare", "matrix":
 		return result.MatchWrapper(runSSHCompareCLI(args))
 	default:
@@ -174,7 +176,7 @@ func dispatchFilesSSH(sub string, args []string) result.ErrorWrapper {
 	case "profiles", "profile", "p":
 		return result.MatchWrapper(runSSHProfile(args))
 	case "copy", "cp":
-		return result.MatchWrapper(runSSHCopyCLI(args))
+		return result.MatchWrapper(RunSSHCPCLI(args))
 	case "mv", "move":
 		return result.MatchWrapper(runSSHMvCLI(args))
 	case "schedule", "schedules":
