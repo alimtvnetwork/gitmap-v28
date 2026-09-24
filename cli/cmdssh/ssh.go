@@ -143,6 +143,8 @@ func dispatchPackageSSH(sub string, args []string) result.ErrorWrapper {
 	switch sub {
 	case "install", "i":
 		return result.MatchWrapper(runSSHInstallCLI(args))
+	case "install-exec", "in-exec", "setup-exec", "setup", "install-run":
+		return result.MatchWrapper(RunSSHInstallExecCLI(args))
 	case "update", "u":
 		return result.MatchWrapper(runSSHUpdateCLI(args))
 	case "join-common", "sjc", "ssh-join-common":

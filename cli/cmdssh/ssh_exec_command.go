@@ -49,18 +49,48 @@ func resolveIPCommand(osType string) (string, string, bool) {
 	return "", "gitmap ip", true
 }
 
+func splitCommandsRespectingQuotes(cmdStr string) []string {
+	var parts []string
+	var cur strings.Builder
+	inSingle := false
+	inDouble := false
+
+	for i := 0; i < len(cmdStr); i++ {
+		ch := cmdStr[i]
+		if ch == '\'' && !inDouble {
+			inSingle = !inSingle
+			cur.WriteByte(ch)
+			continue
+		}
+		if ch == '"' && !inSingle {
+			inDouble = !inDouble
+			cur.WriteByte(ch)
+			continue
+		}
+		if ch == ',' && !inSingle && !inDouble {
+			trimmed := strings.TrimSpace(cur.String())
+			if trimmed != "" {
+				parts = append(parts, trimmed)
+			}
+			cur.Reset()
+			continue
+		}
+		cur.WriteByte(ch)
+	}
+
+	trimmed := strings.TrimSpace(cur.String())
+	if trimmed != "" {
+		parts = append(parts, trimmed)
+	}
+
+	return parts
+}
+
 func normalizeMultiCommands(cmdStr string, isWindows bool) string {
 	if !strings.Contains(cmdStr, ",") {
 		return cmdStr
 	}
-	parts := strings.Split(cmdStr, ",")
-	var cleanParts []string
-	for _, p := range parts {
-		trimmed := strings.TrimSpace(p)
-		if trimmed != "" {
-			cleanParts = append(cleanParts, trimmed)
-		}
-	}
+	cleanParts := splitCommandsRespectingQuotes(cmdStr)
 	if len(cleanParts) <= 1 {
 		return cmdStr
 	}

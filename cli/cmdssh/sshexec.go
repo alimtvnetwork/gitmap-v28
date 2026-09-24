@@ -23,6 +23,8 @@ var seCommand = "se"
 type seOptions struct {
 	Exclude    string
 	Except     string
+	ExceptOS   string
+	TargetOS   string
 	Target     string
 	IP         string
 	IsJSON     bool
@@ -39,6 +41,8 @@ func printSSHExecHelp() {
 	fmt.Println("  -t, --target string     Target machine alias or IP (default: all online machines)")
 	fmt.Println("      --exclude string    Exclude machines by alias or IP (comma separated)")
 	fmt.Println("      --except string     Exclude machines by alias, IP, or ID (comma separated)")
+	fmt.Println("      --except-os string  Exclude machines by OS (e.g. unix, win, linux, ubuntu, darwin)")
+	fmt.Println("      --os string         Target machines by OS (e.g. win, unix, linux, darwin)")
 	fmt.Println("      --ip string         Target machine IP address")
 	fmt.Println("  -h, --help              Show help for ssh exec")
 	printSSHExecExamples()
@@ -56,11 +60,16 @@ func printSSHExecExamples() {
 	fmt.Println("  gitmap ssh exec --target devbox \"docker ps\"")
 	fmt.Println("  gitmap ssh exec --exclude worker-1,192.168.1.20 \"free -m\"")
 	fmt.Println("  gitmap ssh exec cmd1,cmd2,cmd3 --except worker-1,2")
+	fmt.Println("  gitmap ssh exec cmd1,cmd2,cmd3 --except-os unix")
+	fmt.Println("  gitmap ssh exec cmd1,cmd2,cmd3 --except-os win")
+	fmt.Println("  gitmap ssh exec cmd1,cmd2,cmd3 --except-os ubuntu")
 }
 
 func configureSEFlags(fs *flag.FlagSet, opts *seOptions) {
 	fs.StringVar(&opts.Exclude, "exclude", "", "Exclude machines (comma separated)")
 	fs.StringVar(&opts.Except, "except", "", "Exclude machines by alias, IP, or ID (comma separated)")
+	fs.StringVar(&opts.ExceptOS, "except-os", "", "Exclude machines by OS (unix, win, ubuntu, etc.)")
+	fs.StringVar(&opts.TargetOS, "os", "", "Target machines by OS")
 	fs.StringVar(&opts.Target, "target", "", "Target machine alias or IP")
 	fs.StringVar(&opts.Target, "t", "", "Target machine alias or IP (shorthand)")
 	fs.StringVar(&opts.IP, "ip", "", "Target machine IP address")
@@ -83,17 +92,96 @@ func validateSEArgs(args []string) {
 	}
 }
 
-func extractSEJSONFlag(args []string) (bool, []string) {
-	isJSON := false
+func extractSECustomFlags(args []string) (seOptions, []string) {
+	var opts seOptions
 	var clean []string
-	for _, a := range args {
+
+	for i := 0; i < len(args); i++ {
+		a := args[i]
 		if a == "--json" {
-			isJSON = true
+			opts.IsJSON = true
 			continue
 		}
+		if a == "-h" || a == "--help" {
+			opts.IsShowHelp = true
+			continue
+		}
+		if (a == "--except-os" || a == "--exclude-os" || a == "--skip-os") && i+1 < len(args) {
+			opts.ExceptOS = args[i+1]
+			i++
+			continue
+		}
+		if strings.HasPrefix(a, "--except-os=") {
+			opts.ExceptOS = strings.TrimPrefix(a, "--except-os=")
+			continue
+		}
+		if strings.HasPrefix(a, "--exclude-os=") {
+			opts.ExceptOS = strings.TrimPrefix(a, "--exclude-os=")
+			continue
+		}
+		if strings.HasPrefix(a, "--skip-os=") {
+			opts.ExceptOS = strings.TrimPrefix(a, "--skip-os=")
+			continue
+		}
+
+		if (a == "--os" || a == "--target-os") && i+1 < len(args) {
+			opts.TargetOS = args[i+1]
+			i++
+			continue
+		}
+		if strings.HasPrefix(a, "--os=") {
+			opts.TargetOS = strings.TrimPrefix(a, "--os=")
+			continue
+		}
+		if strings.HasPrefix(a, "--target-os=") {
+			opts.TargetOS = strings.TrimPrefix(a, "--target-os=")
+			continue
+		}
+
+		if (a == "--except" || a == "--excep") && i+1 < len(args) {
+			opts.Except = args[i+1]
+			i++
+			continue
+		}
+		if strings.HasPrefix(a, "--except=") || strings.HasPrefix(a, "--excep=") {
+			opts.Except = strings.TrimPrefix(strings.TrimPrefix(a, "--except="), "--excep=")
+			continue
+		}
+
+		if a == "--exclude" && i+1 < len(args) {
+			opts.Exclude = args[i+1]
+			i++
+			continue
+		}
+		if strings.HasPrefix(a, "--exclude=") {
+			opts.Exclude = strings.TrimPrefix(a, "--exclude=")
+			continue
+		}
+
+		if (a == "-t" || a == "--target") && i+1 < len(args) {
+			opts.Target = args[i+1]
+			i++
+			continue
+		}
+		if strings.HasPrefix(a, "--target=") {
+			opts.Target = strings.TrimPrefix(a, "--target=")
+			continue
+		}
+
+		if a == "--ip" && i+1 < len(args) {
+			opts.IP = args[i+1]
+			i++
+			continue
+		}
+		if strings.HasPrefix(a, "--ip=") {
+			opts.IP = strings.TrimPrefix(a, "--ip=")
+			continue
+		}
+
 		clean = append(clean, a)
 	}
-	return isJSON, clean
+
+	return opts, clean
 }
 
 func parseSEFlags(args []string) seOptions {
@@ -101,16 +189,8 @@ func parseSEFlags(args []string) seOptions {
 		printSSHExecHelp()
 		return seOptions{IsShowHelp: true}
 	}
-	isJSON, cleanArgs := extractSEJSONFlag(args)
-	fs := flag.NewFlagSet(seCommand, flag.ExitOnError)
-	var opts seOptions
-	opts.IsJSON = isJSON
-	configureSEFlags(fs, &opts)
-	fs.Parse(cleanArgs)
-	if isJSON {
-		opts.IsJSON = true
-	}
-	opts.Args = fs.Args()
+	opts, remaining := extractSECustomFlags(args)
+	opts.Args = remaining
 	validateSEArgs(opts.Args)
 
 	return opts
@@ -175,7 +255,14 @@ func loadFilteredSSHConns(opts seOptions) ([]db.SSHConnection, error) {
 	if err != nil {
 		return nil, nil
 	}
-	return filterSSHConns(data, resolveExcludeCSV(opts)), nil
+	conns := filterSSHConns(data, resolveExcludeCSV(opts))
+	if opts.Except != "" {
+		conns = FilterSSHConnectionsByExcept(conns, opts.Except)
+	}
+	if opts.ExceptOS != "" || opts.TargetOS != "" {
+		conns = FilterSSHConnectionsByOS(conns, opts.TargetOS, opts.ExceptOS)
+	}
+	return conns, nil
 }
 
 func fetchAllSSHConnections() ([]db.SSHConnection, error) {

@@ -68,6 +68,8 @@ See [00-overview.md](./00-overview.md) for the complete application specificatio
 - [Spec 148: SSH Common Batch Join, Remote OS Detection & Telemetry, AGY Project Re-read & Optimization, and Native AUM Benchmarking](./148-ssh-join-common-os-detect-rop-and-e2e-benchmarks.md)
 - [Spec 149: SSH Macro/PEA/PEAT Fleet Deployment, Multi-Node Update Telemetry, Remote SSH Clone & Isolated Temporary E2E Validation](./149-ssh-macro-pea-deploy-fleet-update-and-ssh-clone-tempe2e.md)
 - [Spec 150: SSH & AGY Bidirectional Fleet Dispatch, SSH Nodes JSON Export/Import & One-Liner, AGM Fleet Update, AUM SQLite Search History (`DH2D`), PowerShell Search Benchmark, and In-Memory AI Multi-Port Server](./150-ssh-agy-fleet-nodes-export-agm-update-aum-db-and-ai-port-server.md)
+- [Spec 151: Remote Binary Installation & Copy via Low-Level SSH, Remote Fleet SemVer Verification & Comparison, and Specific Version Pinning/Downgrades for GitMap & Antigravity Manager](./151-remote-exe-copy-semver-verification-and-pinned-releases.md)
+- [Spec 152: SSH Execution OS Filtering (`--except-os`), Multi-Command Sequencing, and Remote Installer Deployment (`gitmap ssh install-exec`)](./152-ssh-exec-os-filter-and-install-exec.md)
 
 ---
 
