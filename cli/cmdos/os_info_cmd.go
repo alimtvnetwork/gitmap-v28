@@ -11,7 +11,7 @@ var osInfoJSONFlag bool
 // OSInfoCmd represents the 'gitmap os-info' command.
 var OSInfoCmd = &cobra.Command{
 	Use:     "os-info [flags]",
-	Aliases: []string{"osinfo", "sysinfo", "system-info"},
+	Aliases: []string{"osinfo", "sysinfo", "system-info", "which-os", "whichos", "os-which"},
 	Short:   "Display operating system, distribution version, and hardware architecture",
 	RunE: func(cmd *cobra.Command, args []string) error {
 		return RunOSInfoCLI(args)

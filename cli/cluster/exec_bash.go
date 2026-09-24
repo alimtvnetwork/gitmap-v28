@@ -5,6 +5,7 @@ import (
 	"context"
 	"os/exec"
 	"runtime"
+	"strings"
 )
 
 const (
@@ -72,6 +73,9 @@ func resolveWindowsGitBash() string {
 		`C:\Program Files\Git\bin\bash.exe`,
 		`C:\Program Files\Git\usr\bin\bash.exe`,
 	}
+	if gitPath, err := lookPathFuncVar("git"); err == nil && gitPath != "" {
+		candidates = append(candidates, deriveBashFromGit(gitPath)...)
+	}
 	for _, cand := range candidates {
 		if path, err := lookPathFuncVar(cand); err == nil && path != "" {
 			return path
@@ -79,6 +83,19 @@ func resolveWindowsGitBash() string {
 	}
 
 	return ""
+}
+
+func deriveBashFromGit(gitPath string) []string {
+	norm := strings.ReplaceAll(gitPath, "\\", "/")
+	idx := strings.LastIndex(norm, "/cmd/git.exe")
+	if idx >= 0 {
+		root := gitPath[:idx]
+		return []string{
+			root + `\bin\bash.exe`,
+			root + `\usr\bin\bash.exe`,
+		}
+	}
+	return nil
 }
 
 func executeCmdBuffered(cmd *exec.Cmd) (string, string, int, error) {

@@ -44,7 +44,8 @@ func ExecPS(
 	}
 
 	if !isWin && errLook != nil {
-		return "", "pwsh not found, skipping", 0, nil
+		msg := "pwsh not found on Unix node. Would you like to install PowerShell using GitMap? Run: gitmap install powershell (or 'sudo apt-get install -y powershell')"
+		return "", msg, 0, nil
 	}
 
 	if isWin {

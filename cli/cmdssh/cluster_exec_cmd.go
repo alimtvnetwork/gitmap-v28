@@ -10,11 +10,12 @@ import (
 )
 
 type clusterExecOptions struct {
-	target     string
-	command    string
-	isSudo     bool
-	parallel   int
-	isShowHelp bool
+	target      string
+	command     string
+	isSudo      bool
+	hasForceAll bool
+	parallel    int
+	isShowHelp  bool
 }
 
 var (
@@ -37,6 +38,10 @@ func isSudoFlag(arg string) bool {
 
 func isClusterHelpFlag(arg string) bool {
 	return arg == "--help" || arg == "-h" || arg == "help"
+}
+
+func isForceAllFlag(arg string) bool {
+	return arg == "--force-all" || arg == "-f" || arg == "force-all"
 }
 
 func parseParallelArgValue(nextArg string, arg string) (int, int, error) {
@@ -62,20 +67,24 @@ func parseParallelFlag(arg string, nextArg string) (int, int, error) {
 	return 0, 0, nil
 }
 
-func checkBoolFlag(arg string, isHelp *bool, isSudo *bool) bool {
+func checkBoolFlag(arg string, opts *clusterExecOptions) bool {
 	if isClusterHelpFlag(arg) {
-		*isHelp = true
+		opts.isShowHelp = true
 		return true
 	}
 	if isSudoFlag(arg) {
-		*isSudo = true
+		opts.isSudo = true
+		return true
+	}
+	if isForceAllFlag(arg) {
+		opts.hasForceAll = true
 		return true
 	}
 	return false
 }
 
 func parseParallelOrHelp(arg string, nextArg string, opts *clusterExecOptions) (int, bool, error) {
-	if checkBoolFlag(arg, &opts.isShowHelp, &opts.isSudo) {
+	if checkBoolFlag(arg, opts) {
 		return 1, true, nil
 	}
 	val, consumed, err := parseParallelFlag(arg, nextArg)

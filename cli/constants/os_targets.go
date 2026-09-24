@@ -13,6 +13,12 @@ const (
 	OSTargetUnix   = "unix"
 	OSTargetAll    = "all"
 
+	// OS Group categories
+	OSGroupWindows = "windows"
+	OSGroupUnix    = "unix"
+	OSGroupMac     = "macos"
+	OSGroupPOSIX   = "posix"
+
 	// Execution ordering modes for multi-OS installers
 	OrderUnixFirst = "unix-first"
 	OrderOSFirst   = "os-first"

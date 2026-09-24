@@ -77,8 +77,7 @@ func promptUserPassword(ctx context.Context, target *SSHTarget) string {
 func connectWithGivenPass(target *SSHTarget, pass string) enrollSession {
 	client, err := dialNodeWithPassword(target, pass)
 	hasClient := client != nil
-	osType := probeRemoteOSType(client)
-	osVersion := probeRemoteOSVersion(client, osType)
+	osType, osVersion, _ := probeTargetWithWhichOS(client, target.IP, target.IP)
 
 	return enrollSession{client: client, hasClient: hasClient, osType: osType, osVersion: osVersion, err: err}
 }
@@ -109,8 +108,7 @@ func detectAndConnectAuth(ctx context.Context, opts *SSHJoinOptions) enrollSessi
 	client := tryConnectDefaultKey(opts.Target)
 	hasClient := client != nil
 	if hasClient {
-		osType := probeRemoteOSType(client)
-		osVersion := probeRemoteOSVersion(client, osType)
+		osType, osVersion, _ := probeTargetWithWhichOS(client, opts.Alias, opts.Target.IP)
 
 		return enrollSession{client: client, hasClient: true, osType: osType, osVersion: osVersion}
 	}

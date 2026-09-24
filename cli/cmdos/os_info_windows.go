@@ -6,35 +6,59 @@ import (
 	"fmt"
 	"strings"
 
+	"github.com/alimtvnetwork/gitmap-v28/cli/constants"
 	"golang.org/x/sys/windows/registry"
 )
 
-func probeLocalPlatformOS() (string, string, string) {
-	k, err := registry.OpenKey(registry.LOCAL_MACHINE, `SOFTWARE\Microsoft\Windows NT\CurrentVersion`, registry.QUERY_VALUE)
+func probeLocalPlatformOS() LocalOSProbe {
+	k, err := registry.OpenKey(
+		registry.LOCAL_MACHINE,
+		`SOFTWARE\Microsoft\Windows NT\CurrentVersion`,
+		registry.QUERY_VALUE,
+	)
 	if err != nil {
-		return "windows", "Windows", ""
+		return defaultWindowsProbe()
 	}
 	defer k.Close()
 
 	productName, _, _ := k.GetStringValue("ProductName")
 	displayVersion, _, _ := k.GetStringValue("DisplayVersion")
 	currentBuild, _, _ := k.GetStringValue("CurrentBuild")
+	fullVer := assembleWindowsVersion(productName, displayVersion, currentBuild)
 
+	return LocalOSProbe{
+		OSType:       constants.OSTargetWin,
+		OSGroup:      constants.OSGroupWindows,
+		OSVersion:    fullVer,
+		BuildVersion: currentBuild,
+		Kernel:       "",
+	}
+}
+
+func defaultWindowsProbe() LocalOSProbe {
+	return LocalOSProbe{
+		OSType:       constants.OSTargetWin,
+		OSGroup:      constants.OSGroupWindows,
+		OSVersion:    "Windows",
+		BuildVersion: "",
+		Kernel:       "",
+	}
+}
+
+func assembleWindowsVersion(name, dispVer, build string) string {
 	var parts []string
-	if productName != "" {
-		parts = append(parts, productName)
+	if name != "" {
+		parts = append(parts, name)
 	}
-	if displayVersion != "" {
-		parts = append(parts, displayVersion)
+	if dispVer != "" {
+		parts = append(parts, dispVer)
 	}
-	if currentBuild != "" {
-		parts = append(parts, fmt.Sprintf("(Build %s)", currentBuild))
+	if build != "" {
+		parts = append(parts, fmt.Sprintf("(Build %s)", build))
 	}
-
-	fullVer := strings.Join(parts, " ")
-	if fullVer == "" {
-		fullVer = "Windows"
+	full := strings.Join(parts, " ")
+	if full == "" {
+		return "Windows"
 	}
-
-	return "windows", fullVer, currentBuild
+	return full
 }

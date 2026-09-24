@@ -5,10 +5,12 @@ import (
 	"encoding/json"
 	"fmt"
 	"io"
+	"strings"
 	"text/tabwriter"
 	"time"
 
 	"github.com/alimtvnetwork/gitmap-v28/cli/apperror"
+	"github.com/alimtvnetwork/gitmap-v28/cli/cmdos"
 	"github.com/alimtvnetwork/gitmap-v28/cli/constants"
 	"github.com/alimtvnetwork/gitmap-v28/cli/crypto"
 	"github.com/alimtvnetwork/gitmap-v28/cli/store"
@@ -30,7 +32,7 @@ func processCommonTarget(ctx context.Context, target *SSHCommonTarget, password,
 	}
 	defer client.Close()
 
-	osType, fullVersion, osArch := probeTargetOSDetails(client)
+	osType, fullVersion, osArch := probeTargetWithWhichOS(client, target.Alias, target.FullIP)
 	target.DetectedOS = osType
 	target.OSVersion = fullVersion
 	target.OSArch = osArch
@@ -64,6 +66,46 @@ func resolveDialError(err error) string {
 		return "connection failed"
 	}
 	return err.Error()
+}
+
+func probeTargetWithWhichOS(client *ssh.Client, alias, ip string) (string, string, string) {
+	rep, hasGitmap := probeRemoteGitmapWhichOS(client)
+	if hasGitmap && rep != nil {
+		fullVer := formatOSVersionWithArch(rep.OSVersion, rep.Architecture)
+		fmt.Printf("✔ Node %s: Identified via GitMap which-os: %s (%s, %s)\n", alias, rep.OSType, rep.OSGroup, rep.OSVersion)
+		return rep.OSType, fullVer, rep.Architecture
+	}
+	notifyRemoteGitmapAdvice(alias, ip)
+	return probeTargetOSDetails(client)
+}
+
+func probeRemoteGitmapWhichOS(client *ssh.Client) (*cmdos.OSInfoReport, bool) {
+	if client == nil {
+		return nil, false
+	}
+	cmd := "gitmap which-os --json 2>/dev/null || powershell -NoProfile -Command \"gitmap which-os --json\" 2>$null"
+	out, err := crypto.RunCommand(client, cmd, "")
+	if err != nil {
+		return nil, false
+	}
+	clean := strings.TrimSpace(out)
+	idx := strings.Index(clean, "{")
+	if idx < 0 {
+		return nil, false
+	}
+	var report cmdos.OSInfoReport
+	if err := json.Unmarshal([]byte(clean[idx:]), &report); err != nil {
+		return nil, false
+	}
+	if report.OSType == "" {
+		return nil, false
+	}
+	return &report, true
+}
+
+func notifyRemoteGitmapAdvice(alias, ip string) {
+	fmt.Printf("ℹ Node %s (%s): GitMap not yet installed. Install via: gitmap ssh deploy %s or gitmap ssh install gitmap -t %s\n",
+		alias, ip, alias, alias)
 }
 
 func probeTargetOSDetails(client *ssh.Client) (string, string, string) {
