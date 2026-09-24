@@ -55,7 +55,7 @@ func ensureRemoteDir(client *ssh.Client, dir string, isWin bool) error {
 		return nil
 	}
 	if isWin {
-		cmd := fmt.Sprintf("powershell -NoProfile -Command \"if (-not (Test-Path '%s')) { New-Item -ItemType Directory -Force -Path '%s' | Out-Null }\"", dir, dir)
+		cmd := fmt.Sprintf("cmd.exe /c if not exist \"%s\" mkdir \"%s\"", dir, dir)
 		_, err := crypto.RunCommand(client, cmd, "")
 		return err
 	}
@@ -73,7 +73,7 @@ func buildTarExtractCmd(dir string, isWin bool) string {
 
 func buildDirectStreamCmd(remotePath string, isWin bool) string {
 	if isWin {
-		return fmt.Sprintf("powershell -NoProfile -Command \"$p = '%s'; $dir = [System.IO.Path]::GetDirectoryName($p); if ($dir -and -not (Test-Path $dir)) { [System.IO.Directory]::CreateDirectory($dir) | Out-Null }; $in = [System.Console]::OpenStandardInput(); $out = [System.IO.File]::Create($p); $in.CopyTo($out); $out.Close(); $in.Close()\"", remotePath)
+		return fmt.Sprintf("powershell.exe -NoProfile -Command \"$p = '%s'; $dir = [System.IO.Path]::GetDirectoryName($p); if ($dir -and -not (Test-Path $dir)) { [System.IO.Directory]::CreateDirectory($dir) | Out-Null }; $in = [System.Console]::OpenStandardInput(); $out = [System.IO.File]::Create($p); $in.CopyTo($out); $out.Close(); $in.Close()\"", remotePath)
 	}
 	return fmt.Sprintf("sh -c \"dir=$(dirname '%s'); mkdir -p \\\"$dir\\\" && cat > '%s' && chmod 755 '%s'\"", remotePath, remotePath, remotePath)
 }

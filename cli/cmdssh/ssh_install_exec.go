@@ -15,6 +15,7 @@ import (
 	"github.com/alimtvnetwork/gitmap-v28/cli/crypto"
 	"github.com/alimtvnetwork/gitmap-v28/cli/db"
 	"github.com/alimtvnetwork/gitmap-v28/cli/store"
+	"golang.org/x/crypto/ssh"
 )
 
 // SSHInstallExecOptions represents parsed options for remote installer execution.
@@ -201,8 +202,9 @@ func BuildRemoteInstallerExecCmdWithPayload(osType, remotePath string, installer
 	ext := strings.ToLower(filepath.Ext(remotePath))
 	argsStr := strings.Join(installerArgs, " ")
 
-	if isSilent && argsStr == "" {
-		argsStr = resolveDefaultSilentInstallerArgs(ext, payload)
+	if isSilent {
+		silentFlag := resolveDefaultSilentInstallerArgs(ext, payload)
+		argsStr = injectSilentFlag(argsStr, silentFlag, installerArgs)
 	}
 
 	if isWin {
@@ -212,6 +214,35 @@ func BuildRemoteInstallerExecCmdWithPayload(osType, remotePath string, installer
 	// Linux / Unix / macOS
 	cmd := fmt.Sprintf("chmod +x '%s' && '%s' %s", remotePath, remotePath, argsStr)
 	return cmd, "bash"
+}
+
+func injectSilentFlag(argsStr, silentFlag string, args []string) string {
+	if silentFlag == "" || containsSilentArg(args) {
+		return argsStr
+	}
+	if argsStr == "" {
+		return silentFlag
+	}
+	return silentFlag + " " + argsStr
+}
+
+func containsSilentArg(args []string) bool {
+	for _, a := range args {
+		if isSilentFlagMatch(a) {
+			return true
+		}
+	}
+	return false
+}
+
+func isSilentFlagMatch(arg string) bool {
+	low := strings.ToLower(arg)
+	switch low {
+	case "/s", "-s", "--silent", "-silent", "/silent", "/verysilent", "-quiet", "--quiet", "/quiet", "/qn", "-qn":
+		return true
+	default:
+		return false
+	}
 }
 
 func resolveDefaultSilentInstallerArgs(ext string, payload []byte) string {
@@ -363,6 +394,8 @@ func executeInstallerOnSingleNode(c db.SSHConnection, fileName string, data []by
 	remoteDestPath := resolveRemoteTempPath(c.OS, fileName, opts.DestDir)
 	res.RemotePath = remoteDestPath
 
+	killStaleInstallerProcess(client, fileName, c.OS)
+
 	// 1. Stream binary over pure SSH channel
 	errStream := StreamFileToRemote(client, remoteDestPath, data, c.OS)
 	if errStream != nil {
@@ -388,6 +421,20 @@ func executeInstallerOnSingleNode(c db.SSHConnection, fileName string, data []by
 	}
 
 	return res
+}
+
+func killStaleInstallerProcess(client *ssh.Client, fileName, osType string) {
+	if client == nil || fileName == "" {
+		return
+	}
+	base := strings.TrimSuffix(fileName, filepath.Ext(fileName))
+	if isWindowsOS(osType) {
+		cmd := fmt.Sprintf("cmd.exe /c taskkill /F /IM \"%s*\" 2>nul", base)
+		_, _ = crypto.RunCommand(client, cmd, "")
+		return
+	}
+	cmd := fmt.Sprintf("pkill -9 -f '%s' || true", fileName)
+	_, _ = crypto.RunCommand(client, cmd, "bash")
 }
 
 func persistUpdatedNodeOS(c db.SSHConnection) {

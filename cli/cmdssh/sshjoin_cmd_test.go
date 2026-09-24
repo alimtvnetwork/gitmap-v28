@@ -120,17 +120,19 @@ func withMockSSHDB(t *testing.T, fn func(db *store.DB)) {
 }
 
 func TestRunSSHJoinCLI_Validation(t *testing.T) {
-	if err := runSSHJoinCLI([]string{}); err == nil {
-		t.Fatal("expected error for empty args")
-	}
+	withMockSSHDB(t, func(db *store.DB) {
+		if err := runSSHJoinCLI([]string{}); err == nil {
+			t.Fatal("expected error for empty args")
+		}
 
-	if err := runSSHJoinCLI([]string{"rm"}); err == nil {
-		t.Fatal("expected error for rm without target")
-	}
+		if err := runSSHJoinCLI([]string{"rm"}); err == nil {
+			t.Fatal("expected error for rm without target")
+		}
 
-	if err := runSSHJoinCLI([]string{"add-auth"}); err == nil {
-		t.Fatal("expected error for add-auth without target")
-	}
+		if err := runSSHJoinCLI([]string{"add-auth"}); err == nil {
+			t.Fatal("expected error for add-auth without target")
+		}
+	})
 }
 
 func assertEnrolledHost(t *testing.T, db *sql.DB, alias, ip string) {

@@ -49,6 +49,8 @@ Any content that analyzes bugs, failures, root causes, or fixes for application-
 | 41 | [41-vscode-startup-failure-and-search-latency-rca.md](41-vscode-startup-failure-and-search-latency-rca.md) | VS Code Startup Failure & Investigation Latency: Root Cause Analysis & Mitigation | Resolved |
 | 42 | [42-ssh-install-exec-upload-failed-and-os-misclassification-rca.md](42-ssh-install-exec-upload-failed-and-os-misclassification-rca.md) | SSH Install-Exec 0ms Upload Failure & Remote OS Misclassification: RCA & Fix | Resolved |
 | 43 | [43-gitmap-lowercase-unresolved-conflicts-and-missing-push-rca.md](43-gitmap-lowercase-unresolved-conflicts-and-missing-push-rca.md) | GitMap Lowercase Unresolved Merge Conflicts, Working Tree Dirt Contamination & Missing Push: RCA & Fix | Resolved |
+| 44 | [44-ssh-install-exec-nsis-silent-hanging-and-empty-registry-resolution-rca.md](44-ssh-install-exec-nsis-silent-hanging-and-empty-registry-resolution-rca.md) | SSH Install-Exec NSIS Silent Hanging, Unattended Detection & Empty Registry Discovery Resolution: RCA & Fix | Resolved |
+| 45 | [45-ssh-install-exec-stale-process-file-lock-and-test-db-wiping-rca.md](45-ssh-install-exec-stale-process-file-lock-and-test-db-wiping-rca.md) | SSH Install-Exec Stale Process File Lock & Unit Test DB Erasure: RCA & Fix | Resolved |
 
 ---
 

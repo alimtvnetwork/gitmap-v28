@@ -74,6 +74,9 @@ See [00-overview.md](./00-overview.md) for the complete application specificatio
 - [Spec 154: Inactivity Calculation, Freshness Cooldown, and Global Column Width Stability for `gitmap pae`](./154-pae-inactivity-calculation-and-freshness-cooldown.md)
 - [Spec 155: SSH Install-Exec Streaming Upload Protocol, DB Resolution Fallback & Dynamic Remote OS Probing](./155-ssh-install-exec-streaming-upload-and-os-resolution.md)
 - [Spec 156: GitMap Lowercase Pre-Flight Hygiene, Working Tree Conflict Resolution & Automated Push](./156-gitmap-lowercase-preflight-hygiene-and-conflict-resolution.md)
+- [Spec 157: Remote Node First-Time Login OS Profiling, Cross-Platform Git Bash Execution & Multi-OS Installer Filtering](./157-remote-node-first-login-os-profiling-gitbash-and-cross-os-execution.md)
+- [Spec 158: SSH Installer Payload NSIS Auto-Detection, Silent Execution & Fleet Enrollment Resolution](./158-ssh-installer-payload-nsis-auto-detection-and-fleet-deployment.md)
+- [Spec 159: SSH Fleet Installer Hermetic Test Isolation & Stale Process Lock Guard](./159-ssh-installer-hermetic-test-isolation-and-stale-process-guard.md)
 
 ---
 
