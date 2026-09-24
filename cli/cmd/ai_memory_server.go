@@ -29,7 +29,6 @@ func StartInMemoryAIServerOnCandidatePorts(ports []int) (net.Listener, int, *htt
 	for _, p := range ports {
 		ln, err = net.Listen("tcp", fmt.Sprintf("127.0.0.1:%d", p))
 		if err == nil {
-			boundPort = ln.Addr().(*net.TCPAddr).Port
 			break
 		}
 	}

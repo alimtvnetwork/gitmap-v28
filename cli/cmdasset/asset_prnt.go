@@ -91,7 +91,7 @@ func resolveImageURL(rawURL string) (string, error) {
 
 func fetchPageHTML(targetURL string) (string, error) {
 	client := &http.Client{Timeout: 15 * time.Second}
-	req, err := http.NewRequest("GET", targetURL, nil)
+	req, err := http.NewRequest(http.MethodGet, targetURL, nil)
 	if err != nil {
 		return "", err
 	}
@@ -127,7 +127,7 @@ func parseImageURLFromHTML(rawURL, html string) (string, error) {
 
 func fetchImageBytes(imgURL string) ([]byte, error) {
 	client := &http.Client{Timeout: 15 * time.Second}
-	req, err := http.NewRequest("GET", imgURL, nil)
+	req, err := http.NewRequest(http.MethodGet, imgURL, nil)
 	if err != nil {
 		return nil, err
 	}

@@ -79,7 +79,7 @@ func TestCheckPreflightConfirmation_InteractiveInGit(t *testing.T) {
 		t.Errorf("expected proceed=true on 'confirm', got %v, err=%v", isProceed, err)
 	}
 
-	// Test cancelled
+	// Test canceled
 	lcfStdinReader = strings.NewReader("no\n")
 	isProceed, err = checkPreflightConfirmation(pairs, opts, true)
 	if err != nil {

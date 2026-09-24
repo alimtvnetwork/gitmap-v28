@@ -87,7 +87,7 @@ func resolveCurrentBranchName() string {
 	return name
 }
 
-func renderCancelledMessage() {
-	fmt.Printf("\n%s✖ Operation cancelled by user. No files were modified or committed.%s\n\n",
+func renderCanceledMessage() {
+	fmt.Printf("\n%s✖ Operation canceled by user. No files were modified or committed.%s\n\n",
 		constants.ColorYellow, constants.ColorReset)
 }

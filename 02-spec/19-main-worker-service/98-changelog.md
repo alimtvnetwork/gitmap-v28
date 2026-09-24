@@ -1,3 +1,9 @@
+## v6.336.0 — 2026-09-24 (fix staticcheck, stdlib constants, spelling, and release v6.336.0)
+
+**Scope:** Version bump. fix staticcheck, stdlib constants, spelling, and release v6.336.0.
+
+---
+
 ## v6.335.0 — 2026-09-24 (prune unused functions and finalize v6.335.0 release)
 
 **Scope:** Version bump. prune unused functions and finalize v6.335.0 release.

@@ -18,8 +18,6 @@ import (
 	"github.com/alimtvnetwork/gitmap-v28/cli/store"
 )
 
-var seCommand = "se"
-
 type seOptions struct {
 	Exclude    string
 	Except     string

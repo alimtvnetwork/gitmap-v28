@@ -52,7 +52,7 @@ func checkPreflightConfirmation(pairs []RenamePair, opts LowerCaseFixOptions, is
 		return false, err
 	}
 	if !isConfirmed {
-		renderCancelledMessage()
+		renderCanceledMessage()
 
 		return false, nil
 	}
