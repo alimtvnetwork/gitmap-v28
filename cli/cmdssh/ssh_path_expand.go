@@ -24,9 +24,6 @@ func ExpandUniversalPath(rawPath, osType string) string {
 	return normalizePathSeparators(expanded, isWin)
 }
 
-func isWindowsDrivePath(p string) bool {
-	return len(p) >= 2 && p[1] == ':'
-}
 
 func expandHomeTilde(p string, isWin bool) string {
 	if p == "~" {

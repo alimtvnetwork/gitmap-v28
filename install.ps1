@@ -929,7 +929,7 @@ function Install-SeedData([string]$version, [string]$installDir) {
                 }
                 if (-not $downloaded) {
                     Write-Warning "[Install-SeedData] $_"
-                    Write-Host ("    skip  {0} (not in {1} or main)" -f $name, $version) -ForegroundColor DarkGray
+                    Write-Host ("    skip  {0} (not in {1} or main)" -f $name, $version) -ForegroundColor Gray
                 }
             }
         }
@@ -1379,9 +1379,9 @@ function Remove-FromPath([string]$dir) {
 
 function Write-InstallSummary([string]$version, [string]$binPath, [string]$installDir, [hashtable]$pathResult, [bool]$isNoPath, [string]$prevVersion = "") {
     Write-Host ""
-    Write-Host "  -----------------------------------------------" -ForegroundColor DarkGray
+    Write-Host "  -----------------------------------------------" -ForegroundColor Cyan
     Write-Host "  gitmap install summary" -ForegroundColor White
-    Write-Host "  -----------------------------------------------" -ForegroundColor DarkGray
+    Write-Host "  -----------------------------------------------" -ForegroundColor Cyan
     if ($prevVersion -and $prevVersion -ne $version) {
         Write-Host "    Version    : $version (upgraded from $prevVersion)"
     } else {

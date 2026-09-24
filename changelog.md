@@ -1,3 +1,21 @@
+## [v6.322.0] 2026-09-24 Release v6.322.0
+
+### Install GitMap v6.322.0
+
+To pin your repository to this exact version, run the following one-liner:
+Unix/Bash: `curl -sL https://raw.githubusercontent.com/alimtvnetwork/gitmap-v28/v6.322.0/install.sh | bash -s -- ".ai-memory/prompts" "v6.322.0"`
+PowerShell: `Invoke-WebRequest -Uri https://raw.githubusercontent.com/alimtvnetwork/gitmap-v28/v6.322.0/install.ps1 -OutFile install.ps1; .\install.ps1 -TargetDir ".ai-memory/prompts" -Version "v6.322.0"`
+
+### Added / Changed / Fixed / Removed
+
+- **Pull Batch Abort Graceful Remediation (`cmdpull`)**: Prevented `[E9000:EXECUTION]` AppError stack trace dumps when users select `[q] Quit` or `[s] Skip` during dirty repository interactive remediation; cleanly finalizes batch tasks in SQLite store without terminal panic dumps.
+- **Untracked Directory Search Resilience (`cmd/search.go`)**: Eliminated `search.getRepoDB` crash when running `gitmap search <filename>` from untracked root directories (e.g. `D:\work`), falling back seamlessly to global repository store or local workspace file search.
+- **CFR Short-Name GitHub CLI Resolution (`cmdclone`)**: When `gitmap cfr <name>` or `gitmap clone <name>` receives a bare slug (e.g. `pwp-mobile`), automatically resolves remote repository URLs via `gh repo list` and cached SQLite `repodb` records, automatically registering clones in GitHub Desktop and VS Code Project Manager (`projects.json`).
+- **Native LightShot & Asset Downloader (`gitmap asset download-prnt <url> [dest]`)**: Added screenshot extractor and archiver supporting direct LightShot URLs, extracting CDN PNG/JPG assets, and synchronizing with the active Antigravity brain workspace.
+- **Git Access Token Fleet Deployment (`gitmap token`)**: Added `gitmap token [add|remove|list|deploy]` with multi-node SSH fleet distribution, securing personal access tokens across remote nodes.
+- **High-Contrast Terminal & Installer Styling**: Replaced low-contrast dark blue `#6272a4` and `#a6adc8` ANSI downsampling with bright cyan `#8be9fd` and bright white `#f8f8f2` across interactive prompts and PowerShell installers.
+- **Coding Guidelines & E2E Prompt Synchronization**: Updated prompt 21 with N-step budget, 2-half lifecycle, dynamic path requirements, and 2-agent orchestration mandates across prompts.
+
 ## [v6.321.0] 2026-09-24 Release v6.321.0
 
 ### Install GitMap v6.321.0

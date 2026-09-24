@@ -5,9 +5,11 @@ import (
 	"io"
 
 	"github.com/alimtvnetwork/gitmap-v28/cli/apperror"
+	"github.com/alimtvnetwork/gitmap-v28/cli/db"
 	"github.com/alimtvnetwork/gitmap-v28/cli/helptext"
 	"github.com/alimtvnetwork/gitmap-v28/cli/model"
 	"github.com/spf13/cobra"
+	"golang.org/x/crypto/ssh"
 )
 
 // JoinRunner and ProfileRunner are injected callbacks from root orchestrator.
@@ -155,7 +157,17 @@ func PrintInteractiveMacroAdvice() {
 	printInteractiveMacroAdvice()
 }
 
-// RunSSHCloneCLI executes the remote git clone command.
+// RunSSHClone executes the remote git clone command.
 func RunSSHClone(args []string) error {
 	return RunSSHCloneCLI(args)
+}
+
+// FetchAllSSHConnections loads all registered SSH connections from the database.
+func FetchAllSSHConnections() ([]db.SSHConnection, error) {
+	return fetchAllSSHConnections()
+}
+
+// ConnectSSHClient connects to an SSH node.
+func ConnectSSHClient(c db.SSHConnection, headers ...string) (*ssh.Client, bool) {
+	return connectSSHClient(c, headers...)
 }

@@ -11,6 +11,7 @@ import (
 	"time"
 
 	"github.com/alimtvnetwork/gitmap-v28/cli/apperror"
+	"github.com/alimtvnetwork/gitmap-v28/cli/cmdssh"
 	"github.com/alimtvnetwork/gitmap-v28/cli/db"
 )
 
@@ -70,7 +71,7 @@ func mountAPIRoutes(mux *http.ServeMux) {
 
 func handleAPISSHNodes(w http.ResponseWriter, r *http.Request) {
 	w.Header().Set("Content-Type", "application/json")
-	conns, err := db.LoadAllSSHConnections()
+	conns, err := cmdssh.FetchAllSSHConnections()
 
 	if err != nil {
 		_ = json.NewEncoder(w).Encode([]NodeSummary{})
@@ -88,7 +89,7 @@ func buildNodeSummaries(conns []db.SSHConnection) []NodeSummary {
 			NodeId:   c.Alias,
 			Alias:    c.Alias,
 			Host:     c.IPAddress,
-			Port:     c.Port,
+			Port:     22,
 			IsOnline: true,
 			OS:       c.OS,
 		}

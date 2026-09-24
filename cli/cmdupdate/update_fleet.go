@@ -3,6 +3,7 @@ package cmdupdate
 import (
 	"encoding/json"
 	"fmt"
+	"io"
 	"net/http"
 	"os"
 	"strings"
@@ -545,9 +546,11 @@ func tryRestFleetUpdate(target FleetTarget, opts FleetUpdateOptions) (string, bo
 	defer resp.Body.Close()
 	isOk := resp.StatusCode == http.StatusOK || resp.StatusCode == http.StatusCreated
 	if isOk {
-		var buf strings.Builder
-		_, _ = buf.ReadFrom(resp.Body)
-		return buf.String(), true
+		body, readErr := io.ReadAll(resp.Body)
+		if readErr != nil {
+			return "", false
+		}
+		return string(body), true
 	}
 	return "", false
 }

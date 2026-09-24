@@ -337,6 +337,7 @@ func maybeCleanMultiFolder(url string, isClean bool) {
 // executeDirectClone clones a single repo from a direct URL.
 func executeDirectClone(params DirectCloneParams) {
 	escapeNestedGitRepo()
+	params.URL = ResolveRepoSlug(params.URL)
 	repoName := repoNameFromURL(params.URL)
 
 	folderName := params.FolderName

@@ -140,7 +140,7 @@ func findNodeConnection(target string) (db.SSHConnection, error) {
 
 	res := db.GetSSHConnections(dbConn.Context(), dbConn.SQL())
 	if res.IsFailure() {
-		return db.SSHConnection{}, apperror.NewDatabaseError(fmt.Sprintf("load ssh nodes: %v", res.Err))
+		return db.SSHConnection{}, apperror.NewExecutionError(fmt.Sprintf("load ssh nodes: %v", res.Err))
 	}
 
 	matched := filterConnectionsByTarget(res.Data, target)
@@ -154,7 +154,7 @@ func findNodeConnection(target string) (db.SSHConnection, error) {
 func readRemoteFileBytes(conn db.SSHConnection, remotePath string) ([]byte, error) {
 	client, isConnected := connectSSHClient(conn)
 	if isConnected == false {
-		return nil, apperror.NewAuthenticationError(fmt.Sprintf("failed to authenticate with remote node '%s'", conn.Alias))
+		return nil, apperror.NewExecutionError(fmt.Sprintf("failed to authenticate with remote node '%s'", conn.Alias))
 	}
 	defer client.Close()
 
@@ -185,7 +185,7 @@ func buildRemoteReadCmd(remotePath string, isWin bool) string {
 func writeRemoteFileBytes(conn db.SSHConnection, remotePath string, data []byte) error {
 	client, isConnected := connectSSHClient(conn)
 	if isConnected == false {
-		return apperror.NewAuthenticationError(fmt.Sprintf("failed to authenticate with remote node '%s'", conn.Alias))
+		return apperror.NewExecutionError(fmt.Sprintf("failed to authenticate with remote node '%s'", conn.Alias))
 	}
 	defer client.Close()
 

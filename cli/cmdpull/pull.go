@@ -493,9 +493,10 @@ func buildRemediationItem(rec model.ScanRecord, diag gitutil.DirtyDiagnosis) Rem
 
 func finalizePullBatchTask(taskDB *store.DB, taskID int64, failCount int) error {
 	if failCount > 0 {
-		errMsg := fmt.Sprintf("pull batch failed with %d failure(s)", failCount)
+		errMsg := fmt.Sprintf("pull batch finished with %d failure(s)", failCount)
 		failPendingTask(taskDB, taskID, errMsg)
-		cliexit.HandleError(apperror.NewExecutionError(errMsg), 1)
+		fmt.Fprintf(os.Stderr, "\n  %s%s%s\n\n", constants.ColorRed, errMsg, constants.ColorReset)
+		os.Exit(1)
 
 		return nil
 	}

@@ -108,6 +108,7 @@ func validateAndPrepareCFR(f *cloneFixRepoFlags) (string, string) {
 		cliexit.HandleError(nil, constants.ExitCloneFixRepoBadFlag)
 	}
 
+	f.url = ResolveRepoSlug(f.url)
 	f.url = applyCloneFixRepoScheme(f.url, f.useSSH, f.useHTTPS)
 	escapeNestedGitRepo()
 	folderName := deriveFolderNameForCFR(f.url, f.folder)

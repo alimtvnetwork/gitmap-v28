@@ -1,3 +1,9 @@
+## v6.322.0 — 2026-09-24 (pull abort, cfr gh resolver, asset downloader, contrast, prompt sync)
+
+**Scope:** Version bump. pull abort, cfr gh resolver, asset downloader, contrast, prompt sync.
+
+---
+
 ## v6.321.0 — 2026-09-24 (macro deploy ssh, fleet update, remote clone, rest triad, and web ui)
 
 **Scope:** Version bump. macro deploy ssh, fleet update, remote clone, rest triad, and web ui.

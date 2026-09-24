@@ -22,3 +22,16 @@ gitmap vscode doctor [flags]
 2. **Project Manager JSON Validation**: Validates syntax in `projects.json`, creates automatic `.bak` backups on corruption, ensures required schema fields (`paths`, `tags`, `enabled`, `profile`), and synchronizes modern `globalStorage` and legacy `User` paths.
 3. **Binary Integrity Check**: Validates `Code.exe` / `code.cmd` execution. Detects missing commit resource subfolders caused by `win32VersionedUpdate` race conditions (`icu_util.cc` data errors) and syncs missing commit folders between installation paths.
 4. **Winget Fallback**: Runs official winget installer repair if binaries cannot be recovered automatically.
+
+## Examples
+
+```bash
+# Diagnose and fix VS Code configuration issues
+gitmap vscode repair
+
+# Kill lingering processes before repairing
+gitmap vscode repair --kill
+
+# Preview repair steps without modifying disk
+gitmap vscode repair --dry-run
+```

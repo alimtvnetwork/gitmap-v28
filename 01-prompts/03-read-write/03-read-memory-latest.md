@@ -20,6 +20,7 @@ Autonomously self-loop and read:
 - /learn all recent Root Cause Analysis (RCA) records, retrospectives, and past failure post-mortems in `.ai-memory/issues/01-<slug>.md`, `.ai-memory/cicd-issues/01-<slug>.md`, and `02-spec/03-error-manage/01-error-resolution/03-retrospectives/` to ensure past mistakes are never repeated.
 - /learn all hard prohibitions in `.ai-memory/strictly-avoid.md`.
 - Read every pending task across `.ai-memory/plans/pending/01-<slug>.md`, `.ai-memory/plans/subtasks/01-<slug>/01-<subslug>.md`, `.ai-memory/issues/`, and `.ai-memory/cicd-issues/`, listing them out in full.
+- /learn Spawning Agents Mandate (2-Agent Orchestration): The running time must spawn 2 agents all the time for reading, exploring, and ingesting codebase context in parallel.
 
 Note on spec folder naming: Spec folders follow the hyphenated pattern `02-spec/<NN>-<slug>/` where `<NN>` is a sequence prefix and `<slug>` is the descriptive name. These numbers and folder placements are not rigidly fixed and may switch or be reorganized between projects. This canonical layout represents the general architecture the AI must dynamically discover, inspect, and read in full.
 

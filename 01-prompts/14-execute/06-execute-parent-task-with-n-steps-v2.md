@@ -1,8 +1,11 @@
 # [V2] Parent Task N-Step Continuous Loop & Multi-Agent Orchestration — Workflow (must follow)
 
 > [!IMPORTANT]
-> Prompt Version: 2.4.0
+> Prompt Version: 2.5.0
 > Synchronization: Main Meta-Repo & Connected Workspaces
+> 
+> **Top-Instruction Priority Mandate (Preamble Precedence):**
+> Whatever directives, constraints, checklists, or instructions are given before this section or prompt (including in the prompt preamble, header blocks, or incoming user request) are HIGHEST PRIORITY and MUST BE FOLLOWED as strictly NON-NEGOTIABLE. They supersede and strictly override any conflicting general advice, default conventions, or lower-level guidelines below.
 
 /goal Autonomously orchestrate and execute the parent task by decomposing it into subtasks and running a continuous N-step self-loop until completion without a single failure.
 
@@ -37,37 +40,69 @@ Execute this task via a strict 3-Phase pipeline. Do not skip steps.
 
 ### Phase 1A: Verbatim Capture, Task Extraction & Chat Output Gate (Step 0)
 
-Before executing any file searches, scans, or code changes, you must execute Phase 1A:
+Before executing any file searches, scans, spec writing, or code changes, you must execute Phase 1A:
 
-1. Verbatim Prompt Capture: Directly write the user prompt verbatim into the planning spec at `.ai-memory/plans/pending/xx-<slug>.md` under a dedicated `## User Request (Verbatim)` section.
-2. Screenshot & Print Screen Base64 Image Ingestion Protocol: If the user request or prompt contains a screenshot URL, print screen link, or base64 data URI (e.g. `data:image/png;base64,...`):
+1. Top-Instruction Priority Verification: Whatever directives, constraints, checklists, or instructions are given before this section or prompt (user preamble, header constraints, prior instructions) must be verified as highest priority and non-negotiable, and strictly incorporated ahead of all other guidelines.
+2. Verbatim Prompt Capture: Capture the incoming user request verbatim. It will be recorded losslessly in both the canonical spec under `02-spec/21-app/` and the master execution plan under `.ai-memory/plans/pending/xx-<slug>.md` under a dedicated `## User Request (Verbatim)` section.
+3. Screenshot & Print Screen Base64 Image Ingestion Protocol: If the user request or prompt contains a screenshot URL, print screen link, or base64 data URI (e.g. `data:image/png;base64,...`):
    - Convert that base64 encoding or downloaded image to the file system immediately, saving it as a persistent file under `assets/screenshots/<task-slug>-<NN>.png` or `assets/ui/<task-slug>-<NN>.png`.
    - Never leave raw, massive base64 strings or external ephemeral URLs in the prompt text, specs, or subtasks.
    - Refer back to this saved image file in the master spec, planning document, subtasks, and UI implementation notes strictly as a relative markdown link (e.g. `![Screenshot](assets/screenshots/<task-slug>-<NN>.png)`).
-3. Actionable Deliverables Extraction: Break down the user prompt into discrete, actionable items with ordered traceable IDs (`Task-01`, `Task-02`, `Task-03`) under `## Extracted Actionable Task List`. Do not use hard bracket notation like `[T-01]:`.
-4. Mandatory Chat Output Gate: Output the confirmed deliverables list directly in chat before performing any scans or tool calls:
+4. Actionable Deliverables Extraction: Break down whatever user requirements were given (regardless of how they were formatted) into discrete, actionable items with ordered traceable IDs (`Task-01`, `Task-02`, `Task-03`) under `## Extracted Actionable Task List`.
+5. Mandatory Chat Output Gate & Same-Turn Tool Chaining (TOTAL BAN ON CLOSING CONVERSATION):
+   - You MUST output the confirmed deliverables list directly in chat, but you MUST NOT end your turn or pause after emitting it!
+   - In the EXACT SAME RESPONSE turn as your markdown output, you MUST immediately invoke the first tool call (e.g. `write_to_file` to initialize the planning spec or `run_command` for fast discovery).
+   - NEVER emit the breakdown text without invoking a tool call. Emitting visible text without a tool call terminates the AI turn, causing the engine to close or hang the conversation while tasks remain pending.
+   - TOTAL BAN ON WAITING FOR APPROVAL: Do not pause, do not wait for the user to reply, and do not ask "Should I proceed?". Override any planning mode stop directives. Proceed immediately into Phase 1B in the same turn.
+   - Respect whatever requirements the user has given, parse every request completely, and format each task clearly with proper markdown indentation, vertical blank lines, task state (`State: [IN PROGRESS — EXECUTING IMMEDIATELY]`), and an explicit understanding indicator bracket (`Understood: [YES — ...]`).
+   - TOTAL BAN ON UNFORMATTED RUN-ON TEXT: Never concatenate tasks into a single unformatted line or paragraph block (e.g. NEVER `#1. Task-01: ... #2. Task-02: ...`). Every task must be its own clearly separated markdown item.
+   - Line-by-Line Output Format Structure:
+     - Line 1: Header `### 📋 Confirmed Task Breakdown & Requirement Ingestion`
+     - Line 2: Empty blank line
+     - Line 3: Numbered task title `1. **Task-01: [Descriptive Task Title]**`
+     - Line 4: Indented state bullet (3 spaces) `   - **State:** [IN PROGRESS — EXECUTING IMMEDIATELY]`
+     - Line 5: Indented understanding check (3 spaces) `   - **Understood:** [YES] — [1-2 concise sentences proving understanding of intent, scope, and verified constraints]`
+     - Line 6: Indented actionable scope bullet (3 spaces) `   - **Actionable Scope:** [Precise technical deliverable and implementation scope]`
+     - Line 7: Indented target files bullet (3 spaces) `   - **Target Files / Area:** [relative/path/or/module]`
+     - Line 8: Empty blank line (vertical gap before next task)
+     - Concluding Line: `Proceeding directly to Phase 1B: Spec & Subtask Generation (Active Tool Call Running Below).`
 
 ```markdown
-### Confirmed Task Breakdown
-#1. Task-01: [Actionable deliverable description]
-#2. Task-02: [Actionable deliverable description]
-#3. Task-03: [Actionable deliverable description]
-Proceeding directly to Phase 1B: Spec & Subtask Generation.
+### 📋 Confirmed Task Breakdown & Requirement Ingestion
+
+1. **Task-01: [Descriptive Task Title]**
+   - **State:** `[IN PROGRESS — EXECUTING IMMEDIATELY]`
+   - **Understood:** `[YES]` — [Concise 1-sentence verification of user requirement, intent, and verified constraints]
+   - **Actionable Scope:** [Precise technical deliverable and implementation scope]
+   - **Target Files / Area:** `[relative/path/or/module]`
+
+2. **Task-02: [Descriptive Task Title]**
+   - **State:** `[QUEUED — EXECUTING NOW WITHOUT USER PROMPT]`
+   - **Understood:** `[YES]` — [Concise 1-sentence verification of user requirement, intent, and verified constraints]
+   - **Actionable Scope:** [Precise technical deliverable and implementation scope]
+   - **Target Files / Area:** `[relative/path/or/module]`
+
+Proceeding directly to Phase 1B: Spec & Subtask Generation (Active Tool Call Running Below).
 ```
 
-No tool calls, codebase searches, or subagent spawning may proceed until this breakdown is emitted.
+MANDATORY SAME-TURN TOOL CHAIN: The breakdown text above and your first tool call (e.g. `write_to_file` to save the spec or `run_command` to discover files) MUST be emitted in the EXACT SAME TURN. Never end the turn with text alone.
 
 ---
 
 ### Phase 1B: Planning Mode, Detailed Spec Generation & Lean Subtasks (Steps 1 .. N/2)
 
-#### Step 1: Master Spec Generation
-Save the master architectural plan into `.ai-memory/plans/pending/xx-<slug>.md`. Provide a detailed breakdown of each task:
-- Architectural context, domain logic, and module interactions.
-- Visual specification references: If screenshots were provided, embed the relative markdown links to the saved image files and specify visual layout, typography, and UX requirements.
-- Input and output data contracts.
-- 3 to 5 custom rules or constraints unique to this task domain.
-- Blast radius analysis identifying all downstream callers.
+#### Step 1: Canonical Application Spec Generation (Folder 21 Standard)
+First, write the canonical application specification into `02-spec/21-app/` before creating execution plans or modifying code:
+- **Location & Sizing Standard:**
+  - Concise / single-domain specs (<= 150 lines): Write to `02-spec/21-app/xx-<slug>.md`.
+  - Large / multi-domain features: Write to a segmented directory `02-spec/21-app/xx-<slug>/` with sequential sub-files:
+    - `01-overview.md` (Domain architecture, system context, verbatim user request)
+    - `02-data-contracts.md` (Models, schemas, interfaces, error types)
+    - `03-visual-and-ux.md` (Component hierarchy, visual layout, screenshots)
+    - `04-verification-gates.md` (Quality gates, test invariants, acceptance criteria)
+- **Lossless Verbatim Capture:** Under `## User Request (Verbatim)`, preserve the exact prompt text and constraints without truncation.
+- **Visual Assets & Base64 Screenshots:** If screenshot URLs or base64 images were provided, verify they were decoded and saved to `assets/screenshots/<task-slug>-<NN>.png` and reference them strictly via relative markdown links.
+- **Spec Registry Registration:** Register the new spec entry in `02-spec/21-app/01-index.md` with status `draft` or `active`.
 
 #### Step 2: Scan & Discover (Python Toolchain Acceleration)
 To avoid 50-result tool truncation limits and eliminate multi-turn exploratory roundtrips, use the repository's dedicated Python discovery scripts:
@@ -78,17 +113,22 @@ To avoid 50-result tool truncation limits and eliminate multi-turn exploratory r
 - Fast Pattern Search: `python 03-ai-scripts/17-fast-file-reader.py --search-pattern "<pattern>" --limit 50`
 - Subsystem & Topology Overview: `python 03-ai-scripts/18-codebase-topology-discoverer.py --summary`
 
-Spawn at most 2 planning subagents to perform deep scanning if necessary.
+**2-Agent Orchestration Mandate:** The running time must spawn 2 agents all the time for executing tasks. During the writing of the specification, each agent can handle 3 to 4 parallel tasks concurrently depending on the context.
 
-#### Step 3: Lean Subtask Decomposition (No Common Boilerplate in Subtasks)
-Break down the master plan into granular subtask files in `.ai-memory/plans/subtasks/xx-<slug>/01-<subtask>.md`, `02-<subtask>.md`, etc.
-
-Important Rule: Do not write common repository boilerplate, universal coding rules, banned operations, or generic guidelines inside subtask files. Common rules belong in the parent plan and root guidelines. Subtasks must contain only the unique, non-common items required for that specific subtask.
+#### Step 3: Actionable Execution Plan & Lean Subtask Decomposition
+With the canonical spec established in `02-spec/21-app/`, initialize the execution plan and decompose it into subtasks in `.ai-memory/plans/`:
+- **Parent Plan:** Write `.ai-memory/plans/pending/xx-<slug>.md` containing:
+  - Strict relative link to the canonical spec: `Spec Reference: [02-spec/21-app/xx-<slug>.md](../../../02-spec/21-app/xx-<slug>.md)`
+  - Architectural context, custom domain constraints, and blast radius analysis.
+  - Complete mapping of deliverables (`Task-01`, `Task-02`, etc.) to subtask files.
+- **Subtask Files:** Break down the plan into granular subtasks in `.ai-memory/plans/subtasks/xx-<slug>/01-<subtask>.md`, `02-<subtask>.md`, etc. Complete all spec and subtask writing within 50% of the steps budget (`PHASE_1_STEPS = N / 2`).
+- **No Common Boilerplate:** Do not write common repository boilerplate, universal coding rules, banned operations, or generic guidelines inside subtask files. Common rules belong in the parent plan and root guidelines. Subtasks must contain only the unique, non-common items required for that specific subtask.
 
 Subtasks must follow this lean, unique template:
 ```markdown
 # Subtask [01]: [Descriptive Subtask Name]
 Traceability ID: Task-01
+Spec Reference: [02-spec/21-app/xx-<slug>.md](../../../02-spec/21-app/xx-<slug>.md)
 Target Files: [Strict relative paths from repo root]
 Action: [Exact code changes, functions, types, and logic to modify or add]
 Acceptance Criteria: [2-4 specific testable conditions proving completion]
@@ -96,19 +136,24 @@ Targeted Verification: [Specific file-level linter command or exit 0 check]
 ```
 
 #### Step 4: Subtask Readiness Audit Gate
+
 Before transitioning to execution, verify:
+- Canonical spec is authored in `02-spec/21-app/` and registered in `02-spec/21-app/01-index.md`.
 - Every extracted deliverable `Task-xx` has at least one corresponding subtask file.
-- All subtask files are non-empty and specify disjoint target files.
+- All subtask files are non-empty, link back to the spec, and specify disjoint target files.
 - All file paths in subtasks use strict relative Git paths (zero absolute paths or `file:///` URIs).
 
-#### Step 5: Mandatory Auto-Loop (Do Not Stop)
-As soon as Phase 1 planning completes, the master orchestrator must not stop or ask the user for permission. It must immediately self-loop and transition directly into Phase 2 execution mode.
+#### Step 5: Unconditional Zero-Question Execution Mandate (Total Ban on Stopping After Spec Writing)
+
+- **Strict 50/50 Time & Step Budget Allocation:** Spec writing and subtask generation MUST strictly complete within the first 50% of the budget (`PHASE_1_STEPS = N / 2`).
+- **Zero Questions / Unconditional Execution:** As soon as Phase 1 planning completes, the master orchestrator MUST NOT pause, stop, or ask the user "Should I proceed?", "Would you like me to start execution?", or any confirmation question. There is NO question. It must immediately, unconditionally self-loop and transition directly into Phase 2 execution mode.
+- **Spec Writing is Only Half the Task:** Generating specs without executing code changes is an INCOMPLETE FAILURE. The remaining 50% of the budget (`PHASE_2_STEPS = N / 2`) is dedicated strictly to modifying code, running targeted quality linters, consolidating subtasks, and completing the deliverables.
 
 ---
 
 ### Phase 2: Execution Mode & Parallel Refactoring (Steps N/2+1 .. N)
 
-1. Parallel Dispatch: Use `invoke_subagent` to spawn at most 2 execution subagents (max 2 threads each) assigned to disjoint subtasks from `.ai-memory/plans/subtasks/xx-<slug>/`. Provide subagents with minimal instructions (e.g., "Read `.ai-memory/plans/subtasks/xx-slug/01-task.md` and execute it").
+1. Parallel Dispatch & Unconditional Execution: Unconditionally execute code refactoring across target files in the remaining 50% of the steps budget (`PHASE_2_STEPS = N / 2`). Use `invoke_subagent` to spawn at most 2 execution subagents (max 2 threads each) assigned to disjoint subtasks from `.ai-memory/plans/subtasks/xx-<slug>/`. Provide subagents with minimal instructions (e.g., "Read `.ai-memory/plans/subtasks/xx-slug/01-task.md` and execute it").
 2. File Locking & Disjoint Files: Verify subagents operate on distinct files using `.ai-memory/01-index.md`.
 3. Execution & Coding Guidelines: Subagents refactor code following all coding guidelines (<= 8-15 line functions, single return types, Unix LF line endings).
 4. Failure Memory & Error Recovery: If a subagent fails, record the failure log in `.ai-memory/plan.md` and `.ai-memory/memory/issues/xx-failure.md`; subsequent agents must read the failure log first to remediate root causes.
@@ -149,7 +194,7 @@ To prevent cross-task pollution and ensure seamless agent communication, every t
 To reduce markdown file count and bloat, consolidate subtasks when a parent task is 100% complete:
 
 1. Combine all completed granular subtasks from `.ai-memory/plans/subtasks/xx-<slug>/*.md` into a single consolidated file at `.ai-memory/plans/completed/xx-<slug>.md`.
-2. In this single consolidated file, include a header explicitly referencing how the main task started and documenting exactly how many steps or loops it took.
+2. In this single consolidated file, include a header explicitly referencing how the main task started, referencing the canonical spec `[02-spec/21-app/xx-<slug>.md](../../../02-spec/21-app/xx-<slug>.md)`, and documenting exactly how many steps or loops it took. Note: The canonical specification in `02-spec/21-app/` remains permanently intact in the repository as the architectural source of truth; do not delete it during consolidation.
 3. Delete the original granular `.md` files in `.ai-memory/plans/subtasks/xx-<slug>/`.
 4. Delete the original parent plan `.ai-memory/plans/pending/xx-<slug>.md`.
 5. Update `.ai-memory/plans/01-index.md` to point to the newly consolidated completed file.
@@ -163,15 +208,18 @@ At the completion of all tasks and before concluding the turn, you must emit thi
 
 ```markdown
 ### Task Completion Summary
+
 ✅ #1. Task-01: [Task description] — Completed
 ✅ #2. Task-02: [Task description] — Completed
 (If any task failed or was deferred, mark with ❌ or ⏳ and explain why)
 
 ### Modified Files Summary
+
 - [relative path to modified file 1]
 - [relative path to modified file 2]
 
 ### Implementation Confidence Score
+
 - Confidence: [e.g. 98% or 100%]
 - Rationale: [Detailed explanation of verified quality gates, passing linters, contract adherence, and zero regressions]
 ```
@@ -183,6 +231,7 @@ At the completion of all tasks and before concluding the turn, you must emit thi
 To prevent instruction bloat, context exhaustion, and repetitive failure loops, this prompt enforces strict structural de-duplication:
 
 ### 1. Structural De-Duplication Principles
+
 - No Repetitive Sections: The master orchestrator follows a single unified pipeline. Pipeline steps are declared once in chronological order and not duplicated across secondary loop descriptions.
 - No Boilerplate Pollution in Subtasks: Universal guidelines (coding standards, line ending rules, banned operations) exist once in the parent spec. Subtask files contain strictly unique, domain-specific requirements.
 - Zero Redundant Reads: Subagents do not re-read files that were already scanned and summarized in `.ai-memory/plans/pending/xx-<slug>.md`.
@@ -206,6 +255,22 @@ To prevent instruction bloat, context exhaustion, and repetitive failure loops, 
 
 ---
 
+## Issue Destination & Root Cause Analysis (RCA) Routing Mandate
+
+Whenever the task involves fixing an issue, bug, pipeline failure, or performing a fix with RCA (e.g., user reports a failure, provides a CI/CD error log, or commands "fix with RCA"):
+1. **CI/CD Issues & Pipeline Failures:**
+   - **Target Folder:** `.ai-memory/cicd-issues/`
+   - **File Pattern:** `.ai-memory/cicd-issues/NN-<issue-slug>.md`
+   - **Registry:** Index the issue in `.ai-memory/cicd-index.md`.
+   - **Scope:** CI/CD workflows, GitHub Actions, local runner failures (`06-cicd-local-runner.py`), test runner errors, lint gate failures, or build pipeline failures.
+2. **Non-CI/CD Issues (Application Bugs, Feature Defects, Logic/Runtime Errors):**
+   - **Target Folder:** `02-spec/22-app-issues/` (canonical spec hierarchy Tier 22)
+   - **File Pattern:** `02-spec/22-app-issues/NN-<issue-slug>.md`
+   - **Structure & Registry:** Follow the 4-part structure (Reproduction / Cause / Fix / Prevention per AC-AI-001 or Why / How / Root Cause / Code Fix) and index in `02-spec/22-app-issues/01-index.md` (cross-referencing in `.ai-memory/memory/issues/` for institutional memory).
+   - **Scope:** Application business logic, UI bugs, CLI command errors, API crashes, and domain defects.
+
+---
+
 ## 1. AI Fix Scripts Memory (Reusable Tooling)
 
 - [ ] /goal Reuse First: Scanned and learned `03-ai-scripts/01-index.md` before writing temporary code.
@@ -218,12 +283,15 @@ To prevent instruction bloat, context exhaustion, and repetitive failure loops, 
 
 ## 2. Banned Operations Checklist (TOTAL BAN — Auto-Reject on Violation)
 
+- [ ] TOP-INSTRUCTION PRIORITY MANDATE: Whatever directives, constraints, checklists, or instructions are given before this section or prompt (user preamble, header constraints, prior instructions) are verified as highest priority and non-negotiable, overriding all lower-level guidelines below.
+- [ ] ISSUE & RCA DESTINATION ROUTING: Whenever resolving an issue or performing a fix with RCA, verified that CI/CD failures are documented in .ai-memory/cicd-issues/NN-<slug>.md (indexed in .ai-memory/cicd-index.md), while non-CI/CD issues (application bugs, logic/runtime defects) are documented in 02-spec/22-app-issues/NN-<slug>.md (indexed in 02-spec/22-app-issues/01-index.md).
 - [ ] NO TEST RUNNING (TOTAL BAN): Never run any tests using Python scripts (`06-cicd-local-runner.py`, `pytest`, runner scripts), Go (`go test ./...`), or any test runner during routine execution turns. Testing is strictly checked later on in CI/CD.
 - [ ] NO BUILD CHECKING (TOTAL BAN): Never run build commands (`go build`, `npm run build`, compiler checks) to verify compilation. Build verification is checked later on in CI/CD.
 - [ ] NO RUNNER SCRIPTS (TOTAL BAN): Never launch background test runners, worker pools, or test inventory loops during routine execution.
 - [ ] NO AUTOMATIC RELEASES (TOTAL BAN): Never bump versions, update changelogs, or trigger releases unless explicitly commanded by the user.
 - [ ] NO PER-FILE COMMITTING (TOTAL BAN): Never commit each file individually as you work (e.g. running `git commit` after editing File 1, then another commit after File 2). Committing file-by-file pollutes git history, creates subagent lock collisions, and breaks atomic changes. All modified files across the turn must be accumulated and committed together in a single atomic commit at the final step.
 - [ ] NO RAPID CI/CD POLLING (TOTAL BAN): Never query or loop rapidly (`gh run view` in tight loops) when inspecting remote CI/CD pipelines. Agents must query pipeline state using GitMap Pipeline-AI (`gitmap pipeline-ai status --json` or `gitmap pl-ai status -t <sec>`) and strictly wait or sleep based on `etaSeconds` to eliminate credit waste.
+- [ ] NO STOPPING AFTER SPEC WRITING (TOTAL BAN): Never halt execution, conclude the turn, or ask the user for permission after generating specs or subtasks. Planning constitutes only 50% of the task budget; you must proceed unconditionally to Phase 2 code execution.
 
 ---
 
@@ -232,7 +300,8 @@ To prevent instruction bloat, context exhaustion, and repetitive failure loops, 
 /goal You must verify every item on this checklist before committing any code. If a subagent violated one of these rules, you must reject their work.
 
 - [ ] Master Guidelines: Fully enforced every file in `02-spec/02-coding-guidelines/` and `.ai-memory/coding-guidelines.md`.
-- [ ] Error Management: Enforced `02-spec/03-error-manage/` using domain-specific `AppError`, never generic error.
+- [ ] Concrete Types Centralization (`types.go`): Extracted domain structs, raw generic instantiations, and Result wrappers into dedicated `types.go` files as single reusable named types with follow-through comments (never leak raw generics like `result.Result[*Config]`).
+- [ ] Error Management: Enforced `02-spec/03-error-manage/` using domain-specific `*appfault.AppError`, never generic error.
 - [ ] Boolean Conventions: All booleans begin with is or has only (all other prefixes like can, should, was, will, did, must are banned). No negatives (`!isSuccess` is banned; use `isFail`).
 - [ ] Semantic Naming: Zero generic garbage names (`temp`, `data`, `obj`). Behavior-driven unit test names.
 - [ ] Multi-Line Arguments (Rule 9a/9b): Signatures and call sites with >2 arguments formatted one argument per line with trailing commas.

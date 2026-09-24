@@ -10,11 +10,11 @@ Master directory of architectural and execution plans.
 
 ## Recent Completed Tasks Register (Last 20 Tasks)
 
-1. [95-repo-create-triple-sync-and-paet-latency-rca.md](completed/95-repo-create-triple-sync-and-paet-latency-rca.md): Repository Creation Triple Ecosystem Auto-Sync (VS Code, GitHub Desktop & Antigravity) & PAET Latency RCA
-2. [94-agy-rerun-restart-and-tooling-suite.md](completed/94-agy-rerun-restart-and-tooling-suite.md): AGY Rerun IDE Restart, Multi-Project Prompt Replay with Media, and Tooling Suite
-3. [94-ssh-fleet-deploy-remote-clone-api-ui.md](completed/94-ssh-fleet-deploy-remote-clone-api-ui.md): SSH Macro & App Fleet Deployment, Remote Clone, REST Endpoint Triad, and Web UI Management Engine
-4. [93-antigravity-commands-ssh-fleet-and-e2e-benchmarking.md](completed/93-antigravity-commands-ssh-fleet-and-e2e-benchmarking.md): Antigravity Commands Suite, SSH Fleet Parallel Execution, and E2E Benchmarking
-5. [92-chrome-profile-auth-export-import.md](completed/92-chrome-profile-auth-export-import.md): Chrome Profile Auth Session, Refresh Token & Cookies Full-Fidelity Export/Import
+1. [96-pull-abort-cfr-gh-resolver-asset-downloader-and-contrast.md](completed/96-pull-abort-cfr-gh-resolver-asset-downloader-and-contrast.md): Pull Batch Abort, CFR GitHub Resolver, Asset Downloader, Color Contrast, and Token Fleet Management
+2. [95-repo-create-triple-sync-and-paet-latency-rca.md](completed/95-repo-create-triple-sync-and-paet-latency-rca.md): Repository Creation Triple Ecosystem Auto-Sync (VS Code, GitHub Desktop & Antigravity) & PAET Latency RCA
+3. [94-agy-rerun-restart-and-tooling-suite.md](completed/94-agy-rerun-restart-and-tooling-suite.md): AGY Rerun IDE Restart, Multi-Project Prompt Replay with Media, and Tooling Suite
+4. [94-ssh-fleet-deploy-remote-clone-api-ui.md](completed/94-ssh-fleet-deploy-remote-clone-api-ui.md): SSH Macro & App Fleet Deployment, Remote Clone, REST Endpoint Triad, and Web UI Management Engine
+5. [93-antigravity-commands-ssh-fleet-and-e2e-benchmarking.md](completed/93-antigravity-commands-ssh-fleet-and-e2e-benchmarking.md): Antigravity Commands Suite, SSH Fleet Parallel Execution, and E2E Benchmarking
 5. [91-ssh-join-common-scan-and-agy-rop.md](completed/91-ssh-join-common-scan-and-agy-rop.md): SSH Batch Common Join, Subnet Scanner, OS Metadata, AGY Project Re-Read & Optimization, and AUM Benchmarking
 2. [90-pipeline-cancelled-shown-as-pass.md](completed/90-pipeline-cancelled-shown-as-pass.md): Pipeline Cancelled / Timed Out Runs Erroneously Displayed as PASS
 2. [89-ssh-fleet-update-nodes-macros.md](completed/89-ssh-fleet-update-nodes-macros.md): SSH Fleet Update, Node Inspection, Smart Command Routing, and Macro Engine

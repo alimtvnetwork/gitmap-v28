@@ -131,7 +131,7 @@ func executeRemoteSave(conn db.SSHConnection, nodeAlias, filePath, content strin
 }
 
 func findSSHNodeByAlias(alias string) (db.SSHConnection, bool) {
-	conns, err := db.LoadAllSSHConnections()
+	conns, err := cmdssh.FetchAllSSHConnections()
 
 	if err != nil {
 		return db.SSHConnection{}, false

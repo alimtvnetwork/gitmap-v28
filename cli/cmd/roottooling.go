@@ -1,8 +1,10 @@
 package cmd
 
 import (
+	"github.com/alimtvnetwork/gitmap-v28/cli/cmdasset"
 	"github.com/alimtvnetwork/gitmap-v28/cli/cmdchromeprofile"
 	"github.com/alimtvnetwork/gitmap-v28/cli/cmdservice"
+	"github.com/alimtvnetwork/gitmap-v28/cli/cmdtoken"
 	"github.com/alimtvnetwork/gitmap-v28/cli/cmdvmware"
 	"github.com/alimtvnetwork/gitmap-v28/cli/constants"
 )
@@ -49,6 +51,7 @@ func toolingDevEntries() []dispatchEntry {
 		{[]string{constants.CmdZipGroup, constants.CmdZipGroupShort}, func() error { return runZipGroup(argsTail()) }},
 		{[]string{constants.CmdAlias, constants.CmdAliasShort}, func() error { return runAlias(argsTail()) }},
 		{[]string{"ssh-clone", "ssh-c"}, func() error { return runSSHClone(argsTail()) }},
+		{[]string{"token", "git-token", "access-token"}, func() error { return cmdtoken.Run(argsTail()) }},
 		{[]string{constants.CmdSSH, "ssh-key", "ssh-keys", "auth-key", "auth-key-add", "ssh-key-add"}, func() error { return runSSH(argsTail()) }},
 		{[]string{constants.CmdBackup}, func() error { return runBackup(argsTail()) }},
 	}
@@ -182,6 +185,7 @@ func toolingUtilEntries() []dispatchEntry {
 		{[]string{constants.CmdRepoSearchJson, constants.CmdRepoSearchJsonAlias}, func() error { return runRepoSearchJson(argsTail()) }},
 		{[]string{constants.CmdRepoSearchRegexJson}, func() error { return runRepoSearchRegexJson(argsTail()) }},
 		{[]string{constants.CmdSearchReplaceAll}, func() error { return runSearchReplaceAll(argsTail()) }},
+		{[]string{"asset", "download-prnt", "prnt", "prnt-download"}, func() error { return cmdasset.Run(argsTail()) }},
 		{[]string{constants.CmdZip}, func() error { return runZip(argsTail()) }},
 		{[]string{"mkdir"}, func() error { return runMkdir(argsTail()) }},
 		{[]string{"cat"}, func() error { return runCat(argsTail()) }},

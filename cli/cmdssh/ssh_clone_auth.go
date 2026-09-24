@@ -17,9 +17,10 @@ func isAuthFailure(out string, err error) bool {
 	if err != nil {
 		combined += " " + strings.ToLower(err.Error())
 	}
+	isRepoNotFound := strings.Contains(combined, "repository") && strings.Contains(combined, "not found")
 	return strings.Contains(combined, "permission denied") ||
 		strings.Contains(combined, "publickey") ||
-		strings.Contains(combined, "repository not found") ||
+		isRepoNotFound ||
 		strings.Contains(combined, "could not read username") ||
 		strings.Contains(combined, "terminal prompts disabled") ||
 		strings.Contains(combined, "authentication failed") ||

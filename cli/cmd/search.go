@@ -4,13 +4,16 @@ import (
 	"context"
 	"database/sql"
 	"fmt"
+	"os"
+	"path/filepath"
+	"strings"
 	"time"
 
 	"github.com/pterm/pterm"
 
-	"github.com/alimtvnetwork/gitmap-v28/cli/apperror"
 	"github.com/alimtvnetwork/gitmap-v28/cli/constants"
 	"github.com/alimtvnetwork/gitmap-v28/cli/searcher"
+	"github.com/alimtvnetwork/gitmap-v28/cli/store"
 )
 
 // runSearch executes indexed keyword and symbol search across repositories.
@@ -66,7 +69,7 @@ func executeSearchCommand(query string, limit int, isAiCaller bool) error {
 	ctx := context.Background()
 	mainDB, db, err := getRepoDB(ctx)
 	if err != nil {
-		return apperror.WrapSimple(err, "search.getRepoDB")
+		return runUntrackedSearchFallback(query, limit, isAiCaller)
 	}
 	defer mainDB.Close()
 	defer db.Close()
@@ -110,4 +113,97 @@ func renderSearchResults(res []searcher.SearchResult) {
 		fmt.Println(r.MatchedText)
 		fmt.Println()
 	}
+}
+
+func runUntrackedSearchFallback(query string, limit int, isAiCaller bool) error {
+	cwd, _ := os.Getwd()
+	fmt.Printf("Searching for %q in %s...\n", query, cwd)
+	matches := findMatchingFilesLocal(cwd, query, limit)
+	hasFileMatches := len(matches) > 0
+	if hasFileMatches {
+		printFileMatches(matches)
+		return nil
+	}
+	repoMatches := findMatchingReposInStore(query, limit)
+	hasRepoMatches := len(repoMatches) > 0
+	if hasRepoMatches {
+		printRepoMatches(repoMatches)
+		return nil
+	}
+	printUntrackedSearchHint(query)
+	return nil
+}
+
+func printFileMatches(matches []string) {
+	fmt.Printf("\n%sFound %d matching file(s):%s\n", constants.ColorGreen, len(matches), constants.ColorReset)
+	for _, m := range matches {
+		fmt.Printf("  • %s%s%s\n", constants.ColorCyan, m, constants.ColorReset)
+	}
+}
+
+func printRepoMatches(matches []string) {
+	fmt.Printf("\n%sFound %d matching repository(ies):%s\n", constants.ColorGreen, len(matches), constants.ColorReset)
+	for _, rm := range matches {
+		fmt.Printf("  • %s%s%s\n", constants.ColorCyan, rm, constants.ColorReset)
+	}
+}
+
+func printUntrackedSearchHint(query string) {
+	fmt.Printf("\n%sNo matches found for %q in untracked folder.%s\n", constants.ColorYellow, query, constants.ColorReset)
+	fmt.Println("  Tip: run 'gitmap scan' to index repositories or cd into a tracked repository.")
+}
+
+func findMatchingReposInStore(query string, limit int) []string {
+	mainDB, err := store.OpenDefault()
+	if err != nil {
+		return nil
+	}
+	defer mainDB.Close()
+	repos, _ := mainDB.ListRepos()
+	var matches []string
+	cleanQ := strings.ToLower(query)
+	for _, r := range repos {
+		isRepoMatch := strings.Contains(strings.ToLower(r.RepoName), cleanQ)
+		isPathMatch := strings.Contains(strings.ToLower(r.AbsolutePath), cleanQ)
+		if isRepoMatch || isPathMatch {
+			matches = append(matches, r.RepoName+" ("+r.AbsolutePath+")")
+			if len(matches) >= limit {
+				break
+			}
+		}
+	}
+	return matches
+}
+
+func findMatchingFilesLocal(root, query string, limit int) []string {
+	if limit <= 0 {
+		limit = 20
+	}
+	var matches []string
+	cleanQ := strings.ToLower(query)
+	_ = filepath.WalkDir(root, func(path string, d os.DirEntry, err error) error {
+		if err != nil {
+			return nil
+		}
+		if d.IsDir() {
+			name := d.Name()
+			if strings.HasPrefix(name, ".") || name == "node_modules" || name == "vendor" || name == "bin" {
+				return filepath.SkipDir
+			}
+			return nil
+		}
+		if strings.Contains(strings.ToLower(d.Name()), cleanQ) {
+			rel, relErr := filepath.Rel(root, path)
+			if relErr == nil {
+				matches = append(matches, rel)
+			} else {
+				matches = append(matches, path)
+			}
+			if len(matches) >= limit {
+				return filepath.SkipAll
+			}
+		}
+		return nil
+	})
+	return matches
 }
