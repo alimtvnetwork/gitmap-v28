@@ -35,16 +35,19 @@ All logic, services, controllers, handlers, utilities, hooks, CLI commands, and 
 - Files must be reduced by modular decomposition into separate files, NOT by code compression.
 
 ### 4. Wrapper Objects & Parameter Reduction Pattern
+
 - **Return Wrapper Struct:** If an extracted helper returns 2 or more related values (beyond standard error/Result), encapsulate them into a dedicated named struct or type.
 - **Parameter Structs:** If an extracted function requires more than 2 parameters, combine them into an options or params struct (`*Params` / `*Options`).
 
 ### 5. Boolean Principles During Extraction
+
 - **Implicit Positive Checks Only:** NEVER write `if isReady == true`. ALWAYS write `if isReady`.
 - **No Negative Polarity:** NEVER combine a positive and negative condition (`if isA && !isB`). Split into separate guard clauses!
 - **Positive Naming Only:** All booleans MUST use affirmative prefixes: `is*` or `has*` only (e.g., `isFail`, `isInvalid`, `isPaused`).
 - **Zero Nested If Statements:** Every extracted function MUST maintain a nesting depth <= 1 using early guard returns.
 
 ### 6. Execution & Build Policy
+
 - **NO INTERMEDIATE TEST RUNNING:** NEVER run unit test suites (`go test ./...`, `npm test`, `pytest`) during routine refactoring turns.
 - **NO INTERMEDIATE BUILD CHECKING:** DO NOT execute build commands (`go build`, `npm run build`) after individual file edits.
 - **FINAL STEP BUILD VERIFICATION ONLY:** Verify compilation strictly at the final step after all file extractions and import adjustments are completed.
@@ -202,14 +205,22 @@ func extractVersionValue(rawMap map[string]interface{}) string {
 
 ---
 
-## Fast File Discovery & Reading via Python Toolchain (Mandatory Acceleration)
+## Fast File Discovery & Reading Toolchain (GitMap AUM Primary, Python Fallback)
 
-To avoid 50-result tool truncation limits and eliminate multi-turn exploratory roundtrips, the AI agent MUST use the repository's dedicated Python discovery scripts first:
+To avoid 50-result tool truncation limits and eliminate multi-turn exploratory roundtrips, the AI agent MUST use the fast 2-tier discovery toolchain:
+
+### Tier 1: GitMap AUM Acceleration (PRIMARY)
+- **Universal File Search:** `gitmap find "<pattern>" [-ext <ext>]` (e.g. `gitmap find "*.go" -ext "go"`, `gitmap find "01*"`)
+- **List Indexed Files:** `gitmap list-files [pattern]` (alias `gitmap lf [pattern] [-ext <ext>]`)
+- **Substring Match:** `gitmap find-files-any "<substring>"` (alias `gitmap ffa "<str>"`)
+- **Stream File Content:** `gitmap cat <filepath>` (streams to stdout with zero disk writes)
+- **Instant Code Search:** `gitmap search "<term>"` (immediate multi-core filesystem walk)
+
+### Tier 2: Fast Cached Python Toolchain (FALLBACK)
 - **Inventory Target Files:** `python 03-ai-scripts/11-fast-file-scanner.py --lang go,ts --limit 100 --stats`
 - **Fast Cached Grep (<15ms):** `python 03-ai-scripts/12-fast-cached-grep.py --pattern "<pattern>" --lang go --limit 50`
 - **Sub-Millisecond Folder Explorer & Reader:** `python 03-ai-scripts/17-fast-file-reader.py --list-folder <dir> --ext .go --limit 50`
 - **Read Target File:** `python 03-ai-scripts/17-fast-file-reader.py --read-file <file-path> --max-bytes 100000`
-- **Fast Pattern Search:** `python 03-ai-scripts/17-fast-file-reader.py --search-pattern "<pattern>" --limit 50`
 - **Codebase Topology:** `python 03-ai-scripts/18-codebase-topology-discoverer.py --summary`
 
 ---

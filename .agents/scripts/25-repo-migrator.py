@@ -91,7 +91,7 @@ DIRECT_STRING_REPLACEMENTS = [
     (".ai-memory\\coding-guidelines\\coding-guidelines.md", ".ai-memory\\coding-guidelines.md"),
     (".ai-memory/coding-guidelines/", ".ai-memory/coding-guidelines.md"),
     ("\"spec\"", "\"02-spec\""),
-    ("spec/01-index.md", "02-spec/01-index.md"),
+    ("spec/readme.md", "02-spec/readme.md"),
     ("spec/spec-index.md", "02-spec/spec-index.md"),
     ("spec/health-dashboard.md", "02-spec/health-dashboard.md"),
     ("spec/dashboard-data.json", "02-spec/dashboard-data.json"),

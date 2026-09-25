@@ -7,6 +7,7 @@ description: Autonomously audits, refactors, and validates repository-wide datab
 This skill provides autonomous audit, refactoring, and validation of repository-wide database management based on `02-spec/04-database-conventions/`.
 
 ## Core Invariants
+
 1. **PascalCase Singular Tables**: `User`, `Project`, not `Users`.
 2. **PascalCase Columns**: `UserId`, `CreatedAt`.
 3. **Primary Keys**: `{TableName}Id` (`INTEGER PRIMARY KEY AUTOINCREMENT`).

@@ -62,6 +62,7 @@ Tests for countdown timers, delayed power commands, or recurring schedules must 
 - Fast simulated delays (`1s`, `2s`) with mock tick callbacks rather than sleeping or arming host OS timers.
 
 ### 5. Function Sizing & Affirmative Booleans
+
 - Functions target **<= 8 lines** of body logic (hard cap: 15 lines).
 - Affirmative booleans only (`is*`, `has*`). No negative booleans.
 - Universal `*apperror.AppError` return wrapping.

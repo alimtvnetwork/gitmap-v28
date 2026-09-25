@@ -10,7 +10,7 @@ Usage:
   python 03-ai-scripts/34-purge-github-actions-artifacts.py
 
   # Purge from a specific repository:
-  python 03-ai-scripts/34-purge-github-actions-artifacts.py --repo alimtvnetwork/gitmap-v28
+  python 03-ai-scripts/34-purge-github-actions-artifacts.py --repo alimtvnetwork/coding-guidelines-v24
 
   # Purge only artifacts:
   python 03-ai-scripts/34-purge-github-actions-artifacts.py --artifacts-only
@@ -30,9 +30,9 @@ if hasattr(sys.stdout, "reconfigure"):
     sys.stdout.reconfigure(encoding="utf-8")
 
 TARGET_REPOS = [
-    "alimtvnetwork/gitmap-v28",
-    "alimtvnetwork/coding-guidelines-v24",
     "alimtvnetwork/Antigravity-Manager",
+    "alimtvnetwork/coding-guidelines-v24",
+    "alimtvnetwork/gitmap-v28",
     "alimtvnetwork/img-pdf-v2",
     "alimtvnetwork/macro-ahk-v55",
     "alimtvnetwork/movie-cli-v8",

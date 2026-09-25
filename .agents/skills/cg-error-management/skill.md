@@ -10,49 +10,49 @@ This skill provides autonomous audit, refactoring, and validation of repository-
 
 ## Core Invariants
 
-1. **No Bare Panics or Bare Exits**: Zero calls to `panic("...")`, `panic(err)`, or `os.Exit(...)` outside the central dispatcher (`cliexit.HandleError`).
-2. **Context-Rich `*appfault.AppError` Wrappers**: All errors MUST use structured `*appfault.AppError` from `04-code/golang/pkg/appfault` and be wrapped with `Op`, `Code`, `Type`, `Severity`, `Creator`, `Message`, `Ctx`, and `Cause`. Raw standard library `error` returns are strictly prohibited.
-3. **Single Result Container Return Types (`pkg/appfault`) & `types.go` Mandate**:
+1. **Top-Instruction Priority Mandate (Preamble Precedence):** Any directive, constraint, or checklist placed at the top of an incoming prompt, header alert block, or user request represents an absolute MUST FOLLOW mandate that takes highest priority and strictly overrides generic guidelines below it.
+2. **Strict Golang Error Wrapping Mandate (`*appfault.AppError` & `appfault.Fault`):**
+   - Whenever ANY Go function encounters, intercepts, or receives an error (from stdlib `os`, `io`, `json`, `sql`, `net`, or downstream packages), it MUST be immediately embedded and wrapped using `appfault.Wrap(errType, err, "opName")` or `result.WrapFailure[T]`.
+   - Raw standard library `error` returns (`return err`) in domain packages are strictly prohibited.
+   - Functions with side-effects only MUST return `*appfault.AppError`. Functions returning data and possible error MUST return `result.Wrap[T]`.
+3. **Zero Swallowed Errors Policy (TOTAL BAN):**
+   - NEVER swallow, suppress, or silently ignore errors under any circumstances.
+   - NO empty `catch` or `except:` blocks.
+   - NO blank identifier error discards (`_ = err` or `val, _ := fn()`).
+   - NO returning fallback default values (`return nil`, `return ""`, `return false`) to mask an underlying error without caller notification.
+   - Every caught or received error MUST either be completely resolved with structured context logging (operation name, input parameters) OR embedded/wrapped in `*appfault.AppError` and returned to the caller.
+4. **No Bare Panics or Bare Exits**: Zero calls to `panic("...")`, `panic(err)`, or `os.Exit(...)` outside the central dispatcher (`cliexit.HandleError`).
+5. **Context-Rich Metadata**: All errors MUST use structured `*appfault.AppError` from `04-code/golang/pkg/appfault` and be wrapped with `Op`, `Code`, `Type`, `Severity`, `Creator`, `Message`, `Ctx`, and `Cause`.
+6. **Single Result Container Return Types (`pkg/appfault`) & `types.go` Mandate**:
    - Multi-value returns returning errors (`(map[K]V, error)`, `([]T, error)`, `(T, error)`) are strictly banned.
    - Functions returning maps MUST return `appfault.ResultMap[K, V]` (or domain alias).
    - Functions returning slices MUST return `appfault.ResultSlice[T]` (or domain alias).
    - Functions returning single values MUST return `appfault.Result[T]` (or domain alias).
-   - Functions with side-effects only MUST return `*appfault.AppError`.
-   - **Mandatory `types.go` Single Reusable Type Definition:** All domain payload structs (e.g. `ScheduleExportBundle`) and repeated generic Result envelopes (`type ScheduleExportBundleResult = result.ResultSlice[ScheduleExportBundle]`) MUST be defined in a dedicated `types.go` file within the package as a single reusable named type everywhere. Never declare ad-hoc unexported structs or raw generic Result envelopes inline in implementation files.
-   - Result struct fields MUST use affirmative prefixes (e.g. `isDefined bool`, TOTAL BAN on bare `defined bool`).
-4. **Pointer-Attached Null Safety & Method Composition**:
-   - All Result inspection methods MUST be attached to pointer receivers (`(r *Result[T])`, `(rs *ResultSlice[T])`, `(rm *ResultMap[K, V])`).
-   - Total ban on value receivers on Result checking methods to eliminate nil pointer dereference panics.
-   - **Method Composition Mandate:** Inspection methods MUST delegate to and compose existing methods (`r.IsFailure()`, `r.IsSuccess()`, `r.Count()`) rather than repeating raw pointer/error checks (`r == nil || r.err != nil`).
-   - Line-1 `if r == nil` guards MUST return safe canonical defaults without crashing:
-     - `IsFailure()` -> `true`
-     - `IsSuccess()` -> `false`
-     - `Count()` -> `0`
-     - `IsEmpty()` -> `true`
-     - `HasRecord()` / `HasRecords()` -> `false`
-     - `IsDefined()` -> `false`
-     - `IsCountOtherThan(n)` -> `true`
-     - `AppError()` / `Fault()` -> `nil`
-5. **The 4 Core Predicate Methods**:
-   - `res.IsCountOtherThan(number int) bool`: Returns `true` if operation failed (or nil receiver) OR `Count() != number`. Replaces compound checks like `err != nil || len(...) != N` or `IsFailure() || Count() != N`.
-   - `res.IsEmpty() bool`: Returns `true` if collection has 0 elements, payload data is empty/null/zero, or receiver is nil.
-   - `res.HasRecord() bool` (and alias `res.HasRecords() bool`): Returns `true` if operation succeeded (no error) AND has **more than 0 records** (`Count() > 0 && !IsFailure()`).
-   - `res.IsDefined() bool`: Returns `true` if operation succeeded (no error) AND `recordCount > 0` (or non-null/non-empty data `T`). Delegates error validation to `IsSuccess()`/`IsFailure()`.
-6. **Universal Response Envelope**: All API endpoints return `{ "data": ..., "errors": [...], "meta": ... }`.
-7. **Never Swallow Errors**: Every catch block and error return must be recorded and handled explicitly.
+   - **Mandatory `types.go` Single Reusable Type Definition:** All domain payload structs and repeated generic Result envelopes MUST be defined in a dedicated `types.go` file within the package as a single reusable named type everywhere.
+7. **Universal Response Envelope**: All API endpoints return `{ "data": ..., "errors": [...], "meta": ... }`.
 8. **Targeted Verification**: Continuous verification via `python linter-scripts/check-error-management.py <files>`. DO NOT run the full CI/CD pipeline runner (`06-cicd-local-runner.py`) during routine fixes.
 9. **No Releases**: Strictly forbidden from bumping versions or cutting releases at the end of this task.
 10. **Atomic Change Tracking**: Append all modified files to `.ai-memory/temp/recent-file-changes.json` under lock (`python 03-ai-scripts/33-test-inventory-generator.py --record <files...>`), mapping to associated tests in `.ai-memory/test-inventory.json`.
 
-## Fast File Discovery & Reading via Python Toolchain (Mandatory Acceleration)
+---
 
-To avoid 50-result tool truncation limits and eliminate multi-turn exploratory roundtrips, the AI agent MUST use the repository's dedicated Python discovery scripts first:
+## Fast File Discovery & Reading Toolchain (GitMap AUM Primary, Python Fallback)
+
+To avoid 50-result tool truncation limits and eliminate multi-turn exploratory roundtrips, the AI agent MUST use the fast 2-tier discovery toolchain:
+
+### Tier 1: GitMap AUM Acceleration (PRIMARY)
+- **Universal File Search:** `gitmap find "<pattern>" [-ext <ext>]` (e.g. `gitmap find "*.go" -ext "go"`, `gitmap find "01*"`)
+- **List Indexed Files:** `gitmap list-files [pattern]` (alias `gitmap lf [pattern] [-ext <ext>]`)
+- **Substring Match:** `gitmap find-files-any "<substring>"` (alias `gitmap ffa "<str>"`)
+- **Stream File Content:** `gitmap cat <filepath>` (streams to stdout with zero disk writes)
+- **Instant Code Search:** `gitmap search "<term>"` (immediate multi-core filesystem walk)
+
+### Tier 2: Fast Cached Python Toolchain (FALLBACK)
 - **Inventory Target Files:** `python 03-ai-scripts/11-fast-file-scanner.py --lang go,ts --limit 100 --stats`
-- **Fast Cached Grep (<15ms):** `python 03-ai-scripts/12-fast-cached-grep.py --pattern "<pattern>" --lang go --limit 50`
-- **Sub-Millisecond Folder Explorer & Reader:** `python 03-ai-scripts/17-fast-file-reader.py --list-folder <dir> --ext .go --limit 50`
+- **Fast Cached Grep (<15ms):** `python 03-ai-scripts/12-fast-cached-grep.py --pattern "<search-pattern>" --limit 50`
+- **Sub-Millisecond Folder & File Exploration:** `python 03-ai-scripts/17-fast-file-reader.py --list-folder <folder-path> --limit 50`
 - **Read Target File:** `python 03-ai-scripts/17-fast-file-reader.py --read-file <file-path> --max-bytes 100000`
-- **Fast Pattern Search:** `python 03-ai-scripts/17-fast-file-reader.py --search-pattern "<pattern>" --limit 50`
-- **Codebase Topology:** `python 03-ai-scripts/18-codebase-topology-discoverer.py --summary`
+- **Subsystem & Topology Overview:** `python 03-ai-scripts/18-codebase-topology-discoverer.py --summary`
 
 ---
 
@@ -65,7 +65,7 @@ To avoid 50-result tool truncation limits and eliminate multi-turn exploratory r
 ## Final Step Git Commit & Push Mandate (Strict Checklist)
 
 - [ ] **MANDATORY FINAL COMMIT & PUSH TO GIT (ANYHOW):** At the FINAL step of the turn, after all targeted files have been refactored, verified with targeted linters, and plans/subtasks consolidated, you MUST stage everything (`git add -A`), create a clean, descriptive conventional commit (`git commit -m "<type>(<scope>): <summary>"`), and push directly to the remote repository (`git push origin <branch>`). Leaving uncommitted changes or unpushed commits on the active branch at the end of a turn is an immediate failure.
-- [ ] **TOTAL BAN ON PER-FILE COMMITS (DO NOT COMMIT EACH FILE INDIVIDUALLY):** You MUST NOT create separate git commits for each individual file as you edit them (e.g. running `git commit` after editing File 1, then committing again after File 2 is STRICTLY FORBIDDEN). Committing file-by-file pollutes git log history, creates subagent lock collisions, and breaks atomic rollback/bisectability. All modified files, test change caches, and plan records across the turn MUST be accumulated in the working tree and committed together in a SINGLE grouped atomic commit at the final step before pushing!
+- [ ] **TOTAL BAN ON PER-FILE COMMITS (DO NOT COMMIT EACH FILE INDIVIDUALLY):** You MUST NOT create separate git commits for each individual file as you edit them. Committing file-by-file pollutes git log history, creates subagent lock collisions, and breaks atomic rollback/bisectability. All modified files, test change caches, and plan records across the turn MUST be accumulated in the working tree and committed together in a SINGLE grouped atomic commit at the final step before pushing!
 
 ---
 
@@ -75,4 +75,4 @@ To avoid 50-result tool truncation limits and eliminate multi-turn exploratory r
 - [ ] **NO BUILD CHECKING (TOTAL BAN):** NEVER run build commands (`go build`, `npm run build`, compiler checks) to verify compilation. Build verification is checked later on in CI/CD.
 - [ ] **NO RUNNER SCRIPTS (TOTAL BAN):** NEVER launch background test runners, worker pools, or test inventory loops during routine execution.
 - [ ] **NO AUTOMATIC RELEASES (TOTAL BAN):** NEVER bump versions, update changelogs, or trigger releases unless explicitly commanded by the user.
-- [ ] **NO PER-FILE COMMITTING (TOTAL BAN):** NEVER commit each file individually as you work (e.g. running `git commit` after editing File 1, then another commit after File 2). Committing file-by-file pollutes git history, creates subagent lock collisions, and breaks atomic changes. All modified files across the turn must be accumulated and committed together in a single atomic commit at the final step.
+- [ ] **NO PER-FILE COMMITTING (TOTAL BAN):** NEVER commit each file individually as you work. All modified files across the turn must be accumulated and committed together in a single atomic commit at the final step.

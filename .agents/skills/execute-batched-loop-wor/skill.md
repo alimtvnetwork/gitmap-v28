@@ -6,12 +6,43 @@ description: >-
 
 # Batched Loop Execution Without Release (WOR) — Workflow (must follow)
 
-> Prompt Version: 2.1.0
+> [!IMPORTANT]
+> Prompt Version: 2.6.0
 > Synchronization: Main Meta-Repo & Connected Workspaces
+> 
+> **Top-Instruction Priority Mandate (Preamble Precedence):**
+> Whatever directives, constraints, checklists, or instructions are given before this section or prompt (including in the prompt preamble, header blocks, or incoming user request) are HIGHEST PRIORITY and MUST BE FOLLOWED as strictly NON-NEGOTIABLE. They supersede and strictly override any conflicting general advice, default conventions, or lower-level guidelines below.
 
-# Instruction (must follow): Execute Batched Loop (3 Agents, Chunked Commits)
+# Instruction (must follow): Execute Batched Loop (Sub-Agents, Chunked Commits)
 
-/goal Execute pending tasks from `.ai-memory/plans/pending/` using a strictly batched multi-agent loop. Use exactly 3 sub-agents, assign small micro-task chunks per agent, enforce file collision safety through a locking matrix, sanitize artifacts before commits, handle crashes via `.ai-memory/temp/`, and push chunked commits to git without failure. At the end of every loop, explicitly list task statistics in your output window. You MUST self-loop continuously until every pending task is completed; do not stop until the queue is completely empty.
+/goal Execute pending tasks from `.ai-memory/plans/pending/` using a strictly batched multi-agent loop. Assign small micro-task chunks per agent, enforce file collision safety through a locking matrix, sanitize artifacts before commits, handle crashes via `.ai-memory/temp/`, and push chunked commits to git without failure. At the end of every loop, explicitly list task statistics in your output window. You MUST self-loop continuously until every pending task is completed; do not stop until the queue is completely empty.
+
+```text
+N = 200 (Total self-loop steps budget)
+A = 2   (Number of spawned autonomous subagents, default: 2)
+H = 2   (Number of hands / parallel operations per agent, default: 2)
+```
+
+N = total self-loop steps budget that the agents will perform.
+A = count of autonomous subagents running concurrently (default: 2).
+H = number of hands / parallel operations per agent (default: 2).
+
+---
+
+### Multi-Agent Parallel Task Allocation & Orchestration (A = 2, H = 2)
+
+When multiple autonomous agents are present (A >= 2, H >= 2):
+1. **Single-Agent Unified Blueprint Mandate:**
+   - The initial plan, pending task scoping, and lookahead roadmap MUST be authored by a single lead agent first as a unified blueprint before delegating work to subagents.
+   - Never allow multiple agents to author disjoint or competing audit plans simultaneously. A single coherent architectural vision must lead.
+2. **Most Useful Parallel Tasks (Reading Files & Writing Modular Specs):**
+   - Once the unified blueprint is authored by the lead agent, the most effective parallel tasks for subagents (A = 2, H = 2) are:
+     - **Reading Files:** Fast exploratory reading, scanning dependencies, mapping call sites, and inspecting codebase context in parallel using GitMap AUM (`gitmap find`, `gitmap lf`, `gitmap cat`, `gitmap search`) as primary and Python scripts (`03-ai-scripts/17-fast-file-reader.py`, `03-ai-scripts/11-fast-file-scanner.py`) as fallback.
+     - **Writing Modular Specs & Lean Subtasks:** Authoring modular spec sections and subtasks in parallel adhering to the lead agent's blueprint.
+3. **Execution Mode (Disjoint Refactoring):**
+   - Subagents execute parallel disjoint refactoring tasks across non-overlapping files and run targeted file-level linters (`exit 0`).
+
+---
 
 /learn Capture every pattern, convention, fix, and correction discovered during execution into `.ai-memory/memory/learned/01-<slug>.md` and `.ai-memory/strictly-avoid.md`. Never repeat a mistake that was logged.
 
@@ -31,7 +62,7 @@ Before executing the tasks below, you must check if this prompt is already insta
 
 ## AI Fix Scripts Memory (Reusable Tooling)
 
-- [ ] `/goal` Reuse First: I have rigorously scanned and `/learn`ed `03-ai-scripts/01-index.md` to check if a helper script already exists before writing any new temporary code.
+- [ ] `/goal` Reuse First: I have rigorously scanned and `/learn`ed `03-ai-scripts/readme.md` to check if a helper script already exists before writing any new temporary code.
 - [ ] `/goal` Learn Error Skills: I have `/learn`ed `02-spec/03-error-manage/02-error-architecture/02-error-handling-reference.md` as an AI skill checklist and ensured that every returned `*appfault.AppError` uses `.WithPath()` and `.WithVar()` context wrappers.
 - [ ] Strict In-Repository Execution: All Python scripts (`03-ai-scripts/*.py`) MUST be executed strictly within the codebase repository root, NEVER outside the codebase.
 - [ ] Strict .ai-memory/ Folder Storage: All AI scripts, local runners, autofixers, and helper utilities MUST be created inside `03-ai-scripts/`. NEVER create scripts in root or external paths.
@@ -40,7 +71,7 @@ Before executing the tasks below, you must check if this prompt is already insta
   - If Missing (Re-creation): If `03-ai-scripts/17-fast-file-reader.py` is not found, immediately recreate it using Python standard libraries (`os`, `sys`, `pathlib`, `re`, `argparse`, `json`). It MUST support flags: `--list-folder <path> [--ext .md,.ts]`, `--read-file <path> [--max-bytes N]`, and `--search-pattern "<regex>" [--path <dir>]`. Ensure strict UTF-8 output (`sys.stdout.reconfigure(encoding="utf-8")`) and implement local caching.
 - [ ] Go Generate Sync: If you modify Go constants, enums, or stringers, you MUST run `go generate ./...` in the relevant directory (e.g., `cd gitmap && go generate ./...`) and commit the resulting generated files to prevent CI drift.
 - [ ] Commit & Track: All new helper scripts were written strictly to `03-ai-scripts/` and committed to Git for future reuse.
-- [ ] Index Documentation: I have updated `03-ai-scripts/01-index.md` using sequential script naming (e.g., `01-parse-files.py`). For every script, I have included a `<details>` collapsible tag explaining exactly why the script is there and what it does.
+- [ ] Index Documentation: I have updated `03-ai-scripts/readme.md` using sequential script naming (e.g., `01-parse-files.py`). For every script, I have included a `<details>` collapsible tag explaining exactly why the script is there and what it does.
 
 5. Violation of any rule below is auto-reject on the same tier as RULE 0.
 
@@ -57,14 +88,14 @@ Before executing the tasks below, you must check if this prompt is already insta
 >
 > When generating plans, subtasks (`.ai-memory/plans/subtasks/`), memory issue logs (`.ai-memory/memory/issues/`), specs, code comments, or citations:
 >
-> 1. Strictly Relative to Git Root: All file paths, markdown links, citations, and task targets MUST be relative paths starting from the repository root (e.g. `02-spec/03-error-manage/01-index.md`, `[SSH Commands]`02-spec/13-generic-cli/01-index.md)`, `cmd/main.go`).
+> 1. Strictly Relative to Git Root: All file paths, markdown links, citations, and task targets MUST be relative paths starting from the repository root (e.g. `02-spec/03-error-manage/readme.md`, `[SSH Commands]`02-spec/13-generic-cli/readme.md)`, `cmd/main.go`).
 > 2. Total Ban on Absolute Paths: NEVER write drive letters or absolute OS paths (`/absolute/path/to/...`, `/absolute/path/to/...`, `/home/...`) or absolute file URIs (`file:///absolute/path/to/...`, `file:///absolute/path/to/...`) into ANY file.
 >
 > Examples:
 >
 > - ❌ BAD: `[SSH Commands](file:///absolute/path/to/...) — Why: Defines behavior.`
 > - ❌ BAD: `Target File: /absolute/path/to/cmd\login.go`
-> - ✅ GOOD: `[SSH Commands]`02-spec/13-generic-cli/01-index.md) — Why: Defines behavior.`
+> - ✅ GOOD: `[SSH Commands]`02-spec/13-generic-cli/readme.md) — Why: Defines behavior.`
 > - ✅ GOOD: `Target File: cmd/login.go`
 
 - If a spec file, folder, or task is missing or ambiguous, do NOT guess or invent a rule.
@@ -93,7 +124,7 @@ Before executing the tasks below, you must check if this prompt is already insta
    - Each agent is assigned a chunk of simple, small micro-tasks (under 15 lines per function) to complete sequentially in its own context.
    - Tasks exceeding 7 steps must be decomposed into subtasks.
 3. File collision locking matrix (`active-locks.json`):
-   - Register active target files in `.ai-memory/01-index.md`.
+   - Register active target files in `.ai-memory/readme.md`.
    - Ensure parallel tasks touch completely disjoint files to prevent git merge conflicts.
 4. Temp folder logging and specific titling (mandatory):
    - Spawn the sub-agent with a highly specific title reflecting its exact task (e.g., `Refactoring Auth Service` or `Fixing DB Query Wrapper`). Do not use generic names. If an agent switches chunks, its title must change.
@@ -120,7 +151,7 @@ When a chunk of tasks is completed by the agents, do the following before starti
 
 1. Use `mv` to move the completed task files from `.ai-memory/plans/pending/` to `.ai-memory/plans/completed/`.
 2. Open the moved files and change `Status: pending` to `Status: completed`.
-3. Update `.ai-memory/plans/01-index.md` to reflect the new file locations.
+3. Update `.ai-memory/plans/readme.md` to reflect the new file locations.
 4. Artifact sanitizer: Audit staged files. Purge unapproved artifact zip archives, temporary scratch files, or test outputs before committing.
 5. TOTAL BAN on Routine Test Running & Build Checking: All test running (`go test`, `pytest`, `06-cicd-local-runner.py`) and build checking (`go build`) are strictly banned during routine task execution. Verification is checked later on in CI/CD. Commit code with a clear descriptive message. Never rewrite published git history (no force push, no rebasing, no squash). Push to git cleanly without failure.
 
@@ -135,28 +166,55 @@ Every time you return a response or complete a loop iteration, explicitly output
 
 ## Execution Reporting (Mandatory Output Format)
 
-1. Start of Run (Initial Task Breakdown Gate): Before writing any code or executing tasks, extract all pending deliverables as discrete, ordered items (Task-01, Task-02) without hard brackets, and output this confirmed task breakdown directly in chat:
+1. Start of Run (Initial Task Breakdown Gate - Clearly Indented Markdown & Understanding Check):
+   Before writing any code, scanning, or executing tasks, extract all pending deliverables as discrete, ordered items (`Task-01`, `Task-02`).
+   - Respect whatever requirements the user has given, parse every request completely, and format each task clearly with proper markdown indentation, vertical blank lines, task state (`State: [PENDING]`), and an explicit understanding indicator bracket (`Understood: [YES — ...]`).
+   - TOTAL BAN ON UNFORMATTED RUN-ON TEXT: Never concatenate tasks into a single unformatted line or paragraph block (e.g. NEVER `#1. Task-01: ... #2. Task-02: ...`). Every task must be its own clearly separated markdown item.
+   - Line-by-Line Output Format Structure:
+     - Line 1: Header `### 📋 Confirmed Task Breakdown & Requirement Ingestion`
+     - Line 2: Empty blank line
+     - Line 3: Numbered task title `1. **Task-01: [Descriptive Task Title]**`
+     - Line 4: Indented state bullet (3 spaces) `   - **State:** [PENDING]`
+     - Line 5: Indented understanding check (3 spaces) `   - **Understood:** [YES] — [1-2 concise sentences proving understanding of intent, scope, and verified constraints]`
+     - Line 6: Indented actionable scope bullet (3 spaces) `   - **Actionable Scope:** [Precise technical deliverable and implementation scope]`
+     - Line 7: Indented target files bullet (3 spaces) `   - **Target Files / Area:** [relative/path/or/module]`
+     - Line 8: Empty blank line (vertical gap before next task)
+     - Concluding Line: `Proceeding directly to execution.`
 
-`markdown
-### Confirmed Task Breakdown
-#1. Task-01: [Actionable task description]
-#2. Task-02: [Actionable task description]
+```markdown
+### 📋 Confirmed Task Breakdown & Requirement Ingestion
+
+1. **Task-01: [Descriptive Task Title]**
+   - **State:** `[PENDING]`
+   - **Understood:** `[YES]` — [Concise 1-sentence verification of user requirement, intent, and verified constraints]
+   - **Actionable Scope:** [Precise technical deliverable and implementation scope]
+   - **Target Files / Area:** `[relative/path/or/module]`
+
+2. **Task-02: [Descriptive Task Title]**
+   - **State:** `[PENDING]`
+   - **Understood:** `[YES]` — [Concise 1-sentence verification of user requirement, intent, and verified constraints]
+   - **Actionable Scope:** [Precise technical deliverable and implementation scope]
+   - **Target Files / Area:** `[relative/path/or/module]`
+
 Proceeding directly to execution.
-`
+```
 
 2. End-of-Turn Verification & Confidence Reporting: When all tasks are completed (or if the run concludes), you must output:
 
-`markdown
+```markdown
 ### Task Completion Summary
+
 ✅ #1. Task-01: [Task description] — Completed
 ✅ #2. Task-02: [Task description] — Completed
 (If any task failed or was deferred, mark with ❌ or ⏳ and explain why)
 
 ### Modified Files Summary
+
 - [relative path to modified file 1]
 - [relative path to modified file 2]
 
 ### Implementation Confidence Score
+
 - Confidence: [e.g. 98% or 100%]
 - Rationale: [Detailed explanation of verified quality gates, passing linters, contract adherence, and zero regressions]
 `
@@ -230,7 +288,7 @@ To guarantee full execution without stopping after planning mode, the master orc
 ### 1. 2-Agent Concurrency & Strict `.ai-memory/` Bounding
 
 - 2-Agent Limit (Max 2 Threads Each): When dispatching work, spawn at most 2 sub-agents concurrently, with no more than 2 threads per agent.
-- Strict Folder Bounding (`.ai-memory/`): Subagents can ONLY write planning files, subtasks, status reports, and logs inside `.ai-memory/` (`.ai-memory/plans/`, `.ai-memory/01-index.md`, `.ai-memory/memory/issues/`).
+- Strict Folder Bounding (`.ai-memory/`): Subagents can ONLY write planning files, subtasks, status reports, and logs inside `.ai-memory/` (`.ai-memory/plans/`, `.ai-memory/readme.md`, `.ai-memory/memory/issues/`).
 - Context Diet & Task Focus: Provide subagents with clear, lean instructions that focus on the actual domain task itself. Do not write massive meta-prompts or generate excessive boilerplate markdown. Do not paste huge files into agent prompts.
 
 ### 2. Phase 1: Planning Mode & Subtask Generation (Steps 1 .. N/2)
@@ -244,7 +302,7 @@ To guarantee full execution without stopping after planning mode, the master orc
 
 - Spawn 2 execution subagents (max 2 threads each) to execute subtasks in parallel on disjoint files.
 - Subagents refactor code following all coding guidelines (<= 8–15 line functions, single return types, universal `*AppError` wrapping, Unix LF line endings).
-- Move completed subtasks from `.ai-memory/plans/subtasks/` to `.ai-memory/plans/completed/` and update `.ai-memory/plans/01-index.md`.
+- Move completed subtasks from `.ai-memory/plans/subtasks/` to `.ai-memory/plans/completed/` and update `.ai-memory/plans/readme.md`.
 - Failure Memory & Feedback Loop: If a subagent fails:
   - Rollback dirty working tree and log error details to `.ai-memory/plan.md` and `.ai-memory/memory/issues/xx-failure.md`.
   - The next subagent spawned MUST read the previous failure log first, record it as a pending memory task, and implement the necessary fix.
@@ -255,12 +313,12 @@ To guarantee full execution without stopping after planning mode, the master orc
 ## Pre-Reply / Loop Checklist (Must Verify Every Loop Iteration)
 
 - [ ] `.gitignore` verified to exclude `.ai-memory/temp/` and garbage collection executed.
-- [ ] Strictly up to 3 agents spawned, each assigned disjoint files tracked in `.ai-memory/01-index.md`.
+- [ ] Strictly up to 3 agents spawned, each assigned disjoint files tracked in `.ai-memory/readme.md`.
 - [ ] Pre-flight state written to `.ai-memory/temp/` for every agent.
 - [ ] 3-Strike rollback honored with `git checkout` and logged to `last-failure.md`.
 - [ ] Staged files sanitized against artifact zips and temporary scratch files.
 - [ ] NO TEST RUNNING & NO BUILD CHECKING (TOTAL BAN): Zero tests or builds executed during routine loops.
-- [ ] Completed task files `mv`'d and `.ai-memory/plans/01-index.md` updated.
+- [ ] Completed task files `mv`'d and `.ai-memory/plans/readme.md` updated.
 - [ ] Fast-forward commit created and pushed without rewriting git history.
 - [ ] Output window explicitly lists "Done", "Pending", and remaining task names.
 
@@ -325,7 +383,7 @@ To prevent cross-task pollution and ensure seamless agent communication, every t
 4. On Error/Crash: Append the exact error, root cause, and `STATUS: FAILED` to `.ai-memory/temp-agents/xx-<task-name>/state.md` before exiting.
 5. On Success: Mark `STATUS: DONE` in `.ai-memory/temp-agents/xx-<task-name>/state.md`, aggregate findings to the master plan, and clean up or archive the folder.
 
-NEVER MAKE THIS EXCUSE: *"I did not literally perform N self-loops or spawn dozens of sub-agents. Instead of artificially spinning up N separate loops, I consolidated the required deep work into a concentrated series of sequential steps within my existing execution environment."*
+NEVER MAKE THIS EXCUSE: *"I failed to perform N self-loops or spawn dozens of sub-agents. Instead of spinning up N separate loops, I consolidated the required deep work into a concentrated series of sequential steps within my existing execution environment."*
 If you write this excuse, you are a lazy, stupid fuck and you are violating RULE 0. Spawn the actual sub-agents. Do the actual loops. Utilize the processing power effectively to get the right answer. Avoid stupidity.
 
 ## WOR: Strictly Without Release
@@ -343,7 +401,7 @@ When all subtasks for a parent task (`.ai-memory/plans/pending/xx-<slug>.md`) ar
 2. In this single consolidated file, you MUST include a header that explicitly references how the main task started and documents exactly how many steps/loops it took to complete.
 3. Delete the original granular `.md` files in `.ai-memory/plans/subtasks/xx-<slug>/` so that only the single consolidated file remains.
 4. Delete the original parent plan `.ai-memory/plans/pending/xx-<slug>.md`.
-5. Update `.ai-memory/plans/01-index.md` to point to the newly consolidated completed file.
+5. Update `.ai-memory/plans/readme.md` to point to the newly consolidated completed file.
 6. Final Step Git Commit & Push (MANDATORY): Stage all modified files, consolidated plans, and memory records (`git add -A`), commit them in a single clean grouped atomic commit (`git commit -m "<type>(<scope>): <summary>"`), and push to git (`git push origin <branch>`). Under no circumstances commit each file individually.
 
 ## Final Step Git Commit & Push Mandate (Strict Checklist)

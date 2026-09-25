@@ -74,6 +74,7 @@ func convertStateToRepoRun(state *PullRepoState) store.PullRepoRunRecord {
 	filesChanged := parseFilesChanged(state.Changes, state.RepoPath, state.OldSHA, state.NewSHA)
 	hasChanges := state.OldSHA != state.NewSHA || filesChanged > 0
 	author, msg := resolveCommitMetadata(state.RepoPath)
+	trace := resolveCommitTrace(state.RepoPath, state.OldSHA, state.NewSHA)
 
 	return store.PullRepoRunRecord{
 		RepoPath:          state.RepoPath,
@@ -88,6 +89,7 @@ func convertStateToRepoRun(state *PullRepoState) store.PullRepoRunRecord {
 		HasChanges:        hasChanges,
 		DurationMs:        state.Duration.Milliseconds(),
 		ErrorMessage:      state.ErrorMsg,
+		Notes:             trace,
 	}
 }
 
@@ -132,6 +134,38 @@ func resolveCommitMetadata(repoPath string) (string, string) {
 	}
 
 	return "", ""
+}
+
+func resolveCommitTrace(repoPath, oldSHA, newSHA string) string {
+	diffTrace := queryRangeCommitTrace(repoPath, oldSHA, newSHA)
+	if len(diffTrace) > 0 {
+		return diffTrace
+	}
+
+	return queryLatestCommitTrace(repoPath)
+}
+
+func queryRangeCommitTrace(repoPath, oldSHA, newSHA string) string {
+	if oldSHA == "" || newSHA == "" || oldSHA == newSHA {
+		return ""
+	}
+	cmd := exec.Command("git", "-C", repoPath, "log", oldSHA+".."+newSHA, "--oneline")
+	out, err := cmd.Output()
+	if err != nil {
+		return ""
+	}
+
+	return strings.TrimSpace(string(out))
+}
+
+func queryLatestCommitTrace(repoPath string) string {
+	cmd := exec.Command("git", "-C", repoPath, "log", "-1", "--oneline")
+	out, err := cmd.Output()
+	if err != nil {
+		return ""
+	}
+
+	return strings.TrimSpace(string(out))
 }
 
 func parseFilesChanged(changes, repoPath, oldSHA, newSHA string) int {

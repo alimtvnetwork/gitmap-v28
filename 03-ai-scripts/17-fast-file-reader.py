@@ -13,7 +13,7 @@ Usage:
 
 Examples:
   python 03-ai-scripts/17-fast-file-reader.py --list-folder 01-prompts --ext .md --limit 20
-  python 03-ai-scripts/17-fast-file-reader.py --read-file 01-prompts/15-cg-execute/01-index.md
+  python 03-ai-scripts/17-fast-file-reader.py --read-file 01-prompts/15-cg-execute/readme.md
   python 03-ai-scripts/17-fast-file-reader.py --search-pattern "AppError" --path cli/ --limit 25
   python 03-ai-scripts/17-fast-file-reader.py --search-pattern "func " --regex --limit 10
 """
@@ -198,7 +198,7 @@ def main():
         epilog="""
 Examples:
   python 03-ai-scripts/17-fast-file-reader.py --list-folder 01-prompts --ext .md --limit 20
-  python 03-ai-scripts/17-fast-file-reader.py --read-file 01-prompts/15-cg-execute/01-index.md
+  python 03-ai-scripts/17-fast-file-reader.py --read-file 01-prompts/15-cg-execute/readme.md
   python 03-ai-scripts/17-fast-file-reader.py --search-pattern "AppError" --path cli/ --limit 25
   python 03-ai-scripts/17-fast-file-reader.py --search-pattern "AppError" --ext .go --limit 25
   python 03-ai-scripts/17-fast-file-reader.py --search-pattern "func " --regex --limit 10
@@ -231,3 +231,4 @@ Examples:
 
 if __name__ == "__main__":
     main()
+

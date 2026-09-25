@@ -16,7 +16,7 @@ PATTERN_BACKSLASH = re.compile(r'(?<![a-zA-Z0-9_-])spec\\\\((?:[0-9]{2}-|[a-zA-Z
 
 REPLACEMENTS = [
     ('"spec"', '"02-spec"'),
-    ('spec/01-index.md', '02-spec/01-index.md'),
+    ('spec/readme.md', '02-spec/readme.md'),
     ('spec/spec-index.md', '02-spec/spec-index.md'),
     ('spec/health-dashboard.md', '02-spec/health-dashboard.md'),
     ('spec/dashboard-data.json', '02-spec/dashboard-data.json'),

@@ -114,7 +114,7 @@ func resolveTargetRepoRoot(repoDir string) string {
 		return root
 	}
 
-	return toAbsPath(startPath)
+	return resolveDefaultGitmapRepoRoot()
 }
 
 func resolveInitialPath(repoDir string) string {

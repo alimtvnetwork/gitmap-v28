@@ -18,6 +18,7 @@ Code efficiency optimizations MUST NEVER alter program behavior. Before modifyin
 - **Prefix / Suffix Matching:** Use `HasPrefix` / `HasSuffix` or `startsWith` / `endsWith`.
 
 ### 2. Zero-Allocation Case-Folding
+
 - **Go:** Replace `strings.ToLower(a) == strings.ToLower(b)` or `strings.ToLower(s) == "val"` with `strings.EqualFold(a, b)` (0 allocations, ~10x faster).
 - **TypeScript/JS:** Avoid lowering both sides when comparing with a constant literal (`status.toLowerCase() === "active"`).
 - **Python:** Use `a.casefold() == b.casefold()` for full Unicode case-folding.
@@ -31,19 +32,23 @@ In multi-field matching predicates, never compute all lowerings or searches eage
 - Avoid executing secondary case conversions when the first condition already matches.
 
 ### 4. Loop Hoisting of Case Conversions
+
 - Never repeatedly convert the same search pattern or filter string inside an iteration.
 - Lower the pattern once prior to the loop and pass the pre-lowered term to item matchers.
 
 ### 5. String Builders for Cumulative Concatenation
+
 - In Go, replace `s += chunk` inside loops with `strings.Builder`.
 - In C#, use `StringBuilder`. In Python, use `''.join(parts)`. In TS, use array accumulator `parts.join('')`.
 
 ### 6. Function Sizing & File Hygiene
+
 - Functions target **<= 8 lines** of body logic (hard cap: 15 lines).
 - Files target **<= 80 lines** (hard cap: 100 lines, excluding allowed exceptions).
 - Whitespace preservation: exactly ONE blank line before return, exactly ONE blank line after closing brace `}`.
 
 ### 7. Execution & Build Policy
+
 - **NO INTERMEDIATE TEST RUNNING:** NEVER run unit test suites (`go test ./...`, `npm test`, `pytest`) during routine refactoring turns.
 - **NO INTERMEDIATE BUILD CHECKING:** DO NOT execute build commands (`go build`, `npm run build`) after individual file edits.
 - **FINAL STEP BUILD VERIFICATION ONLY:** Verify compilation strictly at the final step after all file extractions and import adjustments are completed.
@@ -125,8 +130,9 @@ To avoid 50-result tool truncation limits, use the repository's dedicated Python
    ```
 3. **Verify Function & File Sizing:**
    ```bash
-   python 03-ai-scripts/11-fast-file-scanner.py --lang go,ts --limit 50
+   gitmap find "*.go" -ext "go"
    python 03-ai-scripts/13-file-size-guard.py
+   # Fallback: python 03-ai-scripts/11-fast-file-scanner.py --lang go,ts --limit 50
    ```
 
 ---

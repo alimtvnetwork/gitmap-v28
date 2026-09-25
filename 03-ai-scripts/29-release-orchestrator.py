@@ -30,7 +30,6 @@ import os
 import re
 import subprocess
 import sys
-import time
 from pathlib import Path
 
 # Repository root discovery
@@ -41,8 +40,6 @@ VERSION_JSON = REPO_ROOT / "version.json"
 PACKAGE_JSON = REPO_ROOT / "package.json"
 README_MD = REPO_ROOT / "readme.md"
 CHANGELOG_MD = REPO_ROOT / "changelog.md"
-CONSTANTS_GO = REPO_ROOT / "cli" / "constants" / "constants.go"
-TEMPLATE_VERSION = REPO_ROOT / "prompt-version.template.json"
 
 # Known bump scripts
 NODE_BUMP_SCRIPT = REPO_ROOT / "scripts" / "bump-version.mjs"
@@ -201,10 +198,7 @@ def create_and_checkout_release_branch(next_version, dry_run=False):
         return branch_name
 
     print(f"[*] Step 1: Creating and switching to release branch: '{branch_name}'...")
-    try:
-        run_cmd(["git", "checkout", "-b", branch_name])
-    except Exception:
-        run_cmd(["git", "checkout", branch_name])
+    run_cmd(["git", "checkout", "-b", branch_name])
     current = get_current_branch()
     print(f"[*] Active branch is now: '{current}'")
 
@@ -278,42 +272,59 @@ def execute_version_bump(next_version, scope, dry_run=False):
                 f.write(cl_content)
 
 
+def build_release_notes_file(next_version, scope):
+    """Builds release notes file with mandatory Quick Install one-liners."""
+    v_string = f"v{next_version}"
+    try:
+        url = get_git_output("config", "--get", "remote.origin.url")
+        m = re.search(r'github\.com[:/]([^/]+/[^/.]+)', url)
+        raw_slug = m.group(1) if m else "alimtvnetwork/coding-guidelines-v24"
+        repo_slug = raw_slug[:-4] if raw_slug.endswith(".git") else raw_slug
+    except Exception:
+        repo_slug = "alimtvnetwork/coding-guidelines-v24"
+
+    notes_dir = REPO_ROOT / ".ai-memory" / "release"
+    notes_dir.mkdir(parents=True, exist_ok=True)
+    notes_path = notes_dir / f"release-notes-{v_string}.md"
+
+    lines = [
+        f"## Quick Install {v_string}\n",
+        "### Windows (PowerShell)\n",
+        "```powershell",
+        f'Invoke-WebRequest -Uri https://raw.githubusercontent.com/{repo_slug}/{v_string}/install.ps1 -OutFile install.ps1; .\\install.ps1 -TargetDir ".ai-memory/prompts" -Version "{v_string}"',
+        "```\n",
+        "### Unix / Linux / macOS (Bash)\n",
+        "```bash",
+        f'curl -sL https://raw.githubusercontent.com/{repo_slug}/{v_string}/install.sh | bash -s -- ".ai-memory/prompts" "{v_string}"',
+        "```\n",
+        "---\n",
+        f"## What's Changed in {v_string}\n",
+        f"### Added\n- {scope}\n",
+    ]
+    notes_path.write_text("\n".join(lines), encoding="utf-8")
+    print(f"[*] Generated release notes at {notes_path.relative_to(REPO_ROOT)}")
+    return notes_path
+
+
 def stage_and_commit_release(next_version, scope, dry_run=False):
     """Step 3: Stages release files and commits on the release branch."""
     commit_msg = f"release: v{next_version} {scope}"
 
     if dry_run:
         print(f"[DRY RUN] Would stage changes and commit on release branch: '{commit_msg}'")
-        return "dryrun_commit_sha"
+        return "dryrun_commit_sha", None
 
-    # Stage release-specific and sync-regenerated files
-    release_candidates = [
-        VERSION_JSON,
-        PACKAGE_JSON,
-        CHANGELOG_MD,
-        README_MD,
-        CONSTANTS_GO,
-        TEMPLATE_VERSION,
-        NODE_BUMP_SCRIPT,
-        PYTHON_BUMP_SCRIPT,
-        AI_BUMP_SCRIPT,
-        REPO_ROOT / ".gitmap" / "release",
-        REPO_ROOT / "public" / "health-score.json",
-        REPO_ROOT / "src" / "data" / "specTree.json",
-        REPO_ROOT / "02-spec" / "19-main-worker-service" / "98-changelog.md",
-        REPO_ROOT / "reports" / "spec-verification" / "coverage.md",
-    ]
-    for vf in release_candidates:
-        if vf.exists():
-            run_cmd(["git", "add", str(vf)], check=False)
-    run_cmd(["git", "add", "-A"], check=False)
+    notes_path = build_release_notes_file(next_version, scope)
+
+    # Stage all modified and generated release files
+    run_cmd(["git", "add", "-A"])
 
     # Commit
     run_cmd(["git", "commit", "-m", commit_msg])
     commit_sha = get_git_output("rev-parse", "HEAD")
     print(f"[*] Step 3: Committed release changes on release branch: {commit_sha[:8]} ('{commit_msg}')")
 
-    return commit_sha
+    return commit_sha, notes_path
 
 
 def create_release_tag(next_version, commit_sha, dry_run=False):
@@ -339,8 +350,7 @@ def merge_release_to_main(release_branch, main_branch="main", dry_run=False):
 
     print(f"[*] Step 5a: Checking out '{main_branch}' and merging '{release_branch}'...")
     run_cmd(["git", "checkout", main_branch])
-    time.sleep(1)
-    run_cmd(["git", "merge", "--no-edit", release_branch])
+    run_cmd(["git", "merge", release_branch])
     print(f"[OK] Merged release branch '{release_branch}' into '{main_branch}'.")
 
 
@@ -358,6 +368,26 @@ def push_release(release_branch, tag_name, main_branch="main", dry_run=False):
 
     print(f"[*] Pushing tag '{tag_name}' to origin...")
     run_cmd(["git", "push", "origin", tag_name])
+
+
+def create_github_release(tag_name, notes_path, dry_run=False):
+    """Publishes a GitHub release using gh release create with mandatory notes file."""
+    if dry_run or not notes_path or not notes_path.is_file():
+        return
+    try:
+        print(f"[*] Publishing GitHub Release for {tag_name} with notes from {notes_path.relative_to(REPO_ROOT)}...")
+        res = run_cmd([
+            "gh", "release", "create", tag_name,
+            "--title", tag_name,
+            "--notes-file", str(notes_path),
+            "--generate-notes"
+        ], check=False)
+        if res.returncode == 0:
+            print(f"[OK] GitHub Release {tag_name} successfully published.")
+        else:
+            print(f"[!] Warning publishing GitHub release: {res.stderr.strip()}")
+    except Exception as e:
+        print(f"[!] Warning publishing GitHub release: {e}")
 
 
 def revert_to_original_branch(original_branch, dry_run=False):
@@ -381,18 +411,18 @@ def revert_to_original_branch(original_branch, dry_run=False):
 
 
 def verify_pre_release_quality_gates(dry_run=False, skip_tests=False):
-    """Executes smart targeted unit test suites and CI quality gates prior to release."""
+    """Executes full unit test suites and CI quality gates prior to release."""
     if skip_tests:
         print("[!] Warning: Pre-release test execution skipped via --skip-tests flag.")
         return
 
     if dry_run:
-        print("[DRY RUN] Would execute pre-release quality gates: python 03-ai-scripts/06-cicd-local-runner.py run-smart")
+        print("[DRY RUN] Would execute full unit test suites and CI quality gates: python 03-ai-scripts/06-cicd-local-runner.py --run-tests")
         return
 
-    print("[*] Running pre-release quality gates (python 03-ai-scripts/06-cicd-local-runner.py run-smart)...")
+    print("[*] Running full pre-release unit test suites and CI quality gates (python 03-ai-scripts/06-cicd-local-runner.py --run-tests)...")
     runner_script = REPO_ROOT / "03-ai-scripts" / "06-cicd-local-runner.py"
-    res = run_cmd([sys.executable, str(runner_script), "run-smart"], capture_output=False)
+    res = run_cmd([sys.executable, str(runner_script), "--run-tests"], capture_output=False)
     if res.returncode != 0:
         raise RuntimeError("Pre-release quality gates / unit tests failed! Releases are forbidden on failing tests.")
 
@@ -428,7 +458,7 @@ def orchestrate_release(tier="minor", explicit_version=None, scope=None, dry_run
         execute_version_bump(next_ver, default_scope, dry_run=dry_run)
 
         # STEP 3: Commit bump changes in the release branch
-        commit_sha = stage_and_commit_release(next_ver, default_scope, dry_run=dry_run)
+        commit_sha, notes_path = stage_and_commit_release(next_ver, default_scope, dry_run=dry_run)
 
         # STEP 4: Create annotated tag on that release commit
         create_release_tag(next_ver, commit_sha, dry_run=dry_run)
@@ -439,6 +469,7 @@ def orchestrate_release(tier="minor", explicit_version=None, scope=None, dry_run
         is_push_enabled = push and not dry_run
         if is_push_enabled:
             push_release(release_branch, tag_name, main_branch=main_branch, dry_run=dry_run)
+            create_github_release(tag_name, notes_path, dry_run=dry_run)
 
     finally:
         # Restore original starting branch if different from current

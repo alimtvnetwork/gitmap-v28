@@ -21,17 +21,27 @@ Execute full automated release orchestration, semantic version bumping, branch m
    - **Step 3:** Commit version bump changes in the release branch: `release: vX.Y.Z <scope>`.
    - **Step 4:** Create the annotated git tag on the release commit: `git tag -a vX.Y.Z -m "Release vX.Y.Z"`.
    - **Step 5:** Put the release commit back to the `main` branch (`git checkout main && git merge release/vX.Y.Z`), push `main`, `release/vX.Y.Z`, and tag `vX.Y.Z` to `origin`, then restore the starting branch.
-6. Use `03-ai-scripts/29-release-orchestrator.py` to automate this complete 5-step lifecycle.
+6. **Automated Release Execution (2-Tier Toolchain):**
+   - **Tier 1 (GitMap Native Release - PRIMARY):** `gitmap release --bump patch -y` or `gitmap release --bump minor -y` (alias: `gitmap r -y`). Automatically manages release branch, tag generation, and remote push.
+   - **Tier 2 (Python Release Orchestrator - FALLBACK):** `python 03-ai-scripts/29-release-orchestrator.py --tier patch` (or `--tier minor`) to automate the 5-step lifecycle.
 
 ---
 
-## Fast File Discovery via Python Toolchain (Mandatory Acceleration)
+## Fast File Discovery & Release Context Toolchain (Mandatory Acceleration)
 
-To rapidly discover version manifests, changelog entries, release notes, and install scripts without hitting 50-result tool caps, the AI agent MUST utilize the Python discovery scripts first:
+To rapidly discover version manifests, changelog entries, release notes, and install scripts without hitting 50-result tool caps, the AI agent MUST utilize the 2-tier toolchain:
+
+### Tier 1: GitMap AUM Acceleration (PRIMARY)
+- **Universal File Search:** `gitmap find "*version*" [-ext <ext>]` (alias `gitmap f`)
+- **Inspect Changelog & Release Notes:** `gitmap changelog` (alias `gitmap cl [ver]`)
+- **List Prior Release Tags:** `gitmap list-versions --limit 5` (alias `gitmap lv`)
 - **Remote Pipeline AI Status (<50ms):** `gitmap pipeline-ai status --json` (or alias `gitmap pl-ai status --json`)
 - **Remote Dynamic Timeout Wait:** `gitmap pipeline-ai status -t <etaSeconds>` (or alias `gitmap pl-ai status -t <sec>`)
 - **Extract Failing Step Error Logs:** `gitmap pipeline error-logs` (or alias `gitmap pe`, clear with `gitmap pe clear -y`)
 - **Pipeline Runner Targets & Cache Table:** `gitmap pipeline details` (or alias `gitmap pd`)
+- **Stream Manifest or Config:** `gitmap cat version.json` (zero disk writes)
+
+### Tier 2: Fast Cached Python Toolchain (FALLBACK)
 - **Inventory Manifests & Version Files:** `python 03-ai-scripts/11-fast-file-scanner.py --search "version" --limit 20`
 - **Fast Grep Across Version Pins:** `python 03-ai-scripts/12-fast-cached-grep.py --pattern "<version>" --limit 20`
 - **Explore Release Artifacts & Folders:** `python 03-ai-scripts/17-fast-file-reader.py --list-folder .ai-memory/release --limit 20`

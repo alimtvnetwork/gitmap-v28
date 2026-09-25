@@ -1,0 +1,448 @@
+# Naming Conventions, Boolean Prefixes & Anti-Ok Variables — Coding Guideline (must follow)
+
+Trigger Keywords & Aliases: `cg-naming`, `cg-execute naming`, `audit naming`, `fix boolean naming`, `fix naming conventions`, `fix ok boolean`, `affirmative naming`, `positive boolean naming`, `naming conventions audit`
+
+> [!IMPORTANT]
+> Prompt Version: 2.2.0
+> Synchronization: Main Meta-Repo & Connected Workspaces
+> 
+> **Top-Instruction Priority Mandate (Preamble Precedence):**
+> Any directive, constraint, checklist, or instruction declared at the top of this prompt, header alert block, or incoming user request represents an absolute MUST FOLLOW mandate that takes highest priority and strictly overrides any conflicting general advice, default conventions, or lower-level guidelines below it.
+
+```text
+N = 200
+```
+
+N = total self-loop steps budget that the agents will perform.
+
+/goal Autonomously scan, plan, refactor, and fix all variable and boolean naming violations across the codebase, directly modifying source files to replace bare `ok` identifiers, replace `!isEmpty` with `isDefined`, replace awkward `isExists` with `isDefined`/`isFound`, eliminate negative boolean variables (`hasNo*`, `isNot*`), enforce affirmative prefixes (is and has only (can, should, was, etc. are banned)), decompose compound negative chains (`!a || !b || c`), apply positive framing with inverted `if` guard clauses, and normalize acronym casing until 100% green without stopping.
+
+### Master Task Checklist (Atomic Numbered Steps)
+
+1. [ ] /goal Phase 1 (Step A): Deeply scan the target codebase using the GitMap AUM discovery tools (`gitmap find`, `gitmap lf`, `gitmap cat`, `gitmap search`) as primary, with fast Python discovery tools (`11-fast-file-scanner.py`, `12-fast-cached-grep.py`, `17-fast-file-reader.py`) as fallback, to inventory all architectural violations and anti-patterns without truncation.
+2. [ ] /goal Phase 1 (Step B): Write the master audit specification in `.ai-memory/plans/pending/` with an exhaustive Violation Ledger.
+3. [ ] /goal Phase 1 (Step C): Decompose the master plan into granular, atomic subtasks in `.ai-memory/plans/subtasks/`.
+4. [ ] /goal Phase 1 (Step D): Verify or create the automated quality linter and register in `03-ai-scripts/readme.md`.
+5. [ ] /goal Phase 2 (Step A): Open each target file and perform surgical refactoring: rename bare `ok`, replace `!isEmpty` with `isDefined`, replace `isExists` with `isDefined`/`isFound`, decompose compound negatives, and apply positive framing.
+6. [ ] /goal Phase 2 (Step B): Enforce <= 8–15 line function decomposition, single return types, and clean formatting.
+7. [ ] /goal Phase 2 (Step C): Execute local linters to verify 0 remaining violations across all modified files.
+8. [ ] /goal Phase 2 (Step D): Execute targeted file-level linters and verification on modified files ensuring 0 remaining violations (`exit 0`). DO NOT run the full CI/CD pipeline runner (`06-cicd-local-runner.py`) during routine coding guideline execution turns.
+9. [ ] /learn Ingest `.ai-memory/memory/readme.md` for project memory index and past learnings.
+10. [ ] /learn Ingest `.ai-memory/strictly-avoid.md` for banned anti-patterns and strict constraints.
+11. [ ] /learn Ingest `02-spec/02-coding-guidelines/02-canonical-size-tier.md` for canonical file and function size tiers.
+12. [ ] /learn Ingest `02-spec/02-coding-guidelines/01-cross-language/readme.md` for hallucination prevention and micro-tasking.
+13. [ ] /learn Ingest `02-spec/02-coding-guidelines/01-cross-language/readme.md` for strict relative path citation requirements.
+14. [ ] /learn Ingest `02-spec/02-coding-guidelines/01-cross-language/02-boolean-principles/readme.md` for implicit positive booleans and anti-negative rules.
+15. [ ] /learn Ingest `02-spec/02-coding-guidelines/01-cross-language/10-function-naming.md` for semantic verb and predicate prefix standards.
+16. [ ] /learn Ingest `02-spec/02-coding-guidelines/01-cross-language/11-key-naming-pascalcase.md` for domain-specific architectural specifications.
+17. [ ] /learn Ingest `02-spec/02-coding-guidelines/01-cross-language/12-no-negatives.md` for domain-specific architectural specifications.
+18. [ ] /learn Ingest `02-spec/02-coding-guidelines/` for domain-specific architectural specifications.
+19. [ ] /learn Ingest `.ai-memory/coding-guidelines.md` for master consolidated coding guidelines.
+20. [ ] /goal Create or update agent rules in the repository if missing from agent memory.
+
+```text
+PHASE_1_STEPS = N / 2   (Steps 1 .. N/2: Scan Codebase for Naming Violations, Write .ai-memory/plans/pending/ Spec, Create .ai-memory/plans/subtasks/, Verify/Create Linter Hook)
+PHASE_2_STEPS = N / 2   (Steps N/2+1 .. N: Actively Edit Code, Rename Bare `ok`, Invert Negative Booleans, Enforce Positive Guards, Verify Local CI)
+```
+
+N, PHASE_1_STEPS, and PHASE_2_STEPS are read-only after initialization. Never modify them mid-execution.
+
+---
+
+## Dedicated Section: Variable & Boolean Naming Architecture (Zero Tolerance)
+
+Naming clarity is the backbone of robust code. Vague identifiers, bare `ok` variables, and negative boolean flags cause cognitive fatigue and obscure critical edge-case bugs.
+
+### 1. Mandatory Boolean Prefix Rule (Strict is/has ONLY)
+
+Every boolean variable, parameter, struct field, or property MUST begin with `is` or `has` ONLY (PascalCase `Is` / `Has` for exported symbols; e.g. `isValid`, `hasPermission`, `isReady`, `hasData`); all other prefixes (`can`, `should`, `was`, `will`, `did`, `must`, etc. like `canExecute`, `shouldRetry`) and negative names are **strictly BANNED**.
+
+- Go: `isValid`, `hasPermission`, `isExecutable`, `isRetryRequired` (or `IsValid`, `HasPermission`).
+- TypeScript/JavaScript: `isLoaded`, `hasColors`, `hasPayload`, `isSubmittable`.
+- Python: `is_valid`, `has_permission`, `is_ready_to_proceed`.
+- C#: `IsValid`, `HasAccess`, `IsExecutable`.
+
+---
+
+### 2. TOTAL BAN on Bare `ok` (The `ok` Anti-Pattern)
+
+In Go type assertions, map lookups, channel receives, and comma-ok idioms, the bare identifier `ok` is **strictly forbidden**. It carries zero domain semantics and violates the mandatory boolean prefix rule.
+
+You MUST replace bare `ok` with a domain-specific boolean starting with `is` or `has`:
+
+| Context | ❌ FORBIDDEN (Bare `ok`) | ✅ REQUIRED (Affirmative Semantic Boolean) |
+|---|---|---|
+| **Type Assertion** | `appErr, ok := err.(*appfault.AppError)` | `appErr, isAppErr := err.(*appfault.AppError)` |
+| **Map Lookup** | `val, ok := userMap[id]` | `val, isFound := userMap[id]` or `val, isUserExist := userMap[id]` |
+| **Map Key Check** | `_, ok := headers["Authorization"]` | `_, hasAuthHeader := headers["Authorization"]` |
+| **Channel Receive** | `msg, ok := <-msgChan` | `msg, hasMessage := <-msgChan` or `msg, isChannelOpen := <-msgChan` |
+| **Type Switch / Cast** | `str, ok := val.(string)` | `str, isString := val.(string)` |
+| **Status Tuples** | `data, ok := fetch()` | `data, isSuccess := fetch()` |
+
+### 2.1 Mandatory Standard: Use `IsDefined` Instead of `!isEmpty` (Total Ban on `!isEmpty`)
+
+- **Inverted Negation Ban:** Never check whether a collection, string, slice, or data structure is populated using `!isEmpty` or `!res.IsEmpty()`. Negating an empty check (`!isEmpty`) forces mental double-negation and violates Affirmative Boolean Principles and Positive Framing.
+- **Affirmative Replacement:** Always use `isDefined` (or `res.IsDefined()`) instead of `!isEmpty`:
+  - ❌ **FORBIDDEN:** `if !isEmpty { ... }`, `if !res.IsEmpty() { ... }`, `if !state.IsEmpty { ... }`
+  - ✅ **REQUIRED:** `if isDefined { ... }`, `if res.IsDefined() { ... }`, `if state.IsDefined { ... }`
+- **When `isEmpty` is Allowed:** `isEmpty` is ONLY evaluated positively when explicitly handling the empty or missing path: `if isEmpty { return ErrEmpty }`. When handling the populated, valid data path, ALWAYS use affirmative `isDefined`.
+
+### 2.2 Multi-Line Statement Separation & Simple If Condition (No Inline Compound Cramming)
+
+- **Total Ban on Inline Compound Assignments (`if init; cond`):** While replacing bare `ok` with affirmative names (`isString`, `isFound`), NEVER cram the type assertion and compound conditions into a single `if` line (e.g. `if v, isString := rawMap[key].(string); isString && len(v) > 0 {`).
+- **Separation onto Distinct Lines:**
+  1. Execute the type assertion / map lookup on its own dedicated line.
+  2. Evaluate and name the boolean condition affirmatively (`hasContent`, `isFound`) on its own dedicated line *before* the `if` statement.
+  3. Keep a blank line before the `if` statement.
+  4. Keep the `if` condition dead simple, checking exactly ONE variable.
+  5. Define named constants for all lookup keys and fallback defaults (`versionKeyUpper`, `versionKeyLower`, `VersionUnknown`) and collect them into reusable slices (`versionKeys`), eliminating magic strings and raw string returns.
+
+```go
+// ❌ BANNED ANTI-PATTERN:
+// 1. Cramming type assertion assignment and compound condition into one line.
+// 2. Hardcoding magic strings ("Version", "version", "unknown") inline.
+// 3. Returning raw fallback literal instead of a defined constant.
+func extractVersionValue(rawMap map[string]interface{}) string {
+    for _, key := range []string{"Version", "version"} {
+        if v, isString := rawMap[key].(string); isString && len(v) > 0 {
+            return v
+        }
+    }
+
+    return "unknown"
+}
+
+// ✅ MANDATORY CLEAN PATTERN:
+// 1. Zero magic strings: extract lookup keys and defaults into constants.
+// 2. Merge repeated/related strings into reusable collections (versionKeys).
+// 3. Assignment on its own dedicated line.
+// 4. Affirmative boolean (hasContent) pre-evaluated BEFORE the if statement.
+// 5. Clean vertical breathing room (blank line before if).
+// 6. Dead-simple if statement evaluating exactly ONE variable.
+// 7. Return defined constant (VersionUnknown) instead of raw magic string literal.
+const (
+    VersionUnknown  = "unknown"
+    versionKeyUpper = "Version"
+    versionKeyLower = "version"
+)
+
+var versionKeys = []string{versionKeyUpper, versionKeyLower}
+
+func extractVersionValue(rawMap map[string]interface{}) string {
+    for _, key := range versionKeys {
+        v, isString := rawMap[key].(string)
+        hasContent := isString && len(v) > 0
+
+        if hasContent {
+            return v
+        }
+    }
+
+    return VersionUnknown
+}
+```
+
+---
+
+### 3. TOTAL BAN on Negative Boolean Identifiers & Awkward `isExists` (Anti-`hasNo*`, Anti-`isNot*`, Anti-`isExists`, Anti-`isUndefined`)
+
+Never name a boolean variable or property with negative prefixes, inverted words, or awkward verb pairings. **Always try `isDefined` / `IsDefined` instead of negatives:**
+
+- ❌ **FORBIDDEN:** `isExists`, `isUndefined`, `isNotDefined`, `isNotSet`, `hasNoColors`, `hasNoPayload`, `isNotReady`, `isNotDisabled`, `hasNoAccess`, `isNoOp`, `disallowGuest`, `unauthorized`.
+- ✅ **REQUIRED:** `isDefined` / `IsDefined`, `isFound`, `isSet`, `hasColors`, `hasPayload`, `isReady`, `isEnabled`, `hasAccess`, `isOp`, `allowGuest`, `isAuthorized`.
+- **Presence / Missing Inversion:** To check if an element, config, or property is missing or undefined, define the boolean positively (`isDefined := len(val) > 0`) and invert only in the guard condition: `if !isDefined { return ErrUndefined }`.
+
+---
+
+### 4. The Clean Solution: Positive Framing with Inverted `if` Guard Clauses
+
+When you need to handle the absence, empty state, or failure condition of a resource, **ALWAYS declare the variable positively** and perform the negative check inside the `if` guard clause:
+
+#### Go Example: Type Assertion & Guard Inversion
+
+```go
+// ❌ FORBIDDEN: Nested if with bare ok and else branch
+if appErr, ok := err.(*appfault.AppError); ok {
+    if appErr.Code != "E_INTERNAL_ERROR" {
+        t.Errorf("expected E_INTERNAL_ERROR, got %s", appErr.Code)
+    }
+} else {
+    t.Errorf("expected AppError, got %T", err)
+}
+
+// ✅ REQUIRED: Semantic isAppErr boolean + inverted guard clause
+appErr, isAppErr := err.(*appfault.AppError)
+if !isAppErr {
+    t.Fatalf("expected AppError, got %T", err)
+}
+
+if appErr.Code != "E_INTERNAL_ERROR" {
+    t.Errorf("expected E_INTERNAL_ERROR, got %s", appErr.Code)
+}
+```
+
+#### Go Example: Discrete Test Assertions vs Compound Negative Chains (`execute_idempotent_test.go`)
+
+```go
+// ❌ FORBIDDEN: Compound negative chain and awkward isExists in test assertions
+if !state.IsExists || !state.IsEmpty || state.IsRepo {
+    t.Errorf("expected empty non-repo directory: %+v", state)
+}
+
+// ✅ REQUIRED: Affirmative IsDefined field + discrete individual assertions
+if !state.IsDefined {
+    t.Errorf("expected directory to be defined: %+v", state)
+}
+
+if !state.IsEmpty {
+    t.Errorf("expected directory to be empty: %+v", state)
+}
+
+if state.IsRepo {
+    t.Errorf("expected non-repo directory: %+v", state)
+}
+```
+
+#### TypeScript / React Example: Positive Framing with Inverted Guard
+
+```tsx
+// ❌ FORBIDDEN: Negative boolean variables (hasNoColors, hasNoPayload)
+const hasNoColors = !colorConfig.length;
+if (hasNoColors) {
+    return null;
+}
+
+const hasNoPayload = !payload?.length;
+if (hideLabel || hasNoPayload) {
+    return null;
+}
+
+// ✅ REQUIRED: Positive boolean variables + inverted guard conditions
+const hasColors = colorConfig.length > 0;
+if (!hasColors) {
+    return null;
+}
+
+const hasPayload = Boolean(payload?.length);
+if (hideLabel || !hasPayload) {
+    return null;
+}
+```
+
+#### Python Example: Dictionary Lookup & Guard Inversion
+
+```python
+# ❌ FORBIDDEN: Negative boolean flag
+is_not_authorized = user.role != "admin"
+if is_not_authorized:
+    raise PermissionDenied()
+
+# ✅ REQUIRED: Positive boolean + inverted condition
+is_authorized = user.role == "admin"
+if not is_authorized:
+    raise PermissionDenied()
+```
+
+---
+
+### 5. Pros vs Cons: Why Positive Naming + Inverted Guards Is Superior
+
+| Dimension | ❌ Negative Naming (`hasNoColors = !len`) | ✅ Positive Framing (`hasColors = len > 0; if (!hasColors)`) |
+|---|---|---|
+| **Cognitive Load** | **High:** Requires mental inversion on every read. | **Low:** Matches natural human language and domain models. |
+| **Double Negative Risk** | **Severe:** Leads to monstrosities like `if (!hasNoColors)`. | **Zero:** Negation is always single and explicit: `if (!hasColors)`. |
+| **Boolean Algebra** | **Confusing:** Combining `hasNoColors && hasNoPayload` obscures truth tables. | **Intuitive:** De Morgan's laws and logical OR/AND remain obvious. |
+| **Single Source of Truth** | **Fragmented:** Some files use `hasColors`, others use `hasNoColors`. | **Standardized:** All components evaluate the presence of state uniformly. |
+| **Guard Clause Flow** | **Awkward:** Hides happy-path invariants inside inverted branches. | **Clean:** Early returns eliminate nesting depth to level 0. |
+
+---
+
+### 6. General Variable & File Naming Conventions
+
+1. **Strict Lowercase Filenames:** All files, scripts, documentation, and system files MUST use strictly lowercase naming (e.g., `readme.md`, `01-file-manipulator.py`, `agents.md`, `skill.md`).
+2. **Anti-Garbage Variable Naming:** Absolutely NO generic garbage variable names (`comp_100.go`, `temp`, `data`, `obj`, `val1`, `item_01`, `TestHandleComp100`). All names must be semantic and domain-specific.
+3. **PascalCase Acronyms:** Acronyms are formatted as regular words: first letter capitalized, remaining letters lowercase (`UserId`, `ApiUrl`, `HttpServer`, `IpAddress`, `JsonData` — NOT `UserID`, `APIURL`, `HTTPServer`).
+
+---
+
+---
+
+## Continuous 2-Phase Self-Loop & 2-Agent Concurrency Architecture
+
+To guarantee full execution without stopping after planning mode, the master orchestrator MUST enforce this continuous 2-phase loop:
+
+### 1. 2-Agent Concurrency & Strict `.ai-memory/` Bounding
+
+- **2-Agent Limit (Max 2 Threads Each):** When dispatching work, spawn **at most 2 sub-agents concurrently**, with **no more than 2 threads per agent**.
+- **Strict Folder Bounding (`.ai-memory/`):** Subagents can ONLY write planning files, subtasks, status reports, and logs inside `.ai-memory/` (`.ai-memory/plans/`, `.ai-memory/readme.md`, `.ai-memory/memory/issues/`).
+- **Context Diet:** Provide subagents with minimal instructions (e.g. "Read subtask file `.ai-memory/plans/subtasks/xx-<parent-slug>/01-<subtask-title>.md` and execute it"). Do not paste huge files into agent prompts.
+
+### 2. Phase 1: Planning Mode & Subtask Generation (Steps 1 .. N/2)
+
+### Fast File Discovery & Reading via Python Toolchain (Mandatory Acceleration)
+
+To avoid 50-result tool truncation limits and eliminate multi-turn exploratory roundtrips, the AI agent MUST use the fast 2-tier discovery toolchain:
+
+### Tier 1: GitMap AUM Acceleration (PRIMARY)
+1. **Universal File Search:**
+   ```bash
+   gitmap find "<pattern>" [-ext <ext>]
+   ```
+2. **List Indexed Files & Substring Lookup:**
+   ```bash
+   gitmap list-files [pattern]
+   gitmap find-files-any "<substring>"
+   ```
+3. **Stream File Content:**
+   ```bash
+   gitmap cat <filepath>
+   ```
+4. **Instant Code Walk Search:**
+   ```bash
+   gitmap search "<term>"
+   ```
+
+### Tier 2: Fast Cached Python Toolchain (FALLBACK)
+1. **Inventory Target Files (with `--limit` option):**
+   ```bash
+   python 03-ai-scripts/11-fast-file-scanner.py --lang go,ts --limit 100 --stats
+   ```
+2. **Fast Cached Grep (<15ms, with `--limit` option):**
+   ```bash
+   python 03-ai-scripts/12-fast-cached-grep.py --pattern "<search-pattern>" --lang go --limit 50
+   ```
+3. **Sub-Millisecond Folder & File Exploration (with `--limit` option):**
+   ```bash
+   python 03-ai-scripts/17-fast-file-reader.py --list-folder <folder-path> --ext .go --limit 50
+   python 03-ai-scripts/17-fast-file-reader.py --read-file <file-path> --max-bytes 100000
+   python 03-ai-scripts/17-fast-file-reader.py --search-pattern "<pattern>" --path <folder-path> --limit 50
+   ```
+4. **Subsystem & Topology Overview:**
+   ```bash
+   python 03-ai-scripts/18-codebase-topology-discoverer.py --summary
+   ```
+Do not rely on standard search tools with 50-item truncation when discovering repository-wide violations.
+
+- Spawn 2 planning subagents to scan the codebase for target guideline violations.
+- Write the master architectural specification in `.ai-memory/plans/pending/xx-audit.md` with an exhaustive Violation Ledger table.
+- Decompose the master plan into granular subtasks in `.ai-memory/plans/subtasks/xx-<parent-slug>/01-<subtask-title>.md`, `02-<subtask-title>.md`, etc.
+- **MANDATORY AUTO-LOOP (DO NOT STOP):** Once Phase 1 planning completes, the master orchestrator **MUST NOT STOP or ask the user for confirmation**. It MUST immediately self-loop and transition directly into Phase 2 execution mode.
+
+### 3. Phase 2: Execution Mode & Parallel Refactoring (Steps N/2+1 .. N)
+
+- Spawn 2 execution subagents (max 2 threads each) to execute subtasks in parallel on disjoint files.
+- Subagents refactor code following all coding guidelines (<= 8–15 line functions, single return types, universal `*AppError` wrapping, Unix LF line endings).
+- Move completed subtasks from `.ai-memory/plans/subtasks/` to `.ai-memory/plans/completed/` and update `.ai-memory/plans/readme.md`.
+- **Failure Memory & Feedback Loop:** If a subagent fails:
+  - Rollback dirty working tree and log error details to `.ai-memory/plan.md` and `.ai-memory/memory/issues/xx-failure.md`.
+  - The next subagent spawned MUST read the previous failure log first, record it as a pending memory task, and implement the necessary fix.
+- Execute targeted local linters on modified files ensuring `exit 0` before concluding. DO NOT run the full CI/CD pipeline runner (`06-cicd-local-runner.py`) during routine loops.
+
+## Strict In-Repository Execution & `.ai-memory/` Bounding Mandate
+
+> [!IMPORTANT]
+> **STRICT IN-REPOSITORY EXECUTION & `.ai-memory/` STORAGE CONTRACT:**
+>
+> 1. **In-Codebase Execution Only:** Whenever a Python script (runner, autofixer, linter, test aggregator) is executed or created, it MUST be executed **strictly within the repository root** (current working directory), NEVER outside the codebase or against external arbitrary directories.
+> 2. **Strict Folder Bounding (`.ai-memory/`):** All AI scripts, local runners, autofixers, helper utilities, memory issue logs, and planning files MUST be created inside the `.ai-memory/` folder:
+>    - Python AI Scripts: `03-ai-scripts/` (e.g. `01-file-manipulator.py`, `05-guideline-autofixer.py`, `06-cicd-local-runner.py`, `07-relative-path-fixer.py`).
+>    - RCA & Issue Logs: `.ai-memory/memory/issues/` and `.ai-memory/cicd-issues/`.
+>    - Execution Plans & Subtasks: `.ai-memory/plans/pending/`, `.ai-memory/plans/subtasks/`.
+>    - Coding Guidelines Mirror: `.ai-memory/coding-guidelines.md`.
+> 3. **Worker Pool & Log Aggregation Architecture:** All local runners and test orchestrators must use a concurrent worker pool (2–3 workers via `ThreadPoolExecutor`), announce enqueued tasks upfront, show real-time progress, handle failures gracefully without canceling sibling workers, and print a consolidated final summary with full stdout/stderr error logs for failed jobs.
+> 4. **`force` Keyword Support:** If the user wrote `force`, `force rebuild`, or `force create` on top of the prompt or trigger: **ALWAYS recreate/regenerate the Python runner script from scratch**, regardless of whether the file already exists on disk.
+> 5. **No External or Random File Creation:** NEVER write scripts, temporary test scripts, or scratch files to root, `/tmp`, global system paths, or outside the repository boundary.
+
+---
+
+## AI Fix Scripts Memory (Reusable Tooling)
+
+- [ ] `/goal` **Reuse First:** I have rigorously scanned and `/learn`ed `03-ai-scripts/readme.md` to check if a helper script already exists before writing any new temporary code.
+- [ ] **Strict In-Repository Execution:** All Python scripts (`03-ai-scripts/*.py`) MUST be executed strictly within the codebase repository root, NEVER outside the codebase.
+- [ ] **Strict .ai-memory/ Folder Storage:** All AI scripts, local runners, autofixers, and helper utilities MUST be created inside `03-ai-scripts/`. NEVER create scripts in root or external paths.
+- [ ] **Native Naming Autofixer:** If you need to scan and fix boolean naming or bare `ok` identifiers, use `python 03-ai-scripts/05-guideline-autofixer.py <file>` or create and index `03-ai-scripts/08-naming-autofixer.py`.
+- [ ] **Go Generate Sync:** If you modify Go constants, enums, or stringers, you MUST run `go generate ./...` in the relevant directory (e.g., `cd gitmap && go generate ./...`) and commit the resulting generated files to prevent CI drift.
+- [ ] **Commit & Track:** All new helper scripts were written strictly to `03-ai-scripts/` and committed to Git for future reuse.
+- [ ] **Index Documentation:** I have updated `03-ai-scripts/readme.md` using sequential script naming (e.g., `05-naming-autofixer.py`). For every script, I have included a `<details>` collapsible tag explaining exactly why the script is there and what it does.
+
+---
+
+## Pre-Reply / Loop Checklist (Must Verify Every Loop Iteration)
+
+- [ ] Git working tree is clean before new code changes.
+- [ ] Sub-agents are actively assigned disjoint files verified against `.ai-memory/readme.md`.
+- [ ] Completed tasks were `mv`'d to `plans/completed/` and `.ai-memory/plans/readme.md` was updated.
+- [ ] 3-strike rule respected: failed tasks cleanly rolled back and logged to `last-failure.md`.
+- [ ] **Strict Relative Git Paths:** All file paths, markdown links, citations, and subtask references in plans, specs, and memory logs are strictly relative to the git repository root. Zero absolute paths (`/absolute/path/to/...`, `/absolute/path/to/...`) or `file:///` URIs.
+- [ ] **Zero Bare `ok` Identifiers:** Absolutely zero bare `ok` variables in type assertions, map lookups, or status returns. All renamed to `isAppErr`, `isFound`, `hasValue`, etc.
+- [ ] **Positive Boolean Framing:** All booleans named positively (`hasColors`, `hasPayload`, `isReady`). Zero `hasNo*` or `isNot*` variables.
+- [ ] **Inverted Guard Clauses:** Negative checks handled via inverted guard returns (`if (!hasColors) return null;`).
+- [ ] **Boolean Prefixes:** All booleans begin with is or has ONLY (all other prefixes like can, should, was, will, did, must are banned).
+- [ ] **PascalCase Acronyms:** All acronyms formatted as `UserId`, `ApiUrl`, `JsonData`.
+- [ ] Coding Guidelines & Master Consolidated File: I have fully read, checked, and strictly enforced every file in `02-spec/02-coding-guidelines/`, as well as the master consolidated coding guideline file at `.ai-memory/coding-guidelines.md`.
+
+1. [ ] /learn and apply as a /goal `.ai-memory/coding-guidelines.md` and also make sure the agent rules are created in the repo to read in the future quickly.
+
+- [ ] `python linter-scripts/check-enum-and-boolean.mjs` or `python linter-scripts/check-boolean-guidelines.py` exited with code 0.
+- [ ] **Atomic File Recording:** Modified files recorded to `.ai-memory/temp/recent-file-changes.json` under lock (`python 03-ai-scripts/33-test-inventory-generator.py --record <files...>`). Builds, tests, and CI runner are deferred to CI/CD fix.
+
+---
+
+## Non-Negotiable Coding Guidelines Checklist (Auto-Reject on Violation)
+
+/goal You MUST verify every item on this checklist before committing any code. If a subagent violated one of these rules, you must reject their work.
+
+- [ ] Strict Relative Git Paths: All file paths, markdown links, citations, and subtask references in plans, specs, and memory logs are strictly relative to the git repository root. Zero absolute paths or `file:///` URIs.
+- [ ] Master Guidelines: I have fully read and strictly enforced `02-spec/02-coding-guidelines/01-cross-language/02-boolean-principles/readme.md`, `02-spec/02-coding-guidelines/01-cross-language/10-function-naming.md`, `02-spec/02-coding-guidelines/01-cross-language/11-key-naming-pascalcase.md`, `02-spec/02-coding-guidelines/01-cross-language/12-no-negatives.md`, and `.ai-memory/coding-guidelines.md`.
+- [ ] Zero Bare `ok`: All type assertions and map lookups use affirmative boolean names (`isAppErr`, `isFound`).
+- [ ] Positive Booleans & Inverted Guards: All booleans use affirmative names (`hasColors`, `hasPayload`); guard clauses invert condition (`if (!hasColors)`).
+
+1. [ ] /learn the section as a /goal [AI Fix Scripts Memory](#ai-fix-scripts-memory)
+
+- [ ] Action Summary: I have output a detailed `- [x]` checklist summarizing exactly what I accomplished this turn to prove I did not hallucinate.
+
+---
+
+## Mandatory Linter & CI/CD Integration
+
+1. **Linter Script:** `linter-scripts/check-enum-and-boolean.mjs` (or `linter-scripts/validate-guidelines.py`)
+2. **Local Run Command:** `python linter-scripts/validate-guidelines.py`
+3. **Autofixer Command:** `python 03-ai-scripts/05-guideline-autofixer.py <file>`
+4. **CI/CD Integration (`.github/workflows/ci.yml`):**
+   ```yaml
+   - name: Validate Naming & Boolean Conventions
+     run: python linter-scripts/validate-guidelines.py
+   ```
+5. **Runner Registration (`03-ai-scripts/06-cicd-local-runner.py`):**
+   ```python
+   JOBS = {
+       "Naming & Boolean Check": [sys.executable, "linter-scripts/validate-guidelines.py"],
+   }
+   ```
+
+---
+
+## Banned Operations Checklist (TOTAL BAN — Auto-Reject on Violation)
+
+- [ ] **NO TEST RUNNING (TOTAL BAN):** NEVER run any tests using Python scripts (`06-cicd-local-runner.py`, `pytest`, runner scripts), Go (`go test ./...`), or any test runner during routine execution turns. Testing is strictly checked later on in CI/CD.
+- [ ] **NO BUILD CHECKING (TOTAL BAN):** NEVER run build commands (`go build`, `npm run build`, compiler checks) to verify compilation. Build verification is checked later on in CI/CD.
+- [ ] **NO RUNNER SCRIPTS (TOTAL BAN):** NEVER launch background test runners, worker pools, or test inventory loops during routine execution.
+- [ ] **NO AUTOMATIC RELEASES (TOTAL BAN):** NEVER bump versions, update changelogs, or trigger releases unless explicitly commanded by the user.
+- [ ] **NO PER-FILE COMMITTING (TOTAL BAN):** NEVER commit each file individually as you work (e.g. running `git commit` after editing File 1, then another commit after File 2). Committing file-by-file pollutes git history, creates subagent lock collisions, and breaks atomic changes. All modified files across the turn must be accumulated and committed together in a single atomic commit at the final step.
+
+---
+
+## Final Step Git Commit & Push Mandate (Strict Checklist)
+
+- [ ] **MANDATORY FINAL COMMIT & PUSH TO GIT (ANYHOW):** At the FINAL step of the turn, after all targeted files have been refactored, verified with targeted linters, and plans/subtasks consolidated, you MUST stage everything (`git add -A`), create a clean, descriptive conventional commit (`git commit -m "<type>(<scope>): <summary>"`), and push directly to the remote repository (`git push origin <branch>`). Leaving uncommitted changes or unpushed commits on the active branch at the end of a turn is an immediate failure.
+- [ ] **TOTAL BAN ON PER-FILE COMMITS (DO NOT COMMIT EACH FILE INDIVIDUALLY):** You MUST NOT create separate git commits for each individual file as you edit them (e.g. running `git commit` after editing File 1, then committing again after File 2 is STRICTLY FORBIDDEN). Committing file-by-file pollutes git log history, creates subagent lock collisions, and breaks atomic rollback/bisectability. All modified files, test change caches, and plan records across the turn MUST be accumulated in the working tree and committed together in a SINGLE grouped atomic commit at the final step before pushing!
+
+---
+
+## Strictly Avoid: No Automatic Releases, No Test Running & No Full CI/CD Runner in Routine Turns (Strict Policy)
+
+- **NO BUILD CHECKING (TOTAL BAN):** NEVER run build commands (`go build`, `npm run build`, compiler checks) to verify compilation. Build verification is checked later on in CI/CD.
+- **NO RELEASES (Strict Policy):** You MUST NOT bump versions, update changelogs, or cut a release at the end of this task. Commits must remain standard development commits. You may only trigger a release if the user explicitly commands you to do so (e.g., "cut a release" or "bump the version").
+- **NO TEST RUNNING (Strict Policy):** Test execution is strictly disabled. You MUST NOT execute unit tests, integration tests, or test suites unless explicitly commanded by the repository owner.
+- **NO FULL CI/CD RUNNER (Strict Policy):** DO NOT run `python 03-ai-scripts/06-cicd-local-runner.py` during routine coding guideline execution turns. Running the heavy 28-38 gate pipeline across the entire repository wastes massive amounts of time and scans unrelated files. Verify code strictly using targeted file-level linters / autofixers on the specific modified files.
+- **Test Inventory & Recent Changes Tracking:** Whenever any file is modified, append its repository-relative path to `.ai-memory/temp/recent-file-changes.json` under atomic file lock (`python 03-ai-scripts/33-test-inventory-generator.py --record <path>`), cross-referencing `.ai-memory/test-inventory.json` so associated tests are known for future release verification.

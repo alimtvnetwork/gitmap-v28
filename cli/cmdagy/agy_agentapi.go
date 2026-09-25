@@ -101,6 +101,7 @@ func executeAgentAPICmd(subArgs []string) result.Result[[]byte] {
 	}
 	fullArgs := append(baseArgs, subArgs...)
 	cmd := exec.Command(binPath, fullArgs...)
+	cmd.Dir = resolveAgentAPIWorkingDir()
 	cmd.Env = os.Environ()
 	addr, token, hasEnv := ResolveAntigravityLSEnv()
 	if hasEnv {

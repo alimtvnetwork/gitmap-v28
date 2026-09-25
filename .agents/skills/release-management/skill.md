@@ -19,13 +19,23 @@ Conducts the standardized release ceremony with the mandatory 5-step release bra
    - **Step 3:** Commit version bump changes in the release branch: `release: vX.Y.Z <scope>` (or `chore(release): bump version to X.Y.Z`).
    - **Step 4:** Create the annotated git tag on the release commit: `git tag -a vX.Y.Z -m "Release vX.Y.Z"`.
    - **Step 5:** Put the release commit back to the `main` branch (`git checkout main && git merge release/vX.Y.Z`), push `main`, `release/vX.Y.Z`, and tag `vX.Y.Z` to `origin`, then restore the starting branch.
-5. Use `03-ai-scripts/29-release-orchestrator.py` to automate this complete 5-step lifecycle.
+5. **Automated Release Execution (2-Tier Toolchain):**
+   - **Tier 1 (GitMap Native Release - PRIMARY):** `gitmap release --bump patch -y` or `gitmap release --bump minor -y` (alias: `gitmap r -y`). Automatically manages release branch, tag generation, and remote push.
+   - **Tier 2 (Python Release Orchestrator - FALLBACK):** `python 03-ai-scripts/29-release-orchestrator.py` to automate this complete 5-step lifecycle.
 
 ---
 
-## Fast File Discovery via Python Toolchain (Mandatory Acceleration)
+## Fast File Discovery via 2-Tier Toolchain (Mandatory Acceleration)
 
-To rapidly discover version manifests, changelog entries, release notes, and install scripts without hitting 50-result tool caps, the AI agent MUST utilize the Python discovery scripts first:
+To rapidly discover version manifests, changelog entries, release notes, and install scripts without hitting 50-result tool caps, the AI agent MUST utilize the 2-tier discovery toolchain:
+
+### Tier 1: GitMap AUM Acceleration (PRIMARY)
+- **Universal File Search:** `gitmap find "*version*" [-ext <ext>]` (alias `gitmap f`)
+- **Inspect Changelog & Release Notes:** `gitmap changelog` (alias `gitmap cl [ver]`)
+- **List Prior Release Tags:** `gitmap list-versions --limit 5` (alias `gitmap lv`)
+- **Stream Manifest or Config:** `gitmap cat version.json` (zero disk writes)
+
+### Tier 2: Fast Cached Python Toolchain (FALLBACK)
 - **Inventory Manifests & Version Files:** `python 03-ai-scripts/11-fast-file-scanner.py --search "version" --limit 20`
 - **Fast Grep Across Version Pins:** `python 03-ai-scripts/12-fast-cached-grep.py --pattern "<version>" --limit 20`
 - **Explore Release Artifacts & Folders:** `python 03-ai-scripts/17-fast-file-reader.py --list-folder .ai-memory/release --limit 20`

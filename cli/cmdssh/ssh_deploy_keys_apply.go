@@ -7,6 +7,7 @@ import (
 
 	"github.com/alimtvnetwork/gitmap-v28/cli/crypto"
 	"github.com/alimtvnetwork/gitmap-v28/cli/db"
+	"golang.org/x/crypto/ssh"
 )
 
 func deployKeysToRemoteNode(c db.SSHConnection, uniqueKeys []string, isDryRun bool) (DeployKeysNodeResult, error) {
@@ -26,10 +27,9 @@ func deployKeysToRemoteNode(c db.SSHConnection, uniqueKeys []string, isDryRun bo
 	return syncAuthorizedKeysOnClient(client, res, uniqueKeys, isDryRun)
 }
 
-func syncAuthorizedKeysOnClient(client any, res DeployKeysNodeResult, uniqueKeys []string, isDryRun bool) (DeployKeysNodeResult, error) {
-	sshClient := client.(*crypto.Client)
+func syncAuthorizedKeysOnClient(client *ssh.Client, res DeployKeysNodeResult, uniqueKeys []string, isDryRun bool) (DeployKeysNodeResult, error) {
 	prepCmd := "mkdir -p ~/.ssh && chmod 700 ~/.ssh && touch ~/.ssh/authorized_keys && chmod 600 ~/.ssh/authorized_keys && cat ~/.ssh/authorized_keys"
-	existingAuth, err := crypto.RunCommand(sshClient, prepCmd, "")
+	existingAuth, err := crypto.RunCommand(client, prepCmd, "")
 	if err != nil {
 		res.ErrorMsg = err.Error()
 		return res, err
@@ -40,7 +40,7 @@ func syncAuthorizedKeysOnClient(client any, res DeployKeysNodeResult, uniqueKeys
 	if isDryRun || len(missingKeys) == 0 {
 		return res, nil
 	}
-	return appendMissingKeysToRemote(sshClient, res, missingKeys)
+	return appendMissingKeysToRemote(client, res, missingKeys)
 }
 
 func buildExistingSignaturesMap(authContent string) map[string]bool {
@@ -64,7 +64,7 @@ func filterMissingPublicKeys(uniqueKeys []string, existing map[string]bool) []st
 	return missing
 }
 
-func appendMissingKeysToRemote(client *crypto.Client, res DeployKeysNodeResult, missing []string) (DeployKeysNodeResult, error) {
+func appendMissingKeysToRemote(client *ssh.Client, res DeployKeysNodeResult, missing []string) (DeployKeysNodeResult, error) {
 	builder := strings.Builder{}
 	for _, k := range missing {
 		builder.WriteString(fmt.Sprintf("printf '%%s\\n' %q >> ~/.ssh/authorized_keys\n", k))

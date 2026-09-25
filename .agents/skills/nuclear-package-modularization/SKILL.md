@@ -14,7 +14,7 @@ Autonomously decompose large, monolithic Go packages into small, acyclic package
 1. **Verbatim Prompt Recording & Deliverables Extraction (Phase 1 Step 0):**
    - Directly capture user prompt verbatim into `.ai-memory/plans/pending/xx-<slug>.md` under `## User Request (Verbatim)`.
    - Extract actionable deliverables under `## Extracted Actionable Task List`.
-   - Output confirmed deliverables in chat before proceeding.
+   - Output confirmed task breakdown directly in chat in cleanly indented markdown with vertical blank lines, task state (`State: [PENDING]`), and understanding indicator bracket (`Understood: [YES — ...]`) before any file exploration, scanning, or spec writing.
 
 2. **5-Day Cache Freshness Decision Engine:**
    - Run `python 03-ai-scripts/33-test-inventory-generator.py --check-age --max-age-days 5`.

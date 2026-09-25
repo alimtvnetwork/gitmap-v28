@@ -43,22 +43,44 @@ func tryInjectExistingConversation(convID, title, content string, pid int, repoR
 
 func tryInjectNewConversation(title, content string, pid int, repoRoot, promptPath string) (AgyInjectionResult, *apperror.AppError, bool) {
 	newRes := AgentAPINewConversation(title, content)
-	if newRes.IsFailure() {
-		return AgyInjectionResult{}, newRes.Err, false
+	if newRes.IsSuccess() {
+		FocusAntigravityWindow(pid)
+		return makeAgentAPISuccessResult(pid, repoRoot, promptPath, newRes.Value, true), nil, true
 	}
-	FocusAntigravityWindow(pid)
 
-	return makeAgentAPISuccessResult(pid, repoRoot, promptPath, newRes.Value, true), nil, true
+	fallbackConvID, _ := findActiveConvTranscript(repoRoot)
+	if len(fallbackConvID) > 0 {
+		sendRes := AgentAPISendMessage(fallbackConvID, title, content)
+		if sendRes.IsSuccess() {
+			FocusAntigravityWindow(pid)
+			return makeAgentAPISuccessResult(pid, repoRoot, promptPath, fallbackConvID, false), nil, true
+		}
+	}
+
+	return AgyInjectionResult{}, newRes.Err, false
 }
 
 func tryDispatchExisting(repoRoot, promptPath, title, sendContent string, pid int) (AgyInjectionResult, *apperror.AppError, bool) {
-	conv, err := SelectMatchingConversation(repoRoot)
-	hasConv := err == nil && len(conv.ID) > 0
-	if !hasConv {
+	conv, err := resolveConversationForDispatch(repoRoot)
+	if err != nil || len(conv.ID) == 0 {
 		return AgyInjectionResult{}, nil, false
 	}
 
 	return tryInjectExistingConversation(conv.ID, title, sendContent, pid, repoRoot, promptPath)
+}
+
+func resolveConversationForDispatch(repoRoot string) (AgyConvInfo, error) {
+	conv, err := SelectMatchingConversation(repoRoot)
+	if err == nil && len(conv.ID) > 0 {
+		return conv, nil
+	}
+
+	defaultRoot := resolveDefaultGitmapRepoRoot()
+	if defaultRoot != "" && defaultRoot != repoRoot {
+		return SelectMatchingConversation(defaultRoot)
+	}
+
+	return AgyConvInfo{}, err
 }
 
 // DispatchPromptToAntigravity sends the prompt to active or new Antigravity session via agentapi.

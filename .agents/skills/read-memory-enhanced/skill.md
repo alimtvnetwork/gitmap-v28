@@ -33,7 +33,7 @@ If you cannot do that, keep reading. Do not start work.
 ## Reading Strategy (Strictly Read-Only)
 
 The `.ai-memory/` folder, specs, and codebase can be massive. To process this information efficiently:
-- **Sub-Agents for Reading:** You ARE allowed to spawn sub-agents to read items and create memory in parallel.
+- **Sub-Agents for Reading (A = 2, H = 2 Orchestration):** You ARE encouraged to spawn up to 2 parallel sub-agents (A = 2, H = 2 hands) to read disjoint folders, map dependencies, and create memory concurrently. Reading files in parallel is one of the primary high-leverage multi-agent tasks.
 - **Specific Titling:** When spawning a sub-agent for reading, you must give it a highly specific title reflecting exactly what it is reading (e.g., `Reading Auth Specs` or `Scanning API Memory`). Do not use generic names. If an agent switches tasks, its title must change.
 - **Micro-Tasking:** Assign sub-agents small, granular folders/files to read rather than asking one agent to read the entire codebase.
 - **TOTAL BAN ON REPOSITORY WRITES:** You are **STRICTLY FORBIDDEN** from modifying, creating, or deleting any files or folders in the repository during reading (no writing to `.ai-memory/`, no creating memory files, no updating indices, no writing skills/rules, no git commit/push).
@@ -42,8 +42,7 @@ The `.ai-memory/` folder, specs, and codebase can be massive. To process this in
   - Zero repository files may be created or changed.
   - If agent communication via files is not strictly required, **DO NOT WRITE ANYTHING AT ALL**.
 - **3-TIER READING TOOL HIERARCHY & FALLBACK PROTOCOL:**
-  1. *Tier 1 (Fast Cached Python Tools):* Use `03-ai-scripts/17-fast-file-reader.py` and `03-ai-scripts/12-fast-cached-grep.py` when available for sub-millisecond cached lookups. Do NOT write or recreate scripts if missing.
-  2. *Tier 2 (GitMap Acceleration):* If Python scripts are absent or cannot be run, check if GitMap is installed (`gitmap`) and leverage GitMap CLI verbs to rapidly inspect, search, and read repository files with zero disk writes:
+  1. *Tier 1 (GitMap AUM Acceleration - PRIMARY):* Leverage GitMap CLI verbs to rapidly inspect, search, and read repository files with zero disk writes (<10ms):
      - **Directory & File Discovery:**
        - `gitmap list-files` (alias `lf`) `[pattern] [-ext <extensions>]`: List tracked repository files with optional extension filtering (e.g. `gitmap lf "*" -ext "md"`, `gitmap list-files "02-spec/*"`).
        - `gitmap find` (alias `f`) `<wildcard*>`: High-speed wildcard/glob file search (e.g. `gitmap find "01*" -ext "md"`).
@@ -52,16 +51,19 @@ The `.ai-memory/` folder, specs, and codebase can be massive. To process this in
        - `gitmap find-files-startswith` (alias `ffs`) `<prefix>`: Prefix filename search (e.g. `gitmap ffs "what-"`).
        - `gitmap find-files-endswith` (alias `ffe`) `<suffix>`: Suffix filename search (e.g. `gitmap ffe "avoid.md"`).
      - **File Reading & Content Inspection:**
-       - `gitmap cat <filepath>`: Stream raw file content directly to stdout without touching disk (e.g. `gitmap cat .ai-memory/what-to-read.md`, `gitmap cat 02-spec/01-index.md`, `gitmap cat readme.md`).
+       - `gitmap cat <filepath>`: Stream raw file content directly to stdout without touching disk (e.g. `gitmap cat .ai-memory/what-to-read.md`, `gitmap cat 02-spec/readme.md`, `gitmap cat readme.md`).
+       - `gitmap search "<term>"`: Fast filesystem walk search across files (e.g. `gitmap search "AppError"`).
      - **Repository Status & Changelog Context:**
        - `gitmap status` (alias `st`): Display branch state, clean/dirty working tree, and ahead/behind counts (e.g. `gitmap status`).
        - `gitmap changelog` (alias `cl`) `[--latest]`: Read concise release notes and version history (e.g. `gitmap changelog --latest`, `gitmap cl v2.24.0`).
        - `gitmap list-versions` (alias `lv`): List tagged versions in descending order (e.g. `gitmap list-versions --limit 5`).
      - **CI/CD Pipeline & Failure Diagnostics (RCA Context):**
        - `gitmap pipeline status` (alias `pl status`): Check live CI/CD pipeline state and remaining ETA (e.g. `gitmap pipeline status`).
+       - `gitmap pipeline-ai status -t <eta>`: Adaptively wait for workflow completion without tight polling.
        - `gitmap pipeline history` (alias `pl history`): Inspect recent commits pipeline execution tree and failure status (e.g. `gitmap pipeline history`).
-       - `gitmap pipeline errors` (alias `pl errors`): Fetch and inspect failed step error logs for Root Cause Analysis (e.g. `gitmap pipeline errors`).
-  3. *Tier 3 (Native Agent Process Fallback):* If GitMap is also not installed or available, smoothly fall back to native agent tools and process (`view_file`, `list_dir`, `grep_search`, `find_by_name`, `cat`, `ls`) without halting or writing files.
+       - `gitmap pipeline errors` (alias `pl errors` or `gitmap pe`): Fetch and inspect failed step error logs for Root Cause Analysis (e.g. `gitmap pipeline errors`).
+  2. *Tier 2 (Fast Cached Python Tools - FALLBACK):* If GitMap is absent or specific script flags are required, use `03-ai-scripts/17-fast-file-reader.py` and `03-ai-scripts/12-fast-cached-grep.py` for sub-millisecond cached lookups. Do NOT write or recreate scripts if missing.
+  3. *Tier 3 (Native Agent Process Fallback):* If GitMap and Python scripts are unavailable, smoothly fall back to native agent tools and process (`view_file`, `list_dir`, `grep_search`, `find_by_name`, `cat`, `ls`) without halting or writing files.
 - CRITICAL: The entire repository workspace is 100% read-only during this workflow.
 ---
 
@@ -80,13 +82,13 @@ Read `.ai-memory/what-to-read.md` first. Follow every file and priority sequence
 Walk `.ai-memory/` recursively. Every file matters. Missing files are noted, not silently skipped. In particular:
 | # | Path | What you get |
 | --- | ----------------------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------- |
-| 1 | `.ai-memory/01-index.md` | Project summary, stack, nav map |
+| 1 | `.ai-memory/readme.md` | Project summary, stack, nav map |
 | 2 | `.ai-memory/strictly-avoid.md` | Hard prohibitions (CODE RED) |
 | 3 | `.ai-memory/user-preferences` | How the human wants you to behave |
 | 4 | `.ai-memory/what-to-read.md` | Authoritative reading order for this project. If it exists, it overrides the generic order in this prompt. Read it first and follow it. |
 | 5 | `.ai-memory/prompt.md` + `01-prompts/` | Canonical prompts (Read, Plan, etc.). "Read memory" = run this prompt. |
-| 6 | `.ai-memory/memory/01-index.md` | Index of institutional knowledge. Then read every file it references, recursively. |
-| 7 | `.ai-memory/plans/01-index.md` | Roll-up of all plans (pending + completed + subtasks). Read this before touching individual plan files. |
+| 6 | `.ai-memory/memory/readme.md` | Index of institutional knowledge. Then read every file it references, recursively. |
+| 7 | `.ai-memory/plans/readme.md` | Roll-up of all plans (pending + completed + subtasks). Read this before touching individual plan files. |
 | 8 | `.ai-memory/plans/pending/` | Active plans, `xx-<slug>.md` |
 | 9 | `.ai-memory/plans/completed/` | Recent history, skim only |
 | 10 | `.ai-memory/plans/subtasks/xx-<slug>/` | Depth files linked from a parent plan |
@@ -101,8 +103,8 @@ Walk `.ai-memory/` recursively. Every file matters. Missing files are noted, not
 ### 1.2 The two index files
 
 Two indexes decide what you read next. Treat them as required entry points, not as summaries:
-- `.ai-memory/memory/01-index.md` lists every institutional-knowledge file. If it points at 12 files, you read 12 files.
-- `.ai-memory/plans/01-index.md` lists every plan (pending, completed, subtasks) with its slug, status, and one-line intent. Use it to pick which plan files to open in full. If it is missing, create it as part of the next code change (see Memory Update Protocol).
+- `.ai-memory/memory/readme.md` lists every institutional-knowledge file. If it points at 12 files, you read 12 files.
+- `.ai-memory/plans/readme.md` lists every plan (pending, completed, subtasks) with its slug, status, and one-line intent. Use it to pick which plan files to open in full. If it is missing, create it as part of the next code change (see Memory Update Protocol).
 
 ### 1.3 Self-check (internal, before Phase 2)
 
@@ -168,7 +170,7 @@ Fallbacks when the canonical numbered folder is absent: `.ai-memory/coding-guide
 ```
 New info discovered
 ├─ Institutional knowledge (pattern / convention / decision)?
-│ YES → .ai-memory/memory/<slug>.md + update .ai-memory/memory/01-index.md
+│ YES → .ai-memory/memory/<slug>.md + update .ai-memory/memory/readme.md
 ├─ Must never happen again?
 │ YES → .ai-memory/strictly-avoid.md
 ├─ Idea, not yet approved?
@@ -178,7 +180,7 @@ New info discovered
 ├─ Bug / regression?
 │ YES → .ai-memory/issues/xx-<slug>.md (or .ai-memory/cicd-issues/ if CI/CD)
 ├─ New or changed plan?
-│ YES → .ai-memory/plans/pending/xx-<slug>.md + update .ai-memory/plans/01-index.md
+│ YES → .ai-memory/plans/pending/xx-<slug>.md + update .ai-memory/plans/readme.md
 ├─ Ambiguity / unclear requirement blocking progress?
 │ YES → .ai-memory/ambiguous-questions/01-new-ambiguity/xx-<slug>.md
 ├─ User just answered a previously-open ambiguity?
@@ -188,8 +190,8 @@ New info discovered
 ```
 Hard rules:
 - Folder is `.ai-memory/memory/`, never `memories/`.
-- Adding a memory file always updates `.ai-memory/memory/01-index.md`.
-- Adding, moving, or completing a plan always updates `.ai-memory/plans/01-index.md`.
+- Adding a memory file always updates `.ai-memory/memory/readme.md`.
+- Adding, moving, or completing a plan always updates `.ai-memory/plans/readme.md`.
 - Ambiguity folders: `01-new-ambiguity/` for open, `02-ambiguity-resolved/` for answered. On answer, MOVE the file (never copy) so it exists in exactly one place. Every resolved file carries a `## Resolution` section.
 - Never guess past an open ambiguity. If one exists and is relevant to the current task, stop and surface it before doing work.
 - Editing existing memory or index files preserves unrelated content. No silent truncation.
@@ -206,7 +208,7 @@ After Phases 1-3, reply exactly:
 - Memory files read: [X]
 - Consolidated guidelines read: [Y]
 - Spec authoring files read: [Z]
-- Pending plans: [N] (from .ai-memory/plans/01-index.md)
+- Pending plans: [N] (from .ai-memory/plans/readme.md)
 - CI/CD issues absorbed: [M] (from .ai-memory/cicd-issues/)
 - Open ambiguities: [K] (from .ai-memory/ambiguous-questions/01-new-ambiguity/)
 - Resolved ambiguities on file: [R] (from .ai-memory/ambiguous-questions/02-ambiguity-resolved/)
@@ -228,8 +230,8 @@ Then stop. No next-step suggestions, no exploratory questions.
 - [ ] Inspected the last 10 git commits via `git log -n 10 --stat` to understand recent file changes
 - [ ] Read `.ai-memory/what-to-read.md` first if it exists, followed its order
 - [ ] Walked `.ai-memory/` recursively, no folder skipped silently
-- [ ] Read `.ai-memory/memory/01-index.md` and every file it points at
-- [ ] Read `.ai-memory/plans/01-index.md` and every file in `pending/`
+- [ ] Read `.ai-memory/memory/readme.md` and every file it points at
+- [ ] Read `.ai-memory/plans/readme.md` and every file in `pending/`
 - [ ] Skimmed `.ai-memory/plans/completed/` for recent history
 - [ ] Read every file in `.ai-memory/spec/commands/`
 - [ ] Read every file in `.ai-memory/issues/` and `.ai-memory/cicd-issues/`

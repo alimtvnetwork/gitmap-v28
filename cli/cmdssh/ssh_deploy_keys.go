@@ -2,7 +2,6 @@
 package cmdssh
 
 import (
-	"fmt"
 	"strings"
 
 	"github.com/alimtvnetwork/gitmap-v28/cli/db"

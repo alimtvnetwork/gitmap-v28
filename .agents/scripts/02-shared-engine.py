@@ -531,8 +531,11 @@ def format_keys(mapping: Any, separator: str = COMMA_SPACE_SEPARATOR) -> str:
 
 def is_ignored_directory(dir_name: str, custom_excludes: set[str] | None = None) -> bool:
     """Checks if directory name is in the global or custom exclusion list."""
+    low_name = dir_name.lower()
+    if low_name.startswith("backup-") or low_name.startswith("backup_") or low_name == "backup":
+        return True
     excludes = EXCLUDE_DIRS if custom_excludes is None else EXCLUDE_DIRS | custom_excludes
-    return dir_name.lower() in {d.lower() for d in excludes}
+    return low_name in {d.lower() for d in excludes}
 
 def is_ignored_path(path: str | Path, custom_excludes: set[str] | None = None) -> bool:
     """Checks if any segment of the path matches an excluded directory."""

@@ -24,12 +24,36 @@ N = total self-loop steps budget that the agents will perform (default: 80 steps
 
 ### Execution Reporting & Initial Task Breakdown Gate (Mandatory Output Format)
 
-1. Start of Run (Initial Task Breakdown Gate): Before writing any code, scanning, or executing tasks, extract all pending deliverables as discrete, ordered items (`#1. Task-01:`, `#2. Task-02:`) without hard brackets, and output this confirmed task breakdown directly in chat:
+1. Start of Run (Initial Task Breakdown Gate - Clearly Indented Markdown & Understanding Check):
+   Before writing any code, scanning, or executing tasks, extract all pending deliverables as discrete, ordered items (`Task-01`, `Task-02`).
+   - Respect whatever requirements the user has given, parse every request completely, and format each task clearly with proper markdown indentation, vertical blank lines, task state (`State: [PENDING]`), and an explicit understanding indicator bracket (`Understood: [YES — ...]`).
+   - TOTAL BAN ON UNFORMATTED RUN-ON TEXT: Never concatenate tasks into a single unformatted line or paragraph block (e.g. NEVER `#1. Task-01: ... #2. Task-02: ...`). Every task must be its own clearly separated markdown item.
+   - Line-by-Line Output Format Structure:
+     - Line 1: Header `### 📋 Confirmed Task Breakdown & Requirement Ingestion`
+     - Line 2: Empty blank line
+     - Line 3: Numbered task title `1. **Task-01: [Descriptive Task Title]**`
+     - Line 4: Indented state bullet (3 spaces) `   - **State:** [PENDING]`
+     - Line 5: Indented understanding check (3 spaces) `   - **Understood:** [YES] — [1-2 concise sentences proving understanding of intent, scope, and verified constraints]`
+     - Line 6: Indented actionable scope bullet (3 spaces) `   - **Actionable Scope:** [Precise technical deliverable and implementation scope]`
+     - Line 7: Indented target files bullet (3 spaces) `   - **Target Files / Area:** [relative/path/or/module]`
+     - Line 8: Empty blank line (vertical gap before next task)
+     - Concluding Line: `Proceeding directly to codebase scan and specification generation.`
 
 ```markdown
-### Confirmed Task Breakdown
-#1. Task-01: [Actionable deliverable description]
-#2. Task-02: [Actionable deliverable description]
+### 📋 Confirmed Task Breakdown & Requirement Ingestion
+
+1. **Task-01: [Descriptive Task Title]**
+   - **State:** `[PENDING]`
+   - **Understood:** `[YES]` — [Concise 1-sentence verification of user requirement, intent, and verified constraints]
+   - **Actionable Scope:** [Precise technical deliverable and implementation scope]
+   - **Target Files / Area:** `[relative/path/or/module]`
+
+2. **Task-02: [Descriptive Task Title]**
+   - **State:** `[PENDING]`
+   - **Understood:** `[YES]` — [Concise 1-sentence verification of user requirement, intent, and verified constraints]
+   - **Actionable Scope:** [Precise technical deliverable and implementation scope]
+   - **Target Files / Area:** `[relative/path/or/module]`
+
 Proceeding directly to codebase scan and specification generation.
 ```
 
@@ -37,15 +61,18 @@ Proceeding directly to codebase scan and specification generation.
 
 ```markdown
 ### Task Completion Summary
+
 ✅ #1. Task-01: [Task description] — Completed
 ✅ #2. Task-02: [Task description] — Completed
 (If any task failed or was deferred, mark with ❌ or ⏳ and explain why)
 
 ### Modified Files Summary
+
 - [relative path to modified file 1]
 - [relative path to modified file 2]
 
 ### Implementation Confidence Score
+
 - Confidence: [e.g. 98% or 100%]
 - Rationale: [Detailed explanation of verified quality gates, passing linters, contract adherence, and zero regressions]
 ```
@@ -67,19 +94,19 @@ Subtasks must focus purely on unique task deliverables without repeating common 
 8. [ ] /goal Phase 1 (Zero-Stop Transition): Immediately upon completing file inventory and assignment planning, self-loop and transition directly into Phase 2 execution mode without pausing or requesting user input.
 9. [ ] /goal Phase 2 (Parallel File Reverse Engineering, Steps N/2+1..N): Dispatch 2–3 execution sub-agents in parallel on disjoint file sets to analyze code semantics, exported types, data flow, functions, and external dependencies.
 10. [ ] /goal Phase 2 (Component Specification Generation): Write dedicated, modular specification files under `02-spec/21-app/` (e.g., `02-spec/21-app/XX-core-engine.md`, `02-spec/21-app/XX-data-models.md`, `02-spec/21-app/XX-api-contracts.md`) documenting all reverse-engineered logic. If UI screenshots or base64 print screen URLs are provided, convert and save them immediately to `assets/screenshots/<spec-slug>-<NN>.png` and reference them via relative markdown links.
-11. [ ] /goal Phase 3 (Master Index Synthesis): Author `02-spec/21-app/01-index.md` summarizing the overall application architecture, behavior, technology stack, architectural health score, and component topology.
+11. [ ] /goal Phase 3 (Master Index Synthesis): Author `02-spec/21-app/readme.md` summarizing the overall application architecture, behavior, technology stack, architectural health score, and component topology.
 12. [ ] /goal Phase 3 (Security Audit & Risk Assessment): Identify hardcoded credentials, unauthenticated endpoints, input sanitization flaws, and dependency vulnerabilities, publishing an exhaustive risk evaluation in `02-spec/21-app/xx-security-and-risks.md`.
 13. [ ] /goal Phase 3 (Final Structure Communication): Output a clean, viewable markdown/ASCII folder tree in the final chat response illustrating the complete generated specification layout.
-14. [ ] /learn Ingest `.ai-memory/memory/01-index.md` for project memory index and past learnings.
+14. [ ] /learn Ingest `.ai-memory/memory/readme.md` for project memory index and past learnings.
 15. [ ] /learn Ingest `.ai-memory/strictly-avoid.md` for banned anti-patterns and strict constraints.
 16. [ ] /learn Ingest `02-spec/02-coding-guidelines/08-file-folder-naming/` for lowercase naming and continuous file sequencing.
-17. [ ] /learn Ingest `02-spec/02-coding-guidelines/01-cross-language/01-index.md` for strict relative path citation requirements.
-18. [ ] /learn Ingest `02-spec/21-app/01-index.md` for baseline application documentation standards.
+17. [ ] /learn Ingest `02-spec/02-coding-guidelines/01-cross-language/readme.md` for strict relative path citation requirements.
+18. [ ] /learn Ingest `02-spec/21-app/readme.md` for baseline application documentation standards.
 19. [ ] /goal Verify zero absolute paths or `file:///` URIs exist in generated specification markdown.
 
 ```text
 PHASE_1_STEPS = N / 2   (Steps 1 .. N/2: Environment Bootstrap, Inventory Script, File Discovery, Language Topology, Concurrency Ledger)
-PHASE_2_STEPS = N / 2   (Steps N/2+1 .. N: 2–3 Agent Parallel File Analysis, Module Specs, 01-index.md Synthesis, Security Audit, Tree Output)
+PHASE_2_STEPS = N / 2   (Steps N/2+1 .. N: 2–3 Agent Parallel File Analysis, Module Specs, readme.md Synthesis, Security Audit, Tree Output)
 ```
 
 N, PHASE_1_STEPS, and PHASE_2_STEPS are read-only after initialization. Never modify them mid-execution.
@@ -100,9 +127,9 @@ N, PHASE_1_STEPS, and PHASE_2_STEPS are read-only after initialization. Never mo
    - Create or populate the application-specific spec folder: `<spec-root>/21-app/` (e.g. `02-spec/21-app/`).
    - If sibling folders for issues exist or are needed, reference `<spec-root>/22-app-issues/` or create `02-spec/21-app/xx-security-and-risks.md`.
 3. Strict Lowercase File Naming:
-   - All files created MUST use strictly lowercase characters, hyphens, and numeric prefixes (e.g., `01-index.md`, `xx-security-and-risks.md`, `XX-core-architecture.md`). Uppercase letters are strictly banned.
+   - All files created MUST use strictly lowercase characters, hyphens, and numeric prefixes (e.g., `readme.md`, `xx-security-and-risks.md`, `XX-core-architecture.md`). Uppercase letters are strictly banned.
 4. Strict Relative Git Paths:
-   - All markdown links and citations MUST be relative paths from repository root (e.g., `02-spec/21-app/01-index.md`). NEVER write absolute paths (`C:\...`, `/home/...`) or `file:///` URIs.
+   - All markdown links and citations MUST be relative paths from repository root (e.g., `02-spec/21-app/readme.md`). NEVER write absolute paths (`C:\...`, `/home/...`) or `file:///` URIs.
 
 ---
 
@@ -209,7 +236,7 @@ Spawn 2 to 3 sub-agents concurrently (max 2 threads each) to process the assigne
 
 Upon completion of all modular specifications, the master orchestrator synthesizes the top-level documentation:
 
-### 1. Master Specification Index (`02-spec/21-app/01-index.md`)
+### 1. Master Specification Index (`02-spec/21-app/readme.md`)
 
 The index file must provide an executive synthesis:
 - Application Overview: Purpose of the software, high-level architecture, user flows, and core features.
@@ -233,7 +260,7 @@ In the final turn after all files are generated, the orchestrator MUST output a 
 
 ```text
 📁 02-spec/21-app/
-├── 📄 01-index.md                     # Application overview, tech stack, health score & architecture
+├── 📄 readme.md                     # Application overview, tech stack, health score & architecture
 ├── 📄 02-security-and-risks.md        # Security audit, flaw analysis, secrets scan & risk rating
 ├── 📄 03-domain-models.md             # Data structures, enums, interfaces, and entities
 ├── 📄 04-business-logic.md            # Service layer operations, workflows, and state machines

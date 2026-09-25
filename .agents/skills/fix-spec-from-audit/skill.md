@@ -1,3 +1,8 @@
+---
+name: fix-spec-from-audit
+description: Autonomously ingest the latest specification audit file from 02-spec/25-app-spec-audit/, decompose every finding into an exhaustive 1:1 remediation checklist, spawn parallel subagents to fix the specifications, verify 100% compliance, and remove the audit gap at the final stage.
+---
+
 # Specification Remediation from Audit Findings — Execution Spec (must follow)
 
 > **Prompt Version:** 2.2.0
@@ -81,7 +86,7 @@ You MUST execute this task via a strict 4-Phase continuous loop. Do not skip ste
 1. **Verify 100% Closure:** Confirm that every checkbox in `.ai-memory/plans/pending/xx-spec-remediation.md` is marked `[x]`.
 2. **Remove Audit Gap on Disk:** Delete the original audit file from `02-spec/25-app-spec-audit/NN-audit-*.md` (or move it to `.ai-memory/plans/completed/NN-audit-*.md-resolved`) so no unresolved audit gaps remain in the active spec directory.
 3. **Subtask Cleanup:** Consolidate completed subtasks into a single `.ai-memory/plans/completed/xx-spec-remediation-completed.md` file noting how many steps it took, and delete the granular `.ai-memory/plans/subtasks/xx-spec-fix/` files.
-4. **Index Synchronization:** Update `.ai-memory/plans/01-index.md` and `.ai-memory/what-to-read.md` to reflect that the audit gap is 100% resolved.
+4. **Index Synchronization:** Update `.ai-memory/plans/readme.md` and `.ai-memory/what-to-read.md` to reflect that the audit gap is 100% resolved.
 5. **Git Commit:** Stage all modified spec files and commit with `fix(spec): remediate all audit findings and close audit gap`.
 
 ---

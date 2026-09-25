@@ -55,3 +55,24 @@ When searching this repository (`<repo-root>` — ~2,900 code files + `.git` / b
    ```
    - Every search automatically generates a deterministic SQLite ID + `DH2D-<HEX>` digest (`SearchHotCache` table in `SearchSplitDB`).
    - Queries executed `>= 2` times are automatically promoted to the `HOT_MEMORY_CACHE` tier, reducing latency from `0.82 ms` to **`0.04 ms` (`40 µs`)**.
+
+---
+
+## 3. Cross-Repository Benchmark Matrix (`alimtvnetwork/coding-guidelines-v24`)
+
+Cross-validated across 700+ markdown specs, 22 prompt directories, and polyglot packages:
+
+| Category | Workload / Query | Engine / Tool | Command / Syntax | Measured Latency | Speedup vs PowerShell |
+| :--- | :--- | :--- | :--- | :--- | :--- |
+| **Wildcard File Search** | Universal `*test*.md` match | **Ripgrep** | `rg --files -g "*test*.md"` | **21.03 ms** | **16.7x faster** |
+| | | **GitMap Native AUM** | `gitmap find "*test*" -ext "md"` | **57.50 ms** | **6.1x faster** |
+| | | **Python Fast Scanner** | `python 03-ai-scripts/11-fast-file-scanner.py --search "test"` | **72.84 ms** | **4.8x faster** |
+| | | **PowerShell Standard** | `Get-ChildItem -Recurse -File -Filter '*test*.md'` | **351.00 ms** | **1.0x (Baseline)** |
+| **Complex Content / Regex** | Pattern `appfault\.AppError` | **GitMap Hot-Cache (`DH2D`)** | `gitmap search "AppError"` | **54.85 ms** (proc) / **0.04 ms** (RAM) | **5.3x – 7,000x faster** |
+| | | **Ripgrep** | `rg "appfault\.AppError" .` | **32.02 ms** | **9.1x faster** |
+| | | **PowerShell Pipeline** | `Get-ChildItem -Recurse -File \| Select-String "appfault\.AppError"` | **290.66 ms** (filtered) / **14.85 s** (full) | **1.0x (Baseline)** |
+| | | **Python Cached Grep** | `python 03-ai-scripts/12-fast-cached-grep.py --pattern "..."` | **11,986.73 ms** | 0.02x |
+| **File Content Streaming** | Stream `readme.md` (157 KB) | **Ripgrep** | `rg "^" readme.md` | **9.02 ms** | **26.0x faster** |
+| | | **GitMap Cat** | `gitmap cat readme.md` | **49.05 ms** | **4.8x faster** |
+| | | **Python Fast Reader** | `python 03-ai-scripts/17-fast-file-reader.py --file readme.md` | **53.76 ms** | **4.4x faster** |
+| | | **PowerShell Get-Content** | `Get-Content readme.md` | **234.35 ms** | **1.0x (Baseline)** |

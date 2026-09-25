@@ -20,8 +20,9 @@ git push origin "$BACKUP_BRANCH"
 ```
 
 ## Core Compaction Rules
+
 1. **Cluster Tasks:** Combine 2, 3, or more related tasks into single milestone files.
 2. **Prune Guideline Noise:** Remove pure formatting or routine guideline-fix micro-plans that contain zero business logic.
 3. **Checklist Compaction:** Consolidate repeated checklists into a single pointer to `.ai-memory/coding-guidelines.md`.
 4. **Monotonic Sequencing:** Re-sequence `.ai-memory/plans/completed/` continuously (`01-`, `02-`, `03-`, ...) with lowercase filenames and zero sequence gaps.
-5. **Index Synchronization:** Update `.ai-memory/plans/01-index.md` and `.ai-memory/what-to-read.md`.
+5. **Index Synchronization:** Update `.ai-memory/plans/readme.md` and `.ai-memory/what-to-read.md`.

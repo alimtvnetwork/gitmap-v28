@@ -3,12 +3,12 @@ package cmdssh
 
 // DeployKeysNodeResult stores the deployment outcome for a single fleet node.
 type DeployKeysNodeResult struct {
-	Alias       string `json:"alias"`
-	IPAddress   string `json:"ip_address"`
-	KeysAdded   int    `json:"keys_added"`
-	KeysTotal   int    `json:"keys_total"`
-	IsOnline    bool   `json:"is_online"`
-	ErrorMsg    string `json:"error,omitempty"`
+	Alias     string `json:"alias"`
+	IPAddress string `json:"ip_address"`
+	KeysAdded int    `json:"keys_added"`
+	KeysTotal int    `json:"keys_total"`
+	IsOnline  bool   `json:"is_online"`
+	ErrorMsg  string `json:"error,omitempty"`
 }
 
 // DeployKeysSummary captures overall mesh public key synchronization metrics.
