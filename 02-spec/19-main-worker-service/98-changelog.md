@@ -1,3 +1,9 @@
+## v6.343.0 — 2026-09-25 (ssh dual-table persistence, bidirectional host sync, compact oneliner export, and import auto-rendering)
+
+**Scope:** Version bump. ssh dual-table persistence, bidirectional host sync, compact oneliner export, and import auto-rendering.
+
+---
+
 ## v6.342.0 — 2026-09-25 (gitmap pae git trace activity detection, sqlite commit trace search, and agy injection fallback)
 
 **Scope:** Version bump. gitmap pae git trace activity detection, sqlite commit trace search, and agy injection fallback.

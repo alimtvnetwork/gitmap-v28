@@ -1,3 +1,20 @@
+## [v6.343.0] 2026-09-25 Release v6.343.0
+
+### Install GitMap v6.343.0
+
+To pin your repository to this exact version, run the following one-liner:
+Unix/Bash: `curl -sL https://raw.githubusercontent.com/alimtvnetwork/gitmap-v28/v6.343.0/install.sh | bash -s -- ".ai-memory/prompts" "v6.343.0"`
+PowerShell: `Invoke-WebRequest -Uri https://raw.githubusercontent.com/alimtvnetwork/gitmap-v28/v6.343.0/install.ps1 -OutFile install.ps1; .\install.ps1 -TargetDir ".ai-memory/prompts" -Version "v6.343.0"`
+
+### Added / Changed / Fixed / Removed
+
+- SSH Fleet Dual-Table Persistence: `importConnectionsLocally` writes imported nodes to both `SSHConnection` and `ssh_hosts` tables simultaneously, ensuring `gitmap ssh nodes` and `gitmap sj ls` immediately discover all imported nodes.
+- Bidirectional SSH Host Synchronization: Added `syncSSHHostsFromConnections` to auto-heal and bidirectionally sync any nodes present in `SSHConnection` into `ssh_hosts` on every list/query operation.
+- Compact Single-Line Export (`eo`): `gitmap ssh export-oneliner` now emits an ultra-compact payload (~600 bytes vs 5500 bytes) by omitting redundant encrypted passwords, avoiding terminal wrapping and paste buffer truncation.
+- Auto-Rendering on Import: `gitmap ssh nodes import-json` immediately prints the formatted registered nodes table upon successful import, providing instant visual confirmation.
+- Robust Payload Detection: Auto-detects inline base64 and inline JSON in `import-json` even when `--base64` flag is omitted or contains terminal whitespace/newlines.
+- Flexible SJ Routing: Extended `gitmap sj` to seamlessly route `nodes import-json`, `import-json`, `eo`, and `export-oneliner`.
+
 ## [v6.342.0] 2026-09-25 Release v6.342.0
 
 ### Install GitMap v6.342.0
