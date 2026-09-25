@@ -19,14 +19,15 @@ func parseSSHErrorFlags(args []string) sshErrorLogsFlags {
 	var f sshErrorLogsFlags
 	for i := 0; i < len(args); i++ {
 		arg := args[i]
-		if arg == "--json" {
+		switch {
+		case arg == "--json":
 			f.asJSON = true
-		} else if arg == "--clear" || arg == "clear" {
+		case arg == "--clear" || arg == "clear":
 			f.clear = true
-		} else if arg == "--file" && i+1 < len(args) {
+		case arg == "--file" && i+1 < len(args):
 			f.filePath = args[i+1]
 			i++
-		} else if arg == "--tempfile" && i+1 < len(args) {
+		case arg == "--tempfile" && i+1 < len(args):
 			f.tempFile = args[i+1]
 			i++
 		}

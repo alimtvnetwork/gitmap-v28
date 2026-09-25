@@ -172,8 +172,7 @@ func formatCommitGroupBadge(conclusion, status string) string {
 	if isFailingConclusion(conclusion) {
 		return constants.ColorRed + "✖ FAIL   " + constants.ColorReset
 	}
-	switch conclusion {
-	case "success":
+	if conclusion == "success" {
 		return constants.ColorGreen + "● PASS   " + constants.ColorReset
 	}
 	if status == "in_progress" || status == "queued" {
@@ -207,8 +206,7 @@ func formatWorkflowTreeBadge(conclusion, status string) string {
 	if isFailingConclusion(conclusion) {
 		return constants.ColorRed + "FAIL" + constants.ColorReset
 	}
-	switch conclusion {
-	case "success":
+	if conclusion == "success" {
 		return constants.ColorGreen + "PASS" + constants.ColorReset
 	}
 	if status == "in_progress" || status == "queued" {

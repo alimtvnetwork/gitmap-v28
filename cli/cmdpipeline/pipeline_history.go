@@ -653,8 +653,7 @@ func formatWorkflowShortStatus(wf CommitWorkflowItem) string {
 	if isFailingConclusion(wf.Conclusion) {
 		return "FAIL"
 	}
-	switch wf.Conclusion {
-	case "success":
+	if wf.Conclusion == "success" {
 		return "PASS"
 	}
 	if wf.Status == "in_progress" || wf.Status == "queued" {

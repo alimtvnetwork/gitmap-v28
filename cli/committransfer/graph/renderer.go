@@ -92,11 +92,12 @@ func renderMainlineTrack(sb *strings.Builder, events []GraphEvent) {
 
 func renderFeatureTrack(sb *strings.Builder, events []GraphEvent) {
 	for i, ev := range events {
-		if ev.IsMerge {
+		switch {
+		case ev.IsMerge:
 			sb.WriteString(pterm.Yellow("▲───────┘"))
-		} else if ev.PRNumber > 0 {
+		case ev.PRNumber > 0:
 			sb.WriteString(pterm.Yellow("●───────"))
-		} else {
+		default:
 			sb.WriteString(pterm.Gray("        "))
 		}
 		if i < len(events)-1 {
