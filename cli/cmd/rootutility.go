@@ -82,14 +82,19 @@ func extractRemoteUpdateTarget(args []string) (string, []string) {
 		arg := args[i]
 		if (arg == "--remote" || arg == "-r" || arg == "--node" || arg == "-n") && i+1 < len(args) {
 			target := args[i+1]
-			clean := append(args[:i], args[i+2:]...)
+			clean := append([]string{}, args[:i]...)
+			clean = append(clean, args[i+2:]...)
 			return target, clean
 		}
 		if strings.HasPrefix(arg, "--remote=") {
-			return strings.TrimPrefix(arg, "--remote="), append(args[:i], args[i+1:]...)
+			clean := append([]string{}, args[:i]...)
+			clean = append(clean, args[i+1:]...)
+			return strings.TrimPrefix(arg, "--remote="), clean
 		}
 		if strings.HasPrefix(arg, "--node=") {
-			return strings.TrimPrefix(arg, "--node="), append(args[:i], args[i+1:]...)
+			clean := append([]string{}, args[:i]...)
+			clean = append(clean, args[i+1:]...)
+			return strings.TrimPrefix(arg, "--node="), clean
 		}
 	}
 	return "", args

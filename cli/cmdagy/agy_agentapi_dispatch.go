@@ -48,16 +48,21 @@ func tryInjectNewConversation(title, content string, pid int, repoRoot, promptPa
 		return makeAgentAPISuccessResult(pid, repoRoot, promptPath, newRes.Value, true), nil, true
 	}
 
-	fallbackConvID, _ := findActiveConvTranscript(repoRoot)
-	if len(fallbackConvID) > 0 {
-		sendRes := AgentAPISendMessage(fallbackConvID, title, content)
-		if sendRes.IsSuccess() {
-			FocusAntigravityWindow(pid)
-			return makeAgentAPISuccessResult(pid, repoRoot, promptPath, fallbackConvID, false), nil, true
-		}
-	}
+	return tryFallbackToActiveConversation(title, content, pid, repoRoot, promptPath, newRes.Err)
+}
 
-	return AgyInjectionResult{}, newRes.Err, false
+func tryFallbackToActiveConversation(title, content string, pid int, repoRoot, promptPath string, origErr *apperror.AppError) (AgyInjectionResult, *apperror.AppError, bool) {
+	fallbackConvID, _ := findActiveConvTranscript(repoRoot)
+	if len(fallbackConvID) == 0 {
+		return AgyInjectionResult{}, origErr, false
+	}
+	sendRes := AgentAPISendMessage(fallbackConvID, title, content)
+	if sendRes.IsFailure() {
+		return AgyInjectionResult{}, origErr, false
+	}
+	FocusAntigravityWindow(pid)
+
+	return makeAgentAPISuccessResult(pid, repoRoot, promptPath, fallbackConvID, false), nil, true
 }
 
 func tryDispatchExisting(repoRoot, promptPath, title, sendContent string, pid int) (AgyInjectionResult, *apperror.AppError, bool) {
@@ -102,13 +107,14 @@ func DispatchPromptToAntigravity(repoRoot, promptPath, title, content string, pi
 	}
 
 	var appErr *apperror.AppError
-	if newErr != nil {
+	switch {
+	case newErr != nil:
 		appErr = newErr
-	} else if existErr != nil {
+	case existErr != nil:
 		appErr = existErr
-	} else if pid <= 0 {
+	case pid <= 0:
 		appErr = apperror.NewNotFound("detect_ide", "E9002", "Antigravity IDE process is not running")
-	} else {
+	default:
 		appErr = apperror.NewExecutionError("Antigravity agentapi is unreachable")
 	}
 

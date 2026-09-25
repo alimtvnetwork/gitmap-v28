@@ -99,7 +99,8 @@ func executeAgentAPICmd(subArgs []string) result.Result[[]byte] {
 	if isResolved == false {
 		return result.Fail[[]byte](apperror.NewSimple("agentapi binary not found", "E9030"))
 	}
-	fullArgs := append(baseArgs, subArgs...)
+	fullArgs := append([]string{}, baseArgs...)
+	fullArgs = append(fullArgs, subArgs...)
 	cmd := exec.Command(binPath, fullArgs...)
 	cmd.Dir = resolveAgentAPIWorkingDir()
 	cmd.Env = os.Environ()

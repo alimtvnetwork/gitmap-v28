@@ -29,9 +29,7 @@ var agyPromptInjectCmd = &cobra.Command{
 	Use:     "inject <slug-or-file> [target-project]",
 	Aliases: []string{"inj"},
 	Short:   "Inject a prompt into an Antigravity project and conversation",
-	RunE: func(cmd *cobra.Command, args []string) error {
-		return RunAgyPromptInject(cmd, args)
-	},
+	RunE:    RunAgyPromptInject,
 }
 
 func init() {

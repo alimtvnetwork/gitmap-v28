@@ -11,11 +11,12 @@ import (
 // resolveAgentAPIWorkingDir determines the working directory for executing agentapi commands.
 func resolveAgentAPIWorkingDir() string {
 	cwd, err := os.Getwd()
-	if err == nil {
-		root, rErr := gitutil.RepoRoot(cwd)
-		if rErr == nil && len(root) > 0 {
-			return root
-		}
+	if err != nil {
+		return resolveDefaultGitmapRepoRoot()
+	}
+	root, rErr := gitutil.RepoRoot(cwd)
+	if rErr == nil && len(root) > 0 {
+		return root
 	}
 
 	return resolveDefaultGitmapRepoRoot()
@@ -25,12 +26,23 @@ func resolveAgentAPIWorkingDir() string {
 func resolveDefaultGitmapRepoRoot() string {
 	projects, err := loadActiveSortedProjects()
 	if err == nil {
-		for _, p := range projects {
-			if isGitmapProjectCandidate(p) {
-				return p.GetPath()
-			}
+		return scanProjectsForGitmap(projects)
+	}
+
+	return scanFallbackPathsForGitmap()
+}
+
+func scanProjectsForGitmap(projects []AgyProject) string {
+	for _, p := range projects {
+		if isGitmapProjectCandidate(p) {
+			return p.GetPath()
 		}
 	}
+
+	return scanFallbackPathsForGitmap()
+}
+
+func scanFallbackPathsForGitmap() string {
 	candidates := []string{"d:\\work\\gitmap", "c:\\work\\gitmap", "e:\\work\\gitmap"}
 	for _, c := range candidates {
 		if checkDirExists(c) {

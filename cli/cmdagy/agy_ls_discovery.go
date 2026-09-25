@@ -117,7 +117,8 @@ func probeLSPort(port, token string) bool {
 		return false
 	}
 	addr := "127.0.0.1:" + port
-	fullArgs := append(baseArgs, "get-conversation-metadata", "probe-check")
+	fullArgs := append([]string{}, baseArgs...)
+	fullArgs = append(fullArgs, "get-conversation-metadata", "probe-check")
 	cmd := exec.Command(binPath, fullArgs...)
 	cmd.Env = append(os.Environ(),
 		"ANTIGRAVITY_LS_ADDRESS="+addr,
