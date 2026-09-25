@@ -10,8 +10,8 @@ import (
 
 func renderActivePromptsTerminal(convs []AgyActiveConversation) {
 	printActiveHeader(len(convs))
-	hasNoConvs := len(convs) == 0
-	if hasNoConvs {
+	isEmpty := len(convs) == 0
+	if isEmpty {
 		fmt.Printf("  %s✔ All Antigravity conversations are currently idle (0 active prompts running).%s\n\n",
 			constants.ColorGreen, constants.ColorReset)
 		return

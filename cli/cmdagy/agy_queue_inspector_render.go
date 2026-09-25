@@ -11,8 +11,8 @@ import (
 func renderQueuesTerminal(summaries []AgyWorkspaceQueueSummary) {
 	totalPrompts := countTotalQueuedPrompts(summaries)
 	printQueuesHeader(len(summaries), totalPrompts)
-	hasNoQueues := len(summaries) == 0
-	if hasNoQueues {
+	isEmpty := len(summaries) == 0
+	if isEmpty {
 		fmt.Printf("  %s✔ All Antigravity prompt queues are empty (0 queued prompts across workspaces).%s\n\n",
 			constants.ColorGreen, constants.ColorReset)
 		return

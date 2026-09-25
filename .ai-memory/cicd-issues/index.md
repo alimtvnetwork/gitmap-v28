@@ -65,3 +65,6 @@
 - [74-interface-naming-and-enum-suffix-compliance-rca.md](./74-interface-naming-and-enum-suffix-compliance-rca.md): Fix interface naming and enum suffix compliance.
 - [75-pipeline-compile-and-vet-fixes-rca.md](./75-pipeline-compile-and-vet-fixes-rca.md): Fix CI pipeline compilation, vet, and unused import fixes.
 - [76-cross-platform-windows-runner-hang-rca.md](./76-cross-platform-windows-runner-hang-rca.md): Fix Cross-Platform Build Windows runner communication hang via job timeout-minutes and expanded Defender exclusions.
+- [77-misspell-cancelled-and-sshjoin-inverted-success-rca.md](./77-misspell-cancelled-and-sshjoin-inverted-success-rca.md): Fix misspell on cancelled and sshjoin inverted success boolean.
+- [78-windows-binary-magic-bytes-and-powershell-profile-rca.md](./78-windows-binary-magic-bytes-and-powershell-profile-rca.md): Fix windows binary magic bytes and powershell profile pathing.
+- [79-pipeline-misspell-and-negative-boolean-guidelines-rca.md](./79-pipeline-misspell-and-negative-boolean-guidelines-rca.md): Fix pipeline stage timings spelling and negative boolean variable prefixes.

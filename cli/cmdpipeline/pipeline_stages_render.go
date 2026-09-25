@@ -59,18 +59,19 @@ func formatStageDuration(secs int) string {
 }
 
 func formatConclusionBadge(conclusion string) string {
-	switch conclusion {
-	case "success":
+	if conclusion == "success" {
 		return constants.ColorGreen + "✔ success" + constants.ColorReset
-	case "failure":
-		return constants.ColorRed + "✖ failure" + constants.ColorReset
-	case "cancelled":
-		return constants.ColorDim + "⊘ cancelled" + constants.ColorReset
-	case "skipped":
-		return constants.ColorDim + "○ skipped" + constants.ColorReset
-	default:
-		return conclusion
 	}
+	if conclusion == "failure" {
+		return constants.ColorRed + "✖ failure" + constants.ColorReset
+	}
+	if strings.HasPrefix(conclusion, "cancel") {
+		return constants.ColorDim + "⊘ canceled" + constants.ColorReset
+	}
+	if conclusion == "skipped" {
+		return constants.ColorDim + "○ skipped" + constants.ColorReset
+	}
+	return conclusion
 }
 
 func truncateStageName(name string, maxLen int) string {

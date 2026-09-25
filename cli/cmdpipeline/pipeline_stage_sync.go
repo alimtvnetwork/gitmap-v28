@@ -7,8 +7,8 @@ import (
 )
 
 func syncRunJobsAndSegments(repo string, runId uint64, jobs []ghJobItem) {
-	hasNoJobs := runId == 0 || len(jobs) == 0
-	if hasNoJobs {
+	isMissing := runId == 0 || len(jobs) == 0
+	if isMissing {
 		return
 	}
 

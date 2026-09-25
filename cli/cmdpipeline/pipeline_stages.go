@@ -2,14 +2,15 @@ package cmdpipeline
 
 import (
 	"fmt"
+	"strings"
 
 	"github.com/alimtvnetwork/gitmap-v28/cli/pipelinedb"
 )
 
 func handlePipelineStages(args []string) error {
 	repo, runId := resolveTargetRepoAndRunId(args)
-	hasNoRun := runId == 0
-	if hasNoRun {
+	isMissing := runId == 0
+	if isMissing {
 		return fmt.Errorf("no workflow runs found for repository: %s", repo)
 	}
 
@@ -51,7 +52,7 @@ func buildFallbackStageSummary(repo string, runId uint64, jobs []ghJobItem) *pip
 		if j.Status == "in_progress" {
 			status = "in_progress"
 		}
-		if j.Conclusion == "failure" || j.Conclusion == "cancelled" {
+		if j.Conclusion == "failure" || strings.HasPrefix(j.Conclusion, "cancel") {
 			conclusion = j.Conclusion
 		}
 	}
