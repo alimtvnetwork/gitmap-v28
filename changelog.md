@@ -1,3 +1,18 @@
+## [v6.342.0] 2026-09-25 Release v6.342.0
+
+### Install GitMap v6.342.0
+
+To pin your repository to this exact version, run the following one-liner:
+Unix/Bash: `curl -sL https://raw.githubusercontent.com/alimtvnetwork/gitmap-v28/v6.342.0/install.sh | bash -s -- ".ai-memory/prompts" "v6.342.0"`
+PowerShell: `Invoke-WebRequest -Uri https://raw.githubusercontent.com/alimtvnetwork/gitmap-v28/v6.342.0/install.ps1 -OutFile install.ps1; .\install.ps1 -TargetDir ".ai-memory/prompts" -Version "v6.342.0"`
+
+### Added / Changed / Fixed / Removed
+
+- Git Pull Efficient (PAE): Evaluates repository activity strictly on actual git log / commit trace changes within 24h window (skipping quiescent repositories), saving complete commit traces into SQLite gitmap-pull.db (PullRepoRun.Notes).
+- Sub-Millisecond Commit Trace Search: Added SearchPullTraces with indexes on LastCommitSha, RepoPath, HasChanges, and CreatedAt for instant querying across all historical repository commit logs without invoking git subprocesses.
+- Antigravity IDE Injection Hardening: Enhanced gitmap pe agy fix with automatic fallback to default gitmap repo root and conversation resolution via resolveConversationForDispatch when outside git repos.
+- CI/CD & Exhaustive Switch Fixes: Resolved exhaustive linter checks on PullStepType in cmdpull and ScriptTemplateType in cmdai, keeping 100% CI compliance.
+
 ## [v6.341.0] 2026-09-25 Release v6.341.0
 
 ### Install GitMap v6.341.0

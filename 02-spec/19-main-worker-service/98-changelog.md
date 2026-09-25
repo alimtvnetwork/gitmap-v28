@@ -1,3 +1,9 @@
+## v6.342.0 — 2026-09-25 (gitmap pae git trace activity detection, sqlite commit trace search, and agy injection fallback)
+
+**Scope:** Version bump. gitmap pae git trace activity detection, sqlite commit trace search, and agy injection fallback.
+
+---
+
 ## v6.341.0 — 2026-09-25 (prioritize CWD and active session in rerun, normalize tag refs in pipeline logs)
 
 **Scope:** Version bump. prioritize CWD and active session in rerun, normalize tag refs in pipeline logs.
