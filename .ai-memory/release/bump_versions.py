@@ -58,6 +58,21 @@ def update_version_json(new_version: str) -> str:
     return current
 
 
+def update_package_json(new_version: str):
+    pkg_path = os.path.join(ROOT_DIR, "package.json")
+    if not os.path.isfile(pkg_path):
+        return
+    try:
+        with open(pkg_path, "r", encoding="utf-8") as f:
+            data = json.load(f)
+        data["version"] = new_version
+        with open(pkg_path, "w", encoding="utf-8") as f:
+            json.dump(data, f, indent=2)
+            f.write("\n")
+    except Exception as e:
+        print(f"Warning updating package.json: {e}")
+
+
 def update_constants_go(new_version: str):
     const_path = os.path.join(GITMAP_DIR, "constants", "constants.go")
     with open(const_path, "r", encoding="utf-8") as f:
@@ -112,16 +127,28 @@ PowerShell: `Invoke-WebRequest -Uri https://raw.githubusercontent.com/alimtvnetw
 
 ### Added / Changed / Fixed / Removed
 
-- AGY Workspace & Pin Management: Added `gitmap agy pins` (`ls`, `add`, `rm`, `edit`, `help`), `gitmap agy rm-rejoin-read` (`rrr`), `gitmap agy rm-rejoin-pin-read` (`rrpr`), supporting sequential IDs, project slugs, and shell completion.
-- Raw Error Propagation: Audited codebase error management across CLI commands to guarantee zero swallowed errors; wrapped underlying SQL and filesystem errors with structured `apperror.WrapSimple` / `apperror.Wrap` preserving root causes.
-- Antigravity Compilation & Import Hygiene: Added missing `database/sql` import in `cli/cmdagy/agy_history_cmd.go`, fixed `loadAllAgyProjects` signature mismatch in `agy_pin_projects.go` and `agy_pins_edit.go`, and cleaned unused imports in `agy_projects.go`.
-- Quad Runner Verification: Verified all 13 modified Go packages pass green via parallel quad runner in local CI/CD.
+- Git Pull Efficient (PAE): Evaluates repository activity strictly on actual git log / commit trace changes within 24h window (skipping quiescent repositories), saving complete commit traces into SQLite gitmap-pull.db (PullRepoRun.Notes).
+- Sub-Millisecond Commit Trace Search: Added SearchPullTraces with indexes on LastCommitSha, RepoPath, HasChanges, and CreatedAt for instant querying across all historical repository commit logs without invoking git subprocesses.
+- Antigravity IDE Injection Hardening: Enhanced gitmap pe agy fix with automatic fallback to default gitmap repo root and conversation resolution via resolveConversationForDispatch when outside git repos.
+- CI/CD & Exhaustive Switch Fixes: Resolved exhaustive linter checks on PullStepType in cmdpull and ScriptTemplateType in cmdai, keeping 100% CI compliance.
 """
     # Prepend directly at the top of changelog.md
     lines.insert(0, entry + "\n")
 
     with open(changelog_path, "w", encoding="utf-8") as f:
         f.writelines(lines)
+
+
+def update_spec19_changelog(new_version: str):
+    spec19_path = os.path.join(ROOT_DIR, "02-spec", "19-main-worker-service", "98-changelog.md")
+    if not os.path.isfile(spec19_path):
+        return
+    today = datetime.date.today().isoformat()
+    entry = f"## v{new_version} — {today} (gitmap pae git trace activity detection, sqlite commit trace search, and agy injection fallback)\n\n**Scope:** Version bump. gitmap pae git trace activity detection, sqlite commit trace search, and agy injection fallback.\n\n---\n\n"
+    with open(spec19_path, "r", encoding="utf-8") as f:
+        content = f.read()
+    with open(spec19_path, "w", encoding="utf-8") as f:
+        f.write(entry + content)
 
 
 def assemble_release_notes(new_version: str) -> str:
@@ -140,10 +167,10 @@ curl -fsSL https://github.com/alimtvnetwork/gitmap-v28/releases/download/v{new_v
 
 ## Changelog v{new_version}
 
-- AGY Workspace & Pin Management: Added `gitmap agy pins` (`ls`, `add`, `rm`, `edit`, `help`), `gitmap agy rm-rejoin-read` (`rrr`), `gitmap agy rm-rejoin-pin-read` (`rrpr`), supporting sequential IDs, project slugs, and shell completion.
-- Raw Error Propagation: Audited codebase error management across CLI commands to guarantee zero swallowed errors; wrapped underlying SQL and filesystem errors with structured `apperror.WrapSimple` / `apperror.Wrap` preserving root causes.
-- Antigravity Compilation & Import Hygiene: Added missing `database/sql` import in `cli/cmdagy/agy_history_cmd.go`, fixed `loadAllAgyProjects` signature mismatch in `agy_pin_projects.go` and `agy_pins_edit.go`, and cleaned unused imports in `agy_projects.go`.
-- Quad Runner Verification: Verified all 13 modified Go packages pass green via parallel quad runner in local CI/CD.
+- Git Pull Efficient (PAE): Evaluates repository activity strictly on actual git log / commit trace changes within 24h window (skipping quiescent repositories), saving complete commit traces into SQLite gitmap-pull.db (PullRepoRun.Notes).
+- Sub-Millisecond Commit Trace Search: Added SearchPullTraces with indexes on LastCommitSha, RepoPath, HasChanges, and CreatedAt for instant querying across all historical repository commit logs without invoking git subprocesses.
+- Antigravity IDE Injection Hardening: Enhanced gitmap pe agy fix with automatic fallback to default gitmap repo root and conversation resolution via resolveConversationForDispatch when outside git repos.
+- CI/CD & Exhaustive Switch Fixes: Resolved exhaustive linter checks on PullStepType in cmdpull and ScriptTemplateType in cmdai, keeping 100% CI compliance.
 """
     os.makedirs(os.path.dirname(notes_path), exist_ok=True)
     with open(notes_path, "w", encoding="utf-8") as f:
@@ -170,9 +197,11 @@ def main():
 
     print(f"=== Bumping version from {current} to {new_version} (type: {args.type}) ===")
     update_version_json(new_version)
+    update_package_json(new_version)
     update_constants_go(new_version)
     update_readme_md(current, new_version)
     update_changelog_md(new_version)
+    update_spec19_changelog(new_version)
     notes_file = assemble_release_notes(new_version)
 
     # Regenerate Go files if needed
