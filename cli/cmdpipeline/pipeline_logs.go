@@ -215,6 +215,12 @@ func populateRunsIntoPayloadWithFlags(repo string, runs []ghRunItem, p *Pipeline
 
 func initTargetRunMeta(p *PipelineErrorLogsPayload, runs []ghRunItem, targetCommit ...string) {
 	initLatestRunMeta(p, findPrimaryTargetRun(runs, targetCommit...))
+	targetSha := resolveTargetCommitSha(runs, targetCommit...)
+	targetRuns := collectRunsMatchingSha(runs, targetSha)
+	bestBranch := resolveBestBranchForRuns(targetRuns)
+	if len(bestBranch) > 0 {
+		p.Branch = bestBranch
+	}
 	checkAndApplyRunningState(p, runs, targetCommit...)
 }
 
@@ -268,6 +274,9 @@ func enrichErrorLogsMetadata(p *PipelineErrorLogsPayload, repo string, runs []gh
 	p.LastReleaseVersion = queryLatestTagRelease(repo)
 	p.OpenPRsCount = queryPendingPRs(repo)
 	p.LatestBranch = resolveLatestBranchName(p, runs)
+	if isTagRef(p.Branch) || len(p.Branch) == 0 {
+		p.Branch = p.LatestBranch
+	}
 	p.LastHash = resolveLatestCommitHash(p, runs)
 }
 
@@ -291,26 +300,6 @@ func formatWebURL(raw string) string {
 	}
 
 	return clean
-}
-
-func resolveLatestBranchName(p *PipelineErrorLogsPayload, runs []ghRunItem) string {
-	if len(p.Branch) > 0 {
-		return p.Branch
-	}
-	if len(runs) > 0 && len(runs[0].HeadBranch) > 0 {
-		return runs[0].HeadBranch
-	}
-
-	return resolveActiveOrMainBranch()
-}
-
-func resolveActiveOrMainBranch() string {
-	active := gitutil.GetActiveBranch(".")
-	if len(active) > 0 && active != "-" {
-		return active
-	}
-
-	return "main"
 }
 
 func resolveLatestCommitHash(p *PipelineErrorLogsPayload, runs []ghRunItem) string {

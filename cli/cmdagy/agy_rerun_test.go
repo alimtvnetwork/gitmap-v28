@@ -81,6 +81,11 @@ func TestResolveClosestActiveProject_CwdMatch(t *testing.T) {
 	if seq != 2 {
 		t.Errorf("expected sequence 2, got %d", seq)
 	}
+
+	p1, seq1 := resolveClosestActiveProject(projects, "1")
+	if p1.ID != "match-1" || seq1 != 2 {
+		t.Errorf("expected target '1' to match CWD project 'match-1', got %q seq %d", p1.ID, seq1)
+	}
 }
 
 func TestSortProjectsByActivityAndPins_Ordering(t *testing.T) {
@@ -99,10 +104,30 @@ func TestSortProjectsByActivityAndPins_Ordering(t *testing.T) {
 		t.Errorf("expected act-project with recent activity to rank before old-project")
 	}
 
-	pinnedEntry := projectSortEntry{project: projects[0], pinnedRank: 1, lastActTime: "2026-08-01T00:00:00Z"}
-	isPinnedFirst := compareProjectEntries(pinnedEntry, entries[1])
-	if isPinnedFirst == false {
-		t.Errorf("expected pinned entry to rank before non-pinned recent entry")
+	pinnedOldEntry := projectSortEntry{project: projects[0], pinnedRank: 1, lastActTime: "2026-08-01T00:00:00Z"}
+	isRecentFirst := compareProjectEntries(entries[1], pinnedOldEntry)
+	if isRecentFirst == false {
+		t.Errorf("expected recent activity to rank before idle pinned project")
+	}
+
+	pinnedEqualEntry := projectSortEntry{project: projects[0], pinnedRank: 1, lastActTime: "2026-08-01T00:00:00Z"}
+	unpinnedEqualEntry := projectSortEntry{project: projects[1], pinnedRank: 999999, lastActTime: "2026-08-01T00:00:00Z"}
+	isPinnedTieBreak := compareProjectEntries(pinnedEqualEntry, unpinnedEqualEntry)
+	if isPinnedTieBreak == false {
+		t.Errorf("expected pinned entry to break tie when activity timestamps are equal")
+	}
+
+	runningEntry := projectSortEntry{project: projects[0], isRunning: true, lastActTime: "2026-08-01T00:00:00Z"}
+	idleEntry := projectSortEntry{project: projects[1], isRunning: false, lastActTime: "2026-09-24T10:00:00Z"}
+	isRunningFirst := compareProjectEntries(runningEntry, idleEntry)
+	if isRunningFirst == false {
+		t.Errorf("expected actively running project to rank before idle project")
+	}
+
+	cwdEntry := projectSortEntry{project: projects[1], isCwdMatch: true, isRunning: false}
+	isCwdFirst := compareProjectEntries(cwdEntry, runningEntry)
+	if isCwdFirst == false {
+		t.Errorf("expected CWD match to rank first")
 	}
 }
 

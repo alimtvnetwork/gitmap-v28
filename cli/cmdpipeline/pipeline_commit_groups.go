@@ -65,6 +65,16 @@ func (b *groupBuilder) addRun(r ghRunItem) {
 	updateGroupMetrics(group, wf)
 	b.updateGroupTimestamps(group, r)
 	b.updateGroupRelease(group, r)
+	b.updateGroupBranch(group, r)
+}
+
+func (b *groupBuilder) updateGroupBranch(group *CommitPipelineGroup, r ghRunItem) {
+	if len(r.HeadBranch) == 0 {
+		return
+	}
+	if getBranchPrecedence(r.HeadBranch) > getBranchPrecedence(group.HeadBranch) {
+		group.HeadBranch = r.HeadBranch
+	}
 }
 
 func (b *groupBuilder) updateGroupRelease(group *CommitPipelineGroup, r ghRunItem) {
@@ -105,9 +115,14 @@ func (b *groupBuilder) createNewGroup(r ghRunItem) *CommitPipelineGroup {
 }
 
 func initCommitGroup(r ghRunItem) *CommitPipelineGroup {
+	branch := r.HeadBranch
+	if isTagRef(branch) {
+		branch = resolveActiveOrMainBranch()
+	}
+
 	return &CommitPipelineGroup{
 		HeadSha:    r.HeadSha,
-		HeadBranch: r.HeadBranch,
+		HeadBranch: branch,
 		Release:    resolveReleaseFromRun(r),
 		CreatedAt:  r.CreatedAt,
 		UpdatedAt:  r.UpdatedAt,
@@ -212,7 +227,11 @@ func hasActiveWorkflow(workflows []CommitWorkflowItem) bool {
 func (b *groupBuilder) build() []CommitPipelineGroup {
 	result := make([]CommitPipelineGroup, 0, len(b.orderedShas))
 	for _, sha := range b.orderedShas {
-		result = append(result, *b.groups[sha])
+		g := b.groups[sha]
+		if isTagRef(g.HeadBranch) || len(g.HeadBranch) == 0 {
+			g.HeadBranch = resolveActiveOrMainBranch()
+		}
+		result = append(result, *g)
 	}
 	sortCommitGroupsDesc(result)
 
