@@ -93,6 +93,8 @@ func (p *PullProgressBar) colorizeBadge(badge string, step PullStepType) string 
 		return constants.ColorRed + badge + constants.ColorReset
 	case PullStepTypeInspecting:
 		return constants.ColorCyan + badge + constants.ColorReset
+	case PullStepTypePending, PullStepTypeSkipped:
+		return badge
 	default:
 		return badge
 	}

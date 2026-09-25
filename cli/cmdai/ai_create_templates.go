@@ -66,6 +66,8 @@ func buildScriptBody(opts CreateScriptOptions) string {
 		return buildAuditorBody(opts)
 	case TemplateGenerator:
 		return buildGeneratorBody(opts)
+	case TemplateLinter, TemplateChecker, TemplateUtil:
+		return buildLinterBody(opts)
 	default:
 		return buildLinterBody(opts)
 	}
