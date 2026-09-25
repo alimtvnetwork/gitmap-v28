@@ -4,6 +4,7 @@ import (
 	"os"
 	"path/filepath"
 
+	"github.com/alimtvnetwork/gitmap-v28/cli/gitutil"
 	"github.com/atotto/clipboard"
 )
 
@@ -12,10 +13,14 @@ const activeAgyPromptRelativePath = ".ai-memory/temp/active-agy-pipeline-fix-pro
 func resolveProjectRootDir() string {
 	cwd, err := os.Getwd()
 	if err != nil {
-		return "."
+		return resolveDefaultGitmapRepoRoot()
+	}
+	root, rErr := gitutil.RepoRoot(cwd)
+	if rErr == nil && len(root) > 0 {
+		return root
 	}
 
-	return cwd
+	return resolveDefaultGitmapRepoRoot()
 }
 
 func resolveActiveAgyPromptPath() string {

@@ -38,14 +38,14 @@ flowchart TD
     F --> G["Table: PullRun<br/>(RunId, Command, CWD, Version, Counts, Duration)"]
     F --> H["Table: PullRepoRun<br/>(RepoPath, SHA, FilesChanged, CommitTrace in Notes, IsActive)"]
     
-    I["gitmap pull all-efficient (pae)"] --> J["Activity Evaluator<br/>(Inspect gitmap-pull.db history)"]
-    J --> K{"Recent Git Log / Trace<br/>has changes in 24h?"}
-    K -- "No (0 changes in 24h)" --> L["Mark Inactive & Skip in 24h Window"]
-    K -- "Yes (Active / Needs Refresh)" --> M["Pull Repository & Capture Git Trace"]
+    I["gitmap pull all-efficient (pae)"] --> J["Git Trace Activity Evaluator<br/>(Inspect git logs / traces in gitmap-pull.db)"]
+    J --> K{"Remote Git Trace / Log<br/>has actual new changes?"}
+    K -- "No (0 changes in git logs/trace within 24h)" --> L["Mark Quiescent & Skip in 24h Window"]
+    K -- "Yes (New commits in trace / First run / >24h)" --> M["Pull Repository & Capture Commit Trace"]
     
-    M --> N["Save Commit Trace into PullRepoRun.Notes<br/>(Enables Fast Sub-Millisecond Search)"]
-    L --> O["Emit Skip Summary<br/>'Skipped X inactive repos. Run pull all to force.'"]
-    N --> P["Concise Summary Output<br/>(Table omitted unless --status / paet)"]
+    M --> N["Save Commit Trace into PullRepoRun.Notes<br/>(Enables Sub-Millisecond Search)"]
+    L --> O["Emit Skip Summary<br/>'Skipped X inactive repos (no git changes). Run pull all to force.'"]
+    N --> P["Fast SQLite Search Index<br/>(Query commit traces by msg, SHA, author, text <1ms)"]
 ```
 
 ### Pillar 1: Non-Git Directory Fallback to Pull-All
@@ -60,17 +60,23 @@ When `gitmap pull` is executed:
 - Two normalized tables with a one-to-many relationship:
   1. `PullRun`: Master record for each command invocation.
   2. `PullRepoRun`: Granular record per repository in that run.
-- Zero file content writes: Storing file blobs is strictly prohibited to guarantee sub-millisecond execution and prevent database bloat. Records the number of files changed, commit hashes (old and new), commit message/author, and the exact commit log/trace (`git log oldSHA..newSHA --oneline` or `git log -1 --oneline`) in `Notes` for quick SQLite search in the future.
+- Zero file content writes: Storing file blobs is strictly prohibited to guarantee sub-millisecond execution and prevent database bloat. Records the number of files changed, commit hashes (old and new), commit message/author, and the exact commit log/trace (`git log oldSHA..newSHA --oneline` or `git log -1 --oneline`) in `Notes` for quick, sub-millisecond SQLite search in the future.
 
-### Pillar 3: Activity & Inactivity Analysis Engine & 24-Hour Active Window
-- The efficient pull analyzes recent pull history from `gitmap-pull.db`.
-- Active criteria: A repository is actively pulled if it has new commits or changes recorded in git logs/traces within the 24-hour window, or if it has never been pulled before, or if $>24$ hours have passed (daily refresh).
-- Inactive criteria: If a repository had 0 changes in its git logs/trace on recent checks within the 24-hour window, `gitmap pae` skips it to eliminate redundant remote network calls.
-- If inactive within the 24-hour window, `pull all-efficient` skips it.
-- If 24 hours have elapsed since the last pull, or if it had recent changes, it is considered active and pulled.
+### Pillar 3: Git Trace-Based Activity Analysis & 24-Hour Active Window
+- The efficient pull analyzes recent pull history and commit traces from `gitmap-pull.db`.
+- **True Mental Model (Git Logs / Trace Changes):** A repository is **NOT** evaluated merely by counting how many times the user triggered a pull. It is evaluated strictly by whether the repository actually has **new changes or new commits recorded inside its git logs or git trace**!
+- Active criteria: A repository is actively pulled if:
+  1. It has never been inspected or pulled before (no baseline history).
+  2. The elapsed time since its last recorded check exceeds the 24-hour window (daily refresh invariant).
+  3. New commits, changed files, or updated commit hashes exist in its git logs/trace compared to baseline.
+- Quiescent / Inactive criteria: If the repository's git trace confirms 0 changes / up-to-date state within the 24-hour window, `gitmap pae` skips it to eliminate redundant remote network calls.
 - Skipped repositories are clearly listed in the summary with instructions on how to force a full pull (`gitmap pull all`).
 
-### Pillar 4: Command Suite, Aliasing & Table Display
+### Pillar 4: Sub-Millisecond SQLite Search for Commit Traces
+- Because full oneline commit traces (`oldSHA..newSHA`) are persisted into `PullRepoRun.Notes` with indexed columns `LastCommitSha`, `RepoPath`, `HasChanges`, and `CreatedAt`, users and agents can query historical commit traces with sub-millisecond latency (`SearchPullTraces`).
+- Search targets: Commit messages, commit hashes, author names, repository paths, and diff trace notes across all repositories without spawning expensive `git` CLI child processes.
+
+### Pillar 5: Command Suite, Aliasing & Table Display
 - Commands:
   - `gitmap pull all-efficient` (Aliases: `pull-all-efficient`, `pull-ae`, `pae`)
   - `gitmap pull-all-efficient-table` (Alias: `paet`)
@@ -78,7 +84,7 @@ When `gitmap pull` is executed:
 - By default, efficient pull outputs a clean, fast summary without the heavy table.
 - Table view is rendered only when explicitly requested via `paet`, `--status`, or `--status-table`.
 
-### Pillar 5: Short-Form Expansion & Runtime Version Announcement
+### Pillar 6: Short-Form Expansion & Runtime Version Announcement
 - When short-form aliases (`pae`, `paet`, `pull-ae`) are invoked, the CLI displays:
   1. The full expanded command name (`gitmap pull all-efficient` or `gitmap pull all-efficient-table`).
   2. The working directory (`cwd: <path>`).
@@ -144,19 +150,19 @@ CREATE INDEX IF NOT EXISTS IdxPullRepoRun_HasChanges ON PullRepoRun(HasChanges);
 
 ---
 
-## 3. Inactivity Evaluation Algorithm
+## 3. Git Trace Activity Evaluation Algorithm
 
 ```text
 Given candidate repository R:
-1. Query last 20 PullRepoRun entries for R, ordered by CreatedAt DESC.
-2. If count(entries) < 20:
-     R is ACTIVE (not enough history to establish inactivity).
-3. If max(CreatedAt) is older than 24 hours ago:
-     R is ACTIVE (window expired; must refresh state).
-4. If ANY entry in the last 20 entries has HasChanges == 1 or FilesChanged > 0:
-     R is ACTIVE (received changes recently).
-5. Otherwise (all 20 entries within 24 hours had 0 changes):
-     R is INACTIVE -> Skip pull in efficient mode.
+1. Query the recent PullRepoRun records for R from gitmap-pull.db.
+2. If no prior records exist:
+     R is ACTIVE (uninitialized baseline; must perform initial pull and capture commit trace).
+3. If the latest recorded pull timestamp (CreatedAt) is older than 24 hours:
+     R is ACTIVE (24h cooldown/refresh window expired; must re-verify remote state).
+4. If git trace inspection indicates new commit hashes, non-zero files changed, or diffs:
+     R is ACTIVE (new commits exist; pull repository and update commit trace).
+5. If the latest recorded check occurred recently within the 24h window and git trace shows 0 changes:
+     R is QUIESCENT / INACTIVE -> Skip pull in efficient mode to conserve bandwidth and time.
 ```
 
 ---
@@ -165,15 +171,15 @@ Given candidate repository R:
 
 ### Example Short-Form Execution (`gitmap pae`):
 ```text
-  → gitmap pull all-efficient (v6.307.0) (cwd: D:\work)
+  → gitmap pull all-efficient (v6.342.0) (cwd: D:\work)
     [alias: pae -> gitmap pull all-efficient]
 
     → resolved 15 repo(s)
-    → skipping 10 inactive repo(s) (0 changes across 20+ pulls in last 24h)
+    → skipping 10 quiescent repo(s) (0 changes in git trace in last 24h)
     → pulling 5 active repo(s)...
 
   [ 1/5] • repo-alpha -> up-to-date
-  [ 2/5] • repo-beta  -> +3/-1 (2 files)
+  [ 2/5] • repo-beta  -> +3/-1 (2 files, 3 commits)
   ...
   
   ✓ Pull efficient complete: 5 pulled, 10 skipped inactive.
@@ -185,12 +191,14 @@ Given candidate repository R:
 
 ## 5. Acceptance Criteria
 
-- [ ] `gitmap pull` outside a Git repository automatically runs `gitmap pull all`.
-- [ ] Split database `gitmap-pull.db` created in `BinaryDataDir()` upon first pull.
-- [ ] Every `pull` and `pull all` records session and repo telemetry to `gitmap-pull.db`.
-- [ ] Zero file content blobs stored in SQLite; only commit hashes, message, author, and changed file counts.
-- [ ] `gitmap pull all-efficient`, `gitmap pull-all-efficient`, `gitmap pull-ae`, and `gitmap pae` execute efficient pull.
-- [ ] `gitmap pull-all-efficient-table` and `gitmap paet` render the table.
-- [ ] `--status` and `--status-table` flags enable table rendering on `pull all-efficient`.
-- [ ] Short forms display full command, working directory, and version number.
-- [ ] Repositories with 20 consecutive zero-change pulls within 24h are skipped and reported in the summary.
+- [x] `gitmap pull` outside a Git repository automatically runs `gitmap pull all`.
+- [x] Split database `gitmap-pull.db` created in `BinaryDataDir()` upon first pull.
+- [x] Every `pull` and `pull all` records session and repo telemetry to `gitmap-pull.db`.
+- [x] Zero file content blobs stored in SQLite; only commit hashes, message, author, and changed file counts.
+- [x] Full commit log trace (`git log oldSHA..newSHA --oneline` or `git log -1 --oneline`) saved into `PullRepoRun.Notes` for instant sub-millisecond SQLite search.
+- [x] `gitmap pull all-efficient`, `gitmap pull-all-efficient`, `gitmap pull-ae`, and `gitmap pae` execute efficient pull.
+- [x] `gitmap pull-all-efficient-table` and `gitmap paet` render the table.
+- [x] `--status` and `--status-table` flags enable table rendering on `pull all-efficient`.
+- [x] Short forms display full command, working directory, and version number.
+- [x] Repositories with 0 changes in git logs/trace within 24h are skipped and reported in the summary.
+- [x] Sub-millisecond search API (`SearchPullTraces`) retrieves historical commit traces across all repositories.

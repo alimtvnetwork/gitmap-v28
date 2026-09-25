@@ -54,6 +54,10 @@ func tryInjectNewConversation(title, content string, pid int, repoRoot, promptPa
 func tryFallbackToActiveConversation(title, content string, pid int, repoRoot, promptPath string, origErr *apperror.AppError) (AgyInjectionResult, *apperror.AppError, bool) {
 	fallbackConvID, _ := findActiveConvTranscript(repoRoot)
 	if len(fallbackConvID) == 0 {
+		conv, _ := resolveConversationForDispatch(repoRoot)
+		fallbackConvID = conv.ID
+	}
+	if len(fallbackConvID) == 0 {
 		return AgyInjectionResult{}, origErr, false
 	}
 	sendRes := AgentAPISendMessage(fallbackConvID, title, content)

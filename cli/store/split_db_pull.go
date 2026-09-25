@@ -54,7 +54,8 @@ CREATE INDEX IF NOT EXISTS IdxPullRun_CommandType ON PullRun(CommandType);`
 CREATE INDEX IF NOT EXISTS IdxPullRepoRun_PullRunId ON PullRepoRun(PullRunId);
 CREATE INDEX IF NOT EXISTS IdxPullRepoRun_RepoPath ON PullRepoRun(RepoPath);
 CREATE INDEX IF NOT EXISTS IdxPullRepoRun_CreatedAt ON PullRepoRun(CreatedAt);
-CREATE INDEX IF NOT EXISTS IdxPullRepoRun_HasChanges ON PullRepoRun(HasChanges);`
+CREATE INDEX IF NOT EXISTS IdxPullRepoRun_HasChanges ON PullRepoRun(HasChanges);
+CREATE INDEX IF NOT EXISTS IdxPullRepoRun_LastCommitSha ON PullRepoRun(LastCommitSha);`
 )
 
 // PullDBPath returns the canonical file path to gitmap-pull.db in the data folder.
