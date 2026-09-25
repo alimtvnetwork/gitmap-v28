@@ -48,7 +48,7 @@ func dispatchNodesArgs(ctx context.Context, args []string) error {
 	switch strings.ToLower(sub) {
 	case "export-json", "exportjson":
 		return RunSSHNodesExportJSON(args[1:])
-	case "import-json", "importjson":
+	case "import-json", "importjson", "import":
 		return RunSSHNodesImportJSON(args[1:])
 	case "export-oneliner", "oneliner", "eo":
 		return RunSSHExportOnelinerCLI(args[1:])
@@ -58,6 +58,9 @@ func dispatchNodesArgs(ctx context.Context, args []string) error {
 		return RunSSHDeployKeysCLI(args[1:])
 	case "deploy-node-config", "node-config", "nc":
 		return RunSSHDeployNodeConfigCLI(args[1:])
+	}
+	if isImportPayloadArg(sub) {
+		return RunSSHNodesImportJSON(args)
 	}
 	isLs := sub == "ls" || sub == "list"
 	if isLs {
@@ -85,4 +88,9 @@ func dispatchNodesArgs(ctx context.Context, args []string) error {
 //nolint:revive
 func runSSHLs(cmd *cobra.Command, args []string, ctx context.Context) error {
 	return RunSSHNodesCLI(ctx, args)
+}
+
+func isImportPayloadArg(sub string) bool {
+	low := strings.ToLower(sub)
+	return strings.HasPrefix(low, "--base64") || low == "-b64" || strings.HasPrefix(sub, "eyJ")
 }

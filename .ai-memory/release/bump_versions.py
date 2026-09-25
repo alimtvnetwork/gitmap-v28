@@ -127,10 +127,12 @@ PowerShell: `Invoke-WebRequest -Uri https://raw.githubusercontent.com/alimtvnetw
 
 ### Added / Changed / Fixed / Removed
 
-- Git Pull Efficient (PAE): Evaluates repository activity strictly on actual git log / commit trace changes within 24h window (skipping quiescent repositories), saving complete commit traces into SQLite gitmap-pull.db (PullRepoRun.Notes).
-- Sub-Millisecond Commit Trace Search: Added SearchPullTraces with indexes on LastCommitSha, RepoPath, HasChanges, and CreatedAt for instant querying across all historical repository commit logs without invoking git subprocesses.
-- Antigravity IDE Injection Hardening: Enhanced gitmap pe agy fix with automatic fallback to default gitmap repo root and conversation resolution via resolveConversationForDispatch when outside git repos.
-- CI/CD & Exhaustive Switch Fixes: Resolved exhaustive linter checks on PullStepType in cmdpull and ScriptTemplateType in cmdai, keeping 100% CI compliance.
+- SSH Fleet Dual-Table Persistence: `importConnectionsLocally` writes imported nodes to both `SSHConnection` and `ssh_hosts` tables simultaneously, ensuring `gitmap ssh nodes` and `gitmap sj ls` immediately discover all imported nodes.
+- Bidirectional SSH Host Synchronization: Added `syncSSHHostsFromConnections` to auto-heal and bidirectionally sync any nodes present in `SSHConnection` into `ssh_hosts` on every list/query operation.
+- Compact Single-Line Export (`eo`): `gitmap ssh export-oneliner` now emits an ultra-compact payload (~600 bytes vs 5500 bytes) by omitting redundant encrypted passwords, avoiding terminal wrapping and paste buffer truncation.
+- Auto-Rendering on Import: `gitmap ssh nodes import-json` immediately prints the formatted registered nodes table upon successful import, providing instant visual confirmation.
+- Robust Payload Detection: Auto-detects inline base64 and inline JSON in `import-json` even when `--base64` flag is omitted or contains terminal whitespace/newlines.
+- Flexible SJ Routing: Extended `gitmap sj` to seamlessly route `nodes import-json`, `import-json`, `eo`, and `export-oneliner`.
 """
     # Prepend directly at the top of changelog.md
     lines.insert(0, entry + "\n")
@@ -144,7 +146,7 @@ def update_spec19_changelog(new_version: str):
     if not os.path.isfile(spec19_path):
         return
     today = datetime.date.today().isoformat()
-    entry = f"## v{new_version} — {today} (gitmap pae git trace activity detection, sqlite commit trace search, and agy injection fallback)\n\n**Scope:** Version bump. gitmap pae git trace activity detection, sqlite commit trace search, and agy injection fallback.\n\n---\n\n"
+    entry = f"## v{new_version} — {today} (ssh dual-table persistence, bidirectional host sync, compact oneliner export, and import auto-rendering)\n\n**Scope:** Version bump. ssh dual-table persistence, bidirectional host sync, compact oneliner export, and import auto-rendering.\n\n---\n\n"
     with open(spec19_path, "r", encoding="utf-8") as f:
         content = f.read()
     with open(spec19_path, "w", encoding="utf-8") as f:

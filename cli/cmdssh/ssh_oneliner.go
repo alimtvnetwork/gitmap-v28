@@ -12,7 +12,7 @@ import (
 
 // RunSSHExportOnelinerCLI generates a single-line command containing all SSH nodes encoded in Base64 and copies it to clipboard.
 func RunSSHExportOnelinerCLI(args []string) error {
-	envelope, err := BuildSSHNodesExportEnvelope()
+	envelope, err := BuildCompactSSHNodesExportEnvelope()
 	if err != nil {
 		return err
 	}
@@ -32,6 +32,7 @@ func RunSSHExportOnelinerCLI(args []string) error {
 func copyOnelinerToClipboard(cmd string) {
 	err := clipboard.WriteAll(cmd)
 	if err != nil {
+		fmt.Printf("\n  %s[clip] Note: clipboard unavailable in session; copy the command above manually.%s\n", constants.ColorDim, constants.ColorReset)
 		return
 	}
 	fmt.Printf("\n  %s📋 Copied single-line import command to clipboard!%s\n", constants.ColorGreen, constants.ColorReset)

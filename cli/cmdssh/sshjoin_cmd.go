@@ -274,16 +274,33 @@ func routeSJSubcommands(ctx context.Context, args []string) (bool, error) {
 	if len(args) == 0 {
 		return false, nil
 	}
-	switch args[0] {
+	switch strings.ToLower(args[0]) {
 	case "bootstrap", "bs":
 		return true, RunClusterBootstrapCLI(args[1:])
 	case "install":
 		return true, RunClusterInstallCLI(args[1:])
+	case "import-json", "importjson":
+		return true, RunSSHNodesImportJSON(args[1:])
+	case "export-json", "exportjson":
+		return true, RunSSHNodesExportJSON(args[1:])
+	case "export-oneliner", "oneliner", "eo":
+		return true, RunSSHExportOnelinerCLI(args[1:])
+	}
+	if isSJNodesSubcommand(args) {
+		return true, dispatchNodesArgs(ctx, args[1:])
 	}
 	if !isSJSubcommand(args[0]) {
 		return false, nil
 	}
 	return true, dispatchSJSubcommand(ctx, args[0], args[1:])
+}
+
+func isSJNodesSubcommand(args []string) bool {
+	if len(args) <= 1 {
+		return false
+	}
+	sub := strings.ToLower(args[0])
+	return sub == "nodes" || sub == "node"
 }
 
 func buildHostRecord(opts *SSHJoinOptions, now time.Time) store.SSHHost {

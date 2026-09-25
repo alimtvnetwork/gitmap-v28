@@ -6,6 +6,7 @@ import (
 	"os"
 	"path/filepath"
 	"strings"
+	"time"
 
 	"github.com/alimtvnetwork/gitmap-v28/cli/apperror"
 	"github.com/alimtvnetwork/gitmap-v28/cli/crypto"
@@ -150,11 +151,14 @@ func importConnectionsLocally(conns []db.SSHConnection) int {
 		return 0
 	}
 	defer dbConn.Close()
+	_ = store.EnsureSSHTables(dbConn.SQL())
 	count := 0
+	now := time.Now().UTC()
 	for _, c := range conns {
 		if appErr := db.InsertOrUpdateSSHConnection(dbConn.Context(), dbConn.SQL(), c); appErr == nil {
 			count++
 		}
+		upsertConnToSSHHost(dbConn.Context(), dbConn.SQL(), c, now)
 	}
 	return count
 }

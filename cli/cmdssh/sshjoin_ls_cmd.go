@@ -44,6 +44,7 @@ func fetchSJHosts(ctx context.Context) ([]store.SSHHost, error) {
 	if err := dbConn.Migrate(); err != nil {
 		return nil, apperror.WrapSimple(err, "fetchSJHosts_MigrateDB")
 	}
+	syncSSHHostsFromConnections(ctx, dbConn.SQL())
 	return store.ListHosts(ctx, dbConn.SQL())
 }
 

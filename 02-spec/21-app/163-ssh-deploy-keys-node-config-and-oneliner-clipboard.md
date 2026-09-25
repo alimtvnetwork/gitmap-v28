@@ -56,3 +56,6 @@ gitmap ssh deploy keys [all] [--except <id,ip,alias>] [--dry-run] [--json]
 - **AC-163-03**: `gitmap ssh deploy node-config all` distributes node topologies across all target fleet machines, honoring `--except`.
 - **AC-163-04**: `gitmap ssh deploy keys all` gathers public keys from all nodes, deduplicates them, and deploys the unique keys into `~/.ssh/authorized_keys` across all machines.
 - **AC-163-05**: All modified or created Go files strictly obey coding guidelines (<= 100 lines, zero nested ifs, positive booleans).
+- **AC-163-06**: `importConnectionsLocally` writes imported nodes to both `SSHConnection` and `ssh_hosts` tables, ensuring `gitmap ssh nodes` and `gitmap sj ls` immediately discover imported nodes.
+- **AC-163-07**: `fetchSJHosts` executes `syncSSHHostsFromConnections` to auto-heal and bidirectionally sync any nodes present in `SSHConnection` into `ssh_hosts`.
+- **AC-163-08**: `RunSSHNodesImportJSON` automatically prints the formatted SSH nodes table immediately upon successful import, providing instant visual confirmation.

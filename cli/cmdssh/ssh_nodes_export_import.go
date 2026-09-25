@@ -2,6 +2,7 @@
 package cmdssh
 
 import (
+	"context"
 	"encoding/base64"
 	"encoding/json"
 	"fmt"
@@ -104,6 +105,16 @@ func BuildSSHNodesExportEnvelope() (*SSHNodesExportEnvelope, error) {
 	}, nil
 }
 
+// BuildCompactSSHNodesExportEnvelope builds an envelope without raw db connections for clean, single-line exports.
+func BuildCompactSSHNodesExportEnvelope() (*SSHNodesExportEnvelope, error) {
+	env, err := BuildSSHNodesExportEnvelope()
+	if err != nil {
+		return nil, err
+	}
+	env.Connections = nil
+	return env, nil
+}
+
 // RunSSHNodesImportJSON imports SSH nodes from a JSON file (default: gitmap-ssh-nodes.json or gitmap-ssh.json) or --base64 payload.
 func RunSSHNodesImportJSON(args []string) error {
 	b64Payload, inPath := parseImportJSONArgs(args)
@@ -111,7 +122,8 @@ func RunSSHNodesImportJSON(args []string) error {
 	var err error
 	sourceLabel := inPath
 	if b64Payload != "" {
-		raw, err = base64.StdEncoding.DecodeString(strings.TrimSpace(b64Payload))
+		cleaned := cleanBase64Payload(b64Payload)
+		raw, err = base64.StdEncoding.DecodeString(cleaned)
 		sourceLabel = "inline-base64-oneliner"
 	} else {
 		raw, sourceLabel, err = readNodesImportFileWithFallback(inPath)
@@ -125,6 +137,7 @@ func RunSSHNodesImportJSON(args []string) error {
 	}
 	imported := importConnectionsLocally(conns)
 	fmt.Printf("✓ Imported %d/%d SSH node(s) from %s\n", imported, len(conns), sourceLabel)
+	_ = printSJList(context.Background(), os.Stdout, 0)
 	return nil
 }
 
@@ -233,6 +246,10 @@ func parseNodesExportPathArg(args []string) (string, bool, bool) {
 }
 
 func readNodesImportFileWithFallback(inPath string) ([]byte, string, error) {
+	trimmed := strings.TrimSpace(inPath)
+	if strings.HasPrefix(trimmed, "{") || strings.HasPrefix(trimmed, "[") {
+		return []byte(trimmed), "inline-json", nil
+	}
 	if info, err := os.Stat(inPath); err == nil && info.IsDir() {
 		inPath = filepath.Join(inPath, DefaultSSHNodesJSONFile)
 	}
@@ -267,8 +284,27 @@ func parseImportJSONArgs(args []string) (string, string) {
 			pathArg = a
 		}
 	}
+	if b64 == "" && isLikelyBase64Payload(pathArg) {
+		b64 = pathArg
+		pathArg = ""
+	}
 	if pathArg == "" {
 		pathArg = DefaultSSHNodesJSONFile
 	}
 	return b64, pathArg
+}
+
+func isLikelyBase64Payload(s string) bool {
+	clean := strings.Trim(strings.TrimSpace(s), "\"'`")
+	return strings.HasPrefix(clean, "eyJ") && len(clean) > 20
+}
+
+func cleanBase64Payload(raw string) string {
+	trimmed := strings.Trim(strings.TrimSpace(raw), "\"'`")
+	return strings.Map(func(r rune) rune {
+		if r == '\r' || r == '\n' || r == ' ' || r == '\t' {
+			return -1
+		}
+		return r
+	}, trimmed)
 }
