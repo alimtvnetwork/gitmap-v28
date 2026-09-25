@@ -812,6 +812,7 @@ jobs:
     # users hit it. Strict mode (--no-discovery) means no fallback.
     name: Installer Smoke (release)
     runs-on: ubuntu-latest
+    timeout-minutes: 10
     needs: release
     steps:
       - uses: actions/checkout@v6
@@ -840,6 +841,7 @@ jobs:
     # broken Windows assets, wrong filenames, or PATH/extraction bugs.
     name: Installer Smoke Windows (release)
     runs-on: windows-latest
+    timeout-minutes: 10
     needs: release
     steps:
       - uses: actions/checkout@v6

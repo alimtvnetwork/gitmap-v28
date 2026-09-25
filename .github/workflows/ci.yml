@@ -1286,6 +1286,7 @@ jobs:
     # `release` mode against the freshly-published GitHub release.
     name: Installer Smoke (source-build)
     runs-on: ubuntu-latest
+    timeout-minutes: 10
     needs: sha-check
     steps:
       - name: Already validated
@@ -1338,6 +1339,7 @@ jobs:
     # build (CGO, winres, path quoting) and in install.ps1 itself.
     name: Installer Smoke Windows (source-build)
     runs-on: windows-latest
+    timeout-minutes: 10
     needs: sha-check
     steps:
       - name: Already validated

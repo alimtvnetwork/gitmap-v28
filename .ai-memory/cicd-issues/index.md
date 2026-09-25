@@ -68,3 +68,4 @@
 - [77-misspell-cancelled-and-sshjoin-inverted-success-rca.md](./77-misspell-cancelled-and-sshjoin-inverted-success-rca.md): Fix misspell on cancelled and sshjoin inverted success boolean.
 - [78-windows-binary-magic-bytes-and-powershell-profile-rca.md](./78-windows-binary-magic-bytes-and-powershell-profile-rca.md): Fix windows binary magic bytes and powershell profile pathing.
 - [79-pipeline-misspell-and-negative-boolean-guidelines-rca.md](./79-pipeline-misspell-and-negative-boolean-guidelines-rca.md): Fix pipeline stage timings spelling and negative boolean variable prefixes.
+- [80-windows-installer-smoke-timeout-rca.md](./80-windows-installer-smoke-timeout-rca.md): Fix Windows installer smoke runner timeout via explicit job timeout-minutes.
