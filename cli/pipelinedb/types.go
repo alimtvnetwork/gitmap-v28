@@ -38,5 +38,7 @@ type PipelineDatabaseInfo struct {
 	TotalRuns    int    `json:"totalRuns"`
 	FailedRuns   int    `json:"failedRuns"`
 	ErrorCount   int    `json:"errorCount"`
+	JobCount     int    `json:"jobCount"`
+	SegmentCount int    `json:"segmentCount"`
 	LastUpdated  string `json:"lastUpdated"`
 }

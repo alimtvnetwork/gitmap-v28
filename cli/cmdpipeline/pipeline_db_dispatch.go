@@ -27,6 +27,8 @@ func dispatchDbQuerySubcmd(sub string, rest []string) result.ErrorWrapper {
 	switch sub {
 	case "status", "st", "s", "info":
 		return result.MatchWrapper(runPipelineDBStatusWithTelemetry(rest))
+	case "stages", "stage", "jobs", "job", "sj":
+		return result.MatchWrapper(handlePipelineStages(rest))
 	case "errorlogs", "error-logs", "errors", "err":
 		return result.MatchWrapper(runPipelineDBErrorLogs(rest))
 	case "help", "-h", "--help":
@@ -133,6 +135,8 @@ func printPipelineDBStatusMetrics(repo string, info pipelinedb.PipelineDatabaseI
 	fmt.Printf("  • %-20s %s\n", "File Size:", info.HumanSize)
 	fmt.Printf("  • %-20s %s\n", "Summary:", pipelinedb.FormatPipelineDbSummary(info))
 	fmt.Printf("  • %-20s %d\n", "Total Runs:", info.TotalRuns)
+	fmt.Printf("  • %-20s %d\n", "Recorded Jobs:", info.JobCount)
+	fmt.Printf("  • %-20s %d\n", "Step Segments:", info.SegmentCount)
 	fmt.Printf("  • %-20s %s%d%s\n", "Failed Runs:", constants.ColorRed, info.FailedRuns, constants.ColorReset)
 	fmt.Printf("  • %-20s %d\n", "Error Logs:", info.ErrorCount)
 	printPipelineDBLastUpdated(info.LastUpdated)

@@ -82,6 +82,8 @@ func buildDiagnosticsSection() termhelp.HelpSection {
 	return termhelp.HelpSection{
 		Title: "Diagnostics & Optimization",
 		Entries: []termhelp.CommandEntry{
+			{Command: "active (running)", Description: "List conversations with active prompts currently running"},
+			{Command: "queues (queue)", Description: "Inspect pending prompt queues across all workspaces"},
 			{Command: "ping (check)", Description: "Ping Antigravity IDE and inspect environment health"},
 			{Command: "find-duplicates (fdp)", Description: "Detect projects sharing identical filesystem paths"},
 			{Command: "optimize-projects", Description: "Deduplicate and keep newest project per path"},

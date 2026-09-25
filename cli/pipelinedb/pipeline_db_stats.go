@@ -17,6 +17,7 @@ type PipelineDbStats struct {
 	FailedRuns    int    `json:"failedRuns"`
 	ErrorLogCount int    `json:"errorLogCount"`
 	SegmentCount  int    `json:"segmentCount"`
+	JobCount      int    `json:"jobCount"`
 	LastUpdated   string `json:"lastUpdated"`
 }
 

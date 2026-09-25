@@ -53,6 +53,7 @@ func buildPipelineTelemetrySection() termhelp.HelpSection {
 		Entries: []termhelp.CommandEntry{
 			{Command: "status (st)", Description: "Check live CI/CD pipeline status, ETA, and pending PRs"},
 			{Command: "details (pd)", Description: "Display runner target table, step elapsed timings & diagnostics"},
+			{Command: "stages (sj)", Description: "Display single stage/job timings and combined approx runtime"},
 			{Command: "errors (pe)", Description: "Display failure logs, rerun ETA, and actionable snippets"},
 			{Command: "waittime (eta)", Description: "Output remaining ETA seconds for active workflow run"},
 			{Command: "history (hist)", Description: "Display recent commits pipeline execution tree"},

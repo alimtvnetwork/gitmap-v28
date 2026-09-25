@@ -483,17 +483,40 @@ func runAgyStatusWithQueue() error {
 	ideProc := DetectRunningAntigravityIDE()
 	convState := DetectConversationExecutionState(cwd)
 	q, _ := GetQueueStatus()
+	activeConvs, _ := FetchActiveRunningConversations()
+	wsQueues, _ := DiscoverAllWorkspaceQueues()
+	totalQueued := countTotalQueuedPrompts(wsQueues)
 
-	renderStatusHeader(ideProc, convState, len(q.Queued))
+	renderStatusHeader(ideProc, convState, len(q.Queued), len(activeConvs), totalQueued)
 
 	return runAgyLs()
 }
 
-func renderStatusHeader(ideProc result.Result[AgyProcessInfo], state AgyConversationExecutionState, queueCount int) {
+func renderStatusHeader(ideProc result.Result[AgyProcessInfo], state AgyConversationExecutionState, localQ, activeCount, totalQ int) {
 	fmt.Printf("%s● Antigravity System Status%s\n", constants.ColorCyan, constants.ColorReset)
 	renderIDEProcessStatus(ideProc)
 	renderConversationStatus(state)
-	fmt.Printf("  Prompt Queue:  %d pending prompt(s)\n\n", queueCount)
+	renderActiveCountStatus(activeCount)
+	renderQueueCountStatus(localQ, totalQ)
+	fmt.Println()
+}
+
+func renderActiveCountStatus(activeCount int) {
+	if activeCount > 0 {
+		fmt.Printf("  Active Prompts: %s%d RUNNING%s ('gitmap agy active')\n",
+			constants.ColorYellow, activeCount, constants.ColorReset)
+		return
+	}
+	fmt.Printf("  Active Prompts: %s0 running (idle)%s\n", constants.ColorGreen, constants.ColorReset)
+}
+
+func renderQueueCountStatus(localQ, totalQ int) {
+	if totalQ > 0 {
+		fmt.Printf("  Prompt Queues:  %s%d pending across workspaces%s (local: %d, 'gitmap agy queues')\n",
+			constants.ColorCyan, totalQ, constants.ColorReset, localQ)
+		return
+	}
+	fmt.Printf("  Prompt Queues:  0 pending\n")
 }
 
 func renderIDEProcessStatus(ideProc result.Result[AgyProcessInfo]) {

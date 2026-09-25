@@ -1,0 +1,105 @@
+---
+title: GitMap Pipeline Split Database ERD (canonical)
+---
+%% Source of truth: cli/pipelinedb/pipeline_split_schema.go
+%% Isolated per repository at data/pipeline/<sanitized-repo-slug>/sql.db
+erDiagram
+
+    PipelineRun ||--o{ PipelineJob : "executes"
+    PipelineRun ||--o{ PipelineSegment : "contains"
+    PipelineRun ||--o{ PipelineErrorLog : "logs failures"
+    PipelineRun ||--o{ PipelineDetailErrorLog : "logs detail steps"
+    PipelineRun ||--o{ PipelineCompactErrorLog : "logs compact summary"
+    PipelineJob ||--o{ PipelineSegment : "groups steps"
+
+    PipelineRun {
+        INTEGER PipelineRunId PK
+        INTEGER RunId UK
+        TEXT RepoSlug
+        TEXT WorkflowName
+        TEXT Status
+        TEXT Conclusion
+        TEXT Branch
+        TEXT Sha
+        INTEGER EtaSeconds
+        INTEGER DurationSeconds
+        INTEGER StageSumDurationSeconds
+        TEXT RunUrl
+        INTEGER IsSuccess
+        TEXT Notes
+        TEXT Comments
+        TEXT CreatedAt
+        TEXT UpdatedAt
+    }
+
+    PipelineJob {
+        INTEGER PipelineJobId PK
+        INTEGER JobId UK
+        INTEGER RunId FK
+        TEXT RepoSlug
+        TEXT JobName
+        TEXT Status
+        TEXT Conclusion
+        TEXT StartedAt
+        TEXT CompletedAt
+        INTEGER DurationSeconds
+        TEXT JobUrl
+        TEXT CreatedAt
+    }
+
+    PipelineSegment {
+        INTEGER PipelineSegmentId PK
+        INTEGER RunId FK
+        INTEGER JobId FK
+        TEXT JobName
+        TEXT StepName
+        INTEGER StepNumber
+        TEXT Status
+        TEXT Conclusion
+        TEXT StartedAt
+        TEXT CompletedAt
+        INTEGER DurationSeconds
+        TEXT Notes
+        TEXT Comments
+        TEXT CreatedAt
+    }
+
+    PipelineErrorLog {
+        INTEGER PipelineErrorLogId PK
+        INTEGER RunId FK
+        TEXT RepoSlug
+        TEXT WorkflowName
+        TEXT StepName
+        TEXT ErrorText
+        TEXT RawLogs
+        TEXT Notes
+        TEXT Comments
+        TEXT CreatedAt
+    }
+
+    PipelineDetailErrorLog {
+        INTEGER PipelineDetailErrorLogId PK
+        INTEGER RunId FK
+        TEXT RepoSlug
+        TEXT WorkflowName
+        TEXT StepName
+        TEXT ErrorText
+        TEXT RawLogs
+        TEXT Notes
+        TEXT Comments
+        TEXT CreatedAt
+    }
+
+    PipelineCompactErrorLog {
+        INTEGER PipelineCompactErrorLogId PK
+        INTEGER RunId FK
+        TEXT RepoSlug
+        TEXT WorkflowName
+        TEXT StepName
+        TEXT ErrorText
+        TEXT CompactLogs
+        INTEGER FilteredOkCount
+        TEXT Notes
+        TEXT Comments
+        TEXT CreatedAt
+    }

@@ -20,6 +20,7 @@ type ghJobItem struct {
 	Conclusion  string       `json:"conclusion"`
 	StartedAt   string       `json:"startedAt"`
 	CompletedAt string       `json:"completedAt"`
+	Url         string       `json:"url"`
 	Steps       []ghStepItem `json:"steps"`
 }
 
@@ -48,6 +49,7 @@ func queryRunJobs(repo string, runId uint64) []ghJobItem {
 	}
 
 	if cached, ok := readCachedPipelineJobs(runId, repo); ok {
+		syncRunJobsAndSegments(repo, runId, cached)
 		return cached
 	}
 
@@ -60,6 +62,7 @@ func queryRunJobs(repo string, runId uint64) []ghJobItem {
 	if len(jobs) > 0 && isAllJobsCompleted(jobs) {
 		_ = writeCachedPipelineJobs(runId, repo, jobs)
 	}
+	syncRunJobsAndSegments(repo, runId, jobs)
 
 	return jobs
 }

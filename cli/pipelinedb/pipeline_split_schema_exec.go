@@ -20,6 +20,7 @@ func pipelineSchemaQueries() []string {
 		sqlCreatePipelineErrorLog,
 		sqlCreatePipelineDetailErrorLog,
 		sqlCreatePipelineCompactErrorLog,
+		sqlCreatePipelineJob,
 		sqlCreatePipelineSegment,
 	}
 }

@@ -413,6 +413,7 @@ func clearTableQueries() []string {
 		"DELETE FROM PipelineDetailErrorLog;",
 		"DELETE FROM PipelineErrorLog;",
 		"DELETE FROM PipelineSegment;",
+		"DELETE FROM PipelineJob;",
 		"DELETE FROM PipelineRun;",
 	}
 }
@@ -463,7 +464,7 @@ func (p *PipelineSplitDb) truncateAllTables() error {
 }
 
 func (p *PipelineSplitDb) resetSqliteSequence() error {
-	query := "DELETE FROM sqlite_sequence WHERE name IN ('PipelineCompactErrorLog', 'PipelineDetailErrorLog', 'PipelineErrorLog', 'PipelineSegment', 'PipelineRun');"
+	query := "DELETE FROM sqlite_sequence WHERE name IN ('PipelineCompactErrorLog', 'PipelineDetailErrorLog', 'PipelineErrorLog', 'PipelineSegment', 'PipelineJob', 'PipelineRun');"
 	_, err := p.conn.Exec(query)
 	if err != nil && !strings.Contains(err.Error(), "no such table") {
 		return apperror.WrapSimple(err, "reset sqlite sequence")
@@ -561,6 +562,7 @@ func dropTableQueries() []string {
 		"DROP TABLE IF EXISTS PipelineDetailErrorLog;",
 		"DROP TABLE IF EXISTS PipelineErrorLog;",
 		"DROP TABLE IF EXISTS PipelineSegment;",
+		"DROP TABLE IF EXISTS PipelineJob;",
 		"DROP TABLE IF EXISTS PipelineRun;",
 	}
 }
@@ -674,6 +676,9 @@ func (p *PipelineSplitDb) loadDetailStatsCounts(stats *PipelineDbStats) *apperro
 		return err
 	}
 	if stats.SegmentCount, err = countQuery(p.conn, "SELECT COUNT(*) FROM PipelineSegment;"); err != nil {
+		return err
+	}
+	if stats.JobCount, err = countQuery(p.conn, "SELECT COUNT(*) FROM PipelineJob;"); err != nil {
 		return err
 	}
 
@@ -987,6 +992,8 @@ func (p *PipelineSplitDb) populateCounts(info *PipelineDatabaseInfo) {
 	}
 	info.TotalRuns, _ = countQuery(p.conn, "SELECT COUNT(*) FROM PipelineRun;")
 	info.FailedRuns, _ = countQuery(p.conn, "SELECT COUNT(*) FROM PipelineRun WHERE IsSuccess = 0;")
+	info.JobCount, _ = countQuery(p.conn, "SELECT COUNT(*) FROM PipelineJob;")
+	info.SegmentCount, _ = countQuery(p.conn, "SELECT COUNT(*) FROM PipelineSegment;")
 	info.ErrorCount, _ = countQuery(p.conn, "SELECT COUNT(*) FROM PipelineErrorLog;")
 	last, _ := queryLastUpdated(p.conn)
 	info.LastUpdated = last

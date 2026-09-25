@@ -9,3 +9,4 @@
 - [159-ssh-installer-hermetic-test-isolation-and-stale-process-guard.md](159-ssh-installer-hermetic-test-isolation-and-stale-process-guard.md) — SSH Installer Hermetic Test Isolation & Stale Process Guard (Status: `active`)
 - [160-ssh-fleet-update-decrypted-auth-liveness-probe-and-command-suggestions.md](160-ssh-fleet-update-decrypted-auth-liveness-probe-and-command-suggestions.md) — SSH Fleet Update Decrypted Auth, Liveness Probe, and Command Suggestions (Status: `active`)
 - [161-agy-rerun-active-project-non-destructive-and-conversation-commands.md](161-agy-rerun-active-project-non-destructive-and-conversation-commands.md) — Antigravity Rerun Active Project Resolution, Non-Destructive Replay, and Conversation Commands (Status: `active`)
+- [162-pipeline-stage-timings-and-agy-queue-inspector.md](162-pipeline-stage-timings-and-agy-queue-inspector.md) — Pipeline Stage Timings, Split DB Schemas, and Antigravity Queue Inspector (Status: `active`)

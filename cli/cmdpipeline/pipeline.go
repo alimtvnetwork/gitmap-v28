@@ -241,6 +241,8 @@ func dispatchCorePipelineSubcmd(subcmd string, args []string) error {
 		return handlePipelineLogs(args[1:])
 	case "history", "hist", "h":
 		return handlePipelineHistory(args[1:])
+	case "stages", "stage", "jobs", "job", "sj":
+		return handlePipelineStages(args[1:])
 	case "db":
 		return handlePipelineDB(args[1:])
 	case "help", "-h", "--help":
