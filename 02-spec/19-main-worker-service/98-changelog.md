@@ -1,3 +1,9 @@
+## v6.341.0 — 2026-09-25 (prioritize CWD and active session in rerun, normalize tag refs in pipeline logs)
+
+**Scope:** Version bump. prioritize CWD and active session in rerun, normalize tag refs in pipeline logs.
+
+---
+
 ## v6.340.0 — 2026-09-24 (antigravity rerun non-destructive replay and dedicated conversation commands)
 
 **Scope:** Version bump. antigravity rerun non-destructive replay and dedicated conversation commands.

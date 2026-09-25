@@ -1,3 +1,15 @@
+## [v6.341.0] 2026-09-25 Release v6.341.0
+
+### Install GitMap v6.341.0
+
+To pin your repository to this exact version, run the following one-liner:
+Unix/Bash: `curl -sL https://raw.githubusercontent.com/alimtvnetwork/gitmap-v28/v6.341.0/install.sh | bash -s -- ".ai-memory/prompts" "v6.341.0"`
+PowerShell: `Invoke-WebRequest -Uri https://raw.githubusercontent.com/alimtvnetwork/gitmap-v28/v6.341.0/install.ps1 -OutFile install.ps1; .\install.ps1 -TargetDir ".ai-memory/prompts" -Version "v6.341.0"`
+
+### Added / Changed / Fixed / Removed
+
+- prioritize CWD and active session in rerun, normalize tag refs in pipeline logs
+
 ## [v6.340.0] 2026-09-24 Release v6.340.0
 
 ### Install GitMap v6.340.0
