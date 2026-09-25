@@ -213,10 +213,14 @@ func dispatchExportImportSSH(sub string, args []string) result.ErrorWrapper {
 		return result.MatchWrapper(RunSSHNodesExportJSON(args))
 	case "import-json", "importjson":
 		return result.MatchWrapper(RunSSHNodesImportJSON(args))
-	case "export-oneliner", "oneliner":
+	case "export-oneliner", "oneliner", "eo":
 		return result.MatchWrapper(RunSSHExportOnelinerCLI(args))
-	case "deploy", "node-config", "nc":
-		return result.MatchWrapper(RunSSHDeployNodeConfigCLI(append([]string{sub}, args...)))
+	case "deploy":
+		return result.MatchWrapper(RunSSHDeployRouterCLI(args))
+	case "deploy-keys", "dk":
+		return result.MatchWrapper(RunSSHDeployKeysCLI(args))
+	case "deploy-node-config", "node-config", "nc":
+		return result.MatchWrapper(RunSSHDeployNodeConfigCLI(args))
 	default:
 		return result.UnmatchedWrapper()
 	}

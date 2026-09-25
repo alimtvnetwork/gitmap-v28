@@ -33,6 +33,8 @@ Manages SSH key pairs for Git authentication.
 | untrust    |       | Untrust and remove a machine from known_hosts and DB |
 | fix-auth   |       | Deploy SSH public key to remote authorized_keys (Unix/Windows) |
 | macro      | m     | Synchronize, export, or import macros across SSH machines |
+| export-oneliner | eo | Generate single-line import command and copy to clipboard |
+| deploy     |       | Deploy node-config or mesh public keys across all fleet nodes |
 | export-all |       | Export all settings, macros, config & SSH data from local to nodes |
 | import-all |       | Import all settings, macros, config & SSH data from a remote node |
 | error-logs | err, errors, logs | Query and display error logs and execution trace from last SSH operations |

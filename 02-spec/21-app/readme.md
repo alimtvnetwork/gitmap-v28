@@ -10,3 +10,4 @@
 - [160-ssh-fleet-update-decrypted-auth-liveness-probe-and-command-suggestions.md](160-ssh-fleet-update-decrypted-auth-liveness-probe-and-command-suggestions.md) — SSH Fleet Update Decrypted Auth, Liveness Probe, and Command Suggestions (Status: `active`)
 - [161-agy-rerun-active-project-non-destructive-and-conversation-commands.md](161-agy-rerun-active-project-non-destructive-and-conversation-commands.md) — Antigravity Rerun Active Project Resolution, Non-Destructive Replay, and Conversation Commands (Status: `active`)
 - [162-pipeline-stage-timings-and-agy-queue-inspector.md](162-pipeline-stage-timings-and-agy-queue-inspector.md) — Pipeline Stage Timings, Split DB Schemas, and Antigravity Queue Inspector (Status: `active`)
+- [163-ssh-deploy-keys-node-config-and-oneliner-clipboard.md](163-ssh-deploy-keys-node-config-and-oneliner-clipboard.md) — SSH Fleet Deploy Keys, Node-Config, and One-Liner Clipboard (Status: `active`)

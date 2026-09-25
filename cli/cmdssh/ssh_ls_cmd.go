@@ -50,8 +50,14 @@ func dispatchNodesArgs(ctx context.Context, args []string) error {
 		return RunSSHNodesExportJSON(args[1:])
 	case "import-json", "importjson":
 		return RunSSHNodesImportJSON(args[1:])
-	case "export-oneliner", "oneliner":
+	case "export-oneliner", "oneliner", "eo":
 		return RunSSHExportOnelinerCLI(args[1:])
+	case "deploy":
+		return RunSSHDeployRouterCLI(args[1:])
+	case "deploy-keys", "dk":
+		return RunSSHDeployKeysCLI(args[1:])
+	case "deploy-node-config", "node-config", "nc":
+		return RunSSHDeployNodeConfigCLI(args[1:])
 	}
 	isLs := sub == "ls" || sub == "list"
 	if isLs {
