@@ -73,6 +73,7 @@ func buildProjectMgmtSection() termhelp.HelpSection {
 			{Command: "reconcile (recon)", Description: "Reconcile missing projects with active paths"},
 			{Command: "remove-missing", Description: "Remove stale references to missing directories"},
 			{Command: "pin-projects (pins)", Description: "Manage pinned priority projects"},
+			{Command: "recreate-project (recreate, rp)", Description: "Purge cache/convs, re-register project, and start read-memory conv"},
 			{Command: "group", Description: "Group and categorize projects by tag or folder", HasSubcommands: true},
 		},
 	}

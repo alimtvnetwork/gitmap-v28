@@ -36,6 +36,7 @@ gitmap antigravity <subcommand> [flags]
 | `open [path]` | Locate Antigravity IDE and open target workspace |
 | `optimize-projects` | Remove stale or duplicate workspace configurations |
 | `clean-cache` | Clear temporary Antigravity cache files and transcripts |
+| `recreate-project` | Purge cache/convs, re-register project in AGY, and start read-memory conv (alias: `recreate`, `rp`) |
 | `pin-projects` | Manage pinned Antigravity projects |
 | `plugins` | Inspect and configure Antigravity plugins |
 | `reconcile` | Reconcile disk repositories with registered projects |
@@ -57,6 +58,14 @@ gitmap agy scan
 
 # Fix pipeline errors with Antigravity
 gitmap agy fix-pipeline
+
+# Recreate current project (purge cache/convs, re-register, start read-memory conversation)
+gitmap agy recreate-project
+
+# Recreate multiple selected projects by sequence, alias, or path
+gitmap agy recreate 1, 2, 3
+gitmap agy recreate gitmap, test-gitmap
+gitmap agy recreate D:\test-gitmap\test-gitmap
 ```
 
 ---

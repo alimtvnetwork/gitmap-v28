@@ -160,6 +160,9 @@ func normalizeProjectSubcommands(low string) string {
 	if low == "pin-projects" || low == "pin-project" || low == "pinned-projects" || low == "pinned" || low == "pins" {
 		return "pin-projects"
 	}
+	if low == "recreate-project" || low == "recreate" || low == "rp" || low == "rec" {
+		return "recreate-project"
+	}
 
 	return ""
 }
@@ -290,6 +293,7 @@ func init() {
 	initAgyPinProjects()
 	initAgyRmCmd()
 	initAgyRmRejoinCmd()
+	initAgyRecreateCmd()
 	initAgyQueueCommands()
 	initAgyPromptAndStatusCommands()
 	AgyCmd.SetHelpFunc(renderAgyHelp)

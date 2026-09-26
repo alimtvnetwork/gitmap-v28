@@ -146,6 +146,11 @@ func generateUUID() string {
 	return string(dst)
 }
 
+// FindExistingProjectID locates an Antigravity project config matching fileURI.
+func FindExistingProjectID(configDir, fileURI string) string {
+	return findExistingProjectID(configDir, fileURI)
+}
+
 func findExistingProjectID(configDir, fileURI string) string {
 	entries, err := os.ReadDir(configDir)
 	if err != nil {
