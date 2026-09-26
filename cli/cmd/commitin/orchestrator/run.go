@@ -6,6 +6,7 @@ package orchestrator
 import (
 	"fmt"
 	"io"
+	"os/exec"
 	"path/filepath"
 	"time"
 
@@ -58,7 +59,9 @@ func maybeRunFinalSync(ctx *runContext) {
 	if !ctx.Raw.IsFinalSync || ctx.Raw.IsDryRun {
 		return
 	}
-	workspacesync.SyncAll(ctx.Paths.SourceRoot, filepath.Base(ctx.Paths.SourceRoot))
+	workspacesync.SyncWithoutDesktop(ctx.Paths.SourceRoot, filepath.Base(ctx.Paths.SourceRoot))
+	ensureSSHRemote(ctx.Paths.SourceRoot)
+	_ = exec.Command("git", "-C", ctx.Paths.SourceRoot, "push", "-u", "origin", "main", "--force").Run()
 }
 
 // finalRunStatus picks the spec §4 RunStatus enum for the FinishRun

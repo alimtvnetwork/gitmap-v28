@@ -53,6 +53,11 @@ type RawArgs struct {
 	IsTree            bool
 	IsFinalSync       bool
 	IsCD              bool
+	IsRecreate        bool
+	IsPushImmediate   bool
+	SuffixSeparator   string
+	PrefixSeparator   string
+	SummaryDir        string
 }
 
 // MessageRuleArg is the parsed shape of one `--message-exclude` entry.

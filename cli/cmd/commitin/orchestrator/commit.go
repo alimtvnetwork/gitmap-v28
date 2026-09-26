@@ -3,6 +3,8 @@ package orchestrator
 import (
 	"fmt"
 	"io"
+	"os"
+	"path/filepath"
 	"strings"
 	"time"
 
@@ -42,7 +44,10 @@ func processOneCommit(
 	}
 
 	c.Files = keptFiles
-	intelBlock := renderFunctionIntel(staged.WorkPath, c, keptFiles, ctx.Resolved.FunctionIntel)
+	intelBlock := ""
+	if ctx.Resolved.FunctionIntel.IsEnabled {
+		intelBlock = renderFunctionIntel(staged.WorkPath, c, keptFiles, ctx.Resolved.FunctionIntel)
+	}
 	finalMsg := buildMessage(ctx, c, intelBlock, pick)
 	if finalMsg.IsEmpty {
 		recordSkip(ctx, srcID, constants.CommitInSkipReasonEmptyAfterMessageRules, stdout, c.Sha)
@@ -172,7 +177,14 @@ func doReplayAndRecord(
 	}
 
 	recordCreated(ctx, srcID, c, msg, res.NewSha, stdout)
-	if err := committransfer.ProcessPRCommit(plan.TargetRepoDir, c.OriginalMessage, msg, c.Sha[:7], ctx.Resolved.PRMode, res.NewSha); err != nil {
+	maybeProcessPR(plan, c, msg, ctx.Resolved.PRMode, res.NewSha, stdout)
+}
+
+func maybeProcessPR(plan replay.Plan, c walk.SourceCommit, msg, prMode, newSha string, stdout io.Writer) {
+	if plan.IsDirectTree && !strings.HasPrefix(strings.ToLower(strings.TrimSpace(c.OriginalMessage)), "merge ") {
+		return
+	}
+	if err := committransfer.ProcessPRCommit(plan.TargetRepoDir, c.OriginalMessage, msg, c.Sha[:7], prMode, newSha); err != nil {
 		fmt.Fprintf(stdout, "PR processing failed: %v\n", err)
 	}
 }
@@ -193,7 +205,14 @@ func buildReplayPlan(
 		AuthorEmail:   pickAuthorEmail(ctx, c),
 		AuthorDate:    c.AuthorDate,
 		CommitterDate: c.CommitterDate,
+		IsDirectTree:  len(ctx.Resolved.Exclusions) == 0 && hasObjectAlternates(ctx.Source.Path),
 	}
+}
+
+func hasObjectAlternates(dir string) bool {
+	_, err := os.Stat(filepath.Join(dir, ".git", "objects", "info", "alternates"))
+
+	return err == nil
 }
 
 func pickAuthorName(ctx *runContext, c walk.SourceCommit) string {

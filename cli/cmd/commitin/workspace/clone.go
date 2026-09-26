@@ -124,12 +124,24 @@ func stageLocalFolder(in ResolvedInput) (StagedInput, error) {
 
 // stageRemoteUrl runs `git clone <url> <runDir>/<idx>-<basename>`.
 func stageRemoteUrl(runDir string, in ResolvedInput) (StagedInput, error) {
+	if cached := findCachedCloneDir(runDir, in); hasGitMetadata(cached) {
+		return StagedInput{Input: in, WorkPath: cached, IsClone: false}, nil
+	}
 	target := filepath.Join(runDir, fmt.Sprintf(constants.CommitInTempInputFormat, in.OrderIndex, cloneBasename(in.URL)))
 	if err := gitRunner("clone", in.URL, target); err != nil {
 		return StagedInput{}, fmt.Errorf(constants.CommitInErrInputClone, in.Original, err)
 	}
 
 	return StagedInput{Input: in, WorkPath: target, IsClone: true}, nil
+}
+
+func findCachedCloneDir(runDir string, in ResolvedInput) string {
+	folderName := fmt.Sprintf(constants.CommitInTempInputFormat, in.OrderIndex, cloneBasename(in.URL))
+	if envDir := os.Getenv("GITMAP_COMMITIN_CACHE_DIR"); envDir != "" {
+		return filepath.Join(envDir, folderName)
+	}
+
+	return filepath.Join(filepath.Dir(filepath.Dir(filepath.Dir(filepath.Dir(runDir)))), ".commitin-cache", folderName)
 }
 
 // stageVersionedSibling clones the local sibling so the walker sees a

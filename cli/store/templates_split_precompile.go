@@ -6,12 +6,13 @@ import (
 
 // CompiledTemplate holds a template item with all static $VAR and ${VAR} placeholders expanded in memory.
 type CompiledTemplate struct {
-	ID         string         `json:"id"`
-	Category   string         `json:"category"`
-	Slug       string         `json:"slug"`
-	Title      string         `json:"title"`
-	Text       string         `json:"text"`
-	Additional map[string]any `json:"additional,omitempty"`
+	ID          string         `json:"id"`
+	Category    string         `json:"category"`
+	SubCategory string         `json:"subCategory,omitempty"`
+	Slug        string         `json:"slug"`
+	Title       string         `json:"title"`
+	Text        string         `json:"text"`
+	Additional  map[string]any `json:"additional,omitempty"`
 }
 
 // PrecompileTemplates opens gitmap-templates.db and pre-compiles matching templates with stored and extra variables.
@@ -88,12 +89,13 @@ func (s *TemplatesSplitDB) resolveTemplatesByCategoryOrSlug(categoryOrSlug strin
 
 func compileSingleTemplate(it StateTemplateItem, vars map[string]string) CompiledTemplate {
 	return CompiledTemplate{
-		ID:         it.ID,
-		Category:   it.Category,
-		Slug:       it.Slug,
-		Title:      ExpandTemplateVariables(it.Title, vars),
-		Text:       ExpandTemplateVariables(it.Text, vars),
-		Additional: it.Additional,
+		ID:          it.ID,
+		Category:    it.Category,
+		SubCategory: it.SubCategory,
+		Slug:        it.Slug,
+		Title:       ExpandTemplateVariables(it.Title, vars),
+		Text:        ExpandTemplateVariables(it.Text, vars),
+		Additional:  it.Additional,
 	}
 }
 

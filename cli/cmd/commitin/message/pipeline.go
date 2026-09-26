@@ -11,7 +11,7 @@ func Build(in Inputs) Result {
 	msg = applyTitleReplacements(msg, in.Files, in.Resolved.TitleReplacements, seoTitle)
 	msg = applyTitleAffix(msg, in.Resolved.TitlePrefix, in.Resolved.TitleSuffix)
 	msg = expandTitleLineVars(msg, in.Files, seoTitle)
-	msg = applyChosenBodyAffix(msg, chosenPrefix, chosenSuffix)
+	msg = applyChosenBodyAffix(msg, chosenPrefix, chosenSuffix, in.Resolved.PrefixSeparator, in.Resolved.SuffixSeparator)
 	msg = appendFunctionIntel(msg, in.FunctionIntel)
 
 	return Result{Message: msg, IsEmpty: isEmpty(msg)}

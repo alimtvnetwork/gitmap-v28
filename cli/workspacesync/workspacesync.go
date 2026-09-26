@@ -55,11 +55,39 @@ func SyncAll(repoPath string, repoName string) {
 	}
 
 	dtRes := "[desktop: skipped]"
-	records := []model.ScanRecord{{AbsolutePath: repoPath, RepoName: repoName}}
-	dtSummary := desktop.AddRepos(records)
-	if dtSummary.Added > 0 {
-		dtRes = "[desktop: " + constants.ColorGreen + "ok" + constants.ColorReset + "]"
+	if os.Getenv("GITMAP_NO_DESKTOP") != "1" && os.Getenv("GITMAP_SKIP_DESKTOP") != "1" {
+		records := []model.ScanRecord{{AbsolutePath: repoPath, RepoName: repoName}}
+		dtSummary := desktop.AddRepos(records)
+		if dtSummary.Added > 0 {
+			dtRes = "[desktop: " + constants.ColorGreen + "ok" + constants.ColorReset + "]"
+		}
 	}
+
+	agyRes := "[agy: skipped]"
+	if SyncAntigravity(repoPath, repoName) {
+		agyRes = "[agy: " + constants.ColorGreen + "ok" + constants.ColorReset + "]"
+	}
+
+	fmt.Printf(" %s %s %s\n", pmRes, dtRes, agyRes)
+}
+
+// SyncWithoutDesktop synchronizes VS Code and Antigravity without launching GitHub Desktop.
+func SyncWithoutDesktop(repoPath string, repoName string) {
+	fmt.Printf("  " + constants.ColorDim + "→ sync:" + constants.ColorReset)
+
+	pmRes := "[vsc: skipped]"
+	pairs := []vscodepm.Pair{{
+		RootPath: repoPath,
+		Name:     repoName,
+		Paths:    []string{repoPath},
+		Tags:     []string{"gitmap"},
+	}}
+	_, err := vscodepm.SyncMode(pairs, vscodepm.MergeModeUnion)
+	if err == nil {
+		pmRes = "[vsc: " + constants.ColorGreen + "ok" + constants.ColorReset + "]"
+	}
+
+	dtRes := "[desktop: skipped]"
 
 	agyRes := "[agy: skipped]"
 	if SyncAntigravity(repoPath, repoName) {

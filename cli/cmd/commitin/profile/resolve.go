@@ -21,6 +21,8 @@ type Resolved struct {
 	OverrideOnlyWeak  bool
 	WeakWords         []string
 	FunctionIntel     FunctionIntel
+	SuffixSeparator   string
+	PrefixSeparator   string
 }
 
 // CliOverrides represents flag-level overrides; nil-pointer fields
@@ -40,6 +42,8 @@ type CliOverrides struct {
 	OverrideOnlyWeak  *bool
 	WeakWords         []string
 	FunctionIntel     *FunctionIntel
+	SuffixSeparator   string
+	PrefixSeparator   string
 }
 
 // Resolve applies the four-layer precedence: CLI > profile > defaults.
@@ -148,5 +152,11 @@ func applyCliSlices(r *Resolved, c *CliOverrides) {
 	}
 	if c.WeakWords != nil {
 		r.WeakWords = c.WeakWords
+	}
+	if c.SuffixSeparator != "" {
+		r.SuffixSeparator = c.SuffixSeparator
+	}
+	if c.PrefixSeparator != "" {
+		r.PrefixSeparator = c.PrefixSeparator
 	}
 }

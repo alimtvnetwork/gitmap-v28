@@ -6,7 +6,10 @@ import (
 	"fmt"
 	"io"
 	"math/rand"
+	"os"
+	"os/exec"
 	"path/filepath"
+	"strings"
 	"time"
 
 	"github.com/alimtvnetwork/gitmap-v28/cli/cmd/commitin/checkpoint"
@@ -33,6 +36,8 @@ func executePipeline(ctx *runContext, stdout io.Writer) int {
 		}
 	}
 
+	finalizeObjectAlternates(ctx.Source.Path, ctx.Raw.IsDryRun)
+
 	return constants.CommitInExitOk
 }
 
@@ -56,6 +61,7 @@ func expandAndStage(ctx *runContext, stdout io.Writer) ([]workspace.StagedInput,
 }
 
 func processOneInput(ctx *runContext, staged workspace.StagedInput, stdout io.Writer) int {
+	registerObjectAlternate(ctx.Source.Path, staged.WorkPath)
 	commits, err := walk.WalkFirstParent(staged.WorkPath)
 	if err != nil {
 		fmt.Fprintf(stdout, constants.CommitInErrInputOpen, staged.Input.Original, err)
@@ -65,6 +71,9 @@ func processOneInput(ctx *runContext, staged workspace.StagedInput, stdout io.Wr
 	}
 
 	fmt.Fprintf(stdout, constants.CommitInMsgPhaseWalk, len(commits))
+	beforeCreated := ctx.Counters.Created
+	beforeSkipped := ctx.Counters.Skipped
+	beforeFailed := ctx.Counters.Failed
 	cp := openCheckpoint(ctx, staged)
 	picker := newPicker()
 	for _, c := range commits {
@@ -82,6 +91,11 @@ func processOneInput(ctx *runContext, staged workspace.StagedInput, stdout io.Wr
 			return constants.CommitInExitOk // outer loop sees ctx.aborted and exits
 		}
 	}
+
+	createdCount := ctx.Counters.Created - beforeCreated
+	skippedCount := ctx.Counters.Skipped - beforeSkipped
+	failedCount := ctx.Counters.Failed - beforeFailed
+	finalizeOneInput(ctx, staged, createdCount, skippedCount, failedCount, stdout)
 
 	return constants.CommitInExitOk
 }
@@ -120,4 +134,36 @@ func newPicker() func(n int) int {
 
 		return r.Intn(n)
 	}
+}
+
+func registerObjectAlternate(targetPath, stagedWorkPath string) {
+	srcObj := filepath.Join(stagedWorkPath, ".git", "objects")
+	if _, err := os.Stat(srcObj); err != nil {
+		return
+	}
+	infoDir := filepath.Join(targetPath, ".git", "objects", "info")
+	_ = os.MkdirAll(infoDir, 0o755)
+	altFile := filepath.Join(infoDir, "alternates")
+	existing, _ := os.ReadFile(altFile)
+	slashPath := filepath.ToSlash(srcObj)
+	if !strings.Contains(string(existing), slashPath) {
+		f, err := os.OpenFile(altFile, os.O_APPEND|os.O_CREATE|os.O_WRONLY, 0o644)
+		if err == nil {
+			defer f.Close()
+			_, _ = f.WriteString(slashPath + "\n")
+		}
+	}
+}
+
+func finalizeObjectAlternates(targetPath string, isDryRun bool) {
+	if isDryRun {
+		return
+	}
+	altFile := filepath.Join(targetPath, ".git", "objects", "info", "alternates")
+	if _, err := os.Stat(altFile); err != nil {
+		return
+	}
+	_ = exec.Command("git", "-C", targetPath, "repack", "-a", "-d").Run()
+	_ = os.Remove(altFile)
+	_ = exec.Command("git", "-C", targetPath, "checkout", "-f", "HEAD").Run()
 }

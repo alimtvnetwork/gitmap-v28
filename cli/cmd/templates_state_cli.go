@@ -100,9 +100,13 @@ func printStateTemplatesTable(items []store.StateTemplateItem) {
 		return
 	}
 
-	fmt.Printf("%-18s  %-14s  %-26s  %s\n", "ID", "CATEGORY", "SLUG", "TITLE")
+	fmt.Printf("%-18s  %-12s  %-12s  %-26s  %s\n", "ID", "CATEGORY", "SUBCATEGORY", "SLUG", "TITLE")
 	for _, it := range items {
-		fmt.Printf("%-18s  %-14s  %-26s  %s\n", it.ID, it.Category, it.Slug, it.Title)
+		subCat := it.SubCategory
+		if subCat == "" {
+			subCat = "-"
+		}
+		fmt.Printf("%-18s  %-12s  %-12s  %-26s  %s\n", it.ID, it.Category, subCat, it.Slug, it.Title)
 	}
 }
 

@@ -3,6 +3,7 @@ package walk
 import (
 	"fmt"
 	"strings"
+	"sync"
 	"time"
 )
 
@@ -36,6 +37,10 @@ func WalkFirstParent(repoDir string) ([]SourceCommit, error) {
 		return nil, nil
 	}
 
+	if len(shas) > 4 {
+		return hydrateConcurrent(repoDir, shas)
+	}
+
 	out := make([]SourceCommit, 0, len(shas))
 	for i, sha := range shas {
 		c, hyErr := hydrate(repoDir, sha, i+1)
@@ -44,6 +49,36 @@ func WalkFirstParent(repoDir string) ([]SourceCommit, error) {
 		}
 
 		out = append(out, c)
+	}
+
+	return out, nil
+}
+
+func hydrateConcurrent(repoDir string, shas []string) ([]SourceCommit, error) {
+	out := make([]SourceCommit, len(shas))
+	sem := make(chan struct{}, 16)
+	var (
+		wg       sync.WaitGroup
+		once     sync.Once
+		firstErr error
+	)
+	for i, sha := range shas {
+		wg.Add(1)
+		go func(idx int, s string) {
+			defer wg.Done()
+			sem <- struct{}{}
+			defer func() { <-sem }()
+			c, err := hydrate(repoDir, s, idx+1)
+			if err != nil {
+				once.Do(func() { firstErr = fmt.Errorf("walk: hydrate %s: %w", s, err) })
+				return
+			}
+			out[idx] = c
+		}(i, sha)
+	}
+	wg.Wait()
+	if firstErr != nil {
+		return nil, firstErr
 	}
 
 	return out, nil

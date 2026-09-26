@@ -20,6 +20,7 @@ type Plan struct {
 	AuthorEmail   string    // GIT_AUTHOR_EMAIL for the new commit
 	AuthorDate    time.Time // GIT_AUTHOR_DATE — copied verbatim
 	CommitterDate time.Time // GIT_COMMITTER_DATE — copied verbatim
+	IsDirectTree  bool      // replay tree directly via commit-tree when alternate objects are present
 }
 
 // Result reports the outcome of ApplyCommit. NewSha is the 40-char
@@ -40,6 +41,12 @@ type Result struct {
 func ApplyCommit(p Plan, dryRun bool) (Result, error) {
 	if dryRun {
 		return Result{}, nil
+	}
+
+	if p.IsDirectTree {
+		if res, err := applyDirectTreeCommit(p); err == nil {
+			return res, nil
+		}
 	}
 
 	if err := stageFiles(p); err != nil {
@@ -152,4 +159,17 @@ func updateHead(target, newSha string) error {
 	_, err := gitRunner(target, "update-ref", "HEAD", newSha)
 
 	return err
+}
+
+func applyDirectTreeCommit(p Plan) (Result, error) {
+	parent, _ := readHead(p.TargetRepoDir)
+	newSha, err := commitTree(p, p.SourceSha+"^{tree}", parent)
+	if err != nil {
+		return Result{}, err
+	}
+	if err := updateHead(p.TargetRepoDir, newSha); err != nil {
+		return Result{}, err
+	}
+
+	return Result{NewSha: newSha}, nil
 }

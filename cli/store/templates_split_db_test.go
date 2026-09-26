@@ -19,6 +19,7 @@ func TestTemplatesSplitDB_SchemaAndCategories(t *testing.T) {
 	}
 
 	verifyDefaultSeededPrompts(t, db)
+	verifyDefaultSeededSponsors(t, db)
 	verifyCustomCategoryUpsert(t, db)
 }
 
@@ -27,6 +28,14 @@ func verifyDefaultSeededPrompts(t *testing.T, db *TemplatesSplitDB) {
 	item, err := db.GetTemplateItem("tpl-prompt-ui-ux-audit")
 	if err != nil || item == nil || item.Category != "prompts" || item.SubCategory != "ui-ux" {
 		t.Fatalf("expected default ui-ux prompt template, got %+v (err=%v)", item, err)
+	}
+}
+
+func verifyDefaultSeededSponsors(t *testing.T, db *TemplatesSplitDB) {
+	t.Helper()
+	item, err := db.GetTemplateItem("tpl-seo-sponsor-default")
+	if err != nil || item == nil || item.Category != "seo" || item.SubCategory != "sponsor" {
+		t.Fatalf("expected default seo sponsor template, got %+v (err=%v)", item, err)
 	}
 }
 
@@ -130,7 +139,7 @@ func TestTemplatesSplitDB_ExportImportAndPrecompile(t *testing.T) {
 
 	seedTemplateAndVarsForExport(t, db1)
 	exportPath := filepath.Join(t.TempDir(), "exported-templates.json")
-	payload, err := db1.ExportTemplatesToFile(exportPath, "seo", "")
+	payload, err := db1.ExportTemplatesToFile(exportPath, "seo", "seo-brand-01")
 	if err != nil {
 		t.Fatalf("ExportTemplatesToFile failed: %v", err)
 	}
@@ -181,7 +190,7 @@ func verifyImportDeduplicationAndPrecompile(t *testing.T, exportPath string) {
 
 func verifyPrecompiledOutput(t *testing.T, db *TemplatesSplitDB) {
 	t.Helper()
-	compiled, err := db.PrecompileTemplates("seo", map[string]string{"TARGET": "pipelines"})
+	compiled, err := db.PrecompileTemplates("seo-brand-01", map[string]string{"TARGET": "pipelines"})
 	if err != nil || len(compiled) != 1 {
 		t.Fatalf("PrecompileTemplates failed: len=%d err=%v", len(compiled), err)
 	}

@@ -27,8 +27,8 @@ tpl
 
 ## State Templates, Categories & Variable Sync (`gitmap-templates.db`)
 
-- **Default Categories & Subcategories**: `gitmap-templates.db` seeds `seo`, `prompts` (with `ui-ux` as a child subcategory via `ParentSlug='prompts'`), `prefix`, and `pr-descriptions`, along with default prompt (`tpl-prompt-ui-ux-audit`) and prefix (`tpl-prefix-standard`) templates.
-- **Custom Categories & `--subcategory`**: Create categories or nested subcategories with `gitmap templates category add <slug> [--name <name>] [--parent <parent>] [--desc <desc>]`, and assign items with `--category prompts --subcategory ui-ux`.
+- **Default Categories & Subcategories**: `gitmap-templates.db` seeds `seo` (with `sponsor` as a child subcategory via `ParentSlug='seo'`), `prompts` (with `ui-ux` as a child subcategory via `ParentSlug='prompts'`), `prefix`, and `pr-descriptions`, along with default sponsor (`tpl-seo-sponsor-default`), prompt (`tpl-prompt-ui-ux-audit`), and prefix (`tpl-prefix-standard`) templates.
+- **Custom Categories & `--subcategory`**: Create categories or nested subcategories with `gitmap templates category add <slug> [--name <name>] [--parent <parent>] [--desc <desc>]`, and assign items with `--category seo --subcategory sponsor` or `--category prompts --subcategory ui-ux`.
 - **Category-Sequenced Export & Import**: `gitmap templates export <dest.json>` outputs `categories` first—each populated with its nested `items` array (`categories[].items`)—followed by referenced `variables` and `templates`, sealed with a deterministic `exportId` (`sha256-...`). `gitmap templates import` accepts items from both `categories[].items` and top-level `templates`.
 - **Automatic `gitmap var` Sync**: Setting variables via `gitmap templates var set <key> <value>` or importing a template suite via `gitmap templates import <file.json>` automatically synchronizes variables into `gitmap var` (`config.SetVariable`).
 

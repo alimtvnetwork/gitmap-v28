@@ -17,7 +17,7 @@ func applyTitleAffix(msg, prefix, suffix string) string {
 
 func applyBodyAffix(msg string, prefixPool, suffixPool []string, pick func(int) int) string {
 	chosenPrefix, chosenSuffix := pickAffixPair(prefixPool, suffixPool, pick)
-	return applyChosenBodyAffix(msg, chosenPrefix, chosenSuffix)
+	return applyChosenBodyAffix(msg, chosenPrefix, chosenSuffix, "", "")
 }
 
 func pickAffixPair(prefixPool, suffixPool []string, pick func(int) int) (string, string) {
@@ -32,43 +32,49 @@ func pickAffixPair(prefixPool, suffixPool []string, pick func(int) int) (string,
 	return chosenPrefix, chosenSuffix
 }
 
-func applyChosenBodyAffix(msg, chosenPrefix, chosenSuffix string) string {
+func applyChosenBodyAffix(msg, chosenPrefix, chosenSuffix, prefixSep, suffixSep string) string {
 	if chosenPrefix != "" {
-		msg = prependBodyBlock(msg, chosenPrefix)
+		msg = prependBodyBlock(msg, chosenPrefix, prefixSep)
 	}
 	if chosenSuffix != "" {
-		msg = appendBodyBlock(msg, chosenSuffix)
+		msg = appendBodyBlock(msg, chosenSuffix, suffixSep)
 	}
 
 	return msg
 }
 
-func prependBodyBlock(msg, prefix string) string {
+func prependBodyBlock(msg, prefix, sep string) string {
+	if sep == "" {
+		sep = "\n\n"
+	}
 	isMarkdownBlock := strings.HasPrefix(strings.TrimSpace(prefix), "#") || strings.Contains(prefix, "\n")
 	if !isMarkdownBlock {
 		return prefix + "\n" + msg
 	}
 	idx := strings.IndexByte(msg, '\n')
 	if idx < 0 {
-		return strings.TrimRight(msg, " \t") + "\n\n" + strings.TrimSpace(prefix)
+		return strings.TrimRight(msg, " \t") + sep + strings.TrimSpace(prefix)
 	}
 	title := strings.TrimRight(msg[:idx], " \t")
 	body := strings.TrimSpace(msg[idx+1:])
 	if body == "" {
-		return title + "\n\n" + strings.TrimSpace(prefix)
+		return title + sep + strings.TrimSpace(prefix)
 	}
 
-	return title + "\n\n" + strings.TrimSpace(prefix) + "\n\n" + body
+	return title + sep + strings.TrimSpace(prefix) + sep + body
 }
 
-func appendBodyBlock(msg, suffix string) string {
+func appendBodyBlock(msg, suffix, sep string) string {
+	if sep == "" {
+		sep = "\n\n"
+	}
 	trimmedMsg := strings.TrimRight(msg, " \t\n")
 	trimmedSuffix := strings.TrimSpace(suffix)
 	if trimmedMsg == "" {
 		return trimmedSuffix
 	}
 
-	return trimmedMsg + "\n\n" + trimmedSuffix
+	return trimmedMsg + sep + trimmedSuffix
 }
 
 func pickOne(pool []string, pick func(int) int) string {

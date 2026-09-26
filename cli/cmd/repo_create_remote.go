@@ -35,6 +35,7 @@ func pushRemoteRepo(p createRepoParams) (string, error) {
 	}
 
 	slug := buildRemoteSlug(p)
+	sshURL := fmt.Sprintf("git@github.com:%s.git", slug)
 	cmd := exec.Command("gh", "repo", "create", slug, visibilityFlag, "--source=.", "--remote=origin", "--push")
 	cmd.Dir = absDir
 	out, err := cmd.CombinedOutput()
@@ -45,20 +46,19 @@ func pushRemoteRepo(p createRepoParams) (string, error) {
 		return "", apperror.WrapSimple(err, fmt.Sprintf("gh repo create failed: %s", string(out)))
 	}
 
+	_ = exec.Command("git", "-C", absDir, "remote", "set-url", "origin", sshURL).Run()
+
 	return fmt.Sprintf("https://github.com/%s", slug), nil
 }
 
 func handleExistingRemoteRepo(absDir, slug string) (string, error) {
-	remoteURL := fmt.Sprintf("https://github.com/%s.git", slug)
-	cmdSet := exec.Command("git", "remote", "set-url", "origin", remoteURL)
-	cmdSet.Dir = absDir
+	sshURL := fmt.Sprintf("git@github.com:%s.git", slug)
+	cmdSet := exec.Command("git", "-C", absDir, "remote", "set-url", "origin", sshURL)
 	if err := cmdSet.Run(); err != nil {
-		cmdAdd := exec.Command("git", "remote", "add", "origin", remoteURL)
-		cmdAdd.Dir = absDir
+		cmdAdd := exec.Command("git", "-C", absDir, "remote", "add", "origin", sshURL)
 		_ = cmdAdd.Run()
 	}
-	cmdPush := exec.Command("git", "push", "-u", "origin", "main")
-	cmdPush.Dir = absDir
+	cmdPush := exec.Command("git", "-C", absDir, "push", "-u", "origin", "main", "--force")
 	_ = cmdPush.Run()
 
 	return fmt.Sprintf("https://github.com/%s", slug), nil

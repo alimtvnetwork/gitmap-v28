@@ -38,7 +38,8 @@ const templatesUIDashboardHTML = `<!DOCTYPE html>
     <div class="card">
       <h2>Add / Update Template</h2>
       <input id="t-id" placeholder="ID (optional, e.g. seo-01)">
-      <input id="t-cat" placeholder="Category (seo, prompts, ui-ux, prefix)" value="seo">
+      <input id="t-cat" placeholder="Category (seo, prompts, prefix)" value="seo">
+      <input id="t-subcat" placeholder="Subcategory (e.g. sponsor, ui-ux)" value="sponsor">
       <input id="t-slug" placeholder="Slug (e.g. why-canonical)">
       <input id="t-title" placeholder="# Why question title?">
       <textarea id="t-text" rows="5" placeholder="Because ..."></textarea>
@@ -56,7 +57,7 @@ const templatesUIDashboardHTML = `<!DOCTYPE html>
     <div class="card">
       <h2>Templates State DB (gitmap-templates.db)</h2>
       <button onclick="exportJSON()">Export JSON</button>
-      <table><thead><tr><th>ID / Slug</th><th>Category</th><th>Title & Reasoning</th><th>Action</th></tr></thead>
+      <table><thead><tr><th>ID / Slug</th><th>Category / Subcategory</th><th>Title & Reasoning</th><th>Action</th></tr></thead>
       <tbody id="tpl-rows"></tbody></table>
     </div>
   </div>
@@ -67,7 +68,7 @@ async function loadState() {
   const data = await res.json();
   const tbody = document.getElementById('tpl-rows');
   tbody.innerHTML = (data.templates || []).map(t =>
-    '<tr><td><code>'+t.id+'</code><br><small>'+t.slug+'</small></td><td>'+t.category+'</td><td><b>'+t.title+'</b><br><pre style="white-space:pre-wrap;margin:4px 0;">'+t.text+'</pre></td>' +
+    '<tr><td><code>'+t.id+'</code><br><small>'+t.slug+'</small></td><td>'+t.category+(t.subCategory ? ' / <small style="color:#58a6ff">'+t.subCategory+'</small>' : '')+'</td><td><b>'+t.title+'</b><br><pre style="white-space:pre-wrap;margin:4px 0;">'+t.text+'</pre></td>' +
     '<td><button class="del" onclick="delTpl(\''+t.id+'\')">Delete</button></td></tr>'
   ).join('');
   const vdiv = document.getElementById('vars-list');
@@ -77,6 +78,7 @@ async function loadState() {
 async function saveTemplate() {
   await fetch('/api/templates', {method:'POST', body:JSON.stringify({
     id:document.getElementById('t-id').value, category:document.getElementById('t-cat').value,
+    subCategory:document.getElementById('t-subcat').value,
     slug:document.getElementById('t-slug').value, title:document.getElementById('t-title').value,
     text:document.getElementById('t-text').value
   })});

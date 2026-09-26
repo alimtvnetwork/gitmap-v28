@@ -26,12 +26,13 @@ type ConfigLineSkipper struct {
 
 // ImportedTemplateItem matches the JSON structure of templates in export/import files.
 type ImportedTemplateItem struct {
-	ID         string         `json:"id"`
-	Category   string         `json:"category"`
-	Slug       string         `json:"slug"`
-	Title      string         `json:"title"`
-	Text       string         `json:"text"`
-	Additional map[string]any `json:"additional,omitempty"`
+	ID          string         `json:"id"`
+	Category    string         `json:"category"`
+	SubCategory string         `json:"subCategory,omitempty"`
+	Slug        string         `json:"slug"`
+	Title       string         `json:"title"`
+	Text        string         `json:"text"`
+	Additional  map[string]any `json:"additional,omitempty"`
 }
 
 // ImportedTemplateCategory represents a category entry with optional nested items in export/import files.
@@ -59,6 +60,7 @@ type CommitInConfigJSON struct {
 	IsTree            bool                           `json:"tree,omitempty"`
 	IsFinalSync       bool                           `json:"finalSync,omitempty"`
 	IsCD              bool                           `json:"cd,omitempty"`
+	IsRecreate        bool                           `json:"recreate,omitempty"`
 	IsDryRun          bool                           `json:"dryRun,omitempty"`
 	IsNewlineGap      bool                           `json:"newlineGap,omitempty"`
 	AuthorName        string                         `json:"authorName,omitempty"`
@@ -70,6 +72,10 @@ type CommitInConfigJSON struct {
 	TitleReplacements []profile.TitleReplacementRule `json:"titleReplacements,omitempty"`
 	PrefixTemplates   []string                       `json:"prefixTemplates,omitempty"`
 	SuffixTemplates   []string                       `json:"suffixTemplates,omitempty"`
+	SuffixSeparator   string                         `json:"suffixSeparator,omitempty"`
+	PrefixSeparator   string                         `json:"prefixSeparator,omitempty"`
+	PushImmediate     bool                           `json:"pushImmediate,omitempty"`
+	SummaryDir        string                         `json:"summaryDir,omitempty"`
 	TitlePrefix       string                         `json:"titlePrefix,omitempty"`
 	TitleSuffix       string                         `json:"titleSuffix,omitempty"`
 }
@@ -86,6 +92,7 @@ func applyConfigFileIfPresent(raw *RawArgs) *ParseError {
 	if err := json.Unmarshal(data, &cfg); err != nil {
 		return newBadArgs("invalid config JSON %q: %v", raw.ConfigPath, err)
 	}
+	cfg = expandConfigVariables(cfg)
 	mergeConfigIntoRaw(raw, cfg)
 
 	return loadAndPrecompileConfigTemplates(raw, cfg)
@@ -113,7 +120,18 @@ func mergeConfigFlags(raw *RawArgs, cfg CommitInConfigJSON) {
 	raw.IsTree = raw.IsTree || cfg.IsTree
 	raw.IsFinalSync = raw.IsFinalSync || cfg.IsFinalSync
 	raw.IsCD = raw.IsCD || cfg.IsCD
+	raw.IsRecreate = raw.IsRecreate || cfg.IsRecreate
 	raw.IsDryRun = raw.IsDryRun || cfg.IsDryRun
+	raw.IsPushImmediate = raw.IsPushImmediate || cfg.PushImmediate
+	if raw.SuffixSeparator == "" && cfg.SuffixSeparator != "" {
+		raw.SuffixSeparator = cfg.SuffixSeparator
+	}
+	if raw.PrefixSeparator == "" && cfg.PrefixSeparator != "" {
+		raw.PrefixSeparator = cfg.PrefixSeparator
+	}
+	if raw.SummaryDir == "" && cfg.SummaryDir != "" {
+		raw.SummaryDir = cfg.SummaryDir
+	}
 }
 
 func mergeConfigAuthor(raw *RawArgs, cfg CommitInConfigJSON) {
@@ -230,6 +248,7 @@ func matchImportedByRef(ref string, imported []ImportedTemplateItem, vars map[st
 	lowerRef := strings.ToLower(strings.TrimSpace(ref))
 	for _, item := range imported {
 		isMatch := strings.ToLower(item.Category) == lowerRef ||
+			strings.ToLower(item.SubCategory) == lowerRef ||
 			strings.ToLower(item.Slug) == lowerRef ||
 			strings.ToLower(item.ID) == lowerRef ||
 			lowerRef == "all"
@@ -274,4 +293,38 @@ func expandStaticVars(input string, vars map[string]string) string {
 		}
 		return m
 	})
+}
+
+func expandConfigVariables(cfg CommitInConfigJSON) CommitInConfigJSON {
+	if len(cfg.Variables) == 0 {
+		return cfg
+	}
+	vars := resolveNestedVariables(cfg.Variables)
+	cfg.Target = expandStaticVars(cfg.Target, vars)
+	cfg.SummaryDir = expandStaticVars(cfg.SummaryDir, vars)
+	for i, in := range cfg.Inputs {
+		cfg.Inputs[i] = expandStaticVars(in, vars)
+	}
+	for i, imp := range cfg.Imports {
+		cfg.Imports[i] = expandStaticVars(imp, vars)
+	}
+	for i, tr := range cfg.TitleReplacements {
+		cfg.TitleReplacements[i].Replacement = expandStaticVars(tr.Replacement, vars)
+	}
+
+	return cfg
+}
+
+func resolveNestedVariables(in map[string]string) map[string]string {
+	out := make(map[string]string, len(in))
+	for k, v := range in {
+		out[k] = v
+	}
+	for pass := 0; pass < 3; pass++ {
+		for k, v := range out {
+			out[k] = expandStaticVars(v, out)
+		}
+	}
+
+	return out
 }

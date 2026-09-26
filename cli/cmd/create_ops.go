@@ -27,7 +27,11 @@ func executeCreateRepo(args []string, defaultLocal bool) error {
 	}
 
 	absDir, _ := filepath.Abs(params.LocalDir)
-	workspacesync.SyncAll(absDir, params.Name)
+	if params.IsNoDesktop {
+		workspacesync.SyncWithoutDesktop(absDir, params.Name)
+	} else {
+		workspacesync.SyncAll(absDir, params.Name)
+	}
 	recordProfileUsage(params.Profile)
 	if params.IsCD {
 		WriteShellHandoff(absDir)

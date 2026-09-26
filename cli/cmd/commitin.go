@@ -107,8 +107,11 @@ func ensureCommitInTargetRepo(raw *commitin.RawArgs) {
 	if err != nil {
 		return
 	}
+	if raw.IsRecreate {
+		_ = os.RemoveAll(abs)
+	}
 	if _, statErr := os.Stat(filepath.Join(abs, ".git")); os.IsNotExist(statErr) {
-		_ = executeCreateRepo([]string{abs, "--common", "--private"}, false)
+		_ = executeCreateRepo([]string{abs, "--common", "--private", "--no-desktop"}, false)
 	}
 }
 
