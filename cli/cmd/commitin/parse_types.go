@@ -57,6 +57,7 @@ type RawArgs struct {
 	IsPushImmediate   bool
 	SuffixSeparator   string
 	PrefixSeparator   string
+	SuffixMode        string
 	SummaryDir        string
 }
 

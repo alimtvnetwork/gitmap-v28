@@ -51,6 +51,14 @@ type ImportedTemplateFile struct {
 	Templates  []ImportedTemplateItem     `json:"templates"`
 }
 
+// ConfigTemplatesSection represents a nested templates configuration block.
+type ConfigTemplatesSection struct {
+	Mode      string   `json:"mode,omitempty"`      // "suffix", "prefix", "newline"
+	Separator string   `json:"separator,omitempty"` // e.g. "\n\n", "\n"
+	Prefix    []string `json:"prefix,omitempty"`
+	Suffix    []string `json:"suffix,omitempty"`
+}
+
 // CommitInConfigJSON defines the declarative migration configuration file.
 type CommitInConfigJSON struct {
 	Target            string                         `json:"target"`
@@ -74,10 +82,16 @@ type CommitInConfigJSON struct {
 	SuffixTemplates   []string                       `json:"suffixTemplates,omitempty"`
 	SuffixSeparator   string                         `json:"suffixSeparator,omitempty"`
 	PrefixSeparator   string                         `json:"prefixSeparator,omitempty"`
+	SuffixMode        string                         `json:"suffixMode,omitempty"`
+	TemplateMode      string                         `json:"templateMode,omitempty"`
 	PushImmediate     bool                           `json:"pushImmediate,omitempty"`
+	PushImmediately   bool                           `json:"pushImmediately,omitempty"`
+	Push              bool                           `json:"push,omitempty"`
+	AutoPush          bool                           `json:"autoPush,omitempty"`
 	SummaryDir        string                         `json:"summaryDir,omitempty"`
 	TitlePrefix       string                         `json:"titlePrefix,omitempty"`
 	TitleSuffix       string                         `json:"titleSuffix,omitempty"`
+	TemplatesSection  *ConfigTemplatesSection        `json:"templates,omitempty"`
 }
 
 func applyConfigFileIfPresent(raw *RawArgs) *ParseError {
@@ -122,9 +136,25 @@ func mergeConfigFlags(raw *RawArgs, cfg CommitInConfigJSON) {
 	raw.IsCD = raw.IsCD || cfg.IsCD
 	raw.IsRecreate = raw.IsRecreate || cfg.IsRecreate
 	raw.IsDryRun = raw.IsDryRun || cfg.IsDryRun
-	raw.IsPushImmediate = raw.IsPushImmediate || cfg.PushImmediate
-	if raw.SuffixSeparator == "" && cfg.SuffixSeparator != "" {
-		raw.SuffixSeparator = cfg.SuffixSeparator
+	raw.IsPushImmediate = raw.IsPushImmediate || cfg.PushImmediate || cfg.PushImmediately || cfg.Push || cfg.AutoPush
+
+	mode := strings.ToLower(strings.TrimSpace(cfg.SuffixMode))
+	if mode == "" {
+		mode = strings.ToLower(strings.TrimSpace(cfg.TemplateMode))
+	}
+	if mode == "" && cfg.TemplatesSection != nil {
+		mode = strings.ToLower(strings.TrimSpace(cfg.TemplatesSection.Mode))
+	}
+	if raw.SuffixMode == "" && mode != "" {
+		raw.SuffixMode = mode
+	}
+
+	sep := cfg.SuffixSeparator
+	if sep == "" && cfg.TemplatesSection != nil {
+		sep = cfg.TemplatesSection.Separator
+	}
+	if raw.SuffixSeparator == "" && sep != "" {
+		raw.SuffixSeparator = sep
 	}
 	if raw.PrefixSeparator == "" && cfg.PrefixSeparator != "" {
 		raw.PrefixSeparator = cfg.PrefixSeparator
@@ -167,14 +197,35 @@ func loadAndPrecompileConfigTemplates(raw *RawArgs, cfg CommitInConfigJSON) *Par
 	if SyncStateTemplatesHook != nil && len(cfg.Imports) > 0 {
 		_ = SyncStateTemplatesHook(cfg.Imports)
 	}
+	prefixPool := cfg.PrefixTemplates
+	suffixPool := cfg.SuffixTemplates
+	if cfg.TemplatesSection != nil {
+		if len(cfg.TemplatesSection.Prefix) > 0 {
+			prefixPool = append(prefixPool, cfg.TemplatesSection.Prefix...)
+		}
+		if len(cfg.TemplatesSection.Suffix) > 0 {
+			suffixPool = append(suffixPool, cfg.TemplatesSection.Suffix...)
+		}
+	}
+
 	vars, items := readImportedTemplateFiles(cfg.Imports, cfg.Variables)
-	prefixes := resolveTemplateRefs(cfg.PrefixTemplates, items, vars)
-	suffixes := resolveTemplateRefs(cfg.SuffixTemplates, items, vars)
+	prefixes := resolveTemplateRefs(prefixPool, items, vars)
+	suffixes := resolveTemplateRefs(suffixPool, items, vars)
 	if len(suffixes) == 0 && len(prefixes) == 0 && len(items) > 0 {
 		suffixes = precompileAllImportedItems(items, vars)
 	}
-	raw.MessagePrefix = append(raw.MessagePrefix, prefixes...)
-	raw.MessageSuffix = append(raw.MessageSuffix, suffixes...)
+
+	mode := strings.ToLower(strings.TrimSpace(raw.SuffixMode))
+	if mode == "prefix" {
+		raw.MessagePrefix = append(raw.MessagePrefix, suffixes...)
+		raw.MessagePrefix = append(raw.MessagePrefix, prefixes...)
+	} else {
+		raw.MessagePrefix = append(raw.MessagePrefix, prefixes...)
+		raw.MessageSuffix = append(raw.MessageSuffix, suffixes...)
+	}
+	if mode == "newline" && raw.SuffixSeparator == "" {
+		raw.SuffixSeparator = "\n\n"
+	}
 
 	return nil
 }
@@ -291,6 +342,17 @@ func expandStaticVars(input string, vars map[string]string) string {
 		if val, ok := vars[key]; ok {
 			return val
 		}
+		if val, ok := vars[strings.ToLower(key)]; ok {
+			return val
+		}
+		if val, ok := vars[strings.ToUpper(key)]; ok {
+			return val
+		}
+		for k, v := range vars {
+			if strings.EqualFold(k, key) {
+				return v
+			}
+		}
 		return m
 	})
 }
@@ -302,6 +364,12 @@ func expandConfigVariables(cfg CommitInConfigJSON) CommitInConfigJSON {
 	vars := resolveNestedVariables(cfg.Variables)
 	cfg.Target = expandStaticVars(cfg.Target, vars)
 	cfg.SummaryDir = expandStaticVars(cfg.SummaryDir, vars)
+	cfg.AuthorName = expandStaticVars(cfg.AuthorName, vars)
+	cfg.AuthorEmail = expandStaticVars(cfg.AuthorEmail, vars)
+	cfg.TitlePrefix = expandStaticVars(cfg.TitlePrefix, vars)
+	cfg.TitleSuffix = expandStaticVars(cfg.TitleSuffix, vars)
+	cfg.SuffixSeparator = expandStaticVars(cfg.SuffixSeparator, vars)
+	cfg.PrefixSeparator = expandStaticVars(cfg.PrefixSeparator, vars)
 	for i, in := range cfg.Inputs {
 		cfg.Inputs[i] = expandStaticVars(in, vars)
 	}
@@ -316,9 +384,14 @@ func expandConfigVariables(cfg CommitInConfigJSON) CommitInConfigJSON {
 }
 
 func resolveNestedVariables(in map[string]string) map[string]string {
-	out := make(map[string]string, len(in))
+	out := make(map[string]string, len(in)*3)
 	for k, v := range in {
-		out[k] = v
+		cleanKey := strings.TrimPrefix(k, "$")
+		cleanKey = strings.TrimPrefix(cleanKey, "{")
+		cleanKey = strings.TrimSuffix(cleanKey, "}")
+		out[cleanKey] = v
+		out[strings.ToLower(cleanKey)] = v
+		out[strings.ToUpper(cleanKey)] = v
 	}
 	for pass := 0; pass < 3; pass++ {
 		for k, v := range out {

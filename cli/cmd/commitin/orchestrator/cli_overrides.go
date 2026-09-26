@@ -55,6 +55,7 @@ func addConflictAndAffixes(c *profile.CliOverrides, raw *commitin.RawArgs) {
 
 	c.SuffixSeparator = raw.SuffixSeparator
 	c.PrefixSeparator = raw.PrefixSeparator
+	c.SuffixMode = raw.SuffixMode
 }
 
 func addOverridesAndIntel(c *profile.CliOverrides, raw *commitin.RawArgs) {

@@ -23,6 +23,7 @@ type Resolved struct {
 	FunctionIntel     FunctionIntel
 	SuffixSeparator   string
 	PrefixSeparator   string
+	SuffixMode        string
 }
 
 // CliOverrides represents flag-level overrides; nil-pointer fields
@@ -44,6 +45,7 @@ type CliOverrides struct {
 	FunctionIntel     *FunctionIntel
 	SuffixSeparator   string
 	PrefixSeparator   string
+	SuffixMode        string
 }
 
 // Resolve applies the four-layer precedence: CLI > profile > defaults.
@@ -158,5 +160,8 @@ func applyCliSlices(r *Resolved, c *CliOverrides) {
 	}
 	if c.PrefixSeparator != "" {
 		r.PrefixSeparator = c.PrefixSeparator
+	}
+	if c.SuffixMode != "" {
+		r.SuffixMode = c.SuffixMode
 	}
 }

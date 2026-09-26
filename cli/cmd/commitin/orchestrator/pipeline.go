@@ -37,6 +37,7 @@ func executePipeline(ctx *runContext, stdout io.Writer) int {
 	}
 
 	finalizeObjectAlternates(ctx.Source.Path, ctx.Raw.IsDryRun)
+	printFinalSummaryLocation(ctx, stdout)
 
 	return constants.CommitInExitOk
 }
@@ -76,13 +77,16 @@ func processOneInput(ctx *runContext, staged workspace.StagedInput, stdout io.Wr
 	beforeFailed := ctx.Counters.Failed
 	cp := openCheckpoint(ctx, staged)
 	picker := newPicker()
+	prsCount := 0
 	for _, c := range commits {
 		if cp != nil && cp.IsDone(c.Sha) {
 			ctx.Counters.Skipped++
 			continue
 		}
 
-		processOneCommit(ctx, staged, c, picker, stdout)
+		if processOneCommit(ctx, staged, c, picker, stdout) {
+			prsCount++
+		}
 		if cp != nil {
 			_ = cp.MarkDone(c.Sha)
 		}
@@ -95,7 +99,7 @@ func processOneInput(ctx *runContext, staged workspace.StagedInput, stdout io.Wr
 	createdCount := ctx.Counters.Created - beforeCreated
 	skippedCount := ctx.Counters.Skipped - beforeSkipped
 	failedCount := ctx.Counters.Failed - beforeFailed
-	finalizeOneInput(ctx, staged, createdCount, skippedCount, failedCount, stdout)
+	finalizeOneInput(ctx, staged, createdCount, skippedCount, failedCount, prsCount, stdout)
 
 	return constants.CommitInExitOk
 }

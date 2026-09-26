@@ -26,21 +26,22 @@ func processOneCommit(
 	staged workspace.StagedInput,
 	c walk.SourceCommit,
 	pick func(int,
-	) int, stdout io.Writer) {
+	) int, stdout io.Writer,
+) bool {
 	inputRepoID, srcID, ok := persistSource(ctx, staged, c, stdout)
 	if !ok {
-		return
+		return false
 	}
 
 	if handleDedupe(ctx, srcID, c, stdout) {
-		return
+		return false
 	}
 
 	keptFiles := applyExclusions(c.Files, ctx.Resolved.Exclusions)
 	if len(c.Files) > 0 && len(keptFiles) == 0 {
 		recordSkip(ctx, srcID, constants.CommitInSkipReasonExcludedAllFiles, stdout, c.Sha)
 
-		return
+		return false
 	}
 
 	c.Files = keptFiles
@@ -52,10 +53,10 @@ func processOneCommit(
 	if finalMsg.IsEmpty {
 		recordSkip(ctx, srcID, constants.CommitInSkipReasonEmptyAfterMessageRules, stdout, c.Sha)
 
-		return
+		return false
 	}
 
-	doReplayAndRecord(ctx, staged, c, finalMsg.Message, inputRepoID, srcID, stdout)
+	return doReplayAndRecord(ctx, staged, c, finalMsg.Message, inputRepoID, srcID, stdout)
 }
 
 // persistSource inserts InputRepo (once per staged input via cache)
@@ -151,12 +152,12 @@ func doReplayAndRecord(
 	inputRepoID,
 	srcID int64,
 	stdout io.Writer,
-) {
+) bool {
 	_ = inputRepoID
 	if ctx.Raw.IsDryRun {
 		recordSkip(ctx, srcID, constants.CommitInSkipReasonDryRun, stdout, c.Sha)
 
-		return
+		return false
 	}
 
 	plan := buildReplayPlan(ctx, staged, c, msg)
@@ -166,27 +167,35 @@ func doReplayAndRecord(
 	}
 
 	if abort || skip {
-		return
+		return false
 	}
 
 	res, err := replay.ApplyCommit(plan, false)
 	if err != nil {
 		recordFail(ctx, srcID, c, msg, err, stdout)
 
-		return
+		return false
 	}
 
 	recordCreated(ctx, srcID, c, msg, res.NewSha, stdout)
-	maybeProcessPR(plan, c, msg, ctx.Resolved.PRMode, res.NewSha, stdout)
+	return maybeProcessPR(plan, c, msg, ctx.Resolved.PRMode, res.NewSha, stdout)
 }
 
-func maybeProcessPR(plan replay.Plan, c walk.SourceCommit, msg, prMode, newSha string, stdout io.Writer) {
-	if plan.IsDirectTree && !strings.HasPrefix(strings.ToLower(strings.TrimSpace(c.OriginalMessage)), "merge ") {
-		return
+func maybeProcessPR(plan replay.Plan, c walk.SourceCommit, msg, prMode, newSha string, stdout io.Writer) bool {
+	lowerMsg := strings.ToLower(strings.TrimSpace(c.OriginalMessage))
+	isPR := strings.Contains(lowerMsg, "pull request") ||
+		strings.Contains(lowerMsg, "merge #") ||
+		strings.HasPrefix(lowerMsg, "merge ")
+	if !isPR {
+		return false
+	}
+	if plan.IsDirectTree && !strings.HasPrefix(lowerMsg, "merge ") {
+		return false
 	}
 	if err := committransfer.ProcessPRCommit(plan.TargetRepoDir, c.OriginalMessage, msg, c.Sha[:7], prMode, newSha); err != nil {
 		fmt.Fprintf(stdout, "PR processing failed: %v\n", err)
 	}
+	return true
 }
 
 func buildReplayPlan(
