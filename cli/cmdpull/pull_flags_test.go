@@ -143,7 +143,7 @@ func TestNormalizeAndParsePullFlags_PaStatusAndJSON(t *testing.T) {
 
 func TestBuildPullBatchSummary_JSONStructure(t *testing.T) {
 	states := []*PullRepoState{
-		{RepoName: "repo-a", Changes: "2 commits", Step: PullStepDone},
+		{RepoName: "repo-a", Changes: "2 commits"},
 	}
 	summary := buildPullBatchSummary(1, states, 250*time.Millisecond)
 	raw, err := json.Marshal(summary)
