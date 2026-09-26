@@ -7,3 +7,4 @@
 - [111-update-all-ssh-dial-failure-and-missing-command-suggestions.md](completed/111-update-all-ssh-dial-failure-and-missing-command-suggestions.md) — SSH Fleet Update Authentication Dial Failure & Missing Command Suggestions
 - [112-agy-rerun-active-project-non-destructive-and-conversation-commands.md](completed/112-agy-rerun-active-project-non-destructive-and-conversation-commands.md) — Antigravity Rerun Active Project Resolution, Non-Destructive Replay & Dedicated Conversation Commands (Spec: [161](../../02-spec/21-app/161-agy-rerun-active-project-non-destructive-and-conversation-commands.md))
 - [163-ssh-deploy-keys-node-config-and-oneliner-clipboard.md](completed/163-ssh-deploy-keys-node-config-and-oneliner-clipboard.md) — SSH Fleet Deploy Keys, Node-Config, and One-Liner Clipboard (Spec: [163](../../02-spec/21-app/163-ssh-deploy-keys-node-config-and-oneliner-clipboard.md))
+- xx-agy-enhancements.md (Completed)

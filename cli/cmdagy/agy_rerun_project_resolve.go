@@ -182,9 +182,9 @@ func fetchProjectLatestActivityMap() map[string]string {
 	}
 	defer conn.Close()
 
-	query := `SELECT project_id, workspace_uris, MAX(last_modified_time) 
-		FROM conversation_summaries 
-		WHERE (killed IS NULL OR killed = 0) 
+	query := `SELECT project_id, workspace_uris, MAX(last_modified_time)
+		FROM conversation_summaries
+		WHERE (killed IS NULL OR killed = 0)
 		GROUP BY COALESCE(NULLIF(project_id, ''), workspace_uris)`
 
 	rows, qErr := conn.Query(query)
@@ -221,8 +221,8 @@ func fetchRunningProjectsSet() map[string]bool {
 	}
 	defer conn.Close()
 
-	query := `SELECT project_id, workspace_uris, title 
-		FROM conversation_summaries 
+	query := `SELECT project_id, workspace_uris, title
+		FROM conversation_summaries
 		WHERE (killed IS NULL OR killed = 0) AND not_fully_idle != 0`
 
 	rows, qErr := conn.Query(query)

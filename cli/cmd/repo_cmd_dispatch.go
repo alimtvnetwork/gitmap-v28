@@ -19,6 +19,8 @@ func runRepoCommand(args []string) error {
 		return runRepoDB(args[1:])
 	case "create", "new", "c", "repo-create", "create-repo", "repoc", "crepo":
 		return runCreate(args[1:])
+	case "recreate", "recreate-repo", "repo-recreate":
+		return runRecreate(args[1:])
 	case "create-local", "local", "clr", "create-local-repo", "create-repo-local", "repo-create-local":
 		return runCreateLocal(args[1:])
 	case "help", "-h", "--help":
@@ -39,6 +41,7 @@ func printRepoHelp() {
 	fmt.Println(constants.ColorCyan + "Commands:" + constants.ColorReset)
 	fmt.Printf("  %-22s %s\n", "create (c)", "Create a new repository locally and on GitHub (auto-slugifies spaces)")
 	fmt.Printf("  %-22s %s\n", "create-local (clr)", "Create a local-only git repository")
+	fmt.Printf("  %-22s %s\n", "recreate-repo", "Duplicate an existing local repo to a new remote")
 	fmt.Printf("  %-22s %s\n", "db", "Manage repository-specific split database (status, log, clear, reset, optimize)")
 	fmt.Printf("  %-22s %s\n", "help", "Show repository command help")
 	fmt.Println()

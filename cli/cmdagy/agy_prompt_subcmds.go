@@ -45,6 +45,8 @@ func initAgyPromptSubcommands() {
 	agyPromptCmd.AddCommand(agyPromptReadCmd)
 	agyPromptCmd.AddCommand(agyPromptLsCmd)
 	agyPromptCmd.AddCommand(agyPromptInjectCmd)
+	agyPromptCmd.AddCommand(AgyInjectPromptsCmd)
+	agyPromptCmd.AddCommand(AgyEnhancePromptsCmd)
 	agyPromptCmd.AddCommand(cmdprompt.PromptAddCmd)
 	cmdantigravity.SetPromptDispatcher(dispatchPromptFromAntigravityCmd)
 }

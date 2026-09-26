@@ -15,6 +15,8 @@ type createRepoParams struct {
 	IsSkipRemote bool
 	IsJSON       bool
 	IsYAML       bool
+	IsCommon     bool
+	IsCG         bool
 	Profile      model.GitProfile
 }
 
@@ -72,6 +74,8 @@ func parseCreateParams(args []string, defaultLocal bool) (createRepoParams, erro
 		IsSkipRemote: defaultLocal || hasArgFlag(args, "--local") || hasArgFlag(args, "--no-remote"),
 		IsJSON:       hasArgFlag(args, "--json") || hasArgFlag(args, "-json"),
 		IsYAML:       hasArgFlag(args, "--yaml") || hasArgFlag(args, "--yml") || hasArgFlag(args, "-yaml") || hasArgFlag(args, "-y"),
+		IsCommon:     hasArgFlag(args, "--common"),
+		IsCG:         hasArgFlag(args, "--cg"),
 		Description:  extractFlagVal(args, "--description"),
 	}
 	if p.Description == "" {

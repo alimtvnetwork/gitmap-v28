@@ -160,7 +160,7 @@ var defaultPrettierrcBaseline = map[string]any{
 	"trailingComma": "all",
 }
 
-const syncUsage = `Usage: gitmap sync <target> [flags]
+const commonUsage = `Usage: gitmap common <target> [flags]
 
 Targets:
   ignore            Union-merge curated defaults into ./.gitignore
@@ -182,55 +182,55 @@ Behavior:
     (marker-block managed, idempotent). Requires git-lfs on PATH.
   - .prettierrc is JSON key-union: missing keys are added; existing keys stay
     unless --force is passed.
-  - Alias: gitmap sy <target>
+  - Alias: gitmap co <target>
 
 Examples:
-  gitmap sync ignore
-  gitmap sync attributes --dry-run
-  gitmap sync lfs-install
-  gitmap sync lfs-install --dry-run
-  gitmap sync all --dry-run
-  gitmap sync prettier-rc --force
+  gitmap common ignore
+  gitmap common attributes --dry-run
+  gitmap common lfs-install
+  gitmap common lfs-install --dry-run
+  gitmap common all --dry-run
+  gitmap common prettier-rc --force
 `
 
-// dispatchSync routes `gitmap sync <target>` subcommands.
-func dispatchSync(command string) (bool, error) {
-	if command != constants.CmdSync && command != constants.CmdSyncAlias {
+// dispatchCommon routes `gitmap common <target>` subcommands.
+func dispatchCommon(command string) (bool, error) {
+	if command != constants.CmdCommon && command != constants.CmdCommonAlias {
 		return false, nil
 	}
 
-	if len(os.Args) < 3 || isSyncHelp(os.Args[2]) {
+	if len(os.Args) < 3 || isCommonHelp(os.Args[2]) {
 		RenderSyncHelp()
 
 		return true, nil
 	}
 
 	sub, rest := os.Args[2], os.Args[3:]
-	dry, force := parseSyncFlags(rest)
+	dry, force := parseCommonFlags(rest)
 
 	switch sub {
 	case "ignore":
-		runSyncLines(".gitignore", defaultGitignoreBaseline, dry)
+		runCommonLines(".gitignore", defaultGitignoreBaseline, dry)
 	case "attributes":
-		runSyncLines(".gitattributes", defaultGitattributesBaseline, dry)
+		runCommonLines(".gitattributes", defaultGitattributesBaseline, dry)
 	case "lfs-install":
-		runSyncLFSInstall(dry)
+		runCommonLFSInstall(dry)
 	case "prettier-ignore":
-		runSyncLines(".prettierignore", defaultPrettierignoreBaseline, dry)
+		runCommonLines(".prettierignore", defaultPrettierignoreBaseline, dry)
 	case "prettier-rc":
-		runSyncPrettierRC(dry, force)
+		runCommonPrettierRC(dry, force)
 	case "all":
-		runSyncLines(".gitignore", defaultGitignoreBaseline, dry)
-		runSyncLines(".gitattributes", defaultGitattributesBaseline, dry)
-		runSyncLFSInstall(dry)
-		runSyncLines(".prettierignore", defaultPrettierignoreBaseline, dry)
-		runSyncPrettierRC(dry, force)
+		runCommonLines(".gitignore", defaultGitignoreBaseline, dry)
+		runCommonLines(".gitattributes", defaultGitattributesBaseline, dry)
+		runCommonLFSInstall(dry)
+		runCommonLines(".prettierignore", defaultPrettierignoreBaseline, dry)
+		runCommonPrettierRC(dry, force)
 	default:
 		err := apperror.NewWithDetails(
-			"cmd.sync.dispatch.unknown",
+			"cmd.common.dispatch.unknown",
 			"E1145",
-			fmt.Sprintf("unknown sync target: %s\n\n%s", sub, syncUsage),
-			"cmd.sync",
+			fmt.Sprintf("unknown sync target: %s\n\n%s", sub, commonUsage),
+			"cmd.common",
 			apperror.ErrorTypeValidation,
 			apperror.SeverityError,
 			map[string]any{"subcommand": sub},
@@ -241,12 +241,12 @@ func dispatchSync(command string) (bool, error) {
 	return true, nil
 }
 
-func isSyncHelp(arg string) bool {
+func isCommonHelp(arg string) bool {
 	return arg == "help" || arg == "-h" || arg == "--help"
 }
 
-// parseSyncFlags scans args for --dry-run and --force (position agnostic).
-func parseSyncFlags(args []string) (dry, force bool) {
+// parseCommonFlags scans args for --dry-run and --force (position agnostic).
+func parseCommonFlags(args []string) (dry, force bool) {
 	for _, a := range args {
 		switch a {
 		case "--dry-run", "-n":
@@ -259,9 +259,9 @@ func parseSyncFlags(args []string) (dry, force bool) {
 	return
 }
 
-// runSyncLines appends every line from baseline that is not already
+// runCommonLines appends every line from baseline that is not already
 // present (verbatim, trimmed compare) in the target file.
-func runSyncLines(path, baseline string, dry bool) error {
+func runCommonLines(path, baseline string, dry bool) error {
 	existing, _ := os.ReadFile(path)
 	present := map[string]bool{}
 	for _, l := range strings.Split(string(existing), "\n") {
@@ -306,7 +306,7 @@ func runSyncLines(path, baseline string, dry bool) error {
 	}
 
 	if len(existing) > 0 {
-		buf += "\n# added by gitmap sync\n"
+		buf += "\n# added by gitmap common\n"
 	}
 
 	buf += strings.Join(toAdd, "\n")
@@ -317,10 +317,10 @@ func runSyncLines(path, baseline string, dry bool) error {
 	if err := os.WriteFile(path, []byte(buf), 0o644); err != nil {
 		appErr := apperror.WrapWithDetails(
 			err,
-			"cmd.sync.writeLines",
+			"cmd.common.writeLines",
 			"E1146",
 			"failed to write synced lines to file",
-			"cmd.sync",
+			"cmd.common",
 			apperror.ErrorTypeExecution,
 			apperror.SeverityError,
 			map[string]any{"path": path},
@@ -335,9 +335,9 @@ func runSyncLines(path, baseline string, dry bool) error {
 	return nil
 }
 
-// runSyncPrettierRC does a JSON key-union. Existing keys are kept unless
+// runCommonPrettierRC does a JSON key-union. Existing keys are kept unless
 // --force is passed; missing keys are inserted from the baseline.
-func runSyncPrettierRC(dry, force bool) error {
+func runCommonPrettierRC(dry, force bool) error {
 	const path = ".prettierrc"
 	current := map[string]any{}
 
@@ -385,10 +385,10 @@ func runSyncPrettierRC(dry, force bool) error {
 	if err != nil {
 		appErr := apperror.WrapWithDetails(
 			err,
-			"cmd.sync.marshalPrettierRC",
+			"cmd.common.marshalPrettierRC",
 			"E1147",
 			"failed to marshal .prettierrc JSON",
-			"cmd.sync",
+			"cmd.common",
 			apperror.ErrorTypeExecution,
 			apperror.SeverityError,
 			nil,
@@ -402,10 +402,10 @@ func runSyncPrettierRC(dry, force bool) error {
 	if err := os.WriteFile(path, out, 0o644); err != nil {
 		appErr := apperror.WrapWithDetails(
 			err,
-			"cmd.sync.writePrettierRC",
+			"cmd.common.writePrettierRC",
 			"E1148",
 			"failed to write .prettierrc",
-			"cmd.sync",
+			"cmd.common",
 			apperror.ErrorTypeExecution,
 			apperror.SeverityError,
 			map[string]any{"path": path},
@@ -436,11 +436,11 @@ func syncJSONEqual(a, b any) bool {
 	return bytes.Equal(ab, bb)
 }
 
-// runSyncLFSInstall delegates to `gitmap add lfs-install`. Kept as a
+// runCommonLFSInstall delegates to `gitmap add lfs-install`. Kept as a
 // thin wrapper so the sync surface stays a single dispatch table while
 // the LFS logic (marker block, templates.Merge, git-lfs probe) lives
 // once in addlfsinstall.go.
-func runSyncLFSInstall(dry bool) error {
+func runCommonLFSInstall(dry bool) error {
 	args := []string{}
 	if dry {
 		args = append(args, "--dry-run")
@@ -456,10 +456,10 @@ func parsePrettierRC(path string, data []byte, current *map[string]any) {
 	if err != nil {
 		appErr := apperror.WrapWithDetails(
 			err,
-			"cmd.sync.parsePrettierRC",
+			"cmd.common.parsePrettierRC",
 			"E1149",
 			"failed to parse existing .prettierrc JSON",
-			"cmd.sync",
+			"cmd.common",
 			apperror.ErrorTypeValidation,
 			apperror.SeverityError,
 			map[string]any{"path": path},

@@ -159,3 +159,9 @@ const (
 
 // Verbose log file.
 const VerboseLogFileFmt = "gitmap-verbose-%s.log"
+
+// Common command constants
+const (
+	CmdCommon      = "common"
+	CmdCommonAlias = "co"
+)
