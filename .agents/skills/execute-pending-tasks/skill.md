@@ -376,7 +376,7 @@ To guarantee full execution without stopping after planning mode, the master orc
 - [ ] Code adheres to explicit booleans, `Type` suffixed Enums, and error wrapper rules.
 - [ ] Formatting & Acronyms: Spacing rules are strictly followed. Acronyms are strictly PascalCase (`SwapIpWindows` not `SwapIPWindows`).
 - [ ] Fast-forward commits created and pushed without rewriting published git history.
-- [ ] /goal Final Step Commit & Push (NO Per-File Commits): Accumulate all changes across the turn without committing individual files one-by-one. In the final step, stage all changes (`git add -A`), create a single grouped atomic commit (`git commit -m "<type>(<scope>): <summary>"`), and push to the remote git branch (`git push origin <branch>`).
+- [ ] /goal Final Step Commit & Push (NO Per-File Commits): Accumulate all changes across the turn without committing individual files one-by-one. In the final step, stage all changes (`git add -A`), create a single grouped atomic commit (`git commit -m "<summary>"`), and push to the remote git branch (`git push origin <branch>`).
 - [ ] Continuous loop maintained; only pausing to ask for "continue" on critical unrecoverable failures.
 
 ## Banned Operations Checklist (TOTAL BAN — Auto-Reject on Violation)
@@ -440,7 +440,7 @@ When all subtasks for a parent task (`.ai-memory/plans/pending/xx-<slug>.md`) ar
 3. Delete the original granular `.md` files in `.ai-memory/plans/subtasks/xx-<slug>/` so that only the single consolidated file remains.
 4. Delete the original parent plan `.ai-memory/plans/pending/xx-<slug>.md`.
 5. Update `.ai-memory/plans/readme.md` to point to the newly consolidated completed file.
-6. Final Step Git Commit & Push (MANDATORY): Stage all modified files, consolidated plans, and memory records (`git add -A`), commit them in a single clean grouped atomic commit (`git commit -m "<type>(<scope>): <summary>"`), and push to git (`git push origin <branch>`). Under no circumstances commit each file individually.
+6. Final Step Git Commit & Push (MANDATORY): Stage all modified files, consolidated plans, and memory records (`git add -A`), commit them in a single clean grouped atomic commit (`git commit -m "<summary>"`), and push to git (`git push origin <branch>`). Under no circumstances commit each file individually.
 
 ## Final Step Git Commit & Push Mandate (Strict Checklist)
 

@@ -335,11 +335,11 @@ To reduce markdown file count and bloat, consolidate subtasks when a parent task
 5. Update `.ai-memory/plans/readme.md` to point to the newly consolidated completed file.
 6. Final Step Git Commit & Push via GitMap Semantic Commit Commands (Mandatory):
    - Heavily leverage GitMap semantic commit & push commands rather than raw multiline git chains:
-     - For features/tasks: `gitmap cpf "<type>(<scope>): <summary>"` (automatically stages all files, prefixes `Feature: `, commits, and pushes to remote).
-     - For fixes/bugs: `gitmap cpb "<type>(<scope>): <summary>"` (automatically stages all files, prefixes `Bug: `, commits, and pushes).
-     - For releases: `gitmap cpr "<type>(<scope>): <summary>"` (automatically stages all files, prefixes `Release: `, commits, and pushes).
-     - For safe pull-commit-push: `gitmap pcp "<type>(<scope>): <summary>"`.
-   - If GitMap CLI is unavailable, fallback to raw git: `git add -A && git commit -m "<type>(<scope>): <summary>" && git push origin <branch>`.
+     - For features/tasks: `gitmap cpf "<summary>"` (automatically stages all files, prefixes `Feature: `, commits, and pushes to remote).
+     - For fixes/bugs: `gitmap cpb "<summary>"` (automatically stages all files, prefixes `Bug: `, commits, and pushes).
+     - For releases: `gitmap cpr "<summary>"` (automatically stages all files, prefixes `Release: `, commits, and pushes).
+     - For safe pull-commit-push: `gitmap pcp "<summary>"`.
+   - If GitMap CLI is unavailable, fallback to raw git: `git add -A && git commit -m "<summary>" && git push origin <branch>`.
    - Under no circumstances commit each file individually.
 
 ---

@@ -38,6 +38,8 @@ REPOS = [
     "wp-link-manager",
     "wp-onboarding",
     "cat-my",
+    "scripts-fixer",
+    "gitlogger-new",
 ]
 
 BASE_DIR = Path("d:/work")

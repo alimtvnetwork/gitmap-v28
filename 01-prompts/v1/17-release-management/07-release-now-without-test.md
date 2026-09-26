@@ -3,7 +3,7 @@
 > [!IMPORTANT]
 > Prompt Version: 2.5.0
 > Synchronization: Main Meta-Repo & Connected Workspaces
-> 
+>
 > **Top-Instruction Priority Mandate (Preamble Precedence):**
 > Whatever directives, constraints, checklists, or instructions are given before this section or prompt (including in the prompt preamble, header blocks, or incoming user request) are HIGHEST PRIORITY and MUST BE FOLLOWED as strictly NON-NEGOTIABLE. They supersede and strictly override any conflicting general advice, default conventions, or lower-level guidelines below.
 
@@ -42,15 +42,15 @@ Before any execution, check if this prompt is installed as a native Antigravity 
 
 > [!CAUTION]
 > **TOTAL BAN ON BUILDING, LOCAL TESTING, AND POST-PUBLISH CI/CD CHECKING:**
-> 
+>
 > 1. **STRICTLY AVOID BUILDING THE CODE (TOTAL BAN):**
 >    - NEVER execute build verification commands (`go build`, `npm run build`, `cargo build`, `make build`, compiler invocations).
 >    - An instant release must not be blocked or delayed by local compiler passes.
-> 
+>
 > 2. **STRICTLY AVOID RUNNING ANY CI/CD LOCALLY (TOTAL BAN):**
 >    - NEVER run `python 03-ai-scripts/06-cicd-local-runner.py`, unit test suites (`go test ./...`, `pytest`, `npm test`), or local gate checkers.
 >    - Pre-release verification is completely bypassed. The release orchestrator MUST be run with `--skip-tests`.
-> 
+>
 > 3. **STRICTLY AVOID CHECKING CI/CD AFTER PUBLISH (TOTAL BAN):**
 >    - NEVER monitor, query, or poll remote CI/CD pipelines (GitHub Actions, GitLab CI) after publishing.
 >    - DO NOT run `gitmap pipeline-ai`, `gitmap pl-ai status`, or loop `gh run view`.

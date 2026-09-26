@@ -142,7 +142,7 @@ MANDATORY SAME-TURN TOOL CHAIN: The breakdown text above and your first tool cal
 1. Consolidate completed subtasks into `.ai-memory/plans/completed/xx-<slug>.md`.
 2. Delete granular subtasks in `.ai-memory/plans/subtasks/xx-<slug>/` and pending plan `.ai-memory/plans/pending/xx-<slug>.md`.
 3. Update `.ai-memory/plans/readme.md`.
-4. **Final Step Git Commit & Push (Mandatory):** Stage all modified files (`git add -A`), commit them in a single clean grouped atomic commit (`git commit -m "<type>(<scope>): <summary>"`), and push to git (`git push origin <branch>`). Under no circumstances commit each file individually.
+4. **Final Step Git Commit & Push (Mandatory):** Stage all modified files (`git add -A`), commit them in a single clean grouped atomic commit (`git commit -m "<summary>"`), and push to git (`git push origin <branch>`). Under no circumstances commit each file individually.
 
 ---
 

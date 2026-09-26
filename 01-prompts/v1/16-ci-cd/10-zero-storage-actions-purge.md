@@ -3,9 +3,9 @@
 Trigger Keywords & Aliases: `purge actions storage`, `zero storage mandate`, `purge artifacts`, `purge actions cache`, `clean actions storage`, `github actions storage purge`
 
 > [!IMPORTANT]
-> Prompt Version: 1.0.0  
+> Prompt Version: 1.0.0
 > Synchronization: Main Meta-Repo & Connected Workspaces
-> 
+>
 > **Zero-Storage Actions Mandate:**
 > GitHub Actions shared storage (artifacts and caches) must be maintained at 0.0 GB (or strictly within the 0.5 GB free quota). Any workflow generating artifacts must enforce `retention-days: 1` and clean up post-release. Any repository hoarding unpurged artifacts or multi-gigabyte build caches must be purged immediately using the autonomous purge automation.
 
