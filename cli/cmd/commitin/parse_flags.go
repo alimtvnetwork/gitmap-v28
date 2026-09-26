@@ -48,6 +48,8 @@ func registerBoolFlags(fs *flag.FlagSet, raw *RawArgs) {
 	fs.BoolVar(&raw.IsNoReleaseBranch, constants.CommitInFlagNoReleaseBranch, false, constants.CommitInDescNoReleaseBranch)
 	fs.BoolVar(&raw.IsSponsor, "sponsor", false, "Append Rise Up Asia sponsor and leadership templates")
 	fs.BoolVar(&raw.IsTree, "tree", false, "Display commit/PR branch dependency tree before execution")
+	fs.BoolVar(&raw.IsFinalSync, "final-sync", false, "Final mirror snapshot synchronization")
+	fs.BoolVar(&raw.IsFinalSync, "sync", false, "Alias for final-sync")
 }
 
 func registerStringFlags(fs *flag.FlagSet, raw *RawArgs) {
@@ -88,5 +90,7 @@ func boolFlagSet() map[string]bool {
 		constants.CommitInFlagNoReleaseBranch:      true,
 		"sponsor":                                  true,
 		"tree":                                     true,
+		"final-sync":                               true,
+		"sync":                                     true,
 	}
 }

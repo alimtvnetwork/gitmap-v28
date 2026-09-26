@@ -89,11 +89,9 @@ func recordPendingTaskAudit(command string, args []string) {
 
 func isPendingTaskCommand(command string) bool {
 	switch command {
-	case "pending", "status", "st", "version", "--version", "-v", "help", "--help", "-h", "docs":
-		return false
-	case "storage", "disk", "df", "ps", "ls":
+	case "clone", "c", "scan", "s", "pull", "p", "exec", "x", "upgrade":
+		return true
+	default:
 		return false
 	}
-
-	return true
 }

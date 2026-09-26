@@ -6,6 +6,7 @@ package orchestrator
 import (
 	"fmt"
 	"io"
+	"path/filepath"
 	"time"
 
 	"github.com/alimtvnetwork/gitmap-v28/cli/cmd/commitin"
@@ -14,6 +15,7 @@ import (
 	"github.com/alimtvnetwork/gitmap-v28/cli/cmd/commitin/runlog"
 	"github.com/alimtvnetwork/gitmap-v28/cli/cmd/commitin/workspace"
 	"github.com/alimtvnetwork/gitmap-v28/cli/constants"
+	"github.com/alimtvnetwork/gitmap-v28/cli/workspacesync"
 )
 
 // Run executes the entire commit-in pipeline for one parsed argv.
@@ -43,8 +45,16 @@ func Run(raw *commitin.RawArgs, stdout, stderr io.Writer) int {
 	if ctx.Raw.IsDryRun {
 		finalize.PrintDryRunBanner(stderr)
 	}
+	maybeRunFinalSync(ctx)
 
 	return finalize.Outcome(ctx.Counters)
+}
+
+func maybeRunFinalSync(ctx *runContext) {
+	if !ctx.Raw.IsFinalSync || ctx.Raw.IsDryRun {
+		return
+	}
+	workspacesync.SyncAll(ctx.Paths.SourceRoot, filepath.Base(ctx.Paths.SourceRoot))
 }
 
 // finalRunStatus picks the spec §4 RunStatus enum for the FinishRun
