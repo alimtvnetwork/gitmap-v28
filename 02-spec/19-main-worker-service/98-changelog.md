@@ -1,3 +1,9 @@
+## v6.345.0 — 2026-09-26 (Pull-all fast mode, templates state DB, and declarative config)
+
+**Scope:** Version bump. Pull-all fast mode, templates state DB, and declarative config.
+
+---
+
 ## v6.344.1 — 2026-09-26 (ssh dual-table persistence, bidirectional host sync, compact oneliner export, and import auto-rendering)
 
 **Scope:** Version bump. ssh dual-table persistence, bidirectional host sync, compact oneliner export, and import auto-rendering.
