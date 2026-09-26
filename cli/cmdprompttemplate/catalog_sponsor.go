@@ -7,13 +7,19 @@ import (
 )
 
 // GetSponsorCategoryTemplates returns templates from the state DB 'seo' or 'sponsor' category,
-// falling back to generic engineering quality templates when the state DB is empty.
+// supplementing with generic engineering quality templates when fewer than 20 templates exist.
 func GetSponsorCategoryTemplates() []PromptTemplate {
-	if stateItems := loadStateDBSEOTemplates(); len(stateItems) > 0 {
+	stateItems := loadStateDBSEOTemplates()
+	if len(stateItems) >= 20 {
 		return stateItems
 	}
 
-	return buildGenericArchitectureTemplates()
+	generic := buildGenericArchitectureTemplates()
+	if len(stateItems) == 0 {
+		return generic
+	}
+
+	return append(stateItems, generic...)
 }
 
 func loadStateDBSEOTemplates() []PromptTemplate {

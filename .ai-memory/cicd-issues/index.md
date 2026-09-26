@@ -71,3 +71,4 @@
 - [80-windows-installer-smoke-timeout-rca.md](./80-windows-installer-smoke-timeout-rca.md): Fix Windows installer smoke runner timeout via explicit job timeout-minutes.
 - [81-pipeline-pull-efficient-mock-git-and-shared-engine-sync-rca.md](./81-pipeline-pull-efficient-mock-git-and-shared-engine-sync-rca.md): Fix PAE activity git mock in tests, sync help alias adapter, shared engine contract restoration, and unit test runner isolation.
 - [82-gencommands-drift-cmd-parity-and-agy-recreate-projects-dir-rca.md](./82-gencommands-drift-cmd-parity-and-agy-recreate-projects-dir-rca.md): Fix gencommands drift, top-level command AST parity, and headless Antigravity projects dir creation.
+- [83-sponsor-seo-templates-minimum-count-rca.md](./83-sponsor-seo-templates-minimum-count-rca.md): Fix sponsor/seo templates minimum count when partial state DB records exist.
