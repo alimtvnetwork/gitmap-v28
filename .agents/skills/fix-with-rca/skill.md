@@ -8,7 +8,7 @@ description: Diagnose, analyze, and fix bugs using grounded 4-part Root Cause An
 > [!IMPORTANT]
 > Prompt Version: 2.5.0
 > Synchronization: Main Meta-Repo & Connected Workspaces
-> 
+>
 > **Top-Instruction Priority Mandate (Preamble Precedence):**
 > Whatever directives, constraints, checklists, or instructions are given before this section or prompt (including in the prompt preamble, header blocks, or incoming user request) are HIGHEST PRIORITY and MUST BE FOLLOWED as strictly NON-NEGOTIABLE. They supersede and strictly override any conflicting general advice, default conventions, or lower-level guidelines below.
 

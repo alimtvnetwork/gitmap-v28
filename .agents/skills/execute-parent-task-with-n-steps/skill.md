@@ -9,7 +9,7 @@ description: >-
 > [!IMPORTANT]
 > Prompt Version: 2.6.0
 > Synchronization: Main Meta-Repo & Connected Workspaces
-> 
+>
 > **Top-Instruction Priority Mandate (Preamble Precedence):**
 > Whatever directives, constraints, checklists, or instructions are given before this section or prompt (including in the prompt preamble, header blocks, or incoming user request) are HIGHEST PRIORITY and MUST BE FOLLOWED as strictly NON-NEGOTIABLE. They supersede and strictly override any conflicting general advice, default conventions, or lower-level guidelines below.
 
@@ -51,7 +51,7 @@ N, A, H, PHASE_1_STEPS, and PHASE_2_STEPS are read-only after initialization. Ne
 9. [ ] /goal Phase 2 (Failure Memory & Error Recovery): If a subagent fails, record the failure log in `.ai-memory/plan.md` and `.ai-memory/memory/issues/`; subsequent agents must read the failure log first to remediate root causes.
 10. [ ] /goal Phase 2 (Change Recording & Quality Linting): Record all modified files into `.ai-memory/temp/recent-file-changes.json` under lock (`python 03-ai-scripts/33-test-inventory-generator.py --record <files...>`) and run targeted file-level linters on specifically modified files (`exit 0`). Do not run `06-cicd-local-runner.py`, unit tests, or build checks (deferred to CI/CD).
 11. [ ] /goal Phase 3 (Consolidation & Atomic Push): Consolidate completed subtasks into `.ai-memory/plans/completed/xx-<slug>.md` preserving the canonical spec reference (canonical spec in `02-spec/21-app/` remains permanently intact), delete granular subtasks and pending plan, stage all changes, and push in a single grouped commit.
-12. [ ] /goal Phase 3 (Completion & Confidence Reporting): Emit the final Task Completion Summary with green check mark emojis, modified files summary, and implementation confidence score.
+12. [ ] /goal Phase 3 (Completion & Confidence Reporting): Emit the final Task Completion Summary with strict line-by-line bullet format (- ✅), modified files summary, and implementation confidence score.
 13. [ ] /learn Ingest `.ai-memory/memory/readme.md` for project memory index and past learnings.
 14. [ ] /learn Ingest `.ai-memory/strictly-avoid.md` for banned anti-patterns and strict constraints.
 15. [ ] /learn Ingest `02-spec/02-coding-guidelines/` for domain-specific architectural specifications.
@@ -236,22 +236,22 @@ Before transitioning to execution, verify:
    - NEVER spawn subagents with starved one-liner instructions. Subagents spawn in an isolated context and must receive a complete, self-contained **Prompt Envelope**:
      ```markdown
      You are Subagent Worker [NN].
-     
+
      ### Assigned Subtasks (H = 2 Batch Capacity):
      - Subtask 1: `.ai-memory/plans/subtasks/xx-<slug>/01-<name>.md`
      - Subtask 2: `.ai-memory/plans/subtasks/xx-<slug>/02-<name>.md` (if assigned)
-     
+
      ### Strict Target File Bounding Box (Disjoint Files Only):
      - Allowed Target Files: `[path/to/file1.go, path/to/file2.go]`
      - TOTAL BAN: You are strictly banned from touching or modifying ANY other files in the workspace.
-     
+
      ### Non-Negotiable Coding Rules:
      1. Positive booleans only (`isReady`, `hasPermission`), NO explicit `== true`.
      2. Structured Go errors: return `*appfault.AppError`, never bare `error`.
      3. Function sizing: <= 8 lines preferred (hard cap 15 lines).
      4. Zero tests or builds: NEVER run `go test`, `pytest`, or build commands.
      5. Targeted quality check: Run only targeted file-level linters (`python 03-ai-scripts/05-guideline-autofixer.py <file>`).
-     
+
      ### Completion & Reporting Contract:
      When finished, emit a structured completion summary detailing:
      - Exact files modified
@@ -316,19 +316,37 @@ To reduce markdown file count and bloat, consolidate subtasks when a parent task
 
 ## 7. End-of-Turn Verification & Confidence Reporting (Mandatory Output)
 
-At the completion of all tasks and before concluding the turn, you must emit this structured verification summary in the chat response:
+At the completion of all tasks and before concluding the turn, you MUST emit this structured verification summary in the chat response.
+
+> [!CRITICAL]
+> **STRICT LINE-BY-LINE OUTPUT MANDATE (TOTAL BAN ON HORIZONTAL CONCATENATION):**
+> Every single completed task in the `Task Completion Summary` MUST be rendered on its OWN SEPARATE LINE starting with an individual markdown list bullet (`- ✅`).
+> NEVER concatenate multiple tasks horizontally into a single run-on paragraph or single wrapped line.
+> In Markdown, consecutive lines without bullet markers (`- `) collapse into a single run-on horizontal sentence. You MUST format each task as a discrete bullet list item (`- ✅`) followed by an explicit newline!
+>
+> ❌ **BANNED (Horizontal Run-on Concat):**
+> `✅ #1. Task-01: [Title] — Completed ✅ #2. Task-02: [Title] — Completed ✅ #3. Task-03: [Title] — Completed`
+>
+> ✅ **MANDATORY (Strict Line-by-Line Vertical Markdown List):**
+> ```markdown
+> ### Task Completion Summary
+>
+> - ✅ **Task-01: [Descriptive Task Title]** — `[Completed]`
+> - ✅ **Task-02: [Descriptive Task Title]** — `[Completed]`
+> - ✅ **Task-03: [Descriptive Task Title]** — `[Completed]`
+> ```
 
 ```markdown
 ### Task Completion Summary
 
-✅ #1. Task-01: [Task description] — Completed
-✅ #2. Task-02: [Task description] — Completed
-(If any task failed or was deferred, mark with ❌ or ⏳ and explain why)
+- ✅ **Task-01: [Descriptive Task Title]** — `[Completed]`
+- ✅ **Task-02: [Descriptive Task Title]** — `[Completed]`
+(If any task failed or was deferred, mark with `- ❌` or `- ⏳` on its own separate line and explain why)
 
 ### Modified Files Summary
 
-- [relative path to modified file 1]
-- [relative path to modified file 2]
+- [relative/path/to/modified/file1.ext]
+- [relative/path/to/modified/file2.ext]
 
 ### Implementation Confidence Score
 
@@ -365,6 +383,7 @@ Whenever the task involves fixing an issue, bug, pipeline failure, or performing
 - [ ] NO PER-FILE COMMITTING (TOTAL BAN): Never commit each file individually as you work (e.g. running `git commit` after editing File 1, then another commit after File 2). Committing file-by-file pollutes git history, creates subagent lock collisions, and breaks atomic changes. All modified files across the turn must be accumulated and committed together in a single atomic commit at the final step.
 - [ ] NO RAPID CI/CD POLLING (TOTAL BAN): Never query or loop rapidly (`gh run view` in tight loops) when inspecting remote CI/CD pipelines. Agents must query pipeline state using GitMap Pipeline-AI (`gitmap pipeline-ai status --json` or `gitmap pl-ai status -t <sec>`) and strictly wait or sleep based on `etaSeconds` to eliminate credit waste.
 - [ ] NO STOPPING AFTER SPEC WRITING (TOTAL BAN): Never halt execution, conclude the turn, or ask the user for permission after generating specs or subtasks. Planning constitutes only 50% of the task budget; you must proceed unconditionally to Phase 2 code execution.
+- [ ] NO HORIZONTAL TASK CONCATENATION (TOTAL BAN): Never concatenate tasks horizontally in the Task Completion Summary (e.g. NEVER `✅ #1... ✅ #2...` run-on). Every completed task MUST be rendered on its OWN SEPARATE LINE starting with an individual markdown list bullet (`- ✅`).
 
 ---
 

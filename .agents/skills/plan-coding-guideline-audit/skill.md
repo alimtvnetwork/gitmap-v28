@@ -38,4 +38,3 @@ To avoid 50-result tool truncation limits and eliminate multi-turn exploratory r
 - **Sub-Millisecond Folder Explorer & Reader:** `python 03-ai-scripts/17-fast-file-reader.py --list-folder <dir> --ext .go --limit 50`
 - **Read Target File:** `python 03-ai-scripts/17-fast-file-reader.py --read-file <file-path> --max-bytes 100000`
 - **Codebase Topology:** `python 03-ai-scripts/18-codebase-topology-discoverer.py --summary`
-

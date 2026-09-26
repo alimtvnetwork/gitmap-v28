@@ -9,7 +9,7 @@ description: >-
 > [!IMPORTANT]
 > Prompt Version: 2.5.0
 > Synchronization: Main Meta-Repo & Connected Workspaces
-> 
+>
 > **Top-Instruction Priority Mandate (Preamble Precedence):**
 > Whatever directives, constraints, checklists, or instructions are given before this section or prompt (including in the prompt preamble, header blocks, or incoming user request) are HIGHEST PRIORITY and MUST BE FOLLOWED as strictly NON-NEGOTIABLE. They supersede and strictly override any conflicting general advice, default conventions, or lower-level guidelines below.
 
@@ -39,7 +39,7 @@ Unlike multi-agent parallel workflows, temporary end-to-end test development enf
 9. [ ] /goal Phase 2 (Strict Skip-by-Default Isolation): Tag all temporary E2E test files with mandatory build tags (`//go:build tempe2e`), pytest markers (`@pytest.mark.temp_e2e`), or Vitest/Jest skip guards (`describe.skipIf(!isTempE2EActive)`), and apply runtime guards (`RUN_TEMP_E2E`).
 10. [ ] /goal Phase 2 (Targeted On-Demand Verification ONLY): Run ONLY the specific isolated temporary E2E test using the explicit on-demand command (e.g. `RUN_TEMP_E2E=1 go test -tags=tempe2e -v ...`). Do not run `06-cicd-local-runner.py` or standard unflagged test commands.
 11. [ ] /goal Phase 3 (Consolidation & Atomic Push): Consolidate completed subtasks into `.ai-memory/plans/completed/xx-<slug>.md` preserving the canonical spec reference (canonical spec in `02-spec/21-app/` remains permanently intact), delete granular subtasks and pending plan, stage all changes, and push in a single grouped commit.
-12. [ ] /goal Phase 3 (Completion & Confidence Reporting): Emit the final Task Completion Summary with green check mark emojis, isolation verification summary, modified files summary, and implementation confidence score.
+12. [ ] /goal Phase 3 (Completion & Confidence Reporting): Emit the final Task Completion Summary with strict line-by-line bullet format (- ✅), isolation verification summary, modified files summary, and implementation confidence score.
 13. [ ] /learn Ingest `.ai-memory/memory/readme.md` for project memory index and past learnings.
 14. [ ] /learn Ingest `.ai-memory/strictly-avoid.md` for banned anti-patterns and strict constraints.
 15. [ ] /learn Ingest `02-spec/02-coding-guidelines/` for domain-specific architectural specifications.
@@ -174,11 +174,30 @@ To reduce markdown file count and bloat, consolidate subtasks when all deliverab
 
 At the completion of all tasks and before concluding the turn, emit this structured verification summary in the chat response:
 
+> [!CRITICAL]
+> **STRICT LINE-BY-LINE OUTPUT MANDATE (TOTAL BAN ON HORIZONTAL CONCATENATION):**
+> Every single completed task in the `Task Completion Summary` MUST be rendered on its OWN SEPARATE LINE starting with an individual markdown list bullet (`- ✅`).
+> NEVER concatenate multiple tasks horizontally into a single run-on paragraph or single wrapped line.
+> In Markdown, consecutive lines without bullet markers (`- `) collapse into a single run-on horizontal sentence. You MUST format each task as a discrete bullet list item (`- ✅`) followed by an explicit newline!
+>
+> ❌ **BANNED (Horizontal Run-on Concat):**
+> `✅ #1. Task-01: [Title] — Completed ✅ #2. Task-02: [Title] — Completed ✅ #3. Task-03: [Title] — Completed`
+>
+> ✅ **MANDATORY (Strict Line-by-Line Vertical Markdown List):**
+> ```markdown
+> ### Task Completion Summary
+>
+> - ✅ **Task-01: [Descriptive Task Title]** — `[Completed]`
+> - ✅ **Task-02: [Descriptive Task Title]** — `[Completed]`
+> - ✅ **Task-03: [Descriptive Task Title]** — `[Completed]`
+> ```
+
 ```markdown
 ### Task Completion Summary
 
-✅ #1. Task-01: [Task description] — Completed
-✅ #2. Task-02: [Task description] — Completed
+- ✅ **Task-01: [Descriptive Task Title]** — `[Completed]`
+- ✅ **Task-02: [Descriptive Task Title]** — `[Completed]`
+(If any task failed or was deferred, mark with `- ❌` or `- ⏳` on its own separate line and explain why)
 
 ### Temporary E2E Test Isolation Verification
 
@@ -239,6 +258,7 @@ Whenever the task involves fixing an issue, bug, pipeline failure, or performing
 - [ ] NO ARTIFICIAL STEP BUDGETS (TOTAL BAN): Never track or calculate step budgets (`N = 200`, `PHASE_1_STEPS`).
 - [ ] NO PER-FILE COMMITTING (TOTAL BAN): Never commit each file individually as you work. All modified files, test changes, and plan records must be accumulated and committed together in a single atomic commit at the final step.
 - [ ] NO STOPPING AFTER SPEC WRITING (TOTAL BAN): Never halt execution or conclude the turn after generating specs. Proceed unconditionally to Phase 2 code execution.
+- [ ] NO HORIZONTAL TASK CONCATENATION (TOTAL BAN): Never concatenate tasks horizontally in the Task Completion Summary (e.g. NEVER `✅ #1... ✅ #2...` run-on). Every completed task MUST be rendered on its OWN SEPARATE LINE starting with an individual markdown list bullet (`- ✅`).
 
 ---
 

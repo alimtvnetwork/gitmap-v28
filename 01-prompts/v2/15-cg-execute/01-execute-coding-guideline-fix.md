@@ -157,16 +157,35 @@ MANDATORY SAME-TURN TOOL CHAIN: The breakdown text above and your first tool cal
 
 At the completion of all tasks and before concluding the turn, emit this structured summary:
 
+> [!CRITICAL]
+> **STRICT LINE-BY-LINE OUTPUT MANDATE (TOTAL BAN ON HORIZONTAL CONCATENATION):**
+> Every single completed task in the `Task Completion Summary` MUST be rendered on its OWN SEPARATE LINE starting with an individual markdown list bullet (`- ✅`).
+> NEVER concatenate multiple tasks horizontally into a single run-on paragraph or single wrapped line.
+> In Markdown, consecutive lines without bullet markers (`- `) collapse into a single run-on horizontal sentence. You MUST format each task as a discrete bullet list item (`- ✅`) followed by an explicit newline!
+>
+> ❌ **BANNED (Horizontal Run-on Concat):**
+> `✅ #1. Task-01: [Title] — Completed ✅ #2. Task-02: [Title] — Completed ✅ #3. Task-03: [Title] — Completed`
+>
+> ✅ **MANDATORY (Strict Line-by-Line Vertical Markdown List):**
+> ```markdown
+> ### Task Completion Summary
+>
+> - ✅ **Task-01: [Descriptive Task Title]** — `[Completed]`
+> - ✅ **Task-02: [Descriptive Task Title]** — `[Completed]`
+> - ✅ **Task-03: [Descriptive Task Title]** — `[Completed]`
+> ```
+
 ```markdown
 ### Task Completion Summary
 
-✅ #1. Task-01: [Task description] — Completed
-✅ #2. Task-02: [Task description] — Completed
+- ✅ **Task-01: [Descriptive Task Title]** — `[Completed]`
+- ✅ **Task-02: [Descriptive Task Title]** — `[Completed]`
+(If any task failed or was deferred, mark with `- ❌` or `- ⏳` on its own separate line and explain why)
 
 ### Modified Files Summary
 
-- [relative path to modified file 1]
-- [relative path to modified file 2]
+- [relative/path/to/modified/file1.ext]
+- [relative/path/to/modified/file2.ext]
 
 ### Implementation Confidence Score
 
@@ -185,3 +204,4 @@ At the completion of all tasks and before concluding the turn, emit this structu
 - [ ] **NO PER-FILE COMMITTING (TOTAL BAN):** Never commit each file individually as you work. All modified files across the turn must be accumulated and committed together in a single grouped atomic commit at the final step before pushing.
 - [ ] **NO RAPID CI/CD POLLING (TOTAL BAN):** Never query or loop rapidly (`gh run view` in tight loops). Query pipeline state using GitMap Pipeline-AI (`gitmap pipeline-ai status --json`) and strictly wait based on `etaSeconds`.
 - [ ] **NO STOPPING AFTER SPEC WRITING (TOTAL BAN):** Never halt execution, conclude the turn, or ask the user for permission after generating specs or subtasks. Planning constitutes only 50% of the task budget; you must proceed unconditionally to Phase 2 code execution.
+- [ ] **NO HORIZONTAL TASK CONCATENATION (TOTAL BAN):** Never concatenate tasks horizontally in the Task Completion Summary (e.g. NEVER `✅ #1... ✅ #2...` run-on). Every completed task MUST be rendered on its OWN SEPARATE LINE starting with an individual markdown list bullet (`- ✅`).

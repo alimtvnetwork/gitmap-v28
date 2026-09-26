@@ -46,6 +46,7 @@ TARGET_REPOS = [
     SOURCE_ROOT.parent / "wp-html-automate",
     SOURCE_ROOT.parent / "wp-link-manager",
     SOURCE_ROOT.parent / "wp-onboarding",
+    SOURCE_ROOT.parent / "cat-my",
 ]
 
 SYNC_DIRS = [
@@ -319,6 +320,23 @@ def sync_repo(target: Path, dry_run: bool = False, no_push: bool = False) -> dic
 
     print(f"      Creating release branch: {release_branch}")
     run_cmd(f"git checkout -B {release_branch}", target)
+
+    # Update version files if present
+    is_ver_updated = False
+    for vf in ["version.json", "package.json"]:
+        vpath = target / vf
+        if vpath.exists():
+            try:
+                content = vpath.read_text(encoding="utf-8")
+                new_content = re.sub(r'("version"\s*:\s*")(\d+\.\d+\.\d+)(")', rf'\g<1>{next_ver}\g<3>', content)
+                if new_content != content:
+                    vpath.write_text(new_content, encoding="utf-8")
+                    is_ver_updated = True
+            except Exception:
+                pass
+    if is_ver_updated:
+        run_cmd("git add -A", target)
+        run_cmd(f'git commit -m "chore(version): bump to {release_tag}"', target)
 
     print(f"      Creating annotated tag: {release_tag}")
     run_cmd(f'git tag -a {release_tag} -m "Release {release_tag} - Synchronize canonical prompts v1/v2, skills, and AI scripts"', target)

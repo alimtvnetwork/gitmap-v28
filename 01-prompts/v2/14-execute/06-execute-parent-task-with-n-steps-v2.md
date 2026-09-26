@@ -299,19 +299,37 @@ To reduce markdown file count and bloat, consolidate subtasks when a parent task
 
 ### End-of-Turn Verification & Confidence Reporting (Mandatory Output)
 
-At the completion of all tasks and before concluding the turn, you must emit this structured verification summary in the chat response:
+At the completion of all tasks and before concluding the turn, you MUST emit this structured verification summary in the chat response.
+
+> [!CRITICAL]
+> **STRICT LINE-BY-LINE OUTPUT MANDATE (TOTAL BAN ON HORIZONTAL CONCATENATION):**
+> Every single completed task in the `Task Completion Summary` MUST be rendered on its OWN SEPARATE LINE starting with an individual markdown list bullet (`- ✅`).
+> NEVER concatenate multiple tasks horizontally into a single run-on paragraph or single wrapped line.
+> In Markdown, consecutive lines without bullet markers (`- `) collapse into a single run-on horizontal sentence. You MUST format each task as a discrete bullet list item (`- ✅`) followed by an explicit newline!
+>
+> ❌ **BANNED (Horizontal Run-on Concat):**
+> `✅ #1. Task-01: [Title] — Completed ✅ #2. Task-02: [Title] — Completed ✅ #3. Task-03: [Title] — Completed`
+>
+> ✅ **MANDATORY (Strict Line-by-Line Vertical Markdown List):**
+> ```markdown
+> ### Task Completion Summary
+>
+> - ✅ **Task-01: [Descriptive Task Title]** — `[Completed]`
+> - ✅ **Task-02: [Descriptive Task Title]** — `[Completed]`
+> - ✅ **Task-03: [Descriptive Task Title]** — `[Completed]`
+> ```
 
 ```markdown
 ### Task Completion Summary
 
-✅ #1. Task-01: [Task description] — Completed
-✅ #2. Task-02: [Task description] — Completed
-(If any task failed or was deferred, mark with ❌ or ⏳ and explain why)
+- ✅ **Task-01: [Descriptive Task Title]** — `[Completed]`
+- ✅ **Task-02: [Descriptive Task Title]** — `[Completed]`
+(If any task failed or was deferred, mark with `- ❌` or `- ⏳` on its own separate line and explain why)
 
 ### Modified Files Summary
 
-- [relative path to modified file 1]
-- [relative path to modified file 2]
+- [relative/path/to/modified/file1.ext]
+- [relative/path/to/modified/file2.ext]
 
 ### Implementation Confidence Score
 
@@ -395,6 +413,7 @@ Whenever the task involves fixing an issue, bug, pipeline failure, or performing
 - [ ] NO PER-FILE COMMITTING (TOTAL BAN): Never commit each file individually as you work (e.g. running `git commit` after editing File 1, then another commit after File 2). Committing file-by-file pollutes git history, creates subagent lock collisions, and breaks atomic changes. All modified files across the turn must be accumulated and committed together in a single atomic commit at the final step.
 - [ ] NO RAPID CI/CD POLLING (TOTAL BAN): Never query or loop rapidly (`gh run view` in tight loops) when inspecting remote CI/CD pipelines. Agents must query pipeline state using GitMap Pipeline-AI (`gitmap pipeline-ai status --json` or `gitmap pl-ai status -t <sec>`) and strictly wait or sleep based on `etaSeconds` to eliminate credit waste.
 - [ ] NO PREMATURE TURN CLOSING BEFORE EXECUTION (TOTAL BAN): Never halt execution, conclude the turn, or ask the user for permission after generating specs or subtasks. Planning constitutes only 50% of the task budget; you must proceed unconditionally to Phase 2 code execution. (Note: When dispatching asynchronous background subagents via `invoke_subagent`, yielding control to allow platform reactive wakeup is mandatory and is exempt from this ban).
+- [ ] NO HORIZONTAL TASK CONCATENATION (TOTAL BAN): Never concatenate tasks horizontally in the Task Completion Summary (e.g. NEVER `✅ #1... ✅ #2...` run-on). Every completed task MUST be rendered on its OWN SEPARATE LINE starting with an individual markdown list bullet (`- ✅`).
 
 ---
 

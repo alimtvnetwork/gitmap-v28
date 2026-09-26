@@ -9,7 +9,7 @@ description: >-
 > [!IMPORTANT]
 > Prompt Version: 2.6.0
 > Synchronization: Main Meta-Repo & Connected Workspaces
-> 
+>
 > **Top-Instruction Priority Mandate (Preamble Precedence):**
 > Whatever directives, constraints, checklists, or instructions are given before this section or prompt (including in the prompt preamble, header blocks, or incoming user request) are HIGHEST PRIORITY and MUST BE FOLLOWED as strictly NON-NEGOTIABLE. They supersede and strictly override any conflicting general advice, default conventions, or lower-level guidelines below.
 
@@ -204,25 +204,44 @@ At the end of every single iteration of your execution loop:
 Proceeding directly to execution.
 ```
 
-2. End-of-Turn Verification & Confidence Reporting: When all tasks are completed (or if the run concludes), you must output:
+2. End-of-Turn Verification & Confidence Reporting: When all tasks are completed (or if the run concludes), you MUST output:
+
+> [!CRITICAL]
+> **STRICT LINE-BY-LINE OUTPUT MANDATE (TOTAL BAN ON HORIZONTAL CONCATENATION):**
+> Every single completed task in the `Task Completion Summary` MUST be rendered on its OWN SEPARATE LINE starting with an individual markdown list bullet (`- ✅`).
+> NEVER concatenate multiple tasks horizontally into a single run-on paragraph or single wrapped line.
+> In Markdown, consecutive lines without bullet markers (`- `) collapse into a single run-on horizontal sentence. You MUST format each task as a discrete bullet list item (`- ✅`) followed by an explicit newline!
+>
+> ❌ **BANNED (Horizontal Run-on Concat):**
+> `✅ #1. Task-01: [Title] — Completed ✅ #2. Task-02: [Title] — Completed ✅ #3. Task-03: [Title] — Completed`
+>
+> ✅ **MANDATORY (Strict Line-by-Line Vertical Markdown List):**
+> ```markdown
+> ### Task Completion Summary
+>
+> - ✅ **Task-01: [Descriptive Task Title]** — `[Completed]`
+> - ✅ **Task-02: [Descriptive Task Title]** — `[Completed]`
+> - ✅ **Task-03: [Descriptive Task Title]** — `[Completed]`
+> ```
 
 ```markdown
 ### Task Completion Summary
 
-✅ #1. Task-01: [Task description] — Completed
-✅ #2. Task-02: [Task description] — Completed
-(If any task failed or was deferred, mark with ❌ or ⏳ and explain why)
+- ✅ **Task-01: [Descriptive Task Title]** — `[Completed]`
+- ✅ **Task-02: [Descriptive Task Title]** — `[Completed]`
+(If any task failed or was deferred, mark with `- ❌` or `- ⏳` on its own separate line and explain why)
 
 ### Modified Files Summary
 
-- [relative path to modified file 1]
-- [relative path to modified file 2]
+- [relative/path/to/modified/file1.ext]
+- [relative/path/to/modified/file2.ext]
 
 ### Implementation Confidence Score
 
 - Confidence: [e.g. 98% or 100%]
 - Rationale: [Detailed explanation of verified quality gates, passing linters, contract adherence, and zero regressions]
-\
+```
+
 3. Lean Subtasks (No Common Boilerplate):
 Subtasks must focus purely on unique task deliverables without repeating common repository boilerplate, universal coding rules, banned operations, or generic guidelines.
 
@@ -240,6 +259,7 @@ Subtasks must focus purely on unique task deliverables without repeating common 
 - [x] Magic strings/numbers extracted to constants.
 - [x] Action Summary Checklist (Anti-Hallucination): I have output a detailed `- [x]` checklist summarizing exactly what I accomplished this turn to ensure no steps were hallucinated or skipped (e.g. `- [x] Created schema`, `- [x] Pinned README`).
 - [x] Remote CI/CD pipeline monitored via GitMap Pipeline-AI (`gitmap pipeline-ai status --json`) with dynamic ETA waiting (no rapid polling).
+- [x] Strict Line-by-Line Task Output (NO HORIZONTAL RUN-ON CONCATENATION): Every completed task formatted on its own separate line starting with an individual markdown list bullet (`- ✅`).
 
 ## Remote CI/CD Pipeline Monitoring & Dynamic Waiting Protocol (GitMap Pipeline-AI)
 

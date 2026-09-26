@@ -74,19 +74,37 @@ Listen, past runs of these turns have been sloppy and careless: wrong step count
 Proceeding directly to execution.
 ```
 
-2. End-of-Turn Verification & Confidence Reporting: When all tasks are completed (or if the run concludes), you must output:
+2. End-of-Turn Verification & Confidence Reporting: When all tasks are completed (or if the run concludes), you MUST output:
+
+> [!CRITICAL]
+> **STRICT LINE-BY-LINE OUTPUT MANDATE (TOTAL BAN ON HORIZONTAL CONCATENATION):**
+> Every single completed task in the `Task Completion Summary` MUST be rendered on its OWN SEPARATE LINE starting with an individual markdown list bullet (`- ✅`).
+> NEVER concatenate multiple tasks horizontally into a single run-on paragraph or single wrapped line.
+> In Markdown, consecutive lines without bullet markers (`- `) collapse into a single run-on horizontal sentence. You MUST format each task as a discrete bullet list item (`- ✅`) followed by an explicit newline!
+>
+> ❌ **BANNED (Horizontal Run-on Concat):**
+> `✅ #1. Task-01: [Title] — Completed ✅ #2. Task-02: [Title] — Completed ✅ #3. Task-03: [Title] — Completed`
+>
+> ✅ **MANDATORY (Strict Line-by-Line Vertical Markdown List):**
+> ```markdown
+> ### Task Completion Summary
+>
+> - ✅ **Task-01: [Descriptive Task Title]** — `[Completed]`
+> - ✅ **Task-02: [Descriptive Task Title]** — `[Completed]`
+> - ✅ **Task-03: [Descriptive Task Title]** — `[Completed]`
+> ```
 
 ```markdown
 ### Task Completion Summary
 
-✅ #1. Task-01: [Task description] — Completed
-✅ #2. Task-02: [Task description] — Completed
-(If any task failed or was deferred, mark with ❌ or ⏳ and explain why)
+- ✅ **Task-01: [Descriptive Task Title]** — `[Completed]`
+- ✅ **Task-02: [Descriptive Task Title]** — `[Completed]`
+(If any task failed or was deferred, mark with `- ❌` or `- ⏳` on its own separate line and explain why)
 
 ### Modified Files Summary
 
-- [relative path to modified file 1]
-- [relative path to modified file 2]
+- [relative/path/to/modified/file1.ext]
+- [relative/path/to/modified/file2.ext]
 
 ### Implementation Confidence Score
 
@@ -189,6 +207,7 @@ You MUST verify every item on this checklist before committing any code. If a su
 - [ ] Acronyms & Magic Strings: Acronyms are PascalCase (`UserId` not `UserID`). Magic strings/numbers are extracted to constants.
 - [ ] `/learn` the section as a `/goal` [AI Fix Scripts Catalog](03-ai-scripts/readme.md)
 - [ ] Action Summary: I have output a detailed `- [x]` checklist summarizing exactly what I accomplished this turn to prove I did not hallucinate.
+- [ ] Strict Line-by-Line Task Output (NO HORIZONTAL RUN-ON CONCATENATION): Every completed task formatted on its own separate line starting with an individual markdown list bullet (`- ✅`).
 
 ## 5. Anti-Hallucination & Blast Radius Checklist (Mandatory for Every Turn)
 
