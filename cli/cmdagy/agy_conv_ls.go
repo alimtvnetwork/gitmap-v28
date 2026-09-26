@@ -46,7 +46,7 @@ func init() {
 }
 
 func runAgyConvLs(n int) error {
-	queues := DiscoverAllWorkspaceQueues()
+	queues, _ := DiscoverAllWorkspaceQueues()
 	
 	if agyConvLsFile != "" {
 		data, _ := json.MarshalIndent(queues, "", "  ")

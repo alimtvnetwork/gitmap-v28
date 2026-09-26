@@ -1,12 +1,10 @@
 package cmdagy
 
 import (
-	"database/sql"
-	"encoding/json"
+		"encoding/json"
 	"fmt"
 	"os"
-	"sort"
-	"strconv"
+		"strconv"
 	"strings"
 
 	"github.com/spf13/cobra"
@@ -18,6 +16,7 @@ var mostConvFileFlag string
 
 var agyMostConvCmd = &cobra.Command{
 	Use:   "most-conv",
+	Aliases: []string{"most-conversation", "most-conversations"},
 	Short: "Groups and sorts repositories by highest count of conversations",
 }
 

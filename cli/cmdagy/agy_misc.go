@@ -29,7 +29,7 @@ var agyStatusCmd = &cobra.Command{
 	Aliases: []string{"st"},
 	Short:   "Show Antigravity project status table",
 	RunE: func(cmd *cobra.Command, args []string) error {
-		return runAgyLs()
+		return runAgyLs(5)
 	},
 }
 
@@ -100,7 +100,7 @@ func executeAgyExport(dest string) error {
 
 var agyImportCmd = &cobra.Command{
 	Use:     "import-projects [file]",
-	Aliases: []string{"ip"},
+	Aliases: []string{"imp", "import"},
 	Short:   "Import a zip backup of Antigravity projects",
 	RunE: func(cmd *cobra.Command, args []string) error {
 		if len(args) < 1 {

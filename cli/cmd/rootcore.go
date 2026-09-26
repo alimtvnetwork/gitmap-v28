@@ -54,7 +54,7 @@ func coreBasicOpEntries() []dispatchEntry {
 		{[]string{
 			constants.CmdCreate, constants.CmdCreateAlias,
 			constants.CmdRepoCreate, constants.CmdRepoCreateAlias,
-			constants.CmdCreateRepo, constants.CmdCreateRepoAlias,
+			constants.CmdCreateRepo, constants.CmdCreateRepoAlias, "cr",
 		}, func() error { return runCreate(argsTail()) }},
 		{[]string{
 			constants.CmdCreateLocalRepo, constants.CmdCreateLocalRepoAlias,

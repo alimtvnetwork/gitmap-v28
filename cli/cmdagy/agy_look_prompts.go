@@ -34,12 +34,13 @@ func init() {
 	AgyLookPromptsCmd.Flags().BoolVar(&isLookPromptsSSH, "ssh", false, "Use SSH to aggregate")
 	AgyLookPromptsCmd.Flags().StringVarP(&lookPromptsFile, "file", "f", "", "Output to file")
 	AgyLookPromptsCmd.Flags().IntVar(&lookPromptsCompact, "compact", 0, "Compact words")
+	AgyLookPromptsCmd.Flags().IntVar(&lookPromptsCompact, "words", 0, "Words (alias for compact)")
 	AgyLookPromptsCmd.Flags().IntVarP(&lookPromptsCount, "count", "c", 0, "Number of prompts")
 	AgyCmd.AddCommand(AgyLookPromptsCmd)
 }
 
 func runAgyLookPrompts(args []string) *apperror.AppError {
-	queues := DiscoverAllWorkspaceQueues()
+	queues, _ := DiscoverAllWorkspaceQueues()
 	fmt.Printf("Discovered %d active queues\n", len(queues))
 	return nil
 }

@@ -34,6 +34,7 @@ func init() {
 	AgyWatchPromptsCmd.Flags().BoolVarP(&isWatchPromptsAll, "all", "a", false, "All projects")
 	AgyWatchPromptsCmd.Flags().BoolVar(&isWatchPromptsSSH, "ssh", false, "Use SSH to aggregate")
 	AgyWatchPromptsCmd.Flags().IntVar(&watchPromptsCompact, "compact", 0, "Compact words")
+	AgyWatchPromptsCmd.Flags().IntVar(&watchPromptsCompact, "words", 0, "Words (alias for compact)")
 	AgyWatchPromptsCmd.Flags().IntVarP(&watchPromptsCount, "count", "c", 0, "Number of prompts")
 	AgyCmd.AddCommand(AgyWatchPromptsCmd)
 }
@@ -46,7 +47,7 @@ func runAgyWatchPrompts(args []string) *apperror.AppError {
 
 	fmt.Println("Watching prompts (press Ctrl+C to stop)...")
 	for {
-		queues := DiscoverAllWorkspaceQueues()
+		queues, _ := DiscoverAllWorkspaceQueues()
 		fmt.Printf("Discovered %d active queues\n", len(queues))
 		
 		time.Sleep(30 * time.Second)

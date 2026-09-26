@@ -397,7 +397,7 @@ func dispatch(command string) {
 		return
 	}
 
-	found, err = dispatchSync(command)
+	found, err = dispatchCommon(command)
 	if handleDispatchResult(command, found, err, shouldAudit, auditID, auditStart) {
 		return
 	}

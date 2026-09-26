@@ -14,7 +14,7 @@ func runAgyPinProjectsLs() error {
 		return apperror.WrapSimple(pathErr, "path error")
 	}
 
-	if err := processAgyLsProjects(dirPath); err != nil {
+	if err := processAgyLsProjects(dirPath, 5); err != nil {
 		return err
 	}
 	printPinsTableAdvisory()

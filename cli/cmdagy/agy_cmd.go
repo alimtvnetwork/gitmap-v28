@@ -489,7 +489,7 @@ func runAgyStatusWithQueue() error {
 
 	renderStatusHeader(ideProc, convState, len(q.Queued), len(activeConvs), totalQueued)
 
-	return runAgyLs()
+	return runAgyLs(5)
 }
 
 func renderStatusHeader(ideProc result.Result[AgyProcessInfo], state AgyConversationExecutionState, localQ, activeCount, totalQ int) {

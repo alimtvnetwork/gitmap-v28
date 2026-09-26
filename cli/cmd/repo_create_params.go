@@ -75,7 +75,7 @@ func parseCreateParams(args []string, defaultLocal bool) (createRepoParams, erro
 		IsJSON:       hasArgFlag(args, "--json") || hasArgFlag(args, "-json"),
 		IsYAML:       hasArgFlag(args, "--yaml") || hasArgFlag(args, "--yml") || hasArgFlag(args, "-yaml") || hasArgFlag(args, "-y"),
 		IsCommon:     hasArgFlag(args, "--common"),
-		IsCG:         hasArgFlag(args, "--cg"),
+		IsCG:         hasArgFlag(args, "--cg") || hasArgFlag(args, "--cd") || hasArgFlag(args, "--coding-guideline"),
 		Description:  extractFlagVal(args, "--description"),
 	}
 	if p.Description == "" {

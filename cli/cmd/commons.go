@@ -51,13 +51,13 @@ func dispatchCommons(command string) (bool, error) {
 		}
 	}
 
-	dry, force := parseSyncFlags(rest)
+	dry, force := parseCommonFlags(rest)
 
-	runSyncLines(".gitignore", defaultGitignoreBaseline, dry)
-	runSyncLines(".gitattributes", defaultGitattributesBaseline, dry)
-	runSyncLFSInstall(dry)
-	runSyncLines(".prettierignore", defaultPrettierignoreBaseline, dry)
-	runSyncPrettierRC(dry, force)
+	runCommonLines(".gitignore", defaultGitignoreBaseline, dry)
+	runCommonLines(".gitattributes", defaultGitattributesBaseline, dry)
+	runCommonLFSInstall(dry)
+	runCommonLines(".prettierignore", defaultPrettierignoreBaseline, dry)
+	runCommonPrettierRC(dry, force)
 
 	return true, nil
 }
