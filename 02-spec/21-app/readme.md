@@ -13,3 +13,5 @@
 - [163-ssh-deploy-keys-node-config-and-oneliner-clipboard.md](163-ssh-deploy-keys-node-config-and-oneliner-clipboard.md) — SSH Fleet Deploy Keys, Node-Config, and One-Liner Clipboard (Status: `active`)
 - [xx-agy-enhancements](xx-agy-enhancements/01-overview.md) — Antigravity Enhancements (Status: `active`)
 - [164-pull-all-fast-mode-templates-db-and-commitin-config.md](164-pull-all-fast-mode-templates-db-and-commitin-config.md) — Pull-All Fast Mode, State Templates DB Engine, Pre-Compiled Variables & Declarative Commit-In Config (Status: `active`)
+- [166-pull-all-fast-mode-and-templates-db-orchestration.md](166-pull-all-fast-mode-and-templates-db-orchestration.md) — Pull-All Fast Mode Performance, Templates State DB Hygiene, and Declarative Config (Status: `active`)
+
