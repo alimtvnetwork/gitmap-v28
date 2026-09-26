@@ -38,28 +38,31 @@ func (s *PullSplitDB) GetRecentActualRepoPullHistory(repoPath string, limit int)
 // It inspects the local git trace to see if there are commits within the 24h window.
 func (s *PullSplitDB) EvaluateRepoActivityStatus(repoPath string, windowHours int, cooldownMinutes int) (RepoInactivityStatus, error) {
 	status := RepoInactivityStatus{RepoPath: repoPath, IsInactive: false}
-
-	// ALWAYS check if there's a cooldown from a very recent pull.
-	// This prevents spamming `pae` repeatedly.
 	history, err := s.GetRecentActualRepoPullHistory(repoPath, 1)
-	if err == nil && len(history) > 0 {
-		latestTime, isParsed := parseCreatedAtTime(history[0].CreatedAt)
-		if isParsed {
-			elapsed := time.Since(latestTime)
-			cooldownDur := time.Duration(cooldownMinutes) * time.Minute
-			if cooldownMinutes > 0 && elapsed <= cooldownDur {
-				status.IsInactive = true
-				status.Reason = fmt.Sprintf("already checked recently (<%dm ago)", cooldownMinutes)
-				return status, nil
-			}
-		}
+	if err != nil || len(history) == 0 {
+		return evaluateGitTraceActivity(repoPath, windowHours, status)
 	}
 
-	// 1. Run git log -1 --format=%ct to get the latest commit timestamp
+	latestTime, isParsed := parseCreatedAtTime(history[0].CreatedAt)
+	if !isParsed {
+		return evaluateGitTraceActivity(repoPath, windowHours, status)
+	}
+
+	elapsed := time.Since(latestTime)
+	cooldownDur := time.Duration(cooldownMinutes) * time.Minute
+	if cooldownMinutes > 0 && elapsed <= cooldownDur {
+		status.IsInactive = true
+		status.Reason = fmt.Sprintf("already checked recently (<%dm ago)", cooldownMinutes)
+		return status, nil
+	}
+
+	return evaluateGitTraceActivity(repoPath, windowHours, status)
+}
+
+func evaluateGitTraceActivity(repoPath string, windowHours int, status RepoInactivityStatus) (RepoInactivityStatus, error) {
 	cmd := exec.Command("git", "-C", repoPath, "log", "-1", "--format=%ct")
 	out, err := cmd.Output()
 	if err != nil {
-		// If git log fails, we assume it's active so we pull it (must establish baseline or error later)
 		status.Reason = "git log failed (must establish baseline)"
 		return status, nil
 	}
@@ -75,7 +78,6 @@ func (s *PullSplitDB) EvaluateRepoActivityStatus(repoPath string, windowHours in
 	elapsed := time.Since(commitTime)
 	windowDur := time.Duration(windowHours) * time.Hour
 
-	// 2. If the last commit is older than the window, mark as inactive
 	if elapsed > windowDur {
 		status.IsInactive = true
 		status.Reason = fmt.Sprintf("no commits in local git trace within %dh window", windowHours)
