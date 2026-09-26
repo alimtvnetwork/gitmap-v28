@@ -15,7 +15,7 @@ const defaultRecreatePrompt = "Execute enhanced Read Memory protocol and analyze
 func dispatchRecreateConversation(p AgyProject, opts AgyRecreateOptions) (string, error) {
 	promptText := resolveRecreatePrompt(opts.CustomPrompt)
 	title := fmt.Sprintf("Read & Understand: %s", p.Name)
-	newRes := AgentAPINewConversationWithOptions(title, opts.Model, opts.Profile, promptText)
+	newRes := AgentAPINewConversationInDir(p.GetPath(), title, opts.Model, opts.Profile, promptText)
 	if newRes.IsSuccess() {
 		focusRunningIDE()
 		return newRes.Value, nil

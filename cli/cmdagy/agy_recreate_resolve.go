@@ -106,10 +106,43 @@ func resolveSingleRecreateToken(token string, projects []AgyProject) ([]AgyProje
 	if idMatches := matchByID(token, projects); len(idMatches) > 0 {
 		return idMatches, nil
 	}
+	if isLikelyPath(token) {
+		if pathMatches := matchByExactPath(token, projects); len(pathMatches) > 0 {
+			return pathMatches, nil
+		}
+		if folderMatches := collectProjectsUnderFolder(token, projects); len(folderMatches) > 0 {
+			return folderMatches, nil
+		}
+		if info, err := os.Stat(token); err == nil && info.IsDir() {
+			targetDir := resolveWorkingRepoRoot(token)
+			return []AgyProject{buildAdHocProject(targetDir)}, nil
+		}
+	}
 	if slugMatches := matchBySlug(token, projects); len(slugMatches) > 0 {
 		return slugMatches, nil
 	}
 	return resolveDirectoryOrFolderTarget(token, projects)
+}
+
+func isLikelyPath(token string) bool {
+	return strings.Contains(token, "\\") ||
+		strings.Contains(token, "/") ||
+		strings.HasPrefix(token, ".") ||
+		(len(token) > 1 && token[1] == ':')
+}
+
+func matchByExactPath(token string, projects []AgyProject) []AgyProject {
+	var matches []AgyProject
+	absToken, err := filepath.Abs(token)
+	if err != nil {
+		absToken = token
+	}
+	for _, p := range projects {
+		if isMatchingProjectPath(p.GetPath(), absToken) {
+			matches = append(matches, p)
+		}
+	}
+	return matches
 }
 
 func resolveDirectoryOrFolderTarget(token string, projects []AgyProject) ([]AgyProject, error) {

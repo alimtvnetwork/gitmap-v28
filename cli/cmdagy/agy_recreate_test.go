@@ -6,6 +6,8 @@ import (
 	"path/filepath"
 	"strings"
 	"testing"
+
+	"github.com/alimtvnetwork/gitmap-v28/cli/workspacesync"
 )
 
 func TestNormalizeAgySubcommand_Recreate(t *testing.T) {
@@ -156,5 +158,36 @@ func TestExecuteAgyRecreate_DryRun(t *testing.T) {
 	// Verify test file was preserved
 	if _, err := os.Stat(testFile); os.IsNotExist(err) {
 		t.Errorf("dry-run deleted test file")
+	}
+}
+
+func TestExecuteAgyRecreate_RealLifecycle(t *testing.T) {
+	tempDir, err := os.MkdirTemp("", "agy-rec-real-*")
+	if err != nil {
+		t.Fatalf("temp dir error: %v", err)
+	}
+	defer os.RemoveAll(tempDir)
+
+	p := buildAdHocProject(tempDir)
+	opts := AgyRecreateOptions{
+		IsDryRun: false,
+	}
+
+	err = ExecuteAgyRecreate([]AgyProject{p}, opts)
+	if err != nil {
+		t.Fatalf("real recreate failed: %v", err)
+	}
+
+	// Verify project was registered in Antigravity
+	configDir, err := getProjectsDirPath()
+	if err == nil {
+		fileURI := buildFolderURI(tempDir)
+		id := workspacesync.FindExistingProjectID(configDir, fileURI)
+		if id == "" {
+			t.Errorf("expected project to be registered in %s", configDir)
+		} else {
+			// Clean up test project config
+			_ = deleteProjectFile(id)
+		}
 	}
 }

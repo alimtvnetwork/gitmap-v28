@@ -95,6 +95,10 @@ func findAgentAPIFromPath() (string, []string, bool) {
 }
 
 func executeAgentAPICmd(subArgs []string) result.Result[[]byte] {
+	return executeAgentAPICmdInDir("", subArgs)
+}
+
+func executeAgentAPICmdInDir(workDir string, subArgs []string) result.Result[[]byte] {
 	binPath, baseArgs, isResolved := ResolveAgentAPI()
 	if isResolved == false {
 		return result.Fail[[]byte](apperror.NewSimple("agentapi binary not found", "E9030"))
@@ -102,7 +106,11 @@ func executeAgentAPICmd(subArgs []string) result.Result[[]byte] {
 	fullArgs := append([]string{}, baseArgs...)
 	fullArgs = append(fullArgs, subArgs...)
 	cmd := exec.Command(binPath, fullArgs...)
-	cmd.Dir = resolveAgentAPIWorkingDir()
+	if workDir != "" && checkDirExists(workDir) {
+		cmd.Dir = workDir
+	} else {
+		cmd.Dir = resolveAgentAPIWorkingDir()
+	}
 	cmd.Env = os.Environ()
 	addr, token, hasEnv := ResolveAntigravityLSEnv()
 	if hasEnv {

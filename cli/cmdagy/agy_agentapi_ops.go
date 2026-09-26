@@ -54,8 +54,13 @@ func AgentAPINewConversation(title, prompt string) result.Result[string] {
 
 // AgentAPINewConversationWithOptions creates a new conversation with model, profile, title, and initial prompt.
 func AgentAPINewConversationWithOptions(title, model, profile, prompt string) result.Result[string] {
+	return AgentAPINewConversationInDir("", title, model, profile, prompt)
+}
+
+// AgentAPINewConversationInDir creates a new conversation scoped to workDir with options.
+func AgentAPINewConversationInDir(workDir, title, model, profile, prompt string) result.Result[string] {
 	args := buildNewConvArgsWithOptions(title, model, profile, prompt)
-	rawRes := executeAgentAPICmd(args)
+	rawRes := executeAgentAPICmdInDir(workDir, args)
 	if rawRes.IsFailure() {
 		return result.Fail[string](rawRes.Err)
 	}
