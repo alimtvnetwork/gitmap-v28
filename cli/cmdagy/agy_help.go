@@ -93,7 +93,7 @@ func buildDiagnosticsSection() termhelp.HelpSection {
 			{Command: "undo", Description: "Revert last cache-clear from temp backup"},
 			{Command: "remove-empty-convs", Description: "Purge projects with 0 conversation steps"},
 			{Command: "status", Description: "Show Antigravity installation and profile status"},
-			{Command: "stats", Description: "Display Antigravity workspace usage statistics"},
+			{Command: "stats", Description: "Display Antigravity workspace, running, and queue statistics"},
 		},
 	}
 }

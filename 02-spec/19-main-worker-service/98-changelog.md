@@ -1,3 +1,9 @@
+## v6.344.0 — 2026-09-26 (ssh dual-table persistence, bidirectional host sync, compact oneliner export, and import auto-rendering)
+
+**Scope:** Version bump. ssh dual-table persistence, bidirectional host sync, compact oneliner export, and import auto-rendering.
+
+---
+
 ## v6.343.0 — 2026-09-25 (ssh dual-table persistence, bidirectional host sync, compact oneliner export, and import auto-rendering)
 
 **Scope:** Version bump. ssh dual-table persistence, bidirectional host sync, compact oneliner export, and import auto-rendering.

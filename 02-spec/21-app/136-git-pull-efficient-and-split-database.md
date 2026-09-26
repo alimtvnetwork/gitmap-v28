@@ -38,13 +38,13 @@ flowchart TD
     F --> G["Table: PullRun<br/>(RunId, Command, CWD, Version, Counts, Duration)"]
     F --> H["Table: PullRepoRun<br/>(RepoPath, SHA, FilesChanged, CommitTrace in Notes, IsActive)"]
     
-    I["gitmap pull all-efficient (pae)"] --> J["Git Trace Activity Evaluator<br/>(Inspect git logs / traces in gitmap-pull.db)"]
-    J --> K{"Remote Git Trace / Log<br/>has actual new changes?"}
-    K -- "No (0 changes in git logs/trace within 24h)" --> L["Mark Quiescent & Skip in 24h Window"]
-    K -- "Yes (New commits in trace / First run / >24h)" --> M["Pull Repository & Capture Commit Trace"]
+    I["gitmap pull all-efficient (pae)"] --> J["Git Trace Activity Evaluator<br/>(Inspect local git log/trace)"]
+    J --> K{"Local Git Trace / Log<br/>has actual recent changes (e.g. last 24h)?"}
+    K -- "No (No commits/changes in local git trace within 24h)" --> L["Mark Quiescent & Skip Pull"]
+    K -- "Yes (Recent commits in git trace)" --> M["Pull Repository & Capture New Commit Trace"]
     
     M --> N["Save Commit Trace into PullRepoRun.Notes<br/>(Enables Sub-Millisecond Search)"]
-    L --> O["Emit Skip Summary<br/>'Skipped X inactive repos (no git changes). Run pull all to force.'"]
+    L --> O["Emit Skip Summary<br/>'Skipped X inactive repos (no recent git changes). Run pull all to force.'"]
     N --> P["Fast SQLite Search Index<br/>(Query commit traces by msg, SHA, author, text <1ms)"]
 ```
 
@@ -60,20 +60,18 @@ When `gitmap pull` is executed:
 - Two normalized tables with a one-to-many relationship:
   1. `PullRun`: Master record for each command invocation.
   2. `PullRepoRun`: Granular record per repository in that run.
-- Zero file content writes: Storing file blobs is strictly prohibited to guarantee sub-millisecond execution and prevent database bloat. Records the number of files changed, commit hashes (old and new), commit message/author, and the exact commit log/trace (`git log oldSHA..newSHA --oneline` or `git log -1 --oneline`) in `Notes` for quick, sub-millisecond SQLite search in the future.
+- Zero file content writes: Storing file blobs is strictly prohibited to guarantee sub-millisecond execution and prevent database bloat. Records the number of files changed, commit hashes (old and new), commit message/author, and the exact commit log/trace (`git log -1 --oneline` or `git log oldSHA..newSHA --oneline`) in `Notes` for quick, sub-millisecond SQLite search in the future.
 
 ### Pillar 3: Git Trace-Based Activity Analysis & 24-Hour Active Window
-- The efficient pull analyzes recent pull history and commit traces from `gitmap-pull.db`.
-- **True Mental Model (Git Logs / Trace Changes):** A repository is **NOT** evaluated merely by counting how many times the user triggered a pull. It is evaluated strictly by whether the repository actually has **new changes or new commits recorded inside its git logs or git trace**!
+- The efficient pull (`pae`) analyzes the actual `git log` / `git trace` inside each repository.
+- **True Mental Model (Git Logs / Trace Changes):** A repository is **NOT** evaluated by counting how many times it was successfully "pulled" in the past. It is evaluated strictly by whether the repository actually has **recent changes or commits recorded inside its git logs or git trace**!
 - Active criteria: A repository is actively pulled if:
-  1. It has never been inspected or pulled before (no baseline history).
-  2. The elapsed time since its last recorded check exceeds the 24-hour window (daily refresh invariant).
-  3. New commits, changed files, or updated commit hashes exist in its git logs/trace compared to baseline.
-- Quiescent / Inactive criteria: If the repository's git trace confirms 0 changes / up-to-date state within the 24-hour window, `gitmap pae` skips it to eliminate redundant remote network calls.
+  1. Inspecting the local git log reveals a commit (or trace changes) within the 24-hour activity window.
+- Quiescent / Inactive criteria: If the repository's git trace confirms there have been 0 changes/commits within the 24-hour window, `gitmap pae` considers the repository inactive and skips the `git pull` to conserve bandwidth and execution time.
 - Skipped repositories are clearly listed in the summary with instructions on how to force a full pull (`gitmap pull all`).
 
 ### Pillar 4: Sub-Millisecond SQLite Search for Commit Traces
-- Because full oneline commit traces (`oldSHA..newSHA`) are persisted into `PullRepoRun.Notes` with indexed columns `LastCommitSha`, `RepoPath`, `HasChanges`, and `CreatedAt`, users and agents can query historical commit traces with sub-millisecond latency (`SearchPullTraces`).
+- Because full oneline commit traces (`oldSHA..newSHA` or `git log -1`) are persisted into `PullRepoRun.Notes` with indexed columns `LastCommitSha`, `RepoPath`, `HasChanges`, and `CreatedAt`, users and agents can query historical commit traces with sub-millisecond latency (`SearchPullTraces`).
 - Search targets: Commit messages, commit hashes, author names, repository paths, and diff trace notes across all repositories without spawning expensive `git` CLI child processes.
 
 ### Pillar 5: Command Suite, Aliasing & Table Display

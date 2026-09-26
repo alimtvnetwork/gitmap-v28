@@ -2,6 +2,9 @@ package store
 
 import (
 	"fmt"
+	"os/exec"
+	"strconv"
+	"strings"
 	"time"
 
 	"github.com/alimtvnetwork/gitmap-v28/cli/apperror"
@@ -32,53 +35,54 @@ func (s *PullSplitDB) GetRecentActualRepoPullHistory(repoPath string, limit int)
 }
 
 // EvaluateRepoActivityStatus evaluates whether a repository should be pulled or skipped in efficient mode.
+// It inspects the local git trace to see if there are commits within the 24h window.
 func (s *PullSplitDB) EvaluateRepoActivityStatus(repoPath string, windowHours int, cooldownMinutes int) (RepoInactivityStatus, error) {
 	status := RepoInactivityStatus{RepoPath: repoPath, IsInactive: false}
-	history, err := s.GetRecentActualRepoPullHistory(repoPath, 5)
+
+	// ALWAYS check if there's a cooldown from a very recent pull.
+	// This prevents spamming `pae` repeatedly.
+	history, err := s.GetRecentActualRepoPullHistory(repoPath, 1)
+	if err == nil && len(history) > 0 {
+		latestTime, isParsed := parseCreatedAtTime(history[0].CreatedAt)
+		if isParsed {
+			elapsed := time.Since(latestTime)
+			cooldownDur := time.Duration(cooldownMinutes) * time.Minute
+			if cooldownMinutes > 0 && elapsed <= cooldownDur {
+				status.IsInactive = true
+				status.Reason = fmt.Sprintf("already checked recently (<%dm ago)", cooldownMinutes)
+				return status, nil
+			}
+		}
+	}
+
+	// 1. Run git log -1 --format=%ct to get the latest commit timestamp
+	cmd := exec.Command("git", "-C", repoPath, "log", "-1", "--format=%ct")
+	out, err := cmd.Output()
 	if err != nil {
-		return status, err
-	}
-
-	status.TotalRunsInspected = len(history)
-	if len(history) == 0 {
-		status.Reason = "no prior pull history (must establish baseline)"
+		// If git log fails, we assume it's active so we pull it (must establish baseline or error later)
+		status.Reason = "git log failed (must establish baseline)"
 		return status, nil
 	}
 
-	latest := history[0]
-	status.LatestPullTimestamp = latest.CreatedAt
-	status.RepoName = latest.RepoName
-
-	latestTime, isParsed := parseCreatedAtTime(latest.CreatedAt)
-	if !isParsed {
-		status.Reason = "unparseable latest pull timestamp"
+	strOut := strings.TrimSpace(string(out))
+	timestamp, err := strconv.ParseInt(strOut, 10, 64)
+	if err != nil {
+		status.Reason = "git log timestamp parse failed"
 		return status, nil
 	}
 
-	elapsed := time.Since(latestTime)
-	return evaluateElapsedActivity(status, latest, elapsed, windowHours, cooldownMinutes)
-}
-
-func evaluateElapsedActivity(status RepoInactivityStatus, latest PullRepoRunRecord, elapsed time.Duration, windowHours, cooldownMinutes int) (RepoInactivityStatus, error) {
-	cooldownDur := time.Duration(cooldownMinutes) * time.Minute
-	if cooldownMinutes > 0 && elapsed <= cooldownDur {
-		status.IsInactive = true
-		status.Reason = fmt.Sprintf("already checked recently (<%dm ago)", cooldownMinutes)
-		return status, nil
-	}
-
+	commitTime := time.Unix(timestamp, 0)
+	elapsed := time.Since(commitTime)
 	windowDur := time.Duration(windowHours) * time.Hour
+
+	// 2. If the last commit is older than the window, mark as inactive
 	if elapsed > windowDur {
-		status.Reason = fmt.Sprintf("latest pull is older than %d hours (daily refresh)", windowHours)
-		return status, nil
-	}
-
-	if !latest.HasChanges && latest.FilesChanged == 0 {
 		status.IsInactive = true
-		status.Reason = fmt.Sprintf("0 changes on latest pull within %dh window", windowHours)
+		status.Reason = fmt.Sprintf("no commits in local git trace within %dh window", windowHours)
 		return status, nil
 	}
 
-	status.Reason = "active repository (recent changes within 24h)"
+	status.Reason = "active repository (recent commits in git trace)"
 	return status, nil
 }
+

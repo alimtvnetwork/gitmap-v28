@@ -720,6 +720,12 @@ func dispatchErrorLogPresentation(params ErrorLogOutputParams, content string) e
 	}
 	renderErrorLogsTerminal(params.Payload)
 
+	hasFailure := params.Payload.Conclusion == "failure" || len(params.Payload.FailedRuns) > 0
+	if hasFailure && PipelineAgyFixRunner != nil {
+		fmt.Printf("\n  🚀 Automatically dispatching CI/CD fix to Antigravity IDE...\n")
+		return PipelineAgyFixRunner([]string{params.Payload.Repo, "--force"})
+	}
+
 	return nil
 }
 

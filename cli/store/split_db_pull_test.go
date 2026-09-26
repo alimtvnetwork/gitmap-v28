@@ -1,6 +1,8 @@
 package store
 
 import (
+	"os"
+	"os/exec"
 	"path/filepath"
 	"testing"
 	"time"
@@ -158,14 +160,38 @@ func TestPullSplitDB_EvaluateRepoActivityStatus(t *testing.T) {
 
 	repoClean := filepath.Join(tempDir, "repo-clean")
 	repoChanged := filepath.Join(tempDir, "repo-changed")
+	
+	// Create git repos
+	os.MkdirAll(repoClean, 0755)
+	os.MkdirAll(repoChanged, 0755)
+	
+	// repoClean: old commit (>24h)
+	exec.Command("git", "-C", repoClean, "init").Run()
+	exec.Command("git", "-C", repoClean, "config", "user.name", "test").Run()
+	exec.Command("git", "-C", repoClean, "config", "user.email", "test@test.com").Run()
+	os.WriteFile(filepath.Join(repoClean, "file"), []byte("data"), 0644)
+	exec.Command("git", "-C", repoClean, "add", ".").Run()
+	oldTime := time.Now().Add(-48 * time.Hour).Format(time.RFC3339)
+	cmd := exec.Command("git", "-C", repoClean, "commit", "-m", "old")
+	cmd.Env = append(os.Environ(), "GIT_AUTHOR_DATE="+oldTime, "GIT_COMMITTER_DATE="+oldTime)
+	cmd.Run()
 
-	// 1. Unseen repo -> active (no prior pull history)
+	// repoChanged: recent commit (<24h)
+	exec.Command("git", "-C", repoChanged, "init").Run()
+	exec.Command("git", "-C", repoChanged, "config", "user.name", "test").Run()
+	exec.Command("git", "-C", repoChanged, "config", "user.email", "test@test.com").Run()
+	os.WriteFile(filepath.Join(repoChanged, "file"), []byte("data"), 0644)
+	exec.Command("git", "-C", repoChanged, "add", ".").Run()
+	cmd2 := exec.Command("git", "-C", repoChanged, "commit", "-m", "new")
+	cmd2.Run()
+
+	// 1. Unseen repo clean -> inactive (no cooldown, but git log says it's old)
 	st0, err := db.EvaluateRepoActivityStatus(repoClean, 24, 5)
 	if err != nil {
 		t.Fatalf("EvaluateRepoActivityStatus failed: %v", err)
 	}
-	if st0.IsInactive {
-		t.Fatalf("expected unseen repo to be active, got inactive")
+	if !st0.IsInactive {
+		t.Fatalf("expected unseen old repo to be inactive, got active")
 	}
 
 	// 2. Insert clean run
@@ -198,13 +224,13 @@ func TestPullSplitDB_EvaluateRepoActivityStatus(t *testing.T) {
 	}
 
 	// 4. Test with cooldownMinutes = 0 (cooldown disabled)
-	// Clean repo -> inactive (0 changes on latest pull within 24h window)
+	// Clean repo -> inactive (old commit)
 	stCleanNoCooldown, err := db.EvaluateRepoActivityStatus(repoClean, 24, 0)
 	if err != nil || !stCleanNoCooldown.IsInactive {
 		t.Fatalf("expected clean repo to be inactive, got active")
 	}
 
-	// Changed repo -> active (recent changes within 24h)
+	// Changed repo -> active (recent commit)
 	stChangedNoCooldown, err := db.EvaluateRepoActivityStatus(repoChanged, 24, 0)
 	if err != nil || stChangedNoCooldown.IsInactive {
 		t.Fatalf("expected changed repo to be active, got inactive")

@@ -54,10 +54,19 @@ func runAgyStats() error {
 		}
 	}
 
+	runningConvs, _ := FetchActiveRunningConversations()
+	queuedSummaries, _ := DiscoverAllWorkspaceQueues()
+	queuedPromptsCount := 0
+	for _, s := range queuedSummaries {
+		queuedPromptsCount += s.TotalQueued
+	}
+
 	fmt.Printf("Account: Default\n")
 	fmt.Printf("Total projects: %d\n", len(projects))
 	fmt.Printf("Active on disk: %d\n", activeCount)
 	fmt.Printf("Missing paths:  %d\n", missingCount)
+	fmt.Printf("Active running: %d\n", len(runningConvs))
+	fmt.Printf("Queued prompts: %d\n", queuedPromptsCount)
 
 	return nil
 }
