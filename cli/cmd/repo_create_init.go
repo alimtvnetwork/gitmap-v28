@@ -8,6 +8,7 @@ import (
 	"path/filepath"
 
 	"github.com/alimtvnetwork/gitmap-v28/cli/apperror"
+	"github.com/alimtvnetwork/gitmap-v28/cli/constants"
 )
 
 func initLocalRepo(p createRepoParams) error {
@@ -154,7 +155,18 @@ func applyCGFiles(absDir string) error {
 		return apperror.WrapSimple(err, "git checkout -b backup-cg-sync:")
 	}
 
-	cgSrc := filepath.Join("02-spec", "02-coding-guidelines")
+
+	baseDir := "."
+	if constants.RepoPath != "" {
+		baseDir = constants.RepoPath
+	} else {
+		exe, err := os.Executable()
+		if err == nil {
+			baseDir = filepath.Dir(filepath.Dir(exe)) // ../bin/gitmap.exe -> ../
+		}
+	}
+	cgSrc := filepath.Join(baseDir, "02-spec", "02-coding-guidelines")
+
 	cgDst := filepath.Join(absDir, "02-spec", "02-coding-guidelines")
 	if err := copyDir(cgSrc, cgDst); err != nil {
 		return apperror.WrapSimple(err, "copy cg files:")
