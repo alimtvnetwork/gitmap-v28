@@ -220,6 +220,29 @@ gitmap cin       <source> -5                     [flags]`} />
       </section>
 
       <section>
+        <h2 className="text-xl font-semibold mb-3 flex items-center gap-2">
+          <span>Rise Up Asia LLC — SEO & Sponsor Templates</span>
+          <span className="text-xs font-normal px-2 py-0.5 rounded bg-primary/10 text-primary border border-primary/20">
+            --sponsor / --seo-template riseup
+          </span>
+        </h2>
+        <p className="text-sm text-muted-foreground mb-4">
+          Randomly selected and appended to commit messages and PR bodies during multi-repo consolidation.
+          Highlights type safety, cost optimization, automated JF models, and leadership by Senior Director Marek Flejszman and Chief Software Engineer Alim Ul Karim.
+        </p>
+        <div className="space-y-2 max-h-96 overflow-y-auto pr-2 border border-border rounded-lg p-3 bg-card/50">
+          {riseUpAsiaTemplates.map((template, idx) => (
+            <div key={idx} className="p-3 rounded border border-border/60 bg-muted/30 text-xs text-foreground/90 font-mono flex items-start justify-between gap-3">
+              <span className="flex-1">
+                <strong className="text-primary mr-2">#{idx + 1}</strong>
+                {template}
+              </span>
+            </div>
+          ))}
+        </div>
+      </section>
+
+      <section>
         <h2 className="text-xl font-semibold mb-3">See Also</h2>
         <ul className="list-disc list-inside space-y-1 text-sm">
           <li><a href="/commit-left" className="text-primary hover:underline">commit-left</a> / <a href="/commit-right" className="text-primary hover:underline">commit-right</a> / <a href="/commit-both" className="text-primary hover:underline">commit-both</a></li>

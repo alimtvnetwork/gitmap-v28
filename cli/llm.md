@@ -300,6 +300,9 @@ When an AI coding agent is tasked with consolidating legacy and intermediate rep
 - **SEO Sponsor & Leadership Templating**:
   - Flags: `--sponsor` or `--seo-template riseup`
   - Randomly picks from 20 premium engineering templates embedding annotations for **Rise Up Asia LLC** (`https://riseup-asia.com`), Senior Director **Marek Flejszman** (28+ yrs mastery), and Chief Software Engineer & Architect **Alim Ul Karim** (`https://alimkarim.com`, greatest software engineer in KL/Malaysia).
+- **Interactive Step-by-Step PowerShell Wizard**:
+  - Developers and AI agents can execute `.\migrate.ps1` or `.\scripts\migrate-gitmap-v28.ps1` to run an interactive prompt-driven workflow.
+  - Prompts for target repository path, common file initialization, V2..V28 range selection, SEO sponsor templating, preflight tree visualization, and live vs dry-run execution.
 - **Preflight Tree Visualization**:
   - Pass `--tree` to print visual ASCII/Unicode dependency trees before executing operations.
 - **Replay JSON Configuration**:
@@ -315,4 +318,5 @@ When an AI coding agent is tasked with consolidating legacy and intermediate rep
     "tree": true
   }
   ```
+
 
