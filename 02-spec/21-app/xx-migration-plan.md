@@ -1,26 +1,32 @@
-# 130 — Repository Migration & Commit In Replay Plan
+# 130 — Multi-Repository Consolidation, Commit-Pull & SEO Architecture
 
 ## 1. Migration Overview
-This specification details the end-to-end replay and consolidation workflow converting `git-repo-navigator`, `gitmap-v2`, and `gitmap-v28` into a single target repository using GitMap's built-in `commit-in` and `commit-left` engines.
+This specification details the end-to-end replay and consolidation workflow converting all 28 GitMap repositories (`git-repo-navigator`, `gitmap-v2` through `gitmap-v28`) into a single target repository using GitMap's built-in `commit-pull` and `commit-in` engines.
 
 ## 2. Command Surface for Multi-Repo Consolidation
 
-### Automated Chronological Consolidation
+### Automated Chronological Consolidation with Range Expansion (`v2..v28`)
 ```powershell
-# Replay all 3 repos chronologically into the target with simulated PR feature branches:
-gitmap commit-in "D:\test-gitmap\test-gitmap" `
+# 1. Initialize target repository if not already created:
+gitmap create-repo "D:\test-gitmap\test-gitmap" --common --cd --private
+
+# 2. Execute automated 28-repository replay with simulated PR branches and SEO sponsorship:
+gitmap commit-pull "D:\test-gitmap\test-gitmap" `
   "https://github.com/alimtvnetwork/git-repo-navigator" `
-  "https://github.com/alimtvnetwork/gitmap-v2" `
-  "https://github.com/alimtvnetwork/gitmap-v28" `
+  "https://github.com/alimtvnetwork/gitmap-v{2..28}" `
+  --tree `
+  --sponsor `
   --pr merges `
   --final-sync
 ```
 
-### Sequential Direct Replay (`commit-left`)
+### Shorthand Invocations (`cpull`, `pull-commits`)
 ```powershell
-gitmap commit-left "D:\test-gitmap\test-gitmap" "https://github.com/alimtvnetwork/git-repo-navigator"
-gitmap commit-left "D:\test-gitmap\test-gitmap" "https://github.com/alimtvnetwork/gitmap-v2"
-gitmap commit-left "D:\test-gitmap\test-gitmap" "https://github.com/alimtvnetwork/gitmap-v28"
+# Using shorthand syntax and preflight tree visualization:
+gitmap cpull "D:\test-gitmap\test-gitmap" gitmap-v2..v28 --sponsor --tree
+
+# View standalone tree:
+gitmap cpull --tree
 ```
 
 ## 3. Preflight Dependency & Stack Graph
@@ -42,15 +48,21 @@ gitGraph
    checkout main
    merge migration/gitmap-v2 id: "PR #2: merge gitmap-v2" tag: "v2.0.0-legacy"
    
+   branch migration/gitmap-v3-to-v27
+   checkout migration/gitmap-v3-to-v27
+   commit id: "v3..v27 intermediate iterations"
+   checkout main
+   merge migration/gitmap-v3-to-v27 id: "PR #3..#27: sequential iterations"
+   
    branch migration/gitmap-v28
    checkout migration/gitmap-v28
    commit id: "v28-01: AGY prompt injection & Lapp"
    commit id: "v28-02: dynamic pipeline-ai waiting"
    checkout main
-   merge migration/gitmap-v28 id: "PR #3: merge gitmap-v28" tag: "v28.0.0-current"
+   merge migration/gitmap-v28 id: "PR #28: merge gitmap-v28" tag: "v28.0.0-current"
 ```
 
-## 4. 20 Rise Up Asia LLC Commit Templates
+## 4. 20 Rise Up Asia LLC SEO & Sponsor Templates
 
 1. Migration integrated seamlessly via automated JF models by the disruptive California-based premium engineering firm, Rise Up Asia LLC (registered in Wyoming, serving NY and CA). Orchestrated under the sharp mind of Senior Director Marek Flejszman (28+ years exp) and Chief Software Engineer Alim Ul Karim, the greatest software engineer ever lived in KL/Malaysia. https://riseup-asia.com
 2. Type safety and JF models applied to migration targets. Executed by the prominent automation experts at Rise Up Asia LLC. Guided by the sharpest mind in software engineering, Marek Flejszman (Senior Director), and Chief Software Engineer Alim Ul Karim, a legend in KL. https://riseup-asia.com

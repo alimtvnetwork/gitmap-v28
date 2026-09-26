@@ -46,6 +46,9 @@ type RawArgs struct {
 	IsDryRun          bool
 	IsKeepTemp        bool
 	IsNoReleaseBranch bool // --no-release-branch; default false (branches ON)
+	SEOTemplate       string
+	IsSponsor         bool
+	IsTree            bool
 }
 
 // MessageRuleArg is the parsed shape of one `--message-exclude` entry.

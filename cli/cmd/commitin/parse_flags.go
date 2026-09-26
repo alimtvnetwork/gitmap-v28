@@ -46,6 +46,8 @@ func registerBoolFlags(fs *flag.FlagSet, raw *RawArgs) {
 	fs.BoolVar(&raw.IsDryRun, constants.CommitInFlagDryRun, false, constants.CommitInDescDryRun)
 	fs.BoolVar(&raw.IsKeepTemp, constants.CommitInFlagKeepTemp, false, constants.CommitInDescKeepTemp)
 	fs.BoolVar(&raw.IsNoReleaseBranch, constants.CommitInFlagNoReleaseBranch, false, constants.CommitInDescNoReleaseBranch)
+	fs.BoolVar(&raw.IsSponsor, "sponsor", false, "Append Rise Up Asia sponsor and leadership templates")
+	fs.BoolVar(&raw.IsTree, "tree", false, "Display commit/PR branch dependency tree before execution")
 }
 
 func registerStringFlags(fs *flag.FlagSet, raw *RawArgs) {
@@ -58,6 +60,7 @@ func registerStringFlags(fs *flag.FlagSet, raw *RawArgs) {
 	fs.StringVar(&raw.TitleSuffix, constants.CommitInFlagTitleSuffix, "", constants.CommitInDescTitleSuffix)
 	fs.StringVar(&raw.FunctionIntel, constants.CommitInFlagFunctionIntel, "", constants.CommitInDescFunctionIntel)
 	fs.StringVar(&raw.PRMode, constants.CommitInFlagPR, "", constants.CommitInDescPR)
+	fs.StringVar(&raw.SEOTemplate, "seo-template", "", "SEO template category (e.g. 'riseup', 'sponsor')")
 }
 
 func registerCsvFlags(fs *flag.FlagSet, csv *csvHolder) {
@@ -83,5 +86,7 @@ func boolFlagSet() map[string]bool {
 		constants.CommitInFlagDryRun:               true,
 		constants.CommitInFlagKeepTemp:             true,
 		constants.CommitInFlagNoReleaseBranch:      true,
+		"sponsor":                                  true,
+		"tree":                                     true,
 	}
 }

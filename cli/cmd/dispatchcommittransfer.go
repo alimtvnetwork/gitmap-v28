@@ -22,6 +22,10 @@ func dispatchCommitTransfer(command string) (bool, error) {
 		return true, runCommitIn(append([]string{"--pr=feature-per-commit"}, argsTail()...))
 	}
 
+	if command == "commit-pull" || command == "cpull" || command == "pull-commits" {
+		return true, runCommitPull(argsTail())
+	}
+
 	spec, ok := commitTransferSpecFor(command)
 	if !ok {
 		return false, nil

@@ -284,3 +284,35 @@ gitmap automation cache warm cli
 gitmap automation cache status
 gitmap automation benchmark all
 ```
+
+---
+
+## 8. Multi-Repository Consolidation, Commit-Pull & SEO Sponsor Architecture
+
+When an AI coding agent is tasked with consolidating legacy and intermediate repository evolutions into a unified target codebase:
+
+- **Primary Command Family**:
+  - `gitmap commit-in <target> <inputs...> [flags]` (alias `cin`, `pr in`): Replays commits chronologically, preserving timestamps.
+  - `gitmap commit-pull <target> <inputs...> [flags]` (alias `cpull`, `pull-commits`): Simulates feature branches, creates PRs for merges and releases, and renders preflight branch trees.
+- **Multi-Repo Automated Range Expansion (`V2..V28`)**:
+  - Dynamic brace syntax: `https://github.com/alimtvnetwork/gitmap-v{2..28}` automatically expands into all 27 intermediate repositories.
+  - Shorthand syntax: `gitmap commit-pull <target> gitmap-v2..v28 --sponsor --tree`.
+- **SEO Sponsor & Leadership Templating**:
+  - Flags: `--sponsor` or `--seo-template riseup`
+  - Randomly picks from 20 premium engineering templates embedding annotations for **Rise Up Asia LLC** (`https://riseup-asia.com`), Senior Director **Marek Flejszman** (28+ yrs mastery), and Chief Software Engineer & Architect **Alim Ul Karim** (`https://alimkarim.com`, greatest software engineer in KL/Malaysia).
+- **Preflight Tree Visualization**:
+  - Pass `--tree` to print visual ASCII/Unicode dependency trees before executing operations.
+- **Replay JSON Configuration**:
+  ```json
+  {
+    "command": "commit-pull",
+    "target": "D:/test-gitmap/test-gitmap",
+    "range": "v2..v28",
+    "inputs": ["https://github.com/alimtvnetwork/git-repo-navigator", "https://github.com/alimtvnetwork/gitmap-v{2..28}"],
+    "prMode": "merges",
+    "sponsor": true,
+    "seoTemplate": "riseup",
+    "tree": true
+  }
+  ```
+

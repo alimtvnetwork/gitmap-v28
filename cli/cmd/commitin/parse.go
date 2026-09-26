@@ -51,6 +51,10 @@ func finalizeFlagFanout(raw *RawArgs, csv *csvHolder) *ParseError {
 
 	raw.MessageRules = rules
 
+	if raw.IsSponsor || raw.SEOTemplate == "riseup" || raw.SEOTemplate == "sponsor" {
+		raw.MessageSuffix = append(raw.MessageSuffix, RiseUpAsiaTemplates...)
+	}
+
 	return nil
 }
 

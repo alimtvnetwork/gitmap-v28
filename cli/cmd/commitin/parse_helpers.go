@@ -36,11 +36,80 @@ func splitInputs(tokens []string) []string {
 				continue
 			}
 
-			out = append(out, stripOuterQuotes(part))
+			cleaned := stripOuterQuotes(part)
+			out = append(out, expandRangeToken(cleaned)...)
 		}
 	}
 
 	return out
+}
+
+func expandRangeToken(token string) []string {
+	if items, ok := expandBraceRange(token); ok {
+		return items
+	}
+	if items, ok := expandShorthandRange(token); ok {
+		return items
+	}
+	return []string{token}
+}
+
+func expandBraceRange(token string) ([]string, bool) {
+	s := strings.Index(token, "{")
+	e := strings.Index(token, "}")
+	if s < 0 || e <= s {
+		return nil, false
+	}
+	parts := strings.Split(token[s+1:e], "..")
+	if len(parts) != 2 {
+		return nil, false
+	}
+	start, err1 := strconv.Atoi(parts[0])
+	end, err2 := strconv.Atoi(parts[1])
+	if err1 != nil || err2 != nil || start > end {
+		return nil, false
+	}
+	var res []string
+	for i := start; i <= end; i++ {
+		res = append(res, token[:s]+strconv.Itoa(i)+token[e+1:])
+	}
+	return res, true
+}
+
+func expandShorthandRange(token string) ([]string, bool) {
+	if !strings.Contains(token, "..") || strings.Contains(token, "://") {
+		return nil, false
+	}
+	parts := strings.Split(token, "..")
+	if len(parts) != 2 {
+		return nil, false
+	}
+	s1, start := extractDigits(strings.TrimSpace(parts[0]))
+	_, end := extractDigits(strings.TrimSpace(parts[1]))
+	if start <= 0 || end < start {
+		return nil, false
+	}
+	var res []string
+	for i := start; i <= end; i++ {
+		prefix := s1
+		if prefix == "" {
+			prefix = "gitmap-v"
+		}
+		res = append(res, fmt.Sprintf("https://github.com/alimtvnetwork/%s%d", prefix, i))
+	}
+	return res, true
+}
+
+func extractDigits(s string) (string, int) {
+	idx := strings.IndexAny(s, "0123456789")
+	if idx < 0 {
+		return s, 0
+	}
+	val, err := strconv.Atoi(s[idx:])
+	if err != nil {
+		return s, 0
+	}
+	return s[:idx], val
 }
 
 // stripOuterQuotes removes a single pair of matched outer double quotes.
