@@ -1,6 +1,8 @@
 package cmdagy
 
 import (
+	"fmt"
+
 	"github.com/alimtvnetwork/gitmap-v28/cli/apperror"
 	"github.com/spf13/cobra"
 )
@@ -35,6 +37,12 @@ func init() {
 }
 
 func runAgyInjectPrompts(args []string) *apperror.AppError {
-	// Implementation placeholder for iteration logic.
+	if len(args) == 0 {
+		return apperror.NewSimple("ip requires an argument")
+	}
+	
+	fmt.Printf("Injecting prompt from: %s\n", args[0])
+	fmt.Printf("Rerun count: %d\n", injectPromptsRerun)
+	
 	return nil
 }

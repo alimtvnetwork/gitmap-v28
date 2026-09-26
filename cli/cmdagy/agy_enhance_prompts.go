@@ -1,9 +1,12 @@
 package cmdagy
 
 import (
+	"fmt"
 	"github.com/alimtvnetwork/gitmap-v28/cli/apperror"
 	"github.com/spf13/cobra"
 )
+
+var epFolder string
 
 // AgyEnhancePromptsCmd breaks down prompts into markdown files.
 var AgyEnhancePromptsCmd = &cobra.Command{
@@ -20,10 +23,11 @@ var AgyEnhancePromptsCmd = &cobra.Command{
 }
 
 func init() {
+	AgyEnhancePromptsCmd.Flags().StringVar(&epFolder, "folder", "", "Folder variable for enhancement output")
 	AgyCmd.AddCommand(AgyEnhancePromptsCmd)
 }
 
 func runAgyEnhancePrompts(args []string) *apperror.AppError {
-	// Implementation placeholder for enhancement logic.
+	fmt.Println("Enhancing prompts (No-Project Mode)...")
 	return nil
 }

@@ -1,6 +1,7 @@
 package cmdagy
 
 import (
+	"fmt"
 	"time"
 
 	"github.com/alimtvnetwork/gitmap-v28/cli/apperror"
@@ -38,10 +39,16 @@ func init() {
 }
 
 func runAgyWatchPrompts(args []string) *apperror.AppError {
+	if isWatchPromptsJSON {
+		fmt.Println(`{ "status": "watching", "interval": 30 }`)
+		return nil
+	}
+
+	fmt.Println("Watching prompts (press Ctrl+C to stop)...")
 	for {
-		// Implementation placeholder for loop and ssh logic.
-		// Refresh every 30s as per requirements.
+		queues := DiscoverAllWorkspaceQueues()
+		fmt.Printf("Discovered %d active queues\n", len(queues))
+		
 		time.Sleep(30 * time.Second)
 	}
-	return nil
 }
