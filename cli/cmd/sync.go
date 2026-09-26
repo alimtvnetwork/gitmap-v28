@@ -250,6 +250,10 @@ func isCommonHelp(arg string) bool {
 	return arg == "help" || arg == "-h" || arg == "--help"
 }
 
+func isSyncHelp(arg string) bool {
+	return isCommonHelp(arg)
+}
+
 // parseCommonFlags scans args for --dry-run and --force (position agnostic).
 func parseCommonFlags(args []string) (dry, force bool) {
 	for _, a := range args {
